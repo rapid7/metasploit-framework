@@ -1,0 +1,3 @@
+- fstat, lstat
+- passing mode and perms to open
+- setresuid
