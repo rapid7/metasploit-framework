@@ -17,10 +17,17 @@ class Process < Rex::Post::Process
 		# I don't transfer the return value on the wire...
 
 		client.sendmodule('getresuid')
-		data = client.sockread(12)
+		data = client.sockread(16)
+		data = data.unpack('lL3')
+		res = data[0]
 
 		client.checksig()
-		return data.unpack('l3')
+
+		if res < 0
+			raise SystemCallError.new("getresuid()", -res)
+		end
+
+		return data[1, 3] # return the 3 uids
 	end
 
 	def Process.pid()
