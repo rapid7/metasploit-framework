@@ -1,26 +1,87 @@
 #!/usr/bin/ruby
 
+require 'Rex/Post/IO'
+
 module Rex
 module Post
 
-class File
+# make this a module so we can mix it in, and have inheritence like..
+# => [Rex::Post::DispatchNinja::File, Rex::Post::File,
+# Rex::Post::DispatchNinja::IO, Rex::Post::IO, Object, Kernel]
 
-	#
-	# Class Methods
-	#
+module File
 
-	# setup a class variable for our client pointer
-#	class <<self
-#		attr_accessor :client
-#	end
+	protected
+		# inherits fd and mode from IO
+		attr_accessor :filename
+	public
+	
+	# f = File.new("testfile", "r")
+	# f = File.new("newfile",  "w+")
+	# f = File.new("newfile", File::CREAT|File::TRUNC|File::RDWR, 0644)
+	# !!! I suppose I should figure out the correct default for perm..
+	def initialize(name, mode='r', perm=0)
+	end
 
-#	def File.stat(file)
-#		return client.filestat.new(file)
-#	end
+	def path
+		filename
+	end
 
-#	def File.stat_hash(file)
-#		raise NotImplementedError
-#	end
+	# ctime/atime blah need fstat..
+	# need lchown/chown/fchown, etc, etc
+
+	# proxy this crap, whatever
+	def File.basename(*a)
+		::File.basename(*a)
+	end
+	def File.dirname(*a)
+		::File.dirname(*a)
+	end
+	def File.extname(*a)
+		::File.extname(*a)
+	end
+	# !!! we might actually want to handle this File::SEPERATOR stuff
+	# for win32 support, etc.  And you know, when we rock the vax n shit
+	def File.join(*a)
+		::File.join(*a)
+	end
+
+	def File.chmod
+		raise NotImplementedError
+	end
+	def File.chown
+		raise NotImplementedError
+	end
+	def File.delete(*a)
+		unlink(*a)
+	end
+	def File.unlink
+		raise NotImplementedError
+	end
+	def File.lchmod
+		raise NotImplementedError
+	end
+	def File.lchown
+		raise NotImplementedError
+	end
+	def File.link
+		raise NotImplementedError
+	end
+	def File.lstat
+		raise NotImplementedError
+	end
+
+	# this, along with all the other globbing/search stuff, probably
+	# won't get implemented, atleast for a bit...
+	def File.expand_path
+		raise NotImplementedError
+	end
+	def File.fnmatch(*a)
+		fnmatch?(*a)
+	end
+	def File.fnmatch?
+		raise NotImplementedError
+	end
 
 	#
 	# autogen'd stat passthroughs
@@ -97,23 +158,6 @@ class File
 	def File.zero?(name)
 		stat(name).zero?
 	end
-
-
-
-	#
-	# Instance Methods
-	#
-	
-	# setup an instance variable, just for ease and copy it over..
-	# and so you can change it instance wise
-#	private
-#	attr_accessor :client
-#	public
-
-#	def initialize()
-#		self.client = self.class.client
-#	end
-
 
 end
 

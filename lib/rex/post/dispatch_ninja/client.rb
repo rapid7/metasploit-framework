@@ -42,7 +42,7 @@ class Client
 
 	def sendmodule(name)
 		name = 'lib/Rex/Post/DispatchNinja/modules/' + name
-		data = IO.readlines(name, '')[0]
+		data = ::IO.readlines(name, '')[0]
 		sockwrite([data.length].pack('V'))
 		sockwrite(data)
 	end

@@ -41,10 +41,10 @@ class Process
 	end
 
 	def Process.pid
-		throw NotImplementedError
+		raise NotImplementedError
 	end
 	def Process.ppid
-		throw NotImplementedError
+		raise NotImplementedError
 	end
 
 end

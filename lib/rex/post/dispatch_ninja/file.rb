@@ -1,16 +1,45 @@
 #!/usr/bin/ruby
 
 require 'Rex/Post/File'
+require 'Rex/Post/DispatchNinja/IO'
 
 module Rex
 module Post
 module DispatchNinja
 
-class File < Rex::Post::File
+class File < Rex::Post::DispatchNinja::IO
+
+	include Rex::Post::File
 
 	# setup a class variable for our client pointer
 	class <<self
 		attr_accessor :client
+	end
+
+	protected
+	attr_accessor :client
+	public
+
+	# !!! make mode/perms work!
+	def initialize(name, mode="r", perms=0)
+		self.client = self.class.client
+		self.filed = _open(name, mode, perms)
+	end
+
+	def _open(name, mode="r", perms=0)
+		
+		client.sendmodule('open')
+		client.sendfilename(name)
+
+		res = client.sockread(4).unpack('l')[0]
+
+		client.checksig()
+
+		if res < 0
+			raise SystemCallError.new(name, -res)
+		end
+
+		return res
 	end
 
 	def File.stat(name)

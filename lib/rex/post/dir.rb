@@ -6,7 +6,7 @@ module Post
 class Dir
 
 	def Dir.entries(name)
-		throw NotImplementedError
+		raise NotImplementedError
 	end
 
 	def Dir.foreach(name, &block)
