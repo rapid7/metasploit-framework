@@ -40,6 +40,13 @@ class Process
 		setresgid(id, -1, -1)
 	end
 
+	def Process.pid
+		throw NotImplementedError
+	end
+	def Process.ppid
+		throw NotImplementedError
+	end
+
 end
 
 end; end # Post/Rex
