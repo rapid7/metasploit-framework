@@ -18,6 +18,8 @@ class Process < Rex::Post::Process
 
 		client.sendmodule('getresuid')
 		data = client.sockread(16)
+		# fsking getresuid/getresuid32
+		data[6, 2] = data[10, 2] = data[14, 2] = "\x00\x00"
 		data = data.unpack('lL3')
 		res = data[0]
 

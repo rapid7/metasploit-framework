@@ -54,8 +54,6 @@ class File < Rex::Post::DispatchNinja::IO
 		data = client.sockread(68)
 		res = data[0, 4].unpack('l')[0]
 
-		# throw exception! blah!
-
 		client.checksig()
 
 		if res < 0
