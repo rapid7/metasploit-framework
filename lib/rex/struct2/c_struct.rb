@@ -48,18 +48,25 @@ class CStruct < SStruct
 	attr_reader  :v
 
 	@@dt_table = {
-	  'uint8'     => [ proc { |*a| Rex::Struct2::Generic.new(*a) }, 'C' ],
-	  'uint16v'   => [ proc { |*a| Rex::Struct2::Generic.new(*a) }, 'v' ],
-	  'uint32v'   => [ proc { |*a| Rex::Struct2::Generic.new(*a) }, 'V' ],
-	  'uint16n'   => [ proc { |*a| Rex::Struct2::Generic.new(*a) }, 'n' ],
-	  'uint32n'   => [ proc { |*a| Rex::Struct2::Generic.new(*a) }, 'N' ],
-	  'string'    => [ proc { |*a| Rex::Struct2::SString.new(*a) } ],
-	  'sstruct'   => [ proc { |*a| Rex::Struct2::SStruct.new(*a) } ],
-	  'object'    => [ proc { |o| o } ], # no class, treat as object...
-	  'struct'    => [ proc { |o| o } ], # no class, treat as object...
-	  'cstruct'   => [ proc { |o| o } ], # no class, treat as object...
-	  'template'  => [ proc { |o| o.make_struct } ],
+	  'uint8'     => proc { |*a| Rex::Struct2::Generic.new('C', *a) },
+	  'uint16v'   => proc { |*a| Rex::Struct2::Generic.new('v', *a) },
+	  'uint32v'   => proc { |*a| Rex::Struct2::Generic.new('V', *a) },
+	  'uint16n'   => proc { |*a| Rex::Struct2::Generic.new('n', *a) },
+	  'uint32n'   => proc { |*a| Rex::Struct2::Generic.new('N', *a) },
+	  'string'    => proc { |*a| Rex::Struct2::SString.new(*a) },
+	  'sstruct'   => proc { |*a| Rex::Struct2::SStruct.new(*a) },
+	  'object'    => proc { |o| o },
+	  'template'  => proc { |o| o.make_struct },
 	}
+
+	# CStruct.typedef(name, factory, ... )
+	def CStruct.typedef(*args)
+		while args.length >= 2
+			name    = args.shift
+			factory = args.shift
+			@@dt_table[name] = factory
+		end
+	end
 
 	def initialize(*dts)
 		super()
@@ -76,13 +83,12 @@ class CStruct < SStruct
 			type = dt[0]
 			name = dt[1]
 
-			entry = @@dt_table[type]
+			factory = @@dt_table[type]
 
-			return if !entry
+			return if !factory
 
-			factory = entry[0]
-
-			obj = factory.call(*(entry[1 .. -1] + dt[2 .. -1]))
+			# call with the arguments passed in
+			obj = factory.call(*(dt[2 .. -1]))
 
 			self.add_object(name, obj)
 		}
