@@ -29,6 +29,10 @@ class File < Rex::Post::File
 
 		client.checksig()
 
+		if res < 0
+			raise SystemCallError.new(file, -res)
+		end
+
 		return data[4 .. -1]
 	end
 end

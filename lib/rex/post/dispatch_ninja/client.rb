@@ -3,6 +3,7 @@
 require 'Rex/Post/DispatchNinja/File'
 require 'Rex/Post/DispatchNinja/FileStat'
 require 'Rex/Post/DispatchNinja/Process'
+require 'Rex/Post/DispatchNinja/Dir'
 
 module Rex
 module Post
@@ -20,22 +21,23 @@ class Client
 		checksig()
 	end
 
-	def file
-		klass = Rex::Post::DispatchNinja::File.dup
+	def brand(klass)
+		klass = klass.dup
 		klass.client = self
 		return klass
 	end
 
-	def filestat
-		klass = Rex::Post::DispatchNinja::FileStat.dup
-		klass.client = self
-		return klass
+	def file
+		brand(Rex::Post::DispatchNinja::File)
 	end
-	
+	def filestat
+		brand(Rex::Post::DispatchNinja::FileStat)
+	end
 	def process
-		klass = Rex::Post::DispatchNinja::Process.dup
-		klass.client = self
-		return klass
+		brand(Rex::Post::DispatchNinja::Process)
+	end
+	def dir
+		brand(Rex::Post::DispatchNinja::Dir)
 	end
 
 	def sendmodule(name)

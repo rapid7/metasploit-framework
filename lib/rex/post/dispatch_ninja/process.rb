@@ -22,6 +22,20 @@ class Process < Rex::Post::Process
 		client.checksig()
 		return data.unpack('l3')
 	end
+
+	def Process.pid()
+		client.sendmodule('getpid')
+		data = client.sockread(4)
+		client.checksig
+		return data.unpack('V')[0]
+	end
+
+	def Process.ppid()
+		client.sendmodule('getppid')
+		data = client.sockread(4)
+		client.checksig
+		return data.unpack('V')[0]
+	end
 end
 
 end; end; end # DispatchNinja/Post/Rex
