@@ -108,12 +108,28 @@ class Tlv
 			raw = [value].pack("c")
 		end
 
-		return [raw.length, self.type].pack("NN") + raw
+		return [raw.length + 8, self.type].pack("NN") + raw
 	end
 
 	# From raw
 	def from_r(raw)
-		
+		self.value  = nil
+
+		length, type = raw.unpack("NN");
+
+		if (self.type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
+			if (raw.length > 0)
+				self.value = raw[8..raw.length-1]
+			else
+				self.value = nil
+			end
+		elsif (self.type & TLV_META_TYPE_UINT == TLV_META_TYPE_UINT)
+			self.value = raw.unpack("NNN")[2]
+		elsif (self.type & TLV_META_TYPE_BOOL == TLV_META_TYPE_BOOL)
+			self.value = raw.unpack("NNc")[2]
+		end
+
+		return length;
 	end
 end
 
@@ -207,6 +223,28 @@ class GroupTlv < Tlv
 
 	# From raw
 	def from_r(raw)
+		offset = 8
+
+		# Reset the TLVs array
+		self.tlvs = []
+
+		# Enumerate all of the TLVs
+		while (offset < raw.length)
+
+			# Get the length and type
+			length, type = raw[offset..offset+8].unpack("NN")
+
+			# Create the TLV and serialize it
+			tlv = Tlv.new(type)
+
+			tlv.from_r(raw[offset..offset+length])
+
+			# Insert it into the list of TLVs
+			tlvs << tlv
+
+			# Move up
+			offset += length
+		end
 	end
 
 end
