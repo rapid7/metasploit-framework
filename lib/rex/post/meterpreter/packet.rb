@@ -206,6 +206,10 @@ class GroupTlv < Tlv
 		return nil
 	end
 
+	def reset
+		self.tlvs = []
+	end
+
 	#
 	# Serializers
 	#
@@ -254,26 +258,29 @@ end
 #
 class Packet < GroupTlv
 
-	class <<self
-		attr_accessor :client
-	end
-
 	#
 	# Factory
 	#
-	
+
+	# Creates a request with the supplied method
 	def Packet.create_request(method = nil)
 		return Packet.new(PACKET_TYPE_REQUEST, method)
 	end
 
-	def Packet.create_response(request)
+	# Creates a response to a request if one is provided
+	def Packet.create_response(request = nil)
 		response_type = PACKET_TYPE_RESPONSE
+		method = nil
 
-		if (request.type?(ACKET_TYPE_PLAIN_REQUEST))	
-			response_type = PACKET_TYPE_PLAIN_RESPONSE
+		if (request)
+			if (request.type?(ACKET_TYPE_PLAIN_REQUEST))	
+				response_type = PACKET_TYPE_PLAIN_RESPONSE
+			end
+
+			method = request.method
 		end
 
-		return Packet.new(response_type, request.method)
+		return Packet.new(response_type, method)
 	end
 
 	#
@@ -281,23 +288,11 @@ class Packet < GroupTlv
 	#
 
 	def initialize(type = nil, method = nil)
-		reset
-
 		super(type)
-
-		self.client = self.class.client
 
 		if (method)
 			self.method = method
 		end
-	end
-
-	def reset
-		self.length              = 0
-		self.header              = ''
-		self.header_length_left  = 8
-		self.payload             = ''
-		self.payload_length_left = 0
 	end
 
 	def type=(type)
@@ -341,21 +336,6 @@ class Packet < GroupTlv
 	def rid
 		return get_tlv(TLV_TYPE_REQUEST_ID)
 	end
-
-	#
-	# Socket I/O
-	#
-
-	def recv(sock, cipher = nil)
-	end
-
-	def transmit(sock, cipher = nil)
-	end
-
-	protected
-
-	attr_accessor :client, :payload, :payload_length_left
-	attr_accessor :length, :header, :header_length_left
 end
 
 end; end; end
