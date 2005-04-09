@@ -81,7 +81,7 @@ class Tlv
 	#
 
 	def meta_type?(meta)
-		return self.type & meta
+		return (self.type & meta == meta)
 	end
 
 	def type?(type)
@@ -98,17 +98,17 @@ class Tlv
 
 	# To raw
 	def to_r
-		raw = value;
+		raw = value.to_s;
 
-		if (self.type & TLV_META_TYPE_STRING)
+		if (self.type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
 			raw << "\x00"
-		elsif (self.type & TLV_META_TYPE_UINT)
-			raw = value.pack("N")[0]
-		elsif (self.type & TLV_META_TYPE_BOOL)
-			raw = value.pack("c")[0]
+		elsif (self.type & TLV_META_TYPE_UINT == TLV_META_TYPE_UINT)
+			raw = [value].pack("N")
+		elsif (self.type & TLV_META_TYPE_BOOL == TLV_META_TYPE_BOOL)
+			raw = [value].pack("c")
 		end
 
-		return raw
+		return [raw.length, self.type].pack("NN") + raw
 	end
 
 	# From raw
@@ -166,7 +166,13 @@ class GroupTlv < Tlv
 
 	# Adds a TLV of a given type and value
 	def add_tlv(type, value = nil)
-		tlv = Tlv.new(type, value)
+		tlv = nil
+
+		if (type & TLV_META_TYPE_GROUP == TLV_META_TYPE_GROUP)
+			tlv = GroupTlv.new(type)
+		else
+			tlv = Tlv.new(type, value)
+		end
 
 		self.tlvs << tlv
 
@@ -196,7 +202,7 @@ class GroupTlv < Tlv
 			raw << tlv.to_r
 		}
 
-		return raw
+		return [raw.length, self.type].pack("NN") + raw
 	end
 
 	# From raw
