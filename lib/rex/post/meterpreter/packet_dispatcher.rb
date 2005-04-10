@@ -32,6 +32,8 @@ module PacketDispatcher
 		waiter = PacketResponseWaiter.new(request.rid, completion_routine, completion_param)
 
 		self.waiters << waiter
+
+		return waiter
 	end
 
 	# Notifies a whomever is waiting for a the supplied response,

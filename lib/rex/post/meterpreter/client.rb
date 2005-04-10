@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'socket'
+require 'Rex/Post/Meterpreter/ClientCore'
 require 'Rex/Post/Meterpreter/Packet'
 require 'Rex/Post/Meterpreter/PacketParser'
 require 'Rex/Post/Meterpreter/PacketDispatcher'
@@ -25,6 +26,7 @@ class Client
 	def initialize(sock)
 		self.sock   = sock
 		self.parser = PacketParser.new
+		self.core   = ClientCore.new(self)
 
 		monitor_socket
 	end
@@ -35,12 +37,10 @@ class Client
 		return klass
 	end
 
-	#
-	# Packet transmission/reception
-	#
-
+	attr_reader   :core
 	protected
 	attr_accessor :sock, :parser
+	attr_writer   :core
 end
 
 end; end; end

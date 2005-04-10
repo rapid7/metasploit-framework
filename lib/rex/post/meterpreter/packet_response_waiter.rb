@@ -1,5 +1,8 @@
 #!/usr/bin/ruby
 
+require 'timeout'
+require 'thread' 
+
 module Rex
 module Post
 module Meterpreter
@@ -37,12 +40,22 @@ class PacketResponseWaiter
 		if (self.completion_routine)
 			self.completion_routine(self.completion_param, response)
 		else
-			self.cond.signal
+			self.mutex.synchronize {
+				self.cond.signal
+			}
 		end
 	end
 
 	def wait(interval)
-		timeout(interval) { self.cond.wait(self.mutex) }
+		begin
+			timeout(interval) { 
+				self.mutex.synchronize { 
+					self.cond.wait(self.mutex) 
+				} 
+			}
+		rescue TimeoutError
+			self.response = nil
+		end
 
 		return self.response
 	end
