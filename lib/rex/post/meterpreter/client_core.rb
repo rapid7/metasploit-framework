@@ -93,7 +93,7 @@ class ClientCore
 			# path of the local and target so that it gets loaded with a random
 			# name
 			if (opts['Extension'])
-				library_path = "ext" + rand(1000000) + ".dll"
+				library_path = "ext" + rand(1000000).to_s + ".dll"
 				target_path  = library_path
 			end
 		end
@@ -154,7 +154,7 @@ class ClientCore
 		modules.each { |mod|
 
 			load_library(
-					'LibraryFilePath' => 'data/meterpreter/' + mod + '.dll',
+					'LibraryFilePath' => 'data/meterpreter/ext_server_' + mod.downcase + '.dll',
 					'UploadLibrary'   => true,
 					'Extension'       => true,
 					'SaveToDisk'      => opts['LoadFromDisk']
