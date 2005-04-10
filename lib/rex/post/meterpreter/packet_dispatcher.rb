@@ -21,7 +21,6 @@ module PacketDispatcher
 		# If the packet is a response, try to notify any potential
 		# waiters
 		if (packet.response?)
-			puts "it's a response"
 			if (notify_response_waiter(packet))
 				return true
 			end
@@ -41,9 +40,7 @@ module PacketDispatcher
 	# if anyone
 	def notify_response_waiter(response)
 		self.waiters.each() { |waiter|
-			puts "searching waiter...#{waiter.rid}"
 			if (waiter.waiting_for?(response))
-				puts "signaling"
 				waiter.notify(response)
 
 				remove_response_waiter(waiter)
