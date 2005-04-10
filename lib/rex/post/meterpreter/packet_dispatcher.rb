@@ -93,6 +93,18 @@ module PacketDispatcher
 		return bytes
 	end
 
+	def send_request(packet, t = Client.default_timeout)
+		response = send_packet_wait_response(packet, t)
+
+		if (response == nil)
+			raise RuntimeError, packet.method + ": No response was received.", caller
+		elsif (response.result != 0)
+			raise RuntimeError, packet.method + ": Operation failed: #{response.result}", caller
+		end
+
+		return response
+	end
+
 	# Transmits a packet and waits for a response
 	def send_packet_wait_response(packet, t)
 		# First, add the waiter association for the supplied packet

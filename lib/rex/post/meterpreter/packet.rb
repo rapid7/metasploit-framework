@@ -118,7 +118,7 @@ class Tlv
 
 		if (self.type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
 			if (raw.length > 0)
-				self.value = raw[8..raw.length-2] # minus the null term
+				self.value = raw[8..-2]
 			else
 				self.value = nil
 			end
@@ -296,7 +296,7 @@ class Packet < GroupTlv
 		method = nil
 
 		if (request)
-			if (request.type?(ACKET_TYPE_PLAIN_REQUEST))	
+			if (request.type?(PACKET_TYPE_PLAIN_REQUEST))	
 				response_type = PACKET_TYPE_PLAIN_RESPONSE
 			end
 

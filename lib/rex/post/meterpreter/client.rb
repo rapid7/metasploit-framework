@@ -48,11 +48,15 @@ class Client
 	# Extension registration
 	#
 	def add_extension(name)
-		Kernel.require("Rex/Post/Meterpreter/Extensions/#{name}/#{name}")
+		if (Kernel.require("Rex/Post/Meterpreter/Extensions/#{name}/#{name}") == false)
+			return false
+		end
 
 		ext = eval("Rex::Post::Meterpreter::Extensions::" + name + "::" + name + ".new(self)")
 
 		self.extensions[ext.name] = ext
+
+		return true
 	end
 
 	def register_extension_alias(name, ext)
