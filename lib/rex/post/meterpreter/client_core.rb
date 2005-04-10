@@ -80,7 +80,7 @@ class ClientCore
 		request = Packet.create_request('core_loadlib')
 
 		# If we must upload the library, do so now
-		if (!(load_flags & LOAD_LIBRARY_FLAG_LOCAL))
+		if ((load_flags & LOAD_LIBRARY_FLAG_LOCAL) != LOAD_LIBRARY_FLAG_LOCAL)
 			image = IO.readlines(library_path).join
 
 			if (image != nil)
