@@ -21,6 +21,11 @@ module Stdapi
 class Stdapi < Extension
 	def initialize(client)
 		super(client, 'stdapi')
+
+		# Alias the following things on the client object so that they
+		# can be directly referenced
+		client.register_extension_alias('process', self.process)
+		client.register_extension_alias('registry', self.registry)
 	end
 
 	def brand(klass)

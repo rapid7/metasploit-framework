@@ -2,6 +2,7 @@
 
 require 'socket'
 require 'Rex/Post/Meterpreter/ClientCore'
+require 'Rex/Post/Meterpreter/ObjectAliases'
 require 'Rex/Post/Meterpreter/Packet'
 require 'Rex/Post/Meterpreter/PacketParser'
 require 'Rex/Post/Meterpreter/PacketDispatcher'
@@ -24,24 +25,28 @@ class Client
 	include Rex::Post::Meterpreter::PacketDispatcher
 
 	def initialize(sock)
-		self.sock       = sock
-		self.parser     = PacketParser.new
-		self.extensions = {}
+		self.sock        = sock
+		self.parser      = PacketParser.new
+		self.ext         = ObjectAliases.new
+		self.ext_aliases = ObjectAliases.new
 
 		self.register_extension_alias('core', ClientCore.new(self))
 
 		monitor_socket
 	end
 
+	# 
+	# Accessors
+	#
 	def Client.default_timeout
 		return 30
 	end
 
 	#
-	# Pass-thru extensions
+	# Alias processor
 	#
 	def method_missing(symbol, *args)
-		return self.extensions[symbol.to_s];
+		return self.ext_aliases.aliases[symbol.to_s];
 	end
 
 	#
@@ -54,25 +59,31 @@ class Client
 
 		ext = eval("Rex::Post::Meterpreter::Extensions::" + name + "::" + name + ".new(self)")
 
-		self.extensions[ext.name] = ext
+		self.ext.aliases[ext.name] = ext
 
 		return true
 	end
 
-	def register_extension_alias(name, ext)
-		self.extensions[name] = ext
-	end
-
 	def deregister_extension(name)
-		self.extensions.delete(name)
+		self.ext.aliases.delete(name)
 	end
 
 	def each_extension(&block)
-		self.extensions.each(block)
+		self.ext.aliases.each(block)
 	end
 
+	def register_extension_alias(name, ext)
+		self.ext_aliases.aliases[name] = ext
+	end
+
+	def deregister_extension_alias(name)
+		self.ext_aliases.aliases.delete(name)
+	end
+
+	attr_reader   :ext
 	protected
-	attr_accessor :sock, :parser, :extensions
+	attr_accessor :sock, :parser, :ext_aliases
+	attr_writer   :ext
 end
 
 end; end; end
