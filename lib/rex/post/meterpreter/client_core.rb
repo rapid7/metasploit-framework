@@ -2,6 +2,7 @@
 
 require 'Rex/Post/Meterpreter/Packet'
 require 'Rex/Post/Meterpreter/Extension'
+require 'Rex/Post/Meterpreter/Client'
 
 module Rex
 module Post
@@ -107,8 +108,8 @@ class ClientCore < Extension
 			request.add_tlv(TLV_TYPE_TARGET_PATH, target_path)
 		end
 
-		# Transmit the request and wait 30 seconds for a response
-		response = self.client.send_packet_wait_response(request, 30)
+		# Transmit the request and wait the default timeout seconds for a response
+		response = self.client.send_packet_wait_response(request, Client.default_timeout)
 
 		# No response?
 		if (response == nil)
@@ -154,12 +155,13 @@ class ClientCore < Extension
 		# Enumerate all of the modules, loading each one
 		modules.each { |mod|
 
-			load_library(
+			if (load_library(
 					'LibraryFilePath' => 'data/meterpreter/ext_server_' + mod.downcase + '.dll',
 					'UploadLibrary'   => true,
 					'Extension'       => true,
-					'SaveToDisk'      => opts['LoadFromDisk']
-				)
+					'SaveToDisk'      => opts['LoadFromDisk']))
+				client.add_extension(mod)
+			end
 			
 		}
 

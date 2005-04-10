@@ -33,10 +33,8 @@ class Client
 		monitor_socket
 	end
 
-	def brand(klass)
-		klass = klass.dup
-		klass.client = self
-		return klass
+	def Client.default_timeout
+		return 30
 	end
 
 	#
@@ -50,9 +48,9 @@ class Client
 	# Extension registration
 	#
 	def add_extension(name)
-		Kernel.require("Rex/Post/Meterpreter/Extensions/#{name}")
+		Kernel.require("Rex/Post/Meterpreter/Extensions/#{name}/#{name}")
 
-		ext = eval("Rex::Post::Meterpreter::Extensions::" + name + ".new(client)")
+		ext = eval("Rex::Post::Meterpreter::Extensions::" + name + "::" + name + ".new(self)")
 
 		self.extensions[ext.name] = ext
 	end
