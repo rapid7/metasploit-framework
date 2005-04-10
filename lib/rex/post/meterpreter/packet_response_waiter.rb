@@ -31,6 +31,7 @@ class PacketResponseWaiter
 	end
 
 	def waiting_for?(packet)
+		puts "comparing #{packet.rid} (#{packet.rid.length}) to #{rid} (#{rid.length})"
 		return (packet.rid == rid)
 	end
 

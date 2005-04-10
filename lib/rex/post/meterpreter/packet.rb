@@ -121,7 +121,7 @@ class Tlv
 
 		if (self.type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
 			if (raw.length > 0)
-				self.value = raw[8..raw.length-1]
+				self.value = raw[8..raw.length-2] # minus the null term
 			else
 				self.value = nil
 			end
@@ -254,6 +254,7 @@ class GroupTlv < Tlv
 
 		# Reset the TLVs array
 		self.tlvs = []
+		self.type = raw.unpack("NN")[1]
 
 		# Enumerate all of the TLVs
 		while (offset < raw.length)
@@ -335,6 +336,7 @@ class Packet < GroupTlv
 	#
 
 	def response?
+
 		return ((self.type == PACKET_TYPE_RESPONSE) ||
 		        (self.type == PACKET_TYPE_PLAIN_RESPONSE))
 	end
