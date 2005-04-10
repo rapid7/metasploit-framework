@@ -158,9 +158,19 @@ class GroupTlv < Tlv
 		get_tlvs(type).each(&block)
 	end
 
+	# Synonym for each
+	def each_tlv(type = TLV_TYPE_ANY, &block)
+		each(type, block)
+	end
+
 	# Enumerates TLVs of a supplied type with indexes
 	def each_with_index(type = TLV_TYPE_ANY, &block)
 		get_tlvs(type).each_with_index(&block)
+	end
+
+	# Synonym for each_with_index
+	def each_tlv_with_index(type = TLV_TYPE_ANY, &block)
+		each_with_index(type, block)
 	end
 
 	# Returns an array of TLVs for the given type
@@ -321,7 +331,9 @@ class Packet < GroupTlv
 	end
 
 	def method?(method)
-		return get_tlv(TLV_TYPE_METHOD) == method
+		tlv = get_tlv(TLV_TYPE_METHOD)
+
+		return ((tlv) && (tlv.value == method))
 	end
 
 	def method=(method)
@@ -329,11 +341,15 @@ class Packet < GroupTlv
 	end
 
 	def method
-		return get_tlv(TLV_TYPE_METHOD)
+		tlv = get_tlv(TLV_TYPE_METHOD)
+
+		return (tlv) ? tlv.value : nil
 	end
 
 	def result?(result)
-		return get_tlv(TLV_TYPE_RESULT) == result
+		tlv = get_tlv(TLV_TYPE_RESULT)
+
+		return ((tlv) && (tlv.value == result))
 	end
 
 	def result=(result)
@@ -341,11 +357,15 @@ class Packet < GroupTlv
 	end
 
 	def result
-		return get_tlv(TLV_TYPE_RESULT)
+		tlv = get_tlv(TLV_TYPE_RESULT)
+
+		return (tlv) ? tlv.value : nil
 	end
 
 	def rid
-		return get_tlv(TLV_TYPE_REQUEST_ID)
+		tlv = get_tlv(TLV_TYPE_REQUEST_ID)
+
+		return (tlv) ? tlv.value : nil
 	end
 end
 

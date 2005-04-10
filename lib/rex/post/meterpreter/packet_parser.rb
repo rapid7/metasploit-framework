@@ -36,6 +36,8 @@ class PacketParser
 				self.raw << buf
 
 				self.hdr_length_left -= buf.length
+			else
+				raise EOFError
 			end
 
 			# If we've finished reading the header, set the
@@ -51,6 +53,8 @@ class PacketParser
 				self.raw << buf
 
 				self.payload_length_left -= buf.length
+			else
+				raise EOFError
 			end
 		end
 
