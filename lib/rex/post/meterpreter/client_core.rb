@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'Rex/Post/Meterpreter/Packet'
+require 'Rex/Post/Meterpreter/Extension'
 
 module Rex
 module Post
@@ -17,10 +18,10 @@ module Meterpreter
 #
 #
 ###
-class ClientCore
+class ClientCore < Extension
 
 	def initialize(client)
-		self.client = client
+		super(client, "core")	
 	end
 
 	#
@@ -164,9 +165,6 @@ class ClientCore
 
 		return true
 	end
-
-	protected
-	attr_accessor :client
 
 end
 

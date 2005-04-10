@@ -24,9 +24,11 @@ class Client
 	include Rex::Post::Meterpreter::PacketDispatcher
 
 	def initialize(sock)
-		self.sock   = sock
-		self.parser = PacketParser.new
-		self.core   = ClientCore.new(self)
+		self.sock       = sock
+		self.parser     = PacketParser.new
+		self.extensions = {}
+
+		self.register_extension_alias('core', ClientCore.new(self))
 
 		monitor_socket
 	end
@@ -37,10 +39,38 @@ class Client
 		return klass
 	end
 
-	attr_reader   :core
+	#
+	# Pass-thru extensions
+	#
+	def method_missing(symbol, *args)
+		return self.extensions[symbol.to_s];
+	end
+
+	#
+	# Extension registration
+	#
+	def add_extension(name)
+		Kernel.require("Rex/Post/Meterpreter/Extensions/#{name}")
+
+		ext = eval("Rex::Post::Meterpreter::Extensions::" + name + ".new(client)")
+
+		self.extensions[ext.name] = ext
+	end
+
+	def register_extension_alias(name, ext)
+		self.extensions[name] = ext
+	end
+
+	def deregister_extension(name)
+		self.extensions.delete(name)
+	end
+
+	def each_extension(&block)
+		self.extensions.each(block)
+	end
+
 	protected
-	attr_accessor :sock, :parser
-	attr_writer   :core
+	attr_accessor :sock, :parser, :extensions
 end
 
 end; end; end
