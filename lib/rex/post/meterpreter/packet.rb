@@ -65,9 +65,11 @@ module Rex
 module Post
 module Meterpreter
 
+###
 #
 # Base TLV class
 #
+###
 class Tlv
 	attr_accessor :type, :value
 
@@ -115,7 +117,7 @@ class Tlv
 	def from_r(raw)
 		self.value  = nil
 
-		length, type = raw.unpack("NN");
+		length, self.type = raw.unpack("NN");
 
 		if (self.type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
 			if (raw.length > 0)
@@ -133,9 +135,11 @@ class Tlv
 	end
 end
 
+###
 #
 # Group TLVs contain zero or more TLVs
 #
+###
 class GroupTlv < Tlv
 	attr_accessor :tlvs
 
@@ -181,8 +185,17 @@ class GroupTlv < Tlv
 	#
 
 	# Adds a TLV of a given type and value
-	def add_tlv(type, value = nil)
+	def add_tlv(type, value = nil, replace = false)
 		tlv = nil
+
+		# If we should replace any TLVs with the same type...remove them first
+		if (replace)
+			each(type) { |tlv|
+				if (tlv.type == type)
+					self.tlvs.delete(tlv)
+				end
+			}
+		end
 
 		if (type & TLV_META_TYPE_GROUP == TLV_META_TYPE_GROUP)
 			tlv = GroupTlv.new(type)
@@ -222,7 +235,7 @@ class GroupTlv < Tlv
 			raw << tlv.to_r
 		}
 
-		return [raw.length, self.type].pack("NN") + raw
+		return [raw.length + 8, self.type].pack("NN") + raw
 	end
 
 	# From raw
@@ -253,9 +266,11 @@ class GroupTlv < Tlv
 
 end
 
+###
 #
 # The logical meterpreter packet class
 #
+###
 class Packet < GroupTlv
 
 	#
@@ -293,14 +308,10 @@ class Packet < GroupTlv
 		if (method)
 			self.method = method
 		end
-	end
-
-	def type=(type)
-		@type = type
 
 		# If it's a request, generate a random request identifier
 		if ((type == PACKET_TYPE_REQUEST) ||
-		    (type == PACKET_TYPE_RESPONSE))
+		    (type == PACKET_TYPE_PLAINTEXT_REQUEST))
 			rid = ''
 
 			1.upto(32) { |val| rid << rand(10).to_s }
@@ -314,7 +325,7 @@ class Packet < GroupTlv
 	end
 
 	def method=(method)
-		add_tlv(TLV_TYPE_METHOD, method)
+		add_tlv(TLV_TYPE_METHOD, method, true)
 	end
 
 	def method
@@ -326,7 +337,7 @@ class Packet < GroupTlv
 	end
 
 	def result=(result)
-		add_tlv(TLV_TYPE_RESULT, result)
+		add_tlv(TLV_TYPE_RESULT, result, true)
 	end
 
 	def result
