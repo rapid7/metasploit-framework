@@ -3,6 +3,7 @@
 require 'socket'
 require 'Rex/Post/Meterpreter/Packet'
 require 'Rex/Post/Meterpreter/PacketParser'
+require 'Rex/Post/Meterpreter/PacketDispatcher'
 
 module Rex
 module Post
@@ -18,6 +19,8 @@ module Meterpreter
 #
 ###
 class Client
+
+	include Rex::Post::Meterpreter::PacketDispatcher
 
 	def initialize(sock)
 		self.sock   = sock
@@ -35,47 +38,6 @@ class Client
 	#
 	# Packet transmission/reception
 	#
-
-	def dispatch_inbound_packet(packet)
-		printf "Got packet with rid #{packet.rid}, method #{packet.method}\n"
-	end
-
-	def monitor_socket
-
-		# Spawn a new thread that monitors the socket
-		thr = Thread.new {
-			while (true)
-				rv = select([ self.sock ], nil, nil, 2)
-
-				begin
-					packet = receive_packet
-				rescue EOFError
-					puts "EOF reached on socket\n"
-					break
-				end
-
-				if (packet)
-					dispatch_inbound_packet(packet)
-				end
-			end
-		}
-
-	end
-
-	def send_packet(packet)
-		bytes = 0
-		raw   = packet.to_r
-
-		if (raw)
-			bytes = self.sock.write(raw)
-		end	
-
-		return bytes
-	end
-
-	def receive_packet
-		return parser.recv(self.sock)
-	end
 
 	protected
 	attr_accessor :sock, :parser

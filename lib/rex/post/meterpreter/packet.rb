@@ -330,6 +330,19 @@ class Packet < GroupTlv
 		end
 	end
 
+	#
+	# Conditionals
+	#
+
+	def response?
+		return ((self.type == PACKET_TYPE_RESPONSE) ||
+		        (self.type == PACKET_TYPE_PLAIN_RESPONSE))
+	end
+
+	#
+	# Accessors
+	#
+
 	def method?(method)
 		tlv = get_tlv(TLV_TYPE_METHOD)
 
