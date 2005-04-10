@@ -2,15 +2,13 @@
 
 require 'Rex/Post/Meterpreter/Extension'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Process'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Registry'
 
 module Rex
 module Post
 module Meterpreter
 module Extensions
 module Stdapi
-
-# Constants
-TLV_TYPE_PID = TLV_META_TYPE_UINT | 0
 
 ###
 #
@@ -33,6 +31,10 @@ class Stdapi < Extension
 
 	def process
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Process)
+	end
+	
+	def registry
+		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Registry)
 	end
 end
 

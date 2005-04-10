@@ -11,6 +11,8 @@ module Meterpreter
 module Extensions
 module Stdapi
 
+TLV_TYPE_PID = TLV_META_TYPE_UINT | 0
+
 class Process < Rex::Post::Process
 
 	class <<self
