@@ -18,6 +18,7 @@ TLV_TYPE_HKEY       = TLV_META_TYPE_UINT   | 1000
 TLV_TYPE_ROOT_KEY   = TLV_TYPE_HKEY
 TLV_TYPE_BASE_KEY   = TLV_META_TYPE_STRING | 1001
 TLV_TYPE_PERMISSION = TLV_META_TYPE_UINT   | 1002
+TLV_TYPE_KEY_NAME   = TLV_META_TYPE_STRING | 1003
 
 TLV_TYPE_VALUE_NAME = TLV_META_TYPE_STRING | 1010
 TLV_TYPE_VALUE_TYPE = TLV_META_TYPE_UINT   | 1011
@@ -77,6 +78,27 @@ class Registry
 		self.client.send_packet(request)
 
 		return true
+	end
+
+=begin
+	enum_key(hkey)
+
+	Enumerates the supplied registry key returning an array of key names
+=end
+	def Registry.enum_key(hkey)
+		keys    = []
+		request = Packet.create_request('stdapi_registry_enum_key')
+
+		request.add_tlv(TLV_TYPE_HKEY, hkey)
+
+		response = self.client.send_request(request)
+
+		# Enumerate through all of the registry keys
+		response.each(TLV_TYPE_KEY_NAME) { |key_name|
+			keys << key_name.value
+		}
+
+		return keys
 	end
 
 	##

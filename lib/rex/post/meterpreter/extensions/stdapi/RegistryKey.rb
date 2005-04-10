@@ -38,7 +38,7 @@ class RegistryKey
 	Enumerates all of the child keys within this registry key.
 =end
 	def each_key(&block)
-		return get_keys.each(&block)
+		return enum_key.each(&block)
 	end
 
 =begin
@@ -47,8 +47,29 @@ class RegistryKey
 	Enumerates all of the child values within this registry key.
 =end
 	def each_value(&block)
-		return get_values.each(&block)
+		return enum_value.each(&block)
 	end
+
+=begin
+	enum_key()
+
+	Retrieves all of the registry keys that are direct descendents of
+	the class' registry key.
+=end
+	def enum_key()
+		return self.client.registry.enum_key(self.hkey)
+	end
+
+=begin
+	enum_value
+
+	Retrieves all of the registry values that exist within the opened 
+	registry key.
+=end
+	def enum_value()
+		return self.client.registry.enum_value(self.hkey)
+	end
+
 
 	##
 	#
@@ -126,18 +147,6 @@ class RegistryKey
 	attr_reader   :hkey, :root_key, :base_key, :perm
 
 protected
-
-=begin
-	get_keys()
-
-	Retrieves all of the registry keys that are direct descendents of
-	the class' registry key.
-=end
-	def get_keys()
-	end
-
-	def get_values()
-	end
 
 	attr_accessor :client
 	attr_writer   :hkey, :root_key, :base_key, :perm
