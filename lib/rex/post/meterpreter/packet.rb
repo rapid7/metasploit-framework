@@ -126,6 +126,8 @@ class Tlv
 			self.value = raw.unpack("NNN")[2]
 		elsif (self.type & TLV_META_TYPE_BOOL == TLV_META_TYPE_BOOL)
 			self.value = raw.unpack("NNc")[2]
+		else
+			self.value = raw[8..raw.length]
 		end
 
 		return length;

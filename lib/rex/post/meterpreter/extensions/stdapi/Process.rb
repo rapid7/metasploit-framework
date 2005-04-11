@@ -22,14 +22,7 @@ class Process < Rex::Post::Process
 	def Process.getpid
 		request = Packet.create_request('stdapi_process_getpid')
 
-		response = self.client.send_packet_wait_response(request, Client.default_timeout)
-		tlv = nil
-
-		if (response == nil)
-			raise RuntimeError, "getpid: No response was received", caller
-		elsif (response.result != 0)
-			raise RuntimeError, "getpid: Failed to get process id: #{response.result}", caller
-		end
+		response = client.send_request(request)
 
 		tlv = response.get_tlv(TLV_TYPE_PID)
 

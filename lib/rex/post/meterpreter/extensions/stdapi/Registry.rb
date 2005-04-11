@@ -61,9 +61,9 @@ class Registry
 		request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
 		request.add_tlv(TLV_TYPE_PERMISSION, perm)
 
-		response = self.client.send_request(request)
+		response = client.send_request(request)
 
-		return RegistryKey.new(self.client, root_key, base_key, perm,
+		return RegistryKey.new(client, root_key, base_key, perm,
 				response.get_tlv(TLV_TYPE_HKEY).value)
 	end
 
@@ -84,7 +84,7 @@ class Registry
 		request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
 		request.add_tlv(TLV_TYPE_FLAGS, flags)
 
-		if (self.client.send_request(request) != nil)
+		if (client.send_request(request) != nil)
 			return true
 		end
 
@@ -101,7 +101,7 @@ class Registry
 
 		request.add_tlv(TLV_TYPE_HKEY, hkey)
 
-		self.client.send_packet(request)
+		client.send_packet(request)
 
 		return true
 	end
@@ -117,7 +117,7 @@ class Registry
 
 		request.add_tlv(TLV_TYPE_HKEY, hkey)
 
-		response = self.client.send_request(request)
+		response = client.send_request(request)
 
 		# Enumerate through all of the registry keys
 		response.each(TLV_TYPE_KEY_NAME) { |key_name|
@@ -151,7 +151,7 @@ class Registry
 
 		request.add_tlv(TLV_TYPE_VALUE_DATA, data)
 
-		response = self.client.send_request(request)
+		response = client.send_request(request)
 
 		return true
 	end
@@ -168,7 +168,7 @@ class Registry
 		request.add_tlv(TLV_TYPE_HKEY, hkey)
 		request.add_tlv(TLV_TYPE_VALUE_NAME, name)
 
-		response = self.client.send_request(request)
+		response = client.send_request(request)
 
 		data = response.get_tlv(TLV_TYPE_VALUE_DATA).value;
 		type = response.get_tlv(TLV_TYPE_VALUE_TYPE).value;
@@ -179,7 +179,7 @@ class Registry
 			data = data.unpack("N")[0]
 		end
 
-		return RegistryValue.new(self.client, hkey, name, type, data)
+		return RegistryValue.new(client, hkey, name, type, data)
 	end
 
 =begin
@@ -194,7 +194,7 @@ class Registry
 		request.add_tlv(TLV_TYPE_HKEY, hkey)
 		request.add_tlv(TLV_TYPE_VALUE_NAME, name)
 
-		if (self.client.send_request(request) != nil)
+		if (client.send_request(request) != nil)
 			return true
 		end
 
@@ -213,10 +213,10 @@ class Registry
 
 		request.add_tlv(TLV_TYPE_HKEY, hkey)
 
-		response = self.client.send_request(request)
+		response = client.send_request(request)
 
 		response.each(TLV_TYPE_VALUE_NAME) { |value_name|
-			values << RegistryValue.new(self.client, hkey, value_name.value)
+			values << RegistryValue.new(client, hkey, value_name.value)
 		}
 
 		return values
