@@ -96,6 +96,15 @@ class RegistryKey
 	end
 
 =begin
+	delete_key(base_key, recursive)
+
+	Deletes a registry key that is relative to this registry key.
+=end
+	def delete_key(base_key, recursive = true)
+		return self.client.registry.delete_key(self.hkey, base_key, recursive)
+	end
+
+=begin
 	close()
 
 	Closes the open key.  This must be called if the registry

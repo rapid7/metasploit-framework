@@ -14,6 +14,8 @@ module Meterpreter
 module Extensions
 module Stdapi
 
+DELETE_KEY_FLAG_RECURSIVE = (1 << 0)
+
 TLV_TYPE_HKEY       = TLV_META_TYPE_UINT   | 1000
 TLV_TYPE_ROOT_KEY   = TLV_TYPE_HKEY
 TLV_TYPE_BASE_KEY   = TLV_META_TYPE_STRING | 1001
@@ -63,6 +65,30 @@ class Registry
 
 		return RegistryKey.new(self.client, root_key, base_key, perm,
 				response.get_tlv(TLV_TYPE_HKEY).value)
+	end
+
+=begin
+	delete_key(root_key, base_key, recursive)
+
+	Deletes the supplied registry key.
+=end
+	def Registry.delete_key(root_key, base_key, recursive = true)
+		request = Packet.create_request('stdapi_registry_delete_key')
+		flags   = 0
+
+		if (recursive)
+			flags |= DELETE_KEY_FLAG_RECURSIVE
+		end
+
+		request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
+		request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
+		request.add_tlv(TLV_TYPE_FLAGS, flags)
+
+		if (self.client.send_request(request) != nil)
+			return true
+		end
+
+		return false
 	end
 
 =begin
@@ -173,6 +199,27 @@ class Registry
 		end
 
 		return false
+	end
+
+=begin
+	enum_value(hkey)
+
+	Enumerates all of the values at the supplied hkey including their
+	names.  An array of RegistryValue's is returned.
+=end
+	def Registry.enum_value(hkey)
+		request = Packet.create_request('stdapi_registry_enum_value')
+		values  = []
+
+		request.add_tlv(TLV_TYPE_HKEY, hkey)
+
+		response = self.client.send_request(request)
+
+		response.each(TLV_TYPE_VALUE_NAME) { |value_name|
+			values << RegistryValue.new(self.client, hkey, value_name.value)
+		}
+
+		return values
 	end
 
 end

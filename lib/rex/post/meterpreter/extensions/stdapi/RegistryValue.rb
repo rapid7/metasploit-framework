@@ -18,7 +18,7 @@ module Stdapi
 #
 ###
 class RegistryValue
-	def initialize(client, hkey, name, type, data)
+	def initialize(client, hkey, name, type = nil, data = nil)
 		self.client = client
 		self.hkey   = hkey
 		self.name   = name
