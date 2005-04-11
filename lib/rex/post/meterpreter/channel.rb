@@ -68,6 +68,10 @@ class Channel
 	##
 
 	def recv(length = nil, addends = nil)
+		if (self.cid == nil)
+			raise IOError, "Channel has been closed.", caller
+		end
+
 		request = Packet.create_request('core_channel_read')
 
 		if (length == nil)
@@ -96,6 +100,10 @@ class Channel
 	end
 
 	def send(buf, length = nil, addends = nil)
+		if (self.cid == nil)
+			raise IOError, "Channel has been closed.", caller
+		end
+
 		request = Packet.create_request('core_channel_write')
 
 		# Truncation and celebration
@@ -118,6 +126,10 @@ class Channel
 	end
 
 	def close(addends = nil)
+		if (self.cid == nil)
+			raise IOError, "Channel has been closed.", caller
+		end
+
 		request = Packet.create_request('core_channel_close')
 
 		# Populate the request
@@ -125,7 +137,7 @@ class Channel
 
 		self.client.send_request(request)
 
-		self.cid = 0
+		self.cid = nil
 
 		return true
 	end
