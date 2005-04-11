@@ -118,6 +118,7 @@ class Channel
 		request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
 		request.add_tlv(TLV_TYPE_CHANNEL_DATA, buf)
 		request.add_tlv(TLV_TYPE_LENGTH, length)
+		request.add_tlvs(addends)
 
 		response = self.client.send_request(request)
 		written  = response.get_tlv(TLV_TYPE_LENGTH)
@@ -134,6 +135,7 @@ class Channel
 
 		# Populate the request
 		request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
+		request.add_tlvs(addends)
 
 		self.client.send_request(request)
 

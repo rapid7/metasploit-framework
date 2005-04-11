@@ -135,6 +135,8 @@ class Registry
 
 		if (type == REG_SZ)
 			data << "\x00"
+		else (type == REG_DWORD)
+			data = [ data.to_i ].pack("V")
 		end
 
 		request.add_tlv(TLV_TYPE_VALUE_DATA, data)
