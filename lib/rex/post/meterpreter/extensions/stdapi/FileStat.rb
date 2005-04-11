@@ -9,8 +9,6 @@ module Meterpreter
 module Extensions
 module Stdapi
 
-TLV_TYPE_STAT_BUF = TLV_META_TYPE_COMPLEX | 1220
-
 class FileStat < Rex::Post::FileStat
 
 	@@struct_stat = [

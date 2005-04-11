@@ -2,6 +2,7 @@
 
 require 'socket'
 require 'Rex/Post/Meterpreter/ClientCore'
+require 'Rex/Post/Meterpreter/Channel'
 require 'Rex/Post/Meterpreter/ObjectAliases'
 require 'Rex/Post/Meterpreter/Packet'
 require 'Rex/Post/Meterpreter/PacketParser'

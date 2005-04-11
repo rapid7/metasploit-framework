@@ -61,6 +61,7 @@ LOAD_LIBRARY_FLAG_ON_DISK   = (1 << 0)
 LOAD_LIBRARY_FLAG_EXTENSION = (1 << 1)
 LOAD_LIBRARY_FLAG_LOCAL     = (1 << 2)
 
+CHANNEL_FLAG_SYNCHRONOUS    = (1 << 0)
 
 ###
 #
@@ -215,6 +216,19 @@ class GroupTlv < Tlv
 		self.tlvs << tlv
 
 		return tlv
+	end
+
+=begin
+	add_tlvs(tlvs)
+
+	Adds zero or more TLVs to the packet
+=end
+	def add_tlvs(tlvs)
+		if (tlvs != nil)
+			tlvs.each { |tlv|
+				add_tlv(tlv['type'], tlv['value'])
+			}
+		end
 	end
 
 	# Gets the first TLV of a given type

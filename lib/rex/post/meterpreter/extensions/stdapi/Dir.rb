@@ -9,10 +9,6 @@ module Meterpreter
 module Extensions
 module Stdapi
 
-TLV_TYPE_DIRECTORY_PATH = TLV_META_TYPE_STRING | 1200
-TLV_TYPE_FILE_NAME      = TLV_META_TYPE_STRING | 1201
-TLV_TYPE_FILE_PATH      = TLV_META_TYPE_STRING | 1202
-
 class Dir < Rex::Post::Dir
 
 	class <<self
