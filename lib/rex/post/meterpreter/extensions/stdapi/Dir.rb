@@ -60,6 +60,21 @@ class Dir < Rex::Post::Dir
 	end
 
 =begin
+	mkdir(path)
+
+	Creates a directory.
+=end
+	def Dir.mkdir(path)
+		request = Packet.create_request('stdapi_fs_mkdir')
+
+		request.add_tlv(TLV_TYPE_DIRECTORY_PATH, path)
+
+		response = client.send_request(request)
+
+		return 0
+	end
+
+=begin
 	pwd
 
 	Returns the current working directory of the remote process.
