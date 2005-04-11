@@ -2,6 +2,7 @@
 
 require 'Rex/Post/Meterpreter/Extension'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Dir'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/FileStat'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Process'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Registry'
 
@@ -26,6 +27,7 @@ class Stdapi < Extension
 		# Alias the following things on the client object so that they
 		# can be directly referenced
 		client.register_extension_alias('dir', self.dir)
+		client.register_extension_alias('filestat', self.filestat)
 		client.register_extension_alias('process', self.process)
 		client.register_extension_alias('registry', self.registry)
 	end
@@ -38,6 +40,10 @@ class Stdapi < Extension
 
 	def dir
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Dir)
+	end
+
+	def filestat
+		brand(Rex::Post::Meterpreter::Extensions::Stdapi::FileStat)
 	end
 
 	def process
