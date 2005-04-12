@@ -34,6 +34,31 @@ TLV_TYPE_SEEK_POS    = TLV_META_TYPE_UINT | (TLV_TEMP + 2)
 		super(client, cid, type, flags)
 	end
 
+	##
+	#
+	# I/O operations
+	#
+	##
+	
+	# Checks to see if the end-of-file has been reached
+	def eof
+		request = Packet.create_request('stdapi_fs_file_eof')
+
+		request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
+
+		begin
+			response = self.client.send_request(request)
+		rescue
+			return true
+		end
+
+		if (response.has_tlv?(TLV_TYPE_BOOL))
+			return response.get_tlv_value(TLV_TYPE_BOOL)
+		end
+
+		return false
+	end
+
 	# Seeks to a different location in the file
 	def seek(offset, whence = SEEK_SET)
 		sane = 0

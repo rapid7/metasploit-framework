@@ -48,6 +48,20 @@ class Pool < Rex::Post::Meterpreter::Channel
 	#
 	##
 
+	# Synonym for tell
+	def pos
+		return tell
+	end
+
+	# Wraps the read operation to raise end-of-file as necessary
+	def read(length = nil)
+		if (self.eof)
+			raise EOFError
+		end
+
+		return super(length)
+	end
+
 	# Stub for seeking to a different location on the remote half of the
 	# channel
 	def seek(offset, whence = SEEK_SET)
@@ -60,10 +74,8 @@ class Pool < Rex::Post::Meterpreter::Channel
 		raise NotImplementedError
 	end
 
-	# Synonym for tell
-	def pos
-		return tell
-	end
+protected
+	attr_accessor :_eof
 
 end
 

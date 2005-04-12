@@ -42,6 +42,11 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::IO
 	# IO implementators
 	#
 	##
+
+	# Returns whether or not the file has reach EOF
+	def eof
+		return self.filed.eof
+	end
 	
 	# Returns the current position of the file pointer
 	def pos

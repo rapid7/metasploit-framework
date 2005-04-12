@@ -153,7 +153,11 @@ class Channel
 		request.add_tlv(TLV_TYPE_LENGTH, length)
 		request.add_tlvs(addends)
 
-		response = self.client.send_request(request)
+		begin
+			response = self.client.send_request(request)
+		rescue 
+			return nil
+		end
 
 		# If the channel is in synchronous mode, the response should contain
 		# data that was read from the remote side of the channel

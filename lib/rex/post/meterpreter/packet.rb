@@ -128,7 +128,11 @@ class Tlv
 		elsif (self.type & TLV_META_TYPE_UINT == TLV_META_TYPE_UINT)
 			raw = [value].pack("N")
 		elsif (self.type & TLV_META_TYPE_BOOL == TLV_META_TYPE_BOOL)
-			raw = [value].pack("c")
+			if (value == true)
+				raw = [1].pack("c")
+			else
+				raw = [0].pack("c")
+			end
 		end
 
 		return [raw.length + 8, self.type].pack("NN") + raw
@@ -150,6 +154,12 @@ class Tlv
 			self.value = raw.unpack("NNN")[2]
 		elsif (self.type & TLV_META_TYPE_BOOL == TLV_META_TYPE_BOOL)
 			self.value = raw.unpack("NNc")[2]
+
+			if (self.value == 1)
+				self.value = true
+			else
+				self.value = false
+			end
 		else
 			self.value = raw[8..raw.length-1]
 		end
