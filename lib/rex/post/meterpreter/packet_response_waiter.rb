@@ -17,6 +17,9 @@ module Meterpreter
 #
 ###
 class PacketResponseWaiter
+
+	# Initializes a response waiter instance for the supplied request
+	# identifier
 	def initialize(rid, completion_routine = nil, completion_param = nil)
 		self.rid      = rid
 		self.response = nil
@@ -30,10 +33,13 @@ class PacketResponseWaiter
 		end
 	end
 
+	# Checks to see if this waiter instance is waiting for the supplied 
+	# packet based on its request identifier
 	def waiting_for?(packet)
 		return (packet.rid == rid)
 	end
 
+	# Notifies the waiter that the supplied response packet has arrived
 	def notify(response)
 		self.response = response
 
@@ -46,6 +52,7 @@ class PacketResponseWaiter
 		end
 	end
 
+	# Waits for a given time interval for the response packet to arrive
 	def wait(interval)
 		begin
 			timeout(interval) { 

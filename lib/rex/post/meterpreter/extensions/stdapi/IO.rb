@@ -11,19 +11,21 @@ module Stdapi
 class IO < Rex::Post::IO
 
 	def read(length = nil, flags = nil)
-		recv(length, flags)
+		filed.read(length)
 	end
 
+	# Synonym for read
 	def recv(length = nil, flags = nil)
-		filed.recv(length)
+		read(length, flags)
 	end
 
 	def write(buf, length = nil, flags = nil)
-		send(buf, length, flags)
+		filed.write(buf, length)
 	end
 
+	# Synonym for write
 	def send(buf, length = nil, flags = nil)
-		filed.send(buf, length)
+		write(buf, length, flags)
 	end
 
 	def close

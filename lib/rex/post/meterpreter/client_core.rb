@@ -25,14 +25,13 @@ class ClientCore < Extension
 		super(client, "core")	
 	end
 
+	##
 	#
 	# Core commands
 	#
+	##
 
 =begin
-	
-	load_library
-
 	Loads a library on the remote meterpreter instance.  This method
 	supports loading both extension and non-extension libraries and
 	also supports loading libraries from memory or disk depending
@@ -55,7 +54,6 @@ class ClientCore < Extension
 
 	Extension
 		Indicates whether or not the library is a meterpreter extension
-
 =end
 	def load_library(opts)
 		library_path = opts['LibraryFilePath']
@@ -122,9 +120,6 @@ class ClientCore < Extension
 	end
 
 =begin
-
-	use
-
 	Loads a meterpreter extension on the remote server instance and
 	initializes the client-side extension handlers
 
@@ -137,7 +132,6 @@ class ClientCore < Extension
 	LoadFromDisk
 		Indicates that the library should be loaded from disk, not from
 		memory on the remote machine
-
 =end
 	def use(opts)
 		modules = []

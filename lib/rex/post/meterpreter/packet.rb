@@ -24,6 +24,14 @@ TLV_META_TYPE_GROUP         = (1 << 30)
 TLV_META_TYPE_COMPLEX       = (1 << 31)
 
 #
+# TLV base starting points
+#
+TLV_RESERVED                = 0
+TLV_EXTENSIONS              = 20000
+TLV_USER                    = 40000
+TLV_TEMP                    = 60000
+
+#
 # TLV Specific Types
 #
 TLV_TYPE_ANY                = TLV_META_TYPE_NONE   |   0
@@ -44,6 +52,7 @@ TLV_TYPE_CHANNEL_ID         = TLV_META_TYPE_UINT   |  50
 TLV_TYPE_CHANNEL_TYPE       = TLV_META_TYPE_STRING |  51
 TLV_TYPE_CHANNEL_DATA       = TLV_META_TYPE_RAW    |  52
 TLV_TYPE_CHANNEL_DATA_GROUP = TLV_META_TYPE_GROUP  |  53
+TLV_TYPE_CHANNEL_CLASS      = TLV_META_TYPE_UINT   |  54
 
 TLV_TYPE_EXCEPTION_CODE     = TLV_META_TYPE_UINT   | 300
 TLV_TYPE_EXCEPTION_STRING   = TLV_META_TYPE_STRING | 301
@@ -61,42 +70,56 @@ LOAD_LIBRARY_FLAG_ON_DISK   = (1 << 0)
 LOAD_LIBRARY_FLAG_EXTENSION = (1 << 1)
 LOAD_LIBRARY_FLAG_LOCAL     = (1 << 2)
 
-CHANNEL_FLAG_SYNCHRONOUS    = (1 << 0)
-
 ###
 #
-# Base TLV class
+# Tlv
+# ---
+#
+# Base TLV (Type-Length-Value) class
 #
 ###
 class Tlv
 	attr_accessor :type, :value
+
+	## 
+	#
+	# Constructor
+	#
+	##
 
 	def initialize(type, value = nil)
 		@type  = type
 		@value = value
 	end
 
+	##
 	#
 	# Conditionals
 	#
+	##
 
+	# Checks to see if a TLVs meta type is equivalent to the meta type passed
 	def meta_type?(meta)
 		return (self.type & meta == meta)
 	end
 
+	# Checks to see if the TLVs type is equivalent to the type passed
 	def type?(type)
 		return self.type == type
 	end
 
+	# Checks to see if the TLVs value is equivalent to the value passed
 	def value?(value)
 		return self.value == value
 	end
 
+	##
 	#
 	# Serializers
 	#
+	##
 
-	# To raw
+	# Converts the TLV to raw
 	def to_r
 		raw = value.to_s;
 
@@ -111,7 +134,7 @@ class Tlv
 		return [raw.length + 8, self.type].pack("NN") + raw
 	end
 
-	# From raw
+	# Translates the raw format of the TLV into a sanitize version
 	def from_r(raw)
 		self.value  = nil
 
@@ -128,7 +151,7 @@ class Tlv
 		elsif (self.type & TLV_META_TYPE_BOOL == TLV_META_TYPE_BOOL)
 			self.value = raw.unpack("NNc")[2]
 		else
-			self.value = raw[8..raw.length]
+			self.value = raw[8..raw.length-1]
 		end
 
 		return length;
@@ -137,21 +160,34 @@ end
 
 ###
 #
+# GroupTlv
+# --------
+#
 # Group TLVs contain zero or more TLVs
 #
 ###
 class GroupTlv < Tlv
 	attr_accessor :tlvs
 
+	##
+	#
+	# Constructor
+	#
+	##
+
+	# Initializes the group TLV container to the supplied type
+	# and creates an empty TLV array
 	def initialize(type)
 		super(type)
 
 		self.tlvs = [ ]
 	end
 
+	##
 	#
 	# Group-based TLV accessors
 	#
+	##
 
 	# Enumerates TLVs of the supplied type
 	def each(type = TLV_TYPE_ANY, &block)
@@ -190,9 +226,11 @@ class GroupTlv < Tlv
 		end
 	end
 
+	##
 	#
 	# TLV management
 	#
+	##
 
 	# Adds a TLV of a given type and value
 	def add_tlv(type, value = nil, replace = false)
@@ -218,11 +256,7 @@ class GroupTlv < Tlv
 		return tlv
 	end
 
-=begin
-	add_tlvs(tlvs)
-
-	Adds zero or more TLVs to the packet
-=end
+	# Adds zero or more TLVs to the packet
 	def add_tlvs(tlvs)
 		if (tlvs != nil)
 			tlvs.each { |tlv|
@@ -242,15 +276,31 @@ class GroupTlv < Tlv
 		return nil
 	end
 
+	# Returns the value of a TLV if it exists, otherwise nil
+	def get_tlv_value(type, index = 0)
+		tlv = get_tlv(type, index)
+
+		return (tlv != nil) ? tlv.value : nil
+	end
+
+	# Checks to see if the container has a TLV of a given type
+	def has_tlv?(type)
+		return get_tlv(type) != nil
+	end
+
+	# Zeros out the array of TLVs
 	def reset
 		self.tlvs = []
 	end
 
+	##
 	#
 	# Serializers
 	#
+	##
 
-	# To raw
+	# Converts all of the TLVs in the TLV array to raw and prefixes them
+	# with a container TLV of this instance's TLV type
 	def to_r
 		raw = ''
 
@@ -261,7 +311,8 @@ class GroupTlv < Tlv
 		return [raw.length + 8, self.type].pack("NN") + raw
 	end
 
-	# From raw
+	# Converts the TLV group container from raw to all of the individual
+	# TLVs
 	def from_r(raw)
 		offset = 8
 
@@ -292,14 +343,19 @@ end
 
 ###
 #
+# Packet
+# ------
+#
 # The logical meterpreter packet class
 #
 ###
 class Packet < GroupTlv
 
+	##
 	#
 	# Factory
 	#
+	##
 
 	# Creates a request with the supplied method
 	def Packet.create_request(method = nil)
@@ -322,10 +378,15 @@ class Packet < GroupTlv
 		return Packet.new(response_type, method)
 	end
 
+	##
 	#
 	# Constructor
 	#
+	##
 
+	# Initializes the packet to the supplied packet type and method,
+	# if any.  If the packet is a request, a request identifier is 
+	# created
 	def initialize(type = nil, method = nil)
 		super(type)
 
@@ -344,56 +405,59 @@ class Packet < GroupTlv
 		end
 	end
 
+	##
 	#
 	# Conditionals
 	#
+	##
 
+	# Checks to see if the packet is a response
 	def response?
 
 		return ((self.type == PACKET_TYPE_RESPONSE) ||
 		        (self.type == PACKET_TYPE_PLAIN_RESPONSE))
 	end
 
+	##
 	#
 	# Accessors
 	#
+	##
 
+	# Checks to see if the packet's method is equal to the supplied method
 	def method?(method)
-		tlv = get_tlv(TLV_TYPE_METHOD)
-
-		return ((tlv) && (tlv.value == method))
+		return (get_tlv_value(TLV_TYPE_METHOD) == method)
 	end
 
+	# Sets the packet's method TLV to the method supplied
 	def method=(method)
 		add_tlv(TLV_TYPE_METHOD, method, true)
 	end
 
+	# Returns the value of the packet's method TLV
 	def method
-		tlv = get_tlv(TLV_TYPE_METHOD)
-
-		return (tlv) ? tlv.value : nil
+		return get_tlv_value(TLV_TYPE_METHOD)
 	end
 
+	# Checks to see if the packet's result value is equal to the supplied
+	# result
 	def result?(result)
-		tlv = get_tlv(TLV_TYPE_RESULT)
-
-		return ((tlv) && (tlv.value == result))
+		return (get_tlv_value(TLV_TYPE_RESULT) == result)
 	end
 
+	# Sets the packet's result TLV
 	def result=(result)
 		add_tlv(TLV_TYPE_RESULT, result, true)
 	end
 
+	# Gets the value of the packet's result TLV
 	def result
-		tlv = get_tlv(TLV_TYPE_RESULT)
-
-		return (tlv) ? tlv.value : nil
+		return get_tlv_value(TLV_TYPE_RESULT)
 	end
 
+	# Gets the value of the packet's request identifier TLV
 	def rid
-		tlv = get_tlv(TLV_TYPE_REQUEST_ID)
-
-		return (tlv) ? tlv.value : nil
+		return get_tlv_value(TLV_TYPE_REQUEST_ID)
 	end
 end
 

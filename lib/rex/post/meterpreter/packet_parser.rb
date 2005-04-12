@@ -15,12 +15,14 @@ module Meterpreter
 ###
 class PacketParser
 
+	# Initializes the packet parser context with an optional cipher
 	def initialize(cipher = nil)
 		self.cipher = cipher
 
 		reset
 	end
 
+	# Resets the parser state so that a new packet can begin being parsed
 	def reset
 		self.raw = ''
 		self.hdr_length_left = 8
@@ -80,7 +82,7 @@ class PacketParser
 		end
 	end
 	
-	protected
+protected
 	attr_accessor :cipher, :raw, :hdr_length_left, :payload_length_left
 
 end

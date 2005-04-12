@@ -19,9 +19,7 @@ class ObjectAliases
 		self.aliases = {}
 	end
 
-	#
 	# Pass-thru aliases
-	#
 	def method_missing(symbol, *args)
 		return self.aliases[symbol.to_s];
 	end
