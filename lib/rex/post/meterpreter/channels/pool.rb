@@ -55,11 +55,17 @@ class Pool < Rex::Post::Meterpreter::Channel
 
 	# Wraps the read operation to raise end-of-file as necessary
 	def read(length = nil)
-		if (self.eof)
+		begin
+			data = super(length)
+		rescue
+			data = nil
+		end
+		
+		if ((data == nil) && (self.eof))
 			raise EOFError
 		end
 
-		return super(length)
+		return data
 	end
 
 	# Stub for seeking to a different location on the remote half of the
