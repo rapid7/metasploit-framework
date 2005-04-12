@@ -9,26 +9,44 @@ module Meterpreter
 module Extensions
 module Stdapi
 
+###
+#
+# Dir
+# ---
+#
+# This class implements directory operations against the remote endpoint
+#
+###
 class Dir < Rex::Post::Dir
 
 	class <<self
 		attr_accessor :client
 	end
 
+	##
+	#
+	# Constructor
+	#
+	##
+
+	# Initializes the directory instance
 	def initialize(path)
 		self.path   = path
 		self.client = self.class.client
 	end
 
+	##
+	#
+	# Enumeration
+	#
+	##
+
+	# Enumerates all of the contents of the directory
 	def each(&block)
 		client.dir.foreach(self.path, &block)
 	end
 
-=begin
-	entries(name)
-
-	Enumerates all of the files/folders in a given directory.
-=end
+	# Enumerates all of the files/folders in a given directory.
 	def Dir.entries(name)
 		request = Packet.create_request('stdapi_fs_ls')
 		files   = []
@@ -44,11 +62,7 @@ class Dir < Rex::Post::Dir
 		return files
 	end
 
-=begin
-	chdir(path)
-
-	Changes the working directory of the remote process.
-=end
+	# Changes the working directory of the remote process.
 	def Dir.chdir(path)
 		request = Packet.create_request('stdapi_fs_chdir')
 
@@ -59,11 +73,7 @@ class Dir < Rex::Post::Dir
 		return 0
 	end
 
-=begin
-	mkdir(path)
-
-	Creates a directory.
-=end
+	# Creates a directory.
 	def Dir.mkdir(path)
 		request = Packet.create_request('stdapi_fs_mkdir')
 
@@ -74,11 +84,7 @@ class Dir < Rex::Post::Dir
 		return 0
 	end
 
-=begin
-	pwd
-
-	Returns the current working directory of the remote process.
-=end
+	# Returns the current working directory of the remote process.
 	def Dir.pwd
 		request = Packet.create_request('stdapi_fs_getwd')
 
@@ -87,18 +93,12 @@ class Dir < Rex::Post::Dir
 		return response.get_tlv(TLV_TYPE_DIRECTORY_PATH).value
 	end
 
-=begin
-	Synonym for pwd
-=end
+	# Synonym for pwd
 	def Dir.getwd
 		pwd
 	end
 
-=begin
-	delete
-
-	Removes the supplied directory if it's empty
-=end
+	# Removes the supplied directory if it's empty
 	def Dir.delete(path)
 		request = Packet.create_request('stdapi_fs_delete_dir')
 
@@ -109,15 +109,12 @@ class Dir < Rex::Post::Dir
 		return 0
 	end
 
-=begin
-	rmdir, unlink
-
-	Synonyms for delete
-=end
+	# Synonyms for delete
 	def Dir.rmdir(path)
 		delete(path)
 	end
 
+	# Synonyms for delete
 	def Dir.unlink(path)
 		delete(path)
 	end
@@ -126,7 +123,6 @@ class Dir < Rex::Post::Dir
 protected
 	attr_accessor :client
 	attr_writer   :path
-
 
 end
 

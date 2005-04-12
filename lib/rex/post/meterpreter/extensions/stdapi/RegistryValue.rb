@@ -26,11 +26,7 @@ class RegistryValue
 		self.data   = data
 	end	
 
-=begin
-	set(data, type)
-
-	Sets the value's data.
-=end
+	# Sets the value's data.
 	def set(data, type = nil)
 		if (type == nil)
 			type = self.type
@@ -46,11 +42,7 @@ class RegistryValue
 		return false
 	end
 
-=begin
-	query()
-
-	Queries the value's data.
-=end
+	# Queries the value's data.
 	def query()
 		val =  self.client.registry.query_value(self.hkey, self.name)
 
@@ -62,23 +54,13 @@ class RegistryValue
 		return self.data
 	end
 
-=begin
-	delete()
-
-	Deletes the value.
-=end
+	# Deletes the value.
 	def delete()
 		return self.client.registry.delete_value(self.hkey, self.name)
 	end
 
-	##
-	#
-	# Attributes
-	#
-	##
-
 	attr_reader   :hkey, :name, :type, :data
-	protected
+protected
 	attr_accessor :client
 	attr_writer   :hkey, :name, :type, :data
 end

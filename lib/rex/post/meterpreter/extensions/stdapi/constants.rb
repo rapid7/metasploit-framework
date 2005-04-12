@@ -1,9 +1,17 @@
 #!/usr/bin/ruby
 
+###
+#
 # These are put into the global namespace for now
 # so that they can be referenced globally
+#
+###
 
+##
+#
 # Permissions
+#
+##
 DELETE                   = 0x00010000
 READ_CONTROL             = 0x00020000
 WRITE_DAC                = 0x00040000
@@ -21,7 +29,11 @@ GENERIC_WRITE            = 0x40000000
 GENERIC_EXECUTE          = 0x20000000
 GENERIC_ALL              = 0x10000000
 
+##
+#
 # Registry Permissions
+#
+##
 KEY_QUERY_VALUE          = 0x00000001
 KEY_SET_VALUE            = 0x00000002
 KEY_CREATE_SUB_KEY       = 0x00000004
@@ -37,8 +49,12 @@ KEY_ALL_ACCESS           = (STANDARD_RIGHTS_ALL | KEY_QUERY_VALUE |
                             KEY_SET_VALUE | KEY_CREATE_SUB_KEY | 
                             KEY_ENUMERATE_SUB_KEYS | KEY_NOTIFY |
                             KEY_CREATE_LINK) & ~SYNCHRONIZE
-									 
+
+##
+#
 # Registry
+#
+##
 HKEY_CLASSES_ROOT        = 0x80000000
 HKEY_CURRENT_USER        = 0x80000001
 HKEY_LOCAL_MACHINE       = 0x80000002

@@ -9,6 +9,14 @@ module Meterpreter
 module Extensions
 module Stdapi
 
+###
+#
+# FileStat
+# --------
+#
+# This class wrappers gathering information about a given file
+#
+###
 class FileStat < Rex::Post::FileStat
 
 	@@struct_stat = [
@@ -30,12 +38,26 @@ class FileStat < Rex::Post::FileStat
 		attr_accessor :client
 	end
 
+	##
+	#
+	# Constructor
+	#
+	##
+
 	def initialize(file)
 		self.stathash = stat(file)
 	end
 
-	protected
+protected
 
+	##
+	#
+	# Initializer
+	#
+	##
+
+	# Gets information about the supplied file and returns a populated
+	# hash to the requestor
 	def stat(file)
 		request = Packet.create_request('stdapi_fs_stat')
 

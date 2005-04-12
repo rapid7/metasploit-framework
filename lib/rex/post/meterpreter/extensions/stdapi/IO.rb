@@ -8,28 +8,41 @@ module Meterpreter
 module Extensions
 module Stdapi
 
+##
+#
+# IO
+# --
+#
+# The IO class acts as a base class for things that would normally implement
+# the IO interface.  The methods it implements are for general operations that
+# are common to all channels, such as read, write, and close.
+#
+##
 class IO < Rex::Post::IO
 
-	def read(length = nil, flags = nil)
-		filed.read(length)
+	# Read the specified number of bytes from the channel
+	def sysread(length = nil)
+		self.filed.read(length)
 	end
 
-	# Synonym for read
-	def recv(length = nil, flags = nil)
-		read(length, flags)
+	# Synonym for sysread
+	def read(length = nil)
+		sysread
 	end
 
-	def write(buf, length = nil, flags = nil)
-		filed.write(buf, length)
+	# Writes the supplied buffer to the channel
+	def syswrite(buf)
+		self.filed.write(buf)
 	end
 
-	# Synonym for write
-	def send(buf, length = nil, flags = nil)
-		write(buf, length, flags)
+	# Synonym for syswrite
+	def write(buf)
+		syswrite
 	end
 
+	# Closes the channel
 	def close
-		filed.close
+		self.filed.close
 	end
 
 end

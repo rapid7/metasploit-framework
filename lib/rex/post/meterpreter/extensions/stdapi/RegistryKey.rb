@@ -32,40 +32,24 @@ class RegistryKey
 	#
 	##
 
-=begin
-	each_key(&block)
-
-	Enumerates all of the child keys within this registry key.
-=end
+	# Enumerates all of the child keys within this registry key.
 	def each_key(&block)
 		return enum_key.each(&block)
 	end
 
-=begin
-	each_value(&block)
-
-	Enumerates all of the child values within this registry key.
-=end
+	# Enumerates all of the child values within this registry key.
 	def each_value(&block)
 		return enum_value.each(&block)
 	end
 
-=begin
-	enum_key()
-
-	Retrieves all of the registry keys that are direct descendents of
-	the class' registry key.
-=end
+	# Retrieves all of the registry keys that are direct descendents of
+	# the class' registry key.
 	def enum_key()
 		return self.client.registry.enum_key(self.hkey)
 	end
 
-=begin
-	enum_value
-
-	Retrieves all of the registry values that exist within the opened 
-	registry key.
-=end
+	# Retrieves all of the registry values that exist within the opened 
+	# registry key.
 	def enum_value()
 		return self.client.registry.enum_value(self.hkey)
 	end
@@ -77,39 +61,23 @@ class RegistryKey
 	#
 	##
 
-=begin
-	open_key(base_key, perm)
-
-	Opens a registry key that is relative to this registry key.
-=end
+	# Opens a registry key that is relative to this registry key.
 	def open_key(base_key, perm = KEY_READ)
 		return self.client.registry.open_key(self.hkey, base_key, perm)
 	end
 
-=begin
-	create_key(base_key, perm)
-
-	Creates a registry key that is relative to this registry key.
-=end
+	# Creates a registry key that is relative to this registry key.
 	def create_key(base_key, perm = KEY_READ)
 		return self.client.registry.create_key(self.hkey, base_key, perm)
 	end
 
-=begin
-	delete_key(base_key, recursive)
-
-	Deletes a registry key that is relative to this registry key.
-=end
+	# Deletes a registry key that is relative to this registry key.
 	def delete_key(base_key, recursive = true)
 		return self.client.registry.delete_key(self.hkey, base_key, recursive)
 	end
 
-=begin
-	close()
-
-	Closes the open key.  This must be called if the registry
-	key was opened.
-=end
+	# Closes the open key.  This must be called if the registry
+	# key was opened.
 	def close()
 		if (self.hkey != nil)
 			return self.client.registry.close_key(hkey)			
@@ -124,21 +92,13 @@ class RegistryKey
 	#
 	##
 
-=begin
-	set_value(name, type, data)
-
-	Sets a value relative to the opened registry key.
-=end
+	# Sets a value relative to the opened registry key.
 	def set_value(name, type, data)
 		return self.client.registry.set_value(self.hkey, name, type, data)
 	end
 
-=begin
-	query_value(name)
-
-	Queries the attributes of the supplied registry value relative to
-	the opened registry key.
-=end
+	# Queries the attributes of the supplied registry value relative to
+	# the opened registry key.
 	def query_value(name)
 		return self.client.registry.query_value(self.hkey, name)
 	end
@@ -149,6 +109,7 @@ class RegistryKey
 	#
 	##
 
+	# Returns the path to the key
 	def to_s
 		return self.root_key.to_s + "\\" + self.base_key
 	end

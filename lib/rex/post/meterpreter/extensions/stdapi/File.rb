@@ -53,24 +53,9 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::IO
 		return self.sysseek(offset, whence)
 	end
 
-	# Reads, at most, the supplied number of bytes from the file
-	def sysread(length)
-		return self.filed.read(length)
-	end
-
 	# Seeks to the supplied offset based on the supplied relativity
 	def sysseek(offset, whence = SEEK_SET)
 		return self.filed.seek(offset, whence)
-	end
-
-	# Writes the supplied buffer to the file
-	def syswrite(buf)
-		return self.filed.write(buf)
-	end
-
-	# Closes the file descriptor
-	def close
-		return self.filed.close
 	end
 
 protected

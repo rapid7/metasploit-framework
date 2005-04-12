@@ -11,24 +11,27 @@ module Meterpreter
 module Extensions
 module Stdapi
 
+##
+#
+# Process
+# -------
+#
+# This class implements the Rex::Post::Process interface.
+#
+##
 class Process < Rex::Post::Process
 
 	class <<self
 		attr_accessor :client
 	end
 
+	# Gets the process id that the remote side is executing under
 	def Process.getpid
 		request = Packet.create_request('stdapi_process_getpid')
 
 		response = client.send_request(request)
 
-		tlv = response.get_tlv(TLV_TYPE_PID)
-
-		if (tlv != nil)
-			return tlv.value
-		else
-			return 0
-		end
+		return response.get_tlv_value(TLV_TYPE_PID)
 	end
 
 end

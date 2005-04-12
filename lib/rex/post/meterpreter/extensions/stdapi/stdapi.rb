@@ -33,7 +33,6 @@ TLV_TYPE_FILE_PATH      = TLV_META_TYPE_STRING  | 1202
 TLV_TYPE_FILE_MODE      = TLV_META_TYPE_STRING  | 1203
 TLV_TYPE_STAT_BUF       = TLV_META_TYPE_COMPLEX | 1220
 
-
 DELETE_KEY_FLAG_RECURSIVE = (1 << 0)
 
 ###
@@ -57,28 +56,34 @@ class Stdapi < Extension
 		client.register_extension_alias('registry', self.registry)
 	end
 
+	# Sets the client instance on a duplicated copy of the supplied class
 	def brand(klass)
 		klass = klass.dup
 		klass.client = self.client
 		return klass
 	end
 
+	# Returns a copy of the Dir class
 	def dir
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Dir)
 	end
 
+	# Returns a copy of the File class
 	def file
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::File)
 	end
 
+	# Returns a copy of the FileStat class
 	def filestat
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::FileStat)
 	end
 
+	# Returns a copy of the Process class
 	def process
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Process)
 	end
-	
+
+	# Returns a copy of the Registry class
 	def registry
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Registry)
 	end
