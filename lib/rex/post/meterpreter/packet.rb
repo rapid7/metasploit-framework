@@ -54,6 +54,10 @@ TLV_TYPE_CHANNEL_DATA       = TLV_META_TYPE_RAW    |  52
 TLV_TYPE_CHANNEL_DATA_GROUP = TLV_META_TYPE_GROUP  |  53
 TLV_TYPE_CHANNEL_CLASS      = TLV_META_TYPE_UINT   |  54
 
+TLV_TYPE_SEEK_WHENCE        = TLV_META_TYPE_UINT   |  70
+TLV_TYPE_SEEK_OFFSET        = TLV_META_TYPE_UINT   |  71
+TLV_TYPE_SEEK_POS           = TLV_META_TYPE_UINT   |  72
+
 TLV_TYPE_EXCEPTION_CODE     = TLV_META_TYPE_UINT   | 300
 TLV_TYPE_EXCEPTION_STRING   = TLV_META_TYPE_STRING | 301
 
@@ -161,7 +165,7 @@ class Tlv
 				self.value = false
 			end
 		else
-			self.value = raw[8..raw.length-1]
+			self.value = raw[8..-1]
 		end
 
 		return length;
