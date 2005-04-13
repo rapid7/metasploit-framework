@@ -233,7 +233,36 @@ class Channel
 	# Handles dispatching I/O requests based on the request packet.
 	# The default implementation does nothing with direct I/O requests.
 	def dio_handler(dio, packet)
-		return nil
+		if (dio == CHANNEL_DIO_READ)
+			length = packet.get_tlv_value(TLV_TYPE_LENGTH)
+
+			return dio_read_handler(packet, length)
+		elsif (dio == CHANNEL_DIO_WRITE)
+			data = packet.get_tlv_value(TLV_TYPE_CHANNEL_DATA)
+
+			return dio_write_handler(packet, data)
+		elsif (dio == CHANNEL_DIO_CLOSE)
+			return dio_close_handler(packet)
+		end
+
+		return false;
+	end
+
+	# Stub read handler
+	def dio_read_handler(packet, length)
+		return false
+	end
+
+	# Stub write handler
+	def dio_write_handler(packet, data)
+		return false
+	end
+
+	# Stub close handler
+	def dio_close_handler(packet)
+		client.remove_channel(self)
+
+		return false
 	end
 
 	##

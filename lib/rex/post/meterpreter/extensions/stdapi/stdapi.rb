@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'Rex/Post/Meterpreter/Extension'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Tlv'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Dir'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/File'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/FileStat'
@@ -12,28 +13,6 @@ module Post
 module Meterpreter
 module Extensions
 module Stdapi
-
-# Process
-TLV_TYPE_PID            = TLV_META_TYPE_UINT    |    0
-
-# Registry
-TLV_TYPE_HKEY           = TLV_META_TYPE_UINT    | 1000
-TLV_TYPE_ROOT_KEY       = TLV_TYPE_HKEY
-TLV_TYPE_BASE_KEY       = TLV_META_TYPE_STRING  | 1001
-TLV_TYPE_PERMISSION     = TLV_META_TYPE_UINT    | 1002
-TLV_TYPE_KEY_NAME       = TLV_META_TYPE_STRING  | 1003
-TLV_TYPE_VALUE_NAME     = TLV_META_TYPE_STRING  | 1010
-TLV_TYPE_VALUE_TYPE     = TLV_META_TYPE_UINT    | 1011
-TLV_TYPE_VALUE_DATA     = TLV_META_TYPE_RAW     | 1012
-
-# Fs
-TLV_TYPE_DIRECTORY_PATH = TLV_META_TYPE_STRING  | 1200
-TLV_TYPE_FILE_NAME      = TLV_META_TYPE_STRING  | 1201
-TLV_TYPE_FILE_PATH      = TLV_META_TYPE_STRING  | 1202
-TLV_TYPE_FILE_MODE      = TLV_META_TYPE_STRING  | 1203
-TLV_TYPE_STAT_BUF       = TLV_META_TYPE_COMPLEX | 1220
-
-DELETE_KEY_FLAG_RECURSIVE = (1 << 0)
 
 ###
 #

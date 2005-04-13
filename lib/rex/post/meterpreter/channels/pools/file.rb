@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'Rex/Post/Meterpreter/Channels/Pool'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Tlv'
 
 module Rex
 module Post
@@ -18,6 +19,27 @@ module Pools
 #
 ###
 class File < Rex::Post::Meterpreter::Channels::Pool
+
+	##
+	#
+	# Factory
+	#
+	##
+
+	def File.open(client, name, mode = "r", perm = 0)
+		return Channel.create(client, 'stdapi_fs_file', 
+				self, CHANNEL_FLAG_SYNCHRONOUS, 
+				[
+					{ 
+						'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH, 
+						'value' => name       
+					},
+					{ 
+						'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_MODE, 
+						'value' => mode + "b" 
+					},
+				])
+	end
 
 	##
 	#
