@@ -5,6 +5,7 @@ require 'Rex/Post/Meterpreter/Packet'
 require 'Rex/Post/Meterpreter/Client'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Stdapi'
 
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/ProcessSubsystem/Image'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/ProcessSubsystem/Memory'
 
 module Rex
@@ -149,6 +150,7 @@ class Process < Rex::Post::Process
 
 		initialize_aliases(
 			{
+				'image'  => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Image.new(self),
 				'memory' => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Memory.new(self),
 			})
 	end

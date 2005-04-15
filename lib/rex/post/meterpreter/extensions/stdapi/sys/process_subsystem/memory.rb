@@ -11,6 +11,16 @@ module Stdapi
 module Sys
 module ProcessSubsystem
 
+###
+#
+# Memory
+# ------
+#
+# Provides an interface to allocate, free, read, write, query,
+# protect, lock, and unlock memory in the context of a given
+# process.
+#
+###
 class Memory
 
 	# Page protection translation hash
@@ -29,6 +39,12 @@ class Memory
 			PROT_COW              => PAGE_WRITECOPY,
 		PROT_WRITE               => PAGE_READWRITE
 	}
+
+	##
+	#
+	# Constructor
+	#
+	##
 
 	def initialize(process)
 		self.process = process
