@@ -1,12 +1,14 @@
 #!/usr/bin/ruby
 
+require 'Rex/Post/Meterpreter/ObjectAliases'
 require 'Rex/Post/Meterpreter/Extension'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Constants'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Tlv'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Dir'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/File'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/FileStat'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Process'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Registry'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Process'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Registry'
 
 module Rex
 module Post
@@ -28,11 +30,26 @@ class Stdapi < Extension
 
 		# Alias the following things on the client object so that they
 		# can be directly referenced
-		client.register_extension_alias('dir', self.dir)
-		client.register_extension_alias('file', self.file)
-		client.register_extension_alias('filestat', self.filestat)
-		client.register_extension_alias('process', self.process)
-		client.register_extension_alias('registry', self.registry)
+		client.register_extension_aliases(
+			[
+				{ 
+					'name' => 'fs',
+					'ext'  => ObjectAliases.new(
+						{
+							'dir'      => self.dir,
+							'file'     => self.file,
+							'filestat' => self.filestat
+						})
+				},
+				{
+					'name' => 'sys',
+					'ext'  => ObjectAliases.new(
+						{
+							'process'  => self.process,
+							'registry' => self.registry
+						})
+				}
+			])
 	end
 
 	# Sets the client instance on a duplicated copy of the supplied class
@@ -59,12 +76,12 @@ class Stdapi < Extension
 
 	# Returns a copy of the Process class
 	def process
-		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Process)
+		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Process)
 	end
 
 	# Returns a copy of the Registry class
 	def registry
-		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Registry)
+		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry)
 	end
 end
 

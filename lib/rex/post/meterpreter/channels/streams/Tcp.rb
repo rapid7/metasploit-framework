@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'Rex/Post/Meterpreter/Channels/Stream'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Tlv'
 
 module Rex
 module Post
@@ -24,12 +25,18 @@ class Tcp < Rex::Post::Meterpreter::Channels::Stream
 	##
 
 	def Tcp.open(client, host, port)
-		return Channel.create(client, 'net_stream_tcp',
+		return Channel.create(client, 'stdapi_net_tcp_client',
 			self, CHANNEL_FLAG_SYNCHRONOUS,
 			[
-				{ 'type' => 
-
-			]
+				{ 
+					'type'  => TLV_TYPE_HOST_NAME, 
+					'value' => host
+				},
+				{
+					'type'  => TLV_TYPE_PORT,
+					'value' => port
+				}
+			])
 	end
 
 	##

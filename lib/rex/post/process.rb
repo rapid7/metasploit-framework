@@ -5,8 +5,6 @@ module Post
 
 class Process
 
-	private_class_method :new
-
 	def Process.getresuid
 		raise NotImplementedError
 	end

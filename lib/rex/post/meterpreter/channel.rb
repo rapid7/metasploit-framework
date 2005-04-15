@@ -105,6 +105,9 @@ class Channel
 		response = client.send_request(request)
 		cid      = response.get_tlv(TLV_TYPE_CHANNEL_ID).value
 
+		# FIXME: race condition where data could be sent to the channel
+		#        before it's added to the list.
+
 		# Create the channel instance
 		channel  = klass.new(client, cid, type, flags)
 	

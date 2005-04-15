@@ -5,14 +5,15 @@ require 'Rex/Post/Meterpreter/Packet'
 require 'Rex/Post/Meterpreter/Client'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Constants'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Stdapi'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/RegistryKey'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/RegistryValue'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/RegistrySubsystem/RegistryKey'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/RegistrySubsystem/RegistryValue'
 
 module Rex
 module Post
 module Meterpreter
 module Extensions
 module Stdapi
+module Sys
 
 ###
 #
@@ -52,8 +53,8 @@ class Registry
 
 		response = client.send_request(request)
 
-		return RegistryKey.new(client, root_key, base_key, perm,
-				response.get_tlv(TLV_TYPE_HKEY).value)
+		return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryKey.new(
+				client, root_key, base_key, perm, response.get_tlv(TLV_TYPE_HKEY).value)
 	end
 
 	# Deletes the supplied registry key.
@@ -150,7 +151,8 @@ class Registry
 			data = data.unpack("N")[0]
 		end
 
-		return RegistryValue.new(client, hkey, name, type, data)
+		return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
+				client, hkey, name, type, data)
 	end
 
 	# Deletes the registry value supplied in name from the supplied
@@ -179,7 +181,8 @@ class Registry
 		response = client.send_request(request)
 
 		response.each(TLV_TYPE_VALUE_NAME) { |value_name|
-			values << RegistryValue.new(client, hkey, value_name.value)
+			values << Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
+					client, hkey, value_name.value)
 		}
 
 		return values
@@ -187,4 +190,4 @@ class Registry
 
 end
 
-end; end; end; end; end
+end; end; end; end; end; end

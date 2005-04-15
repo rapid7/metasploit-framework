@@ -2,8 +2,11 @@
 
 ###
 #
+# Windows Specific Constants
+# --------------------------
+#
 # These are put into the global namespace for now
-# so that they can be referenced globally
+# so that they can be referenced globally.  
 #
 ###
 
@@ -28,6 +31,42 @@ GENERIC_READ             = 0x80000000
 GENERIC_WRITE            = 0x40000000
 GENERIC_EXECUTE          = 0x20000000
 GENERIC_ALL              = 0x10000000
+
+##
+#
+# Page Protections
+#
+##
+PAGE_NOACCESS            = 0x00000001
+PAGE_READONLY            = 0x00000002
+PAGE_READWRITE           = 0x00000004
+PAGE_WRITECOPY           = 0x00000008
+PAGE_EXECUTE             = 0x00000010
+PAGE_EXECUTE_READ        = 0x00000020
+PAGE_EXECUTE_READWRITE   = 0x00000040
+PAGE_EXECUTE_WRITECOPY   = 0x00000080
+PAGE_GUARD               = 0x00000100
+PAGE_NOCACHE             = 0x00000200
+PAGE_WRITECOMBINE        = 0x00000400
+MEM_COMMIT               = 0x00001000
+MEM_RESERVE              = 0x00002000
+MEM_DECOMMIT             = 0x00004000
+MEM_RELEASE              = 0x00008000
+MEM_FREE                 = 0x00010000
+MEM_PRIVATE              = 0x00020000
+MEM_MAPPED               = 0x00040000
+MEM_RESET                = 0x00080000
+MEM_TOP_DOWN             = 0x00100000
+MEM_WRITE_WATCH          = 0x00200000
+MEM_PHYSICAL             = 0x00400000
+MEM_LARGE_PAGES          = 0x20000000
+MEM_4MB_PAGES            = 0x80000000
+SEC_FILE                 = 0x00800000
+SEC_IMAGE                = 0x01000000
+SEC_RESERVE              = 0x04000000
+SEC_COMMIT               = 0x08000000
+SEC_NOCACHE              = 0x10000000
+MEM_IMAGE                = SEC_IMAGE
 
 ##
 #
@@ -72,3 +111,22 @@ REG_DWORD_LITTLE_ENDIAN  = 4
 REG_DWORD_BIG_ENDIAN     = 5
 REG_LINK                 = 6
 REG_MULTI_SZ             = 7
+
+##
+#
+# Process Permissions
+#
+##
+PROCESS_TERMINATE        = 0x00000001
+PROCESS_CREATE_THREAD    = 0x00000002
+PROCESS_SET_SESSIONID    = 0x00000004
+PROCESS_VM_OPERATION     = 0x00000008
+PROCESS_VM_READ          = 0x00000010
+PROCESS_VM_WRITE         = 0x00000020
+PROCESS_DUP_HANDLE       = 0x00000040
+PROCESS_CREATE_PROCESS   = 0x00000080
+PROCESS_SET_QUOTA        = 0x00000100
+PROCESS_SET_INFORMATION  = 0x00000200
+PROCESS_QUERY_INFORMATION= 0x00000400
+PROCESS_SUSPEND_RESUME   = 0x00000800
+PROCESS_ALL_ACCESS       = STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | 0xFFF

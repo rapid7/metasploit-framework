@@ -34,6 +34,8 @@ class Stream
 	# Passes the initialization information up to the base class
 	def initialize(client, cid, type, flags)
 		super(client, cid, type, flags)
+
+		initialize_abstraction
 	end
 
 	##

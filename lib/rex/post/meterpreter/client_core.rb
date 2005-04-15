@@ -81,7 +81,7 @@ class ClientCore < Extension
 
 		# If we must upload the library, do so now
 		if ((load_flags & LOAD_LIBRARY_FLAG_LOCAL) != LOAD_LIBRARY_FLAG_LOCAL)
-			image = IO.readlines(library_path).join
+			image = ::IO.readlines(library_path).join
 
 			if (image != nil)
 				request.add_tlv(TLV_TYPE_DATA, image)

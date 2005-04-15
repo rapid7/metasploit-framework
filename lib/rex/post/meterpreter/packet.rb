@@ -165,7 +165,7 @@ class Tlv
 				self.value = false
 			end
 		else
-			self.value = raw[8..-1]
+			self.value = raw[8..length-1]
 		end
 
 		return length;

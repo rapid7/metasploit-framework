@@ -1,13 +1,15 @@
 #!/usr/bin/ruby
 
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Constants'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Registry'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Registry'
 
 module Rex
 module Post
 module Meterpreter
 module Extensions
 module Stdapi
+module Sys
+module RegistrySubsystem
 
 ###
 #
@@ -45,13 +47,13 @@ class RegistryKey
 	# Retrieves all of the registry keys that are direct descendents of
 	# the class' registry key.
 	def enum_key()
-		return self.client.registry.enum_key(self.hkey)
+		return self.client.sys.registry.enum_key(self.hkey)
 	end
 
 	# Retrieves all of the registry values that exist within the opened 
 	# registry key.
 	def enum_value()
-		return self.client.registry.enum_value(self.hkey)
+		return self.client.sys.registry.enum_value(self.hkey)
 	end
 
 
@@ -63,24 +65,24 @@ class RegistryKey
 
 	# Opens a registry key that is relative to this registry key.
 	def open_key(base_key, perm = KEY_READ)
-		return self.client.registry.open_key(self.hkey, base_key, perm)
+		return self.client.sys.registry.open_key(self.hkey, base_key, perm)
 	end
 
 	# Creates a registry key that is relative to this registry key.
 	def create_key(base_key, perm = KEY_READ)
-		return self.client.registry.create_key(self.hkey, base_key, perm)
+		return self.client.sys.registry.create_key(self.hkey, base_key, perm)
 	end
 
 	# Deletes a registry key that is relative to this registry key.
 	def delete_key(base_key, recursive = true)
-		return self.client.registry.delete_key(self.hkey, base_key, recursive)
+		return self.client.sys.registry.delete_key(self.hkey, base_key, recursive)
 	end
 
 	# Closes the open key.  This must be called if the registry
 	# key was opened.
 	def close()
 		if (self.hkey != nil)
-			return self.client.registry.close_key(hkey)			
+			return self.client.sys.registry.close_key(hkey)			
 		end
 
 		return false
@@ -94,13 +96,13 @@ class RegistryKey
 
 	# Sets a value relative to the opened registry key.
 	def set_value(name, type, data)
-		return self.client.registry.set_value(self.hkey, name, type, data)
+		return self.client.sys.registry.set_value(self.hkey, name, type, data)
 	end
 
 	# Queries the attributes of the supplied registry value relative to
 	# the opened registry key.
 	def query_value(name)
-		return self.client.registry.query_value(self.hkey, name)
+		return self.client.sys.registry.query_value(self.hkey, name)
 	end
 
 	##
@@ -122,4 +124,4 @@ protected
 	attr_writer   :hkey, :root_key, :base_key, :perm
 end
 
-end; end; end; end; end
+end; end; end; end; end; end; end

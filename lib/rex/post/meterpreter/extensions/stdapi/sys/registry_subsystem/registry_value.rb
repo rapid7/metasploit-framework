@@ -1,13 +1,15 @@
 #!/usr/bin/ruby
 
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Constants'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Registry'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Registry'
 
 module Rex
 module Post
 module Meterpreter
 module Extensions
 module Stdapi
+module Sys
+module RegistrySubsystem
 
 ###
 #
@@ -31,7 +33,7 @@ class RegistryValue
 		if (type == nil)
 			type = self.type
 		end
-		if (self.client.registry.set_value(self.hkey, self.name,
+		if (self.client.sys.registry.set_value(self.hkey, self.name,
 				type, data))
 			self.data = data
 			self.type = type
@@ -44,7 +46,7 @@ class RegistryValue
 
 	# Queries the value's data.
 	def query()
-		val =  self.client.registry.query_value(self.hkey, self.name)
+		val =  self.client.sys.registry.query_value(self.hkey, self.name)
 
 		if (val != nil)
 			self.data = val.data
@@ -56,7 +58,7 @@ class RegistryValue
 
 	# Deletes the value.
 	def delete()
-		return self.client.registry.delete_value(self.hkey, self.name)
+		return self.client.sys.registry.delete_value(self.hkey, self.name)
 	end
 
 	attr_reader   :hkey, :name, :type, :data
@@ -65,4 +67,4 @@ protected
 	attr_writer   :hkey, :name, :type, :data
 end
 
-end; end; end; end; end
+end; end; end; end; end; end; end
