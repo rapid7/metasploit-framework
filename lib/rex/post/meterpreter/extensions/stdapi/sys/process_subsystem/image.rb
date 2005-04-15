@@ -32,6 +32,16 @@ class Image
 		self.process = process
 	end
 
+	def [](key)
+		each_image { |i|
+			if (i['name'].downcase == key.downcase)
+				return i['base']
+			end
+		}
+
+		return nil
+	end
+
 	# Loads an image file into the context of the process
 	def load(image_path)
 		request = Packet.create_request('stdapi_sys_process_image_load')
@@ -68,6 +78,33 @@ class Image
 		response = process.client.send_request(request)
 
 		return true
+	end
+
+	# Enumerates through each image in the process
+	def each_image(&block)
+		get_images.each(&block)
+	end
+
+	# Returns an array of images in the process with hash objects that
+	# have keys for 'name', 'path', and 'base'
+	def get_images
+		request = Packet.create_request('stdapi_sys_process_image_get_images')
+		images  = []
+
+		request.add_tlv(TLV_TYPE_HANDLE, process.handle)
+
+		response = process.client.send_request(request)
+
+		response.each(TLV_TYPE_IMAGE_GROUP) { |i|
+			images <<
+				{
+					'name' => i.get_tlv_value(TLV_TYPE_IMAGE_NAME),
+					'base' => i.get_tlv_value(TLV_TYPE_IMAGE_BASE),
+					'path' => i.get_tlv_value(TLV_TYPE_IMAGE_FILE_PATH)
+				}
+		}
+
+		return images
 	end
 
 protected
