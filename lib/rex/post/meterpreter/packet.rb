@@ -150,7 +150,7 @@ class Tlv
 
 		if (self.type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
 			if (raw.length > 0)
-				self.value = raw[8..-2]
+				self.value = raw[8..length-2]
 			else
 				self.value = nil
 			end
@@ -335,13 +335,18 @@ class GroupTlv < Tlv
 		self.type = raw.unpack("NN")[1]
 
 		# Enumerate all of the TLVs
-		while (offset < raw.length)
+		while (offset < raw.length-1)
+
+			tlv = nil
 
 			# Get the length and type
 			length, type = raw[offset..offset+8].unpack("NN")
 
-			# Create the TLV and serialize it
-			tlv = Tlv.new(type)
+			if (type & TLV_META_TYPE_GROUP == TLV_META_TYPE_GROUP)
+				tlv = GroupTlv.new(type)
+			else
+				tlv = Tlv.new(type)
+			end
 
 			tlv.from_r(raw[offset..offset+length])
 

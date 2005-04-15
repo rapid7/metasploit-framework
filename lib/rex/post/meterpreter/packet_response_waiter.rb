@@ -21,7 +21,7 @@ class PacketResponseWaiter
 	# Initializes a response waiter instance for the supplied request
 	# identifier
 	def initialize(rid, completion_routine = nil, completion_param = nil)
-		self.rid      = rid
+		self.rid      = rid.dup
 		self.response = nil
 
 		if (completion_routine)

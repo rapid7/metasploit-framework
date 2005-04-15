@@ -36,6 +36,18 @@ class Process < Rex::Post::Process
 		attr_accessor :client
 	end
 
+	# Returns the process identifier of the process supplied in key if it's
+	# valid
+	def Process.[](key)
+		each_process { |p|
+			if (p['name'].downcase == key.downcase)
+				return p['pid']
+			end
+		}
+
+		return nil
+	end
+
 	# Attachs to the supplied process with a given set of permissions
 	def Process.attach(pid = nil, perms = nil)
 		real_perms = 0
@@ -98,6 +110,31 @@ class Process < Rex::Post::Process
 		return response.get_tlv_value(TLV_TYPE_PID)
 	end
 
+	# Enumerates all of the elements in the array returned by get_processes
+	def Process.each_process(&block)
+		self.get_processes.each(&block)
+	end
+
+	# Returns an array of processes with hash objects that have
+	# keys for 'pid', 'name', and 'path'.
+	def Process.get_processes
+		request   = Packet.create_request('stdapi_sys_process_get_processes')
+		processes = []
+
+		response = client.send_request(request)
+
+		response.each(TLV_TYPE_PROCESS_GROUP) { |p|
+			processes << 
+				{
+					'pid'  => p.get_tlv_value(TLV_TYPE_PID),
+					'name' => p.get_tlv_value(TLV_TYPE_PROCESS_NAME),
+					'path' => p.get_tlv_value(TLV_TYPE_PROCESS_PATH),
+				}
+		}
+
+		return processes
+	end
+
 
 	##
 	#
@@ -105,6 +142,7 @@ class Process < Rex::Post::Process
 	#
 	##
 
+	# Initializes the process instance and its aliases
 	def initialize(handle)
 		self.client = self.class.client
 		self.handle = handle
@@ -115,6 +153,18 @@ class Process < Rex::Post::Process
 			})
 	end
 
+	# Closes the handle to the process that was opened
+	def close
+		request = Packet.create_request('stdapi_sys_process_close')
+
+		request.add_tlv(TLV_TYPE_HANDLE, handle)
+
+		response = client.send_request(request)
+
+		handle = nil;
+
+		return true
+	end
 
 	attr_reader   :client, :handle
 protected
