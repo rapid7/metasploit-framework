@@ -3,9 +3,11 @@
 require 'Rex/Post/Process'
 require 'Rex/Post/Meterpreter/Packet'
 require 'Rex/Post/Meterpreter/Client'
+require 'Rex/Post/Meterpreter/Channels/Pools/StreamPool'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Stdapi'
 
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/ProcessSubsystem/Image'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/ProcessSubsystem/IO'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/ProcessSubsystem/Memory'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/ProcessSubsystem/Thread'
 
@@ -99,8 +101,55 @@ class Process < Rex::Post::Process
 	end
 
 	# Executes an application using the arguments provided
-	def Process.execute(opts)
-		raise NotImplementedError
+	#
+	# Hash arguments supported:
+	#
+	#   Hidden      => true/false
+	#   Channelized => true/false
+	#   Suspended   => true/false
+	#
+	def Process.execute(path, arguments = nil, opts = nil)
+		request = Packet.create_request('stdapi_sys_process_execute')
+		flags   = 0
+
+		request.add_tlv(TLV_TYPE_PROCESS_PATH, path);
+
+		# If process arguments were supplied
+		if (arguments != nil)
+			request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, arguments);
+		end
+
+		# If we were supplied optional arguments...
+		if (opts != nil)
+			if (opts['Hidden'])
+				flags |= PROCESS_EXECUTE_FLAG_HIDDEN
+			end
+			if (opts['Channelized'])
+				flags |= PROCESS_EXECUTE_FLAG_CHANNELIZED
+			end
+			if (opts['Suspended'])
+				flags |= PROCESS_EXECUTE_FLAG_SUSPENDED
+			end
+		end
+
+		request.add_tlv(TLV_TYPE_PROCESS_FLAGS, flags);
+
+		response = client.send_request(request)
+
+		# Get the response parameters
+		pid        = response.get_tlv_value(TLV_TYPE_PID)
+		handle     = response.get_tlv_value(TLV_TYPE_PROCESS_HANDLE)
+		channel_id = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
+		channel    = nil
+
+		# If we were creating a channel out of this
+		if (channel_id != nil)
+			channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client, 
+					channel_id, "stdapi_process", CHANNEL_FLAG_SYNCHRONOUS)
+		end
+
+		# Retrun a process instance
+		return self.new(pid, handle, channel)
 	end
 
 	# Gets the process id that the remote side is executing under
@@ -145,9 +194,10 @@ class Process < Rex::Post::Process
 	##
 
 	# Initializes the process instance and its aliases
-	def initialize(pid, handle)
-		self.client = self.class.client
-		self.handle = handle
+	def initialize(pid, handle, channel = nil)
+		self.client  = self.class.client
+		self.handle  = handle
+		self.channel = channel
 
 		# If the process identifier is zero, then we must lookup the current
 		# process identifier
@@ -160,6 +210,7 @@ class Process < Rex::Post::Process
 		initialize_aliases(
 			{
 				'image'  => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Image.new(self),
+				'io'     => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::IO.new(self),
 				'memory' => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Memory.new(self),
 				'thread' => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Thread.new(self),
 			})
@@ -188,9 +239,9 @@ class Process < Rex::Post::Process
 		return true
 	end
 
-	attr_reader   :client, :handle, :pid
+	attr_reader   :client, :handle, :channel, :pid
 protected
-	attr_writer   :client, :handle, :pid
+	attr_writer   :client, :handle, :channel, :pid
 
 	# Gathers information about the process and returns a hash
 	def get_info

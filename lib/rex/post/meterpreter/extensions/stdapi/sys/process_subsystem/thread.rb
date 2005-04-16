@@ -113,14 +113,11 @@ class Thread
 		request = Packet.create_request('stdapi_sys_process_thread_get_threads')
 		threads = []
 
-		puts "getting threads"
-
 		request.add_tlv(TLV_TYPE_PID, process.pid)
 
 		response = process.client.send_request(request)
 
 		response.each(TLV_TYPE_THREAD_ID) { |thr|
-			puts thr.value
 			threads << thr.value
 		}
 
