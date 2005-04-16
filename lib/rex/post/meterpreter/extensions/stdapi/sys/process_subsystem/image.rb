@@ -59,6 +59,7 @@ class Image
 	def get_procedure_address(image_file, procedure)
 		request = Packet.create_request('stdapi_sys_process_image_get_proc_address')
 
+		request.add_tlv(TLV_TYPE_HANDLE, process.handle)
 		request.add_tlv(TLV_TYPE_IMAGE_FILE, image_file)
 		request.add_tlv(TLV_TYPE_PROCEDURE_NAME, procedure)
 
