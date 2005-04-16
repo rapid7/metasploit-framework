@@ -93,7 +93,14 @@ class Tlv
 
 	def initialize(type, value = nil)
 		@type  = type
-		@value = value
+		
+		if (value != nil)
+			if (type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
+				@value = value.dup
+			else
+				@value = value
+			end
+		end
 	end
 
 	##

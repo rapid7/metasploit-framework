@@ -13,8 +13,14 @@ GEN_READ          = (1 <<  0)
 GEN_WRITE         = (1 <<  1)
 GEN_EXEC          = (1 <<  2)
 
-# Generic process attach permissions
+# Generic process open permissions
 PROCESS_READ      = (1 <<  0)
 PROCESS_WRITE     = (1 <<  1)
 PROCESS_EXECUTE   = (1 <<  2)
 PROCESS_ALL       = 0xffffffff
+
+# Generic thread open permissions
+THREAD_READ       = (1 <<  0)
+THREAD_WRITE      = (1 <<  1)
+THREAD_EXECUTE    = (1 <<  2)
+THREAD_ALL        = 0xffffffff
