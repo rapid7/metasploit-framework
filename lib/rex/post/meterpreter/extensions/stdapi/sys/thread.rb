@@ -106,14 +106,10 @@ class Thread < Rex::Post::Thread
 
 		request.add_tlv(TLV_TYPE_THREAD_HANDLE, handle)
 
-		puts "shup"
-
 		# Add all of the register that we're setting
 		regs_hash.each_key { |name|
 			t = request.add_tlv(TLV_TYPE_REGISTER)
 		
-			puts "key is #{name}"
-
 			t.add_tlv(TLV_TYPE_REGISTER_NAME, name)
 			t.add_tlv(TLV_TYPE_REGISTER_VALUE_32, regs_hash[name])
 		}
