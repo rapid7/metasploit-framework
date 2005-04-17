@@ -77,6 +77,7 @@
 
 
 \newcommand{\pdfpart}[1]{\label{pdfpart-#1}\pdfbookmark[0]{#1}{pdfpart-#1}\part{#1}}
+\newenvironment{sitemize}{\begin{itemize}\itemsep 5pt\large}{\end{itemize}}
 
 % turn off the navigation on the bottom yo
 \setbeamertemplate{navigation symbols}{}
@@ -96,12 +97,12 @@
     A \alert{foo}
   \end{definition}
   \begin{example}
-    \begin{itemize}
+    \begin{sitemize}
     \item holla
     \item back
     \pause
     \item killa
-    \end{itemize}
+    \end{sitemize}
   \end{example}
 \end{frame}
 
@@ -163,21 +164,21 @@
 \section{Introduction}
 \begin{frame}
   \frametitle{Randomness, who cares?}
-  \begin{itemize}
+  \begin{sitemize}
     \item NOTE: this slide can probably be trashed.. just temp for now
     \item Adding randomness to exploits
-    \begin{itemize}
+    \begin{sitemize}
       \item Less to signature / anti-nids
       \item Helps to uncover bugs in your exploit
-    \end{itemize}
+    \end{sitemize}
     \pause
     \item Adding randomness to machine code
-    \begin{itemize}
+    \begin{sitemize}
       \item Less to signature / anti-nids
       \item Increased robustness (bad chars / bad regs)
       \item Street credz? :-)
-    \end{itemize}
-  \end{itemize}
+    \end{sitemize}
+  \end{sitemize}
 \end{frame}
 
 \section{Conservative Polymorphism}
@@ -203,24 +204,24 @@
 
 \begin{frame}
   \frametitle{Multibyte Sled Concept}
-  \begin{itemize}
+  \begin{sitemize}
     \item Optyx released multibyte generator at Interz0ne 1
     \item Generates instructions 1 to 6 bytes long, and 0x66 prefix
     \item 1 byte aligned, land anywhere, end at the same byte
-  \end{itemize}
-  \begin{itemize}
+  \end{sitemize}
+  \begin{sitemize}
     \pause
     \item Builds the sled from back to front
     \item Continually prepending byte (opcode) to sled
     \item Generates random byte and check against tables
     \pause
-    \begin{itemize}
+    \begin{sitemize}
       \item Is the instruction length too long?
       \item Is it a valid instruction?
       \item Does it have any bad bytes?
       \item Does it modify don't-smash registers?
-    \end{itemize}
-  \end{itemize}
+    \end{sitemize}
+  \end{sitemize}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -342,22 +343,22 @@ real    0m12.404s
 \subsection{Conclusion}
 \begin{frame}
   \frametitle{Benefits}
-  \begin{itemize}
+  \begin{sitemize}
     \item Not very difficult to gain lots more randomness
     \item NIDS is far, far, behind
     \item Added robustness (bad char / bad regs)
     \item More versatile sled generation (nop stuffing, etc)
-  \end{itemize}
+  \end{sitemize}
 \end{frame}
 \begin{frame}
   \frametitle{Possible Improvements}
-  \begin{itemize}
+  \begin{sitemize}
     \item Support processor flags (nop stuffing)
     \item Support 2-byte opcodes / escape groups (not worth it)
     \item Improved scoring systems, look-ahead, etc
     \item Try to output according to a given byte distribution
     \item Make it faster and use less memory
-  \end{itemize}
+  \end{sitemize}
 \end{frame}
 
 
@@ -406,27 +407,27 @@ real    0m12.404s
   \frametitle<presentation>{Summary}
 
   % Keep the summary *very short*.
-  \begin{itemize}
+  \begin{sitemize}
   \item
     The \alert{first main message} of your talk in one or two lines.
   \item
     The \alert{second main message} of your talk in one or two lines.
   \item
     Perhaps a \alert{third message}, but not more than that.
-  \end{itemize}
+  \end{sitemize}
   
   % The following outlook is optional.
   \vskip0pt plus.5fill
-  \begin{itemize}
+  \begin{sitemize}
   \item
     Outlook
-    \begin{itemize}
+    \begin{sitemize}
     \item
       Something you haven't solved.
     \item
       Something else you haven't solved.
-    \end{itemize}
-  \end{itemize}
+    \end{sitemize}
+  \end{sitemize}
 \end{frame}
 
 
