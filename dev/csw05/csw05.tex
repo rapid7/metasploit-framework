@@ -172,6 +172,100 @@
 \end{frame}
 
 \begin{frame}[fragile]
+  \frametitle{ADMmutate and optyx-mutate Gzip'd}
+  {\footnotesize
+  \begin{verbatim}
+# ADMmutate
+
+$ time ./nops 1000000| gzip -v >/dev/null
+ 27.3%
+real    0m0.241s
+
+# optyx's interz0ne mutate
+
+$ time ./driver nop 1000000 | gzip -v >/dev/null
+ 29.7%
+real    0m0.467s
+\end{verbatim}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Backwardz}
+  {\footnotesize
+  \begin{semiverbatim}
+  \textbf<11>{bb} \textbf<10,11>{b0} \textbf<9,10,11>{bf} \textbf<8,9,11>{2c} \textbf<7,8,9,11>{b6} \textbf<6,7,9>{27} \textbf<5>{67,9} \textbf<4,5>{2F} \textbf<3>{4A} \textbf<2>{1b} \textbf<1,2>{f9} --- shellcode
+  |  |  |  |  |  |  |  |  |  |  | \textbf<1>{... stc}
+  |  |  |  |  |  |  |  |  |  |____^ \textbf<2>{. sbb edi,ecx}
+  |  |  |  |  |  |  |  |  | \textbf<3>{......... dec edx}
+  |  |  |  |  |  |  |  | \textbf<4>{............ das}
+  |  |  |  |  |  |  |____^ \textbf<5>{.......... a16 das}
+  |  |  |  |  |  | \textbf<6>{.................. daa}
+  |  |  |  |  |____^ \textbf<7>{................ mov dh, 0x27}
+  |  |  |  |____^ \textbf<8>{................... sub al, 0xb6}
+  |  |  |_____________^ \textbf<9>{............. mov edi, 0x6727b62c}
+  |  |____^ \textbf<10>{......................... mov al, 0xbf}
+  |_____________^ \textbf<11>{................... mov ebx, 0xb62cbfb0}
+\end{semiverbatim}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{OptyNop2 Output}
+  {\footnotesize
+  \begin{verbatim}
+$ ./waka 1000 4 5 | ndisasm -u - | head -700 | tail -20
+000003B6  05419F40D4        add eax,0xd4409f41
+000003BB  711C              jno 0x3d9
+000003BD  9B                wait
+000003BE  2C98              sub al,0x98
+000003C0  37                aaa
+000003C1  24A8              and al,0xa8
+000003C3  27                daa
+000003C4  E00D              loopne 0x3d3
+000003C6  6692              xchg ax,dx
+000003C8  2F                das
+000003C9  49                dec ecx
+000003CA  B34A              mov bl,0x4a
+000003CC  F5                cmc
+000003CD  BA4B257715        mov edx,0x1577254b
+000003D2  700C              jo 0x3e0
+000003D4  C0D6B0            rcl dh,0xb0
+000003D7  A9FD469342        test eax,0x429346fd
+000003DC  67BBB191B23D      a16 mov ebx,0x3db291b1
+000003E2  1D9938FCB6        sbb eax,0xb6fc3899
+000003E7  43                inc ebx
+\end{verbatim}
+}
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{OptyNop2 Gzip'd}
+  {\footnotesize
+  \begin{verbatim}
+# C version, save ESP and EBP
+
+$ time ./waka 1000000 4 5 | gzip -v >/dev/null
+ 12.2%
+real    0m11.900s
+
+# save just ESP
+
+$ time ./waka 1000000 4 | gzip -v >/dev/null
+ 11.7%
+real    0m11.277s
+
+# save nothing (good way to crash process)
+
+$ time ./waka 1000000 | gzip -v >/dev/null
+  8.3%
+real    0m12.404s
+\end{verbatim}
+}
+\end{frame}
+
+\begin{frame}[fragile]
   \frametitle{ADMmutate Distribution - 1}
   \include{admtable}
 \end{frame}
