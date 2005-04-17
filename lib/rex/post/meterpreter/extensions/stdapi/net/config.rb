@@ -94,10 +94,28 @@ class Config
 
 	# Adds a route to the target machine
 	def add_route(subnet, netmask, gateway)
+		request = Packet.create_request('stdapi_net_config_add_route')
+
+		request.add_tlv(TLV_TYPE_SUBNET_STRING, subnet)
+		request.add_tlv(TLV_TYPE_NETMASK_STRING, netmask)
+		request.add_tlv(TLV_TYPE_GATEWAY_STRING, gateway)
+
+		response = client.send_request(request)
+
+		return true
 	end
 
 	# Removes a route from the target machine
 	def remove_route(subnet, netmask, gateway)
+		request = Packet.create_request('stdapi_net_config_remove_route')
+
+		request.add_tlv(TLV_TYPE_SUBNET_STRING, subnet)
+		request.add_tlv(TLV_TYPE_NETMASK_STRING, netmask)
+		request.add_tlv(TLV_TYPE_GATEWAY_STRING, gateway)
+
+		response = client.send_request(request)
+
+		return true
 	end
 
 protected
