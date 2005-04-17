@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
 
+require 'ipaddr'
+
 module Rex
 module Post
 module Meterpreter
@@ -25,8 +27,8 @@ class Interface
 	##
 	
 	def initialize(ip, netmask, mac_addr, mac_name)
-		self.ip       = convert_to_string(ip)
-		self.netmask  = convert_to_string(netmask)
+		self.ip       = IPAddr.ntop(ip)
+		self.netmask  = IPAddr.ntop(netmask)
 		self.mac_addr = mac_addr
 		self.mac_name = mac_name
 	end
@@ -43,13 +45,6 @@ class Interface
 	end
 
 	attr_accessor :ip, :netmask, :mac_addr, :mac_name
-
-protected
-
-	# Converts the raw network-byte order IP address into a string
-	def convert_to_string(raw)
-		return sprintf("%d.%d.%d.%d", raw[0], raw[1], raw[2], raw[3])
-	end
 
 end
 

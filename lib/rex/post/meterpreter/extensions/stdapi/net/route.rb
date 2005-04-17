@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
 
+require 'ipaddr'
+
 module Rex
 module Post
 module Meterpreter
@@ -24,9 +26,9 @@ class Route
 	##
 	
 	def initialize(subnet, netmask, gateway)
-		self.subnet  = convert_to_string(subnet)
-		self.netmask = convert_to_string(netmask)
-		self.gateway = convert_to_string(gateway)
+		self.subnet  = IPAddr.ntop(subnet)
+		self.netmask = IPAddr.ntop(netmask)
+		self.gateway = IPAddr.ntop(gateway)
 	end
 
 	# Provides a pretty version of the route
@@ -35,13 +37,6 @@ class Route
 	end
 
 	attr_accessor :subnet, :netmask, :gateway
-
-protected
-
-	# Converts the raw network-byte order IP address into a string
-	def convert_to_string(raw)
-		return sprintf("%d.%d.%d.%d", raw[0], raw[1], raw[2], raw[3])
-	end
 
 end
 
