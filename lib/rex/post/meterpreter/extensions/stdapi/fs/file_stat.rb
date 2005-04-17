@@ -8,6 +8,7 @@ module Post
 module Meterpreter
 module Extensions
 module Stdapi
+module Fs
 
 ###
 #
@@ -89,4 +90,4 @@ protected
 
 end
 
-end; end; end; end; end
+end; end; end; end; end; end

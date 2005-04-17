@@ -4,16 +4,17 @@ require 'Rex/Post/File'
 require 'Rex/Post/Meterpreter/Channel'
 require 'Rex/Post/Meterpreter/Channels/Pools/File'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Stdapi'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/IO'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/FileStat'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Fs/IO'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Fs/FileStat'
 
 module Rex
 module Post
 module Meterpreter
 module Extensions
 module Stdapi
+module Fs
 
-class File < Rex::Post::Meterpreter::Extensions::Stdapi::IO
+class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
 	include Rex::Post::File
 	
@@ -22,7 +23,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::IO
 	end
 
 	def File.stat(name)
-		return client.filestat.new(name)
+		return client.fs.filestat.new(name)
 	end
 
 	##
@@ -81,4 +82,4 @@ protected
 
 end
 
-end; end; end; end; end
+end; end; end; end; end; end

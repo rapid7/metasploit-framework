@@ -4,9 +4,9 @@ require 'Rex/Post/Meterpreter/ObjectAliases'
 require 'Rex/Post/Meterpreter/Extension'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Constants'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Tlv'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Dir'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/File'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/FileStat'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Fs/Dir'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Fs/File'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Fs/FileStat'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/UI'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Process'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Registry'
@@ -67,17 +67,17 @@ class Stdapi < Extension
 
 	# Returns a copy of the Dir class
 	def dir
-		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Dir)
+		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::Dir)
 	end
 
 	# Returns a copy of the File class
 	def file
-		brand(Rex::Post::Meterpreter::Extensions::Stdapi::File)
+		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File)
 	end
 
 	# Returns a copy of the FileStat class
 	def filestat
-		brand(Rex::Post::Meterpreter::Extensions::Stdapi::FileStat)
+		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::FileStat)
 	end
 
 	# Returns a copy of the Process class

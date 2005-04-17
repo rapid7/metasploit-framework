@@ -29,6 +29,10 @@ class UI
 		raise NotImplementedError
 	end
 
+	def idle_time
+		raise NotImplementedError
+	end
+
 end
 
 end; end

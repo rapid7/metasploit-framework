@@ -8,6 +8,7 @@ module Post
 module Meterpreter
 module Extensions
 module Stdapi
+module Fs
 
 ###
 #
@@ -43,7 +44,7 @@ class Dir < Rex::Post::Dir
 
 	# Enumerates all of the contents of the directory
 	def each(&block)
-		client.dir.foreach(self.path, &block)
+		client.fs.dir.foreach(self.path, &block)
 	end
 
 	# Enumerates all of the files/folders in a given directory.
@@ -126,4 +127,4 @@ protected
 
 end
 
-end; end; end; end; end
+end; end; end; end; end; end

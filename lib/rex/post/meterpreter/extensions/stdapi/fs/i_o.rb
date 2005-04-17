@@ -7,6 +7,7 @@ module Post
 module Meterpreter
 module Extensions
 module Stdapi
+module Fs
 
 ##
 #
@@ -47,4 +48,4 @@ class IO < Rex::Post::IO
 
 end
 
-end; end; end; end; end
+end; end; end; end; end; end

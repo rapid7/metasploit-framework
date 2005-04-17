@@ -75,6 +75,16 @@ class UI < Rex::Post::UI
 		return true
 	end
 
+	# Returns the number of seconds the remote machine has been idle
+	# from user input
+	def idle_time
+		request = Packet.create_request('stdapi_ui_get_idle_time')
+
+		response = client.send_request(request)
+
+		return response.get_tlv_value(TLV_TYPE_IDLE_TIME);
+	end
+
 protected
 	attr_accessor :client
 
