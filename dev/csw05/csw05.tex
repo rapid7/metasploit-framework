@@ -39,7 +39,6 @@
 
 }
 
-
 \usepackage[english]{babel}
 % or whatever
 
@@ -146,15 +145,34 @@
 \subsection{What our project is}
 
 \part{waka}
-\section{Meta-past}
+\part{Improving Randomness in Attacks}
 
-\subsection{Post-Exploitation}
-\subsection{Polymorphic}
+\begin{frame}
+  \frametitle{Outline}
+  \tableofcontents
+\end{frame}
 
-\section{Meta-future}
+\section{Introduction}
+\begin{frame}
+  \frametitle{Randomness, who cares?}
+  \begin{itemize}
+    \item NOTE: this slide can probably be trashed.. just temp for now
+    \item Adding randomness to exploits
+    \begin{itemize}
+      \item Less to signature / anti-nids
+      \item Helps to uncover bugs in your exploit
+    \end{itemize}
+    \pause
+    \item Adding randomness to machine code
+    \begin{itemize}
+      \item Less to signature / anti-nids
+      \item Increased robustness (bad chars / bad regs)
+      \item Street credz? :-)
+    \end{itemize}
+  \end{itemize}
+\end{frame}
 
-\subsection{Msf3}
-\subsection{Meterp, etc}
+\section{Conservative Polymorphism}
 
 \newcommand{\incshi}[1]{\includegraphics[height=3in]{#1}}
 
@@ -171,23 +189,30 @@
   \only<1>{\incshi{shi0}}
 \end{frame}
 
-\begin{frame}[fragile]
-  \frametitle{ADMmutate and optyx-mutate Gzip'd}
-  {\footnotesize
-  \begin{verbatim}
-# ADMmutate
+\section{Building a Nop Sled}
 
-$ time ./nops 1000000| gzip -v >/dev/null
- 27.3%
-real    0m0.241s
+\subsection{Tekneek}
 
-# optyx's interz0ne mutate
-
-$ time ./driver nop 1000000 | gzip -v >/dev/null
- 29.7%
-real    0m0.467s
-\end{verbatim}
-}
+\begin{frame}
+  \frametitle{Multibyte Sled Concept}
+  \begin{itemize}
+    \item Optyx released multibyte generator at Interz0ne 1
+    \item Generates instructions 1 to 6 bytes long, and 0x66 prefix
+    \item 1 byte aligned, land anywhere, end at the same byte
+  \end{itemize}
+  \begin{itemize}
+    \pause
+    \item Builds the sled from back to front
+    \item Continually prepending byte (opcode) to sled
+    \item Generates random byte and check against tables
+    \pause
+    \begin{itemize}
+      \item Is the instruction length too long?
+      \item Is it a valid instruction?
+      \item Does it have any bad bytes?
+      \item Does it modify don't-smash registers?
+    \end{itemize}
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -209,6 +234,8 @@ real    0m0.467s
 \end{semiverbatim}
 }
 \end{frame}
+
+\subsection{Implementation}
 
 \begin{frame}[fragile]
   \frametitle{OptyNop2 Output}
@@ -239,6 +266,28 @@ $ ./waka 1000 4 5 | ndisasm -u - | head -700 | tail -20
 }
 \end{frame}
 
+
+
+\subsection{Analysis}
+
+\begin{frame}[fragile]
+  \frametitle{ADMmutate and optyx-mutate Gzip'd}
+  {\footnotesize
+  \begin{verbatim}
+# ADMmutate
+
+$ time ./nops 1000000| gzip -v >/dev/null
+ 27.3%
+real    0m0.241s
+
+# optyx's interz0ne mutate
+
+$ time ./driver nop 1000000 | gzip -v >/dev/null
+ 29.7%
+real    0m0.467s
+\end{verbatim}
+}
+\end{frame}
 
 \begin{frame}[fragile]
   \frametitle{OptyNop2 Gzip'd}
@@ -282,62 +331,28 @@ real    0m12.404s
   \include{optytable2}
 \end{frame}
 
+\subsection{Conclusion}
 \begin{frame}
-  \frametitle{Make Titles Informative. Use Uppercase Letters.}
-  \framesubtitle{Subtitles are optional.}
-  % - A title should summarize the slide in an understandable fashion
-  %   for anyone how does not follow everything on the slide itself.
-
+  \frametitle{Benefits}
   \begin{itemize}
-  \item
-    Use \texttt{itemize} a lot.
-  \item
-    Use very short sentences or short phrases.
+    \item Not very difficult to gain lots more randomness
+    \item NIDS is far, far, behind
+    \item Added robustness (bad char / bad regs)
+    \item More versatile sled generation (nop stuffing, etc)
   \end{itemize}
 \end{frame}
-
 \begin{frame}
-  \frametitle{Make Titles Informative.}
-
-  You can create overlays\dots
+  \frametitle{Possible Improvements}
   \begin{itemize}
-  \item using the \texttt{pause} command:
-    \begin{itemize}
-    \item
-      First item.
-      \pause
-    \item    
-      Second item.
-    \end{itemize}
-  \item
-    using overlay specifications:
-    \begin{itemize}
-    \item<3->
-      First item.
-    \item<4->
-      Second item.
-    \end{itemize}
-  \item
-    using the general \texttt{uncover} command:
-    \begin{itemize}
-      \uncover<5->{\item
-        First item.}
-      \uncover<6->{\item
-        Second item.}
-    \end{itemize}
+    \item Support processor flags (nop stuffing)
+    \item Support 2-byte opcodes / escape groups (not worth it)
+    \item Improved scoring systems, look-ahead, etc
+    \item Try to output according to a given byte distribution
+    \item Make it faster and use less memory
   \end{itemize}
 \end{frame}
 
 
-\subsection{Previous Work}
-
-\begin{frame}
-  \frametitle{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Make Titles Informative.}
-\end{frame}
 
 
 
