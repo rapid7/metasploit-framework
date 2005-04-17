@@ -7,9 +7,10 @@ require 'Rex/Post/Meterpreter/Extensions/Stdapi/Tlv'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Fs/Dir'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Fs/File'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Fs/FileStat'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/UI'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Net/Config'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Process'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Registry'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/UI'
 
 module Rex
 module Post
@@ -50,6 +51,13 @@ class Stdapi < Extension
 							'registry' => self.registry
 						})
 				},
+				{
+					'name' => 'net',
+					'ext'  => ObjectAliases.new(
+						{
+							'config'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config.new(client)
+						})
+				},	
 				{
 					'name' => 'ui',
 					'ext'  => UI.new(client)
