@@ -50,7 +50,7 @@
 % Or whatever. Note that the encoding and the font should match. If T1
 % does not look nice, try deleting the line with the fontenc.
 
-\newcommand{\pdfpart}[1]{\label{pdfpart-#1}\pdfbookmark[0]{#1}{pdfpart-#1}\pdfpart{#1}}
+\newcommand{\pdfpart}[1]{\label{pdfpart-#1}\pdfbookmark[0]{#1}{pdfpart-#1}\part{#1}}
 
 
 \title{Advanced Exploitation}
@@ -87,9 +87,9 @@
 \pdfpart{Introduction}
 %--------------------------------------%
 
-\section{Introduction}
 
-\subsection{Who are we?}
+
+\section{Who are we?}
 \begin{frame}
 	\frametitle{Who are we?}
 	\begin{itemize}
@@ -109,7 +109,7 @@
 	\end{itemize}
 \end{frame}
 
-\subsection{What is Metasploit?}
+\section{What is Metasploit?}
 \begin{frame}
   \frametitle{What is Metasploit?}
 	\begin{itemize}
@@ -125,7 +125,7 @@
 	\end{itemize}
 \end{frame}
 
-\subsection{What is this about?}
+\section{What is this about?}
 \begin{frame}
   \frametitle{What is this about?}
 	\begin{itemize}
@@ -139,7 +139,7 @@
 %--------------------------------------%
 \pdfpart{Windows Exploitation}
 %--------------------------------------%
-\section{Windows Exploitation}
+
 \begin{frame}
   \frametitle{Windows Exploitation}
 	\begin{itemize}
@@ -151,15 +151,15 @@
 
 
 
-\subsection{Windows XP SP2}
-\subsection{Windows 2003 SP1}
+\section{Windows XP SP2}
+\section{Windows 2003 SP1}
 
 
 %--------------------------------------%
 \pdfpart{Mac OS X Exploitation}
 %--------------------------------------%
-\section{Mac OS X Exploitation}
-\subsection{PowerPC Constraints}
+
+\section{PowerPC Constraints}
 \begin{frame}
 	\frametitle{PowerPC Contrainsts title}
 	\begin{itemize}
@@ -172,7 +172,7 @@
 	\end{itemize}
 \end{frame}
 
-\subsection{Exploits are annoying}
+\section{Exploits are annoying}
 \begin{frame}
 	\frametitle{Exploits are annoying title}
 	\begin{itemize}
@@ -183,7 +183,7 @@
 	\end{itemize}
 \end{frame}
 
-\subsection{Shellcode issues}
+\section{Shellcode issues}
 \begin{frame}
 	\frametitle{Shellcode issues title}
 	\begin{itemize}
@@ -198,8 +198,8 @@
 %--------------------------------------%
 \pdfpart{Return Addresses}
 %--------------------------------------%
-\section{Return Address Analysis}
-\subsection{Reliability}
+
+\section{Reliability}
 
 \begin{frame}
 	\frametitle{Who cares}
@@ -211,7 +211,7 @@
 	\end{itemize}	
 \end{frame}
 
-\subsection{Analysis Tools}
+\section{Analysis Tools}
 \begin{frame}
 	\frametitle{Automated analysis}
 	\begin{itemize}
@@ -240,7 +240,7 @@
 	\end{itemize}	
 \end{frame}
 
-\subsection{Impact of ASLR}
+\section{Impact of ASLR}
 
 \begin{frame}
 	\frametitle{Address Space Layout Randomization}
@@ -283,8 +283,8 @@
 %--------------------------------------%
 \pdfpart{Post-Exploitation}
 %--------------------------------------%
-\section{Post-Exploitation}
-\subsection{Windows Payloads}
+
+\section{Windows Payloads}
 
 \begin{frame}
 	\frametitle{The Meterpreter}
@@ -325,7 +325,7 @@
 \end{frame}
 
 
-\subsection{Unix Payloads}
+\section{Unix Payloads}
 
 \begin{frame}
 	\frametitle{Non-standard Network Stagers}
