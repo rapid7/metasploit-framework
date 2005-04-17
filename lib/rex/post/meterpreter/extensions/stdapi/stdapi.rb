@@ -7,6 +7,7 @@ require 'Rex/Post/Meterpreter/Extensions/Stdapi/Tlv'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Dir'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/File'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/FileStat'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/UI'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Process'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Registry'
 
@@ -48,7 +49,12 @@ class Stdapi < Extension
 							'process'  => self.process,
 							'registry' => self.registry
 						})
+				},
+				{
+					'name' => 'ui',
+					'ext'  => UI.new(client)
 				}
+
 			])
 	end
 
