@@ -51,7 +51,7 @@
 % does not look nice, try deleting the line with the fontenc.
 
 \newcommand{\pdfpart}[1]{\label{pdfpart-#1}\pdfbookmark[0]{#1}{pdfpart-#1}\part{#1}}
-
+\newenvironment{sitemize}{\vspace{1mm}\begin{itemize}\itemsep 4pt}{\end{itemize}}
 
 \title{Advanced Exploitation}
 \author[hdm \& spoonm]
@@ -92,47 +92,47 @@
 \section{Who are we?}
 \begin{frame}
 	\frametitle{Who are we?}
-	\begin{itemize}
+	\begin{sitemize}
 		\item spoonm
-		\begin{itemize}
+		\begin{sitemize}
 			\item Security researcher
 			\item Full-time student
 			\item Metasploit developer
-		\end{itemize}
+		\end{sitemize}
 		
 		\item H D Moore
-		\begin{itemize}
+		\begin{sitemize}
 			\item Security researcher
 			\item Full-time employee
 			\item Metasploit developer
-		\end{itemize}		
-	\end{itemize}
+		\end{sitemize}		
+	\end{sitemize}
 \end{frame}
 
 \section{What is Metasploit?}
 \begin{frame}
   \frametitle{What is Metasploit?}
-	\begin{itemize}
+	\begin{sitemize}
 		\item Research project with 8 members 
 		\item Created the Metasploit Framework
-		\begin{itemize}
+		\begin{sitemize}
 			\item Open-source exploit dev platform
 			\item Includes 60 exploits and 70 payloads
 			\item Implements ideas from everywhere
 			\item Currently four primary developers
 			\item Handful of external contributors
-		\end{itemize}
-	\end{itemize}
+		\end{sitemize}
+	\end{sitemize}
 \end{frame}
 
 \section{What is this about?}
 \begin{frame}
   \frametitle{What is this about?}
-	\begin{itemize}
+	\begin{sitemize}
 		\item Recent advances in exploit technology
 		\item New research, techniques, and code
 		\item Metasploit Framework 3.0
-	\end{itemize}  
+	\end{sitemize}  
 \end{frame}
 
 
@@ -142,11 +142,11 @@
 
 \begin{frame}
   \frametitle{Windows Exploitation}
-	\begin{itemize}
+	\begin{sitemize}
 		\item The 
 		\item SEH frame overwrites still easy to exploit
 		\item Third-party applications buggy as ever
-	\end{itemize}  
+	\end{sitemize}  
 \end{frame}
 
 
@@ -161,37 +161,37 @@
 
 \section{PowerPC Constraints}
 \begin{frame}
-	\frametitle{PowerPC Contrainsts title}
-	\begin{itemize}
+	\frametitle{PowerPC Contraints}
+	\begin{sitemize}
 		\item Mac OS X runs on PowerPC
 		\item PowerPC is a RISC-platform
 		\item Independent instruction and data caches
 		\item Fixed-width 32-bit insutrctions
 		\item Stack overflows need to return twice to be explotable
 		\item (Similar to exploits on SPARCs, etc)
-	\end{itemize}
+	\end{sitemize}
 \end{frame}
 
 \section{Exploits are annoying}
 \begin{frame}
 	\frametitle{Exploits are annoying title}
-	\begin{itemize}
+	\begin{sitemize}
 		\item Double-return means having to patch other pointers
 		\item Code which calls \_exit before sometimes unexploitable
 		\item Shellcode must be placed into location not in i-cache
 		\item Exploits can have different results between diff CPUs
-	\end{itemize}
+	\end{sitemize}
 \end{frame}
 
 \section{Shellcode issues}
 \begin{frame}
 	\frametitle{Shellcode issues title}
-	\begin{itemize}
+	\begin{sitemize}
 		\item Double-return means having to patch other pointers
 		\item Code which calls \_exit before sometimes unexploitable
 		\item Shellcode must be placed into location not in i-cache
 		\item Exploits can have different results between diff CPUs
-	\end{itemize}
+	\end{sitemize}
 \end{frame}
 
 
@@ -203,80 +203,80 @@
 
 \begin{frame}
 	\frametitle{Reliability}
-	\begin{itemize}
+	\begin{sitemize}
 		\item An exploit is only as good as its return address
 		\item Many exploits allow one attempt before service crashes
 		\item Returning direct to shellcode usually not possible
 		\item Returning to code which jumps to shellcode is
-	\end{itemize}	
+	\end{sitemize}	
 \end{frame}
 
 \section{Analysis Tools}
 \begin{frame}
 	\frametitle{Automated analysis}
-	\begin{itemize}
+	\begin{sitemize}
 		\item Tools like msfpescan and msfelfscan scan executables for rets
 		\item Very simple to cross-reference return addresses across versions
 		\item Memory dumping and offline scanning also useful technqiues
-	\end{itemize}	
+	\end{sitemize}	
 \end{frame}
 
 \begin{frame}
 	\frametitle{Opcode Databases}
-	\begin{itemize}
+	\begin{sitemize}
 		\item Searchable index of different types of return addresses
 		\item Only useful when addresses do not change between instances
 		\item Useful for operatin systems like Windows, Mac OS X, Soalris
 		\item Per-executable addresses potentially useful but DB is overkill
-	\end{itemize}	
+	\end{sitemize}	
 \end{frame}
 
 \begin{frame}
 	\frametitle{Current Development}
-	\begin{itemize}
+	\begin{sitemize}
 		\item Executable analysis tools for Solaris, Mac OS X, Linux, BSD
 		\item Usefulness limited compared to Windows platform
 		\item Static libraries are great for cross-version exploits
-	\end{itemize}	
+	\end{sitemize}	
 \end{frame}
 
 \section{Impact of ASLR}
 
 \begin{frame}
 	\frametitle{Address Space Layout Randomization}
-	\begin{itemize}
+	\begin{sitemize}
 		\item Randomize common memory addreses
-		\begin{itemize}
+		\begin{sitemize}
 			\item Stack
 			\item Heap
 			\item Anonymous memory mappings
 			\item Executable load addresses
 			\item Library load addresses
-		\end{itemize}
+		\end{sitemize}
 		\item Simple way to break off-the-shelf exploits
 		\item Solid implementations can be difficult to avoid
 		\item Nearly zero overhead compared with page protection
-	\end{itemize}	
+	\end{sitemize}	
 \end{frame}
 
 \begin{frame}
 	\frametitle{Windows ASLR}
-	\begin{itemize}
+	\begin{sitemize}
 		\item WehnTrust only complete ASLR available for Win32
 		\item Breaks nearly all Win32 exploits
 		\item Partial overwrites and address leaks can be used to avoid
 		\item Massive memory/heap consumption may help too
-	\end{itemize}	
+	\end{sitemize}	
 \end{frame}
 
 \begin{frame}
 	\frametitle{Unix ASLR}
-	\begin{itemize}
+	\begin{sitemize}
 		\item OpenBSD and Linux implementations available
 		\item Work with page protection to prevent code execution
 		\item Partial overwrites can sometimes avoid this
 		\item Return to library code may still be useful
-	\end{itemize}	
+	\end{sitemize}	
 \end{frame}
 
 
@@ -288,40 +288,40 @@
 
 \begin{frame}
 	\frametitle{The Meterpreter}
-	\begin{itemize}
+	\begin{sitemize}
 		\item Windows version uses in-memory DLL injection techniques
 		\item Dynamically extensible over the network
 		\item Extensions are standard Windows DLLs
 		\item Loading an extension updates available commands
 		\item Support for network encryption
 		\item Huge feature set in the public version
-		\begin{itemize}
+		\begin{sitemize}
 			\item Upload, download, and list files
 			\item List, create, and kill processes
 			\item Spawn "channelized" commands in the background
 			\item Create port forwarding channels to pivot attacks
-		\end{itemize}
-	\end{itemize}	
+		\end{sitemize}
+	\end{sitemize}	
 \end{frame}
 
 \begin{frame}
 	\frametitle{Ordinal-based Stagers}
-	\begin{itemize}
+	\begin{sitemize}
 		\item Technique from Oded's lightning talk from core04
 		\item 92 bytes and works on every Windows version/SP
 		\item Staging system can chain vnc injection or Meterpreter
-	\end{itemize}	
+	\end{sitemize}	
 \end{frame}
 
 \begin{frame}
 	\frametitle{PassiveX}
-	\begin{itemize}
+	\begin{sitemize}
 		\item Payload modifies registry and launches IE
 		\item IE loads custom ActiveX control to stage the payload
 		\item Communications channel is via HTTP requests
 		\item Can be used to inject VNC, Meterpreter, etc
 		\item Uses IE settings to bypass firewalls (proxy, auth, etc)
-	\end{itemize}	
+	\end{sitemize}	
 \end{frame}
 
 
@@ -329,13 +329,13 @@
 
 \begin{frame}
 	\frametitle{Non-standard Network Stagers}
-	\begin{itemize}
+	\begin{sitemize}
 		\item UDP-based stager and network shell for Linux
 		\item UDP-based DNS request staging system
 		\item ICMP-based listener and "reverse" payloads
 		\item Find and recv socket re-use stagers
 		\item Source code in MSF, but many not integrated
-	\end{itemize}	
+	\end{sitemize}	
 \end{frame}
 
 
@@ -352,30 +352,30 @@
 \section{Introduction}
 \begin{frame}
   \frametitle{Randomness, who cares?}
-  \begin{itemize}
+  \begin{sitemize}
     \item NOTE: this slide can probably be trashed.. just temp for now
     \item Adding randomness to exploits
-    \begin{itemize}
+    \begin{sitemize}
       \item Less to signature / anti-nids
       \item Helps to uncover bugs in your exploit
-    \end{itemize}
+    \end{sitemize}
     \pause
     
 	\item Adding randomness to exploit code
-    \begin{itemize}
+    \begin{sitemize}
       \item Modify attacks by setting protocol options (frags)
       \item All padding data can be randomized (englishtext)
       \item Helper functions to generate types of random data
-    \end{itemize}
+    \end{sitemize}
 		
     \item Adding randomness to machine code
-    \begin{itemize}
+    \begin{sitemize}
       \item Less to signature / anti-nids
       \item Increased robustness (bad chars / bad regs)
       \item Street credz? :-)
-    \end{itemize}
+    \end{sitemize}
 	
-  \end{itemize}
+  \end{sitemize}
 \end{frame}
 
 \section{Conservative Polymorphism}
@@ -401,24 +401,24 @@
 
 \begin{frame}
   \frametitle{Multibyte Sled Concept}
-  \begin{itemize}
+  \begin{sitemize}
     \item Optyx released multibyte generator at Interz0ne 1
     \item Generates instructions 1 to 6 bytes long, and 0x66 prefix
     \item 1 byte aligned, land anywhere, end at the same byte
-  \end{itemize}
-  \begin{itemize}
+  \end{sitemize}
+  \begin{sitemize}
     \pause
     \item Builds the sled from back to front
     \item Continually prepending byte (opcode) to sled
     \item Generates random byte and check against tables
     \pause
-    \begin{itemize}
+    \begin{sitemize}
       \item Is the instruction length too long?
       \item Is it a valid instruction?
       \item Does it have any bad bytes?
       \item Does it modify don't-smash registers?
-    \end{itemize}
-  \end{itemize}
+    \end{sitemize}
+  \end{sitemize}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -540,22 +540,22 @@ real    0m12.404s
 \subsection{Conclusion}
 \begin{frame}
   \frametitle{Benefits}
-  \begin{itemize}
+  \begin{sitemize}
     \item Not very difficult to gain lots more randomness
     \item NIDS is far, far, behind
     \item Added robustness (bad char / bad regs)
     \item More versatile sled generation (nop stuffing, etc)
-  \end{itemize}
+  \end{sitemize}
 \end{frame}
 \begin{frame}
   \frametitle{Possible Improvements}
-  \begin{itemize}
+  \begin{sitemize}
     \item Support processor flags (nop stuffing)
     \item Support 2-byte opcodes / escape groups (not worth it)
     \item Improved scoring systems, look-ahead, etc
     \item Try to output according to a given byte distribution
     \item Make it faster and use less memory
-  \end{itemize}
+  \end{sitemize}
 \end{frame}
 
 
@@ -566,27 +566,27 @@ real    0m12.404s
   \frametitle<presentation>{Summary}
 
   % Keep the summary *very short*.
-  \begin{itemize}
+  \begin{sitemize}
   \item
     The \alert{first main message} of your talk in one or two lines.
   \item
     The \alert{second main message} of your talk in one or two lines.
   \item
     Perhaps a \alert{third message}, but not more than that.
-  \end{itemize}
+  \end{sitemize}
   
   % The following outlook is optional.
   \vskip0pt plus.5fill
-  \begin{itemize}
+  \begin{sitemize}
   \item
     Outlook
-    \begin{itemize}
+    \begin{sitemize}
     \item
       Something you haven't solved.
     \item
       Something else you haven't solved.
-    \end{itemize}
-  \end{itemize}
+    \end{sitemize}
+  \end{sitemize}
 \end{frame}
 
 
