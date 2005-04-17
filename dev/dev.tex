@@ -30,12 +30,12 @@
 %  \usetheme{}
   % or ...
 
-  \usecolortheme{seahorse}
+%  \usecolortheme{seahorse}
 %  \usecolortheme{crane}
 %  \useinnertheme{inmargin}
 
-  \setbeamercovered{transparent}
-  % or whatever (possibly just delete it)
+%  \setbeamercovered{transparent}
+% or whatever (possibly just delete it)
 
 }
 
@@ -165,8 +165,8 @@
 	\begin{itemize}
 		\item Mac OS X runs on PowerPC
 		\item PowerPC is a RISC-platform
-		\item Independent insturction and data cache
-		\item Fixed-width insutrctions
+		\item Independent instruction and data caches
+		\item Fixed-width 32-bit insutrctions
 		\item Stack overflows need to return twice to be explotable
 		\item (Similar to exploits on SPARCs, etc)
 	\end{itemize}
@@ -202,7 +202,7 @@
 \section{Reliability}
 
 \begin{frame}
-	\frametitle{Who cares}
+	\frametitle{Reliability}
 	\begin{itemize}
 		\item An exploit is only as good as its return address
 		\item Many exploits allow one attempt before service crashes
@@ -262,7 +262,7 @@
 \begin{frame}
 	\frametitle{Windows ASLR}
 	\begin{itemize}
-		\item WehnTrust only compelte ASLR available for Win32
+		\item WehnTrust only complete ASLR available for Win32
 		\item Breaks nearly all Win32 exploits
 		\item Partial overwrites and address leaks can be used to avoid
 		\item Massive memory/heap consumption may help too
