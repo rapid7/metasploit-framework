@@ -1,6 +1,6 @@
 % $Header$
 
-\documentclass{beamer}
+\documentclass[lecture]{beamer}
 \usepackage{graphicx}
 \usepackage{color}
 
@@ -76,6 +76,8 @@
 }
 
 
+\newcommand{\pdfpart}[1]{\label{pdfpart-#1}\pdfbookmark[0]{#1}{pdfpart-#1}\part{#1}}
+
 % turn off the navigation on the bottom yo
 \setbeamertemplate{navigation symbols}{}
 
@@ -84,6 +86,9 @@
 \begin{frame}
   \titlepage
 \end{frame}
+
+
+\pdfpart{part-some}
 
 \begin{frame}
   \frametitle{Hawwt}
@@ -144,8 +149,11 @@
 \end{frame}
 \subsection{What our project is}
 
-\part{waka}
-\part{Improving Randomness in Attacks}
+\pdfpart{waka}
+\begin{frame}
+  \partpage
+\end{frame}
+\pdfpart{Improving Randomness in Attacks}
 
 \begin{frame}
   \frametitle{Outline}
