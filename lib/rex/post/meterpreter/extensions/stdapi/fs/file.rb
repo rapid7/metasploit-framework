@@ -70,14 +70,12 @@ Separator = "\\"
 			src_fd = client.fs.file.new(src, "rb")
 			dst_fd = ::File.new(dest, "wb")
 
-			while (!src_fd.eof?)
-				data = src_fd.read
+			begin
+				while ((data = src_fd.read) != nil)
 
-				if (data == nil)
-					next
+					dst_fd.write(data)
 				end
-
-				dst_fd.write(data)
+			rescue EOFError
 			end
 
 			src_fd.close
