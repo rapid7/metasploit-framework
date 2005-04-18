@@ -4,26 +4,6 @@
 \usepackage{graphicx}
 \usepackage{color}
 
-% This file is a solution template for:
-
-% - Talk at a conference/colloquium.
-% - Talk length is about 20min.
-% - Style is ornate.
-
-
-
-% Copyright 2004 by Till Tantau <tantau@users.sourceforge.net>.
-%
-% In principle, this file can be redistributed and/or modified under
-% the terms of the GNU Public License, version 2.
-%
-% However, this file is supposed to be a template to be modified
-% for your own needs. For this reason, if you use this file as a
-% template and not specifically distribute it as part of a another
-% package/program, I grant the extra permission to freely copy and
-% modify this file as you see fit and even to delete this copyright
-% notice. 
-
 
 \mode<presentation>
 {
@@ -35,126 +15,391 @@
 %  \useinnertheme{inmargin}
 
 %  \setbeamercovered{transparent}
-  % or whatever (possibly just delete it)
+% or whatever (possibly just delete it)
 
 }
 
 \usepackage[english]{babel}
-% or whatever
-
 \usepackage[latin1]{inputenc}
-% or whatever
-
 \usepackage{times}
 \usepackage[T1]{fontenc}
-% Or whatever. Note that the encoding and the font should match. If T1
-% does not look nice, try deleting the line with the fontenc.
+% \usepackage{beamerthemeshadow}
 
-
-\title{What what, oh what}
-\author[HD Moore, spoonm]
-{HD Moore \and spoonm}
-
-\date[CSW 2005] % (optional, should be abbreviation of conference name)
-{CanSecWest, 2005}
-
-\subject{Hax0ring}
-% This is only inserted into the PDF information catalog. Can be left
-% out. 
-
-% \pgfdeclareimage[height=0.5cm]{university-logo}{mp}
-% \logo{\pgfuseimage{university-logo}}
-
-% Delete this, if you do not want the table of contents to pop up at
-% the beginning of each subsection:
-\AtBeginSubsection[]
-{
-  \begin{frame}<beamer>
-    \frametitle{Outline}
-    \tableofcontents[currentsection,currentsubsection]
-  \end{frame}
-}
-
-
+% Love from spoon
 \newcommand{\pdfpart}[1]{\label{pdfpart-#1}\pdfbookmark[0]{#1}{pdfpart-#1}\part{#1}}
-\newenvironment{sitemize}{\vspace{1mm}\begin{itemize}\itemsep 6pt}{\end{itemize}}
+\newenvironment{sitemize}{\vspace{1mm}\begin{itemize}\itemsep 4pt\small}{\end{itemize}}
 
-% turn off the navigation on the bottom yo
+% Presentation meta-information
+\title{Advanced Exploitation}
+\author[hdm \& spoonm] {hdm \& spoonm}
+\date[CSW 2005] {CanSecWest, 2005}
+\subject{Metasploit - Advanced Exploitation}
+
+% Add a spacer between each part
+\AtBeginPart{\frame{\partpage}}
+
+% Turn off the navigation on the bottom yo
 \setbeamertemplate{navigation symbols}{}
 
+% Kick this sucker open
 \begin{document}
 
+% Throw down the title
 \begin{frame}
   \titlepage
 \end{frame}
 
 
-\pdfpart{part-some}
+%--------------------------------------%
+\pdfpart{Introduction}
+%--------------------------------------%
+
+\section{Who are we?}
+\begin{frame}
+	\frametitle{Who are we?}
+
+	\begin{sitemize}
+		\item spoonm
+		\begin{sitemize}
+			\item Full-time student at a Canadian university
+			\item Metasploit developer since late 2003
+		\end{sitemize}
+	\end{itemize}
+
+	\begin{itemize}
+		\item H D Moore
+		\begin{sitemize}
+			\item Full-time employee at a network security firm
+			\item Metasploit project founder and developer
+		\end{sitemize}		
+	\end{sitemize}
+\end{frame}
+
+\section{What is Metasploit?}
+\begin{frame}
+  \frametitle{What is Metasploit?}
+	\begin{sitemize}
+		\item Research project with 8 members 
+		\begin{sitemize}
+			\item Focused on improving the state of security
+			\item Provide information and tools for researchers
+			\item Resource for IDS and security tool vendors
+		\end{sitemize}
+	\end{sitemize}
+	
+	\begin{sitemize}			
+		\item Created the Metasploit Framework
+		\begin{sitemize}
+			\item Open-source exploit dev platform
+			\item Includes 60 exploits and 70 payloads
+			\item Implements ideas from everywhere
+			\item Currently four primary developers
+			\item Handful of external contributors
+		\end{sitemize}
+	\end{sitemize}
+\end{frame}
+
+\section{What is this about?}
+\begin{frame}
+  \frametitle{What is this about?}
+	\begin{sitemize}
+		\item Recent advances in exploit technology
+		\item Exploiting Windows XP SP2 and Mac OS X
+		\item New research, techniques, and code		
+		\item Metasploit Framework 3.0 architecture
+	\end{sitemize}  
+\end{frame}
+
+
+%--------------------------------------%
+\pdfpart{Windows Exploitation}
+%--------------------------------------%
 
 \begin{frame}
-  \frametitle{Hawwt}
-  \begin{definition}
-    A \alert{foo}
-  \end{definition}
-  \begin{example}
-    \begin{sitemize}
-    \item holla
-    \item back
-    \pause
-    \item killa
-    \end{sitemize}
-  \end{example}
+  \frametitle{Windows Exploitation}
+	\begin{sitemize}
+		\item The 
+		\item SEH frame overwrites still easy to exploit
+		\item Third-party applications buggy as ever
+	\end{sitemize}  
+\end{frame}
+
+
+
+\section{Windows XP SP2}
+\section{Windows 2003 SP1}
+
+
+%--------------------------------------%
+\pdfpart{Mac OS X Exploitation}
+%--------------------------------------%
+
+\section{PowerPC Constraints}
+\begin{frame}
+	\frametitle{PowerPC Contraints}
+	\begin{sitemize}
+		\item Mac OS X runs on PowerPC
+		\item PowerPC is a RISC-platform
+		\item Independent instruction and data caches
+		\item Fixed-width 32-bit insutrctions
+		\item Stack overflows need to return twice to be explotable
+		\item (Similar to exploits on SPARCs, etc)
+	\end{sitemize}
+\end{frame}
+
+\section{Exploits are annoying}
+\begin{frame}
+	\frametitle{Exploits are annoying }
+	\begin{sitemize}
+		\item Double-return means having to patch other pointers
+		\item Code which calls \_exit before sometimes unexploitable
+		\item Shellcode must be placed into location not in i-cache
+		\item Exploits can have different results between diff CPUs
+	\end{sitemize}
+\end{frame}
+
+\section{Shellcode issues}
+\begin{frame}
+	\frametitle{Shellcode issues }
+	\begin{sitemize}
+		\item Double-return means having to patch other pointers
+		\item Shellcode must be placed into location not in i-cache
+		\item Exploits can have different results between diff CPUs
+	\end{sitemize}
+\end{frame}
+
+
+%--------------------------------------%
+\pdfpart{Return Addresses}
+%--------------------------------------%
+
+\section{Reliability}
+\begin{frame}
+	\frametitle{Reliability}
+	\begin{sitemize}
+		\item An exploit is only as good as the return address it uses
+		\item Many vulnerabilities only allow one exploit attempt
+		\item Returning directly to shellcode is not always possible
+		\begin{sitemize}
+			\item Most Windows exploits use a "bounce" address
+			\item Indirect returns are useful on other platforms as well
+		\end{sitemize}
+	\end{sitemize}	
+\end{frame}
+
+\section{Windows Addresses}
+\begin{frame}
+	\frametitle{Windows Return Addresses}
+	\begin{sitemize}
+		\item Windows stack addresses are usually not predictable
+		\item Executable and library address {\em are} predictable
+		\begin{sitemize}
+			\item System libraries are often static between patch levels
+			\item Application libraries change even less frequently
+			\item Executable addresses only change between app versions
+		\end{sitemize}
+	\end{sitemize}
+	
+	\begin{sitemize}
+		\item Static system libraries can go a long way...
+		\pause
+		\item A great example is the "ws2help.dll" library:
+		\begin{sitemize}
+			\item Static across all versions of Windows 2000
+			\item Static across Windows XP SP0 and SP1
+			\item Used in dozens of exploits in the Framework
+		\end{sitemize}
+	\end{sitemize}	
+\end{frame}
+
+
+\section{Unix Addresses}
+\begin{frame}
+	\frametitle{Unix Return Addresses}
+	
+	\begin{sitemize}
+		\item Linux and BSD	
+		\begin{sitemize}
+			\item Library addresses are usually not predictable
+			\item Every executable has a static load address
+			\begin{sitemize}
+				\item Every distribution has compiled its own executable
+				\item Exploits must target specific versions and operating systems
+				\item Commercial (binary-only) applications are mostly static
+			\end{sitemize}
+		\end{sitemize}
+	\end{sitemize}
+	
+	\pause
+	\begin{sitemize}
+		\item Commercial Unix
+		\begin{sitemize}
+			\item Library addresses are sometimes predictable
+			\item Every executable has a static load address
+			\begin{sitemize}
+				\item These addresses are static per package version
+				\item Windows-style return addresses work well
+				\item This includes Mac OS X, Solaris, HP-UX, AIX, etc
+			\end{sitemize}
+		\end{sitemize}
+	\end{sitemize}
+\end{frame}
+
+
+
+\section{Analysis Tools}
+\begin{frame}
+	\frametitle{Analysis Methods}
+	\begin{sitemize}
+		\item Finding solid return addresses involves a few steps
+		\begin{sitemize}
+			\item Load the executable or library into memory
+			\item Determine all permutations of the desired opcode
+			\item Search memory contents to find these bytes
+			\item Determine the virtual address for each offset
+		\end{sitemize}		
+	\end{sitemize}
+	
+	\pause
+	\begin{sitemize}
+		\item Many people use a debugger to accomplish this task
+		\begin{sitemize}
+			\item This is a tedious process to do manually
+			\item Limited to one version at a time, even with a plugin
+			\item Requires the installation of each tested version
+		\end{sitemize}
+	\end{sitemize}	
 \end{frame}
 
 \begin{frame}
-\frametitle{holla backz}
-\begin{columns}[t]
-  \column{.5\textwidth}
-  foo
-  \pause
-  \column{.5\textwidth}
-  bar \\
-  car \\
-  zar
-\end{columns}
+	\frametitle{The Metasploit msfpescan utility}
+	\begin{sitemize}
+		\item msfpescan - a utility included in the Metasploit Framework
+		\begin{sitemize}
+			\item Can analyze any PE executable or DLL in offline mode
+			\item Simple to automate and cross-reference results
+			\item Does not require a Windows system to run
+			\item Easily analyze multiple versions on the command line
+			\item Capable of dumping other information as well
+			\begin{sitemize}
+				\item Imports, Exports, and IAT addresses
+				\item Resource information, internal versions
+				\item Standard PE header information
+			\end{sitemize}
+		\end{sitemize}		
+	\end{sitemize}
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Using msfpescan to find addresses}
+	\begin{sitemize}
+		\item Install the Metasploit Framework (2.3 or newer)
+		\item Place your target executable or DLL into some directory
+		\item Use msfpescan to quickly find return addresses:
+	\end{sitemize}
+
+{\footnotesize 
+\begin{verbatim}
+		# Locate any form of pop/pop/ret opcodes
+		$ msfpescan -f mod_oiplus.dll -s
+		0x1001413c   esi edi ret
+		0x10009ea2   esi ecx ret	
+		0x100113bd   esi ebx ret
+
+		# Locate any opcodes that take us to [eax]
+		$ msfpescan -f mod_oiplus.dll -j eax
+		0x1000969d   push eax
+		0x100141a3   jmp eax
+		0x10010e69   call eax
+\end{verbatim} 
+}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Outline}
-  \tableofcontents
+	\frametitle{Opcode Databases}
+	\begin{sitemize}
+		\item Contains opcodes across every executable and DLL in Windows
+		\item The new version includes over nine million records
+		\item Data is generated directly from the files themselves
+		\item Quickly cross-reference return address over the entire DB
+		\item Publicly available from http://www.metasploit.com/
+
+	\end{sitemize}	
 \end{frame}
 
-
-% Structuring a talk is a difficult task and the following structure
-% may not be suitable. Here are some rules that apply for this
-% solution: 
-
-% - Exactly two or three sections (other than the summary).
-% - At *most* three subsections per section.
-% - Talk about 30s to 2min per frame. So there should be between about
-%   15 and 30 frames, all told.
-
-% - A conference audience is likely to know very little of what you
-%   are going to talk about. So *simplify*!
-% - In a 20min talk, getting the main ideas across is hard
-%   enough. Leave out details, even if it means being less precise than
-%   you think necessary.
-% - If you omit details that are vital to the proof/implementation,
-%   just say so once. Everybody will be happy with that.
-
-\section{Meta-what?}
-
-\subsection{Who we are}
 \begin{frame}
-  \frametitle{foo}
+	\frametitle{Current Development}
+	\begin{sitemize}
+		\item Executable analysis tools for Solaris, Mac OS X, Linux, BSD
+		\item Usefulness limited compared to Windows platform
+		\item Static libraries are great for cross-version exploits
+	\end{sitemize}	
 \end{frame}
-\subsection{What our project is}
 
-\pdfpart{waka}
+
+%--------------------------------------%
+\pdfpart{Post-Exploitation}
+%--------------------------------------%
+
+\section{Windows Payloads}
+
 \begin{frame}
-  \partpage
+	\frametitle{The Meterpreter}
+	\begin{sitemize}
+		\item Windows version uses in-memory DLL injection techniques
+		\item Dynamically extensible over the network
+		\item Extensions are standard Windows DLLs
+		\item Loading an extension updates available commands
+		\item Support for network encryption
+		\item Huge feature set in the public version
+		\begin{sitemize}
+			\item Upload, download, and list files
+			\item List, create, and kill processes
+			\item Spawn "channelized" commands in the background
+			\item Create port forwarding channels to pivot attacks
+		\end{sitemize}
+	\end{sitemize}	
 \end{frame}
+
+\begin{frame}
+	\frametitle{Ordinal-based Stagers}
+	\begin{sitemize}
+		\item Technique from Oded's lightning talk from core04
+		\item 92 bytes and works on every Windows version/SP
+		\item Staging system can chain vnc injection or Meterpreter
+	\end{sitemize}	
+\end{frame}
+
+\begin{frame}
+	\frametitle{PassiveX}
+	\begin{sitemize}
+		\item Payload modifies registry and launches IE
+		\item IE loads custom ActiveX control to stage the payload
+		\item Communications channel is via HTTP requests
+		\item Can be used to inject VNC, Meterpreter, etc
+		\item Uses IE settings to bypass firewalls (proxy, auth, etc)
+	\end{sitemize}	
+\end{frame}
+
+
+\section{Unix Payloads}
+
+\begin{frame}
+	\frametitle{Non-standard Network Stagers}
+	\begin{sitemize}
+		\item UDP-based stager and network shell for Linux
+		\item UDP-based DNS request staging system
+		\item ICMP-based listener and "reverse" payloads
+		\item Find and recv socket re-use stagers
+		\item Source code in MSF, but many not integrated
+	\end{sitemize}	
+\end{frame}
+
+
+
+%--------------------------------------%
 \pdfpart{Improving Randomness in Attacks}
+%--------------------------------------%
 
 \begin{frame}
   \frametitle{Outline}
@@ -172,12 +417,21 @@
       \item Helps to uncover bugs in your exploit
     \end{sitemize}
     \pause
+    
+	\item Adding randomness to exploit code
+    \begin{sitemize}
+      \item Modify attacks by setting protocol options (frags)
+      \item All padding data can be randomized (englishtext)
+      \item Helper functions to generate types of random data
+    \end{sitemize}
+		
     \item Adding randomness to machine code
     \begin{sitemize}
       \item Less to signature / anti-nids
       \item Increased robustness (bad chars / bad regs)
       \item Street credz? :-)
     \end{sitemize}
+	
   \end{sitemize}
 \end{frame}
 
@@ -362,45 +616,7 @@ real    0m12.404s
 \end{frame}
 
 
-
-
-
-\section{Our Results/Contribution}
-
-\subsection{Main Results}
-
-\begin{frame}
-  \frametitle{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Make Titles Informative.}
-\end{frame}
-
-
-\subsection{Basic Ideas for Proofs/Implementation}
-
-\begin{frame}
-  \frametitle{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Make Titles Informative.}
-\end{frame}
-
-
-
-
 \section*{Summary}
-
 
 
 \begin{frame}
