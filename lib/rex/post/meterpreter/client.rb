@@ -128,10 +128,10 @@ class Client
 		return items.sort
 	end
 
-	attr_reader   :ext
+	attr_reader   :ext, :sock
 protected
-	attr_accessor :sock, :parser, :ext_aliases
-	attr_writer   :ext
+	attr_accessor :parser, :ext_aliases
+	attr_writer   :ext, :sock
 end
 
 end; end; end
