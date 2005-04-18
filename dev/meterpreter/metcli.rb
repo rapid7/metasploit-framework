@@ -1,3 +1,5 @@
+#!/usr/bin/ruby -I../../lib
+
 require 'Rex/Post'
 
 netconf  = false
@@ -121,6 +123,8 @@ end
 
 if (dir)
 	puts "Testing dir...\n\n"
+
+	puts "%WINDIR% is #{client.fs.file.expand_path('%WINDIR%')}"
 
 	puts "Getting contents of C:\\"
 

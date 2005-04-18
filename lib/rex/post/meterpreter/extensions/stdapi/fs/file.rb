@@ -35,6 +35,17 @@ Separator = "\\"
 		return $2
 	end
 
+	# Expands a file path
+	def File.expand_path(path)
+		request = Packet.create_request('stdapi_fs_file_expand_path')
+
+		request.add_tlv(TLV_TYPE_FILE_PATH, path)
+
+		response = client.send_request(request)
+		
+		return response.get_tlv_value(TLV_TYPE_FILE_PATH)
+	end
+
 	def File.stat(name)
 		return client.fs.filestat.new(name)
 	end
