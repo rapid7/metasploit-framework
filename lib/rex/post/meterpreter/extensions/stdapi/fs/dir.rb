@@ -63,6 +63,12 @@ class Dir < Rex::Post::Dir
 		return files
 	end
 
+	##
+	#
+	# General directory operations
+	#
+	##
+
 	# Changes the working directory of the remote process.
 	def Dir.chdir(path)
 		request = Packet.create_request('stdapi_fs_chdir')
@@ -118,6 +124,41 @@ class Dir < Rex::Post::Dir
 	# Synonyms for delete
 	def Dir.unlink(path)
 		delete(path)
+	end
+
+	##
+	#
+	# Directory mirroring
+	#
+	##
+
+	# Mirrors the contents of a directory
+	def Dir.download(dst, src, recursive = false)
+		self.entries(src).each { |src_sub|
+			dst_item = dst + ::File::SEPARATOR + src_sub
+			src_item = src + File::SEPARATOR + src_sub
+
+			if (src_sub == '.' or src_sub == '..')
+				next
+			end
+
+			src_stat = client.fs.filestat.new(src_item)
+
+			if (src_stat.file?)
+				client.fs.file.download(dst_item, src_item)
+			elsif (src_stat.directory?)
+				if (recursive == false)
+					next
+				end
+
+				begin
+					::Dir.mkdir(dst_item)
+				rescue
+				end
+
+				download(dst_item, src_item, recursive)
+			end
+		}
 	end
 
 	attr_reader   :path
