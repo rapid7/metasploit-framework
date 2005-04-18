@@ -30,10 +30,10 @@
 \newenvironment{sitemize}{\vspace{1mm}\begin{itemize}\itemsep 4pt\small}{\end{itemize}}
 
 % Presentation meta-information
-\title{Advanced Exploitation}
+\title{Advances in Exploit Technology}
 \author[hdm \& spoonm] {hdm \& spoonm}
 \date[CSW 2005] {CanSecWest, 2005}
-\subject{Metasploit - Advanced Exploitation}
+\subject{Advances in Exploit Technology}
 
 % Add a spacer between each part
 \AtBeginPart{\frame{\partpage}}
@@ -115,19 +115,95 @@
 \pdfpart{Windows Exploitation}
 %--------------------------------------%
 
+\section{Exploit Trends}
 \begin{frame}
-  \frametitle{Windows Exploitation}
+  \frametitle{Exploit Trends}
 	\begin{sitemize}
-		\item The 
-		\item SEH frame overwrites still easy to exploit
-		\item Third-party applications buggy as ever
+		\item Public Windows exploits are still terrible...		
+		\begin{sitemize}
+			\item Tons of ugly, inflexible, hardcoded crap
+			\item Demonstrate no knowledge of underlying flaw
+			\item Rarely use information leakage for system targetting
+		\end{sitemize}
+	\end{sitemize}
+	
+	\pause
+	\begin{sitemize}	
+		\item ...but they have improved over the last year!
+		\begin{sitemize}
+			\item More exploits are supporting multiple payloads
+			\item Return addresses are more reliable
+			\item Payloads are getting slightly less ghetto
+		\end{sitemize}
 	\end{sitemize}  
 \end{frame}
 
-
+\begin{frame}
+  \frametitle{PoC Community}
+	
+	\begin{sitemize}
+		\item The number of people capable of writing exploits is going up...
+		\begin{sitemize}
+			\item The number of PoC writers is picking up steam
+			\item Nearly 250 PoC authors in 2004 (packetstorm, etc)
+			\item Win32 exploit dev information has hit critical mass
+			\item Exploit development training is in high demand ;-)
+		\end{sitemize}	
+	\end{sitemize}
+	
+	\pause
+	\begin{sitemize}
+		\item ...but the number of "hard" exploits made public is the same
+		\begin{sitemize}
+			\item People are lazy, skilled people tend to horde their code
+			\item Example: Microsoft ASN.1 Bit String Heap Corruption
+			\item Most "difficult" exploits are disclosed due to leaks
+			\item Win32 kernel exploits are still the domain of a few :-)
+		\end{sitemize}
+	\end{sitemize}
+\end{frame}
 
 \section{Windows XP SP2}
-\section{Windows 2003 SP1}
+\begin{frame}
+  \frametitle{Windows XP SP2}
+	\begin{sitemize}
+		\item Microsoft's "patch of the year" for 2004
+		\begin{sitemize}
+			\item SP2 included a handful of anti-exploit changes
+			\item The important ones were already in 2003
+			\item Page protection is dependent on hardware
+		\end{sitemize}	
+	\end{sitemize}
+	
+	\pause
+	\begin{sitemize}
+		\item Most of the SP2 protections can be avoided
+		\begin{sitemize}
+			\item David Litchfield demonstrated SEH exploitation
+			\item Matt Conover continues to dismantle the heap
+			\item Third-party applications basically unaffected
+		\end{sitemize}
+	\end{sitemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Metasploit and SP2}
+	\begin{sitemize}
+		\item Exploit development barely affected by SP2
+		\item Third-parties are not using Visual Studio 7
+		\item Registered SEH has yet to be encountered
+		\item A handful of nice XP SP2 and 2003 addresses
+	\end{sitemize}
+	
+	\pause
+	\begin{sitemize}
+		\item Still too early to guess effectiveness
+		\begin{sitemize}
+			\item Not many remote Windows XP OS vulnerabilities
+			\item XXX fill in more stuff here
+		\end{sitemize}
+	\end{sitemize}
+\end{frame}
 
 
 %--------------------------------------%
@@ -175,7 +251,7 @@
 
 \section{Reliability}
 \begin{frame}
-	\frametitle{Reliability}
+	\frametitle{Return Address Reliability}
 	\begin{sitemize}
 		\item An exploit is only as good as the return address it uses
 		\item Many vulnerabilities only allow one exploit attempt
@@ -212,6 +288,54 @@
 	\end{sitemize}	
 \end{frame}
 
+\begin{frame}[fragile]
+	\frametitle{The Magic SEH}
+	\begin{sitemize}
+		\item Stack overflows rarely exploit return address overwrites
+		\item Overwriting the structured exception handler (SEH) is easier
+		\item The first exception causes smashed SEH to be called
+		\item SEH frame can exist before or after the return address
+	\end{sitemize}
+{\footnotesize 
+	\begin{verbatim}
+/* Struction Exception Handler */
+typedef struct _EXCEPTION_REGISTRATION
+{
+	struct _EXCEPTION_REGISTRATION* prev;
+	PEXCEPTION_HANDLER              handler;
+} EXCEPTION_REGISTRATION, *PEXCEPTION_REGISTRATION;
+	\end{verbatim}
+}
+\end{frame}
+
+
+\begin{frame}[fragile]
+	\frametitle{The Magic SEH}
+	\begin{sitemize}
+		\item Overwrite the frame, trigger exception, got EIP :-)
+		\item The prototype for the SEH function is:
+	\end{sitemize}
+{\footnotesize 	
+	\begin{verbatim}
+EXCEPTION_DISPOSITION
+	__cdecl _except_handler(
+		 struct _EXCEPTION_RECORD *ExceptionRecord,
+		 void * EstablisherFrame,
+		 struct _CONTEXT *ContextRecord,
+		 void * DispatcherContext );
+	\end{verbatim}
+}
+	\pause
+	\begin{sitemize}
+		\item \texttt{EstablisherFrame} points 4 bytes before handler address
+		\pause
+		\item Can return back to code via \texttt{pop reg, pop reg, ret}
+		\pause
+		\item The pop/pop/ret combination is easy to find in memory
+		\pause
+		\item Registered SEH on Windows XP/2003 has some restrictions
+	\end{sitemize}
+\end{frame}
 
 \section{Unix Addresses}
 \begin{frame}
