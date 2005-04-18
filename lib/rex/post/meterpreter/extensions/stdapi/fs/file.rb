@@ -16,15 +16,75 @@ module Fs
 
 class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
+SEPARATOR = "\\"
+Separator = "\\"
+
 	include Rex::Post::File
 	
 	class <<self
 		attr_accessor :client
 	end
 
+	def File.basename(*a)
+		path = a[0]
+		sep  = "\\" + File::SEPARATOR
+
+		# I suck at regex.
+		path =~ /(.*)#{sep}(.*)$/
+
+		return $2
+	end
+
 	def File.stat(name)
 		return client.fs.filestat.new(name)
 	end
+
+	# Upload one or more files to the remote computer the remote
+	# directory supplied in destination
+	def File.upload(destination, *src_files)
+		src_files.each { |src|
+			dest = destination
+
+			if (File.basename(destination) != ::File.basename(src))
+				dest += File::SEPARATOR + ::File.basename(src)
+			end
+
+			dest_fd = client.fs.file.new(dest, "wb")
+			src_buf = ::IO.readlines(src).join
+
+			dest_fd.write(src_buf)
+			dest_fd.close
+		}
+	end
+
+	# Download one or more files from the remote computer to the local 
+	# directory supplied in destination
+	def File.download(destination, *src_files)
+		src_files.each { |src|
+			dest = destination
+
+			if (::File.basename(destination) != File.basename(src))
+				dest += ::File::SEPARATOR + File.basename(src)
+			end
+
+			src_fd = client.fs.file.new(src, "rb")
+			dst_fd = ::File.new(dest, "wb")
+
+			while (!src_fd.eof?)
+				data = src_fd.read
+
+				if (data == nil)
+					next
+				end
+
+				dst_fd.write(data)
+			end
+
+			src_fd.close
+			dst_fd.close
+		}
+	end
+
 
 	##
 	#

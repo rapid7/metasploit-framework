@@ -38,7 +38,7 @@ class IO < Rex::Post::IO
 
 	# Synonym for syswrite
 	def write(buf)
-		syswrite
+		syswrite(buf)
 	end
 
 	# Closes the channel
