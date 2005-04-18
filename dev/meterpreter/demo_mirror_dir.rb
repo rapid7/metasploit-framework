@@ -4,7 +4,7 @@ require 'DemoClient'
 
 host   = ARGV[1] || '127.0.0.1'
 port   = ARGV[2] || '12345'
-dir    = ARGV[3] || "%WINDIR%\inf"
+dir    = ARGV[3] || "%WINDIR%\\inf"
 client = DemoClient.new(host, port).client
 
 begin
@@ -12,4 +12,4 @@ begin
 rescue
 end
 
-client.fs.dir.download('/tmp/mirror_demo', '%WINDIR%\inf', true)
+client.fs.dir.download('/tmp/mirror_demo', dir, true)
