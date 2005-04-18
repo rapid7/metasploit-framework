@@ -152,6 +152,19 @@ class Process < Rex::Post::Process
 		return self.new(pid, handle, channel)
 	end
 
+	# Kills one or more processes
+	def Process.kill(*args)
+		request = Packet.create_request('stdapi_sys_process_kill')
+
+		args.each { |id|
+			request.add_tlv(TLV_TYPE_PID, id)
+		}
+
+		client.send_request(request)
+
+		return true
+	end
+
 	# Gets the process id that the remote side is executing under
 	def Process.getpid
 		request = Packet.create_request('stdapi_sys_process_getpid')
