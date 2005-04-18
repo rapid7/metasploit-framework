@@ -49,6 +49,8 @@ Separator = "\\"
 				dest += File::SEPARATOR + ::File.basename(src)
 			end
 
+			# Open the file on the remote side for writing and read
+			# all of the contents of the local file
 			dest_fd = client.fs.file.new(dest, "wb")
 			src_buf = ::IO.readlines(src).join
 
@@ -70,9 +72,9 @@ Separator = "\\"
 			src_fd = client.fs.file.new(src, "rb")
 			dst_fd = ::File.new(dest, "wb")
 
+			# Keep transferring until EOF is reached...
 			begin
 				while ((data = src_fd.read) != nil)
-
 					dst_fd.write(data)
 				end
 			rescue EOFError
