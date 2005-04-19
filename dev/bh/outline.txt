@@ -71,16 +71,16 @@ I. Introduction
             i. Introduced at blackhat04 with the Metasploit 2.2 release
          c. Meterpreter & dN
             i. The cross-platform post-exploitation suite
-		3. Payload Research
+      3. Payload Research
          a. PassiveX
-			b. Ordinal Stagers
-			c. Egghunt (maybe?)
+         b. Ordinal Stagers
+         c. Egghunt (maybe?)
 II. Pre-exploitation
    A. Opty2
-		1. spoonfu
+      1. spoonfu
    B. Additive feedback encoders
    C. Shikata Ga Nai
-		1. spoonfu
+      1. spoonfu
 III. Post-exploitation
    A. Library Injection
       1. Provides advanced code execution
@@ -177,7 +177,7 @@ III. Post-exploitation
             through local vulnerabilities
          c. SAM dumping support similar to pwdump3
    D. dN
-		1. spoonfu
+      1. spoonfu
    E. PassiveX
       1. Overview
          a. Post-exploitation payload
