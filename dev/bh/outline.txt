@@ -1,0 +1,213 @@
+I. Introduction
+   A. Who are we?
+      1. spoonm
+      2. skape
+   B. Exploit Technology
+      1. Three Phases of Exploitation
+         a. Pre-exploitation
+         b. Exploitation
+         c. Post-exploitation
+      2. Pre-exploitation - Preparing the payload
+         a. NOP generation
+         b. Payload encoders
+         c. Connection handler initialization
+      3. Exploitation - Leveraging the vulnerability
+         a. Stack overflows
+         c. Heap overflows
+         b. SEH overwrites
+         d. Arbitrary pointer overwrites
+      4. Post-Exploitation - Manipulating the target
+         a. Command shell redirection
+         b. Arbitrary command execution
+         c. Pivoting payloads
+         d. Advanced payload interaction
+   B. Where do we stand?
+      1. Pre-exploitation
+         a. Robust and elegant encoders do exist
+            i. SkyLined's alpha-numeric encoder
+            ii. Spoonm's Shikata Ga Nai
+         b. Payload encoders generally taken for granted
+            i. Most encoders are static with a variable key
+            ii. IDS able to signature static decoder stubs
+         c. NOP generation hasn't publically changed much
+            i. PoC exploits generally use predictable nops, if any
+            ii. ADMmutate easily signatured by most NIDS (Snort, Fnord)
+            iii. Not considered very important to many researchers
+         d. NIDS deployments are playing chase the tail
+            i. The mouse always has the advantages; NIDS is reactive
+            ii. Advanced nops and encoders push NIDS to its limits
+      2. Exploitation
+         a. Techniques have become very mature
+            i. Linux/BSD exploitation techniques largely unchanged
+            ii. Win32 heap overflows now more reliable (oded/shok)
+            iii. Win32 SEH overwrites make exploitation easy, even on XPSP2
+         b. Exploitation topics have been beaten to death
+      3. Post-exploitation
+         a. Common payloads are limited
+            i. Command shell interaction has poor automation support
+            ii. Limited to the command set that the interpreter provides
+            iii. Bounded by the utilities installed on the target machine
+            iv. Restrictive environments (chroot) can hinder command execution
+            v. HIPS vendors becoming more adept at detecting basic payloads
+               - LoadLibraryA from the stack, etc (mcafee 8.0i)
+         b. Communication vectors largely unchanged
+            i. Reverse and port-bind payloads still the most common
+            ii. Findsock style payloads still unused PoC exploits
+            iii. Alternative communication vectors rarely discussed
+         b. Pivoting technology exists
+            i. Core ST described system call proxying in 2002
+            ii. Metasploit's (2.3) meterpreter provides basic network pivoting
+   C. What will we discuss?
+      1. Pre-exploitation Research
+         a. NOP generation
+            i. Opty2
+         b. Encoders
+            i. Additive feedback encoders
+            ii. Shikata Ga Nai
+      2. Post-Exploitation Research
+         a. Library Injection
+            i. Facilitates things like Meterpreter and VNC injection
+         b. VNC Injection
+            i. Introduced at blackhat04 with the Metasploit 2.2 release
+         c. Meterpreter & dN
+            i. The cross-platform post-exploitation suite
+		3. Payload Research
+         a. PassiveX
+			b. Ordinal Stagers
+			c. Egghunt (maybe?)
+II. Pre-exploitation
+   A. Opty2
+		1. spoonfu
+   B. Additive feedback encoders
+   C. Shikata Ga Nai
+		1. spoonfu
+III. Post-exploitation
+   A. Library Injection
+      1. Provides advanced code execution
+         a. Code can be written in any language that can compile down
+            to a shared object.
+         b. Allows developer to use all of the APIs exposed to a normal
+            application.
+      2. Two types of library injection
+         a. On-Disk
+            i. Library is loaded from the target's harddrive or via a
+               file share.
+         b. In-Memory
+            i. Library is uploaded to the target and loaded from memory
+               without touching the disk
+            ii. Evades file system filter drivers, such as those
+                provided by AV companies
+            iii. Not touching the disk means no forensic trace
+   B. VNC Injection
+      1. Implements VNC as an injectable DLL
+         a. Uses RealVNC as the code-base
+         b. VNC communication uses the exploit connection
+         c. No physical trace is left of the VNC server
+         d. Can operate regardless of existing VNC installations
+      2. Easy way to illustrate insecurities
+         a. Suits understand mouse movement better than black box command 
+            prompts
+   C. Meterpreter
+      1. Generic post-exploitation suite
+         a. Based on library injection
+         b. Uses the established exploit connection
+            i. Especially powerful with findsock payloads; no new connection
+         c. Executes entirely from memory
+         d. No new processes or file access required for the payload to
+            succeed
+      2. Extension system provides advanced automation support
+         a. No need to hand write tedious assembly
+         b. Existing native code can be ported to a meterpreter extension
+      3. Architecture
+         a. Design goals
+            i. Very flexible protocol; should adapt to extension requirements
+            ii. Exposure of a channelized communication system to extensions
+            iii. Stealth operation
+            iv. Should be portable to various operating systems
+            v. Client from one platform should work with server on another
+               platform
+         b. Protocol
+            i. Uses TLVs (Type-Length-Value) to support arbitrary data
+               passing.
+            ii. TLVs allow the packet parser to be oblivious to the structure
+                of the value field
+            iii. Type field is broken down into meta types
+      4. Core interface
+         a. Overview
+            i. Minimal interface to support the loading of extensions
+            ii. Implements the basic packet transmission and dispatching
+                facilities
+            iii. Exposes channel allocation and management to extensions
+         b. Advanced features
+            i. Migrating the server instance between processes
+      5. The ``stdapi'' extension
+         a. Overview
+            i. Included in Metasploit 3.0
+            ii. Provides access to some of the common facilities of the
+                target operating system
+            iii. Allows for easy automation and implementation of robust
+                 post-exploitation scripts
+         b. File System
+            i. File and directory interaction
+            ii. Files can be uploaded and downloaded between the
+                attacker and the target
+         c. Network
+            i. Transparent network pivoting
+            ii. Route table enumeration and manipulation
+            iii. Local interface enumeration
+         d. Process
+            i. Process execution, optionally with channelized IO
+            ii. Enumeration of running processes
+            iii. Modification of arbitrary memory
+            iv. Creation and modification of running threads
+            v. Loading and interacting with shared object files
+         e. Registry
+            i. General registry API access
+            ii. Opening, creating, and removing registry keys
+            iii. Setting, querying, and deleting registry values
+            iv. Enumeration of both keys and values
+         f. User interface
+            i. Disabling local user interaction via the keyboard
+               and/or mouse (similar to VNC)
+            ii. Idle timeout checking to see how long it's been
+                since the user did something interactive
+      6. The ``priv'' extension
+         a. Still in development
+         b. Exposes an interface to escalating local privileges
+            through local vulnerabilities
+         c. SAM dumping support similar to pwdump3
+   D. dN
+		1. spoonfu
+   E. PassiveX
+      1. Overview
+         a. Post-exploitation payload
+         b. A derivative of On-Disk library injection that uses
+            ActiveX controls
+      2. Implementation
+         a. Disables iexplore Internet zone restrictions on 
+            ActiveX controls
+         b. Launches a hidden iexplore at a URL with an embedded
+            OCX
+         c. ActiveX control restores zone restrictions
+      X. talk about socketpair tcp abstraction
+         talk about http tunneling
+      4. Pros
+         a. Bypasses restrictive outbound filters
+         b. Re-uses proxy configuration
+         c. Looks like normal user traffic
+      5. Cons
+         a. Touches the disk
+         b. Requires administrative access
+            i. Internet Explorer prohibits the downloading of 
+               ActiveX controls as non-admin
+IV. The Complete Picture
+   A. Show how powerful msf3 is here
+V. Conclusion - where do we go from here?
+
+cite:
+
+STRIDE:
+   http://www.ics.forth.gr/carv/acs/ACS/Activities/papers/stride-IFIP-SEC05.pdf
+
+syscall proxy:
+   http://www.coresecurity.com/files/files/11/SyscallProxying.pdf
