@@ -73,8 +73,12 @@ I. Introduction
             i. The cross-platform post-exploitation suite
       3. Payload Research
          a. PassiveX
+            i. Taking advantage of ActiveX controls
          b. Ordinal Stagers
+            i. Tiny network capable stagers
          c. Egghunt (maybe?)
+            i. Small payload capable of locating a larger payload
+            ii. Useful for exploits with limited space
 II. Pre-exploitation
    A. Opty2
       1. spoonfu
@@ -92,12 +96,14 @@ III. Post-exploitation
          a. On-Disk
             i. Library is loaded from the target's harddrive or via a
                file share.
+            ii. Can be detected by AV products due to fs access
          b. In-Memory
             i. Library is uploaded to the target and loaded from memory
                without touching the disk
             ii. Evades file system filter drivers, such as those
                 provided by AV companies
             iii. Not touching the disk means no forensic trace
+            iv. VirtualLock prevents swapping to disk, but requires admin
    B. VNC Injection
       1. Implements VNC as an injectable DLL
          a. Uses RealVNC as the code-base
@@ -183,18 +189,38 @@ III. Post-exploitation
          a. Post-exploitation payload
          b. A derivative of On-Disk library injection that uses
             ActiveX controls
-      2. Implementation
+         c. Supports arbitrary DLL injection in any language that can
+            be compiled as an ActiveX control (C++, VB, etc)
+      2. Payload Implementation
          a. Disables iexplore Internet zone restrictions on 
             ActiveX controls
+            i. Modifies four registry values that are stored per-user
          b. Launches a hidden iexplore at a URL with an embedded
             OCX
-         c. ActiveX control restores zone restrictions
-      X. talk about socketpair tcp abstraction
-         talk about http tunneling
+            i. The OCX does not have to be signed
+            ii. No user interaction is required
+            iii. OCX is automatically downloaded, registered, and loaded
+                 into the browser's context
+      3. Sample HTTP tunneling ActiveX control
+         a. HTTP GET/POST used to build tunnel to attacker
+            i. Uses the WININET API
+            ii. Outbound traffic from target machine encapsulated in POST
+                request
+            iii. Inbound traffic from attacker encapsulated in GET response
+            iv. Proxy configuration automatically inherited
+				v. Requires HTTP server capable of performing encap/decap on the 
+				   HTTP packets
+         b. Streaming connection through HTTP tunnel can be created
+            i. socketpair doesn't exist natively on win32 but can be simulated
+               with a local listener
+            ii. Streaming abstraction allows advanced payloads to transparently
+                use the HTTP transport (Meterpreter, VNC)
       4. Pros
          a. Bypasses restrictive outbound filters
          b. Re-uses proxy configuration
          c. Looks like normal user traffic
+         d. Allows full access to the win32 API like all forms of 
+            library injection
       5. Cons
          a. Touches the disk
          b. Requires administrative access

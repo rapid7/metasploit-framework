@@ -6,8 +6,8 @@ netconf  = false
 ui       = false
 net      = false
 fseek    = false
-dir      = true
-process  = false
+dir      = false
+process  = true
 registry = false
 copy     = false
 
