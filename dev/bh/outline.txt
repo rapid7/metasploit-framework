@@ -344,10 +344,18 @@ VI. Conclusion - where do we go from here?
       1. Mesh network support 
       2. Expansion of the stdapi described in this document
 
-cite:
-
+included resources:
+   http://www.hick.org/code/skape/papers/egghunt-shellcode.pdf
+   http://www.hick.org/code/skape/papers/meterpreter.pdf
+   http://www.hick.org/code/skape/papers/remote-library-injection.pdf
+   http://www.hick.org/code/skape/papers/passivex.pdf [not released yet]
+   http://www.metasploit.com/users/spoonm/ordinals.txt
+	
+cited material:
 STRIDE:
    http://www.ics.forth.gr/carv/acs/ACS/Activities/papers/stride-IFIP-SEC05.pdf
 
 syscall proxy:
    http://www.coresecurity.com/files/files/11/SyscallProxying.pdf
+
+
