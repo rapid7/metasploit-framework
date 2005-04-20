@@ -89,11 +89,15 @@ II. Pre-exploitation
       1. spoonfu
 III. Post-exploitation
    A. Library Injection
-      1. Provides advanced code execution
-         a. Code can be written in any language that can compile down
+      1. Overview
+         a. Paper published in 12/2003
+         b. Provides advanced code execution
+         c. Code can be written in any language that can compile down
             to a shared object.
-         b. Allows developer to use all of the APIs exposed to a normal
+         d. Allows developer to use all of the APIs exposed to a normal
             application.
+         e. Detailed explanation can be found in included resources
+            (include lib inject paper)
       2. Two types of library injection
          a. On-Disk
             i. Library is loaded from the target's harddrive or via a
@@ -135,6 +139,8 @@ III. Post-exploitation
          c. Executes entirely from memory
          d. No new processes or file access required for the payload to
             succeed
+         e. Detailed explanation can be found in included resources
+            (include meterpreter paper)
       2. Extension system provides advanced automation support
          a. No need to hand write tedious assembly
          b. Existing native code can be ported to a meterpreter extension
@@ -163,7 +169,7 @@ III. Post-exploitation
       5. The ``stdapi'' extension
          a. Overview
             i. Included in Metasploit 3.0
-            ii. Provides access to some of the common facilities of the
+            ii. Provides access to some of the common subsystems of the
                 target operating system
             iii. Allows for easy automation and implementation of robust
                  post-exploitation scripts
@@ -198,13 +204,16 @@ III. Post-exploitation
          c. SAM dumping support similar to pwdump3
    D. dN
       1. spoonfu
-   E. PassiveX
+IV. Payload Research
+   A. PassiveX
       1. Overview
          a. Post-exploitation payload
          b. A derivative of On-Disk library injection that uses
             ActiveX controls
          c. Supports arbitrary DLL injection in any language that can
             be compiled as an ActiveX control (C++, VB, etc)
+         d. Detailed analysis can be found in included resources
+            (include passivex paper)
       2. Payload Implementation
          a. Disables iexplore Internet zone restrictions on 
             ActiveX controls
@@ -229,6 +238,7 @@ III. Post-exploitation
                with a local listener
             ii. Streaming abstraction allows advanced payloads to transparently
                 use the HTTP transport (Meterpreter, VNC)
+            iii. Local listener less covert, but highly beneficial
       4. Pros
          a. Bypasses restrictive outbound filters
          b. Re-uses proxy configuration
@@ -240,7 +250,63 @@ III. Post-exploitation
          b. Requires administrative access
             i. Internet Explorer prohibits the downloading of 
                ActiveX controls as non-admin
-IV. The Complete Picture - Metasploit 3.0
+   B. Windows Ordinal Stagers
+      1. Overview
+         a. Technique from Oded's lightning talk from core04
+         b. Uses static ordinals to locate winsock symbol addresses
+         c. Compatible with all versions of Windows
+         d. 92 byte reverse stager, 93 byte findsock stager
+         e. Detailed explanation can be found in included resources
+            (include spoonm ordinal paper)
+      2. Reverse Ordinal Stager
+         a. Walks InitOrderModuleList searching for ws2_32
+         b. Uses static ordinals to index the export table
+         c. Creates fd with socket
+         d. Chains connect and recv frames
+         e. Returns into buffer read in from file descriptor
+   C. Egghunting
+      1. Overview
+         a. Small stub payload that can search for a larger payload
+         b. Useful for exploits that have limited payload space but can
+            stash more payload elsewhere in memory
+         c. Example exploits include the IE object type vulnerability.
+         d. Goal is to safely search target address space for the larger
+            payload.
+         e. Larger payload is located by searching for an egg that is prepended
+            to it.
+         f. Detailed analysis can be found in included resources
+            (include egghunt paper)
+      2. Two primary methods of egghunting on Windows
+         a. SEH
+            1. 60 bytes in size, searches for an 8 byte egg, compatible with all
+               versions of Windows (including 9x)
+            2. Installs a custom exception handler
+            3. Begins walking the address space
+               i. When a bad address is encounter, the current pointer is
+                  incremented by PAGE_SIZE
+               ii. When a mismatch of the egg is encountered, the current pointer
+                   is incremented by one
+            4. Each address is compared against the 8-byte egg
+               i. Bad addresses will throw exceptions which will be handled
+                  by the custom exception handler
+            5. When the egg is found, jump past the egg into the larger payload
+         b. System call
+            1. Very small stub (32 bytes), searches for an 8 byte egg, only
+               compatible with NT+
+            2. Uses a non-intrusive system call (NtDisplayString) to search validate
+               addresses
+               i. Same page walking logic as SEH is used
+            3. When the egg is found, jump ast the egg into the larger payload
+      3. One primary method of egghunting on Linux
+         a. System call
+            1. 30 bytes in size, searches for an 8 byte egg
+            2. System call technique applies to other UNIX variants as well
+            3. Uses the sigaction system call to validate 16 bytes at once
+            4. Pros
+               i. Very small
+            5. Cons
+               i. Corner cases may cause it to be unstable
+V. The Complete Picture - Metasploit 3.0
    A. The power of pre-exploitation prepartion
       1. Abstract NOP generation
       2. Abstract payload encoding
@@ -260,7 +326,7 @@ IV. The Complete Picture - Metasploit 3.0
          iii. Want to upload and play an mp3 on the target?
          iv. Want to 'be' on the target's network?
       2. Standard interface means cross platform support
-V. Conclusion - where do we go from here?
+VI. Conclusion - where do we go from here?
    A. Future Post-exploitation research
       1. Mesh network support 
       2. Expansion of the stdapi described in this document
