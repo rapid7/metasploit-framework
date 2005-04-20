@@ -1,0 +1,128 @@
+Date of Submission: 
+
+	04/2005
+
+I would like to present this at: 
+	
+	USA 2005
+
+Personal Information
+
+Primary Speaker Name: 
+	
+	spoonm
+
+Primary Speaker Title (if applicable):
+
+Additional Speaker Name(s), Title(s) and Company(s) (if applicable):
+
+	skape
+
+Speaking on Behalf of:
+
+Primary Contact's Email:
+
+	spoonm@gmail.com
+
+Primary Contact's Telephone:
+
+Speaker's Email (if different from the primary speaker's email):
+
+Speaker's Telephone (if different from the primary speaker's telephone):
+
+Has the speaker spoken at a previous Black Hat event? Yes or No
+
+	Yes
+
+Does the speaker have any professional speaking experience? Yes or No
+
+	Yes
+
+If yes, please list the three most recent engagements.
+
+	- cansecwest 2005 
+	- interz0ne 4 
+	- blackhat 2004
+
+Has or will this presentation be seen in any form? If so, explain how this
+presentation is different from previous versions, and where/when this material
+has been seen before.
+
+	No
+
+Will or has the speaker(s) be presenting at ANY event 30 days prior to this
+conference? If yes, please specify which event and on what topic(s).
+
+	No
+
+Presentation Information
+
+Name of Presentation:
+
+	Exploitation, and Beyond!
+
+Select the track(s) that your talk would be most appropriate for your topic (you
+must select at least one of the nine):
+
+	- Deep Knowledge
+	- 0 Day Attack
+
+How much time does your presentation require? 75 minutes, 90 minutes or 20
+minutes (turbo track) (please specify)
+
+	90 minutes
+
+What are the three most important reasons why this is a quality Black Hat talk?
+
+Reason 1:
+
+	This talk will discuss advances in exploitation technology that are not 
+widely known about or used by security researchers.
+
+Reason 2:
+	
+	The technology discussed in this presentation impacts a wide number of 
+security related fields including NIDS, HIPS, Anti-Virus, penetration
+testing and the general exploit development cycle.
+
+Reason 3:
+
+	Audience members will gain greater insight into the current state of
+public exploit technology beyond just the standard vectors of exploitation.
+
+Is there a demonstration? Yes or No
+
+	Yes
+
+Are the speaker(s) releasing a new tool? Yes or No
+
+	No
+
+Are the speaker(s) releasing a new exploit? Yes or No
+
+	No
+
+Is there audience participation? Yes or No
+
+	No
+
+What are your equipment needs?
+
+	1 projector.
+
+Will you require more than 2 lcd projectors? Yes or No - if yes, please specify
+how many
+
+	No
+
+Will you require internet access? Yes or No
+
+	No
+
+Will you require a white board? Yes or No
+
+	No
+
+Will you require any special equipment? Yes or No - if yes, please specify.
+
+	No
