@@ -110,7 +110,7 @@ III. Post-exploitation
                 provided by AV companies
             iii. Not touching the disk means no forensic trace
             iv. VirtualLock prevents swapping to disk, but requires admin
-      3. In-memory library injection overview
+      3. In-memory library injection on Windows
          a. System calls used by the library loader are hooked
             i. NtCreateFile
             ii. NtMapViewOfSection
@@ -122,6 +122,19 @@ III. Post-exploitation
          d. Alternative approaches
             i. Could do client-side relocations, but would need to handle
                import processing
+      4. In-memory library injection on Linux/BSD
+         a. No known public implementations
+         b. Requires alternate approach
+            i. Hooking API routines not always possible -- symtab not
+               mapped into memory
+            ii. libc symbol version mismatches lead to linking nightmare
+         c. Client-side relocations seem most feasible
+            i. Remote side maps a region of memory and sends the client 
+               the base address
+            ii. Client processes relocations and transmits the relocated
+                image as its mapped segment would appear
+            iii. Requires locating rtld base so that PLT lookups will
+                 work
    B. VNC Injection
       1. Implements VNC as an injectable DLL
          a. Uses RealVNC as the code-base
