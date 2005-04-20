@@ -90,7 +90,7 @@ II. Pre-exploitation
 III. Post-exploitation
    A. Library Injection
       1. Overview
-         a. Paper published in 12/2003
+         a. Paper published in 04/2004
          b. Provides advanced code execution
          c. Code can be written in any language that can compile down
             to a shared object.
