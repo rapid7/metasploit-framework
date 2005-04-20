@@ -54,7 +54,7 @@ I. Introduction
                - LoadLibraryA from the stack, etc (mcafee 8.0i)
          b. Communication vectors largely unchanged
             i. Reverse and port-bind payloads still the most common
-            ii. Findsock style payloads still unused PoC exploits
+            ii. Findsock style payloads still unused by PoC exploits
             iii. Alternative communication vectors rarely discussed
          c. Pivoting technology exists
             i. Core ST described system call proxying in 2002
