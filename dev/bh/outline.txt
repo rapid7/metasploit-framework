@@ -56,7 +56,7 @@ I. Introduction
             i. Reverse and port-bind payloads still the most common
             ii. Findsock style payloads still unused PoC exploits
             iii. Alternative communication vectors rarely discussed
-         b. Pivoting technology exists
+         c. Pivoting technology exists
             i. Core ST described system call proxying in 2002
             ii. Metasploit's (2.3) meterpreter provides basic network pivoting
    C. What will we discuss?
@@ -106,6 +106,18 @@ III. Post-exploitation
                 provided by AV companies
             iii. Not touching the disk means no forensic trace
             iv. VirtualLock prevents swapping to disk, but requires admin
+      3. In-memory library injection overview
+         a. System calls used by the library loader are hooked
+            i. NtCreateFile
+            ii. NtMapViewOfSection
+            iii. etc
+         b. Unique image name is used to identify the image to image that
+            is in memory
+         c. System call hooks are removed so that future injectino can
+            occur
+         d. Alternative approaches
+            i. Could do client-side relocations, but would need to handle
+               import processing
    B. VNC Injection
       1. Implements VNC as an injectable DLL
          a. Uses RealVNC as the code-base
@@ -210,8 +222,8 @@ III. Post-exploitation
                 request
             iii. Inbound traffic from attacker encapsulated in GET response
             iv. Proxy configuration automatically inherited
-				v. Requires HTTP server capable of performing encap/decap on the 
-				   HTTP packets
+            v. Requires HTTP server capable of performing encap/decap on the 
+               HTTP packets
          b. Streaming connection through HTTP tunnel can be created
             i. socketpair doesn't exist natively on win32 but can be simulated
                with a local listener
@@ -228,9 +240,30 @@ III. Post-exploitation
          b. Requires administrative access
             i. Internet Explorer prohibits the downloading of 
                ActiveX controls as non-admin
-IV. The Complete Picture
-   A. Show how powerful msf3 is here
+IV. The Complete Picture - Metasploit 3.0
+   A. The power of pre-exploitation prepartion
+      1. Abstract NOP generation
+      2. Abstract payload encoding
+      3. Abstract exploit connection handlers
+         i. Bind handler
+         ii. Reverse handler
+         iii. Findsock handler
+   B. The power of exploitat generalization
+      1. Standardized exploit creation interface
+         i. Robust target definitions
+         ii. Detailed exploit implementation information
+         iii. Entirely payload independent, no hardcoding paylaods
+   C. The power of post-exploitation automation
+      1. Complicated tasks made simple with scripting
+         i. Want to download a targets entire harddrive?
+         ii. Want to disable local user interaction?
+         iii. Want to upload and play an mp3 on the target?
+         iv. Want to 'be' on the target's network?
+      2. Standard interface means cross platform support
 V. Conclusion - where do we go from here?
+   A. Future Post-exploitation research
+      1. Mesh network support 
+      2. Expansion of the stdapi described in this document
 
 cite:
 

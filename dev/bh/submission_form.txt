@@ -59,7 +59,8 @@ Presentation Information
 
 Name of Presentation:
 
-	Exploitation, and Beyond!
+	- Exploitation, and Beyond!
+	- Are you in yet?
 
 Select the track(s) that your talk would be most appropriate for your topic (you
 must select at least one of the nine):
