@@ -30,16 +30,6 @@ CHANNEL_DIO_CLOSE        = 'close'
 
 class Channel
 
-	# Maps packet request methods to DIO request identifiers on a
-	# per-instance basis as other instances may add custom dio
-	# handlers.
-	@dio_map   = 
-		{ 
-			'core_channel_read'  => CHANNEL_DIO_READ,
-			'core_channel_write' => CHANNEL_DIO_WRITE,
-			'core_channel_close' => CHANNEL_DIO_CLOSE,
-		}
-
 	# Class modifications to support global channel message
 	# dispatching without having to register a per-instance handler
 	class <<self
@@ -56,13 +46,14 @@ class Channel
 			end
 
 			channel = client.find_channel(cid)
-
+			
 			# Valid channel context?
 			if (channel == nil)
+				puts "nil wtf"
 				return false
 			end
-		
-			dio = channel.dio_map[packet.method]
+
+			dio = channel.dio_map(packet.method)
 
 			# Supported DIO request?
 			if (dio == nil)
@@ -140,8 +131,13 @@ class Channel
 	#
 	##
 
-	# Reads data from the remote half of the channel
+	# Wrapper around the low-level channel read operation
 	def read(length = nil, addends = nil)
+		return _read(length, addends)
+	end
+
+	# Reads data from the remote half of the channel
+	def _read(length = nil, addends = nil)
 		if (self.cid == nil)
 			raise IOError, "Channel has been closed.", caller
 		end
@@ -177,8 +173,13 @@ class Channel
 		return nil
 	end
 
-	# Writes data to the remote half of the channel
+	# Wrapper around the low-level write
 	def write(buf, length = nil, addends = nil)
+		return _write(buf, length, addends)
+	end
+
+	# Writes data to the remote half of the channel
+	def _write(buf, length = nil, addends = nil)
 		if (self.cid == nil)
 			raise IOError, "Channel has been closed.", caller
 		end
@@ -205,8 +206,13 @@ class Channel
 		return (written == nil) ? 0 : written.value
 	end
 
-	# Closes the channel
+	# Wrapper around the low-level close
 	def close(addends = nil)
+		return _close(addends)
+	end
+
+	# Closes the channel
+	def _close(addends = nil)
 		if (self.cid == nil)
 			raise IOError, "Channel has been closed.", caller
 		end
@@ -266,6 +272,21 @@ class Channel
 		client.remove_channel(self)
 
 		return false
+	end
+
+	# Maps packet request methods to DIO request identifiers on a
+	# per-instance basis as other instances may add custom dio
+	# handlers.
+	def dio_map(method)
+		if (method == 'core_channel_read')
+			return CHANNEL_DIO_READ
+		elsif (method == 'core_channel_write')
+			return CHANNEL_DIO_WRITE
+		elsif (method == 'core_channel_close')
+			return CHANNEL_DIO_CLOSE
+		end
+
+		return nil
 	end
 
 	##

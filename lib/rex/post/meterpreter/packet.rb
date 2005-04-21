@@ -97,7 +97,11 @@ class Tlv
 		
 		if (value != nil)
 			if (type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
-				@value = value.dup
+				if (value.kind_of?(Fixnum))
+					@value = value.to_s
+				else
+					@value = value.dup
+				end
 			else
 				@value = value
 			end
@@ -440,7 +444,6 @@ class Packet < GroupTlv
 
 	# Checks to see if the packet is a response
 	def response?
-
 		return ((self.type == PACKET_TYPE_RESPONSE) ||
 		        (self.type == PACKET_TYPE_PLAIN_RESPONSE))
 	end
