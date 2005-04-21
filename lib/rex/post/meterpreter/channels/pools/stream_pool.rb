@@ -12,7 +12,7 @@ module Pools
 ###
 #
 # StreamPool
-# ----
+# ----------
 #
 # This class represents a channel that is associated with a 
 # streaming pool that has no definite end-point.  While this
@@ -23,12 +23,6 @@ module Pools
 #
 ###
 class StreamPool < Rex::Post::Meterpreter::Channels::Pool
-
-	##
-	#
-	# Factory
-	#
-	##
 
 	##
 	#
