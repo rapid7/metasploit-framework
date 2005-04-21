@@ -125,8 +125,6 @@ protected
 
 			while (1)
 		
-				puts "polling..."
-
 				# Watch for data
 				socks = select(monitored_sockets, nil, nil, 1)
 
@@ -141,29 +139,21 @@ protected
 					closed  = false
 					data    = nil
 
-					puts "#{sock.object_id}"
-
 					if (channel == nil)
 						remove_monitored_socket(sock)
 
 						next
 					end
 
-					puts "reading..."
-
-					# Read in some data
 					begin
-						data = sock.read(18)
+						data = sock.sysread(16384)
 					rescue
-						puts "closed"
 						closed = true
 					end
 
 					if (data == nil)
 						closed = true
 					end
-
-					puts "sending #{data} to remote"
 
 					# If the socket closed, notify the other side and remove
 					# this socket from the monitored socket list
@@ -184,7 +174,6 @@ protected
 
 	# Adds a socket to the list of monitored sockets
 	def add_monitored_socket(sock, channel)
-					puts "#{sock.inspect} #{sock.object_id}"
 		monitored_sockets << sock
 		monitored_socket_channels[sock.object_id] = channel
 	end
