@@ -3,7 +3,7 @@
 \documentclass{beamer}
 \usepackage{graphicx}
 \usepackage{color}
-
+\usepackage{comment}
 
 \mode<presentation>
 {
@@ -104,8 +104,9 @@
   \frametitle{What is this about?}
 	\begin{sitemize}
 		\item Recent advances in exploit technology
-		\item Exploiting Windows XP SP2 and Mac OS X
-		\item New research, techniques, and code		
+		\item Exploit development trends and XP SP2
+		\item New and upcoming post-exploitation techniques	
+		\item Improving the randomness of attack data
 		\item Metasploit Framework 3.0 architecture
 	\end{sitemize}  
 \end{frame}
@@ -144,10 +145,9 @@
 	\begin{sitemize}
 		\item The number of people capable of writing exploits is going up...
 		\begin{sitemize}
-			\item The number of PoC writers is picking up steam
 			\item Nearly 250 PoC authors in 2004 (packetstorm, etc)
 			\item Win32 exploit dev information has hit critical mass
-			\item Exploit development training is in high demand ;-)
+			\item Exploit development training is in high demand
 		\end{sitemize}	
 	\end{sitemize}
 	
@@ -171,13 +171,17 @@
 		\begin{sitemize}
 			\item SP2 included a handful of anti-exploit changes
 			\item The important ones were already in 2003
-			\item Page protection is dependent on hardware
+			\begin{sitemize}
+				\item Use of registered system exception handlers
+				\item Core services compiled with stack protection
+			\end{sitemize}
+			\item Page protection is still dependent on hardware
 		\end{sitemize}	
 	\end{sitemize}
 	
 	\pause
 	\begin{sitemize}
-		\item Most of the SP2 protections can be avoided
+		\item Most of the SP2 changes can be avoided
 		\begin{sitemize}
 			\item David Litchfield demonstrated SEH exploitation
 			\item Matt Conover continues to dismantle the heap
@@ -190,35 +194,34 @@
   \frametitle{Metasploit and SP2}
 	\begin{sitemize}
 		\item Exploit development barely affected by SP2
+		\item A handful of XP SP2 and 2003 SEH return addresses
 		\item Third-parties are not using Visual Studio 7
-		\item Registered SEH has yet to be encountered
-		\item A handful of nice XP SP2 and 2003 addresses
-	\end{sitemize}
-	
-	\pause
-	\begin{sitemize}
-		\item Still too early to guess effectiveness
 		\begin{sitemize}
-			\item Not many remote Windows XP OS vulnerabilities
-			\item XXX fill in more stuff here
+			\item Most commercial applications do not use /GS
+			\item Have yet to see one that uses Registered SEH
 		\end{sitemize}
 	\end{sitemize}
 \end{frame}
 
 
+\begin{comment}
 %--------------------------------------%
 \pdfpart{Mac OS X Exploitation}
 %--------------------------------------%
 
-\section{PowerPC Constraints}
+\section{PowerPC Processor}
 \begin{frame}
 	\frametitle{PowerPC Contraints}
 	\begin{sitemize}
-		\item Mac OS X runs on PowerPC
-		\item PowerPC is a RISC-platform
-		\item Independent instruction and data caches
-		\item Fixed-width 32-bit insutrctions
-		\item Stack overflows need to return twice to be explotable
+		\item Mac OS X runs on the PowerPC processor
+		\begin{sitemize}
+			\item PowerPC uses fixed-width 32-bit instructions
+			\item Data and instruction caches are independent
+			\item The instruction cache runs in "incoherent" mode
+		\end{sitemize}
+		\pause	
+	
+		\item Stack overflows need to return twice to be exploitable
 		\item (Similar to exploits on SPARCs, etc)
 	\end{sitemize}
 \end{frame}
@@ -243,7 +246,7 @@
 		\item Exploits can have different results between diff CPUs
 	\end{sitemize}
 \end{frame}
-
+\end{comment}
 
 %--------------------------------------%
 \pdfpart{Return Addresses}
@@ -329,11 +332,13 @@ EXCEPTION_DISPOSITION
 	\begin{sitemize}
 		\item \texttt{EstablisherFrame} points 4 bytes before handler address
 		\pause
-		\item Can return back to code via \texttt{pop reg, pop reg, ret}
+		\item Passed to exeception handler function \texttt{[esp+8]}
 		\pause
-		\item The pop/pop/ret combination is easy to find in memory
+		\item Return back to code via \texttt{pop reg, pop reg, ret}
 		\pause
-		\item Registered SEH on Windows XP/2003 has some restrictions
+		\item The pop + pop + ret combination is easy to find in memory
+		\pause
+		\item Registered SEH and Windows XP/2003 limit this type of abuse
 	\end{sitemize}
 \end{frame}
 
@@ -396,7 +401,7 @@ EXCEPTION_DISPOSITION
 \end{frame}
 
 \begin{frame}
-	\frametitle{The Metasploit msfpescan utility}
+	\frametitle{msfpescan}
 	\begin{sitemize}
 		\item msfpescan - a utility included in the Metasploit Framework
 		\begin{sitemize}
@@ -445,18 +450,28 @@ EXCEPTION_DISPOSITION
 		\item Contains opcodes across every executable and DLL in Windows
 		\item The new version includes over nine million records
 		\item Data is generated directly from the files themselves
-		\item Quickly cross-reference return address over the entire DB
+		\item Quickly cross-reference return addresses over the entire DB
 		\item Publicly available from http://www.metasploit.com/
-
 	\end{sitemize}	
 \end{frame}
 
 \begin{frame}
-	\frametitle{Current Development}
+	\frametitle{Future Development}
+	\begin{sitemize}
+		\item Context-aware return address discovery
+		\begin{sitemize}
+			\item Demonstrated by eEye at Black Hat 2004
+			\item Similar project in development from Metasploit
+		\end{sitemize}
+	\end{sitemize}
+	\pause
+	
 	\begin{sitemize}
 		\item Executable analysis tools for Solaris, Mac OS X, Linux, BSD
-		\item Usefulness limited compared to Windows platform
-		\item Static libraries are great for cross-version exploits
+		\begin{sitemize}
+			\item Usefulness limited compared to Windows platform
+			\item Static libraries are great for cross-version exploits
+		\end{sitemize}
 	\end{sitemize}	
 \end{frame}
 
@@ -486,11 +501,17 @@ EXCEPTION_DISPOSITION
 \end{frame}
 
 \begin{frame}
-	\frametitle{Ordinal-based Stagers}
+	\frametitle{Ordinal-based Payload Stagers}
 	\begin{sitemize}
-		\item Technique from Oded's lightning talk from core04
-		\item 92 bytes and works on every Windows version/SP
-		\item Staging system can chain vnc injection or Meterpreter
+		\item Techniques borrowed from Oded's lightning talk from core04
+		\item 92 bytes and works on every Windows OS and SP
+		\item Staging system can chain any other Windows payload
+		\item Implementation also has a few size reductions:
+		\begin{sitemize}
+			\item Optimized module walked finds ws2\_32.dll
+			\item Functions are loaded from base + ordinal offset
+			\item Chained calls return to the next function
+		\end{sitemize}	
 	\end{sitemize}	
 \end{frame}
 
@@ -500,8 +521,16 @@ EXCEPTION_DISPOSITION
 		\item Payload modifies registry and launches IE
 		\item IE loads custom ActiveX control to stage the payload
 		\item Communications channel is via HTTP requests
+		\begin{sitemize}
+			\item Uses standard IE proxy and auth settings
+			\item Useful on heavily firewalled DMZ hosts
+			\item Providers bi-directional channel for next stage
+		\end{sitemize}
+	\end{sitemize}
+	
+	\begin{sitemize}
 		\item Can be used to inject VNC, Meterpreter, etc
-		\item Uses IE settings to bypass firewalls (proxy, auth, etc)
+		\item Fully-functional and part of version 2.4
 	\end{sitemize}	
 \end{frame}
 
@@ -509,54 +538,66 @@ EXCEPTION_DISPOSITION
 \section{Unix Payloads}
 
 \begin{frame}
-	\frametitle{Non-standard Network Stagers}
+	\frametitle{Other Network Stagers}
 	\begin{sitemize}
 		\item UDP-based stager and network shell for Linux
 		\item UDP-based DNS request staging system
+		\begin{sitemize}
+			\item UDP shell depends on the bash --noediting option
+			\item Can pass through strict firewall rulesets
+		\end{sitemize}
+	\end{sitemize}
+	
+	\begin{sitemize}	
 		\item ICMP-based listener and "reverse" payloads
-		\item Find and recv socket re-use stagers
-		\item Source code in MSF, but many not integrated
+		\item Findsock stagers being replaced by "findrecvtag"
+		\item Source code included in Metasploit Framework
 	\end{sitemize}	
 \end{frame}
 
 
 
 %--------------------------------------%
-\pdfpart{Improving Randomness in Attacks}
+\pdfpart{Improving Attack Randomness}
 %--------------------------------------%
 
-\begin{frame}
-  \frametitle{Outline}
-  \tableofcontents
-\end{frame}
+%\begin{frame}
+%  \frametitle{Outline}
+%  \tableofcontents
+%\end{frame}
 
 \section{Introduction}
 \begin{frame}
-  \frametitle{Randomness, who cares?}
+  \frametitle{Introduction}
+  
   \begin{sitemize}
-    \item NOTE: this slide can probably be trashed.. just temp for now
-    \item Adding randomness to exploits
+    \item Randomness, who cares?
     \begin{sitemize}
-      \item Less to signature / anti-nids
-      \item Helps to uncover bugs in your exploit
+      \item Make IDS analysts work for their paycheck
+      \item Uncover flaws in your exploit code
     \end{sitemize}
     \pause
-    
+  \end{sitemize}
+  
+  \begin{sitemize}  
 	\item Adding randomness to exploit code
     \begin{sitemize}
-      \item Modify attacks by setting protocol options (frags)
-      \item All padding data can be randomized (englishtext)
-      \item Helper functions to generate types of random data
+      \item Modify attacks by setting protocol options
+      \item Randmomize all padding and non-critical data
+      \item Helper functions for different types of random data
     \end{sitemize}
-		
+	\pause
+  \end{sitemize}
+  
+  \begin{sitemize} 
     \item Adding randomness to machine code
     \begin{sitemize}
-      \item Less to signature / anti-nids
-      \item Increased robustness (bad chars / bad regs)
-      \item Street credz? :-)
+      \item Avoid "static" payload encoding systems
+      \item Substitute like instructions and reorder tasks
+      \item Randomize nop sleds and any other opcode fills
     \end{sitemize}
-	
   \end{sitemize}
+  
 \end{frame}
 
 \section{Conservative Polymorphism}
@@ -564,7 +605,7 @@ EXCEPTION_DISPOSITION
 \newcommand{\incshi}[1]{\includegraphics[height=3in]{#1}}
 
 \begin{frame}
-  \frametitle{R0x Iterationz}
+  \frametitle{Dynamic Payload Decoder}
   \only<9>{\incshi{shi8}}
   \only<8>{\incshi{shi7}}
   \only<7>{\incshi{shi6}}
@@ -581,23 +622,23 @@ EXCEPTION_DISPOSITION
 \subsection{Tekneek}
 
 \begin{frame}
-  \frametitle{Multibyte Sled Concept}
+  \frametitle{Multibyte Nop Sled Concept}
   \begin{sitemize}
-    \item Optyx released multibyte generator at Interz0ne 1
-    \item Generates instructions 1 to 6 bytes long, and 0x66 prefix
-    \item 1 byte aligned, land anywhere, end at the same byte
+    \item Optyx released multibyte nop generator at Interz0ne 1
+    \item Generates instructions 1 to 6 bytes long, and uses 0x66 prefix
+    \item Aligned to 1 byte, land anywhere, end up the final target
   \end{sitemize}
   \begin{sitemize}
     \pause
     \item Builds the sled from back to front
-    \item Continually prepending byte (opcode) to sled
-    \item Generates random byte and check against tables
+    \item Loops through size, prepending byte at a time
+    \item Generates a random byte and checks against tables
     \pause
     \begin{sitemize}
       \item Is the instruction length too long?
       \item Is it a valid instruction?
       \item Does it have any bad bytes?
-      \item Does it modify don't-smash registers?
+      \item Does it modify restricted registers?
     \end{sitemize}
   \end{sitemize}
 \end{frame}
@@ -723,8 +764,8 @@ real    0m12.404s
   \frametitle{Benefits}
   \begin{sitemize}
     \item Not very difficult to gain lots more randomness
-    \item NIDS is far, far, behind
-    \item Added robustness (bad char / bad regs)
+    \item NIDS vendors are still far, far, behind
+    \item Handles restricted bytes and registers
     \item More versatile sled generation (nop stuffing, etc)
   \end{sitemize}
 \end{frame}
@@ -732,17 +773,37 @@ real    0m12.404s
   \frametitle{Possible Improvements}
   \begin{sitemize}
     \item Support processor flags (nop stuffing)
-    \item Support 2-byte opcodes / escape groups (not worth it)
-    \item Improved scoring systems, look-ahead, etc
-    \item Try to output according to a given byte distribution
+    \item Support 2-byte opcodes and escape groups
+    \item Improved byte scoring systems and look-ahead
+    \item Output according to a given byte distribution
     \item Make it faster and use less memory
   \end{sitemize}
 \end{frame}
 
 
+
+%--------------------------------------%
+\pdfpart{Metasploit Framework 3.0}
+%--------------------------------------%
+
+\section{Architecture of 3.0}
+\begin{frame}
+  \frametitle{Temporarily Not in Service}
+  
+  \begin{sitemize}
+    \item The complete presentation can be found at:
+	\begin{sitemize}
+		\item http://www.cansecwest.com/
+		\item http://www.metasploit.com/confs/
+	\end{sitemize}
+  \end{sitemize}
+  
+\end{frame}
+
+
+%%% summary and bib has been removed %%%
+\begin{comment}
 \section*{Summary}
-
-
 \begin{frame}
   \frametitle<presentation>{Summary}
 
@@ -801,6 +862,7 @@ real    0m12.404s
     2000.
   \end{thebibliography}
 \end{frame}
+\end{comment}
 
 \end{document}
 
