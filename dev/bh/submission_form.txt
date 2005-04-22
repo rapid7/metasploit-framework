@@ -41,7 +41,7 @@ Does the speaker have any professional speaking experience? Yes or No
 If yes, please list the three most recent engagements.
 
 	- cansecwest 2005 
-	- interz0ne 4 
+	- defcon 2004
 	- blackhat 2004
 
 Has or will this presentation be seen in any form? If so, explain how this
