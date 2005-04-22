@@ -69,6 +69,26 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 		super(client, cid, type, flags)
 	end
 
+	def close_write
+		return shutdown(1)
+	end
+
+	# Shutdown the connection
+	#
+	# 0 -> future reads 
+	# 1 -> future sends
+	# 2 -> both
+	def shutdown(how = 1)
+		request = Packet.create_request('stdapi_net_socket_tcp_shutdown')
+
+		request.add_tlv(TLV_TYPE_SHUTDOWN_HOW, how)
+		request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
+
+		response = client.send_request(request)
+
+		return true
+	end
+
 end
 
 end; end; end; end; end; end; end

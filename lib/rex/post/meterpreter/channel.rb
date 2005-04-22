@@ -211,6 +211,16 @@ class Channel
 		return _close(addends)
 	end
 
+	# Close the channel for future writes
+	def close_write
+		return _close
+	end
+
+	# Close the channel for future reads
+	def close_read
+		return _close
+	end
+
 	# Closes the channel
 	def _close(addends = nil)
 		if (self.cid == nil)

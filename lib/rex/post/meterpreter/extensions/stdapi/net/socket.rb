@@ -158,7 +158,7 @@ protected
 					# If the socket closed, notify the other side and remove
 					# this socket from the monitored socket list
 					if (closed)
-						channel.close
+						channel.close_write
 
 						remove_monitored_socket(sock)
 					# Otherwise, write the data to the remote side
