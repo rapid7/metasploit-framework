@@ -77,8 +77,23 @@ What are the three most important reasons why this is a quality Black Hat talk?
 
 Reason 1:
 
-	This talk will discuss advances in exploitation technology that are not 
-widely known about or used by security researchers.
+	There have been many presentations on certain exploitation methods, and
+development.  There hasn't been any presentations really discussing a lot of
+work on the little details that have really improved the modern exploit usage.
+Our talk will concentrate less on "this is how you exploit IIS", and more on
+technologies that are required for any attack, and how to further advance in
+this arena.  We will discuss new ideas and implementations in post-exploitation,
+IDS evasion, and the future of hacking related technologies.
+
+-- these suck, but I sort of want to touch on how we will be different/good --
+
+-- or something like --
+
+	Although we continue to publically release much of our work, there is
+much more involved than just what's released.  Blackhat is the perfect venue to
+discuss our ideas, research, design, and development in a detail.  It's really
+important to be able to discuss the sort of things we've thought very hard
+about, and present a conclusions that would otherwise be taken for granted.
 
 Reason 2:
 	
@@ -88,8 +103,10 @@ testing and the general exploit development cycle.
 
 Reason 3:
 
-	Audience members will gain greater insight into the current state of
-public exploit technology beyond just the standard vectors of exploitation.
+	Many of the audience members can't be fully engaged in the deep world
+of security research.  This is a chance for them to get a "view the trenches",
+and see what's actually happening on the attacker security front.  Where
+technologies currently stand, and where things are going in the future.
 
 Is there a demonstration? Yes or No
 
@@ -97,7 +114,7 @@ Is there a demonstration? Yes or No
 
 Are the speaker(s) releasing a new tool? Yes or No
 
-	No
+	Possibly, or will talk about many recent (within a year) releases.
 
 Are the speaker(s) releasing a new exploit? Yes or No
 
