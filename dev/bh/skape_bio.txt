@@ -1,6 +1,6 @@
 Skape is a lead software developer by day and an independent security researcher
 by night.  He joined forces with the Metasploit project in 2004 where his many
-contirbutions have included the Meterpreter, VNC injection, and many other
+contributions have included the Meterpreter, VNC injection, and many other
 payload advances.  Skape has worked on a number of open-source projects and has
 authored several papers on security related technologies.  His current security
 areas of intrerest include post-exploitation technologies, payload development
