@@ -36,7 +36,7 @@ I. Introduction
             ii. ADMmutate easily signatured by most NIDS (Snort, Fnord)
             iii. Not considered very important to many researchers
          d. NIDS deployments are playing chase the tail
-            i. The mouse always has the advantages; NIDS is reactive
+            i. The mouse always has the advantage; NIDS is reactive
             ii. Advanced nops and encoders push NIDS to its limits
       2. Exploitation
          a. Techniques have become very mature
@@ -127,7 +127,7 @@ III. Post-exploitation
          b. Requires alternate approach
             i. Hooking API routines not always possible -- symtab not
                mapped into memory
-            ii. libc symbol version mismatches lead to linking nightmare
+            ii. libc symbol version mismatches lead to linking nightmares
          c. Client-side relocations seem most feasible
             i. Remote side maps a region of memory and sends the client 
                the base address
@@ -309,7 +309,7 @@ IV. Payload Research
             2. Uses a non-intrusive system call (NtDisplayString) to search validate
                addresses
                i. Same page walking logic as SEH is used
-            3. When the egg is found, jump ast the egg into the larger payload
+            3. When the egg is found, jump past the egg into the larger payload
       3. One primary method of egghunting on Linux
          a. System call
             1. 30 bytes in size, searches for an 8 byte egg
@@ -327,7 +327,7 @@ V. The Complete Picture - Metasploit 3.0
          i. Bind handler
          ii. Reverse handler
          iii. Findsock handler
-   B. The power of exploitat generalization
+   B. The power of exploit generalization
       1. Standardized exploit creation interface
          i. Robust target definitions
          ii. Detailed exploit implementation information
