@@ -77,19 +77,7 @@ What are the three most important reasons why this is a quality Black Hat talk?
 
 Reason 1:
 
-	There have been many presentations on certain exploitation methods, and
-development.  There hasn't been any presentations really discussing a lot of
-work on the little details that have really improved the modern exploit usage.
-Our talk will concentrate less on "this is how you exploit IIS", and more on
-technologies that are required for any attack, and how to further advance in
-this arena.  We will discuss new ideas and implementations in post-exploitation,
-IDS evasion, and the future of hacking related technologies.
-
--- these suck, but I sort of want to touch on how we will be different/good --
-
--- or something like --
-
-	Although we continue to publically release much of our work, there is much
+	Although we continue to publicly release much of our work, there is much
 more involved under the hood than just what's released.  Blackhat is the
 perfect venue to discuss our ideas, research, design, and development in 
 detail.  It's really important to be able to discuss the sort of things we've
