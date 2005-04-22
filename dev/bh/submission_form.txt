@@ -89,24 +89,26 @@ IDS evasion, and the future of hacking related technologies.
 
 -- or something like --
 
-	Although we continue to publically release much of our work, there is
-much more involved than just what's released.  Blackhat is the perfect venue to
-discuss our ideas, research, design, and development in a detail.  It's really
-important to be able to discuss the sort of things we've thought very hard
-about, and present a conclusions that would otherwise be taken for granted.
+	Although we continue to publically release much of our work, there is much
+more involved under the hood than just what's released.  Blackhat is the
+perfect venue to discuss our ideas, research, design, and development in a
+detail.  It's really important to be able to discuss the sort of things we've
+thought very hard about and to present the conclusions that would otherwise
+be taken for granted.
 
 Reason 2:
 	
 	The technology discussed in this presentation impacts a wide number of 
 security related fields including NIDS, HIPS, Anti-Virus, penetration
-testing and the general exploit development cycle.
+testing, and the exploit development cycle in general.
 
 Reason 3:
 
-	Many of the audience members can't be fully engaged in the deep world
-of security research.  This is a chance for them to get a "view the trenches",
-and see what's actually happening on the attacker security front.  Where
-technologies currently stand, and where things are going in the future.
+	Many of the audience members can't be fully engaged in the deep world of
+security research.  This is a chance for them to get a "view from the
+trenches", and see what's actually happening on the attacker security front.
+Audience members will get an idea of where technologies currently stand, how
+they work, and what might be in store for the future.
 
 Is there a demonstration? Yes or No
 
