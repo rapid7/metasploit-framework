@@ -6,12 +6,12 @@ We've tried to include most of the topics that will be covered in our
 presentation.  However, many of these things will be discussed, but will not be
 our main concentration.  The majority of our presentation will be around topic
 V. C, our new post-exploitation advances, and how they will be designed and
-integrated into Metasploit 3.  Metasploit 3 won't be finish in time for
-Blackhat, but more important than the software itself, is the work we've done
-behind developing the individual components that it will be built from.
+integrated into Metasploit 3.  Metasploit 3 won't be finished in time for
+Blackhat, but more important than the software itself is the work we've done
+on developing the individual components that it will be built from.
 
-This outline is pretty indepth, so it's hard to pick out all the nuggest of
-coolness.  We've development many really useful technologies in the area of
+This outline is pretty indepth, so it's hard to pick out all the nuggets of
+coolness.  We've developed many really useful technologies in the area of
 payload development.  These are things we've created since last year's
 Blackhat, including many advances in polymorphic shellcode, and
 high-permutation attacks.
