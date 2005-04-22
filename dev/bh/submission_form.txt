@@ -91,7 +91,7 @@ IDS evasion, and the future of hacking related technologies.
 
 	Although we continue to publically release much of our work, there is much
 more involved under the hood than just what's released.  Blackhat is the
-perfect venue to discuss our ideas, research, design, and development in a
+perfect venue to discuss our ideas, research, design, and development in 
 detail.  It's really important to be able to discuss the sort of things we've
 thought very hard about and to present the conclusions that would otherwise
 be taken for granted.
