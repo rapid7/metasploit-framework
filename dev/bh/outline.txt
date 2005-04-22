@@ -1,5 +1,21 @@
 04/19/2005
 
+Note:
+
+We've tried to include most of the topics that will be covered in our
+presentation.  However, many of these things will be discussed, but will not be
+our main concentration.  The majority of our presentation will be around topic
+V. C, our new post-exploitation advances, and how they will be designed and
+integrated into Metasploit 3.  Metasploit 3 won't be finish in time for
+Blackhat, but more important than the software itself, is the work we've done
+behind developing the individual components that it will be built from.
+
+This outline is pretty indepth, so it's hard to pick out all the nuggest of
+coolness.  We've development many really useful technologies in the area of
+payload development.  These are things we've created since last year's
+Blackhat, including many advances in polymorphic shellcode, and
+high-permutation attacks.
+
 I. Introduction
    A. Who are we?
       1. spoonm
@@ -82,11 +98,11 @@ I. Introduction
             i. Small payload capable of locating a larger payload
             ii. Useful for exploits with limited space
 II. Pre-exploitation
-   A. Opty2
-      1. spoonfu
+   A. OptyNop2
+      1. Creation and benefits of multi-byte nopsleds
    B. Additive feedback encoders
    C. Shikata Ga Nai
-      1. spoonfu
+      1. High permutation shellcode through simple dependency mappings
 III. Post-exploitation
    A. Library Injection
       1. Overview
@@ -216,7 +232,8 @@ III. Post-exploitation
             through local vulnerabilities
          c. SAM dumping support similar to pwdump3
    D. dN
-      1. spoonfu
+      1. Simple low-footprint post-exploitation tool
+      2. Useful to scope out execution enviroment, then bootstrap other tools
 IV. Payload Research
    A. PassiveX
       1. Overview
