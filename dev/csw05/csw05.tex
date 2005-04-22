@@ -45,7 +45,7 @@
 \begin{document}
 
 % Throw down the title
-\begin{frame}
+\begin{frame}[t]
   \titlepage
 \end{frame}
 
@@ -55,7 +55,7 @@
 %--------------------------------------%
 
 \section{Who are we?}
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{Who are we?}
 
 	\begin{sitemize}
@@ -76,7 +76,7 @@
 \end{frame}
 
 \section{What is Metasploit?}
-\begin{frame}
+\begin{frame}[t]
   \frametitle{What is Metasploit?}
 	\begin{sitemize}
 		\item Research project with 8 members 
@@ -100,13 +100,13 @@
 \end{frame}
 
 \section{What is this about?}
-\begin{frame}
+\begin{frame}[t]
   \frametitle{What is this about?}
 	\begin{sitemize}
 		\item Recent advances in exploit technology
 		\item Exploit development trends and XP SP2
-		\item New and upcoming post-exploitation techniques	
-		\item Improving the randomness of attack data
+		\item Interesting post-exploitation techniques	
+		\item Improving the exploit randomness
 		\item Metasploit Framework 3.0 architecture
 	\end{sitemize}  
 \end{frame}
@@ -117,7 +117,7 @@
 %--------------------------------------%
 
 \section{Exploit Trends}
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Exploit Trends}
 	\begin{sitemize}
 		\item Public Windows exploits are still terrible...		
@@ -139,7 +139,7 @@
 	\end{sitemize}  
 \end{frame}
 
-\begin{frame}
+\begin{frame}[t]
   \frametitle{PoC Community}
 	
 	\begin{sitemize}
@@ -164,7 +164,7 @@
 \end{frame}
 
 \section{Windows XP SP2}
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Windows XP SP2}
 	\begin{sitemize}
 		\item Microsoft's "patch of the year" for 2004
@@ -190,7 +190,7 @@
 	\end{sitemize}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Metasploit and SP2}
 	\begin{sitemize}
 		\item Exploit development barely affected by SP2
@@ -210,7 +210,7 @@
 %--------------------------------------%
 
 \section{PowerPC Processor}
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{PowerPC Contraints}
 	\begin{sitemize}
 		\item Mac OS X runs on the PowerPC processor
@@ -227,7 +227,7 @@
 \end{frame}
 
 \section{Exploits are annoying}
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{Exploits are annoying }
 	\begin{sitemize}
 		\item Double-return means having to patch other pointers
@@ -238,7 +238,7 @@
 \end{frame}
 
 \section{Shellcode issues}
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{Shellcode issues }
 	\begin{sitemize}
 		\item Double-return means having to patch other pointers
@@ -253,7 +253,7 @@
 %--------------------------------------%
 
 \section{Reliability}
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{Return Address Reliability}
 	\begin{sitemize}
 		\item An exploit is only as good as the return address it uses
@@ -267,7 +267,7 @@
 \end{frame}
 
 \section{Windows Addresses}
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{Windows Return Addresses}
 	\begin{sitemize}
 		\item Windows stack addresses are usually not predictable
@@ -343,7 +343,7 @@ EXCEPTION_DISPOSITION
 \end{frame}
 
 \section{Unix Addresses}
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{Unix Return Addresses}
 	
 	\begin{sitemize}
@@ -377,7 +377,7 @@ EXCEPTION_DISPOSITION
 
 
 \section{Analysis Tools}
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{Analysis Methods}
 	\begin{sitemize}
 		\item Finding solid return addresses involves a few steps
@@ -400,7 +400,7 @@ EXCEPTION_DISPOSITION
 	\end{sitemize}	
 \end{frame}
 
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{msfpescan}
 	\begin{sitemize}
 		\item msfpescan - a utility included in the Metasploit Framework
@@ -444,7 +444,7 @@ EXCEPTION_DISPOSITION
 }
 \end{frame}
 
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{Opcode Databases}
 	\begin{sitemize}
 		\item Contains opcodes across every executable and DLL in Windows
@@ -455,7 +455,7 @@ EXCEPTION_DISPOSITION
 	\end{sitemize}	
 \end{frame}
 
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{Future Development}
 	\begin{sitemize}
 		\item Context-aware return address discovery
@@ -482,7 +482,7 @@ EXCEPTION_DISPOSITION
 
 \section{Windows Payloads}
 
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{The Meterpreter}
 	\begin{sitemize}
 		\item Windows version uses in-memory DLL injection techniques
@@ -500,7 +500,7 @@ EXCEPTION_DISPOSITION
 	\end{sitemize}	
 \end{frame}
 
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{Ordinal-based Payload Stagers}
 	\begin{sitemize}
 		\item Techniques borrowed from Oded's lightning talk from core04
@@ -515,7 +515,7 @@ EXCEPTION_DISPOSITION
 	\end{sitemize}	
 \end{frame}
 
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{PassiveX}
 	\begin{sitemize}
 		\item Payload modifies registry and launches IE
@@ -537,7 +537,7 @@ EXCEPTION_DISPOSITION
 
 \section{Unix Payloads}
 
-\begin{frame}
+\begin{frame}[t]
 	\frametitle{Other Network Stagers}
 	\begin{sitemize}
 		\item UDP-based stager and network shell for Linux
@@ -561,13 +561,13 @@ EXCEPTION_DISPOSITION
 \pdfpart{Improving Attack Randomness}
 %--------------------------------------%
 
-%\begin{frame}
+%\begin{frame}[t]
 %  \frametitle{Outline}
 %  \tableofcontents
 %\end{frame}
 
 \section{Introduction}
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Introduction}
   
   \begin{sitemize}
@@ -604,7 +604,7 @@ EXCEPTION_DISPOSITION
 
 \newcommand{\incshi}[1]{\includegraphics[height=3in]{#1}}
 
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Dynamic Payload Decoder}
   \only<9>{\incshi{shi8}}
   \only<8>{\incshi{shi7}}
@@ -621,7 +621,7 @@ EXCEPTION_DISPOSITION
 
 \subsection{Tekneek}
 
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Multibyte Nop Sled Concept}
   \begin{sitemize}
     \item Optyx released multibyte nop generator at Interz0ne 1
@@ -760,7 +760,7 @@ real    0m12.404s
 \end{frame}
 
 \subsection{Conclusion}
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Benefits}
   \begin{sitemize}
     \item Not very difficult to gain lots more randomness
@@ -769,7 +769,7 @@ real    0m12.404s
     \item More versatile sled generation (nop stuffing, etc)
   \end{sitemize}
 \end{frame}
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Possible Improvements}
   \begin{sitemize}
     \item Support processor flags (nop stuffing)
@@ -787,7 +787,7 @@ real    0m12.404s
 %--------------------------------------%
 
 \section{Architecture of 3.0}
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Temporarily Not in Service}
   
   \begin{sitemize}
@@ -804,7 +804,7 @@ real    0m12.404s
 %%% summary and bib has been removed %%%
 \begin{comment}
 \section*{Summary}
-\begin{frame}
+\begin{frame}[t]
   \frametitle<presentation>{Summary}
 
   % Keep the summary *very short*.
