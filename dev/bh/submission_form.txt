@@ -513,16 +513,6 @@ syscall proxy:
 
 Abstract:
 
-When we wrote Metasploit 2, we were concentrating on the exploit development
-process, and how to create better exploits.  We've since realized that while
-this is very important, it's just the first step of the real task, what do when
-your in, and how to do it.  Our presentation will concentrate on the research
-and design of Metasploit 3.0, and how we will take things much further than
-just getting root.  While the next version of metasploit is far from complete,
-we've done a lot of very interesting work which will be the backbone for the
-our next generation of tools.
-
-
 When it comes to exploitation, the focus has always seemed to be on the 
 vectors used to gain execution control.  While such a focus is obviously
 warranted and necessary, the actual vectors that are in use today have
@@ -535,27 +525,17 @@ and less detectable by NIDS.  On the same point, robust payload encoders
 can both aide in avoiding illegal characters in the payload while at the
 same time making it harder to signature.  Finally, and most importantly,
 enhancements made to post-exploitation payloads mean that exploits can
-provide an extensible cross-platform framework that can provide
+provide an extensible cross-platform framework that can expose
 functionality well beyond that which is typically supplied by a 
 native command interpreter.
-
-In Metasploit 2, the focus was put on the exploit development
-process.  The primary goal was to create robust and reliable exploits.
-Since then, it's been realized that while this is very important, it's
-really just the first step in the real task of providing a way to do
-something once you get in.  This presentation will concentrate on the
-research and technology that will make up the core of Metasploit 3.0.
-While development is far from finished, a number of very interesting 
-components have been implemented that will serve as the backbone for
-the next generation of exploit development with Metasploit.
 
 The design of Metasploit 2 was heavily focused on the exploit development
 process.  It concentrated on helping to create reliable and robust exploits.
 While this was, and still is, very important, it's the first step to something
 more important, what do you now?  The presentation will concentrate on our new
 approach towards Metasploit 3, our next generation of the tool.  While 3.0 is
-far from being released, our new ideas and developments aren't.  We will 
-discuss the tools we've created to be the backbone of Metasploit 3.0, how they
+far from being released, our new ideas and developments aren't.  We will discuss
+the tools we've created to be the backbone of Metasploit 3.0 insofar as how they
 work, how you can use them in your own tools, and how they will change the
 hacking tools of the future.
 
