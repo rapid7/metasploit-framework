@@ -549,6 +549,16 @@ While development is far from finished, a number of very interesting
 components have been implemented that will serve as the backbone for
 the next generation of exploit development with Metasploit.
 
+The design of Metasploit 2 was heavily focused on the exploit development
+process.  It concentrated on helping to create reliable and robust exploits.
+While this was, and still is, very important, it's the first step to something
+more important, what do you now?  The presentation will concentrate on our new
+approach towards Metasploit 3, our next generation of the tool.  While 3.0 is
+far from being released, our new ideas and developments aren't.  We will 
+discuss the tools we've created to be the backbone of Metasploit 3.0, how they
+work, how you can use them in your own tools, and how they will change the
+hacking tools of the future.
+
 
 Blog Entry:
 
