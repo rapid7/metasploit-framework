@@ -539,6 +539,16 @@ provide an extensible cross-platform framework that can provide
 functionality well beyond that which is typically supplied by a 
 native command interpreter.
 
+In Metasploit 2, the focus was put on the exploit development
+process.  The primary goal was to create robust and reliable exploits.
+Since then, it's been realized that while this is very important, it's
+really just the first step in the real task of providing a way to do
+something once you get in.  This presentation will concentrate on the
+research and technology that will make up the core of Metasploit 3.0.
+While development is far from finished, a number of very interesting 
+components have been implemented that will serve as the backbone for
+the next generation of exploit development with Metasploit.
+
 
 Blog Entry:
 
