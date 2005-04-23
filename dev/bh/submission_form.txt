@@ -59,7 +59,7 @@ Presentation Information
 
 Name of Presentation:
 
-	- Metasploit 3.0: Are we in yet?
+	- Metasploit 3.0: Beyond EIP
 
 Select the track(s) that your talk would be most appropriate for your topic (you
 must select at least one of the nine):
