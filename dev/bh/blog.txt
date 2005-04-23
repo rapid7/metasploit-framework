@@ -1,0 +1,33 @@
+
+Blog entry, Stardate April, 2005
+
+We have recently been on a new shellcode kick, but this time it's not about
+making them smaller. We're currently working on building very power new
+post-exploitation shellcode and toolkits, and a very powerful unified API
+to expose their functionality. This will allow us to diverge from precanned
+payloads, allowing users to quickly build power and portable post-exploitation
+tools. We've have built strongly upon our Windows DLL injection, and are
+working on extending similar functionality to the land of Unix.  We're also
+working hard on the next version of Metasploit, which follows this same
+philosophy of emedability and extensablity, allowing users to build their own
+tools on top of our framework. Our previous work was all about exploit
+frameworks. Our new approach we are really building more of a hacker tool
+framework, allowing very strong automation and customization.
+
+
+
+ignore this.....
+
+With Metasploit 3.0 on the horizon, we've been working hard on design and
+building components to take a very different focus.  Currently Metasploit 2
+is very much an end user tool, and doing anything custom isn't so elegant.
+The approach we are taking in Metasploit 3, is "Metasploit as a library".  We
+are working very hard on writing post-exploitation suites for different
+platforms, and then building a unified API that they all adhere to.  This will
+allow you to directly script remote hosts, proxying file operations, network
+communications, and transparent channelized communication.  The new system is
+being designed to be threadsafe to a high degree, forcing us to rethink and
+redesign many of our tools and protocols.  Our new system is design to allow
+you to do things like run 10 exploits concurrently, all "pivoting" through
+a host you previously owned.  Along with this new feature set, we are still
+concentrating on keeping things off disk, all in-memory injection, etc.
