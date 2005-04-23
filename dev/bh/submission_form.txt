@@ -70,7 +70,7 @@ must select at least one of the nine):
 How much time does your presentation require? 75 minutes, 90 minutes or 20
 minutes (turbo track) (please specify)
 
-	90 minutes
+	90 minutes (could do 75 if necessary)
 
 What are the three most important reasons why this is a quality Black Hat talk?
 
@@ -519,7 +519,7 @@ this is obviously very important, it's only the first step in the process. What
 do you do once you own EIP? Our presentation will concentrate on the recent
 advancements in shellcode, IDS/firewall evasion, and post-exploitation systems.
 We will discuss the design and implementation of the technologies that enable
-complex paylods, such as VNC injection, and the suite of tools we've built upon
+complex payloads, such as VNC injection, and the suite of tools we've built upon
 them. We will then present a glimps of the next generation of Metasploit, and
 how these new advances will serve as it's backbone.
 
@@ -532,7 +532,7 @@ making them smaller. We're currently working on building very powerful new
 post-exploitation shellcode and toolkits, and a very powerful unified API to
 expose their functionality. This will allow us to diverge from precanned
 payloads, which will in turn allow users to quickly build powerful and portable
-post-exploitation tools. We've have built strongly upon our Windows DLL
+post-exploitation tools. We have built strongly upon our Windows DLL
 injection, and are working on extending similar functionality to the land of
 Unix.  We're also working hard on the next version of Metasploit, which follows
 this same philosophy of embedability and extensablity, allowing users to build
