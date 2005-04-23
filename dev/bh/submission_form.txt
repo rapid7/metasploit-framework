@@ -59,7 +59,6 @@ Presentation Information
 
 Name of Presentation:
 
-	- Exploitation, and Beyond!
 	- Are you in yet?
 
 Select the track(s) that your talk would be most appropriate for your topic (you
@@ -514,7 +513,25 @@ syscall proxy:
 
 Abstract:
 
+When it comes to exploitation, the focus has always seemed to be on the 
+vectors used to gain execution control.  While such a focus is obviously
+warranted and necessary, the actual vectors that are in use today have
+become very mature in both in principal and in practice.  Due to this fact,
+more attention can be paid to the other components of a typical exploit, 
+such as NOP generation, payload encoding, and the actual payloads that
+are executed once execution control is gained.  In particular, 
+enhancements made to NOP generation can make code both more reliable
+and less detectable by NIDS.  On the same point, robust payload encoders
+can both aide in avoiding illegal characters in the payload while at the
+same time making it harder to signature.  Finally, and most importantly,
+enhancements made to post-exploitation payloads mean that exploits can
+provide an extensible cross-platform framework that can provide
+functionality well beyond that which is typically supplied by a 
+native command interpreter.
+
+
 Blog Entry:
+
 
 Supporting File(s):
 
