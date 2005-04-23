@@ -520,8 +520,8 @@ do you do once you own EIP? Our presentation will concentrate on the recent
 advancements in shellcode, IDS/firewall evasion, and post-exploitation systems.
 We will discuss the design and implementation of the technologies that enable
 complex payloads, such as VNC injection, and the suite of tools we've built upon
-them. We will then present a glimps of the next generation of Metasploit, and
-how these new advances will serve as it's backbone.
+them. We will then present a glimpse of the next generation of Metasploit, and
+how these new advances will serve as its backbone.
 
 Blog Entry:
 
