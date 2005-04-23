@@ -59,7 +59,7 @@ Presentation Information
 
 Name of Presentation:
 
-	- Are we in yet?
+	- Metasploit 3.0: Are we in yet?
 
 Select the track(s) that your talk would be most appropriate for your topic (you
 must select at least one of the nine):
@@ -529,7 +529,7 @@ provide an extensible cross-platform framework that can expose
 functionality well beyond that which is typically supplied by a 
 native command interpreter.
 
-The design of Metasploit 2 was heavily focused on the exploit development
+In Metasploit 2, the design was heavily focused on the exploit development
 process.  It concentrated on helping to create reliable and robust exploits.
 While this was, and still is, very important, it's the first step to something
 more important: what do you do now?  The presentation will concentrate on our
