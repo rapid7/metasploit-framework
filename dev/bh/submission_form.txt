@@ -539,6 +539,16 @@ discuss the tools we've created to be the backbone of Metasploit 3.0 insofar as
 how they work, how you can use them in your own tools, and how they will change
 the hacking tools of the future.
 
+When we built Metasploit, our focus was on the exploit development process. We
+tried to design a system that helped create reliable and robust exploits. While
+this is obviously very important, it's only the first step in the process. What
+do you do once you own EIP? Our presentation will concentrate on the recent
+advancements in shellcode, IDS evasion, and post-exploitation systems.
+We will discuss the design and implementation of the technologies that enable
+complex paylods, such as VNC injection, and the suite of tools we've built upon
+them. We will then present a glimps of the next generation of Metasploit, and
+how these new advances will serve as it's backbone.
+
 
 Blog Entry:
 
@@ -620,7 +630,7 @@ complete my presentation.
 updated, revised or additional presentation(s) or materials that were used in my
 presentation but not included on the conference CD or conference proceedings.
 
-I, (insert primary speaker name), have read the above and understand and agree
+I, spoonm, have read the above and understand and agree
 to the terms as detailed in the Agreement to Terms of Speaking Requirements.
 
 Agreement to Terms of Speaking Remuneration
@@ -671,6 +681,6 @@ honorarium.
 ONLY receive entrance to the Briefings. As a "Turbo Talks" presenter, I WILL NOT
 receive a speaking honorarium or compensation for hotel or travel.
 
-Yes, I, (insert primary speaker name), have read the above and understand and
+Yes, I, spoonm, have read the above and understand and
 agree to the terms as detailed in the Agreement to Terms of Speaking
 Remuneration or I will forfeit my honorarium.
