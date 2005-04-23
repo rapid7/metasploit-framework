@@ -513,32 +513,6 @@ syscall proxy:
 
 Abstract:
 
-When it comes to exploitation, the focus has always seemed to be on the 
-vectors used to gain execution control.  While such a focus is obviously
-warranted and necessary, the actual vectors that are in use today have
-become very mature in both in principal and in practice.  Due to this fact,
-more attention can be paid to the other components of a typical exploit, 
-such as NOP generation, payload encoding, and the actual payloads that
-are executed once execution control is gained.  In particular, 
-enhancements made to NOP generation can make code both more reliable
-and less detectable by NIDS.  On the same point, robust payload encoders
-can both aide in avoiding illegal characters in the payload while at the
-same time making it harder to signature.  Finally, and most importantly,
-enhancements made to post-exploitation payloads mean that exploits can
-provide an extensible cross-platform framework that can expose
-functionality well beyond that which is typically supplied by a 
-native command interpreter.
-
-In Metasploit 2, the design was heavily focused on the exploit development
-process.  It concentrated on helping to create reliable and robust exploits.
-While this was, and still is, very important, it's the first step to something
-more important: what do you do now?  The presentation will concentrate on our
-new approach towards Metasploit 3, our next generation of the tool.  While 3.0
-is far from being released, our new ideas and developments aren't.  We will
-discuss the tools we've created to be the backbone of Metasploit 3.0 insofar as
-how they work, how you can use them in your own tools, and how they will change
-the hacking tools of the future.
-
 When we built Metasploit, our focus was on the exploit development process. We
 tried to design a system that helped create reliable and robust exploits. While
 this is obviously very important, it's only the first step in the process. What
@@ -549,9 +523,22 @@ complex paylods, such as VNC injection, and the suite of tools we've built upon
 them. We will then present a glimps of the next generation of Metasploit, and
 how these new advances will serve as it's backbone.
 
-
 Blog Entry:
 
+Blog entry, Stardate April, 2005
+
+We have recently been on a new shellcode kick, but this time it's not about
+making them smaller. We're currently working on building very powerful new
+post-exploitation shellcode and toolkits, and a very powerful unified API to
+expose their functionality. This will allow us to diverge from precanned
+payloads, which will in turn allow users to quickly build powerful and portable
+post-exploitation tools. We've have built strongly upon our Windows DLL
+injection, and are working on extending similar functionality to the land of
+Unix.  We're also working hard on the next version of Metasploit, which follows
+this same philosophy of embedability and extensablity, allowing users to build
+their own tools on top of our framework. Our previous work was all about exploit
+frameworks. In our new approach we are really building more of a hacker tool
+framework, allowing very strong automation and customization.
 
 Supporting File(s):
 
