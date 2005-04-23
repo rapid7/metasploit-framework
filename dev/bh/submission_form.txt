@@ -513,6 +513,16 @@ syscall proxy:
 
 Abstract:
 
+When we wrote Metasploit 2, we were concentrating on the exploit development
+process, and how to create better exploits.  We've since realized that while
+this is very important, it's just the first step of the real task, what do when
+your in, and how to do it.  Our presentation will concentrate on the research
+and design of Metasploit 3.0, and how we will take things much further than
+just getting root.  While the next version of metasploit is far from complete,
+we've done a lot of very interesting work which will be the backbone for the
+our next generation of tools.
+
+
 When it comes to exploitation, the focus has always seemed to be on the 
 vectors used to gain execution control.  While such a focus is obviously
 warranted and necessary, the actual vectors that are in use today have
