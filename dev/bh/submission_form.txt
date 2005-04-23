@@ -543,7 +543,7 @@ When we built Metasploit, our focus was on the exploit development process. We
 tried to design a system that helped create reliable and robust exploits. While
 this is obviously very important, it's only the first step in the process. What
 do you do once you own EIP? Our presentation will concentrate on the recent
-advancements in shellcode, IDS evasion, and post-exploitation systems.
+advancements in shellcode, IDS/firewall evasion, and post-exploitation systems.
 We will discuss the design and implementation of the technologies that enable
 complex paylods, such as VNC injection, and the suite of tools we've built upon
 them. We will then present a glimps of the next generation of Metasploit, and
