@@ -600,12 +600,79 @@ EXCEPTION_DISPOSITION
   
 \end{frame}
 
-\section{Conservative Polymorphism}
+\section{Conservative "Polymorphism"}
+
+\begin{frame}[t]
+  \frametitle{Introduction}
+  \begin{sitemize}
+    \item CLET - Phrack 61
+    \pause
+    \item Pros:
+    \begin{sitemize}
+      \item Well thought out - analyized attacks against NIDS
+      \item Specturm analysis - push sled to byte distribution
+    \end{sitemize}
+    \pause
+    \item Cons:
+    \begin{sitemize}
+      \item Complicated system
+      \item Decoder generation is weak
+      \item Making compromises for size/robustness
+    \end{sitemize}
+    \pause
+    \item Conservative "Polymorphism"
+    \item Generate code permutations without size changes
+    \item Pros:
+    \begin{sitemize}
+      \item Much easier to "polymorphize" code
+      \item No size or functionality compromises
+      \item Bad character and register avoidence
+    \end{sitemize}
+    \item Cons:
+    \begin{sitemize}
+      \item Less thought out, NIDS attacks not deeply analyized
+      \item Hard to push to arbitrary byte distribution
+      \item Less "polymorphism"
+    \end{sitemize}
+  \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Implementation - Pex::Poly}
+  \begin{sitemize}
+    \item "Blocks" are dependency graph nodes
+    \item "Blocks" consist of 0 or more possibilities
+    \item Random register assignment (mov reg1, reg2)
+    \item Current implementation
+    \begin{sitemize}
+      \item Hard without writing an assembler
+      \item Want it to be fairly fast
+      \item Current system is pretty ugly
+      \item Pex::Poly has 3 phases
+      \item Dependency iteration and block selection
+      \item Instruction offset calculations
+      \item Instruction register assignment
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t, volitile]
+  \frametitle{Shikata Ga Nai}
+  \begin{sitemize}
+    \item Too much work to polyize each payload
+    \item Create one decent "polymorphic" encoder
+    \item Noir's FPU geteip technique
+    \item Approximately 1.3 million permutations
+    \item Additive feedback xor, encodes it's own end
+    \item 27 bytes for the stub, 4 key, 4 encoded
+  \end{sitemize}
+  \begin{semiverbatim}
+  \end{semiverbatim}
+\end{frame}
 
 \newcommand{\incshi}[1]{\includegraphics[height=3in]{#1}}
 
 \begin{frame}[t]
-  \frametitle{Dynamic Payload Decoder}
+  \frametitle{Shikata dependency iteration}
   \only<9>{\incshi{shi8}}
   \only<8>{\incshi{shi7}}
   \only<7>{\incshi{shi6}}
@@ -867,3 +934,60 @@ real    0m12.404s
 \end{document}
 
 
+00000000  BB6E887A69        mov ebx,0x697a886e
+00000005  DDC4              ffree st4
+00000007  D97424F4          fnstenv [esp-0xc]
+0000000B  58                pop eax
+0000000C  29C9              sub ecx,ecx
+0000000E  B101              mov cl,0x1
+00000010  83E8FC            sub eax,byte -0x4
+00000013  31580E            xor [eax+0xe],ebx
+00000016  03580E            add ebx,[eax+0xe]
+00000019  E2F5              loop 0x10
+
+00000000  BBE42261AF        mov ebx,0xaf6122e4
+00000005  29C9              sub ecx,ecx
+00000007  B101              mov cl,0x1
+00000009  DDC7              ffree st7
+0000000B  D97424F4          fnstenv [esp-0xc]
+0000000F  5E                pop esi
+00000010  315E0E            xor [esi+0xe],ebx
+00000013  83C604            add esi,byte +0x4
+00000016  035E0A            add ebx,[esi+0xa]
+00000019  E2F5              loop 0x10
+
+00000000  DBC1              fcmovnb st1
+00000002  31C9              xor ecx,ecx
+00000004  B101              mov cl,0x1
+00000006  D97424F4          fnstenv [esp-0xc]
+0000000A  5B                pop ebx
+0000000B  BAC8E2C8F8        mov edx,0xf8c8e2c8
+00000010  83C304            add ebx,byte +0x4
+00000013  315313            xor [ebx+0x13],edx
+00000016  035313            add edx,[ebx+0x13]
+00000019  E2F5              loop 0x10
+
+
+00000000  DACD              fcmove st5
+00000002  BB219A13C6        mov ebx,0xc6139a21
+00000007  D97424F4          fnstenv [esp-0xc]
+0000000B  5A                pop edx
+0000000C  29C9              sub ecx,ecx
+0000000E  B101              mov cl,0x1
+00000010  83C204            add edx,byte +0x4
+00000013  315A13            xor [edx+0x13],ebx
+00000016  037B89            add edi,[ebx-0x77]
+00000019  F1                int1
+0000001A  33                db 0x33
+
+00000000  DAC5              fcmovb st5
+00000002  BAC5AC2D52        mov edx,0x522dacc5
+00000007  2BC9              sub ecx,ecx
+00000009  B101              mov cl,0x1
+0000000B  D97424F4          fnstenv [esp-0xc]
+0000000F  5F                pop edi
+00000010  315717            xor [edi+0x17],edx
+00000013  035717            add edx,[edi+0x17]
+00000016  832A50            sub dword [edx],byte +0x50
+00000019  CF                iret
+0000001A  A7                cmpsd
