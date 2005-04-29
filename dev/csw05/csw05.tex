@@ -600,39 +600,63 @@ EXCEPTION_DISPOSITION
   
 \end{frame}
 
+\begin{frame}[t]
+  \frametitle{Polymorphism}
+  \begin{sitemize}
+    \item Viruses morphed to evaded signature anti-virus
+    \item Shellcode doesn't morph, isn't polymorphic
+    \item Generators produce multiple permutations
+    \item Code blocks all functionally equivalent
+    \item Simple example: Random 0x90 nop insertion
+  \end{sitemize}
+\end{frame}
+
 \section{Conservative "Polymorphism"}
 
+% clet was in phrack 61..
 \begin{frame}[t]
-  \frametitle{Introduction}
+  %%
+  \frametitle{CLET}
+  %%
   \begin{sitemize}
-    \item CLET - Phrack 61
+    \item Generates permutations of decoder stubs
+    \item Inserts reversing instructions, nop equivalents
+    \item All decoders are c code to generate themselves
     \pause
     \item Pros:
     \begin{sitemize}
-      \item Well thought out - analyized attacks against NIDS
+      \item Well thought out - analyzed attacks against NIDS
+      \item Mathematica files output, mathy backing
       \item Specturm analysis - push sled to byte distribution
     \end{sitemize}
     \pause
     \item Cons:
     \begin{sitemize}
-      \item Complicated system
-      \item Decoder generation is weak
+      \item Complicated system, really hard to add to
+      \item Decoder generation isn't that great
       \item Making compromises for size/robustness
     \end{sitemize}
-    \pause
-    \item Conservative "Polymorphism"
-    \item Generate code permutations without size changes
+  \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+  %%
+  \frametitle{Metasploit Pex::Poly}
+  %%
+  \begin{sitemize}
+    \item "Conservative Polymorphism"
+    \item Uses the inherit variability in shellcode
     \item Pros:
     \begin{sitemize}
-      \item Much easier to "polymorphize" code
+      \item Polymorphizing code is pretty easy
       \item No size or functionality compromises
       \item Bad character and register avoidence
     \end{sitemize}
     \item Cons:
     \begin{sitemize}
-      \item Less thought out, NIDS attacks not deeply analyized
+      \item Less thought out, NIDS attacks not deeply analyzed
       \item Hard to push to arbitrary byte distribution
-      \item Less "polymorphism"
+      \item Less "polymorphism", more restrictions
     \end{sitemize}
   \end{sitemize}
 \end{frame}
@@ -642,12 +666,13 @@ EXCEPTION_DISPOSITION
   \begin{sitemize}
     \item "Blocks" are dependency graph nodes
     \item "Blocks" consist of 0 or more possibilities
-    \item Random register assignment (mov reg1, reg2)
+    \item Register pool assignment (mov reg1, reg2)
     \item Current implementation
     \begin{sitemize}
-      \item Hard without writing an assembler
+      \item Current system is a bit ugly
+      \item Hard without writing a real assembler
       \item Want it to be fairly fast
-      \item Current system is pretty ugly
+      \pause
       \item Pex::Poly has 3 phases
       \item Dependency iteration and block selection
       \item Instruction offset calculations
@@ -659,8 +684,9 @@ EXCEPTION_DISPOSITION
 \begin{frame}[t]
   \frametitle{Shikata Ga Nai}
   \begin{sitemize}
-    \item Too much work to polyize each payload
-    \item Create one decent "polymorphic" encoder
+    \item It's too much work to polyize every payload
+    \item Created one decent "polymorphic" encoder
+    \pause
     \item Noir's FPU geteip technique
     \item Approximately 1.3 million permutations
     \item Additive feedback xor, encodes it's own end
@@ -731,22 +757,6 @@ EXCEPTION_DISPOSITION
 00000018  8D                db 0x8D
 00000019  D9                db 0xD9
 0000001A  4C                dec esp
-\end{verbatim}
-\end{onlyenv}
-
-\begin{onlyenv}<4>
-\begin{verbatim}
-00000000  DACD              fcmove st5
-00000002  BB219A13C6        mov ebx,0xc6139a21
-00000007  D97424F4          fnstenv [esp-0xc]
-0000000B  5A                pop edx
-0000000C  29C9              sub ecx,ecx
-0000000E  B101              mov cl,0x1
-00000010  83C204            add edx,byte +0x4
-00000013  315A13            xor [edx+0x13],ebx
-00000016  037B89            add edi,[ebx-0x77]
-00000019  F1                int1
-0000001A  33                db 0x33
 \end{verbatim}
 \end{onlyenv}
 
