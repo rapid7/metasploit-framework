@@ -932,20 +932,127 @@ real    0m12.404s
 \pdfpart{Metasploit Framework 3.0}
 %--------------------------------------%
 
-\section{Architecture of 3.0}
+\section{Introduction}
+
 \begin{frame}[t]
-  \frametitle{Temporarily Not in Service}
+  %%
+  \frametitle{Lessons learned}
+  %%
   
   \begin{sitemize}
-    \item The complete presentation can be found at:
-	\begin{sitemize}
-		\item http://www.cansecwest.com/
-		\item http://www.metasploit.com/confs/
-	\end{sitemize}
+    \item "Hackers" run 98\% win32, 2\% linux/bsd/osx
+    \item Portability sucks, win32 sucks, and cygwin sucks
+  \end{sitemize}
+  \pause
+  \begin{sitemize}
+    \item Msf 2.x can't be automated very well
+    \item Everyone wants a completely automatic hack tool
+    \pause
+    \item Everyone else will hate us if we write one
+  \end{sitemize}
+  \pause
+  \begin{sitemize}
+    \item External contributors inversely porpotional to user base
+    \item The ones who complain the loudest contribute the least
+    \pause
+    \item Don't pick your language in hopes of contributions
+    \item Perl is falling short as we grow more complex
+  \end{sitemize}
+  \pause
+  \begin{sitemize}
+    \item Metasploit 2.0 mostly designed around exploits
+    \item Payloads have grown more important and complex
   \end{sitemize}
   
 \end{frame}
 
+\section{Architecture}
+\subsection{Introduction}
+
+\begin{frame}[t]
+  \frametitle{Metasploit 3.0 goals}
+  
+  \begin{sitemize}
+    \item A capable language we \emph{enjoy} writing in
+    \begin{sitemize}
+      \item Portability less important, support major OS's
+    \end{sitemize}
+    \pause
+    \item Embedable for use in other tools
+    \pause
+    \item Strong custom automation
+    \begin{sitemize}
+      \item Test suites for the framework itself
+      \item Ability to test defensive infrastructure
+    \end{sitemize}
+    \pause
+    \item Staged payloads as first class citizens
+    \pause
+    \item "Pivoting" through owned hosts
+    \pause
+    \item Thread designed, not just thread safe
+  \end{sitemize}
+\end{frame}
+
+\subsection{Ruby to the rescue}
+
+\begin{frame}[t]
+  \frametitle{We love Ruby}
+  \begin{sitemize}
+    \item Used for our prototypes, leading candidate for msf3
+    \item Clean, simple language and easy to learn
+    \item Strong object model, and we use every inch
+    \pause
+    \item Library support is decent, often better than Perl
+    \item Native Win32 builds, cygwin as backup
+    \item 2.x will stay Perl and continue in parallel
+  \end{sitemize}
+\end{frame}
+
+\subsection{Embedding}
+
+\begin{frame}[t]
+  \frametitle{Metasploit embedded}
+  \begin{sitemize}
+    \item Metasploit: A hacker tool framework
+    \pause
+    \item Tools built upon "framework-core" libraries
+    \item Clear and documented SDK and interfaces
+    \pause
+    \item Similar 2.x interfaces written by us
+    \item Automation tools written by you
+  \end{sitemize}
+\end{frame}
+
+
+\begin{frame}[t, fragile]
+  \frametitle{Payload model}
+  \begin{sitemize}
+    \item Payloads subscribe to unified API layers
+    \item APIs emulate and extend the native Ruby APIs
+    \item Port existing applications to be remote with no changes
+    \item Great for scripting, great for testing
+    \pause
+    \item Better post-exploitation tools, more fun
+    \begin{sitemize}
+      \item Mirror victims harddrive:
+\begin{verbatim}
+client.fs.dir.download('./victim', 'c:\\', true)
+\end{verbatim}
+      \pause
+      \item Migrate to a different process
+\begin{verbatim}
+pid = client.sys.process['calc.exe']
+client.core.migrate(pid)
+\end{verbatim}
+      \pause
+      \item Socket support, inefficent network pivoting
+      \pause
+      \item Support for Unix too, improved tools on their way
+    \end{sitemize}
+    \pause
+  \end{sitemize}
+\end{frame}
 
 %%% summary and bib has been removed %%%
 \begin{comment}
