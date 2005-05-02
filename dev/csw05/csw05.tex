@@ -650,12 +650,14 @@ EXCEPTION_DISPOSITION
   \begin{sitemize}
     \item "Conservative Polymorphism"
     \item Uses the inherit variability in shellcode
+    \pause
     \item Pros:
     \begin{sitemize}
       \item Polymorphizing code is pretty easy
       \item No size or functionality compromises
       \item Bad character and register avoidence
     \end{sitemize}
+    \pause
     \item Cons:
     \begin{sitemize}
       \item Less thought out, NIDS attacks not deeply analyzed
@@ -671,6 +673,7 @@ EXCEPTION_DISPOSITION
     \item "Blocks" are dependency graph nodes
     \item "Blocks" consist of 0 or more possibilities
     \item Register pool assignment (mov reg1, reg2)
+    \pause
     \item Current implementation
     \begin{sitemize}
       \item Current system is a bit ugly
@@ -1064,6 +1067,7 @@ client.core.migrate(pid)
   \frametitle{Threading}
 
   \begin{sitemize}
+    \item FIXME: this slide blowz
     \item Ruby threads will hopefully work
     \item Different exploits running at the same time
     \item Concurrent payloads sessions, management, etc
