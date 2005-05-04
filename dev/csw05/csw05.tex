@@ -603,11 +603,10 @@ EXCEPTION_DISPOSITION
 \begin{frame}[t]
   \frametitle{Polymorphism}
   \begin{sitemize}
-    \item Viruses morphed to evaded signature anti-virus
-    \item Shellcode doesn't morph, isn't polymorphic
-    \item Generators produce multiple permutations
-    \item Code blocks all functionally equivalent
-    \item Simple example: Random 0x90 nop insertion
+    \item Viruses morphed to evade signature anti-virus
+    \item Shellcode doesn't morph, isn't really polymorphic
+    \item Generators produce functionally equivalent permutations
+    \item Simple examples: Random 0x90 nop insertion, add/sub switching
   \end{sitemize}
 \end{frame}
 
@@ -634,7 +633,7 @@ EXCEPTION_DISPOSITION
     \pause
     \item Cons:
     \begin{sitemize}
-      \item Complicated system, really hard to add to
+      \item Complicated system, really hard to build upon
       \item Decoder generation isn't that great
       \item Making compromises for size/robustness
     \end{sitemize}
@@ -780,12 +779,12 @@ EXCEPTION_DISPOSITION
   \begin{sitemize}
     \item Optyx released multibyte nop generator at Interz0ne 1
     \item Generates instructions 1 to 6 bytes long, and uses 0x66 prefix
-    \item Aligned to 1 byte, land anywhere, end up the final target
+    \item Aligned to 1 byte, land anywhere, end up at the final target
   \end{sitemize}
   \begin{sitemize}
     \pause
     \item Builds the sled from back to front
-    \item Loops through size, prepending byte at a time
+    \item Prepends to the sled 1 byte at a time
     \item Generates a random byte and checks against tables
     \pause
     \begin{sitemize}
@@ -819,6 +818,37 @@ EXCEPTION_DISPOSITION
 
 \subsection{Implementation}
 
+\begin{frame}
+  \frametitle{OptyNop2 Implementation}
+  \begin{sitemize}
+    \item Generate random byte and check against tables
+    \begin{sitemize}
+      \item Inefficent, hard to get even distributions
+    \end{sitemize}
+    \pause
+
+    \item Generate random byte and check against disassembler
+    \begin{sitemize}
+      \item Need a good disassembler
+      \item Same problems as tables
+    \end{sitemize}
+    \pause
+
+    \item Precompiled state transition tables
+    \begin{sitemize}
+      \item Previous byte: 0x90 -> \{0x04, 1, EAX\} ... \# add al,0x90
+      \pause
+      \item Fairly language independent, C version 100 lines
+      \item Very fast, simple, deterministic
+      \item Allows for different scoring systems, recursion...
+      \pause
+      \item Can't support multibyte opcodes, escape groups, etc
+      \item Tables are pretty large, about 124k
+    \end{sitemize}
+
+  \end{sitemize}
+\end{frame}
+
 \begin{frame}[fragile]
   \frametitle{OptyNop2 Output}
   {\footnotesize
@@ -849,9 +879,24 @@ $ ./waka 1000 4 5 | ndisasm -u - | head -700 | tail -20
 
 \end{frame}
 
-
-
 \subsection{Analysis}
+
+\begin{frame}[fragile]
+  \frametitle{ADMmutate Distribution - 1}
+  \include{admtable}
+\end{frame}
+\begin{frame}[fragile]
+  \frametitle{ADMmutate Distribution - 2}
+  \include{admtable2}
+\end{frame}
+\begin{frame}[fragile]
+  \frametitle{OptyNop2 Distribution - 1}
+  \include{optytable}
+\end{frame}
+\begin{frame}[fragile]
+  \frametitle{OptyNop2 Distribution - 2}
+  \include{optytable2}
+\end{frame}
 
 \begin{frame}[fragile]
   \frametitle{ADMmutate and optyx-mutate Gzip'd}
@@ -897,44 +942,34 @@ real    0m12.404s
 }
 \end{frame}
 
-\begin{frame}[fragile]
-  \frametitle{ADMmutate Distribution - 1}
-  \include{admtable}
-\end{frame}
-\begin{frame}[fragile]
-  \frametitle{ADMmutate Distribution - 2}
-  \include{admtable2}
-\end{frame}
-\begin{frame}[fragile]
-  \frametitle{OptyNop2 Distribution - 1}
-  \include{optytable}
-\end{frame}
-\begin{frame}[fragile]
-  \frametitle{OptyNop2 Distribution - 2}
-  \include{optytable2}
-\end{frame}
-
 \subsection{Conclusion}
 \begin{frame}[t]
-  \frametitle{Benefits}
+  %%
+  \frametitle{Conclusion}
+  %%
+
   \begin{sitemize}
-    \item Not very difficult to gain lots more randomness
-    \item NIDS vendors are still far, far, behind
+  \item Benefits
+  \begin{sitemize}
     \item Handles restricted bytes and registers
     \item More versatile sled generation (nop stuffing, etc)
+    \item Implementation and theory are simple
   \end{sitemize}
-\end{frame}
-\begin{frame}[t]
-  \frametitle{Possible Improvements}
+  \end{sitemize}
+
+  \pause
+
+  \begin{sitemize}
+  \item Possible Improvements
   \begin{sitemize}
     \item Support processor flags (nop stuffing)
     \item Support 2-byte opcodes and escape groups
     \item Improved byte scoring systems and look-ahead
     \item Output according to a given byte distribution
-    \item Make it faster and use less memory
+    \item Reduce the table sizes, memory usage
+  \end{sitemize}
   \end{sitemize}
 \end{frame}
-
 
 
 %--------------------------------------%
@@ -1063,21 +1098,46 @@ client.core.migrate(pid)
   \end{sitemize}
 \end{frame}
 
+\subsection{Other...}
+
 \begin{frame}[t]
-  \frametitle{Threading}
+  %%
+  \frametitle{Other Stuff}
+  %%
 
   \begin{sitemize}
-    \item FIXME: this slide blowz
-    \item Ruby threads will hopefully work
-    \item Different exploits running at the same time
-    \item Concurrent payloads sessions, management, etc
-    \item Better team based collaboration
-    \item Meterpreter design is asynchronous
-    \item Concurrent meterpreter "sessions"
-    \item Allows for great tunneling
-    \item Network "pivoting" via meterpreter protocols
+    \item Threading
+    \begin{sitemize}
+      \item Ruby threads will hopefully work
+      \item Meterpreter protocol asynchronous
+      \item Hopefully you can hack the planet in parallel
+    \end{sitemize}
+  \end{sitemize}
+
+  \pause
+
+  \begin{sitemize}
+    \item Pivoting
+    \begin{sitemize}
+      \item Pivoting through custom metasploit proxying protocol
+      \item Fairly easy to implement, cross platform
+      \item More efficent than syscall proxying
+    \end{sitemize}
   \end{sitemize}
 \end{frame}
+
+\section{Conclusion}
+
+\begin{frame}[t]
+  \frametitle{Conclusion}
+
+  \begin{sitemize}
+    \item Should be cool
+    \item Give us a year or more to make it
+  \end{sitemize}
+\end{frame}
+
+\pdfpart{Questions?}
 
 %%% summary and bib has been removed %%%
 \begin{comment}
