@@ -226,6 +226,11 @@
 	\end{sitemize}
 \end{frame}
 
+%%%% FIXME
+% These two slides repeat the same 3 bullets or something...
+% Also, talk about your new flush foo!
+%%%%
+
 \section{Exploits are annoying}
 \begin{frame}[t]
 	\frametitle{Exploits are annoying }
@@ -606,7 +611,7 @@ EXCEPTION_DISPOSITION
     \item Viruses morphed to evade signature anti-virus
     \item Shellcode doesn't morph, isn't really polymorphic
     \item Generators produce functionally equivalent permutations
-    \item Simple examples: Random 0x90 nop insertion, add/sub switching
+    \item Simple examples: random 0x90 nops, add/sub switching
   \end{sitemize}
 \end{frame}
 
@@ -672,6 +677,7 @@ EXCEPTION_DISPOSITION
     \item "Blocks" are dependency graph nodes
     \item "Blocks" consist of 0 or more possibilities
     \item Register pool assignment (mov reg1, reg2)
+    \item Gained robustness as a nice effect
     \pause
     \item Current implementation
     \begin{sitemize}
@@ -1094,7 +1100,6 @@ client.core.migrate(pid)
       \pause
       \item Support for Unix too, improved tools on their way
     \end{sitemize}
-    \pause
   \end{sitemize}
 \end{frame}
 
@@ -1108,7 +1113,7 @@ client.core.migrate(pid)
   \begin{sitemize}
     \item Threading
     \begin{sitemize}
-      \item Ruby threads will hopefully work
+      \item Ruby threads will work in theory
       \item Meterpreter protocol asynchronous
       \item Hopefully you can hack the planet in parallel
     \end{sitemize}
@@ -1122,6 +1127,7 @@ client.core.migrate(pid)
       \item Pivoting through custom metasploit proxying protocol
       \item Fairly easy to implement, cross platform
       \item More efficent than syscall proxying
+      \item "Network paths" should be really slick
     \end{sitemize}
   \end{sitemize}
 \end{frame}
