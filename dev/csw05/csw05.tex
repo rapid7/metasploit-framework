@@ -178,16 +178,6 @@
 			\item Page protection is still dependent on hardware
 		\end{sitemize}	
 	\end{sitemize}
-	
-	\pause
-	\begin{sitemize}
-		\item Most of the SP2 changes can be avoided
-		\begin{sitemize}
-			\item David Litchfield demonstrated SEH exploitation
-			\item Matt Conover continues to dismantle the heap
-			\item Third-party applications basically unaffected
-		\end{sitemize}
-	\end{sitemize}
 \end{frame}
 
 \begin{frame}[t]
@@ -357,7 +347,7 @@ EXCEPTION_DISPOSITION
 			\item Library addresses are usually not predictable
 			\item Every executable has a static load address
 			\begin{sitemize}
-				\item Every distribution has compiled its own executable
+				\item Every distribution compiles its own binaries
 				\item Exploits must target specific versions and operating systems
 				\item Commercial (binary-only) applications are mostly static
 			\end{sitemize}
@@ -1002,7 +992,7 @@ real    0m12.404s
   \end{sitemize}
   \pause
   \begin{sitemize}
-    \item External contributors inversely porpotional to user base
+    \item External contributors inversely proportional to user base
     \item The ones who complain the loudest contribute the least
     \pause
     \item Don't pick your language in hopes of contributions
@@ -1130,6 +1120,7 @@ client.core.migrate(pid)
       \item "Network paths" should be really slick
     \end{sitemize}
   \end{sitemize}
+
 \end{frame}
 
 \section{Conclusion}
