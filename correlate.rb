@@ -1,11 +1,18 @@
 #!/usr/local/bin/ruby
 
 if ARGV.empty?
-  puts "usage: <delta value> <files ...>"
+  puts "usage: <delta value | t> <files ...>"
   exit(1)
 end
 
-delta = ARGV.shift.to_i
+textmode = false
+
+if ARGV[0] == 't'
+	ARGV.shift
+	textmode = true
+else
+	delta = ARGV.shift.to_i
+end
 
 first = TRUE
 last = [ ]
@@ -17,9 +24,13 @@ last = [ ]
 ARGV.each do |file|
   cur = [ ]
   IO.foreach(file) do |line|
-    addr = line.hex
-    (-delta .. delta).each do |d|
-      cur << addr + d
+    if textmode
+      cur << line
+    else
+      addr = line.hex
+      (-delta .. delta).each do |d|
+        cur << addr + d
+      end
     end
   end
 
