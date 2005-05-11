@@ -1,8 +1,7 @@
 module Rex
 
-class XDR
+module XDR
 	MAX_ARG = 0xffffffff
-	private_class_method :new
 	
 # Also: unsigned int, bool, enum
 	def XDR.encode_int(int)
