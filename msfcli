@@ -1,0 +1,21 @@
+#!/usr/bin/ruby -I../Framework -I../Modules
+
+require 'Msf/Framework'
+require 'Encoders/Generic/IA32/jmp_call_additive'
+
+framework = Msf::Framework.new
+
+framework.add_log_sink(Msf::Logging::Sinks::Flatfile.new('/tmp/msfcli.log'))
+
+#encoder = framework.encoders.instantiate('gen_ia32_jmp_call_additive')
+encoder = Msf::Encoders::Generic::IA32::JmpCallAdditive.new
+
+begin
+	encoded = encoder.encode("\xcc\x90\x90\x90ABCDEFGHIJKLMNOPQRSTUVWXYZ", "\x87")
+rescue Msf::Encoding::BadcharException => detail
+	puts "bad char at #{detail.index} #{detail.buf.unpack('H*')[0]}"
+
+	exit
+end
+
+puts encoded.unpack("H*")[0]
