@@ -2,6 +2,7 @@
 
 require 'Msf/Framework'
 require 'Encoders/Generic/IA32/jmp_call_additive'
+require 'Nops/IA32/SingleByte'
 
 framework = Msf::Framework.new
 
@@ -24,3 +25,13 @@ rescue Msf::Encoding::BadcharException => detail
 end
 
 puts encoded.unpack("H*")[0]
+
+nop = Msf::Nops::IA32::SingleByte.new
+
+sled = nop.generate_sled(
+	100,
+	'Random'        => true)
+#	'Badchars'      => "\x95")
+#	'SaveRegisters' => [ 'eax' ])
+
+puts sled.unpack("H*")[0]
