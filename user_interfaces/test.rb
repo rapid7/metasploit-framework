@@ -1,7 +1,7 @@
 #!/usr/bin/ruby -I../Framework -I../Modules
 
 require 'Msf/Framework'
-require 'Encoders/Generic/IA32/JmpCallAdditive'
+require 'Encoders/IA32/JmpCallAdditive'
 require 'Nops/IA32/SingleByte'
 
 framework = Msf::Framework.new
