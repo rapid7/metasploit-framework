@@ -1,4 +1,4 @@
-require 'Core'
+require 'Msf/Core'
 
 module Msf
 
@@ -260,5 +260,5 @@ end
 
 end
 
-require 'Core/Encoder/Xor'
-require 'Core/Encoder/XorAdditiveFeedback'
+require 'Msf/Core/Encoder/Xor'
+require 'Msf/Core/Encoder/XorAdditiveFeedback'

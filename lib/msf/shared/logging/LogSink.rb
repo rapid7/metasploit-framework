@@ -1,4 +1,4 @@
-require 'Shared/Constants'
+require 'Msf/Shared/Constants'
 
 module Msf
 module Logging
@@ -52,4 +52,4 @@ end
 
 end; end
 
-require 'Shared/Logging/Sinks/Flatfile'
+require 'Msf/Shared/Logging/Sinks/Flatfile'

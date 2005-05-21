@@ -1,6 +1,6 @@
-#!/usr/bin/ruby -I../Framework -I../Modules
+#!/usr/bin/ruby -I../Lib -I../Modules
 
-require 'Core'
+require 'Msf/Core'
 require 'Encoders/IA32/JmpCallAdditive'
 require 'Nops/IA32/SingleByte'
 

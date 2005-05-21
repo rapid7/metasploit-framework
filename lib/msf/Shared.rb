@@ -9,9 +9,9 @@
 ###
 
 # Shared single purpose classes
-require 'Shared/ReadWriteLock'
-require 'Shared/Transformer'
+require 'Msf/Shared/ReadWriteLock'
+require 'Msf/Shared/Transformer'
 
 # Logging facilities
-require 'Shared/Logging/LogSink'
-require 'Shared/Logging/LogDispatcher'
+require 'Msf/Shared/Logging/LogSink'
+require 'Msf/Shared/Logging/LogDispatcher'

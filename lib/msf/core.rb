@@ -11,25 +11,26 @@
 
 # Unit testing
 require 'test/unit'
-require 'Core/UnitTestSuite'
+require 'Msf/Core/UnitTestSuite'
 
 # framework-core depends on framework-shared
-require 'Shared'
+require 'Msf/Shared'
 
 # General
-require 'Core/Constants'
-require 'Core/Exceptions'
-require 'Core/DataTypes'
-require 'Core/EventDispatcher'
-require 'Core/DataStore'
+require 'Msf/Core/Constants'
+require 'Msf/Core/Exceptions'
+require 'Msf/Core/DataTypes'
+require 'Msf/Core/EventDispatcher'
+require 'Msf/Core/DataStore'
+require 'Msf/Core/OptionContainer'
 
 # Framework context and core classes
-require 'Core/Framework'
-require 'Core/Session'
+require 'Msf/Core/Framework'
+require 'Msf/Core/Session'
 
 # Modules
-require 'Core/Module'
-require 'Core/Encoder'
-require 'Core/Exploit'
-require 'Core/Nop'
-require 'Core/Recon'
+require 'Msf/Core/Module'
+require 'Msf/Core/Encoder'
+require 'Msf/Core/Exploit'
+require 'Msf/Core/Nop'
+require 'Msf/Core/Recon'

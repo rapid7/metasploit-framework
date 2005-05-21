@@ -1,4 +1,4 @@
-require 'Core'
+require 'Msf/Core'
 
 module Msf
 
@@ -30,10 +30,14 @@ class Module
 		self.refs = Transformer.transform(module_info['Ref'], Array,
 				[ SiteReference, Reference ], 'Ref')
 
-		# Create and initialize the datastore for this module
+		# Create and initialize the option container for this module
+		self.options = OptionContainer.new
+		self.options.add_options(info['Options'])
+		self.options.add_advanced_options(info['AdvancedOptions'])
+
+		# Create and initialize the data store for this module
 		self.datastore = DataStore.new
-		self.datastore.add_options(info['Options'])
-		self.datastore.add_advanced_options(info['AdvancedOptions'])
+		self.datastore.import_options(self.options)
 	end
 
 	# Return the module's name
@@ -86,7 +90,7 @@ class Module
 		return platform.join(", ")
 	end
 	
-	attr_reader   :author, :arch, :platform, :refs, :datastore
+	attr_reader   :author, :arch, :platform, :refs, :datastore, :options
 
 protected
 
@@ -108,7 +112,7 @@ protected
 	end
 
 	attr_accessor :module_info
-	attr_writer   :author, :arch, :platform, :refs, :datastore
+	attr_writer   :author, :arch, :platform, :refs, :datastore, :options
 
 end
 

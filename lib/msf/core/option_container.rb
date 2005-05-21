@@ -1,31 +1,24 @@
 require 'resolv'
-require 'Core'
+require 'Msf/Core'
 
 module Msf
 
 ###
 #
-# DataStoreOption
-# ---------------
+# OptBase
+# -------
 #
-# A data store option is an option that is stored in a data store! It contains
-# meta information about the type of option being stored, such as type, as 
-# well as the option's actual value
+# The base class for all options.
 #
 ###
-class DataStoreOption
+class OptBase
 
 	def initialize(in_name, attrs = [])
-		self.name          = in_name
-		self.advanced      = false
-		self.required      = attrs[0] || false
-		self.desc          = attrs[1] || nil
-		self.default_value = attrs[2] || nil
-		self.value         = self.default_value
-	end
-
-	def empty?
-		return (value == nil)
+		self.name     = in_name
+		self.advanced = false
+		self.required = attrs[0] || false
+		self.desc     = attrs[1] || nil
+		self.default  = attrs[2] || nil
 	end
 
 	def required?
@@ -36,30 +29,27 @@ class DataStoreOption
 		return advanced
 	end
 
-	def valid?
-		return (empty? and required?) ? false : true
-	end
-
 	def type?(in_type)
 		return (type == in_type)
 	end
 
-	def reset
-		value = default_value
+	# If it's required and the value is nil or empty, then it's not valid.
+	def valid?(value)
+		return (required? and (value == nil or value.to_s.empty?)) ? false : true
 	end
 
-	attr_reader   :name, :required, :desc, :default_value, :value
-	attr_writer   :name, :value
+	attr_reader   :name, :required, :desc, :default
+	attr_writer   :name
 	attr_accessor :advanced
 
 protected
 
-	attr_writer   :required, :desc, :default_value
+	attr_writer   :required, :desc, :default
 end
 
 ###
 #
-# Core data store option types.  The core supported option types are:
+# Core option types.  The core supported option types are:
 #
 # OptString  - Multi-byte character string
 # OptRaw     - Multi-byte raw string
@@ -70,25 +60,25 @@ end
 #
 ###
 
-class OptString < DataStoreOption
+class OptString < OptBase
 	def type 
 		return 'string' 
 	end
 end
 
-class OptRaw < DataStoreOption
+class OptRaw < OptBase
 	def type
 		return 'raw'
 	end
 end
 
-class OptBool < DataStoreOption
+class OptBool < OptBase
 	def type
 		return 'bool'
 	end
 
-	def valid?
-		if ((empty? == false) and
+	def valid?(value)
+		if ((value != nil and value.empty? == false) and
 		    (value.match(/^(y|n|t|f|0|1)$/i) == nil))
 			return false
 		end
@@ -103,13 +93,13 @@ class OptBool < DataStoreOption
 	end
 end
 
-class OptPort < DataStoreOption
+class OptPort < OptBase
 	def type 
 		return 'port' 
 	end
 
-	def valid?
-		if ((empty? == false) and
+	def valid?(value)
+		if ((value != nil and value.to_s.empty? == false) and
 		    ((value.to_i < 0 or value.to_i > 65535)))
 			return false
 		end
@@ -118,13 +108,13 @@ class OptPort < DataStoreOption
 	end
 end
 
-class OptAddress < DataStoreOption
+class OptAddress < OptBase
 	def type 
 		return 'address' 
 	end
 
-	def valid?
-		if (empty? == false)
+	def valid?(value)
+		if (value != nil and value.empty? == false)
 			begin
 				Resolv.getaddress(value)
 			rescue
@@ -136,13 +126,13 @@ class OptAddress < DataStoreOption
 	end
 end
 
-class OptPath < DataStoreOption
+class OptPath < OptBase
 	def type 
 		return 'path' 
 	end
 
-	def valid?
-		if ((empty? == false) and
+	def valid?(value)
+		if ((value != nil and value.empty? == false) and
 		    (File.exists?(value) == false))
 			return false
 		end
@@ -153,21 +143,21 @@ end
 
 ###
 #
-# DataStore
-# ---------
+# OptionContainer
+# ---------------
 #
-# The data store's purpose in life is to associate named options
+# The options purpose in life is to associate named options
 # with arbitrary values at the most simplistic level.  Each
-# module contains a DataStore that is used to hold the 
+# module contains a OptionContainer that is used to hold the 
 # various options that the module depends on.  Example of options
-# that are stored in the DataStore are RHOST and RPORT for
+# that are stored in the OptionContainer are rhost and rport for
 # payloads or exploits that need to connect to a host and
 # port, for instance.
 #
 ###
-class DataStore < Hash
+class OptionContainer < Hash
 
-	# Merges in the supplied options and converts them to a DataStoreOption
+	# Merges in the supplied options and converts them to a OptBase
 	# as necessary.
 	def initialize(opts = {})
 		add_options(opts)
@@ -178,27 +168,9 @@ class DataStore < Hash
 		return get(name)
 	end
 
-	# Set the value associated with the supplied name
-	def set(name, value)
-		option = fetch(name)
-
-		if (option == nil)
-			return false
-		end
-
-		option.value = value
-
-		return true
-	end
-
 	# Return the option associated with the supplied name
 	def get(name)
 		return fetch(name)
-	end
-
-	# Return the value associated with the supplied name
-	def get_value(name)
-		return fetch(name).value
 	end
 
 	# Adds one or more options
@@ -213,7 +185,7 @@ class DataStore < Hash
 
 			if (option.kind_of?(Array))
 				option = option.shift.new(name, option)
-			elsif (!option.kind_of?(DataStoreOption))
+			elsif (!option.kind_of?(OptBase))
 				raise ArgumentError, 
 					"The option named #{name} did not come in a compatible format.", 
 					caller
@@ -240,11 +212,11 @@ class DataStore < Hash
 
 	# Make sures that each of the options has a value of a compatible 
 	# format and that all the required options are set
-	def validate
+	def validate(datastore)
 		errors = []
 
 		each_pair { |name, option| 
-			if (!option.valid?)
+			if (!option.valid?(datastore[name]))
 				errors << name
 			end
 		}
@@ -268,25 +240,25 @@ module Test
 
 ###
 #
-# DataStoreTestCase
-# -----------------
+# OptionContainerTestCase
+# -----------------------
 #
-# This class implements some testing routines for ensuring that the data
-# store is operating correctly.
+# This class implements some testing routines for ensuring that the option
+# container is operating correctly.
 #
 ###
-class DataStoreTestCase < ::Test::Unit::TestCase
-	# Tests the initialization of the DataStore object
+class OptionContainerTestCase < ::Test::Unit::TestCase
+	# Tests the initialization of the OptionContainer object
 	def test_initialize
 		# Make sure initialization works
-		ds = nil
+		options = nil
 
 		assert_block("initialize failed") {
-			ds = DataStore.new(
-				'RHOST' => [ OptAddress, true, 'host.com' ],
-				'RPORT' => [ OptPort,    true, 1234       ])
+			options = OptionContainer.new(
+				'rhost' => [ OptAddress, true, 'host.com' ],
+				'rport' => [ OptPort,    true, 1234       ])
 
-			if (ds == nil)
+			if (options == nil)
 				false
 			end
 
@@ -294,90 +266,71 @@ class DataStoreTestCase < ::Test::Unit::TestCase
 		}
 
 		# Make sure there are 2 options
-		assert_equal(2, ds.length, "invalid number of options #{ds.length}")
+		assert_equal(2, options.length, "invalid number of options #{options.length}")
 
 		# Make sure that the constructor raises an argument error when
 		# an invalid option is supplied
 		assert_raise(ArgumentError, "initialize invalid failed") {
-			DataStore.new(
-				'RHOST' => 'invalid');
+			OptionContainer.new(
+				'rhost' => 'invalid');
 		}
 	end
 
 	# Tests getting the value of an option
 	def test_get
-		ds = DataStore.new(
-			'RPORT' => [ OptPort, true, nil, 1234 ])
+		options = OptionContainer.new(
+			'rport' => [ OptPort, true, nil, 1234 ])
 
-		assert_equal(1234, ds.get_value('RPORT'), 
-				"RPORT does not match")
-		
-		ds.set('RPORT', 1235)
-		
-		assert_equal(1235, ds.get_value('RPORT'), 
-				"RPORT does not match (2)")
-
-		assert_equal('RPORT', ds['RPORT'].name, 
+		assert_equal(1234, options.get('rport').default, 
+				"option default does not match")
+		assert_equal(true, options.get('rport').required?, 
+				"option required does not match")
+		assert_equal('rport', options['rport'].name, 
 				"option name does not match")
-	end
-
-	# Tests setting the value of an option
-	def test_set
-		assert_block("set failed") {
-			ds = DataStore.new(
-				'RHOST' => [ OptAddress ])
-
-			ds.set('RHOST', 'host.com')
-
-			if (ds.get_value('RHOST') != 'host.com')
-				false
-			else
-				true
-			end
-		}
 	end
 
 	# Tests validation
 	def test_validate
 		# Test validating required options
-		ds = DataStore.new(
-			'RHOST' => [ OptAddress, true ],
-			'RPORT' => [ OptPort,    true ],
-			'LIB'   => [ OptString        ])
+		options = OptionContainer.new(
+			'rhost' => [ OptAddress, true ],
+			'rport' => [ OptPort,    true ],
+			'Lib'   => [ OptString        ])
+
+		ds = DataStore.new
 
 		assert_raise(OptionValidateError, "required validation failed") {
-			ds.validate
+			options.validate(ds)
 		}
 
-		# Test validating the form of individual options
-		ds.set('RHOST', 'www.invalid.host.tldinvalid')
-		ds.set('RPORT', 1234)
+		ds['rhost'] = 'www.invalid.host.tldinvalid'
+		ds['rport'] = 1234
 
 		assert_raise(OptionValidateError, "host validation failed") {
-			ds.validate
+			options.validate(ds)
 		}
 
 		# Make sure address validation does work
-		ds.set('RHOST', 'www.google.com')
+		ds['rhost'] = 'www.google.com'
 
-		assert_equal(true, ds.validate, "overall validation failed")
+		assert_equal(true, options.validate(ds), "overall validation failed")
 
 		# Make sure port validation does work
-		ds.set('RPORT', 123452)
+		ds['rport'] = 23423423
 
 		assert_raise(OptionValidateError, "port validation failed") {
-			ds.validate
+			options.validate(ds)
 		}
 	end
 
 	# Make sure advanced additions work
 	def test_advanced
-		ds = DataStore.new
+		options = OptionContainer.new
 
-		ds.add_advanced_options(
+		options.add_advanced_options(
 			'DONKEY' => [ OptString, false ])
 			
-		assert_equal(true, ds.get('DONKEY').advanced?, 
+		assert_equal(true, options.get('DONKEY').advanced?, 
 				"advanced option failed")
 	end
 end

@@ -1,4 +1,4 @@
-require 'Core'
+require 'Msf/Core'
 
 module Msf
 

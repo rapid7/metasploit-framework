@@ -1,4 +1,4 @@
-require 'Core'
+require 'Msf/Core'
 
 module Msf
 module Test
@@ -16,7 +16,7 @@ class FrameworkCoreTestSuite
 	def self.suite
 		suite = ::Test::Unit::TestSuite.new
 
-		suite << Msf::Test::DataStoreTestCase.suite
+		suite << Msf::Test::OptionContainerTestCase.suite
 
 		return suite;
 	end

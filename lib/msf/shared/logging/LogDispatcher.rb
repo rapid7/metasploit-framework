@@ -1,4 +1,4 @@
-require 'Shared'
+require 'Msf/Shared'
 
 module Msf
 module Logging
