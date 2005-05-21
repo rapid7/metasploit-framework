@@ -1,6 +1,6 @@
 #!/usr/bin/ruby -I../Framework
 
 require 'test/unit/ui/console/testrunner'
-require 'Msf'
+require 'Core'
 
 Test::Unit::UI::Console::TestRunner.run(Msf::Test::FrameworkCoreTestSuite)

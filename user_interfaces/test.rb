@@ -1,6 +1,6 @@
 #!/usr/bin/ruby -I../Framework -I../Modules
 
-require 'Msf/Framework'
+require 'Core'
 require 'Encoders/IA32/JmpCallAdditive'
 require 'Nops/IA32/SingleByte'
 

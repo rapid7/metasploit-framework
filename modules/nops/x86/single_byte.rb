@@ -1,4 +1,4 @@
-require 'Msf'
+require 'Core'
 
 module Msf
 module Nops
