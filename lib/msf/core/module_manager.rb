@@ -72,6 +72,11 @@ end
 # takes care of the work of managing the interaction with 
 # modules in terms of loading and instantiation.
 #
+# TODO:
+#
+#   - add reload support
+#   - add unload support
+#
 ###
 class ModuleManager < Array
 
@@ -87,22 +92,31 @@ class ModuleManager < Array
 		}
 	end
 
-	# Returns the array of loaded encoder module classes
+	#
+	# Accessors by module type
+	#
+
+	# Returns the set of loaded encoder module classes
 	def encoders
 		return modules_by_type[MODULE_ENCODER]
 	end
 
-	# Returns the array of loaded nop module classes
+	# Returns the set of loaded nop module classes
 	def nops
 		return modules_by_type[MODULE_NOPS]
 	end
 
-	# Returns the array of loaded exploit module classes
+	# Returns the set of loaded exploit module classes
 	def exploits
 		return modules_by_type[MODULE_EXPLOIT]
 	end
 
-	# Returns the array of loaded recon module classes
+	# Returns the set of loaded payload module classes
+	def payloads
+		return modules_by_type[MODULE_PAYLOAD]
+	end
+
+	# Returns the set of loaded recon module classes
 	def recon
 		return modules_by_type[MODULE_RECON]
 	end
