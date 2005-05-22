@@ -101,14 +101,14 @@ class ModuleManager < Array
 		return modules_by_type[MODULE_ENCODER]
 	end
 
-	# Returns the set of loaded nop module classes
-	def nops
-		return modules_by_type[MODULE_NOPS]
-	end
-
 	# Returns the set of loaded exploit module classes
 	def exploits
 		return modules_by_type[MODULE_EXPLOIT]
+	end
+
+	# Returns the set of loaded nop module classes
+	def nops
+		return modules_by_type[MODULE_NOPS]
 	end
 
 	# Returns the set of loaded payload module classes

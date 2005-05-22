@@ -22,12 +22,16 @@ class Framework
 		return modules.encoders
 	end
 
+	def exploits
+		return modules.exploits
+	end
+
 	def nops
 		return modules.nops
 	end
 
-	def exploits
-		return modules.exploits
+	def payloads
+		return modules.payloads
 	end
 
 	def recon
