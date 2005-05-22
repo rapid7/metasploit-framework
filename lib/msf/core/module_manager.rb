@@ -14,9 +14,14 @@ module Msf
 ###
 class ModuleSet < Hash
 	def initialize(type)
-		self.module_type     = type
-		self.full_names      = {}
-		self.ambiguous_names = {}
+		self.module_type       = type
+		self.full_names        = {}
+		self.ambiguous_names   = {}
+
+		# Hashes that convey the supported architectures and platforms for a
+		# given module
+		self.mod_arch_hash     = {}
+		self.mod_platform_hash = {}
 	end
 
 	# Create an instance of the supplied module by its name
@@ -37,8 +42,28 @@ class ModuleSet < Hash
 	end
 
 	# Enumerates each module class in the set
-	def each_module(&block)
-		return each_value(&block)
+	def each_module(opts = {}, &block)
+		each_value { |mod|
+			# Filter out incompatible architectures
+			if (opts['arch'])
+				if (!mod_arch_hash[mod])
+					mod_arch_hash[mod] = mod.new.arch
+				end
+
+				next if (mod_arch_hash[mod].include?(opts['arch']) == false)
+			end		
+
+			# Filter out incompatible platforms
+			if (opts['platform'])
+				if (!mod_platform_hash[mod])
+					mod_platform_hash[mod] = mod.new.platform
+				end
+
+				next if (mod_platform_hash[mod].include?(opts['platform']) == false)
+			end
+
+			block.call(mod)
+		}
 	end
 
 	# Adds a module with a supplied short name, full name, and associated
@@ -59,6 +84,7 @@ protected
 
 	attr_writer   :module_type, :full_names
 	attr_accessor :ambiguous_names
+	attr_accessor :mod_arch_hash, :mod_platform_hash
 
 end
 

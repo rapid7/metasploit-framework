@@ -13,8 +13,13 @@ framework = Msf::Framework.new
 framework.modules.add_module_path('/home/mmiller/msf/rubyhacks/prototype/Modules')
 
 
-framework.encoders.each { |name, mod|
-	puts "got encoder #{name} => #{mod}"
+framework.encoders.each_module { |mod|
+	puts "default: got encoder #{mod}"
+}
+
+framework.encoders.each_module(
+		'arch' => Msf::ARCH_IA32) { |mod|
+	puts "arch filter: got encoder #{mod}"
 }
 
 encoder = framework.encoders.create('JmpCallAdditive')

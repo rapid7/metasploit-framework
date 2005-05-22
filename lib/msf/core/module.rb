@@ -98,7 +98,7 @@ protected
 
 	# Sets the modules unsupplied info fields to their default values
 	def set_defaults
-		{
+		self.module_info = {
 			'Name'        => 'No module name', 
 			'Description' => 'No module description',
 			'Version'     => '0',
@@ -106,11 +106,7 @@ protected
 			'Arch'        => nil,
 			'Platform'    => nil,
 			'Ref'         => nil
-		}.each_pair { |field, value|
-			if (module_info[field] == nil)
-				module_info[field] = value
-			end
-		}
+		}.update(self.module_info)
 	end
 
 	attr_accessor :module_info
