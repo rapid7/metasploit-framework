@@ -1,0 +1,5 @@
+#!/usr/bin/ruby -I../Lib
+
+require 'Msf/Ui'
+
+Msf::Ui::Console::Driver.new.run

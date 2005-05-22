@@ -238,6 +238,7 @@ end
 
 module Test
 
+begin
 ###
 #
 # OptionContainerTestCase
@@ -333,6 +334,8 @@ class OptionContainerTestCase < ::Test::Unit::TestCase
 		assert_equal(true, options.get('DONKEY').advanced?, 
 				"advanced option failed")
 	end
+end
+rescue
 end
 
 end

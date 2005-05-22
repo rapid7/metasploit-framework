@@ -12,6 +12,8 @@ LOG_RAW   = 'raw'
 #
 # Log levels
 #
+#   LEV_0 errors and warnings may be displayed to the user by default.
+#
 LEV_0     = 0
 LEV_1     = 1
 LEV_2     = 2
