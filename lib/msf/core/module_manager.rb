@@ -1,6 +1,5 @@
 require 'find'
 require 'Msf/Core'
-require 'Msf/Core/ModuleLoader'
 
 module Msf
 
@@ -17,6 +16,7 @@ class ModuleSet < Hash
 	def initialize(type)
 		self.module_type     = type
 		self.ambiguous_names = {}
+		self.short_names     = {}
 	end
 
 	# Create an instance of the supplied module by its name
@@ -27,8 +27,13 @@ class ModuleSet < Hash
 				caller)
 		end
 
+		# If not by full name, then by short name, or so sayeth the spider
+		if ((klass = self[name]) == nil)
+			klass = short_names[name]
+		end
+
 		# Otherwise, try to create it
-		return (!(klass = self[name])) ? nil : klass.new
+		return (klass) ? klass.new : nil
 	end
 
 	# Enumerates each module class in the set
@@ -42,7 +47,7 @@ class ModuleSet < Hash
 		if (self[short_name])
 			ambiguous_names << short_name
 		else
-			self[short_name] = module_class
+			short_names[short_name] = module_class
 		end
 
 		self[full_name] = module_class
@@ -53,7 +58,7 @@ class ModuleSet < Hash
 protected
 
 	attr_writer   :module_type
-	attr_accessor :ambiguous_names
+	attr_accessor :ambiguous_names, :short_names
 
 end
 
