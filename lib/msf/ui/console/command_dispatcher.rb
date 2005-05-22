@@ -8,19 +8,19 @@ module CommandDispatcher
 		self.driver = in_driver
 	end
 
-	def print_error(msg)
+	def print_error(msg = '')
 		driver.print_error(msg)
 	end
 
-	def print_status(msg)
+	def print_status(msg = '')
 		driver.print_status(msg)
 	end
 
-	def print_line(msg)
+	def print_line(msg = '')
 		driver.print_line(msg)
 	end
 
-	def print(msg)
+	def print(msg = '')
 		driver.print(msg)
 	end
 

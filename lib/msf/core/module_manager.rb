@@ -136,7 +136,7 @@ class ModuleManager < ModuleSet
 
 	# Returns the set of loaded nop module classes
 	def nops
-		return module_sets[MODULE_NOPS]
+		return module_sets[MODULE_NOP]
 	end
 
 	# Returns the set of loaded payload module classes

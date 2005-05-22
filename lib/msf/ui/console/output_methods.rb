@@ -6,19 +6,19 @@ class OutputMethod
 end
 
 class StdioOutputMethod < OutputMethod
-	def print_error(msg)
+	def print_error(msg = '')
 		print_line("[*] #{msg}")
 	end
 
-	def print_status(msg)
+	def print_status(msg = '')
 		print_line("[-] #{msg}")
 	end
 
-	def print_line(msg)
+	def print_line(msg = '')
 		print(msg + "\n")
 	end
 
-	def print(msg)
+	def print(msg = '')
 		$stdout.print(msg)
 	end
 end
