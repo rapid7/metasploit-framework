@@ -27,7 +27,17 @@ class Flatfile
 		if (sev == LOG_RAW)
 			fd.write(msg)
 		else
-			fd.write("[#{get_current_timestamp}] (src=#{src},sev=#{sev},level=#{level}): #{msg}\n")
+			code = 'i'
+
+			case sev
+				when LOG_DEBUG
+					code = 'd'
+				when LOG_ERROR
+					code = 'e'
+				when LOG_INFO
+					code = 'i'
+			end
+			fd.write("[#{get_current_timestamp}] [#{code}(#{level})] #{src}: #{msg}\n")
 		end
 	end
 

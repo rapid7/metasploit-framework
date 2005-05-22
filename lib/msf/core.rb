@@ -25,8 +25,9 @@ require 'Msf/Core/DataStore'
 require 'Msf/Core/OptionContainer'
 
 # Framework context and core classes
-require 'Msf/Core/Framework'
+require 'Msf/Core/ModuleManager'
 require 'Msf/Core/Session'
+require 'Msf/Core/Framework'
 
 # Modules
 require 'Msf/Core/Module'

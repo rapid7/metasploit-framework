@@ -82,6 +82,8 @@ class Module
 
 	# Return whether or not the module supports the supplied architecture
 	def arch?(what)
+		return true if (what == ARCH_ANY)
+
 		return arch.index(what) != nil 
 	end
 

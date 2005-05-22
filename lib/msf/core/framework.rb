@@ -15,32 +15,32 @@ class Framework
 
 	def initialize()
 		self.events   = EventDispatcher.new
-#		self.encoders = EncoderManager.new
-#		self.exploits = ExploitManager.new
-#		self.nops     = NopManager.new
-#		self.payloads = PayloadManager.new
-#		self.recon    = ReconManager.new
+		self.modules  = ModuleManager.new
+	end
 
-		super
+	def encoders
+		return modules.encoders
+	end
+
+	def nops
+		return modules.nops
+	end
+
+	def exploits
+		return modules.exploits
+	end
+
+	def recon
+		return modules.recon
 	end
 
 	attr_reader   :events
-	attr_reader   :ui
-	attr_reader   :encoders
-	attr_reader   :exploits
-	attr_reader   :nops
-	attr_reader   :payloads
-	attr_reader   :recon
+	attr_reader   :modules
 
 protected
 
 	attr_writer   :events
-	attr_writer   :ui
-	attr_writer   :encoders
-	attr_writer   :exploits
-	attr_writer   :nops
-	attr_writer   :payloads
-	attr_writer   :recon
+	attr_writer   :modules
 
 end
 

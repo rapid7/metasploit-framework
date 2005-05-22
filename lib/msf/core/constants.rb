@@ -10,6 +10,7 @@ module Msf
 #
 # Architecture constants
 #
+ARCH_ANY   = '_any_'
 ARCH_IA32  = 'ia32'
 ARCH_MIPS  = 'mips'
 ARCH_PPC   = 'ppc'
@@ -18,9 +19,11 @@ ARCH_SPARC = 'sparc'
 #
 # Module types
 #
+MODULE_ANY     = '_any_'
 MODULE_ENCODER = 'encoder'
 MODULE_EXPLOIT = 'exploit'
 MODULE_NOP     = 'nop'
 MODULE_RECON   = 'recon'
+MODULE_TYPES   = [ MODULE_ENCODER, MODULE_EXPLOIT, MODULE_NOP, MODULE_RECON ]
 
 end

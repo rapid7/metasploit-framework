@@ -255,8 +255,8 @@ class OptionContainerTestCase < ::Test::Unit::TestCase
 
 		assert_block("initialize failed") {
 			options = OptionContainer.new(
-				'rhost' => [ OptAddress, true, 'host.com' ],
-				'rport' => [ OptPort,    true, 1234       ])
+				'rhost' => [ OptAddress, true, nil, 'host.com' ],
+				'rport' => [ OptPort,    true, nil, 1234       ])
 
 			if (options == nil)
 				false
