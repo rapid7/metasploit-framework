@@ -13,7 +13,7 @@ module Msf
 #
 ###
 class ModuleSet < Hash
-	def initialize(type)
+	def initialize(type = nil)
 		self.module_type       = type
 		self.full_names        = {}
 		self.ambiguous_names   = {}
@@ -28,7 +28,7 @@ class ModuleSet < Hash
 	def create(name)
 		# If the supplied name is known-ambiguous, prevent its creation
 		if (ambiguous_names[name])
-			raise(NameError.new("The supplied module name is ambiguous", name), 
+			raise(NameError.new("The supplied module name is ambiguous with: #{ambiguous_names[name].join}", name), 
 				caller)
 		end
 
@@ -66,21 +66,22 @@ class ModuleSet < Hash
 		}
 	end
 
+	attr_reader   :module_type, :full_names
+
+protected
+
 	# Adds a module with a supplied short name, full name, and associated
 	# module class
 	def add_module(short_name, full_name, module_class)
 		if (self[short_name])
-			ambiguous_names << short_name
+			ambiguous_names[short_name] = [] if (!ambiguous_names[short_name])
+			ambiguous_names[short_name] << full_name
 		else
 			self[short_name] = module_class
 		end
 
 		full_names[full_name] = module_class
 	end
-
-	attr_reader   :module_type, :full_names
-
-protected
 
 	attr_writer   :module_type, :full_names
 	attr_accessor :ambiguous_names
@@ -104,18 +105,19 @@ end
 #   - add unload support
 #
 ###
-class ModuleManager < Array
+class ModuleManager < ModuleSet
 
 	def initialize()
 		self.module_paths         = []
 		self.module_history       = {}
 		self.module_history_mtime = {}
-		self.modules_by_type      = {}
-		self.modules              = []
+		self.module_sets          = {}
 
 		MODULE_TYPES.each { |type|
-			self.modules_by_type[type] = ModuleSet.new(type)
+			self.module_sets[type] = ModuleSet.new(type)
 		}
+
+		super
 	end
 
 	#
@@ -124,27 +126,27 @@ class ModuleManager < Array
 
 	# Returns the set of loaded encoder module classes
 	def encoders
-		return modules_by_type[MODULE_ENCODER]
+		return module_sets[MODULE_ENCODER]
 	end
 
 	# Returns the set of loaded exploit module classes
 	def exploits
-		return modules_by_type[MODULE_EXPLOIT]
+		return module_sets[MODULE_EXPLOIT]
 	end
 
 	# Returns the set of loaded nop module classes
 	def nops
-		return modules_by_type[MODULE_NOPS]
+		return module_sets[MODULE_NOPS]
 	end
 
 	# Returns the set of loaded payload module classes
 	def payloads
-		return modules_by_type[MODULE_PAYLOAD]
+		return module_sets[MODULE_PAYLOAD]
 	end
 
 	# Returns the set of loaded recon module classes
 	def recon
-		return modules_by_type[MODULE_RECON]
+		return module_sets[MODULE_RECON]
 	end
 
 	#
@@ -299,21 +301,22 @@ protected
 	def on_module_load(type, mod)
 		# Extract the module name information
 		mod_full_name = mod.to_s.gsub('::', '_')
-		mod_full_name.sub!(/^Msf_(.*?)_/, '')
+		mod_full_name.sub!(/^Msf_/, '')
 
 		mod_short_name = mod_full_name
 
-		if ((md = mod_full_name.match(/_(.*)$/)))
-			mod_short_name = md[1]
+		if ((md = mod_full_name.match(/^(.*)_(.*)$/)))
+			mod_short_name = md[2]
 		end
 
 		# Add the module class to the list of modules and add it to the
 		# type separated set of module classes
-		modules << mod
-		modules_by_type[type].add_module(mod_short_name, mod_full_name, mod)
+		add_module(mod_short_name, mod_full_name, mod)
+
+		module_sets[type].add_module(mod_short_name, mod_full_name, mod)
 	end
 
-	attr_accessor :modules, :modules_by_type
+	attr_accessor :modules, :module_sets
 	attr_accessor :module_paths
 	attr_accessor :module_history, :module_history_mtime
 
