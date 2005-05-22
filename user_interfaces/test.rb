@@ -4,9 +4,9 @@ require 'Msf/Core'
 require 'Encoders/IA32/JmpCallAdditive'
 require 'Nops/IA32/SingleByte'
 
-framework = Msf::Framework.new
+register_log_source('core', Msf::Logging::Sinks::Flatfile.new('/tmp/msfcli.log'))
 
-framework.add_log_sink(Msf::Logging::Sinks::Flatfile.new('/tmp/msfcli.log'))
+dlog('yo yo yo')
 
 #encoder = framework.encoders.instantiate('gen_ia32_jmp_call_additive')
 encoder = Msf::Encoders::Generic::IA32::JmpCallAdditive.new

@@ -13,8 +13,6 @@ module Msf
 ###
 class Framework
 
-	include Msf::Logging::LogDispatcher
-
 	def initialize()
 		self.events   = EventDispatcher.new
 #		self.encoders = EncoderManager.new

@@ -17,25 +17,21 @@ class Flatfile
 
 	def initialize(file)
 		self.fd = File.new(file, "a")
-
-		ilog(0, "Logging initialized.")
 	end
 
 	def cleanup
-		ilog(0, "Logging finished.")
-
 		fd.close
 	end
 
-protected
-
-	def log(sev, level, msg, from)
+	def log(sev, src, level, msg, from)
 		if (sev == LOG_RAW)
 			fd.write(msg)
 		else
-			fd.write("[#{get_current_timestamp}] (sev=#{sev},level=#{level}): #{msg}\n")
+			fd.write("[#{get_current_timestamp}] (src=#{src},sev=#{sev},level=#{level}): #{msg}\n")
 		end
 	end
+
+protected
 
 	attr_accessor :fd
 

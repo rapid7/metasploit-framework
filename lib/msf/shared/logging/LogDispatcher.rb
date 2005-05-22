@@ -8,61 +8,119 @@ module Logging
 # LogDispatcher
 # -------------
 #
-# This interface is included in the Framework class and is used to provide a
-# common interface for dispatching logs to zero or more registered log sinks.
-# Log sinks are typically backed against arbitrary storage mediums, such as a
-# flatfile, a database, or the console.  The log dispatcher itself is really
-# just a log sink that backs itself against zero or more log sinks rather than
-# a file, database, or other persistent storage.
+# The log dispatcher associates log sources with log sinks.  A log source
+# is a unique identity that is associated with one and only one log sink.
+# For instance, the framework-core registers the 'core' 
 #
 ###
-module LogDispatcher
-
-	include Msf::Logging::LogSink
+class LogDispatcher
 
 	def initialize()
-		initialize_log_dispatcher
-	end
-
-	#
-	# Log sink registration
-	#
-	
-	def add_log_sink(sink)
-		log_sinks_rwlock.synchronize_write {
-			log_sinks << sink
-		}
-	end
-
-	def remove_log_sink(sink)
-		log_sinks_rwlock.synchronize_write {
-			sink.cleanup
-
-			log_sinks.delete(sink)
-		}
-	end
-
-	#
-	# Log dispatching
-	#
-protected
-
-	def initialize_log_dispatcher
-		self.log_sinks        = []
+		self.log_sinks        = {}
 		self.log_sinks_rwlock = ReadWriteLock.new
 	end
 
-	def log(sev, level, msg, from)
+	# Returns the sink that is associated with the supplied source
+	def [](src)
+		sink = nil
+
 		log_sinks_rwlock.synchronize_read {
-			log_sinks.each { |sink|
-				sink.dispatch_log(sev, level, msg, from)
-			}
+			sink = log_sinks[src]
+		}
+
+		return sink
+	end
+
+	# Calls the source association routnie
+	def []=(src, sink)
+		store(src, sink)
+	end
+
+	# Associates the supplied source with the supplied sink
+	def store(src, sink)
+		log_sinks_rwlock.synchronize_write {
+			if (log_sinks[src] == nil)
+				log_sinks[src] = sink
+			else
+				raise(
+					RuntimeError, 
+					"The supplied log source #{src} is already registered.",
+					caller)
+			end
 		}
 	end
 
-	attr_accessor :log_sinks
-	attr_accessor :log_sinks_rwlock
+	# Removes a source association if one exists
+	def delete(src)
+		sink = nil
 
+		log_sinks_rwlock.synchronize_write {
+			sink = log_sinks[src]
+			
+			log_sinks.delete(src)
+		}
+
+		if (sink)
+			sink.cleanup
+
+			return true
+		end
+
+		return false
+	end
+
+	# Performs the actual log operation against the supplied source
+	def log(sev, src, level, msg, from)
+		log_sinks_rwlock.synchronize_read {
+			if ((sink = log_sinks[src]))
+				sink.log(sev, src, level, msg, from)
+			end
+		}
+	end
+
+	attr_accessor :log_sinks, :log_sinks_rwlock
 end
 
-end; end
+end
+end
+
+###
+#
+# An instance of the log dispatcher exists in the global namespace, along
+# with stubs for many of the common logging methods.  Various sources can
+# register themselves as a log sink such that logs can be directed at
+# various targets depending on where they're sourced from.  By doing it
+# this way, things like sessions can use the global logging stubs and
+# still be directed at the correct log file.
+#
+###
+def dlog(msg, src = 'core', level = 0, from = caller)
+	$dispatcher.log(Msf::LOG_DEBUG, src, level, msg, from)
+end
+
+def elog(msg, src = 'core', level = 0, from = caller)
+	$dispatcher.log(Msf::LOG_ERROR, src, level, msg, from)
+end
+
+def wlog(msg, src = 'core', level = 0, from = caller)
+	$dispatcher.log(Msf::LOG_WARN, src, level, msg, from)
+end
+
+def ilog(msg, src = 'core', level = 0, from = caller)
+	$dispatcher.log(Msf::LOG_INFO, src, level, msg, from)
+end
+
+def rlog(msg, src = 'core', level = 0, from = caller)
+	$dispatcher.log(Msf::LOG_RAW, src, level, msg, from)
+end
+
+def register_log_source(src, sink)
+	$dispatcher[src] = sink
+end
+
+def deregister_log_source(src, sink)
+	$dispatcher.delete(src)
+end
+
+# Creates the global log dispatcher
+$dispatcher = Msf::Logging::LogDispatcher.new
