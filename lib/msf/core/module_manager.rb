@@ -15,8 +15,8 @@ module Msf
 class ModuleSet < Hash
 	def initialize(type)
 		self.module_type     = type
+		self.full_names      = {}
 		self.ambiguous_names = {}
-		self.short_names     = {}
 	end
 
 	# Create an instance of the supplied module by its name
@@ -27,9 +27,9 @@ class ModuleSet < Hash
 				caller)
 		end
 
-		# If not by full name, then by short name, or so sayeth the spider
+		# If not by short name, then by full name, or so sayeth the spider
 		if ((klass = self[name]) == nil)
-			klass = short_names[name]
+			klass = full_names[name]
 		end
 
 		# Otherwise, try to create it
@@ -47,18 +47,18 @@ class ModuleSet < Hash
 		if (self[short_name])
 			ambiguous_names << short_name
 		else
-			short_names[short_name] = module_class
+			self[short_name] = module_class
 		end
 
-		self[full_name] = module_class
+		full_names[full_name] = module_class
 	end
 
-	attr_reader   :module_type
+	attr_reader   :module_type, :full_names
 
 protected
 
-	attr_writer   :module_type
-	attr_accessor :ambiguous_names, :short_names
+	attr_writer   :module_type, :full_names
+	attr_accessor :ambiguous_names
 
 end
 
