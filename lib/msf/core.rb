@@ -9,10 +9,6 @@
 #
 ###
 
-# Unit testing
-#require 'test/unit'
-require 'Msf/Core/UnitTestSuite'
-
 # framework-core depends on framework-shared
 require 'Msf/Shared'
 
