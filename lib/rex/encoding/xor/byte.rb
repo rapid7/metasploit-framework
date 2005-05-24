@@ -1,12 +1,14 @@
 #!/usr/bin/ruby
 
+require 'Rex/Encoding/Xor/Generic'
+
 module Rex
 module Encoding
 module Xor
 
 class Byte < Generic
 
-	def keysize
+	def Byte.keysize
 		1
 	end
 
