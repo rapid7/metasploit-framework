@@ -13,8 +13,67 @@ class Generic
 		return 0
 	end
 
-	def Generic.find_key(*crap)
-		raise NotImplementedError, "We are lazy bums!", caller
+	def Generic.find_key(data, badchars)
+		return _find_good_key(_find_bad_keys(data, badchars), badchars)
+	end
+
+	# !!! xxx MAKE THESE BITCHE PRIVATE
+
+	#
+	# Find a list of bytes that can't be valid xor keys, from the data and badchars.
+	# This returns a Array of hashes, length keysize
+	#
+	def Generic._find_bad_keys(data, badchars)
+
+		ksize = keysize
+
+		# array of hashes for the bad characters based
+		# on their position in the data
+		badkeys = [ ]
+		ksize.times { badkeys << { } }
+
+		badchars.each_byte { |badchar|
+			pos = 0
+			data.each_byte { |char|
+				badkeys[pos % ksize][char ^ badchar] = true
+				pos += 1
+			}
+		}
+
+		return badkeys
+	end
+
+	#
+	# (Hopefully) find a good key, from badkeys and badchars
+	#
+	def Generic._find_good_key(badkeys, badchars)
+
+		ksize = keysize
+		strip = 0
+		key   = ""
+
+		while strip < keysize
+
+			kbyte = rand(256)
+
+			catch(:found_kbyte) do
+				256.times {
+
+					if !badkeys[strip][kbyte] && !badchars[kbyte.chr]
+						throw :found_kbyte
+					end
+					
+					kbyte = (kbyte + 1) & 0xff
+				}
+
+				raise ArgumentError, "FIXME DIFF EXCEPTION", caller
+			end
+
+			key << kbyte
+			strip += 1
+		end
+
+		return key
 	end
 
 	def Generic.encode(buf, key)
