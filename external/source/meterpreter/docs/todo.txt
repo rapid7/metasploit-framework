@@ -1,0 +1,20 @@
+Things TODO:
+
+1. General
+   a. Configuration
+      1. Auto-load extension
+      2. Auto-execute commands
+2. Feature Extensions
+   a. Registry (registry)
+      1. Create registry key
+      2. Delete registry key
+      3. Set registry value (SZ, DWORD, BINARY)
+      4. Get registry value (SZ, DWORD, BINARY)
+      5. Enumerate registry keys at key
+      6. Enumerate registry values at key
+   b. Networking (net)
+      1. Local SOCKS proxy
+      2. Local sniffer
+   c. Privilege Escalation (priv)
+      1. Token duplication
+      2. RevertToSelf

@@ -1,0 +1,64 @@
+R  = request
+A  = acknowledgement (response)
+[] = optional TLV
+
+   client                                server
+   ------                                ------
+
+Starting execution of a process:
+
+1. machine_process_execute(R)
+     - TLV_TYPE_MACHINE_PROCESS_PATH
+	  - [TLV_TYPE_MACHINE_PROCESS_FLAGS]
+	    - Hidden, etc
+                                         machine_process_execute(A)
+														 - TLV_TYPE_RESULT
+													    - [TLV_TYPE_CHANNEL_ID]
+ 
+Receiving output from the process:
+
+2.                                       core_channel_write(R)
+                                           - TLV_TYPE_CHANNEL_DATA_GROUP
+														   - TLV_TYPE_CHANNEL_ID
+															- TLV_TYPE_CHANNEL_OUTPUT_DATA
+
+
+How channels should work on a theoretical level:
+
+1) Channels are logical communication units with two endpoints.  As such, a 
+   channel has four logical operations:
+
+	a) Open
+
+		Opening a channel involves two sides creating a logical 'connection' 
+		and agreeing on a common identifier for the channel.  This channel will
+		henceforth be referred to as the ``channel identifier''.
+
+	b) Read
+
+		Reading from a channel on either endpoint simply means that data is being
+		read from the 'output' buffer on the respective endpoint.  When a client
+		reads from a channel that is associated with a process, they are simply
+		reading data that has been written to standard output.  When a client reads
+		from a channel that is associated with a file, they are simply reading 
+		data from the file itself at the current offset.
+
+	c) Write
+
+		Writing to a channel from either endpoint simply means that data is being
+		pushed into the 'output' buffer for the respective endpoint.  When a client
+		writes to a channel that is associated with a process, they are, in effect,
+		writing to the process.  When a client writes to a channel that is associated
+		with a file, they are simply writing to the file at its current offset.
+
+	d) Close
+
+		The close operation simply tears down the previously established 'connection'.
+
+
+	Channel endpoints will be required to implement handlers for each of the 
+	aforementioned operations.  The read and write operations should have 
+	substitutable handlers for allowing for extended reading and writing methods 
+	depending on the underlying endpoint.
+
+

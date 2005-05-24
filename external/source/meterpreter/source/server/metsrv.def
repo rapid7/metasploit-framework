@@ -1,0 +1,3 @@
+LIBRARY metsrv.dll
+
+EXPORTS
