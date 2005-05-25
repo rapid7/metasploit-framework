@@ -13,6 +13,33 @@ class Generic
 		return 0
 	end
 
+	#
+	# return nil if no badchars in data, otherwise return the position of
+	# the first bad character
+	#
+	def Generic.badchar_index(data, badchars)
+		badchars.each_byte { |badchar|
+			pos = data.index(badchar)
+			return pos if pos
+		}
+		return nil
+	end
+	#
+	# Now for some internal check methods
+	#	
+
+	# hook stylies!
+	# return index of offending byte or nil
+	def Generic._check(data, key, badchars)
+		return _check_key(key, badchars) || _check_encode(data, key, badchars)
+	end
+	def Generic._check_key(key, badchars)
+		return badchar_index(key, badchars)
+	end
+	def Generic._check_encode(data, key, badchars)
+		return badchar_index(encode(data, key), badchars)
+	end
+
 	def Generic.find_key(data, badchars)
 		return _find_good_key(data, _find_bad_keys(data, badchars), badchars)
 	end
@@ -45,7 +72,6 @@ class Generic
 
 	#
 	# (Hopefully) find a good key, from badkeys and badchars
-	# this doesn't use data, but others may need it..
 	#
 	def Generic._find_good_key(data, badkeys, badchars)
 
@@ -72,6 +98,11 @@ class Generic
 
 			key << kbyte
 			strip += 1
+		end
+
+		# ok, we should have a good key now, lets double check...
+		if ! _check(data, key, badchars)
+			raise ArgumentError, "FIXME DIFF EXCEPTION", caller
 		end
 
 		return key

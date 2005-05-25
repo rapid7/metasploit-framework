@@ -50,16 +50,6 @@ class DWordAdditive < Generic
 	# Maybe someday we can revisit this and make it a bit less ghetto...
 	#
 
-	# return nil if no badchars in data, otherwise return the position of
-	# the first bad character
-	def DWordAdditive._badchar_index(data, badchars)
-		badchars.each_byte { |badchar|
-			pos = data.index(badchar)
-			return pos if pos
-		}
-		return nil
-	end
-
 	def DWordAdditive._find_good_key(data, badkeys, badchars)
 
 		ksize  = keysize
@@ -78,7 +68,7 @@ class DWordAdditive < Generic
 
 		loop do
 			# ok, try to encode it, any bad chars present?
-			pos = _badchar_index(encode(data, key), badchars)
+			pos = _check(data, key, badchars)
 
 			# yay, no problems, we found a key!
 			break if !pos
