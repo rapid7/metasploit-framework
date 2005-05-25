@@ -16,12 +16,4 @@ class Rex::Encoding::Xor::Byte::UnitTest < Rex::Encoding::Xor::Generic::UnitTest
 	def enc
 		Rex::Encoding::Xor::Byte
 	end
-
-	def hook_static_encode(data, key, expected)
-		if key.length != enc.keysize
-			assert_raise(ArgumentError) { enc.encode(data, key) }
-		else
-			enc.encode(data, key)
-		end
-	end
 end

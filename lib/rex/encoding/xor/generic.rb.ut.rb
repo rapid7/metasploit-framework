@@ -11,6 +11,14 @@ class Rex::Encoding::Xor::Generic::UnitTest < Test::Unit::TestCase
 		Rex::Encoding::Xor::Generic
 	end
 
+	def hook_static_encode(data, key, expected)
+		if enc.keysize != 0 && key.length != enc.keysize
+			assert_raise(ArgumentError) { enc.encode(data,key) }
+		else
+			assert_equal(enc.encode(data, key), expected)
+		end
+	end
+
 	def test_static_encode
 		# Test key of zero length
 		assert_raise(ArgumentError) { enc.encode("\x00", "") }
