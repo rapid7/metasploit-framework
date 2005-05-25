@@ -11,14 +11,6 @@ class Rex::Encoding::Xor::Generic::UnitTest < Test::Unit::TestCase
 		Rex::Encoding::Xor::Generic
 	end
 
-	def hook_static_encode(data, key, expected)
-		if enc.keysize != 0 && key.length != enc.keysize
-			assert_raise(ArgumentError) { enc.encode(data,key) }
-		else
-			assert_equal(enc.encode(data, key), expected)
-		end
-	end
-
 	def test_static_encode
 		# Test key of zero length
 		assert_raise(ArgumentError) { enc.encode("\x00", "") }
@@ -46,11 +38,19 @@ class Rex::Encoding::Xor::Generic::UnitTest < Test::Unit::TestCase
 
 	def misc_tests
 		[
+
 		# a 3 byte key test
 		[
 		  "\x54\x9a\x04\x02\x8f",
 		  "\x6d\x4b\x3c",
 		  "9\3218o\304"
+		],
+
+		# a 4 byte key test
+		[
+		  "\312/\216e\265\301\323\026Y\315",
+		  "m2{b",
+		  "\247\035\365\a\330\363\250t4\377"
 		],
 
 		# randomly generated 2 byte key tests...
