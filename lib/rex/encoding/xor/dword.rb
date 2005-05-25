@@ -18,4 +18,4 @@ class DWord < Generic
 		4
 	end
 
-end end end end # Word/Xor/Encoding/Rex
+end end end end # DWord/Xor/Encoding/Rex

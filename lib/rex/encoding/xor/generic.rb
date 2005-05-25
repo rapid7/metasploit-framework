@@ -97,11 +97,18 @@ class Generic
 
 		while pos < buf.length
 			encoded += (buf[pos] ^ key[pos % len]).chr
+			key = _encode_mutate_key(buf, key, pos, len)
 			pos += 1
 		end
 
 		return encoded
 
+	end
+
+	# kind of ghetto, but very convenient for mutating keys
+	# by default, do no key mutations
+	def Generic._encode_mutate_key(buf, key, pos, len)
+		return key
 	end
 
 	# maybe a bit a smaller of method name?
