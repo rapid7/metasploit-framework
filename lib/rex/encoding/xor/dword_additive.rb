@@ -42,6 +42,7 @@ class DWordAdditive < Generic
 			  unpack_key(key) + unpack_key(buf[-len, len]) &
 			    (1 << (len << 3)) - 1
 			)
+			puts "mutated!"
 		end
  
 		return key
