@@ -14,7 +14,7 @@ class Generic
 	end
 
 	def Generic.find_key(data, badchars)
-		return _find_good_key(_find_bad_keys(data, badchars), badchars)
+		return _find_good_key(data, _find_bad_keys(data, badchars), badchars)
 	end
 
 	# !!! xxx MAKE THESE BITCHE PRIVATE
@@ -45,8 +45,9 @@ class Generic
 
 	#
 	# (Hopefully) find a good key, from badkeys and badchars
+	# this doesn't use data, but others may need it..
 	#
-	def Generic._find_good_key(badkeys, badchars)
+	def Generic._find_good_key(data, badkeys, badchars)
 
 		ksize = keysize
 		strip = 0
