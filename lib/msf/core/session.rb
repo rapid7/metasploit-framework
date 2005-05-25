@@ -41,62 +41,37 @@ end
 ###
 class Session
 
-	def initialize(framework, sid, stream = nil)
-		self.framework = framework
-		self.stream    = stream
-		self.sid       = sid
-
-		# Call the framework event dispatcher to let it know that we've
-		# opened a new session
-		framework.events.on_session_open(self)
+	def initialize(conn = nil)
+		self.conn = conn
 	end
 
-	# Read length supplied bytes from the stream
+	#
+	# Read length supplied bytes from the conn
+	#
 	def read(length = nil)
-		return stream.read(length)
+		return conn.read(length)
 	end
 
-	# Write the supplied buffer to the stream
+	#
+	# Write the supplied buffer to the conn
+	#
 	def write(buf)
-		return stream.write(buf)
+		return conn.write(buf)
 	end
 
-	# Close the session's stream and perform cleanup as necessary
+	#
+	# Close the session's conn and perform cleanup as necessary
+	#
 	def close
-		# Call the framework event dispatcher to let it know that we've
-		# closed a session
-		framework.events.on_session_close(self)
-
-		return stream.close
+		return conn.close
 	end
 
-	attr_reader   :sid, :stream
+	attr_reader   :conn
+	attr_accessor :framework, :sid
 
 protected
 
-	attr_writer   :sid, :stream
-	attr_accessor :framework
-end
-
-#
-#
-# Built-in session classes
-#
-#
-
-###
-#
-# ShellSession
-# ------------
-#
-# This class represents a session that is associated with a command
-# interpreter.  Its read and write operations interact with whatever
-# command interpreter it is backed against, whether it be local or
-# otherwise.
-#
-###
-class ShellSession < Session
-
+	attr_writer   :conn
 end
 
 end
