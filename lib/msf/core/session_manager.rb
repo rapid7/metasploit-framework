@@ -18,6 +18,8 @@ module Msf
 ###
 class SessionManager
 
+	include Enumerable
+
 	def initialize(framework)
 		self.framework = framework
 		self.sessions  = {}
@@ -32,6 +34,20 @@ class SessionManager
 	end
 
 	#
+	# Register the supplied session
+	#
+	def <<(session)
+		return register(session)
+	end
+
+	#
+	# Implement for Enumerable
+	#
+	def each(&block)
+		sessions.each(&block)
+	end
+
+	#
 	# Registers the supplied session object with the framework and returns
 	# a unique session identifier to the caller.
 	#
@@ -41,7 +57,7 @@ class SessionManager
 			return nil
 		end
 
-		next_sid = (sid_pool += 1)
+		next_sid = (self.sid_pool += 1)
 
 		# Insert the session into the session hash table
 		sessions[next_sid] = session
@@ -67,7 +83,7 @@ class SessionManager
 		sessions.delete(session.sid)
 
 		# Close it down
-		session.close
+		session.cleanup
 	end
 
 	#
@@ -77,9 +93,9 @@ class SessionManager
 		return sessions[sid]
 	end
 
-protected:
+protected
 	
-	attr_accessor :sid_pool, :sessions
+	attr_accessor :sid_pool, :sessions, :framework
 
 end
 

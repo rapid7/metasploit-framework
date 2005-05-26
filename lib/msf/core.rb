@@ -22,6 +22,7 @@ require 'Msf/Core/OptionContainer'
 
 # Framework context and core classes
 require 'Msf/Core/ModuleManager'
+require 'Msf/Core/SessionManager'
 require 'Msf/Core/Session'
 require 'Msf/Core/Framework'
 

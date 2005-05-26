@@ -41,37 +41,19 @@ end
 ###
 class Session
 
-	def initialize(conn = nil)
-		self.conn = conn
+	def initialize()
 	end
 
 	#
-	# Read length supplied bytes from the conn
+	# Perform session-specific cleanup
 	#
-	def read(length = nil)
-		return conn.read(length)
+	def cleanup
 	end
 
-	#
-	# Write the supplied buffer to the conn
-	#
-	def write(buf)
-		return conn.write(buf)
-	end
-
-	#
-	# Close the session's conn and perform cleanup as necessary
-	#
-	def close
-		return conn.close
-	end
-
-	attr_reader   :conn
 	attr_accessor :framework, :sid
 
 protected
 
-	attr_writer   :conn
 end
 
 end
