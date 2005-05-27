@@ -57,3 +57,11 @@ protected
 end
 
 end
+
+# 
+# Require the individual provider interfaces
+#
+require 'Msf/Core/SessionProvider/SingleCommandExecution'
+require 'Msf/Core/SessionProvider/MultiCommandExecution'
+require 'Msf/Core/SessionProvider/SingleCommandShell'
+require 'Msf/Core/SessionProvider/MultiCommandShell'

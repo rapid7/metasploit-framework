@@ -133,31 +133,18 @@ class ClientCore < Extension
 		Indicates that the library should be loaded from disk, not from
 		memory on the remote machine
 =end
-	def use(opts)
-		modules = []
-
-		if (opts['Module'])
-			modules << opts['Module']
-		elsif (opts['Modules'])
-			modules = opts['Modules']
-		end
-
-		if (modules.length == 0)
+	def use(module, opts)
+		if (module == nil)
 			raise RuntimeError, "No modules were specified", caller
 		end
 
-		# Enumerate all of the modules, loading each one
-		modules.each { |mod|
-
-			if (load_library(
-					'LibraryFilePath' => 'data/meterpreter/ext_server_' + mod.downcase + '.dll',
-					'UploadLibrary'   => true,
-					'Extension'       => true,
-					'SaveToDisk'      => opts['LoadFromDisk']))
-				client.add_extension(mod)
-			end
-			
-		}
+		if (load_library(
+				'LibraryFilePath' => 'data/meterpreter/ext_server_' + module.downcase + '.dll',
+				'UploadLibrary'   => true,
+				'Extension'       => true,
+				'SaveToDisk'      => opts['LoadFromDisk']))
+			client.add_extension(mod)
+		end
 
 		return true
 	end
