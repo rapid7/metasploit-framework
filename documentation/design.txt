@@ -1,0 +1,53 @@
+Major subsystems
+----------------
+
+framework-shared
+
+   Contains generic classes that are used by various libraries
+   and by framework-core.
+
+framework-core
+
+   Provides the interface for interacting with modules, managing
+   sessions, and coordinating exploitation.
+
+framework-base
+
+   Implementations of the default sessions included in the 
+   framework, such as Meterpreter, and other various elements
+   that are outside of the scope of framework-core.  This
+   subsystem also provides a simple wrapper to framework-core
+   insofar as dealing with exploitation, encoding, payload,
+   and session interaction.
+
+Dependencies
+------------
+
+					  +------------------+
+					  | framework-shared |
+					  +------------------+
+								  ^
+								  |
+								  |
+								  |
+					  +------------------+
+					  |  framework-core  |
+					  +------------------+
+								  ^
+								  |
+								  |
+								  |
+					  +------------------+
+					  |  framework-base  |
+					  +------------------+
+                    ^            ^
+                   /              \
+                  /                \
+                 /                  \
+   +-----------------+          +-----------------+
+	|  user interface |          |     modules     |
+	+-----------------+          +-----------------+
+	|    msfconsole   |          |     encoders    |
+	|      msfweb     |          |     exploits    |
+	|      msfgtk     |          |     payloads    |
+	+-----------------+          +-----------------+
