@@ -1,10 +1,10 @@
 Major subsystems
 ----------------
 
-framework-shared
+Rex
 
    Contains generic classes that are used by various libraries
-   and by framework-core.
+   and by framework-core and other subsystems.
 
 framework-core
 
@@ -24,7 +24,7 @@ Dependencies
 ------------
 
 					  +------------------+
-					  | framework-shared |
+					  |       Rex        |
 					  +------------------+
 								  ^
 								  |
