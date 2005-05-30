@@ -1,50 +1,15 @@
 #!/usr/bin/ruby
 
 #
-# This is my overly complex way to specify what platforms different modules
-# support.  This can be used to see if an exploit will work against a certain
-# platform, or if a payload will work for a certain exploit.
+# This is the definitions of which Platforms the framework knows about.  The
+# relative ranks are used to support ranges, and the Short names are used to
+# allow for more convenient specification of the platforms....
 #
-# The test for these will be simple, just if a class is equal to or a
-# superclass, than it will support.  For example:
-# A payload that supports Platform::Windows would support something like
-# Platform::Windows::X86::XP::SP0::English.  And something that supported
-# Platform::Windows::X86::XP::SP0 would also support this, etc, etc.
-#
-# We of course will need a nicer way to specify the list since the above
-# is annoying and overly verbose.  Hence we will have Platform::Build() to build
-# out these object lists in an easier fasion.
-#
-# Stupid ruby inherits constants, so I couldn't get the auto Short generation
-# and caching system to work right.  So for now each Platform needs a Short :(
-#
-
-class Msf::Module::PlatformList
-	attr_accessor :list
-	def initialize(*args)
-		self.list = [ ]
-		args.each { |a|
-			if a.kind_of?(String)
-				list << Msf::Module::Platform.find_platform(a)
-			elsif a.kind_of?(Range)
-				b = Msf::Module::Platform.find_platform(a.begin)
-				e = Msf::Module::Platform.find_platform(a.end)
-
-				children = Msf::Module::Platform._find_children(b.superclass)
-				r        = (b::Rank .. e::Rank)
-				children.each { |c|
-					list << c if r.include?(c::Rank)
-				}
-			else
-				list << a
-			end
-
-		}
-	end
-
-end
 
 class Msf::Module::Platform
+
+	Rank  = 0
+	Short = "all"
 
 	#
 	# The magic to try to build out a Platform from a string
@@ -87,7 +52,15 @@ class Msf::Module::Platform
 			# If there is no shortname, generate one and cache it.
 			# Generation is atmost the first 3 chars downcased..
 
-			short = c.const_get("Short")
+			begin
+				short = c.const_get("Short")
+				# it was inherited...
+				if short == c.superclass.const_get("Short")
+					raise NameError
+				end
+			rescue NameError
+				short = c.const_set("Short", c.name.split('::')[-1][0, 3].downcase)
+			end
 
 			if short.length > bestlen && name[0, short.length] == short
 				best = [ c, name[short.length .. -1] ]
@@ -107,24 +80,18 @@ class Msf::Module::Platform
 
 	class Windows < Msf::Module::Platform
 		Rank  = 100
-		Short = 'win'
 		class X86 < Windows
 			Rank  = 100
-			Short = 'x86'
 			class XP < X86
 				Rank  = 300
-				Short = 'xp'
 				class SP0 < XP
 					Rank  = 100
-					Short = 'sp0'
 				end
 				class SP1 < XP
 					Rank  = 200
-					Short = 'sp1'
 				end
 				class SP2 < XP
 					Rank  = 300
-					Short = 'sp2'
 				end
 			end
 		end
