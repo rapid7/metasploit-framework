@@ -15,7 +15,7 @@ class Msf::Module::PlatformList::UnitTest < Test::Unit::TestCase
 		assert_equal(
 		  [ Msf::Module::Platform::Windows::X86::XP::SP0,
 		    Msf::Module::Platform::Windows::X86::XP::SP1
-		  ], Msf::Module::PlatformList.new('winxpsp0' .. 'winxpsp1').modules
+		  ], Msf::Module::PlatformList.new('winxpsp0' .. 'winxpsp1').platforms
 		)
 	end
 
@@ -24,6 +24,13 @@ class Msf::Module::PlatformList::UnitTest < Test::Unit::TestCase
 	end
 
 	def test_all
-		assert_equal( [ Msf::Module::Platform ], Msf::Module::PlatformList.new('').modules)
+		assert_equal( [ Msf::Module::Platform ], Msf::Module::PlatformList.new('').platforms)
+	end
+
+	def test_supports
+		l1 = Msf::Module::PlatformList.new('win')
+		l2 = Msf::Module::PlatformList.new('win xp sp0', 'win xp sp2')
+		assert_equal( true, l1.supports?(l2) )
+		assert_equal( false, l2.supports?(l1) )
 	end
 end

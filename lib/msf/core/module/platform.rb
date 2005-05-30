@@ -17,7 +17,7 @@ class Msf::Module::Platform
 	#
 	def self.find_platform(str)
 		# remove any whitespace and downcase
-		str = str.sub(' ', '').downcase
+		str = str.gsub(' ', '').downcase
 
 		mod = Msf::Module::Platform
 
