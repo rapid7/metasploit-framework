@@ -9,6 +9,7 @@
 class Msf::Module::Platform
 
 	Rank  = 0
+	# actually, having a argument of '' is what to do for wanting 'all'
 	Short = "all"
 
 	#

@@ -22,4 +22,8 @@ class Msf::Module::PlatformList::UnitTest < Test::Unit::TestCase
 	def test_names
 		assert_equal([ 'Windows X86 XP SP2' ], Msf::Module::PlatformList.new('winxpsp2').names)
 	end
+
+	def test_all
+		assert_equal( [ Msf::Module::Platform ], Msf::Module::PlatformList.new('').modules)
+	end
 end
