@@ -28,9 +28,14 @@ class Msf::Module::Platform
 		return mod
 	end
 
+	def find_children
+		self.class.find_children
+	end
+
 	# this is useful a lot of places, and should go into some
 	# library somewhere, or something
-	def self._find_children(mod)
+	def self.find_children
+		mod = self
 		mod.constants.map { |n| mod.const_get(n) }.
 		  delete_if { |v| ! v.kind_of?(Class) || ! (v < mod) }
 	end
@@ -39,7 +44,7 @@ class Msf::Module::Platform
 	def self._find_short(base, name)
 		# get a list of possible base classes, and sort them by
 		# their relative ranks to each other
-		poss = _find_children(base).sort { |a, b| a::Rank <=> b::Rank }
+		poss = base.find_children.sort { |a, b| a::Rank <=> b::Rank }
 
 		if poss.empty?
 			raise ArgumentError, "No classes in #{base.to_s}!", caller

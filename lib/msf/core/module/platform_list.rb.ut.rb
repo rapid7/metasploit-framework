@@ -33,4 +33,17 @@ class Msf::Module::PlatformList::UnitTest < Test::Unit::TestCase
 		assert_equal( true, l1.supports?(l2) )
 		assert_equal( false, l2.supports?(l1) )
 	end
+
+	def test_intersect
+		l1 = Msf::Module::PlatformList.new('win')
+		l2 = Msf::Module::PlatformList.new('win xp sp0', 'win xp sp2')
+		assert_equal(
+		  [ Msf::Module::Platform::Windows::X86::XP::SP0,
+		    Msf::Module::Platform::Windows::X86::XP::SP2
+		  ], (l1 & l2).platforms
+		)
+
+		l1 = Msf::Module::PlatformList.new('win xp sp1')
+		assert_equal( [ ], (l1 & l2).platforms )
+	end
 end
