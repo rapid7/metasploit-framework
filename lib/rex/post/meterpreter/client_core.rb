@@ -133,13 +133,13 @@ class ClientCore < Extension
 		Indicates that the library should be loaded from disk, not from
 		memory on the remote machine
 =end
-	def use(module, opts)
-		if (module == nil)
+	def use(mod, opts)
+		if (mod == nil)
 			raise RuntimeError, "No modules were specified", caller
 		end
 
 		if (load_library(
-				'LibraryFilePath' => 'data/meterpreter/ext_server_' + module.downcase + '.dll',
+				'LibraryFilePath' => 'data/meterpreter/ext_server_' + mod.downcase + '.dll',
 				'UploadLibrary'   => true,
 				'Extension'       => true,
 				'SaveToDisk'      => opts['LoadFromDisk']))
