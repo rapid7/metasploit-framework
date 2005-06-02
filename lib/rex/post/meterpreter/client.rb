@@ -84,7 +84,9 @@ class Client
 			return false
 		end
 
-		ext = eval("Rex::Post::Meterpreter::Extensions::" + name + "::" + name + ".new(self)")
+		# XXX might want to be safer and catch the exception here?
+		# maybe not since we are just going to reraise right away...
+		ext = Rex::Post::Meterpreter::Extensions.const_get(name).const_get(name).new(self)
 
 		self.ext.aliases[ext.name] = ext
 
