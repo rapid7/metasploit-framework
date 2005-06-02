@@ -8,7 +8,7 @@ class DemoClient
 		self.sock   = TCPSocket.new(host, port)
 		self.client = Rex::Post::Meterpreter::Client.new(sock)
 
-		self.client.core.use('Module' => 'Stdapi')
+		self.client.core.use('Stdapi')
 	end
 
 	attr_reader   :client

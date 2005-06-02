@@ -15,7 +15,7 @@ sock   = TCPSocket.new('127.0.0.1', 12345)
 client = Rex::Post::Meterpreter::Client.new(sock)
 
 client.core.use(
-	'Module' => 'Stdapi')
+	'Stdapi')
 
 puts "Client interface:"
 client.dump_extension_tree.each { |x|
