@@ -59,7 +59,12 @@ module Stream
 	# otherwise nil is returned.
 	#
 	def poll_read(timeout = nil)
-		return nil
+	end
+
+	#
+	# Returns the file descriptor that can be polled via select, if any.
+	#
+	def poll_fd
 	end
 
 	##
