@@ -327,7 +327,7 @@ class ClientCore < Extension
 		wrote = client.sock.write(buf)
 
 		# Re-load the STDAPI extension server-side
-		client.core.use('Module' => 'Stdapi')
+		client.core.use('Stdapi')
 
 ###           ###
 ### TEMPORARY ###
