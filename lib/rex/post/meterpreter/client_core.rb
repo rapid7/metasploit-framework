@@ -133,7 +133,7 @@ class ClientCore < Extension
 		Indicates that the library should be loaded from disk, not from
 		memory on the remote machine
 =end
-	def use(mod, opts)
+	def use(mod, opts = { })
 		if (mod == nil)
 			raise RuntimeError, "No modules were specified", caller
 		end
