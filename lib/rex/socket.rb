@@ -35,6 +35,10 @@ class Socket
 	def self.create_tcp(opts)
 		return create_param(Rex::Socket::Parameters.from_hash(opts.merge('Proto' => 'tcp')))
 	end
+	
+	def self.create_tcp_server(opts)
+		return create_tcp(opts.merge('Server' => true))
+	end
 
 	##
 	#
@@ -62,6 +66,21 @@ class Socket
 	
 	def initialize(sock)
 		self.sock = sock
+	end
+
+	#
+	# Closes the associated socket
+	#
+	def close
+		self.sock.close if (self.sock)
+	end
+
+	#
+	# Returns the sock context that was supplied to the constructor as the
+	# default poll_fd
+	#
+	def poll_fd
+		return self.sock
 	end
 
 	attr_reader :sock

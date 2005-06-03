@@ -23,6 +23,7 @@ module StreamServer
 	# which are specific to the stream server class instance.
 	#
 	def listen(params, opts = {})
+		super
 	end
 
 	#
@@ -30,12 +31,21 @@ module StreamServer
 	# Stream-drived class.
 	#
 	def accept(opts = {})
+		super
 	end
 
 	#
-	# Closes and shuts down the listener, cleaning up resources as necessary.
+	# Polls to see if a client connection is pending
 	#
-	def close
+	def pending_client?(timeout = nil)
+		super
+	end
+
+	#
+	# Returns the file descriptor that can be polled via select
+	#
+	def poll_fd
+		super
 	end
 
 end

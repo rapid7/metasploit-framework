@@ -10,10 +10,10 @@ class Rex::Socket::Tcp::UnitTest < Test::Unit::TestCase
 	def test_tcp
 		serv_port = 65432
 		serv = TCPServer.new('127.0.0.1', serv_port)
+		t = nil
 
 		begin
 			# Connect to the temp server
-			t = nil
 			assert_nothing_raised {
 				t = Rex::Socket.create_tcp(
 					'PeerHost' => '127.0.0.1',
@@ -32,14 +32,16 @@ class Rex::Socket::Tcp::UnitTest < Test::Unit::TestCase
 			assert_equal(5, t << "test\n", "cli: << test")
 			assert_equal("test\n", serv_con.recv(5), "srv: read test (2)")
 			assert_equal(5, serv_con.send("testa", 6), "srv: write testa (3)")
-			assert_kind_of(Array, t.poll_read(1), "cli: poll read")
+			assert_equal(true, t.has_read_data?(1), "cli: poll read")
 			assert_equal("testa", t.get, "cli: gobble testa")
 			assert_equal(true, t.shutdown(::Socket::SHUT_RD), "cli: shutdown read")
 			assert_equal(true, t.shutdown(::Socket::SHUT_WR), "cli: shutdown read")
 			assert_nothing_raised {
 				t.close
+				t = nil
 			}
 		ensure
+			t.close if (t)
 			serv.close
 		end
 	end

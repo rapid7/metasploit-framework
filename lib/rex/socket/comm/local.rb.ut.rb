@@ -25,6 +25,7 @@ class Rex::Socket::Comm::Local::UnitTest < Test::Unit::TestCase
 
 		assert_kind_of(Rex::IO::Stream, stream, "valid Stream instance")
 		assert_kind_of(Rex::Socket::Tcp, stream, "valid Tcp instance")
+		stream.close
 
 		# Now create a bare connection to the listener
 		stream = nil
@@ -39,6 +40,8 @@ class Rex::Socket::Comm::Local::UnitTest < Test::Unit::TestCase
 		}
 
 		assert_kind_of(Socket, stream, "valid Socket instance")
+
+		stream.close
 
 		test_server.close
 	end

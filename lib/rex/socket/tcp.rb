@@ -6,12 +6,18 @@ class Rex::Socket::Tcp < Rex::Socket
 
 	##
 	#
-	# Class initialization
+	# Factory
 	#
 	##
-	
-	def initialize(sock)
-		super
+
+	#
+	# Wrapper around the base socket class' creation method that automatically
+	# sets the parameter's protocol to TCP
+	#
+	def self.create_param(param)
+		param.proto = 'tcp'
+
+		super(Param)
 	end
 
 	##
@@ -46,16 +52,10 @@ class Rex::Socket::Tcp < Rex::Socket
 		return (sock.shutdown(how) == 0)
 	end
 
-	def close
-		sock.close
+	def has_read_data?(timeout = nil)
+		timeout = timeout.to_i if (timeout)
+
+		return (select([ poll_fd ], nil, nil, timeout) != nil)
 	end
 
-	def poll_read(timeout = nil)
-		return select([ poll_fd ], nil, nil, timeout)
-	end
-
-	def poll_fd
-		return sock
-	end
-	
 end
