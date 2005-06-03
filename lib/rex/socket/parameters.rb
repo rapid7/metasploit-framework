@@ -1,5 +1,4 @@
 require 'Rex/Socket'
-require 'Rex/Socket/Comm/Local'
 
 ###
 #
@@ -18,8 +17,8 @@ class Rex::Socket::Parameters
 	#
 	##
 	
-	def Parameters.from_hash(hash)
-		return Parameters.new(hash)
+	def self.from_hash(hash)
+		return self.new(hash)
 	end
 
 	##
@@ -65,7 +64,11 @@ class Rex::Socket::Parameters
 		end
 
 		# The protocol this socket will be using
-		self.proto     = hash['Proto'].downcase || 'tcp'
+		if (hash['Proto'])
+			self.proto = hash['Proto'].downcase
+		else
+			self.proto = 'tcp'
+		end
 
 		# Whether or not the socket should be a server
 		self.server    = hash['Server'] || false
@@ -92,11 +95,11 @@ class Rex::Socket::Parameters
 	end
 
 	def tcp?
-		return proto == 'tcp'
+		return (proto == 'tcp')
 	end
 
 	def udp?
-		return proto == 'udp'
+		return (proto == 'udp')
 	end
 
 	def bare?
@@ -124,5 +127,3 @@ class Rex::Socket::Parameters
 	alias localaddr localhost
 
 end
-
-end; end

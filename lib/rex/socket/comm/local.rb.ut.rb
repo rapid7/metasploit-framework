@@ -1,0 +1,62 @@
+#!/usr/bin/ruby
+
+$:.unshift(File.join('..', '..', '..', File.dirname(__FILE__)))
+
+require 'test/unit'
+require 'Rex/Socket/Parameters'
+require 'Rex/Socket/Comm/Local'
+
+class Rex::Socket::Comm::Local::UnitTest < Test::Unit::TestCase
+
+	def test_create_tcp
+		test_port   = 65432
+		test_server = TCPServer.new('127.0.0.1', test_port)
+
+		# Create a stream connection to the stub listener
+		stream = nil
+
+		assert_nothing_raised {
+			stream = Rex::Socket::Comm::Local.create(
+				Rex::Socket::Parameters.from_hash(
+					'PeerHost' => '127.0.0.1',
+					'PeerPort' => test_port,
+					'Proto'    => 'tcp'))
+		}
+
+		assert_kind_of(Rex::IO::Stream, stream, "valid Stream instance")
+		assert_kind_of(Rex::Socket::Tcp, stream, "valid Tcp instance")
+
+		# Now create a bare connection to the listener
+		stream = nil
+
+		assert_nothing_raised {
+			stream = Rex::Socket::Comm::Local.create(
+				Rex::Socket::Parameters.from_hash(
+					'PeerHost' => '127.0.0.1',
+					'PeerPort' => test_port,
+					'Proto'    => 'tcp',
+					'Bare'     => true))
+		}
+
+		assert_kind_of(Socket, stream, "valid Socket instance")
+
+		test_server.close
+	end
+
+	def test_create_tcp_server
+		# TODO
+	end
+
+	def test_create_udp
+		# TODO
+	end
+
+	def test_create_invalid
+		assert_raise(RuntimeError, "invalid protocol check failed") {
+			Rex::Socket::Comm::Local.create(
+				Rex::Socket::Parameters.from_hash(
+					'Proto' => 'invalid'))
+		}
+	end
+
+end

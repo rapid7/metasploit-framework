@@ -1,6 +1,5 @@
 require 'Rex/Socket'
 require 'Rex/Socket/Tcp'
-require 'Rex/Socket/TcpServer'
 
 ###
 #
@@ -18,7 +17,9 @@ class Rex::Socket::Comm::Local
 	def self.create(param)
 		case param.proto
 			when 'tcp'
-				return create_tcp(param)
+				return create_by_type(param, ::Socket::SOCK_STREAM, ::Socket::IPPROTO_TCP)
+			when 'udp'
+				return create_by_type(param, ::Socket::SOCK_DGRAM, ::Socket::IPPROTO_UDP)
 			else
 				raise RuntimeError, "Unsupported protocol: #{param.proto}", caller # FIXME EXCEPTION
 		end
@@ -27,13 +28,13 @@ class Rex::Socket::Comm::Local
 	#
 	# Creates a TCP socket 
 	#
-	def self.create_tcp(param)
+	def self.create_by_type(param, type, proto = 0)
 		# Create the raw TCP socket
-		sock = ::Socket.new(::Socket::AF_INET, 'tcp', 0)
+		sock = ::Socket.new(::Socket::AF_INET, type, proto)
 
 		# Bind to a given local address and/or port if they are supplied
 		if (param.localhost || param.localport)
-			sock.bind(to_sockaddr(param.localhost, param.localport))
+			sock.bind(Rex::Socket.to_sockaddr(param.localhost, param.localport))
 		end
 
 		# If a server TCP instance is being created...
@@ -45,7 +46,10 @@ class Rex::Socket::Comm::Local
 			return Rex::Socket::TcpServer.new(sock)	
 		# Otherwise, if we're creating a client...
 		else
-			sock.connect(to_sockaddr(param.peerhost, param.peerport))
+			# If we were supplied with host information
+			if (param.peerhost)
+				sock.connect(Rex::Socket.to_sockaddr(param.peerhost, param.peerport))
+			end
 
 			return sock if (param.bare?)
 

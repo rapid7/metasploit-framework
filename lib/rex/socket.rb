@@ -1,6 +1,5 @@
 require 'socket'
 require 'resolv'
-require 'Rex/Socket/Parameters'
 
 module Rex
 
@@ -13,6 +12,11 @@ module Rex
 #
 ###
 class Socket
+
+	module Comm
+	end
+
+	require 'Rex/Socket/Parameters'
 
 	##
 	#
@@ -29,13 +33,7 @@ class Socket
 	end
 
 	def self.create_tcp(opts)
-		return create_tcp_param(Rex::Socket::Parameters.from_hash(opts))
-	end
-
-	def self.create_tcp_param(param)
-		param.proto = 'tcp'
-
-		return create_param(param)
+		return create_param(Rex::Socket::Parameters.from_hash(opts.merge('Proto' => 'tcp')))
 	end
 
 	##

@@ -51,7 +51,7 @@ class Rex::Socket::Tcp < Rex::Socket
 	end
 
 	def poll_read(timeout = nil)
-		return select([ sock ], nil, nil, timeout)
+		return select([ poll_fd ], nil, nil, timeout)
 	end
 
 	def poll_fd
