@@ -84,7 +84,7 @@ module Stream
 	# Writes data to the stream
 	#
 	def <<(buf)
-		return write(buf)
+		return write(buf.to_s)
 	end
 
 	#
@@ -135,6 +135,11 @@ module Stream
 	# Read as much data as possible from the pipe
 	#
 	def get(timeout = def_read_timeout, ltimeout = def_read_loop_timeout, opts = {})
+		# For those people who are used to being able to use a negative timeout!
+		if (timeout < 0)
+			timeout = nil
+		end
+
 		# No data in the first place? bust.
 		if (!has_read_data?(timeout))
 			return nil
