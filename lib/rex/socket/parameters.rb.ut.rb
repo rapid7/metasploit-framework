@@ -16,7 +16,8 @@ class Rex::Socket::Parameters::UnitTest < Test::Unit::TestCase
 				'Bare'      => true,
 				'Server'    => true,
 				'Comm'      => 'nothing',
-				'Proto'     => 'tcp'
+				'Proto'     => 'tcp',
+				'SSL'       => true
 		    }
 
 		p = Rex::Socket::Parameters.from_hash(h)
@@ -33,6 +34,7 @@ class Rex::Socket::Parameters::UnitTest < Test::Unit::TestCase
 		assert_equal('nothing', p.comm, "comm")
 		assert_equal(true, p.tcp?, "proto tcp")
 		assert_equal(false, p.udp?, "proto udp")
+		assert_equal(true, p.ssl, "ssl")
 
 		p = Rex::Socket::Parameters.from_hash({})
 
@@ -43,6 +45,7 @@ class Rex::Socket::Parameters::UnitTest < Test::Unit::TestCase
 		assert_equal(false, p.bare, "default false bare")
 		assert_equal('tcp', p.proto, "default tcp proto")
 		assert_equal(false, p.server, "default false server")
+		assert_equal(false, p.ssl, "default false ssl")
 	end
 
 end
