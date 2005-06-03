@@ -147,7 +147,7 @@ module Stream
 		while (has_read_data?(ltimeout))
 			temp = read(def_block_size)
 
-			break if (temp.empty?)
+			break if (temp == nil or temp.empty?)
 
 			buf += temp
 			lps += 1

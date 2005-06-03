@@ -55,7 +55,13 @@ class Rex::Socket::Comm::Local
 
 			case param.proto
 				when 'tcp'
-					return Rex::Socket::Tcp.new(sock, param)
+					klass = Rex::Socket::Tcp
+
+					if (param.ssl)
+						klass = Rex::Socket::SslTcp
+					end
+
+					return klass.new(sock, param)
 			end
 		end
 	end

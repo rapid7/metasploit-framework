@@ -58,9 +58,15 @@ class Rex::Socket::Parameters
 		end
 
 		if (hash['Bare'])
-			self.bare = true
+			self.bare = hash['Bare']
 		else
 			self.bare = false
+		end
+
+		if (hash['SSL'])
+			self.ssl = hash['SSL']
+		else
+			self.ssl = false
 		end
 
 		# The protocol this socket will be using
@@ -106,6 +112,10 @@ class Rex::Socket::Parameters
 		return (bare == true)
 	end
 
+	def ssl?
+		return ssl
+	end
+
 	##
 	#
 	# Attributes
@@ -115,7 +125,7 @@ class Rex::Socket::Parameters
 	attr_accessor :peerhost, :peerport
 	attr_accessor :localhost, :localport
 	attr_accessor :proto, :server, :comm
-	attr_accessor :retries, :bare
+	attr_accessor :retries, :bare, :ssl
 
 	##
 	#

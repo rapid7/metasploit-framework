@@ -34,14 +34,6 @@ class Rex::Socket::Tcp < Rex::Socket
 	#
 	##
 
-	def blocking=(tf)
-		return tf # FIXME
-	end
-
-	def blocking
-		return true # FIXME
-	end
-
 	def write(buf, opts = {})
 		return sock.syswrite(buf)
 	end
