@@ -3,6 +3,7 @@
 require 'test/unit'
 require 'Rex'
 require 'Rex/Socket.rb.ut'
+require 'Rex/Socket/Tcp.rb.ut'
 require 'Rex/Socket/Parameters.rb.ut'
 require 'Rex/Socket/Comm/Local.rb.ut'
 
@@ -12,6 +13,7 @@ class Rex::TestSuite
 
 		suite << Rex::Socket::UnitTest.suite
 		suite << Rex::Socket::Parameters::UnitTest.suite
+		suite << Rex::Socket::Tcp::UnitTest.suite
 		suite << Rex::Socket::Comm::Local::UnitTest.suite
 
 		return suite;

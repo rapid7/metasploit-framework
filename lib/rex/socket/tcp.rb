@@ -42,8 +42,8 @@ class Rex::Socket::Tcp < Rex::Socket
 		end
 	end
 
-	def shutdown(how = SW_BOTH)
-		return sock.shutdown(how)
+	def shutdown(how = SHUT_RDWR)
+		return (sock.shutdown(how) == 0)
 	end
 
 	def close

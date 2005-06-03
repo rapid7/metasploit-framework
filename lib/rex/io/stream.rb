@@ -88,8 +88,6 @@ module Stream
 			timeout(wait) {
 				return write(buf, opts)
 			}
-
-			raise TimeoutError, "Write operation timed out.", caller
 		else
 			return write(buf, opts)
 		end
@@ -103,8 +101,6 @@ module Stream
 			timeout(wait) {
 				return read(length, opts)
 			}
-			
-			raise TimeoutError, "Read operation timed out.", caller
 		else
 			return read(length, opts)
 		end
@@ -142,7 +138,7 @@ module Stream
 
 		# Keep looping until there is no more data to be gotten..
 		while (poll_read(ltimeout))
-			temp = recv(def_block_size)
+			temp = read(def_block_size)
 
 			break if (temp.empty?)
 
