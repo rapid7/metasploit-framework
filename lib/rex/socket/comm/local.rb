@@ -43,7 +43,7 @@ class Rex::Socket::Comm::Local
 
 			return sock if (param.bare?)
 
-			return Rex::Socket::TcpServer.new(sock)	
+			return Rex::Socket::TcpServer.new(sock, param)
 		# Otherwise, if we're creating a client...
 		else
 			# If we were supplied with host information
@@ -55,7 +55,7 @@ class Rex::Socket::Comm::Local
 
 			case param.proto
 				when 'tcp'
-					return Rex::Socket::Tcp.new(sock)
+					return Rex::Socket::Tcp.new(sock, param)
 			end
 		end
 	end

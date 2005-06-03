@@ -64,8 +64,15 @@ class Socket
 	#
 	##
 	
-	def initialize(sock)
+	def initialize(sock, params = nil)
 		self.sock = sock
+
+		if (params)
+			self.peerhost  = params.peerhost
+			self.peerport  = params.peerport
+			self.localhost = params.localhost
+			self.localport = params.localport
+		end
 	end
 
 	#
@@ -84,10 +91,12 @@ class Socket
 	end
 
 	attr_reader :sock
+	attr_reader :peerhost, :peerport, :localhost, :localport
 
 protected
 
 	attr_writer :sock
+	attr_writer :peerhost, :peerport, :localhost, :localport
 
 end
 

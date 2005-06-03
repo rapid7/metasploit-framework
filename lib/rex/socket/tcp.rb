@@ -25,7 +25,7 @@ class Rex::Socket::Tcp < Rex::Socket
 	def self.create_param(param)
 		param.proto = 'tcp'
 
-		super(Param)
+		super(param)
 	end
 
 	##

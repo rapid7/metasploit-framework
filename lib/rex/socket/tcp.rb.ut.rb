@@ -20,6 +20,8 @@ class Rex::Socket::Tcp::UnitTest < Test::Unit::TestCase
 					'PeerPort' => serv_port)
 			}
 			assert_kind_of(Rex::Socket::Tcp, t, "valid tcp socket")
+			assert_equal('127.0.0.1', t.peerhost, "matching peerhost")
+			assert_equal(serv_port, t.peerport, "matching peerport")
 
 			# Accept the client connection
 			serv_con = serv.accept
