@@ -1,6 +1,14 @@
 require 'Rex/Socket'
 require 'Rex/IO/Stream'
 
+###
+#
+# Tcp
+# ---
+#
+# This class provides methods for interacting with a TCP client connection.
+#
+###
 class Rex::Socket::Tcp < Rex::Socket
 	include Rex::IO::Stream
 

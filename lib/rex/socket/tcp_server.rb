@@ -2,6 +2,16 @@ require 'Rex/Socket'
 require 'Rex/Socket/Tcp'
 require 'Rex/IO/StreamServer'
 
+###
+#
+# TcpServer
+# ---------
+#
+# This class provides methods for interacting with a TCP server.  It
+# implements the StreamServer IO interface.
+#
+#
+###
 class Rex::Socket::TcpServer < Rex::Socket
 	include Rex::IO::StreamServer
 
@@ -33,14 +43,6 @@ class Rex::Socket::TcpServer < Rex::Socket
 	# StreamServer mixin implementation
 	#
 	##
-
-	#
-	# Since the Comm will take care of initiating the listener, we just return
-	# true here to indicate that we're cool.
-	#
-	def listen(params, opts = {})
-		return true	
-	end
 
 	#
 	# Accepts a child connection

@@ -26,10 +26,10 @@ class Rex::Socket::Comm::Local
 	end
 
 	#
-	# Creates a TCP socket 
+	# Creates a socket 
 	#
 	def self.create_by_type(param, type, proto = 0)
-		# Create the raw TCP socket
+		# Create the socket
 		sock = ::Socket.new(::Socket::AF_INET, type, proto)
 
 		# Bind to a given local address and/or port if they are supplied
@@ -53,7 +53,10 @@ class Rex::Socket::Comm::Local
 
 			return sock if (param.bare?)
 
-			return Rex::Socket::Tcp.new(sock)
+			case param.proto
+				when 'tcp'
+					return Rex::Socket::Tcp.new(sock)
+			end
 		end
 	end
 

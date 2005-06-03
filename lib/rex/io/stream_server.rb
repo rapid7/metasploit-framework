@@ -19,14 +19,6 @@ module StreamServer
 	##
 
 	#
-	# Initiating listening on the stream server with the supplied parameters
-	# which are specific to the stream server class instance.
-	#
-	def listen(params, opts = {})
-		super
-	end
-
-	#
 	# Accepts an incoming stream connection and returns an instance of a
 	# Stream-drived class.
 	#
