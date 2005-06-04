@@ -38,6 +38,7 @@ class RuntimeError < ::RuntimeError
 	def to_s
 		"A runtime error occurred."
 	end
+end
 
 class ArgumentError < ::ArgumentError
 	include Exception
