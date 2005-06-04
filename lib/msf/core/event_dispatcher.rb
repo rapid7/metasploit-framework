@@ -21,7 +21,7 @@ class EventDispatcher
 		self.exploit_event_subscribers = []
 		self.session_event_subscribers = []
 		self.recon_event_subscribers   = []
-		self.subscribers_rwlock        = ReadWriteLock.new
+		self.subscribers_rwlock        = Rex::ReadWriteLock.new
 	end
 
 	#

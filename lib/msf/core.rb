@@ -9,8 +9,8 @@
 #
 ###
 
-# framework-core depends on framework-shared
-require 'Msf/Shared'
+# framework-core depends on Rex
+require 'Rex'
 
 # General
 require 'Msf/Core/Constants'
