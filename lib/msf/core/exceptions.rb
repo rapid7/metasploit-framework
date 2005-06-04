@@ -14,6 +14,10 @@ module Msf
 ###
 module Exception
 	include Rex::Exception
+
+	def to_s
+		"A framework exception occurred."
+	end
 end
 
 ###
@@ -29,12 +33,12 @@ end
 class OptionValidateError < ArgumentError
 	include Exception
 
-	def initialize(options)
+	def initialize(options = [])
 		@options = options
 	end
 
 	def to_s
-		return "The following options failed to validate: #{options.join(', ')}."
+		"The following options failed to validate: #{options.join(', ')}."
 	end
 
 	attr_reader :options
@@ -50,12 +54,6 @@ end
 #####
 #####
 
-###
-#
-# EncodingError
-# -------------
-#
-###
 class EncodingError < RuntimeError
 	include Exception
 end
@@ -80,7 +78,7 @@ end
 #
 ###
 class BadcharError < EncodingError
-	def initialize(buf, index, stub_size, char)
+	def initialize(buf = nil, index = nil, stub_size = nil, char = nil)
 		@buf       = buf
 		@index     = index
 		@stub_size = stub_size
@@ -100,16 +98,12 @@ end
 #####
 #####
 
-###
-#
-# ExploitError
-# ------------
-#
-# A general exploitation error occurred.
-#
-###
-class ExploitError < RuntimeError
+module ExploitError
 	include Exception
+
+	def to_s
+		"An exploitation error occurred."
+	end
 end
 
 end
