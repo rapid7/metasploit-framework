@@ -3,6 +3,7 @@
 require 'test/unit'
 require 'Rex'
 
+require 'Rex/Exceptions.rb.ut'
 require 'Rex/Transformer.rb.ut'
 
 require 'Rex/Encoding/Xor/Generic.rb.ut'
@@ -24,6 +25,7 @@ class Rex::TestSuite
 		suite = Test::Unit::TestSuite.new("Rex")
 
 		# General
+		suite << Rex::Exceptions::UnitTest.suite
 		suite << Rex::Transformer::UnitTest.suite
 
 		# Encoding

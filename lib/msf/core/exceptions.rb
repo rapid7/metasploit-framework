@@ -18,6 +18,40 @@ end
 
 ###
 #
+# OptionValidateError
+# -------------------
+#
+# This exception is thrown when one or more options failed
+# to pass data store validation.  The list of option names
+# can be obtained through the options attribute.
+#
+###
+class OptionValidateError < ArgumentError
+	include Exception
+
+	def initialize(options)
+		@options = options
+	end
+
+	def to_s
+		return "The following options failed to validate: #{options.join(', ')}."
+	end
+
+	attr_reader :options
+end
+
+#####
+#####
+##
+#
+# Encoding exceptions
+#
+##
+#####
+#####
+
+###
+#
 # EncodingError
 # -------------
 #
@@ -56,24 +90,26 @@ class BadcharError < EncodingError
 	attr_reader :buf, :index, :stub_size, :char
 end
 
+#####
+#####
+##
+#
+# Exploit exceptions
+#
+##
+#####
+#####
+
 ###
 #
-# OptionValidateError
-# ------------------
+# ExploitError
+# ------------
 #
-# This exception is thrown when one or more options failed
-# to pass data store validation.  The list of option names
-# can be obtained through the options attribute.
+# A general exploitation error occurred.
 #
 ###
-class OptionValidateError < ArgumentError
+class ExploitError < RuntimeError
 	include Exception
-
-	def initialize(options)
-		@options = options
-	end
-
-	attr_reader :options
 end
 
 end
