@@ -134,7 +134,7 @@ module Stream
 	#
 	# Read as much data as possible from the pipe
 	#
-	def get(timeout = def_read_timeout, ltimeout = def_read_loop_timeout, opts = {})
+	def get(timeout = nil, ltimeout = def_read_loop_timeout, opts = {})
 		# For those people who are used to being able to use a negative timeout!
 		if (timeout and timeout.to_i < 0)
 			timeout = nil

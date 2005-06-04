@@ -7,7 +7,7 @@ require 'Msf/Core/SessionManager.rb.ut'
 
 class Msf::TestSuite
 	def self.suite
-		suite = Test::Unit::TestSuite.new
+		suite = Test::Unit::TestSuite.new("Msf Core")
 
 		suite << Msf::OptionContainer::UnitTest.suite
 		suite << Msf::SessionManager::UnitTest.suite

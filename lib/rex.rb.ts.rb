@@ -12,7 +12,7 @@ require 'Rex/Socket/Comm/Local.rb.ut'
 
 class Rex::TestSuite
 	def self.suite
-		suite = Test::Unit::TestSuite.new
+		suite = Test::Unit::TestSuite.new("Rex")
 
 		suite << Rex::Socket::UnitTest.suite
 		suite << Rex::Socket::Parameters::UnitTest.suite
