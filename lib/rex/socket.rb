@@ -24,7 +24,7 @@ class Socket
 	#
 	##
 
-	def self.create(opts)
+	def self.create(opts = {})
 		return create_param(Rex::Socket::Parameters.from_hash(opts))
 	end
 
@@ -32,12 +32,16 @@ class Socket
 		return param.comm.create(param)
 	end
 
-	def self.create_tcp(opts)
+	def self.create_tcp(opts = {})
 		return create_param(Rex::Socket::Parameters.from_hash(opts.merge('Proto' => 'tcp')))
 	end
 	
 	def self.create_tcp_server(opts)
 		return create_tcp(opts.merge('Server' => true))
+	end
+
+	def self.create_udp(opts = {})
+		return create_param(Rex::Socket::Parameters.from_hash(opts.merge('Proto' => 'udp')))
 	end
 
 	##
@@ -56,6 +60,19 @@ class Socket
 		data = [ af, port.to_i ] + ip.split('.').collect { |o| o.to_i } + [ "" ]
 
 		return data.pack('snCCCCa8')
+	end
+
+	#
+	# Returns the address family, host, and port of the supplied sockaddr as
+	# [ af, host, port ]
+	#
+	def self.from_sockaddr(saddr)
+		up = saddr.unpack('snCCCC')
+
+		af   = up.shift
+		port = up.shift
+
+		return [ af, up.join('.'), port ]
 	end
 
 	##

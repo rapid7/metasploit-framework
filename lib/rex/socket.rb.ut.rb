@@ -37,4 +37,21 @@ class Rex::Socket::UnitTest < Test::Unit::TestCase
 		assert_equal("\x02\x00\x00\x16\x01\x02\x03\x04" + "\x00" * 8, Rex::Socket.to_sockaddr("1.2.3.4", 22), "1.2.3.4 addr, port 22 sockaddr")
 	end
 
+	def test_from_sockaddr
+		af, host, port = Rex::Socket.from_sockaddr("\x00" * 16)
+		assert_equal(0, af, "zero af")
+		assert_equal('0.0.0.0', host, "zero host")
+		assert_equal(0, port, "zero port")
+
+		af, host, port = Rex::Socket.from_sockaddr("\x02\x00\x00\x16" + "\x00" * 12)
+		assert_equal(2, af, "af = 2")
+		assert_equal('0.0.0.0', host, "zero host")
+		assert_equal(22, port, "port = 22")
+
+		af, host, port = Rex::Socket.from_sockaddr("\x02\x00\x00\x16\x01\x02\x03\x04" + "\x00" * 8)
+		assert_equal(2, af, "af = 2")
+		assert_equal('1.2.3.4', host, "zero host")
+		assert_equal(22, port, "port = 22")
+	end
+
 end

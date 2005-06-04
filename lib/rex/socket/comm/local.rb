@@ -1,5 +1,7 @@
 require 'Rex/Socket'
 require 'Rex/Socket/Tcp'
+require 'Rex/Socket/SslTcp'
+require 'Rex/Socket/Udp'
 
 ###
 #
@@ -62,6 +64,8 @@ class Rex::Socket::Comm::Local
 					end
 
 					return klass.new(sock, param)
+				when 'udp'
+					return Rex::Socket::Udp.new(sock, param)
 			end
 		end
 	end
