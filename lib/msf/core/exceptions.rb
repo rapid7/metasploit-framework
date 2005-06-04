@@ -1,28 +1,51 @@
+require 'Msf/Core'
+
 module Msf
 
-class EncodingException < RuntimeError
+###
+#
+# Error
+# -----
+#
+# Mixin that should be included in all exceptions that can be thrown from the
+# framework so that they can be universally caught.  Framework exceptions
+# automatically extended Rex exceptions
+#
+###
+module Exception
+	include Rex::Exception
 end
 
 ###
 #
-# NoKeyException
-# --------------
+# EncodingError
+# -------------
+#
+###
+class EncodingError < RuntimeError
+	include Exception
+end
+
+###
+#
+# NoKeyError
+# ----------
 #
 # Thrown when an encoder fails to find a viable encoding key.
 #
 ###
-class NoKeyException < EncodingException
+class NoKeyError < EncodingError
 end
 
 ###
 #
-# BadcharException
-# ----------------
+# BadcharError
+# ------------
 #
 # Thrown when an encoder fails to encode a buffer due to a bad character.
 #
 ###
-class BadcharException < EncodingException
+class BadcharError < EncodingError
 	def initialize(buf, index, stub_size, char)
 		@buf       = buf
 		@index     = index
@@ -35,7 +58,7 @@ end
 
 ###
 #
-# MissingOptionError
+# OptionValidateError
 # ------------------
 #
 # This exception is thrown when one or more options failed
@@ -44,6 +67,8 @@ end
 #
 ###
 class OptionValidateError < ArgumentError
+	include Exception
+
 	def initialize(options)
 		@options = options
 	end

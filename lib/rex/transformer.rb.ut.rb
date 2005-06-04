@@ -18,7 +18,7 @@ class Rex::Transformer::UnitTest < Test::Unit::TestCase
 		assert_equal('yo', a[0], "valid first element")
 		assert_equal('ho', a[1], "valid second element")
 
-		assert_raises(ArgumentError, "invalid transform") {
+		assert_raise(Rex::ArgumentError, "invalid transform") {
 			Rex::Transformer.transform('dog', Array, [ Pizza ], 'bob')
 		}
 	end

@@ -3,6 +3,7 @@ end
 
 # Generic classes
 require 'Rex/Constants'
+require 'Rex/Exceptions'
 require 'Rex/ReadWriteLock'
 require 'Rex/Transformer'
 
