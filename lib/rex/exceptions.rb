@@ -12,7 +12,7 @@ module Rex
 ###
 module Exception
 	def to_s
-		return "An unknown exception occurred."
+		"An unknown exception occurred."
 	end
 end
 
@@ -20,7 +20,7 @@ class TimeoutError < Interrupt
 	include Exception
 
 	def to_s
-		return "Operation timed out."
+		"Operation timed out."
 	end
 end
 
@@ -28,15 +28,22 @@ class NotImplementedError < ::NotImplementedError
 	include Exception
 
 	def to_s
-		return "The requested method is not implemented."
+		"The requested method is not implemented."
 	end
 end
+
+class RuntimeError < ::RuntimeError
+	include Exception
+
+	def to_s
+		"A runtime error occurred."
+	end
 
 class ArgumentError < ::ArgumentError
 	include Exception
 
 	def to_s
-		return "An invalid argument was specified."
+		"An invalid argument was specified."
 	end
 end
 
