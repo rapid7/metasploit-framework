@@ -7,4 +7,4 @@ require 'Msf/Base.rb.ts'
 
 Test::Unit::UI::Console::TestRunner.run(Rex::TestSuite)
 Test::Unit::UI::Console::TestRunner.run(Msf::TestSuite)
-#Test::Unit::UI::Console::TestRunner.run(Msf::Base::TestSuite)
+Test::Unit::UI::Console::TestRunner.run(Msf::Base::TestSuite)

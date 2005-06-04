@@ -12,7 +12,7 @@ module Base
 
 class TestSuite
 	def self.suite
-		suite = Test::Unit::TestSuite.new
+		suite = Test::Unit::TestSuite.new("Msf Base")
 
 		suite << Msf::Session::CommandShell::UnitTest.suite
 		suite << Msf::Session::Meterpreter::UnitTest.suite
