@@ -79,15 +79,42 @@ module SocketError
 end
 
 ###
+# 
+# HostCommunicationError
+# ----------------------
+#
+# Implements helper methods for errors that occurred when communicating to a
+# host.
+#
+###
+module HostCommunicationError
+	def initialize(addr = nil, port = nil)
+		self.host = addr
+		self.port = port
+	end
+
+	def addr_to_s
+		if (host && port)
+			return " (#{host}:#{port})"
+		end
+
+		return ""
+	end
+
+	attr_accessor :host, :port
+end
+
+###
 #
 # ConnectionRefused
 #
 ###
 class ConnectionRefused < ::IOError
 	include SocketError
+	include HostCommunicationError
 
 	def to_s
-		return "The connection was refused by the remote host."
+		return "The connection was refused by the remote host#{addr_to_s}."
 	end
 end
 
@@ -98,9 +125,19 @@ end
 ###
 class ConnectionTimeout < ::Interrupt
 	include SocketError
+	include HostCommunicationError
 
 	def to_s
-		return "The connection timed out."
+		return "The connection timed out#{addr_to_s}."
+	end
+end
+
+class AddressInUse < ::RuntimeError
+	include SocketError
+	include HostCommunicationError
+
+	def to_s
+		return "The address is already in use#{addr_to_s}."
 	end
 end
 

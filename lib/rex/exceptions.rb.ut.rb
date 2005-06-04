@@ -26,6 +26,15 @@ class UnitTest < Test::Unit::TestCase
 				assert_not_nil(detail.to_s, "invalid to_s")
 			end
 		}
+
+		# Test communication error detail strings
+		begin
+			raise ConnectionRefused.new('127.0.0.1', 4444)
+		rescue HostCommunicationError => detail
+			assert_match(/^The connection(.*)\(127.0.0.1:4444\)/, detail.to_s)
+			assert_equal('127.0.0.1', detail.host)
+			assert_equal(4444, detail.port)
+		end
 	end
 
 end
