@@ -155,6 +155,8 @@ class ModuleManager < ModuleSet
 
 	# Adds a path to be searched for new modules
 	def add_module_path(path)
+		path.sub!(/#{File::SEPARATOR}$/, '')
+
 		module_paths << path
 
 		load_modules(path)

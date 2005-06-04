@@ -21,13 +21,13 @@ class Module
 		set_defaults
 
 		# Transform some of the fields to arrays as necessary
-		self.author = Transformer.transform(module_info['Author'], Array, 
+		self.author = Rex::Transformer.transform(module_info['Author'], Array, 
 				[ Author ], 'Author')
-		self.arch = Transformer.transform(module_info['Arch'], Array, 
+		self.arch = Rex::Transformer.transform(module_info['Arch'], Array, 
 				[ String ], 'Arch')
-		self.platform = Transformer.transform(module_info['Platform'], Array, 
+		self.platform = Rex::Transformer.transform(module_info['Platform'], Array, 
 				[ String ], 'Platform')
-		self.refs = Transformer.transform(module_info['Ref'], Array,
+		self.refs = Rex::Transformer.transform(module_info['Ref'], Array,
 				[ SiteReference, Reference ], 'Ref')
 
 		# Create and initialize the option container for this module
