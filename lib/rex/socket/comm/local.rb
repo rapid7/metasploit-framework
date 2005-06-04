@@ -23,7 +23,7 @@ class Rex::Socket::Comm::Local
 			when 'udp'
 				return create_by_type(param, ::Socket::SOCK_DGRAM, ::Socket::IPPROTO_UDP)
 			else
-				raise RuntimeError, "Unsupported protocol: #{param.proto}", caller # FIXME EXCEPTION
+				raise Rex::UnsupportedProtocol.new(param.proto), caller
 		end
 	end
 
@@ -36,7 +36,15 @@ class Rex::Socket::Comm::Local
 
 		# Bind to a given local address and/or port if they are supplied
 		if (param.localhost || param.localport)
-			sock.bind(Rex::Socket.to_sockaddr(param.localhost, param.localport))
+			begin	
+				if (param.server?)
+					sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
+				end
+
+				sock.bind(Rex::Socket.to_sockaddr(param.localhost, param.localport))
+			rescue Errno::EADDRINUSE
+				raise Rex::AddressInUse.new(param.localhost, param.localport), caller
+			end
 		end
 
 		# If a server TCP instance is being created...
@@ -50,7 +58,11 @@ class Rex::Socket::Comm::Local
 		else
 			# If we were supplied with host information
 			if (param.peerhost)
-				sock.connect(Rex::Socket.to_sockaddr(param.peerhost, param.peerport))
+				begin
+					sock.connect(Rex::Socket.to_sockaddr(param.peerhost, param.peerport))
+				rescue Errno::ECONNREFUSED
+					raise Rex::ConnectionRefused.new(param.peerhost, param.peerport), caller
+				end
 			end
 
 			return sock if (param.bare?)

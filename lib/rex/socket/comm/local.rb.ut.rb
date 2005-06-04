@@ -3,6 +3,7 @@
 $:.unshift(File.join('..', '..', '..', File.dirname(__FILE__)))
 
 require 'test/unit'
+require 'Rex/Exceptions'
 require 'Rex/Socket/Parameters'
 require 'Rex/Socket/Comm/Local'
 
@@ -41,6 +42,15 @@ class Rex::Socket::Comm::Local::UnitTest < Test::Unit::TestCase
 
 		assert_kind_of(Socket, stream, "valid Socket instance")
 
+		assert_raise(Rex::ConnectionRefused, "connection refused failed") {
+			Rex::Socket::Comm::Local.create(
+				Rex::Socket::Parameters.from_hash(
+					'PeerHost' => '127.0.0.1',
+					'PeerPort' => 0,
+					'Proto'    => 'tcp',
+					'Bare'     => true))
+		}
+
 		stream.close
 
 		test_server.close
@@ -55,7 +65,7 @@ class Rex::Socket::Comm::Local::UnitTest < Test::Unit::TestCase
 	end
 
 	def test_create_invalid
-		assert_raise(RuntimeError, "invalid protocol check failed") {
+		assert_raise(Rex::UnsupportedProtocol, "invalid protocol check failed") {
 			Rex::Socket::Comm::Local.create(
 				Rex::Socket::Parameters.from_hash(
 					'Proto' => 'invalid'))

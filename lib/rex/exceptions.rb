@@ -16,11 +16,6 @@ module Exception
 	end
 end
 
-###
-#
-# TimeoutError
-#
-###
 class TimeoutError < Interrupt
 	include Exception
 
@@ -29,11 +24,6 @@ class TimeoutError < Interrupt
 	end
 end
 
-###
-#
-# NotImplementedError
-#
-###
 class NotImplementedError < ::NotImplementedError
 	include Exception
 
@@ -42,11 +32,6 @@ class NotImplementedError < ::NotImplementedError
 	end
 end
 
-###
-#
-# ArgumentError
-#
-###
 class ArgumentError < ::ArgumentError
 	include Exception
 
@@ -65,16 +50,11 @@ end
 #####
 #####
 
-###
-#
-# SocketError
-#
-###
 module SocketError
 	include Exception
 
 	def to_s
-		return "A socket error occurred."
+		"A socket error occurred."
 	end
 end
 
@@ -94,41 +74,27 @@ module HostCommunicationError
 	end
 
 	def addr_to_s
-		if (host && port)
-			return " (#{host}:#{port})"
-		end
-
-		return ""
+		(host && port) ? " (#{host}:#{port})" : ""
 	end
 
 	attr_accessor :host, :port
 end
 
-###
-#
-# ConnectionRefused
-#
-###
 class ConnectionRefused < ::IOError
 	include SocketError
 	include HostCommunicationError
 
 	def to_s
-		return "The connection was refused by the remote host#{addr_to_s}."
+		"The connection was refused by the remote host#{addr_to_s}."
 	end
 end
 
-###
-#
-# ConnectionTimeout 
-#
-###
 class ConnectionTimeout < ::Interrupt
 	include SocketError
 	include HostCommunicationError
 
 	def to_s
-		return "The connection timed out#{addr_to_s}."
+		"The connection timed out#{addr_to_s}."
 	end
 end
 
@@ -137,8 +103,22 @@ class AddressInUse < ::RuntimeError
 	include HostCommunicationError
 
 	def to_s
-		return "The address is already in use#{addr_to_s}."
+		"The address is already in use#{addr_to_s}."
 	end
+end
+
+class UnsupportedProtocol < ::ArgumentError
+	include SocketError
+
+	def initialize(proto = nil)
+		self.proto = proto
+	end
+
+	def to_s
+		"The protocol #{proto} is not supported."	
+	end
+
+	attr_accessor :proto
 end
 
 end # Rex
