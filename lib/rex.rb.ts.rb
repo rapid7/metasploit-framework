@@ -2,6 +2,11 @@
 
 require 'test/unit'
 require 'Rex'
+require 'Rex/Encoding/Xor/Generic.rb.ut'
+require 'Rex/Encoding/Xor/Byte.rb.ut'
+require 'Rex/Encoding/Xor/Word.rb.ut'
+require 'Rex/Encoding/Xor/DWord.rb.ut'
+require 'Rex/Encoding/Xor/DWordAdditive.rb.ut'
 require 'Rex/Socket.rb.ut'
 require 'Rex/Socket/Tcp.rb.ut'
 require 'Rex/Socket/SslTcp.rb.ut'
@@ -14,6 +19,14 @@ class Rex::TestSuite
 	def self.suite
 		suite = Test::Unit::TestSuite.new("Rex")
 
+		# Encoding
+		suite << Rex::Encoding::Xor::Generic::UnitTest.suite
+		suite << Rex::Encoding::Xor::Byte::UnitTest.suite
+		suite << Rex::Encoding::Xor::Word::UnitTest.suite
+		suite << Rex::Encoding::Xor::DWord::UnitTest.suite
+		suite << Rex::Encoding::Xor::DWordAdditive::UnitTest.suite
+
+		# Sockets
 		suite << Rex::Socket::UnitTest.suite
 		suite << Rex::Socket::Parameters::UnitTest.suite
 		suite << Rex::Socket::Tcp::UnitTest.suite
