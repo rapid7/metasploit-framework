@@ -15,8 +15,8 @@ module Msf
 ###
 class Module
 
-	def initialize(info)
-		self.module_info = info || {}
+	def initialize(info = {})
+		self.module_info = info
 
 		set_defaults
 
@@ -107,6 +107,15 @@ protected
 			'Platform'    => nil,
 			'Ref'         => nil
 		}.update(self.module_info)
+	end
+
+	#
+	# Checks to see if a derived instance of a given module implements a method
+	# beyond the one that is provided by a base class.  This is a pretty lame
+	# way of doing it, but I couldn't find a better one, so meh.
+	#
+	def derived_implementor?(parent, method_name)
+		(self.method(method_name).to_s.match(/#{parent.to_s}[^:]/)) ? false : true
 	end
 
 	attr_accessor :module_info
