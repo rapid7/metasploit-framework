@@ -51,3 +51,12 @@ Dependencies
    |      msfweb     |          |     exploits    |
    |      msfgtk     |          |     payloads    |
    +-----------------+          +-----------------+
+
+User Interface Commands
+-----------------------
+
+Exploits
+--------
+ 
+  auto_target: Will automatically set the TARGET based on information 
+               returned from check.
