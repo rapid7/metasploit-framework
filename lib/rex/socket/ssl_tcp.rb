@@ -69,6 +69,7 @@ class Rex::Socket::SslTcp < Rex::Socket::Tcp
 
 	def close
 		sslsock.close
+		sock.close
 	end
 
 	def has_read_data?(timeout = nil)
