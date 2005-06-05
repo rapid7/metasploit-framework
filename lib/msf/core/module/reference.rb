@@ -57,6 +57,12 @@ class Msf::Module::SiteReference < Msf::Module::Reference
 		return instance
 	end
 
+	def self.from_a(ary)
+		return nil if (ary.length < 2)
+
+		self.new(ary[0], ary[1])
+	end
+
 	#
 	# Initialize the site reference
 	#
@@ -72,7 +78,8 @@ class Msf::Module::SiteReference < Msf::Module::Reference
 		elsif (in_site == 'MSB')
 			self.site = 'http://www.microsoft.com/technet/security/bulletin/' + in_ctx_id.to_s + '.mspx'
 		else
-			self.site = in_site
+			self.site  = in_site
+			self.site += " (#{in_ctx_id.to_s})" if (in_ctx_id)
 		end
 	end
 

@@ -35,5 +35,7 @@ class Msf::Module::Target
 		self.opts      = opts
 	end
 
+	attr_accessor :name, :platforms, :opts
+
 end
 

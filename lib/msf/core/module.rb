@@ -29,7 +29,7 @@ class Module
 		self.author = Author.transform(module_info['Author'])
 		self.arch = Rex::Transformer.transform(module_info['Arch'], Array, 
 				[ String ], 'Arch')
-		self.platform = PlatformList.from_a(module_info['Platform'])
+		self.platform = PlatformList.transform(module_info['Platform'])
 		self.refs = Rex::Transformer.transform(module_info['Ref'], Array,
 				[ SiteReference, Reference ], 'Ref')
 

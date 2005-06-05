@@ -12,6 +12,14 @@ require 'Msf/Core/Module/Platform'
 class Msf::Module::PlatformList
 	attr_accessor :platforms
 
+	def self.transform(src)
+		if (src.kind_of?(Array))
+			from_a(src)
+		else
+			from_a([src])
+		end
+	end
+
 	def self.from_a(ary)
 		instance = self.new
 

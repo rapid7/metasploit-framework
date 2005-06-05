@@ -39,7 +39,7 @@ class Rex::TestSuite
 		suite << Rex::Socket::UnitTest.suite
 		suite << Rex::Socket::Parameters::UnitTest.suite
 		suite << Rex::Socket::Tcp::UnitTest.suite
-#		suite << Rex::Socket::SslTcp::UnitTest.suite
+		suite << Rex::Socket::SslTcp::UnitTest.suite
 		suite << Rex::Socket::TcpServer::UnitTest.suite
 		suite << Rex::Socket::Udp::UnitTest.suite
 		suite << Rex::Socket::Comm::Local::UnitTest.suite
