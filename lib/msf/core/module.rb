@@ -41,61 +41,91 @@ class Module
 		# Create and initialize the data store for this module
 		self.datastore = DataStore.new
 		self.datastore.import_options(self.options)
+
+		self.privileged = module_info['Privileged'] || false
 	end
 
+	#
 	# Return the module's name
+	#
 	def name
 		return module_info['Name']
 	end
 
+	#
 	# Return the module's description
+	#
 	def description
 		return module_info['Description']
 	end
 
+	#
 	# Return the module's version information
+	#
 	def version
 		return module_info['Version']
 	end
 
+	#
 	# Return the module's abstract type
+	#
 	def type
 		raise NotImplementedError
 	end
 
+	#
 	# Return a comma separated list of author for this module
+	#
 	def author_to_s
 		return author.collect { |author| author.to_s }.join(", ")
 	end
 
+	#
 	# Enumerate each author
+	#
 	def each_author(&block)
 		author.each(&block)
 	end
 
+	#
 	# Return a comma separated list of supported architectures, if any
+	#
 	def arch_to_s
 		return arch.join(", ")
 	end
 
+	#
 	# Enumerate each architecture
+	#
 	def each_arch(&block)
 		arch.each(&block)
 	end
 
+	#
 	# Return whether or not the module supports the supplied architecture
+	#
 	def arch?(what)
 		return true if (what == ARCH_ANY)
 
 		return arch.index(what) != nil 
 	end
 
+	#
 	# Return a comma separated list of supported platforms, if any
+	#
 	def platform_to_s
 		return platform.join(", ")
 	end
+
+	#
+	# Returns whether or not the module requires or grants high privileges
+	#
+	def privileged?
+		return (privileged == true)
+	end
 	
 	attr_reader   :author, :arch, :platform, :refs, :datastore, :options
+	attr_reader   :privileged
 
 protected
 
@@ -108,7 +138,8 @@ protected
 			'Author'      => nil,
 			'Arch'        => nil,
 			'Platform'    => nil,
-			'Ref'         => nil
+			'Ref'         => nil,
+			'Privileged'  => false,
 		}.update(self.module_info)
 	end
 
@@ -121,8 +152,51 @@ protected
 		(self.method(method_name).to_s.match(/#{parent.to_s}[^:]/)) ? false : true
 	end
 
+	#
+	# Merges options in the info hash in a sane fashion, as some options
+	# require special attention.
+	#
+	def merge_info(info, opts)
+		opts.each_pair { |name, val|
+			if (self.respond_to?("merge_info_#{name.downcase}"))
+				eval("merge_info_#{name.downcase}(info, val)")
+			else
+				# merge it cool style
+			end
+		}
+
+		return info
+	end
+
+	#
+	# Merges options 
+	#
+	def merge_info_options(info, val, advanced = false)
+		key_name = ((advanced) ? 'Advanced' : '') + 'Options'
+
+		new_cont = OptionContainer.new
+		new_cont.add_options(val, advanced)
+		cur_cont = OptionContainer.new
+		cur_cont.add_options(info[key_name] || [], advanced)
+
+		new_cont.each_option { |name, option|
+			next if (cur_cont.get(name))
+
+			info[key_name]  = [] if (!info[key_name])
+			info[key_name] << option
+		}
+	end
+
+	# 
+	# Merges advanced options
+	#
+	def merge_info_advancedoptions(info, val)
+		merge_info_options(info, val, true)
+	end
+
 	attr_accessor :module_info
 	attr_writer   :author, :arch, :platform, :refs, :datastore, :options
+	attr_writer   :privileged
 
 end
 

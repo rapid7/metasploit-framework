@@ -14,8 +14,8 @@ class DataStore < Hash
 	# all of the supplied options
 	def import_options(options)
 		options.each_option { |name, opt|
-			if (opt.default_value)
-				self.store(name, opt.default_value)
+			if (opt.default)
+				self.store(name, opt.default)
 			end
 		}
 	end

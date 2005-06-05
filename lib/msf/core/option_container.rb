@@ -170,7 +170,10 @@ class OptionContainer < Hash
 
 	# Return the option associated with the supplied name
 	def get(name)
-		return fetch(name)
+		begin
+			return fetch(name)
+		rescue
+		end
 	end
 
 	# Adds one or more options
