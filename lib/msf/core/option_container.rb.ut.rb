@@ -94,6 +94,22 @@ class OptionContainer::UnitTest < Test::Unit::TestCase
 		assert_equal(true, options.get('DONKEY').advanced?, 
 				"advanced option failed")
 	end
+
+	def test_builtin
+		options = OptionContainer.new
+
+		options.add_options(
+			[
+				Opt::RHOST,
+				Opt::RPORT(135),
+				Opt::LHOST('127.0.0.1')
+			])
+
+		assert_equal(135, options.get('RPORT').default, "invalid RPORT default")
+		assert_equal(true, options.get('RPORT').required?, "invalid RPORT require")
+		assert_equal('127.0.0.1', options.get('LHOST').default, "invalid LHOST default")
+		assert_equal('LHOST', options.get('LHOST').name, "invalid LHOST name")
+	end
 end
 
 end

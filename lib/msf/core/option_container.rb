@@ -174,40 +174,52 @@ class OptionContainer < Hash
 	end
 
 	# Adds one or more options
-	def add_options(opts)
+	def add_options(opts, advanced = false)
 		return false if (opts == nil)
 
-		opts.each_key { |name|
-			option = opts[name]
+		if (opts.kind_of?(Array))
+			add_options_array(opts, advanced)
+		else
+			add_options_hash(opts, advanced)
+		end
 
-			# Skip flags
-			next if (name.match(/^_Flag/))
+	end
 
-			if (option.kind_of?(Array))
-				option = option.shift.new(name, option)
-			elsif (!option.kind_of?(OptBase))
-				raise ArgumentError, 
-					"The option named #{name} did not come in a compatible format.", 
-					caller
-			end
-
-			option.name = name
-
-			# If the advanced flag was supplied, flag the new option as being
-			# an advanced option
-			if (opts['_FlagAdvanced'] == true)
-				option.advanced = true
-			end
-
-			self.store(name, option)
+	#
+	# Add options from a hash of names
+	#
+	def add_options_hash(opts, advanced)
+		opts.each_pair { |name, opt|
+			add_option(opt, name, advanced)
 		}
+	end
+
+	#
+	# Add options from an array of option instances or arrays
+	#
+	def add_options_array(opts, advanced = false)
+		opts.each { |opt|
+			add_option(opt, nil, advanced)
+		}
+	end
+
+	def add_option(option, name = nil, advanced = false)
+		if (option.kind_of?(Array))
+			option = option.shift.new(name, option)
+		elsif (!option.kind_of?(OptBase))
+			raise ArgumentError, 
+				"The option named #{name} did not come in a compatible format.", 
+				caller
+		end
+
+		option.advanced = advanced
+
+		self.store(option.name, option)
 	end
 
 	# Alias to add advanced options that sets the proper state flag
 	def add_advanced_options(opts = {})
-		opts['_FlagAdvanced'] = true if (opts)
-
-		add_options(opts)
+		add_options(opts, true)
 	end
 
 	# Make sures that each of the options has a value of a compatible 
@@ -233,6 +245,47 @@ class OptionContainer < Hash
 	def each_option(&block)
 		each_pair(&block)
 	end
+
+end
+
+#
+# Builtin framework options with shortcut methods
+#
+module Opt
+
+@@builtin_opts = 
+	{
+		'RHOST' => [ OptAddress, 'nil', true,  '"The target address."' ],
+		'RPORT' => [ OptPort,    'nil', true,  '"The target port."' ],
+		'LHOST' => [ OptAddress, 'nil', true,  '"The local address."' ],
+		'LPORT' => [ OptPort,    'nil', true,  '"The local port."' ],
+		'CPORT' => [ OptPort,    'nil', false, '"The local client port."' ],
+	}
+
+#
+# Build the builtin_xyz methods on the fly using the type information for each
+# of the builtin framework options, such as RHOST.
+#
+class <<self
+	@@builtin_opts.each_pair { |opt, info|
+		eval(
+			"
+			def builtin_#{opt.downcase}(default = #{info[1]}, required = #{info[2]}, desc = #{info[3]})
+				#{info[0]}.new('#{opt}', [ required, desc, default ])
+			end
+
+			alias #{opt} builtin_#{opt.downcase}
+			")
+	}
+end
+
+# 
+# Define the constant versions of the options which are merely redirections to
+# the class methods.
+#
+@@builtin_opts.each_pair { |opt, info|
+	eval("#{opt} = Msf::Opt::builtin_#{opt.downcase}")
+}
 
 end
 
