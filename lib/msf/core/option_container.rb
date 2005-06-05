@@ -17,8 +17,8 @@ class OptBase
 		self.name     = in_name
 		self.advanced = false
 		self.required = attrs[0] || false
-		self.desc     = attrs[1] || nil
-		self.default  = attrs[2] || nil
+		self.desc     = attrs[1]
+		self.default  = attrs[2]
 	end
 
 	def required?
@@ -79,13 +79,13 @@ class OptBool < OptBase
 
 	def valid?(value)
 		if ((value != nil and value.empty? == false) and
-		    (value.match(/^(y|n|t|f|0|1)$/i) == nil))
+		    (value.match(/^(y|n|t|f|0|1|true|false)$/i) == nil))
 			return false
 		end
 	end
 
 	def is_true?
-		return (value.match(/^(y|t|1)$/i) != nil) ? true : false
+		return (value.match(/^(y|t|1|true)$/i) != nil) ? true : false
 	end
 
 	def is_false?
@@ -258,11 +258,12 @@ module Opt
 
 @@builtin_opts = 
 	{
-		'RHOST' => [ OptAddress, 'nil', true,  '"The target address."' ],
-		'RPORT' => [ OptPort,    'nil', true,  '"The target port."' ],
-		'LHOST' => [ OptAddress, 'nil', true,  '"The local address."' ],
-		'LPORT' => [ OptPort,    'nil', true,  '"The local port."' ],
-		'CPORT' => [ OptPort,    'nil', false, '"The local client port."' ],
+		'RHOST' => [ OptAddress, 'nil',   true,  '"The target address."' ],
+		'RPORT' => [ OptPort,    'nil',   true,  '"The target port."' ],
+		'LHOST' => [ OptAddress, 'nil',   true,  '"The local address."' ],
+		'LPORT' => [ OptPort,    'nil',   true,  '"The local port."' ],
+		'CPORT' => [ OptPort,    'nil',   false, '"The local client port."' ],
+		'SSL'   => [ OptBool,    'false', false, '"Use SSL."' ],
 	}
 
 #

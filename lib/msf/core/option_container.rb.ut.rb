@@ -102,13 +102,15 @@ class OptionContainer::UnitTest < Test::Unit::TestCase
 			[
 				Opt::RHOST,
 				Opt::RPORT(135),
-				Opt::LHOST('127.0.0.1')
+				Opt::LHOST('127.0.0.1'),
+				Opt::SSL
 			])
 
 		assert_equal(135, options.get('RPORT').default, "invalid RPORT default")
 		assert_equal(true, options.get('RPORT').required?, "invalid RPORT require")
 		assert_equal('127.0.0.1', options.get('LHOST').default, "invalid LHOST default")
 		assert_equal('LHOST', options.get('LHOST').name, "invalid LHOST name")
+		assert_equal(false, options.get('SSL').default, "invalid SSL default")
 	end
 end
 
