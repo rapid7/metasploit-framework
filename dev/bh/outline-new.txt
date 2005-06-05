@@ -1,0 +1,381 @@
+
+I. Introduction
+   A. Who are we?
+      1. spoonm
+      2. skape
+      3. Why do we do this hoodoo voodoo
+   B. Exploit Technology
+      1. Three Phases of Exploitation
+         a. Pre-exploitation
+         b. Exploitation
+         c. Post-exploitation
+      2. Pre-exploitation - Before the attack
+         a. Find the bug
+         b. Write exploits, payloads, tools
+      3. Exploitation - Leveraging the vulnerability
+         a. Find a target
+         c. Gather info, setup tools, prepare listeners, etc
+         b. Launch attack
+      4. Post-Exploitation - Manipulating the target
+         a. Command shell redirection
+         b. Arbitrary command execution
+         c. Pivoting payloads
+         d. Advanced payload interaction
+   B. Where do we stand?
+      1. Pre-exploitation
+         a. Robust and elegant encoders do exist
+            i. SkyLined's alpha-numeric encoder
+            ii. Spoonm's Shikata Ga Nai
+         b. Payload encoders generally taken for granted
+	    NOTE: maybe expand a little bit more here...
+            i. Most encoders are static with a variable key
+            ii. IDS able to signature static decoder stubs
+         c. NOP generation hasn't publically changed much
+            i. PoC exploits generally use predictable nops, if any
+            ii. ADMmutate easily signatured by most NIDS (Snort, Fnord)
+            iii. Not considered very important to many researchers
+         d. NIDS deployments are playing chase the tail
+            i. The mouse always has the advantage; NIDS is reactive
+            ii. Advanced nops and encoders push NIDS to its limits
+	    NOTE: maybe talk about how complex some things are to signature,
+	          for example, RPC, application level fragmentation, etc.
+      2. Exploitation
+         a. Techniques have become very mature
+            i. Linux/BSD exploitation techniques largely unchanged
+            ii. Win32 heap overflows now more reliable (oded/shok)
+            iii. Win32 SEH overwrites make exploitation easy, even on XPSP2
+         b. Exploitation topics have been beaten to death
+      3. Post-exploitation
+         a. Common payloads are limited
+            i. Command shell interaction has poor automation support
+            ii. Limited to the command set that the interpreter provides
+            iii. Bounded by the utilities installed on the target machine
+            iv. Restrictive environments (chroot) can hinder command execution
+            v. HIPS vendors becoming more adept at detecting basic payloads
+               - LoadLibraryA from the stack, etc (mcafee 8.0i)
+	    NOTE: I think it would be important here to talk even about the
+	          issues with "advantage" payloads, ala Core Impact and CANVAS.
+		  We should look into them more, but I have a hunch that they
+		  aren't that well writte, don't have that great of APIs
+		  exposed, and aren't very extensible for a 3rd party not
+		  on the team authoring the product.  Even the "advanced" stuff
+		  I think has a lot of issues.
+         b. Communication vectors largely unchanged
+            i. Reverse and port-bind payloads still the most common
+            ii. Findsock style payloads still unused by PoC exploits
+            iii. Alternative communication vectors rarely discussed
+         c. Pivoting technology exists
+            i. Core ST described system call proxying in 2002
+            ii. Metasploit's (2.3) meterpreter provides basic network pivoting
+   C. What will we discuss?
+      1. Pre-exploitation Research
+         a. NOP generation
+            i. Opty2
+         b. Encoders
+            i. Additive feedback encoders
+            ii. Shikata Ga Nai
+      2. Post-Exploitation Research
+         a. Library Injection
+            i. Facilitates things like Meterpreter and VNC injection
+         b. VNC Injection
+            i. Introduced at blackhat04 with the Metasploit 2.2 release
+         c. Meterpreter & dN
+            i. The cross-platform post-exploitation suite
+	 NOTE: dN is weak, but maybe talk about it from a different perspective,
+	       just about allowing the attacker to really orcistrate everything
+	       down even to the system call level.  Definitely should talk a
+	       bunch about your ninjaness with meterp TLV stylies, and the
+	       channelized throwdown. (</thuggin>).
+      3. Payload Research
+         a. PassiveX
+            i. Taking advantage of ActiveX controls
+	    ii. Taking advantage of soccer playing sisters.
+         b. Ordinal Stagers
+            i. Tiny network capable stagers
+         c. Egghunt (maybe?)
+            i. Small payload capable of locating a larger payload
+            ii. Useful for exploits with limited space
+	    NOTE: Egghunt is cool, and we can just talk a bit about how we
+	          extracted the syscalls, and how all of our tools come together
+		  to do stuff like that really fast/easily.  Oded mentioned he
+		  saw the page and thought it was cool, he wondered how you
+		  got the prototypes...
+II. Pre-exploitation
+   A. OptyNop2
+      1. Creation and benefits of multi-byte nopsleds
+   B. Additive feedback encoders
+   C. Shikata Ga Nai
+      1. High permutation shellcode through simple dependency mappings
+III. Post-exploitation
+   A. Library Injection
+      1. Overview
+         a. Paper published in 04/2004
+         b. Provides advanced code execution
+         c. Code can be written in any language that can compile down
+            to a shared object.
+         d. Allows developer to use all of the APIs exposed to a normal
+            application.
+         e. Detailed explanation can be found in included resources
+            (include lib inject paper)
+      2. Two types of library injection
+         a. On-Disk
+            i. Library is loaded from the target's harddrive or via a
+               file share.
+            ii. Can be detected by AV products due to fs access
+         b. In-Memory
+            i. Library is uploaded to the target and loaded from memory
+               without touching the disk
+            ii. Evades file system filter drivers, such as those
+                provided by AV companies
+            iii. Not touching the disk means no forensic trace
+            iv. VirtualLock prevents swapping to disk, but requires admin
+      3. In-memory library injection on Windows
+         a. System calls used by the library loader are hooked
+            i. NtCreateFile
+            ii. NtMapViewOfSection
+            iii. etc
+         b. Unique image name is used to identify the image to image that
+            is in memory
+         c. System call hooks are removed so that future injectino can
+            occur
+         d. Alternative approaches
+            i. Could do client-side relocations, but would need to handle
+               import processing
+      4. In-memory library injection on Linux/BSD
+         a. No known public implementations
+         b. Requires alternate approach
+            i. Hooking API routines not always possible -- symtab not
+               mapped into memory
+            ii. libc symbol version mismatches lead to linking nightmares
+         c. Client-side relocations seem most feasible
+            i. Remote side maps a region of memory and sends the client 
+               the base address
+            ii. Client processes relocations and transmits the relocated
+                image as its mapped segment would appear
+            iii. Requires locating rtld base so that PLT lookups will
+                 work
+   B. VNC Injection
+      1. Implements VNC as an injectable DLL
+         a. Uses RealVNC as the code-base
+         b. VNC communication uses the exploit connection
+         c. No physical trace is left of the VNC server
+         d. Can operate regardless of existing VNC installations
+      2. Easy way to illustrate insecurities
+         a. Suits understand mouse movement better than black box command 
+            prompts
+   C. Meterpreter
+      1. Generic post-exploitation suite
+         a. Based on library injection
+         b. Uses the established exploit connection
+            i. Especially powerful with findsock payloads; no new connection
+         c. Executes entirely from memory
+         d. No new processes or file access required for the payload to
+            succeed
+         e. Detailed explanation can be found in included resources
+            (include meterpreter paper)
+      2. Extension system provides advanced automation support
+         a. No need to hand write tedious assembly
+         b. Existing native code can be ported to a meterpreter extension
+      3. Architecture
+         a. Design goals
+            i. Very flexible protocol; should adapt to extension requirements
+            ii. Exposure of a channelized communication system to extensions
+            iii. Stealth operation
+            iv. Should be portable to various operating systems
+            v. Client from one platform should work with server on another
+               platform
+         b. Protocol
+            i. Uses TLVs (Type-Length-Value) to support arbitrary data
+               passing.
+            ii. TLVs allow the packet parser to be oblivious to the structure
+                of the value field
+            iii. Type field is broken down into meta types
+      4. Core interface
+         a. Overview
+            i. Minimal interface to support the loading of extensions
+            ii. Implements the basic packet transmission and dispatching
+                facilities
+            iii. Exposes channel allocation and management to extensions
+         b. Advanced features
+            i. Migrating the server instance between processes
+      5. The ``stdapi'' extension
+         a. Overview
+            i. Included in Metasploit 3.0
+            ii. Provides access to some of the common subsystems of the
+                target operating system
+            iii. Allows for easy automation and implementation of robust
+                 post-exploitation scripts
+         b. File System
+            i. File and directory interaction
+            ii. Files can be uploaded and downloaded between the
+                attacker and the target
+         c. Network
+            i. Transparent network pivoting
+            ii. Route table enumeration and manipulation
+            iii. Local interface enumeration
+         d. Process
+            i. Process execution, optionally with channelized IO
+            ii. Enumeration of running processes
+            iii. Modification of arbitrary memory
+            iv. Creation and modification of running threads
+            v. Loading and interacting with shared object files
+         e. Registry
+            i. General registry API access
+            ii. Opening, creating, and removing registry keys
+            iii. Setting, querying, and deleting registry values
+            iv. Enumeration of both keys and values
+         f. User interface
+            i. Disabling local user interaction via the keyboard
+               and/or mouse (similar to VNC)
+            ii. Idle timeout checking to see how long it's been
+                since the user did something interactive
+      6. The ``priv'' extension
+         a. Still in development
+         b. Exposes an interface to escalating local privileges
+            through local vulnerabilities
+         c. SAM dumping support similar to pwdump3
+   D. dN
+      1. Simple low-footprint post-exploitation tool
+      2. Useful to scope out execution enviroment, then bootstrap other tools
+IV. Payload Research
+   A. PassiveX
+      1. Overview
+         a. Post-exploitation payload
+         b. A derivative of On-Disk library injection that uses
+            ActiveX controls
+         c. Supports arbitrary DLL injection in any language that can
+            be compiled as an ActiveX control (C++, VB, etc)
+         d. Detailed analysis can be found in included resources
+            (include passivex paper)
+      2. Payload Implementation
+         a. Disables iexplore Internet zone restrictions on 
+            ActiveX controls
+            i. Modifies four registry values that are stored per-user
+         b. Launches a hidden iexplore at a URL with an embedded
+            OCX
+            i. The OCX does not have to be signed
+            ii. No user interaction is required
+            iii. OCX is automatically downloaded, registered, and loaded
+                 into the browser's context
+      3. Sample HTTP tunneling ActiveX control
+         a. HTTP GET/POST used to build tunnel to attacker
+            i. Uses the WININET API
+            ii. Outbound traffic from target machine encapsulated in POST
+                request
+            iii. Inbound traffic from attacker encapsulated in GET response
+            iv. Proxy configuration automatically inherited
+            v. Requires HTTP server capable of performing encap/decap on the 
+               HTTP packets
+         b. Streaming connection through HTTP tunnel can be created
+            i. socketpair doesn't exist natively on win32 but can be simulated
+               with a local listener
+            ii. Streaming abstraction allows advanced payloads to transparently
+                use the HTTP transport (Meterpreter, VNC)
+            iii. Local listener less covert, but highly beneficial
+      4. Pros
+         a. Bypasses restrictive outbound filters
+         b. Re-uses proxy configuration
+         c. Looks like normal user traffic
+         d. Allows full access to the win32 API like all forms of 
+            library injection
+      5. Cons
+         a. Touches the disk
+         b. Requires administrative access
+            i. Internet Explorer prohibits the downloading of 
+               ActiveX controls as non-admin
+   B. Windows Ordinal Stagers
+      1. Overview
+         a. Technique from Oded's lightning talk from core04
+         b. Uses static ordinals to locate winsock symbol addresses
+         c. Compatible with all versions of Windows
+         d. 92 byte reverse stager, 93 byte findsock stager
+         e. Detailed explanation can be found in included resources
+            (include spoonm ordinal paper)
+      2. Reverse Ordinal Stager
+         a. Walks InitOrderModuleList searching for ws2_32
+         b. Uses static ordinals to index the export table
+         c. Creates fd with socket
+         d. Chains connect and recv frames
+         e. Returns into buffer read in from file descriptor
+   C. Egghunting
+      1. Overview
+         a. Small stub payload that can search for a larger payload
+         b. Useful for exploits that have limited payload space but can
+            stash more payload elsewhere in memory
+         c. Example exploits include the IE object type vulnerability.
+         d. Goal is to safely search target address space for the larger
+            payload.
+         e. Larger payload is located by searching for an egg that is prepended
+            to it.
+         f. Detailed analysis can be found in included resources
+            (include egghunt paper)
+      2. Two primary methods of egghunting on Windows
+         a. SEH
+            1. 60 bytes in size, searches for an 8 byte egg, compatible with all
+               versions of Windows (including 9x)
+            2. Installs a custom exception handler
+            3. Begins walking the address space
+               i. When a bad address is encounter, the current pointer is
+                  incremented by PAGE_SIZE
+               ii. When a mismatch of the egg is encountered, the current pointer
+                   is incremented by one
+            4. Each address is compared against the 8-byte egg
+               i. Bad addresses will throw exceptions which will be handled
+                  by the custom exception handler
+            5. When the egg is found, jump past the egg into the larger payload
+         b. System call
+            1. Very small stub (32 bytes), searches for an 8 byte egg, only
+               compatible with NT+
+            2. Uses a non-intrusive system call (NtDisplayString) to search validate
+               addresses
+               i. Same page walking logic as SEH is used
+            3. When the egg is found, jump past the egg into the larger payload
+      3. One primary method of egghunting on Linux
+         a. System call
+            1. 30 bytes in size, searches for an 8 byte egg
+            2. System call technique applies to other UNIX variants as well
+            3. Uses the sigaction system call to validate 16 bytes at once
+            4. Pros
+               i. Very small
+            5. Cons
+               i. Corner cases may cause it to be unstable
+V. The Complete Picture - Metasploit 3.0
+   A. The power of pre-exploitation prepartion
+      1. Abstract NOP generation
+      2. Abstract payload encoding
+      3. Abstract exploit connection handlers
+         i. Bind handler
+         ii. Reverse handler
+         iii. Findsock handler
+   B. The power of exploit generalization
+      1. Standardized exploit creation interface
+         i. Robust target definitions
+         ii. Detailed exploit implementation information
+         iii. Entirely payload independent, no hardcoding paylaods
+   C. The power of post-exploitation automation
+      1. Complicated tasks made simple with scripting
+         i. Want to download a targets entire harddrive?
+         ii. Want to disable local user interaction?
+         iii. Want to upload and play an mp3 on the target?
+         iv. Want to 'be' on the target's network?
+      2. Standard interface means cross platform support
+VI. Conclusion - where do we go from here?
+   A. Future Post-exploitation research
+      1. Mesh network support 
+      2. Expansion of the stdapi described in this document
+
+included resources:
+   http://www.hick.org/code/skape/papers/egghunt-shellcode.pdf
+   http://www.hick.org/code/skape/papers/meterpreter.pdf
+   http://www.hick.org/code/skape/papers/remote-library-injection.pdf
+   http://www.hick.org/code/skape/papers/passivex.pdf [not released yet]
+   http://www.metasploit.com/users/spoonm/ordinals.txt
+	
+cited material:
+STRIDE:
+   http://www.ics.forth.gr/carv/acs/ACS/Activities/papers/stride-IFIP-SEC05.pdf
+
+syscall proxy:
+   http://www.coresecurity.com/files/files/11/SyscallProxying.pdf
+
+
