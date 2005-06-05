@@ -64,18 +64,18 @@ class EventDispatcher
 		}
 	end
 
-	def on_exploit_success(exploit, target)
+	def on_exploit_success(exploit)
 		subscribers_rwlock.synchronize_read {
 			exploit_event_subscribers.each { |subscriber|
-				subscriber.on_exploit_success(exploit, target)
+				subscriber.on_exploit_success(exploit)
 			}
 		}
 	end
 
-	def on_exploit_failure(exploit, target)
+	def on_exploit_failure(exploit, reason)
 		subscribers_rwlock.synchronize_read {
 			exploit_event_subscribers.each { |subscriber|
-				subscriber.on_exploit_failure(exploit, target)
+				subscriber.on_exploit_failure(exploit, reason)
 			}
 		}
 	end

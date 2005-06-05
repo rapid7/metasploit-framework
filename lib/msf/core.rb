@@ -15,7 +15,6 @@ require 'Rex'
 # General
 require 'Msf/Core/Constants'
 require 'Msf/Core/Exceptions'
-require 'Msf/Core/DataTypes'
 require 'Msf/Core/EventDispatcher'
 require 'Msf/Core/DataStore'
 require 'Msf/Core/OptionContainer'

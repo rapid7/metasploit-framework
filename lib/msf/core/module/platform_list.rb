@@ -11,9 +11,23 @@ require 'Msf/Core/Module/Platform'
 
 class Msf::Module::PlatformList
 	attr_accessor :platforms
+
+	def self.from_a(ary)
+		instance = self.new
+
+		instance.from_a(ary) if (ary)
+
+		return instance
+	end
+
 	def initialize(*args)
 		self.platforms = [ ]
-		args.each { |a|
+
+		from_a(args) if (args.length)
+	end
+
+	def from_a(ary)
+		ary.each { |a|
 			if a.kind_of?(String)
 				platforms << Msf::Module::Platform.find_platform(a)
 			elsif a.kind_of?(Range)

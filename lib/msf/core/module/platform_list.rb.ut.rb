@@ -2,11 +2,8 @@
 
 $:.unshift(File.join('..', '..', '..', File.dirname(__FILE__)))
 
-module Msf
-module Module
-end end
-
 require 'test/unit'
+require 'Msf/Core'
 require 'Msf/Core/Module/PlatformList'
 
 class Msf::Module::PlatformList::UnitTest < Test::Unit::TestCase

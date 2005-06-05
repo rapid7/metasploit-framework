@@ -15,18 +15,21 @@ module Msf
 ###
 class Module
 
+	require 'Msf/Core/Module/Author'
+	require 'Msf/Core/Module/PlatformList'
+	require 'Msf/Core/Module/Reference'
+	require 'Msf/Core/Module/Target'
+
 	def initialize(info = {})
 		self.module_info = info
 
 		set_defaults
 
 		# Transform some of the fields to arrays as necessary
-		self.author = Rex::Transformer.transform(module_info['Author'], Array, 
-				[ Author ], 'Author')
+		self.author = Author.transform(module_info['Author'])
 		self.arch = Rex::Transformer.transform(module_info['Arch'], Array, 
 				[ String ], 'Arch')
-		self.platform = Rex::Transformer.transform(module_info['Platform'], Array, 
-				[ String ], 'Platform')
+		self.platform = PlatformList.from_a(module_info['Platform'])
 		self.refs = Rex::Transformer.transform(module_info['Ref'], Array,
 				[ SiteReference, Reference ], 'Ref')
 
@@ -122,5 +125,15 @@ protected
 	attr_writer   :author, :arch, :platform, :refs, :datastore, :options
 
 end
+
+#
+# Alias the data types so people can reference them just by Msf:: and not
+# Msf::Module::
+#
+Author = Msf::Module::Author
+Reference = Msf::Module::Reference
+SiteReference = Msf::Module::SiteReference
+Platform = Msf::Module::Platform
+Target = Msf::Module::Target
 
 end

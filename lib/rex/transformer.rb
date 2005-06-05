@@ -46,6 +46,29 @@ protected
 		# instance
 		if (supported_classes.include?(src_instance.class))
 			dst_instance << src_instance
+		# If the src instance's class is an array, then we should check to see
+		# if any of the supporting classes support from_a.  If they do, we'll
+		# call it and try to rock that shit, otherwise we'll bomb out.
+		elsif (src_instance.kind_of?(Array))
+			new_src_instance = nil
+
+			# Walk each supported class calling from_a if exported
+			supported_classes.each { |sup_class|
+				next if (sup_class.respond_to?('from_a') == false)
+
+				new_src_instance = sup_class.from_a(src_instance)
+
+				if (new_src_instance != nil)
+					dst_instance << new_src_instance
+					break
+				end
+			}
+
+			# If we don't have a valid new src instance, then we suck
+			if (new_src_instance == nil)
+				bomb_translation(src_instance, target)
+			end
+
 		# If the source instance is a string, query each of the supported
 		# classes to see if they can serialize it to their particular data 
 		# type.
@@ -54,6 +77,8 @@ protected
 
 			# Walk each supported class calling from_s if exported
 			supported_classes.each { |sup_class|
+				next if (sup_class.respond_to?('from_s') == false)
+
 				new_src_instance = sup_class.from_s(src_instance)
 
 				if (new_src_instance != nil)
