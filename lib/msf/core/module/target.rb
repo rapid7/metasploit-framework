@@ -16,10 +16,7 @@ class Msf::Module::Target
 	def self.from_a(ary)
 		return nil if (ary.length < 2)
 
-		t      = self.new(ary.shift, ary.shift)
-		t.opts = ary
-
-		return t
+		self.new(ary.shift, ary.shift)
 	end
 
 	#
@@ -29,13 +26,27 @@ class Msf::Module::Target
 		Rex::Transformer.transform(src, Array, [ self, String ], 'Target')
 	end
 
-	def initialize(name, platforms, *opts)
+	#
+	# Init it up!
+	#
+	def initialize(name, opts)
+		opts = {} if (!opts)
+
 		self.name      = name
-		self.platforms = Msf::Module::PlatformList.from_a(platforms)
+		self.platforms = Msf::Module::PlatformList.from_a(opts['Platform'])
+		self.ret       = opts['Ret']
 		self.opts      = opts
 	end
 
+	#
+	# Index the options directly
+	#
+	def [](key)
+		opts[key]
+	end
+
 	attr_accessor :name, :platforms, :opts
+	attr_accessor :ret
 
 end
 
