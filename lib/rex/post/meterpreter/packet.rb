@@ -430,7 +430,7 @@ class Packet < GroupTlv
 		    (type == PACKET_TYPE_PLAINTEXT_REQUEST))
 			rid = ''
 
-			1.upto(32) { |val| rid << rand(10).to_s }
+			32.times { |val| rid << rand(10).to_s }
 
 			add_tlv(TLV_TYPE_REQUEST_ID, rid)
 		end
