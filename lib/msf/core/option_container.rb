@@ -41,6 +41,7 @@ class OptBase
 	attr_reader   :name, :required, :desc, :default
 	attr_writer   :name
 	attr_accessor :advanced
+	attr_accessor :owner
 
 protected
 
@@ -177,13 +178,13 @@ class OptionContainer < Hash
 	end
 
 	# Adds one or more options
-	def add_options(opts, advanced = false)
+	def add_options(opts, owner = nil, advanced = false)
 		return false if (opts == nil)
 
 		if (opts.kind_of?(Array))
-			add_options_array(opts, advanced)
+			add_options_array(opts, owner, advanced)
 		else
-			add_options_hash(opts, advanced)
+			add_options_hash(opts, owner, advanced)
 		end
 
 	end
@@ -191,22 +192,22 @@ class OptionContainer < Hash
 	#
 	# Add options from a hash of names
 	#
-	def add_options_hash(opts, advanced)
+	def add_options_hash(opts, owner = nil, advanced = false)
 		opts.each_pair { |name, opt|
-			add_option(opt, name, advanced)
+			add_option(opt, name, owner, advanced)
 		}
 	end
 
 	#
 	# Add options from an array of option instances or arrays
 	#
-	def add_options_array(opts, advanced = false)
+	def add_options_array(opts, owner = nil, advanced = false)
 		opts.each { |opt|
-			add_option(opt, nil, advanced)
+			add_option(opt, nil, owner, advanced)
 		}
 	end
 
-	def add_option(option, name = nil, advanced = false)
+	def add_option(option, name = nil, owner = nil, advanced = false)
 		if (option.kind_of?(Array))
 			option = option.shift.new(name, option)
 		elsif (!option.kind_of?(OptBase))
@@ -216,13 +217,16 @@ class OptionContainer < Hash
 		end
 
 		option.advanced = advanced
+		option.owner    = owner
 
 		self.store(option.name, option)
 	end
 
 	# Alias to add advanced options that sets the proper state flag
-	def add_advanced_options(opts = {})
-		add_options(opts, true)
+	def add_advanced_options(opts, owner = nil)
+		return false if (opts == nil)
+
+		add_options(opts, owner, true)
 	end
 
 	# Make sures that each of the options has a value of a compatible 

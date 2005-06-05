@@ -35,8 +35,8 @@ class Module
 
 		# Create and initialize the option container for this module
 		self.options = OptionContainer.new
-		self.options.add_options(info['Options'])
-		self.options.add_advanced_options(info['AdvancedOptions'])
+		self.options.add_options(info['Options'], self.class)
+		self.options.add_advanced_options(info['AdvancedOptions'], self.class)
 
 		# Create and initialize the data store for this module
 		self.datastore = DataStore.new
@@ -141,6 +141,20 @@ protected
 			'Ref'         => nil,
 			'Privileged'  => false,
 		}.update(self.module_info)
+	end
+
+	#
+	# Register options with a specific owning class
+	#
+	def register_options(options, owner = self.class)
+		self.options.add_options(options, owner)
+	end
+
+	#
+	# Register advanced options with a specific owning class
+	#
+	def register_advanced_options(options, owner = self.class)
+		self.options.add_advanced_options(options, owner)
 	end
 
 	#
