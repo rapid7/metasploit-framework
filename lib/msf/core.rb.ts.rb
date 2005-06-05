@@ -12,6 +12,8 @@ require 'Msf/Core/Module/Reference.rb.ut'
 require 'Msf/Core/Module/Target.rb.ut'
 
 require 'Msf/Core/Exploit.rb.ut'
+require 'Msf/Core/Exploit/Remote/Tcp.rb.ut'
+require 'Msf/Core/Exploit/Remote/DCERPC.rb.ut'
 
 class Msf::TestSuite
 	def self.suite
@@ -27,6 +29,8 @@ class Msf::TestSuite
 		suite << Msf::Module::Target::UnitTest.suite
 
 		suite << Msf::Exploit::UnitTest.suite
+		suite << Msf::Exploit::Remote::Tcp::UnitTest.suite
+		suite << Msf::Exploit::Remote::DCERPC::UnitTest.suite
 
 		return suite;
 	end
