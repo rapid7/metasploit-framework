@@ -1,0 +1,170 @@
+\documentclass{beamer}
+\usepackage{graphicx}
+\usepackage{color}
+
+\mode<presentation> { }
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+% \usepackage{beamerthemeshadow}
+
+% Love from spoon
+\newcommand{\pdfpart}[1]{\label{pdfpart-#1}\pdfbookmark[0]{#1}{pdfpart-#1}\part{#1}}
+\newenvironment{sitemize}{\vspace{1mm}\begin{itemize}\itemsep 4pt\small}{\end{itemize}}
+
+% Presentation meta-information
+\title{Beyond EIP}
+\author[spoonm \& skape] {spoonm \& skape}
+\date[BlackHat 2005] {BlackHat, 2005}
+\subject{Beyond EIP}
+
+% Add a spacer between each part
+%\AtBeginPart{\frame{\partpage}}
+
+% Turn off the navigation on the bottom yo
+\setbeamertemplate{navigation symbols}{}
+\usetheme[width=2.2cm]{Berkeley}
+\usecolortheme{sidebartab}
+
+% Kick this sucker open
+\begin{document}
+
+% Throw down the title
+\begin{frame}[t]
+  \titlepage
+\end{frame}
+
+\part{Introduction}
+
+\section{Introduction}
+\begin{frame}[t]
+    \frametitle{Who are we?}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{What will we discuss?}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{The exploitation cycle}
+\end{frame}
+
+\section{Exploitation technology}
+    \subsection{Pre-exploitation}
+\begin{frame}[t]
+    \frametitle{Pre-exploitation}
+\end{frame}
+    \subsection{Exploitation}
+\begin{frame}[t]
+    \frametitle{Exploitation}
+\end{frame}
+    \subsection{Post-exploitation}
+\begin{frame}[t]
+    \frametitle{Post-exploitation}
+\end{frame}
+
+\part{Exploitation technology}
+
+\section{Pre-Exploitation}
+    \subsection{NOP Generation}
+\begin{frame}[t]
+    \frametitle{Opty2}
+\end{frame}
+    \subsection{Payload Encoding}
+\begin{frame}[t]
+    \frametitle{Standard XOR}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Additive Feedback XOR}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Shikata Ga Nai}
+\end{frame}
+
+\section{Post-Exploitation Stagers}
+\begin{frame}[t]
+    \frametitle{What are post-exploitation stagers?}
+\end{frame}
+
+    \subsection{Windows Ordinal Stagers}
+\begin{frame}[t]
+    \frametitle{Overview}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Implementation: reverse stager}
+\end{frame}
+    \subsection{PassiveX}
+\begin{frame}[t]
+    \frametitle{Overview}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Implementation}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Practical use: HTTP tunneling}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Pros \& cons}
+\end{frame}
+    \subsection{Egghunt}
+\begin{frame}[t]
+    \frametitle{Overview}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Hunting for eggs with SEH}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Hunting for eggs with system calls}
+\end{frame}
+
+\section{Post-Exploitation Stages}
+\begin{frame}[t]
+    \frametitle{What are post-exploitation stages?}
+\end{frame}
+
+    \subsection{Library Injection}
+\begin{frame}[t]
+    \frametitle{Overview}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Types of library injection}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{In-memory library injection on Windows}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{In-memory library injection on UNIX}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Library injection in action: VNC}
+\end{frame}
+    \subsection{Meterpreter}
+\begin{frame}[t]
+    \frametitle{Overview}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Design goals}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Communication protocol specification}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Client/Server architecture}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Extension flexibilities}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Meterpreter extensions in action: Stdapi}
+\end{frame}
+    \subsection{DispatchNinja}
+\begin{frame}[t]
+    \frametitle{Cool dN stuff here}
+\end{frame}
+
+\part{Advanced Post-Exploitation Suites}
+
+\section{Post-Exploitation Suites}
+    \subsection{Motivations \& Goals}
+
+\end{document}
