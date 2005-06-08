@@ -11,9 +11,11 @@ require 'Rex/Encoding/Xor/Generic.rb.ut'
 # Byte and Generic tests, oh well for now...
 #
 
-class Rex::Encoding::Xor::Byte::UnitTest < Rex::Encoding::Xor::Generic::UnitTest
+module Rex::Encoding::Xor
+class Byte::UnitTest < Generic::UnitTest
 
 	def enc
-		Rex::Encoding::Xor::Byte
+		Byte
 	end
+end
 end

@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
 
+require 'Rex/Encoding/Xor/Exceptions'
+
 module Rex
 module Encoding
 module Xor
@@ -93,7 +95,7 @@ class Generic
 					kbyte = (kbyte + 1) & 0xff
 				}
 
-				raise ArgumentError, "FIXME DIFF EXCEPTION", caller
+				raise KeySearchError, "Exhausted byte space for strip #{strip}!", caller
 			end
 
 			key << kbyte
@@ -102,7 +104,7 @@ class Generic
 
 		# ok, we should have a good key now, lets double check...
 		if ! _check(data, key, badchars)
-			raise ArgumentError, "FIXME DIFF EXCEPTION", caller
+			raise KeySearchError, "Key found, but bad character check failed!", caller
 		end
 
 		return key
@@ -111,17 +113,17 @@ class Generic
 	def Generic.encode(buf, key)
 
 		if !key.kind_of?(String)
-			raise ArgumentError, "Key must be a string!", caller
+			raise ::ArgumentError, "Key must be a string!", caller
 		end
 
 		len = key.length
 
 		if len == 0
-			raise ArgumentError, "Zero key length!", caller
+			raise ::ArgumentError, "Zero key length!", caller
 		end
 
 		if keysize != 0 && keysize != len
-			raise ArgumentError, "Key length #{len}, expected #{keysize}", caller
+			raise ::ArgumentError, "Key length #{len}, expected #{keysize}", caller
 		end
 
 		encoded = ""

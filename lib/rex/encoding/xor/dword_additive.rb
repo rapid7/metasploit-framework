@@ -1,5 +1,6 @@
 #!/usr/bin/ruby
 
+require 'Rex/Encoding/Xor/Exceptions'
 require 'Rex/Encoding/Xor/Generic'
 
 #
@@ -80,7 +81,7 @@ class DWordAdditive < Generic
 
 			# fuck, we wrapped around!
 			if key[strip] == kstart[strip]
-				raise ArgumentError, "FIXME DIFF EXCEPTION", caller
+				raise KeySearchError, "Key space exhausted on strip #{strip}!", caller
 			end
 		end
 

@@ -5,15 +5,17 @@ $:.unshift(File.join('..', '..', '..', File.dirname(__FILE__)))
 require 'test/unit'
 require 'Rex/Encoding/Xor/Generic'
 
-class Rex::Encoding::Xor::Generic::UnitTest < Test::Unit::TestCase
+module Rex::Encoding::Xor
+
+class Generic::UnitTest < ::Test::Unit::TestCase
 
 	def enc
-		Rex::Encoding::Xor::Generic
+		Generic
 	end
 
 	def hook_static_encode(data, key, expected)
 		if enc.keysize != 0 && key.length != enc.keysize
-			assert_raise(Rex::ArgumentError) { enc.encode(data,key) }
+			assert_raise(::ArgumentError) { enc.encode(data,key) }
 		else
 			assert_equal(enc.encode(data, key), expected)
 		end
@@ -21,10 +23,10 @@ class Rex::Encoding::Xor::Generic::UnitTest < Test::Unit::TestCase
 
 	def test_static_encode
 		# Test key of zero length
-		assert_raise(Rex::ArgumentError) { enc.encode("\x00", "") }
+		assert_raise(::ArgumentError) { enc.encode("\x00", "") }
 
 		# Test non-string key
-		assert_raise(Rex::ArgumentError) { enc.encode("\x00\x01", 1) }
+		assert_raise(::ArgumentError) { enc.encode("\x00\x01", 1) }
 
 		# some simple single byte tests with 0x00
 		30.times {
@@ -114,4 +116,5 @@ class Rex::Encoding::Xor::Generic::UnitTest < Test::Unit::TestCase
 		]
 		]
 	end
+end
 end
