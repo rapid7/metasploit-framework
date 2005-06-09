@@ -5,7 +5,7 @@ module Encoder
 
 class Xor
 
-	attr_accessor :raw, :encoded, :badchars, :opts, :key
+	attr_accessor :raw, :encoded, :badchars, :opts, :key, :fkey
 
 	# wrap that shit in a wanna be static class
 	def self.encode(*args)
@@ -21,7 +21,7 @@ class Xor
 		self.badchars = badchars
 		self.opts     = opts
 
-		self.encoded, self.key = encoder().find_key_and_encode(data, badchars)
+		self.encoded, self.key, self.fkey = encoder().find_key_and_encode(data, badchars)
 		return _prepend() + encoded + _append()
 	end
 
