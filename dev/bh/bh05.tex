@@ -8,7 +8,8 @@
 \usepackage[latin1]{inputenc}
 \usepackage{times}
 \usepackage[T1]{fontenc}
-% \usepackage{beamerthemeshadow}
+% I think this looks cool, but whateva! - skape
+%\usepackage{beamerthemeshadow}
 
 % Love from spoon
 \newcommand{\pdfpart}[1]{\label{pdfpart-#1}\pdfbookmark[0]{#1}{pdfpart-#1}\part{#1}}
@@ -21,17 +22,16 @@
 \subject{Beyond EIP}
 
 % Add a spacer between each part
-%\AtBeginPart{\frame{\partpage}}
+\AtBeginPart{\frame{\partpage}}
 
 % Turn off the navigation on the bottom yo
 \setbeamertemplate{navigation symbols}{}
-\usetheme[width=2.2cm]{Berkeley}
-\usecolortheme{sidebartab}
+% spoon hates berkeley!
+%\usetheme[width=2.2cm]{Berkeley}
+%\usecolortheme{sidebartab}
 
-% Kick this sucker open
 \begin{document}
 
-% Throw down the title
 \begin{frame}[t]
   \titlepage
 \end{frame}
@@ -41,59 +41,167 @@
 \section{Introduction}
 \begin{frame}[t]
     \frametitle{Who are we?}
+
+    \begin{sitemize}
+        \item spoonm
+        \begin{sitemize}
+            \item Full-time student at a Canadian university
+            \item Metasploit developer since late 2003
+        \end{sitemize}
+
+        \item skape
+        \begin{sitemize}
+            \item Lead software developer by day
+            \item Independent security researcher by night
+            \item Joined the Metasploit project in 2004
+        \end{sitemize}
+    \end{sitemize}
 \end{frame}
 \begin{frame}[t]
     \frametitle{What will we discuss?}
+
+    \begin{sitemize}
+        \item Payload stagers
+        \begin{sitemize}
+            \item Windows Ordinal Stagers
+            \item PassiveX
+            \item Egghunt
+        \end{sitemize}
+
+        \pause
+        \item Payload stages
+        \begin{sitemize}
+            \item Library Injection
+            \item The Meterpreter
+            \item DispatchNinja
+        \end{sitemize}
+
+        \pause
+        \item Post-exploitation suites
+        \begin{sitemize}
+            \item Very hot area of research within Metasploit
+            \item Suites built off advanced payloads
+            \item Client-side APIs create uniform automation interfaces
+            \item Primary focus of Metasploit 3.0
+        \end{sitemize}
+    \end{sitemize}
 \end{frame}
 \begin{frame}[t]
-    \frametitle{The exploitation cycle}
+    \frametitle{Background: the exploitation process}
+
+    \begin{sitemize}
+        \item \textbf{Pre-exploitation} - Before the attack
+        \begin{sitemize}
+            \item Find a bug and isolate it
+            \item Write the exploit, payloads, and tools
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Exploitation} - Leveraging the vulnerability
+        \begin{sitemize}
+            \item Find a vulnerable target
+            \item Gather information
+            \item Initialize tools and post-exploitation handlers
+            \item Launch the exploit
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Post-exploitation} - Manipulating the target
+        \begin{sitemize}
+            \item Command shell redirection
+            \item Arbitrary command execution
+            \item Pivoting
+            \item Advanced payload interaction
+        \end{sitemize}
+    \end{sitemize}
 \end{frame}
 
-\section{Exploitation technology}
-    \subsection{Pre-exploitation}
+\pdfpart{Exploitation Technology's State of Affairs}
+
+\section{Pre-exploitation}
 \begin{frame}[t]
-    \frametitle{Pre-exploitation}
+    \frametitle{Pre-exploitation - payload encoders}
+
+    \begin{sitemize}
+        \item Robust and elegant encoders do exist
+        \begin{sitemize}
+            \item SkyLined's Alpha2 x86 alphanumeric encoder
+            \item Spoonm's high-permutation Shikata Ga Nai
+        \end{sitemize}
+
+        \pause
+        \item Payload encoders generally taken for granted
+        \begin{sitemize}
+            \item Most encoders use a static decoder stub
+            \item Makes NIDS signatures easy to write
+        \end{sitemize}
+    \end{sitemize}
 \end{frame}
-    \subsection{Exploitation}
+
+\begin{frame}[t]
+    \frametitle{Pre-exploitation - NOP generators}
+
+    \begin{sitemize}
+        \item NOP generation hasn't publicly changed much
+        \begin{sitemize}
+            \item Most PoC exploits use predictable single-byte NOPs (\texttt{0x90}), if any
+            \item ADMmutate's NOP generator easily signatured by NIDS (Snort, Fnord)
+            \item Not considered an important research topic to most
+        \end{sitemize}
+
+        \pause
+        \item NIDS continues to play chase the tail
+        \begin{sitemize}
+            \item The mouse always has the advantage; NIDS is reactive
+            \item Advanced NOP generators and encoders push NIDS to its limits
+            \item Many protocols can be complex to signature (DCERPC fragmentation)
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\section{Exploitation}
 \begin{frame}[t]
     \frametitle{Exploitation}
+
+    \begin{sitemize}
+        \item Exploitation techniques have become very mature
+        \begin{sitemize}
+            \item Linux/BSD/Solaris techniques are largely unchanged
+            \item Windows heap overflows can be made more reliable (Oded/Shok)
+            \item Windows SEH overwrites make exploitation easy, even on XPSP2
+        \end{sitemize}
+
+        \pause
+        \item Exploitation vectors have been beaten to death
+        \pause
+        \item ...so we wont be talking about them
+    \end{sitemize}
 \end{frame}
-    \subsection{Post-exploitation}
+
+\section{Post-exploitation}
 \begin{frame}[t]
     \frametitle{Post-exploitation}
+
+    \begin{sitemize}
+        \item Very hot area of research within Metasploit
+        \item Commonly used payloads are limited
+        \begin{sitemize}
+            \item Command shells (cmd.exe) have poor automation support
+        \end{sitemize}
+    \end{sitemize}
 \end{frame}
 
-\part{Exploitation technology}
+\pdfpart{Payload Stagers}
 
-\section{Pre-Exploitation}
-    \subsection{NOP Generation}
-\begin{frame}[t]
-    \frametitle{Opty2}
-\end{frame}
-    \subsection{Payload Encoding}
-\begin{frame}[t]
-    \frametitle{Standard XOR}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Additive Feedback XOR}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Shikata Ga Nai}
-\end{frame}
-
-\section{Post-Exploitation Stagers}
-\begin{frame}[t]
-    \frametitle{What are post-exploitation stagers?}
-\end{frame}
-
-    \subsection{Windows Ordinal Stagers}
+\section{Windows Ordinal Stagers}
 \begin{frame}[t]
     \frametitle{Overview}
 \end{frame}
 \begin{frame}[t]
     \frametitle{Implementation: reverse stager}
 \end{frame}
-    \subsection{PassiveX}
+
+\section{PassiveX}
 \begin{frame}[t]
     \frametitle{Overview}
 \end{frame}
@@ -106,7 +214,8 @@
 \begin{frame}[t]
     \frametitle{Pros \& cons}
 \end{frame}
-    \subsection{Egghunt}
+
+\section{Egghunt}
 \begin{frame}[t]
     \frametitle{Overview}
 \end{frame}
@@ -117,12 +226,13 @@
     \frametitle{Hunting for eggs with system calls}
 \end{frame}
 
-\section{Post-Exploitation Stages}
+\pdfpart{Payload Stages}
+
 \begin{frame}[t]
     \frametitle{What are post-exploitation stages?}
 \end{frame}
 
-    \subsection{Library Injection}
+\section{Library Injection}
 \begin{frame}[t]
     \frametitle{Overview}
 \end{frame}
@@ -138,7 +248,8 @@
 \begin{frame}[t]
     \frametitle{Library injection in action: VNC}
 \end{frame}
-    \subsection{Meterpreter}
+
+\section{Meterpreter}
 \begin{frame}[t]
     \frametitle{Overview}
 \end{frame}
@@ -157,12 +268,13 @@
 \begin{frame}[t]
     \frametitle{Meterpreter extensions in action: Stdapi}
 \end{frame}
-    \subsection{DispatchNinja}
+
+\section{DispatchNinja}
 \begin{frame}[t]
     \frametitle{Cool dN stuff here}
 \end{frame}
 
-\part{Advanced Post-Exploitation Suites}
+\pdfpart{Post-Exploitation Suites}
 
 \section{Post-Exploitation Suites}
     \subsection{Motivations \& Goals}
