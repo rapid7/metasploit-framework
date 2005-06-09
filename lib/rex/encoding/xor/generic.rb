@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'Rex/Encoding/Xor/Exceptions'
+require 'Rex/StringUtils'
 
 module Rex
 module Encoding
@@ -16,17 +17,6 @@ class Generic
 	end
 
 	#
-	# return nil if no badchars in data, otherwise return the position of
-	# the first bad character
-	#
-	def Generic.badchar_index(data, badchars)
-		badchars.each_byte { |badchar|
-			pos = data.index(badchar)
-			return pos if pos
-		}
-		return nil
-	end
-	#
 	# Now for some internal check methods
 	#	
 
@@ -36,10 +26,10 @@ class Generic
 		return _check_key(key, badchars) || _check_encode(data, key, badchars)
 	end
 	def Generic._check_key(key, badchars)
-		return badchar_index(key, badchars)
+		return Rex::StringUtils.badchar_index(key, badchars)
 	end
 	def Generic._check_encode(data, key, badchars)
-		return badchar_index(encode(data, key), badchars)
+		return Rex::StringUtils.badchar_index(encode(data, key), badchars)
 	end
 
 	def Generic.find_key(data, badchars)
