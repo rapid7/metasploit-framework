@@ -17,7 +17,7 @@ class Generic::UnitTest < ::Test::Unit::TestCase
 		if enc.keysize != 0 && key.length != enc.keysize
 			assert_raise(::ArgumentError) { enc.encode(data,key) }
 		else
-			assert_equal(enc.encode(data, key), expected)
+			assert_equal(enc.encode(data, key), [ expected, key ])
 		end
 	end
 

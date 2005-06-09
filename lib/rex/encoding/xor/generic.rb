@@ -125,7 +125,7 @@ class Generic
 			pos += 1
 		end
 
-		return encoded
+		return [ encoded, key ]
 
 	end
 
@@ -137,9 +137,9 @@ class Generic
 
 	# maybe a bit a smaller of method name?
 	def Generic.find_key_and_encode(data, badchars)
-		key  = find_key(data, badchars)
-		enc  = encode(data, key)
-		return [ enc, key ]
+		key        = find_key(data, badchars)
+		enc, fkey  = encode(data, key)
+		return [ enc, key, fkey ]
 	end
 
 
