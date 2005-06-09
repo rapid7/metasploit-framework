@@ -139,7 +139,7 @@ class ClientCore < Extension
 		end
 
 		if (load_library(
-				'LibraryFilePath' => 'data/meterpreter/ext_server_' + mod.downcase + '.dll',
+				'LibraryFilePath' => 'Data/meterpreter/ext_server_' + mod.downcase + '.dll',
 				'UploadLibrary'   => true,
 				'Extension'       => true,
 				'SaveToDisk'      => opts['LoadFromDisk']))
@@ -315,7 +315,7 @@ class ClientCore < Extension
 		wrote = client.sock.write(inject_lib)
 
 		# Transmit the size of the server
-		metsrv = "data/meterpreter/metsrv.dll"
+		metsrv = "Data/meterpreter/metsrv.dll"
 		buf    = "metsrv.dll\x00" + ::IO.readlines(metsrv).join
 		size   = buf.length
 
