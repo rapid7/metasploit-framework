@@ -15,5 +15,9 @@ module StringUtils
 		return nil
 	end
 
+	def self.remove_badchars(data, badchars)
+		data.delete(badchars)
+	end
+
 
 end end
