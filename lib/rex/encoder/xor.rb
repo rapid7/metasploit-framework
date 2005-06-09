@@ -16,14 +16,6 @@ class Xor
 		self.class::EncoderKlass
 	end
 
-	def _unencoded_transform(data)
-		data
-	end
-
-	def _encoded_transform(data)
-		data
-	end
-
 	def encode(data, badchars = '', opts = { })
 		self.raw      = data
 		self.badchars = badchars
@@ -41,6 +33,14 @@ class Xor
 	end
 
 	protected
+	def _unencoded_transform(data)
+		data
+	end
+
+	def _encoded_transform(data)
+		data
+	end
+
 	def _prepend()
 		""
 	end
