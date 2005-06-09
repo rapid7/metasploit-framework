@@ -13,7 +13,7 @@ class Rex::Encoders::XorDWord::UnitTest < ::Test::Unit::TestCase
 		2000.times {
 			buffer = ""
 			rand(100).times { buffer << 0x90 }
-			assert_equal(nil, MachineTest.test(Klass.encode(buffer + "\xcc")))
+			assert_equal(nil, MachineTest.testraw(Klass.encode(buffer + "\xcc")))
 		}
 	end
 end
