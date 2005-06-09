@@ -79,15 +79,15 @@
         \pause
         \item Post-exploitation suites
         \begin{sitemize}
-            \item Very hot area of research within Metasploit
-            \item Suites built off advanced payloads
+            \item Very hot area of research for the Metasploit team
+            \item Suites built off of advanced payload research
             \item Client-side APIs create uniform automation interfaces
             \item Primary focus of Metasploit 3.0
         \end{sitemize}
     \end{sitemize}
 \end{frame}
 \begin{frame}[t]
-    \frametitle{Background: the exploitation process}
+    \frametitle{Background: the exploitation cycle}
 
     \begin{sitemize}
         \item \textbf{Pre-exploitation} - Before the attack
@@ -120,7 +120,7 @@
 
 \section{Pre-exploitation}
 \begin{frame}[t]
-    \frametitle{Pre-exploitation - payload encoders}
+    \frametitle{Payload encoders}
 
     \begin{sitemize}
         \item Robust and elegant encoders do exist
@@ -139,7 +139,7 @@
 \end{frame}
 
 \begin{frame}[t]
-    \frametitle{Pre-exploitation - NOP generators}
+    \frametitle{NOP generators}
 
     \begin{sitemize}
         \item NOP generation hasn't publicly changed much
@@ -150,18 +150,22 @@
         \end{sitemize}
 
         \pause
-        \item NIDS continues to play chase the tail
+        \item Still, NIDS continues to play chase the tail
         \begin{sitemize}
             \item The mouse always has the advantage; NIDS is reactive
             \item Advanced NOP generators and encoders push NIDS to its limits
             \item Many protocols can be complex to signature (DCERPC fragmentation)
         \end{sitemize}
+
+        \pause
+        \item Metasploit 2.4 released with a wide-distribution
+        multi-byte x86 NOP generator (Opty2)
     \end{sitemize}
 \end{frame}
 
 \section{Exploitation}
 \begin{frame}[t]
-    \frametitle{Exploitation}
+    \frametitle{Exploitation techniques}
 
     \begin{sitemize}
         \item Exploitation techniques have become very mature
@@ -180,22 +184,63 @@
 
 \section{Post-exploitation}
 \begin{frame}[t]
-    \frametitle{Post-exploitation}
+    \frametitle{Standard payloads}
 
     \begin{sitemize}
-        \item Very hot area of research within Metasploit
-        \item Commonly used payloads are limited
+        \item Standard payloads provide the most basic manipulation
+        of a target
         \begin{sitemize}
-            \item Command shells (cmd.exe) have poor automation support
+            \item Port-bind command shell
+            \item Reverse (connectback) command shell
+            \item Arbitrary command execution
         \end{sitemize}
+
+        \pause
+        \item Nearly all PoC exploits use standard payloads
+
+        \pause
+        \item Command shells have poor automation support
+        \begin{sitemize}
+            \item Platform dependent intrinsic commands and
+            scripting
+            \item Reliant on the set of applications installed on the
+            machine
+            \item Hindered by by chroot jails and host-based ACLs
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{``Advantage'' payloads}
+
+    \begin{sitemize}
+        \item Advantage payloads provide enhanced manipulation of
+        hosts, commonly through the native API
+        \item Help to reduce the tediousness of writing payloads
+
+        \item Core ST's InlineEgg
+
+        % TODO: Elaborate on InlineEgg
+        % TODO: others...
     \end{sitemize}
 \end{frame}
 
 \pdfpart{Payload Stagers}
 
+\begin{frame}[t]
+    \frametitle{What are payload stagers?}
+
+    \begin{sitemize}
+        \item Typically small stubs that load and execute another payload
+        \item Useful in conditions where size is limited
+    \end{sitemize}
+
+    % TODO: diagram of a stager?
+\end{frame}
+
 \section{Windows Ordinal Stagers}
 \begin{frame}[t]
-    \frametitle{Overview}
+    \frametitle{Introduction}
 \end{frame}
 \begin{frame}[t]
     \frametitle{Implementation: reverse stager}
