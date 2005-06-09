@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-$:.unshift(File.join('..', '..', '..', File.dirname(__FILE__)))
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
 require 'Rex/Encoding/Xor/Byte'
 require 'Rex/Encoding/Xor/Generic.rb.ut'
