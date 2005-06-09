@@ -103,7 +103,7 @@ class Generic
 		end
 
 		# ok, we should have a good key now, lets double check...
-		if ! _check(data, key, badchars)
+		if _check(data, key, badchars)
 			raise KeySearchError, "Key found, but bad character check failed!", caller
 		end
 
@@ -146,7 +146,10 @@ class Generic
 	end
 
 	# maybe a bit a smaller of method name?
-	def Generic.find_key_and_encode()
+	def Generic.find_key_and_encode(data, badchars)
+		key  = find_key(data, badchars)
+		enc  = encode(data, key)
+		return [ enc, key ]
 	end
 
 

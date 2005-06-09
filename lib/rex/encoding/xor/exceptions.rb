@@ -6,7 +6,7 @@ module Xor
 
 module Exception
 	MSG = "Hoe's be frontin n shit"
-	def to_s
+	def to_suck
 		self.class::MSG
 	end
 end
