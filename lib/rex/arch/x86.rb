@@ -53,22 +53,40 @@ module X86
 		return opcodes[rand(opcodes.length)].chr + encode_modrm(reg, reg)
 	end
 
+	# B004 mov al,0x4
 	def self.mov_byte(reg, val)
 		_check_reg(reg)
 		# chr will raise RangeError if val not between 0 .. 255
 		return (0xb0 | reg).chr + val.chr
 	end
 
+	# 66B80400 mov ax,0x4
+	def self.mov_word(reg, val)
+		_check_reg(reg)
+		if val < 0 || val > 0xffff
+			raise RangeError, "Can only take unsigned word values!", caller()
+		end
+		return "\x66" + (0xb8 | reg).chr + [ val ].pack('v')
+	end
+
 	def self.set(dst, val, badchars = '')
 		_check_reg(dst)
 
+		# try push BYTE val; pop dst
 		begin
 			return _check_badchars(push_byte(val) + pop_dword(dst), badchars)
 		rescue RuntimeError, RangeError
 		end
 
+		# try clear dst, mov BYTE dst
 		begin
 			return _check_badchars(clear(dst, badchars) + mov_byte(dst, val), badchars)
+		rescue RuntimeError, RangeError
+		end
+
+		# try clear dst, mov WORD dst
+		begin
+			return _check_badchars(clear(dst, badchars) + mov_word(dst, val), badchars)
 		rescue RuntimeError, RangeError
 		end
 
