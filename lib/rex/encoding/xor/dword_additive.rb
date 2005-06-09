@@ -36,7 +36,7 @@ class DWordAdditive < Generic
 			# add the last len bytes (in this case 4) with the key,
 			# dropping off any overflow
 			key = pack_key(
-			  unpack_key(key) + unpack_key(buf[-len, len]) &
+			  unpack_key(key) + unpack_key(buf[pos - (len - 1), len]) &
 			    (1 << (len << 3)) - 1
 			)
 		end
