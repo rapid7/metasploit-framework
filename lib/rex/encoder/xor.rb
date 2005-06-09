@@ -16,7 +16,7 @@ class Xor
 		self.class::EncoderKlass
 	end
 
-	def encode(data, badchars, opts = { })
+	def encode(data, badchars = '', opts = { })
 		self.raw      = data
 		self.badchars = badchars
 		self.opts     = opts
