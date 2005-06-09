@@ -9,11 +9,15 @@ require 'Rex/Encoders/XorDWord'
 
 class Rex::Encoders::XorDWord::UnitTest < ::Test::Unit::TestCase
 	Klass = Rex::Encoders::XorDWord
+	def klass
+		self.class::Klass
+	end
+
 	def test_encode
-		2000.times {
+		1000.times {
 			buffer = ""
-			rand(1000).times { buffer << 0x90 }
-			assert_equal(nil, MachineTest.testraw(Klass.encode(buffer + "\xcc")))
+			rand(5000).times { buffer << 0x90 }
+			assert_equal(nil, MachineTest.testraw(klass.encode(buffer + "\xcc")))
 		}
 	end
 end
