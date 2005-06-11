@@ -205,7 +205,7 @@
             scripting
             \item Reliant on the set of applications installed on the
             machine
-            \item Hindered by by chroot jails and host-based ACLs
+            \item Hindered by chroot jails and host-based ACLs
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -263,14 +263,24 @@
     \begin{sitemize}
         \item Some vulnerabilities have limited space for the
         initial payload
+
+        \pause
         \item Typically much smaller than the stages
         they execute
+
+        \pause
         \item Eliminate the need to re-implement payloads for each
         connection method
+
+        \pause
+        \item Provide an abstract way for getting arbitrary code
+        onto a remote machine through any medium
     \end{sitemize}
 \end{frame}
 
 \section{Windows Ordinal Stagers}
+
+\subsection{Overview}
 \begin{frame}[t]
     \frametitle{Windows ordinal stagers}
 
@@ -278,7 +288,7 @@
         \item Technique from Oded's lightning talk at core04
         \item Uses static ordinals in \texttt{WS2\_32.DLL} to locate symbol
         addresses
-        \item Compatible with all versions of Windows
+        \item Compatible with all versions of Windows (including 9X)
         \item Results in very low-overhead symbol resolution
         \item Facilitates implementation of reverse, portbind, and
         findsock stagers
@@ -290,6 +300,40 @@
 \end{frame}
 
 \begin{frame}[t]
+    \frametitle{How ordinal stagers work}
+
+    \begin{sitemize}
+        \item Ordinals are unique numbers that identify exported
+        symbols in PE files
+        \item Each ordinal can be used to resolve the address of an
+        exported symbol
+
+        \pause
+        \item Most of the time, ordinals are incremented linearly by the
+        linker
+        \item Sometimes, however, developers may wish to force
+        symbols to use the same ordinal every build
+        \item When ordinals are the same every build, they are
+        referred to as static
+
+        \pause
+        \item Using an image's exports by ordinal instead of by name
+        is more efficient at runtime
+        \item However, it will not be reliably portable unless the
+        ordinals are known-static
+
+        \pause
+        \item Very few PE files use known-static ordinals, but
+        \texttt{WS2\_32.DLL} is one that does
+        \begin{sitemize}
+            \item 30 symbols use static ordinals in
+            \texttt{WS2\_32.DLL}
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\subsection{Implementation}
+\begin{frame}[t]
     \frametitle{Implementing a reverse ordinal stager}
 
     \begin{sitemize}
@@ -299,16 +343,16 @@
             \item Extract Flink from the InInitOrderModuleList
             \item Loop through loaded modules comparing module names
             \item Module name is stored in unicode, but can be
-            partially translated to ANSI in 5 bytes
+            partially translated to ANSI
             \item Once \texttt{WS2\_32.DLL} is found, extract its
-            BaseAddress.
+            BaseAddress
         \end{sitemize}
 
         \pause
         \item Resolve \texttt{socket}, \texttt{connect},
         and \texttt{recv}
         \begin{sitemize}
-            \item Use static ordinals to index the address table
+            \item Use static ordinals to index the Export Directory Address Table
         \end{sitemize}
 
         \pause
@@ -322,6 +366,248 @@
 
 \end{frame}
 
+\section{PassiveX}
+\subsection{Overview}
+\begin{frame}[t]
+    \frametitle{PassiveX}
+
+    \begin{sitemize}
+        \item Robust payload stager capable of bypassing restrictive
+        outbound filters
+        \item Compatible with Windows 2000+ running Internet
+        Explorer 6.0+
+        \item Uses HTTP to communicate with attacker
+        \item Provides an alternate vector for library injection via
+        ActiveX
+        \item Technical write-up at
+        \footnotesize{\url{http://www.uninformed.org/?v=1&a=3&t=sumry}}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{How PassiveX works}
+
+    \begin{sitemize}
+        \item Enables support for both signed and unsigned ActiveX
+        controls in the \texttt{Internet} zone.
+        \begin{sitemize}
+            \pause
+            \item Necessary because administrators may have disabled
+            ActiveX support for security reasons
+        \end{sitemize}
+
+        \pause
+        \item Launches a hidden instance of Internet Explorer
+
+        \pause
+        \item Internet Explorer loads a page that the attacker
+        has put an embedded ActiveX control on
+
+        \pause
+        \item Internet Explorer loads and executes the ActiveX
+        control
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Why is PassiveX useful?}
+
+    \begin{sitemize}
+        \item Relatively small (roughly 400 byte) stager that does not
+        directly interact with the network
+
+        \pause
+        \item Bypasses common outbound filters by tunneling through
+        HTTP
+
+        \pause
+        \item Automatically uses proxy settings defined in Internet
+        Explorer
+
+        \pause
+        \item Bypasses trusted application restrictions (ZoneAlarm)
+
+        \pause
+        \item ActiveX technology allows the attacker to implement
+        complex code in higher level languages (C, C++, VB)
+        \begin{sitemize}
+            \item Eliminates the need to perform complicated tasks
+            from assembly
+            \item ActiveX controls are functionally equivalent to
+            executables
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\subsection{Implementation}
+
+\begin{frame}[t]
+    \frametitle{Implementing the PassiveX stager}
+
+    \begin{sitemize}
+        \item Enable download and execution of ActiveX controls
+        \begin{sitemize}
+            \item Open the current user's \texttt{Internet} zone
+            registry key
+            \item Enable four settings
+            \begin{sitemize}
+                \item \texttt{Download signed ActiveX controls}
+                \item \texttt{Download unsigned ActiveX controls}
+                \item \texttt{Run ActiveX controls and plugins}
+                \item \texttt{Initialize and script ActiveX controls not
+            marked as safe}
+            \end{sitemize}
+        \end{sitemize}
+
+        \pause
+        \item Launch a hidden instance of Internet Explorer pointed
+        at a URL the attacker controls
+
+        \pause
+        \item Internet Explorer then loads and executes the attacker's
+        ActiveX control
+    \end{sitemize}
+\end{frame}
+
+\subsection{HTTP Tunneling ActiveX Control}
+\begin{frame}[t]
+    \frametitle{An example ActiveX control}
+
+    \begin{sitemize}
+        \item ActiveX controls may choose to build an HTTP tunnel
+        to the attacker
+        \item HTTP tunnels provide a streaming connection over HTTP
+        requests and responses
+        \item Useful for tunneling other protocols, like TCP,
+        through HTTP
+
+        % TODO: elaborate?
+    \end{sitemize}
+\end{frame}
+
+\subsection{Pros \& Cons}
+\begin{frame}[t]
+    \frametitle{Pros \& cons}
+
+    \begin{sitemize}
+        \item \textbf{Pros}
+        \begin{sitemize}
+            \item Bypasses restrictive outbound filters at both a
+            network and application level
+
+            \pause
+            \item Provides a method for using complex code written
+            in a high-level language
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Cons}
+        \begin{sitemize}
+            \item Does not work when run as a non-privileged user
+            \begin{sitemize}
+                \item Internet Explorer refuses to download ActiveX
+                controls
+            \end{sitemize}
+
+            \pause
+            \item Requires the ActiveX control to restore
+            \texttt{Internet} zone settings
+            \begin{sitemize}
+                \item May leave the machine vulnerable to compromise
+                if not done
+            \end{sitemize}
+        \end{sitemize}
+
+    \end{sitemize}
+\end{frame}
+
+\section{Egghunt}
+\begin{frame}[t]
+    \frametitle{Overview}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Hunting for eggs with SEH}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Hunting for eggs with system calls}
+\end{frame}
+
+\pdfpart{Payload Stages}
+
+\begin{frame}[t]
+    \frametitle{What are post-exploitation stages?}
+\end{frame}
+
+\section{Library Injection}
+\begin{frame}[t]
+    \frametitle{Overview}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Types of library injection}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{In-memory library injection on Windows}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{In-memory library injection on UNIX}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Library injection in action: VNC}
+\end{frame}
+
+\section{Meterpreter}
+\begin{frame}[t]
+    \frametitle{Overview}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Design goals}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Communication protocol specification}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Client/Server architecture}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Extension flexibilities}
+\end{frame}
+\begin{frame}[t]
+    \frametitle{Meterpreter extensions in action: Stdapi}
+\end{frame}
+
+\section{DispatchNinja}
+\begin{frame}[t]
+    \frametitle{Cool dN stuff here}
+\end{frame}
+
+\pdfpart{Post-Exploitation Suites}
+
+\section{Post-Exploitation Suites}
+    \subsection{Motivations \& Goals}
+
+\begin{frame}[t]
+    \frametitle{stuff}
+\end{frame}
+
+\pdfpart{Conclusion}
+
+\begin{frame}[t]
+    \frametitle{Reference Material}
+
+    \textbf{Payload Stagers}
+    \begin{sitemize}
+        \item Windows Ordinal Stagers \\
+        \footnotesize{\url{http://www.metasploit.com/users/spoonm/ordinals.txt}}
+        \item PassiveX \\
+        \footnotesize{\url{http://www.uninformed.org/?v=1&a=3&t=sumry}}
+    \end{sitemize}
+\end{frame}
+
+\appendix
+
+\pdfpart{Appendix: Payload Stagers}
+\section{Windows Ordinal Stagers}
+\subsection{Reverse Ordinal Stager Implementation}
 \begin{frame}[fragile]
     \frametitle{Locating WS2\_32.DLL's base address}
 
@@ -394,83 +680,5 @@ FFE5       jmp ebp               ; call connect
 \end{verbatim}
 }
 \end{frame}
-
-\section{PassiveX}
-\begin{frame}[t]
-    \frametitle{Overview}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Implementation}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Practical use: HTTP tunneling}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Pros \& cons}
-\end{frame}
-
-\section{Egghunt}
-\begin{frame}[t]
-    \frametitle{Overview}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Hunting for eggs with SEH}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Hunting for eggs with system calls}
-\end{frame}
-
-\pdfpart{Payload Stages}
-
-\begin{frame}[t]
-    \frametitle{What are post-exploitation stages?}
-\end{frame}
-
-\section{Library Injection}
-\begin{frame}[t]
-    \frametitle{Overview}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Types of library injection}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{In-memory library injection on Windows}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{In-memory library injection on UNIX}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Library injection in action: VNC}
-\end{frame}
-
-\section{Meterpreter}
-\begin{frame}[t]
-    \frametitle{Overview}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Design goals}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Communication protocol specification}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Client/Server architecture}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Extension flexibilities}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Meterpreter extensions in action: Stdapi}
-\end{frame}
-
-\section{DispatchNinja}
-\begin{frame}[t]
-    \frametitle{Cool dN stuff here}
-\end{frame}
-
-\pdfpart{Post-Exploitation Suites}
-
-\section{Post-Exploitation Suites}
-    \subsection{Motivations \& Goals}
 
 \end{document}
