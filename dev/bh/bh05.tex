@@ -14,6 +14,7 @@
 % Love from spoon
 \newcommand{\pdfpart}[1]{\label{pdfpart-#1}\pdfbookmark[0]{#1}{pdfpart-#1}\part{#1}}
 \newenvironment{sitemize}{\vspace{1mm}\begin{itemize}\itemsep 4pt\small}{\end{itemize}}
+\newenvironment{senumerate}{\vspace{1mm}\begin{enumerate}\itemsep 4pt\small}{\end{enumerate}}
 
 % Presentation meta-information
 \title{Beyond EIP}
@@ -65,7 +66,6 @@
         \begin{sitemize}
             \item Windows Ordinal Stagers
             \item PassiveX
-            \item Egghunt
         \end{sitemize}
 
         \pause
@@ -521,36 +521,136 @@
     \end{sitemize}
 \end{frame}
 
-\section{Egghunt}
-\begin{frame}[t]
-    \frametitle{Overview}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Hunting for eggs with SEH}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Hunting for eggs with system calls}
-\end{frame}
-
 \pdfpart{Payload Stages}
 
 \begin{frame}[t]
-    \frametitle{What are post-exploitation stages?}
+    \frametitle{What are payload stages?}
+
+    \begin{sitemize}
+        \item Payload stages are executed by payload stagers and
+        perform arbitrary tasks
+
+        \pause
+        \item Some examples of payload stages include
+        \begin{sitemize}
+            \item Execute a command shell and redirect IO to the
+            attacker
+            \item Execute an arbitrary command
+            \item Download an executable from a URL and execute it
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Why are payload stages useful?}
+
+    \begin{sitemize}
+        \item Can be executed independent of connection method
+        (portbind, reverse)
+        \begin{sitemize}
+            \item All stagers store the connection file descriptor
+            in a common register
+        \end{sitemize}
+
+        \pause
+        \item Not subject to size limitations of individual
+        vulnerabilities
+    \end{sitemize}
 \end{frame}
 
 \section{Library Injection}
+
+\subsection{Overview}
+
 \begin{frame}[t]
-    \frametitle{Overview}
+    \frametitle{The library injection stage}
+
+    \begin{sitemize}
+        \item Payload stage that provides a method of loading a
+        library (DLL) into the exploited process
+
+        \pause
+        \item Libraries are functionally equivalent to executables
+        \begin{sitemize}
+            \item Full access to various OS-provided APIs
+            \item Can do anything an executable can do
+        \end{sitemize}
+
+        \pause
+        \item Library injection is covert; no new processes
+        need to be created
+
+        \pause
+        \item Technical write-up at \\
+        \footnotesize{\url{http://www.nologin.org/Downloads/Papers/remote-library-injection.pdf}}
+
+        % TODO: elaborate?
+    \end{sitemize}
 \end{frame}
+
 \begin{frame}[t]
     \frametitle{Types of library injection}
+
+    \begin{sitemize}
+        \item Three primary methods exist to inject a library
+        \begin{senumerate}
+            \item \textbf{On-Disk}: loading a library from the target's
+            harddrive or a file share
+            \item \textbf{In-Memory}: loading a library entirely from memory
+            \item \textbf{ActiveX}: loading a library through Internet
+            Explorer's ActiveX support
+        \end{senumerate}
+        \item On-Disk and In-Memory techniques are conceptually
+        portable to non-Windows platforms
+    \end{sitemize}
 \end{frame}
+
 \begin{frame}[t]
-    \frametitle{In-memory library injection on Windows}
+    \frametitle{On-Disk library injection}
+
+    \begin{sitemize}
+        \item Loading a library from disk has been the defacto
+        standard for Windows payloads
+        \item Loading a library from a file share first
+        discussed by Brett Moore
+
+        \pause
+        \item Subject to filtering by Antivirus due to
+            filesystem access
+        \item Requires that the library file exist on the target's
+            harddrive or that the file share be reachable
+    \end{sitemize}
 \end{frame}
+
 \begin{frame}[t]
-    \frametitle{In-memory library injection on UNIX}
+    \frametitle{In-Memory library injection}
+
+    \begin{sitemize}
+        \item First Windows implementation released with Metasploit 2.2
+
+        \pause
+        \item Libraries are loaded entirely from memory
+
+        \pause
+        \item No disk access means no Antivirus interference
+
+        \pause
+        \item Most stealthy form of library injection thus far
+        identified
+    \end{sitemize}
 \end{frame}
+
+\subsection{Implementation on Windows}
+
+\begin{frame}[t]
+    \frametitle{Implementing In-Memory library injection on Windows}
+
+    \begin{sitemize}
+        \item Loading libraries from memory means tricking the
+        native loader provided in \texttt{NTDLL.DLL}
+    \end{sitemize}
+\end{frame}
+
 \begin{frame}[t]
     \frametitle{Library injection in action: VNC}
 \end{frame}
@@ -601,6 +701,11 @@
         \item PassiveX \\
         \footnotesize{\url{http://www.uninformed.org/?v=1&a=3&t=sumry}}
     \end{sitemize}
+    \textbf{Payload Stages}
+    \begin{sitemize}
+        \item Library Injection \\
+        \footnotesize{\url{http://www.nologin.org/Downloads/Papers/remote-library-injection.pdf}}
+    \end{sitemize}
 \end{frame}
 
 \appendix
@@ -644,8 +749,8 @@ AD         lodsd                 ; eax = [esi] ; esi += 4
 01E9       add ecx,ebp           ; ecx += ws2base
 8B4158     mov eax,[ecx+0x58]    ; eax = socket rva
 01E8       add eax,ebp           ; eax += ws2base
-8B713C     mov esi,[ecx+0x3c]    ; eax = recv rva
-01EE       add esi,ebp           ; eax += ws2base
+8B713C     mov esi,[ecx+0x3c]    ; esi = recv rva
+01EE       add esi,ebp           ; esi += ws2base
 03690C     add ebp,[ecx+0xc]     ; ebp += connect rva
     \end{verbatim}
 }
