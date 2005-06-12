@@ -37,9 +37,8 @@
   \titlepage
 \end{frame}
 
-\part{Introduction}
+\pdfpart{Introduction}
 
-\section{Introduction}
 \begin{frame}[t]
     \frametitle{Who are we?}
 
@@ -294,8 +293,9 @@
         findsock stagers
         \item Leads to very tiny win32 stagers (92 byte reverse, 93
         byte findsock)
-        \item Technical write-up at
-        \footnotesize{\url{http://www.metasploit.com/users/spoonm/ordinals.txt}}
+
+        \pause
+        \item Detailed write-up can be found in reference materials
     \end{sitemize}
 \end{frame}
 
@@ -379,8 +379,9 @@
         \item Uses HTTP to communicate with attacker
         \item Provides an alternate vector for library injection via
         ActiveX
-        \item Technical write-up at
-        \footnotesize{\url{http://www.uninformed.org/?v=1&a=3&t=sumry}}
+
+        \pause
+        \item Detailed write-up can be found in reference materials
     \end{sitemize}
 \end{frame}
 
@@ -581,8 +582,7 @@
         need to be created
 
         \pause
-        \item Technical write-up at \\
-        \footnotesize{\url{http://www.nologin.org/Downloads/Papers/remote-library-injection.pdf}}
+        \item Detailed write-up can be found in reference materials
 
         % TODO: elaborate?
     \end{sitemize}
@@ -611,11 +611,13 @@
     \begin{sitemize}
         \item Loading a library from disk has been the defacto
         standard for Windows payloads
-        \item Loading a library from a file share first
+        \item Loading a library from a file share was first
         discussed by Brett Moore
+    \end{sitemize}
 
-        \pause
-        \item Subject to filtering by Antivirus due to
+    \pause
+    \begin{sitemize}
+        \item On-Disk injection subject to filtering by Antivirus due to
             filesystem access
         \item Requires that the library file exist on the target's
             harddrive or that the file share be reachable
@@ -640,28 +642,152 @@
     \end{sitemize}
 \end{frame}
 
-\subsection{Implementation on Windows}
-
 \begin{frame}[t]
-    \frametitle{Implementing In-Memory library injection on Windows}
+    \frametitle{ActiveX library injection}
 
     \begin{sitemize}
-        \item Loading libraries from memory means tricking the
-        native loader provided in \texttt{NTDLL.DLL}
+        \item Uses Internet Explorer's ActiveX support to inject a DLL
+        \item Reliant on zone restrictions being set to permit ActiveX
+
+        \pause
+        \item Subject to filtering by Antivirus
+
+        \pause
+        \item Implemented by the PassiveX stager described earlier
+    \end{sitemize}
+\end{frame}
+
+\subsection{In-Memory Implementation on Windows}
+
+\begin{frame}[t]
+    \frametitle{In-Memory library injection on Windows}
+
+    \begin{sitemize}
+        \item Library loading on Windows is provided through \texttt{NTDLL.DLL}
+        \item \texttt{NTDLL.DLL} only supports loading libraries from disk
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item To load libraries from memory, \texttt{NTDLL.DLL} must be tricked
+
+        \pause
+        \item When loading libraries, low-level system calls are used to interact with the library on disk
+        \begin{sitemize}
+            \item \texttt{NtOpenFile}
+            \item \texttt{NtCreateSection}
+            \item \texttt{NtMapViewOfSection}
+        \end{sitemize}
+        \item These routines can be hooked to change their behavior to operate against a memory region
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item Once hooked, calling \texttt{LoadLibraryA} with a unique pseudo file name is all that's needed
+    \end{sitemize}
+\end{frame}
+
+\subsection{Example DLL: VNC}
+
+\begin{frame}[t]
+    \frametitle{Library injection in action: VNC}
+
+    \begin{sitemize}
+        \item VNC is a remote desktop protocol
+        \item Very useful for remote administration beyond simple CLIs
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item First demonstrated at BlackHat USA 2004
+
+        \pause
+        \item Metasploit team converted RealVNC to a standalone DLL
+        \begin{sitemize}
+            \item No non-standard file dependencies
+            \item No installation required
+            \item Does not make any registry or filesystem changes
+            \item Does not listen on a port; uses payload connection as a VNC client
+        \end{sitemize}
+
+        \pause
+        \item By using the generic library loading stage, VNC was simply plugged in
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item Extremely useful when illustrating security weaknesses
+        \item Suits understand mouse movement much better than command lines
+    \end{sitemize}
+\end{frame}
+
+\section{Meterpreter}
+
+\subsection{Overview}
+
+\begin{frame}[t]
+    \frametitle{The Meterpreter stage}
+
+    \begin{sitemize}
+        \item First released with Metasploit 2.3
+        \item Implemented using library injection technology
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item Primary goals are to be...
+        \begin{sitemize}
+            \item \textbf{Stealthy}: no disk access and no new process by default
+            \item \textbf{Powerful}: channelized communication and robust protocol
+            \item \textbf{Extensible}: run-time augmentation of features with extensions
+        \end{sitemize}
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item Detailed write-up can be found in reference materials
     \end{sitemize}
 \end{frame}
 
 \begin{frame}[t]
-    \frametitle{Library injection in action: VNC}
+    \frametitle{Why is Meterpreter useful?}
+
+    \begin{sitemize}
+        \item Platform independent design
+        \begin{sitemize}
+            \item Current implementation is Windows specific, but
+            concepts are portable
+        \end{sitemize}
+
+        \pause
+        \item Standard interface makes it possible to use one client
+        to perform common actions on various platforms
+
+        \begin{sitemize}
+            \pause
+            \item Execute a command interpreter and channelize the
+            output
+
+            \pause
+            \item Turn on the target's USB webcam and begin
+            streaming video
+        \end{sitemize}
+
+        \pause
+        \item Programmatically automatable
+        \begin{sitemize}
+            \item RPC-like protocol allows arbitrarily complex tasks
+            to be performed with a common interface
+            \item Extension-based architecture makes Meterpreter
+            completely flexible
+        \end{sitemize}
+
+        \pause
+        \item Use of in-memory library injection makes it possible
+        to run in a stealth fashion
+    \end{sitemize}
 \end{frame}
 
-\section{Meterpreter}
-\begin{frame}[t]
-    \frametitle{Overview}
-\end{frame}
-\begin{frame}[t]
-    \frametitle{Design goals}
-\end{frame}
 \begin{frame}[t]
     \frametitle{Communication protocol specification}
 \end{frame}
@@ -705,6 +831,8 @@
     \begin{sitemize}
         \item Library Injection \\
         \footnotesize{\url{http://www.nologin.org/Downloads/Papers/remote-library-injection.pdf}}
+        \item Meterpreter \\
+        \footnotesize{\url{http://www.nologin.org/Downloads/Papers/meterpreter.pdf}}
     \end{sitemize}
 \end{frame}
 
