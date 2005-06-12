@@ -1082,14 +1082,32 @@ Notes on post-exploitation
 
  - Core Impact / Syscall Proxying
 
+  + Mainly written to support their feature set, not to expose it to an end
+    user.  Don't think you're going to get much access to the syscall libraries,
+    they are all written in C and dlls for the most part it seems.
+
+  + you get their nice features, pivoting, file access, minishell, etc, but
+    for anything beyond that, you have to upgrade your agent, and then I don't
+    believe those are using syscall proxying type things anymore.  I think some
+    of them bundle python interpreters...
+
   + how it works
   + really cool, and simple
   + no need to write vicitim-side code for any calls you want to make
   + inefficent for some types of things (port scanning)
-  + not very well exposed in impact, used to implement their features, not
-    used to expose the raw capabilities to an arbitrary user
 
  - CANVAS
+
+ - mosdef
+   - model is very similar to dN
+   - you have to write a client and server component
+   - build environment not seperated, have you write your client side component
+     in wanna-be-aitel c, and have you have it in a python script.
+   - he has an API to do some stuff, but mostly low level stuff, and nothing
+     high level and cool.
+   - like all of his stuff, it's very rough and primitive seeming.  I'm sure,
+     just like spike, you can do some cool stuff with it, but it's like building
+     a car with a rock, or something...
 
   + Code is dirty....
   +
