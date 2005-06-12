@@ -293,8 +293,6 @@
         findsock stagers
         \item Leads to very tiny win32 stagers (92 byte reverse, 93
         byte findsock)
-
-        \pause
         \item Detailed write-up can be found in reference materials
     \end{sitemize}
 \end{frame}
@@ -379,8 +377,6 @@
         \item Uses HTTP to communicate with attacker
         \item Provides an alternate vector for library injection via
         ActiveX
-
-        \pause
         \item Detailed write-up can be found in reference materials
     \end{sitemize}
 \end{frame}
@@ -806,7 +802,7 @@
         requirements without modification
 
         \pause
-        \item Exposure of a channelized communication system for
+        \item Should expose a channelized communication system for
         extensions
 
         \pause
@@ -869,6 +865,26 @@
 
 \begin{frame}[t]
     \frametitle{Meterpreter extensions in action: Stdapi}
+
+    \begin{sitemize}
+        \item Included in Metasploit 3.0
+        \item Combination of previous extensions into standard
+        interface
+
+        \pause
+        \item Provides access to standard OS features
+        \begin{sitemize}
+            \item Process execution, enumeration, and manipulation
+            \item Registry manipulation
+            \item File reading, writing, uploading, and downloading
+            \item Network pivoting
+            \item Route table and interface manipulation
+            \item \emph{Much} more
+        \end{sitemize}
+
+        \pause
+        \item Feature set provides for robust client-side automation
+    \end{sitemize}
 \end{frame}
 
 \section{DispatchNinja}
