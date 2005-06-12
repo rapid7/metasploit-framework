@@ -470,7 +470,7 @@
     \end{sitemize}
 \end{frame}
 
-\subsection{HTTP Tunneling ActiveX Control}
+\subsection{Example ActiveX: HTTP Tunneling Control}
 \begin{frame}[t]
     \frametitle{An example ActiveX control}
 
@@ -731,6 +731,14 @@
     \begin{sitemize}
         \item First released with Metasploit 2.3
         \item Implemented using library injection technology
+
+        \pause
+        \item Uses payload connection for communicating with
+        attacker
+        \begin{sitemize}
+            \item Especially powerful with findsock payloads; no new
+            connection established
+        \end{sitemize}
     \end{sitemize}
 
     \pause
@@ -788,15 +796,77 @@
     \end{sitemize}
 \end{frame}
 
+\subsection{Implementation}
+
 \begin{frame}[t]
-    \frametitle{Communication protocol specification}
+    \frametitle{Architecture - design goals}
+
+    \begin{sitemize}
+        \item Very flexible protocol; should adapt to extension
+        requirements without modification
+
+        \pause
+        \item Exposure of a channelized communication system for
+        extensions
+
+        \pause
+        \item Should be as stealthy as possible
+
+        \pause
+        \item Should be portable to various platforms
+
+        \pause
+        \item Clients on one platform should work with servers on
+        another
+    \end{sitemize}
 \end{frame}
+
 \begin{frame}[t]
-    \frametitle{Client/Server architecture}
+    \frametitle{Architecture - protocol}
+
+    \begin{sitemize}
+        \item Uses TLV (\texttt{Type-Length-Value}) to support
+        opaque data
+
+        \pause
+        \item Every packet is composed of zero or more TLVs
+
+        \pause
+        \item Packets themselves are TLVs
+        \begin{sitemize}
+            \item Type is the packet type (request, response)
+            \item Length is the length of the packet
+            \item Value is zero or more embedded TLVs
+        \end{sitemize}
+
+        \pause
+        \item TLVs make packet parsing simplistic and flexible
+        \begin{sitemize}
+            \item No formatting knowledge is required to parse the
+            packet outside of the TLV structure
+        \end{sitemize}
+    \end{sitemize}
 \end{frame}
+
 \begin{frame}[t]
-    \frametitle{Extension flexibilities}
+    \frametitle{Core client/server interface}
+
+    \begin{sitemize}
+        \item Minimal interface to support the loading of extensions
+
+        \pause
+        \item Implements basic packet transmission and dispatching
+        \item Exposes channel allocation and management to
+        extensions
+
+        \pause
+        \item Also includes support for migrating the server to
+        another running process
+    \end{sitemize}
 \end{frame}
+
+\subsection{Example Extension: Stdapi}
+
 \begin{frame}[t]
     \frametitle{Meterpreter extensions in action: Stdapi}
 \end{frame}
