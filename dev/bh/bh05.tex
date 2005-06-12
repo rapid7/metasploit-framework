@@ -1001,3 +1001,97 @@ FFE5       jmp ebp               ; call connect
 \end{frame}
 
 \end{document}
+
+
+\begin{comment}
+
+
+NOTEZ
+
+First
+
+What aren't we talking about
+  - New exploit vectors
+  - New exploit techniques
+  - Bugs in any shape, size, or form
+
+What is encoding, and why do we do it?
+  - Bad character avoidence, don't need special case payloads for that..
+  - Added bonus of evasion
+  - Nice because you usually just need to write 1 good encoder...
+
+What is staging, and why?
+  - Size problem
+  - Multiple your aresenal, 5 stagers + 5 stages, 10 shellcodes, but 25 payloads
+
+Should move around the ordinal information, explain what ordinals are first.
+Talk about how ordinals are diffined to be static in their .lib
+List some of the limitations for ws2_32 (like no WSASocket, and what that means
+in terms of writing shellcode, pipe shell, etc).
+
+
+Post exploitation.
+
+What's most important to them
+1) Features
+2) Evasion
+3) Technology.
+
+The order we should present is reverse, save the best for last
+
+1) introduce and explain the technology
+  - dll injection
+  - TLV protocol, async, threadsafe, meterp sharing, etc
+  - Ruby APIs (how they emulate the native APIs, native API replacement, etc)
+
+2) explain how this has the added benefit against anti-forensics
+  - no disk access
+  - anti-debugging
+  - page locking / swapping prevention
+  - encryption
+  - connection reuse and tunneling / channels
+  - no filesystem .exe loading...
+
+3) explain the type of features an end-pentester would see
+  - pivoting / portfwd
+  - file upload / download, list, run, etc
+  - channels, multiple command shells, hung terminal doesn't totally fuck you
+  - vnc / idle time stffu (ties into stealthyness)
+
+Possible flashy demos:
+  - migrating
+  - Possibly change window colors, move windows, etc in the process we migrate
+    to.  Was shok's idea, so you could "visualize" the migrate, etc.
+  - Do some flashy no-disk .exe injection, send up an opengl demo!
+
+Interesting asides:
+  - Great for testing (Metatest, bringing you a better Metasploit Framework!)
+  - make a insanely great remote control application (automation)
+
+
+Future stuff:
+  - Botnetesk type stuff / mesh
+  - Listening meterp / multiple control channels / better collaboration..
+
+
+
+OLD ----
+
+
+Notes on post-exploitation
+
+ - Core Impact / Syscall Proxying
+
+  + how it works
+  + really cool, and simple
+  + no need to write vicitim-side code for any calls you want to make
+  + inefficent for some types of things (port scanning)
+  + not very well exposed in impact, used to implement their features, not
+    used to expose the raw capabilities to an arbitrary user
+
+ - CANVAS
+
+  + Code is dirty....
+  +
+
+\end{comment}
