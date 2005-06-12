@@ -94,31 +94,35 @@
 \end{frame}
 
 \begin{frame}[t]
-    \frametitle{Background: the exploitation cycle}
+    \frametitle{Our definitions: the exploitation cycle}
 
     \begin{sitemize}
         \item \textbf{Pre-exploitation} - Before the attack
         \begin{sitemize}
-            \item Find a bug and isolate it
-            \item Write the exploit, payloads, and tools
+            \item Find a bug and locate the code
+            \item Write the exploit
+	    \item Write any other tools, shellcode, etc
         \end{sitemize}
 
         \pause
         \item \textbf{Exploitation} - Leveraging the vulnerability
         \begin{sitemize}
+	    \item Do some recon, gather information
             \item Find a vulnerable target
-            \item Gather information
-            \item Initialize tools and post-exploitation handlers
+	    \item Get network access to vulnerable target, etc
+            \item Initialize tools, infrastructure, etc
             \item Launch the exploit
         \end{sitemize}
 
         \pause
         \item \textbf{Post-exploitation} - Manipulating the target
         \begin{sitemize}
+	    % NOTE:
+	    \item Not so much the command shell itself, but what you do with it
             \item Command shell redirection
             \item Arbitrary command execution
-            \item Pivoting
             \item Advanced payload interaction
+	    \item File access, VNC, pivoting, etc
         \end{sitemize}
     \end{sitemize}
 \end{frame}
