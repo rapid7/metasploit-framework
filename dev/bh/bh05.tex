@@ -37,6 +37,13 @@
   \titlepage
 \end{frame}
 
+
+%
+% Introduction
+%  - Who are we
+%  - Why are we here, what will we say
+%  - What order we're going to say it in
+%
 \pdfpart{Introduction}
 
 \begin{frame}[t]
@@ -126,6 +133,25 @@
     \end{sitemize}
 \end{frame}
 
+%
+% This section is basically here to introduce them to all of the mechanisms
+% of a modern day payload system.  Just introduce and define the pieces, and
+% explain their roles.  Then, later, we will discuss the details of them..
+%
+% We should try hard not to introduce anything new in this section!, Any
+% examples in explainations
+%
+% This section should be an _introduction_ to what payload infrastructure is
+% but it should not have any specific details about our implementations.
+%
+% - What is a nop sled, and why / how / when  do we use them
+% - What is an encoder, and why / how / when do we use them
+% - What is a stager and stage, why / how / when do we use them
+% 
+% We should also talk about egghunt, heapfix, jmpcode, etc.  We should have
+% a name for these sort of things, they are like "bootstrap" codes, or 
+% something.  Like, we need a a good name for them dude!
+%
 \pdfpart{Payload Infrastructure}
 
 \section{Introduction}
@@ -154,82 +180,21 @@
 % Don't really need them for win32, why?
 % Previous work (0x90, admutate)
 
-\subsection{OptyNop2}
-% Multi byte sled, just an example output
-% Things it supports
-% - jmps, loops
-% - prefixes
-% - badchar/reg avoidence, etc
-
 \section{Encoders}
 \subsection{Introduction}
-\subsection{Shikata}
+% Why, etc
+% Talk about any previous work?
 
 \section{Payloads}
 \subsection{Introduction}
-% Previous work
-% InlineEgg, mosdef
+% Previous work?
 % Explain singles/stagers/stages
 
 \subsection{Egg Hunters}
 % What is an egghunter and why
-% Syscall research
-% Maybe some of the linux stuff too
+
 \subsection{Stagers}
 % What is a stager and why
-% Ordinal
-% General staging architecture...
-% DLL injection.. stager?
-\subsection{Stages}
-% Command shell
-% Piped shell for socket() (ordinal stuff)
-% mention how post-exploitatoin tools would generally be a stage..
-
-\section{Post-exploitation}
-\begin{frame}[t]
-    \frametitle{Standard payloads}
-
-    \begin{sitemize}
-        \item Standard payloads provide the most basic manipulation
-        of a target
-        \begin{sitemize}
-            \item Port-bind command shell
-            \item Reverse (connectback) command shell
-            \item Arbitrary command execution
-        \end{sitemize}
-
-        \pause
-        \item Nearly all PoC exploits use standard payloads
-
-        \pause
-        \item Command shells have poor automation support
-        \begin{sitemize}
-            \item Platform dependent intrinsic commands and
-            scripting
-            \item Reliant on the set of applications installed on the
-            machine
-            \item Hindered by chroot jails and host-based ACLs
-        \end{sitemize}
-    \end{sitemize}
-\end{frame}
-
-\begin{frame}[t]
-    \frametitle{``Advantage'' payloads}
-
-    \begin{sitemize}
-        \item Advantage payloads provide enhanced manipulation of
-        hosts, commonly through the native API
-        \item Help to reduce the tediousness of writing payloads
-
-        \item Core ST's InlineEgg
-
-        % TODO: Elaborate on InlineEgg
-        % TODO: others...
-    \end{sitemize}
-\end{frame}
-
-\pdfpart{Payload Stagers}
-
 \begin{frame}[t]
     \frametitle{What are payload stagers?}
 
@@ -281,6 +246,68 @@
     \end{sitemize}
 \end{frame}
 
+\subsection{Stages}
+% Command shell
+% or whatever
+\begin{frame}[t]
+    \frametitle{What are payload stages?}
+
+    \begin{sitemize}
+        \item Payload stages are executed by payload stagers and
+        perform arbitrary tasks
+
+        \pause
+        \item Some examples of payload stages include
+        \begin{sitemize}
+            \item Execute a command shell and redirect IO to the
+            attacker
+            \item Execute an arbitrary command
+            \item Download an executable from a URL and execute it
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Why are payload stages useful?}
+
+    \begin{sitemize}
+        \item Can be executed independent of connection method
+        (portbind, reverse)
+        \begin{sitemize}
+            \item All stagers store the connection file descriptor
+            in a common register
+        \end{sitemize}
+
+        \pause
+        \item Not subject to size limitations of individual
+        vulnerabilities
+    \end{sitemize}
+\end{frame}
+
+
+\begin{frame}[t]
+    \frametitle{``Advantage'' payloads}
+
+    \begin{sitemize}
+        \item Advantage payloads provide enhanced manipulation of
+        hosts, commonly through the native API
+        \item Help to reduce the tediousness of writing payloads
+
+        \item Core ST's InlineEgg
+
+        % TODO: Elaborate on InlineEgg
+        % TODO: others...
+    \end{sitemize}
+\end{frame}
+
+\pdfpart{Nop Sleds}
+
+\section{OptyNop2}
+
+\begin{frame}
+\end{frame}
+
+\pdfpart{Payload Stagers}
 \section{Windows Ordinal Stagers}
 
 \subsection{Overview}
@@ -523,41 +550,6 @@
 \end{frame}
 
 \pdfpart{Payload Stages}
-
-\begin{frame}[t]
-    \frametitle{What are payload stages?}
-
-    \begin{sitemize}
-        \item Payload stages are executed by payload stagers and
-        perform arbitrary tasks
-
-        \pause
-        \item Some examples of payload stages include
-        \begin{sitemize}
-            \item Execute a command shell and redirect IO to the
-            attacker
-            \item Execute an arbitrary command
-            \item Download an executable from a URL and execute it
-        \end{sitemize}
-    \end{sitemize}
-\end{frame}
-
-\begin{frame}[t]
-    \frametitle{Why are payload stages useful?}
-
-    \begin{sitemize}
-        \item Can be executed independent of connection method
-        (portbind, reverse)
-        \begin{sitemize}
-            \item All stagers store the connection file descriptor
-            in a common register
-        \end{sitemize}
-
-        \pause
-        \item Not subject to size limitations of individual
-        vulnerabilities
-    \end{sitemize}
-\end{frame}
 
 \section{Library Injection}
 
