@@ -65,7 +65,7 @@
         \begin{sitemize}
 	    \item New exploit / attack vectors
 	    \item New exploitation techniques
-	    \item Oday, bugs, etc
+	    \item 0day, bugs, etc
         \end{sitemize}
 	\pause
 	\item What it is about
@@ -101,18 +101,15 @@
     \begin{sitemize}
         \item \textbf{Pre-exploitation} - Before the attack
         \begin{sitemize}
-            \item Find a bug and locate the code
-            \item Write the exploit
+            \item Find a bug, isolate, write exploit
 	    \item Write any other tools, shellcode, etc
         \end{sitemize}
 
         \pause
         \item \textbf{Exploitation} - Leveraging the vulnerability
         \begin{sitemize}
-	    \item Do some recon, gather information
-            \item Find a vulnerable target
-	    \item Get network access to vulnerable target, etc
-            \item Initialize tools, infrastructure, etc
+	    \item Recon, information gathering, find target
+            \item Initialize tools and infrastructure
             \item Launch the exploit
         \end{sitemize}
 
@@ -135,6 +132,7 @@
 
 \begin{frame}[t]
   \frametitle{Anatomy of a Payload}
+  \Large{[ nops ] [ decoder ( encoded payload ) ]}
   \begin{sitemize}
     \item Nop sled
       \item For exploits where return is uncertain
@@ -192,25 +190,6 @@
         \pause
         \item Metasploit 2.4 released with a wide-distribution
         multi-byte x86 NOP generator (Opty2)
-    \end{sitemize}
-\end{frame}
-
-\section{Exploitation}
-\begin{frame}[t]
-    \frametitle{Exploitation techniques}
-
-    \begin{sitemize}
-        \item Exploitation techniques have become very mature
-        \begin{sitemize}
-            \item Linux/BSD/Solaris techniques are largely unchanged
-            \item Windows heap overflows can be made more reliable (Oded/Shok)
-            \item Windows SEH overwrites make exploitation easy, even on XPSP2
-        \end{sitemize}
-
-        \pause
-        \item Exploitation vectors have been beaten to death
-        \pause
-        \item ...so we wont be talking about them
     \end{sitemize}
 \end{frame}
 
