@@ -147,51 +147,43 @@
   \end{sitemize}
 \end{frame}
 
+\section{Nop sleds}
+\subsection{Introduction}
+%
+% Why do we use them?
+% Don't really need them for win32, why?
+% Previous work (0x90, admutate)
 
-\section{Pre-exploitation}
-\begin{frame}[t]
-    \frametitle{Payload encoders}
+\subsection{OptyNop2}
+% Multi byte sled, just an example output
+% Things it supports
+% - jmps, loops
+% - prefixes
+% - badchar/reg avoidence, etc
 
-    \begin{sitemize}
-        \item Robust and elegant encoders do exist
-        \begin{sitemize}
-            \item SkyLined's Alpha2 x86 alphanumeric encoder
-            \item Spoonm's high-permutation Shikata Ga Nai
-        \end{sitemize}
+\section{Encoders}
+\subsection{Introduction}
+\subsection{Shikata}
 
-        \pause
-        \item Payload encoders generally taken for granted
-        \begin{sitemize}
-            \item Most encoders use a static decoder stub
-            \item Makes NIDS signatures easy to write
-        \end{sitemize}
-    \end{sitemize}
-\end{frame}
+\section{Payloads}
+\subsection{Introduction}
+% Previous work
+% InlineEgg, mosdef
+% Explain singles/stagers/stages
 
-\begin{frame}[t]
-    \frametitle{NOP generators}
-
-    \begin{sitemize}
-        \item NOP generation hasn't publicly changed much
-        \begin{sitemize}
-            \item Most PoC exploits use predictable single-byte NOPs (\texttt{0x90}), if any
-            \item ADMmutate's NOP generator easily signatured by NIDS (Snort, Fnord)
-            \item Not considered an important research topic to most
-        \end{sitemize}
-
-        \pause
-        \item Still, NIDS continues to play chase the tail
-        \begin{sitemize}
-            \item The mouse always has the advantage; NIDS is reactive
-            \item Advanced NOP generators and encoders push NIDS to its limits
-            \item Many protocols can be complex to signature (DCERPC fragmentation)
-        \end{sitemize}
-
-        \pause
-        \item Metasploit 2.4 released with a wide-distribution
-        multi-byte x86 NOP generator (Opty2)
-    \end{sitemize}
-\end{frame}
+\subsection{Egg Hunters}
+% What is an egghunter and why
+% Syscall research
+% Maybe some of the linux stuff too
+\subsection{Stagers}
+% What is a stager and why
+% Ordinal
+% General staging architecture...
+% DLL injection.. stager?
+\subsection{Stages}
+% Command shell
+% Piped shell for socket() (ordinal stuff)
+% mention how post-exploitatoin tools would generally be a stage..
 
 \section{Post-exploitation}
 \begin{frame}[t]
