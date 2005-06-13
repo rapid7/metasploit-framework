@@ -127,7 +127,26 @@
     \end{sitemize}
 \end{frame}
 
-\pdfpart{Exploitation Technology's State of Affairs}
+\pdfpart{Payload Infrastructure}
+
+\section{Introduction}
+
+\begin{frame}[t]
+  \frametitle{Anatomy of a Payload}
+  \begin{sitemize}
+    \item Nop sled
+      \item For exploits where return is uncertain
+      \item Control flows through the sled into the encoder
+      \item Generally 1 byte aligned for x86
+      \item Not very common for win32 exploits
+    \item Encoder (aka Decoder)
+      \item loops and decodes payload
+      \item payload executed when finished
+    \item Payload
+      \item do something cool here
+  \end{sitemize}
+\end{frame}
+
 
 \section{Pre-exploitation}
 \begin{frame}[t]
