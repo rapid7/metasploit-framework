@@ -1,3 +1,5 @@
+[12:52:34] -> *spewnum* damn you! :) fine, we'll just call them payloads, and then we'll break it up as Payload Stagers, Payload Stages, and
+              Post-exploitation suites, does that sound coo?     
 
 I. Introduction
    A. Who are we?
