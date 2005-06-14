@@ -138,7 +138,44 @@ class EventLog
 		end
 	end
 
+	#
+	# Return the record number of the oldest event (not necessarily 1)
+	#
+	def oldest
+		request = Packet.create_request('stdapi_sys_eventlog_oldest')
 
+		request.add_tlv(TLV_TYPE_EVENT_HANDLE, self.handle);
+
+		response = client.send_request(request)
+
+		return response.get_tlv_value(TLV_TYPE_EVENT_RECORDNUMBER)
+	end
+
+	#
+	# Clear the specified event log (and return nil).
+	#--
+	# I should eventually support BackupFile
+	#++
+	def clear
+		request = Packet.create_request('stdapi_sys_eventlog_clear')
+
+		request.add_tlv(TLV_TYPE_EVENT_HANDLE, self.handle);
+
+		response = client.send_request(request)
+		return nil
+	end
+
+	#
+	# Return the record number of the oldest event (not necessarily 1)
+	#
+	def close
+		request = Packet.create_request('stdapi_sys_eventlog_close')
+
+		request.add_tlv(TLV_TYPE_EVENT_HANDLE, self.handle);
+
+		response = client.send_request(request)
+		return nil
+	end
 end
 
 end end end end end end
