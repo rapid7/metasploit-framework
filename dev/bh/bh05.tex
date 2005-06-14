@@ -203,11 +203,15 @@
     \pause
     \textbf{How a nop sled works}
     \begin{sitemize}
-        \item<3-> Client builds a nop sled and prepends it to a payload
-        \item<4-> Client transmits the entire payload via an exploit
-        \item<5-> Target executes all or none of the nop
+        \pause
+        \item Client builds a nop sled and prepends it to a payload
+        \pause
+        \item Client transmits the entire payload via an exploit
+        \pause
+        \item Target executes all or none of the nop
         instructions
-        \item<6-> Execution falls through to the payload
+        \pause
+        \item Execution falls through to the payload
     \end{sitemize}
 
 \end{frame}
@@ -223,7 +227,7 @@
         \end{sitemize}
 
         \pause
-        \item Using a sled can increase exploit reliability
+        \item Using a sled can improve exploit quality
         \begin{sitemize}
             \item Increasing the step size of a payload decrease
             brute force attempts
@@ -258,12 +262,18 @@
     \pause
     \textbf{How an encoder works}
     \begin{sitemize}
-        \item<3-> Client encodes the payload prior to transmission
-        \item<4-> Client prepends decoder stub to the payload
-        \item<5-> Client transmits the entire payload via an exploit
-        \item<6-> Target executes the decoder stub
-        \item<7-> Decoder stub performs reciprocal action on the payload
-        \item<8-> Original payload is executed
+        \pause
+        \item Client encodes the payload prior to transmission
+        \pause
+        \item Client prepends decoder stub to the payload
+        \pause
+        \item Client transmits the entire payload via an exploit
+        \pause
+        \item Target executes the decoder stub
+        \pause
+        \item Decoder stub performs reciprocal action on the payload
+        \pause
+        \item Original payload is executed
     \end{sitemize}
 \end{frame}
 
