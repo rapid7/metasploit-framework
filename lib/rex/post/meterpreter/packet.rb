@@ -309,6 +309,11 @@ class GroupTlv < Tlv
 		return (tlv != nil) ? tlv.value : nil
 	end
 
+	# Returns an array of values for all tlvs of type type.
+	def get_tlv_values(type)
+		get_tlvs(type).collect { |a| a.value }
+	end
+
 	# Checks to see if the container has a TLV of a given type
 	def has_tlv?(type)
 		return get_tlv(type) != nil
