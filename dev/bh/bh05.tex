@@ -154,8 +154,6 @@
 %
 \pdfpart{Payload Infrastructure}
 
-\section{Introduction}
-
 \begin{frame}[t]
     \frametitle{Anatomy of a Payload}
     \Large{[ \alert<1>{nops} ] [ \alert<2>{decoder} ( \alert<3>{encoded payload} ) ]}
@@ -510,6 +508,11 @@
 %\subsection{Egg Hunters}
 % What is an egghunter and why
 
+%
+% I don't think we're going to have time to talk about
+% opty2 or shikata...we should probably just try to focus
+% on post-exploitation and shit instead - your dad
+%
 \pdfpart{Nop Sleds}
 
 \section{OptyNop2}
@@ -572,6 +575,31 @@
         \begin{sitemize}
             \item 30 symbols use static ordinals in
             \texttt{WS2\_32.DLL}
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Limitations of ordinal stagers}
+
+    \begin{sitemize}
+        \item Only 30 symbols can be used
+        \begin{sitemize}
+            \item \texttt{WSASocketA} is not among them
+        \end{sitemize}
+
+        \pause
+        \item Can't initialize winsock if it isn't initialized
+        \begin{sitemize}
+            \item \texttt{WSAStartup} doesn't have a static ordinal
+        \end{sitemize}
+
+        \pause
+        \item Can't use sockets as direct standard I/O handles
+        \begin{sitemize}
+            \item Sockets returned from \texttt{socket} aren't valid
+            console handles
+            \item Must use pipes instead
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -778,6 +806,21 @@
 \end{frame}
 
 \pdfpart{Post-exploitation}
+
+\begin{frame}[t]
+    \frametitle{Post-exploitation}
+
+    \textbf{What do you do beyond EIP?}
+    \pause
+    \begin{sitemize}
+        \item Most people spawn a command shell
+        \begin{sitemize}
+            \item Poor automation support
+            \item Reliant on the command shell's intrinsic commands
+            \item Limited to installed applications
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
 
 \section{Meterpreter}
 
