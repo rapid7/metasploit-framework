@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 require 'thread'
-require 'Rex/Socket/Stream'
+require 'Rex/Socket/Tcp'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Tlv'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Net/SocketSubsystem/TcpClientChannel'
 
@@ -76,7 +76,7 @@ class Socket
 				# representation of the left side of the socket for
 				# the caller to use
 				if (channel != nil)
-					res = Rex::Socket::Stream.new(channel.lsock, nil, nil, nil)
+					res = Rex::Socket::Tcp.new(channel.lsock)
 				end
 			elsif (params.udp?)
 				if (params.server?)

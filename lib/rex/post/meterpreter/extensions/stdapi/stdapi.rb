@@ -11,6 +11,7 @@ require 'Rex/Post/Meterpreter/Extensions/Stdapi/Net/Config'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Net/Socket'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Process'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Registry'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/EventLog'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/UI'
 
 module Rex
@@ -49,7 +50,8 @@ class Stdapi < Extension
 					'ext'  => ObjectAliases.new(
 						{
 							'process'  => self.process,
-							'registry' => self.registry
+							'registry' => self.registry,
+							'eventlog' => self.eventlog
 						})
 				},
 				{
@@ -98,6 +100,11 @@ class Stdapi < Extension
 	# Returns a copy of the Registry class
 	def registry
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry)
+	end
+
+	# Returns a copy of the EventLog class
+	def eventlog
+		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::EventLog)
 	end
 end
 
