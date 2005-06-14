@@ -70,16 +70,16 @@
     \begin{sitemize}
         \item What it's not about
         \begin{sitemize}
-	    \item New exploit / attack vectors
-	    \item New exploitation techniques
-	    \item 0day, bugs, etc
+        \item New exploit / attack vectors
+        \item New exploitation techniques
+        \item 0day, bugs, etc
         \end{sitemize}
-	\pause
-	\item What it is about
+    \pause
+    \item What it is about
         \begin{sitemize}
-	    \item What you can do after owning EIP
-	    \item The techniques to do it
-	    \item Our tools to support it
+        \item What you can do after owning EIP
+        \item The techniques to do it
+        \item Our tools to support it
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -87,16 +87,17 @@
 \begin{frame}[t]
   \frametitle{Plan of attack}
   \begin{sitemize}
-    \item Shellcode infrastructure
+    \item Payload Infrastructure
     \begin{sitemize}
-      \item How it works / Background
+      \item Payload composition
+      \item How payloads work
       \item Recent tools, tricks, and techniques
     \end{sitemize}
     \item Post-exploitation tools
     \begin{sitemize}
-      \item Introduction, previous tools
-      \item The technology behind ours tools
-      \item Applications to evasion and anti-forensics
+      \item Background \& review of existing tools
+      \item The technology behind our tools
+      \item How they can be used
       \item Crazy cool features for the end-user
     \end{sitemize}
   \end{sitemize}
@@ -109,13 +110,13 @@
         \item \textbf{Pre-exploitation} - Before the attack
         \begin{sitemize}
             \item Find a bug, isolate, write exploit
-	    \item Write any other tools, shellcode, etc
+            \item Write any other tools, payloads, etc
         \end{sitemize}
 
         \pause
         \item \textbf{Exploitation} - Leveraging the vulnerability
         \begin{sitemize}
-	    \item Recon, information gathering, find target
+            \item Recon, information gathering, find target
             \item Initialize tools and infrastructure
             \item Launch the exploit
         \end{sitemize}
@@ -123,12 +124,11 @@
         \pause
         \item \textbf{Post-exploitation} - Manipulating the target
         \begin{sitemize}
-	    % NOTE:
-	    \item Not so much the command shell itself, but what you do with it
+            \item Not so much the command shell itself, but what you do with it
             \item Command shell redirection
             \item Arbitrary command execution
             \item Advanced payload interaction
-	    \item File access, VNC, pivoting, etc
+            \item File access, VNC, pivoting, etc
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -147,9 +147,9 @@
 % - What is a nop sled, and why / how / when  do we use them
 % - What is an encoder, and why / how / when do we use them
 % - What is a stager and stage, why / how / when do we use them
-% 
+%
 % We should also talk about egghunt, heapfix, jmpcode, etc.  We should have
-% a name for these sort of things, they are like "bootstrap" codes, or 
+% a name for these sort of things, they are like "bootstrap" codes, or
 % something.  Like, we need a a good name for them dude!
 %
 \pdfpart{Payload Infrastructure}
@@ -157,41 +157,238 @@
 \section{Introduction}
 
 \begin{frame}[t]
-  \frametitle{Anatomy of a Payload}
-  \Large{[ nops ] [ decoder ( encoded payload ) ]}
-  \begin{sitemize}
-    \item Nop sled
-      \item For exploits where return is uncertain
-      \item Control flows through the sled into the encoder
-      \item Generally 1 byte aligned for x86
-      \item Not very common for win32 exploits
-    \item Encoder (aka Decoder)
-      \item loops and decodes payload
-      \item payload executed when finished
-    \item Payload
-      \item do something cool here
-  \end{sitemize}
+    \frametitle{Anatomy of a Payload}
+    \Large{[ \alert<1>{nops} ] [ \alert<2>{decoder} ( \alert<3>{encoded payload} ) ]}
+
+    \begin{sitemize}
+        \item \textbf{Nop sled}
+        \begin{sitemize}
+            \item For exploits where return is uncertain
+            \item Control flows through the sled into the encoder
+            \item Generally 1 byte aligned for x86
+            \item Not very common for win32 exploits
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Decoder}
+        \begin{sitemize}
+            \item Complement to a payload encoder
+            \item Loops and decodes payload
+            \item Payload executed when finished
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Payload}
+        \begin{sitemize}
+            \item Arbitrary code
+            \item Typically provides a command shell
+        \end{sitemize}
+    \end{sitemize}
 \end{frame}
 
 \section{Nop sleds}
-\subsection{Introduction}
+
 %
 % Why do we use them?
 % Don't really need them for win32, why?
 % Previous work (0x90, admutate)
 
+\begin{frame}[t]
+    \frametitle{What's a nop sled?}
+
+    \textbf{Definition}
+    \begin{sitemize}
+        \item A series of bytes that equate to no-operations on the
+        target architecture
+    \end{sitemize}
+
+    \pause
+    \textbf{How a nop sled works}
+    \begin{sitemize}
+        \item<3-> Client builds a nop sled and prepends it to a payload
+        \item<4-> Client transmits the entire payload via an exploit
+        \item<5-> Target executes all or none of the nop
+        instructions
+        \item<6-> Execution falls through to the payload
+    \end{sitemize}
+
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{What's so cool about nop sleds?}
+
+    \begin{sitemize}
+        \item Not all vulnerabilities have predictable return
+        addresses
+        \begin{sitemize}
+            \item Particularly useful when brute forcing
+        \end{sitemize}
+
+        \pause
+        \item Using a sled can increase exploit reliability
+        \begin{sitemize}
+            \item Increasing the step size of a payload decrease
+            brute force attempts
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Existing nop sled technology}
+
+    \begin{sitemize}
+        \item \footnotesize{\texttt{perl -e 'print "$\backslash$x90" x \$ARGV[0]"'
+            sled\_size}}
+        \item ADMutate - single-byte x86
+    \end{sitemize}
+\end{frame}
+
 \section{Encoders}
-\subsection{Introduction}
+
 % Why, etc
 % Talk about any previous work?
 
+\begin{frame}[t]
+    \frametitle{What's an encoder?}
+
+    \textbf{Definition}
+    \begin{sitemize}
+        \item An algorithm that changes the raw form of a payload
+        without altering its function
+    \end{sitemize}
+
+    \pause
+    \textbf{How an encoder works}
+    \begin{sitemize}
+        \item<3-> Client encodes the payload prior to transmission
+        \item<4-> Client prepends decoder stub to the payload
+        \item<5-> Client transmits the entire payload via an exploit
+        \item<6-> Target executes the decoder stub
+        \item<7-> Decoder stub performs reciprocal action on the payload
+        \item<8-> Original payload is executed
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{What's so cool about encoders?}
+
+    \begin{sitemize}
+        \item Bad character evasion
+        \begin{sitemize}
+            \item Most vulnerabilities have restricted characters
+            (\texttt{0x00}, \texttt{0x0a}, etc)
+        \end{sitemize}
+
+        \pause
+        \item IDS evasion
+        \begin{sitemize}
+            \item Static string signatures
+            (\texttt{/bin/sh})
+            \item Specific payload and payload pattern signatures
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Existing encoder technology}
+
+    \begin{sitemize}
+        \item XOR
+        \begin{sitemize}
+            \item Defacto standard for encoders
+            \item Typically performed on a byte, word, or dword basis
+            \item Variable or static key
+            \item Decoder stubs are usually static excluding the key
+        \end{sitemize}
+
+        \pause
+        \item Alphanumeric
+        \begin{sitemize}
+            \item Rix's x86 encoder from Phrack 57
+            \item SkyLined's Alpha2 x86 encoder
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
 \section{Payloads}
-\subsection{Introduction}
+
+\begin{frame}[t]
+    \frametitle{What's a payload?}
+
+    \textbf{Definition}
+    \begin{sitemize}
+        \item Arbitrary code that is to be executed upon successful
+        exploitation
+    \end{sitemize}
+
+    \pause
+    \textbf{How a payload works}
+    \begin{sitemize}
+        \item<3-> Client prepares the payload for execution
+        \item<4-> Client transmits the payload via an exploit
+        \item<5-> Target executes the payload
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{The three types of payloads}
+
+    \begin{sitemize}
+        \item \textbf{Single}
+        \begin{sitemize}
+            \item A self-contained payload that performs a specific
+            task
+            \item Size ranges on depending on the task
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Stager}
+        \begin{sitemize}
+            \item A stub payload that loads another payload
+            (typically a stage)
+            \item Size generally much smaller than single payloads
+            \item Stores connection descriptor in known register
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Stage}
+        \begin{sitemize}
+            \item Similar to a single payload, but takes advantage
+            of staging semantics
+            \item Uses connection descriptor in known register where
+            applicable
+            \item Not subject to size limitations of individual
+            vulnerabilities
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\subsection{Single}
+
+\begin{frame}[t]
+    \frametitle{What are single payloads?}
+
+    \begin{sitemize}
+        \item Easy plug \& chug payloads
+
+        \pause
+        \item Task oriented and connection specific
+
+        \pause
+        \item Single payloads have to be developed for each
+            connection (portbind, reverse, findsock)
+        \begin{sitemize}
+            \item Requires the payload to be implemented \textit{N} times
+        \end{sitemize}
+
+        \pause
+        \item Subject to size limitations of individual
+        vulnerabilities
+    \end{sitemize}
+\end{frame}
+
 % Previous work?
 % Explain singles/stagers/stages
-
-\subsection{Egg Hunters}
-% What is an egghunter and why
 
 \subsection{Stagers}
 % What is a stager and why
@@ -284,7 +481,6 @@
     \end{sitemize}
 \end{frame}
 
-
 \begin{frame}[t]
     \frametitle{``Advantage'' payloads}
 
@@ -299,6 +495,9 @@
         % TODO: others...
     \end{sitemize}
 \end{frame}
+
+%\subsection{Egg Hunters}
+% What is an egghunter and why
 
 \pdfpart{Nop Sleds}
 
