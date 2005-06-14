@@ -396,7 +396,7 @@
     \frametitle{What are payload stagers?}
 
     \begin{sitemize}
-        \item Payload stagers are small stubs that load and execute other
+        \item Payload stagers are stubs that load and execute other
         payloads
         \item The payloads that are executed are known as stages
         \item Stages perform arbitrary tasks, such as spawning a
@@ -440,6 +440,17 @@
         \pause
         \item Provide an abstract way for getting arbitrary code
         onto a remote machine through any medium
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Existing payload stager technology}
+
+    \begin{sitemize}
+        \item Standard reverse, portbind, and findsock stagers
+        included in Metasploit 2.2+
+
+        % TODO: others?
     \end{sitemize}
 \end{frame}
 
@@ -503,10 +514,15 @@
 
 \section{OptyNop2}
 
-\begin{frame}
+\begin{frame}[t]
 \end{frame}
 
+\pdfpart{Encoders}
+
+\section{Shikata Ga Nai}
+
 \pdfpart{Payload Stagers}
+
 \section{Windows Ordinal Stagers}
 
 \subsection{Overview}
@@ -594,175 +610,20 @@
 
 \end{frame}
 
-\section{PassiveX}
-\subsection{Overview}
-\begin{frame}[t]
-    \frametitle{PassiveX}
-
-    \begin{sitemize}
-        \item Robust payload stager capable of bypassing restrictive
-        outbound filters
-        \item Compatible with Windows 2000+ running Internet
-        Explorer 6.0+
-        \item Uses HTTP to communicate with attacker
-        \item Provides an alternate vector for library injection via
-        ActiveX
-        \item Detailed write-up can be found in reference materials
-    \end{sitemize}
-\end{frame}
-
-\begin{frame}[t]
-    \frametitle{How PassiveX works}
-
-    \begin{sitemize}
-        \item Enables support for both signed and unsigned ActiveX
-        controls in the \texttt{Internet} zone.
-        \begin{sitemize}
-            \pause
-            \item Necessary because administrators may have disabled
-            ActiveX support for security reasons
-        \end{sitemize}
-
-        \pause
-        \item Launches a hidden instance of Internet Explorer
-
-        \pause
-        \item Internet Explorer loads a page that the attacker
-        has put an embedded ActiveX control on
-
-        \pause
-        \item Internet Explorer loads and executes the ActiveX
-        control
-    \end{sitemize}
-\end{frame}
-
-\begin{frame}[t]
-    \frametitle{Why is PassiveX useful?}
-
-    \begin{sitemize}
-        \item Relatively small (roughly 400 byte) stager that does not
-        directly interact with the network
-
-        \pause
-        \item Bypasses common outbound filters by tunneling through
-        HTTP
-
-        \pause
-        \item Automatically uses proxy settings defined in Internet
-        Explorer
-
-        \pause
-        \item Bypasses trusted application restrictions (ZoneAlarm)
-
-        \pause
-        \item ActiveX technology allows the attacker to implement
-        complex code in higher level languages (C, C++, VB)
-        \begin{sitemize}
-            \item Eliminates the need to perform complicated tasks
-            from assembly
-            \item ActiveX controls are functionally equivalent to
-            executables
-        \end{sitemize}
-    \end{sitemize}
-\end{frame}
-
-\subsection{Implementation}
-
-\begin{frame}[t]
-    \frametitle{Implementing the PassiveX stager}
-
-    \begin{sitemize}
-        \item Enable download and execution of ActiveX controls
-        \begin{sitemize}
-            \item Open the current user's \texttt{Internet} zone
-            registry key
-            \item Enable four settings
-            \begin{sitemize}
-                \item \texttt{Download signed ActiveX controls}
-                \item \texttt{Download unsigned ActiveX controls}
-                \item \texttt{Run ActiveX controls and plugins}
-                \item \texttt{Initialize and script ActiveX controls not
-            marked as safe}
-            \end{sitemize}
-        \end{sitemize}
-
-        \pause
-        \item Launch a hidden instance of Internet Explorer pointed
-        at a URL the attacker controls
-
-        \pause
-        \item Internet Explorer then loads and executes the attacker's
-        ActiveX control
-    \end{sitemize}
-\end{frame}
-
-\subsection{Example ActiveX: HTTP Tunneling Control}
-\begin{frame}[t]
-    \frametitle{An example ActiveX control}
-
-    \begin{sitemize}
-        \item ActiveX controls may choose to build an HTTP tunnel
-        to the attacker
-        \item HTTP tunnels provide a streaming connection over HTTP
-        requests and responses
-        \item Useful for tunneling other protocols, like TCP,
-        through HTTP
-
-        % TODO: elaborate?
-    \end{sitemize}
-\end{frame}
-
-\subsection{Pros \& Cons}
-\begin{frame}[t]
-    \frametitle{Pros \& cons}
-
-    \begin{sitemize}
-        \item \textbf{Pros}
-        \begin{sitemize}
-            \item Bypasses restrictive outbound filters at both a
-            network and application level
-
-            \pause
-            \item Provides a method for using complex code written
-            in a high-level language
-        \end{sitemize}
-
-        \pause
-        \item \textbf{Cons}
-        \begin{sitemize}
-            \item Does not work when run as a non-privileged user
-            \begin{sitemize}
-                \item Internet Explorer refuses to download ActiveX
-                controls
-            \end{sitemize}
-
-            \pause
-            \item Requires the ActiveX control to restore
-            \texttt{Internet} zone settings
-            \begin{sitemize}
-                \item May leave the machine vulnerable to compromise
-                if not done
-            \end{sitemize}
-        \end{sitemize}
-
-    \end{sitemize}
-\end{frame}
-
-\pdfpart{Payload Stages}
 
 \section{Library Injection}
 
 \subsection{Overview}
 
 \begin{frame}[t]
-    \frametitle{The library injection stage}
+    \frametitle{Library injection stager}
 
     \begin{sitemize}
-        \item Payload stage that provides a method of loading a
+        \item Payload stager that provides a method of loading a
         library (DLL) into the exploited process
 
         \pause
-        \item Libraries are functionally equivalent to executables
+        \item Libraries are functionally equivalents to executables
         \begin{sitemize}
             \item Full access to various OS-provided APIs
             \item Can do anything an executable can do
@@ -830,6 +691,10 @@
         \pause
         \item Most stealthy form of library injection thus far
         identified
+
+        \pause
+        \item No disk access means no forensic trace if the machine
+        loses power
     \end{sitemize}
 \end{frame}
 
@@ -844,7 +709,7 @@
         \item Subject to filtering by Antivirus
 
         \pause
-        \item Implemented by the PassiveX stager described earlier
+        \item Implemented by the PassiveX stager
     \end{sitemize}
 \end{frame}
 
@@ -902,7 +767,7 @@
         \end{sitemize}
 
         \pause
-        \item By using the generic library loading stage, VNC was simply plugged in
+        \item By using the generic library loading stager, VNC was simply plugged in
     \end{sitemize}
 
     \pause
@@ -911,6 +776,8 @@
         \item Suits understand mouse movement much better than command lines
     \end{sitemize}
 \end{frame}
+
+\pdfpart{Post-exploitation}
 
 \section{Meterpreter}
 
@@ -1085,15 +952,6 @@
 \section{DispatchNinja}
 \begin{frame}[t]
     \frametitle{Cool dN stuff here}
-\end{frame}
-
-\pdfpart{Post-Exploitation Suites}
-
-\section{Post-Exploitation Suites}
-    \subsection{Motivations \& Goals}
-
-\begin{frame}[t]
-    \frametitle{stuff}
 \end{frame}
 
 \pdfpart{Conclusion}
@@ -1306,5 +1164,159 @@ Notes on post-exploitation
 
   + Code is dirty....
   +
+
+\section{PassiveX}
+\subsection{Overview}
+\begin{frame}[t]
+    \frametitle{PassiveX}
+
+    \begin{sitemize}
+        \item Robust payload stager capable of bypassing restrictive
+        outbound filters
+        \item Compatible with Windows 2000+ running Internet
+        Explorer 6.0+
+        \item Uses HTTP to communicate with attacker
+        \item Provides an alternate vector for library injection via
+        ActiveX
+        \item Detailed write-up can be found in reference materials
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{How PassiveX works}
+
+    \begin{sitemize}
+        \item Enables support for both signed and unsigned ActiveX
+        controls in the \texttt{Internet} zone.
+        \begin{sitemize}
+            \pause
+            \item Necessary because administrators may have disabled
+            ActiveX support for security reasons
+        \end{sitemize}
+
+        \pause
+        \item Launches a hidden instance of Internet Explorer
+
+        \pause
+        \item Internet Explorer loads a page that the attacker
+        has put an embedded ActiveX control on
+
+        \pause
+        \item Internet Explorer loads and executes the ActiveX
+        control
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Why is PassiveX useful?}
+
+    \begin{sitemize}
+        \item Relatively small (roughly 400 byte) stager that does not
+        directly interact with the network
+
+        \pause
+        \item Bypasses common outbound filters by tunneling through
+        HTTP
+
+        \pause
+        \item Automatically uses proxy settings defined in Internet
+        Explorer
+
+        \pause
+        \item Bypasses trusted application restrictions (ZoneAlarm)
+
+        \pause
+        \item ActiveX technology allows the attacker to implement
+        complex code in higher level languages (C, C++, VB)
+        \begin{sitemize}
+            \item Eliminates the need to perform complicated tasks
+            from assembly
+            \item ActiveX controls are functionally equivalent to
+            executables
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\subsection{Implementation}
+
+\begin{frame}[t]
+    \frametitle{Implementing the PassiveX stager}
+
+    \begin{sitemize}
+        \item Enable download and execution of ActiveX controls
+        \begin{sitemize}
+            \item Open the current user's \texttt{Internet} zone
+            registry key
+            \item Enable four settings
+            \begin{sitemize}
+                \item \texttt{Download signed ActiveX controls}
+                \item \texttt{Download unsigned ActiveX controls}
+                \item \texttt{Run ActiveX controls and plugins}
+                \item \texttt{Initialize and script ActiveX controls not
+            marked as safe}
+            \end{sitemize}
+        \end{sitemize}
+
+        \pause
+        \item Launch a hidden instance of Internet Explorer pointed
+        at a URL the attacker controls
+
+        \pause
+        \item Internet Explorer then loads and executes the attacker's
+        ActiveX control
+    \end{sitemize}
+\end{frame}
+
+\subsection{Example ActiveX: HTTP Tunneling Control}
+\begin{frame}[t]
+    \frametitle{An example ActiveX control}
+
+    \begin{sitemize}
+        \item ActiveX controls may choose to build an HTTP tunnel
+        to the attacker
+        \item HTTP tunnels provide a streaming connection over HTTP
+        requests and responses
+        \item Useful for tunneling other protocols, like TCP,
+        through HTTP
+
+        % TODO: elaborate?
+    \end{sitemize}
+\end{frame}
+
+\subsection{Pros \& Cons}
+\begin{frame}[t]
+    \frametitle{Pros \& cons}
+
+    \begin{sitemize}
+        \item \textbf{Pros}
+        \begin{sitemize}
+            \item Bypasses restrictive outbound filters at both a
+            network and application level
+
+            \pause
+            \item Provides a method for using complex code written
+            in a high-level language
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Cons}
+        \begin{sitemize}
+            \item Does not work when run as a non-privileged user
+            \begin{sitemize}
+                \item Internet Explorer refuses to download ActiveX
+                controls
+            \end{sitemize}
+
+            \pause
+            \item Requires the ActiveX control to restore
+            \texttt{Internet} zone settings
+            \begin{sitemize}
+                \item May leave the machine vulnerable to compromise
+                if not done
+            \end{sitemize}
+        \end{sitemize}
+
+    \end{sitemize}
+\end{frame}
 
 \end{comment}
