@@ -533,8 +533,6 @@
 
 \section{Shikata Ga Nai}
 
-\pdfpart{Payload Stagers}
-
 \section{Windows Ordinal Stagers}
 
 \subsection{Overview}
@@ -647,7 +645,152 @@
 
 \end{frame}
 
+\pdfpart{Post Exploitation}
 
+\section{Introduction}
+
+
+%
+%
+% NOTE, we should probably throw in some intermitent demos just
+% to help the audience from getting bored.  We should figure out how
+% we can demo some of the parts before Features, or if we should reord
+% some things so there are some demoables...
+%
+%
+
+%
+% Oh, I have a good idea, we should talk about dN in the introduction, since
+% it's a really simple example of post exploitation.  Then we'll demo that
+% and then go into the meterpreter stuff, and then demo that at the end!
+%
+
+%
+% What is post exploitation?
+%
+% Most important to audience
+% 1) Features
+% 2) Evasion
+% 3) Technology
+%
+% Presentation Order
+% 1) Technology (lib inject, etc)
+% 2) Evasion (diskless, encryption, http tuennling maybe)
+% 3) Features (and made demos)
+%
+% Maybe we shoud just merge Evasion into technology, there is no good
+% reason for them to be seperate, and it makes the explination more
+% continuious
+%
+
+\begin{frame}[t]
+    \frametitle{Post-exploitation}
+
+    \textbf{What do you do beyond EIP?}
+    \pause
+    \begin{sitemize}
+        \item Most people spawn a command shell
+        \begin{sitemize}
+            \item Poor automation support
+            \item Reliant on the command shell's intrinsic commands
+            \item Limited to installed applications
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+%
+% Introduction - Dispatch Ninja
+%
+% Gentle introduction into post-exploitation with simple overview and a
+% demo about how dN works!
+%
+
+\section{DispatchNinja}
+\begin{frame}[t]
+    \frametitle{Cool dN stuff here}
+\end{frame}
+
+%
+% Introduction - Meterpreter
+%
+% Now give an overview of meterpreter!
+%
+
+\begin{frame}[t]
+    \frametitle{The Meterpreter stage}
+
+    \begin{sitemize}
+        \item First released with Metasploit 2.3
+        \item Implemented using library injection technology
+
+        \pause
+        \item Uses payload connection for communicating with
+        attacker
+        \begin{sitemize}
+            \item Especially powerful with findsock payloads; no new
+            connection established
+        \end{sitemize}
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item Primary goals are to be...
+        \begin{sitemize}
+            \item \textbf{Stealthy}: no disk access and no new process by default
+            \item \textbf{Powerful}: channelized communication and robust protocol
+            \item \textbf{Extensible}: run-time augmentation of features with extensions
+        \end{sitemize}
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item Detailed write-up can be found in reference materials
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Why is Meterpreter useful?}
+
+    \begin{sitemize}
+        \item Platform independent design
+        \begin{sitemize}
+            \item Current implementation is Windows specific, but
+            concepts are portable
+        \end{sitemize}
+
+        \pause
+        \item Standard interface makes it possible to use one client
+        to perform common actions on various platforms
+
+        \begin{sitemize}
+            \pause
+            \item Execute a command interpreter and channelize the
+            output
+
+            \pause
+            \item Turn on the target's USB webcam and begin
+            streaming video
+        \end{sitemize}
+
+        \pause
+        \item Programmatically automatable
+        \begin{sitemize}
+            \item RPC-like protocol allows arbitrarily complex tasks
+            to be performed with a common interface
+            \item Extension-based architecture makes Meterpreter
+            completely flexible
+        \end{sitemize}
+
+        \pause
+        \item Use of in-memory library injection makes it possible
+        to run in a stealth fashion
+    \end{sitemize}
+\end{frame}
+
+
+% 
+% Technology - Library Injection
+%
 \section{Library Injection}
 
 \subsection{Overview}
@@ -780,6 +923,11 @@
     \end{sitemize}
 \end{frame}
 
+%
+% We've demo'd this before, so even though it would be a great demo, at
+% a perfect place in the talk, I don't think we should demo it
+%
+
 \subsection{Example DLL: VNC}
 
 \begin{frame}[t]
@@ -813,24 +961,6 @@
         \item Suits understand mouse movement much better than command lines
     \end{sitemize}
 \end{frame}
-
-\pdfpart{Post-exploitation}
-
-\begin{frame}[t]
-    \frametitle{Post-exploitation}
-
-    \textbf{What do you do beyond EIP?}
-    \pause
-    \begin{sitemize}
-        \item Most people spawn a command shell
-        \begin{sitemize}
-            \item Poor automation support
-            \item Reliant on the command shell's intrinsic commands
-            \item Limited to installed applications
-        \end{sitemize}
-    \end{sitemize}
-\end{frame}
-
 % more slides here, talking about post-exploitation technology
 % why it's necessary
 %   - automation
@@ -841,82 +971,16 @@
 %   - etc
 % other stuff I can't think of right now
 
-\section{Meterpreter}
+%
+% Technology - TLV / Protocol
+%
 
-\subsection{Overview}
+%
+% We should also probably talk about it's asynchness and how that
+% works great for sharing and threading!
+%
 
-\begin{frame}[t]
-    \frametitle{The Meterpreter stage}
-
-    \begin{sitemize}
-        \item First released with Metasploit 2.3
-        \item Implemented using library injection technology
-
-        \pause
-        \item Uses payload connection for communicating with
-        attacker
-        \begin{sitemize}
-            \item Especially powerful with findsock payloads; no new
-            connection established
-        \end{sitemize}
-    \end{sitemize}
-
-    \pause
-    \begin{sitemize}
-        \item Primary goals are to be...
-        \begin{sitemize}
-            \item \textbf{Stealthy}: no disk access and no new process by default
-            \item \textbf{Powerful}: channelized communication and robust protocol
-            \item \textbf{Extensible}: run-time augmentation of features with extensions
-        \end{sitemize}
-    \end{sitemize}
-
-    \pause
-    \begin{sitemize}
-        \item Detailed write-up can be found in reference materials
-    \end{sitemize}
-\end{frame}
-
-\begin{frame}[t]
-    \frametitle{Why is Meterpreter useful?}
-
-    \begin{sitemize}
-        \item Platform independent design
-        \begin{sitemize}
-            \item Current implementation is Windows specific, but
-            concepts are portable
-        \end{sitemize}
-
-        \pause
-        \item Standard interface makes it possible to use one client
-        to perform common actions on various platforms
-
-        \begin{sitemize}
-            \pause
-            \item Execute a command interpreter and channelize the
-            output
-
-            \pause
-            \item Turn on the target's USB webcam and begin
-            streaming video
-        \end{sitemize}
-
-        \pause
-        \item Programmatically automatable
-        \begin{sitemize}
-            \item RPC-like protocol allows arbitrarily complex tasks
-            to be performed with a common interface
-            \item Extension-based architecture makes Meterpreter
-            completely flexible
-        \end{sitemize}
-
-        \pause
-        \item Use of in-memory library injection makes it possible
-        to run in a stealth fashion
-    \end{sitemize}
-\end{frame}
-
-\subsection{Implementation}
+\subsection{Meterpreter Protocol}
 
 \begin{frame}[t]
     \frametitle{Architecture - design goals}
@@ -968,6 +1032,10 @@
     \end{sitemize}
 \end{frame}
 
+%
+% Technology - Clients / Ruby APIs
+%
+
 \begin{frame}[t]
     \frametitle{Core client/server interface}
 
@@ -1011,10 +1079,20 @@
     \end{sitemize}
 \end{frame}
 
-\section{DispatchNinja}
-\begin{frame}[t]
-    \frametitle{Cool dN stuff here}
-\end{frame}
+%
+% Features - Meterpreter
+%
+
+%
+% Now talk about all the crazy cool features and demo shit here!
+%
+% - port forwarding
+% - migrating
+% - file access
+% - clear event log or something silly
+% - opengl demo (in memory .exe loading)
+% - etc etc!
+%
 
 \pdfpart{Conclusion}
 
