@@ -253,8 +253,7 @@
 
     \textbf{Definition}
     \begin{sitemize}
-        \item An algorithm that changes the raw form of a payload
-        without altering its function
+        \item Algorithm to retain payload functionality, but alter the byte sequence
     \end{sitemize}
 
     \pause
@@ -269,7 +268,7 @@
         \pause
         \item Target executes the decoder stub
         \pause
-        \item Decoder stub performs reciprocal action on the payload
+        \item Decoder stub performs inverse operation on the payload
         \pause
         \item Original payload is executed
     \end{sitemize}
@@ -279,11 +278,9 @@
     \frametitle{What's so cool about encoders?}
 
     \begin{sitemize}
-        \item Bad character evasion
-        \begin{sitemize}
-            \item Most vulnerabilities have restricted characters
+        \item Avoid common restricted characters
             (\texttt{0x00}, \texttt{0x0a}, etc)
-        \end{sitemize}
+	\item Survive application translations (unicode, toupper)
 
         \pause
         \item IDS evasion
@@ -308,10 +305,11 @@
         \end{sitemize}
 
         \pause
-        \item Alphanumeric
+        \item Alphanumeric / Unicode
         \begin{sitemize}
             \item Rix's x86 encoder from Phrack 57
-            \item SkyLined's Alpha2 x86 encoder
+            \item SkyLined's Alpha2 x86 ascii and unicode encoder
+	    \item Dave Aitel and FX's unicode encoders
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -330,9 +328,13 @@
     \pause
     \textbf{How a payload works}
     \begin{sitemize}
-        \item<3-> Client prepares the payload for execution
-        \item<4-> Client transmits the payload via an exploit
-        \item<5-> Target executes the payload
+        \item Client prepares the payload for execution
+	\pause
+	\item Data may be embedded  (cmd to execute, hostname, port, etc)
+	\pause
+        \item Client transmits the payload via an exploit
+	\pause
+        \item Target executes the payload
     \end{sitemize}
 \end{frame}
 
@@ -345,15 +347,16 @@
             \item A self-contained payload that performs a specific
             task
             \item Size ranges on depending on the task
+	    \item Example: Reverse of bind command shell
         \end{sitemize}
 
         \pause
         \item \textbf{Stager}
         \begin{sitemize}
-            \item A stub payload that loads another payload
+            \item A stub payload that loads / bootstraps another payload
             (typically a stage)
             \item Size generally much smaller than single payloads
-            \item Stores connection descriptor in known register
+            \item Passes connection information onto the stage
         \end{sitemize}
 
         \pause
@@ -361,10 +364,10 @@
         \begin{sitemize}
             \item Similar to a single payload, but takes advantage
             of staging semantics
-            \item Uses connection descriptor in known register where
-            applicable
+            \item Uses connection passed from the stager
             \item Not subject to size limitations of individual
             vulnerabilities
+	    \item A stager can also be a stage
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -372,7 +375,7 @@
 \subsection{Single}
 
 \begin{frame}[t]
-    \frametitle{What are single payloads?}
+    \frametitle{Single payloads}
 
     \begin{sitemize}
         \item Easy plug \& chug payloads
@@ -385,6 +388,7 @@
             connection (portbind, reverse, findsock)
         \begin{sitemize}
             \item Requires the payload to be implemented \textit{N} times
+	    \item Shellcode development systems tried to help with this
         \end{sitemize}
 
         \pause
@@ -399,28 +403,21 @@
 \subsection{Stagers}
 % What is a stager and why
 \begin{frame}[t]
-    \frametitle{What are payload stagers?}
+    \frametitle{Payload stagers}
 
     \begin{sitemize}
-        \item Payload stagers are stubs that load and execute other
-        payloads
-        \item The payloads that are executed are known as stages
-        \item Stages perform arbitrary tasks, such as spawning a
-        shell
-
-        \pause
         \item Stagers are typically network based and follow three
         basic steps
         \begin{sitemize}
             \item Establish connection to attacker (reverse,
             portbind, findsock)
             \item Read in a payload from the connection
-            \item Execute a payload with the connection in known a register
+            \item Setup connecion information and branch to stage
         \end{sitemize}
 
         \pause
-        \item The three steps make it so stages are connection method
-        independent
+        \item The three steps make it so stages are independent of the
+	connection method
         \begin{sitemize}
             \item No need to have command shell payloads for
             reverse, portbind, and findsock
@@ -435,7 +432,6 @@
         \item Some vulnerabilities have limited space for the
         initial payload
 
-        \pause
         \item Typically much smaller than the stages
         they execute
 
@@ -444,8 +440,8 @@
         connection method
 
         \pause
-        \item Provide an abstract way for getting arbitrary code
-        onto a remote machine through any medium
+	\item Provides an abstracts level for loading code onto a remote
+	machine through any medium
     \end{sitemize}
 \end{frame}
 
@@ -456,6 +452,10 @@
         \item Standard reverse, portbind, and findsock stagers
         included in Metasploit 2.2+
 
+	\item LSD Win32 Assembly Components
+
+	\item Found in public exploits (Solar Eclipse OpenSSL)
+
         % TODO: others?
     \end{sitemize}
 \end{frame}
@@ -464,7 +464,7 @@
 % Command shell
 % or whatever
 \begin{frame}[t]
-    \frametitle{What are payload stages?}
+    \frametitle{Payload stages}
 
     \begin{sitemize}
         \item Payload stages are executed by payload stagers and
@@ -475,7 +475,7 @@
         \begin{sitemize}
             \item Execute a command shell and redirect IO to the
             attacker
-            \item Execute an arbitrary command
+            \item Execute an arbitrary command (ex adduser)
             \item Download an executable from a URL and execute it
         \end{sitemize}
     \end{sitemize}
@@ -485,16 +485,13 @@
     \frametitle{Why are payload stages useful?}
 
     \begin{sitemize}
-        \item Can be executed independent of connection method
-        (portbind, reverse)
-        \begin{sitemize}
-            \item All stagers store the connection file descriptor
-            in a common register
-        \end{sitemize}
+        \item Highly reusable (connection indepentent, etc)
+	\item Can conform to some sort of ABI
 
         \pause
         \item Not subject to size limitations of individual
         vulnerabilities
+	\item This means they can be arbitrarily complex
     \end{sitemize}
 \end{frame}
 
