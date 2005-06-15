@@ -61,6 +61,7 @@
             \item Lead software developer by day
             \item Independent security researcher by night
             \item Joined the Metasploit project in 2004
+	    \item Responsible for all cool features
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -227,8 +228,8 @@
         \pause
         \item Using a sled can improve exploit quality
         \begin{sitemize}
-            \item Increasing the step size of a payload decrease
-            brute force attempts
+            \item Increasing the brute force step size decreases
+	    number of attemps
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -353,8 +354,7 @@
         \pause
         \item \textbf{Stager}
         \begin{sitemize}
-            \item A stub payload that loads / bootstraps another payload
-            (typically a stage)
+            \item A stub payload that loads / bootstraps a stage
             \item Size generally much smaller than single payloads
             \item Passes connection information onto the stage
         \end{sitemize}
@@ -363,7 +363,7 @@
         \item \textbf{Stage}
         \begin{sitemize}
             \item Similar to a single payload, but takes advantage
-            of staging semantics
+            of staging
             \item Uses connection passed from the stager
             \item Not subject to size limitations of individual
             vulnerabilities
