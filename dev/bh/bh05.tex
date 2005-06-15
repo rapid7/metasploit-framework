@@ -124,11 +124,10 @@
         \pause
         \item \textbf{Post-exploitation} - Manipulating the target
         \begin{sitemize}
-            \item Not so much the command shell itself, but what you do with it
-            \item Command shell redirection
             \item Arbitrary command execution
-            \item Advanced payload interaction
+            \item Command execute via shell
             \item File access, VNC, pivoting, etc
+            \item Advanced payload interaction
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -164,13 +163,12 @@
             \item For exploits where return is uncertain
             \item Control flows through the sled into the encoder
             \item Generally 1 byte aligned for x86
-            \item Not very common for win32 exploits
         \end{sitemize}
 
         \pause
         \item \textbf{Decoder}
         \begin{sitemize}
-            \item Complement to a payload encoder
+            \item Synonymous with payload encoder
             \item Loops and decodes payload
             \item Payload executed when finished
         \end{sitemize}
