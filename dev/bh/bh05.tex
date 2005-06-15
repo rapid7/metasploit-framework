@@ -61,7 +61,7 @@
             \item Lead software developer by day
             \item Independent security researcher by night
             \item Joined the Metasploit project in 2004
-	    \item Responsible for all cool features
+        \item Responsible for all cool features
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -229,7 +229,7 @@
         \item Using a sled can improve exploit quality
         \begin{sitemize}
             \item Increasing the brute force step size decreases
-	    number of attemps
+        number of attemps
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -281,7 +281,7 @@
     \begin{sitemize}
         \item Avoid common restricted characters
             (\texttt{0x00}, \texttt{0x0a}, etc)
-	\item Survive application translations (unicode, toupper)
+    \item Survive application translations (unicode, toupper)
 
         \pause
         \item IDS evasion
@@ -310,7 +310,7 @@
         \begin{sitemize}
             \item Rix's x86 encoder from Phrack 57
             \item SkyLined's Alpha2 x86 ascii and unicode encoder
-	    \item Dave Aitel and FX's unicode encoders
+        \item Dave Aitel and FX's unicode encoders
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -330,11 +330,11 @@
     \textbf{How a payload works}
     \begin{sitemize}
         \item Client prepares the payload for execution
-	\pause
-	\item Data may be embedded  (cmd to execute, hostname, port, etc)
-	\pause
+    \pause
+    \item Data may be embedded  (cmd to execute, hostname, port, etc)
+    \pause
         \item Client transmits the payload via an exploit
-	\pause
+    \pause
         \item Target executes the payload
     \end{sitemize}
 \end{frame}
@@ -348,7 +348,7 @@
             \item A self-contained payload that performs a specific
             task
             \item Size ranges on depending on the task
-	    \item Example: Reverse of bind command shell
+        \item Example: Reverse of bind command shell
         \end{sitemize}
 
         \pause
@@ -367,7 +367,7 @@
             \item Uses connection passed from the stager
             \item Not subject to size limitations of individual
             vulnerabilities
-	    \item A stager can also be a stage
+        \item A stager can also be a stage
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -388,7 +388,7 @@
             connection (portbind, reverse, findsock)
         \begin{sitemize}
             \item Requires the payload to be implemented \textit{N} times
-	    \item Shellcode development systems tried to help with this
+        \item Shellcode development systems tried to help with this
         \end{sitemize}
 
         \pause
@@ -417,7 +417,7 @@
 
         \pause
         \item The three steps make it so stages are independent of the
-	connection method
+    connection method
         \begin{sitemize}
             \item No need to have command shell payloads for
             reverse, portbind, and findsock
@@ -440,8 +440,8 @@
         connection method
 
         \pause
-	\item Provides an abstraction level for loading code onto a remote
-	machine through any medium
+    \item Provides an abstraction level for loading code onto a remote
+    machine through any medium
     \end{sitemize}
 \end{frame}
 
@@ -452,9 +452,9 @@
         \item Standard reverse, portbind, and findsock stagers
         included in Metasploit 2.2+
 
-	\item LSD Win32 Assembly Components
+    \item LSD Win32 Assembly Components
 
-	\item Found in public exploits (Solar Eclipse OpenSSL)
+    \item Found in public exploits (Solar Eclipse OpenSSL)
 
         % TODO: others?
     \end{sitemize}
@@ -486,12 +486,12 @@
 
     \begin{sitemize}
         \item Highly reusable (connection indepentent, etc)
-	\item Can conform to some sort of ABI
+    \item Can conform to some sort of ABI
 
         \pause
         \item Not subject to size limitations of individual
         vulnerabilities
-	\item This means they can be arbitrarily complex
+    \item This means they can be arbitrarily complex
     \end{sitemize}
 \end{frame}
 
@@ -499,17 +499,17 @@
     \frametitle{``Advantage'' payloads}
 
     \begin{sitemize}
-	\item Shellcode generation systems
+    \item Shellcode generation systems
         \item Generally have more features because they're easier to write
-	\item The system's infrastructure makes the payloads more capable
+    \item The system's infrastructure makes the payloads more capable
         \item Help to reduce the tediousness of writing payloads
 
-	\pause
+    \pause
 
-	\item Stealth's Hellkit
+    \item Stealth's Hellkit
         \item Core ST's InlineEgg
-	\item Philippe's Shellforge
-	\item Dave Aitel's MOSDEF
+    \item Philippe's Shellforge
+    \item Dave Aitel's MOSDEF
 
     \end{sitemize}
 \end{frame}
@@ -684,16 +684,43 @@
 %
 
 \begin{frame}[t]
-    \frametitle{Post-exploitation}
+    \frametitle{What is post-exploitation?}
 
-    \textbf{What do you do beyond EIP?}
-    \pause
+    \begin{sitemize}
+        \pause
+        \item The purpose of an exploit is to manipulate a target
+
+        \pause
+        \item Manipulation of a target begins in post-exploitation
+        \begin{sitemize}
+            \item Command shells are executed
+            \item Files are downloaded
+        \end{sitemize}
+
+        \pause
+        \item Represents the culmination of the exploitation cycle
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{What do most people do in post-exploitation?}
+
     \begin{sitemize}
         \item Most people spawn a command shell
         \begin{sitemize}
             \item Poor automation support
-            \item Reliant on the command shell's intrinsic commands
+            \item Reliant on the shell's intrinsic commands
             \item Limited to installed applications
+            \item Can't provide advanced features
+        \end{sitemize}
+
+        \pause
+        \item Some people use syscall proxies
+        \begin{sitemize}
+            \item Good automation support
+            \item Partial or full access to target native API
+            \item Can be clumsy when implementing complex features
+            \item Typically require specialized build steps
         \end{sitemize}
     \end{sitemize}
 \end{frame}
@@ -717,78 +744,39 @@
 %
 
 \begin{frame}[t]
-    \frametitle{The Meterpreter stage}
+    \frametitle{What is Meterpreter?}
 
     \begin{sitemize}
+        \item An advanced post-exploitation system
+        \item Based on library injection technology
         \item First released with Metasploit 2.3
-        \item Implemented using library injection technology
-
-        \pause
-        \item Uses payload connection for communicating with
-        attacker
-        \begin{sitemize}
-            \item Especially powerful with findsock payloads; no new
-            connection established
-        \end{sitemize}
-    \end{sitemize}
-
-    \pause
-    \begin{sitemize}
-        \item Primary goals are to be...
-        \begin{sitemize}
-            \item \textbf{Stealthy}: no disk access and no new process by default
-            \item \textbf{Powerful}: channelized communication and robust protocol
-            \item \textbf{Extensible}: run-time augmentation of features with extensions
-        \end{sitemize}
-    \end{sitemize}
-
-    \pause
-    \begin{sitemize}
         \item Detailed write-up can be found in reference materials
     \end{sitemize}
-\end{frame}
-
-\begin{frame}[t]
-    \frametitle{Why is Meterpreter useful?}
 
     \begin{sitemize}
-        \item Platform independent design
-        \begin{sitemize}
-            \item Current implementation is Windows specific, but
-            concepts are portable
-        \end{sitemize}
+        \pause
+        \item After exploitation, a Meterpreter server DLL is
+        loaded on the target
 
         \pause
-        \item Standard interface makes it possible to use one client
-        to perform common actions on various platforms
-
+        \item Attackers use a Meterpreter client to interact with
+        the server to...
         \begin{sitemize}
-            \pause
-            \item Execute a command interpreter and channelize the
-            output
-
-            \pause
-            \item Turn on the target's USB webcam and begin
-            streaming video
+            \item Load run-time extensions in the form of DLLs
+            \item Interact with communication channels
         \end{sitemize}
-
+    \end{sitemize}
+    \begin{sitemize}
         \pause
-        \item Programmatically automatable
-        \begin{sitemize}
-            \item RPC-like protocol allows arbitrarily complex tasks
-            to be performed with a common interface
-            \item Extension-based architecture makes Meterpreter
-            completely flexible
-        \end{sitemize}
+        \item But before understanding Meterpreter, one should understand
+        library injection...
 
-        \pause
-        \item Use of in-memory library injection makes it possible
-        to run in a stealth fashion
     \end{sitemize}
 \end{frame}
 
 
-% 
+
+%
 % Technology - Library Injection
 %
 \section{Library Injection}
@@ -796,14 +784,14 @@
 \subsection{Overview}
 
 \begin{frame}[t]
-    \frametitle{Library injection stager}
+    \frametitle{Library injection}
 
     \begin{sitemize}
-        \item Payload stager that provides a method of loading a
-        library (DLL) into the exploited process
+        \item Provides a method of loading a
+        library (DLL) into an exploited process
 
         \pause
-        \item Libraries are functionally equivalents to executables
+        \item Libraries are functionally equivalent to executables
         \begin{sitemize}
             \item Full access to various OS-provided APIs
             \item Can do anything an executable can do
@@ -815,8 +803,6 @@
 
         \pause
         \item Detailed write-up can be found in reference materials
-
-        % TODO: elaborate?
     \end{sitemize}
 \end{frame}
 
@@ -824,16 +810,13 @@
     \frametitle{Types of library injection}
 
     \begin{sitemize}
-        \item Three primary methods exist to inject a library
+        \item Two primary methods exist to inject a library
         \begin{senumerate}
             \item \textbf{On-Disk}: loading a library from the target's
             harddrive or a file share
             \item \textbf{In-Memory}: loading a library entirely from memory
-            \item \textbf{ActiveX}: loading a library through Internet
-            Explorer's ActiveX support
         \end{senumerate}
-        \item On-Disk and In-Memory techniques are conceptually
-        portable to non-Windows platforms
+        \item Both are conceptually portable to non-Windows platforms
     \end{sitemize}
 \end{frame}
 
@@ -878,21 +861,6 @@
     \end{sitemize}
 \end{frame}
 
-\begin{frame}[t]
-    \frametitle{ActiveX library injection}
-
-    \begin{sitemize}
-        \item Uses Internet Explorer's ActiveX support to inject a DLL
-        \item Reliant on zone restrictions being set to permit ActiveX
-
-        \pause
-        \item Subject to filtering by Antivirus
-
-        \pause
-        \item Implemented by the PassiveX stager
-    \end{sitemize}
-\end{frame}
-
 \subsection{In-Memory Implementation on Windows}
 
 \begin{frame}[t]
@@ -908,7 +876,7 @@
         \item To load libraries from memory, \texttt{NTDLL.DLL} must be tricked
 
         \pause
-        \item When loading libraries, low-level system calls are used to interact with the library on disk
+        \item When loading libraries, low-level system calls are used to interact with the file on disk
         \begin{sitemize}
             \item \texttt{NtOpenFile}
             \item \texttt{NtCreateSection}
@@ -979,8 +947,33 @@
 % We should also probably talk about it's asynchness and how that
 % works great for sharing and threading!
 %
+\section{Meterpreter}
 
-\subsection{Meterpreter Protocol}
+\begin{frame}[t]
+    \frametitle{Meterpreter: Design goals}
+
+    \begin{sitemize}
+        \item Primary design goals are to be...
+        \begin{sitemize}
+            \pause
+            \item \textbf{Stealthy}: no disk access and no new process by default
+            \pause
+            \item \textbf{Powerful}: channelized communication and robust protocol
+            \pause
+            \item \textbf{Extensible}: run-time augmentation of features with extensions
+        \end{sitemize}
+
+        \pause
+        \item Portability also a design consideration
+        \begin{sitemize}
+            \item The current server implementation is only for
+            Windows
+        \end{sitemize}
+    \end{sitemize}
+
+\end{frame}
+
+\subsection{Architecture}
 
 \begin{frame}[t]
     \frametitle{Architecture - design goals}
@@ -1002,6 +995,10 @@
         \pause
         \item Clients on one platform should work with servers on
         another
+
+        \pause
+        \item All non-critical features should be implemented by
+        extensions
     \end{sitemize}
 \end{frame}
 
@@ -1040,7 +1037,10 @@
     \frametitle{Core client/server interface}
 
     \begin{sitemize}
-        \item Minimal interface to support the loading of extensions
+        \item Server written in C, client written in any language
+
+        \pause
+        \item Provides a minimal interface to support the loading of extensions
 
         \pause
         \item Implements basic packet transmission and dispatching
@@ -1050,6 +1050,30 @@
         \pause
         \item Also includes support for migrating the server to
         another running process
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item Metasploit 2.x has a perl Meterpreter client
+        \item Metasploit 3.x will use a ruby Meterpreter client
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Augmenting features at run-time}
+
+    \begin{sitemize}
+        \item Adding new features is as simple as loading a DLL on
+        the server
+        \begin{sitemize}
+            \item Client uploads the extension DLL
+            \item Server loads the DLL from memory and
+            initializes it
+        \end{sitemize}
+
+        \pause
+        \item Client can begin sending commands for the new
+        extension
     \end{sitemize}
 \end{frame}
 
@@ -1065,23 +1089,65 @@
 
         \pause
         \item Provides access to standard OS features
-        \begin{sitemize}
-            \item Process execution, enumeration, and manipulation
-            \item Registry manipulation
-            \item File reading, writing, uploading, and downloading
-            \item Network pivoting
-            \item Route table and interface manipulation
-            \item \emph{Much} more
-        \end{sitemize}
 
         \pause
         \item Feature set provides for robust client-side automation
+
+        \pause
+        \item Designed to mirror the Ruby API to make it easy to use
+        existing scripts against targets
     \end{sitemize}
 \end{frame}
 
 %
 % Features - Meterpreter
 %
+
+\begin{frame}[t]
+    \frametitle{Why is Meterpreter useful?}
+
+    \begin{sitemize}
+        \item Standard interface makes it possible to use one client
+        to perform common actions on various platforms
+        \begin{sitemize}
+            \pause
+            \item Execute a command interpreter and channelize the
+            output
+
+            \pause
+            \item Turn on the target's USB webcam and begin
+            streaming video
+        \end{sitemize}
+
+        \pause
+        \item Programmatically automatable
+        \begin{sitemize}
+            \item RPC-like protocol allows arbitrarily complex tasks
+            to be performed with a common interface
+            \item Extension-based architecture makes Meterpreter
+            completely flexible
+        \end{sitemize}
+
+        \pause
+        \item Use of in-memory library injection makes it possible
+        to run in a stealth fashion
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Some of the features Meterpreter can offer}
+
+    \begin{sitemize}
+        \item Command execution \& manipulation
+        \item Registry interaction
+        \item File system interaction
+        \item Network pivoting \& port forwarding
+        \item Complete native API proxying
+        \item Anything you can do as a native DLL, Meterpreter can
+        do!
+        \item Sky's the limit!
+    \end{sitemize}
+\end{frame}
 
 %
 % Now talk about all the crazy cool features and demo shit here!
