@@ -80,9 +80,7 @@ class Client
 	# Loads the client half of the supplied extension and initializes it as a
 	# registered extension that can be reached through client.ext.[extension].
 	def add_extension(name)
-		if (Kernel.require("Rex/Post/Meterpreter/Extensions/#{name}/#{name}") == false)
-			return false
-		end
+		Kernel.require("Rex/Post/Meterpreter/Extensions/#{name}/#{name}")
 
 		# XXX might want to be safer and catch the exception here?
 		# maybe not since we are just going to reraise right away...
