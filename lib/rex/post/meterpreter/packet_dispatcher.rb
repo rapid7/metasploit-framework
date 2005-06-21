@@ -85,7 +85,7 @@ module PacketDispatcher
 		self.waiters = []
 
 		# Spawn a new thread that monitors the socket
-		thr = Thread.new {
+		thr = ::Thread.new {
 			while (true)
 				rv = select([ self.sock ], nil, nil, 2)
 
