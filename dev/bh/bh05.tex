@@ -229,19 +229,26 @@
         \item Using a sled can improve exploit quality
         \begin{sitemize}
             \item Increasing the brute force step size decreases
-        number of attemps
+        number of attempts
         \end{sitemize}
     \end{sitemize}
 \end{frame}
 
 \begin{frame}[t]
-    \frametitle{Existing nop sled technology}
+    \frametitle{Nop sled technology}
 
+    \textbf{Existing technology}
     \begin{sitemize}
         \item \footnotesize{\texttt{perl -e 'print "$\backslash$x90" x \$ARGV[0]"'
             sled\_size}}
         \item ADMutate - single-byte x86
     \end{sitemize}
+
+	 \textbf{Metasploit technology}
+	 \begin{sitemize}
+	     \item Opty2 multi-byte sled generator
+		  \item Based on Optyx's multi-byte sled generator
+	 \end{sitemize}
 \end{frame}
 
 \section{Encoders}
@@ -294,8 +301,9 @@
 \end{frame}
 
 \begin{frame}[t]
-    \frametitle{Existing encoder technology}
+    \frametitle{Encoder technology}
 
+    \textbf{Existing technology}
     \begin{sitemize}
         \item XOR
         \begin{sitemize}
@@ -313,6 +321,10 @@
         \item Dave Aitel and FX's unicode encoders
         \end{sitemize}
     \end{sitemize}
+	 \textbf{Metasploit technology}
+	 \begin{sitemize}
+	     \item Shikata Ga Nai
+	 \end{sitemize}
 \end{frame}
 
 \section{Payloads}
@@ -347,7 +359,7 @@
         \begin{sitemize}
             \item A self-contained payload that performs a specific
             task
-            \item Size ranges on depending on the task
+            \item Size varies depending on the task
         \item Example: Reverse of bind command shell
         \end{sitemize}
 
@@ -485,7 +497,7 @@
     \frametitle{Why are payload stages useful?}
 
     \begin{sitemize}
-        \item Highly reusable (connection indepentent, etc)
+        \item Highly reusable (connection independent, etc)
     \item Can conform to some sort of ABI
 
         \pause
@@ -513,13 +525,6 @@
 
     \end{sitemize}
 \end{frame}
-
-%\subsection{Egg Hunters}
-% What is an egghunter and why
-
-\pdfpart{Encoders}
-
-\section{Shikata Ga Nai}
 
 \section{Windows Ordinal Stagers}
 
@@ -1167,6 +1172,9 @@
 
         \pause
         \item However, post-exploitation is maturing
+        
+		  \pause
+        \item Metasploit 3.0 should be cool
     \end{sitemize}
 \end{frame}
 
