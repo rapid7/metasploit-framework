@@ -123,8 +123,14 @@ protected
 		barline  = nameline
 
 		columns.each_with_index { |col,idx|
-			nameline += col + pad(' ', col, idx)
-			barline  += ('-' * col.length) + (' ' * cellpad)
+			nameline  += col + pad(' ', col, idx)
+			remainder  = colprops[idx]['MaxWidth'] - col.length
+
+			if (remainder < 0)
+				remainder = 0
+			end
+				
+			barline   += ('-' * col.length) + (' ' * (cellpad + remainder))
 		}
 
 		return "#{nameline}\n#{barline}"

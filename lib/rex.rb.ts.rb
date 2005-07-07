@@ -20,6 +20,8 @@ require 'Rex/Socket/Udp.rb.ut'
 require 'Rex/Socket/Parameters.rb.ut'
 require 'Rex/Socket/Comm/Local.rb.ut'
 
+require 'Rex/Ui/Text/Table.rb.ut'
+
 class Rex::TestSuite
 	def self.suite
 		suite = Test::Unit::TestSuite.new("Rex")
@@ -43,6 +45,9 @@ class Rex::TestSuite
 		suite << Rex::Socket::TcpServer::UnitTest.suite
 		suite << Rex::Socket::Udp::UnitTest.suite
 		suite << Rex::Socket::Comm::Local::UnitTest.suite
+
+		# Ui
+		suite << Rex::Ui::Text::Table::UnitTest.suite
 
 		return suite;
 	end
