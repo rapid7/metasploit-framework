@@ -380,4 +380,86 @@
 				TLV_TYPE_EXTENSION_STDAPI, \
 				3000)
 
+// Event Log
+#define TLV_TYPE_EVENT_SOURCENAME      \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_STRING,      \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4000)
+#define TLV_TYPE_EVENT_HANDLE          \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4001)
+#define TLV_TYPE_EVENT_NUMRECORDS      \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4002)
+#define TLV_TYPE_EVENT_READFLAGS       \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4003)
+#define TLV_TYPE_EVENT_RECORDOFFSET    \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4004)
+
+#define TLV_TYPE_EVENT_RECORDNUMBER    \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4006)
+#define TLV_TYPE_EVENT_TIMEGENERATED   \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4007)
+#define TLV_TYPE_EVENT_TIMEWRITTEN     \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4008)
+#define TLV_TYPE_EVENT_ID              \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4009)
+/* only a word, but will just put it in a dword */
+#define TLV_TYPE_EVENT_TYPE            \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4010)
+/* only a word, but will just put it in a dword */
+#define TLV_TYPE_EVENT_CATEGORY        \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4011)
+#define TLV_TYPE_EVENT_STRING          \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_STRING,      \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4012)
+#define TLV_TYPE_EVENT_DATA            \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_RAW,         \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4013)
+
+/* power */
+#define TLV_TYPE_POWER_FLAGS           \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4100)
+#define TLV_TYPE_POWER_REASON          \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				4101)
+
 #endif

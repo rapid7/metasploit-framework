@@ -3,5 +3,7 @@
 
 #include "process/process.h"
 #include "registry/registry.h"
+#include "eventlog/eventlog.h"
+#include "power/power.h"
 
 #endif
