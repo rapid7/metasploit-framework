@@ -47,13 +47,19 @@ class Core
 		}
 	
 		# Display the commands
-		#
-		# TODO: change to column printing
-		all_commands.sort.each { |c|
-			cmd, desc = c
+		tbl = Table.new(
+			Table::Style::Default,
+			'Columns' => 
+				[
+					'Command',
+					'Description'
+				])
 
-			print_line("  #{cmd}  #{desc}")
+		all_commands.sort.each { |c|
+			tbl << c
 		}
+
+		print(tbl.to_s)
 	end
 
 	alias cmd_? cmd_help

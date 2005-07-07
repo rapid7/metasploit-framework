@@ -20,3 +20,5 @@ require 'Rex/Socket/Parameters'
 require 'Rex/Socket/Tcp'
 require 'Rex/Socket/Comm/Local'
 
+# Ui
+require 'Rex/Ui/Text/Table'

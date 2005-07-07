@@ -76,7 +76,7 @@ class Socket
 				# representation of the left side of the socket for
 				# the caller to use
 				if (channel != nil)
-					res = Rex::Socket::Tcp.new(channel.lsock)
+					res = Rex::Socket::Stream.new(channel.lsock)
 				end
 			elsif (params.udp?)
 				if (params.server?)

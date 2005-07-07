@@ -3,6 +3,8 @@ require 'Msf/Ui'
 require 'Msf/Ui/Console/Shell'
 require 'Msf/Ui/Console/CommandDispatcher'
 
+require 'Msf/Ui/Console/Table'
+
 module Msf
 module Ui
 module Console

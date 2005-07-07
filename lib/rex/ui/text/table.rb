@@ -20,6 +20,8 @@ class Table
 		self.width    = opts['Width']   || 80
 		self.indent   = opts['Indent']  || 0
 		self.cellpad  = opts['CellPad'] || 2
+		self.prefix   = opts['Prefix']  || ''
+		self.postfix  = opts['Postfix'] || ''
 		self.colprops = []
 
 		self.columns.length.times { |idx|
@@ -33,7 +35,8 @@ class Table
 	# Converts table contents to a string
 	# 
 	def to_s
-		str  = columns_to_s || ''
+	   str  = prefix
+		str += columns_to_s || ''
 		str += hr_to_s || ''
 		
 		rows.each { |row|
@@ -43,6 +46,8 @@ class Table
 				str += row_to_s(row)
 			end
 		}
+
+		str += postfix
 
 		return str
 	end
@@ -85,6 +90,7 @@ class Table
 
 	attr_accessor :columns, :rows, :colprops
 	attr_accessor :width, :indent, :cellpad
+	attr_accessor :prefix, :postfix
 
 protected
 
@@ -118,7 +124,7 @@ protected
 
 		columns.each_with_index { |col,idx|
 			nameline += col + pad(' ', col, idx)
-			barline  += ('-' * colprops[idx]['MaxWidth']) + (' ' * cellpad)
+			barline  += ('-' * col.length) + (' ' * cellpad)
 		}
 
 		return "#{nameline}\n#{barline}"
