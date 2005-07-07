@@ -9,6 +9,7 @@ class JmpCallAdditive < Msf::Encoder::XorAdditiveFeedback
 	def initialize
 		super(
 			'Name'             => 'Jump/Call XOR Additive Feedback',
+			'Alias'            => 'ia32_jmpcalladditive',
 			'Version'          => '$Revision$',
 			'Description'      => 'Jump/Call XOR Additive Feedback',
 			'Author'           => 'skape',

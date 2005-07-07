@@ -90,9 +90,19 @@ class Core
 
 		# Dump the contents of the active datastore if no args were supplied
 		if (args.length == 0)
+			tbl = Table.new(
+				Table::Style::Default,
+				'Columns' =>
+					[
+						'Name',
+						'Value'
+					])
+
 			datastore.each_pair { |name, value|
-				print_line("#{name}: #{value}")
+				tbl << [ name, value ]
 			}
+
+			print(tbl.to_s)
 
 			return true
 		elsif (args.length < 2)
@@ -109,6 +119,31 @@ class Core
 		datastore[name] = value
 
 		print_line("#{name} => #{value}")
+	end
+
+	# Unsets a value if it's been set
+	def cmd_unset(args)
+		# Determine which data store we're operating on
+		if (mod = get_active_module())
+			datastore = mod.datastore
+		else
+			datastore = driver.datastore
+		end
+
+		# No arguments?  No cookie.
+		if (args.length == 0)
+			print(
+				"Usage: unset var1 var2 var3 ...\n\n" +
+				"The unset command is used to unset one or more variables.\n")
+
+			return false
+		end
+
+		while ((val = args.shift))
+			print_line("Unsetting #{val}...")
+
+			datastore.delete(val)
+		end
 	end
 
 	# Displays the list of modules based on their type, or all modules if
@@ -206,15 +241,33 @@ protected
 	end
 
 	def show_module_set(type, module_set)
-		print_line("#{type}:")
+
+		tbl = Table.new(
+			Table::Style::Default,
+			'Header'  => type,
+			'Prefix'  => "\n",
+			'Postfix' => "\n",
+			'Columns' => 
+				[
+					'Name',
+					'Description'
+				],
+			'ColProps' =>
+				{
+					'Name' =>
+						{
+							# Default max width to 25
+							'MaxWidth' => 25
+						}
+				})
 
 		module_set.each_module { |mod|
 			instance = mod.new
 
-			print_line("#{instance.class} #{instance.name}")
+			tbl << [ instance.alias, instance.description ]
 		}
 
-		print_line
+		print(tbl.to_s)
 	end
 
 end

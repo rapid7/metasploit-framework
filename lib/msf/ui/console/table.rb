@@ -19,14 +19,37 @@ class Table < Rex::Ui::Text::Table
 	end
 
 	def initialize(style, opts = {})
-		if (style == Style::Default)
+		self.style = style
+
+		if (self.style == Style::Default)
 			opts['Indent']  = 3
-			opts['Prefix']  = "\n\n"
-			opts['Postfix'] = "\n\n"
+			if (!opts['Prefix'])
+				opts['Prefix']  = "\n\n"
+			end
+			if (!opts['Postfix'])
+				opts['Postfix'] = "\n\n"
+			end
 
 			super(opts)
 		end
 	end
+
+	def header_to_s
+		return super + "\n"
+	end
+
+	# Print nothing if there are no rows if the style is default
+	def to_s
+		if (style == Style::Default)
+			return '' if (rows.length == 0)
+		end
+
+		super
+	end
+
+protected
+
+	attr_accessor :style
 
 end
 

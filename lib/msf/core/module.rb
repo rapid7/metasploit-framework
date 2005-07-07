@@ -53,6 +53,14 @@ class Module
 	end
 
 	#
+	# Returns the module's alias, if it has one.  Otherwise, the module's
+	# name is returned.
+	#
+	def alias
+		return module_info['Alias'] || name
+	end
+
+	#
 	# Return the module's description
 	#
 	def description

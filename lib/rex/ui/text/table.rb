@@ -14,6 +14,8 @@ module Text
 class Table
 
 	def initialize(opts = {})
+		self.header   = opts['Header']
+		self.headeri  = opts['HeaderIndent'] || 0
 		self.columns  = opts['Columns'] || []
 		self.rows     = opts['Rows']    || []
 
@@ -24,10 +26,22 @@ class Table
 		self.postfix  = opts['Postfix'] || ''
 		self.colprops = []
 
+		# Default column properties
 		self.columns.length.times { |idx|
 			self.colprops[idx] = {}
 			self.colprops[idx]['MaxWidth'] = self.columns[idx].length
 		}
+
+		# Merge in options
+		if (opts['ColProps'])
+			opts['ColProps'].each_key { |col|
+				idx = self.columns.index(col)
+
+				if (idx)
+					self.colprops[idx].merge!(opts['ColProps'][col])
+				end
+			}
+		end
 
 	end
 
@@ -36,6 +50,7 @@ class Table
 	# 
 	def to_s
 	   str  = prefix
+		str += header_to_s || ''
 		str += columns_to_s || ''
 		str += hr_to_s || ''
 		
@@ -88,6 +103,7 @@ class Table
 
 	alias p print
 
+	attr_accessor :header, :headeri
 	attr_accessor :columns, :rows, :colprops
 	attr_accessor :width, :indent, :cellpad
 	attr_accessor :prefix, :postfix
@@ -111,6 +127,21 @@ protected
 	#
 	def is_hr(row)
 		return ((row.kind_of?(String)) && (row == '__hr__'))
+	end
+
+	#
+	# :nodoc:
+	#
+	# Returns the header string
+	#
+	def header_to_s
+		if (header)
+			pad = " " * headeri
+
+			return pad + header + "\n" + pad + "=" * header.length + "\n"
+		end
+
+		return ''
 	end
 
 	#

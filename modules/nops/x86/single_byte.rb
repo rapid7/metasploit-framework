@@ -81,6 +81,7 @@ SINGLE_BYTE_SLED =
 	def initialize
 		super(
 			'Name'        => 'Single Byte',
+			'Alias'       => 'ia32_singlebyte',
 			'Version'     => '$Revision$',
 			'Description' => 'Single-byte NOP generator',
 			'Author'      => 'spoonm',
