@@ -12,6 +12,7 @@ require 'Rex/Post/Meterpreter/Extensions/Stdapi/Net/Socket'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Process'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Registry'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/EventLog'
+require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Power'
 require 'Rex/Post/Meterpreter/Extensions/Stdapi/UI'
 
 module Rex
@@ -51,7 +52,8 @@ class Stdapi < Extension
 						{
 							'process'  => self.process,
 							'registry' => self.registry,
-							'eventlog' => self.eventlog
+							'eventlog' => self.eventlog,
+							'power'    => self.power
 						})
 				},
 				{
@@ -105,6 +107,11 @@ class Stdapi < Extension
 	# Returns a copy of the EventLog class
 	def eventlog
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::EventLog)
+	end
+
+	# Returns a copy of the Power class
+	def power
+		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Power)
 	end
 end
 
