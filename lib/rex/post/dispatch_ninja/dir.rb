@@ -12,6 +12,8 @@ class Dir < Rex::Post::Dir
 		attr_accessor :client
 	end
 
+	#--
+
 	def Dir.entries(name)
 
 		client.sendmodule('ls')
@@ -37,6 +39,7 @@ class Dir < Rex::Post::Dir
 		return files
 	end
 
+	#++
 end
 
 end; end; end # DispatchNinja/Post/Rex

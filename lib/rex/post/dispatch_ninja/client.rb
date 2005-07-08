@@ -21,21 +21,19 @@ class Client
 		checksig()
 	end
 
-	def brand(klass)
-		klass = klass.dup
-		klass.client = self
-		return klass
-	end
-
+	# Get a File-like class
 	def file
 		brand(Rex::Post::DispatchNinja::File)
 	end
+	# Get a File::Stat-like class
 	def filestat
 		brand(Rex::Post::DispatchNinja::FileStat)
 	end
+	# Get a Process-like class
 	def process
 		brand(Rex::Post::DispatchNinja::Process)
 	end
+	# Get a Dir-like class
 	def dir
 		brand(Rex::Post::DispatchNinja::Dir)
 	end
@@ -74,6 +72,13 @@ class Client
 		return sock.read(len)
 	end
 
+	protected
+
+	def brand(klass)
+		klass = klass.dup
+		klass.client = self
+		return klass
+	end
 end
 
 end; end; end # DispatchNinja/Post/Rex
