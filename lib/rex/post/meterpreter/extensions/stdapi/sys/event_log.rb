@@ -162,7 +162,7 @@ class EventLog
 		request.add_tlv(TLV_TYPE_EVENT_HANDLE, self.handle);
 
 		response = client.send_request(request)
-		return nil
+		return self
 	end
 
 	#
