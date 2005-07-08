@@ -54,4 +54,8 @@ class Rex::Socket::UnitTest < Test::Unit::TestCase
 		assert_equal(22, port, "port = 22")
 	end
 
+	def test_resolv_nbo
+		assert_equal("\x04\x03\x02\x01", Rex::Socket.resolv_nbo("4.3.2.1"))
+	end
+
 end

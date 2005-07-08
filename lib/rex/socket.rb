@@ -75,6 +75,13 @@ class Socket
 		return [ af, up.join('.'), port ]
 	end
 
+	#
+	# Resolves a host to raw network-byte order
+	#
+	def self.resolv_nbo(host)
+		return to_sockaddr(host, 0)[4,4]
+	end
+
 	##
 	#
 	# Class initialization

@@ -1,4 +1,5 @@
 require 'Rex'
+require 'Rex/Logging/LogSink'
 
 module Rex
 module Logging
