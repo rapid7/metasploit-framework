@@ -30,11 +30,13 @@ class Client
 
 	# Initializes the client context with the supplied socket through
 	# which communication with the server will be performed
-	def initialize(sock)
+	def initialize(sock, to = self.class.default_timeout)
 		self.sock        = sock
 		self.parser      = PacketParser.new
 		self.ext         = ObjectAliases.new
 		self.ext_aliases = ObjectAliases.new
+
+		self.response_timeout = to
 
 		register_extension_alias('core', ClientCore.new(self))
 
@@ -80,7 +82,7 @@ class Client
 	# Loads the client half of the supplied extension and initializes it as a
 	# registered extension that can be reached through client.ext.[extension].
 	def add_extension(name)
-		Kernel.require("Rex/Post/Meterpreter/Extensions/#{name}/#{name}")
+		require("Rex/Post/Meterpreter/Extensions/#{name}/#{name}")
 
 		# XXX might want to be safer and catch the exception here?
 		# maybe not since we are just going to reraise right away...
@@ -129,6 +131,7 @@ class Client
 	end
 
 	attr_reader   :ext, :sock
+	attr_accessor :response_timeout
 protected
 	attr_accessor :parser, :ext_aliases
 	attr_writer   :ext, :sock

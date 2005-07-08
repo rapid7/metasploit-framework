@@ -40,7 +40,7 @@ module PacketDispatcher
 	end
 
 	# Sends a packet and waits for a timeout for the given time interval
-	def send_request(packet, t = Client.default_timeout)
+	def send_request(packet, t = self.response_timeout)
 		response = send_packet_wait_response(packet, t)
 
 		if (response == nil)
@@ -167,7 +167,7 @@ module PacketDispatcher
 			client = self
 		end
 
-		puts "Inbound packet: rid=#{packet.rid} method=#{packet.method}\n"
+		#puts "Inbound packet: rid=#{packet.rid} method=#{packet.method}\n"
 
 		# If the packet is a response, try to notify any potential
 		# waiters

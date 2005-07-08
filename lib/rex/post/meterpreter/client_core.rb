@@ -107,7 +107,7 @@ class ClientCore < Extension
 		end
 
 		# Transmit the request and wait the default timeout seconds for a response
-		response = self.client.send_packet_wait_response(request, Client.default_timeout)
+		response = self.client.send_packet_wait_response(request, self.client.response_timeout)
 
 		# No response?
 		if (response == nil)
