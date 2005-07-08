@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'Rex/Socket/StreamAbstraction'
+require 'Rex/IO/StreamAbstraction'
 require 'Rex/Post/Meterpreter/Channel'
 
 module Rex
@@ -18,7 +18,7 @@ module Meterpreter
 ###
 class Stream < Rex::Post::Meterpreter::Channel
 
-	include Rex::Socket::StreamAbstraction
+	include Rex::IO::StreamAbstraction
 
 	class <<self
 		def cls
