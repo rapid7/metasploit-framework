@@ -16,6 +16,7 @@ class ModuleSet < Hash
 	def initialize(type = nil)
 		self.module_type       = type
 		self.full_names        = {}
+		self.alias_names       = {}
 		self.ambiguous_names   = {}
 
 		# Hashes that convey the supported architectures and platforms for a
@@ -33,7 +34,8 @@ class ModuleSet < Hash
 		end
 
 		# If not by short name, then by full name, or so sayeth the spider
-		if ((klass = self[name]) == nil)
+		if (((klass = self[name]) == nil) and
+		    ((klass = alias_names[name]) == nil))
 			klass = full_names[name]
 		end
 
@@ -80,11 +82,12 @@ protected
 			self[short_name] = module_class
 		end
 
-		full_names[full_name] = module_class
+		full_names[full_name]               = module_class
+		alias_names[module_class.new.alias] = module_class
 	end
 
 	attr_writer   :module_type, :full_names
-	attr_accessor :ambiguous_names
+	attr_accessor :ambiguous_names, :alias_names
 	attr_accessor :mod_arch_hash, :mod_platform_hash
 
 end
