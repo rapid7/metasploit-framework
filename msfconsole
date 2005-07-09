@@ -1,5 +1,8 @@
 #!/usr/bin/ruby -I../Lib
 
+require 'Rex'
 require 'Msf/Ui'
+
+register_log_source('core', Rex::Logging::Sinks::Flatfile.new('/tmp/msfcli.log'))
 
 Msf::Ui::Console::Driver.new.run

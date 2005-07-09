@@ -34,6 +34,10 @@ class Msf::Module::PlatformList
 		from_a(args) if (args.length)
 	end
 
+	def empty?
+		return platforms.empty?
+	end
+
 	def from_a(ary)
 		ary.each { |a|
 			if a.kind_of?(String)

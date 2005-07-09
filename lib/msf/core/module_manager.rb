@@ -68,6 +68,10 @@ class ModuleSet < Hash
 		}
 	end
 
+	# Dummy placeholder to relcalculate aliases and other fun things
+	def recalculate
+	end
+
 	attr_reader   :module_type, :full_names
 
 protected
@@ -110,6 +114,8 @@ end
 ###
 class ModuleManager < ModuleSet
 
+	require 'Msf/Core/PayloadSet'
+
 	def initialize()
 		self.module_paths         = []
 		self.module_history       = {}
@@ -117,7 +123,14 @@ class ModuleManager < ModuleSet
 		self.module_sets          = {}
 
 		MODULE_TYPES.each { |type|
-			self.module_sets[type] = ModuleSet.new(type)
+			case type
+				when MODULE_PAYLOAD
+					instance = PayloadSet.new(self)
+				else
+					instance = ModuleSet.new(type)
+			end
+
+			self.module_sets[type] = instance
 		}
 
 		super
@@ -176,6 +189,7 @@ protected
 	# module type)
 	def load_modules(path)
 		loaded = {}
+		recalc = {}
 
 		Find.find(path) { |file|
 
@@ -200,13 +214,12 @@ protected
 			# Use the de-pluralized version of the type as necessary
 			type = md[1].sub(/s$/, '').downcase
 
-			# Extract the module namespace
 			md = path_base.match(/^(.*)#{File::SEPARATOR}(.*?)$/)
 
 			next if (!md)
 
 			# Prefix Msf to the namespace
-			namespace = 'Msf::' + md[1].sub(File::SEPARATOR, "::")
+			namespace = 'Msf::' + md[1].gsub(File::SEPARATOR, "::")
 
 			dlog("Loading #{type} module from #{path_base}...", 'core', LEV_1)
 
@@ -263,6 +276,9 @@ protected
 			# right associations
 			on_module_load(type, added)
 
+			# Set this module type as needing recalculation
+			recalc[type] = true
+
 			# Append the added module to the hash of file->module
 			loaded[file] = added
 		}
@@ -274,6 +290,12 @@ protected
 
 		# Cache the loaded file module associations
 		module_history.update(loaded)
+
+		# Perform any required recalculations for the individual module types
+		# that actually had load changes
+		recalc.each_key { |key|
+			module_sets[key].recalculate
+		}
 
 		return loaded.values
 	end
@@ -314,10 +336,19 @@ protected
 			mod_short_name = md[2]
 		end
 
-		# Add the module class to the list of modules and add it to the
-		# type separated set of module classes
-		add_module(mod_short_name, mod_full_name, mod)
-
+		# Payload modules require custom loading as the individual files
+		# may not directly contain a logical payload that a user would 
+		# reference, such as would be the case with a payload stager or 
+		# stage.  As such, when payload modules are loaded they are handed
+		# off to a special payload set.  The payload set, in turn, will
+		# automatically create all the permutations after all the payload
+		# modules have been loaded.
+		if (type != MODULE_PAYLOAD)
+			# Add the module class to the list of modules and add it to the
+			# type separated set of module classes
+			add_module(mod_short_name, mod_full_name, mod)
+		end
+			
 		module_sets[type].add_module(mod_short_name, mod_full_name, mod)
 	end
 

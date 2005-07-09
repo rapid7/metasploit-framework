@@ -183,11 +183,58 @@ protected
 			if (self.respond_to?("merge_info_#{name.downcase}"))
 				eval("merge_info_#{name.downcase}(info, val)")
 			else
-				# merge it cool style
+				# If the info hash already has an entry for this name
+				if (info[name])
+					# If it's not an array, convert it to an array and merge the
+					# two
+					if (info[name].kind_of?(Array) == false)
+						curr       = info[name]
+						info[name] = [ curr, val ]
+					# Otherwise, just append this item to the array entry
+					else
+						info[name] << val
+					end
+				# Otherwise, just set the value equal if no current value
+				# exists
+				else
+					info[name] = val
+				end
 			end
 		}
 
 		return info
+	end
+
+	#
+	# Merge aliases with an underscore delimiter
+	#
+	def merge_info_alias(info, val)
+		merge_info_string(info, 'Alias', val, '_')
+	end
+
+	#
+	# Merges the module name
+	#
+	def merge_info_name(info, val)
+		merge_info_string(info, 'Name', val)
+	end	
+
+	#
+	# Merges the module description
+	#
+	def merge_info_description(info, val)
+		merge_info_string(info, 'Description', val)
+	end
+
+	#
+	# Merges a given key in the info hash with a delimiter
+	#
+	def merge_info_string(info, key, val, delim = ', ')
+		if (info[key])
+			info[key] = val + delim + info[key]
+		else
+			info[key] = val
+		end
 	end
 
 	#

@@ -1,4 +1,5 @@
 require 'Msf/Ui/Console/CommandDispatcher/Encoder'
+require 'Msf/Ui/Console/CommandDispatcher/Nops'
 
 module Msf
 module Ui
@@ -32,6 +33,7 @@ class Core
 
 	alias cmd_quit cmd_exit
 
+	# Displays the command help banner
 	def cmd_help(args)
 		all_commands = {}
 
@@ -201,6 +203,8 @@ class Core
 		case mod.type
 			when MODULE_ENCODER
 				dispatcher = Encoder
+			when MODULE_NOPS
+				dispatcher = Nops
 		end
 
 		if (dispatcher != nil)
