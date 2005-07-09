@@ -38,7 +38,24 @@ class Msf::Module::PlatformList
 	def initialize(*args)
 		self.platforms = [ ]
 
-		from_a(args)
+		args.each { |a|
+			if a.kind_of?(String)
+				platforms << Msf::Module::Platform.find_platform(a)
+			elsif a.kind_of?(Range)
+				b = Msf::Module::Platform.find_platform(a.begin)
+				e = Msf::Module::Platform.find_platform(a.end)
+
+				children = b.superclass.find_children
+				r        = (b::Rank .. e::Rank)
+				children.each { |c|
+					platforms << c if r.include?(c::Rank)
+				}
+			else
+				platforms << a
+			end
+
+		}
+
 	end
 
 	def empty?
@@ -133,29 +150,4 @@ class Msf::Module::PlatformList
 		raise RuntimeError, "No more expansion possible", caller
 	end
 
-#
-# Hey skape, I don't see much the point of this.  Why can't we just do it through
-# the constructor?  It doesn't make any sense otherwise...
-#
-	def from_a(ary)
-		ary.each { |a|
-			if a.kind_of?(String)
-				platforms << Msf::Module::Platform.find_platform(a)
-			elsif a.kind_of?(Range)
-				b = Msf::Module::Platform.find_platform(a.begin)
-				e = Msf::Module::Platform.find_platform(a.end)
-
-				children = b.superclass.find_children
-				r        = (b::Rank .. e::Rank)
-				children.each { |c|
-					platforms << c if r.include?(c::Rank)
-				}
-			else
-				platforms << a
-			end
-
-		}
-	end
-
 end
-
