@@ -1,11 +1,11 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/File'
-require 'Rex/Post/Meterpreter/Channel'
-require 'Rex/Post/Meterpreter/Channels/Pools/File'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Stdapi'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Fs/IO'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Fs/FileStat'
+require 'rex/post/file'
+require 'rex/post/meterpreter/channel'
+require 'rex/post/meterpreter/channels/pools/file'
+require 'rex/post/meterpreter/extensions/stdapi/stdapi'
+require 'rex/post/meterpreter/extensions/stdapi/fs/io'
+require 'rex/post/meterpreter/extensions/stdapi/fs/file_stat'
 
 module Rex
 module Post

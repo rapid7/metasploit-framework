@@ -2,23 +2,23 @@ module Rex
 end
 
 # Generic classes
-require 'Rex/Constants'
-require 'Rex/Exceptions'
-require 'Rex/ReadWriteLock'
-require 'Rex/Transformer'
+require 'rex/constants'
+require 'rex/exceptions'
+require 'rex/read_write_lock'
+require 'rex/transformer'
 
 # Logging
-require 'Rex/Logging/LogDispatcher'
+require 'rex/logging/log_dispatcher'
 
 # IO
-require 'Rex/IO/Stream'
-require 'Rex/IO/StreamServer'
+require 'rex/io/stream'
+require 'rex/io/stream_server'
 
 # Sockets
-require 'Rex/Socket'
-require 'Rex/Socket/Parameters'
-require 'Rex/Socket/Tcp'
-require 'Rex/Socket/Comm/Local'
+require 'rex/socket'
+require 'rex/socket/parameters'
+require 'rex/socket/tcp'
+require 'rex/socket/comm/local'
 
 # Ui
-require 'Rex/Ui/Text/Table'
+require 'rex/ui/text/table'

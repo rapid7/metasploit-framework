@@ -1,4 +1,4 @@
-require 'Msf/Ui'
+require 'msf/ui'
 
 module Msf
 module Ui

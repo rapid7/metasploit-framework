@@ -3,7 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 
 require 'test/unit'
-require 'Msf/Core/OptionContainer'
+require 'msf/core/option_container'
 
 module Msf
 

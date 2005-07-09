@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
-require 'Rex/Arch/X86'
-require 'Rex/Encoder/Xor/DWord'
+require 'rex/arch/x86'
+require 'rex/encoder/xor/d_word'
 
 module Rex
 module Encoders

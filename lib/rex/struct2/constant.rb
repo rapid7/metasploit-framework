@@ -12,7 +12,7 @@ module Struct2
 
 class Constant
 	
-	require 'Rex/Struct2/Element'
+	require 'rex/struct2/element'
 	include Rex::Struct2::Element
 
 	def initialize(value)

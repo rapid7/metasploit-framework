@@ -1,19 +1,19 @@
 #!/usr/bin/ruby
 
 require 'test/unit'
-require 'Msf/Core'
-require 'Msf/Core/Exceptions.rb.ut'
-require 'Msf/Core/OptionContainer.rb.ut'
-require 'Msf/Core/SessionManager.rb.ut'
+require 'msf/core'
+require 'msf/core/exceptions.rb.ut'
+require 'msf/core/option_container.rb.ut'
+require 'msf/core/session_manager.rb.ut'
 
-require 'Msf/Core/Module/Author.rb.ut'
-require 'Msf/Core/Module/PlatformList.rb.ut'
-require 'Msf/Core/Module/Reference.rb.ut'
-require 'Msf/Core/Module/Target.rb.ut'
+require 'msf/core/module/author.rb.ut'
+require 'msf/core/module/platform_list.rb.ut'
+require 'msf/core/module/reference.rb.ut'
+require 'msf/core/module/target.rb.ut'
 
-require 'Msf/Core/Exploit.rb.ut'
-require 'Msf/Core/Exploit/Remote/Tcp.rb.ut'
-require 'Msf/Core/Exploit/Remote/DCERPC.rb.ut'
+require 'msf/core/exploit.rb.ut'
+require 'msf/core/exploit/remote/tcp.rb.ut'
+require 'msf/core/exploit/remote/d_c_e_r_p_c.rb.ut'
 
 class Msf::TestSuite
 	def self.suite

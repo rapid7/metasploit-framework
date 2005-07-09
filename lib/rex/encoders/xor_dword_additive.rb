@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'Rex/Encoder/Xor/DWordAdditive'
+require 'rex/encoder/xor/d_word_additive'
 
 #
 # Jmp/Call DWord Additive Feedback Encoder

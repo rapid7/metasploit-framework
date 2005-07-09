@@ -1,6 +1,6 @@
-require 'Msf/Ui'
-require 'Msf/Ui/Console/InputMethods'
-require 'Msf/Ui/Console/OutputMethods'
+require 'msf/ui'
+require 'msf/ui/console/input_methods'
+require 'msf/ui/console/output_methods'
 
 module Msf
 module Ui

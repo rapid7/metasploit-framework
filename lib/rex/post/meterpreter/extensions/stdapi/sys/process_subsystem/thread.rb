@@ -1,8 +1,8 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Meterpreter/Client'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Constants'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Thread'
+require 'rex/post/meterpreter/client'
+require 'rex/post/meterpreter/extensions/stdapi/constants'
+require 'rex/post/meterpreter/extensions/stdapi/sys/thread'
 
 module Rex
 module Post

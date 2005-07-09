@@ -4,7 +4,7 @@
 module Rex
 module Struct2
 
-require 'Rex/Struct2/SStruct'
+require 'rex/struct2/s_struct'
 
 class CStruct_Values
 
@@ -37,11 +37,11 @@ end
 
 class CStruct < SStruct
 
-	require 'Rex/Struct2/Element'
-	require 'Rex/Struct2/Generic'
-	require 'Rex/Struct2/SString'
-	require 'Rex/Struct2/CStructTemplate'
-	require 'Rex/Struct2/Restraint'
+	require 'rex/struct2/element'
+	require 'rex/struct2/generic'
+	require 'rex/struct2/s_string'
+	require 'rex/struct2/c_struct_template'
+	require 'rex/struct2/restraint'
 
 	include Rex::Struct2::Element
 

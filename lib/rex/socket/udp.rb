@@ -1,4 +1,4 @@
-require 'Rex/Socket'
+require 'rex/socket'
 
 ###
 #

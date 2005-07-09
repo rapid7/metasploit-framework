@@ -3,9 +3,9 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
 require 'test/unit'
-require 'Rex/Exceptions'
-require 'Rex/Socket/Parameters'
-require 'Rex/Socket/Comm/Local'
+require 'rex/exceptions'
+require 'rex/socket/parameters'
+require 'rex/socket/comm/local'
 
 class Rex::Socket::Comm::Local::UnitTest < Test::Unit::TestCase
 

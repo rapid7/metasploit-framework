@@ -1,6 +1,6 @@
-require 'Rex/Socket'
-require 'Rex/Socket/Tcp'
-require 'Rex/IO/StreamServer'
+require 'rex/socket'
+require 'rex/socket/tcp'
+require 'rex/io/stream_server'
 
 ###
 #

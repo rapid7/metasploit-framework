@@ -3,7 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 
 require 'test/unit'
-require 'Msf/Core/Exceptions'
+require 'msf/core/exceptions'
 
 module Msf
 module Exceptions

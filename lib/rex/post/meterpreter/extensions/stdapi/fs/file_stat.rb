@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/FileStat'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Stdapi'
+require 'rex/post/file_stat'
+require 'rex/post/meterpreter/extensions/stdapi/stdapi'
 
 module Rex
 module Post

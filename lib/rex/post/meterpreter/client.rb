@@ -1,14 +1,14 @@
 #!/usr/bin/ruby
 
 require 'socket'
-require 'Rex/Post/Meterpreter/ClientCore'
-require 'Rex/Post/Meterpreter/Channel'
-require 'Rex/Post/Meterpreter/ChannelContainer'
-require 'Rex/Post/Meterpreter/Dependencies'
-require 'Rex/Post/Meterpreter/ObjectAliases'
-require 'Rex/Post/Meterpreter/Packet'
-require 'Rex/Post/Meterpreter/PacketParser'
-require 'Rex/Post/Meterpreter/PacketDispatcher'
+require 'rex/post/meterpreter/client_core'
+require 'rex/post/meterpreter/channel'
+require 'rex/post/meterpreter/channel_container'
+require 'rex/post/meterpreter/dependencies'
+require 'rex/post/meterpreter/object_aliases'
+require 'rex/post/meterpreter/packet'
+require 'rex/post/meterpreter/packet_parser'
+require 'rex/post/meterpreter/packet_dispatcher'
 
 module Rex
 module Post

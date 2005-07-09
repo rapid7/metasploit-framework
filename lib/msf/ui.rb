@@ -3,5 +3,5 @@ module Ui
 end
 end
 
-require 'Msf/Ui/Driver'
-require 'Msf/Ui/Console'
+require 'msf/ui/driver'
+require 'msf/ui/console'

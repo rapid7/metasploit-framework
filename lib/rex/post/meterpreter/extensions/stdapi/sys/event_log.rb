@@ -1,11 +1,11 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Process'
-require 'Rex/Post/Meterpreter/Packet'
-require 'Rex/Post/Meterpreter/Client'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Constants'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Stdapi'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/EventLogSubsystem/EventRecord'
+require 'rex/post/process'
+require 'rex/post/meterpreter/packet'
+require 'rex/post/meterpreter/client'
+require 'rex/post/meterpreter/extensions/stdapi/constants'
+require 'rex/post/meterpreter/extensions/stdapi/stdapi'
+require 'rex/post/meterpreter/extensions/stdapi/sys/event_log_subsystem/event_record'
 
 module Rex
 module Post

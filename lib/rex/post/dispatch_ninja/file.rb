@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/File'
-require 'Rex/Post/DispatchNinja/IO'
+require 'rex/post/file'
+require 'rex/post/dispatch_ninja/io'
 
 module Rex
 module Post

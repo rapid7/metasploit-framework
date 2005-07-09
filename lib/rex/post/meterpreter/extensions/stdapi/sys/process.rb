@@ -1,15 +1,15 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Process'
-require 'Rex/Post/Meterpreter/Packet'
-require 'Rex/Post/Meterpreter/Client'
-require 'Rex/Post/Meterpreter/Channels/Pools/StreamPool'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Stdapi'
+require 'rex/post/process'
+require 'rex/post/meterpreter/packet'
+require 'rex/post/meterpreter/client'
+require 'rex/post/meterpreter/channels/pools/stream_pool'
+require 'rex/post/meterpreter/extensions/stdapi/stdapi'
 
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/ProcessSubsystem/Image'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/ProcessSubsystem/IO'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/ProcessSubsystem/Memory'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/ProcessSubsystem/Thread'
+require 'rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/image'
+require 'rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/io'
+require 'rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/memory'
+require 'rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/thread'
 
 module Rex
 module Post

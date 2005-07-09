@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Dir'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Stdapi'
+require 'rex/post/dir'
+require 'rex/post/meterpreter/extensions/stdapi/stdapi'
 
 module Rex
 module Post

@@ -1,12 +1,12 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Process'
-require 'Rex/Post/Meterpreter/Packet'
-require 'Rex/Post/Meterpreter/Client'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Constants'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Stdapi'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/RegistrySubsystem/RegistryKey'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/RegistrySubsystem/RegistryValue'
+require 'rex/post/process'
+require 'rex/post/meterpreter/packet'
+require 'rex/post/meterpreter/client'
+require 'rex/post/meterpreter/extensions/stdapi/constants'
+require 'rex/post/meterpreter/extensions/stdapi/stdapi'
+require 'rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/registry_key'
+require 'rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/registry_value'
 
 module Rex
 module Post

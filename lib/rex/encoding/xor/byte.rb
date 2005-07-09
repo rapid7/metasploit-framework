@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'Rex/Encoding/Xor/Generic'
+require 'rex/encoding/xor/generic'
 
 module Rex
 module Encoding

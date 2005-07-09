@@ -1,19 +1,19 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Meterpreter/ObjectAliases'
-require 'Rex/Post/Meterpreter/Extension'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Constants'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Tlv'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Fs/Dir'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Fs/File'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Fs/FileStat'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Net/Config'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Net/Socket'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Process'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Registry'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/EventLog'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Power'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/UI'
+require 'rex/post/meterpreter/object_aliases'
+require 'rex/post/meterpreter/extension'
+require 'rex/post/meterpreter/extensions/stdapi/constants'
+require 'rex/post/meterpreter/extensions/stdapi/tlv'
+require 'rex/post/meterpreter/extensions/stdapi/fs/dir'
+require 'rex/post/meterpreter/extensions/stdapi/fs/file'
+require 'rex/post/meterpreter/extensions/stdapi/fs/file_stat'
+require 'rex/post/meterpreter/extensions/stdapi/net/config'
+require 'rex/post/meterpreter/extensions/stdapi/net/socket'
+require 'rex/post/meterpreter/extensions/stdapi/sys/process'
+require 'rex/post/meterpreter/extensions/stdapi/sys/registry'
+require 'rex/post/meterpreter/extensions/stdapi/sys/event_log'
+require 'rex/post/meterpreter/extensions/stdapi/sys/power'
+require 'rex/post/meterpreter/extensions/stdapi/ui'
 
 module Rex
 module Post

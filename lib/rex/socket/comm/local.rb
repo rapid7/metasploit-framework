@@ -1,7 +1,7 @@
-require 'Rex/Socket'
-require 'Rex/Socket/Tcp'
-require 'Rex/Socket/SslTcp'
-require 'Rex/Socket/Udp'
+require 'rex/socket'
+require 'rex/socket/tcp'
+require 'rex/socket/ssl_tcp'
+require 'rex/socket/udp'
 
 ###
 #

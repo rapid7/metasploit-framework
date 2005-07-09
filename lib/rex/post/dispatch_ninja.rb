@@ -1,3 +1,3 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/DispatchNinja/Client.rb'
+require 'rex/post/dispatch_ninja/client.rb'

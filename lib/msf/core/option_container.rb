@@ -1,5 +1,5 @@
 require 'resolv'
-require 'Msf/Core'
+require 'msf/core'
 
 module Msf
 

@@ -6,7 +6,7 @@ module Struct2
 
 class CStructTemplate
 
-	require 'Rex/Struct2/CStruct'
+	require 'rex/struct2/c_struct'
 
 	attr_reader  :template, :template_create_restraints, :template_apply_restraint
 	attr_writer  :template, :template_create_restraints, :template_apply_restraint

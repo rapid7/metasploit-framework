@@ -3,7 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 
 require 'test/unit'
-require 'Rex/Arch/X86'
+require 'rex/arch/x86'
 
 class Rex::Arch::X86::UnitTest < ::Test::Unit::TestCase
 

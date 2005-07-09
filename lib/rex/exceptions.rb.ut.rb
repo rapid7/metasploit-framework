@@ -3,7 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..'))
 
 require 'test/unit'
-require 'Rex/Exceptions'
+require 'rex/exceptions'
 
 module Rex
 module Exceptions

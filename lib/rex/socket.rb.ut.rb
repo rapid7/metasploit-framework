@@ -3,8 +3,8 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..'))
 
 require 'test/unit'
-require 'Rex/Socket'
-require 'Rex/Socket/Tcp'
+require 'rex/socket'
+require 'rex/socket/tcp'
 
 class Rex::Socket::UnitTest < Test::Unit::TestCase
 

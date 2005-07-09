@@ -2,8 +2,8 @@
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
-require 'Rex/Encoding/Xor/DWord'
-require 'Rex/Encoding/Xor/Byte.rb.ut'
+require 'rex/encoding/xor/d_word'
+require 'rex/encoding/xor/byte.rb.ut'
 
 module Rex::Encoding::Xor
 class DWord::UnitTest < Byte::UnitTest

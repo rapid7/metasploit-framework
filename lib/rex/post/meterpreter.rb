@@ -1,3 +1,3 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Meterpreter/Client'
+require 'rex/post/meterpreter/client'

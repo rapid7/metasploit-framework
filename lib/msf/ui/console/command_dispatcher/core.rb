@@ -1,5 +1,5 @@
-require 'Msf/Ui/Console/CommandDispatcher/Encoder'
-require 'Msf/Ui/Console/CommandDispatcher/Nops'
+require 'msf/ui/console/command_dispatcher/encoder'
+require 'msf/ui/console/command_dispatcher/nops'
 
 module Msf
 module Ui

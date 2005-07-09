@@ -1,9 +1,9 @@
 #!/usr/bin/ruby
 
 require 'thread'
-require 'Rex/Socket/Tcp'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Tlv'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Net/SocketSubsystem/TcpClientChannel'
+require 'rex/socket/tcp'
+require 'rex/post/meterpreter/extensions/stdapi/tlv'
+require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel'
 
 module Rex
 module Post

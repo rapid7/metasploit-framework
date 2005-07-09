@@ -3,7 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..'))
 
 require 'test/unit'
-require 'Rex/StringUtils'
+require 'rex/string_utils'
 
 class Rex::StringUtils::UnitTest < ::Test::Unit::TestCase
 	Klass = Rex::StringUtils

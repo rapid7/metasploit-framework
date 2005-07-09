@@ -7,8 +7,8 @@ $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 #
 
 require 'test/unit'
-require 'Rex/Encoding/Xor/Generic.rb.ut'
-require 'Rex/Encoding/Xor/Byte.rb.ut'
-require 'Rex/Encoding/Xor/Word.rb.ut'
-require 'Rex/Encoding/Xor/DWord.rb.ut'
-require 'Rex/Encoding/Xor/DWordAdditive.rb.ut'
+require 'rex/encoding/xor/generic.rb.ut'
+require 'rex/encoding/xor/byte.rb.ut'
+require 'rex/encoding/xor/word.rb.ut'
+require 'rex/encoding/xor/d_word.rb.ut'
+require 'rex/encoding/xor/d_word_additive.rb.ut'

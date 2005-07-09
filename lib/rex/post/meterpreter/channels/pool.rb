@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Meterpreter/Channel'
+require 'rex/post/meterpreter/channel'
 
 module Rex
 module Post

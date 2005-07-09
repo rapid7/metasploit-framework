@@ -16,7 +16,7 @@ class Socket
 	module Comm
 	end
 
-	require 'Rex/Socket/Parameters'
+	require 'rex/socket/parameters'
 
 	##
 	#

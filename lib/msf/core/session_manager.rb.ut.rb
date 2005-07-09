@@ -3,7 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 
 require 'test/unit'
-require 'Msf/Core/SessionManager'
+require 'msf/core/session_manager'
 
 module Msf
 

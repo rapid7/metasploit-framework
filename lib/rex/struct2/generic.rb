@@ -6,7 +6,7 @@ module Struct2
 
 class Generic
 	
-	require 'Rex/Struct2/Element'
+	require 'rex/struct2/element'
 	include Rex::Struct2::Element
 
 	attr_reader  :default

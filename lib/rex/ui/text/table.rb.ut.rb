@@ -3,7 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
 require 'test/unit'
-require 'Rex/Ui/Text/Table'
+require 'rex/ui/text/table'
 
 class Rex::Ui::Text::Table::UnitTest < Test::Unit::TestCase
 

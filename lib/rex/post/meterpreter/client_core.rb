@@ -1,8 +1,8 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Meterpreter/Packet'
-require 'Rex/Post/Meterpreter/Extension'
-require 'Rex/Post/Meterpreter/Client'
+require 'rex/post/meterpreter/packet'
+require 'rex/post/meterpreter/extension'
+require 'rex/post/meterpreter/client'
 
 module Rex
 module Post

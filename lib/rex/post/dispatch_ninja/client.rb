@@ -1,9 +1,9 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/DispatchNinja/File'
-require 'Rex/Post/DispatchNinja/FileStat'
-require 'Rex/Post/DispatchNinja/Process'
-require 'Rex/Post/DispatchNinja/Dir'
+require 'rex/post/dispatch_ninja/file'
+require 'rex/post/dispatch_ninja/file_stat'
+require 'rex/post/dispatch_ninja/process'
+require 'rex/post/dispatch_ninja/dir'
 
 module Rex
 module Post

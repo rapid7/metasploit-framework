@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Meterpreter/InboundPacketHandler'
+require 'rex/post/meterpreter/inbound_packet_handler'
 
 module Rex
 module Post

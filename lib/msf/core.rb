@@ -10,25 +10,25 @@
 ###
 
 # framework-core depends on Rex
-require 'Rex'
+require 'rex'
 
 # General
-require 'Msf/Core/Constants'
-require 'Msf/Core/Exceptions'
-require 'Msf/Core/EventDispatcher'
-require 'Msf/Core/DataStore'
-require 'Msf/Core/OptionContainer'
+require 'msf/core/constants'
+require 'msf/core/exceptions'
+require 'msf/core/event_dispatcher'
+require 'msf/core/data_store'
+require 'msf/core/option_container'
 
 # Framework context and core classes
-require 'Msf/Core/ModuleManager'
-require 'Msf/Core/SessionManager'
-require 'Msf/Core/Session'
-require 'Msf/Core/Framework'
+require 'msf/core/module_manager'
+require 'msf/core/session_manager'
+require 'msf/core/session'
+require 'msf/core/framework'
 
 # Modules
-require 'Msf/Core/Module'
-require 'Msf/Core/Encoder'
-require 'Msf/Core/Exploit'
-require 'Msf/Core/Nop'
-require 'Msf/Core/Payload'
-require 'Msf/Core/Recon'
+require 'msf/core/module'
+require 'msf/core/encoder'
+require 'msf/core/exploit'
+require 'msf/core/nop'
+require 'msf/core/payload'
+require 'msf/core/recon'

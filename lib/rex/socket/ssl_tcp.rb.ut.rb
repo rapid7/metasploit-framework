@@ -3,7 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 
 require 'test/unit'
-require 'Rex/Socket/SslTcp'
+require 'rex/socket/ssl_tcp'
 
 class Rex::Socket::SslTcp::UnitTest < Test::Unit::TestCase
 

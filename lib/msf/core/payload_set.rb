@@ -1,5 +1,5 @@
-require 'Msf/Core'
-require 'Msf/Core/ModuleManager'
+require 'msf/core'
+require 'msf/core/module_manager'
 
 module Msf
 

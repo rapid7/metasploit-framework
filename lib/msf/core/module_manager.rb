@@ -1,5 +1,5 @@
 require 'find'
-require 'Msf/Core'
+require 'msf/core'
 
 module Msf
 
@@ -91,7 +91,7 @@ end
 ###
 class ModuleManager < ModuleSet
 
-	require 'Msf/Core/PayloadSet'
+	require 'msf/core/payload_set'
 
 	def initialize()
 		self.module_paths         = []

@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Meterpreter/Channels/Stream'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Tlv'
+require 'rex/post/meterpreter/channels/stream'
+require 'rex/post/meterpreter/extensions/stdapi/tlv'
 
 module Rex
 module Post

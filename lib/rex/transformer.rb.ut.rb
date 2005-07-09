@@ -3,7 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..'))
 
 require 'test/unit'
-require 'Rex/Transformer'
+require 'rex/transformer'
 
 class Rex::Transformer::UnitTest < Test::Unit::TestCase
 	class Pizza

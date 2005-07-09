@@ -5,7 +5,7 @@ $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'Dev', 'machinete
 
 require 'machinetest'
 require 'test/unit'
-require 'Rex/Encoders/XorDWord'
+require 'rex/encoders/xor_d_word'
 
 class Rex::Encoders::XorDWord::UnitTest < ::Test::Unit::TestCase
 	Klass = Rex::Encoders::XorDWord

@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Meterpreter/PacketResponseWaiter'
+require 'rex/post/meterpreter/packet_response_waiter'
 
 module Rex
 module Post

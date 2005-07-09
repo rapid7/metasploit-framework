@@ -7,7 +7,7 @@
 # ranks...
 #
 
-require 'Msf/Core/Module/Platform'
+require 'msf/core/module/platform'
 
 class Msf::Module::PlatformList
 	attr_accessor :platforms

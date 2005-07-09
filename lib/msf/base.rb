@@ -16,13 +16,13 @@
 ###
 
 # framework-base depends on framework-core
-require 'Msf/Core'
+require 'msf/core'
 
 # Sessions
-require 'Msf/Base/Session/CommandShell'
-require 'Msf/Base/Session/Meterpreter'
-require 'Msf/Base/Session/DispatchNinja'
-require 'Msf/Base/Session/Vnc'
+require 'msf/base/session/command_shell'
+require 'msf/base/session/meterpreter'
+require 'msf/base/session/dispatch_ninja'
+require 'msf/base/session/vnc'
 
 # Serialization
-require 'Msf/Base/Serializer/ReadableText'
+require 'msf/base/serializer/readable_text'

@@ -48,5 +48,5 @@ end
 
 end end end
 
-require 'Msf/Ui/Console/ModuleCommandDispatcher'
-require 'Msf/Ui/Console/CommandDispatcher/Core'
+require 'msf/ui/console/module_command_dispatcher'
+require 'msf/ui/console/command_dispatcher/core'

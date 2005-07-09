@@ -1,10 +1,10 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Process'
-require 'Rex/Post/Meterpreter/Packet'
-require 'Rex/Post/Meterpreter/Client'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Constants'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Stdapi'
+require 'rex/post/process'
+require 'rex/post/meterpreter/packet'
+require 'rex/post/meterpreter/client'
+require 'rex/post/meterpreter/extensions/stdapi/constants'
+require 'rex/post/meterpreter/extensions/stdapi/stdapi'
 
 module Rex
 module Post

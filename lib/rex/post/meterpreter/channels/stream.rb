@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
-require 'Rex/IO/StreamAbstraction'
-require 'Rex/Post/Meterpreter/Channel'
+require 'rex/io/stream_abstraction'
+require 'rex/post/meterpreter/channel'
 
 module Rex
 module Post

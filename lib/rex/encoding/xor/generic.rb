@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
-require 'Rex/Encoding/Xor/Exceptions'
-require 'Rex/StringUtils'
+require 'rex/encoding/xor/exceptions'
+require 'rex/string_utils'
 
 module Rex
 module Encoding

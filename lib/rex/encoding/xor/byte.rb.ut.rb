@@ -2,8 +2,8 @@
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
-require 'Rex/Encoding/Xor/Byte'
-require 'Rex/Encoding/Xor/Generic.rb.ut'
+require 'rex/encoding/xor/byte'
+require 'rex/encoding/xor/generic.rb.ut'
 
 #
 # I suck because I want to inherit a test case, but this will

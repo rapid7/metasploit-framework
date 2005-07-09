@@ -1,11 +1,11 @@
 #!/usr/bin/ruby
 
 require 'test/unit'
-require 'Msf/Base'
-require 'Msf/Base/Session/CommandShell.rb.ut'
-require 'Msf/Base/Session/Meterpreter.rb.ut'
-require 'Msf/Base/Session/DispatchNinja.rb.ut'
-require 'Msf/Base/Session/Vnc.rb.ut'
+require 'msf/base'
+require 'msf/base/session/command_shell.rb.ut'
+require 'msf/base/session/meterpreter.rb.ut'
+require 'msf/base/session/dispatch_ninja.rb.ut'
+require 'msf/base/session/vnc.rb.ut'
 
 module Msf
 module Base

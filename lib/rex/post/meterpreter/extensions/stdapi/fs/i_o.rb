@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/IO'
+require 'rex/post/io'
 
 module Rex
 module Post

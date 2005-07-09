@@ -1,4 +1,4 @@
-require 'Msf/Core'
+require 'msf/core'
 
 module Msf
 
@@ -61,7 +61,7 @@ end
 # 
 # Require the individual provider interfaces
 #
-require 'Msf/Core/SessionProvider/SingleCommandExecution'
-require 'Msf/Core/SessionProvider/MultiCommandExecution'
-require 'Msf/Core/SessionProvider/SingleCommandShell'
-require 'Msf/Core/SessionProvider/MultiCommandShell'
+require 'msf/core/session_provider/single_command_execution'
+require 'msf/core/session_provider/multi_command_execution'
+require 'msf/core/session_provider/single_command_shell'
+require 'msf/core/session_provider/multi_command_shell'

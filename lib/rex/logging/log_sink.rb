@@ -1,4 +1,4 @@
-require 'Rex/Constants'
+require 'rex/constants'
 
 module Rex
 module Logging
@@ -33,4 +33,4 @@ end
 end
 end
 
-require 'Rex/Logging/Sinks/Flatfile'
+require 'rex/logging/sinks/flatfile'

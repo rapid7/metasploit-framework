@@ -1,26 +1,26 @@
 #!/usr/bin/ruby
 
 require 'test/unit'
-require 'Rex'
+require 'rex'
 
-require 'Rex/Exceptions.rb.ut'
-require 'Rex/Transformer.rb.ut'
+require 'rex/exceptions.rb.ut'
+require 'rex/transformer.rb.ut'
 
-require 'Rex/Encoding/Xor/Generic.rb.ut'
-require 'Rex/Encoding/Xor/Byte.rb.ut'
-require 'Rex/Encoding/Xor/Word.rb.ut'
-require 'Rex/Encoding/Xor/DWord.rb.ut'
-require 'Rex/Encoding/Xor/DWordAdditive.rb.ut'
+require 'rex/encoding/xor/generic.rb.ut'
+require 'rex/encoding/xor/byte.rb.ut'
+require 'rex/encoding/xor/word.rb.ut'
+require 'rex/encoding/xor/d_word.rb.ut'
+require 'rex/encoding/xor/d_word_additive.rb.ut'
 
-require 'Rex/Socket.rb.ut'
-require 'Rex/Socket/Tcp.rb.ut'
-require 'Rex/Socket/SslTcp.rb.ut'
-require 'Rex/Socket/TcpServer.rb.ut'
-require 'Rex/Socket/Udp.rb.ut'
-require 'Rex/Socket/Parameters.rb.ut'
-require 'Rex/Socket/Comm/Local.rb.ut'
+require 'rex/socket.rb.ut'
+require 'rex/socket/tcp.rb.ut'
+require 'rex/socket/ssl_tcp.rb.ut'
+require 'rex/socket/tcp_server.rb.ut'
+require 'rex/socket/udp.rb.ut'
+require 'rex/socket/parameters.rb.ut'
+require 'rex/socket/comm/local.rb.ut'
 
-require 'Rex/Ui/Text/Table.rb.ut'
+require 'rex/ui/text/table.rb.ut'
 
 class Rex::TestSuite
 	def self.suite

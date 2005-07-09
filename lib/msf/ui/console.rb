@@ -7,4 +7,4 @@ end
 end
 end
 
-require 'Msf/Ui/Console/Driver'
+require 'msf/ui/console/driver'

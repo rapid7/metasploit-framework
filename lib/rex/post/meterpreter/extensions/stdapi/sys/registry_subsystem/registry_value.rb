@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Constants'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Sys/Registry'
+require 'rex/post/meterpreter/extensions/stdapi/constants'
+require 'rex/post/meterpreter/extensions/stdapi/sys/registry'
 
 module Rex
 module Post

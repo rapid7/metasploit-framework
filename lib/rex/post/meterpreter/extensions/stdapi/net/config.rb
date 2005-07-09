@@ -1,8 +1,8 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Tlv'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Net/Route'
-require 'Rex/Post/Meterpreter/Extensions/Stdapi/Net/Interface'
+require 'rex/post/meterpreter/extensions/stdapi/tlv'
+require 'rex/post/meterpreter/extensions/stdapi/net/route'
+require 'rex/post/meterpreter/extensions/stdapi/net/interface'
 
 module Rex
 module Post

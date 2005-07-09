@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'Rex/Encoding/Xor/Generic'
+require 'rex/encoding/xor/generic'
 
 #
 # Routine for xor encoding a buffer by a 2-byte (intel word) key.  The perl

@@ -1,5 +1,5 @@
-require 'Rex/Socket'
-require 'Rex/IO/Stream'
+require 'rex/socket'
+require 'rex/io/stream'
 
 ###
 #

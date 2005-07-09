@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/FileStat'
+require 'rex/post/file_stat'
 
 module Rex
 module Post

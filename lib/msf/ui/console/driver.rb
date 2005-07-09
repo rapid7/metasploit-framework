@@ -1,10 +1,10 @@
-require 'Msf/Core'
-require 'Msf/Base'
-require 'Msf/Ui'
-require 'Msf/Ui/Console/Shell'
-require 'Msf/Ui/Console/CommandDispatcher'
+require 'msf/core'
+require 'msf/base'
+require 'msf/ui'
+require 'msf/ui/console/shell'
+require 'msf/ui/console/command_dispatcher'
 
-require 'Msf/Ui/Console/Table'
+require 'msf/ui/console/table'
 
 module Msf
 module Ui

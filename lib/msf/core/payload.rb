@@ -1,4 +1,4 @@
-require 'Msf/Core'
+require 'msf/core'
 
 module Msf
 
@@ -14,11 +14,11 @@ module Msf
 ###
 class Payload < Msf::Module
 
-	require 'Msf/Core/Payload/Single'
-	require 'Msf/Core/Payload/Stager'
+	require 'msf/core/payload/single'
+	require 'msf/core/payload/stager'
 
 	# Platform specific includes
-	require 'Msf/Core/Payload/Windows'
+	require 'msf/core/payload/windows'
 
 	# Payload types
 	module Type

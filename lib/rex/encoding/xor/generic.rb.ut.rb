@@ -3,7 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
 require 'test/unit'
-require 'Rex/Encoding/Xor/Generic'
+require 'rex/encoding/xor/generic'
 
 module Rex::Encoding::Xor
 

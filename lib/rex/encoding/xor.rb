@@ -13,6 +13,6 @@ end end end
 # include the Xor encodings
 #
 
-require 'Rex/Encoding/Xor/Generic'
-require 'Rex/Encoding/Xor/Byte'
-require 'Rex/Encoding/Xor/Word'
+require 'rex/encoding/xor/generic'
+require 'rex/encoding/xor/byte'
+require 'rex/encoding/xor/word'

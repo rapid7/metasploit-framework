@@ -1,4 +1,4 @@
-require 'Msf/Core'
+require 'msf/core'
 
 module Msf
 
@@ -15,10 +15,10 @@ module Msf
 ###
 class Module
 
-	require 'Msf/Core/Module/Author'
-	require 'Msf/Core/Module/PlatformList'
-	require 'Msf/Core/Module/Reference'
-	require 'Msf/Core/Module/Target'
+	require 'msf/core/module/author'
+	require 'msf/core/module/platform_list'
+	require 'msf/core/module/reference'
+	require 'msf/core/module/target'
 
 	def initialize(info = {})
 		self.module_info = info

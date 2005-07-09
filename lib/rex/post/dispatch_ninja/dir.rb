@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'Rex/Post/Dir'
+require 'rex/post/dir'
 
 module Rex
 module Post
