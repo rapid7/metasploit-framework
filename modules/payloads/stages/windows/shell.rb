@@ -8,6 +8,8 @@ module Stage
 
 module Shell
 
+	include Msf::Payload::Windows
+
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Stage: Shell',

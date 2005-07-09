@@ -17,6 +17,9 @@ class Payload < Msf::Module
 	require 'Msf/Core/Payload/Single'
 	require 'Msf/Core/Payload/Stager'
 
+	# Platform specific includes
+	require 'Msf/Core/Payload/Windows'
+
 	# Payload types
 	module Type
 		Single = (1 << 0)
@@ -97,7 +100,7 @@ class Payload < Msf::Module
 			offset, pack = info
 
 			# Give the derived class a chance to substitute this variable
-			next if (replace_var(raw, name, offset, pack))
+			next if (replace_var(raw, name, offset, pack) == true)
 
 			# Now it's our turn...
 			if ((val = datastore[name]))
@@ -122,7 +125,7 @@ class Payload < Msf::Module
 	# using the given pack type.  This is here to allow derived payloads
 	# the opportunity to replace advanced variables.
 	def replace_var(raw, name, offset, pack)
-		return nil
+		return false
 	end
 
 	# Payload prepending and appending for various situations
