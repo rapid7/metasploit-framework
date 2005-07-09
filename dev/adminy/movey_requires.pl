@@ -18,6 +18,10 @@ while(<STDIN>) {
 sub old_to_new {
 	my $name = shift;
 
+	if(uc($name) eq $name) {
+		return(lc($name));
+	}
+
 	$name =~ s/^([A-Z])/lc($1)/ge;
 	$name =~ s/([A-Z])/"_" . lc($1)/ge;
 
