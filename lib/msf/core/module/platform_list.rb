@@ -12,6 +12,11 @@ require 'Msf/Core/Module/Platform'
 class Msf::Module::PlatformList
 	attr_accessor :platforms
 
+	#
+	# Transformation method, just accept an array or a single entry.
+	# This is just to make defining platform lists in a module more
+	# convenient, skape's a girl like that.
+	#
 	def self.transform(src)
 		if (src.kind_of?(Array))
 			from_a(src)
@@ -20,44 +25,25 @@ class Msf::Module::PlatformList
 		end
 	end
 
+	#
+	# Create an instance from an array
+	#
 	def self.from_a(ary)
-		instance = self.new
-
-		instance.from_a(ary) if (ary)
-
-		return instance
+		self.new(*ary)
 	end
 
+	#
+	# Constructor, takes the entries are arguments
+	#
 	def initialize(*args)
 		self.platforms = [ ]
 
-		from_a(args) if (args.length)
+		from_a(args)
 	end
 
 	def empty?
 		return platforms.empty?
 	end
-
-	def from_a(ary)
-		ary.each { |a|
-			if a.kind_of?(String)
-				platforms << Msf::Module::Platform.find_platform(a)
-			elsif a.kind_of?(Range)
-				b = Msf::Module::Platform.find_platform(a.begin)
-				e = Msf::Module::Platform.find_platform(a.end)
-
-				children = b.superclass.find_children
-				r        = (b::Rank .. e::Rank)
-				children.each { |c|
-					platforms << c if r.include?(c::Rank)
-				}
-			else
-				platforms << a
-			end
-
-		}
-	end
-
 	def names
 		platforms.map { |m| m.name.split('::')[3 .. -1].join(' ') }
 	end
@@ -146,5 +132,30 @@ class Msf::Module::PlatformList
 		# XXX what's a better exception to throw here?
 		raise RuntimeError, "No more expansion possible", caller
 	end
+
+#
+# Hey skape, I don't see much the point of this.  Why can't we just do it through
+# the constructor?  It doesn't make any sense otherwise...
+#
+	def from_a(ary)
+		ary.each { |a|
+			if a.kind_of?(String)
+				platforms << Msf::Module::Platform.find_platform(a)
+			elsif a.kind_of?(Range)
+				b = Msf::Module::Platform.find_platform(a.begin)
+				e = Msf::Module::Platform.find_platform(a.end)
+
+				children = b.superclass.find_children
+				r        = (b::Rank .. e::Rank)
+				children.each { |c|
+					platforms << c if r.include?(c::Rank)
+				}
+			else
+				platforms << a
+			end
+
+		}
+	end
+
 end
 
