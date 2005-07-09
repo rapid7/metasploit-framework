@@ -1,4 +1,4 @@
-#!/usr/bin/perl -pi.bak
+#!/usr/bin/perl -pi
 use strict;
 
 s/require '(.*?)'/"require '" . waka($1) . "'"/ge;
