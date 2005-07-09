@@ -53,7 +53,9 @@ class Payload < Msf::Module
 	# Returns the payload's size.  If the payload is staged, the size of the
 	# first stage is returned.
 	def size
-		return ((p = generate())) ? p.length : 0
+		return (generate() || '').length
+		# HEY skape, why should generate every return nil, and not an
+		# empty string?
 	end
 
 	# Returns the raw payload that has not had variable substitution occur.
