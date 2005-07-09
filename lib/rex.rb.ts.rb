@@ -9,8 +9,8 @@ require 'rex/transformer.rb.ut'
 require 'rex/encoding/xor/generic.rb.ut'
 require 'rex/encoding/xor/byte.rb.ut'
 require 'rex/encoding/xor/word.rb.ut'
-require 'rex/encoding/xor/d_word.rb.ut'
-require 'rex/encoding/xor/d_word_additive.rb.ut'
+require 'rex/encoding/xor/dword.rb.ut'
+require 'rex/encoding/xor/dword_additive.rb.ut'
 
 require 'rex/socket.rb.ut'
 require 'rex/socket/tcp.rb.ut'
@@ -34,8 +34,8 @@ class Rex::TestSuite
 		suite << Rex::Encoding::Xor::Generic::UnitTest.suite
 		suite << Rex::Encoding::Xor::Byte::UnitTest.suite
 		suite << Rex::Encoding::Xor::Word::UnitTest.suite
-		suite << Rex::Encoding::Xor::DWord::UnitTest.suite
-		suite << Rex::Encoding::Xor::DWordAdditive::UnitTest.suite
+		suite << Rex::Encoding::Xor::Dword::UnitTest.suite
+		suite << Rex::Encoding::Xor::DwordAdditive::UnitTest.suite
 
 		# Sockets
 		suite << Rex::Socket::UnitTest.suite

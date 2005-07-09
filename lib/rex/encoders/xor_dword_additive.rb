@@ -3,7 +3,7 @@
 require 'rex/encoder/xor/dword_additive'
 
 #
-# Jmp/Call DWord Additive Feedback Encoder
+# Jmp/Call Dword Additive Feedback Encoder
 # Author: skape
 # Arch:   x86
 #
