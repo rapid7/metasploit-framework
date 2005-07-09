@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'rex/encoder/xor/d_word_additive'
+require 'rex/encoder/xor/dword_additive'
 
 #
 # Jmp/Call DWord Additive Feedback Encoder
@@ -11,7 +11,7 @@ require 'rex/encoder/xor/d_word_additive'
 module Rex
 module Encoders
 
-class XorDWordAdditive < Rex::Encoder::Xor::DWordAdditive
+class XorDwordAdditive < Rex::Encoder::Xor::DwordAdditive
 	module Backend
 
 		def _unencoded_transform(data)

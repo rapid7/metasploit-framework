@@ -16,3 +16,4 @@ end end end
 require 'rex/encoding/xor/generic'
 require 'rex/encoding/xor/byte'
 require 'rex/encoding/xor/word'
+require 'rex/encoding/xor/dword'

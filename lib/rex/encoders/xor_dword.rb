@@ -1,14 +1,14 @@
 #!/usr/bin/ruby
 
 require 'rex/arch/x86'
-require 'rex/encoder/xor/d_word'
+require 'rex/encoder/xor/dword'
 
 module Rex
 module Encoders
 
 # spoon's smaller variable-length encoder (updated to use call $+4 by vlad902)
 
-class XorDWord < Rex::Encoder::Xor::DWord
+class XorDword < Rex::Encoder::Xor::Dword
 	module Backend
 		def _prepend
 			# set the counter to the rounded up number of dwords to decode

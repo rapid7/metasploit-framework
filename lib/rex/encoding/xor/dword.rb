@@ -12,10 +12,10 @@ module Rex
 module Encoding
 module Xor
 
-class DWord < Generic
+class Dword < Generic
 
-	def DWord.keysize
+	def Dword.keysize
 		4
 	end
 
-end end end end # DWord/Xor/Encoding/Rex
+end end end end # Dword/Xor/Encoding/Rex

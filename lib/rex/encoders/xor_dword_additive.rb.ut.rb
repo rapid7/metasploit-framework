@@ -1,12 +1,12 @@
 #!/usr/bin/ruby
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
-$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'Dev', 'machinetest'))
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'dev', 'machinetest'))
 
 require 'test/unit'
-require 'rex/encoders/xor_d_word_additive'
-require 'rex/encoders/xor_d_word.rb.ut'
+require 'rex/encoders/xor_dword_additive'
+require 'rex/encoders/xor_dword.rb.ut'
 
-class Rex::Encoders::XorDWordAdditive::UnitTest < Rex::Encoders::XorDWord::UnitTest
-	Klass = Rex::Encoders::XorDWordAdditive
+class Rex::Encoders::XorDwordAdditive::UnitTest < Rex::Encoders::XorDword::UnitTest
+	Klass = Rex::Encoders::XorDwordAdditive
 end

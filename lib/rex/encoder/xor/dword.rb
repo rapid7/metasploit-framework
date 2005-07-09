@@ -1,8 +1,8 @@
 #!/usr/bin/ruby
 
 require 'rex/encoder/xor'
-require 'rex/encoding/xor/d_word'
+require 'rex/encoding/xor/dword'
 
-class Rex::Encoder::Xor::DWord < Rex::Encoder::Xor
-	EncoderKlass = Rex::Encoding::Xor::DWord
+class Rex::Encoder::Xor::Dword < Rex::Encoder::Xor
+	EncoderKlass = Rex::Encoding::Xor::Dword
 end

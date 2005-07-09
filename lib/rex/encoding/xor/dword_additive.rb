@@ -13,25 +13,25 @@ module Rex
 module Encoding
 module Xor
 
-class DWordAdditive < Generic
+class DwordAdditive < Generic
 
-	def DWordAdditive.keysize
+	def DwordAdditive.keysize
 		4
 	end
 
-	def DWordAdditive._packspec
+	def DwordAdditive._packspec
 		'V'
 	end
 
-	def DWordAdditive.pack_key(key)
+	def DwordAdditive.pack_key(key)
 		return [ key ].pack(_packspec)
 	end
-	def DWordAdditive.unpack_key(key)
+	def DwordAdditive.unpack_key(key)
 		return key.unpack(_packspec)[0]
 	end
 
 	# hook in the key mutation routine of encode for the additive feedback
-	def DWordAdditive._encode_mutate_key(buf, key, pos, len)
+	def DwordAdditive._encode_mutate_key(buf, key, pos, len)
 		if (pos + 1) % len == 0
 			# add the last len bytes (in this case 4) with the key,
 			# dropping off any overflow
@@ -51,7 +51,7 @@ class DWordAdditive < Generic
 	# Maybe someday we can revisit this and make it a bit less ghetto...
 	#
 
-	def DWordAdditive._find_good_key(data, badkeys, badchars)
+	def DwordAdditive._find_good_key(data, badkeys, badchars)
 
 		ksize  = keysize
 		kstart = ""
@@ -88,4 +88,4 @@ class DWordAdditive < Generic
 		return key
 	end
 
-end end end end # DWordAdditive/Xor/Encoding/Rex
+end end end end # DwordAdditive/Xor/Encoding/Rex

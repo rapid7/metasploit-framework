@@ -1,14 +1,14 @@
 #!/usr/bin/ruby
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
-$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'Dev', 'machinetest'))
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'dev', 'machinetest'))
 
 require 'machinetest'
 require 'test/unit'
-require 'rex/encoders/xor_d_word'
+require 'rex/encoders/xor_dword'
 
-class Rex::Encoders::XorDWord::UnitTest < ::Test::Unit::TestCase
-	Klass = Rex::Encoders::XorDWord
+class Rex::Encoders::XorDword::UnitTest < ::Test::Unit::TestCase
+	Klass = Rex::Encoders::XorDword
 	def klass
 		self.class::Klass
 	end
