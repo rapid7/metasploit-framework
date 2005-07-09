@@ -1,18 +1,16 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -pi.bak
 use strict;
 
-while(<STDIN>) {
-	my $line = $_;
+s/require '(.*?)'/"require '" . waka($1) . "'"/ge;
 
-	if($line =~ /require '(.*?)'/) {
-		my $required = $1;
+sub waka {
+	my $required = shift;
 
-		my @pieces = split('/', $required);
-		map { $_ = old_to_new($_) } @pieces;
-		my $new = join('/', @pieces);
+	my @pieces = split('/', $required);
+	map { $_ = old_to_new($_) } @pieces;
+	my $new = join('/', @pieces);
 
-		print "$required -> $new\n";
-	}
+	return $new;
 }
 
 sub old_to_new {
