@@ -13,7 +13,7 @@ require 'msf/core/module/target.rb.ut'
 
 require 'msf/core/exploit.rb.ut'
 require 'msf/core/exploit/remote/tcp.rb.ut'
-require 'msf/core/exploit/remote/d_c_e_r_p_c.rb.ut'
+require 'msf/core/exploit/remote/dcerpc.rb.ut'
 
 class Msf::TestSuite
 	def self.suite
