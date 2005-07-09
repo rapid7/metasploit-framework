@@ -1,7 +1,7 @@
 #!/usr/bin/ruby -I../Lib
 
-require 'Rex'
-require 'Msf/Ui'
+require 'rex'
+require 'msf/ui'
 
 register_log_source('core', Rex::Logging::Sinks::Flatfile.new('/tmp/msfcli.log'))
 

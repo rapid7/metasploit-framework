@@ -1,8 +1,8 @@
 #!/usr/bin/ruby -I../Lib -I../Modules
 
-require 'Msf/Core'
-#require 'Encoders/IA32/JmpCallAdditive'
-#require 'Nops/IA32/SingleByte'
+require 'msf/core'
+#require 'encoders/ia32/jmp_call_additive'
+#require 'nops/ia32/single_byte'
 
 register_log_source('core', Msf::Logging::Sinks::Flatfile.new('/tmp/msfcli.log'))
 

@@ -1,4 +1,4 @@
-require 'Msf/Core'
+require 'msf/core'
 
 module Msf
 module Encoders
