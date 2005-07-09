@@ -2,7 +2,7 @@ require 'msf/core'
 
 module Msf
 module Nops
-module IA32
+module Ia32
 
 ###
 #

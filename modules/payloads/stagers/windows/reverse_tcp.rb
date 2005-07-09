@@ -2,9 +2,8 @@ require 'msf/core'
 
 module Msf
 module Payloads
+module Stagers
 module Windows
-module IA32
-module Stager
 
 module ReverseTcp
 
@@ -52,4 +51,4 @@ module ReverseTcp
 
 end
 
-end end end end end
+end end end end

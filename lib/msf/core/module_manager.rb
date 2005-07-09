@@ -183,30 +183,18 @@ protected
 			# Substitute the base path
 			path_base = file.sub(path + File::SEPARATOR, '')
 
-			# Extract the type of module
-			md = path_base.match(/^(.*?)#{File::SEPARATOR}/)
+			# Chop off the file name
+			path_base.sub!(/(.+)(#{File::SEPARATOR}.+\.rb)$/, '\1')
 
-			next if (!md)
+			# Extract the module's namespace from its path
+			mod  = mod_from_name(path_base)
+			type = path_base.match(/^(.+?)#{File::SEPARATOR}+?/)[1].sub(/s$/, '')
 
-			# Use the de-pluralized version of the type as necessary
-			type = md[1].sub(/s$/, '').downcase
-
-			md = path_base.match(/^(.*)#{File::SEPARATOR}(.*?)$/)
-
-			next if (!md)
-
-			# Prefix Msf to the namespace
-			namespace = 'Msf::' + md[1].gsub(File::SEPARATOR, "::")
-
-			dlog("Loading #{type} module from #{path_base}...", 'core', LEV_1)
+			# Let's rock the house now...
+			dlog("Loading module from #{path_base}...", 'core', LEV_1)
 
 			# Get the module and grab the current number of constants
-			old_constants = []
-			mod = mod_from_name(namespace)	
-
-			if (mod)
-				old_constants = mod.constants
-			end
+			old_constants = mod.constants
 
 			# Load the file
 			begin
@@ -216,14 +204,6 @@ protected
 				end
 			rescue LoadError
 				elog("LoadError: #{$!}.")
-				next
-			end
-
-			# Incase we hadn't gotten the module yet...
-			mod = mod_from_name(namespace)	
-
-			if (!mod)
-				elog("Load did not create expected namespace #{namespace}.")
 				next
 			end
 
@@ -286,14 +266,17 @@ protected
 	# Returns the module object that is associated with the supplied module
 	# name
 	def mod_from_name(name)
-		obj = Object
+		obj = Msf
 
-		name.split('::').each { |m|
+		name.split(File::SEPARATOR).each { |m|
+			# Up-case the first letter and any prefixed by _
+			m.gsub!(/^[a-z]/) { |s| s.upcase }
+			m.gsub!(/(_[a-z])/) { |s| s[1..1].upcase }
+
 			begin
 				obj = obj.const_get(m)
 			rescue NameError
-				obj = nil
-				break
+				obj = obj.const_set(m, ::Module.new)
 			end
 		}
 
@@ -304,7 +287,7 @@ protected
 	# categorized accordingly
 	def on_module_load(type, mod)
 		# Extract the module name information
-		mod_full_name = mod.to_s.gsub('::', '_')
+		mod_full_name = mod.to_s.gsub('::', '/')
 		mod_full_name.sub!(/^Msf_/, '')
 
 		mod_short_name = mod_full_name

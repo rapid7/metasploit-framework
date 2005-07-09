@@ -2,9 +2,8 @@ require 'msf/core'
 
 module Msf
 module Payloads
+module Stages
 module Windows
-module IA32
-module Stage
 
 module Shell
 
@@ -42,4 +41,4 @@ module Shell
 
 end
 
-end end end end end
+end end end end

@@ -2,7 +2,7 @@ require 'msf/core'
 
 module Msf
 module Encoders
-module IA32
+module Ia32
 
 class JmpCallAdditive < Msf::Encoder::XorAdditiveFeedback
 
