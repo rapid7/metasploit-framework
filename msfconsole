@@ -1,4 +1,4 @@
-#!/usr/bin/ruby -I../Lib
+#!/usr/bin/ruby -I../lib
 
 require 'rex'
 require 'msf/ui'
