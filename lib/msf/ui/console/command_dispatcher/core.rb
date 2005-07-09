@@ -1,5 +1,4 @@
 require 'msf/ui/console/command_dispatcher/encoder'
-require 'msf/ui/console/command_dispatcher/nops'
 
 module Msf
 module Ui
@@ -224,7 +223,6 @@ class Core
 			when MODULE_ENCODER
 				dispatcher = Encoder
 			when MODULE_NOPS
-				dispatcher = Nops
 		end
 
 		if (dispatcher != nil)
