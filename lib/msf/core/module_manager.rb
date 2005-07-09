@@ -15,9 +15,6 @@ module Msf
 class ModuleSet < Hash
 	def initialize(type = nil)
 		self.module_type       = type
-		self.full_names        = {}
-		self.alias_names       = {}
-		self.ambiguous_names   = {}
 
 		# Hashes that convey the supported architectures and platforms for a
 		# given module
@@ -27,19 +24,8 @@ class ModuleSet < Hash
 
 	# Create an instance of the supplied module by its name
 	def create(name)
-		# If the supplied name is known-ambiguous, prevent its creation
-		if (ambiguous_names[name])
-			raise(NameError.new("The supplied module name is ambiguous with: #{ambiguous_names[name].join}", name), 
-				caller)
-		end
+		klass = self[name]
 
-		# If not by short name, then by full name, or so sayeth the spider
-		if (((klass = self[name]) == nil) and
-		    ((klass = alias_names[name]) == nil))
-			klass = full_names[name]
-		end
-
-		# Otherwise, try to create it
 		return (klass) ? klass.new : nil
 	end
 
@@ -72,26 +58,17 @@ class ModuleSet < Hash
 	def recalculate
 	end
 
-	attr_reader   :module_type, :full_names
+	attr_reader   :module_type
 
 protected
 
 	# Adds a module with a supplied short name, full name, and associated
 	# module class
-	def add_module(short_name, full_name, module_class)
-		if (self[short_name])
-			ambiguous_names[short_name] = [] if (!ambiguous_names[short_name])
-			ambiguous_names[short_name] << full_name
-		else
-			self[short_name] = module_class
-		end
-
-		full_names[full_name]               = module_class
-		alias_names[module_class.new.alias] = module_class
+	def add_module(module_class, alias_name = nil)
+		self[alias_name || module_class.new.alias] = module_class
 	end
 
-	attr_writer   :module_type, :full_names
-	attr_accessor :ambiguous_names, :alias_names
+	attr_writer   :module_type
 	attr_accessor :mod_arch_hash, :mod_platform_hash
 
 end
@@ -346,10 +323,10 @@ protected
 		if (type != MODULE_PAYLOAD)
 			# Add the module class to the list of modules and add it to the
 			# type separated set of module classes
-			add_module(mod_short_name, mod_full_name, mod)
+			add_module(mod)
 		end
 			
-		module_sets[type].add_module(mod_short_name, mod_full_name, mod)
+		module_sets[type].add_module(mod)
 	end
 
 	attr_accessor :modules, :module_sets

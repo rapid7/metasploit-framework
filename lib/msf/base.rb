@@ -23,3 +23,6 @@ require 'Msf/Base/Session/CommandShell'
 require 'Msf/Base/Session/Meterpreter'
 require 'Msf/Base/Session/DispatchNinja'
 require 'Msf/Base/Session/Vnc'
+
+# Serialization
+require 'Msf/Base/Serializer/ReadableText'

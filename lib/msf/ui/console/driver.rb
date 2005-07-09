@@ -1,4 +1,5 @@
 require 'Msf/Core'
+require 'Msf/Base'
 require 'Msf/Ui'
 require 'Msf/Ui/Console/Shell'
 require 'Msf/Ui/Console/CommandDispatcher'

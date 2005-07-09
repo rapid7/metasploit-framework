@@ -16,8 +16,10 @@ class Core
 				"?"      => "Help menu",
 				"exit"   => "Exit the console",
 				"help"   => "Help menu",
+				"info"   => "Displays information about one or more module",
 				"search" => "Adds one or more module search paths",
 				"set"    => "Sets a variable to a value",
+				"unset"  => "Unsets one or more variables",
 				"show"   => "Displays modules of a given type, or all modules",
 				"use"    => "Selects a module by name",
 				"quit"   => "Exit the console",
@@ -26,8 +28,6 @@ class Core
 
 	# Instructs the driver to stop executing
 	def cmd_exit(args)
-		print_line("Exiting...")
-
 		driver.stop
 	end
 
@@ -62,6 +62,26 @@ class Core
 		}
 
 		print(tbl.to_s)
+	end
+
+	# Displays information about one or more module
+	def cmd_info(args)
+		if (args.length == 0)
+			print(
+				"Usage: info mod1 mod2 mod3 ...\n\n" +
+				"Queries the supplied module or modules for information.\n")
+			return false
+		end
+
+		args.each { |name|
+			mod = framework.modules.create(name)
+
+			if (mod == nil)
+				print_error("Invalid module: #{name}")
+			else
+				print(Serializer::ReadableText.dump_module(mod))
+			end
+		}
 	end
 
 	alias cmd_? cmd_help

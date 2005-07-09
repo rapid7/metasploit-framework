@@ -33,9 +33,9 @@ class PayloadSet < ModuleSet
 	# of singles, stagers, and stages
 	def recalculate
 		# Reset the current hash associations
-		full_names.clear
-		alias_names.clear
-		ambiguous_names.clear
+		self.each_key { |key|
+			manager.delete(key)
+		}
 		self.clear
 
 		# Recalculate single payloads
@@ -51,6 +51,8 @@ class PayloadSet < ModuleSet
 
 			# Associate this class with the single payload's name
 			self[name] = p
+
+			manager.add_module(p, name)
 
 			dlog("Built single payload #{name}.", 'core', LEV_1)
 		}
@@ -95,6 +97,8 @@ class PayloadSet < ModuleSet
 
 				self[combined] = p
 			
+				manager.add_module(p, combined)
+			
 				dlog("Built staged payload #{combined}.", 'core', LEV_1)
 			}
 		}
@@ -119,7 +123,7 @@ class PayloadSet < ModuleSet
 	# set we simply create an instance of the class and do some magic to figure
 	# out if it's a single, stager, or stage.  Depending on which it is, we 
 	# add it to the appropriate list
-	def add_module(short_name, full_name, pmodule)
+	def add_module(pmodule)
 
 		# Duplicate the Payload base class and extend it with the module
 		# class that is passed in.  This allows us to inspect the actual

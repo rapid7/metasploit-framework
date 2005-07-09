@@ -131,7 +131,7 @@ class Module
 	def privileged?
 		return (privileged == true)
 	end
-	
+
 	attr_reader   :author, :arch, :platform, :refs, :datastore, :options
 	attr_reader   :privileged
 
