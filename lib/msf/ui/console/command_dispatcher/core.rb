@@ -1,4 +1,7 @@
 require 'msf/ui/console/command_dispatcher/encoder'
+require 'msf/ui/console/command_dispatcher/exploit'
+require 'msf/ui/console/command_dispatcher/nop'
+require 'msf/ui/console/command_dispatcher/payload'
 
 module Msf
 module Ui
@@ -222,7 +225,15 @@ class Core
 		case mod.type
 			when MODULE_ENCODER
 				dispatcher = Encoder
-			when MODULE_NOPS
+			when MODULE_EXPLOIT
+				dispatcher = Exploit
+			when MODULE_NOP
+				dispatcher = Nop
+			when MODULE_PAYLOAD
+				dispatcher = Payload
+			else
+				print_error("Unsupported module type: #{mod.type}")
+				return false
 		end
 
 		if (dispatcher != nil)

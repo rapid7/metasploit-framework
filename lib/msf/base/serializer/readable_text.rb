@@ -165,8 +165,7 @@ class ReadableText
 	# a bit to add indention
 	#
 	def self.word_wrap(str, indent = 4, col = 60)
-		return str.gsub(/.{1,#{col - indent}}(?:\s|\Z)/){
-			( (" " * indent) + $& + 5.chr).gsub(/\n\005/,"\n").gsub(/\005/,"\n")}
+		return Rex::Text.wordwrap(str, indent, col)
 	end
 
 end

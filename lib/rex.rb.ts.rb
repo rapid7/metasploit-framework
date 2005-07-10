@@ -1,10 +1,11 @@
-#!/usr/bin/ruby
+#!/usr/bin/ruby -I..
 
 require 'test/unit'
 require 'rex'
 
 require 'rex/exceptions.rb.ut'
 require 'rex/transformer.rb.ut'
+require 'rex/text.rb.ut'
 
 require 'rex/encoding/xor/generic.rb.ut'
 require 'rex/encoding/xor/byte.rb.ut'
@@ -20,6 +21,8 @@ require 'rex/socket/udp.rb.ut'
 require 'rex/socket/parameters.rb.ut'
 require 'rex/socket/comm/local.rb.ut'
 
+require 'rex/parser/arguments.rb.ut'
+
 require 'rex/ui/text/table.rb.ut'
 
 class Rex::TestSuite
@@ -29,6 +32,7 @@ class Rex::TestSuite
 		# General
 		suite << Rex::Exceptions::UnitTest.suite
 		suite << Rex::Transformer::UnitTest.suite
+		suite << Rex::Text::UnitTest.suite
 
 		# Encoding
 		suite << Rex::Encoding::Xor::Generic::UnitTest.suite
@@ -45,6 +49,9 @@ class Rex::TestSuite
 		suite << Rex::Socket::TcpServer::UnitTest.suite
 		suite << Rex::Socket::Udp::UnitTest.suite
 		suite << Rex::Socket::Comm::Local::UnitTest.suite
+
+		# Parsers
+		suite << Rex::Parser::Arguments::UnitTest.suite
 
 		# Ui
 		suite << Rex::Ui::Text::Table::UnitTest.suite
