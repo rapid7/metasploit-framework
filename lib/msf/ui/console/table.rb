@@ -24,7 +24,7 @@ class Table < Rex::Ui::Text::Table
 		if (self.style == Style::Default)
 			opts['Indent']  = 3
 			if (!opts['Prefix'])
-				opts['Prefix']  = "\n\n"
+				opts['Prefix']  = "\n"
 			end
 			if (!opts['Postfix'])
 				opts['Postfix'] = "\n\n"

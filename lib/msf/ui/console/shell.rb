@@ -98,7 +98,7 @@ module Shell
 	# Resets coloring so that it's back to normal
 	#
 	def reset_color
-		output.print(colorize('clear'))
+		print(colorize('clear'))
 	end
 
 	#
