@@ -16,6 +16,7 @@ class Core
 	def commands
 		return {
 				"?"      => "Help menu",
+				"back"   => "Move back from the current context",
 				"exit"   => "Exit the console",
 				"help"   => "Help menu",
 				"info"   => "Displays information about one or more module",
@@ -28,14 +29,32 @@ class Core
 			}
 	end
 
+	#
+	# Pop the current dispatcher stack context, assuming it isn't pointed at
+	# the core stack context.
+	#
+	def cmd_back(args)
+		if (driver.dispatcher_stack.size > 1)
+			# Destack the current dispatcher
+			driver.destack_dispatcher
+	
+			# Restore the prompt
+			driver.update_prompt
+		end
+	end
+
+	#
 	# Instructs the driver to stop executing
+	#
 	def cmd_exit(args)
 		driver.stop
 	end
 
 	alias cmd_quit cmd_exit
 
+	#
 	# Displays the command help banner
+	#
 	def cmd_help(args)
 		all_commands = {}
 

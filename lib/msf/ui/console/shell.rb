@@ -39,7 +39,9 @@ module Shell
 		super()
 	end
 
+	#
 	# Run the command processing loop
+	#
 	def run
 		stop_flag = false
 
@@ -50,15 +52,20 @@ module Shell
 		end
 	end
 
+	#
 	# Stop processing user input
+	#
 	def stop
 		self.stop_flag = true
 	end
 
+	#
 	# Change the input prompt
+	#
 	def update_prompt(prompt = '', new_prompt_char = nil)
 		new_prompt = self.init_prompt + ' ' + prompt + prompt_char + ' '
 
+		# Substitute colors
 		new_prompt.gsub!(/%u/, colorize('underline'))
 		new_prompt.gsub!(/%b/, colorize('bold'))
 		new_prompt.gsub!(/%c/, colorize('clear'))
@@ -131,7 +138,9 @@ module Shell
 
 protected
 
+	#
 	# Parse a line into an array of arguments
+	#
 	def parse_line(line)
 		line.gsub!("(\r|\n)", '')
 
