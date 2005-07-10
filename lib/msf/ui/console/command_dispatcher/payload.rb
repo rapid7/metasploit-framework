@@ -69,7 +69,7 @@ class Payload
 				'Format'    => type,
 				'OptionStr' => option_str)
 		rescue
-			print_error("Payload generation failed: #{$!}.")
+			print_error("Payload generation failed: #{$!}")
 			return false
 		end
 

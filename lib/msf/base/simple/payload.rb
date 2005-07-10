@@ -27,6 +27,12 @@ class Payload
 	#                whitespace.
 	#   NoComment => Disables prepention of a comment
 	#
+	# raises:
+	#
+	#   BadcharError => If the supplied encoder fails to encode the payload
+	#   NoKeyError => No valid encoder key could be found
+	#   ArgumentParseError => Options were supplied improperly
+	#
 	def self.generate(payload, opts)
 		# If options were supplied, import them into the payload's
 		# datastore
@@ -52,7 +58,9 @@ class Payload
 		# Prepend a comment
 		if (fmt != 'raw' and opts['NoComment'] != true)
 			buf = Buffer.comment(
-				"#{payload.refname}\n#{payload.datastore.to_s}\n", fmt) + buf
+				"#{payload.refname} - http://www.metasploit.com\n" +
+				"#{payload.datastore.to_s}\n" + 
+				((opts['Encoder']) ? "Encoder=" + opts['Encoder'].refname + "\n" : ''), fmt) + buf
 		end
 
 		return buf

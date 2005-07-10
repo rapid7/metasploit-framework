@@ -45,13 +45,13 @@ class Msf::Encoder::XorAdditiveFeedback < Msf::Encoder::Xor
 				# key.  Use a stub_size of zero to bypass the check to in the
 				# rescue block.
 				if ((idx = has_badchars?([state.key.to_i].pack(decoder_key_pack), badchars)) != nil)
-					raise Msf::BadcharException.new(nil, idx, 0, nil)
+					raise Msf::BadcharError.new(nil, idx, 0, nil)
 				end
 
 				# Perform the encode operation...if it encounters a bad character
 				# an exception will be thrown
 				valid = do_encode(buf, badchars, state)
-			rescue Msf::BadcharException => info
+			rescue Msf::BadcharError => info
 				# If the decoder stub contains a bad character, then there's not
 				# much we can do about it
 				if (info.index < info.stub_size)

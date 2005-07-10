@@ -56,6 +56,10 @@ end
 
 class EncodingError < RuntimeError
 	include Exception
+
+	def to_s
+		"A encoding exception occurred."
+	end
 end
 
 ###
@@ -67,6 +71,9 @@ end
 #
 ###
 class NoKeyError < EncodingError
+	def to_s
+		"A valid encoding key could not be found."
+	end
 end
 
 ###
@@ -83,6 +90,10 @@ class BadcharError < EncodingError
 		@index     = index
 		@stub_size = stub_size
 		@char      = char
+	end
+
+	def to_s
+		"Encoding failed due to a bad character (index=#{index}, char=#{sprintf("0x%.2x", char)})"
 	end
 
 	attr_reader :buf, :index, :stub_size, :char

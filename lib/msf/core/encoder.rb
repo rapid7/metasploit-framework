@@ -85,6 +85,9 @@ class Encoder < Module
 	#
 
 	def encode(buf, badchars, state = nil)
+		# Initialize an empty set of bad characters
+		badchars = '' if (!badchars)
+
 		# Initialize the encoding state and key as necessary
 		if (state == nil)
 			state = EncoderState.new
@@ -101,7 +104,7 @@ class Encoder < Module
 			state.init_key(find_key(buf, badchars))
 
 			if (state.key == nil)
-				raise NoKeyException, "A key could not be found for the #{self.name} encoder.", caller
+				raise NoKeyError, "A key could not be found for the #{self.name} encoder.", caller
 			end
 		end
 
@@ -146,7 +149,7 @@ class Encoder < Module
 		# Last but not least, do one last badchar pass to see if the stub +
 		# encoded payload leads to any bad char issues...
 		if ((badchar_idx = has_badchars?(state.encoded, badchars)) != nil)
-			raise BadcharException.new(state.encoded, badchar_idx, stub.length, badchars[badchar_idx]), 
+			raise BadcharError.new(state.encoded, badchar_idx, stub.length, badchars[badchar_idx]), 
 					"The #{self.name} encoder failed to encode without bad characters.", 
 					caller
 		end
