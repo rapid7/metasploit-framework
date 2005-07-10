@@ -108,9 +108,10 @@ SINGLE_BYTE_SLED =
 			# Keep snagging characters until we find one that satisfies both the
 			# bad character and bad register requirements
 			begin
-				sled_cur_idx  = rand(sled_max_idx) if (random)
+				sled_cur_idx  = rand(sled_max_idx) if (random == true)
 				cur_char      = sled_hash.keys[sled_cur_idx]
-				sled_cur_idx += 1 if (!random)
+				sled_cur_idx += 1 if (random == false)
+				sled_cur_idx  = 0 if (sled_cur_idx >= sled_max_idx)
 
 				# Make sure that we haven't gone over the sled repeat threshold
 				if ((threshold += 1) > self.nop_repeat_threshold)
@@ -137,3 +138,7 @@ SINGLE_BYTE_SLED =
 end
 
 end end end
+
+x = Msf::Nops::Ia32::SingleByte.new
+
+x.generate_sled(200, {})

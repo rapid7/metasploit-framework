@@ -10,7 +10,7 @@ class Nop
 	@@generate_opts = Rex::Parser::Arguments.new(
 		"-b" => [ true,  "The list of characters to avoid: '\\x00\\xff'" ],
 		"-t" => [ true,  "The output type: ruby, perl, c, or raw."       ],
-		"-c" => [ false, "Non-random sled generation."                   ])
+		"-h" => [ false, "Help banner."                                  ])
 
 	include Msf::Ui::Console::ModuleCommandDispatcher
 
@@ -27,18 +27,13 @@ class Nop
 
 		# No arguments?  Tell them how to use it.
 		if (args.length == 0)
-			print(
-				"Usage: generate [options] length\n\n" +
-				"Generates a NOP sled of a given length.\n" +
-				@@generate_opts.usage)
-			return false
+			args << "-h"
 		end
 
 		# Parse the arguments
 		badchars = nil
 		type     = "ruby"
 		length   = 200
-		random   = true
 
 		@@generate_opts.parse(args) { |opt, idx, val|
 			case opt
@@ -48,8 +43,12 @@ class Nop
 					badchars = [ val.downcase.gsub(/\\x([a-f0-9][a-f0-9])/, '\1') ].pack("H*")
 				when '-t'
 					type = val
-				when '-c'
-					random = false
+				when '-h'
+					print(
+						"Usage: generate [options] length\n\n" +
+						"Generates a NOP sled of a given length.\n" +
+						@@generate_opts.usage)
+					return false
 			end
 		}
 
@@ -59,7 +58,6 @@ class Nop
 				mod, 
 				length,
 				'Badchars' => badchars,
-				'Random'   => random,
 				'Format'   => type)
 		rescue
 			print_error("Sled generation failed: #{$!}.")
