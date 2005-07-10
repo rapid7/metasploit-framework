@@ -13,14 +13,13 @@ module ReverseTcp
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Windows IA32 Stager: Reverse TCP',
-			'Alias'         => 'win32_reverse_stg',
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to the attacker and download another stage',
 			'Author'        => 'hdm',
 			'Platform'      => 'win',
 			'Arch'          => ARCH_IA32,
-			'Connection'    => 'ReverseTcp',
-			'StagerPayload' =>
+			'Connection'    => 'reverse_tcp',
+			'Stager'        =>
 				{
 					'Offsets' =>
 						{

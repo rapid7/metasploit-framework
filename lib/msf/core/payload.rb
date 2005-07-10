@@ -54,8 +54,6 @@ class Payload < Msf::Module
 	# first stage is returned.
 	def size
 		return (generate() || '').length
-		# HEY skape, why should generate every return nil, and not an
-		# empty string?
 	end
 
 	# Returns the raw payload that has not had variable substitution occur.

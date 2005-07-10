@@ -16,22 +16,22 @@ module Msf::Payload::Stager
 
 	# Return the stager payload's raw payload
 	def payload
-		return module_info['StagerPayload']['Payload']	
+		return module_info['Stager']['Payload']	
 	end
 
 	# Return the stager payload's offsets
 	def offsets
-		return module_info['StagerPayload']['Offsets']
+		return module_info['Stager']['Offsets']
 	end
 
 	# Returns the raw stage payload
 	def stage_payload
-		return module_info['StagePayload']['Payload']
+		return module_info['Stage']['Payload']
 	end
 
 	# Returns variable offsets within the stage payload
 	def stage_offsets
-		return module_info['StagePayload']['Offsets']
+		return module_info['Stage']['Offsets']
 	end
 
 	# Aliases

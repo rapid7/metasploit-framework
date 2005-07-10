@@ -12,13 +12,13 @@ module Shell
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Stage: Shell',
-			'Alias'         => 'shell',
+			'Alias'         => 'win32/shell',
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a command shell',
 			'Author'        => 'hdm',
 			'Platform'      => 'win',
 			'Arch'          => ARCH_IA32,
-			'StagePayload'  =>
+			'Stage'         =>
 				{
 					'Offsets' =>
 						{

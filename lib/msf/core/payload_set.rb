@@ -93,7 +93,7 @@ class PayloadSet < ModuleSet
 				p = build_payload(handler, stager_mod, stage_mod)
 
 				# Associate the name as a combination of the stager and stage
-				combined = stager_name + '_' + stage_name
+				combined = stage_name + '/' + stager_conn
 
 				self[combined] = p
 			
