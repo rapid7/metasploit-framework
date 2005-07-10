@@ -140,7 +140,7 @@ class Tlv
 		raw = value.to_s;
 
 		if (self.type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
-			raw << "\x00"
+			raw += "\x00"
 		elsif (self.type & TLV_META_TYPE_UINT == TLV_META_TYPE_UINT)
 			raw = [value].pack("N")
 		elsif (self.type & TLV_META_TYPE_BOOL == TLV_META_TYPE_BOOL)

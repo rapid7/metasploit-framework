@@ -120,7 +120,7 @@ class Registry
 		request.add_tlv(TLV_TYPE_VALUE_TYPE, type)
 
 		if (type == REG_SZ)
-			data << "\x00"
+			data += "\x00"
 		else (type == REG_DWORD)
 			data = [ data.to_i ].pack("V")
 		end
