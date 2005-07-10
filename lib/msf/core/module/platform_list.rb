@@ -65,6 +65,13 @@ class Msf::Module::PlatformList
 		platforms.map { |m| m.name.split('::')[3 .. -1].join(' ') }
 	end
 
+	def all?
+		names.each do |name|
+			return true if name == ''
+		end
+		return false
+	end
+
 	# Do I support plist (do I support all of they support?)
 	# use for matching say, an exploit and a payload
 	def supports?(plist)
