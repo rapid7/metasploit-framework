@@ -33,14 +33,18 @@ class Arguments
 	# Takes a string and converts it into an array of arguments
 	#
 	def self.from_s(str)
-		sub = str.gsub(/[^\\?]"(.+?)[^\\?]"/) { |s| s.gsub(/\s/, '__SEP__') }.gsub(/"/, '')
+		# I am the king of sucking at regex.
+		sub  = str.gsub(/["](.+?)[^\\]["]/) { |s| s.gsub(/\s/, '__SEP__') }
+		sub.gsub!(/[^\\](["])/) { |s| s[0..0] }
+		sub.gsub!(/(\\")/, '"')
 
-		# Uneven groupings?
-		if (group.length % 2 != 0)
-			raise ArgumentParseError.new, "Uneven groupings", caller
-		end
+		args = []
 
+		sub.split(/\s/).each { |arg|
+			args << arg.gsub(/__SEP__/, ' ')
+		}
 
+		return args
 	end
 
 	#

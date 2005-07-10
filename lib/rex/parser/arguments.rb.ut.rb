@@ -51,4 +51,17 @@ class Rex::Parser::Arguments::UnitTest < Test::Unit::TestCase
 		assert_equal(none, "none")
 	end
 
+	def test_from_s
+		args = Rex::Parser::Arguments.from_s(
+			"this is a test \"of the emergency pimping\" system \\\"buh lee dat\\\" yup")
+
+		assert_equal(args[0], "this")
+		assert_equal(args[3], "test")
+		assert_equal(args[4], "of the emergency pimping")
+		assert_equal(args[5], "system")
+		assert_equal(args[6], "\"buh")
+		assert_equal(args[8], "dat\"")
+		assert_equal(args[9], "yup")
+	end
+
 end

@@ -23,6 +23,7 @@ require 'rex/socket/comm/local.rb.ut'
 
 require 'rex/parser/arguments.rb.ut'
 
+require 'rex/ui/text/color.rb.ut'
 require 'rex/ui/text/table.rb.ut'
 
 class Rex::TestSuite
@@ -54,6 +55,7 @@ class Rex::TestSuite
 		suite << Rex::Parser::Arguments::UnitTest.suite
 
 		# Ui
+		suite << Rex::Ui::Color::Table::UnitTest.suite
 		suite << Rex::Ui::Text::Table::UnitTest.suite
 
 		return suite;

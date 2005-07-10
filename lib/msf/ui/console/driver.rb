@@ -23,7 +23,7 @@ class Driver < Msf::Ui::Driver
 
 	include Msf::Ui::Console::Shell
 
-	def initialize(prompt = "msf")
+	def initialize(prompt = "%umsf", prompt_char = ">%c%b")
 		# Initialize attributes
 		self.framework        = Msf::Framework.new
 		self.dispatcher_stack = []
@@ -33,7 +33,7 @@ class Driver < Msf::Ui::Driver
 		enstack_dispatcher(CommandDispatcher::Core)
 
 		# Initialize the super
-		super(prompt)
+		super
 	end
 
 	# Run a single command line
@@ -41,6 +41,8 @@ class Driver < Msf::Ui::Driver
 		arguments = parse_line(line)
 		method    = arguments.shift
 		found     = false
+
+		reset_color if (supports_color?)
 
 		if (method)
 			entries = dispatcher_stack.length
