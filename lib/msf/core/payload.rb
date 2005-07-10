@@ -105,11 +105,13 @@ class Payload < Msf::Module
 			# Now it's our turn...
 			if ((val = datastore[name]))
 				if (pack == 'ADDR')
-					val = Socket.resolv_nbo(host)
+					val = Rex::Socket.resolv_nbo(val)
 				elsif (pack == 'RAW')
 					# Just use the raw value...
 				else
-					val = [ val ].pack(pack)	
+					# NOTE:
+					# Packing assumes integer format at this point, should fix...
+					val = [ val.to_i ].pack(pack)	
 				end
 
 				# Substitute it

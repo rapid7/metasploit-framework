@@ -19,11 +19,23 @@ class Payload
 	#
 	# opts can have:
 	#
-	#   Encoder  => A encoder module instance.
-	#   Badchars => A string of bad characters.
-	#   Format   => The format to represent the data as: ruby, perl, c, raw
+	#   Encoder   => A encoder module instance.
+	#   Badchars  => A string of bad characters.
+	#   Format    => The format to represent the data as: ruby, perl, c, raw
+	#   Options   => A hash of options to set.
+	#   OptionStr => A string of options in VAR=VAL form separated by
+	#                whitespace.
+	#   NoComment => Disables prepention of a comment
 	#
 	def self.generate(payload, opts)
+		# If options were supplied, import them into the payload's
+		# datastore
+		if (opts['Option'])
+			payload.datastore.import_options_from_hash(opts['Options'])
+		elsif (opts['OptionStr'])
+			payload.datastore.import_options_from_s(opts['OptionStr'])
+		end
+
 		# Generate the payload
 		buf = payload.generate
 
@@ -32,8 +44,18 @@ class Payload
 			buf = opts['Encoder'].encode(buf, opts['Badchars'])
 		end
 
+		fmt = opts['Format'] || 'raw'
+
 		# Serialize the generated payload to some sort of format
-		return Buffer.transform(buf, opts['Format'] || 'raw')
+		buf = Buffer.transform(buf, fmt)
+
+		# Prepend a comment
+		if (fmt != 'raw' and opts['NoComment'] != true)
+			buf = Buffer.comment(
+				"#{payload.refname}\n#{payload.datastore.to_s}\n", fmt) + buf
+		end
+
+		return buf
 	end
 
 end

@@ -49,13 +49,13 @@ class Driver < Msf::Ui::Driver
 
 			dispatcher_stack.each { |dispatcher|
 				begin
-					eval("
-						if (dispatcher.respond_to?('cmd_' + method))
+					if (dispatcher.respond_to?('cmd_' + method))
+						eval("
 							dispatcher.#{'cmd_' + method}(arguments)
-							found = true
-						end")
+							found = true")
+					end
 				rescue
-					output.print_error("Error while running command #{method}: #{$!}.")
+					output.print_error("Error while running command #{method}: #{$!}\n#{$@}\n.")
 				end
 
 				# If the dispatcher stack changed as a result of this command,

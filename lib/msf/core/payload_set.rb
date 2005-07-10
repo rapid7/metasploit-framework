@@ -49,6 +49,9 @@ class PayloadSet < ModuleSet
 			# and module
 			p = build_payload(handler, mod)
 
+			# Sets the modules derived name
+			p.refname = name
+
 			# Associate this class with the single payload's name
 			self[name] = p
 
@@ -94,6 +97,9 @@ class PayloadSet < ModuleSet
 
 				# Associate the name as a combination of the stager and stage
 				combined = stage_name + '/' + stager_conn
+
+				# Sets the modules derived name
+				p.refname = combined
 
 				self[combined] = p
 			

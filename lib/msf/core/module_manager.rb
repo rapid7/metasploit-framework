@@ -64,6 +64,10 @@ protected
 
 	# Adds a module with a the supplied name
 	def add_module(module_class, name)
+		# Set the module's name so that it can be referenced when
+		# instances are created.
+		module_class.refname = name
+
 		self[name] = module_class
 	end
 

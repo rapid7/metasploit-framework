@@ -8,10 +8,11 @@ module CommandDispatcher
 class Payload
 
 	@@generate_opts = Rex::Parser::Arguments.new(
-		"-b" => [ true,  "The list of characters to avoid '\\x00\\xff'" ],
-		"-t" => [ true,  "The output type: ruby, perl, c, or raw."      ],
-		"-e" => [ true,  "The name of the encoder module to use."       ],
-		"-h" => [ false, "Help banner."                                 ])
+		"-b" => [ true,  "The list of characters to avoid '\\x00\\xff'"         ],
+		"-t" => [ true,  "The output type: ruby, perl, c, or raw."              ],
+		"-e" => [ true,  "The name of the encoder module to use."               ],
+		"-o" => [ true,  "A space separated list of options in VAR=VAL format." ],
+		"-h" => [ false, "Help banner."                                         ])
 
 	include Msf::Ui::Console::ModuleCommandDispatcher
 
@@ -28,6 +29,7 @@ class Payload
 
 		# Parse the arguments
 		encoder_name = nil
+		option_str   = nil
 		badchars     = nil
 		encoder      = nil
 		type         = "ruby"
@@ -40,8 +42,13 @@ class Payload
 					type = val
 				when '-e'
 					encoder_name = val
+				when '-o'
+					option_str = val
 				when '-h'
-					print(@@generate_opts.usage)
+					print(
+						"Usage: generate [options]\n\n" +
+						"Generates a payload.\n" +
+						@@generate_opts.usage)
 					return true
 			end
 		}
@@ -57,9 +64,10 @@ class Payload
 		begin
 			buf = Msf::Simple::Payload.generate(
 				mod, 
-				'Badchars' => badchars,
-				'Encoder'  => encoder,
-				'Format'   => type)
+				'Badchars'  => badchars,
+				'Encoder'   => encoder,
+				'Format'    => type,
+				'OptionStr' => option_str)
 		rescue
 			print_error("Payload generation failed: #{$!}.")
 			return false

@@ -11,25 +11,48 @@ module Rex
 ###
 module Text
 
+	DefaultWrap = 60
+
 	#
 	# Converts a raw string into a ruby buffer
 	#
-	def self.to_ruby(str, wrap = 60)
+	def self.to_ruby(str, wrap = DefaultWrap)
 		return hexify(str, wrap, '"', '" +', '', '"')
+	end
+
+	#
+	# Creates a ruby-style comment
+	#
+	def self.to_ruby_comment(str, wrap = DefaultWrap)
+		return wordwrap(str, 0, wrap, '', '# ')
 	end
 
 	#
 	# Converts a raw string into a C buffer
 	#
-	def self.to_c(str, wrap = 60, name = "buf")
-		return hexify(str, wrap, '    "', '"', "unsigned char #{name}[] = \n", '";')
+	def self.to_c(str, wrap = DefaultWrap, name = "buf")
+		return hexify(str, wrap, '"', '"', "unsigned char #{name}[] = \n", '";')
+	end
+
+	#
+	# Creates a c-style comment
+	#
+	def self.to_c_comment(str, wrap = DefaultWrap)
+		return "/*\n" + wordwrap(str, 0, wrap, '', ' * ') + " */\n"
 	end
 
 	#
 	# Converts a raw string into a perl buffer
 	#
-	def self.to_perl(str, wrap = 60)
+	def self.to_perl(str, wrap = DefaultWrap)
 		return hexify(str, wrap, '"', '" .', '', '";')
+	end
+
+	#
+	# Creates a perl-style comment
+	#
+	def self.to_perl_comment(str, wrap = DefaultWrap)
+		return wordwrap(str, 0, wrap, '', '# ')
 	end
 
 	#
@@ -49,7 +72,7 @@ module Text
 	#
 	# Wraps text at a given column using a supplied indention
 	#
-	def self.wordwrap(str, indent = 0, col = 60, append = '', prepend = '')
+	def self.wordwrap(str, indent = 0, col = DefaultWrap, append = '', prepend = '')
 		return str.gsub(/.{1,#{col - indent}}(?:\s|\Z)/){
 			( (" " * indent) + prepend + $& + append + 5.chr).gsub(/\n\005/,"\n").gsub(/\005/,"\n")}
 	end
@@ -57,7 +80,7 @@ module Text
 	#
 	# Converts a string to a hex version with wrapping support
 	#
-	def self.hexify(str, col = 60, line_start = '', line_end = '', buf_start = '', buf_end = '')
+	def self.hexify(str, col = DefaultWrap, line_start = '', line_end = '', buf_start = '', buf_end = '')
 		output   = buf_start
 		cur      = 0
 		count    = 0

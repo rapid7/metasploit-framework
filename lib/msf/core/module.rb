@@ -15,6 +15,14 @@ module Msf
 ###
 class Module
 
+	class <<self
+		# 
+		# The module's name that is assigned it it by the framework
+		# or derived from the path that the module is loaded from.
+		#
+		attr_accessor :refname
+	end
+
 	require 'msf/core/module/author'
 	require 'msf/core/module/platform_list'
 	require 'msf/core/module/reference'
@@ -43,6 +51,16 @@ class Module
 		self.datastore.import_options(self.options)
 
 		self.privileged = module_info['Privileged'] || false
+	end
+	
+	#
+	# Return's the module's framework reference name.  This is the
+	# short name that end-users work with.  Ex: 
+	#
+	# win32/shell/reverse_tcp
+	#
+	def refname
+		return self.class.refname
 	end
 
 	#
