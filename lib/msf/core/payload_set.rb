@@ -123,7 +123,7 @@ class PayloadSet < ModuleSet
 	# set we simply create an instance of the class and do some magic to figure
 	# out if it's a single, stager, or stage.  Depending on which it is, we 
 	# add it to the appropriate list
-	def add_module(pmodule)
+	def add_module(pmodule, name)
 
 		# Duplicate the Payload base class and extend it with the module
 		# class that is passed in.  This allows us to inspect the actual

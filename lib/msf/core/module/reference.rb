@@ -18,6 +18,13 @@ class Msf::Module::Reference
 		self.str = in_str
 	end
 
+	#
+	# Compares references
+	#
+	def ==(tgt)
+		return (tgt.to_s == to_s)
+	end
+
 	def to_s
 		return self.str
 	end

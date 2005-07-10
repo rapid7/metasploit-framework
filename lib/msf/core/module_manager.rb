@@ -62,10 +62,9 @@ class ModuleSet < Hash
 
 protected
 
-	# Adds a module with a supplied short name, full name, and associated
-	# module class
-	def add_module(module_class, alias_name = nil)
-		self[alias_name || module_class.new.alias] = module_class
+	# Adds a module with a the supplied name
+	def add_module(module_class, name)
+		self[name] = module_class
 	end
 
 	attr_writer   :module_type
@@ -189,6 +188,7 @@ protected
 			# Extract the module's namespace from its path
 			mod  = mod_from_name(path_base)
 			type = path_base.match(/^(.+?)#{File::SEPARATOR}+?/)[1].sub(/s$/, '')
+			name = path_base.match(/^(.+?)#{File::SEPARATOR}(.*)$/)[2]
 
 			# Let's rock the house now...
 			dlog("Loading module from #{path_base}...", 'core', LEV_1)
@@ -231,7 +231,7 @@ protected
 
 			# Do some processing on the loaded module to get it into the
 			# right associations
-			on_module_load(type, added)
+			on_module_load(added, type, name)
 
 			# Set this module type as needing recalculation
 			recalc[type] = true
@@ -285,17 +285,7 @@ protected
 
 	# Called when a module is initially loaded such that it can be
 	# categorized accordingly
-	def on_module_load(type, mod)
-		# Extract the module name information
-		mod_full_name = mod.to_s.gsub('::', '/')
-		mod_full_name.sub!(/^Msf_/, '')
-
-		mod_short_name = mod_full_name
-
-		if ((md = mod_full_name.match(/^(.*)_(.*)$/)))
-			mod_short_name = md[2]
-		end
-
+	def on_module_load(mod, type, name)
 		# Payload modules require custom loading as the individual files
 		# may not directly contain a logical payload that a user would 
 		# reference, such as would be the case with a payload stager or 
@@ -306,10 +296,10 @@ protected
 		if (type != MODULE_PAYLOAD)
 			# Add the module class to the list of modules and add it to the
 			# type separated set of module classes
-			add_module(mod)
+			add_module(mod, name)
 		end
 			
-		module_sets[type].add_module(mod)
+		module_sets[type].add_module(mod, name)
 	end
 
 	attr_accessor :modules, :module_sets

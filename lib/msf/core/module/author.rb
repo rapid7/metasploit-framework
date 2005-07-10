@@ -38,6 +38,13 @@ class Msf::Module::Author
 	end
 
 	#
+	# Compares authors
+	#
+	def ==(tgt)
+		return (tgt.to_s == to_s)
+	end
+
+	#
 	# Serialize the author object to a string in form:
 	#
 	# name <email>

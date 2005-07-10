@@ -189,10 +189,12 @@ protected
 					# two
 					if (info[name].kind_of?(Array) == false)
 						curr       = info[name]
-						info[name] = [ curr, val ]
+						info[name] = [ curr, val ] if (val != curr)
 					# Otherwise, just append this item to the array entry
 					else
-						info[name] << val
+						if (!info[name].find(val))
+							info[name] << val
+						end
 					end
 				# Otherwise, just set the value equal if no current value
 				# exists
@@ -224,6 +226,13 @@ protected
 	#
 	def merge_info_description(info, val)
 		merge_info_string(info, 'Description', val)
+	end
+
+	#
+	# Merge the module version
+	#
+	def merge_info_version(info, val)
+		merge_info_string(info, 'Version', val)
 	end
 
 	#
