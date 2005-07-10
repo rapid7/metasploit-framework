@@ -158,23 +158,53 @@ end
 ###
 class OptionContainer < Hash
 
+	#
 	# Merges in the supplied options and converts them to a OptBase
 	# as necessary.
+	#
 	def initialize(opts = {})
 		add_options(opts)
 	end
 
+	#
 	# Return the value associated with the supplied name
+	#
 	def [](name)
 		return get(name)
 	end
 
+	#
 	# Return the option associated with the supplied name
+	#
 	def get(name)
 		begin
 			return fetch(name)
 		rescue
 		end
+	end
+
+	#
+	# Returns whether or not the container has any options,
+	# excluding advanced.
+	#
+	def has_options?
+		each_option { |name, opt|
+			return true if (opt.advanced? == false)
+		}
+		
+		return false
+	end
+
+	#
+	# Returns whether or not the container has any advanced
+	# options.
+	#
+	def has_advanced_options?
+		each_option { |name, opt|
+			return true if (opt.advanced? == true)
+		}
+
+		return false
 	end
 
 	# Adds one or more options

@@ -12,6 +12,11 @@ module Msf
 ###
 class Nop < Msf::Module
 
+	# NOP module, bitch!
+	def type
+		return MODULE_NOP
+	end
+
 	#
 	# Stub method for generating a sled with the provided arguments.  Derived
 	# Nop implementations must supply a length and can supply one or more of

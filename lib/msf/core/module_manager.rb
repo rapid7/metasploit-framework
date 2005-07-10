@@ -31,7 +31,7 @@ class ModuleSet < Hash
 
 	# Enumerates each module class in the set
 	def each_module(opts = {}, &block)
-		each_value { |mod|
+		each_pair { |name, mod|
 			# Filter out incompatible architectures
 			if (opts['arch'])
 				if (!mod_arch_hash[mod])
@@ -50,7 +50,7 @@ class ModuleSet < Hash
 				next if (mod_platform_hash[mod].include?(opts['platform']) == false)
 			end
 
-			block.call(mod)
+			block.call(name, mod)
 		}
 	end
 
@@ -182,13 +182,15 @@ protected
 			# Substitute the base path
 			path_base = file.sub(path + File::SEPARATOR, '')
 
+			# Derive the name from the path with the exclusion of the .rb
+			name = path_base.match(/^(.+?)#{File::SEPARATOR}(.*)(.rb?)$/)[2]
+
 			# Chop off the file name
-			path_base.sub!(/(.+)(#{File::SEPARATOR}.+\.rb)$/, '\1')
+			path_base.sub!(/(.+)(#{File::SEPARATOR}.+)(.rb?)$/, '\1')
 
 			# Extract the module's namespace from its path
 			mod  = mod_from_name(path_base)
 			type = path_base.match(/^(.+?)#{File::SEPARATOR}+?/)[1].sub(/s$/, '')
-			name = path_base.match(/^(.+?)#{File::SEPARATOR}(.*)$/)[2]
 
 			# Let's rock the house now...
 			dlog("Loading module from #{path_base}...", 'core', LEV_1)
