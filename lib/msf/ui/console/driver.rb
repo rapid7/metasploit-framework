@@ -55,7 +55,7 @@ class Driver < Msf::Ui::Driver
 							found = true")
 					end
 				rescue
-					output.print_error("Error while running command #{method}: #{$!}\n#{$@}\n.")
+					output.print_error("Error while running command #{method}: #{$!}\n#{$@.join("\n")}\n.")
 				end
 
 				# If the dispatcher stack changed as a result of this command,

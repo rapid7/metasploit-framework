@@ -140,9 +140,7 @@ class Module
 	# Return a comma separated list of supported platforms, if any
 	#
 	def platform_to_s
-		# TODO: fix me spoonm!
-		
-		return "TODO"
+		return (platform.all?) ? [ "All" ] : platform.names
 	end
 
 	#
@@ -163,9 +161,9 @@ protected
 			'Name'        => 'No module name', 
 			'Description' => 'No module description',
 			'Version'     => '0',
-			'Author'      => nil,
-			'Arch'        => nil,
-			'Platform'    => nil,
+			'Author'      => '',
+			'Arch'        => '',
+			'Platform'    => '',
 			'Ref'         => nil,
 			'Privileged'  => false,
 		}.update(self.module_info)

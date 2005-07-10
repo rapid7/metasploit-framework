@@ -91,10 +91,15 @@ class Core
 	#
 	def cmd_info(args)
 		if (args.length == 0)
-			print(
-				"Usage: info mod1 mod2 mod3 ...\n\n" +
-				"Queries the supplied module or modules for information.\n")
-			return false
+			if (mod = get_active_module())
+				cmd_info([ mod.refname ])
+				return true
+			else
+				print(
+					"Usage: info mod1 mod2 mod3 ...\n\n" +
+					"Queries the supplied module or modules for information.\n")
+				return false
+			end
 		end
 
 		args.each { |name|
