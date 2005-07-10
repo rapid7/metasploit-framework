@@ -22,7 +22,7 @@ module Text
 	# Converts a raw string into a C buffer
 	#
 	def self.to_c(str, wrap = 60, name = "buf")
-		return hexify(str, wrap, '    "', '"', "unsigned char #{name} = \n", '";')
+		return hexify(str, wrap, '    "', '"', "unsigned char #{name}[] = \n", '";')
 	end
 
 	#

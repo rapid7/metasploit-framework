@@ -30,6 +30,20 @@ class Arguments
 	end
 
 	#
+	# Takes a string and converts it into an array of arguments
+	#
+	def self.from_s(str)
+		sub = str.gsub(/[^\\?]"(.+?)[^\\?]"/) { |s| s.gsub(/\s/, '__SEP__') }.gsub(/"/, '')
+
+		# Uneven groupings?
+		if (group.length % 2 != 0)
+			raise ArgumentParseError.new, "Uneven groupings", caller
+		end
+
+
+	end
+
+	#
 	# Parses the supplied arguments into a set of options
 	#
 	def parse(args, &block)

@@ -48,6 +48,14 @@ class ArgumentError < ::ArgumentError
 	end
 end
 
+class ArgumentParseError < ::ArgumentError
+	include Exception
+
+	def to_s
+		"The argument could not be parsed correctly."
+	end
+end
+
 #####
 #####
 ##
