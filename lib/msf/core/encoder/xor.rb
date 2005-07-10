@@ -11,7 +11,7 @@ require 'msf/core'
 class Msf::Encoder::Xor < Msf::Encoder
 
 	def encode_block(state, block)
-		return Msf::Encoding::Xor.encode_block(state.key, block, decoder_block_size, decoder_key_pack)
+		return Rex::Encoding::Xor::Dword.encode(block, [ state.key ].pack(state.decoder_key_pack))[0]
 	end
 
 	def find_bad_keys(buf, badchars)

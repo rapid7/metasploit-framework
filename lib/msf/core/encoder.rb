@@ -34,6 +34,11 @@ class EncoderState
 	attr_accessor :orig_key
 	attr_accessor :encoded
 	attr_accessor :context
+	attr_accessor :badchars
+	attr_accessor :buf
+
+	# Decoder settings
+	attr_accessor :decoder_key_offset, :decoder_key_size, :decoder_key_pack
 
 end
 
@@ -60,24 +65,27 @@ class Encoder < Module
 		return MODULE_ENCODER
 	end
 
-	def decoder_stub
-		return module_info['DecoderStub']
+	#
+	# Returns the decoder stub to use based on the supplied length
+	#
+	def decoder_stub(state)
+		return module_info['Decoder']['Stub']
 	end
 
 	def decoder_key_offset
-		return module_info['DecoderKeyOffset']
+		return module_info['Decoder']['KeyOffset']
 	end
 
 	def decoder_key_size
-		return module_info['DecoderKeySize']
+		return module_info['Decoder']['KeySize']
 	end
 
 	def decoder_block_size
-		return module_info['DecoderBlockSize']
+		return module_info['Decoder']['BlockSize']
 	end
 
 	def decoder_key_pack
-		return module_info['DecoderKeyPack'] || 'V'
+		return module_info['Decoder']['KeyPack'] || 'V'
 	end
 
 	#
@@ -108,6 +116,15 @@ class Encoder < Module
 			end
 		end
 
+		# Update the state with default decoder information
+		state.decoder_key_offset = decoder_key_offset
+		state.decoder_key_size   = decoder_key_size
+		state.decoder_key_pack   = decoder_key_pack
+
+		# Save the buffer in the encoding state
+		state.badchars = badchars
+		state.buf      = buf
+
 		# Call encode_begin to do any encoder specific pre-processing
 		encode_begin(state)
 
@@ -123,12 +140,12 @@ class Encoder < Module
 
 	def do_encode(buf, badchars, state)
 		# Copy the decoder stub since we may need to modify it
-		stub = decoder_stub.dup
+		stub = decoder_stub(state).dup
 
 		if (state.key != nil)
 			# Substitute the decoder key in the copy of the decoder stub with the
 			# one that we found
-			stub[decoder_key_offset,decoder_key_size] = [ state.key.to_i ].pack(decoder_key_pack)
+			stub[state.decoder_key_offset,state.decoder_key_size] = [ state.key.to_i ].pack(state.decoder_key_pack)
 		end
 		
 		# Walk the buffer encoding each block along the way

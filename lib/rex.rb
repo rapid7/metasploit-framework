@@ -7,6 +7,14 @@ require 'rex/exceptions'
 require 'rex/read_write_lock'
 require 'rex/transformer'
 require 'rex/text'
+require 'rex/string_utils'
+
+# Encoding
+require 'rex/encoder/xor'
+require 'rex/encoding/xor'
+
+# Architecture subsystem
+require 'rex/arch/x86'
 
 # Logging
 require 'rex/logging/log_dispatcher'

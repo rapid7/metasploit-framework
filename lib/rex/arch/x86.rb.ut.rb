@@ -3,6 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 
 require 'test/unit'
+require 'rex/string_utils'
 require 'rex/arch/x86'
 
 class Rex::Arch::X86::UnitTest < ::Test::Unit::TestCase
@@ -37,6 +38,12 @@ class Rex::Arch::X86::UnitTest < ::Test::Unit::TestCase
 		assert_equal("\x58", Klass.pop_dword(Klass::EAX))
 		assert_equal("\x5a", Klass.pop_dword(Klass::EDX))
 		assert_equal("\x5c", Klass.pop_dword(Klass::ESP))
+	end
+
+	def test_sub
+		assert_equal("\x83\xe8\x04", Klass.sub(4, Klass::EAX)[2, 3])
+		assert_equal("\x66\x81\xe8\x80\xff", Klass.sub(-128, Klass::EAX)[2, 5])
+		assert_equal("\x81\xe8\x00\x00\x01\x00", Klass.sub(65536, Klass::EAX)[2, 6])
 	end
 
 end

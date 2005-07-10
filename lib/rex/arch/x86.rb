@@ -25,6 +25,9 @@ module X86
 		return self.const_get(str.upcase)
 	end
 
+	def self.encode_effective(shift, dst)
+		return (0xc0 | (shift << 3) | dst)
+	end
 
 	def self.encode_modrm(dst, src)
 		_check_reg(dst, src)
@@ -91,6 +94,51 @@ module X86
 		end
 
 		raise RuntimeError, "No valid set instruction could be created!", caller()
+	end
+
+	#
+	# Builds a subtraction instruction using the supplied operand
+	# and register.
+	#
+	def self.sub(val, reg, badchars = '')
+		opcodes = []
+
+		if (val >= -0x7f and val <= 0x7f)
+			opcodes << 
+				clear(reg, badchars) + 
+				"\x83" + 
+				[ encode_effective(5, reg) ].pack('C') +
+				[ val.to_i ].pack('C')
+		end
+
+		if (val >= -0xffff and val <= 0)
+			opcodes << 
+				clear(reg, badchars) + 
+				"\x66\x81" + 
+				[ encode_effective(5, reg) ].pack('C') +
+				[ val.to_i ].pack('v')
+		end
+			
+		opcodes << 
+			clear(reg, badchars) + 
+			"\x81" + 
+			[ encode_effective(5, reg) ].pack('C') +
+			[ val.to_i ].pack('V')
+
+		# Search for a compatible opcode
+		opcodes.each { |op|
+			begin 
+				_check_badchars(op, badchars)
+			rescue
+				next
+			end
+
+			return op
+		}
+
+		if opcodes.empty?
+			raise RuntimeError, "Could not find a usable opcode", caller()
+		end
 	end
 
 	def self._check_reg(*regs)
