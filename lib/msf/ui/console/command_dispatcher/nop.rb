@@ -16,7 +16,7 @@ class Nop
 
 	def commands
 		return {
-				"generate" => "Generates a NOP seld",
+				"generate" => "Generates a NOP sled",
 			}
 	end
 
