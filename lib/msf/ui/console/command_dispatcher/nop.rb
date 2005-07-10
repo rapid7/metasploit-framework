@@ -55,26 +55,19 @@ class Nop
 
 		# Generate the sled
 		begin
-			sled = mod.generate_sled(
-				length, 
+			sled = Msf::Simple::Nop.generate(
+				mod, 
+				length,
 				'Badchars' => badchars,
-				'Random'   => random)
+				'Random'   => random,
+				'Format'   => type)
 		rescue
 			print_error("Sled generation failed: #{$!}.")
 			return false
 		end
 
-		# Output the sled
-		case type
-			when "ruby"
-				print(Rex::Text.to_ruby(sled))
-			when "c"
-				print(Rex::Text.to_c(sled, 60, "nop_sled"))
-			when "perl"
-				print(Rex::Text.to_perl(sled))
-			when "raw"
-				print(sled)
-		end
+		# Display generated sled
+		print(sled)
 
 		return true
 	end

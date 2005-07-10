@@ -18,6 +18,11 @@
 # framework-base depends on framework-core
 require 'msf/core'
 
+# Simple wrapper
+require 'msf/base/simple/buffer'
+require 'msf/base/simple/nop'
+require 'msf/base/simple/payload'
+
 # Sessions
 require 'msf/base/session/command_shell'
 require 'msf/base/session/meterpreter'
