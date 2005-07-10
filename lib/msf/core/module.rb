@@ -140,7 +140,9 @@ class Module
 	# Return a comma separated list of supported platforms, if any
 	#
 	def platform_to_s
-		return platform.join(", ")
+		# TODO: fix me spoonm!
+		
+		return "TODO"
 	end
 
 	#

@@ -22,7 +22,9 @@ class ReadableText
 			when MODULE_PAYLOAD
 				return dump_payload_module(mod, indent)
 			when MODULE_NOP
-				return dump_nop_module(mod, indent)
+				return dump_basic_module(mod, indent)
+			when MODULE_ENCODER
+				return dump_basic_module(mod, indent)
 			when MODULE_EXPLOIT
 				return dump_exploit_module(mod, indent)
 			else
@@ -77,14 +79,14 @@ class ReadableText
 	end
 
 	#
-	# Dumps information about a nop module.
+	# Dumps information about a module, just the basics.
 	#
-	def self.dump_nop_module(mod, indent)
+	def self.dump_basic_module(mod, indent)
 		# General
 		output  = "\n"
 		output += "       Name: #{mod.name}\n"
 		output += "    Version: #{mod.version}\n"
-		#output += "   Platform: #{mod.platform_to_s}\n"
+		output += "   Platform: #{mod.platform_to_s}\n"
 		output += "       Arch: #{mod.arch.to_s}\n"
 		output += "\n"
 

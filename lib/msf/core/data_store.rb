@@ -44,7 +44,7 @@ class DataStore < Hash
 			if (var == nil or val == nil)
 				var = "unknown" if (!var)
 
-				raise ArgumentParseError, "Invalid option specified: #{var}", caller
+				raise Rex::ArgumentParseError, "Invalid option specified: #{var}", caller
 			end
 
 			# Store the value

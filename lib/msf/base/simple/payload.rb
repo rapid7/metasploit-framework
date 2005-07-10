@@ -57,9 +57,11 @@ class Payload
 
 		# Prepend a comment
 		if (fmt != 'raw' and opts['NoComment'] != true)
+			((ds = payload.datastore.to_s) and ds.length > 0) ? ds += "\n" : ds = ''
+			
 			buf = Buffer.comment(
 				"#{payload.refname} - http://www.metasploit.com\n" +
-				"#{payload.datastore.to_s}\n" + 
+				"#{ds}" + 
 				((opts['Encoder']) ? "Encoder=" + opts['Encoder'].refname + "\n" : ''), fmt) + buf
 		end
 
