@@ -53,9 +53,9 @@ class Payload
 			return false
 		end
 
-		# Generate the sled
+		# Generate the payload
 		begin
-			sled = Msf::Simple::Payload.generate(
+			buf = Msf::Simple::Payload.generate(
 				mod, 
 				'Badchars' => badchars,
 				'Encoder'  => encoder,
@@ -66,7 +66,7 @@ class Payload
 		end
 
 		# Display generated payload
-		print(sled)
+		print(buf)
 
 		return true
 

@@ -15,17 +15,18 @@ class Core
 	# Returns the list of commands supported by this command dispatcher
 	def commands
 		return {
-				"?"      => "Help menu",
-				"back"   => "Move back from the current context",
-				"exit"   => "Exit the console",
-				"help"   => "Help menu",
-				"info"   => "Displays information about one or more module",
-				"search" => "Adds one or more module search paths",
-				"set"    => "Sets a variable to a value",
-				"unset"  => "Unsets one or more variables",
-				"show"   => "Displays modules of a given type, or all modules",
-				"use"    => "Selects a module by name",
-				"quit"   => "Exit the console",
+				"?"       => "Help menu",
+				"back"    => "Move back from the current context",
+				"exit"    => "Exit the console",
+				"help"    => "Help menu",
+				"info"    => "Displays information about one or more module",
+				"quit"    => "Exit the console",
+				"search"  => "Adds one or more module search paths",
+				"set"     => "Sets a variable to a value",
+				"show"    => "Displays modules of a given type, or all modules",
+				"unset"   => "Unsets one or more variables",
+				"use"     => "Selects a module by name",
+				"version" => "Show the console library version number",
 			}
 	end
 
@@ -85,7 +86,9 @@ class Core
 		print(tbl.to_s)
 	end
 
+	#
 	# Displays information about one or more module
+	#
 	def cmd_info(args)
 		if (args.length == 0)
 			print(
@@ -107,7 +110,9 @@ class Core
 
 	alias cmd_? cmd_help
 
+	#
 	# Adds one or more search paths
+	#
 	def cmd_search(args)
 		if (args.length == 0)
 			print_error("No search paths were provided.")
@@ -121,7 +126,9 @@ class Core
 		print_line("Added #{args.length} search paths.")
 	end
 
+	#
 	# Sets a name to a value in a context aware environment
+	#
 	def cmd_set(args)
 
 		# Determine which data store we're operating on
@@ -164,33 +171,10 @@ class Core
 		print_line("#{name} => #{value}")
 	end
 
-	# Unsets a value if it's been set
-	def cmd_unset(args)
-		# Determine which data store we're operating on
-		if (mod = get_active_module())
-			datastore = mod.datastore
-		else
-			datastore = driver.datastore
-		end
-
-		# No arguments?  No cookie.
-		if (args.length == 0)
-			print(
-				"Usage: unset var1 var2 var3 ...\n\n" +
-				"The unset command is used to unset one or more variables.\n")
-
-			return false
-		end
-
-		while ((val = args.shift))
-			print_line("Unsetting #{val}...")
-
-			datastore.delete(val)
-		end
-	end
-
+	#
 	# Displays the list of modules based on their type, or all modules if
 	# no type is provided
+	#
 	def cmd_show(args)
 		args << "all" if (args.length == 0)
 
@@ -214,6 +198,33 @@ class Core
 					show_recon
 			end
 		}
+	end
+
+	#
+	# Unsets a value if it's been set
+	#
+	def cmd_unset(args)
+		# Determine which data store we're operating on
+		if (mod = get_active_module())
+			datastore = mod.datastore
+		else
+			datastore = driver.datastore
+		end
+
+		# No arguments?  No cookie.
+		if (args.length == 0)
+			print(
+				"Usage: unset var1 var2 var3 ...\n\n" +
+				"The unset command is used to unset one or more variables.\n")
+
+			return false
+		end
+
+		while ((val = args.shift))
+			print_line("Unsetting #{val}...")
+
+			datastore.delete(val)
+		end
 	end
 
 	# Uses a module
@@ -264,6 +275,17 @@ class Core
 
 		# Update the command prompt
 		driver.update_prompt("#{mod.type}(#{mod_name}) ")
+	end
+
+	#
+	# Returns the revision of the console library
+	#
+	def cmd_version(args)
+		ver = "$Revision$"
+
+		print_line("Version: #{ver.match(/ (.+?) \$/)[1]}")
+
+		return true
 	end
 
 protected
