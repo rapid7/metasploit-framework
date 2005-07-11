@@ -196,6 +196,17 @@ protected
 	end
 
 	#
+	# Removes the supplied options from the module's option container
+	# and data store
+	#
+	def deregister_options(*names)
+		names.each { |name|
+			self.options.remove_option(name)
+			self.datastore.delete(name)
+		}
+	end
+
+	#
 	# Checks to see if a derived instance of a given module implements a method
 	# beyond the one that is provided by a base class.  This is a pretty lame
 	# way of doing it, but I couldn't find a better one, so meh.

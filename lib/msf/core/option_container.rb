@@ -215,6 +215,13 @@ class OptionContainer < Hash
 		return false
 	end
 
+	#
+	# Removes an option
+	#
+	def remove_option(name)
+		delete(name)
+	end
+
 	# Adds one or more options
 	def add_options(opts, owner = nil, advanced = false)
 		return false if (opts == nil)

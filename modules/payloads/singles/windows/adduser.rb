@@ -5,6 +5,9 @@ module Payloads
 module Singles
 module Windows
 
+module Exec
+end
+
 ###
 #
 # AddUser
@@ -15,7 +18,7 @@ module Windows
 ###
 module AddUser
 
-	include Msf::Payloads::Singles::Windows::Exec
+	include Exec
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -34,6 +37,9 @@ module AddUser
 				OptString.new('USER', [ true, "The username to create",     "metasploit" ]),
 				OptString.new('PASS', [ true, "The password for this user", ""           ]),
 			], Msf::Payloads::Singles::Windows::Exec)
+
+		# Hide the CMD option...this is kinda ugly
+		deregister_options('CMD')
 	end
 
 	#
