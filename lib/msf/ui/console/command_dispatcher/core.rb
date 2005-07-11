@@ -271,6 +271,11 @@ class Core
 				return false
 		end
 
+		# If there's currently an active module, go back
+		if (old_mod = get_active_module())
+			cmd_back([])
+		end
+
 		if (dispatcher != nil)
 			driver.enstack_dispatcher(dispatcher)
 		end
