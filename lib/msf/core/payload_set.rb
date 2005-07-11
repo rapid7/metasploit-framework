@@ -176,17 +176,13 @@ protected
 	# class using the supplied modules.
 	def build_payload(*modules)
 		klass = Class.new(Payload)
-		include_str = ''
 
-		modules.each { |mod|
-			# Skip nil modules
-			next if (!mod)
+		# Remove nil modules
+		modules.delete_if { |x| x == nil }
 
-			include_str += "include #{mod}\n"
-		}
-
-		# Evalulate the module includes and rock the house
-		klass.class_eval(include_str)
+		# Include the modules supplied to us with the mad skillz
+		# spoonfu style
+		klass.include(*modules)
 
 		return klass
 	end
