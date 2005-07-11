@@ -20,6 +20,7 @@ class ModuleSet < Hash
 		# given module
 		self.mod_arch_hash     = {}
 		self.mod_platform_hash = {}
+		self.mod_sorted        = nil
 	end
 
 	# Create an instance of the supplied module by its name
@@ -31,7 +32,12 @@ class ModuleSet < Hash
 
 	# Enumerates each module class in the set
 	def each_module(opts = {}, &block)
-		each_pair { |name, mod|
+		# Re-sort if the cached copy is out of date
+		mod_sorted = self.sort if (mod_sorted == nil)
+
+		mod_sorted.each { |entry|
+			name, mod = entry
+
 			# Filter out incompatible architectures
 			if (opts['arch'])
 				if (!mod_arch_hash[mod])
@@ -69,10 +75,14 @@ protected
 		module_class.refname = name
 
 		self[name] = module_class
+		
+		# Invalidate the sorted array
+		mod_sorted = nil
 	end
 
 	attr_writer   :module_type
 	attr_accessor :mod_arch_hash, :mod_platform_hash
+	attr_accessor :mod_sorted
 
 end
 
@@ -304,7 +314,7 @@ protected
 			# type separated set of module classes
 			add_module(mod, name)
 		end
-			
+
 		module_sets[type].add_module(mod, name)
 	end
 

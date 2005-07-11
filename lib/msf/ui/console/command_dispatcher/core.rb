@@ -92,7 +92,7 @@ class Core
 	def cmd_info(args)
 		if (args.length == 0)
 			if (mod = get_active_module())
-				cmd_info([ mod.refname ])
+				print(Serializer::ReadableText.dump_module(mod))
 				return true
 			else
 				print(

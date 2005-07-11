@@ -15,7 +15,7 @@ module ReverseTcp
 		super(merge_info(info,
 			'Name'          => 'Windows IA32 Stager: Reverse TCP',
 			'Version'       => '$Revision$',
-			'Description'   => 'Connect back to the attacker and download another stage',
+			'Description'   => 'Connect back to the attacker',
 			'Author'        => 'hdm',
 			'Platform'      => 'win',
 			'Arch'          => ARCH_IA32,

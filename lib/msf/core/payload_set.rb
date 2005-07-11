@@ -27,6 +27,15 @@ class PayloadSet < ModuleSet
 		# A hash of each of the payload types that holds an array
 		# for all of the associated modules
 		self.payload_type_modules = {}
+
+		# Initialize the hash entry for each type to an empty list
+		[
+			Payload::Type::Single,
+			Payload::Type::Stager,
+			Payload::Type::Stage
+		].each { |type|
+			self.payload_type_modules[type] = []
+		}
 	end
 
 	# Build the actual hash of alias names based on all the permutations
@@ -137,16 +146,8 @@ class PayloadSet < ModuleSet
 		# our own evil purposes.
 		instance = build_payload(pmodule).new
 
-		# Create and insert this module class into the array for 
-		# its respective module type
-		if (!payload_type_modules[instance.payload_type])
-			payload_type_modules[instance.payload_type] = []	
-		end
-
-		# Store the module and alias name for this payload.  We
-		# also convey other information about the module, such as
-		# the platforms and architectures it supports
-		payload_type_modules[instance.payload_type] <<
+		# Create an array of information about this payload module
+		pinfo = 
 			[
 				pmodule,
 				instance.alias,
@@ -154,6 +155,19 @@ class PayloadSet < ModuleSet
 				instance.platform,
 				instance.arch
 			]
+
+		# Store the module and alias name for this payload.  We
+		# also convey other information about the module, such as
+		# the platforms and architectures it supports
+		payload_type_modules[instance.payload_type] << pinfo
+
+		# If the payload happens to be a single, but has no defined
+		# connection, then it can also be staged.  Insert it into
+		# the staged list.
+		if ((instance.payload_type == Payload::Type::Single) and
+		    (instance.handler == nil))
+			payload_type_modules[Payload::Type::Stage] << pinfo
+		end
 	end
 
 protected

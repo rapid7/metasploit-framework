@@ -15,6 +15,8 @@ module Msf
 ###
 class Module
 
+	UpdateableOptions = [ "Name", "Description", "Alias" ]
+
 	class <<self
 		# 
 		# The module's name that is assigned it it by the framework
@@ -208,31 +210,62 @@ protected
 	#
 	def merge_info(info, opts)
 		opts.each_pair { |name, val|
-			if (self.respond_to?("merge_info_#{name.downcase}"))
-				eval("merge_info_#{name.downcase}(info, val)")
-			else
-				# If the info hash already has an entry for this name
-				if (info[name])
-					# If it's not an array, convert it to an array and merge the
-					# two
-					if (info[name].kind_of?(Array) == false)
-						curr       = info[name]
-						info[name] = [ curr, val ] if (val != curr)
-					# Otherwise, just append this item to the array entry
-					else
-						if (!info[name].find(val))
-							info[name] << val
-						end
-					end
-				# Otherwise, just set the value equal if no current value
-				# exists
-				else
+			merge_check_key(info, name, val)
+		}
+
+		return info
+	end
+
+	#
+	# Updates information in the supplied info hash and merges other
+	# information.  This method is used to override things like Name, Version,
+	# and Description without losing the ability to merge architectures,
+	# platforms, and options.
+	#
+	def update_info(info, opts)
+		opts.each_pair { |name, val|
+			# If the supplied option name is one of the ones that we should
+			# override by default
+			if (UpdateableOptions.include?(name) == true)
+				# Only if the entry is currently nil do we use our value
+				if (info[name] == nil)
 					info[name] = val
 				end
+			# Otherwise, perform the merge operation like normal
+			else
+				merge_check_key(info, name, val)
 			end
 		}
 
 		return info
+	end
+
+	#
+	# Checks and merges the supplied key/value pair in the supplied hash
+	#
+	def merge_check_key(info, name, val)
+		if (self.respond_to?("merge_info_#{name.downcase}"))
+			eval("merge_info_#{name.downcase}(info, val)")
+		else
+			# If the info hash already has an entry for this name
+			if (info[name])
+				# If it's not an array, convert it to an array and merge the
+				# two
+				if (info[name].kind_of?(Array) == false)
+					curr       = info[name]
+					info[name] = [ curr, val ] if (val != curr)
+				# Otherwise, just append this item to the array entry
+				else
+					if (info[name].include?(val) == false)
+						info[name] << val
+					end
+				end
+			# Otherwise, just set the value equal if no current value
+			# exists
+			else
+				info[name] = val
+			end
+		end
 	end
 
 	#
