@@ -25,6 +25,9 @@ require 'msf/core/session_manager'
 require 'msf/core/session'
 require 'msf/core/framework'
 
+# Pseudo-modules
+require 'msf/core/handler'
+
 # Modules
 require 'msf/core/module'
 require 'msf/core/encoder'

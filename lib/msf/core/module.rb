@@ -150,6 +150,14 @@ class Module
 		return (privileged == true)
 	end
 
+	#
+	# The default communication subsystem for this module.  We may need to move
+	# this somewhere else.
+	#
+	def comm
+		return Rex::Socket::Comm::Local
+	end
+
 	attr_reader   :author, :arch, :platform, :refs, :datastore, :options
 	attr_reader   :privileged
 
@@ -174,6 +182,7 @@ protected
 	#
 	def register_options(options, owner = self.class)
 		self.options.add_options(options, owner)
+		self.datastore.import_options(self.options)
 	end
 
 	#
@@ -181,6 +190,7 @@ protected
 	#
 	def register_advanced_options(options, owner = self.class)
 		self.options.add_advanced_options(options, owner)
+		self.datastore.import_options(self.options)
 	end
 
 	#

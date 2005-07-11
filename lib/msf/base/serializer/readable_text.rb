@@ -135,7 +135,7 @@ class ReadableText
 
 			val = mod.datastore[name] || opt.default || ''
 
-			tbl << [ name, val, opt.desc ]
+			tbl << [ name, val.to_s, opt.desc ]
 		}
 
 		return tbl.to_s
@@ -156,7 +156,7 @@ class ReadableText
 
 			val = mod.datastore[name] || opt.default || ''
 
-			tbl << [ name, val, word_wrap(opt.desc, 0) ]
+			tbl << [ name, val.to_s, word_wrap(opt.desc, 0) ]
 		}
 
 		return tbl.to_s

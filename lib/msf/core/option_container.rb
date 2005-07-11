@@ -38,6 +38,10 @@ class OptBase
 		return (required? and (value == nil or value.to_s.empty?)) ? false : true
 	end
 
+	def to_s
+		return value.to_s
+	end
+
 	attr_reader   :name, :required, :desc, :default
 	attr_writer   :name
 	attr_accessor :advanced
@@ -91,6 +95,10 @@ class OptBool < OptBase
 
 	def is_false?
 		return !is_true?
+	end
+
+	def to_s
+		return is_true?.to_s
 	end
 end
 

@@ -17,7 +17,7 @@ class DataStore < Hash
 	def import_options(options)
 		options.each_option { |name, opt|
 			if (opt.default)
-				self.store(name, opt.default)
+				self.store(name, opt.default.to_s)
 			end
 		}
 	end
@@ -59,7 +59,7 @@ class DataStore < Hash
 	#
 	def import_options_from_hash(option_hash)
 		option_hash.each_pair { |key, val|
-			self.store(key, val)
+			self.store(key, val.to_s)
 		}
 	end
 

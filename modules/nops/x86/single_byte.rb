@@ -86,6 +86,11 @@ SINGLE_BYTE_SLED =
 			'Description' => 'Single-byte NOP generator',
 			'Author'      => 'spoonm',
 			'Arch'        => ARCH_IA32)
+
+		register_advanced_options(
+			[
+				OptBool.new('RandomNops', [ false, "Generate a random NOP sled", true ])
+			], Msf::Nops::Ia32::SingleByte)
 	end
 
 	# Generate a single-byte NOP sled for IA32
@@ -95,9 +100,14 @@ SINGLE_BYTE_SLED =
 		sled_cur_idx = 0
 		out_sled     = ''
 
-		random   = opts['Random']        || false
+		random   = opts['Random']
 		badchars = opts['Badchars']      || ''
 		badregs  = opts['SaveRegisters'] || []
+
+		# Did someone specify random NOPs in the environment?
+		if (!random and datastore['RandomNops'])
+			random = (datastore['RandomNops'].match(/true|1|y/i) != nil)
+		end
 
 		# Generate the whole sled...
 		1.upto(length) { |current|
