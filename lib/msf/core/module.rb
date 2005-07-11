@@ -15,12 +15,12 @@ module Msf
 ###
 class Module
 
+	# Make include public so we can runtime extend
+	public_class_method :include
+
 	UpdateableOptions = [ "Name", "Description", "Alias" ]
 
 	class <<self
-		# Make include public so we can runtime extend
-		public :include
-
 		# 
 		# The module's name that is assigned it it by the framework
 		# or derived from the path that the module is loaded from.
