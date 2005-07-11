@@ -1,4 +1,5 @@
 require 'msf/core'
+require 'msf/core/handler/reverse_tcp'
 
 module Msf
 module Payloads
@@ -18,7 +19,7 @@ module ReverseTcp
 			'Author'        => 'hdm',
 			'Platform'      => 'win',
 			'Arch'          => ARCH_IA32,
-			'Connection'    => 'reverse_tcp',
+			'Handler'       => Msf::Handler::ReverseTcp,
 			'Stager'        =>
 				{
 					'Offsets' =>

@@ -68,8 +68,8 @@ class Payload < Msf::Module
 
 	# Return the connection associated with this payload, or none if there
 	# isn't one.
-	def connection
-		return module_info['Connection'] || "None"
+	def handler
+		return module_info['Handler']
 	end
 
 	##

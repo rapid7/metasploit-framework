@@ -16,6 +16,10 @@ module Handler
 ###
 module ReverseTcp
 
+	def self.handler_type
+		return "reverse_tcp"
+	end
+
 	def initialize(info = {})
 		super
 
@@ -66,7 +70,7 @@ module ReverseTcp
 			begin
 				client = listener_sock.accept	
 			rescue
-				wlog("Exception raised during listener accept: #{$!}"
+				wlog("Exception raised during listener accept: #{$!}")
 			end
 
 			# Start a new thread and pass the client connection

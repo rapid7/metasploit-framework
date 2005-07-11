@@ -40,10 +40,7 @@ class PayloadSet < ModuleSet
 
 		# Recalculate single payloads
 		singles.each { |p|
-			mod, name, connection = p
-
-			# Get the payload's client-side handler
-			handler = get_payload_handler(connection)
+			mod, name, handler = p
 
 			# Build the payload dupe using the determined handler
 			# and module
@@ -62,12 +59,12 @@ class PayloadSet < ModuleSet
 
 		# Recalculate stagers and stages
 		stagers.each { |p|
-			stager_mod, stager_name, stager_conn, stager_platform, stager_arch = p
+			stager_mod, stager_name, handler, stager_platform, stager_arch = p
 
 			# Walk the array of stages
 			stages.each { |p|
-				stage_mod, stage_name, stage_conn, stage_platform, stage_arch = p
-			
+				stage_mod, stage_name, junk, stage_platform, stage_arch = p
+
 				# No intersection between architectures on the payloads?
 				if ((stager_arch) and
 				    (stage_arch) and
@@ -88,15 +85,15 @@ class PayloadSet < ModuleSet
 					dlog("  Stage: #{stage_platform.join}.", 'core', LEV_3)
 				end
 
-				# Get the connection handler for the stager's connection
-				handler = get_payload_handler(stager_conn)
-
 				# Build the payload dupe using the handler, stager,
 				# and stage
 				p = build_payload(handler, stager_mod, stage_mod)
 
 				# Associate the name as a combination of the stager and stage
-				combined = stage_name + '/' + stager_conn
+				combined  = stage_name
+
+				# If a valid handler exists for this stager, then combine it
+				combined += '/' + handler.handler_type if (handler)
 
 				# Sets the modules derived name
 				p.refname = combined
@@ -150,7 +147,7 @@ class PayloadSet < ModuleSet
 			[
 				pmodule,
 				instance.alias,
-				instance.connection,
+				instance.handler,
 				instance.platform,
 				instance.arch
 			]

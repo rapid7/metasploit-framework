@@ -32,6 +32,13 @@ module Msf
 module Handler
 
 	#
+	# Returns the handler type
+	#
+	def self.handler_type
+		return "none"
+	end
+
+	#
 	# Sets up the connection handler
 	#
 	def setup_handler
