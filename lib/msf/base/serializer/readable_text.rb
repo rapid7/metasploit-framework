@@ -91,7 +91,14 @@ class ReadableText
 		# Description
 		output += "Description:\n"
 		output += word_wrap(mod.description)
-		output += "\n\n"
+		output += "\n"
+
+		# References
+		output += "References:\n"
+		mod.references.each { |ref|
+			output += indent + ref.to_s + "\n"
+		}
+		output += "\n"
 	
 		return output
 

@@ -40,7 +40,7 @@ class Module
 		self.arch = Rex::Transformer.transform(module_info['Arch'], Array, 
 				[ String ], 'Arch')
 		self.platform = PlatformList.transform(module_info['Platform'])
-		self.refs = Rex::Transformer.transform(module_info['Ref'], Array,
+		self.references = Rex::Transformer.transform(module_info['References'], Array,
 				[ SiteReference, Reference ], 'Ref')
 
 		# Create and initialize the option container for this module
@@ -165,7 +165,7 @@ class Module
 		return Rex::Socket::Comm::Local
 	end
 
-	attr_reader   :author, :arch, :platform, :refs, :datastore, :options
+	attr_reader   :author, :arch, :platform, :references, :datastore, :options
 	attr_reader   :privileged
 
 protected
@@ -350,7 +350,7 @@ protected
 	end
 
 	attr_accessor :module_info
-	attr_writer   :author, :arch, :platform, :refs, :datastore, :options
+	attr_writer   :author, :arch, :platform, :references, :datastore, :options
 	attr_writer   :privileged
 
 end
