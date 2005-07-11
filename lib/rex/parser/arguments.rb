@@ -78,7 +78,9 @@ class Arguments
 	def usage
 		txt = "\nOPTIONS:\n\n"
 
-		fmt.each_pair { |fmtspec, val|
+		fmt.sort.each { |entry|
+			fmtspec, val = entry
+
 			txt += "    #{fmtspec}" + ((val[0] == true) ? " <opt>  " : "        ")
 			txt += val[1] + "\n"
 		}

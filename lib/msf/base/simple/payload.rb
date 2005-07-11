@@ -52,6 +52,9 @@ class Payload
 
 		fmt = opts['Format'] || 'raw'
 
+		# Save off the original payload length
+		len = buf.length
+
 		# Serialize the generated payload to some sort of format
 		buf = Buffer.transform(buf, fmt)
 
@@ -60,7 +63,7 @@ class Payload
 			((ds = payload.datastore.to_s) and ds.length > 0) ? ds += "\n" : ds = ''
 			
 			buf = Buffer.comment(
-				"#{payload.refname} - http://www.metasploit.com\n" +
+				"#{payload.refname} - #{len} bytes - http://www.metasploit.com\n" +
 				"#{ds}" + 
 				((opts['Encoder']) ? "Encoder=" + opts['Encoder'].refname + "\n" : ''), fmt) + buf
 		end
