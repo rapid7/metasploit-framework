@@ -206,9 +206,6 @@ protected
 			mod  = mod_from_name(path_base)
 			type = path_base.match(/^(.+?)#{File::SEPARATOR}+?/)[1].sub(/s$/, '')
 
-			# Let's rock the house now...
-			dlog("Loading module from #{path_base}...", 'core', LEV_1)
-
 			# Get the module and grab the current number of constants
 			old_constants = mod.constants
 

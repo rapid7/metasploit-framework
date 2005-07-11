@@ -32,13 +32,75 @@ class ReadableText
 		end
 	end
 
-	def self.dump_exploit_module(mod, indent)
+	#
+	# Dumps information about an exploit module.
+	#
+	def self.dump_exploit_module(mod, indent = '')
+		output  = "\n"
+		output += "       Name: #{mod.name}\n"
+		output += "    Version: #{mod.version}\n"
+		output += "   Platform: #{mod.platform_to_s}\n"
+		output += " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
+		output += "\n"
+
+		# Authors
+		output += "Provided by:\n"
+		mod.each_author { |author|
+			output += indent + author.to_s + "\n"
+		}
+		output += "\n"
+
+		# Targets
+		tbl = Rex::Ui::Text::Table.new(
+			'Indent'  => indent.length,
+			'Columns' =>
+				[
+					'Id', 
+					'Name',
+				])
+
+		output += "Available targets:\n"
+		mod.targets.each_with_index { |target, idx|
+			tbl << [ idx.to_s, target.name || 'All' ]	
+		}
+		output += tbl.to_s 
+		output += "\n"
+
+		# Options
+		if (mod.options.has_options?)
+			output += "Available options:\n"
+			output += dump_options(mod)
+			output += "\n"
+		end
+
+		# Advanced options
+		if (mod.options.has_advanced_options?)
+			output += "Advanced options:\n"
+			output += dump_advanced_options(mod)
+			output += "\n"
+		end
+
+		# Payload information
+		if (mod.payload.length)
+			output += "Payload information:\n"
+			output += indent + "Space: " + mod.payload_space.to_s + "\n"
+			output += indent + "Avoid: " + mod.payload_badchars.length.to_s + " characters\n"
+			output += "\n"
+		end
+	
+		# Description
+		output += "Description:\n"
+		output += word_wrap(mod.description)
+		output += "\n\n"
+	
+		return output
+
 	end
 
 	# 
 	# Dumps information about a payload module.
 	#
-	def self.dump_payload_module(mod, indent)
+	def self.dump_payload_module(mod, indent = '')
 		# General
 		output  = "\n"
 		output += "       Name: #{mod.name}\n"
@@ -81,7 +143,7 @@ class ReadableText
 	#
 	# Dumps information about a module, just the basics.
 	#
-	def self.dump_basic_module(mod, indent)
+	def self.dump_basic_module(mod, indent = '')
 		# General
 		output  = "\n"
 		output += "       Name: #{mod.name}\n"
@@ -113,7 +175,7 @@ class ReadableText
 
 	end
 
-	def self.dump_generic_module(mod, indent)
+	def self.dump_generic_module(mod, indent = '')
 	end
 
 	#
@@ -131,7 +193,9 @@ class ReadableText
 					'Description'
 				])
 
-		mod.options.each_option { |name, opt|
+		mod.options.sorted.each { |entry|
+			name, opt = entry
+
 			next if (opt.advanced?)
 
 			val = mod.datastore[name] || opt.default || ''
@@ -146,7 +210,9 @@ class ReadableText
 		output = ''
 		pad    = ' ' * indent
 
-		mod.options.each_option { |name, opt|
+		mod.options.sorted.each { |entry|
+			name, opt = entry
+
 			next if (!opt.advanced?)
 
 			val = mod.datastore[name] || opt.default || ''

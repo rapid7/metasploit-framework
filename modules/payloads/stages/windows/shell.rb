@@ -11,8 +11,8 @@ module Shell
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Stage: Shell',
-			'Alias'         => 'win32/shell',
+			'Name'          => 'Command shell',
+			'Alias'         => 'shell',
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a command shell',
 			'Author'        => 'hdm',

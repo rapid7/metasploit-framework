@@ -171,6 +171,8 @@ class OptionContainer < Hash
 	# as necessary.
 	#
 	def initialize(opts = {})
+		self.sorted = []
+
 		add_options(opts)
 	end
 
@@ -231,7 +233,6 @@ class OptionContainer < Hash
 		else
 			add_options_hash(opts, owner, advanced)
 		end
-
 	end
 
 	#
@@ -265,6 +266,9 @@ class OptionContainer < Hash
 		option.owner    = owner
 
 		self.store(option.name, option)
+
+		# Re-calculate the sorted list
+		self.sorted = self.sort
 	end
 
 	# Alias to add advanced options that sets the proper state flag
@@ -297,6 +301,12 @@ class OptionContainer < Hash
 	def each_option(&block)
 		each_pair(&block)
 	end
+
+	attr_reader :sorted
+
+protected
+
+	attr_writer :sorted
 
 end
 

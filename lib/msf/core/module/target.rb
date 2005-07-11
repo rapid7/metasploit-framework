@@ -32,10 +32,11 @@ class Msf::Module::Target
 	def initialize(name, opts)
 		opts = {} if (!opts)
 
-		self.name      = name
-		self.platforms = Msf::Module::PlatformList.from_a(opts['Platform'])
-		self.ret       = opts['Ret']
-		self.opts      = opts
+		self.name           = name
+		self.platforms      = Msf::Module::PlatformList.from_a(opts['Platform'])
+		self.save_registers = opts['SaveRegisters']
+		self.ret            = opts['Ret']
+		self.opts           = opts
 	end
 
 	#
@@ -46,7 +47,7 @@ class Msf::Module::Target
 	end
 
 	attr_accessor :name, :platforms, :opts
-	attr_accessor :ret
+	attr_accessor :ret, :save_registers
 
 end
 

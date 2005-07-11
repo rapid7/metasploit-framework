@@ -52,6 +52,11 @@ class Module
 		self.datastore = DataStore.new
 		self.datastore.import_options(self.options)
 
+		# If there are default options, import their values into the datastore
+		if (module_info['DefaultOptions'])
+			self.datastore.import_options_from_hash(module_info['DefaultOptions'])
+		end
+
 		self.privileged = module_info['Privileged'] || false
 	end
 	
@@ -77,7 +82,7 @@ class Module
 	# name is returned.
 	#
 	def alias
-		return module_info['Alias'] || name
+		return module_info['Alias']
 	end
 
 	#

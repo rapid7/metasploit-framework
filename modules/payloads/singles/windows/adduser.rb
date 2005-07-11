@@ -23,7 +23,7 @@ module AddUser
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Windows Execute net user /ADD',
-			'Alias'         => 'win32/adduser',
+			'Alias'         => 'adduser',
 			'Version'       => '$Revision$',
 			'Description'   => 'Create a new user and add them to local administration group',
 			'Author'        => 'hdm',

@@ -24,8 +24,12 @@ module Msf::Payload::Windows
 		}
 
 	def initialize(info = {})
+		if (info['Alias'])
+			info['Alias'] = 'windows/' + info['Alias']
+		end
+
 		super
-		
+
 		register_options(
 			[
 				Msf::OptRaw.new('EXITFUNC', [ true, "Exit technique: #{@@exit_types.keys.join(", ")}", 'seh' ])

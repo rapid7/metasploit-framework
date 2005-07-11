@@ -21,7 +21,7 @@ module Exec
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Windows Execute Command',
-			'Alias'         => 'win32/exec',
+			'Alias'         => 'exec',
 			'Version'       => '$Revision$',
 			'Description'   => 'Execute an arbitrary command',
 			'Author'        => 'vlad902',
@@ -64,7 +64,7 @@ module Exec
 	# Returns the command string to use for execution
 	#
 	def command_string
-		return datastore['CMD']
+		return datastore['CMD'] || ''
 	end
 
 end
