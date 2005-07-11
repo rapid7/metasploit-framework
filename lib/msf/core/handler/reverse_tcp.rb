@@ -74,9 +74,10 @@ module ReverseTcp
 			end
 
 			# Start a new thread and pass the client connection
-			# as the input and output pipe
+			# as the input and output pipe.  Client's are expected
+			# to implement the Stream interface.
 			conn_threads << Thread.new {
-				handle_connection(client, client)
+				handle_connection(client)
 			}
 		}
 	end

@@ -222,6 +222,9 @@ class OptionContainer < Hash
 	#
 	def remove_option(name)
 		delete(name)
+		sorted.each_with_index { |e, idx|
+			sorted.delete_at(idx) if (e[0] == name)
+		}
 	end
 
 	# Adds one or more options

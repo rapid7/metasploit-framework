@@ -68,7 +68,7 @@ module Handler
 	# handler is capable of handling multiple simultaneous 
 	# connections.
 	#
-	def handle_connection(pipe_in, pipe_out)
+	def handle_connection(stream)
 	end
 
 	#

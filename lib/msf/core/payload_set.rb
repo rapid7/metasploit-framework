@@ -172,12 +172,6 @@ class PayloadSet < ModuleSet
 
 protected
 
-	# Returns the handler class responsible for the provided connection
-	# type.
-	def get_payload_handler(connection)
-		return nil # TODO
-	end
-
 	# Builds a duplicate, extended version of the Payload base
 	# class using the supplied modules.
 	def build_payload(*modules)
