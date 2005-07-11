@@ -367,10 +367,10 @@ protected
 						}
 				})
 
-		module_set.each_module { |name, mod|
+		module_set.each_module { |refname, mod|
 			instance = mod.new
 
-			tbl << [ name, instance.description ]
+			tbl << [ refname, instance.name ]
 		}
 
 		print(tbl.to_s)
