@@ -143,24 +143,20 @@ class ReadableText
 	end
 
 	def self.dump_advanced_options(mod, indent = 4)
-		tbl = Rex::Ui::Text::Table.new(
-			'Indent'  => indent,
-			'Columns' =>
-				[
-					'Name', 
-					'Default',
-					'Description'
-				])
+		output = ''
+		pad    = ' ' * indent
 
 		mod.options.each_option { |name, opt|
 			next if (!opt.advanced?)
 
 			val = mod.datastore[name] || opt.default || ''
 
-			tbl << [ name, val.to_s, word_wrap(opt.desc, 0) ]
+			output += pad + "Name   : #{name}\n"
+			output += pad + "Default: #{val}\n\n"
+			output += word_wrap(opt.desc, indent + 3)
 		}
 
-		return tbl.to_s
+		return output
 	end
 
 	#
