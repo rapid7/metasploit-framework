@@ -46,6 +46,9 @@ class PayloadSet < ModuleSet
 			# and module
 			p = build_payload(handler, mod)
 
+			# If the handler has a type, append it
+			name += '/' + handler.handler_type if (handler)
+
 			# Sets the modules derived name
 			p.refname = name
 
@@ -93,7 +96,7 @@ class PayloadSet < ModuleSet
 				combined  = stage_name
 
 				# If a valid handler exists for this stager, then combine it
-				combined += '/' + handler.handler_type if (handler)
+				combined += '/staged/' + handler.handler_type if (handler)
 
 				# Sets the modules derived name
 				p.refname = combined

@@ -58,12 +58,12 @@ class Payload < Msf::Module
 
 	# Returns the raw payload that has not had variable substitution occur.
 	def payload
-		return module_info['Payload']
+		return module_info['Payload']['Payload']
 	end
 
 	# Returns the offsets to variables that must be substitute, if any.
 	def offsets
-		return module_info['Offsets']
+		return module_info['Payload']['Offsets']
 	end
 
 	# Return the connection associated with this payload, or none if there
