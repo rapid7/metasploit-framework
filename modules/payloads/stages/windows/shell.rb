@@ -11,8 +11,7 @@ module Shell
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Command shell',
-			'Alias'         => 'shell',
+			'Name'          => 'Windows Command Shell',
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a command shell',
 			'Author'        => 'hdm',

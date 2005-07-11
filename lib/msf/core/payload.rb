@@ -27,6 +27,19 @@ class Payload < Msf::Module
 		Stage  = (1 << 2)
 	end
 
+	def initialize(info = {})
+		super
+
+		# Initialize this payload as having an empty set of stagers
+		self.stagers = {}
+	end
+
+	#
+	# Indexes the stagers array
+	#
+	def [](key)
+	end
+
 	##
 	#
 	# Accessors
@@ -132,8 +145,11 @@ class Payload < Msf::Module
 
 	# Payload prepending and appending for various situations
 	attr_accessor :prepend, :append, :prepend_encoder
+	attr_reader   :stagers
 
 protected
+
+	attr_writer   :stagers
 
 	##
 	#

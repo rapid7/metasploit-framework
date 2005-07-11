@@ -21,7 +21,6 @@ module Exec
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Windows Execute Command',
-			'Alias'         => 'exec',
 			'Version'       => '$Revision$',
 			'Description'   => 'Execute an arbitrary command',
 			'Author'        => 'vlad902',

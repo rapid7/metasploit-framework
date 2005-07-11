@@ -13,8 +13,7 @@ module Shell
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Windows Reverse Shell',
-			'Alias'         => 'shell',
+			'Name'          => 'Windows Command Shell, Reverse TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => 'vlad902',

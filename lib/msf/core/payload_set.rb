@@ -55,9 +55,6 @@ class PayloadSet < ModuleSet
 			# and module
 			p = build_payload(handler, mod)
 
-			# If the handler has a type, append it
-			name += '/' + handler.handler_type if (handler)
-
 			# Sets the modules derived name
 			p.refname = name
 
@@ -93,8 +90,8 @@ class PayloadSet < ModuleSet
 				    (stager_platform & stage_platform).empty?)
 					dlog("Stager #{stager_name} and stage #{stage_name} have incompatible platforms:",
 						'core', LEV_3)
-					dlog("  Stager: #{stager_platform.join}.", 'core', LEV_3)
-					dlog("  Stage: #{stage_platform.join}.", 'core', LEV_3)
+					dlog("  Stager: #{stager_platform.names}.", 'core', LEV_3)
+					dlog("  Stage: #{stage_platform.names}.", 'core', LEV_3)
 				end
 
 				# Build the payload dupe using the handler, stager,
@@ -105,13 +102,13 @@ class PayloadSet < ModuleSet
 				combined  = stage_name
 
 				# If a valid handler exists for this stager, then combine it
-				combined += '/staged/' + handler.handler_type if (handler)
+				combined += '/stg/' + handler.handler_type if (handler)
 
 				# Sets the modules derived name
 				p.refname = combined
 
 				self[combined] = p
-			
+
 				manager.add_module(p, combined)
 			
 				dlog("Built staged payload #{combined}.", 'core', LEV_1)
@@ -139,6 +136,9 @@ class PayloadSet < ModuleSet
 	# out if it's a single, stager, or stage.  Depending on which it is, we 
 	# add it to the appropriate list
 	def add_module(pmodule, name)
+		if (md = name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
+			name = md[2]
+		end
 
 		# Duplicate the Payload base class and extend it with the module
 		# class that is passed in.  This allows us to inspect the actual
@@ -150,7 +150,7 @@ class PayloadSet < ModuleSet
 		pinfo = 
 			[
 				pmodule,
-				instance.alias,
+				instance.alias || name,
 				instance.handler,
 				instance.platform,
 				instance.arch
