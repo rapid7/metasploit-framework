@@ -127,6 +127,7 @@ class ReadableText
 				[
 					'Name', 
 					'Default',
+					'Required',
 					'Description'
 				])
 
@@ -135,7 +136,7 @@ class ReadableText
 
 			val = mod.datastore[name] || opt.default || ''
 
-			tbl << [ name, val.to_s, opt.desc ]
+			tbl << [ name, val.to_s, opt.required? ? "yes" : "no", opt.desc ]
 		}
 
 		return tbl.to_s

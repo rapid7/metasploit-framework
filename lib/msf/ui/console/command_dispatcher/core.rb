@@ -181,6 +181,8 @@ class Core
 	# no type is provided
 	#
 	def cmd_show(args)
+		mod = get_active_module()
+
 		args << "all" if (args.length == 0)
 
 		args.each { |type|
@@ -201,6 +203,18 @@ class Core
 					show_payloads
 				when 'recon'
 					show_recon
+				when 'options'
+					if (mod)
+						show_options(mod)
+					else
+						print_error("No module selected.")
+					end
+				when 'advanced'
+					if (mod)
+						show_advanced_options(mod)
+					else
+						print_error("No module selected.")
+					end
 			end
 		}
 	end
@@ -322,6 +336,14 @@ protected
 
 	def show_recon
 		show_module_set("Recon", framework.recon)
+	end
+
+	def show_options(mod)
+		print("\n" + Serializer::ReadableText.dump_options(mod) + "\n")
+	end
+
+	def show_advanced_options(mod)
+		print("\n" + Serializer::ReadableText.dump_advanced_options(mod) + "\n")
 	end
 
 	def show_module_set(type, module_set)
