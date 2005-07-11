@@ -298,7 +298,7 @@ protected
 	# Merges the module name
 	#
 	def merge_info_name(info, val)
-		merge_info_string(info, 'Name', val)
+		merge_info_string(info, 'Name', val, ', ', true)
 	end	
 
 	#
@@ -318,9 +318,13 @@ protected
 	#
 	# Merges a given key in the info hash with a delimiter
 	#
-	def merge_info_string(info, key, val, delim = ', ')
+	def merge_info_string(info, key, val, delim = ', ', inverse = false)
 		if (info[key])
-			info[key] = val + delim + info[key]
+			if (inverse == true)
+				info[key] = info[key] + delim + val
+			else
+				info[key] = val + delim + info[key]
+			end
 		else
 			info[key] = val
 		end

@@ -182,7 +182,7 @@ protected
 
 		# Include the modules supplied to us with the mad skillz
 		# spoonfu style
-		klass.include(*modules)
+		klass.include(*modules.reverse)
 
 		return klass
 	end
