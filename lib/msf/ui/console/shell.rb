@@ -19,11 +19,11 @@ module Shell
 
 	def initialize(prompt, prompt_char = '>')
 		# Initialize the input and output methods
-		self.input  = StdioInputMethod.new
+		self.input  = StdioInputMethod.new		
 		self.output = StdioOutputMethod.new
 
 		begin
-			self.input = ReadlineInputMethod.new
+			self.input = ReadlineInputMethod.new(lambda { |str| tab_complete(str) })
 		rescue
 		end
 
@@ -37,6 +37,13 @@ module Shell
 		update_prompt
 
 		super()
+	end
+
+	#
+	# Performs tab completion on the supplied string
+	#
+	def tab_complete(str)
+		return tab_complete_proc(str) if (tab_complete_proc)
 	end
 
 	#
@@ -149,7 +156,7 @@ protected
 
 
 	attr_accessor :input, :output, :stop_flag, :init_prompt
-	attr_accessor :prompt_char
+	attr_accessor :prompt_char, :tab_complete_proc
 
 end
 

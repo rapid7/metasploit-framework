@@ -3,8 +3,8 @@ require 'msf/base'
 require 'msf/ui'
 require 'msf/ui/console/shell'
 require 'msf/ui/console/command_dispatcher'
-
 require 'msf/ui/console/table'
+require 'find'
 
 module Msf
 module Ui
@@ -23,7 +23,7 @@ class Driver < Msf::Ui::Driver
 
 	include Msf::Ui::Console::Shell
 
-	def initialize(prompt = "%umsf", prompt_char = ">%c%b")
+	def initialize(prompt = "%umsf", prompt_char = ">%c")
 		# Initialize attributes
 		self.framework        = Msf::Framework.new
 		self.dispatcher_stack = []
@@ -34,6 +34,29 @@ class Driver < Msf::Ui::Driver
 
 		# Initialize the super
 		super
+	end
+
+	#
+	# Performs tab completion on shell input if supported
+	#
+	def tab_complete(str)
+		items = []
+
+		# Next, try to match internal command or value completion
+		# Enumerate each entry in the dispatcher stack
+		dispatcher_stack.each { |dispatcher|
+			# If it supports commands, query them all
+			if (dispatcher.respond_to?('commands'))
+				items.concat(dispatcher.commands.to_a.map { |x| x[0] })
+			end
+
+			# If the dispatcher has custom tab completion items, use them
+			items.concat(dispatcher.tab_complete_items || [])
+		}
+
+		items.find_all { |e| 
+			e =~ /^#{str}/
+		}
 	end
 
 	# Run a single command line

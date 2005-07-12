@@ -129,6 +129,8 @@ class Core
 		}
 
 		print_line("Added #{args.length} search paths.")
+
+		recalculate_tab_complete
 	end
 
 	#
@@ -313,6 +315,17 @@ class Core
 	end
 
 protected
+
+	#
+	# Recalculates the tab completion list
+	#
+	def recalculate_tab_complete
+		self.tab_complete_items = []
+
+		framework.modules.each_module { |refname, mod|
+			self.tab_complete_items << refname
+		}
+	end
 
 	#
 	# Module list enumeration

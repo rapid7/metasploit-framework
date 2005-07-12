@@ -15,7 +15,7 @@ module Console
 #
 ###
 class InputMethod
-	def initialize
+	def initialize(tab_complete_proc = nil)
 		self.eof = false
 	end
 
@@ -46,6 +46,12 @@ begin
 
 	class ReadlineInputMethod < InputMethod
 		include Readline
+
+		def initialize(tab_complete_proc = nil)
+			if (tab_complete_proc)
+				Readline.completion_proc = tab_complete_proc
+			end
+		end
 
 		def gets
 			if ((line = readline(prompt, true)))

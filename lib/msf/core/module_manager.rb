@@ -56,11 +56,24 @@ class ModuleSet < Hash
 				next if (mod_platform_hash[mod].include?(opts['platform']) == false)
 			end
 
+			# Custom filtering
+			next if (each_module_filter(opts, name, entry) == true)
+
 			block.call(name, mod)
 		}
 	end
 
+	#
+	# Custom each_module filtering if an advanced set supports doing extended
+	# filtering.  Returns true if the entry should be filtered.
+	#
+	def each_module_filter(opts, name, entry)
+		return false
+	end
+
+	#
 	# Dummy placeholder to relcalculate aliases and other fun things
+	#
 	def recalculate
 	end
 

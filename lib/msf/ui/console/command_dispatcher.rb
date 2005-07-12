@@ -6,6 +6,7 @@ module CommandDispatcher
 
 	def initialize(in_driver)
 		self.driver = in_driver
+		self.tab_complete_items = []
 	end
 
 	def print_error(msg = '')
@@ -39,6 +40,11 @@ module CommandDispatcher
 	def get_active_module
 		return driver.datastore['_ActiveModule']
 	end
+
+	#
+	# No tab completion items by default
+	#
+	attr_accessor :tab_complete_items
 
 protected
 

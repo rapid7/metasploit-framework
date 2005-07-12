@@ -27,6 +27,9 @@ class Payload < Msf::Module
 		Stage  = (1 << 2)
 	end
 
+	class <<self
+	end
+
 	def initialize(info = {})
 		super
 
