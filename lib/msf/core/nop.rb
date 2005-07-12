@@ -35,7 +35,9 @@ class Nop < Msf::Module
 		return nil
 	end
 
+	#
 	# Default repetition threshold when find nop characters
+	#
 	def nop_repeat_threshold
 		return 10000
 	end
