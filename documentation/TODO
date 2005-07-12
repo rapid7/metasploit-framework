@@ -1,0 +1,15 @@
+   - exploit kick-off
+     - payload generation
+       - generate payload for target
+       - encoder payload for target
+         - loop encoders on failure
+       - pad nops
+     - handler init
+       - setup handler
+       - start handler
+     - exploit
+       - call exploit
+       ... wait for session ...
+     - handler cleanup
+       - stop handler
+       - cleanup handler
