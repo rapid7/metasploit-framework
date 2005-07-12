@@ -18,22 +18,37 @@ class Framework
 		self.modules  = ModuleManager.new
 	end
 
+	#
+	# Returns the module set for encoders
+	#
 	def encoders
 		return modules.encoders
 	end
 
+	#
+	# Returns the module set for exploits
+	#
 	def exploits
 		return modules.exploits
 	end
 
+	#
+	# Returns the module set for nops
+	#
 	def nops
 		return modules.nops
 	end
 
+	#
+	# Returns the module set for payloads
+	#
 	def payloads
 		return modules.payloads
 	end
 
+	#
+	# Returns the module set for recon modules
+	#
 	def recon
 		return modules.recon
 	end

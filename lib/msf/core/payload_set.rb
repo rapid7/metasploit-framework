@@ -130,10 +130,12 @@ class PayloadSet < ModuleSet
 		}
 	end
 
+	#
 	# Called when a new payload module class is loaded up.  For the payload
 	# set we simply create an instance of the class and do some magic to figure
 	# out if it's a single, stager, or stage.  Depending on which it is, we 
 	# add it to the appropriate list
+	#
 	def add_module(pmodule, name)
 		if (md = name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
 			name = md[2]
@@ -212,23 +214,31 @@ class PayloadSet < ModuleSet
 
 protected
 
+	#
 	# Return the hash of single payloads
+	#
 	def _singles
 		return payload_type_modules[Payload::Type::Single] || {}
 	end
 
+	#
 	# Return the hash of stager payloads
+	#
 	def _stagers
 		return payload_type_modules[Payload::Type::Stager] || {}
 	end
 
+	#
 	# Return the hash of stage payloads
+	#
 	def _stages
 		return payload_type_modules[Payload::Type::Stage] || {}
 	end
 
+	#
 	# Builds a duplicate, extended version of the Payload base
 	# class using the supplied modules.
+	#
 	def build_payload(*modules)
 		klass = Class.new(Payload)
 

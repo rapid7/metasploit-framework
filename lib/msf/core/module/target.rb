@@ -36,6 +36,7 @@ class Msf::Module::Target
 		self.platforms      = Msf::Module::PlatformList.from_a(opts['Platform'])
 		self.save_registers = opts['SaveRegisters']
 		self.ret            = opts['Ret']
+		self.bruteforce     = opts['Bruteforce']
 		self.opts           = opts
 	end
 
@@ -46,8 +47,21 @@ class Msf::Module::Target
 		opts[key]
 	end
 
-	attr_accessor :name, :platforms, :opts
-	attr_accessor :ret, :save_registers
+	#
+	# Returns whether or not this is a bruteforce target, forces boolean
+	# result.
+	#
+	def bruteforce?
+		return (bruteforce != nil)
+	end
+
+	attr_reader :name, :platforms, :opts, :ret, :save_registers
+	attr_reader :bruteforce
+
+protected
+
+	attr_writer :name, :platforms, :opts, :ret, :save_registers
+	attr_writer :bruteforce
 
 end
 

@@ -264,14 +264,18 @@ protected
 		return nil
 	end
 
+	#
 	# Convert individual key bytes into a single integer based on the 
 	# decoder's key size and packing requirements
+	#
 	def key_bytes_to_integer(key_bytes)
 		return key_bytes.pack('C' + decoder_key_size.to_s).unpack(decoder_key_pack)[0]
 	end
 
+	#
 	# Convert an integer into the individual key bytes based on the 
 	# decoder's key size and packing requirements
+	#
 	def integer_to_key_bytes(integer)
 		return [ integer.to_i ].pack(decoder_key_pack).unpack('C' + decoder_key_size.to_s)
 	end
