@@ -1,4 +1,4 @@
-	- switch to x86 from ia32
+X	- switch to x86 from ia32
 	- exploit kick-off
 X    - payload generation
 X      - generate payload for target
