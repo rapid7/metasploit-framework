@@ -38,7 +38,7 @@ class Payload
 		@@generate_opts.parse(args) { |opt, idx, val|
 			case opt
 				when '-b'
-					badchars = [ val.downcase.gsub(/\\x([a-f0-9][a-f0-9])/, '\1') ].pack("H*")
+					badchars = Rex::Text.hex_to_raw(val)
 				when '-t'
 					type = val
 				when '-e'
