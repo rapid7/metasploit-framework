@@ -18,7 +18,7 @@ module Shell
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => 'vlad902',
 			'Platform'      => 'win',
-			'Arch'          => ARCH_IA32,
+			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Payload'       =>
 				{

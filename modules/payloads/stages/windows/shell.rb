@@ -16,7 +16,7 @@ module Shell
 			'Description'   => 'Spawn a command shell',
 			'Author'        => 'hdm',
 			'Platform'      => 'win',
-			'Arch'          => ARCH_IA32,
+			'Arch'          => ARCH_X86,
 			'Stage'         =>
 				{
 					'Offsets' =>

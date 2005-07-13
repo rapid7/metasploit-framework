@@ -173,6 +173,15 @@ class Msf::Module::Platform
 	private_class_method :build_child_platform_abbrev
 	private_class_method :find_portion
 
+	##
+	#
+	# Builtin platforms
+	#
+	##
+
+	#
+	# Windows
+	#
 	class Windows < Msf::Module::Platform
 		Rank  = 100
 		# Windows 95
@@ -279,36 +288,79 @@ class Msf::Module::Platform
 		end
 	end
 
+	#
+	# Linux
+	#
 	class Linux < Msf::Module::Platform
 		Rank = 100
 		Alias = "lnx"
 	end
 
+	#
+	# Solaris
+	#
 	class Solaris < Msf::Module::Platform
 		Rank = 100
+		class V4
+			Rank = 100
+			Alias = "4"
+		end
+		class V5
+			Rank = 200
+			Alias = "5"
+		end
+		class V6
+			Rank = 300
+			Alias = "6"
+		end
+		class V7
+			Rank = 400
+			Alias = "7"
+		end
+		class V8
+			Rank = 400
+			Alias = "7"
+		end
 	end
 
+	#
+	# OSX
+	#
 	class OSX < Msf::Module::Platform
 		Rank = 100
 	end
 
+	#
 	# Generic BSD
+	#
 	class BSD < Msf::Module::Platform
 		Rank = 100
 	end
 
+	#
+	# OpenBSD
+	#
 	class OpenBSD < Msf::Module::Platform
 		Rank = 100
 	end
 
+	#
+	# BSDi
+	#
 	class BSDi < Msf::Module::Platform
 		Rank = 100
 	end
 
+	#
+	# NetBSD
+	#
 	class NetBSD < Msf::Module::Platform
 		Rank = 100
 	end
 
+	#
+	# FreeBSD
+	#
 	class FreeBSD < Msf::Module::Platform
 		Rank = 100
 	end

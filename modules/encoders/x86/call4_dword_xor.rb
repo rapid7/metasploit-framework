@@ -2,7 +2,7 @@ require 'msf/core'
 
 module Msf
 module Encoders
-module Ia32
+module X86
 
 class Call4Dword < Msf::Encoder::Xor
 
@@ -12,7 +12,7 @@ class Call4Dword < Msf::Encoder::Xor
 			'Version'          => '$Revision$',
 			'Description'      => 'Call+4 Dword XOR Encoder',
 			'Author'           => [ 'hdm', 'spoonm' ],
-			'Arch'             => ARCH_IA32,
+			'Arch'             => ARCH_X86,
 			'Decoder'          =>
 				{
 					'KeySize'    => 4,

@@ -5,7 +5,7 @@ module Msf
 module Payloads
 module Singles
 module Linux
-module Ia32
+module X86
 
 module Shell
 
@@ -18,7 +18,7 @@ module Shell
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => 'skape',
 			'Platform'      => 'linux',
-			'Arch'          => ARCH_IA32,
+			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Payload'       =>
 				{

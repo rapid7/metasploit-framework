@@ -18,7 +18,7 @@ framework.encoders.each_module { |mod|
 }
 
 framework.encoders.each_module(
-		'arch' => Msf::ARCH_IA32) { |mod|
+		'arch' => Msf::ARCH_X86) { |mod|
 	puts "arch filter: got encoder #{mod}"
 }
 

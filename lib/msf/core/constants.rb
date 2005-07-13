@@ -11,13 +11,13 @@ module Msf
 # Architecture constants
 #
 ARCH_ANY   = '_any_'
-ARCH_IA32  = 'ia32'
+ARCH_X86   = 'x86'
 ARCH_MIPS  = 'mips'
 ARCH_PPC   = 'ppc'
 ARCH_SPARC = 'sparc'
 ARCH_TYPES =
 	[
-		ARCH_IA32,
+		ARCH_X86,
 		ARCH_MIPS,
 		ARCH_PPC,
 		ARCH_SPARC

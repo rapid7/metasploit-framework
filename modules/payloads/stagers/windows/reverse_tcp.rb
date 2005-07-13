@@ -18,7 +18,7 @@ module ReverseTcp
 			'Description'   => 'Connect back to the attacker',
 			'Author'        => 'hdm',
 			'Platform'      => 'win',
-			'Arch'          => ARCH_IA32,
+			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Stager'        =>
 				{

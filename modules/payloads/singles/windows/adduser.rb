@@ -27,7 +27,7 @@ module AddUser
 			'Description'   => 'Create a new user and add them to local administration group',
 			'Author'        => 'hdm',
 			'Platform'      => 'win',
-			'Arch'          => ARCH_IA32,
+			'Arch'          => ARCH_X86,
 			'Privileged'    => true))
 
 		# Register command execution options

@@ -25,7 +25,7 @@ module Exec
 			'Description'   => 'Execute an arbitrary command',
 			'Author'        => 'vlad902',
 			'Platform'      => 'win',
-			'Arch'          => ARCH_IA32,
+			'Arch'          => ARCH_X86,
 			'Payload'       =>
 				{
 					'Offsets' =>

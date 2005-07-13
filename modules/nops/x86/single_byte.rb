@@ -2,14 +2,14 @@ require 'msf/core'
 
 module Msf
 module Nops
-module Ia32
+module X86
 
 ###
 #
 # SingleByte
 # ----------
 #
-# This class implements single-byte NOP generation for IA32.  It takes from
+# This class implements single-byte NOP generation for X86.  It takes from
 # ADMmutate and from spoonfu.
 #
 ###
@@ -85,15 +85,15 @@ SINGLE_BYTE_SLED =
 			'Version'     => '$Revision$',
 			'Description' => 'Single-byte NOP generator',
 			'Author'      => 'spoonm',
-			'Arch'        => ARCH_IA32)
+			'Arch'        => ARCH_X86)
 
 		register_advanced_options(
 			[
 				OptBool.new('RandomNops', [ false, "Generate a random NOP sled", true ])
-			], Msf::Nops::Ia32::SingleByte)
+			], Msf::Nops::X86::SingleByte)
 	end
 
-	# Generate a single-byte NOP sled for IA32
+	# Generate a single-byte NOP sled for X86
 	def generate_sled(length, opts)
 		sled_hash    = SINGLE_BYTE_SLED
 		sled_max_idx = sled_hash.length
@@ -148,7 +148,3 @@ SINGLE_BYTE_SLED =
 end
 
 end end end
-
-x = Msf::Nops::Ia32::SingleByte.new
-
-x.generate_sled(200, {})

@@ -2,7 +2,7 @@ require 'msf/core'
 
 module Msf
 module Encoders
-module Ia32
+module X86
 
 class JmpCallAdditive < Msf::Encoder::XorAdditiveFeedback
 
@@ -12,7 +12,7 @@ class JmpCallAdditive < Msf::Encoder::XorAdditiveFeedback
 			'Version'          => '$Revision$',
 			'Description'      => 'Jump/Call XOR Additive Feedback',
 			'Author'           => 'skape',
-			'Arch'             => ARCH_IA32,
+			'Arch'             => ARCH_X86,
 			'Decoder'          =>
 				{
 					'Stub'       => 
