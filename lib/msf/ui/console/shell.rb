@@ -149,9 +149,15 @@ protected
 	# Parse a line into an array of arguments
 	#
 	def parse_line(line)
-		line.gsub!("(\r|\n)", '')
+		line.gsub!(/(\r|\n)/, '')
+		
+		begin
+			return args = Rex::Parser::Arguments.from_s(line)
+		rescue ArgumentError
+			print_error("Parse error: #{$!}")
+		end
 
-		args = Rex::Parser::Arguments.from_s(line)
+		return []
 	end
 
 

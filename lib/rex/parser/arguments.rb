@@ -1,3 +1,5 @@
+require 'shellwords'
+
 module Rex
 module Parser
 
@@ -33,18 +35,7 @@ class Arguments
 	# Takes a string and converts it into an array of arguments
 	#
 	def self.from_s(str)
-		# I am the king of sucking at regex.
-		sub  = str.gsub(/["](.+?)[^\\]["]/) { |s| s.gsub(/\s/, '__SEP__') }
-		sub.gsub!(/[^\\](["])/) { |s| s[0..0] }
-		sub.gsub!(/(\\")/, '"')
-
-		args = []
-
-		sub.split(/\s/).each { |arg|
-			args << arg.gsub(/__SEP__/, ' ')
-		}
-
-		return args
+		Shellwords.shellwords(str)
 	end
 
 	#

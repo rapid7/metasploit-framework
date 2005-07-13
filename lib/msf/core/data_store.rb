@@ -32,10 +32,10 @@ class DataStore < Hash
 		# Figure out the deliminter, default to space.
 		delim = /\s/
 
-		if (option_str.index(','))
+		if (option_str.split('=').length <= 2 or option_str.index(',') != nil)
 			delim = ','
 		end
-		
+
 		# Split on the deliminter
 		option_str.split(delim).each { |opt|
 			var, val = opt.split('=')
@@ -44,7 +44,8 @@ class DataStore < Hash
 			if (var == nil or val == nil)
 				var = "unknown" if (!var)
 
-				raise Rex::ArgumentParseError, "Invalid option specified: #{var}", caller
+				raise Rex::ArgumentParseError, "Invalid option specified: #{var}", 
+					caller
 			end
 
 			# Store the value
