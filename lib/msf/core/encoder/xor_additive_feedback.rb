@@ -30,6 +30,8 @@ class Msf::Encoder::XorAdditiveFeedback < Msf::Encoder::Xor
 		key_bytes = integer_to_key_bytes(super(buf, badchars))
 		state = Msf::EncoderState.new
 		valid = false
+
+		init_state(state)
 	
 		# Save the original key_bytes so we can tell if we loop around
 		orig_key_bytes = key_bytes.dup

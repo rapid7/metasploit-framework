@@ -19,13 +19,14 @@ class Payload
 	#
 	# opts can have:
 	#
-	#   Encoder   => A encoder module instance.
-	#   Badchars  => A string of bad characters.
-	#   Format    => The format to represent the data as: ruby, perl, c, raw
-	#   Options   => A hash of options to set.
-	#   OptionStr => A string of options in VAR=VAL form separated by
-	#                whitespace.
-	#   NoComment => Disables prepention of a comment
+	#   Encoder     => A encoder module instance.
+	#   Badchars    => A string of bad characters.
+	#   Format      => The format to represent the data as: ruby, perl, c, raw
+	#   Options     => A hash of options to set.
+	#   OptionStr   => A string of options in VAR=VAL form separated by
+	#                  whitespace.
+	#   NoComment   => Disables prepention of a comment
+	#   NopSledSize => The number of NOPs to use
 	#
 	# raises:
 	#
@@ -43,30 +44,28 @@ class Payload
 		end
 
 		# Generate the payload
-		buf = payload.generate
-
-		# If an encoder was specified, encode the generated payload
-		if (opts['Encoder'])
-			buf = opts['Encoder'].encode(buf, opts['Badchars'])
-		end
+		e = EncodedPayload.create(payload,
+				'BadChars' => opts['BadChars'],
+				'MinNops'  => opts['NopSledSize'],
+				'Encoder'  => opts['Encoder'])
 
 		fmt = opts['Format'] || 'raw'
 
 		# Save off the original payload length
-		len = buf.length
+		len = e.encoded.length
 
 		# Serialize the generated payload to some sort of format
-		buf = Buffer.transform(buf, fmt)
+		buf = Buffer.transform(e.encoded, fmt)
 
 		# Prepend a comment
 		if (fmt != 'raw' and opts['NoComment'] != true)
 			((ds = payload.datastore.to_s) and ds.length > 0) ? ds += "\n" : ds = ''
-			
 			buf = Buffer.comment(
 				"#{payload.refname} - #{len} bytes\n" +
 				"http://www.metasploit.com\n" +
 				"#{ds}" + 
-				((opts['Encoder']) ? "Encoder=" + opts['Encoder'].refname + "\n" : ''), fmt) + buf
+				((e.encoder) ? "Encoder: #{e.encoder.refname}\n" : '') +
+				((e.nop) ? "NOP generator: #{e.nop.refname}\n" : ''), fmt) + buf
 		end
 
 		return buf

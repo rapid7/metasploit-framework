@@ -12,6 +12,7 @@ class Payload
 		"-t" => [ true,  "The output type: ruby, perl, c, or raw."              ],
 		"-e" => [ true,  "The name of the encoder module to use."               ],
 		"-o" => [ true,  "A space separated list of options in VAR=VAL format." ],
+		"-s" => [ true,  "NOP sled length."                                     ],
 		"-h" => [ false, "Help banner."                                         ])
 
 	include Msf::Ui::Console::ModuleCommandDispatcher
@@ -29,9 +30,9 @@ class Payload
 
 		# Parse the arguments
 		encoder_name = nil
+		sled_size    = nil
 		option_str   = nil
 		badchars     = nil
-		encoder      = nil
 		type         = "ruby"
 
 		@@generate_opts.parse(args) { |opt, idx, val|
@@ -44,6 +45,8 @@ class Payload
 					encoder_name = val
 				when '-o'
 					option_str = val
+				when '-s'
+					sled_size = val.to_i
 				when '-h'
 					print(
 						"Usage: generate [options]\n\n" +
@@ -53,21 +56,15 @@ class Payload
 			end
 		}
 
-		# If an encoder name was specified, try to instantiate it 
-		if ((encoder_name) and
-		    (encoder = framework.modules.create(encoder_name)) == nil)
-			print_error("Invalid encoder specified: #{encoder_name}")
-			return false
-		end
-
 		# Generate the payload
 		begin
 			buf = Msf::Simple::Payload.generate(
 				mod, 
-				'Badchars'  => badchars,
-				'Encoder'   => encoder,
-				'Format'    => type,
-				'OptionStr' => option_str)
+				'BadChars'    => badchars,
+				'Encoder'     => encoder_name,
+				'Format'      => type,
+				'NopSledSize' => sled_size,
+				'OptionStr'   => option_str)
 		rescue
 			print_error("Payload generation failed: #{$!}")
 			return false

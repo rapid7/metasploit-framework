@@ -116,10 +116,7 @@ class Encoder < Module
 			end
 		end
 
-		# Update the state with default decoder information
-		state.decoder_key_offset = decoder_key_offset
-		state.decoder_key_size   = decoder_key_size
-		state.decoder_key_pack   = decoder_key_pack
+		init_state(state)
 
 		# Save the buffer in the encoding state
 		state.badchars = badchars
@@ -199,6 +196,13 @@ class Encoder < Module
 	end
 
 protected
+
+	def init_state(state)
+		# Update the state with default decoder information
+		state.decoder_key_offset = decoder_key_offset
+		state.decoder_key_size   = decoder_key_size
+		state.decoder_key_pack   = decoder_key_pack
+	end
 
 	def find_key(buf, badchars)
 		key_bytes = [ ]

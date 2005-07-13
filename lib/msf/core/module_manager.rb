@@ -107,8 +107,8 @@ protected
 			b_name, b_mod = b
 
 			# Extract the ranking between the two modules
-			a_rank = a.const_defined?('Rank') ? a.const_get('Rank') : NormalRanking
-			b_rank = b.const_defined?('Rank') ? b.const_get('Rank') : NormalRanking
+			a_rank = a[1].const_defined?('Rank') ? a[1].const_get('Rank') : NormalRanking
+			b_rank = b[1].const_defined?('Rank') ? b[1].const_get('Rank') : NormalRanking
 
 			# Compare their relevant rankings.  Since we want highest to lowest,
 			# we compare b_rank to a_rank in terms of higher/lower precedence

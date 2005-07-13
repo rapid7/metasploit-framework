@@ -24,6 +24,9 @@ require 'msf/core/framework'
 require 'msf/core/session_manager'
 require 'msf/core/session'
 
+# Wrappers
+require 'msf/core/encoded_payload'
+
 # Pseudo-modules
 require 'msf/core/handler'
 

@@ -1,4 +1,7 @@
-#!/usr/bin/ruby -I../lib
+#!/usr/bin/ruby
+
+# Ghetto include for lib relative to the msfconsole script
+$:.unshift(File.join(File.dirname(__FILE__), '../lib'))
 
 require 'rex'
 require 'msf/ui'
