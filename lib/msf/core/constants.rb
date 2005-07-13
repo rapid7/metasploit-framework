@@ -15,6 +15,13 @@ ARCH_IA32  = 'ia32'
 ARCH_MIPS  = 'mips'
 ARCH_PPC   = 'ppc'
 ARCH_SPARC = 'sparc'
+ARCH_TYPES =
+	[
+		ARCH_IA32,
+		ARCH_MIPS,
+		ARCH_PPC,
+		ARCH_SPARC
+	]
 
 #
 # Module types
@@ -33,5 +40,15 @@ MODULE_TYPES   =
 		MODULE_NOP, 
 		MODULE_RECON 
 	]
+
+#
+# Module rankings
+#
+LowRanking       = 100
+AverageRanking   = 200
+NormalRanking    = 300
+GoodRanking      = 400
+GreatRanking     = 500
+ExcellentRanking = 600
 
 end

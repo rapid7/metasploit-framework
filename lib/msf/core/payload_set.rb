@@ -47,6 +47,9 @@ class PayloadSet < ModuleSet
 		# Singles will simply point to the single payload class.
 		self.stages  = {}
 		self.singles = {}
+
+		# Hash that caches the sizes of payloads
+		self.sizes   = {}
 	end
 
 	#
@@ -81,6 +84,9 @@ class PayloadSet < ModuleSet
 
 			# Add it to the set
 			add_single(p, name)
+
+			# Cache the payload's size
+			sizes[name] = p.new.size
 		}
 
 		# Recalculate stagers and stages
@@ -126,6 +132,9 @@ class PayloadSet < ModuleSet
 
 				# Add the stage
 				add_stage(p, combined, stage_name, handler.handler_type)
+			
+				# Cache the payload's size
+				sizes[combined] = p.new.size
 			}
 		}
 	end
@@ -177,6 +186,8 @@ class PayloadSet < ModuleSet
 	# Adds a single payload to the set and adds it to the singles hash
 	#
 	def add_single(p, name)
+		p.framework = framework
+
 		# Associate this class with the single payload's name
 		self[name] = p
 
@@ -194,6 +205,8 @@ class PayloadSet < ModuleSet
 	# using the supplied handler type.
 	#
 	def add_stage(p, full_name, stage_name, handler_type)
+		p.framework = framework
+
 		# Associate this stage's full name with the payload class in the set
 		self[full_name] = p
 
@@ -210,7 +223,7 @@ class PayloadSet < ModuleSet
 		dlog("Built staged payload #{full_name}.", 'core', LEV_1)
 	end
 
-	attr_reader :stages, :singles
+	attr_reader :stages, :singles, :sizes
 
 protected
 
@@ -253,7 +266,7 @@ protected
 	end
 
 	attr_accessor :manager, :payload_type_modules
-	attr_writer   :stages, :singles
+	attr_writer   :stages, :singles, :sizes
 
 end
 

@@ -12,10 +12,22 @@ module Msf
 #
 ###
 class Framework
+	
+	#
+	# Mixin meant to be included into all classes that can have instances that
+	# should be tied to the framework, such as modules.
+	#
+	module Offspring
+		attr_accessor :framework	
+	end
+
+	require 'msf/core/module_manager'
 
 	def initialize()
-		self.events   = EventDispatcher.new
-		self.modules  = ModuleManager.new
+		self.events  = EventDispatcher.new
+		self.modules = ModuleManager.new
+
+		self.modules.framework = self
 	end
 
 	#

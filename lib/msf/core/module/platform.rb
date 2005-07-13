@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+require 'abbrev'
 
 #
 # This is the definitions of which Platforms the framework knows about.  The
@@ -12,6 +12,39 @@ class Msf::Module::Platform
 	# actually, having a argument of '' is what to do for wanting 'all'
 	Short = "all"
 
+	class <<self
+		attr_accessor :full_name
+	end
+
+	#
+	# Returns the "real" name of the module instance, accouting for potentially
+	# aliased class names.
+	#
+	def self.realname
+		# Use the cached version if one has been set
+		return full_name if (full_name)
+
+		# Otherwise, generate it and cache it
+		names = []
+		c     = Msf::Module::Platform
+		name.split('::')[3 .. -1].each { |part|
+			c = c.const_get(part)
+			if (c.const_defined?('RealName') == true)
+				names << c.const_get('RealName')	
+			else
+				names << part
+			end
+		}
+		full_name = names.join(' ')
+	end
+
+	#
+	# Calls the class method
+	#
+	def find_children
+		self.class.find_children
+	end
+
 	#
 	# The magic to try to build out a Platform from a string
 	#
@@ -19,88 +52,264 @@ class Msf::Module::Platform
 		# remove any whitespace and downcase
 		str = str.gsub(' ', '').downcase
 
+		# Start at the base platform module
 		mod = Msf::Module::Platform
 
+		# Scan forward, trying to find the end module
 		while str.length > 0
-			mod, str = _find_short(mod, str)
+			mod, str = find_portion(mod, str)
 		end
 
 		return mod
 	end
 
-	def find_children
-		self.class.find_children
-	end
-
-	# this is useful a lot of places, and should go into some
-	# library somewhere, or something
+	#
+	# Finds all inherited children from a given module
+	# 
 	def self.find_children
-		mod = self
-		mod.constants.map { |n| mod.const_get(n) }.
-		  delete_if { |v| ! v.kind_of?(Class) || ! (v < mod) }
+		constants.map { |c| 
+			const_get(c) 
+		}.delete_if { |m| 
+			!m.kind_of?(Class) || ! (m < self) 
+		}.sort { |a, b|
+			a::Rank <=> b::Rank
+		}
 	end
 
-	# make private! I forget how! I suck!
-	def self._find_short(base, name)
-		# get a list of possible base classes, and sort them by
-		# their relative ranks to each other
-		poss = base.find_children.sort { |a, b| a::Rank <=> b::Rank }
+	#
+	# Builds the abbreviation set for every module starting from
+	# a given point
+	#
+	def self.build_child_platform_abbrev(mod)
+		# Flush out any non-class and non-inherited children
+		children = mod.find_children
+	
+		# No children to speak of?
+		return if (children.length == 0)
 
-		if poss.empty?
-			raise ArgumentError, "No classes in #{base.to_s}!", caller
-		end
+		# Build the list of names & rankings
+		names  = {}
+		ranked = {}
 
-		best    = nil
-		bestlen = 0
+		children.map { |c|
+			name = c.name.split('::')[-1].downcase
 
-		poss.each { |c|
-			# Try to get the short "nick" name, aka win vs Windows.
-			# If there is no shortname, generate one and cache it.
-			# Generation is atmost the first 3 chars downcased..
+			# If the platform has an alias, such as a portion that may
+			# start with an integer, use that as the name
+			if (c.const_defined?('Alias'))
+				als = c.const_get('Alias').downcase
 
-			begin
-				short = c.const_get("Short")
-				# it was inherited...
-				if short == c.superclass.const_get("Short")
-					raise NameError
-				end
-			rescue NameError
-				short = c.const_set("Short", c.name.split('::')[-1][0, 3].downcase)
+				names[als]  = c
+				ranked[als] = c::Rank
+			# If the platform has more than one alias, process the list
+			elsif (c.const_defined?('Aliases'))
+				c.const_get('Aliases').each { |a|
+					a = a.downcase
+
+					names[a]  = c
+					ranked[a] = c::Rank
+				}
 			end
 
-			if short.length > bestlen && name[0, short.length] == short
-				best = [ c, name[short.length .. -1] ]
-				bestlen = short.length
+			names[name]  = c
+			ranked[name] = c::Rank
+		}
+
+		# Calculate their abbreviations
+		abbrev = ::Abbrev::abbrev(names.keys)
+
+		# Set the ranked list and abbreviated list on this module,
+		# then walk the children
+		mod.const_set('Abbrev', abbrev)
+		mod.const_set('Ranks', ranked)
+		mod.const_set('Names', names)
+	end
+
+	#
+	# Finds the module that best matches the supplied string (or a portion of
+	# the string)
+	#
+	def self.find_portion(mod, str)
+		# Check to see if we've built the abbreviated cache
+		if (mod.const_defined?('Abbrev') == false)
+			build_child_platform_abbrev(mod) 
+		end
+
+		abbrev   = mod.const_get('Abbrev')
+		names    = mod.const_get('Names')
+		ranks    = mod.const_get('Ranks')
+		best     = nil
+		bestlen  = 0
+		bestmat  = nil
+		bestrank = 0
+
+		# Walk through each abbreviation
+		abbrev.each { |a|
+			# If the abbreviation is too long, no sense in scanning it
+			next if (a[0].length > str.length)
+
+			# If the current abbreviation matches with the
+			# supplied string and is better than the previous
+			# best match length, use it, but only if it also
+			# has a higher rank than the previous match.
+			if ((a[0] == str[0, a[0].length]) and
+			    (a[0].length > bestlen) and
+			    (bestrank == nil or bestrank <= ranks[a[1]]))
+				best     = [ names[a[1]], str[a[0].length .. -1] ]
+				bestlen  = a[0].length
+				bestmat  = a[0]
+				bestrank = ranks[a[1]]
 			end
 		}
 
-		if !best
-			# ok, no match, fall back on first ranked
-			best = [ poss[0], name ]
+		# If we couldn't find a best match at this stage, it's time to warn.
+		if (best == nil)
+			raise ArgumentError, "No classes in #{mod.to_s} for #{str}!", caller
 		end
-
+		
 		return best
-
 	end
 
+	private_class_method :build_child_platform_abbrev
+	private_class_method :find_portion
 
 	class Windows < Msf::Module::Platform
 		Rank  = 100
-		class X86 < Windows
-			Rank  = 100
-			class XP < X86
-				Rank  = 300
-				class SP0 < XP
-					Rank  = 100
-				end
-				class SP1 < XP
-					Rank  = 200
-				end
-				class SP2 < XP
-					Rank  = 300
-				end
+		# Windows 95
+		class W95 < Windows
+			Rank = 100
+			Alias = "95"
+			RealName = "95"
+		end
+
+		# Windows 98
+		class W98 < Windows
+			Rank = 100
+			Alias = "98"
+			RealName = "98"
+			class FE < W98
+				Rank = 100
+			end
+			class SE < W98
+				Rank = 200
+			end
+		end
+
+		# Windows ME
+		class ME < Windows
+			Rank = 100
+		end
+
+		# Windows NT
+		class NT < Windows
+			Rank = 100
+			class SP0 < NT
+				Rank = 100
+			end
+			class SP1 < NT
+				Rank = 200
+			end
+			class SP2 < NT
+				Rank = 300
+			end
+			class SP3 < NT
+				Rank = 400
+			end
+			class SP4 < NT
+				Rank = 500
+			end
+			class SP5 < NT
+				Rank = 600
+			end
+			class SP6 < NT
+				Rank = 700
+			end
+			class SP6a < NT
+				Rank = 800
+			end
+		end
+
+		# Windows 2000
+		class W2000 < Windows
+			Rank = 200
+			Aliases = [ "2000", "2K" ]
+			RealName = "2000"
+			class SP0 < W2000
+				Rank = 100
+			end
+			class SP1 < W2000
+				Rank = 200
+			end
+			class SP2 < W2000
+				Rank = 300
+			end
+			class SP3 < W2000
+				Rank = 400
+			end
+			class SP4 < W2000
+				Rank = 500
+			end
+		end
+
+		# Windows XP
+		class XP < Windows
+			Rank = 300
+			class SP0 < XP
+				Rank = 100
+			end
+			class SP1 < XP
+				Rank = 200
+			end
+			class SP2 < XP
+				Rank = 300
+			end
+		end
+
+		# Windows 2003 Server
+		class W2003 < Windows
+			Rank = 400
+			Aliases = [ "2003", "2003 Server", "2K3" ]
+			RealName = "2003"
+			class SP0 < W2003
+				Rank = 100
+			end
+			class SP1 < W2003
+				Rank = 200
 			end
 		end
 	end
-end
 
+	class Linux < Msf::Module::Platform
+		Rank = 100
+		Alias = "lnx"
+	end
+
+	class Solaris < Msf::Module::Platform
+		Rank = 100
+	end
+
+	class OSX < Msf::Module::Platform
+		Rank = 100
+	end
+
+	# Generic BSD
+	class BSD < Msf::Module::Platform
+		Rank = 100
+	end
+
+	class OpenBSD < Msf::Module::Platform
+		Rank = 100
+	end
+
+	class BSDi < Msf::Module::Platform
+		Rank = 100
+	end
+
+	class NetBSD < Msf::Module::Platform
+		Rank = 100
+	end
+
+	class FreeBSD < Msf::Module::Platform
+		Rank = 100
+	end
+end

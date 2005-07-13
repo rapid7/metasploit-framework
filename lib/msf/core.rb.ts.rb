@@ -12,8 +12,8 @@ require 'msf/core/module/reference.rb.ut'
 require 'msf/core/module/target.rb.ut'
 
 require 'msf/core/exploit.rb.ut'
-require 'msf/core/exploit/remote/tcp.rb.ut'
-require 'msf/core/exploit/remote/dcerpc.rb.ut'
+require 'msf/core/exploit/tcp.rb.ut'
+require 'msf/core/exploit/dcerpc.rb.ut'
 
 class Msf::TestSuite
 	def self.suite

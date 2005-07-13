@@ -63,7 +63,8 @@ class Payload
 			((ds = payload.datastore.to_s) and ds.length > 0) ? ds += "\n" : ds = ''
 			
 			buf = Buffer.comment(
-				"#{payload.refname} - #{len} bytes - http://www.metasploit.com\n" +
+				"#{payload.refname} - #{len} bytes\n" +
+				"http://www.metasploit.com\n" +
 				"#{ds}" + 
 				((opts['Encoder']) ? "Encoder=" + opts['Encoder'].refname + "\n" : ''), fmt) + buf
 		end

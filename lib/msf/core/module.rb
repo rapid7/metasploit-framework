@@ -18,14 +18,21 @@ class Module
 	# Make include public so we can runtime extend
 	public_class_method :include
 
-	UpdateableOptions = [ "Name", "Description", "Alias" ]
-
 	class <<self
+		include Framework::Offspring
+
 		# 
 		# The module's name that is assigned it it by the framework
 		# or derived from the path that the module is loaded from.
 		#
 		attr_accessor :refname
+	end
+
+	#
+	# Returns the class reference to the framework
+	#
+	def framework
+		return self.class.framework
 	end
 
 	require 'msf/core/module/author'
@@ -173,14 +180,16 @@ class Module
 
 protected
 
+	UpdateableOptions = [ "Name", "Description", "Alias" ]
+
 	# Sets the modules unsupplied info fields to their default values
 	def set_defaults
 		self.module_info = {
 			'Name'        => 'No module name', 
 			'Description' => 'No module description',
 			'Version'     => '0',
-			'Author'      => '',
-			'Arch'        => '',
+			'Author'      => nil,
+			'Arch'        => nil,
 			'Platform'    => '',
 			'Ref'         => nil,
 			'Privileged'  => false,

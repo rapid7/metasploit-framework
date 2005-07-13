@@ -58,13 +58,23 @@ class Msf::Module::PlatformList
 
 	end
 
+	#
+	# Checks to see if the platform list is empty.
+	#
 	def empty?
 		return platforms.empty?
 	end
+
+	#
+	# Returns an array of names contained within this platform list.
+	#
 	def names
-		platforms.map { |m| m.name.split('::')[3 .. -1].join(' ') }
+		platforms.map { |m| m.realname }
 	end
 
+	#
+	# Symbolic check to see if this platform list represents 'all' platforms.
+	#
 	def all?
 		names.each do |name|
 			return true if name == ''
@@ -72,8 +82,10 @@ class Msf::Module::PlatformList
 		return false
 	end
 
+	#
 	# Do I support plist (do I support all of they support?)
 	# use for matching say, an exploit and a payload
+	#
 	def supports?(plist)
 		plist.platforms.each { |pl|
 			supported = false

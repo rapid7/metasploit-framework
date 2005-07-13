@@ -20,10 +20,9 @@ require 'msf/core/data_store'
 require 'msf/core/option_container'
 
 # Framework context and core classes
-require 'msf/core/module_manager'
+require 'msf/core/framework'
 require 'msf/core/session_manager'
 require 'msf/core/session'
-require 'msf/core/framework'
 
 # Pseudo-modules
 require 'msf/core/handler'

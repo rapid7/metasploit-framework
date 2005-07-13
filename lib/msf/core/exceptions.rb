@@ -44,15 +44,19 @@ class OptionValidateError < ArgumentError
 	attr_reader :options
 end
 
-#####
-#####
+class ValidationError < ArgumentError
+	include Exception
+
+	def to_s
+		"One or more requirements could not be validated."
+	end
+end
+
 ##
 #
 # Encoding exceptions
 #
 ##
-#####
-#####
 
 class EncodingError < RuntimeError
 	include Exception
@@ -99,15 +103,18 @@ class BadcharError < EncodingError
 	attr_reader :buf, :index, :stub_size, :char
 end
 
-#####
-#####
+class NoEncodersSucceededError < EncodingError
+
+	def to_s
+		"No encoders encoded the buffer successfully."
+	end
+end
+
 ##
 #
 # Exploit exceptions
 #
 ##
-#####
-#####
 
 module ExploitError
 	include Exception
@@ -116,5 +123,58 @@ module ExploitError
 		"An exploitation error occurred."
 	end
 end
+
+class MissingTargetError < ArgumentError
+	include ExploitError
+
+	def to_s
+		"A target has not been selected."
+	end
+end
+
+class MissingPayloadError < ArgumentError
+	include ExploitError
+
+	def to_s
+		"A payload has not been selected."
+	end
+end
+
+class IncompatiblePayloadError < ArgumentError
+	include ExploitError
+
+	def initialize(pname = nil)
+		@pname = pname
+	end
+
+	def to_s
+		"#{pname} is not a compatible payload."
+	end
+
+	attr_reader :pname
+end
+
+##
+#
+# NOP exceptions
+#
+##
+
+module NopError
+	include Exception
+
+	def to_s
+		"A NOP generator error occurred."
+	end
+end
+
+class NoNopsSucceededError < RuntimeError
+	include NopError
+
+	def to_s
+		"No NOP generators succeeded."
+	end
+end
+
 
 end

@@ -10,19 +10,21 @@ class Msf::Module::PlatformList::UnitTest < Test::Unit::TestCase
 
 	def test_range
 		assert_equal(
-		  [ Msf::Module::Platform::Windows::X86::XP::SP0,
-		    Msf::Module::Platform::Windows::X86::XP::SP1
+		  [ Msf::Module::Platform::Windows::XP::SP0,
+		    Msf::Module::Platform::Windows::XP::SP1
 		  ], Msf::Module::PlatformList.new('winxpsp0' .. 'winxpsp1').platforms
 		)
 	end
 
 	def test_names
-		assert_equal([ 'Windows X86 XP SP2' ], Msf::Module::PlatformList.new('winxpsp2').names)
+		assert_equal([ 'Windows XP SP2' ], Msf::Module::PlatformList.new('winxpsp2').names)
 	end
 
 	def test_transform
-		assert_equal([ 'Windows X86 XP SP2' ], Msf::Module::PlatformList.transform('winxpsp2').names)
-		assert_equal([ 'Windows X86 XP SP2' ], Msf::Module::PlatformList.transform(['winxpsp2']).names)
+		assert_equal([ 'Windows XP SP2' ], Msf::Module::PlatformList.transform('winxpsp2').names)
+		assert_equal([ 'Windows XP SP2' ], Msf::Module::PlatformList.transform(['winxpsp2']).names)
+		assert_equal([ 'Windows 2000 SP3' ], Msf::Module::PlatformList.transform(['win2000sp3']).names)
+		assert_equal([ 'Windows 2000 SP3' ], Msf::Module::PlatformList.transform(['win2ksp3']).names)
 	end
 
 	def test_all
@@ -40,8 +42,8 @@ class Msf::Module::PlatformList::UnitTest < Test::Unit::TestCase
 		l1 = Msf::Module::PlatformList.new('win')
 		l2 = Msf::Module::PlatformList.new('win xp sp0', 'win xp sp2')
 		assert_equal(
-		  [ Msf::Module::Platform::Windows::X86::XP::SP0,
-		    Msf::Module::Platform::Windows::X86::XP::SP2
+		  [ Msf::Module::Platform::Windows::XP::SP0,
+		    Msf::Module::Platform::Windows::XP::SP2
 		  ], (l1 & l2).platforms
 		)
 

@@ -13,6 +13,9 @@ module Msf
 #
 ###
 class ModuleSet < Hash
+
+	include Framework::Offspring
+
 	def initialize(type = nil)
 		self.module_type       = type
 
@@ -21,46 +24,27 @@ class ModuleSet < Hash
 		self.mod_arch_hash     = {}
 		self.mod_platform_hash = {}
 		self.mod_sorted        = nil
+		self.mod_ranked        = nil
 	end
 
 	# Create an instance of the supplied module by its name
 	def create(name)
 		klass = self[name]
-
+		
 		return (klass) ? klass.new : nil
 	end
 
 	# Enumerates each module class in the set
 	def each_module(opts = {}, &block)
-		# Re-sort if the cached copy is out of date
 		mod_sorted = self.sort if (mod_sorted == nil)
+		
+		each_module_list(mod_sorted, opts, &block)
+	end
 
-		mod_sorted.each { |entry|
-			name, mod = entry
+	def each_module_ranked(opts = {}, &block)
+		mod_ranked = rank_modules if (mod_ranked == nil)
 
-			# Filter out incompatible architectures
-			if (opts['arch'])
-				if (!mod_arch_hash[mod])
-					mod_arch_hash[mod] = mod.new.arch
-				end
-
-				next if (mod_arch_hash[mod].include?(opts['arch']) == false)
-			end		
-
-			# Filter out incompatible platforms
-			if (opts['platform'])
-				if (!mod_platform_hash[mod])
-					mod_platform_hash[mod] = mod.new.platform
-				end
-
-				next if (mod_platform_hash[mod].include?(opts['platform']) == false)
-			end
-
-			# Custom filtering
-			next if (each_module_filter(opts, name, entry) == true)
-
-			block.call(name, mod)
-		}
+		each_module_list(mod_ranked, opts, &block)
 	end
 
 	#
@@ -81,21 +65,87 @@ class ModuleSet < Hash
 
 protected
 
+	#
+	# Enumerates the modules in the supplied array with possible limiting
+	# factors.
+	#
+	def each_module_list(ary, opts, &block)
+		ary.each { |entry|
+			name, mod = entry
+
+			# Filter out incompatible architectures
+			if (opts['Arch'])
+				if (!mod_arch_hash[mod])
+					mod_arch_hash[mod] = mod.new.arch
+				end
+
+				next if ((mod_arch_hash[mod] & opts['Arch']).empty? == true)
+			end		
+
+			# Filter out incompatible platforms
+			if (opts['Platform'])
+				if (!mod_platform_hash[mod])
+					mod_platform_hash[mod] = mod.new.platform
+				end
+
+				next if ((mod_platform_hash[mod] & opts['Platform']).empty? == true)
+			end
+
+			# Custom filtering
+			next if (each_module_filter(opts, name, entry) == true)
+
+			block.call(name, mod)
+		}
+	end
+
+	#
+	# Ranks modules based on their constant rank value, if they have one.
+	#
+	def rank_modules
+		mod_ranked = self.sort { |a, b|
+			a_name, a_mod = a
+			b_name, b_mod = b
+
+			# Extract the ranking between the two modules
+			a_rank = a.const_defined?('Rank') ? a.const_get('Rank') : NormalRanking
+			b_rank = b.const_defined?('Rank') ? b.const_get('Rank') : NormalRanking
+
+			# Compare their relevant rankings.  Since we want highest to lowest,
+			# we compare b_rank to a_rank in terms of higher/lower precedence
+			b_rank <=> a_rank	
+		}
+	end
+
+	#
 	# Adds a module with a the supplied name
+	#
 	def add_module(module_class, name)
+		# Duplicate the module class so that we can operate on a
+		# framework-specific copy of it.
+		dup = module_class.dup
+
 		# Set the module's name so that it can be referenced when
 		# instances are created.
-		module_class.refname = name
+		dup.framework = framework
+		dup.refname   = name
 
-		self[name] = module_class
+		self[name] = dup
 		
 		# Invalidate the sorted array
+		invalidate_cache
+	end
+
+	#
+	# Invalidates the sorted and ranked module caches.
+	#
+	def invalidate_cache
 		mod_sorted = nil
+		mod_ranked = nil
 	end
 
 	attr_writer   :module_type
 	attr_accessor :mod_arch_hash, :mod_platform_hash
-	attr_accessor :mod_sorted
+	attr_accessor :mod_sorted, :mod_ranked
 
 end
 
@@ -119,6 +169,8 @@ class ModuleManager < ModuleSet
 
 	require 'msf/core/payload_set'
 
+	include Framework::Offspring
+
 	def initialize()
 		self.module_paths         = []
 		self.module_history       = {}
@@ -134,6 +186,9 @@ class ModuleManager < ModuleSet
 			end
 
 			self.module_sets[type] = instance
+
+			# Set the module set's framework reference
+			instance.framework = self.framework
 		}
 
 		super
