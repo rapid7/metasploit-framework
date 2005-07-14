@@ -393,9 +393,6 @@ class Core
 		# Update the active module
 		self.active_module = mod
 
-		# Set the module's output proc
-		mod.progress_tracker = ProgressTracker.new(driver.output)
-
 		# Update the command prompt
 		driver.update_prompt("#{mod.type}(#{mod.refname}) ")
 	end
