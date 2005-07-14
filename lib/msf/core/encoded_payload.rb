@@ -84,12 +84,12 @@ class EncodedPayload
 			# If the caller had a preferred encoder, try to find it and prefix it
 			if ((reqs['Encoder']) and
 			    (preferred = framework.encoders[reqs['Encoder']]))
-				encoders.unshift(preferred)
+				encoders.unshift([reqs['Encoder'], preferred ])
 			elsif (reqs['Encoder'])
 				wlog("#{pinst.refname}: Failed to find preferred encoder #{reqs['Encoder']}")
 			end
 
-			encoders.each { |encmod|
+			encoders.each { |encname, encmod|
 				self.encoder = encmod.new
 			
 				# Try encoding with the current encoder
@@ -156,7 +156,7 @@ class EncodedPayload
 
 		# Now construct the actual sled
 		if (self.nop_sled_size > 0)
-			pinst.compatible_nops.each { |nopmod|
+			pinst.compatible_nops.each { |nopname, nopmod|
 				# Create an instance of the nop module
 				self.nop = nopmod.new
 	

@@ -94,6 +94,7 @@ class Core
 		# Display the commands
 		tbl = Table.new(
 			Table::Style::Default,
+			'Header'  => 'Metasploit Framework Main Console Help',
 			'Columns' => 
 				[
 					'Command',
@@ -202,12 +203,15 @@ class Core
 
 		# Dump the contents of the active datastore if no args were supplied
 		if (args.length == 0)
+			# If we aren't dumping the global data store, then go ahead and
+			# dump it first
 			if (!global)
 				print("\n" +
 					Msf::Serializer::ReadableText.dump_datastore(
 						"Global", framework.datastore))
 			end
 
+			# Dump the active datastore
 			print("\n" +
 				Msf::Serializer::ReadableText.dump_datastore(
 					(global) ? "Global" : "Module: #{active_module.refname}",
@@ -424,7 +428,19 @@ protected
 	end
 
 	def show_payloads
-		show_module_set("Payloads", framework.payloads)
+		# If an active module has been selected and it's an exploit, get the
+		# list of compatible payloads and display them
+		if (active_module and active_module.exploit? == true)
+			tbl = generate_module_table("Compatible payloads")
+
+			active_module.compatible_payloads.each { |refname, payload|
+				tbl << [ refname, payload.new.name ]
+			}
+
+			print(tbl.to_s)
+		else
+			show_module_set("Payloads", framework.payloads)
+		end
 	end
 
 	def show_recon
@@ -440,8 +456,19 @@ protected
 	end
 
 	def show_module_set(type, module_set)
+		tbl = generate_module_table(type)
 
-		tbl = Table.new(
+		module_set.each_module { |refname, mod|
+			instance = mod.new
+
+			tbl << [ refname, instance.name ]
+		}
+
+		print(tbl.to_s)
+	end
+
+	def generate_module_table(type)
+		Table.new(
 			Table::Style::Default,
 			'Header'  => type,
 			'Prefix'  => "\n",
@@ -459,14 +486,6 @@ protected
 							'MaxWidth' => 25
 						}
 				})
-
-		module_set.each_module { |refname, mod|
-			instance = mod.new
-
-			tbl << [ refname, instance.name ]
-		}
-
-		print(tbl.to_s)
 	end
 
 end

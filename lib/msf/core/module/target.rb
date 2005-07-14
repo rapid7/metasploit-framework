@@ -102,10 +102,15 @@ class Msf::Module::Target
 		opts = {} if (!opts)
 
 		self.name           = name
-		self.platforms      = Msf::Module::PlatformList.from_a(opts['Platform'])
+		self.platform       = Msf::Module::PlatformList.from_a(opts['Platform'])
 		self.save_registers = opts['SaveRegisters']
 		self.ret            = opts['Ret']
 		self.opts           = opts
+	
+		if (opts['Arch'])
+			self.arch = Rex::Transformer.transform(opts['Arch'], Array, 
+				[ String ], 'Arch')
+		end
 
 		# Does this target have brute force information?
 		if (opts['Bruteforce'])
@@ -128,12 +133,12 @@ class Msf::Module::Target
 		return (bruteforce != nil)
 	end
 
-	attr_reader :name, :platforms, :opts, :ret, :save_registers
+	attr_reader :name, :platform, :arch, :opts, :ret, :save_registers
 	attr_reader :bruteforce
 
 protected
 
-	attr_writer :name, :platforms, :opts, :ret, :save_registers
+	attr_writer :name, :platform, :arch, :opts, :ret, :save_registers
 	attr_writer :bruteforce
 
 end

@@ -178,7 +178,7 @@ class Payload < Msf::Module
 
 		framework.encoders.each_module_ranked(
 			'Arch' => self.arch) { |name, mod|
-			encoders << mod
+			encoders << [ name, mod ]
 		}
 
 		return encoders
@@ -192,7 +192,7 @@ class Payload < Msf::Module
 
 		framework.nops.each_module_ranked(
 			'Arch' => self.arch) { |name, mod|
-			nops << mod
+			nops << [ name, mod ]
 		}
 
 		return nops

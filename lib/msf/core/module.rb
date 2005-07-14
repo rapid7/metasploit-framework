@@ -175,6 +175,29 @@ class Module
 		return Rex::Socket::Comm::Local
 	end
 
+	#
+	# Just some handy quick checks
+	#
+	def exploit?
+		return (type == MODULE_EXPLOIT)
+	end
+
+	def payload?
+		return (type == MODULE_PAYLOAD)
+	end
+
+	def encoder?
+		return (type == MODULE_ENCODER)
+	end
+
+	def nop?
+		return (type == MODULE_NOP)
+	end
+
+	def recon?
+		return (type == MODULE_RECON)
+	end
+
 	attr_reader   :author, :arch, :platform, :references, :datastore, :options
 	attr_reader   :privileged
 
