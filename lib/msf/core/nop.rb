@@ -13,6 +13,10 @@ module Msf
 class Nop < Msf::Module
 
 	# NOP module, bitch!
+	def self.type
+		return MODULE_NOP
+	end
+
 	def type
 		return MODULE_NOP
 	end

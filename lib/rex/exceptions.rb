@@ -56,6 +56,18 @@ class ArgumentParseError < ::ArgumentError
 	end
 end
 
+class AmbiguousArgumentError < ::RuntimeError
+	include Exception
+
+	def initialize(name)
+		@name = name
+	end
+
+	def to_s
+		"The name #{@name} is ambiguous."
+	end
+end
+
 #####
 #####
 ##

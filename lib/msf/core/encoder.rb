@@ -60,7 +60,11 @@ class Encoder < Module
 	# Encoder information accessors that can be overriden
 	# by derived classes
 	#
-	
+
+	def self.type
+		return MODULE_ENCODER
+	end
+
 	def type
 		return MODULE_ENCODER
 	end

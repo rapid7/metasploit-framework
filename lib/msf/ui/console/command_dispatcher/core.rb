@@ -349,10 +349,13 @@ class Core
 				print_error("Failed to load module: #{mod_name}")
 				return false
 			end
+		rescue Rex::AmbiguousArgumentError => info
+			print_error(info.to_s)
 		rescue NameError => info
 			log_error("The supplied module name is ambiguous: #{$!}.")
-			return false
 		end
+
+		return false if (mod == nil)
 
 		# Enstack the command dispatcher for this module type
 		dispatcher = nil
@@ -384,7 +387,7 @@ class Core
 		self.active_module = mod
 
 		# Update the command prompt
-		driver.update_prompt("#{mod.type}(#{mod_name}) ")
+		driver.update_prompt("#{mod.type}(#{mod.refname}) ")
 	end
 
 	#
@@ -408,6 +411,7 @@ protected
 
 		framework.modules.each_module { |refname, mod|
 			self.tab_complete_items << refname
+			self.tab_complete_items << mod.type + '/' + refname
 		}
 	end
 

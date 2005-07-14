@@ -21,6 +21,13 @@ class Module
 	class <<self
 		include Framework::Offspring
 
+		#
+		# Class method to figure out what type of module this is
+		#
+		def type
+			raise NotImplementedError
+		end
+
 		# 
 		# The module's name that is assigned it it by the framework
 		# or derived from the path that the module is loaded from.

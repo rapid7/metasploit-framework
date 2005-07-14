@@ -42,6 +42,10 @@ class Payload < Msf::Module
 	#
 	# This module is a payload.
 	#
+	def self.type
+		return MODULE_PAYLOAD
+	end
+
 	def type
 		return MODULE_PAYLOAD
 	end

@@ -26,12 +26,18 @@ class ModuleSet < Hash
 		self.mod_sorted        = nil
 		self.mod_ranked        = nil
 		self.mod_extensions    = []
+		self.mod_ambiguous     = {}
 	end
 
 	#
 	# Create an instance of the supplied module by its name
 	#
 	def create(name)
+		if (mod_ambiguous[name])
+			raise Rex::AmbiguousArgumentError.new(name), 
+				"The module name #{name} is ambiguous.", caller
+		end
+
 		klass    = self[name]
 		instance = nil
 
@@ -145,7 +151,13 @@ protected
 		dup.framework = framework
 		dup.refname   = name
 
-		self[name] = dup
+		if (self[name])
+			mod_ambiguous[name] = true
+
+			wlog("The module #{dup.name} is ambiguous with #{self[name].name}.")
+		else
+			self[name] = dup
+		end
 
 		# Notify the framework that a module was loaded
 		framework.events.on_module_load(name, dup)
@@ -165,7 +177,7 @@ protected
 	attr_writer   :module_type
 	attr_accessor :mod_arch_hash, :mod_platform_hash
 	attr_accessor :mod_sorted, :mod_ranked
-	attr_accessor :mod_extensions
+	attr_accessor :mod_extensions, :mod_ambiguous
 
 end
 
@@ -213,6 +225,20 @@ class ModuleManager < ModuleSet
 		}
 
 		super
+	end
+
+	#
+	# Creates a module using the supplied name
+	#
+	def create(name)
+		# Check to see if it has a module type prefix.  If it does,
+		# try to load it from the specific module set for that type.
+		if (md = name.match(/^(#{MODULE_TYPES.join('|')})\/(.*)$/))
+			module_sets[md[1]].create(md[2])
+		# Otherwise, just try to load it by name.
+		else
+			super
+		end
 	end
 
 	#
