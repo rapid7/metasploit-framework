@@ -7,12 +7,12 @@ module CommandDispatcher
 
 class Nop
 
+	include Msf::Ui::Console::ModuleCommandDispatcher
+
 	@@generate_opts = Rex::Parser::Arguments.new(
 		"-b" => [ true,  "The list of characters to avoid: '\\x00\\xff'" ],
 		"-h" => [ false, "Help banner."                                  ],
 		"-t" => [ true,  "The output type: ruby, perl, c, or raw."       ])
-
-	include Msf::Ui::Console::ModuleCommandDispatcher
 
 	def commands
 		{

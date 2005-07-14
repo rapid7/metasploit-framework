@@ -7,6 +7,8 @@ module CommandDispatcher
 
 class Payload
 
+	include Msf::Ui::Console::ModuleCommandDispatcher
+
 	@@generate_opts = Rex::Parser::Arguments.new(
 		"-b" => [ true,  "The list of characters to avoid: '\\x00\\xff'"        ],
 		"-e" => [ true,  "The name of the encoder module to use."               ],
@@ -14,8 +16,6 @@ class Payload
 		"-o" => [ true,  "A comma separated list of options in VAR=VAL format." ],
 		"-s" => [ true,  "NOP sled length."                                     ],
 		"-t" => [ true,  "The output type: ruby, perl, c, or raw."              ])
-
-	include Msf::Ui::Console::ModuleCommandDispatcher
 
 	def commands
 		{
