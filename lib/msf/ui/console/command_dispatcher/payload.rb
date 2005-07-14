@@ -43,14 +43,14 @@ class Payload
 			case opt
 				when '-b'
 					badchars = Rex::Text.hex_to_raw(val)
-				when '-t'
-					type = val
 				when '-e'
 					encoder_name = val
 				when '-o'
 					option_str = val
 				when '-s'
 					sled_size = val.to_i
+				when '-t'
+					type = val
 				when '-h'
 					print(
 						"Usage: generate [options]\n\n" +

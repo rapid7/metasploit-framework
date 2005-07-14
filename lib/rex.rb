@@ -33,5 +33,4 @@ require 'rex/socket/comm/local'
 require 'rex/parser/arguments'
 
 # Ui
-require 'rex/ui/text/color'
-require 'rex/ui/text/table'
+require 'rex/ui'
