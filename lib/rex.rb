@@ -31,6 +31,3 @@ require 'rex/socket/comm/local'
 
 # Parsers
 require 'rex/parser/arguments'
-
-# Ui
-require 'rex/ui'
