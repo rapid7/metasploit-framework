@@ -33,7 +33,7 @@ class ProgressTracker < Rex::Ui::ProgressTracker
 	# Updates the status associated with the current step.
 	#
 	def step_status(msg = '')
-		output.print_status("#{pos}: #{msg}")
+		output.print_status("#{pos}: #{msg}") if (msg and msg.length > 0)
 	end
 
 	#
@@ -49,6 +49,8 @@ class ProgressTracker < Rex::Ui::ProgressTracker
 	def abort(msg = '')
 		output.print_error("fatal: #{msg}")
 	end
+
+	attr_accessor :output
 
 end
 

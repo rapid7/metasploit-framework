@@ -16,6 +16,7 @@ module Text
 class Output < Rex::Ui::Output
 
 	require 'rex/ui/text/output/stdio'
+	require 'rex/ui/text/output/buffer'
 
 	def print_error(msg = '')
 		print_line("[-] #{msg}")
@@ -31,6 +32,9 @@ class Output < Rex::Ui::Output
 
 	def print_line(msg = '')
 		print(msg + "\n")
+	end
+
+	def reset
 	end
 
 end

@@ -30,12 +30,22 @@ class ProgressTracker
 	end
 
 	#
+	# Sets the start and resets the position.
+	#
+	def start=(start)
+		@start   = start
+		self.pos = start
+	end
+
+	#
 	# Steps with a given message and step size.
 	#
 	def step(status = nil, n = 1)
 		self.pos += n if (self.pos + n <= self.stop)
 
 		step_status(status)
+
+		self.pos
 	end
 
 	#
@@ -73,7 +83,7 @@ class ProgressTracker
 	#
 	# The start of the progress.
 	#
-	attr_accessor :start
+	attr_reader   :start
 	#
 	# The last position in the progress.
 	#

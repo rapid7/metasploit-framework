@@ -1,8 +1,8 @@
 require 'msf/core'
 require 'msf/base'
 require 'msf/ui'
-require 'msf/ui/console/shell'
 require 'msf/ui/console/command_dispatcher'
+require 'msf/ui/console/shell'
 require 'msf/ui/console/table'
 require 'find'
 
