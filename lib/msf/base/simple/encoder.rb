@@ -9,7 +9,7 @@ module Simple
 # A simplified encoder wrapper.
 #
 ###
-class Encoder
+module Encoder
 end
 
 end

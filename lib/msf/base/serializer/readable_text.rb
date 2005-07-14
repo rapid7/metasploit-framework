@@ -83,8 +83,12 @@ class ReadableText
 		# Payload information
 		if (mod.payload.length)
 			output += "Payload information:\n"
-			output += indent + "Space: " + mod.payload_space.to_s + "\n"
-			output += indent + "Avoid: " + mod.payload_badchars.length.to_s + " characters\n"
+			if (mod.payload_space)
+				output += indent + "Space: " + mod.payload_space.to_s + "\n"
+			end
+			if (mod.payload_badchars)
+				output += indent + "Avoid: " + mod.payload_badchars.length.to_s + " characters\n"
+			end
 			output += "\n"
 		end
 	
@@ -94,11 +98,13 @@ class ReadableText
 		output += "\n"
 
 		# References
-		output += "References:\n"
-		mod.references.each { |ref|
-			output += indent + ref.to_s + "\n"
-		}
-		output += "\n"
+		if (mod.references.length > 0)
+			output += "References:\n"
+			mod.references.each { |ref|
+				output += indent + ref.to_s + "\n"
+			}
+			output += "\n"
+		end
 	
 		return output
 

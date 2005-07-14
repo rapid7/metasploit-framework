@@ -41,6 +41,13 @@ module CommandDispatcher
 		driver.active_module = mod
 	end
 
+	def log_error(err)
+		print_error(err)
+
+		wlog(err)
+		dlog("Call stack:\n#{$@.join("\n")}", 'core', LEV_1)
+	end
+
 	#
 	# No tab completion items by default
 	#

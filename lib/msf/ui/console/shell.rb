@@ -128,10 +128,9 @@ module Shell
 	#
 	# Output shortcuts
 	#
-	
-	def print_error(msg)
-		return if (disable_output == true)
 
+	def print_error(msg)
+		# Errors are not subject to disabled output
 		output.print_error(msg)
 	end
 

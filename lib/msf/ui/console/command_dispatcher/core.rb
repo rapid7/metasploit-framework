@@ -164,7 +164,7 @@ class Core
 				end
 			}
 		rescue NameError
-			print_error("Failed to add search path #{curr_path}: #{$!}")
+			log_error("Failed to add search path #{curr_path}: #{$!}")
 			return true
 		end
 
@@ -346,7 +346,7 @@ class Core
 				return false
 			end
 		rescue NameError => info
-			print_error("The supplied module name is ambiguous: #{$!}.")
+			log_error("The supplied module name is ambiguous: #{$!}.")
 			return false
 		end
 

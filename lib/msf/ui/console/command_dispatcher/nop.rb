@@ -59,7 +59,7 @@ class Nop
 				'BadChars' => badchars,
 				'Format'   => type)
 		rescue
-			print_error("Sled generation failed: #{$!}.")
+			log_error("Sled generation failed: #{$!}.")
 			return false
 		end
 

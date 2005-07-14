@@ -65,7 +65,7 @@ class Payload
 				'NopSledSize' => sled_size,
 				'OptionStr'   => option_str)
 		rescue
-			print_error("Payload generation failed: #{$!}")
+			log_error("Payload generation failed: #{$!}")
 			return false
 		end
 
