@@ -23,6 +23,10 @@ class Payload
 		}
 	end
 
+	def name
+		return "Payload"
+	end
+
 	#
 	# Generates a payload
 	#

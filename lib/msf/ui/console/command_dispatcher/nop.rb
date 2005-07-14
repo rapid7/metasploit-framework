@@ -20,6 +20,10 @@ class Nop
 		}
 	end
 
+	def name
+		"Nop"
+	end
+
 	#
 	# Generates a NOP sled
 	#

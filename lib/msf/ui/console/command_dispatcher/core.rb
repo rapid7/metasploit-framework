@@ -33,6 +33,10 @@ class Core
 		}
 	end
 
+	def name
+		"Core"
+	end
+
 	#
 	# Pop the current dispatcher stack context, assuming it isn't pointed at
 	# the core stack context.
@@ -78,8 +82,6 @@ class Core
 	# Displays the command help banner
 	#
 	def cmd_help(*args)
-		all_commands = {}
-
 		driver.dispatcher_stack.reverse.each { |dispatcher|
 			begin
 				commands = dispatcher.commands
@@ -88,24 +90,29 @@ class Core
 				next
 			end
 
-			all_commands.update(commands)
-		}
-	
-		# Display the commands
-		tbl = Table.new(
-			Table::Style::Default,
-			'Header'  => 'Metasploit Framework Main Console Help',
-			'Columns' => 
-				[
-					'Command',
-					'Description'
-				])
+			# Display the commands
+			tbl = Table.new(
+				Table::Style::Default,
+				'Header'  => "#{dispatcher.name} Commands",
+				'Columns' => 
+					[
+						'Command',
+						'Description'
+					],
+				'ColProps' =>
+					{
+						'Command' =>
+							{
+								'MaxWidth' => 12
+							}
+					})
 
-		all_commands.sort.each { |c|
-			tbl << c
-		}
+			dispatcher.commands.sort.each { |c|
+				tbl << c
+			}
 
-		print(tbl.to_s)
+			print(tbl.to_s)
+		}
 	end
 
 	#

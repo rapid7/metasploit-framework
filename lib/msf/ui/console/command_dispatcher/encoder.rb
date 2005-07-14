@@ -7,6 +7,10 @@ class Encoder
 
 	include Msf::Ui::Console::ModuleCommandDispatcher
 
+	def name
+		"Encoder"
+	end
+
 end
 
 end end end end

@@ -27,7 +27,7 @@ class Table < Rex::Ui::Text::Table
 				opts['Prefix']  = "\n"
 			end
 			if (!opts['Postfix'])
-				opts['Postfix'] = "\n\n"
+				opts['Postfix'] = "\n"
 			end
 
 			super(opts)
