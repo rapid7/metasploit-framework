@@ -101,7 +101,7 @@ SINGLE_BYTE_SLED =
 		out_sled     = ''
 
 		random   = opts['Random']
-		badchars = opts['Badchars']      || ''
+		badchars = opts['BadChars']      || ''
 		badregs  = opts['SaveRegisters'] || []
 
 		# Did someone specify random NOPs in the environment?

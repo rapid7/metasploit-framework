@@ -227,7 +227,9 @@ class OptionContainer < Hash
 		}
 	end
 
+	#
 	# Adds one or more options
+	#
 	def add_options(opts, owner = nil, advanced = false)
 		return false if (opts == nil)
 
@@ -256,6 +258,9 @@ class OptionContainer < Hash
 		}
 	end
 
+	#
+	# Adds an option
+	#
 	def add_option(option, name = nil, owner = nil, advanced = false)
 		if (option.kind_of?(Array))
 			option = option.shift.new(name, option)
@@ -274,15 +279,19 @@ class OptionContainer < Hash
 		self.sorted = self.sort
 	end
 
+	#
 	# Alias to add advanced options that sets the proper state flag
+	#
 	def add_advanced_options(opts, owner = nil)
 		return false if (opts == nil)
 
 		add_options(opts, owner, true)
 	end
 
+	#
 	# Make sures that each of the options has a value of a compatible 
 	# format and that all the required options are set
+	#
 	def validate(datastore)
 		errors = []
 
@@ -300,7 +309,26 @@ class OptionContainer < Hash
 		return true
 	end
 
+	#
+	# Creates string of options that were used from the datastore in VAR=VAL
+	# format separated by commas.
+	#
+	def options_used_to_s(datastore)
+		used = ''
+
+		each_pair { |name, option|
+			next if (datastore[name] == nil)
+
+			used += ", " if (used.length > 0)
+			used += "#{name}=#{datastore[name]}"
+		}
+
+		return used
+	end
+
+	#
 	# Enumerates each option name
+	#
 	def each_option(&block)
 		each_pair(&block)
 	end

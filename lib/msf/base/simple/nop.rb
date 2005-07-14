@@ -11,7 +11,7 @@ module Simple
 # Simple nop wrapper class for performing generation.
 #
 ###
-class Nop
+module Nop
 
 	#
 	# Generate a nop sled, optionally with a few parameters.
@@ -21,12 +21,19 @@ class Nop
 	#
 	#   Format => The format to represent the data as: ruby, perl, c, raw
 	#
-	def self.generate(nop, length, opts)
+	def self.generate_simple(nop, length, opts)
 		# Generate the nop sled using the options supplied
 		buf = nop.generate_sled(length, opts)
 
 		# Serialize the generated payload to some sort of format
 		return Buffer.transform(buf, opts['Format'] || 'raw')
+	end
+
+	#
+	# Calls the class method
+	#
+	def generate_simple(length, opts)
+		Msf::Simple::Nop.generate_simple(self, length, opts)
 	end
 
 end

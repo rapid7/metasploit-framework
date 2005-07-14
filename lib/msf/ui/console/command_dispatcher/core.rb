@@ -14,27 +14,30 @@ class Core
 
 	# Returns the list of commands supported by this command dispatcher
 	def commands
-		return {
-				"?"       => "Help menu",
-				"back"    => "Move back from the current context",
-				"exit"    => "Exit the console",
-				"help"    => "Help menu",
-				"info"    => "Displays information about one or more module",
-				"quit"    => "Exit the console",
-				"search"  => "Adds one or more module search paths",
-				"set"     => "Sets a variable to a value",
-				"show"    => "Displays modules of a given type, or all modules",
-				"unset"   => "Unsets one or more variables",
-				"use"     => "Selects a module by name",
-				"version" => "Show the console library version number",
-			}
+		{
+			"?"       => "Help menu",
+			"back"    => "Move back from the current context",
+			"banner"  => "Display an awesome metasploit banner",
+			"exit"    => "Exit the console",
+			"help"    => "Help menu",
+			"info"    => "Displays information about one or more module",
+			"quit"    => "Exit the console",
+			"search"  => "Adds one or more module search paths",
+			"set"     => "Sets a variable to a value",
+			"setg"    => "Sets a global variable to a value",
+			"show"    => "Displays modules of a given type, or all modules",
+			"unset"   => "Unsets one or more variables",
+			"unsetg"  => "Unsets one or more global variables",
+			"use"     => "Selects a module by name",
+			"version" => "Show the console library version number",
+		}
 	end
 
 	#
 	# Pop the current dispatcher stack context, assuming it isn't pointed at
 	# the core stack context.
 	#
-	def cmd_back(args)
+	def cmd_back(*args)
 		if (driver.dispatcher_stack.size > 1)
 			# Destack the current dispatcher
 			driver.destack_dispatcher
@@ -45,9 +48,15 @@ class Core
 	end
 
 	#
+	# Display one of the fabulous banners
+	#
+	def cmd_banner(*args)
+	end
+
+	#
 	# Instructs the driver to stop executing
 	#
-	def cmd_exit(args)
+	def cmd_exit(*args)
 		driver.stop
 	end
 
@@ -56,7 +65,7 @@ class Core
 	#
 	# Displays the command help banner
 	#
-	def cmd_help(args)
+	def cmd_help(*args)
 		all_commands = {}
 
 		driver.dispatcher_stack.reverse.each { |dispatcher|
@@ -89,10 +98,10 @@ class Core
 	#
 	# Displays information about one or more module
 	#
-	def cmd_info(args)
+	def cmd_info(*args)
 		if (args.length == 0)
-			if (mod = get_active_module())
-				print(Serializer::ReadableText.dump_module(mod))
+			if (active_module)
+				print(Serializer::ReadableText.dump_module(active_module))
 				return true
 			else
 				print(
@@ -118,17 +127,42 @@ class Core
 	#
 	# Adds one or more search paths
 	#
-	def cmd_search(args)
+	def cmd_search(*args)
 		if (args.length == 0)
 			print_error("No search paths were provided.")
-			return false
+			return true
 		end
 
-		args.each { |path|
-			framework.modules.add_module_path(path)
+		totals    = {}
+		overall   = 0
+		curr_path = nil
+
+		begin 
+			# Walk the list of supplied search paths attempting to add each one
+			# along the way
+			args.each { |path|
+				curr_path = path
+
+				if (counts = framework.modules.add_module_path(path))
+					counts.each_pair { |type, count|
+						totals[type] = (totals[type]) ? (totals[type] + count) : count
+	
+						overall += count
+					}
+				end
+			}
+		rescue NameError
+			print_error("Failed to add search path #{curr_path}: #{$!}")
+			return true
+		end
+
+		added = "Loaded #{overall} modules:\n"
+
+		totals.each_pair { |type, count|
+			added += "    #{count} #{type}#{count != 1 ? 's' : ''}\n"
 		}
 
-		print_line("Added #{args.length} search paths.")
+		print(added)
 
 		recalculate_tab_complete
 	end
@@ -136,31 +170,36 @@ class Core
 	#
 	# Sets a name to a value in a context aware environment
 	#
-	def cmd_set(args)
+	def cmd_set(*args)
+	
+		# Figure out if these are global variables
+		global = false
+
+		if (args[0] == '-g')
+			args.shift
+			global = true
+		end
 
 		# Determine which data store we're operating on
-		if (mod = get_active_module())
-			datastore = mod.datastore
+		if (active_module and global == false)
+			datastore = active_module.datastore
 		else
-			datastore = driver.datastore
+			global = true
+			datastore = self.framework.datastore
 		end
 
 		# Dump the contents of the active datastore if no args were supplied
 		if (args.length == 0)
-			tbl = Table.new(
-				Table::Style::Default,
-				'Columns' =>
-					[
-						'Name',
-						'Value'
-					])
+			if (!global)
+				print("\n" +
+					Msf::Serializer::ReadableText.dump_datastore(
+						"Global", framework.datastore))
+			end
 
-			datastore.each_pair { |name, value|
-				tbl << [ name, value ]
-			}
-
-			print(tbl.to_s)
-
+			print("\n" +
+				Msf::Serializer::ReadableText.dump_datastore(
+					(global) ? "Global" : "Module: #{active_module.refname}",
+					datastore) + "\n")
 			return true
 		elsif (args.length < 2)
 			print(
@@ -179,11 +218,20 @@ class Core
 	end
 
 	#
+	# Sets the supplied variables in the global datastore
+	#
+	def cmd_setg(*args)
+		args.unshift('-g')
+
+		cmd_set(*args)
+	end
+
+	#
 	# Displays the list of modules based on their type, or all modules if
 	# no type is provided
 	#
-	def cmd_show(args)
-		mod = get_active_module()
+	def cmd_show(*args)
+		mod = self.active_module
 
 		args << "all" if (args.length == 0)
 
@@ -224,12 +272,21 @@ class Core
 	#
 	# Unsets a value if it's been set
 	#
-	def cmd_unset(args)
+	def cmd_unset(*args)
+
+		# Figure out if these are global variables
+		global = false
+
+		if (args[0] == '-g')
+			args.shift
+			global = true
+		end
+
 		# Determine which data store we're operating on
-		if (mod = get_active_module())
-			datastore = mod.datastore
+		if (active_module and global == false)
+			datastore = active_module.datastore
 		else
-			datastore = driver.datastore
+			datastore = framework.datastore
 		end
 
 		# No arguments?  No cookie.
@@ -248,8 +305,19 @@ class Core
 		end
 	end
 
+	#
+	# Unsets variables in the global data store
+	#
+	def cmd_unsetg(*args)
+		args.unshift('-g')
+
+		cmd_unset(*args)
+	end
+
+	#
 	# Uses a module
-	def cmd_use(args)
+	#
+	def cmd_use(*args)
 		if (args.length == 0)
 			print(
 				"Usage: use module_name\n\n" +
@@ -266,7 +334,7 @@ class Core
 				return false
 			end
 		rescue NameError => info
-			print_error("The supplied module name is ambiguous.")
+			print_error("The supplied module name is ambiguous: #{$!}.")
 			return false
 		end
 
@@ -288,8 +356,8 @@ class Core
 		end
 
 		# If there's currently an active module, go back
-		if (old_mod = get_active_module())
-			cmd_back([])
+		if (active_module)
+			cmd_back()
 		end
 
 		if (dispatcher != nil)
@@ -297,7 +365,7 @@ class Core
 		end
 
 		# Update the active module
-		set_active_module(mod)
+		self.active_module = mod
 
 		# Update the command prompt
 		driver.update_prompt("#{mod.type}(#{mod_name}) ")
@@ -306,7 +374,7 @@ class Core
 	#
 	# Returns the revision of the console library
 	#
-	def cmd_version(args)
+	def cmd_version(*args)
 		ver = "$Revision$"
 
 		print_line("Version: #{ver.match(/ (.+?) \$/)[1]}")

@@ -25,7 +25,7 @@ class Driver < Msf::Ui::Driver
 
 	def initialize(prompt = "%umsf", prompt_char = ">%c")
 		# Initialize attributes
-		self.framework        = Msf::Framework.new
+		self.framework        = Msf::Simple::Framework.create
 		self.dispatcher_stack = []
 
 		# Add the core command dispatcher as the root of the dispatcher
@@ -74,7 +74,7 @@ class Driver < Msf::Ui::Driver
 				begin
 					if (dispatcher.respond_to?('cmd_' + method))
 						eval("
-							dispatcher.#{'cmd_' + method}(arguments)
+							dispatcher.#{'cmd_' + method}(*arguments)
 							found = true")
 					end
 				rescue
@@ -105,6 +105,7 @@ class Driver < Msf::Ui::Driver
 	end
 
 	attr_reader   :dispatcher_stack, :framework
+	attr_accessor :active_module
 
 protected
 

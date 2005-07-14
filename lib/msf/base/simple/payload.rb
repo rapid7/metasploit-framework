@@ -11,7 +11,9 @@ module Simple
 # Simple payload wrapper class for performing generation.
 #
 ###
-class Payload
+module Payload
+
+	include Module
 
 	#
 	# Generate a payload with the mad skillz.  The payload can be generated in
@@ -20,7 +22,7 @@ class Payload
 	# opts can have:
 	#
 	#   Encoder     => A encoder module instance.
-	#   Badchars    => A string of bad characters.
+	#   BadChars    => A string of bad characters.
 	#   Format      => The format to represent the data as: ruby, perl, c, raw
 	#   Options     => A hash of options to set.
 	#   OptionStr   => A string of options in VAR=VAL form separated by
@@ -34,14 +36,10 @@ class Payload
 	#   NoKeyError => No valid encoder key could be found
 	#   ArgumentParseError => Options were supplied improperly
 	#
-	def self.generate(payload, opts)
-		# If options were supplied, import them into the payload's
-		# datastore
-		if (opts['Option'])
-			payload.datastore.import_options_from_hash(opts['Options'])
-		elsif (opts['OptionStr'])
-			payload.datastore.import_options_from_s(opts['OptionStr'])
-		end
+	def self.generate_simple(payload, opts)
+
+		# Import any options we may need
+		payload._import_extra_options(opts)
 
 		# Generate the payload
 		e = EncodedPayload.create(payload,
@@ -59,16 +57,24 @@ class Payload
 
 		# Prepend a comment
 		if (fmt != 'raw' and opts['NoComment'] != true)
-			((ds = payload.datastore.to_s) and ds.length > 0) ? ds += "\n" : ds = ''
+			((ou = payload.options.options_used_to_s(payload.datastore)) and ou.length > 0) ? ou += "\n" : ou = ''
 			buf = Buffer.comment(
 				"#{payload.refname} - #{len} bytes\n" +
 				"http://www.metasploit.com\n" +
-				"#{ds}" + 
 				((e.encoder) ? "Encoder: #{e.encoder.refname}\n" : '') +
-				((e.nop) ? "NOP generator: #{e.nop.refname}\n" : ''), fmt) + buf
+				((e.nop) ?     "NOP gen: #{e.nop.refname}\n" : '') +
+				"#{ou}",
+				fmt) + buf
 		end
 
 		return buf
+	end
+
+	#
+	# Calls the class method
+	#
+	def generate_simple(opts)
+		Msf::Simple::Payload.generate_simple(self, opts)
 	end
 
 end

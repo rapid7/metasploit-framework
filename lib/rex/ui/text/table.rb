@@ -68,6 +68,21 @@ class Table
 	end
 
 	#
+	# :nodoc:
+	#
+	# Returns the header string
+	#
+	def header_to_s
+		if (header)
+			pad = " " * headeri
+
+			return pad + header + "\n" + pad + "=" * header.length + "\n\n"
+		end
+
+		return ''
+	end
+
+	#
 	# Prints the contents of the table
 	#
 	def print
@@ -127,21 +142,6 @@ protected
 	#
 	def is_hr(row)
 		return ((row.kind_of?(String)) && (row == '__hr__'))
-	end
-
-	#
-	# :nodoc:
-	#
-	# Returns the header string
-	#
-	def header_to_s
-		if (header)
-			pad = " " * headeri
-
-			return pad + header + "\n" + pad + "=" * header.length + "\n"
-		end
-
-		return ''
 	end
 
 	#

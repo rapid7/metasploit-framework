@@ -19,9 +19,7 @@
 require 'msf/core'
 
 # Simple wrapper
-require 'msf/base/simple/buffer'
-require 'msf/base/simple/nop'
-require 'msf/base/simple/payload'
+require 'msf/base/simple'
 
 # Sessions
 require 'msf/base/session/command_shell'

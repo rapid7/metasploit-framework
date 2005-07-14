@@ -59,7 +59,7 @@ class Module
 		self.options.add_advanced_options(info['AdvancedOptions'], self.class)
 
 		# Create and initialize the data store for this module
-		self.datastore = DataStore.new
+		self.datastore = ModuleDataStore.new(self)
 		self.datastore.import_options(self.options)
 
 		# If there are default options, import their values into the datastore

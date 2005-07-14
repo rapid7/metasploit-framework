@@ -78,4 +78,36 @@ class DataStore < Hash
 	end
 end
 
+###
+#
+# ModuleDataStore
+# ---------------
+#
+# DataStore wrapper for modules that will attempt to back values against the
+# framework's datastore if they aren't found in the module's datastore.
+#
+###
+class ModuleDataStore < DataStore
+
+	def initialize(m)
+		@_module = m
+	end
+
+	#
+	# Fetch the key from the local hash first, or from the framework datastore
+	# if we can't directly find it
+	#
+	def fetch(key)
+		val = super || @_module.framework.datastore[key]
+	end
+
+	#
+	# Same as fetch
+	#
+	def [](key)
+		val = super || @_module.framework.datastore[key]
+	end
+
+end
+
 end

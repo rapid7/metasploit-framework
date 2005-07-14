@@ -25,16 +25,32 @@ class ModuleSet < Hash
 		self.mod_platform_hash = {}
 		self.mod_sorted        = nil
 		self.mod_ranked        = nil
+		self.mod_extensions    = []
 	end
 
+	#
 	# Create an instance of the supplied module by its name
+	#
 	def create(name)
-		klass = self[name]
-		
-		return (klass) ? klass.new : nil
+		klass    = self[name]
+		instance = nil
+
+		# If the klass is valid for this name, try to create it
+		if (klass)
+			instance = klass.new
+		end
+
+		# Notify any general subscribers of the creation event
+		if (instance)
+			self.framework.events.on_module_created(instance)
+		end
+
+		return instance
 	end
 
+	#
 	# Enumerates each module class in the set
+	#
 	def each_module(opts = {}, &block)
 		mod_sorted = self.sort if (mod_sorted == nil)
 		
@@ -130,6 +146,9 @@ protected
 		dup.refname   = name
 
 		self[name] = dup
+
+		# Notify the framework that a module was loaded
+		framework.events.on_module_load(name, dup)
 		
 		# Invalidate the sorted array
 		invalidate_cache
@@ -146,6 +165,7 @@ protected
 	attr_writer   :module_type
 	attr_accessor :mod_arch_hash, :mod_platform_hash
 	attr_accessor :mod_sorted, :mod_ranked
+	attr_accessor :mod_extensions
 
 end
 
@@ -171,11 +191,12 @@ class ModuleManager < ModuleSet
 
 	include Framework::Offspring
 
-	def initialize()
+	def initialize(framework)
 		self.module_paths         = []
 		self.module_history       = {}
 		self.module_history_mtime = {}
 		self.module_sets          = {}
+		self.framework            = framework
 
 		MODULE_TYPES.each { |type|
 			case type
@@ -188,7 +209,7 @@ class ModuleManager < ModuleSet
 			self.module_sets[type] = instance
 
 			# Set the module set's framework reference
-			instance.framework = self.framework
+			instance.framework = framework
 		}
 
 		super
@@ -198,56 +219,85 @@ class ModuleManager < ModuleSet
 	# Accessors by module type
 	#
 
+	#
 	# Returns the set of loaded encoder module classes
+	#
 	def encoders
 		return module_sets[MODULE_ENCODER]
 	end
 
+	#
 	# Returns the set of loaded exploit module classes
+	#
 	def exploits
 		return module_sets[MODULE_EXPLOIT]
 	end
 
+	#
 	# Returns the set of loaded nop module classes
+	#
 	def nops
 		return module_sets[MODULE_NOP]
 	end
 
+	#
 	# Returns the set of loaded payload module classes
+	#
 	def payloads
 		return module_sets[MODULE_PAYLOAD]
 	end
 
+	#
 	# Returns the set of loaded recon module classes
+	#
 	def recon
 		return module_sets[MODULE_RECON]
 	end
 
+	##
 	#
 	# Module path management
 	#
+	##
 
+	#
 	# Adds a path to be searched for new modules
+	#
 	def add_module_path(path)
 		path.sub!(/#{File::SEPARATOR}$/, '')
 
+		# Make sure the path is a valid directory before we try to rock the
+		# house
+		if (File.directory?(path) == false)
+			raise NameError, "The path supplied is not a valid directory.",
+				caller
+		end
+
 		module_paths << path
 
-		load_modules(path)
+		return load_modules(path)
 	end
 
+	#
 	# Removes a path from which to search for modules
+	#
 	def remove_module_path(path)
 		module_paths.delete(path)
 	end
 
+	def register_type_extension(type, ext)
+	end
+
 protected
 
+	#
 	# Load all of the modules from the supplied module path (independent of
 	# module type)
+	#
 	def load_modules(path)
 		loaded = {}
 		recalc = {}
+		counts = {}
 
 		Find.find(path) { |file|
 
@@ -319,6 +369,9 @@ protected
 
 			# Append the added module to the hash of file->module
 			loaded[file] = added
+
+			# The number of loaded modules this round
+			counts[type] = (counts[type]) ? (counts[type] + 1) : 1
 		}
 
 		# Cache the loaded file mtimes
@@ -335,17 +388,22 @@ protected
 			module_sets[key].recalculate
 		}
 
-		return loaded.values
+		# Return per-module loaded counts
+		return counts
 	end
 
+	#
 	# Checks to see if the supplied file has changed (if it's even in the
 	# cache)
+	#
 	def has_module_file_changed?(file)
 		return (module_history_mtime[file] != File.new(file).mtime)
 	end
 
+	#
 	# Returns the module object that is associated with the supplied module
 	# name
+	#
 	def mod_from_name(name)
 		obj = Msf
 
@@ -364,8 +422,10 @@ protected
 		return obj
 	end
 
+	#
 	# Called when a module is initially loaded such that it can be
 	# categorized accordingly
+	#
 	def on_module_load(mod, type, name)
 		# Payload modules require custom loading as the individual files
 		# may not directly contain a logical payload that a user would 

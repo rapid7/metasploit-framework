@@ -233,6 +233,26 @@ class ReadableText
 	end
 
 	#
+	# Dumps the contents of a datastore
+	#
+	def self.dump_datastore(name, ds, indent = 4, col = 60)
+		tbl = Rex::Ui::Text::Table.new(
+			'Indent'  => indent,
+			'Header'  => name,
+			'Columns' =>
+				[
+					'Name', 
+					'Value'
+				])
+
+		ds.each_pair { |n, v|
+			tbl << [ n, v ]
+		}
+
+		return ds.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No entries in data store.\n"
+	end
+
+	#
 	# Jacked from Ernest Ellingson <erne [at] powernav.com>, modified
 	# a bit to add indention
 	#

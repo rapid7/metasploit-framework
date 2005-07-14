@@ -8,25 +8,25 @@ module CommandDispatcher
 class Payload
 
 	@@generate_opts = Rex::Parser::Arguments.new(
-		"-b" => [ true,  "The list of characters to avoid '\\x00\\xff'"         ],
-		"-t" => [ true,  "The output type: ruby, perl, c, or raw."              ],
+		"-b" => [ true,  "The list of characters to avoid: '\\x00\\xff'"        ],
 		"-e" => [ true,  "The name of the encoder module to use."               ],
-		"-o" => [ true,  "A space separated list of options in VAR=VAL format." ],
+		"-h" => [ false, "Help banner."                                         ],
+		"-o" => [ true,  "A comma separated list of options in VAR=VAL format." ],
 		"-s" => [ true,  "NOP sled length."                                     ],
-		"-h" => [ false, "Help banner."                                         ])
+		"-t" => [ true,  "The output type: ruby, perl, c, or raw."              ])
 
 	include Msf::Ui::Console::ModuleCommandDispatcher
 
 	def commands
-		return {
-				"generate" => "Generates a payload",	
-			}
+		{
+			"generate" => "Generates a payload",	
+		}
 	end
 
 	#
 	# Generates a payload
 	#
-	def cmd_generate(args)
+	def cmd_generate(*args)
 
 		# Parse the arguments
 		encoder_name = nil
@@ -58,8 +58,7 @@ class Payload
 
 		# Generate the payload
 		begin
-			buf = Msf::Simple::Payload.generate(
-				mod, 
+			buf = mod.generate_simple(
 				'BadChars'    => badchars,
 				'Encoder'     => encoder_name,
 				'Format'      => type,

@@ -46,7 +46,7 @@ nop = Msf::Nops::IA32::SingleByte.new
 sled = nop.generate_sled(
 	100,
 	'Random'        => true)
-#	'Badchars'      => "\x95")
+#	'BadChars'      => "\x95")
 #	'SaveRegisters' => [ 'eax' ])
 
 puts sled.unpack("H*")[0]

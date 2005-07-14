@@ -12,6 +12,14 @@ module Msf
 #
 ###
 class Framework
+
+	#
+	# Versioning information
+	#
+	Major    = 3
+	Minor    = 0
+	Version  = "#{Major}.#{Minor}"
+	Revision = "$Revision$"
 	
 	#
 	# Mixin meant to be included into all classes that can have instances that
@@ -24,10 +32,9 @@ class Framework
 	require 'msf/core/module_manager'
 
 	def initialize()
-		self.events  = EventDispatcher.new
-		self.modules = ModuleManager.new
-
-		self.modules.framework = self
+		self.events    = EventDispatcher.new
+		self.modules   = ModuleManager.new(self)
+		self.datastore = DataStore.new
 	end
 
 	#
@@ -67,11 +74,13 @@ class Framework
 
 	attr_reader   :events
 	attr_reader   :modules
+	attr_reader   :datastore
 
 protected
 
 	attr_writer   :events
 	attr_writer   :modules
+	attr_writer   :datastore
 
 end
 

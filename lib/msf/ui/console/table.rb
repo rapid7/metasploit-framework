@@ -34,10 +34,6 @@ class Table < Rex::Ui::Text::Table
 		end
 	end
 
-	def header_to_s
-		return super + "\n"
-	end
-
 	# Print nothing if there are no rows if the style is default
 	def to_s
 		if (style == Style::Default)

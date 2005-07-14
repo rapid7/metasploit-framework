@@ -33,12 +33,12 @@ module CommandDispatcher
 		return driver.framework
 	end
 
-	def set_active_module(mod)
-		driver.datastore['_ActiveModule'] = mod
+	def active_module
+		driver.active_module
 	end
 
-	def get_active_module
-		return driver.datastore['_ActiveModule']
+	def active_module=(mod)
+		driver.active_module = mod
 	end
 
 	#

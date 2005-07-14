@@ -27,7 +27,7 @@ class Nop < Msf::Module
 	#   - SaveRegisters (array)
 	#     The list of registers that should not be clobbered by the NOP
 	#     generator.
-	#   - Badchars (string)
+	#   - BadChars (string)
 	#     The list of characters that should be avoided by the NOP 
 	#     generator.
 	#

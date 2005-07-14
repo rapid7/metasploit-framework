@@ -7,7 +7,7 @@ module ModuleCommandDispatcher
 	include Msf::Ui::Console::CommandDispatcher
 
 	def mod
-		return get_active_module
+		return driver.active_module
 	end
 
 end

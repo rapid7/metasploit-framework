@@ -13,7 +13,6 @@ module Ui
 class Driver
 
 	def initialize
-		self.datastore = DataStore.new
 	end
 
 	# Executes the user interface, optionally in an asynchronous fashion
@@ -29,25 +28,7 @@ class Driver
 	def cleanup
 	end
 
-	#
-	# Arbitrary state storage
-	#
-
-	# Store a keyed value
-	def store(key, value)
-		datastore[key] = value
-	end
-
-	# Retrieve a keyed value
-	def fetch(key)
-		return datastore[key]
-	end
-
-	attr_reader :datastore
-
 protected
-
-	attr_writer :datastore
 
 end
 

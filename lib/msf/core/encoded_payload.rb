@@ -44,6 +44,9 @@ class EncodedPayload
 		self.encoder       = nil
 		self.nop           = nil
 
+		# First, validate
+		pinst.validate()
+
 		# Generate the raw version of the payload first
 		generate_raw()
 

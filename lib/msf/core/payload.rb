@@ -99,6 +99,13 @@ class Payload < Msf::Module
 	##
 
 	#
+	# Make sure all our required options are set.
+	#
+	def validate
+		self.options.validate(self.datastore)
+	end
+
+	#
 	# Generates the payload and return the raw buffer
 	#
 	def generate

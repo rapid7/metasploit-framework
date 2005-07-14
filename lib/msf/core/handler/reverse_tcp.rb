@@ -25,7 +25,7 @@ module ReverseTcp
 
 		register_options(
 			[
-				Opt::LHOST("0.0.0.0"),
+				Opt::LHOST,
 				Opt::LPORT(4444)
 			], Msf::Handler::ReverseTcp)
 
@@ -39,7 +39,7 @@ module ReverseTcp
 	#
 	def setup_handler
 		listener_sock = comm.create(
-			'LocalHost' => datastore['LHOST'] || "0.0.0.0",
+			'LocalHost' => datastore['LHOST'],
 			'LocalPort' => datastore['LPORT'].to_i,
 			'Server'    => true,
 			'Proto'     => 'tcp')

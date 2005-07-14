@@ -9,15 +9,15 @@ class Nop
 
 	@@generate_opts = Rex::Parser::Arguments.new(
 		"-b" => [ true,  "The list of characters to avoid: '\\x00\\xff'" ],
-		"-t" => [ true,  "The output type: ruby, perl, c, or raw."       ],
-		"-h" => [ false, "Help banner."                                  ])
+		"-h" => [ false, "Help banner."                                  ],
+		"-t" => [ true,  "The output type: ruby, perl, c, or raw."       ])
 
 	include Msf::Ui::Console::ModuleCommandDispatcher
 
 	def commands
-		return {
-				"generate" => "Generates a NOP sled",
-			}
+		{
+			"generate" => "Generates a NOP sled",
+		}
 	end
 
 	#
@@ -40,7 +40,7 @@ class Nop
 				when nil
 					length = val.to_i	
 				when '-b'
-					badchars = [ val.downcase.gsub(/\\x([a-f0-9][a-f0-9])/, '\1') ].pack("H*")
+					badchars = Rex::Text.hex_to_raw(val)
 				when '-t'
 					type = val
 				when '-h'
@@ -54,10 +54,9 @@ class Nop
 
 		# Generate the sled
 		begin
-			sled = Msf::Simple::Nop.generate(
-				mod, 
+			sled = mod.generate_simple(
 				length,
-				'Badchars' => badchars,
+				'BadChars' => badchars,
 				'Format'   => type)
 		rescue
 			print_error("Sled generation failed: #{$!}.")
