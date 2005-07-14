@@ -51,6 +51,18 @@ class Core
 	# Display one of the fabulous banners
 	#
 	def cmd_banner(*args)
+		banner  = Banner.to_s + "\n\n"
+		banner += "       =[ msf v#{Msf::Framework::Version}\n"
+		banner += "+ -- --=[ "
+		banner += "#{framework.stats.num_exploits} exploits - "
+		banner += "#{framework.stats.num_payloads} payloads\n"
+		banner += "       =[ "
+		banner += "#{framework.stats.num_encoders} encoders - "
+		banner += "#{framework.stats.num_nops} nops"
+		banner += "\n\n"
+
+		# Display the banner
+		print(banner)
 	end
 
 	#

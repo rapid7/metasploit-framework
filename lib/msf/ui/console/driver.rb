@@ -34,6 +34,27 @@ class Driver < Msf::Ui::Driver
 
 		# Initialize the super
 		super
+		
+		# Process things before we actually display the prompt and get rocking
+		on_startup
+	end
+
+	#
+	# Called before things actually get rolling such that banners can be
+	# displayed, scripts can be processed, and other fun can be had.
+	#
+	def on_startup
+		# Prevent output from being displayed for now
+		self.disable_output = true
+
+		# Run a few commands to start things off
+		run_single("search #{File.join(File.dirname(__FILE__), '..', '..', '..', '..', 'modules')}")
+
+		# Re-enable output
+		self.disable_output = false
+
+		# Build the banner message
+		run_single("banner")
 	end
 
 	#

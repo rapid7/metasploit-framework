@@ -28,7 +28,8 @@ module Shell
 		end
 
 		# Set the stop flag to false
-		self.stop_flag = false
+		self.stop_flag      = false
+		self.disable_output = false
 
 		# Initialize the prompt
 		self.init_prompt = prompt
@@ -119,6 +120,7 @@ module Shell
 	# Returns colorized text if it's supported, otherwise an empty string
 	#
 	def colorize(*color)
+		# This check is busted atm...
 		#return (supports_color? == false) ? '' : Rex::Ui::Text::Color.ansi(color)
 		return Rex::Ui::Text::Color.ansi(*color)
 	end
@@ -128,20 +130,30 @@ module Shell
 	#
 	
 	def print_error(msg)
+		return if (disable_output == true)
+
 		output.print_error(msg)
 	end
 
 	def print_status(msg)
+		return if (disable_output == true)
+
 		output.print_status(msg)
 	end
 
 	def print_line(msg)
+		return if (disable_output == true)
+
 		output.print_line(msg)
 	end
 
 	def print(msg)
+		return if (disable_output == true)
+
 		output.print(msg)
 	end
+
+	attr_accessor :disable_output
 
 protected
 
