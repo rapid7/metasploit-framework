@@ -18,6 +18,9 @@
 # framework-base depends on framework-core
 require 'msf/core'
 
+# Configuration
+require 'msf/base/config'
+
 # Simple wrapper
 require 'msf/base/simple'
 

@@ -13,6 +13,8 @@ module Simple
 ###
 module Nop
 
+	include Module
+
 	#
 	# Generate a nop sled, optionally with a few parameters.
 	#

@@ -115,6 +115,12 @@ class Msf::Module::PlatformList
 		list1 = plist.platforms
 		list2 = platforms
 		total = [ ]
+
+		# If either list has all in it, just merge the two
+		if (plist.all? or all?)
+			return list1.dup.concat(list2)
+		end
+
 		#
 		# um, yeah, expand the lowest depth (like highest superset)
 		# each time and then do another intersection, keep doing
@@ -153,6 +159,7 @@ class Msf::Module::PlatformList
 	#
 	def _intersect_expand(list1, list2)
 		(list1 + list2).sort { |a, b|
+			puts "#{a} #{b}"
 		  a.name.split('::').length <=> b.name.split('::').length }.
 		  each { |m|
 		  	children = m.find_children

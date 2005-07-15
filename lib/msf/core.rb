@@ -37,3 +37,6 @@ require 'msf/core/exploit'
 require 'msf/core/nop'
 require 'msf/core/payload'
 require 'msf/core/recon'
+
+# Drivers
+require 'msf/core/exploit_driver'

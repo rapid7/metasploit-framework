@@ -150,7 +150,7 @@ class EncodedPayload
 
 		# If the maximum number of NOPs has been exceeded, wrap it back down.
 		if ((reqs['MaxNops']) and
-			 (reqs['MaxNops'] > sled_size))
+			 (reqs['MaxNops'] > self.nop_sled_size))
 			self.nop_sled_size = reqs['MaxNops']
 		end
 
@@ -161,7 +161,7 @@ class EncodedPayload
 				self.nop = nopmod.new
 	
 				begin
-					self.nop_sled = nop.generate_sled(nop_sled_size,
+					self.nop_sled = nop.generate_sled(self.nop_sled_size,
 						'BadChars'      => reqs['BadChars'],
 						'SaveRegisters' => reqs['SaveRegisters'])	
 				rescue

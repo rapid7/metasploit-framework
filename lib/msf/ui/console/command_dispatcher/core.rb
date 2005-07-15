@@ -22,6 +22,7 @@ class Core
 			"help"    => "Help menu",
 			"info"    => "Displays information about one or more module",
 			"quit"    => "Exit the console",
+			"save"    => "Saves the active datastores",
 			"search"  => "Adds one or more module search paths",
 			"set"     => "Sets a variable to a value",
 			"setg"    => "Sets a global variable to a value",
@@ -43,6 +44,11 @@ class Core
 	#
 	def cmd_back(*args)
 		if (driver.dispatcher_stack.size > 1)
+			# Reset the active module if we have one
+			if (active_module)
+				self.active_module = nil
+			end
+
 			# Destack the current dispatcher
 			driver.destack_dispatcher
 	
@@ -143,6 +149,29 @@ class Core
 	end
 
 	alias cmd_? cmd_help
+
+	#
+	# Saves the active datastore contents to disk for automatic use across
+	# restarts of the console.
+	#
+	def cmd_save(*args)
+		# Save the console config
+		driver.save_config
+
+		# Save the framework's datastore
+		begin
+			framework.save_config
+	
+			if (active_module)
+				active_module.save_config
+			end
+		rescue
+			log_error("Save failed: #{$!}")
+			return false
+		end
+	
+		print_line("Saved configuration to: #{Msf::Config.config_file}")
+	end
 
 	#
 	# Adds one or more search paths
@@ -403,7 +432,8 @@ class Core
 	def cmd_version(*args)
 		ver = "$Revision$"
 
-		print_line("Version: #{ver.match(/ (.+?) \$/)[1]}")
+		print_line("Framework: #{Msf::Framework::Version}.#{Msf::Framework::Revision.match(/ (.+?) \$/)[1]}")
+		print_line("Console  : #{Msf::Framework::Version}.#{ver.match(/ (.+?) \$/)[1]}")
 
 		return true
 	end
@@ -418,7 +448,7 @@ protected
 
 		framework.modules.each_module { |refname, mod|
 			self.tab_complete_items << refname
-			self.tab_complete_items << mod.type + '/' + refname
+			self.tab_complete_items << mod.fullname
 		}
 	end
 

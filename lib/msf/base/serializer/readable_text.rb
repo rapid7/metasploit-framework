@@ -251,8 +251,8 @@ class ReadableText
 					'Value'
 				])
 
-		ds.each_pair { |n, v|
-			tbl << [ n, v ]
+		ds.keys.sort.each { |k|
+			tbl << [ k, ds[k] ]
 		}
 
 		return ds.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No entries in data store.\n"

@@ -76,6 +76,38 @@ class DataStore < Hash
 
 		return str
 	end
+
+	#
+	# Persists the contents of the data store to a file
+	#
+	def to_file(path, name = 'global')
+		ini = Rex::Parser::Ini.new(path)
+
+		ini.add_group(name)
+
+		self.each_pair { |k, v|
+			ini[name][k] = v
+		}
+
+		ini.to_file(path)
+	end
+
+	#
+	# Imports datastore values from the specified file path using the supplied
+	# name
+	#
+	def from_file(path, name = 'global')
+		begin
+			ini = Rex::Parser::Ini.from_file(path)
+		rescue
+			return
+		end
+
+		if (ini.group?(name))
+			import_options_from_hash(ini[name])
+		end
+	end
+
 end
 
 ###

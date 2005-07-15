@@ -28,6 +28,10 @@ class Module
 			raise NotImplementedError
 		end
 
+		def fullname
+			return type + '/' + refname
+		end
+
 		# 
 		# The module's name that is assigned it it by the framework
 		# or derived from the path that the module is loaded from.
@@ -76,12 +80,24 @@ class Module
 
 		self.privileged = module_info['Privileged'] || false
 	end
-	
+
+
 	#
-	# Return's the module's framework reference name.  This is the
+	# Returns the module's framework full reference name.  This is the
+	# short name that end-users work with (refname) plus the type
+	# of module prepended.  Ex:
+	#
+	# payloads/windows/shell/reverse_tcp
+	#
+	def fullname
+		return self.class.fullname
+	end
+
+	#
+	# Returns the module's framework reference name.  This is the
 	# short name that end-users work with.  Ex: 
 	#
-	# win32/shell/reverse_tcp
+	# windows/shell/reverse_tcp
 	#
 	def refname
 		return self.class.refname
@@ -183,8 +199,21 @@ class Module
 	end
 
 	#
+	# Overrides the class' own datastore with the one supplied.  This is used
+	# to allow modules to share datastores, such as a payload sharing an
+	# exploit module's datastore.
+	#
+	def share_datastore(ds)
+		self.datastore = ds
+		self.datastore.import_options(self.options)
+	end
+	
+	##
+	#
 	# Just some handy quick checks
 	#
+	##
+	
 	def exploit?
 		return (type == MODULE_EXPLOIT)
 	end

@@ -59,7 +59,17 @@ protected
 
 end 
 
-end end end
+module ModuleCommandDispatcher
 
-require 'msf/ui/console/module_command_dispatcher'
+	include Msf::Ui::Console::CommandDispatcher
+
+	def mod
+		return driver.active_module
+	end
+
+end
+
+end end end
+	
 require 'msf/ui/console/command_dispatcher/core'
+

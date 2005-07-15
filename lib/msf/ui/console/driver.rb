@@ -21,12 +21,17 @@ module Console
 ###
 class Driver < Msf::Ui::Driver
 
+	ConfigGroup = "framework/ui/console"
+
 	include Msf::Ui::Console::Shell
 
 	def initialize(prompt = "%umsf", prompt_char = ">%c")
 		# Initialize attributes
 		self.framework        = Msf::Simple::Framework.create
 		self.dispatcher_stack = []
+
+		# Initialize config
+		Msf::Config.init
 
 		# Add the core command dispatcher as the root of the dispatcher
 		# stack
@@ -37,6 +42,62 @@ class Driver < Msf::Ui::Driver
 		
 		# Process things before we actually display the prompt and get rocking
 		on_startup
+
+		# Load console-specific configuration
+		load_config
+
+		# Process the resource script
+		process_rc_file
+	end
+
+	#
+	# Loads configuration for the console
+	#
+	def load_config
+		begin
+			conf = Msf::Config.load
+		rescue
+			wlog("Failed to load configuration: #{$!}")
+			return
+		end
+
+		# If we have configuration, process it
+		if (conf.group?(ConfigGroup))
+			conf[ConfigGroup].each_pair { |k, v|
+				case k
+					when "ActiveModule"
+						run_single("use #{v}")
+				end
+			}
+		end
+	end
+
+	#
+	# Saves configuration for the console
+	#
+	def save_config
+		# Build out the console config group
+		group = {}
+
+		if (active_module)
+			group['ActiveModule'] = active_module.fullname
+		end
+
+		# Save it
+		begin 
+			Msf::Config.save(
+				ConfigGroup => group)
+		rescue
+			log_error("Failed to save console config: #{$!}")
+		end
+	end
+
+	#
+	# TODO:
+	#
+	# Processes the resource script file for the console
+	#
+	def process_rc_file
 	end
 
 	#

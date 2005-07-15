@@ -101,8 +101,8 @@ class Table
 	#
 	def add_row(fields = [])
 		fields.each_with_index { |field, idx|
-			if (colprops[idx]['MaxWidth'] < field.length)
-				colprops[idx]['MaxWidth'] = field.length
+			if (colprops[idx]['MaxWidth'] < field.to_s.length)
+				colprops[idx]['MaxWidth'] = field.to_s.length
 			end
 		}
 
@@ -185,7 +185,7 @@ protected
 		line = ' ' * indent
 
 		row.each_with_index { |cell, idx|
-			line += cell + pad(' ', cell, idx)
+			line += cell.to_s + pad(' ', cell.to_s, idx)
 		}
 
 		return line + "\n"

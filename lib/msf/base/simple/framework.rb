@@ -44,6 +44,9 @@ module Framework
 		# Initialize the simplified framework
 		framework.init_simplified()
 
+		# Load the configuration
+		framework.load_config
+
 		# Set the on_module_created procedure to simplify any module
 		# instance that is created
 		framework.on_module_created_proc = Proc.new { |instance| 
@@ -65,6 +68,8 @@ module Framework
 		if ((ModuleSimplifiers[instance.type]) and
 		    (instance.class.include?(ModuleSimplifiers[instance.type]) == false))
 			instance.extend(ModuleSimplifiers[instance.type])
+
+			instance.init_simplified
 		end
 	end
 
@@ -79,6 +84,20 @@ module Framework
 	#
 	def init_simplified
 		self.stats = Statistics.new(self)
+	end
+
+	#
+	# Loads configuration, populates the root datastore, etc.
+	#
+	def load_config
+		self.datastore.from_file(Msf::Config.config_file, 'framework/core')
+	end
+
+	#
+	# Saves the module's datastore to the file
+	#
+	def save_config
+		self.datastore.to_file(Msf::Config.config_file, 'framework/core')
 	end
 
 	attr_reader :stats

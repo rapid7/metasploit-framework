@@ -14,3 +14,17 @@ X      - pad nops
      - handler cleanup
        - stop handler
        - cleanup handler
+
+- add the concept of services to framework:
+
+# first parameter is class that must inherit from Rex::Proto so that it has .alias
+service = framework.services.start(Rex::Proto::HTTP::Server, 'Port' => 80, 'Host' => '127.0.0.1')
+service = framework.services['HTTP Server']
+
+overrides any existing resource handler with this name:
+service.create_resource("/uri", Proc.new { |conn, request|
+})
+
+service.remove_resource("/uri")
+service.shutdown 
+  ^- reference counted, only terminates when reference count drops to zero

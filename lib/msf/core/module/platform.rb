@@ -178,7 +178,7 @@ class Msf::Module::Platform
 	# Builtin platforms
 	#
 	##
-
+	
 	#
 	# Windows
 	#
