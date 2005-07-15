@@ -32,6 +32,13 @@ module Msf
 module Handler
 
 	#
+	# Constants used with the ``handler'' method to indicate whether or not the
+	# connection was used
+	#
+	Claimed = "claimed"
+	Unused  = "unused"
+
+	#
 	# Returns the handler type
 	#
 	def self.handler_type
@@ -60,6 +67,14 @@ module Handler
 	# Stop monitoring for a connection
 	#
 	def stop_handler
+	end
+
+	#
+	# Checks to see if a payload connection has been established on
+	# the supplied connection.  This is necessary for find-sock style 
+	# payloads.
+	#
+	def handler(sock)
 	end
 
 	#

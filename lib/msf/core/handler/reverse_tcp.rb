@@ -16,6 +16,8 @@ module Handler
 ###
 module ReverseTcp
 
+	include Msf::Handler
+
 	def self.handler_type
 		return "reverse_tcp"
 	end

@@ -10,6 +10,11 @@ require 'rex/io/stream'
 #
 ###
 class Rex::Socket::Tcp < Rex::Socket
+	
+	SHUT_RDWR = 2
+	SHUT_WR   = 1
+	SHUT_RD   = 0
+
 	include Rex::IO::Stream
 
 	##

@@ -93,7 +93,7 @@ class Payload < Msf::Module
 	# isn't one.
 	#
 	def handler
-		return module_info['Handler']
+		return module_info['Handler'] || Msf::Handler
 	end
 
 	##
