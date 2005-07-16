@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby -w
 
 ##
-#    Name: Rex::SMB::Crypt
+#    Name: Rex::Proto::SMB::Crypt
 # Purpose: Provide LANMAN DES, NTLM MD4, and HMAC MD5 routines for SMB
 #  Author: H D Moore <hdm [at] metasploit.com>
 # Version: $Revision$
@@ -69,8 +69,8 @@ if $0 == __FILE__
 	test_pass = "XXXXXXX"
 	test_chal = "Z" * 8
 
-	res_lm = Rex::SMB::Crypt.lanman_des(test_pass, test_chal).unpack("H*")[0]
-	res_nt = Rex::SMB::Crypt.ntlm_md4(test_pass, test_chal).unpack("H*")[0]
+	res_lm = Rex::Proto::SMB::Crypt.lanman_des(test_pass, test_chal).unpack("H*")[0]
+	res_nt = Rex::Proto::SMB::Crypt.ntlm_md4(test_pass, test_chal).unpack("H*")[0]
 
 	if ! res_lm.eql?( test_lm )
 		puts "[*] Hash generation test for lanman has failed"
