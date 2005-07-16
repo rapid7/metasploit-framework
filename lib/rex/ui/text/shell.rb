@@ -27,9 +27,9 @@ module Shell
 	module InputShell
 		attr_accessor :prompt, :output
 
-		def gets
+		def pgets
 			output.print(prompt)
-			super
+			gets
 		end
 	end
 
@@ -75,7 +75,7 @@ module Shell
 	def run
 		stop_flag = false
 
-		while ((line = input.gets))
+		while ((line = input.pgets))
 			run_single(line)
 
 			break if (input.eof? or self.stop_flag)
@@ -175,6 +175,7 @@ module Shell
 	end
 
 	attr_accessor :disable_output
+	attr_reader   :input, :output
 
 protected
 
@@ -194,7 +195,8 @@ protected
 	end
 
 
-	attr_accessor :input, :output, :stop_flag, :init_prompt
+	attr_writer   :input, :output
+	attr_accessor :stop_flag, :init_prompt
 	attr_accessor :prompt_char, :tab_complete_proc
 
 end

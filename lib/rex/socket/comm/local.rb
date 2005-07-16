@@ -41,6 +41,8 @@ class Rex::Socket::Comm::Local
 					sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
 				end
 
+				sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
+
 				sock.bind(Rex::Socket.to_sockaddr(param.localhost, param.localport))
 			rescue Errno::EADDRINUSE
 				raise Rex::AddressInUse.new(param.localhost, param.localport), caller

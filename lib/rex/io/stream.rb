@@ -21,42 +21,36 @@ module Stream
 	# Set the stream to blocking or non-blocking
 	#
 	def blocking=(tf)
-		super
 	end
 
 	#
 	# Check to see if the stream is blocking or non-blocking
 	#
 	def blocking
-		super
 	end
 
 	#
 	# Writes data to the stream.
 	#
 	def write(buf, opts = {})
-		super
 	end
 
 	#
 	# Reads data from the stream.
 	#
 	def read(length = nil, opts = {})
-		super
 	end
 
 	#
 	# Shuts down the stream for reading, writing, or both.
 	#
 	def shutdown(how = SW_BOTH)
-		super
 	end
 
 	#
 	# Closes the stream and allows for resource cleanup
 	#
 	def close
-		super
 	end
 
 	#
@@ -64,14 +58,19 @@ module Stream
 	# true if data is available for reading, otherwise false is returned.
 	#
 	def has_read_data?(timeout = nil)
-		super
 	end
 
 	#
 	# Returns the file descriptor that can be polled via select, if any.
 	#
 	def poll_fd
-		super
+	end
+
+	#
+	# Wrapper for poll_fd
+	#
+	def fd
+		poll_fd
 	end
 
 	##
@@ -141,7 +140,7 @@ module Stream
 		end
 
 		# No data in the first place? bust.
-		if (!has_read_data?(timeout))
+		if (has_read_data?(timeout) == false)
 			return nil
 		end
 
@@ -149,10 +148,15 @@ module Stream
 		lps = 0
 
 		# Keep looping until there is no more data to be gotten..
-		while (has_read_data?(ltimeout))
+		while (has_read_data?(ltimeout) == true)
 			temp = read(def_block_size)
 
-			break if (temp == nil or temp.empty?)
+			# If we read zero bytes and we had data, then we've hit EOF
+			if (temp and temp.length == 0)
+				raise EOFError
+			end
+
+			break if (temp == nil or temp.empty? == true)
 
 			buf += temp
 			lps += 1

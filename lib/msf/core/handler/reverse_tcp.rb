@@ -40,20 +40,19 @@ module ReverseTcp
 	# if it fails to start the listener
 	#
 	def setup_handler
-		listener_sock = comm.create(
+		self.listener_sock = Rex::Socket::TcpServer.create(
 			'LocalHost' => datastore['LHOST'],
 			'LocalPort' => datastore['LPORT'].to_i,
-			'Server'    => true,
-			'Proto'     => 'tcp')
+			'Comm'      => comm)
 	end
 
 	#
 	# Closes the listener socket if one was created
 	#
 	def cleanup_handler
-		if (listener_sock)
-			listener_sock.close
-			listener_sock = nil
+		if (self.listener_sock)
+			self.listener_sock.close
+			self.listener_sock = nil
 		end
 
 		# Kill any remaining handle_connection threads that might
@@ -68,13 +67,15 @@ module ReverseTcp
 	#
 	def start_handler
 		listener_thread = Thread.new {
+			client = nil
 			# Accept a client connection
 			begin
-				client = listener_sock.accept	
+				client = self.listener_sock.accept	
 			rescue
 				wlog("Exception raised during listener accept: #{$!}")
+				return nil
 			end
-
+			
 			# Start a new thread and pass the client connection
 			# as the input and output pipe.  Client's are expected
 			# to implement the Stream interface.
@@ -89,9 +90,9 @@ module ReverseTcp
 	#
 	def stop_handler
 		# Terminate the listener thread
-		if (listener_thread and listener_thread.alive? == true)
-			listener_thread.kill
-			listener_thread = nil
+		if (self.listener_thread and self.listener_thread.alive? == true)
+			self.listener_thread.kill
+			self.listener_thread = nil
 		end
 	end
 

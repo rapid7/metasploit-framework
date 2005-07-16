@@ -20,6 +20,10 @@ class Input::Stdio < Rex::Ui::Text::Input
 	def eof?
 		return $stdin.eof?
 	end
+
+	def fd
+		return $stdin
+	end
 end
 
 end

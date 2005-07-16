@@ -96,6 +96,14 @@ class Payload < Msf::Module
 		return module_info['Handler'] || Msf::Handler
 	end
 
+	#
+	# Returns the session class that is associated with this payload and will
+	# be used to create a session as necessary.
+	#
+	def session
+		return module_info['Session']
+	end
+
 	##
 	#
 	# Generation & variable substitution

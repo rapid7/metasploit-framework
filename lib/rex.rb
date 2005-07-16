@@ -8,6 +8,7 @@ require 'rex/read_write_lock'
 require 'rex/transformer'
 require 'rex/text'
 require 'rex/string_utils'
+require 'rex/sync/event'
 
 # Encoding
 require 'rex/encoder/xor'
@@ -27,6 +28,7 @@ require 'rex/io/stream_server'
 require 'rex/socket'
 require 'rex/socket/parameters'
 require 'rex/socket/tcp'
+require 'rex/socket/tcp_server'
 require 'rex/socket/comm/local'
 
 # Parsers

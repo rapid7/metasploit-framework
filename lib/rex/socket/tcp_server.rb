@@ -22,6 +22,13 @@ class Rex::Socket::TcpServer < Rex::Socket
 	##
 
 	#
+	# Creates the server using the supplied hash
+	#
+	def self.create(hash)
+		self.create_param(Rex::Socket::Parameters.from_hash(hash))	
+	end
+
+	#
 	# Wrapper around the base class' creation method that automatically sets
 	# the parameter's protocol to TCP and sets the server flag to true
 	#
@@ -48,7 +55,7 @@ class Rex::Socket::TcpServer < Rex::Socket
 	# Accepts a child connection
 	#
 	def accept(opts = {})
-		return Rex::Socket::Tcp.new(sock.accept[0])
+		Rex::Socket::Tcp.new(self.sock.accept[0])
 	end
 
 	#

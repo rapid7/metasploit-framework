@@ -1,5 +1,6 @@
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
+require 'msf/base/sessions/command_shell'
 
 module Msf
 module Payloads
@@ -20,6 +21,7 @@ module Shell
 			'Platform'      => 'linux',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::ReverseTcp,
+			'Session'       => Msf::Sessions::CommandShell,
 			'Payload'       =>
 				{
 					'Offsets' =>

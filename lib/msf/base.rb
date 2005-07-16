@@ -25,10 +25,7 @@ require 'msf/base/config'
 require 'msf/base/simple'
 
 # Sessions
-require 'msf/base/session/command_shell'
-require 'msf/base/session/meterpreter'
-require 'msf/base/session/dispatch_ninja'
-require 'msf/base/session/vnc'
+require 'msf/base/sessions/command_shell'
 
 # Serialization
 require 'msf/base/serializer/readable_text'

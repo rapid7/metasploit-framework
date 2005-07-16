@@ -38,6 +38,14 @@ class Input
 	end
 
 	#
+	# Returns a pollable file descriptor that is associated with this
+	# input medium.
+	#
+	def fd
+		raise NotImplementedError
+	end
+
+	#
 	# Indicates whether or not this input medium is intrinsicly a
 	# shell provider.  This would indicate whether or not it
 	# already expects to have a prompt.

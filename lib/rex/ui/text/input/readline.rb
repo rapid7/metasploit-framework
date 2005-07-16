@@ -25,7 +25,17 @@ begin
 			end
 		end
 
+		#
+		# Regular old gets
+		#
 		def gets
+			self.fd.gets
+		end
+
+		#
+		# Prompt-based getline
+		#
+		def pgets
 			if ((line = readline(prompt, true)))
 				HISTORY.pop if (line.empty?)
 				return line + "\n"
@@ -33,6 +43,13 @@ begin
 				eof = true
 				return line
 			end
+		end
+
+		#
+		# Returns the $stdin handle.
+		#
+		def fd
+			$stdin
 		end
 
 		#

@@ -28,7 +28,7 @@ end
 # -------
 #
 # The session class represents a post-exploitation, uh, session.
-# Sessions can be written from, read to, and interacted with.  The
+# Sessions can be written to, read from, and interacted with.  The
 # underlying medium on which they are backed is arbitrary.  For 
 # instance, when an exploit is provided with a command shell,
 # either through a network connection or locally, the session's
@@ -39,9 +39,25 @@ end
 # tied to a network connection.
 #
 ###
-class Session
+module Session
 
-	def initialize()
+	include Framework::Offspring
+
+	# Direct descendents
+	require 'msf/core/session/interactive'
+	require 'msf/core/session/basic'
+
+	# Provider interfaces
+	require 'msf/core/session/provider/single_command_execution'
+	require 'msf/core/session/provider/multi_command_execution'
+	require 'msf/core/session/provider/single_command_shell'
+	require 'msf/core/session/provider/multi_command_shell'
+
+	#
+	# By default, sessions are not interactive.
+	#
+	def interactive?
+		false
 	end
 
 	#
@@ -50,18 +66,25 @@ class Session
 	def cleanup
 	end
 
-	attr_accessor :framework, :sid
+	#
+	# Returns the session's name if it's been assigned one, otherwise
+	# the sid is returned.
+	#
+	def sname
+		return name || sid
+	end
+
+	#
+	# Sets the session's name
+	#
+	def sname=(name)
+		self.name = name
+	end
+
+	attr_accessor :framework, :sid, :name
 
 protected
 
 end
 
 end
-
-# 
-# Require the individual provider interfaces
-#
-require 'msf/core/session_provider/single_command_execution'
-require 'msf/core/session_provider/multi_command_execution'
-require 'msf/core/session_provider/single_command_shell'
-require 'msf/core/session_provider/multi_command_shell'
