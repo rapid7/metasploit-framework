@@ -26,7 +26,7 @@ class CommandShell
 	include Msf::Session::Provider::SingleCommandShell
 
 	def desc
-		"Command Shell"
+		"Command shell"
 	end
 
 	def type

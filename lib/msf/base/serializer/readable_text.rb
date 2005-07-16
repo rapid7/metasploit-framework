@@ -81,7 +81,7 @@ class ReadableText
 		end
 
 		# Payload information
-		if (mod.payload.length)
+		if (mod.payload_info.length)
 			output += "Payload information:\n"
 			if (mod.payload_space)
 				output += indent + "Space: " + mod.payload_space.to_s + "\n"

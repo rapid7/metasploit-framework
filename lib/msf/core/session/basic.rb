@@ -34,7 +34,7 @@ module Basic
 	# Description of the session
 	#
 	def desc
-		"Basic Session"
+		"Basic I/O"
 	end
 
 	#
