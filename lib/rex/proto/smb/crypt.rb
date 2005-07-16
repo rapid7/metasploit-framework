@@ -61,6 +61,7 @@ module Crypt
 end
 end
 end
+end
 
 if $0 == __FILE__
 
@@ -84,5 +85,5 @@ if $0 == __FILE__
 		exit(0)
 	end
 	
-	puts "[*] All hash generation tests have passed :-)"	
+	puts "[*] All hash generation tests have passed :-)"
 end
