@@ -10,6 +10,7 @@
 require 'openssl'
 
 module Rex
+module Proto
 module SMB
 module Crypt
 
