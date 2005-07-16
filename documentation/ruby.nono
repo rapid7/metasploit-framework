@@ -1,0 +1,15 @@
+Things to *not* do in ruby that will break ruby threads.  This list 
+isn't complete, but it's things I've noticed while working on stuff:
+
+- select with no timeout
+  This will make a blocking select call that will block all other 
+  threads.
+
+  I'm going to write a select wrapper that will reduce timeouts to
+  lower values and just keep looping on select until the timeout
+  expires.
+
+- use sleep
+  This will block all threads.
+
+  I'll probably write a wrapper around this too.
