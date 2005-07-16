@@ -39,12 +39,16 @@ class Rex::Socket::Tcp < Rex::Socket
 	#
 	##
 
+	#
+	# Writes to the TCP connection.
+	#
 	def write(buf, opts = {})
 		return sock.syswrite(buf)
 	end
 
 	#
-	# Raises EOFError if it reaches end-of-file
+	# Reads from the TCP connection and raises EOFError if there is no data
+	# left.
 	#
 	def read(length = nil, opts = {})
 		length = 16384 unless length
@@ -52,22 +56,52 @@ class Rex::Socket::Tcp < Rex::Socket
 		return sock.sysread(length)
 	end
 
+	#
+	# Calls shutdown on the TCP connection.
+	#
 	def shutdown(how = SHUT_RDWR)
 		return (sock.shutdown(how) == 0)
 	end
 
-	def has_read_data?(timeout = 0)
+	#
+	# Checks to see if the connection has read data.
+	#
+	def has_read_data?(timeout = nil)
 		timeout = timeout.to_i if (timeout)
 	
 		return (select([ poll_fd ], nil, nil, timeout) != nil)
 	end
 
+	#
+	# Closes the connection.
+	#
 	def close
 		self.sock.close if (self.sock)
 	end
 
+	#
+	# Returns the file descriptor to use with calls to select.
+	#
 	def poll_fd
 		return self.sock
+	end
+
+	#
+	# Returns peer information (host + port) in host:port format.
+	#
+	def peerinfo
+		if (pi = getpeername)
+			return pi[1] + ':' + pi[2].to_s
+		end
+	end
+
+	#
+	# Returns local information (host + port) in host:port format.
+	#
+	def localinfo
+		if (pi = getlocalname)
+			return pi[1] + ':' + pi[2].to_s
+		end
 	end
 
 end

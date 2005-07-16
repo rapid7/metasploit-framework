@@ -80,7 +80,11 @@ module ReverseTcp
 			# as the input and output pipe.  Client's are expected
 			# to implement the Stream interface.
 			conn_threads << Thread.new {
-				handle_connection(client)
+				begin
+					handle_connection(client)
+				rescue
+					elog("Exception raised from handle_connection: #{$!}")
+				end
 			}
 		}
 	end

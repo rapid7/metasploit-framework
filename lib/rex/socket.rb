@@ -114,6 +114,22 @@ class Socket
 		return self.sock
 	end
 
+	#
+	# Returns local connection information.
+	#
+	def getlocalname
+		return Socket.from_sockaddr(self.sock.getsockname)
+	end
+
+	alias getsockname getlocalname
+
+	#
+	# Return peer connection information.
+	#
+	def getpeername
+		return Socket.from_sockaddr(self.sock.getpeername)
+	end
+
 	attr_reader :sock
 	attr_reader :peerhost, :peerport, :localhost, :localport
 

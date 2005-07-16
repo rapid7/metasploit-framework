@@ -30,10 +30,12 @@ class Framework
 	end
 
 	require 'msf/core/module_manager'
+	require 'msf/core/session_manager'
 
 	def initialize()
 		self.events    = EventDispatcher.new
 		self.modules   = ModuleManager.new(self)
+		self.sessions  = SessionManager.new(self)
 		self.datastore = DataStore.new
 	end
 
@@ -74,12 +76,14 @@ class Framework
 
 	attr_reader   :events
 	attr_reader   :modules
+	attr_reader   :sessions
 	attr_reader   :datastore
 
 protected
 
 	attr_writer   :events
 	attr_writer   :modules
+	attr_writer   :sessions
 	attr_writer   :datastore
 
 end

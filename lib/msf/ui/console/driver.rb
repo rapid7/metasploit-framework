@@ -1,6 +1,7 @@
 require 'msf/core'
 require 'msf/base'
 require 'msf/ui'
+require 'msf/ui/console/framework_event_manager'
 require 'msf/ui/console/command_dispatcher'
 require 'msf/ui/console/shell'
 require 'msf/ui/console/table'
@@ -23,6 +24,14 @@ class Driver < Msf::Ui::Driver
 
 	ConfigGroup = "framework/ui/console"
 
+	#
+	# The console driver processes various framework notified events.
+	#
+	include FrameworkEventManager
+
+	#
+	# The console driver is a command shell.
+	#
 	include Msf::Ui::Console::Shell
 
 	def initialize(prompt = "%umsf", prompt_char = ">%c")
@@ -39,6 +48,9 @@ class Driver < Msf::Ui::Driver
 
 		# Initialize the super
 		super
+
+		# Register event handlers
+		register_event_handlers
 		
 		# Process things before we actually display the prompt and get rocking
 		on_startup

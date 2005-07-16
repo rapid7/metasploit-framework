@@ -52,13 +52,57 @@ module Session
 	require 'msf/core/session/provider/multi_command_execution'
 	require 'msf/core/session/provider/single_command_shell'
 	require 'msf/core/session/provider/multi_command_shell'
+	#
+	# Returns the session's name if it's been assigned one, otherwise
+	# the sid is returned.
+	#
+	def name
+		return sname || sid
+	end
 
 	#
-	# By default, sessions are not interactive.
+	# Sets the session's name
 	#
-	def interactive?
-		false
+	def name=(name)
+		self.sname = name
 	end
+
+	#
+	# Returns the description of the session
+	#
+	def desc
+	end
+
+	#
+	# Returns the type of session in use
+	#
+	def type
+	end
+
+	#
+	# Returns the local side of the tunnel
+	#
+	def tunnel_local
+	end
+
+	#
+	# Returns the peer side of the tunnel
+	#
+	def tunnel_peer
+	end
+
+	#
+	# Returns a pretty representation of the tunnel
+	#
+	def tunnel_to_s
+		"#{(tunnel_local || '??').to_s} -> #{(tunnel_peer || '??').to_s}"
+	end
+
+	##
+	#
+	# Core interface
+	#
+	##
 
 	#
 	# Perform session-specific cleanup
@@ -67,21 +111,13 @@ module Session
 	end
 
 	#
-	# Returns the session's name if it's been assigned one, otherwise
-	# the sid is returned.
+	# By default, sessions are not interactive.
 	#
-	def sname
-		return name || sid
+	def interactive?
+		false
 	end
 
-	#
-	# Sets the session's name
-	#
-	def sname=(name)
-		self.name = name
-	end
-
-	attr_accessor :framework, :sid, :name
+	attr_accessor :framework, :sid, :sname
 
 protected
 

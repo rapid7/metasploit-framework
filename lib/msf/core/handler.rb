@@ -102,6 +102,9 @@ module Handler
 		if (self.session)
 			s = self.session.new(conn)
 
+			# Pass along the framework context
+			s.framework = framework
+
 			# If the session is valid, register it with the framework and
 			# notify any waiters we may have.
 			if (s)
@@ -140,9 +143,11 @@ protected
 	# new session.
 	#
 	def register_session(session)
-		session_waiter_event.notify(session)
+		# Register the session with the framework
+		framework.sessions.register(session)
 
-		# TODO: register with the framework
+		# Notify waiters that they should be ready to rock
+		session_waiter_event.notify(session)
 	end
 
 	attr_accessor :session_waiter_event

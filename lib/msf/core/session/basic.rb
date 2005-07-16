@@ -31,6 +31,34 @@ module Basic
 	end
 
 	#
+	# Description of the session
+	#
+	def desc
+		"Basic Session"
+	end
+
+	#
+	# Basic session
+	#
+	def type
+		"basic"
+	end
+	
+	#
+	# Returns the local information
+	#
+	def tunnel_local
+		rstream.localinfo
+	end
+
+	#
+	# Returns the remote peer information
+	#
+	def tunnel_peer
+		rstream.peerinfo
+	end
+	
+	#
 	# Closes rstream.
 	#
 	def cleanup
@@ -44,6 +72,8 @@ module Basic
 	# rstream to loutput.
 	#
 	def interact
+		eof = false
+
 		callcc { |ctx|
 			while true
 				begin
@@ -52,18 +82,23 @@ module Basic
 				# abort the interaction.  If they do, then we return out of
 				# the interact function and call it a day.
 				rescue Interrupt
-					loutput.print("\nStop interacting with session #{sname}? [y/N]  ")
+					loutput.print("\nStop interacting with session #{name}? [y/N]  ")
 
 					r = linput.gets
 
 					# Break out of the continuation
 					ctx.call if (r =~ /^y/i)
 				rescue EOFError
-					loutput.print_line("Session #{sname} terminating...")
+					loutput.print_line("Session #{name} terminating...")
+					eof = true
 					ctx.call
 				end
 			end
 		}
+
+		# If we hit end-of-file, then that means we should finish off this
+		# session and call it a day.
+		framework.sessions.deregister(self) if (eof == true)
 	end
 
 	#

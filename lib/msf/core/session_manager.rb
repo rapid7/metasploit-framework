@@ -16,35 +16,13 @@ module Msf
 # with.
 #
 ###
-class SessionManager
+class SessionManager < Hash
 
-	include Enumerable
+	include Framework::Offspring
 
 	def initialize(framework)
 		self.framework = framework
-		self.sessions  = {}
 		self.sid_pool  = 0
-	end
-
-	#
-	# Returns the session object that is associated with the supplied sid
-	#
-	def [](sid)
-		return get(sid)
-	end
-
-	#
-	# Register the supplied session
-	#
-	def <<(session)
-		return register(session)
-	end
-
-	#
-	# Implement for Enumerable
-	#
-	def each(&block)
-		sessions.each(&block)
 	end
 
 	#
@@ -60,7 +38,7 @@ class SessionManager
 		next_sid = (self.sid_pool += 1)
 
 		# Insert the session into the session hash table
-		sessions[next_sid] = session
+		self[next_sid] = session
 
 		# Initialize the session's sid and framework instance pointer
 		session.sid       = next_sid
@@ -80,7 +58,7 @@ class SessionManager
 		framework.events.on_session_close(session)
 
 		# Remove it from the hash
-		sessions.delete(session.sid)
+		self.delete(session.sid)
 
 		# Close it down
 		session.cleanup
@@ -90,12 +68,12 @@ class SessionManager
 	# Returns the session associated with the supplied sid, if any
 	#
 	def get(sid)
-		return sessions[sid]
+		return self[sid]
 	end
 
 protected
 	
-	attr_accessor :sid_pool, :sessions, :framework
+	attr_accessor :sid_pool, :sessions
 
 end
 

@@ -73,6 +73,18 @@ module Stream
 		poll_fd
 	end
 
+	#
+	# Returns peer information, such as host and port.
+	#
+	def peerinfo
+	end
+
+	#
+	# Returns local information, such as host and port.
+	#
+	def localinfo
+	end
+
 	##
 	#
 	# Common methods

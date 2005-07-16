@@ -25,6 +25,14 @@ class CommandShell
 	#
 	include Msf::Session::Provider::SingleCommandShell
 
+	def desc
+		"Command Shell"
+	end
+
+	def type
+		"shell"
+	end
+
 	#
 	# The shell will have been initialized by default
 	#
