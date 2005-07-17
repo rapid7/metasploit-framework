@@ -68,8 +68,8 @@ module Basic
 
 	#
 	# Starts interacting with the session at the most raw level, simply 
-	# forwarding input from linput to rstream and forwarding input from
-	# rstream to loutput.
+	# forwarding input from user_input to rstream and forwarding input from
+	# rstream to user_output.
 	#
 	def interact
 		# Call the parent in case it has some work to do
@@ -113,14 +113,6 @@ module Basic
 	end
 
 	#
-	# The local input handle.  Must inherit from Rex::Ui::Text::Input.
-	#
-	attr_accessor :linput
-	#
-	# The local output handle.  Must inherit from Rex::Ui::Output.
-	#
-	attr_accessor :loutput
-	#
 	# The remote stream handle.  Must inherit from Rex::IO::Stream.
 	#
 	attr_accessor :rstream
@@ -134,18 +126,18 @@ protected
 	def _interact
 		while self.interacting
 			# Select input and rstream
-			sd = Rex::ThreadSafe.select([ linput.fd, rstream.fd ])
+			sd = Rex::ThreadSafe.select([ user_input.fd, rstream.fd ])
 
 			# Cycle through the items that have data
-			# From the rstream?  Write to linput.
+			# From the rstream?  Write to user_output.
 			sd[0].each { |s|
 				if (s == rstream.fd)
 					data = rstream.get
 
-					loutput.print(data)
-				# From linput?  Write to rstream.
-				elsif (s == linput.fd)
-					data = linput.gets
+					user_output.print(data)
+				# From user_input?  Write to rstream.
+				elsif (s == user_input.fd)
+					data = user_input.gets
 
 					rstream.put(data)
 				end

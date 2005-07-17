@@ -13,3 +13,6 @@ require 'rex/ui/text/shell'
 
 require 'rex/ui/text/color'
 require 'rex/ui/text/table'
+
+# Ui subscriber
+require 'rex/ui/subscriber'

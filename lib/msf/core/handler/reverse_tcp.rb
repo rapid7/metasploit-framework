@@ -69,6 +69,8 @@ module ReverseTcp
 		listener_thread = Thread.new {
 			client = nil
 
+			print_status("Started reverse handler")
+
 			# Accept a client connection
 			begin
 				client = self.listener_sock.accept	
@@ -76,8 +78,6 @@ module ReverseTcp
 				wlog("Exception raised during listener accept: #{$!}")
 				return nil
 			end
-
-			# TODO: print started reverse listener
 
 			# Start a new thread and pass the client connection
 			# as the input and output pipe.  Client's are expected

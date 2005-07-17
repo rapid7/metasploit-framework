@@ -15,6 +15,13 @@ module Msf
 ###
 class Module
 
+	# Modules can subscribe to a user-interface, and as such they include the
+	# UI subscriber module.  This provides methods like print, print_line, etc.
+	# User interfaces are designed to be medium independent, and as such the
+	# user interface subscribes are designed to provide a flexible way of
+	# interacting with the user, n stuff.
+	include Rex::Ui::Subscriber
+	
 	# Make include public so we can runtime extend
 	public_class_method :include
 

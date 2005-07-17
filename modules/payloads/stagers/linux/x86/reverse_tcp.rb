@@ -7,6 +7,14 @@ module Stagers
 module Linux
 module X86
 
+###
+#
+# ReverseTcp
+# ----------
+#
+# Linux reverse TCP stager.
+#
+###
 module ReverseTcp
 
 	include Msf::Payload::Stager

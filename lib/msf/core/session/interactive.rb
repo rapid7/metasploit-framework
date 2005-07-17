@@ -13,6 +13,12 @@ module Session
 module Interactive
 
 	#
+	# Interactive sessions by default may interact with the local user input
+	# and output.
+	#
+	include Rex::Ui::Subscriber
+
+	#
 	# Returns that, yes, indeed, this session supports going interactive with
 	# the user.
 	#
@@ -27,14 +33,6 @@ module Interactive
 		self.interacting = true
 	end
 
-	#
-	# The local input handle.  Must inherit from Rex::Ui::Text::Input.
-	#
-	attr_accessor :linput
-	#
-	# The local output handle.  Must inherit from Rex::Ui::Output.
-	#
-	attr_accessor :loutput
 	#
 	# Whether or not the session is currently being interacted with
 	#
@@ -82,8 +80,10 @@ protected
 	end
 
 	def prompt(query)
-		loutput.print("\n" + query)
-		linput.gets
+		if (user_output and user_input)
+			user_output.print("\n" + query)
+			user_input.gets
+		end
 	end
 	
 	#

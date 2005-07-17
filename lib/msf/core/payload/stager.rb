@@ -50,7 +50,7 @@ module Msf::Payload::Stager
 
 		substitute_vars(p, stage_offsets) if (stage_offsets)
 
-		# TODO: print sending stage
+		print_status("Sending stage (#{p.length} bytes)")
 
 		conn.put(p)
 		

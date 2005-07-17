@@ -271,8 +271,7 @@ class Core
 						print_status("Starting interaction with #{session.name}...\n") if (quiet == false)
 
 						# Set the session's input and output handles
-						session.linput  = driver.input 
-						session.loutput = driver.output
+						session.init_ui(driver.input, driver.output)
 
 						# Interact
 						session.interact()
@@ -282,7 +281,7 @@ class Core
 						#
 						# TODO: change this to use buffered output so we can call
 						# flush later on
-						session.loutput = Rex::Ui::Output::None.new
+						session.reset_ui
 					else
 						print_error("Session #{sid} is non-interactive.")
 					end
