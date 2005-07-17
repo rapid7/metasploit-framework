@@ -162,7 +162,7 @@ module Stream
 		# Keep looping until there is no more data to be gotten..
 		while (has_read_data?(ltimeout) == true)
 			temp = read(def_block_size)
-
+			
 			# If we read zero bytes and we had data, then we've hit EOF
 			if (temp and temp.length == 0)
 				raise EOFError

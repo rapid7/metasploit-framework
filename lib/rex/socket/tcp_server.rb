@@ -65,6 +65,6 @@ class Rex::Socket::TcpServer < Rex::Socket
 	def pending_client?(timeout = nil)
 		timeout = timeout.to_i if (timeout)
 
-		return (select([ poll_fd ], nil, nil, timeout) != nil)
+		return (Rex::ThreadSafe.select([ poll_fd ], nil, nil, timeout) != nil)
 	end
 end

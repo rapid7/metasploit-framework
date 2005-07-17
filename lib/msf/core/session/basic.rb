@@ -82,14 +82,15 @@ module Basic
 				# abort the interaction.  If they do, then we return out of
 				# the interact function and call it a day.
 				rescue Interrupt
-					loutput.print("\nStop interacting with session #{name}? [y/N]  ")
+					loutput.print("\nStop interacting with session #{name}? [y/N] ")
 
 					r = linput.gets
 
 					# Break out of the continuation
 					ctx.call if (r =~ /^y/i)
 				rescue EOFError
-					loutput.print_line("Session #{name} terminating...")
+					dlog("Session #{name} got EOF, closing.", 'core', LEV_1)
+
 					eof = true
 					ctx.call
 				end
@@ -123,7 +124,7 @@ protected
 	def _interact
 		while true
 			# Select input and rstream
-			sd = select([ linput.fd, rstream.fd ], nil, nil, 0.5)
+			sd = Rex::ThreadSafe.select([ linput.fd, rstream.fd ])
 
 			# Cycle through the items that have data
 			# From the rstream?  Write to linput.

@@ -4,10 +4,13 @@ end
 # Generic classes
 require 'rex/constants'
 require 'rex/exceptions'
-require 'rex/read_write_lock'
 require 'rex/transformer'
 require 'rex/text'
 require 'rex/string_utils'
+
+# Thread safety and synchronization
+require 'rex/thread_safe'
+require 'rex/read_write_lock'
 require 'rex/sync/event'
 
 # Encoding

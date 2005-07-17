@@ -1,19 +1,19 @@
 X	- switch to x86 from ia32
-	- exploit kick-off
+X	- exploit kick-off
 X    - payload generation
 X      - generate payload for target
 X      - encoder payload for target
 X        - loop encoders on failure
 X      - pad nops
-     - handler init
-       - setup handler
-       - start handler
-     - exploit
-       - call exploit
-       ... wait for session ...
-     - handler cleanup
-       - stop handler
-       - cleanup handler
+X     - handler init
+X       - setup handler
+X       - start handler
+X     - exploit
+X       - call exploit
+X       ... wait for session ...
+X     - handler cleanup
+X       - stop handler
+X       - cleanup handler
 
 - add the concept of services to framework:
 

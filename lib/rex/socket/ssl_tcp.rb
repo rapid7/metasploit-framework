@@ -75,7 +75,7 @@ class Rex::Socket::SslTcp < Rex::Socket::Tcp
 	def has_read_data?(timeout = nil)
 		timeout = timeout.to_i if (timeout)
 
-		return (select([ poll_fd ], nil, nil, timeout) != nil)
+		return (Rex::ThreadSafe.select([ poll_fd ], nil, nil, timeout) != nil)
 	end
 
 protected

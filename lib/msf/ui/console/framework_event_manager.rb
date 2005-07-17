@@ -32,14 +32,16 @@ module FrameworkEventManager
 	# Called when a session is registered with the framework.
 	#
 	def on_session_open(session)
-		output.print_status("#{session.desc} session opened (#{session.tunnel_to_s})")
+		output.print_status("#{session.desc} session #{session.name} opened (#{session.tunnel_to_s})")
+		output.print_line
 	end
 
 	#
 	# Called when a session is closed and removed from the framework.
 	#
 	def on_session_close(session)
-		output.print_status("#{session.desc} session closed (#{session.tunnel_to_s})")
+		output.print_line
+		output.print_status("#{session.desc} session #{session.name} closed.")
 	end
 
 end
