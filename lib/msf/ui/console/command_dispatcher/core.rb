@@ -12,10 +12,12 @@ class Core
 
 	include Msf::Ui::Console::CommandDispatcher
 
+	# Session command options
 	@@session_opts = Rex::Parser::Arguments.new(
 		"-i" => [ true,  "Interact with the supplied session identifier." ],
 		"-h" => [ false, "Help banner."                                   ],
-		"-l" => [ false, "List all active sessions."                      ])
+		"-l" => [ false, "List all active sessions."                      ],
+		"-q" => [ false, "Quiet mode."                                    ])
 
 	# Returns the list of commands supported by this command dispatcher
 	def commands
@@ -231,23 +233,20 @@ class Core
 		end
 
 		begin
+		method = nil
+		quiet  = false
+		sid    = nil
+
+		# Parse the command options
 		@@session_opts.parse(args) { |opt, idx, val|
-			sid = nil
-			
 			case opt
+				when "-q"
+					quiet = true
+
 				# Interact with the supplied session identifier
 				when "-i"
-					if ((session = framework.sessions.get(val)))
-						if (session.interactive?)
-							print_status("Starting interaction with #{session.name}...\n")
-
-							session.interact
-						else
-							print_error("Session #{val} is non-interactive.")
-						end
-					else
-						print_error("Invalid session identifier: #{val}")
-					end
+					method = 'interact'
+					sid    = val
 
 				# Display the list of active sessions
 				when "-l"
@@ -263,6 +262,32 @@ class Core
 					return false
 			end
 		}
+	
+		# Now, perform the actual method
+		case method
+			when 'interact'
+				if ((session = framework.sessions.get(sid)))
+					if (session.interactive?)
+						print_status("Starting interaction with #{session.name}...\n") if (quiet == false)
+
+						# Set the session's input and output handles
+						session.linput  = driver.input 
+						session.loutput = driver.output
+
+						# Interact
+						session.interact()
+
+						# Once interact returns, swap the output handle with a
+						# none output
+						session.loutput = Rex::Ui::Output::None.new
+					else
+						print_error("Session #{sid} is non-interactive.")
+					end
+				else
+					print_error("Invalid session identifier: #{sid}")
+				end
+		end
+
 		rescue
 			log_error("Session manipulation failed: #{$!}")
 		end
