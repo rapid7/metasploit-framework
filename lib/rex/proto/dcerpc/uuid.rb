@@ -41,7 +41,7 @@ class DCERPC::UUID
 	end
 	
 	def xfer_syntax_uuid ()
-		self.Pack('8a885d04-1ceb-11c9-9fe8-08002b104860')
+		self.uuid_pack('8a885d04-1ceb-11c9-9fe8-08002b104860')
 	end
 	
 	def xfer_syntax_vers ()
@@ -58,6 +58,12 @@ class DCERPC::UUID
 		if @known_uuids.key?(name)
 			@known_uuids[name][1]
 		end
+	end
+	
+	def vers_to_nums (vers) 
+		vers_maj = vers.to_i
+		vers_min = ((vers.to_f - vers.to_i) * 10).to_i
+		return vers_maj, vers_min
 	end
 	
 end
