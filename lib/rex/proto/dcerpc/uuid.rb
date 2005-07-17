@@ -24,7 +24,8 @@ class DCERPC::UUID
 			'SVCCTL'    => [ '367abb81-9844-35f1-ad32-98f038001003', '2.0' ]
 		}
 	end
-	
+
+	# Convert a UUID in binary format to the string representation	
 	def uuid_unpack(uuid_bin)
 		sprintf("%.8x-%.4x-%.4x-%.4x-%s",
 			uuid_bin[ 0, 4].unpack('V')[0],
@@ -35,31 +36,37 @@ class DCERPC::UUID
 		)	
 	end
 
+	# Convert a UUID in string format to the binary representation
 	def uuid_pack (uuid_str)
 		parts = uuid_str.split('-')
 		[ parts[0].hex, parts[1].hex, parts[2].hex, parts[3].hex ].pack('Vvvn') + [ parts[4] ].pack('H*')
 	end
 	
+	# Provide the common TransferSyntax UUID in packed format
 	def xfer_syntax_uuid ()
 		self.uuid_pack('8a885d04-1ceb-11c9-9fe8-08002b104860')
 	end
 	
+	# Provide the common TransferSyntax version number
 	def xfer_syntax_vers ()
 		'2.0'
 	end
 	
+	# Determine the UUID string for the DCERPC service with this name	
 	def uuid_by_name (name) 
 		if @known_uuids.key?(name)
 			@known_uuids[name][0]
 		end
 	end
 	
+	# Determine the common version number for the DCERPC service with this name
 	def vers_by_name (name)
 		if @known_uuids.key?(name)
 			@known_uuids[name][1]
 		end
 	end
 	
+	# Convert a string or number in float format to two unique numbers 2.0 => [2, 0]
 	def vers_to_nums (vers) 
 		vers_maj = vers.to_i
 		vers_min = ((vers.to_f - vers.to_i) * 10).to_i

@@ -15,34 +15,30 @@ require 'rex/proto/dcerpc/uuid'
 require 'rex/proto/dcerpc/response'
 require 'rex/text'
 
-	#
 	# Process a DCERPC response packet from a socket
-	#
 	def read_response (socket) 
+
 		head = socket.timed_read(10, 5)
 		if (! head or head.length() != 10)
 			return
 		end
-		
+	
 		resp = Rex::Proto::DCERPC::Response.new(head)
 		
 		if (! resp.frag_len)
 			return resp
 		end
-		
-		body = socket.timed_read(resp.frag_len, 10)
-		if (! body or body.length() != resp.frag_len) 
+
+		body = socket.timed_read(resp.frag_len - 10, 10)
+		if (body.nil? or body.length() != resp.frag_len - 10)
 			return resp
 		end
-		
+
 		resp.parse(body)
 		return resp
 	end
 
-
-	#
 	# Create a standard DCERPC BIND request packet
-	#
 	def make_bind (uuid, vers)	
 		u = Rex::Proto::DCERPC::UUID.new()
 		
@@ -74,12 +70,12 @@ require 'rex/text'
 			xfer_vers_maj,       # syntax major version
 			xfer_vers_min,       # syntax minor version 
 		].pack('CCCCNvvVvvVVvvA16vvA16vv')
+		
+		return buff, 0
 	end
 
-	#
 	# Create an obfuscated DCERPC BIND request packet
-	#
-	def make_bind_fake_multi(uuid, vers, bind_head=rand(6)+10, bind_tail=rand(3)+1)	
+	def make_bind_fake_multi(uuid, vers, bind_head=rand(6)+10, bind_tail=rand(4))	
 		u = Rex::Proto::DCERPC::UUID.new()
 		
 		# Process the version strings ("1.0", 1.0, "1", 1)
@@ -87,7 +83,7 @@ require 'rex/text'
 		xfer_vers_maj, xfer_vers_min = u.vers_to_nums(u.xfer_syntax_vers)
 		
 		bind_total = bind_head + bind_tail + 1
-		bind_size  = (bind_total * 40) + 32
+		bind_size  = (bind_total * 44) + 28
 		real_ctx, ctx = 0, 0
 
 		# Create the header of the bind request
@@ -104,8 +100,7 @@ require 'rex/text'
 			5840,   # max xmit frag
 			5840,   # max recv frag
 			0,      # assoc group
-			1,      # num ctx items
-			bind_total,  # context id
+			bind_total,  # num ctx items
 		].pack('CCCCNvvVvvVV')
 		
 		# Generate the fake UUIDs prior to the real one
@@ -117,7 +112,7 @@ require 'rex/text'
 			
 			data += 
 			[
-				ctx += 1,   # context id
+				ctx,        # context id
 				1,          # num trans items		
 				rand_uuid,  # interface uuid
 				rand_imaj,  # interface major version
@@ -126,13 +121,14 @@ require 'rex/text'
 				xfer_vers_maj,       # syntax major version
 				xfer_vers_min,       # syntax minor version 
 			].pack('vvA16vvA16vv')
+			ctx += 1
 		end
 		
 		# Stuff the real UUID onto the end of the buffer
 		real_ctx = ctx;
 		data += 
 		[
-			ctx += 1, # context id
+			ctx,      # context id
 			1,        # num trans items		
 			u.uuid_pack(uuid),   # interface uuid
 			bind_vers_maj,       # interface major version
@@ -141,7 +137,9 @@ require 'rex/text'
 			xfer_vers_maj,       # syntax major version
 			xfer_vers_min,       # syntax minor version 
 		].pack('vvA16vvA16vv')
+		ctx += 1
 		
+	
 		# Generate the fake UUIDs after the real one
 		1.upto(bind_tail) do ||
 			# Generate some random UUID and versions
@@ -151,7 +149,7 @@ require 'rex/text'
 			
 			data += 
 			[
-				ctx += 1,   # context id
+				ctx,        # context id
 				1,          # num trans items		
 				rand_uuid,  # interface uuid
 				rand_imaj,  # interface major version
@@ -160,15 +158,14 @@ require 'rex/text'
 				xfer_vers_maj,       # syntax major version
 				xfer_vers_min,       # syntax minor version 
 			].pack('vvA16vvA16vv')
+			ctx += 1
 		end
-		
+
 		# Return both the bind packet and the real context_id
 		return data, real_ctx
 	end
 	
-	#
 	# Create a standard DCERPC ALTER_CONTEXT request packet
-	#
 	def make_alter_context (uuid, vers)	
 		u = Rex::Proto::DCERPC::UUID.new()
 		
@@ -202,9 +199,7 @@ require 'rex/text'
 	end
 	
 
-	#
 	# Used to create a piece of a DCERPC REQUEST packet
-	#
 	def make_request_chunk (flags=3, opnum=0, data="", ctx=0)	
 
 		dlen = data.length
@@ -226,9 +221,7 @@ require 'rex/text'
     	].pack('CCCCNvvVVvv') + data
 	end	
 
-	#
 	# Used to create standard DCERPC REQUEST packet(s)
-	#
 	def make_request (opnum=0, data="", size=data.length, ctx=0)	
 
 		dlen = data.length
@@ -252,7 +245,6 @@ require 'rex/text'
 			frags.push( make_request_chunk(3, opnum, chunks[0], ctx) )
 			return frags
 		end
-
 
 		# Create the first fragment of the request
 		frags.push( make_request_chunk(1, opnum, chunks.shift, ctx) )
