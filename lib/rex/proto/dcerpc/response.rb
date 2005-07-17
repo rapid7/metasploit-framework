@@ -47,8 +47,7 @@ class DCERPC::Response
 			self.max_frag_xmit,
 			self.max_frag_recv,
 			self.assoc_group,
-			self.sec_addr_len,
-				= data.unpack('CCCCNvvVvvVv')
+			self.sec_addr_len = data.unpack('CCCCNvvVvvVv')
 
 			# XXX This is still somewhat broken (4 digit ports)
 			self.sec_addr = data[26, self.sec_addr_len]
@@ -75,21 +74,20 @@ class DCERPC::Response
 		
 	
 		# RESPONSE == 2
-		if (self.type == 2)		
+		if (self.type == 2)
+		
 			# Decode the DCERPC response header
-			(
-				self.vers_major,
-				self.vers_minor,
-				trash,
-				self.flags,
-				self.data_rep,
-				self.frag_len,
-				self.auth_len,
-				self.call_id,
-				self.alloc_hint,
-				self.context_id,
-				self.cancel_cnt,
-			) = data.unpack('CCCCNvvVVvC')
+			self.vers_major,
+			self.vers_minor,
+			trash,
+			self.flags,
+			self.data_rep,
+			self.frag_len,
+			self.auth_len,
+			self.call_id,
+			self.alloc_hint,
+			self.context_id,
+			self.cancel_cnt = data.unpack('CCCCNvvVVvC')
 			
 			# Put the application data into self.stub_data
 			self.stub_data = data[data.length - self.alloc_hint, 0xffff]
@@ -98,23 +96,22 @@ class DCERPC::Response
 		end		
 
 		# FAULT == 2
-		if (self.type == 3)		
+		if (self.type == 3)
+		
 			# Decode the DCERPC response header
-			(
-				self.vers_major,
-				self.vers_minor,
-				trash,
-				self.flags,
-				self.data_rep,
-				self.frag_len,
-				self.auth_len,
-				self.call_id,
-				self.alloc_hint,
-				self.context_id,
-				self.cancel_cnt,
-				trash,
-				self.status,
-			) = data.unpack('CCCCNvvVVvCCV')
+			self.vers_major,
+			self.vers_minor,
+			trash,
+			self.flags,
+			self.data_rep,
+			self.frag_len,
+			self.auth_len,
+			self.call_id,
+			self.alloc_hint,
+			self.context_id,
+			self.cancel_cnt,
+			trash,
+			self.status = data.unpack('CCCCNvvVVvCCV')
 			
 			# Put the application data into self.stub_data
 			self.stub_data = data[data.length - self.alloc_hint, 0xffff]
