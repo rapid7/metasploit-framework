@@ -10,6 +10,7 @@ module Simple
 #
 ###
 module Encoder
+	include Module
 end
 
 end
