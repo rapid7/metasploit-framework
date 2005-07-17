@@ -279,6 +279,9 @@ class Core
 
 						# Once interact returns, swap the output handle with a
 						# none output
+						#
+						# TODO: change this to use buffered output so we can call
+						# flush later on
 						session.loutput = Rex::Ui::Output::None.new
 					else
 						print_error("Session #{sid} is non-interactive.")

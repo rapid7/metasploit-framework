@@ -105,7 +105,30 @@ module Session
 	##
 
 	#
-	# Perform session-specific cleanup
+	# Sets the vector through which this session was realized
+	#
+	def set_via(opts)
+		self.via = opts || {}	
+	end
+
+	#
+	# Returns the exploit module name through which this session was
+	# created.
+	#
+	def via_exploit
+		self.via['Exploit'] if (self.via)
+	end
+
+	#
+	# Returns the payload module name through which this session was
+	# created.
+	#
+	def via_payload
+		self.via['Payload'] if (self.via)
+	end
+
+	#
+	# Perform session-specific cleanup.
 	#
 	def cleanup
 	end
@@ -120,6 +143,8 @@ module Session
 	attr_accessor :framework, :sid, :sname
 
 protected
+
+	attr_accessor :via
 
 end
 

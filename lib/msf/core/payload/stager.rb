@@ -14,24 +14,47 @@ module Msf::Payload::Stager
 		return Msf::Payload::Type::Stager
 	end
 
-	# Return the stager payload's raw payload
+	#
+	# Return the stager payload's raw payload.
+	#
 	def payload
 		return module_info['Stager']['Payload']	
 	end
 
-	# Return the stager payload's offsets
+	#
+	# Return the stager payload's offsets.
+	#
 	def offsets
 		return module_info['Stager']['Offsets']
 	end
 
-	# Returns the raw stage payload
+	#
+	# Returns the raw stage payload.
+	#
 	def stage_payload
 		return module_info['Stage']['Payload']
 	end
 
-	# Returns variable offsets within the stage payload
+	#
+	# Returns variable offsets within the stage payload.
+	#
 	def stage_offsets
 		return module_info['Stage']['Offsets']
+	end
+
+	#
+	# Transmit the associated stage.
+	#
+	def handle_connection(conn)
+		p = stage_payload
+
+		substitute_vars(p, stage_offsets) if (stage_offsets)
+
+		# TODO: print sending stage
+
+		conn.put(p)
+		
+		super
 	end
 
 	# Aliases

@@ -93,7 +93,7 @@ class Payload < Msf::Module
 	# isn't one.
 	#
 	def handler
-		return module_info['Handler'] || Msf::Handler
+		return module_info['Handler'] || Msf::Handler::None
 	end
 
 	#
@@ -161,7 +161,7 @@ class Payload < Msf::Module
 				raw[offset, val.length] = val
 			else
 				wlog("Missing value for payload offset #{name}, skipping.", 
-					'core', LEV_1)
+					'core', LEV_3)
 			end
 		}
 	end

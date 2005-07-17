@@ -105,6 +105,7 @@ class PayloadSet < ModuleSet
 						'core', LEV_3)
 					dlog("  Stager: #{stager_arch.join}.", 'core', LEV_3)
 					dlog("  Stage: #{stage_arch.join}.", 'core', LEV_3)
+					next
 				end
 
 				# No intersection between platforms on the payloads?
@@ -115,6 +116,7 @@ class PayloadSet < ModuleSet
 						'core', LEV_3)
 					dlog("  Stager: #{stager_platform.names}.", 'core', LEV_3)
 					dlog("  Stage: #{stage_platform.names}.", 'core', LEV_3)
+					next
 				end
 
 				# Build the payload dupe using the handler, stager,
@@ -177,7 +179,8 @@ class PayloadSet < ModuleSet
 		# connection, then it can also be staged.  Insert it into
 		# the staged list.
 		if ((instance.payload_type == Payload::Type::Single) and
-		    (instance.handler == nil))
+		    ((instance.handler == Msf::Handler::None) or
+		     (instance.handler == nil)))
 			payload_type_modules[Payload::Type::Stage][name] = pinfo
 		end
 	end

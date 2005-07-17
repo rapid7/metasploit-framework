@@ -159,7 +159,6 @@ class Msf::Module::PlatformList
 	#
 	def _intersect_expand(list1, list2)
 		(list1 + list2).sort { |a, b|
-			puts "#{a} #{b}"
 		  a.name.split('::').length <=> b.name.split('::').length }.
 		  each { |m|
 		  	children = m.find_children

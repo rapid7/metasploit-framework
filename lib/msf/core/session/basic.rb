@@ -107,6 +107,9 @@ module Basic
 		# If we hit end-of-file, then that means we should finish off this
 		# session and call it a day.
 		framework.sessions.deregister(self) if (eof == true)
+
+		# Return whether or not EOF was reached
+		return eof
 	end
 
 	#

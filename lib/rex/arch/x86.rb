@@ -21,6 +21,31 @@ module X86
 	ESI = DH = SI =      6
 	EDI = BH = DI =      7
 
+	def self.jmp_short(addr)
+		"\xeb" + pack_lsb(addr)
+	end
+
+	def self.call(addr)
+		"\xe8" + pack_dword(rel_number(addr, -5))
+	end
+
+	def self.rel_number(num, delta = 0)
+		s = num.to_s
+
+		case s[0, 2]
+			when '$+'
+				num = s[2 .. -1].to_i
+			when '$-'
+				num = -1 * s[2 .. -1].to_i
+			when '0x'
+				num = s.hex
+			else
+				delta = 0
+		end
+
+		return num + delta
+	end
+
 	def self.reg_number(str)
 		return self.const_get(str.upcase)
 	end
@@ -139,6 +164,14 @@ module X86
 		if opcodes.empty?
 			raise RuntimeError, "Could not find a usable opcode", caller()
 		end
+	end
+
+	def self.pack_dword(num)
+		[num].pack('V')
+	end
+
+	def self.pack_lsb(num)
+		pack_dword(num)[0]
 	end
 
 	def self._check_reg(*regs)

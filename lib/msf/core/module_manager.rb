@@ -154,7 +154,7 @@ protected
 		if (self[name])
 			mod_ambiguous[name] = true
 
-			wlog("The module #{dup.name} is ambiguous with #{self[name].name}.")
+			wlog("The module #{dup.refname} is ambiguous with #{self[name].refname}.")
 		else
 			self[name] = dup
 		end

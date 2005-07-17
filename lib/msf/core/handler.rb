@@ -155,3 +155,6 @@ protected
 end
 
 end
+
+# The default none handler
+require 'msf/core/handler/none'
