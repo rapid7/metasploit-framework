@@ -8,7 +8,7 @@ module Singles
 module Linux
 module X86
 
-module Shell
+module ShellReverseTcp
 
 	include Msf::Payload::Single
 

@@ -24,6 +24,13 @@ class Rex::Socket::Tcp < Rex::Socket
 	##
 
 	#
+	# Creates the client using the supplied hash
+	#
+	def self.create(hash)
+		self.create_param(Rex::Socket::Parameters.from_hash(hash))
+	end
+
+	#
 	# Wrapper around the base socket class' creation method that automatically
 	# sets the parameter's protocol to TCP
 	#

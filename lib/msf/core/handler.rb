@@ -117,7 +117,7 @@ module Handler
 	# The amount of time to wait for a session to come in.
 	#
 	def wfs_delay
-		1
+		2
 	end
 
 	#
