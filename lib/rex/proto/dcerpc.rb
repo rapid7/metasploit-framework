@@ -7,15 +7,12 @@
 # Version: $Revision$
 ##
 
-require 'rex/proto/dcerpc/uuid'
-require 'rex/proto/dcerpc/response'
-
 module Rex
 module Proto
 class DCERPC
-	
-	
-	
+
+require 'rex/proto/dcerpc/uuid'
+require 'rex/proto/dcerpc/response'
 	
 	def read_response (socket) 
 		head = socket.timed_read(10, 5)
@@ -25,12 +22,12 @@ class DCERPC
 		
 		resp = Rex::Proto::DCERPC::Response.new(head)
 		
-		if (! resp.fraglen)
+		if (! resp.frag_len)
 			return resp
 		end
 		
-		body = socket.timed_read(resp.fraglen, 10)
-		if (! body or body.length() != resp.fraglen) 
+		body = socket.timed_read(resp.frag_len, 10)
+		if (! body or body.length() != resp.frag_len) 
 			return resp
 		end
 		

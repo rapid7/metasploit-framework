@@ -11,8 +11,7 @@ require 'rex/proto/dcerpc/uuid'
 
 module Rex
 module Proto
-module DCERPC
-class Response
+class DCERPC::Response
 
 	attr_accessor :frag_len, :auth_len, :type, :vers_major, :vers_minor
 	attr_accessor :flags, :data_rep, :call_id, :max_frag_xmit, :max_frag_recv
@@ -37,20 +36,19 @@ class Response
 		if (self.type == 12 or self.type == 15)
 			
 			# Decode most of the DCERPC header
-			(
-				self.vers_major,
-				self.vers_minor,
-				trash,
-				self.flags,
-				self.data_rep,
-				self.frag_len,
-				self.auth_len,
-				self.call_id,
-				self.max_frag_xmit,
-				self.max_frag_recv,
-				self.assoc_group,
-				self.sec_addr_len
-			) = data.unpack('CCCCNvvVvvVv')
+			self.vers_major,
+			self.vers_minor,
+			trash,
+			self.flags,
+			self.data_rep,
+			self.frag_len,
+			self.auth_len,
+			self.call_id,
+			self.max_frag_xmit,
+			self.max_frag_recv,
+			self.assoc_group,
+			self.sec_addr_len,
+				= data.unpack('CCCCNvvVvvVv')
 
 			# XXX This is still somewhat broken (4 digit ports)
 			self.sec_addr = data[26, self.sec_addr_len]
@@ -115,21 +113,20 @@ class Response
 				self.context_id,
 				self.cancel_cnt,
 				trash,
-				self.status
+				self.status,
 			) = data.unpack('CCCCNvvVVvCCV')
 			
 			# Put the application data into self.stub_data
 			self.stub_data = data[data.length - self.alloc_hint, 0xffff]
 			
 			# End of FAULT
-		end		
+		end	
 		
 	end
 	
 protected
 	attr_accessor :raw
 
-end
 end
 end
 end

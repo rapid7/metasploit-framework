@@ -9,8 +9,7 @@
 
 module Rex
 module Proto
-module DCERPC
-class UUID
+class DCERPC::UUID
 
 	def initialize
 		@known_uuids =
@@ -61,7 +60,6 @@ class UUID
 		end
 	end
 	
-end
 end
 end
 end
