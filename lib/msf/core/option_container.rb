@@ -109,7 +109,7 @@ class OptPort < OptBase
 
 	def valid?(value)
 		if ((value != nil and value.to_s.empty? == false) and
-		    ((value.to_i < 0 or value.to_i > 65535)))
+		    ((value.to_s.match(/^\d+$/) == nil or value.to_i < 0 or value.to_i > 65535)))
 			return false
 		end
 
