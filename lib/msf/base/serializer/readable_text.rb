@@ -13,6 +13,9 @@ module Serializer
 ###
 class ReadableText
 
+	DefaultColumnWrap = 60
+	DefaultIndent     = 4
+
 	#
 	# Returns a formatted string that contains information about
 	# the supplied module instance.
@@ -195,7 +198,7 @@ class ReadableText
 	# Dumps the list of options associated with the
 	# supplied module.
 	#
-	def self.dump_options(mod, indent = 4)
+	def self.dump_options(mod, indent = DefaultIndent)
 		tbl = Rex::Ui::Text::Table.new(
 			'Indent'  => indent,
 			'Columns' =>
@@ -219,7 +222,7 @@ class ReadableText
 		return tbl.to_s
 	end
 
-	def self.dump_advanced_options(mod, indent = 4)
+	def self.dump_advanced_options(mod, indent = DefaultIndent)
 		output = ''
 		pad    = ' ' * indent
 
@@ -241,7 +244,7 @@ class ReadableText
 	#
 	# Dumps the contents of a datastore
 	#
-	def self.dump_datastore(name, ds, indent = 4, col = 60)
+	def self.dump_datastore(name, ds, indent = DefaultIndent, col = DefaultColumnWrap)
 		tbl = Rex::Ui::Text::Table.new(
 			'Indent'  => indent,
 			'Header'  => name,
@@ -259,10 +262,33 @@ class ReadableText
 	end
 
 	#
+	# Dumps the list of active sessions
+	#
+	def self.dump_sessions(framework, indent = DefaultIndent, col = DefaultColumnWrap)
+		tbl = Rex::Ui::Text::Table.new(
+			'Indent'  => indent,
+			'Header'  => "Active sessions",
+			'Columns' =>
+				[
+					'Id',
+					'Description',
+					'Tunnel'
+				])
+
+		framework.sessions.each_sorted { |k|
+			session = framework.sessions[k]
+
+			tbl << [ session.sid.to_s, session.desc, session.tunnel_to_s ]
+		}
+
+		return framework.sessions.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No active sessions.\n"
+	end
+
+	#
 	# Jacked from Ernest Ellingson <erne [at] powernav.com>, modified
 	# a bit to add indention
 	#
-	def self.word_wrap(str, indent = 4, col = 60)
+	def self.word_wrap(str, indent = 4, col = DefaultColumnWrap)
 		return Rex::Text.wordwrap(str, indent, col)
 	end
 

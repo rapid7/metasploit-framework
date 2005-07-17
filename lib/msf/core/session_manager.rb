@@ -26,6 +26,13 @@ class SessionManager < Hash
 	end
 
 	#
+	# Enumerates the sorted list of keys.
+	#
+	def each_sorted(&block)
+		self.keys.sort.each(&block)
+	end
+
+	#
 	# Registers the supplied session object with the framework and returns
 	# a unique session identifier to the caller.
 	#
@@ -38,7 +45,7 @@ class SessionManager < Hash
 		next_sid = (self.sid_pool += 1)
 
 		# Insert the session into the session hash table
-		self[next_sid] = session
+		self[next_sid.to_i] = session
 
 		# Initialize the session's sid and framework instance pointer
 		session.sid       = next_sid
@@ -58,7 +65,7 @@ class SessionManager < Hash
 		framework.events.on_session_close(session)
 
 		# Remove it from the hash
-		self.delete(session.sid)
+		self.delete(session.sid.to_i)
 
 		# Close it down
 		session.cleanup
@@ -68,7 +75,7 @@ class SessionManager < Hash
 	# Returns the session associated with the supplied sid, if any
 	#
 	def get(sid)
-		return self[sid]
+		return self[sid.to_i]
 	end
 
 protected

@@ -72,30 +72,37 @@ module Basic
 	# rstream to loutput.
 	#
 	def interact
+		# Call the parent in case it has some work to do
+		super 
+
 		eof = false
 
+		# Handle suspend notifications
+		handle_suspend
+
 		callcc { |ctx|
-			while true
+			# As long as we're interacting...
+			while (self.interacting == true)
 				begin
 					_interact
 				# If we get an interrupt exception, ask the user if they want to
 				# abort the interaction.  If they do, then we return out of
 				# the interact function and call it a day.
 				rescue Interrupt
-					loutput.print("\nStop interacting with session #{name}? [y/N] ")
-
-					r = linput.gets
-
-					# Break out of the continuation
-					ctx.call if (r =~ /^y/i)
+					if (user_want_abort? == true)
+						eof = true
+						ctx.call
+					end
 				rescue EOFError
 					dlog("Session #{name} got EOF, closing.", 'core', LEV_1)
-
 					eof = true
 					ctx.call
 				end
 			end
 		}
+
+		# Restore the suspend handler
+		restore_suspend
 
 		# If we hit end-of-file, then that means we should finish off this
 		# session and call it a day.
@@ -122,7 +129,7 @@ protected
 	# overriden by derived classes if they wish to do this another way.
 	#
 	def _interact
-		while true
+		while self.interacting
 			# Select input and rstream
 			sd = Rex::ThreadSafe.select([ linput.fd, rstream.fd ])
 

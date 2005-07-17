@@ -12,6 +12,11 @@ class Core
 
 	include Msf::Ui::Console::CommandDispatcher
 
+	@@session_opts = Rex::Parser::Arguments.new(
+		"-i" => [ true,  "Interact with the supplied session identifier." ],
+		"-h" => [ false, "Help banner."                                   ],
+		"-l" => [ false, "List all active sessions."                      ])
+
 	# Returns the list of commands supported by this command dispatcher
 	def commands
 		{
@@ -24,6 +29,7 @@ class Core
 			"quit"    => "Exit the console",
 			"save"    => "Saves the active datastores",
 			"search"  => "Adds one or more module search paths",
+			"session" => "Dump session listings and display information about sessions",
 			"set"     => "Sets a variable to a value",
 			"setg"    => "Sets a global variable to a value",
 			"show"    => "Displays modules of a given type, or all modules",
@@ -214,6 +220,54 @@ class Core
 		print(added)
 
 		recalculate_tab_complete
+	end
+
+	#
+	# Provides an interface to the sessions currently active in the framework.
+	#
+	def cmd_session(*args)
+		if (args.length == 0)
+			args.unshift("-h")
+		end
+
+		begin
+		@@session_opts.parse(args) { |opt, idx, val|
+			sid = nil
+			
+			case opt
+				# Interact with the supplied session identifier
+				when "-i"
+					if ((session = framework.sessions.get(val)))
+						if (session.interactive?)
+							print_status("Starting interaction with #{session.name}...\n")
+
+							session.interact
+						else
+							print_error("Session #{val} is non-interactive.")
+						end
+					else
+						print_error("Invalid session identifier: #{val}")
+					end
+
+				# Display the list of active sessions
+				when "-l"
+					print("\n" + 
+						Serializer::ReadableText.dump_sessions(framework) + "\n")
+
+				# Display help banner
+				when "-h"
+					print(
+						"Usage: session [options]\n\n" +
+						"Active session manipulation and interaction.\n" +
+						@@session_opts.usage())
+					return false
+			end
+		}
+		rescue
+			log_error("Session manipulation failed: #{$!}")
+		end
+
+		return true
 	end
 
 	#

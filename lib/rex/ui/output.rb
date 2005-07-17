@@ -14,6 +14,10 @@ module Ui
 ###
 class Output
 
+	# General output
+	require 'rex/ui/output/none'
+
+	# Text-based output
 	require 'rex/ui/text/output'
 
 	#
@@ -41,9 +45,15 @@ class Output
 	end
 
 	#
-	# Prints a message with no decoration
+	# Prints a message with no decoration.
 	#
 	def print(msg)
+	end
+
+	#
+	# Flushes any buffered output.
+	#
+	def flush
 	end
 
 end
