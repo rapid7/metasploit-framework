@@ -135,6 +135,12 @@ module Text
 
 		return output
 	end
-
+	
+	def self.rand_text(len)
+		buff = ""
+		len.times { || buff += [ rand(256) ].pack('C') }
+		return buff
+	end
+	
 end
 end
