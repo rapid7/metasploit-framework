@@ -162,11 +162,18 @@ class EncodedPayload
 			pinst.compatible_nops.each { |nopname, nopmod|
 				# Create an instance of the nop module
 				self.nop = nopmod.new
+
+				# The list of save registers
+				save_regs = (reqs['SaveRegisters'] || []) + (pinst.save_registers || [])
+
+				if (save_regs.empty? == true)
+					save_regs = nil
+				end
 	
 				begin
 					self.nop_sled = nop.generate_sled(self.nop_sled_size,
 						'BadChars'      => reqs['BadChars'],
-						'SaveRegisters' => reqs['SaveRegisters'])	
+						'SaveRegisters' => save_regs)
 				rescue
 					self.nop = nil
 

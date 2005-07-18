@@ -28,7 +28,10 @@ module Msf::Payload::Windows
 			info['Alias'] = 'windows/' + info['Alias']
 		end
 
-		super
+		# All windows payload hint that the stack must be aligned to nop
+		# generators and encoders.
+		super(merge_info(info,
+			'SaveRegisters' => [ 'align' ]))
 
 		register_options(
 			[

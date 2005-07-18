@@ -58,6 +58,14 @@ class Payload < Msf::Module
 	end
 
 	#
+	# The list of registers that should be saved by any NOP generators or
+	# encoders, if possible.
+	#
+	def save_registers
+		return self.module_info['SaveRegisters']
+	end
+
+	#
 	# Returns the type of payload, either single or staged.  Stage is
 	# the default because singles and stagers are encouraged to include
 	# the Single and Stager mixin which override the payload_type.
