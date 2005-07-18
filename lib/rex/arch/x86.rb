@@ -171,7 +171,7 @@ module X86
 	end
 
 	def self.pack_lsb(num)
-		pack_dword(num)[0]
+		pack_dword(num)[0,1]
 	end
 
 	def self._check_reg(*regs)
