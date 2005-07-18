@@ -22,7 +22,7 @@ module X86
 	EDI = BH = DI =      7
 
 	def self.jmp_short(addr)
-		"\xeb" + pack_lsb(addr)
+		"\xeb" + pack_lsb(rel_number(addr, -2))
 	end
 
 	def self.call(addr)

@@ -19,6 +19,8 @@ require 'rex/text'
 	def read_response (socket) 
 
 		head = socket.timed_read(10, 5)
+		# rescue
+		
 		if (! head or head.length() != 10)
 			return
 		end
@@ -30,6 +32,8 @@ require 'rex/text'
 		end
 
 		body = socket.timed_read(resp.frag_len - 10, 10)
+		# rescue
+		
 		if (body.nil? or body.length() != resp.frag_len - 10)
 			return resp
 		end
