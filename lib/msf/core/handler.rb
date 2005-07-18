@@ -92,25 +92,11 @@ module Handler
 	# Handles an established connection supplied in the in and out 
 	# handles.  The handles are passed as parameters in case this
 	# handler is capable of handling multiple simultaneous 
-	# connections.  The default implementation simply creates a 
-	# session using the payload's session factory reference and
-	# the supplied stream.
+	# connections.  The default behavior is to attempt to create a session for
+	# the payload.  This path will not be taken for mutli-staged payloads.
 	#
 	def handle_connection(conn)
-		# If the payload we merged in with has an associated session factory, 
-		# allocate a new session.
-		if (self.session)
-			s = self.session.new(conn)
-
-			# Pass along the framework context
-			s.framework = framework
-
-			# If the session is valid, register it with the framework and
-			# notify any waiters we may have.
-			if (s)
-				register_session(s)
-			end	
-		end
+		create_session(conn)
 	end
 
 	#
@@ -137,6 +123,28 @@ module Handler
 	end
 
 protected
+
+	#
+	# Creates a session, if necessary, for the connection that's been handled.
+	# Sessions are only created if the payload that's been mixed in has an
+	# associated session.
+	#
+	def create_session(conn)
+		# If the payload we merged in with has an associated session factory, 
+		# allocate a new session.
+		if (self.session)
+			s = self.session.new(conn)
+
+			# Pass along the framework context
+			s.framework = framework
+
+			# If the session is valid, register it with the framework and
+			# notify any waiters we may have.
+			if (s)
+				register_session(s)
+			end	
+		end
+	end
 
 	#
 	# Registers a session with the framework and notifies any waiters of the

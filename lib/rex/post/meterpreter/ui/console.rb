@@ -3,6 +3,8 @@ require 'rex/post/meterpreter'
 
 module Rex
 module Post
+module Meterpreter
+module Ui
 
 ###
 #
@@ -12,28 +14,26 @@ module Post
 # This class provides a shell driven interface to the meterpreter client API.
 #
 ###
-class Meterpreter::Console
+class Console
 
-	def initialize
-		# Initialize the pseudo-shell
-		shell = Rex::Ui::Text::Shell.new("%bmeterpreter%c ")
+	include Rex::Ui::Text::DispatcherShell
+
+	# Dispatchers
+	require 'rex/post/meterpreter/ui/console/core'
+
+	#
+	# Initialize the meterpreter console
+	#
+	def initialize(client)
+		super("%bmeterpreter%c")
+
+		# The meterpreter client context
+		self.client = client
 
 		# Point the input/output handles elsewhere
 		reset_ui
-	end
 
-	#
-	# Initialize's the shells I/O handles
-	#
-	def init_ui(input, output)
-		shell.init_ui(input, output)
-	end
-
-	#
-	# Resets the shell's I/O handles
-	#
-	def reset_ui
-		shell.reset_ui
+		enstack_dispatcher(Console::Core)
 	end
 
 	#
@@ -41,9 +41,9 @@ class Meterpreter::Console
 	# assumed that init_ui has been called prior.
 	#
 	def interact(&block)
-		shell.run { |line, args|
-
-			# 
+		run { |line|
+			# Run the command
+			run_single(line)
 
 			# If a block was supplied, call it, otherwise return false
 			if (block)
@@ -54,7 +54,15 @@ class Meterpreter::Console
 		}
 	end
 
+	attr_reader :client
+
+protected
+	
+	attr_writer :client
+
 end
 
+end
+end
 end
 end

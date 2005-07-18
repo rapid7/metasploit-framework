@@ -96,7 +96,7 @@ module Shell
 			# If a block was passed in, pass the line to it.  If it returns true,
 			# break out of the shell loop.
 			if (block)
-				break if (block.call(line, parse_line(line)))
+				break if (block.call(line))
 			# Otherwise, call what should be an overriden instance method to
 			# process the line.
 			else
@@ -113,6 +113,13 @@ module Shell
 	#
 	def stop
 		self.stop_flag = true
+	end
+
+	#
+	# Checks to see if the shell has stopped
+	#
+	def stopped?
+		self.stop_flag
 	end
 
 	#

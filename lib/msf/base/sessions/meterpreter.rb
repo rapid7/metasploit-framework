@@ -28,7 +28,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		#
 		# Create the console instance
 		#
-		self.console = Rex::Post::Meterpreter::Ui::Console.new
+		self.console = Rex::Post::Meterpreter::Ui::Console.new(self)
 	end
 
 	##
@@ -55,7 +55,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	# Initializes the console's I/O handles
 	#
 	def init_ui(input, output)
-		console.init_ui(user_input, user_output)
+		console.init_ui(input, output)
 	end
 
 	#
@@ -74,6 +74,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		# interacting.  This will allow the shell to abort if interaction is
 		# canceled.
 		console.interact { self.interacting }
+
+		# If the stop flag has been set, then that means the user exited.  Raise
+		# the EOFError so we can drop this bitch like a bad habit.
+		raise EOFError if (console.stopped? == true)
 	end
 
 protected

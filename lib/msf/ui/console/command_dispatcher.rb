@@ -4,29 +4,12 @@ module Console
 
 module CommandDispatcher
 
-	def initialize(in_driver)
-		self.driver = in_driver
-		self.tab_complete_items = []
-	end
+	include Rex::Ui::Text::DispatcherShell::CommandDispatcher
 
-	def print_error(msg = '')
-		driver.print_error(msg)
-	end
+	def initialize(driver)
+		super
 
-	def print_status(msg = '')
-		driver.print_status(msg)
-	end
-
-	def print_line(msg = '')
-		driver.print_line(msg)
-	end
-
-	def print(msg = '')
-		driver.print(msg)
-	end
-
-	def update_prompt(prompt)
-		driver.update_prompt(prompt)
+		self.driver = driver
 	end
 
 	def framework
@@ -47,13 +30,6 @@ module CommandDispatcher
 		wlog(err)
 		dlog("Call stack:\n#{$@.join("\n")}", 'core', LEV_1)
 	end
-
-	#
-	# No tab completion items by default
-	#
-	attr_accessor :tab_complete_items
-
-protected
 
 	attr_accessor :driver
 

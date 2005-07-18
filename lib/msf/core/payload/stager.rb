@@ -53,8 +53,18 @@ module Msf::Payload::Stager
 		print_status("Sending stage (#{p.length} bytes)")
 
 		conn.put(p)
-		
-		super
+
+		# Give the stages a chance to handle the connection
+		handle_connection_stage(conn)
+	end
+
+	#
+	# Called by handle_connection to allow the stage to process
+	# whatever it is it needs to process.  The default is to simply attempt to
+	# create a session.
+	#
+	def handle_connection_stage(conn)
+		create_session(conn)	
 	end
 
 	# Aliases
