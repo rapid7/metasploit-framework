@@ -347,12 +347,19 @@ protected
 				# two
 				if (info[name].kind_of?(Array) == false)
 					curr       = info[name]
-					info[name] = [ curr, val ] if (val != curr)
-				# Otherwise, just append this item to the array entry
-				else
-					if (info[name].include?(val) == false)
-						info[name] << val
-					end
+					info[name] = [ curr ]
+				end
+
+				# If the value being merged is an array, add each one
+				if (val.kind_of?(Array) == true)
+					val.each { |v|
+						if (info[name].include?(v) == false)
+							info[name] << v
+						end
+					}
+				# Otherwise just add the value
+				elsif (info[name].include?(val) == false)
+					info[name] << val
 				end
 			# Otherwise, just set the value equal if no current value
 			# exists

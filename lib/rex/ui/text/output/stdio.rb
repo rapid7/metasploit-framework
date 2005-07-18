@@ -16,6 +16,7 @@ class Output::Stdio < Rex::Ui::Text::Output
 
 	def print(msg = '')
 		$stdout.print(msg)
+		$stdout.flush
 	end
 end
 

@@ -19,6 +19,13 @@ module Interactive
 	include Rex::Ui::Subscriber
 
 	#
+	# Initialize's the session
+	#
+	def initialize(rstream)
+		self.rstream = rstream
+	end
+
+	#
 	# Returns that, yes, indeed, this session supports going interactive with
 	# the user.
 	#
@@ -27,12 +34,77 @@ module Interactive
 	end
 
 	#
-	# Starts interacting with the session.
+	# Returns the local information
+	#
+	def tunnel_local
+		rstream.localinfo
+	end
+
+	#
+	# Returns the remote peer information
+	#
+	def tunnel_peer
+		rstream.peerinfo
+	end
+	
+	#
+	# Closes rstream.
+	#
+	def cleanup
+		rstream.close if (rstream)
+		rstream = nil
+	end
+
+	#
+	# Starts interacting with the session at the most raw level, simply 
+	# forwarding input from user_input to rstream and forwarding input from
+	# rstream to user_output.
 	#
 	def interact
 		self.interacting = true
+
+		eof = false
+
+		# Handle suspend notifications
+		handle_suspend
+
+		callcc { |ctx|
+			# As long as we're interacting...
+			while (self.interacting == true)
+				begin
+					_interact
+				# If we get an interrupt exception, ask the user if they want to
+				# abort the interaction.  If they do, then we return out of
+				# the interact function and call it a day.
+				rescue Interrupt
+					if (user_want_abort? == true)
+						eof = true
+						ctx.call
+					end
+				# If we reach EOF or the connection is reset...
+				rescue EOFError, Errno::ECONNRESET
+					dlog("Session #{name} got EOF, closing.", 'core', LEV_1)
+					eof = true
+					ctx.call
+				end
+			end
+		}
+
+		# Restore the suspend handler
+		restore_suspend
+
+		# If we hit end-of-file, then that means we should finish off this
+		# session and call it a day.
+		framework.sessions.deregister(self) if (eof == true)
+
+		# Return whether or not EOF was reached
+		return eof
 	end
 
+	#
+	# The remote stream handle.  Must inherit from Rex::IO::Stream.
+	#
+	attr_accessor :rstream
 	#
 	# Whether or not the session is currently being interacted with
 	#
@@ -45,6 +117,12 @@ protected
 	# The original suspend proc.
 	#
 	attr_accessor :orig_suspend
+
+	#
+	# Stub method that is meant to handler interaction
+	#
+	def _interact
+	end
 
 	#
 	# Checks to see if the user wants to abort

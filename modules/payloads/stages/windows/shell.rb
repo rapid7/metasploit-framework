@@ -17,6 +17,7 @@ module Shell
 			'Author'        => 'hdm',
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
+			'Session'       => Msf::Sessions::CommandShell,
 			'Stage'         =>
 				{
 					'Offsets' =>

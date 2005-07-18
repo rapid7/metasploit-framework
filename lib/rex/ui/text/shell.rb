@@ -34,23 +34,6 @@ module Shell
 	end
 
 	def initialize(prompt, prompt_char = '>')
-		# Initialize the input and output methods
-		self.input  = Input::Stdio.new		
-		self.output = Output::Stdio.new
-
-		begin
-			self.input = Input::Readline.new(lambda { |str| tab_complete(str) })
-		rescue
-		end
-
-		# Extend the input medium as an input shell if the input medium
-		# isn't intrinsicly a shell.
-		if (self.input.intrinsic_shell? == false)
-			self.input.extend(InputShell)
-		end
-
-		self.input.output = self.output
-
 		# Set the stop flag to false
 		self.stop_flag      = false
 		self.disable_output = false
@@ -58,8 +41,42 @@ module Shell
 		# Initialize the prompt
 		self.init_prompt = prompt
 		self.prompt_char = prompt_char
+	
+		# Initialize the user interface handles
+		init_ui(Input::Stdio.new, Output::Stdio.new)
+	end
 
+	#
+	# Initializes the user interface input/output classes.
+	#
+	def init_ui(in_input = nil, in_output = nil)
+		# Initialize the input and output methods
+		self.input  = in_input
+		self.output = in_output
+
+		if (self.input)
+			begin
+				self.input = Input::Readline.new(lambda { |str| tab_complete(str) })
+			rescue
+			end
+	
+			# Extend the input medium as an input shell if the input medium
+			# isn't intrinsicly a shell.
+			if (self.input.intrinsic_shell? == false)
+				self.input.extend(InputShell)
+			end
+	
+			self.input.output = self.output
+		end
+		
 		update_prompt
+	end
+
+	#
+	# Resets the user interface
+	#
+	def reset_ui
+		init_ui
 	end
 
 	#
@@ -72,12 +89,21 @@ module Shell
 	#
 	# Run the command processing loop
 	#
-	def run
+	def run(&block)
 		stop_flag = false
 
 		while ((line = input.pgets))
-			run_single(line)
+			# If a block was passed in, pass the line to it.  If it returns true,
+			# break out of the shell loop.
+			if (block)
+				break if (block.call(line, parse_line(line)))
+			# Otherwise, call what should be an overriden instance method to
+			# process the line.
+			else
+				run_single(line)
+			end
 
+			# If the stop flag was set or we've hit EOF, break out
 			break if (input.eof? or self.stop_flag)
 		end
 	end
@@ -115,7 +141,7 @@ module Shell
 		new_prompt.gsub!(/%dwhi/, colorize('dark', 'white'))
 		new_prompt.gsub!(/%dmag/, colorize('dark', 'magenta'))
 
-		self.input.prompt = new_prompt
+		self.input.prompt = new_prompt if (self.input)
 		self.prompt_char  = new_prompt_char if (new_prompt_char)
 	end
 

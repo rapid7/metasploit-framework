@@ -20,6 +20,7 @@ module Shell
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::ReverseTcp,
+			'Session'       => Msf::Sessions::CommandShell,
 			'Payload'       =>
 				{
 					'Offsets' =>

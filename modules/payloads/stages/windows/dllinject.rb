@@ -184,12 +184,26 @@ module DllInject
 		register_options(
 			[
 				OptPath.new('DLL', [ true, "The local path to the DLL to upload" ]),
-			], Msf::Payloads::Stages::Windows::DllInject)
+			], DllInject)
 
 		register_advanced_options(
 			[
 				OptString.new('LibraryName', [ false, "The symbolic name of the library to upload", "msf.dll" ])
-			], Msf::Payloads::Stages::Windows::DllInject)
+			], DllInject)
+	end
+
+	#
+	# Returns the library name
+	#
+	def library_name
+		datastore['LibraryName'] || 'msf.dll'
+	end
+
+	#
+	# Returns the library path
+	#
+	def library_path
+		datastore['DLL']
 	end
 
 	#
@@ -200,14 +214,15 @@ module DllInject
 		# Call the parent so that the stage gets sent
 		super
 
-		data = (datastore['LibraryName'] || 'msf.dll') + "\x00"
+		data = library_name + "\x00"
 
 		begin
-			data += IO.readlines(datastore['DLL']).join
+			data += IO.readlines(library_path).join
 		rescue
 			print_error("Failed to load DLL: #{$!}.")
 
 			# TODO: exception
+			conn.close
 			return
 		end
 
