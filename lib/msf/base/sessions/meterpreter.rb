@@ -26,6 +26,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		super
 
 		#
+		# Initialize the meterpreter client
+		#
+		self.init_meterpreter(rstream)
+
+		#
 		# Create the console instance
 		#
 		self.console = Rex::Post::Meterpreter::Ui::Console.new(self)

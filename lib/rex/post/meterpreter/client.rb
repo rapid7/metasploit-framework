@@ -31,6 +31,13 @@ class Client
 	# Initializes the client context with the supplied socket through
 	# which communication with the server will be performed
 	def initialize(sock, to = self.class.default_timeout)
+		init_meterpreter(sock, to)
+	end
+
+	#
+	# Initializes the meterpreter client instance
+	#
+	def init_meterpreter(sock, to = self.class.default_timeout)
 		self.sock        = sock
 		self.parser      = PacketParser.new
 		self.ext         = ObjectAliases.new
@@ -82,7 +89,7 @@ class Client
 	# Loads the client half of the supplied extension and initializes it as a
 	# registered extension that can be reached through client.ext.[extension].
 	def add_extension(name)
-		require("Rex/Post/Meterpreter/Extensions/#{name}/#{name}")
+		require("rex/post/meterpreter/extensions/#{name.downcase}/#{name.downcase}")
 
 		# XXX might want to be safer and catch the exception here?
 		# maybe not since we are just going to reraise right away...

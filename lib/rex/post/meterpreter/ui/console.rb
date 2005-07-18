@@ -19,6 +19,7 @@ class Console
 	include Rex::Ui::Text::DispatcherShell
 
 	# Dispatchers
+	require 'rex/post/meterpreter/ui/console/command_dispatcher'
 	require 'rex/post/meterpreter/ui/console/core'
 
 	#

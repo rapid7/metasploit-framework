@@ -126,9 +126,6 @@ class ClientCore < Extension
 	Module
 		The module that should be loaded
 	
-	Modules
-		The modules that should be loaded
-
 	LoadFromDisk
 		Indicates that the library should be loaded from disk, not from
 		memory on the remote machine
@@ -137,9 +134,19 @@ class ClientCore < Extension
 		if (mod == nil)
 			raise RuntimeError, "No modules were specified", caller
 		end
+		# Get us to the installation root and then into data/meterpreter, where
+		# the file is expected to be
+		path = File.join(File.dirname(__FILE__), '..', '..', '..', '..', 'data/meterpreter/ext_server_' + mod.downcase + '.dll')
 
+		if (opts['ExtensionPath'])
+			path = opts['ExtensionPath']
+		end
+
+		path = File.expand_path(path)
+
+		# Load the extension DLL
 		if (load_library(
-				'LibraryFilePath' => 'Data/meterpreter/ext_server_' + mod.downcase + '.dll',
+				'LibraryFilePath' => path,
 				'UploadLibrary'   => true,
 				'Extension'       => true,
 				'SaveToDisk'      => opts['LoadFromDisk']))
@@ -315,7 +322,7 @@ class ClientCore < Extension
 		wrote = client.sock.write(inject_lib)
 
 		# Transmit the size of the server
-		metsrv = "Data/meterpreter/metsrv.dll"
+		metsrv = "data/meterpreter/metsrv.dll"
 		buf    = "metsrv.dll\x00" + ::IO.readlines(metsrv).join
 		size   = buf.length
 

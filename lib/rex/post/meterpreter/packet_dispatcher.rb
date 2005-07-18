@@ -87,7 +87,11 @@ module PacketDispatcher
 		# Spawn a new thread that monitors the socket
 		thr = ::Thread.new {
 			while (true)
-				rv = select([ self.sock ], nil, nil, 2)
+				begin
+					rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, 2)
+				rescue
+					dlog("Exception caught in monitor_socket: #{$!}", 'meterpreter', LEV_1)
+				end
 
 				begin
 					packet = receive_packet
