@@ -18,7 +18,7 @@ module DllInject
 	include Msf::Payload::Windows
 
 	def initialize(info = {})
-		super(merge_info(info,
+		super(update_info(info,
 			'Name'          => 'Windows Inject DLL',
 			'Version'       => '$Revision$',
 			'Description'   => 'Inject a custom DLL into the exploited process',
@@ -222,10 +222,6 @@ module DllInject
 			conn.close
 			return
 		end
-
-		# Give the stage a second or so, just so it doesn't try
-		# to read in the DLL as part of the stage...
-		Rex::ThreadSafe.sleep(1.5)
 
 		print_status("Uploading DLL (#{data.length} bytes)...")
 

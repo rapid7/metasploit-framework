@@ -67,7 +67,10 @@ class Rex::Socket::Tcp < Rex::Socket
 	# Calls shutdown on the TCP connection.
 	#
 	def shutdown(how = SHUT_RDWR)
-		return (sock.shutdown(how) == 0)
+		begin
+			return (sock.shutdown(how) == 0)
+		rescue Errno::ENOTCONN
+		end
 	end
 
 	#

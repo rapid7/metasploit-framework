@@ -24,6 +24,11 @@ class Console::CommandDispatcher::Stdapi::Fs
 	#
 	@@download_opts = Rex::Parser::Arguments.new(
 		"-r" => [ false, "Download recursively." ])
+	#
+	# Options for the upload command
+	#
+	@@upload_opts = Rex::Parser::Arguments.new(
+		"-r" => [ false, "Upload recursively." ])
 
 	#
 	# List of supported commands
@@ -67,7 +72,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 	# machine.
 	#
 	def cmd_download(*args)
-		if (args.length == 0)
+		if (args.length < 2)
 			print(
 				"Usage: download [options] src1 src2 src3 ... destination\n\n" +
 				"Downloads remote files and directories to the local machine.\n" +
@@ -195,6 +200,62 @@ class Console::CommandDispatcher::Stdapi::Fs
 			client.fs.dir.rmdir(dir)
 		}
 
+		return true
+	end
+
+	#
+	# Uploads a file or directory to the remote machine from the local
+	# machine.
+	#
+	def cmd_download(*args)
+		if (args.length < 2)
+			print(
+				"Usage: upload [options] src1 src2 src3 ... destination\n\n" +
+				"Uploads local files and directories to the remote machine.\n" +
+				@@upload_opts.usage)
+			return true
+		end
+
+		recursive = false
+		src_items = []
+		last      = nil
+		dest      = nil
+
+		@@upload_opts.parse(args) { |opt, idx, val|
+			case opt
+				when "-r"
+					recursive = true
+				when nil
+					if (last)
+						src_items << last
+					end
+
+					last = val
+			end
+		}
+
+		dest = last
+
+		# If there is no destination, assume it's the same as the source.
+		if (!dest)
+			dest = src_items[0]
+		end
+
+		# Go through each source item and upload them
+		src_items.each { |src|
+			stat = client.fs.file.stat(src)
+
+			if (stat.directory?)
+				client.fs.dir.upload(dest, src, recursive) { |step, src, dst|
+					print_status("#{step.ljust(11)}: #{src} -> #{dst}")
+				}
+			elsif (stat.file?)
+				client.fs.file.upload(dest, src) { |step, src, dst|
+					print_status("#{step.ljust(11)}: #{src} -> #{dst}")
+				}
+			end
+		}
+		
 		return true
 	end
 

@@ -35,7 +35,7 @@ module Meterpreter
 					[ 
 						true, 
 						"The local path to the DLL to upload", 
-						Msf::Config.install_root + "#{sep}data#{sep}meterpreter#{sep}metsrv.dll" 
+						File.join(Msf::Config.install_root, "data", "meterpreter", "metsrv.dll")
 					]),
 			], Meterpreter)
 

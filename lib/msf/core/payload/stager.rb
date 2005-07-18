@@ -48,11 +48,25 @@ module Msf::Payload::Stager
 	def handle_connection(conn)
 		p = stage_payload.dup
 
+		# Substitute variables in the stage
 		substitute_vars(p, stage_offsets) if (stage_offsets)
+
+		# Prefix to the stage with whatever may be required and then rock it.
+		p = (stage_prefix || '') + p
 
 		print_status("Sending stage (#{p.length} bytes)")
 
+		# Send the stage
 		conn.put(p)
+
+		# If the stage implements the handle connection method, sleep before
+		# handling it.
+		if (derived_implementor?(Msf::Payload::Stager, 'handle_connection_stage'))
+			print_status("Sleeping before handling stage...")
+
+			# Sleep before processing the stage
+			Rex::ThreadSafe.sleep(1.5)
+		end
 
 		# Give the stages a chance to handle the connection
 		handle_connection_stage(conn)
@@ -70,5 +84,10 @@ module Msf::Payload::Stager
 	# Aliases
 	alias stager_payload payload
 	alias stager_offsets offsets
+
+	#
+	# A value that should be prefixed to a stage, such as a tag.
+	#
+	attr_accessor :stage_prefix
 
 end

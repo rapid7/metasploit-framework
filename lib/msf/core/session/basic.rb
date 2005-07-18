@@ -16,14 +16,6 @@ module Basic
 	include Interactive
 
 	#
-	# Returns that, yes, indeed, this session supports going interactive with
-	# the user.
-	#
-	def interactive?
-		true
-	end
-
-	#
 	# Description of the session
 	#
 	def desc

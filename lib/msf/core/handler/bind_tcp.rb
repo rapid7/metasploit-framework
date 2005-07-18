@@ -26,7 +26,6 @@ module BindTcp
 
 		register_options(
 			[
-				Opt::RHOST,
 				Opt::LPORT(4444)
 			], Msf::Handler::BindTcp)
 
@@ -58,6 +57,12 @@ module BindTcp
 			client = nil
 
 			print_status("Started bind handler")
+
+			if (datastore['RHOST'] == nil)
+				raise ArgumentError, 
+					"RHOST is not defined; bind stager cannot function.",
+					caller
+			end
 
 			# Keep trying to connect
 			callcc { |ctx|

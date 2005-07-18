@@ -62,6 +62,7 @@ end
 # OptPort    - TCP/UDP service port
 # OptAddress - IP address or hostname
 # OptPath    - Path name on disk
+# OptInt     - An integer value
 #
 ###
 
@@ -149,6 +150,21 @@ class OptPath < OptBase
 		return super
 	end
 end
+
+class OptPort < OptBase
+	def type 
+		return 'integer' 
+	end
+
+	def valid?(value)
+		if (value.to_s.match(/^\d+$/) == nil)
+			return false
+		end
+
+		return super
+	end
+end
+
 
 ###
 #

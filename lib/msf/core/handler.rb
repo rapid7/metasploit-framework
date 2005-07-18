@@ -46,6 +46,13 @@ module Handler
 	end
 
 	#
+	# Returns the handler's name, if any.
+	#
+	def handler_name
+		module_info['HandlerName']
+	end
+
+	#
 	# Initializes the session waiter event and other fun stuff.
 	#
 	def initialize(info = {})

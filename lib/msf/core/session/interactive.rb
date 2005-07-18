@@ -128,7 +128,7 @@ protected
 	# Checks to see if the user wants to abort
 	#
 	def user_want_abort?
-		prompt_yesno("Abort session #{name}? [y/N]  ")
+		prompt_yesno("Abort session #{name}?")
 	end
 
 	#
@@ -138,7 +138,7 @@ protected
 		if (orig_suspend == nil)
 			self.orig_suspend = Signal.trap("TSTP") {
 				# Ask the user if they would like to background the session
-				if (prompt_yesno("Background session #{name}? [y/N]  ") == true)
+				if (prompt_yesno("Background session #{name}?") == true)
 					self.interacting = false
 				end
 			}
@@ -157,6 +157,9 @@ protected
 		end
 	end
 
+	#
+	# Prompt the user for input if possible.
+	#
 	def prompt(query)
 		if (user_output and user_input)
 			user_output.print("\n" + query)
@@ -165,10 +168,10 @@ protected
 	end
 	
 	#
-	# Check the return value of the prompt
+	# Check the return value of a yes/no prompt
 	#
 	def prompt_yesno(query)
-		(prompt(query) =~ /^y/i) ? true : false
+		(prompt(query + " [y/N]  ") =~ /^y/i) ? true : false
 	end
 
 end

@@ -123,17 +123,26 @@ class PayloadSet < ModuleSet
 				# and stage
 				p = build_payload(handler, stager_mod, stage_mod)
 
+				# If the stager has an alias for the handler type (such as is the
+				# case for ordinal based stagers), use it in preference of the
+				# handler's actual type.
+				if (stager_mod.respond_to?('handler_type_alias') == true)
+					handler_type = stager_mod.handler_type_alias
+				else
+					handler_type = handler.handler_type
+				end
+
 				# Associate the name as a combination of the stager and stage
 				combined  = stage_name
 
 				# If a valid handler exists for this stager, then combine it
-				combined += '/' + handler.handler_type
+				combined += '/' + handler_type
 
 				# Sets the modules derived name
 				p.refname = combined
 
 				# Add the stage
-				add_stage(p, combined, stage_name, handler.handler_type)
+				add_stage(p, combined, stage_name, handler_type)
 			
 				# Cache the payload's size
 				sizes[combined] = p.new.size

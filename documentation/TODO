@@ -15,7 +15,11 @@ X     - handler cleanup
 X       - stop handler
 X       - cleanup handler
 
+- 
+
 - add the concept of services to framework:
+  - instead, just make it a singleton, doesn't belong on framework
+  - add port forward service
 
 # first parameter is class that must inherit from Rex::Proto so that it has .alias
 service = framework.services.start(Rex::Proto::HTTP::Server, 'Port' => 80, 'Host' => '127.0.0.1')
@@ -28,3 +32,19 @@ service.create_resource("/uri", Proc.new { |conn, request|
 service.remove_resource("/uri")
 service.shutdown 
   ^- reference counted, only terminates when reference count drops to zero
+
+- exploit mixins
+  - Http
+    - Http::Client
+	   connect
+		create_request
+		send_request
+		handler
+    - Http::Server
+	   handle_request(req)
+		create_response
+		send_response
+- findsock payloads
+  - findsock handler
+- meterpreter
+  - more ui wrapping

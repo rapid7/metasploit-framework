@@ -60,9 +60,8 @@ class Arguments
 
 					if (val[0])
 						param = args[idx+1]
+						skip_next = true
 					end
-
-					skip_next = true
 
 					yield fmtspec, idx, param
 				}
