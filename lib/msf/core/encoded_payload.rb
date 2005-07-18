@@ -101,6 +101,9 @@ class EncodedPayload
 					next
 				end
 
+				# Get the minimum number of nops to use
+				min = (reqs['MinNops'] || 0).to_i
+
 				# Check to see if we have enough room for the minimum requirements
 				if ((reqs['Space']) and
 				    (reqs['Space'] < self.encoded.length + min))
