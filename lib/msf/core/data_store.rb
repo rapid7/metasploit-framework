@@ -16,7 +16,9 @@ class DataStore < Hash
 	#
 	def import_options(options)
 		options.each_option { |name, opt|
-			if (opt.default)
+			# If the option has a default value, import it, but only if the
+			# datastore doesn't already have a value set for it.
+			if (opt.default and self[name] == nil)
 				self.store(name, opt.default.to_s)
 			end
 		}
@@ -130,14 +132,26 @@ class ModuleDataStore < DataStore
 	# if we can't directly find it
 	#
 	def fetch(key)
-		val = super || @_module.framework.datastore[key]
+		val = super 
+
+		if (!val and @_module and @_module.framework)
+			val = @_module.framework.datastore[key]
+		end
+
+		return val
 	end
 
 	#
 	# Same as fetch
 	#
 	def [](key)
-		val = super || @_module.framework.datastore[key]
+		val = super
+		
+		if (!val and @_module and @_module.framework)
+			val = @_module.framework.datastore[key]
+		end
+
+		return val
 	end
 
 end

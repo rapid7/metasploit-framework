@@ -1,4 +1,5 @@
 module Rex
+	Root = File.join(File.dirname(__FILE__), 'rex')
 end
 
 # Generic classes

@@ -48,7 +48,7 @@ class Dir < Rex::Post::Dir
 	end
 
 	# Enumerates all of the files/folders in a given directory.
-	def Dir.entries(name)
+	def Dir.entries(name = getwd)
 		request = Packet.create_request('stdapi_fs_ls')
 		files   = []
 
@@ -134,7 +134,7 @@ class Dir < Rex::Post::Dir
 
 	# Downloads the contents of a remote directory a 
 	# local directory, optionally in a recursive fashion.
-	def Dir.download(dst, src, recursive = false)
+	def Dir.download(dst, src, recursive = false, &stat)
 		self.entries(src).each { |src_sub|
 			dst_item = dst + ::File::SEPARATOR + src_sub
 			src_item = src + File::SEPARATOR + src_sub
@@ -146,7 +146,9 @@ class Dir < Rex::Post::Dir
 			src_stat = client.fs.filestat.new(src_item)
 
 			if (src_stat.file?)
+				stat.call('downloading', src_item, dst_item) if (stat)
 				client.fs.file.download(dst_item, src_item)
+				stat.call('downloaded', src_item, dst_item) if (stat)
 			elsif (src_stat.directory?)
 				if (recursive == false)
 					next
@@ -157,14 +159,16 @@ class Dir < Rex::Post::Dir
 				rescue
 				end
 
-				download(dst_item, src_item, recursive)
+				stat.call('mirroring', src_item, dst_item) if (stat)
+				download(dst_item, src_item, recursive, &stat)
+				stat.call('mirrored', src_item, dst_item) if (stat)
 			end
 		}
 	end
 
 	# Uploads the contents of a local directory to a remote 
 	# directory, optionally in a recursive fashion.
-	def Dir.upload(dst, src, recursive = false)
+	def Dir.upload(dst, src, recursive = false, &stat)
 		::Dir.entries(src).each { |src_sub|
 			dst_item = dst + File::SEPARATOR + src_sub
 			src_item = src + ::File::SEPARATOR + src_sub
@@ -176,7 +180,9 @@ class Dir < Rex::Post::Dir
 			src_stat = ::File.stat(src_item)
 
 			if (src_stat.file?)
+				stat.call('uploading', src_item, dst_item) if (stat)
 				client.fs.file.upload(dst_item, src_item)
+				stat.call('uploaded', src_item, dst_item) if (stat)
 			elsif (src_stat.directory?)
 				if (recursive == false)
 					next
@@ -187,7 +193,9 @@ class Dir < Rex::Post::Dir
 				rescue
 				end
 
-				upload(dst_item, src_item, recursive)
+				stat.call('mirroring', src_item, dst_item) if (stat)
+				upload(dst_item, src_item, recursive, &stat)
+				stat.call('mirrored', src_item, dst_item) if (stat)
 			end
 		}
 	end

@@ -20,13 +20,13 @@ class Console
 
 	# Dispatchers
 	require 'rex/post/meterpreter/ui/console/command_dispatcher'
-	require 'rex/post/meterpreter/ui/console/core'
+	require 'rex/post/meterpreter/ui/console/command_dispatcher/core'
 
 	#
 	# Initialize the meterpreter console
 	#
 	def initialize(client)
-		super("%bmeterpreter%c")
+		super("%umeterpreter%c")
 
 		# The meterpreter client context
 		self.client = client
@@ -34,7 +34,7 @@ class Console
 		# Point the input/output handles elsewhere
 		reset_ui
 
-		enstack_dispatcher(Console::Core)
+		enstack_dispatcher(Console::CommandDispatcher::Core)
 	end
 
 	#

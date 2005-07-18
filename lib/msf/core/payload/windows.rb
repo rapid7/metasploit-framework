@@ -47,7 +47,7 @@ module Msf::Payload::Windows
 			method = datastore[name]
 			method = 'seh' if (!method or @@exit_types.include?(method) == false)
 
-			raw[offset, 4] = [ @@exit_types[method] ].pack('V')
+			raw[offset, 4] = [ @@exit_types[method] ].pack(pack || 'V')
 
 			return true
 		end

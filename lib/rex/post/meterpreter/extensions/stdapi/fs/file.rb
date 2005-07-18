@@ -52,10 +52,11 @@ Separator = "\\"
 
 	# Upload one or more files to the remote computer the remote
 	# directory supplied in destination
-	def File.upload(destination, *src_files)
+	def File.upload(destination, *src_files, &stat)
 		src_files.each { |src|
 			dest = destination
 
+			stat.call('uploading', src, dest) if (stat)
 			if (File.basename(destination) != ::File.basename(src))
 				dest += File::SEPARATOR + ::File.basename(src)
 			end
@@ -67,14 +68,17 @@ Separator = "\\"
 
 			dest_fd.write(src_buf)
 			dest_fd.close
+			stat.call('uploaded', src, dest) if (stat)
 		}
 	end
 
 	# Download one or more files from the remote computer to the local 
 	# directory supplied in destination
-	def File.download(destination, *src_files)
+	def File.download(destination, *src_files, &stat)
 		src_files.each { |src|
 			dest = destination
+
+			stat.call('downloading', src, dest) if (stat)
 
 			if (::File.basename(destination) != File.basename(src))
 				dest += ::File::SEPARATOR + File.basename(src)
@@ -93,6 +97,8 @@ Separator = "\\"
 
 			src_fd.close
 			dst_fd.close
+			
+			stat.call('downloaded', src, dest) if (stat)
 		}
 	end
 

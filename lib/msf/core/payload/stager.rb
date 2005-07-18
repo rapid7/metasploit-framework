@@ -46,7 +46,7 @@ module Msf::Payload::Stager
 	# Transmit the associated stage.
 	#
 	def handle_connection(conn)
-		p = stage_payload
+		p = stage_payload.dup
 
 		substitute_vars(p, stage_offsets) if (stage_offsets)
 

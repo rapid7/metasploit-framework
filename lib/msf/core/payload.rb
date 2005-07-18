@@ -129,7 +129,7 @@ class Payload < Msf::Module
 	# Generates the payload and return the raw buffer
 	#
 	def generate
-		raw = payload
+		raw = payload.dup
 
 		# If the payload is generated and there are offsets to substitute,
 		# do that now.

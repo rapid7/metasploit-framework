@@ -115,12 +115,15 @@ module DispatcherShell
 			dispatcher_stack.each { |dispatcher|
 				begin
 					if (dispatcher.respond_to?('cmd_' + method))
+						found = true
 						eval("
 							dispatcher.#{'cmd_' + method}(*arguments)
-							found = true")
+							")
 					end
 				rescue
-					output.print_error("Error while running command #{method}: #{$!}")
+					output.print_error(
+						"Error while running command #{method}: #{$!}" +
+						"\n\nCall stack:\n#{$@.join("\n")}")
 				end
 
 				# If the dispatcher stack changed as a result of this command,

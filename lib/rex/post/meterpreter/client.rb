@@ -14,6 +14,12 @@ module Rex
 module Post
 module Meterpreter
 
+#
+# Just to get it in there...
+#
+module Extensions
+end
+
 ###
 #
 # Client
@@ -89,11 +95,18 @@ class Client
 	# Loads the client half of the supplied extension and initializes it as a
 	# registered extension that can be reached through client.ext.[extension].
 	def add_extension(name)
+		old = Rex::Post::Meterpreter::Extensions.constants
 		require("rex/post/meterpreter/extensions/#{name.downcase}/#{name.downcase}")
+		new = Rex::Post::Meterpreter::Extensions.constants
+
+		# No new constants added?
+		if ((diff = new - old).empty?)
+			return false
+		end
 
 		# XXX might want to be safer and catch the exception here?
 		# maybe not since we are just going to reraise right away...
-		ext = Rex::Post::Meterpreter::Extensions.const_get(name).const_get(name).new(self)
+		ext = Rex::Post::Meterpreter::Extensions.const_get(diff[0]).const_get(diff[0]).new(self)
 
 		self.ext.aliases[ext.name] = ext
 

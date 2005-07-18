@@ -1,4 +1,4 @@
-require 'rex/parser/arguments'
+require 'rex/post/meterpreter'
 
 module Rex
 module Post
@@ -13,9 +13,15 @@ module Ui
 # Core meterpreter client commands.
 #
 ###
-class Console::Core
+class Console::CommandDispatcher::Core
 
 	include Console::CommandDispatcher
+
+	def initialize(shell)
+		super
+
+		self.extensions = []
+	end
 
 	@@use_opts = Rex::Parser::Arguments.new(
 		"-m" => [ true,  "The name of the module or modules to load (Ex: stdapi)." ],
@@ -26,10 +32,19 @@ class Console::Core
 	#
 	def commands
 		{
+			"?"    => "Help menu",
 			"exit" => "Terminate the meterpreter session",
+			"help" => "Help menu",
 			"use"  => "Load a one or more meterpreter extensions",
 			"quit" => "Terminate the meterpreter session",
 		}
+	end
+
+	#
+	# Core baby.
+	#
+	def name
+		"Core"
 	end
 
 	#
@@ -40,6 +55,12 @@ class Console::Core
 	end
 
 	alias cmd_quit cmd_exit
+
+	#
+	# Displays the help menu
+	#
+	def cmd_help(*args)
+	end
 
 	#
 	# Loads one or more meterpreter extensions
@@ -66,10 +87,20 @@ class Console::Core
 
 		# Load each of the modules
 		modules.each { |m|
+			md = m.downcase
+
+			if (extensions.include?(md))
+				print_error("The '#{m}' extension has already been loaded.")
+				next
+			end
+
 			print("Loading extension #{m}...")
 
 			begin
-				client.core.use(m)
+				# Use the remote side, then load the client-side
+				if (client.core.use(md) == true)
+					add_extension_client(md)
+				end
 			rescue
 				log_error("failure: #{$!}")
 				next
@@ -81,6 +112,39 @@ class Console::Core
 		return true
 	end
 
+protected
+
+	attr_accessor :extensions
+
+	CommDispatcher = Console::CommandDispatcher
+
+	#
+	# Loads the client extension specified in mod
+	#
+	def add_extension_client(mod)
+		clirb  = File.join(Rex::Root, "post/meterpreter/ui/console/command_dispatcher/#{mod}.rb")
+
+		old  = CommDispatcher.constants
+
+		require(clirb)
+
+		new  = CommDispatcher.constants
+		diff = new - old
+
+		if (diff.empty? == true)
+			print_error("Failed to load client portion of #{mod}.")
+			return false
+		end
+
+		# Create the dispatcher	
+		klass = CommDispatcher.const_get(diff[0])
+
+		# Enstack the dispatcher
+		self.shell.enstack_dispatcher(klass)
+
+		# Insert the module into the list of extensions
+		self.extensions << mod
+	end
 end
 
 end
