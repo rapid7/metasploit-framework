@@ -73,7 +73,7 @@ module Text
 	# Converts a hex string to a raw string
 	#
 	def self.hex_to_raw(str)
-		[ str.downcase.gsub(/'/,'').gsub(/\\x([a-f0-9][a-f0-9])/, '\1') ].pack("H*")
+		[ str.downcase.gsub(/'/,'').gsub(/\\?x([a-f0-9][a-f0-9])/, '\1') ].pack("H*")
 	end
 
 	#

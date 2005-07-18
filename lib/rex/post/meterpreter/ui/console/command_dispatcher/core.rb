@@ -102,7 +102,7 @@ class Console::CommandDispatcher::Core
 					add_extension_client(md)
 				end
 			rescue
-				log_error("failure: #{$!}")
+				log_error("\nfailure: #{$!}\n#{$@.join("\n")}")
 				next
 			end
 

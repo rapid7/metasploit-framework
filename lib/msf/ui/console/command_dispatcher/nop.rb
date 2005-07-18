@@ -10,9 +10,10 @@ class Nop
 	include Msf::Ui::Console::ModuleCommandDispatcher
 
 	@@generate_opts = Rex::Parser::Arguments.new(
-		"-b" => [ true,  "The list of characters to avoid: '\\x00\\xff'" ],
-		"-h" => [ false, "Help banner."                                  ],
-		"-t" => [ true,  "The output type: ruby, perl, c, or raw."       ])
+		"-b" => [ true,  "The list of characters to avoid: '\\x00\\xff'"  ],
+		"-h" => [ false, "Help banner."                                   ],
+		"-s" => [ true,  "The comma separated list of registers to save." ],
+		"-t" => [ true,  "The output type: ruby, perl, c, or raw."        ])
 
 	def commands
 		{
@@ -27,7 +28,7 @@ class Nop
 	#
 	# Generates a NOP sled
 	#
-	def cmd_generate(args)
+	def cmd_generate(*args)
 
 		# No arguments?  Tell them how to use it.
 		if (args.length == 0)
@@ -36,6 +37,7 @@ class Nop
 
 		# Parse the arguments
 		badchars = nil
+		saveregs = nil
 		type     = "ruby"
 		length   = 200
 
@@ -45,6 +47,8 @@ class Nop
 					length = val.to_i	
 				when '-b'
 					badchars = Rex::Text.hex_to_raw(val)
+				when "-c"
+					saveregs = val.split(/,\s?/)
 				when '-t'
 					type = val
 				when '-h'
@@ -60,8 +64,9 @@ class Nop
 		begin
 			sled = mod.generate_simple(
 				length,
-				'BadChars' => badchars,
-				'Format'   => type)
+				'BadChars'      => badchars,
+				'SaveRegisters' => saveregs,
+				'Format'        => type)
 		rescue
 			log_error("Sled generation failed: #{$!}.")
 			return false

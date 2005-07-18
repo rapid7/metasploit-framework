@@ -42,7 +42,14 @@ class Arguments
 	# Parses the supplied arguments into a set of options
 	#
 	def parse(args, &block)
+		skip_next = false
+
 		args.each_with_index { |arg, idx|
+			if (skip_next == true)
+				skip_next = false
+				next
+			end
+
 			if (arg.match(/^-/))
 				cfs = arg[0..2]
 
@@ -54,6 +61,8 @@ class Arguments
 					if (val[0])
 						param = args[idx+1]
 					end
+
+					skip_next = true
 
 					yield fmtspec, idx, param
 				}
