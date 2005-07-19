@@ -16,7 +16,9 @@ module IO
 ###
 module StreamAbstraction
 
+	#
 	# Creates a streaming socket pair
+	#
 	def initialize_abstraction
 		self.lsock, self.rsock = ::Socket.pair(::Socket::AF_UNIX,
 				::Socket::SOCK_STREAM, 0)

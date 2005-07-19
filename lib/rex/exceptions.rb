@@ -11,9 +11,6 @@ module Rex
 #
 ###
 module Exception
-	def to_s
-		"An unknown exception occurred."
-	end
 end
 
 class TimeoutError < Interrupt
@@ -35,9 +32,9 @@ end
 class RuntimeError < ::RuntimeError
 	include Exception
 
-	def to_s
-		"A runtime error occurred."
-	end
+#	def to_s
+#		"A runtime error occurred."
+#	end
 end
 
 class ArgumentError < ::ArgumentError

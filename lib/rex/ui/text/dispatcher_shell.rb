@@ -101,7 +101,9 @@ module DispatcherShell
 		}
 	end
 
+	#
 	# Run a single command line
+	#
 	def run_single(line)
 		arguments = parse_line(line)
 		method    = arguments.shift
@@ -115,10 +117,9 @@ module DispatcherShell
 			dispatcher_stack.each { |dispatcher|
 				begin
 					if (dispatcher.respond_to?('cmd_' + method))
+						run_command(dispatcher, method, arguments)
+
 						found = true
-						eval("
-							dispatcher.#{'cmd_' + method}(*arguments)
-							")
 					end
 				rescue
 					output.print_error(
@@ -140,22 +141,71 @@ module DispatcherShell
 	end
 
 	#
+	# Runs the supplied command on the given dispatcher.
+	#
+	def run_command(dispatcher, method, arguments)
+		eval("dispatcher.#{'cmd_' + method}(*arguments)")
+	end
+
+	#
 	# If the command is unknown...
 	#
 	def unknown_command(method, line)
 		output.print_error("Unknown command: #{method}.")
 	end
 
+	#
 	# Push a dispatcher to the front of the stack
+	#
 	def enstack_dispatcher(dispatcher)
 		self.dispatcher_stack.unshift(dispatcher.new(self))
 	end
 
+	#
 	# Pop a dispatcher from the front of the stacker
+	#
 	def destack_dispatcher
 		self.dispatcher_stack.shift
 	end
 
+	#
+	# Return a readable version of a help banner for all of the enstacked
+	# dispatchers.
+	#
+	def help_to_s(opts = {})
+		str = ''
+
+		dispatcher_stack.reverse.each { |dispatcher|
+			# No commands?  Suckage.
+			next if ((dispatcher.respond_to?('commands') == false) or
+			         (dispatcher.commands.length == 0))
+
+			# Display the commands
+			tbl = Table.new(
+				'Header'  => "#{dispatcher.name} Commands",
+				'Indent'  => opts['Indent'] || 4,
+				'Columns' => 
+					[
+						'Command',
+						'Description'
+					],
+				'ColProps' =>
+					{
+						'Command' =>
+							{
+								'MaxWidth' => 12
+							}
+					})
+
+			dispatcher.commands.sort.each { |c|
+				tbl << c
+			}
+
+			str += "\n" + tbl.to_s + "\n"
+		}
+
+		return str
+	end
 
 
 	attr_accessor :dispatcher_stack

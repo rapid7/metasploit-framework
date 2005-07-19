@@ -7,10 +7,10 @@ module Ui
 
 ###
 #
-# Stdapi
-# ------
+# Fs
+# --
 #
-# Standard API extension.
+# The file system portion of the standard API extension.
 #
 ###
 class Console::CommandDispatcher::Stdapi::Fs
@@ -207,7 +207,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 	# Uploads a file or directory to the remote machine from the local
 	# machine.
 	#
-	def cmd_download(*args)
+	def cmd_upload(*args)
 		if (args.length < 2)
 			print(
 				"Usage: upload [options] src1 src2 src3 ... destination\n\n" +

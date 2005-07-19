@@ -19,6 +19,7 @@ class Console
 	include Rex::Ui::Text::DispatcherShell
 
 	# Dispatchers
+	require 'rex/post/meterpreter/ui/console/interactive_channel'
 	require 'rex/post/meterpreter/ui/console/command_dispatcher'
 	require 'rex/post/meterpreter/ui/console/command_dispatcher/core'
 
@@ -53,6 +54,31 @@ class Console
 				false
 			end
 		}
+	end
+
+	#
+	# Interacts with the supplied channel
+	#
+	def interact_with_channel(channel)
+		channel.extend(InteractiveChannel) unless (channel.kind_of?(InteractiveChannel) == true)
+
+		channel.init_ui(input, output)
+		channel.interact
+		channel.reset_ui
+	end
+
+	#
+	# Runs the specified command wrapper in something to catch meterpreter
+	# exceptions.
+	#
+	def run_command(dispatcher, method, arguments)
+		begin
+			super
+		rescue TimeoutError
+			output.print_line("Operation timed out.")
+		rescue RequestError => info
+			output.print_line(info.to_s)
+		end
 	end
 
 	attr_reader :client

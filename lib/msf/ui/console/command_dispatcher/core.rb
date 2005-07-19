@@ -96,37 +96,7 @@ class Core
 	# Displays the command help banner
 	#
 	def cmd_help(*args)
-		driver.dispatcher_stack.reverse.each { |dispatcher|
-			begin
-				commands = dispatcher.commands
-			rescue
-				commands = nil
-				next
-			end
-
-			# Display the commands
-			tbl = Table.new(
-				Table::Style::Default,
-				'Header'  => "#{dispatcher.name} Commands",
-				'Columns' => 
-					[
-						'Command',
-						'Description'
-					],
-				'ColProps' =>
-					{
-						'Command' =>
-							{
-								'MaxWidth' => 12
-							}
-					})
-
-			dispatcher.commands.sort.each { |c|
-				tbl << c
-			}
-
-			print(tbl.to_s)
-		}
+		print(driver.help_to_s)
 	end
 
 	#

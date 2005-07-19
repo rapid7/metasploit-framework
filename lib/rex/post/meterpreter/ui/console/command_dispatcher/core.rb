@@ -60,6 +60,7 @@ class Console::CommandDispatcher::Core
 	# Displays the help menu
 	#
 	def cmd_help(*args)
+		print(shell.help_to_s)
 	end
 
 	#
@@ -90,11 +91,11 @@ class Console::CommandDispatcher::Core
 			md = m.downcase
 
 			if (extensions.include?(md))
-				print_error("The '#{m}' extension has already been loaded.")
+				print_error("The '#{md}' extension has already been loaded.")
 				next
 			end
 
-			print("Loading extension #{m}...")
+			print("Loading extension #{md}...")
 
 			begin
 				# Use the remote side, then load the client-side

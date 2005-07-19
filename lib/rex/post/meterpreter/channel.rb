@@ -49,7 +49,6 @@ class Channel
 			
 			# Valid channel context?
 			if (channel == nil)
-				puts "nil wtf"
 				return false
 			end
 
@@ -239,6 +238,26 @@ class Channel
 		self.client.remove_channel(self.cid)
 
 		self.cid = nil
+
+		return true
+	end
+
+	#
+	# Enables or disables interactive mode
+	#
+	def interactive(tf = true, addends = nil)
+		if (self.cid == nil)
+			raise IOError, "Channel has been closed.", caller
+		end
+
+		request = Packet.create_request('core_channel_interact')
+
+		# Populate the request
+		request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
+		request.add_tlv(TLV_TYPE_BOOL, tf)
+		request.add_tlvs(addends)
+
+		self.client.send_request(request)
 
 		return true
 	end

@@ -17,3 +17,4 @@ require 'rex/ui/text/table'
 
 # Ui subscriber
 require 'rex/ui/subscriber'
+require 'rex/ui/interactive'

@@ -36,25 +36,7 @@ protected
 	# overriden by derived classes if they wish to do this another way.
 	#
 	def _interact
-		while self.interacting
-			# Select input and rstream
-			sd = Rex::ThreadSafe.select([ user_input.fd, rstream.fd ])
-
-			# Cycle through the items that have data
-			# From the rstream?  Write to user_output.
-			sd[0].each { |s|
-				if (s == rstream.fd)
-					data = rstream.get
-
-					user_output.print(data)
-				# From user_input?  Write to rstream.
-				elsif (s == user_input.fd)
-					data = user_input.gets
-
-					rstream.put(data)
-				end
-			} if (sd)
-		end
+		interact_stream(rstream)
 	end
 
 end

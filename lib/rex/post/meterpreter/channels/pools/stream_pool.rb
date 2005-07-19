@@ -24,6 +24,8 @@ module Pools
 ###
 class StreamPool < Rex::Post::Meterpreter::Channels::Pool
 
+	include Rex::IO::StreamAbstraction
+
 	##
 	#
 	# Constructor
@@ -33,6 +35,8 @@ class StreamPool < Rex::Post::Meterpreter::Channels::Pool
 	# Initializes the file channel instance
 	def initialize(client, cid, type, flags)
 		super(client, cid, type, flags)
+
+		initialize_abstraction
 	end
 
 	#
@@ -50,6 +54,19 @@ class StreamPool < Rex::Post::Meterpreter::Channels::Pool
 	def eof
 		return false
 	end
+
+	def dio_write_handler(packet, data)
+		rsock.write(data)
+
+		return true;
+	end
+
+	def dio_close_handler(packet)
+		rsock.close
+		
+		return super(packet)
+	end
+
 
 end
 

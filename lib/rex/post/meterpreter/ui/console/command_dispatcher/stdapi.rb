@@ -15,16 +15,27 @@ module Ui
 ###
 class Console::CommandDispatcher::Stdapi
 
+	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/fs'
+	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/net'
+	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/sys'
+
 	Klass = Console::CommandDispatcher::Stdapi
 
-	include Console::CommandDispatcher
+	Dispatchers = 
+		[
+			Klass::Fs,
+			Klass::Net,
+			Klass::Sys,
+		]
 
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/fs'
+	include Console::CommandDispatcher
 
 	def initialize(shell)
 		super
 
-		shell.enstack_dispatcher(Klass::Fs)
+		Dispatchers.each { |d|
+			shell.enstack_dispatcher(d)
+		}
 	end
 
 	#

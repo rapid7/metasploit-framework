@@ -33,24 +33,30 @@ module Stream
 	# Writes data to the stream.
 	#
 	def write(buf, opts = {})
+		fd.syswrite(buf)
 	end
 
 	#
 	# Reads data from the stream.
 	#
 	def read(length = nil, opts = {})
+		length = 16384 unless length
+
+		fd.sysread(length)
 	end
 
 	#
 	# Shuts down the stream for reading, writing, or both.
 	#
 	def shutdown(how = SW_BOTH)
+		fd.shutdown(how)
 	end
 
 	#
 	# Closes the stream and allows for resource cleanup
 	#
 	def close
+		fd.close
 	end
 
 	#
@@ -58,6 +64,7 @@ module Stream
 	# true if data is available for reading, otherwise false is returned.
 	#
 	def has_read_data?(timeout = nil)
+		Rex::ThreadSafe.select([ fd ], nil, nil, timeout)
 	end
 
 	#

@@ -63,6 +63,8 @@ class Config
 		return ifaces
 	end
 
+	alias interfaces get_interfaces
+
 	##
 	#
 	# Routing
@@ -91,6 +93,8 @@ class Config
 
 		return routes
 	end
+	
+	alias routes get_routes
 
 	# Adds a route to the target machine
 	def add_route(subnet, netmask, gateway)

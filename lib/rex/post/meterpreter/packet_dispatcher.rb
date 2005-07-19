@@ -8,6 +8,24 @@ module Meterpreter
 
 ###
 #
+# RequestError
+# ------------
+# 
+# Exception thrown when a request fails.
+#
+###
+class RequestError < ArgumentError
+	def initialize(method, result)
+		@method = method
+		@result = result
+	end
+	def to_s
+		"#{@method}: Operation failed: #{@result}"
+	end
+end
+
+###
+#
 # PacketDispatcher
 # ----------------
 #
@@ -44,9 +62,13 @@ module PacketDispatcher
 		response = send_packet_wait_response(packet, t)
 
 		if (response == nil)
-			raise RuntimeError, packet.method + ": No response was received.", caller
+			raise TimeoutError
 		elsif (response.result != 0)
-			raise RuntimeError, packet.method + ": Operation failed: #{response.result}", caller
+			e = RequestError.new(packet.method, response.result)
+
+			e.set_backtrace(caller)
+
+			raise e
 		end
 
 		return response

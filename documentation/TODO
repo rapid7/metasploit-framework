@@ -48,3 +48,5 @@ service.shutdown
   - findsock handler
 - meterpreter
   - more ui wrapping
+  - fix route addition/removal in stdapi server dll (mib structure issue)
+  - fix interactive stream pool channels
