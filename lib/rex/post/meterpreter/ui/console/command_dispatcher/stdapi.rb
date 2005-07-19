@@ -18,6 +18,7 @@ class Console::CommandDispatcher::Stdapi
 	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/fs'
 	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/net'
 	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/sys'
+	require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/ui'
 
 	Klass = Console::CommandDispatcher::Stdapi
 
@@ -26,6 +27,7 @@ class Console::CommandDispatcher::Stdapi
 			Klass::Fs,
 			Klass::Net,
 			Klass::Sys,
+			Klass::Ui,
 		]
 
 	include Console::CommandDispatcher

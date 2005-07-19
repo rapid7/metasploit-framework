@@ -106,18 +106,55 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# machine.
 	#
 	def cmd_getpid(*args)
+		print_line("Current pid: #{client.sys.process.getpid}")
+		
+		return true
 	end
 
 	#
 	# Kills one or more processes.
 	#
 	def cmd_kill(*args)
+		if (args.length == 0)
+			print(
+				"Usage: kill pid1 pid2 pid3 ...\n\n" +
+				"Terminate one or more processes.")
+			return true
+		end
+
+		print_line("Killing: #{args.join(", ")}")
+
+		client.sys.process.kill(*(args.map { |x| x.to_i }))
+		
+		return true
 	end
 
 	#
 	# Lists running processes
 	#
 	def cmd_ps(*args)
+		processes = client.sys.process.get_processes
+		tbl = Rex::Ui::Text::Table.new(
+			'Header'  => "Process list",
+			'Indent'  => 4,
+			'Columns' =>
+				[
+					"PID",
+					"Name",
+					"Path",
+				])
+
+		processes.each { |ent|
+			tbl << [ ent['pid'].to_s, ent['name'], ent['path'] ]
+		}
+
+		if (processes.length == 0)
+			print_line("No running processes were found.")
+		else
+			print("\n" + tbl.to_s + "\n")
+		end
+
+		return true
 	end
 
 end
