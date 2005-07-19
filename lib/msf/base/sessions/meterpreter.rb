@@ -36,6 +36,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		self.console = Rex::Post::Meterpreter::Ui::Console.new(self)
 	end
 
+	def self.type
+		"meterpreter"
+	end
+
 	##
 	#
 	# Msf::Session overrides
@@ -47,7 +51,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	end
 
 	def type
-		"meterpreter"
+		self.class.type
 	end
 
 	##

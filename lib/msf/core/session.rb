@@ -52,6 +52,11 @@ module Session
 	require 'msf/core/session/provider/multi_command_execution'
 	require 'msf/core/session/provider/single_command_shell'
 	require 'msf/core/session/provider/multi_command_shell'
+
+	def self.type
+		"unknown"
+	end
+
 	#
 	# Returns the session's name if it's been assigned one, otherwise
 	# the sid is returned.

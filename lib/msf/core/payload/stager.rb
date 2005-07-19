@@ -52,8 +52,8 @@ module Msf::Payload::Stager
 		substitute_vars(p, stage_offsets) if (stage_offsets)
 
 		# Prefix to the stage with whatever may be required and then rock it.
-		p = (stage_prefix || '') + p
-
+		p = (self.stage_prefix || '') + p
+	
 		print_status("Sending stage (#{p.length} bytes)")
 
 		# Send the stage

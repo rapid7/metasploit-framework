@@ -25,12 +25,16 @@ class CommandShell
 	#
 	include Msf::Session::Provider::SingleCommandShell
 
+	def self.type
+		"shell"
+	end
+
 	def desc
 		"Command shell"
 	end
 
 	def type
-		"shell"
+		self.class.type
 	end
 
 	#
