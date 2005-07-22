@@ -177,6 +177,13 @@ BOOL MapNewExecutableRegionInProcess(
 		     SectionIndex < NtHeader->FileHeader.NumberOfSections;
 		     SectionIndex++)
 		{
+			//
+			// Skip uninitialized data
+			//
+			if ((!SectionHeader[SectionIndex].SizeOfRawData) ||
+			    (SectionHeader[SectionIndex].Characteristics & IMAGE_SCN_CNT_UNINITIALIZED_DATA))
+				continue;
+
 			if (!WriteProcessMemory(
 					TargetProcessHandle,
 					(LPVOID)((PCHAR)TargetImageBase + 
