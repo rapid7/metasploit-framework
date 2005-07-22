@@ -119,7 +119,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 				&inMemoryData) == ERROR_SUCCESS)
 		{	
 			doInMemory = TRUE;
-			flags |= CREATE_SUSPENDED;
+			createFlags |= CREATE_SUSPENDED;
 		}
 
 
