@@ -63,4 +63,10 @@ DWORD request_sys_process_thread_set_regs(Remote *remote, Packet *packet);
 DWORD execute_code_stub_in_process(HANDLE process, PVOID buffer, ULONG length,
 		LPVOID parameter, DWORD parameterLength, LPDWORD result);
 
+
+/*
+ * Wait methods
+ */
+DWORD process_wait_notify(Remote * remote, HANDLE handle);
+DWORD request_sys_process_wait(Remote *remote, Packet *packet);
 #endif

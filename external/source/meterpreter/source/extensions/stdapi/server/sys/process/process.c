@@ -1,5 +1,7 @@
 #include "precomp.h"
 
+#include "in-mem-exe.h" /* include skapetastic in-mem exe exec */
+
 /*
  * Attaches to the supplied process identifier.  If no process identifier is
  * supplied, the handle for the current process is returned to the requestor.
@@ -87,6 +89,8 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 	PCHAR path, arguments, commandLine = NULL;
 	DWORD flags = 0, createFlags = 0;
 	BOOL inherit = FALSE;
+	Tlv inMemoryData;
+	BOOL doInMemory = FALSE;
 
 	// Initialize the startup information
 	memset(&si, 0, sizeof(si));
@@ -110,6 +114,14 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 				TLV_TYPE_PROCESS_PATH);
 		flags     = packet_get_tlv_value_uint(packet,
 				TLV_TYPE_PROCESS_FLAGS);
+
+		if (packet_get_tlv(packet, TLV_TYPE_VALUE_DATA, 
+				&inMemoryData) == ERROR_SUCCESS)
+		{	
+			doInMemory = TRUE;
+			flags |= CREATE_SUSPENDED;
+		}
+
 
 		// If the remote endpoint provided arguments, combine them with the 
 		// executable to produce a command line
@@ -221,18 +233,45 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			result = GetLastError();
 			break;
 		}
-		else
-		{
-			// Add the process identifier to the response packet
-			packet_add_tlv_uint(response, TLV_TYPE_PID,
-					pi.dwProcessId);
-			packet_add_tlv_uint(response, TLV_TYPE_PROCESS_HANDLE,
-					(DWORD)pi.hProcess);
 
-			CloseHandle(pi.hThread);
+		//
+		// Do up the in memory exe execution if the user requested it
+		//
+		if (doInMemory) {
 
-			result = ERROR_SUCCESS;
+			//
+			// Unmap the dummy executable and map in the new executable into the
+			// target process
+			//
+			if (!MapNewExecutableRegionInProcess(
+					pi.hProcess,
+					pi.hThread,
+					inMemoryData.buffer))
+			{
+				result = GetLastError();
+				break;
+			}
+
+			//
+			// Resume the thread and let it rock...
+			//
+			if (ResumeThread(pi.hThread) == (DWORD)-1)
+			{
+				result = GetLastError();
+				break;
+			}
+
 		}
+
+		// Add the process identifier to the response packet
+		packet_add_tlv_uint(response, TLV_TYPE_PID,
+				pi.dwProcessId);
+		packet_add_tlv_uint(response, TLV_TYPE_PROCESS_HANDLE,
+				(DWORD)pi.hProcess);
+
+		CloseHandle(pi.hThread);
+
+		result = ERROR_SUCCESS;
 
 	} while (0);
 
@@ -614,4 +653,44 @@ DWORD process_channel_interact(Channel *channel, Packet *request,
 		result = scheduler_remove_waitable(ctx->pStdout);
 
 	return result;
+}
+
+/*
+ * The routine to send a notify request (responseless request) that
+ * the wait has finished...
+ */
+DWORD process_wait_notify(Remote * remote, HANDLE handle)
+{
+
+	Packet * request = packet_create(PACKET_TLV_TYPE_REQUEST, "process_wait_notify");
+
+	packet_add_tlv_uint(request, TLV_TYPE_HANDLE, (DWORD)handle);
+
+	packet_transmit(remote, request, NULL);
+
+	return ERROR_SUCCESS;
+}
+
+/*
+ * Wait on a process handle until it terminates
+ *
+ * req: TLV_TYPE_HANDLE - The process handle to close.
+ */
+DWORD request_sys_process_wait(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	HANDLE handle;
+	DWORD result;
+
+	handle = (HANDLE)packet_get_tlv_value_uint(packet, TLV_TYPE_HANDLE);
+
+	result = scheduler_insert_waitable(
+		handle,
+		(LPVOID)handle,
+		(WaitableNotifyRoutine)process_wait_notify
+	);
+
+	packet_transmit_response(result, remote, response);
+
+	return ERROR_SUCCESS;
 }
