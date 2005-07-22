@@ -7,6 +7,7 @@ require 'rex/constants'
 require 'rex/exceptions'
 require 'rex/transformer'
 require 'rex/text'
+require 'rex/time'
 require 'rex/string_utils'
 
 # Thread safety and synchronization

@@ -42,18 +42,8 @@ class Console::CommandDispatcher::Stdapi::Ui
 	def cmd_idletime(*args)
 		seconds = client.ui.idle_time
 
-		mins    = seconds / 60
-		hours   = mins    / 60
-		days    = hours   / 24
-		secs    = seconds % 60
-
 		print_line(
-			"User has been idle for" +
-			(days  > 0 ? " #{days.to_s} days"  : '') +
-			(hours > 0 ? " #{hours.to_s} hours" : '') +
-			(mins  > 0 ? " #{mins.to_s} minutes"  : '') +
-			(secs  > 0 ? " #{secs.to_s} seconds"  : '') +
-			".")
+			"User has been idle for: #{Rex::ExtTime.sec_to_s(seconds)}")
 		
 		return true
 	end

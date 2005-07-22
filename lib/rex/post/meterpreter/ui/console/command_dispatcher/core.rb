@@ -24,7 +24,6 @@ class Console::CommandDispatcher::Core
 	end
 
 	@@use_opts = Rex::Parser::Arguments.new(
-		"-m" => [ true,  "The name of the module or modules to load (Ex: stdapi)." ],
 		"-h" => [ false, "Help banner."                                            ])
 
 	#
@@ -75,8 +74,6 @@ class Console::CommandDispatcher::Core
 
 		@@use_opts.parse(args) { |opt, idx, val|
 			case opt
-				when "-m"
-					modules = val.split(/,\s?/)
 				when "-h"
 					print(
 						"Usage: use [options]\n\n" +
@@ -87,7 +84,7 @@ class Console::CommandDispatcher::Core
 		}
 
 		# Load each of the modules
-		modules.each { |m|
+		args.each { |m|
 			md = m.downcase
 
 			if (extensions.include?(md))
