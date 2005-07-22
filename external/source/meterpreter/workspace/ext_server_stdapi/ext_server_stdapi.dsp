@@ -194,6 +194,30 @@ SOURCE=..\..\source\extensions\stdapi\server\sys\registry\registry.c
 SOURCE=..\..\source\extensions\stdapi\server\sys\registry\registry.h
 # End Source File
 # End Group
+# Begin Group "power"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\source\extensions\stdapi\server\sys\power\power.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\source\extensions\stdapi\server\sys\power\power.h
+# End Source File
+# End Group
+# Begin Group "eventlog"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\source\extensions\stdapi\server\sys\eventlog\eventlog.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\source\extensions\stdapi\server\sys\eventlog\eventlog.h
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=..\..\source\extensions\stdapi\server\sys\sys.h
