@@ -98,6 +98,7 @@ DWORD request_net_config_remove_route(Remote *remote, Packet *packet)
 DWORD add_remove_route(Packet *packet, BOOLEAN add)
 {
 	MIB_IPFORWARDROW route;
+	DWORD (WINAPI *LocalGetBestInterface)(IPAddr, LPDWORD) = NULL;
 	LPCSTR subnet;
 	LPCSTR netmask;
 	LPCSTR gateway;
@@ -111,6 +112,23 @@ DWORD add_remove_route(Packet *packet, BOOLEAN add)
 	route.dwForwardDest    = inet_addr(subnet);
 	route.dwForwardMask    = inet_addr(netmask);
 	route.dwForwardNextHop = inet_addr(gateway);
+	route.dwForwardType    = 4; // Assume next hop.
+	route.dwForwardProto   = 3;
+	route.dwForwardAge     = -1;
+
+	if ((LocalGetBestInterface = (DWORD (WINAPI *)(IPAddr, LPDWORD))GetProcAddress(
+			GetModuleHandle("iphlpapi"),
+			"GetBestInterface")))
+	{
+		DWORD result = LocalGetBestInterface(route.dwForwardDest, 
+				&route.dwForwardIfIndex);
+
+		if (result != ERROR_SUCCESS)
+			return result;
+	}
+	// I'm lazy.  Need manual lookup of ifindex based on gateway for NT.
+	else
+		return ERROR_NOT_SUPPORTED;
 
 	if (add)
 		return CreateIpForwardEntry(&route);

@@ -218,6 +218,14 @@ SOURCE=..\..\source\extensions\stdapi\server\sys\eventlog\eventlog.c
 SOURCE=..\..\source\extensions\stdapi\server\sys\eventlog\eventlog.h
 # End Source File
 # End Group
+# Begin Group "sys config"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\source\extensions\stdapi\server\sys\config\config.c
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=..\..\source\extensions\stdapi\server\sys\sys.h

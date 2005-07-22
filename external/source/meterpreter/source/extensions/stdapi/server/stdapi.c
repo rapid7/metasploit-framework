@@ -206,6 +206,16 @@ Command customCommands[] =
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
+	// Sys/config
+	{ "stdapi_sys_config_getuid",
+	  { request_sys_config_getuid,                         { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+	{ "stdapi_sys_config_sysinfo",
+	  { request_sys_config_sysinfo,                        { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+
 	// Net
 	{ "stdapi_net_config_get_routes",
 	  { request_net_config_get_routes,                     { 0 }, 0 },

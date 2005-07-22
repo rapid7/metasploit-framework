@@ -270,6 +270,23 @@
 				TLV_TYPE_EXTENSION_STDAPI, \
 				1012)
 
+// Sys/Config
+#define TLV_TYPE_COMPUTER_NAME         \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_STRING,      \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1040)
+#define TLV_TYPE_OS_NAME               \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_STRING,      \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1041)
+#define TLV_TYPE_USER_NAME             \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_STRING,      \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1042)
+
 // Net
 #define TLV_TYPE_HOST_NAME             \
 		MAKE_CUSTOM_TLV(                 \
