@@ -128,7 +128,7 @@ class Process < Rex::Post::Process
 			if inmem
 
 				# add the file contents into the tlv
-				f = File.new(path, 'r')
+				f = ::File.new(path, 'r')
 				request.add_tlv(TLV_TYPE_VALUE_DATA, f.read)
 				f.close
 
