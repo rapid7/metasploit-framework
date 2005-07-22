@@ -63,7 +63,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 	#
 	def cmd_uictl(*args)
 		if (args.length < 2)
-			print(
+			print_line(
 				"Usage: uictl [enable/disable] [keyboard/mouse]")
 			return true
 		end

@@ -9,6 +9,7 @@ require 'rex/post/meterpreter/extensions/stdapi/fs/file'
 require 'rex/post/meterpreter/extensions/stdapi/fs/file_stat'
 require 'rex/post/meterpreter/extensions/stdapi/net/config'
 require 'rex/post/meterpreter/extensions/stdapi/net/socket'
+require 'rex/post/meterpreter/extensions/stdapi/sys/config'
 require 'rex/post/meterpreter/extensions/stdapi/sys/process'
 require 'rex/post/meterpreter/extensions/stdapi/sys/registry'
 require 'rex/post/meterpreter/extensions/stdapi/sys/event_log'
@@ -50,6 +51,7 @@ class Stdapi < Extension
 					'name' => 'sys',
 					'ext'  => ObjectAliases.new(
 						{
+							'config'   => Sys::Config.new(client),
 							'process'  => self.process,
 							'registry' => self.registry,
 							'eventlog' => self.eventlog,

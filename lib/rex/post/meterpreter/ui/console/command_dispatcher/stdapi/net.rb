@@ -112,7 +112,7 @@ class Console::CommandDispatcher::Stdapi::Net
 			when "delete"
 				print_line("Deleting route #{args[0]}/#{args[1]} -> #{args[2]}")
 
-				client.net.config.add_route(*args)
+				client.net.config.remove_route(*args)
 			else
 				print_error("Unsupported command: #{args[0]}")
 		end

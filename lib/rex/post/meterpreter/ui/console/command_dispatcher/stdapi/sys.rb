@@ -32,10 +32,12 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def commands
 		{
-			"ps"      => "List running processes",
 			"execute" => "Execute a command",
-			"kill"    => "Terminate a process",
 			"getpid"  => "Get the current process identifier",
+			"getuid"  => "Get the user that the server is running as",
+			"kill"    => "Terminate a process",
+			"ps"      => "List running processes",
+			"sysinfo" => "Gets information about the remote system, such as OS",
 		}
 	end
 
@@ -112,6 +114,13 @@ class Console::CommandDispatcher::Stdapi::Sys
 	end
 
 	#
+	# Displays the user that the server is running as.
+	#
+	def cmd_getuid(*args)
+		print_line("Server username: #{client.sys.config.getuid}")
+	end
+
+	#
 	# Kills one or more processes.
 	#
 	def cmd_kill(*args)
@@ -130,7 +139,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	end
 
 	#
-	# Lists running processes
+	# Lists running processes.
 	#
 	def cmd_ps(*args)
 		processes = client.sys.process.get_processes
@@ -153,6 +162,18 @@ class Console::CommandDispatcher::Stdapi::Sys
 		else
 			print("\n" + tbl.to_s + "\n")
 		end
+
+		return true
+	end
+
+	#
+	# Displays information about the remote system.
+	#
+	def cmd_sysinfo(*args)
+		info = client.sys.config.sysinfo
+
+		print_line("Computer: " + info['Computer'])
+		print_line("OS      : " + info['OS'])
 
 		return true
 	end
