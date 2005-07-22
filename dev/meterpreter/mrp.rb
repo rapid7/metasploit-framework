@@ -3,8 +3,8 @@
 $: << 'lib' << '../lib' << '../../lib'
 
 require 'socket'
-reqiure 'rex'
-require 'Rex/Post/Meterpreter'
+require 'rex'
+require 'rex/post/meterpreter'
 
 if(ARGV.length != 2)
 	puts "usage: <ip> <port>"
