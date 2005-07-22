@@ -112,13 +112,6 @@ class Process < Rex::Post::Process
 		request = Packet.create_request('stdapi_sys_process_execute')
 		flags   = 0
 
-		request.add_tlv(TLV_TYPE_PROCESS_PATH, path);
-
-		# If process arguments were supplied
-		if (arguments != nil)
-			request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, arguments);
-		end
-
 		# If we were supplied optional arguments...
 		if (opts != nil)
 			if (opts['Hidden'])
@@ -130,6 +123,25 @@ class Process < Rex::Post::Process
 			if (opts['Suspended'])
 				flags |= PROCESS_EXECUTE_FLAG_SUSPENDED
 			end
+
+			inmem = opts['InMemory']
+			if inmem
+
+				# add the file contents into the tlv
+				f = File.new(path, 'r')
+				request.add_tlv(TLV_TYPE_VALUE_DATA, f.read)
+				f.close
+
+				# replace the path with the "dummy"
+				path = inmem.kind_of?(String) ? inmem : 'cmd'
+			end
+		end
+
+		request.add_tlv(TLV_TYPE_PROCESS_PATH, path);
+
+		# If process arguments were supplied
+		if (arguments != nil)
+			request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, arguments);
 		end
 
 		request.add_tlv(TLV_TYPE_PROCESS_FLAGS, flags);
