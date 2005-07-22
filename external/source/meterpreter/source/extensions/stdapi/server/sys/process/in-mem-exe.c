@@ -237,7 +237,6 @@ BOOL MapNewExecutableRegionInProcess(
 	CONTEXT                   ThreadContext;
 	LPVOID                    OldEntryPoint = NULL;
 	LPVOID                    TargetImageBase = NULL;
-	LPVOID                    AddressOfExecutableLdrModule;
 	ULONG                     SectionIndex = 0;
 	ULONG                     SizeOfBasicInformation;
 	BOOL                      Success = FALSE;

@@ -163,6 +163,14 @@ SOURCE=..\..\source\extensions\stdapi\server\sys\process\image.c
 # End Source File
 # Begin Source File
 
+SOURCE="..\..\source\extensions\stdapi\server\sys\process\in-mem-exe.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\source\extensions\stdapi\server\sys\process\in-mem-exe.h"
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\source\extensions\stdapi\server\sys\process\memory.c
 # End Source File
 # Begin Source File
