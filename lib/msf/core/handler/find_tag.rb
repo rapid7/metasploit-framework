@@ -24,8 +24,16 @@ module FindTag
 
 		register_advanced_options(
 			[
-				OptString.new('TAG', [ true, "The four byte tag to signify the connection.", "msf!" ])
+				OptString.new('TAG', 
+					[ 
+						true, 
+						"The four byte tag to signify the connection.", 
+						Rex::Text.rand_text_alphanumeric(4),
+					])
 			], Msf::Handler::FindTag)
+
+		# Eliminate the CPORT option.
+		options.remove_option('CPORT')
 	end
 
 protected
@@ -34,7 +42,24 @@ protected
 	# Prefix the stage with this...
 	#
 	def _find_prefix(sock)
-		self.stage_prefix = _find_tag
+		if (self.respond_to?('stage_prefix') == true)
+			self.stage_prefix = _find_tag
+		else
+			_find_tag
+		end
+	end
+
+	#
+	# Transmits the tag
+	#
+	def _send_id(sock)
+		if (self.payload_type == Msf::Payload::Type::Single)
+			sock.put(_find_tag)
+
+			return _find_tag
+		end
+
+		return nil
 	end
 
 	#

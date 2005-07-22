@@ -44,8 +44,8 @@ service.shutdown
 	   handle_request(req)
 		create_response
 		send_response
-- findsock payloads
-  - findsock handler
+X- findsock payloads
+X  - findsock handler
 - meterpreter
   - more ui wrapping
   - fix route addition/removal in stdapi server dll (mib structure issue)
