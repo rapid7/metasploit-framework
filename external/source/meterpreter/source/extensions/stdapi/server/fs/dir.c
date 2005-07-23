@@ -1,4 +1,5 @@
 #include "precomp.h"
+#include <sys/stat.h>
 
 /*
  * Gets the contents of a given directory path and returns the list of file
@@ -13,7 +14,10 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 	Packet *response = packet_create_response(packet);
 	LPCSTR directory;
 	DWORD result = ERROR_SUCCESS;
-	LPSTR expanded = NULL;
+	LPSTR expanded = NULL, tempFile = NULL;
+	DWORD tempFileSize = 0;
+	LPSTR baseDirectory = NULL;
+	struct stat buf;
 
 	directory = packet_get_tlv_value_string(packet, TLV_TYPE_DIRECTORY_PATH);
 
@@ -36,9 +40,35 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 				result = ERROR_NOT_ENOUGH_MEMORY;
 				goto out;
 			}
-				
 
 			sprintf(tempDirectory, "%s\\*", directory);	
+
+			// Dupe!
+			if (!(baseDirectory = strdup(directory)))
+			{
+				result = ERROR_NOT_ENOUGH_MEMORY;
+				goto out;
+			}
+		}
+		// Otherwise, if it does have an asterisk, we need to scan back and find
+		// the base directory.  If there is no slash, it means we're listing the
+		// cwd.
+		else
+		{
+			PCHAR slash = strrchr(directory, '\\');
+
+			if (slash)
+			{
+				*slash = 0;
+
+				if (!(baseDirectory = strdup(directory)))
+				{
+					result = ERROR_NOT_ENOUGH_MEMORY;
+					goto out;
+				}
+
+				*slash = '\\';
+			}
 		}
 
 		// Expand the path
@@ -53,6 +83,8 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 
 		do
 		{
+			DWORD fullSize = (baseDirectory ? strlen(baseDirectory) : 0) + strlen(data.cFileName) + 2;
+
 			// No context?  Sucktastic
 			if (ctx == INVALID_HANDLE_VALUE)
 			{
@@ -60,9 +92,42 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 				break;
 			}
 
+			// Allocate temporary storage to stat the file
+			if ((!tempFile) ||
+			    (tempFileSize < fullSize))
+			{
+				if (tempFile)
+					free(tempFile);
+
+				// No memory means we suck a lot like spoon's mom
+				if (!(tempFile = (LPSTR)malloc(fullSize)))
+				{
+					result = ERROR_NOT_ENOUGH_MEMORY;
+					break;
+				}
+
+				// Update the tempFileSize so that we don't allocate if we don't
+				// need to like a true efficient ninja
+				tempFileSize = fullSize;
+			}
+
+			// Build the full path
+			if (baseDirectory)
+				sprintf(tempFile, "%s\\%s", baseDirectory, data.cFileName);
+			else
+				sprintf(tempFile, "%s", data.cFileName);
+
 			// Add the file name to the response
 			packet_add_tlv_string(response, TLV_TYPE_FILE_NAME, 
 					data.cFileName);
+			// Add the full path
+			packet_add_tlv_string(response, TLV_TYPE_FILE_PATH,
+					tempFile);
+
+			// Stat the file to get more information about it.
+			if (stat(tempFile, &buf) >= 0)
+				packet_add_tlv_raw(response, TLV_TYPE_STAT_BUF, &buf,
+						sizeof(buf));
 
 		} while (FindNextFile(ctx, &data));
 
@@ -77,6 +142,9 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 		free(expanded);
 
 out:
+	if (baseDirectory)
+		free(baseDirectory);
+
 	// Set the result and transmit the response
 	packet_add_tlv_uint(response, TLV_TYPE_RESULT, result);
 

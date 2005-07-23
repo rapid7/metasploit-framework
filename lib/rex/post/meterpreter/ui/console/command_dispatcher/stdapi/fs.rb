@@ -134,24 +134,32 @@ class Console::CommandDispatcher::Stdapi::Fs
 			'Header'  => "Listing: #{path}",
 			'Columns' => 
 				[
-					'Name',
-					'Type',
+					'Mode',
 					'Size',
+					'Type',
+					'Last modified',
+					'Name',
 				])
 
 		items = 0
 
 		# Enumerate each item...
-		client.fs.dir.entries(path).sort.each { |p|
-			s = client.fs.file.stat(p)
+		client.fs.dir.entries_with_info(path).sort { |a,b| a['FileName'] <=> b['FileName'] }.each { |p|
 
-			tbl << [ p, s.ftype, s.size ]
+			tbl << 
+				[ 
+					p['StatBuf'] ? p['StatBuf'].prettymode : '',
+					p['StatBuf'] ? p['StatBuf'].size       : '', 
+					p['StatBuf'] ? p['StatBuf'].ftype[0,3] : '', 
+					p['StatBuf'] ? p['StatBuf'].mtime      : '', 
+					p['FileName'] || 'unknown'
+				]
 
 			items += 1
 		}
 
 		if (items > 0)
-			print(tbl.to_s)
+			print("\n" + tbl.to_s + "\n")
 		else
 			print_line("No entries exist in #{path}")
 		end

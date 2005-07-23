@@ -75,12 +75,22 @@ class Console
 		begin
 			super
 		rescue TimeoutError
-			output.print_error("Operation timed out.")
+			log_error("Operation timed out.")
 		rescue RequestError => info
-			output.print_error(info.to_s)
+			log_error(info.to_s)
 		rescue
-			output.print_error("Error running command #{method}: #{$!}")
+			log_error("Error running command #{method}: #{$!}")
+
+			print_line("yo:#{$@.join("\n")}")
 		end
+	end
+
+	def log_error(msg)
+		print_error(msg)
+
+		elog(msg, 'meterpreter')
+
+		dlog("Call stack:\n#{$@.join("\n")}", 'meterpreter')
 	end
 
 	attr_reader :client

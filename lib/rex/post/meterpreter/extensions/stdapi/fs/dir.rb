@@ -63,6 +63,44 @@ class Dir < Rex::Post::Dir
 		return files
 	end
 
+	#
+	# Enumerates files with a bit more information than the default entries.
+	#
+	def Dir.entries_with_info(name = getwd)
+		request = Packet.create_request('stdapi_fs_ls')
+		files   = []
+
+		request.add_tlv(TLV_TYPE_DIRECTORY_PATH, name)
+
+		response = client.send_request(request)
+
+		fname = response.get_tlvs(TLV_TYPE_FILE_NAME)
+		fpath = response.get_tlvs(TLV_TYPE_FILE_PATH)
+		sbuf  = response.get_tlvs(TLV_TYPE_STAT_BUF)
+
+		if (!fname or !sbuf)
+			return []
+		end
+
+		fname.each_with_index { |file_name, idx|
+			st = nil
+			
+			if (sbuf[idx])
+				st = FileStat.new(nil)
+				st.update(sbuf[idx].value)
+			end
+
+			files <<
+				{
+					'FileName' => file_name.value, 
+					'FilePath' => fpath[idx].value,
+					'StatBuf'  => st,
+				}
+		}
+		
+		return files
+	end
+
 	##
 	#
 	# General directory operations

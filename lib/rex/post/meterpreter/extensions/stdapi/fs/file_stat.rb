@@ -46,7 +46,30 @@ class FileStat < Rex::Post::FileStat
 	##
 
 	def initialize(file)
-		self.stathash = stat(file)
+		self.stathash = stat(file) if (file)
+	end
+
+	#
+	# Swaps in a new stat hash.
+	#
+	def update(stat_buf)
+		elem   = @@struct_stat
+		hash   = {}
+		offset = 0
+		index  = 0
+
+		while (index < elem.length)
+			size = elem[index + 1]
+
+			value   = stat_buf[offset, size].unpack(size == 2 ? 'S' : 'L')[0]
+			offset += size
+
+			hash[elem[index]] = value
+
+			index += 2
+		end
+
+		return (self.stathash = hash)
 	end
 
 protected
@@ -69,23 +92,7 @@ protected
 
 		# Next, we go through the returned stat_buf and fix up the values
 		# and insert them into a hash
-		elem   = @@struct_stat
-		hash   = {}
-		offset = 0
-		index  = 0
-
-		while (index < elem.length)
-			size = elem[index + 1]
-
-			value   = stat_buf[offset, size].unpack(size == 2 ? 'S' : 'L')[0]
-			offset += size
-
-			hash[elem[index]] = value
-
-			index += 2
-		end
-
-		return hash	
+		return update(stat_buf)
 	end
 
 end
