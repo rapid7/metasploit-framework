@@ -69,7 +69,6 @@ class PacketParser
 
 			# TODO: cipher decryption
 			if (cipher)
-				puts "TODO: decryption\n"
 			end
 
 			# Serialize the packet from the raw buffer

@@ -125,7 +125,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def cmd_kill(*args)
 		if (args.length == 0)
-			print(
+			print_line(
 				"Usage: kill pid1 pid2 pid3 ...\n\n" +
 				"Terminate one or more processes.")
 			return true

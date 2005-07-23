@@ -118,7 +118,6 @@ module PacketDispatcher
 				begin
 					packet = receive_packet
 				rescue EOFError
-					puts "EOF reached on socket\n"
 					break
 				end
 

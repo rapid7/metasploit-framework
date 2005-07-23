@@ -142,7 +142,7 @@ class ClientCore < Extension
 			path = opts['ExtensionPath']
 		end
 
-		path = File.expand_path(path)
+		path = ::File.expand_path(path)
 
 		# Load the extension DLL
 		if (load_library(
@@ -334,7 +334,7 @@ class ClientCore < Extension
 		wrote = client.sock.write(buf)
 
 		# Re-load the STDAPI extension server-side
-		client.core.use('Stdapi')
+		client.core.use('stdapi')
 
 ###           ###
 ### TEMPORARY ###

@@ -21,6 +21,7 @@ class Console::CommandDispatcher::Core
 		super
 
 		self.extensions = []
+		self.ext_hash   = {}
 	end
 
 	@@use_opts = Rex::Parser::Arguments.new(
@@ -31,11 +32,12 @@ class Console::CommandDispatcher::Core
 	#
 	def commands
 		{
-			"?"    => "Help menu",
-			"exit" => "Terminate the meterpreter session",
-			"help" => "Help menu",
-			"use"  => "Load a one or more meterpreter extensions",
-			"quit" => "Terminate the meterpreter session",
+			"?"       => "Help menu",
+			"exit"    => "Terminate the meterpreter session",
+			"help"    => "Help menu",
+			"migrate" => "Migrate the server to another process",
+			"use"     => "Load a one or more meterpreter extensions",
+			"quit"    => "Terminate the meterpreter session",
 		}
 	end
 
@@ -60,6 +62,30 @@ class Console::CommandDispatcher::Core
 	#
 	def cmd_help(*args)
 		print(shell.help_to_s)
+	end
+
+	alias cmd_? cmd_help
+
+	#
+	# Migrates the server to the supplied process identifier.
+	#
+	def cmd_migrate(*args)
+		if (args.length == 0)
+			print_line(
+				"Usage: migrate pid\n\n" +
+				"Migrates the server instance to another process.\n" +
+				"Note: Any open channels or other dynamic state will be lost.")
+			return true
+		end
+
+		pid = args[0].to_i
+
+		print_status("Migrating to #{pid}...")
+
+		# Do this thang.
+		client.core.migrate(pid)
+
+		print_status("Migration completed successfully.")
 	end
 
 	#
@@ -112,7 +138,7 @@ class Console::CommandDispatcher::Core
 
 protected
 
-	attr_accessor :extensions
+	attr_accessor :extensions, :ext_hash
 
 	CommDispatcher = Console::CommandDispatcher
 
@@ -122,20 +148,22 @@ protected
 	def add_extension_client(mod)
 		clirb  = File.join(Rex::Root, "post/meterpreter/ui/console/command_dispatcher/#{mod}.rb")
 
-		old  = CommDispatcher.constants
+		old = CommDispatcher.constants
 
-		require(clirb)
+		if (require(clirb) == true)
+			new  = CommDispatcher.constants
+			diff = new - old
+	
+			if (diff.empty? == true)
+				print_error("Failed to load client portion of #{mod}.")
+				return false
+			end
 
-		new  = CommDispatcher.constants
-		diff = new - old
-
-		if (diff.empty? == true)
-			print_error("Failed to load client portion of #{mod}.")
-			return false
+			self.ext_hash[mod] = CommDispatcher.const_get(diff[0])
 		end
-
+	
 		# Create the dispatcher	
-		klass = CommDispatcher.const_get(diff[0])
+		klass = self.ext_hash[mod]
 
 		# Enstack the dispatcher
 		self.shell.enstack_dispatcher(klass)

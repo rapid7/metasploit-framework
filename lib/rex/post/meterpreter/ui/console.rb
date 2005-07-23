@@ -75,9 +75,11 @@ class Console
 		begin
 			super
 		rescue TimeoutError
-			output.print_line("Operation timed out.")
+			output.print_error("Operation timed out.")
 		rescue RequestError => info
-			output.print_line(info.to_s)
+			output.print_error(info.to_s)
+		rescue
+			output.print_error("Error running command #{method}: #{$!}")
 		end
 	end
 
