@@ -17,6 +17,9 @@ class Socket
 	end
 
 	require 'rex/socket/parameters'
+	require 'rex/socket/tcp'
+	require 'rex/socket/tcp_server'
+	require 'rex/socket/comm/local'
 
 	##
 	#

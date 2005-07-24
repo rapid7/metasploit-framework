@@ -1,3 +1,5 @@
+require 'rex/thread_safe'
+
 module Rex
 module IO
 
@@ -165,14 +167,32 @@ module Stream
 
 		buf = ""
 		lps = 0
+		eof = false
 
 		# Keep looping until there is no more data to be gotten..
 		while (has_read_data?(ltimeout) == true)
-			temp = read(def_block_size)
-			
+			# Catch EOF errors so that we can handle them properly.
+			begin
+				temp = read(def_block_size)
+			rescue EOFError
+				eof = true
+			end
+
 			# If we read zero bytes and we had data, then we've hit EOF
 			if (temp and temp.length == 0)
-				raise EOFError
+				eof = true
+			end
+
+			# If we reached EOF and there are no bytes in the buffer we've been
+			# reading into, then throw an EOF error.
+			if (eof)
+				# If we've already read at least some data, then it's time to
+				# break out and let it be processed before throwing an EOFError.
+				if (buf.length > 0)
+					break
+				else
+					raise EOFError
+				end
 			end
 
 			break if (temp == nil or temp.empty? == true)

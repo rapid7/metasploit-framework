@@ -50,3 +50,4 @@ X  - findsock handler
   - more ui wrapping
   - fix route addition/removal in stdapi server dll (mib structure issue)
   - fix interactive stream pool channels
+- dupe input instance when passing to sessions

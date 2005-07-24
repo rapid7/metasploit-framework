@@ -80,8 +80,6 @@ class Console
 			log_error(info.to_s)
 		rescue
 			log_error("Error running command #{method}: #{$!}")
-
-			print_line("yo:#{$@.join("\n")}")
 		end
 	end
 
@@ -89,6 +87,8 @@ class Console
 		print_error(msg)
 
 		elog(msg, 'meterpreter')
+
+		print_error("XXX: logging stack")
 
 		dlog("Call stack:\n#{$@.join("\n")}", 'meterpreter')
 	end

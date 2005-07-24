@@ -31,10 +31,6 @@ require 'rex/io/stream_server'
 
 # Sockets
 require 'rex/socket'
-require 'rex/socket/parameters'
-require 'rex/socket/tcp'
-require 'rex/socket/tcp_server'
-require 'rex/socket/comm/local'
 
 # Parsers
 require 'rex/parser/arguments'
