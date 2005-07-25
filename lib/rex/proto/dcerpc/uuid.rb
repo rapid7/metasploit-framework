@@ -1,12 +1,3 @@
-#!/usr/bin/env ruby -w
-
-##
-#    Name: Rex::Proto::DCERPC::UUID
-# Purpose: Provide DCERPC UUID methods
-#  Author: H D Moore <hdm [at] metasploit.com>
-# Version: $Revision$
-##
-
 module Rex
 module Proto
 class DCERPC::UUID
@@ -75,26 +66,4 @@ class DCERPC::UUID
 	
 end
 end
-end
-
-if $0 == __FILE__
-
-	uuid = Rex::Proto::DCERPC::UUID.new()
-	strA = '367abb81-9844-35f1-ad32-98f038001003'
-	binA = uuid.uuid_pack(strA)
-	strB = uuid.uuid_unpack(binA)
-	binB = uuid.uuid_pack(strB)
-	
-	if strA.eql?( strB ) and binA.eql?( binB )
-		puts "[*] UUID test is successful"
-	else
-		puts "[*] UUID test failed"
-		p strA + " == " + strB
-		p binA + " == " + binB		
-	end
-	
-	if (! uuid.uuid_by_name('MGMT') or ! uuid.vers_by_name('MGMT'))
-		puts "[*] UUID lookup failed"
-	end
-
 end

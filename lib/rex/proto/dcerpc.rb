@@ -1,12 +1,3 @@
-#!/usr/bin/env ruby -w
-
-##
-#    Name: Rex::Proto::DCERPC
-# Purpose: Provide DCERPC creation and processing routines
-#  Author: H D Moore <hdm [at] metasploit.com>
-# Version: $Revision$
-##
-
 module Rex
 module Proto
 class DCERPC
@@ -266,19 +257,4 @@ require 'rex/text'
 	
 end
 end
-end
-
-if $0 == __FILE__
-	dcerpc = Rex::Proto::DCERPC.new()
-	
-	dcerpc.make_bind('367abb81-9844-35f1-ad32-98f038001003', '2.0')
-	dcerpc.make_bind_fake_multi('367abb81-9844-35f1-ad32-98f038001003', '2.0')
-	dcerpc.make_alter_context('367abb81-9844-35f1-ad32-98f038001003', '2.0')
-	
-	dcerpc.make_request(1337, '', 1024, 7331)
-	dcerpc.make_request(1337, 'ABCD', 1024, 7331)
-	dcerpc.make_request(1337, 'ABCD', 3, 7331)
-	dcerpc.make_request(1337, 'ABCD', 1, 7331)
-	
-	puts "[*] All DCERPC tests have passed :-)"	
 end

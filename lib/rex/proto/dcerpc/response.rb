@@ -1,12 +1,3 @@
-#!/usr/bin/env ruby -w
-
-##
-#    Name: Rex::Proto::DCERPC::Response
-# Purpose: Provide DCERPC Response Packet Objects
-#  Author: H D Moore <hdm [at] metasploit.com>
-# Version: $Revision$
-##
-
 require 'rex/proto/dcerpc/uuid'
 
 module Rex
