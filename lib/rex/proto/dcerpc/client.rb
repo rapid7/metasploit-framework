@@ -1,6 +1,7 @@
 module Rex
 module Proto
-class DCERPC
+module DCERPC
+class Client
 
 require 'rex/proto/dcerpc/uuid'
 require 'rex/proto/dcerpc/response'
@@ -255,6 +256,7 @@ require 'rex/text'
 		return frags
 	end		
 	
+end
 end
 end
 end

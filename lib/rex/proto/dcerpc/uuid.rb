@@ -1,6 +1,7 @@
 module Rex
 module Proto
-class DCERPC::UUID
+module DCERPC
+class UUID
 
 	def initialize
 		@known_uuids =
@@ -64,6 +65,7 @@ class DCERPC::UUID
 		return vers_maj, vers_min
 	end
 	
+end
 end
 end
 end

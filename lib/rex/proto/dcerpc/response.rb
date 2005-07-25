@@ -2,7 +2,8 @@ require 'rex/proto/dcerpc/uuid'
 
 module Rex
 module Proto
-class DCERPC::Response
+module DCERPC
+class Response
 
 	attr_accessor :frag_len, :auth_len, :type, :vers_major, :vers_minor
 	attr_accessor :flags, :data_rep, :call_id, :max_frag_xmit, :max_frag_recv
@@ -142,6 +143,7 @@ class DCERPC::Response
 protected
 	attr_accessor :raw
 
+end
 end
 end
 end
