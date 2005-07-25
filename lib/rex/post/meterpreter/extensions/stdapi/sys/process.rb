@@ -107,6 +107,7 @@ class Process < Rex::Post::Process
 	#   Hidden      => true/false
 	#   Channelized => true/false
 	#   Suspended   => true/false
+	#   InMemory    => true/false
 	#
 	def Process.execute(path, arguments = nil, opts = nil)
 		request = Packet.create_request('stdapi_sys_process_execute')

@@ -20,12 +20,14 @@ class Console::CommandDispatcher::Stdapi::Sys
 	include Console::CommandDispatcher
 
 	@@execute_opts = Rex::Parser::Arguments.new(
-		"-a" => [ true,  "The arguments to pass to the command."        ],
-		"-c" => [ false, "Channelized I/O (required for interaction)."  ],
-		"-f" => [ true,  "The executable command to run."               ],
-		"-h" => [ false, "Help menu."                                   ],
-		"-H" => [ false, "Create the process hidden from view."         ],
-		"-i" => [ false, "Interact with the process after creating it." ])
+		"-a" => [ true,  "The arguments to pass to the command."                   ],
+		"-c" => [ false, "Channelized I/O (required for interaction)."             ],
+		"-f" => [ true,  "The executable command to run."                          ],
+		"-h" => [ false, "Help menu."                                              ],
+		"-H" => [ false, "Create the process hidden from view."                    ],
+		"-i" => [ false, "Interact with the process after creating it."            ],
+		"-m" => [ false, "Execute from memory."                                    ],
+		"-d" => [ true,  "The 'dummy' executable to launch when using -m."         ])
 
 	#
 	# List of supported commands
@@ -59,6 +61,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 		interact    = false
 		channelized = nil
 		hidden      = nil
+		from_mem    = false
+		dummy_exec  = "cmd"
 		cmd_args    = nil
 		cmd_exec    = nil
 
@@ -72,6 +76,10 @@ class Console::CommandDispatcher::Stdapi::Sys
 					cmd_exec = val
 				when "-H"
 					hidden = true
+				when "-m"
+					from_mem = true
+				when "-d"
+					dummy_exec = val
 				when "-h"
 					print(
 						"Usage: execute -f file [options]\n\n" +
@@ -93,7 +101,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 		# Execute it
 		p = client.sys.process.execute(cmd_exec, cmd_args, 
 			'Channelized' => channelized,
-			'Hidden'      => hidden)
+			'Hidden'      => hidden,
+			'InMemory'    => (from_mem) ? dummy_exec : nil)
 
 		print_line("Process #{p.pid} created.")
 		print_line("Channel #{p.channel.cid} created.") if (p.channel)
