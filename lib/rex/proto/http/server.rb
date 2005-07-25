@@ -128,6 +128,31 @@ class Server
 	end
 
 	#
+	# Adds a resource handler, such as one for /, which will be called whenever
+	# the resource is requested.  The ``opts'' parameter can have any of the
+	# following:
+	#
+	# Proc     (proc) - The procedure to call when a request comes in for this resource.
+	# LongCall (bool) - Hints to the server that this resource may have long
+	#                   request processing times.
+	#
+	def add_resource(name, opts)
+		if (self.resources[name])
+			raise RuntimeError, 
+				"The supplied resource '#{name}' is already added.", caller
+		end
+
+		self.resources[name] = opts
+	end
+
+	#
+	# Removes the supplied resource handler.
+	#
+	def remove_resource(name)
+		self.resources.delete(name)
+	end
+
+	#
 	# Adds Server headers and stuff
 	#
 	def add_response_headers(resp)

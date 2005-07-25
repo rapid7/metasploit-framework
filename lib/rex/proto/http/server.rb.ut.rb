@@ -29,6 +29,39 @@ class Rex::Proto::Http::Server::UnitTest < Test::Unit::TestCase
 		end
 	end
 
+	def test_resource
+		begin
+			s   = start_srv
+			c   = CliKlass.new(ListenHost, ListenPort)
+
+			s.add_resource('/foo', 
+				'Proc' => Proc.new { |cli, req|
+					resp = Rex::Proto::Http::Response::OK.new
+
+					resp.body = "Chickens everywhere"
+				
+					cli.send_response(resp)
+				})
+
+			1.upto(10) { 
+				req = Rex::Proto::Http::Request::Get.new('/foo')
+				res = c.send_request(req)
+				assert_not_nil(res)
+				assert_equal(200, res.code)
+				assert_equal("Chickens everywhere", res.body)
+			}
+
+			s.remove_resource('/foo')
+				
+			req = Rex::Proto::Http::Request::Get.new('/foo')
+			res = c.send_request(req)
+			assert_not_nil(res)
+			assert_equal(404, res.code)
+		ensure
+			stop_srv
+		end
+	end
+
 protected
 
 	def start_srv
