@@ -54,6 +54,8 @@ class Response < Packet
 			self.message = md[3].gsub(/\r/, '')
 			self.code    = md[2].to_i
 			self.proto   = md[1]
+		else
+			raise RuntimeError, "Invalid response command string", caller
 		end
 	end
 

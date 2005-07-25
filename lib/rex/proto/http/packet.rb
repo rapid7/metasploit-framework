@@ -195,16 +195,34 @@ protected
 			# Serialize the headers
 			self.headers.from_s(head)
 
-			# Change states to processing the body
-			self.state = ParseState::ProcessingBody
-
 			# Extract the content length, if any.
-			if (self.headers['content-length'])
-				self.body_bytes_left = self.headers['content-length'].to_i
+			if (self.headers['Content-Length'])
+				self.body_bytes_left = self.headers['Content-Length'].to_i
 			else
 				self.body_bytes_left = -1
 			end
-	
+
+			connection    = self.headers['Connection']
+			comp_on_close = false
+
+			if (connection and connection == 'close')
+				comp_on_close = true
+			end
+
+			# Change states to processing the body if we have a content length of
+			# the connection type is close.
+			if ((self.body_bytes_left > 0) or
+			    (comp_on_close))
+				self.state = ParseState::ProcessingBody
+			else
+				self.state = ParseState::Completed
+			end
+
+			# No command string?  Wack.
+			if (self.headers.cmd_string == nil)
+				raise RuntimeError, "Invalid command string", caller
+			end
+
 			# Allow derived classes to update the parts of the command string
 			self.update_cmd_parts(self.headers.cmd_string)
 		end
