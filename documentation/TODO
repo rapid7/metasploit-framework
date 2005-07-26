@@ -50,5 +50,10 @@ X  - findsock handler
 X - more ui wrapping
 X - fix route addition/removal in stdapi server dll (mib structure issue)
 X - fix interactive stream pool channels
-  - make migrate on server not open with PROCESS_ALL_ACCESS
+X - make migrate on server not open with PROCESS_ALL_ACCESS
 - dupe input instance when passing to sessions
+- add module meta-info
+  - payloads
+    - calling convention (staged shell is incompat with ord stagers)
+	 - stack requirements
+	 - etc
