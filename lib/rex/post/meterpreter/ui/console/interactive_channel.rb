@@ -24,10 +24,7 @@ module Console::InteractiveChannel
 		if (self.lsock)
 			self.interactive(true)
 
-			begin
-				interact_stream(self)
-			rescue
-			end
+			interact_stream(self)
 
 			self.interactive(false)
 		else
@@ -50,6 +47,8 @@ module Console::InteractiveChannel
 	def _suspend
 		# Ask the user if they would like to background the session
 		if (prompt_yesno("Background channel #{self.cid}?") == true)
+			self.interactive(false)
+
 			self.interacting = false
 		end
 	end
@@ -58,7 +57,12 @@ module Console::InteractiveChannel
 	# Closes the channel like it aint no thang.
 	#
 	def _interact_complete
-		self.close
+		begin
+			self.interactive(false)
+
+			self.close
+		rescue IOError
+		end
 	end
 
 	#
@@ -74,7 +78,7 @@ module Console::InteractiveChannel
 	# Reads from the channel and writes locally.
 	#
 	def _stream_read_remote_write_local(channel)
-		data = channel.read
+		data = self.lsock.sysread(16384)
 
 		user_output.print(data)
 	end
@@ -82,7 +86,7 @@ module Console::InteractiveChannel
 	#
 	# Returns the remote file descriptor to select on
 	#
-	def _remote_fd
+	def _remote_fd(stream)
 		self.lsock
 	end
 

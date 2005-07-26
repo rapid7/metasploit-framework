@@ -46,7 +46,7 @@ module Interactive
 							ctx.call
 						end
 					# If we reach EOF or the connection is reset...
-					rescue EOFError, Errno::ECONNRESET
+					rescue EOFError, Errno::ECONNRESET, IOError
 						eof = true
 						ctx.call
 					end
@@ -59,7 +59,7 @@ module Interactive
 
 		# If we've hit eof, call the interact complete handler
 		_interact_complete if (eof == true)
-
+		
 		# Return whether or not EOF was reached
 		return eof
 	end

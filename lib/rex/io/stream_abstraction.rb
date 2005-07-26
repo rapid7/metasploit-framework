@@ -24,6 +24,17 @@ module StreamAbstraction
 				::Socket::SOCK_STREAM, 0)
 	end
 
+	#
+	# Cleans up the abstraction layer
+	#
+	def cleanup_abstraction
+		self.lsock.close if (self.lsock)
+		self.rsock.close if (self.rsock)
+
+		self.lsock = nil
+		self.rsock = nil
+	end
+
 	attr_reader :lsock, :rsock
 protected
 	attr_writer :lsock, :rsock

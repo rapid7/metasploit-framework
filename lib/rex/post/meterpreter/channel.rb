@@ -300,6 +300,15 @@ class Channel
 	def dio_close_handler(packet)
 		client.remove_channel(self)
 
+		# Trap IOErrors as parts of the channel may have already been closed
+		begin
+			self.cleanup
+		rescue IOError
+		end
+
+		# No more channel action, foo.
+		self.cid = nil
+
 		return false
 	end
 
@@ -340,6 +349,12 @@ protected
 
 	attr_accessor :client
 	attr_writer   :cid, :type, :cls, :flags
+
+	#
+	# Cleans up any lingering resources
+	# 
+	def cleanup
+	end
 
 end
 

@@ -58,7 +58,7 @@ class StreamPool < Rex::Post::Meterpreter::Channels::Pool
 	def dio_write_handler(packet, data)
 		rsock.write(data)
 
-		return true;
+		return true
 	end
 
 	def dio_close_handler(packet)
@@ -67,6 +67,11 @@ class StreamPool < Rex::Post::Meterpreter::Channels::Pool
 		return super(packet)
 	end
 
+	def cleanup
+		super
+
+		cleanup_abstraction
+	end
 
 end
 

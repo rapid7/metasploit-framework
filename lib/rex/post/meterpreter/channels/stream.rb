@@ -57,6 +57,15 @@ class Stream < Rex::Post::Meterpreter::Channel
 		return super(packet)
 	end
 
+	#
+	# Cleans up the stream abstraction
+	#
+	def cleanup
+		super
+
+		cleanup_abstraction
+	end
+
 end
 
 end; end; end
