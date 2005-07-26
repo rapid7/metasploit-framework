@@ -47,7 +47,8 @@ service.shutdown
 X- findsock payloads
 X  - findsock handler
 - meterpreter
-  - more ui wrapping
-  - fix route addition/removal in stdapi server dll (mib structure issue)
+X - more ui wrapping
+X - fix route addition/removal in stdapi server dll (mib structure issue)
   - fix interactive stream pool channels
+  - make migrate on server not open with PROCESS_ALL_ACCESS
 - dupe input instance when passing to sessions

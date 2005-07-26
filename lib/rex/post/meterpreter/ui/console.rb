@@ -88,8 +88,6 @@ class Console
 
 		elog(msg, 'meterpreter')
 
-		print_error("XXX: logging stack")
-
 		dlog("Call stack:\n#{$@.join("\n")}", 'meterpreter')
 	end
 

@@ -31,29 +31,31 @@ module Interactive
 		# Handle suspend notifications
 		handle_suspend
 
-		callcc { |ctx|
-			# As long as we're interacting...
-			while (self.interacting == true)
-				begin
-					_interact
-				# If we get an interrupt exception, ask the user if they want to
-				# abort the interaction.  If they do, then we return out of
-				# the interact function and call it a day.
-				rescue Interrupt
-					if (_interrupt)
+		begin
+			callcc { |ctx|
+				# As long as we're interacting...
+				while (self.interacting == true)
+					begin
+						_interact
+					# If we get an interrupt exception, ask the user if they want to
+					# abort the interaction.  If they do, then we return out of
+					# the interact function and call it a day.
+					rescue Interrupt
+						if (_interrupt)
+							eof = true
+							ctx.call
+						end
+					# If we reach EOF or the connection is reset...
+					rescue EOFError, Errno::ECONNRESET
 						eof = true
 						ctx.call
 					end
-				# If we reach EOF or the connection is reset...
-				rescue EOFError, Errno::ECONNRESET
-					eof = true
-					ctx.call
 				end
-			end
-		}
-
-		# Restore the suspend handler
-		restore_suspend
+			}
+		ensure
+			# Restore the suspend handler
+			restore_suspend
+		end
 
 		# If we've hit eof, call the interact complete handler
 		_interact_complete if (eof == true)

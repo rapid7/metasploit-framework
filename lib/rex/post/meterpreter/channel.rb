@@ -101,11 +101,6 @@ class Channel
 		# Create the channel instance
 		channel  = klass.new(client, cid, type, flags)
 	
-		# Insert the instance into the channel hash
-		if (channel != nil)
-			client.add_channel(channel)
-		end
-
 		return channel
 	end
 
@@ -122,6 +117,11 @@ class Channel
 		self.cid    = cid
 		self.type   = type
 		self.flags  = flags
+
+		# Add this instance to the list and shit
+		if (cid and client)
+			client.add_channel(self)
+		end
 	end
 
 	##
