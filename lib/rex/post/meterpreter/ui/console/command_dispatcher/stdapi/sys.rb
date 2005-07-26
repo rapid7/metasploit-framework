@@ -34,12 +34,14 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def commands
 		{
-			"execute" => "Execute a command",
-			"getpid"  => "Get the current process identifier",
-			"getuid"  => "Get the user that the server is running as",
-			"kill"    => "Terminate a process",
-			"ps"      => "List running processes",
-			"sysinfo" => "Gets information about the remote system, such as OS",
+			"execute"  => "Execute a command",
+			"getpid"   => "Get the current process identifier",
+			"getuid"   => "Get the user that the server is running as",
+			"kill"     => "Terminate a process",
+			"ps"       => "List running processes",
+			"reboot"   => "Reboots the remote computer",
+			"sysinfo"  => "Gets information about the remote system, such as OS",
+			"shutdown" => "Shuts down the remote computer",
 		}
 	end
 
@@ -176,6 +178,15 @@ class Console::CommandDispatcher::Stdapi::Sys
 	end
 
 	#
+	# Reboots the remote computer.
+	#
+	def cmd_reboot(*args)
+		print_line("Rebooting...")
+
+		client.sys.power.reboot
+	end
+
+	#
 	# Displays information about the remote system.
 	#
 	def cmd_sysinfo(*args)
@@ -185,6 +196,15 @@ class Console::CommandDispatcher::Stdapi::Sys
 		print_line("OS      : " + info['OS'])
 
 		return true
+	end
+
+	#
+	# Shuts down the remote computer.
+	#
+	def cmd_shutdown(*args)
+		print_line("Shutting down...")
+
+		client.sys.power.shutdown
 	end
 
 end

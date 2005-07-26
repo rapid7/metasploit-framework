@@ -25,13 +25,6 @@ DWORD __declspec(dllexport) Init(SOCKET fd)
 			break;
 		}
 
-		// Send banner string
-		send_core_console_write(remote, 
-				"[ -=    connected to    =- ]\n"
-				"[ -= meterpreter server =- ]\n"
-				"[ -=    v.  %.8x    =- ]\n",
-				METSRV_VERSION_NUMBER);
-
 		// Register extension dispatch routines
 		register_dispatch_routines();
 

