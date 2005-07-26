@@ -9,9 +9,9 @@ module Meterpreter
 #
 # The various types of channels
 #
-CHANNEL_CLASS_STREAM     = 1
-CHANNEL_CLASS_DATAGRAM   = 2
-CHANNEL_CLASS_POOL       = 3
+CHANNEL_CLASS_STREAM     = 'stream'
+CHANNEL_CLASS_DATAGRAM   = 'datagram'
+CHANNEL_CLASS_POOL       = 'pool'
 
 #
 # The various flags that can affect how the channel operates
@@ -298,7 +298,7 @@ class Channel
 
 	# Stub close handler
 	def dio_close_handler(packet)
-		client.remove_channel(self)
+		client.remove_channel(self.cid)
 
 		# Trap IOErrors as parts of the channel may have already been closed
 		begin

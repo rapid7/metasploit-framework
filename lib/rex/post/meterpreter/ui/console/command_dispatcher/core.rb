@@ -25,7 +25,7 @@ class Console::CommandDispatcher::Core
 	end
 
 	@@use_opts = Rex::Parser::Arguments.new(
-		"-h" => [ false, "Help banner."      ])
+		"-h" => [ false, "Help menu."      ])
 
 	#
 	# List of supported commands
@@ -33,6 +33,8 @@ class Console::CommandDispatcher::Core
 	def commands
 		{
 			"?"        => "Help menu",
+			"close"    => "Closes a channel",
+			"channel"  => "Displays information about active channels",
 			"exit"     => "Terminate the meterpreter session",
 			"help"     => "Help menu",
 			"interact" => "Interacts with a channel",
@@ -41,7 +43,6 @@ class Console::CommandDispatcher::Core
 			"quit"     => "Terminate the meterpreter session",
 			"read"     => "Reads data from a channel",
 			"write"    => "Writes data to a channel",
-			"close"    => "Closes a channel",
 		}
 	end
 
@@ -50,6 +51,85 @@ class Console::CommandDispatcher::Core
 	#
 	def name
 		"Core"
+	end
+
+	#
+	# Displays information about active channels
+	#
+	@@channel_opts = Rex::Parser::Arguments.new(
+		"-l" => [ false, "List active channels." ],
+		"-h" => [ false, "Help menu."            ])
+
+	def cmd_channel(*args)
+		if (args.length == 0)
+			args.unshift("-h")
+		end
+
+		mode = nil
+
+		# Parse options
+		@@channel_opts.parse(args) { |opt, idx, val|
+			case opt
+				when "-h"
+					print(
+						"Usage: channel [options]\n\n" +
+						"Displays information about active channels.\n" +
+						@@channel_opts.usage)
+					return true
+				when "-l"
+					mode = 'list'
+			end
+		}
+
+		# No mode, no service.
+		if (mode == nil)
+			return true
+		elsif (mode == 'list')
+			tbl = Rex::Ui::Text::Table.new(
+				'Indent'  => 4,
+				'Columns' => 
+					[
+						'Id',
+						'Class',
+						'Type'
+					])
+			items = 0
+
+			client.channels.each_pair { |cid, channel|
+				tbl << [ cid, channel.class.cls, channel.type ]
+				items += 1
+			}
+
+			if (items == 0)
+				print_line("No active channels.")
+			else
+				print("\n" + tbl.to_s + "\n")
+			end
+		end
+	end
+
+	#
+	# Closes a supplied channel.
+	#
+	def cmd_close(*args)
+		if (args.length == 0)
+			print_line(
+				"Usage: close channel_id\n\n" +
+				"Closes the supplied channel.")
+			return true
+		end
+
+		cid     = args[0].to_i
+		channel = client.find_channel(cid)
+
+		if (!channel)
+			print_error("Invalid channel identifier specified.")
+			return true
+		else
+			channel.close
+
+			print_status("Closed channel #{cid}.")
+		end
 	end
 
 	#
@@ -269,30 +349,6 @@ class Console::CommandDispatcher::Core
 		end
 
 		return true
-	end
-
-	#
-	# Closes a supplied channel.
-	#
-	def cmd_close(*args)
-		if (args.length == 0)
-			print_line(
-				"Usage: close channel_id\n\n" +
-				"Closes the supplied channel.")
-			return true
-		end
-
-		cid     = args[0].to_i
-		channel = client.find_channel(cid)
-
-		if (!channel)
-			print_error("Invalid channel identifier specified.")
-			return true
-		else
-			channel.close
-
-			print_status("Closed channel #{cid}.")
-		end
 	end
 
 protected
