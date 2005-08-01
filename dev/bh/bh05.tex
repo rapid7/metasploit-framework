@@ -360,7 +360,7 @@
             \item A self-contained payload that performs a specific
             task
             \item Size varies depending on the task
-        \item Example: Reverse of bind command shell
+        \item Example: Reverse or bind command shell
         \end{sitemize}
 
         \pause
@@ -424,7 +424,7 @@
             \item Establish connection to attacker (reverse,
             portbind, findsock)
             \item Read in a payload from the connection
-            \item Setup connecion information and branch to stage
+            \item Setup connection information and branch to stage
         \end{sitemize}
 
         \pause
@@ -727,7 +727,81 @@
 
 \section{DispatchNinja}
 \begin{frame}[t]
-    \frametitle{Dispatch Ninja Demos!}
+    \frametitle{DispatchNinja - Caveman Post Exploitation}
+
+    \begin{sitemize}
+        \item The idea is to have interactive shellcode
+        \item And be able to keep a very low footprint
+        \pause
+        \item But also have lots of optional power
+
+        \pause
+        \
+        \item Basically a shellcode read-eval-print loop
+        \item First stage loops, reading/executing code
+        \item DispatchNinja "modules" are sent and executed
+        \item This is what we call "dispatching"
+
+        \pause
+        \
+
+        \item Modules are responsible for their own mini-protocols
+        \item Each module has a corresponding handler on client side
+
+        \pause
+        \
+
+        \item Modules have a simple C ABI, and have a main function
+        \item Most of our dN modules were written in C (shellforge)
+
+
+    \end{sitemize}
+\end{frame}
+
+
+\begin{frame}[t]
+    \frametitle{DispatchNinja - Client side APIs}
+
+    \begin{sitemize}
+        \item Client side APIs wrap handler and module code
+        \item Msf3 has ruby dN client side APIs
+
+        \pause
+        \
+        \item APIs modeled after the ruby APIs (Dir, File, etc)
+        \item Our APIs should support the majority of Ruby functionality
+
+    \end{sitemize}
+
+\end{frame}
+
+\begin{frame}[t, fragile]
+    \footnotesize{
+    \begin{verbatim}
+irb#1(main):001:0> c = @c
+=> #<Rex::Post::DispatchNinja::Client:0xb7bf542c
+   @sock=#<TCPSocket:0xb7bf5440>>
+irb#1(main):002:0> c.dir.entries('/tmp')
+=> [".", "..", ".X11-unix", ".ICE-unix", ".font-unix"]
+
+irb#1(main):004:0> puts c.file.stat('/etc/passwd').pretty
+  Size: 1036   Blocks: 8   IO Block: 4096   Type: 0
+Device: 774  Inode: 81499  Links: 1
+  Mode: 100644/rw-r--r--
+   Uid: 0  Gid: 0
+Access: Tue Jul 26 20:08:09 EDT 2005
+Modify: Wed Jul 06 20:45:04 EDT 2005
+Change: Wed Jul 06 20:45:04 EDT 2005
+=> nil
+
+irb#1(main):005:0> Process.pid
+=> 1496
+irb#1(main):006:0> c.process.pid
+=> 1498
+
+\end{verbatim}
+}
+
 \end{frame}
 
 %
@@ -740,6 +814,7 @@
     \frametitle{What is Meterpreter?}
 
     \begin{sitemize}
+        \item Short for \textit{Meta-Interpreter}
         \item An advanced post-exploitation system
         \item Based on library injection technology
         \item First released with Metasploit 2.3
@@ -825,7 +900,7 @@
 
     \pause
     \begin{sitemize}
-        \item On-Disk injection subject to filtering by Antivirus due to
+        \item On-Disk injection is subject to filtering by Antivirus due to
             filesystem access
         \item Requires that the library file exist on the target's
             harddrive or that the file share be reachable
@@ -881,6 +956,33 @@
     \pause
     \begin{sitemize}
         \item Once hooked, calling \texttt{LoadLibraryA} with a unique pseudo file name is all that's needed
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{In-Memory library injection on Windows}
+
+    \begin{sitemize}
+        \item But why not just write a stub loader instead of using
+        \texttt{NTDLL.DLL}?
+    \end{sitemize}
+
+    \begin{sitemize}
+        \pause
+        \item Lots of reasons...
+        \begin{sitemize}
+            \item Requires manual import processing
+            \item Requires manual relocation fix-ups
+            \item Requires loading dependent DLLs
+            \item May require manual insertion into the loaded module
+            lists
+            \item Other uncommon PE features that wouldn't
+            be supported
+        \end{sitemize}
+
+        \pause
+        \item No compelling reason to re-implement what is already
+        supplied in \texttt{NTDLL.DLL}
     \end{sitemize}
 \end{frame}
 
