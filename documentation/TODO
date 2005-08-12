@@ -57,3 +57,6 @@ X - make migrate on server not open with PROCESS_ALL_ACCESS
     - calling convention (staged shell is incompat with ord stagers)
 	 - stack requirements
 	 - etc
+- fix module loading order
+  - problems with dllinject getting loaded after meterpreter due to dependencies
+- fix default handle inheritance in meterp process execution

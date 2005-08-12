@@ -9,9 +9,9 @@ module Meterpreter
 #
 # The various types of channels
 #
-CHANNEL_CLASS_STREAM     = 'stream'
-CHANNEL_CLASS_DATAGRAM   = 'datagram'
-CHANNEL_CLASS_POOL       = 'pool'
+CHANNEL_CLASS_STREAM     = 1
+CHANNEL_CLASS_DATAGRAM   = 2
+CHANNEL_CLASS_POOL       = 3
 
 #
 # The various flags that can affect how the channel operates
