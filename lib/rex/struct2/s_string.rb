@@ -24,8 +24,8 @@ class SString
 		if !newsize
 			self.restraint = nil
 		else
-			res = Rex::Struct2::Constant.new(size)
-			self.restraint = Rex::Struct2::Restraint.new(res, res, true)
+			res = Rex::Struct2::Constant.new(newsize)
+			self.restraint = Rex::Struct2::Restraint.new(res, res, false)
 		end
 	end
 
@@ -61,6 +61,7 @@ class SString
 		else
 			self.value = bytes.dup
 		end
+
 
 		return(self.slength)
 	end
