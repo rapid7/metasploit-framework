@@ -7,6 +7,7 @@ module Struct2
 class SString
 	
 	require 'rex/struct2/element'
+	require 'rex/struct2/constant'
 	include Rex::Struct2::Element
 
 	attr_reader  :size, :default, :pad
@@ -23,8 +24,8 @@ class SString
 		if !newsize
 			self.restraint = nil
 		else
-			res = Rex::Struct2::Constant(size)
-			self.restraint = Rex::Struct2::Restraint(res, res, true)
+			res = Rex::Struct2::Constant.new(size)
+			self.restraint = Rex::Struct2::Restraint.new(res, res, true)
 		end
 	end
 
