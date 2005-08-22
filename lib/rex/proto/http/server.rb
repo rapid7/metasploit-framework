@@ -72,6 +72,8 @@ end
 ###
 class Server
 
+	include Proto
+
 	DefaultServer = "Rex"
 
 	def initialize(port = 80, listen_host = '0.0.0.0')
@@ -79,6 +81,13 @@ class Server
 		self.listen_host = listen_host
 		self.listener    = nil
 		self.resources   = {}
+	end
+
+	#
+	# HTTP server.
+	#
+	def alias
+		super || "HTTP Server"
 	end
 
 	#

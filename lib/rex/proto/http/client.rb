@@ -16,6 +16,8 @@ module Http
 ###
 class Client
 
+	include Proto
+
 	#
 	# Performs a block-based HTTP operation
 	#
@@ -29,6 +31,9 @@ class Client
 		end
 	end
 
+	#
+	# Initializes a GET request and returns it to the caller.
+	#
 	def self.get(uri = '/', proto = DefaultProtocol)
 		return init_request(Request::Get.new(uri, proto))
 	end
@@ -36,6 +41,13 @@ class Client
 	def initialize(host, port = 80)
 		self.hostname = host
 		self.port     = port.to_i
+	end
+
+	#
+	# HTTP client.
+	#
+	def alias
+		"HTTP Client"
 	end
 
 	#
