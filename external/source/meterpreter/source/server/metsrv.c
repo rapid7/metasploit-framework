@@ -25,6 +25,10 @@ DWORD __declspec(dllexport) Init(SOCKET fd)
 			break;
 		}
 
+		// Do not allow the file descriptor to be inherited by child 
+		// processes
+		SetHandleInformation(fd, HANDLE_FLAG_INHERIT, 0);
+
 		// Register extension dispatch routines
 		register_dispatch_routines();
 

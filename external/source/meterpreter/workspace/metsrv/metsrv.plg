@@ -6,20 +6,20 @@
 --------------------Configuration: metsrv - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP105.tmp" with contents
+Creating temporary file "C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP264.tmp" with contents
 [
 /nologo /ML /W3 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "METSRV_EXPORTS" /Fp"Release/metsrv.pch" /Yu"metsrv.h" /Fo"Release/" /Fd"Release/" /FD /c 
 "Z:\external\source\meterpreter\source\server\libloader.c"
 "Z:\external\source\meterpreter\source\server\remote_dispatch.c"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP105.tmp" 
-Creating temporary file "C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP106.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP264.tmp" 
+Creating temporary file "C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP265.tmp" with contents
 [
 /nologo /ML /W3 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "METSRV_EXPORTS" /Fp"Release/metsrv.pch" /Yc"metsrv.h" /Fo"Release/" /Fd"Release/" /FD /c 
 "Z:\external\source\meterpreter\source\server\metsrv.c"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP106.tmp" 
-Creating temporary file "C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP107.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP265.tmp" 
+Creating temporary file "C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP266.tmp" with contents
 [
 common.lib ws2_32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /pdb:none /map:"Release/metsrv.map" /machine:I386 /def:"..\..\source\server\metsrv.def" /out:"Release/metsrv.dll" /implib:"Release/metsrv.lib" /libpath:"..\common\Release" 
 .\Release\libloader.obj
@@ -27,29 +27,30 @@ common.lib ws2_32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.li
 .\Release\remote_dispatch.obj
 \external\source\meterpreter\workspace\common\Release\common.lib
 ]
-Creating command line "link.exe @C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP107.tmp"
+Creating command line "link.exe @C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP266.tmp"
 <h3>Output Window</h3>
 Compiling...
 metsrv.c
+Z:\external\source\meterpreter\source\server\metsrv.c(30) : warning C4022: 'SetHandleInformation' : pointer mismatch for actual parameter 1
 Compiling...
 libloader.c
 remote_dispatch.c
 Generating Code...
 Linking...
    Creating library Release/metsrv.lib and object Release/metsrv.exp
-Creating temporary file "C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP10B.bat" with contents
+Creating temporary file "C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP26A.bat" with contents
 [
 @echo off
 copy release\metsrv.dll ..\..\output\server
 ]
-Creating command line "C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP10B.bat"
+Creating command line "C:\DOCUME~1\mmiller\LOCALS~1\Temp\RSP26A.bat"
 
         1 file(s) copied.
 
 
 
 <h3>Results</h3>
-metsrv.dll - 0 error(s), 0 warning(s)
+metsrv.dll - 0 error(s), 1 warning(s)
 </pre>
 </body>
 </html>

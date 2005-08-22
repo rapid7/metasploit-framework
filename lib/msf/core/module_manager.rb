@@ -324,80 +324,52 @@ protected
 		loaded = {}
 		recalc = {}
 		counts = {}
+		delay  = {}
+		ks     = true
 
+		# Try to load modules from all the files in the supplied path
 		Find.find(path) { |file|
-
-			# If the file doesn't end in the expected extension...
-			next if (!file.match(/\.rb$/))
-
-			# If the file on disk hasn't changed with what we have stored in the
-			# cache, then there's no sense in loading it
-			if (!has_module_file_changed?(file))
-				dlog("Cached module from file #{file} has not changed.", 'core', 
-					LEV_1)
-			end
-
-			# Substitute the base path
-			path_base = file.sub(path + File::SEPARATOR, '')
-
-			# Derive the name from the path with the exclusion of the .rb
-			name = path_base.match(/^(.+?)#{File::SEPARATOR}(.*)(.rb?)$/)[2]
-
-			# Chop off the file name
-			path_base.sub!(/(.+)(#{File::SEPARATOR}.+)(.rb?)$/, '\1')
-
-			# Extract the module's namespace from its path
-			mod  = mod_from_name(path_base)
-			type = path_base.match(/^(.+?)#{File::SEPARATOR}+?/)[1].sub(/s$/, '')
-
-			# Get the module and grab the current number of constants
-			old_constants = mod.constants
-
-			# Load the file
 			begin
-				if (!load(file))
-					elog("Failed to load from file #{file}.")
-					next
+				load_module_from_file(path, file,
+					loaded, recalc, counts)
+			rescue NameError
+				# If we get a name error, it's possible that this module depends
+				# on another one that we haven't loaded yet.  Let's postpone
+				# the load operation for now so that we can resolve all 
+				# dependencies.  This is pretty much a hack.
+				delay[file] = $!
+			end
+		}
+
+		# Keep processing all delayed module loads until we've gotten
+		# all the dependencies resolved or until we just suck.
+		while (ks == true)
+			ks = false
+
+			delay.each_key { |file|
+				begin
+					# Load the module from the file...
+					load_module_from_file(path, file,
+						loaded, recalc, counts)
+
+					# Remove this file path from the list of delay load files
+					# because if we get here it means all when swell...maybe.
+					delay.delete(file)
+
+					# Keep scanning since we just successfully loaded a delay load
+					# module.
+					ks = true
+				# Trap the name error and flag this file path as still needing to
+				# be delay loaded.
+				rescue NameError
+					delay[file] = $!	
 				end
-			rescue LoadError
-				elog("LoadError: #{$!}.")
-				next
-			end
+			}
+		end
 
-			added = mod.constants - old_constants
-
-			if (added.length > 1)
-				elog("Loaded file contained more than one class (#{file}).")
-				next
-			end
-
-			# If nothing was added, check to see if there's anything
-			# in the cache
-			if (added.empty?)
-				if (module_history[file])
-					added = module_history[file]
-				else
-					elog("Loaded #{file} but no classes were added.")
-					next
-				end
-			else
-				added = mod.const_get(added[0])
-			end
-
-			ilog("Loaded #{type} module #{added} from #{file}.", 'core', LEV_1)
-
-			# Do some processing on the loaded module to get it into the
-			# right associations
-			on_module_load(added, type, name)
-
-			# Set this module type as needing recalculation
-			recalc[type] = true
-
-			# Append the added module to the hash of file->module
-			loaded[file] = added
-
-			# The number of loaded modules this round
-			counts[type] = (counts[type]) ? (counts[type] + 1) : 1
+		# Log all modules that failed to load due to problems
+		delay.each_pair { |file, err|
+			elog("Failed to load module from #{file}: #{err}")
 		}
 
 		# Cache the loaded file mtimes
@@ -416,6 +388,93 @@ protected
 
 		# Return per-module loaded counts
 		return counts
+	end
+
+	# Loads a module from the supplied file.
+	def load_module_from_file(path, file, loaded, recalc, counts)
+		# If the file doesn't end in the expected extension...
+		return if (!file.match(/\.rb$/))
+
+		# If the file on disk hasn't changed with what we have stored in the
+		# cache, then there's no sense in loading it
+		if (!has_module_file_changed?(file))
+			dlog("Cached module from file #{file} has not changed.", 'core', 
+				LEV_1)
+		end
+
+		# Substitute the base path
+		path_base = file.sub(path + File::SEPARATOR, '')
+
+		# Derive the name from the path with the exclusion of the .rb
+		name = path_base.match(/^(.+?)#{File::SEPARATOR}(.*)(.rb?)$/)[2]
+
+		# Chop off the file name
+		path_base.sub!(/(.+)(#{File::SEPARATOR}.+)(.rb?)$/, '\1')
+
+		# Extract the module's namespace from its path
+		mod  = mod_from_name(path_base)
+		type = path_base.match(/^(.+?)#{File::SEPARATOR}+?/)[1].sub(/s$/, '')
+
+		# Get the module and grab the current number of constants
+		old_constants = mod.constants
+
+		# Load the file like it aint no thang
+		begin
+			if (!load(file))
+				elog("Failed to load from file #{file}.")
+				return
+			end
+		rescue NameError
+			added = mod.constants - old_constants
+
+			# Super hack.  If a constant was added (which will represent the
+			# module), then we need to remove it so that our logic for
+			# detecting new classes in the future will work when we
+			# subsequently try to reload it.
+			r = mod.module_eval { remove_const(added[0]) } if (added[0])
+
+			# Re-raise the name error so that the caller catches it and adds this
+			# file path to the list of files that are to be delay loaded.
+			raise NameError, $!
+		rescue LoadError
+			elog("LoadError: #{$!}.")
+			return
+		end
+
+		added = mod.constants - old_constants
+
+		if (added.length > 1)
+			elog("Loaded file contained more than one class (#{file}).")
+			next
+		end
+
+		# If nothing was added, check to see if there's anything
+		# in the cache
+		if (added.empty?)
+			if (module_history[file])
+				added = module_history[file]
+			else
+				elog("Loaded #{file} but no classes were added.")
+				return
+			end
+		else
+			added = mod.const_get(added[0])
+		end
+
+		ilog("Loaded #{type} module #{added} from #{file}.", 'core', LEV_1)
+
+		# Do some processing on the loaded module to get it into the
+		# right associations
+		on_module_load(added, type, name)
+
+		# Set this module type as needing recalculation
+		recalc[type] = true
+
+		# Append the added module to the hash of file->module
+		loaded[file] = added
+
+		# The number of loaded modules this round
+		counts[type] = (counts[type]) ? (counts[type] + 1) : 1
 	end
 
 	#
