@@ -78,9 +78,6 @@ class Server
 		self.listen_port = port
 		self.listen_host = listen_host
 		self.listener    = nil
-		self.clients     = []
-		self.clifds      = []
-		self.fd2cli      = {}
 		self.resources   = {}
 	end
 
@@ -91,40 +88,31 @@ class Server
 		self.listener = Rex::Socket::TcpServer.create(
 			'LocalHost' => self.listen_host,
 			'LocalPort' => self.listen_port)
+	
+		# Register callbacks
+		self.listener.on_client_connect_proc = Proc.new { |cli|
+			on_client_connect(cli)
+		}
+		self.listener.on_client_data_proc = Proc.new { |cli|
+			on_client_data(cli)
+		}
 
-		self.listener_thread = Thread.new {
-			monitor_listener
-		}
-		self.clients_thread = Thread.new {
-			monitor_clients
-		}
+		self.listener.start
 	end
 
 	#
 	# Terminates the monitor thread and turns off the listener.
 	#
 	def stop
-		self.listener_thread.kill
-		self.clients_thread.kill
-
-		self.clients.each { |cli|
-			close_client(cli)
-		}
-
+		self.listener.stop
 		self.listener.close
 	end
 
 	#
-	# Closes the supplied client connection and removes it from the internal
-	# hashes and lists.
+	# Closes the supplied client, if valid.
 	#
 	def close_client(cli)
-		if (cli)
-			self.fd2cli.delete(cli.sock)
-			self.clifds.delete(cli.sock)
-			self.clients.delete(cli)
-			cli.close
-		end
+		listener.close_client(cli)
 	end
 
 	#
@@ -153,7 +141,7 @@ class Server
 	end
 
 	#
-	# Adds Server headers and stuff
+	# Adds Server headers and stuff.
 	#
 	def add_response_headers(resp)
 		resp['Server'] = DefaultServer
@@ -163,63 +151,21 @@ class Server
 
 protected
 
-	attr_accessor :listener
-	attr_accessor :listener_thread, :clients_thread
-	attr_accessor :clients, :clifds, :fd2cli
-	attr_accessor :resources
+	attr_accessor :listener, :resources
 
 	#
-	# Monitors the listener for new connections
+	# Extends new clients with the ServerClient module and initializes them.
 	#
-	def monitor_listener
-		begin
-			sd = Rex::ThreadSafe.select([ listener.sock ])
+	def on_client_connect(cli)
+		cli.extend(ServerClient)
 
-			# Accept the new client connection
-			if (sd[0].length > 0)
-				cli = listener.accept
-
-				next if (!cli)
-
-				cli.extend(ServerClient)
-
-				# Initialize the server client extension
-				cli.init_cli(self)
-
-				# Insert it into some lists
-				self.clients << cli
-				self.clifds  << cli.sock
-				self.fd2cli[cli.sock] = cli
-			end
-		rescue
-			elog("Exception caught in HTTP server listener monitor: #{$!}")
-		end while true
+		cli.init_cli(self)
 	end
 
 	#
-	# Monitors client connections for data
+	# Processes data coming in from a client.
 	#
-	def monitor_clients
-		begin
-			if (clients.length == 0)
-				Rex::ThreadSafe::sleep(0.2)
-				next
-			end
-
-			sd = Rex::ThreadSafe.select(clifds)
-
-			sd[0].each { |fd|
-				process_client(self.fd2cli[fd])
-			}
-		rescue
-			elog("Exception caught in HTTP server clients monitor: #{$!}")
-		end while true
-	end
-
-	#
-	# Processes data coming in from a client
-	#
-	def process_client(cli)
+	def on_client_data(cli)
 		begin
 			case cli.request.parse(cli.get)
 				when Packet::ParseCode::Completed

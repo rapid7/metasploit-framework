@@ -80,7 +80,7 @@ class Rex::Socket::Parameters
 		self.server    = hash['Server'] || false
 
 		# The communication subsystem to use to create the socket
-		self.comm      = hash['Comm'] || Rex::Socket::Comm::Local;
+		self.comm      = hash['Comm'] || Rex::Socket::Comm::Local
 
 		# The number of connection retries to make (client only)
 		self.retries   = hash['Retries'] || 0
