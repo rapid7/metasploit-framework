@@ -48,11 +48,15 @@ class CStruct < SStruct
 	attr_reader  :v
 
 	@@dt_table = {
+	  'int8'      => proc { |*a| Rex::Struct2::Generic.new('C',  true, *a) },
 	  'uint8'     => proc { |*a| Rex::Struct2::Generic.new('C', false, *a) },
 	  'int16v'    => proc { |*a| Rex::Struct2::Generic.new('v',  true, *a) },
 	  'uint16v'   => proc { |*a| Rex::Struct2::Generic.new('v', false, *a) },
+	  'int32v'    => proc { |*a| Rex::Struct2::Generic.new('V',  true, *a) },
 	  'uint32v'   => proc { |*a| Rex::Struct2::Generic.new('V', false, *a) },
+	  'int16n'    => proc { |*a| Rex::Struct2::Generic.new('n',  true, *a) },
 	  'uint16n'   => proc { |*a| Rex::Struct2::Generic.new('n', false, *a) },
+	  'int32n'    => proc { |*a| Rex::Struct2::Generic.new('N',  true, *a) },
 	  'uint32n'   => proc { |*a| Rex::Struct2::Generic.new('N', false, *a) },
 	  'string'    => proc { |*a| Rex::Struct2::SString.new(*a) },
 	  'sstruct'   => proc { |*a| Rex::Struct2::SStruct.new(*a) },
