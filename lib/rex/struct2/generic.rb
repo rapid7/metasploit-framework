@@ -12,9 +12,21 @@ class Generic
 	attr_reader  :default
 	attr_writer  :default
 
-	def initialize(packspec, default=nil)
+	attr_accessor :mask, :check_mask
+
+	def initialize(packspec, signed=false, default=nil)
 		@packspec = packspec
 		@default  = default
+
+		bytelen = [ -1 ].pack(@packspec).length
+		self.mask = (1 << (8 * bytelen)) - 1
+
+		if signed
+			self.check_mask = 1 << (8 * bytelen - 1)
+		else
+			self.check_mask = 0
+		end
+
 		reset()
 	end
 
@@ -44,6 +56,11 @@ class Generic
 		return if restraint && restraint.max && len > restraint.max
 		return if restraint && restraint.min && len < restraint.min
 		# else set our value and return length used for this element
+
+		if (value & check_mask) != 0
+			value = -((~value & mask) + 1)
+		end
+
 		self.value = value
 		return(len)
 	end
