@@ -21,6 +21,9 @@ module X86
 	ESI = DH = SI =      6
 	EDI = BH = DI =      7
 
+	REG_NAMES32 = [ 'eax', 'ecx', 'edx', 'ebx',
+	                'esp', 'ebp', 'esi', 'edi' ]
+
 	def self.jmp_short(addr)
 		"\xeb" + pack_lsb(rel_number(addr, -2))
 	end
@@ -48,6 +51,11 @@ module X86
 
 	def self.reg_number(str)
 		return self.const_get(str.upcase)
+	end
+
+	def self.reg_name32(num)
+		_check_reg(num)
+		return REG_NAMES32[num].dup
 	end
 
 	def self.encode_effective(shift, dst)
