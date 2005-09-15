@@ -151,7 +151,7 @@ class OptPath < OptBase
 	end
 end
 
-class OptPort < OptBase
+class OptInt < OptBase
 	def type 
 		return 'integer' 
 	end
