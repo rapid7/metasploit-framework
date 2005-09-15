@@ -30,7 +30,7 @@ class Client
 			c.stop
 		end
 	end
-
+	
 	#
 	# Initializes a GET request and returns it to the caller.
 	#
@@ -41,6 +41,8 @@ class Client
 	def initialize(host, port = 80)
 		self.hostname = host
 		self.port     = port.to_i
+		self.request_config = {}
+		self.client_config  = {}
 	end
 
 	#
@@ -50,6 +52,72 @@ class Client
 		"HTTP Client"
 	end
 
+	#
+	# Configures the Client object and the Request factory
+	#
+	def config (chash)
+		req_opts = %w{ user-agent vhost cookie proto }
+		cli_opts = %w{ max-data }	
+		chash.each_pair { |k,v| 
+			req_opts.include?(k) ? 
+				self.request_config[k] = v : self.client_config[k] = v 
+		}
+	end
+
+	#
+	# Set parameters for the Request factory
+	#
+	def request_option(k, v)
+		(v != nil) ? self.request_config[k] = v : self.request_config[k]
+	end
+	
+	#
+	# Set parameters for the actual Client
+	#
+	def client_option(k, v)
+		(v != nil) ? self.client_config[k] = v : self.client_config[k]
+	end
+	
+	#
+	# The Request factory
+	#
+	def request (chash) 
+		method = chash['method']
+		proto  = chash['proto']  || self.request_config['proto']
+		uri    = chash['uri'] 
+		
+		req    = Rex::Proto::Http::Request.new(method, uri, proto)
+		
+		#
+		# Configure the request headers using the Client configuration
+		#
+
+		if self.request_config['cookie']
+			req['Cookie'] = self.request_config['cookie']
+		end
+		
+		if self.request_config['user-agent']
+			req['User-Agent'] = self.request_config['user-agent']
+		end
+		
+		#
+		# Configure the rest of the request based on config hash
+		#		
+		req['Host'] = (self.request_config['vhost'] || self.hostname) + ':' + self.port.to_s
+		
+		# Set the request body if a data chunk has been specified
+		if chash['data']
+			req.body = chash['data']
+		end
+		
+		# Set the content-type
+		if chash['content-type']
+			req['Content-Type'] = chash['content-type']
+		end
+
+		req
+	end
+	
 	#
 	# Connects to the remote server if possible.
 	#
@@ -78,7 +146,7 @@ class Client
 	# Initializes a request by setting the host header and other cool things.
 	#
 	def init_request(req)
-		req['Host'] = "#{hostname}:#{port}"
+		req['Host'] = "#{request_config.has_key?('vhost') ? request_config['vhost'] : hostname}:#{port}"
 
 		return req
 	end
@@ -88,7 +156,8 @@ class Client
 	#
 	def send_request(req, t = -1)
 		resp = Response.new
-
+		resp.max_data = self.client_config['max-data']
+		
 		# Connect to the server
 		connect
 
@@ -119,8 +188,13 @@ class Client
 		# Close our side if we aren't pipelining
 		close if (!pipelining?)
 
-		# Returns the response to the caller
-		return (resp.completed?) ? resp : nil
+		# XXX - How should we handle this?
+		if (not resp.completed?)
+			# raise RuntimeError, resp.error, caller
+		end
+
+		# Always return the Response object back to the client
+		return resp
 	end
 
 	#
@@ -147,12 +221,14 @@ class Client
 	attr_accessor :pipeline
 	attr_accessor :local_host
 	attr_accessor :local_port
-
+	attr_accessor :client_config
+	
 protected
 
 	attr_accessor :hostname, :port
 	attr_accessor :conn
-
+	attr_accessor :request_config, :client_config
+	
 end
 
 end

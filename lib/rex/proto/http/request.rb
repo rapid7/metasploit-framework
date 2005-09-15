@@ -44,7 +44,8 @@ class Request < Packet
 		self.method    = method
 		self.uri       = uri
 		self.uri_parts = {}
-		self.proto     = proto
+		self.proto     = proto || DefaultProtocol
+
 	end
 
 	#
