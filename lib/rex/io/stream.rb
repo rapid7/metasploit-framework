@@ -112,12 +112,9 @@ module Stream
 	#
 	def timed_write(buf, wait = def_write_timeout, opts = {})
 		if (wait and wait > 0)
-			begin
-				timeout(wait) {
-					return write(buf, opts)
-				}
-			rescue Timeout::Error
-			end
+			timeout(wait) {
+				return write(buf, opts)
+			}
 		else
 			return write(buf, opts)
 		end
@@ -128,12 +125,9 @@ module Stream
 	#
 	def timed_read(length = nil, wait = def_read_timeout, opts = {})
 		if (wait and wait > 0)
-			begin
-				timeout(wait) {
-					return read(length, opts)
-				}
-			rescue Timeout::Error
-			end
+			timeout(wait) {
+				return read(length, opts)
+			}
 		else
 			return read(length, opts)
 		end
