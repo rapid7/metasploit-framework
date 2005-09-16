@@ -10,8 +10,11 @@ require 'rex/text'
 	# Process a DCERPC response packet from a socket
 	def self.read_response (socket) 
 
-		head = socket.timed_read(10, 5)
-		# rescue
+		begin
+			head = socket.timed_read(10, 5)
+		rescue Timeout::Error
+			# puts "Error: #{ $! }"
+		end
 		
 		if (! head or head.length() != 10)
 			return
@@ -26,7 +29,7 @@ require 'rex/text'
 		begin
 			body = socket.timed_read(resp.frag_len - 10, 10)
 		rescue Timeout::Error
-			puts "Error: #{ $! }"
+			# puts "Error: #{ $! }"
 		end
 		
 		if (body.nil? or body.length() != resp.frag_len - 10)
