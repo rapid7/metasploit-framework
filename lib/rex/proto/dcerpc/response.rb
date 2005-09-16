@@ -27,7 +27,7 @@ class Response
 		self.raw = self.raw + body
 		self.type = self.raw[2,1].unpack('C')[0]
 		
-		uuid = Rex::Proto::DCERPC::UUID.new()
+		uuid = Rex::Proto::DCERPC::UUID
 		data = self.raw
 			
 		# BIND_ACK == 12, ALTER_CONTEXT_RESP == 15
