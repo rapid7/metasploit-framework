@@ -49,6 +49,10 @@ class Crypt
 	def self.md4_hash(data)
 		digest = OpenSSL::Digest::Digest.digest('md4', data)
 	end
+	
+	def self.md5_hash(data)
+		digest = OpenSSL::Digest::Digest.digest('md5', data)
+	end	
 end
 end
 end

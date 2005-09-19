@@ -6,20 +6,41 @@ require 'test/unit'
 require 'rex/proto/smb/constants'
 require 'rex/proto/smb/utils'
 require 'rex/proto/smb/client'
+require 'rex/socket'
 
 class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 	
 	Klass = Rex::Proto::SMB::Client
 
-	@@host = '192.168.0.2'
-	@@port = 445
+	@@host = '192.168.10.184'
+	@@port = 139
 
 	def test_smb_session_request
-		socket = 'Dummy'
-		c = Klass.new(socket)
-		c.session_request()
+
+		s = Rex::Socket.create_tcp(
+			'PeerHost' => @@host,
+			'PeerPort' => @@port
+		)
+
+		c = Klass.new(s)
 		
-		# assert_equal(Klass.nbname_decode(nbencoded),  nbdecoded )
+		# Request a SMB session over NetBIOS
+		ok = c.session_request()
+		assert_kind_of(Rex::Struct2::CStruct, ok)
+		
+		# Check for a positive session response
+		# A negative response is 0x83
+		assert_equal(ok.v['Type'], 0x82)
+
+
+		# Negotiate a SMB dialect
+		ok = c.negotiate()
+		assert_kind_of(Rex::Struct2::CStruct, ok)
+
+
+		ok = c.session_setup_ntlmv2
+		assert_kind_of(Rex::Struct2::CStruct, ok)
+				
 	end
 
 	

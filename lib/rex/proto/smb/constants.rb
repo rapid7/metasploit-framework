@@ -40,15 +40,27 @@ NT_TRANSACT_QUERY_SECURITY_DESC      = 6 # Retrieve security
 NETBIOS_REDIR = 'CACACACACACACACACACACACACACACAAA'
 
 
-# SMB Structures
+# Create a NetBIOS session packet template
+def self.make_nbs (template)
+	Rex::Struct2::CStructTemplate.new(
+		[ 'uint8',    'Type',             0 ],
+		[ 'uint8',    'Flags',            0 ],
+		[ 'uint16n',  'PayloadLen',       0 ],
+		[ 'template', 'Payload',          template ]
+	).create_restraints(
+		[ 'Payload', 'PayloadLen',  nil, true ]
+	)
+end
 
-NB_HDR = Rex::Struct2::CStructTemplate.new(
-	[ 'uint8',   'Type',             0 ],
-	[ 'uint8',   'Flags',            0 ],
-	[ 'uint16n', 'RequestLen',       0 ],
-	[ 'string',  'Request',         '' ]
+
+# A raw NetBIOS session template
+NBRAW_HDR_PKT =  Rex::Struct2::CStructTemplate.new(
+	[ 'string', 'Payload'               ]
 )
+NBRAW_PKT = self.make_nbs(NBRAW_HDR_PKT)
 
+
+# The SMB header template
 SMB_HDR = Rex::Struct2::CStructTemplate.new(
 	[ 'uint32n', 'Magic',             0xff534d42 ],
 	[ 'uint8',   'Command',           0 ],
@@ -63,17 +75,34 @@ SMB_HDR = Rex::Struct2::CStructTemplate.new(
 	[ 'uint16v', 'ProcessID',         0 ],
 	[ 'uint16v', 'UserID',            0 ],
 	[ 'uint16v', 'MultiplexID',       0 ],
-	[ 'string',  'Request',          '' ]
+	[ 'uint8',   'WordCount',         0 ]
 )
 
-NB_NEG_HDR = Rex::Struct2::CStructTemplate.new(
-	[ 'uint8',   'WordCount',            0 ],
+
+# A basic SMB template to read all responses
+SMB_BASE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+
+	[ 'template', 'SMB',                 SMB_HDR ],
+	[ 'string',  'Payload'                 ]
+)
+SMB_BASE_PKT = self.make_nbs(SMB_BASE_HDR_PKT)
+
+
+# A SMB template for SMB Dialect negotiation
+SMB_NEG_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+
+	[ 'template', 'SMB',                 SMB_HDR ],
 	[ 'uint16v', 'ByteCount',            0 ],
-	[ 'string',  'Request',             '' ]
+	[ 'string',  'Payload'                 ]
+).create_restraints(
+	[ 'Payload', 'ByteCount',  nil, true ]
 )
+SMB_NEG_PKT = self.make_nbs(SMB_NEG_HDR_PKT)
 
-NB_NEG_RES_LM_HDR = Rex::Struct2::CStructTemplate.new(
-	[ 'uint8',   'WordCount',            0 ],
+
+# A SMB template for SMB Dialect negotiation responses (LANMAN)
+SMB_NEG_RES_LM_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+	[ 'template', 'SMB',                 SMB_HDR ],
 	[ 'uint16v', 'Dialect',              0 ],
 	[ 'uint16v', 'SecurityMode',         0 ],
 	[ 'uint16v', 'MaxBuff',              0 ],
@@ -87,11 +116,16 @@ NB_NEG_RES_LM_HDR = Rex::Struct2::CStructTemplate.new(
 	[ 'uint16v', 'KeyLength',            0 ],	
 	[ 'uint16v', 'Reserved1',            0 ],
 	[ 'uint16v', 'ByteCount',            0 ],		
-	[ 'string',  'EncryptionKey',       '' ]
+	[ 'string',  'EncryptionKey'           ]
+).create_restraints(
+	[ 'EncryptionKey', 'ByteCount',  nil, true ]
 )
+SMB_NEG_RES_LM_PKT = self.make_nbs(SMB_NEG_RES_LM_HDR_PKT)
 
-NB_NEG_RES_NT_HDR = Rex::Struct2::CStructTemplate.new(
-	[ 'uint8',   'WordCount',            0 ],
+
+# A SMB template for SMB Dialect negotiation responses (NTLM)
+SMB_NEG_RES_NT_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+	[ 'template', 'SMB',                 SMB_HDR ],
 	[ 'uint16v', 'Dialect',              0 ],
 	[ 'uint8',   'SecurityMode',         0 ],
 	[ 'uint16v', 'MaxMPX',               0 ],
@@ -105,10 +139,55 @@ NB_NEG_RES_NT_HDR = Rex::Struct2::CStructTemplate.new(
 	[ 'uint16v', 'Timezone',             0 ],
 	[ 'uint8',   'KeyLength',            0 ],	
 	[ 'uint16v', 'ByteCount',            0 ],		
-	[ 'string',  'EncryptionKey',       '' ],
-	[ 'string',  'Domain',              '' ],
-	[ 'string',  'Server',              '' ]
+	[ 'string',  'GUID', 16,            '' ],
+	[ 'string',  'SecurityBlob'            ]
 )
+SMB_NEG_RES_NT_PKT = self.make_nbs(SMB_NEG_RES_NT_HDR_PKT)
+
+
+# A SMB template for SMB Dialect negotiation responses (ERROR)
+SMB_NEG_RES_ERR_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+	[ 'template', 'SMB',                 SMB_HDR ],
+	[ 'uint16v', 'Dialect',              0 ],
+	[ 'uint16v', 'ByteCount',            0 ]	
+)
+SMB_NEG_RES_ERR_PKT = self.make_nbs(SMB_NEG_RES_ERR_HDR_PKT)
+
+
+# A SMB template for SMB Session Setup requests (NTLMV2)
+SMB_SETUP_NTLMV2_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+	[ 'template', 'SMB',                 SMB_HDR ],
+	[ 'uint8',   'AndX',                 0 ],
+	[ 'uint8',   'Reserved1',            0 ],
+	[ 'uint16v', 'AndXOffset',           0 ],			
+	[ 'uint16v', 'MaxBuff',              0 ],
+	[ 'uint16v', 'MaxMPX',               0 ],
+	[ 'uint16v', 'VCNum',                0 ],
+	[ 'uint32v', 'SessionKey',           0 ],
+	[ 'uint16v', 'SecurityBlobLen',      0 ],
+	[ 'uint32v', 'Reserved2',            0 ],
+	[ 'uint32v', 'Capabilities',         0 ],
+	[ 'uint16v', 'ByteCount',            0 ],
+	[ 'string',  'Payload'                 ]
+).create_restraints(
+	[ 'Payload', 'ByteCount',  nil, true ]
+)
+SMB_SETUP_NTLMV2_PKT = self.make_nbs(SMB_SETUP_NTLMV2_HDR_PKT)
+
+# A SMB template for SMB Session Setup responses (NTLMV2)
+SMB_SETUP_NTLMV2_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+	[ 'template', 'SMB',                 SMB_HDR ],
+	[ 'uint8',   'AndX',                 0 ],
+	[ 'uint8',   'Reserved1',            0 ],
+	[ 'uint16v', 'AndXOffset',           0 ],			
+	[ 'uint16v', 'Action',               0 ],
+	[ 'uint16v', 'SecurityBlobLen',      0 ],
+	[ 'uint16v', 'ByteCount',            0 ],
+	[ 'string',  'Payload'                 ]
+).create_restraints(
+	[ 'Payload', 'ByteCount',  nil, true ]
+)
+SMB_SETUP_NTLMV2_RES_PKT = self.make_nbs(SMB_SETUP_NTLMV2_RES_HDR_PKT)
 
 end
 end
