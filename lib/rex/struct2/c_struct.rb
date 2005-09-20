@@ -113,6 +113,12 @@ class CStruct < SStruct
 			name = ress.shift
 			res  = ress.shift
 			self[name].restraint = res
+
+			# update the restrainted object, so it will update the value
+			# of the restrainter, with the initial size.  If you don't
+			# want this behavior, um, you'll have to be careful with what
+			# you supply as default values...
+			self[name].update_restraint
 		end
 		return self
 	end
