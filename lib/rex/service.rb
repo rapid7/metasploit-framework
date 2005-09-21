@@ -17,6 +17,13 @@ module Rex
 ###
 module Service
 	include Ref
+
+	#
+	# Calls stop on the service once the ref count drops.
+	#
+	def cleanup
+		stop
+	end
 end
 
 end

@@ -80,8 +80,6 @@ class ServiceManager < Hash
 		# references has dropped to zero
 		if ((inst = self[als]) and
 		    (inst.deref))
-			inst.stop
-
 			# Since the instance may have multiple aliases, scan through
 			# all the pairs for matching stuff.
 			self.each_pair { |cals, cinst|

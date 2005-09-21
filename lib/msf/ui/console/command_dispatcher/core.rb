@@ -541,6 +541,14 @@ protected
 
 	def show_options(mod)
 		print("\n" + Serializer::ReadableText.dump_options(mod) + "\n")
+		
+		if (mod.exploit?)
+			p = framework.modules.create(mod.datastore['PAYLOAD'])
+
+			if (p)
+				print("  Payload options:\n\n" + Serializer::ReadableText.dump_options(p) + "\n");
+			end
+		end
 	end
 
 	def show_advanced_options(mod)

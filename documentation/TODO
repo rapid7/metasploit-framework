@@ -59,4 +59,4 @@ N - dupe input instance when passing to sessions
 	 - etc
 X - fix module loading order
 X   - problems with dllinject getting loaded after meterpreter due to dependencies
-- fix default handle inheritance in meterp process execution
+X - fix default handle inheritance in meterp process execution

@@ -12,6 +12,7 @@ require 'rex/string_utils'
 
 # Thread safety and synchronization
 require 'rex/thread_safe'
+require 'rex/ref'
 require 'rex/read_write_lock'
 require 'rex/sync/event'
 

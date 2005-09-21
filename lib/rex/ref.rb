@@ -40,8 +40,20 @@ module Ref
 	#
 	def deref
 		@_references_mutex.synchronize {
-			((@_references -= 1) == 0) ? true : false
+			if ((@_references -= 1) == 0)
+				cleanup
+
+				true
+			else
+				false
+			end
 		}
+	end
+
+	#
+	# Called to clean up resources once the ref count drops to zero.
+	#
+	def cleanup
 	end
 
 end
