@@ -6,6 +6,7 @@ class Client
 require 'rex/text'
 require 'rex/struct2'
 require 'rex/proto/smb/constants'
+require 'rex/proto/smb/exceptions'
 require 'rex/proto/smb/crypt'
 require 'rex/proto/smb/utils'
 
@@ -14,6 +15,7 @@ require 'rex/proto/smb/utils'
 CONST = Rex::Proto::SMB::Constants
 CRYPT = Rex::Proto::SMB::Crypt
 UTILS = Rex::Proto::SMB::Utils
+XCEPT = Rex::Proto::SMB::Exceptions
 
 	def initialize (socket)
 		self.socket = socket
@@ -23,16 +25,22 @@ UTILS = Rex::Proto::SMB::Utils
 		self.extended_security = 0
 		self.multiplex_id = rand(0xffff)
 		self.process_id = rand(0xffff)
+		self.read_timeout = 10
 	end
 	
 	# Read a SMB packet from the socket
 	def smb_recv
-		head = self.socket.timed_read(4, 10)
+	
+		head = nil
+		
+		begin
+			head = self.socket.timed_read(4, self.read_timeout)
+		rescue
+			raise XCEPT::ReadHeader
+		end
 		
 		if (head == nil or head.length != 4)
-
-			puts 'could not read header'
-			return nil
+			raise XCEPT::ReadHeader
 		end
 
 		recv_len = head[2,2].unpack('n')[0]
@@ -40,11 +48,9 @@ UTILS = Rex::Proto::SMB::Utils
 			return head
 		end
 		
-		body = self.socket.timed_read(recv_len)
+		body = self.socket.timed_read(recv_len, self.read_timeout)
 		if (body == nil or body.length != recv_len)
-			# XXX exception?		
-			puts 'incomplete packet read'
-			p body
+			raise XCEPT::ReadPacket
 		end
 		
 		return head + body
@@ -52,13 +58,17 @@ UTILS = Rex::Proto::SMB::Utils
 	
 	# Send a SMB packet down the socket
 	def smb_send (data)
-		self.socket.put(data)
+		begin
+			self.socket.put(data)
+		rescue
+			raise XCEPT::WritePacket
+		end
 	end
 	
 	# Set the SMB parameters to some reasonable defaults
 	def smb_defaults(packet)
 		packet.v['MultiplexID'] = self.multiplex_id.to_i
-		packet.v['TreeID'] = self.tree_id.to_i
+		packet.v['TreeID'] = self.last_tree_id.to_i
 		packet.v['UserID'] = self.auth_user_id.to_i
 		packet.v['ProcessID'] = self.process_id.to_i
 	end
@@ -66,12 +76,9 @@ UTILS = Rex::Proto::SMB::Utils
 	
 	# The main dispatcher for all incoming SMB packets
 	def smb_recv_parse
+	
+		# This will throw an exception if it fails to read the whole packet
 		data = self.smb_recv
-		
-		if (data == nil)
-			puts "nil response!"
-			return nil
-		end
 		
 		pkt = CONST::SMB_BASE_PKT.make_struct
 		pkt.from_s(data)
@@ -86,11 +93,15 @@ UTILS = Rex::Proto::SMB::Utils
 				
 			when CONST::SMB_COM_TREE_CONNECT_ANDX
 				return smb_parse_tree_connect(pkt, data)
-							
+				
+			when CONST::SMB_COM_CREATE_ANDX
+				return smb_parse_create(pkt, data)
+					
+			when CONST::SMB_COM_TRANSACTION
+				return smb_parse_trans(pkt, data)
+													
 			else 
-				puts "Unknown >> " + pkt['Payload']['SMB'].v['Command'].to_s 
-
-			return pkt
+				raise XCEPT::Unimplemented
 		end
 	end
 	
@@ -122,8 +133,7 @@ UTILS = Rex::Proto::SMB::Utils
 			return pkt
 		end		
 		
-		puts "Unknown WordCount: " + pkt['Payload']['SMB'].v['WordCount'].to_s
-		return pkt
+		raise XCEPT::Unimplemented 
 	end
 	
 	# Process incoming SMB_COM_SESSION_SETUP_ANDX packets
@@ -145,10 +155,9 @@ UTILS = Rex::Proto::SMB::Utils
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
-		end		
+		end	
 		
-		puts "Unknown WordCount: " + pkt['Payload']['SMB'].v['WordCount'].to_s
-		return pkt
+		raise XCEPT::Unimplemented 
 	end	
 	
 	# Process incoming SMB_COM_TREE_CONNECT_ANDX packets
@@ -164,12 +173,44 @@ UTILS = Rex::Proto::SMB::Utils
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
 		end		
-		
-		puts "Unknown WordCount: " + pkt['Payload']['SMB'].v['WordCount'].to_s
-		return pkt
+
+		raise XCEPT::Unimplemented 
 	end	
 	
+	# Process incoming SMB_COM_CREATE_ANDX packets
+	def smb_parse_create(pkt, data)
+ 		
+		if (pkt['Payload']['SMB'].v['WordCount'] == 42)
+			res = CONST::SMB_CREATE_RES_PKT.make_struct
+			res.from_s(data)
+			return res
+		end
 		
+		# Process SMB error responses
+		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
+			return pkt
+		end		
+
+		raise XCEPT::Unimplemented 
+	end	
+
+	# Process incoming SMB_COM_CREATE_ANDX packets
+	def smb_parse_trans(pkt, data)
+ 		
+		if (pkt['Payload']['SMB'].v['WordCount'] == 10)
+			res = CONST::SMB_TRANS_RES_PKT.make_struct
+			res.from_s(data)
+			return res
+		end
+		
+		# Process SMB error responses
+		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
+			return pkt
+		end		
+
+		raise XCEPT::Unimplemented 
+	end	
+				
 	# Request a SMB session over NetBIOS
 	def session_request (name = '*SMBSERVER')
 		
@@ -178,8 +219,8 @@ UTILS = Rex::Proto::SMB::Utils
 		data << "\x20" + CONST::NETBIOS_REDIR      + "\x00"
 
 		pkt = CONST::NBRAW_PKT.make_struct
-		pkt.v['Type']       = 0x81
-		pkt['Payload'].v['Payload']    = data
+		pkt.v['Type'] = 0x81
+		pkt['Payload'].v['Payload'] = data
 
 		self.smb_send(pkt.to_s)
 		res = self.smb_recv
@@ -188,7 +229,7 @@ UTILS = Rex::Proto::SMB::Utils
 		ack.from_s(res)
 
 		if (ack.v['Type'] != 130)
-			return nil
+			raise XCEPT::NetbiosSessionFailed
 		end
 		
 		return ack
@@ -521,6 +562,7 @@ UTILS = Rex::Proto::SMB::Utils
 		pkt['Payload'].v['Payload'] = data
 		
 		self.smb_send(pkt.to_s)
+		
 		ack = self.smb_recv_parse
 		
 		# Make sure the response we received was the correct type
@@ -538,8 +580,57 @@ UTILS = Rex::Proto::SMB::Utils
 		return ack		
 	end	
 
+	# Creates a file or opens an existing pipe
+	# TODO: Allow the caller to specify the hardcoded options
+	def create (file_name, disposition = 1)
+		
+		pkt = CONST::SMB_CREATE_PKT.make_struct
+		self.smb_defaults(pkt['Payload']['SMB'])
+		
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_CREATE_ANDX
+		pkt['Payload']['SMB'].v['Flags1'] = 0x18
+		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		pkt['Payload']['SMB'].v['WordCount'] = 24
+		
+		pkt['Payload'].v['AndX'] = 255
+		pkt['Payload'].v['FileNameLen'] = file_name.length
+		pkt['Payload'].v['CreateFlags'] = 0x16
+		pkt['Payload'].v['AccessMask'] = 0x02019f
+		pkt['Payload'].v['ShareAccess'] = 7
+		pkt['Payload'].v['CreateOptions'] = 0x40
+		pkt['Payload'].v['Impersonation'] = 2		
+		pkt['Payload'].v['Disposition'] = disposition
+		pkt['Payload'].v['Payload'] = file_name + "\x00"
+		
+		self.smb_send(pkt.to_s)
+		
+		ack = self.smb_recv_parse
+		
+		# Make sure the response we received was the correct type
+		if (ack['Payload']['SMB'].v['Command'] != CONST::SMB_COM_CREATE_ANDX)
+			return nil
+		end
+		
+		if (ack['Payload']['SMB'].v['ErrorClass'] != 0)
+			return ack
+		end
+		
+		# Save off the FileID
+		if (ack['Payload'].v['FileID'] > 0)
+			self.last_file_id = ack['Payload'].v['FileID']	
+		end
+		
+		return ack
+		
+	end
 
-	# Connect to a specified share with an optional password
+
+	# Perform a transaction against a named pipe
+	def trans_named_pipe (file_id = self.last_file_id, data = '')
+		self.trans('\\PIPE\\', '', data, 2, [0x26, file_id].pack('vv') )
+	end
+
+	# Perform a transaction against a given pipe name
 	def trans (pipe, param = '', body = '', setup_count = 0, setup_data = '')
 
 		# null-terminate the pipe parameter if needed
@@ -548,18 +639,30 @@ UTILS = Rex::Proto::SMB::Utils
 		end
 		
 		data = pipe + param + body
-		
-	
+
 		pkt = CONST::SMB_TRANS_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-				
+		
+		base_offset = pkt.to_s.length + (setup_count * 2) - 4
+		param_offset = base_offset + pipe.length
+		data_offset = param_offset + param.length
+		
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
-		pkt['Payload'].v['AndX'] = 255
-		pkt['Payload'].v['PasswordLen'] = pass.length + 1
-		pkt['Payload'].v['Capabilities'] = 64
+		
+		pkt['Payload'].v['ParamCountTotal'] = param.length
+		pkt['Payload'].v['DataCountTotal'] = body.length
+		pkt['Payload'].v['ParamCountMax'] = 1024
+		pkt['Payload'].v['DataCountMax'] = 65504
+		pkt['Payload'].v['ParamCount'] = param.length
+		pkt['Payload'].v['ParamOffset'] = param_offset
+		pkt['Payload'].v['DataCount'] = body.length
+		pkt['Payload'].v['DataOffset'] = data_offset
+		pkt['Payload'].v['SetupCount'] = setup_count
+		pkt['Payload'].v['SetupData'] = setup_data
+					
 		pkt['Payload'].v['Payload'] = data
 		
 		self.smb_send(pkt.to_s)
@@ -574,24 +677,21 @@ UTILS = Rex::Proto::SMB::Utils
 			return ack
 		end
 		
-		self.last_tree_id = ack['Payload']['SMB'].v['TreeID']
-
-		info = ack['Payload'].v['Payload'].split(/\x00/)
-		return ack		
+		return ack
 	end		
 	
 # public methods
-	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security
+	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout
 	attr_reader		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
 	attr_reader		:default_domain, :default_name, :auth_user, :auth_user_id
-	attr_reader		:multiplex_id, :tree_id, :last_tree_id, :last_file_id, :process_id
+	attr_reader		:multiplex_id, :last_tree_id, :last_file_id, :process_id
 	attr_reader		:security_mode, :server_guid
 	
 # private methods
 protected
 	attr_writer		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
 	attr_writer		:default_domain, :default_name, :auth_user, :auth_user_id
-	attr_writer		:multiplex_id, :tree_id, :last_tree_id, :last_file_id, :process_id
+	attr_writer		:multiplex_id, :last_tree_id, :last_file_id, :process_id
 	attr_writer		:security_mode, :server_guid
 		
 	attr_accessor	:socket
