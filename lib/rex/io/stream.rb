@@ -1,4 +1,4 @@
-require 'rex/thread_safe'
+require 'rex/sync/thread_safe'
 
 module Rex
 module IO

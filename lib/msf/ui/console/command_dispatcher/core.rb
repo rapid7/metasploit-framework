@@ -19,6 +19,11 @@ class Core
 		"-l" => [ false, "List all active sessions."                      ],
 		"-q" => [ false, "Quiet mode."                                    ])
 
+	@@jobs_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner."                                   ],
+		"-k" => [ true,  "Terminate the specified job name."              ],
+		"-l" => [ false, "List all running jobs."                         ])
+
 	# Returns the list of commands supported by this command dispatcher
 	def commands
 		{
@@ -28,6 +33,7 @@ class Core
 			"exit"    => "Exit the console",
 			"help"    => "Help menu",
 			"info"    => "Displays information about one or more module",
+			"jobs"    => "Displays and manages jobs",
 			"quit"    => "Exit the console",
 			"save"    => "Saves the active datastores",
 			"search"  => "Adds one or more module search paths",
@@ -127,6 +133,38 @@ class Core
 	end
 
 	alias cmd_? cmd_help
+
+	#
+	# Displays and manages running jobs for the active instance of the
+	# framework.
+	#
+	def cmd_jobs(*args)
+		if (args.length == 0)
+			args.unshift("-h")
+		end
+
+		# Parse the command options
+		@@jobs_opts.parse(args) { |opt, idx, val|
+			case opt
+				when "-l"
+					print("\n" +
+						Serializer::ReadableText.dump_jobs(framework) + "\n")
+
+				# Terminate the supplied job name
+				when "-k"
+					print_line("Stopping job: #{val}...")
+
+					framework.jobs.stop_job(val)
+
+				when "-h"
+					print(
+						"Usage: jobs [options]\n\n" +
+						"Active job manipulation and interaction.\n" +
+						@@jobs_opts.usage())
+					return false
+			end
+		}
+	end
 
 	#
 	# Saves the active datastore contents to disk for automatic use across

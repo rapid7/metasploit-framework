@@ -37,6 +37,7 @@ class Framework
 		self.modules   = ModuleManager.new(self)
 		self.sessions  = SessionManager.new(self)
 		self.datastore = DataStore.new
+		self.jobs      = Rex::JobContainer.new
 	end
 
 	#
@@ -78,6 +79,7 @@ class Framework
 	attr_reader   :modules
 	attr_reader   :sessions
 	attr_reader   :datastore
+	attr_reader   :jobs
 
 protected
 
@@ -85,6 +87,7 @@ protected
 	attr_writer   :modules
 	attr_writer   :sessions
 	attr_writer   :datastore
+	attr_writer   :jobs
 
 end
 

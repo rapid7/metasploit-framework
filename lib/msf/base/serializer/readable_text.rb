@@ -285,6 +285,25 @@ class ReadableText
 	end
 
 	#
+	# Dumps the list of running jobs
+	#
+	def self.dump_jobs(framework, indent = DefaultIndent, col = DefaultColumnWrap)
+		tbl = Rex::Ui::Text::Table.new(
+			'Indent'  => indent,
+			'Header'  => "Jobs",
+			'Columns' =>
+				[
+					'Name'
+				])
+
+		framework.jobs.keys.sort.each { |k|
+			tbl << [ k ]
+		}
+
+		return framework.jobs.keys.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No active jobs.\n"
+	end
+
+	#
 	# Jacked from Ernest Ellingson <erne [at] powernav.com>, modified
 	# a bit to add indention
 	#

@@ -9,11 +9,12 @@ require 'rex/transformer'
 require 'rex/text'
 require 'rex/time'
 require 'rex/string_utils'
+require 'rex/job_container'
 
 # Thread safety and synchronization
-require 'rex/thread_safe'
-require 'rex/ref'
-require 'rex/read_write_lock'
+require 'rex/sync/thread_safe'
+require 'rex/sync/ref'
+require 'rex/sync/read_write_lock'
 require 'rex/sync/event'
 
 # Encoding
