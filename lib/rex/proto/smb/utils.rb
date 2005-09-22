@@ -90,7 +90,7 @@ require 'rex/text'
 				)
 			)
 		)
-		puts "Returning: " +  blob.length.to_s
+
 		return blob	
 	end
 		

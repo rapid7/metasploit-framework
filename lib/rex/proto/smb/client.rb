@@ -84,8 +84,11 @@ UTILS = Rex::Proto::SMB::Utils
 			when CONST::SMB_COM_SESSION_SETUP_ANDX
 				return smb_parse_session_setup(pkt, data)
 				
+			when CONST::SMB_COM_TREE_CONNECT_ANDX
+				return smb_parse_tree_connect(pkt, data)
+							
 			else 
-				puts "Unknown" + pkt['Payload']['SMB'].v['Command'].to_s 
+				puts "Unknown >> " + pkt['Payload']['SMB'].v['Command'].to_s 
 
 			return pkt
 		end
@@ -114,24 +117,59 @@ UTILS = Rex::Proto::SMB::Utils
 			return res
 		end		
 
+		# Process SMB error responses
+		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
+			return pkt
+		end		
+		
 		puts "Unknown WordCount: " + pkt['Payload']['SMB'].v['WordCount'].to_s
 		return pkt
 	end
 	
 	# Process incoming SMB_COM_SESSION_SETUP_ANDX packets
 	def smb_parse_session_setup(pkt, data)
- 		# Process NTLM negotiate responses
+ 		# Process NTLMv2 negotiate responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 4)
 			res = CONST::SMB_SETUP_NTLMV2_RES_PKT.make_struct
 			res.from_s(data)
 			return res
 		end
-
+		
+		# Process NTLMv1 and LANMAN responses
+		if (pkt['Payload']['SMB'].v['WordCount'] == 3)
+			res = CONST::SMB_SETUP_RES_PKT.make_struct
+			res.from_s(data)
+			return res
+		end	
+			
+		# Process SMB error responses
+		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
+			return pkt
+		end		
+		
 		puts "Unknown WordCount: " + pkt['Payload']['SMB'].v['WordCount'].to_s
 		return pkt
 	end	
 	
+	# Process incoming SMB_COM_TREE_CONNECT_ANDX packets
+	def smb_parse_tree_connect(pkt, data)
+ 		
+		if (pkt['Payload']['SMB'].v['WordCount'] == 3)
+			res = CONST::SMB_TREE_CONN_RES_PKT.make_struct
+			res.from_s(data)
+			return res
+		end
+		
+		# Process SMB error responses
+		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
+			return pkt
+		end		
+		
+		puts "Unknown WordCount: " + pkt['Payload']['SMB'].v['WordCount'].to_s
+		return pkt
+	end	
 	
+		
 	# Request a SMB session over NetBIOS
 	def session_request (name = '*SMBSERVER')
 		
@@ -237,9 +275,120 @@ UTILS = Rex::Proto::SMB::Utils
 
 		return nil
 	end
+
+	# Authenticate using clear-text passwords
+	def session_setup_clear(user = '', pass = '', domain = '')
+
+		data = ''
+		data << pass + "\x00"
+		data << user + "\x00"
+		data << domain + "\x00"
+		data << self.native_os + "\x00"
+		data << self.native_lm + "\x00"		
+		
+		pkt = CONST::SMB_SETUP_LANMAN_PKT.make_struct
+		self.smb_defaults(pkt['Payload']['SMB'])
+				
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
+		pkt['Payload']['SMB'].v['Flags1'] = 0x18
+		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		pkt['Payload']['SMB'].v['WordCount'] = 10
+		pkt['Payload'].v['AndX'] = 255
+		pkt['Payload'].v['MaxBuff'] = 0xffdf
+		pkt['Payload'].v['MaxMPX'] = 2
+		pkt['Payload'].v['VCNum'] = 1		
+		pkt['Payload'].v['PasswordLen'] = pass.length + 1
+		pkt['Payload'].v['Capabilities'] = 64
+		pkt['Payload'].v['SessionKey'] = self.session_id
+		pkt['Payload'].v['Payload'] = data
+		
+		self.smb_send(pkt.to_s)
+		ack = self.smb_recv_parse
+		
+		# Make sure the response we received was the correct type
+		if (ack['Payload']['SMB'].v['Command'] != CONST::SMB_COM_SESSION_SETUP_ANDX)
+			return nil
+		end
+		
+		if (ack['Payload']['SMB'].v['ErrorClass'] != 0)
+			return ack
+		end
+		
+		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
+			self.auth_user = user
+		end
+		
+		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
+		
+		info = ack['Payload'].v['Payload'].split(/\x00/)
+		self.peer_native_os = info[0]
+		self.peer_native_lm = info[1]
+		self.default_domain = info[2]
+				
+		# XXX what to do on error?	
+		return ack
+	end	
 	
+	# Authenticate using NTLMv1
+	def session_setup_ntlmv1(user = '', pass = '', domain = '')
 	
-	# Authenticate using extended security negotiation
+		hash_lm = pass.length > 0 ? CRYPT.lanman_des(pass, self.challenge_key) : ''
+		hash_nt = pass.length > 0 ? CRYPT.ntlm_md4(pass, self.challenge_key)   : ''
+
+		data = ''
+		data << hash_lm
+		data << hash_nt
+		data << user + "\x00"
+		data << domain + "\x00"
+		data << self.native_os + "\x00"
+		data << self.native_lm + "\x00"		
+		
+		pkt = CONST::SMB_SETUP_NTLMV1_PKT.make_struct
+		self.smb_defaults(pkt['Payload']['SMB'])
+				
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
+		pkt['Payload']['SMB'].v['Flags1'] = 0x18
+		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		pkt['Payload']['SMB'].v['WordCount'] = 13
+		pkt['Payload'].v['AndX'] = 255
+		pkt['Payload'].v['MaxBuff'] = 0xffdf
+		pkt['Payload'].v['MaxMPX'] = 2
+		pkt['Payload'].v['VCNum'] = 1		
+		pkt['Payload'].v['PasswordLenLM'] = hash_lm.length
+		pkt['Payload'].v['PasswordLenNT'] = hash_nt.length
+		pkt['Payload'].v['Capabilities'] = 64
+		pkt['Payload'].v['SessionKey'] = self.session_id
+		pkt['Payload'].v['Payload'] = data
+		
+		self.smb_send(pkt.to_s)
+		ack = self.smb_recv_parse
+		
+		# Make sure the response we received was the correct type
+		if (ack['Payload']['SMB'].v['Command'] != CONST::SMB_COM_SESSION_SETUP_ANDX)
+			return nil
+		end
+	
+		if (ack['Payload']['SMB'].v['ErrorClass'] != 0)
+			return ack
+		end
+			
+		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
+			self.auth_user = user
+		end
+		
+		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
+
+		
+		info = ack['Payload'].v['Payload'].split(/\x00/)
+		self.peer_native_os = info[0]
+		self.peer_native_lm = info[1]
+		self.default_domain = info[2]
+				
+		# XXX what to do on error?	
+		return ack
+	end	
+	
+	# Authenticate using extended security negotiation (NTLMv2)
 	def session_setup_ntlmv2(user = '', pass = '', domain = '', name = 'WORKSTATION1')
 	
 		data = ''
@@ -339,13 +488,97 @@ UTILS = Rex::Proto::SMB::Utils
 		if (ack['Payload']['SMB'].v['Command'] != CONST::SMB_COM_SESSION_SETUP_ANDX)
 			return nil
 		end
-		
-		# We want to see no error message
+
 		if (ack['Payload']['SMB'].v['ErrorClass'] != 0)
-			return nil
-		end				
+			return ack
+		end
+		
+		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
+		
+		# XXX what do on error?
 		return ack
 	end	
+
+
+	# Connect to a specified share with an optional password
+	def tree_connect(share = 'IPC$', pass = '')
+
+		data = ''
+		data << pass + "\x00"
+		data << share + "\x00"
+		data << '?????' + "\x00"
+		
+		pkt = CONST::SMB_TREE_CONN_PKT.make_struct
+		self.smb_defaults(pkt['Payload']['SMB'])
+				
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TREE_CONNECT_ANDX
+		pkt['Payload']['SMB'].v['Flags1'] = 0x18
+		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		pkt['Payload']['SMB'].v['WordCount'] = 4
+		pkt['Payload'].v['AndX'] = 255
+		pkt['Payload'].v['PasswordLen'] = pass.length + 1
+		pkt['Payload'].v['Capabilities'] = 64
+		pkt['Payload'].v['Payload'] = data
+		
+		self.smb_send(pkt.to_s)
+		ack = self.smb_recv_parse
+		
+		# Make sure the response we received was the correct type
+		if (ack['Payload']['SMB'].v['Command'] != CONST::SMB_COM_TREE_CONNECT_ANDX)
+			return nil
+		end
+		
+		if (ack['Payload']['SMB'].v['ErrorClass'] != 0)
+			return ack
+		end
+		
+		self.last_tree_id = ack['Payload']['SMB'].v['TreeID']
+
+		info = ack['Payload'].v['Payload'].split(/\x00/)
+		return ack		
+	end	
+
+
+	# Connect to a specified share with an optional password
+	def trans (pipe, param = '', body = '', setup_count = 0, setup_data = '')
+
+		# null-terminate the pipe parameter if needed
+		if (pipe[-1] != 0)
+			pipe << "\x00"
+		end
+		
+		data = pipe + param + body
+		
+	
+		pkt = CONST::SMB_TRANS_PKT.make_struct
+		self.smb_defaults(pkt['Payload']['SMB'])
+				
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION
+		pkt['Payload']['SMB'].v['Flags1'] = 0x18
+		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
+		pkt['Payload'].v['AndX'] = 255
+		pkt['Payload'].v['PasswordLen'] = pass.length + 1
+		pkt['Payload'].v['Capabilities'] = 64
+		pkt['Payload'].v['Payload'] = data
+		
+		self.smb_send(pkt.to_s)
+		ack = self.smb_recv_parse
+		
+		# Make sure the response we received was the correct type
+		if (ack['Payload']['SMB'].v['Command'] != CONST::SMB_COM_TRANSACTION)
+			return nil
+		end
+		
+		if (ack['Payload']['SMB'].v['ErrorClass'] != 0)
+			return ack
+		end
+		
+		self.last_tree_id = ack['Payload']['SMB'].v['TreeID']
+
+		info = ack['Payload'].v['Payload'].split(/\x00/)
+		return ack		
+	end		
 	
 # public methods
 	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security

@@ -12,7 +12,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 	
 	Klass = Rex::Proto::SMB::Client
 
-	@@host = '192.168.10.184'
+	@@host = '192.168.0.42'
 	@@port = 139
 
 	def test_smb_session_request
@@ -40,7 +40,17 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 
 		ok = c.session_setup_ntlmv2
 		assert_kind_of(Rex::Struct2::CStruct, ok)
-				
+		
+		ok = c.session_setup_ntlmv1
+		assert_kind_of(Rex::Struct2::CStruct, ok)
+		
+		ok = c.session_setup_clear
+		assert_kind_of(Rex::Struct2::CStruct, ok)
+		
+		ok = c.tree_connect
+		assert_kind_of(Rex::Struct2::CStruct, ok)
+		
+								
 	end
 
 	
