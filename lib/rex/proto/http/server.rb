@@ -77,8 +77,8 @@ class Server
 	DefaultServer = "Rex"
 
 	def initialize(port = 80, listen_host = '0.0.0.0')
-		self.listen_port = port
 		self.listen_host = listen_host
+		self.listen_port = port
 		self.listener    = nil
 		self.resources   = {}
 	end

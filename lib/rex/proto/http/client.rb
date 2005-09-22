@@ -138,7 +138,11 @@ class Client
 	# Closes the connection to the remote server.
 	#
 	def close
-		self.conn.close if (self.conn)
+		if (self.conn)
+			self.conn.shutdown
+			self.conn.close 
+		end
+
 		self.conn = nil
 	end
 
@@ -222,11 +226,11 @@ class Client
 	attr_accessor :local_host
 	attr_accessor :local_port
 	attr_accessor :client_config
+	attr_accessor :conn
 	
 protected
 
 	attr_accessor :hostname, :port
-	attr_accessor :conn
 	attr_accessor :request_config, :client_config
 	
 end

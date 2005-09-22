@@ -101,6 +101,11 @@ module ReverseTcp
 			self.listener_thread.kill
 			self.listener_thread = nil
 		end
+
+		if (self.listener_sock)
+			self.listener_sock.close
+			self.listener_sock = nil
+		end
 	end
 
 protected

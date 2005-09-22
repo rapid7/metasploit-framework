@@ -55,7 +55,7 @@ class ServiceManager < Hash
 		if (self[als])
 			cnt  = 1
 			cnt += 1 while (self[als + " #{cnt}"])
-			als += " #{cnt}"
+			als  = inst.alias + " #{cnt}"
 		end
 
 		# Extend the instance as a service.

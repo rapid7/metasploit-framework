@@ -542,7 +542,7 @@ protected
 	def show_options(mod)
 		print("\n" + Serializer::ReadableText.dump_options(mod) + "\n")
 		
-		if (mod.exploit?)
+		if (mod.exploit? and mod.datastore['PAYLOAD'])
 			p = framework.modules.create(mod.datastore['PAYLOAD'])
 
 			if (p)
