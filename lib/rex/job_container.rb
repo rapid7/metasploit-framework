@@ -10,8 +10,9 @@ module Rex
 ###
 class Job
 
-	def initialize(container, name, ctx, run_proc, clean_proc)
+	def initialize(container, jid, name, ctx, run_proc, clean_proc)
 		self.container  = container
+		self.jid        = jid
 		self.name       = name
 		self.run_proc   = run_proc
 		self.clean_proc = clean_proc
@@ -46,10 +47,12 @@ class Job
 	end
 
 	attr_reader :name
+	attr_reader :jid
 
 protected
 
 	attr_writer   :name
+	attr_writer   :jid
 	attr_accessor :job_thread
 	attr_accessor :container
 	attr_accessor :run_proc
@@ -81,10 +84,13 @@ class JobContainer < Hash
 	def add_job(name, ctx, run_proc, clean_proc)
 		real_name = name
 		count     = 0
+		jid       = job_id_pool
+
+		self.job_id_pool += 1
 
 		# If we were not supplied with a job name, pick one from the hat
 		if (real_name == nil)
-			real_name = (job_id_pool += 1).to_s
+			real_name = '#' + jid.to_s
 		end
 
 		# Find a unique job name
@@ -93,9 +99,9 @@ class JobContainer < Hash
 			count     += 1
 		end
 
-		j = Job.new(self, real_name, ctx, run_proc, clean_proc)
+		j = Job.new(self, jid, real_name, ctx, run_proc, clean_proc)
 
-		self[real_name] = j
+		self[jid.to_s] = j
 	end
 
 	#
@@ -123,8 +129,8 @@ class JobContainer < Hash
 	# Stops the job with the supplied name and forces it to cleanup.  Stopping
 	# the job also leads to its removal.
 	#
-	def stop_job(name)
-		if (j = self[name])
+	def stop_job(jid)
+		if (j = self[jid.to_s])
 			j.stop
 
 			remove_job(j)
@@ -136,7 +142,7 @@ class JobContainer < Hash
 	# a job completes its task.
 	#
 	def remove_job(inst)
-		self.delete(inst.name)
+		self.delete(inst.jid.to_s)
 	end
 
 protected

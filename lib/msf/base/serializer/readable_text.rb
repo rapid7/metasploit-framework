@@ -293,11 +293,12 @@ class ReadableText
 			'Header'  => "Jobs",
 			'Columns' =>
 				[
+					'Id',
 					'Name'
 				])
 
 		framework.jobs.keys.sort.each { |k|
-			tbl << [ k ]
+			tbl << [ k, framework.jobs[k].name ]
 		}
 
 		return framework.jobs.keys.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No active jobs.\n"
