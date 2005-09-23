@@ -12,14 +12,31 @@ class Response
 	attr_accessor :ack_reason, :ack_result, :ack_xfer_syntax_uuid, :ack_xfer_syntax_vers 	
 	attr_accessor :alloc_hint, :context_id, :cancel_cnt, :status, :stub_data
 	
-	# Create a new DCERPC::Response object, using the first 10 bytes of the packet 
-	def initialize (head)
-		self.frag_len = head[8,2].unpack('v')[0]
-		self.raw = head
+	# Create a new DCERPC::Response object
+	# This can be initialized in two ways:
+	# 1) Call .new() with the first 10 bytes of packet, then call parse on the rest
+	# 2) Call .new() with the full packet contents
+	def initialize (data)
+
 		self.ack_result = []
 		self.ack_reason = []
 		self.ack_xfer_syntax_uuid = []
 		self.ack_xfer_syntax_vers = []		
+			
+		if (data.length < 10)
+			raise ArgumentError, 'Packet header must be at least 10 bytes long'
+		end
+		
+		if (data.length == 10)
+			self.frag_len = data[8,2].unpack('v')[0]
+			self.raw = data
+		end
+		
+		if (data.length > 10)
+			self.raw = data
+			self.parse('')
+		end
+
 	end
 	
 	# Parse the contents of a DCERPC response packet and fill out all the fields
@@ -54,8 +71,8 @@ class Response
 			self.sec_addr = data[26, self.sec_addr_len]
 			
 			# Move the pointer into the packet forward
-			x += 26 + self.sec_addr_len + 2
-			
+			x += 26 + self.sec_addr_len
+
 			# Figure out how many results we have (multiple-context binds)
 			self.num_results = data[ x, 4 ].unpack('V')[0]
 		
