@@ -1,3 +1,21 @@
+- evasion class
+  - set_level(evlvl)
+  - high?
+  - medium?
+- testing framework
+  - run all the exploits through all the diff payload handler permutations
+  - simulate clients for each different permutation
+- seh exploit mixin
+  - generate padded registration records
+  - move jump around
+  - use multi-size jump
+- return address pool
+  - exploits say what modules they have present
+  - target says what platform is being exploited
+  - target says what type of instruction is viable
+  - pool returns a random return address for that target
+  - automatic opcode db synchronization
+
 X	- switch to x86 from ia32
 X	- exploit kick-off
 X    - payload generation
@@ -14,36 +32,35 @@ X       ... wait for session ...
 X     - handler cleanup
 X       - stop handler
 X       - cleanup handler
-
-- 
-
-- add the concept of services to framework:
-  - instead, just make it a singleton, doesn't belong on framework
-  - add port forward service
-
-# first parameter is class that must inherit from Rex::Proto so that it has .alias
-service = framework.services.start(Rex::Proto::HTTP::Server, 'Port' => 80, 'Host' => '127.0.0.1')
-service = framework.services['HTTP Server']
-
-overrides any existing resource handler with this name:
-service.create_resource("/uri", Proc.new { |conn, request|
-})
-
-service.remove_resource("/uri")
-service.shutdown 
-  ^- reference counted, only terminates when reference count drops to zero
-
-- exploit mixins
-  - Http
-    - Http::Client
-	   connect
-		create_request
-		send_request
-		handler
-    - Http::Server
-	   handle_request(req)
-		create_response
-		send_response
+X - 
+X 
+X - add the concept of services to framework:
+X  - instead, just make it a singleton, doesn't belong on framework
+X  - add port forward service
+X
+X# first parameter is class that must inherit from Rex::Proto so that it has .alias
+Xservice = framework.services.start(Rex::Proto::HTTP::Server, 'Port' => 80, 'Host' => '127.0.0.1')
+Xservice = framework.services['HTTP Server']
+X
+Xoverrides any existing resource handler with this name:
+Xservice.create_resource("/uri", Proc.new { |conn, request|
+X})
+X
+Xservice.remove_resource("/uri")
+Xservice.shutdown 
+X  ^- reference counted, only terminates when reference count drops to zero
+X
+X- exploit mixins
+X  - Http
+X    - Http::Client
+X	   connect
+X		create_request
+X		send_request
+X		handler
+X    - Http::Server
+X	   handle_request(req)
+X		create_response
+X		send_response
 X- findsock payloads
 X  - findsock handler
 - meterpreter
