@@ -12,4 +12,5 @@ isn't complete, but it's things I've noticed while working on stuff:
 
   This will block all threads.
 
-  Use Rex::ThreadSafe::select
+  Use Rex::ThreadSafe::sleep (we've now wrapped the global sleep to
+  call the rex sleep)
