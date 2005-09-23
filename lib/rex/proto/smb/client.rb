@@ -854,6 +854,8 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 		data_offset = pkt.to_s.length - 4
 		
+		filler = EVADE.make_offset_filler(self.evasion_level, 4096 - data.length - data_offset)
+		
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_WRITE_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
@@ -867,8 +869,8 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['Remaining'] = data.length
 		# pkt['Payload'].v['DataLenHigh'] = (data.length / 65536).to_i
 		pkt['Payload'].v['DataLenLow'] = (data.length % 65536).to_i
-		pkt['Payload'].v['DataOffset'] = data_offset
-		pkt['Payload'].v['Payload'] = data
+		pkt['Payload'].v['DataOffset'] = data_offset + filler.length
+		pkt['Payload'].v['Payload'] = filler + data
 		
 		self.smb_send(pkt.to_s)
 		
@@ -912,19 +914,41 @@ EVADE = Rex::Proto::SMB::Evasions
 	# Perform a transaction against a given pipe name
 	def trans (pipe, param = '', body = '', setup_count = 0, setup_data = '')
 
-		# null-terminate the pipe parameter if needed
+		# Null-terminate the pipe parameter if needed
 		if (pipe[-1] != 0)
 			pipe << "\x00"
 		end
 		
-		data = pipe + param + body
-
 		pkt = CONST::SMB_TRANS_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
+
+		# Packets larger than mlen will cause XP SP2 to disconnect us ;-(		
+		mlen = 4200
 		
+		# Figure out how much space is taken up by our current arguments
+		xlen =  pipe.length + param.length + body.length
+
+		filler1 = ''
+		filler2 = ''
+
+		# Fill any available space depending on the evasion settings
+		if (xlen < mlen)
+			filler1 = EVADE.make_offset_filler(self.evasion_level, (mlen-xlen)/2)
+			filler2 = EVADE.make_offset_filler(self.evasion_level, (mlen-xlen)/2)
+		end
+
+		# Squish the whole thing together
+		data = pipe + filler1 + param + filler2 + body
+		
+		# Throw some form of a warning out?
+		if (data.length > mlen)
+			# This call will more than likely fail :-(
+		end
+		
+		# Calculate all of the offsets
 		base_offset = pkt.to_s.length + (setup_count * 2) - 4
-		param_offset = base_offset + pipe.length
-		data_offset = param_offset + param.length
+		param_offset = base_offset + pipe.length + filler1.length
+		data_offset = param_offset + filler2.length + param.length
 		
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18

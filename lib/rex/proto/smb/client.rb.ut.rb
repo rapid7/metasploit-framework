@@ -22,7 +22,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		
 	@@host = '192.168.0.219'
 	@@port = 139
-
+	@@evasion = 2
 
 	def test_smb_open_share
 		
@@ -30,7 +30,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		pass = 'SMBTest'
 		share = 'C$'
 		
-		write_data = ('A' * 65000)
+		write_data = ('A' * 256)
 		filename = 'smb_test.txt'
 		
 		s = Rex::Socket.create_tcp(
@@ -39,7 +39,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		)
 
 		c = Klass.new(s)
-		c.evasion_level = 0
+		c.evasion_level = @@evasion
 		
 		# Request a SMB session over NetBIOS
 		puts "[*] Requesting a SMB session over NetBIOS..."
@@ -98,7 +98,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		ok = c.close(c.last_file_id)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
-		puts "[*] Diconnecting from the tree..."	
+		puts "[*] Disconnecting from the tree..."	
 		ok = c.tree_disconnect
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
@@ -112,7 +112,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		)
 
 		c = Klass.new(s)
-		c.evasion_level = 0
+		c.evasion_level = @@evasion
 		
 		# Request a SMB session over NetBIOS
 		puts "[*] Requesting a SMB session over NetBIOS..."
@@ -156,7 +156,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		)
 
 		c = Klass.new(s)
-		c.evasion_level = 0
+		c.evasion_level = @@evasion
 		
 		# Request a SMB session over NetBIOS
 		puts "[*] Requesting a SMB session over NetBIOS..."
