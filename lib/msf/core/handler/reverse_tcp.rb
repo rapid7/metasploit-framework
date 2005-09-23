@@ -71,24 +71,26 @@ module ReverseTcp
 
 			print_status("Started reverse handler")
 
-			# Accept a client connection
 			begin
-				client = self.listener_sock.accept	
-			rescue
-				wlog("Exception raised during listener accept: #{$!}")
-				return nil
-			end
-
-			# Start a new thread and pass the client connection
-			# as the input and output pipe.  Client's are expected
-			# to implement the Stream interface.
-			conn_threads << Thread.new {
+				# Accept a client connection
 				begin
-					handle_connection(client)
+					client = self.listener_sock.accept	
 				rescue
-					elog("Exception raised from handle_connection: #{$!}")
+					wlog("Exception raised during listener accept: #{$!}")
+					return nil
 				end
-			}
+	
+				# Start a new thread and pass the client connection
+				# as the input and output pipe.  Client's are expected
+				# to implement the Stream interface.
+				conn_threads << Thread.new {
+					begin
+						handle_connection(client)
+					rescue
+						elog("Exception raised from handle_connection: #{$!}")
+					end
+				}
+			end while true
 		}
 	end
 

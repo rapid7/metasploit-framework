@@ -55,7 +55,16 @@ class Rex::Socket::TcpServer < Rex::Socket
 	# Accepts a child connection
 	#
 	def accept(opts = {})
-		Rex::Socket::Tcp.new(self.sock.accept[0])
+		t = Rex::Socket::Tcp.new(self.sock.accept[0])
+
+		if (t)
+			pn = t.getpeername
+
+			t.peerhost = pn[1]
+			t.peerport = pn[2]
+		end
+
+		t
 	end
 
 	#
