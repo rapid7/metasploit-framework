@@ -15,6 +15,12 @@
   - target says what type of instruction is viable
   - pool returns a random return address for that target
   - automatic opcode db synchronization
+- add module meta-info
+  - payloads
+    - calling convention (staged shell is incompat with ord stagers)
+	 - stack requirements
+	 - etc
+- exploit reloading
 
 X	- switch to x86 from ia32
 X	- exploit kick-off
@@ -69,11 +75,6 @@ X - fix route addition/removal in stdapi server dll (mib structure issue)
 X - fix interactive stream pool channels
 X - make migrate on server not open with PROCESS_ALL_ACCESS
 N - dupe input instance when passing to sessions
-- add module meta-info
-  - payloads
-    - calling convention (staged shell is incompat with ord stagers)
-	 - stack requirements
-	 - etc
 X - fix module loading order
 X   - problems with dllinject getting loaded after meterpreter due to dependencies
 X - fix default handle inheritance in meterp process execution

@@ -139,9 +139,11 @@ protected
 
 				on_client_connect(cli)
 			end
+		rescue SyntaxError
+			elog("Syntax error in stream server listener monitor: #{$!}")
+			rlog(ExceptionCallStack)
 		rescue
 			elog("Error in stream server listener monitor: #{$!}")
-			rlog(ExceptionCallStack)
 		end while true
 
 	end
@@ -161,9 +163,11 @@ protected
 			sd[0].each { |fd|
 				on_client_data(self.fd2cli[fd])
 			}
+		rescue SyntaxError
+			elog("Syntax error in stream server listener monitor: #{$!}")
+			rlog(ExceptionCallStack)
 		rescue
 			elog("Error in stream server client monitor: #{$!}")
-			rlog(ExceptionCallStack)
 		end while true
 	end
 

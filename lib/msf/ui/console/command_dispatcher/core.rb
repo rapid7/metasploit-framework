@@ -579,9 +579,18 @@ protected
 
 	def show_options(mod)
 		print("\n" + Serializer::ReadableText.dump_options(mod) + "\n")
-		
+	
+		# If it's an exploit and a payload is defined, create it and
+		# display the payload's options
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
 			p = framework.modules.create(mod.datastore['PAYLOAD'])
+
+			if (!p)
+				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
+				return
+			end
+			
+			p.share_datastore(mod.datastore)
 
 			if (p)
 				print("  Payload options:\n\n" + Serializer::ReadableText.dump_options(p) + "\n");
