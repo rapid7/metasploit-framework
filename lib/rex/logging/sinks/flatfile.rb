@@ -38,6 +38,7 @@ class Flatfile
 					code = 'i'
 			end
 			fd.write("[#{get_current_timestamp}] [#{code}(#{level})] #{src}: #{msg}\n")
+			fd.flush
 		end
 	end
 

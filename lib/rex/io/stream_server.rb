@@ -141,6 +141,7 @@ protected
 			end
 		rescue
 			elog("Error in stream server listener monitor: #{$!}")
+			rlog(ExceptionCallStack)
 		end while true
 
 	end
@@ -162,6 +163,7 @@ protected
 			}
 		rescue
 			elog("Error in stream server client monitor: #{$!}")
+			rlog(ExceptionCallStack)
 		end while true
 	end
 

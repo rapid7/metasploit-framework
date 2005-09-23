@@ -25,19 +25,17 @@ module ThreadSafe
 	def self.select(rfd = nil, wfd = nil, efd = nil, t = nil)
 		left = t
 
-		callcc { |ctx|
-			begin
-				# Poll the set supplied to us at least once.
-				rv = ::IO.select(rfd, wfd, efd, DefaultCycle)
+		begin
+			# Poll the set supplied to us at least once.
+			rv = ::IO.select(rfd, wfd, efd, DefaultCycle)
 
-				ctx.call(rv) if (rv)
+			return rv if (rv)
 
-				# Decrement the amount of time left by the polling cycle
-				left -= DefaultCycle if (left)
+			# Decrement the amount of time left by the polling cycle
+			left -= DefaultCycle if (left)
 
-				# Keep chugging until we run out of time, if time was supplied.
-			end while ((left == nil) or (left > 0))
-		}
+			# Keep chugging until we run out of time, if time was supplied.
+		end while ((left == nil) or (left > 0))
 	end
 
 	#

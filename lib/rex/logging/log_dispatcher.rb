@@ -95,6 +95,8 @@ end
 # still be directed at the correct log file.
 #
 ###
+ExceptionCallStack = "__EXCEPTCALLSTACK__"
+
 def dlog(msg, src = 'core', level = 0, from = caller)
 	$dispatcher.log(LOG_DEBUG, src, level, msg, from)
 end
@@ -112,6 +114,10 @@ def ilog(msg, src = 'core', level = 0, from = caller)
 end
 
 def rlog(msg, src = 'core', level = 0, from = caller)
+	if (msg == ExceptionCallStack)
+		msg = "\nCall stack:\n" + $@.join("\n") + "\n"
+	end
+
 	$dispatcher.log(LOG_RAW, src, level, msg, from)
 end
 
@@ -125,3 +131,4 @@ end
 
 # Creates the global log dispatcher
 $dispatcher = Rex::Logging::LogDispatcher.new
+

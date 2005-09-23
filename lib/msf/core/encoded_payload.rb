@@ -97,7 +97,7 @@ class EncodedPayload
 					self.encoded = self.encoder.encode(self.raw, reqs['BadChars'])
 				rescue
 					wlog("#{pinst.refname}: Failed to encode payload with encoder #{encoder.refname}: #{$!}",
-						'core', LEV_1)
+						'core', LEV_2)
 					next
 				end
 

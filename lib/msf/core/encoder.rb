@@ -167,7 +167,7 @@ class Encoder < Module
 		# Last but not least, do one last badchar pass to see if the stub +
 		# encoded payload leads to any bad char issues...
 		if ((badchar_idx = has_badchars?(state.encoded, badchars)) != nil)
-			raise BadcharError.new(state.encoded, badchar_idx, stub.length, badchars[badchar_idx]), 
+			raise BadcharError.new(state.encoded, badchar_idx, stub.length, state.encoded[badchar_idx]), 
 					"The #{self.name} encoder failed to encode without bad characters.", 
 					caller
 		end

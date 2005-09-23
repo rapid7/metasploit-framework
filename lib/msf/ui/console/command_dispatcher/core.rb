@@ -140,7 +140,7 @@ class Core
 	#
 	def cmd_jobs(*args)
 		if (args.length == 0)
-			args.unshift("-h")
+			args.unshift("-l")
 		end
 
 		# Parse the command options
