@@ -30,6 +30,12 @@ class WritePacket < Error
 	end
 end
 
+class UnknownDialect < Error
+	def to_s
+		"The server uses an unsupported SMB dialect"
+	end
+end
+
 class InvalidPacket < Error
 	attr_accessor :word_count
 	attr_accessor :command
@@ -71,7 +77,15 @@ class NetbiosSessionFailed < Error
 	end
 end
 
+class SimpleClientError < Error
+	attr_accessor :source, :fatal
+end
 
+class LoginError < SimpleClientError
+	def to_s
+		"Login Failed: " + self.source
+	end
+end
 
 end
 end

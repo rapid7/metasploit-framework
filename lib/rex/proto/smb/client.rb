@@ -38,6 +38,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 		begin
 			head = self.socket.timed_read(4, self.read_timeout)
+		rescue TimeoutError
 		rescue
 			raise XCEPT::ReadHeader
 		end
@@ -53,7 +54,14 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 		body = ''
 		while (body.length != recv_len)
-			buff = self.socket.timed_read(recv_len, self.read_timeout)
+			buff = ''
+
+			begin
+				buff = self.socket.timed_read(recv_len, self.read_timeout)
+			rescue TimeoutError
+			rescue
+				raise XCEPT::ReadPacket
+			end
 			
 			# Failed to read one packet within the time limit
 			if (buff == nil or buff.length == 0)
@@ -480,7 +488,7 @@ EVADE = Rex::Proto::SMB::Evasions
 			return self.session_setup_clear(*args)
 		end
 
-		return nil
+		raise XCEPT::UnknownDialect
 	end
 
 	# Authenticate using clear-text passwords
@@ -610,9 +618,9 @@ EVADE = Rex::Proto::SMB::Evasions
 		# Make sure the error code tells us to continue processing
 		if (ack['Payload']['SMB'].v['ErrorClass'] != 0xc0000016)
 			failure = XCEPT::ErrorCode.new
-			failure.word_count = pkt['Payload']['SMB'].v['WordCount']
-			failure.command = pkt['Payload']['SMB'].v['Command']
-			failure.error_code = pkt['Payload']['SMB'].v['ErrorClass']
+			failure.word_count = ack['Payload']['SMB'].v['WordCount']
+			failure.command = ack['Payload']['SMB'].v['Command']
+			failure.error_code = ack['Payload']['SMB'].v['ErrorClass']
 			raise failure
 		end
 
@@ -671,8 +679,21 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['Payload'] = blob + native_data 
 		
 		self.smb_send(pkt.to_s)
-		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX)
+		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 		
+		# Make sure that authentication succeeded
+		if (ack['Payload']['SMB'].v['ErrorClass'] != 0)
+			if (user.length == 0)
+				return self.session_setup_ntlmv1(user, pass, domain)
+			end
+			
+			failure = XCEPT::ErrorCode.new
+			failure.word_count = ack['Payload']['SMB'].v['WordCount']
+			failure.command = ack['Payload']['SMB'].v['Command']
+			failure.error_code = ack['Payload']['SMB'].v['ErrorClass']
+			raise failure
+		end
+				
 		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
 
 		return ack
@@ -825,7 +846,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Closes an open file handle
-	def close(file_id = self.last_file_id)
+	def close(file_id = self.last_file_id, tree_id = self.last_tree_id)
 		
 		pkt = CONST::SMB_CLOSE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -833,6 +854,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_CLOSE
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		pkt['Payload']['SMB'].v['TreeID'] = tree_id
 		pkt['Payload']['SMB'].v['WordCount'] = 3
 		
 		pkt['Payload'].v['FileID'] = file_id
