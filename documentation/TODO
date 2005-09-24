@@ -21,6 +21,10 @@ X   - use multi-size jump
 	 - stack requirements
 	 - etc
 - exploit reloading
+- payload convention
+  - make it so stages/stagers are queried for compatibility
+  - make it so exploits query convention compat
+    - ws2ord stuff
 
 X	- switch to x86 from ia32
 X	- exploit kick-off
