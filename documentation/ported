@@ -1,0 +1,7 @@
+This file contains the list of exploits ported so far and their status:
+
+Ported
+======
+
+aim_goaway: Needs more testing, but hit on Windows XPSP0
+ie_objecttype: Slightly unstable, needs more testing, but functioning
