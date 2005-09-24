@@ -1,14 +1,14 @@
-- evasion class
-  - set_level(evlvl)
-  - high?
-  - medium?
+X - evasion class
+X   - set_level(evlvl)
+X   - high?
+X   - medium?
 - testing framework
   - run all the exploits through all the diff payload handler permutations
   - simulate clients for each different permutation
-- seh exploit mixin
-  - generate padded registration records
-  - move jump around
-  - use multi-size jump
+X - seh exploit mixin
+X   - generate padded registration records
+X   - move jump around
+X   - use multi-size jump
 - return address pool
   - exploits say what modules they have present
   - target says what platform is being exploited

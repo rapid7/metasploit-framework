@@ -1,3 +1,5 @@
+require 'rex/ui'
+
 module Msf
 module Session
 

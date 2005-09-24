@@ -27,12 +27,19 @@ class Seh
 	end
 
 	#
+	# Return the default evasion level for this subsystem.
+	#
+	def default_evasion_level
+		Rex::Evasion.get_subsys_level(EvasionName)
+	end
+
+	#
 	# Generates an SEH record using whatever evasion level is currently defined
 	# globally for this subsystem or using one that is supplied by the caller.
 	# If HIGH evasion is specified, a dynamic SEH record is generated.
 	# Otherwise, a static SEH record is generated.
 	#
-	def generate_seh_record(handler, evlvl = Rex::Evasion.get_subsys_level(EvasionName))
+	def generate_seh_record(handler, evlvl = default_evasion_level)
 		if (evlvl == EVASION_HIGH)
 			generate_dynamic_seh_record(handler)
 		else
