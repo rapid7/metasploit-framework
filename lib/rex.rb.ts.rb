@@ -6,6 +6,7 @@ require 'rex'
 require 'rex/exceptions.rb.ut'
 require 'rex/transformer.rb.ut'
 require 'rex/text.rb.ut'
+require 'rex/evasion.rb.ut'
 
 require 'rex/encoding/xor/generic.rb.ut'
 require 'rex/encoding/xor/byte.rb.ut'
@@ -26,6 +27,8 @@ require 'rex/parser/arguments.rb.ut'
 require 'rex/ui/text/color.rb.ut'
 require 'rex/ui/text/table.rb.ut'
 
+require 'rex/exploitation/seh.rb.ut'
+
 class Rex::TestSuite
 	def self.suite
 		suite = Test::Unit::TestSuite.new("Rex")
@@ -34,6 +37,7 @@ class Rex::TestSuite
 		suite << Rex::Exceptions::UnitTest.suite
 		suite << Rex::Transformer::UnitTest.suite
 		suite << Rex::Text::UnitTest.suite
+		suite << Rex::Evasion::UnitTest.suite
 
 		# Encoding
 		suite << Rex::Encoding::Xor::Generic::UnitTest.suite
@@ -57,6 +61,9 @@ class Rex::TestSuite
 		# Ui
 		suite << Rex::Ui::Color::Table::UnitTest.suite
 		suite << Rex::Ui::Text::Table::UnitTest.suite
+
+		# Exploitation
+		suite << Rex::Exploitation::Seh::UnitTest.suite
 
 		return suite;
 	end
