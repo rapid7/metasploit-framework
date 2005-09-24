@@ -1,3 +1,4 @@
+require 'rex/exceptions'
 require 'rex/socket'
 require 'rex/socket/tcp'
 require 'rex/socket/ssl_tcp'
