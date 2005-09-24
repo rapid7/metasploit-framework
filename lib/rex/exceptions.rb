@@ -56,7 +56,7 @@ end
 class AmbiguousArgumentError < ::RuntimeError
 	include Exception
 
-	def initialize(name)
+	def initialize(name = nil)
 		@name = name
 	end
 
