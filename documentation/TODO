@@ -25,6 +25,8 @@ X   - use multi-size jump
   - make it so stages/stagers are queried for compatibility
   - make it so exploits query convention compat
     - ws2ord stuff
+- make it possible to share handlers?
+  - payloads that use the same handlers could be shared
 
 X	- switch to x86 from ia32
 X	- exploit kick-off
