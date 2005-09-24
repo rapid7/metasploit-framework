@@ -1,3 +1,6 @@
+msf/core
+  - encoding is slow sometimes, profile it
+
 meterpreter
   - migration sometimes does partial reads of stages leading to crashes
-    - should switch to inlined staging in request packet.
+    - should switch to inlined staging in request packet
