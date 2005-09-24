@@ -29,7 +29,8 @@ end
 		framework = Framework.new
 		manager   = SessionManager.new(framework)
 
-		session = Session.new
+		session   = Class.new
+		session.extend(Session)
 
 		assert_equal(1, manager.register(session), "Did not get expected sid")
 		assert_equal(1, session.sid, 
@@ -54,7 +55,8 @@ end
 		framework = Framework.new
 		manager   = SessionManager.new(framework)
 		handler   = UtSessionEvents.new
-		session   = Session.new
+		session   = Class.new
+		session.extend(Session)
 
 		framework.events.add_session_subscriber(handler)
 
