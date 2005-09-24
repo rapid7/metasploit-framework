@@ -28,7 +28,11 @@ module CommandDispatcher
 		print_error(err)
 
 		wlog(err)
-		dlog("Call stack:\n#{$@.join("\n")}", 'core', LEV_1)
+
+		# If it's a syntax error, log the call stack that it originated from.
+		if ($!.kind_of?(SyntaxError))
+			dlog("Call stack:\n#{$@.join("\n")}", 'core', LEV_1)
+		end
 	end
 
 	attr_accessor :driver
