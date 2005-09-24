@@ -85,13 +85,15 @@ class OptBool < OptBase
 
 	def valid?(value)
 		if ((value != nil and value.empty? == false) and
-		    (value.match(/^(y|n|t|f|0|1|true|false)$/i) == nil))
+		    (value.match(/^(y|yes|n|no|t|f|0|1|true|false)$/i) == nil))
 			return false
 		end
+
+		true
 	end
 
 	def is_true?
-		return (value.match(/^(y|t|1|true)$/i) != nil) ? true : false
+		return (value.match(/^(y|yes|t|1|true)$/i) != nil) ? true : false
 	end
 
 	def is_false?

@@ -91,6 +91,7 @@ class EncodedPayload
 
 			encoders.each { |encname, encmod|
 				self.encoder = encmod.new
+				self.encoded = nil
 			
 				# Try encoding with the current encoder
 				begin
@@ -153,7 +154,7 @@ class EncodedPayload
 
 		# If the maximum number of NOPs has been exceeded, wrap it back down.
 		if ((reqs['MaxNops']) and
-			 (reqs['MaxNops'] > self.nop_sled_size))
+			 (reqs['MaxNops'] < self.nop_sled_size))
 			self.nop_sled_size = reqs['MaxNops']
 		end
 
