@@ -17,6 +17,10 @@ class Rex::Evasion::UnitTest < Test::Unit::TestCase
 		
 		Klass.set_level(EVASION_LOW)
 		assert_equal(EVASION_LOW, Klass.get_level)
+
+		assert_equal(false, Klass.high?)
+		assert_equal(false, Klass.normal?)
+		assert_equal(true, Klass.low?)
 	end
 
 	def test_subsys

@@ -50,6 +50,18 @@ class Evasion
 		@level
 	end
 
+	def self.high?
+		(get_level == EVASION_HIGH)
+	end
+
+	def self.normal?
+		(get_level == EVASION_NORMAL)
+	end
+	
+	def self.low?
+		(get_level == EVASION_LOW)
+	end
+
 	#
 	# Sets the evasion level for a given subsystem
 	#
