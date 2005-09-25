@@ -5,3 +5,4 @@ Ported
 
 aim_goaway: Needs more testing, but hit on Windows XPSP0
 ie_objecttype: Slightly unstable, needs more testing, but functioning
+msrpc_dcom_ms03_026: re-exploitation fails, but otherwise working
