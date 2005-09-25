@@ -86,7 +86,7 @@ class Egghunter
 
 		stub[eoff, esize] = egg
 
-		stub
+		return [ stub, egg ]
 	end
 
 protected
