@@ -27,6 +27,7 @@ require 'rex/parser/arguments.rb.ut'
 require 'rex/ui/text/color.rb.ut'
 require 'rex/ui/text/table.rb.ut'
 
+require 'rex/exploitation/egghunter.rb.ut'
 require 'rex/exploitation/seh.rb.ut'
 
 class Rex::TestSuite
@@ -63,6 +64,7 @@ class Rex::TestSuite
 		suite << Rex::Ui::Text::Table::UnitTest.suite
 
 		# Exploitation
+		suite << Rex::Exploitation::Egghunter::UnitTest.suite
 		suite << Rex::Exploitation::Seh::UnitTest.suite
 
 		return suite;
