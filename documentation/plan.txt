@@ -13,8 +13,6 @@ The following things are required for the December alpha release:
     - shell
     - meterpreter
 - rex
-  - exploitation
-    - opcodedb client (return addr pooling)
   - post-exploitation
     - meterpreter
       - pivoting
@@ -22,7 +20,6 @@ The following things are required for the December alpha release:
     - switch board routing table for pivoting
     - meterpreter 'comm' support
     - proxy 'comm' support
-    - msfd 'comm' support
   - asm
     - block dependencies (req'd for shikata)
       - block permutation generation (req'd for shikata)
@@ -86,6 +83,9 @@ Things that would be useful to have completed, but not a requirement:
 - rex
   - exploitation
     - format string generator
+    - opcodedb client (return addr pooling)
+  - networking
+    - msfd 'comm' support
 - modules
   - payloads
     - implement 'reliable' stagers with a higher rating so that
