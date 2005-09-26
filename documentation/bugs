@@ -4,3 +4,6 @@ msf/core
 meterpreter
   - migration sometimes does partial reads of stages leading to crashes
     - should switch to inlined staging in request packet
+
+msfconsole
+  - jobs -k on the same exploit twice leads to exception
