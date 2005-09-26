@@ -64,6 +64,11 @@ The following things are required for the December alpha release:
   - framework sessions
     - shell
     - meterpreter
+- documentation
+  - rex
+  - framework-core
+  - framework-base
+  - module interfaces
 
 The following things should be implemented both as protocols and as exploit
 mixins to encourage code re-use:
