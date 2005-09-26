@@ -8,34 +8,36 @@ The following things are required for the December alpha release:
     - payloads
     - encoders
     - nops
-	 - recon
+    - recon
   - framework sessions
     - shell
-	 - meterpreter
+    - meterpreter
 - rex
   - exploitation
     - opcodedb client (return addr pooling)
   - post-exploitation
     - meterpreter
-	   - pivoting
+      - pivoting
   - networking
-	 - switch board routing table for pivoting
+    - switch board routing table for pivoting
     - meterpreter 'comm' support
-	 - proxy 'comm' support
-	 - msfd 'comm' support
+    - proxy 'comm' support
+    - msfd 'comm' support
   - asm
     - block dependencies
-	 - permutation generation
+    - permutation generation
 - framework-core
   - modules
     - reloading
     - compatibility filtering (keys)
-	 - description sanitation (strip lines/etc)
+    - description sanitation (strip lines/etc)
   - payloads
     - meta information
-	   - stager/stage calling conventions
-		- stack requirements
+      - stager/stage calling conventions
+      - stack requirements
     - make payload prepend target specific
+  - sessions
+    - logging session activity
   - handler sharing
     - exploits using the same payload/handler can share (ref count)
 - modules needing ports (above other modules)
@@ -45,13 +47,18 @@ The following things are required for the December alpha release:
     - opty2
   - payloads
     - mac os x payloads
-	 - solaris payloads
+    - solaris payloads
 - user interfaces
   - general
     - add concept of EVASION option (high, normal, low)
+    - logging improvements
+      - provide log file setting interface
+      - log by default in the LogDir
   - msfcli
   - msfweb
   - msfpayload
   - msfencode
   - msfd
     - daemon interface, provides command line interaction and proxying
+    - support authentication
+    - support SSL
