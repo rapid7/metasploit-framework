@@ -65,6 +65,8 @@ The following things are required for the December alpha release:
   - msfencode
   - msfconsole
     - spawn web-server from within msfconsole (msfweb instance)
+	 - irb mode
+	 - running 'msf scripts'
   - msfd
     - daemon interface, provides command line interaction and proxying
     - support authentication
