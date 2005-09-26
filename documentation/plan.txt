@@ -24,8 +24,8 @@ The following things are required for the December alpha release:
     - proxy 'comm' support
     - msfd 'comm' support
   - asm
-    - block dependencies
-    - permutation generation
+    - block dependencies (req'd for shikata)
+      - block permutation generation (req'd for shikata)
 - framework-core
   - modules
     - reloading
@@ -48,6 +48,7 @@ The following things are required for the December alpha release:
   - payloads
     - mac os x payloads
     - solaris payloads
+	 - bsd payloads
 - user interfaces
   - general
     - add concept of EVASION option (high, normal, low)
@@ -62,3 +63,16 @@ The following things are required for the December alpha release:
     - daemon interface, provides command line interaction and proxying
     - support authentication
     - support SSL
+
+The following things should be implemented both as protocols and as exploit
+mixins to encourage code re-use:
+
+- ftp
+- backup agent protocols
+  - CA brightstor
+  - Arkeia
+- mssql
+- sunrpc
+- xdr
+- jbase
+- oracle
