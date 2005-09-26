@@ -67,10 +67,6 @@ The following things are required for the December alpha release:
     - spawn web-server from within msfconsole (msfweb instance)
     - irb mode
     - running 'msf scripts'
-  - msfd
-    - daemon interface, provides command line interaction and proxying
-    - support authentication
-    - support SSL
 
 The following things should be implemented both as protocols and as exploit
 mixins to encourage code re-use:
@@ -101,3 +97,8 @@ Things that would be useful to have completed, but not a requirement:
 - framework-base
   - event correlation
     - recon events correlations
+- user interfaces
+  - msfd
+    - daemon interface, provides command line interaction and proxying
+    - support authentication
+    - support SSL
