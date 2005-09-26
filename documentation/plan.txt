@@ -1,17 +1,5 @@
 The following things are required for the December alpha release:
 
-- testing
-  - framework core
-    - handlers
-  - framework modules
-    - exploits
-    - payloads
-    - encoders
-    - nops
-    - recon
-  - framework sessions
-    - shell
-    - meterpreter
 - rex
   - post-exploitation
     - meterpreter
@@ -64,6 +52,18 @@ The following things are required for the December alpha release:
     - spawn web-server from within msfconsole (msfweb instance)
     - irb mode
     - running 'msf scripts'
+- testing framework
+  - framework core
+    - handlers
+  - framework modules
+    - exploits
+    - payloads
+    - encoders
+    - nops
+    - recon
+  - framework sessions
+    - shell
+    - meterpreter
 
 The following things should be implemented both as protocols and as exploit
 mixins to encourage code re-use:
