@@ -26,6 +26,10 @@ The following things are required for the December alpha release:
   - asm
     - block dependencies (req'd for shikata)
       - block permutation generation (req'd for shikata)
+  - text
+    - create_pattern, pattern_offset
+	 - base64
+	 - consider extending String
 - framework-core
   - modules
     - reloading
@@ -48,7 +52,7 @@ The following things are required for the December alpha release:
   - payloads
     - mac os x payloads
     - solaris payloads
-	 - bsd payloads
+    - bsd payloads
 - user interfaces
   - general
     - add concept of EVASION option (high, normal, low)
@@ -59,6 +63,8 @@ The following things are required for the December alpha release:
   - msfweb
   - msfpayload
   - msfencode
+  - msfconsole
+    - spawn web-server from within msfconsole (msfweb instance)
   - msfd
     - daemon interface, provides command line interaction and proxying
     - support authentication
@@ -76,3 +82,13 @@ mixins to encourage code re-use:
 - xdr
 - jbase
 - oracle
+
+Things that would be useful to have completed, but not a requirement:
+
+- rex
+  - exploitation
+    - format string generator
+- modules
+  - payloads
+    - implement 'reliable' stagers with a higher rating so that
+	   if there is enough room, reliable stagers can be used
