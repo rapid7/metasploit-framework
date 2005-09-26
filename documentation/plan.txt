@@ -28,8 +28,8 @@ The following things are required for the December alpha release:
       - block permutation generation (req'd for shikata)
   - text
     - create_pattern, pattern_offset
-	 - base64
-	 - consider extending String
+    - base64
+    - consider extending String
 - framework-core
   - modules
     - reloading
@@ -91,4 +91,11 @@ Things that would be useful to have completed, but not a requirement:
 - modules
   - payloads
     - implement 'reliable' stagers with a higher rating so that
-	   if there is enough room, reliable stagers can be used
+      if there is enough room, reliable stagers can be used
+  - recon
+    - basic range/port scanner
+    - basic service identifier
+    - basic OS fingerprinting
+- framework-base
+  - event correlation
+    - recon events correlations
