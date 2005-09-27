@@ -56,7 +56,11 @@ class Rex::Socket::Comm::Local
 
 			return sock if (param.bare?)
 
-			return Rex::Socket::TcpServer.new(sock, param)
+			sock.extend(Rex::Socket::TcpServer)
+
+			sock.initsock(param)
+
+			return sock
 		# Otherwise, if we're creating a client...
 		else
 			# If we were supplied with host information
@@ -78,9 +82,17 @@ class Rex::Socket::Comm::Local
 						klass = Rex::Socket::SslTcp
 					end
 
-					return klass.new(sock, param)
+					sock.extend(klass)
+
+					sock.initsock(param)
+
+					return sock
 				when 'udp'
-					return Rex::Socket::Udp.new(sock, param)
+					sock.extend(Rex::Socket::Udp)
+
+					sock.initsock(param)
+
+					return sock
 			end
 		end
 	end

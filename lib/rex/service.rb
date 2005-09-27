@@ -1,6 +1,4 @@
 require 'rex'
-
-require 'rex'
 require 'rex/proto'
 
 module Rex

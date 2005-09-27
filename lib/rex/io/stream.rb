@@ -8,7 +8,15 @@ module IO
 # Stream
 # ------
 # 
-# This mixin is an abstract representation of a streaming connection.
+# This mixin is an abstract representation of a streaming connection.  Streams
+# extend classes that must implement the following methods:
+#
+#   syswrite(buffer)
+#   sysread(length)
+#   shutdown(how)
+#   close
+#   peerinfo
+#   localinfo
 #
 ###
 module Stream
@@ -18,18 +26,6 @@ module Stream
 	# Abstract methods
 	#
 	##
-
-	#
-	# Set the stream to blocking or non-blocking
-	#
-	def blocking=(tf)
-	end
-
-	#
-	# Check to see if the stream is blocking or non-blocking
-	#
-	def blocking
-	end
 
 	#
 	# Writes data to the stream.
@@ -42,23 +38,7 @@ module Stream
 	# Reads data from the stream.
 	#
 	def read(length = nil, opts = {})
-		length = 16384 unless length
-
 		fd.sysread(length)
-	end
-
-	#
-	# Shuts down the stream for reading, writing, or both.
-	#
-	def shutdown(how = SW_BOTH)
-		fd.shutdown(how)
-	end
-
-	#
-	# Closes the stream and allows for resource cleanup
-	#
-	def close
-		fd.close
 	end
 
 	#
@@ -66,32 +46,20 @@ module Stream
 	# true if data is available for reading, otherwise false is returned.
 	#
 	def has_read_data?(timeout = nil)
-		Rex::ThreadSafe.select([ fd ], nil, nil, timeout)
+		if ((rv = Kernel.select([ fd ], nil, nil, timeout)) and
+		    (rv[0]) and
+		    (rv[0][0] == fd))
+			true
+		else
+			false
+		end
 	end
 
 	#
-	# Returns the file descriptor that can be polled via select, if any.
-	#
-	def poll_fd
-	end
-
-	#
-	# Wrapper for poll_fd
+	# Returns the selectable file descriptor
 	#
 	def fd
-		poll_fd
-	end
-
-	#
-	# Returns peer information, such as host and port.
-	#
-	def peerinfo
-	end
-
-	#
-	# Returns local information, such as host and port.
-	#
-	def localinfo
+		self
 	end
 
 	##
@@ -177,7 +145,7 @@ module Stream
 			rescue EOFError
 				eof = true
 			end
-
+		
 			# If we read zero bytes and we had data, then we've hit EOF
 			if (temp and temp.length == 0)
 				eof = true

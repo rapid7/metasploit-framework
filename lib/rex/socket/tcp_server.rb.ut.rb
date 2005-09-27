@@ -30,7 +30,7 @@ class Rex::Socket::TcpServer::UnitTest < Test::Unit::TestCase
 			assert_kind_of(Rex::Socket::Tcp, scli, "valid server client Tcp")
 
 			assert_equal(true, scli.put("Yo"), "scli: put Yo")
-			assert_equal("Yo", ccli.get("Yo"), "ccli: get Yo")
+			assert_equal("Yo", ccli.get(), "ccli: get Yo")
 		ensure
 			ccli.close if (ccli)
 			serv.close

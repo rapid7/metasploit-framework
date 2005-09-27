@@ -7,7 +7,12 @@ module IO
 # ------------
 #
 # This mixin provides the framework and interface for implementing a streaming
-# server that can listen for and accept stream client connections.
+# server that can listen for and accept stream client connections.  Stream
+# servers extend this class and are required to implement the following
+# methods:
+#
+#   accept
+#   fd
 #
 ###
 module StreamServer
@@ -17,28 +22,6 @@ module StreamServer
 	# Abstract methods
 	#
 	##
-
-	#
-	# Accepts an incoming stream connection and returns an instance of a
-	# Stream-drived class.
-	#
-	def accept(opts = {})
-		super
-	end
-
-	#
-	# Polls to see if a client connection is pending
-	#
-	def pending_client?(timeout = nil)
-		super
-	end
-
-	#
-	# Returns the file descriptor that can be polled via select
-	#
-	def poll_fd
-		super
-	end
 
 	##
 	#
@@ -71,8 +54,6 @@ module StreamServer
 	#
 	def start
 		self.clients = []
-		self.clifds  = []
-		self.fd2cli  = {}
 
 		self.listener_thread = Thread.new {
 			monitor_listener
@@ -99,8 +80,6 @@ module StreamServer
 	#
 	def close_client(client)
 		if (client)
-			fd2cli.delete(client.sock)
-			clifds.delete(client.sock)
 			clients.delete(client)
 
 			client.close
@@ -116,7 +95,7 @@ module StreamServer
 
 protected
 
-	attr_accessor :clients, :clifds, :fd2cli
+	attr_accessor :clients
 	attr_accessor :listener_thread, :clients_thread
 
 	#
@@ -124,18 +103,16 @@ protected
 	#
 	def monitor_listener
 		begin
-			sd = Rex::ThreadSafe.select([ poll_fd ])
+			sd = Kernel.select([ fd ])
 
 			# Accept the new client connection
 			if (sd[0].length > 0)
 				cli = accept
 
-				next if (!cli)
+				next unless cli
 
 				# Insert it into some lists
 				self.clients << cli
-				self.clifds  << cli.sock
-				self.fd2cli[cli.sock] = cli
 
 				on_client_connect(cli)
 			end
@@ -156,10 +133,10 @@ protected
 				next
 			end
 
-			sd = Rex::ThreadSafe.select(clifds)
+			sd = Rex::ThreadSafe.select(clients)
 
 			sd[0].each { |fd|
-				on_client_data(self.fd2cli[fd])
+				on_client_data(fd)
 			}
 		rescue
 			elog("Error in stream server client monitor: #{$!}")

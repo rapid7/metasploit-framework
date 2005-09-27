@@ -22,6 +22,9 @@ module StreamAbstraction
 	def initialize_abstraction
 		self.lsock, self.rsock = ::Socket.pair(::Socket::AF_UNIX,
 				::Socket::SOCK_STREAM, 0)
+
+		self.lsock.extend(Rex::IO::Stream)
+		self.rsock.extend(Rex::IO::Stream)
 	end
 
 	#

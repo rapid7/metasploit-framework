@@ -11,7 +11,7 @@ module Rex
 # Base class for all sockets.
 #
 ###
-class Socket
+module Socket
 
 	module Comm
 	end
@@ -26,7 +26,7 @@ class Socket
 	# Factory methods
 	#
 	##
-
+	
 	def self.create(opts = {})
 		return create_param(Rex::Socket::Parameters.from_hash(opts))
 	end
@@ -90,10 +90,11 @@ class Socket
 	# Class initialization
 	#
 	##
-	
-	def initialize(sock, params = nil)
-		self.sock = sock
 
+	#
+	# Initialize general socket parameters.
+	#
+	def initsock(params = nil)
 		if (params)
 			self.peerhost  = params.peerhost
 			self.peerport  = params.peerport
@@ -103,42 +104,37 @@ class Socket
 	end
 
 	#
-	# Closes the associated socket
+	# By default, all sockets are themselves selectable file descriptors.
 	#
-	def close
-		self.sock.close if (self.sock)
-	end
-
-	#
-	# Returns the sock context that was supplied to the constructor as the
-	# default poll_fd
-	#
-	def poll_fd
-		return self.sock
+	def fd
+		self
 	end
 
 	#
 	# Returns local connection information.
 	#
-	def getlocalname
-		return Socket.from_sockaddr(self.sock.getsockname)
+	def getsockname
+		return Socket.from_sockaddr(super)
 	end
 
-	alias getsockname getlocalname
+	#
+	# Wrapper around getsockname
+	#
+	def getlocalname
+		getsockname
+	end
 
 	#
 	# Return peer connection information.
 	#
 	def getpeername
-		return Socket.from_sockaddr(self.sock.getpeername)
+		return Socket.from_sockaddr(super)
 	end
 
-	attr_reader :sock
 	attr_reader :peerhost, :peerport, :localhost, :localport
 
 protected
 
-	attr_writer :sock
 	attr_writer :peerhost, :peerport, :localhost, :localport
 
 end

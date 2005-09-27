@@ -45,3 +45,10 @@ Kernel.class_eval("
 	end
 ")
 
+# Overload the Kernel.select function to be thread-safe
+Kernel.class_eval("
+	def select(rfd = nil, wfd = nil, efd = nil, to = nil)
+		Rex::ThreadSafe.select(rfd, wfd, efd, to)
+	end
+")
+

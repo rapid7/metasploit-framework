@@ -1,16 +1,18 @@
 require 'openssl'
 require 'rex/socket'
-require 'rex/io/stream'
 
 ###
 #
 # SslTcp
-# ---
+# ------
 #
-# This class provides methods for interacting with an SSL TCP client connection.
+# This class provides methods for interacting with an SSL TCP client
+# connection.
 #
 ###
-class Rex::Socket::SslTcp < Rex::Socket::Tcp
+module Rex::Socket::SslTcp
+
+	include Rex::Socket::Tcp
 
 	##
 	#
@@ -18,13 +20,17 @@ class Rex::Socket::SslTcp < Rex::Socket::Tcp
 	#
 	##
 
+	def self.create(hash)
+		self.create_param(Rex::Socket::Parameters.from_hash(hash))
+	end
+
 	#
 	# Set the SSL flag to true and call the base class's create_param routine.
 	#
 	def self.create_param(param)
-		param.ssl = true
+		param.ssl   = true
 
-		super(param)
+		Rex::Socket::Tcp.create_param(param)
 	end
 
 	##
@@ -33,12 +39,12 @@ class Rex::Socket::SslTcp < Rex::Socket::Tcp
 	#
 	##
 	
-	def initialize(sock, params = nil)
+	def initsock(params = nil)
 		super
 
 		# Build the SSL connection
 		self.sslctx  = OpenSSL::SSL::SSLContext.new
-		self.sslsock = OpenSSL::SSL::SSLSocket.new(sock, self.sslctx)
+		self.sslsock = OpenSSL::SSL::SSLSocket.new(self, self.sslctx)
 		self.sslsock.sync_close = true
 		self.sslsock.connect
 	end
@@ -63,19 +69,9 @@ class Rex::Socket::SslTcp < Rex::Socket::Tcp
 		end
 	end
 
-	def shutdown(how = SHUT_RDWR)
-		return (sock.shutdown(how) == 0)
-	end
-
 	def close
 		sslsock.close
-		sock.close
-	end
-
-	def has_read_data?(timeout = nil)
-		timeout = timeout.to_i if (timeout)
-
-		return (Rex::ThreadSafe.select([ poll_fd ], nil, nil, timeout) != nil)
+		super
 	end
 
 protected

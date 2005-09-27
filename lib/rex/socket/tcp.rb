@@ -9,14 +9,11 @@ require 'rex/io/stream'
 # This class provides methods for interacting with a TCP client connection.
 #
 ###
-class Rex::Socket::Tcp < Rex::Socket
-	
-	SHUT_RDWR = 2
-	SHUT_WR   = 1
-	SHUT_RD   = 0
+module Rex::Socket::Tcp
 
+	include Rex::Socket
 	include Rex::IO::Stream
-
+	
 	##
 	#
 	# Factory
@@ -37,7 +34,7 @@ class Rex::Socket::Tcp < Rex::Socket
 	def self.create_param(param)
 		param.proto = 'tcp'
 
-		super(param)
+		Rex::Socket.create_param(param)
 	end
 
 	##
@@ -47,53 +44,13 @@ class Rex::Socket::Tcp < Rex::Socket
 	##
 
 	#
-	# Writes to the TCP connection.
-	#
-	def write(buf, opts = {})
-		return sock.syswrite(buf)
-	end
-
-	#
-	# Reads from the TCP connection and raises EOFError if there is no data
-	# left.
-	#
-	def read(length = nil, opts = {})
-		length = 16384 unless length
-
-		return sock.sysread(length)
-	end
-
-	#
 	# Calls shutdown on the TCP connection.
 	#
 	def shutdown(how = SHUT_RDWR)
 		begin
-			return (sock.shutdown(how) == 0)
+			return (super(how) == 0)
 		rescue Errno::ENOTCONN
 		end
-	end
-
-	#
-	# Checks to see if the connection has read data.
-	#
-	def has_read_data?(timeout = nil)
-		timeout = timeout.to_i if (timeout)
-	
-		return (Rex::ThreadSafe.select([ poll_fd ], nil, nil, timeout) != nil)
-	end
-
-	#
-	# Closes the connection.
-	#
-	def close
-		self.sock.close if (self.sock)
-	end
-
-	#
-	# Returns the file descriptor to use with calls to select.
-	#
-	def poll_fd
-		return self.sock
 	end
 
 	#

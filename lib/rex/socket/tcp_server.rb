@@ -12,7 +12,9 @@ require 'rex/io/stream_server'
 #
 #
 ###
-class Rex::Socket::TcpServer < Rex::Socket
+module  Rex::Socket::TcpServer
+
+	include Rex::Socket
 	include Rex::IO::StreamServer
 
 	##
@@ -36,28 +38,18 @@ class Rex::Socket::TcpServer < Rex::Socket
 		param.proto  = 'tcp'
 		param.server = true
 
-		super(param)
+		Rex::Socket.create_param(param)
 	end
-
-	##
-	#
-	# Class initialization
-	#
-	##
-
-	##
-	#
-	# StreamServer mixin implementation
-	#
-	##
 
 	#
 	# Accepts a child connection
 	#
 	def accept(opts = {})
-		t = Rex::Socket::Tcp.new(self.sock.accept[0])
+		t = super()[0]
 
 		if (t)
+			t.extend(Rex::Socket::Tcp)
+
 			pn = t.getpeername
 
 			t.peerhost = pn[1]
@@ -67,13 +59,4 @@ class Rex::Socket::TcpServer < Rex::Socket
 		t
 	end
 
-	#
-	# Returns whether or not one or more client connections are pending
-	# acceptance
-	#
-	def pending_client?(timeout = nil)
-		timeout = timeout.to_i if (timeout)
-
-		return (Rex::ThreadSafe.select([ poll_fd ], nil, nil, timeout) != nil)
-	end
 end
