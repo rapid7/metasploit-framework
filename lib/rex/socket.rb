@@ -140,3 +140,10 @@ protected
 end
 
 end
+
+#
+# Globalized socket constants
+#
+SHUT_RDWR = ::Socket::SHUT_RDWR
+SHUT_RD   = ::Socket::SHUT_RD
+SHUT_WR   = ::Socket::SHUT_WR

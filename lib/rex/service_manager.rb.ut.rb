@@ -22,9 +22,9 @@ class Rex::ServiceManager::UnitTest < Test::Unit::TestCase
 			assert_equal("HTTP Server", s.alias)
 			assert_equal("HTTP Server 1", z.alias)
 		ensure
-			c.stop(s.alias) if (s)
-			c.stop(z.alias) if (z)
-			c.stop(t.alias) if (t)
+			c.stop_by_alias(s.alias) if (s)
+			c.stop_by_alias(z.alias) if (z)
+			c.stop_by_alias(t.alias) if (t)
 		end
 
 	end

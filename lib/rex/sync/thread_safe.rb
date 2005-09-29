@@ -26,8 +26,34 @@ module ThreadSafe
 		left = t
 
 		begin
+			orig_size = rfd.length if (rfd)
+
 			# Poll the set supplied to us at least once.
-			rv = ::IO.select(rfd, wfd, efd, DefaultCycle)
+			begin
+				rv = ::IO.select(rfd, wfd, efd, DefaultCycle)
+			rescue IOError
+				# If a stream was detected as being closed, re-raise the error as
+				# a StreamClosedError with the specific file descriptor that was
+				# detected as being closed.  This is to better handle the case of
+				# a closed socket being detected so that it can be cleaned up and
+				# removed.
+				if (rfd)
+					rfd.each { |fd|
+						raise StreamClosedError.new(fd) if (fd.closed?)
+					}
+				end
+
+				# If the original rfd length is not the same as the current
+				# length, then the list may have been altered and as such may not
+				# contain the socket that caused the IOError.  This is a bad way
+				# to do this since it's possible that the array length could be
+				# back to the size that it was originally and yet have had the
+				# socket that caused the IOError to be removed.
+				return nil if (rfd and rfd.length != orig_size)
+
+				# Re-raise the exception since we didn't handle it here.
+				raise $!
+			end
 
 			return rv if (rv)
 

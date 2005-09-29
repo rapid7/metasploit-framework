@@ -6,6 +6,9 @@ $:.unshift(File.join(File.dirname(__FILE__), '../lib'))
 require 'rex'
 require 'msf/ui'
 
-register_log_source('core', Rex::Logging::Sinks::Flatfile.new('/tmp/msfcli.log'))
+# TODO: streamline logging
+f = Rex::Logging::Sinks::Flatfile.new('/tmp/msfcli.log')
+register_log_source('rex', f)
+register_log_source('core', f)
 
 Msf::Ui::Console::Driver.new.run

@@ -21,6 +21,7 @@ class UnitTest < Test::Unit::TestCase
 
 			begin
 				raise mod.new
+			rescue ::ArgumentError
 			rescue mod => detail
 				assert_respond_to(detail, 'to_s', "#{mod} does not implement to_s")
 				assert_not_nil(detail.to_s, "invalid to_s")

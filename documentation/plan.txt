@@ -1,9 +1,10 @@
 The following things are required for the December alpha release:
 
 - rex
-  - post-exploitation
-    - meterpreter
-      - pivoting
+X - post-exploitation
+X   - meterpreter
+X     - pivoting
+X     - portfwd command
   - networking
     - switch board routing table for pivoting
     - meterpreter 'comm' support

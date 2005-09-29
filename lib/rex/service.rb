@@ -16,12 +16,17 @@ module Rex
 module Service
 	include Ref
 
+	require 'rex/services/local_relay'
+
 	#
 	# Calls stop on the service once the ref count drops.
 	#
 	def cleanup
 		stop
 	end
+
+	attr_accessor :alias
+
 end
 
 end

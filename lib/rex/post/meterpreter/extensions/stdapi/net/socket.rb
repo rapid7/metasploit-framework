@@ -76,7 +76,7 @@ class Socket
 				# representation of the left side of the socket for
 				# the caller to use
 				if (channel != nil)
-					res = Rex::Socket::Stream.new(channel.lsock)
+					res = channel.lsock
 				end
 			elsif (params.udp?)
 				if (params.server?)
@@ -126,7 +126,25 @@ protected
 			while (1)
 		
 				# Watch for data
-				socks = select(monitored_sockets, nil, nil, 1)
+				begin
+					socks = select(monitored_sockets, nil, nil, 1)
+				rescue StreamClosedError => e
+					channel = monitored_socket_channels[e.stream.object_id]
+
+					dlog("monitor_channels: channel #{channel} closed (#{e.stream})", 
+							'rex', LEV_3)
+
+					if (channel)
+						begin
+							channel.close
+						rescue IOError
+						end
+
+						remove_monitored_socket(e.stream)
+					end
+
+					next
+				end
 
 				# No data?
 				if (socks == nil || socks[0] == nil)

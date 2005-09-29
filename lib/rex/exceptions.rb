@@ -65,6 +65,25 @@ class AmbiguousArgumentError < ::RuntimeError
 	end
 end
 
+#
+# This error is thrown when a stream is detected as being closed.
+#
+class StreamClosedError < ::IOError
+	include Exception
+
+	def initialize(stream)
+		@stream = stream
+	end
+
+	def stream
+		@stream
+	end
+
+	def to_s
+		"Stream #{@stream} is closed."
+	end
+end
+
 #####
 #####
 ##

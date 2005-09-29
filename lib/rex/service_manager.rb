@@ -30,8 +30,16 @@ class ServiceManager < Hash
 	#
 	# Calls the instance method to stop a service.
 	#
-	def self.stop(als)
-		self.instance.stop(als)
+	def self.stop(klass, *args)
+		self.instance.stop(klass, *args)
+	end
+
+	def self.stop_by_alias(als)
+		self.instance.stop_by_alias(als)
+	end
+
+	def self.stop_service(service)
+		self.instance.stop_service(service)
 	end
 
 	#
@@ -39,7 +47,7 @@ class ServiceManager < Hash
 	#
 	def start(klass, *args)
 		# Get the hardcore alias.
-		hals = "__#{klass.name}#{args.to_s}"
+		hals = hardcore_alias(klass, *args)
 
 		# Has a service already been constructed for this guy?  If so, increment
 		# its reference count like it aint no thang.
@@ -70,22 +78,59 @@ class ServiceManager < Hash
 
 		# Alias associate and initialize reference counting
 		self[als] = self[hals] = inst.refinit
+
+		# Pass the caller a reference
+		inst.ref
+
+		inst
+	end
+
+	#
+	# Stop a service using a given klass and arguments.  These should mirror
+	# what was originally passed to start exactly.  If the reference count of
+	# the service drops to zero the service will be destroyed.
+	#
+	def stop(klass, *args)
+		stop_service(hals[hardcore_alias(klass, *args)])
 	end
 
 	#
 	# Stops a service using the provided alias
 	#
-	def stop(als)
+	def stop_by_alias(als)
+		stop_service(self[als])
+	end
+
+	#
+	# Stops a service instance.
+	#
+	def stop_service(inst)
 		# Stop the service and be done wif it, but only if the number of
 		# references has dropped to zero
-		if ((inst = self[als]) and
-		    (inst.deref))
+		if (inst)
 			# Since the instance may have multiple aliases, scan through
 			# all the pairs for matching stuff.
 			self.each_pair { |cals, cinst|
 				self.delete(cals) if (inst == cinst)
 			}
+
+			# Lose the list-held reference to the instance
+			inst.deref
+
+			return true
 		end
+
+		# Return false if the service isn't there
+		return false
+	end
+
+protected
+
+	# 
+	# Returns the alias for a given service instance.
+	#
+	def hardcore_alias(klass, *args)
+		"__#{klass.name}#{args.to_s}"
 	end
 	
 end

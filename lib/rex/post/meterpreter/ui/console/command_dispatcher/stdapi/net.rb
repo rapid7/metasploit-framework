@@ -1,4 +1,5 @@
 require 'rex/post/meterpreter'
+require 'rex/service_manager'
 
 module Rex
 module Post
@@ -20,10 +21,20 @@ class Console::CommandDispatcher::Stdapi::Net
 	include Console::CommandDispatcher
 
 	#
-	# Options for the generate command
+	# Options for the route command
 	#
 	@@route_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner." ])
+
+	#
+	# Options for the portfwd command
+	#
+	@@portfwd_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner." ],
+		"-l" => [ true,  "The local port to listen on." ],
+		"-r" => [ true,  "The remote host to connect to." ],
+		"-p" => [ true,  "The remote port to connect to." ],
+		"-L" => [ true,  "The local host to listen on (optional)." ])
 
 	#
 	# List of supported commands
@@ -32,6 +43,7 @@ class Console::CommandDispatcher::Stdapi::Net
 		{
 			"ipconfig" => "Display interfaces",
 			"route"    => "View and modify the routing table",
+			"portfwd"  => "Forward a local port to a remote service",
 		}
 	end
 
@@ -116,6 +128,132 @@ class Console::CommandDispatcher::Stdapi::Net
 			else
 				print_error("Unsupported command: #{args[0]}")
 		end
+	end
+
+	#
+	# Starts and stops local port forwards to remote hosts on the target
+	# network.  This provides an elementary pivoting interface.
+	#
+	def cmd_portfwd(*args)
+		args.unshift("list") unless args.length
+
+		# For clarity's sake.
+		lport = nil
+		lhost = nil
+		rport = nil
+		rhost = nil
+
+		# Parse the options
+		@@portfwd_opts.parse(args) { |opt, idx, val|
+			case opt
+				when "-h"
+					print(
+						"Usage: route [-h] [add / delete / list] [args]\n\n" +
+						@@portfwd_opts.usage)
+					return true
+				when "-l"
+					lport = val.to_i
+				when "-L"
+					lhost = val
+				when "-p"
+					rport = val.to_i
+				when "-r"
+					rhost = val
+			end
+		}
+
+		# Process the command
+		case args.shift
+			when "list"
+
+				# Get the service context
+				service = Rex::ServiceManager.start(Rex::Services::LocalRelay)
+
+				begin
+
+					cnt = 0
+
+					# Enumerate each TCP relay
+					service.each_tcp_relay { |lhost, lport, rhost, rport, opts|
+						next if (opts['MeterpreterRelay'] == nil)
+
+						print_line("#{cnt}: #{lhost}:#{lport} -> #{rhost}:#{rport}")
+
+						cnt += 1
+					}
+
+					print_line
+					print_line("#{cnt} total local port forwards.")
+
+				ensure
+					service.deref
+				end
+				
+			when "add"
+
+				# Validate parameters
+				if (!lport or !rhost or !rport)
+					print_error("You must supply a local port, remote host, and remote port.")
+					return
+				end
+
+				# Build a local port forward in association with the channel
+				service = Rex::ServiceManager.start(Rex::Services::LocalRelay)
+
+				begin
+					# Start the local TCP relay in association with this stream
+					service.start_tcp_relay(lport, 
+						'LocalHost'         => lhost,
+						'PeerHost'          => rhost,
+						'PeerPort'          => rport,
+						'MeterpreterRelay'  => true,
+						'OnLocalConnection' => Proc.new { |relay, lfd|
+							create_tcp_channel(relay)
+							})
+	
+					print_status("Local TCP relay created: #{lhost || '0.0.0.0'}:#{lport} <-> #{rhost}:#{rport}")
+
+				ensure
+					# Lost our reference to the service now that we're done with it
+					service.deref
+				end
+
+			# Delete local port forwards
+			when "delete"
+
+				# No local port, no love.
+				if (!lport)
+					print_error("You must supply a local port.")
+					return
+				end
+
+				service = Rex::ServiceManager.start(Rex::Services::LocalRelay)
+
+				# Stop the service
+				begin
+					if (service.stop_tcp_relay(lport, lhost))
+						print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+					else
+						print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+					end
+				ensure
+					service.deref
+				end
+
+		end
+	end
+
+protected
+
+	#
+	# Creates a TCP channel using the supplied relay context.
+	#
+	def create_tcp_channel(relay)
+		client.net.socket.create(
+			Rex::Socket::Parameters.new(
+				'PeerHost' => relay.opts['PeerHost'],
+				'PeerPort' => relay.opts['PeerPort'],
+				'Proto'    => 'tcp'))
 	end
 
 end
