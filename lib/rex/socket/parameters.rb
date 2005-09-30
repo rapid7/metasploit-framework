@@ -80,7 +80,16 @@ class Rex::Socket::Parameters
 		self.server    = hash['Server'] || false
 
 		# The communication subsystem to use to create the socket
-		self.comm      = hash['Comm'] || Rex::Socket::Comm::Local
+		self.comm      = hash['Comm']
+
+		# If no comm was supplied, try to use the comm that is best fit to
+		# handle the provided host based on the current routing table.
+		if (self.comm == nil and hash['PeerHost'])
+			self.comm = Rex::Socket::SwitchBoard.best_comm(hash['PeerHost'])
+		end
+
+		# If we still haven't found a comm, we default to the local comm.
+		self.comm      = Rex::Socket::Comm::Local if (self.comm == nil)
 
 		# The number of connection retries to make (client only)
 		self.retries   = hash['Retries'] || 0

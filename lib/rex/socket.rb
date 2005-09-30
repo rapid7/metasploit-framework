@@ -20,6 +20,7 @@ module Socket
 	require 'rex/socket/tcp'
 	require 'rex/socket/tcp_server'
 	require 'rex/socket/comm/local'
+	require 'rex/socket/switch_board'
 
 	##
 	#
