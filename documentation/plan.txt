@@ -7,15 +7,15 @@ X     - pivoting
 X     - portfwd command
   - networking
 X   - switch board routing table for pivoting
-    - meterpreter 'comm' support
+X   - meterpreter 'comm' support
     - proxy 'comm' support
   - asm
     - block dependencies (req'd for shikata)
       - block permutation generation (req'd for shikata)
   - text
-    - create_pattern, pattern_offset
-    - base64
-    - consider extending String
+X   - create_pattern, pattern_offset
+X   - base64
+X   - consider extending String
 - framework-core
   - modules
     - reloading
@@ -25,7 +25,7 @@ X   - switch board routing table for pivoting
     - meta information
       - stager/stage calling conventions
       - stack requirements
-    - make payload prepend target specific
+X   - make payload prepend target specific
   - sessions
     - logging session activity
   - handler sharing

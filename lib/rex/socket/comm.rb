@@ -21,6 +21,16 @@ module Comm
 		raise NotImplementedError
 	end
 
+	#
+	# Indicates whether or not this comm can be chained with other chainable
+	# comms.  This is particularly important for things like Proxy Comms that
+	# can be proxied through one another.  The semantics of this are currently
+	# undefined and will probably need some more thought.
+	#
+	def chainable?
+		false
+	end
+
 end
 
 end
