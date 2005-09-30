@@ -1,3 +1,6 @@
+require 'base64'
+require 'md5'
+
 module Rex
 
 ###
@@ -151,6 +154,40 @@ module Text
 		end	
 
 		return output
+	end
+
+	##
+	#
+	# Transforms
+	#
+	##
+
+	#
+	# Base64 encoder
+	#
+	def self.encode_base64(str)
+		Base64.encode64(str)
+	end
+
+	#
+	# Base64 decoder
+	#
+	def self.decode_base64(str)
+		Base64.decode64(str)
+	end
+
+	#
+	# Raw MD5 digest of the supplied string
+	#
+	def self.md5_raw(str)
+		MD5.digest(str)	
+	end
+
+	#
+	# Hexidecimal MD5 digest of the supplied string
+	#
+	def self.md5(str)
+		MD5.hexdigest(str)
 	end
 
 	##

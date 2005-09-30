@@ -28,4 +28,8 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 		assert_equal("this is a \ntest of \nthe word \nwrap \nfeatures\n", Rex::Text.wordwrap(txt, 0, 10))
 	end
 
+	def test_transforms
+		assert_equal("acbd18db4cc2f85cedef654fccc4a4d8", Rex::Text.md5('foo'))
+	end
+
 end
