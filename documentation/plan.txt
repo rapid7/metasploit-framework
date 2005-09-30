@@ -6,7 +6,7 @@ X   - meterpreter
 X     - pivoting
 X     - portfwd command
   - networking
-    - switch board routing table for pivoting
+X   - switch board routing table for pivoting
     - meterpreter 'comm' support
     - proxy 'comm' support
   - asm

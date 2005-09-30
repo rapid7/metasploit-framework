@@ -46,6 +46,7 @@ module Session
 	# Direct descendents
 	require 'msf/core/session/interactive'
 	require 'msf/core/session/basic'
+	require 'msf/core/session/comm'
 
 	# Provider interfaces
 	require 'msf/core/session/provider/single_command_execution'

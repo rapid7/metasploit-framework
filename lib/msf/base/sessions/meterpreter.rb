@@ -21,6 +21,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	include Msf::Session
 	include Msf::Session::Interactive
+	include Msf::Session::Comm
 
 	def initialize(rstream)
 		super
@@ -87,6 +88,27 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		# If the stop flag has been set, then that means the user exited.  Raise
 		# the EOFError so we can drop this bitch like a bad habit.
 		raise EOFError if (console.stopped? == true)
+	end
+
+
+	##
+	#
+	# Msf::Session::Comm implementors
+	#
+	##
+
+	#
+	# Creates a connection based on the supplied parameters and returns it to
+	# the caller.  The connection is created relative to the remote machine on
+	# which the meterpreter server instance is running.
+	#
+	def create(param)
+		case param.proto
+			when 'tcp'
+				return net.socket.create(param)
+			else
+				raise Rex::UnsupportedProtocol.new(param.proto), caller
+		end
 	end
 
 protected

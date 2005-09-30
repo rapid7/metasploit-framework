@@ -1,4 +1,3 @@
-require 'rex/exceptions'
 require 'rex/socket'
 require 'rex/socket/tcp'
 require 'rex/socket/ssl_tcp'
@@ -13,6 +12,8 @@ require 'rex/socket/udp'
 #
 ###
 class Rex::Socket::Comm::Local
+
+	include Rex::Socket::Comm
 
 	#
 	# Creates an instance of a socket using the supplied parameters.
