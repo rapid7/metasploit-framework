@@ -58,4 +58,19 @@ class Rex::Socket::UnitTest < Test::Unit::TestCase
 		assert_equal("\x04\x03\x02\x01", Rex::Socket.resolv_nbo("4.3.2.1"))
 	end
 
+	def test_net2bitmask
+		assert_equal(32, Rex::Socket.net2bitmask('255.255.255.255'))
+		assert_equal(28, Rex::Socket.net2bitmask('255.255.255.240'))
+		assert_equal(24, Rex::Socket.net2bitmask('255.255.255.0'))
+		assert_equal(16, Rex::Socket.net2bitmask('255.255.0.0'))
+	end
+
+	def test_bit2netmask
+		assert_equal("255.255.255.255", Rex::Socket.bit2netmask(32))
+		assert_equal("255.255.255.254", Rex::Socket.bit2netmask(31))
+		assert_equal("255.255.255.240", Rex::Socket.bit2netmask(28))
+		assert_equal("255.255.255.0", Rex::Socket.bit2netmask(24))
+		assert_equal("255.255.0.0", Rex::Socket.bit2netmask(16))
+	end
+
 end

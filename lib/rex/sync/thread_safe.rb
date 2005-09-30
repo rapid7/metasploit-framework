@@ -62,6 +62,9 @@ module ThreadSafe
 
 			# Keep chugging until we run out of time, if time was supplied.
 		end while ((left == nil) or (left > 0))
+
+		# Nothin.
+		nil
 	end
 
 	#

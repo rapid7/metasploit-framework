@@ -85,6 +85,32 @@ module Socket
 		return to_sockaddr(host, 0)[4,4]
 	end
 
+	def self.resolv_nbo_i(host)
+		return resolv_nbo(host).unpack('N')[0]
+	end
+
+	#
+	# Converts a netmask (255.255.255.240) into a bitmask (28).  This is the
+	# lame kid way of doing it.
+	#
+	def self.net2bitmask(netmask)
+		raw = resolv_nbo(netmask).unpack('N')[0]
+
+		0.upto(31) { |bit|
+			p = 2 ** bit
+			return (32 - bit) if ((raw & p) == p)
+		}
+
+		0
+	end
+
+	#
+	# Converts a bitmask (28) into a netmask (255.255.255.240)
+	#
+	def self.bit2netmask(bitmask)
+		[ (~((2 ** (32 - bitmask)) - 1)) & 0xffffffff ].pack('N').unpack('CCCC').join('.')
+	end
+
 	##
 	#
 	# Class initialization
