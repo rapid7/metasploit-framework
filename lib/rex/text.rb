@@ -10,8 +10,25 @@ module Rex
 #
 ###
 module Text
+	
+	##
+	#
+	# Constants
+	#
+	##
+	
+	UpperAlpha   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	LowerAlpha   = "abcdefghijklmnopqrstuvwxyz"
+	Numerals     = "0123456789"
+	Alpha        = UpperAlpha + LowerAlpha
+	AlphaNumeric = Alpha + Numerals
+	DefaultWrap  = 60
 
-	DefaultWrap = 60
+	##
+	#
+	# Serialization
+	#
+	##
 
 	#
 	# Converts a raw string into a ruby buffer
@@ -135,6 +152,12 @@ module Text
 
 		return output
 	end
+
+	##
+	#
+	# Generators
+	#
+	##
 	
 	# Base text generator method
 	def self.rand_base(len, bad, *foo)
@@ -201,6 +224,42 @@ module Text
 		foo += ('a' .. 'z').to_a
 		foo += ('0' .. '9').to_a
 		rand_base(len, bad, *foo )
+	end
+
+	#
+	# Creates a pattern that can be used for offset calculation purposes.  This
+	# routine is capable of generating patterns using a supplied set and a
+	# supplied number of identifiable characters (slots).
+	#
+	def self.pattern_create(length, set = AlphaNumeric, num_slots = 4)
+		positions = Array.new
+		curr_pos  = 0
+		buf       = ''
+
+		num_slots.times { positions << 0 }
+
+		while (buf.length < length)
+			buf += (positions.collect { |pos| set[pos].chr }).join('')
+
+			while ((positions[curr_pos] = (positions[curr_pos] + 1) % set.length) == 0)
+				curr_pos = (curr_pos + 1) % positions.length
+			end
+		end
+
+		(buf.length > length) ? buf.slice(0 .. length) : buf
+	end
+
+	#
+	# Calculate the offset to a pattern
+	#
+	def self.pattern_offset(pattern, value)
+		if (value.kind_of?(String))
+			pattern.index(value)
+		elsif (value.kind_of?(Fixnum))
+			pattern.index([ value ].unpack('V')[0])
+		else
+			raise ArgumentError, "Invalid class for value: #{value.class}"
+		end
 	end
 	
 end
