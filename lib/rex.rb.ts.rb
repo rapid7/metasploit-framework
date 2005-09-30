@@ -21,6 +21,7 @@ require 'rex/socket/tcp_server.rb.ut'
 require 'rex/socket/udp.rb.ut'
 require 'rex/socket/parameters.rb.ut'
 require 'rex/socket/comm/local.rb.ut'
+require 'rex/socket/switch_board.rb.ut'
 
 require 'rex/parser/arguments.rb.ut'
 
@@ -55,6 +56,7 @@ class Rex::TestSuite
 		suite << Rex::Socket::TcpServer::UnitTest.suite
 		suite << Rex::Socket::Udp::UnitTest.suite
 		suite << Rex::Socket::Comm::Local::UnitTest.suite
+		suite << Rex::Socket::SwitchBoard::UnitTest.suite
 
 		# Parsers
 		suite << Rex::Parser::Arguments::UnitTest.suite
