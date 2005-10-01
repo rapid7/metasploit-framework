@@ -43,6 +43,9 @@ class Driver < Msf::Ui::Driver
 		# Initialize config
 		Msf::Config.init
 
+		# Initialize logging
+		Msf::Logging.init
+
 		# Add the core command dispatcher as the root of the dispatcher
 		# stack
 		enstack_dispatcher(CommandDispatcher::Core)

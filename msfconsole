@@ -7,8 +7,8 @@ require 'rex'
 require 'msf/ui'
 
 # TODO: streamline logging
-f = Rex::Logging::Sinks::Flatfile.new('/tmp/msfcli.log')
-register_log_source('rex', f)
-register_log_source('core', f)
+#f = Rex::Logging::Sinks::Flatfile.new('/tmp/msfcli.log')
+#register_log_source('rex', f)
+#register_log_source('core', f)
 
 Msf::Ui::Console::Driver.new.run
