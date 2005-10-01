@@ -23,11 +23,11 @@ class Rex::Arch::X86::UnitTest < ::Test::Unit::TestCase
 	end
 
 	def test_check_reg
-		assert_raise(::ArgumentError) { Klass.check_reg(8) }
-		assert_raise(::ArgumentError) { Klass.check_reg(-1) }
+		assert_raise(::ArgumentError) { Klass._check_reg(8) }
+		assert_raise(::ArgumentError) { Klass._check_reg(-1) }
 
 		0.upto(7) { |reg|
-			assert_nothing_raised { Klass.check_reg(reg) }
+			assert_nothing_raised { Klass._check_reg(reg) }
 		}
 	end
 
@@ -44,6 +44,12 @@ class Rex::Arch::X86::UnitTest < ::Test::Unit::TestCase
 		assert_equal("\x83\xe8\x04", Klass.sub(4, Klass::EAX)[2, 3])
 		assert_equal("\x66\x81\xe8\x80\xff", Klass.sub(-128, Klass::EAX)[2, 5])
 		assert_equal("\x81\xe8\x00\x00\x01\x00", Klass.sub(65536, Klass::EAX)[2, 6])
+	end
+
+	def test_add
+		assert_equal("\x83\xc4\x47", Klass.add(0x47, Klass::ESP)[2,6])
+		assert_equal("\x83\xc4\x47", Klass.add(0x47, Klass::ESP, '', true))
+		assert_equal("\x81\xc4\x11\x11\x01\x00", Klass.add(0x11111, Klass::ESP, '', true))
 	end
 
 end

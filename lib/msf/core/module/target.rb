@@ -133,6 +133,36 @@ class Msf::Module::Target
 		return (bruteforce != nil)
 	end
 
+	##
+	#
+	# Target-specific payload modifications
+	#
+	##
+
+	def payload_prepend
+		opts['Payload'] ? opts['Payload']['Prepend'] : nil
+	end
+
+	def payload_append
+		opts['Payload'] ? opts['Payload']['Append'] : nil
+	end
+
+	def payload_prepend_encoder
+		opts['Payload'] ? opts['Payload']['PrependEncoder'] : nil
+	end
+
+	def payload_max_nops
+		opts['Payload'] ? opts['Payload']['MaxNops'] : nil
+	end
+	
+	def payload_min_nops
+		opts['Payload'] ? opts['Payload']['MinNops'] : nil
+	end
+	
+	def payload_space
+		opts['Payload'] ? opts['Payload']['Space'] : nil
+	end
+
 	attr_reader :name, :platform, :arch, :opts, :ret, :save_registers
 	attr_reader :bruteforce
 

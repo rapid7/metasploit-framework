@@ -8,6 +8,8 @@ require 'rex/transformer.rb.ut'
 require 'rex/text.rb.ut'
 require 'rex/evasion.rb.ut'
 
+require 'rex/arch/x86'
+
 require 'rex/encoding/xor/generic.rb.ut'
 require 'rex/encoding/xor/byte.rb.ut'
 require 'rex/encoding/xor/word.rb.ut'
@@ -40,6 +42,9 @@ class Rex::TestSuite
 		suite << Rex::Transformer::UnitTest.suite
 		suite << Rex::Text::UnitTest.suite
 		suite << Rex::Evasion::UnitTest.suite
+
+		# Arch
+		suite << Rex::Arch::X86::UnitTest.suite
 
 		# Encoding
 		suite << Rex::Encoding::Xor::Generic::UnitTest.suite

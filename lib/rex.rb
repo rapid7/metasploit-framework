@@ -22,7 +22,7 @@ require 'rex/encoder/xor'
 require 'rex/encoding/xor'
 
 # Architecture subsystem
-require 'rex/arch/x86'
+require 'rex/arch'
 
 # Logging
 require 'rex/logging/log_dispatcher'

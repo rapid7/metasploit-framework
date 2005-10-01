@@ -72,7 +72,7 @@ module X86
 		if byte < 128 && byte >= -128
 			return "\x6a" + (byte & 0xff).chr
 		end
-		raise ::RangeError, "Can only take signed byte values!", caller()
+		raise ::ArgumentError, "Can only take signed byte values!", caller()
 	end
 	def self.pop_dword(dst)
 		_check_reg(dst)
@@ -133,29 +133,30 @@ module X86
 	# Builds a subtraction instruction using the supplied operand
 	# and register.
 	#
-	def self.sub(val, reg, badchars = '')
+	def self.sub(val, reg, badchars = '', add = false, adjust = false)
 		opcodes = []
+		shift   = (add == true) ? 0 : 5
 
 		if (val >= -0x7f and val <= 0x7f)
 			opcodes << 
-				clear(reg, badchars) + 
+				((adjust) ? '' : clear(reg, badchars)) + 
 				"\x83" + 
-				[ encode_effective(5, reg) ].pack('C') +
+				[ encode_effective(shift, reg) ].pack('C') +
 				[ val.to_i ].pack('C')
 		end
 
 		if (val >= -0xffff and val <= 0)
 			opcodes << 
-				clear(reg, badchars) + 
+				((adjust) ? '' : clear(reg, badchars)) + 
 				"\x66\x81" + 
-				[ encode_effective(5, reg) ].pack('C') +
+				[ encode_effective(shift, reg) ].pack('C') +
 				[ val.to_i ].pack('v')
 		end
 			
 		opcodes << 
-			clear(reg, badchars) + 
+			((adjust) ? '' : clear(reg, badchars)) + 
 			"\x81" + 
-			[ encode_effective(5, reg) ].pack('C') +
+			[ encode_effective(shift, reg) ].pack('C') +
 			[ val.to_i ].pack('V')
 
 		# Search for a compatible opcode
@@ -174,12 +175,24 @@ module X86
 		end
 	end
 
+	def self.add(val, reg, badchars = '', adjust = false)
+		sub(val, reg, badchars, true, adjust)
+	end
+
 	def self.pack_dword(num)
 		[num].pack('V')
 	end
 
 	def self.pack_lsb(num)
 		pack_dword(num)[0,1]
+	end
+
+	def self.adjust_reg(adjustment)
+		if (adjustment > 0)
+			sub(adjustment, ESP, '', false, false)
+		else
+			add(adjustment, ESP, '', true, false)
+		end
 	end
 
 	def self._check_reg(*regs)
