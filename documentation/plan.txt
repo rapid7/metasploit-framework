@@ -20,11 +20,11 @@ X   - consider extending String
   - modules
     - reloading
     - compatibility filtering (keys)
-    - description sanitation (strip lines/etc)
+X   - description sanitation (strip lines/etc)
   - payloads
-    - meta information
-      - stager/stage calling conventions
-      - stack requirements
+X   - meta information
+X     - stager/stage calling conventions
+X     - stack requirements
 X   - make payload prepend target specific
   - sessions
     - logging session activity

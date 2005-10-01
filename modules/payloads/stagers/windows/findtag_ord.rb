@@ -20,6 +20,7 @@ module FindTagOrdinalTcp
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::FindTag,
+			'Convention'    => 'sockedi',
 			'Stager'        =>
 				{
 					'Offsets' =>

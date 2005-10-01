@@ -20,6 +20,7 @@ module BindTcp
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::BindTcp,
+			'Convention'    => 'sockedi',
 			'Stager'        =>
 				{
 					'Offsets' =>
