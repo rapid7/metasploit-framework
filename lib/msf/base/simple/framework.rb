@@ -44,6 +44,10 @@ module Framework
 		# Initialize the simplified framework
 		framework.init_simplified()
 
+		# Initialize configuration and logging
+		Msf::Config.init
+		Msf::Logging.init
+
 		# Load the configuration
 		framework.load_config
 

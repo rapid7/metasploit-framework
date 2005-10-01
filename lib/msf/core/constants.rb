@@ -50,5 +50,14 @@ NormalRanking    = 300
 GoodRanking      = 400
 GreatRanking     = 500
 ExcellentRanking = 600
+RankingName      =
+	{
+		LowRanking       => "low",
+		AverageRanking   => "average",
+		NormalRanking    => "normal",
+		GoodRanking      => "good",
+		GreatRanking     => "great",
+		ExcellentRanking => "excellent"
+	}
 
 end

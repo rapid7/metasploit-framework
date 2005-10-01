@@ -39,6 +39,20 @@ class Module
 			return type + '/' + refname
 		end
 
+		#
+		# Returns this module's ranking.
+		#
+		def rank
+			(const_defined?('Rank')) ? const_get('Rank') : NormalRanking
+		end
+	
+		#
+		# Returns this module's ranking as a string representation.
+		#
+		def rank_to_s
+			RankingName[rank]
+		end
+
 		# 
 		# The module's name that is assigned it it by the framework
 		# or derived from the path that the module is loaded from.

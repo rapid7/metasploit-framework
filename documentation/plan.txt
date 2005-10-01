@@ -48,7 +48,7 @@ X     - log by default in the LogDir
   - msfcli
   - msfweb
 X - msfpayload
-  - msfencode
+X - msfencode
   - msfconsole
     - spawn web-server from within msfconsole (msfweb instance)
     - irb mode

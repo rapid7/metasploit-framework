@@ -26,19 +26,8 @@ def dump_payloads
 	"\n" + tbl.to_s + "\n"
 end
 
-#
-# Initialize logging and other things, including the framework instance we'll
-# use.
-#
-def initialize_environment
-	# Initialize configuration and logging
-	Msf::Config.init
-	Msf::Logging.init
-
-	$framework = Msf::Simple::Framework.create
-end
-
-initialize_environment
+# Initialize the simplified framework instance.
+$framework = Msf::Simple::Framework.create
 
 if (ARGV.length <= 1)
 	puts "\n" + "    Usage: #{$0} <payload> [var=val] <S[ummary]|C|P[erl]|R[aw]>\n"
