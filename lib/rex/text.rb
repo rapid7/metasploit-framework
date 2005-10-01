@@ -298,6 +298,14 @@ module Text
 			raise ArgumentError, "Invalid class for value: #{value.class}"
 		end
 	end
+
+	#
+	# Compresses a string, eliminating all superfluous whitespace before and
+	# after lines and eliminating all lines.
+	#
+	def self.compress(str)
+		str.gsub(/\n/m, ' ').gsub(/\s+/, ' ').gsub(/^\s+/, '').gsub(/\s+$/, '')
+	end
 	
 end
 end

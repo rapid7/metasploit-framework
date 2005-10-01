@@ -97,7 +97,7 @@ class ReadableText
 	
 		# Description
 		output += "Description:\n"
-		output += word_wrap(mod.description)
+		output += word_wrap(Rex::Text.compress(mod.description))
 		output += "\n"
 
 		# References
@@ -150,7 +150,7 @@ class ReadableText
 	
 		# Description
 		output += "Description:\n"
-		output += word_wrap(mod.description)
+		output += word_wrap(Rex::Text.compress(mod.description))
 		output += "\n\n"
 	
 		return output
@@ -184,7 +184,7 @@ class ReadableText
 
 		# Description
 		output += "Description:\n"
-		output += word_wrap(mod.description)
+		output += word_wrap(Rex::Text.compress(mod.description))
 		output += "\n\n"
 	
 		return output
