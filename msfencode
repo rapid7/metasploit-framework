@@ -67,7 +67,7 @@ end
 # Nuff said.
 #
 def usage
-	$stderr.puts("\n" + "    Usage: #{$0} <options> [var=val]\n" + $args.usage)
+	$stderr.puts("\n" + "    Usage: #{$0} <options>\n" + $args.usage)
 	exit
 end
 
@@ -84,6 +84,7 @@ space    = nil
 encoder  = nil
 fmt      = "c"
 input    = $stdin
+options  = ''
 
 # Parse the argument and rock that shit.
 $args.parse(ARGV) { |opt, idx, val|
@@ -116,6 +117,10 @@ $args.parse(ARGV) { |opt, idx, val|
 			encoder = val
 		when "-h"
 			usage
+		else
+			if (val =~ /=/)
+				options += ((options.length > 0) ? "," : "") + "#{val}"
+			end
 	end	
 }
 
@@ -139,6 +144,9 @@ case cmd
 		
 		encoders.each { |enc|
 			begin
+				# Imports options
+				enc.datastore.import_options_from_s(options)
+
 				# Encode it upt
 				raw = enc.encode(buf, badchars)
 
