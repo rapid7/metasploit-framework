@@ -24,9 +24,10 @@ class Config < Hash
 	FileSep     = File::SEPARATOR
 	Defaults    =
 		{
-			'ConfigDirectory' => File.expand_path("~#{FileSep}.msf3"),
-			'ConfigFile'      => "config",
-			'LogDirectory'    => "logs",
+			'ConfigDirectory'     => File.expand_path("~#{FileSep}.msf3"),
+			'ConfigFile'          => "config",
+			'LogDirectory'        => "logs",
+			'SessionLogDirectory' => "logs/sessions",
 		}
 
 	##
@@ -45,6 +46,14 @@ class Config < Hash
 
 	def self.log_directory
 		self.new.log_directory
+	end
+
+	def self.session_log_directory
+		self.new.session_log_directory
+	end
+	
+	def self.user_module_directory
+		self.new.user_module_directory
 	end
 
 	def self.config_file
@@ -95,7 +104,21 @@ class Config < Hash
 	# Returns the directory that log files should be stored in.
 	#
 	def log_directory
-		config_directory + self['LogDirectory']
+		config_directory + FileSep + self['LogDirectory']
+	end
+
+	#
+	# Returns the directory in which session log files are to reside.
+	#
+	def session_log_directory
+		config_directory + FileSep + self['SessionLogDirectory']
+	end
+
+	#
+	# Returns the user-specific module base path
+	#
+	def user_module_directory
+		config_directory + FileSep + "modules"
 	end
 
 	#
@@ -104,6 +127,8 @@ class Config < Hash
 	def init
 		FileUtils.mkdir_p(config_directory)
 		FileUtils.mkdir_p(log_directory)
+		FileUtils.mkdir_p(session_log_directory)
+		FileUtils.mkdir_p(user_module_directory)
 	end
 
 	#
