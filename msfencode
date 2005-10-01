@@ -1,0 +1,162 @@
+#!/usr/bin/ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), '../lib'))
+
+require 'rex'
+require 'msf/ui'
+require 'msf/base'
+
+OutStatus = "[*] "
+OutError  = "[-] "
+
+$args = Rex::Parser::Arguments.new(
+	"-i" => [ true, "Encode the contents of the supplied file path"                      ],
+	"-a" => [ true, "The architecture to encode as"                                      ],
+	"-t" => [ true, "The format to display the encoded buffer with (raw, ruby, perl, c)" ],
+	"-b" => [ true, "The list of characters to avoid: '\\x00\\xff'"                      ],
+	"-s" => [ true, "The maximum size of the encoded data"                               ],
+	"-e" => [ true, "The encoder to use"                                                 ],
+	"-n" => [ false, "Dump encoder information"                                          ],
+	"-h" => [ false, "Help banner"                                                       ],
+	"-l" => [ false, "List available encoders"                                           ])
+
+#
+# Dump the list of encoders
+#
+def dump_encoders(arch = nil)
+	tbl = Rex::Ui::Text::Table.new(
+		'Indent'  => 4,
+		'Header'  => "Framework Encoders" + ((arch) ? " (architectures: #{arch})" : ""),
+		'Columns' => 
+			[
+				"Name",
+				"Rank",
+				"Description"
+			])
+	cnt = 0
+
+	$framework.encoders.each_module(
+		'Arch' => arch ? arch.split(',') : nil) { |name, mod|
+		tbl << [ name, mod.rank_to_s, mod.new.description ]
+
+		cnt += 1
+	}
+
+	(cnt > 0) ? "\n" + tbl.to_s + "\n" : "\nNo compatible encoders found.\n\n"
+end
+
+#
+# Returns the list of encoders to try
+#
+def get_encoders(arch, encoder)
+	encoders = []
+
+	if (encoder)
+		encoders << $framework.encoders.create(encoder)
+	else
+		$framework.encoders.each_module_ranked(
+			'Arch' => arch ? arch.split(',') : nil) { |name, mod|
+			encoders << mod.new
+		}
+	end
+
+	encoders
+end
+
+#
+# Nuff said.
+#
+def usage
+	$stderr.puts("\n" + "    Usage: #{$0} <options> [var=val]\n" + $args.usage)
+	exit
+end
+
+# Initialize the simplified framework instance.
+$framework = Msf::Simple::Framework.create
+
+usage if (ARGV.length == 0)
+
+# Defaults
+cmd      = "encode"
+arch     = nil
+badchars = ''
+space    = nil
+encoder  = nil
+fmt      = "c"
+input    = $stdin
+
+# Parse the argument and rock that shit.
+$args.parse(ARGV) { |opt, idx, val|
+	case opt
+		when "-i"
+			begin
+				input = File.new(val)
+			rescue
+				$stderr.puts(OutError + "Failed to open file #{val}: #{$!}")
+				exit
+			end
+		when "-l"
+			cmd = "list"
+		when "-n"
+			cmd = "dump"
+		when "-a"
+			arch = val
+		when "-b"
+			badchars = Rex::Text.hex_to_raw(val)
+		when "-s"
+			space = val.to_i
+		when "-t"
+			if (val =~ /^(perl|ruby|raw|c)$/)
+				fmt = val
+			else
+				$stderr.puts(OutError + "Invalid format: #{val}")
+				exit
+			end
+		when "-e"
+			encoder = val
+		when "-h"
+			usage
+	end	
+}
+
+# Get the list of encoders to try
+encoders = get_encoders(arch, encoder)
+
+# Process the actual command
+case cmd
+	when "list"
+		$stderr.puts(dump_encoders(arch))
+	when "dump"
+		enc = $framework.encoders.create(encoder)
+
+		if (enc)
+			$stderr.puts(Msf::Serializer::ReadableText.dump_module(enc))
+		else
+			$stderr.puts(OutError + "Invalid encoder specified.")
+		end
+	when "encode"
+		buf = input.readlines.join
+		
+		encoders.each { |enc|
+			begin
+				# Encode it upt
+				raw = enc.encode(buf, badchars)
+
+				# Is it too big?
+				if (space and space > 0 and raw.length > space)
+					$stderr.puts(OutError + "#{enc.refname} created buffer that is too big (#{raw.length})")
+					next
+				end
+
+				# Print it out
+				$stderr.puts(OutStatus + "#{enc.refname} succeeded, final size #{raw.length}\n\n")
+				$stdout.puts(Msf::Simple::Buffer.transform(raw, fmt))
+				exit
+
+			rescue
+				$stderr.puts(OutError + "#{enc.refname} failed: #{$!}")
+			end
+		}
+
+		$stderr.puts(OutError + "No encoders succeeded.")
+end
