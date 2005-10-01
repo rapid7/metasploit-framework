@@ -1,0 +1,80 @@
+#!/usr/bin/ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), '../lib'))
+
+require 'rex'
+require 'msf/ui'
+require 'msf/base'
+
+#
+# Dump the list of payloads
+#
+def dump_payloads
+	tbl = Rex::Ui::Text::Table.new(
+		'Indent'  => 4,
+		'Header'  => "Framework Payloads",
+		'Columns' => 
+			[
+				"Name",
+				"Description"
+			])
+
+	$framework.payloads.each_module { |name, mod|
+		tbl << [ name, mod.new.description ]
+	}
+
+	"\n" + tbl.to_s + "\n"
+end
+
+#
+# Initialize logging and other things, including the framework instance we'll
+# use.
+#
+def initialize_environment
+	# Initialize configuration and logging
+	Msf::Config.init
+	Msf::Logging.init
+
+	$framework = Msf::Simple::Framework.create
+end
+
+initialize_environment
+
+if (ARGV.length <= 1)
+	puts "\n" + "    Usage: #{$0} <payload> [var=val] <S[ummary]|C|P[erl]|R[aw]>\n"
+	puts dump_payloads
+	exit
+end
+
+# Get the payload name we'll be using
+payload_name = ARGV.shift
+payload      = $framework.payloads.create(payload_name)
+
+if (payload == nil)
+	puts "Invalid payload: #{payload_name}"
+	exit
+end
+
+# Evalulate the command
+cmd = ARGV.pop.downcase
+
+# Populate the framework datastore
+options = ARGV.join(',')
+
+if (cmd =~ /^(p|r|c)/)
+	cmd = 'perl' if (cmd =~ /^p/)
+	cmd = 'raw' if (cmd =~ /^r/)
+
+	begin
+		buf = payload.generate_simple(
+				'Format'    => cmd,
+				'OptionStr' => options)
+	rescue
+		puts "Error generating payload: #{$!}"
+		exit
+	end
+
+	puts buf
+elsif (cmd =~ /^s/)
+	puts Msf::Serializer::ReadableText.dump_module(payload)
+end

@@ -47,6 +47,15 @@ module Framework
 		# Load the configuration
 		framework.load_config
 
+		# Initialize the default module search paths
+		if (Msf::Config.module_directory)
+			framework.modules.add_module_path(Msf::Config.module_directory)
+		end
+
+		if (Msf::Config.user_module_directory)
+			framework.modules.add_module_path(Msf::Config.user_module_directory)
+		end
+
 		# Set the on_module_created procedure to simplify any module
 		# instance that is created
 		framework.on_module_created_proc = Proc.new { |instance| 

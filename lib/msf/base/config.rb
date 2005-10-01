@@ -26,6 +26,7 @@ class Config < Hash
 		{
 			'ConfigDirectory'     => File.expand_path("~#{FileSep}.msf3"),
 			'ConfigFile'          => "config",
+			'ModuleDirectory'     => "modules",
 			'LogDirectory'        => "logs",
 			'SessionLogDirectory' => "logs/sessions",
 		}
@@ -42,6 +43,10 @@ class Config < Hash
 
 	def self.config_directory
 		self.new.config_directory
+	end
+
+	def self.module_directory
+		self.new.module_directory
 	end
 
 	def self.log_directory
@@ -98,6 +103,13 @@ class Config < Hash
 	#
 	def config_file
 		config_directory + FileSep + self['ConfigFile']
+	end
+
+	#
+	# Returns the global module directory.
+	#
+	def module_directory
+		install_root + FileSep + self['ModuleDirectory']
 	end
 
 	#

@@ -44,7 +44,7 @@ X   - make payload prepend target specific
     - add concept of EVASION option (high, normal, low)
     - logging improvements
       - provide log file setting interface
-      - log by default in the LogDir
+X     - log by default in the LogDir
   - msfcli
   - msfweb
   - msfpayload
