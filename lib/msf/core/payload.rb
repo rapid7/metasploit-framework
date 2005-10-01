@@ -97,6 +97,39 @@ class Payload < Msf::Module
 	end
 
 	#
+	# Returns the staging convention that the payload uses, if any.  This is
+	# used to make sure that only compatible stagers and stages are built
+	# (where assumptions are made about register/environment initialization
+	# state and hand-off).
+	#
+	def convention
+		module_info['Convention']
+	end
+
+	#
+	# Checks to see if the supplied convention is compatible with this
+	# payload's convention.
+	#
+	def compatible_convention?(conv)
+		# If we ourself don't have a convention or our convention is equal to
+		# the one supplied, then we know we are compatible.
+		if ((self.convention == nil) or
+		    (self.convention == conv))
+			true
+		# On the flip side, if we are a stager and the supplied convention is
+		# nil, then we know it's compatible.
+		elsif ((payload_type == Type::Stager) and
+		       (conv == nil))
+			true
+		# Otherwise, the conventions don't match in some way or another, and as
+		# such we deem ourself as not being compatible with the supplied
+		# convention.
+		else
+			false
+		end
+	end
+
+	#
 	# Return the connection associated with this payload, or none if there
 	# isn't one.
 	#

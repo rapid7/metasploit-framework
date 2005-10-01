@@ -91,11 +91,11 @@ class PayloadSet < ModuleSet
 
 		# Recalculate stagers and stages
 		_stagers.each_pair { |stager_name, p|
-			stager_mod, handler, stager_platform, stager_arch = p
+			stager_mod, handler, stager_platform, stager_arch, stager_conv = p
 
 			# Walk the array of stages
 			_stages.each_pair { |stage_name, p|
-				stage_mod, junk, stage_platform, stage_arch = p
+				stage_mod, junk, stage_platform, stage_arch, stage_conv = p
 
 				# No intersection between architectures on the payloads?
 				if ((stager_arch) and
@@ -116,6 +116,17 @@ class PayloadSet < ModuleSet
 						'core', LEV_3)
 					dlog("  Stager: #{stager_platform.names}.", 'core', LEV_3)
 					dlog("  Stage: #{stage_platform.names}.", 'core', LEV_3)
+					next
+				end
+
+				# If the stage has a convention, make sure it's compatible with
+				# the stager's
+				if ((stage_conv) and
+				    (stager_conv != stage_conv))
+					dlog("Stager #{stager_name} and stage #{stage_name} have incompatible conventions:",
+						'core', LEV_3)
+					dlog("  Stager: #{stager_conv}.", 'core', LEV_3)
+					dlog("  Stage: #{stage_conv}.", 'core', LEV_3)
 					next
 				end
 
@@ -173,7 +184,8 @@ class PayloadSet < ModuleSet
 				pmodule,
 				instance.handler,
 				instance.platform,
-				instance.arch
+				instance.arch,
+				instance.convention
 			]
 
 		# Use the module's preferred alias if it has one
