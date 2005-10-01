@@ -55,6 +55,13 @@ class ModuleSet < Hash
 	end
 
 	#
+	# Checks to see if the supplied module name is valid.
+	#
+	def valid?(name)
+		(self[name]) ? true : false
+	end
+
+	#
 	# Enumerates each module class in the set
 	#
 	def each_module(opts = {}, &block)
@@ -63,6 +70,10 @@ class ModuleSet < Hash
 		each_module_list(mod_sorted, opts, &block)
 	end
 
+	#
+	# Enumerates each module class in the set based on their relative ranking
+	# to one another.  Modules that are ranked higher are shown first.
+	#
 	def each_module_ranked(opts = {}, &block)
 		mod_ranked = rank_modules if (mod_ranked == nil)
 

@@ -27,22 +27,31 @@ module Framework
 		}
 
 	#
-	# Create a simplified instance of the framework
+	# Create a simplified instance of the framework.  This routine takes a hash
+	# of parameters as an argument.  This hash can contain:
 	#
-	def self.create
+	#   OnCreateProc => A callback procedure that is called once the framework
+	#   instance is created.
+	#
+	def self.create(opts = {})
 		framework = Msf::Framework.new
 
-		return simplify(framework)
+		return simplify(framework, opts)
 	end
 
 	#
 	# Extends a framework object that may already exist
 	#
-	def self.simplify(framework)
+	def self.simplify(framework, opts)
 		framework.extend(Msf::Simple::Framework)
 
 		# Initialize the simplified framework
 		framework.init_simplified()
+
+		# Call the creation procedure if one was supplied
+		if (opts['OnCreateProc'])
+			opts['OnCreateProc'].call(framework)
+		end
 
 		# Initialize configuration and logging
 		Msf::Config.init

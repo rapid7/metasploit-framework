@@ -353,6 +353,12 @@ class Core
 		name  = args[0]
 		value = args[1]
 
+		# If the driver indicates that the value is not valid, bust out.
+		if (driver.on_variable_set(name, value) == false)
+			print_error("The value specified for #{name} is not valid.")
+			return true
+		end
+
 		datastore[name] = value
 
 		print_line("#{name} => #{value}")
@@ -440,6 +446,11 @@ class Core
 		end
 
 		while ((val = args.shift))
+			if (driver.on_variable_unset(val) == false)
+				print_error("The variable #{val} cannot be unset at this time.")
+				next
+			end
+
 			print_line("Unsetting #{val}...")
 
 			datastore.delete(val)
@@ -525,6 +536,13 @@ class Core
 		print_line("Console  : #{Msf::Framework::Version}.#{ver.match(/ (.+?) \$/)[1]}")
 
 		return true
+	end
+
+	#
+	# Internal routine to recalculate tab complete.
+	#
+	def cmd__recalculate_tc(*args)
+		recalculate_tab_complete
 	end
 
 protected

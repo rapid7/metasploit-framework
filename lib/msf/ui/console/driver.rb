@@ -46,7 +46,7 @@ class Driver < Msf::Ui::Driver
 
 		# Register event handlers
 		register_event_handlers
-		
+
 		# Process things before we actually display the prompt and get rocking
 		on_startup
 
@@ -112,8 +112,33 @@ class Driver < Msf::Ui::Driver
 	# displayed, scripts can be processed, and other fun can be had.
 	#
 	def on_startup
+		# Recalculate tab completion
+		run_single("_recalculate_tc")
+
 		# Build the banner message
 		run_single("banner")
+	end
+
+	#
+	# Called when a variable is set to a specific value.  This allows the
+	# console to do extra processing, such as enabling logging or doing
+	# some other kind of task.  If this routine returns false it will indicate
+	# that the variable is not being set to a valid value.
+	#
+	def on_variable_set(var, val)
+		case var.downcase
+			when "payload"
+				if (framework.modules.valid?(val) == false)
+					return false
+				end
+		end
+	end
+
+	#
+	# Called when a variable is unset.  If this routine returns false it is an
+	# indication that the variable should not be allowed to be unset.
+	#
+	def on_variable_unset(var)
 	end
 
 	attr_reader   :framework
