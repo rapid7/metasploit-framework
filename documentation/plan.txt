@@ -47,7 +47,7 @@ X   - make payload prepend target specific
 X     - log by default in the LogDir
   - msfcli
   - msfweb
-  - msfpayload
+X - msfpayload
   - msfencode
   - msfconsole
     - spawn web-server from within msfconsole (msfweb instance)
