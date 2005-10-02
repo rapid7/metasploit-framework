@@ -28,8 +28,6 @@ X     - stack requirements
 X   - make payload prepend target specific
 X - sessions
 X   - logging session activity
-  - handler sharing
-    - exploits using the same payload/handler can share (ref count)
 - modules needing ports (above other modules)
   - encoders
     - shikata
@@ -42,10 +40,10 @@ X   - logging session activity
 - user interfaces
   - general
     - add concept of EVASION option (high, normal, low)
-    - logging improvements
-      - provide log file setting interface
+X   - logging improvements
+X     - provide log file setting interface
 X     - log by default in the LogDir
-  - msfcli
+X - msfcli
   - msfweb
 X - msfpayload
 X - msfencode
@@ -100,6 +98,9 @@ Things that would be useful to have completed, but not a requirement:
     - basic range/port scanner
     - basic service identifier
     - basic OS fingerprinting
+- framework-core
+  - handler sharing
+    - exploits using the same payload/handler can share (ref count)
 - framework-base
   - event correlation
     - recon events correlations

@@ -36,6 +36,43 @@ class ReadableText
 	end
 
 	#
+	# Dumps an exploit's targets.
+	#
+	def self.dump_exploit_targets(mod, indent = '', h = nil)
+		tbl = Rex::Ui::Text::Table.new(
+			'Indent'  => indent.length,
+			'Header'  => h,
+			'Columns' =>
+				[
+					'Id', 
+					'Name',
+				])
+
+		mod.targets.each_with_index { |target, idx|
+			tbl << [ idx.to_s, target.name || 'All' ]	
+		}
+
+		tbl.to_s + "\n"
+	end
+
+	def self.dump_compatible_payloads(exploit, indent = '', h = nil)
+		tbl = Rex::Ui::Text::Table.new(
+			'Indent'  => indent.length,
+			'Header'  => h,
+			'Columns' =>
+				[
+					'Name', 
+					'Description',
+				])
+
+		exploit.compatible_payloads.each { |entry|
+			tbl << [ entry[0], entry[1].new.description ]
+		}
+
+		tbl.to_s + "\n"
+	end
+
+	#
 	# Dumps information about an exploit module.
 	#
 	def self.dump_exploit_module(mod, indent = '')
@@ -54,32 +91,20 @@ class ReadableText
 		output += "\n"
 
 		# Targets
-		tbl = Rex::Ui::Text::Table.new(
-			'Indent'  => indent.length,
-			'Columns' =>
-				[
-					'Id', 
-					'Name',
-				])
-
 		output += "Available targets:\n"
-		mod.targets.each_with_index { |target, idx|
-			tbl << [ idx.to_s, target.name || 'All' ]	
-		}
-		output += tbl.to_s 
-		output += "\n"
-
+		output += dump_exploit_targets(mod, indent)
+		
 		# Options
 		if (mod.options.has_options?)
 			output += "Available options:\n"
-			output += dump_options(mod)
+			output += dump_options(mod, indent)
 			output += "\n"
 		end
 
 		# Advanced options
 		if (mod.options.has_advanced_options?)
 			output += "Advanced options:\n"
-			output += dump_advanced_options(mod)
+			output += dump_advanced_options(mod, indent)
 			output += "\n"
 		end
 
@@ -198,9 +223,9 @@ class ReadableText
 	# Dumps the list of options associated with the
 	# supplied module.
 	#
-	def self.dump_options(mod, indent = DefaultIndent)
+	def self.dump_options(mod, indent = '')
 		tbl = Rex::Ui::Text::Table.new(
-			'Indent'  => indent,
+			'Indent'  => indent.length,
 			'Columns' =>
 				[
 					'Name', 
@@ -222,9 +247,9 @@ class ReadableText
 		return tbl.to_s
 	end
 
-	def self.dump_advanced_options(mod, indent = DefaultIndent)
+	def self.dump_advanced_options(mod, indent = '')
 		output = ''
-		pad    = ' ' * indent
+		pad    = indent
 
 		mod.options.sorted.each { |entry|
 			name, opt = entry
@@ -235,7 +260,7 @@ class ReadableText
 
 			output += pad + "Name   : #{name}\n"
 			output += pad + "Default: #{val}\n\n"
-			output += word_wrap(opt.desc, indent + 3)
+			output += word_wrap(opt.desc, indent.length + 3)
 		}
 
 		return output
