@@ -39,7 +39,7 @@ X   - logging session activity
     - bsd payloads
 - user interfaces
   - general
-    - add concept of EVASION option (high, normal, low)
+X   - add concept of EVASION option (high, normal, low)
 X   - logging improvements
 X     - provide log file setting interface
 X     - log by default in the LogDir
