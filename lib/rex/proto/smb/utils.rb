@@ -4,10 +4,51 @@ module SMB
 class Utils
 
 require 'rex/text'
+require 'rex/proto/smb/constants'
+
+CONST = Rex::Proto::SMB::Constants
 
 	# Convert a standard ASCII string to 16-bit Unicode
 	def self.unicode (str)
 		str.unpack('C*').pack('v*')
+	end
+
+	# Creates an access mask for use with the CLIENT.open() call based on a string
+	def self.open_mode_to_access(str)
+		access = CONST::OPEN_ACCESS_READ | CONST::OPEN_SHARE_DENY_NONE
+		str.each_byte { |c|
+			case [c].pack('C').downcase
+				when 'w'
+					access |= CONST::OPEN_ACCESS_READWRITE
+			end
+		}
+		return access
+	end
+	
+	# Creates a mode mask for use with the CLIENT.open() call based on a string
+	def self.open_mode_to_mode(str)
+		mode = 0
+		
+		str.each_byte { |c|
+			case [c].pack('C').downcase
+				when 'x' # Fail if the file already exists
+					mode |= CONST::OPEN_MODE_EXCL
+				when 't' # Truncate the file if it already exists
+					mode |= CONST::OPEN_MODE_TRUNC
+				when 'c' # Create the file if it does not exist
+					mode |= CONST::OPEN_MODE_CREAT	
+				when 'o' # Just open the file, clashes with x
+					mode |= CONST::OPEN_MODE_OPEN
+			end
+		}
+
+		return mode
+	end
+
+
+	# Convert a 64-bit signed SMB time to a unix timestamp
+	def self.servertime(time_high, time_low)
+		(((time_high * 0x100000000) + time_low) / 10000000) - 11644473600
 	end
 	
 	# Convert a name to its NetBIOS equivalent

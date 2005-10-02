@@ -36,6 +36,25 @@ NT_TRANSACT_NOTIFY_CHANGE            = 4 # Start directory watch
 NT_TRANSACT_RENAME                   = 5 # Reserved (Handle-based)
 NT_TRANSACT_QUERY_SECURITY_DESC      = 6 # Retrieve security
 
+# Open Modes
+OPEN_MODE_CREAT = 0x10   # Create the file if file does not exists. Otherwise, operation fails.
+OPEN_MODE_EXCL  = 0x00   # When used with SMB_O_CREAT, operation fails if file exists. Cannot be used with SMB_O_OPEN.
+OPEN_MODE_OPEN  = 0x01   # Open the file if the file exists
+OPEN_MODE_TRUNC = 0x02   # Truncate the file if the file exists
+
+# Shared Access
+OPEN_SHARE_COMPAT        = 0x00
+OPEN_SHARE_DENY_EXCL     = 0x10
+OPEN_SHARE_DENY_WRITE    = 0x20
+OPEN_SHARE_DENY_READEXEC = 0x30
+OPEN_SHARE_DENY_NONE     = 0x40
+
+# File Access
+OPEN_ACCESS_READ         = 0x00
+OPEN_ACCESS_WRITE        = 0x01
+OPEN_ACCESS_READWRITE    = 0x02
+OPEN_ACCESS_EXEC         = 0x03
+
 # Wildcard NetBIOS name
 NETBIOS_REDIR = 'CACACACACACACACACACACACACACACAAA'
 
@@ -134,8 +153,8 @@ SMB_NEG_RES_NT_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 	[ 'uint32v', 'MaxRaw',               0 ],		
 	[ 'uint32v', 'SessionKey',           0 ],
 	[ 'uint32v', 'Capabilities',         0 ],
-	[ 'uint32v', 'DosTime',              0 ],
-	[ 'uint32v', 'DosDate',              0 ],
+	[ 'uint32v', 'ServerTime',           0 ],
+	[ 'uint32v', 'ServerDate',           0 ],
 	[ 'uint16v', 'Timezone',             0 ],
 	[ 'uint8',   'KeyLength',            0 ],	
 	[ 'uint16v', 'ByteCount',            0 ],		

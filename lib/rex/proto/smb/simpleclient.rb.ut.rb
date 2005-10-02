@@ -31,7 +31,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		pass = 'SMBTest'
 		share = 'C$'
 		
-		write_data = ('A' * (1024 * 1024 * 1))
+		write_data = ('A' * (1024 * 8))
 		filename = 'smb_tester.txt'
 		
 		s = Rex::Socket.create_tcp(
@@ -40,22 +40,28 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		)
 
 		c = Klass.new(s, true)
+		c.client.evasion_level = 0
 		
 		begin
 			c.login('*SMBSERVER', user, pass)
 			c.connect(share)
 			
-			f = c.open(filename, FILE_CREATE|FILE_TRUNC)
+			f = c.open(filename, 'rwct')
 			f << write_data
 			f.close
 			
-			f = c.open(filename, FILE_OPEN)
+			f = c.open(filename, 'ro')
 			d = f.read()
 			f.close
 			
 			c.delete(filename)
 			c.disconnect(share)
+			
 			assert_equal(write_data, d)
+			
+			c.connect('IPC$')
+			f = c.create_pipe('\BROWSER')
+			
 		rescue
 			puts $!.to_s + $!.backtrace.join("\n")
 			return

@@ -472,7 +472,11 @@ EVADE = Rex::Proto::SMB::Evasions
 		if (ack['Payload'].v['GUID'] != nil)
 			self.server_guid = ack['Payload'].v['GUID']
 		end
-
+		
+		if (ack['Payload'].v['ServerDate'] > 0)
+			stamp = UTILS.servertime(ack['Payload'].v['ServerDate'],ack['Payload'].v['ServerTime'])
+		end
+		
 		return ack
 	end	
 
@@ -760,7 +764,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	
 	# Creates a file or opens an existing pipe
 	# TODO: Allow the caller to specify the hardcoded options
-	def create(file_name, disposition = 1)
+	def create(filename, disposition = 1)
 		
 		pkt = CONST::SMB_CREATE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -771,14 +775,14 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload']['SMB'].v['WordCount'] = 24
 		
 		pkt['Payload'].v['AndX'] = 255
-		pkt['Payload'].v['FileNameLen'] = file_name.length
+		pkt['Payload'].v['FileNameLen'] = filename.length
 		pkt['Payload'].v['CreateFlags'] = 0x16
 		pkt['Payload'].v['AccessMask'] = 0x02019f
 		pkt['Payload'].v['ShareAccess'] = 7
 		pkt['Payload'].v['CreateOptions'] = 0x40
 		pkt['Payload'].v['Impersonation'] = 2		
 		pkt['Payload'].v['Disposition'] = disposition
-		pkt['Payload'].v['Payload'] = file_name + "\x00"
+		pkt['Payload'].v['Payload'] = filename + "\x00"
 		
 		self.smb_send(pkt.to_s)
 		
@@ -793,7 +797,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Deletes a file from a share
-	def delete(file_name, tree_id = self.last_tree_id)
+	def delete(filename, tree_id = self.last_tree_id)
 		
 		pkt = CONST::SMB_DELETE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -806,7 +810,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 		pkt['Payload'].v['SearchAttributes'] = 0x06
 		pkt['Payload'].v['BufferFormat'] = 4
-		pkt['Payload'].v['Payload'] = file_name + "\x00"
+		pkt['Payload'].v['Payload'] = filename + "\x00"
 		
 		self.smb_send(pkt.to_s)
 		
@@ -816,8 +820,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Opens an existing file or creates a new one
-	# TODO: Allow the caller to specify the hardcoded options
-	def open(file_name, mode = 0x12)
+	def open(filename, mode = 0x12, access = 0x42)
 		
 		pkt = CONST::SMB_OPEN_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -828,10 +831,10 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload']['SMB'].v['WordCount'] = 15
 		
 		pkt['Payload'].v['AndX'] = 255
-		pkt['Payload'].v['Access'] = 0x42
+		pkt['Payload'].v['Access'] = access
 		pkt['Payload'].v['SearchAttributes'] = 0x06
 		pkt['Payload'].v['OpenFunction'] = mode	
-		pkt['Payload'].v['Payload'] = file_name + "\x00"
+		pkt['Payload'].v['Payload'] = filename + "\x00"
 		
 		self.smb_send(pkt.to_s)
 		

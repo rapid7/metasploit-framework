@@ -147,8 +147,11 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 		self.shares.delete(share)
 	end	
 	
-	def open (path, mode=0)
-		ok = self.client.open(path, mode)
+	def open (path, perm)		
+		mode   = UTILS.open_mode_to_mode(perm)
+		access = UTILS.open_mode_to_access(perm)
+		
+		ok = self.client.open(path, mode, access)
 		file_id = ok['Payload'].v['FileID']
 		
 		fh = OpenFile.new(self.client, path, self.client.last_tree_id, file_id)
@@ -156,6 +159,12 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 	
 	def delete (*args)
 		self.client.delete(*args)
+	end
+
+	def open_mode_to_access(mode)
+		open_func = 0
+		open_perm = 0
+		
 	end
 
 end
