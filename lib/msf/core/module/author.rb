@@ -72,7 +72,8 @@ class Msf::Module::Author
 				'H D Moore' => 'hdm@metasploit.com',
 				'spoonm'    => 'spoonm@gmail.com',
 				'skape'     => 'mmiller@hick.org',
-				'vlad902'   => 'vlad902@gmail.com'
+				'vlad902'   => 'vlad902@gmail.com',
+				'optyx'     => 'optyx@hatesemail.com',
 			}
 
 		# Make fix up this regex to be a bit better...I suck at regex

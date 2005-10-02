@@ -45,6 +45,7 @@ class Opty2
 		save_registers.each { |reg|
 			mask |= 1 << (Rex::Arch::X86.reg_number(reg))
 		}
+		mask = mask << 16
 
 		# Initialize the bad byte lookup table
 		bad_bytes = []
@@ -73,7 +74,7 @@ class Opty2
 						low  = counts[byte]
 						lows = [byte]
 					# Otherwise, if it's just as good..
-					elsif ($low == counts[byte])
+					elsif (low == counts[byte])
 						lows << byte
 					end
 				}
