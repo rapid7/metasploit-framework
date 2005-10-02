@@ -116,9 +116,10 @@ module Session
 	def log_file_name
 		dt = Time.now
 
-		dstr = sprintf("%.4d%.2d%.2d", dt.year, dt.mon, dt.mday)
+		dstr  = sprintf("%.4d%.2d%.2d", dt.year, dt.mon, dt.mday)
+		rhost = (tunnel_peer || 'unknown').split(':')[0]
 
-		("#{dstr}_" + tunnel_to_s + "_#{name.to_s}_#{(type || 'unknown').downcase}").gsub(/\s/, '_').gsub(/->/, 'to')
+		("#{dstr}_#{rhost}_#{type}.log")
 	end
 
 	#

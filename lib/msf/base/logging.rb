@@ -73,12 +73,16 @@ class Logging
 			Msf::Config.session_log_directory + File::SEPARATOR + "#{session.log_file_name}.log")
 
 		register_log_source(session.log_source, f)
+		
+		rlog("\n[*] Logging started: #{Time.now}\n\n", session.log_source)
 	end
 
 	#
 	# Stops logging for a given session.
 	#
 	def self.stop_session_log(session)
+		rlog("\n[*] Logging stopped: #{Time.now}\n\n", session.log_source)
+
 		deregister_log_source(session.log_source)
 	end
 
