@@ -1,0 +1,11 @@
+DynamicSehRecord
+  - causes an exploit to generate a dynamic seh frame if it's an seh exploit
+
+global
+======
+
+SessionLogging (true/yes/1)
+  - enables logging of sessions
+
+ConsoleLogging (true/yes/1)
+  - enables logging of the console

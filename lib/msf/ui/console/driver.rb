@@ -90,6 +90,8 @@ class Driver < Msf::Ui::Driver
 				case k.downcase
 					when "sessionlogging"
 						handle_session_logging(v)
+					when "consolelogging"
+						handle_console_logging(v)
 				end
 			}
 		end
@@ -149,6 +151,8 @@ class Driver < Msf::Ui::Driver
 				end
 			when "sessionlogging"
 				handle_session_logging(val) if (glob)
+			when "consolelogging"
+				handle_console_logging(val) if (glob)
 		end
 	end
 
@@ -160,6 +164,8 @@ class Driver < Msf::Ui::Driver
 		case var.downcase
 			when "sessionlogging"
 				handle_session_logging('0') if (glob)
+			when "consolelogging"
+				handle_console_logging('0') if (glob)
 		end
 	end
 
@@ -188,6 +194,28 @@ protected
 			print_line("Session logging will be disabled for future sessions.")
 		end
 	end
+	
+	#
+	# ConsoleLogging
+	#
+	def handle_console_logging(val)
+		if (val =~ /^(yes|y|true|t|1)/i)
+			Msf::Logging.enable_log_source('console')
+			print_line("Console logging is now enabled.")
+
+			set_log_source('console')
+			
+			rlog("\n[*] Console logging started: #{Time.now}\n\n", 'console')
+		else
+			rlog("\n[*] Console logging stopped: #{Time.now}\n\n", 'console')
+
+			unset_log_source
+
+			Msf::Logging.disable_log_source('console')
+			print_line("Console logging is now disabled.")
+		end
+	end
+
 end
 
 end
