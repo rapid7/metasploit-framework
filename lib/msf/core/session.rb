@@ -119,7 +119,7 @@ module Session
 		dstr  = sprintf("%.4d%.2d%.2d", dt.year, dt.mon, dt.mday)
 		rhost = (tunnel_peer || 'unknown').split(':')[0]
 
-		("#{dstr}_#{rhost}_#{type}.log")
+		"#{dstr}_#{rhost}_#{type}"
 	end
 
 	#
