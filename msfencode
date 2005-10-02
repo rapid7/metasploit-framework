@@ -74,8 +74,6 @@ end
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create
 
-usage if (ARGV.length == 0)
-
 # Defaults
 cmd      = "encode"
 arch     = nil
