@@ -1,0 +1,87 @@
+#!/usr/bin/ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), '../lib'))
+
+require 'rex'
+require 'msf/ui'
+require 'msf/base'
+
+Indent = '   ' 
+
+# Initialize the simplified framework instance.
+$framework = Msf::Simple::Framework.create
+
+if (ARGV.length <= 1)
+	$stderr.puts("\n" + "    Usage: #{$0} <exploit> [var=val] [MODE]\n\n")
+	exit
+end
+
+# Get the exploit name we'll be using
+exploit_name = ARGV.shift
+exploit      = $framework.exploits.create(exploit_name)
+
+if (exploit == nil)
+	$stderr.puts("Invalid payload: #{payload_name}")
+	exit
+end
+
+# Initialize the user interface
+exploit.init_ui($stdout, $stdin)
+
+# Evalulate the command
+mode = ARGV.pop.downcase
+
+# Import options
+exploit.datastore.import_options_from_s(ARGV.join)
+
+case mode.downcase
+	when "s"
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(exploit, Indent))
+	when "o"
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(exploit, Indent))
+	when "a"
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(exploit, Indent))
+	when "p"
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_compatible_payloads(
+			exploit, Indent, "Compatible payloads"))
+	when "t"
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_exploit_targets(exploit, Indent))
+	when "c"
+		begin
+			if (code = exploit.check)
+				stat = (code == Msf::Exploit::CheckCode::Vulnerable) ? '[+]' : '[*]'
+	
+				$stdout.puts("#{stat} #{code[1]}")
+			else
+				$stderr.puts("Check failed: The state could not be determined.")
+			end
+		rescue
+			$stderr.puts("Check failed: #{$!}")
+		end
+	when "e"
+		begin
+			session = exploit.exploit_simple(
+				'Encoder'       => exploit.datastore['ENCODER'],
+				'Target'        => exploit.datastore['TARGET'],
+				'Payload'       => exploit.datastore['PAYLOAD'],
+				'Nop'           => exploit.datastore['NOP'],
+				'LocalInput'    => Rex::Ui::Text::Input::Stdio.new,
+				'LocalOutput'   => Rex::Ui::Text::Output::Stdio.new,
+				'ForceBlocking' => true)
+
+			if (session)
+				$stdout.puts("[*] #{session.desc} session #{session.name} opened (#{session.tunnel_to_s})\n")
+
+				session.init_ui(
+					Rex::Ui::Text::Input::Stdio.new,
+					Rex::Ui::Text::Output::Stdio.new)
+
+				session.interact
+			end
+					
+		rescue
+			$stderr.puts("Exploit failed: #{$!}")
+		end
+end
+
+$stdout.puts
