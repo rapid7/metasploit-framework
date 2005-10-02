@@ -20,6 +20,8 @@ class Output::Buffer < Rex::Ui::Text::Output
 
 	def print(msg = '')
 		self.buf += msg || ''
+
+		msg
 	end
 
 	def reset

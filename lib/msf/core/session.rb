@@ -106,6 +106,38 @@ module Session
 
 	##
 	#
+	# Logging
+	#
+	##
+
+	#
+	# Returns the suggested name of the log file for this session.
+	#
+	def log_file_name
+		dt = Time.now
+
+		dstr = sprintf("%.4d%.2d%.2d", dt.year, dt.mon, dt.mday)
+
+		("#{dstr}_" + tunnel_to_s + "_#{name.to_s}_#{(type || 'unknown').downcase}").gsub(/\s/, '_').gsub(/->/, 'to')
+	end
+
+	#
+	# Returns the log source that should be used for this session.
+	#
+	def log_source
+		"session_#{name.to_s}"
+	end
+
+	def log_from_remote(buf)
+		rlog(buf, log_source)
+	end
+
+	def log_from_local(buf)
+		rlog(buf, log_source)
+	end
+
+	##
+	#
 	# Core interface
 	#
 	##

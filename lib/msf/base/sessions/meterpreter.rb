@@ -66,12 +66,14 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	def init_ui(input, output)
 		console.init_ui(input, output)
+		console.set_log_source(log_source)
 	end
 
 	#
 	# Resets the console's I/O handles
 	#
 	def reset_ui
+		console.unset_log_source
 		console.reset_ui
 	end
 

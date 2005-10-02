@@ -33,6 +33,12 @@ module FrameworkEventManager
 	#
 	def on_session_open(session)
 		output.print_status("#{session.desc} session #{session.name} opened (#{session.tunnel_to_s})")
+
+		if (Msf::Logging.session_logging_enabled? == true)
+			Msf::Logging.start_session_log(session)
+
+			output.print_status("Started logging session interaction.")
+		end
 	end
 
 	#
@@ -42,6 +48,9 @@ module FrameworkEventManager
 		if (session.interacting == true)
 			output.print_line
 		end
+
+		# If logging had been enabled for this session, stop it now.
+		Msf::Logging::stop_session_log(session)
 
 		output.print_status("#{session.desc} session #{session.name} closed.")
 	end

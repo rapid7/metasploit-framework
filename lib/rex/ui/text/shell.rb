@@ -28,7 +28,7 @@ module Shell
 		attr_accessor :prompt, :output
 
 		def pgets
-			output.print(prompt)
+			_print_prompt(prompt)
 			gets
 		end
 	end
@@ -80,6 +80,20 @@ module Shell
 	end
 
 	#
+	# Sets the log source that should be used for logging input and output.
+	#
+	def set_log_source(log_source)
+		self.log_source = log_source
+	end
+
+	#
+	# Unsets the log source so that logging becomes disabled.
+	#
+	def unset_log_source
+		set_log_source(nil)
+	end
+
+	#
 	# Performs tab completion on the supplied string
 	#
 	def tab_complete(str)
@@ -93,6 +107,8 @@ module Shell
 		stop_flag = false
 
 		while ((line = input.pgets))
+			log_output(input.prompt)
+
 			# If a block was passed in, pass the line to it.  If it returns true,
 			# break out of the shell loop.
 			if (block)
@@ -177,6 +193,13 @@ module Shell
 	def colorize(*color)
 		# This check is busted atm...
 		#return (supports_color? == false) ? '' : Rex::Ui::Text::Color.ansi(color)
+		return do_colorize(*color)
+	end
+
+	#
+	# Colorize regardless of terminal support
+	#
+	def do_colorize(*color)
 		return Rex::Ui::Text::Color.ansi(*color)
 	end
 
@@ -186,25 +209,25 @@ module Shell
 
 	def print_error(msg)
 		# Errors are not subject to disabled output
-		output.print_error(msg)
+		log_output(output.print_error(msg))
 	end
 
 	def print_status(msg)
 		return if (disable_output == true)
 
-		output.print_status(msg)
+		log_output(output.print_status(msg))
 	end
 
 	def print_line(msg)
 		return if (disable_output == true)
 
-		output.print_line(msg)
+		log_output(output.print_line(msg))
 	end
 
 	def print(msg)
 		return if (disable_output == true)
 
-		output.print(msg)
+		log_output(output.print(msg))
 	end
 
 	attr_accessor :disable_output
@@ -216,6 +239,8 @@ protected
 	# Parse a line into an array of arguments
 	#
 	def parse_line(line)
+		log_input(line)
+
 		line.gsub!(/(\r|\n)/, '')
 		
 		begin
@@ -227,10 +252,31 @@ protected
 		return []
 	end
 
+	#
+	# Print the prompt, but do not log it.
+	#
+	def _print_prompt(prompt)
+		output.print(prompt)
+	end
+
+	#
+	# Writes the supplied input to the log source if one has been registered.
+	#
+	def log_input(buf)
+		rlog(do_colorize("red") + buf + do_colorize("clear"), log_source) if (log_source)
+	end
+
+	#
+	# Writes the supplied output to the log source if one has been registered.
+	#
+	def log_output(buf)
+		rlog(do_colorize("blue") + buf + do_colorize("clear"), log_source) if (log_source)
+	end
 
 	attr_writer   :input, :output
 	attr_accessor :stop_flag, :init_prompt
 	attr_accessor :prompt_char, :tab_complete_proc
+	attr_accessor :log_source
 
 end
 

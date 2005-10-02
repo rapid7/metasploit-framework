@@ -354,7 +354,7 @@ class Core
 		value = args[1]
 
 		# If the driver indicates that the value is not valid, bust out.
-		if (driver.on_variable_set(name, value) == false)
+		if (driver.on_variable_set(global, name, value) == false)
 			print_error("The value specified for #{name} is not valid.")
 			return true
 		end
@@ -446,7 +446,7 @@ class Core
 		end
 
 		while ((val = args.shift))
-			if (driver.on_variable_unset(val) == false)
+			if (driver.on_variable_unset(global, val) == false)
 				print_error("The variable #{val} cannot be unset at this time.")
 				next
 			end

@@ -21,6 +21,7 @@ module Console
 ###
 class Driver < Msf::Ui::Driver
 
+	ConfigCore  = "framework/core"
 	ConfigGroup = "framework/ui/console"
 
 	#
@@ -47,11 +48,17 @@ class Driver < Msf::Ui::Driver
 		# Register event handlers
 		register_event_handlers
 
-		# Process things before we actually display the prompt and get rocking
-		on_startup
+		# Temporarily disable output
+		self.disable_output = true
 
 		# Load console-specific configuration
 		load_config
+	
+		# Re-enable output
+		self.disable_output = false
+
+		# Process things before we actually display the prompt and get rocking
+		on_startup
 
 		# Process the resource script
 		process_rc_file
@@ -71,9 +78,18 @@ class Driver < Msf::Ui::Driver
 		# If we have configuration, process it
 		if (conf.group?(ConfigGroup))
 			conf[ConfigGroup].each_pair { |k, v|
-				case k
-					when "ActiveModule"
+				case k.downcase
+					when "activemodule"
 						run_single("use #{v}")
+				end
+			}
+		end
+
+		if (conf.group?(ConfigCore))
+			conf[ConfigCore].each_pair { |k, v|
+				case k.downcase
+					when "sessionlogging"
+						handle_session_logging(v)
 				end
 			}
 		end
@@ -125,12 +141,14 @@ class Driver < Msf::Ui::Driver
 	# some other kind of task.  If this routine returns false it will indicate
 	# that the variable is not being set to a valid value.
 	#
-	def on_variable_set(var, val)
+	def on_variable_set(glob, var, val)
 		case var.downcase
 			when "payload"
 				if (framework.modules.valid?(val) == false)
 					return false
 				end
+			when "sessionlogging"
+				handle_session_logging(val) if (glob)
 		end
 	end
 
@@ -138,7 +156,11 @@ class Driver < Msf::Ui::Driver
 	# Called when a variable is unset.  If this routine returns false it is an
 	# indication that the variable should not be allowed to be unset.
 	#
-	def on_variable_unset(var)
+	def on_variable_unset(glob, var)
+		case var.downcase
+			when "sessionlogging"
+				handle_session_logging('0') if (glob)
+		end
 	end
 
 	attr_reader   :framework
@@ -147,7 +169,25 @@ class Driver < Msf::Ui::Driver
 protected
 
 	attr_writer   :framework
+	
+	##
+	#
+	# Handlers for various global configuration values
+	#
+	##
 
+	#
+	# SessionLogging
+	#
+	def handle_session_logging(val)
+		if (val =~ /^(yes|y|true|t|1)/i)
+			Msf::Logging.enable_session_logging(true)
+			print_line("Session logging will be enabled for future sessions.")
+		else
+			Msf::Logging.enable_session_logging(false)
+			print_line("Session logging will be disabled for future sessions.")
+		end
+	end
 end
 
 end

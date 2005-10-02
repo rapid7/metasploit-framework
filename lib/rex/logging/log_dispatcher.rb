@@ -125,7 +125,7 @@ def register_log_source(src, sink)
 	$dispatcher[src] = sink
 end
 
-def deregister_log_source(src, sink)
+def deregister_log_source(src)
 	$dispatcher.delete(src)
 end
 
