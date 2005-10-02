@@ -70,7 +70,7 @@ case mode.downcase
 				'ForceBlocking' => true)
 
 			if (session)
-				$stdout.puts("[*] #{session.desc} session #{session.name} opened (#{session.tunnel_to_s})\n")
+				$stdout.puts("[*] #{session.desc} session #{session.name} opened (#{session.tunnel_to_s})\n\n")
 
 				session.init_ui(
 					Rex::Ui::Text::Input::Stdio.new,
