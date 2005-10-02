@@ -31,8 +31,8 @@ X   - logging session activity
 - modules needing ports (above other modules)
   - encoders
     - shikata
-  - nops
-    - opty2
+X - nops
+X   - opty2
   - payloads
     - mac os x payloads
     - solaris payloads
