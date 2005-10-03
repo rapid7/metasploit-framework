@@ -32,7 +32,7 @@ Separator = "\\"
 		# I suck at regex.
 		path =~ /(.*)#{sep}(.*)$/
 
-		return $2
+		return $2 || path
 	end
 
 	# Expands a file path
