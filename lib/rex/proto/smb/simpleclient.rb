@@ -161,10 +161,11 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 		self.client.delete(*args)
 	end
 
-	def open_mode_to_access(mode)
-		open_func = 0
-		open_perm = 0
-		
+	def create_pipe (path, perm = 'c')
+		disposition = UTILS.create_mode_to_disposition(perm)
+		ok = self.client.create(path, disposition)
+		file_id = ok['Payload'].v['FileID']	
+		fh = OpenFile.new(self.client, path, self.client.last_tree_id, file_id)
 	end
 
 end

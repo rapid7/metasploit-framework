@@ -44,7 +44,20 @@ CONST = Rex::Proto::SMB::Constants
 
 		return mode
 	end
+	
+	# Returns a disposition value for smb.create based on permission string
+	def self.create_mode_to_disposition(str)
+		str.each_byte { |c|
+			case [c].pack('C').downcase
+				when 'c' # Create the file if it does not exist
+					return CONST::CREATE_ACCESS_OPENCREATE
+				when 'o' # Just open the file and fail if it does not exist
+					return CONST::CREATE_ACCESS_EXIST
+			end
+		}
 
+		return CONST::CREATE_ACCESS_OPENCREATE
+	end
 
 	# Convert a 64-bit signed SMB time to a unix timestamp
 	def self.servertime(time_high, time_low)

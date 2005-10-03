@@ -55,8 +55,22 @@ OPEN_ACCESS_WRITE        = 0x01
 OPEN_ACCESS_READWRITE    = 0x02
 OPEN_ACCESS_EXEC         = 0x03
 
+# Create Disposition
+CREATE_ACCESS_SUPERSEDE  = 0x00	# Replace any previously existing file
+CREATE_ACCESS_EXIST      = 0x01 # Open existing file and fail if it does not exist
+CREATE_ACCESS_CREATE     = 0x02 # Create the file, fail if it already exists
+CREATE_ACCESS_OPENCREATE = 0x03 # Open existing file or create it if it does not exist
+CREATE_ACCESS_OVEREXIST  = 0x04 # Overwrite existing file and fail if it does not exist
+CREATE_ACCESS_OVERCREATE = 0x05 # Overwrite existing file or create it if it does not exist
+
+
 # Wildcard NetBIOS name
 NETBIOS_REDIR = 'CACACACACACACACACACACACACACACAAA'
+
+
+
+# SMB Error Codes
+SMB_ERROR_BUFFER_OVERFLOW = 0x80000005
 
 
 # Create a NetBIOS session packet template

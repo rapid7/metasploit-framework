@@ -34,13 +34,13 @@ class Response
 		
 		if (data.length > 10)
 			self.raw = data
-			self.parse('')
+			self.parse
 		end
 
 	end
 	
 	# Parse the contents of a DCERPC response packet and fill out all the fields
-	def parse (body)
+	def parse (body = '')
 		self.raw = self.raw + body
 		self.type = self.raw[2,1].unpack('C')[0]
 		
@@ -72,10 +72,15 @@ class Response
 			
 			# Move the pointer into the packet forward
 			x += 26 + self.sec_addr_len
+			
+			# Align the pointer on a dword boundary
+			while (x % 4 != 0)
+				x += 1
+			end
 
 			# Figure out how many results we have (multiple-context binds)
 			self.num_results = data[ x, 4 ].unpack('V')[0]
-		
+			
 			# Move the pointer to the ack_result[0] offset
 			x += 4
 

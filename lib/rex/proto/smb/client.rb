@@ -38,12 +38,16 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 		begin
 			head = self.socket.timed_read(4, self.read_timeout)
-		rescue TimeoutError
+		rescue Timeout::Error
 		rescue
-			raise XCEPT::ReadHeader
+			raise XCEPT::NoReply
 		end
 		
-		if (head == nil or head.length != 4)
+		if (head == nil)
+			raise XCEPT::NoReply
+		end
+		
+		if (head.length != 4)
 			raise XCEPT::ReadHeader
 		end
 
@@ -58,7 +62,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 			begin
 				buff = self.socket.timed_read(recv_len, self.read_timeout)
-			rescue TimeoutError
+			rescue Timeout::Error
 			rescue
 				raise XCEPT::ReadPacket
 			end
@@ -763,8 +767,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 	
 	# Creates a file or opens an existing pipe
-	# TODO: Allow the caller to specify the hardcoded options
-	def create(filename, disposition = 1)
+	def create(filename, disposition = 1, impersonation = 2)
 		
 		pkt = CONST::SMB_CREATE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -777,10 +780,10 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['FileNameLen'] = filename.length
 		pkt['Payload'].v['CreateFlags'] = 0x16
-		pkt['Payload'].v['AccessMask'] = 0x02019f
+		pkt['Payload'].v['AccessMask'] = 0x02000000 # Maximum Allowed
 		pkt['Payload'].v['ShareAccess'] = 7
-		pkt['Payload'].v['CreateOptions'] = 0x40
-		pkt['Payload'].v['Impersonation'] = 2		
+		pkt['Payload'].v['CreateOptions'] = 0
+		pkt['Payload'].v['Impersonation'] = impersonation	
 		pkt['Payload'].v['Disposition'] = disposition
 		pkt['Payload'].v['Payload'] = filename + "\x00"
 		
@@ -924,7 +927,19 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['MinCount'] = data_length
 		
 		self.smb_send(pkt.to_s)
-		ack = self.smb_recv_parse(CONST::SMB_COM_READ_ANDX)
+
+		ack = self.smb_recv_parse(CONST::SMB_COM_READ_ANDX, true)
+		
+		err = ack['Payload']['SMB'].v['ErrorClass']
+		
+		# Catch some non-fatal error codes
+		if (err != 0 && err != CONST::SMB_ERROR_BUFFER_OVERFLOW)
+			failure = XCEPT::ErrorCode.new
+			failure.word_count = ack['Payload']['SMB'].v['WordCount']
+			failure.command = ack['Payload']['SMB'].v['Command']
+			failure.error_code = ack['Payload']['SMB'].v['ErrorClass']
+			raise failure
+		end
 
 		return ack
 	end

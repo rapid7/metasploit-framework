@@ -12,6 +12,12 @@ class Error < ::RuntimeError
 	end
 end
 
+class NoReply < Error
+	def to_s
+		"The SMB server did not reply to our request"
+	end
+end
+
 class ReadHeader < Error
 	def to_s
 		"The SMB response header was invalid"
