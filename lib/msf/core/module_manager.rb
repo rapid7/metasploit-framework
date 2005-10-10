@@ -152,7 +152,7 @@ protected
 	#
 	# Adds a module with a the supplied name
 	#
-	def add_module(module_class, name)
+	def add_module(module_class, name, file_path = nil)
 		# Duplicate the module class so that we can operate on a
 		# framework-specific copy of it.
 		dup = module_class.dup
@@ -161,6 +161,8 @@ protected
 		# instances are created.
 		dup.framework = framework
 		dup.refname   = name
+		dup.file_path = file_path
+		dup.orig_cls  = module_class
 
 		if (self[name])
 			mod_ambiguous[name] = true
@@ -325,6 +327,46 @@ class ModuleManager < ModuleSet
 	def register_type_extension(type, ext)
 	end
 
+	#
+	# Reloads the module specified in mod.  This can either be an instance of a
+	# module or a module class.
+	#
+	def reload_module(mod)
+		refname = mod.refname
+		ds      = mod.datastore.dup
+
+		dlog("Reloading module #{refname}...", 'core')
+
+		if (mod.file_path)
+			begin
+				if (!load(mod.file_path))
+					elog("Failed to load module from #{mod.file_path}")
+					return nil
+				end
+
+			rescue
+				elog("Failed to reload module #{mod} from #{mod.file_path}: #{$!}")
+				raise $!
+			end
+		end
+
+		# Remove the original reference to this module
+		self.delete(mod.refname)
+
+		# Indicate that the module is being loaded again so that any necessary
+		# steps can be taken to extend it properly.
+		on_module_load(mod.orig_cls, mod.type, refname, mod.file_path)
+
+		# Create a new instance of the module
+		if (mod = create(refname))
+			mod.datastore.update(ds)
+		else
+			elog("Failed to create instance of #{refname} after reload.", 'core')
+		end
+
+		mod
+	end
+
 protected
 
 	#
@@ -476,7 +518,7 @@ protected
 
 		# Do some processing on the loaded module to get it into the
 		# right associations
-		on_module_load(added, type, name)
+		on_module_load(added, type, name, file)
 
 		# Set this module type as needing recalculation
 		recalc[type] = true
@@ -522,7 +564,7 @@ protected
 	# Called when a module is initially loaded such that it can be
 	# categorized accordingly
 	#
-	def on_module_load(mod, type, name)
+	def on_module_load(mod, type, name, file_path)
 		# Payload modules require custom loading as the individual files
 		# may not directly contain a logical payload that a user would 
 		# reference, such as would be the case with a payload stager or 
@@ -533,10 +575,10 @@ protected
 		if (type != MODULE_PAYLOAD)
 			# Add the module class to the list of modules and add it to the
 			# type separated set of module classes
-			add_module(mod, name)
+			add_module(mod, name, file_path)
 		end
 
-		module_sets[type].add_module(mod, name)
+		module_sets[type].add_module(mod, name, file_path)
 	end
 
 	attr_accessor :modules, :module_sets

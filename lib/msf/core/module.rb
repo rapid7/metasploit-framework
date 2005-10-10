@@ -58,6 +58,18 @@ class Module
 		# or derived from the path that the module is loaded from.
 		#
 		attr_accessor :refname
+
+		#
+		# This attribute holds the non-duplicated copy of the module
+		# implementation.  This attribute is used for reloading purposes so that
+		# it can be re-duplicated.
+		#
+		attr_accessor :orig_cls
+
+		#
+		# The path from which the module was loaded.
+		#
+		attr_accessor :file_path
 	end
 
 	#
@@ -122,6 +134,20 @@ class Module
 	#
 	def refname
 		return self.class.refname
+	end
+
+	#
+	# Returns the unduplicated class associated with this module.
+	#
+	def orig_cls
+		return self.class.orig_cls
+	end
+
+	#
+	# The path to the file in which the module can be loaded from.
+	#
+	def file_path
+		self.class.file_path
 	end
 
 	#

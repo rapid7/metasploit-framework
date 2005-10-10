@@ -167,7 +167,7 @@ class PayloadSet < ModuleSet
 	# out if it's a single, stager, or stage.  Depending on which it is, we 
 	# add it to the appropriate list
 	#
-	def add_module(pmodule, name)
+	def add_module(pmodule, name, file_path = nil)
 		if (md = name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
 			name = md[2]
 		end
@@ -185,7 +185,8 @@ class PayloadSet < ModuleSet
 				instance.handler,
 				instance.platform,
 				instance.arch,
-				instance.convention
+				instance.convention,
+				file_path
 			]
 
 		# Use the module's preferred alias if it has one

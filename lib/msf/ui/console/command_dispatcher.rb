@@ -45,6 +45,10 @@ module ModuleCommandDispatcher
 		return driver.active_module
 	end
 
+	def mod=(m)
+		self.driver.active_module = m
+	end
+
 end
 
 end end end
