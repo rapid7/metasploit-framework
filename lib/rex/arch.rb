@@ -2,6 +2,7 @@ module Rex
 module Arch
 
 	require 'rex/arch/x86'
+	require 'rex/arch/sparc'
 
 	#
 	# This routine adjusts the stack pointer for a given architecture
