@@ -156,7 +156,7 @@ case cmd
 
 				# Print it out
 				$stderr.puts(OutStatus + "#{enc.refname} succeeded, final size #{raw.length}\n\n")
-				$stdout.puts(Msf::Simple::Buffer.transform(raw, fmt))
+				$stdout.print(Msf::Simple::Buffer.transform(raw, fmt))
 				exit
 
 			rescue
