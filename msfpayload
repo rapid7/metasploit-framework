@@ -63,7 +63,7 @@ if (cmd =~ /^(p|r|c)/)
 		exit
 	end
 
-	puts buf
+	print buf
 elsif (cmd =~ /^s/)
 	puts Msf::Serializer::ReadableText.dump_module(payload)
 end
