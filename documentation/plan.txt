@@ -34,9 +34,10 @@ X   - logging session activity
 X - nops
 X   - opty2
   - payloads
-    - mac os x payloads
-    - solaris payloads
-    - bsd payloads
+X   - mac os x payloads
+      - osx null free reverse stager
+X   - solaris payloads
+X   - bsd payloads
 - user interfaces
   - general
 X   - add concept of EVASION option (high, normal, low)
