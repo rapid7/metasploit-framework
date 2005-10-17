@@ -34,6 +34,7 @@ X   - logging session activity
 X - nops
 X   - opty2
   - payloads
+    - cmd payloads
 X   - mac os x payloads
       - osx null free reverse stager
 X   - solaris payloads

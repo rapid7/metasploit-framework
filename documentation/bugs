@@ -1,5 +1,9 @@
 msf/core
   - encoding is slow sometimes, profile it
+  - session listing fails if endpoint dies:
+
+msf exploit(windows/ms03_020_ie_objecttype) > session -l
+[-] Session manipulation failed: Transport endpoint is not connected - getpeername(2)
 
 meterpreter
   - migration sometimes does partial reads of stages leading to crashes

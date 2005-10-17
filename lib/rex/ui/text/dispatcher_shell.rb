@@ -178,6 +178,7 @@ module DispatcherShell
 		dispatcher_stack.reverse.each { |dispatcher|
 			# No commands?  Suckage.
 			next if ((dispatcher.respond_to?('commands') == false) or
+			         (dispatcher.commands == nil) or
 			         (dispatcher.commands.length == 0))
 
 			# Display the commands
