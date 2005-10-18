@@ -1,0 +1,35 @@
+<b>Scheduled alpha preview release:</b> December 15th, 2005<br/>
+<br/>
+Metasploit 3.0 is the next generation of the Metasploit Framework.  It is written
+in the <a href="http://www.ruby-lang.org/">Ruby</a> programming language.
+As it stands, the 2.0 branch has made it possible to drastically reduce the
+amount of time it takes to implement an exploit with the added benefit of making
+it possible to re-use large amounts of code between various exploits.  The
+extensible model through which payloads, encoders, NOP generators, and exploits
+can be integrated has made it possible to use the Metasploit Framework as an
+outlet for cutting-edge exploitation research.<br/> 
+<br/>
+In this light, the 3.0 version is being planned to help continue to evolve
+the field of exploitation research and exploitation frameworks in general.
+The primary goals of the 3.0 version are listed below:<br/>
+<ul>
+	<li>To improve automation of exploitation through scripting
+	<li>To simplify the process of writing an exploit
+	<li>To increase code re-use between exploits
+	<li>To improve and generically integrate evasion techniques
+	<li>To support automated network discovery and event correlation through <i>recon</i> modules
+	<li>To continue to provide a friendly outlet to cutting edge exploitation technology
+</ul>
+As we get closer to the preview release date, we will begin posting design
+documentation and other information that will allow the community to assess
+the new architecture and provide feedback.  The preview release will simply
+be used as a milestone by which the public can help us to gauge how much 
+work remains until we feel comfortable that we have a finished product.<br/>
+<br/>
+In the meantime, here are some screenshots of the 3.0 release in development.  Nothing
+too fancy at this point, but it highlights some of the upcoming changes.<br/>
+<br/>
+<a href="http://www.hick.org/~mmiller/msf3/pics">Metasploit 3.0 Preview Screenshots</a>
+<br/>
+<br/>
+- Metasploit Staff
