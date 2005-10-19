@@ -172,7 +172,7 @@ protected
 		session_waiter_event.notify(session)
 	end
 
-	attr_accessor :session_waiter_event
+	attr_accessor :session_waiter_event # :nodoc:
 
 end
 

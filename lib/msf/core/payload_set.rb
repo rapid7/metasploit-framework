@@ -60,14 +60,14 @@ class PayloadSet < ModuleSet
 	# Performs custom filtering during each_module enumeration.  This allows us
 	# to filter out certain stagers as necessary.
 	#
-	# TODO: stager-based customf iltering
-	#
 	def each_module_filter(opts, name, mod)
 		return false
 	end
 
-	# Build the actual hash of alias names based on all the permutations
-	# of singles, stagers, and stages
+	#
+	# This method builds the hash of alias names based on all the permutations
+	# of singles, stagers, and stages.
+	#
 	def recalculate
 		# Reset the current hash associations
 		self.each_key { |key|
@@ -105,10 +105,8 @@ class PayloadSet < ModuleSet
 				if ((stager_arch) and
 				    (stage_arch) and
 				    ((stager_arch & stage_arch).empty?))
-					dlog("Stager #{stager_name} and stage #{stage_name} have incompatible architectures:",
+					dlog("Stager #{stager_name} and stage #{stage_name} have incompatible architectures: #{stager_arch.join} - #{stage_arch.join}",
 						'core', LEV_3)
-					dlog("  Stager: #{stager_arch.join}.", 'core', LEV_3)
-					dlog("  Stage: #{stage_arch.join}.", 'core', LEV_3)
 					next
 				end
 
@@ -116,10 +114,8 @@ class PayloadSet < ModuleSet
 				if ((stager_platform) and
 				    (stage_platform) and
 				    (stager_platform & stage_platform).empty?)
-					dlog("Stager #{stager_name} and stage #{stage_name} have incompatible platforms:",
+					dlog("Stager #{stager_name} and stage #{stage_name} have incompatible platforms: #{stager_platform.names} - #{stage_platform.names}",
 						'core', LEV_3)
-					dlog("  Stager: #{stager_platform.names}.", 'core', LEV_3)
-					dlog("  Stage: #{stage_platform.names}.", 'core', LEV_3)
 					next
 				end
 
@@ -164,10 +160,10 @@ class PayloadSet < ModuleSet
 	end
 
 	#
-	# Called when a new payload module class is loaded up.  For the payload
-	# set we simply create an instance of the class and do some magic to figure
-	# out if it's a single, stager, or stage.  Depending on which it is, we 
-	# add it to the appropriate list
+	# This method is called when a new payload module class is loaded up.  For
+	# the payload set we simply create an instance of the class and do some
+	# magic to figure out if it's a single, stager, or stage.  Depending on
+	# which it is, we add it to the appropriate list.
 	#
 	def add_module(pmodule, name, file_path = nil)
 		if (md = name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
@@ -210,7 +206,8 @@ class PayloadSet < ModuleSet
 	end
 
 	#
-	# Adds a single payload to the set and adds it to the singles hash
+	# This method adds a single payload to the set and adds it to the singles
+	# hash.
 	#
 	def add_single(p, name)
 		p.framework = framework
@@ -228,8 +225,8 @@ class PayloadSet < ModuleSet
 	end
 
 	#
-	# Adds a stage payload to the set and adds it to the stages hash
-	# using the supplied handler type.
+	# This method adds a stage payload to the set and adds it to the stages
+	# hash using the supplied handler type.
 	#
 	def add_stage(p, full_name, stage_name, handler_type)
 		p.framework = framework
@@ -264,7 +261,18 @@ class PayloadSet < ModuleSet
 		self._instances[name]
 	end
 
-	attr_reader :stages, :singles, :sizes
+	#
+	# The list of stages that have been loaded.
+	#
+	attr_reader :stages
+	#
+	# The list of stagers that have been loaded.
+	#
+	attr_reader :singles
+	#
+	# The sizes of all the built payloads thus far.
+	#
+	attr_reader :sizes
 
 protected
 
@@ -306,9 +314,9 @@ protected
 		return klass
 	end
 
-	attr_accessor :manager, :payload_type_modules
-	attr_writer   :stages, :singles, :sizes
-	attr_accessor :_instances
+	attr_accessor :manager, :payload_type_modules # :nodoc: 
+	attr_writer   :stages, :singles, :sizes # :nodoc: 
+	attr_accessor :_instances # :nodoc: 
 
 end
 

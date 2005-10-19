@@ -26,12 +26,20 @@ class Framework
 	# should be tied to the framework, such as modules.
 	#
 	module Offspring
+
+		#
+		# A reference to the framework instance from which this offspring was
+		# derived.
+		#
 		attr_accessor :framework	
 	end
 
 	require 'msf/core/module_manager'
 	require 'msf/core/session_manager'
 
+	#
+	# Creates an instance of the framework context.
+	#
 	def initialize()
 		self.events    = EventDispatcher.new
 		self.modules   = ModuleManager.new(self)
@@ -41,14 +49,14 @@ class Framework
 	end
 
 	#
-	# Returns the module set for encoders
+	# Returns the module set for encoders.
 	#
 	def encoders
 		return modules.encoders
 	end
 
 	#
-	# Returns the module set for exploits
+	# Returns the module set for exploits.
 	#
 	def exploits
 		return modules.exploits
@@ -75,19 +83,38 @@ class Framework
 		return modules.recon
 	end
 
+	#
+	# Event management interface for registering event handler subscribers and
+	# for interacting with the correlation engine.
+	#
 	attr_reader   :events
+	#
+	# Module manager that contains information about all loaded modules,
+	# regardless of type.
+	#
 	attr_reader   :modules
+	#
+	# Session manager that tracks sessions associated with this framework
+	# instance over the course of their lifetime.
+	#
 	attr_reader   :sessions
+	#
+	# The global framework datastore that can be used by modules.
+	#
 	attr_reader   :datastore
+	#
+	# Background job management specific to things spawned from this instance
+	# of the framework.
+	#
 	attr_reader   :jobs
 
 protected
 
-	attr_writer   :events
-	attr_writer   :modules
-	attr_writer   :sessions
-	attr_writer   :datastore
-	attr_writer   :jobs
+	attr_writer   :events # :nodoc:
+	attr_writer   :modules # :nodoc:
+	attr_writer   :sessions # :nodoc:
+	attr_writer   :datastore # :nodoc:
+	attr_writer   :jobs # :nodoc:
 
 end
 
