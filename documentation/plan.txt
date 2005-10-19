@@ -19,7 +19,7 @@ X   - consider extending String
 - framework-core
   - modules
 X   - reloading
-    - compatibility filtering (keys)
+X   - compatibility filtering (keys)
 X   - description sanitation (strip lines/etc)
   - payloads
 X   - meta information
