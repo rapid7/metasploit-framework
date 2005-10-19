@@ -21,6 +21,10 @@ module BindTcp
 		return "bind_tcp"
 	end
 
+	def self.general_handler_type
+		"bind"
+	end
+
 	def initialize(info = {})
 		super
 

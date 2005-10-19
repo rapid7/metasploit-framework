@@ -50,6 +50,10 @@ class PayloadSet < ModuleSet
 
 		# Hash that caches the sizes of payloads
 		self.sizes   = {}
+
+		# Single instance cache of modules for use with doing quick referencing
+		# of attributes that would require an instance.
+		self._instances = {}
 	end
 
 	#
@@ -91,11 +95,11 @@ class PayloadSet < ModuleSet
 
 		# Recalculate stagers and stages
 		_stagers.each_pair { |stager_name, p|
-			stager_mod, handler, stager_platform, stager_arch, stager_conv = p
+			stager_mod, handler, stager_platform, stager_arch, stager_inst = p
 
 			# Walk the array of stages
 			_stages.each_pair { |stage_name, p|
-				stage_mod, junk, stage_platform, stage_arch, stage_conv = p
+				stage_mod, junk, stage_platform, stage_arch, stage_inst = p
 
 				# No intersection between architectures on the payloads?
 				if ((stager_arch) and
@@ -121,12 +125,10 @@ class PayloadSet < ModuleSet
 
 				# If the stage has a convention, make sure it's compatible with
 				# the stager's
-				if ((stage_conv) and
-				    (stager_conv != stage_conv))
-					dlog("Stager #{stager_name} and stage #{stage_name} have incompatible conventions:",
+				if ((stage_inst) and
+				    (stage_inst.compatible?(stager_inst) == false))
+					dlog("Stager #{stager_name} and stage #{stage_name} are incompatible.",
 						'core', LEV_3)
-					dlog("  Stager: #{stager_conv}.", 'core', LEV_3)
-					dlog("  Stage: #{stage_conv}.", 'core', LEV_3)
 					next
 				end
 
@@ -182,10 +184,10 @@ class PayloadSet < ModuleSet
 		pinfo = 
 			[
 				pmodule,
-				instance.handler,
+				instance.handler_klass,
 				instance.platform,
 				instance.arch,
-				instance.convention,
+				instance,
 				file_path
 			]
 
@@ -201,8 +203,8 @@ class PayloadSet < ModuleSet
 		# connection, then it can also be staged.  Insert it into
 		# the staged list.
 		if ((instance.payload_type == Payload::Type::Single) and
-		    ((instance.handler == Msf::Handler::None) or
-		     (instance.handler == nil)))
+		    ((instance.handler_klass == Msf::Handler::None) or
+		     (instance.handler_klass == nil)))
 			payload_type_modules[Payload::Type::Stage][name] = pinfo
 		end
 	end
@@ -246,6 +248,20 @@ class PayloadSet < ModuleSet
 		stages[stage_name][handler_type] = p
 			
 		dlog("Built staged payload #{full_name}.", 'core', LEV_1)
+	end
+
+	#
+	# Returns a single read-only instance of the supplied payload name such
+	# that specific attributes, like compatibility, can be evaluated.  The
+	# payload instance returned should NOT be used for anything other than
+	# reading.
+	#
+	def instance(name)
+		if (self._instances[name] == nil)
+			self._instances[name] = create(name)
+		end
+
+		self._instances[name]
 	end
 
 	attr_reader :stages, :singles, :sizes
@@ -292,6 +308,7 @@ protected
 
 	attr_accessor :manager, :payload_type_modules
 	attr_writer   :stages, :singles, :sizes
+	attr_accessor :_instances
 
 end
 

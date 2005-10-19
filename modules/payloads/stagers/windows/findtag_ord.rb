@@ -21,6 +21,7 @@ module FindTagOrdinalTcp
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::FindTag,
 			'Convention'    => 'sockedi',
+			'SymbolLookup'  => 'ws2ord',
 			'Stager'        =>
 				{
 					'Offsets' =>

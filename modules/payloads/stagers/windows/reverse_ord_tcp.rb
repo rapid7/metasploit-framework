@@ -25,6 +25,7 @@ module ReverseOrdinalTcp
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Convention'    => 'sockedi',
+			'SymbolLookup'  => 'ws2ord',
 			'Stager'        =>
 				{
 					'Offsets' =>

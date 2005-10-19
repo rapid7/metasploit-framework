@@ -19,6 +19,10 @@ module FindTag
 		return "find_tag"
 	end
 
+	def self.general_handler_type
+		"find"
+	end
+
 	def initialize(info = {})
 		super
 

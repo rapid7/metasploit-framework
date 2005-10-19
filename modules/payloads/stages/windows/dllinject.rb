@@ -29,7 +29,10 @@ module DllInject
 				],
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
-			'Convention'    => 'sockedi',
+			'PayloadCompat' =>
+				{
+					'Convention' => 'sockedi'
+				},
 			'Stage'         =>
 				{
 					'Offsets' =>

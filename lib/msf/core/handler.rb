@@ -46,6 +46,13 @@ module Handler
 	end
 
 	#
+	# Returns the transport-independent handler type.
+	#
+	def self.general_handler_type
+		"none"
+	end
+
+	#
 	# Returns the handler's name, if any.
 	#
 	def handler_name

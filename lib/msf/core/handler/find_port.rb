@@ -17,6 +17,10 @@ module FindPort
 		return "find_port"
 	end
 
+	def self.general_handler_type
+		"find"
+	end
+
 	def initialize(info = {})
 		super
 

@@ -18,6 +18,10 @@ module Shell
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Session'       => Msf::Sessions::CommandShell,
+			'PayloadCompat' =>
+				{
+					'Convention' => 'sockedi'
+				},
 			'Stage'         =>
 				{
 					'Offsets' =>

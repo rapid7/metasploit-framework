@@ -89,6 +89,9 @@ class Module
 
 		set_defaults
 
+		# Initialize module compatibility hashes
+		init_compat
+
 		# Transform some of the fields to arrays as necessary
 		self.author = Author.transform(module_info['Author'])
 		self.arch = Rex::Transformer.transform(module_info['Arch'], Array, 
@@ -154,7 +157,7 @@ class Module
 	# Return the module's name
 	#
 	def name
-		return module_info['Name']
+		module_info['Name']
 	end
 
 	#
@@ -162,21 +165,77 @@ class Module
 	# name is returned.
 	#
 	def alias
-		return module_info['Alias']
+		module_info['Alias']
 	end
 
 	#
 	# Return the module's description
 	#
 	def description
-		return module_info['Description']
+		module_info['Description']
 	end
 
 	#
 	# Return the module's version information
 	#
 	def version
-		return module_info['Version']
+		module_info['Version']
+	end
+
+	#
+	# Returns the hash that describes this module's compatibilities
+	#
+	def compat
+		module_info['Compat'] || {}
+	end
+
+	#
+	# Returns whether or not this module is compatible with the supplied
+	# module.
+	#
+	def compatible?(mod)
+		ch = nil
+
+		# Invalid module?  Shoot, we can't compare that.
+		return true if (mod == nil)
+
+		# Determine which hash to used based on the supplied module type
+		if (mod.type == MODULE_ENCODER)
+			ch = self.compat['Encoder']
+		elsif (mod.type == MODULE_NOP)
+			ch = self.compat['Nop']
+		elsif (mod.type == MODULE_PAYLOAD)
+			ch = self.compat['Payload']
+		else
+			return true
+		end
+
+		# Enumerate each compatibility item in our hash to find out
+		# if we're compatible with this sucker.
+		ch.each_pair { |k,v|
+
+			# Get the value of the current key from the module, such as
+			# the ConnectionType for a stager (ws2ord, for instance).
+			mval = mod.module_info[k]
+
+			# Skip zee nils that the module has.
+			next if (mval == nil or v == nil)
+
+			# If the supplied module's value is not contained within the supported
+			# values for the this module or this module indicated a negation of
+			# the value stated by the supplied module, then we have detected
+			# ourselves a bit of an incompatibility and we just can't have that.
+			if (!(v =~ /#{mval}/) or
+			    (v =~ /-#{mval}/))
+				dlog("Module #{mod.refname} is incompatible with #{self.refname} for #{k}: limiter was #{v}, value was #{mval}", 
+					'core', LEV_1)
+
+				return false
+			end
+		}
+
+		# If we get here, we're compatible.
+		return true
 	end
 
 	#
@@ -300,6 +359,34 @@ protected
 			'Ref'         => nil,
 			'Privileged'  => false,
 		}.update(self.module_info)
+	end
+
+	#
+	# This method initializes the module's compatibility hashes by normalizing
+	# them into one single hash.  As it stands, modules can define
+	# compatibility in their supplied info hash through:
+	#
+	#   Compat        - direct compat definitions
+	#   PayloadCompat - payload compatibilities
+	#   EncoderCompat - encoder compatibilities
+	#   NopCompat     - nop compatibilities
+	#
+	# In the end, the module specific compatibilities are merged as sub-hashes
+	# of the primary Compat hash key to make checks more uniform.
+	#
+	def init_compat
+		c = module_info['Compat'] = Hash.new if (module_info['Compat'] == nil)
+
+		# Initialize the module sub compatibilities
+		c['Payload'] = Hash.new if (c['Payload'] == nil)
+		c['Encoder'] = Hash.new if (c['Encoder'] == nil)
+		c['Nop']     = Hash.new if (c['Nop'] == nil)
+
+		# Update the compat-derived module specific compatibilities from
+		# the specific ones to make a uniform view of compatibilities
+		c['Payload'].update(module_info['PayloadCompat'] || {})
+		c['Encoder'].update(module_info['EncoderCompat'] || {})
+		c['Nop'].update(module_info['NopCompat'] || {})
 	end
 
 	#

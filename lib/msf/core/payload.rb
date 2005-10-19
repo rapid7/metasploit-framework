@@ -31,6 +31,11 @@ class Payload < Msf::Module
 
 	def initialize(info = {})
 		super
+
+		# Update the module info hash with the connection type
+		# that is derived from the handler for this payload.  This is
+		# used for compatibility filtering purposes.
+		self.module_info['ConnectionType'] = connection_type
 	end
 
 	##
@@ -107,6 +112,21 @@ class Payload < Msf::Module
 	end
 
 	#
+	# Returns the module's connection type, such as reverse, bind, noconn,
+	# or whatever else the case may be.
+	#
+	def connection_type
+		handler_klass.general_handler_type
+	end
+
+	#
+	# The method used to resolve symbols by the payload.
+	#
+	def symbol_lookup
+		module_info['SymbolLookup']
+	end
+
+	#
 	# Checks to see if the supplied convention is compatible with this
 	# payload's convention.
 	#
@@ -133,7 +153,7 @@ class Payload < Msf::Module
 	# Return the connection associated with this payload, or none if there
 	# isn't one.
 	#
-	def handler
+	def handler_klass
 		return module_info['Handler'] || Msf::Handler::None
 	end
 

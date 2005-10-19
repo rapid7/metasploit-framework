@@ -18,6 +18,10 @@ module None
 	def self.handler_type
 		return "none"
 	end
+	
+	def self.general_handler_type
+		return "none"
+	end
 
 end
 

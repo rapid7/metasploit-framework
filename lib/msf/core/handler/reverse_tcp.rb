@@ -22,6 +22,10 @@ module ReverseTcp
 		return "reverse_tcp"
 	end
 
+	def self.general_handler_type
+		"reverse"
+	end
+
 	def initialize(info = {})
 		super
 
