@@ -16,7 +16,8 @@ class EncodedPayload
 	include Framework::Offspring
 
 	#
-	# Creates an encoded payload instance
+	# This method creates an encoded payload instance and returns it to the
+	# caller.
 	#
 	def self.create(pinst, reqs)
 		# Create the encoded payload instance
@@ -225,13 +226,13 @@ class EncodedPayload
 
 protected
 
-	attr_writer :raw
-	attr_writer :encoded
-	attr_writer :nop_sled_size
-	attr_writer :nop_sled
-	attr_writer :payload
-	attr_writer :encoder
-	attr_writer :nop
+	attr_writer :raw # :nodoc:
+	attr_writer :encoded # :nodoc:
+	attr_writer :nop_sled_size # :nodoc:
+	attr_writer :nop_sled # :nodoc:
+	attr_writer :payload # :nodoc:
+	attr_writer :encoder # :nodoc:
+	attr_writer :nop # :nodoc:
 
 	#
 	# The payload instance used to generate the payload

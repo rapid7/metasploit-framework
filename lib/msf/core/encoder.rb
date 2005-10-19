@@ -13,32 +13,40 @@ module Msf
 ###
 class EncoderState
 
+	#
+	# Initializes a new encoder state, optionally with a key.
+	#
 	def initialize(key = nil)
 		reset(key)
 	end
 
-	# Reset the encoder state
+	#
+	# Reset the encoder state by initializing the encoded buffer to an empty
+	# string.
+	#
 	def reset(key = nil)
 		init_key(key)
 
 		self.encoded  = ''
 	end
 
+	#
 	# Set the initial encoding key
+	#
 	def init_key(key)
 		self.key      = key
 		self.orig_key = key
 	end
 
-	attr_accessor :key
-	attr_accessor :orig_key
-	attr_accessor :encoded
-	attr_accessor :context
-	attr_accessor :badchars
-	attr_accessor :buf
+	attr_accessor :key # :nodoc:
+	attr_accessor :orig_key # :nodoc:
+	attr_accessor :encoded # :nodoc:
+	attr_accessor :context # :nodoc:
+	attr_accessor :badchars # :nodoc:
+	attr_accessor :buf # :nodoc:
 
 	# Decoder settings
-	attr_accessor :decoder_key_offset, :decoder_key_size, :decoder_key_pack
+	attr_accessor :decoder_key_offset, :decoder_key_size, :decoder_key_pack # :nodoc:
 
 end
 
@@ -56,46 +64,77 @@ class Encoder < Module
 		super(info)
 	end
 
+	##
 	#
 	# Encoder information accessors that can be overriden
 	# by derived classes
 	#
+	##
 
+	#
+	# Returns MODULE_ENCODER to indicate that this is an encoder module.
+	#
 	def self.type
 		return MODULE_ENCODER
 	end
 
+	#
+	# Returns MODULE_ENCODER to indicate that this is an encoder module.
+	#
 	def type
 		return MODULE_ENCODER
 	end
 
 	#
-	# Returns the decoder stub to use based on the supplied length
+	# Returns the decoder stub to use based on the supplied length.
 	#
 	def decoder_stub(state)
 		return module_info['Decoder']['Stub']
 	end
 
+	#
+	# Returns the offset to the key associated with the decoder stub.
+	#
 	def decoder_key_offset
 		return module_info['Decoder']['KeyOffset']
 	end
 
+	#
+	# Returns the size of the key, in bytes.
+	#
 	def decoder_key_size
 		return module_info['Decoder']['KeySize']
 	end
 
+	#
+	# Returns the size of each logical encoding block, in bytes.  This
+	# is typically the same as decoder_key_size.
+	#
 	def decoder_block_size
 		return module_info['Decoder']['BlockSize']
 	end
 
+	#
+	# Returns the byte-packing character that should be used to encode
+	# the key.
+	#
 	def decoder_key_pack
 		return module_info['Decoder']['KeyPack'] || 'V'
 	end
 
+	##
 	#
 	# Encoding
 	#
+	##
 
+	#
+	# This method generates an encoded version of the supplied buffer in buf
+	# using the bad characters as guides.  On success, an encoded and
+	# functional version of the supplied buffer will be returned.  Otherwise,
+	# an exception will be thrown if an error is encountered during the
+	# encoding process.
+	#
 	def encode(buf, badchars, state = nil)
 		# Initialize an empty set of bad characters
 		badchars = '' if (!badchars)
@@ -139,6 +178,10 @@ class Encoder < Module
 		return state.encoded
 	end
 
+	#
+	# Performs the actual encoding operation after the encoder state has been
+	# initialized and is ready to go.
+	#
 	def do_encode(buf, badchars, state)
 		# Copy the decoder stub since we may need to modify it
 		stub = decoder_stub(state).dup
@@ -175,32 +218,56 @@ class Encoder < Module
 		return true
 	end
 
+	##
 	#
 	# Buffer management
 	#
-	
+	##
+
+	#
+	# Returns a string that should be prepended to the encoded version of the
+	# buffer before returning it to callers.
+	#
 	def prepend_buf
 		return ''
 	end
 
+	##
 	#
 	# Pre-processing, post-processing, and block encoding stubs
 	#
+	##
 
+	#
+	# Called when encoding is about to start immediately after the encoding
+	# state has been initialized.
+	#
 	def encode_begin(state)
 		return nil
 	end
 
+	#
+	# Called after encoding has completed.
+	#
 	def encode_end(state)
 		return nil
 	end
 
+	#
+	# Called once for each block being encoded based on the attributes of the
+	# decoder.
+	#
 	def encode_block(state, block)
 		return block
 	end
 
 protected
 
+	#
+	# Initializes the encoding state supplied as an argument to the attributes
+	# that have been defined for this decoder stub, such as key offset, size,
+	# and pack.
+	#
 	def init_state(state)
 		# Update the state with default decoder information
 		state.decoder_key_offset = decoder_key_offset
@@ -208,6 +275,12 @@ protected
 		state.decoder_key_pack   = decoder_key_pack
 	end
 
+	#
+	# This method finds a compatible key for the supplied buffer based also on
+	# the supplied bad characters list.  This is meant to make encoders more
+	# reliable and less prone to bad character failure by doing a fairly
+	# complete key search before giving up on an encoder.
+	#
 	def find_key(buf, badchars)
 		key_bytes = [ ]
 		cur_key   = [ ]
@@ -256,10 +329,16 @@ protected
 		return key_bytes_to_integer(key_bytes)
 	end
 
+	#
+	# Returns the list of bad keys associated with this encoder.
+	#
 	def find_bad_keys
 		return [ {}, {}, {}, {} ]
 	end
 
+	#
+	# Returns the index of any bad characters found in the supplied buffer.
+	#
 	def has_badchars?(buf, badchars)
 		badchars.each_byte { |badchar|
 			idx = buf.index(badchar)

@@ -24,8 +24,24 @@ class Payload < Msf::Module
 	# Payload types
 	#
 	module Type
+		#
+		# Single payload type.  These types of payloads are self contained and
+		# do not go through any staging.
+		#
 		Single = (1 << 0)
+		
+		#
+		# The stager half of a staged payload.  Its responsibility in life is to
+		# read in the stage and execute it.
+		#
 		Stager = (1 << 1)
+
+		#
+		# The stage half of a staged payload.  This payload performs whatever
+		# arbitrary task it's designed to do, possibly making use of the same
+		# connection that the stager used to read the stage in on, if
+		# applicable.
+		#
 		Stage  = (1 << 2)
 	end
 
@@ -45,12 +61,15 @@ class Payload < Msf::Module
 	##
 
 	#
-	# This module is a payload.
+	# Returns MODULE_PAYLOAD to indicate that this is a payload module.
 	#
 	def self.type
 		return MODULE_PAYLOAD
 	end
 
+	#
+	# Returns MODULE_PAYLOAD to indicate that this is a payload module.
+	#
 	def type
 		return MODULE_PAYLOAD
 	end
@@ -120,7 +139,8 @@ class Payload < Msf::Module
 	end
 
 	#
-	# The method used to resolve symbols by the payload.
+	# Returns the method used by the payload to resolve symbols for the purpose
+	# of calling functions, such as ws2ord.
 	#
 	def symbol_lookup
 		module_info['SymbolLookup']
@@ -172,14 +192,16 @@ class Payload < Msf::Module
 	##
 
 	#
-	# Make sure all our required options are set.
+	# This method ensures that the options associated with this payload all
+	# have valid values according to each required option in the option
+	# container.
 	#
 	def validate
 		self.options.validate(self.datastore)
 	end
 
 	#
-	# Generates the payload and return the raw buffer
+	# Generates the payload and returns the raw buffer to the caller.
 	#
 	def generate
 		raw = payload.dup
@@ -271,8 +293,21 @@ class Payload < Msf::Module
 		return nops
 	end
 
-	# Payload prepending and appending for various situations
-	attr_accessor :prepend, :append, :prepend_encoder
+	#
+	# This attribute holds the string that should be prepended to the buffer
+	# when it's generated.
+	#
+	attr_accessor :prepend
+	#
+	# This attribute holds the string that should be appended to the buffer
+	# when it's generated.
+	#
+	attr_accessor :append
+	#
+	# This attribute holds the string that should be prepended to the encoded
+	# version of the payload (in front of the encoder as well).
+	#
+	attr_accessor :prepend_encoder
 
 protected
 

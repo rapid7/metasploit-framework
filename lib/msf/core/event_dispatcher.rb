@@ -44,45 +44,77 @@ class EventDispatcher
 		self.subscribers_rwlock        = Rex::ReadWriteLock.new
 	end
 
+	##
 	#
 	# Subscriber registration
 	#
-	
+	##
+
+	#
+	# This method adds a general subscriber.  General subscribers receive
+	# notifications when all events occur.
+	#
 	def add_general_subscriber(subscriber)
 		add_event_subscriber(general_event_subscribers, subscriber)
 	end
 
+	#
+	# Removes a general subscriber.
+	#
 	def remove_general_subscriber(subscriber)
 		remove_event_subscriber(general_event_subscribers, subscriber)	
 	end
 
+	#
+	# This method adds a recon event subscriber.  Recon event subscribers
+	# receive notifications when events occur that pertain to recon modules.
+	# The subscriber provided must implement the ReconEvents module methods in
+	# some form.
+	#
 	def add_recon_subscriber(subscriber)
 		add_event_subscriber(recon_event_subscribers, subscriber)
 	end
 
+	#
+	# Removes a recon event subscriber.
+	#
 	def remove_recon_subscriber(subscriber)
 		remove_event_subscriber(recon_event_subscribers, subscriber)
 	end
 
+	#
+	# This method adds an exploit event subscriber.  Exploit event subscribers
+	# receive notifications when events occur that pertain to exploits, such as
+	# the success or failure of an exploitation attempt.  The subscriber
+	# provided must implement the ExploitEvents module methods in some form.
+	#
 	def add_exploit_subscriber(subscriber)
 		add_event_subscriber(exploit_event_subscribers, subscriber)
 	end
 
+	#
+	# Removes an exploit event subscriber.
+	#
 	def remove_exploit_subscriber(subscriber)
 		remove_event_subscriber(exploit_event_subscribers, subscriber)
 	end
 
+	#
+	# This method adds a session event subscriber.  Session event subscribers
+	# receive notifications when sessions are opened and closed.  The
+	# subscriber provided must implement the SessionEvents module methods in
+	# some form.
+	#
 	def add_session_subscriber(subscriber)
 		add_event_subscriber(session_event_subscribers, subscriber)
 	end
 
+	#
+	# Removes a session event subscriber.
+	#
 	def remove_session_subscriber(subscriber)
 		remove_event_subscriber(session_event_subscribers, subscriber)
 	end
-
-	#
-	# Event dispatching entry point
-	#
 
 	##
 	#
@@ -90,6 +122,10 @@ class EventDispatcher
 	#
 	##
 
+	#
+	# Called when a module is loaded into the framework.  This, in turn,
+	# notifies all registered general event subscribers.
+	#
 	def on_module_load(name, mod)
 		subscribers_rwlock.synchronize_read {
 			general_event_subscribers.each { |subscriber|
@@ -100,6 +136,10 @@ class EventDispatcher
 		}
 	end
 
+	#
+	# Called when a module is unloaded from the framework.  This, in turn,
+	# notifies all registered general event subscribers.
+	#
 	def on_module_created(instance)
 		subscribers_rwlock.synchronize_read {
 			general_event_subscribers.each { |subscriber|
@@ -116,6 +156,10 @@ class EventDispatcher
 	#
 	##
 
+	#
+	# Called when recon information is discovered.  This, in turn, notifies all
+	# registered recon event subscribers.
+	#
 	def on_recon_discovery(group, info)
 		subscribers_rwlock.synchronize_read {
 			recon_event_subscribers.each { |subscriber|
@@ -130,6 +174,10 @@ class EventDispatcher
 	#
 	##
 
+	#
+	# Called when an exploit succeeds.  This notifies the registered exploit
+	# event subscribers.
+	#
 	def on_exploit_success(exploit)
 		subscribers_rwlock.synchronize_read {
 			exploit_event_subscribers.each { |subscriber|
@@ -138,6 +186,10 @@ class EventDispatcher
 		}
 	end
 
+	#
+	# Called when an exploit fails.  This notifies the registered exploit
+	# event subscribers.
+	#
 	def on_exploit_failure(exploit, reason)
 		subscribers_rwlock.synchronize_read {
 			exploit_event_subscribers.each { |subscriber|
@@ -152,6 +204,10 @@ class EventDispatcher
 	#
 	##
 
+	#
+	# Called when a new session is opened.  This notifies all the registered
+	# session event subscribers.
+	#
 	def on_session_open(session)
 		subscribers_rwlock.synchronize_read {
 			session_event_subscribers.each { |subscriber|
@@ -160,6 +216,10 @@ class EventDispatcher
 		}
 	end
 
+	#
+	# Called when a new session is closed.  This notifies all the registered
+	# session event subscribers.
+	#
 	def on_session_close(session)
 		subscribers_rwlock.synchronize_read {
 			session_event_subscribers.each { |subscriber|
@@ -170,13 +230,19 @@ class EventDispatcher
 
 protected
 
-	def add_event_subscriber(array, subscriber)
+	#
+	# Adds an event subscriber to the supplied subscriber array.
+	#
+	def add_event_subscriber(array, subscriber) # :nodoc:
 		subscribers_rwlock.synchronize_write {
 			array << subscriber
 		}
 	end
 
-	def remove_event_subscriber(array, subscriber)
+	#
+	# Removes an event subscriber from the supplied subscriber array.
+	#
+	def remove_event_subscriber(array, subscriber) # :nodoc:
 		subscribers_rwlock.synchronize_write {
 			array.delete(subscriber)
 		}

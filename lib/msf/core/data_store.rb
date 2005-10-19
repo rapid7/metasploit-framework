@@ -58,7 +58,7 @@ class DataStore < Hash
 	end
 
 	#
-	# Imports options from a hash
+	# Imports options from a hash and stores them in the datastore.
 	#
 	def import_options_from_hash(option_hash)
 		option_hash.each_pair { |key, val|
@@ -67,7 +67,7 @@ class DataStore < Hash
 	end
 
 	#
-	# Serializes the options in the datastore to a string
+	# Serializes the options in the datastore to a string.
 	#
 	def to_s(delim = ' ')
 		str = ''
