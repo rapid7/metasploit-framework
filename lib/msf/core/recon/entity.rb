@@ -19,6 +19,10 @@ class Entity
 	require 'msf/core/recon/entity/group'
 
 	#
+	# Entities are all offspring of the framework
+	#
+	include Framework::Offspring
+	#
 	# All entities can contain attributes
 	#
 	include Attribute::Container

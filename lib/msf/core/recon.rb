@@ -117,4 +117,45 @@ module ReconEvents
 
 end
 
+###
+#
+# Recon
+# -----
+#
+# The recon class acts as a base class for all recon modules.  It provides a
+# common interface for detecting the presence of hosts, services, and the
+# attributes of everything in between.  The type of information that can be
+# discovered is designed to be generic.
+#
+###
+class Recon < Msf::Module
+
+	#
+	# The various basic sub-types of recon modules.
+	#
+	module Type
+
+		#
+		# Indicates that the recon module discovers things.
+		#
+		Discoverer = "discoverer"
+
+	end
+
+	#
+	# Returns MODULE_RECON to indicate that this is a recon module.
+	#
+	def self.type
+		MODULE_RECON
+	end
+
+	#
+	# Returns MODULE_RECON to indicate that this is a recon module.
+	#
+	def type
+		MODULE_RECON
+	end
+
+end
+
 end

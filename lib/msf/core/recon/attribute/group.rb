@@ -17,14 +17,20 @@ require 'msf/core/recon/attribute/container'
 class Group
 	include Container
 
-	def self.def_attr(name)
-		class_eval("
-			def #{name}
-				attribute_hash['#{name}']
-			end
-			def #{name}=(val)
-				attribute_hash['#{name}'] = val
-			end")
+	#
+	# This routine defines an attribute by name by creating accessors that
+	# reference the internal hash.
+	#
+	def self.def_attr(*args)
+		args.each { |name|
+			class_eval("
+				def #{name}
+					attribute_hash['#{name}']
+				end
+				def #{name}=(val)
+					attribute_hash['#{name}'] = val
+				end")
+		}
 	end
 
 	def initialize

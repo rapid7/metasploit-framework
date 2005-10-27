@@ -1,7 +1,7 @@
 module Msf
 module Recon
 
-require 'msf/core/recon/attribute/container'
+require 'msf/core/recon/attribute/group'
 
 ###
 #
@@ -18,8 +18,13 @@ require 'msf/core/recon/attribute/container'
 # through the event context in a known attribute.
 #
 ###
-class EventContext
-	include Attribute::Container
+class EventContext < Attribute::Group
+
+	#
+	# This named attribute can be used to pass a connection handle between
+	# recon modules when certain events occur.
+	#
+	def_attr :connection
 end
 
 end
