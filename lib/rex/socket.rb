@@ -25,6 +25,7 @@ module Socket
 	require 'rex/socket/comm/local'
 	
 	require 'rex/socket/switch_board'
+	require 'rex/socket/subnet_walker'
 
 	##
 	#
@@ -90,8 +91,18 @@ module Socket
 		return to_sockaddr(host, 0)[4,4]
 	end
 
+	#
+	# Resolves a host to a network-byte order ruby integer.
+	#
 	def self.resolv_nbo_i(host)
 		return resolv_nbo(host).unpack('N')[0]
+	end
+
+	#
+	# Resolves a host to a dotted address.
+	#
+	def self.resolv_to_dotted(host)
+		Resolv.getaddress(host)
 	end
 
 	#
