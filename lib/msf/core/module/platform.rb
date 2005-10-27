@@ -293,7 +293,7 @@ class Msf::Module::Platform
 	#
 	class Linux < Msf::Module::Platform
 		Rank = 100
-		Alias = "lnx"
+		Alias = "linux"
 	end
 
 	#
@@ -318,8 +318,16 @@ class Msf::Module::Platform
 			Alias = "7"
 		end
 		class V8
-			Rank = 400
-			Alias = "7"
+			Rank = 500
+			Alias = "8"
+		end
+		class V9
+			Rank = 600
+			Alias = "9"
+		end
+		class V10
+			Rank = 700
+			Alias = "10"
 		end
 	end
 
