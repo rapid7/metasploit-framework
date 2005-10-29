@@ -1,16 +1,18 @@
+require 'msf/core/module'
+
 module Msf
 
 ###
 #
-# ReconEvents
-# -----------
+# ReconEvent
+# ----------
 #
 # This interface is called by recon modules to notify the framework when 
 # network elements, services, or other types of things recon modules
 # might discovery.
 #
 ###
-module ReconEvents
+module ReconEvent
 
 	module EntityChangeType
 		Add    = 1
@@ -18,102 +20,120 @@ module ReconEvents
 		Remove = 3
 	end
 
-	# TODO: try to do some re-use on these shared entity dispatch routines so
-	# prevent code duplication
+	###
+	#
+	# HostSubscriber
+	# --------------
+	#
+	# This module provides methods for handling host entity notifications.
+	#
+	###
+	module HostSubscriber
 
-	##
-	#
-	# Host entity event notifications
-	#
-	##
-
-	#
-	# This routine is called when a change is made to a host, such as it being
-	# added, modified, or removed.
-	#
-	def on_host_changed(context, host, change_type)
-		case change_type
-			when EntityChangeType::Add
-				on_new_host(context, host)
-			when EntityChangeType::Update
-				on_updated_host(context, host)
-			when EntityChangeType::Remove
-				on_dead_host(context, host)
+		#
+		# This routine is called when a change is made to a host, such as it being
+		# added, modified, or removed.
+		#
+		def on_host_changed(context, host, change_type)
+			case change_type
+				when EntityChangeType::Add
+					on_new_host(context, host)
+				when EntityChangeType::Update
+					on_updated_host(context, host)
+				when EntityChangeType::Remove
+					on_dead_host(context, host)
+			end
 		end
-	end
 
-	#
-	# This routine is called whenever a new host is found.
-	#
-	def on_new_host(context, host)
-	end
-
-	#
-	# This routine is called whenever a change is made to an existing
-	# host.
-	#
-	def on_updated_host(context, host)
-	end
-
-	#
-	# Called when a host is considered to be dead after having
-	# previously been valid.
-	#
-	def on_dead_host(context, host)
-	end
-
-	#
-	# This routine is called whenever a host attribute is found.
-	#
-	def on_new_host_attribute(context, host, attribute)
-	end
-
-	##
-	#
-	# Service entity event notifications
-	#
-	##
-
-	#
-	# This routine is called when a change is made to a service, such as it being
-	# added, modified, or removed.
-	#
-	def on_service_changed(context, host, service, change_type)
-		case change_type
-			when EntityChangeType::Add
-				on_new_service(context, host, service)
-			when EntityChangeType::Update
-				on_updated_service(context, host, service)
-			when EntityChangeType::Remove
-				on_dead_service(context, host, service)
+		#
+		# This routine is called whenever a new host is found.
+		#
+		def on_new_host(context, host)
 		end
+
+		#
+		# This routine is called whenever a change is made to an existing
+		# host.
+		#
+		def on_updated_host(context, host)
+		end
+
+		#
+		# Called when a host is considered to be dead after having
+		# previously been valid.
+		#
+		def on_dead_host(context, host)
+		end
+
+		#
+		# This routine is called whenever a host attribute is found.
+		#
+		def on_new_host_attribute(context, host, attribute)
+		end
+
 	end
 
+	###
 	#
-	# This routine is called whenever a new service is found.
+	# ServiceSubscriber
+	# -----------------
 	#
-	def on_new_service(context, host, service)
+	# This module provides methods for handling notifications that deal with
+	# service entities.
+	#
+	###
+	module ServiceSubscriber
+
+		#
+		# This routine is called when a change is made to a service, such as it being
+		# added, modified, or removed.
+		#
+		def on_service_changed(context, host, service, change_type)
+			case change_type
+				when EntityChangeType::Add
+					on_new_service(context, host, service)
+				when EntityChangeType::Update
+					on_updated_service(context, host, service)
+				when EntityChangeType::Remove
+					on_dead_service(context, host, service)
+			end
+		end
+
+		#
+		# This routine is called whenever a new service is found.
+		#
+		def on_new_service(context, host, service)
+		end
+
+		#
+		# This routine is called whenever a change is made to an existing
+		# service.
+		#
+		def on_updated_service(context, host, service)
+		end
+
+		#
+		# Called when a service is considered to be dead after having
+		# previously been valid.
+		#
+		def on_dead_service(context, host, service)
+		end
+
+		#
+		# This routine is called whenever a service attribute is found.
+		#
+		def on_new_service_attribute(context, host, service, attribute)
+		end
+
 	end
 
-	#
-	# This routine is called whenever a change is made to an existing
-	# service.
-	#
-	def on_updated_service(context, host, service)
-	end
 
 	#
-	# Called when a service is considered to be dead after having
-	# previously been valid.
+	# The ReconEvents base mixin includes all methods from the Host and Service
+	# subscriber interfaces.
 	#
-	def on_dead_service(context, host, service)
-	end
-
-	#
-	# This routine is called whenever a service attribute is found.
-	#
-	def on_new_service_attribute(context, host, service, attribute)
-	end
+	include HostSubscriber
+	include ServiceSubscriber
 
 end
 
@@ -136,11 +156,37 @@ class Recon < Msf::Module
 	module Type
 
 		#
-		# Indicates that the recon module discovers things.
+		# Indicates that this is an unknown recon module.  This recon module
+		# does something other than discover and analyze.
+		#
+		Unknown = "unknown"
+
+		#
+		# Indicates that the recon module discovers things.  Discoverer recon
+		# modules are responsible for collecting information about the presence
+		# of entities and the attributes of those entities.  For instance,
+		# a discoverer module finds hosts and the services running on those
+		# hosts and could also determine more granular information about
+		# the host and service by determining some of their attributes, such
+		# as a host's platform.
 		#
 		Discoverer = "discoverer"
 
+		#
+		# Indicates that the recon module analyzes things.  Analyzer recon
+		# modules take information collected by discoverer recon modules and
+		# determine or derived more detailed information about an entity or a
+		# group of entities.  For instance, an analyzer module may determine
+		# that five distinct hosts detected by a discoverer module may actually
+		# be on the same machine but just virtual hosted.  Also, analyzer
+		# modules might try to do more advanced stuff like crack passwords
+		# collected by recon modules and other such fun things.
+		#
+		Analyzer = "analyzer"
 	end
+
+	require 'msf/core/recon/discoverer'
+	require 'msf/core/recon/entity'
 
 	#
 	# Returns MODULE_RECON to indicate that this is a recon module.
@@ -154,6 +200,13 @@ class Recon < Msf::Module
 	#
 	def type
 		MODULE_RECON
+	end
+
+	#
+	# This method returns the general type of recon module.
+	#
+	def recon_type
+		Type::Unknown	
 	end
 
 end

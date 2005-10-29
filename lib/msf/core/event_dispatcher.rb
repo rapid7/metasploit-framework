@@ -157,13 +157,32 @@ class EventDispatcher
 	##
 
 	#
-	# Called when recon information is discovered.  This, in turn, notifies all
-	# registered recon event subscribers.
+	# This routine is called whenever a host's state changes, such as when it's
+	# added, updated, or removed.  This event is dispatched by the Recon
+	# Manager once it makes a determination on the accurate state of a host as
+	# provided by one or more host recon modules.
 	#
-	def on_recon_discovery(group, info)
+	def on_host_changed(context, host, change_type)
 		subscribers_rwlock.synchronize_read {
 			recon_event_subscribers.each { |subscriber|
-				subscriber.on_recon_discovery(group, info)
+				next if (subscriber.include?(Msf::ReconEvent::HostSubscriber) == false)
+
+				subscriber.on_host_changed(context, host, change_type)
+			}
+		}
+	end
+
+	#
+	# This routine is called whenever a service's state changes, such as when
+	# it's found, updated, or removed.  This event is dispatched by the Recon
+	# Manager.
+	#
+	def on_service_changed(context, host, service, change_type)
+		subscribers_rwlock.synchronize_read {
+			recon_event_subscribers.each { |subscriber|
+				next if (subscriber.include?(Msf::ReconEvent::ServiceSubscriber) == false)
+
+				subscriber.on_service_changed(context, host, service, change_type)
 			}
 		}
 	end

@@ -2,6 +2,7 @@ require 'msf/ui/console/command_dispatcher/encoder'
 require 'msf/ui/console/command_dispatcher/exploit'
 require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
+require 'msf/ui/console/command_dispatcher/recon'
 
 module Msf
 module Ui
@@ -80,10 +81,12 @@ class Core
 		banner += "+ -- --=[ "
 		banner += "#{framework.stats.num_exploits} exploits - "
 		banner += "#{framework.stats.num_payloads} payloads\n"
-		banner += "       =[ "
+		banner += "+ -- --=[ "
 		banner += "#{framework.stats.num_encoders} encoders - "
-		banner += "#{framework.stats.num_nops} nops"
-		banner += "\n\n"
+		banner += "#{framework.stats.num_nops} nops\n"
+		banner += "       =[ "
+		banner += "#{framework.stats.num_recon} recon\n"
+		banner += "\n"
 
 		# Display the banner
 		print(banner)
@@ -505,6 +508,8 @@ class Core
 				dispatcher = Nop
 			when MODULE_PAYLOAD
 				dispatcher = Payload
+			when MODULE_RECON
+				dispatcher = Recon
 			else
 				print_error("Unsupported module type: #{mod.type}")
 				return false

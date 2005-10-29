@@ -1,5 +1,5 @@
 module Msf
-module Recon
+class Recon
 class Entity
 
 require 'msf/core/recon/entity/container'

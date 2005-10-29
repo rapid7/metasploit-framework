@@ -1,5 +1,5 @@
 module Msf
-module Recon
+class Recon
 class Entity
 
 require 'msf/core/recon/entity/group'
@@ -44,8 +44,12 @@ class Host < Entity
 
 	end
 
-	def initialize
-		super
+	def initialize(address)
+		super()
+
+		# Holds the address of the host that this entity instance is associated
+		# with.
+		self.address = address;
 
 		# Add an attribute group that will contain system information for this
 		# host.
@@ -55,6 +59,17 @@ class Host < Entity
 		self.services = ServiceGroup.new
 	end
 
+	# 
+	# This method returns a pretty string representing this host.
+	#
+	def pretty
+		"#{address}"
+	end
+
+	#
+	# The address that the host instance is associated with.
+	#
+	attr_reader :address
 	#
 	# The system attributes for this host.
 	#
@@ -66,7 +81,7 @@ class Host < Entity
 
 protected
 
-	attr_writer :sys, :services # :nodoc:
+	attr_writer :address, :sys, :services # :nodoc:
 
 end
 

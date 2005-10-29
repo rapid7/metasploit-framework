@@ -30,6 +30,8 @@ class ReadableText
 				return dump_basic_module(mod, indent)
 			when MODULE_EXPLOIT
 				return dump_exploit_module(mod, indent)
+			when MODULE_RECON
+				return dump_recon_module(mod, indent)
 			else
 				return dump_generic_module(mod, indent)
 		end
@@ -136,6 +138,44 @@ class ReadableText
 	
 		return output
 
+	end
+
+	#
+	# Dumps information about a recon module.
+	#
+	def self.dump_recon_module(mod, indent = '')
+		output  = "\n"
+		output += "       Name: #{mod.name}\n"
+		output += "    Version: #{mod.version}\n"
+		output += "\n"
+
+		# Authors
+		output += "Provided by:\n"
+		mod.each_author { |author|
+			output += indent + author.to_s + "\n"
+		}
+		output += "\n"
+
+		# Options
+		if (mod.options.has_options?)
+			output += "Available options:\n"
+			output += dump_options(mod, indent)
+			output += "\n"
+		end
+
+		# Advanced options
+		if (mod.options.has_advanced_options?)
+			output += "Advanced options:\n"
+			output += dump_advanced_options(mod, indent)
+			output += "\n"
+		end
+
+		# Description
+		output += "Description:\n"
+		output += word_wrap(Rex::Text.compress(mod.description))
+		output += "\n"
+
+		return output
 	end
 
 	# 

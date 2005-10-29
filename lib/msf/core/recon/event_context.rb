@@ -1,5 +1,5 @@
 module Msf
-module Recon
+class Recon
 
 require 'msf/core/recon/attribute/group'
 

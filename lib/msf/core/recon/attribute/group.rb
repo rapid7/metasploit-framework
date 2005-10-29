@@ -1,5 +1,5 @@
 module Msf
-module Recon
+class Recon
 module Attribute
 
 require 'msf/core/recon/attribute/container'

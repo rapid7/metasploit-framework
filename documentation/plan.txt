@@ -16,6 +16,9 @@ X   - meterpreter 'comm' support
 X   - create_pattern, pattern_offset
 X   - base64
 X   - consider extending String
+  - logging
+    - debug level limiter
+    - debugger mixin
 - framework-core
   - modules
 X   - reloading
