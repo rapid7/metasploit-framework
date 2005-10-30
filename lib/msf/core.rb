@@ -12,6 +12,10 @@
 # framework-core depends on Rex
 require 'rex'
 
+module Msf
+	LogSource = "core"
+end
+
 # General
 require 'msf/core/constants'
 require 'msf/core/exceptions'

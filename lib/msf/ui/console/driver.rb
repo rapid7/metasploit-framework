@@ -38,6 +38,12 @@ class Driver < Msf::Ui::Driver
 		# Call the parent
 		super
 
+		# Temporarily disable output
+		self.disable_output = true
+
+		# Load pre-configuration
+		load_preconfig
+	
 		# Initialize attributes
 		self.framework = Msf::Simple::Framework.create
 
@@ -47,9 +53,6 @@ class Driver < Msf::Ui::Driver
 
 		# Register event handlers
 		register_event_handlers
-
-		# Temporarily disable output
-		self.disable_output = true
 
 		# Load console-specific configuration
 		load_config
@@ -62,6 +65,25 @@ class Driver < Msf::Ui::Driver
 
 		# Process the resource script
 		process_rc_file
+	end
+
+	#
+	# Loads configuration that needs to be analyzed before the framework
+	# instance is created.
+	#
+	def load_preconfig
+		begin
+			conf = Msf::Config.load
+		rescue
+			wlog("Failed to load configuration: #{$!}")
+			return
+		end
+
+		if (conf.group?(ConfigCore))
+			conf[ConfigCore].each_pair { |k, v|
+				on_variable_set(true, k, v)
+			}
+		end
 	end
 
 	#
@@ -82,12 +104,6 @@ class Driver < Msf::Ui::Driver
 					when "activemodule"
 						run_single("use #{v}")
 				end
-			}
-		end
-
-		if (conf.group?(ConfigCore))
-			conf[ConfigCore].each_pair { |k, v|
-				on_variable_set(true, k, v)
 			}
 		end
 	end
@@ -150,6 +166,8 @@ class Driver < Msf::Ui::Driver
 				handle_console_logging(val) if (glob)
 			when "evasion"
 				handle_evasion(val) if (glob)
+			when "loglevel"
+				handle_loglevel(val) if (glob)
 		end
 	end
 
@@ -165,6 +183,8 @@ class Driver < Msf::Ui::Driver
 				handle_console_logging('0') if (glob)
 			when "evasion"
 				handle_evasion(EVASION_NORMAL) if (glob)
+			when "loglevel"
+				handle_loglevel(nil) if (glob)
 		end
 	end
 
@@ -224,6 +244,14 @@ protected
 		else
 			false
 		end
+	end
+
+	#
+	# This method handles adjusting the global log level threshold.
+	#
+	def handle_loglevel(val)
+		set_log_level(Rex::LogSource, val)
+		set_log_level(Msf::LogSource, val)
 	end
 
 end

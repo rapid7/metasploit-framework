@@ -18,10 +18,13 @@ class LogDispatcher
 
 	def initialize()
 		self.log_sinks        = {}
+		self.log_levels       = {}
 		self.log_sinks_rwlock = ReadWriteLock.new
 	end
 
+	#
 	# Returns the sink that is associated with the supplied source
+	#
 	def [](src)
 		sink = nil
 
@@ -32,12 +35,16 @@ class LogDispatcher
 		return sink
 	end
 
+	#
 	# Calls the source association routnie
+	#
 	def []=(src, sink)
 		store(src, sink)
 	end
 
+	#
 	# Associates the supplied source with the supplied sink
+	#
 	def store(src, sink)
 		log_sinks_rwlock.synchronize_write {
 			if (log_sinks[src] == nil)
@@ -51,7 +58,9 @@ class LogDispatcher
 		}
 	end
 
+	#
 	# Removes a source association if one exists
+	#
 	def delete(src)
 		sink = nil
 
@@ -70,16 +79,35 @@ class LogDispatcher
 		return false
 	end
 
+	#
 	# Performs the actual log operation against the supplied source
+	#
 	def log(sev, src, level, msg, from)
 		log_sinks_rwlock.synchronize_read {
 			if ((sink = log_sinks[src]))
+				next if (log_levels[src] and level > log_levels[src])
+
 				sink.log(sev, src, level, msg, from)
 			end
 		}
 	end
 
-	attr_accessor :log_sinks, :log_sinks_rwlock
+	#
+	# This method sets the log level threshold for a given source.
+	#
+	def set_level(src, level)
+		log_levels[src] = level.to_i
+	end
+
+	#
+	# This method returns the log level threshold of a given source.
+	#
+	def get_level(src)
+		log_levels[src]
+	end
+
+	attr_accessor :log_sinks, :log_sinks_rwlock # :nodoc:
+	attr_accessor :log_levels # :nodoc:
 end
 
 end
@@ -127,6 +155,14 @@ end
 
 def deregister_log_source(src)
 	$dispatcher.delete(src)
+end
+
+def set_log_level(src, level)
+	$dispatcher.set_level(src, level)
+end
+
+def get_log_level(src)
+	$dispatcher.get_level(src)
 end
 
 # Creates the global log dispatcher
