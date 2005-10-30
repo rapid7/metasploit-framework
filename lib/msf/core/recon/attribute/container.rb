@@ -77,6 +77,15 @@ module Container
 		_attr_hash
 	end
 
+	#
+	# Serializes from a hash.
+	#
+	def from_hash(hsh)
+		hsh.each_pair { |k,v|
+			set_attribute(k, v)
+		}
+	end
+
 protected
 
 	attr_accessor :_attr_hash

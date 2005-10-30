@@ -51,6 +51,17 @@ class Host < Msf::Recon::Discoverer
 	# HostState::Dead should be returned.  If its state could not be
 	# determined, HostState::Unknown should be returned.
 	#
+	# This method can also return a hash that contains information that will be
+	# passed as part of the event context to the reporting subsystem of the
+	# recon manager.  This EventContext instance will, in turn, be passed to
+	# any subscribers of recon-related events.  For instance, if a port scanner
+	# connects to a port on a given host, it can pass the connection around to
+	# other recon modules to give them a chance to work with it.  The following
+	# keys are special in a hash returned from probe_host:
+	#
+	#   state      - Equivalent to one of the three HostState values.
+	#   connection - The connection associated with the host (TCP, UDP, etc).
+	#
 	def probe_host(address)
 		HostState::Unknown
 	end
@@ -62,8 +73,20 @@ class Host < Msf::Recon::Discoverer
 	# addresses passed in as arguments.  This method is only called if
 	# hosts_per_block is not one.
 	#
+	# The array elements can also take the form of a hash as described in the
+	# probe_host method description.
+	#
 	def probe_host_block(addresses)
 		addresses.map { HostState::Unknown }
+	end
+
+	#
+	# Allows a derived class to cleanup anything, like a socket, that may have
+	# been used during the probe operation.  The state parameter is equivalent
+	# to the return value from probe_host (or probe_host_block for each entry
+	# in the array).
+	#
+	def probe_host_cleanup(address, state)
 	end
 
 protected
@@ -87,9 +110,7 @@ protected
 		# by calling probe_host for each address.
 		if (hosts_per_block == 1)
 			while (ip = next_ip)
-				# Report the host's state to the recon manager.
-				framework.reconmgr.report_host_state(
-					self, ip, probe_host(ip))
+				report_host_state(ip, probe_host(ip))
 			end
 		# Otherwise, get up to the number of hosts per block defined and call
 		# probe_host_block.
@@ -116,8 +137,7 @@ protected
 
 				# Report the status associated with each address
 				addresses.each_with_index { |address, idx|
-					framework.reconmgr.report_host_state(
-						self, address, statuses[idx])
+					report_host_state(address, statuses[idx])
 				}
 
 			end while (true)
@@ -132,6 +152,37 @@ protected
 		swalker_mutex.synchronize {
 			swalker.next_ip
 		}
+	end
+
+	#
+	# This method reports host state information to the recon manager, possibly
+	# including an event context.
+	#
+	def report_host_state(ip, istate)
+		# Create a nil context
+		context = nil
+		state   = istate
+
+		# If a hash was returned, we should create an event context to
+		# pass to the notification.
+		if (state.kind_of?(Hash))
+			context = Msf::Recon::EventContext.new
+
+			# Serialize the context from the hash
+			context.from_hash(state)
+
+			# Grab the real state from the hash
+			state = istate['State']
+		end
+
+		# Report the host's state to the recon manager.
+		framework.reconmgr.report_host_state(
+			self, ip, state, context)
+
+		# Perform cleanup as necessary (only if istate was a Hash)
+		if (context)
+			probe_host_cleanup(ip, state)
+		end
 	end
 
 	##

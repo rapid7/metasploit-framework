@@ -41,9 +41,10 @@ class Recon::Host::PortScanner::TcpConnSweep < Msf::Recon::Discoverer::Host
 				'PeerPort'  => datastore['RPORT'].to_i,
 				'LocalHost' => datastore['CHOST'] || '0.0.0.0',
 				'LocalPort' => datastore['CPORT'] ? datastore['CPORT'].to_i : 0))
-				sock.close
-
-				HostState::Alive
+				[ 
+					'state'      => HostState::Alive, 
+					'connection' => sock 
+				]
 			end
 		# If we get connection refused, then we are indirectly determining that
 		# the host is alive.
@@ -54,6 +55,13 @@ class Recon::Host::PortScanner::TcpConnSweep < Msf::Recon::Discoverer::Host
 		rescue
 			HostState::Unknown
 		end
+	end
+
+	#
+	# Cleans up 
+	#
+	def probe_host_cleanup(ip, state)
+		state['Connection'].close
 	end
 
 end

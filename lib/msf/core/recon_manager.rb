@@ -76,7 +76,7 @@ class ReconManager
 		# TODO: use the current thread's Comm as part of the hash key to support
 		# conflicting addresses in different networks (established through
 		# different comms).
-		hash_key = address;
+		hash_key = address
 
 		# If a host already exists with this information, then check to see what
 		# status we received.
