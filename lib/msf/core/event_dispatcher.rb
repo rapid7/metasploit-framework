@@ -197,10 +197,10 @@ class EventDispatcher
 	# Called when an exploit succeeds.  This notifies the registered exploit
 	# event subscribers.
 	#
-	def on_exploit_success(exploit)
+	def on_exploit_success(exploit, session = nil)
 		subscribers_rwlock.synchronize_read {
 			exploit_event_subscribers.each { |subscriber|
-				subscriber.on_exploit_success(exploit)
+				subscriber.on_exploit_success(exploit, session)
 			}
 		}
 	end

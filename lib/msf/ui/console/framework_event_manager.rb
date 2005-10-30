@@ -12,7 +12,7 @@ module Console
 ###
 module FrameworkEventManager
 
-	include Msf::SessionEvents
+	include Msf::SessionEvent
 
 	#
 	# Subscribes to the framework as a subscriber of various events.

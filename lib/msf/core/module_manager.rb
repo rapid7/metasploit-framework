@@ -172,6 +172,10 @@ protected
 			self[name] = dup
 		end
 
+		# Automatically subscribe a wrapper around this module to the necessary
+		# event providers based on whatever events it wishes to receive.
+		auto_subscribe_module(dup)
+
 		# Notify the framework that a module was loaded
 		framework.events.on_module_load(name, dup)
 		
@@ -185,6 +189,50 @@ protected
 	def invalidate_cache
 		mod_sorted = nil
 		mod_ranked = nil
+	end
+
+	#
+	# This method automatically subscribes a module to whatever event providers
+	# it wishes to monitor.  This can be used to allow modules to automatically
+	# execute or perform other tasks when certain events occur.  For instance,
+	# when a new host is detected, other recon modules may wish to run such
+	# that they can collect more information about the host that was detected.
+	#
+	def auto_subscribe_module(mod)
+		# If auto-subscribe has been disabled
+		if (framework.datastore['DisableAutoSubscribe'] and
+		    framework.datastore['DisableAutoSubscribe'] =~ /^(y|1|t)/)
+			return
+		end
+
+		# If auto-subscription is enabled (which it is by default), figure out
+		# if it subscribes to any particular interfaces.
+
+		#
+		# Recon event subscriber check
+		#
+		[
+			Msf::ReconEvent::HostSubscriber,
+			Msf::ReconEvent::ServiceSubscriber,
+		].each { |iface|
+			if (mod.include?(iface))
+				framework.events.add_recon_subscriber(mod)
+			end
+		}
+
+		#
+		# Exploit event subscriber check
+		#
+		if (mod.include?(ExploitEvent))
+			framework.events.add_exploit_subscriber(mod)
+		end
+
+		#
+		# Session event subscriber check
+		#
+		if (mod.include?(SessionEvent))
+			framework.events.add_session_subscriber(mod)
+		end
 	end
 
 	attr_writer   :module_type
@@ -206,7 +254,6 @@ end
 #
 # TODO:
 #
-#   - add reload support
 #   - add unload support
 #
 ###

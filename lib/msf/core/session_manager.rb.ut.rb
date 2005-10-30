@@ -9,8 +9,8 @@ module Msf
 
 class SessionManager::UnitTest < Test::Unit::TestCase
 
-class UtSessionEvents
-	include SessionEvents
+class UtSessionEvent
+	include SessionEvent
 
 	def on_session_open(session)
 		self.open_session = session
@@ -54,7 +54,7 @@ end
 	def test_notify
 		framework = Framework.new
 		manager   = SessionManager.new(framework)
-		handler   = UtSessionEvents.new
+		handler   = UtSessionEvent.new
 		session   = Class.new
 		session.extend(Session)
 
