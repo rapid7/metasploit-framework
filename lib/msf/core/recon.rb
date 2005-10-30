@@ -257,6 +257,7 @@ class Recon < Msf::Module
 
 	require 'msf/core/recon/discoverer'
 	require 'msf/core/recon/entity'
+	require 'msf/core/recon/event_context'
 
 	#
 	# Returns MODULE_RECON to indicate that this is a recon module.

@@ -165,14 +165,14 @@ protected
 
 		# If a hash was returned, we should create an event context to
 		# pass to the notification.
-		if (state.kind_of?(Hash))
+		if (istate.kind_of?(Hash))
 			context = Msf::Recon::EventContext.new
 
 			# Serialize the context from the hash
 			context.from_hash(state)
 
 			# Grab the real state from the hash
-			state = istate['State']
+			state = istate['state']
 		end
 
 		# Report the host's state to the recon manager.
@@ -181,7 +181,7 @@ protected
 
 		# Perform cleanup as necessary (only if istate was a Hash)
 		if (context)
-			probe_host_cleanup(ip, state)
+			probe_host_cleanup(ip, istate)
 		end
 	end
 
