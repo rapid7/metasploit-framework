@@ -14,7 +14,7 @@ module ShellReverseTcp
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Linux Command Shell, Reverse TCP Inline',
+			'Name'          => 'OSX Command Shell, Reverse TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => 'hdm',
