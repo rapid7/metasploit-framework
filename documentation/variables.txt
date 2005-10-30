@@ -1,4 +1,0 @@
-framework global:
-
-DisableAutoSubscribe
-  Disables the auto-subscription of modules to event provider interfaces.

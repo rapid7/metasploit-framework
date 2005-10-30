@@ -9,3 +9,6 @@ SessionLogging (true/yes/1)
 
 ConsoleLogging (true/yes/1)
   - enables logging of the console
+
+DisableAutoSubscribe (true/yes/1)
+  - Disables the auto-subscription of modules to event provider interfaces.
