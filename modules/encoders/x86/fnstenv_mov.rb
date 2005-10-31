@@ -8,7 +8,7 @@ class FnstenvMov < Msf::Encoder::Xor
 
 	def initialize
 		super(
-			'Name'             => 'Variable-length Fnstenv/mov Dword Xor Encoder',
+			'Name'             => 'Variable-length Fnstenv/mov Dword XOR Encoder',
 			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This encoder uses a variable-length mov equivalent instruction 
