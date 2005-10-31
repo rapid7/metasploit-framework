@@ -43,6 +43,10 @@ class Countdown < Msf::Encoder::Xor
 		return decoder
 	end
 
+	#
+	# Encodes a one byte block with the current index of the length of the
+	# payload.
+	#
 	def encode_block(state, block)
 		state.context += 1
 		
