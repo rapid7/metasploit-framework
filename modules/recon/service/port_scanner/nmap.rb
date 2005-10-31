@@ -8,6 +8,10 @@ module Msf
 # This recon modules uses nmap to detect the services that are running on a
 # given host.
 #
+# TODO:
+#
+#   - switch to using -oX -
+#
 ###
 class Recon::Service::PortScanner::Nmap < Msf::Recon::Discoverer::Service
 
