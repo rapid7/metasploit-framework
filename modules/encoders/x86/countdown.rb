@@ -8,7 +8,7 @@ class Countdown < Msf::Encoder::Xor
 
 	def initialize
 		super(
-			'Name'             => 'Single-byte xor countdown encoder',
+			'Name'             => 'Single-byte Xor Countdown Encoder',
 			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This encoder uses the length of the payload as a position-dependent

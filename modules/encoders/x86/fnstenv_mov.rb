@@ -8,9 +8,12 @@ class FnstenvMov < Msf::Encoder::Xor
 
 	def initialize
 		super(
-			'Name'             => 'Variable-length fnstenv/mov dword xor encoder',
+			'Name'             => 'Variable-length Fnstenv/mov Dword Xor Encoder',
 			'Version'          => '$Revision$',
-			'Description'      => 'Variable-length fnstenv/mov dword xor encoder',
+			'Description'      => %q{
+				This encoder uses a variable-length mov equivalent instruction 
+				with fnstenv for getip.
+			}, 
 			'Author'           => 'spoonm',
 			'Arch'             => ARCH_X86,
 			'Decoder'          =>
