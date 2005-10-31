@@ -27,6 +27,30 @@ module HostState
 end
 
 ###
+#
+# ServiceState
+# ---------
+#
+# The states that a service can be in.
+#
+###
+module ServiceState
+	#
+	# The service is alive.
+	#
+	Up      = "up"
+	#
+	# The service is dead.
+	#
+	Dead    = "down"
+	#
+	# The service state is unknown.
+	#
+	Unknown = "unknown"
+end
+
+
+###
 # 
 # ReconManager
 # ------------
@@ -76,7 +100,7 @@ class ReconManager
 		# TODO: use the current thread's Comm as part of the hash key to support
 		# conflicting addresses in different networks (established through
 		# different comms).
-		hash_key = address
+		hash_key = host_hash_key(address)
 
 		# If a host already exists with this information, then check to see what
 		# status we received.
@@ -99,7 +123,57 @@ class ReconManager
 		# dead
 	end
 
+	#
+	# This method reports a host's service state.
+	#
+	def report_service_state(mod, host, proto, port, state, context = nil)
+
+		# If the supplied host object has not yet been registered, do so now.
+		# This occurs when a service module happens to discover a host that was
+		# not originally thought to have existed
+		if (host.needs_register != false and 
+		    state == ServiceState::Up)
+			new_host(host_hash_key(host.address), host, context)
+		end
+
+		# Define the service entity name
+		ename = "port_#{port}"
+
+		# Get the proto subcontainer for this entity, or add it if it isn't
+		# already defined.
+		p = host.services.add_entity_subcontainer(proto.downcase)
+
+		# Now that we have the protocol subcontainer, get the service instance
+		# associated witht he port (if one has been defined).
+		if (service = p.get_entity(ename))
+			# TODO: update
+		elsif (state == ServiceState::Up)
+			service = Recon::Entity::Service.new(proto, port)
+
+			p.add_entity("port_#{ename}", service)
+
+			# TODO: Notify
+		end
+	end
+
+	#
+	# This method returns the host object associated with the supplied address.
+	# If one does not exist, it is created.
+	#
+	def get_host(address)
+		host_hash[host_hash_key(address)]
+	end
+
 protected
+
+	#
+	# This method returns the hash key to use with the supplied address. 
+	#
+	# TODO: make this use comm info
+	#
+	def host_hash_key(address)
+		address
+	end
 
 	#
 	# Called when a new host is detected.
@@ -117,6 +191,9 @@ protected
 
 		ilog("recon: New host discoverered: #{host.pretty}", "core",
 			LEV_1)
+
+		# Now that the host has registered, we can't flag it up.
+		host.needs_register = false
 
 		# Notify any host event subscribes of our new found fate.
 		framework.events.on_host_changed(

@@ -50,6 +50,8 @@ class Entity
 		'unknown'
 	end
 
+	attr_accessor :needs_register
+
 end
 
 end

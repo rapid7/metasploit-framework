@@ -2,6 +2,9 @@ module Msf
 class Recon
 class Entity
 
+class Group
+end
+
 ###
 #
 # Container
@@ -17,20 +20,14 @@ module Container
 	# Initializes the array of entities.
 	#
 	def initialize_entities
-		self._entity_list = Array.new
-		self._entity_sub_containers = Hash.new
+		self._entity_hash = Hash.new
 	end
 
 	#
 	# This routine adds a sub-container of entities to this entity container.
 	#
-	def add_entity_subcontainer(name, container)
-		self._entity_sub_containers[name] = container
-
-		instance_eval("
-			def #{name}
-				_entity_sub_containers['#{name}']	
-			end")
+	def add_entity_subcontainer(name, container = Group.new)
+		add_entity(name, container)
 	end
 
 	#
@@ -43,31 +40,47 @@ module Container
 	#
 	# Adds an entity to the container.
 	#
-	def add_entity(entity)
-		self._entity_list << entity
-	end
+	def add_entity(name, entity)
+		self._entity_hash[name] = entity
 
-	def delete_entity(entity)
-		self._entity_list.delete(entity)
+		if (respond_to?(name) == false)
+			instance_eval("
+				def #{name}
+					_entity_hash[#{name}]
+				end
+				")
+		end
+
+		entity
 	end
 
 	#
-	# Returns the list of entities to the caller.
+	# Returns the entity associated with the supplied name.
+	#
+	def get_entity(name)
+		_entity_hash[name]
+	end
+
+	#
+	# Removes an entity from the hash of entities.
+	#
+	def delete_entity(entity)
+		self._entity_hash.delete(entity)
+	end
+
+	#
+	# Returns the hash of entities to the caller.
 	#
 	def entities
-		_entity_list
+		_entity_hash
 	end
 
 protected
 
 	#
-	# The protected entity list itself.
+	# The protected entity hash itself.
 	#
-	attr_accessor :_entity_list
-	#
-	# The hash of entity sub-containers.
-	#
-	attr_accessor :_entity_sub_containers
+	attr_accessor :_entity_hash
 
 end
 

@@ -55,6 +55,7 @@ class Discoverer < Msf::Recon
 	end
 
 	require 'msf/core/recon/discoverer/host'
+	require 'msf/core/recon/discoverer/service'
 
 	def initialize(info = {})
 		super
@@ -258,7 +259,7 @@ protected
 						if (discovery_threads.length == 0)
 							# Call the discovery complete method
 							discovery_complete(false)
-	
+
 							discovery_thread_event.set
 						end
 					}

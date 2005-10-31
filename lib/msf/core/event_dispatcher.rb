@@ -165,7 +165,9 @@ class EventDispatcher
 	def on_host_changed(context, host, change_type)
 		subscribers_rwlock.synchronize_read {
 			recon_event_subscribers.each { |subscriber|
-				next if (subscriber.include?(Msf::ReconEvent::HostSubscriber) == false)
+				cls = (subscriber.kind_of?(Class)) ? subscriber : subscriber.class
+
+				next if (cls.include?(Msf::ReconEvent::HostSubscriber) == false)
 
 				subscriber.on_host_changed(context, host, change_type)
 			}
@@ -180,7 +182,9 @@ class EventDispatcher
 	def on_service_changed(context, host, service, change_type)
 		subscribers_rwlock.synchronize_read {
 			recon_event_subscribers.each { |subscriber|
-				next if (subscriber.include?(Msf::ReconEvent::ServiceSubscriber) == false)
+				cls = (subscriber.kind_of?(Class)) ? subscriber : subscriber.class
+
+				next if (cls.include?(Msf::ReconEvent::ServiceSubscriber) == false)
 
 				subscriber.on_service_changed(context, host, service, change_type)
 			}

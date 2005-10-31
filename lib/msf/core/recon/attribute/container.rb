@@ -29,6 +29,20 @@ module Container
 	end
 
 	#
+	# Wraps get_attribute.
+	#
+	def [](key)
+		get_attribute(key)
+	end
+
+	#
+	# Wraps set_attribute.
+	#
+	def []=(key, val)
+		set_attribute(key, val)
+	end
+
+	#
 	# Sets the value of an attribute with the supplied name.
 	#
 	def set_attribute(name, val)

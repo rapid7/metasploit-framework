@@ -34,7 +34,7 @@ module ReconEvent
 		# This routine is called when a change is made to a host, such as it being
 		# added, modified, or removed.
 		#
-		def self.on_host_changed(context, host, change_type)
+		def on_host_changed(context, host, change_type)
 			case change_type
 				when EntityChangeType::Add
 					on_new_host(context, host)
@@ -46,64 +46,29 @@ module ReconEvent
 		end
 
 		#
-		# Calls the class method.
-		#
-		def on_host_changed(context, host, change_type)
-			self.class.on_host_changed(context, host, change_type)
-		end
-
-		#
 		# This routine is called whenever a new host is found.
 		#
-		def self.on_new_host(context, host)
-		end
-
-		#
-		# Calls the class methods.
-		#
 		def on_new_host(context, host)
-			self.class.on_new_host(context, host)
 		end
 
 		#
 		# This routine is called whenever a change is made to an existing
 		# host.
 		#
-		def self.on_updated_host(context, host)
-		end
-
-		#
-		# Calls the class method.
-		#
 		def on_updated_host(context, host)
-			self.class.on_updated_host(context, host)
 		end
 
 		#
 		# Called when a host is considered to be dead after having
 		# previously been valid.
 		#
-		def self.on_dead_host(context, host)
-		end
-
-		#
-		# Calls the class method.
-		#
 		def on_dead_host(context, host)
-			self.class.on_dead_host(context, host)
 		end
 
 		#
 		# This routine is called whenever a host attribute is found.
 		#
-		def self.on_new_host_attribute(context, host, attribute)
-		end
-
-		#
-		# Calls the class method.
-		#
 		def on_new_host_attribute(context, host, attribute)
-			self.class.on_new_host_attribute(context, host, attribute)
 		end
 
 	end
@@ -123,7 +88,7 @@ module ReconEvent
 		# This routine is called when a change is made to a service, such as it being
 		# added, modified, or removed.
 		#
-		def self.on_service_changed(context, host, service, change_type)
+		def on_service_changed(context, host, service, change_type)
 			case change_type
 				when EntityChangeType::Add
 					on_new_service(context, host, service)
@@ -135,66 +100,31 @@ module ReconEvent
 		end
 
 		#
-		# Calls the class method.
-		#
-		def on_service_changed(context, host, service, change_type)
-			self.class.on_service_changed(context, host, service, change_type)
-		end
-
-		#
 		# This routine is called whenever a new service is found.
 		#
-		def self.on_new_service(context, host, service)
-		end
-
-		#
-		# Calls the class method.
-		#
 		def on_new_service(context, host, service)
-			self.class.on_new_service(context, host, service)
 		end
 
 		#
 		# This routine is called whenever a change is made to an existing
 		# service.
 		#
-		def self.on_updated_service(context, host, service)
-		end
-
-		#
-		# Calls the class method.
-		#
 		def on_updated_service(context, host, service)
-			self.class.on_updated_service(context, host, service)
 		end
 
 		#
 		# Called when a service is considered to be dead after having
 		# previously been valid.
 		#
-		def self.on_dead_service(context, host, service)
-		end
-
-		#
-		# Calls the class method.
-		#
 		def on_dead_service(context, host, service)
-			self.class.on_dead_service(context, host, service)
 		end
 
 		#
 		# This routine is called whenever a service attribute is found.
 		#
-		def self.on_new_service_attribute(context, host, service, attribute)
+		def on_new_service_attribute(context, host, service, attribute)
 		end
 		
-		#
-		# Calls the class method.
-		#
-		def on_new_service_attribute(context, host, service)
-			self.class.on_new_service_attribute(context, host, service)
-		end
-
 	end
 
 

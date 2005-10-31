@@ -49,7 +49,7 @@ class Host < Entity
 
 		# Holds the address of the host that this entity instance is associated
 		# with.
-		self.address = address;
+		self.address = address
 
 		# Add an attribute group that will contain system information for this
 		# host.

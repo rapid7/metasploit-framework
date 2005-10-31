@@ -171,16 +171,12 @@ protected
 		else
 			self[name] = dup
 		end
-
-		# Automatically subscribe a wrapper around this module to the necessary
-		# event providers based on whatever events it wishes to receive.
-		auto_subscribe_module(dup)
-
-		# Notify the framework that a module was loaded
-		framework.events.on_module_load(name, dup)
-		
+	
 		# Invalidate the sorted array
 		invalidate_cache
+
+		# Return the duplicated instance for use
+		dup
 	end
 
 	#
@@ -189,50 +185,6 @@ protected
 	def invalidate_cache
 		mod_sorted = nil
 		mod_ranked = nil
-	end
-
-	#
-	# This method automatically subscribes a module to whatever event providers
-	# it wishes to monitor.  This can be used to allow modules to automatically
-	# execute or perform other tasks when certain events occur.  For instance,
-	# when a new host is detected, other recon modules may wish to run such
-	# that they can collect more information about the host that was detected.
-	#
-	def auto_subscribe_module(mod)
-		# If auto-subscribe has been disabled
-		if (framework.datastore['DisableAutoSubscribe'] and
-		    framework.datastore['DisableAutoSubscribe'] =~ /^(y|1|t)/)
-			return
-		end
-
-		# If auto-subscription is enabled (which it is by default), figure out
-		# if it subscribes to any particular interfaces.
-
-		#
-		# Recon event subscriber check
-		#
-		[
-			Msf::ReconEvent::HostSubscriber,
-			Msf::ReconEvent::ServiceSubscriber,
-		].each { |iface|
-			if (mod.include?(iface))
-				framework.events.add_recon_subscriber(mod)
-			end
-		}
-
-		#
-		# Exploit event subscriber check
-		#
-		if (mod.include?(ExploitEvent))
-			framework.events.add_exploit_subscriber(mod)
-		end
-
-		#
-		# Session event subscriber check
-		#
-		if (mod.include?(SessionEvent))
-			framework.events.add_session_subscriber(mod)
-		end
 	end
 
 	attr_writer   :module_type
@@ -412,6 +364,25 @@ class ModuleManager < ModuleSet
 		end
 
 		mod
+	end
+
+	#
+	# Overrides the module set method for adding a module so that some extra
+	# steps can be taken to subscribe the module and notify the event
+	# dispatcher.
+	#
+	def add_module(mod, name, file_path = nil)
+		# Call the module set implementation of add_module
+		dup = super
+
+		# Automatically subscribe a wrapper around this module to the necessary
+		# event providers based on whatever events it wishes to receive.  We
+		# only do this if we are the module manager instance, as individual
+		# module sets need not subscribe.
+		auto_subscribe_module(dup)
+
+		# Notify the framework that a module was loaded
+		framework.events.on_module_load(name, dup)
 	end
 
 protected
@@ -626,6 +597,51 @@ protected
 		end
 
 		module_sets[type].add_module(mod, name, file_path)
+	end
+
+	#
+	# This method automatically subscribes a module to whatever event providers
+	# it wishes to monitor.  This can be used to allow modules to automatically
+	# execute or perform other tasks when certain events occur.  For instance,
+	# when a new host is detected, other recon modules may wish to run such
+	# that they can collect more information about the host that was detected.
+	#
+	def auto_subscribe_module(mod)
+		# If auto-subscribe has been disabled
+		if (framework.datastore['DisableAutoSubscribe'] and
+		    framework.datastore['DisableAutoSubscribe'] =~ /^(y|1|t)/)
+			return
+		end
+
+		# If auto-subscription is enabled (which it is by default), figure out
+		# if it subscribes to any particular interfaces.
+		inst = nil
+
+		#
+		# Recon event subscriber check
+		#
+		[
+			Msf::ReconEvent::HostSubscriber,
+			Msf::ReconEvent::ServiceSubscriber,
+		].each { |iface|
+			if (mod.include?(iface) == true)
+				framework.events.add_recon_subscriber((inst) ? inst : (inst = mod.new))
+			end
+		}
+
+		#
+		# Exploit event subscriber check
+		#
+		if (mod.include?(ExploitEvent) == true)
+			framework.events.add_exploit_subscriber((inst) ? inst : (inst = mod.new))
+		end
+
+		#
+		# Session event subscriber check
+		#
+		if (mod.include?(SessionEvent) == true)
+			framework.events.add_session_subscriber((inst) ? inst : (inst = mod.new))
+		end
 	end
 
 	attr_accessor :modules, :module_sets

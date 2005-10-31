@@ -105,9 +105,9 @@ Things that would be useful to have completed, but not a requirement:
 - framework-core
   - handler sharing
     - exploits using the same payload/handler can share (ref count)
-- framework-base
-  - event correlation
-    - recon events correlations
+X - framework-base
+X   - event correlation
+X     - recon events correlations
 - user interfaces
   - msfd
     - daemon interface, provides command line interaction and proxying
