@@ -89,21 +89,21 @@ class Encoder < Module
 	# Returns the decoder stub to use based on the supplied length.
 	#
 	def decoder_stub(state)
-		return module_info['Decoder']['Stub']
+		return decoder_hash['Stub'] || ''
 	end
 
 	#
 	# Returns the offset to the key associated with the decoder stub.
 	#
 	def decoder_key_offset
-		return module_info['Decoder']['KeyOffset']
+		return decoder_hash['KeyOffset']
 	end
 
 	#
 	# Returns the size of the key, in bytes.
 	#
 	def decoder_key_size
-		return module_info['Decoder']['KeySize']
+		return decoder_hash['KeySize']
 	end
 
 	#
@@ -111,7 +111,7 @@ class Encoder < Module
 	# is typically the same as decoder_key_size.
 	#
 	def decoder_block_size
-		return module_info['Decoder']['BlockSize']
+		return decoder_hash['BlockSize']
 	end
 
 	#
@@ -119,7 +119,14 @@ class Encoder < Module
 	# the key.
 	#
 	def decoder_key_pack
-		return module_info['Decoder']['KeyPack'] || 'V'
+		return decoder_hash['KeyPack'] || 'V'
+	end
+
+	#
+	# Returns the module's decoder hash or an empty hash.
+	#
+	def decoder_hash
+		module_info['Decoder'] || {}
 	end
 
 	##
@@ -186,22 +193,28 @@ class Encoder < Module
 		# Copy the decoder stub since we may need to modify it
 		stub = decoder_stub(state).dup
 
-		if (state.key != nil)
+		if (state.key != nil and decoder_key_offset)
 			# Substitute the decoder key in the copy of the decoder stub with the
 			# one that we found
 			stub[state.decoder_key_offset,state.decoder_key_size] = [ state.key.to_i ].pack(state.decoder_key_pack)
+		else
+			stub = encode_finalize_stub(state, stub)
 		end
 		
 		# Walk the buffer encoding each block along the way
 		offset = 0
 
-		while (offset < buf.length)
-			block = buf[offset, decoder_block_size]
-
-			state.encoded += encode_block(state, 
-					block + ("\x00" * (decoder_block_size - block.length)))
-		     
-			offset += decoder_block_size
+		if (decoder_block_size)
+			while (offset < buf.length)
+				block = buf[offset, decoder_block_size]
+	
+				state.encoded += encode_block(state, 
+						block + ("\x00" * (decoder_block_size - block.length)))
+			     
+				offset += decoder_block_size
+			end
+		else
+			state.encoded = encode_block(state, buf)
 		end
 		
 		# Prefix the decoder stub to the encoded buffer
@@ -244,6 +257,14 @@ class Encoder < Module
 	#
 	def encode_begin(state)
 		return nil
+	end
+
+	#
+	# This callback allows a derived class to finalize a stub after a key have
+	# been selected.  The finalized stub should be returned.
+	#
+	def encode_finalize_stub(state, stub)
+		stub
 	end
 
 	#

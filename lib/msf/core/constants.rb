@@ -22,6 +22,7 @@ ARCH_TYPES =
 		ARCH_PPC,
 		ARCH_SPARC
 	]
+ARCH_ALL   = ARCH_TYPES
 
 #
 # Module types

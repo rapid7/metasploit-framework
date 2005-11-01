@@ -99,12 +99,14 @@ Things that would be useful to have completed, but not a requirement:
     - implement 'reliable' stagers with a higher rating so that
       if there is enough room, reliable stagers can be used
   - recon
-    - basic range/port scanner
-    - basic service identifier
+X   - basic range/port scanner
+X   - basic service identifier
     - basic OS fingerprinting
 - framework-core
   - handler sharing
     - exploits using the same payload/handler can share (ref count)
+  - plugin modules
+    - plugin modules can extend the framework and provide new features
 X - framework-base
 X   - event correlation
 X     - recon events correlations
