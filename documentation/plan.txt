@@ -60,11 +60,12 @@ X - msfencode
     - running 'msf scripts'
 - testing framework
   - framework core
-    - handlers
+X   - handlers
   - framework modules
     - exploits
     - payloads
-    - encoders
+X   - encoders
+      - osx encoders
     - nops
     - recon
   - framework sessions
