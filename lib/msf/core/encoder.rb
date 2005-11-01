@@ -193,7 +193,7 @@ class Encoder < Module
 		# Copy the decoder stub since we may need to modify it
 		stub = decoder_stub(state).dup
 
-		if (state.key != nil and decoder_key_offset)
+		if (state.key != nil and state.decoder_key_offset)
 			# Substitute the decoder key in the copy of the decoder stub with the
 			# one that we found
 			stub[state.decoder_key_offset,state.decoder_key_size] = [ state.key.to_i ].pack(state.decoder_key_pack)

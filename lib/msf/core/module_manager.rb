@@ -400,6 +400,12 @@ protected
 
 		# Try to load modules from all the files in the supplied path
 		Find.find(path) { |file|
+			# Skip unit test files
+			next if (file =~ /rb\.ut\.rb$/)
+
+			# Skip test-suite files
+			next if (file =~ /rb\.ts\.rb$/)
+
 			begin
 				load_module_from_file(path, file,
 					loaded, recalc, counts)

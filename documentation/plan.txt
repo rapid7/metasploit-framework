@@ -30,6 +30,9 @@ X     - stack requirements
 X   - make payload prepend target specific
 X - sessions
 X   - logging session activity
+  - module load caching
+    - switch to demand loaded modules rather than always loading
+	 - should make things faster
 - modules needing ports (above other modules)
   - encoders
     - shikata
