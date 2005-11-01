@@ -11,6 +11,7 @@
 
 # framework-core depends on Rex
 require 'rex'
+require 'rex/ui'
 
 module Msf
 	LogSource = "core"

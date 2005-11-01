@@ -11,6 +11,9 @@ require 'msf/core/module/platform_list.rb.ut'
 require 'msf/core/module/reference.rb.ut'
 require 'msf/core/module/target.rb.ut'
 
+require 'msf/core/handler/bind_tcp.rb.ut'
+require 'msf/core/handler/reverse_tcp.rb.ut'
+
 require 'msf/core/exploit.rb.ut'
 require 'msf/core/exploit/tcp.rb.ut'
 require 'msf/core/exploit/dcerpc.rb.ut'
@@ -27,6 +30,9 @@ class Msf::TestSuite
 		suite << Msf::Module::PlatformList::UnitTest.suite
 		suite << Msf::Module::Reference::UnitTest.suite
 		suite << Msf::Module::Target::UnitTest.suite
+		
+		suite << Msf::Handler::BindTcp::UnitTest.suite
+		suite << Msf::Handler::ReverseTcp::UnitTest.suite
 
 		suite << Msf::Exploit::UnitTest.suite
 		suite << Msf::Exploit::Remote::Tcp::UnitTest.suite
