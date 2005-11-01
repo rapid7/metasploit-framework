@@ -28,8 +28,9 @@ class Countdown < Msf::Encoder::Xor
 	#
 	def decoder_stub(state)
 		decoder = 
-			Rex::Arch::X86.set(state.buf.length - 1,
+			Rex::Arch::X86.set(
 				Rex::Arch::X86::ECX,
+				state.buf.length - 1,
 				state.badchars) +
 			"\xe8\xff\xff\xff" +
 			"\xff\xc1" +

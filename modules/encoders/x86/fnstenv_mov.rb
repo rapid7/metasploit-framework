@@ -29,8 +29,9 @@ class FnstenvMov < Msf::Encoder::Xor
 	#
 	def decoder_stub(state)
 		decoder = 
-			Rex::Arch::X86.set((((state.buf.length - 1) / 4) + 1), 
+			Rex::Arch::X86.set(
 				Rex::Arch::X86::ECX,
+				(((state.buf.length - 1) / 4) + 1), 
 				state.badchars) +
 			"\xd9\xee" +              # fldz
 			"\xd9\x74\x24\xf4" +      # fnstenv [esp - 12]
