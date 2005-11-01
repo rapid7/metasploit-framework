@@ -81,7 +81,7 @@ module BindTcp
 					rescue
 						wlog("Exception caught in bind handler: #{$!}")
 					end
-	
+
 					ctx.call if (client)	
 	
 					# Wait a second before trying again
