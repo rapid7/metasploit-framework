@@ -538,6 +538,25 @@ protected
 			added = mod.const_get(added[0])
 		end
 
+		# If the module indicates that it is not usable on this system, then we 
+		# will not try to use it.
+		usable = false
+
+		begin
+			usable = added.is_usable
+		# If no method is defined, assume that this module is usable.
+		rescue NoMethodError
+			usable = true
+		rescue
+			elog("Exception caught during is_usable check: #{$!}")
+		end
+			
+		if (usable == false)
+			ilog("Skipping module in #{file} because is_usable returned false.", 
+				'core', LEV_1)
+			return
+		end
+
 		ilog("Loaded #{type} module #{added} from #{file}.", 'core', LEV_2)
 
 		# Do some processing on the loaded module to get it into the

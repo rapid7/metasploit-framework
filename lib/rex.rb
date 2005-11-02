@@ -11,6 +11,7 @@ require 'rex/text'
 require 'rex/time'
 require 'rex/string_utils'
 require 'rex/job_container'
+require 'rex/file'
 
 # Thread safety and synchronization
 require 'rex/sync/thread_safe'

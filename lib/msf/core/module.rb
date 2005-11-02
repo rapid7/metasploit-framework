@@ -79,6 +79,17 @@ class Module
 		return self.class.framework
 	end
 
+	#
+	# This method allows modules to tell the framework if they are usable
+	# on the system that they are being loaded on in a generic fashion.
+	# By default, all modules are indicated as being usable.  An example of
+	# where this is useful is if the module depends on something external to
+	# ruby, such as a binary.
+	#
+	def self.is_usable
+		true
+	end
+
 	require 'msf/core/module/author'
 	require 'msf/core/module/platform_list'
 	require 'msf/core/module/reference'
@@ -154,7 +165,7 @@ class Module
 	end
 
 	#
-	# Return the module's name
+	# Return the module's name from the module information hash.
 	#
 	def name
 		module_info['Name']
@@ -222,7 +233,7 @@ class Module
 			next if (mval == nil or v == nil)
 
 			# If the supplied module's value is not contained within the supported
-			# values for the this module or this module indicated a negation of
+			# values for this module or this module indicated a negation of
 			# the value stated by the supplied module, then we have detected
 			# ourselves a bit of an incompatibility and we just can't have that.
 			if (!(v =~ /#{mval}/) or

@@ -26,6 +26,14 @@ class Recon::Service::PortScanner::Nmap < Msf::Recon::Discoverer::Service
 			'Version'        => '$Revision$'))
 	end
 
+	#
+	# This method checks to ensure that nmap is installed on this machine in
+	# some form or another.
+	#
+	def self.is_usable
+		(Rex::FileUtils.find_full_path('nmap') != nil)	
+	end
+
 	def probe_host(host)
 		# If we are running as root, use nmap to do a SYN scan
 		if (Process.euid == 0)

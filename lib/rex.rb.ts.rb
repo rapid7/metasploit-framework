@@ -7,6 +7,7 @@ require 'rex/exceptions.rb.ut'
 require 'rex/transformer.rb.ut'
 require 'rex/text.rb.ut'
 require 'rex/evasion.rb.ut'
+require 'rex/file.rb.ut'
 
 require 'rex/arch/x86'
 
@@ -43,6 +44,7 @@ class Rex::TestSuite
 		suite << Rex::Transformer::UnitTest.suite
 		suite << Rex::Text::UnitTest.suite
 		suite << Rex::Evasion::UnitTest.suite
+		suite << Rex::File::UnitTest.suite
 
 		# Arch
 		suite << Rex::Arch::X86::UnitTest.suite

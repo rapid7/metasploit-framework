@@ -134,12 +134,10 @@ class Ini < Hash
 protected
 
 	#
-	# :nodoc:
-	#
 	# Reads in the groups and their attributes from the supplied file
 	# path or from the instance's file path if one was set.
 	#
-	def read_groups(fpath)
+	def read_groups(fpath) # :nodoc:
 		if (!fpath)
 			raise ArgumentError, "No file path specified.",
 				caller
@@ -153,11 +151,9 @@ protected
 	end
 
 	#
-	# :nodoc:
-	#
 	# Reads groups from the supplied string
 	#
-	def read_groups_string(str)
+	def read_groups_string(str) # :nodoc:
 		# Reset the groups hash
 		self.clear
 

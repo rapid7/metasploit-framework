@@ -34,6 +34,9 @@ X   - logging session activity
   - module load caching
     - switch to demand loaded modules rather than always loading
 	 - should make things faster
+  - recon
+    - add a method like 'can_be_used' that checks whether or not dependencies are 
+	   on the machine (like nmap) for a given module
 - modules needing ports (above other modules)
   - encoders
     - shikata

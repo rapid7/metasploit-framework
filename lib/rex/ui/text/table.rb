@@ -68,11 +68,10 @@ class Table
 	end
 
 	#
-	# :nodoc:
 	#
 	# Returns the header string
 	#
-	def header_to_s
+	def header_to_s # :nodoc:
 		if (header)
 			pad = " " * headeri
 
@@ -126,30 +125,24 @@ class Table
 protected
 
 	#
-	# :nodoc:
-	#
 	# Defaults cell widths and alignments
 	#
-	def defaults
+	def defaults # :nodoc:
 		self.columns.length.times { |idx|
 		}
 	end
 
 	#
-	# :nodoc:
-	#
 	# Checks to see if the row is an hr
 	#
-	def is_hr(row)
+	def is_hr(row) # :nodoc:
 		return ((row.kind_of?(String)) && (row == '__hr__'))
 	end
 
 	#
-	# :nodoc:
-	#
 	# Converts the columns to a string
 	#
-	def columns_to_s
+	def columns_to_s # :nodoc:
 		nameline = ' ' * indent
 		barline  = nameline
 
@@ -168,20 +161,16 @@ protected
 	end
 
 	#
-	# :nodoc:
-	#
 	# Converts an hr to a string
 	#
-	def hr_to_s
+	def hr_to_s # :nodoc:
 		return "\n"
 	end
 
 	#
-	# :nodoc:
-	#
 	# Converts a row to a string
 	#
-	def row_to_s(row)
+	def row_to_s(row) # :nodoc:
 		line = ' ' * indent
 
 		row.each_with_index { |cell, idx|
@@ -192,12 +181,10 @@ protected
 	end
 
 	#
-	# :nodoc:
-	#
 	# Pads out with the supplied character for the remainder of the space given
 	# some text and a column index.
 	#
-	def pad(chr, buf, colidx, use_cell_pad = true)
+	def pad(chr, buf, colidx, use_cell_pad = true) # :nodoc:
 		remainder = colprops[colidx]['MaxWidth'] - buf.length
 		val       = chr * remainder;
 
