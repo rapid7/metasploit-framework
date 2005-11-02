@@ -33,10 +33,14 @@ X - sessions
 X   - logging session activity
   - module load caching
     - switch to demand loaded modules rather than always loading
-	 - should make things faster
-  - recon
-    - add a method like 'can_be_used' that checks whether or not dependencies are 
-	   on the machine (like nmap) for a given module
+    - should make things faster
+X - recon
+X   - add a method like 'can_be_used' that checks whether or not dependencies are 
+X     on the machine (like nmap) for a given module
+  - framework task queuing
+    - make the framework expose methods for queuing tasks (FrameworkTask)
+    - generic interface with an execute method
+    - called from within the context of a worker thread
 - modules needing ports (above other modules)
   - encoders
     - shikata
