@@ -5,9 +5,6 @@ module Rex
 
 ###
 #
-# Text
-# ----
-#
 # This class formats text in various fashions and also provides
 # a mechanism for wrapping text at a given column.
 #

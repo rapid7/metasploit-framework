@@ -5,9 +5,6 @@ module Msf
 
 ###
 #
-# HostState
-# ---------
-#
 # The states that a host can be in.
 #
 ###
@@ -27,9 +24,6 @@ module HostState
 end
 
 ###
-#
-# ServiceState
-# ---------
 #
 # The states that a service can be in.
 #
@@ -52,9 +46,6 @@ end
 
 ###
 # 
-# ReconManager
-# ------------
-#
 # This class manages the tracking of entities and the dispatching of events
 # pertaining to recon information collection.  When hosts are discovered, the
 # recon module tracks them and dispatches the appropriate events to the
@@ -66,9 +57,6 @@ class ReconManager
 	include Framework::Offspring
 
 	###
-	#
-	# ExtendedHostState
-	# -----------------
 	#
 	# This mixin is used to extend Host entity instances such that the recon
 	# manager can track internal state information.

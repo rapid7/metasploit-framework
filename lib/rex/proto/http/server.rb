@@ -7,9 +7,6 @@ module Http
 
 ###
 #
-# ServerClient
-# ------------
-#
 # Runtime extension of the HTTP clients that connect to the server.
 #
 ###
@@ -62,9 +59,6 @@ module ServerClient
 end
 
 ###
-#
-# Server
-# ------
 #
 # Acts as an HTTP server, processing requests and dispatching them to
 # registered procs.

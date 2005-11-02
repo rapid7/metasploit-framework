@@ -2,9 +2,6 @@ require 'msf/core'
 
 ###
 #
-# Xor
-# ---
-#
 # This class provides basic XOR encoding of buffers.
 #
 ###

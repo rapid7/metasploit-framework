@@ -3,9 +3,6 @@ module Encoding
 
 ###
 #
-# Xor
-# ---
-#
 # This class provides basic XOR encoding facilities and is used
 # by XOR encoders.
 #

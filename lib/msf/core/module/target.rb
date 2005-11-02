@@ -2,9 +2,6 @@ require 'msf/core'
 
 ###
 #
-# Target
-# ------
-#
 # A target for an exploit.
 #
 ###

@@ -2,9 +2,6 @@ require 'msf/core'
 
 ###
 #
-# Stager
-# ------
-#
 # Base mixin interface for use by stagers.
 #
 ###

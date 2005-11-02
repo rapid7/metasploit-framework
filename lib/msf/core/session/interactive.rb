@@ -5,9 +5,6 @@ module Session
 
 ###
 #
-# Interactive
-# -----------
-#
 # This class implements the stubs that are needed to provide an interactive
 # session.
 #

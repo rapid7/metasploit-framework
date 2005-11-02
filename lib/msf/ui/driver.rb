@@ -3,9 +3,6 @@ module Ui
 
 ###
 #
-# Driver
-# ------
-#
 # The driver class is an abstract base class that is meant to provide
 # a very general set of methods for 'driving' a user interface.
 #

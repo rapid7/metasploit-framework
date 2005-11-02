@@ -7,9 +7,6 @@ end
 
 ###
 #
-# Container
-# ---------
-#
 # This mixin is included when something wishes to be capable of containing
 # entities of an arbitrary type.
 #

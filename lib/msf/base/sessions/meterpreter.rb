@@ -6,9 +6,6 @@ module Sessions
 
 ###
 #
-# Meterpreter
-# -----------
-#
 # This class represents a session compatible interface to a meterpreter server
 # instance running on a remote machine.  It provides the means of interacting
 # with the server instance both at an API level as well as at a console level.

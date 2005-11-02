@@ -4,9 +4,6 @@ module Provider
 
 ###
 #
-# SingleCommandShell
-# ------------------
-#
 # This interface is to be implemented by a session that is only capable of
 # providing an interface to a single command shell.
 #

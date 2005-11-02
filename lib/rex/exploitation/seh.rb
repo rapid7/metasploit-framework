@@ -7,9 +7,6 @@ module Exploitation
 
 ###
 #
-# Seh
-# ---
-#
 # This class provides methods for generating SEH registration records
 # in a dynamic and flexible fashion.  The records can be generated with
 # the short jump at a random offset into the next pointer and with random

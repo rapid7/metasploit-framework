@@ -4,9 +4,6 @@ module Msf
 
 ###
 #
-# EncodedPayload
-# --------------
-#
 # This class wrappers an encoded payload buffer and the means used to create
 # one.
 #
@@ -28,6 +25,9 @@ class EncodedPayload
 		return p
 	end
 
+	#
+	# Creates an instance of an EncodedPayload.
+	#
 	def initialize(framework, pinst, reqs)
 		self.framework = framework
 		self.pinst     = pinst
@@ -35,7 +35,8 @@ class EncodedPayload
 	end
 
 	#
-	# Generate the full encoded payload
+	# This method enerates the full encoded payload and returns the encoded
+	# payload buffer.
 	#
 	def generate
 		self.raw           = nil

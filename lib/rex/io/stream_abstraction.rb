@@ -7,9 +7,6 @@ module IO
 
 ###
 #
-# StreamAbstraction
-# -----------------
-#
 # This class provides an abstraction to a stream based
 # connection through the use of a streaming socketpair.
 #

@@ -4,9 +4,6 @@ module Msf
 
 ###
 #
-# SessionEvent
-# ------------
-#
 # Event notifications that affect sessions.
 #
 ###
@@ -32,9 +29,6 @@ module SessionEvent
 end
 
 ###
-#
-# Session
-# -------
 #
 # The session class represents a post-exploitation, uh, session.
 # Sessions can be written to, read from, and interacted with.  The

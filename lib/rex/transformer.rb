@@ -3,7 +3,6 @@ module Rex
 ###
 #
 # Transformer - more than meets the eye!
-# -----------
 #
 # This class, aside from having a kickass name, is responsible for translating
 # object instances of one or more types into a single list instance of one or

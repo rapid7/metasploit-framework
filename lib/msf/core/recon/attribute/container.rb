@@ -4,9 +4,6 @@ module Attribute
 
 ###
 #
-# Container
-# ---------
-#
 # This mixin provides methods for setting and getting the values
 # of various attributes.  As attributes are defined, aliases methods are added
 # to the container to make it easier to access the attributes for reading.

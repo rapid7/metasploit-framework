@@ -5,9 +5,6 @@ require 'msf/core/recon/attribute/group'
 
 ###
 #
-# EventContext
-# ------------
-#
 # This mixin provides an abstract interface to the ``context'' parameter that
 # is passed around to the recon event handlers.  Instances of this are meant
 # to contain data that is specific to the event being reported and is meant to

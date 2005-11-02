@@ -4,9 +4,6 @@ module Provider
 
 ###
 #
-# MultiCommandExecution
-# ---------------------
-#
 # Executes multiple commands and optionally allows for reading/writing I/O
 # to the new processes.
 #

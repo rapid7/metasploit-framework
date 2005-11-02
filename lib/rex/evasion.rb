@@ -17,9 +17,6 @@ module Rex
 
 ###
 #
-# Evasion
-# -------
-#
 # This class provides a singleton interface to managing evasion levels on both
 # a global level and on a per-subsystem basis.
 #

@@ -3,9 +3,6 @@ require 'rex/io/stream'
 
 ###
 #
-# Tcp
-# ---
-#
 # This class provides methods for interacting with a TCP client connection.
 #
 ###

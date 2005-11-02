@@ -4,10 +4,7 @@ module Msf
 
 ###
 #
-# Error
-# -----
-#
-# Mixin that should be included in all exceptions that can be thrown from the
+# Mixin that should be included in all exceptions that can be raised from the
 # framework so that they can be universally caught.  Framework exceptions
 # automatically extended Rex exceptions
 #
@@ -22,10 +19,7 @@ end
 
 ###
 #
-# OptionValidateError
-# -------------------
-#
-# This exception is thrown when one or more options failed
+# This exception is raised when one or more options failed
 # to pass data store validation.  The list of option names
 # can be obtained through the options attribute.
 #
@@ -44,6 +38,11 @@ class OptionValidateError < ArgumentError
 	attr_reader :options
 end
 
+###
+#
+# This exception is raised when something failed to validate properly.
+#
+###
 class ValidationError < ArgumentError
 	include Exception
 
@@ -58,6 +57,12 @@ end
 #
 ##
 
+###
+#
+# This exception is raised to indicate that an encoding error of some sort has
+# occurred.
+#
+###
 class EncodingError < RuntimeError
 	include Exception
 
@@ -67,9 +72,6 @@ class EncodingError < RuntimeError
 end
 
 ###
-#
-# NoKeyError
-# ----------
 #
 # Thrown when an encoder fails to find a viable encoding key.
 #
@@ -81,9 +83,6 @@ class NoKeyError < EncodingError
 end
 
 ###
-#
-# BadcharError
-# ------------
 #
 # Thrown when an encoder fails to encode a buffer due to a bad character.
 #
@@ -103,6 +102,11 @@ class BadcharError < EncodingError
 	attr_reader :buf, :index, :stub_size, :char
 end
 
+###
+#
+# This exception is raised when no encoders succeed to encode a buffer.
+#
+###
 class NoEncodersSucceededError < EncodingError
 
 	def to_s
@@ -116,6 +120,11 @@ end
 #
 ##
 
+###
+#
+# This exception is raised to indicate a general exploitation error.
+#
+###
 module ExploitError
 	include Exception
 
@@ -124,6 +133,12 @@ module ExploitError
 	end
 end
 
+###
+#
+# This exception is raised if a target was not specified when attempting to
+# exploit something.
+#
+###
 class MissingTargetError < ArgumentError
 	include ExploitError
 
@@ -132,6 +147,12 @@ class MissingTargetError < ArgumentError
 	end
 end
 
+###
+#
+# This exception is raised if a payload was not specified when attempting to
+# exploit something.
+#
+###
 class MissingPayloadError < ArgumentError
 	include ExploitError
 
@@ -140,6 +161,12 @@ class MissingPayloadError < ArgumentError
 	end
 end
 
+###
+#
+# This exception is raised if an incompatible payload was specified when
+# attempting to exploit something.
+#
+###
 class IncompatiblePayloadError < ArgumentError
 	include ExploitError
 
@@ -151,6 +178,9 @@ class IncompatiblePayloadError < ArgumentError
 		"#{pname} is not a compatible payload."
 	end
 
+	#
+	# The name of the payload that was used.
+	#
 	attr_reader :pname
 end
 
@@ -160,6 +190,11 @@ end
 #
 ##
 
+###
+#
+# This exception is raised to indicate that a general NOP error occurred.
+#
+###
 module NopError
 	include Exception
 
@@ -168,6 +203,12 @@ module NopError
 	end
 end
 
+###
+#
+# This exception is raised when no NOP generators succeed at generating a
+# sled.
+#
+###
 class NoNopsSucceededError < RuntimeError
 	include NopError
 

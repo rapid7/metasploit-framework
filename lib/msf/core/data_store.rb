@@ -2,10 +2,8 @@ module Msf
 
 ###
 #
-# DataStore
-# ---------
-#
-# The data store is just a bitbucket that holds keyed values.
+# The data store is just a bitbucket that holds keyed values.  It is used
+# by various classes to hold option values and other state information.
 #
 ###
 class DataStore < Hash
@@ -114,11 +112,9 @@ end
 
 ###
 #
-# ModuleDataStore
-# ---------------
-#
 # DataStore wrapper for modules that will attempt to back values against the
-# framework's datastore if they aren't found in the module's datastore.
+# framework's datastore if they aren't found in the module's datastore.  This
+# is done to simulate global data store values.
 #
 ###
 class ModuleDataStore < DataStore

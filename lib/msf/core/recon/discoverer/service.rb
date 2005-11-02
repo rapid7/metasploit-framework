@@ -4,9 +4,6 @@ class  Discoverer
 
 ###
 #
-# Service
-# -------
-#
 # This class provides a base class for all recon modules that attempt to
 # discover the presence of a service on a host.
 #

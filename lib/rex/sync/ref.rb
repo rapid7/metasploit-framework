@@ -4,9 +4,6 @@ module Rex
 
 ###
 #
-# Ref
-# ---
-#
 # This module provides a uniform reference counted interface for classes to
 # use.
 #

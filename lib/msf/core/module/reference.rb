@@ -2,9 +2,6 @@ require 'msf/core'
 
 ###
 #
-# Reference
-# ---------
-#
 # A reference to some sort of information.
 #
 ###
@@ -42,9 +39,6 @@ protected
 end
 
 ###
-#
-# SiteReference
-# -------------
 #
 # A reference to a website.
 #

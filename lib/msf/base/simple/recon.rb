@@ -3,9 +3,6 @@ module Simple
 
 ###
 #
-# Recon
-# -------
-#
 # A simplified recon wrapper.
 #
 ###

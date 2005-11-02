@@ -6,9 +6,6 @@ module Http
 
 ###
 #
-# Response
-# --------
-#
 # HTTP response class.
 #
 ###

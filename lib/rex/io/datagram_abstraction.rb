@@ -7,9 +7,6 @@ module IO
 
 ###
 #
-# DatagramAbstraction
-# -------------------
-#
 # This class provides an abstraction to a datagram based
 # connection through the use of a datagram socketpair.
 #

@@ -5,9 +5,6 @@ module Msf
 
 ###
 #
-# OptBase
-# -------
-#
 # The base class for all options.
 #
 ###
@@ -169,9 +166,6 @@ end
 
 
 ###
-#
-# OptionContainer
-# ---------------
 #
 # The options purpose in life is to associate named options
 # with arbitrary values at the most simplistic level.  Each

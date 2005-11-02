@@ -5,9 +5,6 @@ module Socket
 
 ###
 #
-# SubnetWalker
-# ------------
-#
 # This class provides an interface to enumerating a subnet with a supplied
 # netmask.
 #

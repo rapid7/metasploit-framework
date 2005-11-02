@@ -3,11 +3,7 @@ module Ui
 
 ###
 #
-# Subscriber
-# ----------
-#
 # This module provides a subscriber interface to input/output.
-#
 #
 ###
 module Subscriber

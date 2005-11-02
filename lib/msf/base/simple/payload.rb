@@ -5,9 +5,6 @@ module Simple
 
 ###
 #
-# Payload
-# -------
-#
 # Simple payload wrapper class for performing generation.
 #
 ###

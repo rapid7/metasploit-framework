@@ -6,9 +6,6 @@ module Nop
 
 ###
 #
-# Opty2
-# -----
-#
 # This class provides an interface to generating multi-byte NOP sleds for x86.
 # Optyx and spoonm get the creds!
 #

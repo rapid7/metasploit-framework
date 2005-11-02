@@ -5,9 +5,6 @@ module Msf
 
 ###
 #
-# Logging
-# -------
-#
 # This module provides an initialization interface for logging.
 #
 ###

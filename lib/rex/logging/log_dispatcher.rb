@@ -6,9 +6,6 @@ module Logging
 
 ###
 #
-# LogDispatcher
-# -------------
-#
 # The log dispatcher associates log sources with log sinks.  A log source
 # is a unique identity that is associated with one and only one log sink.
 # For instance, the framework-core registers the 'core' 

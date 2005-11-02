@@ -5,9 +5,6 @@ module Simple
 
 ###
 #
-# Module
-# ------
-#
 # Simple module wrapper that provides some common methods for dealing with
 # modules, such as importing options and other such things.
 #

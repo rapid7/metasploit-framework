@@ -5,9 +5,6 @@ module Logging
 
 ###
 #
-# LogSink
-# -------
-#
 # This abstract interface is what must be implemented by any class
 # that would like to register as a log sink on a given LogDispatcher
 # instance, such as the Framework object.

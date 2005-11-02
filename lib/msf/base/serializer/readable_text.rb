@@ -3,9 +3,6 @@ module Serializer
 
 ###
 #
-# Text
-# ----
-#
 # This class formats information in a plain-text format that
 # is meant to be displayed on a console or some other non-GUI
 # medium.

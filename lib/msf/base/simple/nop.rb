@@ -5,9 +5,6 @@ module Simple
 
 ###
 #
-# Nop
-# ---
-#
 # Simple nop wrapper class for performing generation.
 #
 ###

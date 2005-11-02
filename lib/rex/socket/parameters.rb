@@ -2,9 +2,6 @@ require 'rex/socket'
 
 ###
 #
-# Parameters
-# ----------
-#
 # This class represents the set of parameters that are used to create
 # a socket, whether it be a server or client socket.
 #

@@ -5,9 +5,6 @@ module Console
 
 ###
 #
-# Table
-# -----
-#
 # Console table display wrapper that allows for stylized tables
 #
 ###

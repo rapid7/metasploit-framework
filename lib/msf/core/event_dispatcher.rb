@@ -4,10 +4,8 @@ module Msf
 
 ###
 #
-# GeneralEventSubscriber
-# ----------------------
-#
-# Called when internal framework events occur.
+# This event subscriber class exposes methods that are called when internal
+# framework events occur, such as the loading and creation of a module.
 #
 ###
 module GeneralEventSubscriber
@@ -22,9 +20,6 @@ module GeneralEventSubscriber
 end
 
 ###
-#
-# EventDispatcher
-# ---------------
 #
 # This class manages subscriber registration and is the entry point
 # for dispatching various events that occur for modules, such as

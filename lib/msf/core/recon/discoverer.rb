@@ -6,9 +6,6 @@ class Recon
 
 ###
 #
-# Discoverer
-# ----------
-#
 # This class acts as a base class for all recon modules that attempt to
 # discover new entities and attributes of entities.  For instance, recon
 # modules that attempt to discover the presence of a host, service, user, or

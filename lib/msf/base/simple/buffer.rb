@@ -5,9 +5,6 @@ module Simple
 
 ###
 #
-# Buffer
-# ------
-#
 # Wraps interaction with a generated buffer from the framework.
 # Its primary use is to transform a raw buffer into another
 # format.

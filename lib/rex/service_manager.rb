@@ -6,9 +6,6 @@ module Rex
 
 ###
 #
-# ServiceManager
-# --------------
-#
 # This class manages service allocation and interaction.  This class can be
 # used to start HTTP servers and manage them and all that stuff.  Yup.
 #

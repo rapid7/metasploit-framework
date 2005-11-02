@@ -6,9 +6,6 @@ module Text
 
 ###
 #
-# DispatcherShell
-# ---------------
-#
 # The dispatcher shell class is designed to provide a generic means
 # of processing various shell commands that may be located in
 # different modules or chunks of codes.  These chunks are referred

@@ -3,9 +3,6 @@ module Simple
 
 ###
 #
-# Encoder
-# -------
-#
 # A simplified encoder wrapper.
 #
 ###

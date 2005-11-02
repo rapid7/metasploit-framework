@@ -4,9 +4,6 @@ require 'rex/io/stream_server'
 
 ###
 #
-# TcpServer
-# ---------
-#
 # This class provides methods for interacting with a TCP server.  It
 # implements the StreamServer IO interface.
 #

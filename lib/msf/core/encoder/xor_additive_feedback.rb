@@ -2,9 +2,6 @@ require 'msf/core'
 
 ###
 #
-# XorAdditiveFeedback
-# -------------------
-#
 # This class performs per-block XOR additive feedback encoding.
 #
 ###

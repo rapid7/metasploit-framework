@@ -5,9 +5,6 @@ module Parser
 
 ###
 #
-# Arguments
-# ---------
-#
 # This class parses arguments in a getopt style format, kind of.
 # Unfortunately, the default ruby getopt implementation will only
 # work on ARGV, so we can't use it.

@@ -6,9 +6,6 @@ module Text
 
 ###
 #
-# Shell
-# -----
-#
 # The shell class provides a command-prompt style interface in a 
 # generic fashion.
 #
@@ -16,9 +13,6 @@ module Text
 module Shell
 
 	###
-	#
-	# InputShell
-	# ----------
 	#
 	# This module is meant to be mixed into an input medium class instance as a
 	# means of extending it to display a prompt before each call to gets.

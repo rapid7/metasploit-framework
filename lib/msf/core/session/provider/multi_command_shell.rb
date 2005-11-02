@@ -4,9 +4,6 @@ module Provider
 
 ###
 #
-# MultiCommandShell
-# -----------------
-#
 # This interface is to be implemented by a session that is capable of
 # providing multiple command shell interfaces simultaneously.  Inherently,
 # MultiCommandShell classes must also provide a mechanism by which they can

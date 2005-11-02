@@ -4,9 +4,6 @@ module Text
 
 ###
 #
-# Color
-# -----
-#
 # This module provides an interface to getting ANSI color codes.
 # It's taken mostly from perl's Term::ANSIColor by Russ Allbery
 # <rra@stanford.edu> and Zenin <zenin@best.com>.

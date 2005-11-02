@@ -2,9 +2,6 @@ module Msf
 
 ###
 #
-# SessionManager
-# --------------
-#
 # The purpose of the session manager is to keep track of sessions that are
 # created during the course of a framework instance's lifetime.  When
 # exploits succeed, the payloads they use will create a session object,

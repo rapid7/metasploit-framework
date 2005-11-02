@@ -3,9 +3,6 @@ module Parser
 
 ###
 #
-# Ini
-# ---
-#
 # This class parses the contents of an INI file.
 #
 ###

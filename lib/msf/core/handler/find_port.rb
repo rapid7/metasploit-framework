@@ -3,9 +3,6 @@ module Handler
 
 ###
 #
-# FindPort
-# --------
-#
 # This handlers implements port-based findsock handling.
 #
 ###

@@ -5,9 +5,6 @@ require 'rex/socket/udp'
 
 ###
 #
-# Local
-# -----
-#
 # Local communication class factory.
 #
 ###

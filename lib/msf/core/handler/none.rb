@@ -3,9 +3,6 @@ module Handler
 
 ###
 #
-# Handler
-# -------
-#
 # The 'none' handler, for no connection.
 #
 ###

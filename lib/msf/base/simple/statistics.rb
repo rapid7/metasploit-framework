@@ -3,9 +3,6 @@ module Simple
 
 ###
 #
-# Statistics
-# ----------
-#
 # This class provides an interface to various statistics about the
 # framework instance.
 #

@@ -6,9 +6,6 @@ module Text
 
 ###
 #
-# Output
-# ------
-#
 # This class implements text-based output but is not
 # tied to an output medium.
 #

@@ -6,9 +6,6 @@ module Rex
 
 ###
 #
-# Socket
-# ------
-#
 # Base class for all sockets.
 #
 ###

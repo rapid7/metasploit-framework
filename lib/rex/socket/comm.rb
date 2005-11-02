@@ -5,9 +5,6 @@ module Socket
 
 ###
 #
-# Comm
-# ----
-#
 # This mixin provides the basic interface that a derived class must implement
 # in order to be a compatible comm class.
 #

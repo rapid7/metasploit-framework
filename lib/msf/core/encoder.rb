@@ -4,9 +4,6 @@ module Msf
 
 ###
 #
-# EncoderState
-# ------------
-#
 # This class is used to track the state of a single encoding operation
 # from start to finish.
 #
@@ -51,9 +48,6 @@ class EncoderState
 end
 
 ###
-#
-# Encoder
-# -------
 #
 # This class is the base class that all encoders inherit from.
 #

@@ -4,9 +4,6 @@ module Msf
 
 ###
 #
-# Nop
-# ---
-#
 # This class acts as the base class for all nop generators.
 #
 ###

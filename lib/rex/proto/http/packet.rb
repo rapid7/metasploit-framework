@@ -8,9 +8,6 @@ DefaultProtocol = '1.1'
 
 ###
 #
-# Packet
-# ------
-#
 # This class represents an HTTP packet.
 #
 ###

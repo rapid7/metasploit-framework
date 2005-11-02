@@ -3,9 +3,6 @@ module Ui
 
 ###
 #
-# Banner
-# ------
-#
 # Module that contains some most excellent banners.
 #
 ###

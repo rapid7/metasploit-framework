@@ -5,9 +5,6 @@ module Session
 
 ###
 #
-# Comm
-# ----
-#
 # This class implements the Rex::Socket::Comm module interface and is capable
 # of creating network-based connections that are pivoted from the session in
 # question.

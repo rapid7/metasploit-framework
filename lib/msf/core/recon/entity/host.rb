@@ -6,9 +6,6 @@ require 'msf/core/recon/entity/group'
 
 ###
 #
-# Host
-# ----
-#
 # This class represents a logical host entity.  Hosts symbolize a machine that
 # may have zero or more services running on it.  Information about the host,
 # such as platform, architecture, and other attributes may be gathered and
@@ -19,9 +16,6 @@ require 'msf/core/recon/entity/group'
 class Host < Entity
 
 	###
-	#
-	# SystemAttributeGroup
-	# --------------------
 	#
 	# This class defines some of the standard system attributes that a host
 	# would have.

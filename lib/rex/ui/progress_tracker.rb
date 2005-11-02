@@ -3,9 +3,6 @@ module Ui
 
 ###
 #
-# ProgressTracker
-# ---------------
-#
 # This module tracks the progress of an arbitrary task in a generic fashion.
 # The actual implementation is left up to the thing that derives from this
 # module.

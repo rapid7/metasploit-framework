@@ -4,9 +4,6 @@ module Sinks
 
 ###
 #
-# Flatfile
-# --------
-#
 # This class implements the LogSink interface and backs it against a 
 # file on disk.
 #

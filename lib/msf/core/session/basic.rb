@@ -3,9 +3,6 @@ module Session
 
 ###
 #
-# Basic
-# -----
-#
 # This class implements an interactive session using raw input/output in
 # only the most basic fashion.
 #

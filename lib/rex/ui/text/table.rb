@@ -4,9 +4,6 @@ module Text
 
 ###
 #
-# Table
-# -----
-#
 # Prints text in a tablized format.  Pretty lame at the moment, but 
 # whatever.
 #

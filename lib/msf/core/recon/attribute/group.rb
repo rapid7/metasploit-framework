@@ -6,9 +6,6 @@ require 'msf/core/recon/attribute/container'
 
 ###
 #
-# Group
-# -----
-#
 # This class acts as a symbolic attribute group and is simply used as a
 # means of containing attributes without being an actual attribute or
 # an entity itself.

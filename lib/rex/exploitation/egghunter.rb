@@ -5,9 +5,6 @@ module Exploitation
 
 ###
 #
-# Egghunter
-# ---------
-#
 # This class provides an interface to generating egghunters.
 #
 ###

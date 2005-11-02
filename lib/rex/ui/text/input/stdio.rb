@@ -6,9 +6,6 @@ module Text
 
 ###
 #
-# Stdio
-# -----
-#
 # This class implements input against standard in.
 #
 ###

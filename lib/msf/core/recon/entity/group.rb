@@ -6,9 +6,6 @@ require 'msf/core/recon/entity/container'
 
 ###
 #
-# Group
-# -----
-#
 # This class acts as a symbolic entity group and is simply used to group
 # entities together without itself being an entity.  This is analagous to the
 # Attribute::Group class.
@@ -25,9 +22,6 @@ class Group
 end
 
 ###
-#
-# ServiceGroup
-# ------------
 #
 # This class extends the Group base class to provide some default protocol
 # group sub-containers for entities that are specific to a given service

@@ -5,9 +5,6 @@ module Msf
 
 ###
 #
-# ModuleSet
-# ---------
-#
 # A module set contains zero or more named module classes of an arbitrary
 # type.
 #
@@ -195,9 +192,6 @@ protected
 end
 
 ###
-#
-# ModuleManager
-# -------------
 #
 # Upper management decided to throw in some middle management
 # because the modules were getting out of hand.  This bad boy

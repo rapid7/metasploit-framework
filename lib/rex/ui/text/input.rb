@@ -6,9 +6,6 @@ module Text
 
 ###
 #
-# Input
-# -----
-#
 # This class acts as a base for all input mediums.  It defines
 # the interface that will be used by anything that wants to 
 # interact with a derived class.

@@ -3,9 +3,6 @@ module Handler
 
 ###
 #
-# BindTcp
-# -------
-#
 # This module implements the Bind TCP handler.  This means that
 # it will attempt to connect to a remote host on a given port for a period of
 # time (typically the duration of an exploit) to see if a the payload has

@@ -4,9 +4,6 @@ module Msf
 
 ###
 #
-# Config
-# ------
-#
 # This class wraps interaction with global configuration that can be used as a
 # persistent storage point for configuration, logs, and other such fun things.
 #

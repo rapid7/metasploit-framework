@@ -9,9 +9,6 @@ begin
 
 	###
 	#
-	# Readline
-	# --------
-	#
 	# This class implements standard input using readline against
 	# standard input.  It supports tab completion.
 	#

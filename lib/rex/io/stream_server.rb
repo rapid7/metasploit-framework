@@ -3,9 +3,6 @@ module IO
 
 ###
 #
-# StreamServer
-# ------------
-#
 # This mixin provides the framework and interface for implementing a streaming
 # server that can listen for and accept stream client connections.  Stream
 # servers extend this class and are required to implement the following

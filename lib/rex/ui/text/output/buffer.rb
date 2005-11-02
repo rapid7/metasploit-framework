@@ -6,9 +6,6 @@ module Text
 
 ###
 #
-# Buffer
-# ------
-#
 # This class implements output against a buffer.
 #
 ###

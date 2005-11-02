@@ -3,9 +3,6 @@ module Handler
 
 ###
 #
-# ReverseTcp
-# ----------
-#
 # This module implements the reverse TCP handler.  This means
 # that it listens on a port waiting for a connection until
 # either one is established or it is told to abort.

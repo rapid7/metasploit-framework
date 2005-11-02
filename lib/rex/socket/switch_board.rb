@@ -8,9 +8,6 @@ module Socket
 
 ###
 #
-# SwitchBoard
-# -----------
-#
 # This class provides a global routing table that associates subnets with Comm
 # classes.  Comm classes are used to instantiate objects that are tied to
 # remote network entities.  For example, the Local Comm class is used to
@@ -27,9 +24,6 @@ class SwitchBoard
 	include Enumerable
 	
 	###
-	#
-	# Route
-	# -----
 	#
 	# This class represents a logical switch board route.
 	#

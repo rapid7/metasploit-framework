@@ -4,9 +4,6 @@ module Msf
 
 ###
 #
-# Framework
-# ---------
-#
 # This class is the primary context that modules, scripts, and user
 # interfaces interact with.  It ties everything together.
 #

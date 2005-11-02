@@ -4,9 +4,6 @@ module Rex
 
 ###
 #
-# Exception
-# ---------
-#
 # Base mixin for all exceptions that can be thrown from inside Rex.
 #
 ###
@@ -31,10 +28,6 @@ end
 
 class RuntimeError < ::RuntimeError
 	include Exception
-
-#	def to_s
-#		"A runtime error occurred."
-#	end
 end
 
 class ArgumentError < ::ArgumentError
@@ -84,15 +77,11 @@ class StreamClosedError < ::IOError
 	end
 end
 
-#####
-#####
 ##
 #
 # Socket exceptions
 #
 ##
-#####
-#####
 
 module SocketError
 	include Exception
@@ -104,9 +93,6 @@ end
 
 ###
 # 
-# HostCommunicationError
-# ----------------------
-#
 # Implements helper methods for errors that occurred when communicating to a
 # host.
 #

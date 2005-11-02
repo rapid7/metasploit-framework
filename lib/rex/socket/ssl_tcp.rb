@@ -3,9 +3,6 @@ require 'rex/socket'
 
 ###
 #
-# SslTcp
-# ------
-#
 # This class provides methods for interacting with an SSL TCP client
 # connection.
 #

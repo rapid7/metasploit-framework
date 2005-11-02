@@ -3,9 +3,6 @@ class Recon
 
 ###
 #
-# Entity
-# ------
-#
 # This class represents an abstract entity that can be discovered during the 
 # recon process, such as a host, a service, a user, or some other formal
 # and distinct thing.  All entities can have zero or may attributes and

@@ -7,9 +7,6 @@ module Http
 
 ###
 #
-# Client
-# ------
-#
 # Acts as a client to an HTTP server, sending requests and receiving
 # responses.  This is modeled somewhat after Net::HTTP.
 #

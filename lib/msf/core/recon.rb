@@ -4,9 +4,6 @@ module Msf
 
 ###
 #
-# ReconEvent
-# ----------
-#
 # This interface is called by recon modules to notify the framework when 
 # network elements, services, or other types of things recon modules
 # might discovery.
@@ -21,9 +18,6 @@ module ReconEvent
 	end
 
 	###
-	#
-	# HostSubscriber
-	# --------------
 	#
 	# This module provides methods for handling host entity notifications.
 	#
@@ -74,9 +68,6 @@ module ReconEvent
 	end
 
 	###
-	#
-	# ServiceSubscriber
-	# -----------------
 	#
 	# This module provides methods for handling notifications that deal with
 	# service entities.
@@ -138,9 +129,6 @@ module ReconEvent
 end
 
 ###
-#
-# Recon
-# -----
 #
 # The recon class acts as a base class for all recon modules.  It provides a
 # common interface for detecting the presence of hosts, services, and the

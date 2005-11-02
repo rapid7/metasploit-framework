@@ -13,9 +13,6 @@ module Console
 
 ###
 #
-# Driver
-# ------
-#
 # This class implements a user interface driver on a console interface.
 #
 ###

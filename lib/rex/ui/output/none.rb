@@ -5,9 +5,6 @@ module Ui
 
 ###
 #
-# None
-# ----
-#
 # This output medium implements all the required output routines but does not
 # back them against any sort of device.  This is basically meant to be put in
 # place of something that expects to be able to deal with a functional output

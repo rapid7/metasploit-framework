@@ -5,9 +5,6 @@ module Handler
 
 ###
 #
-# FindTag
-# -------
-#
 # This handlers implements tag-based findsock handling.
 #
 ###

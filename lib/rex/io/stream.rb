@@ -5,9 +5,6 @@ module IO
 
 ###
 #
-# Stream
-# ------
-# 
 # This mixin is an abstract representation of a streaming connection.  Streams
 # extend classes that must implement the following methods:
 #

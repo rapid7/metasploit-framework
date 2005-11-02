@@ -2,9 +2,6 @@ require 'msf/core'
 
 ###
 #
-# Windows
-# -------
-#
 # This class is here to implement advanced variable substitution
 # for windows-based payloads, such as EXITFUNC.  Windows payloads
 # are expected to include this module if they want advanced

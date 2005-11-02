@@ -4,9 +4,6 @@ module Console
 
 ###
 #
-# FrameworkEventManager
-# ---------------------
-#
 # Handles events of various types that are sent from the framework.
 #
 ###

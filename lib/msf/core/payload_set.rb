@@ -5,9 +5,6 @@ module Msf
 
 ###
 #
-# PayloadSet
-# ----------
-#
 # This class is a special case of the generic module set class because
 # payloads are generated in terms of combinations between various 
 # components, such as a stager and a stage.  As such, the payload set

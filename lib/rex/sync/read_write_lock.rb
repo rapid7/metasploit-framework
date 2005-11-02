@@ -4,9 +4,6 @@ module Rex
 
 ###
 #
-# ReadWriteLock
-# -------------
-#
 # This class implements a read/write lock synchronization
 # primitive.  It is meant to allow for more efficient access to
 # resources that are more often read from than written to and many

@@ -5,9 +5,6 @@ module Sync
 
 ###
 #
-# Event
-# -----
-#
 # This class wraps the logical ConditionVariable class to make it an easier to
 # work with interface that is similar to Windows' synchronization events.
 #

@@ -5,9 +5,6 @@ module Simple
 
 ###
 #
-# Framework
-# ---------
-#
 # This class wraps the framework-core supplied Framework class and adds some
 # helper methods for analyzing statistics as well as other potentially useful
 # information that is directly necessary to drive the framework-core.

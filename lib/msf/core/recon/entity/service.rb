@@ -4,9 +4,6 @@ class Entity
 
 ###
 #
-# Service
-# -------
-#
 # This class represents a logical service entity.  Services symbolize remote
 # functionality provided by a host by means of some network-based protocol,
 # such as TCP over IP.  Information about a service, such as its protocol,

@@ -6,9 +6,6 @@ module Services
 
 ###
 #
-# LocalRelay
-# ----------
-#
 # This service acts as a local TCP relay whereby clients can connect to a
 # local listener that forwards to an arbitrary remote endpoint.  Interaction
 # with the remote endpoint socket requires that it implement the
@@ -20,9 +17,6 @@ class LocalRelay
 	include Rex::Service
 
 	###
-	#
-	# Stream
-	# ------
 	#
 	# This module is used to extend streams such that they can be associated
 	# with a relay context and the other side of the stream.
@@ -49,9 +43,6 @@ class LocalRelay
 
 	###
 	#
-	# StreamServer
-	# ------------
-	#
 	# This module is used to extend stream servers such that they can be
 	# associated with a relay context.
 	#
@@ -74,9 +65,6 @@ class LocalRelay
 
 	
 	###
-	#
-	# Relay
-	# -----
 	#
 	# This class acts as an instance of a given local relay.
 	#

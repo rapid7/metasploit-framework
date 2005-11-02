@@ -7,9 +7,6 @@ module Http
 
 ###
 #
-# Request
-# -------
-#
 # HTTP request class.
 #
 ###

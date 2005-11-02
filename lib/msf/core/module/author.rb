@@ -2,9 +2,6 @@ require 'msf/core'
 
 ###
 #
-# Author
-# ------
-#
 # This data type represents an author of a piece of code in either
 # the framework, a module, a script, or something entirely unrelated.
 #
