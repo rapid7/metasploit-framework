@@ -12,20 +12,11 @@ module SessionEvent
 	# Called when a session is opened
 	def on_session_open(session)
 	end
-	
-	# Called when a session is opened
-	def self.on_session_open(session)
-	end
 
 	# Called when a session is closed
 	def on_session_close(session)
 	end
 	
-	# Called when a session is closed
-	def self.on_session_close(session)
-	end
-
-
 end
 
 ###
