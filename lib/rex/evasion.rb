@@ -47,14 +47,26 @@ class Evasion
 		@level
 	end
 
+	#
+	# This method returns true if the evasion level is set to EVASION_HIGH, or
+	# false if it is not.
+	#
 	def self.high?
 		(get_level == EVASION_HIGH)
 	end
 
+	#
+	# This method returns true if the evasion level is set to EVASION_NORMAL, or
+	# false if it is not.
+	#
 	def self.normal?
 		(get_level == EVASION_NORMAL)
 	end
 	
+	#
+	# This method returns true if the evasion level is set to EVASION_LOW, or
+	# false if it is not.
+	#
 	def self.low?
 		(get_level == EVASION_LOW)
 	end

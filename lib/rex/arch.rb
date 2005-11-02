@@ -1,4 +1,13 @@
 module Rex
+
+
+###
+#
+# This module provides generalized methods for performing operations that are
+# architecture specific.  Furthermore, the modules contained within this
+# module provide features that are specific to a given architecture.
+#
+###
 module Arch
 
 	require 'rex/arch/x86'

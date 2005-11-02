@@ -10,6 +10,11 @@ module Rex
 module Exception
 end
 
+###
+# 
+# This exception is raised when a timeout occurs.
+#
+###
 class TimeoutError < Interrupt
 	include Exception
 
@@ -18,6 +23,12 @@ class TimeoutError < Interrupt
 	end
 end
 
+###
+#
+# This exception is raised when a method is called or a feature is used that
+# is not implemented.
+#
+###
 class NotImplementedError < ::NotImplementedError
 	include Exception
 
@@ -26,10 +37,20 @@ class NotImplementedError < ::NotImplementedError
 	end
 end
 
+###
+#
+# This exception is raised when a generalized runtime error occurs.
+#
+###
 class RuntimeError < ::RuntimeError
 	include Exception
 end
 
+###
+#
+# This exception is raised when an invalid argument is supplied to a method.
+#
+###
 class ArgumentError < ::ArgumentError
 	include Exception
 
@@ -38,6 +59,12 @@ class ArgumentError < ::ArgumentError
 	end
 end
 
+###
+#
+# This exception is raised when an argument that was supplied to a method
+# could not be parsed correctly.
+#
+###
 class ArgumentParseError < ::ArgumentError
 	include Exception
 
@@ -46,6 +73,11 @@ class ArgumentParseError < ::ArgumentError
 	end
 end
 
+###
+#
+# This exception is raised when an argument is ambiguous.
+#
+###
 class AmbiguousArgumentError < ::RuntimeError
 	include Exception
 
@@ -58,9 +90,11 @@ class AmbiguousArgumentError < ::RuntimeError
 	end
 end
 
+###
 #
 # This error is thrown when a stream is detected as being closed.
 #
+###
 class StreamClosedError < ::IOError
 	include Exception
 
@@ -83,6 +117,11 @@ end
 #
 ##
 
+###
+#
+# This exception is raised when a general socket error occurs.
+#
+###
 module SocketError
 	include Exception
 
@@ -93,8 +132,8 @@ end
 
 ###
 # 
-# Implements helper methods for errors that occurred when communicating to a
-# host.
+# This exception is raised when there is some kind of error related to
+# communication with a host.
 #
 ###
 module HostCommunicationError
@@ -103,6 +142,10 @@ module HostCommunicationError
 		self.port = port
 	end
 
+	#
+	# This method returns a printable address and port associated with the host
+	# that triggered the exception.
+	#
 	def addr_to_s
 		(host && port) ? " (#{host}:#{port})" : ""
 	end
@@ -110,6 +153,12 @@ module HostCommunicationError
 	attr_accessor :host, :port
 end
 
+###
+#
+# This exception is raised when a connection attempt fails because the remote
+# side refused the connection.
+#
+###
 class ConnectionRefused < ::IOError
 	include SocketError
 	include HostCommunicationError
@@ -119,6 +168,11 @@ class ConnectionRefused < ::IOError
 	end
 end
 
+###
+#
+# This exception is raised when a connection attempt times out.
+#
+###
 class ConnectionTimeout < ::Interrupt
 	include SocketError
 	include HostCommunicationError
@@ -128,6 +182,13 @@ class ConnectionTimeout < ::Interrupt
 	end
 end
 
+###
+#
+# This exception is raised when an attempt to use an address or port that is
+# already in use occurs, such as binding to a host on a given port that is
+# already in use.
+#
+###
 class AddressInUse < ::RuntimeError
 	include SocketError
 	include HostCommunicationError
@@ -137,6 +198,11 @@ class AddressInUse < ::RuntimeError
 	end
 end
 
+###
+#
+# This exception is raised when an unsupported internet protocol is specified.
+#
+###
 class UnsupportedProtocol < ::ArgumentError
 	include SocketError
 
@@ -151,4 +217,4 @@ class UnsupportedProtocol < ::ArgumentError
 	attr_accessor :proto
 end
 
-end # Rex
+end

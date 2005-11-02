@@ -21,8 +21,11 @@ module Sparc
 			'l4' => 20, 'l5' => 21, 'l6' => 22, 'l7' => 23,
 			'i0' => 24, 'i1' => 25, 'i2' => 26, 'i3' => 27,
 			'i4' => 28, 'i5' => 29, 'i6' => 30, 'i7' => 31,
-		}
+		} # :nodoc:
 
+	#
+	# TODO: documentation required.
+	#
 	def self.sethi(constant, dst) 
 		[ 
 		  (RegisterNumber[dst] << 25) | 
@@ -31,6 +34,9 @@ module Sparc
 		].pack('N')
 	end
 
+	#
+	# TODO: documentation required.
+	#
 	def self.ori(src, constant, dst)
 		[ 
 		  (2 << 30) | 
@@ -42,6 +48,9 @@ module Sparc
 		].pack('N')
 	end
 
+	#
+	# TODO: documentation required.
+	#
 	def self.set(constant, dst)
 		if (constant <= 4096 and constant >= 0)
 			ori('g0', constant, dst)
@@ -52,6 +61,9 @@ module Sparc
 		end
 	end
 
+	#
+	# TODO: documentation required.
+	#
 	def self.set_dword(constant, dst)
 		sethi(constant, dst) + ori(dst, constant & 0x3ff, dst)
 	end
