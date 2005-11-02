@@ -106,7 +106,7 @@ class PayloadSet < ModuleSet
 				    (stage_arch) and
 				    ((stager_arch & stage_arch).empty?))
 					dlog("Stager #{stager_name} and stage #{stage_name} have incompatible architectures: #{stager_arch.join} - #{stage_arch.join}",
-						'core', LEV_3)
+						'core', LEV_2)
 					next
 				end
 
@@ -115,7 +115,7 @@ class PayloadSet < ModuleSet
 				    (stage_platform) and
 				    (stager_platform & stage_platform).empty?)
 					dlog("Stager #{stager_name} and stage #{stage_name} have incompatible platforms: #{stager_platform.names} - #{stage_platform.names}",
-						'core', LEV_3)
+						'core', LEV_2)
 					next
 				end
 
@@ -124,7 +124,7 @@ class PayloadSet < ModuleSet
 				if ((stage_inst) and
 				    (stage_inst.compatible?(stager_inst) == false))
 					dlog("Stager #{stager_name} and stage #{stage_name} are incompatible.",
-						'core', LEV_3)
+						'core', LEV_2)
 					next
 				end
 
@@ -221,7 +221,7 @@ class PayloadSet < ModuleSet
 		# Add it to the global module set
 		manager.add_module(p, name)
 
-		dlog("Built single payload #{name}.", 'core', LEV_1)
+		dlog("Built single payload #{name}.", 'core', LEV_2)
 	end
 
 	#
@@ -244,7 +244,7 @@ class PayloadSet < ModuleSet
 		# Add it to this stage's stager hash
 		stages[stage_name][handler_type] = p
 			
-		dlog("Built staged payload #{full_name}.", 'core', LEV_1)
+		dlog("Built staged payload #{full_name}.", 'core', LEV_2)
 	end
 
 	#

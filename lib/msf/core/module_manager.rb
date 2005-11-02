@@ -476,7 +476,7 @@ protected
 		# cache, then there's no sense in loading it
 		if (!has_module_file_changed?(file))
 			dlog("Cached module from file #{file} has not changed.", 'core', 
-				LEV_1)
+				LEV_2)
 		end
 
 		# Substitute the base path
@@ -538,7 +538,7 @@ protected
 			added = mod.const_get(added[0])
 		end
 
-		ilog("Loaded #{type} module #{added} from #{file}.", 'core', LEV_1)
+		ilog("Loaded #{type} module #{added} from #{file}.", 'core', LEV_2)
 
 		# Do some processing on the loaded module to get it into the
 		# right associations

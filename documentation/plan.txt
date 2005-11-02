@@ -18,6 +18,7 @@ X   - base64
 X   - consider extending String
 X - logging
 X   - debug level limiter
+X   - define log levels, when they should be used, etc
 - framework-core
   - modules
 X   - reloading

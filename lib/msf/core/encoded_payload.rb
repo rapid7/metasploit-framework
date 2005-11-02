@@ -99,11 +99,11 @@ class EncodedPayload
 					self.encoded = self.encoder.encode(self.raw, reqs['BadChars'])
 				rescue SyntaxError, ArgumentError
 					wlog("#{pinst.refname}: Failed to encode payload with encoder #{encoder.refname}: #{$!}\n#{$@.join("\n")}",
-						'core', LEV_2)
+						'core', LEV_1)
 					next
 				rescue
 					wlog("#{pinst.refname}: Failed to encode payload with encoder #{encoder.refname}: #{$!}",
-						'core', LEV_2)
+						'core', LEV_1)
 					next
 				end
 
