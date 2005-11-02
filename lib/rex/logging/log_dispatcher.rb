@@ -42,10 +42,12 @@ class LogDispatcher
 	#
 	# Associates the supplied source with the supplied sink
 	#
-	def store(src, sink)
+	def store(src, sink, level = 0)
 		log_sinks_rwlock.synchronize_write {
 			if (log_sinks[src] == nil)
 				log_sinks[src] = sink
+
+				set_log_level(src, level)
 			else
 				raise(
 					RuntimeError, 
