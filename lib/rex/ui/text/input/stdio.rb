@@ -14,6 +14,11 @@ class Input::Stdio < Rex::Ui::Text::Input
 		return $stdin.gets
 	end
 
+	def _print_prompt(prompt)
+		$stdout.print(prompt)
+		$stdout.flush
+	end
+
 	def eof?
 		return $stdin.eof?
 	end

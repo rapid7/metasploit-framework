@@ -1,4 +1,3 @@
-require 'openssl'
 require 'rex/socket'
 
 ###
@@ -8,6 +7,9 @@ require 'rex/socket'
 #
 ###
 module Rex::Socket::SslTcp
+
+begin
+	require 'openssl'
 
 	include Rex::Socket::Tcp
 
@@ -74,5 +76,8 @@ module Rex::Socket::SslTcp
 protected
 
 	attr_accessor :sslsock, :sslctx
+
+rescue LoadError
+end
 
 end
