@@ -43,7 +43,11 @@ module Interactive
 	# Returns the remote peer information
 	#
 	def tunnel_peer
-		rstream.peerinfo
+		begin
+			rstream.peerinfo
+		rescue
+			framework.sessions.deregister(sid)
+		end
 	end
 	
 	#
