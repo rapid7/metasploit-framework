@@ -155,9 +155,12 @@ protected
 	#
 	def handle_suspend
 		if (orig_suspend == nil)
-			self.orig_suspend = Signal.trap("TSTP") {
-				_suspend
-			}
+			begin
+				self.orig_suspend = Signal.trap("TSTP") {
+					_suspend
+				}
+			rescue
+			end
 		end
 	end
 
@@ -167,7 +170,10 @@ protected
 	#
 	def restore_suspend
 		if (orig_suspend)
-			Signal.trap("TSTP", orig_suspend)
+			begin
+				Signal.trap("TSTP", orig_suspend)
+			rescue
+			end
 
 			self.orig_suspend = nil
 		end
