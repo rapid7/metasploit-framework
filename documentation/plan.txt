@@ -12,7 +12,7 @@ X   - meterpreter 'comm' support
   - asm
     - block dependencies (req'd for shikata)
       - block permutation generation (req'd for shikata)
-  - text
+X - text
 X   - create_pattern, pattern_offset
 X   - base64
 X   - consider extending String
@@ -20,11 +20,11 @@ X - logging
 X   - debug level limiter
 X   - define log levels, when they should be used, etc
 - framework-core
-  - modules
+X - modules
 X   - reloading
 X   - compatibility filtering (keys)
 X   - description sanitation (strip lines/etc)
-  - payloads
+X - payloads
 X   - meta information
 X     - stager/stage calling conventions
 X     - stack requirements
