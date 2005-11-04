@@ -171,7 +171,11 @@ module Shell
 	# console
 	#
 	def supports_color?
-		return (ENV['TERM'].match(/(?:vt10[03]|xterm(?:-color)?|linux|screen)/i) != nil)
+		begin
+			(ENV['TERM'].match(/(?:vt10[03]|xterm(?:-color)?|linux|screen)/i) != nil)
+		rescue
+			false
+		end
 	end
 
 	#

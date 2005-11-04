@@ -7,3 +7,12 @@ meterpreter
 
 msfconsole
   - jobs -k on the same exploit twice leads to exception
+
+
+win32 bugs
+
+  - 'gets' blocks
+    - http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/151367
+	   - works in cmd.exe
+		- does not work in rxvt (kbhit just keeps returning 0)
+X - no HOME variable by default -- need to use another directory 

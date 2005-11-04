@@ -16,12 +16,23 @@ class Config < Hash
 	InstallRoot = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
 	#
+	# Determines the base configuration directory.
+	#
+	def self.get_config_root
+		begin
+			File.expand_path("~#{FileSep}.msf3")
+		rescue ArgumentError
+			InstallRoot + ".msf3"
+		end
+	end
+
+	#
 	# Default values
 	#
 	FileSep     = File::SEPARATOR
 	Defaults    =
 		{
-			'ConfigDirectory'     => File.expand_path("~#{FileSep}.msf3"),
+			'ConfigDirectory'     => get_config_root,
 			'ConfigFile'          => "config",
 			'ModuleDirectory'     => "modules",
 			'LogDirectory'        => "logs",
