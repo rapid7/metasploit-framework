@@ -61,6 +61,12 @@ class SessionManager < Hash
 		# Tell the framework that we have a parting session
 		framework.events.on_session_close(session)
 
+		# If this session implements the comm interface, remove any routes
+		# that have been created for it.
+		if (session.kind_of?(Msf::Session::Comm))
+			Rex::Socket::SwitchBoard.remove_by_comm(session)
+		end
+
 		# Remove it from the hash
 		self.delete(session.sid.to_i)
 

@@ -38,4 +38,15 @@ class Rex::Socket::SwitchBoard::UnitTest < Test::Unit::TestCase
 		assert_equal('spec', Klass.best_comm('1.2.3.7'))
 	end
 
+	def test_remove_by_comm
+		Klass.flush_routes
+		Klass.add_route('1.2.3.0', 24, 'foo')
+		Klass.add_route('1.2.4.0', 24, 'dog')
+
+		Klass.remove_by_comm('foo')
+
+		assert_equal('dog', Klass.best_comm('1.2.4.7'))
+		assert_nil(Klass.best_comm('1.2.3.7'))
+	end
+
 end

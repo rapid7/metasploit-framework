@@ -89,6 +89,10 @@ class SwitchBoard
 		self.instance.best_comm(addr)
 	end
 
+	def self.remove_by_comm(comm)
+		self.instance.remove_by_comm(comm)
+	end
+
 	##
 	#
 	# Instance methods
@@ -191,6 +195,17 @@ class SwitchBoard
 		}
 
 		comm
+	end
+
+	#
+	# Remove all routes that go through the supplied comm.
+	#
+	def remove_by_comm(comm)
+		mutex.synchronize {
+			routes.delete_if { |route|
+				route.comm == comm
+			}
+		}
 	end
 
 	attr_reader :routes, :mutex

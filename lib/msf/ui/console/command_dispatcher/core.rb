@@ -36,6 +36,7 @@ class Core
 			"info"    => "Displays information about one or more module",
 			"jobs"    => "Displays and manages jobs",
 			"quit"    => "Exit the console",
+			"route"   => "Route traffic through a session",
 			"save"    => "Saves the active datastores",
 			"search"  => "Adds one or more module search paths",
 			"session" => "Dump session listings and display information about sessions",
@@ -167,6 +168,99 @@ class Core
 					return false
 			end
 		}
+	end
+
+	#
+	# This method handles the route command which allows a user to specify
+	# which session a given subnet should route through.
+	#
+	def cmd_route(*args)
+		if (args.length == 0)
+			print(
+				"Usage: route [add/remove/flush/print] subnet netmask [local/sid]\n\n" +
+				"Route traffic destined to a given subnet through a supplied session.\n")
+			return false
+		end
+
+		case args.shift
+			when "add"
+				if (args.length < 3)
+					print_error("Missing arguments to route add.")
+					return false
+				end
+
+				gw = nil
+
+				# Determine the gateway to use
+				if (args[2] =~ /local/i)
+					gw = Rex::Socket::Comm::Local
+				elsif ((session = framework.sessions.get(args[2])) and
+				       (session.kind_of?(Msf::Session::Comm)))
+					gw = session
+				else
+					print_error("Invalid gateway specified.")
+					return false
+				end
+
+				Rex::Socket::SwitchBoard.add_route(
+					args[0],
+					args[1],
+					gw)
+			when "remove"
+				if (args.length < 3)
+					print_error("Missing arguments to route remove.")
+					return false
+				end
+				
+				gw = nil
+
+				# Determine the gateway to use
+				if (args[2] =~ /local/i)
+					gw = Rex::Socket::Comm::Local
+				elsif ((session = framework.sessions.get(args[2])) and
+				       (session.kind_of?(Msf::Session::Comm)))
+					gw = session
+				else
+					print_error("Invalid gateway specified.")
+					return false
+				end
+
+				Rex::Socket::SwitchBoard.remove_route(
+					args[0],
+					args[1],
+					gw)
+			when "flush"
+				Rex::Socket::SwitchBoard.flush_routes
+			when "print"
+				tbl =	Table.new(
+					Table::Style::Default,
+					'Header'  => "Active Routing Table",
+					'Prefix'  => "\n",
+					'Postfix' => "\n",
+					'Columns' => 
+						[
+							'Subnet',
+							'Netmask',
+							'Gateway',
+						],
+					'ColProps' =>
+						{
+							'Subnet'  => { 'MaxWidth' => 17 },
+							'Netmask' => { 'MaxWidth' => 17 },
+						})
+
+				Rex::Socket::SwitchBoard.each { |route|
+					gw = "Local"
+
+					if (route.comm.kind_of?(Msf::Session))
+						gw = "Session #{route.comm.sid}"
+					end
+
+					tbl << [ route.subnet, route.netmask, gw ]
+				}
+
+				print(tbl.to_s)
+		end
 	end
 
 	#
