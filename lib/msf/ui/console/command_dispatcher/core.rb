@@ -177,7 +177,7 @@ class Core
 	def cmd_route(*args)
 		if (args.length == 0)
 			print(
-				"Usage: route [add/remove/flush/print] subnet netmask [local/sid]\n\n" +
+				"Usage: route [add/remove/get/flush/print] subnet netmask [local/sid]\n\n" +
 				"Route traffic destined to a given subnet through a supplied session.\n")
 			return false
 		end
@@ -229,6 +229,20 @@ class Core
 					args[0],
 					args[1],
 					gw)
+			when "get"
+				if (args.length == 0)
+					print_error("You must supply an IP address.")
+					return false
+				end
+
+				comm = Rex::Socket::SwitchBoard.best_comm(args[0])
+
+				if ((comm) and
+				    (comm.kind_of?(Msf::Session)))
+					print_line("#{args[0]} routes through: Session #{comm.sid}")
+				else
+					print_line("#{args[0]} routes through: Local")
+				end
 			when "flush"
 				Rex::Socket::SwitchBoard.flush_routes
 			when "print"
