@@ -7,6 +7,11 @@ require 'rex/text'
 
 class Rex::Text::UnitTest < Test::Unit::TestCase
 
+	def test_badchar_index
+		assert_equal(nil, Rex::Text.badchar_index('abcdef', 'gzk'))
+		assert_equal(2, Rex::Text.badchar_index('123avd', 'ly3'))
+	end
+	
 	def test_hexify
 		str = "\x01\x02\xff"
 		

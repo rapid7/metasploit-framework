@@ -3,7 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 
 require 'test/unit'
-require 'rex/string_utils'
+require 'rex/text'
 require 'rex/arch/sparc'
 
 class Rex::Arch::Sparc::UnitTest < ::Test::Unit::TestCase

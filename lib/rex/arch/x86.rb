@@ -117,7 +117,7 @@ module X86
 	#
 	def self.clear(reg, badchars = '')
 		_check_reg(reg)
-		opcodes = Rex::StringUtils.remove_badchars("\x29\x2b\x31\x33", badchars)
+		opcodes = Rex::Text.remove_badchars("\x29\x2b\x31\x33", badchars)
 		if opcodes.empty?
 			raise RuntimeError, "Could not find a usable opcode", caller()
 		end
@@ -264,7 +264,7 @@ module X86
 	end
 
 	def self._check_badchars(data, badchars) # :nodoc:
-		idx = Rex::StringUtils.badchar_index(data, badchars)
+		idx = Rex::Text.badchar_index(data, badchars)
 		if idx
 			raise RuntimeError, "Bad character at #{idx}", caller()
 		end

@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 require 'rex/encoding/xor/exceptions'
-require 'rex/string_utils'
+require 'rex/text'
 
 module Rex
 module Encoding
@@ -26,10 +26,10 @@ class Generic
 		return _check_key(key, badchars) || _check_encode(data, key, badchars)
 	end
 	def Generic._check_key(key, badchars)
-		return Rex::StringUtils.badchar_index(key, badchars)
+		return Rex::Text.badchar_index(key, badchars)
 	end
 	def Generic._check_encode(data, key, badchars)
-		return Rex::StringUtils.badchar_index(encode(data, key), badchars)
+		return Rex::Text.badchar_index(encode(data, key), badchars)
 	end
 
 	def Generic.find_key(data, badchars)
