@@ -152,6 +152,16 @@ class ReconManager
 		host_hash[host_hash_key(address)]
 	end
 
+	#
+	# This method iterates the host hash calling the supplied block with the
+	# address and host instances of each entry in the host hash.
+	#
+	def each_host(&block)
+		host_hash.each_pair { |k, host|
+			block.call(host.address, host)
+		}
+	end
+
 protected
 
 	#

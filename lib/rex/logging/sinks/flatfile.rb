@@ -33,6 +33,8 @@ class Flatfile
 					code = 'e'
 				when LOG_INFO
 					code = 'i'
+				when LOG_WARN
+					code = 'w'
 			end
 			fd.write("[#{get_current_timestamp}] [#{code}(#{level})] #{src}: #{msg}\n")
 		end

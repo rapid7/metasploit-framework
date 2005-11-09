@@ -30,3 +30,6 @@ require 'msf/base/sessions/command_shell'
 
 # Serialization
 require 'msf/base/serializer/readable_text'
+
+# Persistent Storage
+require 'msf/base/persistent_storage'

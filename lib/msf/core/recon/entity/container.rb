@@ -24,7 +24,11 @@ module Container
 	# This routine adds a sub-container of entities to this entity container.
 	#
 	def add_entity_subcontainer(name, container = Group.new)
-		add_entity(name, container)
+		if (self._entity_hash[name] == nil)
+			add_entity(name, container)
+		end
+
+		self._entity_hash[name]
 	end
 
 	#

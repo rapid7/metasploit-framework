@@ -24,6 +24,11 @@ class Core
 		"-h" => [ false, "Help banner."                                   ],
 		"-k" => [ true,  "Terminate the specified job name."              ],
 		"-l" => [ false, "List all running jobs."                         ])
+	
+	@@persist_opts = Rex::Parser::Arguments.new(
+		"-s" => [ true,  "Storage medium to be used (ex: flatfile)."      ],
+		"-r" => [ false, "Restore framework state."                       ],
+		"-h" => [ false, "Help banner."                                   ])
 
 	# Returns the list of commands supported by this command dispatcher
 	def commands
@@ -35,6 +40,7 @@ class Core
 			"help"    => "Help menu",
 			"info"    => "Displays information about one or more module",
 			"jobs"    => "Displays and manages jobs",
+			"persist" => "Persist or restore framework state information",
 			"quit"    => "Exit the console",
 			"route"   => "Route traffic through a session",
 			"save"    => "Saves the active datastores",
@@ -168,6 +174,50 @@ class Core
 					return false
 			end
 		}
+	end
+
+	#
+	# This method persists or restores framework state from a persistent
+	# storage medium, such as a flatfile.
+	#
+	def cmd_persist(*args)
+		if (args.length == 0)
+			args.unshift("-h")
+		end
+
+		arg_idx = 0
+		restore = false
+		storage = 'flatfile'
+
+		@@persist_opts.parse(args) { |opt, idx, val|
+			case opt
+				when "-s"
+					storage = val
+					arg_idx = idx + 2
+				when "-r"
+					restore = true
+					arg_idx = idx + 1
+				when "-h"
+					print(
+						"Usage: persist [-r] -s storage arg1 arg2 arg3 ...\n\n" +
+						"Persist or restore framework state information.\n" +
+						@@persist_opts.usage())
+					return false
+			end
+		}
+
+		# Chop off all the non-arguments
+		args = args[arg_idx..-1]
+
+		begin
+			if (inst = Msf::PersistentStorage.create(storage, *args))
+				inst.store(framework)
+			else
+				print_error("Failed to find storage medium named '#{storage}'")
+			end
+		rescue
+			log_error("Failed to persist to #{storage}: #{$!}")
+		end
 	end
 
 	#
