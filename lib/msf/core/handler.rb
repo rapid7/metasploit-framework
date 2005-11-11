@@ -138,7 +138,7 @@ module Handler
 
 		# If a connection has arrived, wait longer...
 		if (pending_connections > 0)
-			session_waiter_event.wait
+			session = session_waiter_event.wait
 		end
 		
 		return session

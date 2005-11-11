@@ -11,7 +11,7 @@ module Sync
 ###
 class Event
 
-	Infinite = -1
+	Infinite = 10000
 
 	def initialize(state = false, auto_reset = true, param = nil)
 		self.state      = state
