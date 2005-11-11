@@ -65,6 +65,9 @@ module Handler
 	def initialize(info = {})
 		super
 
+		# Initialize the pending_connections counter to 0
+		self.pending_connections = 0
+
 		# Create the waiter event with auto_reset set to false so that
 		# if a session is ever created, waiting on it returns immediately.
 		self.session_waiter_event = Rex::Sync::Event.new(false, false)
@@ -131,7 +134,12 @@ module Handler
 		begin
 			session = session_waiter_event.wait(t)
 		rescue ::TimeoutError
-		end		
+		end
+
+		# If a connection has arrived, wait longer...
+		if (pending_connections > 0)
+			session_waiter_event.wait
+		end
 		
 		return session
 	end
@@ -170,9 +178,14 @@ protected
 
 		# Notify waiters that they should be ready to rock
 		session_waiter_event.notify(session)
+
+		# Decrement the pending connections counter now that we've processed
+		# one session.
+		self.pending_connections -= 1
 	end
 
 	attr_accessor :session_waiter_event # :nodoc:
+	attr_accessor :pending_connections  # :nodoc:
 
 end
 

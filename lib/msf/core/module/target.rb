@@ -148,6 +148,10 @@ class Msf::Module::Target
 		opts['Payload'] ? opts['Payload']['PrependEncoder'] : nil
 	end
 
+	def payload_stack_adjustment
+		opts['Payload'] ? opts['Payload']['StackAdjustment'] : nil
+	end
+
 	def payload_max_nops
 		opts['Payload'] ? opts['Payload']['MaxNops'] : nil
 	end

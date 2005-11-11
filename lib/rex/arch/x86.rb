@@ -179,11 +179,11 @@ module X86
 	# Builds a subtraction instruction using the supplied operand
 	# and register.
 	#
-	def self.sub(val, reg, badchars = '', add = false, adjust = false)
+	def self.sub(val, reg, badchars = '', add = false, adjust = false, bits = 0)
 		opcodes = []
 		shift   = (add == true) ? 0 : 5
 
-		if (val >= -0x7f and val <= 0x7f)
+		if (bits <= 8 and val >= -0x7f and val <= 0x7f)
 			opcodes << 
 				((adjust) ? '' : clear(reg, badchars)) + 
 				"\x83" + 
@@ -191,7 +191,7 @@ module X86
 				[ val.to_i ].pack('C')
 		end
 
-		if (val >= -0xffff and val <= 0)
+		if (bits <= 16 and val >= -0xffff and val <= 0)
 			opcodes << 
 				((adjust) ? '' : clear(reg, badchars)) + 
 				"\x66\x81" + 
@@ -225,8 +225,8 @@ module X86
 	# This method generates the opcodes equivalent to subtracting with a
 	# negative value from a given register.
 	#
-	def self.add(val, reg, badchars = '', adjust = false)
-		sub(val, reg, badchars, true, adjust)
+	def self.add(val, reg, badchars = '', adjust = false, bits = 0)
+		sub(val, reg, badchars, true, adjust, bits)
 	end
 
 	#
@@ -246,11 +246,11 @@ module X86
 	#
 	# This method adjusts the value of the ESP register by a given amount.
 	#
-	def self.adjust_reg(adjustment)
+	def self.adjust_reg(reg, adjustment)
 		if (adjustment > 0)
-			sub(adjustment, ESP, '', false, false)
+			sub(adjustment, reg, '', false, false, 32)
 		else
-			add(adjustment, ESP, '', true, false)
+			add(adjustment, reg, '', true, 32)
 		end
 	end
 

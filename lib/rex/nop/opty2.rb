@@ -58,7 +58,7 @@ class Opty2
 			Table[prev].each { |nt|
 				nt.each { |e|
 					# Skip it if it's masked off or too large
-					next if ((e & mask) == mask)
+					next if ((e & mask) != 0)
 					next if (((e >> 8) & 0xff) > slen)
 					
 					byte = e & 0xff

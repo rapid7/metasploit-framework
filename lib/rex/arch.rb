@@ -19,7 +19,7 @@ module Arch
 	def self.adjust_stack_pointer(arch, adjustment)
 		case arch
 			when /x86/
-				Rex::Arch::X86.adjust_reg(adjustment, Rex::Arch::X86::ESP)
+				Rex::Arch::X86.adjust_reg(Rex::Arch::X86::ESP, adjustment)
 			else
 				nil
 		end

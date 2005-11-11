@@ -176,16 +176,16 @@ class EncodedPayload
 				if (save_regs.empty? == true)
 					save_regs = nil
 				end
-	
+
 				begin
 					self.nop_sled = nop.generate_sled(self.nop_sled_size,
 						'BadChars'      => reqs['BadChars'],
 						'SaveRegisters' => save_regs)
 				rescue
-					self.nop = nil
-
 					dlog("#{pinst.refname}: Nop generator #{nop.refname} failed to generate sled for payload: #{$!}",
 						'core', LEV_1)
+
+					self.nop = nil
 				end
 
 				break

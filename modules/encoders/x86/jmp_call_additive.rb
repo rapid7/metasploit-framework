@@ -34,6 +34,13 @@ class JmpCallAdditive < Msf::Encoder::XorAdditiveFeedback
 				})
 	end
 
+	#
+	# Append the termination block
+	#
+	def encode_end(state)
+		state.encoded += [ state.key ].pack(state.decoder_key_pack)
+	end
+
 end
 
 end end end

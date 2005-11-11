@@ -80,6 +80,9 @@ module ReverseTcp
 					wlog("Exception raised during listener accept: #{$!}")
 					return nil
 				end
+
+				# Increment the has connection counter
+				self.pending_connections += 1
 	
 				# Start a new thread and pass the client connection
 				# as the input and output pipe.  Client's are expected

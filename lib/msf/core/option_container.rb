@@ -360,12 +360,12 @@ module Opt
 
 @@builtin_opts = 
 	{
-		'RHOST' => [ OptAddress, 'nil',   true,  '"The target address."' ],
-		'RPORT' => [ OptPort,    'nil',   true,  '"The target port."' ],
-		'LHOST' => [ OptAddress, 'nil',   true,  '"The local address."' ],
-		'LPORT' => [ OptPort,    'nil',   true,  '"The local port."' ],
-		'CPORT' => [ OptPort,    'nil',   false, '"The local client port."' ],
-		'SSL'   => [ OptBool,    'false', false, '"Use SSL."' ],
+		'RHOST' => [ OptAddress, 'nil',   true,  '"The target address"' ],
+		'RPORT' => [ OptPort,    'nil',   true,  '"The target port"' ],
+		'LHOST' => [ OptAddress, 'nil',   true,  '"The local address"' ],
+		'LPORT' => [ OptPort,    'nil',   true,  '"The local port"' ],
+		'CPORT' => [ OptPort,    'nil',   false, '"The local client port"' ],
+		'SSL'   => [ OptBool,    'false', false, '"Use SSL"' ],
 	}
 
 #
