@@ -56,12 +56,23 @@ module Payload
 		if (fmt != 'raw' and opts['NoComment'] != true)
 			((ou = payload.options.options_used_to_s(payload.datastore)) and ou.length > 0) ? ou += "\n" : ou = ''
 			buf = Buffer.comment(
-				"#{payload.refname} - #{len} bytes\n" +
+				"#{payload.refname} - #{len} bytes#{payload.staged? ? " (stage 1)" : ""}\n" +
 				"http://www.metasploit.com\n" +
 				((e.encoder) ? "Encoder: #{e.encoder.refname}\n" : '') +
 				((e.nop) ?     "NOP gen: #{e.nop.refname}\n" : '') +
 				"#{ou}",
 				fmt) + buf
+	
+			# If it's multistage, include the second stage too
+			if (payload.staged? and payload.stage_payload)
+				buf +=
+					"\n" +
+					Buffer.comment(
+					"#{payload.refname} - #{payload.stage_payload.length} bytes (stage 2)\n" +
+					"http://www.metasploit.com\n",
+					fmt) + Buffer.transform(payload.stage_payload, fmt)
+			end
+
 		end
 
 		return buf

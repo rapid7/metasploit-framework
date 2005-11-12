@@ -84,7 +84,7 @@ class LogDispatcher
 	def log(sev, src, level, msg, from)
 		log_sinks_rwlock.synchronize_read {
 			if ((sink = log_sinks[src]))
-				next if (log_levels[src] and level > log_levels[src])
+				next if (log_levels[src] and level >= log_levels[src])
 
 				sink.log(sev, src, level, msg, from)
 			end

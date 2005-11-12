@@ -96,6 +96,13 @@ class Payload < Msf::Module
 	end
 
 	#
+	# This method returns whether or not this payload uses staging.
+	#
+	def staged?
+		(payload_type == Type::Stager or payload_type == Type::Stage)
+	end
+
+	#
 	# Returns the payload's size.  If the payload is staged, the size of the
 	# first stage is returned.
 	#
