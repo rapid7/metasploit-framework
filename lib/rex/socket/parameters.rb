@@ -60,7 +60,7 @@ class Rex::Socket::Parameters
 			self.bare = false
 		end
 
-		if (hash['SSL'])
+		if (hash['SSL'] and hash['SSL'] !~ /false|0|n/i)
 			self.ssl = hash['SSL']
 		else
 			self.ssl = false

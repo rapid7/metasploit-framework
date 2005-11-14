@@ -5,7 +5,7 @@ $:.unshift(File.join(File.dirname(__FILE__), '..'))
 require 'test/unit'
 require 'rex/file'
 
-class Rex::File::UnitTest < ::Test::Unit::TestCase
+class Rex::FileUtils::UnitTest < ::Test::Unit::TestCase
 	Klass = Rex::FileUtils
 
 	def test_find_full_path
