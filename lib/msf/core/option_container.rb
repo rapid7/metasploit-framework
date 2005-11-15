@@ -55,6 +55,14 @@ class OptBase
 	end
 
 	#
+	# Normalizes the supplied value to conform with the type that the option is
+	# conveying.
+	#
+	def normalize(value)
+		value
+	end
+
+	#
 	# Returns the value of the option as a string.
 	#
 	def to_s
@@ -137,6 +145,9 @@ end
 #
 ###
 class OptBool < OptBase
+
+	TrueRegex = /^(y|yes|t|1|true)$/i
+
 	def type
 		return 'bool'
 	end
@@ -148,6 +159,14 @@ class OptBool < OptBase
 		end
 
 		true
+	end
+
+	def normalize(value)
+		if (value.match(TrueRegex) != nil)
+			true
+		else
+			false
+		end
 	end
 
 	def is_true?
@@ -234,6 +253,10 @@ end
 class OptInt < OptBase
 	def type 
 		return 'integer' 
+	end
+
+	def normalize(value)
+		value.to_i
 	end
 
 	def valid?(value)
@@ -391,6 +414,9 @@ class OptionContainer < Hash
 		each_pair { |name, option| 
 			if (!option.valid?(datastore[name]))
 				errors << name
+			# If the option is valid, normalize its format to the correct type.
+			elsif ((val = option.normalize(datastore[name])) != nil)
+				datastore[name] = val
 			end
 		}
 		

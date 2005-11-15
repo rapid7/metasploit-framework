@@ -130,7 +130,7 @@ class ModuleDataStore < DataStore
 	def fetch(key)
 		val = super 
 
-		if (!val and @_module and @_module.framework)
+		if (val == nil and @_module and @_module.framework)
 			val = @_module.framework.datastore[key]
 		end
 
@@ -143,7 +143,7 @@ class ModuleDataStore < DataStore
 	def [](key)
 		val = super
 		
-		if (!val and @_module and @_module.framework)
+		if (val == nil and @_module and @_module.framework)
 			val = @_module.framework.datastore[key]
 		end
 

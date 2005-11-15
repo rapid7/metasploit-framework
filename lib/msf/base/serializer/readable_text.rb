@@ -324,7 +324,7 @@ class ReadableText
 				])
 
 		ds.keys.sort.each { |k|
-			tbl << [ k, ds[k] ]
+			tbl << [ k, (ds[k] != nil) ? ds[k].to_s : '' ]
 		}
 
 		return ds.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No entries in data store.\n"
