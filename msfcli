@@ -32,7 +32,7 @@ exploit.init_ui($stdout, $stdin)
 mode = ARGV.pop.downcase
 
 # Import options
-exploit.datastore.import_options_from_s(ARGV.join)
+exploit.datastore.import_options_from_s(ARGV.join(' '))
 
 case mode.downcase
 	when "s"
