@@ -1,3 +1,4 @@
+require 'singleton'
 require 'rex/socket'
 require 'rex/socket/tcp'
 require 'rex/socket/ssl_tcp'
@@ -10,6 +11,7 @@ require 'rex/socket/udp'
 ###
 class Rex::Socket::Comm::Local
 
+	include Singleton
 	include Rex::Socket::Comm
 
 	#
@@ -30,6 +32,9 @@ class Rex::Socket::Comm::Local
 	# Creates a socket using the supplied Parameter instance.
 	#
 	def self.create_by_type(param, type, proto = 0)
+		# Notify handlers of the before socket create event.
+		self.instance.notify_before_socket_create(self, param)
+
 		# Create the socket
 		sock = ::Socket.new(::Socket::AF_INET, type, proto)
 
@@ -57,8 +62,6 @@ class Rex::Socket::Comm::Local
 			sock.extend(Rex::Socket::TcpServer)
 
 			sock.initsock(param)
-
-			return sock
 		# Otherwise, if we're creating a client...
 		else
 			# If we were supplied with host information
@@ -70,29 +73,48 @@ class Rex::Socket::Comm::Local
 				end
 			end
 
-			return sock if (param.bare?)
-
-			case param.proto
-				when 'tcp'
-					klass = Rex::Socket::Tcp
-
-					if (param.ssl)
-						klass = Rex::Socket::SslTcp
-					end
-
-					sock.extend(klass)
-
-					sock.initsock(param)
-
-					return sock
-				when 'udp'
-					sock.extend(Rex::Socket::Udp)
-
-					sock.initsock(param)
-
-					return sock
+			if (param.bare? == false)
+				case param.proto
+					when 'tcp'
+						klass = Rex::Socket::Tcp
+	
+						if (param.ssl)
+							klass = Rex::Socket::SslTcp
+						end
+	
+						sock.extend(klass)
+	
+						sock.initsock(param)
+					when 'udp'
+						sock.extend(Rex::Socket::Udp)
+	
+						sock.initsock(param)
+				end
 			end
 		end
+
+		# Notify handlers that a socket has been created.
+		self.instance.notify_socket_created(self, sock, param)
+
+		sock
+	end
+
+	##
+	#
+	# Registration
+	#
+	##
+	
+	def self.register_event_handler(handler) # :nodoc:
+		self.instance.register_event_handler(handler)
+	end
+
+	def self.deregister_event_handler(handler) # :nodoc:
+		self.instance.deregister_event_handler(handler)
+	end
+
+	def self.each_event_handler(handler) # :nodoc:
+		self.instance.each_event_handler(handler)
 	end
 
 end

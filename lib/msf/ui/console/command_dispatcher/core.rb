@@ -236,8 +236,9 @@ class Core
 	def cmd_route(*args)
 		if (args.length == 0)
 			print(
-				"Usage: route [add/remove/get/flush/print] subnet netmask [local/sid]\n\n" +
-				"Route traffic destined to a given subnet through a supplied session.\n")
+				"Usage: route [add/remove/get/flush/print] subnet netmask [comm/sid]\n\n" +
+				"Route traffic destined to a given subnet through a supplied session. \n" +
+				"The default comm is Local.\n")
 			return false
 		end
 
@@ -250,13 +251,20 @@ class Core
 
 				gw = nil
 
-				# Determine the gateway to use
-				if (args[2] =~ /local/i)
-					gw = Rex::Socket::Comm::Local
-				elsif ((session = framework.sessions.get(args[2])) and
-				       (session.kind_of?(Msf::Session::Comm)))
+				# Satisfy case problems
+				args[2] = "Local" if (args[2] =~ /local/i)
+
+				# If the supplied gateway is a global Comm, use it.
+				if (Rex::Socket::Comm.const_defined?(args[2]))
+					gw = Rex::Socket::Comm.const_get(args[2])
+				end
+
+				# If we still don't have a gateway, check if it's a session.
+				if ((gw == nil) and
+				    (session = framework.sessions.get(args[2])) and
+				    (session.kind_of?(Msf::Session::Comm)))
 					gw = session
-				else
+				elsif (gw == nil)
 					print_error("Invalid gateway specified.")
 					return false
 				end
@@ -273,13 +281,20 @@ class Core
 				
 				gw = nil
 
-				# Determine the gateway to use
-				if (args[2] =~ /local/i)
-					gw = Rex::Socket::Comm::Local
-				elsif ((session = framework.sessions.get(args[2])) and
-				       (session.kind_of?(Msf::Session::Comm)))
+				# Satisfy case problems
+				args[2] = "Local" if (args[2] =~ /local/i)
+
+				# If the supplied gateway is a global Comm, use it.
+				if (Rex::Socket::Comm.const_defined?(args[2]))
+					gw = Rex::Socket::Comm.const_get(args[2])
+				end
+
+				# If we still don't have a gateway, check if it's a session.
+				if ((gw == nil) and
+				    (session = framework.sessions.get(args[2])) and
+				    (session.kind_of?(Msf::Session::Comm)))
 					gw = session
-				else
+				elsif (gw == nil)
 					print_error("Invalid gateway specified.")
 					return false
 				end
@@ -323,10 +338,11 @@ class Core
 						})
 
 				Rex::Socket::SwitchBoard.each { |route|
-					gw = "Local"
 
 					if (route.comm.kind_of?(Msf::Session))
 						gw = "Session #{route.comm.sid}"
+					else
+						gw = route.comm.name.split(/::/)[-1]
 					end
 
 					tbl << [ route.subnet, route.netmask, gw ]

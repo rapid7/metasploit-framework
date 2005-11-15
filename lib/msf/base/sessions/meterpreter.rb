@@ -115,12 +115,23 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	# which the meterpreter server instance is running.
 	#
 	def create(param)
+		sock = nil
+
+		# Notify handlers before we create the socket
+		notify_before_socket_create(self, param)
+
 		case param.proto
 			when 'tcp'
-				return net.socket.create(param)
+				sock = net.socket.create(param)
 			else
 				raise Rex::UnsupportedProtocol.new(param.proto), caller
 		end
+
+		# Notify now that we've created the socket
+		notify_socket_created(self, sock, param)
+
+		# Return the socket ot the caller
+		sock
 	end
 
 protected
