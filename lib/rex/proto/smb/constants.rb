@@ -194,7 +194,8 @@ SMB_SETUP_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 	[ 'uint8',   'Reserved1',            0 ],
 	[ 'uint16v', 'AndXOffset',           0 ],			
 	[ 'uint16v', 'Action',               0 ],
-	[ 'uint16v', 'SecurityBlobLen',      0 ],
+# Should this be commented out?
+#	[ 'uint16v', 'SecurityBlobLen',      0 ],
 	[ 'uint16v', 'ByteCount',            0 ],
 	[ 'string',  'Payload', nil,        '' ]
 ).create_restraints(

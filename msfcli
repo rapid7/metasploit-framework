@@ -81,6 +81,8 @@ case mode.downcase
 					
 		rescue
 			$stderr.puts("Exploit failed: #{$!}")
+			$stderr.puts("Backtrace:")
+			$stderr.puts($!.backtrace.join("\n"))
 		end
 end
 

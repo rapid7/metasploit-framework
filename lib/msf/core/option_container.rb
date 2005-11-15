@@ -162,10 +162,10 @@ class OptBool < OptBase
 	end
 
 	def normalize(value)
-		if (value.match(TrueRegex) != nil)
-			true
-		else
+		if(value.nil? or value.match(TrueRegex).nil?)
 			false
+		else
+			true
 		end
 	end
 

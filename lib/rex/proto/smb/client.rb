@@ -274,12 +274,19 @@ EVADE = Rex::Proto::SMB::Evasions
 	# Process incoming SMB_COM_CREATE_ANDX packets
 	def smb_parse_create(pkt, data)
  		
+		# Windows says 42, but Samba says 34, same structure :-/
 		if (pkt['Payload']['SMB'].v['WordCount'] == 42)
 			res = CONST::SMB_CREATE_RES_PKT.make_struct
 			res.from_s(data)
 			return res
 		end
-		
+
+		if (pkt['Payload']['SMB'].v['WordCount'] == 34)
+			res = CONST::SMB_CREATE_RES_PKT.make_struct
+			res.from_s(data)
+			return res
+		end
+						
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
@@ -583,6 +590,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
 
 		info = ack['Payload'].v['Payload'].split(/\x00/)
+
 		self.peer_native_os = info[0]
 		self.peer_native_lm = info[1]
 		self.default_domain = info[2]
