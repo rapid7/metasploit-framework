@@ -56,7 +56,13 @@ module ReverseTcp
 		self.listener_sock = Rex::Socket::TcpServer.create(
 			'LocalHost' => datastore['LHOST'],
 			'LocalPort' => datastore['LPORT'].to_i,
-			'Comm'      => comm)
+			'Comm'      => comm,
+			'Context'   =>
+				{
+					'Msf'        => framework,
+					'MsfPayload' => self,
+					'MsfExploit' => assoc_exploit
+				})
 	end
 
 	#

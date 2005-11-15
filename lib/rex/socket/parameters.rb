@@ -28,7 +28,50 @@ class Rex::Socket::Parameters
 	##
 
 	#
-	# Initializes the attributes from the supplied hash.
+	# Initializes the attributes from the supplied hash.  The following hash
+	# keys can be specified.
+	#
+	# PeerHost / PeerAddr
+	#
+	# 	The remote host to connect to.
+	#
+	# PeerPort
+	#
+	# 	The remote port to connect to.
+	#
+	# LocalHost / LocalAddr
+	#
+	# 	The local host to communicate from, if any.
+	#
+	# LocalPort
+	#
+	# 	The local port to communicate from, if any.
+	#
+	# Bare
+	#
+	# 	Create a bare socket.
+	#
+	# Server
+	#
+	# 	Whether or not this should be a server.
+	#
+	# SSL
+	#
+	# 	Whether or not SSL should be used.
+	#
+	# Comm
+	#
+	# 	The underlying Comm class to use to create the socket for this parameter
+	# 	set.
+	#
+	# Context
+	#
+	# 	A context hash that can allow users of this parameter class instance to
+	# 	determine who is responsible for requesting that a socket be created.
+	#
+	# Retries
+	#
+	# 	The number of times a connection should be retryed.
 	#
 	def initialize(hash)
 		if (hash['PeerHost'])
@@ -83,6 +126,9 @@ class Rex::Socket::Parameters
 
 		# The communication subsystem to use to create the socket
 		self.comm      = hash['Comm']
+
+		# The context that was passed in, if any.
+		self.context   = hash['Context'] || {}
 
 		# If no comm was supplied, try to use the comm that is best fit to
 		# handle the provided host based on the current routing table.
@@ -183,6 +229,10 @@ class Rex::Socket::Parameters
 	# The Comm class that should be used to create the underlying socket.
 	#
 	attr_accessor :comm
+	#
+	# The context hash that was passed in to the structure.
+	#
+	attr_accessor :context
 	#
 	# The number of attempts that should be made.
 	#

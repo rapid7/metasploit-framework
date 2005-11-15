@@ -318,6 +318,12 @@ class Payload < Msf::Module
 	#
 	attr_accessor :prepend_encoder
 
+	#
+	# If this payload is associated with an exploit, the assoc_exploit
+	# attribute will point to that exploit instance.
+	#
+	attr_accessor :assoc_exploit
+
 protected
 
 	##

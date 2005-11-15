@@ -83,7 +83,13 @@ module BindTcp
 						client = Rex::Socket::Tcp.create(
 							'PeerHost' => datastore['RHOST'],
 							'PeerPort' => datastore['LPORT'].to_i,
-							'Comm'     => comm)
+							'Comm'     => comm,
+							'Context'  =>
+								{
+									'Msf'        => framework,
+									'MsfPayload' => self,
+									'MsfExploit' => assoc_exploit
+								})
 					rescue Rex::ConnectionRefused
 						# Connection refused is a-okay
 					rescue
