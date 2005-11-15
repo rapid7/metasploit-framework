@@ -21,7 +21,7 @@ exploit_name = ARGV.shift
 exploit      = $framework.exploits.create(exploit_name)
 
 if (exploit == nil)
-	$stderr.puts("Invalid payload: #{payload_name}")
+	$stderr.puts("Invalid exploit: #{exploit_name}")
 	exit
 end
 
