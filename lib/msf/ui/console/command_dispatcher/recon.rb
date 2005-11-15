@@ -3,14 +3,18 @@ module Ui
 module Console
 module CommandDispatcher
 
+###
+#
+# Recon module command dispatcher.
+#
+###
 class Recon
 
 	include Msf::Ui::Console::ModuleCommandDispatcher
 
-	def name
-		"Recon"
-	end
-
+	#
+	# Returns the hash of commands specific to recon modules.
+	#
 	def commands
 		{
 			"discover" => "Initiates the recon discovery process for this module",
@@ -18,6 +22,13 @@ class Recon
 	end
 
 	#
+	#
+	# Returns the command dispatcher name.
+	#
+	def name
+		"Recon"
+	end
+
 	# Starts discovering like a good recon module should.
 	#
 	def cmd_discover(*args)

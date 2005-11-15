@@ -54,6 +54,10 @@ class ReadableText
 		tbl.to_s + "\n"
 	end
 
+	#
+	# Dumps the table of payloads that are compatible with the supplied
+	# exploit.
+	#
 	def self.dump_compatible_payloads(exploit, indent = '', h = nil)
 		tbl = Rex::Ui::Text::Table.new(
 			'Indent'  => indent.length,
@@ -284,6 +288,9 @@ class ReadableText
 		return tbl.to_s
 	end
 
+	#
+	# Dumps the advanced options associated with the supplied module.
+	#
 	def self.dump_advanced_options(mod, indent = '')
 		output = ''
 		pad    = indent
@@ -304,7 +311,7 @@ class ReadableText
 	end
 
 	#
-	# Dumps the contents of a datastore
+	# Dumps the contents of a datastore.
 	#
 	def self.dump_datastore(name, ds, indent = DefaultIndent, col = DefaultColumnWrap)
 		tbl = Rex::Ui::Text::Table.new(
@@ -324,7 +331,7 @@ class ReadableText
 	end
 
 	#
-	# Dumps the list of active sessions
+	# Dumps the list of active sessions.
 	#
 	def self.dump_sessions(framework, indent = DefaultIndent, col = DefaultColumnWrap)
 		tbl = Rex::Ui::Text::Table.new(
@@ -347,7 +354,7 @@ class ReadableText
 	end
 
 	#
-	# Dumps the list of running jobs
+	# Dumps the list of running jobs.
 	#
 	def self.dump_jobs(framework, indent = DefaultIndent, col = DefaultColumnWrap)
 		tbl = Rex::Ui::Text::Table.new(

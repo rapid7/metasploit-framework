@@ -14,7 +14,10 @@ require 'msf/core/recon/entity/container'
 class Group
 
 	include Container
-	
+
+	#
+	# Initializes an entity group which is simply an entity container.
+	#
 	def initialize
 		initialize_entities
 	end
@@ -30,6 +33,11 @@ end
 ###
 class ServiceGroup < Group
 
+	#
+	# Initializes a group of services and breaks them down into their
+	# sub-protocols which can be accessed through the 'tcp' and 'udp'
+	# attributes.
+	#
 	def initialize
 		super
 
@@ -38,11 +46,18 @@ class ServiceGroup < Group
 		self.udp = Group.new
 	end
 
-	attr_reader :tcp, :udp
+	#
+	# This attribute is a sub-group that contains all TCP services.
+	#
+	attr_reader :tcp
+	#
+	# This attribute is a sub-group that contains all UDP services.
+	#
+	attr_reader :udp
 
 protected
 
-	attr_writer :tcp, :udp
+	attr_writer :tcp, :udp # :nodoc:
 
 end
 

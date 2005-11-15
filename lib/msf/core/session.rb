@@ -9,11 +9,15 @@ module Msf
 ###
 module SessionEvent
 
-	# Called when a session is opened
+	#
+	# Called when a session is opened.
+	#
 	def on_session_open(session)
 	end
 
-	# Called when a session is closed
+	#
+	# Called when a session is closed.
+	#
 	def on_session_close(session)
 	end
 	
@@ -61,38 +65,38 @@ module Session
 	end
 
 	#
-	# Sets the session's name
+	# Sets the session's name.
 	#
 	def name=(name)
 		self.sname = name
 	end
 
 	#
-	# Returns the description of the session
+	# Returns the description of the session.
 	#
 	def desc
 	end
 
 	#
-	# Returns the type of session in use
+	# Returns the type of session in use.
 	#
 	def type
 	end
 
 	#
-	# Returns the local side of the tunnel
+	# Returns the local side of the tunnel.
 	#
 	def tunnel_local
 	end
 
 	#
-	# Returns the peer side of the tunnel
+	# Returns the peer side of the tunnel.
 	#
 	def tunnel_peer
 	end
 
 	#
-	# Returns a pretty representation of the tunnel
+	# Returns a pretty representation of the tunnel.
 	#
 	def tunnel_to_s
 		"#{(tunnel_local || '??').to_s} -> #{(tunnel_peer || '??').to_s}"
@@ -146,7 +150,7 @@ module Session
 	##
 
 	#
-	# Sets the vector through which this session was realized
+	# Sets the vector through which this session was realized.
 	#
 	def set_via(opts)
 		self.via = opts || {}	
@@ -181,11 +185,22 @@ module Session
 		false
 	end
 
-	attr_accessor :framework, :sid, :sname
+	#
+	# The framework instance that created this session.
+	# 
+	attr_accessor :framework
+	#
+	# The session unique identifier.
+	#
+	attr_accessor :sid
+	#
+	# The session name.
+	#
+	attr_accessor :sname
 
 protected
 
-	attr_accessor :via
+	attr_accessor :via # :nodoc:
 
 end
 

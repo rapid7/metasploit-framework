@@ -14,14 +14,25 @@ module BindTcp
 
 	include Msf::Handler
 
+	#
+	# Returns the handler specific string representation, in this case
+	# 'bind_tcp'.
+	#
 	def self.handler_type
 		return "bind_tcp"
 	end
 
+	#
+	# Returns the connection oriented general handler type, in this case bind.
+	#
 	def self.general_handler_type
 		"bind"
 	end
 
+	#
+	# Initializes a bind handler and adds the options common to all bind
+	# payloads, such as local port.
+	#
 	def initialize(info = {})
 		super
 
@@ -34,7 +45,7 @@ module BindTcp
 	end
 
 	#
-	# No setup to speak of
+	# No setup to speak of for bind handlers.
 	#
 	def setup_handler
 	end
@@ -110,7 +121,7 @@ module BindTcp
 
 protected
 
-	attr_accessor :conn_threads
+	attr_accessor :conn_threads # :nodoc:
 
 end
 

@@ -45,42 +45,72 @@ class Config < Hash
 	#
 	##
 
+	#
+	# Returns the framework installation root.
+	#
 	def self.install_root
 		InstallRoot
 	end
 
+	#
+	# Calls the instance method.
+	#
 	def self.config_directory
 		self.new.config_directory
 	end
 
+	#
+	# Calls the instance method.
+	#
 	def self.module_directory
 		self.new.module_directory
 	end
 
+	#
+	# Calls the instance method.
+	#
 	def self.log_directory
 		self.new.log_directory
 	end
 
+	#
+	# Calls the instance method.
+	#
 	def self.session_log_directory
 		self.new.session_log_directory
 	end
 	
+	#
+	# Calls the instance method.
+	#
 	def self.user_module_directory
 		self.new.user_module_directory
 	end
 
+	#
+	# Calls the instance method.
+	#
 	def self.config_file
 		self.new.config_file
 	end
 
+	#
+	# Calls the instance method.
+	#
 	def self.init
 		self.new.init
 	end
 
+	#
+	# Calls the instance method.
+	#
 	def self.load(path = nil)
 		self.new.load(path)
 	end
 
+	#
+	# Calls the instance method.
+	#
 	def self.save(opts)
 		self.new.save(opts)
 	end

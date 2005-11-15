@@ -10,14 +10,26 @@ module FindPort
 
 	include Msf::Handler
 
+	#
+	# Returns the string representation of the handler type, in this case
+	# 'find_port'.
+	#
 	def self.handler_type
 		return "find_port"
 	end
 
+	#
+	# Returns the connection oriented general handler type, in this case
+	# 'find'.
+	#
 	def self.general_handler_type
 		"find"
 	end
 
+	#
+	# Initializes the find port handler and adds the client port option that is
+	# required for port-based findsock payloads to function.
+	#
 	def initialize(info = {})
 		super
 
@@ -124,7 +136,7 @@ protected
 		end
 	end
 
-	attr_accessor :_handler_return_value
+	attr_accessor :_handler_return_value # :nodoc:
 
 end
 

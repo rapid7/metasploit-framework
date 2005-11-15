@@ -55,7 +55,7 @@ class SessionManager < Hash
 	end
 
 	#
-	# Deregisters the supplied session object with the framework
+	# Deregisters the supplied session object with the framework.
 	#
 	def deregister(session)
 		# Tell the framework that we have a parting session
@@ -75,7 +75,7 @@ class SessionManager < Hash
 	end
 
 	#
-	# Returns the session associated with the supplied sid, if any
+	# Returns the session associated with the supplied sid, if any.
 	#
 	def get(sid)
 		return self[sid.to_i]
@@ -83,7 +83,7 @@ class SessionManager < Hash
 
 protected
 	
-	attr_accessor :sid_pool, :sessions
+	attr_accessor :sid_pool, :sessions # :nodoc:
 
 end
 

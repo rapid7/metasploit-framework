@@ -29,7 +29,7 @@ module Nop
 	end
 
 	#
-	# Calls the class method
+	# Calls the class method.
 	#
 	def generate_simple(length, opts)
 		Msf::Simple::Nop.generate_simple(self, length, opts)

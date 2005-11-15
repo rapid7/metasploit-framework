@@ -11,7 +11,7 @@ require 'msf/core'
 module Msf::Payload::Windows
 
 	# 
-	# ROR hash associations for some of the exit technique routines
+	# ROR hash associations for some of the exit technique routines.
 	#
 	@@exit_types = 
 		{
@@ -20,6 +20,12 @@ module Msf::Payload::Windows
 			'process' => 0x73e2d87e, # ExitProcess
 		}
 
+	#
+	# This mixin is chained within payloads that target the Windows platform.
+	# It provides special variable substitution for things like EXITFUNC and
+	# automatically adds it as a required option for exploits that use windows
+	# payloads.
+	#
 	def initialize(info = {})
 		if (info['Alias'])
 			info['Alias'] = 'windows/' + info['Alias']

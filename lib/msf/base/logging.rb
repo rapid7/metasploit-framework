@@ -11,7 +11,7 @@ module Msf
 class Logging
 
 	#
-	# Initialize logging
+	# Initialize logging.
 	#
 	def self.init
 		if (@initialized != true)

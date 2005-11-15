@@ -39,14 +39,14 @@ class Msf::Module::Platform
 	end
 
 	#
-	# Calls the class method
+	# Calls the class method.
 	#
 	def find_children
 		self.class.find_children
 	end
 
 	#
-	# The magic to try to build out a Platform from a string
+	# The magic to try to build out a Platform from a string.
 	#
 	def self.find_platform(str)
 		# remove any whitespace and downcase
@@ -64,7 +64,7 @@ class Msf::Module::Platform
 	end
 
 	#
-	# Finds all inherited children from a given module
+	# Finds all inherited children from a given module.
 	# 
 	def self.find_children
 		constants.map { |c| 
@@ -78,7 +78,7 @@ class Msf::Module::Platform
 
 	#
 	# Builds the abbreviation set for every module starting from
-	# a given point
+	# a given point.
 	#
 	def self.build_child_platform_abbrev(mod)
 		# Flush out any non-class and non-inherited children
@@ -127,7 +127,7 @@ class Msf::Module::Platform
 
 	#
 	# Finds the module that best matches the supplied string (or a portion of
-	# the string)
+	# the string).
 	#
 	def self.find_portion(mod, str)
 		# Check to see if we've built the abbreviated cache
@@ -170,8 +170,8 @@ class Msf::Module::Platform
 		return best
 	end
 
-	private_class_method :build_child_platform_abbrev
-	private_class_method :find_portion
+	private_class_method :build_child_platform_abbrev # :nodoc:
+	private_class_method :find_portion # :nodoc:
 
 	##
 	#

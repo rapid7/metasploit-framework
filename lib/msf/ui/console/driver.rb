@@ -31,6 +31,10 @@ class Driver < Msf::Ui::Driver
 	#
 	include Rex::Ui::Text::DispatcherShell
 
+	#
+	# Initializes a console driver instance with the supplied prompt string and
+	# prompt character.
+	#
 	def initialize(prompt = "%umsf", prompt_char = ">%c")
 		# Call the parent
 		super
@@ -84,7 +88,7 @@ class Driver < Msf::Ui::Driver
 	end
 
 	#
-	# Loads configuration for the console
+	# Loads configuration for the console.
 	#
 	def load_config
 		begin
@@ -106,7 +110,7 @@ class Driver < Msf::Ui::Driver
 	end
 
 	#
-	# Saves configuration for the console
+	# Saves configuration for the console.
 	#
 	def save_config
 		# Build out the console config group
@@ -128,7 +132,7 @@ class Driver < Msf::Ui::Driver
 	#
 	# TODO:
 	#
-	# Processes the resource script file for the console
+	# Processes the resource script file for the console.
 	#
 	def process_rc_file
 	end
@@ -185,12 +189,18 @@ class Driver < Msf::Ui::Driver
 		end
 	end
 
+	#
+	# The framework instance associated with this driver.
+	#
 	attr_reader   :framework
+	#
+	# The active module associated with the driver.
+	#
 	attr_accessor :active_module
 
 protected
 
-	attr_writer   :framework
+	attr_writer   :framework # :nodoc:
 	
 	##
 	#
@@ -199,7 +209,7 @@ protected
 	##
 
 	#
-	# SessionLogging
+	# SessionLogging.
 	#
 	def handle_session_logging(val)
 		if (val =~ /^(yes|y|true|t|1)/i)
@@ -212,7 +222,7 @@ protected
 	end
 	
 	#
-	# ConsoleLogging
+	# ConsoleLogging.
 	#
 	def handle_console_logging(val)
 		if (val =~ /^(yes|y|true|t|1)/i)

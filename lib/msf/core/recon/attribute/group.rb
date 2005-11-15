@@ -30,6 +30,10 @@ class Group
 		}
 	end
 
+	#
+	# Initializes the attribute group which is simply a container of
+	# attributes.
+	#
 	def initialize
 		initialize_attributes
 	end

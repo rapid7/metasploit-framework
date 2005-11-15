@@ -5,6 +5,11 @@ module Ui
 module Console
 module CommandDispatcher
 
+###
+#
+# NOP module command dispatcher.
+#
+###
 class Nop
 
 	include Msf::Ui::Console::ModuleCommandDispatcher
@@ -15,18 +20,24 @@ class Nop
 		"-s" => [ true,  "The comma separated list of registers to save." ],
 		"-t" => [ true,  "The output type: ruby, perl, c, or raw."        ])
 
+	#
+	# Returns the hash of supported commands.
+	#
 	def commands
 		{
 			"generate" => "Generates a NOP sled",
 		}
 	end
 
+	#
+	# Returns the name of the command dispatcher.
+	#
 	def name
 		"Nop"
 	end
 
 	#
-	# Generates a NOP sled
+	# Generates a NOP sled.
 	#
 	def cmd_generate(*args)
 

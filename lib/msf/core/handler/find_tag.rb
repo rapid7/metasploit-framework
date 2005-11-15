@@ -12,14 +12,26 @@ module FindTag
 
 	include FindPort
 
+	#
+	# Returns the string representation of the handler type, in this case
+	# 'find_tag'.
+	#
 	def self.handler_type
 		return "find_tag"
 	end
 
+	#
+	# Returns the connection oriented general handler type, in this case
+	# 'find'.
+	#
 	def self.general_handler_type
 		"find"
 	end
 
+	#
+	# Initializes the find tag handler with the option that is required for all
+	# find-tag based payloads, such as the TAG that will be searched for.
+	#
 	def initialize(info = {})
 		super
 
@@ -40,7 +52,7 @@ module FindTag
 protected
 
 	#
-	# Prefix the stage with this...
+	# Prefix the stage with this.
 	#
 	def _find_prefix(sock)
 		if (self.respond_to?('stage_prefix') == true)
@@ -51,7 +63,7 @@ protected
 	end
 
 	#
-	# Transmits the tag
+	# Transmits the tag.
 	#
 	def _send_id(sock)
 		if (self.payload_type == Msf::Payload::Type::Single)

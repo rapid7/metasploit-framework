@@ -20,6 +20,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	include Msf::Session::Interactive
 	include Msf::Session::Comm
 
+	#
+	# Initializes a meterpreter session instance using the supplied rstream
+	# that is to be used as the client's connection to the server.
+	#
 	def initialize(rstream)
 		super
 
@@ -34,6 +38,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		self.console = Rex::Post::Meterpreter::Ui::Console.new(self)
 	end
 
+	#
+	# Returns the session type as being 'meterpreter'.
+	#
 	def self.type
 		"meterpreter"
 	end
@@ -43,11 +50,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	# Msf::Session overrides
 	#
 	##
-	
+
+	#
+	# Returns the session description.
+	#
 	def desc
 		"Meterpreter"
 	end
 
+	#
+	# Calls the class method.
+	#
 	def type
 		self.class.type
 	end
@@ -59,7 +72,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	##
 
 	#
-	# Initializes the console's I/O handles
+	# Initializes the console's I/O handles.
 	#
 	def init_ui(input, output)
 		console.init_ui(input, output)
@@ -67,7 +80,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	end
 
 	#
-	# Resets the console's I/O handles
+	# Resets the console's I/O handles.
 	#
 	def reset_ui
 		console.unset_log_source
@@ -75,7 +88,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	end
 
 	#
-	# Interacts with the meterpreter client at a user interface level
+	# Interacts with the meterpreter client at a user interface level.
 	#
 	def _interact
 		# Call the console interaction subsystem of the meterpreter client and
@@ -112,7 +125,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 protected
 
-	attr_accessor :rstream, :console
+	attr_accessor :rstream, :console # :nodoc:
 
 end
 

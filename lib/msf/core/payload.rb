@@ -17,9 +17,11 @@ class Payload < Msf::Module
 	# Platform specific includes
 	require 'msf/core/payload/windows'
 
+	##
 	#
 	# Payload types
 	#
+	##
 	module Type
 		#
 		# Single payload type.  These types of payloads are self contained and
@@ -42,6 +44,9 @@ class Payload < Msf::Module
 		Stage  = (1 << 2)
 	end
 
+	#
+	# Creates an instance of a payload module using the supplied information.
+	#
 	def initialize(info = {})
 		super
 

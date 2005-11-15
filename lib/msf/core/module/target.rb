@@ -9,15 +9,17 @@ class Msf::Module::Target
 
 	###
 	#
-	# Bruteforce
-	# ----------
-	#
 	# Target-specific brute force information, such as the addresses
 	# to step, the step size (if the framework default is bad), and
 	# other stuff.
 	#
 	###
 	class Bruteforce < Hash
+
+		#
+		# Initializes a brute force target from the supplied brute forcing
+		# information.
+		#
 		def initialize(hash)
 			update(hash)
 		end
@@ -56,7 +58,9 @@ class Msf::Module::Target
 		end
 
 		#
-		# Returns the default step direction
+		# Returns the default step direction.  -1 indicates that brute forcing
+		# should go toward lower addresses.  1 indicates that brute forcing
+		# should go toward higher addresses.
 		#
 		def default_direction
 			dd = self['DefaultDirection']
@@ -77,7 +81,7 @@ class Msf::Module::Target
 	end
 
 	#
-	# Serialize from an array to a Target instance
+	# Serialize from an array to a Target instance.
 	#
 	def self.from_a(ary)
 		return nil if (ary.length < 2)
@@ -86,14 +90,43 @@ class Msf::Module::Target
 	end
 
 	#
-	# Transforms the supplied source into an array of Target's
+	# Transforms the supplied source into an array of Targets.
 	#
 	def self.transform(src)
 		Rex::Transformer.transform(src, Array, [ self, String ], 'Target')
 	end
 
 	#
-	# Init it up!
+	# Initializes an instance of a bruteforce target from the supplied
+	# information.  The hash of options that this constructor takes is as
+	# follows:
+	#
+	# Platform
+	#
+	# 	The platform(s) that this target is to operate against.
+	#
+	# SaveRegisters
+	#
+	# 	The registers that must be saved by NOP generators.
+	#
+	# Arch
+	#
+	# 	The architectures, if any, that this target is specific to (E.g.
+	# 	ARCH_X86).
+	#
+	# Bruteforce
+	#
+	# 	Settings specific to a target that supports brute forcing.  See the
+	# 	BruteForce class.
+	#
+	# Ret
+	#
+	# 	The target-specific return address or addresses that will be used.
+	#
+	# Payload
+	#
+	# 	Payload-specific options, such as append, prepend, and other values that
+	# 	can be set on a per-exploit or per-target basis.
 	#
 	def initialize(name, opts)
 		opts = {} if (!opts)
@@ -116,7 +149,7 @@ class Msf::Module::Target
 	end
 
 	#
-	# Index the options directly
+	# Index the options directly.
 	#
 	def [](key)
 		opts[key]
@@ -136,41 +169,90 @@ class Msf::Module::Target
 	#
 	##
 
+	#
+	# Payload prepend information for this target.
+	#
 	def payload_prepend
 		opts['Payload'] ? opts['Payload']['Prepend'] : nil
 	end
 
+	#
+	# Payload append information for this target.
+	#
 	def payload_append
 		opts['Payload'] ? opts['Payload']['Append'] : nil
 	end
 
+	#
+	# Payload prepend encoder information for this target.
+	#
 	def payload_prepend_encoder
 		opts['Payload'] ? opts['Payload']['PrependEncoder'] : nil
 	end
 
+	#
+	# Payload stack adjustment information for this target.
+	#
 	def payload_stack_adjustment
 		opts['Payload'] ? opts['Payload']['StackAdjustment'] : nil
 	end
 
+	#
+	# Payload max nops information for this target.
+	#
 	def payload_max_nops
 		opts['Payload'] ? opts['Payload']['MaxNops'] : nil
 	end
 	
+	#
+	# Payload min nops information for this target.
+	#
 	def payload_min_nops
 		opts['Payload'] ? opts['Payload']['MinNops'] : nil
 	end
-	
+
+	#
+	# Payload space information for this target.
+	#
 	def payload_space
 		opts['Payload'] ? opts['Payload']['Space'] : nil
 	end
 
-	attr_reader :name, :platform, :arch, :opts, :ret, :save_registers
+	#
+	# The name of the target (E.g. Windows XP SP0/SP1)
+	#
+	attr_reader :name
+	#
+	# The platforms that this target is for.
+	#
+	attr_reader :platform
+	#
+	# The architectures, if any, that the target is specific to.
+	#
+	attr_reader :arch
+	#
+	# The target-specific options, like payload settings and other stuff like
+	# that.
+	#
+	attr_reader :opts
+	#
+	# An alias for the target 'Ret' option.
+	#
+	attr_reader :ret
+	#
+	# The list of registers that need to be saved.
+	#
+	attr_reader :save_registers
+	#
+	# The bruteforce target information that will be non-nil if a Bruteforce
+	# option is passed to the constructor of the class.
+	#
 	attr_reader :bruteforce
 
 protected
 
-	attr_writer :name, :platform, :arch, :opts, :ret, :save_registers
-	attr_writer :bruteforce
+	attr_writer :name, :platform, :arch, :opts, :ret, :save_registers # :nodoc:
+	attr_writer :bruteforce # :nodoc:
 
 end
 

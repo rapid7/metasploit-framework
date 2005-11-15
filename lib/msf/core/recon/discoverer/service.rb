@@ -10,6 +10,11 @@ class  Discoverer
 ###
 class Service < Msf::Recon::Discoverer
 
+	#
+	# Initializes a service discoverer recon module that is responsible for
+	# locating running services or information about services that are running
+	# on hosts.
+	#
 	def initialize(info = {})
 		super
 

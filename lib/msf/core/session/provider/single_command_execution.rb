@@ -17,19 +17,19 @@ module SingleCommandExecution
 	end
 
 	#
-	# Reads output from the command
+	# Reads output from the command.
 	#
 	def read_cmd(length = nil)
 	end
 
 	#
-	# Writes input to the command
+	# Writes input to the command.
 	#
 	def write_cmd(buf)
 	end
 
 	#
-	# Closes the command that was executed
+	# Closes the command that was executed.
 	#
 	def close_cmd()
 	end

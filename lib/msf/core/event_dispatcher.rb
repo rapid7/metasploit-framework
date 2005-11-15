@@ -266,11 +266,11 @@ protected
 		}
 	end
 
-	attr_accessor :general_event_subscribers
-	attr_accessor :exploit_event_subscribers
-	attr_accessor :session_event_subscribers
-	attr_accessor :recon_event_subscribers
-	attr_accessor :subscribers_rwlock
+	attr_accessor :general_event_subscribers # :nodoc:
+	attr_accessor :exploit_event_subscribers # :nodoc:
+	attr_accessor :session_event_subscribers # :nodoc:
+	attr_accessor :recon_event_subscribers # :nodoc:
+	attr_accessor :subscribers_rwlock # :nodoc:
 
 end
 

@@ -26,21 +26,21 @@ module Module
 	end
 
 	#
-	# Initializes the simplified interface
+	# Initializes the simplified interface.
 	#
 	def init_simplified
 		load_config
 	end
 
 	#
-	# Populates the datastore from the config file
+	# Populates the datastore from the config file.
 	#
 	def load_config
 		self.datastore.from_file(Msf::Config.config_file, self.refname)
 	end
 
 	#
-	# Saves the module's datastore to the file
+	# Saves the module's datastore to the file.
 	#
 	def save_config
 		self.datastore.to_file(Msf::Config.config_file, self.refname)

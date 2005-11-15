@@ -38,6 +38,10 @@ class Host < Entity
 
 	end
 
+	#
+	# Initializes a host entity with the supplied address after being found
+	# during recon.
+	#
 	def initialize(address)
 		super()
 

@@ -10,6 +10,9 @@ require 'msf/core'
 ###
 module Msf::Payload::Single
 
+	#
+	# Sets the payload type to that of a single payload.
+	#
 	def payload_type
 		return Msf::Payload::Type::Single
 	end

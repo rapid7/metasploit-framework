@@ -13,6 +13,9 @@ class Entity
 ###
 class Service < Entity
 
+	#
+	# Initializes a service entity that has been found to be running on a host.
+	#
 	def initialize(proto, port = nil)
 		super()
 

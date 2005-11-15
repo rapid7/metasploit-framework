@@ -28,7 +28,7 @@ class EncoderState
 	end
 
 	#
-	# Set the initial encoding key
+	# Set the initial encoding key.
 	#
 	def init_key(key)
 		self.key      = key
@@ -54,6 +54,10 @@ end
 ###
 class Encoder < Module
 
+	#
+	# Initializes an encoder module instance using the supplied information
+	# hash.
+	#
 	def initialize(info)
 		super(info)
 	end

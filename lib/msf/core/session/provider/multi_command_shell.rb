@@ -9,7 +9,6 @@ module Provider
 # MultiCommandShell classes must also provide a mechanism by which they can
 # implement the SingleCommandShell interface.
 #
-#
 ###
 module MultiCommandShell
 
@@ -17,14 +16,14 @@ module MultiCommandShell
 
 	#
 	# Initializes the default command shell as expected from 
-	# SingleCommandShell
+	# SingleCommandShell.
 	#
 	def init_shell()
 		raise NotImplementedError
 	end
 
 	#
-	# Opens a new command shell context and returns the handle
+	# Opens a new command shell context and returns the handle.
 	#
 	def open_shell()
 		raise NotImplementedError

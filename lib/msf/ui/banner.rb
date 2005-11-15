@@ -107,6 +107,9 @@ _|  _|  _|\___|\__|\__,_|____/ .__/ _|\___/ _|\__|
 '	
 		]
 
+	#
+	# Returns a random metasploit logo.
+	#
 	def self.to_s
 		Logos[rand(Logos.length)]		
 	end

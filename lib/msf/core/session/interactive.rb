@@ -18,7 +18,7 @@ module Interactive
 	include Rex::Ui::Interactive
 
 	#
-	# Initialize's the session
+	# Initializes the session.
 	#
 	def initialize(rstream)
 		self.rstream = rstream
@@ -33,14 +33,14 @@ module Interactive
 	end
 
 	#
-	# Returns the local information
+	# Returns the local information.
 	#
 	def tunnel_local
 		rstream.localinfo
 	end
 
 	#
-	# Returns the remote peer information
+	# Returns the remote peer information.
 	#
 	def tunnel_peer
 		begin
@@ -66,20 +66,20 @@ module Interactive
 protected
 
 	#
-	# Stub method that is meant to handler interaction
+	# Stub method that is meant to handler interaction.
 	#
 	def _interact
 	end
 
 	#
-	# Check to see if the user wants to abort
+	# Check to see if the user wants to abort.
 	#
 	def _interrupt
 		user_want_abort?
 	end
 
 	#
-	# Check to see if we should suspnd
+	# Check to see if we should suspend.
 	#
 	def _suspend
 		# Ask the user if they would like to background the session
@@ -96,7 +96,7 @@ protected
 	end
 
 	#
-	# Checks to see if the user wants to abort
+	# Checks to see if the user wants to abort.
 	#
 	def user_want_abort?
 		prompt_yesno("Abort session #{name}?")

@@ -99,7 +99,7 @@ module Container
 
 protected
 
-	attr_accessor :_attr_hash
+	attr_accessor :_attr_hash # :nodoc:
 
 end
 

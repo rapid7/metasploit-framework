@@ -13,14 +13,14 @@ module Basic
 	include Interactive
 
 	#
-	# Description of the session
+	# Description of the session.
 	#
 	def desc
 		"Basic I/O"
 	end
 
 	#
-	# Basic session
+	# Basic session.
 	#
 	def type
 		"basic"

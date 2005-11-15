@@ -9,6 +9,12 @@ module Ui
 module Console
 module CommandDispatcher
 
+###
+#
+# Command dispatcher for core framework commands, such as module loading,
+# session interaction, and other general things.
+#
+###
 class Core
 
 	include Msf::Ui::Console::CommandDispatcher
@@ -56,6 +62,9 @@ class Core
 		}
 	end
 
+	#
+	# Returns the name of the command dispatcher.
+	#
 	def name
 		"Core"
 	end
@@ -80,7 +89,7 @@ class Core
 	end
 
 	#
-	# Display one of the fabulous banners
+	# Display one of the fabulous banners.
 	#
 	def cmd_banner(*args)
 		banner  = Banner.to_s + "\n\n"
@@ -100,7 +109,7 @@ class Core
 	end
 
 	#
-	# Instructs the driver to stop executing
+	# Instructs the driver to stop executing.
 	#
 	def cmd_exit(*args)
 		driver.stop
@@ -109,14 +118,14 @@ class Core
 	alias cmd_quit cmd_exit
 
 	#
-	# Displays the command help banner
+	# Displays the command help banner.
 	#
 	def cmd_help(*args)
 		print(driver.help_to_s)
 	end
 
 	#
-	# Displays information about one or more module
+	# Displays information about one or more module.
 	#
 	def cmd_info(*args)
 		if (args.length == 0)
@@ -351,7 +360,7 @@ class Core
 	end
 
 	#
-	# Adds one or more search paths
+	# Adds one or more search paths.
 	#
 	def cmd_search(*args)
 		if (args.length == 0)
@@ -467,7 +476,7 @@ class Core
 	end
 
 	#
-	# Sets a name to a value in a context aware environment
+	# Sets a name to a value in a context aware environment.
 	#
 	def cmd_set(*args)
 	
@@ -526,7 +535,7 @@ class Core
 	end
 
 	#
-	# Sets the supplied variables in the global datastore
+	# Sets the supplied variables in the global datastore.
 	#
 	def cmd_setg(*args)
 		args.unshift('-g')
@@ -536,7 +545,7 @@ class Core
 
 	#
 	# Displays the list of modules based on their type, or all modules if
-	# no type is provided
+	# no type is provided.
 	#
 	def cmd_show(*args)
 		mod = self.active_module
@@ -578,7 +587,7 @@ class Core
 	end
 
 	#
-	# Unsets a value if it's been set
+	# Unsets a value if it's been set.
 	#
 	def cmd_unset(*args)
 
@@ -619,7 +628,7 @@ class Core
 	end
 
 	#
-	# Unsets variables in the global data store
+	# Unsets variables in the global data store.
 	#
 	def cmd_unsetg(*args)
 		args.unshift('-g')
@@ -628,7 +637,7 @@ class Core
 	end
 
 	#
-	# Uses a module
+	# Uses a module.
 	#
 	def cmd_use(*args)
 		if (args.length == 0)
@@ -711,7 +720,7 @@ class Core
 protected
 
 	#
-	# Recalculates the tab completion list
+	# Recalculates the tab completion list.
 	#
 	def recalculate_tab_complete
 		self.tab_complete_items = []
@@ -726,19 +735,19 @@ protected
 	# Module list enumeration
 	#
 
-	def show_encoders
+	def show_encoders # :nodoc:
 		show_module_set("Encoders", framework.encoders)
 	end
 
-	def show_nops
+	def show_nops # :nodoc:
 		show_module_set("NOP Generators", framework.nops)
 	end
 
-	def show_exploits
+	def show_exploits # :nodoc:
 		show_module_set("Exploits", framework.exploits)
 	end
 
-	def show_payloads
+	def show_payloads # :nodoc:
 		# If an active module has been selected and it's an exploit, get the
 		# list of compatible payloads and display them
 		if (active_module and active_module.exploit? == true)
@@ -754,11 +763,11 @@ protected
 		end
 	end
 
-	def show_recon
+	def show_recon # :nodoc:
 		show_module_set("Recon", framework.recon)
 	end
 
-	def show_options(mod)
+	def show_options(mod) # :nodoc:
 		print("\n" + Serializer::ReadableText.dump_options(mod) + "\n")
 	
 		# If it's an exploit and a payload is defined, create it and
@@ -779,11 +788,11 @@ protected
 		end
 	end
 
-	def show_advanced_options(mod)
+	def show_advanced_options(mod) # :nodoc:
 		print("\n" + Serializer::ReadableText.dump_advanced_options(mod) + "\n")
 	end
 
-	def show_module_set(type, module_set)
+	def show_module_set(type, module_set) # :nodoc:
 		tbl = generate_module_table(type)
 
 		module_set.each_module { |refname, mod|
@@ -795,7 +804,7 @@ protected
 		print(tbl.to_s)
 	end
 
-	def generate_module_table(type)
+	def generate_module_table(type) # :nodoc:
 		Table.new(
 			Table::Style::Default,
 			'Header'  => type,

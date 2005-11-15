@@ -17,9 +17,11 @@ class Recon
 ###
 class Discoverer < Msf::Recon
 
+	##
 	#
 	# The types of discoverer recon modules that are known about by default.
 	#
+	##
 	module Type
 		
 		#
@@ -39,9 +41,11 @@ class Discoverer < Msf::Recon
 
 	end
 
+	##
 	#
 	# The set of flags that discoverer modules can use to instruct the
 	# framework (or themselves) on how to operate.
+	#
 	#
 	module Flags
 		#
@@ -54,6 +58,11 @@ class Discoverer < Msf::Recon
 	require 'msf/core/recon/discoverer/host'
 	require 'msf/core/recon/discoverer/service'
 
+	#
+	# Initializes the base of a recon discoverer module and adds any advanced
+	# options that may be useful, like the number of threads the framework
+	# should use for scanning.
+	#
 	def initialize(info = {})
 		super
 
@@ -267,9 +276,9 @@ protected
 		}
 	end
 
-	attr_accessor :discovery_threads
-	attr_accessor :discovery_thread_mutex
-	attr_accessor :discovery_thread_event
+	attr_accessor :discovery_threads # :nodoc:
+	attr_accessor :discovery_thread_mutex # :nodoc:
+	attr_accessor :discovery_thread_event # :nodoc:
 
 end
 

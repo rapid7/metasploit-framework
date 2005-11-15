@@ -11,6 +11,9 @@ class Msf::Encoder::XorAdditiveFeedback < Msf::Encoder::Xor
 		super(info)
 	end
 
+	#
+	# Encodes a block using the XOR additive feedback algorithm.
+	#
 	def encode_block(state, block)
 		# XOR the key with the current block
 		orig       = block.unpack(decoder_key_pack)[0]
@@ -23,6 +26,9 @@ class Msf::Encoder::XorAdditiveFeedback < Msf::Encoder::Xor
 		return [ oblock ].pack(decoder_key_pack)
 	end
 
+	#
+	# Finds a key that is compatible with the badchars list.
+	#
 	def find_key(buf, badchars)
 		key_bytes = integer_to_key_bytes(super(buf, badchars))
 		state = Msf::EncoderState.new

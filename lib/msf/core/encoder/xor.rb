@@ -7,10 +7,16 @@ require 'msf/core'
 ###
 class Msf::Encoder::Xor < Msf::Encoder
 
+	#
+	# Encodes a block using the XOR encoder from the Rex library.
+	#
 	def encode_block(state, block)
 		return Rex::Encoding::Xor::Dword.encode(block, [ state.key ].pack(state.decoder_key_pack))[0]
 	end
 
+	#
+	# Finds keys that are incompatible with the supplied bad character list.
+	#
 	def find_bad_keys(buf, badchars)
 		bad_keys = [ {}, {}, {}, {} ]
 		byte_idx = 0

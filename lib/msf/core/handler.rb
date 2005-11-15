@@ -4,9 +4,6 @@ module Msf
 
 ###
 #
-# Handler
-# -------
-#
 # This module acts as a base for all handler pseudo-modules.  They aren't
 # really modules, so don't get the wrong idea champs!  They're merely
 # mixed into dynamically generated payloads to handle monitoring for
@@ -31,15 +28,26 @@ module Msf
 ###
 module Handler
 
+	##
 	#
 	# Constants used with the ``handler'' method to indicate whether or not the
-	# connection was used
+	# connection was used.
+	#
+	##
+
+	#
+	# Returned by handlers to indicate that a socket has been claimed for use
+	# by the payload.
 	#
 	Claimed = "claimed"
+	#
+	# Returned by handlers to indicate that a socket has not been claimed for
+	# use.
+	#
 	Unused  = "unused"
 
 	#
-	# Returns the handler type
+	# Returns the handler type.
 	#
 	def self.handler_type
 		return "none"
@@ -74,25 +82,25 @@ module Handler
 	end
 
 	#
-	# Sets up the connection handler
+	# Sets up the connection handler.
 	#
 	def setup_handler
 	end
 
 	#
-	# Terminates the connection handler
+	# Terminates the connection handler.
 	#
 	def cleanup_handler
 	end
 
 	#
-	# Start monitoring for a connection
+	# Start monitoring for a connection.
 	#
 	def start_handler
 	end
 
 	#
-	# Stop monitoring for a connection
+	# Stop monitoring for a connection.
 	#
 	def stop_handler
 	end
@@ -126,7 +134,7 @@ module Handler
 	#
 	# Waits for a session to be created as the result of a handler connection
 	# coming in.  The return value is a session object instance on success or
-	# nil if the timeout expires
+	# nil if the timeout expires.
 	#
 	def wait_for_session(t = wfs_delay)
 		session = nil

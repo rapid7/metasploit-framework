@@ -13,6 +13,10 @@ class ModuleSet < Hash
 
 	include Framework::Offspring
 
+	#
+	# Initializes a module set that will contain modules of a specific type and
+	# expose the mechanism necessary to create instances of them.
+	#
 	def initialize(type = nil)
 		self.module_type       = type
 
@@ -59,7 +63,7 @@ class ModuleSet < Hash
 	end
 
 	#
-	# Enumerates each module class in the set
+	# Enumerates each module class in the set.
 	#
 	def each_module(opts = {}, &block)
 		mod_sorted = self.sort if (mod_sorted == nil)
@@ -86,7 +90,7 @@ class ModuleSet < Hash
 	end
 
 	#
-	# Dummy placeholder to relcalculate aliases and other fun things
+	# Dummy placeholder to relcalculate aliases and other fun things.
 	#
 	def recalculate
 	end
@@ -147,7 +151,7 @@ protected
 	end
 
 	#
-	# Adds a module with a the supplied name
+	# Adds a module with a the supplied name.
 	#
 	def add_module(module_class, name, file_path = nil)
 		# Duplicate the module class so that we can operate on a
@@ -209,6 +213,10 @@ class ModuleManager < ModuleSet
 
 	include Framework::Offspring
 
+	#
+	# Initializes an instance of the overall module manager using the supplied
+	# framework instance.
+	#
 	def initialize(framework)
 		self.module_paths         = []
 		self.module_history       = {}
@@ -234,7 +242,7 @@ class ModuleManager < ModuleSet
 	end
 
 	#
-	# Creates a module using the supplied name
+	# Creates a module using the supplied name.
 	#
 	def create(name)
 		# Check to see if it has a module type prefix.  If it does,
@@ -252,35 +260,35 @@ class ModuleManager < ModuleSet
 	#
 
 	#
-	# Returns the set of loaded encoder module classes
+	# Returns the set of loaded encoder module classes.
 	#
 	def encoders
 		return module_sets[MODULE_ENCODER]
 	end
 
 	#
-	# Returns the set of loaded exploit module classes
+	# Returns the set of loaded exploit module classes.
 	#
 	def exploits
 		return module_sets[MODULE_EXPLOIT]
 	end
 
 	#
-	# Returns the set of loaded nop module classes
+	# Returns the set of loaded nop module classes.
 	#
 	def nops
 		return module_sets[MODULE_NOP]
 	end
 
 	#
-	# Returns the set of loaded payload module classes
+	# Returns the set of loaded payload module classes.
 	#
 	def payloads
 		return module_sets[MODULE_PAYLOAD]
 	end
 
 	#
-	# Returns the set of loaded recon module classes
+	# Returns the set of loaded recon module classes.
 	#
 	def recon
 		return module_sets[MODULE_RECON]
@@ -293,7 +301,7 @@ class ModuleManager < ModuleSet
 	##
 
 	#
-	# Adds a path to be searched for new modules
+	# Adds a path to be searched for new modules.
 	#
 	def add_module_path(path)
 		path.sub!(/#{File::SEPARATOR}$/, '')
@@ -311,7 +319,7 @@ class ModuleManager < ModuleSet
 	end
 
 	#
-	# Removes a path from which to search for modules
+	# Removes a path from which to search for modules.
 	#
 	def remove_module_path(path)
 		module_paths.delete(path)
@@ -383,7 +391,7 @@ protected
 
 	#
 	# Load all of the modules from the supplied module path (independent of
-	# module type)
+	# module type).
 	#
 	def load_modules(path)
 		loaded = {}
@@ -461,7 +469,9 @@ protected
 		return counts
 	end
 
+	#
 	# Loads a module from the supplied file.
+	#
 	def load_module_from_file(path, file, loaded, recalc, counts)
 		# If the file doesn't end in the expected extension...
 		return if (!file.match(/\.rb$/))
@@ -569,7 +579,7 @@ protected
 
 	#
 	# Checks to see if the supplied file has changed (if it's even in the
-	# cache)
+	# cache).
 	#
 	def has_module_file_changed?(file)
 		return (module_history_mtime[file] != File.new(file).mtime)
@@ -577,7 +587,7 @@ protected
 
 	#
 	# Returns the module object that is associated with the supplied module
-	# name
+	# name.
 	#
 	def mod_from_name(name)
 		obj = Msf
@@ -599,7 +609,7 @@ protected
 
 	#
 	# Called when a module is initially loaded such that it can be
-	# categorized accordingly
+	# categorized accordingly.
 	#
 	def on_module_load(mod, type, name, file_path)
 		# Payload modules require custom loading as the individual files
@@ -663,9 +673,9 @@ protected
 		end
 	end
 
-	attr_accessor :modules, :module_sets
-	attr_accessor :module_paths
-	attr_accessor :module_history, :module_history_mtime
+	attr_accessor :modules, :module_sets # :nodoc:
+	attr_accessor :module_paths # :nodoc:
+	attr_accessor :module_history, :module_history_mtime # :nodoc:
 
 end
 

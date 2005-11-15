@@ -22,41 +22,50 @@ class CommandShell
 	#
 	include Msf::Session::Provider::SingleCommandShell
 
+	#
+	# Returns the type of session.
+	#
 	def self.type
 		"shell"
 	end
 
+	#
+	# Returns the session description.
+	#
 	def desc
 		"Command shell"
 	end
 
+	#
+	# Calls the class method.
+	#
 	def type
 		self.class.type
 	end
 
 	#
-	# The shell will have been initialized by default
+	# The shell will have been initialized by default.
 	#
 	def init_shell
 		return true
 	end
 
 	#
-	# Read from the command shell
+	# Read from the command shell.
 	#
 	def read_shell(length = nil)
 		return rstream.read(length)
 	end
 
 	#
-	# Writes to the command shell
+	# Writes to the command shell.
 	#
 	def write_shell(buf)
 		rstream.write(buf)
 	end
 
 	#
-	# Closes the shell
+	# Closes the shell.
 	#
 	def close_shell()
 		rstream.close

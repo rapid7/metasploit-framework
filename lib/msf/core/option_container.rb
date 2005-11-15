@@ -10,6 +10,14 @@ module Msf
 ###
 class OptBase
 
+	#
+	# Initializes a named option with the supplied attribute array.
+	# The array is composed of three values.
+	#
+	# attrs[0] = required (boolean type)
+	# attrs[1] = description (string)
+	# attrs[2] = default value
+	#
 	def initialize(in_name, attrs = [])
 		self.name     = in_name
 		self.advanced = false
@@ -18,35 +26,73 @@ class OptBase
 		self.default  = attrs[2]
 	end
 
+	#
+	# Returns true if this is a required option.
+	#
 	def required?
 		return required
 	end
 
+	#
+	# Returns true if this is an advanced option.
+	#
 	def advanced?
 		return advanced
 	end
 
+	#
+	# Returns true if the supplied type is equivalent to this option's type.
+	#
 	def type?(in_type)
 		return (type == in_type)
 	end
 
+	#
 	# If it's required and the value is nil or empty, then it's not valid.
+	#
 	def valid?(value)
 		return (required? and (value == nil or value.to_s.empty?)) ? false : true
 	end
 
+	#
+	# Returns the value of the option as a string.
+	#
 	def to_s
 		return value.to_s
 	end
 
-	attr_reader   :name, :required, :desc, :default
+	#
+	# The name of the option.
+	#
+	attr_reader   :name
+	#
+	# Whether or not the option is required.
+	#
+	attr_reader   :required
+	#
+	# The description of the option.
+	#
+	attr_reader   :desc
+	#
+	# The default value of the option.
+	#
+	attr_reader   :default
+	#
+	# Storing the name of the option.
+	#
 	attr_writer   :name
+	#
+	# Whether or not this is an advanced option.
+	#
 	attr_accessor :advanced
+	#
+	# The module or entity that owns this option.
+	#
 	attr_accessor :owner
 
 protected
 
-	attr_writer   :required, :desc, :default
+	attr_writer   :required, :desc, :default # :nodoc:
 end
 
 ###
@@ -63,18 +109,33 @@ end
 #
 ###
 
+###
+#
+# Mult-byte character string option.
+#
+###
 class OptString < OptBase
 	def type 
 		return 'string' 
 	end
 end
 
+###
+#
+# Raw, arbitrary data option.
+#
+###
 class OptRaw < OptBase
 	def type
 		return 'raw'
 	end
 end
 
+###
+#
+# Boolean option.
+#
+###
 class OptBool < OptBase
 	def type
 		return 'bool'
@@ -102,6 +163,11 @@ class OptBool < OptBase
 	end
 end
 
+###
+#
+# Network port option.
+#
+###
 class OptPort < OptBase
 	def type 
 		return 'port' 
@@ -117,6 +183,11 @@ class OptPort < OptBase
 	end
 end
 
+###
+#
+# Network address option.
+#
+###
 class OptAddress < OptBase
 	def type 
 		return 'address' 
@@ -135,6 +206,11 @@ class OptAddress < OptBase
 	end
 end
 
+###
+#
+# File system path option.
+#
+###
 class OptPath < OptBase
 	def type 
 		return 'path' 
@@ -150,6 +226,11 @@ class OptPath < OptBase
 	end
 end
 
+###
+#
+# Integer option.
+#
+###
 class OptInt < OptBase
 	def type 
 		return 'integer' 
@@ -189,14 +270,14 @@ class OptionContainer < Hash
 	end
 
 	#
-	# Return the value associated with the supplied name
+	# Return the value associated with the supplied name.
 	#
 	def [](name)
 		return get(name)
 	end
 
 	#
-	# Return the option associated with the supplied name
+	# Return the option associated with the supplied name.
 	#
 	def get(name)
 		begin
@@ -230,7 +311,7 @@ class OptionContainer < Hash
 	end
 
 	#
-	# Removes an option
+	# Removes an option.
 	#
 	def remove_option(name)
 		delete(name)
@@ -240,7 +321,7 @@ class OptionContainer < Hash
 	end
 
 	#
-	# Adds one or more options
+	# Adds one or more options.
 	#
 	def add_options(opts, owner = nil, advanced = false)
 		return false if (opts == nil)
@@ -253,7 +334,7 @@ class OptionContainer < Hash
 	end
 
 	#
-	# Add options from a hash of names
+	# Add options from a hash of names.
 	#
 	def add_options_hash(opts, owner = nil, advanced = false)
 		opts.each_pair { |name, opt|
@@ -262,7 +343,7 @@ class OptionContainer < Hash
 	end
 
 	#
-	# Add options from an array of option instances or arrays
+	# Add options from an array of option instances or arrays.
 	#
 	def add_options_array(opts, owner = nil, advanced = false)
 		opts.each { |opt|
@@ -271,7 +352,7 @@ class OptionContainer < Hash
 	end
 
 	#
-	# Adds an option
+	# Adds an option.
 	#
 	def add_option(option, name = nil, owner = nil, advanced = false)
 		if (option.kind_of?(Array))
@@ -292,7 +373,7 @@ class OptionContainer < Hash
 	end
 
 	#
-	# Alias to add advanced options that sets the proper state flag
+	# Alias to add advanced options that sets the proper state flag.
 	#
 	def add_advanced_options(opts, owner = nil)
 		return false if (opts == nil)
@@ -302,7 +383,7 @@ class OptionContainer < Hash
 
 	#
 	# Make sures that each of the options has a value of a compatible 
-	# format and that all the required options are set
+	# format and that all the required options are set.
 	#
 	def validate(datastore)
 		errors = []
@@ -345,11 +426,14 @@ class OptionContainer < Hash
 		each_pair(&block)
 	end
 
+	#
+	# The sorted array of options.
+	#
 	attr_reader :sorted
 
 protected
 
-	attr_writer :sorted
+	attr_writer :sorted # :nodoc:
 
 end
 

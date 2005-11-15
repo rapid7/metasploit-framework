@@ -54,7 +54,7 @@ class PersistentStorage
 
 	#
 	# This method adds a new storage class to the hash of storage classes that
-	# can be created through create
+	# can be created through create.
 	#
 	def self.add_storage_class(name, klass)
 		@@storage_classes[name] = klass

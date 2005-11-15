@@ -11,6 +11,11 @@ module Msf
 ###
 module ReconEvent
 
+	###
+	#
+	# The types of changes an entity can undergo.
+	#
+	###
 	module EntityChangeType
 		Add    = 1
 		Update = 2

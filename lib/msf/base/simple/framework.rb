@@ -37,7 +37,7 @@ module Framework
 	end
 
 	#
-	# Extends a framework object that may already exist
+	# Extends a framework object that may already exist.
 	#
 	def self.simplify(framework, opts)
 		framework.extend(Msf::Simple::Framework)
@@ -99,7 +99,7 @@ module Framework
 	##
 
 	#
-	# Initializes the simplified interface
+	# Initializes the simplified interface.
 	#
 	def init_simplified
 		self.stats = Statistics.new(self)
@@ -119,11 +119,14 @@ module Framework
 		self.datastore.to_file(Msf::Config.config_file, 'framework/core')
 	end
 
+	#
+	# Statistics.
+	#
 	attr_reader :stats
 
 protected
 
-	attr_writer :stats
+	attr_writer :stats # :nodoc:
 
 end
 

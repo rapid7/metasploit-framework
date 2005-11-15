@@ -92,6 +92,10 @@ class Module
 	require 'msf/core/module/reference'
 	require 'msf/core/module/target'
 
+	#
+	# Creates an instance of an abstract module using the supplied information
+	# hash.
+	#
 	def initialize(info = {})
 		self.module_info = info
 
@@ -177,21 +181,21 @@ class Module
 	end
 
 	#
-	# Return the module's description
+	# Return the module's description.
 	#
 	def description
 		module_info['Description']
 	end
 
 	#
-	# Return the module's version information
+	# Return the module's version information.
 	#
 	def version
 		module_info['Version']
 	end
 
 	#
-	# Returns the hash that describes this module's compatibilities
+	# Returns the hash that describes this module's compatibilities.
 	#
 	def compat
 		module_info['Compat'] || {}
@@ -247,42 +251,42 @@ class Module
 	end
 
 	#
-	# Return the module's abstract type
+	# Return the module's abstract type.
 	#
 	def type
 		raise NotImplementedError
 	end
 
 	#
-	# Return a comma separated list of author for this module
+	# Return a comma separated list of author for this module.
 	#
 	def author_to_s
 		return author.collect { |author| author.to_s }.join(", ")
 	end
 
 	#
-	# Enumerate each author
+	# Enumerate each author.
 	#
 	def each_author(&block)
 		author.each(&block)
 	end
 
 	#
-	# Return a comma separated list of supported architectures, if any
+	# Return a comma separated list of supported architectures, if any.
 	#
 	def arch_to_s
 		return arch.join(", ")
 	end
 
 	#
-	# Enumerate each architecture
+	# Enumerate each architecture.
 	#
 	def each_arch(&block)
 		arch.each(&block)
 	end
 
 	#
-	# Return whether or not the module supports the supplied architecture
+	# Return whether or not the module supports the supplied architecture.
 	#
 	def arch?(what)
 		return true if (what == ARCH_ANY)
@@ -291,14 +295,14 @@ class Module
 	end
 
 	#
-	# Return a comma separated list of supported platforms, if any
+	# Return a comma separated list of supported platforms, if any.
 	#
 	def platform_to_s
 		return (platform.all?) ? [ "All" ] : platform.names
 	end
 
 	#
-	# Returns whether or not the module requires or grants high privileges
+	# Returns whether or not the module requires or grants high privileges.
 	#
 	def privileged?
 		return (privileged == true)
@@ -327,35 +331,81 @@ class Module
 	# Just some handy quick checks
 	#
 	##
-	
+
+	#
+	# Returns true if this module is an exploit module.
+	#
 	def exploit?
 		return (type == MODULE_EXPLOIT)
 	end
 
+	#
+	# Returns true if this module is a payload module.
+	#
 	def payload?
 		return (type == MODULE_PAYLOAD)
 	end
 
+	#
+	# Returns true if this module is an encoder module.
+	#
 	def encoder?
 		return (type == MODULE_ENCODER)
 	end
 
+	#
+	# Returns true if this module is a nop module.
+	#
 	def nop?
 		return (type == MODULE_NOP)
 	end
 
+	#
+	# Returns true if this module is a recon module.
+	#
 	def recon?
 		return (type == MODULE_RECON)
 	end
 
-	attr_reader   :author, :arch, :platform, :references, :datastore, :options
+	#
+	# The array of zero or more authors.
+	#
+	attr_reader   :author
+	#
+	# The array of zero or more architectures.
+	#
+	attr_reader   :arch
+	#
+	# The array of zero or more platforms.
+	#
+	attr_reader   :platform
+	#
+	# The reference count for the module.
+	#
+	attr_reader   :references
+	#
+	# The module-specific datastore instance.
+	#
+	attr_reader   :datastore
+	#
+	# The module-specific options.
+	#
+	attr_reader   :options
+	#
+	# Whether or not this module requires privileged access.
+	#
 	attr_reader   :privileged
 
 protected
 
+	#
+	# The list of options that support merging in an information hash.
+	#
 	UpdateableOptions = [ "Name", "Description", "Alias" ]
 
-	# Sets the modules unsupplied info fields to their default values
+	#
+	# Sets the modules unsupplied info fields to their default values.
+	#
 	def set_defaults
 		self.module_info = {
 			'Name'        => 'No module name', 
@@ -398,7 +448,7 @@ protected
 	end
 
 	#
-	# Register options with a specific owning class
+	# Register options with a specific owning class.
 	#
 	def register_options(options, owner = self.class)
 		self.options.add_options(options, owner)
@@ -406,7 +456,7 @@ protected
 	end
 
 	#
-	# Register advanced options with a specific owning class
+	# Register advanced options with a specific owning class.
 	#
 	def register_advanced_options(options, owner = self.class)
 		self.options.add_advanced_options(options, owner)
@@ -415,7 +465,7 @@ protected
 
 	#
 	# Removes the supplied options from the module's option container
-	# and data store
+	# and data store.
 	#
 	def deregister_options(*names)
 		names.each { |name|
@@ -470,7 +520,7 @@ protected
 	end
 
 	#
-	# Checks and merges the supplied key/value pair in the supplied hash
+	# Checks and merges the supplied key/value pair in the supplied hash.
 	#
 	def merge_check_key(info, name, val)
 		if (self.respond_to?("merge_info_#{name.downcase}"))
@@ -505,35 +555,35 @@ protected
 	end
 
 	#
-	# Merge aliases with an underscore delimiter
+	# Merge aliases with an underscore delimiter.
 	#
 	def merge_info_alias(info, val)
 		merge_info_string(info, 'Alias', val, '_')
 	end
 
 	#
-	# Merges the module name
+	# Merges the module name.
 	#
 	def merge_info_name(info, val)
 		merge_info_string(info, 'Name', val, ', ', true)
 	end	
 
 	#
-	# Merges the module description
+	# Merges the module description.
 	#
 	def merge_info_description(info, val)
 		merge_info_string(info, 'Description', val)
 	end
 
 	#
-	# Merge the module version
+	# Merge the module version.
 	#
 	def merge_info_version(info, val)
 		merge_info_string(info, 'Version', val)
 	end
 
 	#
-	# Merges a given key in the info hash with a delimiter
+	# Merges a given key in the info hash with a delimiter.
 	#
 	def merge_info_string(info, key, val, delim = ', ', inverse = false)
 		if (info[key])
@@ -548,7 +598,7 @@ protected
 	end
 
 	#
-	# Merges options 
+	# Merges options.
 	#
 	def merge_info_options(info, val, advanced = false)
 		key_name = ((advanced) ? 'Advanced' : '') + 'Options'
@@ -567,15 +617,15 @@ protected
 	end
 
 	# 
-	# Merges advanced options
+	# Merges advanced options.
 	#
 	def merge_info_advancedoptions(info, val)
 		merge_info_options(info, val, true)
 	end
 
-	attr_accessor :module_info
-	attr_writer   :author, :arch, :platform, :references, :datastore, :options
-	attr_writer   :privileged
+	attr_accessor :module_info # :nodoc:
+	attr_writer   :author, :arch, :platform, :references, :datastore, :options # :nodoc:
+	attr_writer   :privileged # :nodoc:
 
 end
 

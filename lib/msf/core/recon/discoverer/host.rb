@@ -13,6 +13,10 @@ class Discoverer
 ###
 class Host < Msf::Recon::Discoverer
 
+	#
+	# Initializes an instance of a host discoverer recon module and adds
+	# options that are common to all host discoverers, like subnet and netmask.
+	#
 	def initialize(info = {})
 		super
 
@@ -197,8 +201,8 @@ protected
 		1
 	end
 
-	attr_accessor :swalker
-	attr_accessor :swalker_mutex
+	attr_accessor :swalker # :nodoc:
+	attr_accessor :swalker_mutex # :nodoc:
 
 end
 
@@ -213,6 +217,10 @@ end
 #
 ###
 class HostAttribute < Msf::Recon::Discoverer
+
+	#
+	# Returns Type::HostAttribute.
+	#
 	def discoverer_type
 		Type::HostAttribute
 	end

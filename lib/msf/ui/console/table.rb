@@ -10,11 +10,16 @@ module Console
 ###
 class Table < Rex::Ui::Text::Table
 
-	# Default table styles
+	#
+	# Default table styles.
+	#
 	module Style
 		Default = 0
 	end
 
+	#
+	# Initializes a wrappered table with the supplied style and options.
+	#
 	def initialize(style, opts = {})
 		self.style = style
 
@@ -31,7 +36,9 @@ class Table < Rex::Ui::Text::Table
 		end
 	end
 
-	# Print nothing if there are no rows if the style is default
+	#
+	# Print nothing if there are no rows if the style is default.
+	#
 	def to_s
 		if (style == Style::Default)
 			return '' if (rows.length == 0)
@@ -42,7 +49,7 @@ class Table < Rex::Ui::Text::Table
 
 protected
 
-	attr_accessor :style
+	attr_accessor :style # :nodoc:
 
 end
 

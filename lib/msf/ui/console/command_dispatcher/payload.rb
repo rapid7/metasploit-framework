@@ -5,6 +5,11 @@ module Ui
 module Console
 module CommandDispatcher
 
+###
+#
+# Payload module command dispatcher.
+#
+###
 class Payload
 
 	include Msf::Ui::Console::ModuleCommandDispatcher
@@ -17,18 +22,24 @@ class Payload
 		"-s" => [ true,  "NOP sled length."                                     ],
 		"-t" => [ true,  "The output type: ruby, perl, c, or raw."              ])
 
+	#
+	# Returns the hash of commands specific to payload modules.
+	#
 	def commands
 		{
 			"generate" => "Generates a payload",	
 		}
 	end
 
+	#
+	# Returns the command dispatcher name.
+	#
 	def name
 		return "Payload"
 	end
 
 	#
-	# Generates a payload
+	# Generates a payload.
 	#
 	def cmd_generate(*args)
 

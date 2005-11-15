@@ -7,6 +7,9 @@ require 'msf/core'
 ###
 module Msf::Payload::Stager
 
+	#
+	# Sets the payload type to a stager.
+	#
 	def payload_type
 		return Msf::Payload::Type::Stager
 	end

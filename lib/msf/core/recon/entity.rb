@@ -47,7 +47,7 @@ class Entity
 		'unknown'
 	end
 
-	attr_accessor :needs_register
+	attr_accessor :needs_register # :nodoc:
 
 end
 

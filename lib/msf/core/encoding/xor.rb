@@ -9,6 +9,9 @@ module Encoding
 ###
 class Xor
 
+	#
+	# Encodes a block using XOR.
+	#
 	def Xor.encode_block(key, block, block_size = 4, block_pack = 'V')
 		offset = 0
 		oblock = ''

@@ -15,14 +15,26 @@ module ReverseTcp
 
 	include Msf::Handler
 
+	#
+	# Returns the string representation of the handler type, in this case
+	# 'reverse_tcp'.
+	#
 	def self.handler_type
 		return "reverse_tcp"
 	end
 
+	#
+	# Returns the connection-described general handler type, in this case
+	# 'reverse'.
+	#
 	def self.general_handler_type
 		"reverse"
 	end
 
+	#
+	# Initializes the reverse TCP handler and ads the options that are required
+	# for all reverse TCP payloads, like local host and local port.
+	#
 	def initialize(info = {})
 		super
 
@@ -38,7 +50,7 @@ module ReverseTcp
 	#
 	# Starts the listener but does not actually attempt
 	# to accept a connection.  Throws socket exceptions
-	# if it fails to start the listener
+	# if it fails to start the listener.
 	#
 	def setup_handler
 		self.listener_sock = Rex::Socket::TcpServer.create(
@@ -48,7 +60,7 @@ module ReverseTcp
 	end
 
 	#
-	# Closes the listener socket if one was created
+	# Closes the listener socket if one was created.
 	#
 	def cleanup_handler
 		if (self.listener_sock)
@@ -99,7 +111,7 @@ module ReverseTcp
 	end
 
 	# 
-	# Stops monitoring for an inbound connection
+	# Stops monitoring for an inbound connection.
 	#
 	def stop_handler
 		# Terminate the listener thread
@@ -116,9 +128,9 @@ module ReverseTcp
 
 protected
 
-	attr_accessor :listener_sock
-	attr_accessor :listener_thread
-	attr_accessor :conn_threads
+	attr_accessor :listener_sock # :nodoc:
+	attr_accessor :listener_thread # :nodoc:
+	attr_accessor :conn_threads # :nodoc:
 
 end
 

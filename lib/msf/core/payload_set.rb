@@ -15,6 +15,10 @@ module Msf
 ###
 class PayloadSet < ModuleSet
 
+	#
+	# Creates an instance of a payload set which is just a specialized module
+	# set class that has custom handling for payloads.
+	#
 	def initialize(manager)
 		super(MODULE_PAYLOAD)
 

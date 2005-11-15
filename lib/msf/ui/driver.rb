@@ -12,16 +12,22 @@ class Driver
 	def initialize
 	end
 
-	# Executes the user interface, optionally in an asynchronous fashion
+	#
+	# Executes the user interface, optionally in an asynchronous fashion.
+	#
 	def run
 		raise NotImplementedError
 	end
 
-	# Stops executing the user interface
+	#
+	# Stops executing the user interface.
+	#
 	def stop
 	end
 
-	# Cleans up any resources associated with the UI driver
+	#
+	# Cleans up any resources associated with the UI driver.
+	#
 	def cleanup
 	end
 
