@@ -27,18 +27,28 @@ module StreamServer
 	#
 	##
 
+	#
+	# This callback is notified when a client connects.
+	#
 	def on_client_connect(client)
 		if (on_client_connect_proc)
 			on_client_connect_proc.call(client)
 		end
 	end
 
+	#
+	# This callback is notified when a client connection has data that needs to
+	# be processed.
+	#
 	def on_client_data(client)
 		if (on_client_data_proc)
 			on_client_data_proc.call(client)
 		end
 	end
 
+	#
+	# This callback is notified when a client connection has closed.
+	#
 	def on_client_close(client)
 		if (on_client_close_proc)
 			on_client_close_proc.call(client)
@@ -73,7 +83,8 @@ module StreamServer
 	end
 
 	#
-	# Closes a client connection.
+	# This method closes a client connection and cleans up the resources
+	# associated with it.
 	#
 	def close_client(client)
 		if (client)
@@ -83,20 +94,36 @@ module StreamServer
 		end
 	end
 
+	##
 	#
 	# Callback procedures.
 	#
+	##
+	
+	#
+	# This callback procedure can be set and will be called when new clients
+	# connect.
+	#
 	attr_accessor :on_client_connect_proc
+	#
+	# This callback procedure can be set and will be called when clients
+	# have data to be processed.
+	#
 	attr_accessor :on_client_data_proc
+	#
+	# This callback procedure can be set and will be called when a client
+	# disconnects from the server.
+	#
 	attr_accessor :on_client_close_proc
 
 protected
 
-	attr_accessor :clients
-	attr_accessor :listener_thread, :clients_thread
+	attr_accessor :clients # :nodoc:
+	attr_accessor :listener_thread, :clients_thread # :nodoc:
 
 	#
-	# Monitors the listener socket for new connections
+	# This method monitors the listener socket for new connections and calls
+	# the +on_client_connect+ callback routine.
 	#
 	def monitor_listener
 		begin
@@ -121,7 +148,8 @@ protected
 	end
 
 	#
-	# Monitors clients for data.
+	# This method monitors client connections for data and calls the
+	# +on_client_data+ routine when new data arrives.
 	#
 	def monitor_clients
 		begin

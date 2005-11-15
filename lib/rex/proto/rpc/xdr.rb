@@ -1,5 +1,10 @@
 module Rex
 
+###
+#
+# This class implements basic XDR encoding.
+#
+###
 module XDR
 	MAX_ARG = 0xffffffff
 	

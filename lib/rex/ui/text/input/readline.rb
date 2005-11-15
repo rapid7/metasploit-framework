@@ -16,6 +16,9 @@ begin
 	class Input::Readline < Rex::Ui::Text::Input
 		include ::Readline
 
+		#
+		# Initializes the readline-aware Input instance for text.
+		#
 		def initialize(tab_complete_proc = nil)
 			if (tab_complete_proc)
 				::Readline.completion_proc = tab_complete_proc
@@ -23,14 +26,14 @@ begin
 		end
 
 		#
-		# Regular old gets
+		# Regular old gets, reads a line of input and returns it to the caller.
 		#
 		def gets
 			self.fd.gets
 		end
 
 		#
-		# Prompt-based getline
+		# Prompt-based getline using readline.
 		#
 		def pgets
 			if ((line = readline(prompt, true)))
@@ -57,7 +60,14 @@ begin
 			true
 		end
 
-		attr_accessor :prompt, :output
+		#
+		# The prompt that is to be displayed.
+		#
+		attr_accessor :prompt
+		#
+		# The output handle to use when displaying the prompt.
+		#
+		attr_accessor :output
 
 	end
 rescue LoadError

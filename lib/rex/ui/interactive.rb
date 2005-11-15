@@ -68,7 +68,7 @@ module Interactive
 
 protected
 
-	attr_writer   :interacting
+	attr_writer   :interacting # :nodoc:
 	#
 	# The original suspend proc.
 	#
@@ -119,10 +119,16 @@ protected
 		stream.put(data)
 	end
 
+	#
+	# The local file descriptor handle.
+	#
 	def _local_fd
 		user_input.fd
 	end
 
+	#
+	# The remote file descriptor handle.
+	#
 	def _remote_fd(stream)
 		stream.fd
 	end

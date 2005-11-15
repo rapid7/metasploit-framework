@@ -6,9 +6,6 @@ module Text
 
 ###
 #
-# ProgressTracker
-# ---------------
-#
 # This module implements progress tracking against a text interface.
 #
 ###

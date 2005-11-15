@@ -15,8 +15,17 @@ module Exploitation
 ###
 class Seh
 
+	#
+	# The symbolic name of this evasion subsystem.
+	#
 	EvasionName = "exploitation.seh"
 
+	#
+	# Creates a new instance of the class and initializes it with the supplied
+	# bad character list.  The space argument denotes how much room is
+	# available for random padding and the NOP argument can be used to generate
+	# a random NOP sled that is better than 0x90.
+	#
 	def initialize(badchars = nil, space = nil, nop = nil)
 		self.badchars = badchars || ''
 		self.space    = (space && space > 121) ? 121 : space
@@ -91,7 +100,7 @@ class Seh
 
 protected
 
-	attr_accessor :badchars, :space, :nop
+	attr_accessor :badchars, :space, :nop # :nodoc:
 
 end
 

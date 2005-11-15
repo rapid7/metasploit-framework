@@ -22,11 +22,10 @@ end
 
 ###
 #
-# Client
-# ------
-#
-# The logical meterpreter client class.  This class manages a single session
-# with a meterpreter server instance.
+# This class represents a logical meterpreter client class.  This class
+# provides an interface that is compatible with the Rex post-exploitation
+# interface in terms of the feature set that it attempts to expose.  This
+# class is meant to drive a single meterpreter client session.
 #
 ###
 class Client
@@ -34,8 +33,10 @@ class Client
 	include Rex::Post::Meterpreter::PacketDispatcher
 	include Rex::Post::Meterpreter::ChannelContainer
 
+	#
 	# Initializes the client context with the supplied socket through
-	# which communication with the server will be performed
+	# which communication with the server will be performed.
+	#
 	def initialize(sock, to = self.class.default_timeout)
 		init_meterpreter(sock, to)
 	end
@@ -67,9 +68,11 @@ class Client
 	# Accessors
 	#
 	##
-	
+
+	#
 	# Returns the default timeout that request packets will use when
-	# waiting for a response
+	# waiting for a response.
+	#
 	def Client.default_timeout
 		return 30
 	end
@@ -79,9 +82,11 @@ class Client
 	# Alias processor
 	#
 	##
-	
+
+	#
 	# Translates unhandled methods into registered extension aliases
-	# if a matching extension alias exists for the supplied symbol
+	# if a matching extension alias exists for the supplied symbol.
+	#
 	def method_missing(symbol, *args)
 		return self.ext_aliases.aliases[symbol.to_s];
 	end
@@ -92,8 +97,10 @@ class Client
 	#
 	##
 
+	#
 	# Loads the client half of the supplied extension and initializes it as a
 	# registered extension that can be reached through client.ext.[extension].
+	#
 	def add_extension(name)
 		old = Rex::Post::Meterpreter::Extensions.constants
 		require("rex/post/meterpreter/extensions/#{name.downcase}/#{name.downcase}")
@@ -113,35 +120,47 @@ class Client
 		return true
 	end
 
-	# Deregisters an extension alias of the supplied name
+	#
+	# Deregisters an extension alias of the supplied name.
+	#
 	def deregister_extension(name)
 		self.ext.aliases.delete(name)
 	end
 
-	# Enumerates all of the loaded extensions
+	#
+	# Enumerates all of the loaded extensions.
+	#
 	def each_extension(&block)
 		self.ext.aliases.each(block)
 	end
 
+	#
 	# Registers an aliased extension that can be referenced through
-	# client.name
+	# client.name.
+	#
 	def register_extension_alias(name, ext)
 		self.ext_aliases.aliases[name] = ext
 	end
 
-	# Registers zero or more aliases that are provided in an array
+	#
+	# Registers zero or more aliases that are provided in an array.
+	#
 	def register_extension_aliases(aliases)
 		aliases.each { |a|
 			register_extension_alias(a['name'], a['ext'])
 		}
 	end
 
-	# Deregisters a previously registered extension alias
+	#
+	# Deregisters a previously registered extension alias.
+	#
 	def deregister_extension_alias(name)
 		self.ext_aliases.aliases.delete(name)
 	end
 
-	# Dumps the extension tree
+	#
+	# Dumps the extension tree.
+	#
 	def dump_extension_tree()
 		items = []
 		items.concat(self.ext.dump_alias_tree('client.ext'))
@@ -150,11 +169,25 @@ class Client
 		return items.sort
 	end
 
-	attr_reader   :ext, :sock
+	#
+	# The extension alias under which all extensions can be accessed by name.
+	# For example:
+	#
+	#    client.ext.stdapi
+	#
+	#
+	attr_reader   :ext
+	#
+	# The socket the client is communicating over.
+	#
+	attr_reader   :sock
+	#
+	# The timeout value to use when waiting for responses.
+	#
 	attr_accessor :response_timeout
 protected
-	attr_accessor :parser, :ext_aliases
-	attr_writer   :ext, :sock
+	attr_accessor :parser, :ext_aliases # :nodoc:
+	attr_writer   :ext, :sock # :nodoc:
 end
 
 end; end; end

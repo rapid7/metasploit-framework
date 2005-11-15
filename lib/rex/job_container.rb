@@ -7,6 +7,10 @@ module Rex
 ###
 class Job
 
+	#
+	# Creates an individual job instance and initializes it with the supplied
+	# parameters.
+	#
 	def initialize(container, jid, name, ctx, run_proc, clean_proc)
 		self.container  = container
 		self.jid        = jid
@@ -17,7 +21,8 @@ class Job
 	end
 
 	#
-	# Runs the job in the context of its own thread
+	# Runs the job in the context of its own thread if the async flag is flase.
+	# Otherwise, the job is run inline.
 	#
 	def start(async = false)
 		if (async)
@@ -43,18 +48,24 @@ class Job
 		clean_proc.call(ctx) if (clean_proc)
 	end
 
+	#
+	# The name of the job.
+	#
 	attr_reader :name
+	#
+	# The job identifier as assigned by the job container.
+	#
 	attr_reader :jid
 
 protected
 
-	attr_writer   :name
-	attr_writer   :jid
-	attr_accessor :job_thread
-	attr_accessor :container
-	attr_accessor :run_proc
-	attr_accessor :clean_proc
-	attr_accessor :ctx
+	attr_writer   :name #:nodoc:
+	attr_writer   :jid #:nodoc:
+	attr_accessor :job_thread #:nodoc:
+	attr_accessor :container #:nodoc:
+	attr_accessor :run_proc #:nodoc:
+	attr_accessor :clean_proc #:nodoc:
+	attr_accessor :ctx #:nodoc:
 
 end
 
@@ -99,7 +110,7 @@ class JobContainer < Hash
 	end
 
 	#
-	# Starts a job using the supplied name and run/clean procedures
+	# Starts a job using the supplied name and run/clean procedures.
 	#
 	def start_job(name, ctx, run_proc, clean_proc = nil)
 		j = add_job(name, ctx, run_proc, clean_proc)
@@ -141,7 +152,7 @@ class JobContainer < Hash
 
 protected
 
-	attr_accessor :job_id_pool
+	attr_accessor :job_id_pool # :nodoc:
 
 end
 

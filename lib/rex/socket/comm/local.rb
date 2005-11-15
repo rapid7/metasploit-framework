@@ -27,7 +27,7 @@ class Rex::Socket::Comm::Local
 	end
 
 	#
-	# Creates a socket 
+	# Creates a socket using the supplied Parameter instance.
 	#
 	def self.create_by_type(param, type, proto = 0)
 		# Create the socket

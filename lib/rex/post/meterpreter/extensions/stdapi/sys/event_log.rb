@@ -16,9 +16,6 @@ module Sys
 
 ###
 #
-# Event Log
-# --------
-#
 # This class provides access to the Windows event log on the remote 
 # machine.
 #
@@ -52,20 +49,21 @@ class EventLog
 	#
 	##
 
-#	protected
-
-	attr_accessor :handle
-	attr_accessor :client
+	attr_accessor :handle # :nodoc:
+	attr_accessor :client # :nodoc:
 
 	public 
 
+	#
+	# Initializes an instance of the eventlog manipulator.
+	#
 	def initialize(hand)
 		self.client = self.class.client
 		self.handle = hand
 	end
 
 	#
-	# Return the number of records in the event log
+	# Return the number of records in the event log.
 	#
 	def length
 		request = Packet.create_request('stdapi_sys_eventlog_numrecords')
@@ -77,7 +75,9 @@ class EventLog
 		return response.get_tlv_value(TLV_TYPE_EVENT_NUMRECORDS)
 	end
 
-	# the low level read function (takes flags, not hash, etc)
+	#
+	# the low level read function (takes flags, not hash, etc).
+	#
 	def _read(flags, offset = 0)
 		request = Packet.create_request('stdapi_sys_eventlog_read')
 
@@ -101,14 +101,14 @@ class EventLog
 
 	#
 	# Read the eventlog forwards, meaning from oldest to newest.
-	# Returns a EventRecord, and throws an exception after no more records
+	# Returns a EventRecord, and throws an exception after no more records.
 	#
 	def read_forwards
 		_read(EVENTLOG_SEQUENTIAL_READ | EVENTLOG_FORWARDS_READ)
 	end
 
 	#
-	# Iterator for read_forwards
+	# Iterator for read_forwards.
 	#
 	def each_forwards
 		begin
@@ -118,16 +118,17 @@ class EventLog
 		rescue Exception
 		end
 	end
+
 	#
 	# Read the eventlog backwards, meaning from newest to oldest.
-	# Returns a EventRecord, and throws an exception after no more records
+	# Returns a EventRecord, and throws an exception after no more records.
 	#
 	def read_backwards
 		_read(EVENTLOG_SEQUENTIAL_READ | EVENTLOG_BACKWARDS_READ)
 	end
 
 	#
-	# Iterator for read_backwards
+	# Iterator for read_backwards.
 	#
 	def each_backwards
 		begin
@@ -139,7 +140,7 @@ class EventLog
 	end
 
 	#
-	# Return the record number of the oldest event (not necessarily 1)
+	# Return the record number of the oldest event (not necessarily 1).
 	#
 	def oldest
 		request = Packet.create_request('stdapi_sys_eventlog_oldest')
@@ -153,9 +154,11 @@ class EventLog
 
 	#
 	# Clear the specified event log (and return nil).
+	#
 	#--
 	# I should eventually support BackupFile
 	#++
+	#
 	def clear
 		request = Packet.create_request('stdapi_sys_eventlog_clear')
 
@@ -166,7 +169,7 @@ class EventLog
 	end
 
 	#
-	# Return the record number of the oldest event (not necessarily 1)
+	# Return the record number of the oldest event (not necessarily 1).
 	#
 	def close
 		request = Packet.create_request('stdapi_sys_eventlog_close')

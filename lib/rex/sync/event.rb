@@ -13,6 +13,11 @@ class Event
 
 	Infinite = 10000
 
+	#
+	# Initializes a waitable event.  The state parameter initializes the
+	# default state of the event.  If auto_reset is true, any calls to set()
+	# will automatically reset the event back to an unset state.
+	#
 	def initialize(state = false, auto_reset = true, param = nil)
 		self.state      = state
 		self.auto_reset = auto_reset
@@ -47,7 +52,7 @@ class Event
 	end
 
 	#
-	# Alias notify with set
+	# Alias notify with set.
 	#
 	alias notify set
 
@@ -71,8 +76,8 @@ class Event
 
 protected
 
-	attr_accessor :state, :auto_reset
-	attr_accessor :param, :mutex, :cond
+	attr_accessor :state, :auto_reset # :nodoc:
+	attr_accessor :param, :mutex, :cond # :nodoc:
 
 end
 

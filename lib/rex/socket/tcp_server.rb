@@ -21,7 +21,7 @@ module  Rex::Socket::TcpServer
 	##
 
 	#
-	# Creates the server using the supplied hash
+	# Creates the server using the supplied hash.
 	#
 	def self.create(hash)
 		self.create_param(Rex::Socket::Parameters.from_hash(hash))	
@@ -29,7 +29,7 @@ module  Rex::Socket::TcpServer
 
 	#
 	# Wrapper around the base class' creation method that automatically sets
-	# the parameter's protocol to TCP and sets the server flag to true
+	# the parameter's protocol to TCP and sets the server flag to true.
 	#
 	def self.create_param(param)
 		param.proto  = 'tcp'
@@ -39,7 +39,7 @@ module  Rex::Socket::TcpServer
 	end
 
 	#
-	# Accepts a child connection
+	# Accepts a child connection.
 	#
 	def accept(opts = {})
 		t = super()[0]

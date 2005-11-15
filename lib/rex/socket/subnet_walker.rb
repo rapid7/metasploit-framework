@@ -11,6 +11,10 @@ module Socket
 ###
 class SubnetWalker
 
+	#
+	# Initializes a subnet walker instance using the supplied subnet
+	# information.
+	#
 	def initialize(subnet, netmask)
 		self.subnet  = Socket.resolv_to_dotted(subnet)
 		self.netmask = Socket.resolv_to_dotted(netmask)
@@ -47,12 +51,23 @@ class SubnetWalker
 		self.curr_ip.join('.')
 	end
 
-	attr_reader :subnet, :netmask, :num_ips
+	#
+	# The subnet that is being enumerated.
+	#
+	attr_reader :subnet
+	#
+	# The netmask of the subnet.
+	#
+	attr_reader :netmask
+	#
+	# The total number of IPs within the subnet.
+	#
+	attr_reader :num_ips
 
 protected
 
-	attr_writer   :subnet, :netmask, :num_ips
-	attr_accessor :curr_ip, :curr_ip_idx
+	attr_writer   :subnet, :netmask, :num_ips # :nodoc:
+	attr_accessor :curr_ip, :curr_ip_idx # :nodoc:
 
 end
 

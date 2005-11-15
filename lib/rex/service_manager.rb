@@ -31,10 +31,16 @@ class ServiceManager < Hash
 		self.instance.stop(klass, *args)
 	end
 
+	#
+	# Stop a service using the alias that's associated with it.
+	#
 	def self.stop_by_alias(als)
 		self.instance.stop_by_alias(als)
 	end
 
+	#
+	# Stop the supplied service instance.
+	#
 	def self.stop_service(service)
 		self.instance.stop_service(service)
 	end
@@ -92,7 +98,7 @@ class ServiceManager < Hash
 	end
 
 	#
-	# Stops a service using the provided alias
+	# Stops a service using the provided alias.
 	#
 	def stop_by_alias(als)
 		stop_service(self[als])

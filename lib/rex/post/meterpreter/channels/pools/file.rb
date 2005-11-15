@@ -26,6 +26,10 @@ class File < Rex::Post::Meterpreter::Channels::Pool
 	#
 	##
 
+	#
+	# This method returns an instance of a file pool channel that can be read
+	# from, written to, seeked on, and other interacted with.
+	#
 	def File.open(client, name, mode = "r", perm = 0)
 		return Channel.create(client, 'stdapi_fs_file', 
 				self, CHANNEL_FLAG_SYNCHRONOUS, 

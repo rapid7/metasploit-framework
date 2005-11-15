@@ -9,23 +9,25 @@
 module Rex
 module Post
 
+###
+#
+# This class emulates the ruby FileStat class against a remote entity in a
+# generic fashion.  Refer to the ruby documentation for expected behavior.
+#
+###
 class FileStat
+
+	#
+	# Basic file types.
+	#
 	@@ftypes = [
 	  'fifo', 'characterSpecial', 'directory',
 	  'blockSpecial', 'file', 'link', 'socket'
 	]
 
-#	class <<self
-#		attr_accessor :client
-#	end
-
 	private
 	attr_accessor :stathash
 	public
-
-#	def initialize(file)
-#		self.stathash = self.class.client.file.stat_hash(file)
-#	end
 
 	def dev
 		stathash['st_dev']
@@ -169,6 +171,9 @@ class FileStat
 		raise NotImplementedError
 	end
 
+	#
+	# Return pretty information about a file's permissions.
+	#
 	def prettymode
 		m  = mode
 		om = '%04o' % m
@@ -184,6 +189,9 @@ class FileStat
 		return "#{om}/#{perms}"
 	end
 
+	#
+	# Return pretty information about a file.
+	#
 	def pretty
 		"  Size: #{size}   Blocks: #{blocks}   IO Block: #{blksize}   Type: #{rdev}\n"\
 		"Device: #{dev}  Inode: #{ino}  Links: #{nlink}\n"\

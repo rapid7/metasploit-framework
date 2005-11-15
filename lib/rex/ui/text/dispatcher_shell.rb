@@ -18,38 +18,56 @@ module DispatcherShell
 
 	###
 	#
-	# CommandDispatcher
-	# -----------------
-	#
-	# Empty template base class for command dispatchers
+	# Empty template base class for command dispatchers.
 	#
 	###
 	module CommandDispatcher
 
+		#
+		# Initializes the command dispatcher mixin.
+		#
 		def initialize(shell)
 			self.shell = shell
 			self.tab_complete_items = []
 		end
 
+		#
+		# Returns nil for an empty set of commands.
+		#
 		def commands
 		end
-		
+	
+		#
+		# Wrapps shell.print_error
+		#
 		def print_error(msg = '')
 			shell.print_error(msg)
 		end
 
+		#
+		# Wrapps shell.print_status
+		#
 		def print_status(msg = '')
 			shell.print_status(msg)
 		end
 
+		#
+		# Wrapps shell.print_line
+		#
 		def print_line(msg = '')
 			shell.print_line(msg)
 		end
 
+		#
+		# Wrapps shell.print
+		#
 		def print(msg = '')
 			shell.print(msg)
 		end
 
+		#
+		# Wraps shell.update_prompt
+		#
 		def update_prompt(prompt)
 			shell.update_prompt(prompt)
 		end
@@ -62,12 +80,12 @@ module DispatcherShell
 	end
 
 	#
-	# DispatcherShell derives from shell
+	# DispatcherShell derives from shell.
 	#
 	include Shell
 
 	#
-	# Initialize the dispatcher shell
+	# Initialize the dispatcher shell.
 	#
 	def initialize(prompt, prompt_char = '>')
 		super
@@ -76,7 +94,7 @@ module DispatcherShell
 	end
 
 	#
-	# Performs tab completion on shell input if supported
+	# Performs tab completion on shell input if supported.
 	#
 	def tab_complete(str)
 		items = []
@@ -99,7 +117,7 @@ module DispatcherShell
 	end
 
 	#
-	# Run a single command line
+	# Run a single command line.
 	#
 	def run_single(line)
 		arguments = parse_line(line)
@@ -152,14 +170,14 @@ module DispatcherShell
 	end
 
 	#
-	# Push a dispatcher to the front of the stack
+	# Push a dispatcher to the front of the stack.
 	#
 	def enstack_dispatcher(dispatcher)
 		self.dispatcher_stack.unshift(dispatcher.new(self))
 	end
 
 	#
-	# Pop a dispatcher from the front of the stacker
+	# Pop a dispatcher from the front of the stacker.
 	#
 	def destack_dispatcher
 		self.dispatcher_stack.shift
@@ -206,7 +224,7 @@ module DispatcherShell
 	end
 
 
-	attr_accessor :dispatcher_stack
+	attr_accessor :dispatcher_stack # :nodoc:
 
 end
 

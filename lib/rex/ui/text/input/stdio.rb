@@ -10,19 +10,32 @@ module Text
 #
 ###
 class Input::Stdio < Rex::Ui::Text::Input
+
+	#
+	# Wait for a line of input to be read from standard input.
+	#
 	def gets
 		return $stdin.gets
 	end
 
+	#
+	# Print a prompt and flush standard output.
+	#
 	def _print_prompt(prompt)
 		$stdout.print(prompt)
 		$stdout.flush
 	end
 
+	#
+	# Returns whether or not EOF has been reached on stdin.
+	#
 	def eof?
 		return $stdin.eof?
 	end
 
+	#
+	# Returns the file descriptor associated with standard input.
+	#
 	def fd
 		return $stdin
 	end

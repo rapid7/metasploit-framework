@@ -29,23 +29,38 @@ module Socket
 	# Factory methods
 	#
 	##
-	
+
+	#
+	# Create a socket instance using the supplied parameter hash.
+	#
 	def self.create(opts = {})
 		return create_param(Rex::Socket::Parameters.from_hash(opts))
 	end
 
+	#
+	# Create a socket using the supplied Rex::Socket::Parameter instance.
+	#
 	def self.create_param(param)
 		return param.comm.create(param)
 	end
 
+	#
+	# Create a TCP socket using the supplied parameter hash.
+	#
 	def self.create_tcp(opts = {})
 		return create_param(Rex::Socket::Parameters.from_hash(opts.merge('Proto' => 'tcp')))
 	end
-	
-	def self.create_tcp_server(opts)
+
+	#
+	# Create a TCP server socket using the supplied parameter hash.
+	#
+	def self.create_tcp_server(opts = {})
 		return create_tcp(opts.merge('Server' => true))
 	end
 
+	#
+	# Create a UDP socket using the supplied parameter hash.
+	#
 	def self.create_udp(opts = {})
 		return create_param(Rex::Socket::Parameters.from_hash(opts.merge('Proto' => 'udp')))
 	end
@@ -82,7 +97,7 @@ module Socket
 	end
 
 	#
-	# Resolves a host to raw network-byte order
+	# Resolves a host to raw network-byte order.
 	#
 	def self.resolv_nbo(host)
 		return to_sockaddr(host, 0)[4,4]
@@ -170,11 +185,26 @@ module Socket
 		return Socket.from_sockaddr(super)
 	end
 
-	attr_reader :peerhost, :peerport, :localhost, :localport
+	#
+	# The peer host of the connected socket.
+	#
+	attr_reader :peerhost
+	#
+	# The peer port of the connected socket.
+	#
+	attr_reader :peerport
+	#
+	# The local host of the connected socket.
+	#
+	attr_reader :localhost
+	#
+	# The local port of the connected socket.
+	#
+	attr_reader :localport
 
 protected
 
-	attr_writer :peerhost, :peerport, :localhost, :localport
+	attr_writer :peerhost, :peerport, :localhost, :localport # :nodoc:
 
 end
 

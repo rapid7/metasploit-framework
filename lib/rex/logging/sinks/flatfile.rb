@@ -12,15 +12,19 @@ class Flatfile
 
 	include Rex::Logging::LogSink
 
+	#
+	# Creates a flatfile log sink instance that will be configured to log to
+	# the supplied file path.
+	#
 	def initialize(file)
 		self.fd = File.new(file, "a")
 	end
 
-	def cleanup
+	def cleanup # :nodoc:
 		fd.close
 	end
 
-	def log(sev, src, level, msg, from)
+	def log(sev, src, level, msg, from) # :nodoc:
 		if (sev == LOG_RAW)
 			fd.write(msg)
 		else
@@ -44,7 +48,7 @@ class Flatfile
 
 protected
 
-	attr_accessor :fd
+	attr_accessor :fd # :nodoc:
 
 end
 

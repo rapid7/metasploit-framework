@@ -8,9 +8,6 @@ module Ui
 
 ###
 #
-# Net
-# ---
-#
 # The networking portion of the standard API extension.
 #
 ###
@@ -21,13 +18,13 @@ class Console::CommandDispatcher::Stdapi::Net
 	include Console::CommandDispatcher
 
 	#
-	# Options for the route command
+	# Options for the route command.
 	#
 	@@route_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner." ])
 
 	#
-	# Options for the portfwd command
+	# Options for the portfwd command.
 	#
 	@@portfwd_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner." ],
@@ -37,7 +34,7 @@ class Console::CommandDispatcher::Stdapi::Net
 		"-L" => [ true,  "The local host to listen on (optional)." ])
 
 	#
-	# List of supported commands
+	# List of supported commands.
 	#
 	def commands
 		{
@@ -48,7 +45,7 @@ class Console::CommandDispatcher::Stdapi::Net
 	end
 
 	#
-	# Name for this dispatcher
+	# Name for this dispatcher.
 	#
 	def name
 		"Stdapi: Networking"

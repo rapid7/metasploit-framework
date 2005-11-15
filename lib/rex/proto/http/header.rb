@@ -6,15 +6,16 @@ module Http
 
 ###
 #
-# Header
-# ------
-#
 # Represents the logical HTTP header portion of an HTTP packet (request or
 # response).
 #
 ###
 class Packet::Header < Hash
 
+	#
+	# Initializes an HTTP packet header class that inherits from a Hash base
+	# class.
+	#
 	def initialize
 		self.dcase_hash = {}
 
@@ -103,11 +104,15 @@ class Packet::Header < Hash
 		self.dcase_hash.clear
 	end
 
-	attr_accessor :cmd_string
+	#
+	# The raw command string associated with the header which will vary between
+	# requests and responses.
+	#
+	attr_accessor :cmd_string 
 
 protected
 
-	attr_accessor :dcase_hash
+	attr_accessor :dcase_hash # :nodoc:
 
 end
 

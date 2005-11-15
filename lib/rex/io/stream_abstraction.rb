@@ -14,7 +14,7 @@ module IO
 module StreamAbstraction
 
 	#
-	# Creates a streaming socket pair
+	# This method creates a streaming socket pair and initializes it.
 	#
 	def initialize_abstraction
 		self.lsock, self.rsock = ::Socket.pair(::Socket::AF_UNIX,
@@ -25,7 +25,7 @@ module StreamAbstraction
 	end
 
 	#
-	# Cleans up the abstraction layer
+	# This method cleans up the abstraction layer.
 	#
 	def cleanup_abstraction
 		self.lsock.close if (self.lsock)
@@ -35,9 +35,16 @@ module StreamAbstraction
 		self.rsock = nil
 	end
 
-	attr_reader :lsock, :rsock
+	#
+	# The left side of the stream.
+	#
+	attr_reader :lsock
+	#
+	# The right side of the stream.
+	#
+	attr_reader :rsock
 protected
-	attr_writer :lsock, :rsock
+	attr_writer :lsock, :rsock # :nodoc:
 end
 
 end; end

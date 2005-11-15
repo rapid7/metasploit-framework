@@ -15,12 +15,20 @@ module LogSink
 	def cleanup
 	end
 
+	#
+	# This method must be implemented by any derived log sink classes and is
+	# intended to take the supplied parameters and persist them to an arbitrary
+	# medium.
+	#
 	def log(sev, src, level, msg, from)
 		raise NotImplementedError
 	end
 
 protected
 
+	#
+	# This method returns the current timestamp in MM/DD/YYYY HH:Mi:SS format.
+	#
 	def get_current_timestamp
 		return Time.now.strftime("%m/%d/%Y %H:%M:%S")
 	end

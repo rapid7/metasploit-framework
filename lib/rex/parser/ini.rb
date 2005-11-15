@@ -177,7 +177,7 @@ protected
 		}
 	end
 
-	attr_writer :path
+	attr_writer :path # :nodoc:
 
 end
 

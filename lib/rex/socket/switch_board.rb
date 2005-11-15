@@ -65,30 +65,54 @@ class SwitchBoard
 	#
 	##
 
+	#
+	# Adds a route to the switch board routing table using the supplied Comm
+	# instance.
+	#
 	def self.add_route(subnet, mask, comm)
 		self.instance.add_route(subnet, mask, comm)
 	end
 
+	#
+	# Removes a route from the switch board routing table for the supplied
+	# subnet routing through the supplied Comm instance.
+	#
 	def self.remove_route(subnet, mask, comm)
 		self.instance.remove_route(subnet, mask, comm)
 	end
 
+	#
+	# Flush all the routes from the switch board routing table.
+	#
 	def self.flush_routes
 		self.instance.flush_routes
 	end
 
+	#
+	# Enumerate each route in the routing table.
+	#
 	def self.each(&block)
 		self.instance.each(&block)
 	end
 
+	#
+	# Returns the array of routes.
+	#
 	def self.routes
 		self.instance.routes
 	end
 
+	#
+	# Returns the Comm instance that should be used for the supplied address.
+	# If no comm can be found, the default Local Comm is returned.
+	#
 	def self.best_comm(addr)
 		self.instance.best_comm(addr)
 	end
 
+	#
+	# Removes all routes that go through the supplied Comm.
+	#
 	def self.remove_by_comm(comm)
 		self.instance.remove_by_comm(comm)
 	end
@@ -208,12 +232,22 @@ class SwitchBoard
 		}
 	end
 
-	attr_reader :routes, :mutex
+	#
+	# The routes array.
+	#
+	attr_reader :routes
+	#
+	# The mutex protecting the routes array.
+	#
+	attr_reader :mutex
 
 protected
 
-	attr_writer :routes, :mutex
+	attr_writer :routes, :mutex # :nodoc:
 
+	#
+	# Initializes the underlying stuff.
+	#
 	def _init
 		if (@_initialized != true)
 			@_initialized = true

@@ -3,6 +3,12 @@
 module Rex
 module Post
 
+###
+#
+# This class wraps the behavior of the Ruby Dir class against a remote entity.
+# Refer to the Ruby documentation for expected behavior.
+#
+###
 class Dir
 
 	def Dir.entries(name)

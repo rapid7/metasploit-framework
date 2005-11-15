@@ -7,9 +7,6 @@ module Ui
 
 ###
 #
-# Ui
-# --
-#
 # The user interface portion of the standard API extension.
 #
 ###
@@ -20,7 +17,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 	include Console::CommandDispatcher
 
 	#
-	# List of supported commands
+	# List of supported commands.
 	#
 	def commands
 		{
@@ -30,7 +27,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 	end
 
 	#
-	# Name for this dispatcher
+	# Name for this dispatcher.
 	#
 	def name
 		"Stdapi: User interface"

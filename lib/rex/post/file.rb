@@ -9,6 +9,13 @@ module Post
 # => [Rex::Post::DispatchNinja::File, Rex::Post::File,
 # Rex::Post::DispatchNinja::IO, Rex::Post::IO, Object, Kernel]
 
+###
+#
+# This module simulates the behavior that one would expect from the Ruby File
+# class against a remote entity.  Refer to the ruby documentation for expected
+# behavior.
+#
+###
 module File
 
 	protected

@@ -14,6 +14,12 @@ module Extensions
 module Stdapi
 module Fs
 
+###
+#
+# This class implements the Rex::Post::File interface and wraps interaction
+# with files on the remote machine.
+#
+###
 class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
 SEPARATOR = "\\"
@@ -25,6 +31,9 @@ Separator = "\\"
 		attr_accessor :client
 	end
 
+	#
+	# Returns the base name of the supplied file path to the caller.
+	#
 	def File.basename(*a)
 		path = a[0]
 		sep  = "\\" + File::SEPARATOR
@@ -35,7 +44,10 @@ Separator = "\\"
 		return $2 || path
 	end
 
-	# Expands a file path
+	#
+	# Expands a file path, substituting all environment variables, such as
+	# %TEMP%.
+	#
 	def File.expand_path(path)
 		request = Packet.create_request('stdapi_fs_file_expand_path')
 
@@ -46,12 +58,17 @@ Separator = "\\"
 		return response.get_tlv_value(TLV_TYPE_FILE_PATH)
 	end
 
+	#
+	# Performs a stat on a file and returns a FileStat instance.
+	#
 	def File.stat(name)
 		return client.fs.filestat.new(name)
 	end
 
+	#
 	# Upload one or more files to the remote computer the remote
-	# directory supplied in destination
+	# directory supplied in destination.
+	#
 	def File.upload(destination, *src_files, &stat)
 		src_files.each { |src|
 			dest = destination
@@ -72,8 +89,10 @@ Separator = "\\"
 		}
 	end
 
+	#
 	# Download one or more files from the remote computer to the local 
-	# directory supplied in destination
+	# directory supplied in destination.
+	#
 	def File.download(destination, *src_files, &stat)
 		src_files.each { |src|
 			dest = destination
@@ -109,7 +128,9 @@ Separator = "\\"
 	#
 	##
 
-	# Initializes and opens the specified file with the specified permissions
+	#
+	# Initializes and opens the specified file with the specified permissions.
+	#
 	def initialize(name, mode = "r", perms = 0)
 		self.client = self.class.client
 		self.filed  = _open(name, mode, perms)
@@ -121,22 +142,30 @@ Separator = "\\"
 	#
 	##
 
-	# Returns whether or not the file has reach EOF
+	#
+	# Returns whether or not the file has reach EOF.
+	#
 	def eof
 		return self.filed.eof
 	end
-	
-	# Returns the current position of the file pointer
+
+	#
+	# Returns the current position of the file pointer.
+	#
 	def pos
 		return self.filed.tell
 	end
 
-	# Synonym for sysseek
+	#
+	# Synonym for sysseek.
+	#
 	def seek(offset, whence = SEEK_SET)
 		return self.sysseek(offset, whence)
 	end
 
-	# Seeks to the supplied offset based on the supplied relativity
+	#
+	# Seeks to the supplied offset based on the supplied relativity.
+	#
 	def sysseek(offset, whence = SEEK_SET)
 		return self.filed.seek(offset, whence)
 	end
@@ -149,13 +178,15 @@ protected
 	#
 	##
 
-	# Creates a File channel using the supplied information
+	#
+	# Creates a File channel using the supplied information.
+	#
 	def _open(name, mode = "r", perms = 0)
 		return Rex::Post::Meterpreter::Channels::Pools::File.open(
 				self.client, name, mode, perms)
 	end
 
-	attr_accessor :client
+	attr_accessor :client # :nodoc:
 
 end
 

@@ -77,9 +77,6 @@ LOAD_LIBRARY_FLAG_LOCAL     = (1 << 2)
 
 ###
 #
-# Tlv
-# ---
-#
 # Base TLV (Type-Length-Value) class
 #
 ###
@@ -92,6 +89,9 @@ class Tlv
 	#
 	##
 
+	#
+	# Returns an instance of a TLV. 
+	#
 	def initialize(type, value = nil)
 		@type  = type
 		
@@ -114,17 +114,23 @@ class Tlv
 	#
 	##
 
-	# Checks to see if a TLVs meta type is equivalent to the meta type passed
+	#
+	# Checks to see if a TLVs meta type is equivalent to the meta type passed.
+	#
 	def meta_type?(meta)
 		return (self.type & meta == meta)
 	end
 
-	# Checks to see if the TLVs type is equivalent to the type passed
+	#
+	# Checks to see if the TLVs type is equivalent to the type passed.
+	#
 	def type?(type)
 		return self.type == type
 	end
 
-	# Checks to see if the TLVs value is equivalent to the value passed
+	#
+	# Checks to see if the TLVs value is equivalent to the value passed.
+	#
 	def value?(value)
 		return self.value == value
 	end
@@ -135,7 +141,9 @@ class Tlv
 	#
 	##
 
-	# Converts the TLV to raw
+	#
+	# Converts the TLV to raw.
+	#
 	def to_r
 		raw = value.to_s;
 
@@ -154,7 +162,9 @@ class Tlv
 		return [raw.length + 8, self.type].pack("NN") + raw
 	end
 
-	# Translates the raw format of the TLV into a sanitize version
+	#
+	# Translates the raw format of the TLV into a sanitize version.
+	#
 	def from_r(raw)
 		self.value  = nil
 
@@ -186,9 +196,6 @@ end
 
 ###
 #
-# GroupTlv
-# --------
-#
 # Group TLVs contain zero or more TLVs
 #
 ###
@@ -201,8 +208,10 @@ class GroupTlv < Tlv
 	#
 	##
 
+	#
 	# Initializes the group TLV container to the supplied type
-	# and creates an empty TLV array
+	# and creates an empty TLV array.
+	#
 	def initialize(type)
 		super(type)
 
@@ -215,27 +224,37 @@ class GroupTlv < Tlv
 	#
 	##
 
-	# Enumerates TLVs of the supplied type
+	#
+	# Enumerates TLVs of the supplied type.
+	#
 	def each(type = TLV_TYPE_ANY, &block)
 		get_tlvs(type).each(&block)
 	end
 
-	# Synonym for each
+	#
+	# Synonym for each.
+	#
 	def each_tlv(type = TLV_TYPE_ANY, &block)
 		each(type, block)
 	end
 
-	# Enumerates TLVs of a supplied type with indexes
+	#
+	# Enumerates TLVs of a supplied type with indexes.
+	#
 	def each_with_index(type = TLV_TYPE_ANY, &block)
 		get_tlvs(type).each_with_index(&block)
 	end
 
-	# Synonym for each_with_index
+	#
+	# Synonym for each_with_index.
+	#
 	def each_tlv_with_index(type = TLV_TYPE_ANY, &block)
 		each_with_index(type, block)
 	end
 
-	# Returns an array of TLVs for the given type
+	#
+	# Returns an array of TLVs for the given type.
+	#
 	def get_tlvs(type)
 		if (type == TLV_TYPE_ANY)
 			return self.tlvs
@@ -258,7 +277,9 @@ class GroupTlv < Tlv
 	#
 	##
 
-	# Adds a TLV of a given type and value
+	#
+	# Adds a TLV of a given type and value.
+	#
 	def add_tlv(type, value = nil, replace = false)
 		tlv = nil
 
@@ -282,7 +303,9 @@ class GroupTlv < Tlv
 		return tlv
 	end
 
-	# Adds zero or more TLVs to the packet
+	#
+	# Adds zero or more TLVs to the packet.
+	#
 	def add_tlvs(tlvs)
 		if (tlvs != nil)
 			tlvs.each { |tlv|
@@ -291,7 +314,9 @@ class GroupTlv < Tlv
 		end
 	end
 
-	# Gets the first TLV of a given type
+	#
+	# Gets the first TLV of a given type.
+	#
 	def get_tlv(type, index = 0)
 		type_tlvs = get_tlvs(type)
 
@@ -302,24 +327,32 @@ class GroupTlv < Tlv
 		return nil
 	end
 
-	# Returns the value of a TLV if it exists, otherwise nil
+	#
+	# Returns the value of a TLV if it exists, otherwise nil.
+	#
 	def get_tlv_value(type, index = 0)
 		tlv = get_tlv(type, index)
 
 		return (tlv != nil) ? tlv.value : nil
 	end
 
+	#
 	# Returns an array of values for all tlvs of type type.
+	#
 	def get_tlv_values(type)
 		get_tlvs(type).collect { |a| a.value }
 	end
 
-	# Checks to see if the container has a TLV of a given type
+	#
+	# Checks to see if the container has a TLV of a given type.
+	#
 	def has_tlv?(type)
 		return get_tlv(type) != nil
 	end
 
-	# Zeros out the array of TLVs
+	#
+	# Zeros out the array of TLVs.
+	#
 	def reset
 		self.tlvs = []
 	end
@@ -330,8 +363,10 @@ class GroupTlv < Tlv
 	#
 	##
 
+	#
 	# Converts all of the TLVs in the TLV array to raw and prefixes them
-	# with a container TLV of this instance's TLV type
+	# with a container TLV of this instance's TLV type.
+	#
 	def to_r
 		raw = ''
 
@@ -342,8 +377,10 @@ class GroupTlv < Tlv
 		return [raw.length + 8, self.type].pack("NN") + raw
 	end
 
+	#
 	# Converts the TLV group container from raw to all of the individual
-	# TLVs
+	# TLVs.
+	#
 	def from_r(raw)
 		offset = 8
 
@@ -379,9 +416,6 @@ end
 
 ###
 #
-# Packet
-# ------
-#
 # The logical meterpreter packet class
 #
 ###
@@ -393,12 +427,16 @@ class Packet < GroupTlv
 	#
 	##
 
-	# Creates a request with the supplied method
+	#
+	# Creates a request with the supplied method.
+	#
 	def Packet.create_request(method = nil)
 		return Packet.new(PACKET_TYPE_REQUEST, method)
 	end
 
-	# Creates a response to a request if one is provided
+	#
+	# Creates a response to a request if one is provided.
+	#
 	def Packet.create_response(request = nil)
 		response_type = PACKET_TYPE_RESPONSE
 		method = nil
@@ -420,9 +458,11 @@ class Packet < GroupTlv
 	#
 	##
 
+	#
 	# Initializes the packet to the supplied packet type and method,
 	# if any.  If the packet is a request, a request identifier is 
-	# created
+	# created.
+	#
 	def initialize(type = nil, method = nil)
 		super(type)
 
@@ -447,7 +487,9 @@ class Packet < GroupTlv
 	#
 	##
 
-	# Checks to see if the packet is a response
+	#
+	# Checks to see if the packet is a response.
+	#
 	def response?
 		return ((self.type == PACKET_TYPE_RESPONSE) ||
 		        (self.type == PACKET_TYPE_PLAIN_RESPONSE))
@@ -459,38 +501,52 @@ class Packet < GroupTlv
 	#
 	##
 
-	# Checks to see if the packet's method is equal to the supplied method
+	#
+	# Checks to see if the packet's method is equal to the supplied method.
+	#
 	def method?(method)
 		return (get_tlv_value(TLV_TYPE_METHOD) == method)
 	end
 
-	# Sets the packet's method TLV to the method supplied
+	#
+	# Sets the packet's method TLV to the method supplied.
+	#
 	def method=(method)
 		add_tlv(TLV_TYPE_METHOD, method, true)
 	end
 
-	# Returns the value of the packet's method TLV
+	#
+	# Returns the value of the packet's method TLV.
+	#
 	def method
 		return get_tlv_value(TLV_TYPE_METHOD)
 	end
 
+	#
 	# Checks to see if the packet's result value is equal to the supplied
-	# result
+	# result.
+	#
 	def result?(result)
 		return (get_tlv_value(TLV_TYPE_RESULT) == result)
 	end
 
-	# Sets the packet's result TLV
+	#
+	# Sets the packet's result TLV.
+	#
 	def result=(result)
 		add_tlv(TLV_TYPE_RESULT, result, true)
 	end
 
-	# Gets the value of the packet's result TLV
+	#
+	# Gets the value of the packet's result TLV.
+	#
 	def result
 		return get_tlv_value(TLV_TYPE_RESULT)
 	end
 
-	# Gets the value of the packet's request identifier TLV
+	#	
+	# Gets the value of the packet's request identifier TLV.
+	#
 	def rid
 		return get_tlv_value(TLV_TYPE_REQUEST_ID)
 	end

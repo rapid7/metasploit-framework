@@ -17,24 +17,38 @@ class Request < Packet
 	# Some individual request types.
 	#
 	##
+	
+	#
+	# HTTP GET request class wrapper.
+	#
 	class Get < Request
 		def initialize(uri = '/', proto = DefaultProtocol)
 			super('GET', uri, proto)
 		end
 	end
 
+	#
+	# HTTP POST request class wrapper.
+	#
 	class Post < Request
 		def initialize(uri = '/', proto = DefaultProtocol)
 			super('POST', uri, proto)
 		end
 	end
 
+	#
+	# HTTP PUT request class wrapper.
+	#
 	class Put < Request
 		def initialize(uri = '/', proto = DefaultProtocol)
 			super('PUT', uri, proto)
 		end
 	end
 
+	#
+	# Initializes an instance of an HTTP request with the supplied method, URI,
+	# and protocol.
+	#
 	def initialize(method = 'GET', uri = '/', proto = DefaultProtocol)
 		super()
 
@@ -70,7 +84,7 @@ class Request < Packet
 	end
 
 	#
-	# Returns the command string derived from the three values
+	# Returns the command string derived from the three values.
 	#
 	def cmd_string
 		"#{self.method} #{self.uri} HTTP/#{self.proto}\r\n"
@@ -92,9 +106,21 @@ class Request < Packet
 		self.uri_parts['QueryString']
 	end
 
+	#
+	# The method being used for the request (e.g. GET).
+	#
 	attr_accessor :method
+	#
+	# The URI being requested.
+	#
 	attr_accessor :uri
+	#
+	# The split up parts of the URI.
+	#
 	attr_accessor :uri_parts
+	#
+	# The protocol to be sent with the request.
+	#
 	attr_accessor :proto
 
 protected

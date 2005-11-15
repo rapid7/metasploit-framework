@@ -10,9 +10,6 @@ module Meterpreter
 
 ###
 #
-# ClientCore
-# ----------
-#
 # This class is responsible for providing the interface to the core
 # client-side meterpreter API which facilitates the loading of extensions
 # and the interaction with channels.
@@ -20,7 +17,10 @@ module Meterpreter
 #
 ###
 class ClientCore < Extension
-
+	
+	#
+	# Initializes the 'core' portion of the meterpreter client commands.
+	#
 	def initialize(client)
 		super(client, "core")	
 	end
@@ -31,30 +31,30 @@ class ClientCore < Extension
 	#
 	##
 
-=begin
-	Loads a library on the remote meterpreter instance.  This method
-	supports loading both extension and non-extension libraries and
-	also supports loading libraries from memory or disk depending
-	on the flags that are specified
-
-	Supported flags:
-
-	LibraryFilePath
-		The path to the library that is to be loaded
-
-	TargetFilePath
-		The target library path when uploading
-
-	UploadLibrary
-		Indicates whether or not the library should be uploaded
-
-	SaveToDisk
-		Indicates whether or not the library should be saved to disk
-		on the remote machine
-
-	Extension
-		Indicates whether or not the library is a meterpreter extension
-=end
+	#
+	# Loads a library on the remote meterpreter instance.  This method
+	# supports loading both extension and non-extension libraries and
+	# also supports loading libraries from memory or disk depending
+	# on the flags that are specified
+	#
+	# Supported flags:
+	#
+	#	LibraryFilePath
+	#		The path to the library that is to be loaded
+	#
+	#	TargetFilePath
+	#		The target library path when uploading
+	#
+	#	UploadLibrary
+	#		Indicates whether or not the library should be uploaded
+	#
+	#	SaveToDisk
+	#		Indicates whether or not the library should be saved to disk
+	#		on the remote machine
+	#
+	#	Extension
+	#		Indicates whether or not the library is a meterpreter extension
+	#
 	def load_library(opts)
 		library_path = opts['LibraryFilePath']
 		target_path  = opts['TargetFilePath']
@@ -119,17 +119,17 @@ class ClientCore < Extension
 		return true
 	end
 
-=begin
-	Loads a meterpreter extension on the remote server instance and
-	initializes the client-side extension handlers
-
-	Module
-		The module that should be loaded
-	
-	LoadFromDisk
-		Indicates that the library should be loaded from disk, not from
-		memory on the remote machine
-=end
+	#
+	# Loads a meterpreter extension on the remote server instance and
+	# initializes the client-side extension handlers
+	#
+	#	Module
+	#		The module that should be loaded
+	#	
+	#	LoadFromDisk
+	#		Indicates that the library should be loaded from disk, not from
+	#		memory on the remote machine
+	#
 	def use(mod, opts = { })
 		if (mod == nil)
 			raise RuntimeError, "No modules were specified", caller
@@ -156,8 +156,10 @@ class ClientCore < Extension
 		return true
 	end
 
+	#
 	# Migrates the meterpreter instance to the process specified
 	# by pid.  The connection to the server remains established.
+	#
 	def migrate(pid)
 		request = Packet.create_request('core_migrate')
 

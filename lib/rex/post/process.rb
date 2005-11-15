@@ -3,6 +3,13 @@
 module Rex
 module Post
 
+###
+#
+# This class performs basic process operations against a process running on a
+# remote machine via the post-exploitation mechanisms.  Refer to the Ruby
+# documentation for expected behaviors.
+#
+###
 class Process
 
 	def Process.getresuid

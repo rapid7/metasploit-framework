@@ -17,12 +17,18 @@ class Response < Packet
 	#
 	## 
 
+	#
+	# HTTP 200/OK response class wrapper.
+	#
 	class OK < Response
 		def initialize(message = 'OK', proto = DefaultProtocol)
 			super(200, message, proto)
 		end
 	end
 
+	#
+	# HTTP 404/File not found response class wrapper.
+	#
 	class E404 < Response
 		def initialize(message = 'File not found', proto = DefaultProtocol)
 			super(404, message, proto)
@@ -30,7 +36,8 @@ class Response < Packet
 	end
 
 	#
-	# Constructage
+	# Constructage of the HTTP response with the supplied code, message, and
+	# protocol.
 	#
 	def initialize(code = 200, message = 'OK', proto = DefaultProtocol)
 		super()

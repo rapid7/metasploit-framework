@@ -6,10 +6,8 @@ module Meterpreter
 
 ###
 #
-# ChannelContainer
-# ----------------
-#
-# Interface for containing channel objects
+# This interface is meant to be included by things that are meant to contain
+# zero or more channel instances in the form of a hash.
 #
 ###
 module ChannelContainer
@@ -42,11 +40,14 @@ module ChannelContainer
 		return self.channels.delete(cid)
 	end
 
+	#
+	# The hash of channels.
+	#
 	attr_reader :channels
 
 protected
 
-	attr_writer :channels
+	attr_writer :channels # :nodoc:
 
 end
 

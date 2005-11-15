@@ -19,6 +19,9 @@ begin
 	#
 	##
 
+	#
+	# Creates an SSL TCP instance.
+	#
 	def self.create(hash)
 		self.create_param(Rex::Socket::Parameters.from_hash(hash))
 	end
@@ -37,7 +40,10 @@ begin
 	# Class initialization
 	#
 	##
-	
+
+	#
+	# Initializes the SSL socket.
+	#
 	def initsock(params = nil)
 		super
 
@@ -54,10 +60,16 @@ begin
 	#
 	##
 
+	#
+	# Writes data over the SSL socket.
+	#
 	def write(buf, opts = {})
 		return sslsock.write(buf)
 	end
 
+	#
+	# Reads data from the SSL socket.
+	#
 	def read(length = nil, opts = {})
 		length = 16384 unless length
 
@@ -68,6 +80,9 @@ begin
 		end
 	end
 
+	#
+	# Closes the SSL socket.
+	#
 	def close
 		sslsock.close
 		super
@@ -75,7 +90,7 @@ begin
 
 protected
 
-	attr_accessor :sslsock, :sslctx
+	attr_accessor :sslsock, :sslctx # :nodoc:
 
 rescue LoadError
 end

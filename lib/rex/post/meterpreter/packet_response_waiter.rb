@@ -9,17 +9,16 @@ module Meterpreter
 
 ###
 #
-# PacketResponseWaiter
-# --------------------
-#
 # This class handles waiting for a response to a given request
-# and the subsequent response association
+# and the subsequent response association.
 #
 ###
 class PacketResponseWaiter
 
+	#
 	# Initializes a response waiter instance for the supplied request
-	# identifier
+	# identifier.
+	#
 	def initialize(rid, completion_routine = nil, completion_param = nil)
 		self.rid      = rid.dup
 		self.response = nil
@@ -33,13 +32,17 @@ class PacketResponseWaiter
 		end
 	end
 
+	#
 	# Checks to see if this waiter instance is waiting for the supplied 
-	# packet based on its request identifier
+	# packet based on its request identifier.
+	#
 	def waiting_for?(packet)
 		return (packet.rid == rid)
 	end
 
-	# Notifies the waiter that the supplied response packet has arrived
+	#
+	# Notifies the waiter that the supplied response packet has arrived.
+	#
 	def notify(response)
 		self.response = response
 
@@ -52,7 +55,9 @@ class PacketResponseWaiter
 		end
 	end
 
-	# Waits for a given time interval for the response packet to arrive
+	#
+	# Waits for a given time interval for the response packet to arrive.
+	#
 	def wait(interval)
 		begin
 			timeout(interval) { 
@@ -67,8 +72,8 @@ class PacketResponseWaiter
 		return self.response
 	end
 
-	attr_accessor :rid, :mutex, :cond, :response
-	attr_accessor :completion_routine, :completion_param
+	attr_accessor :rid, :mutex, :cond, :response # :nodoc:
+	attr_accessor :completion_routine, :completion_param # :nodoc:
 end
 
 end; end; end

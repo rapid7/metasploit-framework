@@ -14,11 +14,13 @@ module Rex
 ###
 class Transformer
 
+	#
 	# Translates the object instance supplied in src_instance to an instance of
 	# dst_class.  The dst_class parameter's instance must support the <<
 	# operator.  An example call to this method looks something like:
 	#
 	# Transformer.transform(string, Array, [ String ], target)
+	#
 	def Transformer.transform(src_instance, dst_class, supported_classes, 
 			target = nil)
 		dst_instance = dst_class.new
@@ -38,7 +40,9 @@ class Transformer
 
 protected
 
+	#
 	# Transform a single source instance.
+	#
 	def Transformer.transform_single(src_instance, dst_instance, 
 			supported_classes, target)
 		# If the src instance's class is supported, just add it to the dst 
@@ -96,7 +100,7 @@ protected
 		end
 	end
 
-	def Transformer.bomb_translation(src_instance, target)
+	def Transformer.bomb_translation(src_instance, target) # :nodoc:
 		error = "Invalid source class (#{src_instance.class})"
 
 		if (target != nil)

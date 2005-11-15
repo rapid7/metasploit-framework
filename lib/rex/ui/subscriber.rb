@@ -10,56 +10,77 @@ module Subscriber
 
 	##
 	#
-	# Output
-	# ------
-	#
 	# Subscribes to the output half of the user interface.
 	#
 	##
 	module Output
 
+		#
+		# Wraps user_output.print_line
+		#
 		def print_line(msg)
 			user_output.print_line(msg) if (user_output)
 		end
 
+		#
+		# Wraps user_output.print_status
+		#
 		def print_status(msg)
 			user_output.print_status(msg) if (user_output)
 		end
 
+		#
+		# Wraps user_output.print_error
+		#
 		def print_error(msg)
 			user_output.print_error(msg) if (user_output)
 		end
 		
+		#
+		# Wraps user_output.print_good
+		#
 		def print_good(msg)
 			user_output.print_good(msg) if (user_output)
 		end
 
+		#
+		# Wraps user_output.print
+		#
 		def print(msg)
 			user_output.print(msg) if (user_output)
 		end
 
+		#
+		# Wraps user_output.flush
+		#
 		def flush
 			user_output.flush if (user_output)
 		end
 
+		#
+		# The user output handle.
+		#
 		attr_accessor :user_output
 
 	end
 
 	##
 	#
-	# Input
-	# -----
-	#
 	# Subscribes to the input half of the user interface.
 	#
 	##
 	module Input
 
+		#
+		# Gets a line of input from the user_input handle by calling gets.
+		#
 		def gets
 			user_input.gets if (user_input)
 		end
-		
+	
+		#
+		# The user intput handle.
+		#
 		attr_accessor :user_input
 
 	end

@@ -13,9 +13,6 @@ module Net
 
 ###
 #
-# Config
-# ------
-#
 # This class provides an interface to the network configuration
 # that exists on the remote machine, such as interfaces, and
 # routes.
@@ -28,7 +25,11 @@ class Config
 	# Constructor
 	#
 	##
-	
+
+	#
+	# Initializes a Config instance that is used to get information about the
+	# network configuration of the remote machine.
+	#
 	def initialize(client)
 		self.client = client
 	end
@@ -39,12 +40,16 @@ class Config
 	#
 	##
 
-	# Enumerates each interface
+	#
+	# Enumerates each interface.
+	#
 	def each_interface(&block)
 		get_interfaces().each(&block)
 	end
 
-	# Returns an array of network interfaces with each element
+	#
+	# Returns an array of network interfaces with each element.
+	#
 	# being an Interface
 	def get_interfaces
 		request = Packet.create_request('stdapi_net_config_get_interfaces')
@@ -71,12 +76,16 @@ class Config
 	#
 	##
 
-	# Enumerates each route
+	#
+	# Enumerates each route.
+	#
 	def each_route(&block)
 		get_routes().each(&block)
 	end
 
-	# Returns an array of routes with each element being a Route
+	#
+	# Returns an array of routes with each element being a Route.
+	#
 	def get_routes
 		request = Packet.create_request('stdapi_net_config_get_routes')
 		routes  = []
@@ -96,7 +105,9 @@ class Config
 	
 	alias routes get_routes
 
-	# Adds a route to the target machine
+	#
+	# Adds a route to the target machine.
+	# 
 	def add_route(subnet, netmask, gateway)
 		request = Packet.create_request('stdapi_net_config_add_route')
 
@@ -109,7 +120,9 @@ class Config
 		return true
 	end
 
-	# Removes a route from the target machine
+	#
+	# Removes a route from the target machine.
+	#
 	def remove_route(subnet, netmask, gateway)
 		request = Packet.create_request('stdapi_net_config_remove_route')
 
@@ -124,7 +137,7 @@ class Config
 
 protected
 	
-	attr_accessor :client
+	attr_accessor :client # :nodoc:
 
 end
 

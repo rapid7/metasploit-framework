@@ -7,9 +7,6 @@ module Ui
 
 ###
 #
-# Sys
-# ---
-#
 # The system level portion of the standard API extension.
 #
 ###
@@ -30,7 +27,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		"-d" => [ true,  "The 'dummy' executable to launch when using -m."         ])
 
 	#
-	# List of supported commands
+	# List of supported commands.
 	#
 	def commands
 		{
@@ -46,7 +43,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	end
 
 	#
-	# Name for this dispatcher
+	# Name for this dispatcher.
 	#
 	def name
 		"Stdapi: System"

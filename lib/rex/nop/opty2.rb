@@ -20,7 +20,7 @@ class Opty2
 	end
 
 	#
-	# Generates the NOP sled
+	# Generates the Opty2 multi-byte NOP sled.
 	#
 	def generate_sled(length)
 		return '' if (length <= 0)
@@ -101,7 +101,7 @@ class Opty2
 		sled
 	end
 
-	attr_accessor :badchars, :save_registers
+	attr_accessor :badchars, :save_registers # :nodoc:
 end
 
 end

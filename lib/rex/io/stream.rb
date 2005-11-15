@@ -25,14 +25,14 @@ module Stream
 	##
 
 	#
-	# Writes data to the stream.
+	# This method writes the supplied buffer to the stream.
 	#
 	def write(buf, opts = {})
 		fd.syswrite(buf)
 	end
 
 	#
-	# Reads data from the stream.
+	# This method reads data of the supplied length from the stream.
 	#
 	def read(length = nil, opts = {})
 		fd.sysread(length)
@@ -53,7 +53,7 @@ module Stream
 	end
 
 	#
-	# Returns the selectable file descriptor
+	# This method returns the selectable file descriptor, or self by default.
 	#
 	def fd
 		self
@@ -66,14 +66,16 @@ module Stream
 	##
 
 	#
-	# Writes data to the stream
+	# This method writes the supplied buffer to the stream by calling the write
+	# routine.
 	#
 	def <<(buf)
 		return write(buf.to_s)
 	end
 
 	#
-	# Writes to the stream, optionally timing out after a period of time
+	# This method writes to the stream, optionally timing out after a period of
+	# time.
 	#
 	def timed_write(buf, wait = def_write_timeout, opts = {})
 		if (wait and wait > 0)
@@ -86,7 +88,8 @@ module Stream
 	end
 
 	#
-	# Reads from the stream, optionally timing out after a period of time
+	# This method reads from the stream, optionally timing out after a period
+	# of time.
 	#
 	def timed_read(length = nil, wait = def_read_timeout, opts = {})
 		if (wait and wait > 0)
@@ -99,7 +102,8 @@ module Stream
 	end
 
 	#
-	# Write the full contents of the supplied buffer
+	# This method writes the full contents of the supplied buffer, optionally
+	# with a timeout.
 	#
 	def put(buf, opts = {})
 		send_buf = buf.dup()
@@ -117,7 +121,8 @@ module Stream
 	end
 
 	#
-	# Read as much data as possible from the pipe
+	# This method reads as much data as it can from the wire given a maximum
+	# timeout.
 	#
 	def get(timeout = nil, ltimeout = def_read_loop_timeout, opts = {})
 		# For those people who are used to being able to use a negative timeout!
@@ -178,24 +183,41 @@ module Stream
 	#
 	##
 
+	#
+	# The default number of seconds to wait for a write operation to timeout.
+	#
 	def def_write_timeout
-		return 10
+		10
 	end
 
+	#
+	# The default number of seconds to wait for a read operation to timeout.
+	#
 	def def_read_timeout
-		return 10
+		10
 	end
-	
+
+	#
+	# The default number of seconds to wait while in a read loop after read
+	# data has been found.
+	#
 	def def_read_loop_timeout
-		return 0.5
+		0.5
 	end
 
+	#
+	# The maximum number of read loops to perform before returning to the
+	# caller.
+	#
 	def def_max_loops
-		return 1024
+		1024
 	end
 
+	#
+	# The default block size to read in chunks from the wire.
+	#
 	def def_block_size
-		return 16384
+		16384
 	end
 
 protected

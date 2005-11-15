@@ -10,9 +10,6 @@ module EventLogSubsystem
 
 ###
 #
-# Event Record
-# --------
-#
 # This class encapsulates the data from an event log record.
 #
 ###

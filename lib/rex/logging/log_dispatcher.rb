@@ -13,6 +13,9 @@ module Logging
 ###
 class LogDispatcher
 
+	#
+	# Creates the global log dispatcher instance and initializes it for use.
+	#
 	def initialize()
 		self.log_sinks        = {}
 		self.log_levels       = {}

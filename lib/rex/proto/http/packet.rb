@@ -33,6 +33,9 @@ class Packet
 
 	require 'rex/proto/http/header'
 
+	#
+	# Initializes an instance of an HTTP packet.
+	#
 	def initialize()
 		self.headers = Header.new
 		self.auto_cl = true
@@ -56,7 +59,7 @@ class Packet
 
 	#
 	# Parses the supplied buffer.  Returns one of the two parser processing
-	# codes (Completed, Partial, or Error)
+	# codes (Completed, Partial, or Error).
 	#
 	def parse(buf)
 
@@ -120,7 +123,7 @@ class Packet
 	end
 
 	#
-	# Converts the packet to a string
+	# Converts the packet to a string.
 	#
 	def to_s
 		# Update the content length field in the header with the body length.
@@ -133,7 +136,7 @@ class Packet
 	end
 
 	#
-	# Converts the packet from a string
+	# Converts the packet from a string.
 	#
 	def from_s(str)
 		reset

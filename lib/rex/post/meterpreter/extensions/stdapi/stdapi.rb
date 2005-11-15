@@ -24,13 +24,16 @@ module Stdapi
 
 ###
 #
-# Stdapi
-# ------
-#
-# Standard ruby interface to remote entities
+# Standard ruby interface to remote entities for meterpreter.  It provides
+# basic access to files, network, system, and other properties of the remote
+# machine that are fairly universal.
 #
 ###
 class Stdapi < Extension
+
+	#
+	# Initializes an instance of the standard API extension.
+	#
 	def initialize(client)
 		super(client, 'stdapi')
 
@@ -74,44 +77,60 @@ class Stdapi < Extension
 			])
 	end
 
-	# Sets the client instance on a duplicated copy of the supplied class
+	#
+	# Sets the client instance on a duplicated copy of the supplied class.
+	#
 	def brand(klass)
 		klass = klass.dup
 		klass.client = self.client
 		return klass
 	end
 
-	# Returns a copy of the Dir class
+	#
+	# Returns a copy of the Dir class.
+	#
 	def dir
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::Dir)
 	end
 
-	# Returns a copy of the File class
+	#
+	# Returns a copy of the File class.
+	#
 	def file
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File)
 	end
 
-	# Returns a copy of the FileStat class
+	#
+	# Returns a copy of the FileStat class.
+	#
 	def filestat
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::FileStat)
 	end
 
-	# Returns a copy of the Process class
+	#
+	# Returns a copy of the Process class.
+	#
 	def process
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Process)
 	end
 
-	# Returns a copy of the Registry class
+	#
+	# Returns a copy of the Registry class.
+	#
 	def registry
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry)
 	end
 
-	# Returns a copy of the EventLog class
+	#
+	# Returns a copy of the EventLog class.
+	#
 	def eventlog
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::EventLog)
 	end
 
-	# Returns a copy of the Power class
+	#
+	# Returns a copy of the Power class.
+	#
 	def power
 		brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Power)
 	end

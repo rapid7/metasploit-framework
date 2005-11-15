@@ -5,9 +5,6 @@ module Ui
 
 ###
 #
-# CommandDispatcher
-# -----------------
-#
 # Base class for all command dispatchers within the meterpreter console user
 # interface.
 #
@@ -17,14 +14,14 @@ module Console::CommandDispatcher
 	include Rex::Ui::Text::DispatcherShell::CommandDispatcher
 
 	#
-	# Returns the meterpreter client context
+	# Returns the meterpreter client context.
 	#
 	def client
 		shell.client
 	end
 
 	#
-	# Log that an error occurred
+	# Log that an error occurred.
 	#
 	def log_error(msg)
 		print_error(msg)

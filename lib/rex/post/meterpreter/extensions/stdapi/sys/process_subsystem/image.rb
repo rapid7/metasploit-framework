@@ -13,9 +13,6 @@ module ProcessSubsystem
 
 ###
 #
-# Image
-# -----
-#
 # Interacts with loading, unloading, enumerating, and querying
 # image files in the context of a given process.
 #
@@ -28,10 +25,16 @@ class Image
 	#
 	##
 
+	#
+	# Initializes the image instance.
+	#
 	def initialize(process)
 		self.process = process
 	end
 
+	#
+	# Returns the image base address associated with the supplied image name.
+	#
 	def [](key)
 		each_image { |i|
 			if (i['name'].downcase == key.downcase)
@@ -42,7 +45,9 @@ class Image
 		return nil
 	end
 
-	# Loads an image file into the context of the process
+	#
+	# Loads an image file into the context of the process.
+	#
 	def load(image_path)
 		request = Packet.create_request('stdapi_sys_process_image_load')
 
@@ -54,8 +59,10 @@ class Image
 		return response.get_tlv_value(TLV_TYPE_IMAGE_BASE)
 	end
 
+	#
 	# Returns the address of the procedure that is found in the supplied
-	# library
+	# library.
+	#
 	def get_procedure_address(image_file, procedure)
 		request = Packet.create_request('stdapi_sys_process_image_get_proc_address')
 
@@ -68,8 +75,10 @@ class Image
 		return response.get_tlv_value(TLV_TYPE_PROCEDURE_ADDRESS)
 	end
 
+	#
 	# Unloads an image file that is loaded into the address space of the
-	# process by its base address
+	# process by its base address.
+	#
 	def unload(base)
 		request = Packet.create_request('stdapi_sys_process_image_unload')
 
@@ -81,13 +90,17 @@ class Image
 		return true
 	end
 
-	# Enumerates through each image in the process
+	#
+	# Enumerates through each image in the process.
+	#
 	def each_image(&block)
 		get_images.each(&block)
 	end
 
+	#
 	# Returns an array of images in the process with hash objects that
-	# have keys for 'name', 'path', and 'base'
+	# have keys for 'name', 'path', and 'base'.
+	#
 	def get_images
 		request = Packet.create_request('stdapi_sys_process_image_get_images')
 		images  = []
@@ -109,7 +122,7 @@ class Image
 	end
 
 protected
-	attr_accessor :process
+	attr_accessor :process # :nodoc:
 
 end
 

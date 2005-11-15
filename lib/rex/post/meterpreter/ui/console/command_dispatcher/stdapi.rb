@@ -7,9 +7,6 @@ module Ui
 
 ###
 #
-# Stdapi
-# ------
-#
 # Standard API extension.
 #
 ###
@@ -32,6 +29,9 @@ class Console::CommandDispatcher::Stdapi
 
 	include Console::CommandDispatcher
 
+	#
+	# Initializes an instance of the stdapi command interaction.
+	#
 	def initialize(shell)
 		super
 
@@ -41,7 +41,7 @@ class Console::CommandDispatcher::Stdapi
 	end
 
 	#
-	# List of supported commands
+	# List of supported commands.
 	#
 	def commands
 		{

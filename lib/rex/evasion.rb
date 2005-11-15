@@ -28,10 +28,12 @@ class Evasion
 	@level  = EVASION_NORMAL
 	@subsys = {}
 
+	##
 	#
 	# We default to a normal evasion level.  This is typically enough to be
 	# sane but not enough to introduce instabilities.
 	#
+	##
 
 	#
 	# Sets the global evasion level.

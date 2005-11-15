@@ -15,9 +15,6 @@ module Sys
 
 ###
 #
-# Power
-# --------
-#
 # This class provides access to the power of the remote machine (reboot, etc).
 #
 ###
@@ -27,6 +24,9 @@ class Power
 		attr_accessor :client
 	end
 
+	#
+	# Calls ExitWindows on the remote machine with the supplied parameters.
+	#
 	def Power._exitwindows(flags, reason = 0) # :nodoc:
 		request = Packet.create_request('stdapi_sys_power_exitwindows')
 
@@ -39,14 +39,14 @@ class Power
 	end
 
 	#
-	# Reboots the remote machine
+	# Reboots the remote machine.
 	#
 	def Power.reboot(reason = 0)
 		self._exitwindows(EWX_REBOOT, reason)
 	end
 
 	#
-	# Shuts down the remote machine
+	# Shuts down the remote machine.
 	#
 	def Power.shutdown(force = 0, reason = 0)
 		flags  = EWX_POWEROFF

@@ -14,9 +14,6 @@ module Net
 
 ###
 #
-# Socket
-# ------
-#
 # This class provides an interface to interacting with sockets
 # on the remote machine.  It allows callers to open TCP, UDP,
 # and other arbitrary socket-based connections as channels that
@@ -32,8 +29,10 @@ class Socket
 	#
 	##
 
+	#
 	# Initialize the socket subsystem and start monitoring sockets
-	# as they come in
+	# as they come in.
+	#
 	def initialize(client)
 		self.client                    = client
 		self.monitored_sockets         = []
@@ -43,7 +42,9 @@ class Socket
 		self.monitor_sockets
 	end
 
-	# Terminate the monitor thread
+	#
+	# Terminate the monitor thread.
+	#
 	def shutdown
 		monitor_thread.kill
 	end
@@ -54,9 +55,11 @@ class Socket
 	#
 	##
 
+	#
 	# Creates an arbitrary client socket channel using the information
 	# supplied in the socket parameters instance.  The 'params' argument
-	# is expected to be of type Rex::Socket::Parameters
+	# is expected to be of type Rex::Socket::Parameters.
+	#
 	def create(params)
 		channel = nil
 		res     = nil
@@ -93,20 +96,28 @@ class Socket
 		return res
 	end
 
-	# Create a TCP server channel
+	#
+	# Create a TCP server channel.
+	#
 	def create_tcp_server(params)
 	end
 
-	# Creates a TCP client channel
+	#
+	# Creates a TCP client channel.
+	#
 	def create_tcp_client(params)
 		return SocketSubsystem::TcpClientChannel.open(client, params)
 	end
 
-	# Creates a UDP server channel
+	#
+	# Creates a UDP server channel.
+	#
 	def create_udp_server(params)
 	end
 
-	# Creates a UDP client channel
+	#
+	# Creates a UDP client channel.
+	#
 	def create_udp_client(params)
 	end
 
@@ -118,8 +129,10 @@ protected
 	#
 	##
 
+	#
 	# Monitors zero or more sockets and handles forwarding traffic
-	# to the remote half of the associated channel
+	# to the remote half of the associated channel.
+	#
 	def monitor_sockets
 		self.monitor_thread = ::Thread.new {
 
@@ -190,21 +203,25 @@ protected
 		}
 	end
 
-	# Adds a socket to the list of monitored sockets
+	#
+	# Adds a socket to the list of monitored sockets.
+	#
 	def add_monitored_socket(sock, channel)
 		monitored_sockets << sock
 		monitored_socket_channels[sock.object_id] = channel
 	end
 
-	# Removes a socket from the list of monitored sockets
+	#
+	# Removes a socket from the list of monitored sockets.
+	#
 	def remove_monitored_socket(sock)
 		monitored_socket_channels.delete(sock.object_id)
 		monitored_sockets.delete(sock)
 	end
 
-	attr_accessor :monitored_sockets, :monitored_socket_channels
-	attr_accessor :monitor_thread
-	attr_accessor :client
+	attr_accessor :monitored_sockets, :monitored_socket_channels # :nodoc:
+	attr_accessor :monitor_thread # :nodoc:
+	attr_accessor :client # :nodoc:
 
 end
 

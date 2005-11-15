@@ -13,9 +13,6 @@ module Sys
 
 ##
 #
-# Thread
-# ------
-#
 # This class implements the Rex::Post::Thread interface which 
 # wrappers a logical thread for a given process.
 #
@@ -30,7 +27,9 @@ class Thread < Rex::Post::Thread
 	#
 	##
 
-	# Initialize the thread instance
+	#
+	# Initialize the thread instance.
+	#
 	def initialize(process, handle, tid)
 		self.process = process
 		self.handle  = handle
@@ -43,7 +42,9 @@ class Thread < Rex::Post::Thread
 	#
 	##
 
-	# Suspends the thread's execution
+	#
+	# Suspends the thread's execution.
+	#
 	def suspend
 		request = Packet.create_request('stdapi_sys_process_thread_suspend')
 
@@ -53,8 +54,10 @@ class Thread < Rex::Post::Thread
 
 		return true
 	end
-	
-	# Resumes the thread's execution
+
+	#
+	# Resumes the thread's execution.
+	#
 	def resume
 		request = Packet.create_request('stdapi_sys_process_thread_resume')
 
@@ -65,7 +68,9 @@ class Thread < Rex::Post::Thread
 		return true
 	end
 
-	# Terminates the thread's execution
+	#
+	# Terminates the thread's execution.
+	#
 	def terminate(code)
 		request = Packet.create_request('stdapi_sys_process_thread_terminate')
 
@@ -82,8 +87,10 @@ class Thread < Rex::Post::Thread
 	# Register manipulation
 	#
 	##
-	
-	# Queries the register state of the thread
+
+	#
+	# Queries the register state of the thread.
+	#
 	def query_regs
 		request = Packet.create_request('stdapi_sys_process_thread_query_regs')
 		regs    = {}
@@ -99,8 +106,10 @@ class Thread < Rex::Post::Thread
 		return regs
 	end
 
+	#
 	# Sets the register state of the thread.  The registers are supplied
 	# in the form of a hash.
+	#
 	def set_regs(regs_hash)
 		request = Packet.create_request('stdapi_sys_process_thread_set_regs')
 
@@ -119,7 +128,9 @@ class Thread < Rex::Post::Thread
 		return true
 	end
 
-	# Formats the registers in a pretty way
+	#
+	# Formats the registers in a pretty way.
+	#
 	def pretty_regs
 		regs = query_regs
 
@@ -139,7 +150,9 @@ class Thread < Rex::Post::Thread
 	#
 	##
 
-	# Closes the thread handle
+	#
+	# Closes the thread handle.
+	#
 	def close
 		request = Packet.create_request('stdapi_sys_process_thread_close')
 
@@ -152,9 +165,9 @@ class Thread < Rex::Post::Thread
 		return true
 	end
 
-	attr_reader :process, :handle, :tid
+	attr_reader :process, :handle, :tid # :nodoc:
 protected	
-	attr_writer :process, :handle, :tid
+	attr_writer :process, :handle, :tid # :nodoc:
 
 end
 

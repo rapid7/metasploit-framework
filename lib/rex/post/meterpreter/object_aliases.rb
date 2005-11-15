@@ -6,27 +6,30 @@ module Meterpreter
 
 ###
 #
-# ObjectAliasesContainer
-# ----------------------
-#
 # Mixin for classes that wish to have object aliases but do not
 # really need to inherit from the ObjectAliases class.
 #
 ###
 module ObjectAliasesContainer
 
-	# Initialize the instance's aliases
+	#
+	# Initialize the instance's aliases.
+	#
 	def initialize_aliases(aliases = {})
 		self.aliases = aliases
 	end
 
-	# Pass-thru aliases
+	#
+	# Pass-thru aliases.
+	#
 	def method_missing(symbol, *args)
 		return self.aliases[symbol.to_s];
 	end
 
+	#
 	# Recursively dumps all of the aliases registered with a class that
-	# is kind_of? ObjectAliases
+	# is kind_of? ObjectAliases.
+	#
 	def dump_alias_tree(parent_path, current = nil)
 		items = []
 
@@ -49,13 +52,13 @@ module ObjectAliasesContainer
 		return items
 	end
 
+	#
+	# The hash of aliases.
+	#
 	attr_accessor :aliases
 end
 
 ###
-#
-# ObjectAliases
-# -------------
 #
 # Generic object aliases from a class instance referenced symbol to an 
 # associated object of an arbitrary type

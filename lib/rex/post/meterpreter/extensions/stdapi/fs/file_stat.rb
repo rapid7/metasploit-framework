@@ -12,10 +12,8 @@ module Fs
 
 ###
 #
-# FileStat
-# --------
-#
-# This class wrappers gathering information about a given file
+# This class wrappers gathering information about a given file and implements
+# the Rex::Post::FileStat interface in terms of data acquisition.
 #
 ###
 class FileStat < Rex::Post::FileStat
@@ -45,6 +43,9 @@ class FileStat < Rex::Post::FileStat
 	#
 	##
 
+	#
+	# Returns an instance of a FileStat object.
+	#
 	def initialize(file)
 		self.stathash = stat(file) if (file)
 	end
@@ -80,8 +81,10 @@ protected
 	#
 	##
 
+	#
 	# Gets information about the supplied file and returns a populated
-	# hash to the requestor
+	# hash to the requestor.
+	#
 	def stat(file)
 		request = Packet.create_request('stdapi_fs_stat')
 

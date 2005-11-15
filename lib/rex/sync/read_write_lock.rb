@@ -17,6 +17,9 @@ module Rex
 ###
 class ReadWriteLock
 
+	#
+	# Initializes a reader/writer lock instance.
+	#
 	def initialize
 		@read_sync_mutex  = Mutex.new
 		@write_sync_mutex = Mutex.new
@@ -25,7 +28,9 @@ class ReadWriteLock
 		@writer           = false
 	end
 
-	# Acquires the read lock for the calling thread
+	#
+	# Acquires the read lock for the calling thread.
+	#
 	def lock_read
 		read_sync_mutex.lock
 		
@@ -60,7 +65,9 @@ class ReadWriteLock
 		end
 	end
 
-	# Releases the read lock for the calling thread
+	#
+	# Releases the read lock for the calling thread.
+	#
 	def unlock_read
 		read_sync_mutex.lock
 
@@ -100,7 +107,9 @@ class ReadWriteLock
 		end
 	end
 
-	# Acquire the exclusive write lock
+	#
+	# Acquire the exclusive write lock.
+	#
 	def lock_write
 		write_sync_mutex.lock
 
@@ -115,7 +124,9 @@ class ReadWriteLock
 		end
 	end
 
-	# Release the exclusive write lock
+	#
+	# Release the exclusive write lock.
+	#
 	def unlock_write
 		# If the caller is not the owner of the write lock, then someone is
 		# doing something broken, let's let them know.
@@ -129,7 +140,9 @@ class ReadWriteLock
 		exclusive_mutex.unlock
 	end
 
-	# Synchronize a block for read access
+	#
+	# Synchronize a block for read access.
+	#
 	def synchronize_read
 		lock_read
 		begin
@@ -139,7 +152,9 @@ class ReadWriteLock
 		end
 	end
 
-	# Synchronize a block for write access
+	#
+	# Synchronize a block for write access.
+	#
 	def synchronize_write
 		lock_write
 		begin
@@ -151,9 +166,9 @@ class ReadWriteLock
 
 protected
 
-	attr_accessor :read_sync_mutex
-	attr_accessor :write_sync_mutex
-	attr_accessor :exclusive_mutex
+	attr_accessor :read_sync_mutex # :nodoc:
+	attr_accessor :write_sync_mutex # :nodoc:
+	attr_accessor :exclusive_mutex # :nodoc:
 
 end
 

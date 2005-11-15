@@ -7,16 +7,18 @@ module Ui
 
 ###
 #
-# Core
-# ----
-#
-# Core meterpreter client commands.
+# Core meterpreter client commands that provide only the required set of
+# commands for having a functional meterpreter client<->server instance.
 #
 ###
 class Console::CommandDispatcher::Core
 
 	include Console::CommandDispatcher
 
+	#
+	# Initializes an instance of the core command set using the supplied shell
+	# for interactivity.
+	#
 	def initialize(shell)
 		super
 
@@ -28,7 +30,7 @@ class Console::CommandDispatcher::Core
 		"-h" => [ false, "Help menu."      ])
 
 	#
-	# List of supported commands
+	# List of supported commands.
 	#
 	def commands
 		{
@@ -60,6 +62,9 @@ class Console::CommandDispatcher::Core
 		"-l" => [ false, "List active channels." ],
 		"-h" => [ false, "Help menu."            ])
 
+	#
+	# Performs operations on the supplied channel.
+	#
 	def cmd_channel(*args)
 		if (args.length == 0)
 			args.unshift("-h")
@@ -353,7 +358,7 @@ class Console::CommandDispatcher::Core
 
 protected
 
-	attr_accessor :extensions, :ext_hash
+	attr_accessor :extensions, :ext_hash # :nodoc:
 
 	CommDispatcher = Console::CommandDispatcher
 

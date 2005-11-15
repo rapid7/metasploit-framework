@@ -5,7 +5,11 @@ module Exploitation
 
 ###
 #
-# This class provides an interface to generating egghunters.
+# This class provides an interface to generating egghunters.  Egghunters are
+# used to search process address space for a known byte sequence.  This is
+# useful in situations where there is limited room for a payload when an
+# overflow occurs, but it's possible to stick a larger payload somewhere else
+# in memory that may not be directly predictable.
 #
 ###
 class Egghunter
@@ -20,7 +24,10 @@ class Egghunter
 
 		module X86
 			Alias = "x86"
-		
+
+			#
+			# The egg hunter stub for win/x86.
+			#
 			def hunter_stub
 				{
 					'Stub' => 
@@ -42,6 +49,11 @@ class Egghunter
 	#
 	###
 
+	#
+	# Creates a new egghunter instance and acquires the sub-class that should
+	# be used for generating the stub based on the supplied platform and
+	# architecture.
+	#
 	def initialize(platform, arch = nil)
 		Egghunter.constants.each { |c|
 			mod = self.class.const_get(c)
@@ -71,7 +83,7 @@ class Egghunter
 	end
 
 	#
-	# Generates an egghunter using the derived hunter stub.
+	# This method generates an egghunter using the derived hunter stub.
 	#
 	def generate(badchars = '')
 		return nil if ((opts = hunter_stub) == nil)
@@ -89,7 +101,8 @@ class Egghunter
 protected
 
 	#
-	# Stub method that is meant to be overridden.
+	# Stub method that is meant to be overridden.  It returns the raw stub that
+	# should be used as the egghunter.
 	#
 	def hunter_stub
 	end

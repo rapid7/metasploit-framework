@@ -13,9 +13,6 @@ module ProcessSubsystem
 
 ###
 #
-# IO
-# --
-#
 # This class provides an input/output interface to an executed
 # process' standard input and output.
 #
@@ -28,23 +25,30 @@ class IO
 	#
 	##
 
+	#
+	# Initializes the IO instance.
+	#
 	def initialize(process)
 		self.process = process
 	end
 
+	#
 	# Writes the supplied buffer to the standard input handle of the
-	# executed process
+	# executed process.
+	#
 	def write(buf)
 		return process.channel.write(buf)
 	end
 
-	# Reads data from the standard output handle of the executed process
+	#
+	# Reads data from the standard output handle of the executed process.
+	#
 	def read(length = nil)
 		return process.channel.read(length)
 	end
 
 protected
-	attr_accessor :process
+	attr_accessor :process # :nodoc:
 
 end
 

@@ -28,6 +28,18 @@ CHANNEL_DIO_READ         = 'read'
 CHANNEL_DIO_WRITE        = 'write'
 CHANNEL_DIO_CLOSE        = 'close'
 
+###
+#
+# The channel class represents a logical data pipe that exists between the
+# client and the server.  The purpose and behavior of the channel depends on
+# which type it is.  The three basic types of channels are streams, datagrams,
+# and pools.  Streams are basically equivalent to a TCP connection.
+# Bidirectional, connection-oriented streams.  Datagrams are basically
+# equivalent to a UDP session.  Bidirectional, connectionless.  Pools are
+# basically equivalent to a uni-directional connection, like a file handle.
+# Pools denote channels that only have requests flowing in one direction.
+#
+###
 class Channel
 
 	# Class modifications to support global channel message
@@ -71,8 +83,10 @@ class Channel
 	#
 	##
 
+	#
 	# Creates a logical channel between the client and the server 
 	# based on a given type.
+	#
 	def Channel.create(client, type = nil, klass = nil, 
 			flags = CHANNEL_FLAG_SYNCHRONOUS, addends = nil)
 		request = Packet.create_request('core_channel_open')
@@ -110,8 +124,10 @@ class Channel
 	#
 	##
 
+	#
 	# Initializes the instance's attributes, such as client context,
-	# class identifier, type, and flags
+	# class identifier, type, and flags.
+	#
 	def initialize(client, cid, type, flags)
 		self.client = client
 		self.cid    = cid
@@ -130,12 +146,16 @@ class Channel
 	#
 	##
 
-	# Wrapper around the low-level channel read operation
+	#
+	# Wrapper around the low-level channel read operation.
+	#
 	def read(length = nil, addends = nil)
 		return _read(length, addends)
 	end
 
-	# Reads data from the remote half of the channel
+	#
+	# Reads data from the remote half of the channel.
+	#
 	def _read(length = nil, addends = nil)
 		if (self.cid == nil)
 			raise IOError, "Channel has been closed.", caller
@@ -172,12 +192,16 @@ class Channel
 		return nil
 	end
 
-	# Wrapper around the low-level write
+	#
+	# Wrapper around the low-level write.
+	#
 	def write(buf, length = nil, addends = nil)
 		return _write(buf, length, addends)
 	end
 
-	# Writes data to the remote half of the channel
+	#
+	# Writes data to the remote half of the channel.
+	#
 	def _write(buf, length = nil, addends = nil)
 		if (self.cid == nil)
 			raise IOError, "Channel has been closed.", caller
@@ -205,22 +229,30 @@ class Channel
 		return (written == nil) ? 0 : written.value
 	end
 
-	# Wrapper around the low-level close
+	#
+	# Wrapper around the low-level close.
+	#
 	def close(addends = nil)
 		return _close(addends)
 	end
 
-	# Close the channel for future writes
+	#
+	# Close the channel for future writes.
+	#
 	def close_write
 		return _close
 	end
 
-	# Close the channel for future reads
+	#
+	# Close the channel for future reads.
+	#
 	def close_read
 		return _close
 	end
 
-	# Closes the channel
+	#
+	# Closes the channel.
+	#
 	def _close(addends = nil)
 		if (self.cid == nil)
 			raise IOError, "Channel has been closed.", caller
@@ -243,7 +275,7 @@ class Channel
 	end
 
 	#
-	# Enables or disables interactive mode
+	# Enables or disables interactive mode.
 	#
 	def interactive(tf = true, addends = nil)
 		if (self.cid == nil)
@@ -268,8 +300,10 @@ class Channel
 	#
 	##
 
+	#
 	# Handles dispatching I/O requests based on the request packet.
 	# The default implementation does nothing with direct I/O requests.
+	#
 	def dio_handler(dio, packet)
 		if (dio == CHANNEL_DIO_READ)
 			length = packet.get_tlv_value(TLV_TYPE_LENGTH)
@@ -286,17 +320,23 @@ class Channel
 		return false;
 	end
 
-	# Stub read handler
+	#
+	# Stub read handler.
+	#
 	def dio_read_handler(packet, length)
 		return false
 	end
 
-	# Stub write handler
+	#
+	# Stub write handler.
+	#
 	def dio_write_handler(packet, data)
 		return false
 	end
 
-	# Stub close handler
+	#
+	# Stub close handler.
+	#
 	def dio_close_handler(packet)
 		client.remove_channel(self.cid)
 
@@ -312,9 +352,11 @@ class Channel
 		return false
 	end
 
+	#
 	# Maps packet request methods to DIO request identifiers on a
 	# per-instance basis as other instances may add custom dio
 	# handlers.
+	#
 	def dio_map(method)
 		if (method == 'core_channel_read')
 			return CHANNEL_DIO_READ
@@ -333,22 +375,41 @@ class Channel
 	#
 	##
 
-	# Checks to see if a flag is set on the instance's flags attribute
+	#
+	# Checks to see if a flag is set on the instance's flags attribute.
+	#
 	def flag?(flag)
 		return ((self.flags & flag) == flag)
 	end
 
-	# Returns whether or not the channel is operating synchronously
+	#
+	# Returns whether or not the channel is operating synchronously.
+	#
 	def synchronous?
 		return (self.flags & CHANNEL_FLAG_SYNCHRONOUS)
 	end
 
-	attr_reader   :cid, :type, :cls, :flags
+	#
+	# The unique channel identifier.
+	#
+	attr_reader   :cid
+	#
+	# The type of channel.
+	#
+	attr_reader   :type
+	#
+	# The class of channel (stream, datagram, pool).
+	#
+	attr_reader   :cls
+	#
+	# Any channel-specific flag, like synchronous IO.
+	#
+	attr_reader   :flags
 
 protected
 
-	attr_accessor :client
-	attr_writer   :cid, :type, :cls, :flags
+	attr_accessor :client # :nodoc:
+	attr_writer   :cid, :type, :cls, :flags # :nodoc:
 
 	#
 	# Cleans up any lingering resources

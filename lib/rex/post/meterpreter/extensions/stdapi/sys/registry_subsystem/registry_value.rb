@@ -13,13 +13,15 @@ module RegistrySubsystem
 
 ###
 #
-# RegistryValue
-# -----------
-#
-# Class wrapper around a logical registry value on the remote side
+# Class wrapper around a logical registry value on the remote side.
 #
 ###
 class RegistryValue
+
+	#
+	# Initializes a registry value instance that's associated with the supplied
+	# server key handle.
+	#
 	def initialize(client, hkey, name, type = nil, data = nil)
 		self.client = client
 		self.hkey   = hkey
@@ -28,7 +30,9 @@ class RegistryValue
 		self.data   = data
 	end	
 
+	#
 	# Sets the value's data.
+	#
 	def set(data, type = nil)
 		if (type == nil)
 			type = self.type
@@ -44,7 +48,9 @@ class RegistryValue
 		return false
 	end
 
+	#
 	# Queries the value's data.
+	#
 	def query()
 		val =  self.client.sys.registry.query_value(self.hkey, self.name)
 
@@ -56,15 +62,32 @@ class RegistryValue
 		return self.data
 	end
 
+	#
 	# Deletes the value.
+	#
 	def delete()
 		return self.client.sys.registry.delete_value(self.hkey, self.name)
 	end
 
-	attr_reader   :hkey, :name, :type, :data
+	#
+	# The remote server key handle.
+	#
+	attr_reader   :hkey
+	#
+	# The name of the registry value.
+	#
+	attr_reader   :name
+	#
+	# The type of data represented by the registry value.
+	#
+	attr_reader   :type
+	#
+	# The arbitrary data stored within the value, if any.
+	#
+	attr_reader   :data
 protected
-	attr_accessor :client
-	attr_writer   :hkey, :name, :type, :data
+	attr_accessor :client # :nodoc:
+	attr_writer   :hkey, :name, :type, :data # :nodoc:
 end
 
 end; end; end; end; end; end; end

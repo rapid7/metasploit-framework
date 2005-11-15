@@ -13,7 +13,7 @@ module Http
 module ServerClient
 
 	#
-	# Initialize a new request instance
+	# Initialize a new request instance.
 	#
 	def init_cli(server)
 		self.request   = Request.new
@@ -22,14 +22,14 @@ module ServerClient
 	end
 
 	#
-	# Resets the parsing state
+	# Resets the parsing state.
 	#
 	def reset_cli
 		self.request.reset
 	end
 
 	#
-	# Transmits a response and adds the appropriate headers
+	# Transmits a response and adds the appropriate headers.
 	#
 	def send_response(response)
 		# Set the connection to close or keep-alive depending on what the client
@@ -44,15 +44,15 @@ module ServerClient
 	end
 
 	#
-	# The current request context
+	# The current request context.
 	#
 	attr_accessor :request
 	#
-	# Boolean that indicates whether or not the connection supports keep-alive
+	# Boolean that indicates whether or not the connection supports keep-alive.
 	#
 	attr_accessor :keepalive
 	#
-	# A reference to the server the client is associated with
+	# A reference to the server the client is associated with.
 	#
 	attr_accessor :server
 
@@ -190,7 +190,7 @@ protected
 	end
 
 	#
-	# Dispatches the supplied request for a given connection
+	# Dispatches the supplied request for a given connection.
 	#
 	def dispatch_request(cli, request)
 		# Is the client requesting keep-alive?

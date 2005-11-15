@@ -2,9 +2,6 @@ require 'rex/socket'
 
 ###
 #
-# Udp
-# ---
-#
 # This class provides methods for interacting with a UDP socket.
 #
 ###
@@ -19,7 +16,7 @@ module Rex::Socket::Udp
 	##
 
 	#
-	# Creates the client using the supplied hash
+	# Creates the client using the supplied hash.
 	#
 	def self.create(hash = {})
 		self.create_param(Rex::Socket::Parameters.from_hash(hash))
@@ -27,7 +24,7 @@ module Rex::Socket::Udp
 
 	#
 	# Wrapper around the base socket class' creation method that automatically
-	# sets the parameter's protocol to UDP
+	# sets the parameter's protocol to UDP.
 	#
 	def self.create_param(param)
 		param.proto = 'udp'
@@ -42,14 +39,14 @@ module Rex::Socket::Udp
 	##
 
 	#
-	# Write the supplied datagram to the connected UDP socket
+	# Write the supplied datagram to the connected UDP socket.
 	#
 	def write(gram)
 		return syswrite(gram)
 	end
 
 	#
-	# Read a datagram from the UDP socket
+	# Read a datagram from the UDP socket.
 	#
 	def read(length = 65535)
 		return sysread(length)
@@ -65,7 +62,7 @@ module Rex::Socket::Udp
 	##
 
 	#
-	# Sends a datagram to the supplied host:port with optional flags
+	# Sends a datagram to the supplied host:port with optional flags.
 	#
 	def sendto(gram, peerhost, peerport, flags = 0)
 		return send(gram, flags, Rex::Socket.to_sockaddr(peerhost, peerport))
@@ -73,7 +70,7 @@ module Rex::Socket::Udp
 
 	#
 	# Receives a datagram and returns the data and host:port of the requestor
-	# as [ data, host, port ]
+	# as [ data, host, port ].
 	#
 	def recvfrom(length = 65535)
 		data, saddr    = super(length)

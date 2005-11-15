@@ -2,12 +2,13 @@
 
 require 'rex/encoder/xor/dword_additive'
 
+##
 #
 # Jmp/Call Dword Additive Feedback Encoder
 # Author: skape
 # Arch:   x86
 #
-
+##
 module Rex
 module Encoders
 

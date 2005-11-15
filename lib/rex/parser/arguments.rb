@@ -29,14 +29,14 @@ class Arguments
 	end
 
 	#
-	# Takes a string and converts it into an array of arguments
+	# Takes a string and converts it into an array of arguments.
 	#
 	def self.from_s(str)
 		Shellwords.shellwords(str)
 	end
 
 	#
-	# Parses the supplied arguments into a set of options
+	# Parses the supplied arguments into a set of options.
 	#
 	def parse(args, &block)
 		skip_next = false
@@ -69,7 +69,7 @@ class Arguments
 	end
 
 	#
-	# Returns usage information for this parsing context
+	# Returns usage information for this parsing context.
 	#
 	def usage
 		txt = "\nOPTIONS:\n\n"
@@ -86,7 +86,7 @@ class Arguments
 		return txt
 	end
 
-	attr_accessor :fmt
+	attr_accessor :fmt # :nodoc:
 
 end
 

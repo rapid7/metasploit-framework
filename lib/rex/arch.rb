@@ -14,7 +14,7 @@ module Arch
 	require 'rex/arch/sparc'
 
 	#
-	# This routine adjusts the stack pointer for a given architecture
+	# This routine adjusts the stack pointer for a given architecture.
 	#
 	def self.adjust_stack_pointer(arch, adjustment)
 		case arch

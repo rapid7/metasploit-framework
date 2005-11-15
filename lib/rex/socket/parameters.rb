@@ -13,7 +13,10 @@ class Rex::Socket::Parameters
 	# Factory
 	#
 	##
-	
+
+	#
+	# Creates an instance of the Parameters class using the supplied hash.
+	#
 	def self.from_hash(hash)
 		return self.new(hash)
 	end
@@ -24,7 +27,9 @@ class Rex::Socket::Parameters
 	#
 	##
 
-	# Initializes the attributes from the supplied hash
+	#
+	# Initializes the attributes from the supplied hash.
+	#
 	def initialize(hash)
 		if (hash['PeerHost'])
 			self.peerhost = hash['PeerHost']
@@ -98,26 +103,45 @@ class Rex::Socket::Parameters
 	#
 	##
 
+	#
+	# Returns true if this represents parameters for a server.
+	#
 	def server?
 		return (server == true)
 	end
 
+	#
+	# Returns true if this represents parameters for a client.
+	#
 	def client?
 		return (server == false)
 	end
 
+	#
+	# Returns true if the protocol for the parameters is TCP.
+	#
 	def tcp?
 		return (proto == 'tcp')
 	end
 
+	#
+	# Returns true if the protocol for the parameters is UDP.
+	#
 	def udp?
 		return (proto == 'udp')
 	end
 
+	#
+	# Returns true if the socket is a bare socket that does not inherit from
+	# any extended Rex classes.
+	#
 	def bare?
 		return (bare == true)
 	end
 
+	#
+	# Returns true if SSL has been requested.
+	#
 	def ssl?
 		return ssl
 	end
@@ -127,11 +151,51 @@ class Rex::Socket::Parameters
 	# Attributes
 	#
 	##
-	
-	attr_accessor :peerhost, :peerport
-	attr_accessor :localhost, :localport
-	attr_accessor :proto, :server, :comm
-	attr_accessor :retries, :bare, :ssl
+
+	#
+	# The remote host information, equivalent to the PeerHost parameter hash
+	# key.
+	#
+	attr_accessor :peerhost
+	#
+	# The remote port.  Equivalent to the PeerPort parameter hash key.
+	#
+	attr_accessor :peerport
+	#
+	# The local host.  Equivalent to the LocalHost parameter hash key.
+	#
+	attr_accessor :localhost
+	#
+	# The local port.  Equivalent to the LocalPort parameter hash key.
+	#
+	attr_accessor :localport
+	#
+	# The protocol to to use, such as TCP.  Equivalent to the Proto parameter
+	# hash key.
+	#
+	attr_accessor :proto
+	#
+	# Whether or not this is a server.  Equivalent to the Server parameter hash
+	# key.
+	#
+	attr_accessor :server
+	#
+	# The Comm class that should be used to create the underlying socket.
+	#
+	attr_accessor :comm
+	#
+	# The number of attempts that should be made.
+	#
+	attr_accessor :retries
+	#
+	# Whether or not this is a bare (non-extended) socket instance that should
+	# be created.
+	#
+	attr_accessor :bare
+	#
+	# Whether or not SSL should be used to wrap the connection.
+	#
+	attr_accessor :ssl
 
 	##
 	#

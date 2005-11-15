@@ -14,9 +14,6 @@ module ProcessSubsystem
 
 ###
 #
-# Thread
-# ------
-#
 # Interfaces with a process' executing threads by enumerating,
 # opening, and creating threads.
 #
@@ -28,7 +25,11 @@ class Thread
 	# Constructor
 	#
 	##
-	
+
+	#
+	# Initializes a thread instance that operates in the context of the
+	# supplied process instance.
+	#
 	def initialize(process)
 		self.process = process
 	end
@@ -39,8 +40,10 @@ class Thread
 	#
 	##
 
+	#
 	# Opens an existing thread that is running within the context
-	# of the process and returns a Sys::Thread instance
+	# of the process and returns a Sys::Thread instance.
+	#
 	def open(tid, access = THREAD_ALL)
 		request = Packet.create_request('stdapi_sys_process_thread_open')
 		real    = 0
@@ -70,8 +73,10 @@ class Thread
 				process, response.get_tlv_value(TLV_TYPE_THREAD_HANDLE), tid)
 	end
 
+	#
 	# Creates a new thread in the context of the process and
-	# returns a Sys::Thread instance
+	# returns a Sys::Thread instance.
+	#
 	def create(entry, parameter = nil, suspended = false)
 		request = Packet.create_request('stdapi_sys_process_thread_create')
 		creation_flags = 0
@@ -103,12 +108,16 @@ class Thread
 				process, thread_handle, thread_id)
 	end
 
-	# Enumerate through each thread identifier
+	#
+	# Enumerate through each thread identifier.
+	#
 	def each_thread(&block)
 		get_threads.each(&block)
 	end
 
-	# Returns an array of thread identifiers
+	#
+	# Returns an array of thread identifiers.
+	#
 	def get_threads
 		request = Packet.create_request('stdapi_sys_process_thread_get_threads')
 		threads = []
@@ -125,7 +134,7 @@ class Thread
 	end
 
 protected
-	attr_accessor :process
+	attr_accessor :process # :nodoc:
 
 end
 

@@ -8,9 +8,6 @@ module Ui
 
 ###
 #
-# Console
-# -------
-#
 # This class provides a shell driven interface to the meterpreter client API.
 #
 ###
@@ -24,7 +21,7 @@ class Console
 	require 'rex/post/meterpreter/ui/console/command_dispatcher/core'
 
 	#
-	# Initialize the meterpreter console
+	# Initialize the meterpreter console.
 	#
 	def initialize(client)
 		super("%umeterpreter%c")
@@ -57,7 +54,7 @@ class Console
 	end
 
 	#
-	# Interacts with the supplied channel
+	# Interacts with the supplied channel.
 	#
 	def interact_with_channel(channel)
 		channel.extend(InteractiveChannel) unless (channel.kind_of?(InteractiveChannel) == true)
@@ -83,6 +80,9 @@ class Console
 		end
 	end
 
+	#
+	# Logs that an error occurred and persists the callstack.
+	#
 	def log_error(msg)
 		print_error(msg)
 
@@ -91,11 +91,11 @@ class Console
 		dlog("Call stack:\n#{$@.join("\n")}", 'meterpreter')
 	end
 
-	attr_reader :client
+	attr_reader :client # :nodoc:
 
 protected
 	
-	attr_writer :client
+	attr_writer :client # :nodoc:
 
 end
 

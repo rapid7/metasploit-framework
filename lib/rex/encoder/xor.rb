@@ -3,19 +3,33 @@
 module Rex
 module Encoder
 
+###
+#
+# This class performs basic XOR encoding.
+#
+###
 class Xor
 
-	attr_accessor :raw, :encoded, :badchars, :opts, :key, :fkey
+	attr_accessor :raw, :encoded, :badchars, :opts, :key, :fkey # :nodoc:
 
+	#
 	# wrap that shit in a wanna be static class
+	#
 	def self.encode(*args)
 		self.new.encode(*args)
 	end
 
+	#
+	# Return the class associated with this encoder.
+	#
 	def encoder()
 		self.class::EncoderKlass
 	end
 
+	#
+	# This method encodes the supplied data, taking into account the badchar
+	# list, and returns the encoded buffer.
+	#
 	def encode(data, badchars = '', opts = { })
 		self.raw      = data
 		self.badchars = badchars
@@ -33,19 +47,19 @@ class Xor
 	end
 
 	protected
-	def _unencoded_transform(data)
+	def _unencoded_transform(data) # :nodoc:
 		data
 	end
 
-	def _encoded_transform(data)
+	def _encoded_transform(data) # :nodoc:
 		data
 	end
 
-	def _prepend()
+	def _prepend() # :nodoc:
 		""
 	end
 
-	def _append()
+	def _append() # :nodoc:
 		""
 	end
 

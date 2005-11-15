@@ -12,10 +12,8 @@ module Fs
 
 ###
 #
-# Dir
-# ---
-#
-# This class implements directory operations against the remote endpoint
+# This class implements directory operations against the remote endpoint.  It
+# implements the Rex::Post::Dir interface.
 #
 ###
 class Dir < Rex::Post::Dir
@@ -30,7 +28,9 @@ class Dir < Rex::Post::Dir
 	#
 	##
 
-	# Initializes the directory instance
+	#
+	# Initializes the directory instance.
+	#
 	def initialize(path)
 		self.path   = path
 		self.client = self.class.client
@@ -42,12 +42,16 @@ class Dir < Rex::Post::Dir
 	#
 	##
 
-	# Enumerates all of the contents of the directory
+	#
+	# Enumerates all of the contents of the directory.
+	#
 	def each(&block)
 		client.fs.dir.foreach(self.path, &block)
 	end
 
+	#
 	# Enumerates all of the files/folders in a given directory.
+	#
 	def Dir.entries(name = getwd)
 		request = Packet.create_request('stdapi_fs_ls')
 		files   = []
@@ -107,7 +111,9 @@ class Dir < Rex::Post::Dir
 	#
 	##
 
+	#
 	# Changes the working directory of the remote process.
+	#
 	def Dir.chdir(path)
 		request = Packet.create_request('stdapi_fs_chdir')
 
@@ -117,8 +123,10 @@ class Dir < Rex::Post::Dir
 
 		return 0
 	end
-
+	
+	#
 	# Creates a directory.
+	#
 	def Dir.mkdir(path)
 		request = Packet.create_request('stdapi_fs_mkdir')
 
@@ -129,7 +137,9 @@ class Dir < Rex::Post::Dir
 		return 0
 	end
 
+	#
 	# Returns the current working directory of the remote process.
+	#
 	def Dir.pwd
 		request = Packet.create_request('stdapi_fs_getwd')
 
@@ -138,12 +148,16 @@ class Dir < Rex::Post::Dir
 		return response.get_tlv(TLV_TYPE_DIRECTORY_PATH).value
 	end
 
-	# Synonym for pwd
+	#
+	# Synonym for pwd.
+	#
 	def Dir.getwd
 		pwd
 	end
 
-	# Removes the supplied directory if it's empty
+	#
+	# Removes the supplied directory if it's empty.
+	#
 	def Dir.delete(path)
 		request = Packet.create_request('stdapi_fs_delete_dir')
 
@@ -154,12 +168,16 @@ class Dir < Rex::Post::Dir
 		return 0
 	end
 
-	# Synonyms for delete
+	#
+	# Synonyms for delete.
+	#
 	def Dir.rmdir(path)
 		delete(path)
 	end
 
-	# Synonyms for delete
+	#
+	# Synonyms for delete.
+	#
 	def Dir.unlink(path)
 		delete(path)
 	end
@@ -170,8 +188,10 @@ class Dir < Rex::Post::Dir
 	#
 	##
 
+	#
 	# Downloads the contents of a remote directory a 
 	# local directory, optionally in a recursive fashion.
+	#
 	def Dir.download(dst, src, recursive = false, &stat)
 		self.entries(src).each { |src_sub|
 			dst_item = dst + ::File::SEPARATOR + src_sub
@@ -204,8 +224,10 @@ class Dir < Rex::Post::Dir
 		}
 	end
 
+	#
 	# Uploads the contents of a local directory to a remote 
 	# directory, optionally in a recursive fashion.
+	#
 	def Dir.upload(dst, src, recursive = false, &stat)
 		::Dir.entries(src).each { |src_sub|
 			dst_item = dst + File::SEPARATOR + src_sub
@@ -238,10 +260,13 @@ class Dir < Rex::Post::Dir
 		}
 	end
 
-	attr_reader   :path
+	#
+	# The path of the directory that was opened.
+	#
+	attr_reader   :path 
 protected
-	attr_accessor :client
-	attr_writer   :path
+	attr_accessor :client # :nodoc:
+	attr_writer   :path # :nodoc:
 
 end
 

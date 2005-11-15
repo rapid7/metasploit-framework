@@ -16,7 +16,7 @@ class Client
 	include Proto
 
 	#
-	# Performs a block-based HTTP operation
+	# Performs a block-based HTTP operation.
 	#
 	def self.start(host, &block)
 		c = Client.new(host)
@@ -50,7 +50,7 @@ class Client
 	end
 
 	#
-	# Configures the Client object and the Request factory
+	# Configures the Client object and the Request factory.
 	#
 	def config (chash)
 		req_opts = %w{ user-agent vhost cookie proto }
@@ -62,21 +62,21 @@ class Client
 	end
 
 	#
-	# Set parameters for the Request factory
+	# Set parameters for the Request factory.
 	#
 	def request_option(k, v)
 		(v != nil) ? self.request_config[k] = v : self.request_config[k]
 	end
 	
 	#
-	# Set parameters for the actual Client
+	# Set parameters for the actual Client.
 	#
 	def client_option(k, v)
 		(v != nil) ? self.client_config[k] = v : self.client_config[k]
 	end
 	
 	#
-	# The Request factory
+	# The Request factory.
 	#
 	def request (chash) 
 		method = chash['method']
@@ -153,7 +153,7 @@ class Client
 	end
 
 	#
-	# Transmits a request and reads in a response
+	# Transmits a request and reads in a response.
 	#
 	def send_request(req, t = -1)
 		resp = Response.new
@@ -199,7 +199,7 @@ class Client
 	end
 
 	#
-	# Cleans up any outstanding connections and other resources
+	# Cleans up any outstanding connections and other resources.
 	#
 	def stop
 		close
@@ -213,22 +213,37 @@ class Client
 	end
 
 	#
-	# Whether or not connections should be pipelined
+	# Whether or not connections should be pipelined.
 	#
 	def pipelining?
 		pipeline
 	end
 
+	#
+	# Whether or not pipelining is in use.
+	#
 	attr_accessor :pipeline
+	#
+	# The local host of the client.
+	#
 	attr_accessor :local_host
+	#
+	# The local port of the client.
+	#
 	attr_accessor :local_port
+	#
+	# Client configuration attributes.
+	#
 	attr_accessor :client_config
+	#
+	# The underlying connection.
+	#
 	attr_accessor :conn
 	
 protected
 
-	attr_accessor :hostname, :port
-	attr_accessor :request_config, :client_config
+	attr_accessor :hostname, :port # :nodoc:
+	attr_accessor :request_config, :client_config # :nodoc:
 	
 end
 

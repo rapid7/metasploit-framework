@@ -20,9 +20,6 @@ module Sys
 
 ##
 #
-# Process
-# -------
-#
 # This class implements the Rex::Post::Process interface.
 #
 ##
@@ -40,8 +37,10 @@ class Process < Rex::Post::Process
 		attr_accessor :client
 	end
 
+	#
 	# Returns the process identifier of the process supplied in key if it's
-	# valid
+	# valid.
+	#
 	def Process.[](key)
 		each_process { |p|
 			if (p['name'].downcase == key.downcase)
@@ -52,7 +51,9 @@ class Process < Rex::Post::Process
 		return nil
 	end
 
-	# Attachs to the supplied process with a given set of permissions
+	#
+	# Attachs to the supplied process with a given set of permissions.
+	#
 	def Process.open(pid = nil, perms = nil)
 		real_perms = 0
 
@@ -75,7 +76,9 @@ class Process < Rex::Post::Process
 		return _open(pid, real_perms)	
 	end
 
-	# Low-level process open
+	#
+	# Low-level process open.
+	#
 	def Process._open(pid, perms, inherit = false)
 		request = Packet.create_request('stdapi_sys_process_attach')
 
@@ -100,6 +103,7 @@ class Process < Rex::Post::Process
 		return nil
 	end
 
+	#
 	# Executes an application using the arguments provided
 	#
 	# Hash arguments supported:
@@ -165,7 +169,9 @@ class Process < Rex::Post::Process
 		return self.new(pid, handle, channel)
 	end
 
-	# Kills one or more processes
+	#
+	# Kills one or more processes.
+	#
 	def Process.kill(*args)
 		request = Packet.create_request('stdapi_sys_process_kill')
 
@@ -178,7 +184,9 @@ class Process < Rex::Post::Process
 		return true
 	end
 
-	# Gets the process id that the remote side is executing under
+	#
+	# Gets the process id that the remote side is executing under.
+	#
 	def Process.getpid
 		request = Packet.create_request('stdapi_sys_process_getpid')
 
@@ -187,13 +195,17 @@ class Process < Rex::Post::Process
 		return response.get_tlv_value(TLV_TYPE_PID)
 	end
 
-	# Enumerates all of the elements in the array returned by get_processes
+	#
+	# Enumerates all of the elements in the array returned by get_processes.
+	#
 	def Process.each_process(&block)
 		self.get_processes.each(&block)
 	end
 
+	#
 	# Returns an array of processes with hash objects that have
 	# keys for 'pid', 'name', and 'path'.
+	#
 	def Process.get_processes
 		request   = Packet.create_request('stdapi_sys_process_get_processes')
 		processes = []
@@ -219,7 +231,9 @@ class Process < Rex::Post::Process
 	#
 	##
 
-	# Initializes the process instance and its aliases
+	#
+	# Initializes the process instance and its aliases.
+	#
 	def initialize(pid, handle, channel = nil)
 		self.client  = self.class.client
 		self.handle  = handle
@@ -242,17 +256,23 @@ class Process < Rex::Post::Process
 			})
 	end
 
-	# Returns the executable name of the process
+	#
+	# Returns the executable name of the process.
+	#
 	def name
 		return get_info()['name']
 	end
 
-	# Returns the path to the process' executable
+	#
+	# Returns the path to the process' executable.
+	#
 	def path
 		return get_info()['path']
 	end
 
-	# Closes the handle to the process that was opened
+	#
+	# Closes the handle to the process that was opened.
+	#
 	def close
 		request = Packet.create_request('stdapi_sys_process_close')
 
@@ -265,11 +285,13 @@ class Process < Rex::Post::Process
 		return true
 	end
 
-	attr_reader   :client, :handle, :channel, :pid
+	attr_reader   :client, :handle, :channel, :pid # :nodoc:
 protected
-	attr_writer   :client, :handle, :channel, :pid
+	attr_writer   :client, :handle, :channel, :pid # :nodoc:
 
-	# Gathers information about the process and returns a hash
+	#
+	# Gathers information about the process and returns a hash.
+	#
 	def get_info
 		request = Packet.create_request('stdapi_sys_process_get_info')
 		info    = {}

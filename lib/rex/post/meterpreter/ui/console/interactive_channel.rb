@@ -5,9 +5,6 @@ module Ui
 
 ###
 #
-# InteractiveChannel
-# ------------------
-#
 # Mixin that is meant to extend the base channel class from meterpreter in a
 # manner that adds interactive capabilities.
 #
@@ -35,14 +32,14 @@ module Console::InteractiveChannel
 	end
 
 	#
-	# Called when an interrupt is sent
+	# Called when an interrupt is sent.
 	#
 	def _interrupt
 		prompt_yesno("Terminate channel #{self.cid}?")	
 	end
 
 	#
-	#
+	# Suspends interaction with the channel.
 	#
 	def _suspend
 		# Ask the user if they would like to background the session

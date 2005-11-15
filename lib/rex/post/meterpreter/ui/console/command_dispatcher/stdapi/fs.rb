@@ -7,9 +7,6 @@ module Ui
 
 ###
 #
-# Fs
-# --
-#
 # The file system portion of the standard API extension.
 #
 ###
@@ -20,18 +17,18 @@ class Console::CommandDispatcher::Stdapi::Fs
 	include Console::CommandDispatcher
 
 	#
-	# Options for the download command
+	# Options for the download command.
 	#
 	@@download_opts = Rex::Parser::Arguments.new(
 		"-r" => [ false, "Download recursively." ])
 	#
-	# Options for the upload command
+	# Options for the upload command.
 	#
 	@@upload_opts = Rex::Parser::Arguments.new(
 		"-r" => [ false, "Upload recursively." ])
 
 	#
-	# List of supported commands
+	# List of supported commands.
 	#
 	def commands
 		{
@@ -47,14 +44,14 @@ class Console::CommandDispatcher::Stdapi::Fs
 	end
 
 	#
-	# Name for this dispatcher
+	# Name for this dispatcher.
 	#
 	def name
 		"Stdapi: File system"
 	end
 
 	#
-	# Change the working directory
+	# Change the working directory.
 	#
 	def cmd_cd(*args)
 		if (args.length == 0)
@@ -168,7 +165,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 	end
 
 	#
-	# Make one or more directory
+	# Make one or more directory.
 	#
 	def cmd_mkdir(*args)
 		if (args.length == 0)
@@ -186,7 +183,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 	end
 
 	#
-	# Display the working directory
+	# Display the working directory.
 	#
 	def cmd_pwd(*args)
 		print_line(client.fs.dir.getwd)
@@ -195,7 +192,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 	alias cmd_getwd cmd_pwd
 
 	#
-	# Removes one or more directory if it's empty
+	# Removes one or more directory if it's empty.
 	#
 	def cmd_rmdir(*args)
 		if (args.length == 0)

@@ -13,9 +13,6 @@ module ProcessSubsystem
 
 ###
 #
-# Memory
-# ------
-#
 # Provides an interface to allocate, free, read, write, query,
 # protect, lock, and unlock memory in the context of a given
 # process.
@@ -46,12 +43,18 @@ class Memory
 	#
 	##
 
+	#
+	# Initializes a memory modification instance with the supplied process
+	# instance.
+	#
 	def initialize(process)
 		self.process = process
 	end
 
+	#
 	# Allocate storage of the supplied length and returns the 
-	# address at which the memory was allocated
+	# address at which the memory was allocated.
+	#
 	def allocate(length, protection = nil, base = nil) 
 		allocation_type = MEM_COMMIT
 
@@ -70,7 +73,9 @@ class Memory
 		return _allocate(base, length, allocation_type, protection)
 	end
 
-	# Low-level memory allocation
+	#
+	# Low-level memory allocation.
+	#
 	def _allocate(base, length, allocation_type, protection)
 		request = Packet.create_request('stdapi_sys_process_memory_allocate')
 
@@ -90,12 +95,16 @@ class Memory
 		return response.get_tlv_value(TLV_TYPE_BASE_ADDRESS)
 	end
 
-	# Deallocate a region of memory in the context of a process
+	#
+	# Deallocate a region of memory in the context of a process.
+	#
 	def free(base, length = 0)
 		return _free(base, length)
 	end
 
-	# Low-level memory deallocation
+	#
+	# Low-level memory deallocation.
+	#
 	def _free(base, length)
 		request = Packet.create_request('stdapi_sys_process_memory_free')
 
@@ -108,7 +117,9 @@ class Memory
 		return true
 	end
 
-	# Read memory from the context of a process and return the buffer
+	#
+	# Read memory from the context of a process and return the buffer.
+	#
 	def read(base, length)
 		request = Packet.create_request('stdapi_sys_process_memory_read')
 
@@ -120,9 +131,11 @@ class Memory
 
 		return response.get_tlv_value(TLV_TYPE_PROCESS_MEMORY)
 	end
-	
+
+	#
 	# Write memory to the context of a process and return the number of bytes
-	# actually written
+	# actually written.
+	#
 	def write(base, data)
 		request = Packet.create_request('stdapi_sys_process_memory_write')
 
@@ -135,7 +148,9 @@ class Memory
 		return response.get_tlv_value(TLV_TYPE_LENGTH)
 	end
 
-	# Queries an address for information about its state
+	#
+	# Queries an address for information about its state.
+	#
 	def query(base)
 		request = Packet.create_request('stdapi_sys_process_memory_query')
 
@@ -180,7 +195,9 @@ class Memory
 		return info
 	end
 
-	# Change the protection masks on the region supplied in base
+	#
+	# Change the protection masks on the region supplied in base.
+	#
 	def protect(base, length = nil, protection = nil)
 		request = Packet.create_request('stdapi_sys_process_memory_protect')
 
@@ -207,10 +224,12 @@ class Memory
 		return specific_prot_to_gen(response.get_tlv_value(TLV_TYPE_PROTECTION))
 	end
 
+	#
 	# Lock a region of memory into physical memory so that it can't be 
 	# swapped to disk.  This can only be done in the context of the
 	# process that is running the meterpreter server.  The instance's
 	# handle is ignored.
+	#
 	def lock(base, length)
 		request = Packet.create_request('stdapi_sys_process_memory_lock')
 
@@ -222,10 +241,12 @@ class Memory
 		return true
 	end
 
+	#
 	# Unloock a region of memory into physical memory so that it can be 
 	# swapped to disk.  This can only be done in the context of the
 	# process that is running the meterpreter server.  The instance's
 	# handle is ignored.
+	#
 	def unlock(base, length)
 		request = Packet.create_request('stdapi_sys_process_memory_unlock')
 
@@ -244,7 +265,9 @@ class Memory
 	#
 	##
 
-	# Check to see if an address is readable
+	#
+	# Check to see if an address is readable.
+	#
 	def readable?(base)
 		info = nil
 
@@ -262,7 +285,9 @@ class Memory
 		return false
 	end
 
-	# Check to see if an address is writable
+	#
+	# Check to see if an address is writable.
+	#
 	def writable?(base)
 		info = nil
 
@@ -282,7 +307,9 @@ class Memory
 
 protected
 
-	# Translates general protection flags to specific protection flags
+	#
+	# Translates general protection flags to specific protection flags.
+	#
 	def gen_prot_to_specific(prot)
 		if (prot == nil)
 			return PAGE_READ
@@ -291,7 +318,9 @@ protected
 		return @@page_protection_map[prot]
 	end
 
-	# Translates specific protection flags to general protection flags
+	#
+	# Translates specific protection flags to general protection flags.
+	#
 	def specific_prot_to_gen(prot)
 		
 		if (prot == nil)
@@ -301,7 +330,7 @@ protected
 		return @@page_protection_map.invert[prot]
 	end
 
-	attr_accessor :process
+	attr_accessor :process # :nodoc:
 end
 
 end; end; end; end; end; end; end

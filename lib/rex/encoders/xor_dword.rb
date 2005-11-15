@@ -6,8 +6,11 @@ require 'rex/encoder/xor/dword'
 module Rex
 module Encoders
 
-# spoon's smaller variable-length encoder (updated to use call $+4 by vlad902)
-
+###
+#
+# Spoon's smaller variable-length encoder (updated to use call $+4 by vlad902)
+#
+###
 class XorDword < Rex::Encoder::Xor::Dword
 	module Backend
 		def _prepend

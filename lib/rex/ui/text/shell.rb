@@ -27,6 +27,9 @@ module Shell
 		end
 	end
 
+	#
+	# Initializes a shell that has a prompt and can be interacted with.
+	#
 	def initialize(prompt, prompt_char = '>')
 		# Set the stop flag to false
 		self.stop_flag      = false
@@ -67,7 +70,7 @@ module Shell
 	end
 
 	#
-	# Resets the user interface
+	# Resets the user interface handles.
 	#
 	def reset_ui
 		init_ui
@@ -88,14 +91,14 @@ module Shell
 	end
 
 	#
-	# Performs tab completion on the supplied string
+	# Performs tab completion on the supplied string.
 	#
 	def tab_complete(str)
 		return tab_complete_proc(str) if (tab_complete_proc)
 	end
 
 	#
-	# Run the command processing loop
+	# Run the command processing loop.
 	#
 	def run(&block)
 		stop_flag = false
@@ -119,21 +122,21 @@ module Shell
 	end
 
 	#
-	# Stop processing user input
+	# Stop processing user input.
 	#
 	def stop
 		self.stop_flag = true
 	end
 
 	#
-	# Checks to see if the shell has stopped
+	# Checks to see if the shell has stopped.
 	#
 	def stopped?
 		self.stop_flag
 	end
 
 	#
-	# Change the input prompt
+	# Change the input prompt.
 	#
 	def update_prompt(prompt = '', new_prompt_char = nil)
 		new_prompt = self.init_prompt + ' ' + prompt + prompt_char + ' '
@@ -168,7 +171,7 @@ module Shell
 	
 	#
 	# Checks to see whether or not colors are supported on this shell
-	# console
+	# console.
 	#
 	def supports_color?
 		begin
@@ -179,14 +182,14 @@ module Shell
 	end
 
 	#
-	# Resets coloring so that it's back to normal
+	# Resets coloring so that it's back to normal.
 	#
 	def reset_color
 		print(colorize('clear'))
 	end
 
 	#
-	# Returns colorized text if it's supported, otherwise an empty string
+	# Returns colorized text if it's supported, otherwise an empty string.
 	#
 	def colorize(*color)
 		# This check is busted atm...
@@ -195,7 +198,7 @@ module Shell
 	end
 
 	#
-	# Colorize regardless of terminal support
+	# Colorize regardless of terminal support.
 	#
 	def do_colorize(*color)
 		return Rex::Ui::Text::Color.ansi(*color)
@@ -205,36 +208,58 @@ module Shell
 	# Output shortcuts
 	#
 
+	#
+	# Prints an error message to the output handle.
+	#
 	def print_error(msg)
 		# Errors are not subject to disabled output
 		log_output(output.print_error(msg))
 	end
 
+	#
+	# Prints a status message to the output handle.
+	#
 	def print_status(msg)
 		return if (disable_output == true)
 
 		log_output(output.print_status(msg))
 	end
 
+	#
+	# Prints a line of text to the output handle.
+	#
 	def print_line(msg)
 		return if (disable_output == true)
 
 		log_output(output.print_line(msg))
 	end
 
+	#
+	# Prints a raw message to the output handle.
+	#
 	def print(msg)
 		return if (disable_output == true)
 
 		log_output(output.print(msg))
 	end
 
+	#
+	# Whether or not output has been disabled.
+	#
 	attr_accessor :disable_output
-	attr_reader   :input, :output
+	#
+	# The input handle to read user input from.
+	#
+	attr_reader   :input
+	#
+	# The output handle to write output to.
+	#
+	attr_reader   :output
 
 protected
 
 	#
-	# Parse a line into an array of arguments
+	# Parse a line into an array of arguments.
 	#
 	def parse_line(line)
 		log_input(line)
@@ -271,10 +296,10 @@ protected
 		rlog(do_colorize("blue") + buf + do_colorize("clear"), log_source) if (log_source)
 	end
 
-	attr_writer   :input, :output
-	attr_accessor :stop_flag, :init_prompt
-	attr_accessor :prompt_char, :tab_complete_proc
-	attr_accessor :log_source
+	attr_writer   :input, :output # :nodoc:
+	attr_accessor :stop_flag, :init_prompt # :nodoc:
+	attr_accessor :prompt_char, :tab_complete_proc # :nodoc:
+	attr_accessor :log_source # :nodoc:
 
 end
 

@@ -15,10 +15,7 @@ module Sys
 
 ###
 #
-# Config
-# ------
-#
-# This class provides access to remote system configuration and information
+# This class provides access to remote system configuration and information.
 #
 ###
 class Config
@@ -37,7 +34,7 @@ class Config
 	end
 
 	#
-	# Returns a hash of information about the remote computer
+	# Returns a hash of information about the remote computer.
 	#
 	def sysinfo
 		request  = Packet.create_request('stdapi_sys_config_sysinfo')

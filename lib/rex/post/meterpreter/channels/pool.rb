@@ -9,9 +9,6 @@ module Channels
 
 ###
 #
-# Pool
-# ----
-#
 # This class acts as a base class for all channels that are classified
 # as 'pools'.  This means that only one side of the channel, typically
 # the client half, acts on the other half of the channel.  Examples
@@ -37,7 +34,9 @@ class Pool < Rex::Post::Meterpreter::Channel
 	#
 	##
 
+	#
 	# Passes the initialization information up to the base class
+	#
 	def initialize(client, cid, type, flags)
 		super(client, cid, type, flags)
 	end
@@ -48,7 +47,9 @@ class Pool < Rex::Post::Meterpreter::Channel
 	#
 	##
 
-	# Checks eof
+	#
+	# Checks to see if the EOF flag has been set on the pool.
+	#
 	def eof
 		request = Packet.create_request('core_channel_eof')
 
@@ -67,7 +68,10 @@ class Pool < Rex::Post::Meterpreter::Channel
 		return false
 	end
 
-	# Wraps the read operation to raise end-of-file as necessary
+	#
+	# Reads data from the remote side of the pool and raises EOFError if the
+	# pool has been reached EOF.
+	#
 	def read(length = nil)
 		begin
 			data = super(length)
@@ -83,7 +87,10 @@ class Pool < Rex::Post::Meterpreter::Channel
 		return data
 	end
 
-	# Seeks to a different location in the pool
+	#
+	# This method seeks to an offset within the remote side of the pool using
+	# the standard seek whence clauses.
+	#
 	def seek(offset, whence = SEEK_SET)
 		sane = 0
 
@@ -114,12 +121,16 @@ class Pool < Rex::Post::Meterpreter::Channel
 		return tell
 	end
 
-	# Synonym for tell
+	#
+	# Synonym for tell.
+	#
 	def pos
 		return tell
 	end
 
-	# Gets the current position in the pool
+	#
+	# This method returns the current file pointer position to the caller.
+	#
 	def tell
 		request = Packet.create_request('core_channel_tell')
 		pos     = -1
@@ -141,7 +152,7 @@ class Pool < Rex::Post::Meterpreter::Channel
 	end
 
 protected
-	attr_accessor :_eof
+	attr_accessor :_eof # :nodoc:
 
 end
 
