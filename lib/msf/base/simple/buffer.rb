@@ -13,7 +13,8 @@ module Simple
 module Buffer
 
 	#
-	# Serializes a buffer to a provided format.
+	# Serializes a buffer to a provided format.  The formats supported are raw,
+	# ruby, perl, and c.
 	#
 	def self.transform(buf, fmt = "ruby")
 		case fmt
@@ -32,7 +33,8 @@ module Buffer
 	end
 
 	#
-	# Creates a comment using the supplied format.
+	# Creates a comment using the supplied format.  The formats supported are
+	# raw, ruby, perl, and c.
 	#
 	def self.comment(buf, fmt = "ruby")
 		case fmt
