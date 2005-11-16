@@ -8,35 +8,38 @@ require 'rex/proto/dcerpc/response'
 require 'rex/text'
 
 	# Process a DCERPC response packet from a socket
-	def self.read_response (socket) 
+	def self.read_response (socket, timeout=5) 
 
-		begin
-			head = socket.timed_read(10, 5)
-		rescue Timeout::Error
-			# puts "Error: #{ $! }"
-		end
-		
-		if (! head or head.length() != 10)
+		data = socket.get_once(-1, timeout)
+
+		# We need at least 10 bytes to find the FragLen
+		if (! data or data.length() < 10)
 			return
 		end
 	
-		resp = Rex::Proto::DCERPC::Response.new(head)
+		# Pass the first 10 bytes to the constructor
+		resp = Rex::Proto::DCERPC::Response.new(data.slice!(0, 10))
 		
+		# Something went wrong in the parser...
 		if (! resp.frag_len)
 			return resp
 		end
 
-		begin
-			body = socket.timed_read(resp.frag_len - 10, 10)
-		rescue Timeout::Error
-			# puts "Error: #{ $! }"
+		# Do we need to read more data?
+		if (resp.frag_len > (data.length + 10))
+			begin
+				data << socket.timed_read(resp.frag_len - data.length - 10, timeout)
+			rescue Timeout::Error
+			end
 		end
-		
-		if (body.nil? or body.length() != resp.frag_len - 10)
+
+		# Still missing some data...
+		if (data.length() != resp.frag_len - 10)
+			$stderr.puts "Truncated DCERPC response :-("
 			return resp
 		end
 
-		resp.parse(body)
+		resp.parse(data)
 		return resp
 	end
 	

@@ -67,7 +67,7 @@ module Comm
 	def register_event_handler(handler)
 		if (handlers == nil)
 			self.handlers        = []
-			self.handlers_rwlock = Rex::Sync::ReadWriteLock.new
+			self.handlers_rwlock = Rex::ReadWriteLock.new
 		end
 
 		self.handlers << handler

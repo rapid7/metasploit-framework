@@ -120,6 +120,26 @@ module Stream
 		return true
 	end
 
+
+	# 
+	# This method emulates the behavior of Pex::Socket::Recv in MSF2
+	#
+	def get_once(length = -1, timeout = def_read_timeout)
+
+		if (has_read_data?(timeout) == false)
+			return nil
+		end
+		
+		bsize = (length == -1) ? def_block_size : length
+
+		begin
+			return read(bsize)
+		rescue Exception
+		end
+		
+		return ''
+	end
+
 	#
 	# This method reads as much data as it can from the wire given a maximum
 	# timeout.
@@ -202,7 +222,7 @@ module Stream
 	# data has been found.
 	#
 	def def_read_loop_timeout
-		0.5
+		0.1
 	end
 
 	#

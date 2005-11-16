@@ -34,49 +34,39 @@ EVADE = Rex::Proto::SMB::Evasions
 	# Read a SMB packet from the socket
 	def smb_recv
 	
-		head = nil
+		data = socket.get_once(-1, self.read_timeout)
 		
-		begin
-			head = self.socket.timed_read(4, self.read_timeout)
-		rescue Timeout::Error
-		rescue
+		
+		if (data.nil? or data.length < 4)
 			raise XCEPT::NoReply
 		end
 		
-		if (head == nil)
-			raise XCEPT::NoReply
-		end
-		
-		if (head.length != 4)
-			raise XCEPT::ReadHeader
-		end
 
-		recv_len = head[2,2].unpack('n')[0]
+		recv_len = data[2,2].unpack('n')[0]
 		if (recv_len == 0)
-			return head
+			return data
 		end
 		
-		body = ''
-		while (body.length != recv_len)
+		recv_len += 4
+		
+		while (data.length != recv_len)
 			buff = ''
 
 			begin
-				buff = self.socket.timed_read(recv_len, self.read_timeout)
+				buff << self.socket.timed_read(recv_len - data.length, self.read_timeout)
 			rescue Timeout::Error
 			rescue
 				raise XCEPT::ReadPacket
 			end
 			
-			# Failed to read one packet within the time limit
-			if (buff == nil or buff.length == 0)
+			if (buff.nil? or buff.length == 0)
 				raise XCEPT::ReadPacket
 			end
 			
-			# Append this packet to the read buffer and continue
-			body << buff
+			data << buff
 		end
 		
-		return head + body
+		return data
 	end
 	
 	# Send a SMB packet down the socket
