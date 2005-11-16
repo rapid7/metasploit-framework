@@ -8,3 +8,23 @@ skape:
   - msfweb
   - opcode db client
   - documentation
+
+
+hdm:
+
+-ui
+	-msfconsole
+		-tabs
+		-tweaks	
+	-msfcli
+		-exploit listing
+		-path search foo
+-payloads
+	-cmd payloads
+	-osx null free stager
+	-sparc
+-exploits
+	-port port port port port port
+	-smb mixin
+-evasion
+	-add evasion hooks to proto libs
