@@ -69,6 +69,8 @@ module Comm
 			self.handlers        = []
 			self.handlers_rwlock = Rex::Sync::ReadWriteLock.new
 		end
+
+		self.handlers << handler
 	end
 
 	#
