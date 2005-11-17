@@ -72,8 +72,12 @@ EVADE = Rex::Proto::SMB::Evasions
 	# Send a SMB packet down the socket
 	def smb_send (data, evasion = self.evasion_level)
 		
-		size = EVADE.send_block_size(evasion)
-		wait = EVADE.send_wait_time(evasion)
+		# size = EVADE.send_block_size(evasion)
+		# wait = EVADE.send_wait_time(evasion)
+		
+		# Socket-level evasion is being moved into Rex::Socket
+		size = 0
+		wait = 0
 		
 		begin
 			# Just send the packet and return

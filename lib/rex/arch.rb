@@ -25,5 +25,21 @@ module Arch
 		end
 	end
 
+	#
+	# This route provides address packing for the specified arch
+	#
+	def self.pack_addr(arch, addr)
+		case arch
+			when ARCH_X86
+				[addr].pack('V')
+			when ARCH_MIPS # ambiguous
+				[addr].pack('N')
+			when ARCH_PPC  # ambiguous
+				[addr].pack('N')			
+			when ARCH_SPARC
+				[addr].pack('N')			
+		end
+	end
+
 end
 end
