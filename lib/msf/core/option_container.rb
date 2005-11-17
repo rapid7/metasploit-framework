@@ -153,8 +153,9 @@ class OptBool < OptBase
 	end
 
 	def valid?(value)
-		if ((value != nil and value.empty? == false) and
-		    (value.match(/^(y|yes|n|no|t|f|0|1|true|false)$/i) == nil))
+		if ((value != nil and 
+		    (value.to_s.empty? == false) and
+		    (value.to_s.match(/^(y|yes|n|no|t|f|0|1|true|false)$/i) == nil)))
 			return false
 		end
 
@@ -162,7 +163,7 @@ class OptBool < OptBase
 	end
 
 	def normalize(value)
-		if(value.nil? or value.match(TrueRegex).nil?)
+		if(value.nil? or ((value.kind_of?(String) == true) and value.match(TrueRegex).nil?))
 			false
 		else
 			true
