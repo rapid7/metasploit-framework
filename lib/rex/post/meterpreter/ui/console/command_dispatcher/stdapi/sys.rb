@@ -222,12 +222,13 @@ class Console::CommandDispatcher::Stdapi::Sys
 						"Usage: reg [command] [options]\n\n" +
 						"Interact with the target machine's registry.\n" +
 						@@reg_opts.usage + 
-						"Commands:\n\n" +
-						"\tenumkey    Enumerate the supplied registry key [-k <key>]\n" +
-						"\tcreatekey  Create the supplied registry key  [-k <key>]\n" +
-						"\tdeletekey  Delete the supplied registry key  [-k <key>]\n" +
-						"\tsetval     Set a registry value [-k <key> -v <val> -d <data>]\n" +
-						"\tdeleteval  Delete the supplied registry value [-k <key> -v <val>]\n\n")
+						"COMMANDS:\n\n" +
+						"    enumkey    Enumerate the supplied registry key [-k <key>]\n" +
+						"    createkey  Create the supplied registry key  [-k <key>]\n" +
+						"    deletekey  Delete the supplied registry key  [-k <key>]\n" +
+						"    setval     Set a registry value [-k <key> -v <val> -d <data>]\n" +
+						"    deleteval  Delete the supplied registry value [-k <key> -v <val>]\n" +
+						"    queryval   Queries the data contents of a value [-k <key> -v <val>]\n\n")
 					return false
 				when "-k"
 					key   = val
@@ -319,6 +320,22 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 					print_line("Successfully deleted #{value}.")
 
+				when "queryval"
+					if (value == nil)
+						print_error("You must specify a value name (-v).")
+						return false
+					end
+
+					open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ)
+
+					v = open_key.query_value(value)
+
+					print(
+						"Key: #{key}\n" +
+						"Name: #{v.name}\n" +
+						"Type: #{v.type_to_s}\n" +
+						"Data: #{v.data}\n")
+	
 				else
 					print_error("Invalid command supplied: #{cmd}")
 			end

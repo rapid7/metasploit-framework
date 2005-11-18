@@ -69,6 +69,15 @@ class RegistryValue
 		return self.client.sys.registry.delete_value(self.hkey, self.name)
 	end
 
+	def type_to_s
+		return "REG_SZ" if (type == REG_SZ)
+		return "REG_DWORD" if (type == REG_DWORD)
+		return "REG_BINARY" if (type == REG_BINARY)
+		return "REG_EXPAND_SZ" if (type == REG_EXPAND_SZ)
+		return "REG_NONE" if (type == REG_NONE)
+		return nil
+	end
+
 	#
 	# The remote server key handle.
 	#
