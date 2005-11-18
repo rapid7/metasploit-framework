@@ -2,8 +2,8 @@ TODO list for preview release (Dec 15, 2005):
 
 skape:
 
-  - meterpreter
-    - registry commands
+X - meterpreter
+X   - registry commands
 	 - sam juicer
   - msfweb
   - opcode db client
