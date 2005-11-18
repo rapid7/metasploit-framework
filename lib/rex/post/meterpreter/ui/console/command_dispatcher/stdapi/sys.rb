@@ -16,6 +16,9 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 	include Console::CommandDispatcher
 
+	#
+	# Options used by the 'execute' command.
+	#
 	@@execute_opts = Rex::Parser::Arguments.new(
 		"-a" => [ true,  "The arguments to pass to the command."                   ],
 		"-c" => [ false, "Channelized I/O (required for interaction)."             ],
@@ -25,6 +28,16 @@ class Console::CommandDispatcher::Stdapi::Sys
 		"-i" => [ false, "Interact with the process after creating it."            ],
 		"-m" => [ false, "Execute from memory."                                    ],
 		"-d" => [ true,  "The 'dummy' executable to launch when using -m."         ])
+
+	#
+	# Options used by the 'reg' command.
+	#
+	@@reg_opts = Rex::Parser::Arguments.new(
+		"-d" => [ true,  "The data to store in the registry value."                ],
+		"-h" => [ true,  "Help menu."                                              ],
+		"-k" => [ true,  "The registry key path (E.g. HKLM\Software\Foo)."         ],
+		"-t" => [ true,  "The registry value type (E.g. REG_SZ)."                  ],
+		"-v" => [ true,  "The registry value name (E.g. Stuff)."                   ])
 
 	#
 	# List of supported commands.
@@ -37,6 +50,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"kill"     => "Terminate a process",
 			"ps"       => "List running processes",
 			"reboot"   => "Reboots the remote computer",
+			"reg"      => "Modify and interact with the remote registry",
 			"sysinfo"  => "Gets information about the remote system, such as OS",
 			"shutdown" => "Shuts down the remote computer",
 		}
@@ -181,6 +195,136 @@ class Console::CommandDispatcher::Stdapi::Sys
 		print_line("Rebooting...")
 
 		client.sys.power.reboot
+	end
+
+	#
+	# Modifies and otherwise interacts with the registry on the remote computer
+	# by allowing the client to enumerate, open, modify, and delete registry
+	# keys and values.
+	#
+	def cmd_reg(*args)
+		# Extract the command, if any
+		cmd = args.shift
+
+		if (args.length == 0)
+			args.unshift("-h")
+		end
+
+		# Initiailze vars
+		key   = nil
+		value = nil
+		data  = nil
+
+		@@reg_opts.parse(args) { |opt, idx, val|
+			case opt
+				when "-h"
+					print_line(
+						"Usage: reg [command] [options]\n\n" +
+						"Interact with the target machine's registry.\n" +
+						@@reg_opts.usage + 
+						"Commands:\n\n" +
+						"\tenumkey    Enumerate the supplied registry key [-k <key>]\n" +
+						"\tcreatekey  Create the supplied registry key  [-k <key>]\n" +
+						"\tdeletekey  Delete the supplied registry key  [-k <key>]\n" +
+						"\tsetval     Set a registry value [-k <key> -v <val> -d <data>]\n" +
+						"\tdeleteval  Delete the supplied registry value [-k <key> -v <val>]\n\n")
+					return false
+				when "-k"
+					key   = val
+				when "-v"
+					value = val
+				when "-d"
+					data  = val
+			end
+		}	
+
+		# All commands require a key.
+		if (key == nil)
+			print_error("You must specify a key path (-k)")
+			return false
+		end
+
+		# Split the key into its parts
+		root_key, base_key = client.sys.registry.splitkey(key)
+
+		begin
+			# Rock it
+			case cmd
+				when "enumkey"
+					open_key = client.sys.registry.open_key(root_key, base_key)
+
+					print_line(
+						"Enumerating: #{key}\n")
+
+					keys = open_key.enum_key
+					vals = open_key.enum_value
+
+					if (keys.length > 0)
+						print_line("  Keys (#{keys.length}):\n")
+
+						keys.each { |subkey|
+							print_line("\t#{subkey}")	
+						}
+
+						print_line
+					end
+
+					if (vals.length > 0)
+						print_line("  Values (#{vals.length}):\n")
+	
+						vals.each { |val|
+							print_line("\t#{val.name}")
+						}
+	
+						print_line
+					end
+
+					if (vals.length == 0 and keys.length == 0)
+						print_line("No children.")
+					end
+
+				when "createkey"
+					open_key = client.sys.registry.create_key(root_key, base_key)
+
+					print_line("Successfully created key: #{key}")
+
+				when "deletekey"
+					client.sys.registry.delete_key(root_key, base_key)
+
+					print_line("Successfully deleted key: #{key}")
+
+				when "setval"
+					if (value == nil or data == nil)
+						print_error("You must specify both a value name and data (-v, -d).")
+						return false
+					end
+
+					type = "REG_SZ" if (type == nil)
+
+					open_key = client.sys.registry.open_key(root_key, base_key, KEY_WRITE)
+
+					open_key.set_value(value, client.sys.registry.type2str(type), data)
+
+					print_line("Successful set #{value}.")
+
+				when "deleteval"
+					if (value == nil)
+						print_error("You must specify a value name (-v).")
+						return false
+					end
+
+					open_key = client.sys.registry.open_key(root_key, base_key, KEY_WRITE)
+
+					open_key.delete_value(value)
+
+					print_line("Successfully deleted #{value}.")
+
+				else
+					print_error("Invalid command supplied: #{cmd}")
+			end
+		ensure
+			open_key.close if (open_key)
+		end
 	end
 
 	#

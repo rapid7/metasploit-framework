@@ -128,6 +128,13 @@ class RegistryKey
 		return self.client.sys.registry.query_value(self.hkey, name)
 	end
 
+	#
+	# Delete the supplied registry value.
+	#
+	def delete_value(name)
+		return self.client.sys.registry.delete_value(self.hkey, name)
+	end
+
 	##
 	#
 	# Serializers

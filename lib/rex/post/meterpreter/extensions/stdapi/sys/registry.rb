@@ -203,6 +203,56 @@ class Registry
 		return values
 	end
 
+	#
+	# Return the key value associated with the supplied string.  This is useful
+	# for converting HKLM as a string into its actual integer representation.
+	#
+	def self.key2str(key)
+		if (key == 'HKLM' or key == 'HKEY_LOCAL_MACHINE')
+			return HKEY_LOCAL_MACHINE
+		elsif (key == 'HKCU' or key == 'HKEY_CURRENT_USER')
+			return HKEY_CURRENT_USER
+		elsif (key == 'HKU' or key == 'HKEY_USERS')
+			return HKEY_USERS
+		elsif (key == 'HKCR' or key == 'HKEY_CLASSES_ROOT')
+			return HKEY_CLASSES_ROOT
+		elsif (key == 'HKEY_CURRENT_CONFIG')
+			return HKEY_CURRENT_CONFIG
+		elsif (key == 'HKEY_PERFORMANCE_DATA')
+			return HKEY_PERFORMANCE_DATA
+		elsif (key == 'HKEY_DYN_DATA')
+			return HKEY_DYN_DATA
+		else
+			raise ArgumentError, "Unknown key: #{key}"
+		end
+	end
+
+	#
+	# Returns the integer value associated with the supplied registry value
+	# type (like REG_SZ).
+	#
+	def self.type2str(type)
+		return REG_SZ if (type == 'REG_SZ')	
+		return REG_DWORD if (type == 'REG_DWORD')	
+		return REG_BINARY if (type == 'REG_BINARY')	
+		return REG_EXPAND_SZ if (type == 'REG_EXPAND_SZ')	
+		return REG_NONE if (type == 'REG_NONE')	
+		return nil
+	end
+
+	#
+	# Split the supplied full registry key into its root key and base key.  For
+	# instance, passing HKLM\Software\Dog will return [ HKEY_LOCAL_MACHINE,
+	# 'Software\Dog' ]
+	#
+	def self.splitkey(str)
+		if (str =~ /^(.+?)\\(.*)$/)
+			[ key2str($1), $2 ]
+		else
+			raise ArgumentError, "Invalid key: #{key}"
+		end
+	end
+
 end
 
 end; end; end; end; end; end
