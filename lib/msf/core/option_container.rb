@@ -163,7 +163,7 @@ class OptBool < OptBase
 	end
 
 	def normalize(value)
-		if(value.nil? or ((value.kind_of?(String) == true) and value.match(TrueRegex).nil?))
+		if(value.nil? or value.to_s.match(TrueRegex).nil?)
 			false
 		else
 			true
