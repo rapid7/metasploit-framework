@@ -214,6 +214,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		key   = nil
 		value = nil
 		data  = nil
+		type  = nil
 
 		@@reg_opts.parse(args) { |opt, idx, val|
 			case opt
@@ -234,6 +235,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 					key   = val
 				when "-v"
 					value = val
+				when "-t"
+					type  = val
 				when "-d"
 					data  = val
 			end
