@@ -8,10 +8,7 @@ module Windows
 
 ###
 #
-# Meterpreter
-# -----------
-#
-# Injects the meterpreter server instance DLL.
+# Injects the meterpreter server instance DLL via the DLL injection payload.
 #
 ###
 module Meterpreter
@@ -39,12 +36,35 @@ module Meterpreter
 					]),
 			], Meterpreter)
 
+		# Set advanced options
+		register_advanced_options(
+			[
+				OptBool.new('AutoLoadStdapi',
+					[
+						true,
+						"Automatically load the Stdapi extension",
+						true
+					])
+			], Meterpreter)
+
 		# Don't let people set the library name option
 		options.remove_option('LibraryName')
 	end
 
+	#
+	# The library name that we're injecting the DLL as has to be metsrv.dll for
+	# extensions to make use of.
+	#
 	def library_name
 		"metsrv.dll"
+	end
+
+	#
+	# Once a session is created, automatically load the stdapi extension if the
+	# advanced option is set to true.
+	#
+	def on_session(session)
+		session.queue_cmd('use stdapi') if (datastore['AutoLoadStdapi'] == true)
 	end
 
 end

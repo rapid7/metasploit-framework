@@ -14,6 +14,27 @@ module Console::CommandDispatcher
 	include Rex::Ui::Text::DispatcherShell::CommandDispatcher
 
 	#
+	# The hash of file names to class names after a module has already been
+	# loaded once on the client side.
+	#
+	@@file_hash = {}
+
+	#
+	# Checks the file name to hash association to see if the module being
+	# requested has already been loaded once.
+	#
+	def self.check_hash(name)
+		@@file_hash[name]
+	end
+
+	#
+	# Sets the file path to class name association for future reference.
+	#
+	def self.set_hash(name, klass)
+		@@file_hash[name] = klass
+	end
+
+	#
 	# Returns the meterpreter client context.
 	#
 	def client

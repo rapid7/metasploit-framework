@@ -88,6 +88,13 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	end
 
 	#
+	# Run the supplied command as if it came from suer input.
+	#
+	def queue_cmd(cmd)
+		console.queue_cmd(cmd)
+	end
+
+	#
 	# Interacts with the meterpreter client at a user interface level.
 	#
 	def _interact

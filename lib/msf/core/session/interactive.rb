@@ -49,6 +49,12 @@ module Interactive
 			framework.sessions.deregister(sid)
 		end
 	end
+
+	#
+	# Run an arbitrary command as if it came from user input.
+	#
+	def run_cmd(cmd)
+	end
 	
 	#
 	# Closes rstream.

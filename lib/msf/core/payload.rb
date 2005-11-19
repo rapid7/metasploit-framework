@@ -302,6 +302,21 @@ class Payload < Msf::Module
 		return nops
 	end
 
+	##
+	#
+	# Event notifications.
+	#
+	##
+	
+	#
+	# Once an exploit completes and a payload has been created on behalf of the
+	# payload, the framework will call the payload's on_session notification
+	# routine to allow it to manipulate the session prior to handing off
+	# control to the user.
+	#
+	def on_session(session)
+	end
+
 	#
 	# This attribute holds the string that should be prepended to the buffer
 	# when it's generated.

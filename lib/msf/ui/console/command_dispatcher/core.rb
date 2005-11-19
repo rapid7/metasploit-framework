@@ -784,7 +784,8 @@ protected
 	end
 
 	def show_options(mod) # :nodoc:
-		print("\n" + Serializer::ReadableText.dump_options(mod) + "\n")
+		mod_opt = Serializer::ReadableText.dump_options(mod, '   ')
+		print("\nModule options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
 	
 		# If it's an exploit and a payload is defined, create it and
 		# display the payload's options
@@ -799,13 +800,33 @@ protected
 			p.share_datastore(mod.datastore)
 
 			if (p)
-				print("  Payload options:\n\n" + Serializer::ReadableText.dump_options(p) + "\n");
+				p_opt = Serializer::ReadableText.dump_options(p, '   ') 
+				print("\nPayload options:\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
 			end
 		end
 	end
 
 	def show_advanced_options(mod) # :nodoc:
-		print("\n" + Serializer::ReadableText.dump_advanced_options(mod) + "\n")
+		mod_opt = Serializer::ReadableText.dump_advanced_options(mod, '   ') 
+		print("\nModule advanced options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
+
+		# If it's an exploit and a payload is defined, create it and
+		# display the payload's options
+		if (mod.exploit? and mod.datastore['PAYLOAD'])
+			p = framework.modules.create(mod.datastore['PAYLOAD'])
+
+			if (!p)
+				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
+				return
+			end
+			
+			p.share_datastore(mod.datastore)
+
+			if (p)
+				p_opt = Serializer::ReadableText.dump_advanced_options(p, '   ') 
+				print("\nPayload advanced options:\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
+			end
+		end
 	end
 
 	def show_module_set(type, module_set) # :nodoc:

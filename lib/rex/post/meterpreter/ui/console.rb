@@ -29,6 +29,9 @@ class Console
 		# The meterpreter client context
 		self.client = client
 
+		# Queued commands array
+		self.commands = []
+
 		# Point the input/output handles elsewhere
 		reset_ui
 
@@ -40,6 +43,13 @@ class Console
 	# assumed that init_ui has been called prior.
 	#
 	def interact(&block)
+		# Run queued commands
+		commands.delete_if { |ent|
+			run_single(ent)
+			true
+		}
+
+		# Run the interactive loop
 		run { |line|
 			# Run the command
 			run_single(line)
@@ -62,6 +72,13 @@ class Console
 		channel.init_ui(input, output)
 		channel.interact
 		channel.reset_ui
+	end
+
+	#
+	# Queues a command to be run when the interactive loop is entered.
+	#
+	def queue_cmd(cmd)
+		self.commands << cmd
 	end
 
 	#
@@ -96,6 +113,7 @@ class Console
 protected
 	
 	attr_writer :client # :nodoc:
+	attr_accessor :commands # :nodoc:
 
 end
 

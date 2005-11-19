@@ -23,7 +23,7 @@ class LogDispatcher
 	end
 
 	#
-	# Returns the sink that is associated with the supplied source
+	# Returns the sink that is associated with the supplied source.
 	#
 	def [](src)
 		sink = nil
@@ -36,21 +36,23 @@ class LogDispatcher
 	end
 
 	#
-	# Calls the source association routnie
+	# Calls the source association routie.
 	#
 	def []=(src, sink)
 		store(src, sink)
 	end
 
 	#
-	# Associates the supplied source with the supplied sink
+	# Associates the supplied source with the supplied sink.  If a log level
+	# has already been defined for the source, the level argument is ignored.
+	# Use set_log_level to alter it.
 	#
 	def store(src, sink, level = 0)
 		log_sinks_rwlock.synchronize_write {
 			if (log_sinks[src] == nil)
 				log_sinks[src] = sink
 
-				set_log_level(src, level)
+				set_log_level(src, level) if (log_levels[src] == nil)
 			else
 				raise(
 					RuntimeError, 
@@ -61,7 +63,7 @@ class LogDispatcher
 	end
 
 	#
-	# Removes a source association if one exists
+	# Removes a source association if one exists.
 	#
 	def delete(src)
 		sink = nil
@@ -87,7 +89,7 @@ class LogDispatcher
 	def log(sev, src, level, msg, from)
 		log_sinks_rwlock.synchronize_read {
 			if ((sink = log_sinks[src]))
-				next if (log_levels[src] and level >= log_levels[src])
+				next if (log_levels[src] and level > log_levels[src])
 
 				sink.log(sev, src, level, msg, from)
 			end

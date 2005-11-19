@@ -34,6 +34,26 @@ class Client
 	include Rex::Post::Meterpreter::ChannelContainer
 
 	#
+	# Extension name to class hash.
+	#
+	@@ext_hash = {}
+
+	#
+	# Checks the extension hash to see if a class has already been associated
+	# with the supplied extension name.
+	#
+	def self.check_ext_hash(name)
+		@@ext_hash[name]
+	end
+
+	#
+	# Stores the name to class association for the supplied extension name.
+	#
+	def self.set_ext_hash(name, klass)
+		@@ext_hash[name] = klass
+	end
+
+	#
 	# Initializes the client context with the supplied socket through
 	# which communication with the server will be performed.
 	#
@@ -102,20 +122,26 @@ class Client
 	# registered extension that can be reached through client.ext.[extension].
 	#
 	def add_extension(name)
-		old = Rex::Post::Meterpreter::Extensions.constants
-		require("rex/post/meterpreter/extensions/#{name.downcase}/#{name.downcase}")
-		new = Rex::Post::Meterpreter::Extensions.constants
+		# Check to see if this extension has already been loaded.
+		if ((klass = self.class.check_ext_hash(name.downcase)) == nil)
+			old = Rex::Post::Meterpreter::Extensions.constants
+			require("rex/post/meterpreter/extensions/#{name.downcase}/#{name.downcase}")
+			new = Rex::Post::Meterpreter::Extensions.constants
+	
+			# No new constants added?
+			if ((diff = new - old).empty?)
+				return false
+			end
+	
+			klass = Rex::Post::Meterpreter::Extensions.const_get(diff[0]).const_get(diff[0])
 
-		# No new constants added?
-		if ((diff = new - old).empty?)
-			return false
+			# Save the module name to class association now that the code is
+			# loaded.
+			self.class.set_ext_hash(name.downcase, klass)
 		end
 
-		# XXX might want to be safer and catch the exception here?
-		# maybe not since we are just going to reraise right away...
-		ext = Rex::Post::Meterpreter::Extensions.const_get(diff[0]).const_get(diff[0]).new(self)
-
-		self.ext.aliases[ext.name] = ext
+		# Create a new instance of the extension
+		self.ext.aliases[ext.name] = klass.new(self)
 
 		return true
 	end

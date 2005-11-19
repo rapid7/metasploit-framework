@@ -23,7 +23,6 @@ class Console::CommandDispatcher::Core
 		super
 
 		self.extensions = []
-		self.ext_hash   = {}
 	end
 
 	@@use_opts = Rex::Parser::Arguments.new(
@@ -238,7 +237,7 @@ class Console::CommandDispatcher::Core
 					add_extension_client(md)
 				end
 			rescue
-				log_error("\nfailure: #{$!}")
+				log_error("\nfailure: #{$!} #{$@.join("\n")}")
 				next
 			end
 
@@ -358,7 +357,7 @@ class Console::CommandDispatcher::Core
 
 protected
 
-	attr_accessor :extensions, :ext_hash # :nodoc:
+	attr_accessor :extensions # :nodoc:
 
 	CommDispatcher = Console::CommandDispatcher
 
@@ -366,25 +365,27 @@ protected
 	# Loads the client extension specified in mod
 	#
 	def add_extension_client(mod)
-		clirb  = File.join(Rex::Root, "post/meterpreter/ui/console/command_dispatcher/#{mod}.rb")
+		path = "post/meterpreter/ui/console/command_dispatcher/#{mod}.rb"
 
-		old = CommDispatcher.constants
-
-		if (require(clirb) == true)
-			new  = CommDispatcher.constants
-			diff = new - old
+		if ((klass = CommDispatcher.check_hash(path)) == nil)
+			clirb = File.join(Rex::Root, path)
+			old   = CommDispatcher.constants
 	
-			if (diff.empty? == true)
-				print_error("Failed to load client portion of #{mod}.")
-				return false
-			end
+			if (require(clirb) == true)
+				new  = CommDispatcher.constants
+				diff = new - old
+		
+				if (diff.empty? == true)
+					print_error("Failed to load client portion of #{mod}.")
+					return false
+				end
+	
+				klass = CommDispatcher.const_get(diff[0])
 
-			self.ext_hash[mod] = CommDispatcher.const_get(diff[0])
+				CommDispatcher.set_hash(path, klass)
+			end
 		end
 	
-		# Create the dispatcher	
-		klass = self.ext_hash[mod]
-
 		# Enstack the dispatcher
 		self.shell.enstack_dispatcher(klass)
 
