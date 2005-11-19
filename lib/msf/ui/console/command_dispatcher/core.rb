@@ -46,6 +46,7 @@ class Core
 			"help"    => "Help menu",
 			"info"    => "Displays information about one or more module",
 			"jobs"    => "Displays and manages jobs",
+			"load"    => "Load a framework plugin",
 			"persist" => "Persist or restore framework state information",
 			"quit"    => "Exit the console",
 			"route"   => "Route traffic through a session",
@@ -55,6 +56,7 @@ class Core
 			"set"     => "Sets a variable to a value",
 			"setg"    => "Sets a global variable to a value",
 			"show"    => "Displays modules of a given type, or all modules",
+			"unload"  => "Unload a framework plugin",
 			"unset"   => "Unsets one or more variables",
 			"unsetg"  => "Unsets one or more global variables",
 			"use"     => "Selects a module by name",
@@ -183,6 +185,32 @@ class Core
 					return false
 			end
 		}
+	end
+
+	#
+	# Loads a plugin from the supplied path.  If no absolute path is supplied,
+	# the framework root plugin directory is used.
+	#
+	def cmd_load(*args)
+		if (args.length == 0)
+			print(
+				"Usage: load <path>\n\n" +
+				"Load a plugin from the supplied path.")
+			return false
+		end
+
+		# Default to the supplied argument path.
+		path = args[0]
+
+		# If no absolute path was supplied, use the plugin directory as a base.
+		path = Msf::Config.plugin_directory + File::SEPARATOR + path if (path !~ /#{File::SEPARATOR}/)
+
+		# Load that plugin!
+		if ((inst = framework.plugins.load(path)))
+			print_status("Successfully loaded plugin: #{inst.name}")
+		else
+			print_error("Failed to load plugin from #{arg[0]}")
+		end
 	end
 
 	#
@@ -598,6 +626,31 @@ class Core
 					else
 						print_error("No module selected.")
 					end
+				when "plugins"
+					show_plugins
+			end
+		}
+	end
+
+	#
+	# Unloads a plugin by its name.
+	#
+	def cmd_unload(*args)
+		if (args.length == 0)
+			print(
+				"Usage: unload [plugin name]\n\n" +
+				"Unloads a plugin by its symbolic name.")
+			return false
+		end
+
+		# Walk the plugins array
+		framework.plugins.each { |plugin|
+			# Unload the plugin if it matches the name we're searching for
+			if (plugin.name == args[0])
+				print("Unloading plugin #{args[0]}...")
+				framework.plugins.unload(plugin)
+				print_line("unloaded.")
+				break
 			end
 		}
 	end
@@ -827,6 +880,16 @@ protected
 				print("\nPayload advanced options:\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
 			end
 		end
+	end
+
+	def show_plugins # :nodoc:
+		tbl = generate_module_table("Plugins")
+
+		framework.plugins.each { |plugin|
+			tbl << [ plugin.name, plugin.desc ]
+		}
+
+		print(tbl.to_s)
 	end
 
 	def show_module_set(type, module_set) # :nodoc:

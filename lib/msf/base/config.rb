@@ -37,6 +37,7 @@ class Config < Hash
 			'ModuleDirectory'     => "modules",
 			'LogDirectory'        => "logs",
 			'SessionLogDirectory' => "logs/sessions",
+			'PluginDirectory'     => "plugins"
 		}
 
 	##
@@ -71,6 +72,13 @@ class Config < Hash
 	#
 	def self.log_directory
 		self.new.log_directory
+	end
+
+	#
+	# Calls the instance method.
+	#
+	def self.plugin_directory
+		self.new.plugin_directory
 	end
 
 	#
@@ -155,6 +163,13 @@ class Config < Hash
 	#
 	def log_directory
 		config_directory + FileSep + self['LogDirectory']
+	end
+
+	#
+	# Returns the directory that plugins are stored in.
+	#
+	def plugin_directory
+		install_root + FileSep + self['PluginDirectory']
 	end
 
 	#

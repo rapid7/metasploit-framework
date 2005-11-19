@@ -45,6 +45,7 @@ class Framework
 		self.reconmgr  = ReconManager.new(self)
 		self.datastore = DataStore.new
 		self.jobs      = Rex::JobContainer.new
+		self.plugins   = PluginManager.new(self)
 	end
 
 	#
@@ -112,6 +113,12 @@ class Framework
 	# of the framework.
 	#
 	attr_reader   :jobs
+	#
+	# The framework instance's plugin manager.  The plugin manager is
+	# responsible for exposing an interface that allows for the loading and
+	# unloading of plugins.
+	#
+	attr_reader   :plugins
 
 protected
 
@@ -121,6 +128,7 @@ protected
 	attr_writer   :datastore # :nodoc:
 	attr_writer   :reconmgr # :nodoc:
 	attr_writer   :jobs # :nodoc:
+	attr_writer   :plugins # :nodoc:
 
 end
 

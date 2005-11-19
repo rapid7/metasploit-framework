@@ -28,6 +28,7 @@ require 'msf/core/option_container'
 require 'msf/core/framework'
 require 'msf/core/session_manager'
 require 'msf/core/session'
+require 'msf/core/plugin_manager'
 
 # Wrappers
 require 'msf/core/encoded_payload'
