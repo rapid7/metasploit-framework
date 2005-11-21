@@ -604,6 +604,7 @@ class Core
 					show_exploits
 					show_payloads
 					show_recon
+					show_plugins
 				when 'encoders'
 					show_encoders
 				when 'nops'
