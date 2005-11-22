@@ -136,7 +136,7 @@ protected
 			var = vv
 			val = ''
 			
-			if (md = vv.match(/(.+?)=(.+?)/))
+			if (md = vv.match(/(.+?)=(.*)/))
 				var = md[1]
 				val = md[2]
 			end

@@ -34,11 +34,11 @@ class Logging
 	#
 	# Enables a log source.
 	#
-	def self.enable_log_source(src)
+	def self.enable_log_source(src, level = 0)
 		f = Rex::Logging::Sinks::Flatfile.new(
 			Msf::Config.log_directory + File::SEPARATOR + "#{src}.log")
 
-		register_log_source(src, f)	
+		register_log_source(src, f, level)
 	end
 
 	#
