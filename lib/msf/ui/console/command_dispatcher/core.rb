@@ -581,7 +581,7 @@ class Core
 
 		print_line("#{name} => #{value}")
 	end
-
+	
 	#
 	# Sets the supplied variables in the global datastore.
 	#
@@ -636,7 +636,18 @@ class Core
 			end
 		}
 	end
-
+	
+	#
+	# Tab completion for the show command
+	#
+	def cmd_show_tabs(str, words)
+		res = %w{all encoders nops exploits payloads recon plugins}
+		if (active_module)
+			res.concat(%w{ options advanced })
+		end
+		return res
+	end
+	
 	#
 	# Unloads a plugin by its name.
 	#
@@ -658,6 +669,13 @@ class Core
 				break
 			end
 		}
+	end
+	
+	#
+	# Tab completion for the unload command
+	#
+	def cmd_unload_tabs(str, words)
+		framework.plugins.each { k.name }
 	end
 
 	#
@@ -700,7 +718,15 @@ class Core
 			datastore.delete(val)
 		end
 	end
-
+	
+	#
+	# Tab completion for the unset command
+	#
+	def cmd_unset_tabs(str, words)
+		datastore = active_module ? active_module.datastore : self.framework.datastore
+		datastore.keys
+	end
+	
 	#
 	# Unsets variables in the global data store.
 	#
@@ -709,7 +735,14 @@ class Core
 
 		cmd_unset(*args)
 	end
-
+	
+	#
+	# Tab completion for the unsetg command
+	#
+	def cmd_unsetg_tabs(str, words)
+		self.framework.datastore.keys
+	end
+	
 	#
 	# Uses a module.
 	#
@@ -771,7 +804,19 @@ class Core
 		# Update the command prompt
 		driver.update_prompt("#{mod.type}(#{mod.refname}) ")
 	end
-
+	
+	#
+	# Tab completion for the use command
+	#
+	def cmd_use_tabs(str, words)
+		res = []
+		framework.modules.each_module { |refname, mod|
+			res << refname
+			res << mod.fullname
+		}
+		return res
+	end
+	
 	#
 	# Returns the revision of the console library
 	#
@@ -791,6 +836,27 @@ class Core
 		recalculate_tab_complete
 	end
 
+	#
+	# Provide command-specific tab completion
+	#
+	def tab_complete_helper(str, words)
+		items = []
+		
+		# Is the user trying to tab complete one of our commands?
+		if (commands.include?(words[0]))
+			if (self.respond_to?('cmd_'+words[0]+'_tabs')) 
+				res = self.send('cmd_'+words[0]+'_tabs', str, words)
+				return nil if res.nil?
+				items.concat(res)
+			else
+				# Avoid the default completion list for known commands
+				return nil
+			end
+		end
+		
+		return items
+	end
+	
 protected
 
 	#
@@ -798,11 +864,7 @@ protected
 	#
 	def recalculate_tab_complete
 		self.tab_complete_items = []
-
-		framework.modules.each_module { |refname, mod|
-			self.tab_complete_items << refname
-			self.tab_complete_items << mod.fullname
-		}
+		# wont be needed much longer
 	end
 
 	#

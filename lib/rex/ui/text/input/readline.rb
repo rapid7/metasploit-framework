@@ -21,10 +21,11 @@ begin
 		#
 		def initialize(tab_complete_proc = nil)
 			if (tab_complete_proc)
+				::Readline.basic_word_break_characters = "\x00"
 				::Readline.completion_proc = tab_complete_proc
 			end
 		end
-
+		
 		#
 		# Regular old gets, reads a line of input and returns it to the caller.
 		#

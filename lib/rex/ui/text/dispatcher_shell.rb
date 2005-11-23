@@ -95,24 +95,46 @@ module DispatcherShell
 
 	#
 	# Performs tab completion on shell input if supported.
+	# Current words can be found in self.tab_words
 	#
 	def tab_complete(str)
 		items = []
-
+	
+		# puts "Words(#{tab_words.join(", ")}) Partial='#{str}'"
+		
 		# Next, try to match internal command or value completion
 		# Enumerate each entry in the dispatcher stack
 		dispatcher_stack.each { |dispatcher|
-			# If it supports commands, query them all
-			if (dispatcher.respond_to?('commands'))
+		
+			# If no command is set and it supports commands, add them all
+			if (tab_words.empty? and dispatcher.respond_to?('commands'))
 				items.concat(dispatcher.commands.to_a.map { |x| x[0] })
 			end
 
+			# XXX - This should now be obsolete!
 			# If the dispatcher has custom tab completion items, use them
-			items.concat(dispatcher.tab_complete_items || [])
+			# items.concat(dispatcher.tab_complete_items || [])
+			
+			# If the dispatcher exports a tab completion function, use it
+			if(dispatcher.respond_to?('tab_complete_helper'))
+				res = dispatcher.tab_complete_helper(str, tab_words)
+
+				if (res.nil?)
+					# A nil response indicates no optional arguments
+					return [''] if items.empty?
+				else
+					# Otherwise we add the completion items to the list
+					items.concat(res)
+				end
+			end
 		}
 
+		# Match based on the partial word
 		items.find_all { |e| 
 			e =~ /^#{str}/
+		# Prepend the rest of the command (or it gets replaced!)
+		}.map { |e| 
+			tab_words.dup.push(e).join(' ')
 		}
 	end
 
