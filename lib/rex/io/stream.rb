@@ -106,6 +106,8 @@ module Stream
 	# with a timeout.
 	#
 	def put(buf, opts = {})
+		return 0 if (buf == nil or buf.length == 0)
+
 		send_buf = buf.dup()
 		send_len = send_buf.length
 		wait     = opts['Timeout'] || 0
@@ -117,7 +119,7 @@ module Stream
 			send_buf.slice!(0, curr_len)
 		end
 
-		return true
+		return buf.length - send_len
 	end
 
 
