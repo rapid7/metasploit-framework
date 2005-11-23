@@ -43,7 +43,7 @@ class PluginManager < Array
 	# Loads a plugin from the supplied path and returns the instance that is
 	# created as a result.
 	#
-	def load(path)
+	def load(path, opts = {})
 		# Check to see if a plugin from this path has already been loaded
 		# before.
 		if ((klass = self.class.check_path_hash(path)) == nil)
@@ -64,7 +64,7 @@ class PluginManager < Array
 		end
 
 		# Create an instance of the plugin and let it initialize
-		instance = klass.create(framework)
+		instance = klass.create(framework, opts)
 
 		# Add it to the list of plugins
 		if (self.member?(instance) == false)

@@ -206,7 +206,9 @@ class Core
 		path = Msf::Config.plugin_directory + File::SEPARATOR + path if (path !~ /#{File::SEPARATOR}/)
 
 		# Load that plugin!
-		if ((inst = framework.plugins.load(path)))
+		if ((inst = framework.plugins.load(path,
+			'LocalInput'  => driver.input,
+			'LocalOutput' => driver.output)))
 			print_status("Successfully loaded plugin: #{inst.name}")
 		else
 			print_error("Failed to load plugin from #{arg[0]}")

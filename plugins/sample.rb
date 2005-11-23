@@ -17,8 +17,10 @@ class Plugin::Sample < Msf::Plugin
 	# inheriting from Msf::Plugin to ensure that the framework attribute on
 	# their instance gets set.
 	#
-	def initialize(framework)
+	def initialize(framework, opts)
 		super
+
+		print_status("Sample plugin loaded.")
 	end
 
 	#

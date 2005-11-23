@@ -27,15 +27,27 @@ class Plugin
 	# We use create instead of new directly so that singleton plugins can just
 	# return their singleton instance.
 	#
-	def self.create(framework)
-		new(framework)
+	def self.create(framework, opts = {})
+		new(framework, opts)
 	end
 
 	#
 	# Initializes the plugin instance with the supplied framework instance.
+	# The opts parameter is a hash of custom arguments that may be useful for a
+	# plugin.  Some of the pre-defined arguments are:
 	#
-	def initialize(framework)
+	# LocalInput
+	#
+	# 	The local input handle that implements the Rex::Ui::Text::Input
+	# 	interface.
+	#
+	# LocalOutput
+	#
+	# 	The local output handle that implements the Rex::Ui::Output interface.
+	#
+	def initialize(framework, opts = {})
 		self.framework  = framework
+		self.opts       = opts
 
 		refinit
 	end
@@ -64,6 +76,79 @@ class Plugin
 	#
 	def desc
 	end
+
+	##
+	#
+	# Accessors
+	#
+	##
+
+	#
+	# Returns the local output handle if one was passed into the constructor.
+	#
+	def output
+		opts['LocalOutput']
+	end
+
+	#
+	# Returns the local input handle if one was passed into the constructor.
+	#
+	def input
+		opts['LocalInput']
+	end
+
+	##
+	#
+	# Output wrappers for the plugin that uses the 'LocalOutput' hash entry
+	# if one was passed into the constructor.
+	#
+	##
+
+	#
+	# Prints an error message.
+	#
+	def print_error(msg)
+		output.print_error(msg) if (output)
+	end
+
+	#
+	# Prints a 'good' message.
+	#
+	def print_good(msg)
+		output.print_good(msg) if (output)
+	end
+
+	#
+	# Prints a status line.
+	#
+	def print_status(msg)
+		output.print_status(msg) if (output)
+	end
+
+	#
+	# Prints an undecorated line of information.
+	#
+	def print_line(msg)
+		output.print_line(msg) if (output)
+	end
+
+	#
+	# Prints a message with no decoration.
+	#
+	def print(msg)
+		output.print(msg) if (output)
+	end
+
+	#
+	# Flushes any buffered output.
+	#
+	def flush
+		output.flush(msg) if (output)
+	end
+
+protected
+
+	attr_accessor :opts # :nodoc:
 
 end
 
