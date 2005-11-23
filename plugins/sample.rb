@@ -10,6 +10,38 @@ module Msf
 ###
 class Plugin::Sample < Msf::Plugin
 
+	###
+	#
+	# This class implements a sample console command dispatcher.
+	#
+	###
+	class ConsoleCommandDispatcher
+		include Msf::Ui::Console::CommandDispatcher
+
+		#
+		# The dispatcher's name.
+		#
+		def name
+			"Sample"
+		end
+
+		#
+		# Returns the hash of commands supported by this dispatcher.
+		#
+		def commands
+			{
+				"sample" => "A sample command added by the sample plugin"
+			}
+		end
+
+		#
+		# This method handles the sample command.
+		#
+		def cmd_sample(*args)
+			print_line("You passed: #{args.join(' ')}")	
+		end
+	end
+
 	#
 	# The constructor is called when an instance of the plugin is created.  The
 	# framework instance that the plugin is being associated with is passed in
@@ -20,7 +52,23 @@ class Plugin::Sample < Msf::Plugin
 	def initialize(framework, opts)
 		super
 
+		# If this plugin is being loaded in the context of a console application
+		# that uses the framework's console user interface driver, register
+		# console dispatcher commands.
+		add_console_dispatcher(ConsoleCommandDispatcher)
+
 		print_status("Sample plugin loaded.")
+	end
+
+	#
+	# The cleanup routine for plugins gives them a chance to undo any actions
+	# they may have done to the framework.  For instance, if a console
+	# dispatcher was added, then it should be removed in the cleanup routine.
+	#
+	def cleanup
+		# If we had previously registered a console dispatcher with the console,
+		# deregister it now.
+		remove_console_dispatcher('Sample') 
 	end
 
 	#
@@ -38,6 +86,7 @@ class Plugin::Sample < Msf::Plugin
 		"Demonstrates using framework plugins"
 	end
 
+protected
 end
 
 end

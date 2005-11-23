@@ -76,7 +76,8 @@ class Core
 	# the core stack context.
 	#
 	def cmd_back(*args)
-		if (driver.dispatcher_stack.size > 1)
+		if (driver.dispatcher_stack.size > 1 and
+		    driver.current_dispatcher.name != 'Core')
 			# Reset the active module if we have one
 			if (active_module)
 				self.active_module = nil
@@ -193,7 +194,7 @@ class Core
 	#
 	def cmd_load(*args)
 		if (args.length == 0)
-			print(
+			print_line(
 				"Usage: load <path>\n\n" +
 				"Load a plugin from the supplied path.")
 			return false
@@ -207,8 +208,9 @@ class Core
 
 		# Load that plugin!
 		if ((inst = framework.plugins.load(path,
-			'LocalInput'  => driver.input,
-			'LocalOutput' => driver.output)))
+			'LocalInput'    => driver.input,
+			'LocalOutput'   => driver.output,
+			'ConsoleDriver' => driver)))
 			print_status("Successfully loaded plugin: #{inst.name}")
 		else
 			print_error("Failed to load plugin from #{arg[0]}")
@@ -640,7 +642,7 @@ class Core
 	#
 	def cmd_unload(*args)
 		if (args.length == 0)
-			print(
+			print_line(
 				"Usage: unload [plugin name]\n\n" +
 				"Unloads a plugin by its symbolic name.")
 			return false

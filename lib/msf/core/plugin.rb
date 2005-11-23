@@ -150,6 +150,30 @@ protected
 
 	attr_accessor :opts # :nodoc:
 
+	##
+	#
+	# Console command dispatcher helpers.
+	#
+	##
+
+	#
+	# Adds the console dispatcher.
+	#
+	def add_console_dispatcher(disp)
+		if (opts['ConsoleDriver'])
+			opts['ConsoleDriver'].append_dispatcher(disp)
+		end
+	end
+
+	#
+	# Removes the console dispatcher.
+	#
+	def remove_console_dispatcher(name)
+		if (opts['ConsoleDriver'])
+			opts['ConsoleDriver'].remove_dispatcher(name)
+		end
+	end
+
 end
 
 end

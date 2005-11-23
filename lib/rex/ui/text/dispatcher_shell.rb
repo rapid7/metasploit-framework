@@ -173,7 +173,9 @@ module DispatcherShell
 	# Push a dispatcher to the front of the stack.
 	#
 	def enstack_dispatcher(dispatcher)
-		self.dispatcher_stack.unshift(dispatcher.new(self))
+		self.dispatcher_stack.unshift(inst = dispatcher.new(self))
+
+		inst
 	end
 
 	#
@@ -181,6 +183,32 @@ module DispatcherShell
 	#
 	def destack_dispatcher
 		self.dispatcher_stack.shift
+	end
+
+	#
+	# Adds the supplied dispatcher to the end of the dispatcher stack so that
+	# it doesn't affect any enstack'd dispatchers.
+	#
+	def append_dispatcher(dispatcher)
+		self.dispatcher_stack.push(inst = dispatcher.new(self))
+
+		inst
+	end
+
+	#
+	# Removes the supplied dispatcher instance.
+	#
+	def remove_dispatcher(name)
+		self.dispatcher_stack.delete_if { |inst|
+			(inst.name == name)
+		}
+	end
+
+	#
+	# Returns the current active dispatcher
+	#
+	def current_dispatcher
+		self.dispatcher_stack[0]
 	end
 
 	#
