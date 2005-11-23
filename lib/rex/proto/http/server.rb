@@ -123,9 +123,10 @@ class Server
 	# the resource is requested.  The ``opts'' parameter can have any of the
 	# following:
 	#
-	# Proc     (proc) - The procedure to call when a request comes in for this resource.
-	# LongCall (bool) - Hints to the server that this resource may have long
-	#                   request processing times.
+	# Proc      (proc) - The procedure to call when a request comes in for this resource.
+	# LongCall  (bool) - Hints to the server that this resource may have long
+	#                    request processing times.
+	# Directory (bool) - Whether or not this resource symbolizes a directory.
 	#
 	def add_resource(name, opts)
 		if (self.resources[name])
@@ -198,8 +199,21 @@ protected
 		   (request['Connection'].downcase == 'Keep-Alive'.downcase))
 			cli.keepalive = true
 		end
+	
+		# If we fail to find the resource by full name, check if
+		# it's a directory resource
+		if ((p = self.resources[request.resource]) == nil)
+			resources.each_pair { |k, val|
+				if (val['Directory'] and request.resource =~ /^#{k}/)
+					p = val
+					break
+				end
+			}
+		end
 
-		if (p = self.resources[request.resource])
+		# If we found the resource handler for this resource, call its
+		# procedure.
+		if (p)
 			if (p['LongCall'] == true)
 				Thread.new {
 					p['Proc'].call(cli, request)

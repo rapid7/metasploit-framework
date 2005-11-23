@@ -203,7 +203,9 @@ protected
 		idx = self.bufq.index(/\r*\n\r*\n/)
 		
 		if (idx == -1)
-			self.headers.from_s(self.bufq)	
+			self.headers.from_s(self.bufq)
+		else
+			idx += 4
 		end
 		
 		if (idx >= 0)
