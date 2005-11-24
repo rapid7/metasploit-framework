@@ -87,6 +87,17 @@ class Driver < Msf::Ui::Driver
 
 		# Initialize the termination event.
 		self.term_event = Rex::Sync::Event.new
+
+		# Include common helper stuff.  If there is no common stuff to be
+		# included, then we'll just catch the exception and move on with our
+		# life.
+		begin
+			if ($:.include?(server_local_directory) == false)
+				$:.unshift(server_local_directory)
+				require 'msfweb_common'
+			end
+		rescue
+		end
 	end
 
 	#
