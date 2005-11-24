@@ -220,7 +220,7 @@ class Server
 
 		resp.body = 
 			"<html><head>" +
-			"<title>404 Not Found</title" +
+			"<title>404 Not Found</title>" +
 			"</head><body>" +
 			"<h1>Not found</h1>" +
 			"The requested URL #{request.resource} was not found on this server.<p><hr>" +

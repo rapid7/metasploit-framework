@@ -70,13 +70,22 @@ class Handler::Erb < Handler
 			else
 				resp.body = data
 			end
+		rescue Errno::ENOENT
+			server.send_e404(cli, req)
 		rescue
 			elog("Erb::on_request: #{$!}\n#{$@.join("\n")}", LogSource)
 
-			# Send a standard 404 message.
-			server.send_e404(cli, req)
-
-			resp = nil
+			resp.code    = 500
+			resp.message = "Internal Server Error"
+			resp.body =
+				"<html><head>" +
+				"<title>Internal Server Error</title>" +
+				"</head><body> " +
+				"<h1>Internal Server Error</h1>" +
+				"The server encountered an error:<br/><br/> <b>" + html_escape($!) + "</b><br/><br/>" +
+				"Stack trace:<br/><br/>" +
+				$@.map { |e| html_escape(e.to_s) }.join("<br/>") + 
+				"</body></html>"
 		end
 
 		# Send the response to the 

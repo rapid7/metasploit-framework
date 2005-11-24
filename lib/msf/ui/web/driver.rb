@@ -189,16 +189,6 @@ protected
 		Msf::Logging.enable_log_source(LogSource, level)
 	end
 
-	#
-	# Called when an HTTP request comes in from a client that needs to be
-	# dispatched.
-	#
-	def on_request(cli, req)
-		parts = req.resource.gsub(server_root, '').split(/\//)
-
-		
-	end
-	
 end
 
 end
