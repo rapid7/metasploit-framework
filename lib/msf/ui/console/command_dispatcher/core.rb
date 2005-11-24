@@ -921,7 +921,6 @@ class Core
 	def cmd_use_tabs(str, words)
 		res = []
 		framework.modules.each_module { |refname, mod|
-			res << refname
 			res << mod.fullname
 		}
 		return res
