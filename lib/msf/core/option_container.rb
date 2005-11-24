@@ -454,6 +454,22 @@ class OptionContainer < Hash
 	end
 
 	#
+	# Merges the options in this container with another option container and
+	# returns the sorted results.
+	#
+	def merge_sort(other_container)
+		result = self.dup
+
+		other_container.each { |name, opt|
+			if (result.get(name) == nil)
+				result[name] = opt
+			end
+		}
+
+		result.sort
+	end
+
+	#
 	# The sorted array of options.
 	#
 	attr_reader :sorted

@@ -59,7 +59,9 @@ class Encoder < Module
 	# hash.
 	#
 	def initialize(info)
-		super(info)
+		super({
+				'Platform' => '' # All platforms by default
+			}.update(info))
 	end
 
 	##

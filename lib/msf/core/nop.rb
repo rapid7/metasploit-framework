@@ -24,6 +24,16 @@ class Nop < Msf::Module
 	end
 
 	#
+	# Initializes the NOP generator, defaulting it to being usable on all
+	# platforms.
+	#
+	def initialize(info = {})
+		super({
+				'Platform' => '' # All platforms by default
+			}.update(info))
+	end
+
+	#
 	# Stub method for generating a sled with the provided arguments.  Derived
 	# Nop implementations must supply a length and can supply one or more of
 	# the following options:
