@@ -86,6 +86,7 @@ class Server
 			"bmp"   => "image/bmp",
 			"txt"   => "text/plain",
 			"css"   => "text/css",
+			"ico"   => "image/x-icon",
 		}
 
 	#

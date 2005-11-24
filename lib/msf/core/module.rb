@@ -412,8 +412,8 @@ protected
 			'Description' => 'No module description',
 			'Version'     => '0',
 			'Author'      => nil,
-			'Arch'        => nil,
-			'Platform'    => '',
+			'Arch'        => nil, # No architectures by default.
+			'Platform'    => [],  # No platforms by default.
 			'Ref'         => nil,
 			'Privileged'  => false,
 		}.update(self.module_info)

@@ -70,7 +70,7 @@ class Handler::Erb < Handler
 				resp.body = data
 			end
 		rescue
-			elog("Erb::on_request: #{$!}", LogSource)
+			elog("Erb::on_request: #{$!}\n#{$@.join("\n")}", LogSource)
 
 			# Send a standard 404 message.
 			server.send_e404(cli, req)

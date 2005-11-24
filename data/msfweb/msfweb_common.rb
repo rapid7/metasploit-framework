@@ -56,6 +56,32 @@ module Common
 		"
 	end
 
+	#
+	# Returns the HTML for displaying an icon for each platform the supplied
+	# module instance supports.
+	#
+	def self.module_icons(modinst)
+		# If this module has no platforms, then we don't show any icons...
+		return "" if (modinst.platform.empty?)
+
+		# Otherwise, get the platform specific information...
+		html = ""
+
+		[	
+			[ Msf::Module::Platform::Windows, "win32.gif", "win32"   ],
+			[ Msf::Module::Platform::Linux,   "linux.gif", "linux"   ],
+			[ Msf::Module::Platform::Solaris, "sun.gif",   "solaris" ],
+			[ Msf::Module::Platform::OSX,     "osx.gif",   "osx"     ],
+			[ Msf::Module::Platform::BSD,     "bsd.gif",   "bsd"     ],
+		].each { |plat|
+			if (modinst.platform.supports?(Msf::Module::PlatformList.new(plat[0])) == true)
+				html += "<img src='images/#{plat[1]}' class='iconset' border='0' alt='#{plat[2]}'/>"
+			end
+		}
+
+		html
+	end
+
 end
 
 end
