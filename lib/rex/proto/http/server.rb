@@ -1,5 +1,6 @@
 require 'rex/socket'
 require 'rex/proto/http'
+require 'rex/proto/http/handler'
 
 module Rex
 module Proto
@@ -61,7 +62,7 @@ end
 ###
 #
 # Acts as an HTTP server, processing requests and dispatching them to
-# registered procs.
+# registered procs.  Some of this server was modeled after webrick.
 #
 ###
 class Server
@@ -119,6 +120,20 @@ class Server
 	end
 
 	#
+	# Mounts a directory or resource as being serviced by the supplied handler.
+	#
+	def mount(root, handler, long_call = false, *args)
+		resources[root] = [ handler, long_call, args ]		
+	end
+
+	#
+	# Remove the mount point.
+	#
+	def unmount(root)
+		resources.delete(root)
+	end
+
+	#
 	# Adds a resource handler, such as one for /, which will be called whenever
 	# the resource is requested.  The ``opts'' parameter can have any of the
 	# following:
@@ -126,15 +141,19 @@ class Server
 	# Proc      (proc) - The procedure to call when a request comes in for this resource.
 	# LongCall  (bool) - Hints to the server that this resource may have long
 	#                    request processing times.
-	# Directory (bool) - Whether or not this resource symbolizes a directory.
 	#
 	def add_resource(name, opts)
-		if (self.resources[name])
+		if (resources[name])
 			raise RuntimeError, 
 				"The supplied resource '#{name}' is already added.", caller
 		end
 
-		self.resources[name] = opts
+		# If a procedure was passed, mount the resource with it.
+		if (opts['Proc'])
+			mount(name, Handler::Proc, false, opts['Proc'])
+		else
+			raise ArgumentError, "You must specify a procedure."
+		end
 	end
 
 	#
@@ -199,29 +218,47 @@ protected
 		   (request['Connection'].downcase == 'Keep-Alive'.downcase))
 			cli.keepalive = true
 		end
-	
-		# If we fail to find the resource by full name, check if
-		# it's a directory resource
-		if ((p = self.resources[request.resource]) == nil)
-			resources.each_pair { |k, val|
-				if (val['Directory'] and request.resource =~ /^#{k}/)
-					p = val
-					break
-				end
-			}
-		end
 
-		# If we found the resource handler for this resource, call its
-		# procedure.
+		# Search for the resource handler for the requested URL.  This is pretty
+		# inefficient right now, but we can spruce it up later.
+		p    = nil
+		len  = 0
+		root = nil
+
+		resources.each_pair { |k, val|
+			if (request.resource =~ /^#{k}/ and k.length > len)
+				p    = val
+				len  = k.length
+				root = k
+			end
+		}
+
+begin
 		if (p)
-			if (p['LongCall'] == true)
+			# Create an instance of the handler for this resource
+			handler = p[0].new(self, *p[2])
+
+			# If the handler class requires a relative resource...
+			if (p[0].relative_resource_required?)
+				# Substituted the mount point root in the request to make things
+				# relative to the mount point.
+				request.relative_resource = request.resource.gsub(root, '')
+				request.relative_resource = '/' + request.relative_resource if (request.relative_resource !~ /^\//)
+			end
+	
+			# If we found the resource handler for this resource, call its
+			# procedure.
+			if (p[1] == true)
 				Thread.new {
-					p['Proc'].call(cli, request)
+					handler.on_request(cli, request)
 				}
 			else
-				p['Proc'].call(cli, request)
+				handler.on_request(cli, request)
 			end
 		else
+			elog("Failed to find handler for resource: #{request.resource}",
+				LogSource)
+
 			send_e404(cli, request)
 		end
 
@@ -229,6 +266,9 @@ protected
 		if (cli.keepalive == false)
 			close_client(cli)
 		end
+rescue
+	puts "bleh #{$!} #{$@.join("\n")}"
+end
 	end
 
 	#

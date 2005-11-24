@@ -57,6 +57,7 @@ class Request < Packet
 		self.uri_parts = {}
 		self.proto     = proto || DefaultProtocol
 
+		update_uri_parts
 	end
 
 	#
@@ -68,19 +69,29 @@ class Request < Packet
 			self.uri     = URI.decode(md[2])
 			self.proto   = md[3]
 
-			# If it has a query string, get the parts.
-			if ((self.uri) and (md = self.uri.match(/(.+?)\?(.*)$/)))
-				self.uri_parts['QueryString'] = parse_cgi_qstring(md[2])
-				self.uri_parts['Resource']    = md[1]
-			# Otherwise, just assume that the URI is equal to the resource being
-			# requested.
-			else
-				self.uri_parts['QueryString'] = nil
-				self.uri_parts['Resource']    = self.uri
-			end
+			update_uri_parts
 		else
 			raise RuntimeError, "Invalid request command string", caller
 		end
+	end
+
+	#
+	# Split the URI into the resource being requested and its query string.
+	#
+	def update_uri_parts
+		# If it has a query string, get the parts.
+		if ((self.uri) and (md = self.uri.match(/(.+?)\?(.*)$/)))
+			self.uri_parts['QueryString'] = parse_cgi_qstring(md[2])
+			self.uri_parts['Resource']    = md[1]
+		# Otherwise, just assume that the URI is equal to the resource being
+		# requested.
+		else
+			self.uri_parts['QueryString'] = nil
+			self.uri_parts['Resource']    = self.uri
+		end
+
+		# Set the relative resource to the actual resource.
+		self.relative_resource = resource
 	end
 
 	#
@@ -98,12 +109,29 @@ class Request < Packet
 	end
 
 	#
+	# Changes the resource URI.  This is used when making a request relative to
+	# a given mount point.
+	#
+	def resource=(rsrc)
+		self.uri_parts['Resource'] = rsrc
+	end
+
+	#
 	# If there were CGI parameters in the URI, this will hold a hash of each
 	# variable to value.  If there is more than one value for a given variable,
 	# and array of each value is returned.
 	#
 	def qstring
 		self.uri_parts['QueryString']
+	end
+
+	#
+	# Returns a hash of variables that contain information about the request,
+	# such as the remote host information.
+	#
+	# TODO
+	#
+	def meta_vars
 	end
 
 	#
@@ -122,6 +150,10 @@ class Request < Packet
 	# The protocol to be sent with the request.
 	#
 	attr_accessor :proto
+	#
+	# The resource path relative to the root of a server mount point.
+	#
+	attr_accessor :relative_resource
 
 protected
 

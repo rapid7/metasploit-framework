@@ -21,7 +21,7 @@ class Rex::Socket::SslTcp::UnitTest < Test::Unit::TestCase
 		# Send a HEAD request and make sure we get some kind of response
 		head_request = "HEAD / HTTP/1.0\r\n\r\n"
 
-		assert_equal(true, t.put(head_request), "sending head request")
+		assert_equal(19, t.put(head_request), "sending head request")
 
 		head_response = ""
 

@@ -52,7 +52,7 @@ class Rex::Proto::Http::Server::UnitTest < Test::Unit::TestCase
 			}
 
 			s.remove_resource('/foo')
-				
+
 			req = Rex::Proto::Http::Request::Get.new('/foo')
 			res = c.send_request(req)
 			assert_not_nil(res)

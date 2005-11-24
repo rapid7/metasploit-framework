@@ -68,7 +68,8 @@ class Driver < Msf::Ui::Driver
 		ilog("Web server started on #{host}:#{port}", LogSource)
 
 		service.add_resource(
-			opts['ServerRoot'] || DefaultRoot,
+			server_root,
+			'Directory' => true,
 			'Proc' => Proc.new { |cli, req|
 				on_request(cli, req)
 			})
@@ -89,6 +90,13 @@ class Driver < Msf::Ui::Driver
 	#
 	def terminate
 		term_event.set
+	end
+
+	#
+	# Returns the root resource name, such as '/msfweb'
+	#
+	def server_root
+		opts['ServerRoot'] || DefaultRoot
 	end
 
 	#
@@ -125,7 +133,9 @@ protected
 	# dispatched.
 	#
 	def on_request(cli, req)
-		dispatch_request(cli, req)
+		parts = req.resource.gsub(server_root, '').split(/\//)
+
+		
 	end
 	
 end

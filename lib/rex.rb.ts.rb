@@ -27,6 +27,8 @@ require 'rex/socket/comm/local.rb.ut'
 require 'rex/socket/switch_board.rb.ut'
 require 'rex/socket/subnet_walker.rb.ut'
 
+require 'rex/proto/http'
+
 require 'rex/parser/arguments.rb.ut'
 
 require 'rex/ui/text/color.rb.ut'
@@ -66,6 +68,15 @@ class Rex::TestSuite
 		suite << Rex::Socket::Comm::Local::UnitTest.suite
 		suite << Rex::Socket::SwitchBoard::UnitTest.suite
 		suite << Rex::Socket::SubnetWalker::UnitTest.suite
+
+		# Protocols
+		suite << Rex::Proto::Http::Client::UnitTest.suite
+		suite << Rex::Proto::Http::Server::UnitTest.suite
+		suite << Rex::Proto::Http::Packet::UnitTest.suite
+		suite << Rex::Proto::Http::Request::UnitTest.suite
+		suite << Rex::Proto::Http::Response::UnitTest.suite
+		suite << Rex::Proto::Http::Handler::Erb::UnitTest.suite
+		suite << Rex::Proto::Http::Handler::Proc::UnitTest.suite
 
 		# Parsers
 		suite << Rex::Parser::Arguments::UnitTest.suite
