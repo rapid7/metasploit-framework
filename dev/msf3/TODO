@@ -12,3 +12,7 @@ Buggies:
 	  
 	- An exploit that has Compat = -find in the Payload section will still list
 	  meterpreter's find_tag payload as compatible
+
+	- The target info should provide a packing function that matches the arch and
+	  platform set in the target. Right now all exploits are calling big or little
+	  packers on the target, regardless of the target arch.
