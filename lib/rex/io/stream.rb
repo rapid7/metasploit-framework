@@ -31,7 +31,7 @@ module Stream
 		begin
 			fd.syswrite(buf)
 		rescue IOError
-			return 0 if (fd.abortive_close == true)
+			return nil if (fd.abortive_close == true)
 
 			raise $!
 		end
@@ -135,6 +135,10 @@ module Stream
 		# Keep writing until our send length drops to zero
 		while (send_len > 0)
 			curr_len  = timed_write(send_buf, wait, opts)
+
+			# If the write operation failed due to an IOError, then we fail.
+			return buf.length - send_len if (curr_len == nil)
+
 			send_len -= curr_len
 			send_buf.slice!(0, curr_len)
 		end
