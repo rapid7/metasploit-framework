@@ -7,6 +7,18 @@ require 'msf/core'
 #
 ###
 class Msf::Module::Author
+
+	# A hash of known author names
+	Known =
+		{
+				'hdm'       => 'hdm@metasploit.com',
+				'H D Moore' => 'hdm@metasploit.com',
+				'spoonm'    => 'spoonm@gmail.com',
+				'skape'     => 'mmiller@hick.org',
+				'vlad902'   => 'vlad902@gmail.com',
+				'optyx'     => 'optyx@hatesemail.com',
+		}
+
 	#
 	# Class method that translates a string to an instance of the Author class,
 	# if it's of the right format, and returns the Author class instance
@@ -31,7 +43,7 @@ class Msf::Module::Author
 
 	def initialize(name = nil, email = nil)
 		self.name  = name
-		self.email = email
+		self.email = email || Known[name]
 	end
 
 	#
@@ -62,17 +74,6 @@ class Msf::Module::Author
 	#
 	def from_s(str)
 
-		# List of known framework authors that can be referred by just name
-		known_authors =
-			{
-				'hdm'       => 'hdm@metasploit.com',
-				'H D Moore' => 'hdm@metasploit.com',
-				'spoonm'    => 'spoonm@gmail.com',
-				'skape'     => 'mmiller@hick.org',
-				'vlad902'   => 'vlad902@gmail.com',
-				'optyx'     => 'optyx@hatesemail.com',
-			}
-
 		# Make fix up this regex to be a bit better...I suck at regex
 		m = /^([A-Za-z0-9 _]*?) <(.*?)>/.match(str)
 
@@ -80,7 +81,7 @@ class Msf::Module::Author
 			self.name  = m[1]
 			self.email = m[2]
 		else
-			self.email = known_authors[str]
+			self.email = Known[str]
 
 			if (self.email != nil)
 				self.name = str
@@ -92,5 +93,14 @@ class Msf::Module::Author
 		return true
 	end
 
-	attr_accessor :name, :email
+	#
+	# Sets the name of the author and updates the email if it's a known author.
+	#
+	def name=(name)
+		self.email = Known[name] if (Known[name])
+		@name = name
+	end
+
+	attr_accessor :email
+	attr_reader   :name
 end

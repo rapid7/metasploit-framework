@@ -61,8 +61,16 @@ module Common
 	# module instance supports.
 	#
 	def self.module_icons(modinst)
+		platform_icons(modinst.platform)
+	end
+
+	def self.target_icons(target)
+		platform_icons(target.platform)
+	end
+
+	def self.platform_icons(platform)
 		# If this module has no platforms, then we don't show any icons...
-		return "" if (modinst.platform.empty?)
+		return "" if (platform.empty?)
 
 		# Otherwise, get the platform specific information...
 		html = ""
@@ -74,7 +82,7 @@ module Common
 			[ Msf::Module::Platform::OSX,     "osx.gif",   "osx"     ],
 			[ Msf::Module::Platform::BSD,     "bsd.gif",   "bsd"     ],
 		].each { |plat|
-			if (modinst.platform.supports?(Msf::Module::PlatformList.new(plat[0])) == true)
+			if (platform.supports?(Msf::Module::PlatformList.new(plat[0])) == true)
 				html += "<img src='images/#{plat[1]}' class='iconset' border='0' alt='#{plat[2]}'/>"
 			end
 		}

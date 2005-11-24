@@ -86,7 +86,7 @@ class Request < Packet
 		# Otherwise, just assume that the URI is equal to the resource being
 		# requested.
 		else
-			self.uri_parts['QueryString'] = nil
+			self.uri_parts['QueryString'] = {}
 			self.uri_parts['Resource']    = self.uri
 		end
 

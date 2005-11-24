@@ -1,4 +1,5 @@
 require 'erb'
+include ERB::Util
 
 module Rex
 module Proto

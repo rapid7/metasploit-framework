@@ -98,6 +98,10 @@ class Msf::Module::SiteReference < Msf::Module::Reference
 			self.site = 'http://www.securityfocus.com/bid/' + in_ctx_id.to_s
 		elsif (in_site == 'MSB')
 			self.site = 'http://www.microsoft.com/technet/security/bulletin/' + in_ctx_id.to_s + '.mspx'
+		elsif (in_site == 'MIL')
+			self.site = 'http://milw0rm.com/metasploit.php?id=' + in_ctx_id.to_s
+		elsif (in_site == 'URL')
+			self.site = in_ctx_id.to_s
 		else
 			self.site  = in_site
 			self.site += " (#{in_ctx_id.to_s})" if (in_ctx_id)
