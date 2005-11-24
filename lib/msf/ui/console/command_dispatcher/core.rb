@@ -153,6 +153,14 @@ class Core
 			end
 		}
 	end
+	
+	#
+	# Tab completion for the info command (same as use)
+	#
+	def cmd_info_tabs(str, words)
+		cmd_use_tabs(str, words)
+	end	
+	
 
 	alias cmd_? cmd_help
 
@@ -187,7 +195,19 @@ class Core
 			end
 		}
 	end
-
+	
+	#
+	# Tab completion for the jobs command
+	#
+	def cmd_jobs_tabs(str, words)
+		if(not words[1])
+			return %w{-l -k -h}
+		end
+		if (words[1] == '-k')
+			# XXX return the list of job values
+		end
+	end	
+	
 	#
 	# Loads a plugin from the supplied path.  If no absolute path is supplied,
 	# the framework root plugin directory is used.
@@ -216,6 +236,23 @@ class Core
 			print_error("Failed to load plugin from #{arg[0]}")
 		end
 	end
+	
+	#
+	# Tab completion for the load command
+	#
+	def cmd_load_tabs(str, words)
+		if(not words[1] or not words[1].match(/^\//))
+			begin
+				return Dir.new(Msf::Config.plugin_directory).find_all { |e|
+					path = Msf::Config.plugin_directory + File::SEPARATOR + e
+					File.file?(path) and File.readable?(path)
+				}.map { |e|
+					e.sub!(/\.rb$/, '')
+				}
+			rescue Exception
+			end
+		end
+	end	
 
 	#
 	# This method persists or restores framework state from a persistent
@@ -261,6 +298,15 @@ class Core
 		end
 	end
 
+	#
+	# Tab completion for the persist command
+	#
+	def cmd_persist_tabs(str, words)
+		if (not words[1])
+			return %w{-s -r -h}
+		end	
+	end
+	
 	#
 	# This method handles the route command which allows a user to specify
 	# which session a given subnet should route through.
@@ -383,6 +429,15 @@ class Core
 				print(tbl.to_s)
 		end
 	end
+	
+	#
+	# Tab completion for the route command
+	#
+	def cmd_route_tabs(str, words)
+		if (not words[1])
+			return %w{add remove get flush print}
+		end
+	end
 
 	#
 	# Saves the active datastore contents to disk for automatic use across
@@ -446,8 +501,6 @@ class Core
 		}
 
 		print(added)
-
-		recalculate_tab_complete
 	end
 
 	#
@@ -524,6 +577,15 @@ class Core
 	end
 
 	#
+	# Tab completion for the route command
+	#
+	def cmd_session_tabs(str, words)
+		if (not words[1])
+			return %w{-q -i -l -h}
+		end
+	end
+	
+	#
 	# Sets a name to a value in a context aware environment.
 	#
 	def cmd_set(*args)
@@ -583,6 +645,47 @@ class Core
 	end
 	
 	#
+	# Tab completion for the set command
+	#
+	def cmd_set_tabs(str, words)
+	
+		# A value has already been specified
+		if (words[2])
+			return nil
+		end
+		
+		# A value needs to be specified
+		if(words[1])
+			return tab_complete_option(words[1])
+		end
+		
+		res = cmd_unset_tabs(str, words) || [ ]
+		mod = active_module
+		
+		if (not mod)
+			return res
+		end
+		
+		mod.options.sorted.each { |e|
+			name, opt = e
+			res << name
+		}
+
+		if (mod.exploit? and mod.datastore['PAYLOAD'])
+			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			if (p)
+				p.options.sorted.each { |e|
+					name, opt = e
+					res << name
+				}				
+			end
+		end
+		
+		return res
+	end
+
+		
+	#
 	# Sets the supplied variables in the global datastore.
 	#
 	def cmd_setg(*args)
@@ -590,7 +693,14 @@ class Core
 
 		cmd_set(*args)
 	end
-
+	
+	#
+	# Tab completion for the setg command
+	#
+	def cmd_setg_tabs(str, words)
+		res = cmd_set_tabs(str, words) || [ ]
+	end
+	
 	#
 	# Displays the list of modules based on their type, or all modules if
 	# no type is provided.
@@ -830,13 +940,6 @@ class Core
 	end
 
 	#
-	# Internal routine to recalculate tab complete.
-	#
-	def cmd__recalculate_tc(*args)
-		recalculate_tab_complete
-	end
-
-	#
 	# Provide command-specific tab completion
 	#
 	def tab_complete_helper(str, words)
@@ -856,16 +959,115 @@ class Core
 		
 		return items
 	end
-	
-protected
 
 	#
-	# Recalculates the tab completion list.
+	# Provide tab completion for option values
 	#
-	def recalculate_tab_complete
-		self.tab_complete_items = []
-		# wont be needed much longer
+	def tab_complete_option(opt)	
+		res = []
+		mod = active_module
+		
+		# With no active module, we have nothing to compare
+		if (not mod)
+			return res
+		end
+		
+		# Well-known option names specific to exploits
+		if (mod.exploit?)
+			return option_values_payloads() if opt == 'PAYLOAD'
+			return option_values_targets()  if opt == 'TARGET'
+			return option_values_nops()     if opt == 'NOPS'
+		end
+		
+		# The ENCODER option works for payloads and exploits
+		if ((mod.exploit? or mod.payload?) and opt == 'ENCODER')
+			return option_values_encoders()
+		end
+		
+		# Is this option used by the active module?
+		if (mod.options.include?(opt))
+			res.concat(option_values_dispatch(mod.options[opt]))
+		end
+		
+		# How about the selected payload?
+		if (mod.exploit? and mod.datastore['PAYLOAD'])
+			p = framework.modules.create(mod.datastore['PAYLOAD'])
+			if (p and p.options.include?(opt))
+				res.concat(option_values_dispatch(p.options[opt]))
+			end
+		end
+
+		return res
 	end
+	
+	#
+	# Provide possible option values based on type
+	#
+	def option_values_dispatch(o)	
+		res = []
+		res << o.default.to_s if o.default
+
+		case o.class.to_s
+		
+			when 'Msf::OptAddress'
+				case o.name
+					when 'RHOST'
+						res << option_values_last_target()
+					when 'LHOST'
+						res << Rex::Socket.source_address()
+					else
+				end
+				
+			when 'Msf::OptPort'
+				if (res.empty?)
+					res << (rand(65534)+1).to_S
+				end
+		end
+		
+		return res
+	end
+	
+	#
+	# Provide valid payload options for the current exploit
+	#
+	def option_values_payloads
+		active_module.compatible_payloads.map { |refname, payload| refname }
+	end
+	
+	#
+	# Provide valid target options for the current exploit
+	#
+	def option_values_targets
+		res = []
+		if (active_module.targets)
+			1.upto(active_module.targets.length) { |i| res << (i-1).to_s }
+		end
+		return res
+	end	
+	
+	#
+	# Provide valid nops options for the current exploit
+	#
+	def option_values_nops
+		framework.nops.map { |refname, mod| refname }
+	end	
+	
+	#
+	# Provide valid encoders options for the current exploit or payload
+	#
+	def option_values_encoders
+		framework.encoders.map { |refname, mod| refname }
+	end
+
+	#
+	# Provide the last target address
+	#
+	def option_values_last_target
+		# Replace this once we start tracking these things...
+		return Rex::Socket.source_address()
+	end
+			
+protected
 
 	#
 	# Module list enumeration

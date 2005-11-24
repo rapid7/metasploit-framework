@@ -141,6 +141,20 @@ module Socket
 
 	##
 	#
+	# Utility class methods
+	#
+	##
+	
+	def self.source_address(dest='1.2.3.4')
+		self.create_udp(
+			'PeerHost' => dest,
+			'PeerPort' => 31337
+		).getsockname[1]
+	end
+	
+
+	##
+	#
 	# Class initialization
 	#
 	##

@@ -145,9 +145,6 @@ class Driver < Msf::Ui::Driver
 	# displayed, scripts can be processed, and other fun can be had.
 	#
 	def on_startup
-		# Recalculate tab completion
-		run_single("_recalculate_tc")
-
 		# Build the banner message
 		run_single("banner")
 	end
@@ -278,7 +275,7 @@ protected
 		str_trail = (str_match.nil?) ? '' : str_match[0]
 		
 		# Split the line up by whitespace into words
-		str_words = str.split(/[\s\t\n]/)
+		str_words = str.split(/[\s\t\n]+/)
 		
 		# Append an empty word if we had trailing whitespace
 		str_words << '' if str_trail.length > 0
