@@ -28,14 +28,26 @@ module Stream
 	# This method writes the supplied buffer to the stream.
 	#
 	def write(buf, opts = {})
-		fd.syswrite(buf)
+		begin
+			fd.syswrite(buf)
+		rescue IOError
+			return 0 if (fd.abortive_close == true)
+
+			raise $!
+		end
 	end
 
 	#
 	# This method reads data of the supplied length from the stream.
 	#
 	def read(length = nil, opts = {})
-		fd.sysread(length)
+		begin
+			fd.sysread(length)
+		rescue IOError
+			return 0 if (fd.abortive_close == true)
+
+			raise $!
+		end
 	end
 
 	#
