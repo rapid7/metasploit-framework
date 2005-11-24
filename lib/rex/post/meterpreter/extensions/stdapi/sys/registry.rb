@@ -39,6 +39,11 @@ class Registry
 	# create_key.
 	#
 	def Registry.open_key(root_key, base_key, perm = KEY_READ)
+		# If no base key was provided, just return the root_key.
+		if (base_key == nil or base_key.length == 0)
+			return RegistrySubsystem::RegistryKey.new(client, root_key, base_key, perm, root_key)
+		end
+
 		return self.create_key(root_key, base_key, perm)
 	end
 
@@ -249,7 +254,7 @@ class Registry
 		if (str =~ /^(.+?)\\(.*)$/)
 			[ key2str($1), $2 ]
 		else
-			raise ArgumentError, "Invalid key: #{key}"
+			[ key2str(str), nil ]
 		end
 	end
 

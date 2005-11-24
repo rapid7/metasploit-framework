@@ -240,7 +240,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 				when "-d"
 					data  = val
 			end
-		}	
+		}
 
 		# All commands require a key.
 		if (key == nil)
