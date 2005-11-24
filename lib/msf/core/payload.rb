@@ -315,6 +315,15 @@ class Payload < Msf::Module
 	# control to the user.
 	#
 	def on_session(session)
+		# If this payload is associated with an exploit and the exploit is not
+		# passive, then set the abort_sockets flag to true.  We also only do
+		# this if our general_handler_type is not find.
+		if ((assoc_exploit) and 
+		    (assoc_exploit.exploit_type == Exploit::Type::Remote) and
+		    (assoc_exploit.passive? == false) and
+		    (connection_type != 'find'))
+			assoc_exploit.abort_sockets
+		end
 	end
 
 	#

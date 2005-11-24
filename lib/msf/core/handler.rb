@@ -172,7 +172,10 @@ protected
 			# notify any waiters we may have.
 			if (s)
 				register_session(s)
-			end	
+			end
+
+			# Call the payload's on_session handler
+			on_session(s)
 		end
 	end
 

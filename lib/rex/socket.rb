@@ -168,6 +168,7 @@ module Socket
 			self.peerport  = params.peerport
 			self.localhost = params.localhost
 			self.localport = params.localport
+			self.context   = params.context || {}
 		end
 	end
 
@@ -215,10 +216,17 @@ module Socket
 	# The local port of the connected socket.
 	#
 	attr_reader :localport
+	#
+	# Contextual information that describes the source and other
+	# instance-specific attributes.  This comes from the param.context
+	# attribute.
+	#
+	attr_reader :context
 
 protected
 
 	attr_writer :peerhost, :peerport, :localhost, :localport # :nodoc:
+	attr_writer :context # :nodoc:
 
 end
 

@@ -43,12 +43,20 @@ module Stream
 	# true if data is available for reading, otherwise false is returned.
 	#
 	def has_read_data?(timeout = nil)
-		if ((rv = Kernel.select([ fd ], nil, nil, timeout)) and
-		    (rv[0]) and
-		    (rv[0][0] == fd))
-			true
-		else
-			false
+		begin
+			if ((rv = Kernel.select([ fd ], nil, nil, timeout)) and
+			    (rv[0]) and
+			    (rv[0][0] == fd))
+				true
+			else
+				false
+			end
+		rescue StreamClosedError, IOError
+			# If the thing that lead to the closure was an abortive close, then
+			# don't raise the stream closed error.
+			return false if (fd.abortive_close == true)
+
+			raise $!
 		end
 	end
 
@@ -241,6 +249,11 @@ module Stream
 	def def_block_size
 		16384
 	end
+
+	#
+	# This flag indicates whether or not an abortive close has been issued.
+	#
+	attr_accessor :abortive_close
 
 protected
 
