@@ -260,6 +260,13 @@ module Text
 		rand_base(len, bad, *foo )
 	end
 
+	# Generate random bytes of english-like data
+	def self.rand_text_english(len, bad='')
+		foo = []
+		foo += (0x21 .. 0x7e).map{ |c| c.chr }
+		rand_base(len, bad, *foo )
+	end
+	
 	#
 	# Creates a pattern that can be used for offset calculation purposes.  This
 	# routine is capable of generating patterns using a supplied set and a
