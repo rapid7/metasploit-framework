@@ -1,0 +1,15 @@
+<%
+	if ($:.include?(driver.server_local_directory) == false)
+		$:.unshift(driver.server_local_directory)
+		require 'msfweb_common'
+	end
+ %>
+
+<%= Msf::Ui::Web::Common.header %>
+
+<br>
+<div align='center'>
+	Welcome to the Metasploit Framework.
+</div>
+
+<%= Msf::Ui::Web::Common.footer %>

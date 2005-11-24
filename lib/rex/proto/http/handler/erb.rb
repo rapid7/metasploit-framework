@@ -43,6 +43,9 @@ class Handler::Erb < Handler
 			wlog("Erb::on_request: Dangerous request performed: #{resource}",
 				LogSource)
 			return
+		# If the request is for the root directory, use the document index file.
+		elsif (resource == '/')
+			resource += opts['DocumentIndex'] || 'index.rhtml'
 		end
 
 		begin
@@ -51,22 +54,28 @@ class Handler::Erb < Handler
 			# Calculate the actual file path on disk.
 			file_path = root_path + resource
 		
-			puts "file path is #{file_path}"
-
 			# Serialize the contents of the file
 			data = ::IO.readlines(file_path).join
 
-			# Evaluate the data and set the output as the response body.
-			resp.body = evaluate(ERB.new(data), cli, req, resp)
+			# Set the content-type to text/html by default.  We do this before
+			# evaluation so that the script can change it.
+			resp['Content-Type'] = server.mime_type(resource)
 
-			# Set the content-type to text/html by default.
-			resp['Content-Type'] = opts['MimeType']
+			# If the requested file is a ruby html file, evaluate it.
+			if (File.extname(file_path) == ".rhtml")
+				# Evaluate the data and set the output as the response body.
+				resp.body = evaluate(ERB.new(data), cli, req, resp)
+			# Otherwise, just set the body to the data that was read.
+			else
+				resp.body = data
+			end
 		rescue
-			elog("Erb::on_request: #{$!}\n\n#{$@.join("\n")}", LogSource)
+			elog("Erb::on_request: #{$!}", LogSource)
 
-			puts "exception: #{$!} #{$@.join("\n")}"
+			# Send a standard 404 message.
+			server.send_e404(cli, req)
 
-			resp = Response::E404.new
+			resp = nil
 		end
 
 		# Send the response to the 
@@ -83,8 +92,8 @@ class Handler::Erb < Handler
 	def evaluate(erb, cli, request, response)
 		# If the thing that created this handler wanted us to use a callback
 		# instead of the default behavior, then let's do that.
-		if (opts['Callback'])
-			opts['Callback'].call(erb, cli, request, response)
+		if (opts['ErbCallback'])
+			opts['ErbCallback'].call(erb, cli, request, response)
 		else
 			Module.new.module_eval {
 				query_string = request.qstring

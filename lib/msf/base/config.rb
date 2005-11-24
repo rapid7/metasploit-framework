@@ -37,7 +37,8 @@ class Config < Hash
 			'ModuleDirectory'     => "modules",
 			'LogDirectory'        => "logs",
 			'SessionLogDirectory' => "logs/sessions",
-			'PluginDirectory'     => "plugins"
+			'PluginDirectory'     => "plugins",
+			'DataDirectory'       => "data"
 		}
 
 	##
@@ -93,6 +94,13 @@ class Config < Hash
 	#
 	def self.user_module_directory
 		self.new.user_module_directory
+	end
+	
+	#
+	# Calls the instance method.
+	#
+	def self.data_directory
+		self.new.data_directory
 	end
 
 	#
@@ -184,6 +192,13 @@ class Config < Hash
 	#
 	def user_module_directory
 		config_directory + FileSep + "modules"
+	end
+
+	#
+	# Returns the data directory
+	#
+	def data_directory
+		install_root + FileSep + self['DataDirectory']
 	end
 
 	#

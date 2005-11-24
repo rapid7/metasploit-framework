@@ -69,8 +69,35 @@ class Server
 
 	include Proto
 
+	#
+	# A hash that associated a file extension with a mime type for use as the
+	# content type of responses.
+	#
+	ExtensionMimeTypes =
+		{
+			"rhtml" => "text/html",
+			"html"  => "text/html",
+			"htm"   => "text/htm",
+			"jpg"   => "image/jpeg",
+			"jpeg"  => "image/jpeg",
+			"jpeg"  => "image/jpeg",
+			"gif"   => "image/gif",
+			"png"   => "image/png",
+			"bmp"   => "image/bmp",
+			"txt"   => "text/plain",
+			"css"   => "text/css",
+		}
+
+	#
+	# The default server name that will be returned in the Server attribute of
+	# a response.
+	#
 	DefaultServer = "Rex"
 
+	#
+	# Initializes an HTTP server as listening on the provided port and
+	# hostname.
+	#
 	def initialize(port = 80, listen_host = '0.0.0.0')
 		self.listen_host = listen_host
 		self.listen_port = port
@@ -170,6 +197,38 @@ class Server
 		resp['Server'] = DefaultServer
 	end
 
+	#
+	# Returns the mime type associated with the supplied file.  Right now the
+	# set of mime types is fairly limited.
+	#
+	def mime_type(file)
+		type = nil
+
+		if (file =~ /\.(.+?)$/)
+			type = ExtensionMimeTypes[$1.downcase]
+		end
+
+		type || "text/plain"
+	end
+
+	#
+	# Sends a 404 error to the client for a given request.
+	#
+	def send_e404(cli, request)
+		resp = Response::E404.new
+
+		resp.body = 
+			"<html><head>" +
+			"<title>404 Not Found</title" +
+			"</head><body>" +
+			"<h1>Not found</h1>" +
+			"The requested URL #{request.resource} was not found on this server.<p><hr>" +
+			"</body></html>"
+
+		# Send the response to the client like what
+		cli.send_response(resp)
+	end
+
 	attr_accessor :listen_port, :listen_host
 
 protected
@@ -233,7 +292,6 @@ protected
 			end
 		}
 
-begin
 		if (p)
 			# Create an instance of the handler for this resource
 			handler = p[0].new(self, *p[2])
@@ -242,9 +300,10 @@ begin
 			if (p[0].relative_resource_required?)
 				# Substituted the mount point root in the request to make things
 				# relative to the mount point.
-				request.relative_resource = request.resource.gsub(root, '')
+				request.relative_resource = request.resource.gsub(/^#{root}/, '')
 				request.relative_resource = '/' + request.relative_resource if (request.relative_resource !~ /^\//)
 			end
+
 	
 			# If we found the resource handler for this resource, call its
 			# procedure.
@@ -266,27 +325,6 @@ begin
 		if (cli.keepalive == false)
 			close_client(cli)
 		end
-rescue
-	puts "bleh #{$!} #{$@.join("\n")}"
-end
-	end
-
-	#
-	# Sends a 404 error to the client for a given request.
-	#
-	def send_e404(cli, request)
-		resp = Response::E404.new
-
-		resp.body = 
-			"<html><head>" +
-			"<title>404 Not Found</title" +
-			"</head><body>" +
-			"<h1>Not found</h1>" +
-			"The requested URL #{request.resource} was not found on this server.<p><hr>" +
-			"</body></html>"
-
-		# Send the response to the client like what
-		cli.send_response(resp)
 	end
 
 end

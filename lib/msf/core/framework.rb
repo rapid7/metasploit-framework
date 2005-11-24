@@ -84,6 +84,13 @@ class Framework
 	end
 
 	#
+	# Returns the framework version in Major.Minor format.
+	#
+	def version
+		Version	
+	end
+
+	#
 	# Event management interface for registering event handler subscribers and
 	# for interacting with the correlation engine.
 	#

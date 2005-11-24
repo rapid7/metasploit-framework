@@ -1,3 +1,4 @@
+require 'rex/proto/http'
 require 'msf/core'
 require 'msf/base'
 require 'msf/ui'
@@ -21,6 +22,27 @@ class Driver < Msf::Ui::Driver
 	ConfigGroup = "framework/ui/web"
 
 	#
+	# The msfweb resource handler that wrappers the default Erb handler.
+	#
+	class ResourceHandler < Rex::Proto::Http::Handler::Erb
+		def initialize(server, root_path, framework, driver, opts = {})
+			opts['ErbCallback'] = ::Proc.new { |erb, cli, request, response| 
+				query_string = request.qstring
+				meta_vars    = request.meta_vars
+				erb.result(binding)
+			}
+
+			super(server, root_path, opts)
+
+			self.framework = framework
+			self.driver    = driver
+		end
+
+		attr_accessor :framework # :nodoc:
+		attr_accessor :driver    # :nodoc:
+	end
+
+	#
 	# The default port to listen for HTTP requests on.
 	#
 	DefaultPort = 55555
@@ -33,7 +55,17 @@ class Driver < Msf::Ui::Driver
 	#
 	# The default root directory for requests.
 	#
-	DefaultRoot = "/msfweb"
+	DefaultRoot = "/"
+
+	#
+	# The default local directory for msfweb.
+	#
+	DefaultLocalDirectory = Msf::Config.data_directory + File::SEPARATOR + "msfweb"
+
+	#
+	# The default index script.
+	#
+	DefaultIndex = "index.rhtml"
 
 	#
 	# Initializes a web driver instance and prepares it for listening to HTTP
@@ -67,12 +99,16 @@ class Driver < Msf::Ui::Driver
 
 		ilog("Web server started on #{host}:#{port}", LogSource)
 
-		service.add_resource(
+		# Mount the server root directory on the web server instance.  We pass
+		# it a custom ErbCallback so that we can have it run in a context that
+		# has the framework instance defined.
+		service.mount(
 			server_root,
-			'Directory' => true,
-			'Proc' => Proc.new { |cli, req|
-				on_request(cli, req)
-			})
+			ResourceHandler, 
+			false,
+			server_local_directory,	
+			framework,
+			self)
 
 		# Wait for the termination event to be set.
 		term_event.wait
@@ -93,10 +129,24 @@ class Driver < Msf::Ui::Driver
 	end
 
 	#
-	# Returns the root resource name, such as '/msfweb'
+	# Returns the root resource name, such as '/msfweb'.
 	#
 	def server_root
 		opts['ServerRoot'] || DefaultRoot
+	end
+
+	#
+	# Returns the server index, such as 'index.rhtml'.
+	#
+	def server_index
+		opts['ServerIndex'] || DefaultIndex
+	end
+
+	#
+	# Returns the local directory that will hold the files to be serviced.
+	#
+	def server_local_directory
+		opts['ServerLocalDirectory'] || DefaultLocalDirectory
 	end
 
 	#
