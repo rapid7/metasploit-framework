@@ -64,6 +64,8 @@ module Meterpreter
 	# advanced option is set to true.
 	#
 	def on_session(session)
+		super
+
 		session.queue_cmd('use stdapi') if (datastore['AutoLoadStdapi'] == true)
 	end
 
