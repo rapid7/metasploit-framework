@@ -158,7 +158,8 @@ class Driver < Msf::Ui::Driver
 	def on_variable_set(glob, var, val)
 		case var.downcase
 			when "payload"
-				if (framework.modules.valid?(val) == false)
+				
+				if (framework and framework.modules.valid?(val) == false)
 					return false
 				end
 			when "sessionlogging"
