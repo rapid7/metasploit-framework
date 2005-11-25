@@ -355,8 +355,86 @@ but when it is the information provided should make it easy to analyze
 any problem.
 
         \subsection{Post-exploitation}
+
+\par
+The rex library provides client-side implementations for some
+advanced post-exploitation, such as DispatchNinja and Meterpreter.
+These two post-exploitation client interfaces are designed to be
+usable outside of the context of an exploit.  The \texttt{Rex::Post}
+namespace provides a set of classes at its root that are meant to
+act as a generalized interface to remote systems via the
+post-exploitation clients, if supported.  These classes allow
+programmers to write automated tools that can operate upon remote
+machines in a platform-independent manner.  While it's true that
+platforms may lack analogous feature sets for some actions, the
+majority of the common set of actions will have functional
+equivalents.
+
         \subsection{Protocols}
+
+\par
+Support for some of the more common protocols, such as HTTP and SMB,
+is included in the rex library to help support the development of
+protocol-specific exploits and to allow for ease of use in other
+projects.  Each protocol implementation exists under the
+\texttt{Rex::Proto} namespace.
+
+            \subsubsection{DCERC}
+
+\par
+The rex library supports a fairly robust implementation of a subset
+of the DCERPC feature-set and includes support for doing invasive
+actions such as multi-context bind and packet fragmentation.  The
+classes that support the DCERPC client interface can be found in the
+\texttt{Rex::Proto::DCERPC} namespace.
+
+            \subsubsection{HTTP}
+
+\par
+Minimal support for an HTTP client and server are provided in the
+rex library.  While similar protocol class implementations are
+provided both in webrick and in other areas of the ruby default
+standard library set, it was deemed that the current implementations
+were not well suited for general purpose use due to the existence of
+blocking request parsing and other such things.  The rex-provided
+HTTP library also provides classes for parsing HTTP requests and
+responses.  The HTTP protocol classes can be found under the
+\texttt{Rex::Proto::Http} namespace.
+
+            \subsubsection{SMB}
+
+\par
+Robust support for the SMB protocol is provided by the classes in
+the \texttt{Rex::Proto::SMB} namespace.  These classes support
+connecting to SMB servers and performing logins and other
+SMB-exposed actions like transacting a named pipe and performing
+other specific commands.  The SMB classes are particularly useful
+for exploits that require communicating with an SMB server.
+
         \subsection{Services}
+
+\par
+One of the limitations identified in the 2.x branch of the framework
+was that it was not possible to share listeners on the local machine
+when attempting to perform two different exploits that both needed
+to listen on the same port.  To solve this problem, the 3.0 version
+of the framework provides the concept of \textit{services} which are
+registered listeners that are initialized once and then subsequently
+shared by future requires to allocate the same service.  This makes
+it possible to do things like have two exploits waiting for an HTTP
+request on port 80 without having any sort of specific conflicts.
+This is especially useful because it makes it possible to not have
+to worry about firewall restrictions on outbound ports that would
+normally only permit connections to port 80, thus making it possible
+to try multiple client-side exploits against a host with all the
+different exploit instances listening on the same port for requests.
+
+\par
+Aside from the sharing of HTTP-like services, the service subsystem
+also provides a way to relay connections from a local TCP port to an
+already existing stream.  This support is offered through the
+\texttt{Rex::Services::LocalRelay} class.
+
         \subsection{Socket}
         \subsection{Synchronization}
     \section{Framework Core}
