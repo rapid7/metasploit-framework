@@ -18,7 +18,7 @@ module Payload
 	#
 	# opts can have:
 	#
-	#   Encoder     => A encoder module instance.
+	#   Encoder     => A encoder module name.
 	#   BadChars    => A string of bad characters.
 	#   Format      => The format to represent the data as: ruby, perl, c, raw
 	#   Options     => A hash of options to set.
@@ -26,6 +26,7 @@ module Payload
 	#                  whitespace.
 	#   NoComment   => Disables prepention of a comment
 	#   NopSledSize => The number of NOPs to use
+	#   MaxSize     => The maximum size of the payload.
 	#
 	# raises:
 	#
@@ -42,7 +43,8 @@ module Payload
 		e = EncodedPayload.create(payload,
 				'BadChars' => opts['BadChars'],
 				'MinNops'  => opts['NopSledSize'],
-				'Encoder'  => opts['Encoder'])
+				'Encoder'  => opts['Encoder'],
+				'Space'    => opts['MaxSize'])
 
 		fmt = opts['Format'] || 'raw'
 

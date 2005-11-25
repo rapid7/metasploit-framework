@@ -40,6 +40,8 @@ class DataStore < Hash
 		option_str.split(delim).each { |opt|
 			var, val = opt.split('=')
 
+			next if (var =~ /^\s+$/)
+
 			# Invalid parse?  Raise an exception and let those bastards know.
 			if (var == nil or val == nil)
 				var = "unknown" if (!var)

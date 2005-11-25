@@ -1,0 +1,217 @@
+<%= Msf::Ui::Web::Common.header(framework.version, 'payloads') %>
+<tr><td colspan='5'>
+
+<%
+	name   = query_string['name']
+	step   = query_string['step'] || 0
+
+	step = step.to_i
+
+	if (name == nil)
+ %>
+
+<%# Display the exploit list if one hasn't been selected %>
+<br/>
+<div align='center' class='navHead'>
+	<table class='moduleList' width='100%' cellspacing='0' border='0'>
+		<% framework.payloads.each_module { |name, mod| 
+			modinst = mod.new
+		 %>
+		<tr>
+			<td class='moduleIcons' align='center'>
+				<%= Msf::Ui::Web::Common.module_icons(modinst) %>
+			</td>
+			<td class='moduleName'>
+				<a href="payloads.rhtml?name=<%= name %>"><%= modinst.name %></a>
+			</td>
+			<td class='moduleSpacer' colspan='2'>
+			</td>
+		</tr>
+		<% } %>
+	</table>
+</div>
+
+<%# Wizard step 0 - target selection %>
+<%
+	elsif (step == 0)
+		modinst = framework.payloads.create(name)
+ %>
+<br/>
+<table width='100%' cellspacing='0' cellpadding='0' border='0'>
+	<tr>
+		<td class='moduleIcons' align='center'>
+			<%= Msf::Ui::Web::Common.module_icons(modinst) %>
+		</td>
+		<td class='moduleName'>
+			<div class='textBold'><%= html_escape(modinst.name) %></div>
+		</td>
+	</tr>
+</table>
+<br/>
+
+<table align='center' width='95%' cellspacing='0' cellpadding='6' border='0'>
+	<tr>
+		<td align='right' width='80' class='textBold'>Name:</td>
+		<td class='textNormal'><%= html_escape(modinst.name) %></td>
+	</tr>
+	<tr>
+		<td align='right' width='80' class='textBold'>Version:</td>
+		<td class='textNormal'><%= html_escape(modinst.version) %></td>
+	</tr>
+	<tr>
+		<td align='right' width='80' class='textBold'>Authors:</td>
+		<td class='textNormal'><%= html_escape(modinst.author.join("<br/>")) %></td>
+	</tr>
+	<tr>
+		<td align='right' width='80' class='textBold' valign='top'>Description:</td>
+		<td colspan='2' class='textNormal' valign='top'>
+			<%= html_escape(modinst.description) %>
+		</td>
+	</tr>
+	<tr>
+		<td align='right' width='80' class='textBold'>Size:</td>
+		<td class='textNormal'><%= modinst.generate.length %></td>
+	</tr>
+	<tr>
+		<td align='right' width='80' class='textBold'>Arch:</td>
+		<td class='textNormal'><%= modinst.arch_to_s %></td>
+	</tr>
+	<tr>
+		<td align='right' width='80' class='textBold'>OS:</td>
+		<td class='textNormal'><%= modinst.platform_to_s %></td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+<form method='GET'>
+	<input type='hidden' name='name' value="<%= html_escape(name) %>"/>
+	<input type='hidden' name='step' value="<%= step + 1 %>"/>
+
+	<table align='center' cellpadding='2' border='0' cellspacing='0' width='95%'>
+	<% 
+		modinst.options.each { |name, option| 
+			next if (option.advanced?)
+	 %>
+		<tr>
+			<td class='textBold'><%= name %></td>
+			<td class='textBold'><%= (option.required?) ? "Required" : "Optional" %></td>
+			<td class='textNormal'><%= option.type %></td>
+			<td class='textNormal'>
+				<input type='text' name="opt_<%= html_escape(name) %>" value="<%= html_escape(option.default || '') %>"/>
+			</td>
+			<td class='textNormal'><%= html_escape(option.desc) %></td>
+		</tr>
+	<% } %>
+
+		<tr><td colspan='5'>&nbsp;</td></tr>
+
+		<tr>
+			<td colspan='5' class='textBold'>
+				Max Size: <input type='text' name='max_size' size='10'/>
+			</td>
+		</tr>
+
+		<tr><td colspan='5'>&nbsp;</td></tr>
+
+		<tr>
+			<td colspan='5' class='textBold'>
+				Restricted Characters (format: 0x00 0x01):<br/>
+				<input type='text' name='badchars' size='45' value='0x00 '/>
+			</td>
+		</tr>
+
+		<tr><td colspan='5'>&nbsp;</td></tr>
+
+		<tr>
+			<td colspan='5' class='textBold'>
+				Selected Encoder:<br/>
+				<select name='encoder' size='1'>
+					<option value='__default'>Default
+				<% modinst.compatible_encoders.each { |encname, mod| %>
+					<option><%= encname %>
+				<% } %>
+				</select>
+			</td>
+		</tr>
+	
+		<tr><td colspan='5'>&nbsp;</td></tr>
+
+		<tr>
+			<td colspan='5' class='textBold'>
+				Format:<br/>
+				<select name='format' size='1'>
+					<option value='c'>C
+					<option value='ruby'>Ruby
+					<option value='perl'>Perl
+					<option value='raw'>Raw
+				</select>
+			</td>
+		</tr>
+	
+		<tr><td colspan='5'>&nbsp;</td></tr>
+
+		<tr>
+			<td colspan='5' align='left'>
+				<input type='submit' name='action' value='Generate Payload' class='button'/>
+			</td>
+		</tr>
+	</table>
+</form>
+
+<%# Wizard step 1 - generation %>
+<%
+	elsif (step == 1)
+		modinst = framework.payloads.create(name)
+
+		badchars = query_string['badchars']
+		encoder  = query_string['encoder']
+		format   = query_string['format']
+		max_size = (query_string['max_size'] || 0).to_i
+
+		# Build the options string
+		options  = ''
+
+		query_string.each_pair { |k, v|
+			next if (v == nil or v.length == 0)
+
+			if (k =~ /^opt_(.*)$/)
+				options += "#{$1}=#{v} "
+			end
+		}
+
+		begin
+			generation = modinst.generate_simple(	
+				'Encoder'   => (encoder == '__default') ? nil : encoder,
+				'BadChars'  => badchars,
+				'Format'    => format || 'c',
+				'OptionStr' => options,
+				'MaxSize'   => (max_size == 0) ? nil : max_size)
+		rescue 
+			generation = $!
+		end
+ %>
+<br/>
+<table width='100%' cellspacing='0' cellpadding='0' border='0'>
+	<tr>
+		<td class='moduleIcons' align='center'>
+			<%= Msf::Ui::Web::Common.module_icons(modinst) %>
+		</td>
+		<td class='moduleName'>
+			<div class='textBold'><%= html_escape(modinst.name) %></div>
+		</td>
+	</tr>
+</table>
+<br/>
+
+<pre>
+<%= generation %>
+</pre>
+
+<% else %>
+	Unknown step: <%= html_escape(step) %>
+<% end %>
+
+</td></tr>
+<%= Msf::Ui::Web::Common.footer %>
