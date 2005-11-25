@@ -173,7 +173,9 @@ traffic, or perform whatever other action might be useful.
 Figure \ref{fig-arch-pkg} illustrates the framework's inter-package
 dependencies.  The following sections will elaborate on each of the
 packages described above and the various important subsystems found
-within each package.
+within each package.  Full documentation of the classes and APIs
+mentioned in this document can be found in the auto-generated API
+level documentation found on the Metasploit website.
 
 \begin{figure}[h]
 \begin{center}
@@ -183,36 +185,204 @@ within each package.
 \end{figure}
 
     \section{Rex}
+
+\par
+The \textit{Rex} library is a collection of classes and modules that
+may be useful to more than one project.  The most useful classes
+provided by the library are documented in the following subsections.
+
+        \subsection{Assembly}
+
+\par
+When writing exploits it is often necessary to have to generate
+assembly instructions on the fly with variable operands, such as
+immediate values, registers, and so on.  To support this
+requirement, the Rex library provides classes under the
+\texttt{Rex::Arch} namespace that implement architecture-dependent
+opcode generation routines as well as other architecture-specific
+methods, like integer packing.
+
+            \subsubsection{Integer packing}
+
+\par
+Packing an integer depends on the byte-ordering of the target
+architecture, whether it be big endian or little endian.  The
+\texttt{Rex::Arch.pack\_addr} method supports packing an integer
+using the supplied architecture type (\texttt{ARCH\_XXX}) as an
+indication of which byte-ordering to use.
+
+            \subsubsection{Stack pointer adjustment}
+
+\par
+Some exploits require that the stack pointer be adjusted prior to
+the execution of a payload that modifies the stack in order to
+prevent corruption of the payload itself.  To support this, the
+\texttt{Rex::Arch.adjust\_stack\_pointer} method provides a way to
+generate the opcodes that lead to adjusting the stack pointer of a
+given architecture by the supplied adjustment value.  The adjustment
+value can be positive or negative.
+
+            \subsubsection{Architecture-specific opcode generation}
+
+\par
+Each architecture that currently has support for dynamically
+generating instruction opcodes has a class under the
+\texttt{Rex::Arch} namespace, such as \texttt{Rex::Arch::X86}.  The
+x86 class has support for generating \texttt{jmp}, \texttt{call},
+\texttt{push}, \texttt{mov}, \texttt{add}, and \texttt{sub}
+instructions.
+
+        \subsection{Encoding}
+
+\par
+Encoding buffers using algorithms like XOR can sometimes be useful
+outside the context of an exploit.  For that reason, the Rex library
+provides a basic set of classes that implement different types of
+XOR encoders, such as variable length key XOR encoders and additive
+feedback XOR encoders.  These classes are used by the framework to
+implement different types of basic encoders that can be used by
+encoder modules.  The classes for encoding buffers can be found in
+the \texttt{Rex::Encoding} namespace.
+
+        \subsection{Exploitation}
+
+\par
+Often times vulnerabilities will share a common attack vector or
+will require a specific order of operations in order to achieve the
+end-goal of code execution.  To assist in that matter, the Rex
+library has a set of classes that implement some of the common
+necessities that exploits have.
+
+            \subsubsection{Egghunter}
+
+\par
+In some cases the exploitation of a vulnerability may be limited by
+the amount of payload space that exists in the area of the overflow.
+This can sometimes prevent normal methods of exploitation from being
+possible due to the inability to fit a standard payload in the
+amount of room that is available.  To solve this problem, an exploit
+writer can make use of an \textit{egghunting} payload that searches
+the target process' address space for an egg that is prefixed to a
+larger payload.  This requires that an attacker have the ability to
+stick the larger payload somewhere else in memory prior to
+exploitation.  In the event that an egghunter is necessary, the
+\texttt{Rex::Exploitation::Egghunter} class can be used.
+
+            \subsubsection{SEH record generation}
+
+\par
+One attack vector that is particularly common on the Windows
+platform is what is referred to as an SEH overwrite.  When this
+occurs, an SEH registration record is overwritten on the stack with
+user-controlled data.  To leverage this, the handler address of the
+registration record is point to an address that will either directly
+or indirectly lead to control of execution flow.  To make this work,
+most attackers will point the handler address at the location of a
+\texttt{pop/pop/ret} instruction set somewhere in the address space.
+This action returns four bytes before the location of the handler
+address on the stack.  In most cases, attackers will set two of the
+four bytes to be equivalent a short jump instruction that hops over
+the handler address and into the payload controlled by the attacker.
+
+\par
+While the common approach works fine, there is plenty of room for
+improvement.  The \texttt{Rex::Exploitation::Seh} class provides
+support for generating the normal (static) SEH registration record
+via the \texttt{generate\_static\_seh\_record} method.  However, it
+also supports the generation of a dynamic registration record that
+has a random short jump length and random padding between the end of
+the registration record and the actual payload.  This can be used to
+make the exploit harder to signature in an IDS environment.  The
+generation of a dynamic registration record is provided by
+\texttt{generate\_dynamic\_seh\_record}.  Both methods are by the
+\texttt{generate\_seh\_record} method that decides which of the two
+methods to use based on evasion levels.
+
         \subsection{Logging}
+
+\par
+The Rex library provides support for the basic logging of strings to
+arbitrary log sinks, such as a flat file or a database.  The logging
+interface is exposed to programmers through a set of
+globally-defined methods: \texttt{dlog}, \texttt{ilog},
+\texttt{wlog}, \texttt{elog}, and \texttt{rlog}.  These methods
+represent debug logging, information logging, warning logging, error
+logging, and raw logging respectively.  Each method can be passed a
+log message, a log source (the name of the component or package that
+the message came from), and a log level which is a number between
+zero and three.  Log sources can be registered on the fly by
+\texttt{register\_log\_source} and their log level can be set by
+\texttt{set\_log\_level}.
+
+\par
+The log levels are meant to make it easy to hide verbose log
+messages when they are not necessary.  The use of the three log
+levels is defined below:
+
+            \subsubsection{LEV\_0 - Default}
+
+This log level is the default log level if none is specified.  It
+should be used when a log message should always be displayed when
+logging is enabled. Very few log messages should occur at this level
+aside from necessary information logging and error/warning logging.
+Debug logging at level zero is not advised.
+
+            \subsubsection{LEV\_1 - Extra}
+
+This log level should be used when extra information may be needed
+to understand the cause of an error or warning message or to get
+debugging information that might give clues as to why something is
+happening.  This log level should be used only when information may
+be useful to understanding the behavior of something at a basic
+level.  This log level should not be used in an exhaustively verbose
+fashion.
+
+            \subsubsection{LEV\_2 - Verbose}
+
+This log level should be used when verbose information may be needed
+to analyze the behavior of the framework.  This should be the
+default log level for all detailed information not falling into
+LEV\_0 or LEV\_1. It is recommended that this log level be used by
+default if you are unsure.
+
+            \subsubsection{LEV\_3 - Insanity}
+
+This log level should contain very verbose information about the
+behavior of the framework, such as detailed information about variable
+states at certain phases including, but not limited to, loop iterations,
+function calls, and so on.  This log level will rarely be displayed,
+but when it is the information provided should make it easy to analyze
+any problem.
+
+        \subsection{Post-exploitation}
         \subsection{Protocols}
         \subsection{Services}
         \subsection{Socket}
         \subsection{Synchronization}
-        \subsection{Exploitation}
     \section{Framework Core}
-        \subsection{Framework Managers}
         \subsection{Event Notifications}
+        \subsection{Framework Managers}
     \section{Framework Base}
-        \subsection{Simplified Framework}
         \subsection{Configuration}
         \subsection{Logging}
         \subsection{Serialization}
+        \subsection{Simplified Framework}
     \section{Framework Ui}
         \subsection{Console}
         \subsection{Web}
 \chapter{Framework Modules}
     \section{Encoder}
     \section{Exploit}
-        \subsection{Types}
         \subsection{Stances}
+        \subsection{Types}
         \subsection{Mixins}
     \section{Nop}
     \section{Payload}
         \subsection{Single}
-        \subsection{Stager}
         \subsection{Stage}
+        \subsection{Stager}
     \section{Recon}
-        \subsection{Discoverer}
+        \subsection{Discovery}
         \subsection{Analyzer}
 \chapter{Framework Plugins}
     \section{User-interface Plugins}
