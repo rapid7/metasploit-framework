@@ -580,7 +580,26 @@ the \texttt{lock\_read} method can be used.  To lock the resource
 for write access, the \texttt{lock\_write} method can be used.
 
             \subsubsection{Reference counting}
+
+\par
+In some cases it is necessary to reference count an instance in a
+synchronized fashion so that it is not cleaned up or destroyed until
+the last reference is gone.  For this purpose, the \texttt{Rex::Ref}
+class can be used with the \texttt{refinit} method for initializing
+references to 1 and the \texttt{ref} and \texttt{deref} methods that
+do what their names imply.  When the reference count drops to zero,
+the \texttt{cleanup} method is called on the object instance to give
+it a chance to restore things back to normal.
+
             \subsubsection{Thread-safe operations}
+
+\par
+Some of the built-in functions in Ruby are not thread safe in that
+they can block other ruby threads from being scheduled on certain
+conditions.  To solve this problem, the functions that have issues
+have been wrappered with implementations that ensure that not all
+ruby threads will block.  The specific methods that required change
+were \texttt{select} and \texttt{sleep}.
 
     \section{Framework Core}
         \subsection{Event Notifications}
