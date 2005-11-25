@@ -436,6 +436,114 @@ already existing stream.  This support is offered through the
 \texttt{Rex::Services::LocalRelay} class.
 
         \subsection{Socket}
+
+\par
+One of the most important features of the rex library is the set of
+classes that wrapper sockets.  The socket subsystem provides an
+interface for creating sockets of a given protocol using what is
+referred to as a \texttt{Comm} factory class.  The purpose of the
+Comm factory class is to make the underlying transport and classes
+used to establish the connection for a given socket opaque.  This
+makes it possible for socket connections to be established using the
+local socket facilities as well as by using some sort of tunneled
+socket proxying system as is the case with Meterpreter connection
+pivoting.
+
+\par
+Sockets are created using the socket \texttt{Parameter} class which
+is initialized either directly or through the use of a hash.  The
+hash initialization of the Parameters class is much the same as
+perl's socket initialization.  The hash attributes supported by the
+Parameter class are documented in the constructor of the Parameter
+class.
+
+\par
+There are a few different ways to create sockets.  The first way is
+to simply call \texttt{Rex::Socket.create} with a hash that will be
+used to create a socket of the appropriate type using the supplied
+or default Comm factory class.  A second approach that can be used
+is to call the \texttt{Rex::Socket::create\_param} method which
+takes an initialized Parameter instance as an argument.  The
+remaining approaches involve using protocol-specific factory
+methods, such as \texttt{create\_tcp}, \texttt{create\_tcp\_server},
+and \texttt{create\_udp}.  All three of these methods take a hash as
+a parameter that is translated into a Parameter instance and passed
+on for actual creation.
+
+\par
+All sockets have five major attributes that are shared in common,
+though some may not always be initialized.  The first attributes
+provide information about the remote host and port and are exposed
+through the \texttt{peerhost} and \texttt{peerport} attributes,
+respectively.  The second attributes provide information the local
+host and port and are exposed through the \texttt{localhost} and
+\texttt{localport} attributes, respectively.  Finally, every socket
+has a hash of contextual information that was used during it's
+creation which is exposed through the \texttt{context} attribute.
+While most exploits will have an empty hash, some exploits may have
+a hash that contains state information that can be used to track the
+originator of the socket.  The framework makes use of this feature
+to associate sockets with framework, exploit, and payload instances.
+
+            \subsubsection{Comm classes}
+
+\par
+The \texttt{Comm} interface used in the library has one simple
+method called \texttt{create} which takes a \texttt{Parameter}
+instance.  The purpose of this factory approach is to provide a
+location and transport independent way of creating compatible socket
+object instances using a generalized factory method.  For
+connections being established directly from the local box, the
+\texttt{Rex::Socket::Comm::Local} class is used.  For connections be
+established through another machine, a medium specific Comm factory
+is used, such as the Meterpreter Comm class.
+
+\par
+The \texttt{Comm} interface also supports registered event
+notification handlers for when certain things occur, like prior to
+and after the creation of a new socket.  This can be used by
+external projects to augment the feature set of a socket or to
+change its default behavior.
+
+            \subsubsection{TCP sockets}
+
+\par
+TCP sockets in the Rex library are implemented as a mixin,
+\texttt{Rex::Socket::Tcp}, that extends the built-in ruby Socket
+base class when the local Comm factory is used.  This mixin also
+includes the \texttt{Rex::IO::Stream} and \texttt{Rex::Socket}
+mixins.  For TCP servers, the \texttt{Rex::Socket::TcpServer} class
+should be used.
+
+            \subsubsection{SSL sockets}
+
+\par
+SSL sockets are implemented on top of the normal Rex TCP socket
+mixin and makes use of the OpenSSL Ruby support.  The module used
+for SSL TCP sockets is \texttt{Rex::Socket::SslTcp}.
+
+            \subsubsection{Switch board routing table}
+
+\par
+One of the advancements in the 3.0 version of the framework is the
+concept of a local routing table that controls which Comm factory is
+used for a particular route.  The reason this is useful is for
+scenarios where a box is compromised that straddles an internal
+network that can't be directly reached.  By adjusting the switch
+board routing table to point the local subnet through a Meterpreter
+Comm running the host that straddles the network, it is possible for
+force the socket library to automatically use the Meterpreter Comm
+factory when anything tries to communicate with hosts on the local
+subnet.  This support is implemented through the
+\texttt{Rex::Socket::SwitchBoard} class.
+
+            \subsubsection{Subnet walking}
+
+\par
+The \texttt{Rex::Socket::SubnetWalker} class provides a way of
+enumerating all the IP addresses in a subnet as described by a
+subnet address and a netmask.
+
         \subsection{Synchronization}
     \section{Framework Core}
         \subsection{Event Notifications}
