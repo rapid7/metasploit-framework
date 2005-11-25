@@ -90,14 +90,42 @@ module DispatcherShell
 	def initialize(prompt, prompt_char = '>')
 		super
 
+		# Initialze the dispatcher array
 		self.dispatcher_stack = []
+		
+		# Initialize the tab completion array
+		self.tab_words = []		
 	end
 
 	#
-	# Performs tab completion on shell input if supported.
-	# Current words can be found in self.tab_words
+	# This method accepts the entire line of text from the Readline
+	# routine, stores all completed words, and passes the partial
+	# word to the real tab completion function. This works around
+	# a design problem in the Readline module and depends on the
+	# Readline.basic_word_break_characters variable being set to \x00
 	#
 	def tab_complete(str)
+		# Check trailing whitespace so we can tell 'x' from 'x '
+		str_match = str.match(/\s+$/)
+		str_trail = (str_match.nil?) ? '' : str_match[0]
+		
+		# Split the line up by whitespace into words
+		str_words = str.split(/[\s\t\n]+/)
+		
+		# Append an empty word if we had trailing whitespace
+		str_words << '' if str_trail.length > 0
+		
+		# Place the word list into an instance variable
+		self.tab_words = str_words
+		
+		# Pop the last word and pass it to the real method
+		tab_complete_stub(self.tab_words.pop)
+	end
+
+	# Performs tab completion of a command, if supported	
+	# Current words can be found in self.tab_words
+	#
+	def tab_complete_stub(str)
 		items = []
 	
 		# puts "Words(#{tab_words.join(", ")}) Partial='#{str}'"
@@ -111,10 +139,6 @@ module DispatcherShell
 				items.concat(dispatcher.commands.to_a.map { |x| x[0] })
 			end
 
-			# XXX - This should now be obsolete!
-			# If the dispatcher has custom tab completion items, use them
-			# items.concat(dispatcher.tab_complete_items || [])
-			
 			# If the dispatcher exports a tab completion function, use it
 			if(dispatcher.respond_to?('tab_complete_helper'))
 				res = dispatcher.tab_complete_helper(str, tab_words)
@@ -275,6 +299,7 @@ module DispatcherShell
 
 
 	attr_accessor :dispatcher_stack # :nodoc:
+	attr_accessor :tab_words # :nodoc:
 
 end
 

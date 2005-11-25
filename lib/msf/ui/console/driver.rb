@@ -66,9 +66,7 @@ class Driver < Msf::Ui::Driver
 
 		# Process the resource script
 		process_rc_file
-		
-		# Initialize the tab completion array
-		self.tab_words = []
+
 	end
 
 	#
@@ -202,7 +200,6 @@ class Driver < Msf::Ui::Driver
 protected
 
 	attr_writer   :framework # :nodoc:
-	attr_accessor :tab_words # :nodoc:
 	
 	##
 	#
@@ -261,31 +258,6 @@ protected
 	def handle_loglevel(val)
 		set_log_level(Rex::LogSource, val)
 		set_log_level(Msf::LogSource, val)
-	end
-	
-	#
-	# This method accepts the entire line of text from the Readline
-	# routine, stores all completed words, and passes the partial
-	# word to the real tab completion function. This works around
-	# a design problem in the Readline module and depends on the
-	# Readline.basic_word_break_characters variable being set to \x00
-	#
-	def tab_complete(str)
-		# Check trailing whitespace so we can tell 'x' from 'x '
-		str_match = str.match(/\s+$/)
-		str_trail = (str_match.nil?) ? '' : str_match[0]
-		
-		# Split the line up by whitespace into words
-		str_words = str.split(/[\s\t\n]+/)
-		
-		# Append an empty word if we had trailing whitespace
-		str_words << '' if str_trail.length > 0
-		
-		# Place the word list into an instance variable
-		self.tab_words = str_words
-		
-		# Pop the last word and pass it to the parent
-		super(self.tab_words.pop)
 	end
 
 end
