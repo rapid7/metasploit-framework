@@ -299,6 +299,25 @@ generation of a dynamic registration record is provided by
 \texttt{generate\_seh\_record} method that decides which of the two
 methods to use based on evasion levels.
 
+        \subsection{Jobs}
+        \label{rex-jobs}
+
+\par
+In some cases it is helpful to break certain tasks down into the
+concept of jobs.  Jobs are simply defined as finite workitems that
+have a specific task.  Using this definition, the Rex library
+provides a class named \texttt{Rex::JobContainer} that provides an
+interface for coordinating various jobs in a centralized manner. New
+jobs can be added to the job container by calling the
+\texttt{add\_job} method.  Once added, a job can be started by
+issuing a call to the \texttt{start\_job} method.  At any time, a
+job can be stopped by calling the \texttt{stop\_job} which will also
+remove the job by calling the \texttt{remove\_job} method.
+
+\par
+For more information how the usage of these API routines, please
+refer to the auto-generated documentation on Metasploit website.
+
         \subsection{Logging}
 
 \par
@@ -901,7 +920,10 @@ existing aspects of the framework.  Plugins have a very loose
 definition in terms of the scope in which they can operate.  For
 instance, a plugin could add an entirely new module type for use by
 the framework.  Alternatively, a plugin could add commands to the
-existing user interfaces that interact with the framework.  The
+existing user interfaces that interact with the framework.  A plugin
+could also register custom event subscribers for doing things like
+automatically causing Meterpreter to list the contents of a
+computer's C drive when a new Meterpreter session is created.  The
 possibilities, as they say, are endless.
 
 \par
@@ -966,6 +988,114 @@ through the \texttt{framework.reconmgr} accessor.
 This area of the framework is currently undergoing design review and
 therefore does not have any documentation at this time.
 
+            \subsubsection{Session management}
+
+\par
+The session manager is used to track sessions created from within a
+framework instance as the result of an exploit succeeding.  The
+purpose of sessions is to expose features to a programmer that allow
+it to be interacted with.  For instance, a command shell session
+allows programmers to send commands and read responses to those
+commands through a well-defined API.  For more information on
+sessions and how they can be interacted with, please see chapter
+\ref{framework-sessions}.  The session manager itself can be
+accessed through the \texttt{framework.sessions} accessor and is an
+instance of the \texttt{Msf::SessionManager} class.
+
+\par
+The primary purpose of the session manager is to provide an
+interface for registering new sessions and assigning them a unique
+session identifier as well as allowing sessions to be deregistered
+when they are destroyed.  The registering of sessions with the
+framework session manager is accomplished by making a call into the
+\texttt{framework.sessions.register} method which takes an instance
+of a session as its argument.  This method will assign the session a
+unique session identifier and add it to the managed hash of
+sessions.  Sessions can be enumerated by making a call into
+\texttt{framework.sessions.each\_sorted} or by calling any of the
+hash-compatible enumeration methods.  To obtain the session instance
+associated with a particular session identifier, the
+\texttt{framework.sessions.get} method can be called with the
+session identifier to look up.  When a session is being destroyed, a
+call must be made to \texttt{framework.sessions.deregister} passing
+the instance of the session being destroyed as the first argument.
+
+            \subsubsection{Job management}
+
+\par
+Each framework instance supports running various tasks in the
+context of worker threads through the concept of jobs.  The job
+interface can be accessed through the \texttt{framework.jobs}
+accessor which is an instance of the \texttt{Rex::JobContainer}
+class.  For more information on jobs, please refer to the job
+explanation in the Rex documentation in section \ref{rex-jobs}.
+
+        \subsection{Utility Classes}
+
+\par
+Some classes in the framework core are intended to be used to make
+certain tasks simpler without being out of scope of the core aspects
+of the framework.  These classes are described below.
+
+            \subsubsection{Exploit driver}
+
+\par
+The \texttt{Msf::ExploitDriver} class encapsulates the task of
+running an exploit module in terms of coordinating the validation of
+required module options, the validation of target selection, the
+generation of a selected payload, and the execution of exploit and
+payload setup and cleanup.  These operations are what has to be
+performed when attempting to execute an exploit.
+
+\par
+An instance of an exploit driver is initialized as described in
+figure \ref{fig-code-exploit-driver}.
+
+\begin{figure}[h]
+\begin{verbatim}
+driver = Msf::ExploitDriver.new(framework)
+
+driver.payload = payload_instance
+driver.exploit = exploit_instance
+driver.target_idx = 0
+
+session = driver.run
+\end{verbatim}
+\caption{Using the ExploitDriver class}
+\label{fig-code-exploit-driver}
+\end{figure}
+
+\par
+When the \texttt{run} method is called, the first step is to
+validate the options required by the payload and the exploit that
+have been selected.  This is done by calling the public
+\texttt{validate} method on the exploit driver instance.  In the
+event that options fail to validate or that a target index has not
+bee properly selected, an exception will be thrown to the caller.
+After validation has completed, the exploit's \texttt{TARGET} data
+store element is set to the selected target index.  From that, an
+encoded version of the payload is generated by calling
+\texttt{generate\_payload} on the exploit instance.  Once completed,
+the exploit is set up by calling \texttt{setup} on the exploit
+module instance and finally the actual exploit code is triggered by
+calling \texttt{exploit} on the exploit module instance.
+
+\par
+Once exploitation has completed, the exploit driver calls the
+\texttt{stop\_handler} method on the payload module instance and
+then calls the \texttt{cleanup} method on the exploit module
+instance.
+
+\par
+The exploit driver can also be instructed to run the exploit in the
+context of a job.  When this is done, the underlying exploitation
+operation is done in the context of a job worker thread by calling
+\texttt{framework.jobs.start\_bj\_job}.  The exploit driver can be
+told to use a job by setting the \texttt{use\_job} attribute to
+true.
+
+            \subsubsection{Encoded payload}
+
     \section{Framework Base}
         \subsection{Configuration}
         \subsection{Logging}
@@ -994,6 +1124,10 @@ therefore does not have any documentation at this time.
 \label{framework-plugins}
 
     \section{User-interface Plugins}
+\chapter{Framework Sessions}
+\label{framework-sessions}
+    \section{Command Shell}
+    \section{Meterpreter}
 \chapter{Methodologies}
     \section{Writing an Exploit}
 \chapter{Conclusion}
