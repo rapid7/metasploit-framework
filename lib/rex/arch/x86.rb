@@ -25,6 +25,31 @@ module X86
 	                'esp', 'ebp', 'esi', 'edi' ] # :nodoc:
 
 	#
+	# This method adds/subs a packed long integer
+	#
+	def self.dword_adjust(dword, amount=0)
+		[dword.unpack('V')[0] + amount].pack('V')
+	end
+	
+	#
+	# This method returns the opcodes that compose a tag-based search routine
+	#
+	def self.searcher(tag)
+		"\xbe" + dword_adjust(tag,-1)+  # mov esi, Tag - 1
+		"\x46" +                        # inc esi
+		"\x47" +                        # inc edi (end_search:)
+		"\x39\x37" +                    # cmp [edi],esi
+		"\x75\xfb" +                    # jnz 0xa (end_search)
+		"\x46" +                        # inc esi
+		"\x4f" +                        # dec edi (start_search:)
+		"\x39\x77\xfc" +                # cmp [edi-0x4],esi
+		"\x75\xfa" +                    # jnz 0x10 (start_search)
+		"\xff\xe7"                      # jmp edi	
+	end
+
+
+	
+	#
 	# This method returns the opcodes that compose a short jump instruction to
 	# the supplied relative offset.
 	#
