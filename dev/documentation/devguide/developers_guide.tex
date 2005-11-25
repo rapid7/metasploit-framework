@@ -650,6 +650,7 @@ framework is illustrated in figure \ref{fig-code-framework-create}.
 
 \begin{figure}[h]
 \begin{verbatim}
+
 framework = Msf::Framework.new
 \end{verbatim}
 \caption{Creating an instance of the framework}
@@ -678,6 +679,7 @@ Interacting with the datastore is illustrated in figure
 
 \begin{figure}[h]
 \begin{verbatim}
+
 framework.datastore['foo'] = 'bar'
 
 if (framework.datastore['foo'] == 'bar')
