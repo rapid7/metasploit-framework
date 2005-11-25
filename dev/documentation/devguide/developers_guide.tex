@@ -892,7 +892,79 @@ of the module's underlying file path and automatically creating a
 new instance of the module.
 
             \subsubsection{Plugin management}
+
+\par
+One of the new features in the 3.0 version of the framework is the
+concept of framework plugins.  Unlike modules, framework plugins are
+meant to add features to the framework or to change the behavior of
+existing aspects of the framework.  Plugins have a very loose
+definition in terms of the scope in which they can operate.  For
+instance, a plugin could add an entirely new module type for use by
+the framework.  Alternatively, a plugin could add commands to the
+existing user interfaces that interact with the framework.  The
+possibilities, as they say, are endless.
+
+\par
+The plugin manager can be accessed through the
+\texttt{framework.plugins} accessor which is an instance of the
+\texttt{Msf::PluginManager} class. To load a plugin, a call can be
+made to \texttt{framework.plugins.load} with the path of the plugin
+that is to be loaded.  Optionally, a second parameter can be passed
+to the \texttt{load} method that is a hash of option parameters that
+may be useful to the plugin, such as \texttt{LocalInput} and
+\texttt{LocalOutput} handles for use with printing strings to the
+screen or whatever medium is currently being used.  The table shown
+in figure \ref{fig-table-plugin-hash} shows the pre-defined hash
+elements that can be passed in the option hash.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|p{3.5in}|}
+\hline
+\textbf{Hash Element} & \textbf{Description} \\
+\hline
+LocalInput & The local input class instance which implements the \texttt{Rex::Ui::Text::Input} interface. \\
+LocalOutput & The local input class instance which implements the \texttt{Rex::Ui::Output} interface. \\
+ConsoleDriver & The console driver instance of \texttt{Msf::Ui::Console::Driver}. \\
+WebDriver & The console driver instance of \texttt{Msf::Ui::Web::Driver}. \\
+\hline
+\end{tabular}
+\caption{Module types and their framework accessors}
+\label{fig-table-plugin-hash}
+\end{center}
+\end{figure}
+
+\par
+All plugins are reference counted.  This is to make it possible to
+implement singleton plugins that could possibly be loaded more than
+once but will only have one underlying instance.  The reference
+count to an instance of a plugin is automatically incremented each
+time \texttt{load} is called on it.
+
+\par
+To unload a framework plugin, a call can be made to
+\texttt{framework.plugins.unload} passing the instance of the plugin
+previously loaded as the first parameter.  Since all plugins are
+reference counted, a plugin will not actually be unloaded until its
+reference count drops to zero.
+
+\par
+For more detail on the implementation of framework plugins, please
+see chapter \ref{framework-plugins}.
+
             \subsubsection{Recon management}
+
+\par
+The reconnaissance manager is used to provide an interface for
+reporting information about hosts, services, and other
+reconnaissance entities.  These reports are tracked internally by
+the recon manager which is implemented by the
+\texttt{Msf::ReconManager} class.  The recon manager can be accessed
+through the \texttt{framework.reconmgr} accessor.
+
+\par
+This area of the framework is currently undergoing design review and
+therefore does not have any documentation at this time.
 
     \section{Framework Base}
         \subsection{Configuration}
@@ -919,6 +991,8 @@ new instance of the module.
         \subsection{Discovery}
         \subsection{Analyzer}
 \chapter{Framework Plugins}
+\label{framework-plugins}
+
     \section{User-interface Plugins}
 \chapter{Methodologies}
     \section{Writing an Exploit}
