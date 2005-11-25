@@ -545,6 +545,43 @@ enumerating all the IP addresses in a subnet as described by a
 subnet address and a netmask.
 
         \subsection{Synchronization}
+
+\par
+Due to the use of multi-threading, the Rex library provides extra
+classes that don't exist by default in the Ruby standard library.
+These classes provide extra synchronization primitives.
+
+            \subsubsection{Notification events}
+
+\par
+While Ruby does have the concept of \texttt{ConditionVariable}'s, it
+lacks the complete concept of notification events.  Notification
+events are used extensively on platforms like Windows.  These events
+can be waited on and signaled, either permanently or temporarily.
+For more information.  This support is provided by the
+\texttt{Rex::Sync::Event} class.
+
+            \subsubsection{Reader/Writer locks}
+
+\par
+A common threading primitive is the reader/writer lock.
+Reader/writer locks are used to make it possible for multiple
+threads to be reading a resource concurrently while only permitting
+exclusive access to one thread when write operations are necessary.
+This primitive is especially useful for resources that are not
+updated very often as it can drastically reduce lock contentions.
+While it may be overkill to have such a synchronization primitive in
+the library, it's still cool.
+
+\par
+The reader/writer lock implementation is provided by the
+\texttt{Rex::ReadWriteLock} class.  To lock the resource for read,
+the \texttt{lock\_read} method can be used.  To lock the resource
+for write access, the \texttt{lock\_write} method can be used.
+
+            \subsubsection{Reference counting}
+            \subsubsection{Thread-safe operations}
+
     \section{Framework Core}
         \subsection{Event Notifications}
         \subsection{Framework Managers}
