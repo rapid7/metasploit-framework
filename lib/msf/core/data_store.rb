@@ -28,7 +28,7 @@ class DataStore < Hash
 	#
 	def import_options_from_s(option_str)
 		hash = {}
-	
+
 		# Figure out the deliminter, default to space.
 		delim = /\s/
 
@@ -41,6 +41,9 @@ class DataStore < Hash
 			var, val = opt.split('=')
 
 			next if (var =~ /^\s+$/)
+
+			# Remove trailing whitespaces from the value
+			val.gsub!(/\s+$/, '')
 
 			# Invalid parse?  Raise an exception and let those bastards know.
 			if (var == nil or val == nil)
