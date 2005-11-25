@@ -70,13 +70,14 @@ that the Metasploit staff enjoyed writing in.  After spending time
 analyzing other languages and factoring in past experiences, the
 Ruby programming language was found to offer both a simple and
 powerful approach to an interpreted language.  The degree of
-introspection and the object-oriented aspects provided by Ruby was
+introspection and the object-oriented aspects provided by Ruby were
 something that fit very nicely with some of the requirements of the
-framework, where automated class construction and for the purpose of
-code re-use was a very key concern, and it was one that perl was not
-very well suited to offer. On top of this, the syntax is incredibly
-simplistic and provides the same level of language features that
-other more accepted languages have, like perl.
+framework.  The framework's need for automated class construction
+code re-use was a key factor in the decision making process, and it
+was one of the things that perl was not very well suited to offer.
+On top of this, the syntax is incredibly simplistic and provides the
+same level of language features that other more accepted languages
+have, like perl.
 
 \par
 The second reason Ruby was selected was because of its platform
@@ -420,7 +421,7 @@ when attempting to perform two different exploits that both needed
 to listen on the same port.  To solve this problem, the 3.0 version
 of the framework provides the concept of \textit{services} which are
 registered listeners that are initialized once and then subsequently
-shared by future requires to allocate the same service.  This makes
+shared by future requests to allocate the same service.  This makes
 it possible to do things like have two exploits waiting for an HTTP
 request on port 80 without having any sort of specific conflicts.
 This is especially useful because it makes it possible to not have
@@ -435,7 +436,7 @@ also provides a way to relay connections from a local TCP port to an
 already existing stream.  This support is offered through the
 \texttt{Rex::Services::LocalRelay} class.
 
-        \subsection{Socket}
+        \subsection{Sockets}
 
 \par
 One of the most important features of the rex library is the set of
@@ -531,7 +532,7 @@ used for a particular route.  The reason this is useful is for
 scenarios where a box is compromised that straddles an internal
 network that can't be directly reached.  By adjusting the switch
 board routing table to point the local subnet through a Meterpreter
-Comm running the host that straddles the network, it is possible for
+Comm running the host that straddles the network, it is possible to
 force the socket library to automatically use the Meterpreter Comm
 factory when anything tries to communicate with hosts on the local
 subnet.  This support is implemented through the
@@ -558,7 +559,8 @@ While Ruby does have the concept of \texttt{ConditionVariable}'s, it
 lacks the complete concept of notification events.  Notification
 events are used extensively on platforms like Windows.  These events
 can be waited on and signaled, either permanently or temporarily.
-For more information.  This support is provided by the
+Please refer to Microsoft's online documentation for more
+information. This support is provided by the
 \texttt{Rex::Sync::Event} class.
 
             \subsubsection{Reader/Writer locks}
@@ -595,15 +597,303 @@ it a chance to restore things back to normal.
 
 \par
 Some of the built-in functions in Ruby are not thread safe in that
-they can block other ruby threads from being scheduled on certain
+they can block other ruby threads from being scheduled in certain
 conditions.  To solve this problem, the functions that have issues
 have been wrappered with implementations that ensure that not all
 ruby threads will block.  The specific methods that required change
 were \texttt{select} and \texttt{sleep}.
 
     \section{Framework Core}
+
+\par
+The framework core implements the set of classes that provide an
+interface to framework modules and plugins.  The core portion of the
+framework is designed by used in an instance-based approach.  This
+means that the entire framework state can be contained within one
+class instance thereby allowing programmers to have multiple
+concurrent and separate framework instances in use at the same time
+rather than forcing everything to share one singleton instance.
+
+\par
+The current major version of the framework core can be accessed
+through \texttt{Msf::Framework::Major} and the minor version can be
+accessed through \texttt{Msf::Framework::Minor}.  A combined version
+of these two version numbers can be accessed through
+\texttt{Msf::Framework::Version} or \texttt{framework.version} on an
+instance level.  The current revision of the framework core
+interface can be accessed through
+\\\texttt{Msf::Framework::Revision}.
+
+\par
+The framework core is accessed through an instance of the
+\texttt{Msf::Framework} class.  Creating an instance of the
+framework is illustrated in figure \ref{fig-code-framework-create}.
+
+\begin{figure}[h]
+\begin{verbatim}
+framework = Msf::Framework.new
+\end{verbatim}
+\caption{Creating an instance of the framework}
+\label{fig-code-framework-create}
+\end{figure}
+
+\par
+The framework instance itself is nothing more than a way of
+connecting the different critical subsystems of the framework core,
+such as module management, session management, event dispatching,
+and so on.  The manner of using these subsystems will be described
+in the following subsections.
+
+        \subsection{DataStore}
+
+\par
+Each framework instance has an instance of the
+\texttt{Msf::DataStore} class that can be accessed via
+\texttt{framework.datastore}.  The purpose of the datastore in the
+3.0 version of the framework is to act as a replacement for the
+concept of the environment in the 2.x branch.  The datastore is
+simply a hash of values that may be used either by modules or by the
+framework itself to reference programmer or user controlled values.
+Interacting with the datastore is illustrated in figure
+\ref{fig-code-framework-datastore}.
+
+\begin{figure}[h]
+\begin{verbatim}
+framework.datastore['foo'] = 'bar'
+
+if (framework.datastore['foo'] == 'bar')
+    puts "'foo' is 'bar'"
+end
+\end{verbatim}
+\caption{Creating an instance of the framework}
+\label{fig-code-framework-datastore}
+\end{figure}
+
+\par
+Modules will inherit values from the framework's global datastore if
+they are not found in the module's localized datastore.  This aspect
+will be discussed in more detail in chapter \ref{framework-modules}.
+
         \subsection{Event Notifications}
+
+\par
+One of the major goals with the 3.0 version of the framework was to
+provide developers with a useful event notification system that
+would allow them to perform arbitrary actions when certain framework
+events occurred.  To support this, each framework instance can have
+event handlers registered through the \texttt{framework.events}
+attribute which is an instance of the \texttt{Msf::EventDispatcher}
+class.
+
+\par
+The \texttt{EventDispatcher} class supports registering events for a
+few basic different categories.  These categories will be discussed
+individually.  One of the nice aspects of the event-driven framework
+is that modules can automatically indicate their interest in being
+registered for event handler notifications by simply implementing
+the event subscriber mixins subscribed below.  When a module is
+loaded into the framework, it will automatically detect that it
+includes one or more of the subscriber interfaces and automatically
+register the module with the appropriate event notifiers.  This
+makes it possible for modules to take certain actions when specific
+events occur.
+
+            \subsubsection{Exploit events}
+
+\par
+Event subscribers can be registered to be notified when events
+regarding exploitation occur.  To register an exploit event
+subscriber, a call should be made to
+\texttt{framework.events.register\_exploit\_subscriber}.  This
+method should be passed an instance of an object that includes the
+\texttt{Msf::ExploitEvent} mixin.  The type of event that this
+subscriber will be notified of is when an exploit succeeds.  In the
+event that an exploit succeeds, the subscriber's
+\texttt{on\_exploit\_success} method will be called with the exploit
+instance that succeeded and the session instance that it created.
+
+\par
+To remove an event subscriber, a call should be made to\\
+\texttt{framework.events.remove\_exploit\_subscriber} passing the
+object instance that was used to add the subscriber in the first
+place.
+
+            \subsubsection{General framework events}
+
+\par
+To receive event notifications about internal framework events, a
+general event subscriber can be registered through the
+\texttt{framework.events.register\_general\_subscriber} method.
+This method takes an instance of an object that includes the
+\texttt{Msf::GeneralEventSubscriber} mixin.  When a module is loaded
+into the framework instance, the \texttt{on\_module\_load\_proc}
+will be called if it is non-nil and will be passed the reference
+name and class associated with the newly loaded module. When a
+module instance is created, the \texttt{on\_module\_created\_proc}
+will be called if it's non-nil and will be passed the newly created
+module instance.
+
+\par
+To remove an event subscriber, a call should be made to\\
+\texttt{framework.events.remove\_general\_subscriber} passing the
+object instance that was used to add the subscriber in the first
+place.
+            \subsubsection{Recon events}
+
+\par
+To receive notifications about reconnaissance events, such as when a
+new host or service is detected, a recon event subscriber can be
+registered through the
+\texttt{framework.events.add\_recon\_subscriber} method.  This
+method takes an instance of an object that implements one or both of
+the \texttt{Msf::ReconEvent::HostSubscriber} or
+\texttt{Msf::ReconEvent::ServiceSubscriber} mixins.  When a new host
+is detected or an attribute of a host has changed, a call will be
+made to the event subscriber's \texttt{on\_host\_changed} method
+assuming it implements the \texttt{Msf::ReconEvent::HostSubscriber}
+mixin.  When a new service is detected or an attribute of a service
+has changed, a call will be made to the event subscriber's
+\texttt{on\_service\_changed} method assuming it implements the
+\texttt{Msf::ReconEvent::ServiceSubscriber} mixin.
+
+\par
+To remove an event subscriber, a call should be made to\\
+\texttt{framework.events.remove\_recon\_subscriber} passing the
+object instance that was used to add the subscriber in the first
+place.
+            \subsubsection{Session events}
+
+\par
+To receive notifications about events pertaining to sessions, a
+session event subscriber can be registered through the
+\texttt{framework.events.add\_session\_subscriber} method.  This
+method takes an instance of an object that implements the
+\texttt{Msf::SessionEvent} mixin.  When a new session is opened, the
+framework will call into the subscriber's \texttt{on\_session\_open}
+method with the session instance that has just been opened as the
+first argument.  When a session terminates, the framework will call
+into the subscriber's \texttt{on\_session\_close} method with the
+session instance that is being closed.
+
+\par
+To remove an event subscriber, a call should be made to\\
+\texttt{framework.events.remove\_session\_subscriber} passing the
+object instance that was used to add the subscriber in the first
+place.
+
         \subsection{Framework Managers}
+
+\par
+The framework core itself is composed of a few different managers
+that are responsible for some of the basic aspects of the framework,
+such as module and plugin management.  These managers will be
+described individually.
+
+            \subsubsection{Module management}
+
+\par
+The module management aspect of the framework is one of its most
+integral parts.  The \texttt{Msf::ModuleManager} class is
+responsible for providing the interface for loading modules and for
+acting as a factory for module instance creation.  The module
+manager itself can be accessed through the
+\texttt{framework.modules} attribute.  The loading of modules is
+accomplished by adding a search path to the module manager by making
+a call to the \texttt{add\_module\_path} method.  This method will
+automatically load all of the modules found within the supplied
+directory\footnote{The module path must conform to the standard
+module directory layout, with the base directory structure appearing
+similar to the \texttt{modules} sub-directory in the framework
+distribution}.
+
+\par
+Modules are symbolically identified by what is referred to as a
+\textit{reference name}.  The reference name takes a form that is
+similar to a directory path and is partially controlled by the
+filesystem path that the module is loaded from.  An example of a
+reference name would be an exploit labeled
+\texttt{windows/ftp/wsftpd}.  This would mean that the exploit was
+loaded from \texttt{exploits/windows/ftp/wsftpd.rb}.  It is
+important to note that module's must retain a namespace hierarchy
+that mirrors the path in which they are located.  For instance, the
+example described previously would have the class declared as
+\texttt{Msf::Exploits::Windows::Ftp::Wsftpd}.  This is necessary so
+that the framework's module manager knows what namespace to look in
+to see what class was added after loading the file.  The reference
+name of a module can be accessed through the \texttt{refname}
+attribute on both the class of the module and its instances.
+
+\par
+In order to help solve the potential for module name ambiguities
+across module types, modules can also be referenced by what is
+called a \textit{full reference name}.  This name is the same as the
+reference name of the module but is prefixed with the module's type.
+For instance, the exploit \texttt{windows/ftp/wsftpd} would become
+\texttt{exploit/windows/ftp/wsftpd}.  The full reference named can
+be accessed through the \texttt{fullname} attribute on both the
+class of the module and its instances.
+
+\par
+In order to make the module manager easy to use, each different
+module type is broken down into a more basic class called a module
+set which is implemented by the \texttt{Msf::ModuleSet} class.  The
+purpose of a module set is to act as a localized factory for each
+different module type (exploit, encoder, nop, etc).  Each module
+type-specific module set can be accessed through either
+\texttt{framework.type} or \texttt{framework.modules.type}.  For
+example, if one wanted to enumerate exploit modules, they would use
+the \texttt{framework.exploits} method to get access to the exploit
+module set.
+
+\par
+Module sets are implemented in the form of a hash that associates
+the reference names of modules with their underlying classes.  To
+create an instance of a module, a call is made to the module set's
+\texttt{create} method passing the reference name of the module that
+should be instantiated.  For example, to create an instance of an
+exploit named \texttt{windows/ftp/wsftpd}, a call would be made as
+shown in figure \ref{fig-code-framework-modcreate}
+
+\begin{figure}[h]
+\begin{verbatim}
+framework.exploits.create('windows/ftp/wsftpd')
+\end{verbatim}
+\caption{Creating an instance of a framework module}
+\label{fig-code-framework-modcreate}
+\end{figure}
+
+\par
+The table shown in figure \ref{fig-table-modulsets} shows the
+relation between module types and framework module set accessors.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Module Type} & \textbf{Accessor} \\
+\hline
+MODULE\_ENCODER & framework.encoders \\
+MODULE\_EXPLOIT & framework.exploits \\
+MODULE\_NOP & framework.nops \\
+MODULE\_RECON & framework.recon \\
+MODULE\_PAYLOAD & framework.payloads \\
+\hline
+\end{tabular}
+\caption{Module types and their framework accessors}
+\label{fig-table-modulsets}
+\end{center}
+\end{figure}
+
+\par
+To reload the contents of a module, a call can be issued to
+\texttt{reload\_module} passing the module instance that should be
+reloaded.  This will lead to the framework re-reading the contents
+of the module's underlying file path and automatically creating a
+new instance of the module.
+
+            \subsubsection{Plugin management}
+            \subsubsection{Recon management}
+
     \section{Framework Base}
         \subsection{Configuration}
         \subsection{Logging}
@@ -613,6 +903,8 @@ were \texttt{select} and \texttt{sleep}.
         \subsection{Console}
         \subsection{Web}
 \chapter{Framework Modules}
+\label{framework-modules}
+
     \section{Encoder}
     \section{Exploit}
         \subsection{Stances}
