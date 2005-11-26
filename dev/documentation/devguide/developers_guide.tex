@@ -956,7 +956,7 @@ ConsoleDriver & The console driver instance of \texttt{Msf::Ui::Console::Driver}
 WebDriver & The console driver instance of \texttt{Msf::Ui::Web::Driver}. \\
 \hline
 \end{tabular}
-\caption{Module types and their framework accessors}
+\caption{Plugin optional constructor hash elements}
 \label{fig-table-plugin-hash}
 \end{center}
 \end{figure}
@@ -1198,9 +1198,97 @@ Append & Raw instructions or text to append to the encoded payload. \\
 \end{figure}
 
     \section{Framework Base}
+
+\par
+The framework base is a library layer built on top of the framework
+core that adds classes that make dealing with the framework easier.
+It also provides a set of classes that could be useful to third
+party development tools that don't necessarily fit within the scope
+of the framework core itself.  The classes that compose the
+framework base are described in the following subsections.
+
         \subsection{Configuration}
+
+\par
+One important aspect of a managed framework installation is the
+concept of persistent configuration and methods for getting
+information about the structure of an installation, such as the root
+directory of the installation and other types of attributes.  To
+facilitate this, the framework base library provides the
+\texttt{Msf::Config} class that has methods for obtaining various
+installation directories.  It also supports the serialization of
+configuration files.  The table shown in figure
+\ref{fig-table-config} describes the different methods that can be
+used to obtain configuration information.
+
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|p{3.5in}|}
+\hline
+\textbf{Method} & \textbf{Description} \\
+\hline
+install\_root & The installation's root directory. \\
+\hline
+config\_directory & The configuration directory (\verb#~/.msf3#). \\
+\hline
+module\_directory & install\_root + '/modules'. \\
+\hline
+plugin\_directory & install\_root + '/plugins'. \\
+\hline
+log\_directory & config\_directory + '/logs'. \\
+\hline
+session\_log\_directory & config\_directory + '/logs/sessions'. \\
+\hline
+user\_module\_directory & config\_directory + '/modules'. \\
+\hline
+data\_directory & install\_root + '/data'. \\
+\hline
+config\_file & config\_directory + '/config'. \\
+\hline
+load & Loads the contents of a configuration file and returns an instance of a \texttt{Rex::Parser::Ini} object. \\
+\hline
+save & Saves the supplied option hash to the configuration file supplied as \texttt{'ConfigFile'} in the options hash or the config\_file by default. \\
+\hline
+\end{tabular}
+\caption{\texttt{Msf::Config} accessor methods}
+\label{fig-table-config}
+\end{center}
+\end{figure}
+
         \subsection{Logging}
+
+\par
+The framework base library provides a wrapper class that can be used
+to control debug logging at an administrative level by providing
+methods for enabling log sources and for controlling logs that are
+applied to sessions created from within a framework instance.  To
+initialize logging, a call must be made to
+\texttt{Msf::Logging.init} which will register the log sources
+\texttt{rex}, \texttt{core}, and \texttt{base} as being directory at
+\texttt{framework.log} as found in the
+\texttt{Msf::Config.log\_directory}.  Individual log sources can be
+subsequently enabled or disabled by making calls to
+\texttt{Msf::Logging.enable\_log\_source} and
+\texttt{Msf::Logging.disable\_log\_source}, respectively.  When
+session logging is enabled, calls can be issued to
+\texttt{start\_session\_log} and \texttt{stop\_session\_log} which
+operate on a provided session to start or stop logging to a
+session-specific log file in the
+\texttt{Msf::Config.session\_log\_directory} directory.
+
         \subsection{Serialization}
+
+\par
+To make life easier for framework programmer's, the framework base
+library provides a class that can be used to serialize information
+about modules, such as their description, options, and other
+information to a uniform, human readable format.  The class that
+provides this feature is the \texttt{Msf::Serializer::ReadableText}
+class.  For more information, please review the auto-generated API
+documentation on the Metasploit website.
+
+        \subsection{Sessions}
         \subsection{Simplified Framework}
     \section{Framework Ui}
         \subsection{Console}
