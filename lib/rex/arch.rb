@@ -10,6 +10,9 @@ module Rex
 ###
 module Arch
 
+	#
+	# Architecture classes
+	#
 	require 'rex/arch/x86'
 	require 'rex/arch/sparc'
 

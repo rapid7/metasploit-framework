@@ -8,23 +8,6 @@
 module Msf
 
 #
-# Architecture constants
-#
-ARCH_ANY   = '_any_'
-ARCH_X86   = 'x86'
-ARCH_MIPS  = 'mips'
-ARCH_PPC   = 'ppc'
-ARCH_SPARC = 'sparc'
-ARCH_TYPES =
-	[
-		ARCH_X86,
-		ARCH_MIPS,
-		ARCH_PPC,
-		ARCH_SPARC
-	]
-ARCH_ALL   = ARCH_TYPES
-
-#
 # Module types
 #
 MODULE_ANY     = '_any_'

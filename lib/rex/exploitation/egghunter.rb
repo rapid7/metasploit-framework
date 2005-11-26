@@ -1,4 +1,5 @@
 require 'rex/text'
+require 'rex/arch'
 
 module Rex
 module Exploitation
@@ -23,7 +24,7 @@ class Egghunter
 		Alias = "win"
 
 		module X86
-			Alias = "x86"
+			Alias = ARCH_X86
 
 			#
 			# The egg hunter stub for win/x86.

@@ -16,7 +16,7 @@ class Rex::Exploitation::Egghunter::UnitTest < Test::Unit::TestCase
 		r = Klass.new('win')
 		assert_nil(r.generate)
 
-		r = Klass.new('win', 'x86')
+		r = Klass.new('win', Rex::Arch::ARCH_X86)
 		assert_not_nil(r.generate)
 		assert_not_nil(r.generate[0])
 		assert_not_nil(r.generate[1])
