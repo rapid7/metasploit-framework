@@ -128,7 +128,7 @@ lack thereof.  The fact that the perl interpreter is part of the
 default install on many distributions is not something that the
 Metasploit staff felt was worth detouring the language selection.
 
-\chapter{Architecture and Design}
+    \section{Design and Architecture}
 
 \par
 The framework was designed to be as modular as possible as to
@@ -185,14 +185,14 @@ level documentation found on the Metasploit website.
 \end{center}
 \end{figure}
 
-    \section{Rex}
+\chapter{Rex}
 
 \par
 The \textit{Rex} library is a collection of classes and modules that
 may be useful to more than one project.  The most useful classes
 provided by the library are documented in the following subsections.
 
-        \subsection{Assembly}
+    \section{Assembly}
 
 \par
 When writing exploits it is often necessary to have to generate
@@ -203,7 +203,7 @@ requirement, the Rex library provides classes under the
 opcode generation routines as well as other architecture-specific
 methods, like integer packing.
 
-            \subsubsection{Integer packing}
+        \subsection{Integer packing}
 
 \par
 Packing an integer depends on the byte-ordering of the target
@@ -212,7 +212,7 @@ architecture, whether it be big endian or little endian.  The
 using the supplied architecture type (\texttt{ARCH\_XXX}) as an
 indication of which byte-ordering to use.
 
-            \subsubsection{Stack pointer adjustment}
+        \subsection{Stack pointer adjustment}
 
 \par
 Some exploits require that the stack pointer be adjusted prior to
@@ -223,7 +223,7 @@ generate the opcodes that lead to adjusting the stack pointer of a
 given architecture by the supplied adjustment value.  The adjustment
 value can be positive or negative.
 
-            \subsubsection{Architecture-specific opcode generation}
+        \subsection{Architecture-specific opcode generation}
 
 \par
 Each architecture that currently has support for dynamically
@@ -233,7 +233,7 @@ x86 class has support for generating \texttt{jmp}, \texttt{call},
 \texttt{push}, \texttt{mov}, \texttt{add}, and \texttt{sub}
 instructions.
 
-        \subsection{Encoding}
+    \section{Encoding}
 
 \par
 Encoding buffers using algorithms like XOR can sometimes be useful
@@ -245,7 +245,7 @@ implement different types of basic encoders that can be used by
 encoder modules.  The classes for encoding buffers can be found in
 the \texttt{Rex::Encoding} namespace.
 
-        \subsection{Exploitation}
+    \section{Exploitation}
 
 \par
 Often times vulnerabilities will share a common attack vector or
@@ -254,7 +254,7 @@ end-goal of code execution.  To assist in that matter, the Rex
 library has a set of classes that implement some of the common
 necessities that exploits have.
 
-            \subsubsection{Egghunter}
+        \subsection{Egghunter}
 
 \par
 In some cases the exploitation of a vulnerability may be limited by
@@ -269,7 +269,7 @@ stick the larger payload somewhere else in memory prior to
 exploitation.  In the event that an egghunter is necessary, the
 \texttt{Rex::Exploitation::Egghunter} class can be used.
 
-            \subsubsection{SEH record generation}
+        \subsection{SEH record generation}
 
 \par
 One attack vector that is particularly common on the Windows
@@ -299,8 +299,8 @@ generation of a dynamic registration record is provided by
 \texttt{generate\_seh\_record} method that decides which of the two
 methods to use based on evasion levels.
 
-        \subsection{Jobs}
-        \label{rex-jobs}
+    \section{Jobs}
+    \label{rex-jobs}
 
 \par
 In some cases it is helpful to break certain tasks down into the
@@ -318,7 +318,7 @@ remove the job by calling the \texttt{remove\_job} method.
 For more information how the usage of these API routines, please
 refer to the auto-generated documentation on Metasploit website.
 
-        \subsection{Logging}
+    \section{Logging}
 
 \par
 The Rex library provides support for the basic logging of strings to
@@ -339,7 +339,7 @@ The log levels are meant to make it easy to hide verbose log
 messages when they are not necessary.  The use of the three log
 levels is defined below:
 
-            \subsubsection{LEV\_0 - Default}
+        \subsection{LEV\_0 - Default}
 
 This log level is the default log level if none is specified.  It
 should be used when a log message should always be displayed when
@@ -347,7 +347,7 @@ logging is enabled. Very few log messages should occur at this level
 aside from necessary information logging and error/warning logging.
 Debug logging at level zero is not advised.
 
-            \subsubsection{LEV\_1 - Extra}
+        \subsection{LEV\_1 - Extra}
 
 This log level should be used when extra information may be needed
 to understand the cause of an error or warning message or to get
@@ -357,7 +357,7 @@ be useful to understanding the behavior of something at a basic
 level.  This log level should not be used in an exhaustively verbose
 fashion.
 
-            \subsubsection{LEV\_2 - Verbose}
+        \subsection{LEV\_2 - Verbose}
 
 This log level should be used when verbose information may be needed
 to analyze the behavior of the framework.  This should be the
@@ -365,7 +365,7 @@ default log level for all detailed information not falling into
 LEV\_0 or LEV\_1. It is recommended that this log level be used by
 default if you are unsure.
 
-            \subsubsection{LEV\_3 - Insanity}
+        \subsection{LEV\_3 - Insanity}
 
 This log level should contain very verbose information about the
 behavior of the framework, such as detailed information about variable
@@ -374,7 +374,7 @@ function calls, and so on.  This log level will rarely be displayed,
 but when it is the information provided should make it easy to analyze
 any problem.
 
-        \subsection{Post-exploitation}
+    \section{Post-exploitation}
 
 \par
 The rex library provides client-side implementations for some
@@ -390,7 +390,7 @@ platforms may lack analogous feature sets for some actions, the
 majority of the common set of actions will have functional
 equivalents.
 
-        \subsection{Protocols}
+    \section{Protocols}
 
 \par
 Support for some of the more common protocols, such as HTTP and SMB,
@@ -399,7 +399,7 @@ protocol-specific exploits and to allow for ease of use in other
 projects.  Each protocol implementation exists under the
 \texttt{Rex::Proto} namespace.
 
-            \subsubsection{DCERC}
+        \subsection{DCERC}
 
 \par
 The rex library supports a fairly robust implementation of a subset
@@ -408,7 +408,7 @@ actions such as multi-context bind and packet fragmentation.  The
 classes that support the DCERPC client interface can be found in the
 \texttt{Rex::Proto::DCERPC} namespace.
 
-            \subsubsection{HTTP}
+        \subsection{HTTP}
 
 \par
 Minimal support for an HTTP client and server are provided in the
@@ -421,7 +421,7 @@ HTTP library also provides classes for parsing HTTP requests and
 responses.  The HTTP protocol classes can be found under the
 \texttt{Rex::Proto::Http} namespace.
 
-            \subsubsection{SMB}
+        \subsection{SMB}
 
 \par
 Robust support for the SMB protocol is provided by the classes in
@@ -431,7 +431,7 @@ SMB-exposed actions like transacting a named pipe and performing
 other specific commands.  The SMB classes are particularly useful
 for exploits that require communicating with an SMB server.
 
-        \subsection{Services}
+    \section{Services}
 
 \par
 One of the limitations identified in the 2.x branch of the framework
@@ -455,7 +455,7 @@ also provides a way to relay connections from a local TCP port to an
 already existing stream.  This support is offered through the
 \texttt{Rex::Services::LocalRelay} class.
 
-        \subsection{Sockets}
+    \section{Sockets}
 
 \par
 One of the most important features of the rex library is the set of
@@ -505,7 +505,7 @@ a hash that contains state information that can be used to track the
 originator of the socket.  The framework makes use of this feature
 to associate sockets with framework, exploit, and payload instances.
 
-            \subsubsection{Comm classes}
+        \subsection{Comm classes}
 
 \par
 The \texttt{Comm} interface used in the library has one simple
@@ -525,7 +525,7 @@ and after the creation of a new socket.  This can be used by
 external projects to augment the feature set of a socket or to
 change its default behavior.
 
-            \subsubsection{TCP sockets}
+        \subsection{TCP sockets}
 
 \par
 TCP sockets in the Rex library are implemented as a mixin,
@@ -535,14 +535,14 @@ includes the \texttt{Rex::IO::Stream} and \texttt{Rex::Socket}
 mixins.  For TCP servers, the \texttt{Rex::Socket::TcpServer} class
 should be used.
 
-            \subsubsection{SSL sockets}
+        \subsection{SSL sockets}
 
 \par
 SSL sockets are implemented on top of the normal Rex TCP socket
 mixin and makes use of the OpenSSL Ruby support.  The module used
 for SSL TCP sockets is \texttt{Rex::Socket::SslTcp}.
 
-            \subsubsection{Switch board routing table}
+        \subsection{Switch board routing table}
 
 \par
 One of the advancements in the 3.0 version of the framework is the
@@ -557,21 +557,21 @@ factory when anything tries to communicate with hosts on the local
 subnet.  This support is implemented through the
 \texttt{Rex::Socket::SwitchBoard} class.
 
-            \subsubsection{Subnet walking}
+        \subsection{Subnet walking}
 
 \par
 The \texttt{Rex::Socket::SubnetWalker} class provides a way of
 enumerating all the IP addresses in a subnet as described by a
 subnet address and a netmask.
 
-        \subsection{Synchronization}
+    \section{Synchronization}
 
 \par
 Due to the use of multi-threading, the Rex library provides extra
 classes that don't exist by default in the Ruby standard library.
 These classes provide extra synchronization primitives.
 
-            \subsubsection{Notification events}
+        \subsection{Notification events}
 
 \par
 While Ruby does have the concept of \texttt{ConditionVariable}'s, it
@@ -582,7 +582,7 @@ Please refer to Microsoft's online documentation for more
 information. This support is provided by the
 \texttt{Rex::Sync::Event} class.
 
-            \subsubsection{Reader/Writer locks}
+        \subsection{Reader/Writer locks}
 
 \par
 A common threading primitive is the reader/writer lock.
@@ -600,7 +600,7 @@ The reader/writer lock implementation is provided by the
 the \texttt{lock\_read} method can be used.  To lock the resource
 for write access, the \texttt{lock\_write} method can be used.
 
-            \subsubsection{Reference counting}
+        \subsection{Reference counting}
 
 \par
 In some cases it is necessary to reference count an instance in a
@@ -612,7 +612,7 @@ do what their names imply.  When the reference count drops to zero,
 the \texttt{cleanup} method is called on the object instance to give
 it a chance to restore things back to normal.
 
-            \subsubsection{Thread-safe operations}
+        \subsection{Thread-safe operations}
 
 \par
 Some of the built-in functions in Ruby are not thread safe in that
@@ -622,7 +622,7 @@ have been wrappered with implementations that ensure that not all
 ruby threads will block.  The specific methods that required change
 were \texttt{select} and \texttt{sleep}.
 
-    \section{Framework Core}
+\chapter{Framework Core}
 
 \par
 The framework core implements the set of classes that provide an
@@ -664,7 +664,7 @@ such as module management, session management, event dispatching,
 and so on.  The manner of using these subsystems will be described
 in the following subsections.
 
-        \subsection{DataStore}
+    \section{DataStore}
 
 \par
 Each framework instance has an instance of the
@@ -695,7 +695,7 @@ Modules will inherit values from the framework's global datastore if
 they are not found in the module's localized datastore.  This aspect
 will be discussed in more detail in chapter \ref{framework-modules}.
 
-        \subsection{Event Notifications}
+    \section{Event Notifications}
 
 \par
 One of the major goals with the 3.0 version of the framework was to
@@ -719,7 +719,7 @@ register the module with the appropriate event notifiers.  This
 makes it possible for modules to take certain actions when specific
 events occur.
 
-            \subsubsection{Exploit events}
+        \subsection{Exploit events}
 
 \par
 Event subscribers can be registered to be notified when events
@@ -739,7 +739,7 @@ To remove an event subscriber, a call should be made to\\
 object instance that was used to add the subscriber in the first
 place.
 
-            \subsubsection{General framework events}
+        \subsection{General framework events}
 
 \par
 To receive event notifications about internal framework events, a
@@ -759,7 +759,8 @@ To remove an event subscriber, a call should be made to\\
 \texttt{framework.events.remove\_general\_subscriber} passing the
 object instance that was used to add the subscriber in the first
 place.
-            \subsubsection{Recon events}
+
+        \subsection{Recon events}
 
 \par
 To receive notifications about reconnaissance events, such as when a
@@ -782,7 +783,8 @@ To remove an event subscriber, a call should be made to\\
 \texttt{framework.events.remove\_recon\_subscriber} passing the
 object instance that was used to add the subscriber in the first
 place.
-            \subsubsection{Session events}
+
+        \subsection{Session events}
 
 \par
 To receive notifications about events pertaining to sessions, a
@@ -802,7 +804,7 @@ To remove an event subscriber, a call should be made to\\
 object instance that was used to add the subscriber in the first
 place.
 
-        \subsection{Framework Managers}
+    \section{Framework Managers}
 
 \par
 The framework core itself is composed of a few different managers
@@ -810,7 +812,7 @@ that are responsible for some of the basic aspects of the framework,
 such as module and plugin management.  These managers will be
 described individually.
 
-            \subsubsection{Module management}
+        \subsection{Module management}
 
 \par
 The module management aspect of the framework is one of its most
@@ -912,7 +914,7 @@ reloaded.  This will lead to the framework re-reading the contents
 of the module's underlying file path and automatically creating a
 new instance of the module.
 
-            \subsubsection{Plugin management}
+        \subsection{Plugin management}
 
 \par
 One of the new features in the 3.0 version of the framework is the
@@ -979,7 +981,7 @@ reference count drops to zero.
 For more detail on the implementation of framework plugins, please
 see chapter \ref{framework-plugins}.
 
-            \subsubsection{Recon management}
+        \subsection{Recon management}
 
 \par
 The reconnaissance manager is used to provide an interface for
@@ -993,7 +995,7 @@ through the \texttt{framework.reconmgr} accessor.
 This area of the framework is currently undergoing design review and
 therefore does not have any documentation at this time.
 
-            \subsubsection{Session management}
+        \subsection{Session management}
 
 \par
 The session manager is used to track sessions created from within a
@@ -1025,7 +1027,7 @@ session identifier to look up.  When a session is being destroyed, a
 call must be made to \texttt{framework.sessions.deregister} passing
 the instance of the session being destroyed as the first argument.
 
-            \subsubsection{Job management}
+        \subsection{Job management}
 
 \par
 Each framework instance supports running various tasks in the
@@ -1035,14 +1037,14 @@ accessor which is an instance of the \texttt{Rex::JobContainer}
 class.  For more information on jobs, please refer to the job
 explanation in the Rex documentation in section \ref{rex-jobs}.
 
-        \subsection{Utility Classes}
+    \section{Utility Classes}
 
 \par
 Some classes in the framework core are intended to be used to make
 certain tasks simpler without being out of scope of the core aspects
 of the framework.  These classes are described below.
 
-            \subsubsection{Exploit driver}
+        \subsection{Exploit driver}
 
 \par
 The \texttt{Msf::ExploitDriver} class encapsulates the task of
@@ -1099,7 +1101,7 @@ operation is done in the context of a job worker thread by calling
 told to use a job by setting the \texttt{use\_job} attribute to
 true.
 
-            \subsubsection{Encoded payload}
+        \subsection{Encoded payload}
 
 \par
 The purpose of the \texttt{Msf::EncodedPayload} class is to
@@ -1197,7 +1199,7 @@ Append & Raw instructions or text to append to the encoded payload. \\
 \end{center}
 \end{figure}
 
-    \section{Framework Base}
+\chapter{Framework Base}
 
 \par
 The framework base is a library layer built on top of the framework
@@ -1207,7 +1209,7 @@ party development tools that don't necessarily fit within the scope
 of the framework core itself.  The classes that compose the
 framework base are described in the following subsections.
 
-        \subsection{Configuration}
+    \section{Configuration}
 
 \par
 One important aspect of a managed framework installation is the
@@ -1256,7 +1258,7 @@ save & Saves the supplied option hash to the configuration file supplied as \tex
 \end{center}
 \end{figure}
 
-        \subsection{Logging}
+    \section{Logging}
 
 \par
 The framework base library provides a wrapper class that can be used
@@ -1277,7 +1279,7 @@ operate on a provided session to start or stop logging to a
 session-specific log file in the
 \texttt{Msf::Config.session\_log\_directory} directory.
 
-        \subsection{Serialization}
+    \section{Serialization}
 
 \par
 To make life easier for framework programmer's, the framework base
@@ -1288,7 +1290,7 @@ provides this feature is the \texttt{Msf::Serializer::ReadableText}
 class.  For more information, please review the auto-generated API
 documentation on the Metasploit website.
 
-        \subsection{Sessions}
+    \section{Sessions}
 
 \par
 While the framework core has an abstract concept of sessions as
@@ -1302,7 +1304,7 @@ subscribers of the framework.  The two sessions currently
 implemented in the base library are the \texttt{CommandShell}
 session and the \texttt{Meterpreter} session.
 
-            \subsubsection{CommandShell}
+        \subsection{CommandShell}
 
 \par
 The command shell session implements the framework core \\
@@ -1311,7 +1313,7 @@ against a connected stream, such as a TCP connection.  For more
 information about this mixin, please read chapter
 \ref{framework-sessions}.
 
-            \subsubsection{Meterpreter}
+        \subsection{Meterpreter}
 
 \par
 The meterpreter session implements the
@@ -1324,7 +1326,7 @@ Comm socket factory.  The session itself is merely an extension of
 the \texttt{Rex::Post::Meterpreter} class which operates against a
 connected stream, such as a TCP connection.
 
-        \subsection{Simplified Framework}
+    \section{Simplified Framework}
 
 \par
 The simplified framework provides methods that make the framework
@@ -1366,7 +1368,7 @@ configuration elements through the \texttt{save\_config} and
 \texttt{load\_config} methods.  Each module-specific mixin is
 described individually below.
 
-            \subsubsection{Exploit}
+        \subsection{Exploit}
 
 \par
 The simplified exploit mixin provided in
@@ -1382,7 +1384,7 @@ more information about the hash elements that can be passed in,
 please refer to the auto-generated API documentation on the
 Metasploit website.
 
-            \subsubsection{NOP}
+        \subsection{NOP}
 
 \par
 The simplified NOP mixin provided in \texttt{Msf::Simple::Nop}
@@ -1395,7 +1397,7 @@ format specified in the option hash as the \texttt{'Format'}
 element.  If no format is specified, the raw version of the NOP sled
 is returned.
 
-            \subsubsection{Payload}
+        \subsection{Payload}
 
 \par
 The simplified payload mixin provided in
@@ -1409,14 +1411,14 @@ serialized to the format supplied in the \texttt{'Format'} hash
 element.  If the format is not raw, any staged payloads will also be
 appended to the serialized buffer.
 
-            \subsubsection{Recon}
+        \subsection{Recon}
 
 \par
 The reconnaissance interface is under design review.
 
-    \section{Framework Ui}
-        \subsection{Console}
-        \subsection{Web}
+\chapter{Framework Ui}
+    \section{Console}
+    \section{Web}
 \chapter{Framework Modules}
 \label{framework-modules}
 
