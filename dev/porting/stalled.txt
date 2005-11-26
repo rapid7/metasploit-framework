@@ -1,0 +1,32 @@
+The following exploits require some form of TCPServer mixin that
+does not change their stance to Passive:
+
+	backupexec_dump.rb
+	calicclnt_getconfig.rb
+	google_proxystylesheet_exec.rb
+	hpux_ftpd_preauth_list.rb
+	ie_javaprxy.rb
+	smb_sniffer.rb
+
+
+The following exploits require the cmd payloads to be completed:
+	awstats_configdir_exec.rb
+	barracuda_img_exec.rb
+	cacti_graphimage_exec.rb
+	cvstrac_exec.rb
+	distcc_exec.rb
+	google_proxystylesheet_exec.rb
+	hpux_lpd_exec.rb
+	irix_lpsched_exec.rb
+	local_shell.rb
+	openview_connectednodes_exec.rb
+	openview_omniback.rb
+	payload_handler.rb
+	php_vbulletin_template.rb
+	php_wordpress_lastpost.rb
+	php_xmlrpc_eval.rb
+	phpbb_highlight.rb
+	solaris_lpd_exec.rb
+	solaris_sadmind_exec.rb
+	solaris_ttyprompt.rb
+	wzdftpd_site.rb
