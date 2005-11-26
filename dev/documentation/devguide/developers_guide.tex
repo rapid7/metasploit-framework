@@ -676,14 +676,73 @@ global variable to supply the user's terminal with output.
             \subsubsection{Shell}
 
 \par
+The \texttt{Rex::Ui::Text::Shell} class provides a simple
+pseudo-shell base class that can be used to implement an interactive
+prompting shell with a user.  The class is instantiated by passing a
+prompt string and a prompt character (which defaults to \verb#>#) to
+the constructor.  By default, the shell's input and output class
+instances are initialized to instances of the
+\texttt{Rex::Ui::Text::Input::Stdio} and
+\texttt{Rex::Ui::Text::Output::Stdio}, respectively.  To change the
+input and output class instances, a call can be made to the
+\texttt{init\_ui} method.
+
+\par
+To use the shell, a call must be made to the shell instance's
+\texttt{run} method.  This method accepts either a block context,
+which will be passed line-based input strings, or will operate in a
+callback mode where a call is made to the \texttt{run\_single}
+method on the shell instance.  If the second method is used, the
+class is intended to be overridden with a custom implementation of
+the \texttt{run\_single} method.
 
             \subsubsection{Dispatcher Shell}
 
 \par
+The \texttt{Rex::Ui::Text::DispatcherShell} class extends the
+\texttt{Rex::Ui::Text::Shell} class by introducing the concept of a
+generalized command dispatcher interface.  The dispatcher shell
+works by overriding the \texttt{run\_single} method.  Unlike the
+base shell class, the dispatcher shell provides a mechanism by which
+command dispatchers can be registered for processing input text in a
+normalized fashion.  All command dispatchers should include the
+\texttt{Rex::Ui::Text::DispatcherShell::CommandDispatcher} mixin
+which provides a set of helper methods, mainly dealing without
+wrappering the output of text.
+
+\par
+The registration of a command dispatcher is accomplished by calling
+either \texttt{enstack\_dispatcher} or \texttt{append\_dispatcher}.
+The \texttt{enstack\_dispatcher} front inserts the supplied command
+dispatcher instance so that it will have the first opportunity to
+process commands.  The \texttt{append\_dispatcher} method inserts
+the supplied command dispatcher instance at the end of the list.  To
+remove command dispatchers, the complementary methods
+\texttt{destack\_dispatcher} and \texttt{remove\_dispatcher} can be
+used.
+
+\par
+When a line of input arrives, the base shell class calls the
+overridden \texttt{run\_single} method which breaks the input string
+down into an array of arguments as delimited by normal shell
+characters.  The first argument in the string is then evaluated in
+relation to all of the registered command dispatchers by checking to
+see if any of them implement a method called \texttt{cmd\_<arg 0>}.
+If they do, the dispatcher shell calls the method and passes it the
+parsed argument array.
+
+\par
+In order to make it possible to automatically generate a help menu
+for all registered command dispatchers, each command dispatcher
+should implement a method named \texttt{commands} which should
+return a hash that associates commands with a description of the
+operation they perform.
 
             \subsubsection{Table}
 
 \par
+
+
 
 \chapter{Framework Core}
 
@@ -1412,8 +1471,8 @@ The creation of a simplified framework instance automatically leads
 to the initialization of the \texttt{Msf::Config} class and the
 \texttt{Msf::Logging} class.  Any existing configuration file is
 also automatically loaded.  The default global module directory
-(\texttt{Msf::Config::module\_directory} and the user-specific
-module directory (\texttt{Msf::Config::user\_module\_directory} are
+(\texttt{Msf::Config::module\_directory}) and the user-specific
+module directory (\texttt{Msf::Config::user\_module\_directory}) are
 added as search paths to the framework instance which leads to the
 loading of all modules within the two directories.  Finally, a
 general event subscriber is registered with the framework instance
