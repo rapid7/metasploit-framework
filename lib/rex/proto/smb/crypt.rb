@@ -1,10 +1,12 @@
+require 'openssl'
+require 'rex/text'
+
 module Rex
 module Proto
 module SMB
 class Crypt
 
 begin
-	require 'openssl'
 
 	def self.lanman_des(pass, chal)
 		e_p24( [ e_p16( [ pass.upcase()[0,14] ].pack('a14') ) ].pack('a21'), chal)
@@ -40,7 +42,7 @@ begin
 	end
 
 	def self.unicode (str)
-		str.unpack('C*').pack('v*')
+		Rex::Text.to_unicode(str)
 	end
 	
 	def self.ntlm_md4(pass, chal)

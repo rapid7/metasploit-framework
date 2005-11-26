@@ -710,6 +710,34 @@ EVADE = Rex::Proto::SMB::Evasions
 	end	
 
 
+	# An exploit helper function for sending arbitrary SPNEGO blobs
+	def session_setup_ntlmv2_blob(blob = '')
+		native_data = ''
+		native_data << self.native_os + "\x00"
+		native_data << self.native_lm + "\x00"		
+		
+		pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
+		self.smb_defaults(pkt['Payload']['SMB'])
+				
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
+		pkt['Payload']['SMB'].v['Flags1'] = 0x18
+		pkt['Payload']['SMB'].v['Flags2'] = 0x2801
+		pkt['Payload']['SMB'].v['WordCount'] = 12
+		pkt['Payload']['SMB'].v['UserID'] = 0
+		pkt['Payload'].v['AndX'] = 255
+		pkt['Payload'].v['MaxBuff'] = 0xffdf
+		pkt['Payload'].v['MaxMPX'] = 2
+		pkt['Payload'].v['VCNum'] = 1		
+		pkt['Payload'].v['SecurityBlobLen'] = blob.length
+		pkt['Payload'].v['Capabilities'] = 0x8000d05c
+		pkt['Payload'].v['SessionKey'] = self.session_id
+		pkt['Payload'].v['Payload'] = blob + native_data 
+		
+		self.smb_send(pkt.to_s)
+		self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, false)
+	end	
+
+
 	# Connect to a specified share with an optional password
 	def tree_connect(share = 'IPC$', pass = '')
 

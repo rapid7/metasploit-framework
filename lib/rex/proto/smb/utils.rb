@@ -1,16 +1,16 @@
+require 'rex/text'
+require 'rex/proto/smb/constants'
+
 module Rex
 module Proto
 module SMB
 class Utils
 
-require 'rex/text'
-require 'rex/proto/smb/constants'
-
 CONST = Rex::Proto::SMB::Constants
 
 	# Convert a standard ASCII string to 16-bit Unicode
 	def self.unicode (str)
-		str.unpack('C*').pack('v*')
+		Rex::Text.to_unicode(str)
 	end
 
 	# Creates an access mask for use with the CLIENT.open() call based on a string

@@ -87,6 +87,13 @@ module Text
 	end
 
 	#
+	# Converts standard ASCII text to 16-bit unicode
+	#
+	def self.to_unicode(str='')
+		str.unpack('C*').pack('v*')
+	end
+	
+	#
 	# Converts a hex string to a raw string
 	#
 	def self.hex_to_raw(str)

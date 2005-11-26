@@ -1019,7 +1019,7 @@ class Core
 				
 			when 'Msf::OptPort'
 				if (res.empty?)
-					res << (rand(65534)+1).to_S
+					res << (rand(65534)+1).to_s
 				end
 		end
 		
