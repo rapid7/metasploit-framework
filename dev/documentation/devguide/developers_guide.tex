@@ -191,6 +191,7 @@ level documentation found on the Metasploit website.
 The \textit{Rex} library is a collection of classes and modules that
 may be useful to more than one project.  The most useful classes
 provided by the library are documented in the following subsections.
+To use the Rex library, a ruby script should require \texttt{rex}.
 
     \section{Assembly}
 
@@ -622,6 +623,68 @@ have been wrappered with implementations that ensure that not all
 ruby threads will block.  The specific methods that required change
 were \texttt{select} and \texttt{sleep}.
 
+    \section{Ui}
+
+\par
+The Rex library provides a set of helper classes that may be useful
+to certain user interface mediums.  These classes are not included
+by default when requiring \texttt{rex}, so a programmer must be sure
+to require \texttt{rex/ui} to get the classes described in this
+section.  At the time of this writing, the only user interface
+medium that has any concrete classes defined is the text, which is
+synonymous with the console, user interface medium.
+
+        \subsection{Text}
+
+\par
+The text user interface medium provides classes that allow a
+programmer to interact with a terminal's input and output handles.
+It also provides classes for simulating a pseudo-command shell in as
+robust as manner as possible.
+
+            \subsubsection{Input}
+
+\par
+The \texttt{Rex::Ui::Text::Input} class acts as a base class for
+more specific user input mediums.  The base class interface provides
+a basic set of methods for reading input from the user
+(\texttt{gets}), checking if standard input has closed
+(\texttt{eof?}), and others.  There are currently two classes that
+extend the base class.  The first is
+\texttt{Rex::Ui::Text::Input::Stdio}.  This class simply makes use
+of the \texttt{\$stdin} globally scoped variable in Ruby.  This is
+the most basic form of acquiring user input.  The second class is
+\texttt{Rex::Ui::Text::Input::Readline} which interacts with the
+user through the readline library.  If no readline installation is
+present, the class will not be usable.  These two classes can be
+used by the shell classes described later in this subsection.
+
+            \subsubsection{Output}
+
+The \texttt{Rex::Ui::Text::Output} class implements the more
+generalized \texttt{Rex::Ui::Output} abstract interface.  The
+purpose of the class is to define a set of functions that can be
+used to provide the user with output.  There are currently two
+classes that implement the textual output interface.  The first is
+\texttt{Rex::Ui::Text::Output::Buffer}.  This output medium
+serializes printed text to a buffer that can be retrieved via the
+instance's \texttt{buf} attribute.  The second class is
+\texttt{Rex::Ui::Text::Output::Stdio}.  This class is the complement
+to the stdio input class and simply uses the \texttt{\$stdout}
+global variable to supply the user's terminal with output.
+
+            \subsubsection{Shell}
+
+\par
+
+            \subsubsection{Dispatcher Shell}
+
+\par
+
+            \subsubsection{Table}
+
+\par
+
 \chapter{Framework Core}
 
 \par
@@ -662,7 +725,8 @@ The framework instance itself is nothing more than a way of
 connecting the different critical subsystems of the framework core,
 such as module management, session management, event dispatching,
 and so on.  The manner of using these subsystems will be described
-in the following subsections.
+in the following subsections.  To use the framework core library, a
+ruby script should require \texttt{msf/core}.
 
     \section{DataStore}
 
@@ -1207,7 +1271,9 @@ core that adds classes that make dealing with the framework easier.
 It also provides a set of classes that could be useful to third
 party development tools that don't necessarily fit within the scope
 of the framework core itself.  The classes that compose the
-framework base are described in the following subsections.
+framework base are described in the following subsections.  To use
+the framework base library, a ruby script should require
+\texttt{msf/base}.
 
     \section{Configuration}
 
@@ -1417,6 +1483,26 @@ appended to the serialized buffer.
 The reconnaissance interface is under design review.
 
 \chapter{Framework Ui}
+
+\par
+The framework user interface library is used to encapsulate code
+common to different user interface mediums to allow third party
+development and extension of custom user interfaces separate from
+those distributed with the framework itself.  Each different user
+interface medium is encapsulated in an abstract \textit{driver}
+class, \texttt{Msf::Ui::Driver} that is designed to have an actual
+interface that is specific to the underlying user interface medium
+being used.
+
+\par
+The inherited driver base class simply defines three methods that
+are to be common to all user interfaces.  Those methods are
+\texttt{run}, \texttt{stop}, and \texttt{cleanup}.  Their names
+imply the actions that are to be performed.  Each of the currently
+defined user interface mediums will be explained individually in the
+following sections.  To use the framework ui library, a ruby script
+should require \texttt{msf/ui}.
+
     \section{Console}
     \section{Web}
 \chapter{Framework Modules}
