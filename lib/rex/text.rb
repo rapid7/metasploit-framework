@@ -203,7 +203,7 @@ module Text
 	# Base text generator method
 	def self.rand_base(len, bad, *foo)
 		# Remove restricted characters
-		bad.split('').each { |c| foo.delete(c) }
+		(bad || '').split('').each { |c| foo.delete(c) }
 
 		# Return nil if all bytes are restricted
 		return nil if foo.length == 0
@@ -322,7 +322,7 @@ module Text
 	# Return the index of the first badchar in data, otherwise return
 	# nil if there wasn't any badchar occurences.
 	#
-	def self.badchar_index(data, badchars)
+	def self.badchar_index(data, badchars = '')
 		badchars.each_byte { |badchar|
 			pos = data.index(badchar)
 			return pos if pos
@@ -333,7 +333,7 @@ module Text
 	#
 	# This method removes bad characters from a string.
 	#
-	def self.remove_badchars(data, badchars)
+	def self.remove_badchars(data, badchars = '')
 		data.delete(badchars)
 	end
 

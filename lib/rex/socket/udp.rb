@@ -46,12 +46,36 @@ module Rex::Socket::Udp
 	end
 
 	#
+	# Another alias for write
+	#
+	def put(gram)
+		return write(gram)
+	end
+
+	#
 	# Read a datagram from the UDP socket.
 	#
 	def read(length = 65535)
 		return sysread(length)
 	end
 
+	#
+	# Read a datagram from the UDP socket with a timeout
+	#
+	def timed_read(length = 65535, timeout=def_read_timeout)
+		begin
+			if ((rv = Kernel.select([ fd ], nil, nil, timeout)) and
+			    (rv[0]) and (rv[0][0] == fd)
+			   )
+					return read(length)
+			else
+				return ''
+			end
+		rescue Exception
+			return ''
+		end	
+	end
+	
 	#alias send write
 	#alias recv read
 
@@ -72,11 +96,36 @@ module Rex::Socket::Udp
 	# Receives a datagram and returns the data and host:port of the requestor
 	# as [ data, host, port ].
 	#
-	def recvfrom(length = 65535)
-		data, saddr    = super(length)
-		af, host, port = Rex::Socket.from_sockaddr(saddr)
+	def recvfrom(length = 65535, timeout=def_read_timeout)
+		begin
+			if ((rv = Kernel.select([ fd ], nil, nil, timeout)) and
+			    (rv[0]) and (rv[0][0] == fd)
+			   )
+					data, saddr    = super(length)
+					af, host, port = Rex::Socket.from_sockaddr(saddr)
 
-		return [ data, host, port ]
+					return [ data, host, port ]
+			else
+				return [ '', nil, nil ]
+			end
+		rescue Exception
+			return [ '', nil, nil ]
+		end
 	end
+	
+	#
+	# Calls recvfrom and only returns the data
+	#
+	def get(timeout=nil)
+		data, saddr, sport = recvfrom(65535, timeout)
+		return data
+	end
+	
+	#
+	# The default number of seconds to wait for a read operation to timeout.
+	#
+	def def_read_timeout
+		10
+	end	
 
 end
