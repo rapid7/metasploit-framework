@@ -1289,7 +1289,131 @@ class.  For more information, please review the auto-generated API
 documentation on the Metasploit website.
 
         \subsection{Sessions}
+
+\par
+While the framework core has an abstract concept of sessions as
+described through the \texttt{Msf::Session} base module, the
+framework base actually provides some of the concrete
+implementations.  This separation was done to eliminate
+module-specific session implementations from the framework core as
+the core should have no conceptual dependencies on modules that use
+it where as the base library is more of a facilitation layer for
+subscribers of the framework.  The two sessions currently
+implemented in the base library are the \texttt{CommandShell}
+session and the \texttt{Meterpreter} session.
+
+            \subsubsection{CommandShell}
+
+\par
+The command shell session implements the framework core \\
+\texttt{Msf::Session::Provider::SingleCommandShell} interface
+against a connected stream, such as a TCP connection.  For more
+information about this mixin, please read chapter
+\ref{framework-sessions}.
+
+            \subsubsection{Meterpreter}
+
+\par
+The meterpreter session implements the
+\texttt{Msf::Session::Interactive} and \\
+\texttt{Msf::Session::Comm}
+mixins.  This allows it to be operated through an interactive user
+shell and also indicates to the framework that internet traffic can
+be routed (pivoted) through the session by making use of it as a
+Comm socket factory.  The session itself is merely an extension of
+the \texttt{Rex::Post::Meterpreter} class which operates against a
+connected stream, such as a TCP connection.
+
         \subsection{Simplified Framework}
+
+\par
+The simplified framework provides methods that make the framework
+and the different module types easier to use by providing wrapper
+methods that handle most of the actions that would be common to a
+subscriber of the framework.  To create an instance of the
+simplified framework, the \texttt{Msf::Simple::Framework.create}
+method should be called along with an optional hash.  The return
+value is an instance of an \texttt{Msf::Framework} class that has
+been extended by the \texttt{Msf::Simple::Framework} mixin. Existing
+framework instances can also be simplified by calling the
+\texttt{Msf::Simple::Framework.simplify} method with the existing
+framework instance as the first argument.
+
+\par
+The creation of a simplified framework instance automatically leads
+to the initialization of the \texttt{Msf::Config} class and the
+\texttt{Msf::Logging} class.  Any existing configuration file is
+also automatically loaded.  The default global module directory
+(\texttt{Msf::Config::module\_directory} and the user-specific
+module directory (\texttt{Msf::Config::user\_module\_directory} are
+added as search paths to the framework instance which leads to the
+loading of all modules within the two directories.  Finally, a
+general event subscriber is registered with the framework instance
+that will be called whenever module instances are created within the
+framework.  This allows the simplified framework the opportunity to
+simplify each created module instance.
+
+\par
+Each module type has a simplified framework module mixin that is
+automatically used to extend created module instances via the
+general event subscriber described above.  For example, when an
+exploit module instance is created, the instance is extended by the
+\texttt{Msf::Simple::Exploit} mixin.  Each different module mixin
+provides a helper method or methods for driver that specific module
+type's primary action or actions.  Furthermore, each module instance
+has methods that can be used to save and restore module-specific
+configuration elements through the \texttt{save\_config} and
+\texttt{load\_config} methods.  Each module-specific mixin is
+described individually below.
+
+            \subsubsection{Exploit}
+
+\par
+The simplified exploit mixin provided in
+\texttt{Msf::Simple::Exploit} extends each exploit module instance
+with a method called \texttt{exploit\_simple}.  This method takes a
+hash parameter that is used to control the exploitation of something
+by creating an instance of an \texttt{Msf::ExploitDriver} class and
+doing all the required initialization and configuration of the
+module prior to issuing the call to the exploit driver's
+\texttt{run} method.  If the operation succeeds, the return value is
+a session instance.  Otherwise, an exception will be thrown.  For
+more information about the hash elements that can be passed in,
+please refer to the auto-generated API documentation on the
+Metasploit website.
+
+            \subsubsection{NOP}
+
+\par
+The simplified NOP mixin provided in \texttt{Msf::Simple::Nop}
+extends each nop module instance with a method called
+\texttt{generate\_simple}.  This method takes the length of the sled
+generate and the hash of options that should be used for the
+generation.  On success, the return value is a buffer that is
+encoded using the \texttt{Msf::Simple::Buffer} class using the
+format specified in the option hash as the \texttt{'Format'}
+element.  If no format is specified, the raw version of the NOP sled
+is returned.
+
+            \subsubsection{Payload}
+
+\par
+The simplified payload mixin provided in
+\texttt{Msf::Simple::Payload} extends each payload module instance
+with a method called \texttt{generate\_simple}.  This method takes a
+hash of options that are used to generate a payload buffer.  The
+elements that can be used in the option hash can be found in the
+auto-generated API documentation found on the Metasploit website. If
+the operation is successful, the encoded payload buffer will be
+serialized to the format supplied in the \texttt{'Format'} hash
+element.  If the format is not raw, any staged payloads will also be
+appended to the serialized buffer.
+
+            \subsubsection{Recon}
+
+\par
+The reconnaissance interface is under design review.
+
     \section{Framework Ui}
         \subsection{Console}
         \subsection{Web}
