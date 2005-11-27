@@ -1969,6 +1969,57 @@ the index of the first bad character found is returned.  Otherwise,
         \subsection{Types}
         \subsection{Mixins}
     \section{Nop}
+
+\par
+NOP generator modules are used to create a string of instructions
+that have no real affect when executed on a machine other than
+altering the state of registers or toggling processor flags.  All
+nop modules must inherit from the \texttt{Msf::Nop} base class at
+some level.  Nop modules are fairly simplistic when compared to the
+other types of modules in the framework.  There are only two methods
+that the framework uses when dealing with nop modules.
+
+        \subsection{generate\_sled}
+
+\par
+The \texttt{generate\_sled} method performs the action that the name
+implies.  It takes the size of the NOP sled to generate as the first
+argument and a hash of optional parameters as the second argument.
+The hash controls some of the behaviors of the NOP generator.  The
+table shown in figure \ref{fig-table-nop-genhash} shows the hash
+elements that may be passed by the framework to
+\texttt{generate\_sled}.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|l|p{3.0in}|}
+\hline
+\textbf{Hash Element} & \textbf{Type} & \textbf{Description} \\
+\hline
+Random & Bool & Indicates that random NOP generation should be used. \\
+\hline
+SaveRegisters & Array & An array of architecture-specific registers that should not be touched by instructions generated in the NOP sled. \\
+\hline
+BadChars & String & The string of bad characters, if any, that should be avoided by the NOP sled. \\
+\hline
+\end{tabular}
+\caption{\texttt{Msf::Nop} \texttt{generate\_sled} optional hash
+arguments} \label{fig-table-nop-genhash}
+\end{center}
+\end{figure}
+
+\par
+Once sled generation has completed, the return value from
+\texttt{generate\_sled} the the NOP sled buffer if it succeeds.
+
+        \subsection{nop\_repeat\_threshold}
+
+\par
+This method simply returns the default number of times to attempt to
+find a valid NOP byte when generating the NOP sled.  The default is
+\texttt{10000}.  This is primarily used as a reference for nop
+modules during sled generation.
+
     \section{Payload}
         \subsection{Single}
         \subsection{Stage}
