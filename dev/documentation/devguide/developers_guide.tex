@@ -1965,9 +1965,531 @@ the index of the first bad character found is returned.  Otherwise,
 \texttt{nil} is returned.
 
     \section{Exploit}
+
+\par
+Exploit modules are used to leverage vulnerabilities in a manner
+that allows the framework to execute arbitrary code.  This broad
+definition encompasses things like command execution and code
+execution which are described in terms of payloads in the framework
+nomenclature.  Support for exploit modules is provided through the
+\texttt{Msf::Exploit} base class.  All exploit modules must derive
+from the \texttt{Msf::Exploit} base class at some level.  The
+primary interface exposed by exploit modules to the framework are
+methods that can be used to check to see if a target is vulnerable
+and to actually launch the exploit.  These methods will be discussed
+more later in this section.
+
+\par
+Like the module information hash, exploit modules have a few exploit
+module specific information hash elements that are used to control
+the way the framework interacts with the exploit module and to
+control the exploit module itself.  These exploit module specific
+hash elements are described in the table shown in figure
+\ref{fig-table-exploit-hash}.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|l|l|p{2.0in}|}
+\hline
+\textbf{Hash Element} & \textbf{Accessor} & \textbf{Type} & \textbf{Description} \\
+\hline
+Stance & stance & Exploit::Stance & One of \texttt{Exploit::Stance::Aggressive} or \texttt{Exploit::Stance::Passive}. \\
+\hline
+Targets & targets & Array & An array of \texttt{Msf::Target} instances. \\
+\hline
+DefaultTarget & default\_target & Fixnum & The default target index to use, if any. \\
+\hline
+Payload & payload\_info & Hash & A hash of elements that controls the exploit's interaction with payloads. \\
+\hline
+\end{tabular}
+\caption{\texttt{Msf::Exploit} information hash elements}
+\label{fig-table-exploit-hash}
+\end{center}
+\end{figure}
+
+\par
+The following subsections will describe the distinctions between
+different types and stances of exploit modules as well as the
+interfaces that can be used to operate upon them.
+
         \subsection{Stances}
+
+\par
+In the 3.0 version of the framework, exploit modules are designed to
+take a stance that describes how they go about exploiting their
+vulnerability at a very general level.  While there is much debate
+in how this breakdown should occur, the framework puts them into two
+basic categories called \textit{stances}.  The first stance that an
+exploit can take is an aggressive stance.  In this mode, an exploit
+is actively triggering an exploit.  The second stance that an
+exploit can take is a passive stance.  In this mode, an exploit is
+waiting for something to occur, such as a client connecting to a
+server, so that the exploit can be triggered.  Stances are not
+designed to take locality into account.  They merely break down the
+manner in which the exploit will operate.
+
+\par
+The framework uses the exploit's stance to figure out whether how it
+should go about executing the \texttt{exploit} method.  For
+instance, passive exploits are implied to take longer because they
+are waiting for some event to trigger the exploitation.  For that
+reason, it is better for the framework to run passive exploits in
+the context of a job rather than blocking on their exploit routine.
+Furthermore, passive exploits may be capable of exploiting more than
+one target before they are completed.
+
+\par
+For a module to indicate a passive stance it should initialize the
+\texttt{Stance} information hash element to
+\texttt{Msf::Exploit::Stance::Passive}.  If a module wishes to take
+an aggressive stance, which is the default, it should initialize the
+\texttt{Stance} information hash element to
+\texttt{Msf::Exploit::Stance::Aggressive}.
+
         \subsection{Types}
+
+\par
+To further categorize exploits, each exploit is described in terms
+of an \textit{exploit type}.  The purpose of the exploit type is to
+indicate the locality of the exploit in terms of whether or not it
+is exploiting a remote machine, a local application, or is capable
+of operating as both types.
+
+\par
+The remote exploit type, as indicated by
+\texttt{Msf::Exploit::Type::Remote}, is used tell the framework that
+the exploit is designed to operate against a target other than that
+of the local machine.  While this doesn't explicitly limit the
+exploit to the use of network communication, that is typically what
+is implied.  Exploit modules can indicate that they are a remote
+exploit module by inheriting from \texttt{Msf::Exploit::Remote}
+which inherits from \texttt{Msf::Exploit}.
+
+\par
+The local exploit type, as indicated by
+\texttt{Msf::Exploit::Type::Local}, is used to tell the framework
+that the exploit is designed to operate against an application or
+service running on the local machine.  This definition typically
+limits it to exploitation by means other than network communication
+on the local machine.  Exploits modules can indicate that they are a
+local exploit module by inheriting from \texttt{Msf::Exploit::Local}
+which inherits from \texttt{Msf::Exploit}.
+
+\par
+The third exploit type, \texttt{Msf::Exploit::Type::Omni}, is used
+to indicate to the framework that the exploit module is capable of
+operating both locally and remotely.  Exploit modules that fit this
+criteria should inherit from the \texttt{Msf::Exploit} class
+directly.
+
+        \subsection{Interface}
+
+\par
+To interact with exploit modules, the framework uses a well-defined
+interface that is exposed by the exploit module base class.  These
+methods, along with their purposes, are described in the following
+subsections.
+
+            \subsubsection{check}
+
+\par
+The exploit module \texttt{check} method is used to indicate whether
+or not a remote machine is thought to be vulnerable.  The default
+implementation of the \texttt{check} method simply returns that it
+is unsupported by the exploit module.  However, a complete set of
+codes can be returned from the \texttt{check} method as shown in the
+table in figure \ref{fig-table-exploit-checkcodes}.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|p{2.5in}|}
+\hline
+\textbf{Check Code} & \textbf{Description} \\
+\hline
+Exploit::CheckCode::Safe & The target is not exploitable. \\
+Exploit::CheckCode::Detected & The target service is running, but could not be validated. \\
+Exploit::CheckCode::Appears & The target appears to be vulnerable. \\
+Exploit::CheckCode::Vulnerable & The target is vulnerable. \\
+Exploit::CheckCode::Unsupported & The exploit does not support \texttt{check}. \\
+\hline
+\end{tabular}
+\caption{Codes returned from calls to \texttt{exploit.check}}
+\label{fig-table-exploit-checkcodes}
+\end{center}
+\end{figure}
+
+
+            \subsubsection{exploit}
+
+\par
+The exploit module's \texttt{exploit} method is the entry point that
+is used to kick off the exploitation process.  Prior to calling this
+method, the framework will have ensured that all required options
+have been set and that a payload has been generated for use by the
+exploit.  After that, it's up to the exploit to perform whatever
+action is necessary to trigger the vulnerability in question.
+
+            \subsubsection{setup}
+
+\par
+If a payload instance has been created and assigned to the exploit,
+the \texttt{setup} method will initialize the payload's handler by
+calling \texttt{setup\_handler} on it and will start the handler by
+calling \texttt{start\_handler}.  The \texttt{setup} method is
+called by the framework prior to calling the exploit module's
+\texttt{exploit} method.
+
+            \subsubsection{cleanup}
+
+\par
+The \texttt{cleanup} method gives an exploit module the chance to
+remove any resources that were created during the call to
+\texttt{exploit} and also gives the exploit module base class a
+chance to call \texttt{cleanup\_handler} on the payload instance
+that's associated with the exploit, if there is one.
+
+            \subsubsection{generate\_payload}
+
+\par
+This method is used by the framework to generate a payload using
+either a passed payload instance as the argument or by using the
+\texttt{payload\_instance} attribute of the exploit module instance.
+The return value is an instance of an \texttt{EncodedPayload} that
+takes into account some of the limiting payload factors described in
+the exploit module's \texttt{payload\_info} hash.  It also takes
+into account any target-specific limiting payload factors.  The
+resulting encoded payload is assigned to the exploit module's
+\texttt{payload} attribute.
+
+            \subsubsection{generate\_single\_payload}
+
+\par
+This method generates an encoded payload using either the supplied
+payload instance or the exploit's assigned payload instance and
+returns it to the caller in the form of an \texttt{EncodedPayload}
+instance. The encoded payload is not assigned as an instance
+attribute.
+
+            \subsubsection{regenerate\_payload}
+
+\par
+The \texttt{regenerate\_payload} method is simply a wrapper around
+the \texttt{generate\_single\_payload} assuming the exploit's
+payload instance as the first parameter.
+
+        \subsection{Accessors and Attributes}
+
+\par
+Exploit modules have a number of accessors and attributes that can
+be used by derived exploits modules to make their lives easier.
+These accessors and attributes are described below.
+
+            \subsubsection{compatible\_payloads}
+
+\par
+This method returns an array of payloads that are compatible with
+the currently selected target, or with all targets if one has not
+been selected.  The array returned is composed of a two-element
+array that consists of the name of the reference name of the
+compatible payload and the class associated with the payload.  This
+method takes into account any architecture and platform restrictions
+specified by the currently selected target, if any.
+
+            \subsubsection{handler}
+
+\par
+The \texttt{handler} method is used by exploits to pass information
+on to the associated payload that may be required or useful in
+detecting if a session has been created.  For instance, all
+find-style payloads require the original connection that was used to
+trigger the vulnerability.  By calling the \texttt{handler} method
+with the socket that was used, the payload can check and see if a
+session has been created.
+
+            \subsubsection{make\_nops}
+
+\par
+In some cases an exploit may need to generate a NOP sled outside of
+the context of normal encoded payload generation.  TO do this, a
+call can be make to the \texttt{make\_nops} instance method with the
+length of the sled that should be generated.
+
+            \subsubsection{nop\_generator}
+
+\par
+This method returns an instance of the first compatible nop
+generator.
+
+            \subsubsection{nop\_save\_registers}
+
+\par
+This method returns the selected target's NOP save register
+information if the \texttt{target} attribute is \texttt{non-nil} and
+the \texttt{target.save\_register} attribute is \texttt{non-nil}.
+Otherwise, the module information hash element's
+\texttt{SaveRegisters} value is returned.
+
+            \subsubsection{payload}
+
+\par
+This attribute is an instance of a \texttt{Msf::EncodedPayload}
+after a call has been made to \texttt{generate\_payload}.
+
+            \subsubsection{payload\_append}
+
+\par
+This method returns the selected target's payload append information
+if the \texttt{target} attribute is \texttt{non-nil} and the
+\texttt{target.payload\_append} attribute is \texttt{non-nil}.
+Otherwise, the value of the \texttt{Append} hash element in the
+\texttt{payload\_info} hash is returned.
+
+            \subsubsection{payload\_badchars}
+
+\par
+This method returns the value of the \texttt{BadChars} hash element
+in the \texttt{payload\_info} hash is returned.
+
+            \subsubsection{payload\_info}
+
+\par
+This method returns the value of the \texttt{Payload} module
+information hash element that is used to convey module-specific
+payload restrictions.
+
+            \subsubsection{payload\_instance}
+
+\par
+This attribute is set to the payload instance that was used to
+generate the encoded payload conveyed in the \texttt{payload}
+attribute.
+
+            \subsubsection{payload\_max\_nops}
+
+\par
+This method returns the selected target's payload maximum NOP sled
+length if the \texttt{target} attribute is \texttt{non-nil} and the
+\texttt{target.payload\_max\_nops} attribute is \texttt{non-nil}.
+Otherwise, the value of the \texttt{MaxNops} hash element in the
+\texttt{payload\_info} hash is returned.
+
+            \subsubsection{payload\_min\_nops}
+\par
+This method returns the selected target's payload minimum NOP sled
+length if the \texttt{target} attribute is \texttt{non-nil} and the
+\texttt{target.payload\_min\_nops} attribute is \texttt{non-nil}.
+Otherwise, the value of the \texttt{MinNops} hash element in the
+\texttt{payload\_info} hash is returned.
+
+            \subsubsection{payload\_prepend}
+
+\par
+This method returns the selected target's payload append information
+if the \texttt{target} attribute is \texttt{non-nil} and the
+\texttt{target.payload\_append} attribute is \texttt{non-nil}.
+Otherwise, the value of the \texttt{Append} hash element in the
+\texttt{payload\_info} hash is returned.
+
+            \subsubsection{payload\_prepend\_encoder}
+
+\par
+This method returns the selected target's payload prepend encoder
+information if the \texttt{target} attribute is \texttt{non-nil} and
+the \texttt{target.payload\_prepend\_encoder} attribute is
+\texttt{non-nil}. Otherwise, the value of the
+\texttt{PrependEncoder} hash element in the \texttt{payload\_info}
+hash is returned.
+
+            \subsubsection{payload\_space}
+
+\par
+This method returns the selected target's payload maximum payload
+space if the \texttt{target} attribute is \texttt{non-nil} and the
+\texttt{target.payload\_space} attribute is \texttt{non-nil}.
+Otherwise, the value of the \texttt{Space} hash element in the
+\texttt{payload\_info} hash is returned.
+
+            \subsubsection{stack\_adjustment}
+
+\par
+This method returns the instructions associated with adjusting the
+stack pointer by a fixed amount in an architecture independent
+fashion.  First, the method looks to see if a target-specific stack
+adjustment has been specified and if so uses that.  Otherwise, the
+method uses the stack adjustment specified as the value of the
+\texttt{StackAdjustment} hash element in the \texttt{payload\_info}
+hash.  From there, the method tries to generate the instructions
+associated with the target or module specific architecture.
+
+            \subsubsection{target}
+
+\par
+This attribute returns the \texttt{Msf::Target} instance associated
+with the target index that has been set in the module's datastore
+through the \texttt{TARGET} option value.  If the index is invalid
+or \texttt{nil}, \texttt{nil} is returned.
+
+\par
+This attribute is typically used by exploits to get target-specific
+addressing information.
+
         \subsection{Mixins}
+
+\par
+One of the major design changes in the 3.0 version of the framework
+was the introduction of exploit mixins.  The purpose of exploits
+mixins are to reduce, and in most cases eliminate, the duplicated
+code that is often shared between exploit modules that attempt to
+leverage vulnerabilities found in specific protocol implementations.
+The mixins also provide a way to share code that is often used
+independent of protocols, such as the generation of an SEH
+registration record during the exploitation of an SEH overwrite.  By
+placing this code in mixins, the framework can augment the support
+at shared levels and introduce things like normalized evasion
+without having to modify every existing exploit.  Encapsulation is
+very powerful.
+
+\par
+These mixins are meant to be \texttt{include}'d in exploits that
+need them.  More than one mixin can be included in a single exploit.
+
+\par
+As the framework grows, the number of exploit mixins that can be
+used by modules will grow as well.  This document will attempt to
+show some of the existing mixins.
+
+            \subsubsection{Msf::Exploit::Brute}
+
+\par
+The brute force mixin provides a flexible implementation that can be
+used in a generic fashion for exploits that wish to support brute
+forcing.  This mixin implements the \texttt{exploit} method and
+detects if the currently selected target is a brute force target. If
+it is, the mixin does all the required address walking based on
+target specified start addresses and stop addresses.  During each
+iteration, the mixin calls the \texttt{brute\_exploit} method with
+the current address state which should be implemented by the derived
+class.  If the \texttt{exploit} method is called with a target that
+is not intended for brute forcing, the mixin calls the
+\texttt{single\_exploit} method.
+
+            \subsubsection{Msf::Exploit::Egghunter}
+
+\par
+The purpose of the egghunter mixin is to encapsulate the generation
+of an architecture and platform specific egghunter as provided by
+the \texttt{Rex::Exploitation::Egghunter} class.  This feature is
+provided by the mixin's \texttt{generate\_egghunter} method which
+takes into account the currently selected target's platform and
+architecture.
+
+            \subsubsection{Msf::Exploit::Remote::DCERPC}
+
+\par
+The DCERPC mixin provides methods that are useful to exploits that
+attempt to leverage vulnerabilities in DCERPC applications.  It also
+provides a unified evasion interface that makes it so any exploits
+that use the mixin can make use of multi-context bind evasion and
+packet fragmentation.
+
+\par
+This mixin automatically registers the \texttt{RHOST} and
+\texttt{RPORT} options.  It also registers two advanced options,
+\texttt{DCEFragSize} and \texttt{DCEMultiBind}.
+
+            \subsubsection{Msf::Exploit::Remote::Ftp}
+
+\par
+The FTP mixin provides a set of methods that are useful when
+interacting with an FTP server, such as logging into the server and
+sending some of the basic commands.  This mixin includes the
+\texttt{Msf::Exploit::Remote::Tcp} mixin.
+
+\par
+This mixin automatically registers the \texttt{RHOST},
+\texttt{RPORT}, \texttt{USER}, and \texttt{PASS} options.
+
+            \subsubsection{Msf::Exploit::Remote::HttpClient}
+
+\par
+The HTTP client mixin wraps some of the methods for creating an
+instance of a \texttt{Rex::Proto::Http::Client} such that derived
+exploits can simply call \texttt{connect} on their module instance
+to establish an HTTP connection to a remote server.  This mixin also
+automatically registers the \texttt{RHOST}, \texttt{RPORT}, and
+\texttt{VHOST} options.
+
+            \subsubsection{Msf::Exploit::Remote::HttpServer}
+
+\par
+The HTTP server mixin wraps the creation or re-use of a local HTTP
+server that is used in the exploitation of HTTP clients, like
+web-browsers.  This mixin also includes the
+\texttt{Msf::Exploit::Remote::TcpServer} mixin.
+
+            \subsubsection{Msf::Exploit::Remote::SMB}
+
+\par
+The SMB mixin implements methods that are useful when exploiting
+vulnerabilities over the SMB protocol.  It provides methods for
+connecting and logging into an SMB server as well as other helper
+methods for operating on the SMB connection once established.  This
+mixin includes the \texttt{Msf::Exploit::Remote::Tcp} mixin.
+
+\par
+This mixin automatically registers the \texttt{RPORT},
+\texttt{SMBDirect}, \texttt{SMBUSER}, \texttt{SMBPASS},
+\texttt{SMBDOM}, and \texttt{SMBNAME} options.  It also registers
+the \texttt{SMBPipeWriteMinSize}, \texttt{SMBPipeWriteMaxSize},
+\texttt{SMBPipeReadMinSize}, and \texttt{SMBPipeReadMaxSize}
+advanced options.
+
+            \subsubsection{Msf::Exploit::Remote::Tcp}
+
+\par
+The TCP mixin implements a basic TCP client interface that can be
+used in a generic fashion to connect or otherwise communicate with
+applications that speak over TCP.
+
+\par
+This mixin automatically registers the \texttt{RPORT},
+\texttt{RHOST}, and \texttt{SSL} options.
+
+            \subsubsection{Msf::Exploit::Remote::TcpServer}
+
+\par
+The TCP server mixin implements a basic TCP server that can be used
+to exploit vulnerabilities in clients that speak over TCP.
+
+\par
+This mixin automatically registers the \texttt{SRVHOST} and
+\texttt{SRVPORT} options.
+
+            \subsubsection{Msf::Exploit::Remote::Udp}
+
+\par
+The UDP mixin implements a basic UDP client interface that can be
+used in a generic fashion to connect or otherwise communicate with
+applications that speak over UDP.
+
+\par
+This mixin automatically registers the \texttt{RPORT},
+\texttt{RHOST}, and \texttt{SSL} options.
+
+            \subsubsection{Msf::Exploit::Seh}
+
+\par
+The SEH mixin implements some wrapper methods that can be used by
+exploits that leverage the SEH overwrite exploitation vector.  The
+purpose of this mixin is to wrap the generation of SEH registration
+records in such a way that it's possible to take into account higher
+evasion levels.  This is accomplish by using the
+\texttt{Rex::Exploitation::Seh} class.
+
+\par
+This mixin automatically registers the \texttt{DynamicSehRecord}
+advanced option.
+
     \section{Nop}
 
 \par
