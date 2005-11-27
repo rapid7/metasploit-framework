@@ -17,6 +17,7 @@ class Msf::Module::Author
 				'skape'     => 'mmiller@hick.org',
 				'vlad902'   => 'vlad902@gmail.com',
 				'optyx'     => 'optyx@hatesemail.com',
+				'anonymous' => 'anonymous-contributor@metasploit.com'
 		}
 
 	#

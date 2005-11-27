@@ -337,6 +337,14 @@ module Text
 		data.delete(badchars)
 	end
 
+	#
+	# This method returns all chars but the supplied set
+	#
+	def self.charset_exclude(keepers)
+		[*(0..255)].pack('C*').delete(keepers)
+	end
+
+
 
 end
 end

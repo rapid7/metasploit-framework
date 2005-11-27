@@ -315,15 +315,31 @@ class Payload < Msf::Module
 	# control to the user.
 	#
 	def on_session(session)
-		# If this payload is associated with an exploit and the exploit is not
-		# passive, then set the abort_sockets flag to true.  We also only do
-		# this if our general_handler_type is not find.
-		if ((assoc_exploit) and 
-		    (assoc_exploit.exploit_type == Exploit::Type::Remote) and
-		    (assoc_exploit.passive? == false) and
-		    (connection_type != 'find'))
-			assoc_exploit.abort_sockets
+	
+	
+		# If this payload is associated with an exploit, inform the exploit
+		# that a session has been created and potentially shut down any 
+		# open sockets. This allows active exploits to continue hammering
+		# on a service until a session is created.
+		if (assoc_exploit)		
+			
+			# Signal that a new session is created by calling the exploit's
+			# on_new_session handler. The default behavior is to set an
+			# instance variable, which the exploit will have to check.
+			assoc_exploit.on_new_session(session)
+			
+			# Set the abort sockets flag only if the exploit is not passive
+			# and the connection type is not 'find'
+			if (
+				(assoc_exploit.exploit_type == Exploit::Type::Remote) and
+				(assoc_exploit.passive? == false) and
+				(connection_type != 'find')
+			   )
+			   assoc_exploit.abort_sockets
+			end
+
 		end
+
 	end
 
 	#

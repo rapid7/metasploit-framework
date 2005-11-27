@@ -48,7 +48,9 @@ class Rex::Socket::Comm::Local
 				sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
 
 				sock.bind(Rex::Socket.to_sockaddr(param.localhost, param.localport))
+
 			rescue Errno::EADDRINUSE
+				sock.close
 				raise Rex::AddressInUse.new(param.localhost, param.localport), caller
 			end
 		end
@@ -69,6 +71,7 @@ class Rex::Socket::Comm::Local
 				begin
 					sock.connect(Rex::Socket.to_sockaddr(param.peerhost, param.peerport))
 				rescue Errno::ECONNREFUSED
+					sock.close
 					raise Rex::ConnectionRefused.new(param.peerhost, param.peerport), caller
 				end
 			end
