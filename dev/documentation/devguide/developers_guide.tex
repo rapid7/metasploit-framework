@@ -2543,9 +2543,358 @@ find a valid NOP byte when generating the NOP sled.  The default is
 modules during sled generation.
 
     \section{Payload}
-        \subsection{Single}
-        \subsection{Stage}
-        \subsection{Stager}
+
+\par
+Payload modules provide the framework with code that can be executed
+after an exploit succeeds in getting control of execution flow.
+Payloads can be either command strings or raw instructions, but in
+the end they boil down into code that will be executed on the target
+machine.  To provide this feature-set, the framework offers the
+\texttt{Msf::Payload} base class that implements routines that are
+common to all payloads as well as providing some helpful attributes.
+
+\par
+One of the major differences between payload modules and other types
+of modules in the framework is that they are a composition of a few
+different mixins that lead to a complete payload feature set.
+Payloads are at their base an implementation of the
+\texttt{Msf::Payload} class.  However, they also include the support
+necessary to handle the client half of any connections that the
+payload might make through \textit{handlers}.  Handlers will be
+discussed in more detail later in this section.  Aside from
+handlers, payloads are also broken down into three separate payload
+types: singles, stagers, and stages.  These payload types will be
+discussed in more detail later in this chapter.
+
+\par
+Furthermore, unlike other framework modules, payload modules will
+not necessarily correspond one-to-one with the module names that can
+be used within the framework.  This is because the framework will
+automatically generate permutations of different module types so
+that they can be used in various combinations without having to be
+linked together statically.  This is especially useful for staged
+payloads because it is possible for stagers and stages to be
+automatically merged together at load time rather than having to
+statically build an association in the module files.  This is a
+major enhancement from the 2.x framework version.
+
+\par
+To better help with visualizing the payload hierarchy, the diagram
+in figure \ref{fig-img-payload} shows the class hierarchy of a
+particular type of payload known as a staged payload.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[height=4.0in]{dev_guide_payload_hierarchy}
+\caption{Staged payload class hierarchy} \label{fig-img-payload}
+\end{center}
+\end{figure}
+
+        \subsection{Interface}
+
+\par
+The framework uses a well-defined, uniform interface to work with
+payload modules.  Like other modules, payload modules also have
+module-specific information hash elements.  The table shown in
+figure \ref{fig-table-payload-hash} shows the elements that are
+specific to payload module information hash and the accessors that
+can be used to access them.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|l|l|p{2.0in}|}
+\hline
+\textbf{Hash Element} & \textbf{Accessor} & \textbf{Type} & \textbf{Description} \\
+\hline
+BadChars & badchars & String & The string of bad characters for this payload, if any. \\
+\hline
+SaveRegisters & save\_registers & Array & An array of architecture specific registers that should be saved when using this payload. \\
+\hline
+Payload & module\_info['Payload'] & Hash & A hash of information specific to this payload. \\
+\hline
+Convention & convention & String & The staging convention used by this payload, if any. \\
+\hline
+SymbolLookup & symbol\_lookup & String & The method used to resolved symbols by this payload, if any. \\
+\hline
+Handler & handler\_klass & Msf::Handler::Xxx & The handler class to be used with this payload, or \texttt{Msf::Handler::None}. \\
+\hline
+Session & session & Msf::Session::Xxx & The session class to create when the payload succeeds. \\
+\hline
+\end{tabular}
+\caption{\texttt{Msf::Payload} information hash accessors}
+\label{fig-table-payload-hash}
+\end{center}
+\end{figure}
+
+\par
+Using the payload-specific information, the framework drives the
+payload class by using a specific set of methods.  These methods are
+described in detail below.
+
+            \subsubsection{compatible\_convention?}
+
+\par
+This method checks to see if the supplied staging convention is
+compatible with the current payload module's staging convention.  If
+the current payload's staging convention is undefined (as would be
+the case for a non-staged payload) or the conventions match, then
+true is returned.  Alternatively, if the current payload's type is
+that of a stager and the supplied convention is undefined, then true
+is also returned.  In every other case, false is returned.
+
+            \subsubsection{compatible\_encoders}
+
+\par
+This method returns an array of compatible encoders where each
+element in the array is an array with two elements that contains the
+reference name of the encoder and the encoder's module class.
+
+            \subsubsection{compatible\_nops}
+
+\par
+This method returns an array of compatible NOP generators where each
+element in the array is an array with two elements that contains the
+reference name of the NOP generator and the nop's module class.
+
+            \subsubsection{connection\_type}
+
+\par
+This method returns the type of connection being used for this
+payload as derived from the payload's handler.
+
+            \subsubsection{generate}
+
+\par
+This method causes the underlying payload to be generated.  This
+method works by calling the \texttt{payload} method on the payload
+module instance and creating a duplicate copy of it.  From there,
+any defined variables are substituted as conveyed through the
+\texttt{offsets} attribute.  The resultant substituted buffer is
+then returned to the caller.
+
+            \subsubsection{payload\_type}
+
+\par
+This method returns the type of the payload that is implemented by
+the derived class.  This can be one of
+\texttt{Msf::Payload::Type::Single},
+\texttt{Msf::Payload::Type::Stager}, or
+\texttt{Msf::Payload::Type::Stage}.
+
+            \subsubsection{size}
+
+\par
+This method returns the size of the payload as returned by a call to
+\texttt{generate}.
+
+            \subsubsection{staged?}
+
+\par
+This method returns true if the payload type is either
+\texttt{Stager} or \texttt{Stage}.
+
+            \subsubsection{substitute\_vars}
+
+\par
+This method substitutes variables using the \texttt{offsets} hash as
+a guide.  It also calls \texttt{replace\_var} prior to doing
+substitution which gives derived classes a chance to do custom
+variable substitution prior to using built-in facilities.
+
+            \subsubsection{validate}
+
+\par
+This method wraps the call to the payload's option container's
+validate method.
+
+        \subsection{Types}
+
+\par
+Framework payloads are broken down into three distinct payload
+types.  The first type of payload that can be implemented is
+referred to as a \textit{single} payload.  Single payloads are
+self-contained, single stage payloads that do no undergo a staging
+process.  An example of a typical single payload is one that
+connects back to an attacker and supplies them with a shell without
+any intermediate staging.  The second type of payload is referred to
+as a \textit{stager}.  Stages are responsible for connecting back to
+the attacker in some fashion and processing a second stage payload.
+The third type of payload is referred to as a \textit{stage} and it
+is what's executed by a stager payload.  These three payload types
+allow the framework to dynamically generated various combinations of
+payloads.
+
+            \subsubsection{Single}
+
+\par
+As described above, single payloads are self-contained, single-stage
+payloads that perform one logical task without requiring any
+secondary code.  Single payloads are the simplest of the three
+payload types because they correlate one-to-one with the payloads
+that end up being generated by the framework.
+
+\par
+For single payloads, the module information hash's \texttt{Payload}
+hash element will contain a sub-hash with a few key elements. The
+table shown in figure \ref{fig-table-single-payload-hash} describes
+the hash elements that are used by the framework and the accessors
+that are used to obtain them.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|l|l|p{2.0in}|}
+\hline
+\textbf{Hash Element} & \textbf{Accessor} & \textbf{Type} & \textbf{Description} \\
+\hline
+Payload & payload & String & The raw payload associated with this payload module. \\
+\hline
+Offsets & offsets & Hash & An array of variables that should be substituted at specific offsets based on the module's datastore. \\
+\hline
+\end{tabular}
+\caption{Payload information sub-hash accessors}
+\label{fig-table-single-payload-hash}
+\end{center}
+\end{figure}
+
+\par
+For single payloads, the \texttt{Payload} hash typically contains a
+\texttt{Payload} sub-hash element that actually contains the raw
+payload.  This is illustrated below:
+
+\begin{verbatim}
+    {
+        'Payload' =>
+            {
+                'Payload' => "\xcc\xcc\xcc",
+                'Offsets' => ...
+            }
+    }
+\end{verbatim}
+
+            \subsubsection{Stage}
+
+\par
+A stage payload is an implementation of a connection-independent
+task like spawning a command shell or running an arbitrary command.
+Stage payloads are combined with various framework stagers to
+produce a set of connection-oriented multi-stage payloads.  This is
+done automatically by the framework by associating stage payloads
+with stagers that have a compatible staging convention.  The staging
+convention describes the manner in which connection information is
+passed from the stager to the stage in terms of what register might
+hold a file descriptor, for instance.  Stages and stagers are also
+matched up by their symbol lookup convention if necessary so that
+stages can assume that certain locations in memory will hold
+routines that may be useful.
+
+\par
+Stage payloads convey their raw payload contents in relation to the
+\texttt{Stage} module information hash element.  The sub-hash
+elements are similar to the single-style payloads in that it has
+both a \texttt{Payload} and an \texttt{Offsets} element.
+
+\par
+Stage payloads are meaningless unless there is a compatible stager.
+
+            \subsubsection{Stager}
+
+\par
+A stager payload is an implementation of a payload that establishes
+some communication channel with the attacker to read in or otherwise
+obtain a second stage payload to execute.  For example, a stager
+might connection back to the attacker on a defined port and read in
+code to execute.
+
+\par
+Stagers convey their raw payload contents in relation to the
+\texttt{Stager} module information hash element.  The sub-hash
+elements are similar to single-style payloads in that it has both a
+\texttt{Payload} and an \texttt{Offsets} element.
+
+\par
+Furthermore, staged payloads have some extra accessor methods that
+single payloads do not.  For instance, the stager's payload and
+offsets can be obtained through the \texttt{payload} and
+\texttt{offsets} accessors.  The stage's payload and offsets can be
+obtained through the \texttt{stage\_payload} and
+\texttt{stage\_offsets} accessors.
+
+        \subsection{Handlers}
+
+\par
+Handles are one of the critical components of a payload.  They are
+responsible for handling the attacker's half of establishing a
+connection that might be created by the payload being transmitted
+via an exploit.  The different handlers will be discussed in detail
+later in this subsection.
+
+\par
+Handlers themselves act as mixins that get merged into an actual
+payload module class.  The framework interacts with handlers through
+a well-defined interface.  Prior to initiating an exploit, the
+framework will call into the payload handler's
+\texttt{setup\_handler} and \texttt{start\_handler} methods that
+will lead to the initialization of the handler in preparation for a
+payload connection.  When a connection arrives, the handler calls
+the \texttt{handle\_connection} method on the payload instance. This
+method is intended to be overridden as necessary by the payload to
+do custom tasks.  For instance, staged payloads will initiate the
+transfer of the second stage over the established connection and
+then call the default implementation which leads to the creation of
+a session for the connection.
+
+\par
+When an exploit has finished, the framework will call into the
+payload handlers \texttt{stop\_handler} and
+\texttt{cleanup\_handler} methods to stop it from listening for
+future connections.
+
+            \subsubsection{Bind TCP}
+
+\par
+The bind TCP handler is provided through
+\texttt{Msf::Handler::BindTcp}.  It will attempt to establish a
+connection to a target machine on a given port (specified in
+\texttt{LPORT}).  If a connection is established, a call is made
+into \texttt{handle\_connection} passing along the socket associated
+with the connection.
+
+            \subsubsection{Find port}
+
+\par
+The find port handler is provided by the
+\texttt{Msf::Handler::FindPort} class.  When an exploit calls the
+\texttt{handler} method with a socket connection, the find port
+handler will attempt to see if the socket has now been re-purposed
+for use by the payload.  The find port handler is meant to be used
+for payloads that search for a socket by comparing peer port names
+relative to the target machine.
+
+            \subsubsection{Find tag}
+
+\par
+The find port handler is provided by the
+\texttt{Msf::Handler::FindTag} class.  When an exploit calls the
+\texttt{handler} method with a socket connection, the find port
+handler will attempt to see if the socket has now been re-purposed
+for use by the payload.  The find tag handler is meant to be used
+for find socket style payloads that search for a socket based on the
+presence of a tag on the wire.
+
+            \subsubsection{None}
+
+\par
+If a payload does not establish a connection of any sort, the
+\texttt{Msf::Handler::None} handler is used.
+
+            \subsubsection{Reverse TCP}
+
+\par
+The reverse TCP handler is provided by the
+\texttt{Msf::Handler::ReverseTcp} class.  It will listen on a port
+for incoming connections and will make a call into
+\texttt{handle\_connection} with the client sockets as they do.
+
     \section{Recon}
 
 \par
