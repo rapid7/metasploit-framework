@@ -741,8 +741,28 @@ operation they perform.
             \subsubsection{Table}
 
 \par
+The \texttt{Rex::Ui::Text::Table} class can be used to format data
+in the form of a table with a header, columns, and rows.  For more
+information on using the table class, please refer to the
+auto-generated API documentation on the Metasploit website.
 
+            \subsubsection{Subscribers}
 
+\par
+The Rex library supports creating classes that are designed to
+subscribe input and output interfaces via the
+\texttt{Rex::Ui::Subscriber} interface.  This mixin provides a
+method called \texttt{init\_ui} which can be passed an input and
+output class instance.  These instances should implement the
+\texttt{Rex::Ui::Text::Input} and \texttt{Rex::Ui::Output}
+interfaces, respectively.  Once \texttt{init\_ui} has been called,
+subsequent calls to methods like \texttt{print\_line} will be passed
+down into the initialized output class instance.  If no class
+instance has been defined, the call will be ignored.  This makes it
+possible to provide a way by which classes can interact with the
+user interface only when desired.  To disable user interface
+interaction, a call can be made to \texttt{reset\_ui} which will
+disable future input and output classes for the class.
 
 \chapter{Framework Core}
 
@@ -1563,11 +1583,242 @@ following sections.  To use the framework ui library, a ruby script
 should require \texttt{msf/ui}.
 
     \section{Console}
+
+TBD.
+
     \section{Web}
+
+
+TBD.
+
 \chapter{Framework Modules}
 \label{framework-modules}
 
+\par
+The primary purpose of the Metasploit framework is to facilitate the
+development of modules that can plug into the framework core and be
+shared with other existing modules.  For instance, an advanced
+encoder module can be plugged into the framework and will be
+automatically applied to payloads of a compatible architecture and
+platform.  This makes it so there are zero code change requires due
+to the fact that all modules conform to a well-defined interface
+with which they can be interacted with by the framework.  As another
+example, new payloads can be developed and are immediately usable to
+all exploits without modification.  This eliminates the need to copy
+static payload blobs into exploits as is most common with proof of
+concept exploits.  This chapter is dedicated to describing the
+interfaces that each module type exposes in order to provide an
+understanding of what it takes to implement each module type.
+
+\par
+At some level, all modules inherit from the module base class
+provided in \texttt{Msf::Module}.  This class implements all of the
+things that are common to Metasploit framework objects, such as
+common accessors.  When a module is loaded into the framework, a
+copy of the class that gets added is made that that is what is used
+for future instantiations of the module.  The copy class then has
+some attributes set that allow the framework to look at some of the
+information of the module at a glance without having to create an
+instance.  This information can be accessed through a set of class
+methods and attributes that are described in figure
+\ref{fig-table-mod-class-methods}.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|p{3.5in}|}
+\hline
+\textbf{Method} & \textbf{Description} \\
+\hline
+framework & The framework instance that the module is associated with. \\
+\hline
+type & The module's symbolic type.  One of \texttt{MODULE\_ENCODER}, \texttt{MODULE\_EXPLOIT}, \texttt{MODULE\_NOP}, \texttt{MODULE\_PAYLOAD}, or \texttt{MODULE\_RECON} \\
+\hline
+fullname & The complete symbolic name of the module including is string type.  For example: exploit/windows/ms03\_026 \\
+\hline
+rank & The module's integer rank to indicates its quality.  The rank is used by the framework when selecting which encoders, payloads, and NOP generators to use. \\
+\hline
+rank\_to\_s & Returns the string representation of the module's rank \\
+\hline
+refname & The module's symbolic reference name.  For example: windows/ms03\_026 \\
+\hline
+orig\_cls & The original, non-duplicated class that was loaded for the module. \\
+\hline
+file\_path & The file path that the module was loaded from. \\
+\hline
+\end{tabular}
+\caption{\texttt{Msf::Module} class methods}
+\label{fig-table-mod-class-methods}
+\end{center}
+\end{figure}
+
+\par
+To support generic initialization, each module defines its own
+custom information hash that is passed to the constructor of
+\texttt{Msf::Module}.  This information class is then assigned to
+the instance attribute \texttt{module\_info} and then processed. The
+parts that are common to all modules are broken down and transformed
+into uniform types that can be accessed through instance methods.
+The same methods that are accessible through the module class can
+also be used through the class instance (as shown in figure
+\ref{fig-table-mod-class-methods}).
+
+\par
+The table in figure \ref{fig-table-mod-info} shows how the common
+module information hash elements are broken down into their
+respective data types and the methods that can be used to access
+them.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|l|l|p{2.0in}|}
+\hline
+\textbf{Hash Element} & \textbf{Accessor} & \textbf{Type} & \textbf{Description} \\
+\hline
+Name & name & String & The short name of the module. \\
+\hline
+Alias & alias & String & An alias string for the refname of the module. \\
+\hline
+Description & description & String & A longer description of the module. \\
+\hline
+Version & version & String & The current revision of the derived module. \\
+\hline
+Author & author & Array & An array of \texttt{Msf::Author} instances. \\
+\hline
+Arch & arch & Array & An array of architectures (like \texttt{ARCH\_X86}). \\
+\hline
+Platform & platform & PlatformList & An instance of a \texttt{Msf::PlatformList}. \\
+\hline
+References & references & Array & An array of \texttt{Msf::Reference} instances. \\
+\hline
+Options & options & OptionContainer & Options conveyed in the hash are added to the module's option container. \\
+\hline
+AdvancedOptions & options & OptionContainer & Options conveyed in the hash are added to the module's option container as advanced options. \\
+\hline
+DefaultOptions & options & OptionContainer & Previously registered options have their default value modified. \\
+\hline
+Privileged & privileged & Bool & Whether or not the module requires or grants privileged access. \\
+\hline
+Compat & compat & Hash & A hash of compatibility flags. \\
+\hline
+\end{tabular}
+\caption{\texttt{Msf::Module} information hash accessors}
+\label{fig-table-mod-info}
+\end{center}
+\end{figure}
+
+\par
+Some of the information hash accessors also have helper methods that
+make it easier to interact with some of them.  For instance, the
+\texttt{Arch} hash element array contained within the \texttt{arch}
+attribute can be serialized to a comma separated string by calling
+\texttt{arch\_to\_s}.  Architectures can also be enumerated by
+calling \texttt{each\_arch} and passing it a block that accepts the
+architecture as a parameter.  It is also possible to check if a
+module supports an architecture by calling the \texttt{arch?} method
+and passing it the architecture to check for as a parameter.  Like
+architectures, platforms can be serialized to a string by calling
+\texttt{platform\_to\_s}.
+
+\par
+The \texttt{Author} hash element can also be converted to a comma
+separated string of authors by calling \texttt{author\_to\_s}.  The
+array of \texttt{Msf::Author} instances contained within the
+\texttt{author} array attribute can be enumerated by calling
+\texttt{each\_author} and passing it a block that takes an author
+instance as its first parameter.
+
+\par
+The \texttt{Msf::Module} class also has some helper methods that
+allow users to quickly check if a module is of a specific type by
+calling the \texttt{<type>?} method set.  For instance, if a caller
+wished to see if a module instance was an exploit, they could call
+\texttt{mod.exploit?}.
+
+\par
+Since the Rex library introduces the concept of socket communication
+factories (through the \texttt{Comm} class), each module has an
+attribute that can return the \texttt{Comm} instance that was used
+or preferred.  By default, all modules return
+\texttt{Rex::Socket::Comm::Local}.
+
+\par
+Each module has its own instance-based datastore which is an
+instance of the \texttt{Msf::ModuleDataStore} class and can be
+accessed through the \texttt{datastore} accessor. This mirrors the
+functionality provided by the global framework datastore in that it
+provides a localized variable to value association for use in
+satisfying required options.  For instance, if a module requires the
+\texttt{RHOST} option to be set to a value, the module's data store
+must have a hash entry for \texttt{RHOST}. Alternatively, modules
+are designed to be able to fall back on the framework global
+datastore if their localized datastore does not have a value for a
+variable being checked for. This provides a basic level of
+variable/value inheritance.  In some cases, modules may wish to
+share their localized copies of the datastore with other modules
+without having to taint the global datastore.  This can be
+accomplished by calling the \texttt{share\_datastore} method on a
+module instance and passing it a data store instance as the first
+argument.
+
+\par
+Finally, framework module's are designed to be able to indicate
+their relative compatibilities with other modules.  For instance, an
+exploit may wish to indicate that it is incompatible with a specific
+class of payload connection mediums.  This is accomplished through
+the \texttt{Compat} information hash element.  After the
+compatibility layer has been initialized, calls can be made to a
+module's \texttt{compatible?} method by passing another module
+instance as the argument.  If the supplied module instance is
+compatible with the instance that's being checked against, then true
+is returned.
+
+\par
+This basic interface provides a generalized view into the behavior
+and expectations of framework modules.  However, all module types
+have well-defined interfaces for dealing with the actions that they
+are meant to undertake.  These specific interfaces will be described
+in the following sections.
+
     \section{Encoder}
+
+\par
+Encoder modules are used to generate transformed versions of raw
+payloads in a way that allows them to be restored to their original
+form at execution time and then subsequently executed.  To
+accomplish this, most encoders will take the raw form of the payload
+and run it through some kind of encoding algorithm, like bitwise
+XOR.  After the encoded version is generated, a decoding stub is
+prefixed to the encoded version of the payload.  This stub is
+responsible for performing the inverse operation on the buffer
+attached to the decoder when it executes.  After the decoder
+restores the payload to its original form, it will transfer
+execution to the start of the now normalized payload.
+
+\par
+To support the above described encoder model, the Metasploit
+framework provides the \texttt{Msf::Encoder} class.  All encoders
+must inherit from this base class at some level to ensure that
+encoder-specific methods are included in the derived class.
+
+ explain Decoder info hash
+ explain decoder\_xxx methods (overriding)
+
+ explain encoder state
+
+ buffer encoding
+   encode
+   do\_encode
+   prepend\_buf
+   encode\_begin
+   encode\_finalize\_stub
+   encode\_end
+   encode\_block
+
+ helper methods
+   init\_state
+   find\_key
+   has\_badchars?
+
     \section{Exploit}
         \subsection{Stances}
         \subsection{Types}
@@ -1591,5 +1842,18 @@ should require \texttt{msf/ui}.
 \chapter{Methodologies}
     \section{Writing an Exploit}
 \chapter{Conclusion}
+
+\appendix
+\chapter{Samples}
+    \section{Framework Core}
+    \section{Framework Base}
+    \section{Framework Module}
+        \subsection{Encoder}
+        \subsection{Exploit}
+        \subsection{Nop}
+        \subsection{Payload}
+        \subsection{Recon}
+    \section{Framework Plugin}
+    \section{Extended Tools}
 
 \end{document}
