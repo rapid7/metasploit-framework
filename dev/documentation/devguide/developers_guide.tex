@@ -1796,28 +1796,173 @@ execution to the start of the now normalized payload.
 
 \par
 To support the above described encoder model, the Metasploit
-framework provides the \texttt{Msf::Encoder} class.  All encoders
-must inherit from this base class at some level to ensure that
+framework provides the \texttt{Msf::Encoder} class which inherits
+from the \texttt{Msf::Module} base class.  All encoders must inherit
+from the \texttt{Msf::Encoder} class at some level to ensure that
 encoder-specific methods are included in the derived class.
 
- explain Decoder info hash
- explain decoder\_xxx methods (overriding)
+\par
+Like the module information hash, encoders have some specialized
+information hash elements that describe information about the
+encoder being used.  The information that encoder modules need to
+describe are the attributes of the decoder which is conveyed through
+the \texttt{Decoder} information hash element.  The \texttt{Decoder}
+hash element references another hash that contains decoder specific
+properties.  These are described in the table shown in figure
+\ref{fig-table-encoder-hash} along with their types and module
+instance accessors.
 
- explain encoder state
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|l|l|p{2.0in}|}
+\hline
+\textbf{Hash Element} & \textbf{Accessor} & \textbf{Type} & \textbf{Description} \\
+\hline
+Stub & decoder\_stub & String & The raw stub to be prefixed to encoded payloads. \\
+\hline
+KeyOffset & decoder\_key\_offset & Fixnum & The offset to the key in the decoder stub. \\
+\hline
+KeySize & decoder\_key\_size & Fixnum & The size of the decoder key in bytes. \\
+\hline
+BlockSize & decoder\_block\_size & Fixnum & The size of each encoding block in bytes. \\
+\hline
+KeyPack & decoder\_key\_pack & String & The byte-ordering to use when packing the key.  The default is 'V'. \\
+\hline
+\end{tabular}
+\caption{\texttt{Msf::Encoder} \texttt{Decoder} information hash
+accessors} \label{fig-table-encoder-hash}
+\end{center}
+\end{figure}
 
- buffer encoding
-   encode
-   do\_encode
-   prepend\_buf
-   encode\_begin
-   encode\_finalize\_stub
-   encode\_end
-   encode\_block
+\par
+Each of the methods described in figure \ref{fig-table-encoder-hash}
+are designed to be overridable so that derived encoder classes can
+dynamically choose the values returned by them rather than being
+forced to initialize them in a static hash element.  The decoder
+hash itself can be accessed through the \texttt{decoder\_hash}
+method in case an encoder module wishes to convey non-standard
+information in the hash for later reference.
 
- helper methods
-   init\_state
-   find\_key
-   has\_badchars?
+\par
+Perhaps of more importance that the decoder initialization vector is
+how the encoding process is exposed.  The base class
+\texttt{Msf::Encoder} implements an instance method named
+\texttt{encode} which takes a buffer as the first argument, a string
+of bad characters (or nil) as the second argument, and an optional
+encoder state as the third argument.  The \texttt{encode} method
+wraps the encoding process in terms of selecting a decoder key,
+initializing the encoder state, and then performing the actual
+encoding operation.  Once completed, the encoded buffer is returned
+to the caller.
+
+        \subsection{encode}
+
+\par
+At a more detailed level, the \texttt{encode} method first creates
+an instance of a \texttt{Msf::EncoderState} class if one was not
+supplied as the third argument of \texttt{encode}.  The purpose of
+the encoder state is to contain transient information about a
+specific encoding in a non-global location. After creating the
+encoder state instance, \texttt{encode} prepends any
+encoder-specific to the raw payload that might be necessary through
+the use of the \texttt{prepend\_buf} instance method on the encoder
+module.  This method is intended to be overridden and used as
+necessary.  By default, an empty string is returned, effectively
+leaving the buffer in the same state that it was.
+
+\par
+After prepending the raw buffer as necessary, the \texttt{encode}
+method then selects a decoder key if the \texttt{decoder\_key\_size}
+method returns a non-zero value and the encoder state currently has
+a \texttt{nil} key.  This is accomplished by calling the
+\texttt{find\_key} method on the encoder module which has a default
+implementation that is intended to work across all encoder modules.
+Once a key has been selected, the \texttt{init\_key} method is
+called on the encoder state object to set the \texttt{state.key} and
+\texttt{state.orig\_key} attributes.  If no key is found, a
+\texttt{Msf::NoKeyError} exception is raised.
+
+\par
+The next step is to initialize some of the encoder state specific
+attributes by calling the \texttt{init\_state} method on the encoder
+module instance which simply stores the currently defined decoder
+key offset, size, and pack as attributes of the encoder state as
+conveyed through the accessor methods on the encoder module instance
+itself.  The encoder state then has the string of bad characters and
+the raw buffer set as attributes so that they can be contextually
+referenced throughout the encoding process.
+
+\par
+With the encoder state finally initialized, the next step is to
+begin the encoding process by calling the \texttt{encode\_begin}
+method on the encoder module instance.  This method simply does
+nothing in its default implementation, but it is designed to allow
+derived encoder modules to alter the attributes of the encoder state
+prior to actually starting the encoding process.  Once
+\texttt{encode\_begin} returns, the \texttt{encode} method makes a
+call into the \texttt{do\_encode} method by passing it the buffer,
+bad characters, and initialized encoder state.  This is the method
+that does the actual encoding work and could possibly be overridden
+if the default implementation was not suitable for a given encoder.
+
+\par
+Once \texttt{do\_encode} completes, the \texttt{encode} method makes
+a call into \texttt{encode\_end} and passes the encoder state as an
+argument.  The default implementation of this method simply does
+nothing, but it is provided as a means by which an encoder can hook
+into the finalization of the encoding process to alter the results
+that will be returned to the caller.
+
+        \subsection{do\_encode}
+
+\par
+The \texttt{do\_encode} method is the actual workhorse of the
+encoding process.  It starts by making a copy of the decoder stub by
+calling the encoder module instance's \texttt{decoder\_stub} method
+and passing it the encoder state as an argument.  The
+\texttt{decoder\_stub} method is the only one that takes an encoder
+state as an argument as some encoders may generate dynamic decoder
+stubs depending on the state.
+
+\par
+After obtaining the decoder stub, the next step is to substitute the
+packed version of the decoder key at whatever offset was conveyed in
+the decoder information hash through the \texttt{KeyOffset} and
+\texttt{KeySize} as well as the \texttt{KeyPack}.  These attributes
+are gotten through the encoder state's attributes since it's
+possible that a derived encoder may wish to alter their values to be
+non-static between iterations of the encoding process.
+
+\par
+Finally, the actual block-based encoding occurs by simply walking
+the raw buffer in block size chunks calling the
+\texttt{encode\_block} method on each chunk.  This method is passed
+the encoder state and the chunk to be encoded.  By default, the
+\texttt{encode\_block} method simply returns the block it is passed,
+but all encoders are intended to override this method to return the
+encoded value of the block based on the current encoder state.
+
+\par
+After all the blocks have been encoded, the encoder state's
+\texttt{encoded} attribute will contain the encoded version of each
+blocked.  The \texttt{do\_encode} method then prepends the decoder
+stub to the front of the encoded buffer and then checks to see if
+the complete stub + encoded buffer has any bad characters.  If bad
+characters are found, a \texttt{Msf::BadcharError} exception is
+raised to the caller indicating what character and position the bad
+character was found at in the encoded buffer.  If all goes well, the
+\texttt{do\_encode} method returns true.
+
+        \subsection{Helper methods}
+
+\par
+Internal the encoder module class are some instance helper methods
+that can be used by derived classes to make things easier.  For
+instance, the encoder module base class has a method called
+\texttt{has\_badchars?} that can be used to check to see if the
+supplied buffer has any of the supplied bad characters.  If it does,
+the index of the first bad character found is returned.  Otherwise,
+\texttt{nil} is returned.
 
     \section{Exploit}
         \subsection{Stances}
