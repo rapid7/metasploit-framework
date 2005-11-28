@@ -215,22 +215,33 @@ class Core
 	def cmd_load(*args)
 		if (args.length == 0)
 			print_line(
-				"Usage: load <path>\n\n" +
-				"Load a plugin from the supplied path.")
+				"Usage: load <path> [var=val var=val ...]\n\n" +
+				"Load a plugin from the supplied path.  The optional\n" +
+				"var=val options are custom parameters that can be\n" +
+				"passed to plugins.")
 			return false
 		end
 
 		# Default to the supplied argument path.
-		path = args[0]
+		path = args.shift
+		opts  = {
+			'LocalInput'    => driver.input,
+			'LocalOutput'   => driver.output,
+			'ConsoleDriver' => driver
+			}
+
+		# Parse any extra options that should be passed to the plugin
+		args.join(' ').split(/\s+/).each { |opt|
+			k, v = opt.split(/=/)
+
+			opts[k] = v if (k and v)
+		}
 
 		# If no absolute path was supplied, use the plugin directory as a base.
 		path = Msf::Config.plugin_directory + File::SEPARATOR + path if (path !~ /#{File::SEPARATOR}/)
 
 		# Load that plugin!
-		if ((inst = framework.plugins.load(path,
-			'LocalInput'    => driver.input,
-			'LocalOutput'   => driver.output,
-			'ConsoleDriver' => driver)))
+		if ((inst = framework.plugins.load(path, opts)))
 			print_status("Successfully loaded plugin: #{inst.name}")
 		else
 			print_error("Failed to load plugin from #{arg[0]}")

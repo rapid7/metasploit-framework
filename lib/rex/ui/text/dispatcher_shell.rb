@@ -169,6 +169,7 @@ module DispatcherShell
 		arguments = parse_line(line)
 		method    = arguments.shift
 		found     = false
+		error     = false
 
 		reset_color if (supports_color?)
 
@@ -182,10 +183,17 @@ module DispatcherShell
 
 						found = true
 					end
-				rescue
+				rescue 
+					error = true
+
 					output.print_error(
 						"Error while running command #{method}: #{$!}" +
 						"\n\nCall stack:\n#{$@.join("\n")}")
+				rescue ::Exception
+					error = true
+
+					output.print_error(
+						"Error while running command #{method}: #{$!}")
 				end
 
 				# If the dispatcher stack changed as a result of this command,
@@ -193,7 +201,7 @@ module DispatcherShell
 				break if (dispatcher_stack.length != entries)
 			}
 
-			if (found == false)
+			if (found == false and error == false)
 				unknown_command(method, line)
 			end
 		end
