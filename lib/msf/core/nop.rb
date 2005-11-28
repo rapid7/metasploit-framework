@@ -52,7 +52,7 @@ class Nop < Msf::Module
 	end
 
 	#
-	# Default repetition threshold when find nop characters
+	# Default repetition threshold when finding nop characters.
 	#
 	def nop_repeat_threshold
 		return 10000

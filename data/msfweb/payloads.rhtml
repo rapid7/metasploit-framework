@@ -2,15 +2,13 @@
 <tr><td colspan='5'>
 
 <%
-	name   = query_string['name']
-	step   = query_string['step'] || 0
-
-	step = step.to_i
+	name = query_string['name']
+	step = (query_string['step'] || 0).to_i
 
 	if (name == nil)
  %>
 
-<%# Display the exploit list if one hasn't been selected %>
+<%# Display the payload list if one hasn't been selected %>
 <br/>
 <div align='center' class='navHead'>
 	<table class='moduleList' width='100%' cellspacing='0' border='0'>
@@ -31,7 +29,7 @@
 	</table>
 </div>
 
-<%# Wizard step 0 - target selection %>
+<%# Wizard step 0 - option selection %>
 <%
 	elsif (step == 0)
 		modinst = framework.payloads.create(name)

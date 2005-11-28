@@ -86,7 +86,7 @@ class Encoder < Module
 	end
 
 	#
-	# Returns the decoder stub to use based on the supplied length.
+	# Returns the decoder stub to use based on the supplied state.
 	#
 	def decoder_stub(state)
 		return decoder_hash['Stub'] || ''

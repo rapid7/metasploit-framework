@@ -332,9 +332,12 @@ class Core
 				# Satisfy case problems
 				args[2] = "Local" if (args[2] =~ /local/i)
 
-				# If the supplied gateway is a global Comm, use it.
-				if (Rex::Socket::Comm.const_defined?(args[2]))
-					gw = Rex::Socket::Comm.const_get(args[2])
+				begin
+					# If the supplied gateway is a global Comm, use it.
+					if (Rex::Socket::Comm.const_defined?(args[2]))
+						gw = Rex::Socket::Comm.const_get(args[2])
+					end
+				rescue NameError
 				end
 
 				# If we still don't have a gateway, check if it's a session.
