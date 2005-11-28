@@ -5,7 +5,7 @@ $:.unshift(File.join(File.dirname(__FILE__), '../lib'))
 require 'msf/base'
 require 'msf/ui'
 
-# Declare the argument parser for msfweb
+# Declare the argument parser for msfd
 arguments = Rex::Parser::Arguments.new(
 	"-a" => [ true,  "Bind to this IP address instead of loopback"          ],
 	"-p" => [ true,  "Bind to this port instead of 55554"                   ],
