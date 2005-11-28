@@ -44,17 +44,20 @@ exit if (Process.fork()) unless foreground
 begin
 	client = server.accept	
 
-	Thread.new { 
+	Thread.new(client) { |cli|
 		begin
 			Msf::Ui::Console::Driver.new(
 				Msf::Ui::Console::Driver::DefaultPrompt,
 				Msf::Ui::Console::Driver::DefaultPromptChar,
 				'Framework'   => $framework,
-				'LocalInput'  => Rex::Ui::Text::Input::Socket.new(client), 
-				'LocalOutput' => Rex::Ui::Text::Output::Socket.new(client)).run
+				'LocalInput'  => Rex::Ui::Text::Input::Socket.new(cli), 
+				'LocalOutput' => Rex::Ui::Text::Output::Socket.new(cli)).run
 
-			client.shutdown
-			client.close
+			begin 
+				cli.shutdown
+				cli.close
+			rescue IOError
+			end
 		rescue
 			puts "Error: #{$!}\n\n#{$@.join("\n")}"
 		end
