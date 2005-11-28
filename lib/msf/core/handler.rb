@@ -143,7 +143,7 @@ module Handler
 			session = session_waiter_event.wait(t)
 		rescue ::TimeoutError
 		end
-
+		
 		# If a connection has arrived, wait longer...
 		if (pending_connections > 0)
 			session = session_waiter_event.wait

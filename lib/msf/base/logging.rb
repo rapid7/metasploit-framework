@@ -68,12 +68,14 @@ class Logging
 	# Starts logging for a given session.
 	#
 	def self.start_session_log(session)
-		f = Rex::Logging::Sinks::Flatfile.new(
+		if (log_source_registered?(session.log_source) == false)
+			f = Rex::Logging::Sinks::Flatfile.new(
 			Msf::Config.session_log_directory + File::SEPARATOR + "#{session.log_file_name}.log")
-
-		register_log_source(session.log_source, f)
-		
-		rlog("\n[*] Logging started: #{Time.now}\n\n", session.log_source)
+	
+			register_log_source(session.log_source, f)
+			
+			rlog("\n[*] Logging started: #{Time.now}\n\n", session.log_source)
+		end
 	end
 
 	#

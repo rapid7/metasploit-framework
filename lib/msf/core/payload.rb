@@ -321,8 +321,8 @@ class Payload < Msf::Module
 		# that a session has been created and potentially shut down any 
 		# open sockets. This allows active exploits to continue hammering
 		# on a service until a session is created.
-		if (assoc_exploit)		
-			
+		if (assoc_exploit)
+
 			# Signal that a new session is created by calling the exploit's
 			# on_new_session handler. The default behavior is to set an
 			# instance variable, which the exploit will have to check.

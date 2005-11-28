@@ -33,8 +33,6 @@ module FrameworkEventManager
 
 		if (Msf::Logging.session_logging_enabled? == true)
 			Msf::Logging.start_session_log(session)
-
-			output.print_status("Started logging session interaction.")
 		end
 	end
 
