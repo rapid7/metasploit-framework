@@ -21,6 +21,9 @@ class Driver < Msf::Ui::Driver
 	ConfigCore  = "framework/core"
 	ConfigGroup = "framework/ui/console"
 
+	DefaultPrompt     = "%umsf"
+	DefaultPromptChar = ">%c"
+
 	#
 	# The console driver processes various framework notified events.
 	#
@@ -33,11 +36,12 @@ class Driver < Msf::Ui::Driver
 
 	#
 	# Initializes a console driver instance with the supplied prompt string and
-	# prompt character.
+	# prompt character.  The optional hash can take extra values that will
+	# serve to initialize the console driver.
 	#
-	def initialize(prompt = "%umsf", prompt_char = ">%c")
+	def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
 		# Call the parent
-		super
+		super(prompt, prompt_char)
 
 		# Temporarily disable output
 		self.disable_output = true
@@ -46,7 +50,15 @@ class Driver < Msf::Ui::Driver
 		load_preconfig
 	
 		# Initialize attributes
-		self.framework = Msf::Simple::Framework.create
+		self.framework = opts['Framework'] || Msf::Simple::Framework.create
+
+		# Initialize the user interface to use a different input and output
+		# handle if one is supplied
+		if (opts['LocalInput'] or opts['LocalOutput'])
+			init_ui(
+				opts['LocalInput'],
+				opts['LocalOutput'])
+		end
 
 		# Add the core command dispatcher as the root of the dispatcher
 		# stack

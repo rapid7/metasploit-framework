@@ -53,7 +53,9 @@ module Shell
 
 		if (self.input)
 			begin
-				self.input = Input::Readline.new(lambda { |str| tab_complete(str) })
+				if (self.input.supports_readline)
+					self.input = Input::Readline.new(lambda { |str| tab_complete(str) })
+				end
 			rescue
 			end
 	

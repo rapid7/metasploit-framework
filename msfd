@@ -1,0 +1,62 @@
+#!/usr/bin/ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), '../lib'))
+
+require 'msf/base'
+require 'msf/ui'
+
+# Declare the argument parser for msfweb
+arguments = Rex::Parser::Arguments.new(
+	"-a" => [ true,  "Bind to this IP address instead of loopback"          ],
+	"-p" => [ true,  "Bind to this port instead of 55554"                   ],
+	"-h" => [ false, "Help banner"                                          ])
+
+opts = {}
+foreground = false
+
+# Parse command line arguments.
+arguments.parse(ARGV) { |opt, idx, val|
+	case opt
+		when "-a"
+			opts['ServerHost'] = val
+		when "-p"
+			opts['ServerPort'] = val
+		when "-f"
+			foreground = true
+		when "-h"
+			print(
+				"\nUsage: #{File.basename(__FILE__)} <options>\n" +
+				arguments.usage)
+			exit
+	end
+}
+
+# Create an instance of the framework
+$framework = Msf::Simple::Framework.create
+
+server = Rex::Socket::TcpServer.create(
+	'LocalHost' => opts['ServerHost'],
+	'LocalPort' => opts['ServerPort'] || 55554)
+
+exit if (Process.fork()) unless foreground
+
+begin
+	client = server.accept	
+
+	Thread.new { 
+		begin
+			Msf::Ui::Console::Driver.new(
+				Msf::Ui::Console::Driver::DefaultPrompt,
+				Msf::Ui::Console::Driver::DefaultPromptChar,
+				'Framework'   => $framework,
+				'LocalInput'  => Rex::Ui::Text::Input::Socket.new(client), 
+				'LocalOutput' => Rex::Ui::Text::Output::Socket.new(client)).run
+
+			client.shutdown
+			client.close
+		rescue
+			puts "Error: #{$!}\n\n#{$@.join("\n")}"
+		end
+	}
+
+end while true

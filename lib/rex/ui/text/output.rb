@@ -13,6 +13,7 @@ module Text
 class Output < Rex::Ui::Output
 
 	require 'rex/ui/text/output/stdio'
+	require 'rex/ui/text/output/socket'
 	require 'rex/ui/text/output/buffer'
 
 	def print_error(msg = '')

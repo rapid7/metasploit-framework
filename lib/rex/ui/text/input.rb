@@ -15,9 +15,17 @@ class Input
 
 	require 'rex/ui/text/input/stdio'
 	require 'rex/ui/text/input/readline'
+	require 'rex/ui/text/input/socket'
 	
 	def initialize
 		self.eof = false
+	end
+
+	#
+	# Whether or not the input medium supports readline.
+	#
+	def supports_readline
+		true
 	end
 
 	#

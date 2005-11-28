@@ -142,7 +142,7 @@ class Encoder < Module
 	# an exception will be thrown if an error is encountered during the
 	# encoding process.
 	#
-	def encode(buf, badchars, state = nil)
+	def encode(buf, badchars = nil, state = nil)
 		# Initialize an empty set of bad characters
 		badchars = '' if (!badchars)
 
