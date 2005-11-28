@@ -2819,6 +2819,25 @@ offsets can be obtained through the \texttt{payload} and
 obtained through the \texttt{stage\_payload} and
 \texttt{stage\_offsets} accessors.
 
+\par
+The code below shows how those hash elements would be set up:
+
+
+\begin{verbatim}
+    {
+        'Stager' =>
+            {
+                'Payload' => "\xcc\xcc\xcc",
+                'Offsets' => ...
+            },
+        'Stage' =>
+            {
+                'Payload' => "\xcc\xcc\xcc",
+                'Offsets' => ...
+            }
+    }
+\end{verbatim}
+
         \subsection{Handlers}
 
 \par
@@ -2904,11 +2923,134 @@ not be documented at this time.
 \chapter{Framework Plugins}
 \label{framework-plugins}
 
-    \section{User-interface Plugins}
+\par
+The 3.0 version of the framework offers a new type of framework
+concept which is that of the \textit{framework plugin}.  Unlike
+modules, framework plugins are designed to alter or augment the
+framework itself.  The scope under which plugins fall is
+intentionally very broad as to encourage free flowing creativity
+with what they might be capable of doing.  The interface for a
+plugin is intentionally very simple.  All plugins must exist under
+the \texttt{Msf::Plugin} namespace and they must inherit the
+\texttt{Msf::Plugin} base class.  Plugins are loaded into the
+framework by calling \texttt{framework.plugins.load} with a file
+path that contains the plugin.  The framework will then take care of
+loading the plugin and creating an instance of the class found
+within the file specified, assuming the class was added to the
+\texttt{Msf::Plugin} namespace.
+
+\par
+When the framework creates an instance of a plugin, it calls the
+plugin's constructor and passes it the framework instance that it's
+being created from.  It also passes along a hash of arbitrary
+parameters, some of which have a well-defined purpose as described
+in the chapter on the plugin manager in the framework core
+documentation.  Alternatively, a plugin could be passed custom
+initialization parameters through the options hash.
+
+\par
+To understand the types of things a framework plugin is capable of,
+a few different theoretical examples will be enumerated in this
+chapter.  The first example would be a plugin that simply adds a new
+command to the console interface when loaded that performs some
+simple task.  The sample plugin included with the default
+distribution of the framework illustrates how this can be
+accomplished.  A more advanced plugin might automate some of the
+actions taken when a Meterpreter session is created, such as by
+automatically downloading the remote machine's password hashes and
+passing them off to a cracking program.
+
+\par
+Another example of a plugin would be introducing an entirely new
+module type into the framework.  This would be accomplished by
+extending the existing framework instance to support accessors for
+dealing with the new module type.
+
 \chapter{Framework Sessions}
 \label{framework-sessions}
+
+\par
+The typical end-game for an exploit is to provide the attacker with
+some type of session that allows them to run commands or perform
+other actions on a target machine.  In most cases, this session is a
+typical command interpreter that has had its input and output piped
+over a socket connection to the attacker.  However, a command shell
+in and of itself is no particularly automatable unless wrapped in a
+class that allows access to the shell from the level of a command
+script.  It is for this reason that the 3.0 version of the framework
+emphasizes generalized session classes that can be used by the
+framework, plugins, and external scripts to automate the process of
+controlling a session that is created after an exploit succeeds.
+
+\par
+To provide an extensible level of automation control, framework
+sessions can implement one or more of the provider mixins found
+under the \texttt{Msf::Session::Provider} namespace.  The current
+distribution of the framework provides four basic provider
+interfaces that can be implemented by specific sessions.
+
+\begin{enumerate}
+    \item \texttt{MultiCommandExecution}
+
+This interface provides methods that can be used to execute
+multiple simultaneous  commands on the target machine.  This
+interface is a super-set of the \texttt{SingleCommandExecution}
+interface.
+
+    \item \texttt{MultiCommandShell}
+
+This interface provides methods for executing multiple command
+shells simultaneously on the target machine.  This interface is a
+super-set of the \texttt{SingleCommandShell} interface.
+
+    \item \texttt{SingleCommandExecution}
+
+This interface provides methods for executing a single command on
+the target machine.
+
+    \item \texttt{SingleCommandShell}
+
+This interface provides methods for executing a single command shell
+on the target machine.
+
+\end{enumerate}
+
+\par
+By implementing one or more of these methods, sessions can be made
+programmatically automatable at the most basic level.  Aside from
+the standard interfaces, sessions can also optionally implement the
+\texttt{Msf::Session::Comm} mixin which is intended to be used for
+channeling network traffic through a remote machine.  Sessions that
+implement the \texttt{Msf::Session::Comm} mixin can be used in
+conjunction with the switch board routing table present in the Rex
+library.
+
+\par
+At the time of this writing, there are two basic session
+implementations that are found in the framework base library.  These
+two sessions are described in the following sections.
+
     \section{Command Shell}
+
+\par
+The command shell session provided through
+\texttt{Msf::Sessions::CommandShell} implements the
+\texttt{Msf::Session::Provider::SingleCommandShell} interface.  The
+methods used to interact with the shell are simply tunneled over the
+stream associated with the remote side of the connection.  Any
+payload that renders a command shell should return an instance of
+this session.
+
     \section{Meterpreter}
+
+\par
+The meterpreter session provided through
+\texttt{Msf::Sessions::Meterpreter} implements the
+\texttt{Msf::Session::Comm} interface and is also capable of
+implementing some of the other automated interfaces.  By
+implementing the Comm interface, all meterpreter sessions can be
+used for pivoting network traffic.
+
 \chapter{Methodologies}
     \section{Writing an Exploit}
 \chapter{Conclusion}
