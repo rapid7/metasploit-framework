@@ -9,6 +9,7 @@ require 'msf/ui'
 arguments = Rex::Parser::Arguments.new(
 	"-a" => [ true,  "Bind to this IP address instead of loopback"          ],
 	"-p" => [ true,  "Bind to this port instead of 55554"                   ],
+	"-f" => [ false, "Run the daemon in the foreground"                     ],
 	"-h" => [ false, "Help banner"                                          ])
 
 opts = {}

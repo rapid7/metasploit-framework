@@ -153,6 +153,10 @@ def rlog(msg, src = 'core', level = 0, from = caller)
 	$dispatcher.log(LOG_RAW, src, level, msg, from)
 end
 
+def log_source_registered?(src)
+	($dispatcher[src] != nil)
+end
+
 def register_log_source(src, sink, level = nil)
 	$dispatcher[src] = sink
 
