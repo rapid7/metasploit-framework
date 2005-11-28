@@ -412,6 +412,7 @@ protected
 				load_module_from_file(path, file,
 					loaded, recalc, counts)
 			rescue NameError
+				puts "#{$@.join("\n")}"
 				# If we get a name error, it's possible that this module depends
 				# on another one that we haven't loaded yet.  Let's postpone
 				# the load operation for now so that we can resolve all 
@@ -493,8 +494,15 @@ protected
 		path_base.sub!(/(.+)(#{File::SEPARATOR}.+)(.rb?)$/, '\1')
 
 		# Extract the module's namespace from its path
-		mod  = mod_from_name(path_base)
-		type = path_base.match(/^(.+?)#{File::SEPARATOR}+?/)[1].sub(/s$/, '')
+		mod = mod_from_name(path_base)
+
+		if (m = path_base.match(/^(.+?)#{File::SEPARATOR}+?/)) 
+			type = m[1]
+		else
+			type = path_base
+		end
+		
+		type.sub!(/s$/, '')
 
 		# Get the module and grab the current number of constants
 		old_constants = mod.constants

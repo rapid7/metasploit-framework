@@ -3,6 +3,8 @@
 # This plugin provides an msf daemon interface that spawns a listener on a
 # defined port (default 55554) and gives each connecting client its own
 # console interface.  These consoles all share the same framework instance.
+# Be aware that the console instance that spawns on the port is entirely
+# unauthenticated, so realize that you have been warned.
 #
 
 module Msf
