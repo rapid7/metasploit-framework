@@ -3052,8 +3052,42 @@ implementing the Comm interface, all meterpreter sessions can be
 used for pivoting network traffic.
 
 \chapter{Methodologies}
-    \section{Writing an Exploit}
-\chapter{Conclusion}
+
+\par
+One of the most critical things to understand prior to attempting to
+write a module for the framework are some of the methodologies that
+should be undertaken.  The goal of the 3.0 version of the framework
+is to make modules easier to implement and at the same time make
+them more robust.  With that goal in mind, all programmers wishing
+to write framework modules should heed the advice from this chapter.
+
+\par
+First and foremost, modules should be simple.  In the event that a
+module is becoming complicated or large, it may be best to take a
+step back and see if any of the code being put into it might be
+better generalized in a mixin that could later be shared with other
+modules.  This is especially true in the event that an exploit is
+dealing with a protocol that may later be useful to other exploits.
+An equally true case is when an exploit is attempting to trigger a
+vulnerability that has a generalized approach that could be applied
+to other exploit modules.
+
+\par
+Secondly, modules should be clean.  One of the key factors when
+doing any sort of development is to ensure consistency in both
+design and implementation.  This applies not only to naming schemes
+but also to things like indention.  If a module has inconsistent
+indention and/or naming schemes, its readability will be drastically
+reduced.  Every programmer is entitled to their own coding style,
+but they should be sure to stick with it throughout the development
+of a given unit.
+
+\par
+Finally, encapsulation is king.  If a module needs to perform an
+action that could perhaps be changed to a different algorithm at a
+later date, encapsulating the operation in a generalized interface
+is a great way to ensure that code does not have to be rewritten or
+otherwise altered in the future.
 
 \appendix
 \chapter{Samples}
