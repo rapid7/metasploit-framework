@@ -1,6 +1,9 @@
 #!/usr/bin/ruby
+#
+# This user interface provides users with a command console interface to the
+# framework.
+#
 
-# Ghetto include for lib relative to the msfconsole script
 $:.unshift(File.join(File.dirname(__FILE__), '../lib'))
 
 require 'rex'

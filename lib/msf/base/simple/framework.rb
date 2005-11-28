@@ -12,6 +12,30 @@ module Simple
 ###
 module Framework
 
+	###
+	#
+	# Extends the framework.plugins class instance to automatically check in
+	# the framework plugin's directory.
+	#
+	###
+	module PluginManager
+
+		#
+		# Loads the supplied plugin by checking to see if it exists in the
+		# framework default plugin path as necessary.
+		#
+		def load(path, opts = {})
+			def_path = Msf::Config.plugin_directory + File::SEPARATOR + path
+
+			if (File.exists?(def_path) or File.exists?(def_path + ".rb"))
+				super(def_path, opts)
+			else
+				super
+			end
+		end
+
+	end
+
 	include GeneralEventSubscriber
 
 	ModuleSimplifiers =
@@ -40,7 +64,12 @@ module Framework
 	# Extends a framework object that may already exist.
 	#
 	def self.simplify(framework, opts)
-		framework.extend(Msf::Simple::Framework)
+
+		# If the framework instance has not already been extended, do it now.
+		if (framework.kind_of?(Msf::Simple::Framework) == false)
+			framework.extend(Msf::Simple::Framework)
+			framework.plugins.extend(Msf::Simple::Framework::PluginManager)
+		end
 
 		# Initialize the simplified framework
 		framework.init_simplified()

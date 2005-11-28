@@ -1,4 +1,10 @@
 #!/usr/bin/ruby
+#
+# This user interface listens on a port and provides clients that connect to
+# it with an msfconsole instance.  The nice thing about this interface is that
+# it allows multiple clients to share one framework instance and thus makes it
+# possible for sessions to to be shared from a single vantage point.
+#
 
 $:.unshift(File.join(File.dirname(__FILE__), '../lib'))
 
@@ -12,7 +18,7 @@ arguments = Rex::Parser::Arguments.new(
 	"-f" => [ false, "Run the daemon in the foreground"                     ],
 	"-h" => [ false, "Help banner"                                          ])
 
-opts = {}
+opts = { 'RunInForeground' => true }
 foreground = false
 
 # Parse command line arguments.
@@ -35,32 +41,7 @@ arguments.parse(ARGV) { |opt, idx, val|
 # Create an instance of the framework
 $framework = Msf::Simple::Framework.create
 
-server = Rex::Socket::TcpServer.create(
-	'LocalHost' => opts['ServerHost'],
-	'LocalPort' => opts['ServerPort'] || 55554)
-
 exit if (Process.fork()) unless foreground
 
-begin
-	client = server.accept	
-
-	Thread.new(client) { |cli|
-		begin
-			Msf::Ui::Console::Driver.new(
-				Msf::Ui::Console::Driver::DefaultPrompt,
-				Msf::Ui::Console::Driver::DefaultPromptChar,
-				'Framework'   => $framework,
-				'LocalInput'  => Rex::Ui::Text::Input::Socket.new(cli), 
-				'LocalOutput' => Rex::Ui::Text::Output::Socket.new(cli)).run
-
-			begin 
-				cli.shutdown
-				cli.close
-			rescue IOError
-			end
-		rescue
-			puts "Error: #{$!}\n\n#{$@.join("\n")}"
-		end
-	}
-
-end while true
+# Run the plugin instance in the foreground.
+$framework.plugins.load('msfd', opts).run

@@ -1,4 +1,8 @@
 #!/usr/bin/ruby
+#
+# This user interface provides users with a web-based interface to the
+# framework that can be shared.
+#
 
 $:.unshift(File.join(File.dirname(__FILE__), '../lib'))
 

@@ -1,4 +1,9 @@
 #!/usr/bin/ruby
+#
+# This user interface allows users to interact with the framework through a
+# command line interface (CLI) rather than having to use a prompting console
+# or web-based interface.
+#
 
 $:.unshift(File.join(File.dirname(__FILE__), '../lib'))
 
