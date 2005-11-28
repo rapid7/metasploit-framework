@@ -15,6 +15,16 @@ module Msf
 class Plugin::Msfd < Msf::Plugin
 
 	#
+	# The default local hostname that the server listens on.
+	#
+	DefaultHost = "127.0.0.1"
+
+	#
+	# The default local port that the server listens on.
+	#
+	DefaultPort = 55554
+
+	#
 	# Initializes the msfd plugin.  The following options are supported in the
 	# hash by this plugin:
 	#
@@ -38,8 +48,8 @@ class Plugin::Msfd < Msf::Plugin
 
 		# Start listening for connections.
 		self.server	= Rex::Socket::TcpServer.create(
-			'LocalHost' => opts['ServerHost'] || '127.0.0.1',
-			'LocalPort' => opts['ServerPort'] || 55554)
+			'LocalHost' => opts['ServerHost'] || DefaultHost,
+			'LocalPort' => opts['ServerPort'] || DefaultPort)
 
 		# If the run in foreground flag is not specified, then go ahead and fire
 		# it off in a worker thread.
