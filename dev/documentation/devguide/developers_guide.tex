@@ -26,14 +26,14 @@
 
 \par
 The Metasploit framework is an open-source exploitation framework
-that is designed to provide security researches and pen-testers with
-a uniform model that allows for the rapid development of exploits,
-payloads, encoders, NOP generators, and reconnaissance tools.  The
-framework provides exploit writers with the ability to re-use large
-chunks of code that would otherwise have to be copied or
-re-implemented on a per-exploit basis.  To help further this cause,
-the Metasploit staff is proud to present the next major evolution of
-the exploitation framework: version 3.0.
+that is designed to provide security researchers and pen-testers
+with a uniform model for rapid development of exploits, payloads,
+encoders, NOP generators, and reconnaissance tools.  The framework
+provides exploit writers with the ability to re-use large chunks of
+code that would otherwise have to be copied or re-implemented on a
+per-exploit basis.  To help further this cause, the Metasploit staff
+is proud to present the next major evolution of the exploitation
+framework: version 3.0.
 
 \par
 The 3.0 version of the framework is a re-factoring of the 2.x branch
@@ -64,20 +64,20 @@ explaining their reasons in this document.
 
 \par
 The Ruby programming language was selected over other choices, such
-as python, perl, and C++ for quite a few reasons.  The first, and
-primary, reason that Ruby was selected was because it's a language
-that the Metasploit staff enjoyed writing in.  After spending time
+as python, perl, and C++ for quite a few reasons.  The first (and
+primary) reason that Ruby was selected was because it was a language
+that the Metasploit staff enjoyed writing in. After spending time
 analyzing other languages and factoring in past experiences, the
 Ruby programming language was found to offer both a simple and
 powerful approach to an interpreted language.  The degree of
 introspection and the object-oriented aspects provided by Ruby were
 something that fit very nicely with some of the requirements of the
 framework.  The framework's need for automated class construction
-code re-use was a key factor in the decision making process, and it
-was one of the things that perl was not very well suited to offer.
-On top of this, the syntax is incredibly simplistic and provides the
-same level of language features that other more accepted languages
-have, like perl.
+for code re-use was a key factor in the decision making process, and
+it was one of the things that perl was not very well suited to
+offer. On top of this, the syntax is incredibly simplistic and
+provides the same level of language features that other more
+accepted languages have, like perl.
 
 \par
 The second reason Ruby was selected was because of its platform
@@ -88,10 +88,11 @@ and usability improvement over the 2.x branch.  Future versions of
 Ruby (the 1.9 series) will back the existing threading API with
 native threads for the operating system the interpreter is compiled
 against which will solve a number of existing issues with the
-current implementation, such as permitting the use of blocking
-operations.  In the meantime, the existing threading model has been
-found to be far superior to a forking model, especially on platforms
-that lack a native fork implementation like Windows.
+current implementation (such as permitting the use of blocking
+operations).  In the meantime, the existing threading model has been
+found to be far superior when compared to a conventional forking
+model, especially on platforms that lack a native fork
+implementation like Windows.
 
 \par
 Another reason that Ruby was selected was because of the supported
@@ -104,9 +105,9 @@ small and can be easily modified in the event that there is a bug.
 
 \par
 The Python programming language was also a language candidate. The
-reason the Metasploit staff opted for Ruby instead of Python was for
+reason the Metasploit staff opted for Ruby instead of python was for
 a few different reasons.  The primary reason is a general distaste
-for some of the syntactical annoyances forced by Python, such as
+for some of the syntactical annoyances forced by python, such as
 block-indention.  While many would argue the benefits of such an
 approach, some members of the Metasploit staff find it to be an
 unnecessary restriction.  Other issues with Python center around
@@ -126,24 +127,27 @@ successful, the Metasploit staff encountered a number of limitations
 and annoyances with perl's object-oriented programming model, or
 lack thereof.  The fact that the perl interpreter is part of the
 default install on many distributions is not something that the
-Metasploit staff felt was worth detouring the language selection.
+Metasploit staff felt was worth detouring the language selection. In
+the end, it all came down to selecting a language that was enjoyed
+by the people who contribute the most to the framework, and that
+language ended up being Ruby.
 
     \section{Design and Architecture}
 
 \par
-The framework was designed to be as modular as possible as to
+The framework was designed to be as modular as possible in order to
 encourage the re-use of code across various projects.  The most
 fundamental piece of the architecture is the \textit{Rex} library
 which is short for the \texttt{Ruby Extension Library}\footnote{This
 library has many similarities to the 2.x Pex library}. Some of the
-components provided by Rex are a wrapper socket subsystem,
+components provided by Rex include a wrapper socket subsystem,
 implementations of protocol clients and servers, a logging
 subsystem, exploitation utility classes, and a number of other
 useful classes.  Rex itself is designed to have no dependencies
 other than what comes with the default Ruby install. In the event
 that a Rex class depends on something that is not included in the
 default install, the failure to find such a dependency should not
-lead to the inability to use Rex.
+lead to an inability to use Rex.
 
 \par
 The framework itself is broken down into a few different pieces, the
@@ -151,24 +155,24 @@ most low-level being the \textit{framework core}.  The framework
 core is responsible for implementing all of the required interfaces
 that allow for interacting with exploit modules, sessions, and
 plugins. This core library is extended by the \textit{framework
-base} which is designed to provide simpler wrapper routines for
-dealing with the framework core as well as providing utility classes
-for dealing with different aspects of the framework, such as
+base} library which is designed to provide simpler wrapper routines
+for dealing with the framework core as well as providing utility
+classes for dealing with different aspects of the framework, such as
 serializing module state to different output formats.  Finally, the
 base library is extended by the \textit{framework ui} which
 implements support for the different types of user interfaces to the
 framework itself, such as the command console and the web interface.
 
 \par
-Separate from the framework are the modules and plugins that it's
-designed to support.  A framework module is defined as being one of
-an exploit, payload, encoder, NOP generator, or recon tool. These
-modules have a well-defined structure and interface for being loaded
-into the framework.  A framework plugin is very loosely defined as
-something that extends the functionality of the framework or
-augments an existing feature to make it act in a different manner.
-Plugins can add new commands to user interfaces, log all network
-traffic, or perform whatever other action might be useful.
+Separate from the framework itself are the modules and plugins that
+it's designed to support.  A framework module is defined as being
+one of an exploit, payload, encoder, NOP generator, or recon tool.
+These modules have a well-defined structure and interface for being
+loaded into the framework.  A framework plugin is very loosely
+defined as something that extends the functionality of the framework
+or augments an existing feature to make it act in a different
+manner. Plugins can add new commands to user interfaces, log all
+network traffic, or perform whatever other action might be useful.
 
 \par
 Figure \ref{fig-arch-pkg} illustrates the framework's inter-package
@@ -196,13 +200,12 @@ To use the Rex library, a ruby script should require \texttt{rex}.
     \section{Assembly}
 
 \par
-When writing exploits it is often necessary to have to generate
-assembly instructions on the fly with variable operands, such as
-immediate values, registers, and so on.  To support this
-requirement, the Rex library provides classes under the
-\texttt{Rex::Arch} namespace that implement architecture-dependent
-opcode generation routines as well as other architecture-specific
-methods, like integer packing.
+When writing exploits it is often necessary to generate assembly
+instructions on the fly with variable operands, such as immediate
+values, registers, and so on.  To support this requirement, the Rex
+library provides classes under the \texttt{Rex::Arch} namespace that
+implement architecture-dependent opcode generation routines as well
+as other architecture-specific methods, like integer packing.
 
         \subsection{Integer packing}
 
@@ -216,9 +219,9 @@ indication of which byte-ordering to use.
         \subsection{Stack pointer adjustment}
 
 \par
-Some exploits require that the stack pointer be adjusted prior to
-the execution of a payload that modifies the stack in order to
-prevent corruption of the payload itself.  To support this, the
+Some exploits require the stack pointer be adjusted prior to the
+execution of a payload that modifies the stack in order to prevent
+corruption of the payload itself.  To support this, the
 \texttt{Rex::Arch.adjust\_stack\_pointer} method provides a way to
 generate the opcodes that lead to adjusting the stack pointer of a
 given architecture by the supplied adjustment value.  The adjustment
@@ -230,7 +233,7 @@ value can be positive or negative.
 Each architecture that currently has support for dynamically
 generating instruction opcodes has a class under the
 \texttt{Rex::Arch} namespace, such as \texttt{Rex::Arch::X86}.  The
-x86 class has support for generating \texttt{jmp}, \texttt{call},
+X86 class has support for generating \texttt{jmp}, \texttt{call},
 \texttt{push}, \texttt{mov}, \texttt{add}, and \texttt{sub}
 instructions.
 
@@ -253,7 +256,7 @@ Often times vulnerabilities will share a common attack vector or
 will require a specific order of operations in order to achieve the
 end-goal of code execution.  To assist in that matter, the Rex
 library has a set of classes that implement some of the common
-necessities that exploits have.
+necessities that exploits may have.
 
         \subsection{Egghunter}
 
@@ -277,14 +280,15 @@ One attack vector that is particularly common on the Windows
 platform is what is referred to as an SEH overwrite.  When this
 occurs, an SEH registration record is overwritten on the stack with
 user-controlled data.  To leverage this, the handler address of the
-registration record is point to an address that will either directly
-or indirectly lead to control of execution flow.  To make this work,
-most attackers will point the handler address at the location of a
-\texttt{pop/pop/ret} instruction set somewhere in the address space.
-This action returns four bytes before the location of the handler
-address on the stack.  In most cases, attackers will set two of the
-four bytes to be equivalent a short jump instruction that hops over
-the handler address and into the payload controlled by the attacker.
+registration record is pointed to an address that will either
+directly or indirectly lead to control of execution flow.  To make
+this work, most attackers will point the handler address at the
+location of a \texttt{pop/pop/ret} instruction set somewhere in the
+address space. This action returns four bytes before the location of
+the handler address on the stack.  In most cases, attackers will set
+two of the four bytes to be equivalent a short jump instruction that
+hops over the handler address and into the payload controlled by the
+attacker.
 
 \par
 While the common approach works fine, there is plenty of room for
@@ -296,9 +300,9 @@ has a random short jump length and random padding between the end of
 the registration record and the actual payload.  This can be used to
 make the exploit harder to signature in an IDS environment.  The
 generation of a dynamic registration record is provided by
-\texttt{generate\_dynamic\_seh\_record}.  Both methods are by the
-\texttt{generate\_seh\_record} method that decides which of the two
-methods to use based on evasion levels.
+\texttt{generate\_dynamic\_seh\_record}.  Both methods are wrapped
+by the \texttt{generate\_seh\_record} method that decides which of
+the two methods to use based on evasion levels.
 
     \section{Jobs}
     \label{rex-jobs}
@@ -307,16 +311,16 @@ methods to use based on evasion levels.
 In some cases it is helpful to break certain tasks down into the
 concept of jobs.  Jobs are simply defined as finite workitems that
 have a specific task.  Using this definition, the Rex library
-provides a class named \texttt{Rex::JobContainer} that provides an
-interface for coordinating various jobs in a centralized manner. New
-jobs can be added to the job container by calling the
+provides a class named \texttt{Rex::JobContainer} that exposes an
+interface for coordinating various finite tasks in a centralized
+manner. New jobs can be added to the job container by calling the
 \texttt{add\_job} method.  Once added, a job can be started by
 issuing a call to the \texttt{start\_job} method.  At any time, a
 job can be stopped by calling the \texttt{stop\_job} which will also
 remove the job by calling the \texttt{remove\_job} method.
 
 \par
-For more information how the usage of these API routines, please
+For more information about the usage of these API routines, please
 refer to the auto-generated documentation on Metasploit website.
 
     \section{Logging}
@@ -379,15 +383,15 @@ any problem.
 
 \par
 The rex library provides client-side implementations for some
-advanced post-exploitation, such as DispatchNinja and Meterpreter.
-These two post-exploitation client interfaces are designed to be
-usable outside of the context of an exploit.  The \texttt{Rex::Post}
-namespace provides a set of classes at its root that are meant to
-act as a generalized interface to remote systems via the
-post-exploitation clients, if supported.  These classes allow
-programmers to write automated tools that can operate upon remote
-machines in a platform-independent manner.  While it's true that
-platforms may lack analogous feature sets for some actions, the
+advanced post-exploitation suites, such as DispatchNinja and
+Meterpreter. These two post-exploitation client interfaces are
+designed to be usable outside of the context of an exploit.  The
+\texttt{Rex::Post} namespace provides a set of classes at its root
+that are meant to act as a generalized interface to remote systems
+via the post-exploitation clients, if supported.  These classes
+allow programmers to write automated tools that can operate upon
+remote machines in a platform-independent manner.  While it's true
+that platforms may lack analogous feature sets for some actions, the
 majority of the common set of actions will have functional
 equivalents.
 
@@ -395,7 +399,7 @@ equivalents.
 
 \par
 Support for some of the more common protocols, such as HTTP and SMB,
-is included in the rex library to help support the development of
+is included in the rex library to help with the development of
 protocol-specific exploits and to allow for ease of use in other
 projects.  Each protocol implementation exists under the
 \texttt{Rex::Proto} namespace.
@@ -403,22 +407,22 @@ projects.  Each protocol implementation exists under the
         \subsection{DCERC}
 
 \par
-The rex library supports a fairly robust implementation of a subset
-of the DCERPC feature-set and includes support for doing invasive
-actions such as multi-context bind and packet fragmentation.  The
-classes that support the DCERPC client interface can be found in the
-\texttt{Rex::Proto::DCERPC} namespace.
+The rex library supports a fairly robust implementation of a
+porition of the DCERPC feature-set and includes support for doing
+evasive actions such as multi-context bind and packet fragmentation.
+The classes that support the DCERPC client interface can be found in
+the \texttt{Rex::Proto::DCERPC} namespace.
 
         \subsection{HTTP}
 
 \par
-Minimal support for an HTTP client and server are provided in the
-rex library.  While similar protocol class implementations are
-provided both in webrick and in other areas of the ruby default
-standard library set, it was deemed that the current implementations
-were not well suited for general purpose use due to the existence of
-blocking request parsing and other such things.  The rex-provided
-HTTP library also provides classes for parsing HTTP requests and
+Minimal support for an HTTP client and server is provided in the rex
+library.  While similar protocol class implementations are provided
+both in webrick and in other areas of the ruby default standard
+library set, it was deemed that the current implementations were not
+well suited for general purpose use due to the existence of blocking
+request parsing and other such things.  The rex-provided HTTP
+library also provides classes for parsing HTTP requests and
 responses.  The HTTP protocol classes can be found under the
 \texttt{Rex::Proto::Http} namespace.
 
@@ -427,7 +431,7 @@ responses.  The HTTP protocol classes can be found under the
 \par
 Robust support for the SMB protocol is provided by the classes in
 the \texttt{Rex::Proto::SMB} namespace.  These classes support
-connecting to SMB servers and performing logins and other
+connecting to SMB servers and performing logins as well as other
 SMB-exposed actions like transacting a named pipe and performing
 other specific commands.  The SMB classes are particularly useful
 for exploits that require communicating with an SMB server.
@@ -552,10 +556,10 @@ used for a particular route.  The reason this is useful is for
 scenarios where a box is compromised that straddles an internal
 network that can't be directly reached.  By adjusting the switch
 board routing table to point the local subnet through a Meterpreter
-Comm running the host that straddles the network, it is possible to
-force the socket library to automatically use the Meterpreter Comm
-factory when anything tries to communicate with hosts on the local
-subnet.  This support is implemented through the
+Comm running on the host that straddles the network, it is possible
+to force the socket library to automatically use the Meterpreter
+Comm factory when anything tries to communicate with hosts on the
+local subnet.  This support is implemented through the
 \texttt{Rex::Socket::SwitchBoard} class.
 
         \subsection{Subnet walking}
@@ -575,7 +579,7 @@ These classes provide extra synchronization primitives.
         \subsection{Notification events}
 
 \par
-While Ruby does have the concept of \texttt{ConditionVariable}'s, it
+While Ruby does have the concept of a \texttt{ConditionVariable}, it
 lacks the complete concept of notification events.  Notification
 events are used extensively on platforms like Windows.  These events
 can be waited on and signaled, either permanently or temporarily.
@@ -611,7 +615,8 @@ class can be used with the \texttt{refinit} method for initializing
 references to 1 and the \texttt{ref} and \texttt{deref} methods that
 do what their names imply.  When the reference count drops to zero,
 the \texttt{cleanup} method is called on the object instance to give
-it a chance to restore things back to normal.
+it a chance to restore things back to normal in a manner similar to
+a destructor.
 
         \subsection{Thread-safe operations}
 
@@ -750,7 +755,7 @@ auto-generated API documentation on the Metasploit website.
 
 \par
 The Rex library supports creating classes that are designed to
-subscribe input and output interfaces via the
+subscribe to input and output interfaces via the
 \texttt{Rex::Ui::Subscriber} interface.  This mixin provides a
 method called \texttt{init\_ui} which can be passed an input and
 output class instance.  These instances should implement the
@@ -850,17 +855,17 @@ attribute which is an instance of the \texttt{Msf::EventDispatcher}
 class.
 
 \par
-The \texttt{EventDispatcher} class supports registering events for a
-few basic different categories.  These categories will be discussed
-individually.  One of the nice aspects of the event-driven framework
-is that modules can automatically indicate their interest in being
-registered for event handler notifications by simply implementing
-the event subscriber mixins subscribed below.  When a module is
-loaded into the framework, it will automatically detect that it
-includes one or more of the subscriber interfaces and automatically
-register the module with the appropriate event notifiers.  This
-makes it possible for modules to take certain actions when specific
-events occur.
+The \texttt{EventDispatcher} class supports registering event
+handlers for a few basic different categories.  These categories
+will be discussed individually.  One of the nice aspects of the
+event-driven framework is that modules can automatically indicate
+their interest in being registered for event handler notifications
+by simply implementing the event subscriber mixins described below.
+When a module is loaded into the framework, it will automatically
+detect that it includes one or more of the subscriber interfaces and
+automatically register the module with the appropriate event
+notifiers.  This makes it possible for modules to take certain
+actions when specific events occur.
 
         \subsection{Exploit events}
 
@@ -952,8 +957,7 @@ place.
 \par
 The framework core itself is composed of a few different managers
 that are responsible for some of the basic aspects of the framework,
-such as module and plugin management.  These managers will be
-described individually.
+such as module and plugin management.
 
         \subsection{Module management}
 
@@ -991,7 +995,7 @@ attribute on both the class of the module and its instances.
 
 \par
 In order to help solve the potential for module name ambiguities
-across module types, modules can also be referenced by what is
+across module types, modules can also be referenced to by what is
 called a \textit{full reference name}.  This name is the same as the
 reference name of the module but is prefixed with the module's type.
 For instance, the exploit \texttt{windows/ftp/wsftpd} would become
@@ -1004,7 +1008,7 @@ In order to make the module manager easy to use, each different
 module type is broken down into a more basic class called a module
 set which is implemented by the \texttt{Msf::ModuleSet} class.  The
 purpose of a module set is to act as a localized factory for each
-different module type (exploit, encoder, nop, etc).  Each module
+different module type (exploit, encoder, nop, etc).  Each
 type-specific module set can be accessed through either
 \texttt{framework.type} or \texttt{framework.modules.type}.  For
 example, if one wanted to enumerate exploit modules, they would use
@@ -1082,7 +1086,7 @@ that is to be loaded.  Optionally, a second parameter can be passed
 to the \texttt{load} method that is a hash of option parameters that
 may be useful to the plugin, such as \texttt{LocalInput} and
 \texttt{LocalOutput} handles for use with printing strings to the
-screen or whatever medium is currently being used.  The table shown
+screen for whatever medium is currently being used.  The table shown
 in figure \ref{fig-table-plugin-hash} shows the pre-defined hash
 elements that can be passed in the option hash.
 
@@ -1363,7 +1367,7 @@ information about the structure of an installation, such as the root
 directory of the installation and other types of attributes.  To
 facilitate this, the framework base library provides the
 \texttt{Msf::Config} class that has methods for obtaining various
-installation directories.  It also supports the serialization of
+installation directory paths.  It also supports the serialization of
 configuration files.  The table shown in figure
 \ref{fig-table-config} describes the different methods that can be
 used to obtain configuration information.
@@ -1412,7 +1416,7 @@ methods for enabling log sources and for controlling logs that are
 applied to sessions created from within a framework instance.  To
 initialize logging, a call must be made to
 \texttt{Msf::Logging.init} which will register the log sources
-\texttt{rex}, \texttt{core}, and \texttt{base} as being directory at
+\texttt{rex}, \texttt{core}, and \texttt{base} as being directed at
 \texttt{framework.log} as found in the
 \texttt{Msf::Config.log\_directory}.  Individual log sources can be
 subsequently enabled or disabled by making calls to
@@ -1420,14 +1424,14 @@ subsequently enabled or disabled by making calls to
 \texttt{Msf::Logging.disable\_log\_source}, respectively.  When
 session logging is enabled, calls can be issued to
 \texttt{start\_session\_log} and \texttt{stop\_session\_log} which
-operate on a provided session to start or stop logging to a
+operate on a provided session instance to start or stop logging to a
 session-specific log file in the
 \texttt{Msf::Config.session\_log\_directory} directory.
 
     \section{Serialization}
 
 \par
-To make life easier for framework programmer's, the framework base
+To make life easier for framework programmers, the framework base
 library provides a class that can be used to serialize information
 about modules, such as their description, options, and other
 information to a uniform, human readable format.  The class that
@@ -1444,8 +1448,8 @@ framework base actually provides some of the concrete
 implementations.  This separation was done to eliminate
 module-specific session implementations from the framework core as
 the core should have no conceptual dependencies on modules that use
-it where as the base library is more of a facilitation layer for
-subscribers of the framework.  The two sessions currently
+it.  The base library, on the other hand, is more of a facilitation
+layer for subscribers of the framework.  The two sessions currently
 implemented in the base library are the \texttt{CommandShell}
 session and the \texttt{Meterpreter} session.
 
@@ -1484,7 +1488,9 @@ value is an instance of an \texttt{Msf::Framework} class that has
 been extended by the \texttt{Msf::Simple::Framework} mixin. Existing
 framework instances can also be simplified by calling the
 \texttt{Msf::Simple::Framework.simplify} method with the existing
-framework instance as the first argument.
+framework instance as the first argument.  All module instances
+created from within a simplified framework instance will
+automatically be simplified by the module type-specific mixins.
 
 \par
 The creation of a simplified framework instance automatically leads
@@ -1506,7 +1512,7 @@ automatically used to extend created module instances via the
 general event subscriber described above.  For example, when an
 exploit module instance is created, the instance is extended by the
 \texttt{Msf::Simple::Exploit} mixin.  Each different module mixin
-provides a helper method or methods for driver that specific module
+provides a helper method or methods for driving that specific module
 type's primary action or actions.  Furthermore, each module instance
 has methods that can be used to save and restore module-specific
 configuration elements through the \texttt{save\_config} and
@@ -1524,10 +1530,10 @@ by creating an instance of an \texttt{Msf::ExploitDriver} class and
 doing all the required initialization and configuration of the
 module prior to issuing the call to the exploit driver's
 \texttt{run} method.  If the operation succeeds, the return value is
-a session instance.  Otherwise, an exception will be thrown.  For
-more information about the hash elements that can be passed in,
-please refer to the auto-generated API documentation on the
-Metasploit website.
+a session instance.  Otherwise, an exception will be thrown or
+\texttt{nil} may be returned. For more information about the hash
+elements that can be passed in, please refer to the auto-generated
+API documentation on the Metasploit website.
 
         \subsection{NOP}
 
@@ -1582,15 +1588,6 @@ defined user interface mediums will be explained individually in the
 following sections.  To use the framework ui library, a ruby script
 should require \texttt{msf/ui}.
 
-    \section{Console}
-
-TBD.
-
-    \section{Web}
-
-
-TBD.
-
 \chapter{Framework Modules}
 \label{framework-modules}
 
@@ -1600,27 +1597,28 @@ development of modules that can plug into the framework core and be
 shared with other existing modules.  For instance, an advanced
 encoder module can be plugged into the framework and will be
 automatically applied to payloads of a compatible architecture and
-platform.  This makes it so there are zero code change requires due
+platform.  This makes it so there are zero code changes required due
 to the fact that all modules conform to a well-defined interface
-with which they can be interacted with by the framework.  As another
-example, new payloads can be developed and are immediately usable to
-all exploits without modification.  This eliminates the need to copy
-static payload blobs into exploits as is most common with proof of
-concept exploits.  This chapter is dedicated to describing the
-interfaces that each module type exposes in order to provide an
-understanding of what it takes to implement each module type.
+through which they can be interacted with by the framework.  As
+another example, new payloads can be developed and are immediately
+usable to all exploits without modification.  This eliminates the
+need to copy static payload blobs into exploits as is most common
+with proof of concept exploits.  This chapter is dedicated to
+describing the interfaces that each module type exposes in order to
+provide an understanding of what it takes to implement each module
+type.
 
 \par
 At some level, all modules inherit from the module base class
 provided in \texttt{Msf::Module}.  This class implements all of the
-things that are common to Metasploit framework objects, such as
-common accessors.  When a module is loaded into the framework, a
-copy of the class that gets added is made that that is what is used
-for future instantiations of the module.  The copy class then has
-some attributes set that allow the framework to look at some of the
-information of the module at a glance without having to create an
-instance.  This information can be accessed through a set of class
-methods and attributes that are described in figure
+things that are common to Metasploit framework modules, such as
+common accessors and attributes.  When a module is loaded into the
+framework, a copy of the class that gets added is made which is what
+is used for future instantiations of the module.  The copy class
+then has some of its attributes set that allow the framework to look
+at some of the module's information at a glance without having to
+create an instance of it. This information can be accessed through a
+set of class methods and attributes that are described in figure
 \ref{fig-table-mod-class-methods}.
 
 \begin{figure}[h]
@@ -1637,7 +1635,7 @@ fullname & The complete symbolic name of the module including is string type.  F
 \hline
 rank & The module's integer rank to indicates its quality.  The rank is used by the framework when selecting which encoders, payloads, and NOP generators to use. \\
 \hline
-rank\_to\_s & Returns the string representation of the module's rank \\
+rank\_to\_s & Returns the string representation of the module's rank. \\
 \hline
 refname & The module's symbolic reference name.  For example: windows/ms03\_026 \\
 \hline
@@ -1653,14 +1651,14 @@ file\_path & The file path that the module was loaded from. \\
 
 \par
 To support generic initialization, each module defines its own
-custom information hash that is passed to the constructor of
-\texttt{Msf::Module}.  This information class is then assigned to
-the instance attribute \texttt{module\_info} and then processed. The
-parts that are common to all modules are broken down and transformed
-into uniform types that can be accessed through instance methods.
-The same methods that are accessible through the module class can
-also be used through the class instance (as shown in figure
-\ref{fig-table-mod-class-methods}).
+custom information hash that is eventually passed to the constructor
+of \texttt{Msf::Module}.  This information class is then assigned to
+the instance attribute named \texttt{module\_info} and is then
+processed. The parts that are common to all modules are broken down
+and transformed into uniform types that can be accessed through
+instance methods. The same methods that are accessible through the
+module class can also be used through the class instance (as shown
+in figure \ref{fig-table-mod-class-methods}).
 
 \par
 The table in figure \ref{fig-table-mod-info} shows how the common
@@ -1681,6 +1679,8 @@ Alias & alias & String & An alias string for the refname of the module. \\
 Description & description & String & A longer description of the module. \\
 \hline
 Version & version & String & The current revision of the derived module. \\
+\hline
+License & license & String & The license that the module has been released under. \\
 \hline
 Author & author & Array & An array of \texttt{Msf::Author} instances. \\
 \hline
@@ -1708,11 +1708,11 @@ Compat & compat & Hash & A hash of compatibility flags. \\
 
 \par
 Some of the information hash accessors also have helper methods that
-make it easier to interact with some of them.  For instance, the
+make it easier to interact with them.  For instance, the
 \texttt{Arch} hash element array contained within the \texttt{arch}
 attribute can be serialized to a comma separated string by calling
 \texttt{arch\_to\_s}.  Architectures can also be enumerated by
-calling \texttt{each\_arch} and passing it a block that accepts the
+calling \texttt{each\_arch} by passing it a block that accepts the
 architecture as a parameter.  It is also possible to check if a
 module supports an architecture by calling the \texttt{arch?} method
 and passing it the architecture to check for as a parameter.  Like
@@ -1761,8 +1761,8 @@ module instance and passing it a data store instance as the first
 argument.
 
 \par
-Finally, framework module's are designed to be able to indicate
-their relative compatibilities with other modules.  For instance, an
+Finally, framework modules are designed to be able to indicate their
+relative compatibilities with other modules.  For instance, an
 exploit may wish to indicate that it is incompatible with a specific
 class of payload connection mediums.  This is accomplished through
 the \texttt{Compat} information hash element.  After the
@@ -1853,7 +1853,8 @@ encoder state as the third argument.  The \texttt{encode} method
 wraps the encoding process in terms of selecting a decoder key,
 initializing the encoder state, and then performing the actual
 encoding operation.  Once completed, the encoded buffer is returned
-to the caller.
+to the caller.  This is the primary method that the framework uses
+when interacting with framework encoder modules.
 
         \subsection{encode}
 
@@ -1862,13 +1863,14 @@ At a more detailed level, the \texttt{encode} method first creates
 an instance of a \texttt{Msf::EncoderState} class if one was not
 supplied as the third argument of \texttt{encode}.  The purpose of
 the encoder state is to contain transient information about a
-specific encoding in a non-global location. After creating the
-encoder state instance, \texttt{encode} prepends any
-encoder-specific to the raw payload that might be necessary through
-the use of the \texttt{prepend\_buf} instance method on the encoder
-module.  This method is intended to be overridden and used as
-necessary.  By default, an empty string is returned, effectively
-leaving the buffer in the same state that it was.
+specific encoding operation in a non-global fashion.  After creating
+the encoder state instance, \texttt{encode} prepends any
+encoder-specific data to the raw payload that may be necessary
+through the use of the \texttt{prepend\_buf} instance method on the
+encoder module.  This method is intended to be overridden and used
+as necessary.  By default, an empty string is returned, effectively
+leaving the buffer in the same state that it was when it was passed
+in.
 
 \par
 After prepending the raw buffer as necessary, the \texttt{encode}
