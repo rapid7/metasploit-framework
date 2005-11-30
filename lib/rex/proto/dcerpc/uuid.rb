@@ -18,9 +18,9 @@ class UUID
 		'PNP'       => [ '8d9f4e40-a03d-11ce-8f69-08003e30051b', '1.0' ]
 	}
 
-
 	# Convert a UUID in binary format to the string representation	
 	def self.uuid_unpack(uuid_bin)
+		raise ArgumentError if uuid_bin.length != 16
 		sprintf("%.8x-%.4x-%.4x-%.4x-%s",
 			uuid_bin[ 0, 4].unpack('V')[0],
 			uuid_bin[ 4, 2].unpack('v')[0],
@@ -32,6 +32,7 @@ class UUID
 
 	# Convert a UUID in string format to the binary representation
 	def self.uuid_pack (uuid_str)
+		raise ArgumentError if uuid_str.length != 36
 		parts = uuid_str.split('-')
 		raise ArgumentError if parts.length != 5
 		[ parts[0].hex, parts[1].hex, parts[2].hex, parts[3].hex ].pack('Vvvn') + [ parts[4] ].pack('H*')

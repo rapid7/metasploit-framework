@@ -7,7 +7,7 @@ require 'rex/proto/dcerpc/response'
 	
 class Rex::Proto::DCERPC::Response::UnitTest < Test::Unit::TestCase
 
-	Klass = Rex::Proto::DCERPC:Response
+	Klass = Rex::Proto::DCERPC::Response
 
 	def test_parse
 
