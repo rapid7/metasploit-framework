@@ -54,7 +54,7 @@ class Rex::Arch::X86::UnitTest < ::Test::Unit::TestCase
 	
 	def test_searcher
 			s = "\xbe"+                  # mov esi, Tag - 1
-			"\x00\x02\x03\x04"+
+			"\x03\x03\x02\x01"+
 			"\x46"+                      # inc esi
 			"\x47"+                      # inc edi (end_search:)
 			"\x39\x37"+                  # cmp [edi],esi
