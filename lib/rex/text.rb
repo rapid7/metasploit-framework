@@ -340,7 +340,7 @@ module Text
 	#
 	# This method returns all chars but the supplied set
 	#
-	def self.charset_invert(keepers)
+	def self.charset_exclude(keepers)
 		[*(0..255)].pack('C*').delete(keepers)
 	end
 
