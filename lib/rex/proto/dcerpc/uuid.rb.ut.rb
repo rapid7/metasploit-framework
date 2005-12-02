@@ -10,6 +10,15 @@ class Rex::Proto::DCERPC::UUID::UnitTest < Test::Unit::TestCase
 
 	Klass = Rex::Proto::DCERPC::UUID
 
+    def test_is_uuid
+        assert(Klass.is?('afa8bd80-7d8a-11c9-bef4-08002b102989'), 'valid')
+        assert(!Klass.is?('afa8bd80-7d8a-11c9-bef4-08002b10298'), 'too short')
+        assert(!Klass.is?('afa8bd80-7d8a-11c9-bef4-08002b10298Z'), 'invalid character')
+        assert(!Klass.is?('afa8bd80-7d8a-11c9-bef4a08002b10298a'), 'missing dash')
+        assert(!Klass.is?('afa8bd80-7d8a-11c9-bef-a08002b10298a'), 'dash in wrong place')
+        assert_raise(Rex::ArgumentError, 'pack - too short') { Klass.is?(nil) }
+    end
+
     def test_lookup
 		assert_equal(Klass.uuid_by_name('MGMT'), 'afa8bd80-7d8a-11c9-bef4-08002b102989', 'uuid_by_name')
 		assert_equal(Klass.vers_by_name('MGMT'), '2.0', 'vers_by_name')

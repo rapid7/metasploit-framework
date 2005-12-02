@@ -19,12 +19,14 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 			"\r\n" + 
 			"Super body"
 
-		assert_equal(Klass::ParseCode::Partial, h.parse(req1))
+        h.auto_cl = false
+        h.parse(req1)
+        assert_equal(Klass::ParseCode::Completed, h.parse(req1))
 		assert_equal(true, h.completed?)
 		assert_equal("Bird", h.headers['Foo'])
 		assert_equal("text/html", h.headers['Accept'])
 		assert_equal("Super body", h.body);
-		assert_equal(req1, h.to_s)
+        assert_equal(req1, h.to_s)
 	end
 
 	def test_to_s

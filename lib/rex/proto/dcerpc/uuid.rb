@@ -30,11 +30,20 @@ class UUID
 		)	
 	end
 
+    # Validate a text based UUID
+    def self.is? (uuid_str)
+		raise ArgumentError if !uuid_str
+        if uuid_str.match(/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/)
+            return true
+        else
+            return false
+        end
+    end
+
 	# Convert a UUID in string format to the binary representation
 	def self.uuid_pack (uuid_str)
-		raise ArgumentError if uuid_str.length != 36
+		raise ArgumentError if !self.is?(uuid_str)
 		parts = uuid_str.split('-')
-		raise ArgumentError if parts.length != 5
 		[ parts[0].hex, parts[1].hex, parts[2].hex, parts[3].hex ].pack('Vvvn') + [ parts[4] ].pack('H*')
 	end
 	

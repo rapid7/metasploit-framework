@@ -5,7 +5,7 @@ $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 require 'test/unit'
 require 'rex/proto/http'
 
-class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
+class Rex::Proto::Http::Response::UnitTest < Test::Unit::TestCase
 
 	Klass = Rex::Proto::Http::Response
 
@@ -17,7 +17,7 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 		h.auto_cl = true
 
 		assert_equal(
-			"HTTP/1.0 200 OK\r\n" +
+			"HTTP/1.1 200 OK\r\n" +
 			"Foo: Fishing\r\n" +
 			"Content-Length: 0\r\n" +
 			"Chicken: 47\r\n\r\n", h.to_s)
@@ -33,7 +33,7 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 			"Eat: Babies\r\n" +
 			"\r\n")
 
-		assert_equal('404', h.code)
+		assert_equal(404, h.code)
 		assert_equal('File not found', h.message)
 		assert_equal('1.0', h.proto)
 		assert_equal("HTTP/1.0 404 File not found\r\n", h.cmd_string)

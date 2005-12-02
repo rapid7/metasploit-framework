@@ -5,7 +5,7 @@ $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 require 'test/unit'
 require 'rex/proto/http'
 
-class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
+class Rex::Proto::Http::Request::UnitTest < Test::Unit::TestCase
 
 	Klass = Rex::Proto::Http::Request
 
@@ -17,7 +17,7 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 		h.auto_cl = true
 
 		assert_equal(
-			"GET / HTTP/1.0\r\n" +
+			"GET / HTTP/1.1\r\n" +
 			"Foo: Fishing\r\n" +
 			"Content-Length: 0\r\n" +
 			"Chicken: 47\r\n\r\n", h.to_s)

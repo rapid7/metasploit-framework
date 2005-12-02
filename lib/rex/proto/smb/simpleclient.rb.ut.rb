@@ -7,7 +7,7 @@ require 'rex/proto/smb'
 require 'rex/proto/dcerpc'
 require 'rex/socket'
 
-class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
+class Rex::Proto::SMB::SimpleClient::UnitTest < Test::Unit::TestCase
 	
 	Klass = Rex::Proto::SMB::SimpleClient
 
@@ -23,11 +23,11 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 	FILE_OPEN   = 0x01
 	
 	
-	@@host = '192.168.0.219'
+    @@host = '192.168.0.219'
+    # @@host = '10.4.10.58'
 	@@port = 445
 
 	def test_smb_open_share
-		
 		user = 'SMBTest'
 		pass = 'SMBTest'
 		share = 'C$'
@@ -58,9 +58,29 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 			c.delete(filename)
 			c.disconnect(share)
 			
-			assert_equal(write_data, d)
-			
-			c.connect('IPC$')
+		rescue
+			puts $!.to_s + $!.backtrace.join("\n")
+			return
+		end
+
+		s.close	
+	end
+
+    def test_smb_dcerpc
+		s = Rex::Socket.create_tcp(
+			'PeerHost' => @@host,
+			'PeerPort' => @@port
+		)
+
+		c = Klass.new(s, true)
+		c.client.evasion_level = 0
+
+        user = ''
+        pass = ''
+
+        begin
+            c.login('*SMBSERVER', user, pass)
+            c.connect('IPC$')
 			f = c.create_pipe('\BROWSER')
 			
 			bind, ctx = DCERPCPacket.make_bind_fake_multi(
@@ -93,16 +113,12 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 			assert_equal(r.type, 12)
 			assert_equal(r.ack_result[ctx-0], 0)
 			assert_equal(r.ack_result[ctx-1], 2)
-			
-			
-		rescue
-			puts $!.to_s + $!.backtrace.join("\n")
-			return
-		end
+        rescue
+            puts $!.to_s + $!.backtrace.join("\n")
+            return
+        end
 
 		s.close	
-		
-	end
-
+    end
 	
 end	
