@@ -88,11 +88,11 @@ X   - encoders
 The following things should be implemented both as protocols and as exploit
 mixins to encourage code re-use:
 
-- ftp
+X - ftp
 - backup agent protocols
   - CA brightstor
-  - Arkeia
-- mssql
+X  - Arkeia
+X - mssql
 - sunrpc
 - xdr
 - jbase
