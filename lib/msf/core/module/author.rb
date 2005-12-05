@@ -19,6 +19,7 @@ class Msf::Module::Author
 				'optyx'     => 'optyx@hatesemail.com',
 				'anonymous' => 'anonymous-contributor@metasploit.com',
 				'stinko'    => 'vinnie@metasploit.com',
+				'MC'        => 'y0@w00t-shell.net',
 				
 		}
 
