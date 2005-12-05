@@ -60,7 +60,7 @@ class Handler::Erb < Handler
 
 			# Set the content-type to text/html by default.  We do this before
 			# evaluation so that the script can change it.
-			resp['Content-Type'] = server.mime_type(resource)
+			resp['Content-Type'] = server ? server.mime_type(resource) : 'text/html'
 
 			# If the requested file is a ruby html file, evaluate it.
 			if (File.extname(file_path) == ".rhtml")

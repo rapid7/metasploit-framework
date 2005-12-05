@@ -1,3 +1,5 @@
+require 'rex/constants'
+
 module Rex
 
 
