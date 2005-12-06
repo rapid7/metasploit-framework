@@ -5,7 +5,7 @@
 # or web-based interface.
 #
 
-$:.unshift(File.join(File.dirname(__FILE__), '../lib'))
+$:.unshift(File.join(File.dirname(__FILE__), 'lib'))
 
 require 'rex'
 require 'msf/ui'

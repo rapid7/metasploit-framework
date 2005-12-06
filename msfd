@@ -6,7 +6,7 @@
 # possible for sessions to to be shared from a single vantage point.
 #
 
-$:.unshift(File.join(File.dirname(__FILE__), '../lib'))
+$:.unshift(File.join(File.dirname(__FILE__), 'lib'))
 
 require 'msf/base'
 require 'msf/ui'
