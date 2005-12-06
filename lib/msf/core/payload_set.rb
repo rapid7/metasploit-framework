@@ -263,11 +263,18 @@ class PayloadSet < ModuleSet
 	end
 
 	#
+	# Returns the hash of payload stagers that have been loaded.
+	#
+	def stagers
+		_stagers
+	end
+
+	#
 	# The list of stages that have been loaded.
 	#
 	attr_reader :stages
 	#
-	# The list of stagers that have been loaded.
+	# The list of singles that have been loaded.
 	#
 	attr_reader :singles
 	#
