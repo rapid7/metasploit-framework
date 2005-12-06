@@ -39,6 +39,7 @@ class Console::CommandDispatcher::Core
 			"exit"     => "Terminate the meterpreter session",
 			"help"     => "Help menu",
 			"interact" => "Interacts with a channel",
+			"irb"      => "Drop into irb scripting mode",
 			"migrate"  => "Migrate the server to another process",
 			"use"      => "Load a one or more meterpreter extensions",
 			"quit"     => "Terminate the meterpreter session",
@@ -175,6 +176,16 @@ class Console::CommandDispatcher::Core
 		else
 			print_error("Invalid channel identifier specified.")
 		end
+	end
+
+	#
+	# Runs the IRB scripting shell
+	#
+	def cmd_irb(*args)
+		print_status("Starting IRB shell")
+		print_status("The 'client' variable holds the meterpreter client\n")
+
+		Rex::Ui::Text::IrbShell.new(binding).run
 	end
 
 	#

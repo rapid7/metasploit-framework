@@ -11,6 +11,7 @@ require 'rex/ui/progress_tracker'
 require 'rex/ui/text/input'
 require 'rex/ui/text/shell'
 require 'rex/ui/text/dispatcher_shell'
+require 'rex/ui/text/irb_shell'
 
 require 'rex/ui/text/color'
 require 'rex/ui/text/table'

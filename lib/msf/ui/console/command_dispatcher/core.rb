@@ -45,6 +45,7 @@ class Core
 			"exit"    => "Exit the console",
 			"help"    => "Help menu",
 			"info"    => "Displays information about one or more module",
+			"irb"     => "Drop into irb scripting mode",
 			"jobs"    => "Displays and manages jobs",
 			"load"    => "Load a framework plugin",
 			"persist" => "Persist or restore framework state information",
@@ -160,7 +161,19 @@ class Core
 	def cmd_info_tabs(str, words)
 		cmd_use_tabs(str, words)
 	end	
-	
+
+	#
+	# Goes into IRB scripting mode
+	#
+	def cmd_irb(*args)
+		print_status("Starting IRB shell...\n")
+
+		begin
+			Rex::Ui::Text::IrbShell.new(binding).run
+		rescue
+			print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
+		end
+	end
 
 	alias cmd_? cmd_help
 
