@@ -403,7 +403,6 @@ DWORD request_registry_enum_value(Remote *remote, Packet *packet)
 	packet_transmit(remote, response, NULL);
 
 	return ERROR_SUCCESS;
-	return ERROR_SUCCESS;
 }
 
 /*

@@ -32,6 +32,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 	#
 	def commands
 		{
+			"cat"      => "Read the contents of a file to the screen",
 			"cd"       => "Change directory",
 			"download" => "Download a file or directory",
 			"getwd"    => "Print working directory",
@@ -48,6 +49,26 @@ class Console::CommandDispatcher::Stdapi::Fs
 	#
 	def name
 		"Stdapi: File system"
+	end
+
+	#
+	# Reads the contents of a file and prints them to the screen.
+	#
+	def cmd_cat(*args)
+		if (args.length == 0)
+			print_line("Usage: cat file")
+			return true
+		end
+
+		fd = client.fs.file.new(args[0], "rb")
+
+		until fd.eof?
+			print(fd.read)
+		end
+
+		fd.close
+
+		true
 	end
 
 	#
