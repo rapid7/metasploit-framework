@@ -2,7 +2,6 @@ require 'rex/proto/http'
 require 'msf/core'
 require 'msf/base'
 require 'msf/ui'
-require 'msf/ui/web/request_dispatcher'
 
 module Msf
 module Ui
@@ -15,8 +14,6 @@ module Web
 #
 ###
 class Driver < Msf::Ui::Driver
-
-	include RequestDispatcher
 
 	ConfigCore  = "framework/core"
 	ConfigGroup = "framework/ui/web"
