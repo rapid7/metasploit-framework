@@ -39,6 +39,13 @@ class Driver < Msf::Ui::Driver
 	# prompt character.  The optional hash can take extra values that will
 	# serve to initialize the console driver.
 	#
+	# The optional hash values can include:
+	#
+	# AllowCommandPassthru
+	#
+	# 	Whether or not unknown commands should be passed through and executed by
+	# 	the local system.
+	#
 	def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
 		# Call the parent
 		super(prompt, prompt_char)
@@ -79,6 +86,8 @@ class Driver < Msf::Ui::Driver
 		# Process the resource script
 		process_rc_file
 
+		# Whether or not command passthru should be allowed
+		self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
 	end
 
 	#
@@ -205,6 +214,10 @@ class Driver < Msf::Ui::Driver
 	#
 	attr_reader   :framework
 	#
+	# Whether or not commands can be passed through.
+	#
+	attr_reader   :command_passthru
+	#
 	# The active module associated with the driver.
 	#
 	attr_accessor :active_module
@@ -212,6 +225,19 @@ class Driver < Msf::Ui::Driver
 protected
 
 	attr_writer   :framework # :nodoc:
+	attr_writer   :command_passthru # :nodoc:
+
+	#
+	# If an unknown command was passed, try to see if it's a valid local
+	# executable.  This is only allowed if command passthru has been permitted
+	#
+	def unknown_command(method, line)
+		if (command_passthru == true and Rex::FileUtils.find_full_path(method))
+			system(line)
+		else
+			super
+		end
+	end
 	
 	##
 	#

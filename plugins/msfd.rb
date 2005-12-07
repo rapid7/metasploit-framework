@@ -92,7 +92,8 @@ class Plugin::Msfd < Msf::Plugin
 						Msf::Ui::Console::Driver::DefaultPromptChar,
 						'Framework'   => framework,
 						'LocalInput'  => Rex::Ui::Text::Input::Socket.new(cli), 
-						'LocalOutput' => Rex::Ui::Text::Output::Socket.new(cli)).run
+						'LocalOutput' => Rex::Ui::Text::Output::Socket.new(cli),
+						'AllowCommandPassthru' => false).run
 
 					begin 
 						cli.shutdown
