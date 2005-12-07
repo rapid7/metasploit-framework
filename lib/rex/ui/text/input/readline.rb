@@ -25,6 +25,13 @@ begin
 				::Readline.completion_proc = tab_complete_proc
 			end
 		end
+	
+		#
+		# Calls sysread on the standard input handle.
+		#
+		def sysread(len = 1)
+			self.fd.sysread(len)
+		end
 		
 		#
 		# Regular old gets, reads a line of input and returns it to the caller.

@@ -23,6 +23,13 @@ class Input::Socket < Rex::Ui::Text::Input
 	end
 
 	#
+	# Reads input from the raw socket.
+	#
+	def sysread(len = 1)
+		@sock.sysread(1)
+	end
+
+	#
 	# Wait for a line of input to be read from a socket.
 	#
 	def gets

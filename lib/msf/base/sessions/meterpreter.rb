@@ -77,6 +77,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	def init_ui(input, output)
 		console.init_ui(input, output)
 		console.set_log_source(log_source)
+
+		super
 	end
 
 	#
@@ -102,7 +104,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		# pass it a block that returns whether or not we should still be
 		# interacting.  This will allow the shell to abort if interaction is
 		# canceled.
-		console.interact { self.interacting }
+		console.interact { self.interacting != true }
 
 		# If the stop flag has been set, then that means the user exited.  Raise
 		# the EOFError so we can drop this bitch like a bad habit.

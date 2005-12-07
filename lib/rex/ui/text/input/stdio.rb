@@ -12,6 +12,13 @@ module Text
 class Input::Stdio < Rex::Ui::Text::Input
 
 	#
+	# Reads text from standard input.
+	#
+	def sysread(len = 1)
+		$stdin.sysread(len)
+	end
+
+	#
 	# Wait for a line of input to be read from standard input.
 	#
 	def gets

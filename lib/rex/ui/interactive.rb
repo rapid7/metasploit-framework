@@ -191,7 +191,7 @@ protected
 	def prompt(query)
 		if (user_output and user_input)
 			user_output.print("\n" + query)
-			user_input.gets
+			user_input.sysread(2)
 		end
 	end
 	

@@ -29,6 +29,13 @@ class Input
 	end
 
 	#
+	# Calls the underlying system read.
+	#
+	def sysread(len)
+		raise NotImplementedError
+	end
+
+	#
 	# Gets a line of input
 	#
 	def gets
