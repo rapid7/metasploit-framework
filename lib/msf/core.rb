@@ -9,7 +9,10 @@
 #
 ###
 
-# framework-core depends on Rex
+# Sanity check this version of ruby
+require 'msf/sanity'
+
+# The framework-core depends on Rex
 require 'rex'
 require 'rex/ui'
 
