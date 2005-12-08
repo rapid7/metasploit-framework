@@ -430,30 +430,14 @@ class Client
 	# limit the number of results returned from the database.  If no filter
 	# hash is supplied, all modules will be returned.
 	#
-	# Locales (Array)
-	#
-	# 	This hash element limits results to one or more specific locale.  The
-	# 	elements in the array should be instances of a Locale class.
-	#
 	# LocaleNames (Array)
 	#
 	# 	This hash element limits results to one or more specific locale by name.
-	#
-	# Platforms (Array)
-	#
-	# 	This hash element limits results to one or more specific operating
-	# 	system version.  The elements in this array should be instances of the
-	# 	OsVersion class.
 	#
 	# PlatformNames (Array)
 	#
 	# 	This hash element limits results to one or more specific platform by
 	# 	name.
-	#
-	# Modules (Array)
-	#
-	# 	This hash element limits results to one or more specific module.  The
-	# 	elements in this array must be instances of the ImageModule class.
 	#
 	# ModuleNames (Array)
 	#
@@ -491,60 +475,29 @@ class Client
 	# all opcodes will be returned (but are most likely going to be limited by
 	# the server).  The filter hash limiters that can be specified are:
 	#
-	# Modules (Array)
-	#
-	# 	This hash element limits results to one or more specific module.  The
-	# 	elements in the array must be instances of the ImageModule class.
-	#
 	# ModuleNames (Array)
 	#
 	# 	This hash element limits results to one or more specific modules by
 	# 	name.
-	#
-	# Groups (Array)
-	#
-	# 	This hash element limits results to one or more specific opcode group.
-	# 	The elements in the array must be instances of the Group class.
 	#
 	# GroupNames (Array)
 	#
 	# 	This hash element limits results to one or more specific opcode group by
 	# 	name.
 	#
-	# Types (Array)
-	#
-	# 	This hash element limits results to one or more specific opcode type.
-	# 	The elements in the array must be instances of the Type class.
-	#
 	# TypeNames (Array)
 	#
 	# 	This hash element limits results to one or more specific opcode type by
 	# 	name.
-	#
-	# MetaTypes (Array)
-	#
-	# 	This hash element limits results to one or more specific opcode meta
-	# 	type.  The elements in the array must be instances of the MetaType
-	# 	class.
 	#
 	# MetaTypeNames (Array)
 	#
 	# 	This hash element limits results to one or more specific opcode meta
 	# 	type by name.
 	#
-	# Locales (Array)
-	#
-	# 	Limits results to one or more specific locale.  The elements in the
-	# 	array must be instances of the Locale class.
-	#
 	# LocaleNames (Array)
 	#
 	# 	Limits results to one or more specific locale by name.
-	#
-	# Platforms (Array)
-	#
-	# 	Limits results to one or more specific operating system versions.  The
-	# 	elements in the array must be instances of the OsVersion class.
 	#
 	# PlatformNames (Array)
 	#
