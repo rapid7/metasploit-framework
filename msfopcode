@@ -1,0 +1,301 @@
+#!/usr/bin/ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), 'lib'))
+
+require 'rex'
+require 'rex/ui'
+require 'rex/exploitation/opcodedb'
+
+if (ARGV.length == 0)
+	$stderr.puts("\n" + "    Usage: #{File.basename($0)} command <options>\n")
+	exit
+end
+
+# Command-specific argument parser instances
+$platform_args = Rex::Parser::Arguments.new(
+	"-p" => [ true,  "A comma separated list of operating system names to filter" ],
+	"-h" => [ false, "Help banner"                                                ])
+
+$module_args = Rex::Parser::Arguments.new(
+	"-p" => [ true,  "A comma separated list of operating system names to filter (Ex: 2000,XP)" ],
+	"-l" => [ true,  "A comma separated list of locales to filter (Ex: English)" ],
+	"-m" => [ true,  "A comma separated list of module names to filter (Ex: kernel32.dll,user32.dll)" ],
+	"-S" => [ false, "Include module segment information" ],
+	"-I" => [ false, "Include module import information" ],
+	"-E" => [ false, "Include module export information" ],
+	"-h" => [ false, "Help banner" ])
+
+$search_args = Rex::Parser::Arguments.new(
+	"-p" => [ true,  "A comma separated list of operating system names to filter (Ex: 2000,XP)" ],
+	"-l" => [ true,  "A comma separated list of locales to filter (Ex: English)" ],
+	"-m" => [ true,  "A comma separated list of module names to filter (Ex: kernel32.dll,user32.dll)" ],
+	"-t" => [ true,  "A comma separated list of opcode types to filter (Ex: jmp esp,call esp)" ],
+	"-g" => [ true,  "A comma separated list of opcode groups to filter (Ex: esp => eip)" ],
+	"-M" => [ true,  "A comma separated list of opcode meta types to filter (Ex: jmp reg)" ],
+	"-a" => [ true,  "A comma separated list of addresses to filter (Ex: 0x41424344)" ],
+	"-P" => [ false, "Results must span more than one operating system version" ],
+	"-h" => [ false, "Help banner"])
+
+# Command specific option argument parsing association
+cmd_args =
+{
+	"platforms" => 
+		[ 
+			$platform_args, 
+			Proc.new { |opt, val|
+				case opt
+					when "-p"
+						$filter['Names'] = val.split(/,/)
+					when "-h"
+						$stderr.puts("\n    Usage: #{File.basename($0)} platforms <options>\n" + $platform_args.usage)
+						exit
+				end
+			} 
+		],
+	"modules" =>
+		[
+			$module_args,
+			Proc.new { |opt, val|
+				case opt
+					when "-p"
+						$filter['PlatformNames'] = val.split(/,/)
+					when "-l"
+						$filter['LocaleNames'] = val.split(/,/)
+					when "-m"
+						$filter['ModuleNames'] = val.split(/,/)
+					when "-S"
+						$filter['Segments'] = true
+					when "-I"
+						$filter['Imports'] = true
+					when "-E"
+						$filter['Exports'] = true
+					when "-h"
+						$stderr.puts("\n    Usage: #{File.basename($0)} modules <options>\n" + $module_args.usage)
+						exit
+				end
+			}
+		],
+	"search" =>
+		[
+			$search_args,
+			Proc.new { |opt, val|
+				case opt
+					when "-p"
+						$filter['PlatformNames'] = val.split(/,/)
+					when "-l"
+						$filter['LocaleNames'] = val.split(/,/)
+					when "-m"
+						$filter['ModuleNames'] = val.split(/,/)
+					when "-t"
+						$filter['TypeNames'] = val.split(/,/)
+					when "-g"
+						$filter['GroupNames'] = val.split(/,/)
+					when "-M"
+						$filter['MetaTypeNames'] = val.split(/,/)
+					when "-a"
+						$filter['Addresses'] = val.split(/,/).map { |e| e.hex }
+					when "-P"
+						$filter['Portable'] = true
+					when "-h"
+						$stderr.puts("\n    Usage: #{File.basename($0)} search <options>\n" + $search_args.usage)
+						exit
+				end
+			}
+		],
+}
+
+# Extract the command
+cmd = ARGV.shift
+
+# Create the opcode client instance
+client = Rex::Exploitation::OpcodeDb::Client.new
+
+# Initializes the filter to an empty hash
+$filter = {}
+
+# Parse the command specific arguments as necessary
+if (args = cmd_args[cmd])
+	args[0].parse(ARGV) { |opt, idx, val|
+		args[1].call(opt, val)
+	}
+end
+
+# Process the specific command
+case cmd
+	when "stats"
+		stats = client.statistics
+
+		puts(
+			"\n" +
+			"Last Updated             : #{stats.last_update.to_s}\n" +
+			"Number of Opcodes        : #{stats.opcodes}\n" +
+			"Number of Opcode Types   : #{stats.opcode_types}\n" +
+			"Number of Platforms      : #{stats.platforms}\n" +
+			"Number of Architectures  : #{stats.architectures}\n" +
+			"Number of Modules        : #{stats.modules}\n" +
+			"Number of Module Segments: #{stats.module_segments}\n" +
+			"Number of Module Imports : #{stats.module_imports}\n" +
+			"Number of Module Exports : #{stats.module_exports}\n\n")
+	when "locales"
+		client.locales.each { |locale| puts "#{locale.name}" }
+	when "metatypes"
+		client.meta_types.each { |mt| puts "#{mt.name}" }
+	when "groups"
+		client.groups.each { |g| puts "#{g.name}" }
+	when "types"
+		client.types.each { |g| puts "#{g.name}" }
+	when "platforms"
+		client.platforms($filter).each { |p| puts "#{p.desc}" }
+	when "modules"
+		modules = client.modules($filter)
+
+		# If we're displaying extra information on a per-module basis, then we
+		# need to not display in a single table format.
+		if ($filter['Segments'] or $filter['Imports'] or $filter['Exports'])
+
+			modules.each { |mod|
+				puts(
+					".-============================================\n\n" +
+					"  Name        : #{mod.name}\n" +
+					"  Base Address: #{"0x%.8x" % mod.base_address}\n" +
+					"  Size        : #{mod.image_size}\n" +
+					"  Version     : #{mod.maj_maj_ver}.#{mod.maj_min_ver}.#{mod.min_maj_ver}.#{mod.min_min_ver}\n" +
+					"  Timestamp   : #{mod.timestamp.to_s}\n" +
+					"  Locale      : #{mod.locale.name}\n")
+
+				# Display module segments
+				if ($filter['Segments'])
+					tbl = Rex::Ui::Text::Table.new(
+						'Indent'  => 4,
+						'Columns' => 
+							[
+								"Type",
+								"Base Address",
+								"Size",
+								"Permissions"
+							])
+
+					mod.segments.each { |seg|
+						tbl << [
+							seg.type,
+							"0x%.8x" % seg.base_address,
+							seg.size.to_s,
+							(((seg.readable == true) ? "r" : "") +
+							 ((seg.writable == true) ? "w" : "") +
+							 ((seg.executable == true) ? "x" : ""))
+						]
+					}
+
+					puts("\n  Module segments:\n\n" + tbl.to_s + "\n")
+				end
+
+				# Display module imports
+				if ($filter['Imports'])
+					tbl = Rex::Ui::Text::Table.new(
+						'Indent'  => 4,
+						'Columns' => 
+							[
+								"Ordinal",
+								"Address",
+								"Name",
+							])
+
+					mod.imports.each { |imp|
+						tbl << [
+							imp.ordinal.to_s,
+							"0x%.8x" % imp.address,
+							imp.name
+						]
+					}
+
+					puts("\n  Module imports:\n\n" + tbl.to_s + "\n")
+				end
+
+				# Display module exports
+				if ($filter['Exports'])
+					tbl = Rex::Ui::Text::Table.new(
+						'Indent'  => 4,
+						'Columns' => 
+							[
+								"Ordinal",
+								"Address",
+								"Name",
+							])
+
+					mod.exports.each { |exp|
+						tbl << [
+							exp.ordinal.to_s,
+							"0x%.8x" % exp.address,
+							exp.name
+						]
+					}
+
+					puts("\n  Module exports:\n\n" + tbl.to_s + "\n")
+
+				end
+			}
+
+		else
+			tbl = Rex::Ui::Text::Table.new(
+				'Indent'  => 4,
+				'Header'  => "Matching Modules",
+				'Columns' =>
+					[
+						"Name",
+						"Base Address",
+						"Size",
+						"Version",
+						"Timestamp",
+						"Locale"
+					])
+
+			modules.each { |mod|
+				tbl << [
+					mod.name,
+					"0x%.8x" % mod.base_address,
+					mod.image_size,
+					"#{mod.maj_maj_ver}.#{mod.maj_min_ver}.#{mod.min_maj_ver}.#{mod.min_min_ver}",
+					mod.timestamp.to_s,
+					mod.locale.name
+				]
+			}
+
+			puts("\n" + tbl.to_s + "\n")
+		end
+	when "search"
+		opcodes = client.search($filter)
+
+		tbl = Rex::Ui::Text::Table.new(
+			'Indent'  => 4,
+			'Header'  => "Opcodes",
+			'Columns' => 
+				[
+					"Address",
+					"Type",
+					"OS"
+				])
+
+		opcodes.each { |opcode|
+			tbl << [
+				"0x%.8x" % opcode.address,
+				opcode.type.name,
+				opcode.modules[0].platforms[0].desc
+			]
+
+			if (opcode.modules[0].platforms.length > 1)
+				idx = 1
+
+				until (opcode.modules[0].platforms[idx] == nil)
+					tbl << [
+						'', '',
+						opcode.modules[0].platforms[idx].desc
+					]
+				end
+			end
+		}
+
+		puts("\n" + tbl.to_s + "\n")
+	else
+		$stderr.puts("Unsupported command: #{cmd}")
+end
+

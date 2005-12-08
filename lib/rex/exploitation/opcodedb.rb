@@ -1,0 +1,618 @@
+require 'rexml/rexml'
+require 'rexml/source'
+require 'rexml/document'
+require 'rexml/parsers/treeparser'
+require 'rex/proto/http'
+require 'uri'
+
+module Rex
+module Exploitation
+module OpcodeDb
+
+module OpcodeResult # :nodoc:
+	def initialize(hash)
+		@hash = hash
+	end
+	attr_reader :hash
+end
+
+###
+# 
+# This class provides a general interface to items that come from that opcode
+# database that have a symbolic entry identifier and name.
+#
+###
+module DbEntry
+	include OpcodeResult
+
+	def initialize(hash)
+		super
+
+		@id   = hash['id'].to_i
+		@name = hash['name']
+	end
+
+	#
+	# Fields that could possibly be filtered on
+	#
+	def filter_hash
+		{
+			"id" => id,
+			"name" => name
+		}
+	end
+
+	attr_reader :id, :name
+end
+
+###
+#
+# This class represents a particular image module including its name,
+# segments, imports, exports, base address, and so on.
+#
+###
+class ImageModule
+	include DbEntry
+
+	###
+	#
+	# This class contains information about a module-associated segment.
+	#
+	###
+	class Segment
+		def initialize(hash)
+			@type = hash['type']
+			@base_address = hash['base_address'].to_i
+			@size         = hash['segment_size'].to_i
+			@writable     = hash['writable'] == "true" ? true : false
+			@readable     = hash['readable'] == "true" ? true : false
+			@executable   = hash['executable'] == "true" ? true : false
+		end
+
+		attr_reader :type
+		attr_reader :base_address
+		attr_reader :size
+		attr_reader :writable
+		attr_reader :readable
+		attr_reader :executable
+	end
+
+	###
+	#
+	# This class contains information about a module-associated import.
+	#
+	###
+	class Import
+		def initialize(hash)
+			@name    = hash['name']
+			@address = hash['address'].to_i
+			@ordinal = hash['ordinal'].to_i
+		end
+
+		attr_reader :name
+		attr_reader :address
+		attr_reader :ordinal
+	end
+
+	###
+	#
+	# This class contains information about a module-associated export.
+	#
+	###
+	class Export
+		def initialize(hash)
+			@name    = hash['name']
+			@address = hash['address'].to_i
+			@ordinal = hash['ordinal'].to_i
+		end
+
+		attr_reader :name
+		attr_reader :address
+		attr_reader :ordinal
+	end
+
+	def initialize(hash)
+		super
+
+		@locale       = Locale.new(hash['locale'])
+		@maj_maj_ver  = hash['maj_maj_ver'].to_i
+		@maj_min_ver  = hash['maj_min_ver'].to_i
+		@min_maj_ver  = hash['min_maj_ver'].to_i
+		@min_min_ver  = hash['min_min_ver'].to_i
+		@timestamp    = Time.at(hash['timestamp'].to_i)
+		@vendor       = hash['vendor']
+		@base_address = hash['base_address'].to_i
+		@image_size   = hash['image_size'].to_i
+
+		@segments     = hash['segments'].map { |ent|
+			Segment.new(ent)
+		} if (hash['segments'])
+		@imports     = hash['imports'].map { |ent|
+			Import.new(ent)
+		} if (hash['imports'])
+		@exports     = hash['exports'].map { |ent|
+			Export.new(ent)
+		} if (hash['exports'])
+		@platforms   = hash['platforms'].map { |ent|
+			OsVersion.new(ent)
+		} if (hash['platforms'])
+
+		@segments  = [] unless(@segments)
+		@imports   = [] unless(@imports)
+		@exports   = [] unless(@exports)
+		@platforms = [] unless(@platforms)
+	end
+
+	attr_reader :locale
+	attr_reader :maj_maj_ver
+	attr_reader :maj_min_ver
+	attr_reader :min_maj_ver
+	attr_reader :min_min_ver
+	attr_reader :timestamp
+	attr_reader :vendor
+	attr_reader :base_address
+	attr_reader :image_size
+	attr_reader :segments
+	attr_reader :imports
+	attr_reader :exports
+	attr_reader :platforms
+end
+
+###
+#
+# This class contains information about a specific locale, such as English.
+#
+###
+class Locale
+	include DbEntry
+end
+
+###
+#
+# This class contains information about a platform (operating system) version.
+#
+###
+class OsVersion
+	include DbEntry
+
+	def initialize(hash)
+		super
+
+		@modules = (hash['modules']) ? hash['modules'].to_i : 0
+		@desc    = hash['desc']
+		@arch    = hash['arch']
+		@maj_ver = hash['maj_ver'].to_i
+		@min_ver = hash['min_ver'].to_i
+		@maj_patch_level = hash['maj_patch_level'].to_i
+		@min_patch_level = hash['min_patch_level'].to_i
+	end
+
+	attr_reader :modules
+	attr_reader :desc
+	attr_reader :arch
+	attr_reader :maj_ver
+	attr_reader :min_ver
+	attr_reader :maj_patch_level
+	attr_reader :min_patch_level
+end
+
+###
+#
+# An opcode group (esp => eip).
+#
+###
+class Group
+	include DbEntry
+end
+
+###
+#
+# An opcode type (jmp esp).
+#
+###
+class Type
+	include DbEntry
+
+	def initialize(hash)
+		super
+
+		@opcodes   = (hash['opcodes']) ? hash['opcodes'].to_i : 0
+		@meta_type = MetaType.new(hash['meta_type']) if (hash['meta_type'])
+		@group     = Group.new(hash['group']) if (hash['group'])
+		@arch      = hash['arch']
+	end
+
+	attr_reader :opcodes
+	attr_reader :meta_type
+	attr_reader :group
+	attr_reader :arch
+end
+
+###
+#
+# An opcode meta type (jmp reg).
+#
+###
+class MetaType
+	include DbEntry
+end
+
+###
+#
+# An opcode that has a specific address and is associated with one or more
+# modules.
+#
+###
+class Opcode
+	include DbEntry
+
+	def initialize(hash)
+		super
+
+		@address = hash['address'].to_i
+		@type    = Type.new(hash['type'])
+		@group   = @type.group
+		@modules = hash['modules'].map { |ent|
+			ImageModule.new(ent)
+		} if (hash['modules'])
+
+		@modules = [] unless(@modules)
+	end
+
+	attr_reader :address
+	attr_reader :type
+	attr_reader :group
+	attr_reader :modules
+end
+
+###
+#
+# Current statistics of the opcode database.
+#
+###
+class Statistics
+	def initialize(hash)
+		@modules         = hash['modules'].to_i
+		@opcodes         = hash['opcodes'].to_i
+		@opcode_types    = hash['opcode_types'].to_i
+		@platforms       = hash['platforms'].to_i
+		@architectures   = hash['architectures'].to_i
+		@module_segments = hash['module_segments'].to_i
+		@module_imports  = hash['module_imports'].to_i
+		@module_exports  = hash['module_exports'].to_i
+		@last_update     = Time.at(hash['last_update'].to_i)
+	end
+
+	attr_reader :modules
+	attr_reader :opcodes
+	attr_reader :opcode_types
+	attr_reader :platforms
+	attr_reader :architectures
+	attr_reader :module_segments
+	attr_reader :module_imports
+	attr_reader :module_exports
+	attr_reader :last_update
+end
+
+###
+#
+# This class implements a client interface to the Metasploit Opcode Database.
+# It is intended to be used as a method of locating reliable return addresses
+# given a set of executable files and a set of usable opcodes.
+#
+###
+class Client
+
+	DefaultServerHost = "www.metasploit.com"
+	DefaultServerPort = 80
+	DefaultServerUri  = "/users/opcode/msfopcode_server.cgi"
+
+	#
+	# Returns an instance of an initialized client that will use the supplied
+	# server values.
+	#
+	def initialize(host = DefaultServerHost, port = DefaultServerPort, uri = DefaultServerUri)
+		self.server_host = host
+		self.server_port = port
+		self.server_uri  = uri
+	end
+
+	#
+	# Returns an array of MetaType instances.
+	#
+	def meta_types
+		request('meta_types').map { |ent| MetaType.new(ent) }
+	end
+
+	#
+	# Returns an array of Group instances.
+	#
+	def groups
+		request('groups').map { |ent| Group.new(ent) }
+	end
+
+	#
+	# Returns an array of Type instances.  Opcode types are specific opcodes,
+	# such as a jmp esp.  Optionally, a filter hash can be passed to include
+	# extra information in the results.
+	#
+	# Statistics (Bool)
+	#
+	# 	If this hash element is set to true, the number of opcodes currently in
+	# 	the database of this type will be returned.
+	#
+	def types(filter = {})
+		request('types', filter).map { |ent| Type.new(ent) }
+	end
+
+	#
+	# Returns an array of OsVersion instances.  OS versions are associated with
+	# a particular operating system release (including service packs).
+	# Optionally, a filter hash can be passed to limit the number of results
+	# returned.  If no filter hash is supplied, all results are returned.
+	#
+	# Names (Array)
+	#
+	# 	If this hash element is specified, only the operating systems that
+	# 	contain one or more of the names specified will be returned.
+	#
+	# Statistics (Bool)
+	#
+	# 	If this hash element is set to true, the number of modules associated
+	# 	with this matched operating system versions will be returned.
+	#
+	def platforms(filter = {})
+		request('platforms', filter).map { |ent| OsVersion.new(ent) }
+	end
+
+	#
+	# Returns an array of ImageModule instances.  Image modules are
+	# version-specific, locale-specific, and operating system version specific
+	# image files.  Modules have opcodes, segments, imports and exports
+	# associated with them.  Optionally, a filter hash can be specified to
+	# limit the number of results returned from the database.  If no filter
+	# hash is supplied, all modules will be returned.
+	#
+	# Locales (Array)
+	#
+	# 	This hash element limits results to one or more specific locale.  The
+	# 	elements in the array should be instances of a Locale class.
+	#
+	# LocaleNames (Array)
+	#
+	# 	This hash element limits results to one or more specific locale by name.
+	#
+	# Platforms (Array)
+	#
+	# 	This hash element limits results to one or more specific operating
+	# 	system version.  The elements in this array should be instances of the
+	# 	OsVersion class.
+	#
+	# PlatformNames (Array)
+	#
+	# 	This hash element limits results to one or more specific platform by
+	# 	name.
+	#
+	# Modules (Array)
+	#
+	# 	This hash element limits results to one or more specific module.  The
+	# 	elements in this array must be instances of the ImageModule class.
+	#
+	# ModuleNames (Array)
+	#
+	# 	This hash element limits results to one or more specific module by name.
+	#
+	# Segments (Bool)
+	#
+	# 	If this hash element is set to true, the segments associated with each
+	# 	resulting module will be returned by the server.
+	#
+	# Imports (Bool)
+	#
+	# 	If this hash element is set to true, the imports associated with each
+	# 	resulting module will be returned by the server.
+	#
+	# Exports (Bool)
+	#
+	# 	If this hash element is set to true, the exports associated with each
+	# 	resulting module will be returned by the server.
+	#
+	def modules(filter = {})
+		request('modules', filter).map { |ent| ImageModule.new(ent) }
+	end
+
+	#
+	# Returns an array of Locale instances that are supported by the server.
+	#
+	def locales
+		request('locales').map { |ent| Locale.new(ent) }
+	end
+
+	#
+	# Returns an array of Opcode instances that match the filter limitations
+	# specified in the supplied filter hash.  If no filter hash is specified,
+	# all opcodes will be returned (but are most likely going to be limited by
+	# the server).  The filter hash limiters that can be specified are:
+	#
+	# Modules (Array)
+	#
+	# 	This hash element limits results to one or more specific module.  The
+	# 	elements in the array must be instances of the ImageModule class.
+	#
+	# ModuleNames (Array)
+	#
+	# 	This hash element limits results to one or more specific modules by
+	# 	name.
+	#
+	# Groups (Array)
+	#
+	# 	This hash element limits results to one or more specific opcode group.
+	# 	The elements in the array must be instances of the Group class.
+	#
+	# GroupNames (Array)
+	#
+	# 	This hash element limits results to one or more specific opcode group by
+	# 	name.
+	#
+	# Types (Array)
+	#
+	# 	This hash element limits results to one or more specific opcode type.
+	# 	The elements in the array must be instances of the Type class.
+	#
+	# TypeNames (Array)
+	#
+	# 	This hash element limits results to one or more specific opcode type by
+	# 	name.
+	#
+	# MetaTypes (Array)
+	#
+	# 	This hash element limits results to one or more specific opcode meta
+	# 	type.  The elements in the array must be instances of the MetaType
+	# 	class.
+	#
+	# MetaTypeNames (Array)
+	#
+	# 	This hash element limits results to one or more specific opcode meta
+	# 	type by name.
+	#
+	# Locales (Array)
+	#
+	# 	Limits results to one or more specific locale.  The elements in the
+	# 	array must be instances of the Locale class.
+	#
+	# LocaleNames (Array)
+	#
+	# 	Limits results to one or more specific locale by name.
+	#
+	# Platforms (Array)
+	#
+	# 	Limits results to one or more specific operating system versions.  The
+	# 	elements in the array must be instances of the OsVersion class.
+	#
+	# PlatformNames (Array)
+	#
+	# 	Limits reslts to one or more specific operating system version by name.
+	#
+	# Addresses (Array)
+	#
+	# 	Limits results to a specific set of addresses.
+	#
+	# Portable (Bool)
+	#
+	# 	If this hash element is true, opcode results will be limited to ones
+	# 	that span more than one operating system version.
+	#
+	def search(filter = {})
+		request('search', filter).map { |ent| Opcode.new(ent) }
+	end
+
+	#
+	# Returns an instance of the Statistics class that holds information about
+	# the server's database stats.
+	#
+	def statistics
+		Statistics.new(request('statistics'))
+	end
+
+	#
+	# These attributes convey information about the remote server and can be
+	# changed in order to point it to a locate copy as necessary.
+	#
+	attr_accessor :server_host, :server_port, :server_uri
+
+protected
+
+	#
+	# Transmits a request to the Opcode database server and translates the
+	# response into a native general ruby datatype.
+	#
+	def request(method, opts = {})
+		client  = Rex::Proto::Http::Client.new(server_host, server_port)
+
+		begin
+			# Initialize the request with the POST body.
+			request = client.gen_post(server_uri)
+
+			request.body += "method=#{method}"
+
+			# Enumerate each option filter specified and convert it into a CGI
+			# parameter.
+			opts.each_pair { |k, v|
+				request.body += "&#{k}=#{xlate_param(v)}"
+			}
+
+			# Send the request and grab the response.
+			response = client.send_request(request)
+
+			# Non-200 return code?
+			if (response.code != 200)
+				raise RuntimeError, "Invalid response recieved from server."
+			end
+
+			# Convert the return value to the native type.
+			parse_response(response.body)
+		ensure
+			client.close
+		end
+	end
+
+	#
+	# Translates a parameter into a flat CGI parameter string.
+	#
+	def xlate_param(v)
+		if (v.kind_of?(Array))
+			v.map { |ent|
+				xlate_param(ent)
+			}.join(',')
+		elsif (v.kind_of?(Hash))
+			v.map { |k,v| 
+				"#{URI.escape(k)}:#{xlate_param(v)}" if (v)
+			}.join(',')
+		else
+			URI.escape(v.to_s)
+		end
+	end
+
+	#
+	# Translate the data type from a flat string to a ruby native type.
+	#
+	def parse_response(xml)
+		source = REXML::Source.new(xml)
+		doc    = REXML::Document.new
+		
+		REXML::Parsers::TreeParser.new(source, doc).parse
+
+		translate_element(doc.root)
+	end
+
+	#
+	# Translate elements conveyed as data types.
+	#
+	def translate_element(element)
+		case element.name
+			when "Array"
+				return element.elements.map { |child| translate_element(child) }
+			when "Hash"
+				hsh = {}
+
+				element.each_element { |child|
+					if (e = child.elements[1])
+						v = translate_element(e)
+					else
+						v = child.text
+					end
+						
+					hsh[child.attributes['name']] = v
+				}
+
+				return hsh
+			else
+				return element.text
+		end
+	end
+
+end
+
+end
+end
+end
