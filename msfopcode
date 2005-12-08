@@ -107,6 +107,10 @@ cmd_args =
 # Extract the command
 cmd = ARGV.shift
 
+if (ARGV.length == 0)
+	ARGV.unshift("-h")
+end
+
 # Create the opcode client instance
 client = Rex::Exploitation::OpcodeDb::Client.new
 
@@ -279,18 +283,30 @@ case cmd
 			tbl << [
 				"0x%.8x" % opcode.address,
 				opcode.type.name,
-				opcode.modules[0].platforms[0].desc
+				opcode.modules[0].platforms[0].desc  + " (#{opcode.modules[0].name})"
 			]
 
-			if (opcode.modules[0].platforms.length > 1)
-				idx = 1
+			midx = 0
+			pidx = 1
 
-				until (opcode.modules[0].platforms[idx] == nil)
-					tbl << [
-						'', '',
-						opcode.modules[0].platforms[idx].desc
-					]
+			until (opcode.modules[midx] == nil)
+				tbl << [ '', '', '' ] if (midx >= 1)
+
+				if (opcode.modules[midx].platforms.length > 1)
+	
+					until (opcode.modules[midx].platforms[pidx] == nil)
+						tbl << [
+							'', '',
+							opcode.modules[midx].platforms[pidx].desc + " (#{opcode.modules[midx].name})"
+						]
+	
+						pidx += 1
+					end
+	
+					pidx = 0
 				end
+
+				midx += 1
 			end
 		}
 
