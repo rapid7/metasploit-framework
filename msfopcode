@@ -7,7 +7,17 @@ require 'rex/ui'
 require 'rex/exploitation/opcodedb'
 
 if (ARGV.length == 0)
-	$stderr.puts("\n" + "    Usage: #{File.basename($0)} command <options>\n")
+	$stderr.puts("\n" + "    Usage: #{File.basename($0)} command <options>\n\n" +
+		"SUPPORTED COMMANDS\n\n" +
+		"   stats       Display database statistics\n" +
+		"   locales     Display supported locales\n" +
+		"   metatypes   Display supported opcode meta types (Ex: jmp reg)\n" +
+		"   groups      Display supported opcode groups (Ex: esp => eip)\n" +
+		"   types       Display supported opcode types (Ex: jmp esp)\n" +
+		"   platforms   Display supported platforms\n" +
+		"   modules     Display information about specific modules\n" +
+		"   search      Search for opcodes given a set of criteria\n" +
+		"\n")
 	exit
 end
 
@@ -29,7 +39,7 @@ $search_args = Rex::Parser::Arguments.new(
 	"-p" => [ true,  "A comma separated list of operating system names to filter (Ex: 2000,XP)" ],
 	"-l" => [ true,  "A comma separated list of locales to filter (Ex: English)" ],
 	"-m" => [ true,  "A comma separated list of module names to filter (Ex: kernel32.dll,user32.dll)" ],
-	"-t" => [ true,  "A comma separated list of opcode types to filter (Ex: jmp esp,call esp)" ],
+	"-t" => [ true,  "A semi-colon separated list of opcode types to filter (Ex: jmp esp,call esp)" ],
 	"-g" => [ true,  "A comma separated list of opcode groups to filter (Ex: esp => eip)" ],
 	"-M" => [ true,  "A comma separated list of opcode meta types to filter (Ex: jmp reg)" ],
 	"-a" => [ true,  "A comma separated list of addresses to filter (Ex: 0x41424344)" ],
@@ -87,7 +97,7 @@ cmd_args =
 					when "-m"
 						$filter['ModuleNames'] = val.split(/,/)
 					when "-t"
-						$filter['TypeNames'] = val.split(/,/)
+						$filter['TypeNames'] = val.split(/;/)
 					when "-g"
 						$filter['GroupNames'] = val.split(/,/)
 					when "-M"
