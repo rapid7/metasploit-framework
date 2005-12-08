@@ -31,8 +31,15 @@ class Client
 	#
 	# Initializes a GET request and returns it to the caller.
 	#
-	def self.get(uri = '/', proto = DefaultProtocol)
+	def gen_get(uri = '/', proto = DefaultProtocol)
 		return init_request(Request::Get.new(uri, proto))
+	end
+
+	#
+	# Initializes a POST request and returns it to the caller.
+	#
+	def gen_post(uri = '/', proto = DefaultProtocol)
+		return init_request(Request::Post.new(uri, proto))
 	end
 
 	def initialize(host, port = 80)

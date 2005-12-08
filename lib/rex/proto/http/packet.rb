@@ -270,7 +270,8 @@ protected
 			
 			# Extract the actual hexadecimal length value
 			clen = self.bufq.slice!(/.*\r*\n/)
-			clen.rstrip!
+
+			clen.rstrip! if (clen)
 			
 			self.body_bytes_left = clen.hex
 			if (self.body_bytes_left == 0)

@@ -573,11 +573,11 @@ protected
 		if (v.kind_of?(Array))
 			v.map { |ent|
 				xlate_param(ent)
-			}.join(',')
+			}.join(',,')
 		elsif (v.kind_of?(Hash))
 			v.map { |k,v| 
 				"#{URI.escape(k)}:#{xlate_param(v)}" if (v)
-			}.join(',')
+			}.join(',,')
 		else
 			URI.escape(v.to_s)
 		end

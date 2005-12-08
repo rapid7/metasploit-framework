@@ -117,10 +117,6 @@ cmd_args =
 # Extract the command
 cmd = ARGV.shift
 
-if (ARGV.length == 0)
-	ARGV.unshift("-h")
-end
-
 # Create the opcode client instance
 client = Rex::Exploitation::OpcodeDb::Client.new
 
@@ -161,6 +157,11 @@ case cmd
 	when "platforms"
 		client.platforms($filter).each { |p| puts "#{p.desc}" }
 	when "modules"
+		if (ARGV.length == 0)
+			$stderr.puts("Filter criteria required -- specify '-h' for help.")
+			exit
+		end
+
 		modules = client.modules($filter)
 
 		# If we're displaying extra information on a per-module basis, then we
@@ -277,6 +278,11 @@ case cmd
 			puts("\n" + tbl.to_s + "\n")
 		end
 	when "search"
+		if (ARGV.length == 0)
+			$stderr.puts("Filter criteria required -- specify '-h' for help.")
+			exit
+		end
+
 		opcodes = client.search($filter)
 
 		tbl = Rex::Ui::Text::Table.new(
