@@ -17,6 +17,32 @@ module OpcodeResult # :nodoc:
 end
 
 ###
+#
+# A cachable entry.
+#
+###
+module Cachable
+
+	def create(hash) # :nodoc:
+		@Cache = {} unless (@Cache)
+		if (hash_key(hash) and @Cache[hash_key(hash)])
+			@Cache[hash_key(hash)]
+		else
+			@Cache[hash_key(hash)] = self.new(hash)
+		end
+	end
+
+	def hash_key(hash) # :nodoc:
+		hash['id'] || nil
+	end
+
+	def flush_cache # :nodoc:
+		@Cache.clear
+	end
+
+end
+
+###
 # 
 # This class provides a general interface to items that come from that opcode
 # database that have a symbolic entry identifier and name.
@@ -33,16 +59,17 @@ module DbEntry
 	end
 
 	#
-	# Fields that could possibly be filtered on
+	# Fields that could possibly be filtered on for this database entry.
 	#
 	def filter_hash
 		{
-			"id" => id,
+			"id"   => id,
 			"name" => name
 		}
 	end
 
-	attr_reader :id, :name
+	attr_reader :id
+	attr_reader :name
 end
 
 ###
@@ -111,10 +138,20 @@ class ImageModule
 		attr_reader :ordinal
 	end
 
+	class <<self
+		include Cachable
+		def hash_key(hash) # :nodoc:
+			(hash['id'] || '') + 
+			(hash['segments'] || '').to_s + 
+			(hash['exports'] || '').to_s + 
+			(hash['imports'] || '').to_s
+		end
+	end
+
 	def initialize(hash)
 		super
 
-		@locale       = Locale.new(hash['locale'])
+		@locale       = Locale.create(hash['locale'])
 		@maj_maj_ver  = hash['maj_maj_ver'].to_i
 		@maj_min_ver  = hash['maj_min_ver'].to_i
 		@min_maj_ver  = hash['min_maj_ver'].to_i
@@ -134,7 +171,7 @@ class ImageModule
 			Export.new(ent)
 		} if (hash['exports'])
 		@platforms   = hash['platforms'].map { |ent|
-			OsVersion.new(ent)
+			OsVersion.create(ent)
 		} if (hash['platforms'])
 
 		@segments  = [] unless(@segments)
@@ -165,6 +202,9 @@ end
 ###
 class Locale
 	include DbEntry
+	class <<self
+		include Cachable
+	end
 end
 
 ###
@@ -174,6 +214,13 @@ end
 ###
 class OsVersion
 	include DbEntry
+
+	class <<self
+		include Cachable
+		def hash_key(hash)
+			hash['id'] + (hash['modules'] || '')
+		end
+	end
 
 	def initialize(hash)
 		super
@@ -203,6 +250,9 @@ end
 ###
 class Group
 	include DbEntry
+	class <<self
+		include Cachable
+	end
 end
 
 ###
@@ -213,12 +263,16 @@ end
 class Type
 	include DbEntry
 
+	class <<self
+		include Cachable
+	end
+
 	def initialize(hash)
 		super
 
 		@opcodes   = (hash['opcodes']) ? hash['opcodes'].to_i : 0
-		@meta_type = MetaType.new(hash['meta_type']) if (hash['meta_type'])
-		@group     = Group.new(hash['group']) if (hash['group'])
+		@meta_type = MetaType.create(hash['meta_type']) if (hash['meta_type'])
+		@group     = Group.create(hash['group']) if (hash['group'])
 		@arch      = hash['arch']
 	end
 
@@ -235,6 +289,9 @@ end
 ###
 class MetaType
 	include DbEntry
+	class <<self
+		include Cachable
+	end
 end
 
 ###
@@ -250,10 +307,10 @@ class Opcode
 		super
 
 		@address = hash['address'].to_i
-		@type    = Type.new(hash['type'])
+		@type    = Type.create(hash['type'])
 		@group   = @type.group
 		@modules = hash['modules'].map { |ent|
-			ImageModule.new(ent)
+			ImageModule.create(ent)
 		} if (hash['modules'])
 
 		@modules = [] unless(@modules)
@@ -321,14 +378,14 @@ class Client
 	# Returns an array of MetaType instances.
 	#
 	def meta_types
-		request('meta_types').map { |ent| MetaType.new(ent) }
+		request('meta_types').map { |ent| MetaType.create(ent) }
 	end
 
 	#
 	# Returns an array of Group instances.
 	#
 	def groups
-		request('groups').map { |ent| Group.new(ent) }
+		request('groups').map { |ent| Group.create(ent) }
 	end
 
 	#
@@ -342,7 +399,7 @@ class Client
 	# 	the database of this type will be returned.
 	#
 	def types(filter = {})
-		request('types', filter).map { |ent| Type.new(ent) }
+		request('types', filter).map { |ent| Type.create(ent) }
 	end
 
 	#
@@ -362,7 +419,7 @@ class Client
 	# 	with this matched operating system versions will be returned.
 	#
 	def platforms(filter = {})
-		request('platforms', filter).map { |ent| OsVersion.new(ent) }
+		request('platforms', filter).map { |ent| OsVersion.create(ent) }
 	end
 
 	#
@@ -418,14 +475,14 @@ class Client
 	# 	resulting module will be returned by the server.
 	#
 	def modules(filter = {})
-		request('modules', filter).map { |ent| ImageModule.new(ent) }
+		request('modules', filter).map { |ent| ImageModule.create(ent) }
 	end
 
 	#
 	# Returns an array of Locale instances that are supported by the server.
 	#
 	def locales
-		request('locales').map { |ent| Locale.new(ent) }
+		request('locales').map { |ent| Locale.create(ent) }
 	end
 
 	#

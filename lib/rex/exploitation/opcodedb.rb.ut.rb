@@ -49,13 +49,13 @@ class Rex::Exploitation::OpcodeDb::UnitTest < Test::Unit::TestCase
 		end
 	end
 
-	def test_os_versions
+	def test_platforms
 		srv_cli
 		
 		begin
 			proc_req_resp(%q{<Array><Hash><Entry name="id">12</Entry><Entry name="name">Windows XP SP2</Entry><Entry name="desc">Windows Coolness</Entry><Entry name="maj_ver">5</Entry><Entry name="min_ver">1</Entry><Entry name="maj_patch_level">2</Entry><Entry name="min_patch_level">0</Entry><Entry name="modules">10</Entry></Hash></Array>})
 
-			osv = @r.os_versions
+			osv = @r.platforms
 
 			assert_kind_of(Array, osv)
 			assert_equal(1, osv.length)
