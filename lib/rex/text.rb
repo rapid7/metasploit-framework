@@ -83,7 +83,7 @@ module Text
 	# Returns the hex version of the supplied string
 	#
 	def self.to_hex(str)
-		return str.gsub(/./) { |s| puts sprintf("\\x%.2x", s[0]) }
+		return str.gsub(/./) { |s| "\\x%.2x" % s[0] }
 	end
 
 	#

@@ -25,6 +25,9 @@ require 'rex/encoding/xor'
 # Architecture subsystem
 require 'rex/arch'
 
+# Assembly
+require 'rex/assembly/nasm'
+
 # Logging
 require 'rex/logging/log_dispatcher'
 
