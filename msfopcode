@@ -1,4 +1,9 @@
 #!/usr/bin/ruby
+#
+# This user interface provides a command line interface to the Metasploit
+# Opcode Database.  It provides users with the ability to search for opcodes
+# and to display information about modules.
+#
 
 $:.unshift(File.join(File.dirname(__FILE__), 'lib'))
 

@@ -552,7 +552,7 @@ protected
 			}
 
 			# Send the request and grab the response.
-			response = client.send_request(request)
+			response = client.send_request(request, 300)
 
 			# Non-200 return code?
 			if (response.code != 200)
