@@ -35,6 +35,7 @@ $module_args = Rex::Parser::Arguments.new(
 	"-p" => [ true,  "A comma separated list of operating system names to filter (Ex: 2000,XP)" ],
 	"-l" => [ true,  "A comma separated list of locales to filter (Ex: English)" ],
 	"-m" => [ true,  "A comma separated list of module names to filter (Ex: kernel32.dll,user32.dll)" ],
+	"-d" => [ false, "Display detailed output" ],
 	"-S" => [ false, "Include module segment information" ],
 	"-I" => [ false, "Include module import information" ],
 	"-E" => [ false, "Include module export information" ],
@@ -84,6 +85,8 @@ cmd_args =
 						$filter['Imports'] = true
 					when "-E"
 						$filter['Exports'] = true
+					when "-d"
+						$filter['Detailed'] = true
 					when "-h"
 						$stderr.puts("\n    Usage: #{File.basename($0)} modules <options>\n" + $module_args.usage)
 						exit
@@ -171,7 +174,7 @@ case cmd
 
 		# If we're displaying extra information on a per-module basis, then we
 		# need to not display in a single table format.
-		if ($filter['Segments'] or $filter['Imports'] or $filter['Exports'])
+		if ($filter['Segments'] or $filter['Imports'] or $filter['Exports'] or $filter['Detailed'])
 
 			modules.each { |mod|
 				puts(
@@ -181,7 +184,9 @@ case cmd
 					"  Size        : #{mod.image_size}\n" +
 					"  Version     : #{mod.maj_maj_ver}.#{mod.maj_min_ver}.#{mod.min_maj_ver}.#{mod.min_min_ver}\n" +
 					"  Timestamp   : #{mod.timestamp.to_s}\n" +
-					"  Locale      : #{mod.locale.name}\n")
+					"  Locale      : #{mod.locale.name}\n" +
+					"  Platforms   : \n\n" +
+					"#{mod.platforms.map { |p| "    " + p.desc }.join("\n")}\n\n")
 
 				# Display module segments
 				if ($filter['Segments'])
@@ -266,7 +271,7 @@ case cmd
 						"Size",
 						"Version",
 						"Timestamp",
-						"Locale"
+						"Locale",
 					])
 
 			modules.each { |mod|
@@ -276,7 +281,7 @@ case cmd
 					mod.image_size,
 					"#{mod.maj_maj_ver}.#{mod.maj_min_ver}.#{mod.min_maj_ver}.#{mod.min_min_ver}",
 					mod.timestamp.to_s,
-					mod.locale.name
+					mod.locale.name,
 				]
 			}
 

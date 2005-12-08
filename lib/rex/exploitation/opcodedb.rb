@@ -68,7 +68,13 @@ module DbEntry
 		}
 	end
 
+	#
+	# The unique server identifier.
+	#
 	attr_reader :id
+	#
+	# The unique name for this entry.
+	#
 	attr_reader :name
 end
 
@@ -96,11 +102,29 @@ class ImageModule
 			@executable   = hash['executable'] == "true" ? true : false
 		end
 
+		#
+		# The type of the segment, such as ".text".
+		#
 		attr_reader :type
+		#
+		# The base address of the segment.
+		#
 		attr_reader :base_address
+		#
+		# The size of the segment in bytes.
+		#
 		attr_reader :size
+		#
+		# Boolean that indicates whether or not the segment is writable.
+		#
 		attr_reader :writable
+		#
+		# Boolean that indicates whether or not the segment is readable.
+		#
 		attr_reader :readable
+		#
+		# Boolean that indicates whether or not the segment is executable.
+		#
 		attr_reader :executable
 	end
 
@@ -116,8 +140,17 @@ class ImageModule
 			@ordinal = hash['ordinal'].to_i
 		end
 
+		#
+		# The name of the imported function.
+		#
 		attr_reader :name
+		#
+		# The address of the function pointer in the IAT.
+		#
 		attr_reader :address
+		#
+		# The ordinal of the imported symbol.
+		#
 		attr_reader :ordinal
 	end
 
@@ -133,8 +166,17 @@ class ImageModule
 			@ordinal = hash['ordinal'].to_i
 		end
 
+		#
+		# The name of the exported function.
+		#
 		attr_reader :name
+		#
+		# The address of the exported function.
+		#
 		attr_reader :address
+		#
+		# The ordinal of the exported symbol.
+		#
 		attr_reader :ordinal
 	end
 
@@ -180,18 +222,57 @@ class ImageModule
 		@platforms = [] unless(@platforms)
 	end
 
+	#
+	# An instance of a Locale class that is associated with this module.
+	#
 	attr_reader :locale
+	#
+	# The module's major major version number (X.x.x.x).
+	#
 	attr_reader :maj_maj_ver
+	#
+	# The module's major minor version number (x.X.x.x).
+	#
 	attr_reader :maj_min_ver
+	#
+	# The module's minor major version number (x.x.X.x).
+	#
 	attr_reader :min_maj_ver
+	#
+	# The module's minor minor version number (x.x.x.X).
+	#
 	attr_reader :min_min_ver
+	#
+	# The timestamp that the image was compiled (as a Time instance).
+	#
 	attr_reader :timestamp
+	#
+	# The vendor that created the module.
+	#
 	attr_reader :vendor
+	#
+	# The preferred base address at which the module will load.
+	#
 	attr_reader :base_address
+	#
+	# The size of the image mapping associated with the module in bytes.
+	#
 	attr_reader :image_size
+	#
+	# An array of Segment instances.
+	#
 	attr_reader :segments
+	#
+	# An array of Import instances.
+	#
 	attr_reader :imports
+	#
+	# An array of Export instances.
+	#
 	attr_reader :exports
+	#
+	# An array of OsVersion instances.
+	#
 	attr_reader :platforms
 end
 
@@ -234,12 +315,35 @@ class OsVersion
 		@min_patch_level = hash['min_patch_level'].to_i
 	end
 
+	#
+	# The number of modules that exist in this operating system version.
+	#
 	attr_reader :modules
+	#
+	# The operating system version description, such as Windows XP 5.2.0.0
+	# (IA32).
+	#
 	attr_reader :desc
+	#
+	# The architecture that the operating system version runs on, such as IA32.
+	#
 	attr_reader :arch
+	#
+	# The major version of the operating system version.
+	#
 	attr_reader :maj_ver
+	#
+	# The minor version of the operating system version.
+	#
 	attr_reader :min_ver
+	#
+	# The major patch level of the operating system version, such as a service
+	# pack.
+	#
 	attr_reader :maj_patch_level
+	#
+	# The minor patch level of the operating system version.
+	#
 	attr_reader :min_patch_level
 end
 
@@ -276,9 +380,22 @@ class Type
 		@arch      = hash['arch']
 	end
 
+	#
+	# The number of opcodes associated with this type, or 0 if this information
+	# is not available.
+	#
 	attr_reader :opcodes
+	#
+	# An instance of the MetaType to which this opcode type belongs, or nil.
+	#
 	attr_reader :meta_type
+	#
+	# An instance of the Group to which this opcode type belongs, or nil.
+	#
 	attr_reader :group
+	#
+	# The architecture that this opcode type is associated with.
+	#
 	attr_reader :arch
 end
 
@@ -316,9 +433,24 @@ class Opcode
 		@modules = [] unless(@modules)
 	end
 
+	#
+	# The address of the opcode.
+	#
 	attr_reader :address
+	#
+	# The type of the opcode indicating which instruction is found at the
+	# address.  This is an instance of the Type class.
+	#
 	attr_reader :type
+	#
+	# A Group instance that reflects the group to which the opcode type found
+	# at the instance's address belongs.
+	#
 	attr_reader :group
+	#
+	# An array of ImageModule instances that show the modules that contain this
+	# address.
+	#
 	attr_reader :modules
 end
 
@@ -340,14 +472,41 @@ class Statistics
 		@last_update     = Time.at(hash['last_update'].to_i)
 	end
 
+	#
+	# The number of modules found within the opcode database.
+	#
 	attr_reader :modules
+	#
+	# The number of opcodes supported by the opcode database.
+	#
 	attr_reader :opcodes
+	#
+	# The number of opcode types supported by the database.
+	#
 	attr_reader :opcode_types
+	#
+	# The number of platforms supported by the database.
+	#
 	attr_reader :platforms
+	#
+	# The number of architectures supported by the database.
+	#
 	attr_reader :architectures
+	#
+	# The number of module segments supported by the database.
+	#
 	attr_reader :module_segments
+	#
+	# The number of module imports supported by the database.
+	#
 	attr_reader :module_imports
+	#
+	# The number of module exports supported by the database.
+	#
 	attr_reader :module_exports
+	#
+	# The time at which the last database update occurred.
+	#
 	attr_reader :last_update
 end
 
