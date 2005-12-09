@@ -412,7 +412,6 @@ protected
 				load_module_from_file(path, file,
 					loaded, recalc, counts)
 			rescue NameError
-				puts "#{$@.join("\n")}"
 				# If we get a name error, it's possible that this module depends
 				# on another one that we haven't loaded yet.  Let's postpone
 				# the load operation for now so that we can resolve all 
