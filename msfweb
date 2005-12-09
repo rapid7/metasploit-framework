@@ -14,9 +14,11 @@ arguments = Rex::Parser::Arguments.new(
 	"-a" => [ true,  "Bind to this IP address instead of loopback"          ],
 	"-p" => [ true,  "Bind to this port instead of 55555"                   ],
 	"-v" => [ true,  "A number between 0 and 3 that controls log verbosity" ],
+	"-d" => [ false, "Daemonize the web server"                             ],
 	"-h" => [ false, "Help banner"                                          ])
 
 opts = {}
+background = false
 
 # Parse command line arguments.
 arguments.parse(ARGV) { |opt, idx, val|
@@ -27,6 +29,8 @@ arguments.parse(ARGV) { |opt, idx, val|
 			opts['ServerPort'] = val
 		when "-v"
 			opts['LogLevel'] = val
+		when "-d"
+			background = true
 		when "-h"
 			print(
 				"\nUsage: msfweb <options>\n" +
@@ -34,6 +38,8 @@ arguments.parse(ARGV) { |opt, idx, val|
 			exit
 	end
 }
+
+exit if (Process.fork()) unless background == false
 
 # Create the driver instance and run it.
 Msf::Ui::Web::Driver.new(opts).run

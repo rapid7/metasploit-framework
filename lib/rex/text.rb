@@ -24,6 +24,8 @@ module Text
 	AlphaNumeric = Alpha + Numerals
 	DefaultWrap  = 60
 
+	DefaultPatternSets = [ Rex::Text::UpperAlpha, Rex::Text::LowerAlpha, Rex::Text::Numerals ]
+
 	##
 	#
 	# Serialization
@@ -277,24 +279,25 @@ module Text
 	#
 	# Creates a pattern that can be used for offset calculation purposes.  This
 	# routine is capable of generating patterns using a supplied set and a
-	# supplied number of identifiable characters (slots).
+	# supplied number of identifiable characters (slots).  The supplied sets
+	# should not contain any duplicate characters or the logic will fail.
 	#
-	def self.pattern_create(length, set = AlphaNumeric, num_slots = 4)
-		positions = Array.new
-		curr_pos  = 0
-		buf       = ''
+	def self.pattern_create(length, sets = [ UpperAlpha, LowerAlpha, Numerals ])
+		buf = ''
+		idx = 0
+		offsets = []
 
-		num_slots.times { positions << 0 }
+		sets.length.times { offsets << 0 }
 
-		while (buf.length < length)
-			buf += (positions.collect { |pos| set[pos].chr }).join('')
-
-			while ((positions[curr_pos] = (positions[curr_pos] + 1) % set.length) == 0)
-				curr_pos = (curr_pos + 1) % positions.length
+		until buf.length >= length
+			begin
+				buf += converge_sets(sets, 0, offsets, length)
+			rescue RuntimeError
+				break
 			end
 		end
 
-		(buf.length > length) ? buf.slice(0 .. length) : buf
+		buf[0..length]
 	end
 
 	#
@@ -303,8 +306,8 @@ module Text
 	def self.pattern_offset(pattern, value)
 		if (value.kind_of?(String))
 			pattern.index(value)
-		elsif (value.kind_of?(Fixnum))
-			pattern.index([ value ].unpack('V')[0])
+		elsif (value.kind_of?(Fixnum) or value.kind_of?(Bignum))
+			pattern.index([ value ].pack('V'))
 		else
 			raise ArgumentError, "Invalid class for value: #{value.class}"
 		end
@@ -342,6 +345,31 @@ module Text
 	#
 	def self.charset_exclude(keepers)
 		[*(0..255)].pack('C*').delete(keepers)
+	end
+
+protected
+
+	def self.converge_sets(sets, idx, offsets, length) # :nodoc:
+		buf = sets[idx][offsets[idx]].chr
+
+		# If there are more sets after use, converage with them.
+		if (sets[idx + 1])
+			buf += converge_sets(sets, idx + 1, offsets, length)
+		else
+			# Increment the current set offset as well as previous ones if we
+			# wrap back to zero.
+			while (idx >= 0 and ((offsets[idx] = (offsets[idx] + 1) % sets[idx].length)) == 0)
+				idx -= 1
+			end
+
+			# If we reached the point where the idx fell below zero, then that
+			# means we've reached the maximum threshold for permutations.
+			if (idx < 0)
+				raise RuntimeError, "Maximum permutations reached"
+			end
+		end
+
+		buf
 	end
 
 
