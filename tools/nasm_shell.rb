@@ -28,6 +28,10 @@ shell.run { |line|
 
 	break if (line =~ /^(exit|quit)/i)
 
-	puts(Rex::Assembly::Nasm.disassemble(
-		Rex::Assembly::Nasm.assemble(line)))
+	begin
+		puts(Rex::Assembly::Nasm.disassemble(
+			Rex::Assembly::Nasm.assemble(line)))
+	rescue RuntimeError
+		puts "Error: #{$!}"
+	end
 }
