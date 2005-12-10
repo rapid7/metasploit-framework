@@ -689,6 +689,11 @@ class Client
 	#
 	attr_accessor :server_host, :server_port, :server_uri
 
+	#
+	# Retrieves the last raw XML response to be processed.
+	#
+	attr_reader :last_xml
+
 protected
 
 	#
@@ -746,6 +751,8 @@ protected
 	# Translate the data type from a flat string to a ruby native type.
 	#
 	def parse_response(xml)
+		@last_xml = xml
+
 		source = REXML::Source.new(xml)
 		doc    = REXML::Document.new
 		

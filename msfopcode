@@ -39,6 +39,7 @@ $module_args = Rex::Parser::Arguments.new(
 	"-S" => [ false, "Include module segment information" ],
 	"-I" => [ false, "Include module import information" ],
 	"-E" => [ false, "Include module export information" ],
+	"-x" => [ false, "Dump the raw XML response" ],
 	"-h" => [ false, "Help banner" ])
 
 $search_args = Rex::Parser::Arguments.new(
@@ -50,6 +51,7 @@ $search_args = Rex::Parser::Arguments.new(
 	"-M" => [ true,  "A comma separated list of opcode meta types to filter (Ex: jmp reg)" ],
 	"-a" => [ true,  "A comma separated list of addresses to filter (Ex: 0x41424344)" ],
 	"-P" => [ false, "Results must span more than one operating system version" ],
+	"-x" => [ false, "Dump the raw XML response" ],
 	"-h" => [ false, "Help banner"])
 
 # Command specific option argument parsing association
@@ -62,6 +64,8 @@ cmd_args =
 				case opt
 					when "-p"
 						$filter['Names'] = val.split(/,/)
+					when "-x"
+						$dump_xml = true
 					when "-h"
 						$stderr.puts("\n    Usage: #{File.basename($0)} platforms <options>\n" + $platform_args.usage)
 						exit
@@ -87,6 +91,8 @@ cmd_args =
 						$filter['Exports'] = true
 					when "-d"
 						$filter['Detailed'] = true
+					when "-x"
+						$dump_xml = true
 					when "-h"
 						$stderr.puts("\n    Usage: #{File.basename($0)} modules <options>\n" + $module_args.usage)
 						exit
@@ -114,6 +120,8 @@ cmd_args =
 						$filter['Addresses'] = val.split(/,/).map { |e| e.hex }
 					when "-P"
 						$filter['Portable'] = true
+					when "-x"
+						$dump_xml = true
 					when "-h"
 						$stderr.puts("\n    Usage: #{File.basename($0)} search <options>\n" + $search_args.usage)
 						exit
@@ -121,6 +129,9 @@ cmd_args =
 			}
 		],
 }
+
+# Default to not dumping the XML contents
+$dump_xml = false
 
 # Extract the command
 cmd = ARGV.shift
@@ -171,6 +182,11 @@ case cmd
 		end
 
 		modules = client.modules($filter)
+
+		if ($dump_xml)
+			puts client.last_xml
+			exit
+		end
 
 		# If we're displaying extra information on a per-module basis, then we
 		# need to not display in a single table format.
@@ -294,6 +310,11 @@ case cmd
 		end
 
 		opcodes = client.search($filter)
+
+		if ($dump_xml)
+			puts client.last_xml
+			exit
+		end
 
 		tbl = Rex::Ui::Text::Table.new(
 			'Indent'  => 4,
