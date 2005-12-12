@@ -60,7 +60,11 @@ module Interactive
 	# Closes rstream.
 	#
 	def cleanup
-		rstream.close if (rstream)
+		begin
+			rstream.close if (rstream)
+		rescue 
+		end
+
 		rstream = nil
 	end
 

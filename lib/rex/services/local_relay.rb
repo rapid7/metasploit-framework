@@ -76,6 +76,7 @@ class LocalRelay
 			self.listener                 = listener
 			self.opts                     = opts
 			self.on_local_connection_proc = opts['OnLocalConnection']
+			self.on_conn_close_proc       = opts['OnConnectionClose']
 			self.on_other_data_proc       = opts['OnOtherData']
 		end
 
@@ -90,6 +91,7 @@ class LocalRelay
 
 		attr_reader :name, :listener, :opts
 		attr_accessor :on_local_connection_proc
+		attr_accessor :on_conn_close_proc
 		attr_accessor :on_other_data_proc
 	protected
 		attr_writer :name, :listener, :opts
@@ -123,13 +125,15 @@ class LocalRelay
 	# Starts the thread that monitors the local relays.
 	#
 	def start
-		self.relay_thread = Thread.new { 
-			begin
-				monitor_relays
-			rescue
-				elog("Error in #{self} monitor_relays: #{$!}", 'rex')
-			end
-		} if (!self.relay_thread)
+		if (!self.relay_thread)
+			self.relay_thread = Thread.new { 
+				begin
+					monitor_relays
+				rescue ::Exception
+					elog("Error in #{self} monitor_relays: #{$!}", 'rex')
+				end
+			}
+		end
 	end
 
 	#
@@ -166,7 +170,7 @@ class LocalRelay
 	#
 	def start_tcp_relay(lport, opts = {})
 		# Make sure our options are valid
-		if (opts['PeerHost'] == nil or opts['PeerPort'] == nil)
+		if ((opts['PeerHost'] == nil or opts['PeerPort'] == nil) and (opts['Stream'] != true))
 			raise ArgumentError, "Missing peer host or peer port.", caller
 		end
 	
@@ -268,6 +272,10 @@ protected
 		self.rfds.delete(fd)
 
 		begin
+			if (relay.on_conn_close_proc)
+				relay.on_conn_close_proc.call(fd)
+			end
+
 			fd.shutdown
 			fd.close
 		rescue IOError
@@ -277,6 +285,10 @@ protected
 			self.rfds.delete(ofd)
 
 			begin
+				if (relay.on_conn_close_proc)
+					relay.on_conn_close_proc.call(ofd)
+				end
+
 				ofd.shutdown
 				ofd.close
 			rescue IOError
@@ -300,7 +312,8 @@ protected
 			# Call the relay's on_local_connection method which should return a
 			# remote connection on success
 			rfd = srvfd.on_local_connection(relay, lfd)
-			dlog("Got right side of relay: #{lfd}", 'rex', LEV_3)
+
+			dlog("Got right side of relay: #{rfd}", 'rex', LEV_3)
 		rescue
 			wlog("Failed to get remote half of local connection on relay #{relay.name}: #{$!}", 'rex')
 		end

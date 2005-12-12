@@ -69,10 +69,7 @@ module ReverseTcp
 	# Closes the listener socket if one was created.
 	#
 	def cleanup_handler
-		if (self.listener_sock)
-			self.listener_sock.close
-			self.listener_sock = nil
-		end
+		stop_handler
 
 		# Kill any remaining handle_connection threads that might
 		# be hanging around
@@ -85,7 +82,7 @@ module ReverseTcp
 	# Starts monitoring for an inbound connection.
 	#
 	def start_handler
-		listener_thread = Thread.new {
+		self.listener_thread = Thread.new {
 			client = nil
 
 			print_status("Started reverse handler")
@@ -95,7 +92,7 @@ module ReverseTcp
 				begin
 					client = self.listener_sock.accept	
 				rescue
-					wlog("Exception raised during listener accept: #{$!}")
+					wlog("Exception raised during listener accept: #{$!}\n\n#{$@.join("\n")}")
 					return nil
 				end
 
@@ -109,7 +106,7 @@ module ReverseTcp
 					begin
 						handle_connection(client)
 					rescue
-						elog("Exception raised from handle_connection: #{$!}")
+						elog("Exception raised from handle_connection: #{$!}\n\n#{$@.join("\n")}")
 					end
 				}
 			end while true
