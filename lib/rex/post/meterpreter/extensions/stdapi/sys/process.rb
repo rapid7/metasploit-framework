@@ -224,6 +224,12 @@ class Process < Rex::Post::Process
 		return processes
 	end
 
+	#
+	# An alias for get_processes.
+	#
+	def Process.processes
+		self.get_processes
+	end
 
 	##
 	#

@@ -23,7 +23,7 @@ module ObjectAliasesContainer
 	# Pass-thru aliases.
 	#
 	def method_missing(symbol, *args)
-		return self.aliases[symbol.to_s];
+		self.aliases[symbol.to_s]
 	end
 
 	#

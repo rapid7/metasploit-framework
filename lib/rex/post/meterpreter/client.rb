@@ -108,7 +108,7 @@ class Client
 	# if a matching extension alias exists for the supplied symbol.
 	#
 	def method_missing(symbol, *args)
-		return self.ext_aliases.aliases[symbol.to_s];
+		self.ext_aliases.aliases[symbol.to_s]
 	end
 
 	##
@@ -141,7 +141,9 @@ class Client
 		end
 
 		# Create a new instance of the extension
-		self.ext.aliases[ext.name] = klass.new(self)
+		inst = klass.new(self)
+
+		self.ext.aliases[inst.name] = inst
 
 		return true
 	end
