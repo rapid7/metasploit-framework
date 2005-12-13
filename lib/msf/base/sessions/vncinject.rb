@@ -132,6 +132,8 @@ class VncInject
 			Thread.new {
 				system("vncviewer #{vlhost}::#{vlport}")
 			}
+
+			true
 		end
 	end
 

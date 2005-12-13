@@ -80,6 +80,7 @@ module VncInject
 	# viewer.
 	#
 	def on_session(session)
+		# Calculate the flags to send to the DLL
 		flags = 0
 
 		flags |= 1 if (datastore['DisableCourtesyShell'])
@@ -87,16 +88,18 @@ module VncInject
 		# Transmit the one byte flag
 		session.rstream.put([ flags ].pack('C'))
 
+		# Set up the local relay
 		print_status("Starting local TCP relay on #{datastore['VNCHOST']}:#{datastore['VNCPORT']}...")
 
 		session.setup_relay(datastore['VNCPORT'], datastore['VNCHOST'])
 
 		print_status("Local TCP relay started.")
 
+		# If the AUTOVNC flag is set, launch VNC viewer.
 		if (datastore['AUTOVNC'] == true)
-			print_status("Automatically launching VNC...")
-
-			session.autovnc
+			if (session.autovnc)
+				print_status("Launched vnciewer in the background.")
+			end
 		end
 		
 		super
