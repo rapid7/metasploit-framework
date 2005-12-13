@@ -72,7 +72,7 @@ class VncInject
 		self.class.type
 	end
 
-	def _interact
+	def _interact # :nodoc:
 		raise EOFError if (self.conn_eof == true)
 
 		sleep(1)
