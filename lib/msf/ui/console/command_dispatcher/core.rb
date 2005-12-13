@@ -715,8 +715,7 @@ class Core
 				}				
 			end
 		end
-		
-		p res
+
 		return res
 	end
 
