@@ -499,6 +499,27 @@ void map_file(SHELLCODE_CTX *ctx)
 
 	}
 
+	/* Lock the mapping in memory */
+	{
+		ULONG (_stdcall *NtLockVirtualMemory)(HANDLE, PVOID *, PULONG, ULONG);
+
+		NtLockVirtualMemory = (ULONG (_stdcall *)(HANDLE, PVOID *, PULONG, ULONG))GetProcAddress(
+				GetModuleHandle("ntdll"),
+				"NtLockVirtualMemory");
+
+		if (NtLockVirtualMemory)
+		{
+			PVOID base = (PVOID)ctx->mapped_address;
+			ULONG sz = nt->OptionalHeader.SizeOfImage;
+
+			NtLockVirtualMemory(
+					(HANDLE)-1,
+					&base,
+					&sz,
+					1);
+		}
+	}
+
 	/* Write headers */
 	WriteProcessMemory((HANDLE)-1, (LPVOID)ctx->mapped_address, 
 		(LPVOID)ctx->file_address, nt->OptionalHeader.SizeOfHeaders, 0);
