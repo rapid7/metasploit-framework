@@ -54,6 +54,16 @@ module VncInject
 					])
 			], VncInject)
 
+		register_advanced_options(
+			[
+				OptBool.new('DisableCourtesyShell',
+					[
+						false,
+						"Disables the Metasploit Courtesy shell",
+						false
+					])
+			], VncInject)
+
 		# Don't let people set the library name option
 		options.remove_option('LibraryName')
 	end
@@ -70,6 +80,13 @@ module VncInject
 	# viewer.
 	#
 	def on_session(session)
+		flags = 0
+
+		flags |= 1 if (datastore['DisableCourtesyShell'])
+
+		# Transmit the one byte flag
+		session.rstream.put([ flags ].pack('C'))
+
 		print_status("Starting local TCP relay on #{datastore['VNCHOST']}:#{datastore['VNCPORT']}...")
 
 		session.setup_relay(datastore['VNCPORT'], datastore['VNCHOST'])
