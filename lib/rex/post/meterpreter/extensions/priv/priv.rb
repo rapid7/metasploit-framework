@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'rex/post/meterpreter/extensions/priv/tlv'
+require 'rex/post/meterpreter/extensions/priv/passwd'
 
 module Rex
 module Post
@@ -39,7 +40,9 @@ class Priv < Extension
 		response = client.send_request(
 			Packet.create_request('priv_passwd_get_sam_hashes'))
 
-		response.get_tlv_value(TLV_TYPE_SAM_HASHES).split(/\n/)
+		response.get_tlv_value(TLV_TYPE_SAM_HASHES).split(/\n/).map { |hash| 
+			SamUser.new(hash)
+		}
 	end
 
 end
