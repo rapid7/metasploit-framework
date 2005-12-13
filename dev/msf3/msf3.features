@@ -1,13 +1,22 @@
 - meterpreter
   - many more advanced commands
   - in-memory process migration
-  - disable/enable user input
+  - disable/enable user input (keyboard/mouse)
   - check remote idle time
   - pivot through hosts
   - interact with processes, threads, files, and the registry
+  - load DLLs into remote processes
+  - dump SAM database hashes
+  - irb mode
 - msfconsole
   - multiple concurrent sessions
   - session backgrounding
   - exploit backgrounding
   - multiple concurrent exploits
     - especially useful for passive exploits, like clientside bugs
+  - irb mode
+- msfopcode
+  - new command line interface to opcode db
+- msfd
+  - daemonized version of msfconsole
+  - all clients share the same framework instance
