@@ -78,15 +78,25 @@ Separator = "\\"
 				dest += File::SEPARATOR + ::File.basename(src)
 			end
 
-			# Open the file on the remote side for writing and read
-			# all of the contents of the local file
-			dest_fd = client.fs.file.new(dest, "wb")
-			src_buf = ::IO.readlines(src).join
-
-			dest_fd.write(src_buf)
-			dest_fd.close
+			upload_file(dest, src)
 			stat.call('uploaded', src, dest) if (stat)
 		}
+	end
+
+	#
+	# Upload a single file.
+	#
+	def File.upload_file(dest_file, src_file)
+		# Open the file on the remote side for writing and read
+		# all of the contents of the local file
+		dest_fd = client.fs.file.new(dest_file, "wb")
+		src_buf = ::IO.readlines(src_file).join
+
+		begin
+			dest_fd.write(src_buf)
+		ensure
+			dest_fd.close
+		end
 	end
 
 	#
@@ -103,24 +113,30 @@ Separator = "\\"
 				dest += ::File::SEPARATOR + File.basename(src)
 			end
 
-			src_fd = client.fs.file.new(src, "rb")
-			dst_fd = ::File.new(dest, "wb")
-
-			# Keep transferring until EOF is reached...
-			begin
-				while ((data = src_fd.read) != nil)
-					dst_fd.write(data)
-				end
-			rescue EOFError
-			end
-
-			src_fd.close
-			dst_fd.close
+			download_file(dest, src)
 			
 			stat.call('downloaded', src, dest) if (stat)
 		}
 	end
 
+	#
+	# Download a single file.
+	#
+	def File.download_file(dest_file, src_file)
+		src_fd = client.fs.file.new(src_file, "rb")
+		dst_fd = ::File.new(dest_file, "wb")
+
+		# Keep transferring until EOF is reached...
+		begin
+			while ((data = src_fd.read) != nil)
+				dst_fd.write(data)
+			end
+		rescue EOFError
+		ensure
+			src_fd.close
+			dst_fd.close
+		end
+	end
 
 	##
 	#

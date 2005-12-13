@@ -1,3 +1,4 @@
+require 'tempfile'
 require 'rex/post/meterpreter'
 
 module Rex
@@ -35,6 +36,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 			"cat"      => "Read the contents of a file to the screen",
 			"cd"       => "Change directory",
 			"download" => "Download a file or directory",
+			"edit"     => "Edit a file",
 			"getwd"    => "Print working directory",
 			"ls"       => "List files",
 			"mkdir"    => "Make directory",
@@ -139,6 +141,34 @@ class Console::CommandDispatcher::Stdapi::Fs
 		}
 		
 		return true
+	end
+
+	#
+	# Downloads a file to a temporary file, spawns and editor, and then uploads
+	# the contents to the remote machine after completion.
+	#
+	def cmd_edit(*args)
+		if (args.length == 0)
+			print_line("Usage: edit file")
+			return true
+		end
+
+		# Get a temporary file path
+		temp_path = Tempfile.new('meterp').path
+
+		# Download the remote file to the temporary file
+		client.fs.file.download_file(temp_path, args[0])
+
+		# Spawn the editor
+		editor = ENV['EDITOR'] || 'vi'
+
+		# If it succeeds, upload it to the remote side.
+		if (system("#{editor} #{temp_path}") == true)
+			client.fs.file.upload_file(args[0], temp_path)
+		end
+
+		# Get rid of that pesky temporary file
+		::File.unlink(temp_path)
 	end
 
 	#
