@@ -46,6 +46,14 @@ class Config
 		}
 	end
 
+	#
+	# Calls RevertToSelf on the remote machine.
+	#
+	def revert_to_self
+		client.send_request(
+			Packet.create_request('stdapi_sys_config_rev2self'))
+	end
+
 protected
 
 	attr_accessor :client

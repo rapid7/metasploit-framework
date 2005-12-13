@@ -215,6 +215,10 @@ Command customCommands[] =
 	  { request_sys_config_sysinfo,                        { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
+	{ "stdapi_sys_config_rev2self",
+	  { request_sys_config_rev2self,                       { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
 
 	// Net
 	{ "stdapi_net_config_get_routes",

@@ -110,3 +110,17 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 
 	return res;
 }
+
+/*
+ * sys_config_rev2self
+ *
+ * Calls RevertToSelf()
+ */
+DWORD request_sys_config_rev2self(Remote *remote, Packet *packet)
+{
+	RevertToSelf();
+
+	packet_transmit_empty_response(remote, packet, GetLastError());
+
+	return ERROR_SUCCESS;
+}

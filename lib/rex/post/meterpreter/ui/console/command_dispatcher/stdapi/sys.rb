@@ -51,6 +51,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"ps"       => "List running processes",
 			"reboot"   => "Reboots the remote computer",
 			"reg"      => "Modify and interact with the remote registry",
+			"rev2self" => "Calls RevertToSelf() on the remote machine",
 			"sysinfo"  => "Gets information about the remote system, such as OS",
 			"shutdown" => "Shuts down the remote computer",
 		}
@@ -345,6 +346,13 @@ class Console::CommandDispatcher::Stdapi::Sys
 		ensure
 			open_key.close if (open_key)
 		end
+	end
+
+	#
+	# Calls RevertToSelf() on the remote machine.
+	#
+	def cmd_rev2self(*args)
+		client.sys.config.revert_to_self
 	end
 
 	#
