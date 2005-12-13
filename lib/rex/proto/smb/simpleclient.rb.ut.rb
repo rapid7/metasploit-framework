@@ -95,10 +95,10 @@ class Rex::Proto::SMB::SimpleClient::UnitTest < Test::Unit::TestCase
             4
         )
 			
-        # Evasion techniques:
+		# Evasion techniques:
 		# 	1) Write the bind out a few bytes at a time with a random offset
 		#	2) Read the response back a few bytes at a time with a random offset
-			
+
 		# Write the bind request out in random chunk sizes
 		while (bind.length > 0)
 		    f.write( bind.slice!(0, (rand(20)+5)), rand(1024)+1 )

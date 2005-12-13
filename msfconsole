@@ -9,4 +9,7 @@ $:.unshift(File.join(File.dirname(__FILE__), 'lib'))
 require 'rex'
 require 'msf/ui'
 
-Msf::Ui::Console::Driver.new.run
+begin
+	Msf::Ui::Console::Driver.new.run
+rescue Interrupt
+end
