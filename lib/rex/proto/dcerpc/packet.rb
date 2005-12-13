@@ -44,7 +44,7 @@ require 'rex/text'
 	end
 
 	# Create an obfuscated DCERPC BIND request packet
-	def self.make_bind_fake_multi(uuid, vers, bind_head=rand(6)+10, bind_tail=rand(4))	
+	def self.make_bind_fake_multi(uuid, vers, bind_head=rand(6)+10, bind_tail=rand(4))
 		u = Rex::Proto::DCERPC::UUID
 		
 		# Process the version strings ("1.0", 1.0, "1", 1)
@@ -193,7 +193,10 @@ require 'rex/text'
 	# Used to create standard DCERPC REQUEST packet(s)
 	def self.make_request (opnum=0, data="", size=data.length, ctx=0)	
 
-		dlen = data.length
+        if size > 4000
+            size = 4000
+        end
+
 		chunks, frags = [], []
 		ptr = 0
 		

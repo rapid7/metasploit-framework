@@ -2,7 +2,7 @@
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
-require 'test/unit'
+require 'rex/test'
 require 'rex/proto/smb/constants'
 
 class Rex::Proto::SMB::Constants::UnitTest < Test::Unit::TestCase

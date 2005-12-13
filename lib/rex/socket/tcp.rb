@@ -68,4 +68,9 @@ module Rex::Socket::Tcp
 		end
 	end
 
+    # returns socket type
+    def type?
+        return 'tcp'
+    end
+
 end

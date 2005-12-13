@@ -1,4 +1,5 @@
 require 'rex/proto/dcerpc/uuid'
+require 'rex/proto/dcerpc/exceptions'
 
 module Rex
 module Proto
@@ -11,6 +12,7 @@ class Response
 	attr_accessor :nack_reason, :xfer_syntax_uuid, :xfer_syntax_vers
 	attr_accessor :ack_reason, :ack_result, :ack_xfer_syntax_uuid, :ack_xfer_syntax_vers 	
 	attr_accessor :alloc_hint, :context_id, :cancel_cnt, :status, :stub_data
+	attr_accessor :raw
 	
 	# Create a new DCERPC::Response object
 	# This can be initialized in two ways:
@@ -22,9 +24,9 @@ class Response
 		self.ack_reason = []
 		self.ack_xfer_syntax_uuid = []
 		self.ack_xfer_syntax_vers = []		
-			
+        
 		if (data.length < 10)
-			raise ArgumentError, 'Packet header must be at least 10 bytes long'
+            raise Rex::Proto::DCERPC::Exceptions::InvalidPacket, 'Packet header must be at least 10 bytes long'
 		end
 		
 		if (data.length == 10)
@@ -36,7 +38,6 @@ class Response
 			self.raw = data
 			self.parse
 		end
-
 	end
 	
 	# Parse the contents of a DCERPC response packet and fill out all the fields
@@ -133,11 +134,10 @@ class Response
 			
 			# Put the application data into self.stub_data
 			self.stub_data = data[data.length - self.alloc_hint, 0xffff]
-						
 			# End of RESPONSE
 		end		
 
-		# FAULT == 2
+		# FAULT == 3
 		if (self.type == 3)
 		
 			# Decode the DCERPC response header
@@ -163,7 +163,7 @@ class Response
 	end
 	
 protected
-	attr_accessor :raw
+#	attr_accessor :raw
 
 end
 end

@@ -95,4 +95,8 @@ protected
 rescue LoadError
 end
 
+    def type?
+        return 'tcp-ssl'
+    end
+
 end

@@ -53,9 +53,17 @@ end
 ###
 class ArgumentError < ::ArgumentError
 	include Exception
+	
+    def initialize(message = nil)
+		@message = message
+	end
 
 	def to_s
-		"An invalid argument was specified."
+        str = 'An invalid argument was specified.'
+        if @message
+            str += " #{@message}"
+        end
+        str
 	end
 end
 

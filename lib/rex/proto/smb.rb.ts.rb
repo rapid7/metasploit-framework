@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'test/unit'
+require 'rex/test'
 require 'rex/proto/smb/client.rb.ut.rb'
 require 'rex/proto/smb/constants.rb.ut.rb'
 require 'rex/proto/smb/crypt.rb.ut.rb'

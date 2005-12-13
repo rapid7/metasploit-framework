@@ -5,11 +5,33 @@ module Exceptions
 
 
 class Error < ::RuntimeError
-	
+    @@errors = {}
 	def initialize(*args)
 		super(*args)
-		
+        if @@errors.size == 0
+            _load_errors(File.join(File.dirname(__FILE__),'errors.txt'))
+        end
 	end
+
+    # loads errors.txt
+    def _load_errors(file)
+        File.open(file).each { |line|
+            next if line =~ /^#/
+            code, string = line.split
+            code = [code].pack('H*').unpack('L')[0]
+            @@errors[code] = string
+        }
+    end
+
+    # returns an error string if it exists, otherwise just the error code
+    def get_error (error)
+        string = ''
+        if @@errors[error]
+            string = @@errors[error]
+        else
+            string = sprintf('0x%.8x',error)
+        end
+    end
 end
 
 class NoReply < Error
@@ -71,9 +93,9 @@ end
 
 class ErrorCode < InvalidPacket
 	def to_s
-		"The server responded with error code " + sprintf("0x%.8x", self.error_code) + 
-		" (Command=" + self.command.to_s + 
-		' WordCount=' + self.word_count.to_s + ")"
+		'The server responded with error: ' + 
+        self.get_error(self.error_code) +
+		" (Command=#{self.command} WordCount=#{self.word_count})"
 	end
 end
 

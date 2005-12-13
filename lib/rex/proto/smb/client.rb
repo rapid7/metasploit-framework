@@ -33,14 +33,11 @@ EVADE = Rex::Proto::SMB::Evasions
 	
 	# Read a SMB packet from the socket
 	def smb_recv
-	
 		data = socket.get_once(-1, self.read_timeout)
-		
 		
 		if (data.nil? or data.length < 4)
 			raise XCEPT::NoReply
 		end
-		
 
 		recv_len = data[2,2].unpack('n')[0]
 		if (recv_len == 0)
@@ -95,8 +92,8 @@ EVADE = Rex::Proto::SMB::Evasions
 			end
 			return ret
 			
-		rescue
-			raise XCEPT::WritePacket
+#		rescue
+#			raise XCEPT::WritePacket
 		end
 	end
 	
@@ -114,7 +111,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	
 		# This will throw an exception if it fails to read the whole packet
 		data = self.smb_recv
-		
+
 		pkt = CONST::SMB_BASE_PKT.make_struct
 		pkt.from_s(data)
 		res  = pkt
@@ -176,7 +173,7 @@ EVADE = Rex::Proto::SMB::Evasions
 				$!.error_code = pkt['Payload']['SMB'].v['ErrorClass']
 				raise $!
 		end
-		
+
 		return res
 	end
 	
@@ -959,10 +956,10 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.smb_send(pkt.to_s)
 
 		ack = self.smb_recv_parse(CONST::SMB_COM_READ_ANDX, true)
-		
+
 		err = ack['Payload']['SMB'].v['ErrorClass']
-		
-		# Catch some non-fatal error codes
+
+        # Catch some non-fatal error codes
 		if (err != 0 && err != CONST::SMB_ERROR_BUFFER_OVERFLOW)
 			failure = XCEPT::ErrorCode.new
 			failure.word_count = ack['Payload']['SMB'].v['WordCount']

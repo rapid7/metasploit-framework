@@ -2,7 +2,7 @@
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
-require 'test/unit'
+require 'rex/test'
 require 'rex/exceptions'
 require 'rex/proto/dcerpc/handle'
 

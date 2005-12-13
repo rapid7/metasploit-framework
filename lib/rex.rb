@@ -38,6 +38,10 @@ require 'rex/io/stream_server'
 # Sockets
 require 'rex/socket'
 
+# Protocols
+
+require 'rex/proto'
+
 # Parsers
 require 'rex/parser/arguments'
 require 'rex/parser/ini'

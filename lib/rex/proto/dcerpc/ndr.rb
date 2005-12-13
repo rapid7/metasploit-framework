@@ -52,12 +52,13 @@ class NDR
     #       w_char *element_1;
     def self.UnicodeConformantVaryingStringPreBuilt(string)
         # if the string len is odd, thats bad!
-        if (string.length % 2) 
+        if string.length % 2 > 0
             string += "\x00"
         end
-        return long(string.length / 2) + long(0) + long(string.length / 2) + string + align(string)
+        len = string.length / 2;
+        return long(len) + long(0) + long(len) + string + align(string)
     end
-	
+
 end
 end
 end

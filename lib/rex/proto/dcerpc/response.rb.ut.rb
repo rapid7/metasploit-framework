@@ -2,7 +2,7 @@
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
-require 'test/unit'
+require 'rex/test'
 require 'rex/proto/dcerpc/response'
 	
 class Rex::Proto::DCERPC::Response::UnitTest < Test::Unit::TestCase
