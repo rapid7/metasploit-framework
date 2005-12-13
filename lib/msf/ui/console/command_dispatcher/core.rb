@@ -697,6 +697,14 @@ class Core
 			name, opt = e
 			res << name
 		}
+		
+		# Exploits provide these three default options
+		if (mod.exploit?)
+			res << 'PAYLOAD'
+			res << 'NOP'
+			res << 'ENCODER'
+			res << 'TARGET'
+		end
 
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
 			p = framework.modules.create(mod.datastore['PAYLOAD'])
@@ -708,6 +716,7 @@ class Core
 			end
 		end
 		
+		p res
 		return res
 	end
 
