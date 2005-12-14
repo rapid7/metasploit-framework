@@ -132,7 +132,7 @@ class Msf::Module::Target
 		opts = {} if (!opts)
 
 		self.name           = name
-		self.platform       = Msf::Module::PlatformList.from_a(opts['Platform'])
+		self.platform       = opts['Platform'] ? Msf::Module::PlatformList.from_a(opts['Platform']) : nil
 		self.save_registers = opts['SaveRegisters']
 		self.ret            = opts['Ret']
 		self.opts           = opts
