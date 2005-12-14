@@ -11,6 +11,28 @@ Command customCommands[] =
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
+	// Fs
+	{ "priv_fs_get_file_mace",
+	  { request_fs_get_file_mace,                          { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+	{ "priv_fs_set_file_mace",
+	  { request_fs_set_file_mace,                          { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+	{ "priv_fs_set_file_mace_from_file",
+	  { request_fs_set_file_mace_from_file,                { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+	{ "priv_fs_blank_file_mace",
+	  { request_fs_blank_file_mace,                        { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+	{ "priv_fs_blank_directory_mace",
+	  { request_fs_blank_directory_mace,                   { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+
 	// Terminator
 	{ NULL,
 	  { EMPTY_DISPATCH_HANDLER                      },

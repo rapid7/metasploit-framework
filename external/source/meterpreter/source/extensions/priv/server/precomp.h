@@ -4,6 +4,7 @@
 #define  _WIN32_WINNT 0x0400
 #include "../priv.h"
 #include "passwd.h"
+#include "fs.h"
 
 #define strcasecmp stricmp
 

@@ -102,6 +102,18 @@ SOURCE=..\..\source\extensions\priv\server\passwd.c
 SOURCE=..\..\source\extensions\priv\server\passwd.h
 # End Source File
 # End Group
+# Begin Group "Fs"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\source\extensions\priv\server\fs.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\source\extensions\priv\server\fs.h
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=..\..\source\extensions\priv\server\precomp.h

@@ -2,6 +2,7 @@
 
 require 'rex/post/meterpreter/extensions/priv/tlv'
 require 'rex/post/meterpreter/extensions/priv/passwd'
+require 'rex/post/meterpreter/extensions/priv/fs'
 
 module Rex
 module Post
@@ -29,8 +30,11 @@ class Priv < Extension
 				{ 
 					'name' => 'priv',
 					'ext'  => self
-				}
+				},
 			])
+
+		# Initialize sub-classes
+		self.fs = Fs.new(client)
 	end
 
 	#
@@ -44,6 +48,15 @@ class Priv < Extension
 			SamUser.new(hash)
 		}
 	end
+
+	#
+	# Modifying privileged file system attributes.
+	#
+	attr_reader :fs
+
+protected
+
+	attr_writer :fs # :nodoc:
 
 end
 
