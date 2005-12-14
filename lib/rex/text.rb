@@ -209,10 +209,16 @@ module Text
 
 		# Return nil if all bytes are restricted
 		return nil if foo.length == 0
-
-		# Generate a buffer from the remaining bytes
+       
 		buff = ""
-		len.times { buff += foo[ rand(foo.length) ] }
+       
+		# Generate a buffer from the remaining bytes
+		if foo.length >= 256
+			len.times { buff << Kernel.rand(256) }
+		else 
+			len.times { buff += foo[ rand(foo.length) ] }
+		end
+
 		return buff
 	end
 
