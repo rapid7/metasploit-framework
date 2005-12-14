@@ -86,9 +86,9 @@ class Client
 	# The Request factory.
 	#
 	def request (chash) 
-		method = chash['method']
-		proto  = chash['proto']  || self.request_config['proto']
-		uri    = chash['uri'] 
+		method = chash['method'] || 'GET'
+		proto  = chash['proto']  || self.request_config['proto'] || DefaultProtocol
+		uri    = chash['uri']    || '/'
 		
 		req    = Rex::Proto::Http::Request.new(method, uri, proto)
 		
