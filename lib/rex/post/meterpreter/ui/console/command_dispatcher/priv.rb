@@ -13,12 +13,14 @@ module Ui
 class Console::CommandDispatcher::Priv
 
 	require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/passwd'
+	require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/timestomp'
 
 	Klass = Console::CommandDispatcher::Priv
 
 	Dispatchers = 
 		[
 			Klass::Passwd,
+			Klass::Timestomp,
 		]
 
 	include Console::CommandDispatcher
