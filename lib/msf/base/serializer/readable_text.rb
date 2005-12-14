@@ -188,7 +188,7 @@ class ReadableText
 		output += "       Name: #{mod.name}\n"
 		output += "    Version: #{mod.version}\n"
 		output += "   Platform: #{mod.platform_to_s}\n"
-		output += "       Arch: #{mod.arch.to_s}\n"
+		output += "       Arch: #{mod.arch_to_s}\n"
 		output += "Needs Admin: " + (mod.privileged? ? "Yes" : "No") + "\n"
 		output += " Total size: #{mod.size}\n"
 		output += "\n"
@@ -231,7 +231,7 @@ class ReadableText
 		output += "       Name: #{mod.name}\n"
 		output += "    Version: #{mod.version}\n"
 		output += "   Platform: #{mod.platform_to_s}\n"
-		output += "       Arch: #{mod.arch.to_s}\n"
+		output += "       Arch: #{mod.arch_to_s}\n"
 		output += "\n"
 
 		# Authors
