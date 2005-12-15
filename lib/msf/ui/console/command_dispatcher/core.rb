@@ -754,11 +754,6 @@ class Core
 					show_payloads
 					show_recon
 					show_plugins
- 					if (mod)
-						show_options(mod)
-						show_advanced_options(mod)
-						show_targets(mod) if mod.exploit?
-					end
 				when 'encoders'
 					show_encoders
 				when 'nops'
