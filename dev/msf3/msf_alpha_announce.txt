@@ -23,15 +23,15 @@ but some of the more notable changes include:
   - Backgrounded exploits
   
     It's now possible to execute an exploit in the background.  This means you
-	 can have an exploit that triggers a passive vulnerability (such as a browser
-	 bug) while aggressively doing other tasks.
+    can have an exploit that triggers a passive vulnerability (such as a browser
+    bug) while aggressively doing other tasks.
 
   - Multi-session exploits
 
     Unlike the 2.x version of the framework, the 3.0 version is capable of
-	 creating multiple sessions from a single exploit.  This is especially useful
-	 in the context of passive exploits that can have multiple clients
-	 connecting.
+    creating multiple sessions from a single exploit.  This is especially useful
+    in the context of passive exploits that can have multiple clients
+    connecting.
 
   - Multiple concurrent sessions
 
@@ -40,9 +40,9 @@ but some of the more notable changes include:
   - IRB mode
 
     Like Meterpreter, the console interface supports dropping into a ruby
-	 scripting interface that makes it possible to directly interact with the
-	 framework.  This makes it possible to do low-level interaction with
-	 sessions and framework modules.
+    scripting interface that makes it possible to directly interact with the
+    framework.  This makes it possible to do low-level interaction with
+    sessions and framework modules.
 
 == The Meterpreter
   
