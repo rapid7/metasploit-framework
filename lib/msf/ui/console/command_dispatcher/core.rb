@@ -754,6 +754,7 @@ class Core
 					show_payloads
 					show_recon
 					show_plugins
+					show_targets
 				when 'encoders'
 					show_encoders
 				when 'nops'
@@ -778,6 +779,12 @@ class Core
 					end
 				when "plugins"
 					show_plugins
+				when "targets"
+					if (mod and mod.exploit?)
+						show_targets(mod)
+					else
+						print_error("No exploit module selected.")
+					end
 			end
 		}
 	end
@@ -788,7 +795,7 @@ class Core
 	def cmd_show_tabs(str, words)
 		res = %w{all encoders nops exploits payloads recon plugins}
 		if (active_module)
-			res.concat(%w{ options advanced })
+			res.concat(%w{ options advanced targets })
 		end
 		return res
 	end
@@ -1162,6 +1169,11 @@ protected
 		end
 	end
 
+	def show_targets(mod) # :nodoc:
+		mod_targs = Serializer::ReadableText.dump_exploit_targets(mod, '   ')
+		print("\nExploit targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
+	end
+	
 	def show_advanced_options(mod) # :nodoc:
 		mod_opt = Serializer::ReadableText.dump_advanced_options(mod, '   ') 
 		print("\nModule advanced options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
