@@ -64,21 +64,25 @@ require 'rex/proto/smb/exceptions'
 
     # Create the appropriate socket based on protocol
     def socket_setup()
+	 	ctx = { 'Msf' => options['Msf'], 'MsfExploit' => options['MsfExploit'] }
         self.socket = case self.handle.protocol
-            when 'ncacn_ip_tcp' then Rex::Socket.create_tcp('PeerHost' => self.handle.address, 'PeerPort' => self.handle.options[0])
+            when 'ncacn_ip_tcp' then Rex::Socket.create_tcp('PeerHost' => self.handle.address, 'PeerPort' => self.handle.options[0], 'Context' => ctx)
             when 'ncacn_np' then begin 
                 socket = ''
                 begin
                 timeout(10) {
-                    socket = Rex::Socket.create_tcp('PeerHost' => self.handle.address, 'PeerPort' => 445)
+                    socket = Rex::Socket.create_tcp('PeerHost' => self.handle.address, 'PeerPort' => 445, 'Context' => ctx)
                 }
                 rescue Timeout::Error, Rex::ConnectionRefused
-                    socket = Rex::Socket.create_tcp('PeerHost' => self.handle.address, 'PeerPort' => 139)
+                    socket = Rex::Socket.create_tcp('PeerHost' => self.handle.address, 'PeerPort' => 139, 'Context' => ctx)
                 end
                 socket
             end
             else nil
         end
+
+		# Add this socket to the exploit's list of open sockets
+		options['MsfExploit'].add_socket(self.socket) if (options['MsfExploit'])
     end
 
     def smb_connect()
