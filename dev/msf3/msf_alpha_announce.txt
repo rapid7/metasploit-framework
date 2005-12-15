@@ -1,0 +1,111 @@
+The Metasploit staff is proud to present the 3.0 alpha release of the Metasploit
+Framework.  This release marks a major milestone in the evolution of the
+framework, and it's one that the staff hopes will push the framework into even
+wider acceptance.  The major differences between the 3.0 version of the
+framework and prior versions center around one basic goal: automation.  It has
+become clear that the processes involved in performing a penetration test are
+generally monotonous and could be easily streamlined, at least in part.  For
+that reason, many aspects of the framework have been designed with a focus on
+making it easy for the builtin code to be easy to work with at a scripting
+level.  Furthermore, a keen interest has been put into making it possible to
+augment and extend the framework's functionality beyond the scope to which it
+has already been applied.
+
+While this high-level description of the enhancements offerred by the 3.0
+version may be fairly abstract, a number of particularly interesting
+enhancements can be shown to give the impression of just what's in store.
+
+== The Console Interface
+
+The Metasploit console interface, msfconsole, has roughly the same look and feel,
+but some of the more notable changes include:
+
+  - Backgrounded exploits
+  
+    It's now possible to execute an exploit in the background.  This means you
+	 can have an exploit that triggers a passive vulnerability (such as a browser
+	 bug) while aggressively doing other tasks.
+
+  - Multi-session exploits
+
+    Unlike the 2.x version of the framework, the 3.0 version is capable of
+	 creating multiple sessions from a single exploit.  This is especially useful
+	 in the context of passive exploits that can have multiple clients
+	 connecting.
+
+  - Multiple concurrent sessions
+
+    It is possible to have more than one active session established.
+
+  - IRB mode
+
+    Like Meterpreter, the console interface supports dropping into a ruby
+	 scripting interface that makes it possible to directly interact with the
+	 framework.  This makes it possible to do low-level interaction with
+	 sessions and framework modules.
+
+== The Meterpreter
+  
+The meterpreter that is included in the 3.0 version of the framework is almost
+nothing like what exists in the 2.0 version.  The underlying architecture and
+design remains the same, but the feature set and interface has been greatly
+enhanced to not only make scripting the post-exploitation process possible but
+to also increase the level of functionality.  Instead of having separate modules
+for each of the major subsystems (Fs, Process, Net, Sys), the 3.0 version of the
+meterpreter has merged all of these common elements into one extension called
+Stdapi, short for the Standard API.  This API provides access to the file
+system, registry, network, threads, processes, user interface, and much more.
+Some of the cooler features of the new version of meterpreter include:
+
+  - In-memory process migration
+
+    This feature makes it possible to migrate the meterpreter server instance to
+    a completely different process, such as a system service like lsass.exe,
+    without having to establish a new connection.  This means that if you
+    exploit an HTTP server and re-use the port 80 connection for the meterpreter
+    session, then it's possible to appear almost completely transparent due to
+    the elimination of the need to create a new connection.  Furthermore,
+    migrating to a privileged process has the added benefit of making the server
+    impossible to kill without taking down the whole machine.
+
+  - Disabling user keyboard and mouse input
+
+    This feature makes it possible to prevent local keyboard and mouse input.
+
+  - SAM database hash retrieval 
+
+    The SAM juicer extension that Vinnie Liu authored has been integrated into a
+    more generalized privilege escalation extension known as 'priv'.  In the
+    future, this extension will provide local privilege escalation exploits.
+
+  - Advanced process manipulation
+
+    The 3.0 version of meterpreter has extensive support for interacting with
+    processes in terms of loading and unloading DLLs; reading, writing,
+    querying, allocating, and freeing memory; opening, creating, closing,
+    terminating, suspending, querying, and modifying threads; writing, and
+    reading standard input output, and so on.
+
+  - IRB mode
+
+    This feature is especially cool for all of the scripters out there.  It
+    allows a user to drop into an interactive ruby shell that can be used to use
+    meterpreter at the scripting level rather than at the user-interface level.
+    This can be very useful because the scripting level features are far more
+    powerful and featureful than the user-interface.
+
+  - Network pivoting
+
+    Like other products, the 3.0 version of the framework supports seamless
+    pivoting through meterpreter.  The 2.x branch of the framework had very
+    minimal support for this feature, but the 3.0 version is planned to have
+    much more robust support.
+
+This release is meant to serve as a method of getting feedback and
+correcting bugs prior to entering a true beta period.  There are many features
+that have not been completely implemented at this point and there are still some
+edges that will need to be roughed out prior to the final release.  Some of the 
+major features that have not been completed are:
+
+  - Native Windows support (due to interpreter issues)
+  - msfweb exploit and session interfaces
