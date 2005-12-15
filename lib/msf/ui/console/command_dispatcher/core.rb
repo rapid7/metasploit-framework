@@ -754,7 +754,7 @@ class Core
 					show_payloads
 					show_recon
 					show_plugins
-					show_targets
+					show_targets if (mod and mod.exploit?)
 				when 'encoders'
 					show_encoders
 				when 'nops'
