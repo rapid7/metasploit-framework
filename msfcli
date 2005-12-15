@@ -17,7 +17,16 @@ Indent = '   '
 $framework = Msf::Simple::Framework.create
 
 if (ARGV.length <= 1)
-	$stderr.puts("\n" + "    Usage: #{$0} <exploit> [var=val] [MODE]\n\n")
+	tbl = Rex::Ui::Text::Table.new(
+		'Header'  => 'Exploits',
+		'Indent'  => 4,
+		'Columns' => [ 'Name', 'Description' ])
+
+	$framework.exploits.each_module { |name, mod|
+		tbl << [ name, mod.new.name ]
+	}
+
+	$stderr.puts("\n" + "    Usage: #{$0} <exploit> [var=val] [MODE]\n\n" + tbl.to_s + "\n")
 	exit
 end
 
