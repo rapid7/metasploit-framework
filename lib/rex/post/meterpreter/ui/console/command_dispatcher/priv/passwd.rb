@@ -21,7 +21,7 @@ class Console::CommandDispatcher::Priv::Passwd
 	#
 	def commands
 		{
-			"samdump" => "Dumps the contents of the SAM database"
+			"hashdump" => "Dumps the contents of the SAM database"
 		}
 	end
 
@@ -35,7 +35,7 @@ class Console::CommandDispatcher::Priv::Passwd
 	#
 	# Displays the contents of the SAM database
 	#
-	def cmd_samdump(*args)
+	def cmd_hashdump(*args)
 		client.priv.sam_hashes.each { |user|
 			print_line("#{user.to_s}")
 		}
