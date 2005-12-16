@@ -533,7 +533,7 @@ protected
 
 		if (added.length > 1)
 			elog("Loaded file contained more than one class (#{file}).")
-			next
+			return
 		end
 
 		# If nothing was added, check to see if there's anything
