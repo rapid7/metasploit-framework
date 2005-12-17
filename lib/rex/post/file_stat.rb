@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 #
 # This is just a container class basically, that acts like File::Struct

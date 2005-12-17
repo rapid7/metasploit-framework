@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 require 'rex/post/file'
 require 'rex/post/dispatch_ninja/io'

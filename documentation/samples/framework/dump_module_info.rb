@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 #
 # This sample demonstrates how a module's information can be easily serialized
 # to a readable format.

@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 require 'rex/encoder/xor'
 require 'rex/encoding/xor/dword'

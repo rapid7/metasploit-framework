@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 require 'rex/post/thread'
 require 'rex/post/meterpreter/client'

@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 #
 # This sample demonstrates enumerating all of the modules in the framework and
 # displays their module type and reference name.

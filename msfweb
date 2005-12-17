@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 #
 # This user interface provides users with a web-based interface to the
 # framework that can be shared.

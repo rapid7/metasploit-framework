@@ -1,4 +1,4 @@
-#!/usr/bin/ruby -I. -I../../lib
+#!/usr/bin/env ruby -I. -I../../lib
 
 require 'DemoClient'
 require 'Rex/Socket/Parameters'

@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 #
 # This plugin provides an msf daemon interface that spawns a listener on a
 # defined port (default 55554) and gives each connecting client its own

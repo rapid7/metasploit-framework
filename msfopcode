@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 #
 # This user interface provides a command line interface to the Metasploit
 # Opcode Database.  It provides users with the ability to search for opcodes

@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 require 'rex/post/meterpreter/channels/pool'
 require 'rex/post/meterpreter/extensions/stdapi/tlv'

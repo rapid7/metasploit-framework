@@ -1,4 +1,4 @@
-#!/usr/bin/ruby -I../../lib
+#!/usr/bin/env ruby -I../../lib
 
 require 'Rex/Post'
 

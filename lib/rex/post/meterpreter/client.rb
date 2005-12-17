@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 require 'socket'
 require 'rex/post/meterpreter/client_core'

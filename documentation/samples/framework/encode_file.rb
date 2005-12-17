@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 #
 # This sample demonstrates how a file can be encoded using a framework
 # encoder.

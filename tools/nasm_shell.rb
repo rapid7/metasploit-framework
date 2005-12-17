@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 #
 # This tool provides an easy way to see what opcodes are associated with
 # certain x86 instructions by making use of nasm if it is installed and

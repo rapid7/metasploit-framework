@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 #
 # This user interface listens on a port and provides clients that connect to
 # it with an msfconsole instance.  The nice thing about this interface is that

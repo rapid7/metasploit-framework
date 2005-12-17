@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 require 'rex/test'
 require 'rex/proto/dcerpc/uuid.rb.ut'
