@@ -15,7 +15,7 @@ require 'rex/proto/smb/exceptions'
     def initialize(handle, socket, useroptions = Hash.new)
         self.handle = handle
         self.socket = socket
-        self.options = { } # put default options here...
+        self.options = { 'smb_user' => '', 'smb_pass' => '' } # put default options here...
         self.options.merge!(useroptions)
        
         # we must have a valid handle, regardless of everything else
@@ -95,9 +95,7 @@ require 'rex/proto/smb/exceptions'
             raise "ACK, how did we get a peerport other than 139 or 445?  #{self.socket.peerport}"
         end
         smb.client.evasion_level = 0
-        user = ''
-        pass = ''
-        smb.login('*SMBSERVER', user, pass)
+        smb.login('*SMBSERVER', self.options['smb_user'], self.options['smb_pass'])
         smb.connect('IPC$')
         f = smb.create_pipe(self.handle.options[0])
         self.socket = f
