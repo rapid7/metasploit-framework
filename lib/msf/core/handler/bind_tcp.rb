@@ -83,6 +83,7 @@ module BindTcp
 						client = Rex::Socket::Tcp.create(
 							'PeerHost' => datastore['RHOST'],
 							'PeerPort' => datastore['LPORT'].to_i,
+                            'Proxies'  => datastore['Proxies'],
 							'Comm'     => comm,
 							'Context'  =>
 								{

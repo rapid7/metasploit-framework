@@ -66,10 +66,20 @@ class Rex::Socket::Comm::Local
 			sock.initsock(param)
 		# Otherwise, if we're creating a client...
 		else
+            chain = []
+
 			# If we were supplied with host information
 			if (param.peerhost)
 				begin
-					sock.connect(Rex::Socket.to_sockaddr(param.peerhost, param.peerport))
+                    if param.proxies
+                        chain = param.proxies.dup
+                        chain.push(['host',param.peerhost,param.peerport])
+                        ip = chain[0][1]
+                        port = chain[0][2].to_i
+                        sock.connect(Rex::Socket.to_sockaddr(ip, port))
+                    else
+					    sock.connect(Rex::Socket.to_sockaddr(param.peerhost, param.peerport))
+                    end
 				rescue Errno::ECONNREFUSED
 					sock.close
 					raise Rex::ConnectionRefused.new(param.peerhost, param.peerport), caller
@@ -94,6 +104,16 @@ class Rex::Socket::Comm::Local
 						sock.initsock(param)
 				end
 			end
+
+            if chain.size > 1
+                chain.each_with_index {
+                    |proxy, i|
+                    next_hop = chain[i + 1]
+                    if next_hop
+                        proxy(sock, proxy[0], next_hop[1], next_hop[2])
+                    end
+                }
+            end
 		end
 
 		# Notify handlers that a socket has been created.
@@ -101,6 +121,31 @@ class Rex::Socket::Comm::Local
 
 		sock
 	end
+                
+    def self.proxy (sock, type, host, port)
+        if type == 'socks4'
+            setup = [4,1,port.to_i].pack('CCn') + Socket.gethostbyname(host)[3] + "bmc\x00"
+            size = sock.put(setup)
+            if size != setup.length
+                raise 'ack, we did not write as much as expected!'
+            end
+    
+            begin
+                ret = sock.get_once(8, 30)
+            rescue IOError
+                raise Rex::ConnectionRefused.new(host, port), caller
+            end
+    
+            if (ret.nil? or ret.length < 8)
+                raise 'ack, sock4 server did not respond with a socks4 response'
+            end
+            if ret[1] != 90
+                raise "ack, socks4 server responded with error code #{ret[0]}"
+            end
+        else
+            raise 'unsupported socks protocol', caller
+        end
+    end
 
 	##
 	#

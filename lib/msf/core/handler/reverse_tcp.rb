@@ -53,6 +53,10 @@ module ReverseTcp
 	# if it fails to start the listener.
 	#
 	def setup_handler
+        if datastore['Proxies']
+            raise 'tcp connectback can not be used with proxies'
+        end
+
 		self.listener_sock = Rex::Socket::TcpServer.create(
 			'LocalHost' => datastore['LHOST'],
 			'LocalPort' => datastore['LPORT'].to_i,

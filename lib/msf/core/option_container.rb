@@ -493,6 +493,7 @@ module Opt
 		'LPORT' => [ OptPort,    'nil',   true,  '"The local port"' ],
 		'CPORT' => [ OptPort,    'nil',   false, '"The local client port"' ],
 		'SSL'   => [ OptBool,    'false', false, '"Use SSL"' ],
+        'Proxies' => [ OptString, 'nil',  'false', '"proxy chain"'],
 	}
 
 #

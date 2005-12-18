@@ -114,6 +114,10 @@ class Rex::Socket::Parameters
 			self.ssl = false
 		end
 
+        if hash['Proxies']
+            self.proxies = hash['Proxies'].split('-').map{|a| a.strip}.map{|a| a.split(':').map{|b| b.strip}}
+        end
+
 		# The protocol this socket will be using
 		if (hash['Proto'])
 			self.proto = hash['Proto'].downcase
@@ -246,6 +250,10 @@ class Rex::Socket::Parameters
 	# Whether or not SSL should be used to wrap the connection.
 	#
 	attr_accessor :ssl
+
+
+    attr_accessor :proxies
+
 
 	##
 	#
