@@ -1,0 +1,8 @@
+alpha release 2
+
+	* BUG: msfweb did not properly create ~/.msf3 directory
+	* BUG: framework incorrectly saved options not specified by the user
+	* BUG: ruby scripts defaulted to #!/usr/bin/ruby rather than #!/usr/bin/env ruby
+	* BUG: fix for incorrect 'next' in module.rb:load_module_from_file
+
+alpha release 1 - Dec 15, 2005
