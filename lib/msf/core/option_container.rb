@@ -417,7 +417,7 @@ class OptionContainer < Hash
 				errors << name
 			# If the option is valid, normalize its format to the correct type.
 			elsif ((val = option.normalize(datastore[name])) != nil)
-				datastore[name] = val
+				datastore.update_value(name, val)
 			end
 		}
 		

@@ -9,6 +9,32 @@ module Msf
 class DataStore < Hash
 
 	#
+	# Initializes the data store's internal state.
+	#
+	def initialize()
+		@imported = Hash.new
+	end
+
+	#
+	# Clears the imported flag for the supplied key since it's being set
+	# directly.
+	#
+	def []=(k, v)
+		@imported[k] = false
+
+		super
+	end
+
+	#
+	# Updates a value in the datastore with the specified name, k, to the
+	# specified value, v.  This update does not alter the imported status of
+	# the value.
+	#
+	def update_value(k, v)
+		self.store(k, v)
+	end
+
+	#
 	# This method is a helper method that imports the default value for
 	# all of the supplied options
 	#
@@ -18,6 +44,8 @@ class DataStore < Hash
 			# datastore doesn't already have a value set for it.
 			if (opt.default and self[name] == nil)
 				self.store(name, opt.default.to_s)
+
+				@imported[name] = true
 			end
 		}
 	end
@@ -63,9 +91,11 @@ class DataStore < Hash
 	#
 	# Imports options from a hash and stores them in the datastore.
 	#
-	def import_options_from_hash(option_hash)
+	def import_options_from_hash(option_hash, imported = true)
 		option_hash.each_pair { |key, val|
 			self.store(key, val.to_s)
+
+			@imported[key] = imported
 		}
 	end
 
@@ -90,7 +120,8 @@ class DataStore < Hash
 
 		ini.add_group(name)
 
-		self.each_pair { |k, v|
+		# Save all user-defined options to the file.
+		user_defined.each_pair { |k, v|
 			ini[name][k] = v
 		}
 
@@ -109,8 +140,18 @@ class DataStore < Hash
 		end
 
 		if (ini.group?(name))
-			import_options_from_hash(ini[name])
+			import_options_from_hash(ini[name], false)
 		end
+	end
+
+	#
+	# Returns a hash of user-defined datastore values.  The returned hash does
+	# not include default option values.
+	#
+	def user_defined
+		reject { |k, v|
+			@imported[k] == true
+		}
 	end
 
 end
@@ -125,6 +166,8 @@ end
 class ModuleDataStore < DataStore
 
 	def initialize(m)
+		super()
+
 		@_module = m
 	end
 
