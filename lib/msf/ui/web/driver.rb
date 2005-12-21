@@ -76,9 +76,12 @@ class Driver < Msf::Ui::Driver
 		# Set the passed options hash for referencing later on.
 		self.opts = opts
 
+		# Initialize configuration
+		Msf::Config.init
+		
 		# Initialize logging
 		initialize_logging
-		
+
 		# Initialize attributes
 		self.framework = Msf::Simple::Framework.create
 
