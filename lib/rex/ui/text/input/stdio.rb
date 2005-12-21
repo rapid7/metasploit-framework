@@ -37,7 +37,7 @@ class Input::Stdio < Rex::Ui::Text::Input
 	# Returns whether or not EOF has been reached on stdin.
 	#
 	def eof?
-		return $stdin.eof?
+		$stdin.closed?
 	end
 
 	#

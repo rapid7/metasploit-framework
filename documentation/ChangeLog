@@ -1,5 +1,6 @@
 alpha release 2
 
+	* BUG: console standard input prompt display was broken
 	* BUG: msfweb did not properly create ~/.msf3 directory
 	* BUG: framework incorrectly saved options not specified by the user
 	* BUG: ruby scripts defaulted to #!/usr/bin/ruby rather than #!/usr/bin/env ruby
