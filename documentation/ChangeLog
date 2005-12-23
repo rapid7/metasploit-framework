@@ -7,3 +7,5 @@ alpha release 2
 	* BUG: fix for incorrect 'next' in module.rb:load_module_from_file
 
 alpha release 1 - Dec 15, 2005
+
+	* Initial release
