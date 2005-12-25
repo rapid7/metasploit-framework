@@ -79,22 +79,29 @@ class Msf::Module::Author
 	#
 	def from_s(str)
 
-		# Make fix up this regex to be a bit better...I suck at regex
-		m = /^([A-Za-z0-9 _]*?) <(.*?)>/.match(str)
 
-		if (m != nil)
-			self.name  = m[1]
-			self.email = m[2]
+		# Supported formats:
+		#   known_name
+		#   user@host.tld
+		#   Name <user@host.rld>
+		#   user[at]host.tld
+		#   Name <user [at] host.tld>
+
+		
+		if ((m = str.match(/^\s*([^<]+)<([^>]+)>\s*$/)))
+			self.name  = m[1].sub(/<.*/, '')
+			self.email = m[2].sub(/\s*\[at\]\s*/, '@')
 		else
-			self.email = Known[str]
-
-			if (self.email != nil)
-				self.name = str
+			if (Known[str])
+				self.email = Known[str]
+				self.name  = str
 			else
-				return false
+				self.email = str.sub(/\s*\[at\]\s*/, '@').gsub(/^<|>$/, '')
+				m = self.email.match(/([^@]+)@/)
+				self.name = m ? m[1] : 'unknown'
 			end
 		end
-
+		
 		return true
 	end
 

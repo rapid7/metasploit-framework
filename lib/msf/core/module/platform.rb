@@ -372,4 +372,12 @@ class Msf::Module::Platform
 	class FreeBSD < Msf::Module::Platform
 		Rank = 100
 	end
+	
+	#
+	# Generic Unix
+	#
+	class Unix < Msf::Module::Platform
+		Rank = 100
+		Alias = "unix"
+	end
 end

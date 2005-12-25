@@ -153,6 +153,16 @@ module DispatcherShell
 			end
 		}
 
+		# Verify that our search string is a valid regex
+		begin
+			Regexp.compile(str)
+		rescue RegexpError => e
+			str = Regexp.escape(str)
+		end
+		
+		# XXX - This still doesn't fix some Regexp warnings:
+		# ./lib/rex/ui/text/dispatcher_shell.rb:171: warning: regexp has `]' without escape
+
 		# Match based on the partial word
 		items.find_all { |e| 
 			e =~ /^#{str}/

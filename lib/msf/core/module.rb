@@ -225,7 +225,7 @@ class Module
 		# Enumerate each compatibility item in our hash to find out
 		# if we're compatible with this sucker.
 		ch.each_pair { |k,v|
-
+			
 			# Get the value of the current key from the module, such as
 			# the ConnectionType for a stager (ws2ord, for instance).
 			mval = mod.module_info[k]
