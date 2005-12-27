@@ -127,6 +127,8 @@ module DispatcherShell
 	#
 	def tab_complete_stub(str)
 		items = []
+		
+		return nil if not str
 	
 		# puts "Words(#{tab_words.join(", ")}) Partial='#{str}'"
 		

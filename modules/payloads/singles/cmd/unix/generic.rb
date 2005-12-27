@@ -22,7 +22,7 @@ module Generic
 			'Arch'          => ARCH_CMD,
 			'Handler'       => Msf::Handler::FindShell,
 			'Session'       => Msf::Sessions::CommandShell,
-			'PayloadCompat' => { 'PayloadType' => 'cmd' },
+			'PayloadType'   => 'cmd',
 			'Payload'       =>
 				{
 					'Offsets' => { },
