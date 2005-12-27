@@ -58,23 +58,28 @@ class Recon::Host::PortScanner::UdpProbeSweep < Msf::Recon::Discoverer::Host
 			r = udp_sock.recvfrom(65535)
 			while (r[1])
 				alive = true if r[1]
-				r = udp_sock.recvfrom(65535)
+				r << udp_sock.recvfrom(65535)
 			end
 
-			alive ? HostState::Alive : HostState::Unknown
+			print_status("Discovered #{ip} through a response on #{r[2]}") if alive
+
+
+			alive ? HostState::Alive : HostState::Dead
 
 		# Catch attempts to send to a broadcast address
 		rescue Errno::EACCES
-			HostState::Unknown
+			HostState::Dead
 		
 		# Catch 'connection refused' triggered by ICMP port unreachable
 		rescue Errno::ECONNREFUSED
+			print_status("Discovered #{ip} through an ICMP error message")
 			HostState::Alive
 
 		# Catch any other errors...
 		rescue => e
-			p e
-			HostState::Unknown
+			print_status("Unknown error: #{e.to_s}")
+			print_status(e.backtrace.join("\n"))
+			HostState::Dead
 		end
 	end
 
@@ -103,7 +108,7 @@ class Recon::Host::PortScanner::UdpProbeSweep < Msf::Recon::Discoverer::Host
 	def probe_pkt_netbios(ip)
 		data = 
 		"\x00\x00\x00\x00\x00\x00\x00\x00\xb3\x3f\x00\x00\x00\x01\x00\x00\x00"+
-		"\x00\x00\x00\x20\x43\x4b\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41"+n
+		"\x00\x00\x00\x20\x43\x4b\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41"+
 		"\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41"+
 		"\x41\x41\x00\x00\x21\x00\x01"
 		return [data, 137]
@@ -113,13 +118,13 @@ class Recon::Host::PortScanner::UdpProbeSweep < Msf::Recon::Discoverer::Host
 		data =
 		[
 				rand(0xffffffff), # XID
-        		0,              # Type
-        		2,              # RPC Version
-        		100000,         # Program ID
-        		2,              # Program Version
-        		4,              # Procedure
-        		0, 0,   # Credentials
-        		0, 0,   # Verifier
+				0,              # Type
+				2,              # RPC Version
+				100000,         # Program ID
+				2,              # Program Version
+				4,              # Procedure
+				0, 0,   # Credentials
+				0, 0,   # Verifier
 		].pack('N*')
 		
 		return [data, 111]
