@@ -22,7 +22,7 @@ module Interact
 			'Arch'          => ARCH_CMD,
 			'Handler'       => Msf::Handler::FindShell,
 			'Session'       => Msf::Sessions::CommandShell,
-			'PayloadType'   => 'cmd interact',
+			'PayloadType'   => 'cmd_interact',
 			'Payload'       =>
 				{
 					'Offsets' => { },

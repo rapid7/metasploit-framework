@@ -20,7 +20,7 @@ module Generic
 			'Author'        => 'hdm',
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
-			'Handler'       => Msf::Handler::FindShell,
+			'Handler'       => Msf::Handler::None,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd',
 			'Payload'       =>

@@ -221,34 +221,47 @@ class Module
 		else
 			return true
 		end
-
+		
 		# Enumerate each compatibility item in our hash to find out
 		# if we're compatible with this sucker.
-		ch.each_pair { |k,v|
-			
+		ch.each_pair do |k,v|
+
 			# Get the value of the current key from the module, such as
 			# the ConnectionType for a stager (ws2ord, for instance).
 			mval = mod.module_info[k]
 
-			# Skip zee nils that the module has.
-			next if (mval == nil or v == nil)
+			
+			# Match an empty compat item only if the module does not define it
+			next if not (v and mval)
+				
+			# Reject a filled compat item on one side, but not the other
+			return false if not (v and mval)
+	
+			# Track how many of our values matched the module
+			mcnt = 0
+			
+			# Values are whitespace separated
+			sv = v.split(/\s+/)
+			mv = mval.split(/\s+/)
+			
+			sv.each do |x|
 
-			# Delimit values by spaces so as to be able to indicate more than one.
-			v.split(/ /).each { |sv|
-
-				# If the supplied module's value is not contained within the supported
-				# values for this module or this module indicated a negation of
-				# the value stated by the supplied module, then we have detected
-				# ourselves a bit of an incompatibility and we just can't have that.
-				if (!(sv =~ /#{mval}/) or
-					 (sv =~ /-#{mval}/))
-					dlog("Module #{mod.refname} is incompatible with #{self.refname} for #{k}: limiter was #{sv}, value was #{mval}", 
-						'core', LEV_1)
-
+				# Verify that any negate values are not matched
+				if (x[0].chr == '-' and mv.include?(x[1, x.length-1]))
+					dlog("Module #{mod.refname} is incompatible with #{self.refname} for #{k}: limiter was #{x}, value was #{mval}", 'core', LEV_1)
 					return false
 				end
-			}
-		}
+
+				mcnt += 1 if mv.include?(x)
+			end
+			
+			# No values matched, reject this module
+			if (mcnt == 0)
+				dlog("Module #{mod.refname} is incompatible with #{self.refname} for #{k}: limiter was #{v}, value was #{mval}", 'core', LEV_1)			
+				return false
+			end
+
+		end
 
 		# If we get here, we're compatible.
 		return true
