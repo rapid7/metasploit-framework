@@ -75,7 +75,6 @@ ARCH_TYPES =
 		ARCH_PPC,
 		ARCH_SPARC
 	]
-ARCH_ALL   = ARCH_TYPES
 
 
 ARCH_CMD_UNIX  = 'cmd_unix'
@@ -87,3 +86,5 @@ ARCH_CMD       =
 		ARCH_CMD_LINUX,
 		ARCH_CMD_BSD
 	]
+
+ARCH_ALL   = ARCH_TYPES + ARCH_CMD
