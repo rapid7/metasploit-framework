@@ -233,17 +233,21 @@ class Module
 			# Skip zee nils that the module has.
 			next if (mval == nil or v == nil)
 
-			# If the supplied module's value is not contained within the supported
-			# values for this module or this module indicated a negation of
-			# the value stated by the supplied module, then we have detected
-			# ourselves a bit of an incompatibility and we just can't have that.
-			if (!(v =~ /#{mval}/) or
-			    (v =~ /-#{mval}/))
-				dlog("Module #{mod.refname} is incompatible with #{self.refname} for #{k}: limiter was #{v}, value was #{mval}", 
-					'core', LEV_1)
+			# Delimit values by spaces so as to be able to indicate more than one.
+			v.split(/ /).each { |sv|
 
-				return false
-			end
+				# If the supplied module's value is not contained within the supported
+				# values for this module or this module indicated a negation of
+				# the value stated by the supplied module, then we have detected
+				# ourselves a bit of an incompatibility and we just can't have that.
+				if (!(sv =~ /#{mval}/) or
+					 (sv =~ /-#{mval}/))
+					dlog("Module #{mod.refname} is incompatible with #{self.refname} for #{k}: limiter was #{sv}, value was #{mval}", 
+						'core', LEV_1)
+
+					return false
+				end
+			}
 		}
 
 		# If we get here, we're compatible.
@@ -433,7 +437,11 @@ protected
 	# of the primary Compat hash key to make checks more uniform.
 	#
 	def init_compat
-		c = module_info['Compat'] = Hash.new if (module_info['Compat'] == nil)
+		c = module_info['Compat']
+
+		if (c == nil)
+			c = module_info['Compat'] = Hash.new
+		end
 
 		# Initialize the module sub compatibilities
 		c['Payload'] = Hash.new if (c['Payload'] == nil)
