@@ -59,8 +59,6 @@ end
 init_key = Rex::Poly::LogicalBlock.new('init_key',
 	Proc.new { |b| (0xb8 + b.regnum_of(key_reg)).chr + 'XORK'})
 
-init_key.clobbers(key_reg)
-
 loop_block = Rex::Poly::LogicalBlock.new('loop_block')
 
 xor  = Proc.new { |b| "\x31" + (0x40 + b.regnum_of(addr_reg) + (8 * b.regnum_of(key_reg))).chr }
