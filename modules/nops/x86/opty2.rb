@@ -25,7 +25,7 @@ class Opty2 < Msf::Nop
 			'Arch'        => ARCH_X86)
 	end
 
-	def generate_sled(length, opts)
+	def generate_sled(length, opts = {})
 		opty = Rex::Nop::Opty2.new(
 			opts['BadChars'] || '',
 			opts['SaveRegisters'])

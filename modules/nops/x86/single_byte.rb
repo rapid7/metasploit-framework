@@ -6,9 +6,6 @@ module X86
 
 ###
 #
-# SingleByte
-# ----------
-#
 # This class implements single-byte NOP generation for X86.  It takes from
 # ADMmutate and from spoonfu.
 #
@@ -94,7 +91,7 @@ SINGLE_BYTE_SLED =
 	end
 
 	# Generate a single-byte NOP sled for X86
-	def generate_sled(length, opts)
+	def generate_sled(length, opts = {})
 		sled_hash    = SINGLE_BYTE_SLED
 		sled_max_idx = sled_hash.length
 		sled_cur_idx = 0
