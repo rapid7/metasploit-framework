@@ -29,18 +29,19 @@ class Msf::Encoder::XorAdditiveFeedback < Msf::Encoder::Xor
 	#
 	# Finds a key that is compatible with the badchars list.
 	#
-	def find_key(buf, badchars)
+	def find_key(buf, badchars, state = Msf::EncoderState.new)
 		key_bytes = integer_to_key_bytes(super(buf, badchars))
-		state = Msf::EncoderState.new
 		valid = false
 
-		init_state(state)
-	
 		# Save the original key_bytes so we can tell if we loop around
 		orig_key_bytes = key_bytes.dup
 
 		# While we haven't found a valid key, keep trying the encode operation
 		while (!valid)
+			# Initialize the state back to defaults since we're trying to find a
+			# key.
+			init_state(state)
+	
 			begin
 				# Reset the encoder state's key to the current set of key bytes
 				state.reset(key_bytes_to_integer(key_bytes))
@@ -55,7 +56,7 @@ class Msf::Encoder::XorAdditiveFeedback < Msf::Encoder::Xor
 
 				# Perform the encode operation...if it encounters a bad character
 				# an exception will be thrown
-				valid = do_encode(buf, badchars, state)
+				valid = do_encode(state)
 			rescue Msf::BadcharError => info
 				# If the decoder stub contains a bad character, then there's not
 				# much we can do about it

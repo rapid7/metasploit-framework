@@ -44,6 +44,7 @@ class EncoderState
 
 	# Decoder settings
 	attr_accessor :decoder_key_offset, :decoder_key_size, :decoder_key_pack # :nodoc:
+	attr_accessor :decoder_stub # :nodoc:
 
 end
 
@@ -154,29 +155,33 @@ class Encoder < Module
 		# Prepend data to the buffer as necessary
 		buf = prepend_buf + buf
 
-		# If this encoder is key-based and we don't already have a key, find one
-		if ((decoder_key_size) and
-		    (state.key == nil))
-			# Find a key that doesn't contain and wont generate any bad
-			# characters
-			state.init_key(find_key(buf, badchars))
-
-			if (state.key == nil)
-				raise NoKeyError, "A key could not be found for the #{self.name} encoder.", caller
-			end
-		end
-
 		init_state(state)
 
 		# Save the buffer in the encoding state
 		state.badchars = badchars
 		state.buf      = buf
 
+		# If this encoder is key-based and we don't already have a key, find one
+		if ((decoder_key_size) and
+		    (state.key == nil))
+			# Find a key that doesn't contain and wont generate any bad
+			# characters
+			state.init_key(find_key(buf, badchars, state))
+
+			if (state.key == nil)
+				raise NoKeyError, "A key could not be found for the #{self.name} encoder.", caller
+			end
+		end
+
+		# Reset the encoded buffer at this point since it may have been changed
+		# while finding a key.
+		state.encoded = ''
+
 		# Call encode_begin to do any encoder specific pre-processing
 		encode_begin(state)
 
 		# Perform the actual encoding operation with the determined state
-		do_encode(buf, badchars, state)
+		do_encode(state)
 
 		# Call encoded_end to do any encoder specific post-processing
 		encode_end(state)
@@ -189,7 +194,7 @@ class Encoder < Module
 	# Performs the actual encoding operation after the encoder state has been
 	# initialized and is ready to go.
 	#
-	def do_encode(buf, badchars, state)
+	def do_encode(state)
 		# Copy the decoder stub since we may need to modify it
 		stub = decoder_stub(state).dup
 
@@ -205,8 +210,8 @@ class Encoder < Module
 		offset = 0
 
 		if (decoder_block_size)
-			while (offset < buf.length)
-				block = buf[offset, decoder_block_size]
+			while (offset < state.buf.length)
+				block = state.buf[offset, decoder_block_size]
 	
 				state.encoded += encode_block(state, 
 						block + ("\x00" * (decoder_block_size - block.length)))
@@ -214,15 +219,15 @@ class Encoder < Module
 				offset += decoder_block_size
 			end
 		else
-			state.encoded = encode_block(state, buf)
+			state.encoded = encode_block(state, state.buf)
 		end
-		
+
 		# Prefix the decoder stub to the encoded buffer
 		state.encoded = stub + state.encoded
 
 		# Last but not least, do one last badchar pass to see if the stub +
 		# encoded payload leads to any bad char issues...
-		if ((badchar_idx = has_badchars?(state.encoded, badchars)) != nil)
+		if ((badchar_idx = has_badchars?(state.encoded, state.badchars)) != nil)
 			raise BadcharError.new(state.encoded, badchar_idx, stub.length, state.encoded[badchar_idx]), 
 					"The #{self.name} encoder failed to encode without bad characters.", 
 					caller
@@ -294,6 +299,7 @@ protected
 		state.decoder_key_offset = decoder_key_offset
 		state.decoder_key_size   = decoder_key_size
 		state.decoder_key_pack   = decoder_key_pack
+		state.decoder_stub       = nil
 	end
 
 	#
@@ -302,7 +308,7 @@ protected
 	# reliable and less prone to bad character failure by doing a fairly
 	# complete key search before giving up on an encoder.
 	#
-	def find_key(buf, badchars)
+	def find_key(buf, badchars, state = nil)
 		key_bytes = [ ]
 		cur_key   = [ ]
 		bad_keys  = find_bad_keys(buf, badchars)
