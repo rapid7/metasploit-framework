@@ -178,6 +178,8 @@ class EncodedPayload
 				end
 
 				begin
+					nop.copy_ui(pinst)
+
 					self.nop_sled = nop.generate_sled(self.nop_sled_size,
 						'BadChars'      => reqs['BadChars'],
 						'SaveRegisters' => save_regs)

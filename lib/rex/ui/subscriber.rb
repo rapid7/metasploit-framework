@@ -104,6 +104,13 @@ module Subscriber
 		self.user_output = nil
 	end
 
+	#
+	# Copy the user input and output handles from the supplied subscriber.
+	#
+	def copy_ui(subscriber)
+		init_ui(subscriber.user_input, subscriber.user_output)
+	end
+
 end
 
 end
