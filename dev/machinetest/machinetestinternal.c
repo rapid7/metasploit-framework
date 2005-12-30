@@ -14,7 +14,7 @@ static VALUE t_test(VALUE self, VALUE str, VALUE all) {
 	if(all == Qtrue)
 		len = RSTRING(str)->len;
 
-	while(--len >= 0) {
+	while(len-- > 0) {
 		switch(fork()) {
 		case -1:
 			perror("fork");
