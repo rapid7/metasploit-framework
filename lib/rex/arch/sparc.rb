@@ -4,7 +4,7 @@ module Rex
 module Arch
 
 #
-# Everything here is mostly stolen from vlad's perl x86 stuff
+# Everything here is mostly stolen from vlad's perl sparc stuff
 #
 module Sparc
 
@@ -21,10 +21,11 @@ module Sparc
 			'l4' => 20, 'l5' => 21, 'l6' => 22, 'l7' => 23,
 			'i0' => 24, 'i1' => 25, 'i2' => 26, 'i3' => 27,
 			'i4' => 28, 'i5' => 29, 'i6' => 30, 'i7' => 31,
+			'sp' => 14, 'fp' => 30, 
 		} # :nodoc:
 
 	#
-	# TODO: documentation required.
+	# Encodes a SETHI instruction with the value 'constant' being put into 'dst' register
 	#
 	def self.sethi(constant, dst) 
 		[ 
@@ -35,7 +36,7 @@ module Sparc
 	end
 
 	#
-	# TODO: documentation required.
+	# Encodes an OR instruction with the value 'constant' being OR'ed with the 'src' register into the 'dst' register
 	#
 	def self.ori(src, constant, dst)
 		[ 
@@ -49,10 +50,11 @@ module Sparc
 	end
 
 	#
-	# TODO: documentation required.
+	# Puts 'constant' into the 'dst' register using as few instructions as possible by checking the size of the value. 
+	# XXX: signedness support
 	#
 	def self.set(constant, dst)
-		if (constant <= 4096 and constant >= 0)
+		if (constant <= 4095 and constant >= 0)
 			ori('g0', constant, dst)
 		elsif (constant & 0x3ff)
 			set_dword(constant, dst)
@@ -61,6 +63,9 @@ module Sparc
 		end
 	end
 
+	#
+	# Puts 'constant' into the 'dst' register using both sethi and ori (necessary to use both uncessarily in some cases with encoders)
+	#
 	#
 	# TODO: documentation required.
 	#
