@@ -81,6 +81,8 @@ class Core
 		    driver.current_dispatcher.name != 'Core')
 			# Reset the active module if we have one
 			if (active_module)
+				active_module.reset_ui
+
 				self.active_module = nil
 			end
 
@@ -951,6 +953,8 @@ class Core
 
 		# Update the active module
 		self.active_module = mod
+						
+		mod.init_ui(driver.input, driver.output)
 
 		# Update the command prompt
 		driver.update_prompt("#{mod.type}(#{mod.refname}) ")
