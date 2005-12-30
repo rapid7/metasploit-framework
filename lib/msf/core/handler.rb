@@ -176,7 +176,9 @@ protected
 
 			# Call the payload's on_session handler
 			on_session(s)
+			return s
 		end
+		
 	end
 
 	#
