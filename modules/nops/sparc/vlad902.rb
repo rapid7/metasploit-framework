@@ -70,8 +70,8 @@ class Vlad902 < Msf::Nop
 	
 	def initialize
 		super(
-			'Name'        => 'Vlad902 SPARC',
-			'Alias'       => 'ppc_simple',
+			'Name'        => 'SPARC NOP generator',
+			'Alias'       => 'sparc_simple',
 			'Version'     => '$Revision$',
 			'Description' => 'SPARC NOP generator',
 			'Author'      => 'vlad902',
@@ -134,13 +134,13 @@ class Vlad902 < Msf::Nop
 
 	def get_dst_reg
 		reg = rand(30)
-		reg += 1 if (reg >= 14)
-		reg += 1 if (reg >= 30)
+		reg += 1 if (reg >= 14)		# %sp
+		reg += 1 if (reg >= 30)		# %fp
 		return reg.to_i
 	end
 
 	def get_src_reg
-		return rand(30).to_i
+		return rand(32).to_i
 	end
 
 	def ins_sethi(ref, len=0)
@@ -187,8 +187,8 @@ class Vlad902 < Msf::Nop
 	
 	def ins_branch(ref, len)
 		
-		# We jump to 1 instruction before the payload so in cases where the delay slot of a branch with the the anull bit set that is not taken the first instruction of the
-		# payload is not anulled. 
+		# We jump to 1 instruction before the payload so in cases where the delay slot is another branch instruction that is
+		# not taken with the anull bit set the first bit of the payload is not anulled.
 		len = (len / 4) - 1
 		
 		return '' if len == 0
