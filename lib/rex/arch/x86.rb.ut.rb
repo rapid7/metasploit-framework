@@ -22,6 +22,20 @@ class Rex::Arch::X86::UnitTest < ::Test::Unit::TestCase
 		assert_equal("\x6a\xff", Klass.push_byte(-1))
 	end
 
+	def test_mov_dword
+		assert_equal("\xb8\x78\x56\x34\x12", Klass.mov_dword(Klass::EAX, 0x12345678))
+	end
+
+	def test_mov_word
+		assert_equal("\x66\xbc\x37\x13", Klass.mov_word(Klass::SP, 0x1337))
+	end
+
+	def test_mov_byte
+		assert_raise(::RangeError) { Klass.mov_byte(Klass::AL, 0x100) }
+		assert_raise(::RangeError) { Klass.mov_byte(Klass::AL, -1) }
+		assert_equal("\xb2\xb2", Klass.mov_byte(Klass::DL, 0xb2))
+	end
+
 	def test_check_reg
 		assert_raise(::ArgumentError) { Klass._check_reg(8) }
 		assert_raise(::ArgumentError) { Klass._check_reg(-1) }
