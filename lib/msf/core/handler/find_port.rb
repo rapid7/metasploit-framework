@@ -97,8 +97,14 @@ protected
 		end
 
 		# If we're good to go, create the session.
-		rv = (go == true) ? super : nil
-
+		(go == true) ? super : nil
+		
+		# XXX dirty nasty ugly hack, but create_session and the
+		# super call chain doesn't actually return true/false
+		# anywhere i could find...
+		
+		rv = go
+		
 		if (rv)
 			self._handler_return_value = Claimed
 		end
