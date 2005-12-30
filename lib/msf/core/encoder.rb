@@ -346,6 +346,8 @@ protected
 					found = false
 				end
 			}
+			
+			found = find_key_verify(key_bytes, badchars) if found
 		end
 
 		# Do we have all the key bytes accounted for?
@@ -392,6 +394,13 @@ protected
 	#
 	def integer_to_key_bytes(integer)
 		return [ integer.to_i ].pack(decoder_key_pack).unpack('C' + decoder_key_size.to_s)
+	end
+
+	#
+	# Determines if the key selected by find_key is usable
+	#
+	def find_key_verify(key_bytes, badchars)
+		true
 	end
 
 end

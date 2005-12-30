@@ -20,6 +20,7 @@ class LongXor < Msf::Encoder::Xor
 				{
 					'KeySize'    => 4,
 					'BlockSize'  => 4,
+					'KeyPack'    => 'N',
 				})
 	end
 
@@ -58,8 +59,8 @@ class LongXor < Msf::Encoder::Xor
 		icount = state.buf.length / 4
 
 		stub[30, 2] = [ 1974 + icount  ].pack('n')
-		stub[22, 2] = [ state.key.to_i ].pack('n')[0, 2]
-		stub[26, 2] = [ state.key.to_i ].pack('n')[2, 2]
+		stub[22, 2] = [ state.key.to_i ].pack('N')[0, 2]
+		stub[26, 2] = [ state.key.to_i ].pack('N')[2, 2]
 
 		stub
 	end

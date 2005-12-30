@@ -20,12 +20,12 @@ class LongXorTag < Msf::Encoder::Xor
 				{
 					'KeySize'    => 4,
 					'BlockSize'  => 4,
+					'KeyPack'    => 'N',					
 				})
 	end
 
 	#
-	# Returns the decoder stub that is adjusted for the size of
-	# the buffer being encoded
+	# Returns the decoder stub 
 	#
 	def decoder_stub(state)
 		[
@@ -53,8 +53,8 @@ class LongXorTag < Msf::Encoder::Xor
 	# Fix up the decoder stub now 
 	#
 	def encode_finalize_stub(state, stub)
-		stub[22, 2] = [ state.key.to_i ].pack('n')[0, 2]
-		stub[26, 2] = [ state.key.to_i ].pack('n')[2, 2]
+		stub[22, 2] = [ state.key.to_i ].pack('N')[0, 2]
+		stub[26, 2] = [ state.key.to_i ].pack('N')[2, 2]
 
 		stub
 	end
