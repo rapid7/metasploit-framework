@@ -109,7 +109,7 @@ module X86
 	end
 
 	#
-	# This method generates the mod r/m character for a source and destinatino
+	# This method generates the mod r/m character for a source and destination
 	# register.
 	#
 	def self.encode_modrm(dst, src)
@@ -173,6 +173,15 @@ module X86
 	end
 
 	#
+	# This method generates the opcodes that set the a register to the
+	# supplied value.
+	#
+	def self.mov_dword(reg, val)
+		_check_reg(reg)
+		return (0xb8 | reg).chr + [ val ].pack('V')
+	end
+
+	#
 	# This method is a general way of setting a register to a value.  Depending
 	# on the value supplied, different sets of instructions may be used.
 	#
@@ -194,6 +203,12 @@ module X86
 		# try clear dst, mov WORD dst
 		begin
 			return _check_badchars(clear(dst, badchars) + mov_word(dst, val), badchars)
+		rescue ::ArgumentError, RuntimeError, RangeError
+		end
+
+		# try clear dst, mov DWORD dst
+		begin
+			return _check_badchars(clear(dst, badchars) + mov_dword(dst, val), badchars)
 		rescue ::ArgumentError, RuntimeError, RangeError
 		end
 
