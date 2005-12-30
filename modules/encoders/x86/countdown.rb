@@ -32,11 +32,11 @@ class Countdown < Msf::Encoder::Xor
 				Rex::Arch::X86::ECX,
 				state.buf.length - 1,
 				state.badchars) +
-			"\xe8\xff\xff\xff" +
-			"\xff\xc1" +
-			"\x5e" +
-			"\x30\x4c\x0e\x07" +
-			"\xe2\xfa"
+			"\xe8\xff\xff\xff" +		# call $+4
+			"\xff\xc1" +			# inc ecx
+			"\x5e" +			# pop esi
+			"\x30\x4c\x0e\x07" +		# xor_loop: xor [esi + ecx + 0x07], cl
+			"\xe2\xfa"			# loop xor_loop
 
 		# Initialize the state context to 1
 		state.context = 1
