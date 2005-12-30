@@ -72,10 +72,12 @@ protected
 	
 		fpus << "\xd9\xd0"
 		fpus << "\xd9\xe1"
-		fpus << "\xdb\xe1"
 		fpus << "\xd9\xf6"
 		fpus << "\xd9\xf7"
 		fpus << "\xd9\xe5"
+	
+		# This FPU instruction seems to fail consistently on Linux
+		#fpus << "\xdb\xe1"
 	
 		fpus
 	end
