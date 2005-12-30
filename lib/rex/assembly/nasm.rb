@@ -63,9 +63,11 @@ class Nasm
 	def self.disassemble(raw)
 		check
 
+		# Race condition?! You bet!
 		tmp = Tempfile.new('nasmout').path
+		File.open(tmp, "wb") { |f| f.write(raw) }
 
-		p = ::IO.popen("echo -ne \"" + Rex::Text.to_hex(raw) + "\" > #{tmp} && ndisasm -u #{tmp}")
+		p = ::IO.popen("ndisasm -u #{tmp}")
 		o = ''
 
 		begin
