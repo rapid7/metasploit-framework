@@ -35,12 +35,21 @@ class EncoderState
 		self.orig_key = key
 	end
 
+	#
+	# Set the raw buffer and the original buffer if one has not been set.
+	#
+	def buf=(buf)
+		@orig_buf = buf if (@orig_buf == nil or @buf == nil)
+		@buf = buf
+	end
+
 	attr_accessor :key # :nodoc:
 	attr_accessor :orig_key # :nodoc:
+	attr_reader   :buf # :nodoc:
+	attr_reader   :orig_buf # :nodoc:
 	attr_accessor :encoded # :nodoc:
 	attr_accessor :context # :nodoc:
 	attr_accessor :badchars # :nodoc:
-	attr_accessor :buf # :nodoc:
 
 	# Decoder settings
 	attr_accessor :decoder_key_offset, :decoder_key_size, :decoder_key_pack # :nodoc:
@@ -300,6 +309,9 @@ protected
 		state.decoder_key_size   = decoder_key_size
 		state.decoder_key_pack   = decoder_key_pack
 		state.decoder_stub       = nil
+
+		# Restore the original buffer in case it was modified.
+		state.buf                = state.orig_buf
 	end
 
 	#
