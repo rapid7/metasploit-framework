@@ -44,11 +44,13 @@ module FindPort
 	# currently only works for shells.
 	#
 	def handler(sock)
+		return if not sock
+		
 		_find_prefix(sock)
 
 		# Flush the receive buffer
-		sock.get(1)
-
+		sock.get_once(-1, 1)
+		
 		# If this is a multi-stage payload, then we just need to blindly
 		# transmit the stage and create the session, hoping that it works.
 		if (self.payload_type != Msf::Payload::Type::Single)
@@ -125,7 +127,7 @@ protected
 		sock.put("\necho #{ebuf}\n")
 
 		# Try to read a response
-		rbuf = sock.get(3)
+		rbuf = sock.get_once
 
 		# If it contains our string, then we rock
 		if (rbuf =~ /#{ebuf}/)
