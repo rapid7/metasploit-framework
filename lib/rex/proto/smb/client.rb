@@ -622,6 +622,12 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.smb_send(pkt.to_s)
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 		
+		
+		# The server doesn't know about NTLM_NEGOTIATE, try ntlmv1
+		if (ack['Payload']['SMB'].v['ErrorClass'] == 0x00020002)
+			return session_setup_ntlmv1(user, pass, domain)
+		end
+		
 		# Make sure the error code tells us to continue processing
 		if (ack['Payload']['SMB'].v['ErrorClass'] != 0xc0000016)
 			failure = XCEPT::ErrorCode.new

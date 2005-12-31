@@ -4,7 +4,7 @@ module Msf
 module Encoders
 module Sparc
 
-class LongXor < Msf::Encoder::Xor
+class LongXor < Msf::Encoder::XorAdditiveFeedback
 
 	def initialize
 		super(

