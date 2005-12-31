@@ -95,6 +95,8 @@ class DataStore < Hash
 		option_hash.each_pair { |key, val|
 			self.store(key, val.to_s)
 
+			puts "imported(#{key}) = #{imported}"
+
 			@imported[key] = imported
 		}
 	end
@@ -151,6 +153,16 @@ class DataStore < Hash
 	def user_defined
 		reject { |k, v|
 			@imported[k] == true
+		}
+	end
+
+	#
+	# Remove all imported options from the data store.
+	#
+	def clear_non_user_defined
+		@imported.delete_if { |k, v|
+			self.delete(k) if (v)
+			v
 		}
 	end
 

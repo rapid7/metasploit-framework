@@ -180,6 +180,8 @@ class Driver < Msf::Ui::Driver
 				
 				if (framework and framework.modules.valid?(val) == false)
 					return false
+				else
+					active_module.datastore.clear_non_user_defined
 				end
 			when "sessionlogging"
 				handle_session_logging(val) if (glob)
