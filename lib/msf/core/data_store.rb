@@ -95,8 +95,6 @@ class DataStore < Hash
 		option_hash.each_pair { |key, val|
 			self.store(key, val.to_s)
 
-			puts "imported(#{key}) = #{imported}"
-
 			@imported[key] = imported
 		}
 	end
