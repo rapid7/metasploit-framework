@@ -68,23 +68,14 @@ ARCH_X86   = 'x86'
 ARCH_MIPS  = 'mips'
 ARCH_PPC   = 'ppc'
 ARCH_SPARC = 'sparc'
+ARCH_CMD   = 'cmd'
 ARCH_TYPES =
 	[
 		ARCH_X86,
 		ARCH_MIPS,
 		ARCH_PPC,
-		ARCH_SPARC
+		ARCH_SPARC,
+		ARCH_CMD,
 	]
 
-
-ARCH_CMD_UNIX  = 'cmd_unix'
-ARCH_CMD_LINUX = 'cmd_linux'
-ARCH_CMD_BSD   = 'cmd_bsd' 
-ARCH_CMD       =
-	[
-		ARCH_CMD_UNIX,
-		ARCH_CMD_LINUX,
-		ARCH_CMD_BSD
-	]
-
-ARCH_ALL   = ARCH_TYPES + ARCH_CMD
+ARCH_ALL = ARCH_TYPES

@@ -110,6 +110,8 @@ class EncodedPayload
 
 				# Get the minimum number of nops to use
 				min = (reqs['MinNops'] || 0).to_i
+				min = 0 if reqs['DisableNops']
+				
 
 				# Check to see if we have enough room for the minimum requirements
 				if ((reqs['Space']) and
@@ -163,6 +165,9 @@ class EncodedPayload
 			 (reqs['MaxNops'] < self.nop_sled_size))
 			self.nop_sled_size = reqs['MaxNops']
 		end
+
+		# Check for the DisableNops setting
+		self.nop_sled_size = 0 if reqs['DisableNops']
 
 		# Now construct the actual sled
 		if (self.nop_sled_size > 0)
