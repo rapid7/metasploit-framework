@@ -1,5 +1,7 @@
 require 'base64'
 require 'md5'
+require 'zlib'
+require 'stringio'
 
 module Rex
 
@@ -325,6 +327,17 @@ module Text
 	#
 	def self.compress(str)
 		str.gsub(/\n/m, ' ').gsub(/\s+/, ' ').gsub(/^\s+/, '').gsub(/\s+$/, '')
+	end
+
+	#
+	# Compresses a string using gzip
+	#
+	def self.gzip(str)
+    	s = ""
+    	w = Zlib::GzipWriter.new(StringIO.new(s))
+    	w << str
+    	w.close
+    	return s
 	end
 	
 	#
