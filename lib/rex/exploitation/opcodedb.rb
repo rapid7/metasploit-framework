@@ -534,6 +534,20 @@ class Client
 	end
 
 	#
+	# Disables response parsing.
+	#
+	def disable_parse
+		@disable_parse = true
+	end
+
+	#
+	# Enables response parsing.
+	#
+	def enable_parse
+		@disable_parse = false
+	end
+
+	#
 	# Returns an array of MetaType instances.
 	#
 	def meta_types
@@ -753,12 +767,14 @@ protected
 	def parse_response(xml)
 		@last_xml = xml
 
-		source = REXML::Source.new(xml)
-		doc    = REXML::Document.new
-		
-		REXML::Parsers::TreeParser.new(source, doc).parse
-
-		translate_element(doc.root)
+		if (!@disable_parse)
+			source = REXML::Source.new(xml)
+			doc    = REXML::Document.new
+			
+			REXML::Parsers::TreeParser.new(source, doc).parse
+	
+			translate_element(doc.root)
+		end
 	end
 
 	#

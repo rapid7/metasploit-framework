@@ -1,7 +1,11 @@
 require 'base64'
 require 'md5'
-require 'zlib'
 require 'stringio'
+
+begin
+	require 'zlib'
+rescue LoadError
+end
 
 module Rex
 
@@ -330,9 +334,23 @@ module Text
 	end
 
 	#
+	# Returns true if gzip can be used.
+	#
+	def self.gzip_present?
+		begin
+			Zlib
+			return true
+		rescue
+			return false
+		end
+	end
+
+	#
 	# Compresses a string using gzip
 	#
 	def self.gzip(str)
+		raise RuntimeError, "Gzip support is not present." if (!gzip_present?)
+
     	s = ""
     	w = Zlib::GzipWriter.new(StringIO.new(s))
     	w << str
