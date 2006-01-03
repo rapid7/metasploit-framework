@@ -246,6 +246,8 @@ class Module
 			
 			sv.each do |x|
 
+				dlog("Checking compat [#{mod.refname} with #{self.refname}]: #{x} to #{mv.join(", ")}", 'core', LEV_3)
+
 				# Verify that any negate values are not matched
 				if (x[0].chr == '-' and mv.include?(x[1, x.length-1]))
 					dlog("Module #{mod.refname} is incompatible with #{self.refname} for #{k}: limiter was #{x}, value was #{mval}", 'core', LEV_1)
