@@ -1,0 +1,26 @@
+HKCR
+{
+	PassiveX.PassiveX.1 = s 'PassiveX Class'
+	{
+		CLSID = s '{B3AC7307-FEAE-4e43-B2D6-161E68ABA838}'
+	}
+	PassiveX.PassiveX = s 'PassiveX Class'
+	{
+		CLSID = s '{B3AC7307-FEAE-4e43-B2D6-161E68ABA838}'
+		CurVer = s 'PassiveX.PassiveX.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {B3AC7307-FEAE-4e43-B2D6-161E68ABA838} = s 'PassiveX Class'
+		{
+			ProgID = s 'PassiveX.PassiveX.1'
+			VersionIndependentProgID = s 'PassiveX.PassiveX'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{CA8B739E-450C-47bb-A557-3579A633BB5D}'
+		}
+	}
+}
