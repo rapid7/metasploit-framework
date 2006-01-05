@@ -24,7 +24,7 @@ module DllInject
 			'Description'   => 'Inject a custom DLL into the exploited process',
 			'Author'        => 
 				[
-					'Jarkko Turkulainen <jt@klake.org>',
+					'jt <jt@klake.org>',
 					'skape',
 				],
 			'Platform'      => 'win',

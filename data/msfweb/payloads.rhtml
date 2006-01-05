@@ -57,8 +57,8 @@
 		<td class='textNormal'><%= html_escape(modinst.version) %></td>
 	</tr>
 	<tr>
-		<td align='right' width='80' class='textBold'>Authors:</td>
-		<td class='textNormal'><%= html_escape(modinst.author.join("<br/>")) %></td>
+		<td align='right' width='80' class='textBold' valign='top'>Authors:</td>
+		<td class='textNormal'><%= modinst.author.map { |x| html_escape(x) }.join("<br/>") %></td>
 	</tr>
 	<tr>
 		<td align='right' width='80' class='textBold' valign='top'>Description:</td>
