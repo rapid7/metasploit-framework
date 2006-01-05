@@ -348,13 +348,27 @@ module Text
 	#
 	# Compresses a string using gzip
 	#
-	def self.gzip(str)
+	def self.gzip(str, level = 9)
+		raise RuntimeError, "Gzip support is not present." if (!gzip_present?)
+        raise RuntimeError, "Invalid gzip compression level" if (level < 1 or level > 9)
+
+    	s = ""
+    	gz = Zlib::GzipWriter.new(StringIO.new(s), level)
+    	gz << str
+    	gz.close
+    	return s
+	end
+	
+    #
+	# Uncompresses a string using gzip
+	#
+	def self.ungzip(str)
 		raise RuntimeError, "Gzip support is not present." if (!gzip_present?)
 
     	s = ""
-    	w = Zlib::GzipWriter.new(StringIO.new(s))
-    	w << str
-    	w.close
+    	gz = Zlib::GzipReader.new(StringIO.new(str))
+    	s << gz.read
+    	gz.close
     	return s
 	end
 	
@@ -408,8 +422,6 @@ protected
 
 		buf
 	end
-
-
 
 end
 end

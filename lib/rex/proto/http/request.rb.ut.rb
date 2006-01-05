@@ -33,13 +33,21 @@ class Rex::Proto::Http::Request::UnitTest < Test::Unit::TestCase
 			"Eat: Babies\r\n" +
 			"\r\n")
 
-		assert_equal('POST', h.method)
-		assert_equal('/foo', h.uri)
-		assert_equal('1.0', h.proto)
-		assert_equal("POST /foo HTTP/1.0\r\n", h.cmd_string)
+		assert_equal('POST', h.method, 'method')
+		assert_equal('/foo', h.uri, 'uri')
+		assert_equal('1.0', h.proto, 'proto')
+		assert_equal('Babies', h['Eat'], 'header')
+
+		assert_equal("POST /foo HTTP/1.0\r\n", h.cmd_string, 'cmd_string')
+
 		h.method = 'GET'
-		assert_equal("GET /foo HTTP/1.0\r\n", h.cmd_string)
-		assert_equal('Babies', h['Eat'])
+		assert_equal("GET /foo HTTP/1.0\r\n", h.cmd_string, 'set method')
+
+        h.uri = '/bar'
+		assert_equal("GET /bar HTTP/1.0\r\n", h.cmd_string, 'set uri')
+
+        h.proto = '1.2'
+		assert_equal("GET /bar HTTP/1.2\r\n", h.cmd_string, 'set proto')
 	end
 
 end

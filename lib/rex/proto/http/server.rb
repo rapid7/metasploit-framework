@@ -103,6 +103,7 @@ class Server
 		self.listen_host = listen_host
 		self.listen_port = port
 		self.listener    = nil
+        self.server_name = DefaultServer
 		self.resources   = {}
 	end
 
@@ -195,7 +196,7 @@ class Server
 	# Adds Server headers and stuff.
 	#
 	def add_response_headers(resp)
-		resp['Server'] = DefaultServer
+		resp['Server'] = self.server_name
 	end
 
 	#
@@ -233,6 +234,11 @@ class Server
 	end
 
 	attr_accessor :listen_port, :listen_host
+    
+    #
+	# Server name used by this servier instance
+	#
+	attr_accessor :server_name
 
 protected
 
@@ -329,6 +335,7 @@ protected
 			close_client(cli)
 		end
 	end
+	
 
 end
 

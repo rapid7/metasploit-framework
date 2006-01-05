@@ -122,17 +122,47 @@ class Packet
 		return comp
 	end
 
+    #
+    # Build a 'Transfer-Encoding: chunked' payload with random chunk sizes
+    #
+    def chunk(str, min_size = 1, max_size = 1000)
+        chunked = ''
+
+        # min chunk size is 1 byte
+        if (min_size < 1); min_size = 1; end
+
+        # don't be dumb
+        if (max_size < min_size); max_size = min_size; end
+
+        while (str.size > 0)
+            chunk = str.slice!(0, rand(max_size - min_size) + min_size)
+            chunked += sprintf("%x", chunk.size) + "\r\n" + chunk + "\r\n"
+        end
+        chunked += "0\r\n\r\n"
+    end
+
 	#
 	# Converts the packet to a string.
 	#
 	def to_s
+        content = self.body.dup
 		# Update the content length field in the header with the body length.
-		if (self.body and self.auto_cl)
-			self.headers['Content-Length'] = self.body.length
+		if (content)
+            if (self.auto_cl == true && self.transfer_chunked == true)
+                raise RuntimeError, "'Content-Length' and 'Transfer-Encoding: chunked' are incompatable"
+            elsif self.auto_cl == true
+			    self.headers['Content-Length'] = content.length
+            elsif self.transfer_chunked == true
+                if self.proto != '1.1'
+                    raise RuntimeError, 'Chunked encoding is only available via 1.1'
+                end
+                self.headers['Transfer-Encoding'] = 'chunked'
+                content = self.chunk(content, self.chunk_min_size, self.chunk_max_size)
+            end
 		end
 
 		str  = self.headers.to_s(cmd_string)
-		str += self.body || ''
+		str += content || ''
 	end
 
 	#
@@ -164,7 +194,11 @@ class Packet
 	attr_accessor :body
 	attr_accessor :auto_cl
 	attr_accessor :max_data
+	attr_accessor :transfer_chunked
 	attr_reader   :incomplete
+
+    attr_accessor :chunk_min_size
+    attr_accessor :chunk_max_size
 	
 protected
 
@@ -172,7 +206,6 @@ protected
 	attr_writer   :error
 	attr_writer   :incomplete
 	attr_accessor :body_bytes_left
-	attr_accessor :transfer_chunked
 	attr_accessor :inside_chunk
 
 	##

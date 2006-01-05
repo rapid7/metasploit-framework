@@ -69,6 +69,8 @@ module Common
 	end
 
 	def self.platform_icons(platform)
+        # nil?
+        return "" if (platform.nil?)
 		# If this module has no platforms, then we don't show any icons...
 		return "" if (platform.empty?)
 

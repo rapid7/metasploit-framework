@@ -16,7 +16,7 @@ Indent = '   '
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create
 
-if (ARGV.length <= 1)
+if (ARGV.length < 1)
 	tbl = Rex::Ui::Text::Table.new(
 		'Header'  => 'Exploits',
 		'Indent'  => 4,
@@ -42,13 +42,31 @@ end
 # Initialize the user interface
 exploit.init_ui($stdout, $stdin)
 
-# Evalulate the command
-mode = ARGV.pop.downcase
+# Evalulate the command (default to "help")
+mode = ARGV.pop || 'h'
 
 # Import options
 exploit.datastore.import_options_from_s(ARGV.join(' '))
 
 case mode.downcase
+    when 'h'
+        tbl = Rex::Ui::Text::Table.new(
+            'Header' => "Usage: #{$0} #{exploit_name} <option=value> [mode]",
+            'Indent'  => 4,
+            'Columns' => ['Mode', 'Description']
+        )
+    
+        tbl << ['(H)elp', "you're looking at it baby!"]
+        tbl << ['(S)ummary', 'show information about this module']
+        tbl << ['(O)ptions', 'show available options for this module']
+        tbl << ['(A)dvanced', 'show available advanced options for this module']
+        tbl << ['(I)ds Evasion', 'show available ids evasion options for this module']
+        tbl << ['(P)ayloads', 'show available payloads for this module']
+        tbl << ['(T)argets', 'show available targets for this module']
+        tbl << ['(C)heck', 'Attempt to check if the target is vulnerable']
+        tbl << ['(E)xploit', 'Attempt to exploit the target']
+        
+        $stdout.puts tbl.to_s
 	when "s"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(exploit, Indent))
 	when "o"
@@ -101,5 +119,6 @@ case mode.downcase
 			$stderr.puts($!.backtrace.join("\n"))
 		end
 end
+
 
 $stdout.puts
