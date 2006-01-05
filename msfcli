@@ -55,6 +55,8 @@ case mode.downcase
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(exploit, Indent))
 	when "a"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(exploit, Indent))
+	when "i"
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(exploit, Indent))
 	when "p"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_compatible_payloads(
 			exploit, Indent, "Compatible payloads"))

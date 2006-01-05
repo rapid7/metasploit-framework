@@ -21,6 +21,7 @@ class OptBase
 	def initialize(in_name, attrs = [])
 		self.name     = in_name
 		self.advanced = false
+		self.evasion  = false
 		self.required = attrs[0] || false
 		self.desc     = attrs[1]
 		self.default  = attrs[2]
@@ -40,6 +41,13 @@ class OptBase
 		return advanced
 	end
 
+	#
+	# Returns true if this is an evasion option.
+	#
+	def evasion?
+		return evasion
+	end
+	
 	#
 	# Returns true if the supplied type is equivalent to this option's type.
 	#
@@ -93,6 +101,10 @@ class OptBase
 	# Whether or not this is an advanced option.
 	#
 	attr_accessor :advanced
+	#
+	# Whether or not this is an evasion option.
+	#
+	attr_accessor :evasion
 	#
 	# The module or entity that owns this option.
 	#
@@ -312,11 +324,12 @@ class OptionContainer < Hash
 
 	#
 	# Returns whether or not the container has any options,
-	# excluding advanced.
+	# excluding advanced (and evasions).
 	#
 	def has_options?
 		each_option { |name, opt|
 			return true if (opt.advanced? == false)
+			
 		}
 		
 		return false
@@ -333,7 +346,19 @@ class OptionContainer < Hash
 
 		return false
 	end
+	
+	#
+	# Returns whether or not the container has any evasion
+	# options.
+	#
+	def has_evasion_options?
+		each_option { |name, opt|
+			return true if (opt.evasion? == true)
+		}
 
+		return false
+	end
+	
 	#
 	# Removes an option.
 	#
@@ -347,38 +372,38 @@ class OptionContainer < Hash
 	#
 	# Adds one or more options.
 	#
-	def add_options(opts, owner = nil, advanced = false)
+	def add_options(opts, owner = nil, advanced = false, evasion = false)
 		return false if (opts == nil)
 
 		if (opts.kind_of?(Array))
-			add_options_array(opts, owner, advanced)
+			add_options_array(opts, owner, advanced, evasion)
 		else
-			add_options_hash(opts, owner, advanced)
+			add_options_hash(opts, owner, advanced, evasion)
 		end
 	end
 
 	#
 	# Add options from a hash of names.
 	#
-	def add_options_hash(opts, owner = nil, advanced = false)
+	def add_options_hash(opts, owner = nil, advanced = false, evasion = false)
 		opts.each_pair { |name, opt|
-			add_option(opt, name, owner, advanced)
+			add_option(opt, name, owner, advanced, evasion)
 		}
 	end
 
 	#
 	# Add options from an array of option instances or arrays.
 	#
-	def add_options_array(opts, owner = nil, advanced = false)
+	def add_options_array(opts, owner = nil, advanced = false, evasion = false)
 		opts.each { |opt|
-			add_option(opt, nil, owner, advanced)
+			add_option(opt, nil, owner, advanced, evasion)
 		}
 	end
 
 	#
 	# Adds an option.
 	#
-	def add_option(option, name = nil, owner = nil, advanced = false)
+	def add_option(option, name = nil, owner = nil, advanced = false, evasion = false)
 		if (option.kind_of?(Array))
 			option = option.shift.new(name, option)
 		elsif (!option.kind_of?(OptBase))
@@ -388,6 +413,7 @@ class OptionContainer < Hash
 		end
 
 		option.advanced = advanced
+		option.evasion  = evasion
 		option.owner    = owner
 
 		self.store(option.name, option)
@@ -403,6 +429,15 @@ class OptionContainer < Hash
 		return false if (opts == nil)
 
 		add_options(opts, owner, true)
+	end
+
+	#
+	# Alias to add evasion options that sets the proper state flag.
+	#
+	def add_evasion_options(opts, owner = nil)
+		return false if (opts == nil)
+
+		add_options(opts, owner, false, true)
 	end
 
 	#

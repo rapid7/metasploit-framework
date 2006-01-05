@@ -111,6 +111,13 @@ class ReadableText
 			output += "\n"
 		end
 
+		# Evasion options
+		if (mod.options.has_evasion_options?)
+			output += "Evasion options:\n"
+			output += dump_evasion_options(mod, indent)
+			output += "\n"
+		end
+		
 		# Payload information
 		if (mod.payload_info.length)
 			output += "Payload information:\n"
@@ -171,6 +178,13 @@ class ReadableText
 			output += "\n"
 		end
 
+		# Advanced options
+		if (mod.options.has_evasion_options?)
+			output += "Evasion options:\n"
+			output += dump_evasion_options(mod, indent)
+			output += "\n"
+		end
+		
 		# Description
 		output += "Description:\n"
 		output += word_wrap(Rex::Text.compress(mod.description))
@@ -213,7 +227,14 @@ class ReadableText
 			output += dump_advanced_options(mod)
 			output += "\n"
 		end
-	
+
+		# Evasion options
+		if (mod.options.has_evasion_options?)
+			output += "Evasion options:\n"
+			output += dump_evasion_options(mod)
+			output += "\n"
+		end
+			
 		# Description
 		output += "Description:\n"
 		output += word_wrap(Rex::Text.compress(mod.description))
@@ -248,6 +269,13 @@ class ReadableText
 			output += "\n"
 		end
 
+		# Evasion options
+		if (mod.options.has_evasion_options?)
+			output += "Evasion options:\n"
+			output += dump_evasion_options(mod)
+			output += "\n"
+		end
+		
 		# Description
 		output += "Description:\n"
 		output += word_wrap(Rex::Text.compress(mod.description))
@@ -279,7 +307,8 @@ class ReadableText
 			name, opt = entry
 
 			next if (opt.advanced?)
-
+			next if (opt.evasion?)
+			
 			val = mod.datastore[name] || opt.default || ''
 
 			tbl << [ name, val.to_s, opt.required? ? "yes" : "no", opt.desc ]
@@ -310,6 +339,28 @@ class ReadableText
 		return output
 	end
 
+	#
+	# Dumps the evasion options associated with the supplied module.
+	#
+	def self.dump_evasion_options(mod, indent = '')
+		output = ''
+		pad    = indent
+
+		mod.options.sorted.each { |entry|
+			name, opt = entry
+
+			next if (!opt.evasion?)
+
+			val = mod.datastore[name] || opt.default || ''
+
+			output += pad + "Name   : #{name}\n"
+			output += pad + "Default: #{val}\n\n"
+			output += word_wrap(opt.desc, indent.length + 3)
+		}
+
+		return output
+	end
+	
 	#
 	# Dumps the contents of a datastore.
 	#

@@ -116,6 +116,7 @@ class Module
 		self.options = OptionContainer.new
 		self.options.add_options(info['Options'], self.class)
 		self.options.add_advanced_options(info['AdvancedOptions'], self.class)
+		self.options.add_evasion_options(info['EvasionOptions'], self.class)
 
 		# Create and initialize the data store for this module
 		self.datastore = ModuleDataStore.new(self)
@@ -487,6 +488,14 @@ protected
 	end
 
 	#
+	# Register evasion options with a specific owning class.
+	#
+	def register_evasion_options(options, owner = self.class)
+		self.options.add_evasion_options(options, owner)
+		self.datastore.import_options(self.options)
+	end
+	
+	#
 	# Removes the supplied options from the module's option container
 	# and data store.
 	#
@@ -623,13 +632,14 @@ protected
 	#
 	# Merges options.
 	#
-	def merge_info_options(info, val, advanced = false)
-		key_name = ((advanced) ? 'Advanced' : '') + 'Options'
+	def merge_info_options(info, val, advanced = false, evasion = false)
+	
+		key_name = ((advanced) ? 'Advanced' : (evasion) ? 'Evasion' : '') + 'Options'
 
 		new_cont = OptionContainer.new
-		new_cont.add_options(val, advanced)
+		new_cont.add_options(val, advanced, evasion)
 		cur_cont = OptionContainer.new
-		cur_cont.add_options(info[key_name] || [], advanced)
+		cur_cont.add_options(info[key_name] || [], advanced, evasion)
 
 		new_cont.each_option { |name, option|
 			next if (cur_cont.get(name))
@@ -642,10 +652,17 @@ protected
 	# 
 	# Merges advanced options.
 	#
-	def merge_info_advancedoptions(info, val)
-		merge_info_options(info, val, true)
+	def merge_info_advanced_options(info, val)
+		merge_info_options(info, val, true, false)
 	end
 
+	# 
+	# Merges advanced options.
+	#
+	def merge_info_evasion_options(info, val)
+		merge_info_options(info, val, false, true)
+	end
+	
 	attr_accessor :module_info # :nodoc:
 	attr_writer   :author, :arch, :platform, :references, :datastore, :options # :nodoc:
 	attr_writer   :privileged # :nodoc:

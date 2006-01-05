@@ -778,6 +778,12 @@ class Core
 					else
 						print_error("No module selected.")
 					end
+				when 'evasion'
+					if (mod)
+						show_evasion_options(mod)
+					else
+						print_error("No module selected.")
+					end					
 				when "plugins"
 					show_plugins
 				when "targets"
@@ -796,7 +802,7 @@ class Core
 	def cmd_show_tabs(str, words)
 		res = %w{all encoders nops exploits payloads recon plugins}
 		if (active_module)
-			res.concat(%w{ options advanced targets })
+			res.concat(%w{ options advanced evasion targets })
 		end
 		return res
 	end
@@ -1200,6 +1206,29 @@ protected
 		end
 	end
 
+	def show_evasion_options(mod) # :nodoc:
+		mod_opt = Serializer::ReadableText.dump_evasion_options(mod, '   ') 
+		print("\nModule evasion options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
+
+		# If it's an exploit and a payload is defined, create it and
+		# display the payload's options
+		if (mod.exploit? and mod.datastore['PAYLOAD'])
+			p = framework.modules.create(mod.datastore['PAYLOAD'])
+
+			if (!p)
+				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
+				return
+			end
+			
+			p.share_datastore(mod.datastore)
+
+			if (p)
+				p_opt = Serializer::ReadableText.dump_evasion_options(p, '   ') 
+				print("\nPayload evasion options:\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
+			end
+		end
+	end
+	
 	def show_plugins # :nodoc:
 		tbl = generate_module_table("Plugins")
 
