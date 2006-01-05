@@ -26,12 +26,21 @@ class Job
 	#
 	def start(async = false)
 		if (async)
-			run_proc.call(ctx)
+			begin
+				run_proc.call(ctx)
+			rescue ::Exception
+				container.stop_job(jid)
+
+				raise $!
+			end
 		else
 			self.job_thread = Thread.new {
-				run_proc.call(ctx)
-				clean_proc.call(ctx)
-				remove_job(self)
+				begin
+					run_proc.call(ctx)
+				ensure
+					clean_proc.call(ctx)
+					remove_job(self)
+				end
 			}
 		end
 	end
