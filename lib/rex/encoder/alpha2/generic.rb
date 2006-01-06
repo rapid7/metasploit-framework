@@ -50,7 +50,7 @@ class Generic
 			first = (randbase/0x10) + 0x50
 		else
 			# pick one at "random"
-			first = randbase/0x10
+			first = (randbase/0x10)
 			if (first % 2)
 				first += 0x40
 			else
@@ -59,7 +59,7 @@ class Generic
 		end
 
 		# now add our new bytes :)
-		first.chr + second.chr
+		first.to_i.chr + second.chr
 	end
 
 	def Generic.encode(buf, reg, offset)
