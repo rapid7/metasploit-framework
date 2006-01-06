@@ -333,6 +333,16 @@ class Encoder < Module
 		return block
 	end
 
+	#
+	# Provides the encoder with an opportunity to return the native format (as
+	# in the format the code will be in when it executes on the target).  In
+	# general, the same buffer is returned to the caller.  However, for things
+	# like unicode, the buffer is unicod encoded and then returned.
+	#
+	def to_native(buf)
+		buf
+	end
+
 protected
 
 	#
