@@ -5,7 +5,9 @@ module Msf
 module Encoders
 module X86
 
-class UnicodeUpper < Msf::Encoder
+class UnicodeUpper < Msf::Encoder::Alphanum
+
+	Rank = LowRanking
 
 	def initialize
 		super(
@@ -17,7 +19,7 @@ class UnicodeUpper < Msf::Encoder
          	},
 			'Author'           => [ 'pusscat', 'skylined' ],
 			'Arch'             => ARCH_X86,
-			'EncoderType'      => 'unicode',
+			'EncoderType'      => Msf::Encoder::Type::AlphanumUnicodeUpper,
 			'Decoder'          =>
 				{
 					'BlockSize' => 1,
@@ -29,8 +31,8 @@ class UnicodeUpper < Msf::Encoder
 	# being encoded.
 	#
 	def decoder_stub(state)
-		reg = 'EAX'
-		offset = 0
+		reg    = datastore['BufferRegister'] || 'EAX' 
+		offset = datastore['BufferOffset']   || 0
 
 		Rex::Encoder::Alpha2::UnicodeUpper::gen_decoder(reg, offset) 
 	end
