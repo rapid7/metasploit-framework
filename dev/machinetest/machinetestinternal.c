@@ -23,6 +23,13 @@ static VALUE t_test(VALUE self, VALUE str, VALUE all) {
 			for(i = 0; i < 20; i++) {
 				signal(i, SIG_DFL);
 			}
+
+			__asm__ __volatile__(
+				"mov %0, %%eax"
+				: 
+				: "m"((long)RSTRING(str)->ptr + len)
+				: "%eax");
+
 			((void (*)(void)) RSTRING(str)->ptr + len)();
 			exit(1);
 		default:
