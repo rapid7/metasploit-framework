@@ -51,6 +51,14 @@ class UnicodeUpper < Msf::Encoder::Alphanum
 	def encode_end(state)
 		state.encoded += Rex::Encoder::Alpha2::UnicodeUpper::add_terminator()
 	end
+
+	#
+	# Returns the unicode version of the supplied buffer.
+	#
+	def to_native(buffer)
+		Rex::Text.to_unicode(buffer)
+	end
+
 end
 
 end end end
