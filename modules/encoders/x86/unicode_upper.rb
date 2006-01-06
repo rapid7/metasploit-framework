@@ -31,8 +31,8 @@ class UnicodeUpper < Msf::Encoder::Alphanum
 	# being encoded.
 	#
 	def decoder_stub(state)
-		reg    = datastore['BufferRegister'] || 'EAX' 
-		offset = datastore['BufferOffset']   || 0
+		reg    = datastore['BufferRegister']    || 'EAX' 
+		offset = datastore['BufferOffset'].to_i || 0
 
 		Rex::Encoder::Alpha2::UnicodeUpper::gen_decoder(reg, offset) 
 	end
