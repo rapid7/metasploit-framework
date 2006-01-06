@@ -11,18 +11,19 @@ class Msf::Module::Author
 	# A hash of known author names
 	Known =
 		{
-				'hdm'       => 'hdm@metasploit.com',
-				'H D Moore' => 'hdm@metasploit.com',
-				'spoonm'    => 'spoonm@gmail.com',
-				'skape'     => 'mmiller@hick.org',
-				'vlad902'   => 'vlad902@gmail.com',
-				'optyx'     => 'optyx@hatesemail.com',
-				'anonymous' => 'anonymous-contributor@metasploit.com',
-				'stinko'    => 'vinnie@metasploit.com',
-				'MC'        => 'y0@w00t-shell.net',
-                'cazz'      => 'bmc@shmoo.com',
-		        'pusscat'   => 'pusscat@gmail.com',
-        }
+			'hdm'       => 'hdm@metasploit.com',
+			'H D Moore' => 'hdm@metasploit.com',
+			'spoonm'    => 'spoonm@gmail.com',
+			'skape'     => 'mmiller@hick.org',
+			'vlad902'   => 'vlad902@gmail.com',
+			'optyx'     => 'optyx@hatesemail.com',
+			'anonymous' => 'anonymous-contributor@metasploit.com',
+			'stinko'    => 'vinnie@metasploit.com',
+			'MC'        => 'y0@w00t-shell.net',
+			'cazz'      => 'bmc@shmoo.com',
+			'pusscat'   => 'pusscat@gmail.com',
+			'skylined'  => 'skylined@edup.tudelft.nl',
+		}
 
 	#
 	# Class method that translates a string to an instance of the Author class,
