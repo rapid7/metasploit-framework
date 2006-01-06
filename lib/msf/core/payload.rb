@@ -201,15 +201,6 @@ class Payload < Msf::Module
 	##
 
 	#
-	# This method ensures that the options associated with this payload all
-	# have valid values according to each required option in the option
-	# container.
-	#
-	def validate
-		self.options.validate(self.datastore)
-	end
-
-	#
 	# Generates the payload and returns the raw buffer to the caller.
 	#
 	def generate

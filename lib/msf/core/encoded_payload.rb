@@ -94,19 +94,44 @@ class EncodedPayload
 			encoders.each { |encname, encmod|
 				self.encoder = encmod.new
 				self.encoded = nil
-			
-				# Try encoding with the current encoder
-				begin
-					self.encoded = self.encoder.encode(self.raw, reqs['BadChars'])
-				rescue SyntaxError, ArgumentError
-					wlog("#{pinst.refname}: Failed to encode payload with encoder #{encoder.refname}: #{$!}\n#{$@.join("\n")}",
-						'core', LEV_1)
-					next
-				rescue
-					wlog("#{pinst.refname}: Failed to encode payload with encoder #{encoder.refname}: #{$!}",
+
+				# If there is an encoder type restriction, check to see if this
+				# encoder matches with what we're searching for.
+				if ((reqs['EncoderType']) and
+				    (self.encoder.encoder_type.split(/\s+/).include?(reqs['EncoderType']) == false))
+					wlog("#{pinst.refname}: Encoder #{encoder.refname} is not a compatible encoder type: #{reqs['EncoderType']} != #{self.encoder.encoder_type}",
 						'core', LEV_1)
 					next
 				end
+	
+				# If we have any encoder options, import them into the datastore
+				# of the encoder.
+				if (reqs['EncoderOptions'])
+					self.encoder.datastore.import_options_from_hash(reqs['EncoderOptions'])
+				end
+
+				# Validate the encoder to make sure it's properly initialized.
+				begin 
+					self.encoder.validate
+				rescue ::Exception
+					wlog("#{pinst.refname}: Failed to validate encoder #{encoder.refname}: #{$!}",
+						'core', LEV_1)
+					next
+				end
+		
+				# Try encoding with the current encoder
+				begin
+					self.encoded = self.encoder.encode(self.raw, reqs['BadChars'])
+				rescue ::Exception
+					wlog("#{pinst.refname}: Failed to encode payload with encoder #{encoder.refname}: #{$!}",
+						'core', LEV_1)
+
+					dlog("#{pinst.refname}: Call stack\n#{$@.join("\n")}", 'core', LEV_3)
+					next
+				end
+
+				dlog("#{pinst.refname}: Successfully encoded with encoder #{encoder.refname} (size is #{self.encoded.length})", 
+					'core', LEV_2)
 
 				# Get the minimum number of nops to use
 				min = (reqs['MinNops'] || 0).to_i

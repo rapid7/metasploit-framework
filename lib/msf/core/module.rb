@@ -346,6 +346,15 @@ class Module
 		self.datastore.import_options(self.options)
 	end
 	
+	#
+	# This method ensures that the options associated with this module all
+	# have valid values according to each required option in the option
+	# container.
+	#
+	def validate
+		self.options.validate(self.datastore)
+	end
+
 	##
 	#
 	# Just some handy quick checks
