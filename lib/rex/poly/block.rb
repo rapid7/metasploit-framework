@@ -82,11 +82,19 @@ class LogicalBlock
 	# Resets the block back to its starting point.
 	#
 	def reset
-		@perms    = []
-		@depends  = []
-		@clobbers = []
-		@offset   = nil
-		@state    = nil
+		@perms       = []
+		@depends     = []
+		@next_blocks = []
+		@clobbers    = []
+		@offset      = nil
+		@state       = nil
+	end
+
+	#
+	# Returns the block's name.
+	#
+	def name
+		@name
 	end
 
 	#
@@ -110,6 +118,14 @@ class LogicalBlock
 	#
 	def depends_on(*depends)
 		@depends = depends.dup
+	end
+
+	#
+	# Defines the next blocks, but not in a dependency fashion but rather in a
+	# linking of separate block contexts.
+	#
+	def next_blocks(*blocks)
+		@next_blocks = blocks.dup
 	end
 
 	#
@@ -259,6 +275,14 @@ protected
 
 		# Add it to the linear list of blocks
 		state.block_list << [ self, perm ]
+
+		# Generate all the blocks that follow this one.
+		@next_blocks.each { |b|
+			b.generate_block_list(state)
+		}
+
+		# Return the state's block list
+		state.block_list
 	end
 
 end
