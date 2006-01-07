@@ -34,12 +34,14 @@ module PassiveX
 			# data from it to the remote side.
 			@monitor_thread = Thread.new {
 				begin
-					while true
-						if ((rsock.has_read_data?) and 
-						    (buf = rsock.get))
+					begin
+						if ((rsock.has_read_data?(1)) and 
+						    (buf = rsock.get_once))
 							write_remote(buf)
+						else
+							flush_output
 						end
-					end
+					end while true
 				rescue ::Exception
 				end
 			}
@@ -79,6 +81,8 @@ module PassiveX
 		# the remote.
 		#
 		def write_local(buf)
+			dlog("PassiveX:#{self} Writing #{buf.length} to local side", 'core', LEV_3)
+
 			rsock.put(buf)
 		end
 
@@ -86,6 +90,8 @@ module PassiveX
 		# Writes data to the remote HTTP client via an indirect queue.
 		#
 		def write_remote(buf)
+			dlog("PassiveX:#{self} Queuing #{buf.length} to remote side", 'core', LEV_3)
+
 			@remote_queue += buf
 
 			flush_output
@@ -102,6 +108,9 @@ module PassiveX
 
 			begin
 				if (@remote)
+					dlog("PassiveX:#{self} Flushing remote output queue at #{resp.body.length} bytes", 'core', LEV_3)
+
+					@remote.keepalive = false
 					@remote.send_response(resp)
 					@remote = nil
 					@remote_queue = ''
@@ -341,7 +350,7 @@ protected
 					}
 				end
 
-				print_status("Sending second stage (#{resp.body.length} bytes to sid: #{sid}")
+				print_status("Sending stage to sid #{sid} (#{resp.body.length} bytes)")
 			when "/tunnel_in"
 				s.write_local(req.body) if (s = find_session_channel(sid))
 			when "/tunnel_out"

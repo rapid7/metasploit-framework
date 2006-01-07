@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'socket'
+require 'fcntl'
 
 module Rex
 module IO
@@ -69,7 +70,10 @@ module StreamAbstraction
 	# Writes to the local side.
 	#
 	def syswrite(buffer)
+		puts "writing #{buffer.length}"
+		Thread.pass
 		lsock.syswrite(buffer)
+		puts "finished"
 	end
 
 	#

@@ -25,16 +25,30 @@ module Stream
 	##
 
 	#
-	# This method writes the supplied buffer to the stream.
+	# This method writes the supplied buffer to the stream.  This method
+	# intelligent reduces the size of supplied buffers so that ruby doesn't get
+	# into a potential global thread blocking state when used on blocking
+	# sockets.  That is, this method will send the supplied buffer in chunks
+	# of, at most, 32768 bytes.
 	#
 	def write(buf, opts = {})
+		tsent = 0
+
 		begin
-			fd.syswrite(buf)
+			while (buf.length > 0)
+				sent = fd.syswrite(buf.slice(0, 32768))
+
+				buf.slice!(0, sent) if (sent > 0)
+
+				tsent += sent
+			end
 		rescue IOError
 			return nil if (fd.abortive_close == true)
 
 			raise $!
 		end
+
+		tsent
 	end
 
 	#
@@ -56,7 +70,7 @@ module Stream
 	#
 	def has_read_data?(timeout = nil)
 		begin
-			if ((rv = Kernel.select([ fd ], nil, nil, timeout)) and
+			if ((rv = Rex::ThreadSafe.select([ fd ], nil, nil, timeout)) and
 			    (rv[0]) and
 			    (rv[0][0] == fd))
 				true
