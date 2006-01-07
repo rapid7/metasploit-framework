@@ -13,7 +13,7 @@ module PassiveX
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'PassiveX Stager',
+			'Name'          => 'PassiveX Reverse HTTP Tunneling Stager',
 			'Version'       => '$Revision$',
 			'Description'   => 'Tunnel communication over HTTP',
 			'Author'        => 'skape',
