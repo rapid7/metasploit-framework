@@ -439,7 +439,7 @@ DWORD HttpTunnel::TransmitHttpRequest(
 	// Construct the full URI
 	if (HttpUriBase && HttpUriBase[0])
 		_snprintf(FullUri, sizeof(FullUri) - 1,
-				"%s/%s",
+				"%s%s",
 				HttpUriBase, Uri);
 	else
 		strncpy(FullUri, Uri, sizeof(FullUri) - 1);

