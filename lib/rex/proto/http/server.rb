@@ -103,7 +103,6 @@ class Server
 		self.listen_host = listen_host
 		self.listen_port = port
 		self.listener    = nil
-        self.server_name = DefaultServer
 		self.resources   = {}
 	end
 
@@ -179,7 +178,7 @@ class Server
 
 		# If a procedure was passed, mount the resource with it.
 		if (opts['Proc'])
-			mount(name, Handler::Proc, false, opts['Proc'])
+			mount(name, Handler::Proc, false, opts['Proc'], opts['VirtualDirectory'])
 		else
 			raise ArgumentError, "You must specify a procedure."
 		end
@@ -196,7 +195,7 @@ class Server
 	# Adds Server headers and stuff.
 	#
 	def add_response_headers(resp)
-		resp['Server'] = self.server_name
+		resp['Server'] = DefaultServer
 	end
 
 	#
@@ -234,11 +233,6 @@ class Server
 	end
 
 	attr_accessor :listen_port, :listen_host
-    
-    #
-	# Server name used by this servier instance
-	#
-	attr_accessor :server_name
 
 protected
 
@@ -306,7 +300,7 @@ protected
 			handler = p[0].new(self, *p[2])
 
 			# If the handler class requires a relative resource...
-			if (p[0].relative_resource_required?)
+			if (handler.relative_resource_required?)
 				# Substituted the mount point root in the request to make things
 				# relative to the mount point.
 				request.relative_resource = request.resource.gsub(/^#{root}/, '')
@@ -335,7 +329,6 @@ protected
 			close_client(cli)
 		end
 	end
-	
 
 end
 

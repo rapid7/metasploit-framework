@@ -68,8 +68,8 @@ IDR_PASSIVEX            REGISTRY DISCARDABLE    "PassiveX.bin"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,0
- PRODUCTVERSION 1,0,0,0
+ FILEVERSION 3,0,0,0
+ PRODUCTVERSION 3,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -87,14 +87,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Metasploit\0"
             VALUE "FileDescription", "PassiveX HTTP Tunneling Stager\0"
-            VALUE "FileVersion", "1, 0, 0, 0\0"
+            VALUE "FileVersion", "3, 0, 0, 0\0"
             VALUE "InternalName", "PassiveX\0"
             VALUE "LegalCopyright", "Copyright © 2005 Metasploit\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "PassiveX.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "Metasploit\0"
-            VALUE "ProductVersion", "1, 0, 0, 0\0"
+            VALUE "ProductVersion", "3, 0, 0, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END

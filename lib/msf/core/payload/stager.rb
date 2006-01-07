@@ -43,9 +43,17 @@ module Msf::Payload::Stager
 	end
 
 	#
-	# Transmit the associated stage.
+	# Whether or not any stages associated with this stager should be sent over
+	# the connection that is established.
 	#
-	def handle_connection(conn)
+	def stage_over_connection?
+		true
+	end
+
+	#
+	# Generates the stage payload and substitutes all offsets.
+	#
+	def generate_stage
 		p = stage_payload.dup
 
 		# Substitute variables in the stage
@@ -53,11 +61,24 @@ module Msf::Payload::Stager
 
 		# Prefix to the stage with whatever may be required and then rock it.
 		p = (self.stage_prefix || '') + p
-	
-		print_status("Sending stage (#{p.length} bytes)")
 
-		# Send the stage
-		conn.put(p)
+		return p
+	end
+
+	#
+	# Transmit the associated stage.
+	#
+	def handle_connection(conn)
+		# If the stage should be sent over the client connection that is
+		# established (which is the default), then go ahead and transmit it.
+		if (stage_over_connection?)
+			p = generate_stage
+
+			print_status("Sending stage (#{p.length} bytes)")
+
+			# Send the stage
+			conn.put(p)
+		end
 
 		# If the stage implements the handle connection method, sleep before
 		# handling it.

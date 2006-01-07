@@ -11,6 +11,8 @@ static DWORD FailedConnections = 0;
 
 HttpTunnel::HttpTunnel()
 : HttpHost(NULL),
+  HttpUriBase(NULL),
+  HttpSid(NULL),
   HttpPort(0),
   LocalTcpListener(0),
   LocalTcpClientSide(0),
@@ -43,6 +45,8 @@ HttpTunnel::~HttpTunnel()
  */
 DWORD HttpTunnel::Start(
 		IN LPSTR InHttpHost,
+		IN LPSTR InHttpUriBase,
+		IN LPSTR InHttpSid,
 		IN USHORT InHttpPort)
 {
 	DWORD ThreadId;
@@ -56,6 +60,28 @@ DWORD HttpTunnel::Start(
 			Result = ERROR_NOT_ENOUGH_MEMORY;
 			break;
 		}
+
+		if ((InHttpSid) &&
+		    (InHttpSid[0]) &&
+		    (!(HttpSid = strdup(InHttpSid))))
+		{
+			Result = ERROR_NOT_ENOUGH_MEMORY;
+			break;
+		}
+
+		if ((InHttpUriBase) &&
+		    (InHttpUriBase[0]) && 
+		    (!(HttpUriBase = strdup(InHttpUriBase))))
+		{
+			Result = ERROR_NOT_ENOUGH_MEMORY;
+			break;
+		}
+
+		// Eliminate any trailing slashes as to prevent potential problems.  If
+		// HttpUriBase is just "/", then it'll become virtuall unused.
+		if ((HttpUriBase) &&
+		    (HttpUriBase[strlen(HttpUriBase) - 1] == '/'))
+			HttpUriBase[strlen(HttpUriBase) - 1] = 0;
 
 		HttpPort = InHttpPort;
 
@@ -407,6 +433,18 @@ DWORD HttpTunnel::TransmitHttpRequest(
 	UCHAR     ReadBuffer[8192];
 	DWORD     ReadBufferLength;
 	DWORD     Result = ERROR_SUCCESS;
+	PCHAR     AdditionalHeaders = NULL;
+	CHAR      FullUri[1024];
+
+	// Construct the full URI
+	if (HttpUriBase && HttpUriBase[0])
+		_snprintf(FullUri, sizeof(FullUri) - 1,
+				"%s/%s",
+				HttpUriBase, Uri);
+	else
+		strncpy(FullUri, Uri, sizeof(FullUri) - 1);
+
+	FullUri[sizeof(FullUri) - 1] = 0;
 
 	do
 	{
@@ -443,7 +481,7 @@ DWORD HttpTunnel::TransmitHttpRequest(
 		if (!(RequestHandle = HttpOpenRequest(
 				ConnectHandle,
 				Method ? Method : TEXT("GET"),
-				Uri,
+				FullUri,
 				NULL,
 				NULL,
 				NULL,
@@ -454,6 +492,17 @@ DWORD HttpTunnel::TransmitHttpRequest(
 			Result = GetLastError();
 			break;
 		}
+
+		// If we were assigned an HTTP session identifier, then allocate an
+		// additional header for transmission to the remote side.
+		if (HttpSid)
+		{
+			// Yeah, I'm lame, this is easy to sig.  Improve me if you care!
+			if ((AdditionalHeaders = (PCHAR)malloc(strlen(HttpSid) + 32)))
+				sprintf(AdditionalHeaders,
+						"X-Sid: sid=%s\r\n",
+						HttpSid);
+		}
 		
 		PROFILE_CHECKPOINT("HttpOpenRequest <==");
 		PROFILE_CHECKPOINT("HttpSendRequest ==>");
@@ -461,8 +510,8 @@ DWORD HttpTunnel::TransmitHttpRequest(
 		// Send and endthe request
 		if ((!HttpSendRequest(
 				RequestHandle,
-				NULL,
-				0,
+				AdditionalHeaders,
+				(AdditionalHeaders) ? -1L : 0,
 				RequestPayload,
 				RequestPayloadLength)))
 		{
@@ -561,6 +610,8 @@ DWORD HttpTunnel::TransmitHttpRequest(
 	if (ConnectHandle)
 		InternetCloseHandle(
 				ConnectHandle);
+	if (AdditionalHeaders)
+		free(AdditionalHeaders);
 
 	// Set the output pointers or free up the output buffer
 	if (Result == ERROR_SUCCESS)

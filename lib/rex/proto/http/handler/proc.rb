@@ -15,10 +15,18 @@ class Handler::Proc < Handler
 	#
 	# Initializes the proc handler with the supplied procedure
 	#
-	def initialize(server, procedure)
+	def initialize(server, procedure, virt_dir = false)
 		super(server)
 
 		self.procedure = procedure
+		self.virt_dir  = virt_dir || false
+	end
+
+	#
+	# Returns true if the procedure is representing a virtual directory.
+	#
+	def relative_resource_required?
+		virt_dir	
 	end
 
 	#
@@ -35,6 +43,7 @@ class Handler::Proc < Handler
 protected
 
 	attr_accessor :procedure # :nodoc:
+	attr_accessor :virt_dir  # :nodoc:
 
 end
 

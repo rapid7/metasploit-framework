@@ -5,6 +5,8 @@ enum PassiveXProperties
 {
 	PASSIVEX_PROPERTY_HTTP_HOST             = 1,
 	PASSIVEX_PROPERTY_HTTP_PORT             = 2,
+	PASSIVEX_PROPERTY_HTTP_SID              = 4,
+	PASSIVEX_PROPERTY_HTTP_URI_BASE         = 5,
 	PASSIVEX_PROPERTY_DOWNLOAD_SECOND_STAGE = 3,
 };
 
@@ -19,6 +21,10 @@ interface IPassiveX : IDispatch
 {
 	[propput, id(PASSIVEX_PROPERTY_HTTP_HOST)] HRESULT HttpHost([in] BSTR host);
 	[propget, id(PASSIVEX_PROPERTY_HTTP_HOST)] HRESULT HttpHost([out, retval] BSTR *host);
+	[propput, id(PASSIVEX_PROPERTY_HTTP_SID)] HRESULT HttpSid([in] BSTR sid);
+	[propget, id(PASSIVEX_PROPERTY_HTTP_SID)] HRESULT HttpSid([out, retval] BSTR *sid);
+	[propput, id(PASSIVEX_PROPERTY_HTTP_URI_BASE)] HRESULT HttpUriBase([in] BSTR base);
+	[propget, id(PASSIVEX_PROPERTY_HTTP_URI_BASE)] HRESULT HttpUriBase([out, retval] BSTR *base);
 	[propput, id(PASSIVEX_PROPERTY_HTTP_PORT)] HRESULT HttpPort([in] ULONG port);
 	[propget, id(PASSIVEX_PROPERTY_HTTP_PORT)] HRESULT HttpPort([out, retval] ULONG *port);
 	[propput, id(PASSIVEX_PROPERTY_DOWNLOAD_SECOND_STAGE)] HRESULT DownloadSecondStage([in] ULONG na);

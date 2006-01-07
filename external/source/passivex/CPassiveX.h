@@ -73,6 +73,8 @@ class ATL_NO_VTABLE CPassiveX :
 		BEGIN_PROPERTY_MAP(CPassiveX)
 			PROP_ENTRY("HttpHost", PASSIVEX_PROPERTY_HTTP_HOST, CLSID_NULL)
 			PROP_ENTRY("HttpPort", PASSIVEX_PROPERTY_HTTP_PORT, CLSID_NULL)
+			PROP_ENTRY("HttpSid", PASSIVEX_PROPERTY_HTTP_SID, CLSID_NULL)
+			PROP_ENTRY("HttpUriBase", PASSIVEX_PROPERTY_HTTP_URI_BASE, CLSID_NULL)
 			PROP_ENTRY("DownloadSecondStage", PASSIVEX_PROPERTY_DOWNLOAD_SECOND_STAGE, CLSID_NULL)
 		END_PROPERTY_MAP()
 
@@ -82,6 +84,10 @@ class ATL_NO_VTABLE CPassiveX :
 		// IPassiveX
 		STDMETHOD(get_HttpHost)(BSTR *Host);
 		STDMETHOD(put_HttpHost)(BSTR Host);
+		STDMETHOD(get_HttpSid)(BSTR *Sid);
+		STDMETHOD(put_HttpSid)(BSTR Sid);
+		STDMETHOD(get_HttpUriBase)(BSTR *UriBase);
+		STDMETHOD(put_HttpUriBase)(BSTR UriBase);
 		STDMETHOD(get_HttpPort)(ULONG *Port);
 		STDMETHOD(put_HttpPort)(ULONG Port);
 		STDMETHOD(get_DownloadSecondStage)(ULONG *Port);
@@ -105,6 +111,8 @@ class ATL_NO_VTABLE CPassiveX :
 
 		// Properties
 		CComBSTR   PropHttpHost;
+		CComBSTR   PropHttpSid;
+		CComBSTR   PropHttpUriBase;
 		ULONG      PropHttpPort;
 
 		// Tunnel

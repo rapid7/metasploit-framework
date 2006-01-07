@@ -20,7 +20,8 @@ module Shell
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadCompat' =>
 				{
-					'Convention' => 'sockedi'
+					'Convention'   => 'sockedi',
+					'SymbolLookup' => 'ebp',
 				},
 			'Stage'         =>
 				{

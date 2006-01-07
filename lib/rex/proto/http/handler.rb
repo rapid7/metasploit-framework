@@ -27,6 +27,13 @@ class Handler
 		false
 	end
 
+	#
+	# Calls the class method.
+	#
+	def relative_resource_required?
+		self.class.relative_resource_required?
+	end
+
 protected
 
 	attr_accessor :server # :nodoc:

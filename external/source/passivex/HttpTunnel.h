@@ -27,6 +27,8 @@ class HttpTunnel
 		// Initialization
 		DWORD Start(
 				IN LPSTR HttpHost,
+				IN LPSTR HttpUriBase,
+				IN LPSTR HttpSid,
 				IN USHORT HttpPort);
 		DWORD Stop();
 	protected:
@@ -71,6 +73,8 @@ class HttpTunnel
 
 		// Remote host information
 		LPSTR     HttpHost;
+		LPSTR     HttpUriBase;
+		LPSTR     HttpSid;
 		USHORT    HttpPort;
 
 		// Sockets

@@ -21,6 +21,7 @@ module BindTcp
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::BindTcp,
 			'Convention'    => 'sockedi',
+			'SymbolLookup'  => 'ebp',
 			'Stager'        =>
 				{
 					'Offsets' =>

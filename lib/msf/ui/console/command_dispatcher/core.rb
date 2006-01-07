@@ -598,6 +598,8 @@ class Core
 				end
 		end
 
+		rescue IOError, EOFError, Rex::StreamClosedError
+			print_status("Session stream closed.")
 		rescue
 			log_error("Session manipulation failed: #{$!}")
 		end

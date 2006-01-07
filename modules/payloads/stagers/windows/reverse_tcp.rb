@@ -21,6 +21,7 @@ module ReverseTcp
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Convention'    => 'sockedi',
+			'SymbolLookup'  => 'ebp',
 			'Stager'        =>
 				{
 					'Offsets' =>

@@ -52,6 +52,34 @@ HRESULT CPassiveX::put_HttpHost(BSTR Host)
 	return S_OK;
 }
 
+HRESULT CPassiveX::get_HttpSid(BSTR *Sid)
+{
+	*Sid = PropHttpSid;
+
+	return S_OK;
+}
+
+HRESULT CPassiveX::put_HttpSid(BSTR Sid)
+{
+	PropHttpSid = Sid;
+
+	return S_OK;
+}
+
+HRESULT CPassiveX::get_HttpUriBase(BSTR *UriBase)
+{
+	*UriBase = PropHttpUriBase;
+
+	return S_OK;
+}
+
+HRESULT CPassiveX::put_HttpUriBase(BSTR UriBase)
+{
+	PropHttpUriBase = UriBase;
+
+	return S_OK;
+}
+
 HRESULT CPassiveX::get_HttpPort(ULONG *Port)
 {
 	*Port = PropHttpPort;
@@ -159,6 +187,8 @@ VOID CPassiveX::Initialize()
 	{
 		Tunnel.Start(
 				OLE2A(PropHttpHost),
+				OLE2A(PropHttpUriBase),
+				OLE2A(PropHttpSid),
 				(USHORT)PropHttpPort);
 	}
 	
