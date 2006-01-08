@@ -1,0 +1,414 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.K.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROPERTIES DIALOG DISCARDABLE  0, 0, 339, 170
+STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | DS_CENTER | 
+    WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Property Page"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "&Cancel",IDCANCEL,280,149,54,14
+    DEFPUSHBUTTON   "&OK",IDOK,165,149,55,15
+    GROUPBOX        "Incoming Connections",IDC_CONNECT_BORDER,5,5,155,85
+    CONTROL         "Accept Socket Connections",IDC_CONNECT_SOCK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,15,145,15
+    CONTROL         "Enable CORBA",IDC_CONNECT_CORBA,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,90,70,65,15
+    EDITTEXT        IDC_PORTNO,85,50,30,15,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_PASSWORD,85,30,70,15,ES_PASSWORD | ES_AUTOHSCROLL
+    GROUPBOX        "Update Handling",IDC_UPDATE_BORDER,165,70,169,74
+    CONTROL         "Poll Full Screen",IDC_POLL_FULLSCREEN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,170,80,100,20
+    CONTROL         "Poll Console Windows Only",IDC_CONSOLE_ONLY,"Button",
+                    BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,270,80,60,20
+    CONTROL         "Poll Foreground Window",IDC_POLL_FOREGROUND,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,170,100,100,20
+    CONTROL         "Poll Window Under Cursor",IDC_POLL_UNDER_CURSOR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,170,118,100,22
+    CONTROL         "Poll On Event Received Only",IDC_ONEVENT_ONLY,"Button",
+                    BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,270,100,60,
+                    20
+    CONTROL         "Disable Remote Keyboard && Pointer",IDC_DISABLE_INPUTS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,170,15,145,15
+    PUSHBUTTON      "&Apply",IDC_APPLY,225,149,50,14
+    CONTROL         "Disable Local Keyboard && Pointer",
+                    IDC_DISABLE_LOCAL_INPUTS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,170,30,145,15
+    GROUPBOX        "Connection Settings",IDC_CONNSETTINGS_BORDER,165,5,169,
+                    60
+    CONTROL         "Remove Desktop Wallpaper",IDC_REMOVE_WALLPAPER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,170,45,145,15
+    LTEXT           "Password:",IDC_PASSWORD_LABEL,20,30,55,15,
+                    SS_CENTERIMAGE
+    CONTROL         "Enable Java Viewer",IDC_CONNECT_HTTP,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,70,75,15
+    GROUPBOX        "When Last Client Disconnects",IDC_LOCKSETTINGS,5,95,155,
+                    68
+    CONTROL         "Do Nothing",IDC_LOCKSETTING_NOTHING,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,10,109,80,16
+    CONTROL         "Logoff Workstation",IDC_LOCKSETTING_LOGOFF,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,10,140,80,16
+    CONTROL         "Lock Workstation",IDC_LOCKSETTING_LOCK,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,10,125,80,16
+    LTEXT           "Display Number:",IDC_DISPLAY_NO_LABEL,20,50,55,15,
+                    SS_CENTERIMAGE
+    CONTROL         "Auto",IDC_AUTO_DISPLAY_NO,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,120,50,35,15
+END
+
+IDD_ABOUT DIALOG DISCARDABLE  0, 0, 336, 108
+STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "About WinVNC"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,249,80,80,20
+    CONTROL         132,IDC_VNCLOGO,"Static",SS_BITMAP | SS_CENTERIMAGE | 
+                    SS_SUNKEN,7,5,83,75
+    LTEXT           "WinVNC Version 3.3.7",IDC_VERSION,100,9,229,11
+    LTEXT           "by James Weatherall",IDC_NAME,100,20,229,10
+    LTEXT           "Virtual Network Computing",IDC_VNC,100,50,229,10
+    LTEXT           "For more information, see http://www.realvnc.com/",
+                    IDC_WWW,100,60,229,10
+    LTEXT           "Copyright 1997-2001 - AT&&T Labs Cambridge",
+                    IDC_COPYRIGHT,7,90,233,10
+    LTEXT           "Copyright 2002-2003 - RealVNC Ltd.",IDC_TRADEMARK,7,80,
+                    233,10
+    LTEXT           "Build",IDC_BUILDTEXT,100,30,20,10
+    LTEXT           "BuildTime",IDC_BUILDTIME,120,30,209,10
+END
+
+IDD_OUTGOING_CONN DIALOG DISCARDABLE  0, 0, 243, 47
+STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_CENTER | WS_POPUP | WS_VISIBLE | 
+    WS_CAPTION | WS_SYSMENU
+CAPTION "Initiate Outgoing Connection (Add New Client)"
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "Host Name:",IDC_HOSTNAME_STATIC,7,6,43,14,
+                    SS_CENTERIMAGE
+    EDITTEXT        IDC_HOSTNAME_EDIT,55,6,130,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,190,6,46,14
+    PUSHBUTTON      "Cancel",IDCANCEL,190,25,46,15
+    CTEXT           "(NB:Host must be running VNCviewer in 'listen' mode)",
+                    IDC_NOTE_STATIC,7,25,178,15,SS_CENTERIMAGE
+END
+
+IDD_ACCEPT_CONN DIALOG DISCARDABLE  0, 0, 186, 95
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Accept WinVNC Connection?"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "&Accept",IDACCEPT,7,74,53,14
+    PUSHBUTTON      "&Reject",IDREJECT,130,74,49,14
+    CTEXT           "WinVNC has received an incoming connection from",
+                    IDC_STATIC_TEXT1,7,7,172,17,SS_CENTERIMAGE
+    CTEXT           "<unknown host>",IDC_ACCEPT_IP,7,30,172,16,
+                    SS_CENTERIMAGE
+    CTEXT           "Do you wish to Accept or Reject the connection?",
+                    IDC_STATIC_TEXT,7,50,172,15,SS_CENTERIMAGE
+    CTEXT           "AutoReject:",IDC_ACCEPT_TIMEOUT,60,74,70,14,
+                    SS_CENTERIMAGE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_PROPERTIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 334
+        VERTGUIDE, 10
+        VERTGUIDE, 15
+        VERTGUIDE, 20
+        VERTGUIDE, 70
+        VERTGUIDE, 75
+        VERTGUIDE, 85
+        VERTGUIDE, 90
+        VERTGUIDE, 95
+        VERTGUIDE, 115
+        VERTGUIDE, 120
+        VERTGUIDE, 150
+        VERTGUIDE, 155
+        VERTGUIDE, 160
+        VERTGUIDE, 165
+        VERTGUIDE, 170
+        VERTGUIDE, 180
+        VERTGUIDE, 220
+        VERTGUIDE, 225
+        VERTGUIDE, 270
+        VERTGUIDE, 275
+        VERTGUIDE, 280
+        VERTGUIDE, 330
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 163
+        HORZGUIDE, 15
+        HORZGUIDE, 20
+        HORZGUIDE, 25
+        HORZGUIDE, 30
+        HORZGUIDE, 40
+        HORZGUIDE, 45
+        HORZGUIDE, 50
+        HORZGUIDE, 55
+        HORZGUIDE, 60
+        HORZGUIDE, 65
+        HORZGUIDE, 70
+        HORZGUIDE, 75
+        HORZGUIDE, 85
+        HORZGUIDE, 90
+        HORZGUIDE, 95
+        HORZGUIDE, 100
+        HORZGUIDE, 109
+        HORZGUIDE, 115
+        HORZGUIDE, 120
+        HORZGUIDE, 125
+        HORZGUIDE, 134
+        HORZGUIDE, 140
+        HORZGUIDE, 144
+        HORZGUIDE, 149
+        HORZGUIDE, 155
+    END
+
+    IDD_ABOUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 329
+        VERTGUIDE, 80
+        VERTGUIDE, 90
+        VERTGUIDE, 100
+        VERTGUIDE, 120
+        VERTGUIDE, 240
+        VERTGUIDE, 249
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 100
+        HORZGUIDE, 9
+        HORZGUIDE, 20
+        HORZGUIDE, 30
+        HORZGUIDE, 40
+        HORZGUIDE, 50
+        HORZGUIDE, 60
+        HORZGUIDE, 70
+        HORZGUIDE, 80
+        HORZGUIDE, 90
+        HORZGUIDE, 100
+    END
+
+    IDD_OUTGOING_CONN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 236
+        VERTGUIDE, 50
+        VERTGUIDE, 55
+        VERTGUIDE, 185
+        VERTGUIDE, 190
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 40
+        HORZGUIDE, 20
+        HORZGUIDE, 25
+    END
+
+    IDD_ACCEPT_CONN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        VERTGUIDE, 60
+        VERTGUIDE, 130
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 88
+        HORZGUIDE, 24
+        HORZGUIDE, 30
+        HORZGUIDE, 46
+        HORZGUIDE, 50
+        HORZGUIDE, 65
+        HORZGUIDE, 74
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 3,3,7,0
+ PRODUCTVERSION 3,3,7,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "RealVNC Ltd.\0"
+            VALUE "FileDescription", "VNC server for Win32\0"
+            VALUE "FileVersion", "3, 3, 7, 0\0"
+            VALUE "InternalName", "WinVNC\0"
+            VALUE "LegalCopyright", "Copyright RealVNC Ltd.© 2002-2003, AT&T Research Labs Cambridge© 1996-2001\0"
+            VALUE "LegalTrademarks", "VNC\0"
+            VALUE "OriginalFilename", "WinVNC.exe\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "RealVNC Ltd. - WinVNC\0"
+            VALUE "ProductVersion", "3, 3, 7, 0\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x809, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_WINVNC              ICON    DISCARDABLE     "res\\WinVNC.ico"
+IDI_FLASH               ICON    DISCARDABLE     "res\\icon1.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_TRAYMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "tray"
+    BEGIN
+        MENUITEM "&Properties",                 ID_PROPERTIES
+        MENUITEM SEPARATOR
+        MENUITEM "Add &New Client",             ID_OUTGOING_CONN
+        MENUITEM "&Disconnect All Clients",     ID_KILLCLIENTS
+        MENUITEM SEPARATOR
+        MENUITEM "&About WinVNC",               ID_ABOUT
+        MENUITEM SEPARATOR
+        MENUITEM "&Close VNC",                  ID_CLOSE
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// JAVAARCHIVE
+//
+
+IDR_VNCVIEWER_JAR       JAVAARCHIVE DISCARDABLE "res\\vncviewer.jar"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// JAVACLASS
+//
+
+IDR_AUTHPANEL_CLASS     JAVACLASS DISCARDABLE   "res\\authenticationPanel.class"
+IDR_CLIPBOARDFRAME_CLASS JAVACLASS DISCARDABLE   "res\\clipboardFrame.class"
+IDR_OPTIONSFRAME_CLASS  JAVACLASS DISCARDABLE   "res\\optionsFrame.class"
+IDR_RFBPROTO_CLASS      JAVACLASS DISCARDABLE   "res\\rfbProto.class"
+IDR_VNCCANVAS_CLASS     JAVACLASS DISCARDABLE   "res\\vncCanvas.class"
+IDR_VNCVIEWER_CLASS     JAVACLASS DISCARDABLE   "res\\vncviewer.class"
+IDR_ANIMMEMIMAGESRC_CLASS JAVACLASS DISCARDABLE   "res\\animatedMemoryImageSource.class"
+IDR_DESCIPHER_CLASS     JAVACLASS DISCARDABLE   "res\\DesCipher.class"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_VNCLOGO             BITMAP  DISCARDABLE     "res\\vnc.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDI_WINVNC              "WinVNC"
+END
+
+#endif    // English (U.K.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
