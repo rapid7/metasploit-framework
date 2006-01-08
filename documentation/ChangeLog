@@ -1,24 +1,25 @@
 alpha release 2
 
-	Rex Enhancements:
+	Rex:
 
 		* generalized block-based dependency generation for polymorphism
 
-	Core Enhancements:
+	Core:
 
 		* added support for EncoderOptions and EncoderType preferencing in exploits
 
-	Encoder Module Enhancements:
+	Encoder Modules:
 
 		* shikata_ga_nai ported
 		* jmp_call_additive is now polymorphic
 
-	Payload Module Enhancements:
+	Payload Modules:
 
 		* passivex http tunneling stager ported
 
 	Bug fixes:
 
+		* fixed some issues related to payload compatibility filtering
 		* console standard input prompt display was broken
 		* msfweb did not properly create ~/.msf3 directory
 		* framework incorrectly saved options not specified by the user
