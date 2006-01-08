@@ -37,7 +37,7 @@ def dump_encoders(arch = nil)
 
 	$framework.encoders.each_module(
 		'Arch' => arch ? arch.split(',') : nil) { |name, mod|
-		tbl << [ name, mod.rank_to_s, mod.new.description ]
+		tbl << [ name, mod.rank_to_s, mod.new.name ]
 
 		cnt += 1
 	}
