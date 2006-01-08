@@ -72,7 +72,7 @@ protected
 		init_key = Rex::Poly::LogicalBlock.new('init_key',
 			Proc.new { |b| (0xb8 + b.regnum_of(key_reg)).chr + 'XORK' })
 		popeip   = Rex::Poly::LogicalBlock.new('popeip', "\x5e")
-		pusheip  = Rex::Poly::LogicalBlock.new('popeip', "\x56")
+		pusheip  = Rex::Poly::LogicalBlock.new('pusheip', "\x56")
 		xor      = Rex::Poly::LogicalBlock.new('xor',
 			Proc.new { |b| "\x31" + (6 + (8 * b.regnum_of(key_reg))).chr })
 		lodsd    = Rex::Poly::LogicalBlock.new('lodsd', "\xad")
