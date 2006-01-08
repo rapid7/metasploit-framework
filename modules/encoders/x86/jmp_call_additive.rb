@@ -36,8 +36,6 @@ class JmpCallAdditive < Msf::Encoder::XorAdditiveFeedback
 					'KeySize'   => 4,
 					'BlockSize' => 4,
 				})
-
-		generate_decoder_stub
 	end
 
 	#
