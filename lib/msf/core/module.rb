@@ -231,12 +231,8 @@ class Module
 			# the ConnectionType for a stager (ws2ord, for instance).
 			mval = mod.module_info[k]
 
-			
-			# Match an empty compat item only if the module does not define it
-			next if not (v and mval)
-				
 			# Reject a filled compat item on one side, but not the other
-			return false if not (v and mval)
+			return false if (v and not mval)
 	
 			# Track how many of our values matched the module
 			mcnt = 0
