@@ -10,8 +10,8 @@ alpha release 2
 
 	Encoder Modules:
 
-		* shikata_ga_nai ported
-		* jmp_call_additive is now polymorphic
+		* x86/shikata_ga_nai ported
+		* x86/jmp_call_additive is now polymorphic
 
 	Payload Modules:
 
