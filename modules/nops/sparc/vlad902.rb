@@ -118,10 +118,13 @@ class Vlad902 < Msf::Nop
 			
 			if (not failed)
 				buff << t
-				count = 0
+				count = -100
 			end
 			
 			if (count > length + 1000)
+				if(buff.length != 0)
+					return buff.slice(0, 4) * (blen / 4)
+				end
 				print_status("The SPARC nop generator could not create a usable sled")
 				raise RuntimeError
 			end
@@ -133,10 +136,10 @@ class Vlad902 < Msf::Nop
 	end
 
 	def get_dst_reg
-		reg = rand(30)
+		reg = rand(30).to_i
 		reg += 1 if (reg >= 14)		# %sp
 		reg += 1 if (reg >= 30)		# %fp
-		return reg.to_i
+		return reg
 	end
 
 	def get_src_reg
@@ -170,7 +173,8 @@ class Vlad902 < Msf::Nop
 			].pack('N')
 		end
 
-		# ref[1] could be replaced with a static value since this only encodes for one function but it's done this way for consistancy.	
+		# ref[1] could be replaced with a static value since this only encodes for one function but it's done this way for
+		# conistancy/clarity.	
 		if (ver == 4)
 			return [(2 << 30) | (dst << 25) | (ref[1] << 19)].pack('N')
 		end
@@ -186,7 +190,6 @@ class Vlad902 < Msf::Nop
 	end
 	
 	def ins_branch(ref, len)
-		
 		# We jump to 1 instruction before the payload so in cases where the delay slot is another branch instruction that is
 		# not taken with the anull bit set the first bit of the payload is not anulled.
 		len = (len / 4) - 1
