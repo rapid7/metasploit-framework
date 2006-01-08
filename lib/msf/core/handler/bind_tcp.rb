@@ -65,7 +65,7 @@ module BindTcp
 	# Starts monitoring for an outbound connection to become established.
 	#
 	def start_handler
-		listener_thread = Thread.new {
+		self.listener_thread = Thread.new {
 			client = nil
 
 			print_status("Started bind handler")
@@ -124,11 +124,17 @@ module BindTcp
 	# Nothing to speak of.
 	#
 	def stop_handler
+		# Stop the listener thread.
+		if (listener_thread)
+			listener_thread.kill
+			self.listener_thread = nil
+		end
 	end
 
 protected
 
 	attr_accessor :conn_threads # :nodoc:
+	attr_accessor :listener_thread # :nodoc:
 
 end
 
