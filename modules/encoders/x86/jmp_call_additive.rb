@@ -22,6 +22,8 @@ module X86
 ###
 class JmpCallAdditive < Msf::Encoder::XorAdditiveFeedback
 
+	Rank = GreatRanking
+
 	def initialize
 		super(
 			'Name'             => 'Polymorphic Jump/Call XOR Additive Feedback Encoder',
