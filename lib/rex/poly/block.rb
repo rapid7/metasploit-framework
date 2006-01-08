@@ -82,12 +82,16 @@ class LogicalBlock
 	# Resets the block back to its starting point.
 	#
 	def reset
-		@perms       = []
-		@depends     = []
-		@next_blocks = []
-		@clobbers    = []
-		@offset      = nil
-		@state       = nil
+		@perms           = []
+		@depends         = []
+		@next_blocks     = []
+		@clobbers        = []
+		@offset          = nil
+		@state           = nil
+		@once            = false
+		@references      = 0
+		@used_references = 0
+		@generated       = false
 	end
 
 	#
@@ -95,6 +99,46 @@ class LogicalBlock
 	#
 	def name
 		@name
+	end
+
+	#
+	# Flags whether or not the block should only be generated once.  This can
+	# be used to mark a blog as being depended upon by multiple blocks, but
+	# making it such that it is only generated once.
+	#
+	def once=(tf)
+		@once = tf
+	end
+
+	#
+	# Returns true if this block is a 'once' block.  That is, this block is
+	# dependend upon by multiple blocks but should only be generated once.
+	#
+	def once
+		@once
+	end
+
+	#
+	# Increments the number of blocks that depend on this block.
+	#
+	def ref
+		@references += 1
+	end
+
+	#
+	# Increments the number of blocks that have completed their dependency
+	# pass on this block.  This number should never become higher than the
+	# @references attribute.
+	#
+	def deref
+		@used_references += 1
+	end
+
+	#
+	# Returns true if there is only one block reference remaining.
+	#
+	def last_reference?
+		(@references - @used_references <= 0)
 	end
 
 	#
@@ -118,6 +162,9 @@ class LogicalBlock
 	#
 	def depends_on(*depends)
 		@depends = depends.dup
+
+		# Increment dependent references
+		@depends.each { |b| b.ref }
 	end
 
 	#
@@ -244,6 +291,12 @@ class LogicalBlock
 	#
 	attr_accessor :offset
 
+	#
+	# Whether or not this block has currently been generated for a given
+	# iteration.
+	#
+	attr_accessor :generated
+
 protected
 
 	#
@@ -256,9 +309,27 @@ protected
 		depend_idx = rand(@depends.length)
 
 		@depends.length.times { |x|
+			cidx = (depend_idx + x) % @depends.length
+
+			# Decrement the used reference count
+			@depends[cidx].deref
+
+			# If this dependent block is a once block and the magic 8 ball turns
+			# up zero, skip it and let a later block pick it up.  We only do this
+			# if we are not the last block to have a dependency on this block.
+			if ((@depends[cidx].once) and
+			    (rand(2).to_i == 0) and
+			    (@depends[cidx].last_reference? == false))
+				next
+			# Otherwise, if this is a once block that has already been generated,
+			# skip it.
+			elsif ((@depends[cidx].once) and
+			       (@depends[cidx].generated))
+				next
+			end
 		
 			# Generate this block
-			@depends[(depend_idx + x) % @depends.length].generate_block_list(state)
+			@depends[cidx].generate_block_list(state)
 		}
 
 		# Assign the instance local state for the duration of this generation
@@ -269,6 +340,9 @@ protected
 
 		# Set our block offset to the current state offset
 		self.offset = state.curr_offset
+
+		# Flag ourselves as having been generated for this iteration.
+		self.generated = true
 
 		# Adjust the current offset based on the permutations length
 		state.curr_offset += perm.length

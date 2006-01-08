@@ -84,7 +84,12 @@ protected
 		call     = Rex::Poly::LogicalBlock.new('call',
 			Proc.new { |b| "\xe8" + [ (-(b.offset_of(endb) - (b.offset_of(jmp) + 2))) ].pack('V') })
 		jmp.add_perm(
-			Proc.new { |b| "\xeb" + [ (b.offset_of(call) - (b.offset_of(b) + 2)) ].pack('C') })
+			Proc.new { |b| "\xeb" + [ (b.offset_of(fin) + 1 - (b.offset_of(b) + 2)) ].pack('C') })
+
+		# These blocks can be in lots of different places, but should only be
+		# used once.
+		cld.once = true
+		init_key.once = true
 
 		# This can be improved by making it so init_key and cld can occur
 		# anywhere prior to pusheip.
@@ -95,8 +100,9 @@ protected
 		lodsd.depends_on(xor)
 		xor.depends_on(pusheip)
 		pusheip.depends_on(popeip, init_key, cld)
-		call.depends_on(fin)
+		call.depends_on(fin, init_key, cld)
 		jmp.next_blocks(call)
+		jmp.depends_on(init_key, cld)
 
 		jmp.generate([ 
 			Rex::Arch::X86::ESP, 
