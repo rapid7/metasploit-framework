@@ -954,6 +954,7 @@ int get_instruction(PINSTRUCTION inst, BYTE *addr, enum Mode mode) {
 
 	// Eflags affected by this instruction
 	inst->eflags_affected = ptr->eflags_affected;
+	inst->eflags_used = ptr->eflags_used;
 
 	// Pointer to instruction table
 	inst->ptr = ptr;
