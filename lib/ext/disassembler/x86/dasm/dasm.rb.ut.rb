@@ -1,13 +1,14 @@
 #!/usr/bin/env ruby
 
-$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', '..'))
 
 require 'test/unit'
 require 'ext/disassembler/x86'
-require 'ext/disassembler/x86/dasm'
+require 'ext/disassembler/x86/dasm/dasm'
 
 class Ext::Disassembler::X86::Dasm::UnitTest < Test::Unit::TestCase
 	Klass = Ext::Disassembler::X86::Dasm
+	X86 = Ext::Disassembler::X86
 
 	def test_mode
 		d = Klass.new
@@ -43,6 +44,7 @@ class Ext::Disassembler::X86::Dasm::UnitTest < Test::Unit::TestCase
 		assert_equal("inc ecx", inst.to_s);
 		d.set_format("att")
 		assert_equal("inc %ecx", inst.to_s);
+		assert_equal(X86::EFL_OF | X86::EFL_SF | X86::EFL_ZF | X86::EFL_AF | X86::EFL_PF, inst.eflags_affected)
 	end
 
 	def test_operand

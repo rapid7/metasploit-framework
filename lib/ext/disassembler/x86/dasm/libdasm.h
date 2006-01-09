@@ -151,6 +151,20 @@ enum Format {
 	FORMAT_INTEL,
 };
 
+// Process eflags
+#define EFL_CF         (1 <<  0)
+#define EFL_PF         (1 <<  2)
+#define EFL_AF         (1 <<  4)
+#define EFL_ZF         (1 <<  6)
+#define EFL_SF         (1 <<  7)
+#define EFL_TF         (1 <<  8)
+#define EFL_IF         (1 <<  9)
+#define EFL_DF         (1 << 10)
+#define EFL_OF         (1 << 11)
+#define EFL_MATH       EFL_OF|EFL_SF|EFL_ZF|EFL_AF|EFL_PF|EFL_CF
+#define EFL_BITWISE    EFL_OF|EFL_CF|EFL_SF|EFL_ZF|EFL_PF
+#define EFL_ALL_COMMON EFL_CF|EFL_OF|EFL_SF|EFL_ZF|EFL_AF|EFL_PF
+
 // Instruction types (just the most common ones atm)
 enum Instruction {
 	// Integer instructions
@@ -279,6 +293,7 @@ typedef struct _INST {
 	int flags2;		// Second operand flags (if any)
 	int flags3;		// Additional operand flags (if any)
 	int modrm;		// Is MODRM byte present?
+	int eflags_affected;	// Processor eflags affected
 } INST, *PINST;
 
 // Operands for the instruction
@@ -317,6 +332,7 @@ typedef struct _INSTRUCTION {
 	OPERAND op3;		// Additional operand (if any)
 	PINST ptr;		// Pointer to instruction table
 	int flags;		// Instruction flags
+	int eflags_affected;	// Process eflags affected
 } INSTRUCTION, *PINSTRUCTION;
 
 

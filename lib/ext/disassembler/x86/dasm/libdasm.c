@@ -952,6 +952,9 @@ int get_instruction(PINSTRUCTION inst, BYTE *addr, enum Mode mode) {
 	// Copy instruction type
 	inst->type = MASK_TYPE_VALUE(ptr->type);
 
+	// Eflags affected by this instruction
+	inst->eflags_affected = ptr->eflags_affected;
+
 	// Pointer to instruction table
 	inst->ptr = ptr;
 
