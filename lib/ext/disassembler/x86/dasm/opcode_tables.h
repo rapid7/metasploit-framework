@@ -1,6 +1,6 @@
 /*
  * libdasm -- simple x86 disassembly library
- * (c) 2004 - 2005  jt / nologin.org
+ * (c) 2004 - 2006  jt / nologin.org
  *
  * opcode_tables.h:
  * Opcode tables for FPU, 1, 2 and 3-byte opcodes and
@@ -282,7 +282,7 @@ INST inst_table1[256] = {
 	{ INSTRUCTION_TYPE_LOOP,   "loopn",     AM_J|OT_b|P_x,               FLAGS_NONE,                FLAGS_NONE,   0 },
 	{ INSTRUCTION_TYPE_LOOP,   "loope",     AM_J|OT_b|P_x,               FLAGS_NONE,                FLAGS_NONE,   0 },
 	{ INSTRUCTION_TYPE_LOOP,   "loop",      AM_J|OT_b|P_x,               FLAGS_NONE,                FLAGS_NONE,   0 },
-	{ INSTRUCTION_TYPE_JMPC,   "jcxz",      AM_J|OT_b|P_x,               FLAGS_NONE,                FLAGS_NONE,   0 },
+	{ INSTRUCTION_TYPE_JMPC,   "jecxz",     AM_J|OT_b|P_x,               FLAGS_NONE,                FLAGS_NONE,   0 },
 	{ INSTRUCTION_TYPE_PRIV,   "in",        AM_REG|REG_AL|OT_b|P_w,      AM_I|OT_b|P_r,             FLAGS_NONE,   0 },
 	{ INSTRUCTION_TYPE_PRIV,   "in",        AM_REG|REG_EAX|OT_v|P_w,     AM_I|OT_b|P_r,             FLAGS_NONE,   0 },
 	{ INSTRUCTION_TYPE_PRIV,   "out",       AM_I|OT_b|P_w,               AM_REG|REG_AL|OT_b|P_r,    FLAGS_NONE,   0 },
@@ -415,7 +415,7 @@ INST inst_table2[256] = {
         { INSTRUCTION_TYPE_SSE|TYPE_3,"maxps",  AM_V|OT_ps|P_w,              AM_W|OT_ps|P_r,            FLAGS_NONE,   1 },
         { INSTRUCTION_TYPE_MMX|TYPE_3,"punpcklbw",AM_P|OT_q|P_w,               AM_Q|OT_d|P_r,             FLAGS_NONE,   1 },
         { INSTRUCTION_TYPE_MMX|TYPE_3,"punpcklwd",AM_P|OT_q|P_w,               AM_Q|OT_d|P_r,             FLAGS_NONE,   1 },
-        { INSTRUCTION_TYPE_MMX|TYPE_3,"punockldq",AM_P|OT_q|P_w,               AM_Q|OT_d|P_r,             FLAGS_NONE,   1 },
+        { INSTRUCTION_TYPE_MMX|TYPE_3,"punpckldq",AM_P|OT_q|P_w,               AM_Q|OT_d|P_r,             FLAGS_NONE,   1 },
         { INSTRUCTION_TYPE_MMX|TYPE_3,"packusdw",AM_P|OT_q|P_w,               AM_Q|OT_d|P_r,             FLAGS_NONE,   1 },
         { INSTRUCTION_TYPE_MMX|TYPE_3,"pcmpgtb",AM_P|OT_q|P_w,               AM_Q|OT_d|P_r,             FLAGS_NONE,   1 },
         { INSTRUCTION_TYPE_MMX|TYPE_3,"pcmpgtw",AM_P|OT_q|P_w,               AM_Q|OT_d|P_r,             FLAGS_NONE,   1 },

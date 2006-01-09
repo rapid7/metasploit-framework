@@ -1,7 +1,7 @@
 
 /*
  * libdasm -- simple x86 disassembly library
- * (c) 2004 - 2005  jt / nologin.org
+ * (c) 2004 - 2006  jt / nologin.org
  *
  * libdasm.c:
  * This file contains most code of libdasm. Check out
@@ -466,17 +466,9 @@ skip_rest:
 					break;
 				case 2:
 					op->displacement = FETCH16(addr + 1 + index);
-
-					// Malformed opcode
-					if (op->displacement < 0x80)
-						return 0;
 					break;
 				case 4:
 					op->displacement = FETCH32(addr + 1 + index);
-
-					// XXX: problems with [index*scale + disp] addressing
-					//if (op->displacement < 0x80)
-					//	return 0;
 					break;
 			}
 
@@ -991,6 +983,7 @@ int get_instruction(PINSTRUCTION inst, BYTE *addr, enum Mode mode) {
 
 #if !defined NOSTR
 int get_mnemonic_string(INSTRUCTION *inst, enum Format format, char *string, int length) {
+	int mode;
 
 	memset(string, 0, length);
 
@@ -1015,11 +1008,81 @@ int get_mnemonic_string(INSTRUCTION *inst, enum Format format, char *string, int
 			"%s", rep_table[(MASK_PREFIX_G1(inst->flags)) - 1]);
 
 	// Mnemonic
-	snprintf(string + strlen(string), length - strlen(string),
-		"%s", inst->ptr->mnemonic);
+	// XXX: quick hack for jcxz/jecxz.. check if there are more
+	// of these opcodes that have different mnemonic in same opcode
+	if (((inst->type == INSTRUCTION_TYPE_JMPC) &&
+			(inst->opcode == 0xe3)) &&
+			(MASK_PREFIX_ADDR(inst->flags) == 1))
+		snprintf(string + strlen(string), length - strlen(string),
+			"jcxz");
+	else
+		snprintf(string + strlen(string), length - strlen(string),
+			"%s", inst->ptr->mnemonic);
+
+
+	// memory operation size in push/pop:
+	if (inst->type == INSTRUCTION_TYPE_PUSH) {
+		if (inst->op1.type == OPERAND_TYPE_IMMEDIATE) {
+			switch (inst->op1.immbytes) {
+				case 1:
+					snprintf(string + strlen(string),
+						length - strlen(string),
+						"%s", (format == FORMAT_ATT) ?
+						"b" : " byte");
+					break;
+				case 2:
+					snprintf(string + strlen(string),
+						length - strlen(string),
+						"%s", (format == FORMAT_ATT) ?
+						"w" : " word");
+					break;
+				case 4:
+					snprintf(string + strlen(string),
+						length - strlen(string),
+						"%s", (format == FORMAT_ATT) ?
+						"l" : " dword");
+					break;
+			}
+
+		} else if (inst->op1.type == OPERAND_TYPE_MEMORY) {
+			mode = MODE_CHECK_OPERAND(inst->mode, inst->flags);
+
+			if (mode == MODE_16) {
+				snprintf(string + strlen(string),
+					length - strlen(string),
+					"%s", (format == FORMAT_ATT) ?
+					"w" : " word");
+			} else if (mode == MODE_32) {
+				snprintf(string + strlen(string),
+					length - strlen(string),
+					"%s", (format == FORMAT_ATT) ?
+					"l" : " dword");
+			}
+
+		}
+		return 1;
+
+	}
+	if (inst->type == INSTRUCTION_TYPE_POP) {
+		if (inst->op1.type == OPERAND_TYPE_MEMORY) {
+			mode = MODE_CHECK_OPERAND(inst->mode, inst->flags);
+
+			if (mode == MODE_16) {
+				snprintf(string + strlen(string),
+					length - strlen(string),
+					"%s", (format == FORMAT_ATT) ?
+					"w" : " word");
+			} else if (mode == MODE_32) {
+				snprintf(string + strlen(string),
+					length - strlen(string),
+					"%s", (format == FORMAT_ATT) ?
+					"l" : " dword");
+			}
+		}
+		return 1;
+	}
 
 	// memory operation size in immediate to memory operations
-	// XXX: also, register -> memory operations when size is different
 	if (inst->ptr->modrm && (MASK_MODRM_MOD(inst->modrm) != 3) &&
 		(MASK_AM(inst->op2.flags) == AM_I)) {
 
@@ -1052,6 +1115,9 @@ int get_mnemonic_string(INSTRUCTION *inst, enum Format format, char *string, int
 				break;
 		}
 	}
+
+	// XXX: there might be some other cases where size is needed..
+
 	return 1;
 }
 
