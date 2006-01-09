@@ -20,7 +20,7 @@ module ReverseOrdinalTcp
 			'Name'          => 'Reverse Ordinal TCP Stager',
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to the attacker',
-			'Author'        => 'hdm',
+			'Author'        => 'spoonm',
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::ReverseTcp,
