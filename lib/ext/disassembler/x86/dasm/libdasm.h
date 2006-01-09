@@ -293,7 +293,8 @@ typedef struct _INST {
 	int flags2;		// Second operand flags (if any)
 	int flags3;		// Additional operand flags (if any)
 	int modrm;		// Is MODRM byte present?
-	int eflags_affected;	// Processor eflags affected
+	short eflags_affected;	// Processor eflags affected
+	short eflags_used;      // Processor eflags used by this instruction
 } INST, *PINST;
 
 // Operands for the instruction
@@ -332,7 +333,8 @@ typedef struct _INSTRUCTION {
 	OPERAND op3;		// Additional operand (if any)
 	PINST ptr;		// Pointer to instruction table
 	int flags;		// Instruction flags
-	int eflags_affected;	// Process eflags affected
+	short eflags_affected;	// Process eflags affected
+	short eflags_used;      // Processor eflags used by this instruction
 } INSTRUCTION, *PINSTRUCTION;
 
 

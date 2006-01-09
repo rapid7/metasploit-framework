@@ -556,6 +556,18 @@ static VALUE instruction_eflags_affected(VALUE self)
 	return INT2FIX(inst->inst.eflags_affected);
 }
 
+//
+// Returns the eflags that are used by this instruction.
+//
+static VALUE instruction_eflags_used(VALUE self)
+{
+	PINSTRUCTION_OBJECT inst;
+
+	rb_instruction_cast(self, inst);
+
+	return INT2FIX(inst->inst.eflags_used);
+}
+
 ////
 //
 // Dasm class
@@ -850,6 +862,7 @@ void Init_dasm()
 	rb_define_method(instr_klass, "op2", instruction_op2, 0);
 	rb_define_method(instr_klass, "op3", instruction_op3, 0);
 	rb_define_method(instr_klass, "eflags_affected", instruction_eflags_affected, 0);
+	rb_define_method(instr_klass, "eflags_used", instruction_eflags_used, 0);
 
 	// Operand
 	oper_klass = rb_define_class_under(dasm_klass, "Operand",

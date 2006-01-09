@@ -45,6 +45,7 @@ class Ext::Disassembler::X86::Dasm::UnitTest < Test::Unit::TestCase
 		d.set_format("att")
 		assert_equal("inc %ecx", inst.to_s);
 		assert_equal(X86::EFL_OF | X86::EFL_SF | X86::EFL_ZF | X86::EFL_AF | X86::EFL_PF, inst.eflags_affected)
+		assert_equal(0, inst.eflags_used)
 	end
 
 	def test_operand
