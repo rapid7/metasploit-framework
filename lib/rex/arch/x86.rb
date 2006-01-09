@@ -142,12 +142,7 @@ module X86
 	#
 	def self.clear(reg, badchars = '')
 		_check_reg(reg)
-		opcodes = Rex::Text.remove_badchars("\x29\x2b\x31\x33", badchars)
-		if opcodes.empty?
-			raise RuntimeError, "Could not find a usable opcode", caller()
-		end
-
-		return opcodes[rand(opcodes.length)].chr + encode_modrm(reg, reg)
+		return set(reg, 0, badchars)
 	end
 
 	#
@@ -188,25 +183,35 @@ module X86
 	def self.set(dst, val, badchars = '')
 		_check_reg(dst)
 
-		# try push BYTE val; pop dst
+		# If the value is 0 try xor/sub dst, dst (2 bytes)
+		if(val == 0)
+			opcodes = Rex::Text.remove_badchars("\x29\x2b\x31\x33", badchars)
+			if !opcodes.empty?
+				return opcodes[rand(opcodes.length)].chr + encode_modrm(dst, dst)
+			end
+		end
+
+		# try push BYTE val; pop dst (3 bytes)
 		begin
 			return _check_badchars(push_byte(val) + pop_dword(dst), badchars)
 		rescue ::ArgumentError, RuntimeError, RangeError
 		end
 
-		# try clear dst, mov BYTE dst
+		# try clear dst, mov BYTE dst (4 bytes)
 		begin
 			return _check_badchars(clear(dst, badchars) + mov_byte(dst, val), badchars)
 		rescue ::ArgumentError, RuntimeError, RangeError
 		end
+# TODO: Use add...
+# TODO: Use clear dst, mov BYTE dst, add
 
-		# try clear dst, mov WORD dst
+		# try clear dst, mov WORD dst (6 bytes)
 		begin
 			return _check_badchars(clear(dst, badchars) + mov_word(dst, val), badchars)
 		rescue ::ArgumentError, RuntimeError, RangeError
 		end
 
-		# try clear dst, mov DWORD dst
+		# try clear dst, mov DWORD dst (7 bytes)
 		begin
 			return _check_badchars(clear(dst, badchars) + mov_dword(dst, val), badchars)
 		rescue ::ArgumentError, RuntimeError, RangeError

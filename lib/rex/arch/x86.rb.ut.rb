@@ -65,6 +65,10 @@ class Rex::Arch::X86::UnitTest < ::Test::Unit::TestCase
 		assert_equal("\x83\xc4\x47", Klass.add(0x47, Klass::ESP, '', true))
 		assert_equal("\x81\xc4\x11\x11\x01\x00", Klass.add(0x11111, Klass::ESP, '', true))
 	end
+
+	def test_clear
+		assert_equal("\x33\xc0", Klass.clear(Klass::EAX, "\x27\x29\x31"))
+	end
 	
 	def test_searcher
 			s = "\xbe"+                  # mov esi, Tag - 1
