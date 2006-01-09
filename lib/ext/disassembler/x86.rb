@@ -4,6 +4,16 @@ module X86
 
 require 'ext/disassembler/x86/dasm/dasm'
 
+EFL_CF = (1 <<  0)
+EFL_PF = (1 <<  2)
+EFL_AF = (1 <<  4)
+EFL_ZF = (1 <<  6)
+EFL_SF = (1 <<  7)
+EFL_TF = (1 <<  8)
+EFL_IF = (1 <<  9)
+EFL_DF = (1 << 10)
+EFL_OF = (1 << 11)
+
 module Register
 	#
 	# Register number constants
