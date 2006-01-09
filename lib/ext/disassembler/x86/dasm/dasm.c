@@ -13,7 +13,7 @@
 // 	puts instruction.to_s
 // }
 //
-// All credits for the disassembler to go jt <jt at klake.org> :)
+// All credits for the disassembler go to jt <jt at klake.org> :)
 //
 // skape
 // 01/2006
