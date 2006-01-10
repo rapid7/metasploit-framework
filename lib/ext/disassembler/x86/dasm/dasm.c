@@ -608,6 +608,7 @@ static VALUE dasm_disassemble(VALUE self, VALUE buf)
 	INSTRUCTION  inst;
 	VALUE        instructions = rb_ary_new();
 	int          offset = 0, len;
+	int          use_block = rb_block_given_p();
 
 	buf = StringValue(buf);
 	len = RSTRING(buf)->len;
@@ -621,15 +622,46 @@ static VALUE dasm_disassemble(VALUE self, VALUE buf)
 
 		if (!get_instruction(&inst, current, obj->mode))
 			break;
-
+		
 		rb_inst = instruction_new(instr_klass, self, &inst, current);
 
-		rb_ary_push(instructions, rb_inst);
+		if (!use_block)
+		{
+			if (!offset)
+				instructions = rb_ary_new();
+		
+			rb_ary_push(instructions, rb_inst);
+		}
+		else
+			rb_yield_values(2, rb_inst, INT2FIX(offset));
 
 		offset += inst.length;
 	}
 
-	return instructions;
+	return (!use_block) ? instructions : offset;
+}
+
+//
+// Disassembles a single instruction.
+//
+static VALUE dasm_disassemble_one(VALUE self, VALUE buf)
+{
+	PDASM_OBJECT obj;
+	INSTRUCTION  inst;
+	VALUE        rv;
+	BYTE         *current;
+
+	buf     = StringValue(buf);
+	current = (BYTE *)RSTRING(buf)->ptr;
+
+	rb_dasm_cast(self, obj);
+	
+	if (!get_instruction(&inst, current, obj->mode))
+		rv = Qnil;
+	else
+		rv = instruction_new(instr_klass, self, &inst, current);
+
+	return rv;
 }
 
 //
@@ -733,6 +765,7 @@ void Init_dasm()
 	rb_define_alloc_func(dasm_klass, dasm_alloc);
 
 	rb_define_method(dasm_klass, "disassemble", dasm_disassemble, 1);
+	rb_define_method(dasm_klass, "disassemble_one", dasm_disassemble_one, 1);
 	rb_define_method(dasm_klass, "set_mode", dasm_set_mode, 1);
 	rb_define_method(dasm_klass, "mode", dasm_mode, 0);
 	rb_define_method(dasm_klass, "set_format", dasm_set_format, 1);
