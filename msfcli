@@ -16,6 +16,30 @@ Indent = '   '
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create
 
+def usage (str = nil, extra = nil)
+	tbl = Rex::Ui::Text::Table.new(
+		'Header'  => "Usage: #{$0} <exploit_name> <option=value> [mode]",
+		'Indent'  => 4,
+		'Columns' => ['Mode', 'Description']
+	)
+
+	tbl << ['(H)elp', "you're looking at it baby!"]
+	tbl << ['(S)ummary', 'show information about this module']
+	tbl << ['(O)ptions', 'show available options for this module']
+	tbl << ['(A)dvanced', 'show available advanced options for this module']
+	tbl << ['(I)ds Evasion', 'show available ids evasion options for this module']
+	tbl << ['(P)ayloads', 'show available payloads for this module']
+	tbl << ['(T)argets', 'show available targets for this module']
+	tbl << ['(C)heck', 'Attempt to check if the target is vulnerable']
+	tbl << ['(E)xploit', 'Attempt to exploit the target']
+
+	$stdout.puts "Error: #{str}\n\n" if str
+	$stdout.puts tbl.to_s + "\n"
+	$stdout.puts extra + "\n" if extra
+
+	exit
+end
+
 if (ARGV.length < 1)
 	tbl = Rex::Ui::Text::Table.new(
 		'Header'  => 'Exploits',
@@ -26,8 +50,7 @@ if (ARGV.length < 1)
 		tbl << [ name, mod.new.name ]
 	}
 
-	$stderr.puts("\n" + "    Usage: #{$0} <exploit> [var=val] [MODE]\n\n" + tbl.to_s + "\n")
-	exit
+	usage(nil, tbl.to_s)
 end
 
 # Get the exploit name we'll be using
@@ -35,8 +58,7 @@ exploit_name = ARGV.shift
 exploit      = $framework.exploits.create(exploit_name)
 
 if (exploit == nil)
-	$stderr.puts("Invalid exploit: #{exploit_name}")
-	exit
+    usage("Invalid exploit: #{exploit_name}")
 end
 
 # Initialize the user interface
@@ -49,24 +71,8 @@ mode = ARGV.pop || 'h'
 exploit.datastore.import_options_from_s(ARGV.join(' '))
 
 case mode.downcase
-    when 'h'
-        tbl = Rex::Ui::Text::Table.new(
-            'Header' => "Usage: #{$0} #{exploit_name} <option=value> [mode]",
-            'Indent'  => 4,
-            'Columns' => ['Mode', 'Description']
-        )
-    
-        tbl << ['(H)elp', "you're looking at it baby!"]
-        tbl << ['(S)ummary', 'show information about this module']
-        tbl << ['(O)ptions', 'show available options for this module']
-        tbl << ['(A)dvanced', 'show available advanced options for this module']
-        tbl << ['(I)ds Evasion', 'show available ids evasion options for this module']
-        tbl << ['(P)ayloads', 'show available payloads for this module']
-        tbl << ['(T)argets', 'show available targets for this module']
-        tbl << ['(C)heck', 'Attempt to check if the target is vulnerable']
-        tbl << ['(E)xploit', 'Attempt to exploit the target']
-        
-        $stdout.puts tbl.to_s
+	when 'h'
+		usage
 	when "s"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(exploit, Indent))
 	when "o"
@@ -118,7 +124,8 @@ case mode.downcase
 			$stderr.puts("Backtrace:")
 			$stderr.puts($!.backtrace.join("\n"))
 		end
+	else
+		usage("Invalid mode #{mode}")
 end
-
 
 $stdout.puts
