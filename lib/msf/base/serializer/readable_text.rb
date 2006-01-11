@@ -330,10 +330,12 @@ class ReadableText
 			next if (!opt.advanced?)
 
 			val = mod.datastore[name] || opt.default || ''
+			desc = word_wrap(opt.desc, indent.length + 3)
+			desc = desc.slice(indent.length + 3, desc.length)
 
-			output += pad + "Name   : #{name}\n"
-			output += pad + "Default: #{val}\n\n"
-			output += word_wrap(opt.desc, indent.length + 3)
+			output += pad + "Name       : #{name}\n"
+			output += pad + "Default    : #{val}\n"
+			output += pad + "Description: #{desc}\n"
 		}
 
 		return output
@@ -352,10 +354,13 @@ class ReadableText
 			next if (!opt.evasion?)
 
 			val = mod.datastore[name] || opt.default || ''
+			
+			desc = word_wrap(opt.desc, indent.length + 3)
+			desc = desc.slice(indent.length + 3, desc.length)
 
-			output += pad + "Name   : #{name}\n"
-			output += pad + "Default: #{val}\n\n"
-			output += word_wrap(opt.desc, indent.length + 3)
+			output += pad + "Name       : #{name}\n"
+			output += pad + "Default    : #{val}\n"
+			output += pad + "Description: #{desc}\n"
 		}
 
 		return output
