@@ -22,6 +22,10 @@ class Rex::Arch::X86::UnitTest < ::Test::Unit::TestCase
 		assert_equal("\x6a\xff", Klass.push_byte(-1))
 	end
 
+	def test_push_dword
+		assert_equal("\x68\x78\x56\x34\x12", Klass.push_dword(0x12345678))
+	end
+
 	def test_mov_dword
 		assert_equal("\xb8\x78\x56\x34\x12", Klass.mov_dword(Klass::EAX, 0x12345678))
 	end
@@ -67,7 +71,7 @@ class Rex::Arch::X86::UnitTest < ::Test::Unit::TestCase
 	end
 
 	def test_clear
-		assert_equal("\x33\xc0", Klass.clear(Klass::EAX, "\x27\x29\x31"))
+		assert_equal("\x33\xc0", Klass.clear(Klass::EAX, "\x29\x2b\x31"))
 	end
 	
 	def test_searcher

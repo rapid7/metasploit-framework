@@ -129,6 +129,13 @@ module X86
 	end
 
 	#
+	# This method generates a push dword instruction.
+	#
+	def self.push_dword(val)
+		return "\x68" + [ val ].pack('V') 
+	end
+
+	#
 	# This method generates a pop dword instruction into a register.
 	#
 	def self.pop_dword(dst)
@@ -180,6 +187,8 @@ module X86
 	# This method is a general way of setting a register to a value.  Depending
 	# on the value supplied, different sets of instructions may be used.
 	#
+	# TODO: Make this moderatly intelligent so it chain instructions by itself
+        #   (ie. xor eax, eax + mov al, 4 + xchg ah, al)
 	def self.set(dst, val, badchars = '')
 		_check_reg(dst)
 
@@ -189,6 +198,8 @@ module X86
 			if !opcodes.empty?
 				return opcodes[rand(opcodes.length)].chr + encode_modrm(dst, dst)
 			end
+# TODO: SHL/SHR
+# TODO: AND 
 		end
 
 		# try push BYTE val; pop dst (3 bytes)
@@ -199,21 +210,27 @@ module X86
 
 		# try clear dst, mov BYTE dst (4 bytes)
 		begin
+			break if val == 0
 			return _check_badchars(clear(dst, badchars) + mov_byte(dst, val), badchars)
 		rescue ::ArgumentError, RuntimeError, RangeError
 		end
-# TODO: Use add...
-# TODO: Use clear dst, mov BYTE dst, add
 
-		# try clear dst, mov WORD dst (6 bytes)
+		# try mov DWORD dst (5 bytes)
 		begin
-			return _check_badchars(clear(dst, badchars) + mov_word(dst, val), badchars)
+			return _check_badchars(mov_dword(dst, val), badchars)
 		rescue ::ArgumentError, RuntimeError, RangeError
 		end
 
-		# try clear dst, mov DWORD dst (7 bytes)
+		# try push DWORD, pop dst (6 bytes)
 		begin
-			return _check_badchars(clear(dst, badchars) + mov_dword(dst, val), badchars)
+			return _check_badchars(push_dword(val) + pop_dword(dst), badchars)
+		rescue ::ArgumentError, RuntimeError, RangeError
+		end
+
+		# try clear dst, mov WORD dst (6 bytes)
+		begin
+			break if val == 0
+			return _check_badchars(clear(dst, badchars) + mov_word(dst, val), badchars)
 		rescue ::ArgumentError, RuntimeError, RangeError
 		end
 
