@@ -66,9 +66,6 @@ module Sparc
 	#
 	# Puts 'constant' into the 'dst' register using both sethi and ori (necessary to use both uncessarily in some cases with encoders)
 	#
-	#
-	# TODO: documentation required.
-	#
 	def self.set_dword(constant, dst)
 		sethi(constant, dst) + ori(dst, constant & 0x3ff, dst)
 	end
