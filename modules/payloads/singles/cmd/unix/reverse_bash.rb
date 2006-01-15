@@ -8,7 +8,7 @@ module Singles
 module Cmd
 module Unix
 
-module Reverse
+module ReverseBash
 
 	include Msf::Payload::Single
 
