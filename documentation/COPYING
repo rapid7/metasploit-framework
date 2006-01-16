@@ -9,21 +9,9 @@ This copyright notice does not apply to the following components:
 - The vncdll.dll binary or its associated source code (modified RealVNC)
 - The icons used by msfweb that were not created by the Metasploit Project
 
-This copyright notice does not include MODULES developed by third-party 
+This copyright notice does not include modules developed by third-party 
 contributors or their derivatives. Please see the licensing information 
-defined in each individual MODULE for more information. 
-
-A MODULE is defined as an independent component that provides specific 
-functional enhancements. MODULES may be provided under whatever license 
-the author deems fit, as long as they meet the following requirements:
-
-1) The MODULE implements one of the standard module interfaces. These 
-interfaces are defined as Exploit, Payload, Encoder, Nop, and Plugin. 
-
-2) The MODULE may use classes and call methods defined in the Metasploit 
-Framework libraries, but may not include copies (modified or whole) of 
-Metasploit Framework code in the MODULE itself.
-
+defined in each individual module for more information. 
 
 To contact the Metasploit Project about any license related issues,
 please send an email to msfdev[at]metasploit.com.
