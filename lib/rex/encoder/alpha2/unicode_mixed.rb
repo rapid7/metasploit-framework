@@ -9,7 +9,7 @@ module Alpha2
 class UnicodeMixed < Generic
 
 	def self.gen_base(max)
-		max = max / 0x10
+		max = max >> 4
 		(rand(max) * 0x10)
 	end
 

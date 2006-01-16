@@ -10,7 +10,7 @@ class UnicodeUpper < Generic
 	@@accepted_chars = ('B' .. 'Z').to_a + ('0' .. '9').to_a
    
 	def self.gen_base(max)
-		max = max / 0x10
+		max = max >> 4
 		(rand(max) * 0x10)
 	end
 
@@ -51,7 +51,7 @@ class UnicodeUpper < Generic
 			"TA" +                  # push esp, NOP
 			"XA" +                  # pop eax, NOP
 			"ZA" +                  # pop edx, NOP
-			"PA" +                  # push eax, NOP
+			"PU" +                  # push eax, NOP
 			"3" +                   # xor eax, [eax]
 			"QA" +                  # push ecx, NOP
 			"DA" +                  # inc esp, NOP
