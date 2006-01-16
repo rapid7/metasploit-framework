@@ -1,0 +1,21 @@
+This is an *alpha* release. Many bugs still exist and quite a few features
+are still non-functional. The latest version can be obtained online from:
+ - http://metasploit.com/projects/Framework/msf3/
+
+Licensing information can be found in ./documentation/COPYING
+
+This release has only been tested on the following platforms:
+ - Linux x86 with Ruby 1.8.2, 1.8.3, and 1.8.4_rc2
+ - Mac OS X 10.3 with Ruby 1.8.3 from the fink package manager
+ 
+This release *will not* work with the following platforms:
+ - Windows via Cygwin (openssl, readline, other issues)
+ - Windows via Native (stdin reads blocks the whole process)
+ - Mac OS X 10.4 with the standard Ruby install (Apple sucks)
+ 
+Questions and suggestions can be sent to:
+ msfdev[at]metasploit.com
+ 
+The framework-beta mailing list is the place to discuss features and
+ask questions of the user-base. To subscribe, send a blank email to:
+ framework-beta-subscribe[at]metasploit.com

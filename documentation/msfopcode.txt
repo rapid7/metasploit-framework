@@ -1,0 +1,338 @@
+Using the Opcode Database CLI (msfopcode)
+
+   The 3.0 version of the Metasploit Framework comes with a command line
+   interface to the Metasploit Opcode Database. This can be used instead
+   of the web-based wizard to easily search for portable opcode
+   addresses. The interface is provided through the msfopcode command
+   which is found in the root directory of the installation. This
+   interface is merely a front-end to a the
+   Rex::Exploitation::OpcodeDb::Client class interface that interfaces
+   with a HTTP-based XML protocol running on the Metasploit.com
+   web-server.
+
+   The interface itself provides a simplified interface to some of the
+   different aspects of the opcode database. When running the command
+   with no arguments, the following output is shown:
+
+$ ./msfopcode
+
+    Usage: msfopcode command
+
+SUPPORTED COMMANDS
+
+   stats       Display database statistics
+   locales     Display supported locales
+   metatypes   Display supported opcode meta types (Ex: jmp reg)
+   groups      Display supported opcode groups (Ex: esp => eip)
+   types       Display supported opcode types (Ex: jmp esp)
+   platforms   Display supported platforms
+   modules     Display information about specific modules
+   search      Search for opcodes given a set of criteria
+
+   The purpose of the stats command is to show the current database
+   statistics, such as the number of opcodes and modules currently
+   indexed by the database and the last time the database was updated.
+   The output to this command looks something like this:
+
+$ ./msfopcode stats
+
+Last Updated             : Sat Sep 03 01:32:00 CDT 2005
+Number of Opcodes        : 12177419
+Number of Opcode Types   : 320
+Number of Platforms      : 14
+Number of Architectures  : 1
+Number of Modules        : 17683
+Number of Module Segments: 71457
+Number of Module Imports : 2065492
+Number of Module Exports : 927637
+
+   The locales command lists the locales that are currently supported by
+   the database. In the future, more locales will be indexed to provided
+   a more complete view of opcode portability.
+
+$ ./msfopcode locales
+English
+French
+
+   The metatypes command lists the opcode meta types currently supported
+   by the database. An opcode meta type is defined as a general
+   categorization of opcodes based on the action they perform, such as
+   jumping to a register, performing a pop/pop/ret, and so on. The meta
+   type helps categorize different specific types of opcodes.
+
+$ ./msfopcode metatypes
+pop/pop/ret
+jmp reg
+call reg
+jmp [reg + offset]
+call [reg + offset]
+popad/ret
+popaw/ret
+push reg/ret
+
+   The groups command lists the opcode groups currently supported by the
+   database. The distinction between and opcode group and an opcode meta
+   type is that an opcode group associates opcodes based on the specific
+   action they perform, such as transitioning the instruction pointer to
+   the current value of a specific register, like esp.
+
+$ ./msfopcode groups
+eax => eip
+ebx => eip
+ecx => eip
+edx => eip
+edi => eip
+esi => eip
+ebp => eip
+esp => eip
+[esp + 8] => eip
+[reg + offset] => eip
+[esp + 0x10] => eip
+[esp + 0x20] => eip
+[reg] => eip
+
+   The types command lists all of the various specific opcode types
+   supported by the database. An opcode type is an instance of a specific
+   opcode or opcodes that form one logical instruction block, such as a
+   jmp esp. Opcode types are grouped together through the use of opcode
+   groups and meta types. A sampling of the output is shown below:
+
+$ ./msfopcode types
+jmp esp
+call esp
+push esp, ret
+jmp ebp
+call ebp
+push ebp, ret
+jmp eax
+...
+
+   The platforms command lists the currently supported operating system
+   versions broken down by major version and service pack. At this point,
+   the database supports Windows NT SP3 through Windows 2003 Server SP1.
+   The database does not take into account hot fixes. Optionally,
+   platforms can be filtered by specifying the -p option with an argument
+   that includes a text portion of the operating system name or version
+   to filter. For instance, specifying -p 2000 will return only Windows
+   2000 versions.
+
+$ ./msfopcode platforms
+Windows NT 4.0.3.0 SP3 (IA32)
+Windows NT 4.0.4.0 SP4 (IA32)
+Windows NT 4.0.5.0 SP5 (IA32)
+Windows NT 4.0.6.0 SP6 (IA32)
+Windows 2000 5.0.0.0 SP0 (IA32)
+Windows 2000 5.0.1.0 SP1 (IA32)
+Windows 2000 5.0.2.0 SP2 (IA32)
+Windows 2000 5.0.3.0 SP3 (IA32)
+Windows 2000 5.0.4.0 SP4 (IA32)
+Windows XP 5.1.0.0 SP0 (IA32)
+Windows XP 5.1.1.0 SP1 (IA32)
+Windows XP 5.1.2.0 SP2 (IA32)
+Windows 2003 Server 5.2.0.0 SP0 (IA32)
+Windows 2003 Server 5.2.1.0 SP1 (IA32)
+
+   One of the major features of the opcode database is that it indexes
+   detailed information about modules. For instance, the opcode database
+   currently contains information about imports, exports, segments, and
+   specific module attributes for every imported module in the database.
+   This makes it possible to cross reference different modules and do all
+   sorts of fun things. To extract information about modules, the modules
+   command can be used. The usage for this command is shown below:
+
+$ ./msfopcode modules -h
+
+    Usage: msfopcode modules
+
+OPTIONS:
+
+    -E        Include module export information
+    -I        Include module import information
+    -S        Include module segment information
+    -d        Display detailed output
+    -h        Help banner
+    -l   A comma separated list of locales to filter (Ex: English)
+    -m   A comma separated list of module names to filter (Ex: kernel32.dll,use
+r32.dll)
+    -p   A comma separated list of operating system names to filter (Ex: 2000,X
+P)
+    -x        Dump the raw XML response
+
+   The explanation in the usage for each option is fairly self
+   explanatory, but the basic idea is that it's possible to search the
+   database for modules with the ability to filter based on file name,
+   locale, and operating system version. For the results that are
+   returned, information about the module imports, exports, segments, and
+   detailed information can be displayed. For example, to see all of the
+   versions of kernel32.dll currently indexed in the database, the
+   following command would be run:
+
+$ ./msfopcode modules -m kernel32.dll
+
+Matching Modules
+================
+
+    Name          Base Address  Size     Version           Timestamp
+          Locale
+    ----          ------------  ----     -------           ---------
+          ------
+    kernel32.dll  0x77e70000    790528   5.0.2191.1        Tue Dec 14 17:20:09 CST 1999  French
+    kernel32.dll  0x77e40000    1056768  5.2.3790.1830031  Thu Mar 24 20:30:42 CST 2005  English
+    kernel32.dll  0x77e40000    999424   5.2.3790.3        Tue Mar 25 03:42:44 CST 2003  English
+    kernel32.dll  0x77f00000    385024   4.0.0.0           Fri Apr 25 15:33:31 CDT 1997  English
+    kernel32.dll  0x77ef0000    421888   4.0.0.0           Mon Mar 29 18:10:58 CST 1999  English
+    kernel32.dll  0x77f00000    385024   4.0.0.0           Sun Feb 28 17:49:07 CST 1999  English
+    kernel32.dll  0x77f00000    385024   4.0.0.0           Tue Jul 20 18:19:59 CDT 1999  English
+    kernel32.dll  0x77e80000    745472   5.0.2191.1        Wed Dec 01 01:37:24 CST 1999  English
+    kernel32.dll  0x77e80000    741376   5.0.2195.1600     Fri Jun 09 21:03:14 CDT 2000  English
+    kernel32.dll  0x77e80000    741376   5.0.2195.2778     Fri May 04 17:34:08 CDT 2001  English
+    kernel32.dll  0x77e80000    745472   5.0.2195.5400     Tue Jul 23 03:13:13 CDT 2002  English
+    kernel32.dll  0x7c4e0000    757760   5.0.2195.6688     Thu Jun 19 22:43:40 CDT 2003  English
+    kernel32.dll  0x77e60000    937984   5.1.2600.0        Sat Aug 18 01:33:02 CDT 2001  English
+    kernel32.dll  0x77e60000    942080   5.1.2600.11061    Thu Aug 29 06:40:40 CDT 2002  English
+    kernel32.dll  0x7c800000    999424   5.1.2600.21802    Wed Aug 04 03:56:36 CDT 2004  English
+ 
+   If only the versions of kernel32.dll on Windows XP running on the
+   English locale were of concern, the results could be limited by
+   specifying more limiting parameters:
+$ ./msfopcode modules -m kernel32.dll -p XP -l English
+
+Matching Modules
+================
+
+    Name          Base Address  Size    Version         Timestamp
+       Locale
+    ----          ------------  ----    -------         ---------
+       ------
+    kernel32.dll  0x77e60000    937984  5.1.2600.0      Sat Aug 18 01:33:02 CDT 2001  English
+    kernel32.dll  0x77e60000    942080  5.1.2600.11061  Thu Aug 29 06:40:40 CDT 2002  English
+    kernel32.dll  0x7c800000    999424  5.1.2600.21802  Wed Aug 04 03:56:36 CDT 2004  English
+
+   To display detailed information about modules that match, the -d
+   parameter can be specified:
+
+$ ./msfopcode modules -m kernel32.dll -p XP -l English -d
+.-============================================
+
+  Name        : kernel32.dll
+  Base Address: 0x77e60000
+  Size        : 937984
+  Version     : 5.1.2600.0
+  Timestamp   : Sat Aug 18 01:33:02 CDT 2001
+  Locale      : English
+  Platforms   :
+
+    Windows XP 5.1.0.0 SP0 (IA32)
+
+.-============================================
+
+  Name        : kernel32.dll
+  Base Address: 0x77e60000
+  Size        : 942080
+  Version     : 5.1.2600.11061
+  Timestamp   : Thu Aug 29 06:40:40 CDT 2002
+  Locale      : English
+  Platforms   :
+
+    Windows XP 5.1.1.0 SP1 (IA32)
+
+.-============================================
+
+  Name        : kernel32.dll
+  Base Address: 0x7c800000
+  Size        : 999424
+  Version     : 5.1.2600.21802
+  Timestamp   : Wed Aug 04 03:56:36 CDT 2004
+  Locale      : English
+  Platforms   :
+
+    Windows XP 5.1.2.0 SP2 (IA32)
+
+   The real purpose behind the opcode database, however, is the ability
+   to search for specific opcodes across different operating system
+   versions with the ability to cross reference results in order to
+   determine return address portability. For that reason, the msfopcode
+   script provides the search command:
+$ ./msfopcode search -h
+
+    Usage: msfopcode search
+
+OPTIONS:
+
+    -M   A comma separated list of opcode meta types to filter (Ex: jmp reg)
+    -P   Results must span more than one operating system version
+    -a   A comma separated list of addresses to filter (Ex: 0x41424344)
+    -g   A comma separated list of opcode groups to filter (Ex: esp => eip)
+    -h   Help banner
+    -l   A comma separated list of locales to filter (Ex: English)
+    -m   A comma separated list of module names to filter (Ex: kernel32.dll,user32.dll)
+    -p   A comma separated list of operating system names to filter (Ex: 2000,XP)
+    -t   A semi-colon separated list of opcode types to filter (Ex: jmp esp,call esp)
+    -x   Dump the raw XML response
+
+   Like the modules command, the search command provides a way of
+   limiting the results that come back as a result of the search. In this
+   case, opcode results can be limited based on meta type, group, type,
+   operating system, module, locale, and even address. This makes it
+   possible to get fairly granular results in an intuitive manner.
+   Furthermore, the server can be instructed to only return results that
+   are portable in the event that the -P option is specified, although
+   there are currently some issues with this option being accurate.
+
+   To search for all occurrences of a ecx => eip opcode group in
+   ws2help.dll on Windows 2000 and XP, the following command could be
+   issued:
+
+$ ./msfopcode search -p 2000,XP -m ws2help.dll -g "ecx => eip"
+
+Opcodes
+=======
+
+    Address     Type           OS
+    -------     ----           --
+    0x74fa3112  call ecx       Windows 2000 5.0.0.0 SP0 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.1.0 SP1 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.2.0 SP2 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.4.0 SP4 (IA32) (ws2help.dll)
+    0x71aa1224  push ecx, ret  Windows XP 5.1.0.0 SP0 (IA32) (ws2help.dll)
+                               Windows XP 5.1.1.0 SP1 (IA32) (ws2help.dll)
+    0x71aa396d  call ecx       Windows XP 5.1.0.0 SP0 (IA32) (ws2help.dll)
+                               Windows XP 5.1.1.0 SP1 (IA32) (ws2help.dll)
+    0x71aa3de3  call ecx       Windows XP 5.1.2.0 SP2 (IA32) (ws2help.dll)
+    0x71aa163b  push ecx, ret  Windows XP 5.1.2.0 SP2 (IA32) (ws2help.dll)
+    0x75023112  call ecx       Windows 2000 5.0.0.0 SP0 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.1.0 SP1 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.2.0 SP2 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.3.0 SP3 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.4.0 SP4 (IA32) (ws2help.dll)
+
+   To limit the results to portable ones only, the -P option can be
+   tagged on producing output like that shown below:
+
+$ ./msfopcode search -p 2000,XP -m ws2help.dll -g "ecx => eip" -P
+
+Opcodes
+=======
+
+    Address     Type           OS
+    -------     ----           --
+    0x74fa3112  call ecx       Windows 2000 5.0.0.0 SP0 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.1.0 SP1 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.2.0 SP2 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.4.0 SP4 (IA32) (ws2help.dll)
+    0x71aa1224  push ecx, ret  Windows XP 5.1.0.0 SP0 (IA32) (ws2help.dll)
+                               Windows XP 5.1.1.0 SP1 (IA32) (ws2help.dll)
+    0x71aa396d  call ecx       Windows XP 5.1.0.0 SP0 (IA32) (ws2help.dll)
+                               Windows XP 5.1.1.0 SP1 (IA32) (ws2help.dll)
+    0x75023112  call ecx       Windows 2000 5.0.0.0 SP0 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.1.0 SP1 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.2.0 SP2 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.3.0 SP3 (IA32) (ws2help.dll)
+                               Windows 2000 5.0.4.0 SP4 (IA32) (ws2help.dll)
+
+   For custom development purposes, the script can also be told to dump
+   results in raw XML format such that extensions can be written to the
+   interface in the future by third parties. This can be accomplished by
+   specifying the -x parameter.
+
+More information online at: http://metasploit.com/projects/Framework/msf3/
