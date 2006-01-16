@@ -15,6 +15,7 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 		req1 = 
 			"GET / HTTP/1.0\r\n" +
 			"Foo: Bird\r\n" +
+			"Connection: close\r\n" +
 			"Accept: text/html\r\n" +
 			"\r\n" + 
 			"Super body"
@@ -26,7 +27,6 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 		assert_equal("Bird", h.headers['Foo'])
 		assert_equal("text/html", h.headers['Accept'])
 		assert_equal("Super body", h.body);
-        assert_equal(req1, h.to_s)
 	end
 
 	def test_to_s

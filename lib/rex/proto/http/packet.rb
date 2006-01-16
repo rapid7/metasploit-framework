@@ -80,8 +80,6 @@ class Packet
 		rescue
 			self.error = $!
 
-			puts "#{self.error}: \n#{$@.join("\n")}"
-
 			return ParseCode::Error
 		end
 
@@ -235,15 +233,9 @@ protected
 		# transition to the body parsing phase.
 		idx = self.bufq.index(/\r*\n\r*\n/)
 		
-		if (idx == -1)
-			self.headers.from_s(self.bufq)
-		else
-			idx += 4
-		end
-		
-		if (idx >= 0)
+		if (idx and idx >= 0)
 			# Extract the header block
-			head = self.bufq.slice!(0, idx)
+			head = self.bufq.slice!(0, idx + 4)
 
 			# Serialize the headers
 			self.headers.from_s(head)
@@ -273,6 +265,8 @@ protected
 			else
 				self.state = ParseState::Completed
 			end
+		else
+			return ParseState::ProcessingHeader
 		end
 		
 		# No command string?  Wack.
