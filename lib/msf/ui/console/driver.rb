@@ -182,7 +182,7 @@ class Driver < Msf::Ui::Driver
 					return false
 				elsif (active_module)
 					active_module.datastore.clear_non_user_defined
-				else
+				elsif (framework)
 					framework.datastore.clear_non_user_defined
 				end
 			when "sessionlogging"
