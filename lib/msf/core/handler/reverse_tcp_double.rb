@@ -196,6 +196,12 @@ module ReverseTcpDouble
 		end
 	end
 
+protected
+
+	attr_accessor :listener_sock # :nodoc:
+	attr_accessor :listener_thread # :nodoc:
+	attr_accessor :conn_threads # :nodoc:
+
 
 	###
 	# 
@@ -263,12 +269,6 @@ module ReverseTcpDouble
 	end
 
 	
-protected
-
-	attr_accessor :listener_sock # :nodoc:
-	attr_accessor :listener_thread # :nodoc:
-	attr_accessor :conn_threads # :nodoc:
-
 end
 
 end
