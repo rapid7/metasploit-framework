@@ -12,7 +12,8 @@ class DataStore < Hash
 	# Initializes the data store's internal state.
 	#
 	def initialize()
-		@imported = Hash.new
+		@imported    = Hash.new
+		@imported_by = Hash.new
 	end
 
 	#
@@ -21,6 +22,7 @@ class DataStore < Hash
 	#
 	def []=(k, v)
 		@imported[k] = false
+		@imported_by[k] = nil
 
 		super
 	end
@@ -38,14 +40,15 @@ class DataStore < Hash
 	# This method is a helper method that imports the default value for
 	# all of the supplied options
 	#
-	def import_options(options)
+	def import_options(options, imported_by = nil)
 		options.each_option { |name, opt|
 			# If the option has a default value, import it, but only if the
 			# datastore doesn't already have a value set for it.
 			if (opt.default and self[name] == nil)
 				self.store(name, opt.default.to_s)
 
-				@imported[name] = true
+				@imported[name]    = true
+				@imported_by[name] = imported_by
 			end
 		}
 	end
@@ -91,11 +94,12 @@ class DataStore < Hash
 	#
 	# Imports options from a hash and stores them in the datastore.
 	#
-	def import_options_from_hash(option_hash, imported = true)
+	def import_options_from_hash(option_hash, imported = true, imported_by = nil)
 		option_hash.each_pair { |key, val|
 			self.store(key, val.to_s)
 
-			@imported[key] = imported
+			@imported[key]    = imported
+			@imported_by[key] = imported_by
 		}
 	end
 
@@ -159,7 +163,11 @@ class DataStore < Hash
 	#
 	def clear_non_user_defined
 		@imported.delete_if { |k, v|
-			self.delete(k) if (v)
+			if (v and @imported_by[k] != 'self')
+				self.delete(k) 
+				@imported_by.delete(k)
+			end
+
 			v
 		}
 	end
