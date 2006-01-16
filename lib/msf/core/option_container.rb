@@ -26,7 +26,7 @@ class OptBase
 		self.required = attrs[0] || false
 		self.desc     = attrs[1]
 		self.default  = attrs[2]
-		self.enums    = [ *(attrs[3]) ].m
+		self.enums    = [ *(attrs[3]) ].map { |x| x.to_s }
 	end
 
 	#
