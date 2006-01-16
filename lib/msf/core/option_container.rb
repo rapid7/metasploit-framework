@@ -17,6 +17,7 @@ class OptBase
 	# attrs[0] = required (boolean type)
 	# attrs[1] = description (string)
 	# attrs[2] = default value
+	# attrs[3] = possible enum values
 	#
 	def initialize(in_name, attrs = [])
 		self.name     = in_name
@@ -25,6 +26,7 @@ class OptBase
 		self.required = attrs[0] || false
 		self.desc     = attrs[1]
 		self.default  = attrs[2]
+		self.enums    = [ *(attrs[3]) ].m
 	end
 
 	#
@@ -109,6 +111,10 @@ class OptBase
 	# The module or entity that owns this option.
 	#
 	attr_accessor :owner
+	#
+	# The list of potential valid values
+	#
+	attr_accessor :enums	
 
 protected
 
@@ -126,6 +132,7 @@ end
 # OptAddress - IP address or hostname
 # OptPath    - Path name on disk
 # OptInt     - An integer value
+# OptEnum    - Select from a set of valid values
 #
 ###
 
@@ -192,6 +199,27 @@ class OptBool < OptBase
 
 	def to_s
 		return is_true?.to_s
+	end
+end
+
+###
+#
+# Enum option.
+#
+###
+class OptEnum < OptBase
+
+	def type
+		return 'enum'
+	end
+
+	def valid?(value=self.value)
+		(value and self.enums.include?(value.to_s))
+	end
+
+	def normalize(value=self.value)
+		return nil if not self.valid?(value)
+		return value.to_s
 	end
 end
 
