@@ -1,21 +1,35 @@
-alpha release 2
+alpha release 2 - Jan 15, 2006
 
 	Rex:
 
 		* generalized block-based dependency generation for polymorphism
+		* addition of gzip/ungzip to Rex::Text
+		* improvements to HTTP, DCERPC, SMB
 
 	Core:
 
 		* added support for EncoderOptions and EncoderType preferencing in exploits
 
+	Exploit Modules:
+	
+		* 24 more exploit modules ported
+
 	Encoder Modules:
 
 		* x86/shikata_ga_nai ported
 		* x86/jmp_call_additive is now polymorphic
+		* unix command execution encoders added
+		* sparc/longxor_tag.rb ported
 
 	Payload Modules:
 
 		* passivex http tunneling stager ported
+		* unix command execution payloads ported
+
+	Nop Modules:
+		
+		* ppc/simple.rb ported
+		* sparc/random.rb ported
 
 	Bug fixes:
 
