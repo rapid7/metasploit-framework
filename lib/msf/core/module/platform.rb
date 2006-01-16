@@ -372,7 +372,15 @@ class Msf::Module::Platform
 	class FreeBSD < Msf::Module::Platform
 		Rank = 100
 	end
-	
+
+	#
+	# HP-UX
+	#
+	class HPUX < Msf::Module::Platform
+		Rank = 100
+		Alias = "hpux"
+	end
+		
 	#
 	# Generic Unix
 	#
