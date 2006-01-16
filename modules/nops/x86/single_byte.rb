@@ -82,6 +82,7 @@ SINGLE_BYTE_SLED =
 			'Version'     => '$Revision$',
 			'Description' => 'Single-byte NOP generator',
 			'Author'      => 'spoonm',
+			'License'     => GPL_LICENSE,
 			'Arch'        => ARCH_X86)
 
 		register_advanced_options(

@@ -31,6 +31,7 @@ class JmpCallAdditive < Msf::Encoder::XorAdditiveFeedback
 			'Description'      => 'Polymorphic Jump/Call XOR Additive Feedback',
 			'Author'           => 'skape',
 			'Arch'             => ARCH_X86,
+			'License'          => GPL_LICENSE,
 			'Decoder'          =>
 				{
 					'KeySize'   => 4,

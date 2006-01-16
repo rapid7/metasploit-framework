@@ -25,6 +25,7 @@ module ReverseTcp
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to the attacker',
 			'Author'        => 'hdm',
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'osx',
 			'Arch'          => ARCH_PPC,
 			'Handler'       => Msf::Handler::ReverseTcp,

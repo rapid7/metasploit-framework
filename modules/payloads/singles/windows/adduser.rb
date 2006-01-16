@@ -26,6 +26,7 @@ module AddUser
 			'Version'       => '$Revision$',
 			'Description'   => 'Create a new user and add them to local administration group',
 			'Author'        => 'hdm',
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Privileged'    => true))

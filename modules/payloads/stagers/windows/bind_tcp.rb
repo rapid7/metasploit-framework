@@ -17,6 +17,7 @@ module BindTcp
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection',
 			'Author'        => 'vlad902',
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::BindTcp,

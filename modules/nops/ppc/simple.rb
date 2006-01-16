@@ -22,6 +22,7 @@ class Simple < Msf::Nop
 			'Version'     => '$Revision$',
 			'Description' => 'Simple NOP generator',
 			'Author'      => 'hdm',
+			'License'     => GPL_LICENSE,
 			'Arch'        => ARCH_PPC)
 
 		register_advanced_options(

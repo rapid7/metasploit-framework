@@ -45,3 +45,12 @@ RankingName      =
 	}
 
 end
+
+#
+# Global constants
+#
+
+# Licenses
+GPL_LICENSE      = "GPL"
+ARTISTIC_LICENSE = "Artistic"
+UNKNOWN_LICENSE  = "Unknown"

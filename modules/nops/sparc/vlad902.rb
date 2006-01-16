@@ -75,6 +75,7 @@ class Vlad902 < Msf::Nop
 			'Version'     => '$Revision$',
 			'Description' => 'SPARC NOP generator',
 			'Author'      => 'vlad902',
+			'License'     => GPL_LICENSE,
 			'Arch'        => ARCH_SPARC)
 
 		register_advanced_options(

@@ -18,6 +18,7 @@ module ShellFindPort
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a shell on an established connection',
 			'Author'        => 'LSD <unknown@lsd>',
+			'License'       => UNKNOWN_LICENSE,
 			'Platform'      => 'solaris',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::FindPort,

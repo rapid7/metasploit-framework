@@ -15,6 +15,7 @@ module Shell
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a command shell',
 			'Author'        => 'skape',
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'bsdi',
 			'Arch'          => ARCH_X86,
 			'Session'       => Msf::Sessions::CommandShell,

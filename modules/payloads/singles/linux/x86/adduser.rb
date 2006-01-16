@@ -24,6 +24,7 @@ module AddUser
 			'Version'       => '$Revision$',
 			'Description'   => 'Create a new user with UID 0',
 			'Author'        => [ 'skape', 'vlad902', 'spoonm' ],
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'linux',
 			'Arch'          => ARCH_X86,
 			'Privileged'    => true))

@@ -18,6 +18,7 @@ module ShellReverseTcp
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => 'bighawk <bighawk@warfare.com>',
+			'License'       => UNKNOWN_LICENSE,
 			'Platform'      => 'solaris',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::ReverseTcp,

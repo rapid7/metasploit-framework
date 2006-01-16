@@ -17,6 +17,7 @@ module ReverseTcp
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to the attacker',
 			'Author'        => 'vlad902',
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::ReverseTcp,

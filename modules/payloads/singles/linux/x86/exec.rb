@@ -24,6 +24,7 @@ module Exec
 			'Version'       => '$Revision$',
 			'Description'   => 'Execute an arbitrary command',
 			'Author'        => 'vlad902',
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'linux',
 			'Arch'          => ARCH_X86))
 

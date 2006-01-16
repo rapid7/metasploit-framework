@@ -15,6 +15,7 @@ module PipeShell
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a piped command shell',
 			'Author'        => 'spoonm',
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Session'       => Msf::Sessions::CommandShell,

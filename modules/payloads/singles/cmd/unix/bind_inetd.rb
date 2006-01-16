@@ -18,6 +18,7 @@ module BindInetd
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell (persistent)',
 			'Author'        => 'hdm',
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
 			'Handler'       => Msf::Handler::BindTcp,

@@ -13,6 +13,7 @@ class Call4Dword < Msf::Encoder::Xor
 			'Description'      => 'Call+4 Dword XOR Encoder',
 			'Author'           => [ 'hdm', 'spoonm' ],
 			'Arch'             => ARCH_X86,
+			'License'          => GPL_LICENSE,
 			'Decoder'          =>
 				{
 					'KeySize'    => 4,

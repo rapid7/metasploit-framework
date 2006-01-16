@@ -18,6 +18,7 @@ module Interact
 			'Version'       => '$Revision$',
 			'Description'   => 'Interacts with a shell on an established TCP connection',
 			'Author'        => 'hdm',
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
 			'Handler'       => Msf::Handler::FindShell,

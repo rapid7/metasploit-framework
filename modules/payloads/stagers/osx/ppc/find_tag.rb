@@ -25,6 +25,7 @@ module FindTag
 			'Version'       => '$Revision$',
 			'Description'   => 'Use an established connection',
 			'Author'        => 'hdm',
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'osx',
 			'Arch'          => ARCH_PPC,
 			'Handler'       => Msf::Handler::FindTag,

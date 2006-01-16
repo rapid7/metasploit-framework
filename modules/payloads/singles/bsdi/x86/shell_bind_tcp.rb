@@ -18,6 +18,7 @@ module ShellBindTcp
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
 			'Author'        => [ 'skape', 'optyx' ],
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'bsdi',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::BindTcp,

@@ -27,6 +27,7 @@ module DllInject
 					'jt <jt@klake.org>',
 					'skape',
 				],
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'PayloadCompat' =>

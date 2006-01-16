@@ -19,6 +19,7 @@ class UnicodeMixed < Msf::Encoder::Alphanum
          	},
 			'Author'           => [ 'pusscat', 'skylined' ],
 			'Arch'             => ARCH_X86,
+			'License'          => GPL_LICENSE,
 			'EncoderType'      => Msf::Encoder::Type::AlphanumUnicodeMixed,
 			'Decoder'          =>
 				{

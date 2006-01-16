@@ -18,6 +18,7 @@ module Reverse
 			'Version'       => '$Revision$',
 			'Description'   => 'Creates an interactive shell through two inbound connections',
 			'Author'        => 'hdm',
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
 			'Handler'       => Msf::Handler::ReverseTcpDouble,

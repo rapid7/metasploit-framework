@@ -25,6 +25,7 @@ module ReverseTcp
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to the attacker',
 			'Author'        => 'skape',
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'bsdi',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::ReverseTcp,

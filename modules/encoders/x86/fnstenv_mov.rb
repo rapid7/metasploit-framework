@@ -16,6 +16,7 @@ class FnstenvMov < Msf::Encoder::Xor
 			}, 
 			'Author'           => 'spoonm',
 			'Arch'             => ARCH_X86,
+			'License'          => GPL_LICENSE,
 			'Decoder'          =>
 				{
 					'KeySize'   => 4,

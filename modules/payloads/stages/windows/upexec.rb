@@ -15,6 +15,7 @@ module UploadExec
 			'Version'       => '$Revision$',
 			'Description'   => 'Uploads an executable and runs it',
 			'Author'        => 'vlad902',
+			'License'       => GPL_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Session'       => Msf::Sessions::CommandShell,
