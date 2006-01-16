@@ -1,3 +1,13 @@
+alpha release 2 -
+
+	Rex:
+
+		* fixed http header parsing issue that lead to exception
+
+	Core:
+
+		* fixed issue with clear_non_user_defined in data store
+
 alpha release 2 - Jan 15, 2006
 
 	Rex:
