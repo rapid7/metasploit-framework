@@ -40,7 +40,7 @@ class Generic
 		randbase = 0
 		
 		gen_base_set(block).each do |randbase|
-			second   = gen_second(block, randbase)
+			second   = gen_second(block>>4, randbase)
 			next  if second < 0
 			break if @@accepted_chars.include?(second.chr)
 		end
