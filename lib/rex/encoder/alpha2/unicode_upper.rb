@@ -8,12 +8,13 @@ module Alpha2
 
 class UnicodeUpper < Generic
 	@@accepted_chars = ('B' .. 'Z').to_a + ('0' .. '9').to_a
-   
-	def self.gen_base(max)
-		max = max >> 4
-		(rand(max) * 0x10)
-	end
 
+	def self.gen_base_set(max)
+		Rex::Text.shuffle_a(
+			[* ( (0..(max-1)).map { |i| i *= 0x10 } ) ]
+		)
+	end
+	
 	def self.gen_second(block, base)
 		# unicode uses additive encoding
 		(block - base)

@@ -87,24 +87,25 @@ class Msf::Module::SiteReference < Msf::Module::Reference
 	#
 	# Initialize the site reference.
 	#
-	def initialize(in_site = nil, in_ctx_id = nil)
-		self.ctx_id = in_ctx_id
+	def initialize(in_ctx_id = 'Unknown', in_ctx_val = '')
+		self.ctx_id  = in_ctx_id
+		self.ctx_val = in_ctx_val
 
-		if (in_site == 'OSVDB')
-			self.site = 'http://www.osvdb.org/' + in_ctx_id.to_s
-		elsif (in_site == 'CVE')
-			self.site = 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=' + in_ctx_id.to_s
-		elsif (in_site == 'BID')
-			self.site = 'http://www.securityfocus.com/bid/' + in_ctx_id.to_s
-		elsif (in_site == 'MSB')
-			self.site = 'http://www.microsoft.com/technet/security/bulletin/' + in_ctx_id.to_s + '.mspx'
-		elsif (in_site == 'MIL')
-			self.site = 'http://milw0rm.com/metasploit.php?id=' + in_ctx_id.to_s
-		elsif (in_site == 'URL')
-			self.site = in_ctx_id.to_s
+		if (in_ctx_id == 'OSVDB')
+			self.site = 'http://www.osvdb.org/' + in_ctx_val.to_s
+		elsif (in_ctx_id == 'CVE')
+			self.site = 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=' + in_ctx_val.to_s
+		elsif (in_ctx_id == 'BID')
+			self.site = 'http://www.securityfocus.com/bid/' + in_ctx_val.to_s
+		elsif (in_ctx_id == 'MSB')
+			self.site = 'http://www.microsoft.com/technet/security/bulletin/' + in_ctx_val.to_s + '.mspx'
+		elsif (in_ctx_id == 'MIL')
+			self.site = 'http://milw0rm.com/metasploit.php?id=' + in_ctx_val.to_s
+		elsif (in_ctx_id == 'URL')
+			self.site = in_ctx_val.to_s
 		else
-			self.site  = in_site
-			self.site += " (#{in_ctx_id.to_s})" if (in_ctx_id)
+			self.site  = in_ctx_id
+			self.site += " (#{in_ctx_val.to_s})" if (in_ctx_val)
 		end
 	end
 
@@ -136,10 +137,14 @@ class Msf::Module::SiteReference < Msf::Module::Reference
 	# The context identifier of the site, such as OSVDB.
 	#
 	attr_reader :ctx_id
+	#
+	# The context value of the reference, such as MS02-039
+	#
+	attr_reader :ctx_val
 
 protected
 
-	attr_writer :site, :ctx_id
+	attr_writer :site, :ctx_id, :ctx_val
 
 end
 

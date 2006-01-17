@@ -200,8 +200,8 @@ class EncodedPayload
 
 			# If the caller had a preferred nop, try to find it and prefix it
 			if ((reqs['Nop']) and
-			    (preferred = framework.encoders[reqs['Nop']]))
-				encoders.unshift([reqs['Nop'], preferred ])
+			    (preferred = framework.nops[reqs['Nop']]))
+				nops.unshift([reqs['Nop'], preferred ])
 			elsif (reqs['Nop'])
 				wlog("#{pinst.refname}: Failed to find preferred nop #{reqs['Nop']}")
 			end

@@ -398,6 +398,31 @@ module Text
 		[*(0..255)].pack('C*').delete(keepers)
 	end
 
+	#
+	#  Shuffles a byte stream
+	#
+	def self.shuffle_s(str)
+		shuffle_a(str.unpack("C*")).pack("C*")
+	end
+
+	#
+	# Performs a Fisher-Yates shuffle on an array
+	#
+	def self.shuffle_a(arr)
+		len = arr.length
+		max = len - 1
+		cyc = [* (0..max) ]
+		for d in cyc
+			e = rand(d+1)
+			next if e == d
+			f = arr[d];
+			g = arr[e];
+			arr[d] = g;
+			arr[e] = f;
+		end
+		return arr
+	end
+
 protected
 
 	def self.converge_sets(sets, idx, offsets, length) # :nodoc:

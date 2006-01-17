@@ -21,11 +21,12 @@ class Generic
 		return ''
 	end
 
-	def Generic.gen_base(max)
+	def Generic.gen_base_set(ignored_max=0x0f)
 		# 0xf is max for XOR encodings - non-unicode
-		max = 0xf
-
-		(rand(max) * 0x10)
+		max = 0x0f
+		Rex::Text.shuffle_a(
+			[* ( (0..(max-1)).map { |i| i *= 0x10 } ) ]
+		)
 	end
 
 	def Generic.gen_second(block, base)
@@ -34,13 +35,18 @@ class Generic
 	end
 
 	def Generic.encode_byte(block)
-		first   = 0
-		second  = 1
-
-		while ( !(@@accepted_chars.include?(second.chr)) )
-			randbase = gen_base(block)
-			second = gen_second(block, randbase)
+		first    = 0
+		second   = 1
+		randbase = 0
+		
+		gen_base_set(block).each do |randbase|
+			second   = gen_second(block, randbase)
+			next  if second < 0
+			break if @@accepted_chars.include?(second.chr)
 		end
+		
+		raise RuntimeError, "Negative" if second < 0
+		raise RuntimeError, "BadChar"  if not @@accepted_chars.include?(second.chr)
 
 		if (randbase > 0xa0)
 			# first num must be 4
