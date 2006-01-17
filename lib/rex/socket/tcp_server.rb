@@ -46,7 +46,8 @@ module  Rex::Socket::TcpServer
 
 		if (t)
 			t.extend(Rex::Socket::Tcp)
-
+			t.context = self.context
+			
 			pn = t.getpeername
 
 			t.peerhost = pn[1]

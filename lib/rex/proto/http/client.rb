@@ -42,11 +42,13 @@ class Client
 		return init_request(Request::Post.new(uri, proto))
 	end
 
-	def initialize(host, port = 80)
+	def initialize(host, port = 80, context = {})
 		self.hostname = host
 		self.port     = port.to_i
+		self.context  = context
 		self.request_config = {}
 		self.client_config  = {}
+
 	end
 
 	#
@@ -135,7 +137,9 @@ class Client
 			'PeerHost'  => self.hostname,
 			'PeerPort'  => self.port.to_i,
 			'LocalHost' => self.local_host,
-			'LocalPort' => self.local_port)
+			'LocalPort' => self.local_port,
+			'Context'   => self.context
+		)
 	end
 
 	#
@@ -246,6 +250,10 @@ class Client
 	# The underlying connection.
 	#
 	attr_accessor :conn
+	#
+	# The calling context to pass to the socket
+	#
+	attr_accessor :context
 	
 protected
 

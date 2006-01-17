@@ -99,9 +99,10 @@ class Server
 	# Initializes an HTTP server as listening on the provided port and
 	# hostname.
 	#
-	def initialize(port = 80, listen_host = '0.0.0.0')
+	def initialize(port = 80, listen_host = '0.0.0.0', context = {})
 		self.listen_host = listen_host
 		self.listen_port = port
+		self.context     = context
 		self.listener    = nil
 		self.resources   = {}
 		self.server_name = DefaultServer
@@ -120,7 +121,9 @@ class Server
 	def start
 		self.listener = Rex::Socket::TcpServer.create(
 			'LocalHost' => self.listen_host,
-			'LocalPort' => self.listen_port)
+			'LocalPort' => self.listen_port,
+			'Context'   => self.context
+		)
 	
 		# Register callbacks
 		self.listener.on_client_connect_proc = Proc.new { |cli|
@@ -233,7 +236,7 @@ class Server
 		cli.send_response(resp)
 	end
 
-	attr_accessor :listen_port, :listen_host, :server_name
+	attr_accessor :listen_port, :listen_host, :server_name, :context
 
 protected
 
