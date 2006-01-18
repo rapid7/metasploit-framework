@@ -38,7 +38,7 @@ class ShikataGaNai < Msf::Encoder::XorAdditiveFeedback
 		# If the decoder stub has not already been generated for this state, do
 		# it now.  The decoder stub method may be called more than once.
 		if (state.decoder_stub == nil)
-			block = generate_shikata_block(state.buf.length + 4)
+			block = generate_shikata_block(state, state.buf.length + 4)
 
 			# Set the state specific key offset to wherever the XORK ended up.
 			state.decoder_key_offset = block.index('XORK')
@@ -87,7 +87,7 @@ protected
 	# Returns a polymorphic decoder stub that is capable of decoding a buffer
 	# of the supplied length.
 	#
-	def generate_shikata_block(length)
+	def generate_shikata_block(state, length)
 		# Declare logical registers
 		count_reg = Rex::Poly::LogicalRegister::X86.new('count', 'ecx')
 		addr_reg  = Rex::Poly::LogicalRegister::X86.new('addr')
@@ -165,7 +165,7 @@ protected
 		# Generate a permutation saving the ECX and ESP registers
 		loop_inst.generate([
 			Rex::Arch::X86::ESP,
-			Rex::Arch::X86::ECX ])
+			Rex::Arch::X86::ECX ], nil, state.badchars)
 	end
 
 end

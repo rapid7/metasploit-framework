@@ -28,6 +28,11 @@ class State
 	# beginning and destroying any block generation state.
 	#
 	def reset
+		# Reset the generation flag on any blocks in the block list
+		@block_list.each { |block|
+			block[0].generated = false
+		} if (@block_list)
+
 		@regnums     = Hash.new
 		@buffer      = ''
 		@block_list  = []

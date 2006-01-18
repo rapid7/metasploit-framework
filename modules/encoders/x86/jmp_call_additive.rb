@@ -44,7 +44,7 @@ class JmpCallAdditive < Msf::Encoder::XorAdditiveFeedback
 	#
 	def decoder_stub(state)
 		if (state.decoder_stub == nil)
-			block = generate_decoder_stub
+			block = generate_decoder_stub(state)
 			state.decoder_key_offset = block.index('XORK')
 			state.decoder_stub = block
 		end
@@ -64,7 +64,7 @@ protected
 	#
 	# Does the actual stub generation.
 	#
-	def generate_decoder_stub
+	def generate_decoder_stub(state)
 		key_reg  = Rex::Poly::LogicalRegister::X86.new('key')
 		endb     = Rex::Poly::SymbolicBlock::End.new
 		cld      = Rex::Poly::LogicalBlock.new('cld', "\xfc")
@@ -108,7 +108,7 @@ protected
 		jmp.generate([ 
 			Rex::Arch::X86::ESP, 
 			Rex::Arch::X86::EAX, 
-			Rex::Arch::X86::ESI ])
+			Rex::Arch::X86::ESI ], nil, state.badchars)
 	end
 
 end
