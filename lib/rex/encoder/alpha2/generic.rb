@@ -34,10 +34,16 @@ class Generic
 		(block^base)
 	end
 
-	def Generic.encode_byte(block)
+	def Generic.encode_byte(block, badchars)
 		first    = 0
 		second   = 1
 		randbase = 0
+		
+		# Remove bad chars from the accepted_chars list.  Sadly 'A' must be 
+		# an accepted char or we'll certainly fail at this point.  This could
+		# be fixed later maybe with some recalculation of the encoder stubs...
+		# - Puss
+		(badchars || '').split('').each { |c| @@accepted_chars.delete(c) }
 		
 		gen_base_set(block).each do |randbase|
 			second   = gen_second(block>>4, randbase)

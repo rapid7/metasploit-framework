@@ -43,7 +43,7 @@ class AlphaMixed < Msf::Encoder::Alphanum
 	# payload.
 	#
 	def encode_block(state, block)
-		Rex::Encoder::Alpha2::AlphaMixed::encode_byte(block.unpack('C')[0])
+		Rex::Encoder::Alpha2::AlphaMixed::encode_byte(block.unpack('C')[0], datastore['BadChars'])
 	end
 
 	#

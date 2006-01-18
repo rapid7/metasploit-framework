@@ -43,7 +43,7 @@ class AlphaUpper < Msf::Encoder::Alphanum
 	# payload.
 	#
 	def encode_block(state, block)
-		return Rex::Encoder::Alpha2::AlphaUpper::encode_byte(block.unpack('C')[0])        
+		return Rex::Encoder::Alpha2::AlphaUpper::encode_byte(block.unpack('C')[0], datastore['BadChars'])        
 	end
 
 	#
