@@ -41,6 +41,8 @@ class Permutation
 		end
 	end
 
+	attr_reader :perm
+
 end
 
 ###
@@ -154,7 +156,40 @@ class LogicalBlock
 	# instance.
 	#
 	def rand_perm
-		Permutation.new(@perms[rand(@perms.length)], self)
+		perm = nil
+
+		if (@state.badchars)
+			perm = rand_perm_badchars
+		else
+			perm = Permutation.new(@perms[rand(@perms.length)], self)
+		end
+
+		if (perm.nil?)
+			raise RuntimeError, "Failed to locate a valid permutation."
+		end
+
+		perm
+	end
+
+	#
+	# Returns a random permutation that passes any necessary bad character
+	# checks.
+	#
+	def rand_perm_badchars
+		idx = rand(@perms.length)
+		off = 0
+
+		while (off < @perms.length)
+			p = @perms[(idx + off) % @perms.length]
+
+			if (p.kind_of?(Proc) or
+			    @state.badchars.nil? or 
+			    Rex::Text.badchar_index(p, @state.badchars).nil?)
+				return Permutation.new(p, self)
+			end
+
+			off += 1
+		end
 	end
 
 	#
@@ -199,12 +234,82 @@ class LogicalBlock
 	# instance from within multiple threads, be sure to encapsulate the calls
 	# inside a locked context.
 	#
-	def generate(save_registers = nil, state = nil)
+	def generate(save_registers = nil, state = nil, badchars = nil)
 		# Create a localized state instance if one was not supplied.
 		state = Rex::Poly::State.new if (state == nil)
+		buf   = nil
+		cnt   = 0
 
+		# This is a lame way of doing this.  We just try to generate at most 128
+		# times until we don't have badchars.  The reason we have to do it this
+		# way is because of the fact that badchars can be introduced through
+		# block offsetting and register number selection which can't be readily
+		# predicted or detected during the generation phase.  In the future we
+		# can make this better, but for now this will have to do.
+		begin
+			buf = do_generate(save_registers, state, badchars)
+
+			if (buf and 
+			    (badchars.nil? or Rex::Text.badchar_index(buf, badchars).nil?))
+				break
+			end
+		end while ((cnt += 1) < 128)
+
+		buf
+	end
+	
+	#
+	# Returns the offset of a block.  If the active state for this instance is
+	# operating in the first phase, then zero is always returned.  Otherwise,
+	# the correct offset for the supplied block is returned.
+	#
+	def offset_of(lblock)
+		if (@state.first_phase) 
+			0 
+		else
+			if (lblock.kind_of?(SymbolicBlock::End))
+				@state.curr_offset
+			else
+				lblock.offset
+			end
+		end
+	end
+
+	#
+	# Returns the register number associated with the supplied LogicalRegister
+	# instance.  If the active state for this instance is operating in the
+	# first phase, then zero is always returned.  Otherwise, the correct
+	# register number is returned based on what is currently assigned to the
+	# supplied LogicalRegister instance, if anything.
+	#
+	def regnum_of(reg)
+		(@state.first_phase) ? 0 : reg.regnum
+	end
+
+	#
+	# This attributes contains the currently assigned offset of the permutation
+	# associated with this block into the polymorphic buffer that is being
+	# generated.
+	#
+	attr_accessor :offset
+
+	#
+	# Whether or not this block has currently been generated for a given
+	# iteration.
+	#
+	attr_accessor :generated
+
+protected
+	
+	#
+	# Performs the actual polymorphic buffer generation.  Called from generate
+	#
+	def do_generate(save_registers, state, badchars)
 		# Reset the state in case it was passed in.
 		state.reset
+
+		# Set the bad character list
+		state.badchars = badchars if (badchars)
 
 		# Consume any registers that should be saved.
 		save_registers.each { |reg|
@@ -255,49 +360,6 @@ class LogicalBlock
 		# Finally, return the buffer that has been created.
 		state.buffer
 	end
-
-	#
-	# Returns the offset of a block.  If the active state for this instance is
-	# operating in the first phase, then zero is always returned.  Otherwise,
-	# the correct offset for the supplied block is returned.
-	#
-	def offset_of(lblock)
-		if (@state.first_phase) 
-			0 
-		else
-			if (lblock.kind_of?(SymbolicBlock::End))
-				@state.curr_offset
-			else
-				lblock.offset
-			end
-		end
-	end
-
-	#
-	# Returns the register number associated with the supplied LogicalRegister
-	# instance.  If the active state for this instance is operating in the
-	# first phase, then zero is always returned.  Otherwise, the correct
-	# register number is returned based on what is currently assigned to the
-	# supplied LogicalRegister instance, if anything.
-	#
-	def regnum_of(reg)
-		(@state.first_phase) ? 0 : reg.regnum
-	end
-
-	#
-	# This attributes contains the currently assigned offset of the permutation
-	# associated with this block into the polymorphic buffer that is being
-	# generated.
-	#
-	attr_accessor :offset
-
-	#
-	# Whether or not this block has currently been generated for a given
-	# iteration.
-	#
-	attr_accessor :generated
-
-protected
 
 	#
 	# Generates the linear of list of block permutation which is stored in the

@@ -33,6 +33,7 @@ class State
 		@block_list  = []
 		@curr_offset = 0
 		@first_phase = true
+		@badchars    = nil
 	end
 
 	#
@@ -113,6 +114,11 @@ class State
 	# return actual results.
 	#
 	attr_accessor :first_phase
+
+	#
+	# Characters to avoid when selecting permutations, if any.
+	#
+	attr_accessor :badchars
 
 end
 
