@@ -90,15 +90,24 @@ module Text
 	#
 	# Returns the hex version of the supplied string
 	#
-	def self.to_hex(str)
-		return str.gsub(/./) { |s| "\\x%.2x" % s[0] }
+	def self.to_hex(str, prefix = "\\x")
+		return str.gsub(/./) { |s| prefix + s.unpack('H*')[0] }
 	end
 
 	#
 	# Converts standard ASCII text to 16-bit unicode
 	#
-	def self.to_unicode(str='')
-		str.unpack('C*').pack('v*')
+	# By default, little-endian unicode.  By providing non-nil value for
+	# endian, convert to 16-bit big-endian unicode.  NOTE, most systems require
+	# a marker to specify that the unicode text being provided is in
+	# big-endian.  Use 0xFEFF, which is not a "legal" unicode code point.
+	#
+	def self.to_unicode(str='', endian = nil)
+		if endian.nil?
+			return str.unpack('C*').pack('v*')
+		else 
+			return str.unpack('C*').pack('n*')
+		end
 	end
 	
 	#
@@ -333,10 +342,8 @@ module Text
 		str.gsub(/\n/m, ' ').gsub(/\s+/, ' ').gsub(/^\s+/, '').gsub(/\s+$/, '')
 	end
 
-	#
-	# Returns true if gzip can be used.
-	#
-	def self.gzip_present?
+	# Returns true if zlib can be used.
+	def self.zlib_present?
 		begin
 			Zlib
 			return true
@@ -344,13 +351,34 @@ module Text
 			return false
 		end
 	end
+    
+    # backwards compat for just a bit...
+    def self.gzip_present?
+        self.zlib_present?
+    end
+
+    #
+    # Compresses a string using zlib
+    #
+    def self.zlib_deflate(str)
+		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
+    	return Zlib::Deflate.deflate(str)
+    end
+
+    #
+    # Uncompresses a string using zlib
+    #
+    def self.zlib_inflate(str)
+		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
+    	return Zlib::Inflate.inflate(str)
+    end
 
 	#
 	# Compresses a string using gzip
 	#
 	def self.gzip(str, level = 9)
-		raise RuntimeError, "Gzip support is not present." if (!gzip_present?)
-        raise RuntimeError, "Invalid gzip compression level" if (level < 1 or level > 9)
+		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
+   	raise RuntimeError, "Invalid gzip compression level" if (level < 1 or level > 9)
 
     	s = ""
     	gz = Zlib::GzipWriter.new(StringIO.new(s), level)
@@ -363,7 +391,7 @@ module Text
 	# Uncompresses a string using gzip
 	#
 	def self.ungzip(str)
-		raise RuntimeError, "Gzip support is not present." if (!gzip_present?)
+		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
 
     	s = ""
     	gz = Zlib::GzipReader.new(StringIO.new(str))
