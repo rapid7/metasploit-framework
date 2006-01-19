@@ -46,7 +46,7 @@ class Generic
 		(badchars || '').split('').each { |c| @@accepted_chars.delete(c) }
 		
 		gen_base_set(block).each do |randbase|
-			second   = gen_second(block>>4, randbase)
+			second   = gen_second(block, randbase)
 			next  if second < 0
 			break if @@accepted_chars.include?(second.chr)
 		end
