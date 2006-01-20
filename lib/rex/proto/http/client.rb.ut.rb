@@ -74,4 +74,18 @@ class Rex::Proto::Http::Client::UnitTest < Test::Unit::TestCase
 		assert_equal('1.1', resp.proto)
 	end
 
+	def test_ssl
+		c = Klass.new('www.geotrust.com', '443', {}, 'true')
+		c.request_option('vhost', 'www.geotrust.com')
+		r = c.request(
+			'method' => 'GET',
+			'uri'    => '/'
+		)
+		resp = c.send_request(r)
+		assert_equal(200, resp.code)
+		assert_equal('OK', resp.message)
+		assert_equal('1.1', resp.proto)
+		c.close
+    end
+
 end

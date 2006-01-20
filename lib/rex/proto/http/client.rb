@@ -42,13 +42,13 @@ class Client
 		return init_request(Request::Post.new(uri, proto))
 	end
 
-	def initialize(host, port = 80, context = {})
+	def initialize(host, port = 80, context = {}, ssl = nil)
 		self.hostname = host
 		self.port     = port.to_i
 		self.context  = context
+		self.ssl      = ssl
 		self.request_config = {}
 		self.client_config  = {}
-
 	end
 
 	#
@@ -138,7 +138,8 @@ class Client
 			'PeerPort'  => self.port.to_i,
 			'LocalHost' => self.local_host,
 			'LocalPort' => self.local_port,
-			'Context'   => self.context
+			'Context'   => self.context,
+			'SSL'       => self.ssl
 		)
 	end
 
@@ -256,6 +257,9 @@ class Client
 	attr_accessor :context
 	
 protected
+
+    # https
+	attr_accessor :ssl
 
 	attr_accessor :hostname, :port # :nodoc:
 	attr_accessor :request_config, :client_config # :nodoc:
