@@ -298,7 +298,7 @@ class ReadableText
 			'Columns' =>
 				[
 					'Name', 
-					'Default',
+					'Current Setting',
 					'Required',
 					'Description'
 				])
@@ -333,9 +333,9 @@ class ReadableText
 			desc = word_wrap(opt.desc, indent.length + 3)
 			desc = desc.slice(indent.length + 3, desc.length)
 
-			output += pad + "Name       : #{name}\n"
-			output += pad + "Default    : #{val}\n"
-			output += pad + "Description: #{desc}\n"
+			output += pad + "Name           : #{name}\n"
+			output += pad + "Current Setting: #{val}\n"
+			output += pad + "Description    : #{desc}\n"
 		}
 
 		return output
@@ -358,9 +358,9 @@ class ReadableText
 			desc = word_wrap(opt.desc, indent.length + 3)
 			desc = desc.slice(indent.length + 3, desc.length)
 
-			output += pad + "Name       : #{name}\n"
-			output += pad + "Default    : #{val}\n"
-			output += pad + "Description: #{desc}\n"
+			output += pad + "Name           : #{name}\n"
+			output += pad + "Current Setting: #{val}\n"
+			output += pad + "Description    : #{desc}\n"
 		}
 
 		return output
