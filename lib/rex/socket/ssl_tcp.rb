@@ -50,7 +50,8 @@ begin
 		# Build the SSL connection
 		self.sslctx  = OpenSSL::SSL::SSLContext.new
 		self.sslsock = OpenSSL::SSL::SSLSocket.new(self, self.sslctx)
-		self.sslsock.sync_close = true
+		# XXX - enabling this causes infinite recursion, so disable for now
+		# self.sslsock.sync_close = true
 		self.sslsock.connect
 	end
 

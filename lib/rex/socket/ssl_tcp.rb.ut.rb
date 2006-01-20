@@ -30,6 +30,10 @@ class Rex::Socket::SslTcp::UnitTest < Test::Unit::TestCase
 		}
 
 		assert_match(/^HTTP\/1./, head_response, "valid head response")
+
+		assert_nothing_raised {
+			t.close
+		}
 	end
 
 end
