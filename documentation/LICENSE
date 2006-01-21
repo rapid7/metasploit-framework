@@ -1,0 +1,163 @@
+The Metasploit Framework License v1.0
+
+Copyright (C) 2006 METASPLOIT.COM
+
+
+Definitions
+
+a. "License" means this particular version of this document.
+
+b. "Software" means any software that is distributed under the terms of 
+this License.
+
+c. "Extension" means any enhancement to the Software that does not require 
+modification of the Software itself. Extensions include any module or 
+plugin that can be dynamically loaded by the Software.
+
+d. "Developer" means the copyright holders of this Software, including, 
+but not limited to, the Metasploit Project staff, and any third-party 
+contributors.
+
+e. "Documentation" means any manuals, tutorials, or code samples provided 
+with the Software.
+
+f. "Use" means to download, install, access, copy, execute, or otherwise 
+benefit from the Software.
+
+
+License Grants
+
+1. You are granted the non-exclusive rights set forth in this license 
+provided you agree to and comply with any and all conditions in this 
+license. Use of the Software, in any form, signifies acceptance of this 
+license. If you do not agree to these terms, do use the Software.
+
+2. You may copy and distribute the Software provided that the following 
+conditions are met:
+
+a. You must include this license document in the distribution.
+
+b. The entire package is distributed unmodified, including - but not 
+restricted to - copyright, trademark notices and disclaimers, as released 
+by the Developer.
+
+c. The Software is distributed without any charge beyond the costs of data 
+transfer or storage media. You may not sell this Software or distribute 
+any component of this Software in a commercial application without a 
+signed letter of agreement from the copyright holder.
+
+3. You may make modifications to the Software and distribute your 
+modifications, in a form that is separate from the Software, such as 
+patches. The following restrictions apply to modifications:
+
+a. Modifications must not alter or remove any copyright notices in the 
+Software.
+
+b. When modifications to the Software are released under this license, a 
+non-exclusive royalty-free right is granted to the Developer to 
+distribute your modification in future versions of the Software provided 
+such versions remain available under these terms in addition to any other 
+license(s) of the Developer.
+
+4. You may develop Extensions to this software and distribute these 
+Extensions under any license you see fit, as long as the following 
+conditions are met:
+
+a. The Extension, when installed with the Software, must not modify the 
+behavior of the Software until the user requests that the Extension 
+should be activated.
+
+b. The Extension may programatically execute code provided by this 
+Software, but may not include copies of this Software (modified or 
+otherwise) in the extension itself.
+
+c. The Extension may not modify the user interface or output of the 
+Software such that the Software copyrights or licensing terms are no 
+longer displayed.
+
+d. The Extension may not modify the user interface or output of the 
+Software such that the title of the Software is omitted or changed.
+
+5. You may develop application programs, reusable components and other 
+software items that interface with the original or modified versions of 
+the Software, as long as the distribution conditions in section 2 are 
+met.
+
+
+Online Updates
+
+The Software has the ability to download updates from the Developer's 
+servers. These updates may contain bug fixes, new functionality, updated 
+Documentation, or Extensions. When retrieving these updates, the Software 
+may transmit the software version and operating system information to the 
+update server. The server may record this information, in conjunction 
+with the IP address of the user, in order to maintain accurate 
+statistics. By using the online update feature, you hereby agree to allow 
+this information to be transmitted and recorded by the Developer.
+
+
+Proper Use
+
+You agree that you will use the Software in compliance with all applicable 
+local, state, national, and international laws, rules and regulations, 
+including any laws regarding the transmission of technical data exported 
+from your country of residence. Violation of any of the foregoing may 
+result in immediate termination of this License, and may subject you to 
+state, national and/or international penalties and other legal 
+consequences.
+
+
+Copyright and Trademark
+
+Product names, words or phrases mentioned in this agreement may be 
+trademarks or servicemarks of the Developer. You may not alter or change 
+the copyright or trademark notices as contained in the Software.
+
+
+License Termination
+
+This License is effective until terminated. This License will terminate 
+immediately without notice from the Developer if you fail to comply with 
+any provision of this License. Upon such termination you must destroy the 
+Software, all accompanying written materials, and all copies thereof.
+
+
+Limitations of Liability
+
+In no event will the Developer be liable to you for any consequential, 
+incidental, indirect or special damages whatsoever (including, without 
+limitation, loss of expected savings, loss of confidential information, 
+presence of viruses, damages for loss of profits, business interruption, 
+loss of business information and the like), whether foreseeable or not, 
+arising out of the use of or inability to use the Software or 
+accompanying materials, regardless of the basis of the claim and even if 
+the Developer or a Developer's representative has been advised of the 
+possibility of such damage.
+
+
+No Warranty
+
+The Software and this license document are provided AS IS with NO WARRANTY 
+OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND 
+FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Indemnification
+
+You agree to indemnify, hold harmless and defend the Developer from and 
+against any and all claims or actions, including legal expenses, that 
+arise or result from your use of the Software.
+
+
+Miscellaneous
+
+If any part of this License is found void and unenforceable, it will not 
+affect the validity of the balance of the license, which shall remain 
+valid and enforceable according to its terms.
+
+
+Choice of Law
+
+This license will be construed, interpreted and governed by the laws of 
+the Travis County, Texas, USA, without regard to its conflict of law 
+provisions.
