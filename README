@@ -1,5 +1,5 @@
-The license for the Metasploit Framework is now exclusively GPLv2, please
-read through ./documentation/COPYING.txt for the complete terms.
+The license for the Metasploit Framework prevents commercial distribution, 
+please read through ./documentation/COPYING.txt for the complete terms.
 
 This is an *alpha* release. Many bugs still exist and quite a few features
 are still non-functional. The latest version can be obtained online from:

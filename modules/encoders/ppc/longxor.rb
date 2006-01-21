@@ -16,7 +16,7 @@ class LongXor < Msf::Encoder::Xor
 			},
 			'Author'           => [ 'Dino Dai Zovi <ddz [at] theta44.org>', 'hdm' ],
 			'Arch'             => ARCH_PPC,
-			'License'          => GPL_LICENSE,
+			'License'          => MSF_LICENSE,
 			'Decoder'          =>
 				{
 					'KeySize'    => 4,

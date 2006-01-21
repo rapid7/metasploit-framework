@@ -25,7 +25,7 @@ module BindTcp
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection',
 			'Author'        => 'hdm',
-			'License'       => GPL_LICENSE,
+			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',
 			'Arch'          => ARCH_PPC,
 			'Handler'       => Msf::Handler::BindTcp,

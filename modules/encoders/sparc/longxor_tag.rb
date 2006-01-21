@@ -15,7 +15,7 @@ class LongXorTag < Msf::Encoder::XorAdditiveFeedback
 			},
 			'Author'           => [ 'optyx', 'hdm' ],
 			'Arch'             => ARCH_SPARC,
-			'License'          => GPL_LICENSE,
+			'License'          => MSF_LICENSE,
 			'Decoder'          =>
 				{
 					'KeySize'    => 4,

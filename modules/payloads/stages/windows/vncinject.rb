@@ -21,7 +21,7 @@ module VncInject
 			'Version'       => '$Revision$',
 			'Description'   => 'Inject the VNC server DLL and run it from memory',
 			'Author'        => [ 'skape', 'jt <jt@klake.org>' ],
-			'License'       => GPL_LICENSE,
+			'License'       => MSF_LICENSE,
 			'Session'       => Msf::Sessions::VncInject))
 
 		sep = File::SEPARATOR

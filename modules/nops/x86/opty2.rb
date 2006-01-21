@@ -22,7 +22,7 @@ class Opty2 < Msf::Nop
 			'Version'     => '$Revision$',
 			'Description' => 'Opty2 multi-byte NOP generator',
 			'Author'      => [ 'spoonm', 'optyx' ],
-			'License'     => GPL_LICENSE,
+			'License'     => MSF_LICENSE,
 			'Arch'        => ARCH_X86)
 	end
 

@@ -25,7 +25,7 @@ module FindTag
 			'Version'       => '$Revision$',
 			'Description'   => 'Use an established connection',
 			'Author'        => 'skape',
-			'License'       => GPL_LICENSE,
+			'License'       => MSF_LICENSE,
 			'Platform'      => 'bsd',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::FindTag,

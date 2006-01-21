@@ -18,7 +18,7 @@ module Generic
 			'Version'       => '$Revision$',
 			'Description'   => 'Executes the supplied command',
 			'Author'        => 'hdm',
-			'License'       => GPL_LICENSE,
+			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
 			'Handler'       => Msf::Handler::None,

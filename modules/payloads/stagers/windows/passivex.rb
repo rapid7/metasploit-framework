@@ -17,7 +17,7 @@ module PassiveX
 			'Version'       => '$Revision$',
 			'Description'   => 'Tunnel communication over HTTP',
 			'Author'        => 'skape',
-			'License'       => GPL_LICENSE,
+			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::PassiveX,

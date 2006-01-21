@@ -18,7 +18,7 @@ module ShellBindTcp
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
 			'Author'        => 'hdm',
-			'License'       => GPL_LICENSE,
+			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',
 			'Arch'          => ARCH_PPC,
 			'Handler'       => Msf::Handler::BindTcp,

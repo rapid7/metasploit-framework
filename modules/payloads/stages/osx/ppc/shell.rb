@@ -15,7 +15,7 @@ module Shell
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a command shell',
 			'Author'        => 'hdm',
-			'License'       => GPL_LICENSE,
+			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',
 			'Arch'          => ARCH_PPC,
 			'Session'       => Msf::Sessions::CommandShell,

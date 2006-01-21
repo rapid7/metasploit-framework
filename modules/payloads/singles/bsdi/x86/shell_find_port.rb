@@ -18,7 +18,7 @@ module ShellFindPort
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a shell on an established connection',
 			'Author'        => [ 'skape', 'optyx' ],
-			'License'       => GPL_LICENSE,
+			'License'       => MSF_LICENSE,
 			'Platform'      => 'bsdi',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::FindPort,

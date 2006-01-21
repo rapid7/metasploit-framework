@@ -16,7 +16,7 @@ class Countdown < Msf::Encoder::Xor
 			},
 			'Author'           => 'vlad902',
 			'Arch'             => ARCH_X86,
-			'License'          => GPL_LICENSE,
+			'License'          => MSF_LICENSE,
 			'Decoder'          =>
 				{
 					'BlockSize' => 1,

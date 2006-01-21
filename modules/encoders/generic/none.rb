@@ -14,7 +14,7 @@ class None < Msf::Encoder
 				This "encoder" does not transform the payload in any way.
 			},
 			'Author'           => 'spoonm',
-			'License'          => GPL_LICENSE,
+			'License'          => MSF_LICENSE,
 			'Arch'             => ARCH_ALL)
 	end
 

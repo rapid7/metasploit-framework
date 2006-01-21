@@ -19,7 +19,7 @@ class UnicodeUpper < Msf::Encoder::Alphanum
          	},
 			'Author'           => [ 'pusscat', 'skylined' ],
 			'Arch'             => ARCH_X86,
-			'License'          => GPL_LICENSE,
+			'License'          => MSF_LICENSE,
 			'EncoderType'      => Msf::Encoder::Type::AlphanumUnicodeUpper,
 			'Decoder'          =>
 				{

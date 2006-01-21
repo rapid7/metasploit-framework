@@ -18,7 +18,7 @@ module ShellReverseTcp
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => 'hdm',
-			'License'       => GPL_LICENSE,
+			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',
 			'Arch'          => ARCH_PPC,
 			'Handler'       => Msf::Handler::ReverseTcp,

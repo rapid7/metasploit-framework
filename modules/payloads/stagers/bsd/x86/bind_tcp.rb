@@ -25,7 +25,7 @@ module BindTcp
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection',
 			'Author'        => 'skape',
-			'License'       => GPL_LICENSE,
+			'License'       => MSF_LICENSE,
 			'Platform'      => 'bsd',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::BindTcp,

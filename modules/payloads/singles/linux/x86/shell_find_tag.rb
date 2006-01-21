@@ -18,7 +18,7 @@ module ShellFindTag
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a shell on an established connection (proxy/nat safe)',
 			'Author'        => 'skape',
-			'License'       => GPL_LICENSE,
+			'License'       => MSF_LICENSE,
 			'Platform'      => 'linux',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::FindTag,

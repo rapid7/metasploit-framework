@@ -21,7 +21,7 @@ module Meterpreter
 			'Version'       => '$Revision$',
 			'Description'   => 'Inject the meterpreter server DLL',
 			'Author'        => 'skape',
-			'License'       => GPL_LICENSE,
+			'License'       => MSF_LICENSE,
 			'Session'       => Msf::Sessions::Meterpreter))
 
 		sep = File::SEPARATOR
