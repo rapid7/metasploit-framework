@@ -16,7 +16,7 @@ module BindPerl
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Bind TCP (via perl)',
 			'Version'       => '$Revision$',
-			'Description'   => 'Listen for a connection and spawn a command shell (persistant)',
+			'Description'   => 'Listen for a connection and spawn a command shell (persistent)',
 			'Author'        => ['Samy <samy@samy.pl>', 'cazz'],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
