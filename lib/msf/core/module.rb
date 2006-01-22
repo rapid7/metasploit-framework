@@ -128,6 +128,7 @@ class Module
 		end
 
 		self.privileged = module_info['Privileged'] || false
+		self.license = module_info['License'] || MSF_LICENSE
 	end
 
 
@@ -420,7 +421,10 @@ class Module
 	# Whether or not this module requires privileged access.
 	#
 	attr_reader   :privileged
-
+	#
+	# The license under which this module is provided.
+	#
+	attr_reader   :license
 protected
 
 	#
@@ -671,6 +675,7 @@ protected
 	attr_accessor :module_info # :nodoc:
 	attr_writer   :author, :arch, :platform, :references, :datastore, :options # :nodoc:
 	attr_writer   :privileged # :nodoc:
+	attr_writer   :license # :nodoc:
 
 end
 

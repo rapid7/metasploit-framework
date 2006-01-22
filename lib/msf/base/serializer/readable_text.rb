@@ -84,6 +84,7 @@ class ReadableText
 		output += "    Version: #{mod.version}\n"
 		output += "   Platform: #{mod.platform_to_s}\n"
 		output += " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
+		output += "    License: #{mod.license}\n"
 		output += "\n"
 
 		# Authors
