@@ -445,6 +445,7 @@ protected
 			'Platform'    => [],  # No platforms by default.
 			'Ref'         => nil,
 			'Privileged'  => false,
+			'License'     => MSF_LICENSE,
 		}.update(self.module_info)
 	end
 
