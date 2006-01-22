@@ -14,44 +14,62 @@ c. "Extension" means any enhancement to the Software that does not require
 modification of the Software itself. Extensions include any module or 
 plugin that can be dynamically loaded by the Software.
 
-d. "Developer" means the copyright holders of this Software, including, 
+d. "Developer" means the copyright holders of the Software, including, 
 but not limited to, the Metasploit Project staff, and any third-party 
 contributors.
 
 e. "Documentation" means any manuals, tutorials, or code samples provided 
 with the Software.
 
-f. "Use" means to download, install, access, copy, execute, or otherwise 
-benefit from the Software.
+f. "Use" means to download, install, access, copy, execute, sell, or 
+otherwise benefit from the Software.
+
+g. "You" means the individual or organization that is using the Software
+under the conditions of the License.
+
+h. "Interface" means to execute, parse, or otherwise benefit from the
+of the Software. 
+
+i. "Software Component" means any program or library that interfaces with
+the Software. 
 
 
 License Grants
 
-1. You are granted the non-exclusive rights set forth in this license 
-provided you agree to and comply with any and all conditions in this 
-license. Use of the Software, in any form, signifies acceptance of this 
-license. If you do not agree to these terms, do not use the Software.
+1. You are granted the non-exclusive rights set forth in the License 
+provided you agree to and comply with any and all conditions in the 
+License. Use of the Software, in any form, signifies acceptance of the 
+License. If you do not agree to these terms, do not use the Software
+and immediately remove all copies of the Software, the Documentation,
+and any other items provided under the License.
+
 
 2. You may copy and distribute the Software provided that the following 
 conditions are met:
 
-a. You must include this license document in the distribution.
-
-b. The entire package is distributed unmodified, including - but not 
+a. The entire package is distributed unmodified, including - but not 
 restricted to - copyright, trademark notices and disclaimers, as released 
 by the Developer.
 
-c. The Software is distributed without any charge beyond the costs of data 
-transfer or storage media. You may not sell this Software or distribute 
-any component of this Software in a commercial application without a 
-signed letter of agreement from the copyright holder.
+b. The Software is distributed without any charge beyond the costs of data 
+transfer or storage media. You may not sell the Software, include any
+component of the Software in a commercial application, or sell an appliance
+that includes any component of the Software.
 
-3. You may make modifications to the Software and distribute your 
+
+3. You may use the Software to provide a service and charge for this service,
+provided that the the recipient of the service is clearly informed of the use
+of the Software in relation to the service and where they may obtain a copy of
+the Software.
+
+
+4. You may make modifications to the Software and distribute your 
 modifications, in a form that is separate from the Software, such as 
 patches. The following restrictions apply to modifications:
 
-a. Modifications must not alter or remove any copyright notices in the 
-Software.
+a. Modifications must not alter or remove any copyright notices or licensing
+terms displayed or provided with the Software. 
+
 
 b. When modifications to the Software are released under this license, a 
 non-exclusive royalty-free right is granted to the Developer to 
@@ -59,7 +77,8 @@ distribute your modification in future versions of the Software provided
 such versions remain available under these terms in addition to any other 
 license(s) of the Developer.
 
-4. You may develop Extensions to this software and distribute these 
+
+5. You may develop Extensions to the Software and distribute these 
 Extensions under any license you see fit, as long as the following 
 conditions are met:
 
@@ -68,20 +87,28 @@ behavior of the Software until the user requests that the Extension
 should be activated.
 
 b. The Extension may programatically execute code provided by this 
-Software, but may not include copies of this Software (modified or 
-otherwise) in the extension itself.
+Software, but may not include copies of the Software (modified or 
+otherwise) in the Extension itself.
 
 c. The Extension may not modify the user interface or output of the 
-Software such that the Software copyrights or licensing terms are no 
-longer displayed.
+Software such that the Software copyrights, licensing terms, or
+title of the Software are no longer visible to the user.
 
-d. The Extension may not modify the user interface or output of the 
-Software such that the title of the Software is omitted or changed.
 
-5. You may develop application programs, reusable components and other 
-software items that interface with the original or modified versions of 
-the Software, as long as the distribution conditions in section 2 are 
-met.
+6. You may develop software components that interface with the Software and
+distribute these components, provided that the following conditions are met:
+
+a. The software component is distributed without any charge beyond the costs
+of data transfer or storage media. You may not sell the software component or 
+sell an appliance that includes the software component. 
+
+b. The software component clearly indicates to the user, via the user interface
+or program output, the role of the Software in the component and where the
+user may obtain a copy of the Software. 
+
+c. The software component does not modify the user interface or output of the
+Software such that the title of the Software, the copyrights and trademark
+notices in the Software, or the licensing terms of the Software are removed.
 
 
 Online Updates
@@ -144,7 +171,7 @@ FITNESS FOR A PARTICULAR PURPOSE.
 
 Indemnification
 
-You agree to indemnify, hold harmless and defend the Developer from and 
+You agree to indemnify, hold harmless, and defend the Developer from and 
 against any and all claims or actions, including legal expenses, that 
 arise or result from your use of the Software.
 
@@ -152,12 +179,12 @@ arise or result from your use of the Software.
 Miscellaneous
 
 If any part of this License is found void and unenforceable, it will not 
-affect the validity of the balance of the license, which shall remain 
+affect the validity of the balance of the License, which shall remain 
 valid and enforceable according to its terms.
 
 
 Choice of Law
 
-This license will be construed, interpreted and governed by the laws of 
-the Travis County, Texas, USA, without regard to its conflict of law 
+The License will be construed, interpreted and governed by the laws of 
+Travis County, Texas, USA, without regard to its conflict of law 
 provisions.
