@@ -1,0 +1,75 @@
+From nolimit.bugtraq@gmail.com Sun Jan 22 16:40:09 2006
+From nolimit.bugtraq@gmail.com Sun Jan 22 22:39:35 2006
+Return-Path: <nolimit.bugtraq@gmail.com>
+X-Spam-Checker-Version: SpamAssassin 3.1.0-gr0 (2005-09-13) on sugar.14x.net
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,HTML_40_50,
+	HTML_MESSAGE autolearn=ham version=3.1.0-gr0
+Delivered-To: hdm-hdm@metasploit.com
+Received: (qmail 8349 invoked from network); 22 Jan 2006 16:39:35 -0600
+Received: from unknown (HELO uproxy.gmail.com) (66.249.92.203)
+  by sugar.14x.net with SMTP; 22 Jan 2006 16:39:35 -0600
+Received: by uproxy.gmail.com with SMTP id j3so504335ugf
+        for <hdm@metasploit.com>; Sun, 22 Jan 2006 14:40:09 -0800 (PST)
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:references;
+        b=FBG7YV3XXWeZisoQR5v8dxhWbwA/m0bXqv9oL5+jChFGrjP4k1cR2k8HdCygCpy1yJQoMLwlbPNVtdUkYMAoFg+fTTRDbZiiM8XQtidhcaM41Hbep60wkSBX8UemqRSLFaX0fRqiNDkHrAyEkVZOedxEwEzy+YYDFeqEiGVWib8=
+Received: by 10.66.219.19 with SMTP id r19mr1989749ugg;
+        Sun, 22 Jan 2006 14:40:09 -0800 (PST)
+Received: by 10.66.255.7 with HTTP; Sun, 22 Jan 2006 14:40:08 -0800 (PST)
+Message-ID: <786b40bf0601221440x27049938h4c4fd527c23b930c@mail.gmail.com>
+Date: Sun, 22 Jan 2006 17:40:09 -0500
+From: nolimit bugtraq <nolimit.bugtraq@gmail.com>
+To: H D Moore <hdm@metasploit.com>
+Subject: Re: Metasploit Framework License
+In-Reply-To: <200601221520.34147.hdm@metasploit.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+  boundary="----=_Part_10104_11843058.1137969609003"
+References: <200601221520.34147.hdm@metasploit.com>
+Status: R
+X-Status: NC
+X-KMail-EncryptionState:  
+X-KMail-SignatureState:  
+X-KMail-MDN-Sent:  
+
+------=_Part_10104_11843058.1137969609003
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+I give you full rights to use any exploits I've published in the metasploit
+framework, and continue to be honored by it.
+
+On 1/22/06, H D Moore <hdm@metasploit.com> wrote:
+>
+> Hello,
+>
+> I you are receiving this email, there is a good chance that you
+> contributed to the Metasploit Framework sometime in the past.
+> Starting with version 3.0, we are changing the licensing terms.
+> <CUT>
+>
+
+------=_Part_10104_11843058.1137969609003
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+I give you full rights to use any exploits I've published in the metasploit=
+ framework, and continue to be honored by it. <br><br>
+<div><span class=3D"gmail_quote">On 1/22/06, <b class=3D"gmail_sendername">=
+H D Moore</b> &lt;<a href=3D"mailto:hdm@metasploit.com">hdm@metasploit.com<=
+/a>&gt; wrote:</span>
+<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
+px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">Hello,<br><br>I you are receivin=
+g this email, there is a good chance that you<br>contributed to the Metaspl=
+oit Framework sometime in the past.
+<br>Starting with version 3.0, we are changing the licensing terms.<br>&lt;=
+CUT&gt;<br></blockquote></div>
+
+------=_Part_10104_11843058.1137969609003--
+
+
+
