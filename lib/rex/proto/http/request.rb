@@ -97,22 +97,33 @@ class Request < Packet
 	# Puts a URI back together based on the URI parts
 	def uri
 		uri = self.uri_parts['Resource'] || '/'
+        
+        # /././././
+        if self.junk_self_referring_directories
+			uri.gsub!(/\//) {
+				'/.' * (rand(3) + 1) + '/'
+			}
+        end
 
+        # /RAND/../RAND../
 		if self.junk_directories 
 			uri.gsub!(/\//) {
 				dirs = ''
-				rand(10)+5.times {
-					dirs += '/' + Rex::Text.rand_text_alpha(rand(64) + 5) + '/..'
+				rand(5)+5.times {
+					dirs += '/' + Rex::Text.rand_text_alpha(rand(5) + 1) + '/..'
 				}
 				dirs + '/'
 			}
 		end
 
+        # ////
+        #
 		# NOTE: this must be done after junk directories, since junk_directories would cancel this out
 		if self.junk_slashes
 			uri.gsub!(/\//) {
-				'/' * (rand(5) + 2)
+				'/' * (rand(3) + 1)
 			}
+            uri.gsub!(/^[\/]+/, '/') # only one beginning slash!
 		end
 
 		if self.method != 'POST' 
@@ -151,10 +162,6 @@ class Request < Packet
 		update_uri_parts
 	end
  
-	def inject_directories(uri)
-
-	end
-
     # Returns a URI escaped version of the provided string, by providing an additional argument, all characters are escaped
     def escape(str, all = nil)
 		if all
@@ -232,7 +239,9 @@ class Request < Packet
     
 	# add junk slashes 
     attr_accessor :junk_slashes
-
+   
+    # add junk self referring directories (aka  /././././
+	attr_accessor :junk_self_referring_directories
 
 	# add junk params
 	attr_accessor :junk_params
