@@ -53,7 +53,7 @@ class Request < Packet
 		super()
 
 		self.method    = method
-		self.uri       = uri
+		self.raw_uri   = uri
 		self.uri_parts = {}
 		self.proto     = proto || DefaultProtocol
 
@@ -66,7 +66,7 @@ class Request < Packet
 	def update_cmd_parts(str)
 		if (md = str.match(/^(.+?)\s+(.+?)\s+HTTP\/(.+?)\r?\n?$/))
 			self.method  = md[1]
-			self.uri     = URI.decode(md[2])
+			self.raw_uri = URI.decode(md[2])
 			self.proto   = md[3]
 
 			update_uri_parts
@@ -80,19 +80,90 @@ class Request < Packet
 	#
 	def update_uri_parts
 		# If it has a query string, get the parts.
-		if ((self.uri) and (md = self.uri.match(/(.+?)\?(.*)$/)))
+		if ((self.raw_uri) and (md = self.raw_uri.match(/(.+?)\?(.*)$/)))
 			self.uri_parts['QueryString'] = parse_cgi_qstring(md[2])
 			self.uri_parts['Resource']    = md[1]
 		# Otherwise, just assume that the URI is equal to the resource being
 		# requested.
 		else
 			self.uri_parts['QueryString'] = {}
-			self.uri_parts['Resource']    = self.uri
+			self.uri_parts['Resource']    = self.raw_uri
 		end
 
 		# Set the relative resource to the actual resource.
 		self.relative_resource = resource
 	end
+
+	# Puts a URI back together based on the URI parts
+	def uri
+		uri = self.uri_parts['Resource'] || '/'
+
+		if self.junk_directories 
+			uri.gsub!(/\//) {
+				dirs = ''
+				rand(10)+5.times {
+					dirs += '/' + Rex::Text.rand_text_alpha(rand(64) + 5) + '/..'
+				}
+				dirs + '/'
+			}
+		end
+
+		# NOTE: this must be done after junk directories, since junk_directories would cancel this out
+		if self.junk_slashes
+			uri.gsub!(/\//) {
+				'/' * (rand(5) + 2)
+			}
+		end
+
+		if self.method != 'POST' 
+			params=[]
+			self.uri_parts['QueryString'].each_pair { |param, value|
+				# inject a random number of params in between each param
+				if self.junk_params
+					rand(10)+5.times {
+						params.push(Rex::Text.rand_text_alpha(rand(16) + 5) + '=' + Rex::Text.rand_text_alpha(rand(10) + 1))
+					}
+				end
+				if !value.nil?
+					params.push(self.escape(param) + '=' + self.escape(value))
+				else 
+					params.push(self.escape(param))
+				end
+			}
+
+			# inject some junk params at the end of the param list, just to be sure :P
+			if self.junk_params
+				rand(10)+5.times {
+					params.push(Rex::Text.rand_text_alpha(rand(32) + 5) + '=' + Rex::Text.rand_text_alpha(rand(64) + 5))
+				}
+			end
+
+			if params.size > 0
+				uri += '?' + params.join('&')
+			end
+		end
+		uri
+	end
+
+	# Updates the underlying URI structure
+	def uri=(uri)
+		self.raw_uri = uri
+		update_uri_parts
+	end
+ 
+	def inject_directories(uri)
+
+	end
+
+    # Returns a URI escaped version of the provided string, by providing an additional argument, all characters are escaped
+    def escape(str, all = nil)
+		if all
+			return str.gsub(/./) { |s| Rex::Text.to_hex(s, '%') }
+		else 
+			return str.gsub(/[^a-zA-Z1-9]/) { |s| Rex::Text.to_hex(s, '%') }
+		end
+	end
+
 
 	#
 	# Returns the command string derived from the three values.
@@ -139,9 +210,10 @@ class Request < Packet
 	#
 	attr_accessor :method
 	#
-	# The URI being requested.
+	# The raw URI being requested, before any mucking gets to it
 	#
-	attr_accessor :uri
+	attr_accessor :raw_uri
+
 	#
 	# The split up parts of the URI.
 	#
@@ -154,6 +226,16 @@ class Request < Packet
 	# The resource path relative to the root of a server mount point.
 	#
 	attr_accessor :relative_resource
+
+    # add junk directories
+    attr_accessor :junk_directories
+    
+	# add junk slashes 
+    attr_accessor :junk_slashes
+
+
+	# add junk params
+	attr_accessor :junk_params
 
 protected
 
