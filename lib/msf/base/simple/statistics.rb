@@ -46,10 +46,10 @@ class Statistics
 	end
 
 	#
-	# Returns the number of recon modules in the framework.
+	# Returns the number of auxiliary modules in the framework.
 	#
-	def num_recon
-		self.framework.recon.length
+	def num_auxiliary
+		self.framework.auxiliary.length
 	end
 
 	#

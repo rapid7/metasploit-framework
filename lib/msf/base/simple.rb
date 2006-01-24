@@ -8,7 +8,7 @@ require 'msf/base/simple/encoder'
 require 'msf/base/simple/exploit'
 require 'msf/base/simple/nop'
 require 'msf/base/simple/payload'
-require 'msf/base/simple/recon'
+require 'msf/base/simple/auxiliary'
 
 # Simplified framework interface
 require 'msf/base/simple/framework'

@@ -27,8 +27,8 @@ class ReadableText
 				return dump_basic_module(mod, indent)
 			when MODULE_EXPLOIT
 				return dump_exploit_module(mod, indent)
-			when MODULE_RECON
-				return dump_recon_module(mod, indent)
+			when MODULE_AUX
+				return dump_auxiliary_module(mod, indent)
 			else
 				return dump_generic_module(mod, indent)
 		end
@@ -150,9 +150,9 @@ class ReadableText
 	end
 
 	#
-	# Dumps information about a recon module.
+	# Dumps information about an auxiliary module.
 	#
-	def self.dump_recon_module(mod, indent = '')
+	def self.dump_auxiliary_module(mod, indent = '')
 		output  = "\n"
 		output += "       Name: #{mod.name}\n"
 		output += "    Version: #{mod.version}\n"

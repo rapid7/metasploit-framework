@@ -91,6 +91,7 @@ class Module
 	require 'msf/core/module/platform_list'
 	require 'msf/core/module/reference'
 	require 'msf/core/module/target'
+	require 'msf/core/module/auxiliary_action'
 
 	#
 	# Creates an instance of an abstract module using the supplied information
@@ -387,10 +388,10 @@ class Module
 	end
 
 	#
-	# Returns true if this module is a recon module.
+	# Returns true if this module is an auxiliary module.
 	#
-	def recon?
-		return (type == MODULE_RECON)
+	def auxiliary?
+		return (type == MODULE_AUX)
 	end
 
 	#

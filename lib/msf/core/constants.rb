@@ -14,7 +14,7 @@ MODULE_ANY     = '_any_'
 MODULE_ENCODER = 'encoder'
 MODULE_EXPLOIT = 'exploit'
 MODULE_NOP     = 'nop'
-MODULE_RECON   = 'recon'
+MODULE_AUX     = 'aux'
 MODULE_PAYLOAD = 'payload'
 MODULE_TYPES   = 
 	[ 
@@ -22,7 +22,7 @@ MODULE_TYPES   =
 		MODULE_PAYLOAD, 
 		MODULE_EXPLOIT, 
 		MODULE_NOP, 
-		MODULE_RECON 
+		MODULE_AUX 
 	]
 
 #

@@ -189,10 +189,11 @@ module DispatcherShell
 			entries = dispatcher_stack.length
 
 			dispatcher_stack.each { |dispatcher|
-				begin
-					if (dispatcher.respond_to?('cmd_' + method))
-						run_command(dispatcher, method, arguments)
+				next if not dispatcher.respond_to?('commands')
 
+				begin
+					if (dispatcher.commands.has_key?(method))
+						run_command(dispatcher, method, arguments)
 						found = true
 					end
 				rescue 
@@ -225,7 +226,7 @@ module DispatcherShell
 	# Runs the supplied command on the given dispatcher.
 	#
 	def run_command(dispatcher, method, arguments)
-		eval("dispatcher.#{'cmd_' + method}(*arguments)")
+		dispatcher.send('cmd_' + method, *arguments)
 	end
 
 	#

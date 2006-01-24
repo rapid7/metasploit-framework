@@ -5,7 +5,7 @@
 #
 # The core library provides all of the means by which to interact
 # with the framework insofar as maniuplating encoders, nops,
-# payloads, exploits, recon, and sessions.
+# payloads, exploits, auxiliary, and sessions.
 #
 ###
 
@@ -45,7 +45,7 @@ require 'msf/core/encoder'
 require 'msf/core/exploit'
 require 'msf/core/nop'
 require 'msf/core/payload'
-require 'msf/core/recon'
+require 'msf/core/auxiliary'
 
 # Drivers
 require 'msf/core/exploit_driver'

@@ -31,7 +31,6 @@ class Flatfile < PersistentStorage
 
 		begin
 			store_general(framework)
-			store_recon(framework)
 		ensure
 			self.fd.close
 		end
@@ -51,47 +50,6 @@ protected
 			"Metasploit Framework Report\n" +
 			"===========================\n\n" +
 			"Generated: #{Time.now}\n\n")
-	end
-
-	#
-	# This method stores the recon information that has been collected by this
-	# framework instance.
-	#
-	def store_recon(framework)
-		fd.print(
-			"Reconnaissance Information\n" +
-			"==========================\n\n")
-
-		framework.reconmgr.each_host { |address, host|
-			store_recon_host(framework, host)
-		}
-	end
-
-	#
-	# This method stores information about a specific host and its services.
-	#
-	def store_recon_host(framework, host)
-		fd.print(
-			"Host: #{host.address}\n")
-
-		store_recon_host_services(framework, host)
-
-		fd.print("\n")
-	end
-
-	#
-	# This method stores information about the services running on a host, if
-	# any.
-	#
-	def store_recon_host_services(framework, host)
-		host.services.entities.each { |name, proto|
-			if (proto.kind_of?(Msf::Recon::Entity::Group) == true)
-				proto.entities.each { |name, serv|
-					fd.print(
-						"\tService: #{serv.port} (#{serv.proto})\n")
-				}
-			end
-		}
 	end
 
 	Msf::PersistentStorage.add_storage_class('flatfile', self)

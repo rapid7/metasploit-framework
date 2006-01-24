@@ -288,10 +288,10 @@ class ModuleManager < ModuleSet
 	end
 
 	#
-	# Returns the set of loaded recon module classes.
+	# Returns the set of loaded auxiliary module classes.
 	#
-	def recon
-		return module_sets[MODULE_RECON]
+	def auxiliary
+		return module_sets[MODULE_AUX]
 	end
 
 	##
@@ -639,7 +639,7 @@ protected
 	# This method automatically subscribes a module to whatever event providers
 	# it wishes to monitor.  This can be used to allow modules to automatically
 	# execute or perform other tasks when certain events occur.  For instance,
-	# when a new host is detected, other recon modules may wish to run such
+	# when a new host is detected, other aux modules may wish to run such
 	# that they can collect more information about the host that was detected.
 	#
 	def auto_subscribe_module(mod)
@@ -652,18 +652,6 @@ protected
 		# If auto-subscription is enabled (which it is by default), figure out
 		# if it subscribes to any particular interfaces.
 		inst = nil
-
-		#
-		# Recon event subscriber check
-		#
-		[
-			Msf::ReconEvent::HostSubscriber,
-			Msf::ReconEvent::ServiceSubscriber,
-		].each { |iface|
-			if (mod.include?(iface) == true)
-				framework.events.add_recon_subscriber((inst) ? inst : (inst = mod.new))
-			end
-		}
 
 		#
 		# Exploit event subscriber check

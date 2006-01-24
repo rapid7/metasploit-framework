@@ -34,7 +34,6 @@ class Framework
 
 	require 'msf/core/module_manager'
 	require 'msf/core/session_manager'
-	require 'msf/core/recon_manager'
 
 	#
 	# Creates an instance of the framework context.
@@ -43,7 +42,6 @@ class Framework
 		self.events    = EventDispatcher.new
 		self.modules   = ModuleManager.new(self)
 		self.sessions  = SessionManager.new(self)
-		self.reconmgr  = ReconManager.new(self)
 		self.datastore = DataStore.new
 		self.jobs      = Rex::JobContainer.new
 		self.plugins   = PluginManager.new(self)
@@ -78,10 +76,10 @@ class Framework
 	end
 
 	#
-	# Returns the module set for recon modules
+	# Returns the module set for auxiliary modules
 	#
-	def recon
-		return modules.recon
+	def auxiliary
+		return modules.auxiliary
 	end
 
 	#
@@ -111,11 +109,11 @@ class Framework
 	#
 	attr_reader   :datastore
 	#
-	# The framework instance's recon manager.  The recon manager is responsible
-	# for collecting and catalogging all recon information that comes in from
-	# recon modules.
+	# The framework instance's aux manager.  The aux manager is responsible
+	# for collecting and catalogging all aux information that comes in from
+	# aux modules.
 	#
-	attr_reader   :reconmgr
+	attr_reader   :auxmgr
 	#
 	# Background job management specific to things spawned from this instance
 	# of the framework.
@@ -134,7 +132,7 @@ protected
 	attr_writer   :modules # :nodoc:
 	attr_writer   :sessions # :nodoc:
 	attr_writer   :datastore # :nodoc:
-	attr_writer   :reconmgr # :nodoc:
+	attr_writer   :auxmgr # :nodoc:
 	attr_writer   :jobs # :nodoc:
 	attr_writer   :plugins # :nodoc:
 

@@ -44,7 +44,7 @@ module Framework
 			MODULE_EXPLOIT => Msf::Simple::Exploit,
 			MODULE_NOP     => Msf::Simple::Nop,
 			MODULE_PAYLOAD => Msf::Simple::Payload,
-			MODULE_RECON   => Msf::Simple::Recon,
+			MODULE_AUX     => Msf::Simple::Auxiliary,
 		}
 
 	#

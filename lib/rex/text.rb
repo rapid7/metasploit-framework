@@ -378,7 +378,7 @@ module Text
 	#
 	def self.gzip(str, level = 9)
 		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
-   	raise RuntimeError, "Invalid gzip compression level" if (level < 1 or level > 9)
+		raise RuntimeError, "Invalid gzip compression level" if (level < 1 or level > 9)
 
     	s = ""
     	gz = Zlib::GzipWriter.new(StringIO.new(s), level)

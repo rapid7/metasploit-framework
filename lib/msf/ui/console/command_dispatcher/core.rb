@@ -2,7 +2,7 @@ require 'msf/ui/console/command_dispatcher/encoder'
 require 'msf/ui/console/command_dispatcher/exploit'
 require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
-require 'msf/ui/console/command_dispatcher/recon'
+require 'msf/ui/console/command_dispatcher/auxiliary'
 
 module Msf
 module Ui
@@ -107,7 +107,7 @@ class Core
 		banner += "#{framework.stats.num_encoders} encoders - "
 		banner += "#{framework.stats.num_nops} nops\n"
 		banner += "       =[ "
-		banner += "#{framework.stats.num_recon} recon\n"
+		banner += "#{framework.stats.num_auxiliary} aux\n"
 		banner += "\n"
 
 		# Display the banner
@@ -756,7 +756,7 @@ class Core
 					show_nops
 					show_exploits
 					show_payloads
-					show_recon
+					show_auxiliary
 					show_plugins
 				when 'encoders'
 					show_encoders
@@ -766,8 +766,8 @@ class Core
 					show_exploits
 				when 'payloads'
 					show_payloads
-				when 'recon'
-					show_recon
+				when 'aux'
+					show_auxiliary
 				when 'options'
 					if (mod)
 						show_options(mod)
@@ -802,7 +802,7 @@ class Core
 	# Tab completion for the show command
 	#
 	def cmd_show_tabs(str, words)
-		res = %w{all encoders nops exploits payloads recon plugins}
+		res = %w{all encoders nops exploits payloads aux plugins}
 		if (active_module)
 			res.concat(%w{ options advanced evasion targets })
 		end
@@ -943,8 +943,8 @@ class Core
 				dispatcher = Nop
 			when MODULE_PAYLOAD
 				dispatcher = Payload
-			when MODULE_RECON
-				dispatcher = Recon
+			when MODULE_AUX
+				dispatcher = Auxiliary
 			else
 				print_error("Unsupported module type: #{mod.type}")
 				return false
@@ -1153,8 +1153,8 @@ protected
 		end
 	end
 
-	def show_recon # :nodoc:
-		show_module_set("Recon", framework.recon)
+	def show_auxiliary # :nodoc:
+		show_module_set("Auxiliary", framework.auxiliary)
 	end
 
 	def show_options(mod) # :nodoc:

@@ -23,7 +23,7 @@ end
 #
 # This class manages subscriber registration and is the entry point
 # for dispatching various events that occur for modules, such as
-# recon discovery and exploit success or failure.  The framework
+# exploit results and auxiliary module data. The framework
 # and external modules can register themselves as subscribers to
 # various events such that they can perform custom actions when
 # a specific event or events occur.
@@ -35,7 +35,6 @@ class EventDispatcher
 		self.general_event_subscribers = []
 		self.exploit_event_subscribers = []
 		self.session_event_subscribers = []
-		self.recon_event_subscribers   = []
 		self.subscribers_rwlock        = Rex::ReadWriteLock.new
 	end
 
@@ -58,23 +57,6 @@ class EventDispatcher
 	#
 	def remove_general_subscriber(subscriber)
 		remove_event_subscriber(general_event_subscribers, subscriber)	
-	end
-
-	#
-	# This method adds a recon event subscriber.  Recon event subscribers
-	# receive notifications when events occur that pertain to recon modules.
-	# The subscriber provided must implement the ReconEvents module methods in
-	# some form.
-	#
-	def add_recon_subscriber(subscriber)
-		add_event_subscriber(recon_event_subscribers, subscriber)
-	end
-
-	#
-	# Removes a recon event subscriber.
-	#
-	def remove_recon_subscriber(subscriber)
-		remove_event_subscriber(recon_event_subscribers, subscriber)
 	end
 
 	#
@@ -145,46 +127,6 @@ class EventDispatcher
 		}
 	end
 
-	##
-	#
-	# Recon events
-	#
-	##
-
-	#
-	# This routine is called whenever a host's state changes, such as when it's
-	# added, updated, or removed.  This event is dispatched by the Recon
-	# Manager once it makes a determination on the accurate state of a host as
-	# provided by one or more host recon modules.
-	#
-	def on_host_changed(context, host, change_type)
-		subscribers_rwlock.synchronize_read {
-			recon_event_subscribers.each { |subscriber|
-				cls = (subscriber.kind_of?(Class)) ? subscriber : subscriber.class
-
-				next if (cls.include?(Msf::ReconEvent::HostSubscriber) == false)
-
-				subscriber.on_host_changed(context, host, change_type)
-			}
-		}
-	end
-
-	#
-	# This routine is called whenever a service's state changes, such as when
-	# it's found, updated, or removed.  This event is dispatched by the Recon
-	# Manager.
-	#
-	def on_service_changed(context, host, service, change_type)
-		subscribers_rwlock.synchronize_read {
-			recon_event_subscribers.each { |subscriber|
-				cls = (subscriber.kind_of?(Class)) ? subscriber : subscriber.class
-
-				next if (cls.include?(Msf::ReconEvent::ServiceSubscriber) == false)
-
-				subscriber.on_service_changed(context, host, service, change_type)
-			}
-		}
-	end
 
 	##
 	#
@@ -269,7 +211,6 @@ protected
 	attr_accessor :general_event_subscribers # :nodoc:
 	attr_accessor :exploit_event_subscribers # :nodoc:
 	attr_accessor :session_event_subscribers # :nodoc:
-	attr_accessor :recon_event_subscribers # :nodoc:
 	attr_accessor :subscribers_rwlock # :nodoc:
 
 end
