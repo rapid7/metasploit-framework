@@ -9,23 +9,30 @@ module Alpha2
 class AlphaMixed < Generic
 
 	def self.gen_decoder_prefix(reg, offset)
-		if (offset > 16)
+		if (offset > 34)
 			raise "Critical: Offset is greater than 16"
 		end
 
 		# use inc ebx as a nop here so we still pad correctly
-		nop = 'C' * offset
-		dec = 'I' * (16 - offset) + nop + '7QZ'    # dec ecx,,, push ecx, pop edx
-
+		if (offset <= 16)
+			nop = 'C' * offset
+			mod = 'I' * (16 - offset) + nop + '7QZ'    # dec ecx,,, push ecx, pop edx
+			edxmod = 'J' * (17 - offset)
+		else
+			mod = 'A' * (offset - 16) 
+			nop = 'C' * (16 - mod.length)
+			mod += nop + '7QZ'
+			edxmod = 'B' * (17 - (offset - 16))
+		end
 		regprefix = {
-			'EAX'   => 'PY' + dec,                         # push eax, pop ecx
-			'ECX'   => 'I' + dec,                          # dec ecx
-			'EDX'   => 'J' * (17 - offset) + nop + '7RY',  # dec edx,,, push edx, pop ecx
-			'EBX'   => 'SY' + dec,                         # push ebx, pop ecx
-			'ESP'   => 'TY' + dec,                         # push esp, pop ecx
-			'EBP'   => 'UY' + dec,                         # push ebp, pop ecx
-			'ESI'   => 'VY' + dec,                         # push esi, pop ecx
-			'EDI'   => 'WY' + dec,                         # push edi, pop ecx
+			'EAX'   => 'PY' + mod,                         # push eax, pop ecx
+			'ECX'   => 'I' + mod,                          # dec ecx
+			'EDX'   =>  edxmod + nop + '7RY',			   # dec edx,,, push edx, pop ecx
+			'EBX'   => 'SY' + mod,                         # push ebx, pop ecx
+			'ESP'   => 'TY' + mod,                         # push esp, pop ecx
+			'EBP'   => 'UY' + mod,                         # push ebp, pop ecx
+			'ESI'   => 'VY' + mod,                         # push esi, pop ecx
+			'EDI'   => 'WY' + mod,                         # push edi, pop ecx
 		}
 
 		return regprefix[reg]

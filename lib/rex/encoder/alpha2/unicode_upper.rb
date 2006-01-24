@@ -21,13 +21,19 @@ class UnicodeUpper < Generic
 	end
 
 	def self.gen_decoder_prefix(reg, offset)
-		if (offset > 4)
-			raise "Critical: Offset is greater than 4"
+		if (offset > 8)
+			raise "Critical: Offset is greater than 8"
 		end
 
 		# offset untested for unicode :(
-		nop = 'CP' * offset
-		dec = 'IA' * (4 - offset) + nop    # dec ecx,,, push ecx, pop edx
+        if (offset <= 4)
+            nop = 'CP' * offset
+            mod = 'IA' * (4 - offset) + nop    # dec ecx,,, push ecx, pop edx
+        else
+            mod = 'AA' * (offset - 4)          # inc ecx
+            nop = 'CP' * (4 - mod.length)
+            mod += nop
+        end
 
 		regprefix = {                      # nops ignored below
 			'EAX'   => 'PPYA' + dec,        # push eax, pop ecx

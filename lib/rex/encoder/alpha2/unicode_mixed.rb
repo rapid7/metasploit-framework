@@ -20,14 +20,19 @@ class UnicodeMixed < Generic
 	end
     
 	def self.gen_decoder_prefix(reg, offset)
-		if (offset > 14)
-			 raise "Critical: Offset is greater than 14"
+		if (offset > 28)
+			 raise "Critical: Offset is greater than 28"
 		end
 
 		# offset untested for unicode :(
-		nop = 'CP' * offset
-		dec = 'IA' * (14 - offset) + nop    # dec ecx,,, push ecx, pop edx
-
+        if (offset <= 14)
+            nop = 'CP' * offset
+            mod = 'IA' * (14 - offset) + nop    # dec ecx,,, push ecx, pop edx
+        else
+            mod = 'AA' * (offset - 14)			# inc ecx
+            nop = 'CP' * (14 - mod.length)
+            mod += nop
+        end	
 		regprefix = {                       # nops ignored below
 			'EAX'   => 'PPYA' + dec,         # push eax, pop ecx
 			'ECX'   =>  dec + "4444",        # dec ecx
