@@ -49,9 +49,9 @@ class Response < Packet
 		# Default responses to auto content length on
 		self.auto_cl = true
 
-        # default chunk sizes (if chunked is used)
-        self.chunk_min_size = 1
-        self.chunk_max_size = 10
+		# default chunk sizes (if chunked is used)
+		self.chunk_min_size = 1
+		self.chunk_max_size = 10
 	end
 
 	#
