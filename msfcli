@@ -58,7 +58,7 @@ exploit_name = ARGV.shift
 exploit      = $framework.exploits.create(exploit_name)
 
 if (exploit == nil)
-    usage("Invalid exploit: #{exploit_name}")
+	usage("Invalid exploit: #{exploit_name}")
 end
 
 # Initialize the user interface
