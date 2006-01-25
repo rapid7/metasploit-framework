@@ -221,6 +221,25 @@ class OptEnum < OptBase
 		return nil if not self.valid?(value)
 		return value.to_s
 	end
+
+	def desc=(value)
+		self.desc_string = value
+
+		self.desc
+	end
+	
+	def desc
+		if self.enums
+			str = self.enums.join(', ')
+		end
+		"#{self.desc_string || ''} (accepted: #{str})"
+	end
+
+
+protected
+
+	attr_accessor :desc_string # :nodoc:
+
 end
 
 ###

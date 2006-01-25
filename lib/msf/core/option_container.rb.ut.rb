@@ -112,6 +112,28 @@ class OptionContainer::UnitTest < Test::Unit::TestCase
 		assert_equal('LHOST', options.get('LHOST').name, "invalid LHOST name")
 		assert_equal(false, options.get('SSL').default, "invalid SSL default")
 	end
+
+	def test_enum
+		options = OptionContainer.new(
+			'testenum' => [ OptEnum, true, 'desc', nil, ['none','one','done']]
+			)
+		
+		ds = DataStore.new
+
+		assert_raise(OptionValidateError, "enum required") {
+			options.validate(ds)
+		}
+		
+		ds['testenum'] = 'done'
+		assert_equal(true, options.validate(ds), "enum valid")
+
+		ds['testenum'] = 'foo'
+		assert_raise(OptionValidateError, "enum invalid") {
+			options.validate(ds)
+		}
+
+		assert_equal('desc (accepted: none, one, done)', options['testenum'].desc, 'desc')
+	end
 end
 
 end
