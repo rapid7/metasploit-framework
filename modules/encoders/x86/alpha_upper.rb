@@ -16,7 +16,7 @@ class AlphaUpper < Msf::Encoder::Alphanum
 			'Description'      => %q{
 				Encodes payloads as alphanumeric uppercase text.  This encoder uses
 				SkyLined's Alpha2 encoding suite.
-            },
+			},
 			'Author'           => [ 'pusscat' 'skylined' ],
 			'Arch'             => ARCH_X86,
 			'License'          => MSF_LICENSE,
@@ -34,7 +34,7 @@ class AlphaUpper < Msf::Encoder::Alphanum
 	def decoder_stub(state)
 		reg    = datastore['BufferRegister']    || 'EAX' 
 		offset = datastore['BufferOffset'].to_i || 0
-        
+		
 		Rex::Encoder::Alpha2::AlphaUpper::gen_decoder(reg, offset)
 	end
 

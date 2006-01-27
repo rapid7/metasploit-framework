@@ -16,7 +16,7 @@ class AlphaMixed < Msf::Encoder::Alphanum
 			'Description'      => %q{
 				Encodes payloads as alphanumeric mixedcase text.  This encoder uses
 				SkyLined's Alpha2 encoding suite.
-         	},
+			},
 			'Author'           => [ 'pusscat', 'skylined' ],
 			'Arch'             => ARCH_X86,
 			'License'          => MSF_LICENSE,

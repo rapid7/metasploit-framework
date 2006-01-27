@@ -16,7 +16,7 @@ class UnicodeMixed < Msf::Encoder::Alphanum
 			'Description'      => %q{
 				Encodes payloads as unicode-safe mixedcase text.  This encoder uses 
 				SkyLined's Alpha2 encoding suite.
-         	},
+			},
 			'Author'           => [ 'pusscat', 'skylined' ],
 			'Arch'             => ARCH_X86,
 			'License'          => MSF_LICENSE,

@@ -66,7 +66,7 @@ module BindInetd
 			# Next try the Irix inetd path
 			"/usr/etc/inetd -s #{tmp_inet};" +
 			
-            # Overwrite services with the "clean" version
+			# Overwrite services with the "clean" version
 			"cp #{tmp_services} /etc/services;" +
 
 			# Delete our configuration file
