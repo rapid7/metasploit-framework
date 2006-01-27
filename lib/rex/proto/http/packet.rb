@@ -62,14 +62,13 @@ class Packet
 	# codes (Completed, Partial, or Error).
 	#
 	def parse(buf)
-
 		# Append the incoming buffer to the buffer queue.
 		self.bufq += buf
 
 		begin
 			# If we're processing headers, do that now.
 			if (self.state == ParseState::ProcessingHeader)
-				parse_header
+				parse_header_re
 			end
 	
 			# If we're processing the body (possibly after having finished
@@ -79,7 +78,6 @@ class Packet
 			end
 		rescue
 			self.error = $!
-
 			return ParseCode::Error
 		end
 
@@ -110,7 +108,7 @@ class Packet
 		# things are completed as it's hard to tell whether or not they really
 		# are.
 		if ((self.state == ParseState::ProcessingBody) and
-		    (self.body_bytes_left < 0) )
+			(self.body_bytes_left < 0) )
 			comp = true
 		# Or, if the parser state actually is completed, then we're good.
 		elsif (self.state == ParseState::Completed)
@@ -124,40 +122,54 @@ class Packet
 	# Build a 'Transfer-Encoding: chunked' payload with random chunk sizes
 	#
 	def chunk(str, min_size = 1, max_size = 1000)
-		chunked = ''
+	    chunked = ''
 
-		# min chunk size is 1 byte
-		if (min_size < 1); min_size = 1; end
+	    # min chunk size is 1 byte
+	    if (min_size < 1); min_size = 1; end
 
-		# don't be dumb
-		if (max_size < min_size); max_size = min_size; end
+	    # don't be dumb
+	    if (max_size < min_size); max_size = min_size; end
 
-		while (str.size > 0)
-			chunk = str.slice!(0, rand(max_size - min_size) + min_size)
-			chunked += sprintf("%x", chunk.size) + "\r\n" + chunk + "\r\n"
-		end
-		chunked += "0\r\n\r\n"
+	    while (str.size > 0)
+	        chunk = str.slice!(0, rand(max_size - min_size) + min_size)
+	        chunked += sprintf("%x", chunk.size) + "\r\n" + chunk + "\r\n"
+	    end
+	    chunked += "0\r\n\r\n"
 	end
 
 	#
 	# Converts the packet to a string.
 	#
 	def to_s
-		content = self.body.dup
+	    content = self.body.dup
 		# Update the content length field in the header with the body length.
 		if (content)
-			if (self.auto_cl == true && self.transfer_chunked == true)
-				raise RuntimeError, "'Content-Length' and 'Transfer-Encoding: chunked' are incompatable"
-			elsif self.auto_cl == true
-			    self.headers['Content-Length'] = content.length
-			elsif self.transfer_chunked == true
-				if self.proto != '1.1'
-					raise RuntimeError, 'Chunked encoding is only available via 1.1'
-				end
-				self.headers['Transfer-Encoding'] = 'chunked'
-				content = self.chunk(content, self.chunk_min_size, self.chunk_max_size)
-			end
-		end
+	        if !self.compress.nil?
+	            case self.compress
+	                when 'gzip'
+	                    self.headers['Content-Encoding'] = 'gzip'
+	                    content = Rex::Text.gzip(content)
+	                when 'deflate'
+	                    self.headers['Content-Encoding'] = 'deflate'
+	                    content = Rex::Text.zlib_deflate(content)
+	                # when 'compress'
+	                else
+	                    raise RuntimeError, 'Invalid Content-Encoding'
+	            end
+	        end
+
+	        if (self.auto_cl == true && self.transfer_chunked == true)
+	            raise RuntimeError, "'Content-Length' and 'Transfer-Encoding: chunked' are incompatable"
+	        elsif self.auto_cl == true
+				self.headers['Content-Length'] = content.length
+	        elsif self.transfer_chunked == true
+	            if self.proto != '1.1'
+	                raise RuntimeError, 'Chunked encoding is only available via 1.1'
+	            end
+	            self.headers['Transfer-Encoding'] = 'chunked'
+	            content = self.chunk(content, self.chunk_min_size, self.chunk_max_size)
+	        end
+	    end
 
 		str  = self.headers.to_s(cmd_string)
 		str += content || ''
@@ -193,6 +205,7 @@ class Packet
 	attr_accessor :auto_cl
 	attr_accessor :max_data
 	attr_accessor :transfer_chunked
+	attr_accessor :compress
 	attr_reader   :incomplete
 
 	attr_accessor :chunk_min_size
@@ -224,14 +237,58 @@ protected
 	#
 	##
 
+	def parse_header_re
+	    m = /(.*?)\r?\n\r?\n(.*)/smi.match(self.bufq)
+	    if m != nil
+	        self.headers.from_s(m[1])
+	        self.bufq = m[2]
+			
+	        # Extract the content length, if any.
+			if (self.headers['Content-Length'])
+				self.body_bytes_left = self.headers['Content-Length'].to_i
+			else
+				self.body_bytes_left = -1
+			end
+
+			if (self.headers['Transfer-Encoding'])
+				self.transfer_chunked = 1 if self.headers['Transfer-Encoding'] =~ /chunked/i
+			end
+
+			connection    = self.headers['Connection']
+			comp_on_close = false
+
+			if (connection and connection == 'close')
+				comp_on_close = true
+			end
+			
+			# Change states to processing the body if we have a content length or
+			# the connection type is close.
+			if ((self.body_bytes_left > 0) or (comp_on_close) or self.transfer_chunked)
+				self.state = ParseState::ProcessingBody
+			else
+				self.state = ParseState::Completed
+			end
+	    else
+	        self.headers.from_s(self.bufq)
+	    end
+
+	    # No command string?  Wack.
+		if (self.headers.cmd_string == nil)
+			raise RuntimeError, "Invalid command string", caller
+		end
+
+		# Allow derived classes to update the parts of the command string
+		self.update_cmd_parts(self.headers.cmd_string)
+	end
+
 	#
 	# Parses the header portion of the request.
 	#
 	def parse_header
-		
+
 		# Does the buffer queue contain the entire header?  If so, parse it and
 		# transition to the body parsing phase.
-		idx = self.bufq.index(/\r*\n\r*\n/)
+		idx = self.bufq.index(/\r?\n\r?\n/)
 		
 		if (idx and idx >= 0)
 			# Extract the header block
@@ -258,7 +315,7 @@ protected
 				comp_on_close = true
 			end
 			
-			# Change states to processing the body if we have a content length of
+			# Change states to processing the body if we have a content length or
 			# the connection type is close.
 			if ((self.body_bytes_left > 0) or (comp_on_close) or self.transfer_chunked)
 				self.state = ParseState::ProcessingBody
@@ -276,34 +333,39 @@ protected
 
 		# Allow derived classes to update the parts of the command string
 		self.update_cmd_parts(self.headers.cmd_string)
-
 	end
 
 	#
 	# Parses the body portion of the request.
 	#
 	def parse_body
-
 		# Just return if the buffer is empty
 		if (self.bufq.length == 0)
 			return
 		end
 
 		# Handle chunked transfer-encoding responses
-		if (self.transfer_chunked and self.inside_chunk != 1 and self.bufq.length) 
+		if (self.transfer_chunked and self.inside_chunk != 1 and self.bufq.length)
 			
 			# Remove any leading newlines or spaces
 			self.bufq.lstrip!
 			
 			# Extract the actual hexadecimal length value
-			clen = self.bufq.slice!(/.*\r*\n/)
+			clen = self.bufq.slice!(/^[a-zA-Z0-9]*\r?\n/)
 
 			clen.rstrip! if (clen)
-			
+
+			# if we happen to fall upon the end of the buffer for the next chunk len and have no data left, go get some more...
+			if clen == nil and self.bufq.length == 0
+				return
+			end
+
 			self.body_bytes_left = clen.hex
+
 			if (self.body_bytes_left == 0)
-				self.bufq.rstrip!
-				return self.state = ParseState::Completed
+				self.bufq.sub!(/^\r?\n/s,'')
+				self.state = ParseState::Completed
+				return 
 			end
 			
 			self.inside_chunk = 1
@@ -325,13 +387,15 @@ protected
 		# Finish this chunk and move on to the next one
 		if (self.transfer_chunked and self.body_bytes_left == 0)
 			self.inside_chunk = 0
-			return self.parse_body
+			self.parse_body
+			return
 		end
 
 		# If there are no more bytes left, then parsing has completed and we're
 		# ready to go.
 		if (self.transfer_chunked != 1 and self.body_bytes_left <= 0)
-			return self.state = ParseState::Completed
+			self.state = ParseState::Completed
+			return 
 		end
 	end
 

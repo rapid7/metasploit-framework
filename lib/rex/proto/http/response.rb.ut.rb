@@ -9,12 +9,50 @@ class Rex::Proto::Http::Response::UnitTest < Test::Unit::TestCase
 
 	Klass = Rex::Proto::Http::Response
 
+	def test_deflate
+		h = Klass.new
+		h.body = 'hi mom'
+		h.compress = 'deflate'
+		assert_equal(
+			"HTTP/1.1 200 OK\r\n" +
+			"Content-Encoding: deflate\r\n" +
+			"Content-Length: 14\r\n\r\n" +
+			"x\234\313\310T\310\315\317\005\000\a\225\002;", 
+			h.to_s, 'deflate'
+			)
+	end
+
+	def test_gzip
+		h = Klass.new
+		h.body = 'hi mom'
+		h.compress = 'gzip'
+		srand(0)
+
+		response = h.to_s
+
+		http_header = response.slice!(0,63)
+
+		assert_equal(
+			"HTTP/1.1 200 OK\r\n" +
+			"Content-Encoding: gzip\r\n" +
+			"Content-Length: 26\r\n\r\n", 
+			http_header, 'http headers'
+			)
+
+		assert_equal("\x1f\x8b\x08\x00", response.slice!(0,4), 'gzip headers')
+
+		# skip the next 6 bytes as it is host & time specific (zlib's example gun does, so why not us too?)
+		response.slice!(0,6)
+
+		assert_equal("\xcb\xc8\x54\xc8\xcd\xcf\x05\x00\x68\xa4\x1c\xf0\x06\x00\x00\x00", response, 'gzip data')
+	end
+
+
 	def test_to_s
 		h = Klass.new
 
 		h.headers['Foo']     = 'Fishing'
 		h.headers['Chicken'] = 47
-		h.auto_cl = true
 
 		assert_equal(
 			"HTTP/1.1 200 OK\r\n" +

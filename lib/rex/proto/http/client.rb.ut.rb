@@ -88,4 +88,15 @@ class Rex::Proto::Http::Client::UnitTest < Test::Unit::TestCase
 		c.close
 	end
 
+	def test_junk_pipeline
+		host = 'www.apache.org'
+		client = Klass.new(host)
+		client.junk_pipeline = 5
+		client.request_option('vhost', host)
+		request = client.request('method' => 'GET', 'uri' => '/no-such-uri.html')
+		response = client.send_request(request)
+		assert_equal(404, response.code, 'pipeline response')
+		client.close
+	end
+
 end

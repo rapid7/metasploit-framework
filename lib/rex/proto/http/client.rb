@@ -87,12 +87,17 @@ class Client
 	#
 	# The Request factory.
 	#
-	def request (chash) 
+	def request (chash)
 		method = chash['method'] || 'GET'
 		proto  = chash['proto']  || self.request_config['proto'] || DefaultProtocol
 		uri    = chash['uri']    || '/'
 		
 		req    = Rex::Proto::Http::Request.new(method, uri, proto)
+
+		# pass on the junk_pipeline config
+		if self.junk_pipeline
+			req.junk_pipeline = self.junk_pipeline
+		end
 		
 		#
 		# Configure the request headers using the Client configuration
@@ -129,8 +134,12 @@ class Client
 	#
 	def connect
 		# If we already have a connection and we aren't pipelining, close it.
-		if (self.conn and !pipelining?)
-			close
+		if (self.conn)
+			if !pipelining?
+				close
+			else
+				return self.conn
+			end
 		end
 
 		self.conn = Rex::Socket::Tcp.create(
@@ -174,8 +183,11 @@ class Client
 		# Connect to the server
 		connect
 
+		# build the request
+		req_string = req.to_s
+
 		# Send it on over
-		conn.put(req.to_s)
+		conn.put(req_string)
 
 		# Tell the remote side if we aren't pipelining
 		conn.shutdown(::Socket::SHUT_WR) if (!pipelining?)
@@ -187,11 +199,47 @@ class Client
 		timeout((t < 0) ? nil : t) {
 			# Now, read in the response until we're good to go.
 			begin
-				# Keep running until we finish parsing or EOF is reached
-				while ((rv = resp.parse(conn.get)) != Packet::ParseCode::Completed)
-					# Parsing error?  Raise an exception, our job is done.
-					if (rv == Packet::ParseCode::Error)
-						raise RuntimeError, resp.error, caller
+				if self.junk_pipeline
+					i = 0
+					self.junk_pipeline.times {
+						i += 1
+						rv = nil
+
+						while rv != Packet::ParseCode::Completed
+							if (rv == Packet::ParseCode::Error)
+								warn "ERR : #{resp.error}"
+								raise RuntimeError, resp.error, caller
+							end
+
+							if resp.bufq.length > 0
+								rv = resp.parse('')
+							else
+								rv = resp.parse(conn.get)
+							end
+						end
+
+						if resp['Connection'] == 'close'
+							raise RuntimeError, "junk pipelined request ##{i} caused the server to close the connection", caller
+						end
+
+						buf = resp.bufq
+						resp.reset
+						resp.bufq = buf
+					}
+				end
+
+				rv = nil
+				if resp.bufq.length > 0
+					rv = resp.parse('')
+				end
+
+				if rv != Packet::ParseCode::Completed
+					# Keep running until we finish parsing or EOF is reached
+					while ((rv = resp.parse(conn.get)) != Packet::ParseCode::Completed)
+						# Parsing error?  Raise an exception, our job is done.
+						if (rv == Packet::ParseCode::Error)
+							raise RuntimeError, resp.error, caller
+						end
 					end
 				end
 			rescue EOFError
@@ -200,6 +248,11 @@ class Client
 
 		# Close our side if we aren't pipelining
 		close if (!pipelining?)
+
+		# if the server said stop pipelining, we listen... 
+		if resp['Connection'] == 'close'
+			close
+		end
 
 		# XXX - How should we handle this?
 		if (not resp.completed?)
@@ -255,6 +308,9 @@ class Client
 	# The calling context to pass to the socket
 	#
 	attr_accessor :context
+
+	# When parsing the request, thunk off the first response from the server, since junk
+	attr_accessor :junk_pipeline
 	
 protected
 

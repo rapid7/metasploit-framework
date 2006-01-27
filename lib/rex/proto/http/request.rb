@@ -56,6 +56,8 @@ class Request < Packet
 		self.raw_uri   = uri
 		self.uri_parts = {}
 		self.proto     = proto || DefaultProtocol
+		self.chunk_min_size = 1
+		self.chunk_max_size = 10
 
 		update_uri_parts
 	end
@@ -90,24 +92,32 @@ class Request < Packet
 			self.uri_parts['Resource']    = self.raw_uri
 		end
 
+		self.normalize!(resource)
 		# Set the relative resource to the actual resource.
 		self.relative_resource = resource
 	end
 
+	# normalize out multiple slashes, directory traversal, and self referrential directories
+	def normalize!(str)
+		i = nil
+		while (str.gsub!(/(\/\.\/|\/\w+\/\.\.\/|\/\/)/,'/')); if (i.nil?); i = 1; else; i += 1; end; end
+		i
+	end
+
 	# Puts a URI back together based on the URI parts
 	def uri
-		uri = self.uri_parts['Resource'] || '/'
+		str = self.uri_parts['Resource'].dup || '/'
 		
 		# /././././
 		if self.junk_self_referring_directories
-			uri.gsub!(/\//) {
+			str.gsub!(/\//) {
 				'/.' * (rand(3) + 1) + '/'
 			}
 		end
 
 		# /RAND/../RAND../
 		if self.junk_directories 
-			uri.gsub!(/\//) {
+			str.gsub!(/\//) {
 				dirs = ''
 				rand(5)+5.times {
 					dirs += '/' + Rex::Text.rand_text_alpha(rand(5) + 1) + '/..'
@@ -118,50 +128,59 @@ class Request < Packet
 
 		# ////
 		#
-		# NOTE: this must be done after junk directories, since junk_directories would cancel this out
+		# NOTE: this must be done after all other odd directory junk, since they would cancel this out
 		if self.junk_slashes
-			uri.gsub!(/\//) {
-				'/' * (rand(3) + 1)
+			str.gsub!(/\//) {
+				'/' * (rand(3) + 2)
 			}
-			uri.gsub!(/^[\/]+/, '/') # only one beginning slash!
+			str.sub!(/^[\/]+/, '/') # only one beginning slash!
 		end
 
 		if self.method != 'POST' 
-			params=[]
-			self.uri_parts['QueryString'].each_pair { |param, value|
-				# inject a random number of params in between each param
-				if self.junk_params
-					rand(10)+5.times {
-						params.push(Rex::Text.rand_text_alpha(rand(16) + 5) + '=' + Rex::Text.rand_text_alpha(rand(10) + 1))
-					}
-				end
-				if !value.nil?
-					params.push(self.escape(param) + '=' + self.escape(value))
-				else 
-					params.push(self.escape(param))
-				end
-			}
-
-			# inject some junk params at the end of the param list, just to be sure :P
-			if self.junk_params
-				rand(10)+5.times {
-					params.push(Rex::Text.rand_text_alpha(rand(32) + 5) + '=' + Rex::Text.rand_text_alpha(rand(64) + 5))
-				}
-			end
-
-			if params.size > 0
-				uri += '?' + params.join('&')
+			if param_string.size > 0
+				str += '?' + param_string
 			end
 		end
-		uri
+		str	
+	end
+
+	def param_string
+		params=[]
+		self.uri_parts['QueryString'].each_pair { |param, value|
+			# inject a random number of params in between each param
+			if self.junk_params
+				rand(10)+5.times {
+					params.push(Rex::Text.rand_text_alpha(rand(16) + 5) + '=' + Rex::Text.rand_text_alpha(rand(10) + 1))
+				}
+			end
+			if value.kind_of?(Array)
+				value.each { |subvalue|
+    				params.push(self.escape(param) + '=' + self.escape(subvalue))
+				}
+			else
+    			if !value.nil?
+    				params.push(self.escape(param) + '=' + self.escape(value))
+    			else 
+    				params.push(self.escape(param))
+    			end
+			end
+		}
+
+		# inject some junk params at the end of the param list, just to be sure :P
+		if self.junk_params
+			rand(10)+5.times {
+				params.push(Rex::Text.rand_text_alpha(rand(32) + 5) + '=' + Rex::Text.rand_text_alpha(rand(64) + 5))
+			}
+		end
+		params.join('&')
 	end
 
 	# Updates the underlying URI structure
-	def uri=(uri)
-		self.raw_uri = uri
+	def uri=(str)
+		self.raw_uri = str
 		update_uri_parts
 	end
-
+ 
 	# Returns a URI escaped version of the provided string, by providing an additional argument, all characters are escaped
 	def escape(str, all = nil)
 		if all
@@ -171,6 +190,31 @@ class Request < Packet
 		end
 	end
 
+	# Returns a request packet
+	def to_s
+		str = ''
+		if self.junk_pipeline
+			host = ''
+			if self.headers['Host']
+				host = "Host: #{self.headers['Host']}\r\n"
+			end
+			str += "GET / HTTP/1.1\r\n#{host}Connection: Keep-Alive\r\n\r\n" * self.junk_pipeline
+			self.headers['Connection'] = 'Closed'
+		end
+		str + super
+	end
+
+	def body
+		str = super || ''
+		if str.length > 0
+			return str
+		end
+		
+		if self.method == 'POST'
+			return param_string
+		end
+		''
+	end
 
 	#
 	# Returns the command string derived from the three values.
@@ -229,6 +273,7 @@ class Request < Packet
 	# The protocol to be sent with the request.
 	#
 	attr_accessor :proto
+
 	#
 	# The resource path relative to the root of a server mount point.
 	#
@@ -239,12 +284,15 @@ class Request < Packet
 	
 	# add junk slashes 
 	attr_accessor :junk_slashes
-
+   
 	# add junk self referring directories (aka  /././././
 	attr_accessor :junk_self_referring_directories
 
 	# add junk params
 	attr_accessor :junk_params
+	
+	# add junk pipeline requests
+	attr_accessor :junk_pipeline
 
 protected
 
@@ -255,7 +303,7 @@ protected
 		qstring = {}
 
 		# Delimit on each variable
-		str.split(/&/).each { |vv|
+		str.split(/[;&]/).each { |vv|
 			var = vv
 			val = ''
 			

@@ -25,11 +25,19 @@ class Packet::Header < Hash
 	#
 	# Parses a header from a string.
 	#
+	# XXX - Putting : in a header value fucks this up pretty badly
 	def from_s(header)
 		reset
 
+		# put the non-standard line terminations back to normal
+		# gah.  not having look behinds suck, 
+		header.gsub!(/([^\r])\n/,'\1' + "\r\n")
+
+		# undo folding, kinda ugly but works for now. 
+		header.gsub!(/:\s*\r\n\s+/smi,': ')
+
 		# Extract the command string
-		self.cmd_string = header.slice!(/(.+\r\n)/)
+		self.cmd_string = header.slice!(/.+\r\n/)
 
 		# Extract each header value pair
 		header.split(/\r\n/m).each { |str|
@@ -76,11 +84,25 @@ class Packet::Header < Hash
 	#
 	def to_s(prefix = '')
 		str = prefix
+		
+		if self.junk_headers
+			while str.length < 4096
+				if self.fold
+					str += "X-#{Rex::Text.rand_text_alphanumeric(rand(30) + 5)}:\r\n\t#{Rex::Text.rand_text_alphanumeric(rand(1024) + 1)}\r\n"
+				else 
+					str += "X-#{Rex::Text.rand_text_alphanumeric(rand(30) + 5)}: #{Rex::Text.rand_text_alphanumeric(rand(1024) + 1)}\r\n"
+				end
+			end
+		end
 
 		each_pair { |var, val|
-			str += "#{var.to_s}: #{val.to_s}\r\n"
+			if self.fold
+				str += "#{var.to_s}:\r\n\t#{val.to_s}\r\n"
+			else
+				str += "#{var.to_s}: #{val.to_s}\r\n"
+			end
 		}
-
+		
 		str += "\r\n"
 
 		return str
@@ -108,7 +130,9 @@ class Packet::Header < Hash
 	# The raw command string associated with the header which will vary between
 	# requests and responses.
 	#
+	attr_accessor :junk_headers
 	attr_accessor :cmd_string 
+	attr_accessor :fold
 
 protected
 
