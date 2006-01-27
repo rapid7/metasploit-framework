@@ -24,6 +24,19 @@ module X86
 	REG_NAMES32 = [ 'eax', 'ecx', 'edx', 'ebx', 
 	                'esp', 'ebp', 'esi', 'edi' ] # :nodoc:
 
+	# Jump tp a specific register
+	def self.jmp_reg(str)
+		reg = reg_number(str)
+		_check_reg(reg)
+		"\xFF" + [224 + reg].pack('C')
+	end
+
+	# This method returns the opcodes that compose a jump instruction to the
+	# supplied relative offset.
+	def self.jmp(addr)
+		"\xe9" + pack_dword(rel_number(addr))
+	end
+
 	#
 	# This method adds/subs a packed long integer
 	#
@@ -44,10 +57,8 @@ module X86
 		"\x4f" +                        # dec edi (start_search:)
 		"\x39\x77\xfc" +                # cmp [edi-0x4],esi
 		"\x75\xfa" +                    # jnz 0x10 (start_search)
-		"\xff\xe7"                      # jmp edi	
+		jmp_reg('edi')                  # jmp edi	
 	end
-
-
 	
 	#
 	# This method returns the opcodes that compose a short jump instruction to
