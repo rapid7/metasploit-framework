@@ -164,7 +164,7 @@ require 'rex/text'
 			u.xfer_syntax_uuid,  # transfer syntax
 			xfer_vers_maj,       # syntax major version
 			xfer_vers_min,       # syntax minor version 
-    	].pack('CCCCNvvVvvVVvvA16vvA16vv')
+		].pack('CCCCNvvVvvVVvvA16vvA16vv')
 	end
 	
 
@@ -187,15 +187,15 @@ require 'rex/text'
 			dlen,   # alloc hint
 			ctx,    # context id
 			opnum,  # operation number
-    	].pack('CCCCNvvVVvv') + data
+		].pack('CCCCNvvVVvv') + data
 	end	
 
 	# Used to create standard DCERPC REQUEST packet(s)
 	def self.make_request (opnum=0, data="", size=data.length, ctx=0)	
 
-        if size > 4000
-            size = 4000
-        end
+		if size > 4000
+			size = 4000
+		end
 
 		chunks, frags = [], []
 		ptr = 0

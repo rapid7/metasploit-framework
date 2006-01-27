@@ -24,9 +24,9 @@ class Response
 		self.ack_reason = []
 		self.ack_xfer_syntax_uuid = []
 		self.ack_xfer_syntax_vers = []		
-        
+		
 		if (data.length < 10)
-            raise Rex::Proto::DCERPC::Exceptions::InvalidPacket, 'Packet header must be at least 10 bytes long'
+			raise Rex::Proto::DCERPC::Exceptions::InvalidPacket, 'Packet header must be at least 10 bytes long'
 		end
 		
 		if (data.length == 10)
