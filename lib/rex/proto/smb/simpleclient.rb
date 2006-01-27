@@ -56,9 +56,9 @@ EVADE = Rex::Proto::SMB::Evasions
 						ok['Payload'].v['DataLenLow']
 					)
 					data << buff
-                    if ok['Payload'].v['Remaining'] == 0
-                        break
-                    end
+					if ok['Payload'].v['Remaining'] == 0
+						break
+					end
 					fptr += ok['Payload'].v['DataLenLow']
 					ok = self.client.read(self.file_id, fptr, self.chunk_size)
 				end

@@ -31,8 +31,8 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		write_data = ('A' * 256)
 		filename = 'smb_test.txt'
 
-        begin
-        timeout($_REX_TEST_TIMEOUT) {
+		begin
+		timeout($_REX_TEST_TIMEOUT) {
 		s = Rex::Socket.create_tcp(
 			'PeerHost' => $_REX_TEST_SMB_HOST,
 			'PeerPort' => 139
@@ -42,7 +42,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		c.evasion_level = @@evasion
 		
 		# Request a SMB session over NetBIOS
-        # puts "[*] Requesting a SMB session over NetBIOS..."
+		# puts "[*] Requesting a SMB session over NetBIOS..."
 		ok = c.session_request()
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
@@ -50,40 +50,40 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		# A negative response is 0x83
 		assert_equal(ok.v['Type'], 0x82)
 
-        # puts "[*] Negotiating SMB dialects..."
+		# puts "[*] Negotiating SMB dialects..."
 		ok = c.negotiate()
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 
-        # puts "[*] Authenticating with NTLMv2..."
+		# puts "[*] Authenticating with NTLMv2..."
 		ok = c.session_setup_ntlmv2(user, pass)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		assert_not_equal(c.auth_user_id, 0)
 		
-        # puts "[*] Connecting to the share..."		
+		# puts "[*] Connecting to the share..."		
 		ok = c.tree_connect(share)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		assert_not_equal(c.last_tree_id, 0)
 		
-        # puts "[*] Opening a file for write..."
+		# puts "[*] Opening a file for write..."
 		ok = c.open(filename)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		assert_not_equal(c.last_file_id, 0)
 		
-        # puts "[*] Writing data to the test file..."
+		# puts "[*] Writing data to the test file..."
 		ok = c.write(c.last_file_id, 0, write_data)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		assert_equal(ok['Payload'].v['CountLow'], write_data.length)
 		
-        # puts "[*] Closing the test file..."
+		# puts "[*] Closing the test file..."
 		ok = c.close(c.last_file_id)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 
-        # puts "[*] Opening a file for read..."
+		# puts "[*] Opening a file for read..."
 		ok = c.open(filename, 1)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		assert_not_equal(c.last_file_id, 0)	
 		
-        # puts "[*] Reading data from the test file..."
+		# puts "[*] Reading data from the test file..."
 		ok = c.read(c.last_file_id, 0, write_data.length)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		assert_equal(ok['Payload'].v['DataLenLow'], write_data.length)
@@ -94,11 +94,11 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		)			
 		assert_equal(read_data, write_data)
 
-        # puts "[*] Closing the test file..."
+		# puts "[*] Closing the test file..."
 		ok = c.close(c.last_file_id)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
-        # puts "[*] Disconnecting from the tree..."	
+		# puts "[*] Disconnecting from the tree..."	
 		ok = c.tree_disconnect
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
@@ -115,7 +115,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		c.evasion_level = @@evasion
 		
 		# Request a SMB session over NetBIOS
-        # puts "[*] Requesting a SMB session over NetBIOS..."
+		# puts "[*] Requesting a SMB session over NetBIOS..."
 		ok = c.session_request()
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
@@ -123,39 +123,39 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		# A negative response is 0x83
 		assert_equal(ok.v['Type'], 0x82)
 
-        # puts "[*] Negotiating SMB dialects..."
+		# puts "[*] Negotiating SMB dialects..."
 		ok = c.negotiate()
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 
-        # puts "[*] Authenticating with NTLMv2..."
+		# puts "[*] Authenticating with NTLMv2..."
 		ok = c.session_setup_ntlmv2(user, pass)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		assert_not_equal(c.auth_user_id, 0)
 		
-        # puts "[*] Connecting to the share..."		
+		# puts "[*] Connecting to the share..."		
 		ok = c.tree_connect(share)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		assert_not_equal(c.last_tree_id, 0)
 				
-        # puts "[*] Deleting the test file..."
+		# puts "[*] Deleting the test file..."
 		ok = c.delete(filename)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
-        # puts "[*] Diconnecting from the tree..."	
+		# puts "[*] Diconnecting from the tree..."	
 		ok = c.tree_disconnect
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
 		s.close	
-        }
-        rescue Timeout::Error
-            flunk('timeout')
-        end
+		}
+		rescue Timeout::Error
+			flunk('timeout')
+		end
 		
 	end
 
 	def test_smb_session_request
-        begin
-        timeout($_REX_TEST_TIMEOUT) {
+		begin
+		timeout($_REX_TEST_TIMEOUT) {
 		s = Rex::Socket.create_tcp(
 			'PeerHost' => $_REX_TEST_SMB_HOST,
 			'PeerPort' => 139
@@ -165,7 +165,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		c.evasion_level = @@evasion
 		
 		# Request a SMB session over NetBIOS
-        # puts "[*] Requesting a SMB session over NetBIOS..."
+		# puts "[*] Requesting a SMB session over NetBIOS..."
 		ok = c.session_request()
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
@@ -173,19 +173,19 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		# A negative response is 0x83
 		assert_equal(ok.v['Type'], 0x82)
 
-        # puts "[*] Negotiating SMB dialects..."
+		# puts "[*] Negotiating SMB dialects..."
 		ok = c.negotiate()
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 
-        # puts "[*] Authenticating with NTLMv2..."
+		# puts "[*] Authenticating with NTLMv2..."
 		ok = c.session_setup_ntlmv2
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
-        # puts "[*] Authenticating with NTLMv1..."		
+		# puts "[*] Authenticating with NTLMv1..."		
 		ok = c.session_setup_ntlmv1
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
-        # puts "[*] Authenticating with clear text passwords..."
+		# puts "[*] Authenticating with clear text passwords..."
 		begin		
 			ok = c.session_setup_clear
 			assert_kind_of(Rex::Struct2::CStruct, ok)
@@ -195,11 +195,11 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 			end
 		end
 
-        # puts "[*] Connecting to IPC$..."		
+		# puts "[*] Connecting to IPC$..."		
 		ok = c.tree_connect
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 
-        # puts "[*] Opening the \BROWSER pipe..."		
+		# puts "[*] Opening the \BROWSER pipe..."		
 		ok = c.open_named_pipe('BROWSER')
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
@@ -207,7 +207,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		uuid = DCERPCUUID.uuid_by_name('SRVSVC')
 		bind, ctx = DCERPCPacket.make_bind_fake_multi(uuid, vers)
 
-        # puts "[*] Binding to the Server Service..."		
+		# puts "[*] Binding to the Server Service..."		
 		ok = c.trans_named_pipe(c.last_file_id, bind)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
@@ -219,10 +219,10 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		
 		resp = DCERPCResponse.new(data)
 		assert_equal(resp.type, 12)
-        }
-        rescue Timeout::Error
-            flunk('timeout')
-        end
+		}
+		rescue Timeout::Error
+			flunk('timeout')
+		end
 	end
 
 	

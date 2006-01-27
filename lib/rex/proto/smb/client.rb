@@ -179,7 +179,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	
 	# Process incoming SMB_COM_NEGOTIATE packets
 	def smb_parse_negotiate (pkt, data)
- 		#Process NTLM negotiate responses
+		#Process NTLM negotiate responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 17)
 			res = CONST::SMB_NEG_RES_NT_PKT.make_struct
 			res.from_s(data)
@@ -210,7 +210,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	
 	# Process incoming SMB_COM_SESSION_SETUP_ANDX packets
 	def smb_parse_session_setup(pkt, data)
- 		# Process NTLMv2 negotiate responses
+		# Process NTLMv2 negotiate responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 4)
 			res = CONST::SMB_SETUP_NTLMV2_RES_PKT.make_struct
 			res.from_s(data)
@@ -234,7 +234,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	
 	# Process incoming SMB_COM_TREE_CONNECT_ANDX packets
 	def smb_parse_tree_connect(pkt, data)
- 		
+		
 		if (pkt['Payload']['SMB'].v['WordCount'] == 3)
 			res = CONST::SMB_TREE_CONN_RES_PKT.make_struct
 			res.from_s(data)
@@ -251,7 +251,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 	# Process incoming SMB_COM_TREE_DISCONNECT packets
 	def smb_parse_tree_disconnect(pkt, data)
- 		
+		
 		# Process SMB responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			res = CONST::SMB_TREE_DISCONN_RES_PKT.make_struct
@@ -264,7 +264,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 	# Process incoming SMB_COM_CREATE_ANDX packets
 	def smb_parse_create(pkt, data)
- 		
+		
 		# Windows says 42, but Samba says 34, same structure :-/
 		if (pkt['Payload']['SMB'].v['WordCount'] == 42)
 			res = CONST::SMB_CREATE_RES_PKT.make_struct
@@ -288,7 +288,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 	# Process incoming SMB_COM_TRANSACTION packets
 	def smb_parse_trans(pkt, data)
- 		
+		
 		if (pkt['Payload']['SMB'].v['WordCount'] == 10)
 			res = CONST::SMB_TRANS_RES_PKT.make_struct
 			res.from_s(data)
@@ -305,7 +305,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 	# Process incoming SMB_COM_NT_TRANSACT packets
 	def smb_parse_nttrans(pkt, data)
- 		
+		
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
@@ -316,7 +316,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	
 	# Process incoming SMB_COM_OPEN_ANDX packets
 	def smb_parse_open(pkt, data)
- 		# Process open responses
+		# Process open responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 15)
 			res = CONST::SMB_OPEN_RES_PKT.make_struct
 			res.from_s(data)
@@ -334,7 +334,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	# Process incoming SMB_COM_WRITE_ANDX packets
 	def smb_parse_write(pkt, data)
 	
-  		# Process write responses
+		# Process write responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 6)
 			res = CONST::SMB_WRITE_RES_PKT.make_struct
 			res.from_s(data)
@@ -352,7 +352,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	# Process incoming SMB_COM_READ_ANDX packets
 	def smb_parse_read(pkt, data)
 	
-  		# Process write responses
+		# Process write responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 12)
 			res = CONST::SMB_READ_RES_PKT.make_struct
 			res.from_s(data)
@@ -369,7 +369,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	
 	# Process incoming SMB_COM_CLOSE packets
 	def smb_parse_close(pkt, data)
- 		
+		
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
@@ -380,7 +380,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	
 	# Process incoming SMB_COM_DELETE packets
 	def smb_parse_delete(pkt, data)
- 		
+		
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			res = CONST::SMB_DELETE_RES_PKT.make_struct
@@ -965,7 +965,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		err = ack['Payload']['SMB'].v['ErrorClass']
 
-        # Catch some non-fatal error codes
+		# Catch some non-fatal error codes
 		if (err != 0 && err != CONST::SMB_ERROR_BUFFER_OVERFLOW)
 			failure = XCEPT::ErrorCode.new
 			failure.word_count = ack['Payload']['SMB'].v['WordCount']

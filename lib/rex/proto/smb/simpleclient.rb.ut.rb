@@ -30,8 +30,8 @@ class Rex::Proto::SMB::SimpleClient::UnitTest < Test::Unit::TestCase
 		
 		write_data = ('A' * (1024 * 8))
 		filename = 'smb_tester.txt'
-        begin
-        timeout($_REX_TEST_TIMEOUT) {
+		begin
+		timeout($_REX_TEST_TIMEOUT) {
 		s = Rex::Socket.create_tcp(
 			'PeerHost' => $_REX_TEST_SMB_HOST,
 			'PeerPort' => 445
@@ -40,19 +40,19 @@ class Rex::Proto::SMB::SimpleClient::UnitTest < Test::Unit::TestCase
 		c = Klass.new(s, true)
 		c.client.evasion_level = 0
 		
-        begin
+		begin
 	        c.login('*SMBSERVER', user, pass)
-        rescue XCEPT::LoginError
-            flunk('login failure')
-        end
+		rescue XCEPT::LoginError
+			flunk('login failure')
+		end
 
-        c.connect(share)
+		c.connect(share)
 			
-        f = c.open(filename, 'rwct')
+		f = c.open(filename, 'rwct')
 	    f << write_data
 		f.close
 			
-        f = c.open(filename, 'ro')
+		f = c.open(filename, 'ro')
 	    d = f.read()
 	    f.close
 			
@@ -60,15 +60,15 @@ class Rex::Proto::SMB::SimpleClient::UnitTest < Test::Unit::TestCase
 		c.disconnect(share)
 
 		s.close	
-        }
-        rescue Timeout::Error
-            flunk('timeout')
-        end
+		}
+		rescue Timeout::Error
+			flunk('timeout')
+		end
 	end
 
-    def test_smb_dcerpc
-        begin
-        timeout($_REX_TEST_TIMEOUT) {
+	def test_smb_dcerpc
+		begin
+		timeout($_REX_TEST_TIMEOUT) {
 		s = Rex::Socket.create_tcp(
 			'PeerHost' => $_REX_TEST_SMB_HOST,
 			'PeerPort' => 445
@@ -77,23 +77,23 @@ class Rex::Proto::SMB::SimpleClient::UnitTest < Test::Unit::TestCase
 		c = Klass.new(s, true)
 		c.client.evasion_level = 0
 
-        user = ''
-        pass = ''
+		user = ''
+		pass = ''
 
-        begin
-            c.login('*SMBSERVER', user, pass)
-        rescue XCEPT::LoginError
-            flunk('login failure')
-        end
+		begin
+			c.login('*SMBSERVER', user, pass)
+		rescue XCEPT::LoginError
+			flunk('login failure')
+		end
 
-        c.connect('IPC$')
+		c.connect('IPC$')
 		f = c.create_pipe('\BROWSER')
 			
-        bind, ctx = DCERPCPacket.make_bind_fake_multi(
-            '4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0',
-            10, 
-            4
-        )
+		bind, ctx = DCERPCPacket.make_bind_fake_multi(
+			'4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0',
+			10, 
+			4
+		)
 			
 		# Evasion techniques:
 		# 	1) Write the bind out a few bytes at a time with a random offset
@@ -102,7 +102,7 @@ class Rex::Proto::SMB::SimpleClient::UnitTest < Test::Unit::TestCase
 		# Write the bind request out in random chunk sizes
 		while (bind.length > 0)
 		    f.write( bind.slice!(0, (rand(20)+5)), rand(1024)+1 )
-        end
+		end
 			
 		d = ''
 		# Read the response back a few bytes a time
@@ -110,20 +110,20 @@ class Rex::Proto::SMB::SimpleClient::UnitTest < Test::Unit::TestCase
 		    while(true)
 			    t = (f.read((rand(20)+5), rand(1024)+1))
 				last if ! t.length
-                d << t
-            end
-        rescue XCEPT::NoReply
-        end
+				d << t
+			end
+		rescue XCEPT::NoReply
+		end
 
-        r = DCERPCResponse.new(d)
+		r = DCERPCResponse.new(d)
 		assert_equal(r.type, 12)
 		assert_equal(r.ack_result[ctx-0], 0)
 		assert_equal(r.ack_result[ctx-1], 2)
 
 		s.close	
-        }
-        rescue Timeout::Error
-            flunk('timeout')
-        end
-    end
+		}
+		rescue Timeout::Error
+			flunk('timeout')
+		end
+	end
 end	
