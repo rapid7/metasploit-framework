@@ -12,22 +12,22 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 		assert_equal("\x00a\x00b\x00c", Rex::Text.to_unicode('abc', 1), 'unicode, big endian')
 	end
 
-    def test_zlib
-        assert_equal("x\234\313\310T\310\315\317\005\000\a\225\002;", Rex::Text.zlib_deflate('hi mom'), 'compress')
-        assert_equal('hi mom', Rex::Text.zlib_inflate("x\234\313\310T\310\315\317\005\000\a\225\002;"), 'decompress')
-    end
+	def test_zlib
+		assert_equal("x\234\313\310T\310\315\317\005\000\a\225\002;", Rex::Text.zlib_deflate('hi mom'), 'compress')
+		assert_equal('hi mom', Rex::Text.zlib_inflate("x\234\313\310T\310\315\317\005\000\a\225\002;"), 'decompress')
+	end
 
-    def test_gzip
-        string = Rex::Text.gzip('hi mom')
-        assert_equal("\x1f\x8b\x08\x00", string.slice!(0,4), 'gzip headers')
-        
-        # skip the next 6 bytes as it is host & time specific (zlib's example gun does, so why not us too?)
-        string.slice!(0,6)
-        
-        assert_equal("\xcb\xc8\x54\xc8\xcd\xcf\x05\x00\x68\xa4\x1c\xf0\x06\x00\x00\x00", string, 'gzip data')
+	def test_gzip
+		string = Rex::Text.gzip('hi mom')
+		assert_equal("\x1f\x8b\x08\x00", string.slice!(0,4), 'gzip headers')
+		
+		# skip the next 6 bytes as it is host & time specific (zlib's example gun does, so why not us too?)
+		string.slice!(0,6)
+		
+		assert_equal("\xcb\xc8\x54\xc8\xcd\xcf\x05\x00\x68\xa4\x1c\xf0\x06\x00\x00\x00", string, 'gzip data')
 
-        assert_equal('hi mom', Rex::Text.ungzip("\037\213\010\000|\261\275C\002\003\313\310T\310\315\317\005\000h\244\034\360\006\000\000\000"), 'ungzip')
-    end
+		assert_equal('hi mom', Rex::Text.ungzip("\037\213\010\000|\261\275C\002\003\313\310T\310\315\317\005\000h\244\034\360\006\000\000\000"), 'ungzip')
+	end
 
 	def test_badchar_index
 		assert_equal(nil, Rex::Text.badchar_index('abcdef', 'gzk'))
@@ -38,7 +38,7 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 		str = "\x01\x02\xff"
 	
 		assert_equal("\\x01\\x02\\xff", Rex::Text.to_hex(str), 'to_hex')
-        assert_equal("ABC01ABC02ABCff", Rex::Text.to_hex(str, 'ABC'), 'to_hex with prefix')
+		assert_equal("ABC01ABC02ABCff", Rex::Text.to_hex(str, 'ABC'), 'to_hex with prefix')
 		assert_equal("\"\\x01\\x02\\xff\"\n", Rex::Text.to_ruby(str), 'to_ruby')
 		assert_equal("\"\\x01\\x02\\xff\";\n", Rex::Text.to_perl(str), 'to_perl')
 		assert_equal("unsigned char buf[] = \n\"\\x01\\x02\\xff\";\n", Rex::Text.to_c(str), 'to_c')

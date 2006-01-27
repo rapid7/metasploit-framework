@@ -188,7 +188,7 @@ module X86
 	# on the value supplied, different sets of instructions may be used.
 	#
 	# TODO: Make this moderatly intelligent so it chain instructions by itself
-        #   (ie. xor eax, eax + mov al, 4 + xchg ah, al)
+		#   (ie. xor eax, eax + mov al, 4 + xchg ah, al)
 	def self.set(dst, val, badchars = '')
 		_check_reg(dst)
 

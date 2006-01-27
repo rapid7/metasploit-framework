@@ -258,7 +258,7 @@ class Client
 	
 protected
 
-    # https
+	# https
 	attr_accessor :ssl
 
 	attr_accessor :hostname, :port # :nodoc:

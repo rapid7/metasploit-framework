@@ -224,9 +224,9 @@ module Text
 
 		# Return nil if all bytes are restricted
 		return nil if foo.length == 0
-       
+	
 		buff = ""
-       
+	
 		# Generate a buffer from the remaining bytes
 		if foo.length >= 256
 			len.times { buff << Kernel.rand(256) }
@@ -351,27 +351,27 @@ module Text
 			return false
 		end
 	end
-    
-    # backwards compat for just a bit...
-    def self.gzip_present?
-        self.zlib_present?
-    end
+	
+	# backwards compat for just a bit...
+	def self.gzip_present?
+		self.zlib_present?
+	end
 
-    #
-    # Compresses a string using zlib
-    #
-    def self.zlib_deflate(str)
+	#
+	# Compresses a string using zlib
+	#
+	def self.zlib_deflate(str)
 		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
-    	return Zlib::Deflate.deflate(str)
-    end
+		return Zlib::Deflate.deflate(str)
+	end
 
-    #
-    # Uncompresses a string using zlib
-    #
-    def self.zlib_inflate(str)
+	#
+	# Uncompresses a string using zlib
+	#
+	def self.zlib_inflate(str)
 		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
-    	return Zlib::Inflate.inflate(str)
-    end
+		return Zlib::Inflate.inflate(str)
+	end
 
 	#
 	# Compresses a string using gzip
@@ -380,24 +380,24 @@ module Text
 		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
 		raise RuntimeError, "Invalid gzip compression level" if (level < 1 or level > 9)
 
-    	s = ""
-    	gz = Zlib::GzipWriter.new(StringIO.new(s), level)
-    	gz << str
-    	gz.close
-    	return s
+		s = ""
+		gz = Zlib::GzipWriter.new(StringIO.new(s), level)
+		gz << str
+		gz.close
+		return s
 	end
 	
-    #
+	#
 	# Uncompresses a string using gzip
 	#
 	def self.ungzip(str)
 		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
 
-    	s = ""
-    	gz = Zlib::GzipReader.new(StringIO.new(str))
-    	s << gz.read
-    	gz.close
-    	return s
+		s = ""
+		gz = Zlib::GzipReader.new(StringIO.new(str))
+		s << gz.read
+		gz.close
+		return s
 	end
 	
 	#

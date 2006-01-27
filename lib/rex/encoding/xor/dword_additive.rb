@@ -40,7 +40,7 @@ class DwordAdditive < Generic
 			    (1 << (len << 3)) - 1
 			)
 		end
- 
+
 		return key
 	end
 

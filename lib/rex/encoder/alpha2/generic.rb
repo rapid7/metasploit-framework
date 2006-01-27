@@ -8,7 +8,7 @@ module Alpha2
 
 class Generic
 	@@accepted_chars = ('a' .. 'z').to_a + ('B' .. 'Z').to_a + ('0' .. '9').to_a
-    
+	
 	def Generic.gen_decoder_prefix(reg, offset)
 		# Should never happen - have to pick a specifc
 		# encoding: 

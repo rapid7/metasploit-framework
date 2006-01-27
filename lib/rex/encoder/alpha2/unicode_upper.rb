@@ -26,14 +26,14 @@ class UnicodeUpper < Generic
 		end
 
 		# offset untested for unicode :(
-        if (offset <= 4)
-            nop = 'CP' * offset
-            mod = 'IA' * (4 - offset) + nop    # dec ecx,,, push ecx, pop edx
-        else
-            mod = 'AA' * (offset - 4)          # inc ecx
-            nop = 'CP' * (4 - mod.length)
-            mod += nop
-        end
+		if (offset <= 4)
+			nop = 'CP' * offset
+			mod = 'IA' * (4 - offset) + nop    # dec ecx,,, push ecx, pop edx
+		else
+			mod = 'AA' * (offset - 4)          # inc ecx
+			nop = 'CP' * (4 - mod.length)
+			mod += nop
+		end
 
 		regprefix = {                      # nops ignored below
 			'EAX'   => 'PPYA' + dec,        # push eax, pop ecx

@@ -20,9 +20,9 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 			"\r\n" + 
 			"Super body"
 
-        h.auto_cl = false
-        h.parse(req1)
-        assert_equal(Klass::ParseCode::Completed, h.parse(req1))
+		h.auto_cl = false
+		h.parse(req1)
+		assert_equal(Klass::ParseCode::Completed, h.parse(req1))
 		assert_equal(true, h.completed?)
 		assert_equal("Bird", h.headers['Foo'])
 		assert_equal("text/html", h.headers['Accept'])

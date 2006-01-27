@@ -43,14 +43,14 @@ class Rex::Proto::Http::Request::UnitTest < Test::Unit::TestCase
 		h.method = 'GET'
 		assert_equal("GET /foo HTTP/1.0\r\n", h.cmd_string, 'set method')
 
-        h.uri = '/bar'
+		h.uri = '/bar'
 		assert_equal("GET /bar HTTP/1.0\r\n", h.cmd_string, 'set uri')
 
-        h.proto = '1.2'
+		h.proto = '1.2'
 		assert_equal("GET /bar HTTP/1.2\r\n", h.cmd_string, 'set proto')
 	end
 
-    def test_params
+	def test_params
 		h = Klass.new
 		h.from_s("GET /foo?a=1&b=2 HTTP/1.0\r\n" +
 			"Foo: Bar\r\n\r\n")
@@ -62,24 +62,24 @@ class Rex::Proto::Http::Request::UnitTest < Test::Unit::TestCase
 		h.uri_parts['QueryString']['c'] = '3'
 		assert_equal('/foo?a=1&b=2&c=3', h.uri, 'uri with additional params')
 		
-        h.uri_parts['QueryString']['d'] = '='
+		h.uri_parts['QueryString']['d'] = '='
 		assert_equal('/foo?a=1&b=2&c=3&d=%3d', h.uri, 'uri with additional params that require escaping')
 
-        srand(0)
-        h.junk_directories = 1
+		srand(0)
+		h.junk_directories = 1
 		assert_equal('/D/../DnJT/../kXG/../Y/../BmnXu/../foo?a=1&b=2&c=3&d=%3d', h.uri, 'uri with junk directories')
-        
-        h.junk_slashes = 1
+		
+		h.junk_slashes = 1
 		assert_equal('/lZ//..//J//../zQzFP///..///S/..//Yxzd//../D/OngB/..///gf//..///XjL//..///ciA/..///k/..//..//RPEpq//../fBB/../jm/../uSbA/..//MqUL/..///DnJT///vDMko//..//jXPNV//..///x//..//jA/..//x///..//..//iwdDi/../Nwn//..//AK///..//rXC///..///ij//..///kXG///SujU/..//yb//..//Bk///..//Wro//..//CzQg///../..//uqzo/..//C//..///eirN/..///o/..///T/..///Y/CDs/../E/..//tLWN///../tL/..//Q///..//../QT/../og/../GVfNH//../Y///..///So///../BmnXu/Bf///../YYDSv///..///qMmj/..//gLoU//..//rlc/../..//bTZ/../uUdD//..///nJJp///../uays///..//fJKb//..///foo?a=1&b=2&c=3&d=%3d', h.uri, 'uri with junk directories')
-   
-		h = Klass.new
-		h.from_s("GET /foo?a=1&b=2 HTTP/1.0\r\n" + "Foo: Bar\r\n\r\n")
-        h.junk_params = 1
-        assert_equal("/foo?zerStXB=qweQajx&JsNGmnINHQWPZIj=RHUZCQy&XYEksxXeZUhlXbdhzz=HpxJATk&UwDqBU=EQwvK&oebrfUGJbvjTMSxKih=MkBx&a=1&YkjFGDiohcEa=t&JFhHeIUH=VbsD&UHTfAFbreJT=VlcIruAo&mZKziXgT=z&hsytpEdbRjC=tPkpE&b=2&NetXijJaaWMPiazmuQvoAKL=HeGtePpmrSHcBpCycO&bkfdyudyhM=pQCIzKwabBAFYiPDulrTYGUGczGCccmlFtJkN&fRjtzIZVtlWQZulBFGMaKOIHtF=qDKybZDOSFERFeYDFokxYhShOxHruwhRdMugizXZuyrpuAMJSEHD&MltwtSzxHaxudDKUqBUQq=caXwCmJCspZkaEpKMohlnghajZyYSUecISZYnqcYSDsTtAKDGbjGTiy&mUrAktpChMPhXMFmBKGGmmL=VyyzCMdJzIFrBrPMvMVSZNecspVGkwoaeFPllxfgwQgKMdAdanWTFkT" ,h.uri, 'junk params')
 
 		h = Klass.new
 		h.from_s("GET /foo?a=1&b=2 HTTP/1.0\r\n" + "Foo: Bar\r\n\r\n")
-        h.junk_self_referring_directories = 1
-        assert_equal("/./foo?a=1&b=2", h.uri, 'junk self referring directories')
-    end
+		h.junk_params = 1
+		assert_equal("/foo?zerStXB=qweQajx&JsNGmnINHQWPZIj=RHUZCQy&XYEksxXeZUhlXbdhzz=HpxJATk&UwDqBU=EQwvK&oebrfUGJbvjTMSxKih=MkBx&a=1&YkjFGDiohcEa=t&JFhHeIUH=VbsD&UHTfAFbreJT=VlcIruAo&mZKziXgT=z&hsytpEdbRjC=tPkpE&b=2&NetXijJaaWMPiazmuQvoAKL=HeGtePpmrSHcBpCycO&bkfdyudyhM=pQCIzKwabBAFYiPDulrTYGUGczGCccmlFtJkN&fRjtzIZVtlWQZulBFGMaKOIHtF=qDKybZDOSFERFeYDFokxYhShOxHruwhRdMugizXZuyrpuAMJSEHD&MltwtSzxHaxudDKUqBUQq=caXwCmJCspZkaEpKMohlnghajZyYSUecISZYnqcYSDsTtAKDGbjGTiy&mUrAktpChMPhXMFmBKGGmmL=VyyzCMdJzIFrBrPMvMVSZNecspVGkwoaeFPllxfgwQgKMdAdanWTFkT" ,h.uri, 'junk params')
+
+		h = Klass.new
+		h.from_s("GET /foo?a=1&b=2 HTTP/1.0\r\n" + "Foo: Bar\r\n\r\n")
+		h.junk_self_referring_directories = 1
+		assert_equal("/./foo?a=1&b=2", h.uri, 'junk self referring directories')
+	end
 end

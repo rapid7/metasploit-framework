@@ -86,6 +86,6 @@ class Rex::Proto::Http::Client::UnitTest < Test::Unit::TestCase
 		assert_equal('OK', resp.message)
 		assert_equal('1.1', resp.proto)
 		c.close
-    end
+	end
 
 end

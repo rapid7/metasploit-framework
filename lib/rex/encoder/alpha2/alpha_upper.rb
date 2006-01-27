@@ -8,23 +8,23 @@ module Alpha2
 
 class AlphaUpper < Generic
 	@@accepted_chars = ('B' .. 'Z').to_a + ('0' .. '9').to_a
-    
+	
 	def self.gen_decoder_prefix(reg, offset)
 		if (offset > 20)
 			raise "Critical: Offset is greater than 10"
 		end
 
 		# use inc ebx as a nop here so we still pad correctly
-        if (offset <= 10)
-            nop = 'C' * offset
-            mod = 'I' * (10 - offset) + nop + '7QZ'    # dec ecx,,, push ecx, pop edx
-            edxmod = 'J' * (11 - offset)
-        else
-            mod = 'A' * (offset - 10)
-            nop = 'C' * (10 - mod.length)
-            mod += nop + '7QZ'
-            edxmod = 'B' * (11 - (offset - 10))
-        end
+		if (offset <= 10)
+			nop = 'C' * offset
+			mod = 'I' * (10 - offset) + nop + '7QZ'    # dec ecx,,, push ecx, pop edx
+			edxmod = 'J' * (11 - offset)
+		else
+			mod = 'A' * (offset - 10)
+			nop = 'C' * (10 - mod.length)
+			mod += nop + '7QZ'
+			edxmod = 'B' * (11 - (offset - 10))
+		end
 		regprefix = {
 			'EAX'   => 'PY' + dec,                        # push eax, pop ecx
 			'ECX'   => 'I' + dec,                         # dec ecx
@@ -38,7 +38,7 @@ class AlphaUpper < Generic
 
 		return regprefix[reg]
 
-    end
+	end
 
 	def self.gen_decoder(reg, offset)
 		decoder =

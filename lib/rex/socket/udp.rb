@@ -56,9 +56,9 @@ module Rex::Socket::Udp
 	# Read a datagram from the UDP socket.
 	#
 	def read(length = 65535)
-        if length < 0
-            length = 65535
-        end
+		if length < 0
+			length = 65535
+		end
 		return sysread(length)
 	end
 
@@ -131,8 +131,8 @@ module Rex::Socket::Udp
 		10
 	end	
 
-    def type?
-        return 'udp'
-    end
+	def type?
+		return 'udp'
+	end
 
 end
