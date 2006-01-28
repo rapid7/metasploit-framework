@@ -1,0 +1,234 @@
+#!/usr/bin/env ruby
+#
+# This is a basic user interface using the Wx GUI library
+#
+
+$:.unshift(File.join(File.dirname(__FILE__), 'lib'))
+
+require 'rex'
+require 'msf/base'
+require 'msf/ui'
+
+require 'wxruby'
+include Wx
+
+MSFVERSION  = Msf::Framework::Version
+MSFBASEDIR  = File.dirname(__FILE__)
+
+# Initialize the simplified framework instance.
+$framework = Msf::Simple::Framework.create
+
+# Constants for each of the event/control pairs
+MSF_ABOUT = 1001
+MSF_QUIT  = 1002
+ModuleTreeCtrl = 1003
+
+IL_MODTREE_MODULES   = 0
+IL_MODTREE_EXPLOITS  = 1
+IL_MODTREE_AUXILIARY = 2
+IL_MODTREE_PAYLOADS  = 3
+IL_MODTREE_ENCODERS  = 4
+IL_MODTREE_NOPS      = 5
+
+IL_MODTREE_MOD_EXPLOIT   = 6
+IL_MODTREE_MOD_AUXILIARY = 6
+IL_MODTREE_MOD_PAYLOAD = 7
+IL_MODTREE_MOD_ENCODER = 7
+IL_MODTREE_MOD_NOP     = 7
+
+class MyModuleTree < TreeCtrl
+    def initialize(parent, id,pos, size,style)
+        super(parent, id, pos, size, style)
+	end
+end
+
+class MyFrame < Frame
+
+	def initialize(frame,title,x,y,w,h)
+		super(frame, -1, title, Point.new(x, y), Size.new(w, h))
+
+		# Reduce flicker on scroll
+		set_background_colour(Colour.new(255, 255, 255))
+
+        # Give it an icon
+        set_icon(Icon.new(File.join(MSFBASEDIR, 'data', 'msfwx', 'msfwx.xpm')))
+		
+		evt_menu(MSF_QUIT)  {on_quit}
+		evt_menu(MSF_ABOUT) {on_about}
+		
+		my_create_module_tree()
+	end
+
+	def on_quit
+		close(TRUE)
+	end
+	
+	def on_about
+		message_box("Metasploit Framework GUI", "About Metasploit Framework", OK|CENTRE)
+	end
+	
+	def my_create_module_tree()
+		tree_style = 
+			TR_DEFAULT_STYLE | 
+			SUNKEN_BORDER |
+#			TR_TWIST_BUTTONS |
+#			TR_HAS_BUTTONS |
+			TR_NO_LINES |
+			TR_FULL_ROW_HIGHLIGHT 			
+
+		@m_treeCtrl = MyModuleTree.new(
+			self,
+			ModuleTreeCtrl,
+			DEFAULT_POSITION, DEFAULT_SIZE,
+            tree_style
+		)
+		
+		my_load_module_tree()
+		
+=begin     
+		evt_tree_sel_changing(TreeTest_Ctrl) {|event| onSelChanging(event) }
+        evt_tree_key_down(TreeTest_Ctrl) {|event| onTreeKeyDown(event) }
+        evt_tree_item_activated(TreeTest_Ctrl) {|event| onItemActivated(event) }
+        evt_right_dclick {|event| RMouseDClick(event) }		
+        evt_tree_begin_drag(TreeTest_Ctrl) {|event| onBeginDrag(event) }
+        evt_tree_begin_rdrag(TreeTest_Ctrl) {|event| onBeginRDrag(event) }
+        evt_tree_end_drag(TreeTest_Ctrl) {|event| onEndDrag(event) }
+        evt_tree_begin_label_edit(TreeTest_Ctrl) {|event| onBeginLabelEdit(event) }
+        evt_tree_end_label_edit(TreeTest_Ctrl) {|event| onEndLabelEdit(event) }
+        evt_tree_delete_item(TreeTest_Ctrl) {|event| onDeleteItem(event) }
+        evt_tree_set_info(TreeTest_Ctrl) {|event| onSetInfo(event) }
+        evt_tree_item_expanded(TreeTest_Ctrl) {|event| onItemExpanded(event) }
+        evt_tree_item_expanding(TreeTest_Ctrl) {|event| onItemExpanding(event) }
+        evt_tree_item_collapsed(TreeTest_Ctrl) {|event| onItemCollapsed(event) }
+        evt_tree_item_collapsing(TreeTest_Ctrl) {|event| onItemCollapsing(event) }
+        evt_tree_item_right_click(TreeTest_Ctrl) {|event| onItemRightClick(event) }
+        evt_right_up {|event| onRMouseUp(event) }
+=end
+		
+        evt_tree_sel_changed(ModuleTreeCtrl) {|event| on_sel_changed(event) }			
+	end
+	
+	def on_sel_changed(event)
+		if (@m_treeItems.has_key?(event.get_item))
+			p @m_treeItems[ event.get_item ].new.description
+		end
+		event.skip
+	end
+	
+	def my_load_module_tree
+		@m_treeItems  = {}
+		
+		my_load_module_tree_images()
+
+		n_root       = @m_treeCtrl.get_root_item()
+		n_modules    = @m_treeCtrl.append_item(n_root, 'Modules', IL_MODTREE_MODULES)
+		
+		n_exploits   = @m_treeCtrl.append_item(n_modules, 'Exploits', IL_MODTREE_EXPLOITS)
+		n_auxiliary  = @m_treeCtrl.append_item(n_modules, 'Auxiliary', IL_MODTREE_AUXILIARY)
+		n_payloads   = @m_treeCtrl.append_item(n_modules, 'Payloads', IL_MODTREE_PAYLOADS)
+		n_encoders   = @m_treeCtrl.append_item(n_modules, 'Encoders', IL_MODTREE_ENCODERS)
+		n_nops       = @m_treeCtrl.append_item(n_modules, 'Nops', IL_MODTREE_NOPS)				
+
+		@m_treeCtrl.expand(n_modules)
+
+		$framework.exploits.sort.each do |mod, obj|
+			oid = @m_treeCtrl.append_item(n_exploits, obj.new.name, IL_MODTREE_MOD_EXPLOIT)
+			@m_treeItems[oid] = obj
+		end
+
+		$framework.auxiliary.sort.each do |mod, obj|
+			oid = @m_treeCtrl.append_item(n_auxiliary, obj.new.name, IL_MODTREE_MOD_AUXILIARY)
+			@m_treeItems[oid] = obj
+		end
+		
+		$framework.payloads.sort.each do |mod, obj|
+			oid = @m_treeCtrl.append_item(n_payloads, obj.new.name, IL_MODTREE_MOD_PAYLOAD)
+			@m_treeItems[oid] = obj
+		end
+		
+		$framework.encoders.sort.each do |mod, obj|
+			oid = @m_treeCtrl.append_item(n_encoders, obj.new.name, IL_MODTREE_MOD_ENCODER)
+			@m_treeItems[oid] = obj
+		end
+		
+		$framework.nops.sort.each do |mod, obj|
+			oid = @m_treeCtrl.append_item(n_nops, obj.new.name,  IL_MODTREE_MOD_NOP)
+			@m_treeItems[oid] = obj
+		end	
+	end
+	
+	def my_load_module_tree_images
+		isize = 16
+		icons = []
+		icons[IL_MODTREE_MODULES]    = Icon.new(File.join(MSFBASEDIR, 'data', 'msfwx', 'modules.xpm'))
+		icons[IL_MODTREE_EXPLOITS]   = Icon.new(File.join(MSFBASEDIR, 'data', 'msfwx', 'exploits.xpm'))
+		icons[IL_MODTREE_AUXILIARY]  = Icon.new(File.join(MSFBASEDIR, 'data', 'msfwx', 'auxiliary.xpm'))			
+		icons[IL_MODTREE_PAYLOADS]   = Icon.new(File.join(MSFBASEDIR, 'data', 'msfwx', 'payloads.xpm'))
+		icons[IL_MODTREE_ENCODERS]   = Icon.new(File.join(MSFBASEDIR, 'data', 'msfwx', 'encoders.xpm'))	
+		icons[IL_MODTREE_NOPS]       = Icon.new(File.join(MSFBASEDIR, 'data', 'msfwx', 'nops.xpm'))
+		
+		icons[IL_MODTREE_MOD_EXPLOIT] = Icon.new(File.join(MSFBASEDIR, 'data', 'msfwx', 'mod_exploit.xpm'))
+		icons[IL_MODTREE_MOD_PAYLOAD] = Icon.new(File.join(MSFBASEDIR, 'data', 'msfwx', 'mod_payload.xpm'))
+ 
+		# Make an image list containing small icons
+		images = ImageList.new(isize, isize, TRUE)
+		   
+		for i in 0 ... icons.length
+			next if not icons[i]
+			sizeOrig = icons[i].get_width()
+			if isize == sizeOrig
+				images.add(icons[i])
+			else
+				images.add(Bitmap.new(icons[i].convert_to_image.rescale(isize, isize)))
+			end
+		end
+
+		@m_treeCtrl.assign_image_list(images)	
+	end
+	
+	def resize
+ 		size = get_client_size()
+        @m_treeCtrl.set_size_xy(size.x, 2*size.y/3)		
+	end
+end
+
+class MyApp < App
+
+	def on_init()
+	
+		frame = MyFrame.new(nil, "Metasploit Framework v#{MSFVERSION} GUI", -1, -1, 800, 600)
+		frame.create_status_bar(1)
+
+		# Create the file menu
+		file_menu = Menu.new
+		file_menu.append(MSF_QUIT, "&Quit Metasploit Framework")
+
+		help_menu = Menu.new
+		help_menu.append(MSF_ABOUT, "&About", "About the Metasploit Framework")
+
+		# Create the meny bar
+		menu_bar = MenuBar.new
+		menu_bar.append(file_menu, "&File")
+		menu_bar.append(help_menu, "&Help")
+
+		# Associate the menu bar with the frame
+		frame.set_menu_bar(menu_bar)	
+
+        frame.show(TRUE)
+
+        frame.set_status_text(
+			"Loaded " + 
+			$framework.stats.num_exploits.to_s + " exploits, " +
+			$framework.stats.num_payloads.to_s + " payloads, " +
+			$framework.stats.num_encoders.to_s + " encoders, " +
+			$framework.stats.num_nops.to_s + " nops, and " +
+			$framework.stats.num_auxiliary.to_s + " auxiliary"
+		)
+
+        set_top_window(frame)
+	end	
+end
+
+
+app = MyApp.new
+app.main_loop()
