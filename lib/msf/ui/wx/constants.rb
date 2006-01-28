@@ -11,9 +11,11 @@ module Wx
 	end
 	
 	# Menu items in the main application
-	APP_MENU_QUIT  = IDGen.alloc
-	APP_MENU_ABOUT = IDGen.alloc
-
+	APP_MENU_QUIT   = IDGen.alloc
+	APP_MENU_ABOUT  = IDGen.alloc
+	APP_MENU_RELOAD = IDGen.alloc
+	
+	
 	# Tree controls
 	FRAME_TREE_MODULES = IDGen.alloc
 	

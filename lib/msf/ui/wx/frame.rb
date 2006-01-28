@@ -16,13 +16,12 @@ class MyFrame < ::Wx::Frame
         # Give it an icon
         set_icon(@driver.get_icon('msfwx.xpm'))
 		
-		evt_menu(APP_MENU_QUIT)  {on_quit}
-		evt_menu(APP_MENU_ABOUT) {on_about}
+		evt_menu(APP_MENU_QUIT)   {on_quit}
+		evt_menu(APP_MENU_ABOUT)  {on_about}
+		evt_menu(APP_MENU_RELOAD) {on_reload}
 		
 		# Load the module tree
-		::Wx::BusyCursor.busy do |x|
-			my_create_module_tree()
-		end
+		my_create_module_tree()
 	end
 
 	# Shortcut for accessing the framework instance
@@ -36,6 +35,13 @@ class MyFrame < ::Wx::Frame
 	
 	def on_about
 		message_box("Metasploit Framework GUI", "About Metasploit Framework", OK|CENTRE)
+	end
+	
+	def on_reload
+		# XXX actually reload the modules!
+		@m_tree_modules.delete_all_items
+		@m_tree_modules_items = {}
+		my_load_module_tree()
 	end
 	
 	def my_create_module_tree()
@@ -87,46 +93,54 @@ class MyFrame < ::Wx::Frame
 		event.skip
 	end
 	
-	def my_load_module_tree
-		@m_tree_modules_items = {}
-		
-		my_load_module_tree_images()
+	def my_load_module_tree(filter=/.*/)
+	
+		::Wx::BusyCursor.busy do |x|
+			@m_tree_modules_items = {}
 
-		n_root       = @m_tree_modules.get_root_item()
-		n_modules    = @m_tree_modules.append_item(n_root, 'Modules', FRAME_ICONS_MODULES)
-		
-		n_exploits   = @m_tree_modules.append_item(n_modules, 'Exploits', FRAME_ICONS_EXPLOITS)
-		n_auxiliary  = @m_tree_modules.append_item(n_modules, 'Auxiliary', FRAME_ICONS_AUXILIARY)
-		n_payloads   = @m_tree_modules.append_item(n_modules, 'Payloads', FRAME_ICONS_PAYLOADS)
-		n_encoders   = @m_tree_modules.append_item(n_modules, 'Encoders', FRAME_ICONS_ENCODERS)
-		n_nops       = @m_tree_modules.append_item(n_modules, 'Nops', FRAME_ICONS_NOPS)				
+			my_load_module_tree_images()
 
-		@m_tree_modules.expand(n_modules)
+			n_root       = @m_tree_modules.get_root_item()
+			n_modules    = @m_tree_modules.append_item(n_root, 'Modules', FRAME_ICONS_MODULES)
 
-		framework.exploits.sort.each do |mod, obj|
-			oid = @m_tree_modules.append_item(n_exploits, obj.new.name, FRAME_ICONS_MOD_EXPLOIT)
-			@m_tree_modules_items[oid] = obj
-		end
+			n_exploits   = @m_tree_modules.append_item(n_modules, 'Exploits', FRAME_ICONS_EXPLOITS)
+			n_auxiliary  = @m_tree_modules.append_item(n_modules, 'Auxiliary', FRAME_ICONS_AUXILIARY)
+			n_payloads   = @m_tree_modules.append_item(n_modules, 'Payloads', FRAME_ICONS_PAYLOADS)
+			n_encoders   = @m_tree_modules.append_item(n_modules, 'Encoders', FRAME_ICONS_ENCODERS)
+			n_nops       = @m_tree_modules.append_item(n_modules, 'Nops', FRAME_ICONS_NOPS)				
 
-		framework.auxiliary.sort.each do |mod, obj|
-			oid = @m_tree_modules.append_item(n_auxiliary, obj.new.name, FRAME_ICONS_MOD_AUXILIARY)
-			@m_tree_modules_items[oid] = obj
+			@m_tree_modules.expand(n_modules)
+
+			framework.exploits.sort.each do |mod, obj|
+				next if not mod.match(filter)
+				oid = @m_tree_modules.append_item(n_exploits, obj.new.name, FRAME_ICONS_MOD_EXPLOIT)
+				@m_tree_modules_items[oid] = obj
+			end
+
+			framework.auxiliary.sort.each do |mod, obj|
+				next if not mod.match(filter)
+				oid = @m_tree_modules.append_item(n_auxiliary, obj.new.name, FRAME_ICONS_MOD_AUXILIARY)
+				@m_tree_modules_items[oid] = obj
+			end
+
+			framework.payloads.sort.each do |mod, obj|
+				next if not mod.match(filter)
+				oid = @m_tree_modules.append_item(n_payloads, obj.new.name, FRAME_ICONS_MOD_PAYLOAD)
+				@m_tree_modules_items[oid] = obj
+			end
+
+			framework.encoders.sort.each do |mod, obj|
+				next if not mod.match(filter)			
+				oid = @m_tree_modules.append_item(n_encoders, obj.new.name, FRAME_ICONS_MOD_ENCODER)
+				@m_tree_modules_items[oid] = obj
+			end
+
+			framework.nops.sort.each do |mod, obj|
+				next if not mod.match(filter)
+				oid = @m_tree_modules.append_item(n_nops, obj.new.name,  FRAME_ICONS_MOD_NOP)
+				@m_tree_modules_items[oid] = obj
+			end
 		end
-		
-		framework.payloads.sort.each do |mod, obj|
-			oid = @m_tree_modules.append_item(n_payloads, obj.new.name, FRAME_ICONS_MOD_PAYLOAD)
-			@m_tree_modules_items[oid] = obj
-		end
-		
-		framework.encoders.sort.each do |mod, obj|
-			oid = @m_tree_modules.append_item(n_encoders, obj.new.name, FRAME_ICONS_MOD_ENCODER)
-			@m_tree_modules_items[oid] = obj
-		end
-		
-		framework.nops.sort.each do |mod, obj|
-			oid = @m_tree_modules.append_item(n_nops, obj.new.name,  FRAME_ICONS_MOD_NOP)
-			@m_tree_modules_items[oid] = obj
-		end	
 	end
 	
 	def my_load_module_tree_images

@@ -13,7 +13,7 @@ class MyApp < ::Wx::App
 		@driver = $wxdriver
 		@frame  = MyFrame.new(
 			nil, 
-			"Metasploit @framework v#{Msf::Framework::Version} GUI", 
+			"Metasploit Framework v#{Msf::Framework::Version} GUI", 
 			-1, 
 			-1,
 			800, 
@@ -25,10 +25,11 @@ class MyApp < ::Wx::App
 
 		# Create the file menu
 		file_menu = ::Wx::Menu.new
-		file_menu.append(APP_MENU_QUIT, "&Quit Metasploit @framework")
+		file_menu.append(APP_MENU_RELOAD, "&Reload Modules")
+		file_menu.append(APP_MENU_QUIT, "&Quit Metasploit Framework")
 
 		help_menu = ::Wx::Menu.new
-		help_menu.append(APP_MENU_ABOUT, "&About", "About the Metasploit @framework")
+		help_menu.append(APP_MENU_ABOUT, "&About", "About the Metasploit Framework")
 
 		# Create the meny bar
 		menu_bar = ::Wx::MenuBar.new

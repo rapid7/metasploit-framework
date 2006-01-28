@@ -11,11 +11,12 @@ require 'msf/ui'
 
 begin
 	require 'wxruby'
-	require 'msf/ui/wx'
 rescue ::Exception => e
 	$stderr.puts "[*] The msfwx interface requires the wxruby package"
 	exit(0)
 end
+
+require 'msf/ui/wx'
 
 
 # Declare the argument parser for msfwx
