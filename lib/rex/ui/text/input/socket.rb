@@ -33,7 +33,42 @@ class Input::Socket < Rex::Ui::Text::Input
 	# Wait for a line of input to be read from a socket.
 	#
 	def gets
-		return @sock.gets
+	
+		# Initialize the line buffer
+		line = ''
+		
+		# Read data one byte at a time until we see a LF
+		while (true)
+
+			break if line.include?("\n")
+			
+			# Read another character of input
+			char = @sock.getc
+			
+			# Telnet sends 0x04 as EOF
+			if (char == 4)
+				@sock.write("[*] Caught ^D, closing the socket...\n")
+				@sock.close
+				return
+			end
+			
+			# Append this character to the string
+			line << char
+
+			# Handle telnet sequences
+			case line
+				when /\xff\xf4\xff\xfd\x06/
+					@sock.write("[*] Caught ^C, closing the socket...\n")
+					@sock.close
+					return
+					
+				when /\xff\xed\xff\xfd\x06/
+					@sock.write("[*] Caught ^Z\n")
+					return		
+			end
+		end
+		
+		return line
 	end
 
 	#
@@ -42,7 +77,6 @@ class Input::Socket < Rex::Ui::Text::Input
 	def _print_prompt(prompt)
 		@sock.write(prompt)
 		@sock.flush
-		prompt
 	end
 
 	#

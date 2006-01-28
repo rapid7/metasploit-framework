@@ -33,13 +33,12 @@ module Stream
 	#
 	def write(buf, opts = {})
 		tsent = 0
-
+		bidx  = 0
+		
 		begin
-			while (buf.length > 0)
-				sent = fd.syswrite(buf.slice(0, 32768))
-
-				buf.slice!(0, sent) if (sent > 0)
-
+			while (bidx < buf.length)
+				sent  = fd.syswrite(buf[bidx, 32768])
+				bidx  += sent if sent > 0
 				tsent += sent
 			end
 		rescue IOError
@@ -142,19 +141,19 @@ module Stream
 	def put(buf, opts = {})
 		return 0 if (buf == nil or buf.length == 0)
 
-		send_buf = buf.dup()
-		send_len = send_buf.length
+		send_len = buf.length
+		send_idx = 0
 		wait     = opts['Timeout'] || 0
 
 		# Keep writing until our send length drops to zero
-		while (send_len > 0)
-			curr_len  = timed_write(send_buf, wait, opts)
+		while (send_idx < send_len)
+			curr_len  = timed_write(buf[send_idx, buf.length-send_idx], wait, opts)
 
 			# If the write operation failed due to an IOError, then we fail.
 			return buf.length - send_len if (curr_len == nil)
 
 			send_len -= curr_len
-			send_buf.slice!(0, curr_len)
+			send_idx += curr_len
 		end
 
 		return buf.length - send_len
