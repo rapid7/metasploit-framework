@@ -43,10 +43,10 @@ End
 			'Indent' => 4)
 
 		dstr = <<End 
-	col1     col2     col3     
-	----     ----     ----     
-	r1cell1  r1cell2  r1cell3  
-	r2cell1  r2cell2  r2cell3  
+    col1     col2     col3     
+    ----     ----     ----     
+    r1cell1  r1cell2  r1cell3  
+    r2cell1  r2cell2  r2cell3  
 End
 
 		assert_equal(tbl.to_s, dstr)
