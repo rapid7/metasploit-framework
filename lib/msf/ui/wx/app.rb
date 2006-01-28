@@ -4,21 +4,16 @@ module Wx
 
 class MyApp < ::Wx::App
 	
-	# Provide a shortcut for accessing the driver.framework instance
-	def framework
-		@driver.framework
-	end
-	
+	include Msf::Ui::Wx::MyControls
+
 	def on_init()
-		@driver = $wxdriver
 		@frame  = MyFrame.new(
 			nil, 
 			"Metasploit Framework v#{Msf::Framework::Version} GUI", 
 			-1, 
 			-1,
 			800, 
-			600, 
-			@driver
+			600
 		)
 		
 		@frame.create_status_bar(1)

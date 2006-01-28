@@ -3,30 +3,29 @@ module Ui
 module Wx
 
 class MyFrame < ::Wx::Frame
-	
-	def initialize(frame, title, x, y, w, h, driver)
-		super(frame, -1, title, ::Wx::Point.new(x, y), ::Wx::Size.new(w, h))
 
-		# Keep a reference to the driver instance
-		@driver = driver
+	include Msf::Ui::Wx::MyControls
+	
+	attr_reader :m_panel
+	
+	def initialize(frame, title, x, y, w, h)
+		super(frame, -1, title, ::Wx::Point.new(x, y), ::Wx::Size.new(w, h))
 		
 		# Reduce flicker on scroll
 		set_background_colour(::Wx::Colour.new(255, 255, 255))
 
         # Give it an icon
-        set_icon(@driver.get_icon('msfwx.xpm'))
+        set_icon(driver.get_icon('msfwx.xpm'))
 		
+		# Add handlers for the menu items
 		evt_menu(APP_MENU_QUIT)   {on_quit}
 		evt_menu(APP_MENU_ABOUT)  {on_about}
 		evt_menu(APP_MENU_RELOAD) {on_reload}
 		
-		# Load the module tree
-		my_create_module_tree()
-	end
+		# Create 
+		@m_panel = MyPanel.new( self, 10, 10, 300, 100 )
 
-	# Shortcut for accessing the framework instance
-	def framework
-		@driver.framework
+		my_create_module_tree()
 	end
 	
 	def on_quit
@@ -34,12 +33,20 @@ class MyFrame < ::Wx::Frame
 	end
 	
 	def on_about
-		message_box("Metasploit Framework GUI", "About Metasploit Framework", OK|CENTRE)
+        dialog = ::Wx::MessageDialog.new(
+			self, 
+			"The is the Metasploit Framework Wx Interface.\n\n",
+			"About the Metasploit Framework", 
+			::Wx::OK
+		)
+
+        dialog.show_modal()
 	end
 	
 	def on_reload
 		# XXX actually reload the modules!
-		@m_tree_modules.delete_all_items
+		@m_tree_modules_exploits.delete_all_items
+		@m_tree_modules_payloads.delete_all_items
 		@m_tree_modules_items = {}
 		my_load_module_tree()
 	end
@@ -53,14 +60,36 @@ class MyFrame < ::Wx::Frame
 			::Wx::TR_FULL_ROW_HIGHLIGHT |
 			::Wx::TR_DEFAULT_STYLE 			
 
-		@m_tree_modules = Msf::Ui::Wx::MyControls::MyModuleTree.new(
-			self,
+		@m_tree_modules_exploits = Msf::Ui::Wx::MyControls::MyModuleTree.new(
+			@m_panel.m_panel_exploits,
 			FRAME_TREE_MODULES,
 			::Wx::DEFAULT_POSITION, 
 			::Wx::DEFAULT_SIZE,
             tree_style
 		)
-		
+
+		@m_tree_modules_payloads = Msf::Ui::Wx::MyControls::MyModuleTree.new(
+			@m_panel.m_panel_payloads,
+			FRAME_TREE_MODULES,
+			::Wx::DEFAULT_POSITION, 
+			::Wx::DEFAULT_SIZE,
+            tree_style
+		)
+				
+		c = ::Wx::LayoutConstraints.new
+		c.top.same_as( @m_panel.m_panel_exploits, ::Wx::LAYOUT_TOP, 2 )
+		c.height.percent_of( @m_panel.m_panel_exploits, ::Wx::LAYOUT_BOTTOM, 95 )
+		c.left.same_as( @m_panel.m_panel_exploits, ::Wx::LAYOUT_LEFT, 2 )
+		c.width.percent_of( @m_panel.m_panel_exploits, ::Wx::LAYOUT_WIDTH, 99 )
+		@m_tree_modules_exploits.set_constraints(c)
+
+		c = ::Wx::LayoutConstraints.new
+		c.top.same_as( @m_panel.m_panel_payloads, ::Wx::LAYOUT_TOP, 2 )
+		c.height.percent_of( @m_panel.m_panel_payloads, ::Wx::LAYOUT_BOTTOM, 95 )
+		c.left.same_as( @m_panel.m_panel_payloads, ::Wx::LAYOUT_LEFT, 2 )
+		c.width.percent_of( @m_panel.m_panel_payloads, ::Wx::LAYOUT_WIDTH, 99 )
+		@m_tree_modules_payloads.set_constraints(c)
+				
 		my_load_module_tree()
 		
 =begin     
@@ -88,7 +117,7 @@ class MyFrame < ::Wx::Frame
 
 	def on_sel_changed(event)
 		if (@m_tree_modules_items.has_key?(event.get_item))
-			p @m_tree_modules_items[ event.get_item ].new.description
+			log("User selected module " + @m_tree_modules_items[ event.get_item ].refname)
 		end
 		event.skip
 	end
@@ -100,83 +129,98 @@ class MyFrame < ::Wx::Frame
 
 			my_load_module_tree_images()
 
-			n_root       = @m_tree_modules.get_root_item()
-			n_modules    = @m_tree_modules.append_item(n_root, 'Modules', FRAME_ICONS_MODULES)
-
-			n_exploits   = @m_tree_modules.append_item(n_modules, 'Exploits', FRAME_ICONS_EXPLOITS)
-			n_auxiliary  = @m_tree_modules.append_item(n_modules, 'Auxiliary', FRAME_ICONS_AUXILIARY)
-			n_payloads   = @m_tree_modules.append_item(n_modules, 'Payloads', FRAME_ICONS_PAYLOADS)
-			n_encoders   = @m_tree_modules.append_item(n_modules, 'Encoders', FRAME_ICONS_ENCODERS)
-			n_nops       = @m_tree_modules.append_item(n_modules, 'Nops', FRAME_ICONS_NOPS)				
-
-			@m_tree_modules.expand(n_modules)
+			# Load the exploit modules
+			n_root       = @m_tree_modules_exploits.get_root_item()
+			n_modules    = @m_tree_modules_exploits.append_item(n_root, 'Exploits', FRAME_ICONS_MODULES)			
+			n_exploits   = @m_tree_modules_exploits.append_item(n_modules, 'Standard', FRAME_ICONS_EXPLOITS)
+			n_auxiliary  = @m_tree_modules_exploits.append_item(n_modules, 'Auxiliary', FRAME_ICONS_AUXILIARY)
 
 			framework.exploits.sort.each do |mod, obj|
 				next if not mod.match(filter)
-				oid = @m_tree_modules.append_item(n_exploits, obj.new.name, FRAME_ICONS_MOD_EXPLOIT)
+				oid = @m_tree_modules_exploits.append_item(n_exploits, obj.new.name, FRAME_ICONS_MOD_EXPLOIT)
 				@m_tree_modules_items[oid] = obj
 			end
 
 			framework.auxiliary.sort.each do |mod, obj|
 				next if not mod.match(filter)
-				oid = @m_tree_modules.append_item(n_auxiliary, obj.new.name, FRAME_ICONS_MOD_AUXILIARY)
+				oid = @m_tree_modules_exploits.append_item(n_auxiliary, obj.new.name, FRAME_ICONS_MOD_AUXILIARY)
 				@m_tree_modules_items[oid] = obj
 			end
+			
+			@m_tree_modules_exploits.expand(n_modules)
 
+
+			# Load the non-exploit modules
+			n_root       = @m_tree_modules_payloads.get_root_item()
+			n_modules    = @m_tree_modules_payloads.append_item(n_root, 'Modules', FRAME_ICONS_MODULES)			
+			n_payloads   = @m_tree_modules_payloads.append_item(n_modules, 'Payloads', FRAME_ICONS_PAYLOADS)
+			n_encoders   = @m_tree_modules_payloads.append_item(n_modules, 'Encoders', FRAME_ICONS_ENCODERS)
+			n_nops       = @m_tree_modules_payloads.append_item(n_modules, 'Nops', FRAME_ICONS_NOPS)
+			
+			
 			framework.payloads.sort.each do |mod, obj|
 				next if not mod.match(filter)
-				oid = @m_tree_modules.append_item(n_payloads, obj.new.name, FRAME_ICONS_MOD_PAYLOAD)
+				oid = @m_tree_modules_payloads.append_item(n_payloads, obj.new.name, FRAME_ICONS_MOD_PAYLOAD)
 				@m_tree_modules_items[oid] = obj
 			end
 
 			framework.encoders.sort.each do |mod, obj|
 				next if not mod.match(filter)			
-				oid = @m_tree_modules.append_item(n_encoders, obj.new.name, FRAME_ICONS_MOD_ENCODER)
+				oid = @m_tree_modules_payloads.append_item(n_encoders, obj.new.name, FRAME_ICONS_MOD_ENCODER)
 				@m_tree_modules_items[oid] = obj
 			end
 
 			framework.nops.sort.each do |mod, obj|
 				next if not mod.match(filter)
-				oid = @m_tree_modules.append_item(n_nops, obj.new.name,  FRAME_ICONS_MOD_NOP)
+				oid = @m_tree_modules_payloads.append_item(n_nops, obj.new.name,  FRAME_ICONS_MOD_NOP)
 				@m_tree_modules_items[oid] = obj
 			end
+			
+			@m_tree_modules_exploits.expand(n_modules)
+
 		end
+
 	end
 	
 	def my_load_module_tree_images
 		isize = 16
 		icons = []
 		
-		icons[FRAME_ICONS_MODULES]    = @driver.get_icon('modules.xpm')
-		icons[FRAME_ICONS_EXPLOITS]   = @driver.get_icon('exploits.xpm')
-		icons[FRAME_ICONS_AUXILIARY]  = @driver.get_icon('auxiliary.xpm')			
-		icons[FRAME_ICONS_PAYLOADS]   = @driver.get_icon('payloads.xpm')
-		icons[FRAME_ICONS_ENCODERS]   = @driver.get_icon('encoders.xpm')
-		icons[FRAME_ICONS_NOPS]       = @driver.get_icon('nops.xpm')
+		icons[FRAME_ICONS_MODULES]    = driver.get_icon('modules.xpm')
+		icons[FRAME_ICONS_EXPLOITS]   = driver.get_icon('exploits.xpm')
+		icons[FRAME_ICONS_AUXILIARY]  = driver.get_icon('auxiliary.xpm')			
+		icons[FRAME_ICONS_PAYLOADS]   = driver.get_icon('payloads.xpm')
+		icons[FRAME_ICONS_ENCODERS]   = driver.get_icon('encoders.xpm')
+		icons[FRAME_ICONS_NOPS]       = driver.get_icon('nops.xpm')
 	
-		icons[FRAME_ICONS_MOD_EXPLOIT] = @driver.get_icon('mod_exploit.xpm')
-		icons[FRAME_ICONS_MOD_PAYLOAD] = @driver.get_icon('mod_payload.xpm')
+		icons[FRAME_ICONS_MOD_EXPLOIT] = driver.get_icon('mod_exploit.xpm')
+		icons[FRAME_ICONS_MOD_PAYLOAD] = driver.get_icon('mod_payload.xpm')
  
 		# Make an image list containing small icons
-		images = ::Wx::ImageList.new(isize, isize, TRUE)
-		   
+		exploit_images = ::Wx::ImageList.new(isize, isize, TRUE)
+		payload_images = ::Wx::ImageList.new(isize, isize, TRUE)
+				   
 		for i in 0 ... icons.length
 			next if not icons[i]
 			sizeOrig = icons[i].get_width()
 			
 			if isize == sizeOrig
-				images.add(icons[i])
+				exploit_images.add(icons[i])
+				payload_images.add(icons[i])
 			else
-				images.add(::Wx::Bitmap.new(icons[i].convert_to_image.rescale(isize, isize)))
+				exploit_images.add(::Wx::Bitmap.new(icons[i].convert_to_image.rescale(isize, isize)))
+				payload_images.add(::Wx::Bitmap.new(icons[i].convert_to_image.rescale(isize, isize)))
 			end
 		end
 
-		@m_tree_modules.assign_image_list(images)	
+		@m_tree_modules_exploits.assign_image_list(exploit_images)
+		@m_tree_modules_payloads.assign_image_list(payload_images)
 	end
 	
 	def resize
  		size = get_client_size()
-        @m_tree_modules.set_size_xy(size.x, 2*size.y/3)		
+        @m_tree_modules_exploits.set_size_xy(size.x, 2*size.y/3)
+		@m_tree_modules_payloads.set_size_xy(size.x, 2*size.y/3)
 	end	
 end
 
