@@ -55,7 +55,7 @@ class MyFrame < ::Wx::Frame
 		tree_style = 
 #			::Wx::TR_TWIST_BUTTONS |
 #			::Wx::TR_HAS_BUTTONS |		
-			::Wx::SUNKEN_BORDER |
+			::Wx::TR_HIDE_ROOT |
 			::Wx::TR_NO_LINES |
 			::Wx::TR_FULL_ROW_HIGHLIGHT |
 			::Wx::TR_DEFAULT_STYLE 			
@@ -117,7 +117,7 @@ class MyFrame < ::Wx::Frame
 
 	def on_sel_changed(event)
 		if (@m_tree_modules_items.has_key?(event.get_item))
-			log("User selected module " + @m_tree_modules_items[ event.get_item ].refname)
+			@m_panel.on_module_select(@m_tree_modules_items[ event.get_item ])
 		end
 		event.skip
 	end
