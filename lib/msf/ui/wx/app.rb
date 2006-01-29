@@ -12,8 +12,8 @@ class MyApp < ::Wx::App
 			"Metasploit Framework v#{Msf::Framework::Version} GUI", 
 			-1, 
 			-1,
-			800, 
-			600
+			1024, 
+			768
 		)
 		
 		@frame.create_status_bar(1)

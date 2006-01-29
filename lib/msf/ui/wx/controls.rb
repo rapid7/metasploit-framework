@@ -44,8 +44,6 @@ class MyPanel < ::Wx::Panel
     def initialize(frame,x,y,w,h)
         super( frame, -1, ::Wx::Point.new(x, y), ::Wx::Size.new(w, h) )
 		
-		set_auto_layout( TRUE )
-		
 		@m_size_panelv  = ::Wx::BoxSizer.new( ::Wx::VERTICAL )
 		@m_size_panelh  = ::Wx::BoxSizer.new( ::Wx::HORIZONTAL )
 		
@@ -53,12 +51,11 @@ class MyPanel < ::Wx::Panel
 		@m_panel_info   = ::Wx::Panel.new( self )
 		@m_note_console = ::Wx::Notebook.new(self, NOTE_CONSOLE)		
 
-	
+		@m_panel_info.set_background_colour(::Wx::Colour.new('gray'))
+
 		# Create the module pages
 		@m_panel_exploits = ::Wx::Panel.new(@m_note_modules)
 		@m_panel_payloads = ::Wx::Panel.new(@m_note_modules)
-		#@m_panel_encoders = ::Wx::Panel.new(@m_note_modules)
-		#@m_panel_nops = ::Wx::Panel.new(@m_note_modules)
 		
 		@m_note_modules.add_page(@m_panel_exploits, 'Exploits')
 		@m_note_modules.add_page(@m_panel_payloads, 'Payloads')	
@@ -70,7 +67,7 @@ class MyPanel < ::Wx::Panel
 		@m_note_console.add_page(@m_panel_log, 'Logs')
 		@m_note_console.add_page(@m_panel_con, 'Console')
 
-
+		# Create the log text control
 		c = ::Wx::LayoutConstraints.new
 		c.top.same_as( @m_panel_log, ::Wx::LAYOUT_TOP, 2 )
 		c.height.percent_of( @m_panel_log, ::Wx::LAYOUT_BOTTOM, 95 )
@@ -82,34 +79,55 @@ class MyPanel < ::Wx::Panel
 			"",
 			::Wx::Point.new(0, 250), 
 			::Wx::Size.new(100, 50), 
-			::Wx::TE_MULTILINE | ::Wx::TE_READONLY
+			::Wx::NO_BORDER |
+			::Wx::TE_READONLY |
+			::Wx::TE_MULTILINE 
 		)
-		@m_text_log.set_background_colour(::Wx::Colour.new("wheat"))
 		@m_text_log.set_constraints(c)
 		
 		# Set the global logger instance
 		$wxlogger = @m_text_log
 		
+		# Create the console text control
+		c = ::Wx::LayoutConstraints.new
+		c.top.same_as( @m_panel_con, ::Wx::LAYOUT_TOP, 2 )
+		c.height.percent_of( @m_panel_con, ::Wx::LAYOUT_BOTTOM, 95 )
+		c.left.same_as( @m_panel_con, ::Wx::LAYOUT_LEFT, 2 )
+		c.width.percent_of( @m_panel_con, ::Wx::LAYOUT_WIDTH, 99 )
+		
+        @m_text_con = ::Wx::TextCtrl.new(
+			@m_panel_con, -1,
+			"",
+			::Wx::Point.new(0, 250), 
+			::Wx::Size.new(100, 50), 
+			::Wx::NO_BORDER |
+			::Wx::TE_READONLY |
+			::Wx::TE_MULTILINE 
+		)
+		@m_text_con.set_constraints(c)
+		@m_text_con.append_text("*** The console has not been implemented yet\n msf> ")
+		
 		
 		# Configure auto-layout
 		[
+			self,
 			@m_panel_info,
 			@m_panel_exploits,
 			@m_panel_payloads,
 			@m_panel_log,
 			@m_panel_con
 		].each { |panel| panel.set_auto_layout( TRUE ) }
-			
+		
+		# Add each panel or notebook to the size
 		@m_size_panelv.add(@m_note_modules)
 		@m_size_panelv.add(@m_panel_info)
 		@m_size_panelv.add(@m_note_console)
 			
+		# Configure the sizer
 		set_sizer(@m_size_panelv)
 		
+		# Add the event hook
 		evt_size {|event| on_size(event) }
-			
-
-       
 	end
 	
 	
@@ -120,16 +138,15 @@ class MyPanel < ::Wx::Panel
 		b = 4	
 		
 		if (@m_note_modules)
-			@m_note_modules.set_dimensions( b, b, percent(33, x)-b, percent(80, y)-b )
+			@m_note_modules.set_dimensions( b, b, percent(33, x)-b, percent(70, y)-b )
 		end
 		
 		if (@m_panel_info)
-			@m_panel_info.set_dimensions( percent(33, x)+b, b, percent(67, x), percent(80, y))
+			@m_panel_info.set_dimensions( percent(33, x)+b, b, percent(67, x), percent(70, y))
 		end
 		
 		if (@m_note_console)
-			@m_note_console.set_dimensions( b, percent(80, y)+b, x-b, percent(20, y)-b )
-			# @m_text_log.set_dimensions( b, percent(80, y)+b, x-b, percent(20, y)-b )
+			@m_note_console.set_dimensions( b, percent(70, y)+b, x-b, percent(30, y)-b )
 		end		
 	end	
 	
