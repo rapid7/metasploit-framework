@@ -141,6 +141,7 @@ case cmd
 		buf = input.readlines.join
 		
 		encoders.each { |enc|
+			next if not enc
 			begin
 				# Imports options
 				enc.datastore.import_options_from_s(options)
