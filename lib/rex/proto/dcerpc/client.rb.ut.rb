@@ -20,7 +20,6 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 		mock_unmake() # always do this, just to be sure.  yes, it slows it down.  but... 
 
 		if (force_mock or !$_REX_TEST_NO_MOCK)
-			warn 'MOCKING'
 			mock_make(read,write)
 		end 
 	end
