@@ -9,13 +9,14 @@ require 'rex/socket/tcp'
 class Rex::Socket::UnitTest < Test::Unit::TestCase
 
 	def test_create
-		serv = TCPServer.new('127.0.0.1', 65432)
+		port = 64442
+		serv = TCPServer.new('127.0.0.1', port)
 
 		sock = nil
 		assert_nothing_raised {
 			sock = Rex::Socket.create(
 				'PeerHost' => '127.0.0.1',
-				'PeerPort' => 65432,
+				'PeerPort' => port,
 				'Proto'    => 'tcp')
 		}
 		assert_kind_of(Rex::Socket::Tcp, sock, "socket factory creation")
@@ -24,7 +25,7 @@ class Rex::Socket::UnitTest < Test::Unit::TestCase
 		assert_nothing_raised {
 			sock = Rex::Socket.create_tcp(
 				'PeerHost' => '127.0.0.1',
-				'PeerPort' => 65432)
+				'PeerPort' => port)
 		}
 		assert_kind_of(Rex::Socket::Tcp, sock, "tcp socket factory creation")
 
