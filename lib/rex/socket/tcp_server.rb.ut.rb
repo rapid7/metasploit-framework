@@ -31,6 +31,10 @@ class Rex::Socket::TcpServer::UnitTest < Test::Unit::TestCase
 
 			assert_equal(2, scli.put("Yo"), "scli: put Yo")
 			assert_equal("Yo", ccli.get(), "ccli: get Yo")
+			assert(scli.methods.include?('<<'))
+			assert(scli.methods.include?('>>'))
+			assert(scli.methods.include?('has_read_data?'))
+			
 		ensure
 			ccli.close if (ccli)
 			serv.close
