@@ -2,50 +2,62 @@
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 
-require 'rex'
 require 'test/unit'
-require 'rex/socket/tcp'
+require 'rex'
 
 class Rex::Socket::Tcp::UnitTest < Test::Unit::TestCase
 
 	def test_tcp
-		serv_port = 65433
-		serv = TCPServer.new('127.0.0.1', serv_port)
-		t = nil
+		port = 65434
+		listener = Rex::Socket.create_tcp_server( 'LocalPort' => port )
+		client = nil
 
 		begin
 			# Connect to the temp server
 			assert_nothing_raised {
-				t = Rex::Socket.create_tcp(
+				client = Rex::Socket.create_tcp(
 					'PeerHost' => '127.0.0.1',
-					'PeerPort' => serv_port)
+					'PeerPort' => port)
 			}
-			assert_kind_of(Rex::Socket::Tcp, t, "valid tcp socket")
-			assert_equal('127.0.0.1', t.peerhost, "matching peerhost")
-			assert_equal(serv_port, t.peerport, "matching peerport")
+
+			assert_kind_of(Rex::Socket::Tcp, client, 'kindof?')
+			assert_equal('127.0.0.1', client.peerhost, 'peerhost')
+			assert_equal(port, client.peerport, 'peerport')
 
 			# Accept the client connection
-			serv_con = serv.accept
-			assert_kind_of(TCPSocket, serv_con, "valid server socket connection")
+			server = listener.accept
+			assert_kind_of(Socket, server, "valid server socket connection")
 
-			assert_equal(5, t.write("test\n"), "cli: write test")
-			assert_equal("test\n", serv_con.recv(5), "srv: read test")
-			assert_equal(10, serv_con.send("A" * 10, 10), "srv: write A*10")
-			assert_equal("A" * 10, t.get, "cli: gobble A*10")
-			assert_equal(5, t << "test\n", "cli: << test")
-			assert_equal("test\n", serv_con.recv(5), "srv: read test (2)")
-			assert_equal(5, serv_con.send("testa", 6), "srv: write testa (3)")
-			assert_equal(true, t.has_read_data?(1), "cli: poll read")
-			assert_equal("testa", t.get, "cli: gobble testa")
-			assert_equal(true, t.shutdown(::Socket::SHUT_RD), "cli: shutdown read")
-			assert_equal(true, t.shutdown(::Socket::SHUT_WR), "cli: shutdown read")
+			# do all of the tests, once for each side
+			{ 'c/s' => [client, server], 's/c' => [server, client] }.each_pair { |mode, sockets|
+				a = sockets[0]
+				b = sockets[1]
+
+				string = "test\n"
+				assert_equal(false, a.has_read_data?(1), "#{mode} : has_read_data?, no data")
+				assert_equal(string.length, b.write(string), "#{mode} : write")
+				assert_equal(true, a.has_read_data?(1), "#{mode} : has_read_data?, with data")
+				assert_equal(string, a.recv(string.length), "#{mode} : recv")
+
+				string = "string\rtest\nwith\x00null"
+				assert_equal(string.length, a << string, "#{mode} : append")
+				tmp = ''; tmp = b.>>
+				assert_equal(string, tmp, "#{mode} : append (reverse)")
+
+				string = "\x00foobar\x00"
+				assert_equal(string.length, a.send(string, 0), "#{mode} : send")
+				assert_equal(string, b.get(), "#{mode} : get")
+			}
+
+			assert_equal(true, client.shutdown(::Socket::SHUT_RD), 'client: shutdown read handle')
+			assert_equal(true, client.shutdown(::Socket::SHUT_WR), 'client: shutdown write handle')
 			assert_nothing_raised {
-				t.close
-				t = nil
+				client.close
+				client = nil
 			}
 		ensure
-			t.close if (t)
-			serv.close
+			client.close if (client)
+			listener.close
 		end
 	end
 
