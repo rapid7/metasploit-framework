@@ -8,7 +8,7 @@ require 'rex/socket/tcp'
 class Rex::Socket::Tcp::UnitTest < Test::Unit::TestCase
 
 	def test_tcp
-		serv_port = 65432
+		serv_port = 65433
 		serv = TCPServer.new('127.0.0.1', serv_port)
 		t = nil
 
