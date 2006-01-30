@@ -152,6 +152,8 @@ class Packet
 	                when 'deflate'
 	                    self.headers['Content-Encoding'] = 'deflate'
 	                    content = Rex::Text.zlib_deflate(content)
+					when 'none'
+						# this one is fine...
 	                # when 'compress'
 	                else
 	                    raise RuntimeError, 'Invalid Content-Encoding'
