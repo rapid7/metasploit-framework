@@ -10,7 +10,7 @@ require 'rex/socket/comm/local'
 class Rex::Socket::Comm::Local::UnitTest < Test::Unit::TestCase
 
 	def test_create_tcp
-		test_port   = 65432
+		test_port   = 64432
 		test_server = TCPServer.new('127.0.0.1', test_port)
 
 		# Create a stream connection to the stub listener
@@ -46,7 +46,7 @@ class Rex::Socket::Comm::Local::UnitTest < Test::Unit::TestCase
 			Rex::Socket::Comm::Local.create(
 				Rex::Socket::Parameters.from_hash(
 					'PeerHost' => '127.0.0.1',
-					'PeerPort' => 0,
+					'PeerPort' => 1,
 					'Proto'    => 'tcp',
 					'Bare'     => true))
 		}
