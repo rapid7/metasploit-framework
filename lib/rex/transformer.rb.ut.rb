@@ -3,6 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..'))
 
 require 'test/unit'
+require 'rex/exceptions'
 require 'rex/transformer'
 
 class Rex::Transformer::UnitTest < Test::Unit::TestCase
