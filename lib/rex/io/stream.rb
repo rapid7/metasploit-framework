@@ -107,6 +107,13 @@ module Stream
 	end
 
 	#
+	# This method calls get_once() to read pending data from the socket
+	#
+	def >>
+		get_once
+	end
+	
+	#
 	# This method writes to the stream, optionally timing out after a period of
 	# time.
 	#

@@ -2,6 +2,7 @@
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 
+require 'rex'
 require 'test/unit'
 require 'rex/socket/tcp'
 
