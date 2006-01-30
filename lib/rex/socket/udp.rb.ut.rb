@@ -8,7 +8,7 @@ require 'rex/socket/udp'
 class Rex::Socket::Udp::UnitTest < Test::Unit::TestCase
 
 	def test_udp
-		serv_port = 65432
+		serv_port = 55432
 		serv = Rex::Socket::Udp.create(
 			'LocalHost' => '127.0.0.1',
 			'LocalPort' => serv_port)
