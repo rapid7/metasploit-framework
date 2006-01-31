@@ -7,6 +7,15 @@ require 'rex/text'
 
 class Rex::Text::UnitTest < Test::Unit::TestCase
 
+	def test_rand_text
+		srand(0)
+		assert_equal("\254/u\300C\373\303g\t\323", Rex::Text.rand_text(10), 'rand text 1')
+		assert_equal("\025\362$WF\330X\214:\301", Rex::Text.rand_text(10), 'rand text 2')
+		assert_equal("\346'W\256XQ\245\031MH", Rex::Text.rand_text(10), 'rand text 3')
+		assert_equal('bababbabba', Rex::Text.rand_text(10, nil, 'ab'), 'rand text with specified "good"')
+	end
+
+
 	def test_unicode
 		assert_equal("a\x00b\x00c\x00", Rex::Text.to_unicode('abc'), 'unicode, little endian')
 		assert_equal("\x00a\x00b\x00c", Rex::Text.to_unicode('abc', 1), 'unicode, big endian')
