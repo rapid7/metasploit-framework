@@ -14,27 +14,27 @@ class Rex::Socket::Udp::UnitTest < Test::Unit::TestCase
 			'LocalPort' => serv_port)
 
 		begin
-		  assert_kind_of(Rex::Socket::Udp, serv, "valid Udp server instance")
+			assert_kind_of(Rex::Socket::Udp, serv, "valid Udp server instance")
 
-		  # Test connected socket
-		  concli = Rex::Socket::Udp.create(
-			  'PeerHost' => '127.0.0.1',
-			  'PeerPort' => serv_port)
+			# Test connected socket
+			concli = Rex::Socket::Udp.create(
+				'PeerHost' => '127.0.0.1',
+				'PeerPort' => serv_port)
 
-		  assert_equal('127.0.0.1', concli.peerhost, "matching peerhost")
-		  assert_equal(serv_port, concli.peerport, "matching peerport")
-		  assert_equal(2, concli.write('yo'), "write succeeded")
+			assert_equal('127.0.0.1', concli.peerhost, "matching peerhost")
+			assert_equal(serv_port, concli.peerport, "matching peerport")
+			assert_equal(2, concli.write('yo'), "write succeeded")
 
-		  data, host, port = serv.recvfrom
+			data, host, port = serv.recvfrom
 
-		  assert_equal('yo', data, "read data match")
-		  assert_equal('127.0.0.1', host, "matching client host")
+			assert_equal('yo', data, "read data match")
+			assert_equal('127.0.0.1', host, "matching client host")
 
 			# Test non-connected socket
 			concli = Rex::Socket::Udp.create
 
 			assert_equal(3, concli.sendto('bob', '127.0.0.1', serv_port), "sendto")
-		   data, host, port = serv.recvfrom
+			data, host, port = serv.recvfrom
 			assert_equal('bob', data, "read data match")
 		ensure
 			serv.close
