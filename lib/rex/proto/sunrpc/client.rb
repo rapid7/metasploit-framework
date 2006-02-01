@@ -162,7 +162,7 @@ class Client
 	end
 	
 	def Client.recv_rpc(sock)
-		buf = sock.get_once(-1, 5)
+		buf = sock.get(5)
 		buf.slice!(0..3)
 		if sock.type?.eql?('tcp')
 			buf.slice!(0..3)
