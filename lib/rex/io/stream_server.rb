@@ -161,7 +161,14 @@ protected
 			sd = Rex::ThreadSafe.select(clients)
 
 			sd[0].each { |fd|
-				on_client_data(fd)
+				begin
+					on_client_data(fd)
+				rescue
+					elog("Error in stream server client monitor: #{$!}")
+					rlog(ExceptionCallStack)
+				ensure
+					close_client(fd)
+				end
 			}
 		rescue
 			elog("Error in stream server client monitor: #{$!}")
