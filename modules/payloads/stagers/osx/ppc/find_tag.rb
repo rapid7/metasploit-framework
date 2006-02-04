@@ -33,6 +33,7 @@ module FindTag
 				{
 					'Offsets' =>
 						{
+							'TAG' => [ 54, 'RAW' ],
 						},
 					'Payload' =>
 						"\x3b\xa0\x0f\xff\x3b\xc0\x0f\xff\x37\x9d\xf0\x02\x7f\xdc\xf0\x51" +
@@ -43,6 +44,19 @@ module FindTag
 				}
 			))
 	end
+	
+	#
+	# Replace the TAG handler to just use two bytes
+	#
+	def replace_var(raw, name, offset, pack)
+		if (name == 'TAG')
+			$stderr.puts "Replacing #{offset.to_s} " + raw[offset,2].unpack("H*")[0]
+			raw[offset, 2] = datastore[name][0,2]
+			return true
+		end
+
+		return false
+	end	
 
 end
 
