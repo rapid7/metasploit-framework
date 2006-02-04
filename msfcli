@@ -61,9 +61,11 @@ if (exploit == nil)
 	usage("Invalid exploit: #{exploit_name}")
 end
 
-# Initialize the user interface
-exploit.init_ui($stdout, $stdin)
-
+exploit.init_ui(
+	Rex::Ui::Text::Input::Stdio.new, 
+	Rex::Ui::Text::Output::Stdio.new
+)
+			
 # Evalulate the command (default to "help")
 mode = ARGV.pop || 'h'
 
@@ -88,11 +90,6 @@ case mode.downcase
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_exploit_targets(exploit, Indent))
 	when "c"
 		begin
-			exploit.init_ui(
-				Rex::Ui::Text::Input::Stdio.new, 
-				Rex::Ui::Text::Output::Stdio.new
-			)
-			
 			if (code = exploit.check)
 				stat = (code == Msf::Exploit::CheckCode::Vulnerable) ? '[+]' : '[*]'
 	
