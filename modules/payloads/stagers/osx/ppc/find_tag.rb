@@ -50,7 +50,6 @@ module FindTag
 	#
 	def replace_var(raw, name, offset, pack)
 		if (name == 'TAG')
-			$stderr.puts "Replacing #{offset.to_s} " + raw[offset,2].unpack("H*")[0]
 			raw[offset, 2] = datastore[name][0,2]
 			return true
 		end
