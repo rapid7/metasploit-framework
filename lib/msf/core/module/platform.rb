@@ -380,7 +380,15 @@ class Msf::Module::Platform
 		Rank = 100
 		Alias = "hpux"
 	end
-		
+	
+	#
+	# Irix
+	#
+	class Irix < Msf::Module::Platform
+		Rank = 100
+		Alias = "irix"
+	end
+	
 	#
 	# Generic Unix
 	#
