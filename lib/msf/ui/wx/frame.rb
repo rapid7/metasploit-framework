@@ -47,6 +47,9 @@ class MyFrame < ::Wx::Frame
 		# XXX actually reload the modules!
 		@m_tree_modules_exploits.delete_all_items
 		@m_tree_modules_payloads.delete_all_items
+		@m_tree_modules_sessions.delete_all_items
+		@m_tree_modules_jobs.delete_all_items
+		
 		@m_tree_modules_items = {}
 		my_load_module_tree()
 	end
@@ -62,7 +65,7 @@ class MyFrame < ::Wx::Frame
 
 		@m_tree_modules_exploits = Msf::Ui::Wx::MyControls::MyModuleTree.new(
 			@m_panel.m_panel_exploits,
-			FRAME_TREE_MODULES,
+			FRAME_TREE_MODULES_EXPLOITS,
 			::Wx::DEFAULT_POSITION, 
 			::Wx::DEFAULT_SIZE,
             tree_style
@@ -70,12 +73,28 @@ class MyFrame < ::Wx::Frame
 
 		@m_tree_modules_payloads = Msf::Ui::Wx::MyControls::MyModuleTree.new(
 			@m_panel.m_panel_payloads,
-			FRAME_TREE_MODULES,
+			FRAME_TREE_MODULES_PAYLOADS,
 			::Wx::DEFAULT_POSITION, 
 			::Wx::DEFAULT_SIZE,
             tree_style
 		)
-				
+
+		@m_tree_modules_sessions = Msf::Ui::Wx::MyControls::MyModuleTree.new(
+			@m_panel.m_panel_sessions,
+			FRAME_TREE_MODULES_SESSIONS,
+			::Wx::DEFAULT_POSITION, 
+			::Wx::DEFAULT_SIZE,
+            tree_style
+		)
+		
+		@m_tree_modules_jobs = Msf::Ui::Wx::MyControls::MyModuleTree.new(
+			@m_panel.m_panel_jobs,
+			FRAME_TREE_MODULES_JOBS,
+			::Wx::DEFAULT_POSITION, 
+			::Wx::DEFAULT_SIZE,
+            tree_style
+		)
+								
 		c = ::Wx::LayoutConstraints.new
 		c.top.same_as( @m_panel.m_panel_exploits, ::Wx::LAYOUT_TOP, 2 )
 		c.height.percent_of( @m_panel.m_panel_exploits, ::Wx::LAYOUT_BOTTOM, 95 )
@@ -89,7 +108,21 @@ class MyFrame < ::Wx::Frame
 		c.left.same_as( @m_panel.m_panel_payloads, ::Wx::LAYOUT_LEFT, 2 )
 		c.width.percent_of( @m_panel.m_panel_payloads, ::Wx::LAYOUT_WIDTH, 99 )
 		@m_tree_modules_payloads.set_constraints(c)
-				
+
+		c = ::Wx::LayoutConstraints.new
+		c.top.same_as( @m_panel.m_panel_sessions, ::Wx::LAYOUT_TOP, 2 )
+		c.height.percent_of( @m_panel.m_panel_sessions, ::Wx::LAYOUT_BOTTOM, 95 )
+		c.left.same_as( @m_panel.m_panel_sessions, ::Wx::LAYOUT_LEFT, 2 )
+		c.width.percent_of( @m_panel.m_panel_sessions, ::Wx::LAYOUT_WIDTH, 99 )
+		@m_tree_modules_sessions.set_constraints(c)
+		
+		c = ::Wx::LayoutConstraints.new
+		c.top.same_as( @m_panel.m_panel_jobs, ::Wx::LAYOUT_TOP, 2 )
+		c.height.percent_of( @m_panel.m_panel_jobs, ::Wx::LAYOUT_BOTTOM, 95 )
+		c.left.same_as( @m_panel.m_panel_jobs, ::Wx::LAYOUT_LEFT, 2 )
+		c.width.percent_of( @m_panel.m_panel_jobs, ::Wx::LAYOUT_WIDTH, 99 )
+		@m_tree_modules_jobs.set_constraints(c)
+								
 		my_load_module_tree()
 		
 =begin     
@@ -112,16 +145,49 @@ class MyFrame < ::Wx::Frame
         evt_right_up {|event| onRMouseUp(event) }
 =end
 		
-        evt_tree_sel_changed(FRAME_TREE_MODULES) {|event| on_sel_changed(event) }			
+        evt_tree_sel_changed(FRAME_TREE_MODULES_EXPLOITS) {|event| on_sel_changed_exploits(event) }			
+        evt_tree_sel_changed(FRAME_TREE_MODULES_PAYLOADS) {|event| on_sel_changed_payloads(event) }			
+        evt_tree_sel_changed(FRAME_TREE_MODULES_SESSIONS) {|event| on_sel_changed_sessions(event) }			
+        evt_tree_sel_changed(FRAME_TREE_MODULES_JOBS) {|event| on_sel_changed_jobs(event) }
+								
 	end
 
-	def on_sel_changed(event)
+	def on_sel_changed_exploits(event)
+		if (@m_tree_modules_items.has_key?(event.get_item))
+			@m_panel.on_module_select(@m_tree_modules_items[ event.get_item ])
+		end
+		event.skip
+	end
+
+	def on_sel_changed_payloads(event)
 		if (@m_tree_modules_items.has_key?(event.get_item))
 			@m_panel.on_module_select(@m_tree_modules_items[ event.get_item ])
 		end
 		event.skip
 	end
 	
+	def on_dclick_exploits(event)
+		if (@m_tree_modules_items.has_key?(event.get_item))
+			@m_panel.on_module_dclick(@m_tree_modules_items[ event.get_item ])
+		end
+		event.skip
+	end
+
+	def on_dclick_payloads(event)
+		if (@m_tree_modules_items.has_key?(event.get_item))
+			@m_panel.on_module_dclick(@m_tree_modules_items[ event.get_item ])
+		end
+		event.skip
+	end
+		
+	def on_sel_changed_sessions(event)
+		event.skip
+	end
+	
+	def on_sel_changed_jobs(event)
+		event.skip
+	end
+				
 	def my_load_module_tree(filter=/.*/)
 	
 		::Wx::BusyCursor.busy do |x|
@@ -177,7 +243,19 @@ class MyFrame < ::Wx::Frame
 			end
 			
 			@m_tree_modules_exploits.expand(n_modules)
+			
+			# Load the sessions list
+			n_root       = @m_tree_modules_sessions.get_root_item()
+			n_sessions   = @m_tree_modules_sessions.append_item(n_root, 'Sessions', FRAME_ICONS_MODULES)
+			n_shells     = @m_tree_modules_sessions.append_item(n_sessions, 'Shell Sessions', FRAME_ICONS_EXPLOITS)
+			@m_tree_modules_sessions.expand(n_sessions)
 
+			# Load the jobs list
+			n_root       = @m_tree_modules_jobs.get_root_item()
+			n_jobs       = @m_tree_modules_jobs.append_item(n_root, 'Jobs', FRAME_ICONS_MODULES)
+			n_passive    = @m_tree_modules_jobs.append_item(n_jobs, 'Passive Exploits', FRAME_ICONS_EXPLOITS)
+			n_auxiliary  = @m_tree_modules_jobs.append_item(n_jobs, 'Auxiliary Modules', FRAME_ICONS_AUXILIARY)
+			@m_tree_modules_jobs.expand(n_jobs)
 		end
 
 	end
@@ -196,10 +274,13 @@ class MyFrame < ::Wx::Frame
 		icons[FRAME_ICONS_MOD_EXPLOIT] = driver.get_icon('mod_exploit.xpm')
 		icons[FRAME_ICONS_MOD_PAYLOAD] = driver.get_icon('mod_payload.xpm')
  
+ 		# XXXX We need a unique ImageList for every TreeView or we SEGV on cleanup!!!
 		# Make an image list containing small icons
 		exploit_images = ::Wx::ImageList.new(isize, isize, TRUE)
 		payload_images = ::Wx::ImageList.new(isize, isize, TRUE)
-				   
+		session_images = ::Wx::ImageList.new(isize, isize, TRUE)
+		job_images = ::Wx::ImageList.new(isize, isize, TRUE)
+		
 		for i in 0 ... icons.length
 			next if not icons[i]
 			sizeOrig = icons[i].get_width()
@@ -207,20 +288,28 @@ class MyFrame < ::Wx::Frame
 			if isize == sizeOrig
 				exploit_images.add(icons[i])
 				payload_images.add(icons[i])
+				session_images.add(icons[i])
+				job_images.add(icons[i])
 			else
 				exploit_images.add(::Wx::Bitmap.new(icons[i].convert_to_image.rescale(isize, isize)))
 				payload_images.add(::Wx::Bitmap.new(icons[i].convert_to_image.rescale(isize, isize)))
+				session_images.add(::Wx::Bitmap.new(icons[i].convert_to_image.rescale(isize, isize)))
+				job_images.add(::Wx::Bitmap.new(icons[i].convert_to_image.rescale(isize, isize)))				
 			end
 		end
 
 		@m_tree_modules_exploits.assign_image_list(exploit_images)
 		@m_tree_modules_payloads.assign_image_list(payload_images)
+		@m_tree_modules_sessions.assign_image_list(session_images)
+		@m_tree_modules_jobs.assign_image_list(job_images)
 	end
 	
 	def resize
  		size = get_client_size()
         @m_tree_modules_exploits.set_size_xy(size.x, 2*size.y/3)
 		@m_tree_modules_payloads.set_size_xy(size.x, 2*size.y/3)
+		@m_tree_modules_sessions.set_size_xy(size.x, 2*size.y/3)
+		@m_tree_modules_jobs.set_size_xy(size.x, 2*size.y/3)	
 	end	
 end
 

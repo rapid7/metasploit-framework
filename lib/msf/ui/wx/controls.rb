@@ -32,6 +32,11 @@ module MyControls
 class MyModuleTree < ::Wx::TreeCtrl
     def initialize(parent, id,pos, size,style)
         super(parent, id, pos, size, style)
+		evt_left_dclick { |event| on_dclick(event) }
+	end
+	
+	def on_dclick(event)
+#		$stderr.puts "Double clicked!"
 	end
 end
 
@@ -39,7 +44,7 @@ end
 class MyPanel < ::Wx::Panel
 
 	attr_reader :m_note_modules, :m_note_console, :m_panel_exploits, :m_panel_payloads
-	attr_reader :m_panel_encoders, :m_nops
+	attr_reader :m_panel_encoders, :m_panel_sessions, :m_panel_jobs, :m_nops
 
     def initialize(frame,x,y,w,h)
         super( frame, -1, ::Wx::Point.new(x, y), ::Wx::Size.new(w, h) )
@@ -53,7 +58,7 @@ class MyPanel < ::Wx::Panel
 
 		@m_panel_info.set_background_colour(::Wx::Colour.new('gray'))
 
-		# Create the module pages
+		# Create the tabbed tree view pages
 		@m_panel_exploits = ::Wx::Panel.new(@m_note_modules)
 		@m_panel_payloads = ::Wx::Panel.new(@m_note_modules)
 		@m_panel_sessions = ::Wx::Panel.new(@m_note_modules)
@@ -61,7 +66,7 @@ class MyPanel < ::Wx::Panel
 		
 		@m_note_modules.add_page(@m_panel_exploits, 'Exploits')
 		@m_note_modules.add_page(@m_panel_payloads, 'Payloads')	
-		@m_note_modules.add_page(@m_panel_sessions, 'Sessions')	
+		@m_note_modules.add_page(@m_panel_sessions, 'Sessions')
 		@m_note_modules.add_page(@m_panel_jobs, 'Jobs')	
 	
 		# Create the info pages
@@ -73,7 +78,6 @@ class MyPanel < ::Wx::Panel
 		@m_note_console.add_page(@m_panel_inf, 'Information')
 		@m_note_console.add_page(@m_panel_log, 'Attack Log')
 		@m_note_console.add_page(@m_panel_con, 'Console')
-
 
 		# Create the information text control
 		c = ::Wx::LayoutConstraints.new
@@ -134,12 +138,14 @@ class MyPanel < ::Wx::Panel
 		@m_text_con.append_text("*** The console has not been implemented yet\n msf> ")
 		
 		
-		# Configure auto-layout
+		# Configure auto-layout (ADD EVERY PANEL TO THIS!)
 		[
 			self,
 			@m_panel_info,
 			@m_panel_exploits,
 			@m_panel_payloads,
+			@m_panel_sessions,
+			@m_panel_jobs,
 			@m_panel_log,
 			@m_panel_con,
 			@m_panel_inf
@@ -174,7 +180,11 @@ class MyPanel < ::Wx::Panel
 
 		@m_text_inf.write_text(buff)
 	end
-	
+
+	def on_module_dclick(mod)	
+		Wx::MessageBox.new("You clicked on #{mod.refname}")
+	end
+		
 	def on_size(event)
 		size = get_client_size()
 		x = size.get_width

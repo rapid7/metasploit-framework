@@ -16,8 +16,11 @@ module Wx
 	APP_MENU_RELOAD = IDGen.alloc
 	
 	# Tree controls
-	FRAME_TREE_MODULES = IDGen.alloc
-	
+	FRAME_TREE_MODULES_EXPLOITS = IDGen.alloc
+	FRAME_TREE_MODULES_PAYLOADS = IDGen.alloc
+	FRAME_TREE_MODULES_SESSIONS = IDGen.alloc
+	FRAME_TREE_MODULES_JOBS     = IDGen.alloc
+				
 	# Notebook contrls
 	NOTE_MODULES = IDGen.alloc
 	NOTE_CONSOLE = IDGen.alloc
