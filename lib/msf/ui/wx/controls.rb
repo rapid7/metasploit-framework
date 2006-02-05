@@ -57,10 +57,12 @@ class MyPanel < ::Wx::Panel
 		@m_panel_exploits = ::Wx::Panel.new(@m_note_modules)
 		@m_panel_payloads = ::Wx::Panel.new(@m_note_modules)
 		@m_panel_sessions = ::Wx::Panel.new(@m_note_modules)
+		@m_panel_jobs     = ::Wx::Panel.new(@m_note_modules)
 		
 		@m_note_modules.add_page(@m_panel_exploits, 'Exploits')
 		@m_note_modules.add_page(@m_panel_payloads, 'Payloads')	
 		@m_note_modules.add_page(@m_panel_sessions, 'Sessions')	
+		@m_note_modules.add_page(@m_panel_jobs, 'Jobs')	
 	
 		# Create the info pages
 		@m_panel_inf = ::Wx::Panel.new(@m_note_console)
