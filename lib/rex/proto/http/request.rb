@@ -138,6 +138,20 @@ class Request < Packet
 			str.sub!(/^[\/]+/, '/') # only one beginning slash!
 		end
 
+		# / can't be encoded on most web servers...
+		if self.uri_encode_mode
+			case self.uri_encode_mode
+				when 'hex-all'
+					str = escape(str, 1).gsub!(/%2f/i, '/')
+				when 'hex-normal'
+					str = escape(str).gsub!(/%2f/i, '/')
+				when 'u-normal'
+					str = escape(str).gsub!(/%2f/i, '/').gsub!(/%/,'%u00')
+				when 'u-all'
+					str = escape(str, 1).gsub!(/%2f/i, '/').gsub!(/%/,'%u00')
+			end
+		end
+
 		if !PostRequests.include?(self.method)
 			if param_string.size > 0
 				str += '?' + param_string
@@ -295,6 +309,9 @@ class Request < Packet
 	
 	# add junk pipeline requests
 	attr_accessor :junk_pipeline
+
+	# encoding uri 
+	attr_accessor :uri_encode_mode
 
 protected
 
