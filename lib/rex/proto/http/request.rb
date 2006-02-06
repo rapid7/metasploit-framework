@@ -12,6 +12,8 @@ module Http
 ###
 class Request < Packet
 
+	PostRequests = ['POST', 'SEARCH']
+
 	##
 	#
 	# Some individual request types.
@@ -136,7 +138,7 @@ class Request < Packet
 			str.sub!(/^[\/]+/, '/') # only one beginning slash!
 		end
 
-		if self.method != 'POST' 
+		if !PostRequests.include?(self.method)
 			if param_string.size > 0
 				str += '?' + param_string
 			end
@@ -210,7 +212,7 @@ class Request < Packet
 			return str
 		end
 		
-		if self.method == 'POST'
+		if PostRequests.include?(self.method)
 			return param_string
 		end
 		''

@@ -124,7 +124,6 @@ class Rex::Proto::Http::Request::UnitTest < Test::Unit::TestCase
 	end
 
 	def test_junk_params
-		return
 		srand(0)
 		h = junk_request
 		
@@ -132,10 +131,13 @@ class Rex::Proto::Http::Request::UnitTest < Test::Unit::TestCase
 		h.uri_parts['QueryString']['a'] = 'b'
 		h.uri_parts['QueryString']['c'] = 'd'
 
-		assert_equal('foo', h.to_s, 'junk params (GET)')
+		assert_equal("GET /foo/bar.html?eZUhlXbdhzzW=HpxJATk&UwDqBU=EQwvK&oebrfUGJbvjTMSxKih=MkBx&nYkjF=DiohcEa&tzJFh=eIUHDVbs&a=b&UHTfAFbreJT=VlcIruAo&mZKziXgT=z&hsytpEdbRjC=tPkpE&yNetXi=JaaW&PiazmuQvoAKLNHeGt=ePpmrS&c=d&BpCycOlbkfdyudyhMgpQCIzKwabBAFYiP=ulrTYGUG&zGCccmlFtJkNVfRjtzIZVtlWQZulBFGMa=OIHtFvqDKybZDOS&ERFeYDFokx=YhShOxHruwhRdMugizXZuyrpuAMJSEHDwMltwtSzxHaxudDKUqBUQqycaXwC&JCspZkaEpKM=hlnghajZyYSUecISZYnqcYSDsTtAKDGbjGTiyymUrAktp&hMPhXMF=BKGGmmLyVyyzCMdJzIFrBrPMvMVSZNecspVGkwoaeFP HTTP/1.0\r\nFoo: Bar\r\nContent-Length: 0\r\n\r\n", h.to_s, 'junk params (GET)')
 
 		h.method = 'POST'
-		assert_equal('foo', h.to_s, 'junk params (POST)')
+		assert_equal("POST /foo/bar.html HTTP/1.0\r\nFoo: Bar\r\nContent-Length: 591\r\n\r\nxfgwQgKMdA=WTFkTkFc&axTMmHQdAXPKDDQwJ=lwRJs&PmOhEQkHXbuHWieQbvv=LXO&eaiRjHtwlENl=rIgR&kBdFQmoWeT=UqKDW&a=b&dpoRzoqedheulYQ=ndBX&AXlvaZZGYPlpR=w&uFTvWtLLhHawHvgk=XVC&KFmmkBkFFmjYx=yJExY&CTDNLNkRaGviVUqRlZV=kEviLihu&c=d&LhZhftGZYtmzQXaDaudCF=HPOjnHzmzdxLDNYEzWdmLOSZsDlHdOLJLQnBScAVYJISLczRPDqYVcVOvBMLZn&atiBQBQhhsmoINqT=gXEfWAlfPTPzMtKpQGVeDQABygrSSWPPcHbYYMNSOOUHsrbsPXLNdfu&EcBxxXQpawCvRUmAGsWPKio=VigqsjpnbwKERDleXdmeLCdHzJXAwRozVeaPwRKRDnJ&DHQiEakGgRlbzOWfIdcfiRcvQIsHMgUrLd=AUtcNlvnyEuMlwEpkQSleujwAxJyhwxMGzkjmkeyTmsjO&zRDdbDhzbkVnqKdxdYyQAkiNBCCTMenVNx=zMxABkKqgcCcBNTvRkHGJPSdqSCdRjT",h.to_s, 'junk params (POST)')
+
+		h.method = 'SEARCH'
+		assert_equal("SEARCH /foo/bar.html HTTP/1.0\r\nFoo: Bar\r\nContent-Length: 522\r\n\r\nMjtCUDRsmqKl=vbEzWljeH&YvPKTNnlnSHYg=ovkqQaoQ&geUXPsTibtiRXbNwXeF=nhxicBEVIy&jwjZFB=HBBH&kNsybgrTitkQwq=rDITuAUgir&a=b&YCHsLzcfBQ=SOV&vFhqCboTPHsdjhwxQYFz=RtgW&mJFMqQ=EZ&tRdGcKFkkUyyWKreOzw=BoHFPpgXO&dzZEAaU=YREgxR&c=d&kfeJswjgOXgcrh=usIlCRPDVwydlWSHxaEtZazvTOSgbkmUsDSNzxfhSMvbniHetQBYQtb&yYwMEwzuoO=KbOmNEWPdOqZLfbWurUCZAfuGSWuZNMlTfcTooZvdcqKURAnmiBwWt&xWncBVCgyGmjkXzSmZuPxbVBJzRLADk=TvFUEpQQFgWDIcpKmcfsLibxH&mFJYMohOtPEW=CHtIFnPPpZWZZTdJLjanSIBjyxuKKYfrbNOFXqnxlmLrYRVeSZdlxoxqf&LOgBBkZMIyMY=DKHcOIujjRXMtHvuneTqtyBr", h.to_s, 'junk params (SEARCH)')
 	end
 
 	def test_junk_pipelining
