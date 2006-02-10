@@ -17,8 +17,13 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 
 
 	def test_unicode
-		assert_equal("a\x00b\x00c\x00", Rex::Text.to_unicode('abc'), 'unicode, little endian')
-		assert_equal("\x00a\x00b\x00c", Rex::Text.to_unicode('abc', 1), 'unicode, big endian')
+		assert_equal("a\x00b\x00c\x00", Rex::Text.to_unicode('abc'), 'unicode, default = little endian')
+		assert_equal("a\x00b\x00c\x00", Rex::Text.to_unicode('abc', 'utf-16le'), 'utf-16le')
+		assert_equal("\x00a\x00b\x00c", Rex::Text.to_unicode('abc', 'utf-16be'), 'utf-16be')
+		assert_equal("a\x00\x00\x00b\x00\x00\x00c\x00\x00\x00", Rex::Text.to_unicode('abc', 'utf-32le'), 'utf-32le')
+		assert_equal("\x00\x00\x00a\x00\x00\x00b\x00\x00\x00c", Rex::Text.to_unicode('abc', 'utf-32be'), 'utf-32be')
+		assert_equal("abc+-abc-+AAA-", Rex::Text.to_unicode("abc+abc-\x00", 'utf-7'), 'utf-7')
+		assert_equal("+AGE-+AGI-+AGM-+ACs-+AGE-+AGI-+AGM-+AC0-+AAA-", Rex::Text.to_unicode("abc+abc-\x00", 'utf-7-all'), 'utf-7-all')
 	end
 
 	def test_zlib

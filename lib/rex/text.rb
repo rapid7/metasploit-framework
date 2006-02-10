@@ -122,12 +122,35 @@ module Text
 	# a marker to specify that the unicode text being provided is in
 	# big-endian.  Use 0xFEFF, which is not a "legal" unicode code point.
 	#
-	def self.to_unicode(str='', endian = nil)
-		if endian.nil?
-			return str.unpack('C*').pack('v*')
-		else 
-			return str.unpack('C*').pack('n*')
-		end
+	def self.to_unicode(str='', mode = 'utf-16le')
+		case mode
+			when 'utf-16le'
+				return str.unpack('C*').pack('v*')
+			when 'utf-16be'
+				return str.unpack('C*').pack('n*')
+			when 'utf-32le'
+				return str.unpack('C*').pack('V*')
+			when 'utf-32be'
+				return str.unpack('C*').pack('N*')
+			when 'utf-7'
+				return str.gsub(/[^\n\r\t\ A-Za-z0-9\'\(\),-.\/\:\?]/){ |a| 
+					out = ''
+					if a != '+'
+						out = encode_base64(to_unicode(a, 'utf-16be')).gsub(/[=\r\n]/, '')
+					end
+					'+' + out + '-'
+				}
+			when 'utf-7-all'
+				return str.gsub(/./){ |a|
+					out = ''
+					if 'a' != '+'
+						out = encode_base64(to_unicode(a, 'utf-16be')).gsub(/[=\r\n]/, '')
+					end
+					'+' + out + '-'
+				}
+			else 
+				raise TypeError, 'invalid utf type'
+			end
 	end
 	
 	#
