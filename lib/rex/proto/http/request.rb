@@ -149,6 +149,8 @@ class Request < Packet
 					str = escape(str).gsub!(/%2f/i, '/').gsub!(/%/,'%u00')
 				when 'u-all'
 					str = escape(str, 1).gsub!(/%2f/i, '/').gsub!(/%/,'%u00')
+				when 'none'
+					# we do nothing here...
 			end
 		end
 
