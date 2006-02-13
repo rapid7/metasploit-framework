@@ -23,7 +23,26 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 		assert_equal("a\x00\x00\x00b\x00\x00\x00c\x00\x00\x00", Rex::Text.to_unicode('abc', 'utf-32le'), 'utf-32le')
 		assert_equal("\x00\x00\x00a\x00\x00\x00b\x00\x00\x00c", Rex::Text.to_unicode('abc', 'utf-32be'), 'utf-32be')
 		assert_equal("abc+-abc-+AAA-", Rex::Text.to_unicode("abc+abc-\x00", 'utf-7'), 'utf-7')
-		assert_equal("+AGE-+AGI-+AGM-+ACs-+AGE-+AGI-+AGM-+AC0-+AAA-", Rex::Text.to_unicode("abc+abc-\x00", 'utf-7-all'), 'utf-7-all')
+		assert_equal("+AGE-+AGI-+AGM-+ACs-+AGE-+AGI-+AGM-+AC0-+AAA-", Rex::Text.to_unicode("abc+abc-\x00", 'utf-7', 'all'), 'utf-7-all')
+
+		assert_equal("a\303\272", Rex::Text.to_unicode("a\xFA", 'utf-8'))
+		assert_equal("\xC1\xA1", Rex::Text.to_unicode('a', 'utf-8', 'overlong', 2), 'utf-8 overlong')
+		assert_equal("\xE0\x81\xA1", Rex::Text.to_unicode('a', 'utf-8', 'overlong', 3), 'utf-8 overlong')
+		assert_equal("\xF0\x80\x81\xA1", Rex::Text.to_unicode('a', 'utf-8', 'overlong', 4), 'utf-8 overlong')
+		assert_equal("\xF8\x80\x80\x81\xA1", Rex::Text.to_unicode('a', 'utf-8', 'overlong', 5), 'utf-8 overlong')
+		assert_equal("\xFC\x80\x80\x80\x81\xA1", Rex::Text.to_unicode('a', 'utf-8', 'overlong', 6), 'utf-8 overlong')
+		assert_equal("\xFE\x80\x80\x80\x80\x81\xA1", Rex::Text.to_unicode('a', 'utf-8', 'overlong', 7), 'utf-8 overlong')
+		100.times {
+			assert(["\xC1\x21","\xC1\x61","\xC1\xE1"].include?(Rex::Text.to_unicode('a', 'utf-8', 'invalid')), 'utf-8 invalid')
+			assert(["\xE0\x01\x21","\xE0\x01\x61","\xE0\x01\xA1","\xE0\x01\xE1","\xE0\x41\x21","\xE0\x41\x61","\xE0\x41\xA1","\xE0\x41\xE1","\xE0\x81\x21","\xE0\x81\x61","\xE0\x81\xA1","\xE0\x81\xE1","\xE0\xC1\x21","\xE0\xC1\x61","\xE0\xC1\xA1","\xE0\xC1\xE1"].include?(Rex::Text.to_unicode('a', 'utf-8', 'invalid', 3)), 'utf-8 invalid 3 byte')
+		}
+
+		assert_raises(TypeError) {
+			Rex::Text.to_unicode('a', 'utf-8', '', 8)
+		}
+		assert_raises(TypeError) {
+			Rex::Text.to_unicode('a', 'utf-8', 'foo', 6)
+		}
 	end
 
 	def test_zlib

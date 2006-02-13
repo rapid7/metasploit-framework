@@ -115,32 +115,37 @@ module Text
 	end
 
 	#
-	# Converts standard ASCII text to 16-bit unicode
+	# Converts standard ASCII text to a unicode string.  
 	#
-	# By default, little-endian unicode.  By providing non-nil value for
-	# endian, convert to 16-bit big-endian unicode.  NOTE, most systems require
-	# a marker to specify that the unicode text being provided is in
-	# big-endian.  Use 0xFEFF, which is not a "legal" unicode code point.
+	# Supported unicode types include: utf-16le, utf16-be, utf32-le, utf32-be, utf-7, and utf-8
+	# 
+	# Providing 'mode' provides hints to the actual encoder as to how it should encode the string.  Only UTF-7 and UTF-8 use "mode".
+	# 
+	# utf-7 by default does not encode alphanumeric and a few other characters.  By specifying the mode of "all", then all of the characters are encoded, not just the non-alphanumeric set.
+	#	to_unicode(str, 'utf-7', 'all')
+	# 
+	# utf-8 specifies that alphanumeric characters are used directly, eg "a" is just "a".  However, there exist 6 different overlong encodings of "a" that are technically not valid, but parse just fine in most utf-8 parsers.  (0xC1A1, 0xE081A1, 0xF08081A1, 0xF8808081A1, 0xFC80808081A1, 0xFE8080808081A1).  How many bytes to use for the overlong enocding is specified providing 'size'.
+	# 	to_unicode(str, 'utf-8', 'overlong', 2)
 	#
-	def self.to_unicode(str='', mode = 'utf-16le')
-		case mode
-			when 'utf-16le'
-				return str.unpack('C*').pack('v*')
-			when 'utf-16be'
-				return str.unpack('C*').pack('n*')
-			when 'utf-32le'
-				return str.unpack('C*').pack('V*')
-			when 'utf-32be'
-				return str.unpack('C*').pack('N*')
-			when 'utf-7'
-				return str.gsub(/[^\n\r\t\ A-Za-z0-9\'\(\),-.\/\:\?]/){ |a| 
-					out = ''
-					if a != '+'
-						out = encode_base64(to_unicode(a, 'utf-16be')).gsub(/[=\r\n]/, '')
-					end
-					'+' + out + '-'
-				}
-			when 'utf-7-all'
+	# Many utf-8 parsers also allow invalid overlong encodings, where bits that are unused when encoding a single byte are modified.  Many parsers will ignore these bits, rendering simple string matching to be ineffective for dealing with UTF-8 strings.  There are many more invalid overlong encodings possible for "a".  For example, three encodings are available for an invalid 2 byte encoding of "a". (0xC1E1 0xC161 0xC121).  By specifying "invalid", a random invalid encoding is chosen for the given byte size.
+	# 	to_unicode(str, 'utf-8', 'invalid', 2)
+	#
+	# utf-7 defaults to 'normal' utf-7 encoding
+	# utf-8 defaults to 2 byte 'normal' encoding
+	# 
+	def self.to_unicode(str='', type = 'utf-16le', mode = '', size = 2)
+		case type 
+		when 'utf-16le'
+			return str.unpack('C*').pack('v*')
+		when 'utf-16be'
+			return str.unpack('C*').pack('n*')
+		when 'utf-32le'
+			return str.unpack('C*').pack('V*')
+		when 'utf-32be'
+			return str.unpack('C*').pack('N*')
+		when 'utf-7'
+			case mode
+			when 'all'
 				return str.gsub(/./){ |a|
 					out = ''
 					if 'a' != '+'
@@ -148,9 +153,82 @@ module Text
 					end
 					'+' + out + '-'
 				}
-			else 
-				raise TypeError, 'invalid utf type'
+			else
+				return str.gsub(/[^\n\r\t\ A-Za-z0-9\'\(\),-.\/\:\?]/){ |a| 
+					out = ''
+					if a != '+'
+						out = encode_base64(to_unicode(a, 'utf-16be')).gsub(/[=\r\n]/, '')
+					end
+					'+' + out + '-'
+				}
 			end
+		when 'utf-8'
+			if size >= 2 and size <= 7
+				string = ''
+				str.each_byte { |a|
+					if a > 0x7f || mode != ''
+						# ugh.  turn a single byte into the binary representation of it, in array form
+						bin = [a].pack('C').unpack('B8')[0].split(//)
+
+						# even more ugh.
+						bin.collect!{|a| a = a.to_i}
+
+						out = Array.new(8 * size, 0)
+
+						0.upto(size - 1) { |i|
+							out[i] = 1
+							out[i * 8] = 1
+						}
+
+						i = 0
+						byte = 0
+						bin.reverse.each { |bit|
+							if i < 6
+								mod = (((size * 8) - 1) - byte * 8) - i
+								out[mod] = bit
+							else 
+								byte = byte + 1
+								i = 0
+								redo
+							end
+							i = i + 1
+						}
+
+						if mode != ''
+							case mode
+							when 'overlong'
+								# do nothing, since we already handle this as above...
+							when 'invalid'
+								done = 0
+								while done == 0
+									bits = [7, 8, 15, 16, 23, 24, 31, 32, 41]
+									bits.each { |bit|
+										bit = (size * 8) - bit
+										if bit > 1
+											set = rand(2)
+											if out[bit] != set
+												out[bit] = set
+												done = 1
+											end
+										end
+									}
+								end
+							else
+								raise TypeError, 'Invalid mode.  Only "overlong" and "invalid" are acceptable modes for utf-8'
+							end
+						end
+						string += [out.join('')].pack('B*')
+					else
+						string += [a].pack('C')
+					end
+				}
+				return string
+			else 
+				raise TypeError, 'invalid utf-8 size'
+			end
+		else 
+			raise TypeError, 'invalid utf type'
+		end
 	end
 	
 	#
