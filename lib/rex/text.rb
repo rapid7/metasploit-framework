@@ -166,7 +166,7 @@ module Text
 			if size >= 2 and size <= 7
 				string = ''
 				str.each_byte { |a|
-					if a > 0x7f || mode != ''
+					if (a < 21 || a > 0x7f) || mode != ''
 						# ugh.  turn a single byte into the binary representation of it, in array form
 						bin = [a].pack('C').unpack('B8')[0].split(//)
 
@@ -201,6 +201,7 @@ module Text
 							when 'invalid'
 								done = 0
 								while done == 0
+									# the ghetto...
 									bits = [7, 8, 15, 16, 23, 24, 31, 32, 41]
 									bits.each { |bit|
 										bit = (size * 8) - bit
