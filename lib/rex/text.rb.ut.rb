@@ -37,6 +37,15 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 			assert(["\xE0\x01\x21","\xE0\x01\x61","\xE0\x01\xA1","\xE0\x01\xE1","\xE0\x41\x21","\xE0\x41\x61","\xE0\x41\xA1","\xE0\x41\xE1","\xE0\x81\x21","\xE0\x81\x61","\xE0\x81\xA1","\xE0\x81\xE1","\xE0\xC1\x21","\xE0\xC1\x61","\xE0\xC1\xA1","\xE0\xC1\xE1"].include?(Rex::Text.to_unicode('a', 'utf-8', 'invalid', 3)), 'utf-8 invalid 3 byte')
 		}
 
+		a = ["\xC1\x21","\xC1\x61","\xC1\xE1"]
+		10.times {
+			encoded = Rex::Text.to_unicode('a', 'utf-8', 'invalid')
+			if a.include?(encoded)
+				a.delete(encoded)
+			end
+		}
+		assert_equal([], a, 'all possible values')
+
 		assert_raises(TypeError) {
 			Rex::Text.to_unicode('a', 'utf-8', '', 8)
 		}
