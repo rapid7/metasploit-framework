@@ -102,30 +102,26 @@ class PayloadSet < ModuleSet
 			_stages.each_pair { |stage_name, p|
 				stage_mod, junk, stage_platform, stage_arch, stage_inst = p
 
-				# No intersection between architectures on the payloads?
-				if ((stager_arch) and
-				    (stage_arch) and
-				    ((stager_arch & stage_arch).empty?))
-					dlog("Stager #{stager_name} and stage #{stage_name} have incompatible architectures: #{stager_arch.join} - #{stage_arch.join}",
-						'core', LEV_2)
-					next
-				end
-
 				# No intersection between platforms on the payloads?
 				if ((stager_platform) and
 				    (stage_platform) and
 				    (stager_platform & stage_platform).empty?)
-					dlog("Stager #{stager_name} and stage #{stage_name} have incompatible platforms: #{stager_platform.names} - #{stage_platform.names}",
-						'core', LEV_2)
+					dlog("Stager #{stager_name} and stage #{stage_name} have incompatible platforms: #{stager_platform.names} - #{stage_platform.names}", 'core', LEV_2)
+					next
+				end
+
+				# No intersection between architectures on the payloads?
+				if ((stager_arch) and
+				    (stage_arch) and
+				    ((stager_arch & stage_arch).empty?))
+					dlog("Stager #{stager_name} and stage #{stage_name} have incompatible architectures: #{stager_arch.join} - #{stage_arch.join}", 'core', LEV_2)
 					next
 				end
 
 				# If the stage has a convention, make sure it's compatible with
 				# the stager's
-				if ((stage_inst) and
-				    (stage_inst.compatible?(stager_inst) == false))
-					dlog("Stager #{stager_name} and stage #{stage_name} are incompatible.",
-						'core', LEV_2)
+				if ((stage_inst) and (stage_inst.compatible?(stager_inst) == false))
+					dlog("Stager #{stager_name} and stage #{stage_name} are incompatible.", 'core', LEV_2)
 					next
 				end
 
@@ -153,7 +149,7 @@ class PayloadSet < ModuleSet
 
 				# Add the stage
 				add_stage(p, combined, stage_name, handler_type)
-			
+		
 				# Cache the payload's size
 				sizes[combined] = p.new.size
 			}
@@ -313,7 +309,7 @@ protected
 		klass = Class.new(Payload)
 
 		# Remove nil modules
-		modules.delete_if { |x| x == nil }
+		modules.compact!
 
 		# Include the modules supplied to us with the mad skillz
 		# spoonfu style
