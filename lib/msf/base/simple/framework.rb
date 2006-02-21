@@ -86,6 +86,11 @@ module Framework
 		# Load the configuration
 		framework.load_config
 
+		# Set the file that will be used to cache information about modules for
+		# the purpose of providing demand-loaded modules.
+		framework.modules.set_module_cache_file(
+			File.join(Msf::Config.config_directory, 'modcache'))
+
 		# Initialize the default module search paths
 		if (Msf::Config.module_directory)
 			framework.modules.add_module_path(Msf::Config.module_directory)

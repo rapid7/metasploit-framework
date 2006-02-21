@@ -51,6 +51,15 @@ class ValidationError < ArgumentError
 	end
 end
 
+###
+#
+# This exception is raised when the module cache is invalidated.  It is
+# handled internally by the ModuleManager.
+#
+###
+class ModuleCacheInvalidated < RuntimeError
+end
+
 ##
 #
 # Encoding exceptions

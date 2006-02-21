@@ -3,6 +3,12 @@ require 'msf/core'
 
 module Msf
 
+#
+# Define used for a place-holder module that is used to indicate that the
+# module has not yet been demand-loaded.
+#
+SymbolicModule = "__SYMBOLIC__"
+
 ###
 #
 # A module set contains zero or more named module classes of an arbitrary
@@ -31,6 +37,31 @@ class ModuleSet < Hash
 	end
 
 	#
+	# Wrapper that detects if a symbolic module is in use.  If it is, it
+	# creates an instance to demand load the module and then returns the
+	# now-loaded class afterwords.
+	#
+	def [](name)
+		if (get_hash_val(name) == SymbolicModule)
+			create(name)
+		end
+
+		get_hash_val(name)
+	end
+
+	#
+	# Returns the hash value associated with the supplied module name without
+	# throwing an exception.
+	#
+	def get_hash_val(name)
+		begin
+			return self.fetch(name)
+		rescue IndexError
+			return nil
+		end
+	end
+
+	#
 	# Create an instance of the supplied module by its name
 	#
 	def create(name)
@@ -39,11 +70,27 @@ class ModuleSet < Hash
 				"The module name #{name} is ambiguous.", caller
 		end
 
-		klass    = self[name]
+		klass    = get_hash_val(name)
 		instance = nil
 
+		# If there is no module associated with this class, then try to demand
+		# load it.
+		if (klass.nil? or klass == SymbolicModule)
+			# If we are the root module set, then we need to try each module
+			# type's demand loading until we find one that works for us.
+			if (module_type.nil?)
+				MODULE_TYPES.each { |type|
+					framework.modules.demand_load_module(type + '/' + name)
+				}
+			else
+				framework.modules.demand_load_module(module_type + '/' + name)
+			end
+
+			klass = get_hash_val(name)
+		end
+
 		# If the klass is valid for this name, try to create it
-		if (klass)
+		if (klass and klass != SymbolicModule)
 			instance = klass.new
 		end
 
@@ -59,6 +106,9 @@ class ModuleSet < Hash
 	# Checks to see if the supplied module name is valid.
 	#
 	def valid?(name)
+		# If we're using cache, then we need to pre-create an instance of this.
+		create(name) if (using_cache)
+
 		(self[name]) ? true : false
 	end
 
@@ -66,6 +116,8 @@ class ModuleSet < Hash
 	# Enumerates each module class in the set.
 	#
 	def each_module(opts = {}, &block)
+		demand_load_modules
+
 		mod_sorted = self.sort if (mod_sorted == nil)
 		
 		each_module_list(mod_sorted, opts, &block)
@@ -76,6 +128,8 @@ class ModuleSet < Hash
 	# to one another.  Modules that are ranked higher are shown first.
 	#
 	def each_module_ranked(opts = {}, &block)
+		demand_load_modules
+
 		mod_ranked = rank_modules if (mod_ranked == nil)
 
 		each_module_list(mod_ranked, opts, &block)
@@ -97,7 +151,38 @@ class ModuleSet < Hash
 
 	attr_reader   :module_type
 
+	#
+	# Whether or not recalculations should be postponed.  This is used from the
+	# context of the each_module_list handler in order to prevent the demand
+	# loader from calling recalc for each module if it's possible that more
+	# than one module may be loaded.  This field is not initialized until used.
+	#
+	attr_accessor :postpone_recalc
+
 protected
+
+	#
+	# Load all modules that are marked as being symbolic.
+	#
+	def demand_load_modules
+		# Pre-scan the module list for any symbolic modules
+		self.each_pair { |name, mod|
+			if (mod == SymbolicModule)
+				self.postpone_recalc = true
+
+				mod = create(name)
+
+				next if (mod.nil?)
+			end
+		}
+
+		# If we found any symbolic modules, then recalculate.
+		if (self.postpone_recalc)
+			self.postpone_recalc = false
+
+			recalculate
+		end
+	end
 
 	#
 	# Enumerates the modules in the supplied array with possible limiting
@@ -106,6 +191,9 @@ protected
 	def each_module_list(ary, opts, &block)
 		ary.each { |entry|
 			name, mod = entry
+
+			# Skip any lingering symbolic modules.
+			next if (mod == SymbolicModule)
 
 			# Filter out incompatible architectures
 			if (opts['Arch'])
@@ -153,7 +241,7 @@ protected
 	#
 	# Adds a module with a the supplied name.
 	#
-	def add_module(module_class, name, file_path = nil)
+	def add_module(module_class, name, modinfo = nil)
 		# Duplicate the module class so that we can operate on a
 		# framework-specific copy of it.
 		dup = module_class.dup
@@ -162,19 +250,22 @@ protected
 		# instances are created.
 		dup.framework = framework
 		dup.refname   = name
-		dup.file_path = file_path
+		dup.file_path = modinfo and modinfo['files'] ? modinfo['files'][0] : nil
 		dup.orig_cls  = module_class
 
-		if (self[name])
+		if (get_hash_val(name) and get_hash_val(name) != SymbolicModule)
 			mod_ambiguous[name] = true
 
 			wlog("The module #{dup.refname} is ambiguous with #{self[name].refname}.")
 		else
 			self[name] = dup
 		end
+
+		# Add this module to the module cache for this type
+		framework.modules.cache_module(dup)
 	
 		# Invalidate the sorted array
-		invalidate_cache
+		invalidate_sorted_cache
 
 		# Return the duplicated instance for use
 		dup
@@ -183,7 +274,7 @@ protected
 	#
 	# Invalidates the sorted and ranked module caches.
 	#
-	def invalidate_cache
+	def invalidate_sorted_cache
 		mod_sorted = nil
 		mod_ranked = nil
 	end
@@ -238,7 +329,7 @@ class ModuleManager < ModuleSet
 			instance.framework = framework
 		}
 
-		super
+		super(nil)
 	end
 
 	#
@@ -296,6 +387,149 @@ class ModuleManager < ModuleSet
 
 	##
 	#
+	# Module cache management to support demand loaded modules.
+	#
+	##
+
+	#
+	# Sets the path that the module cache information is loaded from and
+	# synchronized with.  This method should be called prior to loading any
+	# modules in order to take advantage of caching information.
+	#
+	def set_module_cache_file(file_path)
+		@modcache_file = file_path
+		@modcache      = Rex::Parser::Ini.new
+
+		begin
+			@modcache.from_file(@modcache_file)
+		rescue Errno::ENOENT
+			@modcache_invalidated = true
+		end
+
+		# Initialize the standard groups
+		@modcache.add_group('FileModificationTimes', false)
+		@modcache.add_group('ModuleTypeCounts', false)
+
+		MODULE_TYPES.each { |type|
+			@modcache.add_group(type, false)
+
+			@modcache[type].each_key { |name|
+				module_sets[type][name] = SymbolicModule
+			}
+		}
+	end
+
+	#
+	# Returns true if the module cache is currently being used.
+	#
+	def using_cache
+		(@modcache_invalidated != true)
+	end
+
+	#
+	# Returns the cached module counts by type if the cache is being used.
+	#
+	def cached_counts
+		if (using_cache and @modcache.group?('ModuleTypeCounts'))
+			if (@cached_counts.nil?)
+				@cached_counts = {}
+	
+				@modcache['ModuleTypeCounts'].each_pair { |type, count|
+					@cached_counts[type] = count.to_i
+				}
+			end
+
+			return @cached_counts
+		end
+
+		return nil
+	end
+
+	#
+	# Persists the current contents of the module cache to disk.
+	#
+	def save_module_cache
+		if (@modcache)
+			if (@modcache.group?('ModuleTypeCounts'))
+				@modcache['ModuleTypeCounts'].clear
+
+				MODULE_TYPES.each { |type|
+					@modcache['ModuleTypeCounts'][type] = module_sets[type].length.to_s
+				}
+			end
+
+			@modcache.to_file(@modcache_file)
+		end
+	end
+
+	#
+	# Checks to make sure the cache state is okay.  If it's not, the cache is
+	# cleared and all modules are forced to be loaded.  If the cached mtime for
+	# the file is the same as the current mtime, then we don't load it until
+	# it's needed on demand.
+	#
+	def check_cache(file)
+		# If the module cache has been invalidated, then we return false to
+		# indicate that we should go ahead and load the file now.
+		return false if (@modcache_invalidated)
+
+		if (@modcache and @modcache.group?('FileModificationTimes'))
+			curr_mtime = File::Stat.new(file).mtime
+
+			if (@modcache['FileModificationTimes'][file].nil? or
+			    @modcache['FileModificationTimes'][file].to_s != curr_mtime.to_i.to_s)
+				raise ModuleCacheInvalidated, "File #{file} has a new mtime or did not exist"
+			end
+		end
+
+		return true
+	end
+
+	#
+	# Invalidates the current cache.
+	#
+	def invalidate_cache
+		@modcache_invalidated = true
+
+		# Clear the module cache.
+		if (@modcache)
+			@modcache['FileModificationTimes'].clear
+			@modcache['ModuleTypeCounts'].clear
+			
+			MODULE_TYPES.each { |type|
+				@modcache[type].clear
+			}
+		end
+	end
+
+	#
+	# Synchronizes the module cache information 
+	#
+	def update_module_cache_info(fullname, modinfo)
+		if (@modcache)
+			if (fullname)
+				@modcache.add_group(fullname)
+				@modcache[fullname].clear
+				@modcache[fullname]['FileNames'] = modinfo['files'].join(',') 
+				@modcache[fullname]['FilePaths'] = modinfo['paths'].join(',') 
+				@modcache[fullname]['Type']      = modinfo['type']
+			end
+
+			modinfo['files'].each { |p|
+				@modcache['FileModificationTimes'][p] = File::Stat.new(p).mtime.to_i.to_s
+			}
+		end
+	end
+
+	#
+	# Caches this module under a specific module type and name
+	#
+	def cache_module(mod)
+		@modcache[mod.type][mod.refname] = 1
+	end
+
+	##
+	#
 	# Module path management
 	#
 	##
@@ -315,7 +549,21 @@ class ModuleManager < ModuleSet
 
 		module_paths << path
 
-		return load_modules(path)
+		begin
+			counts = load_modules(path)
+		rescue ModuleCacheInvalidated
+			invalidate_cache
+
+			# Re-load all the modules now that the cache has been invalidated
+			module_paths.each { |p|
+				counts = load_modules(p)
+			}
+		end
+
+		# Synchronize the module cache if the module cache is not being used.
+		save_module_cache if (!using_cache)
+
+		return counts
 	end
 
 	#
@@ -356,7 +604,8 @@ class ModuleManager < ModuleSet
 
 		# Indicate that the module is being loaded again so that any necessary
 		# steps can be taken to extend it properly.
-		on_module_load(mod.orig_cls, mod.type, refname, mod.file_path)
+		on_module_load(mod.orig_cls, mod.type, refname, {
+			'files' => [ mod.file_path ] })
 
 		# Create a new instance of the module
 		if (mod = create(refname))
@@ -373,9 +622,15 @@ class ModuleManager < ModuleSet
 	# steps can be taken to subscribe the module and notify the event
 	# dispatcher.
 	#
-	def add_module(mod, name, file_path = nil)
+	def add_module(mod, name, file_paths)
 		# Call the module set implementation of add_module
 		dup = super
+
+		# If the module cache is not being used, update the cache with
+		# information about the files that are associated with this module.
+		if (!using_cache)
+			update_module_cache_info(dup.fullname, file_paths)
+		end
 
 		# Automatically subscribe a wrapper around this module to the necessary
 		# event providers based on whatever events it wishes to receive.  We
@@ -385,6 +640,32 @@ class ModuleManager < ModuleSet
 
 		# Notify the framework that a module was loaded
 		framework.events.on_module_load(name, dup)
+	end
+
+	#
+	# Loads the files associated with a module and recalculates module
+	# associations.
+	#
+	def demand_load_module(fullname)
+		dlog("Demand loading module #{fullname}.", 'core', LEV_1)
+
+		return nil if (@modcache.group?(fullname) == false)
+		return nil if (@modcache[fullname]['FileNames'].nil?)
+		return nil if (@modcache[fullname]['FilePaths'].nil?)
+
+		type  = fullname.split(/\//)[0]
+		files = @modcache[fullname]['FileNames'].split(',')
+		paths = @modcache[fullname]['FilePaths'].split(',')
+
+		files.each_with_index { |file, idx|
+			dlog("Loading from file #{file}", 'core', LEV_2)
+
+			load_module_from_file(paths[idx], file, nil, nil, nil, true)
+		}
+
+		if (module_sets[type].postpone_recalc != true)
+			module_sets[type].recalculate
+		end
 	end
 
 protected
@@ -409,8 +690,7 @@ protected
 			next if (file =~ /rb\.ts\.rb$/)
 
 			begin
-				load_module_from_file(path, file,
-					loaded, recalc, counts)
+				load_module_from_file(path, file, loaded, recalc, counts)
 			rescue NameError
 				# If we get a name error, it's possible that this module depends
 				# on another one that we haven't loaded yet.  Let's postpone
@@ -428,8 +708,7 @@ protected
 			delay.each_key { |file|
 				begin
 					# Load the module from the file...
-					load_module_from_file(path, file,
-						loaded, recalc, counts)
+					load_module_from_file(path, file, loaded, recalc, counts)
 
 					# Remove this file path from the list of delay load files
 					# because if we get here it means all when swell...maybe.
@@ -472,9 +751,9 @@ protected
 	#
 	# Loads a module from the supplied file.
 	#
-	def load_module_from_file(path, file, loaded, recalc, counts)
+	def load_module_from_file(path, file, loaded, recalc, counts, demand = false)
 		# If the file doesn't end in the expected extension...
-		return if (!file.match(/\.rb$/))
+		return nil if (!file.match(/\.rb$/))
 
 		# If the file on disk hasn't changed with what we have stored in the
 		# cache, then there's no sense in loading it
@@ -503,6 +782,26 @@ protected
 		
 		type.sub!(/s$/, '')
 
+		#
+		# If the cached version of the file is still okay, then we just return
+		# as we don't need to load it yet.  We do not currently support demand
+		# loading of encoders and nops due to some API assumptions
+		# (EncodedPayload assumes it can enumerate through all encoders/nops).
+		#
+		# FIXME: support demand loading of encoders/nops
+		#
+		if ((check_cache(file)) and 
+		    (demand == false) and
+		    ([ MODULE_ENCODER, MODULE_NOP ].include?(type) == false))
+			return false 
+		end
+
+		# Synchronize the modification time for this file.
+		update_module_cache_info(nil, {
+			'paths' => [ path ],
+			'files' => [ file ],
+			'type'  => type}) if (!using_cache)	
+
 		# Get the module and grab the current number of constants
 		old_constants = mod.constants
 
@@ -510,7 +809,7 @@ protected
 		begin
 			if (!load(file))
 				elog("Failed to load from file #{file}.")
-				return
+				return false
 			end
 		rescue NameError
 			added = mod.constants - old_constants
@@ -526,14 +825,14 @@ protected
 			raise NameError, $!
 		rescue LoadError
 			elog("LoadError: #{$!}.")
-			return
+			return false
 		end
 
 		added = mod.constants - old_constants
 
 		if (added.length > 1)
 			elog("Loaded file contained more than one class (#{file}).")
-			return
+			return false
 		end
 
 		# If nothing was added, check to see if there's anything
@@ -543,7 +842,7 @@ protected
 				added = module_history[file]
 			else
 				elog("Loaded #{file} but no classes were added.")
-				return
+				return false
 			end
 		else
 			added = mod.const_get(added[0])
@@ -565,23 +864,30 @@ protected
 		if (usable == false)
 			ilog("Skipping module in #{file} because is_usable returned false.", 
 				'core', LEV_1)
-			return
+			return false
 		end
 
 		ilog("Loaded #{type} module #{added} from #{file}.", 'core', LEV_2)
 
 		# Do some processing on the loaded module to get it into the
 		# right associations
-		on_module_load(added, type, name, file)
+		on_module_load(added, type, name, {
+			'files' => [ file ],
+			'paths' => [ path ],
+			'type'  => type })
 
 		# Set this module type as needing recalculation
-		recalc[type] = true
+		recalc[type] = true if (recalc)
 
 		# Append the added module to the hash of file->module
-		loaded[file] = added
+		loaded[file] = added if (loaded)
 
 		# The number of loaded modules this round
-		counts[type] = (counts[type]) ? (counts[type] + 1) : 1
+		if (counts)
+			counts[type] = (counts[type]) ? (counts[type] + 1) : 1
+		end
+
+		return true
 	end
 
 	#
@@ -618,7 +924,7 @@ protected
 	# Called when a module is initially loaded such that it can be
 	# categorized accordingly.
 	#
-	def on_module_load(mod, type, name, file_path)
+	def on_module_load(mod, type, name, modinfo)
 		# Payload modules require custom loading as the individual files
 		# may not directly contain a logical payload that a user would 
 		# reference, such as would be the case with a payload stager or 
@@ -629,10 +935,10 @@ protected
 		if (type != MODULE_PAYLOAD)
 			# Add the module class to the list of modules and add it to the
 			# type separated set of module classes
-			add_module(mod, name, file_path)
+			add_module(mod, name, modinfo)
 		end
 
-		module_sets[type].add_module(mod, name, file_path)
+		module_sets[type].add_module(mod, name, modinfo)
 	end
 
 	#

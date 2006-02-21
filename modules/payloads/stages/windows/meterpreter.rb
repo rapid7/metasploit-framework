@@ -1,4 +1,5 @@
 require 'msf/core'
+require 'msf/core/payload/windows/dllinject'
 require 'msf/base/sessions/meterpreter'
 
 module Msf
@@ -13,7 +14,7 @@ module Windows
 ###
 module Meterpreter
 
-	include DllInject
+	include Msf::Payload::Windows::DllInject
 
 	def initialize(info = {})
 		super(update_info(info,

@@ -77,8 +77,8 @@ class PayloadSet < ModuleSet
 		self.clear
 
 		# Recalculate single payloads
-		_singles.each_pair { |name, p|
-			mod, handler = p
+		_singles.each_pair { |name, op|
+			mod, handler = op
 
 			# Build the payload dupe using the determined handler
 			# and module
@@ -88,19 +88,19 @@ class PayloadSet < ModuleSet
 			p.refname = name
 
 			# Add it to the set
-			add_single(p, name)
+			add_single(p, name, op[5])
 
 			# Cache the payload's size
 			sizes[name] = p.new.size
 		}
 
 		# Recalculate stagers and stages
-		_stagers.each_pair { |stager_name, p|
-			stager_mod, handler, stager_platform, stager_arch, stager_inst = p
+		_stagers.each_pair { |stager_name, op|
+			stager_mod, handler, stager_platform, stager_arch, stager_inst = op
 
 			# Walk the array of stages
-			_stages.each_pair { |stage_name, p|
-				stage_mod, junk, stage_platform, stage_arch, stage_inst = p
+			_stages.each_pair { |stage_name, ip|
+				stage_mod, junk, stage_platform, stage_arch, stage_inst = ip
 
 				# No intersection between platforms on the payloads?
 				if ((stager_platform) and
@@ -148,8 +148,11 @@ class PayloadSet < ModuleSet
 				p.refname = combined
 
 				# Add the stage
-				add_stage(p, combined, stage_name, handler_type)
-		
+				add_stage(p, combined, stage_name, handler_type, {
+					'files' => op[5]['files'] + ip[5]['files'],
+					'paths' => op[5]['paths'] + ip[5]['paths'],
+					'type'  => op[5]['type']})
+
 				# Cache the payload's size
 				sizes[combined] = p.new.size
 			}
@@ -162,7 +165,7 @@ class PayloadSet < ModuleSet
 	# magic to figure out if it's a single, stager, or stage.  Depending on
 	# which it is, we add it to the appropriate list.
 	#
-	def add_module(pmodule, name, file_path = nil)
+	def add_module(pmodule, name, modinfo = nil)
 		if (md = name.match(/^(singles|stagers|stages)#{File::SEPARATOR}(.*)$/))
 			name = md[2]
 		end
@@ -181,7 +184,7 @@ class PayloadSet < ModuleSet
 				instance.platform,
 				instance.arch,
 				instance,
-				file_path
+				modinfo
 			]
 
 		# Use the module's preferred alias if it has one
@@ -206,7 +209,7 @@ class PayloadSet < ModuleSet
 	# This method adds a single payload to the set and adds it to the singles
 	# hash.
 	#
-	def add_single(p, name)
+	def add_single(p, name, modinfo)
 		p.framework = framework
 
 		# Associate this class with the single payload's name
@@ -216,7 +219,7 @@ class PayloadSet < ModuleSet
 		singles[name] = p
 
 		# Add it to the global module set
-		manager.add_module(p, name)
+		manager.add_module(p, name, modinfo)
 
 		dlog("Built single payload #{name}.", 'core', LEV_2)
 	end
@@ -225,14 +228,14 @@ class PayloadSet < ModuleSet
 	# This method adds a stage payload to the set and adds it to the stages
 	# hash using the supplied handler type.
 	#
-	def add_stage(p, full_name, stage_name, handler_type)
+	def add_stage(p, full_name, stage_name, handler_type, modinfo)
 		p.framework = framework
 
 		# Associate this stage's full name with the payload class in the set
 		self[full_name] = p
 
 		# Add the full name association in the global module set
-		manager.add_module(p, full_name)
+		manager.add_module(p, full_name, modinfo)
 
 		# Create the hash entry for this stage and then create
 		# the associated entry for the handler type

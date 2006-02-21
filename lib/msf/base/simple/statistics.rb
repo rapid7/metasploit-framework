@@ -21,56 +21,66 @@ class Statistics
 	# Returns the number of encoders in the framework.
 	#
 	def num_encoders
-		self.framework.encoders.length
+		framework.modules.using_cache ?
+			framework.modules.cached_counts[MODULE_ENCODER] :
+			framework.encoders.length
 	end
 
 	#
 	# Returns the number of exploits in the framework.
 	#
 	def num_exploits
-		self.framework.exploits.length
+		framework.modules.using_cache ?
+			framework.modules.cached_counts[MODULE_EXPLOIT] :
+			framework.exploits.length
 	end
 
 	#
 	# Returns the number of NOP generators in the framework.
 	#
 	def num_nops
-		self.framework.nops.length
+		framework.modules.using_cache ?
+			framework.modules.cached_counts[MODULE_NOP] :
+			framework.nops.length
 	end
 
 	#
 	# Returns the number of payloads in the framework.
 	#
 	def num_payloads
-		self.framework.payloads.length
+		framework.modules.using_cache ?
+			framework.modules.cached_counts[MODULE_PAYLOAD] :
+			framework.payloads.length
 	end
 
 	#
 	# Returns the number of auxiliary modules in the framework.
 	#
 	def num_auxiliary
-		self.framework.auxiliary.length
+		framework.modules.using_cache ?
+			framework.modules.cached_counts[MODULE_AUX] :
+			framework.auxiliary.length
 	end
 
 	#
 	# Returns the number of stages in the framework.
 	#
 	def num_payload_stages
-		self.framework.payloads.stages.length
+		framework.payloads.stages.length
 	end
 
 	#
 	# Returns the number of stagers in the framework.
 	#
 	def num_payload_stagers
-		self.framework.payloads.stagers.length
+		framework.payloads.stagers.length
 	end
 
 	#
 	# Returns the number of singles in the framework.
 	#
 	def num_payload_singles
-		self.framework.payloads.singles.length
+		framework.payloads.singles.length
 	end
 end
 
