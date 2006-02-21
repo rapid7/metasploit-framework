@@ -506,8 +506,6 @@ class ModuleManager < ModuleSet
 			    @modcache['FileModificationTimes'][file].to_s != curr_mtime.to_i.to_s)
 				raise ModuleCacheInvalidated, "File #{file} has a new mtime or did not exist"
 			end
-			
-			module_history_mtime[file] = curr_mtime.to_i
 		end
 
 		return true
@@ -587,7 +585,7 @@ class ModuleManager < ModuleSet
 
 			# Re-load all the modules now that the cache has been invalidated
 			module_paths.each { |p|
-				counts = load_modules(p)
+				counts = load_modules(p, true)
 			}
 		end
 
@@ -705,7 +703,7 @@ protected
 	# Load all of the modules from the supplied module path (independent of
 	# module type).
 	#
-	def load_modules(path)
+	def load_modules(path, demand = false)
 		loaded = {}
 		recalc = {}
 		counts = {}
@@ -721,7 +719,7 @@ protected
 			next if (file =~ /rb\.ts\.rb$/)
 
 			begin
-				load_module_from_file(path, file, loaded, recalc, counts)
+				load_module_from_file(path, file, loaded, recalc, counts, demand)
 			rescue NameError
 				# If we get a name error, it's possible that this module depends
 				# on another one that we haven't loaded yet.  Let's postpone
@@ -739,7 +737,7 @@ protected
 			delay.each_key { |file|
 				begin
 					# Load the module from the file...
-					load_module_from_file(path, file, loaded, recalc, counts)
+					load_module_from_file(path, file, loaded, recalc, counts, demand)
 
 					# Remove this file path from the list of delay load files
 					# because if we get here it means all when swell...maybe.
@@ -761,14 +759,6 @@ protected
 			elog("Failed to load module from #{file}: #{err}")
 		}
 
-		# Cache the loaded file mtimes
-		loaded.each_key {|file|
-			module_history_mtime[file] = File::Stat.new(file).mtime.to_i
-		}
-
-		# Cache the loaded file module associations
-		module_history.update(loaded)
-
 		# Perform any required recalculations for the individual module types
 		# that actually had load changes
 		recalc.each_key { |key|
@@ -788,8 +778,7 @@ protected
 
 		# If the file on disk hasn't changed with what we have stored in the
 		# cache, then there's no sense in loading it
-		if ((demand == false) and
-		    (!has_module_file_changed?(file)))
+		if (!has_module_file_changed?(file))
 			dlog("Cached module from file #{file} has not changed.", 'core', 
 				LEV_2)
 			return false
@@ -914,6 +903,10 @@ protected
 
 		# Append the added module to the hash of file->module
 		loaded[file] = added if (loaded)
+	
+		# Track module load history for future reference
+		module_history[file]       = added
+		module_history_mtime[file] = File::Stat.new(file).mtime.to_i
 
 		# The number of loaded modules this round
 		if (counts)
