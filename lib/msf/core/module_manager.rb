@@ -474,9 +474,16 @@ class ModuleManager < ModuleSet
 		return false if (@modcache_invalidated)
 
 		if (@modcache and @modcache.group?('FileModificationTimes'))
-			curr_mtime = File::Stat.new(file).mtime
+			no_exist = false
 
-			if (@modcache['FileModificationTimes'][file].nil? or
+			begin
+				curr_mtime = File::Stat.new(file).mtime
+			rescue Errno::ENOENT
+				no_exist = true
+			end
+
+			if (no_exist or 
+			    @modcache['FileModificationTimes'][file].nil? or
 			    @modcache['FileModificationTimes'][file].to_s != curr_mtime.to_i.to_s)
 				raise ModuleCacheInvalidated, "File #{file} has a new mtime or did not exist"
 			end
@@ -790,8 +797,8 @@ protected
 		#
 		# FIXME: support demand loading of encoders/nops
 		#
-		if ((check_cache(file)) and 
-		    (demand == false) and
+		if ((demand == false) and
+		    (check_cache(file)) and
 		    ([ MODULE_ENCODER, MODULE_NOP ].include?(type) == false))
 			return false 
 		end
@@ -895,7 +902,11 @@ protected
 	# cache).
 	#
 	def has_module_file_changed?(file)
-		return (module_history_mtime[file] != File.new(file).mtime)
+		begin
+			return (module_history_mtime[file] != File.new(file).mtime)
+		rescue Errno::ENOENT
+			return false
+		end
 	end
 
 	#
