@@ -414,6 +414,25 @@ class ModuleManager < ModuleSet
 			@modcache.add_group(type, false)
 
 			@modcache[type].each_key { |name|
+				fullname = type + '/' + name
+
+				# Make sure the files associated with this module exist.  If it
+				# doesn't, then we don't create a symbolic module for it.  This is
+				# to ensure that module counts are accurately reflected after a
+				# module is removed or moved.
+				next if (@modcache.group?(fullname) == false)
+				next if (@modcache[fullname]['FileNames'].nil?)
+
+				begin
+					@modcache[fullname]['FileNames'].split(',').each { |f|
+						File::Stat.new(f)
+					}
+				rescue Errno::ENOENT
+					dlog("File requirement does not exist for #{fullname}", 'core', 
+						LEV_1);
+					next
+				end
+
 				module_sets[type][name] = SymbolicModule
 			}
 		}
@@ -487,6 +506,8 @@ class ModuleManager < ModuleSet
 			    @modcache['FileModificationTimes'][file].to_s != curr_mtime.to_i.to_s)
 				raise ModuleCacheInvalidated, "File #{file} has a new mtime or did not exist"
 			end
+			
+			module_history_mtime[file] = curr_mtime.to_i
 		end
 
 		return true
@@ -523,7 +544,10 @@ class ModuleManager < ModuleSet
 			end
 
 			modinfo['files'].each { |p|
-				@modcache['FileModificationTimes'][p] = File::Stat.new(p).mtime.to_i.to_s
+				begin
+					@modcache['FileModificationTimes'][p] = File::Stat.new(p).mtime.to_i.to_s
+				rescue Errno::ENOENT
+				end
 			}
 		end
 	end
@@ -739,7 +763,7 @@ protected
 
 		# Cache the loaded file mtimes
 		loaded.each_key {|file|
-			module_history_mtime[file] = File.new(file).mtime
+			module_history_mtime[file] = File::Stat.new(file).mtime.to_i
 		}
 
 		# Cache the loaded file module associations
@@ -764,9 +788,11 @@ protected
 
 		# If the file on disk hasn't changed with what we have stored in the
 		# cache, then there's no sense in loading it
-		if (!has_module_file_changed?(file))
+		if ((demand == false) and
+		    (!has_module_file_changed?(file)))
 			dlog("Cached module from file #{file} has not changed.", 'core', 
 				LEV_2)
+			return false
 		end
 
 		# Substitute the base path
@@ -903,9 +929,9 @@ protected
 	#
 	def has_module_file_changed?(file)
 		begin
-			return (module_history_mtime[file] != File.new(file).mtime)
+			return (module_history_mtime[file] != File::Stat.new(file).mtime.to_i)
 		rescue Errno::ENOENT
-			return false
+			return true
 		end
 	end
 
