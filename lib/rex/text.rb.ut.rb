@@ -52,6 +52,24 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 		assert_raises(TypeError) {
 			Rex::Text.to_unicode('a', 'utf-8', 'foo', 6)
 		}
+
+		assert_raises(TypeError) {
+			Rex::Text.to_unicode('a', 'uhwtfms', -1)
+		}
+
+		100.times {
+			assert(["\x01\x00","\x01\x02","\x01\x04","\x01\xcd","\x01\xde","\xff\x21"].include?(Rex::Text.to_unicode('A', 'uhwtfms')), 'uhwtfms')
+			assert(["\x00\xc0","\x00\xc1","\x00\xc2","\x00\xc3","\x00\xc4","\x00\xc5"].include?(Rex::Text.to_unicode('A', 'uhwtfms', 949)), 'uhwtfms codepage 949')
+		}
+
+		a = ["\x01\x00","\x01\x02","\x01\x04","\x01\xcd","\x01\xde","\xff\x21"]
+		20.times {
+			encoded = Rex::Text.to_unicode('A', 'uhwtfms')
+			if a.include?(encoded)
+				a.delete(encoded)
+			end
+		}
+		assert_equal([], a, 'all possible values uhwtfms')
 	end
 
 	def test_zlib

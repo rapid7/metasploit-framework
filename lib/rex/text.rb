@@ -22,7 +22,7 @@ module Text
 	# Constants
 	#
 	##
-	
+
 	UpperAlpha   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	LowerAlpha   = "abcdefghijklmnopqrstuvwxyz"
 	Numerals     = "0123456789"
@@ -51,7 +51,7 @@ module Text
 		"\xfb\xfc\xfd\xfe"		
 
 	DefaultPatternSets = [ Rex::Text::UpperAlpha, Rex::Text::LowerAlpha, Rex::Text::Numerals ]
-
+	
 	##
 	#
 	# Serialization
@@ -133,7 +133,7 @@ module Text
 	# utf-7 defaults to 'normal' utf-7 encoding
 	# utf-8 defaults to 2 byte 'normal' encoding
 	# 
-	def self.to_unicode(str='', type = 'utf-16le', mode = '', size = 2)
+	def self.to_unicode(str='', type = 'utf-16le', mode = '', size = '')
 		case type 
 		when 'utf-16le'
 			return str.unpack('C*').pack('v*')
@@ -163,6 +163,10 @@ module Text
 				}
 			end
 		when 'utf-8'
+			if size == ''
+				size = 2
+			end
+
 			if size >= 2 and size <= 7
 				string = ''
 				str.each_byte { |a|
@@ -227,6 +231,28 @@ module Text
 			else 
 				raise TypeError, 'invalid utf-8 size'
 			end
+		when 'uhwtfms' # suggested name from HD :P
+			load_codepage()
+
+			string = ''
+			# overloading mode as codepage
+			if mode == ''
+				mode = 1252 # ANSI - Latan 1, default for US installs of MS products
+			else
+				mode = mode.to_i
+			end
+			if $codepage_map_cache[mode].nil?
+				raise TypeError, "Invalid codepage #{mode}"
+			end
+			str.each_byte {|byte|
+				char = [byte].pack('C*')
+				possible = $codepage_map_cache[mode]['data'][char]
+				if possible.nil?
+					raise TypeError, "codepage #{mode} does not provide an encoding for 0x#{char.unpack('H*')[0]}"
+				end
+				string += possible[ rand(possible.length) ]
+			}
+			return string
 		else 
 			raise TypeError, 'invalid utf type'
 		end
@@ -576,6 +602,38 @@ protected
 		end
 
 		buf
+	end
+	
+	def self.load_codepage()
+		return if (!$codepage_map_cache.nil?)
+		file = File.join(File.dirname(__FILE__),'codepage.map')
+		page = ''
+		name = ''
+		map = {}
+		File.open(file).each { |line|
+			next if line =~ /^#/
+			next if line =~ /^\s*$/
+			data = line.split
+			if data[1] =~ /^\(/
+				page = data.shift.to_i
+				name = data.join(' ').sub(/^\(/,'').sub(/\)$/,'')
+				map[page] = {}
+				map[page]['name'] = name
+				map[page]['data'] = {}
+			else
+				data.each { |entry|
+					wide, char = entry.split(':')
+					char = [char].pack('H*')
+					wide = [wide].pack('H*')
+					if map[page]['data'][char].nil?
+						map[page]['data'][char] = [wide]
+					else
+						map[page]['data'][char].push(wide)
+					end
+				}
+			end
+		}
+		$codepage_map_cache = map
 	end
 
 end
