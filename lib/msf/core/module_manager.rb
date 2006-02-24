@@ -250,7 +250,7 @@ protected
 		# instances are created.
 		dup.framework = framework
 		dup.refname   = name
-		dup.file_path = modinfo and modinfo['files'] ? modinfo['files'][0] : nil
+		dup.file_path = ((modinfo and modinfo['files']) ? modinfo['files'][0] : nil)
 		dup.orig_cls  = module_class
 
 		if (get_hash_val(name) and get_hash_val(name) != SymbolicModule)
@@ -261,8 +261,11 @@ protected
 			self[name] = dup
 		end
 
+		# Check to see if we should update info
+		noup = true if (modinfo and modinfo['noup'])
+
 		# Add this module to the module cache for this type
-		framework.modules.cache_module(dup)
+		framework.modules.cache_module(dup) if (noup != true)
 	
 		# Invalidate the sorted array
 		invalidate_sorted_cache
@@ -634,7 +637,8 @@ class ModuleManager < ModuleSet
 		# Indicate that the module is being loaded again so that any necessary
 		# steps can be taken to extend it properly.
 		on_module_load(mod.orig_cls, mod.type, refname, {
-			'files' => [ mod.file_path ] })
+			'files' => [ mod.file_path ],
+			'noup'  => true})
 
 		# Create a new instance of the module
 		if (mod = create(refname))
