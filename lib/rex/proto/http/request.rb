@@ -60,6 +60,7 @@ class Request < Packet
 		self.proto     = proto || DefaultProtocol
 		self.chunk_min_size = 1
 		self.chunk_max_size = 10
+		self.uri_encode_mode = 'hex-normal'
 
 		update_uri_parts
 	end
@@ -101,8 +102,8 @@ class Request < Packet
 
 	# normalize out multiple slashes, directory traversal, and self referrential directories
 	def normalize!(str)
-		i = nil
-		while (str.gsub!(/(\/\.\/|\/\w+\/\.\.\/|\/\/)/,'/')); if (i.nil?); i = 1; else; i += 1; end; end
+		i = 0 
+		while (str.gsub!(/(\/\.\/|\/\w+\/\.\.\/|\/\/)/,'/')); i += 1; end
 		i
 	end
 
@@ -115,6 +116,12 @@ class Request < Packet
 			str.gsub!(/\//) {
 				'/.' * (rand(3) + 1) + '/'
 			}
+		end
+
+		# /%3faaa=bbbbb
+		# which could possibly decode to "/?aaa=bbbbb", which if the IDS normalizes first, then splits the URI on ?, then it can be bypassed
+		if self.junk_param_start
+			str.sub!(/\//, '/%3f' + Rex::Text.rand_text_alpha(rand(5) + 1) + '=' + Rex::Text.rand_text_alpha(rand(10) + 1) + '/../')
 		end
 
 		# /RAND/../RAND../
@@ -130,29 +137,21 @@ class Request < Packet
 
 		# ////
 		#
-		# NOTE: this must be done after all other odd directory junk, since they would cancel this out
+		# NOTE: this must be done after all other odd directory junk, since they would cancel this out, except junk_end_of_uri, since that a specific slash in a specific place
 		if self.junk_slashes
 			str.gsub!(/\//) {
 				'/' * (rand(3) + 2)
 			}
 			str.sub!(/^[\/]+/, '/') # only one beginning slash!
 		end
-
-		# / can't be encoded on most web servers...
-		if self.uri_encode_mode
-			case self.uri_encode_mode
-				when 'hex-all'
-					str = escape(str, 1).gsub!(/%2f/i, '/')
-				when 'hex-normal'
-					str = escape(str).gsub!(/%2f/i, '/')
-				when 'u-normal'
-					str = escape(str).gsub!(/%2f/i, '/').gsub!(/%/,'%u00')
-				when 'u-all'
-					str = escape(str, 1).gsub!(/%2f/i, '/').gsub!(/%/,'%u00')
-				when 'none'
-					# we do nothing here...
-			end
+		
+		# /%20HTTP/1.0%0d%0a/../../
+		# which decodes to "/ HTTP/1.0\r\n"
+		if self.junk_end_of_uri
+			str.sub!(/^\//, '/%20HTTP/1.0%0d%0a/../../')
 		end
+
+		Rex::Text.uri_encode(str, self.uri_encode_mode)
 
 		if !PostRequests.include?(self.method)
 			if param_string.size > 0
@@ -173,13 +172,13 @@ class Request < Packet
 			end
 			if value.kind_of?(Array)
 				value.each { |subvalue|
-    				params.push(self.escape(param) + '=' + self.escape(subvalue))
+    				params.push(Rex::Text.uri_encode(param, self.uri_encode_mode) + '=' + Rex::Text.uri_encode(subvalue, self.uri_encode_mode))
 				}
 			else
     			if !value.nil?
-    				params.push(self.escape(param) + '=' + self.escape(value))
+    				params.push(Rex::Text.uri_encode(param, self.uri_encode_mode) + '=' + Rex::Text.uri_encode(value, self.uri_encode_mode))
     			else 
-    				params.push(self.escape(param))
+    				params.push(Rex::Text.uri_encode(param, self.uri_encode_mode))
     			end
 			end
 		}
@@ -199,15 +198,6 @@ class Request < Packet
 		update_uri_parts
 	end
  
-	# Returns a URI escaped version of the provided string, by providing an additional argument, all characters are escaped
-	def escape(str, all = nil)
-		if all
-			return str.gsub(/./) { |s| Rex::Text.to_hex(s, '%') }
-		else 
-			return str.gsub(/[^a-zA-Z1-9]/) { |s| Rex::Text.to_hex(s, '%') }
-		end
-	end
-
 	# Returns a request packet
 	def to_s
 		str = ''
@@ -303,7 +293,7 @@ class Request < Packet
 	# add junk slashes 
 	attr_accessor :junk_slashes
    
-	# add junk self referring directories (aka  /././././
+	# add junk self referring directories (aka  /././././)
 	attr_accessor :junk_self_referring_directories
 
 	# add junk params
@@ -312,8 +302,15 @@ class Request < Packet
 	# add junk pipeline requests
 	attr_accessor :junk_pipeline
 
+	# add junk start of params
+	attr_accessor :junk_param_start
+	
+	# add junk end of URI
+	attr_accessor :junk_end_of_uri
+	
 	# encoding uri 
 	attr_accessor :uri_encode_mode
+		
 
 protected
 

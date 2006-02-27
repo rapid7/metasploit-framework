@@ -76,8 +76,15 @@ class Rex::Proto::Http::Request::UnitTest < Test::Unit::TestCase
 		h = junk_request
 		h.junk_self_referring_directories = 1
 		assert_equal('/././foo/././bar.html', h.uri, 'junk referring directories')
-	end
 
+		h = junk_request
+		h.junk_param_start = 1
+		assert_equal('/%3fgf=XjLyc/../foo/bar.html', h.uri, 'junk start of params')
+		
+		h = junk_request
+		h.junk_end_of_uri = 1
+		assert_equal('/%20HTTP/1.0%0d%0a/../../foo/bar.html', h.uri, 'junk end of URI')
+	end
 
 	def test_params
 		srand(0)
@@ -156,14 +163,16 @@ class Rex::Proto::Http::Request::UnitTest < Test::Unit::TestCase
         h.junk_slashes = 1
         h.junk_directories = 1
         h.junk_self_referring_directories = 1
+		h.junk_end_of_uri = 1
+		h.junk_param_start = 1
 
         seen = {}
 		expect = [
-    		{"//"=>121, "/./"=>25, "/w/../"=>3},
-    		{"//"=>107, "/./"=>25, "/w/../"=>3},
-    		{"//"=>120, "/./"=>30, "/w/../"=>4},
-    		{"//"=>113, "/./"=>25, "/w/../"=>3},
-    		{"//"=>120, "/./"=>25, "/w/../"=>3},
+			{"//"=>145, "/./"=>35, "param"=>1, "http"=>1, "/w/../"=>3},
+			{"//"=>149, "/./"=>35, "param"=>1, "http"=>1, "/w/../"=>3},
+			{"//"=>130, "/./"=>30, "param"=>1, "http"=>1, "/w/../"=>2},
+			{"//"=>165, "/./"=>40, "param"=>1, "http"=>1, "/w/../"=>4},
+			{"//"=>145, "/./"=>35, "param"=>1, "http"=>1, "/w/../"=>3},
 		]
 		i = 0
         5.times {
@@ -172,11 +181,15 @@ class Rex::Proto::Http::Request::UnitTest < Test::Unit::TestCase
             assert_nil(seen[str], 'all the junk, not a dup rand')
             seen[str] = 1
 
-			seen = { '/./' => 0, '//' => 0, '/w/../' => 0 }
+			seen = { '/./' => 0, '//' => 0, '/w/../' => 0, 'http' => 0, 'param' => 0}
 			matched = 1
 			while matched == 1
 				# p str
-				if str.sub!(/\/\w+\/\.\.\//, '/')
+				if str.sub!(/\/%20HTTP\/1.0%0d%0a\/\.\.\/\.\.\//, '/')
+					seen['http'] += 1;
+				elsif str.sub!(/\/%3f\w+=\w+\/\.\.\//i, '/')
+					seen['param'] += 1;
+				elsif str.sub!(/\/\w+\/\.\.\//, '/')
 					seen['/./'] += 1;
 				elsif str.sub!(/\/\//, '/')
 					seen['//'] += 1;
@@ -187,7 +200,7 @@ class Rex::Proto::Http::Request::UnitTest < Test::Unit::TestCase
 				end
 			end
 
-            assert_equal('/foo/bar.html', str, 'normalized')
+			assert_equal('/foo/bar.html', str, 'normalized')
 			assert_equal(expect[i], seen, 'expected counts')
 			i += 1
         }
