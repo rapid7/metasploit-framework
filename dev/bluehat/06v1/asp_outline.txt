@@ -1,0 +1,81 @@
+Title:
+
+            Bitten on the ASP
+
+(How NOT to deploy ASP.NET applications)
+
+
+Intro:
+	
+	Who
+		BreakingPoint
+		Metasploit
+	What
+		ASP.Net deployment issues
+			Default configuration
+			Common configuration flaws
+			Platform problems
+	Why
+		Widely deployed
+		Poorly researched
+		Lack of tools
+
+Basics
+
+	Global default configuration file
+	Code separated into Applications
+	Applications override configuration file
+
+Structure
+	Sample web application structure
+	Visual studio files
+	Deploy vs Copy
+
+IIS Integration	
+	Extension vs ASP.Net mappings
+		What files have no mapping?
+
+Cryptography
+	MAC Key
+	Encryption Key
+	ViewState / Session Generation
+	
+Sessions
+	CookieLess
+	InProcess
+	StateServer
+		Possible flaws
+	SQL Database
+		Field lengths, character data
+	Sliding Sessions...
+		Florida example
+		
+Error Handling
+	Default settings
+	aspxerrorpath tricks
+	Information disclosure
+
+Forms Authentication
+	?
+	
+ViewState Information
+	Data leak, MAC, etc.
+	
+Debugging
+	Debugging left enabled
+	Tracing left enabled!
+
+Overview
+	Locking down ASP.Net is not hard
+	Thousands of sites arent doing it
+		Microsoft Terra ServerDopostback/rss.aspx
+		Microsoft Research
+Summary
+	Vulns
+	Tools
+	Fixes
+Done
+	
+	
+	
+IssueTracker.mdb
