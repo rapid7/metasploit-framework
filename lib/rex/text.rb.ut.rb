@@ -10,6 +10,7 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 	def test_uri_encode
 		srand(0)
 		assert_equal('A1%21', Rex::Text.uri_encode('A1!'), 'uri encode')
+		assert_equal('A1!', Rex::Text.uri_encode('A1!', 'none'), 'uri encode: none')
 		assert_equal('A1%21', Rex::Text.uri_encode('A1!', 'hex-normal'), 'uri encode: hex-normal')
 		assert_equal('%41%31%21', Rex::Text.uri_encode('A1!', 'hex-all'), 'uri encode: hex-all')
 		assert_equal('A1%u01c3', Rex::Text.uri_encode('A1!', 'u-normal'), 'uri encode: u-normal')
