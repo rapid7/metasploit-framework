@@ -7,6 +7,19 @@ require 'rex/text'
 
 class Rex::Text::UnitTest < Test::Unit::TestCase
 
+	def test_uri_encode
+		srand(0)
+		assert_equal('A1%21', Rex::Text.uri_encode('A1!'), 'uri encode')
+		assert_equal('A1%21', Rex::Text.uri_encode('A1!', 'hex-normal'), 'uri encode: hex-normal')
+		assert_equal('%41%31%21', Rex::Text.uri_encode('A1!', 'hex-all'), 'uri encode: hex-all')
+		assert_equal('A1%u01c3', Rex::Text.uri_encode('A1!', 'u-normal'), 'uri encode: u-normal')
+		assert_equal('%uff21%u2081%uff01', Rex::Text.uri_encode('A1!', 'u-all'), 'uri encode: u-all')
+
+		assert_raises(TypeError) {
+			Rex::Text.uri_encode('a', 'umpa lumpa')
+		}
+	end
+
 	def test_rand_text
 		srand(0)
 		assert_equal("\254/u\300C\373\303g\t\323", Rex::Text.rand_text(10), 'rand text 1')
@@ -95,13 +108,18 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 	end
 	
 	def test_hexify
-		str = "\x01\x02\xff"
+		str = "\x01\x02\xff\x00"
 	
-		assert_equal("\\x01\\x02\\xff", Rex::Text.to_hex(str), 'to_hex')
-		assert_equal("ABC01ABC02ABCff", Rex::Text.to_hex(str, 'ABC'), 'to_hex with prefix')
-		assert_equal("\"\\x01\\x02\\xff\"\n", Rex::Text.to_ruby(str), 'to_ruby')
-		assert_equal("\"\\x01\\x02\\xff\";\n", Rex::Text.to_perl(str), 'to_perl')
-		assert_equal("unsigned char buf[] = \n\"\\x01\\x02\\xff\";\n", Rex::Text.to_c(str), 'to_c')
+		assert_equal("\\x01\\x02\\xff\\x00", Rex::Text.to_hex(str), 'to_hex')
+		assert_equal("ABC01ABC02ABCffABC00", Rex::Text.to_hex(str, 'ABC'), 'to_hex with prefix')
+		assert_equal('%u0102%uff00', Rex::Text.to_hex(str, '%u', 2), 'to_hex with chunk size of 2')
+		
+		# to_hex, without providing enouigh data to chunk on a given size
+		assert_raises(RuntimeError){ Rex::Text.to_hex('a', '', 2) }
+
+		assert_equal("\"\\x01\\x02\\xff\\x00\"\n", Rex::Text.to_ruby(str), 'to_ruby')
+		assert_equal("\"\\x01\\x02\\xff\\x00\";\n", Rex::Text.to_perl(str), 'to_perl')
+		assert_equal("unsigned char buf[] = \n\"\\x01\\x02\\xff\\x00\";\n", Rex::Text.to_c(str), 'to_c')
 	
 		# 0 -> 20
 		str = "\000\001\002\003\004\005\006\a\010\t\n\v\f\r\016\017\020\021\022\023"

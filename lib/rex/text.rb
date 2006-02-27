@@ -110,8 +110,14 @@ module Text
 	#
 	# Returns the hex version of the supplied string
 	#
-	def self.to_hex(str, prefix = "\\x")
-		return str.gsub(/./) { |s| prefix + s.unpack('H*')[0] }
+	def self.to_hex(str, prefix = "\\x", count = 1)
+		raise RuntimeError, "unable to chunk into #{count} byte chunks" if ((str.length % count) > 0)
+
+		# XXX: Regexp.new is used here since using /.{#{count}}/o would compile
+		# the regex the first time it is used and never check again.  Since we
+		# want to know how many to capture on every instance, we do it this
+		# way.
+		return str.gsub(Regexp.new(".{#{count}}")) { |s| prefix + s.unpack('H*')[0] }
 	end
 
 	#
@@ -257,7 +263,30 @@ module Text
 			raise TypeError, 'invalid utf type'
 		end
 	end
-	
+
+	# 	
+	# Encode a string in a manor useful for HTTP URIs and URI Parameters.  
+	#
+	def self.uri_encode(str, mode = 'hex-normal')
+		return str if mode == 'none' # fast track no encoding
+
+		all = /[^\/\\]+/
+        normal = /[^a-zA-Z1-9]+/
+
+        case mode
+        when 'hex-normal'
+            return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
+        when 'hex-all'
+            return str.gsub(all) { |s| Rex::Text.to_hex(s, '%') }
+        when 'u-normal'
+            return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+        when 'u-all'
+            return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+        else
+            raise TypeError, 'invalid mode'
+        end
+	end
+
 	#
 	# Converts a hex string to a raw string
 	#
