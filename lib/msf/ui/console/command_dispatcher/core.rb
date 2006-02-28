@@ -710,6 +710,10 @@ class Core
 			res << 'TARGET'
 		end
 
+		if (mod.auxiliary?)
+			res << "ACTION"
+		end
+
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
 			p = framework.modules.create(mod.datastore['PAYLOAD'])
 			if (p)
@@ -1030,6 +1034,11 @@ class Core
 			return option_values_targets()  if opt == 'TARGET'
 			return option_values_nops()     if opt == 'NOPS'
 		end
+
+		# Well-known option names specific to auxiliaries
+		if (mod.auxiliary?)
+			return option_values_actions() if opt == 'ACTION'
+		end
 		
 		# The ENCODER option works for payloads and exploits
 		if ((mod.exploit? or mod.payload?) and opt == 'ENCODER')
@@ -1093,6 +1102,18 @@ class Core
 		res = []
 		if (active_module.targets)
 			1.upto(active_module.targets.length) { |i| res << (i-1).to_s }
+		end
+		return res
+	end	
+	
+	
+	#
+	# Provide valid action options for the current auxiliary module
+	#
+	def option_values_actions
+		res = []
+		if (active_module.actions)
+			active_module.actions.each { |i| res << i[0] }
 		end
 		return res
 	end	
