@@ -23,7 +23,6 @@ Please see the actual license for details.
 The copyright on this package is held by the Metasploit Project (2003-2006). 
 
 This copyright notice does not apply to the following components:
-- The Ruby interpreter and all built-in libraries, classes, and modules
 - The vncdll.dll binary or its associated source code (modified RealVNC)
 - The icons used by msfweb that were not created by the Metasploit Project
 
