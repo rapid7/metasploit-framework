@@ -73,8 +73,6 @@ class DataStore < Hash
 
 			next if (var =~ /^\s+$/)
 
-			# Remove trailing whitespaces from the value
-			val.gsub!(/\s+$/, '')
 
 			# Invalid parse?  Raise an exception and let those bastards know.
 			if (var == nil or val == nil)
@@ -84,6 +82,9 @@ class DataStore < Hash
 					caller
 			end
 
+			# Remove trailing whitespaces from the value
+			val.gsub!(/\s+$/, '')
+            
 			# Store the value
 			hash[var] = val
 		}
