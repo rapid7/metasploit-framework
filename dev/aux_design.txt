@@ -1,0 +1,48 @@
+Auxiliary Module Design
+-----------------------
+
+The goal of this document is to define the requirements and basic
+implementation of Metasploit v3.0 Auxiliary Modules. Auxiliary modules have a
+unique role in the Framework in that they can do just about anything.
+Auxiliary modules work similar to exploits, in that the user selects a module,
+configures, and launches it, but differs in that they do not execute arbitrary
+code on target systems. 
+
+
+Design Goals
+------------
+
+Auxiliary modules should be capable of performing reconnaisance activities,
+such as sending probes or listening to the network, and exporting the data
+into a persistent storage system accessible to the rest of the Framework. Not
+all auxiliary modules produce this type of data, some may perform intrusive
+actions, such as file retrieval or modifying access credentials.
+
+An Auxiliary module has the ability to define new commands and then process
+these commands. Any user interface that sypports Auxiliary modules needs to
+take into account this fact and allow these optional commands to be accessed.
+
+Unlike exploits, auxiliary modules do not use Targets, instead they support
+what we call Actions. An Action is an option, that when set, causes the
+auxiliary module to perform a selected task. Between the extensible command
+set and the Actions system, a single auxiliary module is capable performing an
+almost infinite number of tasks.
+
+An example would be a module that performs various tasks against a Microsoft
+SQL Server. This module would only support the default command of 'run', but
+could allow the user to send a UDP probe and display the data, perform an
+account brute force, or scan all open ports for an exposed MSSQL DCERPC
+interface. 
+
+
+
+
+
+Storage
+-------
+
+
+
+
+Requirements
+------------

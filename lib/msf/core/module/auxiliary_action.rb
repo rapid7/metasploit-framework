@@ -9,12 +9,11 @@ class Msf::Module::AuxiliaryAction
 
 
 	#
-	# Serialize from an array to a Target instance.
+	# Serialize from an array to an Action instance.
 	#
-	def self.from_a(ary)
-		return nil if (ary.length < 2)
-
-		self.new(ary.shift, ary.shift)
+	def self.from_a(ary)		
+		return nil if ary.nil?
+		self.new(*ary)
 	end
 
 	#
@@ -24,7 +23,9 @@ class Msf::Module::AuxiliaryAction
 		Rex::Transformer.transform(src, Array, [ self, String ], 'AuxiliaryAction')
 	end
 
-
+	#
+	# Creates a new action definition
+	#
 	def initialize(name, opts={})
 		self.name           = name
 		self.opts           = opts

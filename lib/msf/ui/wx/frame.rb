@@ -201,13 +201,13 @@ class MyFrame < ::Wx::Frame
 			n_exploits   = @m_tree_modules_exploits.append_item(n_modules, 'Standard', FRAME_ICONS_EXPLOITS)
 			n_auxiliary  = @m_tree_modules_exploits.append_item(n_modules, 'Auxiliary', FRAME_ICONS_AUXILIARY)
 
-			framework.exploits.sort.each do |mod, obj|
+			framework.exploits.each_module do |mod, obj|
 				next if not mod.match(filter)
 				oid = @m_tree_modules_exploits.append_item(n_exploits, obj.new.name, FRAME_ICONS_MOD_EXPLOIT)
 				@m_tree_modules_items[oid] = obj
 			end
 
-			framework.auxiliary.sort.each do |mod, obj|
+			framework.auxiliary.each_module do |mod, obj|
 				next if not mod.match(filter)
 				oid = @m_tree_modules_exploits.append_item(n_auxiliary, obj.new.name, FRAME_ICONS_MOD_AUXILIARY)
 				@m_tree_modules_items[oid] = obj
@@ -224,24 +224,24 @@ class MyFrame < ::Wx::Frame
 			n_nops       = @m_tree_modules_payloads.append_item(n_modules, 'Nops', FRAME_ICONS_NOPS)
 			
 			
-			framework.payloads.sort.each do |mod, obj|
+			framework.payloads.each_module do |mod, obj|
 				next if not mod.match(filter)
 				oid = @m_tree_modules_payloads.append_item(n_payloads, obj.new.name, FRAME_ICONS_MOD_PAYLOAD)
 				@m_tree_modules_items[oid] = obj
 			end
 
-			framework.encoders.sort.each do |mod, obj|
+			framework.encoders.each_module do |mod, obj|
 				next if not mod.match(filter)			
 				oid = @m_tree_modules_payloads.append_item(n_encoders, obj.new.name, FRAME_ICONS_MOD_ENCODER)
 				@m_tree_modules_items[oid] = obj
 			end
 
-			framework.nops.sort.each do |mod, obj|
+			framework.nops.each_module do |mod, obj|
 				next if not mod.match(filter)
 				oid = @m_tree_modules_payloads.append_item(n_nops, obj.new.name,  FRAME_ICONS_MOD_NOP)
 				@m_tree_modules_items[oid] = obj
 			end
-			
+		
 			@m_tree_modules_exploits.expand(n_modules)
 			
 			# Load the sessions list
