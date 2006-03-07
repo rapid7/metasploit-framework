@@ -8,11 +8,6 @@ class Utils
 
 CONST = Rex::Proto::SMB::Constants
 
-	# Convert a standard ASCII string to 16-bit Unicode
-	def self.unicode (str)
-		Rex::Text.to_unicode(str)
-	end
-
 	# Creates an access mask for use with the CLIENT.open() call based on a string
 	def self.open_mode_to_access(str)
 		access = CONST::OPEN_ACCESS_READ | CONST::OPEN_SHARE_DENY_NONE
@@ -150,62 +145,65 @@ CONST = Rex::Proto::SMB::Constants
 		
 	def self.make_ntlmv2_secblob_auth (domain = '', name = '', user = '', lmv2 = '', ntlm = '')
 		
-		domain_uni = self.unicode(domain)
-		user_uni   = self.unicode(user)
-		name_uni   = self.unicode(name)
+		domain_uni = Rex::Text.to_unicode(domain)
+		user_uni   = Rex::Text.to_unicode(user)
+		name_uni   = Rex::Text.to_unicode(name)
 		
 		ptr  = 0 
 		blob =
 			"\xa1" + self.asn1encode(
-			"\x30" + self.asn1encode(
-			"\xa2" + self.asn1encode(
-			"\x04" + self.asn1encode(
-		
-				"NTLMSSP\x00" +
-				[ 3 ].pack('V') +
+				"\x30" + self.asn1encode(
+					"\xa2" + self.asn1encode(
+						"\x04" + self.asn1encode(
+					
+							"NTLMSSP\x00" +
+							[ 3 ].pack('V') +
+							
+							[	# Lan Manager Response
+								lmv2.length,
+								lmv2.length,
+								(ptr += 64)
+							].pack('vvV') +
+							
+							[	# NTLM Manager Response
+								ntlm.length,
+								ntlm.length,
+								(ptr += lmv2.length)
+							].pack('vvV') +		
+									
+							[	# Domain Name
+								domain_uni.length,
+								domain_uni.length,
+								(ptr += ntlm.length)
+							].pack('vvV') +		
+			
+							[	# Username
+								user_uni.length,
+								user_uni.length,
+								(ptr += domain_uni.length)
+							].pack('vvV') +		
+			
+							[	# Hostname
+								name_uni.length,
+								name_uni.length,
+								(ptr += user_uni.length)
+							].pack('vvV') +		
+							
+							[	# Session Key (none)
+								0, 0, 0
+							].pack('vvV') +		
+			
+							[ 0x80201 ].pack('V') +
 				
-				[	# Lan Manager Response
-					lmv2.length,
-					lmv2.length,
-					(ptr += 64)
-				].pack('vvV') +
-				
-				[	# NTLM Manager Response
-					ntlm.length,
-					ntlm.length,
-					(ptr += lmv2.length)
-				].pack('vvV') +		
-						
-				[	# Domain Name
-					domain_uni.length,
-					domain_uni.length,
-					(ptr += ntlm.length)
-				].pack('vvV') +		
-
-				[	# Username
-					user_uni.length,
-					user_uni.length,
-					(ptr += domain_uni.length)
-				].pack('vvV') +		
-
-				[	# Hostname
-					name_uni.length,
-					name_uni.length,
-					(ptr += user_uni.length)
-				].pack('vvV') +		
-				
-				[	# Session Key (none)
-					0, 0, 0
-				].pack('vvV') +		
-
-				[ 0x80201 ].pack('V') +
-	
-				lmv2 +
-				ntlm +
-				domain_uni +
-				user_uni +
-				name_uni 
-		))))
+							lmv2 +
+							ntlm +
+							domain_uni +
+							user_uni +
+							name_uni 
+					)
+				)
+			)
+		)
 		return blob
 	end
 	

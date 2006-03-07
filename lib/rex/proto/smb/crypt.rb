@@ -41,12 +41,8 @@ begin
 		ckey64.pack('C*')
 	end
 
-	def self.unicode (str)
-		Rex::Text.to_unicode(str)
-	end
-	
 	def self.ntlm_md4(pass, chal)
-		e_p24( [ md4_hash(unicode(pass)) ].pack('a21'), chal)
+		e_p24( [ md4_hash(Rex::Text.to_unicode(pass)) ].pack('a21'), chal)
 	end
 	
 	def self.md4_hash(data)
