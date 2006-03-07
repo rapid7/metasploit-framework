@@ -70,9 +70,9 @@ class PayloadSet < ModuleSet
 	# of singles, stagers, and stages.
 	#
 	def recalculate
-		# Reset the current hash associations
-		self.each_key { |key|
-			manager.delete(key)
+		# Reset the current hash associations for all non-symbolic modules
+		self.each_pair { |key, v|
+			manager.delete(key) if (v != SymbolicModule)
 		}
 
 		self.delete_if { |k, v|
