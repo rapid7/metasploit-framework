@@ -12,7 +12,7 @@ b. "Software" means any software that is distributed under the terms of
 this License.
 
 c. "Extension" means any enhancement to the Software that does not require 
-modification of the Software itself. ?Extensions? include any module or 
+modification of the Software itself. "Extensions" include any module or 
 plug-in that is intended (by design and coding) to, or can, be 
 dynamically loaded by the Software.
 
@@ -33,8 +33,8 @@ utilization in any larger application or product).
 g. "You" means the individual or organization that is using the Software 
 under the conditions of the License.
 
-h. "Interface" means to execute, parse, or otherwise benefit from the of 
-the Software.
+h. "Interface" means to execute, parse, or otherwise benefit from the use
+of the Software.
 
 i. "Interaction Software" means any external software program or library 
 that interfaces with, but is not a component or subset of, the Software.

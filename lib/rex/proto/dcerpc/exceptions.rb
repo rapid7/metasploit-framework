@@ -17,7 +17,7 @@ class Error < ::RuntimeError
 		File.open(file).each { |line|
 			next if line =~ /^#/
 			code, string = line.split
-			code = [code].pack('H*').unpack('L')[0]
+			code = [code].pack('H*').unpack('N')[0]
 			@@errors[code] = string
 		}
 	end
