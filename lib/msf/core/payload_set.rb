@@ -74,7 +74,10 @@ class PayloadSet < ModuleSet
 		self.each_key { |key|
 			manager.delete(key)
 		}
-		self.clear
+
+		self.delete_if { |k, v|
+			v != SymbolicModule
+		}
 
 		# Recalculate single payloads
 		_singles.each_pair { |name, op|

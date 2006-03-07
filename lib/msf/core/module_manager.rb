@@ -535,6 +535,8 @@ class ModuleManager < ModuleSet
 	# Synchronizes the module cache information 
 	#
 	def update_module_cache_info(fullname, modinfo)
+		return if (modinfo and modinfo['noup'] == true)
+
 		if (@modcache)
 			if (fullname)
 				@modcache.add_group(fullname)
