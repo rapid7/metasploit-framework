@@ -8,6 +8,8 @@ require 'rex/text.rb.ut'
 require 'rex/evasion.rb.ut'
 require 'rex/file.rb.ut'
 
+require 'rex/encoder/xdr.rb.ut'
+
 require 'rex/encoding/xor/generic.rb.ut'
 require 'rex/encoding/xor/byte.rb.ut'
 require 'rex/encoding/xor/word.rb.ut'
