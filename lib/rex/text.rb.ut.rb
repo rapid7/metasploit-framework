@@ -4,7 +4,7 @@ $:.unshift(File.join(File.dirname(__FILE__), '..'))
 
 require 'test/unit'
 require 'rex/text'
-
+require 'rex/exceptions'
 class Rex::Text::UnitTest < Test::Unit::TestCase
 
 	def test_uri_encode
@@ -116,7 +116,7 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 		assert_equal('%u0102%uff00', Rex::Text.to_hex(str, '%u', 2), 'to_hex with chunk size of 2')
 		
 		# to_hex, without providing enouigh data to chunk on a given size
-		assert_raises(RuntimeError){ Rex::Text.to_hex('a', '', 2) }
+		assert_raises(Rex::RuntimeError){ Rex::Text.to_hex('a', '', 2) }
 
 		assert_equal("\"\\x01\\x02\\xff\\x00\"\n", Rex::Text.to_ruby(str), 'to_ruby')
 		assert_equal("\"\\x01\\x02\\xff\\x00\";\n", Rex::Text.to_perl(str), 'to_perl')
