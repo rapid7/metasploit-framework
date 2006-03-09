@@ -1113,7 +1113,7 @@ class Core
 	def option_values_actions
 		res = []
 		if (active_module.actions)
-			active_module.actions.each { |i| res << i[0] }
+			active_module.actions.each { |i| res << i.name }
 		end
 		return res
 	end	

@@ -14,6 +14,11 @@ module Msf
 class Auxiliary < Msf::Module
 
 	#
+	# Auxiliary mixins
+	#
+	require 'msf/core/auxiliary/tcp'
+
+	#
 	# Returns MODULE_AUX to indicate that this is an auxiliary module.
 	#
 	def self.type
@@ -46,6 +51,24 @@ class Auxiliary < Msf::Module
 	
 	def run
 		print_status("Running the default Auxiliary handler")
+	end
+
+	def auxiliary_commands
+		return { }
+	end
+
+	def action
+		sa = datastore['ACTION']
+		return find_action(default_action) if not sa
+		return find_action(sa)
+	end
+
+	def find_action(name)
+		return nil if not name
+		actions.each do |a|
+			return a if a.name == name
+		end
+		return nil
 	end
 
 	# 

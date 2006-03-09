@@ -14,11 +14,16 @@ module Auxiliary
 	# Wraps the execution process in a simple wrapper.
 	#
 	def self.run_simple(mod, opts = {})
+
+		if (not mod.action)
+			raise MissingActionError, "You must specify a valid Action", caller
+		end
+
 		# Initialize user interaction
 		mod.init_ui(
 			opts['LocalInput'],
 			opts['LocalOutput'])
-
+		
 		mod.run()
 
 		# Reset the user interface

@@ -46,5 +46,22 @@ module Arch
 		end
 	end
 
+	#
+	# This routine reports the endianess of a given architecture
+	#
+	def self.endianr(arch, addr)
+		case arch
+			when ARCH_X86
+				return ENDIAN_LITTLE
+			when ARCH_MIPS # ambiguous
+				return ENDIAN_BIG
+			when ARCH_PPC  # ambiguous
+				return ENDIAN_BIG
+			when ARCH_SPARC
+				return ENDIAN_BIG
+		end
+		return ENDIAN_LITTLE
+	end
+
 end
 end

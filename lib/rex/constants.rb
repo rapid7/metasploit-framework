@@ -79,3 +79,11 @@ ARCH_TYPES =
 	]
 
 ARCH_ALL = ARCH_TYPES
+
+#
+# Endian constants
+#
+ENDIAN_LITTLE = 0
+ENDIAN_BIG    = 1
+
+

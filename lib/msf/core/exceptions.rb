@@ -144,6 +144,19 @@ end
 
 ###
 #
+# This exception is raised to indicate a general auxiliary error.
+#
+###
+module AuxiliaryError
+	include Exception
+
+	def to_s
+		"An auxiliary error occurred."
+	end
+end
+
+###
+#
 # This exception is raised if a target was not specified when attempting to
 # exploit something.
 #
@@ -167,6 +180,20 @@ class MissingPayloadError < ArgumentError
 
 	def to_s
 		"A payload has not been selected."
+	end
+end
+
+###
+#
+# This exception is raised if a valid action was not specified when attempting to
+# run an auxiliary module.
+#
+###
+class MissingActionError < ArgumentError
+	include AuxiliaryError
+
+	def to_s
+		"A valid action has not been selected."
 	end
 end
 
