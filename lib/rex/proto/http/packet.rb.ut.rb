@@ -156,10 +156,10 @@ class Rex::Proto::Http::Packet::UnitTest < Test::Unit::TestCase
 	end
 
 	# XXX
-#    def test_no_headers
-#        h = Klass.new
-#        h.from_s("GET / HTTP/1.0\r\n\r\n")
-#        assert_equal("GET / HTTP/1.0\r\n", h.headers.cmd_string, 'cmd string')
-#    end
+    def test_no_headers
+        h = Klass.new
+        h.from_s("GET / HTTP/1.0\r\n\r\n")
+        assert_equal("GET / HTTP/1.0\r\n", h.headers.cmd_string, 'cmd string')
+    end
 
 end

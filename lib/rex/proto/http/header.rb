@@ -29,6 +29,12 @@ class Packet::Header < Hash
 	def from_s(header)
 		reset
 
+		# ghettoooooo!
+		# If we don't have any newlines..., put one there.
+		if (header.size > 0 && header !~ /\r\n/)
+			header += "\r\n"
+		end
+
 		# put the non-standard line terminations back to normal
 		# gah.  not having look behinds suck, 
 		header.gsub!(/([^\r])\n/,'\1' + "\r\n")

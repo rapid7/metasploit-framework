@@ -240,7 +240,7 @@ protected
 	##
 
 	def parse_header_re
-	    m = /(.*?)\r?\n\r?\n(.*)/smi.match(self.bufq)
+		m = /(.*?)\r?\n\r?\n(.*)/smi.match(self.bufq)
 	    if m != nil
 	        self.headers.from_s(m[1])
 	        self.bufq = m[2]
