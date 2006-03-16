@@ -83,6 +83,7 @@ encoder  = nil
 fmt      = "c"
 input    = $stdin
 options  = ''
+delim    = '_|_'
 
 # Parse the argument and rock that shit.
 $args.parse(ARGV) { |opt, idx, val|
@@ -117,7 +118,7 @@ $args.parse(ARGV) { |opt, idx, val|
 			usage
 		else
 			if (val =~ /=/)
-				options += ((options.length > 0) ? "," : "") + "#{val}"
+				options += ((options.length > 0) ? delim : "") + "#{val}"
 			end
 	end	
 }
@@ -144,7 +145,7 @@ case cmd
 			next if not enc
 			begin
 				# Imports options
-				enc.datastore.import_options_from_s(options)
+				enc.datastore.import_options_from_s(options, delim)
 
 				# Encode it upt
 				raw = enc.encode(buf, badchars)

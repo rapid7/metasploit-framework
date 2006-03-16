@@ -70,7 +70,7 @@ exploit.init_ui(
 mode = ARGV.pop || 'h'
 
 # Import options
-exploit.datastore.import_options_from_s(ARGV.join(' '))
+exploit.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
 
 case mode.downcase
 	when 'h'

@@ -57,14 +57,16 @@ class DataStore < Hash
 	# Imports option values from a whitespace separated string in
 	# VAR=VAL format.
 	#
-	def import_options_from_s(option_str)
+	def import_options_from_s(option_str, delim = nil)
 		hash = {}
 
 		# Figure out the deliminter, default to space.
-		delim = /\s/
+		if (delim.nil?)
+			delim = /\s/
 
-		if (option_str.split('=').length <= 2 or option_str.index(',') != nil)
-			delim = ','
+			if (option_str.split('=').length <= 2 or option_str.index(',') != nil)
+				delim = ','
+			end
 		end
 
 		# Split on the deliminter
