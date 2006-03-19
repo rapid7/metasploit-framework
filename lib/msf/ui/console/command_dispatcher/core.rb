@@ -662,7 +662,7 @@ class Core
 
 		# Set the supplied name to the supplied value
 		name  = args[0]
-		value = args[1]
+		value = args[1, args.length-1].join(' ')
 
 		# If the driver indicates that the value is not valid, bust out.
 		if (driver.on_variable_set(global, name, value) == false)
