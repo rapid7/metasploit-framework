@@ -840,7 +840,7 @@ class Core
 	# Tab completion for the unload command
 	#
 	def cmd_unload_tabs(str, words)
-		framework.plugins.each { k.name }
+		framework.plugins.each { |k| k.name }
 	end
 
 	#

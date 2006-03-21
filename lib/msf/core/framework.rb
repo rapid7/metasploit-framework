@@ -15,7 +15,7 @@ class Framework
 	#
 	Major    = 3
 	Minor    = 0
-	Release  = "-alpha-r3"
+	Release  = "-alpha-r4"
 	Version  = "#{Major}.#{Minor}#{Release}"
 	Revision = "$Revision$"
 	
@@ -34,17 +34,19 @@ class Framework
 
 	require 'msf/core/module_manager'
 	require 'msf/core/session_manager'
+	require 'msf/core/db_manager'
 
 	#
 	# Creates an instance of the framework context.
 	#
 	def initialize()
-		self.events    = EventDispatcher.new
+		self.events    = EventDispatcher.new(self)
 		self.modules   = ModuleManager.new(self)
 		self.sessions  = SessionManager.new(self)
 		self.datastore = DataStore.new
 		self.jobs      = Rex::JobContainer.new
 		self.plugins   = PluginManager.new(self)
+		self.db        = DBManager.new(self)
 	end
 
 	#
@@ -125,7 +127,12 @@ class Framework
 	# unloading of plugins.
 	#
 	attr_reader   :plugins
-
+	#
+	# The framework instance's db manager. The db manager
+	# maintains the database db and handles db events
+	#
+	attr_reader   :db
+	
 protected
 
 	attr_writer   :events # :nodoc:
@@ -135,7 +142,7 @@ protected
 	attr_writer   :auxmgr # :nodoc:
 	attr_writer   :jobs # :nodoc:
 	attr_writer   :plugins # :nodoc:
-
+	attr_writer   :db # :nodoc:
 end
 
 end

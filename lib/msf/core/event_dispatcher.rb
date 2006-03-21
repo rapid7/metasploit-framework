@@ -31,10 +31,14 @@ end
 ###
 class EventDispatcher
 
-	def initialize
+	include Framework::Offspring
+
+	def initialize(framework)
+		self.framework = framework
 		self.general_event_subscribers = []
 		self.exploit_event_subscribers = []
 		self.session_event_subscribers = []
+		self.db_event_subscribers = []
 		self.subscribers_rwlock        = Rex::ReadWriteLock.new
 	end
 
@@ -58,6 +62,24 @@ class EventDispatcher
 	def remove_general_subscriber(subscriber)
 		remove_event_subscriber(general_event_subscribers, subscriber)	
 	end
+
+	#
+	# This method adds a db event subscriber. db event subscribers
+	# receive notifications when events occur that pertain to db changes.
+	# The subscriber provided must implement the dbEvents module methods in
+	# some form.
+	#
+	def add_db_subscriber(subscriber)
+		add_event_subscriber(db_event_subscribers, subscriber)
+	end
+
+	#
+	# Removes a db event subscriber.
+	#
+	def remove_db_subscriber(subscriber)
+		remove_event_subscriber(db_event_subscribers, subscriber)
+	end
+
 
 	#
 	# This method adds an exploit event subscriber.  Exploit event subscribers
@@ -126,68 +148,49 @@ class EventDispatcher
 			}
 		}
 	end
+	
+	#
+	# Capture incoming events and pass them off to the subscribers
+	#
+	def method_missing(name, *args)
 
-
-	##
-	#
-	# Exploit events
-	#
-	##
-
-	#
-	# Called when an exploit succeeds.  This notifies the registered exploit
-	# event subscribers.
-	#
-	def on_exploit_success(exploit, session = nil)
-		subscribers_rwlock.synchronize_read {
-			exploit_event_subscribers.each { |subscriber|
-				subscriber.on_exploit_success(exploit, session)
-			}
-		}
+		# Prevent this from hooking events prior to it actually loading
+		return false if not subscribers_rwlock
+		
+		subscribers_rwlock.synchronize_read do		
+			case name
+			
+			# Exploit events
+			when /^on_exploit/
+				exploit_event_subscribers.each do |subscriber|
+					next if not subscriber.respond_to?(name)
+					subscriber.send(name, *args)
+				end
+			
+			# Session events
+			when /^on_session/
+				session_event_subscribers.each do |subscriber|
+					next if not subscriber.respond_to?(name)
+					subscriber.send(name, *args)
+				end
+			
+			# db events
+			when /^on_db/
+				# Only process these events if the db is active
+				if (framework.db.active)
+					db_event_subscribers.each do |subscriber|
+						next if not subscriber.respond_to?(name)
+						subscriber.send(name, *args)
+					end
+				end
+			# Everything else								
+			else
+				elog("Event dispatcher received an unhandled event: #{name}")
+			end		
+		end		
 	end
-
-	#
-	# Called when an exploit fails.  This notifies the registered exploit
-	# event subscribers.
-	#
-	def on_exploit_failure(exploit, reason)
-		subscribers_rwlock.synchronize_read {
-			exploit_event_subscribers.each { |subscriber|
-				subscriber.on_exploit_failure(exploit, reason)
-			}
-		}
-	end
-
-	##
-	#
-	# Session events
-	#
-	##
-
-	#
-	# Called when a new session is opened.  This notifies all the registered
-	# session event subscribers.
-	#
-	def on_session_open(session)
-		subscribers_rwlock.synchronize_read {
-			session_event_subscribers.each { |subscriber|
-				subscriber.on_session_open(session)
-			}
-		}
-	end
-
-	#
-	# Called when a new session is closed.  This notifies all the registered
-	# session event subscribers.
-	#
-	def on_session_close(session)
-		subscribers_rwlock.synchronize_read {
-			session_event_subscribers.each { |subscriber|
-				subscriber.on_session_close(session)
-			}
-		}
-	end
-
+	
+	
 protected
 
 	#
