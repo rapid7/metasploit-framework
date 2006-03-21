@@ -11,6 +11,19 @@ module Msf
 
 class Plugin::DBSQLite3 < Msf::Plugin
 
+
+
+	###
+	#
+	# This class implements an event handler for db events
+	#
+	###
+	class DBEventHandler
+		def on_db_host(context, host)
+			puts "New host event: #{host.address}"
+		end
+	end
+	
 	###
 	#
 	# This class implements a sample console command dispatcher.
@@ -85,11 +98,16 @@ class Plugin::DBSQLite3 < Msf::Plugin
 			return
 		end
 		
+		@dbh = DBEventHandler.new
+		
 		add_console_dispatcher(ConsoleCommandDispatcher)
+		framework.events.add_db_subscriber(@dbh)
+		
 	end
 
 	def cleanup
-		remove_console_dispatcher('DBDispatcher') 
+		framework.events.remove_db_subscriber(@dbh)
+		remove_console_dispatcher('DBDispatcher')	
 	end
 
 	#

@@ -38,7 +38,7 @@ class EventDispatcher
 		self.general_event_subscribers = []
 		self.exploit_event_subscribers = []
 		self.session_event_subscribers = []
-		self.db_event_subscribers = []
+		self.db_event_subscribers      = []
 		self.subscribers_rwlock        = Rex::ReadWriteLock.new
 	end
 
@@ -158,7 +158,7 @@ class EventDispatcher
 		return false if not subscribers_rwlock
 		
 		subscribers_rwlock.synchronize_read do		
-			case name
+			case name.to_s
 			
 			# Exploit events
 			when /^on_exploit/
@@ -185,9 +185,13 @@ class EventDispatcher
 				end
 			# Everything else								
 			else
-				elog("Event dispatcher received an unhandled event: #{name}")
+				elog("Event dispatcher received an unhandled event: #{name.to_s}")
+				p name
+				return false
 			end		
-		end		
+		end
+		
+		return true
 	end
 	
 	
@@ -214,6 +218,7 @@ protected
 	attr_accessor :general_event_subscribers # :nodoc:
 	attr_accessor :exploit_event_subscribers # :nodoc:
 	attr_accessor :session_event_subscribers # :nodoc:
+	attr_accessor :db_event_subscribers # :nodoc:	
 	attr_accessor :subscribers_rwlock # :nodoc:
 
 end
