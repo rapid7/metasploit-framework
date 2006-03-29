@@ -117,7 +117,7 @@ module Text
 		# the regex the first time it is used and never check again.  Since we
 		# want to know how many to capture on every instance, we do it this
 		# way.
-		return str.gsub(Regexp.new(".{#{count}}")) { |s| prefix + s.unpack('H*')[0] }
+		return str.unpack('H*')[0].gsub(Regexp.new(".{#{count * 2}}")) { |s| prefix + s }
 	end
 
 	#
