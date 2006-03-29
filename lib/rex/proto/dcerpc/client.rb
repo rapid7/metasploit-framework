@@ -188,8 +188,15 @@ require 'rex/proto/smb/exceptions'
 		if options['frag_size']
 			frag_size = options['frag_size']
 		end
+		object_id = ''
+		if options['object_call']
+			object_id = self.handle.uuid[0]
+		end
+		if options['random_object_id']
+			object_id = Rex::Proto::DCERPC::UUID.uuid_unpack(Rex::Text.rand_text(16))
+		end
 
-		call_packets = Rex::Proto::DCERPC::Packet.make_request(function, data, frag_size, self.context)
+		call_packets = Rex::Proto::DCERPC::Packet.make_request(function, data, frag_size, self.context, object_id)
 		call_packets.each { |packet|
 			self.write(packet)
 		}
