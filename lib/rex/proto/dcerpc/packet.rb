@@ -6,14 +6,15 @@ class Packet
 require 'rex/proto/dcerpc/uuid'
 require 'rex/proto/dcerpc/response'
 require 'rex/text'
+		
+	UUID = Rex::Proto::DCERPC::UUID
 
 	# Create a standard DCERPC BIND request packet
 	def self.make_bind (uuid, vers)	
-		u = Rex::Proto::DCERPC::UUID
 		
 		# Process the version strings ("1.0", 1.0, "1", 1)
-		bind_vers_maj, bind_vers_min = u.vers_to_nums(vers)
-		xfer_vers_maj, xfer_vers_min = u.vers_to_nums(u.xfer_syntax_vers)
+		bind_vers_maj, bind_vers_min = UUID.vers_to_nums(vers)
+		xfer_vers_maj, xfer_vers_min = UUID.vers_to_nums(UUID.xfer_syntax_vers)
 
 		# Create the bind request packet
 		buff = 
@@ -32,10 +33,10 @@ require 'rex/text'
 			1,      # num ctx items
 			0,      # context id
 			1,      # num trans items
-			u.uuid_pack(uuid),   # interface uuid
+			UUID.uuid_pack(uuid),   # interface uuid
 			bind_vers_maj,       # interface major version
 			bind_vers_min,       # interface minor version
-			u.xfer_syntax_uuid,  # transfer syntax
+			UUID.xfer_syntax_uuid,  # transfer syntax
 			xfer_vers_maj,       # syntax major version
 			xfer_vers_min,       # syntax minor version 
 		].pack('CCCCNvvVvvVVvvA16vvA16vv')
@@ -48,8 +49,8 @@ require 'rex/text'
 		u = Rex::Proto::DCERPC::UUID
 		
 		# Process the version strings ("1.0", 1.0, "1", 1)
-		bind_vers_maj, bind_vers_min = u.vers_to_nums(vers)
-		xfer_vers_maj, xfer_vers_min = u.vers_to_nums(u.xfer_syntax_vers)
+		bind_vers_maj, bind_vers_min = UUID.vers_to_nums(vers)
+		xfer_vers_maj, xfer_vers_min = UUID.vers_to_nums(UUID.xfer_syntax_vers)
 		
 		bind_total = bind_head + bind_tail + 1
 		bind_size  = (bind_total * 44) + 28
@@ -86,7 +87,7 @@ require 'rex/text'
 				rand_uuid,  # interface uuid
 				rand_imaj,  # interface major version
 				rand_imin,  # interface minor version
-				u.xfer_syntax_uuid,  # transfer syntax
+				UUID.xfer_syntax_uuid,  # transfer syntax
 				xfer_vers_maj,       # syntax major version
 				xfer_vers_min,       # syntax minor version 
 			].pack('vvA16vvA16vv')
@@ -99,10 +100,10 @@ require 'rex/text'
 		[
 			ctx,      # context id
 			1,        # num trans items		
-			u.uuid_pack(uuid),   # interface uuid
+			UUID.uuid_pack(uuid),   # interface uuid
 			bind_vers_maj,       # interface major version
 			bind_vers_min,       # interface minor version
-			u.xfer_syntax_uuid,  # transfer syntax
+			UUID.xfer_syntax_uuid,  # transfer syntax
 			xfer_vers_maj,       # syntax major version
 			xfer_vers_min,       # syntax minor version 
 		].pack('vvA16vvA16vv')
@@ -123,7 +124,7 @@ require 'rex/text'
 				rand_uuid,  # interface uuid
 				rand_imaj,  # interface major version
 				rand_imin,  # interface minor version
-				u.xfer_syntax_uuid,  # transfer syntax
+				UUID.xfer_syntax_uuid,  # transfer syntax
 				xfer_vers_maj,       # syntax major version
 				xfer_vers_min,       # syntax minor version 
 			].pack('vvA16vvA16vv')
@@ -139,8 +140,8 @@ require 'rex/text'
 		u = Rex::Proto::DCERPC::UUID
 		
 		# Process the version strings ("1.0", 1.0, "1", 1)
-		bind_vers_maj, bind_vers_min = u.vers_to_nums(vers)
-		xfer_vers_maj, xfer_vers_min = u.vers_to_nums(u.xfer_syntax_vers)
+		bind_vers_maj, bind_vers_min = UUID.vers_to_nums(vers)
+		xfer_vers_maj, xfer_vers_min = UUID.vers_to_nums(UUID.xfer_syntax_vers)
 
 		buff = 
 		[
@@ -158,10 +159,10 @@ require 'rex/text'
 			1,      # num ctx items
 			0,      # context id
 			1,      # num trans items
-			u.uuid_pack(uuid),   # interface uuid
+			UUID.uuid_pack(uuid),   # interface uuid
 			bind_vers_maj,       # interface major version
 			bind_vers_min,       # interface minor version
-			u.xfer_syntax_uuid,  # transfer syntax
+			UUID.xfer_syntax_uuid,  # transfer syntax
 			xfer_vers_maj,       # syntax major version
 			xfer_vers_min,       # syntax minor version 
 		].pack('CCCCNvvVvvVVvvA16vvA16vv')
@@ -169,11 +170,21 @@ require 'rex/text'
 	
 
 	# Used to create a piece of a DCERPC REQUEST packet
-	def self.make_request_chunk (flags=3, opnum=0, data="", ctx=0)	
+	def self.make_request_chunk (flags=3, opnum=0, data="", ctx=0, object_id = '')
 
 		dlen = data.length
 		flen = dlen + 24
-		
+
+		use_object = 0
+
+		object_str = ''
+
+		if object_id.size > 0
+			flags |= 0x80
+			flen = flen + 16
+			object_str = UUID.uuid_pack(object_id)
+		end
+
 		buff = 
 		[
 			5,      # major version 5
@@ -187,11 +198,11 @@ require 'rex/text'
 			dlen,   # alloc hint
 			ctx,    # context id
 			opnum,  # operation number
-		].pack('CCCCNvvVVvv') + data
+		].pack('CCCCNvvVVvv') + object_str + data
 	end	
 
 	# Used to create standard DCERPC REQUEST packet(s)
-	def self.make_request (opnum=0, data="", size=data.length, ctx=0)	
+	def self.make_request (opnum=0, data="", size=data.length, ctx=0, object_id = '')
 
 		if size > 4000
 			size = 4000
@@ -208,26 +219,26 @@ require 'rex/text'
 		
 		# Process requests with no stub data
 		if chunks.length == 0
-			frags.push( make_request_chunk(3, opnum, '', ctx) )
+			frags.push( make_request_chunk(3, opnum, '', ctx, object_id) )
 			return frags
 		end
 		
 		# Process requests with only one fragment
 		if chunks.length == 1
-			frags.push( make_request_chunk(3, opnum, chunks[0], ctx) )
+			frags.push( make_request_chunk(3, opnum, chunks[0], ctx, object_id) )
 			return frags
 		end
 
 		# Create the first fragment of the request
-		frags.push( make_request_chunk(1, opnum, chunks.shift, ctx) )
+		frags.push( make_request_chunk(1, opnum, chunks.shift, ctx, object_id) )
 		
 		# Create all of the middle fragments
 		while chunks.length != 1
-			frags.push( make_request_chunk(0, opnum, chunks.shift, ctx) )
+			frags.push( make_request_chunk(0, opnum, chunks.shift, ctx, object_id) )
 		end
 		
 		# Create the last fragment of the request
-		frags.push( make_request_chunk(2, opnum, chunks.shift, ctx) )	
+		frags.push( make_request_chunk(2, opnum, chunks.shift, ctx, object_id) )
 
 		return frags
 	end		
