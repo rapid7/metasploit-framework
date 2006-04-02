@@ -8,8 +8,61 @@ $:.unshift(File.join(File.dirname(__FILE__), 'lib'))
 
 require 'rex'
 require 'msf/ui'
+require 'optparse'
+
+class OptsConsole
+	#
+	# Return a hash describing the options.
+	#
+	def self.parse(args)
+		options = {}
+
+		opts = OptionParser.new do |opts|
+			opts.banner = "Usage: msfconsole [options]"
+
+			opts.separator ""
+			opts.separator "Specific options:"
+
+
+			opts.on("-r", "-r <filename>", "Execute the specified resource file") do |r|
+				options['Resource'] = r
+			end
+
+			opts.on("-c", "-c <filename>", "Load the specified configuration file") do |c|
+				options['Config'] = c
+			end
+
+			# Boolean switch.
+			opts.on("-v", "--version", "Show version") do |v|
+				options['Version'] = true
+			end
+
+			opts.separator ""
+			opts.separator "Common options:"
+
+			opts.on_tail("-h", "--help", "Show this message") do
+				puts opts
+				exit
+			end
+		end
+
+	  opts.parse!(args)
+	 
+	  options
+	end
+end
+
+options = OptsConsole.parse(ARGV)
+if (options['Version'])
+	$stderr.puts 'Framework Version: ' + Msf::Framework::Version
+	exit
+end
 
 begin
-	Msf::Ui::Console::Driver.new.run
+	Msf::Ui::Console::Driver.new(
+		Msf::Ui::Console::Driver::DefaultPrompt,
+		Msf::Ui::Console::Driver::DefaultPromptChar,
+		options
+	).run
 rescue Interrupt
 end

@@ -75,7 +75,7 @@ class Driver < Msf::Ui::Driver
 		register_event_handlers
 
 		# Load console-specific configuration
-		load_config
+		load_config(opts['Config'])
 	
 		# Re-enable output
 		self.disable_output = false
@@ -84,7 +84,7 @@ class Driver < Msf::Ui::Driver
 		on_startup
 
 		# Process the resource script
-		process_rc_file
+		load_resource(opts['Resource'])
 
 		# Whether or not command passthru should be allowed
 		self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
@@ -112,9 +112,9 @@ class Driver < Msf::Ui::Driver
 	#
 	# Loads configuration for the console.
 	#
-	def load_config
+	def load_config(path=nil)
 		begin
-			conf = Msf::Config.load
+			conf = Msf::Config.load(path)
 		rescue
 			wlog("Failed to load configuration: #{$!}")
 			return
@@ -152,13 +152,35 @@ class Driver < Msf::Ui::Driver
 	end
 
 	#
-	# TODO:
-	#
 	# Processes the resource script file for the console.
 	#
-	def process_rc_file
+	def load_resource(path=nil)
+		path ||= File.join(Msf::Config.config_directory, 'msfconsole.rc')
+		return if not File.readable?(path)
+		
+		rcfd = File.open(path, 'r')
+		rcfd.each_line do |line|
+			print_line("resource> #{line.strip}")
+			run_single(line.strip)
+		end
+		rcfd.close
 	end
 
+	#
+	# Creates the resource script file for the console.
+	#
+	def save_resource(data, path=nil)
+		path ||= File.join(Msf::Config.config_directory, 'msfconsole.rc')
+		
+		begin
+			rcfd = File.open(path, 'w')
+			rcfd.write(data)
+			rcfd.close
+		rescue ::Exception => e
+			# 
+		end
+	end
+	
 	#
 	# Called before things actually get rolling such that banners can be
 	# displayed, scripts can be processed, and other fun can be had.
