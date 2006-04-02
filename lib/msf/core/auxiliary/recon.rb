@@ -9,8 +9,35 @@ module Msf
 
 module Auxiliary::Recon
 
-	def report_host(host)
-		p host
+	def report_host(opts)
+		return if not db
+		addr = opts[:host] || return
+		framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+	end
+
+	def report_service(opts={})
+		return if not db
+		addr  = opts[:host] || return
+		port  = opts[:port]  || return
+		proto = opts[:proto] || 'tcp'
+		name  = opts[:name]
+		
+		framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+		
+		serv = framework.db.report_service_state(
+			self,
+			addr,
+			proto,
+			port,
+			Msf::ServiceState::Up
+		)
+		serv.name = name if name
+		serv.save
+	end
+		
+	# Shortcut method for detecting when the DB is active
+	def db
+		framework.db.active
 	end
 
 end

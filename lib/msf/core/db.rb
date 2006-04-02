@@ -60,7 +60,10 @@ class DBManager
 		
 		ostate = host.state
 		host.state = state
+		host.save
+		
 		framework.events.on_db_host_state(context, host, ostate)
+		return host
 	end
 
 	#
@@ -75,7 +78,10 @@ class DBManager
 		
 		ostate = port.state
 		port.state = state
-		framework.events.on_db_service_state(context, host, servcice, ostate)
+		port.save
+		
+		framework.events.on_db_service_state(context, host, port, ostate)
+		return port
 	end
 	
 

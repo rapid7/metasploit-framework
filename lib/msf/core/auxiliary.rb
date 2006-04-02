@@ -35,7 +35,7 @@ class Auxiliary < Msf::Module
 	end
 	
 	#
-	# Creates an instance of the exploit module.  Mad skillz.
+	# Creates an instance of the auxiliary module. 
 	#
 	def initialize(info = {})
 
@@ -49,6 +49,16 @@ class Auxiliary < Msf::Module
 		)
 		
 		self.default_action = info['DefaultAction']
+		self.sockets = Array.new
+		self.queue   = Array.new
+	end
+	
+	#
+	# Creates a singleton instance of this auxiliary class
+	#
+	def self.create(info = {})
+		return @@aux_singleton if @@aux_singleton
+		@@aux_singleton = self.new(info)
 	end
 	
 	def run
@@ -73,15 +83,50 @@ class Auxiliary < Msf::Module
 		return nil
 	end
 
+	#
+	# Adds a socket to the list of sockets opened by this exploit.
+	#
+	def add_socket(sock)
+		self.sockets << sock
+	end
+
+	#
+	# Removes a socket from the list of sockets.
+	#
+	def remove_socket(sock)
+		self.sockets.delete(sock)
+	end
+
+	#
+	# This method is called once a new session has been created on behalf of
+	# this exploit instance and all socket connections created by this
+	# exploit should be closed.
+	#
+	def abort_sockets
+		sockets.delete_if { |sock|
+			sock.abortive_close = true
+
+			begin
+				disconnect(sock)
+			rescue
+			end
+
+			true
+		}
+	end
+		
 	# 
 	# Allow access to the hash table of actions and the string containing
 	# the default action
 	# 
 	attr_reader :actions, :default_action
+	attr_accessor :queue
 	
 protected
 	
 	attr_writer :actions, :default_action
+	attr_accessor :sockets
+	
 
 end
 
