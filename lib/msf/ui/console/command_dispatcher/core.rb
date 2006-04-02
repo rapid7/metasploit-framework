@@ -798,6 +798,12 @@ class Core
 					else
 						print_error("No exploit module selected.")
 					end
+				when "actions"
+					if (mod and mod.auxiliary?)
+						show_actions(mod)
+					else
+						print_error("No auxiliary module selected.")
+					end
 			end
 		}
 	end
@@ -808,7 +814,7 @@ class Core
 	def cmd_show_tabs(str, words)
 		res = %w{all encoders nops exploits payloads aux plugins}
 		if (active_module)
-			res.concat(%w{ options advanced evasion targets })
+			res.concat(%w{ options advanced evasion targets actions })
 		end
 		return res
 	end
@@ -1073,13 +1079,22 @@ class Core
 			when 'Msf::OptAddress'
 				case o.name
 					when 'RHOST'
-						res << option_values_last_target()
+						option_values_target_addrs().each do |addr|
+							res << addr
+						end
 					when 'LHOST'
 						res << Rex::Socket.source_address()
 					else
 				end
 				
 			when 'Msf::OptPort'
+				case o.name
+					when 'RPORT'
+					option_values_target_ports().each do |port|
+						res << port
+					end
+				end 
+				
 				if (res.empty?)
 					res << (rand(65534)+1).to_s
 				end
@@ -1133,13 +1148,39 @@ class Core
 	end
 
 	#
-	# Provide the last target address
+	# Provide the target addresses
 	#
-	def option_values_last_target
-		# Replace this once we start tracking these things...
-		return Rex::Socket.source_address()
+	def option_values_target_addrs
+		res = [ ]
+		res << Rex::Socket.source_address()
+		return res if not framework.db.active
+		
+		framework.db.each_host do |host|
+			res << host.address
+		end
+		
+		return res
 	end
-			
+
+	#
+	# Provide the target ports
+	#
+	def option_values_target_ports
+		res = [ ]
+		return res if not framework.db.active
+		return res if not self.active_module.datastore['RHOST']
+		host = framework.db.has_host?(self.active_module.datastore['RHOST'])
+		return res if not host
+
+		framework.db.each_service do |service|
+			if (service.host_id == host.id)
+				res << service.port.to_s
+			end
+		end
+
+		return res
+	end
+				
 protected
 
 	#
@@ -1205,7 +1246,12 @@ protected
 		mod_targs = Serializer::ReadableText.dump_exploit_targets(mod, '   ')
 		print("\nExploit targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
 	end
-	
+
+	def show_actions(mod) # :nodoc:
+		mod_actions = Serializer::ReadableText.dump_auxiliary_actions(mod, '   ')
+		print("\nAuxiliary actions:\n\n#{mod_actions}\n") if (mod_actions and mod_actions.length > 0)
+	end
+		
 	def show_advanced_options(mod) # :nodoc:
 		mod_opt = Serializer::ReadableText.dump_advanced_options(mod, '   ') 
 		print("\nModule advanced options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)

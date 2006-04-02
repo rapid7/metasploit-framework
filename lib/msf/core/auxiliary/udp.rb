@@ -7,8 +7,8 @@ module Msf
 #
 ###
 
-module Auxiliary::Tcp
-	include Exploit::Remote::Tcp
+module Auxiliary::Udp
+	include Exploit::Remote::Udp
 
 end
 end

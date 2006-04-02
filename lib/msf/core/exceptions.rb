@@ -253,5 +253,24 @@ class NoNopsSucceededError < RuntimeError
 	end
 end
 
+##
+#
+# Plugin exceptions
+#
+##
+
+class PluginLoadError < RuntimeError
+	include Exception
+	attr_accessor :reason
+
+	def initialize(reason='')
+		self.reason = reason
+		super
+	end
+	
+	def to_s
+		"This plugin failed to load:  #{reason.to_s}"
+	end
+end
 
 end

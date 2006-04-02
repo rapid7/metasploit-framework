@@ -20,3 +20,10 @@ create table services (
 'name' VARCHAR(255),
 'desc' VARCHAR(1024)
 );
+
+create table vulns (
+'id' INTEGER PRIMARY KEY NOT NULL,
+'service_id' INTEGER,
+'name' VARCHAR(255),
+'data' TEXT
+);

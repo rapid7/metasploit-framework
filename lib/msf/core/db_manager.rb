@@ -26,15 +26,20 @@ class DBManager
 		@usable = false
 		@active = false
 		
-		begin
-			require 'rubygems'
-			require_gem 'activerecord'
-			
+		# This double-rescue is required to detect active record when
+		# it has been installed outside of gems
+		begin	
+			begin
+				require 'rubygems'
+				require_gem 'activerecord'
+				@usable = true	
+			rescue LoadError
+				require 'activerecord'
+				@usable = true
+			end
 			require 'msf/core/db_objects'
-
-			@usable = true
 		rescue ::Exception => e
-			elog("DBManager is not enabled due to load error: #{e.to_s}")
+			elog("DB is not enabled due to load error: #{e.to_s}")
 		end
 	end
 	

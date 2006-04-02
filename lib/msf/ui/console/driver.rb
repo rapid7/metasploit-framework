@@ -177,7 +177,6 @@ class Driver < Msf::Ui::Driver
 			rcfd.write(data)
 			rcfd.close
 		rescue ::Exception => e
-			# 
 		end
 	end
 	

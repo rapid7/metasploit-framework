@@ -7,8 +7,11 @@ module Msf
 #
 ###
 
-module Auxiliary::Tcp
-	include Exploit::Remote::Tcp
+module Auxiliary::Recon
+
+	def report_host(host)
+		p host
+	end
 
 end
 end

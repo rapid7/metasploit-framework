@@ -55,6 +55,26 @@ class ReadableText
 	end
 
 	#
+	# Dumps an auxiliary's actions
+	#
+	def self.dump_auxiliary_actions(mod, indent = '', h = nil)
+		tbl = Rex::Ui::Text::Table.new(
+			'Indent'  => indent.length,
+			'Header'  => h,
+			'Columns' =>
+				[
+					'Name',
+					'Description'
+				])
+
+		mod.actions.each_with_index { |target, idx|
+			tbl << [ target.name || 'All' ]	
+		}
+
+		tbl.to_s + "\n"
+	end
+	
+	#
 	# Dumps the table of payloads that are compatible with the supplied
 	# exploit.
 	#
