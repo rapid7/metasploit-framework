@@ -19,27 +19,23 @@ end
 
 # ActiveRecord/sqlite3 has locking issues when you update a table with a pending select
 # This set of instance/class wrappers should prevent a table lock
+# Straight up gangsta shit from spoon (ripped from BION)
 module DBSave
 
-	module InstanceMethods
-		def save(*args)
-			Lock.mutex.synchronize do
-				super(*args)
-			end
-		end	
-	end
+	def save(*args)
+		Lock.mutex.synchronize do
+			super(*args)
+		end
+	end	
 
-	module ClassMethods
-		def find(*args)
-			Lock.mutex.synchronize do
-				super(*args)
-			end
-		end	
-	end
-
-	def self::included(other)
-		other.module_eval{ include InstanceMethods }
-		other.extend ClassMethods
+	def self.included(mod)
+		class << mod
+			def find(*args)
+				Lock.mutex.synchronize do
+					super(*args)
+				end
+			end			
+		end
 	end
 end
 
