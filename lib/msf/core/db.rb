@@ -59,7 +59,7 @@ class DBManager
 		host = get_host(context, addr, comm)
 		
 		ostate = host.state
-		host.state = state
+		host.state
 		host.save
 		
 		framework.events.on_db_host_state(context, host, ostate)
@@ -74,13 +74,16 @@ class DBManager
 		# TODO: use the current thread's Comm to find the host
 		comm = ''
 		host = get_host(context, addr, comm)
-		port = get_service(context, host, proto, port)
+		port = get_service(context, host, proto, port, state)
 		
 		ostate = port.state
 		port.state = state
 		port.save
 		
-		framework.events.on_db_service_state(context, host, port, ostate)
+		if (ostate != state)
+			framework.events.on_db_service_state(context, host, port, ostate)
+		end
+		
 		return port
 	end
 	
@@ -141,21 +144,23 @@ class DBManager
 		host = Host.find(:first, :conditions => [ "address = ? and comm = ?", address, comm])
 		if (not host)
 			host = Host.create(:address => address, :comm => comm, :state => HostState::Unknown)
+			host.save
 			framework.events.on_db_host(context, host)
 		end
 
 		return host
 	end
 	
-	def get_service(context, host, proto, port)
+	def get_service(context, host, proto, port, state=ServiceState::Up)
 		rec = Service.find(:first, :conditions => [ "host_id = ? and proto = ? and port = ?", host.id, proto, port])
 		if (not rec)
 			rec = Service.create(
 				:host_id    => host.id,
 				:proto      => proto,
 				:port       => port,
-				:state      => ServiceState::Up
+				:state      => state
 			)
+			rec.save
 			framework.events.on_db_service(context, rec)
 		end
 		return rec
@@ -169,6 +174,7 @@ class DBManager
 				:name       => name,
 				:data       => data
 			)
+			vuln.save
 			framework.events.on_db_vuln(context, vuln)
 		end
 

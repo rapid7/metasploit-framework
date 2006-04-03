@@ -17,10 +17,11 @@ module Auxiliary::Recon
 
 	def report_service(opts={})
 		return if not db
-		addr  = opts[:host] || return
+		addr  = opts[:host]  || return
 		port  = opts[:port]  || return
 		proto = opts[:proto] || 'tcp'
 		name  = opts[:name]
+		state = opts[:state] || Msf::ServiceState::Up
 		
 		framework.db.report_host_state(self, addr, Msf::HostState::Alive)
 		
@@ -29,10 +30,12 @@ module Auxiliary::Recon
 			addr,
 			proto,
 			port,
-			Msf::ServiceState::Up
+			state
 		)
-		serv.name = name if name
-		serv.save
+		if (name and name.length > 1)
+			serv.name = name
+			serv.save!
+		end
 	end
 		
 	# Shortcut method for detecting when the DB is active

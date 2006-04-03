@@ -133,10 +133,9 @@ class JobContainer < Hash
 	# immediately and the clean_proc is never called until the job is removed
 	# from the job container.
 	#
-	def start_bg_job(name, ctx, run_proc, clean_proc = nil)
+	def start_bg_job(name, ctx, run_proc, clean_proc = nil, async = true)
 		j = add_job(name, ctx, run_proc, clean_proc)
-
-		j.start(true)
+		j.start(async)
 	end
 
 	#

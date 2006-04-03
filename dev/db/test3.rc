@@ -1,0 +1,19 @@
+load db_sqlite3
+use aux/recon
+set RHOST 127.0.0.1
+set ACTION Probe All Ports
+run
+sleep 1
+db_services
+sleep 1
+db_services
+sleep 1
+db_services
+sleep 1
+db_services
+sleep 1
+db_services
+sleep 1
+db_services
+sleep 1
+db_services

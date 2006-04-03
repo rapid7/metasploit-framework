@@ -63,7 +63,8 @@ module Auxiliary
 				"Auxiliary: #{mod.refname}", 
 				mod,
 				Proc.new { |mod| self.job_run_proc(mod) },
-				Proc.new { |mod| self.job_cleanup_proc(mod) }
+				Proc.new { |mod| self.job_cleanup_proc(mod) },
+				false
 			)
 		else
 			self.job_run_proc(mod)

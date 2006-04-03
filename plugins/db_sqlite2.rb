@@ -5,11 +5,11 @@ module Msf
 ###
 # 
 # This class intializes the database db with a shiny new
-# SQLite3 database instance.
+# SQlite2 database instance.
 #
 ###
 
-class Plugin::DBSQLite3 < Msf::Plugin
+class Plugin::DBSQLite2 < Msf::Plugin
 
 	###
 	#
@@ -142,7 +142,7 @@ class Plugin::DBSQLite3 < Msf::Plugin
 	def initialize(framework, opts)
 		super
 
-		odb = File.join(Msf::Config.install_root, "data", "sql", "sqlite3.db")
+		odb = File.join(Msf::Config.install_root, "data", "sql", "sqlite2.db")
 		ndb = File.join(Msf::Config.install_root, "current.db")
 		
 		if (File.exists?(ndb))
@@ -151,7 +151,7 @@ class Plugin::DBSQLite3 < Msf::Plugin
 		
 		FileUtils.copy(odb, ndb)
 		
-		if (not framework.db.connect("adapter" => "sqlite3", "dbfile" => ndb))
+		if (not framework.db.connect("adapter" => "sqlite", "dbfile" => ndb))
 			File.unlink(ndb)
 			raise PluginLoadError.new("Failed to connect to the database")
 		end
@@ -172,7 +172,7 @@ class Plugin::DBSQLite3 < Msf::Plugin
 	# This method returns a short, friendly name for the plugin.
 	#
 	def name
-		"db_sqlite3"
+		"db_sqlite2"
 	end
 
 	#
@@ -180,7 +180,7 @@ class Plugin::DBSQLite3 < Msf::Plugin
 	# more than 60 characters, but there are no hard limits.
 	#
 	def desc
-		"Loads a new sqlite3 database backend"
+		"Loads a new sqlite2 database backend"
 	end
 
 protected

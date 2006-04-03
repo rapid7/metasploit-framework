@@ -62,6 +62,7 @@ class Core
 			"unsetg"  => "Unsets one or more global variables",
 			"use"     => "Selects a module by name",
 			"version" => "Show the console library version number",
+			"sleep"   => "Do nothing for the specified number of seconds",
 		}
 	end
 
@@ -123,6 +124,14 @@ class Core
 
 	alias cmd_quit cmd_exit
 
+	#
+	# Causes process to pause for the specified number of seconds
+	#
+	def cmd_sleep(*args)
+		return if not (args and args.length == 1)
+		Rex::ThreadSafe.sleep(args[0].to_f)
+	end
+	
 	#
 	# Displays the command help banner.
 	#
