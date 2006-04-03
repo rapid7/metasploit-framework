@@ -46,9 +46,11 @@ class Auxiliary < Msf::Module
 			[ AuxiliaryAction ], 'AuxiliaryAction'
 		)
 		
+		self.passive = (info['Passive'] and info['Passive'] == true) || false
 		self.default_action = info['DefaultAction']
 		self.sockets = Array.new
 		self.queue   = Array.new
+		self.passive_actions = info['PassiveActions'] || []
 	end
 	
 	#
@@ -80,7 +82,34 @@ class Auxiliary < Msf::Module
 		end
 		return nil
 	end
-
+	
+	#
+	# Returns a boolean indicating whether this module should be run passively
+	#
+	def passive?
+		passive
+	end
+	
+	#
+	# Returns a boolean indicating whether this specific action should be run passively
+	#
+	def passive_action?(action)
+		passive_actions.include?(action)
+	end
+	
+	#
+	# Called directly before 'run'
+	#
+	def setup
+	end
+	
+	#
+	# Called after 'run' returns
+	#
+	def cleanup
+		abort_sockets()
+	end
+	
 	#
 	# Adds a socket to the list of sockets opened by this exploit.
 	#
@@ -97,8 +126,8 @@ class Auxiliary < Msf::Module
 
 	#
 	# This method is called once a new session has been created on behalf of
-	# this exploit instance and all socket connections created by this
-	# exploit should be closed.
+	# this module instance and all socket connections created by this
+	# module should be closed.
 	#
 	def abort_sockets
 		sockets.delete_if { |sock|
@@ -117,13 +146,14 @@ class Auxiliary < Msf::Module
 	# Allow access to the hash table of actions and the string containing
 	# the default action
 	# 
-	attr_reader :actions, :default_action
+	attr_reader :actions, :default_action, :passive, :passive_actions
 	attr_accessor :queue
 	
 protected
 	
 	attr_writer :actions, :default_action
 	attr_accessor :sockets
+	attr_writer :passive, :passive_actions
 	
 
 end
