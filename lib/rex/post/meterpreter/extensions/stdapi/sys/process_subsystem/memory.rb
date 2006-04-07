@@ -174,7 +174,7 @@ class Memory
 			info['Available'] = true
 		elsif (state == MEM_COMMIT)
 			info['Available'] = false
-		elsif (state == MEM_RESERVED)
+		elsif (state == MEM_RESERVE)
 			info['Reserved'] = true
 		end
 

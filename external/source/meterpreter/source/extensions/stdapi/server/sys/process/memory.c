@@ -107,7 +107,8 @@ DWORD request_sys_process_memory_read(Remote *remote, Packet *packet)
 		}
 
 		// Read the memory from the process...break out on failure
-		if (!ReadProcessMemory(handle, base, buffer, size, &bytesRead))
+		if ((!ReadProcessMemory(handle, base, buffer, size, &bytesRead)) &&
+		    (GetLastError() != ERROR_PARTIAL_COPY))
 		{
 			result = GetLastError();
 			break;
@@ -161,8 +162,9 @@ DWORD request_sys_process_memory_write(Remote *remote, Packet *packet)
 		}
 
 		// Write the memory
-		if (!WriteProcessMemory(handle, base, data.buffer, data.header.length, 
-				&written))
+		if ((!WriteProcessMemory(handle, base, data.buffer, data.header.length, 
+				&written)) &&
+		    (GetLastError() != ERROR_PARTIAL_COPY))
 		{
 			result = GetLastError();
 			break;
@@ -203,8 +205,7 @@ DWORD request_sys_process_memory_query(Remote *remote, Packet *packet)
 	do
 	{
 		// Validate parameters
-		if ((!handle) ||
-		    (!base))
+		if (!handle)
 		{
 			result = ERROR_INVALID_PARAMETER;
 			break;
