@@ -138,19 +138,19 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 		return true
 	end
 	
-	def connect (share)
+	def connect(share)
 		ok = self.client.tree_connect(share)
 		tree_id = ok['Payload']['SMB'].v['TreeID']
 		self.shares[share] = tree_id
 		self.last_share = share
 	end
 	
-	def disconnect (share)
+	def disconnect(share)
 		ok = self.client.tree_disconnect(self.shares[share])
 		self.shares.delete(share)
 	end	
 	
-	def open (path, perm)		
+	def open(path, perm)		
 		mode   = UTILS.open_mode_to_mode(perm)
 		access = UTILS.open_mode_to_access(perm)
 		
@@ -160,17 +160,25 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 		fh = OpenFile.new(self.client, path, self.client.last_tree_id, file_id)
 	end
 	
-	def delete (*args)
+	def delete(*args)
 		self.client.delete(*args)
 	end
 
-	def create_pipe (path, perm = 'c')
+	def create_pipe(path, perm = 'c')
 		disposition = UTILS.create_mode_to_disposition(perm)
 		ok = self.client.create(path, disposition)
 		file_id = ok['Payload'].v['FileID']	
 		fh = OpenFile.new(self.client, path, self.client.last_tree_id, file_id)
 	end
 
+	def trans_pipe(fid, data)
+		client.trans_named_pipe(fid, data)
+	end
+
+	def trans_pipe_oneway(fid, data)
+		client.trans_named_pipe_oneway(fid, data)
+	end
+	
 end
 end
 end

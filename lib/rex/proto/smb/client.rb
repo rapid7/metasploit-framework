@@ -1048,6 +1048,75 @@ EVADE = Rex::Proto::SMB::Evasions
 	end		
 
 
+	# Perform a transaction against a named pipe
+	def trans_named_pipe_oneway (file_id, data = '')
+		pipe = EVADE.make_trans_named_pipe_name(self.evasion_level)
+		self.trans_oneway(pipe, '', data, 2, [0x26, file_id].pack('vv') )
+	end
+
+	# Perform a transaction against a given pipe name (one way)
+	def trans_oneway (pipe, param = '', body = '', setup_count = 0, setup_data = '')
+
+		# Null-terminate the pipe parameter if needed
+		if (pipe[-1] != 0)
+			pipe << "\x00"
+		end
+		
+		pkt = CONST::SMB_TRANS_PKT.make_struct
+		self.smb_defaults(pkt['Payload']['SMB'])
+
+		# Packets larger than mlen will cause XP SP2 to disconnect us ;-(		
+		mlen = 4200
+		
+		# Figure out how much space is taken up by our current arguments
+		xlen =  pipe.length + param.length + body.length
+
+		filler1 = ''
+		filler2 = ''
+
+		# Fill any available space depending on the evasion settings
+		if (xlen < mlen)
+			filler1 = EVADE.make_offset_filler(self.evasion_level, (mlen-xlen)/2)
+			filler2 = EVADE.make_offset_filler(self.evasion_level, (mlen-xlen)/2)
+		end
+
+		# Squish the whole thing together
+		data = pipe + filler1 + param + filler2 + body
+		
+		# Throw some form of a warning out?
+		if (data.length > mlen)
+			# This call will more than likely fail :-(
+		end
+		
+		# Calculate all of the offsets
+		base_offset = pkt.to_s.length + (setup_count * 2) - 4
+		param_offset = base_offset + pipe.length + filler1.length
+		data_offset = param_offset + filler2.length + param.length
+		
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION
+		pkt['Payload']['SMB'].v['Flags1'] = 0x18
+		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
+		
+		pkt['Payload'].v['ParamCountTotal'] = param.length
+		pkt['Payload'].v['DataCountTotal'] = body.length
+		pkt['Payload'].v['ParamCountMax'] = 1024
+		pkt['Payload'].v['DataCountMax'] = 65504
+		pkt['Payload'].v['ParamCount'] = param.length
+		pkt['Payload'].v['ParamOffset'] = param_offset
+		pkt['Payload'].v['DataCount'] = body.length
+		pkt['Payload'].v['DataOffset'] = data_offset
+		pkt['Payload'].v['SetupCount'] = setup_count
+		pkt['Payload'].v['SetupData'] = setup_data
+					
+		pkt['Payload'].v['Payload'] = data
+		pkt['Payload'].v['Flags'] = 2
+		
+		self.smb_send(pkt.to_s)
+		return ack
+	end		
+
+
 	# Perform a transaction2 request using the specified subcommand, parameters, and data
 	def trans2 (subcommand, param = '', body = '', setup_count = 0, setup_data = '')
 
