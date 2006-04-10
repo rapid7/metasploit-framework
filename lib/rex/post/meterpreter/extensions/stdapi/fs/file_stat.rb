@@ -62,7 +62,7 @@ class FileStat < Rex::Post::FileStat
 		while (index < elem.length)
 			size = elem[index + 1]
 
-			value   = stat_buf[offset, size].unpack(size == 2 ? 'S' : 'L')[0]
+			value   = stat_buf[offset, size].unpack(size == 2 ? 'v' : 'V')[0]
 			offset += size
 
 			hash[elem[index]] = value
