@@ -255,6 +255,9 @@ class LogicalBlock
 			end
 		end while ((cnt += 1) < 128)
 
+		# If we passed 128 tries, then we can't succeed.
+		buf = nil if (cnt >= 128)
+
 		buf
 	end
 	
