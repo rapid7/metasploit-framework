@@ -216,33 +216,33 @@ module X86
 		# try push BYTE val; pop dst (3 bytes)
 		begin
 			return _check_badchars(push_byte(val) + pop_dword(dst), badchars)
-		rescue ::ArgumentError, RuntimeError, RangeError
+		rescue ::ArgumentError, ::RuntimeError, ::RangeError
 		end
 
 		# try clear dst, mov BYTE dst (4 bytes)
 		begin
-			break if val == 0
+			# break if val == 0
 			return _check_badchars(clear(dst, badchars) + mov_byte(dst, val), badchars)
-		rescue ::ArgumentError, RuntimeError, RangeError
+		rescue ::ArgumentError, ::RuntimeError, ::RangeError
 		end
 
 		# try mov DWORD dst (5 bytes)
 		begin
 			return _check_badchars(mov_dword(dst, val), badchars)
-		rescue ::ArgumentError, RuntimeError, RangeError
+		rescue ::ArgumentError, ::RuntimeError, ::RangeError
 		end
 
 		# try push DWORD, pop dst (6 bytes)
 		begin
 			return _check_badchars(push_dword(val) + pop_dword(dst), badchars)
-		rescue ::ArgumentError, RuntimeError, RangeError
+		rescue ::ArgumentError, ::RuntimeError, ::RangeError
 		end
 
 		# try clear dst, mov WORD dst (6 bytes)
 		begin
-			break if val == 0
+			# break if val == 0
 			return _check_badchars(clear(dst, badchars) + mov_word(dst, val), badchars)
-		rescue ::ArgumentError, RuntimeError, RangeError
+		rescue ::ArgumentError, ::RuntimeError, ::RangeError
 		end
 
 		raise RuntimeError, "No valid set instruction could be created!", caller()

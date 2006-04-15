@@ -577,7 +577,7 @@ class ModuleManager < ModuleSet
 		# Make sure the path is a valid directory before we try to rock the
 		# house
 		if (File.directory?(path) == false)
-			raise NameError, "The path supplied is not a valid directory.",
+			raise RuntimeError, "The path supplied is not a valid directory.",
 				caller
 		end
 
@@ -755,7 +755,7 @@ protected
 				# Trap the name error and flag this file path as still needing to
 				# be delay loaded.
 				rescue NameError
-					delay[file] = $!	
+					delay[file] = $!
 				end
 			}
 		end
@@ -850,7 +850,7 @@ protected
 
 			# Re-raise the name error so that the caller catches it and adds this
 			# file path to the list of files that are to be delay loaded.
-			raise NameError, $!
+			raise $!
 		rescue LoadError
 			elog("LoadError: #{$!}.")
 			return false

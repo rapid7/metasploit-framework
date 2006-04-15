@@ -1,0 +1,5 @@
+This directory contains external components and libraries that are not part of
+the Metasploit Framework and may be subject to a different license.
+
+A file named 'LICENSE' can be found in each subdirectory and should be
+referenced for all licensing-related decisions.
