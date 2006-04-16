@@ -76,19 +76,40 @@ class PeBase
 	  [ 'uint32v', 'e_lfanew',    0 ]
 	)
 
+
+	class HeaderAccessor
+		attr_accessor :dos, :file, :opt, :sections, :config
+		def initialize
+		end
+	end
+
 	class GenericHeader
 		attr_accessor :struct
 		def initialize(_struct)
 			self.struct = _struct
 		end
 
-		# this sucks...
+		# The following methods are just pass-throughs for struct
+		
+		# Access a value
 		def v
 			struct.v
 		end
+		
+		# Access a value by array 
 		def [](*args)
 			struct[*args]
 		end
+		
+		# Obtain an array of all fields
+		def keys
+			struct.keys
+		end
+		
+		def method_missing(meth, *args)
+			v[meth.to_s] || (raise NoMethodError.new, meth)
+		end
+		
 	end
 
 	class DosHeader < GenericHeader
@@ -350,7 +371,7 @@ class PeBase
 	  [ 'uint32v', 'SizeOfUninitializeData',       0 ],
 	  [ 'uint32v', 'AddressOfEntryPoint',          0 ],
 	  [ 'uint32v', 'BaseOfCode',                   0 ],
-	  [ 'uint32v', 'BaseOfdata',                   0 ],
+	  [ 'uint32v', 'BaseOfData',                   0 ],
 	  [ 'uint32v', 'ImageBase',                    0 ],
 	  [ 'uint32v', 'SectionAlignment',             0 ],
 	  [ 'uint32v', 'FileAlignment',                0 ],
@@ -563,7 +584,6 @@ class PeBase
 	IMAGE_LOAD_CONFIG_DIRECTORY32 = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint32v', 'Size',                          0 ],
 	  [ 'uint32v', 'TimeDateStamp',                 0 ],
-	  [ 'uint32v', 'TimeDateStamp',                 0 ],
 	  [ 'uint16v', 'MajorVersion',                  0 ],
 	  [ 'uint16v', 'MinorVersion',                  0 ],
 	  [ 'uint32v', 'GlobalFlagsClear',              0 ],
@@ -584,7 +604,39 @@ class PeBase
 	  [ 'uint32v', 'SEHandlerCount',                0 ]
 	)
 
+	class ConfigHeader < GenericHeader
+		
+	end
+	
+	def self._parse_config_header(rawdata)
+		header = IMAGE_LOAD_CONFIG_DIRECTORY32.make_struct
+		header.from_s(rawdata)	
+		ConfigHeader.new(header)		
+	end
+	
+	def _parse_config_header
 
+		#
+		# Get the data directory entry, size, etc
+		#
+		exports_entry = _optional_header['DataDirectory'][10]
+		rva           = exports_entry.v['VirtualAddress']
+		size          = exports_entry.v['Size']
+
+		return nil if size == 0
+
+		#
+		# Ok, so we have the data directory, now lets parse it
+		#
+
+		dirdata = _isource.read(rva_to_file_offset(rva), size)
+
+		header = IMAGE_LOAD_CONFIG_DIRECTORY32.make_struct
+		header.from_s(dirdata)
+			
+		ConfigHeader.new(header)
+	end
+	
 	#
 	# Just a stupid routine to round an offset up to it's alignment.
 	#
@@ -603,15 +655,16 @@ class PeBase
 
 	attr_accessor :_isource
 	attr_accessor :_dos_header, :_file_header, :_optional_header,
-	              :_section_headers
+	              :_section_headers, :_config_header
+				  
 	attr_accessor :sections, :header_section, :image_base
 
 	attr_accessor :_imports_cache, :_imports_cached
 	attr_accessor :_exports_cache, :_exports_cached
 	attr_accessor :_relocations_cache, :_relocations_cached
-	attr_accessor :_loadconfig_cache, :_loadconfig_cached
 
-
+	attr_accessor :hdr
+	
 	def self.new_from_file(filename, disk_backed = false)
 
 		file = ::File.new(filename)
@@ -958,29 +1011,6 @@ class PeBase
 
 		return relocdirs
 	end
-
-	def loadconfig
-		if !_loadconfig_cached
-			self._loadconfig_cache  = _load_loadconfig
-			self._loadconfig_cached = true
-		end
-		return _loadconfig_cache
-	end
-
-	def _load_loadconfig
-
-		#
-		# Get the data directory entry, size, etc
-		#
-		exports_entry = _optional_header['DataDirectory'][10]
-		rva           = exports_entry.v['VirtualAddress']
-		size          = exports_entry.v['Size']
-
-		return nil if size == 0
-
-		return size
-	end
-
 
 end end end
 

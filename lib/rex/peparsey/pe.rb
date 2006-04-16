@@ -107,6 +107,7 @@ class Pe < PeBase
 		end
 
 
+
 		#
 		# Save the stuffs!
 		#
@@ -116,20 +117,29 @@ class Pe < PeBase
 		#
 
 		#
-		# You shouldn't need to access these!
+		# These should not be accessed directly
 		#
-
+		
 		self._isource          = isource
 
 		self._dos_header       = dos_header
 		self._file_header      = file_header
 		self._optional_header  = optional_header
 		self._section_headers  = section_headers
-
+		
 		self.image_base        = base
 		self.sections          = sections
 		self.header_section    = header_section
-
+		
+		self._config_header    = _parse_config_header()
+		
+		# These can be accessed directly
+		self.hdr               = HeaderAccessor.new
+		self.hdr.dos           = self._dos_header
+		self.hdr.file          = self._file_header		
+	    self.hdr.opt           = self._optional_header
+		self.hdr.sections      = self._section_headers
+		self.hdr.config        = self._config_header
 	end
 
 	#
@@ -140,7 +150,6 @@ class Pe < PeBase
 	def all_sections
 		[ header_section ] + sections
 	end
-
 
 end end end
 
