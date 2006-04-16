@@ -16,6 +16,8 @@ module Search
 		def scan(param)
 			config(param)
 			
+			$stdout.puts "[#{param['file']}]"
+			
 			# Adjust based on -A and -B flags
 			pre = param['before'] || 0
 			suf = param['after']  || 16

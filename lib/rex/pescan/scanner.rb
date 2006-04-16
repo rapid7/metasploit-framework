@@ -15,6 +15,8 @@ module Scanner
 		
 		def scan(param)
 			config(param)
+			
+			$stdout.puts "[#{param['file']}]"
 			pe.all_sections.each do |section|
 				hits = scan_section(section, param)
 				hits.each do |hit|

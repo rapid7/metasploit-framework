@@ -7,3 +7,4 @@ end
 
 require 'rex/pescan/scanner'
 require 'rex/pescan/search'
+require 'rex/pescan/analyze'
