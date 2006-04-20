@@ -34,14 +34,14 @@ class UnicodeMixed < Generic
 			mod += nop
 		end	
 		regprefix = {                       # nops ignored below
-			'EAX'   => 'PPYA' + dec,         # push eax, pop ecx
-			'ECX'   =>  dec + "4444",        # dec ecx
-			'EDX'   => 'RRYA' + dec,         # push edx, pop ecx
-			'EBX'   => 'SSYA' + dec,         # push ebx, pop ecx
-			'ESP'   => 'TUYA' + dec,         # push esp, pop ecx
-			'EBP'   => 'UUYA' + dec,         # push ebp, pop ecx
-			'ESI'   => 'VVYA' + dec,         # push esi, pop ecx
-			'EDI'   => 'WWYA' + dec,         # push edi, pop edi
+			'EAX'   => 'PPYA' + mod,         # push eax, pop ecx
+			'ECX'   =>  mod + "4444",        # dec ecx
+			'EDX'   => 'RRYA' + mod,         # push edx, pop ecx
+			'EBX'   => 'SSYA' + mod,         # push ebx, pop ecx
+			'ESP'   => 'TUYA' + mod,         # push esp, pop ecx
+			'EBP'   => 'UUYA' + mod,         # push ebp, pop ecx
+			'ESI'   => 'VVYA' + mod,         # push esi, pop ecx
+			'EDI'   => 'WWYA' + mod,         # push edi, pop edi
 		}
 
 		return regprefix[reg]	

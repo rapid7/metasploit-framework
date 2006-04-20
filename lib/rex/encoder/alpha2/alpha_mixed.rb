@@ -44,7 +44,7 @@ class AlphaMixed < Generic
 			 "jA" +          # push 0x41
 			 "X" +           # pop eax
 			 "P" +           # push eax 
-			 "0A0" +         # xor byte [eax+30], al
+			 "0A0" +         # xor byte [ecx+30], al
 			 "A" +           # inc ecx                        <---
 			 "kAAQ" +        # imul eax, [ecx+42], 51 -> 10       |
 			 "2AB" +         # xor al, [ecx + 42]                 |
