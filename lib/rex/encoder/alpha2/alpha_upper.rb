@@ -17,23 +17,23 @@ class AlphaUpper < Generic
 		# use inc ebx as a nop here so we still pad correctly
 		if (offset <= 10)
 			nop = 'C' * offset
-			mod = 'I' * (10 - offset) + nop + '7QZ'    # dec ecx,,, push ecx, pop edx
+			mod = 'I' * (10 - offset) + nop + 'QZ'    # dec ecx,,, push ecx, pop edx
 			edxmod = 'J' * (11 - offset)
 		else
 			mod = 'A' * (offset - 10)
 			nop = 'C' * (10 - mod.length)
-			mod += nop + '7QZ'
+			mod += nop + 'QZ'
 			edxmod = 'B' * (11 - (offset - 10))
 		end
 		regprefix = {
-			'EAX'   => 'PY' + dec,                        # push eax, pop ecx
-			'ECX'   => 'I' + dec,                         # dec ecx
-			'EDX'   =>  edxmod + nop + 'RY',  			  # dec edx,,, push edx, pop ecx
-			'EBX'   => 'SY' + dec,                        # push ebx, pop ecx
-			'ESP'   => 'TY' + dec,                        # push esp, pop ecx
-			'EBP'   => 'UY' + dec,                        # push ebp, pop ecx
-			'ESI'   => 'VY' + dec,                        # push esi, pop ecx
-			'EDI'   => 'WY' + dec,                        # push edi, pop edi
+			'EAX'   => 'PY' + mod,                        # push eax, pop ecx
+			'ECX'   => 'I' + mod,                         # dec ecx
+			'EDX'   =>  edxmod + nop + 'RY',  			  # mod edx,,, push edx, pop ecx
+			'EBX'   => 'SY' + mod,                        # push ebx, pop ecx
+			'ESP'   => 'TY' + mod,                        # push esp, pop ecx
+			'EBP'   => 'UY' + mod,                        # push ebp, pop ecx
+			'ESI'   => 'VY' + mod,                        # push esi, pop ecx
+			'EDI'   => 'WY' + mod,                        # push edi, pop edi
 		}
 
 		return regprefix[reg]
