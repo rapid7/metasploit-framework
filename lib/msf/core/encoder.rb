@@ -86,6 +86,10 @@ class Encoder < Module
 		# Unicode-safe 'a' - 'z', 'A' - 'Z', '0' - '9'
 		#
 		AlphanumUnicodeMixed = "alpha_unicode_mixed"
+        #
+        # toupper/tolower safe ascii - not 'a' - 'z', 'A' - 'Z' 
+        #
+        NonAlpha = "non_alpha"
 		# 
 		# All characters
 		#
@@ -469,3 +473,4 @@ end
 require 'msf/core/encoder/xor'
 require 'msf/core/encoder/xor_additive_feedback'
 require 'msf/core/encoder/alphanum'
+require 'msf/core/encoder/nonalpha'
