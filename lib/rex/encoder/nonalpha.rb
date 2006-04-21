@@ -15,13 +15,13 @@ class NonAlpha
             "\x8B\xD6"  +               # mov edx, edi      - Hold end of table ptr
             "\x83\xC7"  + "A" +         # add edi, tablelen - Get shellcode addr
             "\x3B\xFA"  +               # cmp edx, edi
-            "\x74\x0B"  +               # jmp to end
+            "\x7E\x0B"  +               # jle to end
             "\xB0\x7B"  +               # mov eax, 0x7B     - Set up eax with magic
             "\xF2\xAE"  +               # repne scasb       - Find magic!
             "\xFF\xCF"  +               # dec edi           - scasb purs us one ahead
             "\xAC"      +               # lodsb
             "\x28\x07"  +               # subb [edi], al
-            "\x75\xF1"  +               # jne BACK!
+            "\xEB\xF1"  +               # jmp BACK!
             "\xEB"      + "B" +         # jmp [shellcode]
             "\xE8\xE2\xFF\xFF\xFF"  
     end
