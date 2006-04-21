@@ -23,6 +23,11 @@ module Text
 	#
 	##
 
+	States = ["AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DE", "FL", "GA", "HI",
+		"IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN",
+		"MO", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH",
+		"OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VA", "VT", "WA",
+		"WI", "WV", "WY"]
 	UpperAlpha   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	LowerAlpha   = "abcdefghijklmnopqrstuvwxyz"
 	Numerals     = "0123456789"
@@ -606,6 +611,22 @@ module Text
 			arr[e] = f;
 		end
 		return arr
+	end
+
+	# Generate a random hostname
+	def self.rand_hostname
+		host = []
+		(rand(5) + 1).times {
+			host.push(Rex::Text.rand_text_alphanumeric(rand(10) + 1))
+		}
+		d = ['com', 'net', 'org', 'gov']
+		host.push(d[rand(d.size)])
+		host.join('.').downcase
+	end
+
+	# Generate a state
+	def self.rand_state()
+		States[rand(States.size)]
 	end
 
 protected
