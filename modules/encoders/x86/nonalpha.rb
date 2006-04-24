@@ -54,7 +54,7 @@ class NonAlpha < Msf::Encoder::NonAlpha
 	def encode_end(state)
 	    state.encoded.gsub!(/A/, state.decoder_key_size.chr)
 	    state.encoded.gsub!(/B/, (state.decoder_key_size+5).chr)
-        state.encoded[0x1E, 0] = state.key
+        state.encoded[0x24, 0] = state.key
     end
 end
 
