@@ -2,6 +2,7 @@ require 'singleton'
 require 'rex/socket'
 require 'rex/socket/tcp'
 require 'rex/socket/ssl_tcp'
+require 'rex/socket/ssl_tcp_server'
 require 'rex/socket/udp'
 
 ###
@@ -61,7 +62,11 @@ class Rex::Socket::Comm::Local
 
 			return sock if (param.bare?)
 
-			sock.extend(Rex::Socket::TcpServer)
+			klass = Rex::Socket::TcpServer
+			if (param.ssl)
+				klass = Rex::Socket::SslTcpServer
+			end
+			sock.extend(klass)
 
 			sock.initsock(param)
 		# Otherwise, if we're creating a client...

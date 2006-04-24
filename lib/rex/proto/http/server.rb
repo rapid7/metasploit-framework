@@ -106,6 +106,7 @@ class Server
 		self.listener    = nil
 		self.resources   = {}
 		self.server_name = DefaultServer
+		self.ssl 		 = false
 	end
 
 	#
@@ -122,7 +123,8 @@ class Server
 		self.listener = Rex::Socket::TcpServer.create(
 			'LocalHost' => self.listen_host,
 			'LocalPort' => self.listen_port,
-			'Context'   => self.context
+			'Context'   => self.context,
+			'SSL'		=> self.ssl
 		)
 	
 		# Register callbacks
@@ -236,7 +238,7 @@ class Server
 		cli.send_response(resp)
 	end
 
-	attr_accessor :listen_port, :listen_host, :server_name, :context
+	attr_accessor :listen_port, :listen_host, :server_name, :context, :ssl
 
 protected
 
