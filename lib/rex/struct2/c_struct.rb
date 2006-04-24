@@ -54,6 +54,8 @@ class CStruct < SStruct
 	  'uint16v'   => proc { |*a| Rex::Struct2::Generic.new('v', false, *a) },
 	  'int32v'    => proc { |*a| Rex::Struct2::Generic.new('V',  true, *a) },
 	  'uint32v'   => proc { |*a| Rex::Struct2::Generic.new('V', false, *a) },
+	  'int64v'    => proc { |*a| Rex::Struct2::Generic.new('q',  true, *a) },
+	  'uint64v'   => proc { |*a| Rex::Struct2::Generic.new('Q', false, *a) },
 	  'int16n'    => proc { |*a| Rex::Struct2::Generic.new('n',  true, *a) },
 	  'uint16n'   => proc { |*a| Rex::Struct2::Generic.new('n', false, *a) },
 	  'int32n'    => proc { |*a| Rex::Struct2::Generic.new('N',  true, *a) },

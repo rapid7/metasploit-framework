@@ -22,7 +22,7 @@ module Scanner
 				hits.each do |hit|
 					vma  = pe.rva_to_vma(hit[0])
 					msg  = hit[1]
-					$stdout.puts "0x%08x %s" % [ vma, msg ]
+					$stdout.puts pe.ptr_s(vma) + " " + msg
 				end
 			end
 		end		
