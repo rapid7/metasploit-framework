@@ -9,14 +9,15 @@ class NonAlpha
     
 	
 	def NonAlpha.gen_decoder()
-	    decoder = 
+	    decoder =
+            "\x66\xB9\xFF\xFF" +
             "\xEB\x19"  +               # Jmp to table
             "\x5E"      +               # pop esi
             "\x8B\xFE"  +               # mov edi, esi      - Get table addr
-            "\x8B\xD6"  +               # mov edx, edi      - Hold end of table ptr
             "\x83\xC7"  + "A" +         # add edi, tablelen - Get shellcode addr
-            "\x3B\xFA"  +               # cmp edx, edi
-            "\x7E\x0B"  +               # jle to end
+            "\x8B\xD7"  +               # mov edx, edi      - Hold end of table ptr
+            "\x3B\xF2"  +               # cmp esi, edx
+            "\x7D\x0B"  +               # jle to end
             "\xB0\x7B"  +               # mov eax, 0x7B     - Set up eax with magic
             "\xF2\xAE"  +               # repne scasb       - Find magic!
             "\xFF\xCF"  +               # dec edi           - scasb purs us one ahead
