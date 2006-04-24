@@ -132,12 +132,12 @@ class Pe < PeBase
 		self.header_section    = header_section
 		
 		self._config_header    = _parse_config_header()
-		
+
 		# These can be accessed directly
 		self.hdr               = HeaderAccessor.new
 		self.hdr.dos           = self._dos_header
 		self.hdr.file          = self._file_header		
-	    self.hdr.opt           = self._optional_header
+	   self.hdr.opt           = self._optional_header
 		self.hdr.sections      = self._section_headers
 		self.hdr.config        = self._config_header
 	end
@@ -149,6 +149,33 @@ class Pe < PeBase
 	#
 	def all_sections
 		[ header_section ] + sections
+	end
+
+	#
+	# Returns true if this binary is for a 64-bit architecture.
+	#
+	def ptr_64?
+		[
+			IMAGE_FILE_MACHINE_IA64,
+			IMAGE_FILE_MACHINE_ALPHA64,
+			IMAGE_FILE_MACHINE_AMD64
+		].include?(hdr.file.Machine)
+	end
+
+	#
+	# Returns true if this binary is for a 32-bit architecture.
+	# This check does not take into account 16-bit binaries at the moment.
+	#
+	def ptr_32?
+		ptr_64? == false	
+	end
+
+	#
+	# Converts a virtual address to a string representation based on the
+	# underlying architecture.
+	#
+	def ptr_s(va)
+		(ptr_32?) ? ("0x%.8x" % va) : ("0x%.16x" % va)
 	end
 
 end end end

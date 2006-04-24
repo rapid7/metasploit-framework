@@ -83,7 +83,7 @@ class PeBase
 		end
 	end
 
-	class GenericHeader
+	class GenericStruct
 		attr_accessor :struct
 		def initialize(_struct)
 			self.struct = _struct
@@ -109,7 +109,9 @@ class PeBase
 		def method_missing(meth, *args)
 			v[meth.to_s] || (raise NoMethodError.new, meth)
 		end
-		
+	end
+
+	class GenericHeader < GenericStruct
 	end
 
 	class DosHeader < GenericHeader
@@ -151,12 +153,18 @@ class PeBase
 	#
 	# #define IMAGE_NT_SIGNATURE                  0x00004550  // PE00
 	# #define IMAGE_FILE_MACHINE_I386              0x014c  // Intel 386.
+	# #define IMAGE_FILE_MACHINE_IA64              0x0200  // Intel 64
+	# #define IMAGE_FILE_MACHINE_ALPHA64           0x0284  // ALPHA64
+	# #define IMAGE_FILE_MACHINE_AMD64             0x8664  // AMD64 (K8)
 	# #define IMAGE_SIZEOF_FILE_HEADER             20
 	#
 
-	IMAGE_NT_SIGNATURE      = 0x00004550
-	IMAGE_FILE_MACHINE_I386 = 0x014c
-	IMAGE_FILE_HEADER_SIZE  = 20+4  # because we include the signature
+	IMAGE_NT_SIGNATURE       = 0x00004550
+	IMAGE_FILE_MACHINE_I386  = 0x014c
+	IMAGE_FILE_MACHINE_IA64  = 0x0200
+	IMAGE_FILE_MACHINE_ALPHA64 = 0x0284
+	IMAGE_FILE_MACHINE_AMD64 = 0x8664
+	IMAGE_FILE_HEADER_SIZE   = 20+4  # because we include the signature
 	IMAGE_FILE_HEADER = Rex::Struct2::CStructTemplate.new(
 	  # not really in the header, but easier for us this way
 	  [ 'uint32v', 'NtSignature',           0 ],
@@ -168,6 +176,13 @@ class PeBase
 	  [ 'uint16v', 'SizeOfOptionalHeader',  0 ],
 	  [ 'uint16v', 'Characteristics',       0 ]
 	)
+
+	SUPPORTED_MACHINES = [
+		IMAGE_FILE_MACHINE_I386,
+		IMAGE_FILE_MACHINE_IA64,
+		IMAGE_FILE_MACHINE_ALPHA64,
+		IMAGE_FILE_MACHINE_AMD64
+	]
 
 	class FileHeader < GenericHeader
 		def initialize(rawdata)
@@ -181,11 +196,15 @@ class PeBase
 				raise FileHeaderError, "Couldn't find the PE magic!"
 			end
 
-			if file_header.v['Machine'] != IMAGE_FILE_MACHINE_I386
-				raise FileHeaderError, "I only understand i386 images, not #{file_header.v['Machine']}", caller
+			if SUPPORTED_MACHINES.include?(file_header.v['Machine']) == false
+				raise FileHeaderError, "Unsupported machine type: #{file_header.v['Machine']}", caller
 			end
 
 			self.struct = file_header
+		end
+
+		def Machine
+			v['Machine']
 		end
 
 		def SizeOfOptionalHeader
@@ -307,6 +326,22 @@ class PeBase
 	#
 	IMAGE_NUMBEROF_DIRECTORY_ENTRIES = 16
 	IMAGE_DATA_DIRECTORY_SIZE        = 8
+	IMAGE_DIRECTORY_ENTRY_EXPORT         = 0
+	IMAGE_DIRECTORY_ENTRY_IMPORT         = 1
+	IMAGE_DIRECTORY_ENTRY_RESOURCE       = 2
+	IMAGE_DIRECTORY_ENTRY_EXCEPTION      = 3
+	IMAGE_DIRECTORY_ENTRY_SECURITY       = 4
+	IMAGE_DIRECTORY_ENTRY_BASERELOC      = 5
+	IMAGE_DIRECTORY_ENTRY_DEBUG          = 6
+	IMAGE_DIRECTORY_ENTRY_COPYRIGHT      = 7
+	IMAGE_DIRECTORY_ENTRY_ARCHITECTURE   = 7
+	IMAGE_DIRECTORY_ENTRY_GLOBALPTR      = 8
+	IMAGE_DIRECTORY_ENTRY_TLS            = 9
+	IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG    = 10
+	IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT   = 11
+	IMAGE_DIRECTORY_ENTRY_IAT            = 12
+	IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT   = 13
+	IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR = 14
 	IMAGE_DATA_DIRECTORY = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint32v', 'VirtualAddress',               0 ],
 	  [ 'uint32v', 'Size',                         0 ]
@@ -413,7 +448,106 @@ class PeBase
 	  )]
 	)
 
+	#
+	# typedef struct _IMAGE_OPTIONAL_HEADER64 {
+	# 	 USHORT      Magic;
+	# 	 UCHAR       MajorLinkerVersion;
+	# 	 UCHAR       MinorLinkerVersion;
+	# 	 ULONG       SizeOfCode;
+	# 	 ULONG       SizeOfInitializedData;
+	# 	 ULONG       SizeOfUninitializedData;
+	# 	 ULONG       AddressOfEntryPoint;
+	# 	 ULONG       BaseOfCode;
+	# 	 ULONGLONG   ImageBase;
+	# 	 ULONG       SectionAlignment;
+	# 	 ULONG       FileAlignment;
+	# 	 USHORT      MajorOperatingSystemVersion;
+	# 	 USHORT      MinorOperatingSystemVersion;
+	# 	 USHORT      MajorImageVersion;
+	# 	 USHORT      MinorImageVersion;
+	# 	 USHORT      MajorSubsystemVersion;
+	# 	 USHORT      MinorSubsystemVersion;
+	# 	 ULONG       Win32VersionValue;
+	# 	 ULONG       SizeOfImage;
+	# 	 ULONG       SizeOfHeaders;
+	# 	 ULONG       CheckSum;
+	# 	 USHORT      Subsystem;
+	# 	 USHORT      DllCharacteristics;
+	# 	 ULONGLONG   SizeOfStackReserve;
+	# 	 ULONGLONG   SizeOfStackCommit;
+	# 	 ULONGLONG   SizeOfHeapReserve;
+	# 	 ULONGLONG   SizeOfHeapCommit;
+	# 	 ULONG       LoaderFlags;
+	# 	 ULONG       NumberOfRvaAndSizes;
+	# 	 IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
+	# } IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;
+	#
+	# #define IMAGE_NT_OPTIONAL_HDR64_MAGIC      0x20b
+	# #define IMAGE_SIZEOF_NT_OPTIONAL64_HEADER    240
+	#
+
+	IMAGE_NT_OPTIONAL_HDR64_MAGIC     = 0x20b
+	IMAGE_SIZEOF_NT_OPTIONAL64_HEADER = 240
+	IMAGE_OPTIONAL_HEADER64 = Rex::Struct2::CStructTemplate.new(
+	  [ 'uint16v', 'Magic',                        0 ],
+	  [ 'uint8',   'MajorLinkerVersion',           0 ],
+	  [ 'uint8',   'MinorLinkerVersion',           0 ],
+	  [ 'uint32v', 'SizeOfCode',                   0 ],
+	  [ 'uint32v', 'SizeOfInitializeData',         0 ],
+	  [ 'uint32v', 'SizeOfUninitializeData',       0 ],
+	  [ 'uint32v', 'AddressOfEntryPoint',          0 ],
+	  [ 'uint32v', 'BaseOfCode',                   0 ],
+	  [ 'uint64v', 'ImageBase',                    0 ],
+	  [ 'uint32v', 'SectionAlignment',             0 ],
+	  [ 'uint32v', 'FileAlignment',                0 ],
+	  [ 'uint16v', 'MajorOperatingsystemVersion',  0 ],
+	  [ 'uint16v', 'MinorOperatingsystemVersion',  0 ],
+	  [ 'uint16v', 'MajorImageVersion',            0 ],
+	  [ 'uint16v', 'MinorImageVersion',            0 ],
+	  [ 'uint16v', 'MajorSubsystemVersion',        0 ],
+	  [ 'uint16v', 'MinorSubsystemVersion',        0 ],
+	  [ 'uint32v', 'Win32VersionValue',            0 ],
+	  [ 'uint32v', 'SizeOfImage',                  0 ],
+	  [ 'uint32v', 'SizeOfHeaders',                0 ],
+	  [ 'uint32v', 'CheckSum',                     0 ],
+	  [ 'uint16v', 'Subsystem',                    0 ],
+	  [ 'uint16v', 'DllCharacteristics',           0 ],
+	  [ 'uint64v', 'SizeOfStackReserve',           0 ],
+	  [ 'uint64v', 'SizeOfStackCommit',            0 ],
+	  [ 'uint64v', 'SizeOfHeapReserve',            0 ],
+	  [ 'uint64v', 'SizeOfHeapCommit',             0 ],
+	  [ 'uint32v', 'LoaderFlags',                  0 ],
+	  [ 'uint32v', 'NumberOfRvaAndSizes',          0 ],
+	  [ 'template', 'DataDirectory', Rex::Struct2::CStructTemplate.new(
+	    [ 'template', 'DataDirectoryEntry_0', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_1', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_2', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_3', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_4', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_5', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_6', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_7', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_8', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_9', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_10', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_11', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_12', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_13', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_14', IMAGE_DATA_DIRECTORY ],
+	    [ 'template', 'DataDirectoryEntry_15', IMAGE_DATA_DIRECTORY ]
+	  )]
+	)
+
 	class OptionalHeader < GenericHeader
+		def ImageBase
+			v['ImageBase']
+		end
+		def FileAlignment
+			v['FileAlignment']
+		end
+	end
+
+	class OptionalHeader32 < OptionalHeader
 		def initialize(rawdata)
 			optional_header = IMAGE_OPTIONAL_HEADER32.make_struct
 
@@ -427,14 +561,22 @@ class PeBase
 
 			self.struct = optional_header
 		end
+	end
 
-		def ImageBase
-			v['ImageBase']
+	class OptionalHeader64 < OptionalHeader	
+		def initialize(rawdata)
+			optional_header = IMAGE_OPTIONAL_HEADER64.make_struct
+
+			if !optional_header.from_s(rawdata)
+				raise OptionalHeaderError, "Couldn't parse IMAGE_OPTIONAL_HEADER64", caller
+			end
+
+			if optional_header.v['Magic'] != IMAGE_NT_OPTIONAL_HDR64_MAGIC
+				raise OptionalHeaderError, "Magic did not match!", caller()
+			end
+
+			self.struct = optional_header
 		end
-		def FileAlignment
-			v['FileAlignment']
-		end
-		
 	end
 
 	def self._parse_optional_header(rawdata)
@@ -445,13 +587,16 @@ class PeBase
 
 			# good, good
 			when IMAGE_SIZEOF_NT_OPTIONAL32_HEADER
+				return OptionalHeader32.new(rawdata)
+			
+			when IMAGE_SIZEOF_NT_OPTIONAL64_HEADER
+				return OptionalHeader64.new(rawdata)
 
 			# bad, bad
 			else
 				raise OptionalHeaderError, "I don't know this header size, #{rawdata.length}", caller
 		end
 
-		return OptionalHeader.new(rawdata)
 	end
 
 	#
@@ -604,22 +749,71 @@ class PeBase
 	  [ 'uint32v', 'SEHandlerCount',                0 ]
 	)
 
+	#
+	# typedef struct {
+	# 	 ULONG      Size;
+	# 	 ULONG      TimeDateStamp;
+	# 	 USHORT     MajorVersion;
+	# 	 USHORT     MinorVersion;
+	# 	 ULONG      GlobalFlagsClear;
+	# 	 ULONG      GlobalFlagsSet;
+	# 	 ULONG      CriticalSectionDefaultTimeout;
+	# 	 ULONGLONG  DeCommitFreeBlockThreshold;
+	# 	 ULONGLONG  DeCommitTotalFreeThreshold;
+	# 	 ULONGLONG  LockPrefixTable;         // VA
+	# 	 ULONGLONG  MaximumAllocationSize;
+	# 	 ULONGLONG  VirtualMemoryThreshold;
+	# 	 ULONGLONG  ProcessAffinityMask;
+	# 	 ULONG      ProcessHeapFlags;
+	# 	 USHORT     CSDVersion;
+	# 	 USHORT     Reserved1;
+	# 	 ULONGLONG  EditList;                // VA
+	# 	 ULONGLONG  SecurityCookie;          // VA
+	# 	 ULONGLONG  SEHandlerTable;          // VA
+	# 	 ULONGLONG  SEHandlerCount;
+	# } IMAGE_LOAD_CONFIG_DIRECTORY64, *PIMAGE_LOAD_CONFIG_DIRECTORY64;
+	#
+	IMAGE_LOAD_CONFIG_DIRECTORY64 = Rex::Struct2::CStructTemplate.new(
+	  [ 'uint32v', 'Size',                          0 ],
+	  [ 'uint32v', 'TimeDateStamp',                 0 ],
+	  [ 'uint16v', 'MajorVersion',                  0 ],
+	  [ 'uint16v', 'MinorVersion',                  0 ],
+	  [ 'uint32v', 'GlobalFlagsClear',              0 ],
+	  [ 'uint32v', 'GlobalFlagsSet',                0 ],
+	  [ 'uint32v', 'CriticalSectionDefaultTimeout', 0 ],
+	  [ 'uint64v', 'DeCommitFreeBlockThreshold',    0 ],
+	  [ 'uint64v', 'DeCommitTotalFreeThreshold',    0 ],
+	  [ 'uint64v', 'LockPrefixTable',               0 ],
+	  [ 'uint64v', 'MaximumAllocationSize',         0 ],
+	  [ 'uint64v', 'VirtualMemoryThreshold',        0 ],
+	  [ 'uint64v', 'ProcessAffinityMask',           0 ],
+	  [ 'uint32v', 'ProcessHeapFlags',              0 ],
+	  [ 'uint16v', 'CSDVersion',                    0 ],
+	  [ 'uint16v', 'Reserved1',                     0 ],
+	  [ 'uint64v', 'EditList',                      0 ],
+	  [ 'uint64v', 'SecurityCookie',                0 ],
+	  [ 'uint64v', 'SEHandlerTable',                0 ],
+	  [ 'uint64v', 'SEHandlerCount',                0 ]
+	)
+
+
 	class ConfigHeader < GenericHeader
 		
 	end
-	
-	def self._parse_config_header(rawdata)
-		header = IMAGE_LOAD_CONFIG_DIRECTORY32.make_struct
-		header.from_s(rawdata)	
-		ConfigHeader.new(header)		
-	end
+
+	# doesn't seem to be used -- not compatible with 64-bit
+	#def self._parse_config_header(rawdata)
+	#	header = IMAGE_LOAD_CONFIG_DIRECTORY32.make_struct
+	#	header.from_s(rawdata)	
+	#	ConfigHeader.new(header)		
+	#end
 	
 	def _parse_config_header
 
 		#
 		# Get the data directory entry, size, etc
 		#
-		exports_entry = _optional_header['DataDirectory'][10]
+		exports_entry = _optional_header['DataDirectory'][IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG]
 		rva           = exports_entry.v['VirtualAddress']
 		size          = exports_entry.v['Size']
 
@@ -630,13 +824,151 @@ class PeBase
 		#
 
 		dirdata = _isource.read(rva_to_file_offset(rva), size)
+		klass   = (ptr_64?) ? IMAGE_LOAD_CONFIG_DIRECTORY64 : IMAGE_LOAD_CONFIG_DIRECTORY32
+		header  = klass.make_struct
 
-		header = IMAGE_LOAD_CONFIG_DIRECTORY32.make_struct
 		header.from_s(dirdata)
 			
 		ConfigHeader.new(header)
 	end
-	
+
+
+	##
+	#
+	# Exception directory
+	#
+	##
+
+	#
+	# typedef struct _IMAGE_RUNTIME_FUNCTION_ENTRY {
+	#     DWORD BeginAddress;
+	#     DWORD EndAddress;
+	#     DWORD UnwindInfoAddress;
+	# } _IMAGE_RUNTIME_FUNCTION_ENTRY, *_PIMAGE_RUNTIME_FUNCTION_ENTRY;
+	#
+	IMAGE_RUNTIME_FUNCTION_ENTRY_SZ = 12
+	IMAGE_RUNTIME_FUNCTION_ENTRY = Rex::Struct2::CStructTemplate.new(
+	  [ 'uint32v', 'BeginAddress',                  0 ],
+	  [ 'uint32v', 'EndAddress',                    0 ],
+	  [ 'uint32v', 'UnwindInfoAddress',             0 ]
+	)
+
+	UNWIND_INFO_HEADER_SZ = 4
+	UNWIND_INFO_HEADER = Rex::Struct2::CStructTemplate.new(
+	  [ 'uint8', 'VersionFlags',                  0 ],
+	  [ 'uint8', 'SizeOfProlog',                  0 ],
+	  [ 'uint8', 'CountOfCodes',                  0 ],
+	  [ 'uint8', 'FrameRegisterAndOffset',        0 ]
+	)
+
+	UWOP_PUSH_NONVOL     = 0  # 1 node
+	UWOP_ALLOC_LARGE     = 1  # 2 or 3 nodes
+	UWOP_ALLOC_SMALL     = 2  # 1 node
+	UWOP_SET_FPREG       = 3  # 1 node
+	UWOP_SAVE_NONVOL     = 4  # 2 nodes
+	UWOP_SAVE_NONVOL_FAR = 5  # 3 nodes
+	UWOP_SAVE_XMM128     = 8  # 2 nodes
+	UWOP_SAVE_XMM128_FAR = 9  # 3 nodes
+	UWOP_PUSH_MACHFRAME  = 10 # 1 node
+
+	UNW_FLAG_EHANDLER  = 1
+	UNW_FLAG_UHANDLER  = 2
+	UNW_FLAG_CHAININFO = 4
+
+	class UnwindCode
+		def initialize(data)
+			self.code_offset  = data[0]
+			self.unwind_op    = data[1] & 0xf
+			self.op_info      = data[1] >> 4
+			self.frame_offset = data[2..3].unpack("v")[0]
+
+			data.slice!(0, 4)
+		end
+
+		attr_reader :code_offset, :unwind_op, :op_info, :frame_offset
+	private
+		attr_writer :code_offset, :unwind_op, :op_info, :frame_offset
+
+	end
+
+	class UnwindInfo
+		def initialize(pe, unwind_rva)
+			data = pe.read_rva(unwind_rva, UNWIND_INFO_HEADER_SZ)
+
+			@version               = data[0] & 0x7
+			@flags                 = data[0] >> 3
+			@size_of_prolog        = data[1]
+			@count_of_codes        = data[2]
+			@frame_register        = data[3] & 0xf
+			@frame_register_offset = data[3] >> 4
+
+			# Parse unwind codes
+			clist = pe.read_rva(unwind_rva + UNWIND_INFO_HEADER_SZ, count_of_codes * 4)
+
+			@unwind_codes = []
+
+			while clist.length > 0
+				@unwind_codes << UnwindCode.new(clist)
+			end
+		end
+
+		attr_reader :version, :flags, :size_of_prolog, :count_of_codes
+		attr_reader :frame_register, :frame_register_offset
+
+		def unwind_codes
+			@unwind_codes
+		end
+
+	end
+
+	class RuntimeFunctionEntry
+
+		def initialize(pe, data)
+			@pe = pe
+			@begin_address, @end_address, @unwind_info_address = data.unpack("VVV");
+			self.unwind_info = UnwindInfo.new(pe, unwind_info_address)
+		end
+
+		attr_reader :begin_address, :end_address, :unwind_info_address
+		attr_reader :unwind_info
+
+	private
+
+		attr_writer :unwind_info
+
+	end
+
+	def _load_exception_directory
+		@exception   = []
+
+		exception_entry = _optional_header['DataDirectory'][IMAGE_DIRECTORY_ENTRY_EXCEPTION]
+		rva             = exception_entry.v['VirtualAddress']
+		size            = exception_entry.v['Size']
+
+		return if (rva == 0)
+
+		data = _isource.read(rva_to_file_offset(rva), size)
+
+		case hdr.file.Machine
+			when IMAGE_FILE_MACHINE_AMD64
+				count = data.length / IMAGE_RUNTIME_FUNCTION_ENTRY_SZ
+
+				count.times { |current|
+					@exception << RuntimeFunctionEntry.new(self, 
+						data.slice!(0, IMAGE_RUNTIME_FUNCTION_ENTRY_SZ))
+				}
+			else
+		end
+
+		return @exception
+	end
+
+		
+	def exception
+		_load_exception_directory if @exception.nil?
+		@exception
+	end
+
 	#
 	# Just a stupid routine to round an offset up to it's alignment.
 	#
