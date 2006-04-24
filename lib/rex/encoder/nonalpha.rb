@@ -27,18 +27,18 @@ class NonAlpha
     end
 
 	def NonAlpha.encode_byte(block, table, tablelen)
-	    if (block >= 0x41 and block <= 0x51) or (block >= 0x61 and block <= 0x7A ) or (block == 0x7B)
+       if (tablelen > 256) or (block == 0x7B)
+            raise RuntimeError, "BadChar"
+        end
+ 
+	    if (block >= 0x41 and block <= 0x51) or (block >= 0x61 and block <= 0x7A)
             # gen offset, return magic
             offset = 0x7b - block;
-            table += offset
+            table += offset.chr
             tablelen = tablelen + 1
-            block = "\x7B"
+            block = 0x7B
         end
 
-        if tablelen > 256
-            return "\x00"
-        end
-        
         return block.chr
     end
 
@@ -51,9 +51,6 @@ class NonAlpha
 			|block|
 
 			newchar = encode_byte(block.unpack('C')[0], table, tablelen)
-            if newchar == "\x00"
-                # FAIL
-            end
             nonascii += newchar
 		}
         encoded.gsub!(/A/, tablelen)
