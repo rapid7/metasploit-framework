@@ -16,7 +16,8 @@ class NonAlpha < Msf::Encoder::NonAlpha
 			'Description'      => %q{
 				Encodes payloads a non-alpha based bytes. This allows
                 payloads to bypass both toupper() and tolower() calls,
-                but will fail isalpha().
+                but will fail isalpha(). Table based design from 
+                Russel Sanford. 
 			},
 			'Author'           => [ 'pusscat'],
 			'Arch'             => ARCH_X86,
@@ -43,8 +44,9 @@ class NonAlpha < Msf::Encoder::NonAlpha
 	# payload.
 	#
 	def encode_block(state, block)
-		Rex::Encoder::NonAlpha::encode_byte(block.unpack('C')[0], state.key, state.decoder_key_size)
-	end
+		newchar, state.key, state.decoder_key_size = Rex::Encoder::NonAlpha::encode_byte(block.unpack('C')[0], state.key, state.decoder_key_size)
+	    return newchar
+    end
 
 	#
 	# Fix stuff, and add the table :)
