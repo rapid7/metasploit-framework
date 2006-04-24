@@ -6,6 +6,7 @@ module Rex
 module Encoder
 
 class NonAlpha
+    
 	
 	def NonAlpha.gen_decoder()
 	    decoder = 
@@ -39,7 +40,7 @@ class NonAlpha
             block = 0x7B
         end
 
-        return block.chr
+        return [block.chr, table, tablelen]
     end
 
 	def NonAlpha.encode(buf)
@@ -50,7 +51,7 @@ class NonAlpha
 		buf.each_byte {
 			|block|
 
-			newchar = encode_byte(block.unpack('C')[0], table, tablelen)
+			newchar, table, tablelen = encode_byte(block.unpack('C')[0], table, tablelen)
             nonascii += newchar
 		}
         encoded.gsub!(/A/, tablelen)
