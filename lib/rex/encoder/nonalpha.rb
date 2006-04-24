@@ -29,11 +29,11 @@ class NonAlpha
     end
 
 	def NonAlpha.encode_byte(block, table, tablelen)
-       if (tablelen > 256) or (block == 0x7B)
+       if (tablelen > 255) or (block == 0x7B)
             raise RuntimeError, "BadChar"
         end
  
-	    if (block >= 0x41 and block <= 0x51) or (block >= 0x61 and block <= 0x7A)
+	    if (block >= 0x41 and block <= 0x5A) or (block >= 0x61 and block <= 0x7A)
             # gen offset, return magic
             offset = 0x7b - block;
             table += offset.chr
