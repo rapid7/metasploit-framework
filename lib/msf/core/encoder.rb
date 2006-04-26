@@ -376,27 +376,24 @@ protected
 		cur_key   = [ ]
 		bad_keys  = find_bad_keys(buf, badchars)
 		found     = false
-
+		allset    = [*(0..255)]
+		
 		# Keep chugging until we find something...right
 		while (!found)
 			# Scan each byte position
 			0.upto(decoder_key_size - 1) { |index|
-				cur_key[index] = rand(255)
+				
+			# Subtract the bad and leave the good
+			good_keys = allset-bad_keys[index].keys
 
-				# Scan all 255 bytes (wrapping around as necessary)
-				for cur_char in (cur_key[index] .. (cur_key[index] + 255))
-					cur_char = (cur_char % 255) + 1
+			# Was there anything left for this index?
+			if (good_keys.length == 0)
+				# Not much we can do about this :(
+				return nil
+			end
 
-					# If this is a known bad character at this location in the
-					# key or it doesn't pass the bad character check...
-					if (((bad_keys != nil) and
-					     (bad_keys[index][cur_char] == true)) or
-					    (badchars.index(cur_char) != nil))
-						next
-					end
-
-					key_bytes[index] = cur_char
-				end
+			# Set the appropriate key byte
+			key_bytes[index] = good_keys[ rand(good_keys.length) ]
 			}
 
 			# Assume that we're going to rock this shit...
@@ -410,7 +407,7 @@ protected
 				end
 			}
 			
-			found = find_key_verify(key_bytes, badchars) if found
+			found = find_key_verify(buf, key_bytes, badchars) if found
 		end
 
 		# Do we have all the key bytes accounted for?
@@ -448,7 +445,14 @@ protected
 	# decoder's key size and packing requirements
 	#
 	def key_bytes_to_integer(key_bytes)
-		return key_bytes.pack('C' + decoder_key_size.to_s).unpack(decoder_key_pack)[0]
+		return key_bytes_to_buffer(key_bytes).unpack(decoder_key_pack)[0]
+	end
+
+	#
+	# Convert individual key bytes into a byte buffer
+	#
+	def key_bytes_to_buffer(key_bytes)
+		return key_bytes.pack('C' + decoder_key_size.to_s)
 	end
 
 	#
@@ -462,7 +466,7 @@ protected
 	#
 	# Determines if the key selected by find_key is usable
 	#
-	def find_key_verify(key_bytes, badchars)
+	def find_key_verify(buf, key_bytes, badchars)
 		true
 	end
 

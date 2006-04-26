@@ -31,8 +31,29 @@ class Msf::Encoder::Xor < Msf::Encoder
 				byte_idx += 1
 			}
 		}
-
+		
 		return bad_keys
+	end
+	
+	def find_key_verify(buf, key_bytes, badchars)
+		ekey = key_bytes_to_buffer(key_bytes)
+
+		out = ''
+		idx = 0
+		while (idx < buf.length)
+			0.upto(ekey.length-1) do |i|
+				break if ! buf[idx+i]
+				out << (buf[idx+i]^ekey[i]).chr
+			end
+			
+			idx += ekey.length
+		end
+		
+		badchars.each do |c|
+			return false if out.index(c)
+		end
+		
+		true
 	end
 
 	

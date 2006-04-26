@@ -44,7 +44,7 @@ class JmpCallAdditive < Msf::Encoder::XorAdditiveFeedback
 	#
 	def decoder_stub(state)
 		if (state.decoder_stub == nil)
-			block = generate_decoder_stub(state)
+			block = generate_decoder_stub(state) || (raise BadGenerateError)
 			state.decoder_key_offset = block.index('XORK')
 			state.decoder_stub = block
 		end

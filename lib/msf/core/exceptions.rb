@@ -123,6 +123,17 @@ class NoEncodersSucceededError < EncodingError
 	end
 end
 
+###
+#
+# Thrown when an encoder fails to generate a valid opcode sequence.
+#
+###
+class BadGenerateError < EncodingError
+	def to_s
+		"A valid opcode permutation could not be found."
+	end
+end
+
 ##
 #
 # Exploit exceptions

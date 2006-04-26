@@ -38,8 +38,7 @@ class ShikataGaNai < Msf::Encoder::XorAdditiveFeedback
 		# If the decoder stub has not already been generated for this state, do
 		# it now.  The decoder stub method may be called more than once.
 		if (state.decoder_stub == nil)
-			block = generate_shikata_block(state, state.buf.length + 4)
-
+			block = generate_shikata_block(state, state.buf.length + 4) || (raise BadGenerateError)
 			# Set the state specific key offset to wherever the XORK ended up.
 			state.decoder_key_offset = block.index('XORK')
 
