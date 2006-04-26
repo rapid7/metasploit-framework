@@ -383,17 +383,17 @@ protected
 			# Scan each byte position
 			0.upto(decoder_key_size - 1) { |index|
 				
-			# Subtract the bad and leave the good
-			good_keys = allset-bad_keys[index].keys
+				# Subtract the bad and leave the good
+				good_keys = allset-bad_keys[index].keys
 
-			# Was there anything left for this index?
-			if (good_keys.length == 0)
-				# Not much we can do about this :(
-				return nil
-			end
+				# Was there anything left for this index?
+				if (good_keys.length == 0)
+					# Not much we can do about this :(
+					return nil
+				end
 
-			# Set the appropriate key byte
-			key_bytes[index] = good_keys[ rand(good_keys.length) ]
+				# Set the appropriate key byte
+				key_bytes[index] = good_keys[ rand(good_keys.length) ]
 			}
 
 			# Assume that we're going to rock this shit...
