@@ -25,16 +25,23 @@ class Msf::Encoder::Xor < Msf::Encoder
 		# based on the XOR'd combinations that can occur at certain bytes
 		# to produce bad characters
 		badchars.each_byte { |badchar|
+			
 			buf.each_byte { |byte|
 				bad_keys[byte_idx % decoder_key_size][byte ^ badchar] = true
-			
+				
 				byte_idx += 1
+			}
+			
+			# Assume our key itself is placed w/o encoding
+			0.upto(decoder_key_size-1) { |i|
+				bad_keys[i][badchar] = true
 			}
 		}
 		
 		return bad_keys
 	end
 	
+	# Added for test purposes, remove once we resolve encoding issues...
 	def find_key_verify(buf, key_bytes, badchars)
 		ekey = key_bytes_to_buffer(key_bytes)
 
