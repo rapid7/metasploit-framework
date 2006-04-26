@@ -15,7 +15,7 @@ require 'rex/proto/smb/exceptions'
 	def initialize(handle, socket, useroptions = Hash.new)
 		self.handle = handle
 		self.socket = socket
-		self.options = { 'smb_user' => '', 'smb_pass' => '' } # put default options here...
+		self.options = { 'smb_user' => '', 'smb_pass' => '', 'smb_pipeio' => 'rw' } # put default options here...
 		self.options.merge!(useroptions)
 	
 		# we must have a valid handle, regardless of everything else
@@ -45,7 +45,7 @@ require 'rex/proto/smb/exceptions'
 					raise "ack, #{self.handle.protocol} requires socket type tcp, not #{self.socket.type?}!"
 				end
 			when 'ncacn_np'
-				if self.socket.class == Rex::Proto::SMB::SimpleClient::OpenFile
+				if self.socket.class == Rex::Proto::SMB::SimpleClient::OpenPipe
 					self.ispipe = 1
 				elsif self.socket.type? == 'tcp'
 					self.smb_connect()
@@ -87,17 +87,20 @@ require 'rex/proto/smb/exceptions'
 
 	def smb_connect()
 		require 'rex/proto/smb/simpleclient'
-		if self.socket.peerport == 445
-			smb = Rex::Proto::SMB::SimpleClient.new(self.socket, true)
-		elsif self.socket.peerport == 139
+		
+		if self.socket.peerport == 139
 			smb = Rex::Proto::SMB::SimpleClient.new(self.socket)
 		else
-			raise "ACK, how did we get a peerport other than 139 or 445?  #{self.socket.peerport}"
+			smb = Rex::Proto::SMB::SimpleClient.new(self.socket, true)
 		end
+		
 		smb.client.evasion_level = 0
 		smb.login('*SMBSERVER', self.options['smb_user'], self.options['smb_pass'])
 		smb.connect('IPC$')
+		
 		f = smb.create_pipe(self.handle.options[0])
+		f.mode = self.options['smb_pipeio']
+
 		self.socket = f
 		self.smb = smb
 	end
@@ -105,7 +108,7 @@ require 'rex/proto/smb/exceptions'
 	def read()
 		raw_response = ''
 			
-		if self.socket.class == Rex::Proto::SMB::SimpleClient::OpenFile
+		if self.socket.class == Rex::Proto::SMB::SimpleClient::OpenPipe
 			begin
 				if self.options['segment_read']
 					while(true)
@@ -144,12 +147,13 @@ require 'rex/proto/smb/exceptions'
 	end
 
 	def write(data)
-		if self.options['segment_write']
+	
+		if (! self.options['segment_write'] or (self.handle.protocol == 'ncacn_np' and self.options['smb_pipeio'] != 'rw'))
+			self.socket.write(data)
+		else
 			while (data.length > 0)
 				len = self.socket.write( data.slice!(0, (rand(20)+5)) )
 			end
-		else
-		self.socket.write(data)
 		end
 
 		data.length

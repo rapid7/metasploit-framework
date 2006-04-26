@@ -259,7 +259,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 				smb.login('*SMBSERVER', user, pass)
 				smb.connect('IPC$')
 				f = smb.create_pipe('\BROWSER')
-				assert_instance_of(Rex::Proto::SMB::SimpleClient::OpenFile, f, 'pipe')
+				assert_instance_of(Rex::Proto::SMB::SimpleClient::OpenPipe, f, 'pipe')
 
 				handle = Rex::Proto::DCERPC::Handle.new(['4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0'], 'ncacn_np', $_REX_TEST_SMB_HOST, ['\BROWSER'])
 				assert_instance_of(Rex::Proto::DCERPC::Handle, handle, 'handle')

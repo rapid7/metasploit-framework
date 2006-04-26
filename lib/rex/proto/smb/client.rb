@@ -131,7 +131,7 @@ EVADE = Rex::Proto::SMB::Evasions
 				when CONST::SMB_COM_TREE_DISCONNECT
 					res =  smb_parse_tree_disconnect(pkt, data)
 
-				when CONST::SMB_COM_CREATE_ANDX
+				when CONST::SMB_COM_NT_CREATE_ANDX
 					res =  smb_parse_create(pkt, data)
 
 				when CONST::SMB_COM_TRANSACTION, CONST::SMB_COM_TRANSACTION2
@@ -262,7 +262,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		raise XCEPT::InvalidWordCount
 	end	
 		
-	# Process incoming SMB_COM_CREATE_ANDX packets
+	# Process incoming SMB_COM_NT_CREATE_ANDX packets
 	def smb_parse_create(pkt, data)
 		
 		# Windows says 42, but Samba says 34, same structure :-/
@@ -805,7 +805,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt = CONST::SMB_CREATE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
 		
-		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_CREATE_ANDX
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_CREATE_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['WordCount'] = 24
@@ -822,7 +822,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 		self.smb_send(pkt.to_s)
 		
-		ack = self.smb_recv_parse(CONST::SMB_COM_CREATE_ANDX)
+		ack = self.smb_recv_parse(CONST::SMB_COM_NT_CREATE_ANDX)
 
 		# Save off the FileID
 		if (ack['Payload'].v['FileID'] > 0)
@@ -1115,7 +1115,6 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.smb_send(pkt.to_s)
 		return ack
 	end		
-
 
 	# Perform a transaction2 request using the specified subcommand, parameters, and data
 	def trans2 (subcommand, param = '', body = '', setup_count = 0, setup_data = '')
