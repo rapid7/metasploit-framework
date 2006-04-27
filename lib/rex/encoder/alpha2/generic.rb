@@ -47,18 +47,17 @@ class Generic
 		
 		gen_base_set(block).each do |randbase|
 			second   = gen_second(block, randbase)
-            next  if randbase == 0x10
 			next  if second < 0
 			break if @@accepted_chars.include?(second.chr)
 		end
 		
 		raise RuntimeError, "Negative" if second < 0
-		raise RuntimeError, "BadChar"  if not @@accepted_chars.include?(second.chr)
+		raise RuntimeError, "BadChar; #{block} to #{second}"  if not @@accepted_chars.include?(second.chr)
 
 		if (randbase > 0xa0)
 			# first num must be 4
 			first = (randbase/0x10) + 0x40
-		elsif (randbase == 0x00)
+		elsif (randbase == 0x00) || (randbase == 0x10)
 			# first num must be 5
 			first = (randbase/0x10) + 0x50
 		else
