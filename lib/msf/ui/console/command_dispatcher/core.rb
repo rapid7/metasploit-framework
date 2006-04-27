@@ -779,7 +779,7 @@ class Core
 					show_exploits
 				when 'payloads'
 					show_payloads
-				when 'aux'
+				when 'auxiliary'
 					show_auxiliary
 				when 'options'
 					if (mod)
@@ -821,7 +821,7 @@ class Core
 	# Tab completion for the show command
 	#
 	def cmd_show_tabs(str, words)
-		res = %w{all encoders nops exploits payloads aux plugins}
+		res = %w{all encoders nops exploits payloads auxiliary plugins}
 		if (active_module)
 			res.concat(%w{ options advanced evasion targets actions })
 		end

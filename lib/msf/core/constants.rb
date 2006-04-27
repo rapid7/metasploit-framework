@@ -14,7 +14,7 @@ MODULE_ANY     = '_any_'
 MODULE_ENCODER = 'encoder'
 MODULE_EXPLOIT = 'exploit'
 MODULE_NOP     = 'nop'
-MODULE_AUX     = 'aux'
+MODULE_AUX     = 'auxiliary'
 MODULE_PAYLOAD = 'payload'
 MODULE_TYPES   = 
 	[ 
