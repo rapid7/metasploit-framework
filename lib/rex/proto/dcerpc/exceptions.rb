@@ -23,7 +23,7 @@ class Error < ::RuntimeError
 	end
 
 	# returns an error string if it exists, otherwise just the error code
-	def get_error (error)
+	def get_error(error)
 		string = ''
 		if @@errors[error]
 			string = @@errors[error]

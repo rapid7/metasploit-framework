@@ -61,7 +61,7 @@ class Client
 	#
 	# Configures the Client object and the Request factory.
 	#
-	def config (chash)
+	def config(chash)
 		req_opts = %w{ user-agent vhost cookie proto }
 		cli_opts = %w{ max-data }	
 		chash.each_pair { |k,v| 
@@ -87,7 +87,7 @@ class Client
 	#
 	# The Request factory.
 	#
-	def request (chash)
+	def request(chash)
 		method = chash['method'] || 'GET'
 		proto  = chash['proto']  || self.request_config['proto'] || DefaultProtocol
 		uri    = chash['uri']    || '/'

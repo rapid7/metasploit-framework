@@ -57,8 +57,7 @@ module Stream
 		begin
 			fd.sysread(length)
 		rescue IOError
-			return 0 if (fd.abortive_close == true)
-
+			return nil if (fd.abortive_close == true)
 			raise $!
 		end
 	end

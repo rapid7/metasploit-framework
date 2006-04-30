@@ -15,8 +15,19 @@ require 'rex/proto/smb/exceptions'
 	def initialize(handle, socket, useroptions = Hash.new)
 		self.handle = handle
 		self.socket = socket
-		self.options = { 'smb_user' => '', 'smb_pass' => '', 'smb_pipeio' => 'rw' } # put default options here...
+		self.options = {
+			'smb_user'   => '',
+			'smb_pass'   => '',
+			'smb_pipeio' => 'rw' 
+		}
+		
 		self.options.merge!(useroptions)
+		
+		# If the caller passed us a smb_client object, use it and
+		# and skip the connect/login/ipc$ stages of the setup
+		if (self.options['smb_client'])
+			self.smb = self.options['smb_client']
+		end
 	
 		# we must have a valid handle, regardless of everything else
 		raise ArgumentError, 'handle is not a Rex::Proto::DCERPC::Handle' if !self.handle.is_a?(Rex::Proto::DCERPC::Handle)
@@ -87,22 +98,23 @@ require 'rex/proto/smb/exceptions'
 
 	def smb_connect()
 		require 'rex/proto/smb/simpleclient'
-		
-		if self.socket.peerport == 139
-			smb = Rex::Proto::SMB::SimpleClient.new(self.socket)
-		else
-			smb = Rex::Proto::SMB::SimpleClient.new(self.socket, true)
+
+		if(not self.smb)
+			if self.socket.peerport == 139
+				smb = Rex::Proto::SMB::SimpleClient.new(self.socket)
+			else
+				smb = Rex::Proto::SMB::SimpleClient.new(self.socket, true)
+			end
+
+			smb.login('*SMBSERVER', self.options['smb_user'], self.options['smb_pass'])
+			smb.connect('IPC$')
+			self.smb = smb
+			p "CREATED NEW SMB!!!!"
 		end
 		
-		smb.client.evasion_level = 0
-		smb.login('*SMBSERVER', self.options['smb_user'], self.options['smb_pass'])
-		smb.connect('IPC$')
-		
-		f = smb.create_pipe(self.handle.options[0])
+		f = self.smb.create_pipe(self.handle.options[0])
 		f.mode = self.options['smb_pipeio']
-
 		self.socket = f
-		self.smb = smb
 	end
 
 	def read()
@@ -148,7 +160,7 @@ require 'rex/proto/smb/exceptions'
 
 	def write(data)
 	
-		if (! self.options['segment_write'] or (self.handle.protocol == 'ncacn_np' and self.options['smb_pipeio'] != 'rw'))
+		if (! self.options['segment_write'] or (self.handle.protocol == 'ncacn_np'))
 			self.socket.write(data)
 		else
 			while (data.length > 0)

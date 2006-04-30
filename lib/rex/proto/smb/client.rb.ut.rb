@@ -20,8 +20,6 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 	DCERPCResponse = Rex::Proto::DCERPC::Response
 	DCERPCUUID     = Rex::Proto::DCERPC::UUID
 		
-	@@evasion = 2
-
 	def test_smb_open_share
 		
 		user = 'SMBTest'
@@ -39,7 +37,6 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		)
 
 		c = Klass.new(s)
-		c.evasion_level = @@evasion
 		
 		# Request a SMB session over NetBIOS
 		# puts "[*] Requesting a SMB session over NetBIOS..."
@@ -112,7 +109,6 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		)
 
 		c = Klass.new(s)
-		c.evasion_level = @@evasion
 		
 		# Request a SMB session over NetBIOS
 		# puts "[*] Requesting a SMB session over NetBIOS..."
@@ -162,7 +158,6 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		)
 
 		c = Klass.new(s)
-		c.evasion_level = @@evasion
 		
 		# Request a SMB session over NetBIOS
 		# puts "[*] Requesting a SMB session over NetBIOS..."

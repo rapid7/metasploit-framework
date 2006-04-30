@@ -15,7 +15,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 		@handle = Rex::Proto::DCERPC::Handle.new(['6bffd098-a112-3610-9833-46c3f87e345a', '1.0'], 'ncacn_ip_tcp', '1.2.3.4', [1026])
 	end
 
-	def setup_test (read, write, force_mock = false)
+	def setup_test(read, write, force_mock = false)
 		srand(0)
 		mock_unmake() # always do this, just to be sure.  yes, it slows it down.  but... 
 
@@ -251,7 +251,6 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 
 				smb = Rex::Proto::SMB::SimpleClient.new(s, true)
 				assert_instance_of(Rex::Proto::SMB::SimpleClient, smb, 'instance of smb')
-				smb.client.evasion_level = 0
 
 				user = ''
 				pass = ''

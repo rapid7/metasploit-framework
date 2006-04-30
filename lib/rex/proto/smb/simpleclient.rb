@@ -157,14 +157,14 @@ attr_accessor	:last_error
 attr_accessor	:socket, :client, :direct, :shares, :last_share
 
 	# Pass the socket object and a boolean indicating whether the socket is netbios or cifs
-	def initialize (socket, direct = false)
+	def initialize(socket, direct = false)
 		self.socket = socket
 		self.direct = direct
 		self.client = Rex::Proto::SMB::Client.new(socket)
 		self.shares = { }
 	end
 	
-	def login (name = '*SMBSERVER', user = '', pass = '', domain = '')
+	def login(name = '*SMBSERVER', user = '', pass = '', domain = '')
 		begin
 			
 			if (self.direct != true)
@@ -210,7 +210,7 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 
 	def create_pipe(path, perm = 'c')
 		disposition = UTILS.create_mode_to_disposition(perm)
-		ok = self.client.create(path, disposition)
+		ok = self.client.create_pipe(path, disposition)
 		file_id = ok['Payload'].v['FileID']	
 		fh = OpenPipe.new(self.client, path, self.client.last_tree_id, file_id)
 	end

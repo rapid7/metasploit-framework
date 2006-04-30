@@ -10,34 +10,6 @@ EVASION_LOW   = 1
 EVASION_HIGH  = 2
 EVASION_MAX   = 3
 
-	# Causes sends to be broken into small pieces
-	def self.send_block_size(level)		
-		case level
-			when EVASION_NONE
-				return 0
-			when EVASION_LOW
-				return 61
-			when EVASION_HIGH
-				return 29
-			when EVASION_MAX
-				return 3
-		end
-	end
-	
-	# Slows down network traffic based on evasion level
-	def self.send_wait_time(level)		
-		case level
-			when EVASION_NONE
-				return 0
-			when EVASION_LOW
-				return 0.01
-			when EVASION_HIGH
-				return 0.10
-			when EVASION_MAX
-				return 0.20
-		end
-	end
-
 	# Add bogus filler at the end of the SMB packet and before the data
 	def self.make_offset_filler(level, max_size = 60000, min_size = 512)	
 
@@ -50,12 +22,12 @@ EVASION_MAX   = 3
 		end
 		
 		case level
-			when EVASION_NONE
+			when nil, EVASION_NONE
 				return ''
 			when EVASION_LOW
-				return Rex::Text.rand_text(32)
+				Rex::Text.rand_text(32)
 			when EVASION_HIGH
-				return Rex::Text.rand_text( rand(max_size - min_size) + min_size )
+				Rex::Text.rand_text( rand(max_size - min_size) + min_size )
 			when EVASION_MAX
 				Rex::Text.rand_text( rand(max_size) )
 		end
@@ -64,7 +36,7 @@ EVASION_MAX   = 3
 	# Obscures a named pipe pathname via leading and trailing slashes
 	def self.make_named_pipe_path(level, pipe)
 		case level
-			when EVASION_NONE
+			when nil, EVASION_NONE
 				return '\\' + pipe
 			when EVASION_LOW
 				return ('\\' * (1024 + rand(512))) + pipe
@@ -76,7 +48,7 @@ EVASION_MAX   = 3
 	# Obscures the TransactNamedPipe \PIPE\ string
 	def self.make_trans_named_pipe_name(level)
 		case level
-			when EVASION_NONE
+			when nil, EVASION_NONE
 				return '\\PIPE\\'
 			when EVASION_LOW
 				return ('\\' * (256 - rand(64)) + 'PIPE\\')

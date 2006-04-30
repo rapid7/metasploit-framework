@@ -38,7 +38,6 @@ class Rex::Proto::SMB::SimpleClient::UnitTest < Test::Unit::TestCase
 		)
 
 		c = Klass.new(s, true)
-		c.client.evasion_level = 0
 		
 		begin
 	        c.login('*SMBSERVER', user, pass)
@@ -75,7 +74,6 @@ class Rex::Proto::SMB::SimpleClient::UnitTest < Test::Unit::TestCase
 		)
 
 		c = Klass.new(s, true)
-		c.client.evasion_level = 0
 
 		user = ''
 		pass = ''

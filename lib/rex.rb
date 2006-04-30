@@ -49,7 +49,7 @@ require 'rex/parser/ini'
 
 # Overload the Kernel.sleep() function to be thread-safe
 Kernel.class_eval("
-	def sleep (seconds)
+	def sleep(seconds)
 		Rex::ThreadSafe.sleep(seconds)
 	end
 ")

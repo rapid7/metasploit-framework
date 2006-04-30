@@ -9,7 +9,7 @@ class Handle
 	attr_accessor :uuid, :protocol, :address, :options
 
 	# instantiate a handle object, akin to Microsoft's string binding handle by values
-	def initialize (uuid, protocol, address, options)
+	def initialize(uuid, protocol, address, options)
 		raise ArgumentError if !Rex::Proto
 		raise ArgumentError if !Rex::Proto::DCERPC::UUID.is?(uuid[0])
 		raise ArgumentError if !@@protocols.include?(protocol)

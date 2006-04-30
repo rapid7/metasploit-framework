@@ -18,7 +18,7 @@ class Response
 	# This can be initialized in two ways:
 	# 1) Call .new() with the first 10 bytes of packet, then call parse on the rest
 	# 2) Call .new() with the full packet contents
-	def initialize (data)
+	def initialize(data)
 
 		self.ack_result = []
 		self.ack_reason = []
@@ -41,7 +41,7 @@ class Response
 	end
 	
 	# Parse the contents of a DCERPC response packet and fill out all the fields
-	def parse (body = '')
+	def parse(body = '')
 		self.raw = self.raw + body
 		self.type = self.raw[2,1].unpack('C')[0]
 		

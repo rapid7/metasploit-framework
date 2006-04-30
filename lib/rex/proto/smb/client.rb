@@ -19,7 +19,7 @@ UTILS = Rex::Proto::SMB::Utils
 XCEPT = Rex::Proto::SMB::Exceptions
 EVADE = Rex::Proto::SMB::Evasions
 
-	def initialize (socket)
+	def initialize(socket)
 		self.socket = socket
 		self.native_os = 'Windows 2000 2195'
 		self.native_lm = 'Windows 2000 5.0'
@@ -28,7 +28,17 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.multiplex_id = rand(0xffff)
 		self.process_id = rand(0xffff)
 		self.read_timeout = 10
-		self.evasion_level = EVADE::EVASION_NONE
+		self.evasion_opts = {
+			
+			# Padding is performed between packet headers and data
+			'pad_data' => EVADE::EVASION_NONE,
+			
+			# File path padding is performed on all open/create calls
+			'pad_file' => EVADE::EVASION_NONE,
+			
+			# Modify the \PIPE\ string in trans_named_pipe calls
+			'obscure_trans_pipe' => EVADE::EVASION_NONE,
+		}
 	end
 	
 	# Read a SMB packet from the socket
@@ -67,12 +77,8 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 	
 	# Send a SMB packet down the socket
-	def smb_send (data, evasion = self.evasion_level)
-		
-		# size = EVADE.send_block_size(evasion)
-		# wait = EVADE.send_wait_time(evasion)
-		
-		# Socket-level evasion is being moved into Rex::Socket
+	def smb_send(data)
+
 		size = 0
 		wait = 0
 		
@@ -91,9 +97,6 @@ EVADE = Rex::Proto::SMB::Evasions
 				end
 			end
 			return ret
-			
-#		rescue
-#			raise XCEPT::WritePacket
 		end
 	end
 	
@@ -178,7 +181,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 	
 	# Process incoming SMB_COM_NEGOTIATE packets
-	def smb_parse_negotiate (pkt, data)
+	def smb_parse_negotiate(pkt, data)
 		#Process NTLM negotiate responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 17)
 			res = CONST::SMB_NEG_RES_NT_PKT.make_struct
@@ -392,7 +395,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 						
 	# Request a SMB session over NetBIOS
-	def session_request (name = '*SMBSERVER')
+	def session_request(name = '*SMBSERVER')
 		
 		data = ''
 		data << "\x20" + UTILS.nbname_encode(name) + "\x00"
@@ -417,7 +420,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Negotiate a SMB dialect
-	def negotiate ()
+	def negotiate()
 		
 		dialects = []
 		dialects << 'LANMAN1.0'
@@ -484,7 +487,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 
 	# Authenticate and establish a session
-	def session_setup (*args)
+	def session_setup(*args)
 		if (self.dialect =~ /^(NT LANMAN 1.0|NT LM 0.12)$/)
 			return self.extended_security == 1 ?
 				self.session_setup_ntlmv2(*args) : self.session_setup_ntlmv1(*args)
@@ -795,8 +798,8 @@ EVADE = Rex::Proto::SMB::Evasions
 	end	
 	
 	# Returns a SMB_CREATE_RES response for a given named pipe
-	def open_named_pipe(pipe_name)
-		self.create(EVADE.make_named_pipe_path(self.evasion_level, pipe_name))
+	def create_pipe(filename, disposition = 1, impersonation = 2)
+		self.create(EVADE.make_named_pipe_path(evasion_opts['pad_file'], filename))
 	end
 	
 	# Creates a file or opens an existing pipe
@@ -915,7 +918,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 		data_offset = pkt.to_s.length - 4
 		
-		filler = EVADE.make_offset_filler(self.evasion_level, 4096 - data.length - data_offset)
+		filler = EVADE.make_offset_filler(evasion_opts['pad_data'], 4096 - data.length - data_offset)
 		
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_WRITE_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
@@ -979,13 +982,13 @@ EVADE = Rex::Proto::SMB::Evasions
 	
 	
 	# Perform a transaction against a named pipe
-	def trans_named_pipe (file_id, data = '')
-		pipe = EVADE.make_trans_named_pipe_name(self.evasion_level)
+	def trans_named_pipe(file_id, data = '')
+		pipe = EVADE.make_trans_named_pipe_name(evasion_opts['pad_file'])
 		self.trans(pipe, '', data, 2, [0x26, file_id].pack('vv') )
 	end
 
 	# Perform a transaction against a given pipe name
-	def trans (pipe, param = '', body = '', setup_count = 0, setup_data = '')
+	def trans(pipe, param = '', body = '', setup_count = 0, setup_data = '')
 
 		# Null-terminate the pipe parameter if needed
 		if (pipe[-1] != 0)
@@ -1006,8 +1009,8 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		# Fill any available space depending on the evasion settings
 		if (xlen < mlen)
-			filler1 = EVADE.make_offset_filler(self.evasion_level, (mlen-xlen)/2)
-			filler2 = EVADE.make_offset_filler(self.evasion_level, (mlen-xlen)/2)
+			filler1 = EVADE.make_offset_filler(evasion_opts['pad_data'], (mlen-xlen)/2)
+			filler2 = EVADE.make_offset_filler(evasion_opts['pad_data'], (mlen-xlen)/2)
 		end
 
 		# Squish the whole thing together
@@ -1049,13 +1052,13 @@ EVADE = Rex::Proto::SMB::Evasions
 
 
 	# Perform a transaction against a named pipe
-	def trans_named_pipe_oneway (file_id, data = '')
-		pipe = EVADE.make_trans_named_pipe_name(self.evasion_level)
+	def trans_named_pipe_oneway(file_id, data = '')
+		pipe = EVADE.make_trans_named_pipe_name(evasion_opts['pad_file'])
 		self.trans_oneway(pipe, '', data, 2, [0x26, file_id].pack('vv') )
 	end
 
 	# Perform a transaction against a given pipe name (one way)
-	def trans_oneway (pipe, param = '', body = '', setup_count = 0, setup_data = '')
+	def trans_oneway(pipe, param = '', body = '', setup_count = 0, setup_data = '')
 
 		# Null-terminate the pipe parameter if needed
 		if (pipe[-1] != 0)
@@ -1076,8 +1079,8 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		# Fill any available space depending on the evasion settings
 		if (xlen < mlen)
-			filler1 = EVADE.make_offset_filler(self.evasion_level, (mlen-xlen)/2)
-			filler2 = EVADE.make_offset_filler(self.evasion_level, (mlen-xlen)/2)
+			filler1 = EVADE.make_offset_filler(evasion_opts['pad_data'], (mlen-xlen)/2)
+			filler2 = EVADE.make_offset_filler(evasion_opts['pad_data'], (mlen-xlen)/2)
 		end
 
 		# Squish the whole thing together
@@ -1117,21 +1120,24 @@ EVADE = Rex::Proto::SMB::Evasions
 	end		
 
 	# Perform a transaction2 request using the specified subcommand, parameters, and data
-	def trans2 (subcommand, param = '', body = '', setup_count = 0, setup_data = '')
+	def trans2(subcommand, param = '', body = '')
 
+		setup_count = 1
+		setup_data = [subcommand].pack('v')
+		
 		data = param + body
 
 		pkt = CONST::SMB_TRANS2_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
 		
 		base_offset = pkt.to_s.length + (setup_count * 2) - 4
-		param_offset = base_offset + pipe.length
+		param_offset = base_offset
 		data_offset = param_offset + param.length
 		
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
-		pkt['Payload']['SMB'].v['WordCount'] = 15 + setup_count
+		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
 		
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
@@ -1143,7 +1149,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['DataOffset'] = data_offset
 		pkt['Payload'].v['SetupCount'] = setup_count
 		pkt['Payload'].v['SetupData'] = setup_data
-		pkt['Payload'].v['Subcommand'] = subcommand
+
 				
 		pkt['Payload'].v['Payload'] = data
 		
@@ -1155,7 +1161,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	
 
 	# Perform a nttransaction request using the specified subcommand, parameters, and data
-	def nttrans (subcommand, param = '', body = '', setup_count = 0, setup_data = '')
+	def nttrans(subcommand, param = '', body = '', setup_count = 0, setup_data = '')
 
 		data = param + body
 
@@ -1190,20 +1196,204 @@ EVADE = Rex::Proto::SMB::Evasions
 		return ack
 	end
 
+	def queryfs(level)
+		parm = [level].pack('v')
 
+		begin
+			resp = trans2(CONST::TRANS2_QUERY_FS_INFO, parm, '')
 
-# public methods
-	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_level
+			pcnt = resp['Payload'].v['ParamCount']
+			dcnt = resp['Payload'].v['DataCount']
+			poff = resp['Payload'].v['ParamOffset']
+			doff = resp['Payload'].v['DataOffset']
+			
+			# Get the raw packet bytes
+			resp_rpkt = resp.to_s
+			
+			# Remove the NetBIOS header
+			resp_rpkt.slice!(0, 4)
+
+			resp_parm = resp_rpkt[poff, pcnt]
+			resp_data = resp_rpkt[doff, dcnt]
+			return resp_data
+
+		rescue ::Exception
+			raise $!
+		end
+	end
+
+	# Obtains allocation information on the mounted tree
+	def queryfs_info_allocation
+		data = queryfs(CONST::SMB_INFO_ALLOCATION)
+		head = %w{fs_id sectors_per_unit unit_total units_available bytes_per_sector}
+		vals = data.unpack('VVVVv')
+		info = { }
+		head.each_index {|i| info[head[i]]=vals[i]}
+		return info
+	end
+
+	# Obtains volume information on the mounted tree
+	def queryfs_info_volume
+		data = queryfs(CONST::SMB_INFO_VOLUME)
+		vals = data.unpack('VCA*')
+		return {
+			'serial' => vals[0],
+			'label'  => vals[2][0,vals[1]].gsub("\x00", '')
+		}
+	end
+
+	# Obtains file system volume information on the mounted tree
+	def queryfs_fs_volume
+		data = queryfs(CONST::SMB_QUERY_FS_VOLUME_INFO)
+		vals = data.unpack('VVVVCCA*')
+		return {
+			'create_time' => (vals[1] << 32) + vals[0],
+			'serial'      => vals[2],
+			'label'       => vals[6][0,vals[3]].gsub("\x00", '')
+		}		
+	end	
+
+	# Obtains file system size information on the mounted tree
+	def queryfs_fs_size
+		data = queryfs(CONST::SMB_QUERY_FS_SIZE_INFO)
+		vals = data.unpack('VVVVVV')
+		return {
+			'total_alloc_units' => (vals[1] << 32) + vals[0],
+			'total_free_units'  => (vals[3] << 32) + vals[2],
+			'sectors_per_unit'  => vals[4],
+			'bytes_per_sector'  => vals[5]
+		}		
+	end
+	
+	# Obtains file system device information on the mounted tree
+	def queryfs_fs_device
+		data = queryfs(CONST::SMB_QUERY_FS_DEVICE_INFO)
+		vals = data.unpack('VV')
+		return {
+			'device_type'   => vals[0],
+			'device_chars'  => vals[1],
+		}		
+	end
+	
+	# Obtains file system attribute information on the mounted tree
+	def queryfs_fs_attribute
+		data = queryfs(CONST::SMB_QUERY_FS_ATTRIBUTE_INFO)
+		vals = data.unpack('VVVA*')
+		return {
+			'fs_attributes' => vals[0],
+			'max_file_name' => vals[1],
+			'fs_name'       => vals[3][0, vals[2]].gsub("\x00", '')
+		}				
+	end
+	
+	# Enumerates a specific path on the mounted tree
+	def find_first(path)
+		files = { }
+		parm = [
+			26,  # Search for ALL files
+			512, # Maximum search count
+			6,   # Resume and Close on End of Search
+			260, # Level of interest
+			0,   # Storage type is zero
+		].pack('vvvvV') + path + "\x00"
+		
+		begin
+			resp = trans2(CONST::TRANS2_FIND_FIRST2, parm, '')
+			
+			pcnt = resp['Payload'].v['ParamCount']
+			dcnt = resp['Payload'].v['DataCount']
+			poff = resp['Payload'].v['ParamOffset']
+			doff = resp['Payload'].v['DataOffset']
+			
+			# Get the raw packet bytes
+			resp_rpkt = resp.to_s
+			
+			# Remove the NetBIOS header
+			resp_rpkt.slice!(0, 4)
+
+			resp_parm = resp_rpkt[poff, pcnt]
+			resp_data = resp_rpkt[doff, dcnt]
+			
+			# search id, search count, end of search, error offset, last name offset
+			sid, scnt, eos, eoff, loff = resp_parm.unpack('v5')
+
+			didx = 0
+			while (didx < resp_data.length)
+				info_buff = resp_data[didx, 70]
+				break if info_buff.length != 70
+				info = info_buff.unpack(
+					'V'+	# Next Entry Offset
+					'V'+	# File Index
+					'VV'+	# Time Create
+					'VV'+	# Time Last Access
+					'VV'+	# Time Last Write
+					'VV'+	# Time Change
+					'VV'+	# End of File
+					'VV'+	# Allocation Size
+					'V'+	# File Attributes
+					'V'+	# File Name Length
+					'V'+	# Extended Attr List Length
+					'C'+	# Short File Name Length
+					'C' 	# Reserved
+				)
+				name = resp_data[didx + 70 + 24, info[15]].sub!(/\x00+$/, '')
+				files[name] = 
+				{
+					'type' => (info[14] & 0x10) ? 'D' : 'F',
+					'attr' => info[14],
+					'info' => info
+				}
+				
+				break if info[0] == 0
+				didx += info[0]
+			end
+			
+			last_search_id = sid
+			
+		rescue ::Exception
+			raise $!
+		end
+		
+		return files
+	end
+
+	# TODO: Finish this method... requires search_id, resume_key, and filename from first
+=begin
+	def find_next(path, sid = last_search_id)
+
+		parm = [
+			sid, # Search ID
+			512, # Maximum search count
+			260, # Level of interest
+			0,   # Resume key from previous
+			1,   # Close search if end of search
+		].pack('vvvVv') + path + "\x00"
+
+		return files
+	end
+=end
+	
+	# Creates a new directory on the mounted tree
+	def create_directory(name)
+		files = { }
+		parm = [0].pack('V') + name + "\x00"
+		resp = trans2(CONST::TRANS2_CREATE_DIRECTORY, parm, '')
+	end
+		
+# public read/write methods
+	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
+
+# public read methods
 	attr_reader		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
 	attr_reader		:default_domain, :default_name, :auth_user, :auth_user_id
-	attr_reader		:multiplex_id, :last_tree_id, :last_file_id, :process_id
+	attr_reader		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
 	attr_reader		:security_mode, :server_guid
 	
 # private methods
 protected
 	attr_writer		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
 	attr_writer		:default_domain, :default_name, :auth_user, :auth_user_id
-	attr_writer		:multiplex_id, :last_tree_id, :last_file_id, :process_id
+	attr_writer		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
 	attr_writer		:security_mode, :server_guid
 		
 	attr_accessor	:socket
