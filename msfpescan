@@ -11,7 +11,6 @@ def opt2i(o)
 	o.index("0x")==0 ? o.hex : o.to_i
 end
 
-
 #
 # Right now this program is a bit shakey...
 #
