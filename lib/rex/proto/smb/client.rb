@@ -487,7 +487,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		end
 				
 		if (ack['Payload'].v['ServerDate'] > 0)
-			stamp = UTILS.servertime(ack['Payload'].v['ServerDate'],ack['Payload'].v['ServerTime'])
+			stamp = UTILS.time_smb_to_unix(ack['Payload'].v['ServerDate'],ack['Payload'].v['ServerTime'])
 		end
 		
 		return ack
