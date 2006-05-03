@@ -45,7 +45,11 @@ require 'rex/text'
 	end
 
 	# Create an obfuscated DCERPC BIND request packet
-	def self.make_bind_fake_multi(uuid, vers, bind_head=rand(6)+10, bind_tail=rand(4))
+	def self.make_bind_fake_multi(uuid, vers, bind_head=0, bind_tail=0)
+
+		bind_head = rand(6)+10 if bind_head == 0
+		bind_tail = rand(4)+1 if bind_head == 0
+
 		u = Rex::Proto::DCERPC::UUID
 		
 		# Process the version strings ("1.0", 1.0, "1", 1)
