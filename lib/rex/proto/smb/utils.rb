@@ -55,12 +55,20 @@ CONST = Rex::Proto::SMB::Constants
 	end
 
 	# Convert a 64-bit signed SMB time to a unix timestamp
-	def self.servertime(time_high, time_low)
-		(((time_high * 0x100000000) + time_low) / 10000000) - 11644473600
+	def self.time_smb_to_unix(thi, tlo)
+		(((thi << 32) + tlo) / 10000000) - 11644473600
 	end
-	
+
+	# Convert a unix timestamp to a 64-bit signed server time
+	def self.time_unix_to_smb(unix_time)
+		t64 = (unix_time + 11644473600) * 10000000
+		thi = (t64 & 0xffffffff00000000) >> 32
+		tlo = (t64 & 0x00000000ffffffff)
+		return [thi, tlo]
+	end
+
 	# Convert a name to its NetBIOS equivalent
-	def self.nbname_encode (str)
+	def self.nbname_encode(str)
 		encoded = ''
 		for x in (0..15)
 			if (x >= str.length)
@@ -74,7 +82,7 @@ CONST = Rex::Proto::SMB::Constants
 	end
 	
 	# Convert a name from its NetBIOS equivalent
-	def self.nbname_decode (str)
+	def self.nbname_decode(str)
 		decoded = ''
 		str << 'A' if str.length % 2 != 0
 		while (str.length > 0)
@@ -86,7 +94,7 @@ CONST = Rex::Proto::SMB::Constants
 		return decoded
 	end
 
-	def self.asn1encode (str = '')
+	def self.asn1encode(str = '')
 		res = ''
 		case str.length
 			when 0 .. 0x80
@@ -101,7 +109,7 @@ CONST = Rex::Proto::SMB::Constants
 		return res
 	end
 	
-	def self.make_ntlmv2_secblob_init (domain = 'WORKGROUP', name = 'WORKSTATION')
+	def self.make_ntlmv2_secblob_init(domain = 'WORKGROUP', name = 'WORKSTATION', flags=0x80201)
 		blob = 
 		"\x60" + self.asn1encode(		
 			"\x06" + self.asn1encode(
@@ -119,7 +127,7 @@ CONST = Rex::Proto::SMB::Constants
 					"\xa2" + self.asn1encode(
 						"\x04" + self.asn1encode(
 							"NTLMSSP\x00" +
-							[1, 0x80201].pack('VV') +
+							[1, flags].pack('VV') +
 
 							[
 								domain.length,  #length
@@ -142,14 +150,18 @@ CONST = Rex::Proto::SMB::Constants
 
 		return blob	
 	end
+
+	def self.make_ntlmv2_secblob_auth(domain, name, user, lmv2, ntlm, flags = 0x080201)
 		
-	def self.make_ntlmv2_secblob_auth (domain = '', name = '', user = '', lmv2 = '', ntlm = '')
-		
+		lmv2 ||= "\x00" * 24
+		ntlm ||= "\x00" * 24		
+	
 		domain_uni = Rex::Text.to_unicode(domain)
 		user_uni   = Rex::Text.to_unicode(user)
 		name_uni   = Rex::Text.to_unicode(name)
+		session    = ''
 		
-		ptr  = 0 
+		ptr  = 64 
 		blob =
 			"\xa1" + self.asn1encode(
 				"\x30" + self.asn1encode(
@@ -162,7 +174,7 @@ CONST = Rex::Proto::SMB::Constants
 							[	# Lan Manager Response
 								lmv2.length,
 								lmv2.length,
-								(ptr += 64)
+								(ptr)
 							].pack('vvV') +
 							
 							[	# NTLM Manager Response
@@ -190,20 +202,134 @@ CONST = Rex::Proto::SMB::Constants
 							].pack('vvV') +		
 							
 							[	# Session Key (none)
-								0, 0, 0
+								session.length,
+								session.length,
+								(ptr += name_uni.length)
 							].pack('vvV') +		
 			
-							[ 0x80201 ].pack('V') +
+							[ flags ].pack('V') +
 				
 							lmv2 +
 							ntlm +
 							domain_uni +
 							user_uni +
-							name_uni 
+							name_uni + 
+							session + "\x00"
 					)
 				)
 			)
 		)
+		return blob
+	end
+
+
+	def self.make_negotiate_secblob_resp(account, domain)
+		blob = 
+		"\x60" + self.asn1encode(		
+			"\x06" + self.asn1encode(
+				"\x2b\x06\x01\x05\x05\x02"
+			) +	
+			"\xa0" + self.asn1encode(
+				"\x30" + self.asn1encode(
+					"\xa0" + self.asn1encode(
+						"\x30" + self.asn1encode(
+							"\x06" + self.asn1encode(
+								"\x2a\x86\x48\x82\xf7\x12\x01\x02\x02"
+							) +
+							"\x06" + self.asn1encode(
+								"\x2a\x86\x48\x86\xf7\x12\x01\x02\x02"
+							) +
+							"\x06" + self.asn1encode(
+								"\x2a\x86\x48\x86\xf7\x12\x01\x02\x02\x03"
+							) +	
+							"\x06" + self.asn1encode(
+								"\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a"
+							)																						
+						)
+					) +
+					"\xa3" + self.asn1encode(
+						"\x30" + self.asn1encode(
+							"\xa0" + self.asn1encode(
+								"\x1b" + self.asn1encode(
+									account + '@' + domain
+								)
+							)
+						)
+					)
+				)
+			)
+		)
+
+		return blob	
+	end	
+
+	def self.make_ntlmv2_secblob_chall(win_domain, dns_domain, win_name, dns_name, chall, flags)
+		
+		win_domain = Rex::Text.to_unicode(win_domain)
+		dns_domain = Rex::Text.to_unicode(dns_domain)
+		win_name = Rex::Text.to_unicode(win_name)
+		dns_name = Rex::Text.to_unicode(dns_name)
+		
+		addr_list  = ''
+		addr_list  << [2, win_domain.length].pack('vv') + win_domain
+		addr_list  << [1, win_name.length].pack('vv') + win_name
+		addr_list  << [4, dns_domain.length].pack('vv') + dns_domain
+		addr_list  << [3, dns_name.length].pack('vv') + dns_name
+		addr_list  << [5, dns_domain.length].pack('vv') + dns_domain
+		addr_list  << [0, 0].pack('vv')
+
+		ptr  = 0 
+		blob =
+			"\xa1" + self.asn1encode(
+				"\x30" + self.asn1encode(
+					"\xa0" + self.asn1encode(
+						"\x0a" + self.asn1encode(
+							"\x01"
+						)
+					) +
+					"\xa1" + self.asn1encode(
+						"\x06" + self.asn1encode(
+							"\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a"
+						)
+					) +
+					"\xa2" + self.asn1encode(
+						"\x04" + self.asn1encode(
+							"NTLMSSP\x00" +
+							[2].pack('V') +
+							[
+								win_domain.length,  # length
+								win_domain.length,  # max length
+								(ptr += 48)
+							].pack('vvV') +
+							[ flags ].pack('V') +
+							chall + 
+							"\x00\x00\x00\x00\x00\x00\x00\x00" +
+							[
+								addr_list.length,  # length
+								addr_list.length,  # max length
+								(ptr += win_domain.length) 
+							].pack('vvV') +
+							win_domain + 
+							addr_list
+						)
+					)
+				)	
+			)
+
+		return blob
+	end
+
+	def self.make_ntlmv2_secblob_success
+		blob =
+			"\xa1" + self.asn1encode(
+				"\x30" + self.asn1encode(
+					"\xa0" + self.asn1encode(
+						"\x0a" + self.asn1encode(
+							"\x00"
+						)
+					)
+				)	
+			)
 		return blob
 	end
 	

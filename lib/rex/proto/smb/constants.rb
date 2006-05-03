@@ -358,9 +358,11 @@ SMB_HDR = Rex::Struct2::CStructTemplate.new(
 
 # A basic SMB template to read all responses
 SMB_BASE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
-
 	[ 'template', 'SMB',                 SMB_HDR ],
-	[ 'string',  'Payload'                 ]
+	[ 'uint16v', 'ByteCount',            0 ],	
+	[ 'string',  'Payload', nil,        '' ]	
+).create_restraints(
+	[ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_BASE_PKT = self.make_nbs(SMB_BASE_HDR_PKT)
 
@@ -416,8 +418,9 @@ SMB_NEG_RES_NT_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 	[ 'uint16v', 'Timezone',             0 ],
 	[ 'uint8',   'KeyLength',            0 ],	
 	[ 'uint16v', 'ByteCount',            0 ],		
-	[ 'string',  'GUID', 16,            '' ],
-	[ 'string',  'SecurityBlob', nil,   '' ]
+	[ 'string',  'Payload', nil,        '' ]
+).create_restraints(
+	[ 'Payload', 'ByteCount',  nil, true ]
 )
 SMB_NEG_RES_NT_PKT = self.make_nbs(SMB_NEG_RES_NT_HDR_PKT)
 
@@ -438,8 +441,6 @@ SMB_SETUP_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 	[ 'uint8',   'Reserved1',            0 ],
 	[ 'uint16v', 'AndXOffset',           0 ],			
 	[ 'uint16v', 'Action',               0 ],
-# Should this be commented out?
-#	[ 'uint16v', 'SecurityBlobLen',      0 ],
 	[ 'uint16v', 'ByteCount',            0 ],
 	[ 'string',  'Payload', nil,        '' ]
 ).create_restraints(

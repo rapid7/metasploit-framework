@@ -23,8 +23,8 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.socket = socket
 		self.native_os = 'Windows 2000 2195'
 		self.native_lm = 'Windows 2000 5.0'
-		self.encrypt_passwords = 1
-		self.extended_security = 0
+		self.encrypt_passwords = true
+		self.extended_security = false
 		self.multiplex_id = rand(0xffff)
 		self.process_id = rand(0xffff)
 		self.read_timeout = 10
@@ -426,7 +426,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		dialects << 'LANMAN1.0'
 		dialects << 'LM1.2X002'
 		
-		if (self.encrypt_passwords == 1)
+		if (self.encrypt_passwords)
 			dialects << 'NT LANMAN 1.0'
 			dialects << 'NT LM 0.12'
 		end
@@ -457,7 +457,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 		# Does the server support extended security negotiation?
 		if (ack['Payload'].v['Capabilities'] & 0x80000000)
-			self.extended_security = 1
+			self.extended_security = true
 		end
 		
 		# Set the security mode
@@ -472,12 +472,20 @@ EVADE = Rex::Proto::SMB::Evasions
 		if (ack['Payload'].v['SessionKey'] != nil)
 			self.session_id = ack['Payload'].v['SessionKey']
 		end
+		
+		# Extract the payload (GUID/SecurityBlob)
+		buf = ack['Payload'].v['Payload'] || ''
 				
 		# Set the server GUID
-		if (ack['Payload'].v['GUID'] != nil)
-			self.server_guid = ack['Payload'].v['GUID']
+		if (self.extended_security and buf.length >= 16)
+			self.server_guid = buf[0,16]
 		end
-		
+
+		# Set the server SecurityBlob
+		if (self.extended_security and buf.length > 16)
+			# buf[16, buf.length - 16]
+		end
+				
 		if (ack['Payload'].v['ServerDate'] > 0)
 			stamp = UTILS.servertime(ack['Payload'].v['ServerDate'],ack['Payload'].v['ServerTime'])
 		end
@@ -489,7 +497,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	# Authenticate and establish a session
 	def session_setup(*args)
 		if (self.dialect =~ /^(NT LANMAN 1.0|NT LM 0.12)$/)
-			return self.extended_security == 1 ?
+			return self.extended_security ?
 				self.session_setup_ntlmv2(*args) : self.session_setup_ntlmv1(*args)
 		end
 		
