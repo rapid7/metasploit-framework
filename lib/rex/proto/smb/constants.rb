@@ -551,6 +551,7 @@ SMB_TREE_CONN_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 	[ 'uint8',   'Reserved1',            0 ],
 	[ 'uint16v', 'AndXOffset',           0 ],			
 	[ 'uint16v', 'OptionalSupport',      0 ],
+	[ 'string',  'SupportWords', nil,   '' ],
 	[ 'uint16v', 'ByteCount',            0 ],
 	[ 'string',  'Payload', nil,        '' ]
 ).create_restraints(
