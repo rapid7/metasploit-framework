@@ -1,5 +1,5 @@
-The license for the Metasploit Framework has changed, please read through 
-./documentation/LICENSE for the complete terms.
+This software is provided under the Metasploit Framework License v1.0
+Please see documentation/LICENSE for the complete terms.
 
 This is an *alpha* release. Many bugs still exist and quite a few features
 are still non-functional. The latest version can be obtained online from:
@@ -8,7 +8,7 @@ are still non-functional. The latest version can be obtained online from:
 Licensing information can be found in ./documentation/COPYING
 
 This release has only been tested on the following platforms:
- - Linux x86 with Ruby 1.8.2, 1.8.3, and 1.8.4_rc2
+ - Linux x86 with Ruby 1.8.2-1.8.4
  - Mac OS X 10.3 with Ruby 1.8.3 from the fink package manager
  
 This release *will not* work with the following platforms:

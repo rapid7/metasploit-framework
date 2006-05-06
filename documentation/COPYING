@@ -20,9 +20,9 @@ available to all users.
 Please see the actual license for details.
 
 
-The copyright on this package is held by the Metasploit Project (2003-2006). 
+The copyright on this package is held by Metasploit LLC.
 
-This copyright notice does not apply to the following components:
+This copyright does not apply to the following components:
 - The vncdll.dll binary or its associated source code (modified RealVNC)
 - The icons used by msfweb that were not created by the Metasploit Project
 
