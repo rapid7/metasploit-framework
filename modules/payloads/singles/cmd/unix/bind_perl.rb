@@ -18,7 +18,7 @@ module BindPerl
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell via perl (persistent)',
 			'Author'        => ['Samy <samy@samy.pl>', 'cazz'],
-			'License'       => MSF_LICENSE,
+			'License'       => BSD_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
 			'Handler'       => Msf::Handler::BindTcp,

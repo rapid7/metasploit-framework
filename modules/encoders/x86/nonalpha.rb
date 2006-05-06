@@ -21,7 +21,7 @@ class NonAlpha < Msf::Encoder::NonAlpha
 			},
 			'Author'           => [ 'pusscat'],
 			'Arch'             => ARCH_X86,
-			'License'          => MSF_LICENSE,
+			'License'          => BSD_LICENSE,
 			'EncoderType'      => Msf::Encoder::Type::NonAlpha,
 			'Decoder'          =>
 				{

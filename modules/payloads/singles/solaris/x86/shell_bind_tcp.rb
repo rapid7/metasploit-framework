@@ -18,7 +18,7 @@ module ShellBindTcp
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
 			'Author'        => 'bighawk <bighawk@warfare.com>',
-			'License'       => MSF_LICENSE,
+			'License'       => BSD_LICENSE,
 			'Platform'      => 'solaris',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::BindTcp,

@@ -18,7 +18,7 @@ module ReversePerl
 			'Version'       => '$Revision$',
 			'Description'   => 'Creates an interactive shell via perl',
 			'Author'        => 'cazz',
-			'License'       => MSF_LICENSE,
+			'License'       => BSD_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
 			'Handler'       => Msf::Handler::ReverseTcp,

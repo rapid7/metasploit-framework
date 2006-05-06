@@ -19,7 +19,7 @@ class AlphaMixed < Msf::Encoder::Alphanum
 			},
 			'Author'           => [ 'pusscat', 'skylined' ],
 			'Arch'             => ARCH_X86,
-			'License'          => MSF_LICENSE,
+			'License'          => BSD_LICENSE,
 			'EncoderType'      => Msf::Encoder::Type::AlphanumMixed,
 			'Decoder'          =>
 				{
