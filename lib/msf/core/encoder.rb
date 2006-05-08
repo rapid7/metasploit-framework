@@ -90,6 +90,10 @@ class Encoder < Module
         # toupper/tolower safe ascii - not 'a' - 'z', 'A' - 'Z' 
         #
         NonAlpha = "non_alpha"
+        #
+        # tolower safe ascii - not 'A' - 'Z' (more flexable than nonalpha)
+        #
+        NonUpper = "non_upper"
 		# 
 		# All characters
 		#
@@ -478,3 +482,4 @@ require 'msf/core/encoder/xor'
 require 'msf/core/encoder/xor_additive_feedback'
 require 'msf/core/encoder/alphanum'
 require 'msf/core/encoder/nonalpha'
+require 'msf/core/encoder/nonupper'
