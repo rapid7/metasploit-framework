@@ -121,7 +121,7 @@ class Module
 
 		# Create and initialize the data store for this module
 		self.datastore = ModuleDataStore.new(self)
-		self.datastore.import_options(self.options, 'self')
+		self.datastore.import_options(self.options, 'self', true)
 
 		# If there are default options, import their values into the datastore
 		if (module_info['DefaultOptions'])
@@ -487,7 +487,7 @@ protected
 	#
 	def register_options(options, owner = self.class)
 		self.options.add_options(options, owner)
-		self.datastore.import_options(self.options, 'self')
+		self.datastore.import_options(self.options, 'self', true)
 	end
 
 	#
@@ -495,7 +495,7 @@ protected
 	#
 	def register_advanced_options(options, owner = self.class)
 		self.options.add_advanced_options(options, owner)
-		self.datastore.import_options(self.options, 'self')
+		self.datastore.import_options(self.options, 'self', true)
 	end
 
 	#
@@ -503,7 +503,7 @@ protected
 	#
 	def register_evasion_options(options, owner = self.class)
 		self.options.add_evasion_options(options, owner)
-		self.datastore.import_options(self.options, 'self')
+		self.datastore.import_options(self.options, 'self', true)
 	end
 	
 	#

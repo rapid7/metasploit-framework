@@ -40,11 +40,11 @@ class DataStore < Hash
 	# This method is a helper method that imports the default value for
 	# all of the supplied options
 	#
-	def import_options(options, imported_by = nil)
+	def import_options(options, imported_by = nil, overwrite = false)
 		options.each_option { |name, opt|
 			# If the option has a default value, import it, but only if the
 			# datastore doesn't already have a value set for it.
-			if (opt.default and self[name] == nil)
+			if (opt.default and (overwrite or self[name] == nil))
 				self.store(name, opt.default.to_s)
 
 				@imported[name]    = true
