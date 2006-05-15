@@ -10,7 +10,7 @@ require 'rex/text'
 	UUID = Rex::Proto::DCERPC::UUID
 
 	# Create a standard DCERPC BIND request packet
-	def self.make_bind (uuid, vers)	
+	def self.make_bind(uuid, vers)	
 		
 		# Process the version strings ("1.0", 1.0, "1", 1)
 		bind_vers_maj, bind_vers_min = UUID.vers_to_nums(vers)
@@ -140,7 +140,7 @@ require 'rex/text'
 	end
 	
 	# Create a standard DCERPC ALTER_CONTEXT request packet
-	def self.make_alter_context (uuid, vers)	
+	def self.make_alter_context(uuid, vers)	
 		u = Rex::Proto::DCERPC::UUID
 		
 		# Process the version strings ("1.0", 1.0, "1", 1)
@@ -174,7 +174,7 @@ require 'rex/text'
 	
 
 	# Used to create a piece of a DCERPC REQUEST packet
-	def self.make_request_chunk (flags=3, opnum=0, data="", ctx=0, object_id = '')
+	def self.make_request_chunk(flags=3, opnum=0, data="", ctx=0, object_id = '')
 
 		dlen = data.length
 		flen = dlen + 24
@@ -206,7 +206,7 @@ require 'rex/text'
 	end	
 
 	# Used to create standard DCERPC REQUEST packet(s)
-	def self.make_request (opnum=0, data="", size=data.length, ctx=0, object_id = '')
+	def self.make_request(opnum=0, data="", size=data.length, ctx=0, object_id = '')
 
 		if size > 4000
 			size = 4000

@@ -355,7 +355,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	# Process incoming SMB_COM_READ_ANDX packets
 	def smb_parse_read(pkt, data)
 	
-		# Process write responses
+		# Process read responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 12)
 			res = CONST::SMB_READ_RES_PKT.make_struct
 			res.from_s(data)
@@ -969,6 +969,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		# pkt['Payload'].v['MaxCountHigh'] = (data_length / 65536).to_i
 		pkt['Payload'].v['MaxCountLow'] = (data_length % 65536).to_i
 		pkt['Payload'].v['MinCount'] = data_length
+		pkt['Payload'].v['Reserved2'] = -1
 		
 		self.smb_send(pkt.to_s)
 

@@ -911,8 +911,9 @@ SMB_READ_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 	[ 'uint32v',  'Offset',              0 ],
 	[ 'uint16v',  'MaxCountLow',         0 ],
 	[ 'uint16v',  'MinCount',            0 ],
-	[ 'uint32v',  'MaxCountHigh',        0 ],
+	[ 'uint32v',  'Reserved2',           0 ],	
 	[ 'uint16v',  'Remaining',           0 ],
+	[ 'uint32v',  'MaxCountHigh',        0 ],	
 	[ 'uint16v',  'ByteCount',           0 ],
 	[ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
