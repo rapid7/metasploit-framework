@@ -26,7 +26,6 @@ class Plugin::IPSFilter < Msf::Plugin
 			if (param.context['MsfExploit'] and (! param.context['MsfPayload'] ))
 				sock.extend(IPSFilter::SocketTracer)
 				sock.context = param.context
-				sock._init_hook_
 			end
 		end		
 	end
@@ -79,11 +78,6 @@ module SocketTracer
 		return r
 	end
 
-	# Called by the event handler on setup
-	def _init_hook_
-		# Load up the signature set here
-	end
-
 	def close(*args)
 		super(*args)
 	end
@@ -107,6 +101,7 @@ module SocketTracer
 		return false
 	end
 	
+	# Extend this as needed :-)
 	SIGS = 
 	[
 		['DCOM.C', ".*\\\x5c\x00\\\x5c\x00\x46\x00\x58\x00\x4e\x00\x42\x00\x46\x00\x58\x00\x46\x00\x58\x00.*\xcc\xe0\xfd\x7f.*"],

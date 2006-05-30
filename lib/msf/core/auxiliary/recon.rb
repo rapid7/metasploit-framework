@@ -2,8 +2,7 @@ module Msf
 
 ###
 #
-# This module provides methods for establish a connection to a remote host and
-# communicating with it.
+# This module provides methods for reporting information
 #
 ###
 

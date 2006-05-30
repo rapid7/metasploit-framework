@@ -1,3 +1,22 @@
+alpha release 4 -
+
+	Core:
+		* Renamed 'aux' to 'auxiliary' for Windows compatibility
+		* Integrated database support through generic DB backend
+		* Experimental support for SQLite(2|3) and PostgreSQL
+
+	License:
+		* Core copyright transfered to Metasploit LLC
+		
+
+alpha release 3 -
+
+	Core:
+		* Drop 'recon' modules in favor of 'aux'
+	
+	License:
+		* Provided under the Metasploit Framework License v1.0	
+
 alpha release 2 -
 
 	Rex:

@@ -1,23 +1,23 @@
 require 'fileutils'
 require 'msf/ui/console/command_dispatcher/db'
 
-
 module Msf
 
 ###
 # 
 # This class intializes the database db with a shiny new
-# SQLite3 database instance.
+# Postgres database instance.
 #
 ###
 
-class Plugin::DBSQLite3 < Msf::Plugin
+class Plugin::DBPostgres < Msf::Plugin
 
 	###
 	#
 	# This class implements an event handler for db events
 	#
 	###
+
 	class DBEventHandler
 		def on_db_host(context, host)
 			# puts "New host event: #{host.address}"
@@ -37,32 +37,30 @@ class Plugin::DBSQLite3 < Msf::Plugin
 	# Inherit the database command set
 	#
 	###
+
 	class ConsoleCommandDispatcher
 		include Msf::Ui::Console::CommandDispatcher
 		include Msf::Ui::Console::CommandDispatcher::Db
 	end
 
-	
 	###
 	#
 	# Database specific initialization goes here
 	#
 	###
-	
+
 	def initialize(framework, opts)
 		super
 
-		odb = File.join(Msf::Config.install_root, "data", "sql", "sqlite3.db")
-		ndb = File.join(Msf::Config.install_root, "current.db")
+		sql = File.join(Msf::Config.install_root, "data", "sql", "postgres.sql")
 		
-		if (File.exists?(ndb))
-			File.unlink(ndb)
-		end
+		system("dropdb msfcurrent")
+		system("createdb msfcurrent")
+		system("psql msfcurrent < #{sql}")
 		
-		FileUtils.copy(odb, ndb)
-		
-		if (not framework.db.connect("adapter" => "sqlite3", "dbfile" => ndb))
-			File.unlink(ndb)
+		if (not framework.db.connect(
+			'adapter'  => "postgres",
+			'database' => "msfcurrent"))
 			raise PluginLoadError.new("Failed to connect to the database")
 		end
 		
@@ -82,7 +80,7 @@ class Plugin::DBSQLite3 < Msf::Plugin
 	# This method returns a short, friendly name for the plugin.
 	#
 	def name
-		"db_sqlite3"
+		"db_postgres"
 	end
 
 	#
@@ -90,7 +88,7 @@ class Plugin::DBSQLite3 < Msf::Plugin
 	# more than 60 characters, but there are no hard limits.
 	#
 	def desc
-		"Loads a new sqlite3 database backend"
+		"Loads a new postgres database backend"
 	end
 
 protected
