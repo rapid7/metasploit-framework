@@ -112,7 +112,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 		def initialize(*args)
 			super(*args)
-			mode = 'rw'
+			self.mode = 'rw'
 			@buff = ''
 		end
 		

@@ -77,8 +77,11 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 	
 	# Send a SMB packet down the socket
-	def smb_send(data)
+	def smb_send(data, evasion_level=0)
 
+		# evasion_level is ignored, since real evasion happens
+		# in the actual socket layer
+		
 		size = 0
 		wait = 0
 		

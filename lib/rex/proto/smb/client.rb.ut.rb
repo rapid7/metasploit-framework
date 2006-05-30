@@ -195,7 +195,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 
 		# puts "[*] Opening the \BROWSER pipe..."		
-		ok = c.open_named_pipe('BROWSER')
+		ok = c.create_pipe('\BROWSER')
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		
 		vers = DCERPCUUID.vers_by_name('SRVSVC')
