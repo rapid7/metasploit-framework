@@ -434,8 +434,7 @@ EVADE = Rex::Proto::SMB::Evasions
 			dialects << 'NT LM 0.12'
 		end
 		
-		data = ''
-		dialects.each { |dialect| data << "\x02" + dialect + "\x00" }
+		data = dialects.collect { |dialect| "\x02" + dialect + "\x00" }.join('')
 
 		pkt = CONST::SMB_NEG_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -514,12 +513,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	# Authenticate using clear-text passwords
 	def session_setup_clear(user = '', pass = '', domain = '')
 
-		data = ''
-		data << pass + "\x00"
-		data << user + "\x00"
-		data << domain + "\x00"
-		data << self.native_os + "\x00"
-		data << self.native_lm + "\x00"		
+		data = [ pass, user, domain, self.native_os, self.native_lm ].collect{ |a| a + "\x00" }.join('');
 		
 		pkt = CONST::SMB_SETUP_LANMAN_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -531,7 +525,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2
-		pkt['Payload'].v['VCNum'] = 1		
+		pkt['Payload'].v['VCNum'] = 1
 		pkt['Payload'].v['PasswordLen'] = pass.length + 1
 		pkt['Payload'].v['Capabilities'] = 64
 		pkt['Payload'].v['SessionKey'] = self.session_id
@@ -550,7 +544,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.peer_native_os = info[0]
 		self.peer_native_lm = info[1]
 		self.default_domain = info[2]
-				
+		
 		return ack
 	end	
 	
