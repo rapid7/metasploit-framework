@@ -425,13 +425,10 @@ EVADE = Rex::Proto::SMB::Evasions
 	# Negotiate a SMB dialect
 	def negotiate()
 		
-		dialects = []
-		dialects << 'LANMAN1.0'
-		dialects << 'LM1.2X002'
+		dialects = ['LANMAN1.0', 'LM1.2X002' ]
 		
 		if (self.encrypt_passwords)
-			dialects << 'NT LANMAN 1.0'
-			dialects << 'NT LM 0.12'
+			dialects.push('NT LANMAN 1.0', 'NT LM 0.12')
 		end
 		
 		data = dialects.collect { |dialect| "\x02" + dialect + "\x00" }.join('')
@@ -441,7 +438,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NEGOTIATE
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2801
+		pkt['Payload']['SMB'].v['Flags2'] = 0x2801 
 		pkt['Payload'].v['Payload'] = data
 		
 		self.smb_send(pkt.to_s)
@@ -604,7 +601,6 @@ EVADE = Rex::Proto::SMB::Evasions
 			name = Rex::Text.rand_text_alphanumeric(16)
 		end
 		
-		data = ''
 		blob = UTILS.make_ntlmv2_secblob_init(domain, name)
 		
 		native_data = ''
@@ -748,14 +744,10 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, false)
 	end	
 
-
 	# Connect to a specified share with an optional password
 	def tree_connect(share = 'IPC$', pass = '')
-
-		data = ''
-		data << pass + "\x00"
-		data << share + "\x00"
-		data << '?????' + "\x00"
+		
+		data = [ pass, share, '?????' ].collect{ |a| a + "\x00" }.join('');
 		
 		pkt = CONST::SMB_TREE_CONN_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -774,7 +766,8 @@ EVADE = Rex::Proto::SMB::Evasions
 		ack = self.smb_recv_parse(CONST::SMB_COM_TREE_CONNECT_ANDX)
 		
 		self.last_tree_id = ack['Payload']['SMB'].v['TreeID']
-		info = ack['Payload'].v['Payload'].split(/\x00/)
+		# why bother?
+		# info = ack['Payload'].v['Payload'].split(/\x00/)
 		
 		return ack		
 	end	
