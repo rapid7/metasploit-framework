@@ -90,7 +90,7 @@ EVADE = Rex::Proto::SMB::Evasions
 			
 			# Keep writing data until we run out
 			while (chunk.length > 0)
-				ok = self.client.write(self.file_id, fptr, chunk)	
+				ok = self.client.write(self.file_id, fptr, chunk)
 				cl = ok['Payload'].v['CountLow']
 				
 				# Partial write, push the failed data back into the queue
@@ -217,12 +217,8 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 		fh = OpenPipe.new(self.client, path, self.client.last_tree_id, file_id)
 	end
 
-	def trans_pipe(fid, data)
-		client.trans_named_pipe(fid, data)
-	end
-
-	def trans_pipe_oneway(fid, data)
-		client.trans_named_pipe_oneway(fid, data)
+	def trans_pipe(fid, data, no_response = nil)
+		client.trans_named_pipe(fid, data, no_response)
 	end
 	
 end
