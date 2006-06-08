@@ -24,7 +24,11 @@ class Console
 	# Initialize the meterpreter console.
 	#
 	def initialize(client)
-		super("%umeterpreter%c")
+		if (RUBY_PLATFORM =~ /win/)
+			super("meterpreter")
+		else
+			super("%umeterpreter%c")
+		end
 
 		# The meterpreter client context
 		self.client = client

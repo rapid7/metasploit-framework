@@ -90,7 +90,11 @@ Separator = "\\"
 		# Open the file on the remote side for writing and read
 		# all of the contents of the local file
 		dest_fd = client.fs.file.new(dest_file, "wb")
-		src_buf = ::IO.readlines(src_file).join
+		src_buf = ''
+	
+		File.open(src_file, 'rb') { |f|
+			src_buf = f.read
+		}
 
 		begin
 			dest_fd.write(src_buf)

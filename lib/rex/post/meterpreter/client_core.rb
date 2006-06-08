@@ -81,7 +81,11 @@ class ClientCore < Extension
 
 		# If we must upload the library, do so now
 		if ((load_flags & LOAD_LIBRARY_FLAG_LOCAL) != LOAD_LIBRARY_FLAG_LOCAL)
-			image = ::IO.readlines(library_path).join
+			image = ''
+			
+			File.open(library_path, 'rb') { |f|
+				image = f.read
+			}
 
 			if (image != nil)
 				request.add_tlv(TLV_TYPE_DATA, image)
@@ -325,7 +329,12 @@ class ClientCore < Extension
 
 		# Transmit the size of the server
 		metsrv = "data/meterpreter/metsrv.dll"
-		buf    = "metsrv.dll\x00" + ::IO.readlines(metsrv).join
+		buf    = "metsrv.dll\x00"
+	
+		File.open(metsrv, 'rb') { |f|
+			buf += f.read
+		}
+
 		size   = buf.length
 
 		# Give the stage some time to transmit

@@ -7,7 +7,6 @@ module Msf
 module Ui
 module Web
 
-
 ###
 #
 # This class implements a user interface driver on a web interface.
@@ -17,6 +16,16 @@ class Driver < Msf::Ui::Driver
 
 	ConfigCore  = "framework/core"
 	ConfigGroup = "framework/ui/web"
+
+	@@Eid = 0
+
+	#
+	# Returns the next unique exploit identifier.
+	#
+	def self.next_eid
+		@@Eid += 1
+		@@Eid.to_s
+	end
 
 	#
 	# The msfweb resource handler that wrappers the default Erb handler.

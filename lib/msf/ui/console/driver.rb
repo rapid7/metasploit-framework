@@ -47,6 +47,13 @@ class Driver < Msf::Ui::Driver
 	# 	the local system.
 	#
 	def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
+		
+		# The command prompt doesn't like bling bling'in colors.
+		if (RUBY_PLATFORM =~ /win/)
+			prompt      = "msf"
+			prompt_char = ">"
+		end
+
 		# Call the parent
 		super(prompt, prompt_char)
 

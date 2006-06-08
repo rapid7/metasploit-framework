@@ -31,14 +31,17 @@ module Common
 				<td>
 					<table align='center' cellpadding='8' cellspacing='1' width='100%' class='tblOuter'>
 						<tr>
-							<td class='tab" + ((active == "exploits") ? "Light" : "Dark") + "' width='33%' align='center'>
+							<td class='tab" + ((active == "exploits") ? "Light" : "Dark") + "' width='25%' align='center'>
 								<a href='exploits.rhtml'>EXPLOITS</a>
 							</td>
-							<td class='tab" + ((active == "payloads") ? "Light" : "Dark") + "' width='33%' align='center'>
+							<td class='tab" + ((active == "payloads") ? "Light" : "Dark") + "' width='25%' align='center'>
 								<a href='payloads.rhtml'>PAYLOADS</a>
 							</td>
-							<td class='tab" + ((active == "sessions") ? "Light" : "Dark") + "' width='33%' align='center'>
+							<td class='tab" + ((active == "sessions") ? "Light" : "Dark") + "' width='25%' align='center'>
 								<a href='sessions.rhtml'>SESSIONS</a>
+							</td>
+							<td class='tab" + ((active == "jobs") ? "Light" : "Dark") + "' width='25%' align='center'>
+								<a href='jobs.rhtml'>JOBS</a>
 							</td>
 						</tr>
 					</table>

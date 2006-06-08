@@ -330,7 +330,12 @@ class Console::CommandDispatcher::Core
 		# the channel
 		if (src_file)
 			begin
-				data = ::IO.readlines(src_file)
+				data = ''
+			
+				File.open(src_file, 'rb') { |f|
+					data = f.read
+				}
+
 			rescue Errno::ENOENT
 				print_error("Invalid source file specified: #{src_file}")
 				return true

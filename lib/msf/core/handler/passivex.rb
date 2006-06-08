@@ -329,7 +329,11 @@ protected
 				print_status("Sending PassiveX main page to client")
 			when "/passivex.dll"
 				resp['Content-Type'] = 'application/octet-stream'
-				resp.body = IO.readlines(datastore['PXAXDLL']).join
+				resp.body = ''
+				
+				File.open(datastore['PXAXDLL'], "rb") { |f|
+					resp.body = f.read
+				}
 				
 				print_status("Sending PassiveX DLL (#{resp.body.length} bytes)")
 			when "/stage"

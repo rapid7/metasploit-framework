@@ -214,7 +214,9 @@ module Payload::Windows::DllInject
 		data = library_name + "\x00"
 
 		begin
-			data += IO.readlines(library_path).join
+			File.open(library_path, "rb") { |f|
+				data += f.read
+			}
 		rescue
 			print_error("Failed to load DLL: #{$!}.")
 

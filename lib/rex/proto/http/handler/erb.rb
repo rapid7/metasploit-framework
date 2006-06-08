@@ -56,7 +56,11 @@ class Handler::Erb < Handler
 			file_path = root_path + resource
 		
 			# Serialize the contents of the file
-			data = ::IO.readlines(file_path).join
+			data = ''
+			
+			File.open(file_path, 'rb') { |f|
+				data = f.read
+			}
 
 			# Set the content-type to text/html by default.  We do this before
 			# evaluation so that the script can change it.
