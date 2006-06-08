@@ -72,15 +72,41 @@ module Socket
 	##
 
 	#
+	# Determine whether this is an IPv4 address
+	#	
+	def self.is_ipv4?(addr)
+		res = Resolv.getaddress(addr)
+		res.match(/:/) ? false : true
+	end
+	
+	#
+	# Determine whether this is an IPv6 address
+	#		
+	def self.is_ipv6?(addr)
+		res = Resolv.getaddress(addr)
+		res.match(/:/) ? true : false
+	end
+
+	#
 	# Create a sockaddr structure using the supplied IP address, port, and
 	# address family
 	#
-	def self.to_sockaddr(ip, port, af = ::Socket::AF_INET)
+	def self.to_sockaddr(ip, port)
 		ip   = "0.0.0.0" unless ip
 		ip   = Resolv.getaddress(ip)
-		data = [ af, port.to_i ] + ip.split('.').collect { |o| o.to_i } + [ "" ]
-
-		return data.pack('snCCCCa8')
+		af   = ip.match(/:/) ? ::Socket::AF_INET6 : ::Socket::AF_INET
+		
+		if (af == ::Socket::AF_INET)
+			data = [ af, port.to_i ] + ip.split('.').collect { |o| o.to_i } + [ "" ]
+			return data.pack('snCCCCa8')
+		end
+		
+		if (af == ::Socket::AF_INET6)
+			data = [af, port.to_i, 0, ::Socket.gethostbyname(ip)[3], 0]
+			return data.pack('snNa16N')
+		end
+		
+		raise RuntimeError, "Invalid address family"
 	end
 
 	#
@@ -88,26 +114,44 @@ module Socket
 	# [ af, host, port ]
 	#
 	def self.from_sockaddr(saddr)
-		up = saddr.unpack('snCCCC')
-
+		up = saddr.unpack('snH*')
 		af   = up.shift
 		port = up.shift
 
-		return [ af, up.join('.'), port ]
+		case af
+			when ::Socket::AF_INET
+				return [ af, up.join('.'), port ]
+				
+			when ::Socket::AF_INET6
+				return [ af, up.shift.gsub(/(....)/){ |r| r << ':' }.sub(/:$/, ''), port ]
+		end
+		
+		raise RuntimeError, "Invalid address family"
 	end
 
 	#
 	# Resolves a host to raw network-byte order.
-	#
+	# TODO: All this to work with IPV6 sockets
+	
 	def self.resolv_nbo(host)
-		return to_sockaddr(host, 0)[4,4]
+		::Socket.gethostbyname(Resolv.getaddress(host))[3]
 	end
 
 	#
 	# Resolves a host to a network-byte order ruby integer.
 	#
 	def self.resolv_nbo_i(host)
-		return resolv_nbo(host).unpack('N')[0]
+		ret = resolv_nbo(host).unpack('N*')
+		case ret.length
+			when 1
+				return ret[0]
+			when 4
+				val = 0
+				ret.each_index { |i| val += (  ret[i] << (96 - (i * 32)) ) }
+				return val
+			else
+				raise RuntimeError, "Invalid address format"
+		end
 	end
 
 	#

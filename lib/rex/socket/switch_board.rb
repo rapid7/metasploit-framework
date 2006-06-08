@@ -26,6 +26,7 @@ class SwitchBoard
 	###
 	#
 	# This class represents a logical switch board route.
+	# TODO: Enable this to work with IPv6 addresses
 	#
 	###
 	class Route
