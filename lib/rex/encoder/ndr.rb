@@ -39,7 +39,7 @@ module NDR
 
     # Encode a string
     # use to encode:
-    #       w_char *element_1;
+    #       char *element_1;
     def NDR.string(string)
         string += "\x00" # null pad
         return long(string.length) + long(0) + long(string.length) + string + align(string)
