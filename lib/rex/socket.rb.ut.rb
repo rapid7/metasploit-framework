@@ -8,6 +8,15 @@ require 'rex/socket/tcp'
 
 class Rex::Socket::UnitTest < Test::Unit::TestCase
 
+	def test_ip
+		assert_equal(true,Rex::Socket.dotted_ip?('0.0.0.0'), 'valid IP min')
+		assert_equal(true,Rex::Socket.dotted_ip?('255.255.255.255'), 'valid IP max')
+		assert_equal(false,Rex::Socket.dotted_ip?('0.0.0.0.0'), 'too many sections')
+		assert_equal(false,Rex::Socket.dotted_ip?('0..0.0.0'), 'too many dots')
+		assert_equal(false,Rex::Socket.dotted_ip?('00.0.0'), 'not enough dots')
+		assert_equal(false,Rex::Socket.dotted_ip?('256.256.256.256'), 'numbers too big')
+	end
+
 	def test_create
 		port = 64442
 		serv = TCPServer.new('127.0.0.1', port)
