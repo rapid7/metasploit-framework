@@ -17,6 +17,7 @@ class Auxiliary < Msf::Module
 	# Auxiliary mixins
 	#
 	require 'msf/core/auxiliary/recon'
+	require 'msf/core/auxiliary/dos'
 	
 	#
 	# Returns MODULE_AUX to indicate that this is an auxiliary module.
