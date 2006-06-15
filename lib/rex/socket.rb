@@ -75,7 +75,7 @@ module Socket
 	# Determine whether this is an IPv4 address
 	#	
 	def self.is_ipv4?(addr)
-		res = Resolv.getaddress(addr)
+		res = Rex::Socket.getaddress(addr)
 		res.match(/:/) ? false : true
 	end
 	
@@ -83,8 +83,36 @@ module Socket
 	# Determine whether this is an IPv6 address
 	#		
 	def self.is_ipv6?(addr)
-		res = Resolv.getaddress(addr)
+		res = Rex::Socket.getaddress(addr)
 		res.match(/:/) ? true : false
+	end
+
+	#
+	# Checks to see if the supplied address is a dotted quad. 
+	# TODO: IPV6
+	#
+	def self.dotted_ip?(addr)
+		(addr =~ /\d\.\d\.\d\.\d/) ? true : false
+	end
+
+	#
+	# Wrapper for Resolv.getaddress that takes special care to see if the
+	# supplied address is already a dotted quad, for instance.  This is
+	# necessary to prevent calls to gethostbyaddr (which occurs on windows).
+	# These calls can be quite slow.
+	#
+	def self.getaddress(addr)
+		dotted_ip?(addr) ? addr : Resolv.getaddress(ip)
+	end
+
+	#
+	# Wrapper for Socket.gethostbyname which takes into account whether or not
+	# an IP address is supplied.  If it is, then reverse DNS resolution does
+	# not occur.  This is done in order to prevent delays, such as would occur
+	# on Windows.
+	#
+	def self.gethostbyname(host)
+		dotted_ip?(addr) ? [ host, host, 2, host.split('.').pack('C*') ] : ::Socket.gethostbyname(host)
 	end
 
 	#
@@ -93,7 +121,7 @@ module Socket
 	#
 	def self.to_sockaddr(ip, port)
 		ip   = "0.0.0.0" unless ip
-		ip   = Resolv.getaddress(ip)
+		ip   = Rex::Socket.getaddress(ip)
 		af   = ip.match(/:/) ? ::Socket::AF_INET6 : ::Socket::AF_INET
 		
 		if (af == ::Socket::AF_INET)
@@ -102,7 +130,7 @@ module Socket
 		end
 		
 		if (af == ::Socket::AF_INET6)
-			data = [af, port.to_i, 0, ::Socket.gethostbyname(ip)[3], 0]
+			data = [af, port.to_i, 0, self.gethostbyname(ip)[3], 0]
 			return data.pack('snNa16N')
 		end
 		
@@ -134,7 +162,7 @@ module Socket
 	# TODO: All this to work with IPV6 sockets
 	
 	def self.resolv_nbo(host)
-		::Socket.gethostbyname(Resolv.getaddress(host))[3]
+		self.gethostbyname(Rex::Socket.getaddress(host))[3]
 	end
 
 	#
@@ -158,7 +186,7 @@ module Socket
 	# Resolves a host to a dotted address.
 	#
 	def self.resolv_to_dotted(host)
-		Resolv.getaddress(host)
+		Rex::Socket.getaddress(host)
 	end
 
 	#
