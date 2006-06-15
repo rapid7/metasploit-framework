@@ -92,7 +92,7 @@ module Socket
 	# TODO: IPV6
 	#
 	def self.dotted_ip?(addr)
-		(addr =~ /\d\.\d\.\d\.\d/) ? true : false
+		(addr =~ /\d+\.\d+\.\d+\.\d+/) ? true : false
 	end
 
 	#
