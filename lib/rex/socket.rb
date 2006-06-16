@@ -142,13 +142,13 @@ module Socket
 	# [ af, host, port ]
 	#
 	def self.from_sockaddr(saddr)
-		up = saddr.unpack('snA*')
+		up   = saddr.unpack('snA*')
 		af   = up.shift
 		port = up.shift
 
 		case af
 			when ::Socket::AF_INET
-				return [ af, up.shift.unpack('C*').join('.'), port ]
+				return [ af, up.shift[0, 4].unpack('C*').join('.'), port ]
 				
 			when ::Socket::AF_INET6
 				return [ af, up.shift.unpack('H*').gsub(/(....)/){ |r| r << ':' }.sub(/:$/, ''), port ]
