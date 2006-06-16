@@ -151,7 +151,7 @@ module Socket
 				return [ af, up.shift[0, 4].unpack('C*').join('.'), port ]
 				
 			when ::Socket::AF_INET6
-				return [ af, up.shift.unpack('H*').gsub(/(....)/){ |r| r << ':' }.sub(/:$/, ''), port ]
+				return [ af, up.shift[0,16].unpack('H*').gsub(/(....)/){ |r| r << ':' }.sub(/:$/, ''), port ]
 		end
 		
 		raise RuntimeError, "Invalid address family"
