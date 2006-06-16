@@ -112,7 +112,7 @@ module Socket
 	# on Windows.
 	#
 	def self.gethostbyname(host)
-		dotted_ip?(addr) ? [ host, host, 2, host.split('.').pack('C*') ] : ::Socket.gethostbyname(host)
+		dotted_ip?(host) ? [ host, host, 2, host.split('.').map{ |o| o.to_i }.pack('C*') ] : ::Socket.gethostbyname(host)
 	end
 
 	#
