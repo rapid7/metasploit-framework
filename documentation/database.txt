@@ -1,0 +1,41 @@
+The Framework supports various relational database through the use of plugins.
+
+The database support has the following structure:
+
+* Entity definitions for hosts, services, vulnerabilities, and notes
+* Generic database API for manipulating entities
+* Generic database command set for interacting with the backend
+* Vendor-specific plugins for linking the API to a real database
+* Generic plugins for database integration
+
+[Entity Definitions]
+
+	lib/msf/core/db_objects.rb
+	data/sql/*.sql
+	data/sql/*.db
+
+[Generic API]
+	lib/msf/core/db.rb
+	lib/msf/core/db_backend.rb
+
+[Generic Commands]
+	lib/msf/ui/console/command_dispatcher/db.rb
+	
+[Specific Plugins]
+	lib/db_sqlite2.db
+	lib/db_sqlite3.db
+	lib/db_postgres.db
+
+[Extra Plugins]
+	lib/db_tracker.rb
+
+To test the database support, install the appropriate Ruby support module,
+start msfconsole, and load the vendor-specific plugin:
+
+$ msfconsole
+
+msf> load db_sqlite3
+[*] Successfully loaded plugin: db_sqlite3
+
+You can now use the "db" commands to interact with the database.
+

@@ -1,0 +1,21 @@
+evasion
+  - new command: 'evasion'
+    - -l, list evasion subsystems
+    - set evasion subsystem level
+    - get evasion subsystem level
+    - set global evasion level
+    - get global evasion level
+  - modules cache evasion level at creation time
+  - modules pass evasion flags onto sockets via params
+  - sockets and protocols register subsystems
+    - sockets to take passed evasion level in precedence over subsystem/global
+  - consider http evasion
+    - random headers
+  - consider EvasionLevel advanced option on all exploits
+
+misc
+  - session sharing through multiplexing
+
+recon
+  - track exploit success, failure, host information
+  - support searching the knowledge base

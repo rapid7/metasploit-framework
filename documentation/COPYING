@@ -1,0 +1,34 @@
+This release of the Metasploit Framework source code is provided under
+the terms of the Metasploit Framework License, version 1.0. This license
+can be found in the file 'LICENSE', located in the same directory as this
+document. The Metasploit Framework License is closer to a commercial software
+EULA than a standard open-source license. The basic intent is:
+
+1) Allow the Framework to remain open-source, free to use, and free to 
+distribute.
+
+2) Allow module and plugin developers to choose their own licensing terms.
+
+3) Prevent the Framework from being sold in any form or bundled with a 
+commercial product (software, appliance, or otherwise).
+
+4) Ensure that any patches made to the Framework by a third-party are made
+available to all users. 
+
+5) Provide legal support and indemnification for Framework contributors.
+
+Please see the actual license for details.
+
+
+The copyright on this package is held by Metasploit LLC.
+
+This copyright does not apply to the following components:
+- The vncdll.dll binary or its associated source code (modified RealVNC)
+- The icons used by msfweb that were not created by the Metasploit Project
+
+This copyright notice does not include extensions developed by third-party 
+contributors or their derivatives. Please see the licensing information 
+defined in each individual module for more information. 
+
+To contact the Metasploit Project about any license related issues,
+please send an email to msfdev[at]metasploit.com.

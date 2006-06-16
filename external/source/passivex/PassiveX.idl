@@ -1,0 +1,63 @@
+import "oaidl.idl";
+import "ocidl.idl";
+
+enum PassiveXProperties
+{
+	PASSIVEX_PROPERTY_HTTP_HOST             = 1,
+	PASSIVEX_PROPERTY_HTTP_PORT             = 2,
+	PASSIVEX_PROPERTY_HTTP_SID              = 4,
+	PASSIVEX_PROPERTY_HTTP_URI_BASE         = 5,
+	PASSIVEX_PROPERTY_DOWNLOAD_SECOND_STAGE = 3,
+};
+
+[
+	object,
+	uuid(1940F02F-41B0-4d92-BE34-DA55D151893A),
+	helpstring("IPassiveX"),
+	pointer_default(unique),
+	dual
+]
+interface IPassiveX : IDispatch
+{
+	[propput, id(PASSIVEX_PROPERTY_HTTP_HOST)] HRESULT HttpHost([in] BSTR host);
+	[propget, id(PASSIVEX_PROPERTY_HTTP_HOST)] HRESULT HttpHost([out, retval] BSTR *host);
+	[propput, id(PASSIVEX_PROPERTY_HTTP_SID)] HRESULT HttpSid([in] BSTR sid);
+	[propget, id(PASSIVEX_PROPERTY_HTTP_SID)] HRESULT HttpSid([out, retval] BSTR *sid);
+	[propput, id(PASSIVEX_PROPERTY_HTTP_URI_BASE)] HRESULT HttpUriBase([in] BSTR base);
+	[propget, id(PASSIVEX_PROPERTY_HTTP_URI_BASE)] HRESULT HttpUriBase([out, retval] BSTR *base);
+	[propput, id(PASSIVEX_PROPERTY_HTTP_PORT)] HRESULT HttpPort([in] ULONG port);
+	[propget, id(PASSIVEX_PROPERTY_HTTP_PORT)] HRESULT HttpPort([out, retval] ULONG *port);
+	[propput, id(PASSIVEX_PROPERTY_DOWNLOAD_SECOND_STAGE)] HRESULT DownloadSecondStage([in] ULONG na);
+	[propget, id(PASSIVEX_PROPERTY_DOWNLOAD_SECOND_STAGE)] HRESULT DownloadSecondStage([out, retval] ULONG *na);
+};
+
+[
+	uuid(CA8B739E-450C-47bb-A557-3579A633BB5D),
+	version(1.0),
+	helpstring("PassiveX Type Library")
+]
+library PassiveXCOM
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(9A427004-996C-4d39-BF55-F7EBE0EC6249),
+		helpstring("PassiveX Event Interface")
+	]
+	dispinterface PassiveXEvents
+	{
+		properties:
+		methods:
+	};
+
+	[
+		uuid(B3AC7307-FEAE-4e43-B2D6-161E68ABA838),
+		helpstring("PassiveX Implementation Class")
+	]
+	coclass PassiveX
+	{
+		[default] interface IPassiveX;
+		[default, source] dispinterface PassiveXEvents;
+	};
+};

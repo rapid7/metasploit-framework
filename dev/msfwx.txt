@@ -1,0 +1,123 @@
+Metasploit Framework Wx GUI Design Document
+============================================
+
+
+Code Layout
+===========
+
+The 'msfwx' executable must be a wrapper around a Msf::UI class. The
+current code uses Msf::Ui::Wx::Driver as the backend.
+
+The Driver must implement a constructor (initialize) that creates a
+framework instance and intializes the UI code.
+
+The Driver must implement a method called 'run' which actually starts
+the GUI.
+
+The actual GUI code should be stored in the lib/msf/ui/wx directory.
+
+The Driver is responsible for loading any dependent UI code.
+
+Wx uses the concept of an 'App' which has one or more 'Frames'. 
+
+The App should create the main Frame and configure the Menus.
+
+The Frame should create all UI widgets, some of which can be
+defined and loaded from other files.
+
+The event processing code can be placed into frame.rb, or loaded from
+another file, preferably separated out by functionality. The current
+code does a rather poor job of separating GUI layout from the actual
+processing code.
+
+All constants should be placed into constants.rb in the lib/msf/ui/wx
+directory.
+
+These are basic guidelines - if something doesn't make sense, feel free
+to change it.
+
+
+GUI Features
+============
+
+The Wx GUI should support for the following basic features:
+
+- List each module type and be able to filter based on search criteria
+
+- Display information about any selected module, session, or job.
+
+- Provide a tree view of all current hosts and all information about
+  each detected host. The user should be able to modify and add items
+  to the tree and apply modules to specific hosts and services in the
+  tree view.
+
+- List each active session (a successful exploitation result) and give
+  the user the ability to interact with that session. I recommend using
+  the current Sessions tab and listing each session in a treeview. When
+  the user selects a session and double clicks, a new window will appear
+  that gives them the ability to interact with the session. When the
+  session interaction window is closed, the session should stay alive.
+  The user should be able to terminate the session by selecting it from
+  the list and hitting Delete or right clicking and using a pop-up menu.
+  
+  In msfconsole, the session command is used to manage these.
+  
+
+- List each active 'job'. A job is an exploit or auxiliary module that
+  runs in the background. These modules can continue to produce data
+  and sessions while the user does other things. Examples of passive
+  exploits that create jobs are the browser exploits in:
+  	modules/exploits/windows/browser/
+
+  In msfconsole, the job command is used to manage these.
+  
+- Provide a way to configure and execute a selected, non-exploit/auxiliary
+module:
+	a) Provide the ability to generate shellcode from a Payload
+	b) Provide the ability to encode shellcode with an Encoder
+	c) Provide the ability to generate nop sleds with a Nop
+
+- Provide a way to configure and execute an exploit or auxiliary module
+	a) Auxiliary modules will update the host information tree
+	b) Exploit 'check' functions will update the host information tree
+	c) Exploits can have their target system manualyl specified or selected
+	   from the host information tree. Selecting a host node will fill in
+	   the RHOST variable (if its supported) and selecting a service node
+	   under a host will fill in the RPORT variable if its supported.
+
+
+GUI Layout
+==========
+
+The GUI is divided into three distinct areas. On the left hand side we have
+a set of tabs, each of which contains a list of things. This is where exploits,
+sessions, jobs, payloads, and encoders live. The current msfwx code should
+give you an idea of what I mean by this.
+
+
+The bottom section can be used to display information about the currently 
+selected item (Information), the current debug log (output of print_status())
+from inside modules, results of exploit execution, other standard 'console'
+output, a mini-msfconsole that allows a subset of the normal commands to be used
+and provides shortcuts for manipulating GUI elements (remove all sessions,
+stop all jobs, run this exploit on all hosts, etc), 
+
+
+The right panel of the interface will contain the list of hosts in a tree view,
+each host will also have a list of services, information entries, and other
+data collected and reported by the other modules. 
+
+When a module is selected, a screen needs to be provided to configure the module
+and start the execution. I have three ideas on this so far:
+
+1) Make the right side consist of two tabs - one which has the host information
+and another which is used to show module exploits and launch the actual module.
+The thing that sucks about this is that if you want to see the host list while
+you configure the module, you have to switch between the two tabs.
+
+2) Make the module configuration a new dialog window that pops up. This is
+the easier way and may end up being the cleanest way to implement this.
+
+3) Move the list of hosts into the left-side tabs and then use the entire right
+side to configure and launch the selected module.
+

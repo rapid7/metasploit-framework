@@ -1,0 +1,34 @@
+This file contains things that need to be done that aren't in the plan:
+
+- revisit pivoting
+  - connections seemed slow
+  - data transfers seemed slow
+
+Buggies:
+	- With no target set, the user can still show payloads and do tab completion
+	  in msfconsole. All payloads are listed, so this can be confusing and
+	  result in the wrong payload being selected. If we add some kind of warning
+	  or just refuse to show payloads w/o a target, it would solve this.
+	  
+	- An exploit that has Compat = -find in the Payload section will still list
+	  meterpreter's find_tag payload as compatible
+
+	- The target info should provide a packing function that matches the arch and
+	  platform set in the target. Right now all exploits are calling big or little
+	  packers on the target, regardless of the target arch.
+	
+	- If the Authors is supplied as an array, with only a single author, and
+	  that author isnt in the known list, a crash will occur.
+	  
+		./user_interfaces/../lib/rex/ui/text/dispatcher_shell.rb:184:in `run_command'
+		./user_interfaces/../lib/rex/transformer.rb:30:in `transform'
+		./user_interfaces/../lib/rex/transformer.rb:29:in `transform'
+		./user_interfaces/../lib/msf/core/module/author.rb:29:in `transform'
+		./user_interfaces/../lib/msf/core/module.rb:108:in `initialize'
+		./user_interfaces/../lib/msf/core/exploit.rb:170:in `initialize'
+		./user_interfaces/../lib/msf/core/exploit/tcp.rb:16:in `initialize'
+		./user_interfaces/../lib/msf/core/exploit/ftp.rb:19:in `initialize'
+		/home/projects/metasploit/rubyhacks/modules/exploits/windows/ftp/freeftpd_user.rb:62:in `initialize'
+		./user_interfaces/../lib/msf/core/module_manager.rb:47:in `create'
+		./user_interfaces/../lib/msf/core/module_manager.rb:251:in `create'
+		./user_interfaces/../lib/msf/ui/console/command_dispatcher/core.rb:871:in `cmd_use'

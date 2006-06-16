@@ -1,0 +1,133 @@
+#!/usr/bin/env ruby
+#
+# This user interface allows users to interact with the framework through a
+# command line interface (CLI) rather than having to use a prompting console
+# or web-based interface.
+#
+
+$:.unshift(File.join(File.dirname(__FILE__), 'lib'))
+
+require 'rex'
+require 'msf/ui'
+require 'msf/base'
+
+Indent = '   ' 
+
+# Initialize the simplified framework instance.
+$framework = Msf::Simple::Framework.create
+
+def usage (str = nil, extra = nil)
+	tbl = Rex::Ui::Text::Table.new(
+		'Header'  => "Usage: #{$0} <exploit_name> <option=value> [mode]",
+		'Indent'  => 4,
+		'Columns' => ['Mode', 'Description']
+	)
+
+	tbl << ['(H)elp', "you're looking at it baby!"]
+	tbl << ['(S)ummary', 'show information about this module']
+	tbl << ['(O)ptions', 'show available options for this module']
+	tbl << ['(A)dvanced', 'show available advanced options for this module']
+	tbl << ['(I)ds Evasion', 'show available ids evasion options for this module']
+	tbl << ['(P)ayloads', 'show available payloads for this module']
+	tbl << ['(T)argets', 'show available targets for this module']
+	tbl << ['(C)heck', 'Attempt to check if the target is vulnerable']
+	tbl << ['(E)xploit', 'Attempt to exploit the target']
+
+	$stdout.puts "Error: #{str}\n\n" if str
+	$stdout.puts tbl.to_s + "\n"
+	$stdout.puts extra + "\n" if extra
+
+	exit
+end
+
+if (ARGV.length < 1)
+	tbl = Rex::Ui::Text::Table.new(
+		'Header'  => 'Exploits',
+		'Indent'  => 4,
+		'Columns' => [ 'Name', 'Description' ])
+
+	$framework.exploits.each_module { |name, mod|
+		tbl << [ name, mod.new.name ]
+	}
+
+	usage(nil, tbl.to_s)
+end
+
+# Get the exploit name we'll be using
+exploit_name = ARGV.shift
+exploit      = $framework.exploits.create(exploit_name)
+
+if (exploit == nil)
+	usage("Invalid exploit: #{exploit_name}")
+end
+
+exploit.init_ui(
+	Rex::Ui::Text::Input::Stdio.new, 
+	Rex::Ui::Text::Output::Stdio.new
+)
+			
+# Evalulate the command (default to "help")
+mode = ARGV.pop || 'h'
+
+# Import options
+exploit.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
+
+case mode.downcase
+	when 'h'
+		usage
+	when "s"
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(exploit, Indent))
+	when "o"
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(exploit, Indent))
+	when "a"
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(exploit, Indent))
+	when "i"
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(exploit, Indent))
+	when "p"
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_compatible_payloads(
+			exploit, Indent, "Compatible payloads"))
+	when "t"
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_exploit_targets(exploit, Indent))
+	when "c"
+		begin
+			if (code = exploit.check)
+				stat = (code == Msf::Exploit::CheckCode::Vulnerable) ? '[+]' : '[*]'
+	
+				$stdout.puts("#{stat} #{code[1]}")
+			else
+				$stderr.puts("Check failed: The state could not be determined.")
+			end
+		rescue
+			$stderr.puts("Check failed: #{$!}")
+		end
+	when "e"
+		begin
+			session = exploit.exploit_simple(
+				'Encoder'       => exploit.datastore['ENCODER'],
+				'Target'        => exploit.datastore['TARGET'],
+				'Payload'       => exploit.datastore['PAYLOAD'],
+				'Nop'           => exploit.datastore['NOP'],
+				'LocalInput'    => Rex::Ui::Text::Input::Stdio.new,
+				'LocalOutput'   => Rex::Ui::Text::Output::Stdio.new,
+				'ForceBlocking' => true)
+
+			if (session)
+				$stdout.puts("[*] #{session.desc} session #{session.name} opened (#{session.tunnel_to_s})\n\n")
+
+				session.init_ui(
+					Rex::Ui::Text::Input::Stdio.new,
+					Rex::Ui::Text::Output::Stdio.new)
+
+				session.interact
+			end
+					
+		rescue
+			$stderr.puts("Exploit failed: #{$!}")
+			$stderr.puts("Backtrace:")
+			$stderr.puts($!.backtrace.join("\n"))
+		end
+	else
+		usage("Invalid mode #{mode}")
+end
+
+$stdout.puts

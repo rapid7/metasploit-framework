@@ -1,0 +1,75 @@
+Title:
+
+	Metasploit^3
+
+Intro:
+	
+	Who
+		BreakingPoint
+		Metasploit
+	What
+		Exploit framework evolution
+		
+	Why
+		Exploits are commodities
+		Integration is the tricky part
+		Who needs a shell when...
+		Merge of two distinct users
+			Network admins
+			Penetration testers
+
+Exploit Frameworks
+	Development platform for exploit code
+	Shrink exploit development time
+	Enable security research
+	Automation
+
+Metasploit
+	Started off with ~7 exploits
+	v1 - 2,000 lines of perl
+	v2 - 40,000 lines of perl, 3,000 asm, 7,000 C
+	v3 - 80,000 lines of perl, 4,000 asm, 12,000 C
+	Exploit launcher
+		Modular components
+		Consistent interface
+		Three UI's
+Metasploit^3
+	Complete rewrite in the Ruby language
+	Code compression ~40%
+	Completely OO, no more dirty perl tricks
+	Focused on simplicity, consistency, extensibility
+
+Architecture
+	Rex Library
+	MSF Library
+	MSF Core
+	MSF Interfaces
+
+Libraries
+	Create your own MSF app in ~5 lines of code :-)
+	Simple to work with any module programatically
+	Write standalone security apps using our libs
+
+Concepts
+	Interfaces
+		Load and interact with modules
+	Jobs
+		Modules running in the background
+	Sessions
+		Interactive shells and more
+Modules
+	Payloads
+	Encoders
+	Nops
+	Exploits
+	Auxiliary
+	
+Plugins
+	Extend anything at runtime
+	
+Examples
+	Reconnaisance module
+	Passive exploit modules
+	Handling multiple sessions
+		
+	

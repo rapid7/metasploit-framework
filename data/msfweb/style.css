@@ -1,0 +1,243 @@
+html {
+	margin: 0px;
+	padding: 0px;
+}
+
+body
+{
+    background:     white;
+    font-family:    Verdana, Tahoma, Arial, Helvetica, sans-serif;
+    color:          black;
+    font-size:      10pt;
+	margin:			0.1cm 0.5cm 0.1cm 0.5cm;
+}
+
+A { 
+	font-size: 			10pt;
+	text-decoration: 	none; 
+	color: 				navy; 
+	font-weight: 		bold;
+}
+
+
+A:hover { 
+	text-decoration: underline;
+}
+
+.tabDark {
+	background:		#dddddd;
+}
+A.tabDark {
+
+}
+
+.tabLight {
+	background:		#eeeeee;
+}
+A.tabLight {
+
+}
+
+.tabActive {
+
+}
+A.tabActive {
+	text-decoration: underline;
+}
+
+
+.sectionTitle {
+	color:			black;
+	font-size:		10pt;
+	font-weight:	bold;
+}
+
+.listBody {
+	background:		white;
+	color:			black;
+	font-size:		10pt;
+}
+
+A.nav {
+	font-size:		10pt;
+	font-weight:	bold;
+}
+
+.nav { 
+	font-size:		10pt;
+	font-weight:	normal;
+	font-weight:	bold;
+}
+
+.navHead { 
+	font-size:		10pt;
+	font-weight:	bold;
+}
+
+.copy {
+	font-size:		10pt;
+	font-variant:	small-caps;
+}
+
+.modHead {
+	font-size:		10pt;
+	font-weight:	bold;
+	color:			white;
+}
+
+.shellcode {
+	font-size:		10pt;
+	font-weight:	normal;
+	color:			black;
+}
+
+.boldText { 
+	font-size: 		10pt; 
+	color: 			black; 
+	font-weight: 	bold;
+}
+
+.moduleOutput {
+	font-size:		10pt;
+	color:			black;
+}
+
+.moduleInfo {
+	font-size:		10pt;
+	color:			black;
+}
+
+.textNormal {
+	font-size:		10pt;
+	color:			black;
+}
+
+.textBold {
+	font-size:		10pt;
+	color:			black;
+	font-weight: 	bold;
+}
+
+.textBoldDark {
+	font-size:		10pt;
+	color:			grey;
+	font-weight: 	bold;
+}
+
+.textBoldBright {
+	font-size:		10pt;
+	color:			black;
+	font-weight: 	bold;
+}
+
+
+.textNormalColorA {
+	background:		#eeeeee;
+	font-size:		10pt;
+	font-weight:	normal;
+}
+
+.textBoldColorA {
+	background:		#eeeeee;
+	font-size:		10pt;
+	font-weight:	bold;
+}
+
+
+.textNormalColorB {
+	background:		#dddddd;
+	font-size:		10pt;
+	font-weight:	normal;
+}
+
+.textBoldColorB {
+	background:		#dddddd;
+	font-size:		10pt;
+	font-weight:	bold;
+}
+
+.tblOuter {
+	background:		black;
+}
+
+.tblInner {
+	background:		white;
+}
+
+
+select {
+	color:			black;
+	background:		#eeeeee;
+	font-weight:	bold;
+	padding: 		2px 2px 2px 2px;	
+}
+
+input {
+	font-weight:	bold;
+	color:			black;
+	background:		#eeeeee;
+	color:			black;
+	padding: 		2px 10px 2px 10px;
+	border: 		1px solid grey;
+}
+
+input.button {
+	border-left: 		1px solid grey;
+	border-top: 		1px solid grey;
+	border-bottom: 		2px solid black;
+	border-right: 		2px solid black;		
+	padding: 			1px 5px 1px 5px;
+}
+
+.iconset 
+{
+	background: white;
+	padding: 2px 2px 2px 2px;
+	border: 1px solid white;
+}
+
+.moduleList
+{
+	white-space: nowrap;
+}
+
+.moduleIcons
+{
+	border-top: 1px solid #aaaaaa;
+	border-left: 1em solid #aaaaaa;
+	padding: 0.5em 0em 0em 0.25em;
+}
+		
+.moduleName
+{
+	border-top: 1px solid #aaaaaa;
+	padding: 0.5em 0.5em 0em 0em;
+}
+
+.moduleSpacer 
+{
+	padding: 10px 0px 0px 0px;
+	margin: 0;
+}
+
+.CommandBar {
+
+}
+
+#CommandBarList {
+	padding: 		0 1px 1px;
+	margin-left: 	0;
+}
+
+#CommandBarList li {
+	list-style: 	none;
+	margin: 		0;
+	display: 		inline;
+}
+
+#CommandBarList li a {
+}
+
+#CommandBarList li a:hover {
+	border-bottom: 	1px solid #black;
+}

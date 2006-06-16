@@ -1,0 +1,16 @@
+load db_sqlite3
+
+set RHOST www.aol.com
+set RPORT 80
+run
+
+set RHOST www.metasploit.com
+set RPORT 384
+run
+
+set RHOST 127.0.0.1
+set RPORT 9999
+run
+
+db_hosts
+db_services

