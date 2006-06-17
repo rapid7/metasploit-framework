@@ -548,6 +548,8 @@ EVADE = Rex::Proto::SMB::Evasions
 	# Authenticate using NTLMv1
 	def session_setup_ntlmv1(user = '', pass = '', domain = '')
 	
+		raise XCEPT::NTLM1MissingChallenge if not self.challenge_key
+
 		hash_lm = pass.length > 0 ? CRYPT.lanman_des(pass, self.challenge_key) : ''
 		hash_nt = pass.length > 0 ? CRYPT.ntlm_md4(pass, self.challenge_key)   : ''
 
@@ -655,9 +657,9 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 		# Extract the NTLM challenge key the lazy way
 		cidx = blob.index("NTLMSSP\x00\x02\x00\x00\x00")
+		
 		if (cidx == -1)
-			puts "No challenge found"
-			return nil
+			raise XCEPT::NTLM2MissingChallenge
 		end
 		
 		# Store the challenge key

@@ -105,6 +105,18 @@ class NetbiosSessionFailed < Error
 	end
 end
 
+class NTLM1MissingChallenge < Error
+	def to_s
+		"Unable to complete NTLMv1 without a challenge key (use ntlmv2)"
+	end
+end
+
+class NTLM2MissingChallenge < Error
+	def to_s
+		"Unable to complete NTLMv2, no challenge key found"
+	end
+end
+
 class SimpleClientError < Error
 	attr_accessor :source, :fatal
 end

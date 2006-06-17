@@ -166,7 +166,8 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 		self.shares = { }
 	end
 	
-	def login(name = '*SMBSERVER', user = '', pass = '', domain = '')
+	def login(name = '', user = '', pass = '', domain = '')
+
 		begin
 			
 			if (self.direct != true)
@@ -175,7 +176,7 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 		
 			self.client.negotiate
 			ok = self.client.session_setup(user, pass, domain)
-		rescue
+		rescue ::Exception
 			e = XCEPT::LoginError.new
 			e.source = $!.to_s 
 			raise e
