@@ -52,7 +52,15 @@ module NDR
         string += "\x00" # null pad
         return long(string.length) + long(0) + long(string.length) + Rex::Text.to_unicode(string) + align(Rex::Text.to_unicode(string))
     end
-    
+	
+    # Encode a string and make it unique
+    # use to encode:
+    #       [unique] w_char *element_1;
+    def NDR.uwstring(string)
+        string += "\x00" # null pad
+        return long(rand(0xffffffff))+long(string.length) + long(0) + long(string.length) + Rex::Text.to_unicode(string) + align(Rex::Text.to_unicode(string))
+    end
+	   
     # Encode a string that is already unicode encoded
     # use to encode:
     #       w_char *element_1;

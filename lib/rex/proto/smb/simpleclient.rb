@@ -178,7 +178,7 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 			ok = self.client.session_setup(user, pass, domain)
 		rescue ::Exception
 			e = XCEPT::LoginError.new
-			e.source = $!.to_s 
+			e.source = $!.to_s
 			raise e
 		end
 		
