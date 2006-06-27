@@ -102,7 +102,7 @@ module Socket
 	# These calls can be quite slow.
 	#
 	def self.getaddress(addr)
-		dotted_ip?(addr) ? addr : Resolv.getaddress(ip)
+		dotted_ip?(addr) ? addr : Resolv.getaddress(addr)
 	end
 
 	#
