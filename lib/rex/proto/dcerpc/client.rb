@@ -109,9 +109,9 @@ require 'rex/proto/smb/exceptions'
 			smb.login('*SMBSERVER', self.options['smb_user'], self.options['smb_pass'])
 			smb.connect('IPC$')
 			self.smb = smb
-			p "CREATED NEW SMB!!!!"
 		end
 		
+		p self.handle.options[0]
 		f = self.smb.create_pipe(self.handle.options[0])
 		f.mode = self.options['smb_pipeio']
 		self.socket = f

