@@ -507,7 +507,7 @@ module Text
 	# Returns true if zlib can be used.
 	def self.zlib_present?
 		begin
-			Zlib
+			temp = Zlib
 			return true
 		rescue
 			return false
