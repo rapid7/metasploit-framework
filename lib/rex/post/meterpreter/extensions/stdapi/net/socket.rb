@@ -136,7 +136,7 @@ protected
 	def monitor_sockets
 		self.monitor_thread = ::Thread.new {
 
-			while (1)
+			loop do
 		
 				# Watch for data
 				begin
