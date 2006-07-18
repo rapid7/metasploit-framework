@@ -128,7 +128,7 @@ class Request < Packet
 		if self.junk_directories 
 			str.gsub!(/\//) {
 				dirs = ''
-				rand(5)+5.times {
+				(rand(5)+5).times {
 					dirs += '/' + Rex::Text.rand_text_alpha(rand(5) + 1) + '/..'
 				}
 				dirs + '/'
