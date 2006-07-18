@@ -135,7 +135,7 @@ class Registry
 
 		if (type == REG_SZ)
 			data += "\x00"
-		else (type == REG_DWORD)
+		elsif (type == REG_DWORD)
 			data = [ data.to_i ].pack("V")
 		end
 
@@ -162,7 +162,7 @@ class Registry
 		type = response.get_tlv(TLV_TYPE_VALUE_TYPE).value;
 
 		if (type == REG_SZ)
-			data = data[0..-1]
+			data = data[0..-2]
 		elsif (type == REG_DWORD)
 			data = data.unpack("N")[0]
 		end
