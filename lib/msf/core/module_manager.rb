@@ -333,6 +333,9 @@ class ModuleManager < ModuleSet
 		}
 
 		super(nil)
+		
+		@modcache_invalidated = false
+		@cached_counts = false
 	end
 
 	#
@@ -453,7 +456,7 @@ class ModuleManager < ModuleSet
 	#
 	def cached_counts
 		if (using_cache and @modcache.group?('ModuleTypeCounts'))
-			if (@cached_counts.nil?)
+			if (! @cached_counts)
 				@cached_counts = {}
 	
 				@modcache['ModuleTypeCounts'].each_pair { |type, count|

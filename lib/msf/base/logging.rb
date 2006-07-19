@@ -14,7 +14,7 @@ class Logging
 	# Initialize logging.
 	#
 	def self.init
-		if (@initialized != true)
+		if (! @initialized)
 			@initialized = true
 
 			f = Rex::Logging::Sinks::Flatfile.new(
