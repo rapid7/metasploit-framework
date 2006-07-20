@@ -111,7 +111,6 @@ require 'rex/proto/smb/exceptions'
 			self.smb = smb
 		end
 		
-		p self.handle.options[0]
 		f = self.smb.create_pipe(self.handle.options[0])
 		f.mode = self.options['smb_pipeio']
 		self.socket = f
