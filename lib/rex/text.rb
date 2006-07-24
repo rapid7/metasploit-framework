@@ -292,6 +292,22 @@ module Text
         end
 	end
 
+	# Encode a string in a manor useful for HTTP URIs and URI Parameters.  
+	# 
+	# a = "javascript".gsub(/./) {|i| "(" + [ Rex::Text.html_encode(i, 'hex'), Rex::Text.html_encode(i, 'int'), Rex::Text.html_encode(i, 'int-wide')].join('|') +')[\s\x00]*' }
+	def self.html_encode(str, mode = 'hex')
+		case mode
+		when 'hex'
+			return str.gsub(/./) { |s| Rex::Text.to_hex(s, '&#x') }
+		when 'int'
+			return str.unpack('C*').collect{ |i| "&#" + i.to_s }.join('')
+		when 'int-wide'
+			return str.unpack('C*').collect{ |i| "&#" + ("0" * (7 - i.to_s.length)) + i.to_s }.join('')
+		else 
+			raise TypeError, 'invalid mode'
+		end
+	end
+
 	#
 	# Converts a hex string to a raw string
 	#

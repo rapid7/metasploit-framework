@@ -21,6 +21,17 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 		}
 	end
 
+    def test_html_encode
+        assert_equal('&#x41', Rex::Text.html_encode('A'), 'html_encode default')
+        assert_equal('&#x41', Rex::Text.html_encode('A','hex'), 'html_encode hex')
+        assert_equal('&#65', Rex::Text.html_encode('A','int'), 'html_encode int')
+        assert_equal('&#0000065', Rex::Text.html_encode('A','int-wide'), 'html_encode int-wide')
+
+        assert_raises(TypeError) {
+            Rex::Text.html_encode('a', 'umpa lumpa')
+        }
+    end
+
 	def test_rand_text
 		srand(0)
 		assert_equal("\254/u\300C\373\303g\t\323", Rex::Text.rand_text(10), 'rand text 1')
