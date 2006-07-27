@@ -104,6 +104,16 @@ def self.win32_readline_daemon
 	
 	# Replace stdin with the socket
 	$stdin.reopen(clnt)
+	
+	# Thread monitor
+	Thread.new do 
+		cnt = 0
+		while(true)
+			$stderr.puts "---= monitor thread ok: #{cnt.to_s}"
+			select(nil,nil,nil,3)
+			cnt +=1
+		end
+	end
 end
 
 end

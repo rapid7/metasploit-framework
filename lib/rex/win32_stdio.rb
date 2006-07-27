@@ -20,6 +20,8 @@ begin
 	
 	while (true)
 		c = $stdin.sysread(1)
+		printf("%.2x\n", c[0])
+		c += "\x0d" if (c == "\x0d")
 		sock.write(c)
 		sock.flush
 	end
