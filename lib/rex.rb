@@ -47,6 +47,10 @@ require 'rex/proto'
 require 'rex/parser/arguments'
 require 'rex/parser/ini'
 
+
+# Compatibility
+require 'rex/compat'
+
 # Overload the Kernel.sleep() function to be thread-safe
 Kernel.class_eval("
 	def sleep(seconds)

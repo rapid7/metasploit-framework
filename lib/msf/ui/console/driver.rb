@@ -48,8 +48,13 @@ class Driver < Msf::Ui::Driver
 	#
 	def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
 		
-		# The command prompt doesn't like bling bling'in colors.
+		# Windows-specific hackery
 		if (RUBY_PLATFORM =~ /win/)
+		
+			# Start the readline console hack
+			Rex::Compat.win32_readline_daemon()
+		
+			# Disable the color support
 			prompt      = "msf"
 			prompt_char = ">"
 		end
