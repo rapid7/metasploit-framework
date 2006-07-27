@@ -79,6 +79,33 @@ def self.win32_winexec(cmd)
 	end
 end
 
+=begin
+BOOL WINAPI ReadConsole(
+  HANDLE hConsoleInput,
+  LPVOID lpBuffer,
+  DWORD nNumberOfCharsToRead,
+  LPDWORD lpNumberOfCharsRead,
+  LPVOID lpReserved
+);
+=end
+
+def self.win32_stdin_read
+	begin
+		@@k32 ||= DL.dlopen("kernel32.dll")
+		gsh = @@k32['GetStdHandle', 'LL']
+		rco = @@k32['ReadConsole', 'LLPLPL']
+
+		inp = gsh.call(STD_INPUT_HANDLE)[0]
+		buf = DL.malloc(512)
+		num = DL.malloc(DL.sizeof('L'))
+		rco.call(inp, buf, 512, num, 0)
+		buf.to_s
+		
+	rescue ::Exception
+		raise $!	
+	end
+end
+
 def self.win32_readline_daemon
 	serv = nil
 	port = 1024
@@ -108,10 +135,18 @@ def self.win32_readline_daemon
 	# Thread monitor
 	Thread.new do 
 		cnt = 0
+		lst = Time.now.to_i
 		while(true)
-			$stderr.puts "---= monitor thread ok: #{cnt.to_s}"
+			
 			select(nil,nil,nil,3)
 			cnt +=1
+			
+			now = Time.now.to_i
+			if (now - lst > 3)
+				$stderr.puts "---= monitor lost #{ (now-lst).to_s } seconds"
+			end
+			
+			lst = now
 		end
 	end
 end

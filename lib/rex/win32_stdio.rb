@@ -15,13 +15,8 @@ begin
 	sock = TCPSocket.new('127.0.0.1', port)
 
 	Rex::Compat.win32_stdin_unblock()
-
-	# $stderr.puts "Starting stdio daemon..."
-	
 	while (true)
-		c = $stdin.sysread(1)
-		printf("%.2x\n", c[0])
-		c += "\x0d" if (c == "\x0d")
+		c = Rex::Compat.win32_stdin_read
 		sock.write(c)
 		sock.flush
 	end
