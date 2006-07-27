@@ -48,13 +48,7 @@ class Driver < Msf::Ui::Driver
 	#
 	def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
 		
-		# Windows-specific hackery
-		if (RUBY_PLATFORM =~ /win/)
-		
-			# This is no longer needed with readline5!
-			# Start the readline console hack
-			# Rex::Compat.win32_readline_daemon()
-		
+		if (Rex::Compat.is_windows())
 			# Disable the color support
 			prompt      = "msf"
 			prompt_char = ">"

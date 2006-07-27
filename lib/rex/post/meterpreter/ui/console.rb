@@ -24,7 +24,7 @@ class Console
 	# Initialize the meterpreter console.
 	#
 	def initialize(client)
-		if (RUBY_PLATFORM =~ /win/)
+		if (Rex::Compat.is_windows())
 			super("meterpreter")
 		else
 			super("%umeterpreter%c")

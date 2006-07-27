@@ -14,6 +14,26 @@ ENABLE_LINE_INPUT = 2
 ENABLE_ECHO_INPUT = 4
 ENABLE_PROCESSED_INPUT = 1
 
+
+#
+# Platform detection
+#
+def self.is_windows
+	(RUBY_PLATFORM =~ /mswin32/) ? true : false
+end
+
+def self.is_macosx
+	(RUBY_PLATFORM =~ /darwin/) ? true : false
+end
+
+def self.is_linux
+	(RUBY_PLATFORM =~ /linux/) ? true : false
+end
+
+
+#
+# Change the Windows console to non-blocking mode
+#
 def self.win32_stdin_unblock
 	begin
 		@@k32 ||= DL.dlopen("kernel32.dll")
@@ -33,6 +53,9 @@ def self.win32_stdin_unblock
 	end
 end
 
+#
+# Change the Windows console to blocking mode
+#
 def self.win32_stdin_block
 	begin
 		@@k32 ||= DL.dlopen("kernel32.dll")
@@ -52,6 +75,9 @@ def self.win32_stdin_block
 	end
 end
 
+#
+# Obtain the path to our interpreter
+#
 def self.win32_ruby_path
 	begin
 		@@k32 ||= DL.dlopen("kernel32.dll")
@@ -69,6 +95,9 @@ def self.win32_ruby_path
 	end
 end
 
+#
+# Call WinExec (equiv to system("cmd &")
+#
 def self.win32_winexec(cmd)
 	begin
 		@@k32 ||= DL.dlopen("kernel32.dll")
@@ -79,26 +108,19 @@ def self.win32_winexec(cmd)
 	end
 end
 
-=begin
-BOOL WINAPI ReadConsole(
-  HANDLE hConsoleInput,
-  LPVOID lpBuffer,
-  DWORD nNumberOfCharsToRead,
-  LPDWORD lpNumberOfCharsRead,
-  LPVOID lpReserved
-);
-=end
-
-def self.win32_stdin_read
+#
+# Read directly from the win32 console
+#
+def self.win32_stdin_read(size=512)
 	begin
 		@@k32 ||= DL.dlopen("kernel32.dll")
 		gsh = @@k32['GetStdHandle', 'LL']
 		rco = @@k32['ReadConsole', 'LLPLPL']
 
 		inp = gsh.call(STD_INPUT_HANDLE)[0]
-		buf = DL.malloc(512)
+		buf = DL.malloc(size)
 		num = DL.malloc(DL.sizeof('L'))
-		rco.call(inp, buf, 512, num, 0)
+		rco.call(inp, buf, size, num, 0)
 		buf.to_s
 		
 	rescue ::Exception
@@ -106,10 +128,17 @@ def self.win32_stdin_read
 	end
 end
 
-def self.win32_readline_daemon
+#
+# Platform independent socket pair
+#
+def self.pipe
 
-	return
-	
+	if (! is_windows())
+		# Standard pipes should be fine
+		return ::IO.pipe
+	end
+
+	# Create a socket connection for Windows
 	serv = nil
 	port = 1024
 
@@ -120,39 +149,17 @@ def self.win32_readline_daemon
 		end
 	end
 	
-	path = win32_ruby_path()
-	rubyw = File.join(File.dirname(path.to_s), "ruby.exe")
-	helpr = File.join(File.dirname(__FILE__), 'win32_stdio.rb')
-	
-	win32_winexec( [rubyw, helpr, port.to_s].join(" ") )
+	pipe1 = TCPSocket.new('127.0.0.1', port)
 
 	# Accept the forked child
-	clnt = serv.accept
+	pipe2 = serv.accept
 
 	# Shutdown the server
 	serv.close
 	
-	# Replace stdin with the socket
-	$stdin.reopen(clnt)
-	
-	# Thread monitor
-	Thread.new do 
-		cnt = 0
-		lst = Time.now.to_i
-		while(true)
-			
-			select(nil,nil,nil,3)
-			cnt +=1
-			
-			now = Time.now.to_i
-			if (now - lst > 3)
-				$stderr.puts "---= monitor lost #{ (now-lst).to_s } seconds"
-			end
-			
-			lst = now
-		end
-	end
+	return [pipe1, pipe2]
 end
+
 
 end
 end

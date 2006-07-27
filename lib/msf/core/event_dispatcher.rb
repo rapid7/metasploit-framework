@@ -186,7 +186,6 @@ class EventDispatcher
 			# Everything else								
 			else
 				elog("Event dispatcher received an unhandled event: #{name.to_s}")
-				p name
 				return false
 			end		
 		end

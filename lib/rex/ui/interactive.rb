@@ -29,6 +29,9 @@ module Interactive
 		handle_suspend
 
 		begin
+
+			user_input.readline_start() if user_input.supports_readline
+
 			callcc { |ctx|
 				# As long as we're interacting...
 				while (self.interacting == true)
@@ -52,6 +55,9 @@ module Interactive
 		ensure
 			# Restore the suspend handler
 			restore_suspend
+			
+			# Shutdown the readline thread
+			user_input.readline_stop() if user_input.supports_readline
 		end
 
 		# If we've hit eof, call the interact complete handler
@@ -69,6 +75,7 @@ module Interactive
 protected
 
 	attr_writer   :interacting # :nodoc:
+	
 	#
 	# The original suspend proc.
 	#
@@ -115,7 +122,7 @@ protected
 	#
 	def _stream_read_local_write_remote(stream)
 		data = user_input.gets
-
+		
 		stream.put(data)
 	end
 
@@ -138,7 +145,7 @@ protected
 	# writing it to the other.  Both are expected to implement Rex::IO::Stream.
 	#
 	def interact_stream(stream)
-		while self.interacting
+		while self.interacting			
 			# Select input and rstream
 			sd = Rex::ThreadSafe.select([ _local_fd, _remote_fd(stream) ])
 
@@ -153,7 +160,6 @@ protected
 				end
 			} if (sd)
 		end
-	
 	end
 
 	#
@@ -187,6 +193,7 @@ protected
 
 	#
 	# Prompt the user for input if possible.
+	# XXX: This is not thread-safe on Windows
 	#
 	def prompt(query)
 		if (user_output and user_input)

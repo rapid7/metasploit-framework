@@ -33,7 +33,7 @@ module Analyze
 					pat = $1.strip
 					regx = ''
 					pat.split(/\s+/).each do |c|
-						p c if c.length != 2
+						next if c.length != 2
 						regx << (c.index('?') ? '.' : "\\x#{c}")
 					end
 				when /ep_only\s*=\s*(.*)/
