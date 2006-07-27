@@ -95,7 +95,7 @@ def self.win32_readline_daemon
 	helpr = File.join(File.dirname(__FILE__), 'win32_stdio.rb')
 	
 	win32_winexec( [rubyw, helpr, port.to_s].join(" ") )
-	
+
 	# Accept the forked child
 	clnt = serv.accept
 
@@ -103,11 +103,7 @@ def self.win32_readline_daemon
 	serv.close
 	
 	# Replace stdin with the socket
-	$stdin.close
-	$stdin = clnt
-	
-	# Integrate with patched readline extension
-	$READLINE_STDIN = clnt
+	$stdin.reopen(clnt)
 end
 
 end

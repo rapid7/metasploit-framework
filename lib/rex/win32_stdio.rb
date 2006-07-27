@@ -16,16 +16,15 @@ begin
 
 	Rex::Compat.win32_stdin_unblock()
 
-	$stderr.puts "Starting stdio daemon..."
+	# $stderr.puts "Starting stdio daemon..."
 	
 	while (true)
 		c = $stdin.sysread(1)
-		$stderr.printf("%.2x \n", c[0])
 		sock.write(c)
 		sock.flush
 	end
 rescue ::Exception
-	$stderr.puts "Exception: #{$!.to_s}"
+	$stderr.puts "stdio: #{$!.to_s}"
 end
 
 Rex::Compat.win32_stdin_block()
