@@ -107,6 +107,9 @@ def self.win32_stdin_read
 end
 
 def self.win32_readline_daemon
+
+	return
+	
 	serv = nil
 	port = 1024
 

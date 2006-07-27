@@ -51,8 +51,9 @@ class Driver < Msf::Ui::Driver
 		# Windows-specific hackery
 		if (RUBY_PLATFORM =~ /win/)
 		
+			# This is no longer needed with readline5!
 			# Start the readline console hack
-			Rex::Compat.win32_readline_daemon()
+			# Rex::Compat.win32_readline_daemon()
 		
 			# Disable the color support
 			prompt      = "msf"
