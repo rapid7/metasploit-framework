@@ -105,6 +105,9 @@ def self.win32_readline_daemon
 	# Replace stdin with the socket
 	$stdin.close
 	$stdin = clnt
+	
+	# Integrate with patched readline extension
+	$READLINE_STDIN = clnt
 end
 
 end
