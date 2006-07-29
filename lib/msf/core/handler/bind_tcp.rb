@@ -45,12 +45,6 @@ module BindTcp
 	end
 
 	#
-	# No setup to speak of for bind handlers.
-	#
-	def setup_handler
-	end
-
-	#
 	# Kills off the connection threads if there are any hanging around.
 	#
 	def cleanup_handler
@@ -65,6 +59,14 @@ module BindTcp
 	# Starts monitoring for an outbound connection to become established.
 	#
 	def start_handler
+
+		# Maximum number of seconds to run the handler
+		ctimeout = 300
+		
+		if (exploit_config and exploit_config['active_timeout'])
+			ctimeout = exploit_config['active_timeout'].to_i
+		end
+	
 		self.listener_thread = Thread.new {
 			client = nil
 
@@ -76,34 +78,33 @@ module BindTcp
 					caller
 			end
 
-			# Keep trying to connect
-			callcc { |ctx|
-				while true
-					begin
-						client = Rex::Socket::Tcp.create(
-							'PeerHost' => datastore['RHOST'],
-							'PeerPort' => datastore['LPORT'].to_i,
-							'Proxies'  => datastore['Proxies'],
-							'Comm'     => comm,
-							'Context'  =>
-								{
-									'Msf'        => framework,
-									'MsfPayload' => self,
-									'MsfExploit' => assoc_exploit
-								})
-					rescue Rex::ConnectionRefused
-						# Connection refused is a-okay
-					rescue
-						wlog("Exception caught in bind handler: #{$!}")
-					end
-
-					ctx.call if (client)	
-	
-					# Wait a second before trying again
-					Rex::ThreadSafe.sleep(0.5)
+			stime = Time.now.to_i
+			
+			while (stime + ctimeout > Time.now.to_i)
+				begin
+					client = Rex::Socket::Tcp.create(
+						'PeerHost' => datastore['RHOST'],
+						'PeerPort' => datastore['LPORT'].to_i,
+						'Proxies'  => datastore['Proxies'],
+						'Comm'     => comm,
+						'Context'  =>
+							{
+								'Msf'        => framework,
+								'MsfPayload' => self,
+								'MsfExploit' => assoc_exploit
+							})
+				rescue Rex::ConnectionRefused
+					# Connection refused is a-okay
+				rescue ::Exception
+					wlog("Exception caught in bind handler: #{$!}")
 				end
-			}
 
+				break if client
+
+				# Wait a second before trying again
+				Rex::ThreadSafe.sleep(0.5)
+			end
+			
 			# Valid client connection?
 			if (client)
 				# Start a new thread and pass the client connection
@@ -116,6 +117,8 @@ module BindTcp
 						elog("Exception raised from BindTcp.handle_connection: #{$!}")
 					end
 				}
+			else
+				wlog("No connection received before the handler completed")
 			end
 		}
 	end

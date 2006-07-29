@@ -112,7 +112,7 @@ module Handler
 	#
 	def handler(sock)
 	end
-
+	
 	#
 	# Handles an established connection supplied in the in and out 
 	# handles.  The handles are passed as parameters in case this
@@ -151,6 +151,11 @@ module Handler
 		
 		return session
 	end
+	
+	#
+	# Set by the exploit module to configure handler
+	#
+	attr_accessor :exploit_config
 
 protected
 
@@ -199,7 +204,7 @@ protected
 
 	attr_accessor :session_waiter_event # :nodoc:
 	attr_accessor :pending_connections  # :nodoc:
-
+	
 end
 
 end

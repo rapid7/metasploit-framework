@@ -20,7 +20,7 @@ class Core
 	include Msf::Ui::Console::CommandDispatcher
 
 	# Session command options
-	@@session_opts = Rex::Parser::Arguments.new(
+	@@sessions_opts = Rex::Parser::Arguments.new(
 		"-i" => [ true,  "Interact with the supplied session identifier." ],
 		"-h" => [ false, "Help banner."                                   ],
 		"-l" => [ false, "List all active sessions."                      ],
@@ -39,30 +39,30 @@ class Core
 	# Returns the list of commands supported by this command dispatcher
 	def commands
 		{
-			"?"       => "Help menu",
-			"back"    => "Move back from the current context",
-			"banner"  => "Display an awesome metasploit banner",
-			"exit"    => "Exit the console",
-			"help"    => "Help menu",
-			"info"    => "Displays information about one or more module",
-			"irb"     => "Drop into irb scripting mode",
-			"jobs"    => "Displays and manages jobs",
-			"load"    => "Load a framework plugin",
-			"persist" => "Persist or restore framework state information",
-			"quit"    => "Exit the console",
-			"route"   => "Route traffic through a session",
-			"save"    => "Saves the active datastores",
-			"search"  => "Adds one or more module search paths",
-			"session" => "Dump session listings and display information about sessions",
-			"set"     => "Sets a variable to a value",
-			"setg"    => "Sets a global variable to a value",
-			"show"    => "Displays modules of a given type, or all modules",
-			"unload"  => "Unload a framework plugin",
-			"unset"   => "Unsets one or more variables",
-			"unsetg"  => "Unsets one or more global variables",
-			"use"     => "Selects a module by name",
-			"version" => "Show the console library version number",
-			"sleep"   => "Do nothing for the specified number of seconds",
+			"?"        => "Help menu",
+			"back"     => "Move back from the current context",
+			"banner"   => "Display an awesome metasploit banner",
+			"exit"     => "Exit the console",
+			"help"     => "Help menu",
+			"info"     => "Displays information about one or more module",
+			"irb"      => "Drop into irb scripting mode",
+			"jobs"     => "Displays and manages jobs",
+			"load"     => "Load a framework plugin",
+			"persist"  => "Persist or restore framework state information",
+			"quit"     => "Exit the console",
+			"route"    => "Route traffic through a session",
+			"save"     => "Saves the active datastores",
+			"search"   => "Adds one or more module search paths",
+			"sessions" => "Dump session listings and display information about sessions",
+			"set"      => "Sets a variable to a value",
+			"setg"     => "Sets a global variable to a value",
+			"show"     => "Displays modules of a given type, or all modules",
+			"unload"   => "Unload a framework plugin",
+			"unset"    => "Unsets one or more variables",
+			"unsetg"   => "Unsets one or more global variables",
+			"use"      => "Selects a module by name",
+			"version"  => "Show the console library version number",
+			"sleep"    => "Do nothing for the specified number of seconds",
 		}
 	end
 
@@ -544,7 +544,7 @@ class Core
 	#
 	# Provides an interface to the sessions currently active in the framework.
 	#
-	def cmd_session(*args)
+	def cmd_sessions(*args)
 		if (args.length == 0)
 			args.unshift("-h")
 		end
@@ -555,7 +555,7 @@ class Core
 		sid    = nil
 
 		# Parse the command options
-		@@session_opts.parse(args) { |opt, idx, val|
+		@@sessions_opts.parse(args) { |opt, idx, val|
 			case opt
 				when "-q"
 					quiet = true
@@ -575,7 +575,7 @@ class Core
 					print(
 						"Usage: session [options]\n\n" +
 						"Active session manipulation and interaction.\n" +
-						@@session_opts.usage())
+						@@sessions_opts.usage())
 					return false
 			end
 		}
@@ -619,7 +619,7 @@ class Core
 	#
 	# Tab completion for the route command
 	#
-	def cmd_session_tabs(str, words)
+	def cmd_sessions_tabs(str, words)
 		if (not words[1])
 			return %w{-q -i -l -h}
 		end
@@ -984,7 +984,7 @@ class Core
 		mod.init_ui(driver.input, driver.output)
 
 		# Update the command prompt
-		driver.update_prompt("#{mod.type}(#{mod.refname}) ")
+		driver.update_prompt("#{mod.type}(#{mod.shortname}) ")
 	end
 	
 	#

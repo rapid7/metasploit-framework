@@ -35,7 +35,11 @@ class Module
 		def fullname
 			return type + '/' + refname
 		end
-
+	
+		def shortname
+			return refname.split('/')[-1]
+		end
+		
 		#
 		# Returns this module's ranking.
 		#
@@ -154,6 +158,17 @@ class Module
 		return self.class.refname
 	end
 
+	#
+	# Returns the module's framework short name.  This is a
+	# possibly conflicting name used for things like console
+	# prompts.
+	#
+	# reverse_tcp
+	#
+	def shortname
+		return self.class.shortname
+	end
+	
 	#
 	# Returns the unduplicated class associated with this module.
 	#
