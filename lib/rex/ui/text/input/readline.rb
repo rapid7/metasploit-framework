@@ -16,10 +16,20 @@ begin
 	class Input::Readline < Rex::Ui::Text::Input
 		include ::Readline
 
-		@@rl_thread  = nil
-		@@rl_pipes   = nil
-		@@rl_prompt  = ''
-		@@rl_history = true;
+		@@rl_thread    = nil
+		@@rl_pipes     = nil
+		@@rl_prompt    = ''
+		@@rl_history   = true
+		
+		#
+		# Enable readline mode by setting rl_usestdio to false
+		# Address the following items before switching:
+		#
+		# XXX: Find a way to emulate ^Z when in readline mode
+		# XXX: Create histories/tab completion for shells
+		# XXX: Capture remote shell prompt and use for readline
+		#
+		@@rl_usestdio  = true
 		
 		#
 		# Initializes the readline-aware Input instance for text.
@@ -35,6 +45,7 @@ begin
 		# Start the readline thread
 		#
 		def readline_start
+			return if @@rl_usestdio
 			return if @@rl_thread
 			@@rl_pipes  = Rex::Compat.pipe		
 			@@rl_thread = ::Thread.new do
@@ -84,6 +95,8 @@ begin
 		# Calls sysread on the standard input handle.
 		#
 		def sysread(len = 1)
+			return $stdin.sysread(len) if @@rl_usestdio
+		
 			if (! readline_status)
 				$stderr.puts "ERROR: sysread() called outside of thread mode: " + caller(1).to_s
 				return ''
@@ -95,6 +108,8 @@ begin
 		# Fake gets using readline
 		#
 		def gets()
+			return $stdin.gets() if @@rl_usestdio
+		
 			if (! readline_status)
 				$stderr.puts "ERROR: gets() called outside of thread mode: " + caller(1).to_s
 				return ''
@@ -113,7 +128,6 @@ begin
 	
 		#
 		# Prompt-based getline using readline.
-		# XXX: Incompatible with thread mode
 		#
 		def pgets
 			if (readline_status)
@@ -134,6 +148,8 @@ begin
 		# Returns the output pipe handle
 		#
 		def fd
+			return $stdin if @@rl_usestdio
+		
 			if (! readline_status)
 				$stderr.puts "fd called outside of thread mode: " + caller(1).to_s
 				return ''
