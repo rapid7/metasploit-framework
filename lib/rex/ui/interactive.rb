@@ -25,43 +25,42 @@ module Interactive
 
 		eof = false
 
+		# Start the readline stdin monitor
+		user_input.readline_start() if user_input.supports_readline
+		
 		# Handle suspend notifications
 		handle_suspend
+		
+		# As long as we're interacting...
+		while (self.interacting == true)
 
-		begin
+			begin
+				_interact
 
-			user_input.readline_start() if user_input.supports_readline
+			rescue Interrupt
+				# If we get an interrupt exception, ask the user if they want to
+				# abort the interaction.  If they do, then we return out of
+				# the interact function and call it a day.
+				eof = true if (_interrupt)
+		
+			rescue EOFError, Errno::ECONNRESET, IOError
+				# If we reach EOF or the connection is reset...
+				eof = true
+				
+			end
 
-			callcc { |ctx|
-				# As long as we're interacting...
-				while (self.interacting == true)
-					begin
-						_interact
-					# If we get an interrupt exception, ask the user if they want to
-					# abort the interaction.  If they do, then we return out of
-					# the interact function and call it a day.
-					rescue Interrupt
-						if (_interrupt)
-							eof = true
-							ctx.call
-						end
-					# If we reach EOF or the connection is reset...
-					rescue EOFError, Errno::ECONNRESET, IOError
-						eof = true
-						ctx.call
-					end
-				end
-			}
-		ensure
-			# Restore the suspend handler
-			restore_suspend
-			
-			# Shutdown the readline thread
-			user_input.readline_stop() if user_input.supports_readline
+			break if eof
 		end
 
+		
+		# Restore the suspend handler
+		restore_suspend
+			
 		# If we've hit eof, call the interact complete handler
 		_interact_complete if (eof == true)
+
+		# Shutdown the readline thread
+		user_input.readline_stop() if user_input.supports_readline
 		
 		# Return whether or not EOF was reached
 		return eof

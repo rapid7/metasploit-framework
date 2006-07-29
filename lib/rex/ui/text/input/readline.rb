@@ -19,8 +19,8 @@ begin
 		@@rl_thread  = nil
 		@@rl_pipes   = nil
 		@@rl_prompt  = ''
-		@@rl_history = false
-
+		@@rl_history = true;
+		
 		#
 		# Initializes the readline-aware Input instance for text.
 		#
