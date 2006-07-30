@@ -74,6 +74,12 @@ module Msf::Payload::Stager
 		if (stage_over_connection?)
 			p = generate_stage
 
+			# Give derived classes an opportunity to an intermediate state before
+			# the stage is sent.  This gives derived classes an opportunity to
+			# augment the stage and the process through which it is read on the
+			# remote machine.
+			handle_intermediate_stage(conn, p)
+
 			print_status("Sending stage (#{p.length} bytes)")
 
 			# Send the stage
@@ -100,6 +106,13 @@ module Msf::Payload::Stager
 	#
 	def handle_connection_stage(conn)
 		create_session(conn)	
+	end
+
+	#
+	# Gives derived classes an opportunity to alter the stage and/or
+	# encapsulate its transmission.
+	#
+	def handle_intermediate_stage(conn, payload)
 	end
 
 	# Aliases

