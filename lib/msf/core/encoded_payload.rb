@@ -46,20 +46,34 @@ class EncodedPayload
 		self.encoder       = nil
 		self.nop           = nil
 
-		# First, validate
-		pinst.validate()
+		# Increase thread priority as necessary.  This is done
+		# to ensure that the encoding and sled generation get
+		# enough time slices from the ruby thread scheduler.
+		priority = Thread.current.priority
 
-		# Generate the raw version of the payload first
-		generate_raw()
+		if (priority == 0)
+			Thread.current.priority = 1
+		end
 
-		# Encode the payload
-		encode()
+		begin
+			# First, validate
+			pinst.validate()
 
-		# Build the NOP sled
-		generate_sled()
+			# Generate the raw version of the payload first
+			generate_raw()
 
-		# Finally, set the complete payload definition
-		self.encoded = (self.nop_sled || '') + self.encoded
+			# Encode the payload
+			encode()
+
+			# Build the NOP sled
+			generate_sled()
+
+			# Finally, set the complete payload definition
+			self.encoded = (self.nop_sled || '') + self.encoded
+		ensure	
+			# Restore the thread priority
+			Thread.current.priority = priority
+		end
 
 		# Return the complete payload
 		return encoded
