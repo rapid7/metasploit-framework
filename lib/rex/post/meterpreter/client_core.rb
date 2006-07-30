@@ -83,7 +83,7 @@ class ClientCore < Extension
 		if ((load_flags & LOAD_LIBRARY_FLAG_LOCAL) != LOAD_LIBRARY_FLAG_LOCAL)
 			image = ''
 			
-			File.open(library_path, 'rb') { |f|
+			::File.open(library_path, 'rb') { |f|
 				image = f.read
 			}
 
@@ -331,7 +331,7 @@ class ClientCore < Extension
 		metsrv = "data/meterpreter/metsrv.dll"
 		buf    = "metsrv.dll\x00"
 	
-		File.open(metsrv, 'rb') { |f|
+		::File.open(metsrv, 'rb') { |f|
 			buf += f.read
 		}
 

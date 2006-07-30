@@ -92,7 +92,7 @@ Separator = "\\"
 		dest_fd = client.fs.file.new(dest_file, "wb")
 		src_buf = ''
 	
-		File.open(src_file, 'rb') { |f|
+		::File.open(src_file, 'rb') { |f|
 			src_buf = f.read
 		}
 
