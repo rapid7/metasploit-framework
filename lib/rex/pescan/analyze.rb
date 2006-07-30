@@ -17,7 +17,7 @@ module Analyze
 			epon = 0
 			sidx = 0
 			
-			fd = File.open(param['database'], 'r')
+			fd = File.open(param['database'], 'rb')
 			fd.each_line do |line|
 				case line
 				when /^\s*#/
