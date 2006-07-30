@@ -992,9 +992,14 @@ class Core
 	#
 	def cmd_use_tabs(str, words)
 		res = []
-		framework.modules.each_module { |refname, mod|
-			res << mod.fullname
-		}
+		
+		framework.modules.module_types.each do |mtyp|
+			mset = framework.modules.module_names(mtyp)
+			mset.each do |mref|
+				res << mtyp + '/' + mref
+			end
+		end
+		
 		return res
 	end
 	
@@ -1116,7 +1121,14 @@ class Core
 	# Provide valid payload options for the current exploit
 	#
 	def option_values_payloads
-		active_module.compatible_payloads.map { |refname, payload| refname }
+	
+		# Module caching for significant speed improvement
+		if (not (@cache_active_module and @cache_active_module == active_module.refname))
+			@cache_active_module = active_module.refname
+			@cache_payloads = active_module.compatible_payloads.map { |refname, payload| refname }
+		end
+		
+		@cache_payloads
 	end
 	
 	#

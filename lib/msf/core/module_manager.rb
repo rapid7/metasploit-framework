@@ -706,6 +706,21 @@ class ModuleManager < ModuleSet
 		end
 	end
 
+	
+	#
+	# Provide a list of the types of modules in the set
+	#
+	def module_types
+		module_sets.keys.dup
+	end
+	
+	#
+	# Provide a list of module names of a specific type
+	#
+	def module_names(set)
+		module_sets[set] ? module_sets[set].keys.dup : []
+	end	
+
 protected
 
 	#
