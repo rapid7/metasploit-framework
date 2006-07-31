@@ -1,221 +1,251 @@
-The Metasploit Framework License v1.0
+The Metasploit Framework License v1.1
+Copyright (C) 2006 METASPLOIT.COM
 
-Copyright (C) 2006 Metasploit LLC
+This License governs your use of the Software and any accompanying 
+materials distributed with this License. By typing 'yes' after reading
+this License you are indicating that you have read and understood and 
+assent to be bound by the terms of this License. You must accept the 
+terms of this License before using the Software. If you are an individual 
+working for a company you represent and warrant that you have all 
+necessary authority to bind your company to the terms and conditions of 
+this License. 
+
+If you do not agree to the terms of this License you are not granted any 
+rights whatsoever in the Software or Documentation. If you are not 
+willing to be bound by these terms and conditions do not download the 
+Software.
+
 
 Definitions
 
-a. "License" means this particular version of this document (or, where 
-specifically indicated, a successor iteration of the License officially 
-issued/announced by the Developer).
+a. "License" means this particular version of this document (or where 
+specifically indicated a successor iteration of this License officially 
+issued by the Developer). 
 
 b. "Software" means any software that is distributed under the terms of 
-this License.
+this License in both object code and source code. 
 
-c. "Extension" means any enhancement to the Software that does not require 
-modification of the Software itself. "Extensions" include any module or 
-plug-in that is intended (by design and coding) to, or can, be 
-dynamically loaded by the Software.
+c. "Enhancement" means any bug fix error correction patch or other 
+addition to the Software that are independent of the Software and do not 
+require modification of the Software of the Software itself.
 
-d. "Developer" means the then-current copyright holder(s) of the Software, 
-including, but not limited to, the Metasploit personnel and any 
-third-party contributors (or their successor[s]/transferee[s])).
+d. "Extension" means any external software program or library that 
+interfaces with the Software and does not [reproduce or require 
+modification of the Software itself]. "Extension" includes any module or 
+plug-in that is intended (by design and coding) to or can be dynamically 
+loaded by the Software. 
 
-e. "Documentation" means any end user, technical/programmer, network 
-administrator, or other manual(s), tutorial(s), or code sample(s) 
-provided or offered by Developer with the Software, excluding those items 
-created by a third party.
+d. "Developer" means the then-current copyright holder(s) of the Software 
+including but not limited to the Metasploit personnel and any third-party 
+contributors (or their successor(s) or transferee(s)). 
 
-f. "Use" means to download, install, access, copy, execute, sell, or 
-otherwise benefit from the Software (directly or indirectly, with or 
-without notice or knowledge of the Software's incorporation or 
-utilization in any larger application or product).
+e. "Documentation" means any and all end user technical/programmer network 
+administrator or other manuals tutorials or code samples provided or 
+offered by Developer with the Software excluding those items created by 
+someone other than the Developer. 
+
+f. "Use" means to download install access copy execute sell or otherwise 
+benefit from the Software (directly or indirectly with or without notice 
+or knowledge of the Software's incorporation or utilization in any larger 
+application or product).
 
 g. "You" means the individual or organization that is using the Software 
-under the conditions of the License.
+under the License. 
+h. "Interface" means to execute parse or otherwise benefit from the use of 
+the Software. 
 
-h. "Interface" means to execute, parse, or otherwise benefit from the use
-of the Software.
 
-i. "Interaction Software" means any external software program or library 
-that interfaces with, but is not a component or subset of, the Software.
+License Grant and Restrictions
 
-License Grants
+1. Provided that You agree to and do comply with all terms and conditions 
+in this License You are granted the non-exclusive rights specified in 
+this License. Your Use of any of the Software in any form and to any 
+extent signifies acceptance of this License. If You do not agree to all 
+of these terms and conditions then do not use the Software and 
+immediately remove all copies of the Software the Documentation and any 
+other items provided under the License. 
 
-1. Provided that You both agree to and do comply with any and all 
-conditions and requirements in this License, You are granted the 
-non-exclusive rights specified in this License . Use of any of the 
-Software in any form and to any extent signifies acceptance of this 
-License. If You do not agree to all of these terms, then do not use the 
-Software and immediately remove all copies of the Software, the 
-Documentation, and any other items provided under the License.
+2. Subject to the terms and conditions of this License Developer hereby 
+grants You a worldwide royalty-free non-exclusive license to reproduce 
+publicly display and publicly perform the Software solely for Your 
+personal and non-commercial use.
 
-2. Provided that -each- of the following necessary, express conditions are 
-met, You may copy and distribute the Software:
+3. The license granted in Section 2 is expressly made subject to and 
+limited by the following restrictions: 
 
-a. The Software that You received is distributed unmodified, including but 
-not restricted to You maintaining (and not supplementing, removing, or 
-modifying) the same copyright, trademark notices and disclaimers in the 
-exact wording as released by the Developer.
+	a. You may only distribute publicly display and publicly perform 
+	unmodified Software. Without limiting the foregoing You agree to maintain 
+	(and not supplement remove or modify) the same copyright trademark 
+	notices and disclaimers in the exact wording as released by Developer. 
+	
+	b. You may only distribute the Software free from any charge beyond the 
+	reasonable costs of data transfer or storage media. You may -not- (i) 
+	sell lease rent or otherwise charge for the Software (ii) include any 
+	component or subset of the Software in any commercial application or 
+	product or (iii) sell lease rent or otherwise charge for any appliance 
+	(i.e. hardware peripheral personal digital device or other electronic 
+	product) that includes any component or subset of the Software. 
+	
+4. You may develop Enhancements to the Software and distribute Your 
+Enhancements provided that You agree to each of the following 
+restrictions on this distribution:
 
-b. The Software is distributed without any charge, beyond (at Your option) 
-the reasonable costs of data transfer or storage media. You may -not- (i) 
-sell, lease, rent, or otherwise charge for the Software, (ii) include any 
-component or subset of the Software in any commercial application or 
-product, or (iii) sell, lease, rent, or otherwise charge for any 
-appliance (i.e., hardware, peripheral, personal digital device, or other 
-electronic product) that includes any component or subset of the 
-Software.
+	a. Enhancements may not modify supplement or obscure the user interface or 
+	output of the Software such that the title of the Software the copyrights 
+	and trademark notices in the Software or the licensing terms of the 
+	Software are removed hidden or made less likely to be discovered or read. 
 
-3. You -may- use the Software to provide some service(s) and charge for 
-the service(s), provided that the recipient of the service is clearly 
-informed in writing (including via electronic notice or on-screen 
-display, without paper notice) of both (a) the existence, name/trademark, 
-and use of the Software in relation to the service and (b) where the 
-recipient of the service may obtain a copy of the Software (e.g., refer 
-them to www.metasploit.com).
-
-4. You may make modifications (i.e., additions) to the Software and 
-distribute Your modifications, but solely in a form that is -separate- 
-from the Software, such as patches. The following restrictions apply to 
-modifications:
-
-a. Modifications must not alter, supplement, or remove any copyright, 
-trademark, or other proprietary right(s) or legal notices or licensing 
-terms displayed by or provided with the Software.
-
-b. When any modification to the Software is released by You under this 
-License, You hereby grant and agree to grant a non-exclusive royalty-free 
-right, to both (i) the Developer and (ii) any of Developer's later 
-licensees, successors, or partners, to distribute Your modification(s) in 
-future versions of the Software provided that such versions remain 
-available under the terms of this License (or any other later-adopted 
-license(s) of the Developer).
-
+	b. If you release any Enhancement to the Software You agree to distribute 
+	the Enhancement under the terms of this License (or any other 
+	later-issued license(s) of Developer for the Software). Upon such release 
+	You hereby grant and agree to grant a non-exclusive royalty-free right to 
+	both (i) Developer and (ii) any of Developer's later licensees owners 
+	contributors agents or business partners to distribute Your 
+	Enhancement(s) with future versions of the Software provided that such 
+	versions remain available under the terms of this License (or any other 
+	later-adopted license(s) of Developer). 
+	
 5. You may develop Extensions to the Software and distribute these 
-Extensions under any license You see fit, as long as -each- of the 
-following conditions are met:
+Extensions under any license You see fit for commercial sale or license 
+or for non-commercial use so long as -each- of the following conditions 
+are met: 
 
-a. The Extension, when installed with the Software, must -not- modify any 
-of the behavior (change the display, modify the available commands, etc) 
-of the Software until the user explicitly requests (e.g., by invoking or 
-exercising a command or feature are a screen display or other express 
-notification of the new code's existence and function) that the Extension 
-should be activated.
+	a. The Extension when installed with the Software must -not- modify any of 
+	the behavior (e.g. change the display modify the available commands etc.) 
+	of the Software until the user explicitly requests (e.g. by invoking or 
+	exercising a command or feature are a screen display or other express 
+	notification of the new code's existence and function) that the Extension 
+	should be activated. 
 
-b. The Extension may programmatically execute (e.g., call a method) code 
-provided by this Software, but may not include or create copies of the 
-Software (modified or otherwise) in the Extension itself.
+	b. The Extension may programmatically execute (e.g. call a method) code 
+	provided by this Software but may not include or create copies of the 
+	Software (modified or otherwise) in the Extension itself. 
 
-c. The Extension may -not- modify the user interface or output of the 
-Software such that the Software copyright(s), licensing terms, or title 
-of the Software is/are no longer visible to the user or are changed or 
-supplemented.
+	c. The Extension may not modify supplement or obscure the user interface 
+	or output of the Software such that the title of the Software the 
+	copyrights and trademark notices in the Software or the licensing terms 
+	of the Software are removed hidden or made less likely to be discovered 
+	or read.
 
-6. You may develop external software components that interface with the 
-Software and distribute these components, provided that -each- of the 
-following conditions are met:
+6. If you develop external software components that interface with the 
+Software you may only distribute these components if (a) the external 
+software component clearly indicates to the user via the user interface 
+and/or program output both (i) the role of the Software in the component 
+and (ii) where the user may obtain a copy of the Software and (b) the 
+external software components do not modify supplement or obscure the user 
+interface or output of the Software such that the title of the Software 
+the copyrights and trademark notices in the Software or the licensing 
+terms of the Software are removed hidden or made less likely to be 
+discovered or read.
 
-a. The external software component is distributed without any charge 
-beyond the reasonable costs of data transfer or storage media. You may 
-not sell the external software component or sell an appliance that 
-includes the software component.
-
-b. The external software component clearly indicates to the user, via the 
-user interface and/or program output, both (a) the role of the Software 
-in the component and (b) where the user may obtain a copy of the 
-Software.
-
-c. The external software component does not modify, supplement, or obscure 
-the user interface or output of the Software such that the title of the 
-Software, the copyrights and trademark notices in the Software, or the 
-licensing terms of the Software are removed, hidden, or made less likely 
-to be discovered and read.
 
 Online Updates
 
-The Software includes the ability to download updates (i.e., additional 
-code) from the Developer's server(s). These updates may contain bug 
-fixes, new functionality, updated Documentation, and/or Extensions. When 
-retrieving these updates, the Software may transmit the Software version 
-and operating system information from Your computer to the update server. 
-The server may record (store) this information, in conjunction with the 
-IP (global Internet Protocol) address of the user, in order to attempt to 
-maintain accurate end user / version statistics. By using the online 
-update feature, You hereby agree to allow this information to be 
-transmitted, recorded, and stored in any nation by or for the Developer.
+The Software includes the ability to download updates (i.e. additional 
+code) from Developer's server(s). These updates may contain bug fixes new 
+functionality updated Documentation and/or Extensions. When retrieving 
+these updates the Software may transmit the Software version and 
+operating system information from Your computer to the update server. The 
+server may record (store) this information in conjunction with the IP 
+(global Internet Protocol) address of the user in order to attempt to 
+maintain accurate end user and version statistics. By using the online 
+update feature You hereby agree to allow this information to be 
+transmitted recorded and stored in any nation by or for Developer. 
+
 
 Proper Use
 
-As an express condition of this License, You agree that You will use the 
-Software -solely- in compliance with all then-applicable local, state, 
-national, and international laws, rules and regulations as may be amended 
-or supplemented from time to time, including any then-current laws and/or 
+As an express condition of this License You agree that You will use the 
+Software -solely- in compliance with all then-applicable local state 
+national and international laws rules and regulations as may be amended 
+or supplemented from time to time including any then-current laws and/or 
 regulations regarding the transmission and/or encryption of technical 
 data exported from or imported into Your country of residence. Violation 
-of any of the foregoing may result in immediate, automatic termination of 
-this License without notice, and may subject You to state, national 
-and/or international penalties and other legal consequences.
+of any of the foregoing will result in immediate automatic termination of 
+this License without notice and may subject You to state national and/or 
+international penalties and other legal consequences. 
 
-Copyright and Trademark
 
-Product names, words or phrases mentioned in this License or the Software 
-may be trademark(s) or servicemark(s) of the Developer registered in 
-certain nations and/or of third parties. You may not alter or supplement 
-the copyright or trademark notices as contained in the Software.
+Intellectual Property Ownership
+
+The Software is licensed not sold. Developer retains exclusive ownership 
+of all worldwide copyrights trade secrets patents and all other 
+intellectual property rights throughout the world and all applications 
+and registrations therefor in and to the Software and any full or partial 
+copies thereof including any additions thereto. You acknowledge that 
+except for the limited license rights expressly provided in this 
+Agreement no right title or interest to the intellectual property in the 
+Software or Documentation is provided to You and that You do not obtain 
+any rights express or implied in the Software. All rights in and to the 
+Software not expressly granted to You in this Agreement are expressly 
+reserved by Developer. Product names words or phrases mentioned in this 
+License or the Software may be trademark(s) or servicemark(s) of 
+Developer registered in certain nations and/or of third parties. You may 
+not alter or supplement the copyright or trademark notices as contained 
+in the Software. 
+
 
 License Termination
 
 This License is effective until terminated. This License will terminate 
-immediately without notice from the Developer if You breach or fail to 
-comply with any provision of this License. Upon such termination You must 
-destroy the Software, all accompanying written materials, and all copies 
-thereof.
+immediately without notice from Developer if You breach or fail to comply 
+with any provision of this License. Upon such termination You must 
+destroy the Software all accompanying written materials and all copies 
+thereof. 
+
 
 Limitations of Liability
 
-In no event will the Developer, any contributor, owner, or licensee, or 
-any third party affiliated with Developer be liable to You or any third 
-party for any consequential, incidental, indirect or special damages 
-whatsoever (including, without limitation, loss of expected savings, loss 
-of confidential information, presence of viruses, damages for loss of 
-profits, business interruption, loss of business information and the like 
-or otherwise) or any related expense whether foreseeable or not, arising 
-out of the use of or inability to use or any failure of the Software or 
-accompanying materials, regardless of the basis of the claim and even if 
-the Developer or a Developer's representative has been advised of the 
-possibility of such damage, and even in the event of the failure of an 
-exclusive remedy. You hereby acknowledge, by using the Software, the 
-reasonability of this liability limitation provision, that Developer 
-would not offer the Software without the inclusion and enforceability of 
-this provision, and that You (and not the Software) are solely 
-responsible for Your network, data, and application security testing, 
-planning , audits, updates, and training, which require regular analysis, 
-supplementing, and expertise.
+In no event will Developer any owner contributor agent business party or 
+other third party affiliated with Developer be liable to You or any third 
+party under any legal theory (including contract tort or otherwise) for 
+any consequential incidental indirect or special damages whatsoever 
+(including without limitation loss of expected savings loss of 
+confidential information presence of viruses damages for loss of profits 
+business interruption loss of business information and the like or 
+otherwise) or any related expense whether foreseeable or not arising out 
+of the use of or inability to use or any failure of the Software or 
+accompanying materials regardless of the basis of the claim and even if 
+Developer or Developer's owner contributor agent or business partner has 
+been advised of the possibility of such damage. By using the Software You 
+hereby acknowledge that Developer would not offer the Software without 
+the inclusion and enforceability of this provision and that You (and not 
+the Developer) are solely responsible for Your network data and 
+application security testing planning audits updates and training which 
+require regular analysis supplementing and expertise. 
+
 
 No Warranty
 
 The Software and this License document are provided AS IS with NO WARRANTY 
-OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY, TITLE, OR 
-FITNESS FOR A PARTICULAR PURPOSE.
+OF ANY KIND WHETHER EXPRESS IMPLIED STATUTORY OR OTHERWISE INCLUDING 
+WITHOUT LIMITATION THE WARRANTY OF DESIGN MERCHANTABILITY TITLE 
+NON-INFRINGEMENT OR FITNESS FOR A PARTICULAR PURPOSE. 
+
 
 Indemnification
 
-You agree to indemnify, hold harmless, and defend the Developer and 
-Developer's owners, contributors, agents, and business partners from and 
-against any and all claims or actions including reasonable legal expenses 
-that arise or result from Your use of or inability to use the Software. 
-Developer agrees to notify You and reasonably cooperate with Your defense 
-of any third party claim triggering such indemnification.
+You agree to indemnify hold harmless and defend Developer and Developer's 
+owners contributors agents and business partners from and against any and 
+all claims or actions including reasonable legal expenses that arise or 
+result from Your use of or inability to use the Software. Developer 
+agrees to notify You and reasonably cooperate with Your defense of any 
+third party claim triggering such indemnification. 
+
 
 Miscellaneous
 
-If any part of this License is found void and unenforceable, it will not 
-affect the validity of the balance of the License, which shall remain 
-valid and enforceable to the maximum extent according to its terms.
+If any part of this License is found void and unenforceable it will not 
+affect the validity of the balance of this License which shall remain 
+valid and enforceable to the maximum extent according to its terms. 
+
 
 Choice of Law; Venue
 
-The License will be construed, interpreted and governed by the laws of 
-Texas, USA, without regard to its conflict of law rules. Any litigation 
+This License will be construed interpreted and governed by the laws of 
+Texas USA without regard to its conflict of law rules. Any litigation 
 related to this License must be filed and heard in the courts for Travis 
-County, Texas.
+County Texas. 
+
+To use version 3.0 of the Metasploit Framework you must acknowledge your 
+acceptance of this license by typing yes at the prompt below.
