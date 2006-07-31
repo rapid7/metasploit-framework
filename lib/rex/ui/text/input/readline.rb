@@ -40,7 +40,14 @@ begin
 				::Readline.completion_proc = tab_complete_proc
 			end
 		end
-	
+
+		#
+		# Whether or not the input medium supports readline.
+		#
+		def supports_readline
+			true
+		end
+		
 		#
 		# Start the readline thread
 		#
