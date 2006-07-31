@@ -130,9 +130,9 @@ class Pe < PeBase
 		self.image_base        = base
 		self.sections          = sections
 		self.header_section    = header_section
-		
+	
 		self._config_header    = _parse_config_header()
-
+		
 		# These can be accessed directly
 		self.hdr               = HeaderAccessor.new
 		self.hdr.dos           = self._dos_header
@@ -159,7 +159,7 @@ class Pe < PeBase
 			IMAGE_FILE_MACHINE_IA64,
 			IMAGE_FILE_MACHINE_ALPHA64,
 			IMAGE_FILE_MACHINE_AMD64
-		].include?(hdr.file.Machine)
+		].include?(self._file_header.Machine)
 	end
 
 	#
