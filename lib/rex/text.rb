@@ -113,6 +113,28 @@ module Text
 	end
 
 	#
+	# Returns a unicode escaped string for Javascript
+	#
+	def self.to_unescape(data, endian=ENDIAN_LITTLE)
+		data << "\x41" if (data.length % 2 != 0)
+		dptr = 0
+		buff = ''
+		while (dptr < data.length)
+			c1 = data[dptr]
+			dptr += 1
+			c2 = data[dptr]
+			dptr += 1
+			
+			if (endian == ENDIAN_LITTLE)
+				buff << sprintf('%%u%.2x%.2x', c2, c1)
+			else
+				buff << sprintf('%%u%.2x%.2x', c1, c2)
+			end
+		end
+		return buff	
+	end
+
+	#
 	# Returns the hex version of the supplied string
 	#
 	def self.to_hex(str, prefix = "\\x", count = 1)

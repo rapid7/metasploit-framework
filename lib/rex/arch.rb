@@ -49,7 +49,7 @@ module Arch
 	#
 	# This routine reports the endianess of a given architecture
 	#
-	def self.endianr(arch, addr)
+	def self.endian(arch)
 		case arch
 			when ARCH_X86
 				return ENDIAN_LITTLE
