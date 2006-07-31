@@ -6,7 +6,8 @@
 # possible for sessions to to be shared from a single vantage point.
 #
 
-$:.unshift(File.join(File.dirname(__FILE__), 'lib'))
+msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
+$:.unshift(File.join(File.dirname(msfbase), 'lib'))
 
 require 'msf/base'
 require 'msf/ui'
