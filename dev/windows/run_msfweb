@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+Dir.chdir("/home");
+
+exit(0) if not system("ruby ./license.rb")
+
+if (not File.directory?("framework"))
+        Dir.mkdir("framework",0755)
+        system("tar xf framework.tar")
+end
+
+system("clear")
+
+exec("/home/framework/msfweb")
+exec("/bin/bash")
+exit(0)
