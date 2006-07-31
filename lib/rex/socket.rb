@@ -123,18 +123,17 @@ module Socket
 		ip   = "0.0.0.0" unless ip
 		ip   = Rex::Socket.getaddress(ip)
 		af   = ip.match(/:/) ? ::Socket::AF_INET6 : ::Socket::AF_INET
-		
-		if (af == ::Socket::AF_INET)
-			data = [ af, port.to_i ] + ip.split('.').collect { |o| o.to_i } + [ "" ]
-			return data.pack('snCCCCa8')
-		end
-		
+
 		if (af == ::Socket::AF_INET6)
 			data = [af, port.to_i, 0, self.gethostbyname(ip)[3], 0]
 			return data.pack('snNa16N')
 		end
 		
-		raise RuntimeError, "Invalid address family"
+		# Mac OS X returns the wrong AF
+		if (true or af == ::Socket::AF_INET)
+			data = [ af, port.to_i ] + ip.split('.').collect { |o| o.to_i } + [ "" ]
+			return data.pack('snCCCCa8')
+		end
 	end
 
 	#
@@ -147,11 +146,13 @@ module Socket
 		port = up.shift
 
 		case af
-			when ::Socket::AF_INET
-				return [ af, up.shift[0, 4].unpack('C*').join('.'), port ]
-				
 			when ::Socket::AF_INET6
 				return [ af, up.shift[0,16].unpack('H*').gsub(/(....)/){ |r| r << ':' }.sub(/:$/, ''), port ]
+
+			# Mac OS X returns the wrong AF
+			# when ::Socket::AF_INET
+			else
+				return [ af, up.shift[0, 4].unpack('C*').join('.'), port ]
 		end
 		
 		raise RuntimeError, "Invalid address family"
