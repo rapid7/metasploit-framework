@@ -25,6 +25,10 @@ class Input::Stdio < Rex::Ui::Text::Input
 		return $stdin.gets
 	end
 
+	def supports_readline
+		false
+	end
+
 	#
 	# Print a prompt and flush standard output.
 	#
