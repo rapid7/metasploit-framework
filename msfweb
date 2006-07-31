@@ -43,7 +43,7 @@ $stdout.puts(
 	"Connect to msfweb at http://" +
 	( opts['ServerHost'] ? opts['ServerHost'] : '127.0.0.1' ) +
 	':' +
-	( opts['ServerPort'] ? opts['SeverPort'] : '55555') +
+	( opts['ServerPort'] ? opts['ServerPort'] : '55555') +
 	'/'
 )
 
