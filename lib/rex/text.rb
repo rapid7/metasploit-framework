@@ -90,7 +90,14 @@ module Text
 	def self.to_c_comment(str, wrap = DefaultWrap)
 		return "/*\n" + wordwrap(str, 0, wrap, '', ' * ') + " */\n"
 	end
-
+	
+	#
+	# Creates a javascript-style comment
+	#
+	def self.to_js_comment(str, wrap = DefaultWrap)
+		return wordwrap(str, 0, wrap, '', '// ')
+	end
+	
 	#
 	# Converts a raw string into a perl buffer
 	#
@@ -431,6 +438,28 @@ module Text
 		MD5.hexdigest(str)
 	end
 
+	##
+	#
+	# Executable generators
+	#
+	##
+	
+	def self.to_win32pe(code = "\xcc", note="")
+		pe = ''
+
+		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "data", "templates", "template.exe"), "rb")
+		pe = fd.read(fd.stat.size)
+		fd.close
+
+		bo = pe.index('PAYLOAD:')
+		co = pe.index('COMMENT:')
+
+		pe[bo, 8192] = [code].pack('a8192') if bo
+		pe[co, 512]  = [note].pack('a512') if co
+
+		return pe
+	end
+	
 	##
 	#
 	# Generators

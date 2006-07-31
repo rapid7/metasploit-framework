@@ -25,6 +25,10 @@ module Buffer
 				buf = Rex::Text.to_perl(buf)
 			when 'c'
 				buf = Rex::Text.to_c(buf)
+			when 'js_be'
+				buf = Rex::Text.to_unescape(buf, ENDIAN_BIG)
+			when 'js_le'
+				buf = Rex::Text.to_unescape(buf, ENDIAN_LITTLE)
 			else
 				raise ArgumentError, "Unsupported buffer format: #{fmt}", caller
 		end
@@ -34,7 +38,7 @@ module Buffer
 
 	#
 	# Creates a comment using the supplied format.  The formats supported are
-	# raw, ruby, perl, and c.
+	# raw, ruby, perl, js_be, js_le, and c.
 	#
 	def self.comment(buf, fmt = "ruby")
 		case fmt
@@ -45,6 +49,8 @@ module Buffer
 				buf = Rex::Text.to_perl_comment(buf)
 			when 'c'
 				buf = Rex::Text.to_c_comment(buf)
+			when 'js_be', 'js_le'
+				buf = Rex::Text.to_js_comment(buf)
 			else
 				raise ArgumentError, "Unsupported buffer format: #{fmt}", caller
 		end

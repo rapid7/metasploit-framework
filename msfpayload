@@ -30,7 +30,7 @@ end
 $framework = Msf::Simple::Framework.create
 
 if (ARGV.length <= 1)
-	puts "\n" + "    Usage: #{$0} <payload> [var=val] <S[ummary]|C|P[erl]|R[aw]>\n"
+	puts "\n" + "    Usage: #{$0} <payload> [var=val] <S[ummary]|C|P[erl]|R[aw]|J[avascript]|e[X]ecutable>\n"
 	puts dump_payloads
 	exit
 end
@@ -50,20 +50,44 @@ cmd = ARGV.pop.downcase
 # Populate the framework datastore
 options = ARGV.join(',')
 
-if (cmd =~ /^(p|r|c)/)
-	cmd = 'perl' if (cmd =~ /^p/)
-	cmd = 'raw' if (cmd =~ /^r/)
-
+if (cmd =~ /^(p|r|c|j|x)/)
+	fmt = 'perl' if (cmd =~ /^p/)
+	fmt = 'raw' if (cmd =~ /^(r|x)/)
+	fmt = 'js_be' if (cmd =~ /^j/ and Rex::Arch.endian(payload.arch) == ENDIAN_BIG)
+	fmt = 'js_le' if (cmd =~ /^j/ and ! fmt)
+		
 	begin
 		buf = payload.generate_simple(
-				'Format'    => cmd,
+				'Format'    => fmt,
 				'OptionStr' => options)
 	rescue
 		puts "Error generating payload: #{$!}"
 		exit
 	end
-
-	print buf
+	
+	if (cmd =~ /^x/)
+		note = 
+			"Created by msfpayload (http://www.metasploit.com).\n" +
+			"Payload: " + payload.refname + "\n" +
+			" Length: " + buf.length.to_s + "\n" +
+			"Options: " + options + "\n"
+			
+		arch = payload.arch
+		plat = payload.platform.platforms
+		
+		if (plat.index(Msf::Module::Platform::Windows) and arch.index("x86"))
+			buf = Rex::Text.to_win32pe(buf, note)
+			$stderr.puts(note)
+			$stdout.write(buf)
+			exit(0)
+		end
+		
+		$stderr.puts "No executable format support for this arch/platform"
+		exit(-1)
+	end
+	
+	puts buf
+	
 elsif (cmd =~ /^s/)
 	puts Msf::Serializer::ReadableText.dump_module(payload)
 end
