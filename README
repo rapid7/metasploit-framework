@@ -1,4 +1,4 @@
-This software is provided under the Metasploit Framework License v1.0
+This software is provided under the Metasploit Framework License v1.1
 Please see documentation/LICENSE for the complete terms.
 
 This is an *alpha* release. Many bugs still exist and quite a few features
@@ -12,9 +12,8 @@ This release has only been tested on the following platforms:
  - Mac OS X 10.3 with Ruby 1.8.3 from the fink package manager
  
 This release *will not* work with the following platforms:
- - Windows via Cygwin (openssl, readline, other issues)
- - Windows via Native (stdin reads blocks the whole process)
- - Mac OS X 10.4 with the standard Ruby install (Apple sucks)
+ - Windows via Native (stdin/readline/io issues abound)
+ - Default installs of Mac OS X 10.4 (broken ruby interpreter)
  
 Questions and suggestions can be sent to:
  msfdev[at]metasploit.com
