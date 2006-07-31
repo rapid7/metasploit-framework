@@ -54,6 +54,11 @@ module Common
 	def self.footer
 		"
 		<br/>
+		<div align='center' class='copyright'>
+		  Copyright &copy; 2003-2006 Metasploit LLC<br>
+		  Metasploit &trade; is a registered trademark<br>
+		  Contact us at msfdev[at]metasploit.com<br>
+		</div>			
 	</body>
 </html>
 		"
@@ -64,10 +69,12 @@ module Common
 	# module instance supports.
 	#
 	def self.module_icons(modinst)
+		return "" if modinst.nil?
 		platform_icons(modinst.platform)
 	end
 
 	def self.target_icons(target)
+		return "" if target.nil?	
 		platform_icons(target.platform)
 	end
 

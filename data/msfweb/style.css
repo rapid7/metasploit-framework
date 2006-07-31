@@ -74,9 +74,9 @@ A.nav {
 	font-weight:	bold;
 }
 
-.copy {
-	font-size:		10pt;
-	font-variant:	small-caps;
+.copyright {
+	font-size:		8pt;
+	color: #aaaaaa;
 }
 
 .modHead {
