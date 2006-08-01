@@ -25,7 +25,7 @@ class Input
 	# Whether or not the input medium supports readline.
 	#
 	def supports_readline
-		false
+		true
 	end
 
 	#

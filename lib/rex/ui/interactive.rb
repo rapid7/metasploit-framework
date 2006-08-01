@@ -25,8 +25,9 @@ module Interactive
 
 		eof = false
 
-		# Start the readline stdin monitor
-		user_input.readline_start() if user_input.supports_readline
+		# Start the readline stdin monitor 
+		# XXX disabled
+		# user_input.readline_start() if user_input.supports_readline
 		
 		# Handle suspend notifications
 		handle_suspend
@@ -60,7 +61,8 @@ module Interactive
 		_interact_complete if (eof == true)
 
 		# Shutdown the readline thread
-		user_input.readline_stop() if user_input.supports_readline
+ 		# XXX disabled
+		# user_input.readline_stop() if user_input.supports_readline
 		
 		# Return whether or not EOF was reached
 		return eof
