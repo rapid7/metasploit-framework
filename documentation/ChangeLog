@@ -1,3 +1,13 @@
+beta release 1 -
+	Core:
+		* Officially using Cygwin for Windows support
+		* Additional stager used for large Windows stages
+		* Bug fixes to the bind_tcp handler code
+		* Compatibility fixes for Mac OS X
+
+	License:
+		* Provided under the Metasploit Framework License v1.1	
+		
 alpha release 4 -
 
 	Core:
@@ -17,16 +27,6 @@ alpha release 3 -
 	License:
 		* Provided under the Metasploit Framework License v1.0	
 
-alpha release 2 -
-
-	Rex:
-
-		* fixed http header parsing issue that lead to exception
-
-	Core:
-
-		* fixed issue with clear_non_user_defined in data store
-
 alpha release 2 - Jan 15, 2006
 
 	Rex:
@@ -34,10 +34,12 @@ alpha release 2 - Jan 15, 2006
 		* generalized block-based dependency generation for polymorphism
 		* addition of gzip/ungzip to Rex::Text
 		* improvements to HTTP, DCERPC, SMB
+		* fixed http header parsing issue that lead to exception
 
 	Core:
 
 		* added support for EncoderOptions and EncoderType preferencing in exploits
+		* fixed issue with clear_non_user_defined in data store
 
 	Exploit Modules:
 	
