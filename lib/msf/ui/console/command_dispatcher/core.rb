@@ -48,11 +48,14 @@ class Core
 			"irb"      => "Drop into irb scripting mode",
 			"jobs"     => "Displays and manages jobs",
 			"load"     => "Load a framework plugin",
-			"persist"  => "Persist or restore framework state information",
+
+# XXX complete this before re-enabling
+#			"persist"  => "Persist or restore framework state information",
+
 			"quit"     => "Exit the console",
 			"route"    => "Route traffic through a session",
 			"save"     => "Saves the active datastores",
-			"search"   => "Adds one or more module search paths",
+			"loadpath" => "Searches for and loads modules from a path",
 			"sessions" => "Dump session listings and display information about sessions",
 			"set"      => "Sets a variable to a value",
 			"setg"     => "Sets a global variable to a value",
@@ -503,7 +506,7 @@ class Core
 	#
 	# Adds one or more search paths.
 	#
-	def cmd_search(*args)
+	def cmd_loadpath(*args)
 		if (args.length == 0)
 			print_error("No search paths were provided.")
 			return true

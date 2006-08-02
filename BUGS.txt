@@ -1,0 +1,26 @@
+
+Metasploit Framework v3.0
+       Known Bugs
+
+
+[Payloads]
+	* Payload exclusions based on the Privileged key do not work
+		- Example: distcc + cmd/unix/bind_inetd
+	
+	* cmd/unix/reverse_bash fails
+		- Example: distcc
+
+[Exploits]
+	* Exploits can crash when a handler sets .sock/.udp_sock to nil
+		- Persistent payloads, exploit tries to use nil as a socket
+[msfconsole]
+	* Regex errors if unmatched {/[ sequences are tabbed
+		- use exploit/[<tab>
+		
+	* The persist command is not functional yet
+	* Tab completion stops functioning after meterpreter is loaded
+
+[msfweb]
+	* Exploits are not functional
+	* Path information disclosed in stack traces
+	

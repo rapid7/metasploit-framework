@@ -24,6 +24,7 @@ module BindInetd
 			'Handler'       => Msf::Handler::BindTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd',
+			'Privileged'    => true,
 			'Payload'       =>
 				{
 					'Offsets' => { },

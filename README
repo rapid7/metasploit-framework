@@ -1,7 +1,7 @@
 This software is provided under the Metasploit Framework License v1.1
 Please see documentation/LICENSE for the complete terms.
 
-This is an *alpha* release. Many bugs still exist and quite a few features
+This is a BETA release. Many bugs still exist and quite a few features
 are still non-functional. The latest version can be obtained online from:
  - http://metasploit.com/projects/Framework/msf3/
 
@@ -10,11 +10,16 @@ Licensing information can be found in ./documentation/COPYING
 This release has only been tested on the following platforms:
  - Linux x86 with Ruby 1.8.2-1.8.4
  - Mac OS X 10.3 with Ruby 1.8.3 from the fink package manager
+ - Windows 2000/XP using Cygwin and ruby 1.8.4
  
 This release *will not* work with the following platforms:
- - Windows via Native (stdin/readline/io issues abound)
+ - Windows via native Ruby (stdin/readline/io issues abound)
  - Default installs of Mac OS X 10.4 (broken ruby interpreter)
- 
+
+Mac OS X users will not have access to the tab completion
+features of the msfconsole interface without installing
+the GNU Readline package and rebuilding Ruby from source.
+
 Questions and suggestions can be sent to:
  msfdev[at]metasploit.com
  
