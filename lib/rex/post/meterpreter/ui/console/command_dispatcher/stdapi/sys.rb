@@ -35,7 +35,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	@@reg_opts = Rex::Parser::Arguments.new(
 		"-d" => [ true,  "The data to store in the registry value."                ],
 		"-h" => [ true,  "Help menu."                                              ],
-		"-k" => [ true,  "The registry key path (E.g. HKLM\Software\Foo)."         ],
+		"-k" => [ true,  "The registry key path (E.g. HKLM\\Software\\Foo)."       ],
 		"-t" => [ true,  "The registry value type (E.g. REG_SZ)."                  ],
 		"-v" => [ true,  "The registry value name (E.g. Stuff)."                   ])
 
