@@ -110,6 +110,13 @@ class Server
 	end
 
 	#
+	# Returns the hardcore alias for the HTTP service
+	#
+	def self.hardcore_alias(*args)
+		"#{(args[0] || '')}#{(args[1] || '')}"	
+	end
+
+	#
 	# HTTP server.
 	#
 	def alias

@@ -116,6 +116,7 @@ module PassiveX
 					@remote_queue = ''
 				end
 			rescue ::Exception
+				dlog("PassiveX:#{self} Exception during remote queue flush: #{$!}", 'core', LEV_0)
 			end
 		end
 

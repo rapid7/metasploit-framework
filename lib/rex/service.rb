@@ -16,6 +16,14 @@ module Service
 	require 'rex/services/local_relay'
 
 	#
+	# Returns the hardcore, as in porno, alias for this service.  This is used
+	# by the service manager to manage singleton services.
+	#
+	def self.hardcore_alias(*args)
+		return "__#{args.to_s}"
+	end
+
+	#
 	# Calls stop on the service once the ref count drops.
 	#
 	def cleanup

@@ -50,7 +50,7 @@ class ServiceManager < Hash
 	#
 	def start(klass, *args)
 		# Get the hardcore alias.
-		hals = hardcore_alias(klass, *args)
+		hals = "#{klass.to_s}" + klass.hardcore_alias(*args)
 
 		# Has a service already been constructed for this guy?  If so, increment
 		# its reference count like it aint no thang.

@@ -90,7 +90,10 @@ module StreamServer
 		if (client)
 			clients.delete(client)
 
-			client.close
+			begin
+				client.close
+			rescue IOError
+			end
 		end
 	end
 

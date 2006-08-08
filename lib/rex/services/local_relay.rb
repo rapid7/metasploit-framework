@@ -115,6 +115,13 @@ class LocalRelay
 	##
 
 	#
+	# Returns the hardcore alias for the local relay service.
+	#
+	def self.hardcore_alias(*args)
+		"__#{args.to_s}"
+	end
+
+	#
 	# Returns the alias for this service.
 	#
 	def alias
