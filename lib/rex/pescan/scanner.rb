@@ -21,7 +21,7 @@ module Scanner
 				hits = scan_section(section, param)
 				hits.each do |hit|
 					vma  = pe.rva_to_vma(hit[0])
-					msg  = hit[1]
+					msg  = hit[1].is_a?(Array) ? hit[1].join(" ") : hit[1]
 					$stdout.puts pe.ptr_s(vma) + " " + msg
 				end
 			end

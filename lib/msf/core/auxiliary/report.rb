@@ -2,12 +2,15 @@ module Msf
 
 ###
 #
-# This module provides methods for reporting information
+# This module provides methods for reporting data to the DB
 #
 ###
 
-module Auxiliary::Recon
+module Auxiliary::Report
 
+# 
+# Report host and service information
+#
 	def report_host(opts)
 		return if not db
 		addr = opts[:host] || return

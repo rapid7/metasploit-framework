@@ -699,7 +699,7 @@ class Core
 		
 		# A value needs to be specified
 		if(words[1])
-			return tab_complete_option(words[1])
+			return tab_complete_option(str, words)
 		end
 		
 		res = cmd_unset_tabs(str, words) || [ ]
@@ -1042,7 +1042,8 @@ class Core
 	#
 	# Provide tab completion for option values
 	#
-	def tab_complete_option(opt)	
+	def tab_complete_option(str, words)
+		opt = words[1]
 		res = []
 		mod = active_module
 		
@@ -1070,14 +1071,14 @@ class Core
 		
 		# Is this option used by the active module?
 		if (mod.options.include?(opt))
-			res.concat(option_values_dispatch(mod.options[opt]))
+			res.concat(option_values_dispatch(mod.options[opt], str, words))
 		end
 		
 		# How about the selected payload?
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
 			p = framework.modules.create(mod.datastore['PAYLOAD'])
 			if (p and p.options.include?(opt))
-				res.concat(option_values_dispatch(p.options[opt]))
+				res.concat(option_values_dispatch(p.options[opt], str, words))
 			end
 		end
 
@@ -1087,7 +1088,8 @@ class Core
 	#
 	# Provide possible option values based on type
 	#
-	def option_values_dispatch(o)	
+	def option_values_dispatch(o, str, words)	
+
 		res = []
 		res << o.default.to_s if o.default
 
@@ -1103,7 +1105,24 @@ class Core
 						res << Rex::Socket.source_address()
 					else
 				end
-				
+			
+			when 'Msf::OptAddressRange'
+
+				case str
+					when /\/$/
+						res << str+'32'
+						res << str+'24'
+						res << str+'16'
+					when /\-$/
+						res << str+str[0, str.length - 1]
+					else
+						option_values_target_addrs().each do |addr|
+							res << addr+'/32'
+							res << addr+'/24'
+							res << addr+'/16'
+						end
+				end
+			
 			when 'Msf::OptPort'
 				case o.name
 					when 'RPORT'

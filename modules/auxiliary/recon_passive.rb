@@ -2,21 +2,20 @@ require 'msf/core'
 
 module Msf
 
-class Auxiliary::ReconTest < Msf::Auxiliary
-
-	include Auxiliary::Recon
+class Auxiliary::ReconTestPassive < Msf::Auxiliary
+	
+	include Auxiliary::Report
 	include Exploit::Remote::Tcp
 	
 	def initialize
 		super(
 			'Name'        => 'Simple Recon Module Tester',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 3624 $',
 			'Description' => 'Simple Recon Module Tester',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
-					['Single Port Probe'],
 					['Continuous Port Sweep']
 				],
 			'PassiveActions' => 
@@ -37,9 +36,6 @@ class Auxiliary::ReconTest < Msf::Auxiliary
 		print_status("Running the simple recon module with action #{action.name}")
 	
 		case action.name
-		when 'Single Port Probe'
-			prober()
-			
 		when 'Continuous Port Sweep'
 			while (true)
 				1.upto(65535) do |port|

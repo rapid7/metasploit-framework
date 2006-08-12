@@ -16,7 +16,8 @@ class Auxiliary < Msf::Module
 	#
 	# Auxiliary mixins
 	#
-	require 'msf/core/auxiliary/recon'
+	require 'msf/core/auxiliary/scanner'
+	require 'msf/core/auxiliary/report'
 	require 'msf/core/auxiliary/dos'
 	
 	#

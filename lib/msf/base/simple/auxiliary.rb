@@ -46,7 +46,7 @@ module Auxiliary
 		mod._import_extra_options(opts)
 		
 		# Verify the ACTION
-		if (not mod.action)
+		if (mod.actions.length > 0 and not mod.action)
 			raise MissingActionError, "You must specify a valid Action", caller
 		end
 

@@ -1,5 +1,6 @@
 require 'resolv'
 require 'msf/core'
+require 'rex/socket'
 
 module Msf
 
@@ -133,6 +134,7 @@ end
 # OptPath    - Path name on disk
 # OptInt     - An integer value
 # OptEnum    - Select from a set of valid values
+# OptAddressRange - A subnet or range of addresses
 #
 ###
 
@@ -276,6 +278,59 @@ class OptAddress < OptBase
 		if (value != nil and value.empty? == false)
 			begin
 				Resolv.getaddress(value)
+			rescue
+				return false
+			end
+		end
+
+		return super
+	end
+end
+
+###
+#
+# Network address range option.
+#
+###
+class OptAddressRange < OptBase
+	def type 
+		return 'addressrange' 
+	end
+
+	def normalize(value)
+
+		sets   = []
+		return '' if not value
+
+		ranges = value.split(',')		
+		ranges.each do |range|
+			begin
+			case range
+			when /-/
+				tmp = range.split('-')
+				next if tmp.length != 2
+
+				if (Rex::Socket.addr_atoi(tmp[0]) < Rex::Socket.addr_atoi(tmp[1]))
+					sets << tmp
+				end
+	
+			when /\//
+				sets << Rex::Socket.cidr_crack(range)
+			else
+				tmp = Rex::Socket.addr_itoa(Rex::Socket.addr_atoi(range))
+				sets << [tmp, tmp]
+			end
+			rescue
+			end
+		end
+
+		return sets.map{|i| i[0]+'-'+i[1]}.join(',')
+	end
+	
+	def valid?(value)
+		if (value != nil and value.empty? == false)
+			begin
+				return (normalize(value).length > 0 ? true : false)
 			rescue
 				return false
 			end

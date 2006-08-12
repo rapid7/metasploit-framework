@@ -23,6 +23,12 @@ module Socket
 	
 	require 'rex/socket/switch_board'
 	require 'rex/socket/subnet_walker'
+	require 'rex/socket/range_walker'
+	
+	# Handle systems without AF_INET6 defined
+	if (! ::Socket.constants.include?('AF_INET6'))
+		::Socket.const_set('AF_INET6', 10)
+	end
 
 	##
 	#
@@ -205,6 +211,33 @@ module Socket
 		0
 	end
 
+	#
+	# Converts a dotted-quad address into an integer
+	#
+	def self.addr_atoi(addr)
+		addr.split('.').map{|i| i.to_i }.pack('C4').unpack('N')[0]
+	end
+
+	#
+	# Converts an integer into a dotted-quad
+	#
+	def self.addr_itoa(addr)
+		[addr].pack('N').unpack('C4').join('.')
+	end
+	
+	#
+	# Converts a CIDR subnet into an array (base, bcast)
+	#
+	def self.cidr_crack(cidr)
+		tmp = cidr.split('/')
+		addr = self.addr_atoi(tmp[0])
+		mask = (2 ** 32) - (2 ** (32 - tmp[1].to_i))
+		base = addr & mask
+		stop = base + (2 ** (32 - tmp[1].to_i)) - 1
+		return [self.addr_itoa(base), self.addr_itoa(stop)]	
+	end
+	
+	
 	#
 	# Converts a bitmask (28) into a netmask (255.255.255.240)
 	#
