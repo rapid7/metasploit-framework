@@ -2,11 +2,12 @@ module Msf
 
 ###
 #
-# This module provides methods for reconaissance modules
+# This module provides methods for scanning modules
 #
 ###
 
 module Auxiliary::Scanner
+
 
 #
 # Initializes an instance of a recon auxiliary module
@@ -14,11 +15,15 @@ module Auxiliary::Scanner
 def initialize(info = {})
 	super
 
-	register_advanced_options(
+	register_options(
 		[
-			OptAddressRange.new('RHOSTS', [ true, "The address range or netmask of the target"]),
+			OptAddressRange.new('RHOSTS', [ true, "The target address range or CIDR identifier"]),
 		], Auxiliary::Scanner)
+	
+	# RHOST should not be used in scanner modules, only RHOSTS
+	deregister_options('RHOST')
 end
+
 
 #
 # The command handler when launched from the console
@@ -32,6 +37,7 @@ def run
 	if (self.respond_to?('run_host'))
 		ar = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
 		while(ip = ar.next_ip)
+			self.target_host = ip
 			run_host(ip)
 		end
 		return
@@ -63,6 +69,19 @@ def run
 	end
 		
 	print_status("This module defined no run_host or run_range methods")
+end
+
+
+#
+# The current target host (replaces RHOST)
+#
+attr_accessor :target_host
+
+#
+# Overloads the Exploit mixins for rhost
+#
+def rhost
+	self.target_host
 end
 
 end

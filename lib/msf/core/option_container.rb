@@ -310,7 +310,7 @@ class OptAddressRange < OptBase
 				tmp = range.split('-')
 				next if tmp.length != 2
 
-				if (Rex::Socket.addr_atoi(tmp[0]) < Rex::Socket.addr_atoi(tmp[1]))
+				if (Rex::Socket.addr_atoi(tmp[0]) <= Rex::Socket.addr_atoi(tmp[1]))
 					sets << tmp
 				end
 	
