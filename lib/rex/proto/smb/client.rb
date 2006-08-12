@@ -455,7 +455,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.dialect = dialects[idx]
 		
 		# Does the server support extended security negotiation?
-		if (ack['Payload'].v['Capabilities'] & 0x80000000)
+		if (ack['Payload'].v['Capabilities'] & 0x80000000 != 0)
 			self.extended_security = true
 		end
 		
@@ -465,6 +465,11 @@ EVADE = Rex::Proto::SMB::Evasions
 		# Set the challenge key
 		if (ack['Payload'].v['EncryptionKey'] != nil)
 			self.challenge_key = ack['Payload'].v['EncryptionKey']
+		else
+			# Handle Windows NT 4.0 responses
+			if (ack['Payload'].v['KeyLength'] > 0)
+				self.challenge_key = ack['Payload'].v['Payload'][0, ack['Payload'].v['KeyLength']]
+			end
 		end
 		
 		# Set the session identifier
@@ -496,8 +501,11 @@ EVADE = Rex::Proto::SMB::Evasions
 	# Authenticate and establish a session
 	def session_setup(*args)
 		if (self.dialect =~ /^(NT LANMAN 1.0|NT LM 0.12)$/)
-			return self.extended_security ?
-				self.session_setup_ntlmv2(*args) : self.session_setup_ntlmv1(*args)
+			return (
+				self.extended_security ?
+				self.session_setup_ntlmv2(*args) : 
+				self.session_setup_ntlmv1(*args)
+			)
 		end
 		
 		if (self.dialect =~ /^(LANMAN1.0|LM1.2X002)$/)
