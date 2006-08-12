@@ -2,7 +2,7 @@ require 'msf/core'
 
 module Msf
 
-class Auxiliary::ScannerRangeTest < Msf::Auxiliary
+class Auxiliary::Scanner::BatchTest < Msf::Auxiliary
 
 	include Auxiliary::Scanner
 	
@@ -22,10 +22,13 @@ class Auxiliary::ScannerRangeTest < Msf::Auxiliary
 
 	end
 
-	def run_range(range)
-		print_status("Working on range #{range}")
+	def run_batch_size
+		3
 	end
-
+	
+	def run_batch(batch)
+		print_status("Working on batch #{batch.join(",")}")
+	end
 	
 end
 end

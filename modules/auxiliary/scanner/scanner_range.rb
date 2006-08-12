@@ -2,7 +2,7 @@ require 'msf/core'
 
 module Msf
 
-class Auxiliary::ScannerHostTest < Msf::Auxiliary
+class Auxiliary::Scanner::RangeTest < Msf::Auxiliary
 
 	include Auxiliary::Scanner
 	
@@ -22,8 +22,8 @@ class Auxiliary::ScannerHostTest < Msf::Auxiliary
 
 	end
 
-	def run_host(ip)
-		print_status("Working on host #{ip}")
+	def run_range(range)
+		print_status("Working on range #{range}")
 	end
 
 	

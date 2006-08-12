@@ -2,7 +2,7 @@ require 'msf/core'
 
 module Msf
 
-class Auxiliary::ScannerBatchTest < Msf::Auxiliary
+class Auxiliary::Scanner::HostTest < Msf::Auxiliary
 
 	include Auxiliary::Scanner
 	
@@ -22,13 +22,10 @@ class Auxiliary::ScannerBatchTest < Msf::Auxiliary
 
 	end
 
-	def run_batch_size
-		3
+	def run_host(ip)
+		print_status("Working on host #{ip}")
 	end
-	
-	def run_batch(batch)
-		print_status("Working on batch #{batch.join(",")}")
-	end
+
 	
 end
 end
