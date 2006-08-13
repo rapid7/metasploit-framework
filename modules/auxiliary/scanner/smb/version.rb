@@ -30,8 +30,7 @@ class Auxiliary::Scanner::Smb::Version < Msf::Auxiliary
 	
 	# Fingerprint a single host
 	def run_host(ip)
-		# print_status("Working on host #{ip}")
-		
+
 		[[139, false], [445, true]].each do |info|
 
 		@target_port = info[0]
