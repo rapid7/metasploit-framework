@@ -107,8 +107,10 @@ class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
 				app = 'Portmap'
 			when 1434
 				app = 'SQL Server'
-				idx = pkt[0].index('ServerName')
-				inf = pkt[0][idx, pkt[0].length-idx] if idx
+				mssql_ping_parse(pkt[0]).each_pair { |k,v|
+					inf += k+'='+v+' '
+				}
+				
 			when 161
 				app = 'SNMP'
 			when 5093
@@ -117,6 +119,29 @@ class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
 		
 		print_status("Discovered #{app} on #{pkt[1]} (#{inf})")
 		
+	end
+
+	#
+	# Parse a 'ping' response and format as a hash
+	#
+	def mssql_ping_parse(data)
+		res = {}
+		var = nil
+		idx = data.index('ServerName')
+		return res if not idx
+		
+		data[idx, data.length-idx].split(';').each do |d|
+			if (not var)
+				var = d
+			else
+				if (var.length > 0)
+					res[var] = d
+					var = nil
+				end
+			end
+		end
+		
+		return res
 	end
 	
 	#
