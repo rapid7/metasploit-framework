@@ -13,22 +13,26 @@ class RangeWalker
 	#
 	# Initializes a walker instance using the supplied range
 	#
-	def initialize(range, range_end=nil)
+	def initialize(ranges)
 	
-		a,b = range_end.nil? ? range.split('-') : [range, range_end]
-		b ||= a
+		self.ranges = []
 		
-		a = Rex::Socket.addr_atoi(a)
-		b = Rex::Socket.addr_atoi(b)
+		ranges.split(',').each do |range|
+			a,b = range.split('-')
+			b ||= a
+
+			a = Rex::Socket.addr_atoi(a)
+			b = Rex::Socket.addr_atoi(b)
+
+			if (b < a)		
+				t = a
+				a = b
+				b = t
+			end
 		
-		if (b < a)		
-			t = a
-			a = b
-			b = t
+			self.ranges << [a,b]
 		end
 		
-		self.addr_start = a
-		self.addr_stop  = b
 		reset
 	end
 
@@ -36,16 +40,22 @@ class RangeWalker
 	# Resets the subnet walker back to its original state.
 	#
 	def reset
-		self.curr_ip     = self.addr_start
-		self.num_ips     = self.addr_stop - self.addr_start + 1
+		self.curr_range  = 0
+		self.curr_ip     = self.ranges[0][0]
+		self.num_ips     = 0
+		self.ranges.each {|r| self.num_ips += r[1]-r[0] + 1 }
 	end
 
 	#
 	# Returns the next IP address.
 	#
 	def next_ip
-		if (self.curr_ip > self.addr_stop)
-			return nil
+		if (self.curr_ip > self.ranges[self.curr_range][1])
+			if (self.curr_range == self.ranges.length - 1)
+				return nil
+			end
+			self.curr_range += 1
+			self.curr_ip = self.ranges[self.curr_range][0]
 		end
 		
 		addr = Rex::Socket.addr_itoa(self.curr_ip)
@@ -61,7 +71,7 @@ class RangeWalker
 protected
 
 	attr_writer   :num_ips # :nodoc:
-	attr_accessor :addr_start, :addr_stop, :curr_ip # :nodoc:
+	attr_accessor :addr_start, :addr_stop, :curr_ip, :curr_range, :ranges # :nodoc:
 
 end
 

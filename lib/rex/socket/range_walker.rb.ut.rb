@@ -29,19 +29,12 @@ class Rex::Socket::RangeWalker::UnitTest < Test::Unit::TestCase
 		assert_nil(s.next_ip)
 
 		#
-		# Two arguments
-		#
-		s = Klass.new('10.0.0.0', '10.0.0.255')
-
-		0.upto(255) { |x|
-			assert_equal('10.0.0.' + x.to_s, s.next_ip)
-		}
-		assert_nil(s.next_ip)
+		
 
 		#
 		# Backwards
 		#
-		s = Klass.new('10.0.0.255', '10.0.0.0')
+		s = Klass.new('10.0.0.255-10.0.0.0')
 
 		0.upto(255) { |x|
 			assert_equal('10.0.0.' + x.to_s, s.next_ip)
@@ -55,12 +48,7 @@ class Rex::Socket::RangeWalker::UnitTest < Test::Unit::TestCase
 		assert_equal('10.0.0.255', s.next_ip)
 		assert_nil(s.next_ip)
 		
-		#
-		# Same address
-		#
-		s = Klass.new('10.0.0.255', '10.0.0.255')
-		assert_equal('10.0.0.255', s.next_ip)
-		assert_nil(s.next_ip)
+
 		
 	end
 

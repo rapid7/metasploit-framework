@@ -25,7 +25,8 @@ class Auxiliary
 	#
 	def commands
 		{
-			"run" => "Initiates the auxiliary module",
+			"run"   => "Launches the auxiliary module",
+			"rerun" => "Reloads and launches the auxiliary module",
 		}.merge( (mod ? mod.auxiliary_commands : {}) )
 	end
 
@@ -48,7 +49,20 @@ class Auxiliary
 	end
 
 	#
-	# Executes the standard 'run' command
+	# Reloads an auxiliary module and executes it
+	#
+	def cmd_rerun(*args)
+		begin
+			self.mod = framework.modules.reload_module(mod)
+
+			cmd_run(*args)
+		rescue
+			log_error("Failed to rerun: #{$!}")
+		end
+	end
+	
+	#
+	# Executes an auxiliary module
 	#
 	def cmd_run(*args)
 
