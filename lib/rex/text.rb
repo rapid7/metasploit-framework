@@ -33,6 +33,7 @@ module Text
 	Numerals     = "0123456789"
 	Alpha        = UpperAlpha + LowerAlpha
 	AlphaNumeric = Alpha + Numerals
+	HighAscii    = (0x80 .. 0xff).map { |b| [b].pack('C') }.to_s
 	DefaultWrap  = 60
 	AllChars	 = 	
 		"\xff\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c" +
@@ -465,6 +466,11 @@ module Text
 	# Generators
 	#
 	##
+
+	# Generates a random character.
+	def self.rand_char(bad, chars = AllChars)
+		rand_text(1, bad, chars)	
+	end
 	
 	# Base text generator method
 	def self.rand_base(len, bad, *foo)
