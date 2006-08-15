@@ -2,7 +2,7 @@ require 'msf/core'
 
 module Msf
 
-class Auxiliary::Dos::Windows::Smb::MAILSLOT_SRVSYS_CORRUPT < Msf::Auxiliary
+class Auxiliary::Dos::Windows::Smb::MS06_035_SRVSYS_CORRUPT < Msf::Auxiliary
 
 	include Auxiliary::Dos
 	include Exploit::Remote::SMB
@@ -25,7 +25,7 @@ class Auxiliary::Dos::Windows::Smb::MAILSLOT_SRVSYS_CORRUPT < Msf::Auxiliary
 			'Version'        => '$Revision: 3666 $',
 			'References'     =>
 				[
-					['MSB', 'MSB06-035'],
+					['MSB', 'MS06-035'],
 				],
 			'Actions'     =>
 				[
@@ -48,7 +48,6 @@ class Auxiliary::Dos::Windows::Smb::MAILSLOT_SRVSYS_CORRUPT < Msf::Auxiliary
 
 	def run
 
-		
 		case action.name
 		when 'Attack'
 			
