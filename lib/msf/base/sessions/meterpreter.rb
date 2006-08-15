@@ -97,6 +97,24 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	end
 
 	#
+	# Explicitly runs a command.
+	#
+	def run_cmd(cmd)
+		console.run_single(cmd)
+	end
+
+	#
+	# Load the stdapi extension.
+	#
+	def load_stdapi()
+		original = console.disable_output
+
+		console.disable_output = true
+		console.run_single('use stdapi')
+		console.disable_output = original
+	end
+
+	#
 	# Interacts with the meterpreter client at a user interface level.
 	#
 	def _interact

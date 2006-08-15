@@ -311,6 +311,13 @@ module Socket
 	end
 
 	#
+	# Returns a string that indicates the type of the socket, such as 'tcp'.
+	#
+	def type?
+		raise NotImplementedError, "Socket type is not supported."
+	end
+
+	#
 	# The peer host of the connected socket.
 	#
 	attr_reader :peerhost

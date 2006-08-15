@@ -21,6 +21,12 @@ module SocketSubsystem
 ###
 class TcpClientChannel < Rex::Post::Meterpreter::Stream
 
+	module SocketInterface
+		def type?
+			'tcp'
+		end
+	end
+
 	##
 	#
 	# Factory
@@ -68,6 +74,10 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 	#
 	def initialize(client, cid, type, flags)
 		super(client, cid, type, flags)
+
+		# Implement some of the required socket interfaces on the local side of
+		# the stream abstraction.
+		lsock.extend(SocketInterface)
 	end
 
 	#
