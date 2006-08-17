@@ -32,14 +32,14 @@ module StreamAbstraction
 		# Symbolic peer information.
 		#
 		def peerinfo
-			(@peer || "Remote Pipe") + " (HTTP)"
+			(@peer || "Remote Pipe")
 		end
 
 		#
 		# Symbolic local information.
 		#
 		def localinfo
-			"Local Pipe (HTTP)"
+			"Local Pipe"
 		end
 	end
 

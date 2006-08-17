@@ -86,7 +86,6 @@ module BindTcp
 						'PeerHost' => datastore['RHOST'],
 						'PeerPort' => datastore['LPORT'].to_i,
 						'Proxies'  => datastore['Proxies'],
-						'Comm'     => comm,
 						'Context'  =>
 							{
 								'Msf'        => framework,
