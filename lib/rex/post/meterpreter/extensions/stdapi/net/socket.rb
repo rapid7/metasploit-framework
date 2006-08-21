@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'thread'
-require 'rex/socket/tcp'
+require 'rex/socket'
 require 'rex/post/meterpreter/extensions/stdapi/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel'
 require 'rex/logging'

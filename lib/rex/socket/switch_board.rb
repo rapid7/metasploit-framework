@@ -1,6 +1,5 @@
 require 'singleton'
 require 'thread'
-require 'rex'
 require 'rex/socket'
 
 module Rex
