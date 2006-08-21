@@ -1,6 +1,6 @@
-require 'rex'
 require 'rex/logging/log_sink'
 
+module Rex
 module Logging
 
 ###
