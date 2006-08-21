@@ -1,5 +1,6 @@
 require 'rex/ui'
 require 'rex/post/meterpreter'
+require 'rex/logging'
 
 module Rex
 module Post

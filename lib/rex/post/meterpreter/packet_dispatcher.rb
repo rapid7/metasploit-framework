@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'rex/post/meterpreter/packet_response_waiter'
+require 'rex/logging'
 
 module Rex
 module Post

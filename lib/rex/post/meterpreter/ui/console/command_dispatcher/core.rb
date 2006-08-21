@@ -1,4 +1,5 @@
 require 'rex/post/meterpreter'
+require 'rex/parser/arguments'
 
 module Rex
 module Post
