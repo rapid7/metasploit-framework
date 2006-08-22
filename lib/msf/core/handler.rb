@@ -173,14 +173,17 @@ protected
 			# Pass along the framework context
 			s.framework = framework
 
+			# Call the payload's on_session handler.  We run this prior to
+			# registering the session because the act of registering the session
+			# may lead to the termination of this thread.
+			on_session(s)
+
 			# If the session is valid, register it with the framework and
 			# notify any waiters we may have.
 			if (s)
 				register_session(s)
 			end
 
-			# Call the payload's on_session handler
-			on_session(s)
 			return s
 		end
 		

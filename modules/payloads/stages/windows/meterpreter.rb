@@ -67,7 +67,7 @@ module Meterpreter
 	#
 	def on_session(session)
 		super
-
+		
 		session.load_stdapi if (datastore['AutoLoadStdapi'] == true)
 	end
 
