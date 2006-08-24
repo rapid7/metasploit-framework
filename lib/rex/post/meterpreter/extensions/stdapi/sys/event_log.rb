@@ -115,7 +115,7 @@ class EventLog
 			loop do
 				yield(read_forwards)
 			end
-		rescue Exception
+		rescue ::Exception
 		end
 	end
 
@@ -135,7 +135,7 @@ class EventLog
 			loop do
 				yield(read_backwards)
 			end
-		rescue Exception
+		rescue ::Exception
 		end
 	end
 
