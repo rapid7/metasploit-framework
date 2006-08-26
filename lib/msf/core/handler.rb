@@ -157,6 +157,14 @@ module Handler
 	#
 	attr_accessor :exploit_config
 
+	#
+	# This will be non-nil if the handler has a parent payload that it
+	# was spawned from.  Right now, this is only the case with generic
+	# payloads.  The parent payload is used to create a session
+	# rather than using the instance itself.
+	#
+	attr_accessor :parent_payload
+
 protected
 
 	#
@@ -165,6 +173,9 @@ protected
 	# associated session.
 	#
 	def create_session(conn)
+		# If there is a parent payload, then use that in preference.
+		return parent_payload.create_session(conn) if (parent_payload)
+
 		# If the payload we merged in with has an associated session factory, 
 		# allocate a new session.
 		if (self.session)

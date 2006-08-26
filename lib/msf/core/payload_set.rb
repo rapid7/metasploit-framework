@@ -94,7 +94,12 @@ class PayloadSet < ModuleSet
 			add_single(p, name, op[5])
 
 			# Cache the payload's size
-			sizes[name] = p.new.size
+			begin
+				sizes[name] = p.new.size
+
+			# Don't cache generic payload sizes.
+			rescue NoCompatiblePayloadError
+			end
 		}
 
 		# Recalculate stagers and stages
@@ -197,7 +202,7 @@ class PayloadSet < ModuleSet
 		# also convey other information about the module, such as
 		# the platforms and architectures it supports
 		payload_type_modules[instance.payload_type][name] = pinfo
-
+		
 		# If the payload happens to be a single, but has no defined
 		# connection, then it can also be staged.  Insert it into
 		# the staged list.
@@ -206,6 +211,36 @@ class PayloadSet < ModuleSet
 		     (instance.handler_klass == nil)))
 			payload_type_modules[Payload::Type::Stage][name] = pinfo
 		end
+	end
+
+	#
+	# Looks for a payload that matches the specified requirements and 
+	# returns an instance of that payload.
+	#
+	def find_payload(platform, arch, handler, session, payload_type)
+		# Pre-filter based on platform and architecture.
+		each_module(
+			'Platform' => platform,
+			'Arch'     => arch) { |name, mod|
+
+			p = mod.new
+
+			# We can't substitute one generic with another one.
+			next if (p.kind_of?(Msf::Payload::Generic))
+
+			# Check to see if the handler classes match.
+			next if (handler and p.handler_klass != handler)
+
+			# Check to see if the session classes match.
+			next if (session and p.session != session)
+
+			# Check for matching payload types
+			next if (payload_type and p.payload_type != payload_type)
+
+			return p
+		}
+
+		return nil
 	end
 
 	#

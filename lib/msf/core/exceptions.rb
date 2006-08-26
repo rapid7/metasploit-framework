@@ -11,10 +11,6 @@ module Msf
 ###
 module Exception
 	include Rex::Exception
-
-	def to_s
-		"A framework exception occurred."
-	end
 end
 
 ###
@@ -229,6 +225,10 @@ class IncompatiblePayloadError < ArgumentError
 	# The name of the payload that was used.
 	#
 	attr_reader :pname
+end
+
+class NoCompatiblePayloadError < ArgumentError
+	include Exception
 end
 
 ##
