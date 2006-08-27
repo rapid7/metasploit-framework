@@ -1,7 +1,6 @@
 Metasploit Framework Wx GUI Design Document
 ============================================
 
-
 Code Layout
 ===========
 
