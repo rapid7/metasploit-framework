@@ -13,6 +13,7 @@ Metasploit Framework v3.0
 [Exploits]
 	* Exploits can crash when a handler sets .sock/.udp_sock to nil
 		- Persistent payloads, exploit tries to use nil as a socket
+		
 [msfconsole]
 	* Regex errors if unmatched {/[ sequences are tabbed
 		- use exploit/[<tab>

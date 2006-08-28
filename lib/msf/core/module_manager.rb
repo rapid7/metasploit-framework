@@ -742,6 +742,12 @@ protected
 			# Skip test-suite files
 			next if (file =~ /rb\.ts\.rb$/)
 
+			# Skip non-ruby files
+			next if (file !~ /\.rb$/i)
+
+			# Skip files with a leading period
+			next if (file =~ /^\./i)
+						
 			begin
 				load_module_from_file(path, file, loaded, recalc, counts, demand)
 			rescue NameError
@@ -797,6 +803,7 @@ protected
 	# Loads a module from the supplied file.
 	#
 	def load_module_from_file(path, file, loaded, recalc, counts, demand = false)
+		
 		# If the file doesn't end in the expected extension...
 		return nil if (!file.match(/\.rb$/))
 
