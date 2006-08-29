@@ -199,13 +199,13 @@ module DispatcherShell
 				rescue 
 					error = true
 
-					output.print_error(
+					print_error(
 						"Error while running command #{method}: #{$!}" +
 						"\n\nCall stack:\n#{$@.join("\n")}")
 				rescue ::Exception
 					error = true
 
-					output.print_error(
+					print_error(
 						"Error while running command #{method}: #{$!}")
 				end
 
@@ -233,7 +233,7 @@ module DispatcherShell
 	# If the command is unknown...
 	#
 	def unknown_command(method, line)
-		output.print_error("Unknown command: #{method}.")
+		print_error("Unknown command: #{method}.")
 	end
 
 	#

@@ -214,6 +214,8 @@ module Shell
 	# Prints an error message to the output handle.
 	#
 	def print_error(msg)
+		return if (output.nil?)
+
 		# Errors are not subject to disabled output
 		log_output(output.print_error(msg))
 	end
