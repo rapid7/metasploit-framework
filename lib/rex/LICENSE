@@ -1,5 +1,3 @@
-=begin
-
 The Metasploit Rex library is provided under the 3-clause BSD license.
 
 Copyright (c) 2005-2006, Metasploit LLC
@@ -29,70 +27,3 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-=end
-
-module Rex
-	Root = File.join(File.dirname(__FILE__), 'rex')
-	LogSource = "rex"
-end
-
-# Generic classes
-require 'rex/constants'
-require 'rex/exceptions'
-require 'rex/transformer'
-require 'rex/text'
-require 'rex/time'
-require 'rex/job_container'
-require 'rex/file'
-
-# Thread safety and synchronization
-require 'rex/sync'
-
-# Encoding
-require 'rex/encoder/xor'
-require 'rex/encoding/xor'
-
-# Architecture subsystem
-require 'rex/arch'
-
-# Assembly
-require 'rex/assembly/nasm'
-
-# Logging
-require 'rex/logging/log_dispatcher'
-
-# IO
-require 'rex/io/stream'
-require 'rex/io/stream_abstraction'
-require 'rex/io/stream_server'
-
-# Sockets
-require 'rex/socket'
-
-# Protocols
-
-require 'rex/proto'
-
-# Parsers
-require 'rex/parser/arguments'
-require 'rex/parser/ini'
-
-
-# Compatibility
-require 'rex/compat'
-
-# Overload the Kernel.sleep() function to be thread-safe
-Kernel.class_eval("
-	def sleep(seconds)
-		Rex::ThreadSafe.sleep(seconds)
-	end
-")
-
-# Overload the Kernel.select function to be thread-safe
-Kernel.class_eval("
-	def select(rfd = nil, wfd = nil, efd = nil, to = nil)
-		Rex::ThreadSafe.select(rfd, wfd, efd, to)
-	end
-")
-
