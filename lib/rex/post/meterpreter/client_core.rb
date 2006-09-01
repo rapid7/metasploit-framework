@@ -328,7 +328,7 @@ class ClientCore < Extension
 		wrote = client.sock.write(inject_lib)
 
 		# Transmit the size of the server
-		metsrv = "data/meterpreter/metsrv.dll"
+		metsrv = File.join(File.dirname(__FILE__), '..', '..', '..', '..', "data", "meterpreter", "metsrv.dll")
 		buf    = "metsrv.dll\x00"
 	
 		::File.open(metsrv, 'rb') { |f|
