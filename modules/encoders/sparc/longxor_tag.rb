@@ -52,7 +52,7 @@ class LongXorTag < Msf::Encoder::XorAdditiveFeedback
 	# Verify that the chosen key doesn't become an invalid byte due to
 	# the set_dword() result (22/10 bit split)
 	#
-	def find_key_verify(key_bytes, badchars)
+	def find_key_verify(buf, key_bytes, badchars)
 		return ( has_badchars?(
 			Rex::Arch::Sparc.set_dword(key_bytes_to_integer(key_bytes), 'l1'),
 			badchars
