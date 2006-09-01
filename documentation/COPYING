@@ -30,5 +30,9 @@ This copyright notice does not include extensions developed by third-party
 contributors or their derivatives. Please see the licensing information 
 defined in each individual module for more information. 
 
+The Metasploit Rex library (lib/rex.rb and the files under lib/rex/) are
+provided under the 3-clause BSD license. Please see lib/rex/LICENSE for
+more information.
+
 To contact the Metasploit Project about any license related issues,
 please send an email to msfdev[at]metasploit.com.
