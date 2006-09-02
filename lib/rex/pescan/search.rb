@@ -25,7 +25,7 @@ module Search
 			@address -= pre
 			@address = 0 if (@address < 0 || ! @address)
 			buf = pe.read_rva(@address, suf)
-			$stdout.puts pe.ptr_s(pe.rva_to_vma(@address)) + " " + buf.unpack("H*")
+			$stdout.puts pe.ptr_s(pe.rva_to_vma(@address)) + " " + buf.unpack("H*")[0]
 		end	
 	end
 
