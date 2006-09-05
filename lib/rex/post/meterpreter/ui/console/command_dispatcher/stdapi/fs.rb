@@ -299,7 +299,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
 		# Go through each source item and upload them
 		src_items.each { |src|
-			stat = client.fs.file.stat(src)
+			stat = ::File.stat(src)
 
 			if (stat.directory?)
 				client.fs.dir.upload(dest, src, recursive) { |step, src, dst|
