@@ -1,6 +1,9 @@
 This software is provided under the Metasploit Framework License v1.1
 Please see documentation/LICENSE for the complete terms.
 
+The Rex library (lib/rex.rb and all files under lib/rex/) is provided
+under the BSD license.
+
 This is a BETA release. Many bugs still exist and quite a few features
 are still non-functional. The latest version can be obtained online from:
  - http://metasploit.com/projects/Framework/msf3/
