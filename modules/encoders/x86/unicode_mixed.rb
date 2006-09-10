@@ -32,9 +32,11 @@ class UnicodeMixed < Msf::Encoder::Alphanum
 	# being encoded.
 	#
 	def decoder_stub(state)
-		reg    = datastore['BufferRegister']    || raise RuntimeError, "Need BufferRegister"
+		reg    = datastore['BufferRegister']
 		offset = datastore['BufferOffset'].to_i || 0
-
+		if (not reg)
+			raise RuntimeError, "Need BufferRegister"
+		end
 		Rex::Encoder::Alpha2::UnicodeMixed::gen_decoder(reg, offset) 
 	end
 
