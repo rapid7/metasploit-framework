@@ -7,6 +7,8 @@ module Msf
 module Ui
 module Web
 
+require 'msf/ui/web/comm'
+
 ###
 #
 # This class implements a user interface driver on a web interface.
@@ -129,6 +131,46 @@ class Driver < Msf::Ui::Driver
 			server_local_directory,	
 			framework,
 			self)
+
+		# Add a resource that will be responsible for waiting for channels to
+		# have input that needs to be read from and written back to http
+		# clients.  Since this call will block for an extended period of time,
+		# we set the long call flag to cause it to run in the context of a
+		# thread.
+		service.add_resource("/internal/comm_read", 
+			'Proc' => Proc.new { |client, request|
+				begin
+					Comm.read_channels(client, request)
+				rescue ::Exception
+					dlog("comm_read: #{$!}")
+				end
+			},
+			'LongCall' => true)
+
+		# Add a resource for writing to channels.
+		service.add_resource("/internal/comm_write",
+			'Proc' => Proc.new { |client, request|
+				begin
+					Comm.write_channel(client, request)
+				rescue ::Exception
+					dlog("comm_write: #{$!}")
+				end
+			})
+
+		# Add a resource that will be used to create a channel for a given
+		# resource.
+		service.add_resource("/internal/comm_create",
+			'Proc' => Proc.new { |client, request|
+				begin
+					Comm.create_channel(client, request)
+				rescue ::Exception
+					dlog("comm_create: #{$!}")
+				end
+			})
+
+		# Give the comm an opportunity to set up so that it can receive
+		# notifications about session creation and so on.
+		Comm.setup(framework)
 
 		# Wait for the termination event to be set.
 		term_event.wait
