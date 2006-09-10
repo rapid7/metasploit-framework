@@ -12,14 +12,12 @@ class Encoder::Alphanum < Msf::Encoder
 	def initialize(info)
 		super(info)
 
-		# Defaults based on architecture.
-		reg = 'EAX' if (arch?(ARCH_X86))
 		off = 0
 
 		register_options(
 			[
-				OptString.new('BufferRegister', [ true, "The register that pointers to the encoded payload", reg ]),
-				OptInt.new('BufferOffset', [ true, "The offset to the buffer from the start of the register", off ])
+				OptString.new('BufferRegister', [ false, "The register that pointers to the encoded payload" ]),
+				OptInt.new('BufferOffset', [ false, "The offset to the buffer from the start of the register", off ])
 			], Msf::Encoder::Alphanum)
 	end
 	

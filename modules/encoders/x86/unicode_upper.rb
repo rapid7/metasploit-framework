@@ -32,7 +32,7 @@ class UnicodeUpper < Msf::Encoder::Alphanum
 	# being encoded.
 	#
 	def decoder_stub(state)
-		reg    = datastore['BufferRegister']    || 'EAX' 
+		reg    = datastore['BufferRegister']    || raise RuntimeError, "Need BufferRegister"
 		offset = datastore['BufferOffset'].to_i || 0
 
 		Rex::Encoder::Alpha2::UnicodeUpper::gen_decoder(reg, offset) 
@@ -43,7 +43,7 @@ class UnicodeUpper < Msf::Encoder::Alphanum
 	# payload.
 	#
 	def encode_block(state, block)
-		Rex::Encoder::Alpha2::UnicodeUpper::encode_byte(block.unpack('C')[0], datastore['BadChars'])
+		Rex::Encoder::Alpha2::UnicodeUpper::encode_byte(block.unpack('C')[0], state.badchars)
 	end
 
 	#

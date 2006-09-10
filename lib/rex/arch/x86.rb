@@ -344,6 +344,133 @@ module X86
 		return data
 	end
 
+	#
+	# This method returns an array of 'safe' FPU instructions
+	#
+	def self.fpu_instructions
+		fpus = []
+
+		0xe8.upto(0xee) { |x| fpus << "\xd9" + x.chr }
+		0xc0.upto(0xcf) { |x| fpus << "\xd9" + x.chr }
+		0xc0.upto(0xdf) { |x| fpus << "\xda" + x.chr }
+		0xc0.upto(0xdf) { |x| fpus << "\xdb" + x.chr }
+		0xc0.upto(0xc7) { |x| fpus << "\xdd" + x.chr }
+
+		fpus << "\xd9\xd0"
+		fpus << "\xd9\xe1"
+		fpus << "\xd9\xf6"
+		fpus << "\xd9\xf7"
+		fpus << "\xd9\xe5"
+
+		# This FPU instruction seems to fail consistently on Linux
+		#fpus << "\xdb\xe1"
+
+		fpus
+	end
+
+	#
+	# This method returns an array containing a geteip stub, a register, and an offset
+	# This method will return nil if the getip generation fails
+	#
+	def self.geteip_fpu(badchars)
+		
+		#
+		# Default badchars to an empty string
+		#
+		badchars ||= ''
+		
+		#
+		# Bail out early if D9 is restricted
+		#
+		return nil if badchars.index("\xd9")
+
+		#
+		# Create a list of FPU instructions
+		#
+		fpus = *self.fpu_instructions
+		bads = []
+		badchars.each_byte  do |c|
+			fpus.each do |str|
+				bads << str if (str.index(c.chr))
+			end
+		end	
+		bads.each { |str| fpus.delete(str) }
+		return nil if fpus.length == 0
+
+		#
+		# Create a list of registers to use for fnstenv
+		#
+		dsts = []
+		0.upto(7) do |c|
+			dsts << c if (not badchars.index( (0x70+c).chr ))
+		end
+
+		if (dsts.include?(ESP) and badchars.index("\x24"))
+			dsts.delete(ESP)
+		end
+
+		return nil if dsts.length == 0
+
+		#
+		# Grab a random FPU instruction
+		#
+		fpu = fpus[ rand(fpus.length) ]
+
+		#
+		# Grab a random register from dst
+		#
+		while(dsts.length > 0)
+			buf = ''
+			dst = dsts[ rand(dsts.length) ]
+			dsts.delete(dst)
+
+			# If the register is not ESP, copy ESP
+			if (dst != ESP)
+				next if badchars.index( (0x70 + dst).chr )
+
+				if (not (badchars.index("\x89") or badchars.index( (0xE0+dst).chr )))
+					buf << "\x89" + (0xE0 + dst).chr
+				else
+					next if badchars.index("\x54")
+					next if badchars.index( (0x58+dst).chr )
+					buf << "\x54" + (0x58 + dst).chr
+				end
+			end
+
+			pad = 0
+			while (pad < (128-12) and badchars.index( (256-12-pad)))
+				pad += 4
+			end
+
+			# Give up on finding a value to use here
+			if (pad == (128-12))
+				return nil
+			end
+
+			out = buf + fpu + "\xd9" + (0x70 + dst).chr
+			out << "\x24" if dst == ESP
+			out << (256-12-pad).chr
+
+			regs = [*(0..7)]
+			while (regs.length > 0)
+				reg = regs[ rand(regs.length) ]
+				regs.delete(reg)
+				next if reg == ESP
+				next if badchars.index( (0x58 + reg).chr )
+
+				# Pop the value back out
+				0.upto(pad / 4) { |c| out << (0x58 + reg).chr }
+
+				# Fix the value to point to self
+				gap = out.length - buf.length
+
+				return [out, REG_NAMES32[reg].upcase, gap]
+			end
+		end
+
+		return nil
+	end
+
 end
 
 end end

@@ -32,10 +32,20 @@ class AlphaMixed < Msf::Encoder::Alphanum
 	# being encoded.
 	#
 	def decoder_stub(state)
-		reg    = datastore['BufferRegister']    || 'EAX' 
-		offset = datastore['BufferOffset'].to_i || 0
+		reg = datastore['BufferRegister']
+		off = (datastore['BufferOffset'] || 0).to_i
+		buf = ''
+		
+		# We need to create a GetEIP stub for the exploit
+		if (not reg)
+			res = Rex::Arch::X86.geteip_fpu(state.badchars)
+			if (not res)
+				raise RuntimeError, "Unable to generate geteip code"
+			end
+			buf, reg, off = res
+		end
 
-		Rex::Encoder::Alpha2::AlphaMixed::gen_decoder(reg, offset)
+		buf + Rex::Encoder::Alpha2::AlphaMixed::gen_decoder(reg, off)
 	end
 
 	#
@@ -43,7 +53,7 @@ class AlphaMixed < Msf::Encoder::Alphanum
 	# payload.
 	#
 	def encode_block(state, block)
-		Rex::Encoder::Alpha2::AlphaMixed::encode_byte(block.unpack('C')[0], datastore['BadChars'])
+		Rex::Encoder::Alpha2::AlphaMixed::encode_byte(block.unpack('C')[0], state.badchars)
 	end
 
 	#
