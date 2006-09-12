@@ -71,10 +71,9 @@ module X86
 #
 class AvoidUtf8 < Msf::Encoder
 
-	# Assign this encoder an average ranking because it should not
-	# be used preferably, but it should be used more preferably than
-	# low ranking encoders, like alpha.
-	Rank = AverageRanking
+	# This encoder has a manual ranking because it should only be used in cases
+	# where information has been explicitly supplied, like the BufferOffset.
+	Rank = ManualRanking
 
 	def initialize
 		super(
@@ -106,7 +105,7 @@ class AvoidUtf8 < Msf::Encoder
 		decoder =
 			"\x6a" + [len].pack('C')      +  # push len
 			"\x6b\x3c\x24\x0b"            +  # imul 0xb
-			"\x60"                        +  # push edx
+			"\x60"                        +  # pusha
 			"\x03\x0c\x24"                +  # add ecx, [esp]
 			"\x6a" + [0x11+off].pack('C') +  # push byte 0x11 + off
 			"\x03\x0c\x24"                +  # add ecx, [esp]
@@ -207,7 +206,7 @@ class AvoidUtf8 < Msf::Encoder
 		block.each_byte { |b|
 			# It's impossible to produce 0xff and 0x01 using two non-NULL,
 			# tolower safe, and UTF8 safe values.
-			return nil if (b == 0xff or b == 0x01)
+			return nil if (b == 0xff or b == 0x01 or b == 0x00)
 
 			attempts = 0
 

@@ -7,7 +7,7 @@ module X86
 
 class UnicodeMixed < Msf::Encoder::Alphanum
 
-	Rank = LowRanking
+	Rank = ManualRanking
 
 	def initialize
 		super(

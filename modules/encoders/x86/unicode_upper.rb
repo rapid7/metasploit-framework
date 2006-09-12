@@ -7,7 +7,7 @@ module X86
 
 class UnicodeUpper < Msf::Encoder::Alphanum
 
-	Rank = LowRanking
+	Rank = ManualRanking
 
 	def initialize
 		super(
