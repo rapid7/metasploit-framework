@@ -4,9 +4,6 @@ Metasploit Framework v3.0
 
 
 [Payloads]
-	* Payload exclusions based on the Privileged key do not work
-		- Example: distcc + cmd/unix/bind_inetd
-	
 	* cmd/unix/reverse_bash fails
 		- Example: distcc
 
