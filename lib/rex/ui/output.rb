@@ -17,6 +17,8 @@ class Output
 	# Text-based output
 	require 'rex/ui/text/output'
 
+	attr_accessor :on_print_proc
+
 	#
 	# Prints an error message.
 	#

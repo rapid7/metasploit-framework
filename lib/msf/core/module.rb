@@ -159,6 +159,13 @@ class Module
 	end
 
 	#
+	# Returns the module's rank.
+	#
+	def rank
+		return self.class.rank
+	end
+
+	#
 	# Returns the module's framework short name.  This is a
 	# possibly conflicting name used for things like console
 	# prompts.

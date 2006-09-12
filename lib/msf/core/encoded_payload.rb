@@ -117,6 +117,18 @@ class EncodedPayload
 						'core', LEV_1)
 					next
 				end
+
+				# If the exploit did not explicitly request a kind of encoder and
+				# the current encoder has a manual ranking, then it should not be
+				# considered as a valid encoder.  A manual ranking tells the
+				# framework that an encoder must be explicitly defined as the
+				# encoder of choice for an exploit.
+				if ((reqs['EncoderType'].nil?) and
+				    (self.encoder.rank == ManualRanking))
+					wlog("#{pinst.refname}: Encoder #{encoder.refname} is manual ranked and was not defined as a preferred encoder.",
+						'core', LEV_1)
+					next
+				end
 	
 				# If we have any encoder options, import them into the datastore
 				# of the encoder.

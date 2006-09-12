@@ -28,14 +28,16 @@ MODULE_TYPES   =
 #
 # Module rankings
 #
-LowRanking       = 100
-AverageRanking   = 200
-NormalRanking    = 300
-GoodRanking      = 400
-GreatRanking     = 500
-ExcellentRanking = 600
-RankingName      =
+ManualRanking       = 0
+LowRanking          = 100
+AverageRanking      = 200
+NormalRanking       = 300
+GoodRanking         = 400
+GreatRanking        = 500
+ExcellentRanking    = 600
+RankingName         =
 	{
+		ManualRanking    => "manual",	
 		LowRanking       => "low",
 		AverageRanking   => "average",
 		NormalRanking    => "normal",

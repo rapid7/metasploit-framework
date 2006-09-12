@@ -24,6 +24,10 @@ class Output::Buffer < Rex::Ui::Text::Output
 	def print(msg = '')
 		self.buf += msg || ''
 
+		if self.on_print_proc
+			self.on_print_proc.call(msg)
+		end
+
 		msg
 	end
 
