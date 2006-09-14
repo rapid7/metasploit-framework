@@ -24,15 +24,16 @@ def usage (str = nil, extra = nil)
 		'Columns' => ['Mode', 'Description']
 	)
 
-	tbl << ['(H)elp', "you're looking at it baby!"]
-	tbl << ['(S)ummary', 'show information about this module']
-	tbl << ['(O)ptions', 'show available options for this module']
-	tbl << ['(A)dvanced', 'show available advanced options for this module']
-	tbl << ['(I)ds Evasion', 'show available ids evasion options for this module']
-	tbl << ['(P)ayloads', 'show available payloads for this module']
-	tbl << ['(T)argets', 'show available targets for this module']
-	tbl << ['(C)heck', 'Attempt to check if the target is vulnerable']
-	tbl << ['(E)xploit', 'Attempt to exploit the target']
+	tbl << ['(H)elp', "You're looking at it baby!"]
+	tbl << ['(S)ummary', 'Show information about this module']
+	tbl << ['(O)ptions', 'Show available options for this module']
+	tbl << ['(A)dvanced', 'Show available advanced options for this module']
+	tbl << ['(I)DS Evasion', 'Show available ids evasion options for this module']
+	tbl << ['(P)ayloads', 'Show available payloads for this module']
+	tbl << ['(T)argets', 'Show available targets for this module']
+	tbl << ['(A)ctions', 'Show available targets for this module']
+	tbl << ['(C)heck', 'Run the check routine of the selected module']
+	tbl << ['(E)xecute', 'Execute the selected module']
 
 	$stdout.puts "Error: #{str}\n\n" if str
 	$stdout.puts tbl.to_s + "\n"
@@ -42,24 +43,50 @@ def usage (str = nil, extra = nil)
 end
 
 if (ARGV.length < 1)
+	ext = ''
+	
 	tbl = Rex::Ui::Text::Table.new(
 		'Header'  => 'Exploits',
 		'Indent'  => 4,
 		'Columns' => [ 'Name', 'Description' ])
 
 	$framework.exploits.each_module { |name, mod|
-		tbl << [ name, mod.new.name ]
+		tbl << [  'exploit/' + name, mod.new.name ]
 	}
+	ext << tbl.to_s + "\n"
+	
+	tbl = Rex::Ui::Text::Table.new(
+		'Header'  => 'Auxiliary',
+		'Indent'  => 4,
+		'Columns' => [ 'Name', 'Description' ])
 
-	usage(nil, tbl.to_s)
+	$framework.auxiliary.each_module { |name, mod|
+		tbl << [ 'auxiliary/' + name, mod.new.name ]
+	}
+	
+	ext << tbl.to_s + "\n"
+	
+	usage(nil, ext)
 end
 
-# Get the exploit name we'll be using
+# Get the module name we'll be using
 exploit_name = ARGV.shift
-exploit      = $framework.exploits.create(exploit_name)
+exploit      = nil
+module_class = nil
+
+# Determine what type of module it is
+case exploit_name
+when /exploit\/(.*)/
+	exploit = $framework.exploits.create($1)
+	module_class = 'exploit'
+	
+when /auxiliary\/(.*)/
+	exploit = $framework.auxiliary.create($1)
+	module_class = 'auxiliary'
+end
 
 if (exploit == nil)
-	usage("Invalid exploit: #{exploit_name}")
+	usage("Invalid module: #{exploit_name}")
 end
 
 exploit.init_ui(
@@ -85,47 +112,92 @@ case mode.downcase
 	when "i"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(exploit, Indent))
 	when "p"
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_compatible_payloads(
-			exploit, Indent, "Compatible payloads"))
+		if (module_class == 'exploit')
+			$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_compatible_payloads(exploit, Indent, "Compatible payloads"))
+		else
+			$stdout.puts("\nError: This type of module does not support payloads")
+		end
 	when "t"
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_exploit_targets(exploit, Indent))
+		if (module_class == 'exploit')
+			$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_exploit_targets(exploit, Indent))
+		else
+			$stdout.puts("\nError: This type of module does not support targets")
+		end	
+	when "a"
+		if (module_class == 'auxiliary')
+			$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_auxiliary_actions(exploit, Indent))
+		else
+			$stdout.puts("\nError: This type of module does not support actions")
+		end	
 	when "c"
-		begin
-			if (code = exploit.check)
-				stat = (code == Msf::Exploit::CheckCode::Vulnerable) ? '[+]' : '[*]'
-	
-				$stdout.puts("#{stat} #{code[1]}")
-			else
-				$stderr.puts("Check failed: The state could not be determined.")
+		if (module_class == 'exploit')
+			begin
+				if (code = exploit.check)
+					stat = (code == Msf::Exploit::CheckCode::Vulnerable) ? '[+]' : '[*]'
+
+					$stdout.puts("#{stat} #{code[1]}")
+				else
+					$stderr.puts("Check failed: The state could not be determined.")
+				end
+			rescue
+				$stderr.puts("Check failed: #{$!}")
 			end
-		rescue
-			$stderr.puts("Check failed: #{$!}")
+		else
+			$stdout.puts("\nError: This type of module does not support the check feature")
 		end
 	when "e"
-		begin
-			session = exploit.exploit_simple(
-				'Encoder'       => exploit.datastore['ENCODER'],
-				'Target'        => exploit.datastore['TARGET'],
-				'Payload'       => exploit.datastore['PAYLOAD'],
-				'Nop'           => exploit.datastore['NOP'],
-				'LocalInput'    => Rex::Ui::Text::Input::Stdio.new,
-				'LocalOutput'   => Rex::Ui::Text::Output::Stdio.new,
-				'ForceBlocking' => true)
+	
+		case module_class
+		when 'exploit'	
+			begin
+				session = exploit.exploit_simple(
+					'Encoder'       => exploit.datastore['ENCODER'],
+					'Target'        => exploit.datastore['TARGET'],
+					'Payload'       => exploit.datastore['PAYLOAD'],
+					'Nop'           => exploit.datastore['NOP'],
+					'LocalInput'    => Rex::Ui::Text::Input::Stdio.new,
+					'LocalOutput'   => Rex::Ui::Text::Output::Stdio.new,
+					'ForceBlocking' => true)
 
-			if (session)
-				$stdout.puts("[*] #{session.desc} session #{session.name} opened (#{session.tunnel_to_s})\n\n")
+				if (session)
+					$stdout.puts("[*] #{session.desc} session #{session.name} opened (#{session.tunnel_to_s})\n\n")
 
-				session.init_ui(
-					Rex::Ui::Text::Input::Stdio.new,
-					Rex::Ui::Text::Output::Stdio.new)
+					session.init_ui(
+						Rex::Ui::Text::Input::Stdio.new,
+						Rex::Ui::Text::Output::Stdio.new)
 
-				session.interact
+					session.interact
+				end
+
+			rescue
+				$stderr.puts("Exploit failed: #{$!}")
+				$stderr.puts("Backtrace:")
+				$stderr.puts($!.backtrace.join("\n"))
 			end
-					
-		rescue
-			$stderr.puts("Exploit failed: #{$!}")
-			$stderr.puts("Backtrace:")
-			$stderr.puts($!.backtrace.join("\n"))
+		when 'auxiliary'
+			begin
+				session = exploit.run_simple(
+					'Encoder'       => exploit.datastore['ENCODER'],
+					'Action'        => exploit.datastore['ACTION'],
+					'LocalInput'    => Rex::Ui::Text::Input::Stdio.new,
+					'LocalOutput'   => Rex::Ui::Text::Output::Stdio.new,
+					'ForceBlocking' => true)
+
+				if (session)
+					$stdout.puts("[*] #{session.desc} session #{session.name} opened (#{session.tunnel_to_s})\n\n")
+
+					session.init_ui(
+						Rex::Ui::Text::Input::Stdio.new,
+						Rex::Ui::Text::Output::Stdio.new)
+
+					session.interact
+				end
+
+			rescue
+				$stderr.puts("Auxiliary failed: #{$!}")
+				$stderr.puts("Backtrace:")
+				$stderr.puts($!.backtrace.join("\n"))
+			end		
 		end
 	else
 		usage("Invalid mode #{mode}")
