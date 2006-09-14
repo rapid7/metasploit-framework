@@ -146,6 +146,9 @@ EVADE = Rex::Proto::SMB::Evasions
 				when CONST::SMB_COM_NT_TRANSACT
 					res =  smb_parse_nttrans(pkt, data)
 
+				when CONST::SMB_COM_NT_TRANSACT_SECONDARY
+					res =  smb_parse_nttrans(pkt, data)
+					
 				when CONST::SMB_COM_OPEN_ANDX
 					res =  smb_parse_open(pkt, data)
 
@@ -315,11 +318,17 @@ EVADE = Rex::Proto::SMB::Evasions
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
-		end		
+		end
+		
+		if (pkt['Payload']['SMB'].v['WordCount'] >= 18)
+			res = SMB_NTTRANS_RES_PKT.make_struct
+			res.from_s(data)
+			return res
+		end
 
 		raise XCEPT::InvalidWordCount
 	end
-	
+		
 	# Process incoming SMB_COM_OPEN_ANDX packets
 	def smb_parse_open(pkt, data)
 		# Process open responses
@@ -500,19 +509,20 @@ EVADE = Rex::Proto::SMB::Evasions
 
 	# Authenticate and establish a session
 	def session_setup(*args)
+	
 		if (self.dialect =~ /^(NT LANMAN 1.0|NT LM 0.12)$/)
-			return (
-				self.extended_security ?
-				self.session_setup_ntlmv2(*args) : 
-				self.session_setup_ntlmv1(*args)
-			)
+		
+		
+			if (self.challenge_key) 
+				return self.session_setup_ntlmv1(*args)
+			end
+		
+			if ( self.extended_security )
+				return self.session_setup_ntlmv2(*args)
+			end
 		end
 		
-		if (self.dialect =~ /^(LANMAN1.0|LM1.2X002)$/)
-			return self.session_setup_clear(*args)
-		end
-
-		raise XCEPT::UnknownDialect
+		return self.session_setup_clear(*args)
 	end
 
 	# Authenticate using clear-text passwords
@@ -1263,7 +1273,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.smb_defaults(pkt['Payload']['SMB'])
 		
 		base_offset = pkt.to_s.length + (setup_count * 2) - 4
-		param_offset = base_offset + pipe.length
+		param_offset = base_offset
 		data_offset = param_offset + param.length
 		
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_TRANSACT
@@ -1289,8 +1299,38 @@ EVADE = Rex::Proto::SMB::Evasions
 		ack = self.smb_recv_parse(CONST::SMB_COM_NT_TRANSACT)
 		return ack
 	end
-
 	
+	# Perform a nttransaction request using the specified subcommand, parameters, and data
+	def nttrans_secondary(param = '', body = '')
+
+		data = param + body
+
+		pkt = CONST::SMB_NTTRANS_SECONDARY_PKT.make_struct
+		self.smb_defaults(pkt['Payload']['SMB'])
+		
+		base_offset = pkt.to_s.length - 4
+		param_offset = base_offset
+		data_offset = param_offset + param.length
+		
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_TRANSACT_SECONDARY
+		pkt['Payload']['SMB'].v['Flags1'] = 0x18
+		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		pkt['Payload']['SMB'].v['WordCount'] = 18
+		
+		pkt['Payload'].v['ParamCountTotal'] = param.length
+		pkt['Payload'].v['DataCountTotal'] = body.length
+		pkt['Payload'].v['ParamCount'] = param.length
+		pkt['Payload'].v['ParamOffset'] = param_offset
+		pkt['Payload'].v['DataCount'] = body.length
+		pkt['Payload'].v['DataOffset'] = data_offset
+				
+		pkt['Payload'].v['Payload'] = data
+		
+		self.smb_send(pkt.to_s)
+		ack = self.smb_recv_parse(CONST::SMB_COM_NT_TRANSACT_SECONDARY)
+		return ack
+	end
+			
 	def queryfs(level)
 		parm = [level].pack('v')
 

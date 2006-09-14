@@ -617,10 +617,10 @@ SMB_TRANS_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 	[ 'uint16v',  'Reserved1',           0 ],
 	[ 'uint16v',  'ParamCount',          0 ],
 	[ 'uint16v',  'ParamOffset',         0 ],
-	[ 'uint16v',  'ParamDisp',           0 ],
+	[ 'uint16v',  'ParamDisplace',       0 ],
 	[ 'uint16v',  'DataCount',           0 ],
 	[ 'uint16v',  'DataOffset',          0 ],
-	[ 'uint16v',  'DataDisp',            0 ],		
+	[ 'uint16v',  'DataDisplace',        0 ],		
 	[ 'uint8',    'SetupCount',          0 ],
 	[ 'uint8',    'Reserved2',           0 ],
 	[ 'string',   'SetupData', nil,     '' ],	
@@ -673,6 +673,7 @@ SMB_NTTRANS_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 	[ 'uint32v',  'DataOffset',          0 ],	
 	[ 'uint8',    'SetupCount',          0 ],
 	[ 'string',   'SetupData', nil,     '' ],
+	[ 'uint16v',  'Subcommand',          0 ],	
 	[ 'uint16v',  'ByteCount',           0 ],
 	[ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
@@ -684,18 +685,17 @@ SMB_NTTRANS_PKT = self.make_nbs(SMB_NTTRANS_HDR_PKT)
 # A SMB template for SMB NTTransaction responses
 SMB_NTTRANS_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 	[ 'template', 'SMB',                 SMB_HDR ],
+	[ 'uint8',    'Reserved1',           0 ],		
+	[ 'uint16v',  'Reserved2',           0 ],
 	[ 'uint32v',  'ParamCountTotal',     0 ],
-	[ 'uint32v',  'DataCountTotal',      0 ],
-	[ 'uint32v',  'Reserved1',           0 ],		
+	[ 'uint32v',  'DataCountTotal',      0 ],	
 	[ 'uint32v',  'ParamCount',          0 ],
 	[ 'uint32v',  'ParamOffset',         0 ],
-	[ 'uint32v',  'ParamDisp',           0 ],		
+	[ 'uint32v',  'ParamDisplace',       0 ],
 	[ 'uint32v',  'DataCount',           0 ],
 	[ 'uint32v',  'DataOffset',          0 ],
-	[ 'uint32v',  'DataDisp',            0 ],
-	[ 'uint8',    'SetupCount',          0 ],
-	[ 'uint8',    'Reserved2',           0 ],
-	[ 'string',   'SetupData', nil,     '' ],	
+	[ 'uint32v',  'DataDisplace',        0 ],		
+	[ 'uint8',    'Reserved3',           0 ],	
 	[ 'uint16v',  'ByteCount',           0 ],
 	[ 'string',   'Payload', nil,       '' ]
 ).create_restraints(
@@ -703,6 +703,27 @@ SMB_NTTRANS_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 )
 SMB_NTTRANS_RES_PKT = self.make_nbs(SMB_NTTRANS_RES_HDR_PKT)
 
+# A SMB template for SMB NTTransaction_Secondary requests
+SMB_NTTRANS_SECONDARY_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+	[ 'template', 'SMB',                 SMB_HDR ],
+	[ 'uint8',    'Reserved1',           0 ],		
+	[ 'uint16v',  'Reserved2',           0 ],
+	[ 'uint32v',  'ParamCountTotal',     0 ],
+	[ 'uint32v',  'DataCountTotal',      0 ],	
+	[ 'uint32v',  'ParamCount',          0 ],
+	[ 'uint32v',  'ParamOffset',         0 ],
+	[ 'uint32v',  'ParamDisplace',       0 ],
+	[ 'uint32v',  'DataCount',           0 ],
+	[ 'uint32v',  'DataOffset',          0 ],
+	[ 'uint32v',  'DataDisplace',        0 ],		
+	[ 'uint8',    'SetupCount',          0 ],
+	[ 'string',   'SetupData', nil,     '' ],			
+	[ 'uint16v',  'ByteCount',           0 ],
+	[ 'string',   'Payload', nil,       '' ]
+).create_restraints(
+	[ 'Payload',   'ByteCount',  nil, true ]
+)
+SMB_NTTRANS_SECONDARY_PKT = self.make_nbs(SMB_NTTRANS_SECONDARY_HDR_PKT)
 
 # A SMB template for SMB Create requests
 SMB_CREATE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
