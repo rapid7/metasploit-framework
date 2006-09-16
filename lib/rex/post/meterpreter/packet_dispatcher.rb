@@ -18,9 +18,16 @@ class RequestError < ArgumentError
 		@method = method
 		@result = result
 	end
+
 	def to_s
 		"#{@method}: Operation failed: #{@result}"
 	end
+
+	# The method that failed.
+	attr_reader :method
+
+	# The error result that occurred, typically a windows error code.
+	attr_reader :result
 end
 
 ###

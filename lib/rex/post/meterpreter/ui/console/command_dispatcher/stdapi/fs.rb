@@ -156,8 +156,16 @@ class Console::CommandDispatcher::Stdapi::Fs
 		# Get a temporary file path
 		temp_path = Tempfile.new('meterp').path
 
-		# Download the remote file to the temporary file
-		client.fs.file.download_file(temp_path, args[0])
+		begin
+			# Download the remote file to the temporary file
+			client.fs.file.download_file(temp_path, args[0])
+		rescue RequestError => re
+			# If the file doesn't exist, then it's okay.  Otherwise, throw the
+			# error.
+			if re.result != 2
+				raise $!
+			end
+		end
 
 		# Spawn the editor
 		editor = ENV['EDITOR'] || 'vi'
