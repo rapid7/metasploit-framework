@@ -49,6 +49,14 @@ end
 
 class DBManager
 
+
+	#
+	# Determines if the database is functional
+	#
+	def check
+		res = Host.find(:all)
+	end
+
 	#
 	# Reports a host as being in a given state by address.
 	#

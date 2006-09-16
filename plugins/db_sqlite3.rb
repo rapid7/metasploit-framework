@@ -53,18 +53,26 @@ class Plugin::DBSQLite3 < Msf::Plugin
 		super
 
 		odb = File.join(Msf::Config.install_root, "data", "sql", "sqlite3.db")
-		ndb = File.join(Msf::Config.install_root, "current.db")
+		ndb = File.join(Msf::Config.config_directory, "sqlite3.db")
 		
-		if (File.exists?(ndb))
-			File.unlink(ndb)
+		if (not File.exists?(ndb))
+			FileUtils.copy(odb, ndb)
 		end
-		
-		FileUtils.copy(odb, ndb)
-		
+
 		if (not framework.db.connect("adapter" => "sqlite3", "dbfile" => ndb))
-			File.unlink(ndb)
+			print_status("Error loading database from #{ndb}")
 			raise PluginLoadError.new("Failed to connect to the database")
 		end
+		
+		begin
+			framework.db.check
+		rescue ::ActiveRecord::StatementInvalid
+			raise PluginLoadError.new("The database at #{ndb} appears to be corrupted")
+		rescue ::Exception
+			print_status("Strange new error class: "  + $!.class.to_s)
+			raise $!
+		end
+		
 		
 		@dbh = DBEventHandler.new
 		

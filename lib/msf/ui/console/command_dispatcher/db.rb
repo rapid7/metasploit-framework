@@ -69,7 +69,7 @@ module Db
 
 		def cmd_db_import_nessus_nbe(*args)
 			if (not (args and args.length == 1))
-				print_status("Usage: db_import_nessus [nessus.nbe]")
+				print_status("Usage: db_import_nessus_nbe [nessus.nbe]")
 				return
 			end
 			
@@ -86,6 +86,8 @@ module Db
 				nasl = r[4]
 				hole = r[5]
 				data = r[6]
+				
+				next if not nasl
 				
 				m = r[3].match(/^([^\(]+)\((\d+)\/([^\)]+)\)/)
 				next if not m
