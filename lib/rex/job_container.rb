@@ -39,7 +39,7 @@ class Job
 					run_proc.call(ctx)
 				ensure
 					clean_proc.call(ctx)
-					remove_job(self)
+					container.remove_job(self)
 				end
 			}
 		end
