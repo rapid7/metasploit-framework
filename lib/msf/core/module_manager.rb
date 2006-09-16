@@ -316,6 +316,7 @@ class ModuleManager < ModuleSet
 		self.module_history       = {}
 		self.module_history_mtime = {}
 		self.module_sets          = {}
+		self.module_failed        = {}
 		self.framework            = framework
 
 		MODULE_TYPES.each { |type|
@@ -391,6 +392,13 @@ class ModuleManager < ModuleSet
 		return module_sets[MODULE_AUX]
 	end
 
+	#
+	# Returns the set of modules that failed to load.
+	#
+	def failed
+		return module_failed
+	end
+	
 	##
 	#
 	# Module cache management to support demand loaded modules.
@@ -627,9 +635,11 @@ class ModuleManager < ModuleSet
 			begin
 				if (!load(mod.file_path))
 					elog("Failed to load module from #{mod.file_path}")
+					self.module_failed[mod.file_path] = "Failed to reload the module"
 					return nil
 				end
-
+			self.module_failed.delete(mod.file_path)
+			
 			rescue
 				elog("Failed to reload module #{mod} from #{mod.file_path}: #{$!}")
 				raise $!
@@ -776,6 +786,7 @@ protected
 					# Keep scanning since we just successfully loaded a delay load
 					# module.
 					ks = true
+
 				# Trap the name error and flag this file path as still needing to
 				# be delay loaded.
 				rescue NameError
@@ -787,6 +798,7 @@ protected
 		# Log all modules that failed to load due to problems
 		delay.each_pair { |file, err|
 			elog("Failed to load module from #{file}: #{err}")
+			self.module_failed[file] = err
 		}
 
 		# Perform any required recalculations for the individual module types
@@ -895,6 +907,7 @@ protected
 				added = module_history[file]
 			else
 				elog("Loaded #{file} but no classes were added.")
+				self.module_failed[file] = "Loaded file, but no classes were registered"
 				return false
 			end
 		else
@@ -921,7 +934,8 @@ protected
 		end
 
 		ilog("Loaded #{type} module #{added} from #{file}.", 'core', LEV_2)
-
+		self.module_failed.delete(file)
+		
 		# Do some processing on the loaded module to get it into the
 		# right associations
 		on_module_load(added, type, name, {
@@ -1038,6 +1052,7 @@ protected
 	attr_accessor :modules, :module_sets # :nodoc:
 	attr_accessor :module_paths # :nodoc:
 	attr_accessor :module_history, :module_history_mtime # :nodoc:
+	attr_accessor :module_failed # :nodoc:
 
 end
 

@@ -192,6 +192,15 @@ class Driver < Msf::Ui::Driver
 	# displayed, scripts can be processed, and other fun can be had.
 	#
 	def on_startup
+		# Check for modules that failed to load
+		if (framework.modules.failed.length > 0)
+			print("[*] WARNING! The following modules could not be loaded!\n\n")
+			framework.modules.failed.each_pair do |file, err|
+				print("\t#{file}: #{err.to_s}\n\n")
+			end
+			print("\n")
+		end
+		
 		# Build the banner message
 		run_single("banner")
 	end
