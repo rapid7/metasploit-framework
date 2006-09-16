@@ -1198,8 +1198,26 @@ class Core
 		res << Rex::Socket.source_address()
 		return res if not framework.db.active
 		
-		framework.db.each_host do |host|
-			res << host.address
+		# List only those hosts with matching open ports?
+		mport = self.active_module.datastore['RPORT']
+		if (mport)
+			mport = mport.to_i
+			hosts = {}
+			framework.db.each_service do |service|
+				if (service.port == mport)
+					hosts[ service.host.address ] = true
+				end
+			end
+			
+			hosts.keys.each do |host|
+				res << host
+			end
+			
+		# List all hosts in the database
+		else
+			framework.db.each_host do |host|
+				res << host.address
+			end
 		end
 		
 		return res
