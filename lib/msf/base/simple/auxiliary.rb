@@ -59,7 +59,7 @@ module Auxiliary
 			opts['LocalOutput'])
 
 		if (opts['RunAsJob'])
-			mod.framework.jobs.start_bg_job(
+			mod.framework.jobs.start_job(
 				"Auxiliary: #{mod.refname}", 
 				mod,
 				Proc.new { |mod| self.job_run_proc(mod) },
