@@ -147,7 +147,10 @@ class DBManager
 	def vulns
 		Vuln.find(:all)
 	end
-		
+	
+	#
+	# Find or create a host matching this address/comm
+	#
 	def get_host(context, address, comm='')
 		host = Host.find(:first, :conditions => [ "address = ? and comm = ?", address, comm])
 		if (not host)
@@ -158,7 +161,10 @@ class DBManager
 
 		return host
 	end
-	
+
+	#
+	# Find or create a service matching this host/proto/port/state
+	#	
 	def get_service(context, host, proto, port, state=ServiceState::Up)
 		rec = Service.find(:first, :conditions => [ "host_id = ? and proto = ? and port = ?", host.id, proto, port])
 		if (not rec)
@@ -174,10 +180,13 @@ class DBManager
 		return rec
 	end
 
+	#
+	# Find or create a vuln matching this service/name
+	#	
 	def get_vuln(context, service, name, data='')
 		vuln = Vuln.find(:first, :conditions => [ "name = ? and service_id = ?", name, service.id])
 		if (not vuln)
-			vuln= Vuln.create(
+			vuln = Vuln.create(
 				:service_id => service.id,
 				:name       => name,
 				:data       => data
@@ -188,7 +197,33 @@ class DBManager
 
 		return vuln
 	end
-		
+
+	#
+	# Find or create a reference matching this name
+	#
+	def get_ref(context, name)
+		ref = Ref.find(:first, :conditions => [ "name = ?", name])
+		if (not ref)
+			ref = Ref.create(
+				:name       => name
+			)
+			ref.save
+			framework.events.on_db_ref(context, ref)
+		end
+
+		return ref
+	end
+
+	#
+	# Find a reference matching this name
+	#
+	def has_ref?(name)
+		Ref.find(:first, :conditions => [ "name = ?", name])
+	end
+	
+	#
+	# Look for an address across all comms
+	#			
 	def has_host?(addr)
 		Host.find(:first, :conditions => [ "address = ?", addr])
 	end

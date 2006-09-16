@@ -42,20 +42,28 @@ end
 # Host object definition
 class Host < ActiveRecord::Base
 	include DBSave
+	has_many :services
+	has_many :vulns, :through => :services
+	
 end
 
 # Service object definition
 class Service < ActiveRecord::Base
 	include DBSave
-		
-	def host
-		Host.find(:first, :conditions => [ "id = ?", host_id ])
-	end
+	has_many :vulns
+	belongs_to :host
+	
+	#def host
+	#	Host.find(:first, :conditions => [ "id = ?", host_id ])
+	#end
 end
 
 # Vuln object definition
 class Vuln < ActiveRecord::Base
 	include DBSave
+	
+	belongs_to :service
+	has_and_belongs_to_many :refs, :join_table => :vulns_refs
 	
 	def service
 		Service.find(:first, :conditions => [ "id = ?", service_id ])
@@ -65,6 +73,13 @@ class Vuln < ActiveRecord::Base
 		Host.find(:first, :conditions => [ "id = ?", service.host_id ])
 	end
 end
+
+# Reference object definition
+class Ref < ActiveRecord::Base
+	has_and_belongs_to_many :vulns, :join_table => :vulns_refs
+	include DBSave
+end
+
 
 end
 end

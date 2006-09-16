@@ -21,6 +21,7 @@ module Db
 				"db_vulns"    => "List all vulnerabilities in the database",
 				"db_add_host" => "Add one or more hosts to the database",
 				"db_add_port" => "Add a port to host",
+				"db_autopwn"  => "Automatically exploit everything",
 				"db_import_nessus_nbe" => "Import a Nessus scan result file (NBE)",
 				# "db_import_nmap_xml"   => "Import a Nmap scan results file (-oX)",
 			}
@@ -41,7 +42,8 @@ module Db
 		
 		def cmd_db_vulns(*args)
 			framework.db.each_vuln do |vuln|
-				puts "Vuln: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name}"
+				reflist = vuln.refs.map { |r| r.name }
+				puts "Vuln: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}"
 			end
 		end	
 		
@@ -86,8 +88,7 @@ module Db
 				nasl = r[4]
 				hole = r[5]
 				data = r[6]
-				
-				next if not nasl
+				refs = {}
 				
 				m = r[3].match(/^([^\(]+)\((\d+)\/([^\)]+)\)/)
 				next if not m
@@ -99,9 +100,58 @@ module Db
 				service.name = m[1]
 				service.save
 				
-				vuln = framework.db.get_vuln(nil, service, "NSS-#{nasl.to_s}", data)
+				next if not nasl
+				
+				data.gsub!("\\n", "\n")
+				
+				
+				if (data =~ /^CVE : (.*)$/)
+					$1.gsub(/C(VE|AN)\-/, '').split(',').map { |r| r.strip }.each do |r|
+						refs[ 'CVE-' + r ] = true
+					end
+				end
+
+				if (data =~ /^BID : (.*)$/)
+					$1.split(',').map { |r| r.strip }.each do |r|
+						refs[ 'BID-' + r ] = true
+					end
+				end
+				
+				refs[ 'NSS-' + nasl.to_s ] = true
+								
+				vuln = framework.db.get_vuln(nil, service, 'NSS-' + nasl.to_s, data)
+				
+				rids = []
+				refs.keys.each do |r|
+					rids << framework.db.get_ref(nil, r)
+				end
+				
+				vuln.refs << (rids - vuln.refs)
 			end
-		end	
+		end
+		
+		def cmd_db_autopwn(*args)
+			matches = {}
+			framework.exploits.each_module do |n,m|
+				e = m.new
+				e.references.each do |r|
+					next if r.ctx_id == 'URL'
+					ref_name = r.ctx_id + '-' + r.ctx_val
+					ref = framework.db.has_ref(ref_name)
+					next if not ref
+					ref.vulns.each do |vuln|
+						xport = vuln.service.port
+						xprot = vuln.service.proto
+						xhost = vuln.service.host.address
+						matches[[xport,xprot,xhost,n]]=true
+					end
+				end
+			end
+			
+			matches.each_key do |xref|
+				print_status("exploit/#{xref[3]} RPORT=#{xref[0].to_s} RHOST=#{xref[2].to_s}")
+			end
+		end
 
 end
 end
