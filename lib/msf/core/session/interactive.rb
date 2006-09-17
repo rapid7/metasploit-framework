@@ -46,7 +46,7 @@ module Interactive
 		begin
 			rstream.peerinfo
 		rescue
-			framework.sessions.deregister(sid)
+			framework.sessions.deregister(self)
 		end
 	end
 
