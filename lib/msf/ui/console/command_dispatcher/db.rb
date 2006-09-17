@@ -198,7 +198,7 @@ module Db
 
 			when '-x'
 				matches.each_key do |xref|
-					print_status("Launching #{xref[3]} against #{xref[2].to_s}:#{xref[0].to_s}...")
+					
 					begin
 						mod = nil
 						
@@ -212,6 +212,10 @@ module Db
 						mod.datastore['PAYLOAD'] = 'generic/shell_bind_tcp'
 						mod.datastore['LPORT']   = (rand(0xfff) + 4000).to_s
 
+						next if not mod.autofilter()
+						
+						print_status("Launching #{xref[3]} against #{xref[2].to_s}:#{mod.datastore['RPORT'].to_s}...")
+						
 						begin
 							case mod.type
 							when MODULE_EXPLOIT
@@ -219,12 +223,12 @@ module Db
 									'Payload'        => mod.datastore['PAYLOAD'],
 									'LocalInput'     => driver.input,
 									'LocalOutput'    => driver.output,
-									'RunAsJob'       => true) if mod.autofilter()
+									'RunAsJob'       => true)
 							when MODULE_AUX
 								session = mod.run_simple(
 									'LocalInput'     => driver.input,
 									'LocalOutput'    => driver.output,
-									'RunAsJob'       => true) if mod.autofilter()					
+									'RunAsJob'       => true)			
 							end
 						rescue ::Exception
 							print_status(" >> Exception during launch from #{xref[3]}: #{$!.to_s}")
