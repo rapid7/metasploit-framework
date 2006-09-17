@@ -205,7 +205,7 @@ protected
 		elsif datastore['ARCH']
 			arch = datastore['ARCH']
 		elsif assoc_exploit
-			arch = assoc_exploit.target_arch
+			arch = assoc_exploit.target_arch || ARCH_X86
 		end
 
 		# If we still have an invalid architecture, then we suck.
