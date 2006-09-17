@@ -15,7 +15,7 @@ class Auxiliary
 
 	@@auxiliary_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                                        ],
-		"-j" => [ false,  "Run in the context of a job."                                       ],
+		"-j" => [ false, "Run in the context of a job."                                       ],
 		"-o" => [ true,  "A comma separated list of options in VAR=VAL format."                ],
 		"-a" => [ true,  "The action to use.  If none is specified, ACTION is used."           ]
 	)
@@ -27,6 +27,8 @@ class Auxiliary
 		{
 			"run"   => "Launches the auxiliary module",
 			"rerun" => "Reloads and launches the auxiliary module",
+			"exploit" => "This is an alias for the run command",
+			"rexploit" => "This is an alias for the rerun command"
 		}.merge( (mod ? mod.auxiliary_commands : {}) )
 	end
 
@@ -49,6 +51,13 @@ class Auxiliary
 	end
 
 	#
+	# This is an alias for 'rerun'
+	#
+	def cmd_rexploit(*args)
+		cmd_rerun(*args)
+	end
+	
+	#
 	# Reloads an auxiliary module and executes it
 	#
 	def cmd_rerun(*args)
@@ -59,6 +68,13 @@ class Auxiliary
 		rescue
 			log_error("Failed to rerun: #{$!}")
 		end
+	end
+
+	#
+	# This is an alias for 'run'
+	#
+	def cmd_exploit(*args)
+		cmd_run(*args)
 	end
 	
 	#

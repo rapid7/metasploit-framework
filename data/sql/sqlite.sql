@@ -1,4 +1,4 @@
-
+drop table hosts;
 create table hosts (
 'id' INTEGER PRIMARY KEY NOT NULL,
 'address' VARCHAR(16) UNIQUE,
@@ -8,6 +8,7 @@ create table hosts (
 'desc' VARCHAR(1024)
 );
 
+drop table services;
 create table services (
 'id' INTEGER PRIMARY KEY NOT NULL,
 'host_id' INTEGER,
@@ -18,6 +19,7 @@ create table services (
 'desc' VARCHAR(1024)
 );
 
+drop table vulns;
 create table vulns (
 'id' INTEGER PRIMARY KEY NOT NULL,
 'service_id' INTEGER,
@@ -25,12 +27,14 @@ create table vulns (
 'data' TEXT
 );
 
+drop table refs;
 create table refs (
 'id' INTEGER PRIMARY KEY NOT NULL,
 'ref_id' INTEGER,
 'name' VARCHAR(512)
 );
 
+drop table vulns_refs;
 create table vulns_refs (
 'ref_id' INTEGER,
 'vuln_id' INTEGER

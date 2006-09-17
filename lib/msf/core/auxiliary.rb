@@ -98,7 +98,22 @@ class Auxiliary < Msf::Module
 	def passive_action?(action)
 		passive_actions.include?(action)
 	end
-	
+
+	#
+	# Performs last-minute sanity checking of auxiliary parameters. This method
+	# is called during automated exploitation attempts and allows an
+	# auxiliary module to filter bad attempts, obtain more information, and choose
+	# better parameters based on the available data. Returning anything that
+	# evaluates to "false" will cause this specific auxiliary attempt to
+	# be skipped. This method can and will change datastore values and
+	# may interact with the backend database. The default value for auxiliary
+	# modules is false, since not all auxiliary modules actually attempt
+	# to exploit a vulnerability.
+	#
+	def autofilter
+		false
+	end
+		
 	#
 	# Called directly before 'run'
 	#

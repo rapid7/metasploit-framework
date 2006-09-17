@@ -220,14 +220,44 @@ class DBManager
 	def has_ref?(name)
 		Ref.find(:first, :conditions => [ "name = ?", name])
 	end
-	
+
+	#
+	# Find a vulnerability matching this name
+	#
+	def has_vuln?(name)
+		Vuln.find(:first, :conditions => [ "name = ?", name])
+	end
+		
 	#
 	# Look for an address across all comms
 	#			
 	def has_host?(addr)
 		Host.find(:first, :conditions => [ "address = ?", addr])
 	end
+
+	#
+	# Find all references matching a vuln
+	#		
+	def refs_by_vuln(vuln)
+		Ref.find_by_sql(
+			"SELECT refs.* FROM refs, vulns_refs WHERE " +
+			"vulns_refs.vuln_id = #{vuln.id} AND " +
+			"vulns_refs.ref_id = refs.id"
+		)
+	end	
 	
+	#
+	# Find all vulns matching a reference
+	#		
+	def vulns_by_ref(ref)
+		Vuln.find_by_sql(
+			"SELECT vulns.* FROM vulns, vulns_refs WHERE " +
+			"vulns_refs.ref_id = #{ref.id} AND " +
+			"vulns_refs.vuln_id = vulns.id"
+		)
+	end	
+
+									
 end
 
 end

