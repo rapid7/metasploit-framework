@@ -52,6 +52,13 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	##
 
 	#
+	# Cleans up the meterpreter client session.
+	#
+	def cleanup
+		cleanup_meterpreter
+	end
+
+	#
 	# Returns the session description.
 	#
 	def desc

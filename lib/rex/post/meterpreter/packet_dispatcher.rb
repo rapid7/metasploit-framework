@@ -118,7 +118,7 @@ module PacketDispatcher
 		self.waiters = []
 
 		# Spawn a new thread that monitors the socket
-		thr = ::Thread.new {
+		self.dispatcher_thread = ::Thread.new {
 			while (true)
 				begin
 					rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, 2)
@@ -261,6 +261,7 @@ module PacketDispatcher
 
 protected
 
+	attr_accessor :dispatcher_thread # :nodoc:
 	attr_accessor :waiters # :nodoc:
 end
 

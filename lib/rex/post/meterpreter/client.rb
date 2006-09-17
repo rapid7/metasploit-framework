@@ -62,6 +62,13 @@ class Client
 	end
 
 	#
+	# Cleans up the meterpreter instance, terminating the dispatcher thread.
+	#
+	def cleanup_meterpreter
+		dispatcher_thread.kill if dispatcher_thread
+	end
+
+	#
 	# Initializes the meterpreter client instance
 	#
 	def init_meterpreter(sock, to = self.class.default_timeout)
