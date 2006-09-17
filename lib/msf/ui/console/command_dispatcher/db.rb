@@ -119,7 +119,8 @@ module Db
 
 				if (data =~ /^Other references : (.*)$/)
 					$1.split(',').map { |r| r.strip }.each do |r|
-						refs[ r ] = true
+						ref_id, ref_val = r.split(':')
+						ref_val ? refs[ ref_id + '-' + ref_val ] = true : refs[ ref_id ] = true
 					end
 				end
 								
