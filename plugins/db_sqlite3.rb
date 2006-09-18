@@ -45,7 +45,7 @@ class Plugin::DBSQLite3 < Msf::Plugin
 		def cmd_db_disconnect(*args)
 			if (framework.db)
 				framework.db.disconnect()
-				driver.remove_dispatcher(DatabaseCommandDispatcher)
+				driver.remove_dispatcher('Database Backend')
 			end
 		end
 
@@ -58,6 +58,10 @@ class Plugin::DBSQLite3 < Msf::Plugin
 
 			opts['dbfile'] = info[:path]
 
+			if (not File.exists?(opts['dbfile']))
+				print_status("The specified database does not exist")
+				return
+			end
 			
 			if (not framework.db.connect(opts))
 				raise PluginLoadError.new("Failed to connect to the database")
@@ -79,7 +83,7 @@ class Plugin::DBSQLite3 < Msf::Plugin
 			
 			odb = File.join(Msf::Config.install_root, "data", "sql", "sqlite3.db")
 			
-			File.copy(odb, info[:path])
+			FileUtils.copy(odb, info[:path])
 
 			if (not framework.db.connect(opts))
 				raise PluginLoadError.new("Failed to connect to the database")
@@ -98,7 +102,7 @@ class Plugin::DBSQLite3 < Msf::Plugin
 		
 		def parse_db_uri(path)
 			res = {}
-			res[:path] = path || Msf::Config.config_directory('metasploit3.db3')
+			res[:path] = path || File.join(Msf::Config.config_directory, 'sqlite3.db')
 			res
 		end
 	end

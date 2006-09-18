@@ -46,7 +46,7 @@ class Plugin::DBPostgres < Msf::Plugin
 		def cmd_db_disconnect(*args)
 			if (framework.db)
 				framework.db.disconnect()
-				driver.remove_dispatcher(DatabaseCommandDispatcher)
+				driver.remove_dispatcher('Database Backend')
 			end
 		end
 
