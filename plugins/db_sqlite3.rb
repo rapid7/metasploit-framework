@@ -13,36 +13,104 @@ module Msf
 
 class Plugin::DBSQLite3 < Msf::Plugin
 
-	###
 	#
-	# This class implements an event handler for db events
+	# Command dispatcher for configuring SQLite
 	#
-	###
-	class DBEventHandler
-		def on_db_host(context, host)
-			# puts "New host event: #{host.address}"
+	class SQLiteCommandDispatcher
+		include Msf::Ui::Console::CommandDispatcher
+
+		#
+		# The dispatcher's name.
+		#
+		def name
+			"SQLite3 Database"
 		end
 		
-		def on_db_service(context, service)
-			# puts "New service event: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}"
+		#
+		# The initial command set
+		#		
+		def commands
+			{
+				"db_connect"    => "Connect to an existing database ( /path/to/db )",
+				"db_disconnect" => "Disconnect from the current database instance",
+				"db_create"     => "Create a brand new database ( /path/to/db )",
+				"db_destroy"    => "Drop an existing database ( /path/to/db )"
+			}
+		end
+
+
+		#
+		# Disconnect from the current SQLite instance
+		#
+		def cmd_db_disconnect(*args)
+			if (framework.db)
+				framework.db.disconnect()
+				driver.remove_dispatcher(DatabaseCommandDispatcher)
+			end
+		end
+
+		#
+		# Connect to an existing SQLite database
+		#
+		def cmd_db_connect(*args)
+			info = parse_db_uri(args[0])
+			opts = { 'adapter' => 'sqlite3' }
+
+			opts['dbfile'] = info[:path]
+
+			
+			if (not framework.db.connect(opts))
+				raise PluginLoadError.new("Failed to connect to the database")
+			end
+			
+			driver.append_dispatcher(DatabaseCommandDispatcher)
+		end
+
+		#
+		# Create a new SQLite database instance
+		#				
+		def cmd_db_create(*args)
+			cmd_db_disconnect()
+			
+			info = parse_db_uri(args[0])
+			opts = { 'adapter' => 'sqlite3' }
+	
+			opts['dbfile'] = info[:path]
+			
+			odb = File.join(Msf::Config.install_root, "data", "sql", "sqlite3.db")
+			
+			File.copy(odb, info[:path])
+
+			if (not framework.db.connect(opts))
+				raise PluginLoadError.new("Failed to connect to the database")
+			end
+			driver.append_dispatcher(DatabaseCommandDispatcher)	
+		end
+
+		#
+		# Drop an existing database
+		#
+		def cmd_db_destroy(*args)
+			cmd_db_disconnect()
+			info = parse_db_uri(args[0])
+			File.unlink(info[:path])
 		end
 		
-		def on_db_vuln(context, vuln)
-			# puts "New vuln event: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name}"
+		def parse_db_uri(path)
+			res = {}
+			res[:path] = path || Msf::Config.config_directory('metasploit3.db3')
+			res
 		end
 	end
 	
-	###
 	#
-	# Inherit the database command set
+	# Wrapper class for the database command dispatcher
 	#
-	###
-	class ConsoleCommandDispatcher
+	class DatabaseCommandDispatcher
 		include Msf::Ui::Console::CommandDispatcher
 		include Msf::Ui::Console::CommandDispatcher::Db
 	end
 
-	
 	###
 	#
 	# Database specific initialization goes here
@@ -51,38 +119,12 @@ class Plugin::DBSQLite3 < Msf::Plugin
 	
 	def initialize(framework, opts)
 		super
-
-		odb = File.join(Msf::Config.install_root, "data", "sql", "sqlite3.db")
-		ndb = File.join(Msf::Config.config_directory, "sqlite3.db")
-		
-		if (not File.exists?(ndb))
-			FileUtils.copy(odb, ndb)
-		end
-
-		if (not framework.db.connect("adapter" => "sqlite3", "dbfile" => ndb))
-			print_status("Error loading database from #{ndb}")
-			raise PluginLoadError.new("Failed to connect to the database")
-		end
-		
-		begin
-			framework.db.check
-		rescue ::ActiveRecord::StatementInvalid
-			raise PluginLoadError.new("The database at #{ndb} appears to be corrupted")
-		rescue ::Exception
-			print_status("Strange new error class: "  + $!.class.to_s)
-			raise $!
-		end
-		
-		
-		@dbh = DBEventHandler.new
-		
-		add_console_dispatcher(ConsoleCommandDispatcher)
-		framework.events.add_db_subscriber(@dbh)
-		
+		add_console_dispatcher(SQLiteCommandDispatcher)
 	end
+	
 
 	def cleanup
-		framework.events.remove_db_subscriber(@dbh)
+		remove_console_dispatcher('SQLite3 Database')
 		remove_console_dispatcher('Database Backend')	
 	end
 

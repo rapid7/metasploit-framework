@@ -32,10 +32,10 @@ class Plugin::DBPostgres < Msf::Plugin
 		#		
 		def commands
 			{
-				"pg_connect"    => "Connect to an existing database ( user:pass@host:port/db )",
-				"pg_disconnect" => "Disconnect from the current database instance",
-				"pg_create"     => "Create a brand new database ( user:pass@host:port/db )",
-				"pg_destroy"    => "Drop an existing database ( user:pass@host:port/db )"
+				"db_connect"    => "Connect to an existing database ( user:pass@host:port/db )",
+				"db_disconnect" => "Disconnect from the current database instance",
+				"db_create"     => "Create a brand new database ( user:pass@host:port/db )",
+				"db_destroy"    => "Drop an existing database ( user:pass@host:port/db )"
 			}
 		end
 
@@ -43,7 +43,7 @@ class Plugin::DBPostgres < Msf::Plugin
 		#
 		# Disconnect from the current Postgres instance
 		#
-		def cmd_pg_disconnect(*args)
+		def cmd_db_disconnect(*args)
 			if (framework.db)
 				framework.db.disconnect()
 				driver.remove_dispatcher(DatabaseCommandDispatcher)
@@ -53,7 +53,7 @@ class Plugin::DBPostgres < Msf::Plugin
 		#
 		# Connect to an existing Postgres database
 		#
-		def cmd_pg_connect(*args)
+		def cmd_db_connect(*args)
 			info = parse_db_uri(args[0])
 			opts = { 'adapter' => 'postgresql' }
 			
@@ -73,8 +73,8 @@ class Plugin::DBPostgres < Msf::Plugin
 		#
 		# Create a new Postgres database instance
 		#				
-		def cmd_pg_create(*args)
-			cmd_pg_disconnect()
+		def cmd_db_create(*args)
+			cmd_db_disconnect()
 			
 			info = parse_db_uri(args[0])
 			opts = { 'adapter' => 'postgresql' }
@@ -128,9 +128,9 @@ class Plugin::DBPostgres < Msf::Plugin
 		#
 		# Drop an existing database
 		#
-		def cmd_pg_destroy(*args)
+		def cmd_db_destroy(*args)
 
-			cmd_pg_disconnect()
+			cmd_db_disconnect()
 
 			info = parse_db_uri(args[0])
 			argv = []
