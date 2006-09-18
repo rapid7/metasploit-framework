@@ -377,6 +377,7 @@ module Db
 					prot = port.attributes['protocol']
 					pnum = port.attributes['portid']
 					stat = port.elements['state'].attributes['state']
+					next if not port.elements['service']
 					name = port.elements['service'].attributes['name']
 					prod = port.elements['service'].attributes['product']
 					xtra = port.elements['service'].attributes['extrainfo']
