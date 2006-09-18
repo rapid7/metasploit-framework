@@ -116,6 +116,7 @@ module Db
 					print_line("\t-t   Show all matching exploit modules")
 					print_line("\t-x   Select modules based on vulnerability references")
 					print_line("\t-p   Select modules based on open ports")
+					print_line("\t-e   Launch exploits against all matched targets")
 					print_line("\t-s   Only obtain a single shell per target system")
 					print_line("\t-r   Use a reverse connect shell")
 					print_line("\t-b   Use a bind shell on a random port")

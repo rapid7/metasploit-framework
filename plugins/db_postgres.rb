@@ -12,36 +12,175 @@ module Msf
 ###
 
 class Plugin::DBPostgres < Msf::Plugin
+	
+	
+	#
+	# Command dispatcher for configuring Postgres
+	#
+	class PostgresCommandDispatcher
+		include Msf::Ui::Console::CommandDispatcher
 
-	###
-	#
-	# This class implements an event handler for db events
-	#
-	###
-	class DBEventHandler
-		def on_db_host(context, host)
-			# puts "New host event: #{host.address}"
+		#
+		# The dispatcher's name.
+		#
+		def name
+			"Postgres Database"
 		end
 		
-		def on_db_service(context, service)
-			# puts "New service event: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}"
+		#
+		# The initial command set
+		#		
+		def commands
+			{
+				"pg_connect"    => "Connect to an existing database ( user:pass@host:port/db )",
+				"pg_disconnect" => "Disconnect from the current database instance",
+				"pg_create"     => "Create a brand new database ( user:pass@host:port/db )",
+				"pg_destroy"    => "Drop an existing database ( user:pass@host:port/db )"
+			}
+		end
+
+
+		#
+		# Disconnect from the current Postgres instance
+		#
+		def cmd_pg_disconnect(*args)
+			if (framework.db)
+				framework.db.disconnect()
+				driver.remove_dispatcher(DatabaseCommandDispatcher)
+			end
+		end
+
+		#
+		# Connect to an existing Postgres database
+		#
+		def cmd_pg_connect(*args)
+			info = parse_db_uri(args[0])
+			opts = { 'adapter' => 'postgresql' }
+			
+			opts['username'] = info[:user] if (info[:user])
+			opts['password'] = info[:pass] if (info[:pass])
+			opts['database'] = info[:name]
+			opts['host'] = info[:host] if (info[:host])
+			opts['port'] = info[:port] if (info[:port])
+			
+			if (not framework.db.connect(opts))
+				raise PluginLoadError.new("Failed to connect to the database")
+			end
+			
+			driver.append_dispatcher(DatabaseCommandDispatcher)
+		end
+
+		#
+		# Create a new Postgres database instance
+		#				
+		def cmd_pg_create(*args)
+			cmd_pg_disconnect()
+			
+			info = parse_db_uri(args[0])
+			opts = { 'adapter' => 'postgresql' }
+			argv = []
+			
+			if (info[:user])
+				opts['username'] = info[:user] 
+				argv.push('-U')
+				argv.push(info[:user])
+			end
+			
+			if (info[:pass])
+				opts['password'] = info[:pass] 
+				argv.push('-P')
+				argv.push(info[:pass])			
+			end
+			
+			if (info[:host])
+				opts['host'] = info[:host]
+				argv.push('-h')
+				argv.push(info[:host])
+			end
+			
+			if (info[:port])
+				opts['port'] = info[:port]
+				argv.push('-p')
+				argv.push(info[:port])
+			end
+						
+			opts['database'] = info[:name]
+
+			cargs = argv.map{|c| "'#{c}' "}.join
+			
+			sql = File.join(Msf::Config.install_root, "data", "sql", "postgres.sql")
+			fd  = File.open(sql, 'r')
+			
+			system("dropdb #{cargs} #{info[:name]}")
+			system("createdb #{cargs} #{info[:name]}")
+
+			psql = File.popen("psql -q " + cargs + info[:name], "w")
+			psql.write(fd.read)
+			psql.close
+			fd.close
+
+			if (not framework.db.connect(opts))
+				raise PluginLoadError.new("Failed to connect to the database")
+			end
+			driver.append_dispatcher(DatabaseCommandDispatcher)	
+		end
+
+		#
+		# Drop an existing database
+		#
+		def cmd_pg_destroy(*args)
+
+			cmd_pg_disconnect()
+
+			info = parse_db_uri(args[0])
+			argv = []
+			
+			if (info[:user])
+				argv.push('-U')
+				argv.push(info[:user])
+			end
+			
+			if (info[:pass])
+				argv.push('-P')
+				argv.push(info[:pass])			
+			end
+			
+			if (info[:host])
+				argv.push('-h')
+				argv.push(info[:host])
+			end
+			
+			if (info[:port])
+				argv.push('-p')
+				argv.push(info[:port])
+			end
+
+			cargs = argv.map{|c| "'#{c}' "}.join
+			system("dropdb #{cargs} #{info[:name]}")
 		end
 		
-		def on_db_vuln(context, vuln)
-			# puts "New vuln event: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name}"
+		def parse_db_uri(path)
+			res = {}
+			if (path)
+				auth, dest = path.split('@')
+				(dest = auth and auth = nil) if not dest
+				res[:user],res[:pass] = auth.split(':') if auth
+				targ,name = dest.split('/')
+				(name = targ and targ = nil) if not name
+				res[:host],res[:port] = targ.split(':') if targ
+			end
+			res[:name] = name || 'metasploit3'
+			res
 		end
 	end
 	
-	###
 	#
-	# Inherit the database command set
+	# Wrapper class for the database command dispatcher
 	#
-	###
-	class ConsoleCommandDispatcher
+	class DatabaseCommandDispatcher
 		include Msf::Ui::Console::CommandDispatcher
 		include Msf::Ui::Console::CommandDispatcher::Db
 	end
-
 	
 	###
 	#
@@ -51,28 +190,12 @@ class Plugin::DBPostgres < Msf::Plugin
 	
 	def initialize(framework, opts)
 		super
-
-		sql = File.join(Msf::Config.install_root, "data", "sql", "postgres.sql")
-		
-		system("dropdb msfcurrent")
-		system("createdb msfcurrent")
-		system("psql msfcurrent < #{sql}")
-		
-		if (not framework.db.connect(
-			'adapter'  => "postgresql",
-			'database' => "msfcurrent"))
-			raise PluginLoadError.new("Failed to connect to the database")
-		end
-		
-		@dbh = DBEventHandler.new
-		
-		add_console_dispatcher(ConsoleCommandDispatcher)
-		framework.events.add_db_subscriber(@dbh)
+		add_console_dispatcher(PostgresCommandDispatcher)
 	end
 	
 
 	def cleanup
-		framework.events.remove_db_subscriber(@dbh)
+		remove_console_dispatcher('PostgreSQL Database')
 		remove_console_dispatcher('Database Backend')	
 	end
 
