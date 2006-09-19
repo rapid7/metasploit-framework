@@ -45,6 +45,7 @@ class Console::CommandDispatcher::Core
 			"use"      => "Load a one or more meterpreter extensions",
 			"quit"     => "Terminate the meterpreter session",
 			"read"     => "Reads data from a channel",
+			"run"      => "Executes a meterpreter script",
 			"write"    => "Writes data to a channel",
 		}
 	end
@@ -288,6 +289,29 @@ class Console::CommandDispatcher::Core
 		end
 			
 		return true
+	end
+
+	#
+	# Executes a script in the context of the meterpreter session.
+	#
+	def cmd_run(*args)
+		if args.length == 0
+			print_line(
+				"Usage: run script [args]\n\n" +
+				"Executes a ruby script in the context of the meterpreter session.")
+			return true
+		end
+
+		# Get the script name
+		begin
+			# Set up some local bindings.
+			input  = shell.input
+			output = shell.output
+
+			client.execute_script(args.shift, binding)
+		rescue
+			print_error("Error in script: #{$!}")
+		end
 	end
 
 	#

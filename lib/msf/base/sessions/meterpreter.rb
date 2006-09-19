@@ -56,6 +56,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	def cleanup
 		cleanup_meterpreter
+
+		super
 	end
 
 	#
@@ -108,6 +110,42 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	def run_cmd(cmd)
 		console.run_single(cmd)
+	end
+
+	ScriptBase     = Msf::Config.script_directory + Msf::Config::FileSep + "meterpreter"
+	UserScriptBase = Msf::Config.user_script_directory + Msf::Config::FileSep + "meterpreter"
+
+	#
+	# Executes the supplie script.
+	#
+	def execute_script(script, in_binding)
+		# Find the full file path of the specified argument
+		check_paths = 
+			[
+				script,
+				ScriptBase + Msf::Config::FileSep + "#{script}",
+				ScriptBase + Msf::Config::FileSep + "#{script}.rb",
+				UserScriptBase + Msf::Config::FileSep + "#{script}",
+				UserScriptBase + Msf::Config::FileSep + "#{script}.rb"
+			]
+
+		full_path = nil
+
+		# Scan all of the path combinations
+		check_paths.each { |path|
+			if ::File.exists?(path)
+				full_path = path
+				break
+			end
+		}
+
+		# No path found?  Weak.
+		if full_path.nil?
+			print_error("The specified script could not be found: #{script}")
+			return true
+		end
+
+		execute_file(full_path, in_binding)
 	end
 
 	#

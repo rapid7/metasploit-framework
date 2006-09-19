@@ -35,6 +35,7 @@ class Config < Hash
 			'ConfigDirectory'     => get_config_root,
 			'ConfigFile'          => "config",
 			'ModuleDirectory'     => "modules",
+			'ScriptDirectory'     => "scripts",
 			'LogDirectory'        => "logs",
 			'SessionLogDirectory' => "logs/sessions",
 			'PluginDirectory'     => "plugins",
@@ -71,6 +72,13 @@ class Config < Hash
 	#
 	# Calls the instance method.
 	#
+	def self.script_directory
+		self.new.script_directory
+	end
+
+	#
+	# Calls the instance method.
+	#
 	def self.log_directory
 		self.new.log_directory
 	end
@@ -94,6 +102,13 @@ class Config < Hash
 	#
 	def self.user_module_directory
 		self.new.user_module_directory
+	end
+
+	#
+	# Calls the instance method.
+	#
+	def self.user_script_directory
+		self.new.user_script_directory
 	end
 	
 	#
@@ -167,6 +182,13 @@ class Config < Hash
 	end
 
 	#
+	# Returns the path that scripts can be loaded from.
+	#
+	def script_directory
+		install_root + FileSep + self['ScriptDirectory']
+	end
+
+	#
 	# Returns the directory that log files should be stored in.
 	#
 	def log_directory
@@ -192,6 +214,13 @@ class Config < Hash
 	#
 	def user_module_directory
 		config_directory + FileSep + "modules"
+	end
+
+	#
+	# Returns the user-specific script base path
+	#
+	def user_script_directory
+		config_directory + FileSep + "scripts"
 	end
 
 	#

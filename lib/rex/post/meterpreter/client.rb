@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'socket'
+require 'rex/script'
 require 'rex/post/meterpreter/client_core'
 require 'rex/post/meterpreter/channel'
 require 'rex/post/meterpreter/channel_container'
@@ -88,6 +89,16 @@ class Client
 		register_inbound_handler(Rex::Post::Meterpreter::Channel)
 
 		monitor_socket
+	end
+
+	#
+	# Loads the contents of the supplied file and executes it as a script using
+	# the binding context of the session
+	#
+	def execute_file(file, in_binding = nil)
+		client = self
+
+		Rex::Script.execute_file(file, in_binding ? in_binding : binding)
 	end
 
 	##
