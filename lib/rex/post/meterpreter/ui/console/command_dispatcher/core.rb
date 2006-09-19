@@ -228,7 +228,7 @@ class Console::CommandDispatcher::Core
 					print(
 						"Usage: use ext1 ext2 ext3 ...\n\n" +
 						"Loads a meterpreter extension module or modules.\n" +
-						@use_opts.usage)
+						@@use_opts.usage)
 					return true
 			end
 		}
