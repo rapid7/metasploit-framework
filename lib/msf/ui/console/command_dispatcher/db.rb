@@ -376,7 +376,10 @@ module Db
 				host.elements['ports'].elements.each('port') do |port|
 					prot = port.attributes['protocol']
 					pnum = port.attributes['portid']
+					
+					next if not port.elements['state']
 					stat = port.elements['state'].attributes['state']
+					
 					next if not port.elements['service']
 					name = port.elements['service'].attributes['name']
 					prod = port.elements['service'].attributes['product']
