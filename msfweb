@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+#
+# This user interface provides users with a command console interface to the
+# framework.
+#
+
+msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
+$:.unshift(File.join(File.dirname(msfbase), 'lib'))
+
+msfserv = File.join(File.dirname(msfbase), 'data', 'msfweb', 'script', 'server')
+system(msfserv, '-p', '55555', '-b', '127.0.0.1')
+
