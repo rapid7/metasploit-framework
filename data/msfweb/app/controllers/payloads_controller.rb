@@ -8,4 +8,5 @@ class PayloadsController < ApplicationController
 
   def generate
   end
+  
 end
