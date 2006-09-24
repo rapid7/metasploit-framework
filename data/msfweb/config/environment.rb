@@ -51,3 +51,14 @@ end
 # end
 
 # Include your application configuration below
+
+msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
+$:.unshift(File.join(File.dirname(msfbase), '..', '..', '..', 'lib'))
+
+require 'rex'
+require 'msf/ui'
+require 'msf/base'
+
+Msf::Config.init
+Msf::Logging.enable_log_source('msfweb', 5)
+$framework = Msf::Simple::Framework.create
