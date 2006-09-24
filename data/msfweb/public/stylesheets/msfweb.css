@@ -16,8 +16,8 @@ h1 {
 }
 
 h2, h3, h4, h5 {
-  background: inherit;
-  color: #993333;
+    background: inherit;
+    color: #993333;
 	margin: 25px 0 4px 30px;
 	padding: 0;
 	font:normal 160% Georgia, Arial, Verdana, Helvetica, sans-serif;
@@ -34,7 +34,6 @@ ul#nav{ list-style:none; padding:0; margin: 16px 0 0px 0px;}
 
 ul#nav li {
     background: #dddddd;
-    width: 10%;
     display:block;
 	float:left;
 	background-image:  url(/images/tr.gif) ;
@@ -43,7 +42,7 @@ ul#nav li {
     margin: 0px 0 0 0; 	
     color:#fff;
 	padding-right:10px;
-	border-right: 2em solid #444444;
+	border-right: 1em solid #444444;
 }
 	
 ul#nav li a {
@@ -56,40 +55,40 @@ ul#nav li a {
     letter-spacing: 0px;
 	color:#444;
 	text-decoration:none;
+	font-weight: bold;
 	margin: 0px;
 	padding:6px 0 6px 10px;
 }
 
 ul#nav li a:hover {
-	color:#F8C400;
-	background-color: #dddddd;
-  background-image:  url(/images/tl.gif);
+	color:#44444;
+    background-image:  url(/images/tl.gif);
 	background-position: top  left;
-  background-repeat: no-repeat;
-  margin:0;
-  text-decoration: underline;
+    background-repeat: no-repeat;
+    margin:0;
+    text-decoration: underline;
 	padding:6px 0 6px 10px
 }	
 
 .navbar {
-  float:left;
+    float:left;
 	background: #dddddd;
-	color: #fff;
+	color: #444;
 	margin: 0px;
-  padding: 5px 2px 5px 0;
+    padding: 5px 2px 5px 0;
 	width: 100%;
 }
 
 .navbartitle {
   background:inherit;
-  color: #fff;
+  color: #444;
   padding: 0px 2px 0px 9px;
 }
 
 .navbar a, .navbar a:visited {
-  background: #dddddd;
-  color: #fff;
-  padding: 2px 2px 2px 0px;
+    background: #dddddd;
+    color: #444;
+    padding: 2px 2px 2px 0px;
 	text-decoration: none;
 }
 
@@ -143,23 +142,34 @@ form {background-color: #fcfcfc; color: #000; padding: 3px 0 4px 0;	margin: 2px 
 input { background-color: #fff;	color: #333;	border: 1px solid #ddd;	padding: 2px;}
 .button { cursor: pointer;	padding: 1px;	background: #eee;	color: #000;	border: 1px solid #ddd;}
 
-#mainmenu {	background: #b0c4de; color:#000;	float:left;	padding:6px 2px 6px 0;	width:100%;}
-#bottommenu {	background: #b0c4de; color:#000;	float:left;	padding:6px 2px 6px 0;	width:100%;}
-.menu1 {  background: #fcfcfc;  border: solid 1px; border-color: #d1d1d1; color: #749C40;
-float: left;  line-height: 1.1em;
-width: 32%; padding: 0 0 10px 0;
-margin-left: 0.7%; display: inline;}
+#mainmenu {
+    background: #dddddd;
+    color:#000;
+    float:left;
+    padding:6px 2px 6px 0;
+    width:100%;
+}
 
-.menu2 { background: #fcfcfc;  border: solid 1px; border-color: #d1d1d1; color: #749C40;
-float: left; line-height: 1.1em;
-width: 32%;  padding: 0px 0 10px 0px;
-margin-left: 1%; }
+#bottommenu {
+	background: #b0c4de;
+	color:#000;
+	float:left;
+	padding:6px 2px 6px 0;
+	width:100%;
+}
 
-.menu3 { background: #fcfcfc;  border: solid 1px; border-color: #d1d1d1; color: #749C40;
-float: left; line-height: 1.1em;
-width: 32%; padding: 0px 0 10px 0px;
-margin-left: 1%; }
-
+.menu1 {
+    background: #fcfcfc;
+    border: solid 1px;
+    border-color: #d1d1d1;
+    color: #749C40;
+    float: left;
+    line-height: 1.1em;
+    width: 98%;
+    padding: 0px 0 10px 0px;
+    margin-left: 1%;
+    margin-right: 1%;
+}
 
 .menu1 ul, .menu2 ul, .menu3 ul, .menua ul{	margin: 0;	padding: 0;}
 .menu1 li, .menu2 li, .menu3 li, .menua li{	line-height: 0.9em; list-style-type:none;	margin: 8px 0 0 12px;}
@@ -167,13 +177,13 @@ margin-left: 1%; }
 .menu1 li a:hover , .menu2 li a:hover , .menu3 li a:hover{ text-decoration:underline; color:#993333;  background:inherit;}
 
 .menutitle {
-	color: #333;
-  background-image: url(/images/graybck.jpg);
-  background-color: #E6E6E6;
+	color: #fff;
+    background-image: url(/images/graybck.jpg);
+    background-color: #E6E6E6;
 	font: bold 100% tahoma,veranda, arial,helvetica, sans-serif;
-  letter-spacing:1px;
+    letter-spacing:1px;
 	margin: 0;
-  padding: 2px 0 2px 6px;
+    padding: 2px 0 2px 6px;
 	text-transform: lowercase;
 }
 
@@ -211,10 +221,10 @@ margin-left: 1%; }
 #footer a:hover { background:inherit;  color: #F8C400; text-decoration: underline;}
 
 #end {
-  width: 100%;
-  background: #fcfcfc;
-  font-size: 90%;
-  color: #233543;
+    width: 100%;
+    background: #fcfcfc;
+    font-size: 90%;
+    color: #233543;
 	float: left;
 	padding:0 0 6px 0;
 	text-align: center;
