@@ -1,2 +1,25 @@
-<h1>Payloads#list</h1>
-<p>Find me in app/views/payloads/list.rhtml</p>
+<html>
+<head>
+<title>Payloads</title>
+</head>
+<body>
+
+<h1>Payloads</h1>
+<table border="1">
+ <tr>
+  <td><p align="center"><i><b>Module</b></i></td>
+  <td><p align="center"><i><b>Title</b></i></td>
+ </tr>
+
+ <% $framework.payloads.each_module do |path, pcls| 
+ 	m = pcls.new
+ %>
+  <tr>
+   <td><%= path %></td>
+   <td><%= m.name %></td>
+  </tr>
+ <% end %>
+</table>
+
+</body>
+</html>
