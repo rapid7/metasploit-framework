@@ -1,5 +1,6 @@
 class PayloadsController < ApplicationController
-
+  layout 'msfweb'
+  
   def list
   end
 

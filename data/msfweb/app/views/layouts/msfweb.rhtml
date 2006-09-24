@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="eng">
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+        <meta name="robots" content="none" />
+        <meta name="Author" content="" />
+        <meta name="description" content="" />
+        <meta name="keywords" content=" " />
+        <title>MSFWEB</title>
+	    <%= stylesheet_link_tag "msfweb" %>
+    </head>
+
+    <body>
+  
+        <div id="content">
+            <div id="header">
+                <h1>Boo</h1>
+            </div>
+    	
+            <ul id="nav">
+                <li><a href="index.html">Exploits</a></li>
+            </ul>
+    
+            <div class="navbar">
+                <span class="navbartitle">You are at:</span> <a href="index.html">Blue Style 1</a>
+            </div>
+    
+            <div id="mainmenu">
+                <div class="menu1">
+                    <div class="menutitle">Sub Menu 1</div>
+                    <ul>
+                        <li><a href="index.html" >sub menu link</a></li>
+                        <li><a href="index.html">sub menu link</a></li>
+                    </ul>
+                </div>
+    
+                <div class="menu2">
+                    <div class="menutitle">Sub Menu 2</div>
+                    <ul>
+                        <li><a href="index.html" >sub menu link</a></li>
+                        <li><a href="index.html">sub menu link</a></li>
+                    </ul>
+                </div>
+    
+                <div class="menu3">
+                    <div class="menutitle">Sub Menu 3</div>
+                    <ul>
+                        <li><a href="index.html" >sub menu link</a></li>
+                        <li><a href="index.html">sub menu link</a></li>
+                    </ul>
+                </div>
+            </div>
+    
+            <div id="main">
+                <%= @content_for_layout %>
+            </div>
+    
+            <div id="footer">
+                <a href="index.html">Bottom Link</a>
+            </div>
+            <div id="end">YOUR WEBSITE NAME | &copy; 2003</div>
+
+        </div>
+
+    </body>
+</html>
