@@ -23,7 +23,7 @@
             <ul id="nav">
                 <li><%= link_to "Exploits",     :controller => "exploits" %></li>
                 <li><%= link_to "Auxiliaries",  :controller => "auxiliaries" %></li>
-                <li><%= link_to "Payloads",     :controller => "payloads" %></li>
+                <li><%= link_to_remote "Payloads", :url => {:controller => "payloads", :action => "list"}, :update => 'mainmenu', :complete => visual_effect(:appear, "mainmenu", :duration => 1.5) %></li>
                 <li><%= link_to "Encoders",     :controller => "encoders" %></li>
                 <li><%= link_to "Sessions",     :controller => "sessions" %></li>
                 <li><%= link_to "Jobs",         :controller => "jobs" %></li>
@@ -34,14 +34,7 @@
                 <span class="navbartitle">You are at:</span> <a href="index.html">Blue Style 1</a>
             </div>
     
-            <div id="mainmenu">
-               <div class="menu1">
-                    <div class="menutitle">Sub Menu 2</div>
-                    <ul>
-                        <li><a href="index.html" >sub menu link</a></li>
-                        <li><a href="index.html">sub menu link</a></li>
-                    </ul>
-                </div>
+            <div id="mainmenu" style="display: none;">
             </div>
     
             <div id="main">
@@ -49,7 +42,7 @@
             </div>
     
             <div id="footer">
-                <a href="index.html">Bottom Link</a>
+                <a href="index.html">FIXME - make me a smooth javascript "scroll up" effect</a>
             </div>
             <div id="end"><a href="Metasploit.com">Metasploit&trade;.com</a> | &copy; 2003-2006</div>
 

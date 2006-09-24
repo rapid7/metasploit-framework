@@ -25,7 +25,7 @@ h2, h3, h4, h5 {
 }
 
 #content { margin: 4px auto 20px auto; width: 96%;}
-#header { background: url(/images/haxor-bg.png) no-repeat; color: #000; height: 152px; padding: 2px 0 4px 0; margin:0;}
+#header { background: url(/images/haxor-bg.png) no-repeat; color: #000; height: 112px; padding: 2px 0 4px 0; margin:0;}
 #header h1 { background: #444444; color:#ffffff; float: right; text-transform: none; }
 
 

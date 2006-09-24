@@ -1,16 +1,10 @@
-<h2>Payloads</h2>
-<table border="0">
- <tr>
-  <td><p align="center"><i><b>Module</b></i></td>
-  <td><p align="center"><i><b>Title</b></i></td>
- </tr>
-
- <% $framework.payloads.each_module do |path, pcls| 
- 	m = pcls.new
- %>
-  <tr>
-   <td><%= link_to path, :controller => "payloads" %></td>
-   <td><%= m.name %></td>
-  </tr>
- <% end %>
-</table>
+               <div class="menu1">
+                    <div class="menutitle">Module - Title</div>
+                    <ul>
+                        <% $framework.payloads.each_module do |path, pcls| 
+ 	                      m = pcls.new
+                        %>
+                        <li><%= link_to path, :controller => "payloads" %> - <%= m.name %></li>
+                        <% end %>
+                    </ul>
+                </div>
