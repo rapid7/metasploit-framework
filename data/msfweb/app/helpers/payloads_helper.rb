@@ -1,0 +1,2 @@
+module PayloadsHelper
+end
