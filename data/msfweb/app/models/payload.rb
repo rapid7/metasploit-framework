@@ -1,0 +1,3 @@
+class Payload
+  
+end
