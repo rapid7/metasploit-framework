@@ -4,7 +4,7 @@
                         <% $framework.payloads.each_module do |path, pcls| 
  	                      m = pcls.new
                         %>
-                        <li><%= link_to path, :controller => "payloads" %> - <%= m.name %></li>
+                        <li><%= link_to_remote path, :url => {:controller => "payloads", :action => "view", :id => path}, :update => 'mainmenu' %> - <%= m.name %></li>
                         <% end %>
                     </ul>
                 </div>
