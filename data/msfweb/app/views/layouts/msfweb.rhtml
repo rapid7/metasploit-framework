@@ -8,19 +8,23 @@
         <meta name="Author" content="" />
         <meta name="description" content="" />
         <meta name="keywords" content=" " />
-        <title>MSFWEB</title>
+        <title>Metasploit Framework Web Console v.3</title>
 	    <%= stylesheet_link_tag "msfweb" %>
+	    <%= javascript_include_tag :defaults %>
     </head>
 
     <body>
   
         <div id="content">
             <div id="header">
-                <h1>Boo</h1>
+                <h1>Metasploit Framework <%=Msf::Framework::Version%></h1>
             </div>
     	
             <ul id="nav">
-                <li><a href="index.html">Exploits</a></li>
+                <li><%= link_to "Exploits", :controller => "exploits" %></li>
+                <li><%= link_to "Payloads", :controller => "payloads" %></li>
+                <li><%= link_to "Sessions", :controller => "sessions" %></li>
+                <li><%= link_to "IDE", :controller => "ide" %></li>
             </ul>
     
             <div class="navbar">
@@ -60,7 +64,7 @@
             <div id="footer">
                 <a href="index.html">Bottom Link</a>
             </div>
-            <div id="end">YOUR WEBSITE NAME | &copy; 2003</div>
+            <div id="end"><a href="Metasploit.com">Metasploit&trade;.com</a> | &copy; 2003-2006</div>
 
         </div>
 

@@ -1,4 +1,4 @@
-body { padding: 0; margin: 0; font: 90% Verdana, arial, helvetica, sans-serif; background: #fcfcfc; color: #454545;}
+body { padding: 0; margin: 0; font: 90% Verdana, arial, helvetica, sans-serif; background: #444444; color: #454545;}
 a, a:visited { color: #06c; background: inherit; }
 a:active { background: inherit; color: #990000; text-decoration: none; }
 a:hover { color: #993333 ; background: inherit; text-decoration: underline; }
@@ -25,44 +25,44 @@ h2, h3, h4, h5 {
 }
 
 #content { margin: 4px auto 20px auto; width: 96%;}
-#header { background: #fcfcfc; color: #000; height: 68px; padding: 2px 0 4px 0; margin:0;}
-#header h1 a, h1 a:visited { background: inherit; color:#26488F; margin: 0px 0 0 6px; text-decoration:none; }
-#header h1 a:hover { background: inherit;color: #000; text-decoration:none;}
+#header { background: url(/images/haxor-bg.png) no-repeat; color: #000; height: 152px; padding: 2px 0 4px 0; margin:0;}
+#header h1 { background: #444444; color:#ffffff; float: right; text-transform: none; }
 
 
 #nav { width:100%; float:left; }
 ul#nav{ list-style:none; padding:0; margin: 16px 0 0px 0px;}
 
 ul#nav li {
-  background: #5A83BA;
-  display:block;
+    background: #dddddd;
+    width: 10%;
+    display:block;
 	float:left;
 	background-image:  url(/images/tr.gif) ;
 	background-position: top right ;
-  background-repeat: no-repeat;
-  margin: 0px 0 0 0; 	
-  color:#fff;
-	border-right:1px solid #fff; border-bottom:1px solid #fff;	
+    background-repeat: no-repeat;
+    margin: 0px 0 0 0; 	
+    color:#fff;
 	padding-right:10px;
+	border-right: 2em solid #444444;
 }
 	
 ul#nav li a {
 	display:block;
 	float:left;
-	background-color: #5A83BA;
-  background-image: url(/images/tl.gif);
+	background-color: #dddddd;
+    background-image: url(/images/tl.gif);
 	background-position: top left;
-  background-repeat: no-repeat;
-  letter-spacing: 0px;
-	color:#fff;
+    background-repeat: no-repeat;
+    letter-spacing: 0px;
+	color:#444;
 	text-decoration:none;
-	margin:0;
+	margin: 0px;
 	padding:6px 0 6px 10px;
 }
 
 ul#nav li a:hover {
 	color:#F8C400;
-	background-color: #5A83BA;
+	background-color: #dddddd;
   background-image:  url(/images/tl.gif);
 	background-position: top  left;
   background-repeat: no-repeat;
@@ -73,7 +73,7 @@ ul#nav li a:hover {
 
 .navbar {
   float:left;
-	background: #5A83BA;
+	background: #dddddd;
 	color: #fff;
 	margin: 0px;
   padding: 5px 2px 5px 0;
@@ -87,7 +87,7 @@ ul#nav li a:hover {
 }
 
 .navbar a, .navbar a:visited {
-  background: #5A83BA;
+  background: #dddddd;
   color: #fff;
   padding: 2px 2px 2px 0px;
 	text-decoration: none;
