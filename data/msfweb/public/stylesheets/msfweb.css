@@ -21,50 +21,8 @@ body {
     height: 100%;
 }
 
-#maintaskbar {
-    bottom: 0;
-    height: 33px;
-    width: 700px;
-	text-align: center;
-	left: 50%;
-	margin-left: -300px;
-	background: #444444;
-	border: 0;
-}
-
-#maintaskbar_container {
-    background: #ddd;
-    padding: 0;
-    margin: 0;
-}
-
-#maintaskbar .dojoTaskBarItem {
-        display: inline-block;
-        background-color: #ddd;
-        border: 1px outlet #ddd;
-        margin-right: 5px;
-        top: 0;
-        cursor: pointer;
-        height: 32px;
-        width: 100px;
-        font-size: 9pt;
-        white-space: nowrap;
-        text-align: center;
-        float: left;
-        overflow: hidden;
-}
-
-#maintaskbar .dojoTaskBarItem img {
-        vertical-align: middle;
-        margin-right: 5px;
-        margin-left: 5px;
-        height: 32px;
-        width: 32px;
-}
-
-#maintaskbar .dojoTaskBarItem a {
-    color: black;
-    text-decoration: none;
+#topmenu {
+    
 }
 
 .desktop-tip {
@@ -79,75 +37,4 @@ body {
     width: 400px;
     border-left: 5px solid #fff;
     background: #fff url(/images/help.png) no-repeat;
-}
-
-.dojoDialog {
-	background : #fff;
-	border : 2px solid #999;
-	-moz-border-radius : 5px;
-	padding : 5px;
-	font-family: Trebuchet, Sans, Arial;
-	text-align: center;
-}
-
-table {
-    width:100%;
-    border:1px solid #ccc;
-    cursor:default;
-}
-
-* html div.tableContainer {	/* IE only hack */
-    width:95%;
-    border:1px solid #ccc;
-    overflow-x:hidden;
-    overflow-y: auto;
-}
-
-table td,
-table th {
-			border-right:1px solid #999;
-			padding:2px;
-			font-weight:normal;
-}
-
-table thead td, table thead th {
-    background:#94BEFF;
-}
-		
-* html div.tableContainer table thead tr td,
-* html div.tableContainer table thead tr th {
-    /* IE Only hacks */
-    position:relative;
-    top:expression(dojo.html.getFirstAncestorByTag(this,'table').parentNode.scrollTop-2);
-}
-		
-html>body tbody.scrollContent {
-    height: 95%;
-    overflow-x:hidden;
-    overflow-y: auto;
-}
-
-tbody.scrollContent td, tbody.scrollContent tr td {
-    background: #FFF;
-    padding: 2px;
-}
-
-tbody.scrollContent tr.alternateRow td {
-    background: #e3edfa;
-    padding: 2px;
-}
-
-tbody.scrollContent tr.selected td {
-    background: yellow;
-    padding: 2px;
-}
-
-tbody.scrollContent tr:hover td {
-    background: #a6c2e7;
-    padding: 2px;
-}
-
-tbody.scrollContent tr.selected:hover td {
-    background: #ff3;
-    padding: 2px;
 }
