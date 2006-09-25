@@ -7,7 +7,7 @@ module ApplicationHelper
   # Updates a node (ex. div container) by it's ID with content from
   # specified URL.
   def dojo_node_update(node_id, target_url)
-   return "dojo.io.updateNode('"+ node_id +"',{url:'"+ target_url +"'}"
+   return "dojo.io.updateNode('"+ node_id +"',{url:'"+ target_url +"'})"
   end
   
 end

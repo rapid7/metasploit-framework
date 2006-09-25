@@ -4,12 +4,13 @@
  */
 
 var about_dlg;
-var main_Pane = dojo.widget.byId("maincontent");
+var main_Pane;
 
-function help_functions(e) {
+function helper_functions(e) {
 	about_dlg = dojo.widget.byId("AboutDialog");
+	main_Pane = dojo.widget.byId("maincontent");
 	var btn = document.getElementById("hidedialog");
 	about_dlg.setCloseControl(btn);
 }
 
-dojo.addOnLoad(help_functions);
+dojo.addOnLoad(helper_functions);

@@ -41,17 +41,6 @@ Rails::Initializer.run do |config|
   # See Rails::Configuration for more options
 end
 
-# Add new inflection rules using the following format 
-# (all these examples are active by default):
-# Inflector.inflections do |inflect|
-#   inflect.plural /^(ox)$/i, '\1en'
-#   inflect.singular /^(ox)en/i, '\1'
-#   inflect.irregular 'person', 'people'
-#   inflect.uncountable %w( fish sheep )
-# end
-
-# Include your application configuration below
-
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
 $:.unshift(File.join(File.dirname(msfbase), '..', '..', '..', 'lib'))
 
@@ -61,4 +50,4 @@ require 'msf/base'
 
 Msf::Config.init
 Msf::Logging.enable_log_source('msfweb', 5)
-$framework = Msf::Simple::Framework.create
+$msframework = Msf::Simple::Framework.create
