@@ -1,0 +1,47 @@
+.sliderMain { 
+  position: relative; 
+  /*top: 80px; left: 0px;*/
+  padding: 0px; 
+  border: 1px solid black;
+  width: 300px; height: 300px; 
+}
+
+.sliderHandle { 
+  color: #FF0000;
+  position: relative; 
+  background-image: url(images/slider-button.png);
+  width: 25px; 
+  height: 25px;
+}
+
+.sliderMainHorizontal { 
+  position: relative; 
+  /*top: 80px; left: 0px;*/
+  padding: 0px; 
+  width: 300px; height: 35px; 
+  background: url(images/slider-bg.gif) no-repeat 0px 4px;
+}
+
+.sliderHandleHorizontal { 
+  color: #FF0000;
+  position: relative; 
+  background-image: url(images/slider-button-horz.png);
+  width: 25px; 
+  height: 35px;
+}
+
+.sliderMainVertical { 
+  position: relative; 
+  /*top: 80px; left: 0px;*/
+  padding: 0px; 
+  width: 35px; height: 300px; 
+  background: url(images/slider-bg-vert.gif) no-repeat 4px 0px;
+}
+
+.sliderHandleVertical { 
+  color: #FF0000;
+  position: relative; 
+  background-image: url(images/slider-button-vert.png);
+  width: 35px; 
+  height: 25px;
+}

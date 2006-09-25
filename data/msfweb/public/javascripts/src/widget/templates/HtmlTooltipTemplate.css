@@ -1,0 +1,9 @@
+.dojoTooltip {
+	border: solid black 1px;
+	background: beige;
+	color: black;
+	position: absolute;
+	font-size: small;
+	padding: 2px 2px 2px 2px;
+	z-index: 10;
+}

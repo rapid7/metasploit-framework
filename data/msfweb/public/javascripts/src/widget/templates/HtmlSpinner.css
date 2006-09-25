@@ -1,0 +1,39 @@
+input.dojoSpinnerInput {
+	/* font-size: 0.8em; */
+	border: 0px;
+}
+
+.dojoSpinnerOptions {
+	font-family: Verdana, Helvetica, Garamond, sans-serif;
+	/* font-size: 0.7em; */
+	background-color: white;
+	border: 1px solid #afafaf;
+	position: absolute;
+	z-index: 1000; 
+	overflow: auto;
+	-moz-opacity: 0;
+	cursor: default;
+}
+
+table.dojoSpinner {
+	border: 1px solid #afafaf;
+}
+
+.dojoSpinnerItem {
+	padding-left: 2px;
+	padding-top: 2px;
+	margin: 0px;
+}
+
+.dojoSpinnerItemEven {
+	background-color: #f4f4f4;
+}
+
+.dojoSpinnerItemOdd {
+	background-color: white;
+}
+
+.dojoSpinnerItemHighlight {
+	background-color: #63709A;
+	color: white;
+}

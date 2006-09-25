@@ -1,0 +1,35 @@
+.PopUpButton {
+	padding : 2px 6px 2px 9px;
+	border : 1px outset #ccc;
+	background : #f4f4f4;
+	color : #333;
+	text-decoration : none;
+}
+
+.PopUpButton .downArrow {
+	margin-left: 0.5em;
+	margin-bottom: 2px;
+}
+
+.downArrow.disabled {
+	background-image : url(images/dropdownButtonsArrow-disabled.gif);
+	cursor : default;
+}
+
+ul.dropdownButtons li a:hover,
+ul.dropdownButtons li span.downArrow:hover {
+	color : black;
+	background-color : #ddd;
+}
+
+ul.dropdownButtons li .downArrow.pressed, ul.dropdownButtons li .downArrow:focus {
+	border-style : inset;
+	background-position : 5px 10px;
+	padding : 2px 4px;
+}
+
+ul.dropdownButtons li a.disabled:hover,
+ul.dropdownButtons li span.downArrow.disabled:hover {
+	color : #999;
+	background-color : #f4f4f4;
+}

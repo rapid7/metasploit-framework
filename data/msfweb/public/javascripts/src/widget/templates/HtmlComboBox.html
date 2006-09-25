@@ -1,0 +1,34 @@
+<div style="position: relative; z-index: 100;">
+	<input type="hidden" name="" value="" 
+		dojoAttachPoint="comboBoxValue">
+	<input type="hidden" name="" value="" 
+		dojoAttachPoint="comboBoxSelectionValue">
+	<table class="dojoComboBox"
+		cellpadding="0"
+		cellmargin="0"
+		border="0"
+		dojoAttachPoint="cbTableNode">
+		<tr valign="top">
+			<td width=100%>
+				<input type="text" autocomplete="off" class="dojoComboBoxInput"
+					dojoAttachEvent="keyDown: onKeyDown; keyUp: onKeyUp; keyPress: onKeyPress;"
+					dojoAttachPoint="textInputNode"
+					style="width: 100%;">
+			</td>
+			<td>
+				<img border="0" 
+					hspace="0"
+					vspace="0"
+					dojoAttachPoint="downArrowNode"
+					dojoAttachEvent="onMouseUp: handleArrowClick;"
+					src="${dojoRoot}src/widget/templates/images/combo_box_arrow.png">
+			</td>
+		</tr>
+	</table>
+	<div dojoAttachPoint="optionsListWrapper" style="position:relative;" tabindex="-1">
+		<div class="dojoComboBoxOptions" dojoAttachPoint="optionsListNode"
+			dojoAttachEvent="onClick: selectOption;  onMouseOver: _onMouseOver; onMouseOut: _onMouseOut;"
+			style="display:none;" tabindex="-1">
+		</div>
+	</div>
+</div>

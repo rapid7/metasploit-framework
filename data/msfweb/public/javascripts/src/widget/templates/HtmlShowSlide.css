@@ -1,0 +1,12 @@
+.dojoShowSlideTitle {
+	height: 100px;
+	background: #369;
+}
+.dojoShowSlideTitle h1 {
+	margin-top: 0;
+	line-height: 100px;
+	margin-left: 30px;
+}
+.dojoShowSlideBody {
+	margin: 15px;
+}

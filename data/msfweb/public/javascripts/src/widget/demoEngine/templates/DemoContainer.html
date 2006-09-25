@@ -1,0 +1,25 @@
+<div dojoAttachPoint="domNode">
+	<table width="100%" cellspacing="0" cellpadding="5">
+		<tbody>
+			<tr dojoAttachPoint="headerNode">
+				<td dojoAttachPoint="returnNode" valign="middle" width="1%">
+					<img dojoAttachPoint="returnImageNode" dojoAttachEvent="onclick: returnToDemos"/>
+				</td>
+				<td>
+					<h1 dojoAttachPoint="demoNameNode"></h1>
+					<p dojoAttachPoint="summaryNode"></p>
+				</td>
+				<td dojoAttachPoint="tabControlNode" valign="middle" align="right" nowrap>
+					<span dojoAttachPoint="sourceButtonNode" dojoAttachEvent="onclick: showSource">source</span>
+					<span dojoAttachPoint="demoButtonNode" dojoAttachEvent="onclick: showDemo">demo</span>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<div dojoAttachPoint="tabNode">
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

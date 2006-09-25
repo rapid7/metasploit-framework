@@ -1,0 +1,266 @@
+<div class="EditorToolbarDomNode EditorToolbarSmallBg" 
+	unselectable="on" dojoOnMouseDown="preventSelect">
+	<table cellpadding="1" cellspacing="0" border="0">
+		<!--
+			toobar options, in order:
+
+				* wikiword
+				* paste
+				* copy
+				* undo
+				* redo
+				* link
+				* insert image
+				* insert <hr>
+				* font-select
+				* bold
+				* italic
+				* underline
+				* strikethrough
+				* numlist
+				* dotlist
+				* indent
+				* outdent
+				* text color
+				* bg color
+
+		-->
+		<tbody>
+			<tr valign="top" align="left" dojoAttachPoint="oneLineTr">
+				<td>
+					<!-- htmltoggle -->
+					<span class="iconContainer" dojoAttachPoint="htmltoggleButton"
+						dojoOnClick="htmltoggleClick; buttonClick;" style="display: none;">
+						<span title="Toggle Rich Text and HTML Markup Editing Modes" class="icon" 
+						style="background-image: none; width: 30px;" 
+						unselectable="on">&lt;h&gt;</span>
+					</span>
+				</td>
+				<td>
+					<!-- wikiword -->
+					<span class="iconContainer" dojoAttachPoint="wikiwordButton"
+						dojoOnClick="wikiwordClick; buttonClick;" style="display: none;">
+						<span title="Toggle Wiki Word" class="icon wikiword" 
+						unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- paste -->
+					<span class="iconContainer" dojoAttachPoint="copyButton"
+						unselectable="on" dojoOnClick="copyClick; buttonClick;">
+						<span title="Copy (Ctrl-C)" class="icon copy" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- copy -->
+					<span class="iconContainer" dojoAttachPoint="pasteButton"
+						dojoOnClick="pasteClick; buttonClick;" unselectable="on">
+						<span title="Paste (Ctrl-V)" class="icon paste" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- undo -->
+					<span class="iconContainer" dojoAttachPoint="undoButton"
+						dojoOnClick="undoClick; buttonClick;" unselectable="on">
+						<!-- FIXME: should we have the text "undo" here? -->
+						<span title="Undo (Ctrl-Z)" class="icon undo" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- redo -->
+					<span class="iconContainer" dojoAttachPoint="redoButton"
+						dojoOnClick="redoClick; buttonClick;" unselectable="on">
+						<span title="Redo (Ctrl-R)" class="icon redo" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td isSpacer="true">
+					<!-- spacer -->
+					<span class="iconContainer">
+						<span class="icon sep" unselectable="on" 
+							style="width: 5px; min-width: 5px;"></span>
+					</span>
+				</td>
+				<td>
+					<!-- link -->
+					<span class="iconContainer" dojoAttachPoint="linkButton"
+						unselectable="on" dojoOnClick="linkClick; buttonClick;">
+						<span title="Create Link" class="icon createlink" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- insertimage -->
+					<span class="iconContainer" 
+						style="display: none;"
+						dojoAttachPoint="insertimageButton"
+						unselectable="on" dojoOnClick="insertimageClick; buttonClick;">
+						<span title="Insert Image" class="icon insertimage" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- inserthorizontalrule -->
+					<span class="iconContainer" dojoAttachPoint="inserthorizontalruleButton"
+						unselectable="on" dojoOnClick="inserthorizontalruleClick; buttonClick;">
+						<span title="Insert Horizontal Rule" class="icon inserthorizontalrule " unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- bold -->
+					<span class="iconContainer" dojoAttachPoint="boldButton"
+						unselectable="on" dojoOnClick="boldClick; buttonClick;">
+						<span title="Toggle Bold (Ctrl-B)" class="icon bold" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- italic -->
+					<span class="iconContainer" dojoAttachPoint="italicButton"
+						dojoOnClick="italicClick; buttonClick;">
+						<span title="Toggle Italic (Ctrl-I)" class="icon italic" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- underline -->
+					<span class="iconContainer" dojoAttachPoint="underlineButton"
+						dojoOnClick="underlineClick; buttonClick;">
+						<span title="Toggle Underline (Ctrl-U)" class="icon underline" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- strikethrough -->
+					<span class="iconContainer" dojoAttachPoint="strikethroughButton"
+						dojoOnClick="strikethroughClick; buttonClick;">
+						<span title="Toggle Strike-Through" 
+							class="icon strikethrough" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td isSpacer="true">
+					<!-- spacer -->
+					<span class="iconContainer">
+						<span class="icon sep" unselectable="on" 
+							style="width: 5px; min-width: 5px;"></span>
+					</span>
+				</td>
+				<td>
+					<!-- insertunorderedlist -->
+					<span class="iconContainer" dojoAttachPoint="insertunorderedlistButton"
+						unselectable="on" 
+						dojoOnClick="insertunorderedlistClick; buttonClick;">
+						<span title="Insert Bullet List" 
+							class="icon insertunorderedlist" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- insertorderedlist -->
+					<span class="iconContainer" dojoAttachPoint="insertorderedlistButton"
+						unselectable="on" dojoOnClick="insertorderedlistClick; buttonClick;">
+						<span title="Insert Numbered List" 
+							class="icon insertorderedlist" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td isSpacer="true">
+					<!-- spacer -->
+					<span class="iconContainer">
+						<span class="icon sep" unselectable="on" 
+							style="width: 5px; min-width: 5px;"></span>
+					</span>
+				</td>
+				<td>
+					<!-- indent -->
+					<span class="iconContainer" dojoAttachPoint="indentButton"
+						unselectable="on" dojoOnClick="indentClick; buttonClick;">
+						<span title="Indent Selection" class="icon indent" 
+							unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- outdent -->
+					<span class="iconContainer" dojoAttachPoint="outdentButton"
+						unselectable="on" dojoOnClick="outdentClick; buttonClick;">
+						<span title="Outdent Selection" class="icon outdent" 
+							unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td isSpacer="true">
+					<!-- spacer -->
+					<span class="iconContainer">
+						<span class="icon sep" unselectable="on" 
+							style="width: 5px; min-width: 5px;"></span>
+					</span>
+				</td>
+				<td>
+					<!-- forecolor -->
+					<span class="iconContainer" dojoAttachPoint="forecolorButton"
+						unselectable="on" dojoOnClick="forecolorClick; buttonClick;">
+						<span title="Change Text Color" class="icon forecolor" 
+							unselectable="on">&nbsp;</span>
+					</span>
+					<div class="ColorDropdownContainer" 
+						style="display: none; margin-top: 22px;"
+						dojoAttachPoint="forecolorDropDown">
+					</div>
+				</td>
+				<td>
+					<!-- hilitecolor -->
+					<span class="iconContainer" dojoAttachPoint="hilitecolorButton"
+						unselectable="on" dojoOnClick="hilitecolorClick; buttonClick;">
+						<span title="Change Background Color" class="icon hilitecolor" 
+							unselectable="on">&nbsp;</span>
+					</span>
+					<div class="ColorDropdownContainer" 
+						style="display: none; margin-top: 22px;"
+						dojoAttachPoint="hilitecolorDropDown">
+					</div>
+				</td>
+				<td isSpacer="true">
+					<!-- spacer -->
+					<span class="iconContainer">
+						<span class="icon sep" unselectable="on" 
+							style="width: 5px; min-width: 5px;"></span>
+					</span>
+				</td>
+				<td>
+					<!-- justify left -->
+					<span class="iconContainer" dojoAttachPoint="justifyleftButton"
+						dojoOnClick="justifyleftClick; buttonClick;">
+						<span title="Justify Left" class="icon justifyleft" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- justify center -->
+					<span class="iconContainer" dojoAttachPoint="justifycenterButton"
+						dojoOnClick="justifycenterClick; buttonClick;">
+						<span title="Center" class="icon justifycenter" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- justify right -->
+					<span class="iconContainer" dojoAttachPoint="justifyrightButton"
+						dojoOnClick="justifyrightClick; buttonClick;">
+						<span title="Justify Right" class="icon justifyright" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+				<td>
+					<!-- justify full -->
+					<span class="iconContainer" dojoAttachPoint="justifyfullButton"
+						dojoOnClick="justifyfullClick; buttonClick;">
+						<span title="Justify Both" class="icon justifyfull" unselectable="on">&nbsp;</span>
+					</span>
+				</td>	
+				<td>
+					<!-- font select -->
+					<select dojoOnChange="formatSelectClick; buttonClick;"
+						dojoAttachPoint="formatSelectBox" unselectable="on">
+						<!-- FIXME: using "p" here inserts a paragraph in most cases! -->
+						<option value="">-- format --</option>
+						<option value="p">Normal</option>
+						<option value="pre">Fixed Font</option>
+						<option value="h1">Main Heading</option>
+						<option value="h2">Section Heading</option>
+						<option value="h3">Sub-Heading</option>
+						<!-- <option value="blockquote">Block Quote</option> -->
+					</select>
+				</td>
+				<td width="*">&nbsp;</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

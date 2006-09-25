@@ -1,0 +1,40 @@
+input.dojoComboBoxInput {
+	/* font-size: 0.8em; */
+	border: 0px;
+	
+}
+
+.dojoComboBoxOptions {
+	font-family: Verdana, Helvetica, Garamond, sans-serif;
+	/* font-size: 0.7em; */
+	background-color: white;
+	border: 1px solid #afafaf;
+	position: absolute;
+	z-index: 1000; 
+	overflow: auto;
+	-moz-opacity: 0;
+	cursor: default;
+}
+
+table.dojoComboBox {
+	border: 1px solid #afafaf;
+}
+
+.dojoComboBoxItem {
+	padding-left: 2px;
+	padding-top: 2px;
+	margin: 0px;
+}
+
+.dojoComboBoxItemEven {
+	background-color: #f4f4f4;
+}
+
+.dojoComboBoxItemOdd {
+	background-color: white;
+}
+
+.dojoComboBoxItemHighlight {
+	background-color: #63709A;
+	color: white;
+}

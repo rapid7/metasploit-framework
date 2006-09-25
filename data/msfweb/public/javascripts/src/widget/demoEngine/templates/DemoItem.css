@@ -1,0 +1,58 @@
+.demoItemSummaryBox {
+	background: #efefef;
+	border:1px solid #dae3ee;
+}
+
+.demoItemScreenshot {
+	padding:0.65em;
+	width:175px;
+	border-right:1px solid #fafafa;
+	text-align:center;
+	cursor: pointer;
+}
+
+.demoItemWrapper{
+	margin-bottom:1em;
+}
+
+.demoItemWrapper a:link, .demoItemWrapper a:visited {
+	color:#a6238f;
+	text-decoration:none;
+}
+
+.demoItemSummaryContainer {
+	border-left:1px solid #ddd;
+}
+
+.demoItemSummaryContainer h1 {
+	background-color:#e8e8e8;
+	border-bottom: 1px solid #e6e6e6;
+	color:#738fb9;
+	margin:1px;
+	padding:0.5em;
+	font-family:"Lucida Grande", "Tahoma", serif;
+	font-size:1.25em;
+	font-weight:normal;
+}
+
+.demoItemSummaryContainer h1 .packageSummary {
+	display:block;
+	color:#000;
+	font-size:10px;
+	margin-top:2px;
+}
+
+.demoItemSummaryContainer .demoItemSummary{
+	padding:1em;
+}
+
+.demoItemSummaryContainer .demoItemSummary p {
+	font-size:0.85em;
+	padding:0;
+	margin:0;
+}
+
+.demoItemView {
+	text-align:right;
+	cursor: pointer;
+}

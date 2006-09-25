@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2006, L.M.H. <lmh@info-pull.com>
+ * All Rights Reserved.
+ */
+
+html,body {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    background: #444444 url(/images/metasploit-graf.jpg) fixed center no-repeat;
+}
+
+#maincontent {
+    position: relative;
+    min-height: 100%;
+    height: 100%;
+}
+
+#maintaskbar {
+    bottom: 0;
+    position: absolute;
+    height: 32px;
+    overflow: hidden;
+    width: 101%;
+}
+
+.dojoDialog {
+	background : #ddd;
+	border : 2px solid #999;
+	-moz-border-radius : 5px;
+	padding : 5px;
+	font-family: Trebuchet, Sans, Arial;
+	text-align: center;
+}
+

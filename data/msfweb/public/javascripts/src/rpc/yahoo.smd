@@ -1,0 +1,263 @@
+{
+	"SMDVersion":".1",
+	"objectName":"yahoo",
+	"serviceType":"JSON-P",
+	"methods":[
+		//
+		// MAPS 
+		//
+		{
+			// http://developer.yahoo.com/maps/rest/V1/mapImage.html
+			"name":"mapImage",
+			"serviceURL": "http://api.local.yahoo.com/MapsService/V1/mapImage",
+			"parameters":[
+				{ "name":"street", "type":"STRING" },
+				{ "name":"city", "type":"STRING" },
+				{ "name":"zip", "type":"INTEGER" },
+				{ "name":"location", "type":"STRING" },
+				{ "name":"longitude", "type":"FLOAT" },
+				{ "name":"latitude", "type":"FLOAT" },
+				{ "name":"image_type", "type":"STRING" },
+				{ "name":"image_width", "type":"INTEGER" },
+				{ "name":"image_height", "type":"INTEGER" },
+				{ "name":"zoom", "type":"INTEGER" },
+				{ "name":"radius", "type":"INTEGER" }
+			]
+		},
+		{
+			// http://developer.yahoo.com/traffic/rest/V1/index.html
+			"name":"trafficData",
+			"serviceURL": "http://api.local.yahoo.com/MapsService/V1/trafficData",
+			"parameters":[
+				{ "name":"street", "type":"STRING" },
+				{ "name":"city", "type":"STRING" },
+				{ "name":"zip", "type":"INTEGER" },
+				{ "name":"location", "type":"STRING" },
+				{ "name":"longitude", "type":"FLOAT" },
+				{ "name":"latitude", "type":"FLOAT" },
+				{ "name":"severity", "type":"INTEGER" },
+				{ "name":"include_map", "type":"INTEGER" },
+				{ "name":"image_type", "type":"STRING" },
+				{ "name":"image_width", "type":"INTEGER" },
+				{ "name":"image_height", "type":"INTEGER" },
+				{ "name":"zoom", "type":"INTEGER" },
+				{ "name":"radius", "type":"INTEGER" }
+			]
+		},
+		/*
+			// Yahoo's geocoding service is f'd for JSON and Y! advises that it
+			// may not be returning
+		{
+			// http://developer.yahoo.com/maps/rest/V1/geocode.html
+			"name":"geocode",
+			"serviceURL": "http://api.local.yahoo.com/MapsService/V1/geocode",
+			"parameters":[
+				{ "name":"street", "type":"STRING" },
+				{ "name":"city", "type":"STRING" },
+				{ "name":"zip", "type":"INTEGER" },
+				{ "name":"location", "type":"STRING" }
+			]
+		},
+		*/
+		//
+		// LOCAL SEARCH
+		//
+		{
+			// http://developer.yahoo.com/search/local/V3/localSearch.html
+			"name":"localSearch",
+			"serviceURL": "http://api.local.yahoo.com/LocalSearchService/V3/localSearch",
+			"parameters":[
+				{ "name":"street", "type":"STRING" },
+				{ "name":"city", "type":"STRING" },
+				{ "name":"zip", "type":"INTEGER" },
+				{ "name":"location", "type":"STRING" },
+				{ "name":"listing_id", "type":"STRING" },
+				{ "name":"sort", "type":"STRING" }, // "relevence", "title", "distance", or "rating"
+				{ "name":"start", "type":"INTEGER" },
+				{ "name":"radius", "type":"FLOAT" },
+				{ "name":"results", "type":"INTEGER" }, // 1-50, defaults to 10
+				{ "name":"longitude", "type":"FLOAT" },
+				{ "name":"latitude", "type":"FLOAT" },
+				{ "name":"category", "type":"INTEGER" },
+				{ "name":"omit_category", "type":"INTEGER" },
+				{ "name":"minimum_rating", "type":"INTEGER" }
+			]
+		},
+		//
+		// WEB SEARCH
+		//
+
+		// NOTE: contextual search and term extraction are not stubbed out
+		// becaues I'm not sure if we can POST via script src inclusion method
+		{
+			// http://developer.yahoo.com/search/web/V1/webSearch.html 
+			"name":"webSearch",
+			"serviceURL": "http://api.search.yahoo.com/WebSearchService/V1/webSearch",
+			"parameters":[
+				{ "name":"query", "type":"STRING" },
+				{ "name":"type", "type":"STRING" }, // defaults to "all"
+				{ "name":"region", "type":"STRING" }, // defaults to "us"
+				{ "name":"results", "type":"INTEGER" }, // defaults to 10
+				{ "name":"start", "type":"INTEGER" }, // defaults to 1
+				{ "name":"format", "type":"STRING" }, // defaults to "any", can be "html", "msword", "pdf", "ppt", "rst", "txt", or "xls"
+				{ "name":"adult_ok", "type":"INTEGER" }, // defaults to null
+				{ "name":"similar_ok", "type":"INTEGER" }, // defaults to null
+				{ "name":"language", "type":"STRING" }, // defaults to null
+				{ "name":"country", "type":"STRING" }, // defaults to null
+				{ "name":"site", "type":"STRING" }, // defaults to null
+				{ "name":"subscription", "type":"STRING" }, // defaults to null
+				{ "name":"license", "type":"STRING" } // defaults to "any"
+			]
+		},
+		{
+			// http://developer.yahoo.com/search/web/V1/spellingSuggestion.html
+			"name":"spellingSuggestion",
+			"serviceURL": "http://api.search.yahoo.com/WebSearchService/V1/spellingSuggestion",
+			"parameters":[ { "name":"query", "type":"STRING" } ]
+		},
+		{
+			// http://developer.yahoo.com/search/web/V1/relatedSuggestion.html
+			"name":"spellingSuggestion",
+			"serviceURL": "http://api.search.yahoo.com/WebSearchService/V1/relatedSuggestion",
+			"parameters":[
+				{ "name":"query", "type":"STRING" },
+				{ "name":"results", "type":"INTEGER" } // 1-50, defaults to 10
+			]
+		},
+		//
+		// IMAGE SEARCH
+		//
+		{
+			// http://developer.yahoo.com/search/image/V1/imageSearch.html
+			"name":"imageSearch",
+			"serviceURL": "http://api.search.yahoo.com/ImageSearchService/V1/imageSearch",
+			"parameters":[
+				{ "name":"query", "type":"STRING" },
+				{ "name":"type", "type":"STRING" }, // defaults to "all", can by "any" or "phrase"
+				{ "name":"results", "type":"INTEGER" }, // defaults to 10
+				{ "name":"start", "type":"INTEGER" }, // defaults to 1
+				{ "name":"format", "type":"STRING" }, // defaults to "any", can be "bmp", "gif", "jpeg", or "png"
+				{ "name":"adult_ok", "type":"INTEGER" }, // defaults to null
+				{ "name":"coloration", "type":"STRING" }, // "any", "color", or "bw"
+				{ "name":"site", "type":"STRING" } // defaults to null
+			]
+		},
+		//
+		// SITE EXPLORER
+		//
+		{
+			// http://developer.yahoo.com/search/siteexplorer/V1/inlinkData.html 
+			"name":"inlinkData",
+			"serviceURL": "http://api.search.yahoo.com/SiteExplorerService/V1/inlinkData",
+			"parameters":[
+				{ "name":"query", "type":"STRING" },
+				{ "name":"type", "type":"STRING" }, // defaults to "all", can by "any" or "phrase"
+				{ "name":"entire_site", "type":"INTEGER" }, // defaults to null
+				{ "name":"omit_inlinks", "type":"STRING" }, // "domain" or "subdomain", defaults to null
+				{ "name":"results", "type":"INTEGER" }, // defaults to 50
+				{ "name":"start", "type":"INTEGER" }, // defaults to 1
+				{ "name":"site", "type":"STRING" } // defaults to null
+			]
+		},
+		{
+			// http://developer.yahoo.com/search/siteexplorer/V1/pageData.html
+			"name":"pageData",
+			"serviceURL": "http://api.search.yahoo.com/SiteExplorerService/V1/pageData",
+			"parameters":[
+				{ "name":"query", "type":"STRING" },
+				{ "name":"type", "type":"STRING" }, // defaults to "all", can by "any" or "phrase"
+				{ "name":"domain_only", "type":"INTEGER" }, // defaults to null
+				{ "name":"results", "type":"INTEGER" }, // defaults to 50
+				{ "name":"start", "type":"INTEGER" }, // defaults to 1
+				{ "name":"site", "type":"STRING" } // defaults to null
+			]
+		},
+		//
+		// MUSIC SEARCH
+		//
+		{
+			// http://developer.yahoo.com/search/audio/V1/artistSearch.html
+			"name":"artistSearch",
+			"serviceURL": "http://api.search.yahoo.com/AudioSearchService/V1/artistSearch",
+			"parameters":[
+				{ "name":"artist", "type":"STRING" },
+				{ "name":"artistid", "type":"STRING" },
+				{ "name":"type", "type":"STRING" }, // "all", "any", or "phrase"
+				{ "name":"results", "type":"INTEGER" }, // 1-50, defaults to 10
+				{ "name":"start", "type":"INTEGER" } // defaults to 1
+			]
+		},
+		{
+			// http://developer.yahoo.com/search/audio/V1/albumSearch.html
+			"name":"albumSearch",
+			"serviceURL": "http://api.search.yahoo.com/AudioSearchService/V1/albumSearch",
+			"parameters":[
+				{ "name":"artist", "type":"STRING" },
+				{ "name":"artistid", "type":"STRING" },
+				{ "name":"album", "type":"STRING" },
+				{ "name":"type", "type":"STRING" }, // "all", "any", or "phrase"
+				{ "name":"results", "type":"INTEGER" }, // 1-50, defaults to 10
+				{ "name":"start", "type":"INTEGER" } // defaults to 1
+			]
+		},
+		{
+			// http://developer.yahoo.com/search/audio/V1/songSearch.html
+			"name":"songSearch",
+			"serviceURL": "http://api.search.yahoo.com/AudioSearchService/V1/songSearch",
+			"parameters":[
+				{ "name":"artist", "type":"STRING" },
+				{ "name":"artistid", "type":"STRING" },
+				{ "name":"album", "type":"STRING" },
+				{ "name":"albumid", "type":"STRING" },
+				{ "name":"song", "type":"STRING" },
+				{ "name":"songid", "type":"STRING" },
+				{ "name":"type", "type":"STRING" }, // "all", "any", or "phrase"
+				{ "name":"results", "type":"INTEGER" }, // 1-50, defaults to 10
+				{ "name":"start", "type":"INTEGER" } // defaults to 1
+			]
+		},
+		{
+			// http://developer.yahoo.com/search/audio/V1/songDownloadLocation.html
+			"name":"songDownloadLocation",
+			"serviceURL": "http://api.search.yahoo.com/AudioSearchService/V1/songDownloadLocation",
+			"parameters":[
+				{ "name":"songid", "type":"STRING" },
+				// "source" can contain:
+				//	audiolunchbox artistdirect buymusic dmusic
+				//	emusic epitonic garageband itunes yahoo
+				//	livedownloads mp34u msn musicmatch mapster passalong
+				//	rhapsody soundclick theweb
+				{ "name":"source", "type":"STRING" },
+				{ "name":"results", "type":"INTEGER" }, // 1-50, defaults to 10
+				{ "name":"start", "type":"INTEGER" } // defaults to 1
+			]
+		},
+		//
+		// NEWS SEARCH
+		//
+		{
+			// http://developer.yahoo.com/search/news/V1/newsSearch.html
+			"name":"newsSearch",
+			"serviceURL": "http://api.search.yahoo.com/NewsSearchService/V1/newsSearch",
+			"parameters":[
+				{ "name":"query", "type":"STRING" },
+				{ "name":"type", "type":"STRING" }, // defaults to "all"
+				{ "name":"results", "type":"INTEGER" }, // defaults to 10
+				{ "name":"start", "type":"INTEGER" }, // defaults to 1
+				{ "name":"sort", "type":"STRING" }, // "rank" or "date"
+				{ "name":"language", "type":"STRING" }, // defaults to null
+				{ "name":"site", "type":"STRING" } // defaults to null
+			]
+		}
+		/*
+		{
+			// 
+			"name":"",
+			"serviceURL": "",
+			"parameters":[
+				{ "name":"street", "type":"STRING" },
+			]
+		}
+		*/
+	]
+}

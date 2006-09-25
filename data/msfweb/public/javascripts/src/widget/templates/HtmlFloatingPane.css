@@ -1,0 +1,118 @@
+
+/********** Outer Window ***************/
+
+.dojoFloatingPane {
+	/* essential css */
+	position: absolute;
+	overflow: visible;		/* so drop shadow is displayed */
+	z-index: 10;
+
+	/* styling css */
+	border: 1px solid;
+	border-color: ThreeDHighlight ThreeDShadow ThreeDShadow ThreeDHighlight;
+	background-color: ThreeDFace;
+}
+
+
+/********** Title Bar ****************/
+
+.dojoFloatingPaneTitleBar {
+	vertical-align: top;
+	margin: 2px 2px 2px 2px;
+	z-index: 10;
+	background-color: #7596c6;
+	cursor: default;
+	overflow: hidden;
+	border-color: ThreeDHighlight ThreeDShadow ThreeDShadow ThreeDHighlight;
+	vertical-align: middle;
+}
+
+.dojoFloatingPaneTitleText {
+	float: left;
+	padding: 2px 4px 2px 2px;
+	white-space: nowrap;
+	color: CaptionText;
+	font: small-caption;
+}
+
+.dojoTitleBarIcon {
+	float: left;
+	height: 22px;
+	width: 22px;
+	vertical-align: middle;
+	margin-right: 5px;
+	margin-left: 5px;
+}
+
+.dojoFloatingPaneActions{
+	float: right;
+	position: absolute;
+	right: 2px;
+	top: 2px;
+	vertical-align: middle;
+}
+
+
+.dojoFloatingPaneActionItem {
+	vertical-align: middle;
+	margin-right: 1px;
+	height: 22px;
+	width: 22px;
+}
+
+
+.dojoFloatingPaneTitleBarIcon {
+	/* essential css */
+	float: left;
+
+	/* styling css */
+	margin-left: 2px;
+	margin-right: 4px;
+	height: 22px;
+}
+
+/* minimize/maximize icons are specified by CSS only */
+.dojoFloatingPaneMinimizeIcon,
+.dojoFloatingPaneMaximizeIcon,
+.dojoFloatingPaneRestoreIcon,
+.dojoFloatingPaneCloseIcon {
+	vertical-align: middle;
+	height: 22px;
+	width: 22px;
+	float: right;
+}
+.dojoFloatingPaneMinimizeIcon {
+	background-image: url(images/floatingPaneMinimize.gif);
+}
+.dojoFloatingPaneMaximizeIcon {
+	background-image: url(images/floatingPaneMaximize.gif);
+}
+.dojoFloatingPaneRestoreIcon {
+	background-image: url(images/floatingPaneRestore.gif);
+}
+.dojoFloatingPaneCloseIcon {
+	background-image: url(images/floatingPaneClose.gif);
+}
+
+/* bar at bottom of window that holds resize handle */
+.dojoFloatingPaneResizebar {
+	z-index: 10;
+	height: 13px;
+	background-color: ThreeDFace;
+}
+
+/************* Client Area ***************/
+
+.dojoFloatingPaneClient {
+	position: relative;
+	z-index: 10;
+	border: 1px solid;
+	border-color: ThreeDShadow ThreeDHighlight ThreeDHighlight ThreeDShadow;
+	margin: 2px;
+	background-color: ThreeDFace;
+	padding: 8px;
+	font-family: Verdana, Helvetica, Garamond, sans-serif;
+	font-size: 12px;
+	overflow: auto;
+}
+

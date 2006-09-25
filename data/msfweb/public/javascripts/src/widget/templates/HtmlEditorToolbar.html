@@ -1,0 +1,152 @@
+<div dojoAttachPoint="domNode" class="EditorToolbarDomNode" unselectable="on">
+	<table cellpadding="3" cellspacing="0" border="0">
+		<!--
+			our toolbar should look something like:
+
+			+=======+=======+=======+=============================================+
+			| w   w | style | copy  | bo | it | un | le | ce | ri |
+			| w w w | style |=======|==============|==============|
+			|  w w  | style | paste |  undo | redo | change style |
+			+=======+=======+=======+=============================================+
+		-->
+		<tbody>
+			<tr valign="top">
+				<td rowspan="2">
+					<div class="bigIcon" dojoAttachPoint="wikiWordButton"
+						dojoOnClick="wikiWordClick; buttonClick;">
+						<span style="font-size: 30px; margin-left: 5px;">
+							W
+						</span>
+					</div>
+				</td>
+				<td rowspan="2">
+					<div class="bigIcon" dojoAttachPoint="styleDropdownButton"
+						dojoOnClick="styleDropdownClick; buttonClick;">
+						<span unselectable="on"
+							style="font-size: 30px; margin-left: 5px;">
+							S
+						</span>
+					</div>
+					<div class="StyleDropdownContainer" style="display: none;"
+						dojoAttachPoint="styleDropdownContainer">
+						<table cellpadding="0" cellspacing="0" border="0"
+							height="100%" width="100%">
+							<tr valign="top">
+								<td rowspan="2">
+									<div style="height: 245px; overflow: auto;">
+										<div class="headingContainer"
+											unselectable="on"
+											dojoOnClick="normalTextClick">normal</div>
+										<h1 class="headingContainer"
+											unselectable="on"
+											dojoOnClick="h1TextClick">Heading 1</h1>
+										<h2 class="headingContainer"
+											unselectable="on"
+											dojoOnClick="h2TextClick">Heading 2</h2>
+										<h3 class="headingContainer"
+											unselectable="on"
+											dojoOnClick="h3TextClick">Heading 3</h3>
+										<h4 class="headingContainer"
+											unselectable="on"
+											dojoOnClick="h4TextClick">Heading 4</h4>
+										<div class="headingContainer"
+											unselectable="on"
+											dojoOnClick="blahTextClick">blah</div>
+										<div class="headingContainer"
+											unselectable="on"
+											dojoOnClick="blahTextClick">blah</div>
+										<div class="headingContainer"
+											unselectable="on"
+											dojoOnClick="blahTextClick">blah</div>
+										<div class="headingContainer">blah</div>
+										<div class="headingContainer">blah</div>
+										<div class="headingContainer">blah</div>
+										<div class="headingContainer">blah</div>
+									</div>
+								</td>
+								<!--
+								<td>
+									<span class="iconContainer" dojoOnClick="buttonClick;">
+										<span class="icon justifyleft" 
+											style="float: left;">&nbsp;</span>
+									</span>
+									<span class="iconContainer" dojoOnClick="buttonClick;">
+										<span class="icon justifycenter" 
+											style="float: left;">&nbsp;</span>
+									</span>
+									<span class="iconContainer" dojoOnClick="buttonClick;">
+										<span class="icon justifyright" 
+											style="float: left;">&nbsp;</span>
+									</span>
+									<span class="iconContainer" dojoOnClick="buttonClick;">
+										<span class="icon justifyfull" 
+											style="float: left;">&nbsp;</span>
+									</span>
+								</td>
+								-->
+							</tr>
+							<tr valign="top">
+								<td>
+									thud
+								</td>
+							</tr>
+						</table>
+					</div>
+				</td>
+				<td>
+					<!-- copy -->
+					<span class="iconContainer" dojoAttachPoint="copyButton"
+						unselectable="on"
+						dojoOnClick="copyClick; buttonClick;">
+						<span class="icon copy" 
+							unselectable="on"
+							style="float: left;">&nbsp;</span> copy
+					</span>
+					<!-- "droppable" options -->
+					<span class="iconContainer" dojoAttachPoint="boldButton"
+						unselectable="on"
+						dojoOnClick="boldClick; buttonClick;">
+						<span class="icon bold" unselectable="on">&nbsp;</span>
+					</span>
+					<span class="iconContainer" dojoAttachPoint="italicButton"
+						dojoOnClick="italicClick; buttonClick;">
+						<span class="icon italic" unselectable="on">&nbsp;</span>
+					</span>
+					<span class="iconContainer" dojoAttachPoint="underlineButton"
+						dojoOnClick="underlineClick; buttonClick;">
+						<span class="icon underline" unselectable="on">&nbsp;</span>
+					</span>
+					<span class="iconContainer" dojoAttachPoint="leftButton"
+						dojoOnClick="leftClick; buttonClick;">
+						<span class="icon justifyleft" unselectable="on">&nbsp;</span>
+					</span>
+					<span class="iconContainer" dojoAttachPoint="fullButton"
+						dojoOnClick="fullClick; buttonClick;">
+						<span class="icon justifyfull" unselectable="on">&nbsp;</span>
+					</span>
+					<span class="iconContainer" dojoAttachPoint="rightButton"
+						dojoOnClick="rightClick; buttonClick;">
+						<span class="icon justifyright" unselectable="on">&nbsp;</span>
+					</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<!-- paste -->
+					<span class="iconContainer" dojoAttachPoint="pasteButton"
+						dojoOnClick="pasteClick; buttonClick;" unselectable="on">
+						<span class="icon paste" style="float: left;" unselectable="on">&nbsp;</span> paste
+					</span>
+					<!-- "droppable" options -->
+					<span class="iconContainer" dojoAttachPoint="undoButton"
+						dojoOnClick="undoClick; buttonClick;" unselectable="on">
+						<span class="icon undo" style="float: left;" unselectable="on">&nbsp;</span> undo
+					</span>
+					<span class="iconContainer" dojoAttachPoint="redoButton"
+						dojoOnClick="redoClick; buttonClick;" unselectable="on">
+						<span class="icon redo" style="float: left;" unselectable="on">&nbsp;</span> redo
+					</span>
+				</td>	
+			</tr>
+		</tbody>
+	</table>

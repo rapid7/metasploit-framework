@@ -1,0 +1,24 @@
+.editLabel {
+	font-size : small;
+	padding : 0 5px;
+	display : none;
+}
+
+.editableRegion {
+	background-color : #ffc !important;
+	cursor : pointer;
+	_cursor : hand;
+}
+
+.editableRegion .editLabel {
+	display : inline;
+}
+
+.editableTextareaRegion .editLabel {
+	display : block;
+}
+
+.inlineEditBox {
+	/*background-color : #ffc;*/
+	display : inline;
+}

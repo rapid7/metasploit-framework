@@ -1,0 +1,18 @@
+<div class="dojoButton" style="position:relative;top:0px;left:0px; text-align:none;">
+
+	<div dojoAttachPoint="leftPart" class="dojoButtonLeftPart" style="position:absolute;left:0px;top:0px;"
+		dojoAttachEvent="onMouseOver:leftOver; onMouseOut:leftOut; onMouseUp:leftUp; onClick:leftClick;">
+		<div class="dojoButtonContents" dojoAttachPoint="containerNode" style="position:absolute;top:0px;right:0px;z-index:2;"></div>
+		<img dojoAttachPoint="leftImage" style="position:absolute;left:0px;top:0px;">
+		<img dojoAttachPoint="centerImage" style="position:absolute;right:0px;top:0px;z-index:1;">
+	</div>
+
+	<div dojoAttachPoint="rightPart" class="dojoButtonRightPart" style="position:absolute;top:0px;right:0px;"
+		dojoAttachEvent="onMouseOver:rightOver; onMouseOut:rightOut; onMouseUp:rightUp; onClick:rightClick;">
+		<img dojoAttachPoint="arrowBackgroundImage" style="position:absolute;top:0px;left:0px;z-index:1;">
+		<img src="${dojoRoot}src/widget/templates/images/whiteDownArrow.gif"
+		  		style="z-index:2;position:absolute;left:3px;top:50%;">
+		<img dojoAttachPoint="rightImage" style="position:absolute;top:0px;right:0px;">
+	</div>
+
+</div>

@@ -1,0 +1,75 @@
+<html>
+<!--
+	Copyright (c) 2004-2006, The Dojo Foundation
+	All Rights Reserved.
+
+	Licensed under the Academic Free License version 2.1 or above OR the
+	modified BSD license. For more information on Dojo licensing, see:
+
+	http://dojotoolkit.org/community/licensing.shtml
+-->
+<script type="text/javascript">
+	if(window!=window.parent){
+		function callByDeRef(fname){
+			if(!fname){ return null; }
+			// if someone inadvertently passed in "foo(...)", we make it "foo"
+			fname = String(fname).split("(")[0];
+			// get a real array of arguments
+			var aa = [];
+			for(var x=1; x<arguments.length; x++){
+				aa.push(arguments[x]);
+			}
+
+			var parts = String(fname).split(".");
+			var obj = window;
+			for(var x=0; x<parts.length-1; x++){
+				obj = obj[parts[x]];
+			}
+			var fn = parts.pop(); // the last element is the function name
+			// exec the function in the specified namespace
+			return obj[fn].apply(obj, aa);
+		}
+
+		function widenDomain(domainStr){
+			// the purpose of this is to set the most liberal domain policy
+			var cd = domainStr||document.domain;
+			if(cd.indexOf(".")==-1){ 
+				document.domain = cd;
+				return;
+			}
+			var dps = cd.split(".");
+			if(dps.length>2){ 
+				dps = dps.slice(dps.length-2);
+			}
+			document.domain = dps.join(".");
+		}
+
+		function doInit(){
+
+			widenDomain();
+
+			var baseUrl = document.location.toString();
+			var params = baseUrl.split("?", 2);
+			if(params.length > 1){
+				var paramStr = params[1];
+				var pairs = paramStr.split("&");
+				var opts = [];
+				for(var x in pairs){
+					// alert(pairs[x]);
+					var sp = pairs[x].split("=");
+					opts[sp[0]]=sp[1];
+					if(sp[0]=="true"){
+						sp[0] = true;
+					}else if(sp[0]=="false"){
+						sp[0] = false;
+					}
+				}
+				if(opts["callback"]){
+					callByDeRef("parent."+opts["callback"]);
+				}
+			}
+		}
+		doInit();
+	}
+</script>
+</html>

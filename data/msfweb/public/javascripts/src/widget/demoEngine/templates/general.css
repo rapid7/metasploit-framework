@@ -1,0 +1,73 @@
+.demoListWrapper {
+	border:1px solid #dcdbdb;
+	background-color:#f8f8f8;
+	padding:2px;
+}
+
+.demoListContainer {
+	border:1px solid #f0f0f0;
+	background-color:#fff;
+	padding:1em;
+}
+
+.demoSummaryBox {
+	background: #efefef;
+	border:1px solid #dae3ee;
+}
+
+.screenshot {
+	padding:0.65em;
+	width:175px;
+	border-right:1px solid #fafafa;
+	text-align:center;
+}
+
+.demoSummary {
+	margin-bottom:1em;
+}
+
+.demoSummary a:link, .demoSummary a:visited {
+	color:#a6238f;
+	text-decoration:none;
+}
+
+.summaryContainer {
+	border-left:1px solid #ddd;
+}
+
+.summaryContainer h1 {
+	background-color:#e8e8e8;
+	border-bottom: 1px solid #e6e6e6;
+	color:#738fb9;
+	margin:1px;
+	padding:0.5em;
+	font-family:"Lucida Grande", "Tahoma", serif;
+	font-size:1.25em;
+	font-weight:normal;
+}
+
+.summaryContainer h1 .packageSummary {
+	display:block;
+	color:#000;
+	font-size:10px;
+	margin-top:2px;
+}
+
+.summaryContainer .summary {
+	padding:1em;
+}
+
+.summaryContainer .summary p {
+	font-size:0.85em;
+	padding:0;
+	margin:0;
+}
+
+.reflection {
+	background: url("images/demoBoxReflection.gif") repeat-x top left;
+	height:25px;
+}
+
+.view {
+	text-align:right;
+}

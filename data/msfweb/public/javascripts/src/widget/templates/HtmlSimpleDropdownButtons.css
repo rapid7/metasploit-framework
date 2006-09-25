@@ -1,0 +1,100 @@
+ul.dojoSimpleDropdownButtons {
+	margin : 0;
+	padding : 5px 0;
+}
+
+ul.dojoSimpleDropdownButtons li {
+	display : inline;
+	margin-right : 5px;
+	padding : 2px 0;
+}
+
+ul.dojoSimpleDropdownButtons li a {
+	padding : 2px 9px;
+	border : 2px outset #ccc;
+	border-right-width : 1px;
+	background : #f4f4f4;
+	color : #333;
+	text-decoration : none;
+}
+
+ul.dojoSimpleDropdownButtons li ul {
+	display : none;
+}
+
+ul.dojoSimpleDropdownButtons li a.disabled {
+	color : #999;
+	cursor : default;
+}
+
+ul.dojoSimpleDropdownButtons li .downArrow {
+	display : inline;
+	padding : 2px 4px;
+	border : 2px outset #ccc;
+	border-left : 0;
+	background : #f4f4f4 url(images/dropdownButtonsArrow.gif) no-repeat 4px 9px;
+	text-decoration : none;
+	color : black;
+	cursor : pointer;
+	_cursor : hand;
+}
+
+ul.dojoSimpleDropdownButtons li .downArrow.disabled {
+	background-image : url(images/dropdownButtonsArrow-disabled.gif);
+	cursor : default;
+}
+
+ul.dojoSimpleDropdownButtons li a:hover,
+ul.dojoSimpleDropdownButtons li span.downArrow:hover {
+	color : black;
+	background-color : #ddd;
+}
+
+ul.dojoSimpleDropdownButtons li .downArrow.pressed, ul.dojoSimpleDropdownButtons li .downArrow:focus {
+	border-style : inset;
+	background-position : 5px 10px;
+	padding : 2px 4px;
+}
+
+ul.dojoSimpleDropdownButtons li a.disabled:hover,
+ul.dojoSimpleDropdownButtons li span.downArrow.disabled:hover {
+	color : #999;
+	background-color : #f4f4f4;
+}
+
+ul.dojoSimpleDropdownButtons li a:focus {
+	padding : 3px 8px 1px 10px;
+	color : #333;
+	border-style : inset;
+}
+
+/* Menu
+ ******************** */
+ul.dojoSimpleDropdownButtonsMenu {
+	position : absolute;
+	margin : 0;
+	_margin : -2px;
+	padding : 0;
+	display : none;
+	border : 1px solid #aaa;
+	background : #f4f4f4;
+	list-style : none;
+	z-index : 99;
+}
+
+ul.dojoSimpleDropdownButtonsMenu li {
+	_display : inline;
+}
+
+ul.dojoSimpleDropdownButtonsMenu a {
+	display : block;
+	padding : 2px 5px;
+	color : #333;
+	text-decoration : none;
+}
+
+ul.dojoSimpleDropdownButtonsMenu a:hover {
+	background : #ddd;
+	color : black;
+}
+

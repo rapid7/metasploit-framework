@@ -1,0 +1,91 @@
+.datePickerContainer {
+	margin:0.5em 2em 0.5em 0;
+	/*width:10em;*/
+	float:left;
+}
+
+.previousMonth {
+	background-color:#bbbbbb;
+}
+
+.currentMonth {
+	background-color:#8f8f8f;
+}
+
+.nextMonth {
+	background-color:#eeeeee;
+}
+
+.currentDate {
+	text-decoration:underline;
+	font-style:italic;
+}
+
+.selectedItem {
+	background-color:#3a3a3a;
+	color:#ffffff;
+}
+
+.calendarContainer {
+	border-collapse:collapse;
+	border-spacing:0;
+	border-bottom:1px solid #e6e6e6;
+	overflow: hidden;
+	text-align: right;
+}
+
+.calendarContainer thead{
+	border-bottom:1px solid #e6e6e6;
+}
+
+.calendarContainer tbody * td {
+        height: 100px;
+        border: 1px solid gray;
+}
+
+.calendarContainer td {
+        width: 100px;
+        padding: 2px;
+	vertical-align: top;
+}
+
+.monthLabel {
+	font-size:0.9em;
+	font-weight:400;
+	margin:0;
+	text-align:center;
+}
+
+.monthLabel .month {
+	padding:0 0.4em 0 0.4em;
+}
+
+.yearLabel {
+	font-size:0.9em;
+	font-weight:400;
+	margin:0.25em 0 0 0;
+	text-align:right;
+	color:#a3a3a3;
+}
+
+.yearLabel .selectedYear {
+	color:#000;
+	padding:0 0.2em;
+}
+
+.nextYear, .previousYear {
+	cursor:pointer;cursor:hand;
+}
+
+.incrementControl {
+	cursor:pointer;cursor:hand;
+	width:1em;
+}
+
+.dojoMonthlyCalendarEvent {
+	font-size:0.7em;
+	overflow: hidden;
+	font-color: grey;
+	white-space: nowrap;
+	text-align: left;
+}

@@ -1,19 +1,87 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="eng">
 
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-        <meta name="robots" content="none" />
-        <meta name="Author" content="" />
-        <meta name="description" content="" />
-        <meta name="keywords" content=" " />
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+        <meta name="Author" content="L.M.H <lmh@info-pull.com>" />
+        <meta name="Copyright" content="(c) 2006, L.M.H <lmh@info-pull.com>" />
         <title>Metasploit Framework Web Console v.3</title>
-	    <%= stylesheet_link_tag "msfweb" %>
-	    <%= javascript_include_tag :defaults %>
+        <%= stylesheet_link_tag "msfweb" %>
+        <%= javascript_include_tag "dojo" %>
+        <%= javascript_include_tag "application" %>
+        <script type="text/javascript">
+            dojo.require("dojo.widget.*");
+            dojo.require("dojo.widget.Menu2");
+            dojo.require("dojo.widget.TaskBar");
+            dojo.require("dojo.widget.LayoutContainer");
+            dojo.require("dojo.widget.FloatingPane");
+            dojo.require("dojo.widget.ResizeHandle");
+            dojo.require("dojo.widget.Dialog");
+            dojo.hostenv.writeIncludes();
+        </script>
     </head>
 
     <body>
-        <%= @content_for_layout %>
+        <div dojoType="PopupMenu2" widgetId="PayloadsMenu">
+            <div dojoType="MenuItem2" caption="Search"></div>
+            <div dojoType="MenuItem2" caption="List"></div>
+            <div dojoType="MenuItem2" caption="Generate"></div>
+        </div>
+        
+        <div dojoType="PopupMenu2" widgetId="ExploitsMenu">
+            <div dojoType="MenuItem2" caption="Search"></div>
+            <div dojoType="MenuItem2" caption="List"></div>
+        </div>
+        
+        <div dojoType="PopupMenu2" widgetId="EncodersMenu">
+            <div dojoType="MenuItem2" caption="Search"></div>
+            <div dojoType="MenuItem2" caption="List"></div>
+        </div>
+        
+        <div dojoType="PopupMenu2" widgetId="NopsMenu">
+            <div dojoType="MenuItem2" caption="Search"></div>
+            <div dojoType="MenuItem2" caption="List"></div>
+            <div dojoType="MenuItem2" caption="Generate"></div>
+        </div>
+        
+        <div dojoType="PopupMenu2" widgetId="SessionsMenu">
+            <div dojoType="MenuItem2" caption="Search"></div>
+            <div dojoType="MenuItem2" caption="List"></div>
+            <div dojoType="MenuItem2" caption="Generate"></div>
+        </div>
+        
+        <div dojoType="PopupMenu2" widgetId="JobsMenu">
+            <div dojoType="MenuItem2" caption="Search"></div>
+            <div dojoType="MenuItem2" caption="List"></div>
+        </div>
+        
+        <div dojoType="PopupMenu2" widgetId="HelpMenu">
+            <div dojoType="MenuItem2" caption="About Msfweb v.3" onClick="about_dlg.show()"></div>
+            <div dojoType="MenuItem2" caption="Metasploit Website" onClick="location.replace('http://www.metasploit.com');"></div>
+        </div>
+        
+        <div dojoType="MenuBar2" id="topmenu">
+            <div dojoType="MenuBarItem2" caption="Exploits" submenuId="ExploitsMenu"></div>
+            <div dojoType="MenuBarItem2" caption="Payloads" submenuId="PayloadsMenu"></div>
+            <div dojoType="MenuBarItem2" caption="Encoders" submenuId="EncodersMenu"></div>
+            <div dojoType="MenuBarItem2" caption="Nops" submenuId="NopsMenu"></div>
+            <div dojoType="MenuBarItem2" caption="Jobs" submenuId="JobsMenu"></div>
+            <div dojoType="MenuBarItem2" caption="Sessions" submenuId="SessionsMenu"></div>
+            <div dojoType="MenuBarItem2" caption="Help" submenuId="HelpMenu"></div>
+        </div>
+        
+        <div dojoType="dialog" id="AboutDialog" bgColor="#444444" bgOpacity="0.5" toggle="fade" toggleDuration="250">
+            The new Metasploit Framework Web Console (v.3) has been developed by L.M.H &lt;lmh@info-pull.com&gt;.<br />
+            Copyright &copy; 2006 L.M.H &lt;lmh@info-pull.com&gt;. All Rights Reserved. <br />
+            Thanks to H.D.M for the functionality suggestions and developing a ground-breaking project: Metasploit. <br />
+            <input type="button" value="Close" id="hidedialog"/>
+        </div>
+        
+        <div id="maincontent">
+            <%= @content_for_layout %>
+        </div>
+        
+        <div dojoType="TaskBar" id="maintaskbar" resizable="false"></div>
     </body>
 </html>

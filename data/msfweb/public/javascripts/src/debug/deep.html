@@ -1,0 +1,359 @@
+<html>
+<head>
+<title>Deep Debugger</title>
+<script>
+
+var tableRows = {};
+var tableCels = {};
+var tableObjs = {};
+var tablesBuilt = {};
+var tableShows = {};
+var tableHides = {};
+
+// IE: nodes w/id need to be redeclared or getElementById is b0rked
+var frame = null;
+
+window.onload = function(){
+	// if IE loads this page too quickly (instantly) then 
+	// window.debugVar might not have been set
+	window.setTimeout(startMeUp, 100);
+}
+
+function startMeUp(){
+	frame = document.getElementById('frame');
+	buildTable('root', frame, window.debugVar);
+}
+
+function buildTable(path, parent, obj){
+
+	var keys = [];
+	var vals = [];
+	for(var prop in obj){
+		keys.push(prop);
+		try {
+			vals[prop] = obj[prop];
+		} catch(E) {
+			vals[prop] = 'ERROR: ' + E.message;
+		}
+	}
+	keys.sort(keySorter);
+
+	if (!keys.length){
+
+		var div = document.createElement('div');
+		div.appendChild(document.createTextNode('Object has no properties.'));
+
+		parent.appendChild(div);
+		return;
+	}
+
+
+	var t = document.createElement('table');
+	t.border = "1";
+
+	var tb = document.createElement('tbody');
+	t.appendChild(tb);
+
+
+	for(var i = 0; i < keys.length; i++) {
+		buildTableRow(path+'-'+keys[i], tb, keys[i], vals[keys[i]]);
+	}
+
+	if (path == 'root'){
+		//t.style.width = '90%';
+	}
+	t.style.width = '100%';
+
+	parent.appendChild(t);
+
+	tablesBuilt[path] = true;
+}
+
+function buildTableRow(path, tb, name, value) {
+
+	var simpleType = typeof(value);
+	var createSubrow = (simpleType == 'object');
+	var complexType = simpleType;
+
+	if (simpleType == 'object'){
+		var cls = getConstructorClass(value);
+		if (cls){
+			if (cls == 'Object'){
+			}else if (cls == 'Array'){
+				complexType = 'array';
+			}else{
+				complexType += ' ('+cls+')';
+			}
+		}
+	}
+
+/*var tr1 = document.createElement('tr');
+	var td1 = document.createElement('td');
+	var td2 = document.createElement('td');
+	var td3 = document.createElement('td');
+	var td4 = document.createElement('td');*/
+
+	var row = tb.rows.length;
+	var tr1 = tb.insertRow(row++);
+	var td1 = tr1.insertCell(0);
+	var td2 = tr1.insertCell(1);
+	var td3 = tr1.insertCell(2);
+	var td4 = tr1.insertCell(3);
+	
+	tr1.style.verticalAlign = 'top';
+	td1.style.verticalAlign = 'middle';
+
+	td1.className = 'propPlus';
+	td2.className = 'propName';
+	td3.className = 'propType';
+	td4.className = 'propVal';
+
+	//tr1.appendChild(td1);
+	//tr1.appendChild(td2);
+	//tr1.appendChild(td3);
+	//tr1.appendChild(td4);
+
+	if (createSubrow){
+		var img1 = document.createElement('img');
+		img1.width = 9;
+		img1.height = 9;
+		img1.src = 'arrow_show.gif';
+		var a1 = document.createElement('a');
+		a1.appendChild(img1);
+		a1.href = '#';
+		a1.onclick = function(){ showTableRow(path); return false; };
+
+		var img2 = document.createElement('img');
+		img2.width = 9;
+		img2.height = 9;
+		img2.src = 'arrow_hide.gif';
+		var a2 = document.createElement('a');
+		a2.appendChild(img2);
+		a2.href = '#';
+		a2.onclick = function(){ hideTableRow(path); return false; };
+		a2.style.display = 'none';
+
+		tableShows[path] = a1;
+		tableHides[path] = a2;
+
+		td1.appendChild(a1);
+		td1.appendChild(a2);
+	}else{
+		var img = document.createElement('img');
+		img.width = 9;
+		img.height = 9;
+		img.src = 'spacer.gif';
+
+		td1.appendChild(img);
+	}
+
+	td2.appendChild(document.createTextNode(name));
+	td3.appendChild(document.createTextNode(complexType));
+	td4.appendChild(buildPreBlock(value));
+
+	//tb.appendChild(tr1);
+
+	if (createSubrow){
+		var tr2 = tb.insertRow(row++);
+		var td5 = tr2.insertCell(0);
+		var td6 = tr2.insertCell(1);
+		
+		//var tr2 = document.createElement('tr');
+		//var td5 = document.createElement('td');
+		//var td6 = document.createElement('td');
+
+		td5.innerHTML = '&nbsp;';
+		//td6.innerHTML = '&nbsp;';
+
+		td6.colSpan = '3';
+
+		tr2.appendChild(td5);
+		tr2.appendChild(td6);
+
+		tr2.style.display = 'none';
+
+		tb.appendChild(tr2);
+
+		tableRows[path] = tr2;
+		tableCels[path] = td6;
+		tableObjs[path] = value;
+	}
+}
+
+function showTableRow(path){
+
+	var tr = tableRows[path];
+	var td = tableCels[path];
+	var a1 = tableShows[path];
+	var a2 = tableHides[path];
+
+	if (!tablesBuilt[path]){
+
+		//alert('building table for '+path);
+		buildTable(path, td, tableObjs[path]);
+	}
+
+	tr.style.display = 'table-row';
+
+	a1.style.display = 'none';
+	a2.style.display = 'inline';
+}
+
+function hideTableRow(path){
+
+	var tr = tableRows[path];
+	var a1 = tableShows[path];
+	var a2 = tableHides[path];
+
+	tr.style.display = 'none';
+
+	a1.style.display = 'inline';
+	a2.style.display = 'none';
+}
+
+function buildPreBlock(value){
+
+	//
+	// how many lines ?
+	//
+
+	var s = ''+value;
+	s = s.replace("\r\n", "\n");
+	s = s.replace("\r", "");
+	var lines = s.split("\n");
+
+
+	if (lines.length < 2){
+
+		if (lines[0].length < 60){
+
+			var pre = document.createElement('pre');
+			pre.appendChild(document.createTextNode(s));
+			return pre;
+		}
+	}
+
+
+	//
+	// multiple lines :(
+	//
+
+	var preview = lines[0].substr(0, 60) + ' ...';
+
+	var pre1 = document.createElement('pre');
+	pre1.appendChild(document.createTextNode(preview));
+	pre1.className = 'clicky';
+
+	var pre2 = document.createElement('pre');
+	pre2.appendChild(document.createTextNode(s));
+	pre2.style.display = 'none';
+	pre2.className = 'clicky';
+
+	pre1.onclick = function(){
+		pre1.style.display = 'none';
+		pre2.style.display = 'block';
+	}
+
+	pre2.onclick = function(){
+		pre1.style.display = 'block';
+		pre2.style.display = 'none';
+	}
+
+	var pre = document.createElement('div');
+
+	pre.appendChild(pre1);
+	pre.appendChild(pre2);
+
+	return pre;
+}
+
+function getConstructorClass(obj){
+
+	if (!obj.constructor || !obj.constructor.toString) return;
+
+	var m = obj.constructor.toString().match(/function\s*(\w+)/);
+
+	if (m && m.length == 2) return m[1];
+
+	return null;
+}
+
+function keySorter(a, b){
+
+	if (a == parseInt(a) && b == parseInt(b)){
+
+		return (parseInt(a) > parseInt(b)) ? 1 : ((parseInt(a) < parseInt(b)) ? -1 : 0);
+	}
+
+	// sort by lowercase string
+
+	var a2 = String(a).toLowerCase();
+	var b2 = String(b).toLowerCase();
+
+	return (a2 > b2) ? 1 : ((a2 < b2) ? -1 : 0);
+}
+
+</script>
+<style>
+
+body {
+	font-family: arial, helvetica, sans-serif;
+}
+
+table {
+	border-width: 0px;
+	border-spacing: 1px;
+	border-collapse: separate;
+}
+
+td {
+	border-width: 0px;
+	padding: 2px;
+}
+
+img {
+	border: 0;
+}
+
+pre {
+	margin: 0;
+	padding: 0;
+	white-space: -moz-pre-wrap;  /* Mozilla, supported since 1999 */
+	white-space: -pre-wrap;      /* Opera 4 - 6 */
+	white-space: -o-pre-wrap;    /* Opera 7 */
+	white-space: pre-wrap;       /* CSS3 - Text module (Candidate Recommendation) http://www.w3.org/TR/css3-text/#white-space */
+	word-wrap: break-word;       /* IE 5.5+ */
+}
+
+pre.clicky {
+	cursor: hand;
+	cursor: pointer;
+}
+
+td.propPlus {
+	width: 9px;
+	background-color: #ddd;
+}
+
+td.propName {
+	background-color: #ddd;
+}
+
+td.propType {
+	background-color: #ddd;
+}
+
+td.propVal {
+	background-color: #ddd;
+}
+
+</style>
+</head>
+<body>
+
+<h2>Javascript Object Browser</h2>
+
+<div id="frame"></div>
+
+</body>
+</html>
