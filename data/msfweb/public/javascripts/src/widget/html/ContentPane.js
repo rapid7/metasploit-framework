@@ -72,6 +72,23 @@ dojo.lang.extend(dojo.widget.html.ContentPane, {
 		if(this.isShowing()||this.preload){ this.loadContents(); }
 	},
 
+	moveChildTo: function(/*Object*/child, /*Object*/dest){
+		if(!dojo.lang.isObject(child)||!dojo.lang.isObject(dest)){
+			return false;
+		}
+		var c = (!dojo.dom.isNode(child))?((dojo.dom.isNode(child.domNode))?child.domNode:child):false;
+		if(c==false){
+			return c;
+		}
+		for(var i=0;i<this.children.length;i++){
+			if(c==(dojo.dom.isNode(this.children[i]))?this.children[i]:this.children[i].domNode){
+				dest.appendChild(dojo.dom.removeNode(c));
+				delete(this.children[i]);
+				break;
+			}
+		}
+	},
+
 	show: function(){
 		// if refreshOnShow is true, reload the contents every time; otherwise, load only the first time
 		if(this.refreshOnShow){

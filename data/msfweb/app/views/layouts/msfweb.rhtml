@@ -22,11 +22,6 @@
             dojo.require("dojo.widget.Tooltip");
             dojo.require("dojo.widget.ContentPane");
             dojo.require("dojo.widget.SortableTable");
-	        dojo.require("dojo.widget.Tree");
-	        dojo.require("dojo.widget.TreeRPCController");
-            dojo.require("dojo.widget.TreeSelector");
-            dojo.require("dojo.widget.TreeNode");
-            dojo.require("dojo.widget.TreeContextMenu");
             dojo.hostenv.writeIncludes();
         </script>
     </head>
@@ -34,35 +29,37 @@
     <body>
         <div dojoType="PopupMenu2" widgetId="PayloadsMenu">
             <div dojoType="MenuItem2" caption="Search"></div>
-            <div dojoType="MenuItem2" caption="List" onClick="main_Pane.setUrl('/payloads/list')"></div>
+            <div dojoType="MenuItem2" caption="List"
+                 onClick="load_stateful_window('/payloads/list','payloads-list','Payloads',generate_window_style('700', '350'))"></div>
             <div dojoType="MenuItem2" caption="Generate"></div>
         </div>
         
         <div dojoType="PopupMenu2" widgetId="ExploitsMenu">
             <div dojoType="MenuItem2" caption="Search"></div>
-            <div dojoType="MenuItem2" caption="List" onClick="main_Pane.setUrl('/exploits/list')"></div>
+            <div dojoType="MenuItem2" caption="List"
+                 onClick="load_stateful_window('/exploits/list','exploits-list','Exploits',generate_window_style('700', '350'))"></div>
         </div>
         
         <div dojoType="PopupMenu2" widgetId="EncodersMenu">
             <div dojoType="MenuItem2" caption="Search"></div>
-            <div dojoType="MenuItem2" caption="List" onClick="main_Pane.setUrl('/encoders/list')"></div>
+            <div dojoType="MenuItem2" caption="List" onClick="load_stateful_window('/encoders/list','encoders-list','Encoders',generate_window_style('700', '350'))"></div>
         </div>
         
         <div dojoType="PopupMenu2" widgetId="NopsMenu">
             <div dojoType="MenuItem2" caption="Search"></div>
-            <div dojoType="MenuItem2" caption="List" onClick="main_Pane.setUrl('/nops/list')"></div>
+            <div dojoType="MenuItem2" caption="List" onClick="load_stateful_window('/nops/list','nops-list','Nops',generate_window_style('700', '350'))"></div>
             <div dojoType="MenuItem2" caption="Generate"></div>
         </div>
         
         <div dojoType="PopupMenu2" widgetId="SessionsMenu">
             <div dojoType="MenuItem2" caption="Search"></div>
-            <div dojoType="MenuItem2" caption="List" onClick="main_Pane.setUrl('/sessions/list')"></div>
+            <div dojoType="MenuItem2" caption="List" onClick="load_stateful_window('/sessions/list','sessions-list','Sessions',generate_window_style('700', '350'))"></div>
             <div dojoType="MenuItem2" caption="Generate"></div>
         </div>
         
         <div dojoType="PopupMenu2" widgetId="JobsMenu">
             <div dojoType="MenuItem2" caption="Search"></div>
-            <div dojoType="MenuItem2" caption="List" onClick="main_Pane.setUrl('/jobs/list')"></div>
+            <div dojoType="MenuItem2" caption="List" onClick="load_stateful_window('/jobs/list','jobs-list','Jobs',generate_window_style('700', '350'))"></div>
         </div>
         
         <div dojoType="PopupMenu2" widgetId="HelpMenu">
@@ -86,7 +83,7 @@
             Thanks to H.D.M for the functionality suggestions and developing a ground-breaking project: Metasploit. <br />
             <input type="button" value="Close" id="hidedialog"/>
         </div>
-        
+
         <div dojoType="ContentPane" id="maincontent" executeScripts="true">
             <%= @content_for_layout %>
         </div>

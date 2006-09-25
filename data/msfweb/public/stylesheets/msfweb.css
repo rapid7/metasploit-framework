@@ -63,13 +63,26 @@ body {
 }
 
 #maintaskbar .dojoTaskBarItem a {
-         color: black;
-        text-decoration: none;
+    color: black;
+    text-decoration: none;
 }
 
+.desktop-tip {
+    margin-top: 1em;
+    margin-left: 1em;
+    font-family: Trebuchet, Sans, Arial;
+    font-size: 90%;
+    padding-left: 4em;
+    padding-right: 1em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    width: 400px;
+    border-left: 5px solid #fff;
+    background: #fff url(/images/help.png) no-repeat;
+}
 
 .dojoDialog {
-	background : #ddd;
+	background : #fff;
 	border : 2px solid #999;
 	-moz-border-radius : 5px;
 	padding : 5px;

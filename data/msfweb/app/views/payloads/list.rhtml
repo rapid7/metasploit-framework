@@ -1,17 +1,4 @@
-<div dojoType="FloatingPane"
-		id="payloads-list"
-		title="Payloads list"
-		constrainToContainer="true"
-		hasShadow="false"
-		resizable="true"
-		taskBarId="maintaskbar"
-		windowState="normal"
-        displayCloseAction="true";
-		displayMinimizeAction="true"
-		toggle="explode"
-		style="width: 700px; height: 350px; position: relative; left: 100px; top: 35px; display:none"
-	>
-	<table dojoType="SortableTable" widgetId="PayloadsTable" headClass="fixedHeader" tbodyClass="scrollContent" enableMultipleSelect="false" enableAlternateRows="true" rowAlternateClass="alternateRow" cellpadding="0" cellspacing="0" border="0">
+<table dojoType="SortableTable" widgetId="PayloadsTable" headClass="fixedHeader" tbodyClass="scrollContent" enableMultipleSelect="false" enableAlternateRows="true" rowAlternateClass="alternateRow" cellpadding="0" cellspacing="0" border="0">
 	<thead>
 		<tr>
 			<th field="Name" dataType="String">Name</th>
@@ -26,5 +13,4 @@
 		<tr><td><%= m.name %></td><td><%= m.description %></td><td><%= path %></td></tr>
 		<% end %>
 	</tbody>
-	</table>
-</div>
+</table>
