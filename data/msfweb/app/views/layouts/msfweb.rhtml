@@ -12,12 +12,20 @@
         <%= javascript_include_tag "application" %>
         <script type="text/javascript">
             dojo.require("dojo.widget.*");
+            dojo.require("dojo.lang.*");
             dojo.require("dojo.widget.Menu2");
             dojo.require("dojo.widget.TaskBar");
             dojo.require("dojo.widget.LayoutContainer");
             dojo.require("dojo.widget.FloatingPane");
             dojo.require("dojo.widget.ResizeHandle");
             dojo.require("dojo.widget.Dialog");
+            dojo.require("dojo.widget.Tooltip");
+            dojo.require("dojo.widget.ContentPane");
+	        dojo.require("dojo.widget.Tree");
+	        dojo.require("dojo.widget.TreeRPCController");
+            dojo.require("dojo.widget.TreeSelector");
+            dojo.require("dojo.widget.TreeNode");
+            dojo.require("dojo.widget.TreeContextMenu");
             dojo.hostenv.writeIncludes();
         </script>
     </head>
@@ -25,7 +33,7 @@
     <body>
         <div dojoType="PopupMenu2" widgetId="PayloadsMenu">
             <div dojoType="MenuItem2" caption="Search"></div>
-            <div dojoType="MenuItem2" caption="List"></div>
+            <div dojoType="MenuItem2" caption="List" onClick="dojo.widget.byId('maincontent').setUrl('/payloads/list')"></div>
             <div dojoType="MenuItem2" caption="Generate"></div>
         </div>
         
@@ -78,7 +86,7 @@
             <input type="button" value="Close" id="hidedialog"/>
         </div>
         
-        <div id="maincontent">
+        <div dojoType="ContentPane" id="maincontent" executeScripts="true">
             <%= @content_for_layout %>
         </div>
         

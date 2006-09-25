@@ -4,6 +4,7 @@
  */
 
 var about_dlg;
+var main_Pane = dojo.widget.byId("maincontent");
 
 function help_functions(e) {
 	about_dlg = dojo.widget.byId("AboutDialog");

@@ -13,6 +13,7 @@ body {
 }
 
 #maincontent {
+    margin-top: 2em;
     position: relative;
     min-height: 100%;
     height: 100%;
@@ -20,10 +21,12 @@ body {
 
 #maintaskbar {
     bottom: 0;
-    position: absolute;
     height: 32px;
     overflow: hidden;
-    width: 101%;
+    width: 600px;
+	text-align: center;
+	left: 50%;
+	margin-left: -300px;	
 }
 
 .dojoDialog {
