@@ -54,6 +54,7 @@ options = ARGV.join(',')
 if (cmd =~ /^(p|r|c|j|x)/)
 	fmt = 'perl' if (cmd =~ /^p/)
 	fmt = 'raw' if (cmd =~ /^(r|x)/)
+	fmt = 'c' if (cmd == 'c')
 	fmt = 'js_be' if (cmd =~ /^j/ and Rex::Arch.endian(payload.arch) == ENDIAN_BIG)
 	fmt = 'js_le' if (cmd =~ /^j/ and ! fmt)
 		
