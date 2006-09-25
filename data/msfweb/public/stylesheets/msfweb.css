@@ -15,18 +15,49 @@ body {
     background: #444444 url(/images/metasploit-graf.jpg) fixed center no-repeat;
 }
 
+/* inspired by http://alistapart.com/articles/dropdowns/ */
+#topmenu {
+	margin:0;
+	padding:0;
+	width: 100%;
+	position: absolute;
+	list-style-type:none;
+	height: 31px;
+	background-color:#f4f4f4;
+	font-size: 8pt;
+}
+
+#topmenu ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+#topmenu li {
+    float: left;
+    position: relative;
+    white-space: nowrap;
+	padding: 8px;
+	font: menu;
+	color: WindowText;
+}
+
+#topmenu li:hover {
+	background-color: blue;
+	cursor: pointer;
+	_cursor: hand;
+	background-color: Highlight;
+	color: HighlightText;
+}
+
 #maincontent {
     position: relative;
     min-height: 100%;
     height: 100%;
 }
 
-#topmenu {
-    
-}
-
 .desktop-tip {
-    margin-top: 1em;
+    margin-top: 6em;
     margin-left: 1em;
     font-family: Trebuchet, Sans, Arial;
     font-size: 90%;

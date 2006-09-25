@@ -7,14 +7,23 @@
         <meta name="Author" content="L.M.H <lmh@info-pull.com>" />
         <meta name="Copyright" content="(c) 2006, L.M.H <lmh@info-pull.com>" />
         <title>Metasploit Framework Web Console v.3</title>
+        <% ["prototype","effects","controls", "window", "application"].each do |js| %>
+        <%= javascript_include_tag js %><% end %>
         <%= stylesheet_link_tag "msfweb" %>
-        <%= javascript_include_tag "application" %>
+        <%= stylesheet_link_tag "window-themes/default" %>
+        <%= stylesheet_link_tag "window-themes/mac_os_x" %>
     </head>
 
     <body>
-        <div id="topmenu">
+        <div id="topmenu" class="dojoMenu">
             <ul>
-                <li>Exploits<li>
+                <li>Exploits</li>
+                <li>Payloads</li>
+                <li>Encoders</li>
+                <li>Nops</li>
+                <li>Sessions</li>
+                <li>Jobs</li>
+                <li>Help</li>
             </ul>
         </div>
         
@@ -30,6 +39,7 @@
         <div id="maincontent">
             <%= @content_for_layout %>
         </div>
-        
+    
+    <script>run_tasks();</script>
     </body>
 </html>
