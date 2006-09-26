@@ -15,13 +15,12 @@ body {
     background: #444444 url(/images/metasploit-graf.jpg) fixed center no-repeat;
 }
 
-/* inspired by http://alistapart.com/articles/dropdowns/ */
 #topmenu {
 	margin:0;
 	padding:0;
 	width: 100%;
 	list-style-type:none;
-	height: 31px;
+	height: 35px;
 	background-color:#f4f4f4;
 	font-size: 8pt;
 }
@@ -37,6 +36,7 @@ body {
     position: relative;
     white-space: nowrap;
 	padding: 8px;
+	border-left: 1px solid #ddd;
 	font: menu;
 	color: WindowText;
 }
@@ -49,30 +49,9 @@ body {
 	color: HighlightText;
 }
 
-#topmenu li ul { /* second-level lists */
-	display: none;
-	position: relative;
-	top: 1em;
-	left: 0;
+#topmenu img {
+    padding-right: 5px;
 }
-
-#topmenu li>ul {
-	top: auto;
-	left: auto;
-}
-
-#topmenu li:hover ul, li.over ul {
-	display: block;
-	position: absolute;
-	border-color: ThreeDHighlight ThreeDShadow ThreeDShadow ThreeDHighlight;
-	list-style-type: none;
-	margin: 0;
-	top: 32px;
-	background-color: ThreeDFace;
-	font-size: 8pt;
-}
-
-
 
 #maincontent {
     position: relative;
