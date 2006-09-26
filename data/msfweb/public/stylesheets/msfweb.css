@@ -74,3 +74,9 @@ body {
     border-left: 5px solid #fff;
     background: #fff url(/images/help.png) no-repeat;
 }
+
+.env-info {
+    float: right;
+    border-left: 1px solid #ddd;
+    padding: 3px;
+}

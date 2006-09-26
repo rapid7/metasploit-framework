@@ -26,6 +26,10 @@
                 <li onClick="openJobsWindow()"><img src="/images/jobs.png" alt="" />Jobs</li>
 				<li onClick=""><img src="/images/wrench.png" alt="" />IDE</li>
                 <li onClick=""><img src="/images/help.png" alt="" />Help</li>
+                <span class="env-info">
+                    Platform: <%=return_env_info()[:platform]%> (ruby <%=return_env_info()[:rubyver]%>)<br />
+                    Metasploit: <%=return_env_info()[:msfver]%>
+                </span>
             </ul>
         </div>
         

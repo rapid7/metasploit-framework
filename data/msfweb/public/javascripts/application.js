@@ -80,13 +80,17 @@ function create_window_ajax(target_url, wid, wtitle, wwidth, wheight) {
           showEffectOptions:
             {
                 duration: 0.25
+            },
+          closeEffectOptions:
+            {
+                duration: 0.25
             }
           });
     return new_mwindow;
 }
 
 function openModuleWindow(mtype, refname, wtitle) {
-    var mWin = create_window_ajax("/" + mtype + "/view/" + refname, mtype + "-view-" + obtainWindowId(), wtitle);
+    var mWin = create_window_ajax("/" + mtype + "/view/" + refname, mtype + "-view-" + obtainWindowId(), wtitle, 400, 300);
     mWin.setDestroyOnClose();
     mWin.showCenter();
 }

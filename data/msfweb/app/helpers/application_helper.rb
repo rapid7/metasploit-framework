@@ -4,7 +4,13 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
 
-  def return_os_string()
+  # Returns a hash with ruby version, platform and Metasploit version.
+  def return_env_info()
+    ret = {}
+    ret[:platform] = RUBY_PLATFORM
+    ret[:rubyver]  = RUBY_VERSION
+    ret[:msfver]   = Msf::Framework::Version
+    return ret
   end
   
 end

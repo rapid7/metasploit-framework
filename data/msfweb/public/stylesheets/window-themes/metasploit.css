@@ -98,7 +98,7 @@
 .metasploit_content {
 	overflow:auto;
 	color: #444;
-	font-family: "MS Sans Serif", Arial, sans-serif;
+	font-family: Trebuchet, Sans, Arial;
 	font-size: 14px;
 	background:#ddd;
 }
