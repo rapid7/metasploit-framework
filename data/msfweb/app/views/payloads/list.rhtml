@@ -3,12 +3,14 @@
 		<tr>
 			<th>Name</th>
 			<th>Description</th>
-			<th>Module</th>
 		</tr>
 	</thead>
 	<tbody>
 	    <% @all_payloads.each do |m| %>
-		<tr><td><%= m.name %></td><td><%= m.description %></td><td><%= m.refname %></td></tr>
+		<tr>
+			<td><a onClick="window.parent.openModuleWindow('payloads', '<%= m.refname.gsub('/', ':') %>', '<%= m.name %>')" href="#"><%= m.name %></a></td>
+			<td><%= m.description %></td>
+		</tr>
 		<% end %>
 	</tbody>
 </table>
