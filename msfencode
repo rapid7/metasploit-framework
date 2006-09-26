@@ -132,7 +132,7 @@ case cmd
 	when "list"
 		$stderr.puts(dump_encoders(arch))
 	when "dump"
-		enc = $framework.encoders.create(encoder)
+		enc = encoder ? $framework.encoders.create(encoder) : nil
 
 		if (enc)
 			$stderr.puts(Msf::Serializer::ReadableText.dump_module(enc))
