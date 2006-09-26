@@ -22,14 +22,8 @@ function initialize_topmenu() {
 }
 
 
-function openAboutDialog() {
-   win = new Window('window_id', {className: "mac_os_x", title: "Sample", width:200, height:150}); win.getContent().innerHTML = "<h1>Hello world !!</h1>"; win.setDestroyOnClose(); win.showCenter(); 
-   }
-function fade_start_tip() {
-    new Effect.Fade('starttip', {duration: 4});
-}
+function openAboutDialog() {}
 
 function run_tasks() {
-    //fade_start_tip();
-    //initialize_topmenu();
+    initialize_topmenu();
 }

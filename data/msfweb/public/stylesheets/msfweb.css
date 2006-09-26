@@ -20,7 +20,6 @@ body {
 	margin:0;
 	padding:0;
 	width: 100%;
-	position: absolute;
 	list-style-type:none;
 	height: 31px;
 	background-color:#f4f4f4;
@@ -50,6 +49,31 @@ body {
 	color: HighlightText;
 }
 
+#topmenu li ul { /* second-level lists */
+	display: none;
+	position: relative;
+	top: 1em;
+	left: 0;
+}
+
+#topmenu li>ul {
+	top: auto;
+	left: auto;
+}
+
+#topmenu li:hover ul, li.over ul {
+	display: block;
+	position: absolute;
+	border-color: ThreeDHighlight ThreeDShadow ThreeDShadow ThreeDHighlight;
+	list-style-type: none;
+	margin: 0;
+	top: 32px;
+	background-color: ThreeDFace;
+	font-size: 8pt;
+}
+
+
+
 #maincontent {
     position: relative;
     min-height: 100%;
@@ -57,7 +81,7 @@ body {
 }
 
 .desktop-tip {
-    margin-top: 6em;
+    margin-top: 7em;
     margin-left: 1em;
     font-family: Trebuchet, Sans, Arial;
     font-size: 90%;
@@ -66,6 +90,7 @@ body {
     padding-top: 1em;
     padding-bottom: 1em;
     width: 400px;
+    clear: both;
     border-left: 5px solid #fff;
     background: #fff url(/images/help.png) no-repeat;
 }
