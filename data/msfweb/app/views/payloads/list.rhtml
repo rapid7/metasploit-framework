@@ -6,9 +6,11 @@
 		</tr>
 	</thead>
 	<tbody>
-	    <% @all_payloads.each do |m| %>
+	    <% @all_payloads.each_index do |i| 
+				m = @all_payloads[i]
+		%>
 		<tr>
-			<td><a onClick="window.parent.openModuleWindow('payloads', '<%= m.refname.gsub('/', ':') %>', '<%= m.name %>')" href="#"><%= m.name %></a></td>
+			<td><a onClick="window.parent.openModuleWindow('payloads', '<%= i %>', '<%= m.name %>')" href="#"><%= m.name %></a></td>
 			<td><%= m.description %></td>
 		</tr>
 		<% end %>

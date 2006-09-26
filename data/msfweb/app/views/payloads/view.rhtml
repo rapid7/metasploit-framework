@@ -1,11 +1,7 @@
 <%
 
-	modinst = nil
-	modname = params[:id].gsub(':', '/')
-	
-	@all_payloads.each do |m|
-		modinst = m if m.refname == modname
-	end
+	modidx  = (params[:id] || 0).to_i	
+	modinst = @all_payloads[modidx]
 %>
 
 <table width='100%' cellspacing='0' cellpadding='0' border='0'>
