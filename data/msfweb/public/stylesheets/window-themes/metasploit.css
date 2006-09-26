@@ -1,0 +1,124 @@
+/*
+ * Theme ported by L.M.H. <lmh@info-pull.com>
+ */
+.overlay_metasploit {
+	background-color: #85BBEF;
+	filter:alpha(opacity=60);
+	-moz-opacity: 0.6;
+	opacity: 0.6;
+}
+
+.metasploit_nw {
+  background: transparent url(metasploit/titlebar-left-shaded-focused.png) no-repeat 0 0;			
+  width:10px;
+  height:23px;
+}
+.metasploit_n {
+  background: transparent url(metasploit/titlebar-mid-shaded-focused.png) repeat-x 0 0;			
+  height:23px;
+}
+.metasploit_ne {
+  background: transparent url(metasploit/titlebar-right-shaded-focused.png) no-repeat 0 0;			
+  width:10px;	  
+  height:23px;
+}
+.metasploit_w {
+  background: transparent url(metasploit/frame-left-focused.png) repeat-y top left;			
+  width:5px;
+}
+
+.metasploit_e {
+  background: transparent url(metasploit/frame-right-focused.png) repeat-y top right;			
+  width:5px;	  
+}
+
+.metasploit_sw {
+  background: transparent url(metasploit/frame-bottom-left-focused.png) no-repeat 0 0;			
+  width:5px;
+  height:5px;
+}
+.metasploit_s {
+  background: transparent url(metasploit/frame-bottom-mid-focused.png) repeat-x 0 0;			
+  height:5px;
+}
+.metasploit_se, .metasploit_sizer {
+  background: transparent url(metasploit/frame-bottom-right-focused.png) no-repeat 0 0;			
+  width:5px;
+  height:5px;
+}
+
+.metasploit_sizer {
+	cursor:se-resize;	
+}
+
+.metasploit_close {
+	width: 26px;
+	height: 23px;
+	background: transparent url(metasploit/button-close-focused.png) no-repeat 0 0;			
+	position:absolute;
+	top:0px;
+	right:5px;
+	cursor:pointer;
+	z-index:1000;
+}
+
+.metasploit_minimize {
+	width: 26px;
+	height: 23px;
+	background: transparent url(metasploit/button-minimize-focused.png) no-repeat 0 0;			
+	position:absolute;
+	top:0px;
+	right:26px;
+	cursor:pointer;
+	z-index:1000;
+}
+
+.metasploit_maximize {
+	width: 26px;
+	height: 23px;
+	background: transparent url(metasploit/button-maximize-focused.png) no-repeat 0 0;			
+	position:absolute;
+	top:0px;
+	right:47px;
+	cursor:pointer;
+	z-index:1000;
+}
+
+
+.metasploit_title {
+	float:left;
+	height:14px;
+	font-size:12px;
+	text-align:center;
+	margin-top:2px;
+	width:100%;
+	color:#FFF;
+}
+
+.metasploit_content {
+	overflow:auto;
+	color: #444;
+	font-family: "MS Sans Serif", Arial, sans-serif;
+	font-size: 14px;
+	background:#ddd;
+}
+
+
+/* FOR IE */
+* html .metasploit_minimize {
+	background-color: transparent;
+	background-image: none;
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="../themes/metasploit/button-minimize-focused.png", sizingMethod="crop");
+}
+
+* html .metasploit_maximize {
+	background-color: transparent;
+	background-image: none;
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="../themes/metasploit/button-maximize-focused.png", sizingMethod="scale");
+}
+
+* html .metasploit_close {
+	background-color: transparent;
+	background-image: none;
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="../themes/metasploit/button-close-focused.png", sizingMethod="crop");
+}

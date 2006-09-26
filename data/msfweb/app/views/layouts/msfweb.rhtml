@@ -11,19 +11,19 @@
         <%= javascript_include_tag js %><% end %>
         <%= stylesheet_link_tag "msfweb" %>
         <%= stylesheet_link_tag "window-themes/default" %>
-        <%= stylesheet_link_tag "window-themes/mac_os_x" %>
+        <%= stylesheet_link_tag "window-themes/metasploit" %>
     </head>
 
     <body>
         <div id="topmenu">
             <ul>
-                <li><img src="/images/bug.png" alt="" />Exploits</li>
-                <li><img src="/images/bomb.png" alt="" />Payloads</li>
-                <li><img src="/images/encoder.png" alt="" />Encoders</li>
-                <li><img src="/images/lightbulb-off.png" alt="" />Nops</li>
-                <li><img src="/images/terminal.png" alt="" />Sessions</li>
-                <li><img src="/images/jobs.png" alt="" />Jobs</li>
-                <li><img src="/images/help.png" alt="" />Help</li>
+                <li onClick="openExploitWindow()"><img src="/images/bug.png" alt="" />Exploits</li>
+                <li onClick="openPayloadsWindow()"><img src="/images/bomb.png" alt="" />Payloads</li>
+                <li onClick=""><img src="/images/encoder.png" alt="" />Encoders</li>
+                <li onClick=""><img src="/images/lightbulb-off.png" alt="" />Nops</li>
+                <li onClick=""><img src="/images/terminal.png" alt="" />Sessions</li>
+                <li onClick=""><img src="/images/jobs.png" alt="" />Jobs</li>
+                <li onClick=""><img src="/images/help.png" alt="" />Help</li>
             </ul>
         </div>
         

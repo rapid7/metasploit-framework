@@ -3,27 +3,49 @@
  * All Rights Reserved.
  */
 
-/* http://alistapart.com/articles/dropdowns/ */
-function initialize_topmenu() {
-	if (document.all&&document.getElementById) {
-		navRoot = document.getElementById("topmenu");
-		for (i=0; i<navRoot.childNodes.length; i++) {
-			node = navRoot.childNodes[i];
-			if (node.nodeName=="LI") {
-				node.onmouseover=function() {
-					this.className+=" over";
-				}
-				node.onmouseout=function() {
-					this.className=this.className.replace(" over", "");
-				}
-			}
-		}
-	}
+/*
+ * Dialogs
+ */
+
+function openAboutDialog() {
+
 }
 
+function openExploitWindow() {
+    var exploitList = create_window_ajax("/exploits/list", "exploits-list", "Available Exploits");
+    exploitList.setDestroyOnClose();
+    exploitList.showCenter();
+}
 
-function openAboutDialog() {}
+function openPayloadsWindow() {
+    var payloadList = create_window_ajax("/payloads/list", "payloads-list", "Available Payloads");
+    payloadList.setDestroyOnClose();
+    payloadList.showCenter();
+}
+
+/*
+ * Task and helper functions
+ */
+
+function create_window_ajax(target_url, wid, wtitle) {
+    var new_mwindow = new Window(wid,
+        { className: "metasploit",
+          title: wtitle,
+          top:70,
+          left:100,
+          width:300,
+          height:200,
+          resizable: true,
+          draggable: true,
+          url: target_url,
+          showEffectOptions:
+            {
+                duration:3
+            }
+          });
+    return new_mwindow;
+}
 
 function run_tasks() {
-    initialize_topmenu();
+    // ...
 }
