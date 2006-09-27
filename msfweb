@@ -19,7 +19,7 @@ arguments = Rex::Parser::Arguments.new(
 	"-a" => [ true,  "Bind to this IP address instead of loopback"          ],
 	"-p" => [ true,  "Bind to this port instead of 55555"                   ],
 #	"-v" => [ true,  "A number between 0 and 3 that controls log verbosity" ],
-#	"-d" => [ false, "Daemonize the web server"                             ],
+	"-d" => [ false, "Daemonize the web server"                             ],
 	"-h" => [ false, "Help banner"                                          ])
 
 opts = {}
@@ -44,5 +44,10 @@ arguments.parse(ARGV) { |opt, idx, val|
 	end
 }
 
-system(msfserv, '-p', (opts['ServerPort'] || '55555'), '-b', (opts['ServerHost'] || '127.0.0.1'))
+system(
+	msfserv, 
+	'-p', (opts['ServerPort'] || '55555'), 
+	'-b', (opts['ServerHost'] || '127.0.0.1'),
+	(background ? '-d' : '')
+)
 
