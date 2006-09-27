@@ -6,10 +6,43 @@
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
 $:.unshift(File.join(File.dirname(msfbase), 'lib'))
+require 'rex'
+
 
 msfroot = File.join(File.dirname(msfbase), 'data', 'msfweb')
 Dir.chdir(msfroot)
 
 msfserv = File.join('script', 'server')
-system(msfserv, '-p', '55555', '-b', '127.0.0.1')
+
+# Declare the argument parser for msfweb
+arguments = Rex::Parser::Arguments.new(
+	"-a" => [ true,  "Bind to this IP address instead of loopback"          ],
+	"-p" => [ true,  "Bind to this port instead of 55555"                   ],
+#	"-v" => [ true,  "A number between 0 and 3 that controls log verbosity" ],
+#	"-d" => [ false, "Daemonize the web server"                             ],
+	"-h" => [ false, "Help banner"                                          ])
+
+opts = {}
+background = false
+
+# Parse command line arguments.
+arguments.parse(ARGV) { |opt, idx, val|
+	case opt
+		when "-a"
+			opts['ServerHost'] = val
+		when "-p"
+			opts['ServerPort'] = val
+		when "-v"
+			opts['LogLevel'] = val
+		when "-d"
+			background = true
+		when "-h"
+			print(
+				"\nUsage: msfweb <options>\n" +
+				arguments.usage)
+			exit
+	end
+}
+
+system(msfserv, '-p', (opts['ServerPort'] || '55555'), '-b', (opts['ServerHost'] || '127.0.0.1'))
 
