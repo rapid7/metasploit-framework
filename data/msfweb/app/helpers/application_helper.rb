@@ -19,4 +19,13 @@ module ApplicationHelper
     return "onMouseOver=\"this.className='#{css_class_name}'\" onMouseOut=\"this.className=''\""
   end
   
+  # Return the AJAX livesearch-ready text box and target div container for eacrh results.
+  def ajax_livesearch_for(mod)
+    my_keyup_event = "window.parent.return_livesearch_results(this.value, '#{mod}', 'search-results')"
+    text_field     = "<input type=\"text\" onKeyup=\"#{my_keyup_event}\"/>"
+    search_target  = '<div id="search-results"></div>'
+    search_box = '<div id="search-box">' + text_field + search_target + '</div>'
+    return search_box
+  end
+  
 end

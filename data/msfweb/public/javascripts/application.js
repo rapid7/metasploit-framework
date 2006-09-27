@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2006, L.M.H. <lmh@info-pull.>
  * All Rights Reserved.
+ * -- Part of 'msfweb', the web interface for the Metasploit Framework.
  */
 
 /*
@@ -19,6 +20,9 @@ function obtainWindowId() {
 	return(winIndex++);
 }
 
+/*
+ * Show the About information dialog
+ */
 function openAboutDialog() {
     var aboutWindow = new Window("about-window"+obtainWindowId(),
         { className: web_windows_theme,
@@ -43,6 +47,10 @@ function openAboutDialog() {
     aboutWindow.showCenter();
 }
 
+
+/*
+ * Functions for opening modules lists and views
+ */
 
 function openExploitsWindow() {
     var exploitList = create_window_ajax("/exploits/list", "exploits-list", "Available Exploits", 600, 300);
@@ -90,6 +98,22 @@ function openJobsWindow() {
  * Task and helper functions
  */
 
+function return_livesearch_results(terms, mod, target_id) {
+    var search_params = 'terms=' + terms;
+    var myAjaxSearch = new Ajax.Updater(
+                            target_id,
+                            '/' + mod + '/search', 
+                            {
+                                method: 'get', 
+                                parameters: search_params,
+                                onFailure: alert('Your search for terms "'+terms+'" in '+mod+' failed for some reason.'),
+                                evalScripts: true
+                            });
+}
+
+/*
+ * Create and AJAX based window from extenal content
+ */
 function create_window_ajax(target_url, wid, wtitle, wwidth, wheight) {
     var new_mwindow = new Window(wid+'-'+obtainWindowId(),
         { className: web_windows_theme,
@@ -107,6 +131,10 @@ function create_window_ajax(target_url, wid, wtitle, wwidth, wheight) {
     return new_mwindow;
 }
 
+/*
+ * Open a window for the module of type (mtype) by id (refname) with tile (wtitle).
+ * Height and width are fixed, should be working values in all cases.
+ */
 function openModuleWindow(mtype, refname, wtitle) {
     var mWin = create_window_ajax("/" + mtype + "/view/" + refname, mtype + "-view-" + obtainWindowId(), wtitle, 500, 300);
     mWin.setDestroyOnClose();

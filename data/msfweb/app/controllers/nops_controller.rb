@@ -1,8 +1,8 @@
 class NopsController < ApplicationController
-  layout 'windows'
+  layout 'windows', :except => 'search'
 
-  def search_complete(terms)
-	search_modules(Nop.find_all(), terms)
+  def search
+	@results = search_modules(Nop.find_all(), params[:terms])
   end
     
   def list

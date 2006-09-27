@@ -4,6 +4,11 @@ class ApplicationController < ActionController::Base
 
   def search_modules(mlist, terms)
     res = []
+    
+    unless terms
+      return nil
+    end
+    
     mlist.each do |m|
       
       if (m.name.downcase.index(terms.downcase))
