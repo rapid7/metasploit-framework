@@ -7,30 +7,65 @@
         <meta name="Author" content="L.M.H <lmh@info-pull.com>" />
         <meta name="Copyright" content="(c) 2006, L.M.H <lmh@info-pull.com>" />
         <title>Metasploit Framework Web Console v.3</title>
-        <% ["prototype","effects","controls", "window", "application"].each do |js| %>
-        <%= javascript_include_tag js %><% end %>
         <%= stylesheet_link_tag "msfweb" %>
         <%= stylesheet_link_tag "window-themes/default" %>
         <%= stylesheet_link_tag "window-themes/metasploit" %>
+        <% ["prototype","effects","controls", "window", "application"].each do |js| %>
+        <%= javascript_include_tag js %><% end %>
     </head>
 
     <body>
         <div id="topmenu">
             <ul>
-                <li onClick="openExploitsWindow()"><img src="/images/bug.png" alt="" />Exploits</li>
-				<li onClick="openAuxiliariesWindow()"><img src="/images/zoom.png" alt="" />Auxiliaries</li>
-                <li onClick="openPayloadsWindow()"><img src="/images/bomb.png" alt="" />Payloads</li>
-                <li onClick="openEncodersWindow()"><img src="/images/encoder.png" alt="" />Encoders</li>
-                <li onClick="openNopsWindow()"><img src="/images/lightbulb-off.png" alt="" />Nops</li>
-                <li onClick="openSessionsWindow()"><img src="/images/terminal.png" alt="" />Sessions</li>
-                <li onClick="openJobsWindow()"><img src="/images/jobs.png" alt="" />Jobs</li>
-				<li onClick=""><img src="/images/wrench.png" alt="" />IDE</li>
-                <li onClick=""><img src="/images/help.png" alt="" />Help</li>
-                <span class="env-info">
+                <li onClick="openExploitsWindow()" <%=msie_hover_fix('limsieFix')%>>
+                    <img src="/images/bug.png" alt="" />
+                    Exploits
+                </li>
+                
+				<li onClick="openAuxiliariesWindow()" <%=msie_hover_fix('limsieFix')%>>
+				    <img src="/images/zoom.png" alt="" />
+				    Auxiliaries
+				</li>
+				
+                <li onClick="openPayloadsWindow()" <%=msie_hover_fix('limsieFix')%>>
+                    <img src="/images/bomb.png" alt="" />
+                    Payloads
+                </li>
+                
+                <li onClick="openEncodersWindow()" <%=msie_hover_fix('limsieFix')%>>
+                    <img src="/images/encoder.png" alt="" />
+                    Encoders
+                </li>
+                
+                <li onClick="openNopsWindow()" <%=msie_hover_fix('limsieFix')%>>
+                    <img src="/images/lightbulb-off.png" alt="" />
+                    Nops
+                </li>
+                
+                <li onClick="openSessionsWindow()" <%=msie_hover_fix('limsieFix')%>>
+                    <img src="/images/terminal.png" alt="" />
+                    Sessions
+                </li>
+                
+                <li onClick="openJobsWindow()" <%=msie_hover_fix('limsieFix')%>>
+                    <img src="/images/jobs.png" alt="" />
+                    Jobs
+                </li>
+                
+				<li onClick="">
+				    <img src="/images/wrench.png" alt="" />
+				    IDE
+				</li>
+				
+                <li onClick="">
+                    <img src="/images/help.png" alt="" />
+                    Help
+                </li>
+            </ul>
+            <span class="env-info">
                     Platform: <%=return_env_info()[:platform]%> (ruby <%=return_env_info()[:rubyver]%>)<br />
                     Metasploit: <%=return_env_info()[:msfver]%>
-                </span>
-            </ul>
+            </span>
         </div>
         
         <!--
@@ -46,6 +81,8 @@
             <%= @content_for_layout %>
         </div>
     
-    <script>run_tasks();</script>
+        <script type="text/javascript">
+            run_tasks();
+        </script>
     </body>
 </html>

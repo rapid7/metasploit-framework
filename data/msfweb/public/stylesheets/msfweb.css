@@ -42,7 +42,8 @@ body {
 	color: WindowText;
 }
 
-#topmenu li:hover {
+#topmenu li:hover,
+#topmenu li.limsieFix {
 	background-color: blue;
 	cursor: pointer;
 	_cursor: hand;

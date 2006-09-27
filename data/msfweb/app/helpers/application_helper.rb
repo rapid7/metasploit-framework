@@ -13,4 +13,10 @@ module ApplicationHelper
     return ret
   end
   
+  # Return the JavaScript code necessary for "supporting" :hover pseudo-class
+  # in MSIE (ex. used in the top menu bar).
+  def msie_hover_fix(css_class_name)
+    return "onMouseOver=\"this.className='#{css_class_name}'\" onMouseOut=\"this.className=''\""
+  end
+  
 end

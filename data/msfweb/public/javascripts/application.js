@@ -4,9 +4,14 @@
  */
 
 /*
- * Dialogs
+ * Global variables
  */
 
+var web_windows_theme = "metasploit";
+
+/*
+ * Window Management code and Dialogs
+ */
 
 var winIndex = 0;
 /* Returns a unique Window identifier */
@@ -67,7 +72,7 @@ function openJobsWindow() {
 
 function create_window_ajax(target_url, wid, wtitle, wwidth, wheight) {
     var new_mwindow = new Window(wid+'-'+obtainWindowId(),
-        { className: "metasploit",
+        { className: web_windows_theme,
           title: wtitle,
           top:70,
           left:100,

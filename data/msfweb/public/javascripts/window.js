@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// VERSION 0.96.2
+// VERSION 0.96.3
 
 var Window = Class.create();
 Window.prototype = {
@@ -143,7 +143,6 @@ Window.prototype = {
 	// Destructor
  	destroy: function() {
 		Windows.notify("onDestroy", this);
-		
   	Event.stopObserving(this.topbar, "mousedown", this.eventMouseDown);
   	Event.stopObserving(this.bottombar, "mousedown", this.eventMouseDown);
   	Event.stopObserving(this.content, "mousedown", this.eventMouseDownContent);
@@ -258,8 +257,14 @@ Window.prototype = {
 	
 	// Detroys itself when closing 
 	setDestroyOnClose: function() {
-	  Object.extend(this.options.hideEffectOptions, {afterFinish:  this.destroy.bind(this)});
-		this.destroyOnClose = true;
+    var destroyFunc = this.destroy.bind(this);
+	  if (this.options.hideEffectOptions.afterFinish) {
+	    var func = this.options.hideEffectOptions.afterFinish;
+	    this.options.hideEffectOptions.afterFinish = function() {func();destroyFunc() }
+    }
+    else 
+      this.options.hideEffectOptions.afterFinish = function() {destroyFunc() }
+	  this.destroyOnClose = true;
 	},
 	
 	// initDrag event
@@ -382,13 +387,13 @@ Window.prototype = {
 
 		var content;
 		if (this.options.url)
-			content= "<iframe name=\"" + id + "_content\"  id=\"" + id + "_content\" src=\"" + this.options.url + "\"> </iframe>";
+			content= "<iframe frameborder=\"0\" name=\"" + id + "_content\"  id=\"" + id + "_content\" src=\"" + this.options.url + "\"> </iframe>";
 		else
 			content ="<div id=\"" + id + "_content\" class=\"" +className + "_content\"> </div>";
 			
-		var closeDiv = this.options.closable ? "<div class='"+ className +"_close' id='"+ id +"_close' onmouseup='Windows.close(\""+ id +"\")'> </div>" : "";
-		var minDiv = this.options.minimizable ? "<div class='"+ className + "_minimize' id='"+ id +"_minimize' onmouseup='Windows.minimize(\""+ id +"\")'> </div>" : "";
-		var maxDiv = this.options.maximizable ? "<div class='"+ className + "_maximize' id='"+ id +"_maximize' onmouseup='Windows.maximize(\""+ id +"\")'> </div>" : "";
+		var closeDiv = this.options.closable ? "<div class='"+ className +"_close' id='"+ id +"_close' onclick='Windows.close(event, \""+ id +"\")'> </div>" : "";
+		var minDiv = this.options.minimizable ? "<div class='"+ className + "_minimize' id='"+ id +"_minimize' onclick='Windows.minimize(event, \""+ id +"\")'> </div>" : "";
+		var maxDiv = this.options.maximizable ? "<div class='"+ className + "_maximize' id='"+ id +"_maximize' onclick='Windows.maximize(event, \""+ id +"\")'> </div>" : "";
 		var seAttributes = this.options.resizable ? "class='" + className + "_sizer' id='" + id + "_sizer'" : "class='"  + className + "_se'";
 		
     win.innerHTML = closeDiv + minDiv + maxDiv + "\
@@ -433,6 +438,20 @@ Window.prototype = {
 		this.useTop = true;
 	},
 		
+	getLocation: function() {
+	  var location = {};
+	  if (this.useTop)
+	    location = Object.extend(location, {top: this.element.getStyle("top")});
+    else
+      location = Object.extend(location, {bottom: this.element.getStyle("bottom")});
+	  if (this.useLeft)
+	    location = Object.extend(location, {left: this.element.getStyle("left")});
+    else
+      location = Object.extend(location, {right: this.element.getStyle("right")});
+	  
+	  return location;
+	},
+	
 	// Gets window size
 	getSize: function() {
 	  return {width: this.width, height: this.height};
@@ -477,6 +496,8 @@ Window.prototype = {
 	
 	// Brings window to front
 	toFront: function() {
+	  if (Windows.focusedWindow == this) 
+	    return;
     this.setZIndex(Windows.maxZIndex + 20);
     Windows.notify("onFocus", this);
 	},
@@ -718,10 +739,10 @@ Window.prototype = {
     var win = document.createElement("div");
 		win.setAttribute('id', this.element.id+ "_tmp");
 		win.className = className;
-		win.style.display = 'none'
-		win.innerHTML = ''
-		objBody.insertBefore(win, objBody.firstChild)   
-		return win
+		win.style.display = 'none';
+		win.innerHTML = '';
+		objBody.insertBefore(win, objBody.firstChild);
+		return win;
   },
   
 	_storeLocation: function() {
@@ -813,7 +834,7 @@ var Windows = {
   }, 
 
   // Closes a window with its id
-  close: function(id) {
+  close: function(event, id) {
   	var win = this.getWindow(id);
   	// Asks delegate if exists
     if (win) {
@@ -829,6 +850,8 @@ var Windows = {
   			this.notify("onClose", win);
   			win.hide();
   	}
+  	if (event)
+	    Event.stop(event);
   },
   
   // Closes all windows
@@ -837,17 +860,19 @@ var Windows = {
   },
   
   // Minimizes a window with its id
-  minimize: function(id) {
+  minimize: function(event, id) {
   	var win = this.getWindow(id)
   	if (win)
   	  win.minimize();
+	  Event.stop(event);
   },
   
   // Maximizes a window with its id
-  maximize: function(id) {
+  maximize: function(event, id) {
   	var win = this.getWindow(id)
   	if (win)
   	  win.maximize();
+	  Event.stop(event);
   },
   
   unsetOverflow: function(except) {		
@@ -951,18 +976,14 @@ var Dialog = {
 	},
 	
 	closeInfo: function() {
-		Windows.close(this.dialogId);
+		Windows.close(null, this.dialogId);
 	},
 	
 	_openDialog: function(content, parameters) {
-		// remove old dialog
-		if (this.win) 
-			this.win.destroy();
-
     if (! parameters.windowParameters.height && ! parameters.windowParameters.width) {
       parameters.windowParameters.width = WindowUtilities.getPageSize().pageWidth / 2;
     }
-    this.dialogId = parameters.id ? parameters.id : 'modal_dialog'
+    this.dialogId = parameters.id ? parameters.id : 'modal_dialog';
 
     // compute height or width if need be
     if (! parameters.windowParameters.height || ! parameters.windowParameters.width) {
@@ -982,7 +1003,8 @@ var Dialog = {
 		this.win = new Window(this.dialogId, windowParam);
 		this.win.getContent().innerHTML = content;
   	this.win.showCenter(true, parameters.top, parameters.left);	
-		  
+		this.win.setDestroyOnClose();
+
 		this.win.cancelCallback = parameters.cancel;
 		this.win.okCallback = parameters.ok;
 		
@@ -1128,7 +1150,7 @@ var WindowUtilities = {
 	},
 
  	enableScreen: function(id) {
- 	  id = id || 'overlay_modal'
+ 	  id = id || 'overlay_modal';
 	 	var objOverlay =  $(id);
 		if (objOverlay) {
 			// hide lightbox and overlay
