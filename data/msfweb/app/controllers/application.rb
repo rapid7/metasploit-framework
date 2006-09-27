@@ -10,18 +10,21 @@ class ApplicationController < ActionController::Base
     end
     
     mlist.each do |m|
-      
+	  
       if (m.name.downcase.index(terms.downcase))
         res << m
         next
       end
 
-      if (m.desc.downcase.index(terms.downcase))
+      if (m.description.downcase.index(terms.downcase))
         res << m
         next
       end
             
     end
+	
+	p res.length
+	
     res
   end
   
