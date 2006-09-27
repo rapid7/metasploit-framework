@@ -1,18 +1,22 @@
 <table>
 	<thead>
 		<tr>
-			<th>Name</th>
-			<th>Description</th>
+			<th>Modules</th>
 		</tr>
 	</thead>
 	<tbody>
 	    <% @auxiliaries.each do |m| %>
-		<tr>
+		
+		<tr class="itemTitle">
 			<td class="itemTitle">
 			    <a onClick="window.parent.openModuleWindow('auxiliaries', '<%= m.refname.gsub('/', ':') %>', '<%= m.name %>')" href="#"><%= m.name %></a>
 			</td>
+		</tr>
+		
+		<tr class="itemDescription">
 			<td class="itemDescription"><%= m.description %></td>
 		</tr>
+		
 		<% end %>
 	</tbody>
 </table>
