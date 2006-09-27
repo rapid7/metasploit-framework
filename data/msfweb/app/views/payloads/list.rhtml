@@ -6,8 +6,8 @@
 		</tr>
 	</thead>
 	<tbody>
-	    <% @all_payloads.each_index do |i| 
-				m = @all_payloads[i]
+	    <% @payloads.each_index do |i| 
+				m = @payloads[i]
 		%>
 		<tr>
 			<td><a onClick="window.parent.openModuleWindow('payloads', '<%= i %>', '<%= m.name %>')" href="#"><%= m.name %></a></td>

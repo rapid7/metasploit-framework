@@ -6,7 +6,7 @@
 		</tr>
 	</thead>
 	<tbody>
-	    <% @all_auxiliary.each do |m| %>
+	    <% @auxiliaries.each do |m| %>
 		<tr>
 			<td><a onClick="window.parent.openModuleWindow('auxiliaries', '<%= m.refname.gsub('/', ':') %>', '<%= m.name %>')" href="#"><%= m.name %></a></td>
 			<td><%= m.description %></td>

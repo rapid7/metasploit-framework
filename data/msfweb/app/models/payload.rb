@@ -1,9 +1,7 @@
 class Payload
-
-	def self.get_available()
+	def self.find_all()
 		mods = []
 		$msframework.payloads.each_module { |n,m| mods << m.new }
 		mods
 	end
-
 end

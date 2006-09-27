@@ -1,5 +1,5 @@
 class Session
-  	def self.get_available()
+  	def self.find_all()
 		$msframework.sessions
 	end
 end

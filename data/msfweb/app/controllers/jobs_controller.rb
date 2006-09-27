@@ -2,7 +2,7 @@ class JobsController < ApplicationController
   layout 'windows'
   
   def list
-    @all_jobs = Job.get_available()
+    @jobs = Job.find_all()
   end
 
   def stop

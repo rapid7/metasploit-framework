@@ -1,5 +1,5 @@
 class Job
-  	def self.get_available()
+  	def self.find_all()
 		$msframework.jobs
 	end
 end

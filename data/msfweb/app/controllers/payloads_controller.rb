@@ -1,12 +1,16 @@
 class PayloadsController < ApplicationController
-    layout 'windows'
-    
+  layout 'windows'
+
+  def search_complete(terms)
+	search_modules(Payload.find_all(), terms)
+  end
+      
   def list
-    @all_payloads = Payload.get_available()
+    @payloads = Payload.find_all()
   end
 
   def view
-    @all_payloads = Payload.get_available()
+    @payloads = Payload.find_all()
   end
 
   def generate
