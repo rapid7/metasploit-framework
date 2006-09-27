@@ -1,0 +1,50 @@
+/*
+ * Copyright (c) 2006, L.M.H. <lmh@info-pull.com>
+ * All Rights Reserved.
+ */
+
+body {
+    background: #fff;
+    font-family: Sans, Arial, sans-serif;
+    font-size: 10pt;
+}
+
+thead {
+    background: #DCDCDC;
+    color: #5E5E5E;
+    border: 1px solid #858585;
+}
+
+table {
+    background: #FAFAFA;
+}
+
+table .itemTitle {
+    background: #666666 url(/images/bullet_go.png) left no-repeat;
+    color: #fff;
+    padding: 6px;
+    padding-left: 16px;
+    text-align: center;
+    border: 1px solid #AAAAAA;
+}
+
+table .itemTitle:hover {
+    background: #404040 url(/images/bullet_wrench.png) left no-repeat;
+}
+
+table .itemTitle a,
+table .itemTitle a:hover {
+    color: #fff;
+    text-decoration: none;
+    font-size: 9pt;
+}
+
+table .itemDescription {
+    background: #EDEDED;
+    padding: 5px;
+    border: 1px solid #ccc;
+}
+
+table .itemDescription:hover {
+    background: #CAE1FF;
+}

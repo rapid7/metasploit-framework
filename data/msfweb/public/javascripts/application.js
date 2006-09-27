@@ -20,7 +20,27 @@ function obtainWindowId() {
 }
 
 function openAboutDialog() {
-    // ...
+    var aboutWindow = new Window("about-window"+obtainWindowId(),
+        { className: web_windows_theme,
+        width:450,
+        height:160,
+        zIndex: 100,
+        resizable: true,
+        title: "About msfweb v.3",
+        showEffect:Effect.BlindDown,
+        hideEffect: Effect.SwitchOff,
+        draggable:true
+        })
+        
+    var about_content = "<div style='padding:10px'>The new <strong>Metasploit Framework Web Console</strong> (v.3)" +
+                        " has been developed by L.M.H &lt;lmh@info-pull.com&gt;.<br />Copyright &copy; 2006 L.M.H " +
+                        "&lt;lmh@info-pull.com&gt;. All Rights Reserved. <br />" +
+                        "Thanks to H.D.M for the functionality suggestions and general help. Also thanks to" +
+                        " the Metasploit team (hdm, skape, etc) and contributors for developing a ground-breaking" +
+                        " project: <strong>Metasploit.</strong></div>"
+                        
+    aboutWindow.getContent().innerHTML= about_content;
+    aboutWindow.showCenter();
 }
 
 
@@ -49,7 +69,7 @@ function openEncodersWindow() {
 }
 
 function openNopsWindow() {
-    var nopList = create_window_ajax("/nops/list", "nops-list", "Available No-Op Generators", 600, 300);
+    var nopList = create_window_ajax("/nops/list", "nops-list", "Available No-Op Generators", 400, 200);
     nopList.setDestroyOnClose();
     nopList.showCenter();
 }
@@ -81,14 +101,14 @@ function create_window_ajax(target_url, wid, wtitle, wwidth, wheight) {
           resizable: true,
           draggable: true,
           url: target_url,
-          showEffectOptions: { duration: 0.25 },
+          showEffectOptions: { duration: 0.35 },
           hideEffectOptions: { duration: 0.25 }
           });
     return new_mwindow;
 }
 
 function openModuleWindow(mtype, refname, wtitle) {
-    var mWin = create_window_ajax("/" + mtype + "/view/" + refname, mtype + "-view-" + obtainWindowId(), wtitle, 400, 300);
+    var mWin = create_window_ajax("/" + mtype + "/view/" + refname, mtype + "-view-" + obtainWindowId(), wtitle, 500, 300);
     mWin.setDestroyOnClose();
     mWin.showCenter();
 }

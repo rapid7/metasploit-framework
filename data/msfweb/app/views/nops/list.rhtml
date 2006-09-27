@@ -1,2 +1,20 @@
-<h1>Nops#list</h1>
-<p>Find me in app/views/nops/list.rhtml</p>
+<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+	    <% @nops.each_index do |i| 
+				m = @nops[i]
+		%>
+		<tr>
+			<td class="itemTitle">
+			   <a onClick="window.parent.openModuleWindow('nops', '<%= i %>', '<%= m.name %>')" href="#"><%= m.name %></a>
+			</td>
+			<td class="itemDescription"><%= m.description %></td>
+		</tr>
+		<% end %>
+	</tbody>
+</table>

@@ -57,7 +57,7 @@
 				    IDE
 				</li>
 				
-                <li onClick="">
+                <li onClick="openAboutDialog()">
                     <img src="/images/help.png" alt="" />
                     Help
                 </li>
@@ -67,15 +67,6 @@
                     Metasploit: <%=return_env_info()[:msfver]%>
             </span>
         </div>
-        
-        <!--
-        <div id="AboutDialog" bgColor="#444444" bgOpacity="0.5" toggle="fade" toggleDuration="250">
-            The new Metasploit Framework Web Console (v.3) has been developed by L.M.H &lt;lmh@info-pull.com&gt;.<br />
-            Copyright &copy; 2006 L.M.H &lt;lmh@info-pull.com&gt;. All Rights Reserved. <br />
-            Thanks to H.D.M for the functionality suggestions and developing a ground-breaking project: Metasploit. <br />
-            <input type="button" value="Close" id="hidedialog"/>
-        </div>
-        -->
 
         <div id="maincontent">
             <%= @content_for_layout %>

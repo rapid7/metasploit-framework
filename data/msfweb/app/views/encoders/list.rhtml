@@ -1,2 +1,20 @@
-<h1>Encoders#list</h1>
-<p>Find me in app/views/encoders/list.rhtml</p>
+<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+	    <% @encoders.each_index do |i| 
+				m = @encoders[i]
+		%>
+		<tr>
+			<td class="itemTitle">
+			   <a onClick="window.parent.openModuleWindow('encoders', '<%= i %>', '<%= m.name %>')" href="#"><%= m.name %></a>
+			</td>
+			<td class="itemDescription"><%= m.description %></td>
+		</tr>
+		<% end %>
+	</tbody>
+</table>

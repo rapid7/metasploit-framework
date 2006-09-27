@@ -10,8 +10,10 @@
 				m = @payloads[i]
 		%>
 		<tr>
-			<td><a onClick="window.parent.openModuleWindow('payloads', '<%= i %>', '<%= m.name %>')" href="#"><%= m.name %></a></td>
-			<td><%= m.description %></td>
+			<td class="itemTitle">
+			    <a onClick="window.parent.openModuleWindow('payloads', '<%= i %>', '<%= m.name %>')" href="#"><%= m.name %></a>
+			</td>
+			<td class="itemDescription"><%= m.description %></td>
 		</tr>
 		<% end %>
 	</tbody>

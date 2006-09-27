@@ -10,6 +10,7 @@ class NopsController < ApplicationController
   end
 
   def view
+    @nops = Nop.find_all()
   end
 
   def generate

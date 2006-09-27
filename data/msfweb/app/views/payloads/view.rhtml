@@ -4,47 +4,47 @@
 	modinst = @payloads[modidx]
 %>
 
-<table width='100%' cellspacing='0' cellpadding='0' border='0'>
+<table width="100%" cellspacing="0" cellpadding="0" border="0">
 	<tr>
-		<td class='moduleIcons' align='center'>
+		<td class="moduleIcons" align="center">
 			
 		</td>
-		<td class='moduleName'>
-			<div class='textBold'><%= html_escape(modinst.name) %></div>
+		<td class="moduleName">
+			<div class="textBold"><%= html_escape(modinst.name) %></div>
 		</td>
 	</tr>
 </table>
 <br/>
 
-<table align='center' width='95%' cellspacing='0' cellpadding='6' border='0'>
+<table align="center" width="95%" cellspacing="0" cellpadding="6" border="0">
 	<tr>
-		<td align='right' width='80' class='textBold'>Name:</td>
-		<td class='textNormal'><%= html_escape(modinst.name) %></td>
+		<td align="right" width="80">Name:</td>
+		<td><%= html_escape(modinst.name) %></td>
 	</tr>
 	<tr>
-		<td align='right' width='80' class='textBold'>Version:</td>
-		<td class='textNormal'><%= html_escape(modinst.version) %></td>
+		<td align="right" width="80">Version:</td>
+		<td><%= html_escape(modinst.version) %></td>
 	</tr>
 	<tr>
-		<td align='right' width='80' class='textBold' valign='top'>Authors:</td>
-		<td class='textNormal'><%= modinst.author.map { |x| html_escape(x) }.join("<br/>") %></td>
+		<td align="right" width="80" valign="top">Authors:</td>
+		<td><%= modinst.author.map { |x| html_escape(x) }.join("<br/>") %></td>
 	</tr>
 	<tr>
-		<td align='right' width='80' class='textBold' valign='top'>Description:</td>
-		<td colspan='2' class='textNormal' valign='top'>
+		<td align="right" width="80" valign="top">Description:</td>
+		<td colspan="2" valign="top">
 			<%= html_escape(modinst.description) %>
 		</td>
 	</tr>
 	<tr>
-		<td align='right' width='80' class='textBold'>Size:</td>
-		<td class='textNormal'><%= modinst.generate.length %></td>
+		<td align="right" width="80">Size:</td>
+		<td><%= modinst.generate.length %></td>
 	</tr>
 	<tr>
-		<td align='right' width='80' class='textBold'>Arch:</td>
-		<td class='textNormal'><%= modinst.arch_to_s %></td>
+		<td align="right" width="80">Arch:</td>
+		<td><%= modinst.arch_to_s %></td>
 	</tr>
 	<tr>
-		<td align='right' width='80' class='textBold'>OS:</td>
-		<td class='textNormal'><%= modinst.platform_to_s %></td>
+		<td align="right" width="80">OS:</td>
+		<td><%= modinst.platform_to_s %></td>
 	</tr>
 </table>
