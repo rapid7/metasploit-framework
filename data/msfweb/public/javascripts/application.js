@@ -98,7 +98,7 @@ function openJobsWindow() {
  * Task and helper functions
  */
 
-function return_livesearch_results() {
+function init_live_search() {
     // ...
 }
 
