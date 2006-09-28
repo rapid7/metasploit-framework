@@ -1,12 +1,7 @@
 class AuxiliariesController < ApplicationController
-  layout 'windows', :except => 'search'
-
-  def search
-	@results = search_modules(Auxiliary.find_all(), params[:terms])
-  end
+  layout 'windows'
     
   def list
-    @auxiliaries = Auxiliary.find_all()
   end
 
   def view

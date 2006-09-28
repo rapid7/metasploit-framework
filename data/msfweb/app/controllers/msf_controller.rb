@@ -1,7 +1,37 @@
+# Author: L.M.H <lmh@info-pull.com>
+# Description: The main controller of msfweb v.3
+
 class MsfController < ApplicationController
-  layout 'msfweb'
+  layout 'msfweb', :except => 'search'
   
   def index
+  end
+  
+  # Generic search function as suggested by HDM
+  def search
+    if params[:module_type]
+      @module_type = params[:module_type]
+      if params[:terms]
+        case @module_type
+          when 'exploits'
+	       @results = search_modules(Exploit.find_all(), params[:terms])
+	      when 'auxiliaries'
+	       @results = search_modules(Auxiliary.find_all(), params[:terms])
+	      when 'payloads'
+	       @results = search_modules(Payload.find_all(), params[:terms])
+	      when 'nops'
+	       @results = search_modules(Nop.find_all(), params[:terms])
+	      when 'encoders'
+	       @results = search_modules(Encoder.find_all(), params[:terms])
+	      else
+	       render_text "Module type unknown."
+	    end
+	  else
+	   render_text "No search terms provided."
+	  end
+	else
+	 render_text "Module type not specified."
+	end
   end
 
 end

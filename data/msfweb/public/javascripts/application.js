@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006, L.M.H. <lmh@info-pull.>
+ * Copyright (c) 2006, L.M.H. <lmh@info-pull.com>
  * All Rights Reserved.
  * -- Part of 'msfweb', the web interface for the Metasploit Framework.
  */
@@ -98,8 +98,37 @@ function openJobsWindow() {
  * Task and helper functions
  */
 
-function init_live_search() {
-    // ...
+/*
+ * Live search helper: sets an observer on text field with id (observer_id)
+ * for (module_type) modules (ex. exploits) and the id of the spinner container
+ * to show loading progress/indicator.
+ */
+function generic_live_search(observer_id, module_type, load_spinner_id) {
+    new Form.Element.Observer(observer_id, 1, 
+      function(element, value) {
+        /* Set an AJAX updater for the observer of the text field */
+        new Ajax.Updater(
+            'search_results',
+            '/msf/search',
+            {
+                asynchronous:true,
+                evalScripts:true, 
+                onComplete:function(request)
+                {
+                    Element.hide(load_spinner_id)
+                }, 
+                onLoading:function(request)
+                {
+                    Element.show(load_spinner_id)
+                },
+                method:'post',
+                parameters:'module_type=' + module_type + '&terms=' + value
+            })
+      });
+    /* Initializes the contents with all available modules by
+     * doing a blank search 
+     */
+    $(observer_id).value = ' ';
 }
 
 /*

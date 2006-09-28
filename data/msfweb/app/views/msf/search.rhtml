@@ -1,4 +1,4 @@
-<% if @results %>
+<% if @results and @results.size > 0 %>
 <table>
 	<thead>
 		<tr>
@@ -9,7 +9,7 @@
 <% @results.each do |m| %>
     <tr class="itemTitle">
         <td class="itemTitle">
-            <a onClick="window.parent.openModuleWindow('exploits', '<%= m.refname.gsub('/', ':') %>', '<%= m.name %>')" href="#"><%= m.name %></a>
+            <a onClick="window.parent.openModuleWindow('<%= @module_type %>', '<%= m.refname.gsub('/', ':') %>', '<%= m.name %>')" href="#"><%= m.name %></a>
         </td>
     </tr>
     <tr class="itemDescription">
@@ -18,4 +18,8 @@
 <% end %>
 	</tbody>
 </table>
+<% else %>
+<p>
+    No modules found with terms <em><%= h(params[:terms]) %></em>.
+</p>
 <% end %>

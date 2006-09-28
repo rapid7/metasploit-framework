@@ -1,12 +1,7 @@
 class PayloadsController < ApplicationController
-  layout 'windows', :except => 'search'
-
-  def search
-	@results = search_modules(Payload.find_all(), params[:terms])
-  end
+  layout 'windows'
       
   def list
-    @payloads = Payload.find_all()
   end
 
   def view
