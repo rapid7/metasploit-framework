@@ -23,8 +23,6 @@ class ApplicationController < ActionController::Base
             
     end
 	
-	p res.length
-	
     res
   end
   
