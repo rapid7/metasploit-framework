@@ -1,24 +1,10 @@
-<table cellpadding="0" cellspacing="0" border="0">
-	<thead>
-		<tr>
-			<th>Modules</th>
-		</tr>
-	</thead>
-	<tbody>
-	    <% @payloads.each_index do |i| 
-				m = @payloads[i]
-		%>
-		
-		<tr class="itemTitle">
-			<td class="itemTitle">
-			    <a onClick="window.parent.openModuleWindow('payloads', '<%= m.refname.gsub('/', ':') %>', '<%= m.name %>')" href="#"><%= m.name %></a>
-			</td>
-		</tr>
-		
-		<tr class="itemDescription">
-			<td class="itemDescription"><%= m.description %></td>
-		</tr>
-		
-		<% end %>
-	</tbody>
-</table>
+    <div id="module-search-box">
+        Search payload modules:
+        <input id="payload_search" name="terms" type="text" size="40" value=""/>
+        <img alt="Spinner" id="search_spinner" src="/images/spinner.gif" style="display: none;" />
+        <div id="search_results"></div>
+    </div>
+    
+    <script type="text/javascript">
+        generic_live_search('payload_search', 'payloads', 'search_spinner');
+    </script>

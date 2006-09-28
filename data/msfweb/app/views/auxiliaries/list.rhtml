@@ -1,22 +1,10 @@
-<table>
-	<thead>
-		<tr>
-			<th>Modules</th>
-		</tr>
-	</thead>
-	<tbody>
-	    <% @auxiliaries.each do |m| %>
-		
-		<tr class="itemTitle">
-			<td class="itemTitle">
-			    <a onClick="window.parent.openModuleWindow('auxiliaries', '<%= m.refname.gsub('/', ':') %>', '<%= m.name %>')" href="#"><%= m.name %></a>
-			</td>
-		</tr>
-		
-		<tr class="itemDescription">
-			<td class="itemDescription"><%= m.description %></td>
-		</tr>
-		
-		<% end %>
-	</tbody>
-</table>
+    <div id="module-search-box">
+        Search auxiliary modules:
+        <input id="auxiliary_search" name="terms" type="text" size="40" value=""/>
+        <img alt="Spinner" id="search_spinner" src="/images/spinner.gif" style="display: none;" />
+        <div id="search_results"></div>
+    </div>
+    
+    <script type="text/javascript">
+        generic_live_search('auxiliary_search', 'auxiliaries', 'search_spinner');
+    </script>
