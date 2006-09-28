@@ -98,17 +98,8 @@ function openJobsWindow() {
  * Task and helper functions
  */
 
-function return_livesearch_results(terms, mod, target_id) {
-    var search_params = 'terms=' + terms;
-    var myAjaxSearch = new Ajax.Updater(
-                            target_id,
-                            '/' + mod + '/search', 
-                            {
-                                method: 'get', 
-                                parameters: search_params,
-                                onFailure: alert('Your search for terms "'+terms+'" in '+mod+' failed for some reason.'),
-                                evalScripts: true
-                            });
+function return_livesearch_results() {
+    // ...
 }
 
 /*
