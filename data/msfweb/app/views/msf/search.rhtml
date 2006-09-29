@@ -9,7 +9,7 @@
 <% @results.each do |m| %>
     <tr class="itemTitle">
         <td class="itemTitle">
-            <a onClick="window.parent.openModuleWindow('<%= @module_type %>', '<%= m.refname.gsub('/', ':') %>', '<%= m.name %>')" href="#"><%= m.name %></a>
+            <a onClick="window.parent.openModuleWindow('<%= @module_type %>', '<%= m.refname.gsub('/', ':') %>', '<%= m.name.gsub('"','').gsub("'","") %>')" href="#"><%= h(m.name) %></a>
         </td>
     </tr>
     <tr class="itemDescription">

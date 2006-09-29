@@ -145,8 +145,8 @@ function create_window_ajax(target_url, wid, wtitle, wwidth, wheight) {
           resizable: true,
           draggable: true,
           url: target_url,
-          showEffectOptions: { duration: 0.35 },
-          hideEffectOptions: { duration: 0.25 }
+          showEffect: Element.show,
+          hideEffect: Element.hide
           });
     return new_mwindow;
 }

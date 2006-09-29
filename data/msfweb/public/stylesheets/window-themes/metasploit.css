@@ -108,17 +108,17 @@
 * html .metasploit_minimize {
 	background-color: transparent;
 	background-image: none;
-	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="../themes/metasploit/button-minimize-focused.png", sizingMethod="crop");
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/stylesheets/window-themes/metasploit/button-minimize-focused.png", sizingMethod="crop");
 }
 
 * html .metasploit_maximize {
 	background-color: transparent;
 	background-image: none;
-	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="../themes/metasploit/button-maximize-focused.png", sizingMethod="scale");
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/stylesheets/window-themes/metasploit/button-maximize-focused.png", sizingMethod="scale");
 }
 
 * html .metasploit_close {
 	background-color: transparent;
 	background-image: none;
-	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="../themes/metasploit/button-close-focused.png", sizingMethod="crop");
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/stylesheets/window-themes/metasploit/button-close-focused.png", sizingMethod="crop");
 }
