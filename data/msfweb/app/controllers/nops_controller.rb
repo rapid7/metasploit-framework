@@ -1,3 +1,8 @@
+# Author: L.M.H <lmh@info-pull.com>
+# Description: The nop controller of msfweb v.3. Handles views, listing
+# and other actions related to nop modules. Code and processing goes here.
+# Instance variables, final values, etc, go into views.
+
 class NopsController < ApplicationController
   layout 'windows'
 
@@ -5,7 +10,11 @@ class NopsController < ApplicationController
   end
 
   def view
-    @nops = Nop.find_all()
+    @tmod = get_view_for_module("nop", params[:id])
+	
+	unless @tmod
+	 render_text "Unknown module specified."
+	end
   end
 
   def generate

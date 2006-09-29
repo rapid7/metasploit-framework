@@ -19,4 +19,34 @@ module ApplicationHelper
     return "onMouseOver=\"this.className='#{css_class_name}'\" onMouseOut=\"this.className=''\""
   end
   
+  # Adapted from old msfweb code, returns HTML necessary for displaying icons
+  # associated with a specific module.
+  # Added missing platform icons (HPUX, Irix, etc).
+  def module_platform_icons(platform)
+    return "" if (platform.nil?)
+    
+    # If this module has no platforms, then we don't show any icons...
+    return "" if (platform.empty?)
+
+    # Otherwise, get the platform specific information...
+    html = ""
+    [
+      [ Msf::Module::Platform::Windows, "windows.png", "win32"   ],
+      [ Msf::Module::Platform::Linux,   "linux.png",   "linux"   ],
+      [ Msf::Module::Platform::Solaris, "sun.png",     "solaris" ],
+      [ Msf::Module::Platform::OSX,     "apple.png",   "osx"     ],
+      [ Msf::Module::Platform::BSD,     "bsd.gif",     "bsd"     ],
+      [ Msf::Module::Platform::BSDi,    "bsd.gif",     "bsdi"    ],
+      [ Msf::Module::Platform::HPUX,    "hp.png",      "hpux"    ],
+      [ Msf::Module::Platform::Irix,    "sgi.png",     "irix"    ],
+      [ Msf::Module::Platform::Unix,    "unix.png",    "unix"    ]
+    ].each do |plat|
+      if (platform.supports?(Msf::Module::PlatformList.new(plat[0])) == true)
+        html += "<img src=\"/images/platform-icons/#{plat[1]}\" alt=\"#{plat[2]}\"/>"
+      end
+    end
+    
+    return html
+  end
+  
 end

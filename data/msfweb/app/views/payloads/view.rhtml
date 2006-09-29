@@ -1,50 +1,49 @@
-<%
+<table align="center" width="100%" cellspacing="0" cellpadding="2" border="0" class="moduleInfo">
+    
+	<tr>
+        <p class="moduleName">
+            <span class="moduleIcons">
+                <%= module_platform_icons(@tmod.platform) %>
+            </span>
+            <%= html_escape(@tmod.name) %>
+        </p>
+    </tr>
+	
+    <tr>
+	   <blockquote>
+		  <p class="moduleDesc">
+		          <%= html_escape(@tmod.description) %>
+		  </p>
+	   </blockquote>
+    </tr>
 
-	modidx  = (params[:id] || 0).to_i	
-	modinst = @payloads[modidx]
-%>
+    <tr>
+		<blockquote>
+		  <p class="moduleDesc">
+		      This module was provided by <%= @tmod.author.join(' and ') %>.
+		  </p>
+		</blockquote>   
+    </tr>
 
-<table width="100%" cellspacing="0" cellpadding="0" border="0">
-	<tr>
-		<td class="moduleIcons" align="center">
-			
-		</td>
-		<td class="moduleName">
-			<div class="textBold"><%= html_escape(modinst.name) %></div>
-		</td>
-	</tr>
-</table>
-<br/>
+    <tr>
+		<td>Version:</td>
+		<td><%= @tmod.version %></td>
+    </tr>
 
-<table align="center" width="95%" cellspacing="0" cellpadding="6" border="0">
-	<tr>
-		<td align="right" width="80">Name:</td>
-		<td><%= html_escape(modinst.name) %></td>
-	</tr>
-	<tr>
-		<td align="right" width="80">Version:</td>
-		<td><%= html_escape(modinst.version) %></td>
-	</tr>
-	<tr>
-		<td align="right" width="80" valign="top">Authors:</td>
-		<td><%= modinst.author.map { |x| html_escape(x) }.join("<br/>") %></td>
-	</tr>
-	<tr>
-		<td align="right" width="80" valign="top">Description:</td>
-		<td colspan="2" valign="top">
-			<%= html_escape(modinst.description) %>
-		</td>
-	</tr>
-	<tr>
-		<td align="right" width="80">Size:</td>
-		<td><%= modinst.generate.length %></td>
-	</tr>
-	<tr>
-		<td align="right" width="80">Arch:</td>
-		<td><%= modinst.arch_to_s %></td>
-	</tr>
-	<tr>
-		<td align="right" width="80">OS:</td>
-		<td><%= modinst.platform_to_s %></td>
-	</tr>
+    <tr>
+		<td>Size:</td>
+		<td><%= @tmod.generate.length %></td>
+    </tr>
+
+    <tr>
+		<td>Architecture:</td>
+		<td><%= @tmod.arch_to_s %></td>
+    </tr>
+    
+    <tr>
+		<td>Operating system:</td>
+		<td><%= @tmod.platform_to_s %></td>
+    </tr>
+    </div>
+    
 </table>

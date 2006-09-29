@@ -19,8 +19,7 @@ table {
     background: #FAFAFA;
 }
 
-table .itemTitle,
-table .moduleFieldTitle {
+table .itemTitle {
     background: #666666 url(/images/bullet_go.png) left no-repeat;
     color: #fff;
     padding: 6px;
@@ -40,8 +39,7 @@ table .itemTitle a:hover {
     font-size: 9pt;
 }
 
-table .itemDescription,
-table .moduleFieldDescription {
+table .itemDescription {
     background: #EDEDED;
     padding: 5px;
     border: 1px solid #ccc;
@@ -57,16 +55,23 @@ table .itemDescription:hover {
     border: 1px solid #444;
 }
 
-p.moduleName {
-    background: #666666 url(/images/bug.png) left no-repeat;
-    color: #fff;
-    padding: 6px;
-    padding-left: 16px;
-    text-align: center;
-    border: 1px solid #AAAAAA;
+table.moduleInfo tr td {
+    
 }
 
-table .moduleFieldName {
-    background: #ddd;
-    
+p.moduleName {
+    padding: 6px;
+	color: #222222;
+	font-weight: bold;
+    text-align: center;
+	background: #eeeeee;
+}
+
+.moduleIcons {
+    float: left;
+}
+
+p.moduleDesc {
+    color: #333333;
+    text-align: justify;
 }

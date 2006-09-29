@@ -2,18 +2,23 @@
 <table>
 	<thead>
 		<tr>
-			<th>Modules</th>
+			<th colspan="2">Modules</th>
 		</tr>
 	</thead>
 	<tbody>
 <% @results.each do |m| %>
-    <tr class="itemTitle">
+    <tr>
         <td class="itemTitle">
             <a onClick="window.parent.openModuleWindow('<%= @module_type %>', '<%= m.refname.gsub('/', ':') %>', '<%= m.name.gsub('"','').gsub("'","") %>')" href="#"><%= h(m.name) %></a>
         </td>
+        <td>
+            <% if m.platform %>
+            <%= module_platform_icons(m.platform) %>
+            <% end %>
+        </td>
     </tr>
     <tr class="itemDescription">
-        <td class="itemDescription"><%= m.description %></td>
+        <td colspan="2" class="itemDescription"><%= m.description %></td>
     </tr>
 <% end %>
 	</tbody>
