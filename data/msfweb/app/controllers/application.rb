@@ -3,27 +3,39 @@
 class ApplicationController < ActionController::Base
 
   def search_modules(mlist, terms)
-    res = []
+    res = {}
     
     unless terms
       return nil
     end
     
+    # Match search terms
     mlist.each do |m|
 	  
+      if (terms.length == 0)
+        res[m.name]=m
+        next
+      end
+    
       if (m.name.downcase.index(terms.downcase))
-        res << m
+        res[m.name]=m
         next
       end
 
       if (m.description.downcase.index(terms.downcase))
-        res << m
+        res[m.name]=m
         next
       end
             
     end
 	
-    res
+    # Sort the modules by name
+    list = []
+    res.keys.sort.each do |n|
+      list << res[n]
+    end
+      
+    list
   end
   
 end
