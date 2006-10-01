@@ -46,4 +46,38 @@
     </tr>
     </div>
     
+    <%= start_form_tag %>
+    
+    <% @tmod.options.each { |name, option|
+        next if (option.advanced?)
+        next if (option.evasion?) %>
+            <%= name %>
+            <%= (option.required?) ? "Required" : "Optional" %>
+            <%= option.type %>
+            <input type='text' name="opt_<%= html_escape(name) %>" value="<%= html_escape(option.default || '') %>"/>
+            <%= html_escape(option.desc) %>
+        <% } %>
+
+    Max Size:
+    <input type="text" name="max_size" size="10"/>
+    Restricted Characters (format: 0x00 0x01):
+    <input type="text" name='badchars' size='45' value='0x00 '/>
+    Selected Encoder:<br/>
+    <select name="encoder" size='1'>
+        <option value='__default'>Default
+        <% @tmod.compatible_encoders.each { |encname, mod| %>
+            <option><%= encname %>
+        <% } %>
+    </select>
+            
+    Format:<br/>
+    <select name='format' size='1'>
+        <option value='c'>C
+        <option value='ruby'>Ruby
+        <option value='perl'>Perl
+        <option value='raw'>Raw
+    </select>
+             
+    <%= submit_tag %>
+    <%= end_form_tag %>
 </table>
