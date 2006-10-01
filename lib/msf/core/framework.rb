@@ -15,7 +15,7 @@ class Framework
 	#
 	Major    = 3
 	Minor    = 0
-	Release  = "-beta-2-svn"
+	Release  = "-beta-dev"
 	Version  = "#{Major}.#{Minor}#{Release}"
 	Revision = "$Revision$"
 	
