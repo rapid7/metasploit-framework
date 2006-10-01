@@ -21,7 +21,7 @@ module DownloadExec
 			'Name'          => 'Windows Executable Download and Execute',
 			'Version'       => '$Revision: 3534 $',
 			'Description'   => 'Download an EXE from a HTTP URL and execute it',
-			'Authors'       => [ 'lion[at]cnhonker.com', 'pita[at]mail.com' ],
+			'Author'        => [ 'lion[at]cnhonker.com', 'pita[at]mail.com' ],
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
