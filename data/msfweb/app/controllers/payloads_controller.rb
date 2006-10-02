@@ -15,11 +15,36 @@ class PayloadsController < ApplicationController
 	unless @tmod
 	 render_text "Unknown module specified."
 	end
+
+    @module_step = (params[:step] || 0).to_i
 	
-	if params[:step]
-	 @module_step = params[:step]
+	if @module_step == 1
+	  modinst = Payload.create(@tmod.refname)
+      badchars = params[:badchars]
+      pencoder = params[:encoder]
+      pformat  = params[:format]
+      max_size = (params[:max_size] || 0).to_i
+      payload_opts = ''
+      
+      params.each_pair { |k, v|
+        next if (v == nil or v.length == 0)
+        if (k =~ /^opt_(.*)$/)
+          payload_opts += "#{$1}=#{v} "
+        end
+      }
+      
+      begin
+        @generation = modinst.generate_simple(
+          'Encoder'   => (pencoder == '__default') ? nil : pencoder,
+          'BadChars'  => badchars,
+          'Format'    => pformat || 'c',
+          'OptionStr' => payload_opts,
+          'MaxSize'   => (max_size == 0) ? nil : max_size)
+      rescue
+        @generation = $!
+      end
 	end
-	
+  # end of view method
   end
 
   def generate

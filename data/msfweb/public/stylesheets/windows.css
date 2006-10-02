@@ -75,3 +75,8 @@ p.moduleDesc {
     color: #333333;
     text-align: justify;
 }
+
+th.moduleOptionsHeader {
+    background: #ddd;
+    text-transform: uppercase;
+}

@@ -1,5 +1,5 @@
 <table align="center" width="100%" cellspacing="0" cellpadding="2" border="0" class="moduleInfo">
-    
+
 	<tr>
         <p class="moduleName">
             <span class="moduleIcons">
@@ -44,40 +44,86 @@
 		<td>Operating system:</td>
 		<td><%= @tmod.platform_to_s %></td>
     </tr>
-    </div>
+
+    <tr>
+        <th colspan="2"></th>
+    </tr>
+
+<% if @module_step == 0 %>
+
+    <tr>
+        <th colspan="2" class="moduleOptionsHeader">Options</th>
+    </tr>
+
+<form action="/payloads/view" method="post">
     
-    <%= start_form_tag %>
-    
+    <%= hidden_field_tag "id", h(params[:id]) %>
+    <%= hidden_field_tag "step", "1" %>
     <% @tmod.options.each { |name, option|
         next if (option.advanced?)
         next if (option.evasion?) %>
-            <%= name %>
-            <%= (option.required?) ? "Required" : "Optional" %>
-            <%= option.type %>
-            <input type='text' name="opt_<%= html_escape(name) %>" value="<%= html_escape(option.default || '') %>"/>
-            <%= html_escape(option.desc) %>
+        <tr>
+            <td><strong><%= name %></strong></td>
+            <td><strong><%= (option.required?) ? "Required" : "Optional" %></strong></td>
+        </tr>
+        <tr>
+            <td><%= html_escape(option.desc) %> (type: <%= option.type %>)</td>
+            <td>
+                <input type="text" name="opt_<%= h(name) %>" value="<%= h(option.default || '') %>"/>
+            </td>
+        </tr>
         <% } %>
+    
+    <tr>
+        <td>Max Size:</td>
+        <td><input type="text" name="max_size" size="10"/></td>
+    </tr>
+    
+    <tr>
+        <td>Restricted Characters (format: 0x00 0x01):</td>
+        <td><input type="text" name="badchars" size="25" value="0x00 "/></td>
+    </tr>
+    
+    <tr>
+        <td>Selected Encoder:</td>
+        <td>
+            <select name="encoder" size="1">
+                <option value="__default">Default
+                <% @tmod.compatible_encoders.each { |encname, mod| %>
+                    <option><%= encname %></option>
+                <% } %>
+            </select>
+        </td>
+    </tr>
 
-    Max Size:
-    <input type="text" name="max_size" size="10"/>
-    Restricted Characters (format: 0x00 0x01):
-    <input type="text" name='badchars' size='45' value='0x00 '/>
-    Selected Encoder:<br/>
-    <select name="encoder" size='1'>
-        <option value='__default'>Default
-        <% @tmod.compatible_encoders.each { |encname, mod| %>
-            <option><%= encname %>
-        <% } %>
-    </select>
-            
-    Format:<br/>
-    <select name='format' size='1'>
-        <option value='c'>C
-        <option value='ruby'>Ruby
-        <option value='perl'>Perl
-        <option value='raw'>Raw
-    </select>
-             
-    <%= submit_tag %>
-    <%= end_form_tag %>
+    <tr>       
+        <td>Format:</td>
+        <td>
+            <select name="format" size="1">
+                <option value="c">C</option>
+                <option value="ruby">Ruby</option>
+                <option value="perl">Perl</option>
+                <option value="raw">Raw</option>
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <td><%= submit_tag "Generate" %></td>
+    </tr>
+
+</form>
+<% else %>
+
+    <tr>
+        <th colspan="2" class="moduleOptionsHeader">
+            Payload code
+            (<%= link_to "back", :action => "view", :id => h(params[:id]) %>)
+        </th>
+    </tr>
+
+    <tr>
+        <td><pre><%=@generation%></pre></td>
+    </tr>
+<% end %>
 </table>
