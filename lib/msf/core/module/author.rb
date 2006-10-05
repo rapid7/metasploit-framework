@@ -13,7 +13,7 @@ class Msf::Module::Author
 		{
 			'hdm'       => 'hdm@metasploit.com',
 			'H D Moore' => 'hdm@metasploit.com',
-			'spoonm'    => 'spoonm@gmail.com',
+			'spoonm'    => 'spoonm@hatestheworld.com',
 			'skape'     => 'mmiller@hick.org',
 			'vlad902'   => 'vlad902@gmail.com',
 			'optyx'     => 'optyx@hatesemail.com',
