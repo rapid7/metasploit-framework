@@ -11,18 +11,18 @@ class Msf::Module::Author
 	# A hash of known author names
 	Known =
 		{
-			'hdm'       => 'hdm@metasploit.com',
-			'H D Moore' => 'hdm@metasploit.com',
-			'spoonm'    => 'spoonm@hatestheworld.com',
-			'skape'     => 'mmiller@hick.org',
-			'vlad902'   => 'vlad902@gmail.com',
-			'optyx'     => 'optyx@hatesemail.com',
-			'anonymous' => 'anonymous-contributor@metasploit.com',
-			'stinko'    => 'vinnie@metasploit.com',
-			'MC'        => 'y0@w00t-shell.net',
-			'cazz'      => 'bmc@shmoo.com',
-			'pusscat'   => 'pusscat@gmail.com',
-			'skylined'  => 'skylined@edup.tudelft.nl',
+			'hdm'       => 'hdm' + 0x40.chr + 'metasploit.com',
+			'H D Moore' => 'hdm' + 0x40.chr + 'metasploit.com',
+			'spoonm'    => 'spoonm' + 0x40.chr + 'no$email.com',
+			'skape'     => 'mmiller' + 0x40.chr + 'hick.org',
+			'vlad902'   => 'vlad902' + 0x40.chr + 'gmail.com',
+			'optyx'     => 'optyx' + 0x40.chr + 'no$email.com',
+			'anonymous' => 'anonymous-contributor' + 0x40.chr + 'metasploit.com',
+			'stinko'    => 'vinnie' + 0x40.chr + 'metasploit.com',
+			'MC'        => 'y0' + 0x40.chr + 'w00t-shell.net',
+			'cazz'      => 'bmc' + 0x40.chr + 'shmoo.com',
+			'pusscat'   => 'pusscat' + 0x40.chr + 'gmail.com',
+			'skylined'  => 'skylined' + 0x40.chr + 'edup.tudelft.nl',
 		}
 
 	#
