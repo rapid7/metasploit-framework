@@ -1,2 +1,40 @@
-<h1>Encoders#view</h1>
-<p>Find me in app/views/encoders/view.rhtml</p>
+<table align="center" width="100%" cellspacing="0" cellpadding="2" border="0" class="moduleInfo">
+
+	<tr>
+        <p class="moduleName">
+            <%= html_escape(@tmod.name) %>
+        </p>
+    </tr>
+	
+    <tr>
+	   <blockquote>
+		  <p class="moduleDesc">
+		          <%= html_escape(@tmod.description) %>
+		  </p>
+	   </blockquote>
+    </tr>
+
+    <tr>
+		<blockquote>
+		  <p class="moduleDesc">
+		      This module was provided by <%= @tmod.author.join(' and ') %>.
+		  </p>
+		</blockquote>   
+    </tr>
+
+    <tr>
+		<td>Version:</td>
+		<td><%= @tmod.version %></td>
+    </tr>
+
+    <tr>
+		<td>License:</td>
+		<td><%= @tmod.license %></td>
+    </tr>
+
+    <tr>
+		<td>Architecture:</td>
+		<td><%= @tmod.arch %></td>
+    </tr>
+
+</table>

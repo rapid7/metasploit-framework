@@ -31,6 +31,11 @@
     </tr>
 
     <tr>
+		<td>License:</td>
+		<td><%= @tmod.license %></td>
+    </tr>
+
+    <tr>
 		<td>Size:</td>
 		<td><%= @tmod.generate.length %></td>
     </tr>
@@ -123,7 +128,9 @@
     </tr>
 
     <tr>
-        <td><pre><%=@generation%></pre></td>
+        <td colspan="2">
+            <textarea cols="64" rows="10"><%=@generation%></textarea>
+        </td>
     </tr>
 <% end %>
 </table>

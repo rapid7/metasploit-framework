@@ -1,5 +1,5 @@
 <% if @results and @results.size > 0 %>
-<table>
+<table width="100%">
 	<thead>
 		<tr>
 			<th colspan="2">Modules</th>
@@ -12,8 +12,10 @@
             <a onClick="window.parent.openModuleWindow('<%= @module_type %>', '<%= m.refname.gsub('/', ':') %>', '<%= m.name.gsub('"','').gsub("'","") %>')" href="#"><%= h(m.name) %></a>
         </td>
         <td>
-            <% if m.platform %>
+            <% if m.platform and @module_type =~ /(payloads|exploits)/ %>
             <%= module_platform_icons(m.platform) %>
+            <% else %>
+            <%= m.arch.join(' ') %>
             <% end %>
         </td>
     </tr>
