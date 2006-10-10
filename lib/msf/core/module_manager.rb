@@ -986,7 +986,19 @@ protected
 			m.gsub!(/(_[a-z])/) { |s| s[1..1].upcase }
 
 			begin
-				obj = obj.const_get(m)
+				new_obj = obj.const_get(m)
+
+				# I can't really explain why this check is necessary.  Perhaps
+				# someone cooloer than I can explain it.  Here's the scenario.
+				# const_get is returning constants that are not accessible
+				# immediately from within the object passed.  However, the
+				# documentation states that this is how it should operate.
+				# Perhaps I misread.
+				if obj.constants.grep(m).length == 0
+					raise NameError
+				end
+
+				obj = new_obj
 			rescue NameError
 				obj = obj.const_set(m, ::Module.new)
 			end
