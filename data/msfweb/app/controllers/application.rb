@@ -26,6 +26,11 @@ class ApplicationController < ActionController::Base
         res[m.name]=m
         next
       end
+      
+		if (m.refname.downcase.index(terms.downcase))
+        res[m.name]=m
+        next
+      end
 
       if (m.description.downcase.index(terms.downcase))
         res[m.name]=m
