@@ -21,6 +21,7 @@ class Auxiliary::Dos::Windows::Smb::TRANS_PIPE_NONULL < Msf::Auxiliary
 			'Version'        => '$Revision: 3666 $',
 			'References'     =>
 				[
+					['MSB', 'MS06-063' ],
 					['CVE', '2006-3942'],
 					['BID', '19215'],
 				]
