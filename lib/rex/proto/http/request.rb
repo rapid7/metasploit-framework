@@ -228,7 +228,9 @@ class Request < Packet
 	# Returns the command string derived from the three values.
 	#
 	def cmd_string
-		"#{self.method} #{self.uri} HTTP/#{self.proto}\r\n"
+		proto_str = (self.proto =~ /^\d/) ? "HTTP/#{self.proto}" : self.proto
+
+		"#{self.method} #{self.uri} #{proto_str}\r\n"
 	end
 
 	#

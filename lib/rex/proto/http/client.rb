@@ -123,7 +123,7 @@ class Client
 
 		# Merge headers supplied by the caller.
 		if chash['headers']
-			req.headers.update!(chash['headers'])
+			req.headers.merge!(chash['headers'])
 		end
 		
 		# Set the content-type
