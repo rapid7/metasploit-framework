@@ -120,6 +120,11 @@ class Client
 		if chash['data']
 			req.body = chash['data']
 		end
+
+		# Merge headers supplied by the caller.
+		if chash['headers']
+			req.headers.update!(chash['headers'])
+		end
 		
 		# Set the content-type
 		if chash['content-type']
