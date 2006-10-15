@@ -49,4 +49,20 @@ module ApplicationHelper
     return html
   end
   
+  # Returns a hash suitable for use with select method (FormHelper stuff) of
+  # the available platforms.
+  def return_selectable_platforms()
+    all_platforms = Msf::Module::Platform::find_children
+    select_list   = {}
+    all_platforms.each do |p|
+      select_list[p.realname] = p
+    end
+    return select_list
+  end
+  
+  # Returns an array suitable for use with select method (FormHelper stuff) of
+  # the supported architectures.
+  def return_selectable_architectures()
+    return ARCH_ALL
+  end
 end

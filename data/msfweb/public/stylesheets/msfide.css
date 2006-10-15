@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2006, L.M.H. <lmh@info-pull.com>
  * All Rights Reserved.
- *
- * Standards compliant:
- *  Valid, warning-free CSS: http://jigsaw.w3.org/css-validator
  */
  
 body {
@@ -20,10 +17,34 @@ body {
     display: none;
 }
 
+#footer {
+    clear:both;
+    font-size: 70%;
+    width: 100%;
+    margin-top: 1em;
+    text-align: center;
+}
+
 .wizard_page {
     padding: 1em;
     background: #ddd;
     border: 1px solid #ccc;
     width: 50%;
     margin: 0px auto;
+}
+
+.wizard_page .error {
+    background: #fff;
+    padding: 0.2em;
+    border: 1px solid #C82536;
+}
+
+.wizard_subs {
+    float: right;
+    font-size: 75%;
+}
+
+.wizard_subs a {
+    text-decoration: none;
+    color: #3366FF;
 }

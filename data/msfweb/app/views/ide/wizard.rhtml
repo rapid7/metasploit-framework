@@ -1,0 +1,115 @@
+<div class="wizard_page">
+    <% if flash[:error] and flash[:error].length > 0 %>
+    <p class="error">
+    <%= flash[:error] %>
+    </p>
+    <% end %>
+<% if @step == 0 %>
+    <h3>Step 1: Exploit information</h3>
+    <p>
+        Please fill-in the information below. Name should describe really shortly
+        the vulnerability, if possible including version (ex. max affected version
+        with &lt;=1.2.3 format). Description should be approx. 255-characters and
+        detail the vulnerability, and any other information that may be useful.
+        List the authors separated by commas.
+        Try to avoid l33t speak...
+    </p>
+    <table width="100%">
+    <%= start_form_tag %>
+        <%= hidden_field "exploit", "step", :value => "1" %>
+        <tr>
+            <td>Name:</td>
+            <td><%= text_field "exploit", "name", :value => h(@the_exploit["name"]) %></td>
+        </tr>
+        <tr>
+            <td>Authors:</td>
+            <td><%= text_field "exploit", "authors", :value => h(@the_exploit["authors"]) %></td>
+        </tr>
+        <tr>
+            <td>Disclosure date:</td>
+            <td><%= text_field "exploit", "ddate", :value => h(@the_exploit["ddate"]) %></td>
+        </tr>
+        <tr>
+            <td>Description:</td>
+            <td><%= text_area "exploit", "description", :rows => 7, :cols => 50,
+                    :value => h(@the_exploit["description"]) %></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="button" value="Back" onclick="history.go(-1);" />&nbsp;
+                <%= submit_tag "Next" %>
+            </td>
+        </tr>
+    <%= end_form_tag %>
+    </table>
+<% elsif @step == 1 %>
+    <h3>Step 2: References and platform information</h3>
+    <p>
+    </p>
+    <table width="100%">
+    <%= start_form_tag %>
+        <%= hidden_field "exploit", "step", :value => "2" %>
+        <tr>
+            <td>Platform/OS:</td>
+            <td>
+                <%= select "exploit", "os", return_selectable_platforms() %>
+            </td>
+        </tr>
+        <tr>
+            <td>Architecture:</td>
+            <td><%= select "exploit", "arch", return_selectable_architectures() %></td>
+        </tr>
+        <tr>
+            <td>Type:</td>
+            <td><%= select "exploit", "type", ["remote","local","omni"] %></td>
+        </tr>
+        <tr>
+            <td>References:</td>
+            <td><%= text_area "exploit", "refs", :rows => 7, :cols => 50,
+                    :value => h(@the_exploit["refs"]) %></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="button" value="Back" onclick="history.go(-1);" />&nbsp;
+                <%= submit_tag "Next" %>
+            </td>
+        </tr>
+    <%= end_form_tag %>
+    </table>
+<% elsif @step == 2 %>
+    <h3>Step 3: Payload information and targets</h3>
+    <p>
+    </p>
+    <table width="100%">
+    <%= start_form_tag %>
+        <%= hidden_field "exploit", "step", :value => "3" %>
+        <tr>
+            <td>Space available:</td>
+            <td><%= text_field "exploit", "payload_space", :value => h(@the_exploit["payload_space"]) %></td>
+        </tr>
+        <tr>
+            <td>Keywords:</td>
+            <td><%= text_field "exploit", "payload_keywords", :value => h(@the_exploit["payload_keywords"]) %></td>
+        </tr>
+        <tr>
+            <td>Bad characters:</td>
+            <td><%= text_field "exploit", "payload_badchars", :value => h(@the_exploit["payload_badchars"]) %></td>
+        </tr>
+        <tr>
+            <td>Targets:</td>
+            <td><%= text_area "exploit", "targets", :rows => 7, :cols => 50,
+                    :value => h(@the_exploit["targets"]) %></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="button" value="Back" onclick="history.go(-1);" />&nbsp;
+                <%= submit_tag "Next" %>
+            </td>
+        </tr>
+    <%= end_form_tag %>
+    </table>
+<% end %>
+    <span class="wizard_subs">
+        <%= link_to "Dump current exploit in YAML", :action => "dump_current", :format => "yaml" %>
+    </span>
+</div>
