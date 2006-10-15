@@ -15,9 +15,10 @@ var web_windows_theme = "metasploit";
  */
 
 var winIndex = 0;
+
 /* Returns a unique Window identifier */
 function obtainWindowId() {
-	return(winIndex++);
+	return (winIndex++);
 }
 
 /*
@@ -36,12 +37,13 @@ function openAboutDialog() {
         draggable:true
         })
         
-    var about_content = "<div style='padding:10px'>The new <strong>Metasploit Framework Web Console</strong> (v.3)" +
+    var about_content = "<div style='padding:5px'>The new <strong>Metasploit Framework Web Console</strong> (v.3)" +
                         " has been developed by L.M.H &lt;lmh@info-pull.com&gt;.<br />Copyright &copy; 2006 L.M.H " +
-                        "&lt;lmh@info-pull.com&gt;. All Rights Reserved. <br />" +
+                        "&lt;lmh@info-pull.com&gt;. All Rights Reserved. <br /><br />" +
                         "Thanks to H.D.M for the functionality suggestions and general help. Also thanks to" +
                         " the Metasploit team (hdm, skape, etc) and contributors for developing a ground-breaking" +
-                        " project: <strong>Metasploit.</strong></div>"
+                        " project: <strong>Metasploit.</strong><br /><br />Standards compliant: Valid XHTML Strict " +
+                        "and CSS code.</div>"
                         
     aboutWindow.getContent().innerHTML= about_content;
     aboutWindow.showCenter();
@@ -92,6 +94,10 @@ function openJobsWindow() {
     var jobList = create_window_ajax("/jobs/list", "jobs-list", "Running Jobs", 600, 300);
     jobList.setDestroyOnClose();
     jobList.showCenter();
+}
+
+function openIDEWindow() {
+    window.open('/ide/start');
 }
 
 /*

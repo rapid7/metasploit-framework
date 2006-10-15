@@ -1,10 +1,14 @@
 /*
  * Copyright (c) 2006, L.M.H. <lmh@info-pull.com>
  * All Rights Reserved.
+ *
+ * Standards compliant:
+ *  Valid, warning-free CSS: http://jigsaw.w3.org/css-validator
  */
 
 body {
     background: #fff;
+    color: #000;
     font-family: Sans, Arial, sans-serif;
     font-size: 10pt;
 }
@@ -17,12 +21,15 @@ thead {
 
 table {
     background: #FAFAFA;
+    color: #000;
 }
 
 table .itemTitle {
     background: #666666 url(/images/bullet_go.png) left no-repeat;
     color: #fff;
-    padding: 6px;
+    padding-top: 6px;
+    padding-right: 6px;
+    padding-bottom: 6px;
     padding-left: 16px;
     text-align: center;
     border: 1px solid #AAAAAA;
@@ -30,23 +37,27 @@ table .itemTitle {
 
 table .itemTitle:hover {
     background: #404040 url(/images/bullet_wrench.png) left no-repeat;
+    color: #fff;
 }
 
 table .itemTitle a,
 table .itemTitle a:hover {
     color: #fff;
+    background-color: inherit;
     text-decoration: none;
     font-size: 9pt;
 }
 
 table .itemDescription {
     background: #EDEDED;
+    color: #000;
     padding: 5px;
     border: 1px solid #ccc;
 }
 
 table .itemDescription:hover {
     background: #CAE1FF;
+    color: #000;
 }
 
 #module-search-box input {
@@ -67,16 +78,22 @@ p.moduleName {
 	background: #eeeeee;
 }
 
+p.moduleName .moduleVersion {
+    font-size: 9px;
+}
+
 .moduleIcons {
     float: left;
 }
 
 p.moduleDesc {
     color: #333333;
+    background: #fff;
     text-align: justify;
 }
 
 th.moduleOptionsHeader {
     background: #ddd;
+    color: #000;
     text-transform: uppercase;
 }

@@ -1,6 +1,9 @@
 /*
  * Copyright (c) 2006, L.M.H. <lmh@info-pull.com>
  * All Rights Reserved.
+ *
+ * Standards compliant:
+ *  Valid, warning-free CSS: http://jigsaw.w3.org/css-validator
  */
 
 html,body {
@@ -13,7 +16,8 @@ html,body {
 
 body {
     background: #444444 url(/images/banner.png) fixed center no-repeat;
-    font-family: Trebuchet, Sans, Arial;
+    color: #fff;
+    font-family: Trebuchet, Sans, Arial, serif;
 }
 
 #topmenu {
@@ -23,6 +27,7 @@ body {
 	list-style-type:none;
 	height: 35px;
 	background-color:#f4f4f4;
+	color: WindowText;
 	font-size: 8pt;
 }
 
@@ -40,13 +45,12 @@ body {
 	border-left: 1px solid #ddd;
 	font: menu;
 	color: WindowText;
+	background-color: inherit;
 }
 
 #topmenu li:hover,
 #topmenu li.limsieFix {
-	background-color: blue;
 	cursor: pointer;
-	_cursor: hand;
 	background-color: Highlight;
 	color: HighlightText;
 }
@@ -64,7 +68,7 @@ body {
 .desktop-tip {
     margin-top: 7em;
     margin-left: 1em;
-    font-family: Trebuchet, Sans, Arial;
+    font-family: Trebuchet, Sans, Arial, serif;
     font-size: 90%;
     padding-left: 4em;
     padding-right: 1em;
@@ -72,7 +76,7 @@ body {
     padding-bottom: 1em;
     width: 400px;
     clear: both;
-    border-left: 5px solid #fff;
+    color: #000;
     background: #fff url(/images/help.png) no-repeat;
 }
 

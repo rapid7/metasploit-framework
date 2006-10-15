@@ -4,8 +4,8 @@
 
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-        <meta name="Author" content="L.M.H <lmh@info-pull.com>" />
-        <meta name="Copyright" content="(c) 2006, L.M.H <lmh@info-pull.com>" />
+        <meta name="Author" content="L.M.H (lmh@info-pull.com)" />
+        <meta name="Copyright" content="(c) 2006, L.M.H (lmh@info-pull.com)" />
         <title>Metasploit Framework Web Console v.3</title>
         <%= stylesheet_link_tag "msfweb" %>
         <%= stylesheet_link_tag "window-themes/default" %>
@@ -17,47 +17,47 @@
     <body>
         <div id="topmenu">
             <ul>
-                <li onClick="openExploitsWindow()" <%=msie_hover_fix('limsieFix')%>>
+                <li onclick="openExploitsWindow()" <%=msie_hover_fix('limsieFix')%>>
                     <img src="/images/bug.png" alt="" />
                     Exploits
                 </li>
                 
-				<li onClick="openAuxiliariesWindow()" <%=msie_hover_fix('limsieFix')%>>
+				<li onclick="openAuxiliariesWindow()" <%=msie_hover_fix('limsieFix')%>>
 				    <img src="/images/zoom.png" alt="" />
 				    Auxiliaries
 				</li>
 				
-                <li onClick="openPayloadsWindow()" <%=msie_hover_fix('limsieFix')%>>
+                <li onclick="openPayloadsWindow()" <%=msie_hover_fix('limsieFix')%>>
                     <img src="/images/bomb.png" alt="" />
                     Payloads
                 </li>
                 
-                <li onClick="openEncodersWindow()" <%=msie_hover_fix('limsieFix')%>>
+                <li onclick="openEncodersWindow()" <%=msie_hover_fix('limsieFix')%>>
                     <img src="/images/encoder.png" alt="" />
                     Encoders
                 </li>
                 
-                <li onClick="openNopsWindow()" <%=msie_hover_fix('limsieFix')%>>
+                <li onclick="openNopsWindow()" <%=msie_hover_fix('limsieFix')%>>
                     <img src="/images/lightbulb-off.png" alt="" />
                     Nops
                 </li>
                 
-                <li onClick="openSessionsWindow()" <%=msie_hover_fix('limsieFix')%>>
+                <li onclick="openSessionsWindow()" <%=msie_hover_fix('limsieFix')%>>
                     <img src="/images/terminal.png" alt="" />
                     Sessions
                 </li>
                 
-                <li onClick="openJobsWindow()" <%=msie_hover_fix('limsieFix')%>>
+                <li onclick="openJobsWindow()" <%=msie_hover_fix('limsieFix')%>>
                     <img src="/images/jobs.png" alt="" />
                     Jobs
                 </li>
                 
-				<li onClick="">
+				<li onclick="openIDEWindow()">
 				    <img src="/images/wrench.png" alt="" />
 				    IDE
 				</li>
 				
-                <li onClick="openAboutDialog()">
+                <li onclick="openAboutDialog()">
                     <img src="/images/help.png" alt="" />
                     Help
                 </li>

@@ -1,0 +1,29 @@
+/*
+ * Copyright (c) 2006, L.M.H. <lmh@info-pull.com>
+ * All Rights Reserved.
+ *
+ * Standards compliant:
+ *  Valid, warning-free CSS: http://jigsaw.w3.org/css-validator
+ */
+ 
+body {
+    font-family: Trebuchet, Sans, Arial, serif;
+}
+
+#logo {
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+#spinner {
+    float: right;
+    display: none;
+}
+
+.wizard_page {
+    padding: 1em;
+    background: #ddd;
+    border: 1px solid #ccc;
+    width: 50%;
+    margin: 0px auto;
+}
