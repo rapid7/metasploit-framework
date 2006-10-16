@@ -1,16 +1,22 @@
 <div id="ide-start" class="wizard_page">
-    <p>
-        Welcome to the Metasploit exploit Integrated Development Environment:
-    </p>
     <p class="motto"><strong>Find bug. Click. Profit.</strong></p>
-    <p>
-           <div id="module-search-box">
-        <input id="exploit_search" name="terms" type="text" size="40" value="Edit me"/>
-        <div id="search_results"></div>
-    </div>
+
+    <table width="100%" align="center">
+        <tr width="100%" align="center">
+            <td><img src="/images/ide/devil.png" /></td>
+            <td><img src="/images/ide/doomed.png" /></td>
+        </tr>
+    </table>
+
+    <div id="edit-new" style="display: none;">
+        <div id="module-search-box">
+            Type in name or keyword:&nbsp;
+            <input id="exploit_search" name="terms" type="text" size="40" value="Edit me"/>
+            <div id="search_results"></div>
+        </div>
     
-    <script type="text/javascript">
-        generic_live_search('exploit_search', 'exploits', 'spinner', 1);
-    </script>
-    </p>
+        <script type="text/javascript">
+            generic_live_search('exploit_search', 'exploits', 'spinner', 1);
+        </script>
+    </div>
 </div>
