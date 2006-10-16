@@ -1,40 +1,48 @@
 <table align="center" width="100%" cellspacing="0" cellpadding="2" border="0" class="moduleInfo">
 
-	<tr>
+	<tr width="100%" align="center">
         <p class="moduleName">
-            <span class="moduleIcons">
-                <%= module_platform_icons(@tmod.platform) %>
-            </span>
-            <%= html_escape(@tmod.name) %>
+            <%= h(@tmod.name) %> <br />
         </p>
     </tr>
 	
-    <tr>
-	   <blockquote>
-		  <p class="moduleDesc">
-		          <%= html_escape(@tmod.description) %>
-		  </p>
-	   </blockquote>
-    </tr>
-
-    <tr>
+    <tr width="100%" align="center">
 		<blockquote>
-		  <p class="moduleDesc">
-		      This module was provided by <%= @tmod.author.join(' and ') %>.
+		  <p class="moduleDescription">
+		      <%= h(@tmod.description) %>
 		  </p>
 		</blockquote>   
     </tr>
 
-    <tr>
-		<td>Version:</td>
-		<td><%= @tmod.version %></td>
+	
+    <tr width="100%" align="center">
+		<blockquote>
+		  <p class="moduleDescription">
+		      This module (revision <%= h @tmod.version.gsub(/\$Revision:\s+|\s+\$/, '') %>) was provided by <%= h @tmod.author.map{ |a| a.to_s.gsub(/\<.*/, '') }.join(' and ').strip %>, under the <%= @tmod.license %>.
+		  </p>
+		</blockquote>   
     </tr>
-
-    <tr>
-		<td>License:</td>
-		<td><%= @tmod.license %></td>
+    
+	<% if (@tmod.references.length > 0) %>
+    <tr width="100%" align="center">
+		<blockquote>
+		<p class="moduleDescription">
+		External references:
+		<ul class="moduleReferences">
+			<% @tmod.references.each { |ref| %>
+					<% if (ref.kind_of?(Msf::Module::SiteReference)) %>
+					<li><a href="<%= ref.site %>" target="_blank">
+					<%= h(ref.to_s) %></a></li>
+			<% 	else %>
+					<li><%= h(ref.to_s) %></li>
+			<% 	end %>
+			<% } %>
+		</ul>
+		</p>
+		</blockquote>   
     </tr>
-
+	<% end %>
+	
     <tr>
 		<td>Size:</td>
 		<td><%= @tmod.generate.length %></td>

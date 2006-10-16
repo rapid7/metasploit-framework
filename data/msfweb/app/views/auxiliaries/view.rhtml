@@ -1,57 +1,46 @@
-<table align="center" width="100%" cellspacing="0" cellpadding="2" border="0" class="moduleInfo">
-
-	<tr>
+<table align="center" width="100%" cellspacing="0" cellpadding="15" border="0">
+    
+	<tr width="100%" align="center">
         <p class="moduleName">
-            <span class="moduleIcons">
-                <%= module_platform_icons(@tmod.platform) %>
-            </span>
-            <%= html_escape(@tmod.name) %>
+            <%= h(@tmod.name) %> <br />
         </p>
     </tr>
 	
-    <tr>
-	   <blockquote>
-		  <p class="moduleDesc">
-		          <%= html_escape(@tmod.description) %>
-		  </p>
-	   </blockquote>
-    </tr>
-
-    <tr>
+    <tr width="100%" align="center">
 		<blockquote>
-		  <p class="moduleDesc">
-		      This module was provided by <%= @tmod.author.join(' and ') %>.
+		  <p class="moduleDescription">
+		      <%= h(@tmod.description) %>
 		  </p>
 		</blockquote>   
     </tr>
 
-    <tr>
-		<td>Version:</td>
-		<td><%= @tmod.version %></td>
-    </tr>
-
-    <tr>
-		<td>License:</td>
-		<td><%= @tmod.license %></td>
-    </tr>
-
-    <% if @tmod.references.size > 0 %>
-    <tr>
+	
+    <tr width="100%" align="center">
 		<blockquote>
-		<p class="moduleDesc">
+		  <p class="moduleDescription">
+		      This module (revision <%= h @tmod.version.gsub(/\$Revision:\s+|\s+\$/, '') %>) was provided by <%= h @tmod.author.map{ |a| a.to_s.gsub(/\<.*/, '') }.join(' and ').strip %>, under the <%= @tmod.license %>.
+		  </p>
+		</blockquote>   
+    </tr>
+    
+	<% if (@tmod.references.length > 0) %>
+    <tr width="100%" align="center">
+		<blockquote>
+		<p class="moduleDescription">
 		External references:
-		<ul>
+		<ul class="moduleReferences">
 			<% @tmod.references.each { |ref| %>
 					<% if (ref.kind_of?(Msf::Module::SiteReference)) %>
 					<li><a href="<%= ref.site %>" target="_blank">
-					<%= html_escape(ref.to_s) %></a></li>
+					<%= h(ref.to_s) %></a></li>
 			<% 	else %>
-					<li><%= html_escape(ref.to_s) %></li>
+					<li><%= h(ref.to_s) %></li>
 			<% 	end %>
 			<% } %>
+		</ul>
 		</p>
 		</blockquote>   
     </tr>
-    <% end %>
+	<% end %>
 
 </table>
