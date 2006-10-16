@@ -60,14 +60,30 @@ table .itemDescription:hover {
     color: #000;
 }
 
+#module-search-box span {
+	font-variant: small-caps;
+	font-weight: bold;
+	font-size: 18px;
+	text-align: center;
+	color: #444444;
+	padding-left: 25px;
+}
+
 #module-search-box input {
+/*
     background-image: url(/images/zoom.png);
     background-position: 5px;
     background-repeat: no-repeat;
     padding-left: 2em;
     height: 18px;
+*/
+	padding: 2px 2px 2px 6px;
     border: 1px solid #444;
-    margin-bottom: 0.2em;
+	background: #eeeeee;
+}
+
+#search_results {
+	padding-top: 1em;
 }
 
 table.moduleInfo tr td {
