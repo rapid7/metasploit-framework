@@ -1,0 +1,38 @@
+TODO
+----
+
+lmh & hdm:
+	- IDE
+		- wizard
+			- describe ALL steps
+			- describe the options to be available
+			- flow chart extremely useful:
+				graphviz. simple.
+				(show every possible path/data set in wizard)
+				my brain eats diagrams.
+
+		- advanced editor
+			- not yet started
+			- options implemented as 'slide' panels
+			- main text area shows code in real time
+			- direct access to opcodes:
+				- calculate hex values from pure asm
+				- retrieve opcodes from db
+					- ajax search
+			- drag and drop functionality.
+
+	- Exploits in msfweb
+		- linear:
+			select target
+			select options
+			select payload
+			profit
+
+	- Msfweb 'msfconsole' (javascript term emulation)
+		- evaluation of existing possibilities necessary
+		- once implementaton is decided, it's EASY.
+			- ajax callback (stdout emulation)
+			- terminal (container with scroll back)
+			- error logger: external panel? floating?
+		- rock on
+
