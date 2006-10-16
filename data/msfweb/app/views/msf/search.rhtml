@@ -29,7 +29,9 @@
             <% if m.platform and @module_type =~ /(payloads|exploits)/ %>
             <%= module_platform_icons(m.platform) %>
             <% else %>
-            	( <%= m.arch.join(' ') %> )
+				<% if (m.arch.length > 0) %>
+					(<%= h m.arch.join(', ') %>)
+				<% end %>
             <% end %>
         </td>
     </tr>

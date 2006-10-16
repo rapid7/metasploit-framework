@@ -14,6 +14,8 @@ class ApplicationController < ActionController::Base
       return nil
     end
     
+    terms.strip! 
+    
     # Match search terms
     mlist.each do |m|
 	  
@@ -21,20 +23,24 @@ class ApplicationController < ActionController::Base
         res[m.name]=m
         next
       end
-    
-      if (m.name.downcase.index(terms.downcase))
-        res[m.name]=m
-        next
-      end
-      
-		if (m.refname.downcase.index(terms.downcase))
-        res[m.name]=m
-        next
-      end
+	
+      terms.split(/,/).each do |term|
+        
+        if (m.name.downcase.index(term.downcase))
+          res[m.name]=m
+          break
+        end
 
-      if (m.description.downcase.index(terms.downcase))
-        res[m.name]=m
-        next
+        if (m.refname.downcase.index(term.downcase))
+          res[m.name]=m
+          break
+        end
+
+        if (m.description.downcase.index(term.downcase))
+          res[m.name]=m
+          break
+        end
+        
       end
             
     end
