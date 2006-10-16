@@ -79,7 +79,7 @@ function openEncodersWindow() {
 }
 
 function openNopsWindow() {
-    var nopList = create_window_ajax("/nops/list", "nops-list", "Available No-Op Generators", 400, 200);
+    var nopList = create_window_ajax("/nops/list", "nops-list", "Available No-Op Generators", 600, 300);
     nopList.setDestroyOnClose();
     nopList.showCenter();
 }
