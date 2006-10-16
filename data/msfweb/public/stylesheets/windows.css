@@ -61,9 +61,13 @@ table .itemDescription:hover {
 }
 
 #module-search-box input {
-    background: url(/images/zoom.png) left no-repeat;
+    background-image: url(/images/zoom.png);
+    background-position: 5px;
+    background-repeat: no-repeat;
     padding-left: 2em;
+    height: 18px;
     border: 1px solid #444;
+    margin-bottom: 0.2em;
 }
 
 table.moduleInfo tr td {
