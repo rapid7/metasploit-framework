@@ -1,9 +1,19 @@
-<% if @results and @results.size > 0 %>
+<% if @results %>
 <% unless @clean_list %>
 <table width="100%">
 	<thead>
 		<tr>
-			<th colspan="2">Modules</th>
+			<th>
+				<% if (params[:terms].strip.length > 0) %>
+					<% if (@results.size > 0) %>
+						Matched <%= @results.size %> modules for term <em><%=h params[:terms] %>
+					<% else %>
+						No matching modules for term <em><%=h params[:terms] %>
+					<% end %>
+				<% else %>
+					Showing all <% @results.size %> modules
+				<% end %>
+			</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -13,19 +23,18 @@
 <% @results.each do |m| %>
 <% unless @clean_list %>
     <tr>
-        <td class="itemTitle">
+        <td class="moduleTitle">
             <a onclick="window.parent.openModuleWindow('<%= @module_type %>', '<%= m.refname.gsub('/', ':') %>', '<%= m.name.gsub('"','').gsub("'","") %>')" href="#"><%= h(m.name) %></a>
-        </td>
-        <td>
+
             <% if m.platform and @module_type =~ /(payloads|exploits)/ %>
             <%= module_platform_icons(m.platform) %>
             <% else %>
-            <%= m.arch.join(' ') %>
+            	( <%= m.arch.join(' ') %> )
             <% end %>
         </td>
     </tr>
-    <tr class="itemDescription">
-        <td colspan="2" class="itemDescription"><%= m.description %></td>
+    <tr class="moduleDescription">
+        <td class="moduleDescription"><%= m.description %></td>
     </tr>
 <% else %>
     <li><%= h(m.name) %></li>
@@ -39,6 +48,6 @@
 <% end %>
 <% else %>
 <p>
-    No modules found with terms <em><%= h(params[:terms]) %></em>.
+    No results for terms <em><%= h(params[:terms]) %></em>.
 </p>
 <% end %>
