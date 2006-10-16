@@ -13,6 +13,13 @@ class Msf::Module::PlatformList
 	attr_accessor :platforms
 
 	#
+	# Returns the win32 platform list.
+	#
+	def self.win32
+		transform('win')
+	end
+
+	#
 	# Transformation method, just accept an array or a single entry.
 	# This is just to make defining platform lists in a module more
 	# convenient, skape's a girl like that.

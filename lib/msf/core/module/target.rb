@@ -132,7 +132,7 @@ class Msf::Module::Target
 		opts = {} if (!opts)
 
 		self.name           = name
-		self.platform       = opts['Platform'] ? Msf::Module::PlatformList.from_a(opts['Platform']) : nil
+		self.platform       = opts['Platform'] ? Msf::Module::PlatformList.transform(opts['Platform']) : nil
 		self.save_registers = opts['SaveRegisters']
 		self.ret            = opts['Ret']
 		self.opts           = opts
@@ -241,6 +241,14 @@ class Msf::Module::Target
 	#
 	def payload_encoder_options
 		opts['Payload'] ? opts['Payload']['EncoderOptions'] : nil
+	end
+
+	#
+	# Returns a hash of extended options that are applicable to payloads used
+	# against this particular target.
+	#
+	def payload_extended_options
+		opts['Payload'] ? opts['Payload']['ExtendedOptions'] : nil
 	end
 
 	#

@@ -85,6 +85,12 @@ class EncodedPayload
 	#
 	def generate_raw
 		self.raw = (reqs['Prepend'] || '') + pinst.generate + (reqs['Append'] || '')
+
+		# If an encapsulation routine was supplied, then we should call it so
+		# that we can get the real raw payload.
+		if reqs['EncapsulationRoutine']
+			self.raw = reqs['EncapsulationRoutine'].call(reqs, raw)
+		end
 	end
 
 	#

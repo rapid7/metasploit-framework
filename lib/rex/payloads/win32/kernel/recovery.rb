@@ -14,14 +14,14 @@ module Recovery
 	#
 	# The default recovery method is to spin the thread
 	#
-	def self.default
-		spin
+	def self.default(opts = {})
+		spin(opts)
 	end
 
 	#
 	# Infinite 'hlt' loop.
 	#
-	def self.spin
+	def self.spin(opts = {})
 		"\xf4\xeb\xfd" 
 	end
 
