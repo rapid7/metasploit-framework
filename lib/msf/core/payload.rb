@@ -239,30 +239,19 @@ class Payload < Msf::Module
 			if ((val = datastore[name]))
 				if (pack == 'ADDR')
 					val = Rex::Socket.resolv_nbo(val)
-				elsif (pack =~ /^HEX(.*)$/)
-					sub = $1
-
-					# If they pass a straight up hex string, don't account for byte
-					# ordering.
-					if val =~ /^\\x/
-						val = [ val.gsub(/\\x/, '') ].pack('H*')
-					# Otherwise, do a conversion.
-					else
-						val = val.to_s.hex
-
-						if sub =~ /nbos/i
-							val = [ val ].pack('n')
-						elsif sub =~ /nbo/i
-							val = [ val ].pack('N')
-						elsif sub =~ /hbos/i
-							val = [ val ].pack('v')
-						else
-							val = [ val ].pack('V')
-						end
-					end
 				elsif (pack == 'RAW')
 					# Just use the raw value...
 				else
+					# Check to see if the value is a hex string.  If so, convert
+					# it.
+					if val.kind_of?(String)
+						if val =~ /^\\x/
+							val = [ val.gsub(/\\x/, '') ].pack("H*").unpack(pack)[0]
+						elsif val =~ /^0x/
+							val = val.hex
+						end
+					end
+
 					# NOTE:
 					# Packing assumes integer format at this point, should fix...
 					val = [ val.to_i ].pack(pack)	
