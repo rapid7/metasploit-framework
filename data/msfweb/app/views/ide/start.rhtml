@@ -1,10 +1,24 @@
 <div id="ide-start" class="wizard_page">
-    <p class="motto"><strong>Find bug. Click. Profit.</strong></p>
+    <p class="motto">Find bug. Click. Profit.</p>
 
     <table width="100%" align="center">
         <tr width="100%" align="center">
-            <td><img src="/images/ide/devil.png" /></td>
-            <td><img src="/images/ide/doomed.png" /></td>
+            <td>
+                <a href="/ide/edit"
+                   onmouseout="document.getElementById('devil').src = '/images/ide/devil.png';"
+                   onmouseover="document.getElementById('devil').src = '/images/ide/devil_ne.png';">
+                    <img src="/images/ide/devil.png" alt="" id="devil" /> <br />
+                    <strong>edit existent<s/trong>
+                </a>
+            </td>
+            <td>
+                <a href="/ide/wizard"
+                   onmouseout="document.getElementById('doomed').src = '/images/ide/doomed.png';"
+                   onmouseover="document.getElementById('doomed').src = '/images/ide/doomed_ne.png';">
+                    <img src="/images/ide/doomed.png" alt="" id="doomed" /> <br />
+                    <strong>new exploit</strong>
+                </a>
+            </td>
         </tr>
     </table>
 

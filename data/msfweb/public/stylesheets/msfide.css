@@ -17,8 +17,11 @@ body {
 }
 
 .motto {
-    font-size: 90%;
+    font-size: 140%;
     text-align: center;
+    margin-top: 0;
+    font-family: 'Trebuchet MS', Trebuchet, Sans, Arial, serif;
+    text-transform: lowercase;
 }
 
 #footer {
@@ -41,6 +44,15 @@ body {
     background: #fff;
     padding: 0.2em;
     border: 1px solid #C82536;
+}
+
+.wizard_page img {
+    border: 0;
+}
+
+.wizard_page a {
+    text-decoration: none;
+    color: #000;
 }
 
 .wizard_subs {
