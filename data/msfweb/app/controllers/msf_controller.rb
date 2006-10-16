@@ -11,6 +11,11 @@ class MsfController < ApplicationController
   def search
     if params[:module_type]
       @module_type = params[:module_type]
+      if params[:clean_list] and params[:clean_list].to_i == 1
+        @clean_list = true
+      else
+        @clean_list = false
+      end
       if params[:terms]
         case @module_type
           when 'exploits'

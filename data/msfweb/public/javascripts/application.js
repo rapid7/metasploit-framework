@@ -108,8 +108,9 @@ function openIDEWindow() {
  * Live search helper: sets an observer on text field with id (observer_id)
  * for (module_type) modules (ex. exploits) and the id of the spinner container
  * to show loading progress/indicator.
+ * Last argument gives a clean list with no formatting. (ul-li)
  */
-function generic_live_search(observer_id, module_type, load_spinner_id) {
+function generic_live_search(observer_id, module_type, load_spinner_id, clean_list) {
     new Form.Element.Observer(observer_id, 1, 
       function(element, value) {
         /* Set an AJAX updater for the observer of the text field */
@@ -128,7 +129,7 @@ function generic_live_search(observer_id, module_type, load_spinner_id) {
                     Element.show(load_spinner_id)
                 },
                 method:'post',
-                parameters:'module_type=' + module_type + '&terms=' + value
+                parameters:'module_type=' + module_type + '&clean_list=' + clean_list + '&terms=' + value
             })
       });
     /* Initializes the contents with all available modules by

@@ -14,7 +14,11 @@ body {
 
 #spinner {
     float: right;
-    display: none;
+}
+
+.motto {
+    font-size: 90%;
+    text-align: center;
 }
 
 #footer {
