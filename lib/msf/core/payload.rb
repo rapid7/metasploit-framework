@@ -11,6 +11,8 @@ module Msf
 ###
 class Payload < Msf::Module
 
+	require 'rex/payloads'
+
 	require 'msf/core/payload/single'
 	require 'msf/core/payload/generic'
 	require 'msf/core/payload/stager'
