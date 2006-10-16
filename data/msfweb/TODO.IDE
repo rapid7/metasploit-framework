@@ -1,0 +1,69 @@
+
+This is overview of how the IDE should work:
+--------------------------------------------
+
+[ Welcome ]
+
+1. Select an existing module
+2. Create a new module:
+   - Connect to a TCP service
+   - Connect to a UDP service
+   - Connect to a HTTP server
+   - Connect to a FTP server
+   - Call a DCERPC program over TCP
+   - Call a DCERPC program over SMB
+   - Send data to a HTTP browser
+   - Send data to a TCP client
+
+
+[ Create Exploit ]
+
+-- Generic --
+1. Enter the name of this exploit (blah/blah.rb) (What directory?)
+2. Enter the title of this exploit
+3. Write the description of this exploit
+4. Enter the name of the author(s) 
+5. Enter references for this vulnerablity
+6. What license is this module provided under?
+
+-- Mixin-specific --
+TCP? What default port?
+UDP? What default port?
+HTTP? What port? (80 default)
+FTP? What port? (21 default)
+DCERPC over TCP? What port? What UUID? What version?
+DCERPC over SMB? What PIPE name? What UUID? What version?
+Browser attack? What listen port is default? What URI?
+Generic TCP server? What listen port?
+--
+
+[ Configure Payload ]
+
+1. How much space is available
+2. What are the bad characters (default sets listed)
+3. Prepend, Append, SaveRegisters, etc (all optional)
+4. Compatibility keys, AdjustStack, other options
+
+
+[ Configure targets ]
+
+1. Enter target name
+2. Enter target platform and arch
+3. Enter target return address (optional)
+4. Enter target parameters (extra keys)
+5. Save and add a new one? Continue?
+
+[ Extra Options ]
+
+1. Enter option name
+2. Enter option type
+3. Is the option mandatory?
+4. What is the default value?
+5. Save and add a new one? Continue?
+
+[ Generate Module ]
+
+-- Done!
+
+
+
