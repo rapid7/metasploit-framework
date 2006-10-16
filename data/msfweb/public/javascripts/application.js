@@ -163,7 +163,7 @@ function create_window_ajax(target_url, wid, wtitle, wwidth, wheight) {
  * Height and width are fixed, should be working values in all cases.
  */
 function openModuleWindow(mtype, refname, wtitle) {
-    var mWin = create_window_ajax("/" + mtype + "/view/" + refname, mtype + "-view-" + obtainWindowId(), wtitle, 500, 300);
+    var mWin = create_window_ajax("/" + mtype + "/view/" + refname, mtype + "-view-" + obtainWindowId(), wtitle, 500, 500);
     mWin.setDestroyOnClose();
     mWin.showCenter();
 }

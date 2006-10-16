@@ -40,6 +40,8 @@ table .itemTitle:hover {
     color: #fff;
 }
 
+
+
 table .itemTitle a,
 table .itemTitle a:hover {
     color: #fff;
@@ -66,12 +68,16 @@ table .moduleTitle {
 	color: black;
 }
 
+table .moduleTitle img {
+	float: right;
+}
 table .moduleTitle a {
     color: #444444;
     background-color: inherit;
     text-decoration: none;
     font-size: 16px;
 	font-weight: bold;
+	float: left;
 }
 
 table .moduleTitle a:hover {
@@ -79,6 +85,7 @@ table .moduleTitle a:hover {
     background-color: #faffab;
     font-size: 16px;
 	font-weight: bold;
+	float: left;	
 }
 
 table .moduleDescription {
@@ -122,26 +129,40 @@ table.moduleInfo tr td {
 }
 
 p.moduleName {
-    padding: 6px;
-	color: #222222;
+    color: #444444;
+    background-color: inherit;
+    text-decoration: none;
+    font-size: 16px;
 	font-weight: bold;
-    text-align: center;
-	background: #eeeeee;
+	text-align: center;
 }
 
 p.moduleName .moduleVersion {
     font-size: 9px;
 }
 
+p.moduleDescription {
+    background: #EDEDED;
+    color: #000;
+    padding: 5px;
+    border: 1px solid #ccc;
+	text-align: justify;
+	font-size: 12px;
+}
+
+.moduleReferences {
+	list-style: circle;
+	font-size: 9px;
+}
+.moduleTargets {
+	list-style: circle;
+	font-size: 9px;
+}
+
 .moduleIcons {
     float: left;
 }
 
-p.moduleDesc {
-    color: #333333;
-    background: #fff;
-    text-align: justify;
-}
 
 th.moduleOptionsHeader {
     background: #ddd;
