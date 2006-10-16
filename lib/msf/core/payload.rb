@@ -222,6 +222,12 @@ class Payload < Msf::Module
 	# RHOST is substituted with the RHOST value from the datastore which will
 	# have been populated by the framework.
 	#
+	# Supprted packing types:
+	#
+	# - ADDR (foo.com, 1.2.3.4)
+	# - HEX  (0x12345678, "\x41\x42\x43\x44")
+	# - RAW  (raw bytes)
+	#
 	def substitute_vars(raw, offsets)
 		offsets.each_pair { |name, info|
 			offset, pack = info
@@ -233,6 +239,27 @@ class Payload < Msf::Module
 			if ((val = datastore[name]))
 				if (pack == 'ADDR')
 					val = Rex::Socket.resolv_nbo(val)
+				elsif (pack =~ /^HEX(.*)$/)
+					sub = $1
+
+					# If they pass a straight up hex string, don't account for byte
+					# ordering.
+					if val =~ /^\\x/
+						val = [ val.gsub(/\\x/, '') ].pack('H*')
+					# Otherwise, do a conversion.
+					else
+						val = val.to_s.hex
+
+						if sub =~ /nbos/i
+							val = [ val ].pack('n')
+						elsif sub =~ /nbo/i
+							val = [ val ].pack('N')
+						elsif sub =~ /hbos/i
+							val = [ val ].pack('v')
+						else
+							val = [ val ].pack('V')
+						end
+					end
 				elsif (pack == 'RAW')
 					# Just use the raw value...
 				else
