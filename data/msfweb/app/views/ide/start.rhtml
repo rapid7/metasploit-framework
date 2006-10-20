@@ -4,7 +4,8 @@
     <table width="100%" align="center">
         <tr width="100%" align="center">
             <td>
-                <a href="/ide/edit"
+                <a href="#"
+                   onclick="new Effect.Appear('edit_new')"
                    onmouseout="document.getElementById('devil').src = '/images/ide/devil.png';"
                    onmouseover="document.getElementById('devil').src = '/images/ide/devil_ne.png';">
                     <img src="/images/ide/devil.png" alt="" id="devil" /> <br />
@@ -12,7 +13,7 @@
                 </a>
             </td>
             <td>
-                <a href="/ide/wizard"
+                <a href="#"
                    onmouseout="document.getElementById('doomed').src = '/images/ide/doomed.png';"
                    onmouseover="document.getElementById('doomed').src = '/images/ide/doomed_ne.png';">
                     <img src="/images/ide/doomed.png" alt="" id="doomed" /> <br />
@@ -22,15 +23,21 @@
         </tr>
     </table>
 
-    <div id="edit-new" style="display: none;">
-        <div id="module-search-box">
+    <div id="edit_new" style="display: none;">
+        <p>Editing an existing exploit...</p>
+        <div id="module_search_box">
             Type in name or keyword:&nbsp;
             <input id="exploit_search" name="terms" type="text" size="40" value="Edit me"/>
             <div id="search_results"></div>
         </div>
-    
+        <a href="#" onclick="new Effect.Fade('edit_new')"><strong>hide</strong></a>
         <script type="text/javascript">
             generic_live_search('exploit_search', 'exploits', 'spinner', 1);
         </script>
+    </div>
+    <div id="create_new" style="display: none;">
+        <%= start_form_tag :action => "wizard" %>
+            <%= select ("exploit", "type", return_selectable_exploit_mixins()) %>
+        <%= end_form_tag %>
     </div>
 </div>

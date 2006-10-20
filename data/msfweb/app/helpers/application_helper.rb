@@ -65,4 +65,10 @@ module ApplicationHelper
   def return_selectable_architectures()
     return ARCH_ALL
   end
+
+  #
+  def return_selectable_exploit_mixins()
+    ret = {}
+    ret['Connect to a TCP service', '' ]
+  end
 end
