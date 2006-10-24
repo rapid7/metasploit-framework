@@ -21,8 +21,7 @@ class IdeController < ApplicationController
       @the_exploit = session[:exploit] = params[:exploit]
       @step = @the_exploit["step"].to_i
     elsif @step.nil?
-      @step = 0
-      @the_exploit = {}
+      redirect_to :action => start
     end
     
     flash[:error] = ""

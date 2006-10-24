@@ -5,7 +5,7 @@
         <tr width="100%" align="center">
             <td>
                 <a href="#"
-                   onclick="new Effect.Appear('edit_new')"
+                   onclick="new Effect.Appear('edit_new'); new Effect.Fade('create_new');"
                    onmouseout="document.getElementById('devil').src = '/images/ide/devil.png';"
                    onmouseover="document.getElementById('devil').src = '/images/ide/devil_ne.png';">
                     <img src="/images/ide/devil.png" alt="" id="devil" /> <br />
@@ -14,6 +14,7 @@
             </td>
             <td>
                 <a href="#"
+                   onclick="new Effect.Appear('create_new'); new Effect.Fade('edit_new');"
                    onmouseout="document.getElementById('doomed').src = '/images/ide/doomed.png';"
                    onmouseover="document.getElementById('doomed').src = '/images/ide/doomed_ne.png';">
                     <img src="/images/ide/doomed.png" alt="" id="doomed" /> <br />
@@ -36,8 +37,11 @@
         </script>
     </div>
     <div id="create_new" style="display: none;">
+        <p>Select the exploit type from the options below:</p>
         <%= start_form_tag :action => "wizard" %>
-            <%= select ("exploit", "type", return_selectable_exploit_mixins()) %>
+            <%= hidden_field "exploit", "step", :value => 1 %>
+            <%= select ("exploit", "mixin", return_selectable_exploit_mixins()) %>
+            <%= submit_tag "Next" %>
         <%= end_form_tag %>
     </div>
 </div>

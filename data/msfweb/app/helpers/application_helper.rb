@@ -66,9 +66,15 @@ module ApplicationHelper
     return ARCH_ALL
   end
 
-  #
+  # Returns an array suitable for the select form option helper,
+  # of the available exploit mixins. thanks skape for the new method.
   def return_selectable_exploit_mixins()
-    ret = {}
-    ret['Connect to a TCP service', '' ]
+    Msf::Exploit::mixins
+  end
+
+  # Returns an array suitable for the select form option helper,
+  # of the available module licenses.
+  def return_selectable_licenses()
+    LICENSES
   end
 end
