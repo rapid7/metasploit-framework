@@ -17,7 +17,7 @@ class Exploits::Windows::XXX_CHANGEME_XXX < Msf::Exploit::Remote
 			},
 			'Author'         => [ 'vlad902 <vlad902@gmail.com>' ],
 			'License'        => BSD_LICENSE,
-			'Version'        => '$Revision$',
+			'Version'        => '$Revision: 3637 $',
 			'References'     =>
 				[
 					[ 'BID', '6665'],
@@ -68,7 +68,7 @@ my $advanced = { };
 my $info =
 {
 	'Name'    => 'Solaris KCMS Arbitary File Read',
-	'Version' => '$Revision$',
+	'Version' => '$Revision: 3637 $',
 	'Authors' => [ 'vlad902 <vlad902 [at] gmail.com>', ],
 
 	'Arch'  => [ ],

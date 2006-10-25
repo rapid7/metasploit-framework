@@ -15,7 +15,7 @@ class Exploits::Windows::XXX_CHANGEME_XXX < Msf::Exploit::Remote
 			},
 			'Author'         => [ 'Optyx <optyx <at> uberhax0r.net>', 'hdm' ],
 			'License'        => BSD_LICENSE,
-			'Version'        => '$Revision$',
+			'Version'        => '$Revision: 3637 $',
 			'References'     =>
 				[
 
@@ -69,7 +69,7 @@ my $advanced = { };
 my $info =
 {
 	'Name'  => 'Solaris /bin/login TTYPROMPT Overflow',
-	'Version'  => '$Revision$',
+	'Version'  => '$Revision: 3637 $',
 	'Authors' =>
 	  [
 		'Optyx <optyx <at> uberhax0r.net>',

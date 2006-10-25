@@ -102,6 +102,10 @@ class Msf::Module::Author
 				self.name = m ? m[1] : 'unknown'
 			end
 		end
+
+		if self.name
+			self.name.gsub!(/\s+$/, '')
+		end
 		
 		return true
 	end

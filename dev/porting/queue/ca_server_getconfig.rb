@@ -17,7 +17,7 @@ class Exploits::Windows::License::REMOVE_THIS::CA_Server_GETCONFIG < Msf::Exploi
 			},
 			'Author'         => [ 'hdm' ],
 			'License'        => BSD_LICENSE,
-			'Version'        => '$Revision$',
+			'Version'        => '$Revision: 3782 $',
 			'References'     =>
 				[
 					[ 'OSVDB', '14322'],
@@ -76,7 +76,7 @@ my $advanced = { };
 my $info =
 {
 	'Name'  => 'CA License Server GETCONFIG Overflow',
-	'Version'  => '$Revision$',
+	'Version'  => '$Revision: 3782 $',
 	'Authors' => [ 'Thor Doomen <syscall [at] hushmail.com>' ],
 	'Arch'  => [ 'x86' ],
 	'OS'    => [ 'win32', 'win2000', 'winxp', 'win2003' ],

@@ -16,7 +16,7 @@ class Exploits::Windows::XXX_CHANGEME_XXX < Msf::Exploit::Remote
 			},
 			'Author'         => [ 'vlad902 <vlad902@gmail.com>' ],
 			'License'        => BSD_LICENSE,
-			'Version'        => '$Revision$',
+			'Version'        => '$Revision: 3637 $',
 			'References'     =>
 				[
 					[ 'BID', '2417'],
@@ -74,7 +74,7 @@ my $advanced = { };
 my $info =
 {
 	'Name'    => 'Solaris snmpXdmid AddComponent Overflow',
-	'Version' => '$Revision$',
+	'Version' => '$Revision: 3637 $',
 	'Authors' => [ 'vlad902 <vlad902 [at] gmail.com>', ],
 
 	'Arch'  => [ 'sparc' ],
