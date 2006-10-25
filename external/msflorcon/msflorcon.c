@@ -18,10 +18,20 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
     Copyright (c) 2005 dragorn and Joshua Wright
-	Copyright (c) 2006 H D Moore
+	
+	Metasploit/MSFLorcon specifics are Copyright (c) 2006 Metasploit LLC
 */
 
 /* This is quick and ugly code I wrote as PoC */
+
+
+int msflorcon_setchannel(struct tx80211 *in_tx, int channel) {
+	return(tx80211_setchannel(in_tx, channel));
+}
+
+int msflorcon_getchannel(struct tx80211 *in_tx) {
+	return(tx80211_getchan(in_tx));
+}
 
 int msflorcon_in_tx_size(void) {
 	return(sizeof(struct tx80211));
@@ -53,7 +63,7 @@ int msflorcon_open(struct tx80211 *in_tx, char *iface, char *driver, int channel
 
 	drivertype = tx80211_resolvecard(driver);
 	if (drivertype == INJ_NODRIVER) {
-		fprintf(stderr, "Driver name not recognized.\n");
+		fprintf(stderr, "msflorcon: driver name not recognized.\n");
 		return(0);
 	}
 	
@@ -64,21 +74,21 @@ int msflorcon_open(struct tx80211 *in_tx, char *iface, char *driver, int channel
 		
 	ret = tx80211_setmode(in_tx, IW_MODE_MONITOR);
 	if (ret != 0) {
-		fprintf(stderr, "Error setting mode, returned %d.\n", ret);
+		fprintf(stderr, "msflorcon: error setting mode, returned %d.\n", ret);
 		return(0);
 	}
 
 	/* Switch to the given channel */
 	ret = tx80211_setchannel(in_tx, channel);
 	if (ret < 0) {
-		fprintf(stderr, "Error setting channel, returned %d.\n", ret);
+		fprintf(stderr, "msflorcon: error setting channel, returned %d.\n", ret);
 		return(0);
 	}
 
 	/* Open the interface to get a socket */
 	ret = tx80211_open(in_tx);
 	if (ret < 0) {
-		fprintf(stderr, "Unable to open interface %s.\n", in_tx->ifname);
+		fprintf(stderr, "msflorcon: unable to open interface %s.\n", in_tx->ifname);
 		return(0);
 	}
 	

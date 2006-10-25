@@ -7,6 +7,8 @@ class MSFLorcon
 	# Symbol definitions for userstack interface
 	LIBSYMBOLS = 
 	{
+		:msflorcon_setchannel    => 'IPI',
+		:msflorcon_getchannel    => 'IP',
 		:msflorcon_send          => 'IPPIII',
 		:msflorcon_close         => '0P',
 		:msflorcon_open          => 'IPPPI',
@@ -45,6 +47,15 @@ class MSFLorcon
 			r, rs = LORCON::SYM[:msflorcon_send].call(self.tx, buff.to_ptr, buff.length, count, delay)
 			return r
 		end
+		
+		def channel(chan=nil)
+			if (chan)
+				r, rs = LORCON::SYM[:msflorcon_setchannel].call(self.tx, chan)
+			else
+				r, rs = LORCON::SYM[:msflorcon_getchannel].call(self.tx)
+			end
+		end
+		
 	end	
 	
 

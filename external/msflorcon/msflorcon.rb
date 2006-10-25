@@ -3,28 +3,36 @@
 # The real wrapper code can be found in msflorcon.c and features.rb
 #
 
+$:.unshift(File.join(File.dirname(__FILE__)))
+
 class MSFLorcon
 
 	LIBNAME = File.join(File.dirname(__FILE__), "msflorcon-" + RUBY_PLATFORM + ".so")
 	
 	require 'dl'
 
-	@@loaded = false
+	@@loaded = nil
 
 	def self.loaded
 		@@loaded
 	end
 
+	def self.open(*args)
+		nil
+	end
+		
 	begin
 		module LORCON
 			LIB = DL.dlopen(LIBNAME)
 			SYM = { }
 		end	
-		
-		@@loaded = true
 
-		require 'features.rb'
+		require 'features'
+		
+		@@loaded = true	
 		
 	rescue ::Exception => e
+		$stderr.puts "Error loading the Lorcon features: #{e} #{e.backtrace.to_s}"
 	end
+
 end
