@@ -415,7 +415,7 @@ module Text
 	# Base64 encoder
 	#
 	def self.encode_base64(str)
-		Base64.encode64(str).chomp
+		Base64.encode64(str).gsub(/\s+/, '')
 	end
 
 	#
