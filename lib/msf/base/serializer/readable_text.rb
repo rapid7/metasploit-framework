@@ -410,21 +410,28 @@ class ReadableText
 	#
 	# Dumps the list of active sessions.
 	#
-	def self.dump_sessions(framework, indent = DefaultIndent, col = DefaultColumnWrap)
+	def self.dump_sessions(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap)
+		columns = 
+			[
+				'Id',
+				'Description',
+				'Tunnel'
+			]
+
+		columns << 'Via' if verbose
+
 		tbl = Rex::Ui::Text::Table.new(
 			'Indent'  => indent,
 			'Header'  => "Active sessions",
-			'Columns' =>
-				[
-					'Id',
-					'Description',
-					'Tunnel'
-				])
+			'Columns' => columns)
 
 		framework.sessions.each_sorted { |k|
 			session = framework.sessions[k]
 
-			tbl << [ session.sid.to_s, session.desc, session.tunnel_to_s ]
+			row = [ session.sid.to_s, session.desc, session.tunnel_to_s ]
+			row << session.via_exploit if verbose and session.via_exploit
+
+			tbl << row
 		}
 
 		return framework.sessions.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No active sessions.\n"

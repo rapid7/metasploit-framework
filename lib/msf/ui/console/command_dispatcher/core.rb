@@ -24,6 +24,7 @@ class Core
 		"-i" => [ true,  "Interact with the supplied session identifier." ],
 		"-h" => [ false, "Help banner."                                   ],
 		"-l" => [ false, "List all active sessions."                      ],
+		"-v" => [ false, "List verbose fields."                           ],
 		"-q" => [ false, "Quiet mode."                                    ])
 
 	@@jobs_opts = Rex::Parser::Arguments.new(
@@ -553,15 +554,19 @@ class Core
 		end
 
 		begin
-		method = nil
-		quiet  = false
-		sid    = nil
+		method  = nil
+		quiet   = false
+		verbose = false
+		sid     = nil
 
 		# Parse the command options
 		@@sessions_opts.parse(args) { |opt, idx, val|
 			case opt
 				when "-q"
 					quiet = true
+
+				when "-v"
+					verbose = true
 
 				# Interact with the supplied session identifier
 				when "-i"
@@ -570,8 +575,7 @@ class Core
 
 				# Display the list of active sessions
 				when "-l"
-					print("\n" + 
-						Serializer::ReadableText.dump_sessions(framework) + "\n")
+					method = 'list'
 
 				# Display help banner
 				when "-h"
@@ -608,6 +612,9 @@ class Core
 				else
 					print_error("Invalid session identifier: #{sid}")
 				end
+			when 'list'
+					print("\n" + 
+						Serializer::ReadableText.dump_sessions(framework, verbose) + "\n")
 		end
 
 		rescue IOError, EOFError, Rex::StreamClosedError
