@@ -10,14 +10,14 @@ module Serializer
 ###
 class ReadableText
 
-	DefaultColumnWrap = 60
-	DefaultIndent     = 4
+	DefaultColumnWrap = 70
+	DefaultIndent     = 2
 
 	#
 	# Returns a formatted string that contains information about
 	# the supplied module instance.
 	#
-	def self.dump_module(mod, indent = "    ")
+	def self.dump_module(mod, indent = "  ")
 		case mod.type
 			when MODULE_PAYLOAD
 				return dump_payload_module(mod, indent)
@@ -120,22 +120,8 @@ class ReadableText
 		
 		# Options
 		if (mod.options.has_options?)
-			output += "Available options:\n"
+			output += "Basic options:\n"
 			output += dump_options(mod, indent)
-			output += "\n"
-		end
-
-		# Advanced options
-		if (mod.options.has_advanced_options?)
-			output += "Advanced options:\n"
-			output += dump_advanced_options(mod, indent)
-			output += "\n"
-		end
-
-		# Evasion options
-		if (mod.options.has_evasion_options?)
-			output += "Evasion options:\n"
-			output += dump_evasion_options(mod, indent)
 			output += "\n"
 		end
 		
@@ -187,22 +173,8 @@ class ReadableText
 
 		# Options
 		if (mod.options.has_options?)
-			output += "Available options:\n"
+			output += "Basic options:\n"
 			output += dump_options(mod, indent)
-			output += "\n"
-		end
-
-		# Advanced options
-		if (mod.options.has_advanced_options?)
-			output += "Advanced options:\n"
-			output += dump_advanced_options(mod, indent)
-			output += "\n"
-		end
-
-		# Advanced options
-		if (mod.options.has_evasion_options?)
-			output += "Evasion options:\n"
-			output += dump_evasion_options(mod, indent)
 			output += "\n"
 		end
 		
@@ -237,25 +209,11 @@ class ReadableText
 
 		# Options
 		if (mod.options.has_options?)
-			output += "Available options:\n"
+			output += "Basic options:\n"
 			output += dump_options(mod)
 			output += "\n"
 		end
 
-		# Advanced options
-		if (mod.options.has_advanced_options?)
-			output += "Advanced options:\n"
-			output += dump_advanced_options(mod)
-			output += "\n"
-		end
-
-		# Evasion options
-		if (mod.options.has_evasion_options?)
-			output += "Evasion options:\n"
-			output += dump_evasion_options(mod)
-			output += "\n"
-		end
-			
 		# Description
 		output += "Description:\n"
 		output += word_wrap(Rex::Text.compress(mod.description))
@@ -282,20 +240,6 @@ class ReadableText
 			output += indent + author.to_s + "\n"
 		}
 		output += "\n"
-
-		# Advanced options
-		if (mod.options.has_advanced_options?)
-			output += "Advanced options:\n"
-			output += dump_advanced_options(mod)
-			output += "\n"
-		end
-
-		# Evasion options
-		if (mod.options.has_evasion_options?)
-			output += "Evasion options:\n"
-			output += dump_evasion_options(mod)
-			output += "\n"
-		end
 		
 		# Description
 		output += "Description:\n"
@@ -461,7 +405,7 @@ class ReadableText
 	# Jacked from Ernest Ellingson <erne [at] powernav.com>, modified
 	# a bit to add indention
 	#
-	def self.word_wrap(str, indent = 4, col = DefaultColumnWrap)
+	def self.word_wrap(str, indent = DefaultIndent, col = DefaultColumnWrap)
 		return Rex::Text.wordwrap(str, indent, col)
 	end
 

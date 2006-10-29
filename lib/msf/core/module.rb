@@ -216,7 +216,7 @@ class Module
 	# Return the module's version information.
 	#
 	def version
-		module_info['Version']
+		module_info['Version'].gsub(/\$Rev.s.on:\s+|\s+\$$/, '')
 	end
 
 	#
