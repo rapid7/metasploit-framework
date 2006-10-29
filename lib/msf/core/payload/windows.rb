@@ -64,7 +64,7 @@ module Msf::Payload::Windows
 	# ensure that the entire stage is read in.
 	#
 	def handle_intermediate_stage(conn, payload)
-		return if (payload.length < 1300)
+		return if (payload.length < 512)
 
 		# The mid-stage works by reading in a four byte length in host-byte
 		# order (which represents the length of the stage).  Following that, it
