@@ -67,6 +67,7 @@ class Core
 			"use"      => "Selects a module by name",
 			"version"  => "Show the console library version number",
 			"sleep"    => "Do nothing for the specified number of seconds",
+			"cd"       => "Change the current working directory",
 		}
 	end
 
@@ -99,6 +100,18 @@ class Core
 		end
 	end
 
+
+	#
+	# Change the current working directory
+	#
+	def cmd_cd(*args)
+		begin
+			Dir.chdir(args.join(" ").strip)
+		rescue ::Errno::ENOENT
+			print_error("The specified path does not exist")
+		end
+	end
+	
 	#
 	# Display one of the fabulous banners.
 	#

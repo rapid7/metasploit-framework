@@ -149,7 +149,7 @@ class Msf::Module::PlatformList
 
 			begin
 				list1, list2 = _intersect_expand(list1, list2)
-			rescue RuntimeError
+			rescue ::RuntimeError
 				break
 			end
 		end

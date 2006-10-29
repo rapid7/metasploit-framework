@@ -21,7 +21,7 @@ class Config < Hash
 	def self.get_config_root
 		begin
 			File.expand_path("~#{FileSep}.msf3")
-		rescue ArgumentError
+		rescue ::ArgumentError
 			InstallRoot + ".msf3"
 		end
 	end

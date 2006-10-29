@@ -272,7 +272,7 @@ protected
 		
 		begin
 			return args = Rex::Parser::Arguments.from_s(line)
-		rescue ArgumentError
+		rescue ::ArgumentError
 			print_error("Parse error: #{$!}")
 		end
 

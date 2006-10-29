@@ -146,7 +146,7 @@ module Text
 	# Returns the hex version of the supplied string
 	#
 	def self.to_hex(str, prefix = "\\x", count = 1)
-		raise RuntimeError, "unable to chunk into #{count} byte chunks" if ((str.length % count) > 0)
+		raise ::RuntimeError, "unable to chunk into #{count} byte chunks" if ((str.length % count) > 0)
 
 		# XXX: Regexp.new is used here since using /.{#{count}}/o would compile
 		# the regex the first time it is used and never check again.  Since we
@@ -565,7 +565,7 @@ module Text
 		elsif (value.kind_of?(Fixnum) or value.kind_of?(Bignum))
 			pattern.index([ value ].pack('V'))
 		else
-			raise ArgumentError, "Invalid class for value: #{value.class}"
+			raise ::ArgumentError, "Invalid class for value: #{value.class}"
 		end
 	end
 
