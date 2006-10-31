@@ -24,3 +24,5 @@ Metasploit Framework v3.0
 	* Exploits are not functional
 	* Path information disclosed in stack traces
 	
+[Auxiliary]
+	* Including exploit mixins after auxiliary mixins leads to broken behavior
