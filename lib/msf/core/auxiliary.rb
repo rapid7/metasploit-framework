@@ -148,8 +148,9 @@ class Auxiliary < Msf::Module
 	#
 	def abort_sockets
 		sockets.delete_if { |sock|
-			sock.abortive_close = true
-
+			if (sock.respond_to?('abortive_close'))
+				sock.abortive_close = true 
+			end
 			begin
 				disconnect(sock)
 			rescue
