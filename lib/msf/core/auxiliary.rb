@@ -19,6 +19,7 @@ class Auxiliary < Msf::Module
 	require 'msf/core/auxiliary/scanner'
 	require 'msf/core/auxiliary/report'
 	require 'msf/core/auxiliary/dos'
+	require 'msf/core/auxiliary/voip'
 	
 	#
 	# Returns MODULE_AUX to indicate that this is an auxiliary module.
