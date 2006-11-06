@@ -1,5 +1,5 @@
 
-module Pcap
+module PcapX
   class Packet
     def to_s
       'Some packet'
@@ -113,4 +113,4 @@ class Time
   end
 end
 
-autoload :Pcaplet, 'pcaplet'
+autoload :PcapletX, 'pcapletx'

@@ -1,7 +1,7 @@
 require 'PcapX'
 require 'getopts'
 
-def pcaplet_usage()
+def pcapletx_usage()
   $stderr.print <<END
 Usage: #{File.basename $0} [ -dnv ] [ -i interface | -r file ]
        #{' ' * File.basename($0).length} [ -c count ] [ -s snaplen ] [ filter ]
@@ -13,7 +13,7 @@ END
 end
 
 module PcapX
-  class Pcaplet
+  class PcapletX
     def usage(status, msg = nil)
       $stderr.puts msg if msg
       pcaplet_usage
@@ -110,4 +110,4 @@ module PcapX
   end
 end
 
-Pcaplet = Pcap::Pcaplet
+PcapletX = Pcap::PcapletX
