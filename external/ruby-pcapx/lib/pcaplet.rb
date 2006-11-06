@@ -1,4 +1,4 @@
-require 'pcap'
+require 'PcapX'
 require 'getopts'
 
 def pcaplet_usage()
@@ -12,7 +12,7 @@ Options:
 END
 end
 
-module Pcap
+module PcapX
   class Pcaplet
     def usage(status, msg = nil)
       $stderr.puts msg if msg
