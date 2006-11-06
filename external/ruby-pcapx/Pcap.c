@@ -718,15 +718,16 @@ filter_not(self)
 void
 Init_pcap(void)
 {
-    DEBUG_PRINT("Init_pcap");
+    DEBUG_PRINT("Init_PcapX");
 
     /* define module Pcap */
-    mPcap = rb_define_module("Pcap");
+    mPcap = rb_define_module("PcapX");
     rb_define_module_function(mPcap, "lookupdev", pcap_s_lookupdev, 0);
     rb_define_module_function(mPcap, "lookupnet", pcap_s_lookupnet, 1);
     rb_global_variable(&rbpcap_convert);
     rb_define_singleton_method(mPcap, "convert?", pcap_s_convert, 0);
     rb_define_singleton_method(mPcap, "convert=", pcap_s_convert_set, 1);
+	
     rb_define_const(mPcap, "DLT_NULL",   INT2NUM(DLT_NULL));
     rb_define_const(mPcap, "DLT_EN10MB", INT2NUM(DLT_EN10MB));
     rb_define_const(mPcap, "DLT_EN3MB", INT2NUM(DLT_EN3MB));
@@ -744,7 +745,13 @@ Init_pcap(void)
     rb_define_const(mPcap, "DLT_SLIP_BSDOS", INT2NUM(DLT_SLIP_BSDOS));
     rb_define_const(mPcap, "DLT_PPP_BSDOS", INT2NUM(DLT_PPP_BSDOS));
 #endif
-
+	rb_define_const(mPcap, "DLT_IEEE802_11", INT2NUM(DLT_IEEE802_11));
+	rb_define_const(mPcap, "DLT_IEEE802_11_RADIO", INT2NUM(DLT_IEEE802_11_RADIO));
+	rb_define_const(mPcap, "DLT_IEEE802_11_RADIO_AVS", INT2NUM(DLT_IEEE802_11_RADIO_AVS));
+	rb_define_const(mPcap, "DLT_LINUX_SLL", INT2NUM(DLT_LINUX_SLL));
+	rb_define_const(mPcap, "DLT_PRISM_HEADER", INT2NUM(DLT_PRISM_HEADER));
+	rb_define_const(mPcap, "DLT_AIRONET_HEADER", INT2NUM(DLT_AIRONET_HEADER));
+	
     /* define class Capture */
     cCapture = rb_define_class_under(mPcap, "Capture", rb_cObject);
     rb_include_module(cCapture, rb_mEnumerable);
@@ -792,5 +799,5 @@ Init_pcap(void)
     eTruncatedPacket = rb_define_class_under(mPcap, "TruncatedPacket", ePcapError);
 
     Init_packet();
-    rb_f_require(Qnil, rb_str_new2("pcap_misc"));
+    rb_f_require(Qnil, rb_str_new2("pcapx_misc"));
 }

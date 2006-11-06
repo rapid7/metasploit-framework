@@ -12,5 +12,5 @@ have_library("xnet", "gethostbyname")
 have_func("hstrerror")
 if have_header("pcap.h") && have_library("pcap", "pcap_open_live")
   have_func("pcap_compile_nopcap")
-  create_makefile("pcap")
+  create_makefile("PcapX")
 end

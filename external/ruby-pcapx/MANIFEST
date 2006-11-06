@@ -11,8 +11,8 @@ ip_packet.c
 tcp_packet.c
 udp_packet.c
 icmp_packet.c
-lib/pcap_misc.rb
-lib/pcaplet.rb
+lib/pcapx_misc.rb
+lib/pcapletx.rb
 examples/test.rb
 examples/tcpdump.rb
 examples/httpdump.rb

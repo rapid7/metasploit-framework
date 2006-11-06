@@ -75,7 +75,7 @@ LOCAL_LIBS =
 LIBS = $(LIBRUBYARG_SHARED) -lpcap  -ldl -lcrypt -lm   -lc
 SRCS = Pcap.c packet.c ip_packet.c tcp_packet.c udp_packet.c icmp_packet.c
 OBJS = Pcap.o packet.o ip_packet.o tcp_packet.o udp_packet.o icmp_packet.o
-TARGET = pcap
+TARGET = PcapX
 DLLIB = $(TARGET).so
 EXTSTATIC = 
 STATIC_LIB = 
@@ -110,12 +110,12 @@ install-rb-default: pre-install-rb-default
 pre-install-rb: Makefile
 pre-install-rb-default: Makefile
 pre-install-rb-default: $(RUBYLIBDIR)
-install-rb-default: $(RUBYLIBDIR)/pcap_misc.rb
-$(RUBYLIBDIR)/pcap_misc.rb: $(srcdir)/lib/pcap_misc.rb
-	$(INSTALL_DATA) $(srcdir)/lib/pcap_misc.rb $(@D)
-install-rb-default: $(RUBYLIBDIR)/pcaplet.rb
-$(RUBYLIBDIR)/pcaplet.rb: $(srcdir)/lib/pcaplet.rb
-	$(INSTALL_DATA) $(srcdir)/lib/pcaplet.rb $(@D)
+install-rb-default: $(RUBYLIBDIR)/pcapx_misc.rb
+$(RUBYLIBDIR)/pcapx_misc.rb: $(srcdir)/lib/pcapx_misc.rb
+	$(INSTALL_DATA) $(srcdir)/lib/pcapx_misc.rb $(@D)
+install-rb-default: $(RUBYLIBDIR)/pcapletx.rb
+$(RUBYLIBDIR)/pcapletx.rb: $(srcdir)/lib/pcapletx.rb
+	$(INSTALL_DATA) $(srcdir)/lib/pcapletx.rb $(@D)
 $(RUBYARCHDIR):
 	$(MAKEDIRS) $@
 $(RUBYLIBDIR):
