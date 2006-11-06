@@ -1,0 +1,56 @@
+This is a modified version of Masaki Fukushima's ruby-pcap module.
+
+
+
+=========================
+= README from ruby-pcap =
+=========================
+
+* Introduction
+
+ruby-pcap is a ruby extension to LBL libpcap (Packet Capture library).
+This library also includes classes to access TCP/IP header.
+
+* Installation
+
+Requirements:
+
+  - ruby-1.4.x
+  - libpcap (http://www.tcpdump.org/)
+
+Compile:
+
+If ruby supports dynamic link of extension module on your OS,
+following commands will install ruby-pcap.
+
+  ruby extconf.rb [options]
+  make
+  make install
+
+You can specify options when you run 'ruby extconf.rb':
+
+`--with-pcap-dir=PREFIX'
+    Directory where libpcap is installed.  Default is '/usr/local'.
+
+If dynamic link isn't available, you can link ruby-pcap statically
+with ruby.  Extract ruby-pcap under the directory 'ext' in ruby source
+tree, then build ruby.
+
+* Usage
+
+See the documentation under the directory 'doc'.
+Directory 'examples' contains some simple scripts.
+
+* Author
+
+Masaki Fukushima <fukusima@goto.info.waseda.ac.jp>
+
+ruby-pcap is copyrighted free software by Masaki Fukushima.
+
+You can redistribute it and/or modify it under the terms of
+the GPL (GNU GENERAL PUBLIC LICENSE).  See COPYING file about GPL.
+
+THIS SOFTWARE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  See the GPL for
+more details.

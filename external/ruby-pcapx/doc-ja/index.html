@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Ruby/Pcap Library</title>
+</head>
+
+<body bgcolor="ffffff">
+<h1>Ruby/Pcap拡張ライブラリ</h1>
+
+LBL の libpcap (Packet Capture library) への ruby インタフェースです。
+
+<h2>モジュール</h2>
+<ul>
+  <li><a href="Pcap.html"><code>Pcap</code></a>
+</ul>
+
+<h2>クラス</h2>
+
+以下のクラスは全て <code>Pcap</code> モジュールの下で定義されています。
+したがって使用するときは <code>Pcap</code> モジュールを
+<code>include</code> するか、もしくは <code>Pcap::Capture</code> のよ
+うに参照してください。
+
+<ul>
+  <li><a href="Capture.html"><code>Capture</code></a>
+  <li><a href="Pcaplet.html"><code>Pcaplet</code></a>
+  <li><a href="Packet.html"><code>Packet</code></a>
+      <ul>
+	<li><a href="IPPacket.html"><code>IPPacket</code></a>
+	    <ul>
+	      <li><a href="TCPPacket.html"><code>TCPPacket</code></a>
+	      <li><a href="UDPPacket.html"><code>UDPPacket</code></a>
+	      <li><a href="ICMPPacket.html"><code>ICMPPacket</code></a>
+	    </ul>
+      </ul>
+  <li><a href="IPAddress.html"><code>IPAddress</code></a>
+  <li><a href="Dumper.html"><code>Dumper</code></a>
+  <li><a href="Filter.html"><code>Filter</code></a>
+</ul>
+
+<h2>例外</h2>
+
+<ul>
+  <li><a href="PcapError.html"><code>PcapError</code></a>
+      <ul>
+	<li><a href="TruncatedPacket.html"><code>TruncatedPacket</code></a>
+      </ul>
+</ul>
+
+<hr>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">
+fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</body> </html>

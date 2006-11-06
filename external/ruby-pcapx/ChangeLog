@@ -1,0 +1,145 @@
+2000-08-13  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* version 0.6 released.
+
+	* packet.c (packet_match): Packet#=~ added.
+
+	* Pcap.c (capture_setfilter): Filter object can be used in
+	Capture#setfilter.
+
+	* lib/pcaplet.rb: invoke gzip when reading /\.gz$/ file.
+	Pcaplet.new accept options.
+
+	* Pcap.c: implement Filter logical operation.
+	(filter_source): Filter#source added.
+
+2000-08-09  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* Pcap.c (filter_new): use pcap_compile_nopcap() if available.
+
+1999-11-08  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* version 0.5 released.
+
+	* Pcap.c: Call Check_SafeStr() before I/O operation.
+
+	* lib/pcaplet.rb: Use getopts instead of parseparg.
+
+1999-11-05  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* Filter document added.
+
+1999-11-04  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* Pcap.c (filter_match): datalink and caplen check.
+
+1999-10-30  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* Pcap.c (Init_pcap): added Pcap.{lookupdev,lookupnet}.
+
+1999-10-29  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* Pcap.c: use RTEST instead of Qtrue/Qfalse test.
+
+1999-08-27  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* ip_packet.c (ipaddr_s_new): changed to use gethostbyname().
+
+	* icmp_packet.c: icmp_type_info lacks type 31-36 hole.
+
+1999-08-26  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* version 0.4 released.
+
+	* ICMPPacket document added.
+
+1999-08-25  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* udp_packet.c: UdpPacket renamed to UDPPacket.
+
+	* tcp_packet.c: TcpPacket renamed to TCPPacket.
+
+	* ip_packet.c: IpPacket renamed to IPPacket.
+
+1999-08-24  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* icmp_packet.c: ICMP support.
+
+1999-08-18  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* Pcap.c (Init_pcap): PcapStat is now defined as Pcap::Stat.
+
+1999-08-17  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* ip_packet.c (setup_ip_packet): check ip_v == 4
+
+1999-08-14  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* ip_packet.c (setup_ip_packet): ntohs must be used for ip_len.
+
+	* packet.c (Init_packet): Packet#udp? added.
+
+1999-07-23  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* extconf.rb: --with-pcap-prefix is changed to --with-pcap-dir
+
+1999-07-14  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* ip_packet.c (Init_ip_packet): IP address is now represented by
+	new class IPAddress implemented in C.  IpAddress is obsolete but
+	remains for backward compatibility.
+
+1999-07-11  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* Pcap.c (Init_pcap): Capture includes Enumerable.
+
+1999-07-02  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* version 0.3.1 released.
+
+	* Pcap.c: Filter class is added.
+
+	* tcp_packet.c (tcpp_data): data length bug is fixed.
+
+1999-06-27  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* Pcap.c (capture_loop): improved to be thread-friendly.
+
+1999-05-24  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* version 0.3 released.
+
+	* extconf.rb: --with-pcap-prefix option added.
+
+	* changed to based on ruby-1.3.x.
+
+1999-04-20  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* version 0.2 released.
+
+1999-04-18  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* UdpPacket documentation added.
+
+1999-02-08  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* udp_packet.c: UDP supprot added.
+
+1998-12-07  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* version 0.1.1 released.
+
+	* Document about exception classes added.
+
+	* Pcap.c (CheckClass): CheckClass added.
+	(dumper_dump): check data-link type and caplen.
+
+1998-12-06  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* packet.c: Packet#datalink added.
+
+	* English document added.
+
+1998-12-01  Masaki Fukushima  <fukusima@goto.info.waseda.ac.jp>
+
+	* version 0.1 released.

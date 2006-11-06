@@ -1,0 +1,101 @@
+<HTML>
+<!-- THIS FILE IS GENERATED FROM ANOTHER SOURCE FILE -->
+<HEAD>
+<TITLE>Packet</TITLE>
+</HEAD>
+<BODY BGCOLOR="ffffff">
+<DL>
+<DT><H1>Packet</H1></DT>
+<DD>
+
+      <A HREF="Capture.html"><CODE>Capture</CODE></A>によってキャプチャされたパケットのデータ。
+      <CODE>Packet</CODE>、およびそのサブクラスは<A HREF="http://www.ruby-lang.org/ja/man-1.4/Marshal.html"><CODE>Marshal</CODE></A>に対応
+      しています。
+    </DD>
+<DT><H2>スーパークラス:</H2></DT>
+<DD><DL><DT><A HREF="http://www.ruby-lang.org/ja/man-1.4/Object.html"><CODE>Object</CODE></A></DT></DL></DD>
+<DT><H2>メソッド:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME="caplen"><CODE>caplen</CODE></A>
+<DD>
+<p>
+
+          パケットのキャプチャされている部分の長さを返します。
+        </p>
+<DT>
+<A NAME="datalink"><CODE>datalink</CODE></A>
+<DD>
+<p>
+
+          データリンクのタイプを表す整数を返します。
+          (<A HREF="Pcap.html#::DLT_EN10MB"><CODE>DLT_EN10MB</CODE></A> 等)
+        </p>
+<DT>
+<A NAME="ip?"><CODE>ip?</CODE></A>
+<DD>
+<p>
+
+          このパケットが<A HREF="IPPacket.html"><CODE>IPPacket</CODE></A>
+          かそのサブクラスのインスタンスであれば
+          <CODE>true</CODE> を返します。
+        </p>
+<DT>
+<A NAME="len"><CODE>len</CODE></A>
+<DD>
+<DT>
+<A NAME="length"><CODE>length</CODE></A>
+<DD>
+<DT>
+<A NAME="size"><CODE>size</CODE></A>
+<DD>
+<p>
+
+          パケット全体の長さを返します。
+        </p>
+<DT>
+<A NAME="raw_data"><CODE>raw_data</CODE></A>
+<DD>
+<p>
+
+          このパケットの先頭からの生データを<A HREF="http://www.ruby-lang.org/ja/man-1.4/String.html"><CODE>String</CODE></A>として返します。
+        </p>
+<DT>
+<A NAME="tcp?"><CODE>tcp?</CODE></A>
+<DD>
+<p>
+
+          このパケットが<A HREF="TCPPacket.html"><CODE>TCPPacket</CODE></A>かそのサブクラスのインス
+          タンスであれば true を返します。
+        </p>
+<DT>
+<A NAME="time"><CODE>time</CODE></A>
+<DD>
+<p>
+
+          このパケットのタイムスタンプを <A HREF="http://www.ruby-lang.org/ja/man-1.4/Time.html"><CODE>Time</CODE></A> オブジェク
+          トとして返します。
+        </p>
+<DT>
+<A NAME="time_i"><CODE>time_i</CODE></A>
+<DD>
+<p>
+
+          このパケットのタイムスタンプを整数として返します。
+        </p>
+<DT>
+<A NAME="udp?"><CODE>udp?</CODE></A>
+<DD>
+<p>
+
+          このパケットが<A HREF="UDPPacket.html"><CODE>UDPPacket</CODE></A>かそのサブクラスのインス
+          タンスであれば true を返します。
+        </p>
+</DL>
+</DL>
+<HR>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</BODY>
+</HTML>

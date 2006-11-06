@@ -1,0 +1,147 @@
+<HTML>
+<!-- THIS FILE IS GENERATED FROM ANOTHER SOURCE FILE -->
+<HEAD>
+<TITLE>Capture</TITLE>
+</HEAD>
+<BODY BGCOLOR="ffffff">
+<DL>
+<DT><H1>Capture</H1></DT>
+<DD>
+
+      パケットキャプチャを表すオブジェクト
+    </DD>
+<DT><H2>スーパークラス:</H2></DT>
+<DD><DL><DT><A HREF="http://www.ruby-lang.org/ja/man-1.4/Object.html"><CODE>Object</CODE></A></DT></DL></DD>
+<DT><H2>インクルードしているモジュール:</H2></DT>
+<DL>
+<DT><A HREF="http://www.ruby-lang.org/ja/man-1.4/Enum.html"><CODE>Enumerable</CODE></A></DT>
+</DL>
+<DT><H2>クラスメソッド:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME=".open_live"><CODE>open_live(<var>device</var>[, <var>snaplen</var>[, <var>promisc</var>[, <var>to_ms</var>]]])</CODE></A>
+<DD>
+<p>
+
+          デバイスをオープンして <CODE>Capture</CODE> オブジェクトを返
+          します。
+          <VAR>snaplen</VAR>, <VAR>promisc</VAR>,
+          <VAR>to_ms</VAR> のデフォルト値はそれぞれ 68 オクテット,
+          <CODE>true</CODE>, 1000 ミリ秒です。
+        </p>
+<DT>
+<A NAME=".open_offline"><CODE>open_offline(<var>filename</var>)</CODE></A>
+<DD>
+<p>
+
+          <VAR>filename</VAR> で指定されたファイルをオープンして
+          <CODE>Capture</CODE>オブジェクトを返します。
+        </p>
+</DL>
+<DT><H2>メソッド:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME="close"><CODE>close</CODE></A>
+<DD>
+<p>
+
+          <CODE>Capture</CODE>オブジェクトをクローズします。
+        </p>
+<DT>
+<A NAME="datalink"><CODE>datalink</CODE></A>
+<DD>
+<p>
+
+          データリンクのタイプを表す整数を返します。
+          (<A HREF="Pcap.html#::DLT_EN10MB"><CODE>DLT_EN10MB</CODE></A> 等)
+        </p>
+<DT>
+<A NAME="dispatch"><CODE>dispatch([<var>count</var>]) {|<var>packet</var>|...}</CODE></A>
+<DD>
+<p>
+
+          <P>
+
+            各パケットに対して繰り返します。ブロックには
+            <A HREF="Packet.html"><CODE>Packet</CODE></A>かそのサブクラスのインスタンスが渡されます。
+          </P>
+
+          <P>
+
+            <VAR>count</VAR> には処理するパケットの最大数を指定します。
+            <VAR>count</VAR> に -1 を指定するとバッファに入っているパ
+            ケット全てを処理します。<VAR>count</VAR> に 0 を指定すると
+            エラーかファイルの終わりかタイムアウトに達するまでパケット
+            を処理します。
+            <VAR>count</VAR> のデフォルト値は -1 です。
+          </P>
+
+        </p>
+<DT>
+<A NAME="each_packet"><CODE>each_packet([<var>count</var>]) {|<var>packet</var>|...}</CODE></A>
+<DD>
+<DT>
+<A NAME="each"><CODE>each([<var>count</var>]) {|<var>packet</var>|...}</CODE></A>
+<DD>
+<DT>
+<A NAME="loop"><CODE>loop([<var>count</var>]) {|<var>packet</var>|...}</CODE></A>
+<DD>
+<p>
+
+          <P>
+
+            各パケットに対して繰り返します。ブロックには
+            <A HREF="Packet.html"><CODE>Packet</CODE></A>かそのサブクラスのインスタンスが渡されます。
+          </P>
+
+          <P>
+
+            <VAR>count</VAR> には処理するパケットの最大数を指定します。
+            <VAR>count</VAR> に負の数を指定するとエラーかファイルの終わ
+            りに達するまでパケットを処理します。<VAR>count</VAR> のデフォ
+            ルト値は -1 です。
+          </P>
+
+        </p>
+<DT>
+<A NAME="snapshot"><CODE>snapshot</CODE></A>
+<DD>
+<DT>
+<A NAME="snaplen"><CODE>snaplen</CODE></A>
+<DD>
+<p>
+
+          snapshot の長さを返します。
+        </p>
+<DT>
+<A NAME="setfilter"><CODE>setfilter(<var>filter</var>[, <var>optimize</var>])</CODE></A>
+<DD>
+<p>
+
+          <VAR>filter</VAR> で指定された文字列、または<A HREF="Filter.html"><CODE>Filter</CODE></A>を
+          フィルタとして設定します。
+          <VAR>optimize</VAR> が <CODE>true</CODE> の場合は最適化を行
+          います。<VAR>optimize</VAR> のデフォルト値は 
+          <CODE>true</CODE> です。
+        </p>
+<DT>
+<A NAME="stats"><CODE>stats</CODE></A>
+<DD>
+<p>
+
+          パケットキャプチャについての統計を含む <A HREF="http://www.ruby-lang.org/ja/man-1.4/Struct.html"><CODE>Struct</CODE></A>
+          を返します。構造体は以下のメンバを持ちます。
+          <BLOCKQUOTE>
+<DL COMPACT>
+<DT><CODE>recv</CODE></DT><DD>受信したパケットの数</DD><DT><CODE>drop</CODE></DT><DD>取りこぼしたしたパケットの数</DD></DL>
+</BLOCKQUOTE>
+
+        </p>
+</DL>
+</DL>
+<HR>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</BODY>
+</HTML>

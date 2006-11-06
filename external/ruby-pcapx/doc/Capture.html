@@ -1,0 +1,144 @@
+<HTML>
+<!-- THIS FILE IS GENERATED FROM ANOTHER SOURCE FILE -->
+<HEAD>
+<TITLE>Capture</TITLE>
+</HEAD>
+<BODY BGCOLOR="ffffff">
+<DL>
+<DT><H1>Capture</H1></DT>
+<DD>
+
+      Packet Capture Object
+    </DD>
+<DT><H2>Super Class:</H2></DT>
+<DD><DL><DT><A HREF="http://www.ruby-lang.org/en/man-1.4/Object.html"><CODE>Object</CODE></A></DT></DL></DD>
+<DT><H2>Included Modules:</H2></DT>
+<DL>
+<DT><A HREF="http://www.ruby-lang.org/en/man-1.4/Enum.html"><CODE>Enumerable</CODE></A></DT>
+</DL>
+<DT><H2>Class Methods:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME=".open_live"><CODE>open_live(<var>device</var>[, <var>snaplen</var>[, <var>promisc</var>[, <var>to_ms</var>]]])</CODE></A>
+<DD>
+<p>
+
+          Open specified device and return <CODE>Capture</CODE>
+          object.
+          Default value for <VAR>snaplen</VAR>,
+          <VAR>promisc</VAR> and <VAR>to_ms</VAR> are 68 octets,
+          <CODE>true</CODE> and 1000 milliseconds.
+        </p>
+<DT>
+<A NAME=".open_offline"><CODE>open_offline(<var>filename</var>)</CODE></A>
+<DD>
+<p>
+
+          Open <VAR>filename</VAR> and return <CODE>Capture</CODE> object.
+        </p>
+</DL>
+<DT><H2>Methods:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME="close"><CODE>close</CODE></A>
+<DD>
+<p>
+
+          Close <CODE>Capture</CODE> object.
+        </p>
+<DT>
+<A NAME="datalink"><CODE>datalink</CODE></A>
+<DD>
+<p>
+
+          Return an integer representing data-link type.
+          (e.g. <A HREF="Pcap.html#::DLT_EN10MB"><CODE>DLT_EN10MB</CODE></A>)
+        </p>
+<DT>
+<A NAME="dispatch"><CODE>dispatch([<var>count</var>]) {|<var>packet</var>|...}</CODE></A>
+<DD>
+<p>
+
+          <P>
+
+            Iterate over each packet.  The argument given to the block
+            is an instance of <A HREF="Packet.html"><CODE>Packet</CODE></A> or its sub-class.
+          </P>
+
+          <P>
+
+            <VAR>count</VAR> specifies the maximum number of packets to
+            process.  a <VAR>count</VAR> of -1 processes all the packets
+            received in one buffer.  a <VAR>count</VAR> of 0 processes all
+            packets until an error occurs, EOF is reached, or the read
+            times out.
+            Default of <VAR>count</VAR> is -1.
+          </P>
+
+        </p>
+<DT>
+<A NAME="each_packet"><CODE>each_packet([<var>count</var>]) {|<var>packet</var>|...}</CODE></A>
+<DD>
+<DT>
+<A NAME="each"><CODE>each([<var>count</var>]) {|<var>packet</var>|...}</CODE></A>
+<DD>
+<DT>
+<A NAME="loop"><CODE>loop([<var>count</var>]) {|<var>packet</var>|...}</CODE></A>
+<DD>
+<p>
+
+          <P>
+
+            Iterate over each packet.  The argument given to the block
+            is an instance of <A HREF="Packet.html"><CODE>Packet</CODE></A> or its sub-class.
+          </P>
+
+          <P>
+
+            <VAR>count</VAR> specifies the maximum number of packets to
+            process.  A negative <VAR>count</VAR> processes packets forever
+            or until EOF is reached.  Default of <VAR>count</VAR> is -1.
+          </P>
+
+        </p>
+<DT>
+<A NAME="snapshot"><CODE>snapshot</CODE></A>
+<DD>
+<DT>
+<A NAME="snaplen"><CODE>snaplen</CODE></A>
+<DD>
+<p>
+
+          Return the snapshot length.
+        </p>
+<DT>
+<A NAME="setfilter"><CODE>setfilter(<var>filter</var>[, <var>optimize</var>])</CODE></A>
+<DD>
+<p>
+
+          Specify <VAR>filter</VAR> as packet filter.
+          <VAR>filter</VAR> can be a string or a <A HREF="Filter.html"><CODE>Filter</CODE></A> object.
+          <VAR>optimize</VAR> controls whether optimization is performed.
+          Default of <VAR>optimize</VAR> is <CODE>true</CODE>.
+        </p>
+<DT>
+<A NAME="stats"><CODE>stats</CODE></A>
+<DD>
+<p>
+
+          Return a <A HREF="http://www.ruby-lang.org/en/man-1.4/Struct.html"><CODE>Struct</CODE></A> which represents packet statistics.
+          This struct has following members.
+          <BLOCKQUOTE>
+<DL COMPACT>
+<DT><CODE>recv</CODE></DT><DD>number of received packets</DD><DT><CODE>drop</CODE></DT><DD>number of dropped packets</DD></DL>
+</BLOCKQUOTE>
+
+        </p>
+</DL>
+</DL>
+<HR>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</BODY>
+</HTML>

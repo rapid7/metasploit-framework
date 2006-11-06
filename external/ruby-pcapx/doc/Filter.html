@@ -1,0 +1,109 @@
+<HTML>
+<!-- THIS FILE IS GENERATED FROM ANOTHER SOURCE FILE -->
+<HEAD>
+<TITLE>Filter</TITLE>
+</HEAD>
+<BODY BGCOLOR="ffffff">
+<DL>
+<DT><H1>Filter</H1></DT>
+<DD>
+
+      <CODE>Filter</CODE> determines whether a packet satisfies
+      specified condition.  Actually <CODE>Filter</CODE> is
+      wrapper for <CODE>bpf_program</CODE>.  For details of filter
+      expression, see <CODE>tcpdump(1)</CODE>.
+    </DD>
+<DT><H2>Super Class:</H2></DT>
+<DD><DL><DT><A HREF="http://www.ruby-lang.org/en/man-1.4/Object.html"><CODE>Object</CODE></A></DT></DL></DD>
+<DT><H2>Class Methods:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME=".compile"><CODE>compile(<var>expr</var>, <var>capture</var>[, <var>optimize</var>[, <var>netmask</var>]])</CODE></A>
+<DD>
+<DT>
+<A NAME=".new"><CODE>new(<var>expr</var>, <var>capture</var>[, <var>optimize</var>[, <var>netmask</var>]])</CODE></A>
+<DD>
+<p>
+
+          <P>
+
+            Create a new <CODE>Filter</CODE> object.
+            <VAR>expr</VAR> is a filter string.  <VAR>capture</VAR>
+            is a <A HREF="Capture.html"><CODE>Capture</CODE></A> object.  <VAR>optimize</VAR>
+            controls optimization of resulting code.
+            <VAR>netmask</VAR> specifies the netmask of the local net.
+          </P>
+
+          <P>
+
+            Created <CODE>Filter</CODE> can be applied to packets
+            captured via <VAR>capture</VAR>.
+          </P>
+
+          <P>
+
+            If <A HREF="http://www.tcpdump.org/"><CODE>libpcap-0.5 or later</CODE></A>
+            used, one of following values can be specified
+            instead of <VAR>capture</VAR>:
+            <BLOCKQUOTE>
+<DL COMPACT>
+<DT><CODE>[snaplen, datalink]</CODE></DT><DD>an array containing required parameters</DD><DT>omitted (or <CODE>nil</CODE>)</DT><DD>Ethernet default
+                (<CODE>[68, <A HREF="Pcap.html#::DLT_EN10MB"><CODE>DLT_EN10MB</CODE></A>]</CODE>)
+                </DD></DL>
+</BLOCKQUOTE>
+
+          </P>
+
+        </p>
+</DL>
+<DT><H2>Methods:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME="==="><CODE>self === <var>packet</var></CODE></A>
+<DD>
+<DT>
+<A NAME="=~"><CODE>self =~ <var>packet</var></CODE></A>
+<DD>
+<p>
+
+          Return true if <VAR>packet</VAR> matches this filter.
+        </p>
+<DT>
+<A NAME="~self"><CODE>~ self</CODE></A>
+<DD>
+<p>
+
+          Return a <CODE>Filter</CODE> which represents
+          &quot;not <CODE>self</CODE>&quot;.
+        </p>
+<DT>
+<A NAME="|"><CODE>self | <var>other</var></CODE></A>
+<DD>
+<p>
+
+          Return a <CODE>Filter</CODE> which represents
+          &quot;<CODE>self</CODE> or <VAR>other</VAR>&quot;.
+        </p>
+<DT>
+<A NAME="&amp;"><CODE>self &amp; <var>other</var></CODE></A>
+<DD>
+<p>
+
+          Return a <CODE>Filter</CODE> which represents
+          &quot;<CODE>self</CODE> and <VAR>other</VAR>&quot;.
+        </p>
+<DT>
+<A NAME="source"><CODE>source</CODE></A>
+<DD>
+<p>
+
+          Returns the orginal string from which the filter is constructed.
+        </p>
+</DL>
+</DL>
+<HR>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</BODY>
+</HTML>

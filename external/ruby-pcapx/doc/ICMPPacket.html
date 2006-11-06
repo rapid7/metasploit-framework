@@ -1,0 +1,184 @@
+<HTML>
+<!-- THIS FILE IS GENERATED FROM ANOTHER SOURCE FILE -->
+<HEAD>
+<TITLE>ICMPPacket</TITLE>
+</HEAD>
+<BODY BGCOLOR="ffffff">
+<DL>
+<DT><H1>ICMPPacket</H1></DT>
+<DD>
+
+      <P>
+
+        A packet carrying ICMP message.
+      </P>
+
+        ICMP message formats are vary according to ICMP type.
+        Thus some fields exist in certain types of packet.  Any
+        attempt to access nonexistence field raises an exception.
+      <P>
+
+      </P>
+
+        Type, code and cksum fields are valid for any ICMP type.
+      <P>
+
+      </P>
+
+    </DD>
+<DT><H2>Super Class:</H2></DT>
+<DD><DL><DT><A HREF="IPPacket.html"><CODE>IPPacket</CODE></A></DT></DL></DD>
+<DT><H2>Methods:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME="icmp_cksum"><CODE>icmp_cksum</CODE></A>
+<DD>
+<p>
+
+          Return ICMP checksum.
+        </p>
+<DT>
+<A NAME="icmp_code"><CODE>icmp_code</CODE></A>
+<DD>
+<p>
+
+          Return ICMP code.
+        </p>
+<DT>
+<A NAME="icmp_data"><CODE>icmp_data</CODE></A>
+<DD>
+<p>
+
+          Return data portion of ICMP_ECHO/ICMP_ECHOREPLY
+          messages as <A HREF="http://www.ruby-lang.org/en/man-1.4/String.html"><CODE>String</CODE></A>
+        </p>
+<DT>
+<A NAME="icmp_gwaddr"><CODE>icmp_gwaddr</CODE></A>
+<DD>
+<p>
+
+          Return gateway address of ICMP_REDIRECT message as
+          <A HREF="IPAddress.html"><CODE>IPAddress</CODE></A>.
+        </p>
+<DT>
+<A NAME="icmp_id"><CODE>icmp_id</CODE></A>
+<DD>
+<p>
+
+          Return identifier.
+        </p>
+<DT>
+<A NAME="icmp_ip"><CODE>icmp_ip</CODE></A>
+<DD>
+<p>
+
+          Return original IP Datagram as <A HREF="IPPacket.html"><CODE>IPPacket</CODE></A>.
+        </p>
+<DT>
+<A NAME="icmp_lifetime"><CODE>icmp_lifetime</CODE></A>
+<DD>
+<p>
+
+          Return lifetime of ICMP_ROUTERADVERT message.
+        </p>
+<DT>
+<A NAME="icmp_nextmtu"><CODE>icmp_nextmtu</CODE></A>
+<DD>
+<p>
+
+          Return Next Hop MTU of ICMP_UNREACH_NEEDFRAG message
+          (See rfc1191).
+        </p>
+<DT>
+<A NAME="icmp_num_addrs"><CODE>icmp_num_addrs</CODE></A>
+<DD>
+<p>
+
+          Return number of addresses of ICMP_ROUTERADVERT message.
+        </p>
+<DT>
+<A NAME="icmp_otime"><CODE>icmp_otime</CODE></A>
+<DD>
+<DT>
+<A NAME="icmp_rtime"><CODE>icmp_rtime</CODE></A>
+<DD>
+<DT>
+<A NAME="icmp_ttime"><CODE>icmp_ttime</CODE></A>
+<DD>
+<p>
+
+          Return timestamp of
+          ICMP_TSTAMP/ICMP_TSTAMPREPLY message as <A HREF="http://www.ruby-lang.org/en/man-1.4/Time.html"><CODE>Time</CODE></A>.
+        </p>
+<DT>
+<A NAME="icmp_pptr"><CODE>icmp_pptr</CODE></A>
+<DD>
+<p>
+
+          Return error pointer of ICMP_PARAMPROB message.
+        </p>
+<DT>
+<A NAME="icmp_radv"><CODE>icmp_radv(<var>nth</var>)</CODE></A>
+<DD>
+<p>
+
+          Return <VAR>nth</VAR> address entry of
+          ICMP_ROUTERADVERT message.  Returned value is a two
+          elements array <CODE>[address, preference]</CODE>.
+        </p>
+<DT>
+<A NAME="icmp_seq"><CODE>icmp_seq</CODE></A>
+<DD>
+<p>
+
+          Return sequence number.
+        </p>
+<DT>
+<A NAME="icmp_seqle"><CODE>icmp_seqle</CODE></A>
+<DD>
+<p>
+
+          <P>
+
+            Return sequence number interpreted as little endian.
+          </P>
+
+          <P>
+
+            No small portion of <CODE>ping</CODE> command
+            implementations write sequence number in host byte
+            order.  Thus the sequence number of ICMP messages
+            transmitted from little endian host may be in little
+            endian.
+          </P>
+
+        </p>
+<DT>
+<A NAME="icmp_type"><CODE>icmp_type</CODE></A>
+<DD>
+<p>
+
+          Return ICMP type.
+        </p>
+<DT>
+<A NAME="icmp_typestr"><CODE>icmp_typestr</CODE></A>
+<DD>
+<p>
+
+          Return string describing ICMP type (e.g. &quot;echo reply&quot;).
+        </p>
+<DT>
+<A NAME="icmp_wpa"><CODE>icmp_wpa</CODE></A>
+<DD>
+<p>
+
+          Return word per address entry of ICMP_ROUTERADVERT message.
+        </p>
+</DL>
+</DL>
+<HR>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</BODY>
+</HTML>

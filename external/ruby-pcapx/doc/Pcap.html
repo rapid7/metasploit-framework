@@ -1,0 +1,113 @@
+<HTML>
+<!-- THIS FILE IS GENERATED FROM ANOTHER SOURCE FILE -->
+<HEAD>
+<TITLE>Pcap</TITLE>
+</HEAD>
+<BODY BGCOLOR="ffffff">
+<DL>
+<DT><H1>Pcap</H1></DT>
+<DD>
+
+      <CODE>Pcap</CODE> defines general methods and constants related to
+      pcap.
+    </DD>
+<DT><H2>Constants:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME="::DLT_NULL"><CODE>DLT_NULL</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_EN10MB"><CODE>DLT_EN10MB</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_EN3MB"><CODE>DLT_EN3MB</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_AX25"><CODE>DLT_AX25</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_PRONET"><CODE>DLT_PRONET</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_CHAOS"><CODE>DLT_CHAOS</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_IEEE802"><CODE>DLT_IEEE802</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_ARCNET"><CODE>DLT_ARCNET</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_SLIP"><CODE>DLT_SLIP</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_PPP"><CODE>DLT_PPP</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_FDDI"><CODE>DLT_FDDI</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_ATM_RFC1483"><CODE>DLT_ATM_RFC1483</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_RAW"><CODE>DLT_RAW</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_SLIP_BSDOS"><CODE>DLT_SLIP_BSDOS</CODE></A>
+<DD>
+<DT>
+<A NAME="::DLT_PPP_BSDOS"><CODE>DLT_PPP_BSDOS</CODE></A>
+<DD>
+<p>
+
+          Data-link type constants.
+        </p>
+</DL>
+<DT><H2>Module Methods:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME=".convert="><CODE>convert = <var>bool</var></CODE></A>
+<DD>
+<p>
+
+          Set the behavior of classes under module <CODE>Pcap</CODE>
+          when they convert IP address or other numbers to string.
+          Value <CODE>true</CODE> means that the numbers are converted
+          to their symbolic name.
+        </p>
+<DT>
+<A NAME=".convert?"><CODE>convert?</CODE></A>
+<DD>
+<p>
+
+          Return the behavior of classes under module <CODE>Pcap</CODE>
+          when they convert IP address or other numbers to string.
+          Value <CODE>true</CODE> means that the numbers are converted
+          to their symbolic name.
+        </p>
+<DT>
+<A NAME=".lookupdev"><CODE>lookupdev</CODE></A>
+<DD>
+<p>
+
+          Return a name of network device.
+        </p>
+<DT>
+<A NAME=".lookupnet"><CODE>lookupnet(<var>device</var>)</CODE></A>
+<DD>
+<p>
+
+          Return a two-element array
+          <CODE>[net, mask]</CODE>.
+          <CODE>net</CODE> is network number as <A HREF="IPAddress.html"><CODE>IPAddress</CODE></A>.
+          <CODE>mask</CODE> is netmask as <A HREF="http://www.ruby-lang.org/en/man-1.4/Integer.html"><CODE>Integer</CODE></A>.
+          Argument <VAR>device</VAR> is network device name.
+        </p>
+</DL>
+</DL>
+<HR>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</BODY>
+</HTML>

@@ -1,0 +1,148 @@
+<HTML>
+<!-- THIS FILE IS GENERATED FROM ANOTHER SOURCE FILE -->
+<HEAD>
+<TITLE>TCPPacket</TITLE>
+</HEAD>
+<BODY BGCOLOR="ffffff">
+<DL>
+<DT><H1>TCPPacket</H1></DT>
+<DD>
+
+      TCPヘッダを含むパケット。
+    </DD>
+<DT><H2>スーパークラス:</H2></DT>
+<DD><DL><DT><A HREF="IPPacket.html"><CODE>IPPacket</CODE></A></DT></DL></DD>
+<DT><H2>メソッド:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME="tcp_ack"><CODE>tcp_ack</CODE></A>
+<DD>
+<p>
+
+          Acknowledgement Number を返します。
+        </p>
+<DT>
+<A NAME="tcp_data"><CODE>tcp_data</CODE></A>
+<DD>
+<p>
+
+          データ部分を <A HREF="http://www.ruby-lang.org/ja/man-1.4/String.html"><CODE>String</CODE></A> として返します。
+        </p>
+<DT>
+<A NAME="tcp_data_len"><CODE>tcp_data_len</CODE></A>
+<DD>
+<p>
+
+          データ部分の長さを返します。
+        </p>
+<DT>
+<A NAME="tcp_dport"><CODE>tcp_dport</CODE></A>
+<DD>
+<DT>
+<A NAME="dport"><CODE>dport</CODE></A>
+<DD>
+<p>
+
+          デスティネーションポート番号を返します．
+        </p>
+<DT>
+<A NAME="tcp_flags"><CODE>tcp_flags</CODE></A>
+<DD>
+<p>
+
+          TCP フラグフィールドの値 (6 bit) を返します。
+        </p>
+<DT>
+<A NAME="tcp_flags_s"><CODE>tcp_flags_s</CODE></A>
+<DD>
+<p>
+
+          TCP フラグフィールドの値 (6 bit) を
+          <CODE>&quot;.A...F&quot;</CODE> といった形式の文字列として返します。
+        </p>
+<DT>
+<A NAME="tcp_fin?"><CODE>tcp_fin?</CODE></A>
+<DD>
+<DT>
+<A NAME="tcp_syn?"><CODE>tcp_syn?</CODE></A>
+<DD>
+<DT>
+<A NAME="tcp_rst?"><CODE>tcp_rst?</CODE></A>
+<DD>
+<DT>
+<A NAME="tcp_psh?"><CODE>tcp_psh?</CODE></A>
+<DD>
+<DT>
+<A NAME="tcp_ack?"><CODE>tcp_ack?</CODE></A>
+<DD>
+<DT>
+<A NAME="tcp_urg?"><CODE>tcp_urg?</CODE></A>
+<DD>
+<p>
+
+          フラグが立っていれば<CODE>true</CODE>を，そうでなければ
+          <CODE>false</CODE>を返します．
+        </p>
+<DT>
+<A NAME="tcp_off"><CODE>tcp_off</CODE></A>
+<DD>
+<DT>
+<A NAME="tcp_hlen"><CODE>tcp_hlen</CODE></A>
+<DD>
+<p>
+
+          TCP データオフセット(TCPヘッダ長)を返します。
+        </p>
+<DT>
+<A NAME="tcp_seq"><CODE>tcp_seq</CODE></A>
+<DD>
+<p>
+
+          Sequence Number を返します。
+        </p>
+<DT>
+<A NAME="tcp_sum"><CODE>tcp_sum</CODE></A>
+<DD>
+<p>
+
+          Checksum フィールドの値を返します。
+        </p>
+<DT>
+<A NAME="tcp_sport"><CODE>tcp_sport</CODE></A>
+<DD>
+<DT>
+<A NAME="sport"><CODE>sport</CODE></A>
+<DD>
+<p>
+
+          ソースポート番号を返します．
+        </p>
+<DT>
+<A NAME="tcp_urp"><CODE>tcp_urp</CODE></A>
+<DD>
+<p>
+
+          Urgent Pointer フィールドの値を返します。
+        </p>
+<DT>
+<A NAME="tcp_win"><CODE>tcp_win</CODE></A>
+<DD>
+<p>
+
+          Window Size を返します。
+        </p>
+<DT>
+<A NAME="to_s"><CODE>to_s</CODE></A>
+<DD>
+<p>
+
+          文字列に変換します。
+        </p>
+</DL>
+</DL>
+<HR>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</BODY>
+</HTML>

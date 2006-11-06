@@ -1,0 +1,108 @@
+<HTML>
+<!-- THIS FILE IS GENERATED FROM ANOTHER SOURCE FILE -->
+<HEAD>
+<TITLE>Pcaplet</TITLE>
+</HEAD>
+<BODY BGCOLOR="ffffff">
+<DL>
+<DT><H1>Pcaplet</H1></DT>
+<DD>
+
+      <P>
+
+        <CODE>Pcaplet</CODE> provides a template for packet monitoring tool
+        using <A HREF="Capture.html"><CODE>Capture</CODE></A>.
+        You need to <CODE>require 'pcaplet'</CODE> to use this class.
+      </P>
+
+      <P>
+
+        Typical usage:
+        <blockquote>
+<pre>require 'pcaplet'
+
+my_tool = Pcaplet.new
+my_tool.each_packet {|pkt|
+  # code for processing pkt
+}
+my_tool.close
+        </pre>
+</blockquote>
+
+      </P>
+
+      <P>
+
+        <CODE>Pcaplet</CODE> interprets filter expression specified in
+        command line and following command line options as tcpdump does.
+        <blockquote>
+<pre>-i -r -c -s -n
+</pre>
+</blockquote>
+
+        '<CODE>-r</CODE>' option can handle gzipped file.
+      </P>
+
+    </DD>
+<DT><H2>Super Class:</H2></DT>
+<DD><DL><DT><A HREF="http://www.ruby-lang.org/en/man-1.4/Object.html"><CODE>Object</CODE></A></DT></DL></DD>
+<DT><H2>Class Methods:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME=".new"><CODE>new([<var>option</var>])</CODE></A>
+<DD>
+<p>
+
+          Generate <CODE>Pcaplet</CODE> instance.  Command line
+          analysis and device open is performed.
+          <VAR>option</VAR> is added to command line options.
+        </p>
+</DL>
+<DT><H2>Methods:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME="add_filter"><CODE>add_filter(<var>filter</var>)</CODE></A>
+<DD>
+<p>
+
+          Add <VAR>filter</VAR> to the filter specified in command line.
+          Filter is set as follows.
+          <blockquote>
+<pre>&quot;( current_filter ) and ( filter )&quot;
+</pre>
+</blockquote>
+
+        </p>
+<DT>
+<A NAME="each_packet"><CODE>each_packet {|<var>packet</var>|...}</CODE></A>
+<DD>
+<DT>
+<A NAME="each"><CODE>each {|<var>packet</var>|...}</CODE></A>
+<DD>
+<p>
+
+          Iterate over each packet.  The argument given to the block
+          is an instance of <A HREF="Packet.html"><CODE>Packet</CODE></A> or its sub-class.
+        </p>
+<DT>
+<A NAME="capture"><CODE>capture</CODE></A>
+<DD>
+<p>
+
+          Return <A HREF="Capture.html"><CODE>Capture</CODE></A> object which is used internally.
+        </p>
+<DT>
+<A NAME="close"><CODE>close</CODE></A>
+<DD>
+<p>
+
+          Close underlying device.
+        </p>
+</DL>
+</DL>
+<HR>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</BODY>
+</HTML>

@@ -1,0 +1,112 @@
+<HTML>
+<!-- THIS FILE IS GENERATED FROM ANOTHER SOURCE FILE -->
+<HEAD>
+<TITLE>Filter</TITLE>
+</HEAD>
+<BODY BGCOLOR="ffffff">
+<DL>
+<DT><H1>Filter</H1></DT>
+<DD>
+
+      <CODE>Filter</CODE> はパケットが、ある条件にマッチするかど
+      うかを判定します。<CODE>Filter</CODE> は実際には
+      <CODE>bpf_program</CODE> へのラッパーとして作られています。
+      フィルタの記述方法に関しては <CODE>tcpdump(1)</CODE>
+      を参照して下さい。
+    </DD>
+<DT><H2>スーパークラス:</H2></DT>
+<DD><DL><DT><A HREF="http://www.ruby-lang.org/ja/man-1.4/Object.html"><CODE>Object</CODE></A></DT></DL></DD>
+<DT><H2>クラスメソッド:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME=".compile"><CODE>compile(<var>expr</var>, <var>capture</var>[, <var>optimize</var>[, <var>netmask</var>]])</CODE></A>
+<DD>
+<DT>
+<A NAME=".new"><CODE>new(<var>expr</var>, <var>capture</var>[, <var>optimize</var>[, <var>netmask</var>]])</CODE></A>
+<DD>
+<p>
+
+          <P>
+
+            <CODE>Filter</CODE>オブジェクトを生成します。
+            <VAR>expr</VAR> はフィルタの文字列です。<VAR>capture</VAR>
+            は <A HREF="Capture.html"><CODE>Capture</CODE></A> オブジェクトです。<VAR>optimize</VAR>
+            で最適化を行うかどうかを制御します。
+            <VAR>netmask</VAR> によりローカルネットのネットマスク
+            を指定します。
+          </P>
+
+          <P>
+
+            生成された <CODE>Filter</CODE> は <VAR>capture</VAR>
+            から取り込まれたパケットに対してのみ適用できます。
+          </P>
+
+          <P>
+
+            <A HREF="http://www.tcpdump.org/"><CODE>libpcap-0.5以降</CODE></A>
+            を使用している場合には <VAR>capture</VAR>
+            の部分に、以下の値を指定することもできます。
+            <BLOCKQUOTE>
+<DL COMPACT>
+<DT><CODE>[snaplen, datalink]</CODE></DT><DD>配列で必要なパラメータを直接与える</DD><DT>省略 (または<CODE>nil</CODE>)</DT><DD>Ethernetでのデフォルトとみなす
+                (<CODE>[68, <A HREF="Pcap.html#::DLT_EN10MB"><CODE>DLT_EN10MB</CODE></A>]</CODE>)
+                </DD></DL>
+</BLOCKQUOTE>
+
+          </P>
+
+        </p>
+</DL>
+<DT><H2>メソッド:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME="==="><CODE>self === <var>packet</var></CODE></A>
+<DD>
+<DT>
+<A NAME="=~"><CODE>self =~ <var>packet</var></CODE></A>
+<DD>
+<p>
+
+          <VAR>packet</VAR> がこのフィルタにマッチすればtrueを返
+          します。
+        </p>
+<DT>
+<A NAME="~self"><CODE>~ self</CODE></A>
+<DD>
+<p>
+
+          「 <CODE>self</CODE>ではない」という条件を表
+          す<CODE>Filter</CODE>を返します。
+        </p>
+<DT>
+<A NAME="|"><CODE>self | <var>other</var></CODE></A>
+<DD>
+<p>
+
+          「 <CODE>self</CODE>または<VAR>other</VAR> 」という条件を表
+          す<CODE>Filter</CODE>を返します。
+        </p>
+<DT>
+<A NAME="&amp;"><CODE>self &amp; <var>other</var></CODE></A>
+<DD>
+<p>
+
+          「 <CODE>self</CODE>かつ<VAR>other</VAR> 」という条件を表
+          す<CODE>Filter</CODE>を返します。
+        </p>
+<DT>
+<A NAME="source"><CODE>source</CODE></A>
+<DD>
+<p>
+
+          フィルタの元となった文字列を返します。
+        </p>
+</DL>
+</DL>
+<HR>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</BODY>
+</HTML>

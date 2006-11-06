@@ -1,0 +1,113 @@
+<HTML>
+<!-- THIS FILE IS GENERATED FROM ANOTHER SOURCE FILE -->
+<HEAD>
+<TITLE>Pcaplet</TITLE>
+</HEAD>
+<BODY BGCOLOR="ffffff">
+<DL>
+<DT><H1>Pcaplet</H1></DT>
+<DD>
+
+      <P>
+
+        <A HREF="Capture.html"><CODE>Capture</CODE></A>を使うパケット処理ツールの雛形を提供するクラスで
+        す。
+        使うときは<CODE>'pcaplet'</CODE> を <CODE>require</CODE>して下
+        さい。
+      </P>
+
+      <P>
+
+        典型的な使い方:
+        <blockquote>
+<pre>require 'pcaplet'
+
+my_tool = Pcaplet.new
+my_tool.each_packet {|pkt|
+  # pkt について処理を行なうコード
+}
+my_tool.close
+        </pre>
+</blockquote>
+
+      </P>
+
+      <P>
+
+        コマンドラインで指定されたフィルタ、および
+        以下のコマンドラインオプションを tcpdump と同様に解釈します。
+        <blockquote>
+<pre>-i -r -c -s -n
+</pre>
+</blockquote>
+
+        '<CODE>-r</CODE>' オプションでは、gzipで圧縮されたファイルを読
+        み込むこともできます。
+      </P>
+
+    </DD>
+<DT><H2>スーパークラス:</H2></DT>
+<DD><DL><DT><A HREF="http://www.ruby-lang.org/ja/man-1.4/Object.html"><CODE>Object</CODE></A></DT></DL></DD>
+<DT><H2>クラスメソッド:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME=".new"><CODE>new([<var>option</var>])</CODE></A>
+<DD>
+<p>
+
+          <CODE>Pcaplet</CODE>オブジェクトを生成します。コマンドライン
+          の解析とデバイスのオープンが行なわれます。
+          <VAR>option</VAR>を指定すると、コマンドラインオプションに
+          追加されます。
+        </p>
+</DL>
+<DT><H2>メソッド:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME="add_filter"><CODE>add_filter(<var>filter</var>)</CODE></A>
+<DD>
+<p>
+
+          コマンドラインで指定されたフィルタ加えて、さらに 
+          <VAR>filter</VAR>を追加します。実際にはフィルタを以下のよ
+          うに設定します。
+          <blockquote>
+<pre>&quot;( current_filter ) and ( filter )&quot;
+</pre>
+</blockquote>
+
+        </p>
+<DT>
+<A NAME="each_packet"><CODE>each_packet {|<var>packet</var>|...}</CODE></A>
+<DD>
+<DT>
+<A NAME="each"><CODE>each {|<var>packet</var>|...}</CODE></A>
+<DD>
+<p>
+
+          各パケットに対して繰り返します。ブロックには
+          <A HREF="Packet.html"><CODE>Packet</CODE></A>クラスかそのサブクラスのインスタンスが渡されま
+          す。
+        </p>
+<DT>
+<A NAME="capture"><CODE>capture</CODE></A>
+<DD>
+<p>
+
+          内部で使用している <A HREF="Capture.html"><CODE>Capture</CODE></A> オブジェクトを返します。
+        </p>
+<DT>
+<A NAME="close"><CODE>close</CODE></A>
+<DD>
+<p>
+
+          デバイスをクローズします。
+        </p>
+</DL>
+</DL>
+<HR>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</BODY>
+</HTML>

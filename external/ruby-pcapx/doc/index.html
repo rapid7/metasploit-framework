@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Ruby/Pcap Library</title>
+</head>
+
+<body bgcolor="ffffff">
+<h1>Ruby/Pcap extension library</h1>
+
+Ruby interface to LBL libpcap (Packet Capture library).
+
+<h2>Modules</h2>
+<ul>
+  <li><a href="Pcap.html"><code>Pcap</code></a>
+</ul>
+
+<h2>Classes</h2>
+
+Following classes are defined under module <code>Pcap</code>.
+When you use these classes, you need to <code>include</code> module
+<code>Pcap</code> or refer them like <code>Pcap::Capture</code>.
+
+<ul>
+  <li><a href="Capture.html"><code>Capture</code></a>
+  <li><a href="Pcaplet.html"><code>Pcaplet</code></a>
+  <li><a href="Packet.html"><code>Packet</code></a>
+      <ul>
+	<li><a href="IPPacket.html"><code>IPPacket</code></a>
+	    <ul>
+	      <li><a href="TCPPacket.html"><code>TCPPacket</code></a>
+	      <li><a href="UDPPacket.html"><code>UDPPacket</code></a>
+	      <li><a href="ICMPPacket.html"><code>ICMPPacket</code></a>
+	    </ul>
+      </ul>
+  <li><a href="IPAddress.html"><code>IPAddress</code></a>
+  <li><a href="Dumper.html"><code>Dumper</code></a>
+  <li><a href="Filter.html"><code>Filter</code></a>
+</ul>
+
+<h2>Exceptions</h2>
+
+<ul>
+  <li><a href="PcapError.html"><code>PcapError</code></a>
+      <ul>
+	<li><a href="TruncatedPacket.html"><code>TruncatedPacket</code></a>
+      </ul>
+</ul>
+
+<hr>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">
+fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</body> </html>

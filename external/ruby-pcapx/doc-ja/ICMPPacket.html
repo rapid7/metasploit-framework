@@ -1,0 +1,189 @@
+<HTML>
+<!-- THIS FILE IS GENERATED FROM ANOTHER SOURCE FILE -->
+<HEAD>
+<TITLE>ICMPPacket</TITLE>
+</HEAD>
+<BODY BGCOLOR="ffffff">
+<DL>
+<DT><H1>ICMPPacket</H1></DT>
+<DD>
+
+      <P>
+
+        ICMPメッセージを含むパケット。
+      </P>
+
+      <P>
+
+        ICMPメッセージのフォーマットはICMPタイプによって異なりま
+        す。そのため特定のICMPタイプのパケットにしか存在しないフィー
+        ルドがあります。存在しないフィールドにアクセスしようとす
+        ると例外が発生します。
+      </P>
+
+      <P>
+
+        どのICMPタイプに対しても有効なフィールドは type, code,
+        cksum です。
+      </P>
+
+    </DD>
+<DT><H2>スーパークラス:</H2></DT>
+<DD><DL><DT><A HREF="IPPacket.html"><CODE>IPPacket</CODE></A></DT></DL></DD>
+<DT><H2>メソッド:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME="icmp_cksum"><CODE>icmp_cksum</CODE></A>
+<DD>
+<p>
+
+          ICMPチェックサムを返します。
+        </p>
+<DT>
+<A NAME="icmp_code"><CODE>icmp_code</CODE></A>
+<DD>
+<p>
+
+          ICMPコードを返します。
+        </p>
+<DT>
+<A NAME="icmp_data"><CODE>icmp_data</CODE></A>
+<DD>
+<p>
+
+          ICMP_ECHO/ICMP_ECHOREPLYメッセージのデータ部分を
+          <A HREF="http://www.ruby-lang.org/ja/man-1.4/String.html"><CODE>String</CODE></A>として返します。
+        </p>
+<DT>
+<A NAME="icmp_gwaddr"><CODE>icmp_gwaddr</CODE></A>
+<DD>
+<p>
+
+          ICMP_REDIRECTメッセージのゲートウェイアドレスを
+          <A HREF="IPAddress.html"><CODE>IPAddress</CODE></A>として返します。
+        </p>
+<DT>
+<A NAME="icmp_id"><CODE>icmp_id</CODE></A>
+<DD>
+<p>
+
+          識別子を返します。
+        </p>
+<DT>
+<A NAME="icmp_ip"><CODE>icmp_ip</CODE></A>
+<DD>
+<p>
+
+          元のIPデータグラムを<A HREF="IPPacket.html"><CODE>IPPacket</CODE></A>として返します。
+        </p>
+<DT>
+<A NAME="icmp_lifetime"><CODE>icmp_lifetime</CODE></A>
+<DD>
+<p>
+
+          ICMP_ROUTERADVERTメッセージの有効時間を返します。
+        </p>
+<DT>
+<A NAME="icmp_nextmtu"><CODE>icmp_nextmtu</CODE></A>
+<DD>
+<p>
+
+          ICMP_UNREACH_NEEDFRAGメッセージの Next Hop MTU を返しま
+          す。(参照: rfc1191)
+        </p>
+<DT>
+<A NAME="icmp_num_addrs"><CODE>icmp_num_addrs</CODE></A>
+<DD>
+<p>
+
+          ICMP_ROUTERADVERTメッセージのアドレス数を返します。
+        </p>
+<DT>
+<A NAME="icmp_otime"><CODE>icmp_otime</CODE></A>
+<DD>
+<DT>
+<A NAME="icmp_rtime"><CODE>icmp_rtime</CODE></A>
+<DD>
+<DT>
+<A NAME="icmp_ttime"><CODE>icmp_ttime</CODE></A>
+<DD>
+<p>
+
+          ICMP_TSTAMP/ICMP_TSTAMPREPLYメッセージのタイムス
+          タンプを<A HREF="http://www.ruby-lang.org/ja/man-1.4/Time.html"><CODE>Time</CODE></A>として返します。
+        </p>
+<DT>
+<A NAME="icmp_pptr"><CODE>icmp_pptr</CODE></A>
+<DD>
+<p>
+
+          ICMP_PARAMPROBメッセージのエラーポインタを返します。
+        </p>
+<DT>
+<A NAME="icmp_radv"><CODE>icmp_radv(<var>nth</var>)</CODE></A>
+<DD>
+<p>
+
+          ICMP_ROUTERADVERTメッセージの<VAR>nth</VAR>番目のアドレ
+          スエントリを返します。返り値は <CODE>[address,
+          preference]</CODE>なる2要素の配列です。
+        </p>
+<DT>
+<A NAME="icmp_seq"><CODE>icmp_seq</CODE></A>
+<DD>
+<p>
+
+          シーケンス番号を返します。
+        </p>
+<DT>
+<A NAME="icmp_seqle"><CODE>icmp_seqle</CODE></A>
+<DD>
+<p>
+
+          <P>
+
+            リトルエンディアンとして読みとったシーケンス番号を返し
+            ます。
+          </P>
+
+          <P>
+
+            多くの<CODE>ping</CODE>コマンドの実装はシーケンス番
+            号をホストバイトオーダーで書き込みます。したがって、
+            リトルエンディアンのホストから送信されたICMPメッセー
+            ジのシーケンス番号はリトルエンディアンになっている可
+            能性があります。
+          </P>
+
+
+        </p>
+<DT>
+<A NAME="icmp_type"><CODE>icmp_type</CODE></A>
+<DD>
+<p>
+
+          ICMPタイプを返します。
+        </p>
+<DT>
+<A NAME="icmp_typestr"><CODE>icmp_typestr</CODE></A>
+<DD>
+<p>
+
+          ICMPタイプを表す文字列を返します。(例: &quot;echo reply&quot;)
+        </p>
+<DT>
+<A NAME="icmp_wpa"><CODE>icmp_wpa</CODE></A>
+<DD>
+<p>
+
+          ICMP_ROUTERADVERTメッセージのアドレスエントリ長(単位:
+          32-bit word)を返します。
+        </p>
+</DL>
+</DL>
+<HR>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</BODY>
+</HTML>

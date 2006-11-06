@@ -1,0 +1,54 @@
+<HTML>
+<!-- THIS FILE IS GENERATED FROM ANOTHER SOURCE FILE -->
+<HEAD>
+<TITLE>Dumper</TITLE>
+</HEAD>
+<BODY BGCOLOR="ffffff">
+<DL>
+<DT><H1>Dumper</H1></DT>
+<DD>
+
+      パケットを tcpdump 形式のファイルに書き出すクラス。生成したファイルは
+      tcpdump や<A HREF="Capture.html#.open_offline"><CODE>Capture.open_offline</CODE></A>を使って読むことができます。
+    </DD>
+<DT><H2>スーパークラス:</H2></DT>
+<DD><DL><DT><A HREF="http://www.ruby-lang.org/ja/man-1.4/Object.html"><CODE>Object</CODE></A></DT></DL></DD>
+<DT><H2>クラスメソッド:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME=".open"><CODE>open(<var>capture</var>, <var>filename</var>)</CODE></A>
+<DD>
+<p>
+
+          <VAR>capture</VAR>から取り込んだパケットを
+          <VAR>filename</VAR>に書き出すための<CODE>Dumper</CODE>を返し
+          ます。
+        </p>
+</DL>
+<DT><H2>メソッド:</H2></DT>
+<DL COMPACT>
+<DT>
+<A NAME="close"><CODE>close</CODE></A>
+<DD>
+<p>
+
+          <CODE>Dumper</CODE>オブジェクトをクローズします。
+        </p>
+<DT>
+<A NAME="dump"><CODE>dump(<var>packet</var>)</CODE></A>
+<DD>
+<p>
+
+          <VAR>packet</VAR>をこの<CODE>Dumper</CODE>に書き出します。
+          <VAR>packet</VAR>はこの<CODE>Dumper</CODE>をオープンする時に
+          指定した<A HREF="Capture.html"><CODE>Capture</CODE></A>から取り込まれたものでなければなりま
+          せん。
+        </p>
+</DL>
+</DL>
+<HR>
+<P ALIGN="RIGHT">
+<A HREF="mailto:fukusima@goto.info.waseda.ac.jp">fukusima@goto.info.waseda.ac.jp</A><BR>
+</P>
+</BODY>
+</HTML>
