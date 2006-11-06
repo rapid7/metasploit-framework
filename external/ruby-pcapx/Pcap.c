@@ -716,7 +716,7 @@ filter_not(self)
  */
 
 void
-Init_pcap(void)
+Init_PcapX(void)
 {
     DEBUG_PRINT("Init_PcapX");
 

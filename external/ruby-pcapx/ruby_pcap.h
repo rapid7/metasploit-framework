@@ -99,7 +99,7 @@ extern VALUE mPcap, rbpcap_convert;
 extern VALUE ePcapError;
 extern VALUE eTruncatedPacket;
 extern VALUE cFilter;
-void Init_pcap(void);
+void Init_PcapX(void);
 VALUE filter_match(VALUE self, VALUE v_pkt);
 
 /* packet.c */

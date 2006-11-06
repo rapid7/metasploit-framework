@@ -34,7 +34,7 @@ LIBRUBYARG_SHARED = -Wl,-R -Wl,$(libdir) -L$(libdir) -L. -l$(RUBY_SO_NAME)
 LIBRUBYARG_STATIC = -l$(RUBY_SO_NAME)-static
 
 RUBY_EXTCONF_H = 
-CFLAGS   =  -fPIC -I/usr/local/include 
+CFLAGS   =  -fPIC -I/usr/local/include -ggdb 
 INCFLAGS = -I. -I. -I/usr/lib/ruby/1.8/i686-linux -I.
 CPPFLAGS = -DHAVE_HSTRERROR -DHAVE_PCAP_H -DHAVE_PCAP_COMPILE_NOPCAP 
 CXXFLAGS = $(CFLAGS) 

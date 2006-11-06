@@ -30,7 +30,7 @@ module PcapX
 
       @device = $OPT_i
       @rfile = $OPT_r
-      Pcap.convert = !$OPT_n
+      PcapX.convert = !$OPT_n
       @count   = $OPT_c.to_i
       @snaplen = $OPT_s.to_i
       @filter = ARGV.join(' ')
@@ -38,7 +38,7 @@ module PcapX
       # check option consistency
       usage(1) if @device && @rfile
       if !@device and !@rfile
-        @device = Pcap.lookupdev
+        @device = PcapX.lookupdev
       end
 
       # open
@@ -110,4 +110,4 @@ module PcapX
   end
 end
 
-PcapletX = Pcap::PcapletX
+PcapletX = PcapX::PcapletX

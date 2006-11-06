@@ -66,7 +66,7 @@ static struct datalink_type datalinks[] = {
 	{ DLT_IEEE802_11_RADIO, -1, -1 }, /* radiotap is padded to 64 bytes */
 	{ DLT_IEEE802_11_RADIO_AVS, -1, -1 },
 	{ DLT_LINUX_SLL, -1, -1 },
-	{ DLT_PRISM_HEADER, -1, -1  },
+	{ DLT_PRISM_HEADER, -1, -1 },
 	{ DLT_AIRONET_HEADER, -1, -1 },
 	{ 255, 0, 0 }
 };
@@ -97,8 +97,8 @@ new_packet(data, pkthdr, dl_type)
     if (t == -1)
 		rb_raise(ePcapError, "Unknown data-link type (%d)", dl_type);
     
-    nltype_off  = datalinks[dl_type].nltype_off;
-    nl_off      = datalinks[dl_type].nl_off;
+    nltype_off  = datalinks[t].nltype_off;
+    nl_off      = datalinks[t].nl_off;
 
 	/* parse the DLT header to figure it out */
     if (nltype_off == -1) {
@@ -106,14 +106,16 @@ new_packet(data, pkthdr, dl_type)
 		switch(dl_type) {
 			case DLT_LINUX_SLL:
 			default:
+				nltype_off = -1;
+				nl_off = 0;					
 				break;			
 		}
-	
-		/* assume this is raw IP */
+
+	/* assume this is raw IP */
 	} else if (nltype_off == -2) {
 		nl_type = ETHERTYPE_IP;
+	/* assume Ether Type value */		
 	} else {
-		/* assume Ether Type value */
 		nl_type = ntohs(*(u_short *)(data + nltype_off));
     }
 
@@ -129,6 +131,7 @@ new_packet(data, pkthdr, dl_type)
     pkt->hdr.pkthdr	= *pkthdr;
     pkt->data = (u_char *)pkt + sizeof(*pkt) + pad;
     pkt->udata = Qnil;
+	
     memcpy(pkt->data, data, pkthdr->caplen);
 
     nl_len = pkthdr->caplen - nl_off;
