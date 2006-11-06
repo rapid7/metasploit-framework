@@ -1,13 +1,9 @@
 #!/usr/bin/env ruby
 
-require 'msflorcon'
+$:.unshift(File.dirname(__FILE__))
+require "Lorcon"
 
-if (not MSFLorcon.loaded)
-	$stderr.puts "Error: msflorcon could not be loaded"
-	exit(0)
-end
-
-$stdout.puts "Drivers: " + MSFLorcon.driverlist.join(", ")
+$stdout.puts "Drivers: " + Lorcon.drivers.join(", ")
 
 # Beacon frame from tx.c
 packet = [
@@ -28,7 +24,7 @@ packet = [
 	0x50, 0xf2, 0x02
 ].pack('C*')
 
-tx = MSFLorcon.open('ath0', 'madwifi', 1)
+tx = Lorcon::Device.new('ath0', 'madwifi', 1)
 
 sa = Time.now.to_f
 tx.write(packet, 500, 0)
@@ -38,7 +34,5 @@ sb = Time.now.to_f
 1.upto(500) { |i| tx.write(packet, 11, 0) }
 eb = Time.now.to_f - sb
 
-tx.close
-
-$stdout.puts "Sent 500 packets (C) in #{ea.to_s}"
-$stdout.puts "Sent 500 packets (Ruby) in #{eb.to_s}"
+$stdout.puts "Sent 500 packets (C) in #{ea.to_s} seconds"
+$stdout.puts "Sent 500 packets (Ruby) in #{eb.to_s} seconds"

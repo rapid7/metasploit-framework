@@ -4,3 +4,7 @@ available on Linux and with lorcon-supported wireless drivers.
 
 For more information, please see the lorcon documentation and code:
 http://www.802.11mercenary.net/lorcon/
+
+To build this extension:
+$ ruby extconf.rb
+$ make
