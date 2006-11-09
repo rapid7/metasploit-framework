@@ -1,5 +1,5 @@
 require 'base64'
-require 'md5'
+require 'digest/md5'
 require 'stringio'
 
 begin
@@ -429,14 +429,14 @@ module Text
 	# Raw MD5 digest of the supplied string
 	#
 	def self.md5_raw(str)
-		MD5.digest(str)	
+		Digest::MD5.digest(str)	
 	end
 
 	#
 	# Hexidecimal MD5 digest of the supplied string
 	#
 	def self.md5(str)
-		MD5.hexdigest(str)
+		Digest::MD5.hexdigest(str)
 	end
 
 	##
