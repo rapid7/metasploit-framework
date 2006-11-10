@@ -62,12 +62,12 @@ static struct datalink_type datalinks[] = {
 	{ DLT_RAW, -2, 0 },
 	{ DLT_SLIP_BSDOS, -2, 24 },
 	{ DLT_PPP_BSDOS, -2, 24 },	
-	{ DLT_IEEE802_11, -1 -1 },
-	{ DLT_IEEE802_11_RADIO, -1, -1 }, /* radiotap is padded to 64 bytes */
-	{ DLT_IEEE802_11_RADIO_AVS, -1, -1 },
-	{ DLT_LINUX_SLL, -1, -1 },
-	{ DLT_PRISM_HEADER, -1, -1 },
-	{ DLT_AIRONET_HEADER, -1, -1 },
+	{ DLT_IEEE802_11, -1, 0 },
+	{ DLT_IEEE802_11_RADIO, -1, 0 }, /* radiotap is padded to 64 bytes */
+	{ DLT_IEEE802_11_RADIO_AVS, -1, 0 },
+	{ DLT_LINUX_SLL, -1, 0 },
+	{ DLT_PRISM_HEADER, -1, 0 },
+	{ DLT_AIRONET_HEADER, -1, 0 },
 	{ 255, 0, 0 }
 };
 
@@ -81,6 +81,7 @@ new_packet(data, pkthdr, dl_type)
     VALUE class;
     struct packet_object *pkt;
     int nl_off, nl_len, nltype_off, nl_type, pad, i;
+	unsigned short *f;
 	int t = -1;
 
     DEBUG_PRINT("new_packet");
@@ -106,19 +107,27 @@ new_packet(data, pkthdr, dl_type)
 		switch(dl_type) {
 			case DLT_LINUX_SLL:
 			default:
-				nltype_off = -1;
-				nl_off = 0;					
+				if (pkthdr->caplen > 16) {
+					f = (unsigned short *)(data + 4);
+					i = ntohs(*f);
+					if (pkthdr->caplen > i + 16 ) {
+						nltype_off = i + 14;
+						nl_off = i + 16;
+					}
+				}
 				break;			
 		}
-
+	}
+	
 	/* assume this is raw IP */
-	} else if (nltype_off == -2) {
+	if (nltype_off == -2) {
 		nl_type = ETHERTYPE_IP;
 	/* assume Ether Type value */		
-	} else {
+	} else if (nltype_off != -1) {
 		nl_type = ntohs(*(u_short *)(data + nltype_off));
-    }
+	}
 
+	
     /* alloc memory and setup packet_object */
     pad = nl_off % 4;	/* align network layer header */
     pkt = xmalloc(sizeof(*pkt) + pad + pkthdr->caplen);

@@ -8,3 +8,5 @@ http://www.802.11mercenary.net/lorcon/
 To build this extension:
 $ ruby extconf.rb
 $ make
+$ su
+# make install
