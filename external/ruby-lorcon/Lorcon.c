@@ -159,6 +159,6 @@ void Init_Lorcon() {
 	cDevice = rb_define_class_under(mLorcon, "Device", rb_cObject);
 	rb_define_singleton_method(cDevice, "new", lorcon_driver_open, -1);
 	rb_define_method(cDevice, "channel", lorcon_driver_get_channel, 0);
-	rb_define_method(cDevice, "channel=", lorcon_driver_set_channel, 0);
+	rb_define_method(cDevice, "channel=", lorcon_driver_set_channel, 1);
 	rb_define_method(cDevice, "write", lorcon_driver_write, -1);
 }
