@@ -204,6 +204,7 @@ class SwitchBoard
 	# Finds the best possible comm for the supplied target address.
 	#
 	def best_comm(addr)
+
 		addr_nbo = Socket.resolv_nbo_i(addr)
 		comm     = nil
 		msb      = 0
@@ -225,6 +226,7 @@ class SwitchBoard
 	# Remove all routes that go through the supplied comm.
 	#
 	def remove_by_comm(comm)
+		_init
 		mutex.synchronize {
 			routes.delete_if { |route|
 				route.comm == comm

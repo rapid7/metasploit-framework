@@ -9,7 +9,7 @@ class Auxiliary::Dos::Wireless::APFlood < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,	
-			'Name'           => 'Wireless Fake AP Beacon Flood',
+			'Name'           => 'Wireless Fake Access Point Beacon Flood',
 			'Description'    => %q{
 				This module advertises thousands of fake access
 			points, using random SIDs and BSSID addresses. Inspired
@@ -29,14 +29,10 @@ class Auxiliary::Dos::Wireless::APFlood < Msf::Auxiliary
 			wifi.write(create_frame())
 		end
 	end
-	
-	def eton(addr)
-		addr.split(':').map { |c| c.hex.chr }.join
-	end
 
 	def create_frame
 
-		ssid     = Rex::Text.rand_text_alpha(rand(32)+1)
+		ssid     = Rex::Text.rand_text_alpha(rand(31)+1)
 		bssid    = Rex::Text.rand_text(6)
 		seq      = [rand(255)].pack('n')
 		
