@@ -19,7 +19,8 @@ Metasploit Framework v3.0
 		
 	* The persist command is not functional yet
 	* Tab completion stops functioning after meterpreter is loaded
-
+	* Does not load user modules if ~/.msf3/modules is a symlink
+	
 [msfweb]
 	* Exploits are not functional
 	* Path information disclosed in stack traces
