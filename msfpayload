@@ -76,6 +76,9 @@ if (cmd =~ /^(p|r|c|j|x)/)
 			
 		arch = payload.arch
 		plat = payload.platform.platforms
+
+		# Automatically prepend stack adjustment
+		buf = Rex::Arch.adjust_stack_pointer('x86', -3500) + buf
 		
 		if (plat.index(Msf::Module::Platform::Windows) and arch.index("x86"))
 			buf = Rex::Text.to_win32pe(buf, note)
