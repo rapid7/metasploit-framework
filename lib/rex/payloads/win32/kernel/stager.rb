@@ -58,14 +58,14 @@ protected
 	#
 	# This stub is used by stagers to check to see if the code is
 	# running in the context of a user-mode system process.  By default,
-	# this process is spoolsv.exe.  If it isn't, it runs the code
+	# this process is lsass.exe.  If it isn't, it runs the code
 	# specified by append.  Otherwise, it jumps past that code and
 	# into what should be the expected r3 payload to execute.  This
 	# stub also makes sure that the payload does not run more than
 	# once.
 	#
 	def self._run_only_in_win32proc_stub(append = '', opts = {}) 
-		opts['RunInWin32Process'] = "spoolsv.exe" if opts['RunInWin32Process'].nil?
+		opts['RunInWin32Process'] = "lsass.exe" if opts['RunInWin32Process'].nil?
 
 		process  = opts['RunInWin32Process'].downcase
 		checksum = 
