@@ -28,7 +28,8 @@ class Auxiliary
 			"run"   => "Launches the auxiliary module",
 			"rerun" => "Reloads and launches the auxiliary module",
 			"exploit" => "This is an alias for the run command",
-			"rexploit" => "This is an alias for the rerun command"
+			"rexploit" => "This is an alias for the rerun command",
+			"reload"   => "Reloads the auxiliary module"
 		}.merge( (mod ? mod.auxiliary_commands : {}) )
 	end
 
@@ -36,7 +37,14 @@ class Auxiliary
 	# Allow modules to define their own commands
 	#
 	def method_missing(meth, *args)
-		if (mod and mod.respond_to?(meth.to_s)) 
+		if (mod and mod.respond_to?(meth.to_s))
+			
+			# Verify the options
+			mod.options.validate(mod.datastore)
+
+			# Initialize user interaction
+			mod.init_ui(driver.input, driver.output)
+		
 			return mod.send(meth.to_s, *args)
 		end
 		return
@@ -58,12 +66,22 @@ class Auxiliary
 	end
 	
 	#
+	# Reloads an auxiliary module
+	#	
+	def cmd_reload(*args)
+		begin
+			self.mod = framework.modules.reload_module(mod)
+		rescue
+			log_error("Failed to reload: #{$!}")
+		end	
+	end
+	
+	#
 	# Reloads an auxiliary module and executes it
 	#
 	def cmd_rerun(*args)
 		begin
 			self.mod = framework.modules.reload_module(mod)
-
 			cmd_run(*args)
 		rescue
 			log_error("Failed to rerun: #{$!}")
