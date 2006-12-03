@@ -25,6 +25,9 @@ class Auxiliary::Dos::Windows::Smb::MS06_035_SRVSYS_CORRUPT < Msf::Auxiliary
 			'Version'        => '$Revision: 3666 $',
 			'References'     =>
 				[
+					['BID', '19215'],
+					['CVE', '2006-3942'],
+					['URL', 'http://www.coresecurity.com/common/showdoc.php?idx=562&idxseccion=10'],
 					['MSB', 'MS06-035'],
 				],
 			'Actions'     =>
