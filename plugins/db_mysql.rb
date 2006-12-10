@@ -62,7 +62,13 @@ class Plugin::DBMySQL < Msf::Plugin
 			opts['database'] = info[:name]
 			opts['host'] = info[:host] if (info[:host])
 			opts['port'] = info[:port] if (info[:port])
-			
+
+			# This is an ugly hack for a broken MySQL adapter:
+			# 	http://dev.rubyonrails.org/ticket/3338
+			if (opts['host'].strip.downcase == 'localhost')
+				opts['host'] = Socket.gethostbyname("localhost")[3].unpack("C*").join(".")
+			end
+							
 			if (not framework.db.connect(opts))
 				raise PluginLoadError.new("Failed to connect to the database")
 			end
