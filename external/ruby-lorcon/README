@@ -5,6 +5,9 @@ available on Linux and with lorcon-supported wireless drivers.
 For more information, please see the lorcon documentation and code:
 http://www.802.11mercenary.net/lorcon/
 
+The latest version of lorcon can pulled from SVN:
+$ svn co https://www.nycccp.net/svn/tx-80211
+
 To build this extension:
 $ ruby extconf.rb
 $ make
