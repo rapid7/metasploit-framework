@@ -11,11 +11,11 @@ module Db
 		# Constants
 		#
 
-		PWN_SHOW = 1
-		PWN_XREF = 2
-		PWN_PORT = 4
-		PWN_EXPL = 8
-		PWN_SING = 16
+		PWN_SHOW = 2**0
+		PWN_XREF = 2**1
+		PWN_PORT = 2**2
+		PWN_EXPL = 2**3
+		PWN_SING = 2**4
 			
 		#
 		# The dispatcher's name.
@@ -93,6 +93,9 @@ module Db
 			mode  = 0
 			code  = :bind
 			
+			targ_inc = []
+			targ_exc = []
+			
 			args.push("-h") if args.length == 0
 			
 			while (arg = args.shift)
@@ -111,16 +114,23 @@ module Db
 					code = :conn
 				when '-b'
 					code = :bind
+				when '-I'
+					targ_inc << OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(args.shift)
+				when '-X'
+					targ_exc << OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(args.shift)
 				when '-h'
 					print_status("Usage: db_autopwn [options]")
-					print_line("\t-t   Show all matching exploit modules")
-					print_line("\t-x   Select modules based on vulnerability references")
-					print_line("\t-p   Select modules based on open ports")
-					print_line("\t-e   Launch exploits against all matched targets")
-					print_line("\t-s   Only obtain a single shell per target system")
-					print_line("\t-r   Use a reverse connect shell")
-					print_line("\t-b   Use a bind shell on a random port")
-					print_line("\t-h   Display this help text")
+					print_line("\t-h         Display this help text")
+					print_line("\t-t         Show all matching exploit modules")
+					print_line("\t-x         Select modules based on vulnerability references")
+					print_line("\t-p         Select modules based on open ports")
+					print_line("\t-e         Launch exploits against all matched targets")
+					print_line("\t-s         Only obtain a single shell per target system (NON-FUNCTIONAL)")
+					print_line("\t-r         Use a reverse connect shell")
+					print_line("\t-b         Use a bind shell on a random port")
+					print_line("\t-I [range] Only exploit hosts inside this range")
+					print_line("\t-X [range] Always exclude hosts inside this range")
+					
 					print_line("")
 					return
 				end
@@ -150,6 +160,8 @@ module Db
 									xport = serv.port
 									xprot = serv.proto
 									xhost = serv.host.address
+									next if (targ_inc.length > 0 and not range_include?(targ_inc, xhost))
+									next if (targ_exc.length > 0 and range_include?(targ_exc, xhost))
 									matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
 								end
 							end
@@ -167,6 +179,8 @@ module Db
 								xport = serv.port
 								xprot = serv.proto
 								xhost = serv.host.address
+								next if (targ_inc.length > 0 and not range_include?(targ_inc, xhost))
+								next if (targ_exc.length > 0 and range_include?(targ_exc, xhost))								
 								matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
 							end
 						end
@@ -397,6 +411,23 @@ module Db
 			end
 		end
 		
+		#
+		# Determine if an IP address is inside a given range
+		#
+		def range_include?(ranges, addr)
+
+			ranges.each do |sets|
+				sets.each do |set|
+					rng = set.split('-').map{ |c| Rex::Socket::addr_atoi(c) }
+					tst = Rex::Socket::addr_atoi(addr)
+					if (tst >= rng[0] and tst <= rng[1])
+						return true
+					end
+				end
+			end
+			
+			false
+		end
 end
 end
 end
