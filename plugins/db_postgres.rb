@@ -87,9 +87,10 @@ class Plugin::DBPostgres < Msf::Plugin
 			end
 			
 			if (info[:pass])
-				opts['password'] = info[:pass] 
-				argv.push('-P')
-				argv.push(info[:pass])			
+				print()
+				print_status("Warning: You will need to enter the password at the prompts below")
+				print()
+				argv.push('-W')				
 			end
 			
 			if (info[:host])
@@ -118,6 +119,8 @@ class Plugin::DBPostgres < Msf::Plugin
 			psql.write(fd.read)
 			psql.close
 			fd.close
+			
+			print_status("Database creation complete (check for errors)")
 
 			if (not framework.db.connect(opts))
 				raise PluginLoadError.new("Failed to connect to the database")
