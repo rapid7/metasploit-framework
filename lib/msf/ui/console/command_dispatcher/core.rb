@@ -1154,6 +1154,11 @@ class Core
 				if (res.empty?)
 					res << (rand(65534)+1).to_s
 				end
+				
+			when 'Msf::OptEnum'
+				o.enums.each do |val|
+					res << val
+				end
 		end
 		
 		return res
