@@ -75,7 +75,9 @@ class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
 				parse_reply(r)
 			end
 			
-		rescue => e
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
 			print_status("Unknown error: #{e.to_s}")
 			print_status(e.backtrace.join("\n"))
 		end
@@ -114,10 +116,10 @@ class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
 				inf = ver if ver
 			when 137
 				app = 'NetBIOS'
-				# inf = pkt[0].unpack('H*')[0]
+				inf = pkt[0].unpack('H*')[0]
 			when 111
 				app = 'Portmap'
-				# inf = pkt[0].unpack('H*')[0]
+				inf = pkt[0].unpack('H*')[0]
 			when 1434
 				app = 'SQL Server'
 				mssql_ping_parse(pkt[0]).each_pair { |k,v|
