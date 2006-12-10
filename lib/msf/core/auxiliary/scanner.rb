@@ -29,6 +29,9 @@ end
 # The command handler when launched from the console
 #
 def run
+
+	begin
+	
 	if (self.respond_to?('run_range'))
 		return run_range(datastore['RHOSTS'])
 	end
@@ -69,6 +72,11 @@ def run
 	end
 		
 	print_status("This module defined no run_host or run_range methods")
+	
+	rescue ::Interrupt
+		print_status("Caught interrupt from the console...")
+		return
+	end
 end
 
 
