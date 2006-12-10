@@ -1,3 +1,7 @@
+3.0-dev-12-10-2006 -
+	License:
+		* Provided under the Metasploit Framework License v1.2
+
 beta release 1 -
 	Core:
 		* Officially using Cygwin for Windows support
