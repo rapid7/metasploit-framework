@@ -396,4 +396,12 @@ class Msf::Module::Platform
 		Rank = 100
 		Alias = "unix"
 	end
+	
+	#
+	# Generic PHP
+	#
+	class PHP < Msf::Module::Platform
+		Rank = 100
+		Alias = "php"
+	end	
 end

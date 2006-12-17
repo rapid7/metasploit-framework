@@ -69,6 +69,7 @@ ARCH_MIPS  = 'mips'
 ARCH_PPC   = 'ppc'
 ARCH_SPARC = 'sparc'
 ARCH_CMD   = 'cmd'
+ARCH_PHP   = 'php'
 ARCH_TYPES =
 	[
 		ARCH_X86,
@@ -76,6 +77,7 @@ ARCH_TYPES =
 		ARCH_PPC,
 		ARCH_SPARC,
 		ARCH_CMD,
+		ARCH_PHP
 	]
 
 ARCH_ALL = ARCH_TYPES
@@ -86,4 +88,6 @@ ARCH_ALL = ARCH_TYPES
 ENDIAN_LITTLE = 0
 ENDIAN_BIG    = 1
 
+IS_ENDIAN_LITTLE = ( [1].pack('s')[0] == 1 ) ? true : false
+IS_ENDIAN_BIG    = ( not IS_ENDIAN_LITTLE )
 
