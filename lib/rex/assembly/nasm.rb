@@ -48,7 +48,7 @@ class Nasm
 		end
 
 		# Read the assembled text
-		rv = ::IO.readlines(tmp + ".out").join('')
+		rv = ::IO.read(tmp + ".out")
 
 		# Remove temporary files
 		File.unlink(tmp)

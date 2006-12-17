@@ -20,7 +20,7 @@ begin
 	mod = framework.encoders.create(ARGV.shift)
 
 	puts(Msf::Simple::Buffer.transform(
-		mod.encode(IO.readlines(ARGV.shift).join), ARGV.shift || 'ruby'))
+		mod.encode(IO.read(ARGV.shift)), ARGV.shift || 'ruby'))
 rescue
 	puts "Error: #{$!}\n\n#{$@.join("\n")}"
 end

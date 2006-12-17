@@ -65,7 +65,7 @@ module UploadExec
 	#
 	def handle_connection_stage(conn)
 		begin
-			data = ::IO.readlines(datastore['PEXEC']).join('')
+			data = ::IO.read(datastore['PEXEC'])
 		rescue
 			print_error("Failed to read executable: #{$!}")
 
