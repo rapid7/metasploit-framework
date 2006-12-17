@@ -140,7 +140,7 @@ case cmd
 			$stderr.puts(OutError + "Invalid encoder specified.")
 		end
 	when "encode"
-		buf = input.readlines.join
+		buf = input.read
 		
 		encoders.each { |enc|
 			next if not enc
