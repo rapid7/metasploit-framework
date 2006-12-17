@@ -117,6 +117,8 @@ class ServiceManager < Hash
 				self.delete(cals) if (inst == cinst)
 			}
 
+			puts "derefing"
+
 			# Lose the list-held reference to the instance
 			inst.deref
 

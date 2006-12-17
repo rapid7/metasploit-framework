@@ -23,6 +23,17 @@ module Service
 		return "__#{args.to_s}"
 	end
 
+	def deref
+		rv = super
+
+		# If there's only one reference, then it's the service managers.
+		if @_references == 1
+			Rex::ServiceManager.stop_service(self)
+		end
+
+		rv
+	end
+
 	#
 	# Calls stop on the service once the ref count drops.
 	#
