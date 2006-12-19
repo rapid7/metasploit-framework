@@ -10,7 +10,7 @@ class EncodersController < ApplicationController
   end
 
   def view
-    @tmod = get_view_for_module("encoder", params[:id])
+    @tmod = get_view_for_module("encoder", params[:refname])
 	
 	unless @tmod
 	 render_text "Unknown module specified."

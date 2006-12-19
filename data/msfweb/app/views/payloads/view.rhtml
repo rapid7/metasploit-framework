@@ -70,7 +70,7 @@
 
 <form action="/payloads/view" method="post">
     
-    <%= hidden_field_tag "id", h(params[:id]) %>
+    <%= hidden_field_tag "refname", h(params[:refname]) %>
     <%= hidden_field_tag "step", "1" %>
     <% @tmod.options.each { |name, option|
         next if (option.advanced?)
@@ -116,6 +116,7 @@
                 <option value="c">C</option>
                 <option value="ruby">Ruby</option>
                 <option value="perl">Perl</option>
+                <option value="javascript">Javascript</option>
                 <option value="raw">Raw</option>
             </select>
         </td>
@@ -131,7 +132,7 @@
     <tr>
         <th colspan="2" class="moduleOptionsHeader">
             Payload code
-            (<%= link_to "back", :action => "view", :id => h(params[:id]) %>)
+            (<%= link_to "back", :action => "view", :refname => h(params[:refname]) %>)
         </th>
     </tr>
 

@@ -55,7 +55,7 @@ class ApplicationController < ActionController::Base
   end
   
   # Returns the module by id of specified type.
-  def get_view_for_module(module_type, module_id)
+  def get_view_for_module(module_type, module_refname)
     @tmod = nil
     
     # Get available moduls of specified type
@@ -75,9 +75,9 @@ class ApplicationController < ActionController::Base
     end
     
     # Return the module if found
-	if id
+	if module_refname
 		@mod_list.each do |m|
-			if m.refname.gsub('/', ':') == params[:id]
+			if m.refname.gsub('/', ':') == module_refname
 				@tmod = m
 				break
 			end
