@@ -1,5 +1,6 @@
 require 'rex/socket'
 require 'rex/proto/http'
+require 'rex/text'
 
 module Rex
 module Proto
@@ -8,132 +9,148 @@ module Http
 ###
 #
 # Acts as a client to an HTTP server, sending requests and receiving
-# responses.  This is modeled somewhat after Net::HTTP.
+# responses.
 #
 ###
 class Client
 
-	include Proto
-
 	#
-	# Performs a block-based HTTP operation.
+	# Creates a new client instance
 	#
-	def self.start(host, &block)
-		c = Client.new(host)
-
-		begin
-			block.call(c)
-		ensure
-			c.stop
-		end
-	end
-	
-	#
-	# Initializes a GET request and returns it to the caller.
-	#
-	def gen_get(uri = '/', proto = DefaultProtocol)
-		return init_request(Request::Get.new(uri, proto))
-	end
-
-	#
-	# Initializes a POST request and returns it to the caller.
-	#
-	def gen_post(uri = '/', proto = DefaultProtocol)
-		return init_request(Request::Post.new(uri, proto))
-	end
-
 	def initialize(host, port = 80, context = {}, ssl = nil)
 		self.hostname = host
 		self.port     = port.to_i
 		self.context  = context
 		self.ssl      = ssl
-		self.request_config = {}
-		self.client_config  = {}
-	end
-
-	#
-	# HTTP client.
-	#
-	def alias
-		"HTTP Client"
-	end
-
-	#
-	# Configures the Client object and the Request factory.
-	#
-	def config(chash)
-		req_opts = %w{ user-agent vhost cookie proto }
-		cli_opts = %w{ max-data }	
-		chash.each_pair { |k,v| 
-			req_opts.include?(k) ? 
-				self.request_config[k] = v : self.client_config[k] = v 
+		self.config = {
+			'read_max_data'   => (1024*1024*1),
+			'vhost'           => self.hostname,
+			'version'         => '1.1',
+			'agent'           => "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+			'uri_encode_mode' => 'hex-normal',
+			'uri_full_url'    => false
 		}
 	end
-
+	
 	#
-	# Set parameters for the Request factory.
+	# Set configuration options
 	#
-	def request_option(k, v)
-		(v != nil) ? self.request_config[k] = v : self.request_config[k]
+	def set_config(opts = {})
+		opts.each_pair do |var,val|
+			config[var]=val
+		end
 	end
 	
 	#
-	# Set parameters for the actual Client.
+	# Create an arbitrary HTTP request
 	#
-	def client_option(k, v)
-		(v != nil) ? self.client_config[k] = v : self.client_config[k]
-	end
-	
-	#
-	# The Request factory.
-	#
-	def request(chash)
-		method = chash['method'] || 'GET'
-		proto  = chash['proto']  || self.request_config['proto'] || DefaultProtocol
-		uri    = chash['uri']    || '/'
+	def request_raw(opts={})
+		c_enc  = opts['encode']     || false
+		c_uri  = opts['uri']        || '/'
+		c_body = opts['body']       || ''
+		c_meth = opts['method']     || 'GET'
+		c_vers = opts['version']    || config['version'] || '1.1'
+		c_qs   = opts['query']
+		c_ag   = opts['agent']      || config['agent']
+		c_cook = opts['cookie']     || config['cookie']
+		c_host = opts['vhost']      || config['vhost']
+		c_head = opts['headers']    || config['headers'] || {}		
+		c_conn = opts['connection']	
+		uri    = set_uri(c_uri)
 		
-		req    = Rex::Proto::Http::Request.new(method, uri, proto)
-
-		# pass on the junk_pipeline config
-		if self.junk_pipeline
-			req.junk_pipeline = self.junk_pipeline
-		end
+		req = ''
+		req += set_method(c_meth)
+		req += set_method_uri_spacer()
+		req += set_uri_prepend()
+		req += (c_enc ? set_encode_uri(uri) : uri)
 		
-		#
-		# Configure the request headers using the Client configuration
-		#
-
-		if self.request_config['cookie']
-			req['Cookie'] = self.request_config['cookie']
+		if (c_qs)
+			req += '?'
+			req += (c_enc ? set_encode_qs(c_qs) : c_qs)
 		end
+				
+		req += set_uri_append()
+		req += set_uri_version_spacer()
+		req += set_version(c_vers)
+		req += set_host_header(c_host)
+		req += set_agent_header(c_ag)
+		req += set_cookie_header(c_cook)
+		req += set_connection_header(c_conn)
+		req += set_extra_headers(c_head)		
+		req += set_body(c_body)
 		
-		if self.request_config['user-agent']
-			req['User-Agent'] = self.request_config['user-agent']
-		end
-		
-		#
-		# Configure the rest of the request based on config hash
-		#		
-		req['Host'] = (self.request_config['vhost'] || self.hostname) + ':' + self.port.to_s
-		
-		# Set the request body if a data chunk has been specified
-		if chash['data']
-			req.body = chash['data']
-		end
-
-		# Merge headers supplied by the caller.
-		if chash['headers']
-			req.headers.merge!(chash['headers'])
-		end
-		
-		# Set the content-type
-		if chash['content-type']
-			req['Content-Type'] = chash['content-type']
-		end
-
 		req
 	end
-	
+
+				
+	#
+	# Create a CGI compatible request
+	#
+	def request_cgi(opts={})
+		c_enc  = opts['encode']     || false
+		c_cgi  = opts['cgi']        || '/'
+		c_body = opts['body']       || ''
+		c_meth = opts['method']     || 'GET'
+		c_vers = opts['version']    || config['version'] || '1.1'
+		c_qs   = opts['query']      || ''
+		c_varg = opts['vars_get']   || {}
+		c_varp = opts['vars_post']  || {}
+		c_head = opts['headers']    || config['headers'] || {}
+		c_type = opts['ctype']      || 'application/x-www-form-urlencoded'
+		c_ag   = opts['agent']      || config['agent']
+		c_cook = opts['cookie']     || config['cookie']
+		c_host = opts['vhost']      || config['vhost']
+		c_conn = opts['connection']
+		c_path = opts['path_info']	
+		uri    = set_cgi(c_cgi)
+		qstr   = c_qs
+		pstr   = c_body
+		
+		c_varg.each_pair do |var,val|
+			qstr << '&' if qstr.length > 0
+			qstr << set_encode_uri(var)
+			qstr << '='
+			qstr << set_encode_uri(val)
+		end
+
+		c_varp.each_pair do |var,val|
+			pstr << '&' if pstr.length > 0
+			pstr << set_encode_uri(var)
+			pstr << '='
+			pstr << set_encode_uri(val)
+		end
+				
+		req = ''
+		req += set_method(c_meth)
+		req += set_method_uri_spacer()
+		req += set_uri_prepend()
+		req += set_encode_uri(uri)
+
+		if (qstr.length > 0)
+			req += '?'
+			req += qstr
+		end
+		
+		req += set_path_info(c_path)
+		req += set_uri_append()
+		req += set_uri_version_spacer()
+		req += set_version(c_vers)
+		req += set_host_header(c_host)
+		req += set_agent_header(c_ag)
+		req += set_cookie_header(c_cook)
+		req += set_connection_header(c_conn)		
+		req += set_extra_headers(c_head)
+		
+		# TODO:
+		# * Implement chunked transfer
+		
+		req += set_content_type_header(c_type)
+		req += set_content_len_header(pstr.length)
+		req += set_body(pstr)
+		
+		req	
+	end	
+
 	#
 	# Connects to the remote server if possible.
 	#
@@ -170,21 +187,18 @@ class Client
 	end
 
 	#
-	# Initializes a request by setting the host header and other cool things.
+	# Transmit a HTTP request and receive the response
 	#
-	def init_request(req)
-		req['Host'] = "#{request_config.has_key?('vhost') ? request_config['vhost'] : hostname}:#{port}"
-
-		return req
+	def send_recv(req, t = -1)
+		send_request(req)
+		read_response(t)
 	end
 
 	#
-	# Transmits a request and reads in a response.
-	#
-	def send_request(req, t = -1)
-		resp = Response.new
-		resp.max_data = self.client_config['max-data']
-		
+	# Send a HTTP request to the server
+	# TODO:
+	#  * Handle junk pipeline requests
+	def send_request(req) 
 		# Connect to the server
 		connect
 
@@ -192,7 +206,20 @@ class Client
 		req_string = req.to_s
 
 		# Send it on over
-		conn.put(req_string)
+		ret = conn.put(req)
+
+		# Tell the remote side if we aren't pipelining
+		conn.shutdown(::Socket::SHUT_WR) if (!pipelining?)
+		
+		ret
+	end
+	
+	#
+	# Read a response from the server
+	#
+	def read_response(t = -1)
+		resp = Response.new
+		resp.max_data = config['read_max_data']
 
 		# Tell the remote side if we aren't pipelining
 		conn.shutdown(::Socket::SHUT_WR) if (!pipelining?)
@@ -288,7 +315,201 @@ class Client
 	def pipelining?
 		pipeline
 	end
+	
+	#
+	# Return the encoded URI
+	# ['none','hex-normal', 'hex-all', 'u-normal', 'u-all']
+	def set_encode_uri(uri)
+		Rex::Text.uri_encode(uri, self.config['uri_encode_mode'])
+	end
+	
+	#
+	# Return the encoded query string
+	#
+	def set_encode_qs(qs)
+		Rex::Text.uri_encode(uri, self.config['uri_encode_mode'])
+	end
+	
+	#
+	# Return the uri
+	#
+	def set_uri(uri)
+		if (self.config['uri_full_url'])
+			url = self.ssl ? "https" : "http"
+			url += self.config['vhost']
+			url += (self.port == 80) ? "" : ":#{self.port}"
+			url += uri
+			url
+		else
+			uri
+		end
+	end
 
+	#
+	# Return the cgi
+	# TODO:
+	# * Implement self-referential directories
+	# * Implement bogus relative directories
+	def set_cgi(uri)
+	
+		url = uri
+	
+		if (self.config['uri_full_url'])
+			url = self.ssl ? "https" : "http"
+			url += self.config['vhost']
+			url += (self.port == 80) ? "" : ":#{self.port}"
+			url += uri
+		end
+		
+		url
+	end
+		
+	#
+	# Return the HTTP method string
+	#
+	def set_method(method)
+		# TODO:
+		#  * Randomize case
+		#  * Replace with random valid method
+		#  * Replace with random invalid method
+		method
+	end
+
+	#
+	# Return the HTTP version string
+	#
+	def set_version(version)
+		# TODO:
+		#  * Randomize case
+		#  * Replace with random valid versions
+		#  * Replace with random invalid versions
+		"HTTP/" + version + "\r\n"
+	end
+
+	#
+	# Return the HTTP seperator and body string
+	#
+	def set_body(data)
+		"\r\n" + data
+	end
+	
+	#
+	# Return the HTTP path info
+	# TODO:
+	#  * Encode path information
+	def set_path_info(path)
+		path ? path : ''
+	end
+	
+	#
+	# Return the spacing between the method and uri
+	#
+	def set_method_uri_spacer
+		# TODO:
+		#  * Support different space types
+		" "
+	end
+
+	#
+	# Return the spacing between the uri and the version
+	#
+	def set_uri_version_spacer
+		# TODO:
+		#  * Support different space types
+		" "
+	end
+
+	#
+	# Return the padding to place before the uri
+	#
+	def set_uri_prepend
+		# TODO:
+		#  * Support different padding types
+		""
+	end
+
+	#
+	# Return the padding to place before the uri
+	#
+	def set_uri_append
+		# TODO:
+		#  * Support different padding types
+		""
+	end
+
+	#
+	# Return the HTTP Host header
+	#
+	def set_host_header(host)
+		return "" if self.config['uri_full_url']
+		host ||= self.config['vhost']
+		set_formatted_header("Host", host)
+	end
+
+	#
+	# Return the HTTP agent header
+	#
+	def set_agent_header(agent)		
+		agent ? set_formatted_header("User-Agent", agent) : ""
+	end
+
+	#
+	# Return the HTTP cookie header
+	#
+	def set_cookie_header(cookie)
+		cookie ? set_formatted_header("Cookie", cookie) : ""
+	end
+
+	#
+	# Return the HTTP connection header
+	#
+	def set_connection_header(conn)
+		conn ? set_formatted_header("Connection", conn) : ""				
+	end
+		
+	#
+	# Return the content type header
+	#
+	def set_content_type_header(ctype)
+		set_formatted_header("Content-Type", ctype)
+	end
+
+	#
+	# Return the content length header
+	# TODO:
+	#  * Ignore this if chunked encoding is set
+	def set_content_len_header(clen)
+		set_formatted_header("Content-Length", clen)
+	end
+	
+	#
+	# Return a string of formatted extra headers
+	# TODO:
+	#  * Implement junk header stuffing
+	def set_extra_headers(headers)
+		buf = ''
+
+		headers.each_pair do |var,val|
+			buf += set_formatted_header(var, val)
+		end
+		
+		buf
+	end
+	
+	#
+	# Return a formatted header string
+	# TODO:
+	#  * Implement header folder
+	def set_formatted_header(var, val)
+		"#{var}: #{val}\r\n"
+	end
+	
+
+
+	#
+	# The client request configuration
+	#
+	attr_accessor :config
 	#
 	# Whether or not pipelining is in use.
 	#
@@ -301,10 +522,6 @@ class Client
 	# The local port of the client.
 	#
 	attr_accessor :local_port
-	#
-	# Client configuration attributes.
-	#
-	attr_accessor :client_config
 	#
 	# The underlying connection.
 	#
@@ -323,7 +540,7 @@ protected
 	attr_accessor :ssl
 
 	attr_accessor :hostname, :port # :nodoc:
-	attr_accessor :request_config, :client_config # :nodoc:
+
 	
 end
 

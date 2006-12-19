@@ -718,19 +718,23 @@ protected
 		client  = Rex::Proto::Http::Client.new(server_host, server_port)
 
 		begin
+		
+			# Create the CGI parameter list
+			vars = { 'method' => method }
+			
+			opts.each_pair do |k, v|
+				vars[k] = xlate_param(v)
+			end
+			
 			# Initialize the request with the POST body.
-			request = client.gen_post(server_uri)
-
-			request.body += "method=#{method}"
-
-			# Enumerate each option filter specified and convert it into a CGI
-			# parameter.
-			opts.each_pair { |k, v|
-				request.body += "&#{k}=#{xlate_param(v)}"
-			}
+			request = client.request_cgi(
+				'method'    => 'POST',
+				'cgi'       => server_uri,
+				'vars_post' => vars
+			)
 
 			# Send the request and grab the response.
-			response = client.send_request(request, 300)
+			response = client.send_recv(request, 300)
 
 			# Non-200 return code?
 			if (response.code != 200)

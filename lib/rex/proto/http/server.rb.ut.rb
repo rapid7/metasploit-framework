@@ -19,8 +19,8 @@ class Rex::Proto::Http::Server::UnitTest < Test::Unit::TestCase
 			c   = CliKlass.new(ListenHost, ListenPort)
 
 			1.upto(10) { 
-				req = Rex::Proto::Http::Request::Get.new('/')
-				res = c.send_request(req)
+				req = c.request_raw('uri' => '/')
+				res = c.send_recv(req)
 				assert_not_nil(res)
 				assert_equal(404, res.code)
 			}
@@ -44,8 +44,8 @@ class Rex::Proto::Http::Server::UnitTest < Test::Unit::TestCase
 				})
 
 			1.upto(10) { 
-				req = Rex::Proto::Http::Request::Get.new('/foo')
-				res = c.send_request(req)
+				req = c.request_raw('uri' => '/foo')
+				res = c.send_recv(req)
 				assert_not_nil(res)
 				assert_equal(200, res.code)
 				assert_equal("Chickens everywhere", res.body)
@@ -53,8 +53,8 @@ class Rex::Proto::Http::Server::UnitTest < Test::Unit::TestCase
 
 			s.remove_resource('/foo')
 
-			req = Rex::Proto::Http::Request::Get.new('/foo')
-			res = c.send_request(req)
+			req = c.request_raw('uri' => '/foo')
+			res = c.send_recv(req)
 			assert_not_nil(res)
 			assert_equal(404, res.code)
 		ensure

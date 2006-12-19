@@ -306,7 +306,7 @@ module Text
 		return str if mode == 'none' # fast track no encoding
 
 		all = /[^\/\\]+/
-        normal = /[^a-zA-Z1-9]+/
+        normal = /[^a-zA-Z1-9\/\/\\]+/
 
         case mode
         when 'hex-normal'
