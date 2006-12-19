@@ -1,6 +1,5 @@
 require 'rex/text'
 require 'rex/arch/x86'
-require 'rex/evasion'
 
 module Rex
 module Exploitation
@@ -16,11 +15,6 @@ module Exploitation
 class Seh
 
 	#
-	# The symbolic name of this evasion subsystem.
-	#
-	EvasionName = "exploitation.seh"
-
-	#
 	# Creates a new instance of the class and initializes it with the supplied
 	# bad character list.  The space argument denotes how much room is
 	# available for random padding and the NOP argument can be used to generate
@@ -33,20 +27,10 @@ class Seh
 	end
 
 	#
-	# Return the default evasion level for this subsystem.
+	# Generates an SEH record
 	#
-	def default_evasion_level
-		Rex::Evasion.get_subsys_level(EvasionName)
-	end
-
-	#
-	# Generates an SEH record using whatever evasion level is currently defined
-	# globally for this subsystem or using one that is supplied by the caller.
-	# If HIGH evasion is specified, a dynamic SEH record is generated.
-	# Otherwise, a static SEH record is generated.
-	#
-	def generate_seh_record(handler, evlvl = default_evasion_level)
-		if (evlvl == EVASION_HIGH)
+	def generate_seh_record(handler, dynamic=false)
+		if (dynamic)
 			generate_dynamic_seh_record(handler)
 		else
 			generate_static_seh_record(handler)
@@ -106,8 +90,3 @@ end
 
 end
 end
-
-#
-# Register this evasion subsystem with the evasion instance.
-#
-Rex::Evasion.register_subsys(Rex::Exploitation::Seh::EvasionName)

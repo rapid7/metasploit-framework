@@ -226,8 +226,6 @@ class Driver < Msf::Ui::Driver
 				handle_session_logging(val) if (glob)
 			when "consolelogging"
 				handle_console_logging(val) if (glob)
-			when "evasion"
-				handle_evasion(val) if (glob)
 			when "loglevel"
 				handle_loglevel(val) if (glob)
 		end
@@ -243,8 +241,6 @@ class Driver < Msf::Ui::Driver
 				handle_session_logging('0') if (glob)
 			when "consolelogging"
 				handle_console_logging('0') if (glob)
-			when "evasion"
-				handle_evasion(EVASION_NORMAL) if (glob)
 			when "loglevel"
 				handle_loglevel(nil) if (glob)
 		end
@@ -317,17 +313,6 @@ protected
 
 			Msf::Logging.disable_log_source('console')
 			print_line("Console logging is now disabled.")
-		end
-	end
-
-	#
-	# Evasion.  Sets the global evasion level based on the supplied argument.
-	#
-	def handle_evasion(val)
-		if (val =~ /^(normal|low|high)$/i)
-			Rex::Evasion.set_level(val.downcase)
-		else
-			false
 		end
 	end
 

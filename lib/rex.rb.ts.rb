@@ -39,7 +39,6 @@ require 'test/unit'
 require 'rex/exceptions.rb.ut'
 require 'rex/transformer.rb.ut'
 require 'rex/text.rb.ut'
-require 'rex/evasion.rb.ut'
 require 'rex/file.rb.ut'
 
 require 'rex/encoder/xdr.rb.ut'
