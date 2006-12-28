@@ -1,4 +1,3 @@
-require 'base64'
 require 'digest/md5'
 require 'stringio'
 
@@ -415,14 +414,14 @@ module Text
 	# Base64 encoder
 	#
 	def self.encode_base64(str)
-		::Base64.encode64(str).gsub(/\s+/, '')
+		[str].pack("m").strip
 	end
 
 	#
 	# Base64 decoder
 	#
 	def self.decode_base64(str)
-		::Base64.decode64(str)
+		str.unpack("m")[0]
 	end
 
 	#
