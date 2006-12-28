@@ -47,8 +47,9 @@ class Client
 	def request_raw(opts={})
 		c_enc  = opts['encode']     || false
 		c_uri  = opts['uri']        || '/'
-		c_body = opts['body']       || ''
+		c_body = opts['data']       || ''
 		c_meth = opts['method']     || 'GET'
+		c_prot = opts['proto']      || 'HTTP'		
 		c_vers = opts['version']    || config['version'] || '1.1'
 		c_qs   = opts['query']
 		c_ag   = opts['agent']      || config['agent']
@@ -71,7 +72,7 @@ class Client
 				
 		req += set_uri_append()
 		req += set_uri_version_spacer()
-		req += set_version(c_vers)
+		req += set_version(c_prot, c_vers)
 		req += set_host_header(c_host)
 		req += set_agent_header(c_ag)
 		req += set_cookie_header(c_cook)
@@ -88,9 +89,10 @@ class Client
 	#
 	def request_cgi(opts={})
 		c_enc  = opts['encode']     || false
-		c_cgi  = opts['cgi']        || '/'
-		c_body = opts['body']       || ''
+		c_cgi  = opts['uri']        || '/'
+		c_body = opts['data']       || ''
 		c_meth = opts['method']     || 'GET'
+		c_prot = opts['proto']      || 'HTTP'
 		c_vers = opts['version']    || config['version'] || '1.1'
 		c_qs   = opts['query']      || ''
 		c_varg = opts['vars_get']   || {}
@@ -134,7 +136,7 @@ class Client
 		req += set_path_info(c_path)
 		req += set_uri_append()
 		req += set_uri_version_spacer()
-		req += set_version(c_vers)
+		req += set_version(c_prot, c_vers)
 		req += set_host_header(c_host)
 		req += set_agent_header(c_ag)
 		req += set_cookie_header(c_cook)
@@ -378,12 +380,12 @@ class Client
 	#
 	# Return the HTTP version string
 	#
-	def set_version(version)
+	def set_version(protocol, version)
 		# TODO:
 		#  * Randomize case
 		#  * Replace with random valid versions
 		#  * Replace with random invalid versions
-		"HTTP/" + version + "\r\n"
+		protocol + "/" + version + "\r\n"
 	end
 
 	#

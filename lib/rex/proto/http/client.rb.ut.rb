@@ -62,7 +62,7 @@ class Rex::Proto::Http::Client::UnitTest < Test::Unit::TestCase
 
 		r = c.request_cgi(
 			'method' => 'POST',
-			'cgi'    => '/',
+			'uri'    => '/',
 			'vars_post'  => { 'var' => 'val' },
 			'ctype' => 'application/x-www-form-urlencoded'
 		)
