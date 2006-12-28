@@ -1272,11 +1272,23 @@ protected
 	#
 	# Module list enumeration
 	#
-
+	
 	def show_encoders # :nodoc:
-		show_module_set("Encoders", framework.encoders)
-	end
+		# If an active module has been selected and it's an exploit, get the
+		# list of compatible encoders and display them
+		if (active_module and active_module.exploit? == true)
+			tbl = generate_module_table("Compatible encoders")
+            
+			active_module.compatible_encoders.each { |refname, encoder|
+				tbl << [ refname, encoder.new.name ]
+			}
 
+			print(tbl.to_s)
+		else
+			show_module_set("Encoders", framework.encoders)
+		end
+	end
+	
 	def show_nops # :nodoc:
 		show_module_set("NOP Generators", framework.nops)
 	end
