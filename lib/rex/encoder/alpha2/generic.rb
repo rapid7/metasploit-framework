@@ -7,7 +7,8 @@ module Encoder
 module Alpha2
 
 class Generic
-	@@accepted_chars = ('a' .. 'z').to_a + ('B' .. 'Z').to_a + ('0' .. '9').to_a
+		
+	@@default_accepted_chars = ('a' .. 'z').to_a + ('B' .. 'Z').to_a + ('0' .. '9').to_a
 	
 	def Generic.gen_decoder_prefix(reg, offset)
 		# Should never happen - have to pick a specifc
@@ -35,24 +36,26 @@ class Generic
 	end
 
 	def Generic.encode_byte(block, badchars)
-		first    = 0
-		second   = 1
-		randbase = 0
+		accepted_chars = @@default_accepted_chars.dup
 		
 		# Remove bad chars from the accepted_chars list.  Sadly 'A' must be 
 		# an accepted char or we'll certainly fail at this point.  This could
 		# be fixed later maybe with some recalculation of the encoder stubs...
 		# - Puss
-		(badchars || '').split('').each { |c| @@accepted_chars.delete(c) }
+		(badchars || '').split('').each { |c| accepted_chars.delete(c) }
+
+		first    = 0
+		second   = 1
+		randbase = 0
 		
 		gen_base_set(block).each do |randbase|
 			second   = gen_second(block, randbase)
 			next  if second < 0
-			break if @@accepted_chars.include?(second.chr)
+			break if accepted_chars.include?(second.chr)
 		end
 		
 		raise RuntimeError, "Negative" if second < 0
-		raise RuntimeError, "BadChar; #{block} to #{second}"  if not @@accepted_chars.include?(second.chr)
+		raise RuntimeError, "BadChar; #{block} to #{second}"  if not accepted_chars.include?(second.chr)
 
 		if (randbase > 0xa0)
 			# first num must be 4
@@ -74,13 +77,13 @@ class Generic
 		first.to_i.chr + second.chr
 	end
 
-	def Generic.encode(buf, reg, offset)
+	def Generic.encode(buf, reg, offset, badchars = '')
 		encoded = gen_decoder(reg, offset)
 
 		buf.each_byte {
 			|block|
 
-			encoded += encode_byte(block)
+			encoded += encode_byte(block, badchars)
 		}
 
 		encoded += add_terminator()

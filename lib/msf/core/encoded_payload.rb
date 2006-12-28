@@ -130,6 +130,7 @@ class EncodedPayload
 				# framework that an encoder must be explicitly defined as the
 				# encoder of choice for an exploit.
 				if ((reqs['EncoderType'].nil?) and
+				    (reqs['Encoder'].nil?) and
 				    (self.encoder.rank == ManualRanking))
 					wlog("#{pinst.refname}: Encoder #{encoder.refname} is manual ranked and was not defined as a preferred encoder.",
 						'core', LEV_1)

@@ -7,7 +7,7 @@ module Encoder
 module Alpha2
 
 class AlphaUpper < Generic
-	@@accepted_chars = ('B' .. 'Z').to_a + ('0' .. '9').to_a
+	@@default_accepted_chars = ('B' .. 'Z').to_a + ('0' .. '9').to_a
 	
 	def self.gen_decoder_prefix(reg, offset)
 		if (offset > 20)
