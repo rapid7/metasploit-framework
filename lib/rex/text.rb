@@ -415,14 +415,14 @@ module Text
 	# Base64 encoder
 	#
 	def self.encode_base64(str)
-		Base64.encode64(str).gsub(/\s+/, '')
+		::Base64.encode64(str).gsub(/\s+/, '')
 	end
 
 	#
 	# Base64 decoder
 	#
 	def self.decode_base64(str)
-		Base64.decode64(str)
+		::Base64.decode64(str)
 	end
 
 	#
