@@ -729,7 +729,7 @@ protected
 			# Initialize the request with the POST body.
 			request = client.request_cgi(
 				'method'    => 'POST',
-				'cgi'       => server_uri,
+				'uri'       => server_uri,
 				'vars_post' => vars
 			)
 
