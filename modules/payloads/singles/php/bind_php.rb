@@ -36,7 +36,6 @@ module BindPhp
 	#
 	def php_bind_shell
 		shell = <<-END_OF_PHP_CODE
-		<?php
 		error_reporting(E_ALL);
 	
 		set_time_limit(0);
@@ -58,7 +57,6 @@ module BindPhp
 		} 
 	
 		socket_close($sock);
-		?>
 		END_OF_PHP_CODE
 		
 		return shell
