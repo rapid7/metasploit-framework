@@ -375,6 +375,14 @@ class Module
 		self.options.validate(self.datastore)
 	end
 
+	#
+	# Returns true if this module is being debugged.  The debug flag is set
+	# by setting datastore['DEBUG'] to 1|true|yes
+	#
+	def debugging?
+		(datastore['DEBUG'] || '') =~ /^(1|t|y)/i
+	end
+
 	##
 	#
 	# Just some handy quick checks
