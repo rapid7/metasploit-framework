@@ -19,6 +19,13 @@ class Encoder
 		"Encoder"
 	end
 
+	#
+	# Encoder's don't currently have a user interface.
+	#
+	def commands
+		{ }
+	end
+
 end
 
 end end end end
