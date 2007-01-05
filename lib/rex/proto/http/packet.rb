@@ -47,7 +47,17 @@ class Packet
 	# Return the associated header value, if any.
 	#
 	def [](key)
-		self.headers[key]
+		if (self.headers.include?(key))
+			return self.headers[key]
+		end
+		
+		self.headers.each_pair do |k,v|
+			if (k.downcase == key.downcase)
+				return v
+			end
+		end
+		
+		return nil
 	end
 
 	#
