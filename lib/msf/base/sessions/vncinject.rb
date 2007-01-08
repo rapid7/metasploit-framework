@@ -115,8 +115,6 @@ class VncInject
 							end
 						},
 						'__RelayType'       => 'vncinject')
-				ensure
-					service.deref
 				end
 			else
 				raise RuntimeError, "Relay failed to start."
