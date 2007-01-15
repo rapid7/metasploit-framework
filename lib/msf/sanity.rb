@@ -16,8 +16,8 @@ if ([1].pack('n') == "\x01\x00")
 	exit(0)
 end
 
-# Check for ruby 1.8.0 as the minimal supported version
-if (RUBY_VERSION =~ /^1\.[0-7]\./)
+# Check for ruby 1.8.3 as the minimal supported version
+if (RUBY_VERSION =~ /^1\.[0-7]\./ or RUBY_VERSION =~ /^1\.8\.[0-2]$/)
 	puts "*** This version of ruby is not supported, please upgrade to 1.8.3+"
 	exit(0)
 end
