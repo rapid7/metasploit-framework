@@ -725,6 +725,8 @@ protected
 			opts.each_pair do |k, v|
 				vars[k] = xlate_param(v)
 			end
+
+			client.set_config('uri_encode_mode' => 'none')
 			
 			# Initialize the request with the POST body.
 			request = client.request_cgi(
