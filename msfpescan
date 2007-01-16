@@ -108,6 +108,9 @@ ARGV.each do |file|
 	rescue Rex::PeParsey::FileHeaderError
 		next if $!.message == "Couldn't find the PE magic!"
 		raise $!
+	rescue Errno::ENOENT
+		$stderr.puts("File does not exist: #{file}")
+		next
 	end
 	
 	if (param['imagebase'])
