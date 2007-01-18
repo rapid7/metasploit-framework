@@ -1,0 +1,35 @@
+/*
+ * Copyright (c) 2006, LMH <lmh@info-pull.com>
+ * All Rights Reserved.
+ *
+ * Standards compliant:
+ *  Valid, warning-free CSS: http://jigsaw.w3.org/css-validator
+ */
+
+html,body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #444;
+    color: white;
+}
+
+#output {
+    white-space: pre;
+    white-space: -moz-pre-wrap;
+}
+
+#input {
+    width: 100%;
+    border: none;
+    padding: 0;
+    overflow: auto;
+}
+
+.input {
+    border: none;
+    font: inherit;
+    font-weight: bold;
+    margin-top: .5em;
+}
+
