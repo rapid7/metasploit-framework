@@ -1,4 +1,4 @@
-# Author: L.M.H <lmh@info-pull.com>
+# Author: LMH <lmh@info-pull.com>
 # Description: The main controller of msfweb v.3
 
 class MsfController < ApplicationController

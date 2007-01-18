@@ -1,4 +1,4 @@
-# Author: HDM <hdm@metasploit.com> and L.M.H <lmh@info-pull.com>
+# Author: HDM <hdm@metasploit.com> and LMH <lmh@info-pull.com>
 # Description: Helper methods for the controllers, including search and other
 # functionality.
 

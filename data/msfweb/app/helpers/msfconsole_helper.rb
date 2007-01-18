@@ -1,0 +1,2 @@
+module MsfconsoleHelper
+end

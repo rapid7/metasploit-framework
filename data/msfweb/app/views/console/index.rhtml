@@ -1,0 +1,22 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="eng">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+        <meta name="Author" content="LMH (lmh@info-pull.com)" />
+        <meta name="Copyright" content="(c) 2006, LMH (lmh@info-pull.com)" />
+        <title>msfweb v.3 - console demo</title>
+        <% ["prototype","effects","controls", "window", "application", "console"].each do |js| %>
+        <%= javascript_include_tag js %><% end %>
+        <%= stylesheet_link_tag "msfconsole" %>
+    </head>
+
+    <body onload="console_init()">
+        <div id="console_window">
+            <a accesskey="C" href="javascript:go('console_clear()')" title="Accesskey: C">Clear console</a><br />
+            <div id="console_output" class="output"></div>
+            <textarea id="console_input" class="input" wrap="off" onkeydown="console_keydown(event)" rows="1"></textarea></div>
+        </div>
+    </body>
+</html>
