@@ -43,13 +43,18 @@ function console_tabcomplete() {
 }
 
 function console_execute() {
+	if (console_commands[console_input.value]) {
+		f = console_commands[console_input.value];
+		alert(f);
+	}
 }
 
 function console_keydown(e) {
     if (e.keyCode == 13) {          // enter
         console_history.push(console_input.value);
         try { console_execute(); } catch(er) { alert(er); };
-        setTimeout(function() { console_input.value = ""; }, 0);
+        setTimeout(function() { console_input.value = "msf> "; }, 0);
+		console_printline("[-] Unknown command: " + console_input.value);
     } else if (e.keyCode == 38) {   // up
         // TODO: place upper cmd in history on console_input.value
     } else if (e.keyCode == 40) {   // down
@@ -58,13 +63,15 @@ function console_keydown(e) {
         console_tabcomplete();
         setTimeout(function() { console_refocus(); }, 0);
     }
+
 }
 
 function console_init() {
 
     console_input   = document.getElementById("console_input");
     console_output  = document.getElementById("console_output");
-
+	console_input.innerHTML = "msf&gt; ";
+	console_input.focus();
     return true;
 }
 

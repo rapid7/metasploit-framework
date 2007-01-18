@@ -14,9 +14,16 @@
 
     <body onload="console_init()">
         <div id="console_window">
+<pre>
+<%= Msf::Ui::Banner.to_s %>
+
+       =[ msf <%= Msf::Framework::Version %>
++ -- --=[ <%= $msframework.exploits.length %> exploits - <%= $msframework.payloads.length %> payloads
++ -- --=[ <%= $msframework.encoders.length %> encoders - <%= $msframework.nops.length %> nops
+       =[ <%= $msframework.exploits.length %> aux
+
+</pre>		
             <div id="console_output" class="output">
-                Metasploit <%=return_env_info()[:msfver]%> on <%=return_env_info()[:platform]%>
-                (ruby <%=return_env_info()[:rubyver]%>).
             </div>
             <textarea id="console_input" class="input" wrap="off" onkeydown="console_keydown(event)" rows="1"></textarea></div>
         </div>

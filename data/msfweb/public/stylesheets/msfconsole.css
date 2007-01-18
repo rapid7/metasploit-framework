@@ -15,9 +15,17 @@ html,body {
     font-family: monospace;
 }
 
+#console_window {
+	width: 600px;
+	margin: 1em;
+	background: #000000;
+	padding: 1em;
+}
+
 #output {
     white-space: pre;
     white-space: -moz-pre-wrap;
+	background: #000000;
 }
 
 #input {
@@ -25,6 +33,7 @@ html,body {
     border: none;
     padding: 0;
     overflow: auto;
+	background: #000000;
 }
 
 .input {
@@ -32,6 +41,6 @@ html,body {
     font: inherit;
     font-weight: bold;
     margin-top: .5em;
-    background: #444;
     color: #fff;
+	background: #000000;
 }
