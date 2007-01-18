@@ -11,7 +11,8 @@ html,body {
     height: 100%;
     overflow: hidden;
     background: #444;
-    color: white;
+    color: #fff;
+    font-family: monospace;
 }
 
 #output {
@@ -31,5 +32,6 @@ html,body {
     font: inherit;
     font-weight: bold;
     margin-top: .5em;
+    background: #444;
+    color: #fff;
 }
-

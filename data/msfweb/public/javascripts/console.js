@@ -9,12 +9,41 @@ var console_hindex  = 0;            // Index to current command history
 var console_input;                  // Object to console input
 var console_output;                 // Object to console output
 
-function console_refocus() {}
-function console_tabcomplete() {
-    // TODO: 
+function console_refocus() {
+    console_input.blur();
+    console_input.focus();
 }
 
-function console_execute() {}
+function console_printline(s, type) {
+    if ((s=String(s))) {
+        var n = document.createElement("div");
+        n.appendChild(document.createTextNode(s));
+        n.className = type;
+        console_output.appendChild(n);
+        return n;
+    }
+}
+
+var console_commands = {
+    print : function print(s) {
+        console_printline(s, "info");
+    },
+    clear: function clear() {
+        var child_preserve = 3;
+        while (console_output.childNodes[child_preserve]) 
+            console_output.removeChild(console_output.childNodes[child_preserve]);
+    }
+}
+
+function console_tabcomplete() {
+    // TODO: get console_input.value, send to process_cmd with mode=tabcomplete
+    // retrieve array of possible matches
+    // put them to output container
+    // done.
+}
+
+function console_execute() {
+}
 
 function console_keydown(e) {
     if (e.keyCode == 13) {          // enter
