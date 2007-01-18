@@ -42,6 +42,8 @@ module BindTcp
 			], Msf::Handler::BindTcp)
 
 		self.conn_threads = []
+		self.listener_threads = []
+		self.listener_pairs = {}
 	end
 
 	#
@@ -56,23 +58,51 @@ module BindTcp
 	end
 
 	#
+	# Starts a new connecting thread
+	#
+	def add_handler(opts={})
+	
+		# Merge the updated datastore values
+		opts.each_pair do |k,v|
+			datastore[k] = v
+		end
+		
+		# Start a new handler
+		start_handler
+	end
+
+	#
 	# Starts monitoring for an outbound connection to become established.
 	#
 	def start_handler
 
 		# Maximum number of seconds to run the handler
-		ctimeout = 300
+		ctimeout = 150
 		
 		if (exploit_config and exploit_config['active_timeout'])
 			ctimeout = exploit_config['active_timeout'].to_i
 		end
 	
-		self.listener_thread = Thread.new {
+		# Take a copy of the datastore options
+		rhost = datastore['RHOST']
+		lport = datastore['LPORT']
+		
+		# Ignore this if one of the required options is missing
+		return if not rhost
+		return if not lport
+	
+		# Only try the same host/port combination once
+		phash = rhost + ':' + lport
+		return if self.listener_pairs[phash]
+		self.listener_pairs[phash] = true
+	
+		# Start a new handling thread
+		self.listener_threads << Thread.new {
 			client = nil
-
+			
 			print_status("Started bind handler")
 
-			if (datastore['RHOST'] == nil)
+			if (rhost == nil)
 				raise ArgumentError, 
 					"RHOST is not defined; bind stager cannot function.",
 					caller
@@ -83,8 +113,8 @@ module BindTcp
 			while (stime + ctimeout > Time.now.to_i)
 				begin
 					client = Rex::Socket::Tcp.create(
-						'PeerHost' => datastore['RHOST'],
-						'PeerPort' => datastore['LPORT'].to_i,
+						'PeerHost' => rhost,
+						'PeerPort' => lport.to_i,
 						'Proxies'  => datastore['Proxies'],
 						'Context'  =>
 							{
@@ -130,18 +160,19 @@ module BindTcp
 	# Nothing to speak of.
 	#
 	def stop_handler
-		# Stop the listener thread.
-		if (listener_thread)
-			listener_thread.kill
-			self.listener_thread = nil
+		# Stop the listener threads
+		listener_threads.each do |t|
+			t.kill
 		end
+		listener_threads = []
+		listener_pairs = {}
 	end
 
 protected
 
 	attr_accessor :conn_threads # :nodoc:
-	attr_accessor :listener_thread # :nodoc:
-
+	attr_accessor :listener_threads # :nodoc:
+	attr_accessor :listener_pairs # :nodoc:
 end
 
 end

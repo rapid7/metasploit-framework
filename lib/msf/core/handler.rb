@@ -100,6 +100,12 @@ module Handler
 	end
 
 	#
+	# Start another connection monitor
+	#
+	def add_handler(opts={})
+	end
+
+	#
 	# Stop monitoring for a connection.
 	#
 	def stop_handler
