@@ -5,13 +5,15 @@ require 'rex/ui/text/output'
 require 'rex/ui/text/output/buffer'
 require 'rex/ui/text/input/buffer'
 
-class BidirectionalPipe
-
-	include Rex::UI::Text::Output
+class BidirectionalPipe < Rex::Ui::Text::Input
 
 	def initialize
 		@subscribers_out = {}
 		@pipe_input = Rex::Ui::Text::Input::Buffer.new
+	end
+
+	def pipe_input
+		@pipe_input
 	end
 
 	def close

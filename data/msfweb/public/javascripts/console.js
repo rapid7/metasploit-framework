@@ -8,6 +8,7 @@ var console_history = new Array();  // Commands history
 var console_hindex  = 0;            // Index to current command history
 var console_input;                  // Object to console input
 var console_output;                 // Object to console output
+var console_prompt;                 // Object to console prompt
 
 function console_refocus() {
     console_input.blur();
@@ -24,6 +25,7 @@ function console_printline(s, type) {
     }
 }
 
+var prompt = 'msf> ';
 var console_commands = {
     print : function print(s) {
         console_printline(s, "info");
@@ -49,12 +51,33 @@ function console_execute() {
 	}
 }
 
+function console_update_output(req) {
+	console_printline(req.responseText);
+	console_input.focus();
+}
+
 function console_keydown(e) {
+
+	if (e.keyCode == 8) {
+		window.title = console_input.value;
+	}
+
     if (e.keyCode == 13) {          // enter
         console_history.push(console_input.value);
         try { console_execute(); } catch(er) { alert(er); };
-        setTimeout(function() { console_input.value = "msf> "; }, 0);
-		console_printline("[-] Unknown command: " + console_input.value);
+		
+		new Ajax.Updater("console_update", document.location, {
+			asynchronous:true,
+			evalScripts:true,
+			parameters:"cmd=" + escape(console_input.value),
+			onComplete:console_update_output
+		});	
+	
+		console_input.value = "";
+		console_input.focus();
+		console_prompt = prompt;
+		return false;
+		
     } else if (e.keyCode == 38) {   // up
         // TODO: place upper cmd in history on console_input.value
     } else if (e.keyCode == 40) {   // down
@@ -70,7 +93,9 @@ function console_init() {
 
     console_input   = document.getElementById("console_input");
     console_output  = document.getElementById("console_output");
-	console_input.innerHTML = "msf&gt; ";
+	console_prompt  = document.getElementById("console_prompt");
+	
+	console_prompt.value = prompt;
 	console_input.focus();
     return true;
 }

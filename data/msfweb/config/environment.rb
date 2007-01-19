@@ -48,6 +48,5 @@ require 'rex'
 require 'msf/ui'
 require 'msf/base'
 
-Msf::Config.init
-Msf::Logging.enable_log_source('msfweb', 5)
-$msframework = Msf::Simple::Framework.create
+$msfweb      = Msf::Ui::Web::Driver.new({'LogLevel' => 5})
+$msframework = $msfweb.framework

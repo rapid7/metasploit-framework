@@ -11,69 +11,110 @@ require 'msf/ui/web/comm'
 
 ###
 #
+# This class implements a console instance for use by the web interface
+#
+###
+
+class WebConsole
+	attr_accessor :pipe
+	attr_accessor :console
+	attr_accessor :console_id
+	attr_accessor :last_access
+	attr_accessor :framework
+
+
+	class WebConsolePipe < Rex::IO::BidirectionalPipe
+
+		attr_accessor :input
+		attr_accessor :output
+		attr_accessor :prompt
+		attr_accessor :killed
+
+		def eof?
+			self.pipe_input.eof?
+		end
+
+		def intrinsic_shell?
+			true
+		end
+
+		def supports_readline
+			false
+		end
+		
+		def _print_prompt
+		end
+		
+		def pgets
+			self.pipe_input.gets
+		end
+	end
+	
+
+	def initialize(framework, console_id)
+		# Configure the framework
+		self.framework = framework
+
+		# Configure the ID
+		self.console_id = console_id
+
+		# Create a new pipe 
+		self.pipe = WebConsolePipe.new
+		self.pipe.input = self.pipe.pipe_input
+
+		# Create a read subscriber
+		self.pipe.create_subscriber('msfweb')
+
+		# Initialize the console with our pipe
+		self.console = Msf::Ui::Console::Driver.new(
+			'msf>',
+			'>',
+			{
+				'Framework'   => self.framework,
+				'LocalInput'  => self.pipe, 
+				'LocalOutput' => self.pipe,
+			}
+		)
+		
+		Thread.new { self.console.run }
+
+		update_access()
+	end
+
+	def update_access
+		self.last_access = Time.now
+	end
+
+	def read
+		update_access
+		self.pipe.read_subscriber('msfweb')
+	end
+
+	def write(buf)
+		update_access
+		self.pipe.write_input(buf)
+	end
+	
+	def shutdown
+		self.pipe.killed = true
+		self.pipe.close
+	end
+end
+	
+###
+#
 # This class implements a user interface driver on a web interface.
 #
 ###
 class Driver < Msf::Ui::Driver
 
+
+	attr_accessor :framework # :nodoc:
+	attr_accessor :consoles # :nodoc:
+	attr_accessor :last_console # :nodoc: 
+
 	ConfigCore  = "framework/core"
 	ConfigGroup = "framework/ui/web"
-
-	@@Eid = 0
-
-	#
-	# Returns the next unique exploit identifier.
-	#
-	def self.next_eid
-		@@Eid += 1
-		@@Eid.to_s
-	end
-
-	#
-	# The msfweb resource handler that wrappers the default Erb handler.
-	#
-	class ResourceHandler < Rex::Proto::Http::Handler::Erb
-		def initialize(server, root_path, framework, driver, opts = {})
-			opts['ErbCallback'] = ::Proc.new { |erb, cli, request, response| 
-				query_string = request.qstring
-				meta_vars    = request.meta_vars
-				erb.result(binding)
-			}
-
-			super(server, root_path, opts)
-
-			self.framework = framework
-			self.driver    = driver
-		end
-
-		attr_accessor :framework # :nodoc:
-		attr_accessor :driver    # :nodoc:
-	end
-
-	#
-	# The default port to listen for HTTP requests on.
-	#
-	DefaultPort = 55555
-
-	#
-	# The default host to listen for HTTP requests on.
-	#
-	DefaultHost = "127.0.0.1"
-
-	#
-	# The default root directory for requests.
-	#
-	DefaultRoot = "/"
-
-	#
-	# The default local directory for msfweb.
-	#
-	DefaultLocalDirectory = Msf::Config.data_directory + File::SEPARATOR + "msfweb"
-
-	#
-	# The default index script.
-	#
-	DefaultIndex = "index.rhtml"
 
 	#
 	# Initializes a web driver instance and prepares it for listening to HTTP
@@ -87,6 +128,9 @@ class Driver < Msf::Ui::Driver
 		# Set the passed options hash for referencing later on.
 		self.opts = opts
 
+		# Initalize the consoles set
+		self.consoles = {}
+
 		# Initialize configuration
 		Msf::Config.init
 		
@@ -95,144 +139,55 @@ class Driver < Msf::Ui::Driver
 
 		# Initialize attributes
 		self.framework = Msf::Simple::Framework.create
-
-		# Initialize the termination event.
-		self.term_event = Rex::Sync::Event.new
-
-		# Include common helper stuff.  If there is no common stuff to be
-		# included, then we'll just catch the exception and move on with our
-		# life.
-		begin
-			if ($:.include?(server_local_directory) == false)
-				$:.unshift(server_local_directory)
-				require 'msfweb_common'
-			end
-		rescue
-		end
-	end
-
-	#
-	# Starts the HTTP server and waits for termination.
-	#
-	def run
-		self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
-				port = (opts['ServerPort'] || DefaultPort).to_i,
-				host = (opts['ServerHost'] || DefaultHost))
-
-		ilog("Web server started on #{host}:#{port}", LogSource)
-
-		# Mount the server root directory on the web server instance.  We pass
-		# it a custom ErbCallback so that we can have it run in a context that
-		# has the framework instance defined.
-		service.mount(
-			server_root,
-			ResourceHandler, 
-			false,
-			server_local_directory,	
-			framework,
-			self)
-
-		# Add a resource that will be responsible for waiting for channels to
-		# have input that needs to be read from and written back to http
-		# clients.  Since this call will block for an extended period of time,
-		# we set the long call flag to cause it to run in the context of a
-		# thread.
-		service.add_resource("/internal/comm_read", 
-			'Proc' => Proc.new { |client, request|
-				begin
-					Comm.read_channels(client, request)
-				rescue ::Exception
-					dlog("comm_read: #{$!}")
-				end
-			},
-			'LongCall' => true)
-
-		# Add a resource for writing to channels.
-		service.add_resource("/internal/comm_write",
-			'Proc' => Proc.new { |client, request|
-				begin
-					Comm.write_channel(client, request)
-				rescue ::Exception
-					dlog("comm_write: #{$!}")
-				end
-			})
-
-		# Add a resource that will be used to create a channel for a given
-		# resource.
-		service.add_resource("/internal/comm_create",
-			'Proc' => Proc.new { |client, request|
-				begin
-					Comm.create_channel(client, request)
-				rescue ::Exception
-					dlog("comm_create: #{$!}")
-				end
-			})
+		
+		# Initialize the console count
+		self.last_console = 0
 
 		# Give the comm an opportunity to set up so that it can receive
-		# notifications about session creation and so on.
+		# notifications about session creation and so on.		
 		Comm.setup(framework)
+	end
 
-		# Wait for the termination event to be set.
-		term_event.wait
-
-		# Stop the source and clean it up.
-		Rex::ServiceManager.stop_service(service)
-
-		service.deref
-		
+	def create_console
+		# Destroy any unused consoles
+		clean_consoles
+	
+		console = WebConsole.new(self.framework, self.last_console)
+		self.last_console += 1
+		self.consoles[console.console_id.to_s] = console	
+		console.console_id.to_s
+	end
+	
+	def write_console(id, buf)
+		self.consoles[id] ? self.consoles.write(buf) : nil
+	end
+	
+	def read_console(id)
+		self.consoles[id] ? self.consoles.read() : nil
+	end
+	
+	def clean_consoles(timeout=300)
+		self.consoles.each_pair do |id, con|
+			if (con.last_access + timeout < Time.now)
+				con.shutdown
+				self.consoles.delete(id)
+			end
+		end
+	end
+	
+	#
+	# Stub
+	#
+	def run
 		true
 	end
 
-	#
-	# Sets the event that will cause the web service to terminate.
-	#
-	def terminate
-		term_event.set
-	end
-
-	#
-	# Returns the root resource name, such as '/msfweb'.
-	#
-	def server_root
-		opts['ServerRoot'] || DefaultRoot
-	end
-
-	#
-	# Returns the server index, such as 'index.rhtml'.
-	#
-	def server_index
-		opts['ServerIndex'] || DefaultIndex
-	end
-
-	#
-	# Returns the local directory that will hold the files to be serviced.
-	#
-	def server_local_directory
-		opts['ServerLocalDirectory'] || DefaultLocalDirectory
-	end
-
-	#
-	# The framework instance associated with this driver.
-	#
-	attr_reader   :framework
-
 protected
 
-	attr_writer   :framework # :nodoc:
 	attr_accessor :opts      # :nodoc:
 
 	#
-	# The internal event used to cause the web service to stop.
-	#
-	attr_accessor :term_event
-
-	#
-	# The internal service context.
-	#
-	attr_accessor :service
-
-	#
-	# Initializes logging for the web server.
+	# Initializes logging for the web interface
 	#
 	def initialize_logging
 		level = (opts['LogLevel'] || 0).to_i

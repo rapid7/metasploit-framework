@@ -13,18 +13,17 @@ require 'rex/io/stream_abstraction'
 ###
 class Input::Buffer < Rex::Ui::Text::Input
 
-	def initialize
-		@sock = Rex::IO::StreamAbstraction.new
+	class BufferSock
+		include Rex::IO::StreamAbstraction
+	end
 
+	def initialize
+		@sock = BufferSock.new
 		@sock.initialize_abstraction
 	end
 
 	def close
 		@sock.cleanup_abstraction
-	end
-
-	def supports_readline
-		false
 	end
 
 	def sysread(len = 1)
