@@ -8,7 +8,7 @@ module Ui
 module Web
 
 require 'msf/ui/web/comm'
-
+require 'rex/io/bidirectional_pipe'
 ###
 #
 # This class implements a console instance for use by the web interface
