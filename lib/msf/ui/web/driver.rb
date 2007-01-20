@@ -21,7 +21,7 @@ class WebConsole
 	attr_accessor :console_id
 	attr_accessor :last_access
 	attr_accessor :framework
-
+	attr_accessor :thread
 
 	class WebConsolePipe < Rex::IO::BidirectionalPipe
 
@@ -29,7 +29,7 @@ class WebConsole
 		attr_accessor :output
 		attr_accessor :prompt
 		attr_accessor :killed
-
+		
 		def eof?
 			self.pipe_input.eof?
 		end
@@ -67,7 +67,7 @@ class WebConsole
 
 		# Initialize the console with our pipe
 		self.console = Msf::Ui::Console::Driver.new(
-			'msf>',
+			'msf',
 			'>',
 			{
 				'Framework'   => self.framework,
@@ -76,7 +76,7 @@ class WebConsole
 			}
 		)
 		
-		Thread.new { self.console.run }
+		self.thread = Thread.new { self.console.run }
 
 		update_access()
 	end
@@ -95,9 +95,24 @@ class WebConsole
 		self.pipe.write_input(buf)
 	end
 	
+	def execute(cmd)
+		self.console.run_single(cmd)
+		self.read
+	end
+	
+	def prompt
+		$stderr.puts(self.pipe.prompt)
+		self.pipe.prompt
+	end
+	
+	def tab_complete(cmd)
+		self.console.tab_complete(cmd)
+	end
+	
 	def shutdown
 		self.pipe.killed = true
 		self.pipe.close
+		self.thread.kill
 	end
 end
 	

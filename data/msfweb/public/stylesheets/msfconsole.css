@@ -15,7 +15,6 @@ html,body {
 }
 
 #console_window {
-	width: 100%;
 	margin: 1em;
 	background: #000000;
 	padding: 1em;
@@ -37,22 +36,19 @@ html,body {
 }
 
 .input {
-    border: none;
-    font: inherit;
     font-weight: bold;
-    color: #fff;
-	padding: 0;
-	margin-top: 1em;
 	background: #000000;
+	border: 0;
+	color: white;
+	width: 400px;
 }
 
 .prompt {
-	width: 3em;
-	margin-top: 1em;
-    border: none;
-    padding: 0;
-	background: #000000;
 	color: white;
     font-weight: bold;	
 	text-align: right;
+}
+
+.console_command_bar {
+	background: #000000;
 }

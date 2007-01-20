@@ -22,19 +22,29 @@
             </div>
 		</pre>
 		
-            <textarea
-				rows="1"
-				id="console_prompt" 
-				class="prompt" 
-				disabled="true"
-			></textarea>
-            <textarea 
+			<table class="console_command_bar" border=0 padding=4 cellspacing=0 width='100%'>
+			<tr>
+			<td 
+				nowrap='true'
+				valign='top'
+				id="console_prompt"
+			>
+				<%=h @console.prompt %>
+			</td>
+			<td nowrap='true' width='100%'>
+            
+			<textarea 
 				id="console_input" 
 				class="input" 
 				wrap="off" 
-				onkeydown="return console_keydown(event)" 
+				onkeydown="return console_keydown(event)"
+				onkeypress="return console_keypress(event)"
 				rows="1"
 			></textarea>
+			
+			</td>
+			</tr>
+			</table>
         </div>
 		
     </body>
