@@ -262,6 +262,20 @@ module Socket
 		end
 	end
 	
+	def self.socket_pair
+		begin
+			pair = ::Socket.pair(::Socket::AF_UNIX, ::Socket::SOCK_STREAM, 0)
+
+		# Windows does not support Socket.pair, so we emulate it
+		rescue ::NotImplementedError
+			srv = TCPServer.new('localhost', 0)
+			rsock = TCPSocket.new(srv.addr[3], srv.addr[1])
+			lsock = srv.accept
+			srv.close
+			[lsock, rsock]
+		end	
+	end
+	
 
 	##
 	#

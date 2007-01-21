@@ -47,9 +47,7 @@ module StreamAbstraction
 	# This method creates a streaming socket pair and initializes it.
 	#
 	def initialize_abstraction
-		self.lsock, self.rsock = ::Socket.pair(::Socket::AF_UNIX,
-				::Socket::SOCK_STREAM, 0)
-
+		self.lsock, self.rsock = Rex::Socket.socket_pair()
 		self.lsock.extend(Rex::IO::Stream)
 		self.lsock.extend(Ext)
 		self.rsock.extend(Rex::IO::Stream)
