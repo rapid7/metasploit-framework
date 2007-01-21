@@ -45,6 +45,7 @@ arguments.parse(ARGV) { |opt, idx, val|
 }
 
 system(
+	"ruby",
 	msfserv, 
 	'-p', (opts['ServerPort'] || '55555'), 
 	'-b', (opts['ServerHost'] || '127.0.0.1'),
