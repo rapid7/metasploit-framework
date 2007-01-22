@@ -15,14 +15,12 @@
     <body onload="console_init()">
 
         <div id="console_window">
-		
-		<pre>
-            <div id="console_output" class="output">
+
+            <div id="console_output">
 				<%=h @console.read %>
             </div>
-		</pre>
-		
-			<table class="console_command_bar" border=0 padding=4 cellspacing=0 width='100%'>
+
+			<table id="console_command_bar" border=0 padding=4 cellspacing=0 width='100%'>
 			<tr>
 			<td 
 				nowrap='true'

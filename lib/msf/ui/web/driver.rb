@@ -73,11 +73,12 @@ class WebConsole
 				'Framework'   => self.framework,
 				'LocalInput'  => self.pipe, 
 				'LocalOutput' => self.pipe,
+				'AllowCommandPassthru' => false,
 			}
 		)
 		
 		self.thread = Thread.new { self.console.run }
-
+		
 		update_access()
 	end
 
@@ -87,6 +88,7 @@ class WebConsole
 
 	def read
 		update_access
+
 		self.pipe.read_subscriber('msfweb')
 	end
 
@@ -101,7 +103,6 @@ class WebConsole
 	end
 	
 	def prompt
-		$stderr.puts(self.pipe.prompt)
 		self.pipe.prompt
 	end
 	

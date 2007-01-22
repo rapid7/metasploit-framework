@@ -12,19 +12,30 @@ html,body {
     background: #000000;
     color: #fff;
     font-family: monospace;
+	font-size: 12px;
 }
 
 #console_window {
-	margin: 1em;
 	background: #000000;
 	padding: 1em;
 }
 
-#output {
+#console_output {
     width: 100%;
-    white-space: pre;
-    white-space: -moz-pre-wrap;
+	white-space: pre-wrap;       /* css-3 */
+	white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+	white-space: -pre-wrap;      /* Opera 4-6 */
+	white-space: -o-pre-wrap;    /* Opera 7 */
+	word-wrap: break-word;       /* Internet Explorer 5.5+ */
 	background: #000000;
+}
+
+.output_line {
+	white-space: pre-wrap;       /* css-3 */
+	white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+	white-space: -pre-wrap;      /* Opera 4-6 */
+	white-space: -o-pre-wrap;    /* Opera 7 */
+	word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
 
@@ -36,19 +47,31 @@ html,body {
 }
 
 .input {
-    font-weight: bold;
+	font: inherit;
+	font-family: monospace;
 	background: #000000;
 	border: 0;
 	color: white;
-	width: 400px;
+	width: 600px;
+	overflow: hidden;
+	font-size: 12px;
 }
 
 .prompt {
 	color: white;
-    font-weight: bold;	
+	font: inherit;
 	text-align: right;
+	font-family: monospace;
+	font-size: 12px;
 }
 
-.console_command_bar {
+#console_command_bar {
 	background: #000000;
+}
+
+#console_status {
+	color: #fff;
+	font-family: monospace;
+	font-size: 12px;
+	text-transform: smallcaps;
 }

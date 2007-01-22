@@ -9,12 +9,42 @@ var console_hindex  = 0;            // Index to current command history
 var console_input;                  // Object to console input
 var console_output;                 // Object to console output
 var console_prompt;                 // Object to console prompt
+var console_status;
+var console_cmdbar;
 
 // Placeholders
 var con_prompt = "";
 var con_update = "";
 var con_tabbed = "";
 
+
+
+// Internal commands
+var cmd_internal = 
+{
+	clear:function() {
+		console_output.innerHTML = '';
+	}
+};
+
+function status_busy() {
+	console_input.style.color = "red";
+}
+
+function status_free() {
+	console_input.style.color = "white";
+}
+
+// This function is based on the excellent example:
+// http://tryruby.hobix.com/js/mouseApp.js
+function keystroke_block(e) {
+	e.cancelBubble=true;
+	e.returnValue = false;
+	if (window.event && !window.opera) e.keyCode=0;
+	if (e.stopPropagation) e.stopPropagation();
+	if (e.preventDefault)  e.preventDefault();
+	return false;
+}
 
 function console_refocus() {
     console_input.blur();
@@ -24,7 +54,15 @@ function console_refocus() {
 function console_printline(s, type) {
     if ((s=String(s))) {
         var n = document.createElement("div");
-        n.appendChild(document.createTextNode(s));
+		
+		// IE has to use innerText
+		if (n.innerText != undefined) {
+			n.innerText = s;
+		// Firefox uses createTextNode
+		} else {
+	        n.appendChild(document.createTextNode(s));
+		}
+		
         n.className = type;
         console_output.appendChild(n);
         return n;
@@ -35,9 +73,9 @@ function console_update_output(req) {
 	
 	try { eval(req.responseText); } catch(e){ alert(req.responseText); }
 	
-	window.status = "";
+	status_free();
 		
-	console_printline(con_update);
+	console_printline(con_update, 'output_line');
 	console_prompt.innerHTML = con_prompt;
 	console_refocus();
 
@@ -46,8 +84,9 @@ function console_update_output(req) {
 function console_update_tabs(req) {
 	try { eval(req.responseText); } catch(e){ console_output.innerHTML = req.responseText; }
 	
-	window.status = "";
-	console_printline(con_update);
+	status_free();
+	
+	console_printline(con_update, 'output_line');
 	console_prompt.innerHTML = con_prompt;
 	console_input.value = con_tabbed;
 	
@@ -56,11 +95,25 @@ function console_update_tabs(req) {
 
 function console_keypress(e) {
 	if (e.keyCode == 13) {          // enter
-        console_history.push(console_input.value);
+        
+		console_input.value = (console_input.value.replace(/^ +/,'')).replace(/ +$/,'');
 		
-		console_printline("\n" + con_prompt + ' ' + console_input.value)
+		// ignore duplicate commands in the history
+		if(console_history[console_history.length-1] != console_input.value) {		
+			console_history.push(console_input.value);
+			console_hindex = console_history.length - 1;
+		}
 		
-		window.status = "Executing command, please wait..."
+		console_printline("\n" + con_prompt + ' ' + console_input.value, 'output_line')
+		
+		if(cmd_internal[console_input.value]) {
+			cmd_internal[console_input.value]();
+			console_input.value = "";
+			console_input.focus();			
+			return keystroke_block(e);
+		}
+		
+		status_busy();
 		
 		new Ajax.Updater("console_update", document.location, {
 			asynchronous:true,
@@ -71,28 +124,44 @@ function console_keypress(e) {
 
 		console_input.value = "";
 		console_input.focus();
-		return false;
+		return keystroke_block(e);
 	}
 		
 }
 
 
 function console_keydown(e) {
-
+	
     if (e.keyCode == 38) {   // up
         // TODO: place upper cmd in history on console_input.value
-		alert('UP');
+
+		console_input.value = console_history[console_hindex];
+		if (console_hindex > 0) {
+			console_hindex--;
+		}
+		
+		return keystroke_block(e);
+		
     } else if (e.keyCode == 40) {   // down
-        // TODO: place lower cmd in history on console_input.value
-		alert('DOWN');
+		
+		if (console_hindex < console_history.length - 1) {
+			console_hindex++;
+		}
+		console_input.value = console_history[console_hindex];
+		
+		return keystroke_block(e);
+		
     } else if (e.keyCode == 9) {   // tab
-		window.status = "Finding possible commands..."
+		
+		status_busy();
+					
 		new Ajax.Updater("console_update", document.location, {
 			asynchronous:true,
 			evalScripts:true,
 			parameters:"tab=" + escape(console_input.value),
 			onComplete:console_update_tabs
 		});	
+		return keystroke_block(e);
     }
 
 }
@@ -102,8 +171,11 @@ function console_init() {
     console_input   = document.getElementById("console_input");
     console_output  = document.getElementById("console_output");
 	console_prompt  = document.getElementById("console_prompt");
+	console_status  = document.getElementById("console_status");
+	console_cmdbar  = document.getElementById("console_command_bar");
 	
 	console_refocus();
+	status_free();
 	
     return true;
 }
