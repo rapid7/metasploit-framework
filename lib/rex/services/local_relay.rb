@@ -180,11 +180,11 @@ class LocalRelay
 		if ((opts['PeerHost'] == nil or opts['PeerPort'] == nil) and (opts['Stream'] != true))
 			raise ArgumentError, "Missing peer host or peer port.", caller
 		end
-	
+
 		listener = Rex::Socket.create_tcp_server(
 			'LocalHost' => opts['LocalHost'],
 			'LocalPort' => lport)
-
+	
 		opts['LocalPort']   = lport
 		opts['__RelayType'] = 'tcp'
 

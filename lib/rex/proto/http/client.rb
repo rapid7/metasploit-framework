@@ -121,7 +121,7 @@ class Client
 			pstr << '='
 			pstr << set_encode_uri(val)
 		end
-				
+
 		req = ''
 		req += set_method(c_meth)
 		req += set_method_uri_spacer()

@@ -194,6 +194,8 @@ class Core
 	# Goes into IRB scripting mode
 	#
 	def cmd_irb(*args)
+		defanged?
+
 		print_status("Starting IRB shell...\n")
 
 		begin
@@ -254,6 +256,8 @@ class Core
 	# the framework root plugin directory is used.
 	#
 	def cmd_load(*args)
+		defanged?
+
 		if (args.length == 0)
 			print_line(
 				"Usage: load <path> [var=val var=val ...]\n\n" +
@@ -311,6 +315,8 @@ class Core
 	# storage medium, such as a flatfile.
 	#
 	def cmd_persist(*args)
+		defanged?
+
 		if (args.length == 0)
 			args.unshift("-h")
 		end
@@ -499,6 +505,8 @@ class Core
 	# restarts of the console.
 	#
 	def cmd_save(*args)
+		defanged?
+
 		# Save the console config
 		driver.save_config
 
@@ -521,6 +529,8 @@ class Core
 	# Adds one or more search paths.
 	#
 	def cmd_loadpath(*args)
+		defanged?
+
 		if (args.length == 0)
 			print_error("No search paths were provided.")
 			return true

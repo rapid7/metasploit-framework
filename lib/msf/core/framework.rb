@@ -132,7 +132,7 @@ class Framework
 	# maintains the database db and handles db events
 	#
 	attr_reader   :db
-	
+
 protected
 
 	attr_writer   :events # :nodoc:

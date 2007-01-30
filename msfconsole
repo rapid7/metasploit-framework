@@ -24,6 +24,9 @@ class OptsConsole
 			opts.separator ""
 			opts.separator "Specific options:"
 
+			opts.on("-d", "-d", "Execute the console as defanged") do
+				options['Defanged'] = true
+			end
 
 			opts.on("-r", "-r <filename>", "Execute the specified resource file") do |r|
 				options['Resource'] = r

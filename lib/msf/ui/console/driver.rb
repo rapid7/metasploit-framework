@@ -95,6 +95,14 @@ class Driver < Msf::Ui::Driver
 
 		# Whether or not command passthru should be allowed
 		self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
+
+		# Disables "dangerous" functionality of the console
+		@defanged = opts['Defanged'] == true
+
+		# If we're defanged, then command passthru should be disabled
+		if @defanged
+			self.command_passthru = false
+		end
 	end
 
 	#
@@ -259,6 +267,17 @@ class Driver < Msf::Ui::Driver
 	#
 	attr_accessor :active_module
 
+	#
+	# If defanged is true, dangerous functionality, such as exploitation, irb,
+	# and command shell passthru is disabled.  In this case, an exception is 
+	# raised.
+	#
+	def defanged?
+		if @defanged
+			raise DefangedException
+		end
+	end
+
 protected
 
 	attr_writer   :framework # :nodoc:
@@ -328,6 +347,16 @@ protected
 		set_log_level(Msf::LogSource, val)
 	end
 
+end
+
+#
+# This exception is used to indicate that functionality is disabled due to
+# defanged being true
+#
+class DefangedException < ::Exception
+	def to_s
+		"This functionality is currently disabled (defanged mode)"
+	end
 end
 
 end
