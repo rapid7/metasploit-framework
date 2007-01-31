@@ -9,6 +9,7 @@ module Web
 
 require 'msf/ui/web/comm'
 require 'rex/io/bidirectional_pipe'
+
 ###
 #
 # This class implements a console instance for use by the web interface
@@ -50,6 +51,17 @@ class WebConsole
 		end
 	end
 	
+	#
+	# Provides some overrides for web-based consoles
+	#
+	module WebConsoleShell
+	
+		def supports_color?
+			false
+		end
+	
+	end
+
 
 	def initialize(framework, console_id)
 		# Configure the framework
@@ -77,6 +89,8 @@ class WebConsole
 			}
 		)
 		
+		self.console.extend(WebConsoleShell)
+		
 		self.thread = Thread.new { self.console.run }
 		
 		update_access()
@@ -99,7 +113,6 @@ class WebConsole
 	
 	def execute(cmd)
 		self.console.run_single(cmd)
-		self.read
 	end
 	
 	def prompt

@@ -1348,6 +1348,15 @@ protected
 				print("\nPayload options:\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
 			end
 		end
+
+		# Print the selected target
+		if (mod.exploit? and mod.target)
+			mod_targ = Serializer::ReadableText.dump_exploit_target(mod, '   ')
+			print("\nExploit target:\n\n#{mod_targ}\n") if (mod_targ and mod_targ.length > 0)
+		end
+
+		# Uncomment this line if u want target like msf2 format
+		#print("\nTarget: #{mod.target.name}\n\n")
 	end
 
 	def show_targets(mod) # :nodoc:

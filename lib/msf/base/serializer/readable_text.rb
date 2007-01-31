@@ -55,6 +55,24 @@ class ReadableText
 	end
 
 	#
+	# Dumps the exploit's selected target
+	#
+	def self.dump_exploit_target(mod, indent = '', h = nil)
+		tbl = Rex::Ui::Text::Table.new(
+			'Indent'  => indent.length,
+			'Header'  => h,
+			'Columns' =>
+				[
+					'Id', 
+					'Name',
+				])
+
+		tbl << [ mod.target_index, mod.target.name || 'All' ]
+
+		tbl.to_s + "\n"
+	end
+	
+	#
 	# Dumps an auxiliary's actions
 	#
 	def self.dump_auxiliary_actions(mod, indent = '', h = nil)

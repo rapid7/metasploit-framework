@@ -1,6 +1,8 @@
 /* web msfconsole (console.js)
- * Copyright (c) 2006 LMH <lmh@info-pull.com>
- * All Rights Reserved.
+ * Original version is Copyright (c) 2006 LMH <lmh[at]info-pull.com>
+ * Added to Metasploit under the terms of the Metasploit Framework License v1.2
+ * Additions Copyright (C) 2006-2007 Metasploit LLC
+ *
  * Inspired by Jesse Ruderman's Javascript Shell.
 */
 
@@ -51,6 +53,16 @@ function console_refocus() {
     console_input.focus();
 }
 
+function console_read() {
+	new Ajax.Updater("console_update", document.location, {
+		asynchronous:true,
+		evalScripts:true,
+		parameters:"cmd=",
+		onComplete:console_read_output
+	});	
+}
+
+
 function console_printline(s, type) {
     if ((s=String(s))) {
         var n = document.createElement("div");
@@ -69,15 +81,27 @@ function console_printline(s, type) {
     }
 }
 
+function console_read_output(req) {
+	// Call the console updated
+	console_update_output(req);
+	
+	// Reschedule the console reader
+	setTimeout(console_read, 1000);
+}
+
 function console_update_output(req) {
 	
 	try { eval(req.responseText); } catch(e){ alert(req.responseText); }
 	
 	status_free();
 		
-	console_printline(con_update, 'output_line');
+	if (con_update.length > 0) {
+		console_printline(con_update, 'output_line');
+	}
+	
 	console_prompt.innerHTML = con_prompt;
 	console_refocus();
+	
 
 }
 
@@ -176,6 +200,8 @@ function console_init() {
 	
 	console_refocus();
 	status_free();
+	
+	//console_read();
 	
     return true;
 }

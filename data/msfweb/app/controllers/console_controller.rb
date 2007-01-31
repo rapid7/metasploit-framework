@@ -23,9 +23,10 @@ class ConsoleController < ApplicationController
 			out = ''
 			
 			if (params[:cmd].strip.length > 0)
-				out = @console.execute(params[:cmd])
+				@console.execute(params[:cmd])
 			end
 			
+			out = @console.read()
 			out = out.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
 			pro = @console.prompt.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
 			

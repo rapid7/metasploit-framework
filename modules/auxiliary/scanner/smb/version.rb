@@ -56,6 +56,9 @@ class Auxiliary::Scanner::Smb::Version < Msf::Auxiliary
 				when /Windows Server 2003 (\d+) Service Pack (\d+)/
 					os = 'Windows 2003'
 					sp = 'Service Pack ' + $2
+				when /Windows Vista \(TM\) (\w+) (\d+)/
+					os = 'Windows Vista ' + $1
+					sp = '(Build ' + $2 + ')'
 				when 'Unix'
 					os = 'Unix'
 					sv = smb_peer_lm()
@@ -90,12 +93,16 @@ class Auxiliary::Scanner::Smb::Version < Msf::Auxiliary
 			end
 			
  			print_status("#{ip} is running #{os} #{sp}")
+			
+			if (os == 'Unknown') 
+				print_status("NativeOS: #{smb_peer_os()}")
+				print_status("NativeLM: #{smb_peer_lm()}")
+			end
+			
 			disconnect()
 
 			return
 		rescue
-			p $!
-			p $!.backtrace
 		end
 		end
 	end
