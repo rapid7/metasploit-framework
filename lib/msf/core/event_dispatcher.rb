@@ -12,11 +12,14 @@ module GeneralEventSubscriber
 	#
 	# Called when a module is loaded
 	#
-	attr_accessor :on_module_load_proc
+	def on_module_load(refname, klass)
+	end
+
 	#
 	# Called when a new module instance is created
 	#
-	attr_accessor :on_module_created_proc
+	def on_module_created(instance)
+	end
 end
 
 ###
@@ -128,9 +131,7 @@ class EventDispatcher
 	def on_module_load(name, mod)
 		subscribers_rwlock.synchronize_read {
 			general_event_subscribers.each { |subscriber|
-				next if (!subscriber.on_module_load_proc)
-
-				subscriber.on_module_load_proc.call(name, mod)
+				subscriber.on_module_load(name, mod)
 			}
 		}
 	end
@@ -142,9 +143,7 @@ class EventDispatcher
 	def on_module_created(instance)
 		subscribers_rwlock.synchronize_read {
 			general_event_subscribers.each { |subscriber|
-				next if (!subscriber.on_module_created_proc)
-
-				subscriber.on_module_created_proc.call(instance)
+				subscriber.on_module_created(instance)
 			}
 		}
 	end

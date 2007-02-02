@@ -36,7 +36,18 @@ module Framework
 
 	end
 
+	#
+	# We extend modules when we're created, and we do it by registering a
+	# general event subscriber.
+	#
 	include GeneralEventSubscriber
+
+	#
+	# Simplifies module instances when they're created.
+	#
+	def on_module_created(instance)
+		Msf::Simple::Framework.simplify_module(instance)
+	end
 
 	ModuleSimplifiers =
 		{
@@ -99,12 +110,6 @@ module Framework
 		if (Msf::Config.user_module_directory)
 			framework.modules.add_module_path(Msf::Config.user_module_directory)
 		end
-
-		# Set the on_module_created procedure to simplify any module
-		# instance that is created
-		framework.on_module_created_proc = Proc.new { |instance| 
-			simplify_module(instance)
-		}
 
 		# Register the framework as its own general event subscriber in this
 		# instance
