@@ -424,6 +424,9 @@ protected
 				klass = CommDispatcher.const_get(diff[0])
 
 				CommDispatcher.set_hash(path, klass)
+			else
+				print_error("Failed to load client script file: #{clirb}")
+				return false
 			end
 		end
 	
