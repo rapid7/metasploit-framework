@@ -16,7 +16,7 @@ module ShellBindTcpXPFW
 			'Name'          => 'Windows Disable Windows ICF, Command Shell, Bind TCP Inline',
 			'Version'       => '$Revision: 3425 $',
 			'Description'   => 'Disable the Windows ICF, then listen for a connection and spawn a command shell',
-			'Author'        => 'Lin0xx <lin0xx [at] noxufiles.com>',
+			'Author'        => 'Lin0xx <lin0xx [at] metasploit.com>',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
