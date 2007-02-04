@@ -2,11 +2,11 @@ module Msf
 module Ui
 module Gtk2
 
-require 'msf/ui/gtk2/output'
+require 'msf/ui/gtk2/stream/output'
 require 'rex/ui/text/output/buffer'
 require 'rex/ui/text/input/buffer'
 
-class BidirectionalPipe < Msf::Ui::Input
+class BidirectionalPipe < Rex::Ui::Text::Input
 
 	def initialize(buffer)
 		@buffer = buffer
@@ -53,7 +53,7 @@ class BidirectionalPipe < Msf::Ui::Input
 	end
 	
 	def print_error(msg)
-		print_line('[-] ' + msg)
+		@buffer.insert_at_cursor('[-] ' + msg)
 	end
 	
 	def print_line(msg)
@@ -61,14 +61,14 @@ class BidirectionalPipe < Msf::Ui::Input
 	end
 	
 	def print_good(msg)
-		print_line('[+] ' + msg)
+		@buffer.insert_at_cursor('[+] ' + msg)
 	end
 
 	def flush
 	end
 	
 	def print_status(msg)
-		print_line('[*] ' + msg)
+		@buffer.insert_at_cursor('[*] ' + msg)
 	end
 
 protected

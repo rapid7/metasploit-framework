@@ -375,8 +375,14 @@ class MsfAssistant
 			
 			@mydriver.target_idx = (@mydriver.exploit.datastore['TARGET']).to_i
 			
-			input = Msf::Ui::Gtk2::Stream::Input.new(@buffer)
-			output = Msf::Ui::Gtk2::Stream::Output.new(@buffer)
+			# input = Msf::Ui::Gtk2::Stream::Input.new(@buffer)
+			# output = Msf::Ui::Gtk2::Stream::Output.new(@buffer)
+			
+			pipe = BidirectionalPipe.new(@buffer)
+			
+			pipe.input = pipe.pipe_input
+			input = pipe
+			output = pipe
 			
 			@mydriver.exploit.init_ui(input, output)
 			@mydriver.payload.init_ui(input, output)
