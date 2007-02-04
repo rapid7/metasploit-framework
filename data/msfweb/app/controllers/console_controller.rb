@@ -8,6 +8,42 @@ class ConsoleController < ApplicationController
 	#
 	def index
 	
+		# Work around rails stupidity
+		if(not $webrick_hooked)
+			
+			$webrick.mount_proc("/_session") do |req, res|
+				
+				res['Content-Type'] = "text/javascript"
+				
+				m = req.path_info.match(/cid=(\d+)/)
+				if (m and m[1] and $msfweb.consoles[m[1]])
+					console = $msfweb.consoles[m[1]]
+
+					out = ''
+					tsp = Time.now.to_i
+					
+					# Poll the console output for 15 seconds
+					while( tsp + 15 > Time.now.to_i and out.length == 0)
+						out = console.read()
+						select(nil, nil, nil, 0.25)
+					end
+
+					out = out.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
+					pro = console.prompt.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
+
+					script =  "// Metasploit Web Console Data\n"
+					script += "var con_prompt = unescape('#{pro}');\n"
+					script += "var con_update = unescape('#{out}');\n"
+
+					res.body = script
+				else
+					res.body = '// Invalid console ID'
+				end
+			end
+			
+			$webrick_hooked = true
+		end
+		
 		cid = params[:id]
 		
 		if (not (cid and $msfweb.consoles[cid]))
@@ -23,10 +59,9 @@ class ConsoleController < ApplicationController
 			out = ''
 			
 			if (params[:cmd].strip.length > 0)
-				@console.execute(params[:cmd])
+				@console.write(params[:cmd] + "\n")
 			end
 			
-			out = @console.read()
 			out = out.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
 			pro = @console.prompt.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
 			

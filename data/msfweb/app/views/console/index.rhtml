@@ -12,7 +12,7 @@
         <%= stylesheet_link_tag "msfconsole" %>
     </head>
 
-    <body onload="console_init()">
+    <body onload="console_init(<%=params[:id]%>)">
 
         <div id="console_window">
 

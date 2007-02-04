@@ -39,7 +39,11 @@ Rails::Initializer.run do |config|
   # config.active_record.default_timezone = :utc
   
   # See Rails::Configuration for more options
+  
+  ActionController::Base.allow_concurrency = true
+
 end
+
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
 $:.unshift(File.join(File.dirname(msfbase), '..', '..', '..', 'lib'))
@@ -50,3 +54,15 @@ require 'msf/base'
 
 $msfweb      = Msf::Ui::Web::Driver.new({'LogLevel' => 5})
 $msframework = $msfweb.framework
+$webrick     = nil
+$webrick_hooked = false
+
+module WEBrickHooker
+	def initialize(*args)
+		$webrick = self
+		super(*args)
+	end
+end
+
+WEBrick::HTTPServer.class_eval("include WEBrickHooker")
+

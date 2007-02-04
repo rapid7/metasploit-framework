@@ -6,6 +6,7 @@
  * Inspired by Jesse Ruderman's Javascript Shell.
 */
 
+var console_id;
 var console_history = new Array();  // Commands history
 var console_hindex  = 0;            // Index to current command history
 var console_input;                  // Object to console input
@@ -54,10 +55,9 @@ function console_refocus() {
 }
 
 function console_read() {
-	new Ajax.Updater("console_update", document.location, {
+	new Ajax.Updater("console_update", '/_session/cid=' + console_id, {
 		asynchronous:true,
 		evalScripts:true,
-		parameters:"cmd=",
 		onComplete:console_read_output
 	});	
 }
@@ -190,8 +190,9 @@ function console_keydown(e) {
 
 }
 
-function console_init() {
+function console_init(cid) {
 
+	console_id      = cid;
     console_input   = document.getElementById("console_input");
     console_output  = document.getElementById("console_output");
 	console_prompt  = document.getElementById("console_prompt");
@@ -201,7 +202,7 @@ function console_init() {
 	console_refocus();
 	status_free();
 	
-	//console_read();
+	console_read();
 	
     return true;
 }
