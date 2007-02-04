@@ -41,11 +41,10 @@ module BindPhp
 		set_time_limit(0);
 		ob_implicit_flush();
 
-		$address = '0.0.0.0';
 		$port = #{datastore['LPORT']};
 
 		$sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-		$ret = socket_bind($sock, $address, $port);
+		$ret = socket_bind($sock, 0, $port);
 		$ret = socket_listen($sock, 5);
 		$msgsock = socket_accept($sock);
 
