@@ -15,7 +15,7 @@ begin
 	require 'gtk2'
 	require 'libglade2'
 rescue ::Exception => e
-	$stderr.puts "[*] The msfgtk2 interface requires the ruby-gtk2 and ruby-libglade2 package"
+	$stderr.puts "[*] The msfgui interface requires the ruby-gtk2 and ruby-libglade2 package"
 	exit(0)
 end
 

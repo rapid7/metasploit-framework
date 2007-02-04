@@ -7,9 +7,9 @@ class MyAbout
     
     def initialize
 	@about = Gtk::AboutDialog.new
-	@about.set_name('MSFGtk2')
+	@about.set_name('MsfGUI')
 	@about.set_website('http://www.metasploit.org')
-	@about.set_authors(['Fabrice MOURRON" Fab', 'Metasploit LLC'])
+	@about.set_authors(['Fabrice MOURRON fab<at>metasploit.com', 'Metasploit LLC'])
 	@about.set_license(File.read(File.join(Msf::Config.install_root, 'documentation', 'LICENSE')))
 	#@about.set_wrap_license('True')
 	@about.set_logo(driver.get_icon('msfwx.xpm'))

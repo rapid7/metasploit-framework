@@ -96,7 +96,7 @@ class GtkConsole
 	def read
 		update_access
 
-		self.pipe.read_subscriber('msfgtk2')
+		self.pipe.read_subscriber('msfgui')
 	end
 
 	def write(buf)
@@ -139,9 +139,9 @@ class Driver < Msf::Ui::Driver
 	ConfigGroup = "framework/ui/gtk2"
 
 	#
-	# The default resource directory for msfgtk2
+	# The default resource directory for msfgui
 	#
-	DefaultResourceDirectory = Msf::Config.data_directory + File::SEPARATOR + "msfgtk2"
+	DefaultResourceDirectory = Msf::Config.data_directory + File::SEPARATOR + "msfgui"
 
 	#
 	# Initializes a gtk2 driver instance
@@ -182,7 +182,7 @@ class Driver < Msf::Ui::Driver
 	# Starts the main gtk2 loop
 	#
 	def run
-		ilog("msfgtk2 has been started", LogSource)
+		ilog("msfgui has been started", LogSource)
 		Gtk.main
 		true
 	end

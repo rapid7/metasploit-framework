@@ -3,16 +3,21 @@ module Ui
 module Gtk2
 
 class MyExploitsTree < MyGlade
-	CATEGORY, EXPLOIT, ADV = *(0..3).to_a
-
+	CATEGORY, EXPLOIT, ADV, APP = *(0..4).to_a
+	
 	include Msf::Ui::Gtk2::MyControls
-    
-	def initialize(treeview1, model, buf, tree_target)
+	
+	def initialize(treeview1, buf, tree_target)
 		super('menu_module')
 		
 		@treeview1 = treeview1
-		@model = model
 		@tree_target = tree_target
+		
+		@model = Gtk::TreeStore.new(String,		# Module name
+						Object,		# Exploit?
+						TrueClass,	# ADV?
+						String		# Appartenance
+						)
 		
 		# Init buffer module with tags
 		@buffer = MyModuleView.new(buf)
@@ -34,14 +39,14 @@ class MyExploitsTree < MyGlade
 		@treeview1.selection.mode = Gtk::SELECTION_BROWSE
 		
 		@treeview1.append_column(column1)
-	
+		
 		# Signals
 		@treeview1.signal_connect('cursor-changed') do |widget, event|
 			widget.selection.selected_each do |model, path, iter|
 				active(iter)
 			end
 		end
-
+		
 		@treeview1.signal_connect('button_press_event') do |treeview, event|
 			if event.kind_of? Gdk::EventButton
 				if (event.button == 3)
@@ -49,9 +54,18 @@ class MyExploitsTree < MyGlade
 					begin
 						iter = @treeview1.model.get_iter(path)
 						if (iter.get_value(ADV) == false)
-							treeview.selection.select_path(path)
-							active(iter)
-							@menu_module.popup(nil, nil, event.button, event.time)
+							if (iter.get_value(APP) == "Standard")
+								treeview.selection.select_path(path)
+								active(iter)
+								@menu_module.popup(nil, nil, event.button, event.time)
+							end
+							
+							# TODO: Add specific menus for :
+							# - payload
+							# - auxiliary
+							# - nops
+							# - encoders
+							
 						end
 					rescue
 						nil
@@ -59,16 +73,16 @@ class MyExploitsTree < MyGlade
 				end
 			end
 		end
-	
+		
 		@one_shot.signal_connect('activate') do |item|
 			if current = @selection.selected
 				MyOneShot.new(@tree_target, current)
 			end
 		end
-	
+		
 		# Add modules in the Gtk::TreeView
 		add_modules()
-
+		
 	end # def initialize
     
     #
@@ -92,6 +106,7 @@ class MyExploitsTree < MyGlade
 			child_iter.set_value(CATEGORY, obj.new.name)
 			child_iter.set_value(EXPLOIT, obj.new)
 			child_iter.set_value(ADV, false)
+			child_iter.set_value(APP, "Standard")
 		end
 		
 		#
@@ -109,6 +124,7 @@ class MyExploitsTree < MyGlade
 		    child_iter.set_value(CATEGORY, obj.new.name)
 		    child_iter.set_value(EXPLOIT, obj.new)
 		    child_iter.set_value(ADV, false)
+		    child_iter.set_value(APP, "Auxiliary")
 		end
 		
 		#
@@ -126,6 +142,7 @@ class MyExploitsTree < MyGlade
 			child_iter.set_value(CATEGORY, obj.new.name)
 			child_iter.set_value(EXPLOIT, obj.new)
 			child_iter.set_value(ADV, false)
+			child_iter.set_value(APP, "Payloads")
 		end
 		
 		#
@@ -143,6 +160,7 @@ class MyExploitsTree < MyGlade
 			child_iter.set_value(CATEGORY, obj.new.name)
 			child_iter.set_value(EXPLOIT, obj.new)
 			child_iter.set_value(ADV, false)
+			child_iter.set_value(APP, "NOPs")
 		end
 		
 		#
@@ -160,6 +178,7 @@ class MyExploitsTree < MyGlade
 			child_iter.set_value(CATEGORY, obj.new.name)
 			child_iter.set_value(EXPLOIT, obj.new)
 			child_iter.set_value(ADV, false)
+			iter.set_value(APP, "Encoders")
 		end
 	end # def add_modules
   
@@ -170,6 +189,11 @@ class MyExploitsTree < MyGlade
 		if not iter[EXPLOIT].nil?
 			@buffer.insert_module(iter.get_value(EXPLOIT))
 		end
+	end
+	
+	def refresh
+		@model.clear()
+		add_modules()
 	end
 
 end # Class MyExploitsTree
