@@ -8,7 +8,7 @@ require 'rex/ui/text/input/buffer'
 
 class BidirectionalPipe < Rex::Ui::Text::Input
 
-	def initialize(buffer)
+	def initialize(buffer, entry)
 		@buffer = buffer
 		@subscribers_out = {}
 		@pipe_input = Rex::Ui::Text::Input::Buffer.new

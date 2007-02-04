@@ -204,11 +204,10 @@ class MyTargetTree < MyGlade
     
 	include Msf::Ui::Gtk2::MyControls
 
-	def initialize(treeview, buffer, session_tree)
+	def initialize(treeview, session_tree)
 		super('menu_staged')
 		
 		@treeview2 = treeview
-		@buffer = buffer
 		@session_tree = session_tree
 		
 		@model = Gtk::TreeStore.new(Gdk::Pixbuf,	# Pix
@@ -390,7 +389,7 @@ class MyTargetTree < MyGlade
 	# Add Staged by launching wizard (MsfAssistant
 	#	
 	def add_staged(staged_iter)
-		MsfAssistant.new(staged_iter, @buffer, @session_tree)
+		MsfAssistant.new(staged_iter, @session_tree)
 	end
 
 	#

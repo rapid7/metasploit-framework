@@ -61,6 +61,7 @@ class MyApp < MyGlade
 		# @viewmodule.set_cursor_visible(false)
 		
 		# Logs Buffer
+		# TODO: currently not used
 		@buffer = Gtk::TextBuffer.new
 		@viewlogs.set_buffer(@buffer_logs)
 		@viewlogs.set_editable(false)
@@ -70,7 +71,7 @@ class MyApp < MyGlade
 		session_tree = MySessionTree.new(@treeview_session)		
 		
 		# Target Tree
-		@target_tree = MyTargetTree.new(@treeview2, @buffer, session_tree)
+		@target_tree = MyTargetTree.new(@treeview2, session_tree)
 		
 		# Module Tree
 		@module_tree = MyExploitsTree.new(@treeview1, 

@@ -39,8 +39,8 @@ class MsfAssistant
 	
 	include Msf::Ui::Gtk2::MyControls
 	
-	def initialize(staged_iter, buffer, session_tree)
-		@buffer = buffer
+	def initialize(staged_iter, session_tree)
+		@buffer = Gtk::TextBuffer.new
 		@session_tree = session_tree
 		@active_module = staged_iter.get_value(OBJECT)
 		@address = staged_iter.get_value(TARGET)
