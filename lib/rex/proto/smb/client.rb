@@ -30,14 +30,14 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.read_timeout = 10
 		self.evasion_opts = {
 			
-			# Padding is performed between packet headers and data
-			'pad_data' => EVADE::EVASION_NONE,
-			
-			# File path padding is performed on all open/create calls
-			'pad_file' => EVADE::EVASION_NONE,
-			
-			# Modify the \PIPE\ string in trans_named_pipe calls
-			'obscure_trans_pipe' => EVADE::EVASION_NONE,
+		# Padding is performed between packet headers and data
+		'pad_data' => EVADE::EVASION_NONE,
+
+		# File path padding is performed on all open/create calls
+		'pad_file' => EVADE::EVASION_NONE,
+
+		# Modify the \PIPE\ string in trans_named_pipe calls
+		'obscure_trans_pipe' => EVADE::EVASION_NONE,
 		}
 	end
 	
