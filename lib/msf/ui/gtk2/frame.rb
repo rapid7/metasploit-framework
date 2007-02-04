@@ -387,10 +387,10 @@ class MyTargetTree < MyGlade
 	end
     
 	#
-	# Add Staged by launching wizard
+	# Add Staged by launching wizard (MsfAssistant
 	#	
 	def add_staged(staged_iter)
-		MyMsfAssistant.new(staged_iter, @buffer, @session_tree)
+		MsfAssistant.new(staged_iter, @buffer, @session_tree)
 	end
 
 	#

@@ -20,6 +20,7 @@ class Console < MyGlade
 		
 		if @console2.run == Gtk::Dialog::RESPONSE_OK
 			puts "ok"
+			@console2.destroy
 		end
 		
 		@session.init_ui(@input, @output)

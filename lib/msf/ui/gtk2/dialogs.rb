@@ -2,10 +2,13 @@ module Msf
 module Ui
 module Gtk2
 
-# require 'msf/ui/gtk2/stream/input'
-# require 'msf/ui/gtk2/stream/output'
-# require 'msf/ui/gtk2/stream/console'
-
+##
+# This class perform a little dialog for the target oneshot
+#
+# TODO: 
+# - Add regexp to control the format address IP
+# - Add a focus directly on the RESPONSE_OK button
+##
 class MyOneShot < MyGlade
 	include Msf::Ui::Gtk2::MyControls
 	
@@ -23,7 +26,14 @@ class MyOneShot < MyGlade
 	end
 end
 
-class MyMsfAssistant
+##
+# This class perform an assistant to configure exploits
+# 
+# TODO:
+# - Add the passive options on the first page (hdm)
+##
+
+class MsfAssistant
 	PIX, TARGET, STAGED, OWNED, NAME, OBJECT, DRIVER, INPUT, OUTPUT = *(0..9).to_a
 	KEY, DEFAULT, VALUE, DESC = *(0..5).to_a
 	

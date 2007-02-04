@@ -9,6 +9,7 @@ require 'msf/ui/gtk2/frame'
 require 'msf/ui/gtk2/dialogs'
 require 'msf/ui/gtk2/logs'
 require 'msf/ui/gtk2/stream'
+require 'msf/ui/gtk2/view'
 
 module Msf
 module Ui

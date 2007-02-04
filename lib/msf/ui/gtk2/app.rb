@@ -2,8 +2,10 @@ module Msf
 module Ui
 module Gtk2
 
+##
 # This class help us to retreive all glade widgets and place them in your user instance
 # like @windows, @widget, ...
+##
 class MyGlade
 	include Msf::Ui::Gtk2::MyControls
 	
@@ -22,6 +24,9 @@ class MyGlade
 	end
 end
 
+##
+# This is the main class
+##
 class MyApp < MyGlade
 	
 	include Msf::Ui::Gtk2::MyControls
@@ -40,7 +45,7 @@ class MyApp < MyGlade
 		@window.signal_connect('destroy') { Gtk.main_quit }
 		
 		# Default size
-#		@window.set_default_size(1024, 768)	
+		# @window.set_default_size(1024, 768)	
 		
 		# Defaults policies for Gtk::ScrolledWindow
 		@scrolledwindow1.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
@@ -51,15 +56,15 @@ class MyApp < MyGlade
 		
 		# View Module specs
 		@buffer_module = Gtk::TextBuffer.new
-		@viewmodule.set_buffer(@buffer_module)
-		@viewmodule.set_editable(false)
-		@viewmodule.set_cursor_visible(false)
+		# @viewmodule.set_buffer(@buffer_module)
+		# @viewmodule.set_editable(false)
+		# @viewmodule.set_cursor_visible(false)
 		
 		# Logs Buffer
 		@buffer = Gtk::TextBuffer.new
-		# @viewlogs.set_buffer(@buffer_logs)
-		# @viewlogs.set_editable(false)
-		# @viewlogs.set_cursor_visible(false)		
+		@viewlogs.set_buffer(@buffer_logs)
+		@viewlogs.set_editable(false)
+		@viewlogs.set_cursor_visible(false)		
 		
 		# Sessions Tree
 		session_tree = MySessionTree.new(@treeview_session)		
@@ -82,10 +87,16 @@ class MyApp < MyGlade
 		# end
 	end
 	
+	#
+	# Signal to refresh the treeview module
+	#
 	def on_refresh_activate
 		refresh()
 	end
-    
+	
+	#
+	# Bye bye
+	#
 	def on_leave_activate
 		Gtk.main_quit
 	end
@@ -94,10 +105,16 @@ class MyApp < MyGlade
 		puts "TODO: Set preferences for the payload choice"
 	end
 	
+	#
+	# The About Dialog
+	#
 	def on_about_activate
 		MyAbout.new
 	end
 	
+	#
+	# Call the refresh method to reload all module
+	#
 	def refresh
 		@module_tree.refresh
 		context_id = @statusbar.get_context_id("update")
