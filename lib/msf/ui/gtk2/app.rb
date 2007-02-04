@@ -1,0 +1,150 @@
+module Msf
+module Ui
+module Gtk2
+
+# This class help us to retreive all glade widgets and place them in your user instance
+# like @windows, @widget, ...
+class MyGlade
+	include Msf::Ui::Gtk2::MyControls
+	
+	def initialize(root)
+	    # Give the glade file and instance the glade object
+	    file_glade = File.join(driver.resource_directory, 'msfgtk2.glade')
+	    glade = GladeXML.new(file_glade, root) { |handler|method(handler) }
+	    
+	    # For all widget names, instance a variable
+	    glade.widget_names.each do |name|
+	    	begin
+			instance_variable_set("@#{name}".intern, glade[name])
+		rescue
+		end
+	    end
+	end
+end
+
+class MyApp < MyGlade
+	
+	include Msf::Ui::Gtk2::MyControls
+
+	def initialize
+		super('window')
+		
+		# Set a default icon for all widgets
+		Gtk::Window.set_default_icon(driver.get_icon('msfwx.xpm'))
+		@window.set_icon(driver.get_icon('msfwx.xpm'))
+		
+		# Set a title with the version
+		@window.set_title("MSF Gui v#{Msf::Framework::Version}")
+		
+		# Destroy
+		@window.signal_connect('destroy') { Gtk.main_quit }
+		
+		# Default size
+#		@window.set_default_size(1024, 768)	
+		
+		# Defaults policies for Gtk::ScrolledWindow
+		@scrolledwindow1.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+		@scrolledwindow2.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+		@scrolledwindow3.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+		@scrolledwindow4.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+		@scrolledwindow16.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+		
+		# View Module specs
+		@buffer_module = Gtk::TextBuffer.new
+		@viewmodule.set_buffer(@buffer_module)
+		@viewmodule.set_editable(false)
+		@viewmodule.set_cursor_visible(false)
+		
+		# Logs Buffer
+		@buffer = Gtk::TextBuffer.new
+		# @viewlogs.set_buffer(@buffer_logs)
+		# @viewlogs.set_editable(false)
+		# @viewlogs.set_cursor_visible(false)		
+		
+		# Sessions Tree
+		session_tree = MySessionTree.new(@treeview_session)		
+		
+		# Target Tree
+		@target_tree = MyTargetTree.new(@treeview2, @buffer, session_tree)
+		
+		# Module Tree
+		@module_model = Gtk::TreeStore.new(String,		# Module name
+							Object,		# Exploit?
+							TrueClass	# ADV?
+							)
+		@module_tree = MyExploitsTree.new(@treeview1,
+							@module_model, 
+							@buffer_module, 
+							@target_tree
+							)
+		
+		# Update the StatusBar with all framework modules
+		update()
+		
+		# TODO: Add an hook for binding all links with browser preference
+		# Gtk::AboutDialog.set_url_hook do |about, link|
+			# puts link
+		# end
+	end
+    
+	def on_quitter1_activate
+		Gtk.main_quit
+	end
+	   
+	def on_supprimer1_activate
+		puts "Suppress activate"
+	end
+	   
+	def on_about_activate
+		MyAbout.new
+	end
+	   
+	def on_enregistrer1_activate
+		puts "Enregistrer"
+	end
+	   
+	def on_couper1_activate
+		puts "Couper"
+	end
+	   
+	def on_ouvrir1_activate
+		puts "Ouvrir"
+	end
+	   
+	def on_copier1_activate
+		puts "Copier"
+	end
+	   
+	def on_coller1_activate
+		puts "Coller"
+	end
+
+	def on_enregistrer_sous1_activate
+		puts "Enregister sous"
+	end
+
+	def on_nouveau1_activate
+		puts "Nouveau"
+	end
+	
+	def on_rafraichir1_activate
+		update
+	end
+	
+	def update
+		context_id = @statusbar.get_context_id("update")
+		@statusbar.push(
+				context_id,
+				"Loaded " +
+				framework.stats.num_exploits.to_s + " exploits, " +
+				framework.stats.num_payloads.to_s + " payloads, " +
+				framework.stats.num_encoders.to_s + " encoders, " +
+				framework.stats.num_nops.to_s + " nops, and " +
+				framework.stats.num_auxiliary.to_s + " auxiliary"
+		)
+	end
+end
+
+end
+end
+end

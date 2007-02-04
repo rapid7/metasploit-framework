@@ -1,0 +1,54 @@
+#!/usr/bin/env ruby
+#
+# This is a basic user interface using the Gtk2 GUI library
+#
+
+msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
+$:.unshift(File.join(File.dirname(msfbase), 'lib'))
+
+
+require 'rex'
+require 'msf/base'
+require 'msf/ui'
+
+begin
+	require 'gtk2'
+	require 'libglade2'
+rescue ::Exception => e
+	$stderr.puts "[*] The msfgtk2 interface requires the ruby-gtk2 and ruby-libglade2 package"
+	exit(0)
+end
+
+require 'msf/ui/gtk2'
+
+
+# Declare the argument parser for msfwx
+arguments = Rex::Parser::Arguments.new(
+	"-v" => [ true,  "A number between 0 and 3 that controls log verbosity" ],
+	"-d" => [ false, "Keep running in the foreground"                       ],
+	"-h" => [ false, "Help banner"                                          ])
+
+opts = {}
+background = false
+
+# Parse command line arguments.
+arguments.parse(ARGV) { |opt, idx, val|
+	case opt
+		when "-v"
+			opts['LogLevel'] = val
+		when "-d"
+			background = true
+		when "-h"
+			print(
+				"\nUsage: msfgui <options>\n" +
+				arguments.usage)
+			exit
+	end
+}
+
+exit if (Process.fork()) unless background == false
+
+# Create the driver instance and run it.
+Msf::Ui::Gtk2::Driver.new(opts).run
+
+

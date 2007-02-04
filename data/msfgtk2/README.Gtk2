@@ -1,0 +1,5 @@
+Bugs in ruby-libglade2
+Reference :
+http://ruby-gnome2.cvs.sourceforge.net/ruby-gnome2/ruby-gnome2/libglade/lib/libglade2.rb?r1=1.17&r2=1.18
+Patch :
+http://ruby-gnome2.cvs.sourceforge.net/ruby-gnome2/ruby-gnome2/libglade/lib/libglade2.rb?r1=1.17&r2=1.18&view=patch
