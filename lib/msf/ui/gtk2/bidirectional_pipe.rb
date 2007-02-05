@@ -8,7 +8,7 @@ require 'rex/ui/text/input/buffer'
 
 class BidirectionalPipe < Rex::Ui::Text::Input
 
-	def initialize(buffer, entry)
+	def initialize(buffer)
 		@buffer = buffer
 		@subscribers_out = {}
 		@pipe_input = Rex::Ui::Text::Input::Buffer.new
@@ -54,14 +54,16 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 	
 	def print_error(msg)
 		@buffer.insert_at_cursor('[-] ' + msg)
+		print_line
 	end
 	
-	def print_line(msg)
+	def print_line(msg = "")
 		@buffer.insert_at_cursor(msg + "\n")
 	end
 	
 	def print_good(msg)
 		@buffer.insert_at_cursor('[+] ' + msg)
+		print_line
 	end
 
 	def flush
@@ -69,6 +71,7 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 	
 	def print_status(msg)
 		@buffer.insert_at_cursor('[*] ' + msg)
+		print_line
 	end
 
 protected

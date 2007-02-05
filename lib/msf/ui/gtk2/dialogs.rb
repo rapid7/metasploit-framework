@@ -34,6 +34,9 @@ end
 ##
 
 class MsfAssistant
+	attr_accessor :input
+	attr_accessor :output
+	
 	PIX, TARGET, STAGED, OWNED, NAME, OBJECT, DRIVER, INPUT, OUTPUT = *(0..9).to_a
 	KEY, DEFAULT, VALUE, DESC = *(0..5).to_a
 	
@@ -380,7 +383,7 @@ class MsfAssistant
 			
 			pipe = BidirectionalPipe.new(@buffer)
 			
-			pipe.input = pipe.pipe_input
+			# pipe.input = pipe.pipe_input
 			input = pipe
 			output = pipe
 			
