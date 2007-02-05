@@ -397,7 +397,8 @@ class MsfAssistant
 					Msf::Ui::Gtk2::Stream::Session.new(@buffer, 
 										@session_tree,
 										@hash,
-										session, 
+										session,
+										pipe,
 										input, 
 										output)
 				}

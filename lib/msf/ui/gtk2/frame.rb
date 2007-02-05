@@ -402,7 +402,7 @@ class MyTargetTree < MyGlade
 end #class MyTargetTree
 
 class MySessionTree
-	ID_SESSION, TARGET, PAYLOAD, O_SESSION, BUFFER, INPUT, OUTPUT = *(0..7).to_a
+	ID_SESSION, TARGET, PAYLOAD, O_SESSION, BUFFER, PIPE, INPUT, OUTPUT = *(0..8).to_a
 	
 	def initialize(treeview)
 		@treeview = treeview
@@ -411,6 +411,7 @@ class MySessionTree
 						String,		# Payload Type
 						Object,		# Session Object
 						Object,		# Gtk::TextBuffer Object
+						Object,		# Bidirectional_pipe
 						Object,		# Input Object
 						Object		# Output Object
 						)
@@ -497,6 +498,7 @@ class MySessionTree
 			if current = @selection.selected
 				Msf::Ui::Gtk2::Stream::Console.new(current[O_SESSION],
 									current[BUFFER],
+									current[PIPE],
 									current[INPUT],
 									current[OUTPUT]
 									)
@@ -505,13 +507,14 @@ class MySessionTree
 		
 	end # def initialize
 	
-	def add_session(session, options, buffer, input, output)
+	def add_session(session, options, buffer, pipe, input, output)
 		iter = @model.append
 		iter[ID_SESSION] = session.sid.to_s
 		iter[TARGET] = options['RHOST']
 		iter[PAYLOAD] = options['PAYLOAD']
 		iter[O_SESSION] = session
 		iter[BUFFER] = buffer
+		iter[PIPE] = pipe
 		iter[INPUT] = input
 		iter[OUTPUT] = output
 
