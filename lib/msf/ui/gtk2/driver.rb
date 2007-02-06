@@ -77,16 +77,10 @@ class Driver < Msf::Ui::Driver
 	end
 	
 	#
-	# Returns a new Wx::Icon object
+	# Returns a new Gdk::Pixbuf object
 	#
 	def get_icon(name)
 		Gdk::Pixbuf.new(File.join(resource_directory, 'pix', name))
-	end
-	
-	def render_icon(pix, style, text)
-		test = Gtk::Window.new
-		#puts test
-		return test.render_icon(pix, style, text)
 	end
 
 	#
