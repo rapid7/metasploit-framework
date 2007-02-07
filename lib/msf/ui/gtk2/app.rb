@@ -54,12 +54,6 @@ class MyApp < MyGlade
 		@scrolledwindow4.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
 		@scrolledwindow16.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
 		
-		# View Module specs
-		@buffer_module = Gtk::TextBuffer.new
-		# @viewmodule.set_buffer(@buffer_module)
-		# @viewmodule.set_editable(false)
-		# @viewmodule.set_cursor_visible(false)
-		
 		# Logs Buffer
 		# TODO: currently not used
 		@buffer = Gtk::TextBuffer.new
@@ -74,10 +68,7 @@ class MyApp < MyGlade
 		@target_tree = MyTargetTree.new(@treeview2, session_tree)
 		
 		# Module Tree
-		@module_tree = MyExploitsTree.new(@treeview1, 
-							@buffer_module, 
-							@target_tree
-							)
+		@module_tree = MyExploitsTree.new(@treeview1, @viewmodule, @target_tree)
 		
 		# Update the StatusBar with all framework modules
 		refresh()

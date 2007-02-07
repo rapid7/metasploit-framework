@@ -7,10 +7,10 @@ class MyExploitsTree < MyGlade
 	
 	include Msf::Ui::Gtk2::MyControls
 	
-	def initialize(treeview1, buf, tree_target)
+	def initialize(treeview, viewmodule, tree_target)
 		super('menu_module')
 		
-		@treeview1 = treeview1
+		@treeview1 = treeview
 		@tree_target = tree_target
 		
 		@model = Gtk::TreeStore.new(String,		# Module name
@@ -20,7 +20,11 @@ class MyExploitsTree < MyGlade
 						)
 		
 		# Init buffer module with tags
-		@buffer = MyModuleView.new(buf)
+		buff = Gtk::TextBuffer.new
+		viewmodule.set_buffer(buff)
+		viewmodule.set_editable(false)
+		viewmodule.set_cursor_visible(false)
+		@buffer = MyModuleView.new(buff)
 		
 		# Renderer Module
 		#renderer1 = Gtk::CellRendererPixbuf.new
