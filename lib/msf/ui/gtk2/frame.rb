@@ -11,6 +11,7 @@ class MyExploitsTree < MyGlade
 		super('menu_module')
 		
 		@treeview1 = treeview
+		@treeview1.enable_search = true
 		@tree_target = tree_target
 		
 		@model = Gtk::TreeStore.new(String,		# Module name
@@ -520,9 +521,7 @@ class MySessionTree
 		iter[BUFFER] = buffer
 		iter[PIPE] = pipe
 		iter[INPUT] = input
-		iter[OUTPUT] = output
-
-		
+		iter[OUTPUT] = output		
 	end
 end # class MySessionTree
 
