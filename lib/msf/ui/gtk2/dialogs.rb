@@ -7,7 +7,6 @@ module Gtk2
 #
 # TODO: 
 # - Add regexp to control the format address IP
-# - Add a focus directly on the RESPONSE_OK button
 ##
 class MyOneShot < MyGlade
 	include Msf::Ui::Gtk2::MyControls
@@ -17,11 +16,16 @@ class MyOneShot < MyGlade
 		@tree_target = tree_target
 		#puts exploit.get_value(1).fullname
 		@oneshot_pix.set_file(File.join(driver.resource_directory, 'pix', 'oneshot.png'))
+		
+		# Hit Enter key and send an activate signal
+		@rhost_entry.signal_connect('activate') {@okbutton1.activate}
+		
 		@dialog_oneshot.default_response = Gtk::Dialog::RESPONSE_OK
 		@dialog_oneshot.set_response_sensitive(Gtk::Dialog::RESPONSE_OK, true)
 		if @dialog_oneshot.run == Gtk::Dialog::RESPONSE_OK
 			@tree_target.add_oneshot(@rhost_entry.text, exploit.get_value(1))
 		end
+		
 		@dialog_oneshot.destroy
 	end
 end
