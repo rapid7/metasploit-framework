@@ -5,30 +5,67 @@ module Gtk2
 ##
 # This class perform a little dialog for the target oneshot
 #
-# TODO: 
-# - Add regexp to control the format address IP
 ##
 class MyOneShot < MyGlade
 	include Msf::Ui::Gtk2::MyControls
 	
-	def initialize(tree_target, exploit)
+	#
+	# Init the dialog shot
+	# Options: entry and warning
+	#
+	def initialize(tree_target, exploit, entry = "", warning = "")
 		super('dialog_oneshot')
 		@tree_target = tree_target
-		#puts exploit.get_value(1).fullname
 		@oneshot_pix.set_file(File.join(driver.resource_directory, 'pix', 'oneshot.png'))
 		
 		# Hit Enter key and send an activate signal
 		@rhost_entry.signal_connect('activate') {@okbutton1.activate}
 		
-		@dialog_oneshot.default_response = Gtk::Dialog::RESPONSE_OK
-		@dialog_oneshot.set_response_sensitive(Gtk::Dialog::RESPONSE_OK, true)
-		if @dialog_oneshot.run == Gtk::Dialog::RESPONSE_OK
-			@tree_target.add_oneshot(@rhost_entry.text, exploit.get_value(1))
+		# If entry supplied, set the Gtk::Entry
+		if entry
+			@rhost_entry.set_text(entry)
 		end
 		
-		@dialog_oneshot.destroy
-	end
-end
+		# if warning supplied, set the Gtk::Label with the label
+		if warning
+			@warning.set_markup(warning)
+		end
+		
+		# Set the default response and sensitive
+		@dialog_oneshot.default_response = Gtk::Dialog::RESPONSE_OK
+		@dialog_oneshot.set_response_sensitive(Gtk::Dialog::RESPONSE_OK, true)
+
+		# Run the Gtk::Dialog and perform so stuff for the RESPONSE_OK
+		@dialog_oneshot.run do |response|
+			case response
+				when Gtk::Dialog::RESPONSE_OK
+					parse(@rhost_entry.text, exploit)
+				else
+					@dialog_oneshot.destroy
+			end
+		end
+	end # def initialize
+	
+	#
+	# Macth if user entry is an IP address, if not, perform a red warning
+	#
+	def parse(entry, exploit)
+		
+		# if entry match, add rhost to the target entry and destroy the MyOneShot class
+		if entry =~ /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
+			@tree_target.add_oneshot(entry, exploit.get_value(1))
+			@dialog_oneshot.destroy
+			
+		# If not, destroy MyOneShot and perform a new one with the entry and a warning
+		else
+			@dialog_oneshot.destroy
+			warning = "<span foreground=\"red\" style=\"italic\">Please, enter a valid IP address</span>"
+			MyOneShot.new(@tree_target, exploit, entry, warning)
+		end
+	end # def parse
+	
+end # class MyOneShot
+
 
 ##
 # This class perform an assistant to configure exploits
@@ -36,7 +73,6 @@ end
 # TODO:
 # - Add the passive options on the first page (hdm)
 ##
-
 class MsfAssistant
 	attr_accessor :input
 	attr_accessor :output
