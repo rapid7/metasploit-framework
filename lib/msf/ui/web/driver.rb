@@ -8,151 +8,8 @@ module Ui
 module Web
 
 require 'rex/io/bidirectional_pipe'
+require 'msf/ui/web/console'
 
-###
-#
-# This class implements a console instance for use by the web interface
-#
-###
-
-class WebConsole
-	attr_accessor :pipe
-	attr_accessor :console
-	attr_accessor :console_id
-	attr_accessor :last_access
-	attr_accessor :framework
-	attr_accessor :thread
-
-	class WebConsolePipe < Rex::IO::BidirectionalPipe
-
-		attr_accessor :input
-		attr_accessor :output
-		attr_accessor :prompt
-		attr_accessor :killed
-
-		def intrinsic_shell?
-			true
-		end
-
-		def supports_readline
-			false
-		end
-
-		def _print_prompt
-		end
-
-
-		#
-		# Wrapper methods around input pipe
-		#
-		
-		
-		def close
-			self.pipe_input.close
-		end
-	
-		def put(*args)
-			self.pipe_input.put(*args)
-		end
-		
-		def gets
-			self.pipe_input.gets
-		end
-		
-		def pgets
-			self.pipe_input.gets
-		end
-
-		def eof?
-			self.pipe_input.eof?
-		end
-				
-		def fd(*args)
-			raise ::RuntimeError, "Session interaction should be performed via the Sessions tab"
-			self.pipe_input.fd(*args)
-		end
-		
-		def sysread(*args)
-			self.pipe_input.sysread(*args)
-		end		
-	end
-
-	#
-	# Provides some overrides for web-based consoles
-	#
-	module WebConsoleShell
-
-		def supports_color?
-			false
-		end
-	end
-
-	def initialize(framework, console_id)
-		# Configure the framework
-		self.framework = framework
-
-		# Configure the ID
-		self.console_id = console_id
-
-		# Create a new pipe
-		self.pipe = WebConsolePipe.new
-		self.pipe.input = self.pipe.pipe_input
-
-		# Create a read subscriber
-		self.pipe.create_subscriber('msfweb')
-
-		# Initialize the console with our pipe
-		self.console = Msf::Ui::Console::Driver.new(
-			'msf',
-			'>',
-			{
-				'Framework'   => self.framework,
-				'LocalInput'  => self.pipe,
-				'LocalOutput' => self.pipe,
-				'AllowCommandPassthru' => false,
-			}
-		)
-
-		self.console.extend(WebConsoleShell)
-
-		self.thread = Thread.new { self.console.run }
-
-		update_access()
-	end
-
-	def update_access
-		self.last_access = Time.now
-	end
-
-	def read
-		update_access
-
-		self.pipe.read_subscriber('msfweb')
-	end
-
-	def write(buf)
-		update_access
-		self.pipe.write_input(buf)
-	end
-
-	def execute(cmd)
-		self.console.run_single(cmd)
-	end
-
-	def prompt
-		self.pipe.prompt
-	end
-
-	def tab_complete(cmd)
-		self.console.tab_complete(cmd)
-	end
-
-	def shutdown
-		self.pipe.killed = true
-		self.pipe.close
-		self.thread.kill
-	end
-end
 
 ###
 #
@@ -164,6 +21,7 @@ class Driver < Msf::Ui::Driver
 
 	attr_accessor :framework # :nodoc:
 	attr_accessor :consoles # :nodoc:
+	attr_accessor :sessions # :nodoc:
 	attr_accessor :last_console # :nodoc:
 
 	ConfigCore  = "framework/core"
@@ -181,8 +39,8 @@ class Driver < Msf::Ui::Driver
 		# Set the passed options hash for referencing later on.
 		self.opts = opts
 
-		# Initalize the consoles set
 		self.consoles = {}
+		self.sessions = {}
 
 		# Initialize configuration
 		Msf::Config.init
@@ -195,10 +53,6 @@ class Driver < Msf::Ui::Driver
 
 		# Initialize the console count
 		self.last_console = 0
-
-		# Give the comm an opportunity to set up so that it can receive
-		# notifications about session creation and so on.
-		# Comm.setup(framework)
 	end
 
 	def create_console
@@ -228,6 +82,48 @@ class Driver < Msf::Ui::Driver
 		end
 	end
 
+	def write_session(id, buf)
+		ses = self.framework.sessions[id]
+		return if not ses
+		ses.user_input.put(buf)
+	end
+	
+	def read_session(id)
+		ses = self.framework.sessions[id]
+		return if not ses	
+		ses.user_output.read_subscriber('session_reader')
+	end
+	
+	# Detach the session from an existing input/output pair
+	def connect_session(id)
+	
+		# Ignore invalid sessions
+		ses = self.framework.sessions[id]
+		return if not ses
+		
+		# Has this session already been detached?
+		return if ses.user_output.has_subscriber?('session_reader')
+
+		# Create a new pipe
+		spipe = WebConsole::WebConsolePipe.new
+		spipe.input = spipe.pipe_input
+
+		# Create a read subscriber
+		spipe.create_subscriber('session_reader')
+
+		# Replace the input/output handles
+		ses.user_input  = spipe.input
+		ses.user_output = spipe
+
+		Thread.new do
+			ses.interact
+		end
+	end
+
+	def sessions
+		self.framework.sessions
+	end
+	
 	#
 	# Stub
 	#

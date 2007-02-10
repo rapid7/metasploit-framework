@@ -15,12 +15,12 @@ html,body {
 	font-size: 12px;
 }
 
-#console_window {
+#session_window {
 	background: #000000;
 	padding: 1em;
 }
 
-#console_output {
+#session_output {
     width: 100%;
 	white-space: pre-wrap;       /* css-3 */
 	white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
@@ -65,11 +65,11 @@ html,body {
 	font-size: 12px;
 }
 
-#console_command_bar {
+#session_command_bar {
 	background: #000000;
 }
 
-#console_status {
+#session_status {
 	color: #fff;
 	font-family: monospace;
 	font-size: 12px;

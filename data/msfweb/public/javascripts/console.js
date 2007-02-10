@@ -54,7 +54,7 @@ function console_refocus() {
 }
 
 function console_read() {
-	new Ajax.Updater("console_update", '/_session/cid=' + console_id, {
+	new Ajax.Updater("console_update", '/_console/cid=' + console_id, {
 		asynchronous:true,
 		evalScripts:true,
 		onComplete:console_read_output
@@ -85,7 +85,7 @@ function console_read_output(req) {
 	console_update_output(req);
 	
 	// Reschedule the console reader
-	setTimeout(console_read, 1000);
+	setTimeout(console_read, 1);
 }
 
 function console_update_output(req) {

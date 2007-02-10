@@ -10,9 +10,9 @@ class ConsoleController < ApplicationController
 	def index
 
 		# Work around rails stupidity
-		if(not $webrick_hooked)
+		if(not $webrick_hooked_console)
 
-			$webrick.mount_proc("/_session") do |req, res|
+			$webrick.mount_proc("/_console") do |req, res|
 
 				res['Content-Type'] = "text/javascript"
 
@@ -22,11 +22,12 @@ class ConsoleController < ApplicationController
 
 					out = ''
 					tsp = Time.now.to_i
+					prompt_old = console.prompt
 
 					# Poll the console output for 15 seconds
-					while( tsp + 15 > Time.now.to_i and out.length == 0)
+					while( tsp + 15 > Time.now.to_i and out.length == 0 and console.prompt == prompt_old)
 						out = console.read()
-						select(nil, nil, nil, 0.25)
+						select(nil, nil, nil, 0.10)
 					end
 
 					out = out.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
@@ -42,7 +43,7 @@ class ConsoleController < ApplicationController
 				end
 			end
 
-			$webrick_hooked = true
+			$webrick_hooked_console = true
 		end
 
 		cid = params[:id]

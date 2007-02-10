@@ -1,2 +1,50 @@
-<h1>Sessions#interact</h1>
-<p>Find me in app/views/sessions/interact.rhtml</p>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="eng">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+        <meta name="Author" content="LMH (lmh@info-pull.com), Metasploit LLC" />
+        <meta name="Copyright" content="(c) 2006, LMH (lmh@info-pull.com), (c) 2006-2007 Metasploit LLC" />
+        <title>msfweb v.3 - console demo</title>
+        <% ["prototype","effects","controls", "window", "application", "session"].each do |js| %>
+        <%= javascript_include_tag js %><% end %>
+        <%= stylesheet_link_tag "msfsession" %>
+    </head>
+
+    <body onload="session_init(<%=params[:id]%>)">
+
+        <div id="session_window">
+
+            <div id="session_output">
+
+            </div>
+
+			<table id="session_command_bar" border=0 padding=4 cellspacing=0 width='100%'>
+			<tr>
+			<td 
+				nowrap='true'
+				valign='top'
+				id="session_prompt"
+			>
+				&gt;&gt;&nbsp;
+			</td>
+			<td nowrap='true' width='100%'>
+            
+			<textarea 
+				id="session_input" 
+				class="input" 
+				wrap="off" 
+				onkeydown="return session_keydown(event)"
+				onkeypress="return session_keypress(event)"
+				rows="1"
+			></textarea>
+			
+			</td>
+			</tr>
+			</table>
+        </div>
+		
+    </body>
+</html>
+

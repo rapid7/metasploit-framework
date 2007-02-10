@@ -55,7 +55,8 @@ require 'msf/base'
 $msfweb      = Msf::Ui::Web::Driver.new({'LogLevel' => 5})
 $msframework = $msfweb.framework
 $webrick     = nil
-$webrick_hooked = false
+$webrick_hooked_console = false
+$webrick_hooked_session = false
 
 module WEBrickHooker
 	def initialize(*args)
