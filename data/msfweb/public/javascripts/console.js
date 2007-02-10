@@ -1,10 +1,9 @@
-/* web msfconsole (console.js)
- * Original version is Copyright (c) 2006 LMH <lmh[at]info-pull.com>
+/* 
+ * Copyright (c) 2006 LMH <lmh[at]info-pull.com>
  * Added to Metasploit under the terms of the Metasploit Framework License v1.2
  * Additions Copyright (C) 2006-2007 Metasploit LLC
- *
- * Inspired by Jesse Ruderman's Javascript Shell.
 */
+
 
 var console_id;
 var console_history = new Array();  // Commands history

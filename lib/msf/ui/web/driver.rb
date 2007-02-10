@@ -58,6 +58,12 @@ class WebConsole
 		def supports_color?
 			false
 		end
+		
+		def cmd_exploit(*args)
+			args.push('-z')
+			$stderr.puts "Weeeeeeeeeeee!"
+			super(*args)
+		end
 
 	end
 
@@ -173,7 +179,7 @@ class Driver < Msf::Ui::Driver
 
 		# Give the comm an opportunity to set up so that it can receive
 		# notifications about session creation and so on.
-		Comm.setup(framework)
+		# Comm.setup(framework)
 	end
 
 	def create_console

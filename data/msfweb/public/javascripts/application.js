@@ -1,8 +1,8 @@
-/*
- * Copyright (c) 2006, LMH <lmh@info-pull.com>
- * All Rights Reserved.
- * -- Part of 'msfweb', the web interface for the Metasploit Framework.
- */
+/* 
+ * Copyright (c) 2006 LMH <lmh[at]info-pull.com>
+ * Added to Metasploit under the terms of the Metasploit Framework License v1.2
+ * Additions Copyright (C) 2006-2007 Metasploit LLC
+*/
 
 /*
  * Global variables
@@ -31,17 +31,16 @@ function openAboutDialog() {
         height:160,
         zIndex: 100,
         resizable: true,
-        title: "About msfweb v.3",
+        title: "Metasploit Framework Web Console",
         showEffect:Effect.BlindDown,
         hideEffect: Effect.SwitchOff,
         draggable:true
         })
         
-    var about_content = "<div style='padding:5px'>The new <strong>Metasploit Framework Web Console</strong> (v.3)" +
-                        " has been developed by L.M.H &lt;lmh@info-pull.com&gt;.<br />Copyright &copy; 2006 L.M.H " +
-                        "&lt;lmh@info-pull.com&gt;. All Rights Reserved. <br /><br />" +
-                        "Thanks to H.D.M for the functionality suggestions and general help. Also thanks to" +
-                        " the Metasploit team (hdm, skape, etc) and contributors for developing a ground-breaking" +
+    var about_content = "<div style='padding:5px'>The <strong>Metasploit Framework Web Console</strong>" +
+                        " was developed by LMH &lt;lmh@info-pull.com&gt; and added to the Metasploit Framework" +
+						" under the terms of the Metasploit Framework License (v1.2)." +
+                        "Thanks to the Metasploit team (hdm, skape, etc) and contributors for developing a ground-breaking" +
                         " project: <strong>Metasploit.</strong><br /><br />Standards compliant: Valid XHTML Strict " +
                         "and CSS code.</div>"
                         
@@ -79,7 +78,7 @@ function openEncodersWindow() {
 }
 
 function openNopsWindow() {
-    var nopList = create_window_ajax("/nops/list", "nops-list", "Available No-Op Generators", 600, 300);
+    var nopList = create_window_ajax("/nops/list", "nops-list", "Available Nop Generators", 600, 300);
     nopList.setDestroyOnClose();
     nopList.showCenter();
 }
@@ -94,6 +93,12 @@ function openJobsWindow() {
     var jobList = create_window_ajax("/jobs/list", "jobs-list", "Running Jobs", 600, 300);
     jobList.setDestroyOnClose();
     jobList.showCenter();
+}
+
+function openConsoleWindow() {
+    var console = create_window_ajax("/console", "console", "Metasploit Console", 760, 300);
+    console.setDestroyOnClose();
+    console.showCenter();
 }
 
 function openIDEWindow() {

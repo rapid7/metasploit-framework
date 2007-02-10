@@ -289,9 +289,13 @@ protected
 	#
 	def unknown_command(method, line)
 		if (command_passthru == true and Rex::FileUtils.find_full_path(method))
+			
+			print_status("Executing: `#{line}`")
+			print_line('')
+			
 			io = ::IO.popen(line, "r")
 			io.each_line do |data|
-				print_line(data)
+				print(data)
 			end
 			io.close
 		else

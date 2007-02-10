@@ -4,9 +4,9 @@
 
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-        <meta name="Author" content="LMH (lmh@info-pull.com)" />
-        <meta name="Copyright" content="(c) 2006, LMH (lmh@info-pull.com)" />
-        <title>Metasploit Framework Web Console v.3</title>
+        <meta name="Author" content="LMH (lmh[at]info-pull.com), Metasploit LLC" />
+        <meta name="Copyright" content="(c) 2006, LMH (lmh@info-pull.com), (c) 2006-2007 Metasploit LLC" />
+        <title>Metasploit Framework Web Console <%=h ::Msf::Framework::Version %></title>
         <%= stylesheet_link_tag "msfweb" %>
         <%= stylesheet_link_tag "window-themes/default" %>
         <%= stylesheet_link_tag "window-themes/metasploit" %>
@@ -32,18 +32,30 @@
                     Payloads
                 </li>
                 
-                <li onclick="openEncodersWindow()" <%=msie_hover_fix('limsieFix')%>>
-                    <img src="/images/encoder.png" alt="" />
-                    Encoders
-                </li>
-                
-                <li onclick="openNopsWindow()" <%=msie_hover_fix('limsieFix')%>>
-                    <img src="/images/lightbulb-off.png" alt="" />
-                    Nops
-                </li>
-                
-                <li onclick="openSessionsWindow()" <%=msie_hover_fix('limsieFix')%>>
+				<!-- Removed for now to make room for completed components
+                	<li onclick="openEncodersWindow()" <%=msie_hover_fix('limsieFix')%>>
+                    	<img src="/images/encoder.png" alt="" />
+                    	Encoders
+                	</li>
+
+                	<li onclick="openNopsWindow()" <%=msie_hover_fix('limsieFix')%>>
+                    	<img src="/images/lightbulb-off.png" alt="" />
+                    	Nops
+                	</li>
+
+            		<span class="env-info">
+                    		Platform: <%=return_env_info()[:platform]%> (ruby <%=return_env_info()[:rubyver]%>)<br />
+                    		Metasploit: <%=return_env_info()[:msfver]%>
+            		</span>
+			    
+				// -->
+                <li onclick="openConsoleWindow()" <%=msie_hover_fix('limsieFix')%>>
                     <img src="/images/terminal.png" alt="" />
+                    Console
+                </li>
+								            
+                <li onclick="openSessionsWindow()" <%=msie_hover_fix('limsieFix')%>>
+                    <img src="/images/star.png" alt="" />
                     Sessions
                 </li>
                 
@@ -59,13 +71,10 @@
 				
                 <li onclick="openAboutDialog()">
                     <img src="/images/help.png" alt="" />
-                    Help
+                    About
                 </li>
             </ul>
-            <span class="env-info">
-                    Platform: <%=return_env_info()[:platform]%> (ruby <%=return_env_info()[:rubyver]%>)<br />
-                    Metasploit: <%=return_env_info()[:msfver]%>
-            </span>
+
         </div>
 
         <div id="maincontent">
