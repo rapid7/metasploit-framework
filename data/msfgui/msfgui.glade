@@ -529,10 +529,10 @@
 <widget class="GtkMenu" id="menu_module">
 
   <child>
-    <widget class="GtkMenuItem" id="one_shot">
+    <widget class="GtkImageMenuItem" id="one_shot">
       <property name="visible">True</property>
-      <property name="label" translatable="yes">One Shot</property>
-      <property name="use_underline">True</property>
+      <property name="label">gtk-execute</property>
+      <property name="use_stock">True</property>
     </widget>
   </child>
 </widget>
@@ -715,26 +715,14 @@
   </child>
 </widget>
 
-<widget class="GtkMenu" id="menu_staged">
+<widget class="GtkMenu" id="menu_target_tree">
   <property name="border_width">5</property>
 
   <child>
-    <widget class="GtkImageMenuItem" id="staged">
+    <widget class="GtkImageMenuItem" id="stop">
       <property name="visible">True</property>
-      <property name="label" translatable="yes">Staged</property>
-      <property name="use_underline">True</property>
-
-      <child internal-child="image">
-	<widget class="GtkImage" id="image7">
-	  <property name="visible">True</property>
-	  <property name="stock">gtk-connect</property>
-	  <property name="icon_size">1</property>
-	  <property name="xalign">0.5</property>
-	  <property name="yalign">0.5</property>
-	  <property name="xpad">0</property>
-	  <property name="ypad">0</property>
-	</widget>
-      </child>
+      <property name="label">gtk-stop</property>
+      <property name="use_stock">True</property>
     </widget>
   </child>
 
@@ -747,95 +735,8 @@
   <child>
     <widget class="GtkImageMenuItem" id="delete">
       <property name="visible">True</property>
-      <property name="label" translatable="yes">Delete</property>
-      <property name="use_underline">True</property>
-
-      <child internal-child="image">
-	<widget class="GtkImage" id="image8">
-	  <property name="visible">True</property>
-	  <property name="stock">gtk-clear</property>
-	  <property name="icon_size">1</property>
-	  <property name="xalign">0.5</property>
-	  <property name="yalign">0.5</property>
-	  <property name="xpad">0</property>
-	  <property name="ypad">0</property>
-	</widget>
-      </child>
-    </widget>
-  </child>
-</widget>
-
-<widget class="GtkMenu" id="menu_owned">
-
-  <child>
-    <widget class="GtkImageMenuItem" id="owned">
-      <property name="visible">True</property>
-      <property name="label" translatable="yes">Exploit</property>
-      <property name="use_underline">True</property>
-
-      <child internal-child="image">
-	<widget class="GtkImage" id="image9">
-	  <property name="visible">True</property>
-	  <property name="stock">gtk-execute</property>
-	  <property name="icon_size">1</property>
-	  <property name="xalign">0.5</property>
-	  <property name="yalign">0.5</property>
-	  <property name="xpad">0</property>
-	  <property name="ypad">0</property>
-	</widget>
-      </child>
-    </widget>
-  </child>
-
-  <child>
-    <widget class="GtkSeparatorMenuItem" id="séparateur2">
-      <property name="visible">True</property>
-    </widget>
-  </child>
-
-  <child>
-    <widget class="GtkImageMenuItem" id="staged">
-      <property name="visible">True</property>
-      <property name="label" translatable="yes">New Staged</property>
-      <property name="use_underline">True</property>
-
-      <child internal-child="image">
-	<widget class="GtkImage" id="image10">
-	  <property name="visible">True</property>
-	  <property name="stock">gtk-connect</property>
-	  <property name="icon_size">1</property>
-	  <property name="xalign">0.5</property>
-	  <property name="yalign">0.5</property>
-	  <property name="xpad">0</property>
-	  <property name="ypad">0</property>
-	</widget>
-      </child>
-    </widget>
-  </child>
-
-  <child>
-    <widget class="GtkSeparatorMenuItem" id="séparateur1">
-      <property name="visible">True</property>
-    </widget>
-  </child>
-
-  <child>
-    <widget class="GtkImageMenuItem" id="delete">
-      <property name="visible">True</property>
-      <property name="label" translatable="yes">Delete</property>
-      <property name="use_underline">True</property>
-
-      <child internal-child="image">
-	<widget class="GtkImage" id="image11">
-	  <property name="visible">True</property>
-	  <property name="stock">gtk-clear</property>
-	  <property name="icon_size">1</property>
-	  <property name="xalign">0.5</property>
-	  <property name="yalign">0.5</property>
-	  <property name="xpad">0</property>
-	  <property name="ypad">0</property>
-	</widget>
-      </child>
+      <property name="label">gtk-clear</property>
+      <property name="use_stock">True</property>
     </widget>
   </child>
 </widget>
@@ -1007,7 +908,7 @@
 
 	      <child>
 		<widget class="GtkTextView" id="textview">
-		  <property name="width_request">300</property>
+		  <property name="width_request">400</property>
 		  <property name="height_request">300</property>
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>

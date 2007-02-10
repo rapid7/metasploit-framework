@@ -68,7 +68,7 @@ class MyApp < MyGlade
 		@target_tree = MyTargetTree.new(@treeview2, session_tree)
 		
 		# Module Tree
-		@module_tree = MyExploitsTree.new(@treeview1, @viewmodule, @target_tree)
+		@module_tree = MyModuleTree.new(@treeview1, @viewmodule, @target_tree, session_tree)
 		
 		# Update the StatusBar with all framework modules
 		refresh()
