@@ -1,6 +1,7 @@
-# Author: LMH <lmh@info-pull.com>
-# Description: The AJAX console controller of msfweb v.3. Handles commands,
-# operations and sessions carried over the web interface.
+#
+# Author: Metasploit LLC
+# Description: The AJAX console controller of msfweb
+#
 class ConsoleController < ApplicationController
 
 	#

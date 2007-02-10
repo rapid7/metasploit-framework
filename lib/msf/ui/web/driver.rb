@@ -30,10 +30,6 @@ class WebConsole
 		attr_accessor :prompt
 		attr_accessor :killed
 
-		def eof?
-			self.pipe_input.eof?
-		end
-
 		def intrinsic_shell?
 			true
 		end
@@ -45,9 +41,40 @@ class WebConsole
 		def _print_prompt
 		end
 
+
+		#
+		# Wrapper methods around input pipe
+		#
+		
+		
+		def close
+			self.pipe_input.close
+		end
+	
+		def put(*args)
+			self.pipe_input.put(*args)
+		end
+		
+		def gets
+			self.pipe_input.gets
+		end
+		
 		def pgets
 			self.pipe_input.gets
 		end
+
+		def eof?
+			self.pipe_input.eof?
+		end
+				
+		def fd(*args)
+			raise ::RuntimeError, "Session interaction should be performed via the Sessions tab"
+			self.pipe_input.fd(*args)
+		end
+		
+		def sysread(*args)
+			self.pipe_input.sysread(*args)
+		end		
 	end
 
 	#
@@ -58,15 +85,7 @@ class WebConsole
 		def supports_color?
 			false
 		end
-		
-		def cmd_exploit(*args)
-			args.push('-z')
-			$stderr.puts "Weeeeeeeeeeee!"
-			super(*args)
-		end
-
 	end
-
 
 	def initialize(framework, console_id)
 		# Configure the framework
