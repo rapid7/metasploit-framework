@@ -10,30 +10,30 @@ module Stream
 ###
 class Input < Rex::Ui::Text::Input
 	
-	def initialize(buffer)
-		self.eof = false
+	def initialize(buffer, entry)
 		@buffer = buffer
+		@entry = entry
 	end
+	
 	#
 	# Reads text from standard input.
 	#
 	def sysread(len = 1)
-		$stdin.sysread(len)
+		return true
 	end
 
 	#
 	# Wait for a line of input to be read from standard input.
 	#
 	def gets
-		return $stdin.gets
+		return @entry.text
 	end
 
 	#
 	# Print a prompt and flush standard output.
 	#
 	def _print_prompt(prompt)
-		$stdout.print(prompt)
-		$stdout.flush
+		@buffer.insert_at_cursor(prompt)
 	end
 
 	#
@@ -48,15 +48,17 @@ class Input < Rex::Ui::Text::Input
 	# Returns whether or not EOF has been reached on stdin.
 	#
 	def eof?
-		$stdin.closed?
+		return true
 	end
 
 	#
 	# Returns the file descriptor associated with standard input.
 	#
 	def fd
-		return $stdin
+		a = ::IO.new(0, "w")
+		return a
 	end
+	
 end
 
 end

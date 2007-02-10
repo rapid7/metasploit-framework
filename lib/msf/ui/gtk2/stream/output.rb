@@ -3,7 +3,7 @@ module Ui
 module Gtk2
 module Stream
 
-class Output < Rex::Ui::Output
+class Output < Rex::Ui::Text::Output
 	
 	def initialize(buffer)
 		@buffer = buffer
@@ -22,6 +22,10 @@ class Output < Rex::Ui::Output
 	end
 
 	def print_line(msg = '')
+		@buffer.insert_at_cursor(msg + "\n")
+	end
+	
+	def print(msg = '')
 		@buffer.insert_at_cursor(msg + "\n")
 	end
 end

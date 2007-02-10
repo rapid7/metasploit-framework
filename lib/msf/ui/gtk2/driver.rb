@@ -10,7 +10,7 @@ require 'msf/ui/gtk2/dialogs'
 require 'msf/ui/gtk2/logs'
 require 'msf/ui/gtk2/stream'
 require 'msf/ui/gtk2/view'
-require 'msf/ui/gtk2/bidirectional_pipe'
+# require 'msf/ui/gtk2/stream/bidirectional_pipe'
 
 module Msf
 module Ui

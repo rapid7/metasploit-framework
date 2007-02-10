@@ -1076,8 +1076,8 @@
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">True</property>
-		  <signal name="activate" handler="on_cmd_entry_activate" last_modification_time="Mon, 05 Feb 2007 21:24:46 GMT"/>
+		  <property name="activates_default">False</property>
+		  <signal name="activate" handler="on_cmd_entry_activate" last_modification_time="Sat, 10 Feb 2007 02:15:00 GMT"/>
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
