@@ -68,6 +68,10 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 	def print_status(msg)
 		print_line('[*] ' + msg)
 	end
+	
+	def input_fd
+		@pipe_input.fd
+	end
 
 protected
 
