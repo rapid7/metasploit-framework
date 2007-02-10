@@ -420,7 +420,7 @@ class MsfAssistant
 			
 			pipe = Msf::Ui::Gtk2::Stream::GtkConsolePipe.new(@buffer)
 			
-			input = pipe.fd
+			input = pipe.pipe_input
 			output = pipe
 			
 			@mydriver.exploit.init_ui(input, output)
