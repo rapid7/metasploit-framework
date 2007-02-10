@@ -6,7 +6,8 @@ require 'msf/ui/gtk2/stream/output'
 require 'rex/ui/text/output/buffer'
 require 'rex/ui/text/input/buffer'
 
-class BidirectionalPipe < Rex:IO::BidirectionalPipe
+
+class BidirectionalPipe < Rex::IO::BidirectionalPipe
 
 	def initialize(buffer)
 		@buffer = buffer
