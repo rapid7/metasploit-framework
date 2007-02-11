@@ -5,10 +5,6 @@ This file contains things that need to be done that aren't in the plan:
   - data transfers seemed slow
 
 Buggies:
-	- With no target set, the user can still show payloads and do tab completion
-	  in msfconsole. All payloads are listed, so this can be confusing and
-	  result in the wrong payload being selected. If we add some kind of warning
-	  or just refuse to show payloads w/o a target, it would solve this.
 	  
 	- An exploit that has Compat = -find in the Payload section will still list
 	  meterpreter's find_tag payload as compatible
