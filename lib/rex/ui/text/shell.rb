@@ -178,6 +178,8 @@ module Shell
 	# console.
 	#
 	def supports_color?
+		return false
+		
 		begin
 			(ENV['TERM'].match(/(?:vt10[03]|xterm(?:-color)?|linux|screen)/i) != nil)
 		rescue
@@ -196,16 +198,14 @@ module Shell
 	# Returns colorized text if it's supported, otherwise an empty string.
 	#
 	def colorize(*color)
-		# This check is busted atm...
-		#return (supports_color? == false) ? '' : Rex::Ui::Text::Color.ansi(color)
 		return do_colorize(*color)
 	end
 
 	#
-	# Colorize regardless of terminal support.
+	# Colorize if this shell supports it
 	#
-	def do_colorize(*color)
-		return Rex::Ui::Text::Color.ansi(*color)
+	def do_colorize(*color) 
+		supports_color?() ? Rex::Ui::Text::Color.ansi(*color) : ''
 	end
 
 	#
@@ -245,7 +245,6 @@ module Shell
 	#
 	def print(msg)
 		return if (disable_output == true)
-
 		log_output(output.print(msg))
 	end
 

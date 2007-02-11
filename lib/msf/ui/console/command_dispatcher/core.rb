@@ -643,7 +643,7 @@ class Core
 		rescue IOError, EOFError, Rex::StreamClosedError
 			print_status("Session stream closed.")
 		rescue
-			log_error("Session manipulation failed: #{$!}")
+			log_error("Session manipulation failed: #{$!} #{$!.backtrace.inspect}")
 		end
 
 		return true

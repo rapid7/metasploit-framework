@@ -18,58 +18,15 @@ class WebConsole
 
 	class WebConsolePipe < Rex::IO::BidirectionalPipe
 
-		attr_accessor :input
-		attr_accessor :output
-		attr_accessor :prompt
-		attr_accessor :killed
-
-		def intrinsic_shell?
-			true
-		end
-
-		def supports_readline
-			false
-		end
-
-		def _print_prompt
-		end
-
-
-		#
-		# Wrapper methods around input pipe
-		#
-		
-		
-		def close
-			self.pipe_input.close
-		end
-	
-		def put(*args)
-			self.pipe_input.put(*args)
-		end
-		
-		def gets
-			self.pipe_input.gets
-		end
-		
-		def pgets
-			self.pipe_input.gets
-		end
-
-		def eof?
-			self.pipe_input.eof?
-		end
-				
+=begin	
 		def fd(*args)
 			# Remove the following line to enable full sessions via the console
 			# We really should just hook the on_session() instead...
 			raise ::RuntimeError, "Session interaction should be performed via the Sessions tab"
 			self.pipe_input.fd(*args)
 		end
-		
-		def sysread(*args)
-			self.pipe_input.sysread(*args)
-		end		
+=end
+
 	end
 
 	#
@@ -91,7 +48,6 @@ class WebConsole
 
 		# Create a new pipe
 		self.pipe = WebConsolePipe.new
-		self.pipe.input = self.pipe.pipe_input
 
 		# Create a read subscriber
 		self.pipe.create_subscriber('msfweb')

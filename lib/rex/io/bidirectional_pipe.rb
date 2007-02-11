@@ -12,6 +12,10 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 		@subscribers_ref = {}
 		@subscribers_idx = 0
 		@pipe_input = Rex::Ui::Text::Input::Buffer.new
+		
+		# We are the shell, the input, and the output
+		self.output = self
+		self.input  = self
 	end
 
 	def pipe_input
@@ -64,8 +68,10 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 				@subscribers_ref[id] ? @subscribers_ref[id].call(msg) : buf.print(msg)
 			rescue ::Exception => e
 				$stderr.puts "Error handling subscriber #{id}: #{e.to_s} #{e.backtrace.inspect}"
+				raise e
 			end
 		}
+		msg
 	end
 	
 	def print_error(msg)
@@ -118,11 +124,18 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 	#
 	# Wrappers for shell methods
 	#
+	
+	attr_accessor :output, :prompt, :input
+	
 	def intrinsic_shell?
 		true
 	end
 
 	def supports_readline
+		false
+	end
+	
+	def supports_color?
 		false
 	end
 	
