@@ -31,7 +31,7 @@ class DBManager
 		begin	
 			begin
 				require 'rubygems'
-				require_gem 'activerecord'
+				gem 'activerecord'
 				@usable = true	
 			rescue LoadError
 				require 'activerecord'

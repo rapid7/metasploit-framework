@@ -319,7 +319,7 @@ class Payload < Msf::Module
 	##
 	
 	#
-	# Once an exploit completes and a payload has been created on behalf of the
+	# Once an exploit completes and a session has been created on behalf of the
 	# payload, the framework will call the payload's on_session notification
 	# routine to allow it to manipulate the session prior to handing off
 	# control to the user.
