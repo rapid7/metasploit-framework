@@ -126,14 +126,6 @@ begin
 		end
 
 		#
-		# Print a prompt and flush standard output.
-		#
-		def prompt(prompt)
-			_print_prompt(prompt)
-			return gets()
-		end
-	
-		#
 		# Prompt-based getline using readline.
 		#
 		def pgets

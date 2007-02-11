@@ -22,7 +22,8 @@ module Shell
 		attr_accessor :prompt, :output
 
 		def pgets
-			_print_prompt(prompt)
+			output.print(prompt)
+			output.flush
 			gets
 		end
 	end
