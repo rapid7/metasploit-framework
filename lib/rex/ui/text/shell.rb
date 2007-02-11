@@ -215,7 +215,7 @@ module Shell
 	#
 	# Prints an error message to the output handle.
 	#
-	def print_error(msg)
+	def print_error(msg='')
 		return if (output.nil?)
 
 		# Errors are not subject to disabled output
@@ -225,7 +225,7 @@ module Shell
 	#
 	# Prints a status message to the output handle.
 	#
-	def print_status(msg)
+	def print_status(msg='')
 		return if (disable_output == true)
 
 		log_output(output.print_status(msg))
@@ -234,7 +234,7 @@ module Shell
 	#
 	# Prints a line of text to the output handle.
 	#
-	def print_line(msg)
+	def print_line(msg='')
 		return if (disable_output == true)
 
 		log_output(output.print_line(msg))
@@ -243,7 +243,7 @@ module Shell
 	#
 	# Prints a raw message to the output handle.
 	#
-	def print(msg)
+	def print(msg='')
 		return if (disable_output == true)
 		log_output(output.print(msg))
 	end

@@ -22,31 +22,31 @@ class Output
 	#
 	# Prints an error message.
 	#
-	def print_error(msg)
+	def print_error(msg='')
 	end
 
 	#
 	# Prints a 'good' message.
 	#
-	def print_good(msg)
+	def print_good(msg='')
 	end
 
 	#
 	# Prints a status line.
 	#
-	def print_status(msg)
+	def print_status(msg='')
 	end
 
 	#
 	# Prints an undecorated line of information.
 	#
-	def print_line(msg)
+	def print_line(msg='')
 	end
 
 	#
 	# Prints a message with no decoration.
 	#
-	def print(msg)
+	def print(msg='')
 	end
 
 	#

@@ -62,7 +62,7 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 		buf
 	end
 
-	def print(msg)
+	def print(msg='')
 		@subscribers_out.each_pair { |id, buf|
 			begin
 				@subscribers_ref[id] ? @subscribers_ref[id].call(msg) : buf.print(msg)
@@ -74,22 +74,22 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 		msg
 	end
 	
-	def print_error(msg)
+	def print_error(msg='')
 		print_line('[-] ' + msg)
 	end
 	
-	def print_line(msg)
+	def print_line(msg='')
 		print(msg + "\n")
 	end
 	
-	def print_good(msg)
+	def print_good(msg='')
 		print_line('[+] ' + msg)
 	end
 
 	def flush
 	end
 	
-	def print_status(msg)
+	def print_status(msg='')
 		print_line('[*] ' + msg)
 	end
 

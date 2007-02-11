@@ -18,35 +18,35 @@ module Subscriber
 		#
 		# Wraps user_output.print_line
 		#
-		def print_line(msg)
+		def print_line(msg='')
 			user_output.print_line(msg) if (user_output)
 		end
 
 		#
 		# Wraps user_output.print_status
 		#
-		def print_status(msg)
+		def print_status(msg='')
 			user_output.print_status(msg) if (user_output)
 		end
 
 		#
 		# Wraps user_output.print_error
 		#
-		def print_error(msg)
+		def print_error(msg='')
 			user_output.print_error(msg) if (user_output)
 		end
 		
 		#
 		# Wraps user_output.print_good
 		#
-		def print_good(msg)
+		def print_good(msg='')
 			user_output.print_good(msg) if (user_output)
 		end
 
 		#
 		# Wraps user_output.print
 		#
-		def print(msg)
+		def print(msg='')
 			user_output.print(msg) if (user_output)
 		end
 

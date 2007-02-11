@@ -107,35 +107,35 @@ class Plugin
 	#
 	# Prints an error message.
 	#
-	def print_error(msg)
+	def print_error(msg='')
 		output.print_error(msg) if (output)
 	end
 
 	#
 	# Prints a 'good' message.
 	#
-	def print_good(msg)
+	def print_good(msg='')
 		output.print_good(msg) if (output)
 	end
 
 	#
 	# Prints a status line.
 	#
-	def print_status(msg)
+	def print_status(msg='')
 		output.print_status(msg) if (output)
 	end
 
 	#
 	# Prints an undecorated line of information.
 	#
-	def print_line(msg)
+	def print_line(msg='')
 		output.print_line(msg) if (output)
 	end
 
 	#
 	# Prints a message with no decoration.
 	#
-	def print(msg)
+	def print(msg='')
 		output.print(msg) if (output)
 	end
 
