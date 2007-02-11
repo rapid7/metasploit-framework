@@ -11,6 +11,8 @@ require 'msf/ui/gtk2/logs'
 require 'msf/ui/gtk2/stream'
 require 'msf/ui/gtk2/view'
 
+require 'msf/ui/gtk2/framework_event_manager'
+
 module Msf
 module Ui
 module Gtk2
@@ -21,6 +23,11 @@ module Gtk2
 #
 ###
 class Driver < Msf::Ui::Driver
+	
+	attr_accessor :session_tree, :module_tree, :target_tree, :log_text
+	
+	
+	include Msf::Ui::Gtk2::FrameworkEventManager
 	
 	ConfigCore  = "framework/core"
 	ConfigGroup = "framework/ui/gtk2"
@@ -57,6 +64,9 @@ class Driver < Msf::Ui::Driver
 		
 		# Initialize the Gtk2 application object
 		@gtk2app = Msf::Ui::Gtk2::MyApp.new()
+		
+		# Register event handlers
+		register_event_handlers
 	end
 
 	#
@@ -81,6 +91,28 @@ class Driver < Msf::Ui::Driver
 	def get_icon(name)
 		Gdk::Pixbuf.new(File.join(resource_directory, 'pix', name))
 	end
+	
+	#
+	# Adds text to the main logging screen
+	#
+	def append_log_view(data)
+	
+		data = Time.now.strftime("%H:%m:%S") + " " + data
+		
+		return if not self.log_text
+	
+		view = self.log_text
+		buff = view.buffer
+		
+		if (not buff.get_mark('end_mark'))
+			buff.create_mark('end_mark', buff.end_iter, false)
+		end
+		
+		buff.insert(buff.end_iter, Rex::Text.to_utf8(data))
+		buff.move_mark('end_mark', buff.end_iter)
+		view.scroll_mark_onscreen(buff.get_mark('end_mark'))			
+	end
+	
 
 	#
 	# The framework instance associated with this driver.

@@ -62,13 +62,19 @@ class MyApp < MyGlade
 		@viewlogs.set_cursor_visible(false)		
 		
 		# Sessions Tree
-		session_tree = MySessionTree.new(@treeview_session)		
+		@session_tree = MySessionTree.new(@treeview_session)		
 		
 		# Target Tree
-		@target_tree = MyTargetTree.new(@treeview2, session_tree)
+		@target_tree = MyTargetTree.new(@treeview2, @session_tree)
 		
 		# Module Tree
-		@module_tree = MyModuleTree.new(@treeview1, @viewmodule, @target_tree, session_tree)
+		@module_tree = MyModuleTree.new(@treeview1, @viewmodule, @target_tree, @session_tree)
+		
+		# Configure the window handles for easy reference
+		$gtk2driver.session_tree = @session_tree
+		$gtk2driver.target_tree = @target_tree
+		$gtk2driver.module_tree = @module_tree
+		$gtk2driver.log_text = @viewlogs
 		
 		# Update the StatusBar with all framework modules
 		refresh()

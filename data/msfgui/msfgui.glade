@@ -37,7 +37,7 @@
 	  <child>
 	    <widget class="GtkMenuItem" id="menuitem1">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">MSF</property>
+	      <property name="label" translatable="yes">_System</property>
 	      <property name="use_underline">True</property>
 
 	      <child>
@@ -96,7 +96,7 @@
 	  <child>
 	    <widget class="GtkMenuItem" id="on_about">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">À _propos</property>
+	      <property name="label" translatable="yes">_About</property>
 	      <property name="use_underline">True</property>
 	      <signal name="activate" handler="on_about_activate" last_modification_time="Tue, 02 Jan 2007 18:19:55 GMT"/>
 	    </widget>
@@ -284,7 +284,7 @@
 	      <child>
 		<widget class="GtkLabel" id="label1">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">-&gt;</property>
+		  <property name="label" translatable="yes">Information</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -342,7 +342,7 @@
 	      <child>
 		<widget class="GtkLabel" id="label2">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">MSF Logs</property>
+		  <property name="label" translatable="yes">Logs</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -400,7 +400,7 @@
 	      <child>
 		<widget class="GtkLabel" id="label8">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">Jobs</property>
+		  <property name="label" translatable="yes">Console</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>

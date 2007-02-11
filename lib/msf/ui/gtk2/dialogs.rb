@@ -16,9 +16,8 @@ class MsfAssistant
 	include Msf::Ui::Gtk2::MyControls
 	
 	def initialize(session_tree, target_tree, active_module)
-		@buffer = Gtk::TextBuffer.new
-		@session_tree = session_tree
-		@target_tree = target_tree
+		@session_tree  = session_tree
+		@target_tree   = target_tree
 		@active_module = active_module
 		
 		# initialize exploit driver's exploit instance
@@ -336,7 +335,7 @@ class MsfAssistant
 				puts "#{key}: #{value}"
 			end
 			
-			# Import options from the supplied assitant
+			# Import options from the supplied assistant
 			@mydriver.exploit.datastore.import_options_from_hash(@hash)
 			
 			# Share the exploit's datastore with the payload
@@ -344,34 +343,26 @@ class MsfAssistant
 			
 			@mydriver.target_idx = (@mydriver.exploit.datastore['TARGET']).to_i
 			
-			pipe = Msf::Ui::Gtk2::Stream::GtkConsolePipe.new(@buffer)
+			pipe = Rex::IO::BidirectionalPipe.new
 			
-			input = pipe.pipe_input
-			output = pipe
+			@mydriver.exploit.init_ui(pipe, pipe)
+			@mydriver.payload.init_ui(pipe, pipe)
 			
-			@mydriver.exploit.init_ui(input, output)
-			@mydriver.payload.init_ui(input, output)
+			# Session registration is done by event handler
+			# XXX: No output from the exploit when this is set!
+			# @mydriver.use_job = true
 			
-			@target_tree.add_oneshot(@active_module)
-			
-			session = @mydriver.run
-			
-			if (session)
-				@t_ses = Thread.new do
-					Msf::Ui::Gtk2::Stream::Session.new(@buffer, 
-										@session_tree,
-										@hash,
-										session,
-										pipe,
-										input, 
-										output)
-				end
-			else
-				puts "TODO: redirect to MsfLogs"
+			pipe.create_subscriber_proc() do |msg|
+				$stderr.puts "MSG: #{msg}"
+				$gtk2driver.append_log_view(msg)
 			end
 			
-			# Kill off the session thread
-			@t_ses.kill
+			begin
+				$stderr.puts @mydriver.run.inspect
+				@target_tree.add_oneshot(@active_module)
+			rescue ::Exception => e
+				pipe.print_error("Exploit failed: #{e}")
+			end
 		end
 	end # def update_page
 	

@@ -4,68 +4,58 @@ module Gtk2
 module Stream
 
 class Console < MyGlade
+
+	require 'rex/io/bidirectional_pipe'
 	
-	def initialize(session, buffer, pipe, input, output)
+	def initialize(session)
 		super('console2')
-		
-		@textview.set_buffer(buffer)
+
+		@buffer = Gtk::TextBuffer.new
+		@textview.set_buffer(@buffer)
 		@textview.editable = false
-		
-		@buffer  = buffer
+		@textview.set_cursor_visible(false)
+		@buffer.create_mark('end_mark', @buffer.end_iter, false)
+
 		@session = session
-		@input   = input
-		@output  = output
-		@pipe    = pipe
-
 		
-		# Create a read subscriber
-		@pipe.create_subscriber(@session.sid)
+		# Create the pipe interface
+		@pipe = Rex::IO::BidirectionalPipe.new
 		
-		@output.print_status("Session #{@session.sid} created, interacting")
-		@output.print_line("\n")
+		# Initialize the session
+		@session.init_ui(@pipe, @pipe)
 		
-		@session.init_ui(@input, @output)
-		
-		# One thread to interact
-		@t_mon = Thread.new do
-			@session.interact
+		# Start the session interaction
+		@t_run = Thread.new do 
+			@session.interact()
 		end
 		
-		# Another to monitor the output and update the UI
-		@t_rdr = Thread.new do
-
-			if (not @buffer.get_mark('end_mark'))
-				@buffer.create_mark('end_mark', @buffer.end_iter, false)
-			end
-			
-			while(true)
-				data = @pipe.read_subscriber(@session.sid)
-				if (data and data.length > 0)
-					@buffer.insert(@buffer.end_iter, data)
-					@buffer.move_mark('end_mark', @buffer.end_iter)
-					@textview.scroll_mark_onscreen(@buffer.get_mark('end_mark'))	
-				else
-					select(nil, nil, nil, 0.10)
-				end
-				
-			end
+		# Create a subscriber with a callback for the UI
+		@sid = @pipe.create_subscriber_proc() do |data|
+			@buffer.insert(@buffer.end_iter, Rex::Text.to_utf8(data))
+			@buffer.move_mark('end_mark', @buffer.end_iter)
+			@textview.scroll_mark_onscreen(@buffer.get_mark('end_mark'))				
 		end
-		
-				
-		if @console2.run == Gtk::Dialog::RESPONSE_OK
-			puts "ok"
-			@console2.destroy
-		end
-		
-		
-		# Kill off the helper threads
-		@t_rdr.kill
-		@t_mon.kill
 
-		update_access
+		# Run the console interface
+		res = @console2.run
 		
+		# Kill the interaction thread
+		@t_run.kill
+		
+		# Reset the session UI handles
+		@session.reset_ui
+		
+		# Close the pipes
+		@pipe.close
+		
+		# Determine how we were closed
+		case res
+		when Gtk::Dialog::RESPONSE_OK
+			$stderr.puts "ok"
+		else
+		end
+	
 		@console2.destroy
-		
 	end
 	
 	#
@@ -89,24 +79,26 @@ class Console < MyGlade
 		update_access
 		
 		# Write the command plus a newline to the input
-		@input.put(cmd + "\n")
+		@pipe.write_input(cmd + "\n")
 
-		# Clear entry
+		# Clear the text entry
 		@cmd_entry.set_text("")
 	end
 end
 
-require 'rex/io/bidirectional_pipe'
+
 
 class GtkConsolePipe < Rex::IO::BidirectionalPipe
-	
+
+
 	attr_accessor :input
 	attr_accessor :output
 	attr_accessor :prompt
-	attr_accessor :killed
+	attr_accessor :buffer
+	attr_accessor :tree
 	
 	def initialize(buffer)
-		@buffer = buffer
+		self.buffer = buffer
 		super()
 	end
 	
@@ -128,10 +120,15 @@ class GtkConsolePipe < Rex::IO::BidirectionalPipe
 	def pgets
 		self.pipe_input.gets
 	end
-	
+
 	def print_line(msg = "")
-		@buffer.insert_at_cursor(msg + "\n")
+		print(msg + "\n")
 	end
+	
+	def print(msg = "")
+		self.buffer.insert(self.buffer.end_iter, Time.now.strftime("%H:%m:%S") + " " + Rex::Text.to_utf8(msg))
+	end	
+	
 end
 	
 

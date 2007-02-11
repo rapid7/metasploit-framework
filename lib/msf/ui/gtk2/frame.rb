@@ -111,7 +111,7 @@ class MyModuleTree < MyGlade
     #
     # Add Exploits module in the treeview
     #
-    	def add_modules(filter=/.*/)
+    def add_modules(filter=/.*/)
 		@m_tree_modules_items = {}
 		
 		#
@@ -360,7 +360,7 @@ class MyTargetTree < MyGlade
 end #class MyTargetTree
 
 class MySessionTree
-	ID_SESSION, RHOST, PAYLOAD, O_SESSION, BUFFER, PIPE, INPUT, OUTPUT = *(0..8).to_a
+	ID_SESSION, PEER, PAYLOAD, O_SESSION, BUFFER, PIPE, INPUT, OUTPUT = *(0..8).to_a
 	
 	def initialize(treeview)
 		@treeview = treeview
@@ -375,8 +375,8 @@ class MySessionTree
 						)
     		
 		# Renderer
-		renderer_id = Gtk::CellRendererText.new
-		renderer_rhost = Gtk::CellRendererText.new
+		renderer_id      = Gtk::CellRendererText.new
+		renderer_peer    = Gtk::CellRendererText.new
 		renderer_payload = Gtk::CellRendererText.new
 
 		# ID Session Gtk::TreeViewColumn
@@ -391,20 +391,20 @@ class MySessionTree
 		column_id.sort_column_id = ID_SESSION
 		
 		# Target Gtk::TreeViewColumn
-		column_rhost = Gtk::TreeViewColumn.new
-		column_rhost.set_title("Target")
-		column_rhost.pack_start(renderer_rhost, true)
-		column_rhost.set_cell_data_func(renderer_rhost) do |column, cell, model, iter|
-			cell.text = iter[RHOST]
+		column_peer = Gtk::TreeViewColumn.new
+		column_peer.set_title("Target")
+		column_peer.pack_start(renderer_peer, true)
+		column_peer.set_cell_data_func(renderer_peer) do |column, cell, model, iter|
+			cell.text = iter[O_SESSION].tunnel_peer
 		end
-		column_rhost.sort_column_id = RHOST
+		column_peer.sort_column_id = PEER
     	
 		# Payload type Gtk::TreeViewColumn
 		column_payload = Gtk::TreeViewColumn.new
 		column_payload.set_title("Payload")
 		column_payload.pack_start(renderer_payload, true)
 		column_payload.set_cell_data_func(renderer_payload) do |column, cell, model, iter|
-			cell.text = iter[PAYLOAD]
+			cell.text = iter[O_SESSION].via_payload ? iter[O_SESSION].via_payload : nil
 		end
 		column_payload.sort_column_id = PAYLOAD
     	
@@ -417,13 +417,13 @@ class MySessionTree
 		
 		# Add Gtk::TreeViewColumn
 		@treeview.append_column(column_id)
-		@treeview.append_column(column_rhost)
+		@treeview.append_column(column_peer)
 		@treeview.append_column(column_payload)
 		
 		# Session Gtk::Menu
 		@menu_session = Gtk::Menu.new
 		
-		session_item_shell = Gtk::ImageMenuItem.new("Bind Shell")
+		session_item_shell = Gtk::ImageMenuItem.new("Interact Session")
 		session_image_shell = Gtk::Image.new
 		session_image_shell.set(Gtk::Stock::EXECUTE, Gtk::IconSize::MENU)
 		session_item_shell.set_image(session_image_shell)
@@ -454,27 +454,16 @@ class MySessionTree
 		# Items session signals
 		session_item_shell.signal_connect('activate') do |item|
 			if current = @selection.selected
-				Msf::Ui::Gtk2::Stream::Console.new(current[O_SESSION],
-									current[BUFFER],
-									current[PIPE],
-									current[INPUT],
-									current[OUTPUT]
-									)
+				Msf::Ui::Gtk2::Stream::Console.new(current[O_SESSION])
 			end
 		end
 		
 	end # def initialize
 	
-	def add_session(session, options, buffer, pipe, input, output)
+	def add_session(session)
 		iter = @model.append
 		iter[ID_SESSION] = session.sid.to_s
-		iter[RHOST] = options['RHOST']
-		iter[PAYLOAD] = options['PAYLOAD']
-		iter[O_SESSION] = session
-		iter[BUFFER] = buffer
-		iter[PIPE] = pipe
-		iter[INPUT] = input
-		iter[OUTPUT] = output		
+		iter[O_SESSION] = session	
 	end
 end # class MySessionTree
 
