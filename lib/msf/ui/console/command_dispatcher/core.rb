@@ -31,7 +31,7 @@ class Core
 	@@jobs_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ],
 		"-k" => [ true,  "Terminate the specified job name."              ],
-		"-a" => [ false, "Terminate all running jobs."                    ],
+		"-K" => [ false, "Terminate all running jobs."                    ],
 		"-l" => [ false, "List all running jobs."                         ])
 	
 	@@persist_opts = Rex::Parser::Arguments.new(
@@ -230,7 +230,7 @@ class Core
 					print_line("Stopping job: #{val}...")
 					framework.jobs.stop_job(val)
 					
-				when "-a"
+				when "-K"
 					print_line("Stopping all jobs...")
 					framework.jobs.each_key do |i|
 						framework.jobs.stop_job(i)
