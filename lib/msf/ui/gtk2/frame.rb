@@ -362,6 +362,8 @@ end #class MyTargetTree
 class MySessionTree
 	ID_SESSION, PEER, PAYLOAD, O_SESSION, BUFFER, PIPE, INPUT, OUTPUT = *(0..8).to_a
 	
+	include Msf::Ui::Gtk2::MyControls
+	
 	def initialize(treeview)
 		@treeview = treeview
 		@model = Gtk::ListStore.new(String,		# Session ID
@@ -432,6 +434,12 @@ class MySessionTree
 		separator1 = Gtk::SeparatorMenuItem.new
 		@menu_session.append(separator1)
 		
+		close_session_item_shell = Gtk::ImageMenuItem.new("Close Session")
+		close_session_image_shell = Gtk::Image.new
+		close_session_image_shell.set(Gtk::Stock::CLOSE, Gtk::IconSize::MENU)
+		close_session_item_shell.set_image(close_session_image_shell)
+		@menu_session.append(close_session_item_shell)		
+		
 		@menu_session.show_all
 		
 		# TreeView signals
@@ -458,12 +466,26 @@ class MySessionTree
 			end
 		end
 		
+		close_session_item_shell.signal_connect('activate') do |item|
+			if session_iter = @selection.selected
+				framework.events.on_session_close(session_iter)
+			end
+		end
+		
 	end # def initialize
 	
 	def add_session(session)
 		iter = @model.append
 		iter[ID_SESSION] = session.sid.to_s
 		iter[O_SESSION] = session	
+	end
+	
+	#
+	# Remove the session when receive the on_session_close from framework_event_manager
+	#
+	def remove_session(session_iter)
+		puts session_iter[O_SESSION]
+		@model.remove(session_iter)
 	end
 end # class MySessionTree
 
