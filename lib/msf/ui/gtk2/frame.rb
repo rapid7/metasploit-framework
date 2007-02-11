@@ -10,12 +10,12 @@ class MyModuleTree < MyGlade
 	
 	include Msf::Ui::Gtk2::MyControls
 	
-	def initialize(treeview, viewmodule, tree_rhost, treesession)
+	def initialize(treeview, viewmodule, treetarget, treesession)
 		super('menu_module')
 		
 		@treeview1 = treeview
 		@treeview1.enable_search = true
-		@tree_rhost = tree_rhost
+		@target_tree = treetarget
 		@session_tree = treesession
 		
 		@model = Gtk::TreeStore.new(String,		# Module name
@@ -99,7 +99,7 @@ class MyModuleTree < MyGlade
 		
 		@one_shot.signal_connect('activate') do |item|
 			if active_module = @selection.selected
-				MsfAssistant.new(@session_tree, active_module.get_value(MODULE))
+				MsfAssistant.new(@session_tree, @target_tree, active_module.get_value(MODULE))
 			end
 		end
 		
@@ -223,7 +223,7 @@ end # Class MyExploitsTree
 
 
 class MyTargetTree < MyGlade
-	PIX, RHOST, RUNNING, NAME, OBJECT = *(0..5).to_a
+	PIX, TIME, PID, NAME, OBJECT = *(0..5).to_a
     
 	include Msf::Ui::Gtk2::MyControls
 
@@ -234,39 +234,39 @@ class MyTargetTree < MyGlade
 		@session_tree = session_tree
 		
 		@model = Gtk::TreeStore.new(Gdk::Pixbuf,	# Pix rhost
-						String, 	# RHOST
-						Gdk::Pixbuf,	# Pix for the running state
+						String, 	# process TIME
+						String,		# process PID
 						String, 	# exploit refname
 						Object		# Exploit Object
 						)
     		
 		# Renderer
 		renderer_pix = Gtk::CellRendererPixbuf.new
-		renderer_rhost = Gtk::CellRendererText.new
-		renderer_running_pix = Gtk::CellRendererPixbuf.new
+		renderer_time = Gtk::CellRendererText.new
+		renderer_pid = Gtk::CellRendererText.new
 		renderer_name = Gtk::CellRendererText.new
 		
 		# RHOST Gtk::TreeViewColumn
-		column_rhost = Gtk::TreeViewColumn.new
-		column_rhost.set_title("rhost")
-		column_rhost.pack_start(renderer_pix, false)
-		column_rhost.set_cell_data_func(renderer_pix) do |column, cell, model, iter|
+		column_time = Gtk::TreeViewColumn.new
+		#column_time.set_title("rhost")
+		column_time.pack_start(renderer_pix, false)
+		column_time.set_cell_data_func(renderer_pix) do |column, cell, model, iter|
 			cell.pixbuf = iter[PIX]
 		end
-		column_rhost.pack_start(renderer_rhost, true)
-		column_rhost.set_cell_data_func(renderer_rhost) do |column, cell, model, iter|
-			cell.text = iter[RHOST]
+		column_time.pack_start(renderer_time, true)
+		column_time.set_cell_data_func(renderer_time) do |column, cell, model, iter|
+			cell.text = iter[TIME]
 		end
-		column_rhost.sort_column_id = RHOST
+		column_time.sort_column_id = TIME
     	
-		# Running Gtk::TreeViewColumn
-		column_running = Gtk::TreeViewColumn.new
-		column_running.sizing = Gtk::TreeViewColumn::FIXED
-		column_running.fixed_width = 20
-		column_running.set_title("S")
-		column_running.pack_start(renderer_running_pix, false)
-		column_running.set_cell_data_func(renderer_running_pix) do |column, cell, model, iter|
-			cell.pixbuf = iter[RUNNING]
+		# PID Gtk::TreeViewColumn
+		column_pid = Gtk::TreeViewColumn.new
+		column_pid.sizing = Gtk::TreeViewColumn::FIXED
+		column_pid.fixed_width = 25
+		column_pid.set_title("PID")
+		column_pid.pack_start(renderer_pid, false)
+		column_pid.set_cell_data_func(renderer_pid) do |column, cell, model, iter|
+			cell.text = iter[PID]
 		end
 		
 		# Name Gtk::TreeViewColumn
@@ -285,19 +285,19 @@ class MyTargetTree < MyGlade
 		@treeview2.rules_hint = true
 		
 		# Add Gtk::TreeViewColumn
-		@treeview2.append_column(column_rhost)
-		@treeview2.append_column(column_running)
+		@treeview2.append_column(column_time)
+		@treeview2.append_column(column_pid)
 		@treeview2.append_column(column_name)
 		
 		# Add AutoPWN
 		@autopwn_iter = @model.append(nil)
 		@autopwn_iter.set_value(PIX, driver.get_icon("menu_autopwn.png"))	
-		@autopwn_iter.set_value(RHOST, "AutoPWN")	
+		@autopwn_iter.set_value(TIME, "AutoPWN")	
 		
 		# Add Parent "One shot"
 		@oneshot_iter = @model.append(nil)
 		@oneshot_iter.set_value(PIX, driver.get_icon("menu_oneshot.png"))
-		@oneshot_iter.set_value(RHOST, "One shot")
+		@oneshot_iter.set_value(TIME, "One shot")
 		
 		# TreeView Signals
 		@treeview2.signal_connect('button_press_event') do |treeview, event|
@@ -307,10 +307,10 @@ class MyTargetTree < MyGlade
 					
 					begin
 						iter = @treeview2.model.get_iter(path)
-						if iter.get_value(PIX).nil? && iter.get_value(RUNNING).nil?
+						if iter.get_value(PIX).nil? && iter.get_value(PID).nil?
 							treeview.selection.select_path(path)
 							@menu_targetree.popup(nil, nil, event.button, event.time)
-						elsif not iter.get_value(RUNNING).nil?
+						elsif not iter.get_value(PID).nil?
 							treeview.selection.select_path(path)
 							nil
 							# @menu_owned.popup(nil, nil, event.button, event.time)
@@ -331,7 +331,7 @@ class MyTargetTree < MyGlade
 				
 		@delete.signal_connect('activate') do |item|
 			if current = @selection.selected
-				remove_rhost(current)
+				remove_time(current)
 			end
 		end
 	end # def initialize
@@ -339,10 +339,12 @@ class MyTargetTree < MyGlade
 	#
 	# Add One Shot
 	#
-	def add_oneshot(target, exploit)
+	def add_oneshot(exploit)
+		time = Time.now
 		oneshot_childiter = @model.append(@oneshot_iter)
 		#oneshot_childiter.set_value(PIX, nil)
-		oneshot_childiter.set_value(RHOST, target)
+		oneshot_childiter.set_value(TIME, "#{time.hour}:#{time.min}:#{time.sec}")
+		oneshot_childiter.set_value(PID, Process::pid.to_s)
 		oneshot_childiter.set_value(NAME, exploit.shortname)
 		oneshot_childiter.set_value(OBJECT, exploit)
 		@treeview2.expand_all()
@@ -351,7 +353,7 @@ class MyTargetTree < MyGlade
 	#
 	# Remove Target
 	#
-	def remove_rhost(iter)
+	def remove_time(iter)
 		@treeview2.model.remove(iter)
 	end
     

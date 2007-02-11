@@ -15,9 +15,10 @@ class MsfAssistant
 	
 	include Msf::Ui::Gtk2::MyControls
 	
-	def initialize(session_tree, active_module)
+	def initialize(session_tree, target_tree, active_module)
 		@buffer = Gtk::TextBuffer.new
 		@session_tree = session_tree
+		@target_tree = target_tree
 		@active_module = active_module
 		
 		# initialize exploit driver's exploit instance
@@ -351,10 +352,12 @@ class MsfAssistant
 			@mydriver.exploit.init_ui(input, output)
 			@mydriver.payload.init_ui(input, output)
 			
+			@target_tree.add_oneshot(@active_module)
+			
 			session = @mydriver.run
 			
 			if (session)
-				Thread::new{ 
+				@t_ses = Thread.new do
 					Msf::Ui::Gtk2::Stream::Session.new(@buffer, 
 										@session_tree,
 										@hash,
@@ -362,10 +365,13 @@ class MsfAssistant
 										pipe,
 										input, 
 										output)
-				}
+				end
 			else
 				puts "TODO: redirect to MsfLogs"
 			end
+			
+			# Kill off the session thread
+			@t_ses.kill
 		end
 	end # def update_page
 	
