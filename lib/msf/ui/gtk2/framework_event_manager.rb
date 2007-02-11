@@ -40,14 +40,15 @@ module FrameworkEventManager
 	#
 	# Called when a session is closed and removed from the framework.
 	#
-	def on_session_close(session_iter)
-		$gtk2driver.session_tree.remove_session(session_iter)
-		# if (session.interacting == true)
-			# output.print_line
-		# end
+	def on_session_close(session)
+		
+		if (session.interacting == true)
+			output.print_line
+		end
 
 		# If logging had been enabled for this session, stop it now.
-		# Msf::Logging::stop_session_log(session)
+		Msf::Logging::stop_session_log(session)
+		
 	end
 
 end
