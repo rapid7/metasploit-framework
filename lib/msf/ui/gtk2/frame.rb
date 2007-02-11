@@ -343,7 +343,7 @@ class MyTargetTree < MyGlade
 		time = Time.now
 		oneshot_childiter = @model.append(@oneshot_iter)
 		#oneshot_childiter.set_value(PIX, nil)
-		oneshot_childiter.set_value(TIME, "#{time.hour}:#{time.min}:#{time.sec}")
+		oneshot_childiter.set_value(TIME, Time.now.strftime("%H:%m:%S"))
 		oneshot_childiter.set_value(PID, Process::pid.to_s)
 		oneshot_childiter.set_value(NAME, exploit.shortname)
 		oneshot_childiter.set_value(OBJECT, exploit)

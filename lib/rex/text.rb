@@ -1,5 +1,6 @@
 require 'digest/md5'
 require 'stringio'
+require 'iconv'
 
 begin
 	require 'zlib'
@@ -119,6 +120,13 @@ module Text
 		return str
 	end
 
+	#
+	# Converts ISO-8859-1 to UTF-8
+	#
+	def self.to_utf8(str)
+		Iconv.iconv("utf-8","iso-8859-1", str).join(" ")
+	end
+	
 	#
 	# Returns a unicode escaped string for Javascript
 	#

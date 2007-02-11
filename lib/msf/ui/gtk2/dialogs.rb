@@ -108,7 +108,7 @@ class MsfAssistant
 		selected = Gtk::Frame.new("Selected TARGET")
 		page.pack_start(selected, false, false, 10)
 		
-		# Pack & renderer combo_bind
+		# Pack & renderer combo_all
 		renderer = Gtk::CellRendererText.new
 		combo_target.pack_start(renderer, true)
 		combo_target.set_attributes(renderer, :text => 0)
@@ -131,44 +131,30 @@ class MsfAssistant
 		page = Gtk::VBox.new(false, 4)
 		
 		# Gtk::Frame for combo payload entry
-		frame_bind = Gtk::Frame.new("Method BIND")
-		frame_reverse = Gtk::Frame.new("Method REVERSE")
-		page.pack_start(frame_bind, false, false, 10)
-		page.pack_start(frame_reverse, false, false, 10)
+		frame_all = Gtk::Frame.new("Payloads")
+
+		page.pack_start(frame_all, false, false, 10)
+
 		
 		# Model for Gtk::Combox
-		model_bind = Gtk::ListStore.new(String, Object)
-		model_reverse = Gtk::ListStore.new(String, Object)
+		model_all = Gtk::ListStore.new(String, Object)
 		
 		# Add iter to Model
 		@active_module.compatible_payloads.each do |refname, payload|
-			if refname.match(filter)
-				iter = model_reverse.append
+				iter = model_all.append
 				iter[0] = refname
 				iter[1] = payload
-			else
-				iter = model_bind.append
-				iter[0] = refname
-				iter[1] = payload
-			end
 		end
 		
 		# Gtk::ComboBox
-		combo_bind = Gtk::ComboBox.new(model_bind)
-		combo_reverse = Gtk::ComboBox.new(model_reverse)
+		combo_all = Gtk::ComboBox.new(model_all)
 		
-		# Pack & renderer combo_bind
+		# Pack & renderer combo_all
 		renderer = Gtk::CellRendererText.new
-		combo_bind.pack_start(renderer, true)
-		combo_bind.set_attributes(renderer, :text => 0)
-		
-		# Pack & renderer combo_reverse
-		renderer = Gtk::CellRendererText.new
-		combo_reverse.pack_start(renderer, true)
-		combo_reverse.set_attributes(renderer, :text => 0)
-		
-		frame_bind.add(combo_bind)
-		frame_reverse.add(combo_reverse)
+		combo_all.pack_start(renderer, true)
+		combo_all.set_attributes(renderer, :text => 0)
+
+		frame_all.add(combo_all)
 		
 		# Gtk::Frame for description selected payload
 		description = Gtk::Frame.new("Description")
@@ -195,19 +181,11 @@ class MsfAssistant
 		selected.add(label)
 		
 		# Signal for combo payload
-		combo_bind.signal_connect('changed') do
-			text = "<span foreground='blue' size='xx-large'>#{combo_bind.active_iter[0]}</span>"
-			buffer.set_text(combo_bind.active_iter[1].new.description)
+		combo_all.signal_connect('changed') do
+			text = "<span foreground='blue' size='xx-large'>#{combo_all.active_iter[0]}</span>"
+			buffer.set_text(combo_all.active_iter[1].new.description)
 			label.set_markup(text)
-			@hash["PAYLOAD"] = combo_bind.active_iter[0]
-			@myassistant.set_page_complete(@payload_page, true)
-		end
-		
-		combo_reverse.signal_connect('changed') do
-			text = "<span foreground='blue' size='xx-large'>#{combo_reverse.active_iter[0]}</span>"
-			buffer.set_text(combo_reverse.active_iter[1].new.description)
-			label.set_markup(text)
-			@hash["PAYLOAD"] = combo_reverse.active_iter[0]
+			@hash["PAYLOAD"] = combo_all.active_iter[0]
 			@myassistant.set_page_complete(@payload_page, true)
 		end
 
@@ -343,25 +321,27 @@ class MsfAssistant
 			
 			@mydriver.target_idx = (@mydriver.exploit.datastore['TARGET']).to_i
 			
-			pipe = Rex::IO::BidirectionalPipe.new
+			@pipe = Rex::IO::BidirectionalPipe.new
 			
-			@mydriver.exploit.init_ui(pipe, pipe)
-			@mydriver.payload.init_ui(pipe, pipe)
+			@mydriver.exploit.init_ui(@pipe, @pipe)
+			@mydriver.payload.init_ui(@pipe, @pipe)
 			
 			# Session registration is done by event handler
 			# XXX: No output from the exploit when this is set!
 			# @mydriver.use_job = true
 			
-			pipe.create_subscriber_proc() do |msg|
+			@pipe.create_subscriber_proc() do |msg|
 				$stderr.puts "MSG: #{msg}"
 				$gtk2driver.append_log_view(msg)
 			end
 			
+			@pipe.print_status("Launching exploit #{@mydriver.exploit.refname}...")
+			
 			begin
-				$stderr.puts @mydriver.run.inspect
+				@mydriver.run
 				@target_tree.add_oneshot(@active_module)
 			rescue ::Exception => e
-				pipe.print_error("Exploit failed: #{e}")
+				@pipe.print_error("Exploit failed: #{e}")
 			end
 		end
 	end # def update_page

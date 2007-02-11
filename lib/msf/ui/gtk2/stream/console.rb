@@ -35,7 +35,7 @@ class Console < MyGlade
 			@buffer.move_mark('end_mark', @buffer.end_iter)
 			@textview.scroll_mark_onscreen(@buffer.get_mark('end_mark'))				
 		end
-
+ 
 		# Run the console interface
 		res = @console2.run
 		

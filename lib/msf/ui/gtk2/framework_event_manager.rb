@@ -29,31 +29,19 @@ module FrameworkEventManager
 	# Called when a session is registered with the framework.
 	#
 	def on_session_open(session)
-
-		$stderr.puts "NEW SESSION"
-		
-		begin
-		
+	
 		Msf::Ui::Gtk2::Stream::Session.new($gtk2driver.session_tree, session)
 		
 		if (Msf::Logging.session_logging_enabled? == true)
 			Msf::Logging.start_session_log(session)
-		end
-		
-		rescue ::Exception => e
-			$stderr.puts e
-			$stderr.puts e.class
-			$stderr.puts e.backtrace.inspect
-		end
-		
+		end	
 	end
 
 	#
 	# Called when a session is closed and removed from the framework.
 	#
 	def on_session_close(session)
-		$stderr.puts "DEAD SESSION"
-			
+	
 		if (session.interacting == true)
 			output.print_line
 		end
