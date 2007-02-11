@@ -25,11 +25,13 @@ class Core
 		"-h" => [ false, "Help banner."                                   ],
 		"-l" => [ false, "List all active sessions."                      ],
 		"-v" => [ false, "List verbose fields."                           ],
-		"-q" => [ false, "Quiet mode."                                    ])
+		"-q" => [ false, "Quiet mode."                                    ],
+		"-k" => [  true, "Terminate session."                             ])
 
 	@@jobs_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ],
 		"-k" => [ true,  "Terminate the specified job name."              ],
+		"-a" => [ false, "Terminate all running jobs."                    ],
 		"-l" => [ false, "List all running jobs."                         ])
 	
 	@@persist_opts = Rex::Parser::Arguments.new(
@@ -226,8 +228,13 @@ class Core
 				# Terminate the supplied job name
 				when "-k"
 					print_line("Stopping job: #{val}...")
-
 					framework.jobs.stop_job(val)
+					
+				when "-a"
+					print_line("Stopping all jobs...")
+					framework.jobs.each_key do |i|
+						framework.jobs.stop_job(i)
+					end
 
 				when "-h"
 					print(
@@ -600,6 +607,10 @@ class Core
 				when "-l"
 					method = 'list'
 
+				when "-k"
+					method = 'kill'
+					sid = val
+					
 				# Display help banner
 				when "-h"
 					print(
@@ -612,6 +623,12 @@ class Core
 	
 		# Now, perform the actual method
 		case method
+		
+			when 'kill'
+				if ((session = framework.sessions.get(sid)))
+					session.kill
+				end
+			
 			when 'interact'
 				if ((session = framework.sessions.get(sid)))
 					if (session.interactive?)

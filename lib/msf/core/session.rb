@@ -185,6 +185,14 @@ module Session
 		false
 	end
 
+
+	#
+	# Allow the user to terminate this session
+	#
+	def kill
+		framework.sessions.deregister(self)
+	end
+
 	#
 	# The framework instance that created this session.
 	# 

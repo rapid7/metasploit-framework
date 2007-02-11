@@ -71,11 +71,9 @@ module Interactive
 	#
 	# Whether or not the session is currently being interacted with
 	#
-	attr_reader   :interacting
+	attr_accessor   :interacting
 
 protected
-
-	attr_writer   :interacting # :nodoc:
 	
 	#
 	# The original suspend proc.

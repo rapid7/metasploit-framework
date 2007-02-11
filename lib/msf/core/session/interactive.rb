@@ -57,6 +57,16 @@ module Interactive
 	end
 	
 	#
+	# Terminate the session
+	#
+	def kill
+		self.interacting = false if self.interactive?
+		self.reset_ui
+		self.cleanup
+		super()
+	end
+	
+	#
 	# Closes rstream.
 	#
 	def cleanup
