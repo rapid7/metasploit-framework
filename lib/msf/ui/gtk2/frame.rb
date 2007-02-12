@@ -484,11 +484,13 @@ class MySessionTree
 	# Kill the session associated with this item
 	#
 	def remove_session_iter(iter)
+		# Just kill the session, let the event handler remove it
 		iter[O_SESSION].kill
 	end
 	
 	#
-	# This is called by on_session_close
+	# Remove the item from the model
+	# This is called by the framework on_session_close()
 	#
 	def remove_session(session)
 		found = nil
