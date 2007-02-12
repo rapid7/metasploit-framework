@@ -30,6 +30,7 @@ module FrameworkEventManager
 	#
 	def on_session_open(session)
 	
+		$gtk2driver.append_log_view("[*] Session #{session.sid} created for #{session.tunnel_peer}\n")
 		Msf::Ui::Gtk2::Stream::Session.new($gtk2driver.session_tree, session)
 		
 		if (Msf::Logging.session_logging_enabled? == true)
@@ -41,7 +42,9 @@ module FrameworkEventManager
 	# Called when a session is closed and removed from the framework.
 	#
 	def on_session_close(session)
-	
+
+		$gtk2driver.append_log_view("[*] Session #{session.sid} for #{session.tunnel_peer} was closed\n")
+			
 		$gtk2driver.session_tree.remove_session(session)
 
 		# If logging had been enabled for this session, stop it now.
