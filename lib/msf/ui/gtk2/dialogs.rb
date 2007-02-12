@@ -328,12 +328,20 @@ class MsfAssistant
 			
 			# Session registration is done by event handler
 			# XXX: No output from the exploit when this is set!
-			# @mydriver.use_job = true
+			@mydriver.use_job = true
 			
 			@pipe.create_subscriber_proc() do |msg|
 				$stderr.puts "MSG: #{msg}"
 				$gtk2driver.append_log_view(msg)
 			end
+
+			Thread.new do 
+				0.upto(20) do |i|
+					$pipe.print_status("I am alive at #{i}")
+					select(nil, nil, nil, 1.0)
+				end
+			end
+
 			
 			@pipe.print_status("Launching exploit #{@mydriver.exploit.refname}...")
 			

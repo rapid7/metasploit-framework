@@ -468,7 +468,7 @@ class MySessionTree
 		
 		close_session_item_shell.signal_connect('activate') do |item|
 			if session_iter = @selection.selected
-				remove_session(session_iter)
+				remove_session_iter(session_iter)
 			end
 		end
 		
@@ -481,17 +481,27 @@ class MySessionTree
 	end
 	
 	#
-	# Remove the session when receive the on_session_close from framework_event_manager
+	# Kill the session associated with this item
 	#
 	def remove_session_iter(iter)
-		session.interacting = false if session.interactive?
-		framework.events.on_session_close(iter[O_SESSION])
-		remove_session(iter)
+		iter[O_SESSION].kill
 	end
 	
-	def remove_session(iter)
-		@model.remove(iter)
+	#
+	# This is called by on_session_close
+	#
+	def remove_session(session)
+		found = nil
+		@model.each do |model,path,iter|
+			if (iter[ID_SESSION] == session.sid.to_s)
+				found = iter
+				break
+			end
+		end
+		
+		@model.remove(found) if found
 	end
+	
 end # class MySessionTree
 
 end

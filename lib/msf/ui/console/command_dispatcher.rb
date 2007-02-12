@@ -68,6 +68,12 @@ module CommandDispatcher
 	#
 	attr_accessor :driver
 
+	
+	#
+	# The active, interactive session, if any
+	#
+	attr_accessor :active_session
+	
 end 
 
 ###
