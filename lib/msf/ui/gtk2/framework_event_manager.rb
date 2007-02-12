@@ -43,7 +43,7 @@ module FrameworkEventManager
 	#
 	def on_session_close(session)
 
-		$gtk2driver.append_log_view("[*] Session #{session.sid} for #{session.tunnel_peer} was closed\n")
+		$gtk2driver.append_log_view("[*] Session #{session.sid} closed for #{session.tunnel_peer}\n")
 			
 		$gtk2driver.session_tree.remove_session(session)
 
