@@ -46,7 +46,9 @@ class ModuleSearch
 		state(RUNNING)
 		
 		# pass the found array to the MyModuleTree and remove all not matched iter
+		# and finish by expanding the treeview
 		$gtk2driver.module_tree.remove(found)
+		$gtk2driver.module_tree.expand
 	end
 	
 	

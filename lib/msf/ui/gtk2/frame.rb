@@ -250,6 +250,13 @@ class MyModuleTree < MyGlade
 			@model.remove(iter)
 		end
 	end
+	
+	#
+	# expand the treeview
+	#
+	def expand
+		@treeview1.expand_all
+	end
 
 end # Class MyExploitsTree
 
