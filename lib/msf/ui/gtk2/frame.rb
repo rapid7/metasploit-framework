@@ -228,10 +228,24 @@ class MyModuleTree < MyGlade
 	# remove all iters in array_iter
 	#
 	def remove(iter_array)
+		
+		# first loop to remove unmatched iter
 		iter_array.each do |iter|
 			if (iter[ADV] == false)
 				@model.remove(iter)
 			end
+		end
+		
+		# second loop to update parent iter with child iter
+		no_child = []
+		@model.each do |model, path, iter|
+			if (iter[ADV] == true)
+				no_child.push(iter) if not iter.has_child?
+				iter[CATEGORY] = iter[CATEGORY].sub(/[0-9]+/, iter.n_children.to_s)
+			end
+		end
+		no_child.each do |iter|
+			@model.remove(iter)
 		end
 	end
 
