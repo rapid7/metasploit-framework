@@ -15,6 +15,10 @@ class Console < MyGlade
 		@textview.editable = false
 		@textview.set_cursor_visible(false)
 		@buffer.create_mark('end_mark', @buffer.end_iter, false)
+		
+		# Give focus to Gtk::Entry
+		@cmd_entry.can_focus = true
+		@cmd_entry.grab_focus()	
 
 		@session = session
 		
