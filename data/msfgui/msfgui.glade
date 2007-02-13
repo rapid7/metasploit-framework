@@ -148,6 +148,22 @@
 		  </child>
 
 		  <child>
+		    <widget class="GtkButton" id="search_cancel_button">
+		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
+		      <property name="label">gtk-cancel</property>
+		      <property name="use_stock">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		    </widget>
+		    <packing>
+		      <property name="padding">0</property>
+		      <property name="expand">False</property>
+		      <property name="fill">False</property>
+		    </packing>
+		  </child>
+
+		  <child>
 		    <widget class="GtkButton" id="search_button">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>

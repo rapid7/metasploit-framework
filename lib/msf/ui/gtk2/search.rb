@@ -11,13 +11,18 @@ class ModuleSearch
 	#
 	# Initialize all stuff to perform a search
 	#
-	def initialize(search_entry, search_button)
+	def initialize(search_entry, search_button, search_cancel_button)
 		@search_entry = search_entry
 		@search_button = search_button
+		@cancel_button = search_cancel_button
 		
 		@search_button.signal_connect('clicked') do
 			search(@search_entry.text)
 		end
+		
+		@cancel_button.signal_connect('clicked') do
+			cancel()
+		end		
 	end
 	
 	#
@@ -35,6 +40,14 @@ class ModuleSearch
 		
 		# pass the found array to the MyModuleTree and remove all not matched iter
 		$gtk2driver.module_tree.remove(found)
+	end
+	
+	#
+	# Clean the Gtk::Entry and refresh the modules treeview
+	#
+	def cancel
+		@search_entry.set_text("")
+		$gtk2driver.module_tree.refresh
 	end
 end
 

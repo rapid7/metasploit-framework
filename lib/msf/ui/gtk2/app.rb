@@ -76,7 +76,7 @@ class MyApp < MyGlade
 		$gtk2driver.log_text = @viewlogs
 		
 		# Initialize the search class
-		ModuleSearch.new(@search_entry, @search_button)
+		ModuleSearch.new(@search_entry, @search_button, @search_cancel_button)
 		
 		# Update the StatusBar with all framework modules
 		refresh()
