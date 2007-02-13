@@ -282,7 +282,7 @@ class MyTargetTree < MyGlade
 		
 		# Name Gtk::TreeViewColumn
 		column_name = Gtk::TreeViewColumn.new
-		column_name.set_title("Name")
+		column_name.set_title("Payload")
 		column_name.pack_start(renderer_name, true)
 		column_name.set_cell_data_func(renderer_name) do |column, cell, model, iter|
 			cell.text = iter[NAME]
@@ -460,6 +460,15 @@ class MySessionTree
 					rescue
 						nil
 					end
+				elsif (event.event_type == Gdk::Event::BUTTON2_PRESS)
+					path, column, x, y = treeview.get_path_at_pos(event.x, event.y)
+					begin
+						iter = @treeview.model.get_iter(path)
+						treeview.selection.select_path(path)
+						Msf::Ui::Gtk2::Stream::Console.new(iter[O_SESSION])
+					rescue
+						nil
+					end					
 				end
 			end
 		end
