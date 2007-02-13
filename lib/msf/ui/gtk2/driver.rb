@@ -10,6 +10,7 @@ require 'msf/ui/gtk2/dialogs'
 require 'msf/ui/gtk2/logs'
 require 'msf/ui/gtk2/stream'
 require 'msf/ui/gtk2/view'
+require 'msf/ui/gtk2/search'
 
 require 'msf/ui/gtk2/framework_event_manager'
 
@@ -24,8 +25,7 @@ module Gtk2
 ###
 class Driver < Msf::Ui::Driver
 	
-	attr_accessor :session_tree, :module_tree, :target_tree, :log_text
-	
+	attr_accessor :session_tree, :module_tree, :target_tree, :log_text, :module_model	
 	
 	include Msf::Ui::Gtk2::FrameworkEventManager
 	

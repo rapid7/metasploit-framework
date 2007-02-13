@@ -23,6 +23,8 @@ class MyModuleTree < MyGlade
 						TrueClass,	# ADV?
 						String		# Appartenance
 						)
+		# Register the model for later use
+		$gtk2driver.module_model = @model
 		
 		# Init buffer module with tags
 		buff = Gtk::TextBuffer.new

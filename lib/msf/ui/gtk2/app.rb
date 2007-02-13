@@ -55,7 +55,6 @@ class MyApp < MyGlade
 		@scrolledwindow16.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
 		
 		# Logs Buffer
-		# TODO: currently not used
 		@buffer = Gtk::TextBuffer.new
 		@viewlogs.set_buffer(@buffer_logs)
 		@viewlogs.set_editable(false)
@@ -75,6 +74,9 @@ class MyApp < MyGlade
 		$gtk2driver.target_tree = @target_tree
 		$gtk2driver.module_tree = @module_tree
 		$gtk2driver.log_text = @viewlogs
+		
+		# Initialize the search class
+		ModuleSearch.new(@search_entry, @search_button)
 		
 		# Update the StatusBar with all framework modules
 		refresh()
