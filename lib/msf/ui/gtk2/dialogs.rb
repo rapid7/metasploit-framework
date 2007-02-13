@@ -127,7 +127,7 @@ class MsfAssistant
 		page.show_all
 	end # def target_completion
 	
-	def payload_completion(filter=/reverse/)
+	def payload_completion
 		page = Gtk::VBox.new(false, 4)
 		
 		# Gtk::Frame for combo payload entry

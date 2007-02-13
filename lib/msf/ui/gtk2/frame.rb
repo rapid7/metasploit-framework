@@ -402,18 +402,18 @@ class MySessionTree
 		column_peer.set_title("Target")
 		column_peer.pack_start(renderer_peer, true)
 		column_peer.set_cell_data_func(renderer_peer) do |column, cell, model, iter|
-			cell.text = iter[O_SESSION].tunnel_peer
+			cell.text = iter[PEER]
 		end
-		column_peer.sort_column_id = PEER
+		#column_peer.sort_column_id = PEER
     	
 		# Payload type Gtk::TreeViewColumn
 		column_payload = Gtk::TreeViewColumn.new
 		column_payload.set_title("Payload")
 		column_payload.pack_start(renderer_payload, true)
 		column_payload.set_cell_data_func(renderer_payload) do |column, cell, model, iter|
-			cell.text = iter[O_SESSION].via_payload ? iter[O_SESSION].via_payload : nil
+			cell.text = iter[PAYLOAD]
 		end
-		column_payload.sort_column_id = PAYLOAD
+		#column_payload.sort_column_id = PAYLOAD
     	
 		#set model to treeview
 		@treeview.set_model(@model)
@@ -488,10 +488,16 @@ class MySessionTree
 		
 	end # def initialize
 	
+	# Add an iter to the session treeview
+	# TODO: session.via_payload return nil => BUG
 	def add_session(session)
+				
 		iter = @model.append
 		iter[ID_SESSION] = session.sid.to_s
-		iter[O_SESSION] = session	
+		iter[PEER] = session.tunnel_peer
+		iter[PAYLOAD] = session.via_payload ? session.via_payload : nil
+		iter[O_SESSION] = session
+
 	end
 	
 	#

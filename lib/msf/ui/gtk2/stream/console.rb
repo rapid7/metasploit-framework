@@ -54,8 +54,8 @@ class Console < MyGlade
 		
 		# Determine how we were closed
 		case res
-		when Gtk::Dialog::RESPONSE_OK
-			$stderr.puts "ok"
+		when Gtk::Dialog::RESPONSE_CLOSE
+			$stderr.puts "ByeBye"
 		else
 		end
 	
