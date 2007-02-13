@@ -11,6 +11,8 @@ require 'rex'
 require 'msf/base'
 require 'msf/ui'
 
+ENV['LANG'] = 'C'
+
 begin
 	require 'gtk2'
 	require 'libglade2'
