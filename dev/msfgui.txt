@@ -5,6 +5,8 @@ Metasploit Framework MsfGUI TODO List
 On Gtk::TreeView of this class, remove "one shot", just make it "execute", dont ask for RHOST
 the exploit shouldnt get listed in the One-Shot piece until its completed and running and it 
 should be removed once the exploit finishes.
+=> DONE
+
 
 2 - Built the MSFLog with a Gtk::TextView
 the MSFLog needs to also contain the outpout of the exploits as they run
@@ -14,6 +16,7 @@ exploit is added to the Targets list while its in running state
 when a new session is created, those are added automatically to the sessions list
 and the output of the exploits are sent to the MSFLogs window.
 Add some colours with tags
+=> Partially done
 
 3 - bind a signal-connect to a running exploit
 you can right click running exploits and kill them (this is technically a job)
@@ -35,6 +38,8 @@ I think there's a way to perform this feature :
 - register all child iters from the parent modules (Standart, Payloads, Encoders, ...) to an array
 - add a Gtk::Entry beside the TreeView or bind a Gtk::Dialog to a right click _Search
 - Once, the research return true, jump to the selected iter and perform the usual view
+=> DONE
+
 
 7 - the msfconsole
 A fun feature will be to plug the msfconsole to :

@@ -33,4 +33,4 @@ Metasploit Framework v3.0
 	* Including exploit mixins after auxiliary mixins leads to broken behavior
 
 [msfgui]
-	* a lot of bugs ...
+	* The required options in MsfAssistant are not correctly checked.

@@ -11,8 +11,6 @@ require 'rex'
 require 'msf/base'
 require 'msf/ui'
 
-ENV['LANG'] = 'C'
-
 begin
 	require 'gtk2'
 	require 'libglade2'
@@ -24,7 +22,7 @@ end
 require 'msf/ui/gtk2'
 
 
-# Declare the argument parser for msfwx
+# Declare the argument parser for msfgui
 arguments = Rex::Parser::Arguments.new(
 	"-v" => [ true,  "A number between 0 and 3 that controls log verbosity" ],
 	"-d" => [ false, "Keep running in the foreground"                       ],
@@ -49,6 +47,9 @@ arguments.parse(ARGV) { |opt, idx, val|
 }
 
 exit if (Process.fork()) unless background == false
+
+# Language is English
+ENV['LANG'] = 'C'
 
 # Create the driver instance and run it.
 Msf::Ui::Gtk2::Driver.new(opts).run
