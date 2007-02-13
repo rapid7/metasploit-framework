@@ -15,9 +15,9 @@ class MsfAssistant
 	
 	include Msf::Ui::Gtk2::MyControls
 	
-	def initialize(session_tree, target_tree, active_module)
-		@session_tree  = session_tree
-		@target_tree   = target_tree
+	def initialize(active_module)
+		@session_tree  = $gtk2driver.session_tree
+		@target_tree   = $gtk2driver.target_tree
 		@active_module = active_module
 		
 		# initialize exploit driver's exploit instance

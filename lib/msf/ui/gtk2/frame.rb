@@ -10,13 +10,11 @@ class MyModuleTree < MyGlade
 	
 	include Msf::Ui::Gtk2::MyControls
 	
-	def initialize(treeview, viewmodule, treetarget, treesession)
+	def initialize(treeview, viewmodule)
 		super('menu_module')
 		
 		@treeview1 = treeview
 		@treeview1.enable_search = true
-		@target_tree = treetarget
-		@session_tree = treesession
 		
 		@model = Gtk::TreeStore.new(String,		# Module name
 						Object,		# Exploit?
@@ -89,7 +87,7 @@ class MyModuleTree < MyGlade
 							if (iter.get_value(APP) == "Standard")
 								treeview.selection.select_path(path)
 								active(iter)
-								MsfAssistant.new(@session_tree, @target_tree, iter.get_value(1))
+								MsfAssistant.new(iter.get_value(1))
 							end							
 						end
 					rescue
@@ -101,7 +99,7 @@ class MyModuleTree < MyGlade
 		
 		@one_shot.signal_connect('activate') do |item|
 			if active_module = @selection.selected
-				MsfAssistant.new(@session_tree, @target_tree, active_module.get_value(MODULE))
+				MsfAssistant.new(active_module.get_value(MODULE))
 			end
 		end
 		
@@ -114,11 +112,8 @@ class MyModuleTree < MyGlade
     # Add Exploits module in the treeview
     #
     def add_modules(filter=/.*/)
-		@m_tree_modules_items = {}
 		
-		#
 		# Add Parent "Standard (nbr exploits)"
-		#
 		iter = @model.append(nil)
 		iter.set_value(CATEGORY, "Standard (#{framework.stats.num_exploits.to_s})")
 		iter.set_value(MODULE, nil)
@@ -134,9 +129,7 @@ class MyModuleTree < MyGlade
 			child_iter.set_value(APP, "Standard")
 		end
 		
-		#
 		# Add Parent "Auxiliary (nbr auxiliary)"
-		#
 		iter = @model.append(nil)
 		iter.set_value(CATEGORY, "Auxiliary (#{framework.stats.num_auxiliary.to_s})")
 		iter.set_value(MODULE, nil)
@@ -152,14 +145,12 @@ class MyModuleTree < MyGlade
 		    child_iter.set_value(APP, "Auxiliary")
 		end
 		
-		#
 		# Add Parent "Payloads (nbr payloads)"
-		#
 		iter = @model.append(nil)
 		iter.set_value(CATEGORY, "Payloads (#{framework.stats.num_payloads.to_s})")
 		iter.set_value(MODULE, nil)
 		iter.set_value(ADV, true)
-	
+		
 		# Add Payloads childs
 		framework.payloads.each_module do |mod, obj|
 			next if not mod.match(filter)
@@ -170,9 +161,7 @@ class MyModuleTree < MyGlade
 			child_iter.set_value(APP, "Payloads")
 		end
 		
-		#
 		# Add Parent "Nops (nbr nops)"
-		#
 		iter = @model.append(nil)
 		iter.set_value(CATEGORY, "NOPs (#{framework.stats.num_nops.to_s})")
 		iter.set_value(MODULE, nil)
@@ -188,9 +177,7 @@ class MyModuleTree < MyGlade
 			child_iter.set_value(APP, "NOPs")
 		end
 		
-		#
 		# Add Parent "Encoders (nbr encoders)"
-		#
 		iter = @model.append(nil)
 		iter.set_value(CATEGORY, "Encoders (#{framework.stats.num_encoders.to_s})")
 		iter.set_value(MODULE, nil)
@@ -262,19 +249,15 @@ end # Class MyExploitsTree
 
 
 class MyTargetTree < MyGlade
-	PIX, TIME, PID, NAME, OBJECT = *(0..5).to_a
+	PIX, TIME, NAME, OBJECT = *(0..4).to_a
     
 	include Msf::Ui::Gtk2::MyControls
 
-	def initialize(treeview, session_tree)
-		super('menu_target_tree')
-		
+	def initialize(treeview)		
 		@treeview2 = treeview
-		@session_tree = session_tree
 		
 		@model = Gtk::TreeStore.new(Gdk::Pixbuf,	# Pix rhost
 						String, 	# process TIME
-						String,		# process PID
 						String, 	# exploit refname
 						Object		# Exploit Object
 						)
@@ -282,10 +265,9 @@ class MyTargetTree < MyGlade
 		# Renderer
 		renderer_pix = Gtk::CellRendererPixbuf.new
 		renderer_time = Gtk::CellRendererText.new
-		renderer_pid = Gtk::CellRendererText.new
 		renderer_name = Gtk::CellRendererText.new
 		
-		# RHOST Gtk::TreeViewColumn
+		# Time Gtk::TreeViewColumn
 		column_time = Gtk::TreeViewColumn.new
 		#column_time.set_title("rhost")
 		column_time.pack_start(renderer_pix, false)
@@ -297,16 +279,6 @@ class MyTargetTree < MyGlade
 			cell.text = iter[TIME]
 		end
 		column_time.sort_column_id = TIME
-    	
-		# PID Gtk::TreeViewColumn
-		column_pid = Gtk::TreeViewColumn.new
-		column_pid.sizing = Gtk::TreeViewColumn::FIXED
-		column_pid.fixed_width = 25
-		column_pid.set_title("PID")
-		column_pid.pack_start(renderer_pid, false)
-		column_pid.set_cell_data_func(renderer_pid) do |column, cell, model, iter|
-			cell.text = iter[PID]
-		end
 		
 		# Name Gtk::TreeViewColumn
 		column_name = Gtk::TreeViewColumn.new
@@ -325,7 +297,6 @@ class MyTargetTree < MyGlade
 		
 		# Add Gtk::TreeViewColumn
 		@treeview2.append_column(column_time)
-		@treeview2.append_column(column_pid)
 		@treeview2.append_column(column_name)
 		
 		# Add AutoPWN
@@ -338,6 +309,17 @@ class MyTargetTree < MyGlade
 		@oneshot_iter.set_value(PIX, driver.get_icon("menu_oneshot.png"))
 		@oneshot_iter.set_value(TIME, "One shot")
 		
+		# Job Gtk::Menu
+		@menu_job = Gtk::Menu.new
+		
+		kill_job_item_shell = Gtk::ImageMenuItem.new("Kill Job")
+		kill_job_image_shell = Gtk::Image.new
+		kill_job_image_shell.set(Gtk::Stock::CLOSE, Gtk::IconSize::MENU)
+		kill_job_item_shell.set_image(kill_job_image_shell)
+		@menu_job.append(kill_job_item_shell)		
+		
+		@menu_job.show_all		
+		
 		# TreeView Signals
 		@treeview2.signal_connect('button_press_event') do |treeview, event|
 			if event.kind_of? Gdk::EventButton
@@ -346,14 +328,8 @@ class MyTargetTree < MyGlade
 					
 					begin
 						iter = @treeview2.model.get_iter(path)
-						if iter.get_value(PIX).nil? && iter.get_value(PID).nil?
-							treeview.selection.select_path(path)
-							@menu_targetree.popup(nil, nil, event.button, event.time)
-						elsif not iter.get_value(PID).nil?
-							treeview.selection.select_path(path)
-							nil
-							# @menu_owned.popup(nil, nil, event.button, event.time)
-						end
+						treeview.selection.select_path(path)
+						@menu_job.popup(nil, nil, event.button, event.time)
 					rescue
 						nil
 					end
@@ -362,17 +338,12 @@ class MyTargetTree < MyGlade
 		end
 		
 		# Menu Signals
-		@stop.signal_connect('activate') do |item|
+		kill_job_item_shell.signal_connect('activate') do |item|
 			if current = @selection.selected
 				puts "TODO: Kill exploit"
 			end
 		end
-				
-		@delete.signal_connect('activate') do |item|
-			if current = @selection.selected
-				remove_time(current)
-			end
-		end
+		
 	end # def initialize
     
 	#
@@ -383,7 +354,6 @@ class MyTargetTree < MyGlade
 		oneshot_childiter = @model.append(@oneshot_iter)
 		#oneshot_childiter.set_value(PIX, nil)
 		oneshot_childiter.set_value(TIME, Time.now.strftime("%H:%m:%S"))
-		oneshot_childiter.set_value(PID, Process::pid.to_s)
 		oneshot_childiter.set_value(NAME, exploit.shortname)
 		oneshot_childiter.set_value(OBJECT, exploit)
 		@treeview2.expand_all()
@@ -392,14 +362,14 @@ class MyTargetTree < MyGlade
 	#
 	# Remove Target
 	#
-	def remove_time(iter)
+	def remove_target(iter)
 		@treeview2.model.remove(iter)
 	end
     
 end #class MyTargetTree
 
 class MySessionTree
-	ID_SESSION, PEER, PAYLOAD, O_SESSION, BUFFER, PIPE, INPUT, OUTPUT = *(0..8).to_a
+	ID_SESSION, PEER, PAYLOAD, O_SESSION = *(0..4).to_a
 	
 	include Msf::Ui::Gtk2::MyControls
 	
@@ -408,11 +378,7 @@ class MySessionTree
 		@model = Gtk::ListStore.new(String,		# Session ID
 						String,		# IP Address
 						String,		# Payload Type
-						Object,		# Session Object
-						Object,		# Gtk::TextBuffer Object
-						Object,		# Bidirectional_pipe
-						Object,		# Input Object
-						Object		# Output Object
+						Object		# Session Object
 						)
     		
 		# Renderer
