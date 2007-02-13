@@ -19,6 +19,11 @@ class ModuleSearch
 		@search_button = search_button
 		@cancel_button = search_cancel_button
 		
+		# Signals
+                @search_entry.signal_connect('activate') do
+			@search_button.activate
+		end
+		
 		@search_button.signal_connect('clicked') do
 			search(@search_entry.text)
 		end
