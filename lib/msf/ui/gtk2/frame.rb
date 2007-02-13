@@ -89,7 +89,7 @@ class MyModuleTree < MyGlade
 							if (iter.get_value(APP) == "Standard")
 								treeview.selection.select_path(path)
 								active(iter)
-								MsfAssistant.new(@session_tree, iter.get_value(1))
+								MsfAssistant.new(@session_tree, @target_tree, iter.get_value(1))
 							end							
 						end
 					rescue

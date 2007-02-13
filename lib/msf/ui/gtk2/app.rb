@@ -78,6 +78,10 @@ class MyApp < MyGlade
 		# Initialize the search class
 		ModuleSearch.new(@search_entry, @search_button, @search_cancel_button)
 		
+		# Focus on the search widget
+		@search_entry.can_focus = true
+		@search_entry.grab_focus
+		
 		# Update the StatusBar with all framework modules
 		refresh()
 		
