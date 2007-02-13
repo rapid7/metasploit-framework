@@ -15,6 +15,8 @@ class Console < MyGlade
 		@textview.editable = false
 		@textview.set_cursor_visible(false)
 		@buffer.create_mark('end_mark', @buffer.end_iter, false)
+		
+		@cmd_entry.activate_focus
 
 		@session = session
 		

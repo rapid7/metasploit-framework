@@ -216,9 +216,23 @@ class MyModuleTree < MyGlade
 		end
 	end
 	
+	#
+	# Refresh the module treeview with all msf modules
+	#
 	def refresh
 		@model.clear()
 		add_modules()
+	end
+	
+	#
+	# remove all iters in array_iter
+	#
+	def remove(iter_array)
+		iter_array.each do |iter|
+			if (iter[ADV] == false)
+				@model.remove(iter)
+			end
+		end
 	end
 
 end # Class MyExploitsTree

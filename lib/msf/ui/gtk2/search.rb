@@ -21,18 +21,20 @@ class ModuleSearch
 	end
 	
 	#
-	# Perform a search throught the module treeview
-	#
-	
+	# Perform a search throught the module treeview,
+	# and return the array result to MyModuleTree::remove
+	#	
 	def search(text)
-		found = nil
+		found = []
 		filter = Regexp.new(text, Regexp::IGNORECASE)
 		$gtk2driver.module_model.each do |model, path, iter|
-			if (iter[0][filter])
-				found = iter
-				puts iter[0]
+			if (not iter[0][filter])
+				found.push(iter)
 			end
 		end
+		
+		# pass the found array to the MyModuleTree and remove all not matched iter
+		$gtk2driver.module_tree.remove(found)
 	end
 end
 
