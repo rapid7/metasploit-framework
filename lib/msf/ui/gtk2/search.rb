@@ -8,6 +8,9 @@ module Gtk2
 class ModuleSearch
 	include Msf::Ui::Gtk2::MyControls
 	
+	RUNNING, CLEAR = *(0..2).to_a
+	
+	
 	#
 	# Initialize all stuff to perform a search
 	#
@@ -25,6 +28,7 @@ class ModuleSearch
 		end		
 	end
 	
+	
 	#
 	# Perform a search throught the module treeview,
 	# and return the array result to MyModuleTree::remove
@@ -38,16 +42,38 @@ class ModuleSearch
 			end
 		end
 		
+		# Colorize the Gtk::Entry
+		state(RUNNING)
+		
 		# pass the found array to the MyModuleTree and remove all not matched iter
 		$gtk2driver.module_tree.remove(found)
 	end
+	
 	
 	#
 	# Clean the Gtk::Entry and refresh the modules treeview
 	#
 	def cancel
+		# clear the Gtk::Entry
 		@search_entry.set_text("")
+		
+		# Colorize the Gtk::Entry
+		state(CLEAR)
+		
+		# Refresh the modules treeview
 		$gtk2driver.module_tree.refresh
+	end
+	
+	
+	#
+	# Colorize the Gtk::Entry by state parameter
+	#
+	def state(state)
+		if (state == RUNNING)
+			@search_entry.modify_base(Gtk::STATE_NORMAL, Gdk::Color.parse('gray'))
+		elsif (state == CLEAR)
+			@search_entry.modify_base(Gtk::STATE_NORMAL, Gdk::Color.parse('white'))
+		end
 	end
 end
 

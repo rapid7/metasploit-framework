@@ -244,6 +244,8 @@ class MyModuleTree < MyGlade
 				iter[CATEGORY] = iter[CATEGORY].sub(/[0-9]+/, iter.n_children.to_s)
 			end
 		end
+		
+		# remove iter
 		no_child.each do |iter|
 			@model.remove(iter)
 		end
