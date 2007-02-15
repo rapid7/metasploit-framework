@@ -11,6 +11,7 @@ require 'rex'
 require 'msf/base'
 require 'msf/ui'
 
+# Check for ruby packages
 begin
 	require 'gtk2'
 	require 'libglade2'
@@ -19,8 +20,16 @@ rescue ::Exception => e
 	exit(0)
 end
 
-require 'msf/ui/gtk2'
+# Check for Gtk+ version
+# Returns: nil if the GTK+ library is compatible with the given version, 
+# or a string describing the version mismatch.
+if gtkversion = Gtk.check_version(2,10,0)
+	$stderr.puts "[*] The msfgui interface requires Gtk+ 2.10 or later"
+	puts "Your Gtk+ version: #{gtkversion}"
+	exit
+end	
 
+require 'msf/ui/gtk2'
 
 # Declare the argument parser for msfgui
 arguments = Rex::Parser::Arguments.new(
