@@ -56,14 +56,6 @@ class Input::Buffer < Rex::Ui::Text::Input
 	end
 
 	#
-	# Print a prompt and flush to the socket.
-	#
-	def _print_prompt(prompt)
-		@sock.rsock.write(prompt)
-		@sock.rsock.flush
-	end
-
-	#
 	# Returns whether or not EOF has been reached on stdin.
 	#
 	def eof?

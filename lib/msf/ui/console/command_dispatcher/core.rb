@@ -937,9 +937,17 @@ class Core
 		if (args.length == 0)
 			print(
 				"Usage: unset var1 var2 var3 ...\n\n" +
-				"The unset command is used to unset one or more variables.\n")
+				"The unset command is used to unset one or more variables.\n" +
+				"To flush all entires, specify 'all' as the variable name")
 
 			return false
+		end
+
+		# If all was specified, then flush all of the entries
+		if args[0] == 'all'
+			print_line("Flushing datastore...")
+			datastore.clear
+			return true
 		end
 
 		while ((val = args.shift))

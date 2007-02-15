@@ -26,14 +26,6 @@ class Input::Stdio < Rex::Ui::Text::Input
 	end
 
 	#
-	# Print a prompt and flush standard output.
-	#
-	def _print_prompt(prompt)
-		$stdout.print(prompt)
-		$stdout.flush
-	end
-
-	#
 	# Returns whether or not EOF has been reached on stdin.
 	#
 	def eof?

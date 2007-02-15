@@ -42,6 +42,10 @@ class DataStore < Hash
 	#
 	def import_options(options, imported_by = nil, overwrite = false)
 		options.each_option { |name, opt|
+			# If there's already a value defined for this option, then skip it
+			# and don't import it.
+			next if self[name]
+
 			# If the option has a default value, import it, but only if the
 			# datastore doesn't already have a value set for it.
 			if (opt.default and (overwrite or self[name] == nil))
