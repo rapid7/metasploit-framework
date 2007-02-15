@@ -1,4 +1,3 @@
-require 'find'
 require 'msf/core'
 
 module Msf
@@ -745,7 +744,7 @@ protected
 		ks     = true
 
 		# Try to load modules from all the files in the supplied path
-		Find.find(path) { |file|
+		Rex::Find.find(path) { |file|
 			# Skip unit test files
 			next if (file =~ /rb\.ut\.rb$/)
 
@@ -861,12 +860,6 @@ protected
 			return false 
 		end
 
-		# Synchronize the modification time for this file.
-		update_module_cache_info(nil, {
-			'paths' => [ path ],
-			'files' => [ file ],
-			'type'  => type}) if (!using_cache)	
-
 		# Get the module and grab the current number of constants
 		old_constants = mod.constants
 
@@ -927,6 +920,12 @@ protected
 			elog("Exception caught during is_usable check: #{$!}")
 		end
 			
+		# Synchronize the modification time for this file.
+		update_module_cache_info(nil, {
+			'paths' => [ path ],
+			'files' => [ file ],
+			'type'  => type}) if (!using_cache)	
+
 		if (usable == false)
 			ilog("Skipping module in #{file} because is_usable returned false.", 
 				'core', LEV_1)
