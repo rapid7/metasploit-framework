@@ -6,6 +6,9 @@ module Gtk2
 # This class describe the modules treeview
 ##
 class MyModuleTree < MyGlade
+	
+	@@completion = []
+	
 	CATEGORY, MODULE, ADV, APP = *(0..4).to_a
 	
 	include Msf::Ui::Gtk2::MyControls
@@ -106,6 +109,9 @@ class MyModuleTree < MyGlade
 		# Add modules in the Gtk::TreeView
 		add_modules()
 		
+		# Configure the module completion handles for easy reference
+		$gtk2driver.module_completion = @@completion
+		
 	end # def initialize
     
     #
@@ -122,11 +128,13 @@ class MyModuleTree < MyGlade
 		# Add Exploits childs
 		framework.exploits.each_module do |mod, obj|
 			next if not mod.match(filter)
+			t_module = obj.new.name
 			child_iter = @model.append(iter)
-			child_iter.set_value(CATEGORY, obj.new.name)
+			child_iter.set_value(CATEGORY, t_module)
 			child_iter.set_value(MODULE, obj.new)
 			child_iter.set_value(ADV, false)
 			child_iter.set_value(APP, "Standard")
+			@@completion.push(t_module)
 		end
 		
 		# Add Parent "Auxiliary (nbr auxiliary)"
@@ -138,11 +146,13 @@ class MyModuleTree < MyGlade
 		# Add Auxiliary childs
 		framework.auxiliary.each_module do |mod, obj|
 		    next if not mod.match(filter)
+		    t_module = obj.new.name
 		    child_iter = @model.append(iter)
-		    child_iter.set_value(CATEGORY, obj.new.name)
+		    child_iter.set_value(CATEGORY, t_module)
 		    child_iter.set_value(MODULE, obj.new)
 		    child_iter.set_value(ADV, false)
 		    child_iter.set_value(APP, "Auxiliary")
+		    @@completion.push(t_module)
 		end
 		
 		# Add Parent "Payloads (nbr payloads)"
@@ -154,11 +164,13 @@ class MyModuleTree < MyGlade
 		# Add Payloads childs
 		framework.payloads.each_module do |mod, obj|
 			next if not mod.match(filter)
+			t_module = obj.new.name
 			child_iter = @model.append(iter)
-			child_iter.set_value(CATEGORY, obj.new.name)
+			child_iter.set_value(CATEGORY, t_module)
 			child_iter.set_value(MODULE, obj.new)
 			child_iter.set_value(ADV, false)
 			child_iter.set_value(APP, "Payloads")
+			@@completion.push(t_module)
 		end
 		
 		# Add Parent "Nops (nbr nops)"
@@ -170,11 +182,13 @@ class MyModuleTree < MyGlade
 		# Add nops childs
 		framework.nops.each_module do |mod, obj|
 			next if not mod.match(filter)
+			t_module = obj.new.name
 			child_iter = @model.append(iter)
-			child_iter.set_value(CATEGORY, obj.new.name)
+			child_iter.set_value(CATEGORY, t_module)
 			child_iter.set_value(MODULE, obj.new)
 			child_iter.set_value(ADV, false)
 			child_iter.set_value(APP, "NOPs")
+			@@completion.push(t_module)
 		end
 		
 		# Add Parent "Encoders (nbr encoders)"
@@ -186,11 +200,13 @@ class MyModuleTree < MyGlade
 		# Add Encoders childs
 		framework.encoders.each_module do |mod, obj|
 			next if not mod.match(filter)
+			t_module = obj.new.name
 			child_iter = @model.append(iter)
-			child_iter.set_value(CATEGORY, obj.new.name)
+			child_iter.set_value(CATEGORY, t_module)
 			child_iter.set_value(MODULE, obj.new)
 			child_iter.set_value(ADV, false)
 			iter.set_value(APP, "Encoders")
+			@@completion.push(t_module)
 		end
 	end # def add_modules
   
@@ -488,10 +504,11 @@ class MySessionTree
 		
 	end # def initialize
 	
+	#
 	# Add an iter to the session treeview
 	# TODO: session.via_payload return nil => BUG
-	def add_session(session)
-				
+	#
+	def add_session(session)				
 		iter = @model.append
 		iter[ID_SESSION] = session.sid.to_s
 		iter[PEER] = session.tunnel_peer

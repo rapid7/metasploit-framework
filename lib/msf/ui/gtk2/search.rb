@@ -10,6 +10,7 @@ class ModuleSearch
 	
 	RUNNING, CLEAR = *(0..2).to_a
 	
+	@@state = nil
 	
 	#
 	# Initialize all stuff to perform a search
@@ -18,6 +19,12 @@ class ModuleSearch
 		@search_entry = search_entry
 		@search_button = search_button
 		@cancel_button = search_cancel_button
+		
+		# Active completion
+		completion()
+		
+		# Init state
+		@@state = CLEAR
 		
 		# Signals
                 @search_entry.signal_connect('activate') do
@@ -39,6 +46,13 @@ class ModuleSearch
 	# and return the array result to MyModuleTree::remove
 	#	
 	def search(text)
+		# If current state set to RUUNING, call cancel method
+		cancel if @@state == RUNNING
+		
+		# Set current state to RUNNING
+		@@state = RUNNING
+		
+		# Perform the search
 		found = []
 		filter = Regexp.new(text, Regexp::IGNORECASE)
 		$gtk2driver.module_model.each do |model, path, iter|
@@ -69,6 +83,9 @@ class ModuleSearch
 		
 		# Refresh the modules treeview
 		$gtk2driver.module_tree.refresh
+		
+		# Register the current state
+		@@state = CLEAR
 	end
 	
 	
@@ -81,6 +98,26 @@ class ModuleSearch
 		elsif (state == CLEAR)
 			@search_entry.modify_base(Gtk::STATE_NORMAL, Gdk::Color.parse('white'))
 		end
+	end
+	
+	#
+	# Display completion for @search_entry
+	#
+	def completion
+		# set completion
+		completion = Gtk::EntryCompletion.new
+		@search_entry.completion = completion
+		
+		# Describe the model completion
+		model = Gtk::ListStore.new(String)
+		$gtk2driver.module_completion.each do |v|
+			iter = model.append
+			iter[0] = v
+		end
+		
+		# Attach the model completion to the completion object
+		completion.model = model
+		completion.text_column = 0
 	end
 end
 
