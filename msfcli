@@ -30,8 +30,8 @@ def usage (str = nil, extra = nil)
 	tbl << ['(A)dvanced', 'Show available advanced options for this module']
 	tbl << ['(I)DS Evasion', 'Show available ids evasion options for this module']
 	tbl << ['(P)ayloads', 'Show available payloads for this module']
-	tbl << ['(T)argets', 'Show available targets for this module']
-	tbl << ['(A)ctions', 'Show available targets for this module']
+	tbl << ['(T)argets', 'Show available targets for this exploit module']
+	tbl << ['(AC)tions', 'Show available actions for this auxiliary module']
 	tbl << ['(C)heck', 'Run the check routine of the selected module']
 	tbl << ['(E)xecute', 'Execute the selected module']
 
@@ -123,7 +123,7 @@ case mode.downcase
 		else
 			$stdout.puts("\nError: This type of module does not support targets")
 		end	
-	when "a"
+	when "ac"
 		if (module_class == 'auxiliary')
 			$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_auxiliary_actions(exploit, Indent))
 		else
