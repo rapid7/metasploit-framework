@@ -1,4 +1,4 @@
-require 'Find'
+require 'find'
 
 module Rex
 
