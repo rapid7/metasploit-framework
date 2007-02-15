@@ -99,7 +99,6 @@ class WebConsole
 	end
 
 	def shutdown
-		self.pipe.killed = true
 		self.pipe.close
 		self.thread.kill
 	end

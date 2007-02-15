@@ -15,7 +15,7 @@ end
 pcaplet = PcapletX.new(ARGV.join(' '))
 
 pcaplet.each_packet do |pkt|
-	print "#{pkt.time} #{pkt}"
+	print "#{pkt.time} #{pkt} #{pkt.datalink} #{pkt.raw_data.index("\xff" * 6)}"
 	if pkt.tcp?
 		print " (#{pkt.tcp_data_len})"
 		print " ack #{pkt.tcp_ack}" if pkt.tcp_ack?

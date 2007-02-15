@@ -17,6 +17,13 @@ Indent = '   '
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create
 
+if ($framework.modules.failed.length > 0)
+  print("Warning: The following modules could not be loaded!\n\n")
+  $framework.modules.failed.each_pair do |file, err|
+    print("\t#{file}: #{err.to_s}\n\n")
+  end
+end
+
 def usage (str = nil, extra = nil)
 	tbl = Rex::Ui::Text::Table.new(
 		'Header'  => "Usage: #{$0} <exploit_name> <option=value> [mode]",

