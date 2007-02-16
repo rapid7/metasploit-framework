@@ -938,7 +938,7 @@ class Core
 			print(
 				"Usage: unset var1 var2 var3 ...\n\n" +
 				"The unset command is used to unset one or more variables.\n" +
-				"To flush all entires, specify 'all' as the variable name")
+				"To flush all entires, specify 'all' as the variable name\n")
 
 			return false
 		end

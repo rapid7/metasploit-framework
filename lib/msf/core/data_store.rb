@@ -21,11 +21,27 @@ class DataStore < Hash
 	# directly.
 	#
 	def []=(k, v)
+		k = find_key_case(k)
 		@imported[k] = false
 		@imported_by[k] = nil
-
-		super
+		
+		super(k,v)
 	end
+
+	#
+	# Case-insensitive wrapper around hash lookup
+	#
+	def [](k)
+		super(find_key_case(k))
+	end
+	
+	#
+	# Case-insensitive wrapper around store
+	# 
+	def store(k,v)
+		super(find_key_case(k), v)
+	end
+	
 
 	#
 	# Updates a value in the datastore with the specified name, k, to the
@@ -177,6 +193,24 @@ class DataStore < Hash
 
 			v
 		}
+	end
+	
+protected
+	
+	#
+	# Case-insensitive key lookup
+	#
+	def find_key_case(k)
+		
+		# Scan each key looking for a match
+		self.each_key do |rk|
+			if (rk.downcase == k.downcase)
+				return rk
+			end
+		end
+		
+		# Fall through to the non-existent value
+		return k
 	end
 
 end
