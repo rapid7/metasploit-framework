@@ -74,6 +74,15 @@ class Core
 	end
 
 	#
+	# Initializes the datastore cache
+	#
+	def initialize(driver)
+		super
+
+		@dscache = {}
+	end
+
+	#
 	# Returns the name of the command dispatcher.
 	#
 	def name
@@ -90,6 +99,10 @@ class Core
 			# Reset the active module if we have one
 			if (active_module)
 				active_module.reset_ui
+
+				# Save the module's datastore so that we can load it later 
+				# if the module is used again
+				@dscache[active_module.fullname] = active_module.datastore.dup
 
 				self.active_module = nil
 			end
@@ -1043,6 +1056,11 @@ class Core
 
 		# Update the active module
 		self.active_module = mod
+
+		# If a datastore cache exists for this module, then load it up
+		if @dscache[active_module.fullname]
+			active_module.datastore.update(@dscache[active_module.fullname])
+		end
 						
 		mod.init_ui(driver.input, driver.output)
 
