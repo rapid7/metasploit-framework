@@ -178,8 +178,9 @@ module Shell
 	# console.
 	#
 	def supports_color?
+		# Color is disabled until we resolve some bugs
 		return false
-		
+				
 		begin
 			(ENV['TERM'].match(/(?:vt10[03]|xterm(?:-color)?|linux|screen)/i) != nil)
 		rescue
