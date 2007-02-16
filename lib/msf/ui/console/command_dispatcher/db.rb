@@ -157,6 +157,7 @@ module Db
 								ref.vulns.each do |vuln|
 									vcnt  += 1
 									serv  = vuln.service
+									next if not serv.host
 									xport = serv.port
 									xprot = serv.proto
 									xhost = serv.host.address
@@ -175,6 +176,7 @@ module Db
 						rport = e.datastore['RPORT']
 						if (rport)
 							framework.db.services.each do |serv|
+								next if not serv.host
 								next if serv.port.to_i != rport.to_i
 								xport = serv.port
 								xprot = serv.proto
