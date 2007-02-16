@@ -1,8 +1,8 @@
 require 'digest/md5'
 require 'stringio'
-require 'iconv'
 
 begin
+	require 'iconv'
 	require 'zlib'
 rescue LoadError
 end
@@ -124,7 +124,11 @@ module Text
 	# Converts ISO-8859-1 to UTF-8
 	#
 	def self.to_utf8(str)
-		Iconv.iconv("utf-8","iso-8859-1", str).join(" ")
+		begin
+			Iconv.iconv("utf-8","iso-8859-1", str).join(" ")
+		rescue
+			raise ::RuntimeError, "Your installation does not support iconv (needed for utf8 conversion)"
+		end
 	end
 	
 	#
