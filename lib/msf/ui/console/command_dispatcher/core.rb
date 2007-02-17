@@ -1132,18 +1132,18 @@ class Core
 		
 		# Well-known option names specific to exploits
 		if (mod.exploit?)
-			return option_values_payloads() if opt == 'PAYLOAD'
-			return option_values_targets()  if opt == 'TARGET'
-			return option_values_nops()     if opt == 'NOPS'
+			return option_values_payloads() if opt.upcase == 'PAYLOAD'
+			return option_values_targets()  if opt.upcase == 'TARGET'
+			return option_values_nops()     if opt.upcase == 'NOPS'
 		end
 
 		# Well-known option names specific to auxiliaries
 		if (mod.auxiliary?)
-			return option_values_actions() if opt == 'ACTION'
+			return option_values_actions() if opt.upcase == 'ACTION'
 		end
 		
 		# The ENCODER option works for payloads and exploits
-		if ((mod.exploit? or mod.payload?) and opt == 'ENCODER')
+		if ((mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
 			return option_values_encoders()
 		end
 		
@@ -1174,7 +1174,7 @@ class Core
 		case o.class.to_s
 		
 			when 'Msf::OptAddress'
-				case o.name
+				case o.name.upcase
 					when 'RHOST'
 						option_values_target_addrs().each do |addr|
 							res << addr
@@ -1202,7 +1202,7 @@ class Core
 				end
 			
 			when 'Msf::OptPort'
-				case o.name
+				case o.name.upcase
 					when 'RPORT'
 					option_values_target_ports().each do |port|
 						res << port
