@@ -163,6 +163,8 @@ th.moduleOptionsHeader {
     background: #ddd;
     color: #000;
     text-transform: uppercase;
+	margin-top: 1em;
+	margin-bottom: 1em;
 }
 
 .item_row_col_a {
