@@ -12,6 +12,7 @@ OutError  = "[-] "
 
 $args = Rex::Parser::Arguments.new(
 	"-i" => [ true, "Encode the contents of the supplied file path"                      ],
+	"-m" => [ true, "Specifies an additional module search path"                         ],
 	"-a" => [ true, "The architecture to encode as"                                      ],
 	"-t" => [ true, "The format to display the encoded buffer with (raw, ruby, perl, c)" ],
 	"-b" => [ true, "The list of characters to avoid: '\\x00\\xff'"                      ],
@@ -96,6 +97,8 @@ $args.parse(ARGV) { |opt, idx, val|
 				$stderr.puts(OutError + "Failed to open file #{val}: #{$!}")
 				exit
 			end
+		when "-m"
+			$framework.modules.add_module_path(val)
 		when "-l"
 			cmd = "list"
 		when "-n"

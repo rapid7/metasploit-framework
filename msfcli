@@ -81,6 +81,9 @@ exploit_name = ARGV.shift
 exploit      = nil
 module_class = nil
 
+# Process special var/val pairs...
+Msf::Ui::Common.process_cli_arguments($framework, ARGV)
+
 # Determine what type of module it is
 case exploit_name
 when /exploit\/(.*)/
@@ -90,6 +93,10 @@ when /exploit\/(.*)/
 when /auxiliary\/(.*)/
 	exploit = $framework.auxiliary.create($1)
 	module_class = 'auxiliary'
+
+else
+	exploit = $framework.exploits.create(exploit_name)
+
 end
 
 if (exploit == nil)

@@ -38,7 +38,12 @@ end
 
 # Get the payload name we'll be using
 payload_name = ARGV.shift
-payload      = $framework.payloads.create(payload_name)
+
+# Process special var/val pairs...
+Msf::Ui::Common.process_cli_arguments($framework, ARGV)
+
+# Create the payload instance
+payload = $framework.payloads.create(payload_name)
 
 if (payload == nil)
 	puts "Invalid payload: #{payload_name}"
