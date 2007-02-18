@@ -15,12 +15,14 @@ class Error < ::RuntimeError
 
 	# loads errors.txt
 	def _load_errors(file)
-		File.open(file).each { |line|
+		fd = File.open(file)
+		fd.each { |line|
 			next if line =~ /^#/
 			code, string = line.split
 			code = [code].pack('H*').unpack('N')[0]
 			@@errors[code] = string
 		}
+		fd.close
 	end
 
 	# returns an error string if it exists, otherwise just the error code
