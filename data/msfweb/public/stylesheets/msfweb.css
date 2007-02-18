@@ -1,10 +1,8 @@
-/*
- * Copyright (c) 2006, LMH <lmh@info-pull.com>
- * All Rights Reserved.
- *
- * Standards compliant:
- *  Valid, warning-free CSS: http://jigsaw.w3.org/css-validator
- */
+/* 
+ * Copyright (c) 2006 LMH <lmh[at]info-pull.com>
+ * Added to Metasploit under the terms of the Metasploit Framework License v1.2
+ * Additions Copyright (C) 2006-2007 Metasploit LLC
+*/
 
 html,body {
     padding: 0;
@@ -15,7 +13,7 @@ html,body {
 }
 
 body {
-    background: #444444 url(/images/banner.png) fixed center no-repeat;
+    background: #444444 url(/images/banner.gif) fixed center no-repeat;
     color: #fff;
     font-family: Trebuchet, Sans, Arial, serif;
 }

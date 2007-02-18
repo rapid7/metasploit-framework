@@ -1,18 +1,16 @@
-/*
- * Copyright (c) 2006, LMH <lmh@info-pull.com>
- * All Rights Reserved.
- *
- * Standards compliant:
- *  Valid, warning-free CSS: http://jigsaw.w3.org/css-validator
- */
+/* 
+ * Copyright (c) 2006 LMH <lmh[at]info-pull.com>
+ * Added to Metasploit under the terms of the Metasploit Framework License v1.2
+ * Additions Copyright (C) 2006-2007 Metasploit LLC
+*/
 
 html,body {
     width: 100%;
     height: 100%;
     background: #000000;
     color: #eeeeee;
-    font-family: fixed;
-	font-size: 12px;
+    font-family: monospace, console, fixed, terminal;
+	font-size: 11px;
 }
 
 #console_window {
@@ -48,13 +46,13 @@ html,body {
 
 .input {
 	font: inherit;
-	font-family: fixed;
+	font-family: fixed, console, terminal;
 	background: #000000;
 	border: 0;
 	color: white;
 	width: 600px;
 	overflow: hidden;
-	font-size: 12px;
+	font-size: 11px;
 }
 
 .prompt {
@@ -62,7 +60,7 @@ html,body {
 	font: inherit;
 	text-align: right;
 	font-family: fixed;
-	font-size: 12px;
+	font-size: 11px;
 }
 
 #console_command_bar {
