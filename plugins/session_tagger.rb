@@ -33,13 +33,11 @@ class Plugin::SessionTagger < Msf::Plugin
 
 	def initialize(framework, opts)
 		super
-	
-		@framework = framework
-		@framework.events.add_session_subscriber(self)
+		self.framework.events.add_session_subscriber(self)
 	end
 
 	def cleanup
-		@framework.events.remove_session_subscriber(self)
+		self.framework.events.remove_session_subscriber(self)
 	end
 
 	def name
