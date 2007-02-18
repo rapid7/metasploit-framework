@@ -21,7 +21,7 @@ module Payload::Generic
 			'Arch'     => ARCH_ALL,
 			'Platform' => ''))
 
-		register_options(
+		register_advanced_options(
 			[
 				OptString.new('PLATFORM',
 					[
