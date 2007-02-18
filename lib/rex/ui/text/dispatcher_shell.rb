@@ -226,7 +226,9 @@ module DispatcherShell
 	# Runs the supplied command on the given dispatcher.
 	#
 	def run_command(dispatcher, method, arguments)
+		self.busy = true
 		dispatcher.send('cmd_' + method, *arguments)
+		self.busy = false
 	end
 
 	#
@@ -321,6 +323,7 @@ module DispatcherShell
 
 	attr_accessor :dispatcher_stack # :nodoc:
 	attr_accessor :tab_words # :nodoc:
+	attr_accessor :busy # :nodoc:
 
 end
 

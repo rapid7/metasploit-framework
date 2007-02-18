@@ -126,7 +126,11 @@ class VncInject
 	# Launches VNC viewer against the local relay for this VNC server session.
 	#
 	def autovnc
-		if (Rex::FileUtils::find_full_path('vncviewer'))
+		vnc = 
+			Rex::FileUtils::find_full_path('vncviewer') || 
+			Rex::FileUtils::find_full_path('vncviewer.exe')
+			
+		if (vnc)
 			Thread.new {
 				system("vncviewer #{vlhost}::#{vlport}")
 			}

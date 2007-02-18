@@ -127,7 +127,7 @@ function console_keypress(e) {
 			console_hindex = console_history.length - 1;
 		}
 		
-		console_printline("\n" + con_prompt + ' ' + console_input.value, 'output_line')
+		console_printline("\n>> " + console_input.value + "\n\n", 'output_line')
 		
 		if(cmd_internal[console_input.value]) {
 			cmd_internal[console_input.value]();

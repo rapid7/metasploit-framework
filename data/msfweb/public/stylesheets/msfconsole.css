@@ -67,6 +67,7 @@ html,body {
 
 #console_command_bar {
 	background: #000000;
+	margin-top: 1em;
 }
 
 #console_status {

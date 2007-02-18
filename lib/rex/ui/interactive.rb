@@ -21,7 +21,14 @@ module Interactive
 	# rstream to user_output.
 	#
 	def interact
+	
+		# Prevent two thread from interacting at once
+		if(self.interacting)
+			raise RuntimeError, "This session is already interacting with another console"
+		end
+
 		self.interacting = true
+		self.completed = false
 
 		eof = false
 
@@ -53,25 +60,52 @@ module Interactive
 			break if eof
 		end
 
+		begin
 		
-		# Restore the suspend handler
-		restore_suspend
-			
-		# If we've hit eof, call the interact complete handler
-		_interact_complete if (eof == true)
+			# Restore the suspend handler
+			restore_suspend
 
-		# Shutdown the readline thread
- 		# XXX disabled
-		# user_input.readline_stop() if user_input.supports_readline
+			# If we've hit eof, call the interact complete handler
+			_interact_complete if (eof == true)
+
+			# Shutdown the readline thread
+ 			# XXX disabled
+			# user_input.readline_stop() if user_input.supports_readline
+
+			# Detach from the input/output handles
+			reset_ui()
+		
+		ensure
+			# Mark this as completed
+			self.completed = true
+		end
 		
 		# Return whether or not EOF was reached
 		return eof
 	end
 
 	#
+	# Stops the current interaction
+	#
+	def detach
+		if (self.interacting)
+			self.interacting = false
+			stime = Time.now.to_f
+			while(Time.now.to_f > stime + 5 and not self.completed)
+				select(nil, nil, nil, 0.10)	
+			end
+		end
+	end
+
+	#
 	# Whether or not the session is currently being interacted with
 	#
 	attr_accessor   :interacting
+	
+	#
+	# Whether or not the session has completed interaction
+	#
+	attr_accessor	:completed
 
 protected
 	
@@ -144,9 +178,10 @@ protected
 	# writing it to the other.  Both are expected to implement Rex::IO::Stream.
 	#
 	def interact_stream(stream)
-		while self.interacting			
+		while self.interacting
+		
 			# Select input and rstream
-			sd = Rex::ThreadSafe.select([ _local_fd, _remote_fd(stream) ])
+			sd = Rex::ThreadSafe.select([ _local_fd, _remote_fd(stream) ], nil, nil, 0.25)
 
 			# Cycle through the items that have data
 			# From the stream?  Write to user_output.

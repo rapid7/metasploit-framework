@@ -26,6 +26,7 @@ class Core
 		"-l" => [ false, "List all active sessions."                      ],
 		"-v" => [ false, "List verbose fields."                           ],
 		"-q" => [ false, "Quiet mode."                                    ],
+		"-d" => [  true, "Detach an interactive session"                  ],
 		"-k" => [  true, "Terminate session."                             ])
 
 	@@jobs_opts = Rex::Parser::Arguments.new(
@@ -623,6 +624,10 @@ class Core
 				when "-k"
 					method = 'kill'
 					sid = val
+				
+				when "-d"
+					method = 'detach'
+					sid = val
 					
 				# Display help banner
 				when "-h"
@@ -639,9 +644,18 @@ class Core
 		
 			when 'kill'
 				if ((session = framework.sessions.get(sid)))
+					print_status("Killing session #{sid}")
 					session.kill
 				end
-			
+				
+			when 'detach'
+				if ((session = framework.sessions.get(sid)))
+					print_status("Detaching session #{sid}")
+					if (session.interactive?)				
+						session.detach()
+					end
+				end
+				
 			when 'interact'
 				if ((session = framework.sessions.get(sid)))
 					if (session.interactive?)
@@ -654,13 +668,9 @@ class Core
 
 						# Interact
 						session.interact()
-
-						# Once interact returns, swap the output handle with a
-						# none output
-						#
-						# TODO: change this to use buffered output so we can call
-						# flush later on
-						session.reset_ui
+						
+						self.active_session = nil
+						
 					else
 						print_error("Session #{sid} is non-interactive.")
 					end

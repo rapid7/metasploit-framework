@@ -100,9 +100,12 @@ class Driver < Msf::Ui::Driver
 		# Ignore invalid sessions
 		ses = self.framework.sessions[id]
 		return if not ses
-		
+
 		# Has this session already been detached?
 		return if ses.user_output.has_subscriber?('session_reader')
+
+		# Detach session if necessary
+		ses.detach()
 
 		# Create a new pipe
 		spipe = WebConsole::WebConsolePipe.new
@@ -110,7 +113,7 @@ class Driver < Msf::Ui::Driver
 
 		# Create a read subscriber
 		spipe.create_subscriber('session_reader')
-
+		
 		# Replace the input/output handles
 		ses.user_input  = spipe.input
 		ses.user_output = spipe

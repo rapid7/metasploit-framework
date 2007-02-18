@@ -33,6 +33,10 @@ class ConsoleController < ApplicationController
 					out = out.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
 					pro = console.prompt.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
 
+					if (console.busy)
+						pro = '(running)'.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
+					end
+
 					script =  "// Metasploit Web Console Data\n"
 					script += "var con_prompt = unescape('#{pro}');\n"
 					script += "var con_update = unescape('#{out}');\n"
@@ -66,7 +70,11 @@ class ConsoleController < ApplicationController
 
 			out = out.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
 			pro = @console.prompt.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
-
+			
+			if (@console.busy)
+				pro = '(running)'.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
+			end
+					
 			script =  "// Metasploit Web Console Data\n"
 			script += "var con_prompt = unescape('#{pro}');\n"
 			script += "var con_update = unescape('#{out}');\n"
@@ -79,7 +87,7 @@ class ConsoleController < ApplicationController
 			cmdl = params[:tab]
 			out  = ""
 
-			if (params[:tab].strip.length > 0)
+			if (not @console.busy and params[:tab].strip.length > 0)
 				opts = @console.tab_complete(params[:tab]) || []
 			end
 
@@ -108,14 +116,18 @@ class ConsoleController < ApplicationController
 						cmdl = cmd_top[0, depth]
 					end
 
-					out = "\n" + opts.map{ |c| " >> " + c }.join("\n")
+					out = "\n" + opts.map{ |c| ">> " + c }.join("\n")
 				end
 			end
 
 			out = out.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
 			pro = @console.prompt.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
 			tln = cmdl.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
-
+			
+			if (@console.busy)
+				pro = '(running)'.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
+			end
+			
 			script =  "// Metasploit Web Console Data\n"
 			script += "var con_prompt = unescape('#{pro}');\n"
 			script += "var con_update = unescape('#{out}');\n"

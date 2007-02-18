@@ -77,7 +77,6 @@ class WebConsole
 
 	def read
 		update_access
-
 		self.pipe.read_subscriber('msfweb')
 	end
 
@@ -101,6 +100,10 @@ class WebConsole
 	def shutdown
 		self.pipe.close
 		self.thread.kill
+	end
+	
+	def busy
+		self.console.busy
 	end
 end
 
