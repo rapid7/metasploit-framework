@@ -1,3 +1,15 @@
+##
+# $Id:$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
@@ -14,7 +26,7 @@ module BindPerl
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'PHP Command Shell, Bind TCP (via perl)',
-			'Version'       => '$Revision: 3636 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell via perl (persistent)',
 			'Author'        => ['Samy <samy@samy.pl>', 'cazz'],
 			'License'       => BSD_LICENSE,

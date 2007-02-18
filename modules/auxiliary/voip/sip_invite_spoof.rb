@@ -1,3 +1,15 @@
+##
+# $Id:$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+
 require 'msf/core'
 
 module Msf
@@ -10,7 +22,7 @@ class Auxiliary::Voip::SipSpoof < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'SIP Invite Spoof',
-			'Version'        => '$Revision: 3624 $',
+			'Version'        => '$Revision$',
 			'Description'    => 'This module will create a fake SIP invite request making the targeted device ring and display fake caller id information.',
 			'Author'         => 'David Maynor <dave@erratasec.com>',
 			'License'        =>  MSF_LICENSE

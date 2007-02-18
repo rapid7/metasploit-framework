@@ -1,3 +1,15 @@
+##
+# $Id:$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
@@ -14,7 +26,7 @@ module ReversePhp
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'PHP Command Shell, Reverse TCP (via php)',
-			'Version'       => '$Revision: 3636 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Reverse PHP connect back shell',
 			'Author'        => ['diaul <diaul@devilopers.org>',],
 			'License'       => BSD_LICENSE,

@@ -1,3 +1,15 @@
+##
+# $Id:$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+
 require 'msf/core'
 require 'msf/core/payload/windows/exec'
 
@@ -19,7 +31,7 @@ module DownloadExec
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'Windows Executable Download and Execute',
-			'Version'       => '$Revision: 3534 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Download an EXE from a HTTP URL and execute it',
 			'Author'        => [ 'lion[at]cnhonker.com', 'pita[at]mail.com' ],
 			'License'       => BSD_LICENSE,

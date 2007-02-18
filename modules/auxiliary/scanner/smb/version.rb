@@ -1,3 +1,15 @@
+##
+# $Id:$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+
 require 'msf/core'
 
 module Msf
@@ -13,7 +25,7 @@ class Auxiliary::Scanner::Smb::Version < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Version Detection',
-			'Version'     => '$Revision: 3624 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Display version information about each system',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

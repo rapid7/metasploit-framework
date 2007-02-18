@@ -1,3 +1,15 @@
+##
+# $Id:$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+
 require 'msf/core'
 
 module Msf
@@ -16,7 +28,7 @@ class Auxiliary::Dos::Wireless::FuzzBeacon < Msf::Auxiliary
 			
 			'Author'         => [ 'hdm' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision: 3666 $'
+			'Version'        => '$Revision$'
 		))
 		register_options(
 			[

@@ -1,3 +1,15 @@
+##
+# $Id:$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
@@ -15,7 +27,7 @@ module ShellBindTcp
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'OSX Command Shell, Bind TCP Inline',
-			'Version'       => '$Revision: 3425 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
 			'Author'        => 'nemo <nemo[at]felinemenace.org>',
 			'License'       => BSD_LICENSE,

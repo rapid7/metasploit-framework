@@ -1,3 +1,15 @@
+##
+# $Id:$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+
 require 'msf/core'
 
 module Msf
@@ -15,7 +27,7 @@ class Generic < Msf::Nop
 		super(
 			'Name'        => 'PHP Nop Generator',
 			'Alias'       => 'php_generic',
-			'Version'     => '$Revision: 3425 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Generates harmless padding for PHP scripts',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,

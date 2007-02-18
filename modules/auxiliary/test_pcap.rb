@@ -1,3 +1,15 @@
+##
+# $Id:$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+
 require 'msf/core'
 
 module Msf
@@ -10,7 +22,7 @@ class Auxiliary::TestPcap < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Simple Network Capture Tester',
-			'Version'     => '$Revision: 3624 $',
+			'Version'     => '$Revision$',
 			'Description' => 'This module sniffs HTTP GET requests from the network',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,

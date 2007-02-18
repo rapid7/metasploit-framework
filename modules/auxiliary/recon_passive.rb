@@ -1,3 +1,15 @@
+##
+# $Id:$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+
 require 'msf/core'
 
 module Msf
@@ -10,7 +22,7 @@ class Auxiliary::ReconTestPassive < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Simple Recon Module Tester',
-			'Version'     => '$Revision: 3624 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Simple Recon Module Tester',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,

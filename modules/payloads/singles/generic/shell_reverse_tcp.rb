@@ -1,3 +1,15 @@
+##
+# $Id:$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+
 require 'msf/core'
 require 'msf/core/payload/generic'
 require 'msf/core/handler/reverse_tcp'
@@ -15,7 +27,7 @@ module ShellReverseTcp
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Generic Command Shell, Reverse TCP Inline',
-			'Version'       => '$Revision: 3425 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => 'skape',
 			'License'       => MSF_LICENSE,

@@ -1,3 +1,15 @@
+##
+# $Id:$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+
 require 'msf/core'
 
 module Msf
@@ -78,7 +90,7 @@ class AvoidUtf8 < Msf::Encoder
 	def initialize
 		super(
 			'Name'             => 'Avoid UTF8/tolower',
-			'Version'          => '$Revision: 3425 $',
+			'Version'          => '$Revision$',
 			'Description'      => 'UTF8 Safe, tolower Safe Encoder',
 			'Author'           => 'skape',
 			'Arch'             => ARCH_X86,
