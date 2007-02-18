@@ -101,6 +101,12 @@ function openConsoleWindow() {
     console.showCenter();
 }
 
+function openConsoleWindowSession(sid) {
+    var console = create_window_ajax("/console?sid="+sid, "console", "Metasploit Session", 760, 300);
+    console.setDestroyOnClose();
+    console.showCenter();
+}
+
 function openIDEWindow() {
     window.open('/ide/start');
 }

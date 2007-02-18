@@ -24,8 +24,33 @@ var ses_tabbed = "";
 // Internal commands
 var cmd_internal = 
 {
+	help:function() {
+		session_printline("     Web Session Internal Commands\n");
+		session_printline("=========================================\n\n");
+		session_printline(" /help       Show this text\n");
+		session_printline(" /clear      Clear the screen\n");
+		session_printline(" /detach     Detach an active session\n");
+		session_printline(" /kill       Abort an active session\n");
+		session_printline("\n");
+	},
 	clear:function() {
 		session_output.innerHTML = '';
+	},
+	detach:function() {
+		session_printline(">> Detaching active session...\n");
+		new Ajax.Updater("session_update", document.location, {
+			asynchronous:true,
+			evalScripts:true,
+			parameters:"special=detach"
+		});		
+	},
+	kill:function() {
+		session_printline(">> Killing active session...\n");	
+		new Ajax.Updater("session_update", document.location, {
+			asynchronous:true,
+			evalScripts:true,
+			parameters:"special=kill"
+		});			
 	}
 };
 
@@ -114,15 +139,19 @@ function session_keypress(e) {
 			session_hindex = session_history.length - 1;
 		}
 		
-		session_printline("\n" + session_input.value, 'output_line')
+		session_printline("\n>> " + session_input.value + "\n\n", 'output_line')
 		
-		if(cmd_internal[session_input.value]) {
-			cmd_internal[session_input.value]();
-			session_input.value = "";
-			session_input.focus();			
-			return keystroke_block(e);
+		if(session_input.value[0] == '/') {
+			cmd_name = session_input.value.substring(1);
+			
+			if(cmd_internal[cmd_name]) {
+				cmd_internal[cmd_name]();
+				session_input.value = "";
+				session_input.focus();			
+				return keystroke_block(e);
+			}
 		}
-		
+				
 		status_busy();
 		
 		new Ajax.Updater("session_update", document.location, {

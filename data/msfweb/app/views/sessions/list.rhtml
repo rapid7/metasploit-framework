@@ -13,7 +13,7 @@
 	    <% @sessions.each_pair do |n,m| %>
 		<tr>
 			<td><%= n %></td>
-			<td><a href="/sessions/interact/<%= n %>"><%= m.tunnel_peer %></a></td>
+			<td><a onclick="window.parent.openConsoleWindowSession(<%= n %>);" href="#"><%= m.tunnel_peer %></a></td>
 			<td><%= m.via_payload %></td>
 			<td><%= m.via_exploit %></td>		
 		<% end %>

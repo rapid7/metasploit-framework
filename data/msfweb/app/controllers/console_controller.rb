@@ -13,6 +13,12 @@ class ConsoleController < ApplicationController
 
 		if (not (cid and $msfweb.consoles[cid]))
 			cid = $msfweb.create_console
+			
+			if (params[:sid])
+				$msfweb.consoles[cid].write("sessions -i #{params[:sid]}\n")
+				$msfweb.consoles[cid].write("\n\n")
+			end
+			
 			redirect_to :id => cid
 			return
 		end
