@@ -27,7 +27,7 @@ module PassiveX
 		super(merge_info(info,
 			'Name'          => 'PassiveX Reverse HTTP Tunneling Stager',
 			'Version'       => '$Revision$',
-			'Description'   => 'Tunnel communication over HTTP using IE 6+',
+			'Description'   => 'Tunnel communication over HTTP using IE 6',
 			'Author'        => 'skape',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
