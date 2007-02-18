@@ -10,7 +10,7 @@ body {
     background: #fff;
     color: #000;
     font-family: Sans, Arial, sans-serif;
-    font-size: 10pt;
+    font-size: 10px;
 }
 
 thead {
@@ -163,9 +163,18 @@ p.moduleDescription {
     float: left;
 }
 
-
 th.moduleOptionsHeader {
     background: #ddd;
     color: #000;
     text-transform: uppercase;
+}
+
+.item_row_col_a {
+	background: white;
+	padding: 0.25em;
+}
+
+.item_row_col_b {
+	background: #eeeeee;
+	padding: 0.25em;	
 }

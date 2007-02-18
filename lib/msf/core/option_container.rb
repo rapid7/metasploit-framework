@@ -629,8 +629,9 @@ module Opt
 		'LHOST' => [ OptAddress, 'nil',   true,  '"The local address"' ],
 		'LPORT' => [ OptPort,    'nil',   true,  '"The local port"' ],
 		'CPORT' => [ OptPort,    'nil',   false, '"The local client port"' ],
+		'CHOST' => [ OptAddress, 'nil',   false, '"The local client address"' ],
 		'SSL'   => [ OptBool,    'false', false, '"Use SSL"' ],
-		'Proxies' => [ OptString, 'nil',  'false', '"proxy chain"'],
+		'Proxies' => [ OptString, 'nil',  'false', '"Use a proxy chain"'],
 	}
 
 #

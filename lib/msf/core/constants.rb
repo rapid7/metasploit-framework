@@ -53,7 +53,7 @@ end
 #
 
 # Licenses
-MSF_LICENSE      = "Metasploit Framework License v1.0"
+MSF_LICENSE      = "Metasploit Framework License"
 GPL_LICENSE      = "GNU Public License v2.0"
 BSD_LICENSE      = "BSD License"
 ARTISTIC_LICENSE = "Perl Artistic License"
