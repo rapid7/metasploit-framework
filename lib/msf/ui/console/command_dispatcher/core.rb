@@ -662,13 +662,9 @@ class Core
 						print_status("Starting interaction with #{session.name}...\n") if (quiet == false)
 
 						self.active_session = session
-						
-						# Set the session's input and output handles
-						session.init_ui(driver.input.dup, driver.output)
 
-						# Interact
-						session.interact()
-						
+						session.interact(driver.input.dup, driver.output)
+												
 						self.active_session = nil
 						
 					else

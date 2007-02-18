@@ -85,12 +85,14 @@ class Driver < Msf::Ui::Driver
 	def write_session(id, buf)
 		ses = self.framework.sessions[id]
 		return if not ses
+		return if not ses.user_input
 		ses.user_input.put(buf)
 	end
 	
 	def read_session(id)
 		ses = self.framework.sessions[id]
-		return if not ses	
+		return if not ses
+		return if not ses.user_output
 		ses.user_output.read_subscriber('session_reader')
 	end
 	
@@ -102,10 +104,9 @@ class Driver < Msf::Ui::Driver
 		return if not ses
 
 		# Has this session already been detached?
-		return if ses.user_output.has_subscriber?('session_reader')
-
-		# Detach session if necessary
-		ses.detach()
+		if (ses.user_output)
+			return if ses.user_output.has_subscriber?('session_reader')
+		end
 
 		# Create a new pipe
 		spipe = WebConsole::WebConsolePipe.new
@@ -113,13 +114,9 @@ class Driver < Msf::Ui::Driver
 
 		# Create a read subscriber
 		spipe.create_subscriber('session_reader')
-		
-		# Replace the input/output handles
-		ses.user_input  = spipe.input
-		ses.user_output = spipe
 
 		Thread.new do
-			ses.interact
+			ses.interact(spipe.input, spipe)
 		end
 	end
 

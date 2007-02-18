@@ -24,13 +24,10 @@ class Console < MyGlade
 		
 		# Create the pipe interface
 		@pipe = Rex::IO::BidirectionalPipe.new
-		
-		# Initialize the session
-		@session.init_ui(@pipe, @pipe)
-		
+			
 		# Start the session interaction
 		@t_run = Thread.new do 
-			@session.interact()
+			@session.interact(@pipe, @pipe)
 		end
 		
 		# Create a subscriber with a callback for the UI
@@ -45,9 +42,6 @@ class Console < MyGlade
 		
 		# Kill the interaction thread
 		@t_run.kill
-		
-		# Reset the session UI handles
-		@session.reset_ui
 		
 		# Close the pipes
 		@pipe.close

@@ -20,12 +20,14 @@ module Interactive
 	# forwarding input from user_input to rstream and forwarding input from
 	# rstream to user_output.
 	#
-	def interact
+	def interact(user_input, user_output)
 	
-		# Prevent two thread from interacting at once
+		# Detach from any existing console
 		if(self.interacting)
-			raise RuntimeError, "This session is already interacting with another console"
+			detach()
 		end
+
+		init_ui(user_input, user_output)
 
 		self.interacting = true
 		self.completed = false
@@ -71,15 +73,16 @@ module Interactive
 			# Shutdown the readline thread
  			# XXX disabled
 			# user_input.readline_stop() if user_input.supports_readline
-
+			
 			# Detach from the input/output handles
 			reset_ui()
-		
+					
 		ensure
+			
 			# Mark this as completed
 			self.completed = true
 		end
-		
+
 		# Return whether or not EOF was reached
 		return eof
 	end
@@ -90,9 +93,8 @@ module Interactive
 	def detach
 		if (self.interacting)
 			self.interacting = false
-			stime = Time.now.to_f
-			while(Time.now.to_f > stime + 5 and not self.completed)
-				select(nil, nil, nil, 0.10)	
+			while(not self.completed)
+				select(nil, nil, nil, 0.25)	
 			end
 		end
 	end
@@ -181,7 +183,7 @@ protected
 		while self.interacting
 		
 			# Select input and rstream
-			sd = Rex::ThreadSafe.select([ _local_fd, _remote_fd(stream) ], nil, nil, 0.25)
+			sd = Rex::ThreadSafe.select([ _local_fd, _remote_fd(stream) ], nil, nil, 0.50)
 
 			# Cycle through the items that have data
 			# From the stream?  Write to user_output.
