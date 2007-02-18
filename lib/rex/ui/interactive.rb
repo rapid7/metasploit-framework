@@ -78,7 +78,6 @@ module Interactive
 			reset_ui()
 					
 		ensure
-			
 			# Mark this as completed
 			self.completed = true
 		end
@@ -183,8 +182,8 @@ protected
 		while self.interacting
 		
 			# Select input and rstream
-			sd = Rex::ThreadSafe.select([ _local_fd, _remote_fd(stream) ], nil, nil, 0.50)
-
+			sd = Rex::ThreadSafe.select([ _local_fd, _remote_fd(stream) ], nil, nil, 0.25)
+			
 			# Cycle through the items that have data
 			# From the stream?  Write to user_output.
 			sd[0].each { |s|
@@ -195,6 +194,8 @@ protected
 					_stream_read_local_write_remote(stream)
 				end
 			} if (sd)
+			
+			Thread.pass
 		end
 	end
 

@@ -348,6 +348,17 @@ module Text
 			raise TypeError, 'invalid mode'
 		end
 	end
+	
+	#
+	# Converts a string to random case
+	#
+	def self.to_rand_case(str)
+		buf = str.dup
+		0.upto(str.length) do |i|
+			buf[i,1] = rand(2) == 0 ? str[i,1].upcase : str[i,1].downcase
+		end
+		return buf
+	end
 
 	#
 	# Converts a hex string to a raw string
@@ -477,6 +488,7 @@ module Text
 	# Generators
 	#
 	##
+
 
 	# Generates a random character.
 	def self.rand_char(bad, chars = AllChars)

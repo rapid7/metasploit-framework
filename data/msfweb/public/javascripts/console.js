@@ -19,13 +19,36 @@ var con_prompt = "";
 var con_update = "";
 var con_tabbed = "";
 
-
-
 // Internal commands
 var cmd_internal = 
 {
+	help:function() {
+		console_printline("     Web Console Internal Commands\n");
+		console_printline("=========================================\n\n");
+		console_printline(" /help       Show this text\n");
+		console_printline(" /clear      Clear the screen\n");
+		console_printline(" /detach     Detach an active session\n");
+		console_printline(" /kill       Abort an active session\n");
+		console_printline("\n");
+	},
 	clear:function() {
 		console_output.innerHTML = '';
+	},
+	detach:function() {
+		console_printline(">> Detaching from any active session...\n");
+		new Ajax.Updater("console_update", document.location, {
+			asynchronous:true,
+			evalScripts:true,
+			parameters:"special=detach"
+		});		
+	},
+	kill:function() {
+		console_printline(">> Killing any active session...\n");	
+		new Ajax.Updater("console_update", document.location, {
+			asynchronous:true,
+			evalScripts:true,
+			parameters:"special=kill"
+		});			
 	}
 };
 
@@ -54,9 +77,10 @@ function console_refocus() {
 }
 
 function console_read() {
-	new Ajax.Updater("console_update", '/_console/cid=' + console_id, {
+	new Ajax.Updater("console_update", document.location, {
 		asynchronous:true,
 		evalScripts:true,
+		parameters:"read=yes",
 		onComplete:console_read_output
 	});	
 }
@@ -85,7 +109,7 @@ function console_read_output(req) {
 	console_update_output(req);
 	
 	// Reschedule the console reader
-	setTimeout(console_read, 1);
+	setTimeout(console_read, 1000);
 }
 
 function console_update_output(req) {
@@ -99,8 +123,10 @@ function console_update_output(req) {
 	}
 	
 	console_prompt.innerHTML = con_prompt;
-	console_refocus();
 	
+	if(con_update && con_update.length > 0) {
+		window.scrollTo(0, 10000000);
+	}
 
 }
 
@@ -109,7 +135,10 @@ function console_update_tabs(req) {
 	
 	status_free();
 	
-	console_printline(con_update, 'output_line');
+	if (con_update.length > 0) {
+		console_printline(con_update, 'output_line');
+	}
+	
 	console_prompt.innerHTML = con_prompt;
 	console_input.value = con_tabbed;
 	
@@ -129,19 +158,23 @@ function console_keypress(e) {
 		
 		console_printline("\n>> " + console_input.value + "\n\n", 'output_line')
 		
-		if(cmd_internal[console_input.value]) {
-			cmd_internal[console_input.value]();
-			console_input.value = "";
-			console_input.focus();			
-			return keystroke_block(e);
+		if(console_input.value[0] == '/') {
+			cmd_name = console_input.value.substring(1);
+			
+			if(cmd_internal[cmd_name]) {
+				cmd_internal[cmd_name]();
+				console_input.value = "";
+				console_input.focus();			
+				return keystroke_block(e);
+			}
 		}
-		
+				
 		status_busy();
 		
 		new Ajax.Updater("console_update", document.location, {
 			asynchronous:true,
 			evalScripts:true,
-			parameters:"cmd=" + escape(console_input.value),
+			parameters:"read=yes&cmd=" + escape(console_input.value),
 			onComplete:console_update_output
 		});	
 
@@ -181,7 +214,7 @@ function console_keydown(e) {
 		new Ajax.Updater("console_update", document.location, {
 			asynchronous:true,
 			evalScripts:true,
-			parameters:"tab=" + escape(console_input.value),
+			parameters:"read=yes&tab=" + escape(console_input.value),
 			onComplete:console_update_tabs
 		});	
 		return keystroke_block(e);

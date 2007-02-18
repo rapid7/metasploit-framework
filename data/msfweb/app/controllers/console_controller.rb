@@ -9,47 +9,6 @@ class ConsoleController < ApplicationController
 	#
 	def index
 
-		# Work around rails stupidity
-		if(not $webrick_hooked_console)
-
-			$webrick.mount_proc("/_console") do |req, res|
-
-				res['Content-Type'] = "text/javascript"
-
-				m = req.path_info.match(/cid=(\d+)/)
-				if (m and m[1] and $msfweb.consoles[m[1]])
-					console = $msfweb.consoles[m[1]]
-
-					out = ''
-					tsp = Time.now.to_i
-					prompt_old = console.prompt
-
-					# Poll the console output for 15 seconds
-					while( tsp + 15 > Time.now.to_i and out.length == 0 and console.prompt == prompt_old)
-						out = console.read()
-						select(nil, nil, nil, 0.10)
-					end
-
-					out = out.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
-					pro = console.prompt.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
-
-					if (console.busy)
-						pro = '(running)'.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
-					end
-
-					script =  "// Metasploit Web Console Data\n"
-					script += "var con_prompt = unescape('#{pro}');\n"
-					script += "var con_update = unescape('#{out}');\n"
-
-					res.body = script
-				else
-					res.body = '// Invalid console ID'
-				end
-			end
-
-			$webrick_hooked_console = true
-		end
-
 		cid = params[:id]
 
 		if (not (cid and $msfweb.consoles[cid]))
@@ -58,30 +17,32 @@ class ConsoleController < ApplicationController
 			return
 		end
 
+
+		script = "// Metasploit Web Console Data\n"
+		out    = ""
+		
 		@cid = params[:id]
 		@console = $msfweb.consoles[@cid]
 
+
 		if(params[:cmd])
-			out = ''
-
-			if (params[:cmd].strip.length > 0)
-				@console.write(params[:cmd] + "\n")
-			end
-
-			out = out.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
-			pro = @console.prompt.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
-			
-			if (@console.busy)
-				pro = '(running)'.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
-			end
-					
-			script =  "// Metasploit Web Console Data\n"
-			script += "var con_prompt = unescape('#{pro}');\n"
-			script += "var con_update = unescape('#{out}');\n"
-
-			send_data(script, :type => "text/javascript")
+			@console.write(params[:cmd] + "\n")
 		end
 
+		if(params[:read])
+			out = @console.read() || ''
+		end
+
+		
+		if(params[:special])
+			case params[:special]
+			when 'kill'
+				@console.session_kill
+			when 'detach'		
+				@console.session_detach	
+			end
+		end
+		
 		if(params[:tab])
 			opts = []
 			cmdl = params[:tab]
@@ -116,22 +77,24 @@ class ConsoleController < ApplicationController
 						cmdl = cmd_top[0, depth]
 					end
 
-					out = "\n" + opts.map{ |c| ">> " + c }.join("\n")
+					out << "\n" + opts.map{ |c| ">> " + c }.join("\n")
 				end
 			end
 
+			tln = cmdl.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
+			script += "var con_tabbed = unescape('#{tln}');\n"			
+		end
+	
+		if(params[:read])
+		
 			out = out.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
 			pro = @console.prompt.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
-			tln = cmdl.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
-			
 			if (@console.busy)
 				pro = '(running)'.unpack('C*').map{|c| sprintf("%%%.2x", c)}.join
 			end
-			
-			script =  "// Metasploit Web Console Data\n"
+
 			script += "var con_prompt = unescape('#{pro}');\n"
 			script += "var con_update = unescape('#{out}');\n"
-			script += "var con_tabbed = unescape('#{tln}');\n"
 
 			send_data(script, :type => "text/javascript")
 		end

@@ -27,8 +27,26 @@ class Client
 			'vhost'           => self.hostname,
 			'version'         => '1.1',
 			'agent'           => "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
-			'uri_encode_mode' => 'hex-normal',
-			'uri_full_url'    => false
+			#
+			# Evasion options
+			#
+			'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
+			'uri_full_url'           => false,   # bool
+			'pad_method_uri_count'   => 1,       # integer
+			'pad_uri_version_count'  => 1,       # integer
+			'pad_method_uri_type'    => 'space', # space, tab, apache
+			'pad_uri_version_type'   => 'space', # space, tab, apache
+			'method_random_valid'    => false,   # bool
+			'method_random_invalid'  => false,   # bool
+			'method_random_case'     => false,   # bool
+			'version_random_valid'   => false,   # bool
+			'version_random_invalid' => false,   # bool
+			'version_random_case'    => false,   # bool
+			'uri_dir_self_reference' => false,   # bool
+			'uri_dir_fake_relative'  => false,   # bool
+			'uri_use_backslashes'    => false,   # bool
+			'pad_fake_headers'       => false,   # bool
+			'pad_fake_headers_count' => 16,      # integer
 		}
 	end
 	
@@ -37,7 +55,7 @@ class Client
 	#
 	def set_config(opts = {})
 		opts.each_pair do |var,val|
-			config[var]=val
+			self.config[var]=val
 		end
 	end
 	
@@ -321,7 +339,7 @@ class Client
 	#
 	# Return the encoded URI
 	# ['none','hex-normal', 'hex-all', 'u-normal', 'u-all']
-	def set_encode_uri(uri)
+	def set_encode_uri(uri)	
 		Rex::Text.uri_encode(uri, self.config['uri_encode_mode'])
 	end
 	
@@ -336,6 +354,24 @@ class Client
 	# Return the uri
 	#
 	def set_uri(uri)
+		
+		if (self.config['uri_dir_self_reference'])
+			uri.gsub!('/', '/./')
+		end
+		
+		if (self.config['uri_dir_fake_relative'])
+			buf = ""
+			uri.split('/').each do |part|
+				cnt = rand(8)+2
+				1.upto(cnt) { |idx|
+					buf += "/" + Rex::Text.rand_text_alphanumeric(rand(32)+1)
+				}
+				buf += ("/.." * cnt)
+				buf += "/" + part
+			end
+			uri = buf
+		end
+			
 		if (self.config['uri_full_url'])
 			url = self.ssl ? "https" : "http"
 			url += self.config['vhost']
@@ -349,11 +385,26 @@ class Client
 
 	#
 	# Return the cgi
-	# TODO:
-	# * Implement self-referential directories
-	# * Implement bogus relative directories
+	#
 	def set_cgi(uri)
-	
+
+		if (self.config['uri_dir_self_reference'])
+			uri.gsub!('/', '/./')
+		end
+		
+		if (self.config['uri_dir_fake_relative'])
+			buf = ""
+			uri.split('/').each do |part|
+				cnt = rand(8)+2
+				1.upto(cnt) { |idx|
+					buf += "/" + Rex::Text.rand_text_alphanumeric(rand(32)+1)
+				}
+				buf += ("/.." * cnt)
+				buf += "/" + part
+			end
+			uri = buf
+		end
+			
 		url = uri
 	
 		if (self.config['uri_full_url'])
@@ -370,22 +421,42 @@ class Client
 	# Return the HTTP method string
 	#
 	def set_method(method)
-		# TODO:
-		#  * Randomize case
-		#  * Replace with random valid method
-		#  * Replace with random invalid method
-		method
+		ret = method
+		
+		if (self.config['method_random_valid'])
+			ret = ['GET', 'POST', 'HEAD'][rand(3)]
+		end
+		
+		if (self.config['method_random_invalid'])
+			ret = Rex::Text.rand_text_alpha(rand(20)+1)
+		end
+		
+		if (self.config['method_random_case'])
+			ret = Rex::Text.to_rand_base(ret)
+		end
+		
+		ret += "\r\n"
 	end
 
 	#
 	# Return the HTTP version string
 	#
 	def set_version(protocol, version)
-		# TODO:
-		#  * Randomize case
-		#  * Replace with random valid versions
-		#  * Replace with random invalid versions
-		protocol + "/" + version + "\r\n"
+		ret = protocol + "/" + version
+		
+		if (self.config['version_random_valid'])
+			ret = protocol + "/" +  ['1.0', '1.1'][rand(2)]
+		end
+		
+		if (self.config['version_random_invalid'])
+			ret = Rex::Text.rand_text_alphanumeric(rand(20)+1)
+		end
+		
+		if (self.config['version_random_case'])
+			ret = Rex::Text.to_rand_base(ret)
+		end
+		
+		ret += "\r\n"
 	end
 
 	#
@@ -407,18 +478,44 @@ class Client
 	# Return the spacing between the method and uri
 	#
 	def set_method_uri_spacer
-		# TODO:
-		#  * Support different space types
-		" "
+		len = self.config['pad_method_uri_count']
+		set = " "
+		buf = ""
+		
+		case self.config['pad_method_uri_type']
+		when 'tab'
+			set = "\t"
+		when 'apache'
+			set = "\t \x0b\x0c\x0d"
+		end
+		
+		while(buf.length < len)
+			buf << set[ rand(set.length) ]
+		end
+		
+		return buf
 	end
 
 	#
 	# Return the spacing between the uri and the version
 	#
 	def set_uri_version_spacer
-		# TODO:
-		#  * Support different space types
-		" "
+		len = self.config['pad_uri_version_count']
+		set = " "
+		buf = ""
+		
+		case self.config['pad_uri_version_type']
+		when 'tab'
+			set = "\t"
+		when 'apache'
+			set = "\t \x0b\x0c\x0d"
+		end
+		
+		while(buf.length < len)
+			buf << set[ rand(set.length) ]
+		end
+		
+		return buf
 	end
 
 	#
@@ -490,6 +587,15 @@ class Client
 	#  * Implement junk header stuffing
 	def set_extra_headers(headers)
 		buf = ''
+
+		if (self.config['pad_fake_headers'])
+			1.upto(self.config['pad_fake_headers_count']) do |i|
+				buf += set_formatted_header(
+					Rex::Text.rand_text_alphanumeric(rand(32)+1), 
+					Rex::Text.rand_text_alphanumeric(rand(32)+1)
+				)
+			end
+		end
 
 		headers.each_pair do |var,val|
 			buf += set_formatted_header(var, val)

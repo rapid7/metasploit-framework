@@ -105,6 +105,19 @@ class WebConsole
 	def busy
 		self.console.busy
 	end
+	
+	def session_detach
+		if(self.console.active_session)		
+			self.console.active_session.detach()
+		end
+	end
+	
+	def session_kill
+		if(self.console.active_session)			
+			self.console.active_session.kill()
+		end	
+	end
+	
 end
 
 

@@ -44,6 +44,20 @@ module CommandDispatcher
 	end
 
 	#
+	# Returns the active session if one has been selected, otherwise nil is
+	# returned.
+	#
+	def active_session
+		driver.active_session
+	end
+
+	#
+	# Sets the active session for this driver instance.
+	#
+	def active_session=(mod)
+		driver.active_session = mod
+	end
+	#
 	# Checks to see if the driver is defanged.
 	#
 	def defanged?
@@ -67,12 +81,6 @@ module CommandDispatcher
 	# The driver that this command dispatcher is associated with.
 	#
 	attr_accessor :driver
-
-	
-	#
-	# The active, interactive session, if any
-	#
-	attr_accessor :active_session
 	
 end 
 

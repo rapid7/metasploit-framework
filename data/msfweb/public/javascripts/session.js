@@ -54,9 +54,10 @@ function session_refocus() {
 }
 
 function session_read() {
-	new Ajax.Updater("session_update", '/_session/cid=' + session_id, {
+	new Ajax.Updater("session_update", document.location, {
 		asynchronous:true,
 		evalScripts:true,
+		parameters:"read=yes",
 		onComplete:session_read_output
 	});	
 }
@@ -84,8 +85,8 @@ function session_read_output(req) {
 	// Call the console updated
 	session_update_output(req);
 	
-	// Reschedule the console reader
-	setTimeout(session_read, 1);
+	// Reschedule the session reader
+	setTimeout(session_read, 1000);
 }
 
 function session_update_output(req) {
@@ -127,7 +128,7 @@ function session_keypress(e) {
 		new Ajax.Updater("session_update", document.location, {
 			asynchronous:true,
 			evalScripts:true,
-			parameters:"cmd=" + escape(session_input.value),
+			parameters:"read=yes&cmd=" + escape(session_input.value),
 			onComplete:session_update_output
 		});	
 

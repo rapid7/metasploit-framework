@@ -42,11 +42,11 @@ html,body {
     border: none;
     padding: 0;
 	background: #000000;
+	font-size: 11px;
 }
 
 .input {
-	font: inherit;
-	font-family: fixed, console, terminal;
+	font-family: monospace, console, fixed, terminal;
 	background: #000000;
 	border: 0;
 	color: white;
@@ -57,15 +57,19 @@ html,body {
 
 .prompt {
 	color: white;
-	font: inherit;
+	font-family: monospace, console, fixed, terminal;
 	text-align: right;
-	font-family: fixed;
 	font-size: 11px;
 }
 
 #console_command_bar {
 	background: #000000;
 	margin-top: 1em;
+}
+
+#console_input {
+	font-size: 11px;
+	font-family: monospace, console, fixed, terminal;	
 }
 
 #console_status {

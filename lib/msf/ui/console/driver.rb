@@ -266,7 +266,11 @@ class Driver < Msf::Ui::Driver
 	# The active module associated with the driver.
 	#
 	attr_accessor :active_module
-
+	#
+	# The active session associated with the driver.
+	#
+	attr_accessor :active_session
+	
 	#
 	# If defanged is true, dangerous functionality, such as exploitation, irb,
 	# and command shell passthru is disabled.  In this case, an exception is 
