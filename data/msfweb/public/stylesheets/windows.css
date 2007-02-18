@@ -8,7 +8,7 @@ body {
     background: #fff;
     color: #000;
     font-family: Sans, Arial, sans-serif;
-    font-size: 10px;
+    font-size: 10pt;
 }
 
 thead {
@@ -145,16 +145,14 @@ p.moduleDescription {
     padding: 5px;
     border: 1px solid #ccc;
 	text-align: justify;
-	font-size: 12px;
+	font-size: 10pt;
 }
 
 .moduleReferences {
 	list-style: circle;
-	font-size: 9px;
 }
 .moduleTargets {
 	list-style: circle;
-	font-size: 9px;
 }
 
 .moduleIcons {
