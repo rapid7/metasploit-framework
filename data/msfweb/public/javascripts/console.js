@@ -114,7 +114,7 @@ function console_read_output(req) {
 
 function console_update_output(req) {
 	
-	try { eval(req.responseText); } catch(e){ alert(req.responseText); }
+	try { eval(req.responseText); } catch(e){ console_printline("!!! An error occurred in the console reader\n"); }
 	
 	status_free();
 		
@@ -127,7 +127,6 @@ function console_update_output(req) {
 	if(con_update && con_update.length > 0) {
 		window.scrollTo(0, 10000000);
 	}
-
 }
 
 function console_update_tabs(req) {
