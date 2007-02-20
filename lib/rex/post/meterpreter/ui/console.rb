@@ -74,8 +74,7 @@ class Console
 	def interact_with_channel(channel)
 		channel.extend(InteractiveChannel) unless (channel.kind_of?(InteractiveChannel) == true)
 
-		channel.init_ui(input, output)
-		channel.interact
+		channel.interact(input, output)
 		channel.reset_ui
 	end
 
