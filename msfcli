@@ -176,11 +176,10 @@ case mode.downcase
 				if (session)
 					$stdout.puts("[*] #{session.desc} session #{session.name} opened (#{session.tunnel_to_s})\n\n")
 
-					session.init_ui(
+					session.interact(
 						Rex::Ui::Text::Input::Stdio.new,
-						Rex::Ui::Text::Output::Stdio.new)
-
-					session.interact
+						Rex::Ui::Text::Output::Stdio.new
+					)
 				end
 
 			rescue
@@ -200,11 +199,10 @@ case mode.downcase
 				if (session)
 					$stdout.puts("[*] #{session.desc} session #{session.name} opened (#{session.tunnel_to_s})\n\n")
 
-					session.init_ui(
+					session.interact(
 						Rex::Ui::Text::Input::Stdio.new,
-						Rex::Ui::Text::Output::Stdio.new)
-
-					session.interact
+						Rex::Ui::Text::Output::Stdio.new				
+					)
 				end
 
 			rescue
