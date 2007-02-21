@@ -125,12 +125,9 @@ class Module
 
 		# Create and initialize the data store for this module
 		self.datastore = ModuleDataStore.new(self)
-		self.datastore.import_options(self.options, 'self', true)
 
-		# If there are default options, import their values into the datastore
-		if (module_info['DefaultOptions'])
-			self.datastore.import_options_from_hash(module_info['DefaultOptions'], true, 'self')
-		end
+		# Import default options into the datastore
+		import_defaults
 
 		self.privileged = module_info['Privileged'] || false
 		self.license = module_info['License'] || MSF_LICENSE
@@ -364,6 +361,22 @@ class Module
 	def share_datastore(ds)
 		self.datastore = ds
 		self.datastore.import_options(self.options)
+	end
+
+	#
+	# Imports default options into the module's datastore, optionally clearing
+	# all of the values currently set in the datastore.
+	#
+	def import_defaults(clear_datastore = true)
+		# Clear the datastore if the caller asked us to
+		self.datastore.clear if clear_datastore
+
+		self.datastore.import_options(self.options, 'self', true)
+
+		# If there are default options, import their values into the datastore
+		if (module_info['DefaultOptions'])
+			self.datastore.import_options_from_hash(module_info['DefaultOptions'], true, 'self')
+		end
 	end
 	
 	#

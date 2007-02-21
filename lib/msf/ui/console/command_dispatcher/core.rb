@@ -965,7 +965,15 @@ class Core
 		# If all was specified, then flush all of the entries
 		if args[0] == 'all'
 			print_line("Flushing datastore...")
-			datastore.clear
+
+			# Re-import default options into the module's datastore
+			if (active_module and global == false)
+				active_module.import_defaults
+			# Or simply clear the global datastore
+			else
+				datastore.clear
+			end
+
 			return true
 		end
 
