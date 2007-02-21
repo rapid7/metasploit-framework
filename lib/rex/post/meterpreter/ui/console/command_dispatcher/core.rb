@@ -412,7 +412,7 @@ protected
 			clirb = File.join(Rex::Root, path)
 			old   = CommDispatcher.constants
 	
-			if (require(clirb) == true)
+			if (require(clirb))
 				new  = CommDispatcher.constants
 				diff = new - old
 		
