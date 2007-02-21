@@ -11,6 +11,12 @@ require 'rex'
 require 'msf/ui'
 require 'optparse'
 
+if(RUBY_PLATFORM =~ /mswin32/)
+	$stderr.puts "[*] The msfconsole interface is not supported on the native Windows Ruby interpreter.\n"
+	$stderr.puts "    Things will break, exploits will fail, payloads will not be handled correctly.\n"
+	$stderr.puts "    Please use the msfweb 'console' or install Cygwin or Linux in VMWare.\n\n"
+end
+
 class OptsConsole
 	#
 	# Return a hash describing the options.
