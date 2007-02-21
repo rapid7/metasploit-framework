@@ -227,10 +227,19 @@ require 'rex/proto/smb/exceptions'
 			self.write(packet)
 		}
 
-		raw_response = self.read()
-		if (raw_response == nil or raw_response.length == 0)
+		raw_response = ''
+
+		begin
+			raw_response = self.read()		
+		rescue ::EOFError
 			raise Rex::Proto::DCERPC::Exceptions::NoResponse
 		end
+
+		if (raw_response == nil or raw_response.length == 0)
+			raise Rex::Proto::DCERPC::Exceptions::NoResponse
+		end			
+		
+
 		self.last_response = Rex::Proto::DCERPC::Response.new(raw_response)
 
 		if self.last_response.type == 3
