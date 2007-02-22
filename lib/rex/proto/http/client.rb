@@ -238,6 +238,7 @@ class Client
 	# Read a response from the server
 	#
 	def read_response(t = -1)
+
 		resp = Response.new
 		resp.max_data = config['read_max_data']
 
@@ -435,7 +436,7 @@ class Client
 			ret = Rex::Text.to_rand_base(ret)
 		end
 		
-		ret += "\r\n"
+		ret
 	end
 
 	#
