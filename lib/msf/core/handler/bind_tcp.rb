@@ -92,10 +92,10 @@ module BindTcp
 		return if not lport
 	
 		# Only try the same host/port combination once
-		phash = rhost + ':' + lport
+		phash = rhost + ':' + lport.to_s
 		return if self.listener_pairs[phash]
 		self.listener_pairs[phash] = true
-	
+
 		# Start a new handling thread
 		self.listener_threads << Thread.new {
 			client = nil
@@ -133,7 +133,7 @@ module BindTcp
 				# Wait a second before trying again
 				Rex::ThreadSafe.sleep(0.5)
 			end
-			
+
 			# Valid client connection?
 			if (client)
 			
@@ -161,11 +161,11 @@ module BindTcp
 	#
 	def stop_handler
 		# Stop the listener threads
-		listener_threads.each do |t|
+		self.listener_threads.each do |t|
 			t.kill
 		end
-		listener_threads = []
-		listener_pairs = {}
+		self.listener_threads = []
+		self.listener_pairs = {}
 	end
 
 protected

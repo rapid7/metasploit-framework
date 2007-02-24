@@ -10,7 +10,7 @@ module Msf
 
 class Handler::BindTcp::UnitTest < Test::Unit::TestCase
 
-	class Stub < Msf::Module
+	class Stub < Msf::Payload
 	end
 
 	module Foo
@@ -22,10 +22,11 @@ class Handler::BindTcp::UnitTest < Test::Unit::TestCase
 	end
 
 	def test_handler
-		h = Stub.new({})
+		c = Class.new(Stub)
 
-		h.extend(Msf::Handler::BindTcp)
-		h.extend(Foo)
+		c.include(Foo, Msf::Handler::BindTcp)
+
+		h = c.new({})
 
 		begin
 			t = Rex::Socket::TcpServer.create(

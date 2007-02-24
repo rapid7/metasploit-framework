@@ -10,7 +10,7 @@ module Msf
 
 class Handler::ReverseTcp::UnitTest < Test::Unit::TestCase
 
-	class Stub < Msf::Module
+	class Stub < Msf::Payload
 		include Msf::Handler::ReverseTcp
 	end
 
@@ -23,9 +23,10 @@ class Handler::ReverseTcp::UnitTest < Test::Unit::TestCase
 	end
 
 	def test_handler
-		h = Stub.new({})
+		c = Class.new(Stub)
+		c.include(Foo)
 
-		h.extend(Foo)
+		h = c.new({})
 
 		begin
 			h.datastore['LPORT'] = 4444
