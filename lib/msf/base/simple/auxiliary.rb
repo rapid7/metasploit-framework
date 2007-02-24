@@ -23,7 +23,7 @@ module Auxiliary
 	# 	A string of comma separated option values that should be imported into
 	# 	the datastore.
 	#
-	# Option
+	# Options
 	#
 	# 	A hash of values to be imported directly into the datastore.
 	#

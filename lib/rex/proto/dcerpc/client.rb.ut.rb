@@ -7,6 +7,9 @@ require 'rex/socket'
 require 'rex/proto/dcerpc/client'
 require 'rex/proto/dcerpc/handle'
 
+begin
+require 'flexmock'
+
 class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 
 	Klass = Rex::Proto::DCERPC::Client
@@ -481,4 +484,7 @@ read = [
 
 	def test_write
 	end
+end
+
+rescue LoadError
 end

@@ -18,7 +18,7 @@ module Module
 	def _import_extra_options(opts)
 		# If options were supplied, import them into the payload's
 		# datastore
-		if (opts['Option'])
+		if (opts['Options'])
 			self.datastore.import_options_from_hash(opts['Options'])
 		elsif (opts['OptionStr'])
 			self.datastore.import_options_from_s(opts['OptionStr'])
