@@ -610,7 +610,17 @@ class ModuleManager < ModuleSet
 		# We only do this if the caller wanted us to check the cache in the
 		# first place.  By default, check_cache will be true.  One scenario
 		# where it will be false is from the loadpath command in msfconsole.
-		save_module_cache if (!using_cache and check_cache)
+		if !using_cache and check_cache
+			save_module_cache 
+		# If we're by default using the cache and we were told not to
+		# invalidate/use it, then we should update the cached counts to include
+		# what we've just added so that the banner will reflect the changes
+		# correctly.
+		elsif using_cache and !check_cache
+			cached_counts.each_key { |k|
+				cached_counts[k] += counts[k] if counts[k]
+			}
+		end
 
 		return counts
 	end

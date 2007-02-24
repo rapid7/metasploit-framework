@@ -87,6 +87,9 @@ class Driver < Msf::Ui::Driver
 		# Re-enable output
 		self.disable_output = false
 
+		# Load additional modules as necessary
+		self.framework.modules.add_module_path(opts['ModulePath'], false) if opts['ModulePath']
+
 		# Process things before we actually display the prompt and get rocking
 		on_startup
 

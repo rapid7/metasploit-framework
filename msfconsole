@@ -43,6 +43,10 @@ class OptsConsole
 				options['Config'] = c
 			end
 
+			opts.on("-m", "-m <directory>", "Specifies an additional module search path") do |m|
+				options['ModulePath'] = m
+			end
+
 			# Boolean switch.
 			opts.on("-v", "--version", "Show version") do |v|
 				options['Version'] = true
