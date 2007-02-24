@@ -40,6 +40,10 @@ class Core
 		"-r" => [ false, "Restore framework state."                       ],
 		"-h" => [ false, "Help banner."                                   ])
 
+	# The list of data store elements that cannot be set when in defanged
+	# mode.
+	DefangedProhibitedDataStoreElements = [ "ModulePaths" ]
+
 	# Returns the list of commands supported by this command dispatcher
 	def commands
 		{
@@ -567,7 +571,8 @@ class Core
 			args.each { |path|
 				curr_path = path
 
-				if (counts = framework.modules.add_module_path(path))
+				# Load modules, but do not consult the cache
+				if (counts = framework.modules.add_module_path(path, false))
 					counts.each_pair { |type, count|
 						totals[type] = (totals[type]) ? (totals[type] + count) : count
 	
@@ -746,6 +751,12 @@ class Core
 		# Set the supplied name to the supplied value
 		name  = args[0]
 		value = args[1, args.length-1].join(' ')
+
+		# Security check -- make sure the data store element they are setting
+		# is not prohibited
+		if global and DefangedProhibitedDataStoreElements.include?(name)
+			defanged?
+		end
 
 		# If the driver indicates that the value is not valid, bust out.
 		if (driver.on_variable_set(global, name, value) == false)

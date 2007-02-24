@@ -579,9 +579,11 @@ class ModuleManager < ModuleSet
 	##
 
 	#
-	# Adds a path to be searched for new modules.
+	# Adds a path to be searched for new modules.  If check_cache is false,
+	# all modules in the specified path will be demand loaded.  Furthermore,
+	# their loading will not impact the module path.
 	#
-	def add_module_path(path)
+	def add_module_path(path, check_cache = true)
 		path.sub!(/#{File::SEPARATOR}$/, '')
 
 		# Make sure the path is a valid directory before we try to rock the
@@ -594,7 +596,7 @@ class ModuleManager < ModuleSet
 		module_paths << path
 
 		begin
-			counts = load_modules(path)
+			counts = load_modules(path, !check_cache)
 		rescue ModuleCacheInvalidated
 			invalidate_cache
 
@@ -605,7 +607,10 @@ class ModuleManager < ModuleSet
 		end
 
 		# Synchronize the module cache if the module cache is not being used.
-		save_module_cache if (!using_cache)
+		# We only do this if the caller wanted us to check the cache in the
+		# first place.  By default, check_cache will be true.  One scenario
+		# where it will be false is from the loadpath command in msfconsole.
+		save_module_cache if (!using_cache and check_cache)
 
 		return counts
 	end

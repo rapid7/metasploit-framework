@@ -111,6 +111,14 @@ module Framework
 			framework.modules.add_module_path(Msf::Config.user_module_directory)
 		end
 
+		# If additional module paths have been defined globally, then load them.
+		# They should be separated by semi-colons.
+		if framework.datastore['MsfModulePaths']
+			framework.datastore['MsfModulePaths'].split(";").each { |path|
+				framework.modules.add_module_path(path)
+			}
+		end
+
 		# Register the framework as its own general event subscriber in this
 		# instance
 		framework.events.add_general_subscriber(framework)

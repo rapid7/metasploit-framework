@@ -18,7 +18,8 @@ class Common
 			case var.downcase
 				# Add an additional module search path
 				when "modulepath"
-					framework.modules.add_module_path(val)
+					# Don't affect the module cache by us loading these modules
+					framework.modules.add_module_path(val, false)
 					true
 				else
 					false
