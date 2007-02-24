@@ -315,6 +315,14 @@ may be helpful in troubleshooting.  A value of 2 will enable verbose debug
 logging.  A value of 3 will enable all logging and may generate a large amount
 of log messages.  Only use this when much additional information is required.
 
+	\subsection{MsfModulePaths}
+\par
+This variable can be used to add additional paths from which to load modules.
+By default, the framework will load modules from the modules directory found
+within the framework install.  It will also load modules from ~/.msf3/modules
+if such a path exists.  This variable makes it possible to statically define
+additional paths from which to load modules.
+
 \pagebreak
 
 \chapter{Using the Framework}
