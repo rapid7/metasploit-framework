@@ -8,8 +8,13 @@ class Console < MyGlade
 	require 'rex/io/bidirectional_pipe'
 	
 	def initialize(session)
-		super('console2')
+		
+		# Style
+		console_style = File.join(driver.resource_directory, 'style', 'console.rc')
+		Gtk::RC.parse(console_style)
 
+		super('console2')
+		
 		@buffer = Gtk::TextBuffer.new
 		@textview.set_buffer(@buffer)
 		@textview.editable = false
