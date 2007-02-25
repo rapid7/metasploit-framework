@@ -49,7 +49,7 @@ class MsfAssistant
 		}
 		
 		@model_required = Gtk::ListStore.new(String, String, String, String)
-		@model_optional = Gtk::ListStore.new(String, String, String, String)		
+		@model_advanced = Gtk::ListStore.new(String, String, String, String)		
 		
 		# add target payload
 		@target_page = target_completion()
@@ -199,21 +199,21 @@ class MsfAssistant
 		frame_required = Gtk::Frame.new("Required")
 		page.pack_start(frame_required, false, false, 10)
 		
-		# Gtk::Frame for normal option
-		frame_optional = Gtk::Frame.new("Optional")
-		page.pack_start(frame_optional, false, false, 10)
+		# Gtk::Frame for advanced options
+		frame_advanced = Gtk::Frame.new("Advanced")
+		page.pack_start(frame_advanced, false, false, 10)
 		
 		# TreeView
 		treeview_required = Gtk::TreeView.new(@model_required)
-		treeview_optional = Gtk::TreeView.new(@model_optional)
+		treeview_advanced = Gtk::TreeView.new(@model_advanced)
 		
 		# Column
 		add_columns(treeview_required, @model_required)
-		add_columns(treeview_optional, @model_optional)
+		add_columns(treeview_advanced, @model_advanced)
 		
 		# add treeview to frame
 		frame_required.add(treeview_required)
-		frame_optional.add(treeview_optional)
+		frame_advanced.add(treeview_advanced)
 		
 		page.show_all
 	end # def options_completion
@@ -263,11 +263,6 @@ class MsfAssistant
 	end # def add_columns
 	
 	def pack(model, key, opt)
-		#    Msf::OptAddress
-		#    Msf::OptPort
-		#    Msf::OptBool
-		#    Msf::OptString
-		
 		iter = model.append
 		iter[KEY] = key
 		iter[DEFAULT] = opt.default.to_s
@@ -285,16 +280,15 @@ class MsfAssistant
 			
 			# Clear treeview
 			@model_required.clear
-			@model_optional.clear
+			@model_advanced.clear
 			
 			# Exploits options
 			@mydriver.exploit.options.sorted.each do |key, opt|
-				next if (opt.advanced?)
 				next if (opt.evasion?)
 				if (opt.required?)
 					pack(@model_required, key, opt)
 				else
-					pack(@model_optional, key, opt)
+					pack(@model_advanced, key, opt)
 				end
 			end
 		
@@ -304,14 +298,11 @@ class MsfAssistant
 				if (opt.required?)
 					pack(@model_required, key, opt)
 				else
-					pack(@model_optional, key, opt)
+					pack(@model_advanced, key, opt)
 				end
 			end
 		
 		elsif @myassistant.get_page_title(page) == "Summary"
-			@hash.each do |key, value|
-				puts "#{key}: #{value}"
-			end
 			
 			# Import options from the supplied assistant
 			@mydriver.exploit.datastore.import_options_from_hash(@hash)
