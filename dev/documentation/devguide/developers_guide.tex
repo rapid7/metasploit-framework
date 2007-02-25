@@ -15,7 +15,7 @@
         \rule{10cm}{1pt} \\[8mm]
         \small\bf{The Metasploit Staff} \\
         \small\bf{msfdev@metasploit.com} \\[4mm]
-        \textit{Last modified: \small{12/1/2005}}
+        \textit{Last modified: \small{2/25/2007}}
     \end{center}
 \end{titlepage}
 
@@ -167,13 +167,13 @@ framework itself, such as the command console and the web interface.
 \par
 Separate from the framework itself are the modules and plugins that
 it's designed to support.  A framework module is defined as being
-one of an exploit, payload, encoder, NOP generator, or recon tool.
+one of an exploit, payload, encoder, NOP generator, or auxiliary.
 These modules have a well-defined structure and interface for being
 loaded into the framework.  A framework plugin is very loosely
 defined as something that extends the functionality of the framework
 or augments an existing feature to make it act in a different
 manner. Plugins can add new commands to user interfaces, log all
-network traffic, or perform whatever other action might be useful.
+network traffic, or perform whatever other actions that might be useful.
 
 \par
 Figure \ref{fig-arch-pkg} illustrates the framework's inter-package
@@ -919,27 +919,25 @@ To remove an event subscriber, a call should be made to\\
 object instance that was used to add the subscriber in the first
 place.
 
-        \subsection{Recon events}
+        \subsection{Database events}
 
 \par
-To receive notifications about reconnaissance events, such as when a
-new host or service is detected, a recon event subscriber can be
-registered through the
-\texttt{framework.events.add\_recon\_subscriber} method.  This
-method takes an instance of an object that implements one or both of
-the \texttt{Msf::ReconEvent::HostSubscriber} or
-\texttt{Msf::ReconEvent::ServiceSubscriber} mixins.  When a new host
-is detected or an attribute of a host has changed, a call will be
-made to the event subscriber's \texttt{on\_host\_changed} method
-assuming it implements the \texttt{Msf::ReconEvent::HostSubscriber}
-mixin.  When a new service is detected or an attribute of a service
-has changed, a call will be made to the event subscriber's
-\texttt{on\_service\_changed} method assuming it implements the
-\texttt{Msf::ReconEvent::ServiceSubscriber} mixin.
+One of the new additions to the framework is support for tracking hosts,
+services, and other sorts of information.  This is accomplished by using the
+database tracking plugin and can be augmented through additional module and
+plugin support.  To receive notifications about database events, such as when
+a new hsot or service is detected, a database event subscriber can be
+registered through the \texttt{framework.events.add\_db\_subscriber} method.
+This method takes an instance of an object that implements the
+\texttt{Msf::DatabaseEvent} mixins.  When a new host is detected a call will
+be made to the \texttt{on\_db\_host} method on all of the registered database
+event subscribers.  When a new service is detected, a call will be made to the
+\texttt{on\_db\_service} method on all of the registered database event
+subscribers.
 
 \par
 To remove an event subscriber, a call should be made to\\
-\texttt{framework.events.remove\_recon\_subscriber} passing the
+\texttt{framework.events.remove\_db\_subscriber} passing the
 object instance that was used to add the subscriber in the first
 place.
 
@@ -1056,7 +1054,7 @@ relation between module types and framework module set accessors.
 MODULE\_ENCODER & framework.encoders \\
 MODULE\_EXPLOIT & framework.exploits \\
 MODULE\_NOP & framework.nops \\
-MODULE\_RECON & framework.recon \\
+MODULE\_AUXILIARY & framework.auxiliary \\
 MODULE\_PAYLOAD & framework.payloads \\
 \hline
 \end{tabular}
@@ -1138,20 +1136,6 @@ reference count drops to zero.
 \par
 For more detail on the implementation of framework plugins, please
 see chapter \ref{framework-plugins}.
-
-        \subsection{Recon management}
-
-\par
-The reconnaissance manager is used to provide an interface for
-reporting information about hosts, services, and other
-reconnaissance entities.  These reports are tracked internally by
-the recon manager which is implemented by the
-\texttt{Msf::ReconManager} class.  The recon manager can be accessed
-through the \texttt{framework.reconmgr} accessor.
-
-\par
-This area of the framework is currently undergoing design review and
-therefore does not have any documentation at this time.
 
         \subsection{Session management}
 
@@ -1530,6 +1514,15 @@ configuration elements through the \texttt{save\_config} and
 \texttt{load\_config} methods.  Each module-specific mixin is
 described individually below.
 
+			\subsection{Auxiliary}
+
+\par
+The simplified auxiliary mixin provided in \texttt{Msf::Simple::Auxiliary} 
+extends each auxiliary module instance with a method called
+\texttt{run\_simple}.  This method takes a hash parameter that is used to
+control the execution of the auxiliary module.  It sets everything up,
+including the module's datastore.
+
         \subsection{Exploit}
 
 \par
@@ -1572,11 +1565,6 @@ the operation is successful, the encoded payload buffer will be
 serialized to the format supplied in the \texttt{'Format'} hash
 element.  If the format is not raw, any staged payloads will also be
 appended to the serialized buffer.
-
-        \subsection{Recon}
-
-\par
-The reconnaissance interface is under design review.
 
 \chapter{Framework Ui}
 
@@ -1790,6 +1778,86 @@ and expectations of framework modules.  However, all module types
 have well-defined interfaces for dealing with the actions that they
 are meant to undertake.  These specific interfaces will be described
 in the following sections.
+
+	\section{Auxiliary}
+
+\par
+Auxiliary modules are a new concept in Metasploit 3.0 and are intended to help
+solve the problem of trying to use exploit modules in situations where they
+should not be used.  For instance, denial of service bugs are poor candidates
+for exploits because they do not require the use of a payload and may not have
+targets.  Additionally, bugs that lead to the ability to read remote files or
+perform other sorts of actions that also don't require a payload have also
+been a poor fit for exploits.  To solve this problem, the concept of an
+auxiliary module was introduced.  Auxiliary modules are basically a generic
+module type.  They have a very loosely defined interface which makes it
+possible for developers to use them to write modules that perform denial of
+service attacks, port scanning, and other forms of information collection
+about a host or service.  Auxiliary modules are a great fit for use in
+collecting information that can be fed back into the framework's centralized
+database of hosts and services.  
+
+\par
+At an implementation level, all auxiliary modules must inherit from
+\texttt{Msf::Auxiliary} at some level.  In addition to inheriting from this
+base class, auxiliary modules may also choose to use zero or more of the
+auxiliary and exploit mixins provided by the framework.  At the time of this
+writing, three mixins exist for auxiliary modules.  These mixins are:
+
+\begin{enumerate}
+\item \texttt{Msf::Auxiliary::Dos}
+
+Provides common methods for Denial of Service auxiliary modules.
+\item \texttt{Msf::Auxiliary::Scanner}
+
+Provides a common interface for allowing users to specify subnets and to have
+the auxiliary module scan those subnets rather than only being able to specify
+a single IP address.
+\item \texttt{Msf::Auxiliary::Report}
+
+Provides a set of methods that can be used to report information about a host
+or service to the framework's database.  This information can then be used to
+fire off an exploit or other auxiliary modules automatically.
+\end{enumerate}
+
+\par
+Auxiliary modules have a very simple interface.  There is really only one
+method that a developer of an auxiliary module would needs to implement.  The
+\texttt{run} method is intended to do just that: run the auxiliary module.
+The actions performed within the \texttt{run} method are arbitrary, and the
+framework has no method of checking if the \texttt{run} method succeeded or
+not.
+
+\par
+To support the ability to run multiple different commands, auxiliary modules
+are able to specify zero or more \textit{actions} in their information hash.
+Actions are analogous to targets which are used in exploits.  An auxiliary
+module can query the action selected by the user by calling the
+\texttt{action} method on itself.
+
+\par
+In certain situations, developers may wish to offer additional commands that
+aren't as easily expressed through actions.  In these cases, an arbitrary
+number of console commands can be dynamically added to the command set
+whenever the auxiliary module is used from the console interface.  This is
+accomplished by overriding the \texttt{auxiliary\_commands} method on the base
+class.  This method should return a hash that associates the name of a command
+with its description.  The developer should then implement a method on the
+auxiliary module that is of the form \texttt{cmd\_NAME} where name is the hash
+key that was specified in the commands hash.  For example, to add a command
+called \texttt{test}:
+
+\begin{verbatim}
+def auxiliary_commands
+	{
+		"test" => "This is a test"
+	}
+end
+
+def cmd_test(*args)
+	
+end
+\end{verbatim}
 
     \section{Encoder}
 
@@ -2928,12 +2996,6 @@ The reverse TCP handler is provided by the
 for incoming connections and will make a call into
 \texttt{handle\_connection} with the client sockets as they do.
 
-    \section{Recon}
-
-\par
-The reconnaissance module is still undergoing design review and will
-not be documented at this time.
-
 \chapter{Framework Plugins}
 \label{framework-plugins}
 
@@ -3340,6 +3402,49 @@ end
 \par
 This section shows some sample framework modules.
 
+        \subsection{Auxiliary}
+
+\par
+This sample illustrates a very basic auxiliary module that 
+displays the currently selected action and dynamically registers
+a command that will show up when the auxiliary module is used.
+
+\footnotesize{
+\begin{verbatim}
+class Auxiliary::Sample < Msf::Auxiliary
+
+   def initialize
+      super(
+         'Name'        => 'Sample Auxiliary Module',
+         'Version'     => '$Revision$',
+         'Description' => 'Sample Auxiliary Module',
+         'Author'      => 'hdm',
+         'License'     => MSF_LICENSE,
+         'Actions'     =>
+            [
+               ['Default Action'],
+               ['Another Action']
+            ]
+      )
+
+   end
+
+   def run
+      print_status("Running the simple auxiliary module with action #{action.name}")
+   end
+
+   def auxiliary_commands
+      return { "aux_extra_command" => "Run this auxiliary test commmand" }
+   end
+
+   def cmd_aux_extra_command(*args)
+      print_status("Running inside aux_extra_command()")
+   end
+
+end
+\end{verbatim}
+}
+
         \subsection{Encoder}
 
 \par
@@ -3529,12 +3634,6 @@ end
 end
 end
 \end{verbatim}}
-
-        \subsection{Recon}
-
-\par
-Reconnaissance modules are undergoing design review and do not have
-any samples available at this time.
 
     \section{Framework Plugin}
 
