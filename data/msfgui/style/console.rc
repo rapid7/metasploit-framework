@@ -1,15 +1,13 @@
-#
-# provide style for Gtk::RC
-#
-
 # Define background for msfconsole
+
 style "console2"
 {
 	base[NORMAL] = { 0.0, 0.0, 0.0 }	# black
 	fg[NORMAL] = { 1.0, 1.0, 1.0 }		# white
 	text[NORMAL] = { 1.0, 1.0, 1.0 }	# white
+
+	fontset="-*-lucida-medium-r-*-*-14-*-*-*-*-*-*-*"
 }
 
 # Attach style with the specific widget name 
 widget "console2.*.textview" style "console2"
-#widget_class "*GtkTextView" style "console2"
