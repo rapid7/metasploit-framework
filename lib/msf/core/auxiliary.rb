@@ -10,7 +10,6 @@ module Msf
 # targets and whatnot).
 #
 ###
-
 class Auxiliary < Msf::Module
 
 	#

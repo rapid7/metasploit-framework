@@ -40,13 +40,59 @@ module ServiceState
 	Unknown = "unknown"
 end
 
+###
+#
+# Events that can occur in the host/service database.
+#
+###
+module DatabaseEvent
+
+	#
+	# Called when an existing host's state changes
+	#
+	def on_db_host_state(context, host, ostate)
+	end
+
+	#
+	# Called when an existing service's state changes
+	#
+	def on_db_service_state(context, host, port, ostate)
+	end
+
+	#
+	# Called when a new host is added to the database.  The host parameter is
+	# of type Host.
+	#
+	def on_db_host(context, host)
+	end
+
+	#
+	# Called when a new service is added to the database.  The service
+	# parameter is of type Service.
+	#
+	def on_db_service(context, service)
+	end
+
+	#
+	# Called when an applicable vulnerability is found for a service.  The vuln
+	# parameter is of type Vuln.
+	#
+	def on_db_vuln(context, vuln)
+	end
+
+	#
+	# Called when a new reference is created.
+	#
+	def on_db_ref(context, ref)
+	end
+
+end
 
 ###
 #
 # The DB module ActiveRecord definitions for the DBManager
 #
 ###
-
 class DBManager
 
 

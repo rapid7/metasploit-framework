@@ -69,8 +69,8 @@ class EventDispatcher
 	#
 	# This method adds a db event subscriber. db event subscribers
 	# receive notifications when events occur that pertain to db changes.
-	# The subscriber provided must implement the dbEvents module methods in
-	# some form.
+	# The subscriber provided must implement the DatabaseEvent module methods
+	# in some form.
 	#
 	def add_db_subscriber(subscriber)
 		add_event_subscriber(db_event_subscribers, subscriber)
