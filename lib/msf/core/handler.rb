@@ -223,7 +223,7 @@ protected
 		# If there is an exploit associated with this payload, then let's notify
 		# anyone who is interested that this exploit succeeded
 		if assoc_exploit
-			framework.events.on_exploit_success(assoc_exploit, s)
+			framework.events.on_exploit_success(assoc_exploit, session)
 		end
 
 		# Notify waiters that they should be ready to rock
