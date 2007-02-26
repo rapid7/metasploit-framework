@@ -25,7 +25,7 @@ module Gtk2
 ###
 class Driver < Msf::Ui::Driver
 	
-	attr_accessor :session_tree, :module_tree, :target_tree, :log_text, :module_model
+	attr_accessor :session_tree, :module_tree, :job_tree, :log_text, :module_model
 	attr_accessor :module_completion
 	
 	include Msf::Ui::Gtk2::FrameworkEventManager

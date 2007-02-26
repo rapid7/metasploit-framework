@@ -64,14 +64,14 @@ class MyApp < MyGlade
 		@session_tree = MySessionTree.new(@treeview_session)		
 		
 		# Target Tree
-		@target_tree = MyTargetTree.new(@treeview2)
+		@job_tree = MyJobTree.new(@treeview2)
 		
 		# Module Tree
 		@module_tree = MyModuleTree.new(@treeview1, @viewmodule)
 		
 		# Configure the window handles for easy reference
 		$gtk2driver.session_tree = @session_tree
-		$gtk2driver.target_tree = @target_tree
+		$gtk2driver.job_tree = @job_tree
 		$gtk2driver.module_tree = @module_tree
 		$gtk2driver.log_text = @viewlogs
 		

@@ -17,7 +17,7 @@ class MsfAssistant
 	
 	def initialize(active_module)
 		@session_tree  = $gtk2driver.session_tree
-		@target_tree   = $gtk2driver.target_tree
+		@job_tree   = $gtk2driver.job_tree
 		@active_module = active_module
 		
 		# initialize exploit driver's exploit instance
@@ -338,7 +338,7 @@ class MsfAssistant
 			
 			begin
 				@mydriver.run
-				@target_tree.add_oneshot(@active_module)
+				@job_tree.add_oneshot(@active_module, @hash["RHOST"])
 			rescue ::Exception => e
 				@pipe.print_error("Exploit failed: #{e}")
 			end

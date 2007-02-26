@@ -264,8 +264,8 @@ class MyModuleTree < MyGlade
 end # Class MyExploitsTree
 
 
-class MyTargetTree < MyGlade
-	PIX, TIME, NAME, OBJECT = *(0..4).to_a
+class MyJobTree < MyGlade
+	PIX, TIME, NAME, OBJECT, RHOST, REFNAME = *(0..6).to_a
     
 	include Msf::Ui::Gtk2::MyControls
 
@@ -274,8 +274,10 @@ class MyTargetTree < MyGlade
 		
 		@model = Gtk::TreeStore.new(Gdk::Pixbuf,	# Pix rhost
 						String, 	# process TIME
-						String, 	# exploit refname
-						Object		# Exploit Object
+						String, 	# exploit shortname
+						Object,		# Exploit Object
+						String,	 	# Remote host
+						String	 	# exploit refname
 						)
     		
 		# Renderer
@@ -298,7 +300,7 @@ class MyTargetTree < MyGlade
 		
 		# Name Gtk::TreeViewColumn
 		column_name = Gtk::TreeViewColumn.new
-		column_name.set_title("Payload")
+		column_name.set_title("Module")
 		column_name.pack_start(renderer_name, true)
 		column_name.set_cell_data_func(renderer_name) do |column, cell, model, iter|
 			cell.text = iter[NAME]
@@ -365,24 +367,34 @@ class MyTargetTree < MyGlade
 	#
 	# Add One Shot
 	#
-	def add_oneshot(exploit)
+	def add_oneshot(exploit, rhost)
 		time = Time.now
 		oneshot_childiter = @model.append(@oneshot_iter)
 		#oneshot_childiter.set_value(PIX, nil)
 		oneshot_childiter.set_value(TIME, Time.now.strftime("%H:%m:%S"))
 		oneshot_childiter.set_value(NAME, exploit.shortname)
 		oneshot_childiter.set_value(OBJECT, exploit)
+		oneshot_childiter.set_value(RHOST, rhost)
+		oneshot_childiter.set_value(REFNAME, exploit.refname)
 		@treeview2.expand_all()
 	end
 	
 	#
-	# Remove Target
+	# Remove Target if not a passive exploit
 	#
-	def remove_target(iter)
-		@treeview2.model.remove(iter)
+	def remove_job(rhost, name)
+		found = nil
+		@model.each do |model,path,iter|
+			if (iter[RHOST] == rhost and iter[REFNAME] == name and iter[OBJECT].passive? == false)
+				found = iter
+				break
+			end
+		end
+		
+		@model.remove(found) if found
 	end
     
-end #class MyTargetTree
+end #class MyJobTree
 
 class MySessionTree
 	ID_SESSION, PEER, PAYLOAD, O_SESSION = *(0..4).to_a
