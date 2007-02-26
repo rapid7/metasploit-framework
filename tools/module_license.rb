@@ -4,7 +4,7 @@
 #
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
-$:.unshift(File.join(File.dirname(msfbase), 'lib'))
+$:.unshift(File.join(File.dirname(msfbase), '..', 'lib'))
 
 require 'rex'
 require 'msf/ui'
