@@ -190,6 +190,12 @@ protected
 			# Pass along the framework context
 			s.framework = framework
 
+			# Associate this session with this payload and with the
+			# assoc_exploit, if this payload has one
+			s.set_via(
+				'Exploit' => assoc_exploit ? assoc_exploit.refname : nil,
+				'Payload' => self.refname)
+
 			# Call the payload's on_session handler.  We run this prior to
 			# registering the session because the act of registering the session
 			# may lead to the termination of this thread.
@@ -213,6 +219,12 @@ protected
 	def register_session(session)
 		# Register the session with the framework
 		framework.sessions.register(session)
+
+		# If there is an exploit associated with this payload, then let's notify
+		# anyone who is interested that this exploit succeeded
+		if assoc_exploit
+			framework.events.on_exploit_success(assoc_exploit, s)
+		end
 
 		# Notify waiters that they should be ready to rock
 		session_waiter_event.notify(session)
