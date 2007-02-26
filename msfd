@@ -42,7 +42,14 @@ arguments.parse(ARGV) { |opt, idx, val|
 # Create an instance of the framework
 $framework = Msf::Simple::Framework.create
 
-exit if (Process.fork()) unless foreground
+# Fork into the background if requested
+begin
+	if (not foreground)
+		exit(0) if Process.fork()
+	end
+rescue ::NotImplementedError
+	$stderr.puts "[*] Background mode is not available on this platform"
+end
 
 # Run the plugin instance in the foreground.
 $framework.plugins.load('msfd', opts).run

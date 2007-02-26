@@ -38,7 +38,7 @@ arguments = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help banner"                                          ])
 
 opts = {}
-background = false
+foreground = true
 
 # Parse command line arguments.
 arguments.parse(ARGV) { |opt, idx, val|
@@ -46,7 +46,7 @@ arguments.parse(ARGV) { |opt, idx, val|
 		when "-v"
 			opts['LogLevel'] = val
 		when "-d"
-			background = true
+			foreground = false
 		when "-h"
 			print(
 				"\nUsage: msfgui <options>\n" +
@@ -55,7 +55,14 @@ arguments.parse(ARGV) { |opt, idx, val|
 	end
 }
 
-exit if (Process.fork()) unless background == false
+# Fork into the background if requested
+begin
+	if (not foreground)
+		exit(0) if Process.fork()
+	end
+rescue ::NotImplementedError
+	$stderr.puts "[*] Background mode is not available on this platform"
+end
 
 # Language is English
 ENV['LANG'] = 'C'
