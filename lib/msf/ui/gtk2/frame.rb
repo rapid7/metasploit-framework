@@ -330,13 +330,21 @@ class MyJobTree < MyGlade
 		# Job Gtk::Menu
 		@menu_job = Gtk::Menu.new
 		
+		# Stop job
 		kill_job_item_shell = Gtk::ImageMenuItem.new("Kill Job")
 		kill_job_image_shell = Gtk::Image.new
 		kill_job_image_shell.set(Gtk::Stock::CLOSE, Gtk::IconSize::MENU)
 		kill_job_item_shell.set_image(kill_job_image_shell)
 		@menu_job.append(kill_job_item_shell)		
 		
-		@menu_job.show_all		
+		# Refresh
+		refresh_job_item_shell = Gtk::ImageMenuItem.new("Refresh")
+		refresh_job_image_shell = Gtk::Image.new
+		refresh_job_image_shell.set(Gtk::Stock::REFRESH, Gtk::IconSize::MENU)
+		refresh_job_item_shell.set_image(refresh_job_image_shell)
+		@menu_job.append(refresh_job_item_shell)
+
+		@menu_job.show_all
 		
 		# TreeView Signals
 		@treeview2.signal_connect('button_press_event') do |treeview, event|
@@ -350,6 +358,7 @@ class MyJobTree < MyGlade
 						@menu_job.popup(nil, nil, event.button, event.time)
 					rescue
 						nil
+						#@menu_job.popup(nil, nil, event.button, event.time)
 					end
 				end
 			end
@@ -358,8 +367,12 @@ class MyJobTree < MyGlade
 		# Menu Signals
 		kill_job_item_shell.signal_connect('activate') do |item|
 			if current = @selection.selected
-				puts "TODO: Kill exploit"
+				stop_job(current)
 			end
+		end
+
+		refresh_job_item_shell.signal_connect('activate') do |item|
+			refresh_job()
 		end
 		
 	end # def initialize
@@ -377,6 +390,29 @@ class MyJobTree < MyGlade
 		oneshot_childiter.set_value(RHOST, rhost)
 		oneshot_childiter.set_value(REFNAME, exploit.refname)
 		@treeview2.expand_all()
+	end
+	
+	#
+	# Stop job and remove it from the job tree
+	#
+	def stop_job(iter)
+		puts iter[REFNAME]
+		framework.jobs.each_key do |i|
+			if (framework.jobs[i].name.split(": ")[1] ==  iter[REFNAME])
+				framework.jobs.stop_job(i)
+				@model.remove(iter)
+			end
+		end
+	end
+	
+	#
+	# Refresh job
+	#
+	def refresh_job
+		puts "TODO: refresh the job tree =>"
+		framework.jobs.keys.sort.each do |k|
+			puts framework.jobs[k].name
+		end		
 	end
 	
 	#
