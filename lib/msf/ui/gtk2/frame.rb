@@ -399,7 +399,14 @@ class MyJobTree < MyGlade
 		puts iter[REFNAME]
 		framework.jobs.each_key do |i|
 			if (framework.jobs[i].name.split(": ")[1] ==  iter[REFNAME])
+				
+				# Stopping job
 				framework.jobs.stop_job(i)
+				
+				# Informing the user
+				$gtk2driver.append_log_view("[*] Stopping exploit: #{iter[REFNAME]}")
+				
+				# Removing the job from the job tree
 				@model.remove(iter)
 			end
 		end
