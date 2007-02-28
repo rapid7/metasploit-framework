@@ -4,7 +4,6 @@ module Gtk2
 module Stream
 
 require 'msf/ui/gtk2/stream/console'
-require 'msf/ui/gtk2/stream/session'
 	
 end
 end

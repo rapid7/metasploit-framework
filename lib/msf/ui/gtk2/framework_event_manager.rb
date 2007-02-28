@@ -31,7 +31,7 @@ module FrameworkEventManager
 	def on_session_open(session)
 	
 		$gtk2driver.append_log_view("[*] Session #{session.sid} created for #{session.tunnel_peer}\n")
-		Msf::Ui::Gtk2::Stream::Session.new($gtk2driver.session_tree, session)
+		$gtk2driver.session_tree.add_session(session)
 		
 		# remove job if not a passive exploit
 		rhost = session.tunnel_peer.split(':')[0]
