@@ -450,7 +450,7 @@ class MySessionTree
 						String,		# IP Address
 						String,		# Payload Type
 						Object,		# Session Object
-						Object
+						Object		# Gtk::TextBuffer
 						)
     		
 		# Renderer
@@ -537,7 +537,7 @@ class MySessionTree
 					begin
 						iter = @treeview.model.get_iter(path)
 						treeview.selection.select_path(path)
-						Msf::Ui::Gtk2::Stream::Console.new(iter)
+						open_session(iter)
 					rescue
 						nil
 					end					
@@ -548,7 +548,7 @@ class MySessionTree
 		# Items session signals
 		session_item_shell.signal_connect('activate') do |item|
 			if current = @selection.selected
-				Msf::Ui::Gtk2::Stream::Console.new(current)
+				open_session(current)
 			end
 		end
 		
@@ -562,7 +562,6 @@ class MySessionTree
 	
 	#
 	# Add an iter to the session treeview
-	# TODO: session.via_payload return nil => BUG
 	#
 	def add_session(session)				
 		iter = @model.append
@@ -574,7 +573,15 @@ class MySessionTree
 	end
 	
 	#
+	# Open the session with the selected iter
+	#
+	def open_session(iter)
+		Msf::Ui::Gtk2::Stream::Console.new(iter)
+	end
+	
+	#
 	# Kill the session associated with this item
+	# TODO: Bug on the sesson kill
 	#
 	def remove_session_iter(iter)
 		# Just kill the session, let the event handler remove it
