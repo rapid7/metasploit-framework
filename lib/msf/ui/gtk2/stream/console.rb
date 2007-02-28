@@ -7,15 +7,19 @@ class Console < MyGlade
 
 	require 'rex/io/bidirectional_pipe'
 	
-	def initialize(session)
-		
+	ID_SESSION, PEER, PAYLOAD, O_SESSION, O_BUFFER = *(0..5).to_a
+	
+	def initialize(iter)
+
 		# Style
 		console_style = File.join(driver.resource_directory, 'style', 'console.rc')
 		Gtk::RC.parse(console_style)
 
 		super('console2')
 		
-		@buffer = Gtk::TextBuffer.new
+		@session = iter[O_SESSION]
+		@buffer = iter[O_BUFFER]
+		
 		@textview.set_buffer(@buffer)
 		@textview.editable = false
 		@textview.set_cursor_visible(false)
@@ -23,9 +27,7 @@ class Console < MyGlade
 		
 		# Give focus to Gtk::Entry
 		@cmd_entry.can_focus = true
-		@cmd_entry.grab_focus()	
-
-		@session = session
+		@cmd_entry.grab_focus()
 		
 		# Create the pipe interface
 		@pipe = Rex::IO::BidirectionalPipe.new
@@ -54,11 +56,11 @@ class Console < MyGlade
 		# Determine how we were closed
 		case res
 		when Gtk::Dialog::RESPONSE_CLOSE
-			$stderr.puts "ByeBye"
+			close_console
 		else
 		end
 	
-		@console2.destroy
+		
 	end
 	
 	#
@@ -67,6 +69,7 @@ class Console < MyGlade
 	def update_access
 		last_access = Time.now
 	end
+
 	#
 	# Signal for user entry
 	#
@@ -86,6 +89,13 @@ class Console < MyGlade
 
 		# Clear the text entry
 		@cmd_entry.set_text("")
+	end
+	
+	#
+	# Just close the console, not kill !
+	#
+	def close_console
+		@console2.destroy
 	end
 end
 

@@ -440,7 +440,7 @@ class MyJobTree < MyGlade
 end #class MyJobTree
 
 class MySessionTree
-	ID_SESSION, PEER, PAYLOAD, O_SESSION = *(0..4).to_a
+	ID_SESSION, PEER, PAYLOAD, O_SESSION, O_BUFFER = *(0..5).to_a
 	
 	include Msf::Ui::Gtk2::MyControls
 	
@@ -449,7 +449,8 @@ class MySessionTree
 		@model = Gtk::ListStore.new(String,		# Session ID
 						String,		# IP Address
 						String,		# Payload Type
-						Object		# Session Object
+						Object,		# Session Object
+						Object
 						)
     		
 		# Renderer
@@ -536,7 +537,7 @@ class MySessionTree
 					begin
 						iter = @treeview.model.get_iter(path)
 						treeview.selection.select_path(path)
-						Msf::Ui::Gtk2::Stream::Console.new(iter[O_SESSION])
+						Msf::Ui::Gtk2::Stream::Console.new(iter)
 					rescue
 						nil
 					end					
@@ -547,7 +548,7 @@ class MySessionTree
 		# Items session signals
 		session_item_shell.signal_connect('activate') do |item|
 			if current = @selection.selected
-				Msf::Ui::Gtk2::Stream::Console.new(current[O_SESSION])
+				Msf::Ui::Gtk2::Stream::Console.new(current)
 			end
 		end
 		
@@ -569,7 +570,7 @@ class MySessionTree
 		iter[PEER] = session.tunnel_peer
 		iter[PAYLOAD] = session.via_payload ? session.via_payload : nil
 		iter[O_SESSION] = session
-
+		iter[O_BUFFER] = Gtk::TextBuffer.new
 	end
 	
 	#
@@ -595,7 +596,7 @@ class MySessionTree
 		
 		@model.remove(found) if found
 	end
-	
+
 end # class MySessionTree
 
 end
