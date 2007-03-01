@@ -396,7 +396,6 @@ class MyJobTree < MyGlade
 	# Stop job and remove it from the job tree
 	#
 	def stop_job(iter)
-		puts iter[REFNAME]
 		framework.jobs.each_key do |i|
 			if (framework.jobs[i].name.split(": ")[1] ==  iter[REFNAME])
 				
@@ -576,7 +575,7 @@ class MySessionTree
 	# Open the session with the selected iter
 	#
 	def open_session(iter)
-		Msf::Ui::Gtk2::Stream::Console.new(iter)
+		Msf::Ui::Gtk2::Console::Basic.new(iter)
 	end
 	
 	#

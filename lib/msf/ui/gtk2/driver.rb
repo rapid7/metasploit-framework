@@ -7,7 +7,7 @@ require 'msf/ui/gtk2/app'
 require 'msf/ui/gtk2/about'
 require 'msf/ui/gtk2/frame'
 require 'msf/ui/gtk2/dialogs'
-require 'msf/ui/gtk2/stream'
+require 'msf/ui/gtk2/console'
 require 'msf/ui/gtk2/view'
 require 'msf/ui/gtk2/search'
 

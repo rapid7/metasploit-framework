@@ -10,4 +10,4 @@ style "console2"
 }
 
 # Attach style with the specific widget name 
-widget "console2.*.textview" style "console2"
+widget_class "GtkWindow.GtkVBox.GtkScrolledWindow.GtkTextView" style "console2"
