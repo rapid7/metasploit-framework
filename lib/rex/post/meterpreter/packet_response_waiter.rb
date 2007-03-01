@@ -65,7 +65,7 @@ class PacketResponseWaiter
 					self.cond.wait(self.mutex) 
 				} 
 			}
-		rescue TimeoutError
+		rescue Timeout::Error
 			self.response = nil
 		end
 
