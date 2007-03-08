@@ -47,6 +47,10 @@ class Client
 			'uri_use_backslashes'    => false,   # bool
 			'pad_fake_headers'       => false,   # bool
 			'pad_fake_headers_count' => 16,      # integer
+			'pad_get_params'         => false,   # bool
+			'pad_get_params_count'   => 8,       # integer
+			'pad_post_params'        => false,   # bool
+			'pad_post_params_count'  => 8        # integer
 		}
 	end
 	
@@ -126,6 +130,15 @@ class Client
 		qstr   = c_qs
 		pstr   = c_body
 		
+		if (config['pad_get_params'])
+			1.upto(config['pad_get_params_count'].to_i) do |i|
+				qstr << '&' if qstr.length > 0
+				qstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
+				qstr << '='
+				qstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))			
+			end
+		end
+		
 		c_varg.each_pair do |var,val|
 			qstr << '&' if qstr.length > 0
 			qstr << set_encode_uri(var)
@@ -133,6 +146,15 @@ class Client
 			qstr << set_encode_uri(val)
 		end
 
+		if (config['pad_post_params'])
+			1.upto(config['pad_post_params_count'].to_i) do |i|
+				pstr << '&' if qstr.length > 0
+				pstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
+				pstr << '='
+				pstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))			
+			end
+		end
+		
 		c_varp.each_pair do |var,val|
 			pstr << '&' if pstr.length > 0
 			pstr << set_encode_uri(var)
@@ -167,7 +189,7 @@ class Client
 		req += set_content_type_header(c_type)
 		req += set_content_len_header(pstr.length)
 		req += set_body(pstr)
-		
+
 		req	
 	end	
 
@@ -433,7 +455,7 @@ class Client
 		end
 		
 		if (self.config['method_random_case'])
-			ret = Rex::Text.to_rand_base(ret)
+			ret = Rex::Text.to_rand_case(ret)
 		end
 		
 		ret
@@ -454,7 +476,7 @@ class Client
 		end
 		
 		if (self.config['version_random_case'])
-			ret = Rex::Text.to_rand_base(ret)
+			ret = Rex::Text.to_rand_case(ret)
 		end
 		
 		ret += "\r\n"
@@ -479,7 +501,7 @@ class Client
 	# Return the spacing between the method and uri
 	#
 	def set_method_uri_spacer
-		len = self.config['pad_method_uri_count']
+		len = self.config['pad_method_uri_count'].to_i
 		set = " "
 		buf = ""
 		
@@ -501,7 +523,7 @@ class Client
 	# Return the spacing between the uri and the version
 	#
 	def set_uri_version_spacer
-		len = self.config['pad_uri_version_count']
+		len = self.config['pad_uri_version_count'].to_i
 		set = " "
 		buf = ""
 		
@@ -590,7 +612,7 @@ class Client
 		buf = ''
 
 		if (self.config['pad_fake_headers'])
-			1.upto(self.config['pad_fake_headers_count']) do |i|
+			1.upto(self.config['pad_fake_headers_count'].to_i) do |i|
 				buf += set_formatted_header(
 					Rex::Text.rand_text_alphanumeric(rand(32)+1), 
 					Rex::Text.rand_text_alphanumeric(rand(32)+1)

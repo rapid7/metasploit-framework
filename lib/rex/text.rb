@@ -314,20 +314,45 @@ module Text
 	# Encode a string in a manor useful for HTTP URIs and URI Parameters.  
 	#
 	def self.uri_encode(str, mode = 'hex-normal')
+
 		return str if mode == 'none' # fast track no encoding
 
 		all = /[^\/\\]+/
-        normal = /[^a-zA-Z1-9\/\/\\]+/
-
+        normal = /[^a-zA-Z0-9\/\\\.\-]+/
+		normal_na = /[a-zA-Z0-9\/\\\.\-]/
+		
         case mode
         when 'hex-normal'
             return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
         when 'hex-all'
             return str.gsub(all) { |s| Rex::Text.to_hex(s, '%') }
+		when 'hex-random'
+			res = ''
+			str.each_byte do |c|
+				b = c.chr
+				if (b.match(normal_na))
+					res << b
+				else
+					res << ((rand(2) == 0) ? Rex::Text.to_hex(b, '%') : b)
+				end
+			end
+
+			return res
         when 'u-normal'
             return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
         when 'u-all'
             return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+		when 'u-random'
+			res = ''
+			str.each_byte do |c|
+				b = c.chr
+				if (b.match(normal_na))
+					res << b
+				else
+					res << ((rand(2) == 0) ? Rex::Text.to_hex(Rex::Text.to_unicode(b, 'uhwtfms'), '%u', 2) : b)
+				end
+			end
+			return res			
         else
             raise TypeError, 'invalid mode'
         end
