@@ -134,9 +134,19 @@ class Console
 	# Meterpreter Console
 	# TODO: Motivated to code it, hehe ... Ho YESSS ;-)
 	#
-	class MeterBasic < Gtk::Window
+	class Meterpreter < Gtk::Window
 	
 		def inititialize
+			nil
+		end
+	end
+	
+	#
+	# VNC Console
+	#
+	class VNC < Gtk::Window
+		
+		def initialize
 			nil
 		end
 	end

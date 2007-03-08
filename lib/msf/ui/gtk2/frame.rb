@@ -66,18 +66,9 @@ class MyModuleTree < MyGlade
 					begin
 						iter = @treeview1.model.get_iter(path)
 						if (iter.get_value(ADV) == false)
-							if (iter.get_value(APP) == "Standard")
-								treeview.selection.select_path(path)
-								active(iter)
-								@menu_module.popup(nil, nil, event.button, event.time)
-							end
-							
-							# TODO: Add specific menus for :
-							# - payload
-							# - auxiliary
-							# - nops
-							# - encoders
-							
+							treeview.selection.select_path(path)
+							active(iter)
+							@menu_module.popup(nil, nil, event.button, event.time)
 						end
 					rescue
 						nil
@@ -90,8 +81,16 @@ class MyModuleTree < MyGlade
 							if (iter.get_value(APP) == "Standard")
 								treeview.selection.select_path(path)
 								active(iter)
-								MsfAssistant.new(iter.get_value(1))
-							end							
+								MsfAssistant::Standard.new(iter.get_value(1))
+							elsif (iter.get_value(APP) == "Payloads")
+								treeview.selection.select_path(path)
+								active(iter)
+								MsfAssistant::Payload.new(iter.get_value(1))
+							else
+								treeview.selection.select_path(path)
+								active(iter)
+								MsfDialog::Error.new($gtk2driver.main, "Not available")
+							end
 						end
 					rescue
 						nil
@@ -102,7 +101,14 @@ class MyModuleTree < MyGlade
 		
 		@one_shot.signal_connect('activate') do |item|
 			if active_module = @selection.selected
-				MsfAssistant.new(active_module.get_value(MODULE))
+				type = active_module.get_value(APP)
+				if (type == "Standard")
+					MsfAssistant::Standard.new(active_module.get_value(MODULE))
+				elsif (type ==  "Payloads")
+					MsfAssistant::Payload.new(active_module.get_value(MODULE))
+				else
+					MsfDialog::Error.new($gtk2driver.main, "Not available")
+				end
 			end
 		end
 		

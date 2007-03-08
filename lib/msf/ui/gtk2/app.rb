@@ -51,7 +51,7 @@ class MyApp < MyGlade
 		@scrolledwindow1.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
 		@scrolledwindow2.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
 		@scrolledwindow3.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
-		@scrolledwindow4.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+		# @scrolledwindow4.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
 		@scrolledwindow16.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
 		
 		# Logs Buffer
@@ -70,6 +70,7 @@ class MyApp < MyGlade
 		@module_tree = MyModuleTree.new(@treeview1, @viewmodule)
 		
 		# Configure the window handles for easy reference
+		$gtk2driver.main = @window
 		$gtk2driver.session_tree = @session_tree
 		$gtk2driver.job_tree = @job_tree
 		$gtk2driver.module_tree = @module_tree

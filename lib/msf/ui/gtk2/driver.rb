@@ -6,6 +6,7 @@ require 'msf/ui/gtk2/controls'
 require 'msf/ui/gtk2/app'
 require 'msf/ui/gtk2/about'
 require 'msf/ui/gtk2/frame'
+require 'msf/ui/gtk2/assistant'
 require 'msf/ui/gtk2/dialogs'
 require 'msf/ui/gtk2/console'
 require 'msf/ui/gtk2/view'
@@ -25,7 +26,7 @@ module Gtk2
 class Driver < Msf::Ui::Driver
 	
 	attr_accessor :session_tree, :module_tree, :job_tree, :log_text, :module_model
-	attr_accessor :module_completion
+	attr_accessor :module_completion, :main
 	
 	include Msf::Ui::Gtk2::FrameworkEventManager
 	
