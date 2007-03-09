@@ -66,6 +66,14 @@ class OptBase
 	end
 
 	#
+	# Returns true if the value supplied is nil and it's required to be
+	# a valid value
+	#
+	def empty_required_value?(value)
+		return (required? and value.nil?)
+	end
+
+	#
 	# Normalizes the supplied value to conform with the type that the option is
 	# conveying.
 	#
@@ -174,6 +182,8 @@ class OptBool < OptBase
 	end
 
 	def valid?(value)
+		return false if empty_required_value?(value)
+
 		if ((value != nil and 
 		    (value.to_s.empty? == false) and
 		    (value.to_s.match(/^(y|yes|n|no|t|f|0|1|true|false)$/i) == nil)))
@@ -216,6 +226,8 @@ class OptEnum < OptBase
 	end
 
 	def valid?(value=self.value)
+		return false if empty_required_value?(value)
+
 		(value and self.enums.include?(value.to_s))
 	end
 
@@ -255,6 +267,8 @@ class OptPort < OptBase
 	end
 
 	def valid?(value)
+		return false if empty_required_value?(value)
+
 		if ((value != nil and value.to_s.empty? == false) and
 		    ((value.to_s.match(/^\d+$/) == nil or value.to_i < 0 or value.to_i > 65535)))
 			return false
@@ -275,6 +289,8 @@ class OptAddress < OptBase
 	end
 
 	def valid?(value)
+		return false if empty_required_value?(value)
+
 		if (value != nil and value.empty? == false)
 			begin
 				Resolv.getaddress(value)
@@ -328,6 +344,8 @@ class OptAddressRange < OptBase
 	end
 	
 	def valid?(value)
+		return false if empty_required_value?(value)
+
 		if (value != nil and value.empty? == false)
 			begin
 				return (normalize(value).length > 0 ? true : false)
@@ -351,6 +369,8 @@ class OptPath < OptBase
 	end
 
 	def valid?(value)
+		return false if empty_required_value?(value)
+
 		if ((value != nil and value.empty? == false) and
 		    (File.exists?(value) == false))
 			return false
@@ -375,7 +395,9 @@ class OptInt < OptBase
 	end
 
 	def valid?(value)
-		if (value.to_s.match(/^\d+$/) == nil)
+		return false if empty_required_value?(value)
+
+		if value and value.to_s.match(/^\d+$/) == nil
 			return false
 		end
 

@@ -282,7 +282,6 @@ class Client
 
 						while rv != Packet::ParseCode::Completed
 							if (rv == Packet::ParseCode::Error)
-								warn "ERR : #{resp.error}"
 								raise RuntimeError, resp.error, caller
 							end
 
