@@ -50,7 +50,10 @@ class Client
 			'pad_get_params'         => false,   # bool
 			'pad_get_params_count'   => 8,       # integer
 			'pad_post_params'        => false,   # bool
-			'pad_post_params_count'  => 8        # integer
+			'pad_post_params_count'  => 8,       # integer
+			'uri_fake_end'           => false,   # bool
+			'uri_fake_params_start'  => false,   # bool
+			'header_folding'         => false    # bool 
 		}
 	end
 	
@@ -544,9 +547,17 @@ class Client
 	# Return the padding to place before the uri
 	#
 	def set_uri_prepend
-		# TODO:
-		#  * Support different padding types
-		""
+		prefix = ""
+		
+		if (self.config['uri_fake_params_start'])
+			prefix << '/%3fa=b/../'
+		end
+		
+		if (self.config['uri_fake_end'])
+			prefix << '/%20HTTP/1.0/../../'
+		end
+		
+		prefix
 	end
 
 	#
@@ -628,10 +639,13 @@ class Client
 	
 	#
 	# Return a formatted header string
-	# TODO:
-	#  * Implement header folder
+	#
 	def set_formatted_header(var, val)
-		"#{var}: #{val}\r\n"
+		if (self.config['header_folding'])
+			"#{var}:\r\n\t#{val}\r\n"
+		else
+			"#{var}: #{val}\r\n"
+		end
 	end
 	
 

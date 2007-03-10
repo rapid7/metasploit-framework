@@ -330,13 +330,10 @@ module Text
 			res = ''
 			str.each_byte do |c|
 				b = c.chr
-				if (b.match(normal_na))
-					res << b
-				else
-					res << ((rand(2) == 0) ? Rex::Text.to_hex(b, '%') : b)
-				end
+				res << ((rand(2) == 0) ? 
+					b.gsub(all)   { |s| Rex::Text.to_hex(s, '%') } :
+					b.gsub(normal){ |s| Rex::Text.to_hex(s, '%') } )
 			end
-
 			return res
         when 'u-normal'
             return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
@@ -346,13 +343,11 @@ module Text
 			res = ''
 			str.each_byte do |c|
 				b = c.chr
-				if (b.match(normal_na))
-					res << b
-				else
-					res << ((rand(2) == 0) ? Rex::Text.to_hex(Rex::Text.to_unicode(b, 'uhwtfms'), '%u', 2) : b)
-				end
+				res << ((rand(2) == 0) ? 
+					b.gsub(all)   { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } :
+					b.gsub(normal){ |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } )
 			end
-			return res			
+			return res		
         else
             raise TypeError, 'invalid mode'
         end
