@@ -38,11 +38,9 @@ function openAboutDialog() {
         })
         
     var about_content = "<div style='padding:5px'>The <strong>Metasploit Framework Web Console</strong>" +
-                        " was developed by LMH &lt;lmh@info-pull.com&gt; and added to the Metasploit Framework" +
-						" under the terms of the Metasploit Framework License (v1.2)." +
-                        "Thanks to the Metasploit team (hdm, skape, etc) and contributors for developing a ground-breaking" +
-                        " project: <strong>Metasploit.</strong><br /><br />Standards compliant: Valid XHTML Strict " +
-                        "and CSS code.</div>"
+                        " was originally developed by LMH &lt;lmh@info-pull.com&gt; and added to the Metasploit Framework" +
+						" under the terms of the Metasploit Framework License (v1.2). Continuing development and maintenance" +
+						" is provided by Metasploit LLC.</div>";
                         
     aboutWindow.getContent().innerHTML= about_content;
     aboutWindow.showCenter();
