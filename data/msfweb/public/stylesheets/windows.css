@@ -135,6 +135,15 @@ p.moduleName {
 	text-align: center;
 }
 
+p.moduleError {
+    background-color: inherit;
+    text-decoration: none;
+    font-size: 14px;
+	font-weight: bold;
+	text-align: center;
+	color: red;
+}
+
 p.moduleName .moduleVersion {
     font-size: 9px;
 }

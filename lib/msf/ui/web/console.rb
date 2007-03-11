@@ -16,16 +16,8 @@ class WebConsole
 	attr_accessor :framework
 	attr_accessor :thread
 
+	# Wrapper class in case we need to extend the pipe
 	class WebConsolePipe < Rex::IO::BidirectionalPipe
-
-=begin	
-		def fd(*args)
-			# Remove the following line to enable full sessions via the console
-			# We really should just hook the on_session() instead...
-			raise ::RuntimeError, "Session interaction should be performed via the Sessions tab"
-			self.pipe_input.fd(*args)
-		end
-=end
 
 	end
 
@@ -116,6 +108,14 @@ class WebConsole
 		if(self.console.active_session)			
 			self.console.active_session.kill()
 		end	
+	end
+
+	def active_module
+		self.console.active_module
+	end
+	
+	def active_module=(val)
+		self.console.active_module = val
 	end
 	
 end

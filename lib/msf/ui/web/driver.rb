@@ -65,6 +65,15 @@ class Driver < Msf::Ui::Driver
 		console.console_id.to_s
 	end
 
+	def destroy_console(cid)
+		con = self.consoles[cid]
+		if(con)
+			con.shutdown
+			self.consoles.delete(cid)
+		end
+	end
+	
+
 	def write_console(id, buf)
 		self.consoles[id] ? self.consoles.write(buf) : nil
 	end
