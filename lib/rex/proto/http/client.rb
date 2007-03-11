@@ -80,7 +80,8 @@ class Client
 		c_ag   = opts['agent']      || config['agent']
 		c_cook = opts['cookie']     || config['cookie']
 		c_host = opts['vhost']      || config['vhost']
-		c_head = opts['headers']    || config['headers'] || {}		
+		c_head = opts['headers']    || config['headers'] || {}
+		c_rawh = opts['raw_headers']|| config['raw_headers'] || ''		
 		c_conn = opts['connection']	
 		uri    = set_uri(c_uri)
 		
@@ -102,7 +103,8 @@ class Client
 		req += set_agent_header(c_ag)
 		req += set_cookie_header(c_cook)
 		req += set_connection_header(c_conn)
-		req += set_extra_headers(c_head)		
+		req += set_extra_headers(c_head)
+		req += set_raw_headers(c_rawh)			
 		req += set_body(c_body)
 		
 		req
@@ -123,6 +125,7 @@ class Client
 		c_varg = opts['vars_get']   || {}
 		c_varp = opts['vars_post']  || {}
 		c_head = opts['headers']    || config['headers'] || {}
+		c_rawh = opts['raw_headers']|| config['raw_headers'] || ''
 		c_type = opts['ctype']      || 'application/x-www-form-urlencoded'
 		c_ag   = opts['agent']      || config['agent']
 		c_cook = opts['cookie']     || config['cookie']
@@ -191,6 +194,7 @@ class Client
 		
 		req += set_content_type_header(c_type)
 		req += set_content_len_header(pstr.length)
+		req += set_raw_headers(c_rawh)
 		req += set_body(pstr)
 
 		req	
@@ -616,8 +620,7 @@ class Client
 	
 	#
 	# Return a string of formatted extra headers
-	# TODO:
-	#  * Implement junk header stuffing
+	#
 	def set_extra_headers(headers)
 		buf = ''
 
@@ -637,6 +640,13 @@ class Client
 		buf
 	end
 	
+	#
+	# Return a string of raw header data
+	#
+	def set_raw_headers(data)
+		data
+	end
+		
 	#
 	# Return a formatted header string
 	#
