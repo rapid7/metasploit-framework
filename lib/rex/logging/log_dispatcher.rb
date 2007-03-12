@@ -17,9 +17,9 @@ class LogDispatcher
 	# Creates the global log dispatcher instance and initializes it for use.
 	#
 	def initialize()
-		self.log_sinks        = {}
-		self.log_levels       = {}
-		self.log_sinks_rwlock = ReadWriteLock.new
+		self.log_sinks      = {}
+		self.log_levels     = {}
+		self.log_sinks_lock = Mutex.new
 	end
 
 	#
@@ -28,7 +28,7 @@ class LogDispatcher
 	def [](src)
 		sink = nil
 
-		log_sinks_rwlock.synchronize_read {
+		log_sinks_lock.synchronize {
 			sink = log_sinks[src]
 		}
 
@@ -48,7 +48,7 @@ class LogDispatcher
 	# Use set_log_level to alter it.
 	#
 	def store(src, sink, level = 0)
-		log_sinks_rwlock.synchronize_write {
+		log_sinks_lock.synchronize {
 			if (log_sinks[src] == nil)
 				log_sinks[src] = sink
 
@@ -68,7 +68,7 @@ class LogDispatcher
 	def delete(src)
 		sink = nil
 
-		log_sinks_rwlock.synchronize_write {
+		log_sinks_lock.synchronize {
 			sink = log_sinks[src]
 			
 			log_sinks.delete(src)
@@ -87,7 +87,7 @@ class LogDispatcher
 	# Performs the actual log operation against the supplied source
 	#
 	def log(sev, src, level, msg, from)
-		log_sinks_rwlock.synchronize_read {
+		log_sinks_lock.synchronize {
 			if ((sink = log_sinks[src]))
 				next if (log_levels[src] and level > log_levels[src])
 
@@ -110,7 +110,7 @@ class LogDispatcher
 		log_levels[src]
 	end
 
-	attr_accessor :log_sinks, :log_sinks_rwlock # :nodoc:
+	attr_accessor :log_sinks, :log_sinks_lock # :nodoc:
 	attr_accessor :log_levels # :nodoc:
 end
 
