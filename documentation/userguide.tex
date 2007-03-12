@@ -63,10 +63,10 @@ Installing the Framework is as easy as extracting the tarball, changing into the
 created directory, and executing your preferred user interface. We strongly
 recommend that you use a version of the Ruby interpreter that was built with
 support for the GNU Readline library. If you are using the Framework on Mac OS
-X, you will need to install GNU Readline and the recompile the Ruby
-interpreter.  Using a version of Ruby with Readline support enables tab-based
-completion.  The \texttt{msfconsole} user interface is preferred for everyday
-use.
+X, you will need to install GNU Readline and then recompile the Ruby
+interpreter.  Using a version of Ruby with Readline support enables tab completion
+of the console interface.  The \texttt{msfconsole} user interface is preferred for everyday
+use, but the \texttt{msfweb} interface can be useful for live demonstrations.
 
 \par
 To perform a system-wide installation, we recommend that you copy the entire
@@ -81,27 +81,41 @@ distribution.
     \label{INSTALL-WIN32}
 
 \par
-TBD
-   
+The Metasploit Framework is only partially supported on the Windows platform. If you would like
+to access most of the Framework features from Windows, we recommend using a virtualization environment,
+such as VMWare, with a supported Linux distribution
+\footnote{We highly recommend the BackTrack live CD, available from \url{http://www.remote-exploit.org/}}. If this is not possible, you can also use the
+Framework from within Cygwin. To use the Framework from within Cygwin, follow the instructions for
+installation on a Unix system. For more information on Cygwin, please see the Cygwin web site at
+\url{http://www.cygwin.com/}
+
+To install the Framework on Windows, download the latest version of the Windows installer from 
+\url{http://framework.metasploit.com/}, perform an online update, and launch the \texttt{msfweb}
+interface. Once \texttt{msfweb} is running, access the \url{http://127.0.0.1:55555/} URL from within
+your browser. At this time, only Mozilla and Internet Explorer are fully supported.
+
     \section{Platform Caveats}
     \label{INSTALL-CAVEAT}
 
 \par
-TBD
+When using the Framework on the Windows platform, keep in mind that \texttt{msfweb} is the only
+supported user interface. While \texttt{msfconsole} and \texttt{msfcli} may appear to work, they
+are severely limited by the way stdio operations are handled. The result is that all Ruby threads
+will block when input is being read from the console. This can prevent most exploits, auxiliary modules,
+and plugins from functioning. This problem does not occur within Cygwin.
 
     \section{Supported Operating Systems}
     \label{INSTALL-SUPPORT}
 
 \par
 The Framework should run on almost any Unix-based operating system that includes
-a complete and modern version of the Ruby interpreter (1.8.2+). Every stable
-version of the Framework is tested with four primary platforms: 
+a complete and modern version of the Ruby interpreter (1.8.4+). Every stable
+version of the Framework is tested with three primary platforms: 
 
 \begin{itemize}
-\item Linux (x86, ppc) (2.4, 2.6)
-\item Windows NT (4.0, 2000, XP, 2003)
-\item BSD (Open 3.x, Free 4.6+)
-\item MacOS X (10.3.x)
+\item Linux 2.6 (x86, ppc)
+\item Windows NT (2000, XP, 2003)
+\item MacOS X 10.4 (x86, ppc)
 \end{itemize}
 
     \section{Updating the Framework}
@@ -109,11 +123,12 @@ version of the Framework is tested with four primary platforms:
 
 \par
 The Framework can be updated using a standard \texttt{Subversion} client. The
-old \texttt{msfupdate} tool has been replaced with a stub program in this
-version and should no longer be used. To obtain the latest updates, change
-into the Framework installation directory and execute \texttt{svn update}. If
+old \texttt{msfupdate} tool is no longer supported. To obtain the latest updates,
+change into the Framework installation directory and execute \texttt{svn update}. If
 you are accessing the internet through a HTTP proxy server, please see the
 Subversion FAQ on proxy access: \url{http://subversion.tigris.org/faq.html#proxy}
+If your version of Subversion does not support SSL, execute the following command
+to switch to non-SSL HTTP:
 
 \pagebreak
 
@@ -124,28 +139,30 @@ Subversion FAQ on proxy access: \url{http://subversion.tigris.org/faq.html#proxy
 
 \par
 After you have installed the Framework, you should verify that everything is
-working correctly.  The easiest way to do this is to execute the
-\texttt{msfconsole} user interface. This interface should display an ASCII art
-logo, print the current version, some module counts, and
-drop to a "msf> " prompt. From this prompt, type \texttt{help} to get a list of
+working properly  The easiest way to do this is to execute the
+\texttt{msfconsole} user interface. If you are using Windows, start the \texttt{msfweb}
+interface and access the \texttt{Console} link from within your browser.
+The console should display an ASCII art logo, print the current version, some module
+counts, and drop to a "msf> " prompt. From this prompt, type \texttt{help} to get a list of
 valid commands. You are currently in the "main" mode; this allows you to list
 exploits, list payloads, and configure global options.  To list all available
 exploits, type \texttt{show exploits}. To obtain more information about a given
 exploit, type \texttt{info module\_name}. 
 
 \par
-The \texttt{msfconsole} interface was designed to be flexible and fast. If you
+The console interface was designed to be flexible and fast. If you
 enter a command that is not recognized by the console, it will scan the system
-path to determine if it is a system command. If it finds a match, that
-command will be executed with the supplied arguments. This allows you to use
-your standard set of tools without having to leave the console. We highly
-recommend that you enable tab completion support, this is included by default in
-the Windows package, but may require software installation for other operating
-systems. For more information on tab completion, please refer to appendix
-\ref{REF-TAB}.
+path to determine if it is a system command. \footnote{If you are accessing the console
+through \texttt{msfweb}, this feature has been disabled for security reasons.}
+If it finds a match, that command will be executed with the supplied arguments. This allows you to use
+your standard set of tools without having to leave the console. The console interface
+supports tab completion of known commands. The \texttt{msfweb} interface
+includes tab completion by default, but the \texttt{msfconsole} interface requires that 
+Ruby was built with the Readline library. For more information on tab completion, please
+refer to appendix \ref{REF-TAB}.
 
 \par
-The \texttt{msfconsole} startup will similar to the text below.
+The console startup will similar to the text below.
 
 \begin{verbatim}
 
@@ -173,8 +190,9 @@ msf >
 
 \par
 If you are looking for a way to automate exploit testing, or simply do not want
-to use an interactive interface, then \texttt{msfcli} may be the solution. This
-interface takes a module name as the first parameter, followed by the options
+to use an interactive interface, then \texttt{msfcli} may be the solution.
+\footnote{The msfcli interface will not work properly with the native Windows version of Ruby}
+This interface takes a module name as the first parameter, followed by the options
 in a VAR=VAL format, and finally an action code to specify what should be done.
 The module name is used to determine which exploit or auxiliary module you
 want to launch.
@@ -192,7 +210,27 @@ convenient default options in the Global or module-specific datastore of
     \label{STARTED-WEB}
 
 \par
-TBD
+The \texttt{msfweb} interface is based on Ruby on Rails. To use this interface, you need to have
+the \texttt{rubygems} package and the appropriate version of \texttt{rails} gem. Once
+\texttt{rubygems} has been installed, you can get the correct version of \texttt{rails}
+with the following command.\footnote{The Windows version already includes the \texttt{rubygems}
+and the correct version of \texttt{rails}}
+
+\begin{verbatim}
+$ gem install -v1.2.2 rails
+\end{verbatim}
+
+Once \texttt{rails} is configured, execute \texttt{msfweb} to start up the server. The \texttt{msfweb}
+interface uses the WEBrick web server to handle requests. By default, \texttt{msfweb} will listen
+on the loopback address (127.0.0.1) on port 55555. A log message should be displayed indicating that
+the service has started. To access the interface, open your browser to the appropriate URL 
+(\url{http://127.0.0.1:55555/} by default). The main \texttt{msfweb} interface consists of a toolbar
+containing various icons and a background with the metasploit logo. If you want access to a console, 
+click the Console link. This console interface is nearly identical to the standard 
+\texttt{msfconsole} interface. The Exploits, Auxiliary, and Payloads links will walk you through 
+the process of selecting a module, configuring it, and running it. Once an exploit is run and
+a session is created, you can access these sessions from the Sessions link. These icons will open up
+a sub-window within the page. These windows can be moved, minimized, maximized, and closed.
 
 \pagebreak
 \chapter{The DataStore}
@@ -262,7 +300,7 @@ Global datastore once and automatically used in any exploit you load thereafter.
 
 \par
 The example below shows how the \texttt{LPORT}, \texttt{LHOST}, and
-texttt{PAYLOAD} global datastore can be used to save time when exploiting a
+\texttt{PAYLOAD} global datastore can be used to save time when exploiting a
 set of Windows-based targets. If this datastore was set and a Linux exploit
 was being used, the module datastore (via \texttt{set} and \texttt{unset})
 could be used to override these defaults.  
@@ -357,18 +395,20 @@ target address and \texttt{RPORT} to set the target port. Use the \texttt{set}
 command to configure the appropriate values for all required options. If you
 have any questions about what a given option does, refer to the module source
 code.  Advanced options are available with some exploit modules, these can be
-viewed with the \texttt{show advanced} command. 
+viewed with the \texttt{show advanced} command. Options useful for IDS and IPS
+evasion can be viewed with the \texttt{show evasion} command.
 
 		\subsection{Verifying the Exploit Options}
 
-\par	The \texttt{check} command can be used to determine whether the target
+\par	
+The \texttt{check} command can be used to determine whether the target
 system is vulnerable to the active exploit module. This is a quick way to
 verify that all options have been correctly set and that the target is
 actually vulnerable to exploitation. Not all exploit modules have implemented
 the check functionality.  In many cases it is nearly impossible to determine
 whether a service is vulnerable without actually exploiting it. A
 \texttt{check} command should never result in the target system crashing or
-becoming unavailable. Many modules simply display version information and
+becoming unavailable. Many modules display version information and
 expect you to analyze it before proceeding.  
 
 		\subsection{Selecting a Target}
@@ -567,7 +607,7 @@ and what you can do with it. The Meterpreter manual can be found in the
 
 \section{PassiveX Payloads}
 
-\par Starting with the 2.4 release, the Metasploit Framework can be used to
+\par The Metasploit Framework can be used to
 load arbitrary ActiveX controls into a target process. This feature works by
 patching the registry of the target system and causing the exploited process
 to launch internet explorer with a URL pointing back to the Framework. The
@@ -589,11 +629,10 @@ traffic.
 Since PassiveX uses the Internet Explorer browser to load the ActiveX
 component, it will pass right through an outbound web proxy, using whatever
 system and authentication settings that have already been configured. The
-PassiveX system included in 2.4 will only work when the target system has
-Internet Explorer 6.0 or newer installed. Future versions may work around this
-limitation. For more information about PassiveX, please see the Uninformed
-Journal article titled "Post-Exploitation on Windows using ActiveX Controls",
-located online at:
+PassiveX payloads will only work when the target system has Internet Explorer
+6.0 installed (not 5.5 or 7.0). For more information about PassiveX,
+please see the Uninformed Journal article titled "Post-Exploitation on Windows
+using ActiveX Controls", located online at:
 
 \url{http://www.uninformed.org/?v=1&a=3&t=pdf}
 
@@ -614,7 +653,7 @@ this time.
 \par
 Although Unix systems normally include all of the tools you need for
 post-exploitation, Windows systems are notoriously lacking in a decent command
-line toolkit. The UploadExec payloads included in this release allow you to
+line toolkit. The windows/upexec/* payloads included in this release allow you to
 simultaneously exploit a Windows system, upload your favorite tool, and execute
 it, all across the payload socket connection. When combined with a
 self-extracting rootkit or scripting language interpreter (perl.exe!), this can
@@ -623,7 +662,7 @@ suited for penetration testing tasks.
 
 \section{Win32 DLL Injection Payloads}
 \par
-Starting with version 2.2, the Framework includes a staged payload that is
+The Framework includes a staged payload that is
 capable of injecting a custom DLL into memory in combination with any Win32
 exploit. This payload will not result in any files being written to disk; the
 DLL is loaded directly into memory and is started as a new thread in the
@@ -648,7 +687,7 @@ non-interactive network services. This payload allows you to immediately access
 the desktop of an exploited system using almost any Win32 exploit. The DLL is
 loaded into the remote process using any of the staged loader systems, started
 up as a new thread in the exploited process, and the listens for VNC client
-requests on the same socket used to load the DLL. The Framework simply listens
+requests on the same socket used to load the DLL. The Framework listens
 on a local socket for a VNC client and proxies data across the payload
 connection to the server.  
 
@@ -679,7 +718,7 @@ code of the DLL can be found in the external/source/vncdll
 subdirectory of the Framework installation. 
 
 \par
-As of the 2.4 release, there are a few situations where the VNC inject payload
+There are a few situations where the VNC inject payload
 will simply not work. These problems are often cause by strange execution
 environments or other issues related to a specific exploit or injection method.
 These issues will be addressed as time permits:
@@ -778,11 +817,23 @@ as input and then exploiting a (fake) service to obtain the file contents.
 	\section{Tab Completion}
 	\label{REF-TAB}
 \par
-TBD
+On the Unix and Cygwin platforms, tab completion depends on the existence of the Readline 
+library when Ruby was compiled. Some operating systems, such as Mac OS X, have included
+a version of Ruby without this support. To solve this problem, grab the latest version
+of the Readline library, configure, build, and install it. Then grab the latest version
+of the Ruby interpreter and do the same. The resulting Ruby binary can be used to start the
+\texttt{msfconsole} interface with full tab completion support.
+
+
 	\section{Secure Socket Layer}
 	\label{REF-SSL}
 \par
-TBD
+Nearly all TCP-based exploit and auxiliary modules have builtin support for the Secure Socket Layer.
+This is a feature of the Socket class included with the Rex library. To indicate that all connections
+should use SSL, set the \texttt{SSL} environment variable to \texttt{true} from within the Framework
+interface. Keep in mind, that in most cases the default \texttt{RPORT} variable will need to be 
+changed as well. For example, when exploiting a web application vulnerability through SSL, the
+\texttt{RPORT} value should be set to \texttt{443}.
 
 \pagebreak
 \chapter{Licenses}
