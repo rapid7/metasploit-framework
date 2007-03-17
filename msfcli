@@ -86,7 +86,7 @@ end
 # Get the module name we'll be using
 exploit_name = ARGV.shift
 exploit      = nil
-module_class = nil
+module_class = "exploit"
 
 # Process special var/val pairs...
 Msf::Ui::Common.process_cli_arguments($framework, ARGV)
@@ -153,7 +153,9 @@ case mode.downcase
 	when "c"
 		if (module_class == 'exploit')
 			begin
-				if (code = exploit.check)
+				if (code = exploit.check_simple(
+					'LocalInput'    => Rex::Ui::Text::Input::Stdio.new,
+					'LocalOutput'   => Rex::Ui::Text::Output::Stdio.new))
 					stat = (code == Msf::Exploit::CheckCode::Vulnerable) ? '[+]' : '[*]'
 
 					$stdout.puts("#{stat} #{code[1]}")
