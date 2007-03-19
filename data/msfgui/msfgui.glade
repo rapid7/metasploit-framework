@@ -72,13 +72,22 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkImageMenuItem" id="preferences">
+	    <widget class="GtkMenuItem" id="options">
 	      <property name="visible">True</property>
-	      <property name="label">gtk-preferences</property>
-	      <property name="use_stock">True</property>
+	      <property name="label" translatable="yes">Options</property>
+	      <property name="use_underline">True</property>
 
 	      <child>
-		<widget class="GtkMenu" id="preferences_menu">
+		<widget class="GtkMenu" id="options_menu">
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="preferences">
+		      <property name="visible">True</property>
+		      <property name="label">gtk-preferences</property>
+		      <property name="use_stock">True</property>
+		      <signal name="activate" handler="on_preferences_activate" last_modification_time="Mon, 19 Mar 2007 21:52:05 GMT"/>
+		    </widget>
+		  </child>
 
 		  <child>
 		    <widget class="GtkMenuItem" id="payload">

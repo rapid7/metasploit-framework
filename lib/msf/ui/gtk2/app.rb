@@ -106,6 +106,10 @@ class MyApp < MyGlade
 		Gtk.main_quit
 	end
 	
+	def on_preferences_activate
+		MsfOptions::Preferences.new()
+	end
+	
 	def on_payload_activate
 		puts "TODO: Set preferences for the payload choice"
 	end
