@@ -48,9 +48,9 @@ class SkeletonView < Gtk::Dialog
 		self.vbox.spacing = 10
 		self.set_default_size(400, 350)		
 		
-		@payload_view = Gtk::TextView.new(buffer)
+		view = Gtk::TextView.new(buffer)
 		scrolled_window = Gtk::ScrolledWindow.new
-		scrolled_window.add(@payload_view)
+		scrolled_window.add(view)
 		self.vbox.pack_start(scrolled_window, true, true, 5)
 		scrolled_window.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
 	end
