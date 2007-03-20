@@ -1,0 +1,15 @@
+This code was borrowed from the ruby-msg project, licensed under GPLv2:
+	
+	http://code.google.com/p/ruby-msg/
+
+Checked out from Subversion on March 20th, 2007
+
+URL: http://ruby-msg.googlecode.com/svn/trunk/lib/ole
+Repository Root: http://ruby-msg.googlecode.com/svn
+Repository UUID: c30d66de-b626-0410-988f-81f6512a6d81
+Revision: 70
+Node Kind: directory
+Schedule: normal
+Last Changed Author: aquasync
+Last Changed Rev: 70
+Last Changed Date: 2007-02-22 01:27:15 -0600 (Thu, 22 Feb 2007)
