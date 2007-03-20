@@ -1,20 +1,17 @@
 #! /usr/bin/ruby -w
 
-$: << File.dirname(__FILE__) + '/..'
-
 require 'iconv'
 require 'date'
-require 'support'
-
 require 'stringio'
 require 'tempfile'
 
+
 require 'ole/base'
 require 'ole/types'
-# not strictly ole related
 require 'ole/io_helpers'
 
 module Ole # :nodoc:
+
 	# 
 	# = Introduction
 	#
