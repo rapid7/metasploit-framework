@@ -202,7 +202,7 @@ class MsfAssistant
 			page.pack_start(frame_required, false, false, 10)
 			
 			# Gtk::Frame for advanced options
-			frame_advanced = Gtk::Frame.new("Advanced")
+			frame_advanced = Gtk::Expander.new('Advanced')
 			page.pack_start(frame_advanced, false, false, 10)
 			
 			# TreeView
