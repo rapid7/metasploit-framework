@@ -48,14 +48,14 @@ static VALUE lorcon_driver_list(VALUE self) {
 static VALUE lorcon_driver_get_channel(VALUE self) {
 	struct tx80211 *in_tx;
 	Data_Get_Struct(self, struct tx80211, in_tx);
-	return INT2NUM(tx80211_getchan(in_tx));
+	return INT2NUM(tx80211_getchannel(in_tx));
 }
 
 static VALUE lorcon_driver_set_channel(VALUE self, VALUE channel) {
 	struct tx80211 *in_tx;
 	Data_Get_Struct(self, struct tx80211, in_tx);
 	tx80211_setchannel(in_tx, NUM2INT(channel));
-	return INT2NUM(tx80211_getchan(in_tx));
+	return INT2NUM(tx80211_getchannel(in_tx));
 }
 
 void lorcon_driver_free(struct tx80211 *in_tx) {
@@ -91,9 +91,16 @@ static VALUE lorcon_driver_open(int argc, VALUE *argv, VALUE self) {
 		return(Qnil);
 	}
 		
-	ret = tx80211_setmode(in_tx, IW_MODE_MONITOR);
+	/*
+	 *FUNCMODE_INJ_MON gets us injection -and- monitor mode if supported 
+	 *This seems like a good default, but i havent tried it on any cards
+	 *other than atheros with madwifi-old 
+	 */
+	//ret = tx80211_setmode(in_tx, IW_MODE_MONITOR); 
+	ret = tx80211_setfunctionalmode(in_tx, TX80211_FUNCMODE_INJMON);
 	if (ret != 0) {
-		rb_raise(rb_eRuntimeError, "Lorcon could not place the card into monitor mode");
+		//rb_raise(rb_eRuntimeError, "Lorcon could not place the card into monitor mode");
+		rb_raise(rb_eRuntimeError, "Lorcon could not place the card into injection + monitor mode");
 		return(Qnil);
 	}
 
