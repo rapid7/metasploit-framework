@@ -24,10 +24,12 @@ arguments = Rex::Parser::Arguments.new(
 	"-a" => [ true,  "Bind to this IP address instead of loopback"          ],
 	"-p" => [ true,  "Bind to this port instead of 55555"                   ],
 	"-d" => [ false, "Daemonize the web server"                             ],
+	"-s" => [ false, "Automatically open the browser"                       ],
 	"-h" => [ false, "Help banner"                                          ])
 
 opts = {}
 background = false
+browser_start = false
 
 # Parse command line arguments.
 arguments.parse(ARGV) { |opt, idx, val|
@@ -40,6 +42,8 @@ arguments.parse(ARGV) { |opt, idx, val|
 			opts['LogLevel'] = val
 		when "-d"
 			background = true
+		when "-s"
+			browser_start = true
 		when "-h"
 			print(
 				"\nUsage: msfweb <options>\n" +
@@ -67,9 +71,11 @@ ARGV = [
 $stderr.close
 $stderr = ostderr
 
+$browser_url   = "http://#{host}:#{port}/"
+$browser_start = browser_start
 
 $stderr.puts ""
-$stderr.puts "[*] Starting msfweb v#{Msf::Framework::Version} on http://#{host}:#{port}/"
+$stderr.puts "[*] Starting msfweb v#{Msf::Framework::Version} on #{$browser_url}"
 $stderr.puts ""
 
 load(msfserv)

@@ -26,3 +26,18 @@ require 'msf/base'
 $msfweb      = Msf::Ui::Web::Driver.new({'LogLevel' => 5})
 $msframework = $msfweb.framework
 
+if ($browser_start)
+	Thread.new do
+		
+		select(nil, nil, nil, 1)
+		
+		case RUBY_PLATFORM
+		when /mswin32/
+			system("start #{$browser_url}")
+		when /darwin/
+			system("open #{$browser_url}")
+		else
+			system("firefox #{$browser_url} &")
+		end
+	end
+end
