@@ -65,6 +65,7 @@ $stderr = StringIO.new
 ARGV = [
 	'-p', port, 
 	'-b', host,
+	'-e', 'production',
 	(background ? '-d' : '')
 ]
 
