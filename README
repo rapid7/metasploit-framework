@@ -2,30 +2,34 @@ This software is provided under the Metasploit Framework License v1.2
 Please see documentation/LICENSE for the complete terms.
 
 The Rex library (lib/rex.rb and all files under lib/rex/) is provided
-under the BSD license.
+under the BSD license (lib/rex/LICENSE).
 
-This is a BETA release. Many bugs still exist and quite a few features
-are still non-functional. The latest version can be obtained online from:
- - http://metasploit.com/projects/Framework/msf3/
+The Ole::Storage library (All files within lib/ole/) is provided under
+the GPLv2 license (lib/msf/LICENSE).
+
+The latest version of this software is available from:
+ http://framework.metasploit.com/
+
+Bug tracking and development information can be found at:
+ http://metasploit.com/dev/trac
 
 Licensing information can be found in ./documentation/COPYING
 
 This release has only been tested on the following platforms:
- - Linux x86 with Ruby 1.8.2-1.8.4
- - Mac OS X 10.3 with Ruby 1.8.3 from the fink package manager
- - Windows 2000/XP using Cygwin and ruby 1.8.4
+ - Linux x86 with Ruby 1.8.2-1.8.6
+ - Mac OS X 10.4 with Ruby 1.8.2 (native) and 1.8.6 (darwin ports)
+ - Windows XP with Ruby 1.8.5
  
-This release *will not* work with the following platforms:
- - Windows via native Ruby (stdin/readline/io issues abound)
- - Default installs of Mac OS X 10.4 (broken ruby interpreter)
-
-Mac OS X users will not have access to the tab completion
-features of the msfconsole interface without installing
-the GNU Readline package and rebuilding Ruby from source.
+Mac OS X users will not have access to the tab completion features of the
+msfconsole interface unless they instal the GNU Readline package and 
+rebuild Ruby from source.
 
 Questions and suggestions can be sent to:
  msfdev[at]metasploit.com
  
-The framework-beta mailing list is the place to discuss features and
-ask questions of the user-base. To subscribe, send a blank email to:
- framework-beta-subscribe[at]metasploit.com
+The framework mailing list is the place to discuss features and
+ask for help. To subscribe, send a blank email to:
+ framework-subscribe[at]metasploit.com
+
+The archives are available from:
+ http://metasploit.com/archive/framework/threads.html
