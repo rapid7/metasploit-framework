@@ -106,12 +106,18 @@ class MyApp < MyGlade
 		Gtk.main_quit
 	end
 	
+	#
+	# Action for "Parameters/Preferences"
+	#
 	def on_preferences_activate
-		MsfOptions::Preferences.new()
+		MsfParameters::Preferences.new()
 	end
 	
-	def on_payload_activate
-		puts "TODO: Set preferences for the payload choice"
+	#
+	# Action for "Parameters"/"Databases" menu
+	#
+	def on_databases_activate
+		MsfParameters::Databases.new()
 	end
 	
 	#

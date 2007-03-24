@@ -11,7 +11,7 @@ require 'msf/ui/gtk2/dialogs'
 require 'msf/ui/gtk2/console'
 require 'msf/ui/gtk2/view'
 require 'msf/ui/gtk2/search'
-require 'msf/ui/gtk2/options'
+require 'msf/ui/gtk2/parameters'
 
 require 'msf/ui/gtk2/framework_event_manager'
 
