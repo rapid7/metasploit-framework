@@ -41,29 +41,26 @@ class Nasm
 		check
 
 		# Open the temporary file
-		tmp  = Tempfile.new('nasmXXXX').path
-		file = File.new(tmp, "w")
+		tmp = Tempfile.new('nasmXXXX')
+		tpath = tmp.path
+		opath = tmp.path + '.out'
 
 		# Write the assembly data to a file
-		begin
-			file.write("BITS 32\n" + assembly)
-			file.close
-			file = nil
-		ensure
-			file.close if (file)
-		end
+		tmp.write("BITS 32\n" + assembly)
+		tmp.flush()
+		tmp.seek(0)
 
 		# Run nasm
-		if (system(@@nasm_path, '-f', 'bin', '-o', "#{tmp}.out", tmp) == false)
+		if (system(@@nasm_path, '-f', 'bin', '-o', opath, tpath) == false)
 			raise RuntimeError, "Assembler did not complete successfully: #{$?.exitstatus}"
 		end
 
 		# Read the assembled text
-		rv = ::IO.read(tmp + ".out")
+		rv = ::IO.read(opath)
 
 		# Remove temporary files
-		File.unlink(tmp)
-		File.unlink(tmp + ".out")
+		File.unlink(opath)
+		tmp.close
 
 		rv
 	end
@@ -73,12 +70,13 @@ class Nasm
 	#
 	def self.disassemble(raw)
 		check
+		
+		tmp = Tempfile.new('nasmout')
+		tmp.write(raw)
+		tmp.flush()
+		tmp.seek(0)
 
-		# Race condition?! You bet!
-		tmp = Tempfile.new('nasmout').path
-		File.open(tmp, "wb") { |f| f.write(raw) }
-
-		p = ::IO.popen("'#{@@ndisasm_path}' -u '#{tmp}'")
+		p = ::IO.popen("'#{@@ndisasm_path}' -u '#{tmp.path}'")
 		o = ''
 
 		begin
@@ -89,7 +87,7 @@ class Nasm
 			p.close
 		end
 
-		File.unlink(tmp)
+		tmp.close
 
 		o
 	end
