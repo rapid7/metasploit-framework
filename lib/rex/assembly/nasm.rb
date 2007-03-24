@@ -72,11 +72,13 @@ class Nasm
 		check
 		
 		tmp = Tempfile.new('nasmout')
-		tmp.write(raw)
-		tmp.flush()
-		tmp.seek(0)
+		tfd = File.open(tmp.path, "wb")
+		
+		tfd.write(raw)
+		tfd.flush()
+		tfd.close
 
-		p = ::IO.popen("'#{@@ndisasm_path}' -u '#{tmp.path}'")
+		p = ::IO.popen("\"#{@@ndisasm_path}\" -u \"#{tmp.path}\"")
 		o = ''
 
 		begin
