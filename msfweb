@@ -1,12 +1,17 @@
 #!/usr/bin/env ruby
 #
-# This user interface provides users with a command console interface to the
-# framework.
+# This user interface provides users with a web-based interface to the framework
 #
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
 $:.unshift(File.join(File.dirname(msfbase), 'lib'))
+
+
+
+require 'msf/base'
 require 'rex'
+require 'stringio'
+
 
 
 msfroot = File.join(File.dirname(msfbase), 'data', 'msfweb')
@@ -18,7 +23,6 @@ msfserv = File.join('script', 'server')
 arguments = Rex::Parser::Arguments.new(
 	"-a" => [ true,  "Bind to this IP address instead of loopback"          ],
 	"-p" => [ true,  "Bind to this port instead of 55555"                   ],
-#	"-v" => [ true,  "A number between 0 and 3 that controls log verbosity" ],
 	"-d" => [ false, "Daemonize the web server"                             ],
 	"-h" => [ false, "Help banner"                                          ])
 
@@ -44,11 +48,29 @@ arguments.parse(ARGV) { |opt, idx, val|
 	end
 }
 
-system(
-	"ruby",
-	msfserv, 
-	'-p', (opts['ServerPort'] || '55555'), 
-	'-b', (opts['ServerHost'] || '127.0.0.1'),
-	(background ? '-d' : '')
-)
 
+host = (opts['ServerHost'] || '127.0.0.1')
+port = (opts['ServerPort'] || '55555')
+
+
+# This is stupid, but we need to override the ARGV constant
+
+ostderr = $stderr
+$stderr = StringIO.new
+
+ARGV = [
+	'-p', port, 
+	'-b', host,
+	(background ? '-d' : '')
+]
+
+$stderr.close
+$stderr = ostderr
+
+
+$stderr.puts ""
+$stderr.puts "[*] Starting msfweb v#{Msf::Framework::Version} on http://#{host}:#{port}/"
+$stderr.puts ""
+
+load(msfserv)
+	
