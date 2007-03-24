@@ -25,6 +25,7 @@ The copyright on this package is held by Metasploit LLC.
 This copyright does not apply to the following components:
 - The vncdll.dll binary or its associated source code (modified RealVNC)
 - The icons used by msfweb that were not created by the Metasploit Project
+- The Ole::Storage library located under lib/ole/
 
 This copyright notice does not include extensions developed by third-party 
 contributors or their derivatives. Please see the licensing information 
