@@ -20,9 +20,16 @@ class Config < Hash
 	#
 	def self.get_config_root
 		begin
+			# First we try $HOME/.msf3
 			File.expand_path("~#{FileSep}.msf3")
 		rescue ::ArgumentError
-			InstallRoot + ".msf3"
+			# Next we look for USERPROFILE (Windows)
+			if (ENV['USERPROFILE'] and File.directory?(ENV['USERPROFILE']))
+				File.join(ENV['USERPROFILE'], '.msf3')
+			else
+			# Finally, we give up and user base + ".msf3"
+				InstallRoot + ".msf3"
+			end
 		end
 	end
 
