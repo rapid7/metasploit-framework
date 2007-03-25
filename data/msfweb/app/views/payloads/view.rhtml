@@ -9,7 +9,7 @@
     <tr width="100%" align="center">
 		<blockquote>
 		  <p class="moduleDescription">
-		      <%= h(@tmod.description) %>
+		      <%= @tmod.description.split("\n\n").map{ |t| h(t) }.join("<br/><br/>") %>
 		  </p>
 		</blockquote>   
     </tr>
@@ -65,7 +65,7 @@
 <% if @module_step == 0 %>
 
     <tr>
-        <th colspan="2" class="moduleOptionsHeader">Options</th>
+        <th colspan="2" class="moduleOptionsHeader">OPTIONS</th>
     </tr>
 
 <form action="/payloads/view" method="post">
@@ -76,8 +76,8 @@
         next if (option.advanced?)
         next if (option.evasion?) %>
         <tr>
-            <td><strong><%= name %></strong></td>
-            <td><strong><%= (option.required?) ? "Required" : "Optional" %></strong></td>
+            <td class="opt_name"><%= name %></td>
+            <td class="opt_required"><%= (option.required?) ? "Required" : "" %></td>
         </tr>
         <tr>
             <td><%= html_escape(option.desc) %> (type: <%= option.type %>)</td>
