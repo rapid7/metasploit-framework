@@ -56,22 +56,26 @@
 
 <% end %>
 
-    <p>Configuration:</p>
+    <p>Please enter all required options and press 'Launch Auxiliary' to continue.</p>
     
+    <tr>
+        <th colspan="2" class="moduleOptionsHeader">
+            CURRENT CONFIGURATION -
+            <%= link_to "change action", :action => "view", :refname => h(params[:refname]) %>
+        </th>
+    </tr>
 	<tr>
-        <td>Auxiliary:</td>
+        <td class="opt_name">AUXILIARY</td>
         <td><%= @tmod.refname %></td>
     </tr>
 	
-	<% if @act %>
     <tr>
-        <td>Action:</td>
-        <td><%= @act.name %></td>
+        <td class="opt_name">ACTION</td>
+        <td><%= h(@act ? @act.name : 'Default Action') %></td>
     </tr>
-	<% end %>
 	
     <tr>
-        <th colspan="2" class="moduleOptionsHeader">OPTIONS</th>
+        <th colspan="2" class="moduleOptionsHeader">STANDARD OPTIONS</th>
     </tr>
     
     <form action="/auxiliaries/config" method="post">
@@ -83,8 +87,8 @@
         next if (option.advanced?)
         next if (option.evasion?) %>
         <tr>
-            <td><strong><%= name %></strong></td>
-            <td><strong><%= (option.required?) ? "Required" : "Optional" %></strong></td>
+            <td class="opt_name"><%= name %></td>
+            <td class="opt_required"><%= (option.required?) ? "Required" : "" %></td>
         </tr>
         <tr>
             <td><%= html_escape(option.desc) %> (type: <%= option.type %>)</td>
@@ -105,8 +109,8 @@
     <% @tmod.options.sort.each { |name, option|
         next if not option.advanced? %>
         <tr>
-            <td><strong><%= name %></strong></td>
-            <td><strong><%= (option.required?) ? "Required" : "Optional" %></strong></td>
+            <td class="opt_name"><%= name %></td>
+            <td class="opt_required"><%= (option.required?) ? "Required" : "" %></td>
         </tr>
         <tr>
             <td><%= html_escape(option.desc) %> (type: <%= option.type %>)</td>
@@ -127,8 +131,8 @@
     <% @tmod.options.sort.each { |name, option|
         next if not option.evasion? %>
         <tr>
-            <td><strong><%= name %></strong></td>
-            <td><strong><%= (option.required?) ? "Required" : "Optional" %></strong></td>
+            <td class="opt_name"><%= name %></td>
+            <td class="opt_required"><%= (option.required?) ? "Required" : "" %></td>
         </tr>
         <tr>
             <td><%= html_escape(option.desc) %> (type: <%= option.type %>)</td>

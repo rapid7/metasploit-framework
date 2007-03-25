@@ -9,7 +9,7 @@
     <tr width="100%" align="center">
 		<blockquote>
 		  <p class="moduleDescription">
-		      <%= h(@tmod.description) %>
+		      <%= @tmod.description.split("\n\n").map{ |t| h(t) }.join("<br/><br/>") %>
 		  </p>
 		</blockquote>   
     </tr>
@@ -25,7 +25,26 @@
 		  </p>
 		</blockquote>   
     </tr>
-    
+
+    <tr width="100%" align="center">
+		<blockquote>
+			<p class="moduleTargetsText">
+			Select a target to continue:
+			<ul class="moduleTargets">
+					
+		<% if  @tmod.actions.length > 0 %>
+			<% p @tmod.actions %>
+			<% @tmod.actions.each_with_index { |act, idx| %>
+				<li><%= link_to h(act.name), :action => "config", :refname => @tmod.refname.gsub('/', ':'), :act => idx %></a></li>
+			<% } %>
+		<% else %>
+			<li><%= link_to 'Default Action', :action => "config", :refname => @tmod.refname.gsub('/', ':')%></a></li>
+		<% end %>
+			</ul>
+			</p>		
+		</blockquote>   
+    </tr>	
+	    
 	<% if (@tmod.references.length > 0) %>
     <tr width="100%" align="center">
 		<blockquote>
@@ -46,22 +65,5 @@
     </tr>
 	<% end %>
 	
-    <tr width="100%" align="center">
-		<blockquote>
-			<p class="moduleDescription">
-			Please select an action:
-			<ul class="moduleTargets">
-					
-		<% if  @tmod.actions.length > 0 %>
-			<% p @tmod.actions %>
-			<% @tmod.actions.each_with_index { |act, idx| %>
-				<li><%= link_to h(act.name), :action => "config", :refname => @tmod.refname.gsub('/', ':'), :act => idx %></a></li>
-			<% } %>
-		<% else %>
-			<li><%= link_to 'Default Action', :action => "config", :refname => @tmod.refname.gsub('/', ':')%></a></li>
-		<% end %>
-			</ul>
-			</p>		
-		</blockquote>   
-    </tr>	
+
 </table>

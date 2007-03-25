@@ -160,8 +160,18 @@ p.moduleDescription {
 .moduleReferences {
 	list-style: circle;
 }
+
+.moduleTargetsText {
+	list-style: circle;
+	font-weight: bold;
+	background: #333333;
+	color: white;
+	padding: 0.25em;
+}
+
 .moduleTargets {
 	list-style: circle;
+	font-weight: bold;
 }
 
 .moduleIcons {
@@ -184,4 +194,12 @@ th.moduleOptionsHeader {
 .item_row_col_b {
 	background: #eeeeee;
 	padding: 0.25em;	
+}
+
+.opt_name {
+	font-weight: bold;
+}
+
+.opt_required {
+	color: red;
 }
