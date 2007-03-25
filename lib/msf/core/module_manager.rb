@@ -760,18 +760,16 @@ protected
 
 		# Try to load modules from all the files in the supplied path
 		Rex::Find.find(path) { |file|
-			# Skip unit test files
-			next if (file =~ /rb\.ut\.rb$/)
-
-			# Skip test-suite files
-			next if (file =~ /rb\.ts\.rb$/)
-
+			
 			# Skip non-ruby files
 			next if (file !~ /\.rb$/i)
+			
+			# Skip unit test files
+			next if (file =~ /rb\.(ut|ts)\.rb$/)
 
 			# Skip files with a leading period
-			next if (file =~ /^\./i)
-						
+			next if (file =~ /^\./)
+
 			begin
 				load_module_from_file(path, file, loaded, recalc, counts, demand)
 			rescue NameError
@@ -794,7 +792,7 @@ protected
 					load_module_from_file(path, file, loaded, recalc, counts, demand)
 
 					# Remove this file path from the list of delay load files
-					# because if we get here it means all when swell...maybe.
+					# because if we get here it means all went swell...maybe.
 					delay.delete(file)
 
 					# Keep scanning since we just successfully loaded a delay load
@@ -829,15 +827,11 @@ protected
 	# Loads a module from the supplied file.
 	#
 	def load_module_from_file(path, file, loaded, recalc, counts, demand = false)
-		
-		# If the file doesn't end in the expected extension...
-		return nil if (!file.match(/\.rb$/))
-
+	
 		# If the file on disk hasn't changed with what we have stored in the
 		# cache, then there's no sense in loading it
 		if (!has_module_file_changed?(file))
-			dlog("Cached module from file #{file} has not changed.", 'core', 
-				LEV_2)
+			dlog("Cached module from file #{file} has not changed.", 'core', LEV_2)
 			return false
 		end
 
@@ -902,7 +896,7 @@ protected
 		end
 
 		added = mod.constants - old_constants
-
+		
 		if (added.length > 1)
 			elog("Loaded file contained more than one class (#{file}).")
 			return false
