@@ -114,7 +114,10 @@ function console_read_output(req) {
 
 function console_update_output(req) {
 	
-	try { eval(req.responseText); } catch(e){ console_printline("!!! An error occurred in the console reader\n"); }
+	try { eval(req.responseText); } catch(e){ 
+		console_printline(">> An error occurred in the console reader: " + e + "\n"); 
+		window.scrollTo(0, 10000000);
+	}
 	
 	status_free();
 		
@@ -130,7 +133,10 @@ function console_update_output(req) {
 }
 
 function console_update_tabs(req) {
-	try { eval(req.responseText); } catch(e){ console_output.innerHTML = req.responseText; }
+	try { eval(req.responseText); } catch(e){ 
+		console_printline(">> An error occurred during tab completion: " + e + "\n"); 
+		window.scrollTo(0, 10000000);	
+	}
 	
 	status_free();
 	

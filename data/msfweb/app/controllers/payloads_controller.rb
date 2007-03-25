@@ -13,7 +13,14 @@ class PayloadsController < ApplicationController
     @tmod = get_view_for_module("payload", params[:refname])
 	
 	unless @tmod
-	 render_text "Unknown module specified."
+		render_text "Unknown module specified."
+	end
+
+	# Catch non-standard payloads
+	begin
+		@tmod.generate
+	rescue => e
+		render_text "This interface does not support generic payloads."
 	end
 
     @module_step = (params[:step] || 0).to_i

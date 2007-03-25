@@ -26,15 +26,16 @@ function obtainWindowId() {
  */
 function openAboutDialog() {
     var aboutWindow = new Window("about-window"+obtainWindowId(),
-        { className: web_windows_theme,
-        width:450,
-        height:160,
-        zIndex: 100,
-        resizable: true,
-        title: "Metasploit Framework Web Console",
-        showEffect:Effect.BlindDown,
-        hideEffect: Effect.SwitchOff,
-        draggable:true
+        { 
+		className: web_windows_theme,
+		width:450,
+		height:160,
+		zIndex: 100,
+		resizable: true,
+		title: "Metasploit Framework Web Console",
+		showEffect: Element.show,
+		hideEffect: Element.hide,
+		draggable:true
         })
         
     var about_content = "<div style='padding:5px'>The <strong>Metasploit Framework Web Console</strong>" +
@@ -157,19 +158,21 @@ function generic_live_search(observer_id, module_type, load_spinner_id, clean_li
  * Create and AJAX based window from extenal content
  */
 function create_window_ajax(target_url, wid, wtitle, wwidth, wheight) {
-    var new_mwindow = new Window(wid+'-'+obtainWindowId(),
-        { className: web_windows_theme,
-          title: wtitle,
-          top:70,
-          left:100,
-          width:wwidth,
-          height:wheight,
-          resizable: true,
-          draggable: true,
-          url: target_url,
-          showEffect: Element.show,
-          hideEffect: Element.hide
-          });
+	var uid = obtainWindowId();
+	var new_mwindow = new Window(wid+'-'+uid,
+	{ 
+		className: web_windows_theme,
+		title: wtitle + ' (' + uid+')',
+		top:70,
+		left:100,
+		width:wwidth,
+		height:wheight,
+		resizable: true,
+		draggable: true,
+		url: target_url,
+		showEffect: Element.show,
+		hideEffect: Element.hide
+	});
     return new_mwindow;
 }
 
