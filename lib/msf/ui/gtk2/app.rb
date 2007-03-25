@@ -121,6 +121,12 @@ class MyApp < MyGlade
 	end
 	
 	#
+	# Action for "Parameters"/"Options" menu
+	#
+	def on_options_activate
+		MsfParameters::Options.new()
+	end	
+	#
 	# The About Dialog
 	#
 	def on_about_activate
