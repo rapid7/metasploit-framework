@@ -4,57 +4,51 @@
  * Additions Copyright (C) 2006-2007 Metasploit LLC
 */
 
-html,body {
-    padding: 0;
-    margin: 0;
-    width: 100%;
+html, body {
     height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
     overflow: hidden;
 }
 
 body {
     background: #444444 url(/images/banner.gif) fixed center no-repeat;
-    color: #fff;
+    color: #FFFFFF;
+    font-size: 8pt;
     font-family: Trebuchet, Sans, Arial, serif;
 }
 
-#topmenu {
-	margin:0;
-	padding:0;
-	width: 100%;
-	list-style-type:none;
-	height: 35px;
-	background-color:#f4f4f4;
-	color: WindowText;
-	font-size: 8pt;
+#menuBar {
+    height: 35px;
+    width: 100%;
+    background-color: #F4F4F4;
 }
 
-#topmenu ul {
-    padding: 0;
-    margin: 0;
-    list-style: none;
+td.menuButton {
+    height: 33px;
+    /* width: 85px; */
+    color: #000000;
+    background-color: inherit;
+    padding-left: 5px;
+    padding-right: 10px;
 }
 
-#topmenu li {
-    float: left;
-    position: relative;
-    white-space: nowrap;
-	padding: 8px;
-	border-left: 1px solid #ddd;
-	font: menu;
-	color: WindowText;
-	background-color: inherit;
+td.menuButton:hover {
+    cursor: pointer;
+    color: #FFFFFF;
+    background-color: #316AC5;
 }
 
-#topmenu li:hover,
-#topmenu li.limsieFix {
-	cursor: pointer;
-	background-color: Highlight;
-	color: HighlightText;
+td.menuButton img {
+    padding-right: 8px;
+    vertical-align: text-bottom;
 }
 
-#topmenu img {
-    padding-right: 5px;
+.spacer {
+    height: 35px;
+    width: 1px;
+    background-color: #DDDDDD;
 }
 
 #maincontent {
