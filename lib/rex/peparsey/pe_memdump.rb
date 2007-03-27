@@ -24,7 +24,7 @@ class PeMemDump < PeBase
 
 	def self.new_from_file(filename, disk_backed = false)
 		if filename[-4, 4] != '.rng'
-			raise "Not a .nrg file"
+			raise "Not a .rng file: #{filename}"
 		end
 
 		file = File.open(filename)
@@ -42,7 +42,7 @@ class PeMemDump < PeBase
 	def initialize(isource, base)
 
 		self._isource = isource
-		self.header_section = Section.new(isource, 0, isource.size, base, nil)
+		self.header_section = Section.new(isource, base, nil)
 		self.sections = [ ]
 
 	end
