@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -27,7 +27,8 @@ class None < Msf::Encoder
 			},
 			'Author'           => 'spoonm',
 			'License'          => MSF_LICENSE,
-			'Arch'             => ARCH_ALL)
+			'Arch'             => ARCH_ALL,
+			'EncoderType'      => Msf::Encoder::Type::Raw)
 	end
 
 	#

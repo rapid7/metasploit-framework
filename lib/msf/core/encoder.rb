@@ -98,10 +98,15 @@ class Encoder < Module
 		# tolower safe ascii UTF8-safe (<= 0x7f only)
 		#
 		NonUpperUtf8Safe = "non_upper_utf8_safe"
-		# 
-		# All characters
 		#
-		Raw                  = "raw"
+		# May result in the generation of any characters
+		#
+		Unspecified = "unspecified"
+		# 
+		# The raw payload passed to the encoder will be the same as the encoded
+		# payload
+		#
+		Raw = "raw"
 	end
 
 	#
@@ -141,7 +146,7 @@ class Encoder < Module
 	# separated by whitespace.
 	#
 	def encoder_type
-		module_info['EncoderType'] || Type::Raw
+		module_info['EncoderType'] || Type::Unspecified
 	end
 
 	#
