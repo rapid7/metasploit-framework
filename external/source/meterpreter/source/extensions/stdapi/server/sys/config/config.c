@@ -85,7 +85,7 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 			else if (v.dwMinorVersion == 0 && v.dwPlatformId == VER_PLATFORM_WIN32_NT)
 				osName = "Windows NT 4.0";
 		}
-		else 
+		else if (v.dwMajorVersion == 5)
 		{
 			if (v.dwMinorVersion == 0)
 				osName = "Windows 2000";
@@ -93,6 +93,11 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 				osName = "Windows XP";
 			else if (v.dwMinorVersion == 2)
 				osName = "Windows .NET Server";
+		}
+		else if (v.dwMajorVersion == 6)
+		{
+			if (v.dwMinorVersion == 0)
+				osName = "Windows Vista";
 		}
 		
 		if (!osName)
