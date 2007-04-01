@@ -79,6 +79,7 @@
 				OutputFile=".\Release/ext_server_priv.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				GenerateManifest="false"
 				ProgramDatabaseFile=".\Release/ext_server_priv.pdb"
 				ImportLibrary=".\Release/ext_server_priv.lib"
 				TargetMachine="1"

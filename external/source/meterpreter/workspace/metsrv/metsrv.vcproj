@@ -180,6 +180,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\common\Release"
+				GenerateManifest="false"
 				ModuleDefinitionFile="..\..\source\server\metsrv.def"
 				GenerateMapFile="true"
 				MapFileName=".\Release/metsrv.map"
