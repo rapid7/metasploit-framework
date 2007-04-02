@@ -59,6 +59,29 @@ module X86
 		"\x75\xfa" +                    # jnz 0x10 (start_search)
 		jmp_reg('edi')                  # jmp edi	
 	end
+
+	#
+	# Generates a buffer that will copy memory immediately following the stub
+	# that is generated to be copied to the stack
+	#
+	def self.copy_to_stack(len)
+		# four byte align
+		len = (len + 3) & ~0x3
+
+		stub =
+			"\xcc" + 
+			"\xeb\x0f"+                # jmp _end
+			"\x68" + [len].pack('V')+  # push n
+			"\x59"+                    # pop ecx
+			"\x5e"+                    # pop esi
+			"\x29\xcc"+                # sub esp, ecx
+			"\x89\xe7"+                # mov edi, esp
+			"\xf3\xa4"+                # rep movsb
+			"\xff\xe4"+                # jmp esp
+			"\xe8\xec\xff\xff\xff"     # call _start
+
+		stub
+	end
 	
 	#
 	# This method returns the opcodes that compose a short jump instruction to
