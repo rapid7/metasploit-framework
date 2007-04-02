@@ -704,6 +704,8 @@ destroy things.
 
 			include Enumerable
 
+			attr_accessor :values
+
 			# Dirent's should be created in 1 of 2 ways, either Dirent.new ole, [:dir/:file/:root],
 			# or Dirent.load '... dirent data ...'
 			# its a bit clunky, but thats how it is at the moment. you can assign to type, but
