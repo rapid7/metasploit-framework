@@ -69,7 +69,6 @@ module X86
 		len = (len + 3) & ~0x3
 
 		stub =
-			"\xcc" + 
 			"\xeb\x0f"+                # jmp _end
 			"\x68" + [len].pack('V')+  # push n
 			"\x59"+                    # pop ecx
