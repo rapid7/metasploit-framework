@@ -456,8 +456,8 @@ module Text
 	#
 	# Base64 encoder
 	#
-	def self.encode_base64(str)
-		[str].pack("m").gsub(/\s+/, '')
+	def self.encode_base64(str, delim='')
+		[str].pack("m").gsub(/\s+/, delim)
 	end
 
 	#
