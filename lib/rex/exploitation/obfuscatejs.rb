@@ -11,6 +11,7 @@ class ObfuscateJS
 	# argument should have the following format:
 	#
 	# {
+	#    'Variables'  => [ 'var1', ... ],
 	#    'Methods'    => [ 'method1', ... ],
 	#    'Classes'    => [ { 'Namespace' => 'n', 'Class' => 'y'}, ... ],
 	#    'Namespaces' => [ 'n', ... ]
