@@ -8,6 +8,20 @@ RAILS_GEM_VERSION = '1.2.2' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
+
+#
+# New versions of Rails force the KCODE to unicode. This breaks
+# binary string generation used by Metasploit for shellcode,
+# text generation, and encoding. We override the initialize_encoding
+# method and force KCODE to be 'NONE'
+#
+class Rails::Initializer
+	def initialize_encoding
+		$KCODE = 'NONE'
+	end
+end
+
+# Initialize Rails
 Rails::Initializer.run do |config|
 	config.log_level = :warn
 	config.active_record.allow_concurrency = true
