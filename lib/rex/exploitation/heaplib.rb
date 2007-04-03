@@ -4,6 +4,10 @@ require 'rex/exploitation/obfuscatejs'
 module Rex
 module Exploitation
 
+#
+# Encapsulates the generation of the Alexander Sotirov's HeapLib javascript
+# stub
+#
 class HeapLib
 
 	#
