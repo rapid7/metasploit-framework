@@ -27,7 +27,7 @@ class PeMemDump < PeBase
 			raise "Not a .rng file: #{filename}"
 		end
 
-		file = File.open(filename)
+		file = File.open(filename, 'rb')
 
 		if disk_backed
 			obj = ImageSource::Disk.new(file)

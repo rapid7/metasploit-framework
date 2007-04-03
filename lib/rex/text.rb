@@ -596,7 +596,7 @@ module Text
 			end
 		end
 
-		buf[0..length]
+		buf[0,length]
 	end
 
 	#
