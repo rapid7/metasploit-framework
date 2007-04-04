@@ -24,7 +24,12 @@ module Shell
 		def pgets
 			output.print(prompt)
 			output.flush
-			gets
+
+			output.prompting
+			buf = gets
+			output.prompting(false)
+
+			buf
 		end
 	end
 

@@ -129,12 +129,17 @@ begin
 		# Prompt-based getline using readline.
 		#
 		def pgets
+
 			if (readline_status)
 				$stderr.puts "ERROR: pgets called inside of thread mode: " + caller(1).to_s
 				return ''
 			end
 		
-			if ((line = ::Readline.readline(prompt, true)))
+			output.prompting
+			line = ::Readline.readline(prompt, true)
+			output.prompting(false)
+
+			if line
 				HISTORY.pop if (line.empty?)
 				return line + "\n"
 			else

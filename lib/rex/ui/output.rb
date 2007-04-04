@@ -55,6 +55,22 @@ class Output
 	def flush
 	end
 
+	#
+	# Called to tell the output medium that we're at a prompt.
+	# This is used to allow the output medium to display an extra
+	# carriage return
+	#
+	def prompting(v = true)
+		@at_prompt = v
+	end
+
+	#
+	# Returns whether or not we're at a prompt currently
+	#
+	def prompting?
+		@at_prompt
+	end
+
 end
 
 end
