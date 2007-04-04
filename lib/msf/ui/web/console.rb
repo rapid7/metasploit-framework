@@ -18,7 +18,9 @@ class WebConsole
 
 	# Wrapper class in case we need to extend the pipe
 	class WebConsolePipe < Rex::IO::BidirectionalPipe
-
+		def prompting?
+			false
+		end
 	end
 
 	#
