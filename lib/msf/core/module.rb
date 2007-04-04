@@ -469,6 +469,12 @@ class Module
 	# The license under which this module is provided.
 	#
 	attr_reader   :license
+
+	#
+	# The job identifier that this module is running as, if any.
+	#
+	attr_accessor :job_id
+
 protected
 
 	#

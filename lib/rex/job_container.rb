@@ -123,8 +123,9 @@ class JobContainer < Hash
 	#
 	def start_job(name, ctx, run_proc, clean_proc = nil)
 		j = add_job(name, ctx, run_proc, clean_proc)
-
 		j.start
+
+		j.jid
 	end
 
 	#
@@ -136,6 +137,8 @@ class JobContainer < Hash
 	def start_bg_job(name, ctx, run_proc, clean_proc = nil, async = true)
 		j = add_job(name, ctx, run_proc, clean_proc)
 		j.start(async)
+
+		j.jid
 	end
 
 	#
