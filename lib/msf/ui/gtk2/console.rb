@@ -155,46 +155,9 @@ end
 
 
 class GtkConsolePipe < Rex::IO::BidirectionalPipe
-
-
-	attr_accessor :input
-	attr_accessor :output
-	attr_accessor :prompt
-	attr_accessor :buffer
-	attr_accessor :tree
-	
-	def initialize(buffer)
-		self.buffer = buffer
-		super()
-	end
-	
-	def eof?
-		self.pipe_input.eof?
-	end
-
-	def intrinsic_shell?
-		true
-	end
-
-	def supports_readline
+	def prompting?
 		false
 	end
-	
-	def _print_prompt
-	end
-	
-	def pgets
-		self.pipe_input.gets
-	end
-
-	def print_line(msg = "")
-		print(msg + "\n")
-	end
-	
-	def print(msg = "")
-		self.buffer.insert(self.buffer.end_iter, Time.now.strftime("%H:%m:%S") + " " + Rex::Text.to_utf8(msg))
-	end	
-	
 end
 	
 end

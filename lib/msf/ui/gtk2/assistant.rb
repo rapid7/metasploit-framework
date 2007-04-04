@@ -314,7 +314,7 @@ class MsfAssistant
 				
 				@mydriver.target_idx = (@mydriver.exploit.datastore['TARGET']).to_i
 				
-				@pipe = Rex::IO::BidirectionalPipe.new
+				@pipe = Msf::Ui::Gtk2::GtkConsolePipe.new
 				
 				@mydriver.exploit.init_ui(@pipe, @pipe)
 				@mydriver.payload.init_ui(@pipe, @pipe)
