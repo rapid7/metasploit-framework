@@ -86,6 +86,19 @@ class SkeletonOption < Gtk::Dialog
 		# must be present in the real class
 		#
 	end
+	
+	#
+	# Return a dialog file chooser
+	#
+	def file_chooser(title=nil)
+		dialog = Gtk::FileChooserDialog.new(title, 
+							nil,
+							Gtk::FileChooser::ACTION_OPEN,
+							nil,
+							[Gtk::Stock::OPEN, Gtk::Dialog::RESPONSE_ACCEPT],
+							[Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL]
+							)
+	end
 end
 
 class MsfParameters
@@ -117,6 +130,7 @@ class MsfParameters
 		#
 		def w_payloads
 			frame.set_label("Payloads")
+			frame.shadow_type = Gtk::SHADOW_IN
 			#frame.add(Gtk::Label.new("Add specifics widgets here"))
 			
 			#
@@ -124,26 +138,34 @@ class MsfParameters
 			#
 			vbox_frame = Gtk::VBox.new(false, 0)
 			
-			# VNC
-			frame_vnc = Gtk::Frame.new
-			frame_vnc.shadow_type = Gtk::SHADOW_IN
-			vbox_frame.pack_start(frame_vnc)
-			frame_prefered = Gtk::Frame.new
-			vbox_frame.pack_start(frame_prefered)
-			
+			# VNC			
 			frame.add(vbox_frame)
 			
-			hbox_vnc = Gtk::HBox.new(false, 5)
-			frame_vnc.add(hbox_vnc)
+			table_vnc = Gtk::Table.new(2, 2, false)
+			table_vnc.set_row_spacings(4)
+			table_vnc.set_column_spacings(4)
+			vbox_frame.pack_start(table_vnc, false, false, 5)
+			
 			label_vnc = Gtk::Label.new("Viewer VNC path: ")
-			hbox_vnc.pack_start(label_vnc, false, false, 5)
+			table_vnc.attach_defaults(label_vnc, 0, 1, 0, 1)
+			
+			hbox_vnc = Gtk::HBox.new(false, 5)			
 			entry_vnc = Gtk::Entry.new
-			hbox_vnc.pack_start(entry_vnc, true, true, 5)
+			table_vnc.attach_defaults(entry_vnc, 0, 2, 1, 2)
 			
 			button_vnc = Gtk::HButtonBox.new
 			button_vnc.layout_style = Gtk::ButtonBox::END
-			button_vnc.add(Gtk::Button.new(Gtk::Stock::OPEN))
-			hbox_vnc.pack_start(button_vnc, false, false, 0)
+			button = Gtk::Button.new(Gtk::Stock::OPEN)
+			button_vnc.add(button)
+			#button_vnc = Gtk::FileChooserButton.new("Select a file", Gtk::FileChooser::ACTION_OPEN)
+			table_vnc.attach_defaults(button_vnc, 1, 2, 0, 1)
+			button.signal_connect('clicked') do
+				dialog = file_chooser("Select your VNC viewer")
+				if dialog.run == Gtk::Dialog::RESPONSE_ACCEPT
+					entry_vnc.set_text(dialog.uri)
+				end
+				dialog.destroy
+			end
 			
 			frame.show_all
 		end
