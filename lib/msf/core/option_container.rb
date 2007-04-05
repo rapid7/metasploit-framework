@@ -391,13 +391,17 @@ class OptInt < OptBase
 	end
 
 	def normalize(value)
-		value.to_i
+		if (value.to_s.match(/^0x[a-fA-F\d]+$/))
+			value.to_i(16)
+		else
+			value.to_i
+		end
 	end
 
 	def valid?(value)
 		return false if empty_required_value?(value)
 
-		if value and value.to_s.match(/^\d+$/) == nil
+		if value and not normalize(value).to_s.match(/^\d+$/)
 			return false
 		end
 
