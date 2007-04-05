@@ -1,4 +1,6 @@
+#
 # Force the application into production mode
+#
 ENV['RAILS_ENV'] = 'production'
 
 
