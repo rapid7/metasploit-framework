@@ -381,6 +381,45 @@ module Text
 	end
 
 	#
+	# Converts a string a nicely formatted hex dump
+	#
+	def self.to_hex_dump(str, width=16)
+		buf = ''
+		idx = 0
+		cnt = 0
+		snl = false
+		lst = 0
+		
+		while (idx < str.length)
+			
+			chunk = str[idx, width]
+			line  = chunk.unpack("H*")[0].scan(/../).join(" ")
+			buf << line	
+
+			if (lst == 0)
+				lst = line.length
+				buf << " " * 4
+			else
+				buf << " " * ((lst - line.length) + 4).abs
+			end
+			
+			chunk.unpack("C*").each do |c|
+				if (c >	0x19 and c < 0x80)
+					buf << c.chr
+				else
+					buf << "."
+				end
+			end
+			
+			buf << "\n"
+		
+			idx += width
+		end
+		
+		buf << "\n"
+	end
+	
+	#
 	# Converts a hex string to a raw string
 	#
 	def self.hex_to_raw(str)
