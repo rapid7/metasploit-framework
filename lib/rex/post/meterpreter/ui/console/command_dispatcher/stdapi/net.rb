@@ -145,7 +145,7 @@ class Console::CommandDispatcher::Stdapi::Net
 			case opt
 				when "-h"
 					print(
-						"Usage: route [-h] [add / delete / list] [args]\n\n" +
+						"Usage: portfwd [-h] [add / delete / list] [args]\n\n" +
 						@@portfwd_opts.usage)
 					return true
 				when "-l"
