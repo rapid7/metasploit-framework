@@ -52,13 +52,13 @@ class Auxiliary::Scanner::Dcerpc::RPC_MGMT < Msf::Auxiliary
 				print_status("UUID #{id[0]} v#{id[1]}")
 				
 				stats = dcerpc_mgmt_inq_if_stats(rport)
-				print_status("\t stats: " + stats.map{|i| "0x%.8x" % i}.join(", "))
+				print_status("\t stats: " + stats.map{|i| "0x%.8x" % i}.join(", ")) if stats
 				
 				live  = dcerpc_mgmt_is_server_listening(rport)
-				print_status("\t listening: %.8x" % live)
+				print_status("\t listening: %.8x" % live) if live
 
 				dead  = dcerpc_mgmt_stop_server_listening(rport)
-				print_status("\t killed: %.8x" % dead)
+				print_status("\t killed: %.8x" % dead) if dead
 
 				princ = dcerpc_mgmt_inq_princ_name(rport)
 				print_status("\t name: #{princ.unpack("H*")[0]}") if princ
