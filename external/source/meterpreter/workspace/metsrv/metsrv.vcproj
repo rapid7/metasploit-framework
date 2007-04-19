@@ -182,6 +182,7 @@
 				AdditionalLibraryDirectories="..\common\Release"
 				GenerateManifest="false"
 				ModuleDefinitionFile="..\..\source\server\metsrv.def"
+				GenerateDebugInformation="false"
 				GenerateMapFile="true"
 				MapFileName=".\Release/metsrv.map"
 				ImportLibrary=".\Release/metsrv.lib"

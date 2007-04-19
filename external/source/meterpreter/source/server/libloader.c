@@ -541,15 +541,20 @@ void map_file(SHELLCODE_CTX *ctx)
 HMODULE libloader_load_library(LPCSTR name, PUCHAR buffer, DWORD bufferLength)
 {
 	LPCSTR shortName = name, slash = NULL;
-	SHELLCODE_CTX lctx;
+	SHELLCODE_CTX *lctx;
 	HMODULE mod = NULL;
+
+	lctx = (SHELLCODE_CTX *)VirtualAlloc(NULL, sizeof(SHELLCODE_CTX), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+
+	if (!lctx)
+		return NULL;
 
 	if ((slash = strrchr(name, '\\')))
 		shortName = slash+1;
 
-	memset(&lctx, 0, sizeof(lctx));
+	memset(lctx, 0, sizeof(lctx));
 
-	ctx = &lctx;
+	ctx = lctx;
 
 	install_hooks(ctx);
 
@@ -572,6 +577,8 @@ HMODULE libloader_load_library(LPCSTR name, PUCHAR buffer, DWORD bufferLength)
 	} while (0);
 
 	remove_hooks(ctx);
+
+	VirtualFree(lctx, sizeof(SHELLCODE_CTX), MEM_RELEASE);
 
 	ctx = NULL;
 
