@@ -365,37 +365,46 @@ protected
 	end
 
 	#
-	# Generates the linear of list of block permutation which is stored in the
+	# Generates the linear list of block permutations which is stored in the
 	# supplied state instance.  This is done prior to assigning blocks offsets
 	#
-	def generate_block_list(state)
+	def generate_block_list(state, level=0)
+		if @depends.length > 1
+			@depends.length.times {
+				f = rand(@depends.length)
+				@depends.push(@depends.delete_at(f))
+			}
+		end
 
-		# Generate dependencies first in a random order
-		depend_idx = rand(@depends.length)
-
-		@depends.length.times { |x|
-			cidx = (depend_idx + x) % @depends.length
-
-			# Decrement the used reference count
-			@depends[cidx].deref
+		@depends.length.times { |cidx|
+			if (@depends[cidx].generated)
+				next
 
 			# If this dependent block is a once block and the magic 8 ball turns
 			# up zero, skip it and let a later block pick it up.  We only do this
 			# if we are not the last block to have a dependency on this block.
-			if ((@depends[cidx].once) and
+			elsif ((@depends[cidx].once) and
 			    (rand(2).to_i == 0) and
 			    (@depends[cidx].last_reference? == false))
-				next
-			# Otherwise, if this is a once block that has already been generated,
-			# skip it.
-			elsif ((@depends[cidx].once) and
-			       (@depends[cidx].generated))
 				next
 			end
 		
 			# Generate this block
-			@depends[cidx].generate_block_list(state)
+			@depends[cidx].generate_block_list(state, level+1)
+
+			if level != 0
+				return
+			else
+				@depends.length.times {
+					f = rand(@depends.length)
+					@depends.push(@depends.delete_at(f))
+				}
+
+				retry
+			end
 		}
+
+		self.deref
 
 		# Assign the instance local state for the duration of this generation
 		@state = state
