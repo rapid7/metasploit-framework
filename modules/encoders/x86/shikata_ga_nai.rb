@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -50,18 +50,22 @@ class ShikataGaNai < Msf::Encoder::XorAdditiveFeedback
 		# If the decoder stub has not already been generated for this state, do
 		# it now.  The decoder stub method may be called more than once.
 		if (state.decoder_stub == nil)
-			block = generate_shikata_block(state, state.buf.length + 4) || (raise BadGenerateError)
+			# Shikata will only cut off the last 1-4 bytes of it's own end
+			# depending on the alignment of the original buffer
+			cutoff = 4 - (state.buf.length & 3)
+			block = generate_shikata_block(state, state.buf.length + cutoff, cutoff) || (raise BadGenerateError)
+
 			# Set the state specific key offset to wherever the XORK ended up.
 			state.decoder_key_offset = block.index('XORK')
 
-			# Take the last four bytes of shikata and prepend them to the buffer
-			# that is going to be encoded.
-			state.buf = block.slice!(block.length - 4, 4) + state.buf
+			# Take the last 1-4 bytes of shikata and prepend them to the buffer
+			# that is going to be encoded to make it align on a 4-byte boundary.
+			state.buf = block.slice!(block.length - cutoff, cutoff) + state.buf
 
 			# Cache this decoder stub.  The reason we cache the decoder stub is
 			# because we need to ensure that the same stub is returned every time
 			# for a given encoder state. 
-			state.decoder_stub = block	
+			state.decoder_stub = block
 		end
 
 		state.decoder_stub
@@ -96,9 +100,9 @@ protected
 
 	#
 	# Returns a polymorphic decoder stub that is capable of decoding a buffer
-	# of the supplied length.
+	# of the supplied length and encodes the last cutoff bytes of itself.
 	#
-	def generate_shikata_block(state, length)
+	def generate_shikata_block(state, length, cutoff)
 		# Declare logical registers
 		count_reg = Rex::Poly::LogicalRegister::X86.new('count', 'ecx')
 		addr_reg  = Rex::Poly::LogicalRegister::X86.new('addr')
@@ -146,11 +150,11 @@ protected
 		loop_block = Rex::Poly::LogicalBlock.new('loop_block')
 
 		xor  = Proc.new { |b| "\x31" + (0x40 + b.regnum_of(addr_reg) + (8 * b.regnum_of(key_reg))).chr }
-		xor1 = Proc.new { |b| xor.call(b) + [ (b.offset_of(endb) - b.offset_of(fpu) - 4) ].pack('c') }
-		xor2 = Proc.new { |b| xor.call(b) + [ (b.offset_of(endb) - b.offset_of(fpu) - 8) ].pack('c') }
+		xor1 = Proc.new { |b| xor.call(b) + [ (b.offset_of(endb) - b.offset_of(fpu) - cutoff) ].pack('c') }
+		xor2 = Proc.new { |b| xor.call(b) + [ (b.offset_of(endb) - b.offset_of(fpu) - 4 - cutoff) ].pack('c') }
 		add  = Proc.new { |b| "\x03" + (0x40 + b.regnum_of(addr_reg) + (8 * b.regnum_of(key_reg))).chr }
-		add1 = Proc.new { |b| add.call(b) + [ (b.offset_of(endb) - b.offset_of(fpu) - 4) ].pack('c') }
-		add2 = Proc.new { |b| add.call(b) + [ (b.offset_of(endb) - b.offset_of(fpu) - 8) ].pack('c') }
+		add1 = Proc.new { |b| add.call(b) + [ (b.offset_of(endb) - b.offset_of(fpu) - cutoff) ].pack('c') }
+		add2 = Proc.new { |b| add.call(b) + [ (b.offset_of(endb) - b.offset_of(fpu) - 4 - cutoff) ].pack('c') }
 		sub4 = Proc.new { |b| "\x83" + (0xe8 + b.regnum_of(addr_reg)).chr + "\xfc" }
 		add4 = Proc.new { |b| "\x83" + (0xc0 + b.regnum_of(addr_reg)).chr + "\x04" }
 
