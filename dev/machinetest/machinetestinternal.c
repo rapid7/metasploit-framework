@@ -1,12 +1,16 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/mman.h>
+#include <errno.h>
 
 #include <ruby.h>
 #include <signal.h>
+#define PAGE_SIZE 0x1000
 
 static VALUE t_test(VALUE self, VALUE str, VALUE all) {
 	int len = 1, pid, status, i;
+	char *ptr, *start, *stop;
 
 	str = StringValue(str);
 
@@ -24,11 +28,19 @@ static VALUE t_test(VALUE self, VALUE str, VALUE all) {
 				signal(i, SIG_DFL);
 			}
 
+			ptr = RSTRING(str)->ptr + len;
+
+			start = (char *)((unsigned int)ptr & ~(PAGE_SIZE-1));
+			stop  = (char *)(((unsigned int)(ptr + (RSTRING(str)->len - len)) + (PAGE_SIZE-1)) & ~(PAGE_SIZE-1));
+
 			__asm__ __volatile__(
 				"mov %0, %%eax"
 				: 
-				: "m"((long)RSTRING(str)->ptr + len)
+				: "m"((long)ptr)
 				: "%eax");
+
+			if ((i = mprotect(start, (int)(stop - start), PROT_EXEC|PROT_WRITE|PROT_READ)) != 0)
+				printf("mprotect failed, %d %d\n", i, errno);
 
 			((void (*)(void)) RSTRING(str)->ptr + len)();
 			exit(1);
