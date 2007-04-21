@@ -552,7 +552,7 @@ HMODULE libloader_load_library(LPCSTR name, PUCHAR buffer, DWORD bufferLength)
 	if ((slash = strrchr(name, '\\')))
 		shortName = slash+1;
 
-	memset(lctx, 0, sizeof(lctx));
+	memset(lctx, 0, sizeof(SHELLCODE_CTX));
 
 	ctx = lctx;
 
