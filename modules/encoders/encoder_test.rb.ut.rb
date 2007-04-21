@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -35,9 +35,9 @@ $framework.encoders.each_module { |name, mod|
 
 	1000.times {
 
-		if (MachineTest.testraw(buf = e.to_native(e.encode("\xcc"))))
+		if (rv = MachineTest.testraw(buf = e.to_native(e.encode("\xcc"))))
 			failed += 1
-			$stderr.puts("#{name.ljust(25)}: failure: #{Rex::Text.to_hex(buf)}")
+			$stderr.puts("#{name.ljust(25)}[off=#{rv}]: failure: #{Rex::Text.to_hex(buf)}")
 		else
 			passed += 1
 		end
