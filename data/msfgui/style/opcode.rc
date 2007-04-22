@@ -11,3 +11,4 @@ style "textview"
 
 # Attach style with the specific widget name 
 widget_class "GtkDialog.GtkVBox.GtkVBox.GtkTextView" style "textview"
+widget_class "GtkDialog.GtkVBox.GtkVBox.GtkScrolledWindow.GtkTextView" style "textview"

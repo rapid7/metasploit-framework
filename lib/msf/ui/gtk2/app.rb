@@ -138,6 +138,7 @@ class MyApp < MyGlade
 	# Actions for OpCodes/Types
 	#
 	def on_types_activate
+		MsfOpcode::Types.new()
 	end
 
 	#
