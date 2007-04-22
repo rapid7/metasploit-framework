@@ -132,22 +132,13 @@ class Console
 	
 	#
 	# Meterpreter Console
-	# TODO: Motivated to code it, hehe ... Ho YESSS ;-)
 	#
-	class Meterpreter < Gtk::Window
+	class Meterpreter < Msf::Ui::Gtk2::Console::Basic
 	
-		def inititialize
-			nil
-		end
-	end
-	
-	#
-	# VNC Console
-	#
-	class VNC < Gtk::Window
-		
-		def initialize
-			nil
+		def inititialize(iter)
+			print "On the meterpreter console place"
+			super(iter)
+			print @session.run_cmd("help")
 		end
 	end
 end
