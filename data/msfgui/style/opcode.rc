@@ -1,0 +1,13 @@
+# Define background for msfconsole
+
+style "textview"
+{
+	base[NORMAL] = { 0.0, 0.0, 0.0 }	# black
+	fg[NORMAL] = { 1.0, 1.0, 1.0 }		# white
+	text[NORMAL] = { 1.0, 1.0, 1.0 }	# white
+
+	fontset="-*-lucida-medium-r-*-*-14-*-*-*-*-*-*-*"
+}
+
+# Attach style with the specific widget name 
+widget_class "GtkDialog.GtkVBox.GtkVBox.GtkTextView" style "textview"
