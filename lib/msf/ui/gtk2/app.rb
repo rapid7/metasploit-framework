@@ -107,6 +107,57 @@ class MyApp < MyGlade
 	end
 	
 	#
+	# Actions for OpCodes/Stats
+	#
+	def on_stats_activate
+		MsfOpcode::Stats.new()
+	end
+	
+	#
+	# Actions for OpCodes/Locales
+	#
+	def on_locales_activate
+	end
+	
+	#
+	# Actions for OpCodes/Metatypes
+	#
+	def on_metatypes_activate
+	end
+
+	#
+	# Actions for OpCodes/Groups
+	#
+	def on_groups_activate
+	end
+
+	#
+	# Actions for OpCodes/Types
+	#
+	def on_types_activate
+	end
+
+	#
+	# Actions for OpCodes/Platforms
+	#
+	def on_platforms_activate
+	end
+
+	#
+	# Actions for OpCodes/Modules
+	#
+	def on_modules_activate
+		MsfOpcode::Modules.new()
+	end
+
+	#
+	# Actions for OpCodes/Search
+	#
+	def on_search_activate
+	end
+
+	
+	#
 	# Action for "Parameters/Preferences"
 	#
 	def on_preferences_activate

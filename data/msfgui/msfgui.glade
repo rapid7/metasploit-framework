@@ -72,6 +72,91 @@
 	  </child>
 
 	  <child>
+	    <widget class="GtkMenuItem" id="opcodes">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">Opcodes</property>
+	      <property name="use_underline">True</property>
+
+	      <child>
+		<widget class="GtkMenu" id="opcodes_menu">
+
+		  <child>
+		    <widget class="GtkMenuItem" id="stats">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Stats</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_stats_activate" last_modification_time="Sat, 21 Apr 2007 22:40:02 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="locales">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Locales</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_locales_activate" last_modification_time="Sat, 21 Apr 2007 22:40:02 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="metatypes">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">metatypes</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_metatypes_activate" last_modification_time="Sat, 21 Apr 2007 22:40:02 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="groups">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Groups</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_groups_activate" last_modification_time="Sat, 21 Apr 2007 22:40:02 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="types">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Types</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_types_activate" last_modification_time="Sat, 21 Apr 2007 22:46:16 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="platforms">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Platforms</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_platforms_activate" last_modification_time="Sat, 21 Apr 2007 22:46:21 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="modules">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Modules</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_modules_activate" last_modification_time="Sat, 21 Apr 2007 22:40:02 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="search">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Search</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_search_activate" last_modification_time="Sat, 21 Apr 2007 22:40:02 GMT"/>
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
+	    </widget>
+	  </child>
+
+	  <child>
 	    <widget class="GtkMenuItem" id="parameters">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">Parameters</property>
@@ -97,7 +182,7 @@
 		      <signal name="activate" handler="on_databases_activate" last_modification_time="Sat, 24 Mar 2007 22:11:21 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image24">
+			<widget class="GtkImage" id="image43">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-network</property>
 			  <property name="icon_size">1</property>
@@ -118,7 +203,7 @@
 		      <signal name="activate" handler="on_options_activate" last_modification_time="Sun, 25 Mar 2007 10:15:39 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image25">
+			<widget class="GtkImage" id="image44">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-zoom-fit</property>
 			  <property name="icon_size">1</property>
