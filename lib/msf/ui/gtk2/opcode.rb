@@ -58,7 +58,7 @@ class MsfOpcode
 	class Stats < Msf::Ui::Gtk2::SkeletonOpcode
 		
 		def initialize
-			comment = "Current database statistics: "
+			comment = "Current database statistics :"
 			
 			# Call the parent
 			super("Statistics", comment)
@@ -97,16 +97,20 @@ class MsfOpcode
 	#
 	class Locales < Msf::Ui::Gtk2::SkeletonOpcode
 		def initialize
-			super("Locales", nil)
+			comment = "Locales currently supported :"
+			
+			# call the parent
+			super("Locales", comment)
+			
 			self.set_default_size(500, 230)
 			
 			textview = Gtk::TextView.new
 			textbuffer = Gtk::TextBuffer.new
-			#sw.add(textview)
+			stuff.pack_start(textview, true, true, 0)
 			
-			locales = ""
+			locales = "\n"
 			$client.locales.each do |locale| 
-				locales << locale.name + "\n"
+				locales << " -" + locale.name + "\n"
 			end
 			
 			textbuffer.set_text( locales )
@@ -114,29 +118,6 @@ class MsfOpcode
 			textview.set_buffer(textbuffer)
 			textview.set_editable(false)
 			textview.set_cursor_visible(false)
-			
-			show_all and run
-			destroy
-		end
-	end
-
-	#
-	# Locales Opcodes
-	#
-	class Locales2 < Msf::Ui::Gtk2::SkeletonOpcode
-		def initialize
-			super("Locales", nil)
-			self.set_default_size(500, 230)
-			
-			locales = ""
-			$client.locales.each do |locale| 
-				locales << locale.name + "\n"
-			end
-			
-			description = "Supported locales opcodes"
-			label = Gtk::Label.new(locales)
-			puts label.set_alignment(0, 0)
-			#sw.add(label)
 			
 			show_all and run
 			destroy

@@ -117,7 +117,7 @@ class MyApp < MyGlade
 	# Actions for OpCodes/Locales
 	#
 	def on_locales_activate
-		MsfOpcode::Locales2.new()
+		MsfOpcode::Locales.new()
 	end
 	
 	#
