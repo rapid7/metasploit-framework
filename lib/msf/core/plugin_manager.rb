@@ -61,6 +61,10 @@ class PluginManager < Array
 
 			# Cache the path to class association for future reference
 			self.class.set_path_hash(path, klass)
+		# If it's already been loaded, go ahead and try to re-load it in case
+		# the contents have changed.
+		else
+			Kernel.load(path + ".rb")
 		end
 
 		# Create an instance of the plugin and let it initialize
