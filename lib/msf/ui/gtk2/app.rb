@@ -145,6 +145,7 @@ class MyApp < MyGlade
 	# Actions for OpCodes/Platforms
 	#
 	def on_platforms_activate
+		MsfOpcode::Platforms.new()
 	end
 
 	#

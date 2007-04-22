@@ -187,7 +187,7 @@ class MsfOpcode
 	#
 	class Types < Msf::Ui::Gtk2::SkeletonOpcode
 		def initialize
-			comment = "List of the various specific opcode types supported by the database :"
+			comment = "Lists of the various specific opcode types supported by the database :"
 			
 			super("Types", comment)
 			
@@ -198,7 +198,6 @@ class MsfOpcode
 			scrolled_window.add(textview)
 			stuff.pack_start(scrolled_window, true, true, 5)
 			scrolled_window.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
-			# stuff.pack_start(textview, true, true, 0)
 			
 			tps = "\n"
 			$client.types.each do |g| 
@@ -214,8 +213,40 @@ class MsfOpcode
 			show_all and run
 			destroy
 		end
+	end
+
+	#
+	# Opcodes Platforms
+	#
+	class Platforms < Msf::Ui::Gtk2::SkeletonOpcode
+		def initialize
+			comment = "Supported operating system versions broken down by major version and service pack :"
+			
+			super("Platforms", comment)
+			
+			textview = Gtk::TextView.new
+			textbuffer = Gtk::TextBuffer.new
+			
+			scrolled_window = Gtk::ScrolledWindow.new
+			scrolled_window.add(textview)
+			stuff.pack_start(scrolled_window, true, true, 5)
+			scrolled_window.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+			
+			ps = "\n"
+			$client.platforms.each do |p| 
+				ps << " - " + p.name + "\n"
+			end
+			
+			textbuffer.set_text( ps )
+						
+			textview.set_buffer(textbuffer)
+			textview.set_editable(false)
+			textview.set_cursor_visible(false)
+			
+			show_all and run
+			destroy
+		end
 	end	
-	
 	
 	#
 	# Modules Opcodes
