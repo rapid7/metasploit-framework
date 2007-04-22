@@ -520,7 +520,16 @@ class MySessionTree
 		close_session_image_shell = Gtk::Image.new
 		close_session_image_shell.set(Gtk::Stock::CLOSE, Gtk::IconSize::MENU)
 		close_session_item_shell.set_image(close_session_image_shell)
-		@menu_session.append(close_session_item_shell)		
+		@menu_session.append(close_session_item_shell)
+
+		separator2 = Gtk::SeparatorMenuItem.new
+		@menu_session.append(separator2)
+		
+		meterpreter_proc_item_shell = Gtk::ImageMenuItem.new("Process")
+		meterpreter_proc_image_shell = Gtk::Image.new
+		meterpreter_proc_image_shell.set(Gtk::Stock::CLOSE, Gtk::IconSize::MENU)
+		meterpreter_proc_item_shell.set_image(meterpreter_proc_image_shell)
+		@menu_session.append(meterpreter_proc_item_shell)		
 		
 		@menu_session.show_all
 		
@@ -563,6 +572,12 @@ class MySessionTree
 			end
 		end
 		
+		meterpreter_proc_item_shell.signal_connect('activate') do |item|
+			if current = @selection.selected
+				print current[O_SESSION].tunnel_peer
+			end
+		end
+		
 	end # def initialize
 	
 	#
@@ -581,7 +596,13 @@ class MySessionTree
 	# Open the session with the selected iter
 	#
 	def open_session(iter)
-		Msf::Ui::Gtk2::Console::Basic.new(iter)
+		session = iter[O_SESSION]
+		if (session.type == "meterpreter")
+			Msf::Ui::Gtk2::Console::Meterpreter.new(iter)
+		else
+			nil
+			#Msf::Ui::Gtk2::Console::Basic.new(iter)
+		end
 	end
 	
 	#
