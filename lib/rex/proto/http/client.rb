@@ -283,7 +283,7 @@ class Client
 		req_string = req.to_s
 
 		# Send it on over
-		ret = conn.put(req)
+		ret = conn.put(req_string)
 
 		# Tell the remote side if we aren't pipelining
 		conn.shutdown(::Socket::SHUT_WR) if (!pipelining?)
