@@ -139,7 +139,7 @@ class MsfOpcode
 			
 			mts = "\n"
 			$client.meta_types.each do |mt| 
-				mts << " -" + mt.name + "\n"
+				mts << " - " + mt.name + "\n"
 			end
 			
 			textbuffer.set_text( mts )
@@ -152,6 +152,35 @@ class MsfOpcode
 			destroy
 		end
 	end
+	
+	#
+	# Groups Opcodes
+	#
+	class Groups < Msf::Ui::Gtk2::SkeletonOpcode
+		def initialize
+			comment = "opcode groups currently supported by the database :"
+			
+			super("Groups", comment)
+			
+			textview = Gtk::TextView.new
+			textbuffer = Gtk::TextBuffer.new
+			stuff.pack_start(textview, true, true, 0)
+			
+			gs = "\n"
+			$client.groups.each do |g| 
+				gs << " - " + g.name + "\n"
+			end
+			
+			textbuffer.set_text( gs )
+						
+			textview.set_buffer(textbuffer)
+			textview.set_editable(false)
+			textview.set_cursor_visible(false)
+			
+			show_all and run
+			destroy
+		end
+	end	
 	
 	#
 	# Modules Opcodes

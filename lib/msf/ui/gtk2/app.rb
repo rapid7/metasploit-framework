@@ -131,6 +131,7 @@ class MyApp < MyGlade
 	# Actions for OpCodes/Groups
 	#
 	def on_groups_activate
+		MsfOpcode::Groups.new()
 	end
 
 	#
