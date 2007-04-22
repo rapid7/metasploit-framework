@@ -124,6 +124,7 @@ class MyApp < MyGlade
 	# Actions for OpCodes/Metatypes
 	#
 	def on_metatypes_activate
+		MsfOpcode::Metatypes.new()
 	end
 
 	#
