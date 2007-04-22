@@ -252,11 +252,100 @@ class MsfOpcode
 	# Modules Opcodes
 	#
 	class Modules < Msf::Ui::Gtk2::SkeletonOpcode
+		
+		L_COMBO_TEXT_COLUMN	= 0
+		L_COMBO_MODEL		= 1
+		L_COMBO_HAS_ENTRY	= 2
+		L_COMBO_EDITABLE	= 3
+		L_COMBO_TEXT		= 4
+		L_REMOVE		= 5
+		L_ADD			= 6
+		
 		def initialize
-			super("Modules", nil)
+			comment = "information about imports, exports, segments, and specific module attributes "
+			super("Modules", comment)
+			
+			export = Gtk::CheckButton.new("Include module export information")
+			import = Gtk::CheckButton.new("Include module import information")
+			segment = Gtk::CheckButton.new("Include module segment information")
+			detail = Gtk::CheckButton.new("Display detailed output")
+			
+			stuff.pack_start(export, false, false, 0)
+			stuff.pack_start(import, false, false, 0)
+			stuff.pack_start(segment, false, false, 0)
+			stuff.pack_start(detail, false, false, 0)
+			
+						
+			@model = create_model
+			@locale_treeview = Gtk::TreeView.new(@model)
+			stuff.pack_start(@locale_treeview, true, true, 0)
+			
+			# Renderer @ Renderer
+			renderer = Gtk::CellRendererCombo.new
+			renderer.signal_connect("edited") do |renderer, path, text|
+				@model.get_iter(path)[L_COMBO_TEXT] = text
+			end			
+			column = Gtk::TreeViewColumn.new("Select your locale to filter :", renderer,
+							       :text_column 	=> L_COMBO_TEXT_COLUMN,
+							       :model 		=> L_COMBO_MODEL,
+							       :has_entry 	=> L_COMBO_HAS_ENTRY,
+							       :editable 	=> L_COMBO_EDITABLE,
+							       :text 		=> L_COMBO_TEXT)
+			column.sizing = Gtk::TreeViewColumn::FIXED
+			column.fixed_width = 450
+			column.pack_start(renderer, false)
+			
+			renderer_remove = Gtk::CellRendererPixbuf.new
+			renderer_add = Gtk::CellRendererPixbuf.new
+			column_pixbuf = Gtk::TreeViewColumn.new
+			column_pixbuf.pack_start(renderer_remove, false)
+			column_pixbuf.set_cell_data_func(renderer_remove) do |column, cell, model, iter|
+				cell.pixbuf = iter[L_REMOVE]
+			end
+			column_pixbuf.pack_start(renderer_add, false)
+			column_pixbuf.set_cell_data_func(renderer_add) do |column, cell, model, iter|
+				cell.pixbuf = iter[L_ADD]
+			end			
+			
+			@locale_treeview.append_column(column)
+			@locale_treeview.append_column(column_pixbuf)
 			
 			show_all and run
 			destroy
+		end
+		
+		def create_model
+			store = Gtk::ListStore.new(	Integer,        	# L_COMBO_TEXT_COLUMN
+			   				Gtk::ListStore, 	# L_COMBO_MODEL
+							TrueClass,      	# L_COMBO_HAS_ENTRY
+							TrueClass,      	# L_COMBO_EDITABLE
+							String,         	# L_COMBO_TEXT
+							Gdk::Pixbuf,	 	# L_REMOVE
+							Gdk::Pixbuf)		# L_ADD
+			
+			combo_model = create_combo
+			iter = store.append
+			iter[L_COMBO_MODEL] = combo_model
+			iter[L_COMBO_HAS_ENTRY] = false
+			iter[L_COMBO_EDITABLE] = true
+			iter[L_COMBO_TEXT] = combo_model.get_iter("0")[0]
+			iter[L_REMOVE] = self.render_icon(Gtk::Stock::REMOVE, Gtk::IconSize::BUTTON, "icon")
+			iter[L_ADD] = self.render_icon(Gtk::Stock::ADD, Gtk::IconSize::BUTTON, "icon1")
+			
+			return store
+		end
+		
+		def create_combo
+			# Model for Gtk::Combo
+			model_locale = Gtk::ListStore.new(String)
+			
+			# Add iter to Gtk::Combo
+			$client.locales.each do |locale|
+				iter = model_locale.append
+				iter[0] = locale.name
+			end
+			
+			return model_locale
 		end
 	end
 end
