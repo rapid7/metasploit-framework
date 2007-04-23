@@ -562,6 +562,7 @@ class MySessionTree
 		# Items session signals
 		session_item_shell.signal_connect('activate') do |item|
 			if current = @selection.selected
+				puts "yeah"
 				open_session(current)
 			end
 		end
@@ -598,10 +599,10 @@ class MySessionTree
 	def open_session(iter)
 		session = iter[O_SESSION]
 		if (session.type == "meterpreter")
-			Msf::Ui::Gtk2::Console::Meterpreter.new(iter)
+			#Msf::Ui::Gtk2::Console::Meterpreter.new(iter)
+			Msf::Ui::Gtk2::Console::Basic.new(iter)
 		else
-			nil
-			#Msf::Ui::Gtk2::Console::Basic.new(iter)
+			Msf::Ui::Gtk2::Console::Basic.new(iter)
 		end
 	end
 	
