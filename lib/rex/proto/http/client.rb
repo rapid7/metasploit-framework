@@ -111,6 +111,8 @@ class Client
 		c_head = opts['headers']    || config['headers'] || {}
 		c_rawh = opts['raw_headers']|| config['raw_headers'] || ''		
 		c_conn = opts['connection']	
+		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
+		
 		uri    = set_uri(c_uri)
 		
 		req = ''
@@ -129,6 +131,11 @@ class Client
 		req += set_version(c_prot, c_vers)
 		req += set_host_header(c_host)
 		req += set_agent_header(c_ag)
+
+		if (c_auth.length > 0)
+			req += set_basic_auth_header(c_auth)
+		end
+				
 		req += set_cookie_header(c_cook)
 		req += set_connection_header(c_conn)
 		req += set_extra_headers(c_head)
@@ -159,7 +166,9 @@ class Client
 		c_cook = opts['cookie']     || config['cookie']
 		c_host = opts['vhost']      || config['vhost']
 		c_conn = opts['connection']
-		c_path = opts['path_info']	
+		c_path = opts['path_info']
+		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
+				
 		uri    = set_cgi(c_cgi)
 		qstr   = c_qs
 		pstr   = c_body
@@ -213,6 +222,11 @@ class Client
 		req += set_version(c_prot, c_vers)
 		req += set_host_header(c_host)
 		req += set_agent_header(c_ag)
+
+		if (c_auth.length > 0)
+			req += set_basic_auth_header(c_auth)
+		end
+				
 		req += set_cookie_header(c_cook)
 		req += set_connection_header(c_conn)		
 		req += set_extra_headers(c_head)
@@ -645,7 +659,14 @@ class Client
 	def set_content_len_header(clen)
 		set_formatted_header("Content-Length", clen)
 	end
-	
+
+	#
+	# Return the Authorization basic-auth header
+	#
+	def set_basic_auth_header(auth)
+		auth ? set_formatted_header("Authorization", "Basic " + Rex::Text.encode_base64(auth)) : ""
+	end
+
 	#
 	# Return a string of formatted extra headers
 	#
