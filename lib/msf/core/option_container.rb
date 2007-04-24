@@ -160,7 +160,7 @@ class OptString < OptBase
 		if (value =~ /^file:(.*)/)
 			path = $1
 			begin
-				value = File.readlines(path).map{ |s| s.strip}.join(",")
+				value = File.read(path)
 			rescue ::Errno::ENOENT, ::Errno::EISDIR
 				value = nil
 			end
@@ -188,7 +188,7 @@ class OptRaw < OptBase
 		if (value =~ /^file:(.*)/)
 			path = $1
 			begin
-				value = File.readlines(path).map{ |s| s.strip}.join(",")
+				value = File.read(path)
 			rescue ::Errno::ENOENT, ::Errno::EISDIR
 				value = nil
 			end
