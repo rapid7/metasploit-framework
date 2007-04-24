@@ -155,6 +155,23 @@ class OptString < OptBase
 	def type 
 		return 'string' 
 	end
+	
+	def normalize(value)
+		if (value =~ /^file:(.*)/)
+			path = $1
+			begin
+				value = File.readlines(path).map{ |s| s.strip}.join(",")
+			rescue ::Errno::ENOENT, ::Errno::EISDIR
+				value = nil
+			end
+		end
+	end
+	
+	def valid?(value=self.value)
+		value = normalize(value)
+		return false if empty_required_value?(value)		
+		true
+	end
 end
 
 ###
@@ -166,6 +183,23 @@ class OptRaw < OptBase
 	def type
 		return 'raw'
 	end
+	
+	def normalize(value)
+		if (value =~ /^file:(.*)/)
+			path = $1
+			begin
+				value = File.readlines(path).map{ |s| s.strip}.join(",")
+			rescue ::Errno::ENOENT, ::Errno::EISDIR
+				value = nil
+			end
+		end
+	end
+	
+	def valid?(value=self.value)
+		value = normalize(value)
+		return false if empty_required_value?(value)		
+		true
+	end		
 end
 
 ###
@@ -315,6 +349,15 @@ class OptAddressRange < OptBase
 
 	def normalize(value)
 
+		if (value =~ /^file:(.*)/)
+			path = $1
+			begin
+				value = File.readlines(path).map{ |s| s.strip}.join(",")
+			rescue ::Errno::ENOENT, ::Errno::EISDIR
+				value = nil
+			end
+		end
+		
 		sets   = []
 		return '' if not value
 

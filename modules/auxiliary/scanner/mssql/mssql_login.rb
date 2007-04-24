@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -39,10 +39,11 @@ class Auxiliary::Scanner::Mssql::Mssql_login < Msf::Auxiliary
 		info = mssql_login
 
 		if (info == true)
-			print_status("Target #{ip} does have a null sa account...")
+			print_status("Target #{ip} DOES have a null sa account!")
 		else
-			print_status("Target #{ip} does not have a null sa account...") 
+			print_status("Target #{ip} does not have a null sa account...")
+		end
 	end	
-end
+
 end
 end

@@ -26,7 +26,7 @@ class Auxiliary::Scanner::Smb::Pipe_DCERPC_Auditor < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SMB Session Pipe DCERPC Auditor',
-			'Version'     => '$Revision: 3624 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Determine what DCERPC services are accessible over a SMB pipe',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

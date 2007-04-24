@@ -155,7 +155,7 @@ module HostCommunicationError
 	# that triggered the exception.
 	#
 	def addr_to_s
-		(host && port) ? " (#{host}:#{port})" : ""
+		(host && port) ? "(#{host}:#{port})" : ""
 	end
 
 	attr_accessor :host, :port
@@ -172,7 +172,22 @@ class ConnectionRefused < ::IOError
 	include HostCommunicationError
 
 	def to_s
-		"The connection was refused by the remote host#{addr_to_s}."
+		"The connection was refused by the remote host #{addr_to_s}."
+	end
+end
+
+###
+#
+# This exception is raised when a connection attempt fails because the remote
+# side is unreachable.
+#
+###
+class HostUnreachable < ::IOError
+	include SocketError
+	include HostCommunicationError
+
+	def to_s
+		"The host #{addr_to_s} was unreachable."
 	end
 end
 
@@ -181,12 +196,12 @@ end
 # This exception is raised when a connection attempt times out.
 #
 ###
-class ConnectionTimeout < ::Interrupt
+class ConnectionTimeout < ::IOError
 	include SocketError
 	include HostCommunicationError
 
 	def to_s
-		"The connection timed out#{addr_to_s}."
+		"The connection timed out #{addr_to_s}."
 	end
 end
 
@@ -202,7 +217,7 @@ class AddressInUse < ::RuntimeError
 	include HostCommunicationError
 
 	def to_s
-		"The address is already in use#{addr_to_s}."
+		"The address is already in use #{addr_to_s}."
 	end
 end
 

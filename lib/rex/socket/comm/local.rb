@@ -4,6 +4,7 @@ require 'rex/socket/tcp'
 require 'rex/socket/ssl_tcp'
 require 'rex/socket/ssl_tcp_server'
 require 'rex/socket/udp'
+require 'timeout'
 
 ###
 #
@@ -81,10 +82,32 @@ class Rex::Socket::Comm::Local
 						chain.push(['host',param.peerhost,param.peerport])
 						ip = chain[0][1]
 						port = chain[0][2].to_i
-						sock.connect(Rex::Socket.to_sockaddr(ip, port))
+						
+						begin
+							timeout(param.timeout) do
+							    sock.connect(Rex::Socket.to_sockaddr(ip, port))
+							end
+						rescue ::Timeout::Error
+							raise ::Errno::ETIMEDOUT
+						end						
 					else
-					    sock.connect(Rex::Socket.to_sockaddr(param.peerhost, param.peerport))
+						begin
+							timeout(param.timeout) do
+							    sock.connect(Rex::Socket.to_sockaddr(param.peerhost, param.peerport))
+							end
+						rescue ::Timeout::Error
+							raise ::Errno::ETIMEDOUT
+						end
 					end
+				
+				rescue Errno::EHOSTUNREACH, ::Errno::ENETUNREACH
+					sock.close
+					raise Rex::HostUnreachable.new(param.peerhost, param.peerport), caller
+				
+				rescue Errno::ETIMEDOUT
+					sock.close
+					raise Rex::ConnectionTimeout.new(param.peerhost, param.peerport), caller
+				
 				rescue Errno::ECONNREFUSED
 					sock.close
 					raise Rex::ConnectionRefused.new(param.peerhost, param.peerport), caller

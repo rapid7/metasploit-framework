@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -16,11 +16,22 @@ module Msf
 
 class Auxiliary::Scanner::Smb::Version < Msf::Auxiliary
 
+	
 	# Exploit mixins should be called first
-	include Exploit::Remote::SMB
+	include Exploit::Remote::Tcp
+	
+	# We can't use SMB here, since the SMB mixin
+	# is not thread-safe and will not become so
+	# without a ton of work (self.sock, etc).
 	
 	# Scanner mixin should be near last
 	include Auxiliary::Scanner
+
+	# Aliases for common classes
+	SIMPLE = Rex::Proto::SMB::SimpleClient
+	XCEPT  = Rex::Proto::SMB::Exceptions
+	CONST  = Rex::Proto::SMB::Constants
+
 	
 	def initialize
 		super(
@@ -34,28 +45,29 @@ class Auxiliary::Scanner::Smb::Version < Msf::Auxiliary
 		deregister_options('RPORT')
 	end
 
-
-	# Overload the RPORT setting
-	def rport
-		@target_port
-	end
-	
 	# Fingerprint a single host
 	def run_host(ip)
 
 		[[139, false], [445, true]].each do |info|
 
-		@target_port = info[0]
-		datastore['SMBDirect'] = info[1]
+		self.target_port = info[0]
+		direct = info[1]
+		
+		soc = nil 
 		
 		begin
-			connect()
-			smb_login()
+			# print_status("Trying to connect to #{target_host()}:#{target_port()}...")
+			soc = connect(false)
+			smb = SIMPLE.new(soc, direct)
+			
+			smb.login('*SMBSERVER')
 
+			smb.connect('IPC$')
+			
 			os = 'Unknown'
 			sp = ''
-	
-			case smb_peer_os()
+
+			case smb.client.peer_native_os
 				when 'Windows NT 4.0'
 					os = 'Windows NT 4.0'
 				when 'Windows 5.0'
@@ -73,17 +85,17 @@ class Auxiliary::Scanner::Smb::Version < Msf::Auxiliary
 					sp = '(Build ' + $2 + ')'
 				when 'Unix'
 					os = 'Unix'
-					sv = smb_peer_lm()
+					sv = smb.client.peer_native_lm
 					case sv
 						when /Samba\s+(.*)/i
-							sp = 'Samba v' + $1
+							sp = 'Samba ' + $1
 					end
 			end
 
 			if (os == 'Windows XP' and sp.length == 0)
 				# SRVSVC was blocked in SP2
 				begin
-					smb_create("\\SRVSVC")
+					smb.create_pipe("\\SRVSVC")
 					sp = 'Service Pack 0 / Service Pack 1'
 				rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 					if (e.error_code == 0xc0000022)
@@ -95,7 +107,7 @@ class Auxiliary::Scanner::Smb::Version < Msf::Auxiliary
 			if (os == 'Windows 2000' and sp.length == 0)
 				# LLSRPC was blocked in a post-SP4 update
 				begin
-					smb_create("\\LLSRPC")
+					smb.create_pipe("\\LLSRPC")
 					sp = 'Service Pack 0 - Service Pack 4'
 				rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 					if (e.error_code == 0xc0000022)
@@ -107,14 +119,23 @@ class Auxiliary::Scanner::Smb::Version < Msf::Auxiliary
  			print_status("#{ip} is running #{os} #{sp}")
 			
 			if (os == 'Unknown') 
-				print_status("NativeOS: #{smb_peer_os()}")
-				print_status("NativeLM: #{smb_peer_lm()}")
+				print_status("NativeOS: #{smb.client.peer_native_os()}")
+				print_status("NativeLM: #{smb.client.peer_native_lm()}")
 			end
 			
-			disconnect()
-
 			return
-		rescue
+
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			next
+		
+		# rescue => e
+		#	p e.class
+		#	p e.to_s
+
+		ensure
+			soc.close if soc
+			soc = nil
+						
 		end
 		end
 	end

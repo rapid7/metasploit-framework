@@ -73,6 +73,10 @@ class Rex::Socket::Parameters
 	#
 	# 	The number of times a connection should be retryed.
 	#
+	# Timeout
+	#
+	# 	The number of seconds before a connection should time out
+	#
 	def initialize(hash)
 		if (hash['PeerHost'])
 			self.peerhost = hash['PeerHost']
@@ -145,6 +149,9 @@ class Rex::Socket::Parameters
 
 		# The number of connection retries to make (client only)
 		self.retries   = hash['Retries'] || 0
+
+		# The number of seconds before a connect attempt times out (client only)
+		self.timeout   = hash['Timeout'] || 5
 	end
 
 	##
@@ -241,6 +248,10 @@ class Rex::Socket::Parameters
 	# The number of attempts that should be made.
 	#
 	attr_accessor :retries
+	#
+	# The number of seconds before a connection attempt should time out.
+	#
+	attr_accessor :timeout
 	#
 	# Whether or not this is a bare (non-extended) socket instance that should
 	# be created.
