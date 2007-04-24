@@ -165,12 +165,13 @@ class OptString < OptBase
 				value = nil
 			end
 		end
+		value
 	end
 	
 	def valid?(value=self.value)
 		value = normalize(value)
 		return false if empty_required_value?(value)		
-		true
+		return super
 	end
 end
 
@@ -193,12 +194,13 @@ class OptRaw < OptBase
 				value = nil
 			end
 		end
+		value
 	end
 	
 	def valid?(value=self.value)
 		value = normalize(value)
 		return false if empty_required_value?(value)		
-		true
+		return super
 	end		
 end
 
