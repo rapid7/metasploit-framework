@@ -77,7 +77,7 @@ Packet *packet_create(PacketTlvType type, LPCSTR method)
 		if (!(packet = (Packet *)malloc(sizeof(Packet))))
 			break;
 
-		memset(packet, 0, sizeof(packet));
+		memset(packet, 0, sizeof(Packet));
 
 		// Initialize the header length and message type
 		packet->header.length = htonl(sizeof(TlvHeader));
