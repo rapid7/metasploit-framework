@@ -40,8 +40,8 @@ class Auxiliary::Scanner::Http::Version < Msf::Auxiliary
 
 		begin
 			res = send_request_raw({
-                'uri'          => '/',
-                'method'       => 'GET'
+				'uri'          => '/',
+				'method'       => 'GET'
 			}, 10)
 
 			if (res and res.headers['Server'])

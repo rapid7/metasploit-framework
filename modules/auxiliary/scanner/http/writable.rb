@@ -57,8 +57,8 @@ class Auxiliary::Scanner::Http::Writable < Msf::Auxiliary
 		when 'PUT'
 			begin
 				res = send_request_cgi({
-                	'uri'          =>  datastore['PATH'],
-                	'method'       => 'PUT',
+					'uri'          =>  datastore['PATH'],
+					'method'       => 'PUT',
 					'ctype'        => 'text/plain',
 					'data'         => datastore['DATA']
 				}, 20)
@@ -77,8 +77,8 @@ class Auxiliary::Scanner::Http::Writable < Msf::Auxiliary
 		when 'DELETE'
 			begin
 				res = send_request_cgi({
-                	'uri'          => datastore['PATH'],
-                	'method'       => 'DELETE'
+					'uri'          => datastore['PATH'],
+					'method'       => 'DELETE'
 				}, 10)
 
 				return if not res
