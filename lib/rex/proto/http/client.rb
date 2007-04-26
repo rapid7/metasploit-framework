@@ -53,7 +53,8 @@ class Client
 			'pad_post_params_count'  => 8,       # integer
 			'uri_fake_end'           => false,   # bool
 			'uri_fake_params_start'  => false,   # bool
-			'header_folding'         => false    # bool 
+			'header_folding'         => false,   # bool 
+			'chunked_size'           => 0        # integer
 		}
 		
 		# This is not used right now...
@@ -81,7 +82,8 @@ class Client
 			'pad_post_params_count'  => 'integer',
 			'uri_fake_end'           => 'bool',
 			'uri_fake_params_start'  => 'bool',
-			'header_folding'         => 'bool'
+			'header_folding'         => 'bool',
+			'chunked_size'           => 'integer'
 		}
 	end
 	
@@ -168,7 +170,7 @@ class Client
 		c_conn = opts['connection']
 		c_path = opts['path_info']
 		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
-				
+
 		uri    = set_cgi(c_cgi)
 		qstr   = c_qs
 		pstr   = c_body
@@ -230,12 +232,10 @@ class Client
 		req += set_cookie_header(c_cook)
 		req += set_connection_header(c_conn)		
 		req += set_extra_headers(c_head)
-		
-		# TODO:
-		# * Implement chunked transfer
-		
+			
 		req += set_content_type_header(c_type)
 		req += set_content_len_header(pstr.length)
+		req += set_chunked_header()
 		req += set_raw_headers(c_rawh)
 		req += set_body(pstr)
 
@@ -534,7 +534,14 @@ class Client
 	# Return the HTTP seperator and body string
 	#
 	def set_body(data)
-		"\r\n" + data
+		return "\r\n" + data if self.config['chunked_size'] == 0
+		str = data.dup
+		chunked = ''
+		while str.size > 0
+			chunk = str.slice!(0,rand(self.config['chunked_size']) + 1)
+			chunked += sprintf("%x", chunk.size) + "\r\n" + chunk + "\r\n"
+		end
+		"\r\n" + chunked + "0\r\n\r\n"
 	end
 	
 	#
@@ -654,9 +661,8 @@ class Client
 
 	#
 	# Return the content length header
-	# TODO:
-	#  * Ignore this if chunked encoding is set
 	def set_content_len_header(clen)
+		return "" if self.config['chunked_size'] > 0
 		set_formatted_header("Content-Length", clen)
 	end
 
@@ -688,7 +694,12 @@ class Client
 		
 		buf
 	end
-	
+
+	def set_chunked_header()
+		return "" if self.config['chunked_size'] == 0
+		set_formatted_header('Transfer-Encoding', 'chunked')
+	end
+
 	#
 	# Return a string of raw header data
 	#
