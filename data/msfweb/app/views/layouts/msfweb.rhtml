@@ -1,68 +1,68 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="eng">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+   <head>
+      <title>Metasploit Framework Web Console <%=h ::Msf::Framework::Version %></title>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+      <meta name="Author" content="Mike Whitehead (mwhite22[at]caledonian.ac.uk), Metasploit LLC" />
+      <meta name="Copyright" content="(c) 2007, Mike Whitehead (mwhite22[at]caledonian.ac.uk), (c) 2006-2007 Metasploit LLC" />
+      <script>
+         function get_cookie ( cookie_name ){
+            var results = document.cookie.match ( cookie_name + '=(.*?)(;|$)' );
+               if ( results )
+                  return ( unescape ( results[1] ) );
+               else
+                  return null;
+         }
+         var styleCheck = get_cookie("style");
+		 var styleName = "default";
+		 
+         if (styleCheck)
+            styleName = get_cookie("style");
+         }
 
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-        <meta name="Author" content="LMH (lmh[at]info-pull.com), Metasploit LLC" />
-        <meta name="Copyright" content="(c) 2006, LMH (lmh@info-pull.com), (c) 2006-2007 Metasploit LLC" />
-        <title>Metasploit Framework Web Console <%=h ::Msf::Framework::Version %></title>
-        <%= stylesheet_link_tag "msfweb" %>
-        <%= stylesheet_link_tag "window-themes/default" %>
-        <%= stylesheet_link_tag "window-themes/metasploit" %>
-        <% ["prototype","effects","controls", "window", "application"].each do |js| %>
-        <%= javascript_include_tag js %><% end %>
-    </head>
+         var styleFile = "/stylesheets/skins/" + styleName + "/" + styleName + ".css";
+         document.writeln('<link rel="stylesheet" type="text/css" href="' + styleFile + '">'); // Overall stylesheet
+         document.writeln('<link rel="stylesheet" type="text/css" href="/stylesheets/window-themes/' + styleName + '/window.css">'); // Windowing stylesheet
+
+      </script>
+      <% ["prototype","effects","controls", "window", "application"].each do |js| %>
+      <%= javascript_include_tag js %><% end %>
+  </head>
+
 <body>
+<div id="menuBar">
+   <ul>
+      <li class="menuButton" onclick="openExploitsWindow()">
+         <img src="/images/bug.png" alt="" />Exploits
+      </li>
+      <li class="menuButton" onclick="openAuxiliariesWindow()">
+         <img src="/images/zoom.png" alt="" />Auxiliaries
+      </li>
+      <li class="menuButton" onclick="openPayloadsWindow()">
+         <img src="/images/bomb.png" alt="" />Payloads
+      </li>
+      <li class="menuButton" onclick="openConsoleWindow()">
+         <img src="/images/terminal.png" alt="" />Console
+      </li>
+      <li class="menuButton" onclick="openSessionsWindow()">
+         <img src="/images/star.png" alt="" />Sessions
+      </li>
+      <li class="menuButton" onclick="openOptionsWindow()">
+         <img src="/images/wrench.png" alt="" />Options
+      </li>
+      <li class="menuButton" onclick="openAboutDialog()">
+         <img src="/images/help.png" alt="" />About
+      </li>
+   </ul>
+</div>
 
-<table id="menuBar" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-        <td>
-            <table cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                    <td class="menuButton" onclick="openExploitsWindow()">
-                        <img src="/images/bug.png" alt="" />Exploits
-                    </td>
-                    <td class="spacer">
-                    </td>
-                    <td class="menuButton" onclick="openAuxiliariesWindow()">
-                        <img src="/images/zoom.png" alt="" />Auxiliaries
-                    </td>
-                    <td class="spacer">
-                    </td>
-                    <td class="menuButton" onclick="openPayloadsWindow()">
-                        <img src="/images/bomb.png" alt="" />Payloads
-                    </td>
-                    <td class="spacer">
-                    </td>
-                    <td class="menuButton" onclick="openConsoleWindow()">
-                        <img src="/images/terminal.png" alt="" />Console
-                    </td>
-                    <td class="spacer">
-                    </td>
-                    <td class="menuButton" onclick="openSessionsWindow()">
-                        <img src="/images/star.png" alt="" />Sessions
-                    </td>
-                    <td class="spacer">
-                    </td>
-                    <td class="menuButton" onclick="openAboutDialog()">
-                        <img src="/images/help.png" alt="" />About
-                    </td>
-                    <td class="spacer">
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
-
-        <div id="maincontent">
-            <%= @content_for_layout %>
-        </div>
+<div id="maincontent">
+   <%= @content_for_layout %>
+</div>
     
-        <script type="text/javascript">
-            run_tasks();
-        </script>
+<script type="text/javascript">
+   run_tasks();
+</script>
 
 </body>
 </html>

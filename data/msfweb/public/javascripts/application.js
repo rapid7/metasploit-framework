@@ -100,6 +100,12 @@ function openConsoleWindow() {
     console.showCenter();
 }
 
+function openOptionsWindow() {
+    var weboptions = create_window_ajax("/options", "options", "Metasploit Options", 600, 300);
+    weboptions.setDestroyOnClose();
+    weboptions.showCenter();
+}
+
 function openConsoleWindowSession(sid) {
     var console = create_window_ajax("/console?sid="+sid, "console", "Metasploit Session", 760, 300);
     console.setDestroyOnClose();

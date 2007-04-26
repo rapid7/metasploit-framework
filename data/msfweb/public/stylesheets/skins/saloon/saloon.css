@@ -1,0 +1,77 @@
+/* 
+ * Copyright (c) 2007 Mike Whitehead <mwhite22[at]caledonian.ac.uk>
+ * Added to Metasploit under the terms of the Metasploit Framework License v1.2
+ * Additions Copyright (C) 2006-2007 Metasploit LLC
+*/
+
+html,body {
+	padding: 35px 0px 0px 0px;
+	margin: 0px;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+}
+
+body {
+	background: #00354C url(images/banner.gif) fixed center no-repeat;
+	color: #FFFFFF;
+	font-size: 8pt;
+	font-family: Trebuchet, Sans, Arial, serif;
+}
+
+body>div#menuBar {
+	position: fixed;
+}
+
+#menuBar {
+	width: 100%;
+	margin: 0px;
+	background-color: #F4F4F4;
+	overflow: auto;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+#menuBar ul {
+	padding: 0px;
+	list-style-type: none;
+	list-style-image: none;
+}
+
+#menuBar li {
+	display: inline;
+}
+
+.menuButton {
+	max-width: 300px;
+	padding-top: 15px;
+	padding-bottom: 10px;
+	border-right: 1px solid #DDDDDD;
+	padding-left: 5px;
+	padding-right: 10px;
+	background-color: inherit;
+	color: #000000;
+}
+
+.menuButton:hover {
+	cursor: pointer;
+	max-width: 300px;
+	padding-top: 15px;
+	padding-bottom: 10px;
+	padding-left: 5px;
+	padding-right: 10px;
+	background-color: #316AC5;
+	color: #FFFFFF;
+}
+
+.menuButton img {
+    padding-right: 8px;
+    vertical-align: text-bottom;
+}
+
+
+div#mainContents {
+	padding: 0px;
+}
+
