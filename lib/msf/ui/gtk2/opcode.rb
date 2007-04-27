@@ -238,7 +238,7 @@ class MsfOpcode
 			
 			ps = "\n"
 			$client.platforms.each do |p| 
-				ps << " - " + p.name + "\n"
+				ps << " - " + p.desc + "\n"
 			end
 			
 			textbuffer.set_text( ps )

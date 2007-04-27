@@ -25,7 +25,7 @@ end
 # or a string describing the version mismatch.
 if gtkversion = Gtk.check_version(2,10,0)
 	$stderr.puts "[*] The msfgui interface requires Gtk+ 2.10 or later"
-	puts gtkversion
+	$stderr.puts "[*] Your Gtk+ version : #{gtkversion}"
 	exit
 end	
 
