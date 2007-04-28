@@ -98,6 +98,6 @@ if (cmd =~ /^(p|r|c|j|x)/)
 	
 	puts buf
 	
-elsif (cmd =~ /^s/)
+elsif (cmd =~ /^(s|o)/)
 	puts Msf::Serializer::ReadableText.dump_module(payload)
 end
