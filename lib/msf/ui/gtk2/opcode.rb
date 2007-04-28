@@ -19,8 +19,6 @@ class SkeletonOpcode < Gtk::Dialog
 	
 	def initialize(title, comments, buttons=[[ Gtk::Stock::CLOSE, Gtk::Dialog::RESPONSE_NONE ]])
 		super("", $gtk2driver.main, Gtk::Dialog::DESTROY_WITH_PARENT, *buttons)
-			#[ Gtk::Stock::OK, Gtk::Dialog::RESPONSE_NONE ],
-			#[ Gtk::Stock::CLOSE, Gtk::Dialog::RESPONSE_NONE ])
 			
 		# Style
 		console_style = File.join(driver.resource_directory, 'style', 'opcode.rc')
@@ -267,6 +265,7 @@ class MsfOpcode
 			super("Modules", comment, buttons)
 			self.default_response = Gtk::Dialog::RESPONSE_OK
 			
+			# Hash to store the global values
 			@filter = {}
 			
 			@collect = {}
@@ -315,6 +314,9 @@ class MsfOpcode
 			destroy
 		end
 		
+		#
+		# Display all supported locales
+		#
 		def create_locales
 			@collect_locales['english'] = Gtk::CheckButton.new("For english locale")
 			@collect_locales['french'] = Gtk::CheckButton.new("For french locale")
@@ -326,6 +328,9 @@ class MsfOpcode
 			@table_locale.attach_defaults(@collect_locales['german'], 1, 2, 2, 3)
 		end
 		
+		#
+		# Display all supported platforms
+		#		
 		def create_platforms
 			@collect_platforms['NT'] = Gtk::CheckButton.new("For NT platform")
 			@collect_platforms['2000'] = Gtk::CheckButton.new("For 2000 platform")
@@ -337,6 +342,9 @@ class MsfOpcode
 			@table_platforms.attach_defaults(@collect_platforms['2003'], 1, 2, 2, 3)
 		end
 		
+		#
+		# Display a Gtk::TextView for modules
+		#
 		def create_modules(buffer)
 			label = Gtk::Label.new(" A comma separated list of module names to filter (Ex: kernel32.dll,user32.dll)")
 			label.set_alignment(0, 0)
