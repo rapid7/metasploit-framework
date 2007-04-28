@@ -18,7 +18,7 @@
             <option value="empty">Choose a skin</option>
 			<%
 				sbase = File.join(Msf::Config::InstallRoot, "data", "msfweb", "public", "stylesheets", "skins")
-				sdirs = Dir.new(sbase).grep(/[^\.]+/)
+				sdirs = Dir.new(sbase).grep(/^[a-z]/i)
 				sdirs.each do |style|
 					sname = style.capitalize + " Style"
 				%>

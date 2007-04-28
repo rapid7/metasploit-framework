@@ -1,34 +1,34 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
-   <head>
-      <title>Metasploit Framework Web Console <%=h ::Msf::Framework::Version %></title>
-      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-      <meta name="Author" content="Mike Whitehead (mwhite22[at]caledonian.ac.uk), Metasploit LLC" />
-      <meta name="Copyright" content="(c) 2007, Mike Whitehead (mwhite22[at]caledonian.ac.uk), (c) 2006-2007 Metasploit LLC" />
-      <script>
-         function get_cookie ( cookie_name ){
-            var results = document.cookie.match ( cookie_name + '=(.*?)(;|$)' );
-               if ( results )
-                  return ( unescape ( results[1] ) );
-               else
-                  return null;
-         }
-         var styleCheck = get_cookie("style");
-		 var styleName = "default";
-		 
-         if (styleCheck)
-            styleName = get_cookie("style");
-         }
+<head>
+	<title>Metasploit Framework Web Console <%=h ::Msf::Framework::Version %></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+	<meta name="Author" content="Mike Whitehead (mwhite22[at]caledonian.ac.uk), Metasploit LLC" />
+	<meta name="Copyright" content="(c) 2007, Mike Whitehead (mwhite22[at]caledonian.ac.uk), (c) 2006-2007 Metasploit LLC" />
+	<script>
+		function get_cookie ( cookie_name ) {
+			var results = document.cookie.match ( cookie_name + '=(.*?)(;|$)' );
+			if ( results )
+				return ( unescape ( results[1] ) );
+			else
+				return null;
+		}
 
-         var styleFile = "/stylesheets/skins/" + styleName + "/" + styleName + ".css";
-         document.writeln('<link rel="stylesheet" type="text/css" href="' + styleFile + '">'); // Overall stylesheet
-         document.writeln('<link rel="stylesheet" type="text/css" href="/stylesheets/window-themes/' + styleName + '/window.css">'); // Windowing stylesheet
+		var styleName = get_cookie("style");
 
-      </script>
-      <% ["prototype","effects","controls", "window", "application"].each do |js| %>
-      <%= javascript_include_tag js %><% end %>
-  </head>
+		if (styleName == null){
+			styleName = "default";
+		}
 
+		var styleFile = "/stylesheets/skins/" + styleName + "/" + styleName + ".css";
+		document.writeln('<link rel="stylesheet" type="text/css" href="' + styleFile + '">'); // Overall stylesheet
+		document.writeln('<link rel="stylesheet" type="text/css" href="/stylesheets/window-themes/' + styleName + '/window.css">'); // Windowing stylesheet
+
+	</script>
+	  
+	<% ["prototype","effects","controls", "window", "application"].each do |js| %>
+	<%= javascript_include_tag js %><% end %>	
+</head>
 <body>
 <div id="menuBar">
    <ul>

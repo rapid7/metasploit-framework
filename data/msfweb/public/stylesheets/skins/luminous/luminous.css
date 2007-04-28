@@ -4,38 +4,37 @@
  * Additions Copyright (C) 2006-2007 Metasploit LLC
 */
 
+* {
+	margin: 0;
+	padding : 0;
+}
+
 html,body {
-	padding: 0px;
-	margin: 0px;
+	overflow: hidden;
 	height: 100%;
 	width: 100%;
-	overflow: hidden;
 }
 
 body {
 	background: #000000 url(images/banner.jpg) fixed center no-repeat;
-	color: #FFFFFF;
 	font-size: 8pt;
 	font-family: Trebuchet, Sans, Arial, serif;
 }
 
 body>div#menuBar {
 	position: fixed;
-}
-
-#menuBar {
-	width: 100px;
-	margin: 0px;
-	background: url(images/menu-button-back.jpg) repeat-y;
-	overflow: auto;
-	position: absolute;
 	top: 0px;
 	bottom: 0px;
 	left: 0px;
 }
 
+#menuBar {
+	width: 100px;
+	background: url(images/menu-button-back.jpg) repeat-y;
+	overflow: hidden;
+}
+
 #menuBar ul {
-	padding: 0px;
 	list-style-type: none;
 	list-style-image: none;
 	background: url(images/menu-button-back.jpg) repeat-y;

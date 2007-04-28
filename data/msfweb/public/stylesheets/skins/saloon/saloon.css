@@ -4,33 +4,34 @@
  * Additions Copyright (C) 2006-2007 Metasploit LLC
 */
 
+* {
+	margin: 0;
+	padding : 0;
+}
+
 html,body {
-	padding: 35px 0px 0px 0px;
-	margin: 0px;
+	overflow: hidden;
 	height: 100%;
 	width: 100%;
-	overflow: hidden;
 }
 
 body {
 	background: #00354C url(images/banner.gif) fixed center no-repeat;
-	color: #FFFFFF;
 	font-size: 8pt;
 	font-family: Trebuchet, Sans, Arial, serif;
 }
 
 body>div#menuBar {
 	position: fixed;
+	top: 0px;
+	left: 0px;
 }
 
 #menuBar {
+	height: 35px;
 	width: 100%;
-	margin: 0px;
 	background-color: #F4F4F4;
-	overflow: auto;
-	position: absolute;
-	top: 0px;
-	left: 0px;
+	overflow: hidden;
 }
 
 #menuBar ul {
@@ -39,14 +40,20 @@ body>div#menuBar {
 	list-style-image: none;
 }
 
+/* IE7 Padding hack */
+*:first-child+html #menuBar ul {
+	padding-top: 10px;
+}
+
 #menuBar li {
+	padding-top: 10px;
+	padding-bottom: 11px;
 	display: inline;
 }
 
 .menuButton {
+	line-height: 35px;
 	max-width: 300px;
-	padding-top: 15px;
-	padding-bottom: 10px;
 	border-right: 1px solid #DDDDDD;
 	padding-left: 5px;
 	padding-right: 10px;
@@ -70,8 +77,6 @@ body>div#menuBar {
     vertical-align: text-bottom;
 }
 
-
 div#mainContents {
 	padding: 0px;
 }
-

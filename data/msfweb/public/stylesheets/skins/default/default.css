@@ -11,6 +11,8 @@
 
 html,body {
 	overflow: hidden;
+	height: 100%;
+	width: 100%;
 }
 
 body {
@@ -20,7 +22,7 @@ body {
 }
 
 body>div#menuBar {
-	position: relative;
+	position: fixed;
 	top: 0px;
 	left: 0px;
 }
@@ -32,18 +34,19 @@ body>div#menuBar {
 	overflow: hidden;
 }
 
-*:first-child+html #menuBar ul {
-	padding-top: 10px;
-}
-
 #menuBar ul {
 	list-style-type: none;
 	list-style-image: none;
 }
 
+/* IE7 Padding hack */
+*:first-child+html #menuBar ul {
+	padding-top: 10px;
+}
+
 #menuBar li {
 	padding-top: 10px;
-	padding-bottom: 10px;
+	padding-bottom: 11px;
 	display: inline;
 }
 
@@ -72,7 +75,6 @@ body>div#menuBar {
     padding-right: 8px;
     vertical-align: text-bottom;
 }
-
 
 div#mainContents {
 	padding: 0px;

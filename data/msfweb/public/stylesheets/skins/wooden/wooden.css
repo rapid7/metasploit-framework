@@ -4,57 +4,72 @@
  * Additions Copyright (C) 2006-2007 Metasploit LLC
 */
 
+* {
+	margin: 0;
+	padding : 0;
+}
+
 html {
 	background: url(images/background.jpg) repeat;
 }
 
 html,body {
-	padding: 0px;
-	margin: 0px;
+	overflow: hidden;
 	height: 100%;
 	width: 100%;
-	overflow: hidden;
 }
 
 body {
 	background: url(images/banner.gif) fixed center no-repeat;
-	color: #FFFFFF;
 	font-size: 8pt;
 	font-family: Trebuchet, Sans, Arial, serif;
 }
 
 body>div#menuBar {
 	position: fixed;
+	top: 0px;
+	left: 0px;
 }
 
 #menuBar {
 	height: 40px;
 	width: 100%;
-	margin: 0px;
 	background: url(images/menu-button-back.jpg) repeat-x;
 	overflow: hidden;
-	position: absolute;
-	top: 0px;
-	left: 0px;
 }
 
 #menuBar ul {
-	padding: 0px;
 	list-style-type: none;
 	list-style-image: none;
 }
 
+/*
+ * IE7 Padding hack (Start)
+*/
+*:first-child+html #menuBar ul {
+	padding-top: 10px;
+}
+
+*:first-child+html #menuBar li {
+	padding-top:11px;
+	padding-bottom:12px;
+}
+/*
+ * IE7 Padding Hack (End)
+*/
+
 #menuBar li {
+	padding-top: 13px;
+	padding-bottom: 12px;
 	display: inline;
 }
 
 .menuButton {
+	line-height: 40px;
 	max-width: 300px;
-	padding-top: 15px;
-	padding-bottom: 10px;
+	border-right: 1px solid #5C2A0F;
 	padding-left: 5px;
 	padding-right: 10px;
-	border-right: 1px solid #5C2A0F;
 	background-color: inherit;
 	color: #FFFFFF;
 }
@@ -62,6 +77,8 @@ body>div#menuBar {
 .menuButton:hover {
 	cursor: pointer;
 	max-width: 300px;
+	padding-top: 15px;
+	padding-bottom: 10px;
 	padding-left: 5px;
 	padding-right: 10px;
 	background: url(images/menu-button-back-hover.jpg) repeat-x;
@@ -72,7 +89,6 @@ body>div#menuBar {
     padding-right: 8px;
     vertical-align: text-bottom;
 }
-
 
 div#mainContents {
 	padding: 0px;
