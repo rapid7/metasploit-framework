@@ -17,10 +17,10 @@ class SkeletonOpcode < Gtk::Dialog
 	
 	attr_accessor :comment, :stuff
 	
-	def initialize(title, comments)
-		super("", $gtk2driver.main, Gtk::Dialog::DESTROY_WITH_PARENT,
+	def initialize(title, comments, buttons=[[ Gtk::Stock::CLOSE, Gtk::Dialog::RESPONSE_NONE ]])
+		super("", $gtk2driver.main, Gtk::Dialog::DESTROY_WITH_PARENT, *buttons)
 			#[ Gtk::Stock::OK, Gtk::Dialog::RESPONSE_NONE ],
-			[ Gtk::Stock::CLOSE, Gtk::Dialog::RESPONSE_NONE ])
+			#[ Gtk::Stock::CLOSE, Gtk::Dialog::RESPONSE_NONE ])
 			
 		# Style
 		console_style = File.join(driver.resource_directory, 'style', 'opcode.rc')
@@ -257,123 +257,129 @@ class MsfOpcode
 	#
 	class Modules < Msf::Ui::Gtk2::SkeletonOpcode
 		
-		L_COMBO_TEXT_COLUMN	= 0
-		L_COMBO_MODEL		= 1
-		L_COMBO_HAS_ENTRY	= 2
-		L_COMBO_EDITABLE	= 3
-		L_COMBO_TEXT		= 4
-		L_REMOVE		= 5
-		L_ADD			= 6
-		
 		def initialize
 			comment = "information about imports, exports, segments, and specific module attributes "
 			
+			# Array for the face buttons
+			buttons = [ Gtk::Stock::OK, Gtk::Dialog::RESPONSE_OK ], [ Gtk::Stock::CLOSE, Gtk::Dialog::RESPONSE_NONE ]
+			
 			# call the parent
-			super("Modules", comment)
+			super("Modules", comment, buttons)
+			self.default_response = Gtk::Dialog::RESPONSE_OK
 			
-			export = Gtk::CheckButton.new("Include module export information")
-			import = Gtk::CheckButton.new("Include module import information")
-			segment = Gtk::CheckButton.new("Include module segment information")
-			detail = Gtk::CheckButton.new("Display detailed output")
+			@filter = {}
 			
-			stuff.pack_start(export, false, false, 0)
-			stuff.pack_start(import, false, false, 0)
-			stuff.pack_start(segment, false, false, 0)
-			stuff.pack_start(detail, false, false, 0)
+			@collect = {}
+			@collect_locales = {}
+			@collect_platforms = {}
+			@collect_modules = Gtk::TextBuffer.new
 			
-						
-			@model = create_model
-			@locale_treeview = Gtk::TreeView.new(@model)
-			stuff.pack_start(@locale_treeview, true, true, 0)
+			@collect['Exports'] = Gtk::CheckButton.new("Include module export information")
+			@collect['Imports'] = Gtk::CheckButton.new("Include module import information")
+			@collect['Segments'] = Gtk::CheckButton.new("Include module segment information")
+			@collect['Detailed'] = Gtk::CheckButton.new("Display detailed output")
 			
-			create_renderer()
+			stuff.pack_start(@collect['Exports'], false, false, 0)
+			stuff.pack_start(@collect['Imports'], false, false, 0)
+			stuff.pack_start(@collect['Segments'], false, false, 0)
+			stuff.pack_start(@collect['Detailed'], false, false, 0)
+			
+			# For Locales frame
+			frame_locale = Gtk::Frame.new
+			stuff.pack_start(frame_locale, false, false, 0)
+			@table_locale = Gtk::Table.new(3, 2, true)
+			frame_locale.add(@table_locale)
+			create_locales
+			
+			# For Platforms frame
+			frame_platforms = Gtk::Frame.new
+			stuff.pack_start(frame_platforms, false, false, 0)
+			@table_platforms = Gtk::Table.new(3, 2, true)
+			frame_platforms.add(@table_platforms)
+			create_platforms
+			
+			# For Modules frame
+			frame_modules = Gtk::Frame.new
+			stuff.pack_start(frame_modules, false, false, 0)
+			@vbox_modules = Gtk::VBox.new(false, 10)
+			frame_modules.add(@vbox_modules)
+			create_modules(@collect_modules)
+			
+			signal_connect('response') do |dialog, response_id|
+				if response_id == Gtk::Dialog::RESPONSE_OK
+					collect()
+				end
+			end			
 			
 			show_all and run
 			destroy
 		end
 		
-		#
-		# Create model for the treeview
-		#
-		def create_model
-			store = Gtk::ListStore.new(	Integer,        	# L_COMBO_TEXT_COLUMN
-			   				Gtk::ListStore, 	# L_COMBO_MODEL
-							TrueClass,      	# L_COMBO_HAS_ENTRY
-							TrueClass,      	# L_COMBO_EDITABLE
-							String,         	# L_COMBO_TEXT
-							Gdk::Pixbuf,	 	# L_REMOVE
-							Gdk::Pixbuf)		# L_ADD
-			
-			combo_model = create_combo
-			iter = store.append
-			iter[L_COMBO_MODEL] = combo_model
-			iter[L_COMBO_HAS_ENTRY] = false
-			iter[L_COMBO_EDITABLE] = true
-			iter[L_COMBO_TEXT] = combo_model.get_iter("0")[0]
-			iter[L_REMOVE] = self.render_icon(Gtk::Stock::REMOVE, Gtk::IconSize::BUTTON, "icon")
-			iter[L_ADD] = self.render_icon(Gtk::Stock::ADD, Gtk::IconSize::BUTTON, "icon1")
-			
-			return store
+		def create_locales
+			@collect_locales['english'] = Gtk::CheckButton.new("For english locale")
+			@collect_locales['french'] = Gtk::CheckButton.new("For french locale")
+			@collect_locales['italian'] = Gtk::CheckButton.new("For italian locale")
+			@collect_locales['german'] = Gtk::CheckButton.new("For german locale")
+			@table_locale.attach_defaults(@collect_locales['english'], 0, 1, 1, 2)
+			@table_locale.attach_defaults(@collect_locales['french'], 0, 1, 2, 3)
+			@table_locale.attach_defaults(@collect_locales['italian'], 1, 2, 1, 2)
+			@table_locale.attach_defaults(@collect_locales['german'], 1, 2, 2, 3)
+		end
+		
+		def create_platforms
+			@collect_platforms['NT'] = Gtk::CheckButton.new("For NT platform")
+			@collect_platforms['2000'] = Gtk::CheckButton.new("For 2000 platform")
+			@collect_platforms['XP'] = Gtk::CheckButton.new("For XP platform")
+			@collect_platforms['2003'] = Gtk::CheckButton.new("For 2003 platform")
+			@table_platforms.attach_defaults(@collect_platforms['NT'], 0, 1, 1, 2)
+			@table_platforms.attach_defaults(@collect_platforms['2000'], 0, 1, 2, 3)
+			@table_platforms.attach_defaults(@collect_platforms['XP'], 1, 2, 1, 2)
+			@table_platforms.attach_defaults(@collect_platforms['2003'], 1, 2, 2, 3)
+		end
+		
+		def create_modules(buffer)
+			label = Gtk::Label.new(" A comma separated list of module names to filter (Ex: kernel32.dll,user32.dll)")
+			label.set_alignment(0, 0)
+			@vbox_modules.pack_start(label, false, false, 0)
+			textview = Gtk::TextView.new(buffer)
+			textview.set_size_request(480, 50)
+			@vbox_modules.pack_start(textview, true, true, 0)
 		end
 		
 		#
-		# Create combo for locales selection
+		# Collect data
 		#
-		def create_combo
-			# Model for Gtk::Combo
-			model_locale = Gtk::ListStore.new(String)
+		def collect
 			
-			# Add iter to Gtk::Combo
-			$client.locales.each do |locale|
-				iter = model_locale.append
-				iter[0] = locale.name
+			# For Global option
+			@collect.each_pair do |key, value|
+				if value.active?
+					@filter[key] = true
+				end
+			end
+						
+			# For locales
+			@filter['LocaleNames'] = ""
+			@collect_locales.each_pair do |key, value|
+				if value.active?
+					@filter['LocaleNames'] = @filter['LocaleNames'] + key
+				end
 			end
 			
-			return model_locale
-		end
-		
-		#
-		# Renderer & Column
-		#
-		def create_renderer
-			
-			# Renderer for combo Box
-			renderer = Gtk::CellRendererCombo.new
-			
-			# Signal for combo box
-			renderer.signal_connect("edited") do |renderer, path, text|
-				@model.get_iter(path)[L_COMBO_TEXT] = text
+			# For platform
+			@filter['PlatformNames'] = ""
+			@collect_platforms.each_pair do |key, value|
+				if value.active?
+					@filter['PlatformNames'] = @filter['PlatformNames'] + key
+				end
 			end
-
-			# Column for combo box
-			column = Gtk::TreeViewColumn.new("Select your locale to filter :", renderer,
-							       :text_column 	=> L_COMBO_TEXT_COLUMN,
-							       :model 		=> L_COMBO_MODEL,
-							       :has_entry 	=> L_COMBO_HAS_ENTRY,
-							       :editable 	=> L_COMBO_EDITABLE,
-							       :text 		=> L_COMBO_TEXT)
-			column.sizing = Gtk::TreeViewColumn::FIXED
-			column.fixed_width = 450
-			column.pack_start(renderer, false)
 			
-			# renderer for pixbuf
-			renderer_remove = Gtk::CellRendererPixbuf.new
-			renderer_add = Gtk::CellRendererPixbuf.new
+			# For module
+			@filter['ModuleNames'] = @collect_modules.get_text.split(/,/)
 			
-			# Column for pixbuf
-			column_pixbuf = Gtk::TreeViewColumn.new
-			column_pixbuf.pack_start(renderer_remove, false)
-			column_pixbuf.set_cell_data_func(renderer_remove) do |column, cell, model, iter|
-				cell.pixbuf = iter[L_REMOVE]
-			end
-			column_pixbuf.pack_start(renderer_add, false)
-			column_pixbuf.set_cell_data_func(renderer_add) do |column, cell, model, iter|
-				cell.pixbuf = iter[L_ADD]
-			end			
-			
-			# Add columns
-			@locale_treeview.append_column(column)
-			@locale_treeview.append_column(column_pixbuf)
+			# Perform an XML request
+			modules = $client.modules(@filter)
+			puts $client.last_xml
 		end
 	end
 end
