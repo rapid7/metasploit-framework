@@ -29,7 +29,7 @@ body>div#menuBar {
 }
 
 #menuBar {
-	width: 100px;
+	width: 125px;
 	background: url(images/menu-button-back.jpg) repeat-y;
 	overflow: hidden;
 }
