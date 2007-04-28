@@ -121,17 +121,48 @@ mode = ARGV.pop || 'h'
 # Import options
 exploit.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
 
+
+# Initialize associated modules
+payload = nil
+encoder = nil
+nop     = nil
+
+if (exploit.datastore['PAYLOAD'])
+	payload = $framework.payloads.create(exploit.datastore['PAYLOAD'])
+end
+
+if (exploit.datastore['ENCODER'])
+	encoder = $framework.encoders.create(exploit.datastore['ENCODER'])
+end
+
+if (exploit.datastore['NOP'])
+	nop = $framework.nops.create(exploit.datastore['NOP'])
+end
+
 case mode.downcase
 	when 'h'
 		usage
 	when "s"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(exploit, Indent))
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(payload, Indent)) if payload
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(encoder, Indent)) if encoder
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(nop, Indent)) if nop
+		
 	when "o"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(exploit, Indent))
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(payload, Indent)) if payload
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(encoder, Indent)) if encoder
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(nop, Indent)) if nop		
 	when "a"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(exploit, Indent))
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(payload, Indent)) if payload
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(encoder, Indent)) if encoder
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(nop, Indent)) if nop		
 	when "i"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(exploit, Indent))
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(payload, Indent)) if payload
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(encoder, Indent)) if encoder
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(nop, Indent)) if nop		
 	when "p"
 		if (module_class == 'exploit')
 			$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_compatible_payloads(exploit, Indent, "Compatible payloads"))
