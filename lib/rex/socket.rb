@@ -78,6 +78,13 @@ module Socket
 	##
 
 	#
+	# Determine whether we support IPv6
+	#		
+	def self.support_ipv6?
+		::Socket.const_defined?('AF_INET6') ? true : false
+	end
+	
+	#
 	# Determine whether this is an IPv4 address
 	#	
 	def self.is_ipv4?(addr)
@@ -95,9 +102,12 @@ module Socket
 
 	#
 	# Checks to see if the supplied address is a dotted quad. 
-	# TODO: IPV6
 	#
 	def self.dotted_ip?(addr)
+		# Assume anything with a colon is IPv6
+		return true if (support_ipv6? and addr =~ /:/)
+		
+		# Otherwise assume this is IPv4
 		(addr =~ /^(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))$/) ? true : false
 	end
 
@@ -118,7 +128,13 @@ module Socket
 	# on Windows.
 	#
 	def self.gethostbyname(host)
-		dotted_ip?(host) ? [ host, host, 2, host.split('.').map{ |o| o.to_i }.pack('C*') ] : ::Socket.gethostbyname(host)
+		if (dotted_ip?(host))
+			if (is_ipv4?(host))
+				return [ host, host, 2, host.split('.').map{ |c| c.to_i }.pack("C4") ]
+			end
+		end
+
+		::Socket.gethostbyname(host)
 	end
 
 	#
@@ -126,8 +142,11 @@ module Socket
 	# address family
 	#
 	def self.to_sockaddr(ip, port)
-		ip   = "0.0.0.0" unless ip
-		return ::Socket::pack_sockaddr_in(port, ip)
+		if (not ip or ip == '0.0.0.0' or ip == '::ffff:0.0.0.0')
+			ip  = support_ipv6?() ? '::' : '0.0.0.0'
+		end
+
+		return ::Socket.pack_sockaddr_in(port, ip)
 	end
 
 	#
@@ -136,14 +155,16 @@ module Socket
 	#
 	def self.from_sockaddr(saddr)
 		port, host = ::Socket::unpack_sockaddr_in(saddr)
-		af = host.match(/:/) ? ::Socket::AF_INET6 : ::Socket::AF_INET
+		af = ::Socket::AF_INET
+		if (support_ipv6?() and is_ipv6?(host))
+			af = ::Socket::AF_INET6
+		end
 		return [ af, host, port ]
 	end
 
 	#
 	# Resolves a host to raw network-byte order.
-	# TODO: All this to work with IPV6 sockets
-	
+	#
 	def self.resolv_nbo(host)
 		self.gethostbyname(Rex::Socket.getaddress(host))[3]
 	end
@@ -152,24 +173,121 @@ module Socket
 	# Resolves a host to a network-byte order ruby integer.
 	#
 	def self.resolv_nbo_i(host)
-		ret = resolv_nbo(host).unpack('N*')
-		case ret.length
-			when 1
-				return ret[0]
-			when 4
-				val = 0
-				ret.each_index { |i| val += (  ret[i] << (96 - (i * 32)) ) }
-				return val
-			else
-				raise RuntimeError, "Invalid address format"
-		end
+		addr_ntoi(resolv_nbo(host))
 	end
 
 	#
 	# Resolves a host to a dotted address.
 	#
 	def self.resolv_to_dotted(host)
-		Rex::Socket.getaddress(host)
+		addr_ntoa(addr_aton(host))
+	end
+
+	#
+	# Converts a ascii address into an integer
+	#
+	def self.addr_atoi(addr)
+		resolv_nbo_i(addr)
+	end
+
+	#
+	# Converts an integer address into ascii
+	#
+	def self.addr_itoa(addr, v6=false)
+	
+		nboa = addr_iton(addr, v6)
+		
+		# IPv4 
+		if (addr < 0x100000000 and not v6)
+			nboa.unpack('C4').join('.')
+		# IPv6
+		else
+			nboa.unpack('n8').map{ |c| "%.4x" % c }.join(":")
+		end		
+	end
+
+	#
+	# Converts a ascii address to network byte order
+	#
+	def self.addr_aton(addr)
+		resolv_nbo(addr)
+	end
+
+	#
+	# Converts a network byte order address to ascii
+	#
+	def self.addr_ntoa(addr)
+	
+		# IPv4 
+		if (addr.length == 4)
+			return [addr].pack('N').unpack('C4').join('.')
+		end
+		
+		# IPv6
+		if (addr.length == 16)
+			return addr.unpack('n8').map{ |c| "%.4x" % c }.join(":")
+		end
+		
+		raise RuntimeError, "Invalid address format"		
+	end
+
+	#
+	# Converts a network byte order address to an integer
+	#
+	def self.addr_ntoi(addr)
+	
+		bits = addr.unpack("N*")
+		
+		if (bits.length == 1)
+			return bits[0]
+		end
+		
+		if (bits.length == 4)
+			val = 0
+			bits.each_index { |i| val += (  bits[i] << (96 - (i * 32)) ) }
+			return val
+		end
+		
+		raise RuntimeError, "Invalid address format"
+	end
+
+	#
+	# Converts an integer into a network byte order address
+	#
+	def self.addr_iton(addr, v6=false)
+		if(addr < 0x100000000 and not v6)
+			return [addr].pack('N')
+		else
+			w    = []
+			w[0] = (addr >> 96) & 0xffffffff
+			w[1] = (addr >> 64) & 0xffffffff
+			w[2] = (addr >> 32) & 0xffffffff
+			w[3] = addr & 0xffffffff
+			return w.pack('N4')		
+		end
+	end
+			
+	#
+	# Converts a CIDR subnet into an array (base, bcast)
+	#
+	def self.cidr_crack(cidr, v6=false)
+		tmp = cidr.split('/')
+		addr = addr_atoi(tmp[0])
+		
+		bits = 32
+		mask = 0
+		use6 = false
+		
+		if (addr > 0xffffffff or v6)
+			use6 = true
+			bits = 128
+		end
+		
+		mask = (2 ** bits) - (2 ** (bits - tmp[1].to_i))
+		base = addr & mask
+
+		stop = base + (2 ** (bits - tmp[1].to_i)) - 1
+		return [self.addr_itoa(base, use6), self.addr_itoa(stop, use6)]	
 	end
 
 	#
@@ -177,45 +295,26 @@ module Socket
 	# lame kid way of doing it.
 	#
 	def self.net2bitmask(netmask)
-		raw = resolv_nbo(netmask).unpack('N')[0]
+	
+		nmask = resolv_nbo(netmask)
+		imask = addr_ntoi(nmask)
+		bits  = 32
+		
+		if (imask > 0xffffffff)
+			bits = 128
+		end
 
-		0.upto(31) { |bit|
+		0.upto(bits-1) do |bit|
 			p = 2 ** bit
-			return (32 - bit) if ((raw & p) == p)
-		}
-
+			return (bits - bit) if ((imask & p) == p)
+		end
+		
 		0
 	end
-
-	#
-	# Converts a dotted-quad address into an integer
-	#
-	def self.addr_atoi(addr)
-		addr.split('.').map{|i| i.to_i }.pack('C4').unpack('N')[0]
-	end
-
-	#
-	# Converts an integer into a dotted-quad
-	#
-	def self.addr_itoa(addr)
-		[addr].pack('N').unpack('C4').join('.')
-	end
-	
-	#
-	# Converts a CIDR subnet into an array (base, bcast)
-	#
-	def self.cidr_crack(cidr)
-		tmp = cidr.split('/')
-		addr = self.addr_atoi(tmp[0])
-		mask = (2 ** 32) - (2 ** (32 - tmp[1].to_i))
-		base = addr & mask
-		stop = base + (2 ** (32 - tmp[1].to_i)) - 1
-		return [self.addr_itoa(base), self.addr_itoa(stop)]	
-	end
-	
-	
+		
 	#
 	# Converts a bitmask (28) into a netmask (255.255.255.240)
+	# TODO: IPv6 (use is ambiguous right now)
 	#
 	def self.bit2netmask(bitmask)
 		[ (~((2 ** (32 - bitmask)) - 1)) & 0xffffffff ].pack('N').unpack('CCCC').join('.')
@@ -269,6 +368,7 @@ module Socket
 			self.localhost = params.localhost
 			self.localport = params.localport
 			self.context   = params.context || {}
+			self.ipv       = params.v6 ? 6 : 4
 		end
 	end
 
@@ -324,6 +424,10 @@ module Socket
 	#
 	attr_reader :localport
 	#
+	# The IP version of the socket
+	#
+	attr_reader :ipv
+	#
 	# Contextual information that describes the source and other
 	# instance-specific attributes.  This comes from the param.context
 	# attribute.
@@ -334,6 +438,7 @@ protected
 
 	attr_writer :peerhost, :peerport, :localhost, :localport # :nodoc:
 	attr_writer :context # :nodoc:
+	attr_writer :ipv # :nodoc:
 
 end
 

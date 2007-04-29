@@ -34,11 +34,60 @@ class Rex::Socket::Comm::Local
 	# Creates a socket using the supplied Parameter instance.
 	#
 	def self.create_by_type(param, type, proto = 0)
+
+		# Whether to use IPv6 addressing
+		usev6 = false
+			
+		# Detect IPv6 addresses and enable IPv6 accordingly
+		if ( Rex::Socket.support_ipv6?())
+
+			# Allow the caller to force IPv6
+			if (param.v6)
+				usev6 = true
+			end
+
+			# Force IPv6 mode for non-connected UDP sockets
+			if (type == ::Socket::SOCK_DGRAM and not param.peerhost)
+				usev6 = true
+			end
+		
+			local = Rex::Socket.resolv_nbo(param.localhost) if param.localhost
+			peer  = Rex::Socket.resolv_nbo(param.peerhost) if param.peerhost
+			
+			if (local and local.length == 16)
+				usev6 = true			
+			end
+			
+			if (peer and peer.length == 16)
+				usev6 = true			
+			end
+			
+			if (usev6)
+				if (local and local.length == 4)
+					param.localhost = '::ffff:' + Rex::Socket.getaddress(param.localhost)
+				end
+				
+				if (peer and peer.length == 4)
+					param.peerhost = '::ffff:' + Rex::Socket.getaddress(param.peerhost)
+				end
+				
+				param.v6 = true
+			end	
+		else
+			# No IPv6 support
+			param.v6 = false
+		end
+		
 		# Notify handlers of the before socket create event.
 		self.instance.notify_before_socket_create(self, param)
 
 		# Create the socket
-		sock = ::Socket.new(::Socket::AF_INET, type, proto)
+		sock = nil
+		if (param.v6)
+			sock = ::Socket.new(::Socket::AF_INET6, type, proto)		
+		else
+			sock = ::Socket.new(::Socket::AF_INET, type, proto)
+		end
 
 		# Bind to a given local address and/or port if they are supplied
 		if (param.localhost || param.localport)

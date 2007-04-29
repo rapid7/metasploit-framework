@@ -152,6 +152,9 @@ class Rex::Socket::Parameters
 
 		# The number of seconds before a connect attempt times out (client only)
 		self.timeout   = hash['Timeout'] || 5
+		
+		# Whether to force IPv6 addressing
+		self.v6        = hash['IPv6'] || false
 	end
 
 	##
@@ -202,6 +205,14 @@ class Rex::Socket::Parameters
 	def ssl?
 		return ssl
 	end
+
+	#
+	# Returns true if IPv6 has been enabled
+	#
+	def v6?
+		return v6
+	end
+
 
 	##
 	#
@@ -261,6 +272,10 @@ class Rex::Socket::Parameters
 	# Whether or not SSL should be used to wrap the connection.
 	#
 	attr_accessor :ssl
+	#
+	# Whether we should use IPv6
+	#
+	attr_accessor :v6
 
 
 	attr_accessor :proxies

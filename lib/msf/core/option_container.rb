@@ -381,7 +381,9 @@ class OptAddressRange < OptBase
 				tmp = Rex::Socket.addr_itoa(Rex::Socket.addr_atoi(range))
 				sets << [tmp, tmp]
 			end
-			rescue
+			rescue ::Exception => e
+				p e
+				p e.backtrace
 			end
 		end
 

@@ -92,6 +92,13 @@ module Rex::Socket::Udp
 	# Sends a datagram to the supplied host:port with optional flags.
 	#
 	def sendto(gram, peerhost, peerport, flags = 0)
+		
+		# Catch unconnected IPv6 sockets talking to IPv4 addresses
+		peer = Rex::Socket.resolv_nbo(peerhost)
+		if (peer.length == 4 and self.ipv == 6)
+			peerhost = '::ffff:' + Rex::Socket.getaddress(peerhost)
+		end
+
 		return send(gram, flags, Rex::Socket.to_sockaddr(peerhost, peerport))
 	end
 
