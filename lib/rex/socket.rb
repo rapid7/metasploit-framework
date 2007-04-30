@@ -77,11 +77,30 @@ module Socket
 	#
 	##
 
+
+	# Cache our IPv6 support flag
+	@@support_ipv6 = nil
+	
 	#
 	# Determine whether we support IPv6
 	#		
 	def self.support_ipv6?
-		::Socket.const_defined?('AF_INET6') ? true : false
+		if(@@support_ipv6)
+			return (@@support_ipv6 == "yes" ? true : false)
+		end
+		
+		@@support_ipv6 = "no"
+		
+		if (::Socket.const_defined?('AF_INET6'))
+			begin
+				s = ::Socket.new(::Socket::AF_INET6, ::Socket::SOCK_DGRAM, ::Socket::IPPROTO_UDP)
+				s.close
+				@@support_ipv6 = "yes"
+			rescue ::SocketError
+			end
+		end
+		
+		return (@@support_ipv6 == "yes" ? true : false)
 	end
 	
 	#
