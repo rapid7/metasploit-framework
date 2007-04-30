@@ -4,6 +4,8 @@ module Gtk2
 
 require 'rex/exploitation/opcodedb'
 
+require 'rexml/document'
+
 ##
 # Gtk2 Interface for msfopcode
 ##
@@ -318,10 +320,10 @@ class MsfOpcode
 		# Display all supported locales
 		#
 		def create_locales
-			@collect_locales['english'] = Gtk::CheckButton.new("For english locale")
-			@collect_locales['french'] = Gtk::CheckButton.new("For french locale")
-			@collect_locales['italian'] = Gtk::CheckButton.new("For italian locale")
-			@collect_locales['german'] = Gtk::CheckButton.new("For german locale")
+			@collect_locales['english'] = Gtk::CheckButton.new("English")
+			@collect_locales['french'] = Gtk::CheckButton.new("French")
+			@collect_locales['italian'] = Gtk::CheckButton.new("Italian")
+			@collect_locales['german'] = Gtk::CheckButton.new("German")
 			@table_locale.attach_defaults(@collect_locales['english'], 0, 1, 1, 2)
 			@table_locale.attach_defaults(@collect_locales['french'], 0, 1, 2, 3)
 			@table_locale.attach_defaults(@collect_locales['italian'], 1, 2, 1, 2)
@@ -332,10 +334,10 @@ class MsfOpcode
 		# Display all supported platforms
 		#		
 		def create_platforms
-			@collect_platforms['NT'] = Gtk::CheckButton.new("For NT platform")
-			@collect_platforms['2000'] = Gtk::CheckButton.new("For 2000 platform")
-			@collect_platforms['XP'] = Gtk::CheckButton.new("For XP platform")
-			@collect_platforms['2003'] = Gtk::CheckButton.new("For 2003 platform")
+			@collect_platforms['NT'] = Gtk::CheckButton.new("Windows NT")
+			@collect_platforms['2000'] = Gtk::CheckButton.new("Windows 2000")
+			@collect_platforms['XP'] = Gtk::CheckButton.new("Windows XP")
+			@collect_platforms['2003'] = Gtk::CheckButton.new("Windows 2003")
 			@table_platforms.attach_defaults(@collect_platforms['NT'], 0, 1, 1, 2)
 			@table_platforms.attach_defaults(@collect_platforms['2000'], 0, 1, 2, 3)
 			@table_platforms.attach_defaults(@collect_platforms['XP'], 1, 2, 1, 2)
@@ -387,7 +389,25 @@ class MsfOpcode
 			
 			# Perform an XML request
 			modules = $client.modules(@filter)
-			puts $client.last_xml
+			
+			display($client.last_xml)
+			
+		end
+		
+		#
+		# Display the matched modules
+		#
+		def display(xml)
+			
+			# Load XML
+			doc = REXML::Document.new(xml)
+			
+			doc.elements.each("Array/Hash/Entry[@name='name']") do |element| 
+				puts element.text
+			end
+			
+			# puts doc.elements["Array/Hash/Entry[@name='name']"].text
+			
 		end
 	end
 end

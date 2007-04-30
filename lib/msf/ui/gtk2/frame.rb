@@ -9,7 +9,7 @@ class MyModuleTree < MyGlade
 	
 	@@completion = []
 	
-	CATEGORY, MODULE, ADV, APP = *(0..4).to_a
+	PIX, CATEGORY, MODULE, ADV, APP = *(0..5).to_a
 	
 	include Msf::Ui::Gtk2::MyControls
 	
@@ -19,7 +19,8 @@ class MyModuleTree < MyGlade
 		@treeview1 = treeview
 		@treeview1.enable_search = true
 		
-		@model = Gtk::TreeStore.new(String,		# Module name
+		@model = Gtk::TreeStore.new(	Gdk::Pixbuf,	# pixbuf
+						String,		# Module name
 						Object,		# Exploit?
 						TrueClass,	# ADV?
 						String		# Appartenance
@@ -35,11 +36,18 @@ class MyModuleTree < MyGlade
 		@buffer = MyModuleView.new(buff)
 		
 		# Renderer Module
-		#renderer1 = Gtk::CellRendererPixbuf.new
-		renderer1 = Gtk::CellRendererText.new
+		renderer_pix = Gtk::CellRendererPixbuf.new
+		renderer_module = Gtk::CellRendererText.new
 		
-		column1 = Gtk::TreeViewColumn.new("Modules", renderer1, 'text' => CATEGORY)
-		column1.sort_column_id = CATEGORY
+		column_module = Gtk::TreeViewColumn.new		
+		column_module.pack_start(renderer_pix, false)
+		column_module.set_cell_data_func(renderer_pix) do |column, cell, model, iter|
+			cell.pixbuf = iter[PIX]
+		end
+		column_module.pack_start(renderer_module, true)
+		column_module.set_cell_data_func(renderer_module) do |column, cell, model, iter|
+			cell.text = iter[CATEGORY]
+		end
 		
 		#set model to treeview
 		@treeview1.set_size_request(380, -1)
@@ -50,7 +58,7 @@ class MyModuleTree < MyGlade
 		@selection = @treeview1.selection
 		@treeview1.selection.mode = Gtk::SELECTION_BROWSE
 		
-		@treeview1.append_column(column1)
+		@treeview1.append_column(column_module)
 		
 		# Signals
 		@treeview1.signal_connect('cursor-changed') do |widget, event|
@@ -127,7 +135,8 @@ class MyModuleTree < MyGlade
 		
 		# Add Parent "Standard (nbr exploits)"
 		iter = @model.append(nil)
-		iter.set_value(CATEGORY, "Standard (#{framework.stats.num_exploits.to_s})")
+		iter.set_value(PIX, driver.get_icon("bug.png"))
+		iter.set_value(CATEGORY, "Exploits (#{framework.stats.num_exploits.to_s})")
 		iter.set_value(MODULE, nil)
 		iter.set_value(ADV, true)
 	
@@ -145,6 +154,7 @@ class MyModuleTree < MyGlade
 		
 		# Add Parent "Auxiliary (nbr auxiliary)"
 		iter = @model.append(nil)
+		iter.set_value(PIX, driver.get_icon("zoom.png"))
 		iter.set_value(CATEGORY, "Auxiliary (#{framework.stats.num_auxiliary.to_s})")
 		iter.set_value(MODULE, nil)
 		iter.set_value(ADV, true)
@@ -163,6 +173,7 @@ class MyModuleTree < MyGlade
 		
 		# Add Parent "Payloads (nbr payloads)"
 		iter = @model.append(nil)
+		iter.set_value(PIX, driver.get_icon("bomb.png"))
 		iter.set_value(CATEGORY, "Payloads (#{framework.stats.num_payloads.to_s})")
 		iter.set_value(MODULE, nil)
 		iter.set_value(ADV, true)
@@ -181,6 +192,7 @@ class MyModuleTree < MyGlade
 		
 		# Add Parent "Nops (nbr nops)"
 		iter = @model.append(nil)
+		iter.set_value(PIX, driver.get_icon("encoders.png"))
 		iter.set_value(CATEGORY, "NOPs (#{framework.stats.num_nops.to_s})")
 		iter.set_value(MODULE, nil)
 		iter.set_value(ADV, true)
@@ -199,6 +211,7 @@ class MyModuleTree < MyGlade
 		
 		# Add Parent "Encoders (nbr encoders)"
 		iter = @model.append(nil)
+		iter.set_value(PIX, driver.get_icon("encoders.png"))
 		iter.set_value(CATEGORY, "Encoders (#{framework.stats.num_encoders.to_s})")
 		iter.set_value(MODULE, nil)
 		iter.set_value(ADV, true)

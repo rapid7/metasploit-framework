@@ -110,7 +110,9 @@ class MyApp < MyGlade
 	# Actions for OpCodes/Stats
 	#
 	def on_stats_activate
-		MsfOpcode::Stats.new()
+		t_run = Thread.new do
+			MsfOpcode::Stats.new()
+		end
 	end
 	
 	#
