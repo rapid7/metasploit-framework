@@ -96,7 +96,7 @@ module Socket
 				s = ::Socket.new(::Socket::AF_INET6, ::Socket::SOCK_DGRAM, ::Socket::IPPROTO_UDP)
 				s.close
 				@@support_ipv6 = "yes"
-			rescue ::SocketError
+			rescue
 			end
 		end
 		
