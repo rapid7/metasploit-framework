@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: ms06_019_exchange.rb 4498 2007-03-01 08:21:36Z mmiller $
 ##
 
 ##
@@ -28,7 +28,7 @@ class Exploits::Windows::Smtp::MS06_019_EXCHANGE < Msf::Exploit::Remote
 			},
 			'Author'         => [ 'pusscat' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
+			'Version'        => '$Revision: 4498 $',
 			'References'     =>
 				[
 					[ 'BID', '17908'],
