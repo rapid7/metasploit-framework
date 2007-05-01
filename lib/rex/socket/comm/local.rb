@@ -64,11 +64,19 @@ class Rex::Socket::Comm::Local
 			
 			if (usev6)
 				if (local and local.length == 4)
-					param.localhost = '::ffff:' + Rex::Socket.getaddress(param.localhost)
+					if (local == "\x00\x00\x00\x00")
+						param.localhost = '::'
+					else
+						param.localhost = '::ffff:' + Rex::Socket.getaddress(param.localhost)
+					end
 				end
 				
 				if (peer and peer.length == 4)
-					param.peerhost = '::ffff:' + Rex::Socket.getaddress(param.peerhost)
+					if (peer == "\x00\x00\x00\x00")
+						param.peerhost = '::'
+					else
+						param.peerhost = '::ffff:' + Rex::Socket.getaddress(param.peerhost)
+					end
 				end
 				
 				param.v6 = true
