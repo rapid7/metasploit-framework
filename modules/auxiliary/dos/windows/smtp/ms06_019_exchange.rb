@@ -14,7 +14,7 @@ require 'msf/core'
 
 module Msf
 
-class Exploits::Windows::Smtp::MS06_019_EXCHANGE < Msf::Exploit::Remote
+class Auxiliary::Dos::Windows::Smtp::MS06_019_EXCHANGE < Msf::Exploit::Remote
 
 	include Exploit::Remote::Smtp
 
