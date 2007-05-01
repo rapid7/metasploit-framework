@@ -24,11 +24,6 @@ module Socket
 	require 'rex/socket/switch_board'
 	require 'rex/socket/subnet_walker'
 	require 'rex/socket/range_walker'
-	
-	# Handle systems without AF_INET6 defined
-	if (! ::Socket.constants.include?('AF_INET6'))
-		::Socket.const_set('AF_INET6', 10)
-	end
 
 	##
 	#
@@ -161,8 +156,9 @@ module Socket
 	# address family
 	#
 	def self.to_sockaddr(ip, port)
-		if (not ip or ip == '0.0.0.0' or ip == '::ffff:0.0.0.0')
-			ip  = support_ipv6?() ? '::' : '0.0.0.0'
+		
+		if (ip == '::ffff:0.0.0.0')
+			ip = support_ipv6?() ? '::' : '0.0.0.0'
 		end
 
 		return ::Socket.pack_sockaddr_in(port, ip)
