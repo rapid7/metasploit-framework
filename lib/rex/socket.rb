@@ -293,7 +293,7 @@ module Socket
 		mask = 0
 		use6 = false
 		
-		if (addr > 0xffffffff or v6)
+		if (addr > 0xffffffff or v6 or cidr =~ /:/)
 			use6 = true
 			bits = 128
 		end
