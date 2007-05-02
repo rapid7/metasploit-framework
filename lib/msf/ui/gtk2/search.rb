@@ -56,7 +56,7 @@ class ModuleSearch
 		found = []
 		filter = Regexp.new(text, Regexp::IGNORECASE)
 		$gtk2driver.module_model.each do |model, path, iter|
-			if (not iter[0][filter])
+			if (not iter[1][filter])
 				found.push(iter)
 			end
 		end

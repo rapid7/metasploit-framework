@@ -89,11 +89,11 @@ class MyModuleTree < MyGlade
 							if (iter.get_value(APP) == "Standard")
 								treeview.selection.select_path(path)
 								active(iter)
-								MsfAssistant::Standard.new(iter.get_value(1))
+								MsfAssistant::Standard.new(iter.get_value(MODULE))
 							elsif (iter.get_value(APP) == "Payloads")
 								treeview.selection.select_path(path)
 								active(iter)
-								MsfAssistant::Payload.new(iter.get_value(1))
+								MsfAssistant::Payload.new(iter.get_value(MODULE))
 							else
 								treeview.selection.select_path(path)
 								active(iter)
