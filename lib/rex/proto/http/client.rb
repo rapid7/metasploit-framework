@@ -299,9 +299,6 @@ class Client
 		# Send it on over
 		ret = conn.put(req_string)
 
-		# Tell the remote side if we aren't pipelining
-		conn.shutdown(::Socket::SHUT_WR) if (!pipelining?)
-		
 		ret
 	end
 	
@@ -363,6 +360,7 @@ class Client
 						if (rv == Packet::ParseCode::Error)
 							raise RuntimeError, resp.error, caller
 						end
+						select(nil, nil, nil, 0.10)
 					end
 				end
 			rescue EOFError

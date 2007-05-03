@@ -49,9 +49,30 @@ begin
 
 		# Build the SSL connection
 		self.sslctx  = OpenSSL::SSL::SSLContext.new
+		
+		# Configure the SSL context
+		# TODO: Allow the user to specify the verify mode and callback
+		# Valid modes:
+		#  VERIFY_CLIENT_ONCE
+		#  VERIFY_FAIL_IF_NO_PEER_CERT 
+		#  VERIFY_NONE
+		#  VERIFY_PEER
+		self.sslctx.verify_mode = OpenSSL::SSL::VERIFY_PEER
+		self.sslctx.options = OpenSSL::SSL::OP_ALL
+		
+		# Set the verification callback
+		self.sslctx.verify_callback = Proc.new do |valid, store|
+			self.peer_verified = valid
+			true
+		end
+		
+		# Tie the context to a socket
 		self.sslsock = OpenSSL::SSL::SSLSocket.new(self, self.sslctx)
+		
 		# XXX - enabling this causes infinite recursion, so disable for now
 		# self.sslsock.sync_close = true
+		
+		# Negotiate the connection
 		self.sslsock.connect
 	end
 
@@ -89,9 +110,42 @@ begin
 		super
 	end
 
+	# 
+	# Ignore shutdown requests
+	#
+	def shutdown(how=0)
+		# Calling shutdown() on an SSL socket can lead to bad things
+		# Cause of http://metasploit.com/dev/trac/ticket/102
+	end
+	
+	#
+	# Access to peer cert
+	#
+	def peer_cert
+		sslsock.peer_cert if sslsock
+	end
+	
+	#
+	# Access to peer cert chain
+	#
+	def peer_cert_chain
+		sslsock.peer_cert_chain if sslsock
+	end
+	
+	#
+	# Access to the current cipher
+	#
+	def cipher
+		sslsock.cipher if sslsock
+	end
+
+
+
+	attr_reader :peer_verified # :nodoc:
 protected
 
 	attr_accessor :sslsock, :sslctx # :nodoc:
+	attr_writer :peer_verified # :nodoc:
 
 rescue LoadError
 end

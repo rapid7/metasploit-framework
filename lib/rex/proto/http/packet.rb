@@ -72,6 +72,7 @@ class Packet
 	# codes (Completed, Partial, or Error).
 	#
 	def parse(buf)
+
 		# Append the incoming buffer to the buffer queue.
 		self.bufq += buf
 
@@ -84,7 +85,11 @@ class Packet
 			# If we're processing the body (possibly after having finished
 			# processing headers), do that now.
 			if (self.state == ParseState::ProcessingBody)
-				parse_body
+				if (self.body_bytes_left == 0)
+					self.state = ParseState::Completed
+				else
+					parse_body
+				end
 			end
 		rescue
 			self.error = $!
