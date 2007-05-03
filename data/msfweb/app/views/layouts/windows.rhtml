@@ -6,8 +6,13 @@
         <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
         <meta name="Author" content="LMH (lmh@info-pull.com)" />
         <meta name="Copyright" content="(c) 2006, LMH (lmh@info-pull.com)" />
-        <%= stylesheet_link_tag "windows" %>
-        <%= javascript_include_tag :defaults %>
+        <% ["prototype","effects","dragdrop","controls","application","cookiecheck"].each do |js| %>
+        <%= javascript_include_tag js %><% end %>
+
+      <script>
+         document.writeln('<link rel="stylesheet" type="text/css" href="' + contentStyle +'">'); // Window content stylesheet
+      </script>
+
     </head>
 
     <body>

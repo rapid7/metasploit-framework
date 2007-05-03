@@ -1,0 +1,136 @@
+/*
+ * Theme ported by L.M.H. <lmh@info-pull.com>
+ */
+.overlay_metasploit {
+	background-color: #85BBEF;
+	filter:alpha(opacity=60);
+	-moz-opacity: 0.6;
+	opacity: 0.6;
+}
+
+.metasploit_nw {
+  background: transparent url(windowframe/titlebar-left-shaded-focused.png) no-repeat 0 0;			
+  width:10px;
+  height:23px;
+}
+.metasploit_n {
+  background: transparent url(windowframe/titlebar-mid-shaded-focused.png) repeat-x 0 0;			
+  height:23px;
+}
+.metasploit_ne {
+  background: transparent url(windowframe/titlebar-right-shaded-focused.png) no-repeat 0 0;			
+  width:10px;	  
+  height:23px;
+}
+.metasploit_w {
+  background: transparent url(windowframe/frame-left-focused.png) repeat-y top left;			
+  width:5px;
+}
+
+.metasploit_e {
+  background: transparent url(windowframe/frame-right-focused.png) repeat-y top right;			
+  width:5px;	  
+}
+
+.metasploit_sw {
+  background: transparent url(windowframe/frame-bottom-left-focused.png) no-repeat 0 0;			
+  width:5px;
+  height:5px;
+}
+.metasploit_s {
+  background: transparent url(windowframe/frame-bottom-mid-focused.png) repeat-x 0 0;			
+  height:5px;
+}
+.metasploit_se, .metasploit_sizer {
+  background: transparent url(windowframe/frame-bottom-right-focused.png) no-repeat 0 0;			
+  width:5px;
+  height:5px;
+}
+
+.metasploit_sizer {
+	cursor:se-resize;	
+}
+
+.metasploit_close {
+	width: 26px;
+	height: 23px;
+	background: transparent url(windowframe/button-close-focused.png) no-repeat 0 0;			
+	position:absolute;
+	top:0px;
+	right:5px;
+	cursor:pointer;
+	z-index:1000;
+}
+
+.metasploit_minimize {
+	width: 26px;
+	height: 23px;
+	background: transparent url(windowframe/button-minimize-focused.png) no-repeat 0 0;			
+	position:absolute;
+	top:0px;
+	right:26px;
+	cursor:pointer;
+	z-index:1000;
+}
+
+.metasploit_maximize {
+	width: 26px;
+	height: 23px;
+	background: transparent url(windowframe/button-maximize-focused.png) no-repeat 0 0;			
+	position:absolute;
+	top:0px;
+	right:47px;
+	cursor:pointer;
+	z-index:1000;
+}
+
+
+.metasploit_title {
+	float:left;
+	height:14px;
+	font-size:12px;
+	text-align:center;
+	margin-top:2px;
+	width:100%;
+	color:#FFF;
+}
+
+.metasploit_content {
+	overflow:auto;
+	color: #444;
+	font-family: Trebuchet, Sans, Arial;
+	font-size: 14px;
+	background:#ddd;
+}
+
+.top_draggable, .bottom_draggable {
+  cursor:move;
+}
+
+.status_bar {
+  font-size:12px;
+}
+.status_bar input{
+  font-size:12px;
+}
+/* DO NOT CHANGE THESE VALUES*/
+.dialog {
+	display: block;
+	position: absolute;
+}
+
+.dialog table.table_window  { 
+  border-collapse: collapse; 
+  border-spacing: 0; 
+  width: 100%;
+	margin: 0px;
+	padding:0px;
+}
+
+.dialog table.table_window td , .dialog table.table_window th { 
+  padding: 0; 
+}
+
+.dialog .title_window {
+  -moz-user-select:none;
+}

@@ -26,20 +26,24 @@
 
 
 %>
-<table align="center" width="100%" cellspacing="0" cellpadding="3" border="0" class="moduleInfo">
-    
-	<tr width="100%" align="center">
-        <p class="moduleName">
-            <%= h(@tmod.name) %><br />
-        </p>
+ 
+<table width="100%" align="center" cellspacing="0" cellpadding="3" border="0">
+    <tr>
+        <td width="100%" class="EAconf_moduleName" colspan="2">
+            <%= h(@tmod.name) %> <br />
+	</td>
+    </tr>
+    <tr>
+        <td height="10">
+        </td>
     </tr>
 
 <% if @aux_error %>
 
-	<tr width="100%" align="center">
-        <p class="moduleError">
+    <tr>
+        <td width="100%" class="moduleError" colspan="2">
             Validation Error: <%= h(@aux_error) %><br />
-        </p>
+        </td>
     </tr>
 
 <% end %>
@@ -47,15 +51,14 @@
 
 <% if @aux_console %>
 
-	<tr width="100%" align="center">
-        <p class="moduleError">
+    <tr>
+        <td width="100%" class="moduleError" colspan="2">
             Auxiliary launched. If the auxiliary console window does not appear, please click
 			<a href="#" onclick="window.parent.openConsoleWindowExploit(<%= @aux_console %>);">here</a>.
-        </p>
+        </td>
     </tr>
 
 <% end %>
-
     <p>Please enter all of the required options and press 'Launch Auxiliary' to continue.</p>
     
     <tr>

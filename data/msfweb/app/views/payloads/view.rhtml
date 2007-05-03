@@ -1,46 +1,54 @@
-<table align="center" width="100%" cellspacing="0" cellpadding="2" border="0" class="moduleInfo">
-
-	<tr width="100%" align="center">
-        <p class="moduleName">
+<table align="center" cellspacing="0" cellpadding="0" border="0" class="Pview_moduleFull">
+    <tr>
+        <td width="100%" class="Pview_moduleName" colspan="2">
             <%= h(@tmod.name) %> <br />
-        </p>
+	</td>
     </tr>
-	
-    <tr width="100%" align="center">
-		<blockquote>
-		  <p class="moduleDescription">
-		      <%= @tmod.description.split("\n\n").map{ |t| h(t) }.join("<br/><br/>") %>
-		  </p>
-		</blockquote>   
+    <tr>
+        <td height="10" colspan="2">
+        </td>
     </tr>
-
-	
-    <tr width="100%" align="center">
-		<blockquote>
-		  <p class="moduleDescription">
-		      This module (revision <%= h @tmod.version.gsub(/\$Revision:\s+|\s+\$/, '') %>) was provided by <%= h @tmod.author.map{ |a| a.to_s.gsub(/\<.*/, '') }.join(' and ').strip %>, under the <%= @tmod.license %>.
-		  </p>
-		</blockquote>   
+    <tr>
+        <td width="100%" class="Pview_moduleDescription" colspan="2">
+            <%= @tmod.description.split("\n\n").map{ |t| h(t) }.join("<br/><br/>") %>
+        </td>
     </tr>
-    
+    <tr>
+        <td height="10" colspan="2">
+        </td>
+    </tr>
+    <tr>
+        <td width="100%" class="Pview_moduleAuthor" colspan="2">
+            This module (v<%= h @tmod.version.gsub(/\$Revision:\s+|\s+\$/, '') %>) was
+            provided by <%= h @tmod.author.map{ |a| a.to_s.gsub(/\<.*/, '') }.join(' and ').strip %>,
+            under the <%= @tmod.license %>. 
+        </td>  
+    </tr>
+    <tr>
+        <td height="10" colspan="2">
+        </td>
+    </tr>
 	<% if (@tmod.references.length > 0) %>
-    <tr width="100%" align="center">
-		<blockquote>
-		<p class="moduleDescription">
-		External references:
-		<ul class="moduleReferences">
-			<% @tmod.references.each { |ref| %>
-					<% if (ref.kind_of?(Msf::Module::SiteReference)) %>
-					<li><a href="<%= ref.site %>" target="_blank">
-					<%= h(ref.to_s) %></a></li>
-			<% 	else %>
-					<li><%= h(ref.to_s) %></li>
-			<% 	end %>
-			<% } %>
-		</ul>
-		</p>
-		</blockquote>   
-    </tr>
+
+        <tr>
+            <td width="100%" class="Pview_moduleReferences_Title" colspan="2">
+                External references:
+            </td>
+        </tr>
+        <tr>
+            <td width="100%" class="Pview_moduleReferences" colspan="2">
+                <ul>
+                    <% @tmod.references.each { |ref| %>
+                        <% if (ref.kind_of?(Msf::Module::SiteReference)) %>
+                            <li><a href="<%= ref.site %>" target="_blank"><%= h(ref.to_s) %></a></li>
+                        <% else %>
+                            <li><%= h(ref.to_s) %></li>
+                        <% end %>
+                    <% } %>
+                </ul>
+            </td>
+        </tr>
+
 	<% end %>
 	
     <tr>
@@ -143,3 +151,4 @@
     </tr>
 <% end %>
 </table>
+

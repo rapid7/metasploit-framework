@@ -1,0 +1,314 @@
+/* 
+ * Copyright (c) 2006 LMH <lmh[at]info-pull.com>
+ * Added to Metasploit under the terms of the Metasploit Framework License v1.2
+ * Additions Copyright (C) 2006-2007 Metasploit LLC
+*/
+
+body {
+    background: #fff;
+    color: #000;
+    font-family: Sans, Arial, sans-serif;
+    font-size: 10pt;
+}
+
+/*
+ *
+ * Style information for Exploit (E) view.rhtml, Auxiliaries (A) view.rhtml
+ *
+*/
+
+table.EAview_moduleFull {
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+td.EAview_moduleName {
+    color: #444444;
+    background-color: inherit;
+    padding-top: 5px;
+    text-decoration: none;
+    font-size: 16px;
+	font-weight: bold;
+	text-align: center;
+        font-family: sans, arial, sans-serif;
+}
+
+td.EAview_moduleDescription {
+    background: #EDEDED;
+    color: #000000;
+    padding: 5px;
+    border: 1px solid #ccc;
+	text-align: justify;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+td.EAview_moduleAuthor {
+    background: #EDEDED;
+    color: #000000;
+    padding: 5px;
+    border: 1px solid #ccc;
+	text-align: justify;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+td.EAview_moduleTargets_Title {
+    list-style: circle;
+    font-weight: bold;
+    background: #333333;
+    color: white;
+    padding: 0.25em;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+td.EAview_moduleTargets {
+    list-style: circle;
+    font-weight: bold;
+    background: inherit;
+    color: black;
+    padding: 0.25em;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+td.EAview_moduleReferences_Title {
+    background: #EDEDED;
+    color: #000000;
+    padding: 5px;
+    border: 1px solid #ccc;
+	text-align: justify;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+td.EAview_moduleReferences {
+    list-style: circle;
+    font-weight: bold;
+    background: inherit;
+    color: black;
+    padding: 0.25em;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+/*
+ *
+ * Style information for Payloads (P) view.rhtml
+ *
+*/
+
+table.Pview_moduleFull {
+    margin-left: 40px;
+    margin-right: 40px;
+    border: 0px;
+}
+
+td.Pview_moduleName {
+    color: #444444;
+    background-color: inherit;
+    padding-top: 5px;
+    text-decoration: none;
+    font-size: 16px;
+	font-weight: bold;
+	text-align: left;
+        font-family: sans, arial, sans-serif;
+}
+
+td.Pview_moduleDescription {
+    background: #EDEDED;
+    color: #000000;
+    padding: 5px;
+    border: 1px solid #ccc;
+	text-align: justify;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+td.Pview_moduleAuthor {
+    background: #EDEDED;
+    color: #000000;
+    padding: 5px;
+    border: 1px solid #ccc;
+	text-align: justify;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+td.Pview_moduleReferences_Title {
+    background: #EDEDED;
+    color: #000000;
+    padding: 5px;
+    border: 1px solid #ccc;
+	text-align: justify;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+td.Pview_moduleReferences {
+    list-style: circle;
+    font-weight: bold;
+    background: inherit;
+    color: black;
+    padding: 0.25em;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+/*
+ *
+ * Style information for Exploit (E) config.rhtml, Auxiliaries (A) config.rhtml
+ *
+*/
+
+table.EAconf_moduleFull {
+    margin-left: 0px;
+    margin-right: 0px;
+    border: 0px;
+}
+
+td.EAconf_moduleName {
+    color: #444444;
+    background-color: inherit;
+    padding-top: 5px;
+    text-decoration: none;
+    font-size: 16px;
+	font-weight: bold;
+	text-align: left;
+        font-family: sans, arial, sans-serif;
+}
+
+td.EAconf_moduleDescription {
+    background: #EDEDED;
+    color: #000000;
+    padding: 5px;
+    border: 1px solid #ccc;
+	text-align: justify;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+td.EAconf_moduleAuthor {
+    background: #EDEDED;
+    color: #000000;
+    padding: 5px;
+    border: 1px solid #ccc;
+	text-align: justify;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+td.EAconf_moduleTargets_Title {
+    list-style: circle;
+    font-weight: bold;
+    background: #333333;
+    color: white;
+    padding: 0.25em;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+td.EAconf_moduleTargets {
+    list-style: circle;
+    font-weight: bold;
+    background: inherit;
+    color: black;
+    padding: 0.25em;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+td.EAconf_moduleReferences_Title {
+    background: #EDEDED;
+    color: #000000;
+    padding: 5px;
+    border: 1px solid #ccc;
+	text-align: justify;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+td.EAconf_moduleReferences {
+    list-style: circle;
+    font-weight: bold;
+    background: inherit;
+    color: black;
+    padding: 0.25em;
+	font-size: 10pt;
+        font-family: sans, arial, sans-serif;
+}
+
+/*
+ *
+ * Misc styles
+ *
+*/
+
+.moduleError {
+    background-color: inherit;
+    text-decoration: none;
+    font-size: 14px;
+	font-weight: bold;
+	text-align: center;
+	color: red;
+}
+
+p.moduleName .moduleVersion {
+    font-size: 9px;
+}
+.moduleIcons {
+    float: left;
+}
+
+th.moduleOptionsHeader {
+    background: #ddd;
+    color: #000;
+    text-transform: uppercase;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.item_row_col_a {
+	background: white;
+	padding: 0.25em;
+}
+
+.item_row_col_b {
+	background: #eeeeee;
+	padding: 0.25em;	
+}
+
+.opt_name {
+	font-weight: bold;
+}
+
+.opt_required {
+	color: red;
+}
+
+#module-search-box span {
+	font-variant: small-caps;
+	font-weight: bold;
+	font-size: 18px;
+	text-align: center;
+	color: #444444;
+	padding-left: 25px;
+}
+
+#module-search-box input {
+/*
+	background-image: url(/images/zoom.png);
+	background-position: 5px;
+	background-repeat: no-repeat;
+	padding-left: 2em;
+	height: 18px;
+*/
+	padding: 2px 2px 2px 6px;
+	border: 1px solid #444;
+	background: #eeeeee;
+}
+
+#search_results {
+	padding-top: 1em;
+}

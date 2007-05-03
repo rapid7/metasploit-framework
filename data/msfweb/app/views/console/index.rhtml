@@ -7,9 +7,9 @@
         <meta name="Author" content="LMH (lmh@info-pull.com)" />
         <meta name="Copyright" content="(c) 2006, LMH (lmh@info-pull.com)" />
         <title>Metasploit Console</title>
-        <% ["prototype","effects","controls", "window", "application", "console"].each do |js| %>
+        <% ["prototype","effects","controls","window","application","console","cookiecheck"].each do |js| %>
         <%= javascript_include_tag js %><% end %>
-        <%= stylesheet_link_tag "msfconsole" %>
+        <script>document.writeln('<link rel="stylesheet" type="text/css" href="' + consoleStyle +'">');</script>
     </head>
 
     <body onload="console_init(<%=params[:id]%>)">

@@ -10,7 +10,10 @@ class OptionsController < ApplicationController
 
 	def index
 		@force_reload = false
-
+		
+		p params
+		p cookies
+		
 		if (params[:style])
 			cookies[:style] = params[:style]
 			@force_reload = true
