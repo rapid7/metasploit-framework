@@ -31,6 +31,7 @@ class Client
 			# Evasion options
 			#
 			'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
+			'url_encode_count'       => 1,       # integer
 			'uri_full_url'           => false,   # bool
 			'pad_method_uri_count'   => 1,       # integer
 			'pad_uri_version_count'  => 1,       # integer
@@ -60,6 +61,7 @@ class Client
 		# This is not used right now...
 		self.config_types = {
 			'uri_encode_mode'        => ['hex-normal', 'hex-all', 'hex-random', 'u-normal', 'u-random', 'u-all'],
+			'uri_encode_count'       => 'integer',
 			'uri_full_url'           => 'bool',
 			'pad_method_uri_count'   => 'integer',
 			'pad_uri_version_count'  => 'integer',
@@ -409,14 +411,22 @@ class Client
 	# Return the encoded URI
 	# ['none','hex-normal', 'hex-all', 'u-normal', 'u-all']
 	def set_encode_uri(uri)	
-		Rex::Text.uri_encode(uri, self.config['uri_encode_mode'])
+		a = uri
+		self.config['uri_encode_count'].times {
+			a = Rex::Text.uri_encode(a, self.config['uri_encode_mode'])
+		}
+		return a
 	end
 	
 	#
 	# Return the encoded query string
 	#
 	def set_encode_qs(qs)
-		Rex::Text.uri_encode(uri, self.config['uri_encode_mode'])
+		a = qs 
+		self.config['uri_encode_count'].times {
+			a = Rex::Text.uri_encode(a, self.config['uri_encode_mode'])
+		}
+		return a
 	end
 	
 	#
