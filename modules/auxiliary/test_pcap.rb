@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -17,7 +17,7 @@ module Msf
 class Auxiliary::TestPcap < Msf::Auxiliary
 
 	include Auxiliary::Report
-	include Msf::Exploit::Pcap
+	include Msf::Exploit::Capture
 	
 	def initialize
 		super(
@@ -40,8 +40,8 @@ class Auxiliary::TestPcap < Msf::Auxiliary
 
 	def run
 		print_status("Opening the network interface...")
-		pcap_open()
-		print_status("Sniffing packets...")
+		open_pcap()
+		print_status("Sniffing HTTP requests...")
 		capture.each_packet do |pkt|
 			next if not pkt.tcp?
 			next if not pkt.tcp_data
