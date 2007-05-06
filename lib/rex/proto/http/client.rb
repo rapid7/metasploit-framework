@@ -31,7 +31,7 @@ class Client
 			# Evasion options
 			#
 			'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
-			'url_encode_count'       => 1,       # integer
+			'uri_encode_count'       => 1,       # integer
 			'uri_full_url'           => false,   # bool
 			'pad_method_uri_count'   => 1,       # integer
 			'pad_uri_version_count'  => 1,       # integer
