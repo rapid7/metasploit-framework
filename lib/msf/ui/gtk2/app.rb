@@ -3,9 +3,60 @@ module Ui
 module Gtk2
 
 ##
+# This class help us to wait the next release of ruby-libglade2 package
+##
+class GladeXML < GladeXML
+	def connect(source, target, signal, handler, data, after = false)
+		@handler_proc ||= Proc.new{}
+		handler = canonical_handler(handler)
+		if target
+			signal_proc = target.method(handler)
+		else
+			signal_proc = @handler_proc.call(handler)
+		end
+		
+		if after
+			sig_conn_proc = source.method(:signal_connect_after)
+		else
+			sig_conn_proc = source.method(:signal_connect)
+		end
+		
+		if signal_proc
+			guard_source_from_gc(source)
+			case signal_proc.arity
+			when 0
+				sig_conn_proc.call(signal) {signal_proc.call}
+			else
+				sig_conn_proc.call(signal, &signal_proc)
+			end
+		elsif $DEBUG
+			puts "Undefined handler: #{handler}"
+		end
+	end
+	
+	def guard_source_from_gc(source)
+		return if source.nil?
+		@sources ||= {}
+		@sources[source.object_id] = source
+		
+		source.signal_connect("destroy") do |object|
+			@sources.delete(object.object_id)
+		end
+		
+		# To get the parent window of the source as a ruby object.
+		# Ruby/GTK keeps the Window objects on the memory to prevend from GC.
+		parent = source.parent
+		while parent
+			parent = parent.parent
+		end
+	end
+end
+
+##
 # This class help us to retreive all glade widgets and place them in your user instance
 # like @windows, @widget, ...
 ##
+
 class MyGlade
 	include Msf::Ui::Gtk2::MyControls
 	
