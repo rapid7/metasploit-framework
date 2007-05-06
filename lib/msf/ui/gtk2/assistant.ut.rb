@@ -205,22 +205,28 @@ class Assistant < Gtk::Window
 	# Create and return a DrawingArea object
 	#
 	def create_banner
-		da = Gtk::DrawingArea.new
-		da.set_size_request(600, 60)
 		
-		# Signal
-		da.signal_connect('expose-event') do |widget, event|
-			cr = widget.window.create_cairo_context
-			cr.scale(*widget.window.size)
-			cr.set_line_width(0.04)
-			
-			cr.new_path
-			image = Cairo::ImageSurface.from_png(driver.get_image("banner_assistant.png"))
-			cr.scale(1.0 / image.width, 1.0 / image.height)
-			cr.set_source(image, 0, 0)
-			
-			cr.paint
-		end	
+		#
+		# Not use for this moment ...
+		#
+		# da = Gtk::DrawingArea.new
+		# da.set_size_request(600, 60)
+		# 
+		# # Signal
+		# da.signal_connect('expose-event') do |widget, event|
+			# cr = widget.window.create_cairo_context
+			# cr.scale(*widget.window.size)
+			# cr.set_line_width(0.04)
+			# 
+			# cr.new_path
+			# image = Cairo::ImageSurface.from_png(driver.get_image("banner_assistant.png"))
+			# cr.scale(1.0 / image.width, 1.0 / image.height)
+			# cr.set_source(image, 0, 0)
+			# 
+			# cr.paint
+		# end
+		
+		da = Gtk::Image.new(driver.get_image("banner_assistant.png"))
 		
 		return da
 	end
