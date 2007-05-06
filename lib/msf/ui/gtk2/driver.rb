@@ -6,6 +6,8 @@ require 'msf/ui/gtk2/controls'
 require 'msf/ui/gtk2/app'
 require 'msf/ui/gtk2/about'
 require 'msf/ui/gtk2/frame'
+require 'msf/ui/gtk2/treeviewtooltips'
+require 'msf/ui/gtk2/assistant.ut'
 require 'msf/ui/gtk2/assistant'
 require 'msf/ui/gtk2/dialogs'
 require 'msf/ui/gtk2/console'
@@ -28,7 +30,7 @@ module Gtk2
 class Driver < Msf::Ui::Driver
 	
 	attr_accessor :session_tree, :module_tree, :job_tree, :log_text, :module_model
-	attr_accessor :module_completion, :main
+	attr_accessor :module_completion, :main, :tips
 	
 	include Msf::Ui::Gtk2::FrameworkEventManager
 	
@@ -94,6 +96,14 @@ class Driver < Msf::Ui::Driver
 	def get_icon(name)
 		Gdk::Pixbuf.new(File.join(resource_directory, 'pix', name))
 	end
+	
+	#
+	# Returns only pics
+	#
+	def get_image(name)
+		return File.join(resource_directory, 'pix', name)
+	end	
+	
 	
 	#
 	# Adds text to the main logging screen

@@ -89,11 +89,11 @@ class MyModuleTree < MyGlade
 							if (iter.get_value(APP) == "Standard")
 								treeview.selection.select_path(path)
 								active(iter)
-								MsfAssistant::Standard.new(iter.get_value(MODULE))
+								MsfAssistant::Exploit.new(iter.get_value(MODULE))
 							elsif (iter.get_value(APP) == "Payloads")
 								treeview.selection.select_path(path)
 								active(iter)
-								MsfAssistant::Payload.new(iter.get_value(MODULE))
+								MsfDialog::Error.new($gtk2driver.main, "Not available")
 							else
 								treeview.selection.select_path(path)
 								active(iter)
@@ -111,7 +111,8 @@ class MyModuleTree < MyGlade
 			if active_module = @selection.selected
 				type = active_module.get_value(APP)
 				if (type == "Standard")
-					MsfAssistant::Standard.new(active_module.get_value(MODULE))
+					MsfAssistant::Exploit.new(active_module.get_value(MODULE))
+					# MsfAssistant::Standard.new(active_module.get_value(MODULE))
 				elsif (type ==  "Payloads")
 					MsfAssistant::Payload.new(active_module.get_value(MODULE))
 				else
