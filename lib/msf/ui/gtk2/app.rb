@@ -69,12 +69,16 @@ class MyApp < MyGlade
 		# Module Tree
 		@module_tree = MyModuleTree.new(@treeview1, @viewmodule)
 		
+		# Tooltips
+		tooltips = Gtk::Tooltips.new
+		
 		# Configure the window handles for easy reference
 		$gtk2driver.main = @window
 		$gtk2driver.session_tree = @session_tree
 		$gtk2driver.job_tree = @job_tree
 		$gtk2driver.module_tree = @module_tree
 		$gtk2driver.log_text = @viewlogs
+		$gtk2driver.tips = tooltips
 		
 		# Initialize the search class
 		ModuleSearch.new(@search_entry, @search_button, @search_cancel_button)
