@@ -2,9 +2,9 @@ module Msf
 module Ui
 module Gtk2
 
-
 ##
 # This class perform some tooltips for TreeView widget
+# This class is a port of Daniel J. Popowich coded in Python to ruby-gtk2 style
 ##
 class TreeViewTooltips < Gtk::Window
 	
@@ -13,10 +13,6 @@ class TreeViewTooltips < Gtk::Window
 		self.set_resizable(false)
 		self.set_border_width(5)
 		self.set_app_paintable(true)
-		
-		#self.signal_connect('expose-event') do
-		#	on_expose_event()
-		#end
 		
 		# create the label
 		@label = Gtk::Label.new
@@ -80,7 +76,10 @@ class TreeViewTooltips < Gtk::Window
 		return x - w/2, y + 4
 	end
 	
-	# private
+	
+	#########
+	private #
+	#########
 	
 	#
 	# show the tooltip popup with the text/markup given by
@@ -95,6 +94,19 @@ class TreeViewTooltips < Gtk::Window
 		
 		# resize window
 		w, h = self.size_request()
+		
+		# Display the window with a 1-pixel black border
+		self.style.paint_flat_box(	self.window, 		# window: a Gdk::Window
+						Gtk::STATE_NORMAL,	# state_type: a state type (GtkStateType)
+						Gtk::SHADOW_OUT, 	# shadow_type: a shadow type (GtkShadowType)
+						nil, 			# area: a Gdk::Rectangle to which the output is clipped
+						self, 			# widget: a Gtk::Widget
+						'tooltip', 		# detail: a String or nil
+						0, 			# x:
+						0, 			# y:
+						w, 			# width:
+						h			# height:
+					)
 		
 		# move the window 
 		self.move(*location(x,y,w,h))
@@ -134,7 +146,6 @@ class TreeViewTooltips < Gtk::Window
 				tooltip = tooltip.strip
 				queue_next( [path, col], tooltip, event.x_root, event.y_root)
 				return
-				# end
 			end
 		end
 		
@@ -182,25 +193,6 @@ class TreeViewTooltips < Gtk::Window
 	
 		# save this cell
 		@save = cell
-	end
-	
-	def on_expose_event
-		w, h = self.get_size_request
-		
-		# paint_flat_box(window, state_type, shadow_type, area, widget, detail, x, y, width, height)
-		# window: a Gdk::Window
-		# state_type: a state type (GtkStateType)
-		# shadow_type: a shadow type (GtkShadowType)
-		# area: a Gdk::Rectangle to which the output is clipped
-		# widget: a Gtk::Widget
-		# detail: a String or nil
-		# x:
-		# y:
-		# width:
-		# height:
-		# Returns: self
-		self.style.paint_flat_box(self.window, Gtk::STATE_NORMAL,
-						Gtk::SHADOW_OUT, nil, self, 'tooltip', 0, 0, w, h)
 	end
 end
 
