@@ -2,6 +2,9 @@ module Msf
 module Ui
 module Gtk2
 
+#
+# Subclass the TreeViewTooltips to add our get_tooltip function
+#
 class AssistantTips < Msf::Ui::Gtk2::TreeViewTooltips
 	
 	def initialize(column)
@@ -21,9 +24,6 @@ end
 
 ##
 # This class perform an assistant to configure module
-#
-# 	attr_accessor :vbox, :hbox, :main, :page, :bbox, :vbox_left, :vbox_label
-#
 ##
 class MsfAssistant
 
@@ -31,6 +31,7 @@ class MsfAssistant
 	
 	class Exploit < Msf::Ui::Gtk2::Assistant
 		
+		# to stock our values
 		WIZARD = {}
 
 		WizardStruct = Struct.new('Wizard', 
@@ -129,6 +130,7 @@ class MsfAssistant
 						nil
 						)
 				display()
+				review_completion()
 			end
 		end
 		
@@ -298,6 +300,26 @@ class MsfAssistant
 			self.main.pack_start(@treeview_required, false, false, 0)
 			self.main.pack_start(frame_advanced, false, false, 10)
 			frame_advanced.add(@treeview_advanced)
+			
+			self.main.show_all
+		end
+		
+		#
+		# Display the review page
+		#
+		def review_completion
+			warning = Gtk::Label.new
+			warning.set_markup("Review your configuration before clicking the <b>apply</b> button")
+			self.main.pack_start(warning, false, false, 0)
+
+			label = Gtk::Label.new
+			review = "\n\n"
+			@hash.each do |key, value| 
+				review << "<b>#{key}</b> : #{value}\n"
+			end
+			label.set_markup(review)
+			
+			self.main.pack_start(label, false, false, 0)
 			
 			self.main.show_all
 		end

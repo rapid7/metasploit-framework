@@ -69,6 +69,8 @@ class MyModuleTree < MyGlade
 		
 		@treeview1.signal_connect('button_press_event') do |treeview, event|
 			if event.kind_of? Gdk::EventButton
+				
+				# Right click
 				if (event.button == 3)
 					path, column, x, y = treeview.get_path_at_pos(event.x, event.y)
 					begin
@@ -81,6 +83,8 @@ class MyModuleTree < MyGlade
 					rescue
 						nil
 					end
+					
+				# Double click
 				elsif (event.event_type == Gdk::Event::BUTTON2_PRESS)
 					path, column, x, y = treeview.get_path_at_pos(event.x, event.y)
 					begin
@@ -112,7 +116,6 @@ class MyModuleTree < MyGlade
 				type = active_module.get_value(APP)
 				if (type == "Standard")
 					MsfAssistant::Exploit.new(active_module.get_value(MODULE))
-					# MsfAssistant::Standard.new(active_module.get_value(MODULE))
 				elsif (type ==  "Payloads")
 					MsfAssistant::Payload.new(active_module.get_value(MODULE))
 				else
