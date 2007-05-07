@@ -25,7 +25,7 @@ class Auxiliary::Scanner::Dcerpc::RPC_MGMT < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Remote Management Interface Discovery',
-			'Version'     => '$Revision: 3624 $',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module can be used to obtain information from the Remote 
 				Management Interface DCERPC service.

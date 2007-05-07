@@ -25,7 +25,7 @@ class Auxiliary::Scanner::Dcerpc::ENDPOINT_MAPPER < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Endpoint Mapper Service Discovery',
-			'Version'     => '$Revision: 3624 $',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module can be used to obtain information from the 
 				Endpoint Mapper service.

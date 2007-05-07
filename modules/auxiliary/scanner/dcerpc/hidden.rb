@@ -25,7 +25,7 @@ class Auxiliary::Scanner::Dcerpc::RPC_HIDDEN < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Hidden DCERPC Service Discovery',
-			'Version'     => '$Revision: 3624 $',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module will query the endpoint mapper and make a list
 			of all ncacn_tcp RPC services. It will then connect to each of

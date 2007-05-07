@@ -1,5 +1,5 @@
 ##
-# $Id: ms06_019_exchange.rb 4498 2007-03-01 08:21:36Z mmiller $
+# $Id$
 ##
 
 ##
@@ -28,7 +28,7 @@ class Auxiliary::Dos::Windows::Smtp::MS06_019_EXCHANGE < Msf::Auxiliary
 			},
 			'Author'         => [ 'pusscat' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision: 4498 $',
+			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'BID', '17908'],
