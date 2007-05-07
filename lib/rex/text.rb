@@ -107,6 +107,29 @@ module Text
 	end
 
 	#
+	# Converts a raw string into a java byte array
+	#
+	def self.to_java(str)
+		buff = "byte shell[] = new byte[]\n{\n"
+		cnt = 0
+		max = 0
+		str.unpack('C*').each do |c|
+			buff << ", " if max > 0
+			buff << "\t" if max == 0
+			buff << sprintf('(byte) 0x%.2x', c)
+			max +=1
+			cnt +=1 
+			
+			if (max > 7)	
+				buff << ",\n" if cnt != str.length 
+				max = 0
+			end
+		end
+		buff << "\n};\n"
+		return buff	
+	end
+	
+	#
 	# Creates a perl-style comment
 	#
 	def self.to_perl_comment(str, wrap = DefaultWrap)

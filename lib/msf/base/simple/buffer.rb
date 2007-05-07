@@ -29,6 +29,8 @@ module Buffer
 				buf = Rex::Text.to_unescape(buf, ENDIAN_BIG)
 			when 'js_le'
 				buf = Rex::Text.to_unescape(buf, ENDIAN_LITTLE)
+			when 'java'
+				buf = Rex::Text.to_java(buf)
 			else
 				raise ArgumentError, "Unsupported buffer format: #{fmt}", caller
 		end
@@ -51,6 +53,8 @@ module Buffer
 				buf = Rex::Text.to_c_comment(buf)
 			when 'js_be', 'js_le'
 				buf = Rex::Text.to_js_comment(buf)
+			when 'java'
+				buf = Rex::Text.to_c_comment(buf)
 			else
 				raise ArgumentError, "Unsupported buffer format: #{fmt}", caller
 		end
