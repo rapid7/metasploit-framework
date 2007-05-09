@@ -568,8 +568,13 @@ EVADE = Rex::Proto::SMB::Evasions
 	
 		raise XCEPT::NTLM1MissingChallenge if not self.challenge_key
 
-		hash_lm = pass.length > 0 ? CRYPT.lanman_des(pass, self.challenge_key) : ''
-		hash_nt = pass.length > 0 ? CRYPT.ntlm_md4(pass, self.challenge_key)   : ''
+		if (pass.length == 65)
+			hash_lm = CRYPT.e_p24( [ pass.upcase()[0,32] ].pack('H42'), self.challenge_key)
+			hash_nt = CRPYT.e_p24( [ pass.upcase()[33,65] ].pack('H42'), self.challenge_key)
+		else
+			hash_lm = pass.length > 0 ? CRYPT.lanman_des(pass, self.challenge_key) : ''
+			hash_nt = pass.length > 0 ? CRYPT.ntlm_md4(pass, self.challenge_key)   : ''
+		end
 
 		data = ''
 		data << hash_lm
@@ -690,7 +695,11 @@ EVADE = Rex::Proto::SMB::Evasions
 		nonce = CRYPT.md5_hash(self.challenge_key + client_challenge)
 
 		# Generate the NTLM hash
-		resp_ntlm = CRYPT.ntlm_md4(pass, nonce[0, 8])
+		if (pass.length == 65)
+			resp_ntlm = CRYPT.e_p24( [ pass.upcase()[33,65] ].pack('H42'), nonce[0, 8])
+		else
+			resp_ntlm = CRYPT.ntlm_md4(pass, nonce[0, 8])
+		end
 		
 		# Generate the fake LANMAN hash
 		resp_lmv2 = client_challenge + ("\x00" * 16)
