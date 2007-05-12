@@ -1,39 +1,39 @@
 module Msf
-module Ui
-module Gtk2
+  module Ui
+    module Gtk2
 
-module MyControls
+      module MyControls
 
-	#
-	# Included class methods
-	#
+        #
+        # Included class methods
+        #
 
-	# Get the global driver handle
-	def driver
-		$gtk2driver
-	end
-	
-	# Return the framework instance from the driver handler
-	def framework
-		driver.framework
-	end
+        # Get the global driver handle
+        def driver
+          $gtk2driver
+        end
 
-	def log(msg)
-		if ($gtk2logger)
-			$gtk2logger.append_text(msg + "\n")
-		else
-			$stderr.puts Time.now.to_s + " " + msg
-		end
-	end
+        # Return the framework instance from the driver handler
+        def framework
+          driver.framework
+        end
 
-	#
-	# Controls
-	#
-	
-	# TODO: Add control here
+        def log(msg)
+          if ($gtk2logger)
+            $gtk2logger.append_text(msg + "\n")
+          else
+            $stderr.puts Time.now.to_s + " " + msg
+          end
+        end
 
-end
+        #
+        # Controls
+        #
 
-end
-end
+        # TODO: Add control here
+
+      end
+
+    end
+  end
 end
