@@ -91,6 +91,26 @@ class Driver < Msf::Ui::Driver
 	end
 	
 	#
+	# Saves configuration for MsfAssistant.
+	#
+	def save_config(active_module)
+		# Build out the assistant config group
+		group = {}
+
+		if (active_module)
+			group['ActiveModule'] = active_module.fullname
+		end
+
+		# Save it
+		begin 
+			Msf::Config.save(
+				ConfigGroup => group)
+		rescue
+			MsfDialog::Error.new(self, "Failed to save config file :  #{$!}")
+		end
+	end
+		
+	#
 	# Returns a new Gdk::Pixbuf object
 	#
 	def get_icon(name)
