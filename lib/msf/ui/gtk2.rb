@@ -5,7 +5,7 @@ module Gtk2
 #
 # The log source used by the web service.
 #
-LogSource = "msfgtk2"
+LogSource = "msfgui"
 
 end
 end
