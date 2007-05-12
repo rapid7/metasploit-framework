@@ -32,7 +32,9 @@ module Msf
           end
 
           @search_button.signal_connect('clicked') do
-            search(@search_entry.text)
+            if @search_entry.text.match(/[a-zA-Z0-9\(\)]/)
+              search(@search_entry.text)
+            end
           end
 
           @cancel_button.signal_connect('clicked') do
