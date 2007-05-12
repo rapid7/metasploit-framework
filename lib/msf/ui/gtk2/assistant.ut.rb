@@ -10,7 +10,8 @@ class Assistant < Gtk::Window
 	
 	include Msf::Ui::Gtk2::MyControls
 	
-	attr_accessor :vbox, :hbox, :main, :page, :bbox, :vbox_left, :vbox_label
+	attr_accessor :vbox, :hbox, :main, :page, :bbox, :vbox_left, :vbox_label, :save_button
+	attr_accessor :button_forward
 	
 	def initialize(title)
 		super
@@ -18,6 +19,7 @@ class Assistant < Gtk::Window
 		self.set_default_size(600, 400)
 		self.title = title
 		
+		# First page
 		@page = "intro"
 		
 		# VBox
@@ -69,15 +71,22 @@ class Assistant < Gtk::Window
 	end
 	
 	#
-	# TODO: Add this fun feature
+	# Save configuration for MsfAssistant
 	#
 	def create_save
-		save_button = Gtk::Button.new(Gtk::Stock::SAVE)
-		$gtk2driver.tips.set_tip(save_button, "Save your configuration", nil)
-		save_button.signal_connect('clicked') do
-			MsfDialog::Error.new(self, "Not available")
+		@save_button = Gtk::Button.new(Gtk::Stock::SAVE)
+		$gtk2driver.tips.set_tip(@save_button, "Save your configuration", nil)
+		@save_button.signal_connect('clicked') do
+			save()
 		end
-		return save_button
+		return @save_button
+	end
+	
+	#
+	# Dummy function
+	#
+	def save
+	  raise NotImplementedError, "Subclass must implement save_config()"
 	end
 	
 	#

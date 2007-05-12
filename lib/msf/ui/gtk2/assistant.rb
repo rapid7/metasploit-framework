@@ -102,6 +102,28 @@ class MsfAssistant
 			
 			self.show_all
 		end
+		
+		#
+		# Save configuration for MsfAssistant
+		#
+		def save
+		  # Save the console config
+    	$gtk2driver.save_config(@mydriver.exploit)
+
+    	# Save the framework's datastore
+    	begin
+    	  framework.save_config
+
+    		if (@mydriver.exploit)
+    		  @mydriver.exploit.save_config
+    		end
+    	rescue
+    		MsfDialog::Error.new(self, "Failed to save config file")
+    		return false
+    	end
+
+    	$gtk2driver.append_log_view("Saved configuration to: #{Msf::Config.config_file}\n")
+    end 		  
 
 		#
 		# Action when Forward button was clicked
@@ -121,9 +143,10 @@ class MsfAssistant
 						[@label_options], 			# actual
 						[@label_review]				# next
 						)
+				button_forward.set_sensitive(false)		
 				display()
 				options_completion()
-			elsif (self.page == "options")
+			elsif (self.page == "options")				
 				self.page = "end"
 				refresh_label(	[@label_target, @label_payload, @label_options],
 						[@label_review],
@@ -132,6 +155,32 @@ class MsfAssistant
 				display()
 				review_completion()
 			end
+		end
+		
+		#
+		# Validate options in datastore
+		#
+		def validate
+		  errors = []
+      @mydriver.exploit.datastore.import_options_from_hash(@hash)
+  		
+  		@mydriver.exploit.options.each_pair do |name, option| 
+  			if (!option.valid?(@mydriver.exploit.datastore[name]))
+  				errors << name
+  				
+  			# If the option is valid, normalize its format to the correct type.
+  			elsif ((val = option.normalize(@mydriver.exploit.datastore[name])) != nil)
+  				@mydriver.exploit.datastore.update_value(name, val)
+  			end
+  		end
+
+  		if (errors.empty? == false)
+  		  button_forward.set_sensitive(false)
+  		  p errors.join(', ')
+  			# MsfDialog::Error.new(self, "Failed to validate : #{errors.join(', ')}")
+  		else
+  		 button_forward.set_sensitive(true)
+  		end
 		end
 		
 		#
@@ -149,8 +198,8 @@ class MsfAssistant
 			elsif (self.page == "options")
 				self.page = "payload"
 				refresh_label(	[@label_target],			# historic
-						[@label_payload], 			# actual
-						[@label_options, @label_review]	# next
+						[@label_payload], 			          # actual
+						[@label_options, @label_review]	  # next
 						)
 				display()
 				payload_completion()
@@ -195,7 +244,6 @@ class MsfAssistant
 			# Signal for combo payload
 			combo_target.signal_connect('changed') do ||
 				@hash["TARGET"] = combo_target.active_iter[1]
-				#@myassistant.set_page_complete(@target_page, true)
 			end
 			
 			self.main.pack_start(combo_target, true, false, 0)
@@ -260,6 +308,9 @@ class MsfAssistant
 		# Display options view
 		#
 		def options_completion
+		  
+		  #
+		  @button_forward.set_sensitive(false)
 			
 			# Clear treeview
 			@model_required.clear
@@ -370,7 +421,11 @@ class MsfAssistant
 		def pack(model, key, opt)
 			iter = model.append
 			iter[KEY] = key
-			iter[DEFAULT] = opt.default.to_s
+			if (key == "LHOST")
+			  iter[VALUE] = Rex::Socket.source_address
+			  @hash['LHOST'] = Rex::Socket.source_address
+			end
+		  iter[DEFAULT] = opt.default.to_s
 			iter[DESC] = opt.desc.to_s
 		end
 		
@@ -381,12 +436,14 @@ class MsfAssistant
 			iter = model.get_iter(path)
 			iter[column] = text
 			@hash[iter.get_value(KEY)] = text
+			validate()
 		end
 		
 		#
 		# Fire !!
 		#
 		def apply
+			
 			# Import options from the supplied assistant
 			@mydriver.exploit.datastore.import_options_from_hash(@hash)
 			
