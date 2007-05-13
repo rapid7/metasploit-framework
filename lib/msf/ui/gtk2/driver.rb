@@ -92,7 +92,7 @@ module Msf
         #
         # Saves configuration for MsfAssistant.
         #
-        def save_config(active_module)
+        def save_config
           # Build out the assistant config group
           group = {}
 
@@ -150,6 +150,11 @@ module Msf
         # The framework instance associated with this driver.
         #
         attr_reader   :framework
+        
+        #
+      	# The active module associated with the driver.
+      	#
+      	attr_accessor :active_module
 
         protected
 
