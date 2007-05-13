@@ -73,7 +73,7 @@ module Msf
         # and 4 pixels below it.
         #
         def location(x, y, w, h)
-          return x - w/2, y + 4
+          return x - w/2, y + 20
         end
 
 
