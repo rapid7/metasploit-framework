@@ -328,6 +328,30 @@ module Text
 				string += possible[ rand(possible.length) ]
 			}
 			return string
+		when 'uhwtfms-half' # suggested name from HD :P
+			load_codepage()
+			string = ''
+			# overloading mode as codepage
+			if mode == ''
+				mode = 1252 # ANSI - Latan 1, default for US installs of MS products
+			else
+                raise TypeError, "Invalid codepage #{mode}, only 1252 supported for uhwtfms_half"
+			end
+			str.each_byte {|byte|
+                if ((byte >= 33 && byte <= 63) || (byte >= 96 && byte <= 126))
+                    string += "\xFF" + [byte ^ 32].pack('C')
+                elsif (byte >= 64 && byte <= 95)
+                    string += "\xFF" + [byte ^ 96].pack('C')
+                else
+                    char = [byte].pack('C')
+					possible = $codepage_map_cache[mode]['data'][char]
+					if possible.nil?
+						raise TypeError, "codepage #{mode} does not provide an encoding for 0x#{char.unpack('H*')[0]}"
+					end
+					string += possible[ rand(possible.length) ]
+                end
+			}
+			return string
 		else 
 			raise TypeError, 'invalid utf type'
 		end
@@ -371,6 +395,8 @@ module Text
 					b.gsub(normal){ |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } )
 			end
 			return res		
+        when 'u-half'
+            return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms-half'), '%u', 2) }
         else
             raise TypeError, 'invalid mode'
         end

@@ -15,6 +15,8 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 		assert_equal('%41%31%21', Rex::Text.uri_encode('A1!', 'hex-all'), 'uri encode: hex-all')
 		assert_equal('A1%u01c3', Rex::Text.uri_encode('A1!', 'u-normal'), 'uri encode: u-normal')
 		assert_equal('%uff21%u2081%uff01', Rex::Text.uri_encode('A1!', 'u-all'), 'uri encode: u-all')
+		srand(0)
+		assert_equal("%uff2d%uff49%uff43%uff52%uff4f%uff53%uff4f%uff46%uff54%u2004%uff45%uff4e%uff43%uff4f%uff44%uff49%uff4e%uff47%u3000%uff44%uff52%uff49%uff56%uff45%uff53%u2005%uff4d%uff45%u2000%uff43%uff52%uff41%uff5a%uff59%uff01", Rex::Text.uri_encode('Microsoft encoding drives me crazy!', 'u-half'))
 
 		assert_raises(TypeError) {
 			Rex::Text.uri_encode('a', 'umpa lumpa')
@@ -97,6 +99,14 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 			end
 		}
 		assert_equal([], a, 'all possible values uhwtfms')
+		
+		assert_raises(TypeError) {
+			Rex::Text.to_unicode('a', 'uhwtfms-half', 1)
+		}
+
+		assert_equal("\xFF\x01", Rex::Text.to_unicode('!', 'uhwtfms-half'))
+		srand(0)
+		assert_equal("\xff\x2d\xff\x49\xff\x43\xff\x52\xff\x4f\xff\x53\xff\x4f\xff\x46\xff\x54\x20\x04\xff\x45\xff\x4e\xff\x43\xff\x4f\xff\x44\xff\x49\xff\x4e\xff\x47\x30\x00\xff\x44\xff\x52\xff\x49\xff\x56\xff\x45\xff\x53\x20\x05\xff\x4d\xff\x45\x20\x00\xff\x43\xff\x52\xff\x41\xff\x5a\xff\x59\xff\x01", Rex::Text.to_unicode('Microsoft encoding drives me crazy!', 'uhwtfms-half'))
 	end
 
 	def test_zlib
@@ -129,7 +139,7 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 		assert_equal('%u0102%uff00', Rex::Text.to_hex(str, '%u', 2), 'to_hex with chunk size of 2')
 		
 		# to_hex, without providing enouigh data to chunk on a given size
-		assert_raises(Rex::RuntimeError){ Rex::Text.to_hex('a', '', 2) }
+		assert_raises(RuntimeError){ Rex::Text.to_hex('a', '', 2) }
 
 		assert_equal("\"\\x01\\x02\\xff\\x00\"\n", Rex::Text.to_ruby(str), 'to_ruby')
 		assert_equal("\"\\x01\\x02\\xff\\x00\";\n", Rex::Text.to_perl(str), 'to_perl')
