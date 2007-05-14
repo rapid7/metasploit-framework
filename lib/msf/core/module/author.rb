@@ -21,7 +21,7 @@ class Msf::Module::Author
 			'stinko'    => 'vinnie' + 0x40.chr + 'metasploit.com',
 			'MC'        => 'y0' + 0x40.chr + 'w00t-shell.net',
 			'cazz'      => 'bmc' + 0x40.chr + 'shmoo.com',
-			'pusscat'   => 'pusscat' + 0x40.chr + 'gmail.com',
+			'pusscat'   => 'pusscat' + 0x40.chr + 'metasploit.com',
 			'skylined'  => 'skylined' + 0x40.chr + 'edup.tudelft.nl',
 		}
 
