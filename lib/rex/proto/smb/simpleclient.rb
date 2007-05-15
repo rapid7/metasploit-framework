@@ -50,7 +50,7 @@ EVADE = Rex::Proto::SMB::Evasions
 				data = ''
 				fptr = offset
 				ok = self.client.read(self.file_id, fptr, self.chunk_size)
-				while (ok['Payload'].v['DataLenLow'] > 0)
+				while (ok and ok['Payload'].v['DataLenLow'] > 0)
 					buff = ok.to_s.slice(
 						ok['Payload'].v['DataOffset'] + 4,
 						ok['Payload'].v['DataLenLow']
@@ -60,8 +60,20 @@ EVADE = Rex::Proto::SMB::Evasions
 						break
 					end
 					fptr += ok['Payload'].v['DataLenLow']
-					ok = self.client.read(self.file_id, fptr, self.chunk_size)
+					
+					begin
+						ok = self.client.read(self.file_id, fptr, self.chunk_size)
+					rescue XCEPT::ErrorCode => e
+						case e.error_code					
+						when 0x00050001
+							# Novell fires off an access denied error on EOF
+							ok = nil
+						else
+							raise e
+						end
+					end
 				end
+
 				return data
 			else
 				ok = self.client.read(self.file_id, offset, length)
