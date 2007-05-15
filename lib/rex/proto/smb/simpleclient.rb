@@ -157,9 +157,10 @@ EVADE = Rex::Proto::SMB::Evasions
 		end
 		
 		def write_trans(data, offset=0)
-			# Payload is not being filled the the response !?!!?
 			ack = self.client.trans_named_pipe(self.file_id, data)
-			@buff << ack['Payload'].v['Payload']
+			doff = ack['Payload'].v['DataOffset']
+			dlen = ack['Payload'].v['DataCount']
+			@buff << ack.to_s[4+doff, dlen]
 		end
 	end
 	
