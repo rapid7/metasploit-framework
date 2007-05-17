@@ -6,7 +6,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <sys/socket.h>
-#include <linux/wireless.h>
+#include <asm/types.h>
+#include <linux/if.h>
 
 #include <tx80211.h>
 #include <tx80211_packet.h>
