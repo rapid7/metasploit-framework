@@ -62,35 +62,6 @@ module Msf
           @treeview.append_column(column_peer)
           @treeview.append_column(column_payload)
 
-          # Session Gtk::Menu
-          @menu_session = Gtk::Menu.new
-
-          session_item_shell = Gtk::ImageMenuItem.new("Interact Session")
-          session_image_shell = Gtk::Image.new
-          session_image_shell.set(Gtk::Stock::EXECUTE, Gtk::IconSize::MENU)
-          session_item_shell.set_image(session_image_shell)
-          @menu_session.append(session_item_shell)
-
-          separator1 = Gtk::SeparatorMenuItem.new
-          @menu_session.append(separator1)
-
-          close_session_item_shell = Gtk::ImageMenuItem.new("Close Session")
-          close_session_image_shell = Gtk::Image.new
-          close_session_image_shell.set(Gtk::Stock::CLOSE, Gtk::IconSize::MENU)
-          close_session_item_shell.set_image(close_session_image_shell)
-          @menu_session.append(close_session_item_shell)
-
-          separator2 = Gtk::SeparatorMenuItem.new
-          @menu_session.append(separator2)
-
-          meterpreter_proc_item_shell = Gtk::ImageMenuItem.new("Process")
-          meterpreter_proc_image_shell = Gtk::Image.new
-          meterpreter_proc_image_shell.set(Gtk::Stock::CLOSE, Gtk::IconSize::MENU)
-          meterpreter_proc_item_shell.set_image(meterpreter_proc_image_shell)
-          @menu_session.append(meterpreter_proc_item_shell)
-
-          @menu_session.show_all
-
           # TreeView signals
           @treeview.signal_connect('button_press_event') do |treeview, event|
             if event.kind_of? Gdk::EventButton
@@ -100,7 +71,9 @@ module Msf
                 begin
                   iter = @treeview.model.get_iter(path)
                   treeview.selection.select_path(path)
-                  @menu_session.popup(nil, nil, event.button, event.time)
+                  session = iter[O_SESSION]
+                  menu = build_menu(session.type)
+                  menu.popup(nil, nil, event.button, event.time)
                 rescue
                   nil
                 end
@@ -116,27 +89,6 @@ module Msf
               end
             end
           end
-
-          # Items session signals
-          session_item_shell.signal_connect('activate') do |item|
-            if current = @selection.selected
-              puts "yeah"
-              open_session(current)
-            end
-          end
-
-          close_session_item_shell.signal_connect('activate') do |item|
-            if session_iter = @selection.selected
-              remove_session_iter(session_iter)
-            end
-          end
-
-          meterpreter_proc_item_shell.signal_connect('activate') do |item|
-            if current = @selection.selected
-              print current[O_SESSION].tunnel_peer
-            end
-          end
-
         end # def initialize
 
         #
@@ -187,6 +139,61 @@ module Msf
           end
 
           @model.remove(found) if found
+        end
+
+        #
+        # Build the meterpreter menu and bind signal connect
+        #
+        def build_menu(type)
+          # Session Gtk::Menu
+          menu_session = Gtk::Menu.new
+
+          session_item_shell = Gtk::ImageMenuItem.new("Interact Session")
+          session_image_shell = Gtk::Image.new
+          session_image_shell.set(Gtk::Stock::EXECUTE, Gtk::IconSize::MENU)
+          session_item_shell.set_image(session_image_shell)
+          menu_session.append(session_item_shell)
+
+          if (type == "meterpreter")
+            meterpreter_separator = Gtk::SeparatorMenuItem.new
+            menu_session.append(meterpreter_separator)
+
+            meterpreter_proc_item_shell = Gtk::ImageMenuItem.new("Process")
+            meterpreter_proc_image_shell = Gtk::Image.new
+            meterpreter_proc_image_shell.set(Gtk::Stock::CLOSE, Gtk::IconSize::MENU)
+            meterpreter_proc_item_shell.set_image(meterpreter_proc_image_shell)
+            menu_session.append(meterpreter_proc_item_shell)
+            
+            # Items session signals
+            meterpreter_proc_item_shell.signal_connect('activate') do |item|
+              if current = @selection.selected
+                print current[O_SESSION].tunnel_peer
+              end
+            end
+          end
+
+          basic_separator = Gtk::SeparatorMenuItem.new
+          menu_session.append(basic_separator)
+
+          close_session_item_shell = Gtk::ImageMenuItem.new("Close Session")
+          close_session_image_shell = Gtk::Image.new
+          close_session_image_shell.set(Gtk::Stock::CLOSE, Gtk::IconSize::MENU)
+          close_session_item_shell.set_image(close_session_image_shell)
+          menu_session.append(close_session_item_shell)
+
+          session_item_shell.signal_connect('activate') do |item|
+            if current = @selection.selected
+              open_session(current)
+            end
+          end
+
+          close_session_item_shell.signal_connect('activate') do |item|
+            if session_iter = @selection.selected
+              remove_session_iter(session_iter)
+            end
+          end
+
+          return menu_session.show_all
         end
 
       end # class MySessionTree
