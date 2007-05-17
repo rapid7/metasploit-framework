@@ -3,7 +3,7 @@ module Msf
     module Gtk2
 
       class MySessionTree
-        ID_SESSION, PEER, PAYLOAD, O_SESSION, O_BUFFER = *(0..5).to_a
+        ID_SESSION, PEER, TYPE, O_SESSION, O_BUFFER = *(0..5).to_a
 
         include Msf::Ui::Gtk2::MyControls
 
@@ -11,7 +11,7 @@ module Msf
           @treeview = treeview
           @model = Gtk::ListStore.new(String,		# Session ID
           String,		# IP Address
-          String,		# Payload Type
+          String,		# Session Type
           Object,		# Session Object
           Object		# Gtk::TextBuffer
           )
@@ -19,7 +19,7 @@ module Msf
           # Renderer
           renderer_id      = Gtk::CellRendererText.new
           renderer_peer    = Gtk::CellRendererText.new
-          renderer_payload = Gtk::CellRendererText.new
+          renderer_type = Gtk::CellRendererText.new
 
           # ID Session Gtk::TreeViewColumn
           column_id = Gtk::TreeViewColumn.new
@@ -41,12 +41,12 @@ module Msf
           end
           #column_peer.sort_column_id = PEER
 
-          # Payload type Gtk::TreeViewColumn
-          column_payload = Gtk::TreeViewColumn.new
-          column_payload.set_title("Payload")
-          column_payload.pack_start(renderer_payload, true)
-          column_payload.set_cell_data_func(renderer_payload) do |column, cell, model, iter|
-            cell.text = iter[PAYLOAD]
+          # Session type Gtk::TreeViewColumn
+          column_type = Gtk::TreeViewColumn.new
+          column_type.set_title("Type")
+          column_type.pack_start(renderer_type, true)
+          column_type.set_cell_data_func(renderer_type) do |column, cell, model, iter|
+            cell.text = iter[TYPE]
           end
           #column_payload.sort_column_id = PAYLOAD
 
@@ -60,7 +60,7 @@ module Msf
           # Add Gtk::TreeViewColumn
           @treeview.append_column(column_id)
           @treeview.append_column(column_peer)
-          @treeview.append_column(column_payload)
+          @treeview.append_column(column_type)
 
           # TreeView signals
           @treeview.signal_connect('button_press_event') do |treeview, event|
@@ -98,7 +98,8 @@ module Msf
           iter = @model.append
           iter[ID_SESSION] = session.sid.to_s
           iter[PEER] = session.tunnel_peer
-          iter[PAYLOAD] = session.via_payload ? session.via_payload : nil
+          iter[TYPE] = session.type ? session.type : nil
+          #iter[PAYLOAD] = session.via_payload ? session.via_payload : nil
           iter[O_SESSION] = session
           iter[O_BUFFER] = Gtk::TextBuffer.new
         end
