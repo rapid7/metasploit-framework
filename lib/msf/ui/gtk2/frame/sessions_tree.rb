@@ -48,7 +48,10 @@ module Msf
           column_type.set_cell_data_func(renderer_type) do |column, cell, model, iter|
             cell.text = iter[TYPE]
           end
-          #column_payload.sort_column_id = PAYLOAD
+          
+          # Init tips on the treeview for session
+          tips = SessionTips.new(column_type)
+          tips.add_view(@treeview)
 
           #set model to treeview
           @treeview.set_model(@model)
@@ -168,7 +171,7 @@ module Msf
             # Items session signals
             meterpreter_proc_item_shell.signal_connect('activate') do |item|
               if current = @selection.selected
-                print current[O_SESSION].tunnel_peer
+                print current[O_SESSION].sys.process.getpid
               end
             end
           end
