@@ -171,7 +171,8 @@ module Msf
             # Items session signals
             meterpreter_proc_item_shell.signal_connect('activate') do |item|
               if current = @selection.selected
-                print current[O_SESSION].sys.process.getpid
+                Msf::Ui::Gtk2::Stdapi::Sys::Ps.new(current[O_SESSION])
+                #print current[O_SESSION].sys.process.getpid
               end
             end
           end
