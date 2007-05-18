@@ -111,7 +111,7 @@ module Msf
 
               migrate_item_shell.signal_connect('activate') do |item|
                 if current = @selection.selected
-                  p current.get_value(PID)
+                  cmd_migrate(current.get_value(PID).to_i)
                 end
               end
 
@@ -155,6 +155,15 @@ module Msf
             def cmd_kill(*args)
               @client.sys.process.kill(*(args.map { |x| x.to_i }))
               update()
+            end
+            
+            #
+            # Migrate the server to the supplied process identifier.
+            #
+            def cmd_migrate(pid)
+              @client.core.migrate(pid)
+              
+          		p "Migration completed successfully : #{@client.sys.process.getpid}"
             end
 
           end # Ps
