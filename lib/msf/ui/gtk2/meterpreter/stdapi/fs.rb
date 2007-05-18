@@ -16,13 +16,13 @@ module Msf
 
           def initialize(client)
             @client = client
-            super("MsfBrowser on #{@client.via_session}")
+            super("MsfBrowser on #{@client.tunnel_peer}")
             @model = Gtk::ListStore.new(String, String, TrueClass, Gdk::Pixbuf)
             @parent = "/"
-            
-            @file_pixbuf = Gdk::Pixbuf.new(driver.get_image("gnome-file-c.png"))
-            @folder_pixbuf = Gdk::Pixbuf.new(driver.get_image("gnome-folder.png"))
-            
+
+            @file_pixbuf = Gdk::Pixbuf.new(driver.get_image("msf_file.png"))
+            @folder_pixbuf = Gdk::Pixbuf.new(driver.get_image("msf_folder.png"))
+
             @model.set_default_sort_func do |a, b|
               if !a[COL_IS_DIR] and b[COL_IS_DIR]
                 1
@@ -34,13 +34,17 @@ module Msf
             end
             @model.set_sort_column_id(Gtk::TreeSortable::DEFAULT_SORT_COLUMN_ID, Gtk::SORT_ASCENDING)
 
+            # Populate the ListStore
             cmd_ls
+
+            # Define the size and border
             set_default_size(650, 400)
-            set_border_width(8)
+            set_border_width(10)
 
             vbox = Gtk::VBox.new(false, 0)
             add(vbox)
 
+            # Add the view in the scrolled window
             sw = Gtk::ScrolledWindow.new
             sw.shadow_type = Gtk::SHADOW_ETCHED_IN
             sw.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
@@ -55,9 +59,9 @@ module Msf
               if iter[COL_DISPLAY_NAME]
                 @parent = iter[COL_PATH]
                 cmd_ls
-                # up_button.sensitive = true
               end
             end
+            
             sw.add(iconview)
             iconview.grab_focus
 
@@ -67,7 +71,6 @@ module Msf
           def cmd_ls(*args)
             @model.clear
             path = args[0] || @client.fs.dir.getwd
-            items = 0
 
             # Enumerate each item...
             @client.fs.dir.entries_with_info(path).sort { |a,b| a['FileName'] <=> b['FileName'] }.each do |p|
@@ -81,7 +84,6 @@ module Msf
               iter[COL_PATH] = path
               iter[COL_IS_DIR] = is_dir
               iter[COL_PIXBUF] = is_dir ? @folder_pixbuf : @file_pixbuf
-              items += 1
             end
 
           end # cmd_ls

@@ -1,14 +1,14 @@
 module Msf
   module Ui
     module Gtk2
-      
+
+      #
+      # Implement a basic window
+      #
       class SkeletonBasic < Gtk::Window
-        
         def initialize(title = nil)
           super(Gtk::Window::TOPLEVEL)
-          if title
-            set_title("#{title}")
-          end
+          set_title("#{title}")
 
           signal_connect("key_press_event") do |widget, event|
             if event.state.control_mask? and event.keyval == Gdk::Keyval::GDK_q
@@ -20,13 +20,9 @@ module Msf
           end
 
           signal_connect("delete_event") do |widget, event|
-            quit
+            destroy
+            true
           end
-        end
-
-        def quit
-          destroy
-          true
         end
       end
 
