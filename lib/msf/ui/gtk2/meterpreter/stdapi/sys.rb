@@ -4,6 +4,11 @@ module Msf
 
       class Stdapi
 
+        ###
+        #
+        # The system level portion of the standard API extension.
+        #
+        ###
         class Sys
 
           class Ps <  Msf::Ui::Gtk2::SkeletonTree
@@ -53,18 +58,76 @@ module Msf
               self.treeview.append_column(column_name)
               self.treeview.append_column(column_path)
 
+              # Selection on the treeview stuff
               @selection = self.treeview.selection
               self.treeview.selection.mode = Gtk::SELECTION_BROWSE
               self.treeview.rules_hint = true
 
-              populate()
-              
+              # TreeView signals
+              self.treeview.signal_connect('button_press_event') do |treeview, event|
+                if event.kind_of? Gdk::EventButton
+                  if (event.button == 3)
+                    path, column, x, y = treeview.get_path_at_pos(event.x, event.y)
+
+                    begin
+                      iter = self.treeview.model.get_iter(path)
+                      treeview.selection.select_path(path)
+                      menu = build_menu
+                      menu.popup(nil, nil, event.button, event.time)
+                    rescue
+                      nil
+                    end
+
+                  end
+                end
+              end
+
+              # Populate the treeview
+              cmd_ps()
+
               self.default_response = Gtk::Dialog::RESPONSE_NONE
               show_all and run
               destroy
             end
 
-            def populate
+            #
+            #
+            #
+            def build_menu
+              # Session Gtk::Menu
+              menu_process = Gtk::Menu.new
+
+              migrate_item_shell = Gtk::ImageMenuItem.new("Migrate PID")
+              migrate_image_shell = Gtk::Image.new
+              migrate_image_shell.set(Gtk::Stock::CONVERT, Gtk::IconSize::MENU)
+              migrate_item_shell.set_image(migrate_image_shell)
+              menu_process.append(migrate_item_shell)
+
+              kill_item_shell = Gtk::ImageMenuItem.new("Kill")
+              kill_image_shell = Gtk::Image.new
+              kill_image_shell.set(Gtk::Stock::STOP, Gtk::IconSize::MENU)
+              kill_item_shell.set_image(kill_image_shell)
+              menu_process.append(kill_item_shell)
+
+              migrate_item_shell.signal_connect('activate') do |item|
+                if current = @selection.selected
+                  p current.get_value(PID)
+                end
+              end
+
+              kill_item_shell.signal_connect('activate') do |item|
+                if current = @selection.selected
+                  cmd_kill(current.get_value(PID))
+                end
+              end
+
+              return menu_process.show_all
+            end
+
+            #
+            # Lists running processes.
+            #
+            def cmd_ps
               processes = @client.sys.process.get_processes
               if (processes.length == 0)
                 Msf::Dialog::Error("No running processes were found.")
@@ -76,6 +139,22 @@ module Msf
                   iter[PATH]  = ent['path']
                 end
               end
+            end
+
+            #
+            # Update the running list process
+            #
+            def update
+              @model.clear()
+              cmd_ps()
+            end
+
+            #
+            # Kills one or more processes.
+            #
+            def cmd_kill(*args)
+              @client.sys.process.kill(*(args.map { |x| x.to_i }))
+              update()
             end
 
           end # Ps

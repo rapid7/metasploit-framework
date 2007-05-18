@@ -164,7 +164,7 @@ module Msf
 
             meterpreter_proc_item_shell = Gtk::ImageMenuItem.new("Process")
             meterpreter_proc_image_shell = Gtk::Image.new
-            meterpreter_proc_image_shell.set(Gtk::Stock::CLOSE, Gtk::IconSize::MENU)
+            meterpreter_proc_image_shell.set(Gtk::Stock::INDEX, Gtk::IconSize::MENU)
             meterpreter_proc_item_shell.set_image(meterpreter_proc_image_shell)
             menu_session.append(meterpreter_proc_item_shell)
             
@@ -172,7 +172,6 @@ module Msf
             meterpreter_proc_item_shell.signal_connect('activate') do |item|
               if current = @selection.selected
                 Msf::Ui::Gtk2::Stdapi::Sys::Ps.new(current[O_SESSION])
-                #print current[O_SESSION].sys.process.getpid
               end
             end
           end
