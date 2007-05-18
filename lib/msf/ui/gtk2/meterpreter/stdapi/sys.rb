@@ -161,9 +161,14 @@ module Msf
             # Migrate the server to the supplied process identifier.
             #
             def cmd_migrate(pid)
+              old_pid = @client.sys.process.getpid
               @client.core.migrate(pid)
               
-          		p "Migration completed successfully : #{@client.sys.process.getpid}"
+              text = ""
+          		text << "Migration completed successfully : \n"
+          		text << "Old PID :#{old_pid}\n"
+          		text << "New PID :#{@client.sys.process.getpid}"
+          		MsfDialog::Information.new(self, text)
             end
 
           end # Ps
