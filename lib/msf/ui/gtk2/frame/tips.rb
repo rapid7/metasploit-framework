@@ -22,7 +22,8 @@ module Msf
             if ( @session.type == "shell")
               tips = shell_tips()
             elsif ( @session.type == "meterpreter")
-              tips = meterpreter_tips()
+              #tips = meterpreter_tips()
+              nil
             elsif (@session.type == "vncinject")
               tips = vncinject_tips()
             end

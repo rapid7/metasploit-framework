@@ -39,7 +39,6 @@ module Msf
           column_peer.set_cell_data_func(renderer_peer) do |column, cell, model, iter|
             cell.text = iter[PEER]
           end
-          #column_peer.sort_column_id = PEER
 
           # Session type Gtk::TreeViewColumn
           column_type = Gtk::TreeViewColumn.new
@@ -161,17 +160,32 @@ module Msf
           if (type == "meterpreter")
             meterpreter_separator = Gtk::SeparatorMenuItem.new
             menu_session.append(meterpreter_separator)
-
+            
+            # sdapi/process
             meterpreter_proc_item_shell = Gtk::ImageMenuItem.new("Process")
             meterpreter_proc_image_shell = Gtk::Image.new
             meterpreter_proc_image_shell.set(Gtk::Stock::INDEX, Gtk::IconSize::MENU)
             meterpreter_proc_item_shell.set_image(meterpreter_proc_image_shell)
             menu_session.append(meterpreter_proc_item_shell)
             
-            # Items session signals
+            # sdapi/fs
+            meterpreter_fs_item_shell = Gtk::ImageMenuItem.new("Browse")
+            meterpreter_fs_image_shell = Gtk::Image.new
+            meterpreter_fs_image_shell.set(Gtk::Stock::OPEN, Gtk::IconSize::MENU)
+            meterpreter_fs_item_shell.set_image(meterpreter_fs_image_shell)
+            menu_session.append(meterpreter_fs_item_shell)
+            
+            # Process signals
             meterpreter_proc_item_shell.signal_connect('activate') do |item|
               if current = @selection.selected
                 Msf::Ui::Gtk2::Stdapi::Sys::Ps.new(current[O_SESSION])
+              end
+            end
+            
+            # Fs signals
+            meterpreter_fs_item_shell.signal_connect('activate') do |item|
+              if current = @selection.selected
+                Msf::Ui::Gtk2::Stdapi::Fs.new(current[O_SESSION])
               end
             end
           end
