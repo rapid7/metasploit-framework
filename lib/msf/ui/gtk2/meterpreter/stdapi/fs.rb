@@ -71,8 +71,14 @@ module Msf
           # Lists file on the remote machine
           #
           def cmd_ls(*args)
+            
+            # Just ignore the invalid UTF8
+            # Don't know why GLib.filename_to_utf8() don't work ;-(
+            ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')
+            
             @model_view.clear
             path = args[0] || @client.fs.dir.getwd
+            @parent = path
 
             # Enumerate each item...
             @client.fs.dir.entries_with_info(path).sort { |a,b| a['FileName'] <=> b['FileName'] }.each do |p|
@@ -82,7 +88,7 @@ module Msf
                 is_dir = false
               end
               iter = @model_view.append
-              iter[COL_DISPLAY_NAME] = p['FileName'] || 'unknown'
+              iter[COL_DISPLAY_NAME] = ic.iconv(p['FileName'] + ' ')[0..-2] || 'unknown'
               iter[COL_PATH] = path
               iter[COL_IS_DIR] = is_dir
               iter[COL_PIXBUF] = is_dir ? @folder_pixbuf : @file_pixbuf
