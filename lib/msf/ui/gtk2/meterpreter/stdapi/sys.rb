@@ -19,7 +19,7 @@ module Msf
             #
             def initialize(client)
               @model = Gtk::ListStore.new(String, String, String)
-              super(client.via_session, @model)
+              super(@client.tunnel_peer, @model)
 
               @client = client
 
