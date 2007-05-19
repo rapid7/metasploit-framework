@@ -70,7 +70,7 @@ module Msf
         # coordinates of the tooltip window.
         #
         # The default location is to center the window on the pointer
-        # and 4 pixels below it.
+        # and 20 pixels below it.
         #
         def location(x, y, w, h)
           return x - w/2, y + 20
