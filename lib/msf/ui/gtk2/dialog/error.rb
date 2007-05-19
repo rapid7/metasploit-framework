@@ -19,7 +19,20 @@ module Msf
             destroy
           end
         end
+
+        class Warning < Msf::Ui::Gtk2::SkeletonAlert
+          def initialize(parent, title, message=nil)
+            super(parent, title, Gtk::Stock::DIALOG_WARNING,
+            [[Gtk::Stock::OK, Gtk::Dialog::RESPONSE_OK]],
+            message)
+            self.default_response = Gtk::Dialog::RESPONSE_OK
+            show_all and run
+            destroy
+          end
+        end
+
       end
+
     end
   end
 end
