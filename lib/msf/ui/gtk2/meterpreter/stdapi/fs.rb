@@ -56,7 +56,7 @@ module Msf
             iconview.pixbuf_column = COL_PIXBUF
             iconview.signal_connect("item_activated") do |iview, path|
               iter = @model_view.get_iter(path)
-              if iter[COL_DISPLAY_NAME]
+              if ( iter[COL_DISPLAY_NAME] and iter[COL_IS_DIR] )
                 cmd_ls(@parent + "\\" + iter[COL_DISPLAY_NAME])
               end
             end
