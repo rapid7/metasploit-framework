@@ -39,3 +39,8 @@ create table vulns_refs (
 'ref_id' INTEGER,
 'vuln_id' INTEGER
 );
+
+
+.schema
+
+.exit

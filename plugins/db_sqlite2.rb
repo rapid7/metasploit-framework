@@ -81,14 +81,16 @@ class Plugin::DBSQLite2 < Msf::Plugin
 	
 			opts['dbfile'] = info[:path]
 			
-			odb = File.join(Msf::Config.install_root, "data", "sql", "sqlite2.db")
+			sql = File.join(Msf::Config.install_root, "data", "sql", "sqlite.sql")
 			
-			FileUtils.copy(odb, info[:path])
+			print_status("Creating a new database instance...")
+			system("sqlite #{opts['dbfile']} < #{sql}")
 
 			if (not framework.db.connect(opts))
 				raise PluginLoadError.new("Failed to connect to the database")
 			end
 			driver.append_dispatcher(DatabaseCommandDispatcher)	
+
 		end
 
 		#
