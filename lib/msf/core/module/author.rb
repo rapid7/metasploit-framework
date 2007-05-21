@@ -12,7 +12,6 @@ class Msf::Module::Author
 	Known =
 		{
 			'hdm'       => 'hdm' + 0x40.chr + 'metasploit.com',
-			'H D Moore' => 'hdm' + 0x40.chr + 'metasploit.com',
 			'spoonm'    => 'spoonm' + 0x40.chr + 'no$email.com',
 			'skape'     => 'mmiller' + 0x40.chr + 'hick.org',
 			'vlad902'   => 'vlad902' + 0x40.chr + 'gmail.com',
