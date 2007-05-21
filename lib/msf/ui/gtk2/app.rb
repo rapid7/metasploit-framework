@@ -99,11 +99,11 @@ module Msf
           # @window.set_default_size(1024, 768)
 
           # Defaults policies for Gtk::ScrolledWindow
-          @scrolledwindow1.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
-          @scrolledwindow2.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
-          @scrolledwindow3.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
-          # @scrolledwindow4.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
-          @scrolledwindow16.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+          @scrolledwindow_module.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+          @scrolledwindow_jobs.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+          @scrolledwindow_session.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+          @scrolledwindow_information.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+          @scrolledwindow_logs.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
 
           # Logs Buffer
           @buffer = Gtk::TextBuffer.new
@@ -239,6 +239,14 @@ module Msf
         def on_options_activate
           MsfParameters::Options.new()
         end
+        
+        #
+        # Action for "Window/Logs" menu
+        #
+        def on_logs_activate
+         MsfWindow::Logs.new
+        end
+        
         #
         # The About Dialog
         #
