@@ -80,6 +80,9 @@ class Auxiliary::Scanner::Smb::Version < Msf::Auxiliary
 				when /Windows Server 2003 (\d+) Service Pack (\d+)/
 					os = 'Windows 2003'
 					sp = 'Service Pack ' + $2
+				when /Windows Server 2003 R2 (\d+) Service Pack (\d+)/
+					os = 'Windows 2003 R2'
+					sp = 'Service Pack ' + $2
 				when /Windows Vista \(TM\) (\w+) (\d+)/
 					os = 'Windows Vista ' + $1
 					sp = '(Build ' + $2 + ')'
