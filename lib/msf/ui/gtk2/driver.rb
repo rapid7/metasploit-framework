@@ -29,10 +29,11 @@ module Msf
       #
       ###
       class Driver < Msf::Ui::Driver
-
+        
+        # main view
         attr_accessor :session_tree, :module_tree, :job_tree, :log_text, :module_model
         attr_accessor :module_completion, :main, :tips
-
+        
         include Msf::Ui::Gtk2::FrameworkEventManager
 
         ConfigCore  = "framework/core"

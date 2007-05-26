@@ -20,18 +20,21 @@ module Msf
             @client = client
 
             # call the parent
-            super("MsfBrowser on #{@client.tunnel_peer}")
+            super("File Browser on #{@client.tunnel_peer}")
 
             # Define the models (navigation, view)
             # TODO: model for navigation
             @model_view = Gtk::ListStore.new(String, String, TrueClass, Gdk::Pixbuf)
+            @model_local = Gtk::TreeStore.new(String, String, TrueClass, Gdk::Pixbuf)
 
-            # Define the parent the parent
+            # Define thes parents
             @parent = "/"
+            @parent_local = "/"
 
             # Define the icons for folders and files
             @file_pixbuf = Gdk::Pixbuf.new(driver.get_image("msf_file.png"))
             @folder_pixbuf = Gdk::Pixbuf.new(driver.get_image("msf_folder.png"))
+            @local_folder_pixbuf = Gdk::Pixbuf.new(driver.get_image("msf_local_folder.png"))
 
             @model_view.set_default_sort_func do |a, b|
               if !a[COL_IS_DIR] and b[COL_IS_DIR]
@@ -57,6 +60,25 @@ module Msf
             vbox_right = Gtk::VBox.new(false, 0)
             hbox.pack_start(vbox_left, false, false, 0)
             hbox.pack_start(vbox_right, true, true, 0)
+
+            # Local
+            @treeview_local = Gtk::TreeView.new(@model_local)
+            vbox_left.pack_start(@treeview_local, true, true, 0)
+            renderer_pix = Gtk::CellRendererPixbuf.new
+            renderer_name = Gtk::CellRendererText.new
+
+            column_name = Gtk::TreeViewColumn.new
+            column_name.pack_start(renderer_pix, false)
+            column_name.set_cell_data_func(renderer_pix) do |column, cell, model, iter|
+              cell.pixbuf = iter[COL_PIXBUF]
+            end
+            column_name.pack_start(renderer_name, true)
+            column_name.set_cell_data_func(renderer_name) do |column, cell, model, iter|
+              cell.text = iter[COL_DISPLAY_NAME]
+            end
+            @treeview_local.append_column(column_name)
+
+            # Remote
 
             # Label, Entry and Signal for the path selection
             hbox_path = Gtk::HBox.new(false, 0)
@@ -88,6 +110,7 @@ module Msf
             end
 
             # Populate the view
+            local_ls
             cmd_ls
 
             sw.add(iconview)
@@ -100,6 +123,7 @@ module Msf
           # Lists file on the remote machine
           #
           def cmd_ls(*args)
+            # Try to list the remote path
             begin
               # Just ignore the invalid UTF8
               # Don't know why GLib.filename_to_utf8() don't work ;-(
@@ -123,11 +147,24 @@ module Msf
                 iter[COL_IS_DIR] = is_dir
                 iter[COL_PIXBUF] = is_dir ? @folder_pixbuf : @file_pixbuf
               end
+              # If not possible return a *warning***
             rescue
               MsfDialog::Warning.new(self, "No entries exist in #{path}")
               cmd_ls
             end
           end # cmd_ls
+
+          def local_ls(*args)
+            Dir.glob(File.join(@parent_local, "*")).each do |path|
+              if FileTest.directory?(path)
+                iter = @model_local.append(nil)
+                iter[COL_DISPLAY_NAME] = GLib.filename_to_utf8(File.basename(path))
+                iter[COL_PATH] = path
+                iter[COL_IS_DIR] = true
+                iter[COL_PIXBUF] = @local_folder_pixbuf
+              end
+            end
+          end
 
         end # Fs
 

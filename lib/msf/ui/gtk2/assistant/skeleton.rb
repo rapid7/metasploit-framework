@@ -11,7 +11,7 @@ module Msf
         include Msf::Ui::Gtk2::MyControls
 
         attr_accessor :vbox, :hbox, :main, :page, :bbox, :vbox_left, :vbox_label, :save_button
-        attr_accessor :button_forward
+        attr_accessor :button_back, :button_forward, :option_state
 
         def initialize(title)
           super
@@ -32,6 +32,9 @@ module Msf
           # HBox
           @hbox = Gtk::HBox.new(false, 10)
           @vbox.pack_start(@hbox, true, false, 0)
+          
+          # Option state
+          @option_state = true
 
           # Left frame
           @vbox_left = Gtk::VBox.new(false, 5)
@@ -120,7 +123,7 @@ module Msf
           if state
             label.set_markup("<span foreground=\"black\"><b>#{text}</b></span>")
           else
-            label.set_markup("<span foreground=\"#C0C0C0\">#{text}</span>")
+            label.set_markup("<span foreground=\"white\">#{text}</span>")
           end
           return label
         end
@@ -191,7 +194,7 @@ module Msf
         def refresh_label(hist, actual , nex)
           if not (hist == nil)
             hist.each do |label|
-              label.set_markup("<span foreground=\"white\"><i>#{label.text}</i></span>")
+              label.set_markup("<span foreground=\"black\"><i>#{label.text}</i></span>")
             end
           end
 
@@ -201,10 +204,45 @@ module Msf
 
           if not (nex == nil)
             nex.each do |label|
-              label.set_markup("<span foreground=\"#C0C0C0\"><b>#{label.text}</b></span>")
+              label.set_markup("<span foreground=\"white\">#{label.text}</span>")
             end
           end
         end
+
+        #
+        # Options stuff
+        #
+        def add_option(key, opt, store="")
+          type = opt.type
+          
+          if (type == "string")
+            MsfTypes::String.new(key, opt, store)
+          elsif (type == "raw")
+            MsfTypes::Raw.new(key, opt)
+          elsif (type == "bool")
+            MsfTypes::Bool.new(key, opt)
+          elsif (type == "port")
+            MsfTypes::Port.new(key, opt)
+          elsif (type == "address")
+            MsfTypes::Address.new(key, opt, store)
+          elsif (type == "path")
+            MsfTypes::String.new(key, opt, store)
+          elsif (type == "integer")
+            MsfTypes::Integer.new(key, opt)
+          elsif (type == "enum")
+            MsfTypes::String.new(key, opt, store)
+          elsif (type == "addressrange")
+            MsfTypes::String.new(key, opt, store)
+          end
+        end
+        
+        #
+        # Dummy function
+        #
+        def options_validate
+          raise NotImplementedError, "Subclass must implement options_validate"
+        end
+
 
         #########
         private #

@@ -117,7 +117,7 @@ module Msf
               if (type == "Standard")
                 MsfAssistant::Exploit.new(active_module.get_value(MODULE))
               elsif (type ==  "Payloads")
-                MsfAssistant::Payload.new(active_module.get_value(MODULE))
+                MsfDialog::Error.new($gtk2driver.main, "Not available")
               else
                 MsfDialog::Error.new($gtk2driver.main, "Not available")
               end
