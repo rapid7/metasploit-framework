@@ -5,43 +5,40 @@ module Msf
       class MsfTypes
 
         #
-        # OptString  - Multi-byte character string
+        # OptInt     - An integer value
         #
-        class Integer < Msf::Ui::Gtk2::SkeletonType
+        class Int < Msf::Ui::Gtk2::SkeletonType
 
           include Msf::Ui::Gtk2::MyControls
 
-          def initialize(key, opt)
-            super()
-
-            pack_description(opt.desc.to_s + " :")
-            pack_integer(key, opt.default.to_s)
+          def initialize(key, opt, store)
+            super(key, opt, store)
 
             return self
           end
 
           #
+          # Pack OptInt into an Gtk::Entry
           #
-          #
-          def pack_integer(name, value)
+          def pack_option(default, store)
             hbox = Gtk::HBox.new(false, 10)
             self.pack_start(hbox, false, false, 0)
-            
-            @name = name
-
-            label = Gtk::Label.new
-            label.set_markup("<span foreground=\"black\">#{@name} :</span>")
-            hbox.pack_start(label, false, false, 0)
 
             @entry = Gtk::Entry.new
-            @entry.set_text(value.to_s)
             @entry.set_width_chars(15)
             @entry.set_max_length(15)
+
+            if store
+              @entry.set_text(store.to_s)
+            else
+              @entry.set_text(default.to_s)
+            end
+            
             hbox.pack_start(@entry, false, false, 0)
           end
 
           #
-          #
+          # Check if the entry is empty ...  or not !
           #
           def check?
             if (@entry.text == "")
@@ -52,10 +49,10 @@ module Msf
           end
 
           #
-          #
+          # Return key/value pair
           #
           def get_pair
-            return @name, @entry.text
+            return self.key, @entry.text
           end
 
         end
@@ -63,6 +60,5 @@ module Msf
       end
 
     end
-
   end
 end

@@ -5,39 +5,36 @@ module Msf
       class MsfTypes
 
         #
-        # OptRaw     - Multi-byte raw string
+        # OptAddress - IP address or hostname
         #
         class Address < Msf::Ui::Gtk2::SkeletonType
 
           def initialize(key, opt, store)
-            super()
-
-            pack_description(opt.desc.to_s + " :")
-            pack_address(key, opt.default, store)
+            super(key, opt, store)
 
             return self
           end
 
           #
+          # Pack OptAddress into an Gtk::Entry
           #
-          #
-          def pack_address(name, value, store)
+          def pack_option(default, store)
             hbox = Gtk::HBox.new(false, 10)
             self.pack_start(hbox, false, false, 0)
 
-            @name = name
-
-            label = Gtk::Label.new
-            label.set_markup("<span foreground=\"black\">#{@name} :</span>")
-            hbox.pack_start(label, false, false, 0)
-
             @entry = Gtk::Entry.new
-            if (name == "LHOST" and store == "")
-              @entry.set_text(Rex::Socket.source_address)
-            elsif (not store == "")
-              @entry.set_text(store)
+
+            # With reverse type payload, prepend the local ip address
+            # if store not equal "", dump the content into the Gtk::Entry
+            # or filled it with the default value
+            if (self.key == "LHOST")
+              if store
+                @entry.set_text(store)
+              else
+                @entry.set_text(Rex::Socket.source_address)
+              end
             else
-              @entry.set_text(value)
+              @entry.set_text(default)
             end
             @entry.set_width_chars(15)
             @entry.set_max_length(15)
@@ -45,7 +42,7 @@ module Msf
           end
 
           #
-          #
+          # Check if an IP address filled the entry ...  or not !
           #
           def check?
             if (@entry.text == "")
@@ -56,10 +53,10 @@ module Msf
           end
 
           #
-          #
+          # Return key/value pair
           #
           def get_pair
-            return @name, @entry.text
+            return self.key, @entry.text
           end
 
         end

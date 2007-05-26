@@ -9,42 +9,50 @@ module Msf
         #
         class Bool < Msf::Ui::Gtk2::SkeletonType
 
-          def initialize(key, opt)
-            super()
-
-            pack_description(opt.desc.to_s + " :")
-            pack_bool(key, opt.default)
+          def initialize(key, opt, store)
+            super(key, opt, store)
 
             return self
           end
 
           #
+          # Pack OptBool into a Gtk::CheckButton
           #
-          #
-          def pack_bool(name, value)
+          def pack_option(default, store)
             hbox = Gtk::HBox.new(false, 0)
             self.pack_start(hbox, false, false, 0)
-            
-            @name = name
 
-            @checkbutton = Gtk::CheckButton.new(@name, true)
+            @checkbutton = Gtk::CheckButton.new(self.key)
             hbox.pack_start(@checkbutton, true, true, 0)
 
-            @checkbutton.set_active(value)
+            # Define the CheckButton state
+            if store
+              if (store.to_s.downcase == "false")
+                @checkbutton.set_active(false)
+              else
+                @checkbutton.set_active(true)
+              end
+            elsif
+              if (default.to_s.downcase == "false")
+                @checkbutton.set_active(false)
+              else
+                @checkbutton.set_active(true)
+              end
+            end
           end
 
           #
-          #
+          # Check if the button is activate ...  or not !
           #
           def check?
             return @checkbutton.active?
           end
 
           #
-          #
+          # Return key/value pair
           #
           def get_pair
-            return @name, @checkbutton.active?
+            return self.key, @checkbutton.active?
           end
 
         end

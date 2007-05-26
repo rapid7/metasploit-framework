@@ -212,23 +212,23 @@ module Msf
         #
         # Options stuff
         #
-        def add_option(key, opt, store="")
+        def add_option(key, opt, store=nil)
           type = opt.type
           
           if (type == "string")
             MsfTypes::String.new(key, opt, store)
           elsif (type == "raw")
-            MsfTypes::Raw.new(key, opt)
+            MsfTypes::Raw.new(key, opt, store)
           elsif (type == "bool")
-            MsfTypes::Bool.new(key, opt)
+            MsfTypes::Bool.new(key, opt, store)
           elsif (type == "port")
-            MsfTypes::Port.new(key, opt)
+            MsfTypes::Port.new(key, opt, store)
           elsif (type == "address")
             MsfTypes::Address.new(key, opt, store)
           elsif (type == "path")
             MsfTypes::String.new(key, opt, store)
           elsif (type == "integer")
-            MsfTypes::Integer.new(key, opt)
+            MsfTypes::Int.new(key, opt, store)
           elsif (type == "enum")
             MsfTypes::String.new(key, opt, store)
           elsif (type == "addressrange")

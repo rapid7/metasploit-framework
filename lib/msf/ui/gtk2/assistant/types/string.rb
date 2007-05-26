@@ -9,37 +9,27 @@ module Msf
         #
         class String < Msf::Ui::Gtk2::SkeletonType
 
-          include Msf::Ui::Gtk2::MyControls
-
           def initialize(key, opt, store)
-            super()
-
-            pack_description(opt.desc.to_s + " :")
-            pack_string(key, opt.default.to_s, store)
-
+            super(key, opt, store)
+            
             return self
           end
 
           #
+          # Pack OptString into an Gtk::Entry
           #
-          #
-          def pack_string(name, value, store)
+          def pack_option(default, store)
             hbox = Gtk::HBox.new(false, 10)
             self.pack_start(hbox, false, false, 0)
 
-            @name = name
-
-            label = Gtk::Label.new
-            label.set_markup("<span foreground=\"black\">#{@name} :</span>")
-            hbox.pack_start(label, false, false, 0)
-
             @entry = Gtk::Entry.new
-            if (store == "")
-              @entry.set_text(value)
-            else
+            if store
               @entry.set_text(store)
+            else
+              @entry.set_text(default)
             end
-            if (name == "Locale")
+            
+            if (self.key == "Locale")
               @entry.set_width_chars(15)
               @entry.set_max_length(15)
               hbox.pack_start(@entry, false, false, 0)
@@ -49,7 +39,7 @@ module Msf
           end
 
           #
-          #
+          # Check if the option is empty ...  or not !
           #
           def check?
             if (@entry.text == "")
@@ -60,14 +50,13 @@ module Msf
           end
 
           #
-          #
+          # Return the the pair key/value
           #
           def get_pair
-            return @name, @entry.text
+            return self.key, @entry.text
           end
 
         end
-
 
       end
 
