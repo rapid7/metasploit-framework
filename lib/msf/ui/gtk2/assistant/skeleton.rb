@@ -226,7 +226,7 @@ module Msf
           elsif (type == "address")
             MsfTypes::Address.new(key, opt, store)
           elsif (type == "path")
-            MsfTypes::String.new(key, opt, store)
+            MsfTypes::Path.new(key, opt, store)
           elsif (type == "integer")
             MsfTypes::Int.new(key, opt, store)
           elsif (type == "enum")

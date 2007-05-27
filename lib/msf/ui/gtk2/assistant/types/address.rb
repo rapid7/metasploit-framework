@@ -34,7 +34,11 @@ module Msf
                 @entry.set_text(Rex::Socket.source_address)
               end
             else
-              @entry.set_text(default)
+              if store
+                @entry.set_text(store)
+              else
+                @entry.set_text(default)
+              end
             end
             @entry.set_width_chars(15)
             @entry.set_max_length(15)
