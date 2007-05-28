@@ -29,7 +29,7 @@ module Msf
           $gtk2driver.module_model = @model
 
           # Init buffer module with tags
-          buff = Gtk::TextBuffer.new
+          buff = SkeletonTextBuffer.new()
           viewmodule.set_buffer(buff)
           viewmodule.set_editable(false)
           viewmodule.set_cursor_visible(false)

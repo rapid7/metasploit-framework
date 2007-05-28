@@ -11,14 +11,14 @@ module Msf
 
           include Msf::Ui::Gtk2::MyControls
 
-          def initialize(title)
+          def initialize(title, data)
             console_style = File.join(driver.resource_directory, 'style', 'console.rc')
             Gtk::RC.parse(console_style)
-            
+
             # call the parent
             super(title)
 
-            @buffer = Gtk::TextBuffer.new
+
 
             # Define the size and border
             set_default_size(400, 400)
@@ -28,24 +28,27 @@ module Msf
             vbox = Gtk::VBox.new(false, 0)
             add(vbox)
 
-            @view = Gtk::TextView.new(@buffer)
+            # Description
+            @r_buffer = SkeletonTextBuffer.new()
+            @r_view = Gtk::TextView.new(@r_buffer)
+            @r_view.set_size_request(400, 70)
+            r_sw = Gtk::ScrolledWindow.new()
+            r_sw.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+            vbox.pack_start(r_sw, false, false, 0)
+            r_sw.add(@r_view)
 
+
+            # Live log
+            @buffer = SkeletonTextBuffer.new
+            @view = Gtk::TextView.new(@buffer)
             sw = Gtk::ScrolledWindow.new()
             sw.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
             vbox.pack_start(sw, true, true, 0)
-
             sw.add(@view)
-            
-            @buffer.create_tag("date",
-            :'foreground' => 'ForestGreen',
-            :'weight' => Pango::FontDescription::WEIGHT_BOLD
-            )
 
-            @buffer.create_tag("txt",
-            :'foreground' => 'white'
-            #:'weight' => Pango::FontDescription::WEIGHT_BOLD
-            )
+            append_review(title, data)
 
+            # Return window
             return self
           end
 
@@ -53,17 +56,35 @@ module Msf
           # Adds text to the main logging screen
           #
           def append_log_view(data)
-            
+
             if (not @buffer.get_mark('end_mark'))
               @buffer.create_mark('end_mark', @buffer.end_iter, false)
             end
 
-            #@buffer.insert(@buffer.end_iter, Rex::Text.to_utf8(data))
-            @buffer.insert_with_tags(@buffer.end_iter, Time.now.strftime("%H:%m:%S "), 'date')
-            #@buffer.insert_with_tags(@buffer.end_iter, type, 'type')
-            @buffer.insert_with_tags(@buffer.end_iter, data, 'txt')
+            @buffer.insert_with_tags(@buffer.end_iter, Time.now.strftime("%H:%m:%S "), 'forestgreen_bold')
+            @buffer.insert_with_tags(@buffer.end_iter, Rex::Text.to_utf8(data), 'white_wrap')
+
             @buffer.move_mark('end_mark', @buffer.end_iter)
             @view.scroll_mark_onscreen(@buffer.get_mark('end_mark'))
+          end
+
+          private
+
+          #
+          # Describe the auxiliary options
+          #
+          def append_review(aux, data)
+            @r_buffer.delete(*@r_buffer.bounds)
+            start = @r_buffer.get_iter_at_offset(0)
+
+            # Module name
+            @r_buffer.insert_with_tags(start, aux + "\n", 'forestgreen_bold_center')
+
+            # Pair key => Value
+            data.each do |key, value|
+              @r_buffer.insert_with_tags(start, "#{key}", 'rosybrown_bold')
+              @r_buffer.insert_with_tags(start, " => #{value}\n", 'white_bold')
+            end
           end
 
         end

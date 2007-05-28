@@ -306,7 +306,7 @@ module Msf
             # Import options from the supplied assistant
             @mydriver.exploit.datastore.import_options_from_hash(@hash)
             
-            result = MsfWindow::Auxiliary.new(@mydriver.active_module.refname)
+            result = MsfWindow::Auxiliary.new(@mydriver.active_module.refname, @hash)
 
             action  = @mydriver.exploit.datastore['ACTION']
             jobify  = false
