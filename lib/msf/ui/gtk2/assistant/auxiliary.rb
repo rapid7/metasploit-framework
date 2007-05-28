@@ -24,7 +24,7 @@ module Msf
               ["Check your review", "end", true, true, true, true],
             ],
           ].collect do |item, state|
-            WIZARD2[item] = WizardStruct2.new(	
+            WIZARD2[item] = WizardStruct2.new(
             state[0],
             state[1],
             state[2],
@@ -39,7 +39,7 @@ module Msf
           #
           def initialize(active_module)
             @active_module = active_module
-                        
+
             @job_tree   = $gtk2driver.job_tree
             @hash = {}
 
@@ -47,11 +47,14 @@ module Msf
             super(@active_module.refname)
 
             # Initialize exploit driver's exploit instance
-            @mydriver = Msf::ExploitDriver.new(framework)            
+            #@mydriver = Msf::ExploitDriver.new(framework)
+            #@mydriver.exploit = framework.auxiliary.create(@active_module.refname)
+            @mydriver = $gtk2driver
             @mydriver.exploit = framework.auxiliary.create(@active_module.refname)
-            
+            @mydriver.active_module = @active_module
+
             # Populate the datastore if possible
-            @mydriver.exploit.load_config
+            #@mydriver.exploit.load_config
 
 
             # Main interface
@@ -144,7 +147,7 @@ module Msf
           # Display options view
           #
           def options_completion
-            
+
             self.page = "options"
 
             # Expanded frame
@@ -268,12 +271,10 @@ module Msf
             end
 
             if (errors.empty? == false)
-              #button_forward.set_sensitive(false)
               MsfDialog::Error.new(self, "Failed to validate : #{errors.join(', ')}")
               false
             else
               true
-              #button_forward.set_sensitive(true)
             end
           end
 
@@ -304,9 +305,39 @@ module Msf
 
             # Import options from the supplied assistant
             @mydriver.exploit.datastore.import_options_from_hash(@hash)
-            
-            MsfDialog::Warning.new(self, "Auxiliary", "MsfAssistant for auxiliary modules is currently under development")
-            
+        		
+        		opt_str = nil
+        		action  = @mydriver.exploit.datastore['ACTION']
+        		jobify  = false
+        		
+            @pipe = Msf::Ui::Gtk2::GtkConsolePipe.new
+
+            @pipe.create_subscriber_proc() do |msg|
+              $stderr.puts "MSG: #{msg}"
+              $gtk2driver.append_log_view(msg)
+            end
+
+            @pipe.print_status("Launching auxiliary #{@mydriver.exploit.refname}...")
+        		
+        		# Always run passive modules in the background
+        		if (@mydriver.exploit.passive? or @mydriver.exploit.passive_action?(action))
+        			jobify = true
+        		end
+
+            begin
+              @mydriver.exploit.run_simple(
+              'Action'        => action,
+              'Options'       => @hash,
+              'LocalInput'    => @pipe,
+              'LocalOutput'   => @pipe,
+              'RunAsJob'      => jobify
+              )
+            rescue ::Exception => e
+              p "Auxiliary failed: #{e.to_s}"
+              return false
+            end
+
+
           end
         end
 

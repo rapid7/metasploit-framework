@@ -157,7 +157,7 @@ module Msf
         #
       	# The active module associated with the driver.
       	#
-      	attr_accessor :active_module
+      	attr_accessor :active_module, :exploit
 
         protected
 
