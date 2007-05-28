@@ -12,6 +12,9 @@ module Msf
           include Msf::Ui::Gtk2::MyControls
 
           def initialize(title)
+            console_style = File.join(driver.resource_directory, 'style', 'console.rc')
+            Gtk::RC.parse(console_style)
+            
             # call the parent
             super(title)
 
@@ -32,6 +35,16 @@ module Msf
             vbox.pack_start(sw, true, true, 0)
 
             sw.add(@view)
+            
+            @buffer.create_tag("date",
+            :'foreground' => 'ForestGreen',
+            :'weight' => Pango::FontDescription::WEIGHT_BOLD
+            )
+
+            @buffer.create_tag("txt",
+            :'foreground' => 'white'
+            #:'weight' => Pango::FontDescription::WEIGHT_BOLD
+            )
 
             return self
           end
@@ -40,13 +53,15 @@ module Msf
           # Adds text to the main logging screen
           #
           def append_log_view(data)
-            data = Time.now.strftime("%H:%m:%S") + " " + data
-
+            
             if (not @buffer.get_mark('end_mark'))
               @buffer.create_mark('end_mark', @buffer.end_iter, false)
             end
 
-            @buffer.insert(@buffer.end_iter, Rex::Text.to_utf8(data))
+            #@buffer.insert(@buffer.end_iter, Rex::Text.to_utf8(data))
+            @buffer.insert_with_tags(@buffer.end_iter, Time.now.strftime("%H:%m:%S "), 'date')
+            #@buffer.insert_with_tags(@buffer.end_iter, type, 'type')
+            @buffer.insert_with_tags(@buffer.end_iter, data, 'txt')
             @buffer.move_mark('end_mark', @buffer.end_iter)
             @view.scroll_mark_onscreen(@buffer.get_mark('end_mark'))
           end
