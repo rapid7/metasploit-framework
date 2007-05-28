@@ -94,10 +94,11 @@ module Msf
                       treeview.selection.select_path(path)
                       active(iter)
                       MsfAssistant::Exploit.new(iter.get_value(MODULE))
-                    elsif (iter.get_value(APP) == "Payloads")
+                    elsif (iter.get_value(APP) == "Auxiliary")
                       treeview.selection.select_path(path)
                       active(iter)
-                      MsfDialog::Error.new($gtk2driver.main, "Not available")
+                      MsfAssistant::Auxiliary.new(iter.get_value(MODULE))
+                      #MsfDialog::Error.new($gtk2driver.main, "Not available")
                     else
                       treeview.selection.select_path(path)
                       active(iter)
@@ -116,8 +117,9 @@ module Msf
               type = active_module.get_value(APP)
               if (type == "Standard")
                 MsfAssistant::Exploit.new(active_module.get_value(MODULE))
-              elsif (type ==  "Payloads")
-                MsfDialog::Error.new($gtk2driver.main, "Not available")
+              elsif (type ==  "Auxiliary")
+                MsfAssistant::Auxiliary.new(active_module.get_value(MODULE))
+                #MsfDialog::Error.new($gtk2driver.main, "Not available")
               else
                 MsfDialog::Error.new($gtk2driver.main, "Not available")
               end

@@ -11,7 +11,7 @@ module Msf
         include Msf::Ui::Gtk2::MyControls
 
         attr_accessor :vbox, :hbox, :main, :page, :bbox, :vbox_left, :vbox_label, :save_button
-        attr_accessor :button_back, :button_forward, :option_state
+        attr_accessor :button_back, :button_forward
 
         def initialize(title)
           super
@@ -32,9 +32,6 @@ module Msf
           # HBox
           @hbox = Gtk::HBox.new(false, 10)
           @vbox.pack_start(@hbox, true, false, 0)
-          
-          # Option state
-          @option_state = true
 
           # Left frame
           @vbox_left = Gtk::VBox.new(false, 5)
