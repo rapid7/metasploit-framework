@@ -194,7 +194,7 @@ module Msf
         def refresh_label(hist, actual , nex)
           if not (hist == nil)
             hist.each do |label|
-              label.set_markup("<span foreground=\"black\"><i>#{label.text}</i></span>")
+              label.set_markup("<span foreground=\"white\"><i>#{label.text}</i></span>")
             end
           end
 
