@@ -305,35 +305,39 @@ module Msf
 
             # Import options from the supplied assistant
             @mydriver.exploit.datastore.import_options_from_hash(@hash)
-        		
-        		opt_str = nil
-        		action  = @mydriver.exploit.datastore['ACTION']
-        		jobify  = false
-        		
+            
+            result = MsfWindow::Auxiliary.new(@mydriver.active_module.refname)
+
+            action  = @mydriver.exploit.datastore['ACTION']
+            jobify  = false
+
             @pipe = Msf::Ui::Gtk2::GtkConsolePipe.new
 
             @pipe.create_subscriber_proc() do |msg|
-              $stderr.puts "MSG: #{msg}"
               $gtk2driver.append_log_view(msg)
+              result.append_log_view(msg)
             end
 
             @pipe.print_status("Launching auxiliary #{@mydriver.exploit.refname}...")
-        		
-        		# Always run passive modules in the background
-        		if (@mydriver.exploit.passive? or @mydriver.exploit.passive_action?(action))
-        			jobify = true
-        		end
+
+            # Always run passive modules in the background
+            if (@mydriver.exploit.passive? or @mydriver.exploit.passive_action?(action))
+              jobify = true
+            end
 
             begin
-              @mydriver.exploit.run_simple(
-              'Action'        => action,
-              'Options'       => @hash,
-              'LocalInput'    => @pipe,
-              'LocalOutput'   => @pipe,
-              'RunAsJob'      => jobify
-              )
+              Thread.new do
+                @mydriver.exploit.run_simple(
+                'Action'        => action,
+                'Options'       => @hash,
+                'LocalInput'    => @pipe,
+                'LocalOutput'   => @pipe,
+                'RunAsJob'      => jobify
+                )
+              end
+              result.show_all
             rescue ::Exception => e
-              p "Auxiliary failed: #{e.to_s}"
+              MsfDialog::Error.new(self, "Auxiliary failed", e.to_s)
               return false
             end
 
