@@ -66,7 +66,11 @@ module Msf
 
             signal_connect('response') do |dialog, response_id|
               if response_id == Gtk::Dialog::RESPONSE_OK
-                collect()
+                begin
+                  collect()
+                rescue ::Exception => e
+                  MsfDialog::Error.new(self, e)
+                end
               end
             end
 

@@ -182,7 +182,7 @@
 		      <signal name="activate" handler="on_databases_activate" last_modification_time="Sat, 24 Mar 2007 22:11:21 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image51">
+			<widget class="GtkImage" id="image58">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-network</property>
 			  <property name="icon_size">1</property>
@@ -225,7 +225,7 @@
 		      <signal name="activate" handler="on_logs_activate" last_modification_time="Mon, 21 May 2007 20:37:06 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image52">
+			<widget class="GtkImage" id="image59">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-zoom-fit</property>
 			  <property name="icon_size">1</property>

@@ -19,25 +19,31 @@ module Msf
 
             # call the parent
             super("Groups", comment)
+            
+            begin
+              textview = Gtk::TextView.new
+              textbuffer = Gtk::TextBuffer.new
+              stuff.pack_start(textview, true, true, 0)
 
-            textview = Gtk::TextView.new
-            textbuffer = Gtk::TextBuffer.new
-            stuff.pack_start(textview, true, true, 0)
+              gs = "\n"
+              $client.groups.each do |g|
+                gs << " - " + g.name + "\n"
+              end
 
-            gs = "\n"
-            $client.groups.each do |g|
-              gs << " - " + g.name + "\n"
+              textbuffer.set_text(gs)
+
+              textview.set_buffer(textbuffer)
+              textview.set_editable(false)
+              textview.set_cursor_visible(false)
+
+              show_all and run
+              destroy
+            rescue ::Exception => e
+              MsfDialog::Error.new(self, e)
             end
-
-            textbuffer.set_text( gs )
-
-            textview.set_buffer(textbuffer)
-            textview.set_editable(false)
-            textview.set_cursor_visible(false)
-
-            show_all and run
-            destroy
+            
           end
+          
         end
 
       end

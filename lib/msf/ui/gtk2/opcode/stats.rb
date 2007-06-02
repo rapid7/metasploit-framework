@@ -22,31 +22,37 @@ module Msf
 
             self.set_default_size(500, 230)
 
-            stats = $client.statistics
+            begin
+              stats = $client.statistics
 
-            textview = Gtk::TextView.new
-            textbuffer = Gtk::TextBuffer.new
-            stuff.pack_start(textview, true, true, 0)
+              textview = Gtk::TextView.new
+              textbuffer = Gtk::TextBuffer.new
+              stuff.pack_start(textview, true, true, 0)
 
-            textbuffer.set_text(
-            "\n" +
-            "Last Updated             : #{stats.last_update.to_s}\n" +
-            "Number of Opcodes        : #{stats.opcodes}\n" +
-            "Number of Opcode Types   : #{stats.opcode_types}\n" +
-            "Number of Platforms      : #{stats.platforms}\n" +
-            "Number of Architectures  : #{stats.architectures}\n" +
-            "Number of Modules        : #{stats.modules}\n" +
-            "Number of Module Segments: #{stats.module_segments}\n" +
-            "Number of Module Imports : #{stats.module_imports}\n" +
-            "Number of Module Exports : #{stats.module_exports}\n\n")
+              textbuffer.set_text(
+              "\n" +
+              "Last Updated             : #{stats.last_update.to_s}\n" +
+              "Number of Opcodes        : #{stats.opcodes}\n" +
+              "Number of Opcode Types   : #{stats.opcode_types}\n" +
+              "Number of Platforms      : #{stats.platforms}\n" +
+              "Number of Architectures  : #{stats.architectures}\n" +
+              "Number of Modules        : #{stats.modules}\n" +
+              "Number of Module Segments: #{stats.module_segments}\n" +
+              "Number of Module Imports : #{stats.module_imports}\n" +
+              "Number of Module Exports : #{stats.module_exports}\n\n")
 
-            textview.set_buffer(textbuffer)
-            textview.set_editable(false)
-            textview.set_cursor_visible(false)
+              textview.set_buffer(textbuffer)
+              textview.set_editable(false)
+              textview.set_cursor_visible(false)
 
-            show_all and run
-            destroy
+              show_all and run
+              destroy
+            rescue ::Exception => e
+              MsfDialog::Error.new(self, e)
+            end
+            
           end
+          
         end
 
       end

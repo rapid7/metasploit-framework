@@ -12,6 +12,9 @@ module Msf
           include Msf::Ui::Gtk2::MyControls
 
           def initialize
+            console_style = File.join(driver.resource_directory, 'style', 'console.rc')
+            Gtk::RC.parse(console_style)
+            
             # call the parent
             super("MsfLogs")
             

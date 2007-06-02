@@ -83,6 +83,9 @@ module Msf
         include Msf::Ui::Gtk2::MyControls
 
         def initialize
+          # console_style = File.join(driver.resource_directory, 'style', 'main.rc')
+          # Gtk::RC.parse(console_style)
+
           super('window')
 
           # Set a default icon for all widgets
@@ -165,9 +168,7 @@ module Msf
         # Actions for OpCodes/Stats
         #
         def on_stats_activate
-          t_run = Thread.new do
-            MsfOpcode::Stats.new()
-          end
+          MsfOpcode::Stats.new()
         end
 
         #
@@ -239,14 +240,14 @@ module Msf
         def on_options_activate
           MsfParameters::Options.new()
         end
-        
+
         #
         # Action for "Window/Logs" menu
         #
         def on_logs_activate
-         MsfWindow::Logs.new
+          MsfWindow::Logs.new
         end
-        
+
         #
         # The About Dialog
         #

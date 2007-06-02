@@ -19,25 +19,31 @@ module Msf
 
             # call the parent
             super("Metatypes", comment)
+     
+            begin
+              textview = Gtk::TextView.new
+              textbuffer = Gtk::TextBuffer.new
+              stuff.pack_start(textview, true, true, 0)
 
-            textview = Gtk::TextView.new
-            textbuffer = Gtk::TextBuffer.new
-            stuff.pack_start(textview, true, true, 0)
+              mts = "\n"
+              $client.meta_types.each do |mt|
+                mts << " - " + mt.name + "\n"
+              end
 
-            mts = "\n"
-            $client.meta_types.each do |mt|
-              mts << " - " + mt.name + "\n"
+              textbuffer.set_text( mts )
+
+              textview.set_buffer(textbuffer)
+              textview.set_editable(false)
+              textview.set_cursor_visible(false)
+
+              show_all and run
+              destroy
+            rescue ::Exception => e
+              MsfDialog::Error.new(self, e)
             end
 
-            textbuffer.set_text( mts )
-
-            textview.set_buffer(textbuffer)
-            textview.set_editable(false)
-            textview.set_cursor_visible(false)
-
-            show_all and run
-            destroy
           end
+
         end
 
       end

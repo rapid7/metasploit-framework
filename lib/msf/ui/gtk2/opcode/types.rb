@@ -20,28 +20,34 @@ module Msf
             # call the parent
             super("Types", comment)
 
-            textview = Gtk::TextView.new
-            textbuffer = Gtk::TextBuffer.new
+            begin
+              textview = Gtk::TextView.new
+              textbuffer = Gtk::TextBuffer.new
 
-            scrolled_window = Gtk::ScrolledWindow.new
-            scrolled_window.add(textview)
-            stuff.pack_start(scrolled_window, true, true, 5)
-            scrolled_window.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+              scrolled_window = Gtk::ScrolledWindow.new
+              scrolled_window.add(textview)
+              stuff.pack_start(scrolled_window, true, true, 5)
+              scrolled_window.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
 
-            tps = "\n"
-            $client.types.each do |g|
-              tps << " - " + g.name + "\n"
+              tps = "\n"
+              $client.types.each do |g|
+                tps << " - " + g.name + "\n"
+              end
+
+              textbuffer.set_text( tps )
+
+              textview.set_buffer(textbuffer)
+              textview.set_editable(false)
+              textview.set_cursor_visible(false)
+
+              show_all and run
+              destroy
+            rescue ::Exception => e
+              MsfDialog::Error.new(self, e)
             end
-
-            textbuffer.set_text( tps )
-
-            textview.set_buffer(textbuffer)
-            textview.set_editable(false)
-            textview.set_cursor_visible(false)
-
-            show_all and run
-            destroy
+            
           end
+          
         end
 
       end
