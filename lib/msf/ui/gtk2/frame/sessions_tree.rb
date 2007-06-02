@@ -50,7 +50,11 @@ module Msf
           
           # Init tips on the treeview for session
           tips = SessionTips.new(column_type)
-          tips.add_view(@treeview)
+          begin
+            tips.add_view(@treeview)
+          rescue
+            nil
+          end
 
           #set model to treeview
           @treeview.set_model(@model)

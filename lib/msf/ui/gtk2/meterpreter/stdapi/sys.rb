@@ -96,6 +96,12 @@ module Msf
             def build_menu
               # Session Gtk::Menu
               menu_process = Gtk::Menu.new
+              
+              refresh_item_shell = Gtk::ImageMenuItem.new("Refresh")
+              refresh_image_shell = Gtk::Image.new
+              refresh_image_shell.set(Gtk::Stock::REFRESH, Gtk::IconSize::MENU)
+              refresh_item_shell.set_image(refresh_image_shell)
+              menu_process.append(refresh_item_shell)
 
               migrate_item_shell = Gtk::ImageMenuItem.new("Migrate PID")
               migrate_image_shell = Gtk::Image.new
@@ -108,6 +114,10 @@ module Msf
               kill_image_shell.set(Gtk::Stock::STOP, Gtk::IconSize::MENU)
               kill_item_shell.set_image(kill_image_shell)
               menu_process.append(kill_item_shell)
+              
+              refresh_item_shell.signal_connect('activate') do |item|
+                update()
+              end
 
               migrate_item_shell.signal_connect('activate') do |item|
                 if current = @selection.selected
@@ -153,22 +163,26 @@ module Msf
             # Kills one or more processes.
             #
             def cmd_kill(*args)
-              @client.sys.process.kill(*(args.map { |x| x.to_i }))
+              begin
+                @client.sys.process.kill(*(args.map { |x| x.to_i }))
+              rescue ::Exception => e
+                MsfDialog::Warning.new(self, "Kill Process", e.to_s)
+              end
               update()
             end
-            
+
             #
             # Migrate the server to the supplied process identifier.
             #
             def cmd_migrate(pid)
               old_pid = @client.sys.process.getpid
               @client.core.migrate(pid)
-              
+
               text = ""
-          		text << "Migration completed successfully : \n"
-          		text << "Old PID :#{old_pid}\n"
-          		text << "New PID :#{@client.sys.process.getpid}"
-          		MsfDialog::Information.new(self, text)
+              text << "Migration completed successfully : \n"
+              text << "Old PID :#{old_pid}\n"
+              text << "New PID :#{@client.sys.process.getpid}"
+              MsfDialog::Information.new(self, text)
             end
 
           end # Ps
