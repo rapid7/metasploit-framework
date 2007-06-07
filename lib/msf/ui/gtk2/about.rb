@@ -2,8 +2,10 @@ module Msf
   module Ui
     module Gtk2
 
-      class MyAbout
+      class MyAbout < Gtk::AboutDialog
+
         include Msf::Ui::Gtk2::MyControls
+
         Gtk::AboutDialog.set_email_hook {|about, link|
           puts "Mail to #{link}"
         }
@@ -11,18 +13,22 @@ module Msf
           puts "Launch a browser to url #{link}"
         }
 
-        def initialize
-          @about = Gtk::AboutDialog.new
-          @about.set_name('MsfGUI')
-          @about.set_website('http://www.metasploit.org')
-          @about.set_authors(['Fabrice MOURRON <fab@metasploit.com>', 'Metasploit LLC'])
-          @about.set_license(File.read(File.join(Msf::Config.install_root, 'documentation', 'LICENSE')))
-          #@about.set_wrap_license('True')
-          @about.set_logo(driver.get_icon('msfwx.xpm'))
-          @about.set_version("\nMetasploit Framework v#{Msf::Framework::Version}")
-          @about.run
-          @about.destroy
+        def initialize(parent)
+          super()
+          self.name = Gtk2::TITLE
+          self.version = Gtk2::VERSION
+          self.copyright = Gtk2::COPYRIGHT
+          self.comments = Gtk2::DESCRIPTION
+          self.authors = Gtk2::AUTHORS
+          self.documenters = Gtk2::DOCUMENTERS
+          self.artists = Gtk2::ARTISTS
+          self.logo = driver.get_icon('msfwx.xpm')
+          self.website = Gtk2::WEBSITE_URL
+          self.license = File.read(File.join(Msf::Config.install_root, 'documentation', 'LICENSE'))
+          self.transient_for = parent
+          self.signal_connect('response') { self.destroy }
         end
+        
       end
 
     end

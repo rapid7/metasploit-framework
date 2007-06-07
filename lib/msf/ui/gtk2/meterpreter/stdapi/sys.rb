@@ -115,16 +115,19 @@ module Msf
               kill_item_shell.set_image(kill_image_shell)
               menu_process.append(kill_item_shell)
               
+              # Refresh
               refresh_item_shell.signal_connect('activate') do |item|
                 update()
               end
 
+              # Migrate
               migrate_item_shell.signal_connect('activate') do |item|
                 if current = @selection.selected
                   cmd_migrate(current.get_value(PID).to_i)
                 end
               end
-
+              
+              # Kill
               kill_item_shell.signal_connect('activate') do |item|
                 if current = @selection.selected
                   cmd_kill(current.get_value(PID))

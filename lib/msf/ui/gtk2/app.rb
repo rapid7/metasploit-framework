@@ -93,7 +93,7 @@ module Msf
           @window.set_icon(driver.get_icon('msfwx.xpm'))
 
           # Set a title with the version
-          @window.set_title("MSF Gui v#{Msf::Framework::Version}")
+          @window.set_title("msfgui v#{Msf::Framework::Version}")
 
           # Destroy
           @window.signal_connect('destroy') { Gtk.main_quit }
@@ -143,11 +143,6 @@ module Msf
 
           # Update the StatusBar with all framework modules
           refresh()
-
-          # TODO: Add an hook for binding all links with browser preference
-          # Gtk::AboutDialog.set_url_hook do |about, link|
-          # puts link
-          # end
         end
 
         #
@@ -168,7 +163,7 @@ module Msf
         # Actions for OpCodes/Stats
         #
         def on_stats_activate
-          MsfOpcode::Stats.new()
+            MsfOpcode::Stats.new()
         end
 
         #
@@ -252,7 +247,9 @@ module Msf
         # The About Dialog
         #
         def on_about_activate
-          MyAbout.new
+          ad = MyAbout.new(@window)
+          ad.signal_connect('response'){ ad.destroy }
+          ad.show
         end
 
         #

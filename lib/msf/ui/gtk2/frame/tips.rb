@@ -16,19 +16,26 @@ module Msf
           if (column == @column)
             model = view.model
             iter = model.get_iter(path)
-            
+
             @session = iter.get_value(3)
-            
+
             if (@session.type ==  "meterpreter")
-              tips = meterpreter_tips
-              # nil
+              begin
+                tips = meterpreter_tips
+              rescue
+                nil
+              end
             else
-              tips = shell_tips
+              begin
+                tips = shell_tips
+              rescue
+                nil
+              end
             end
-            
+
             return tips
           end
-          
+
           #
           # Shell session tips
           #
@@ -37,7 +44,7 @@ module Msf
             text << "Exploit: #{@session.via_exploit} \n"
             text << "Payload: #{@session.via_payload}"
           end
-          
+
           #
           # Meterpreter session tips
           #
@@ -47,18 +54,18 @@ module Msf
             text << "Payload: #{@session.via_payload} \n"
             text << "PID: #{@session.sys.process.getpid}"
           end
-          
+
           #
           # VNCInject session tips
           #
           def vncinject_tips
             shell_tips()
           end
-          
+
         end
       end
-      
-      
+
+
     end
   end
 end
