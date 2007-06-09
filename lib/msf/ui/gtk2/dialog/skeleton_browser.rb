@@ -184,7 +184,8 @@ module Msf
           toolbar.insert(-1, up_button)
           up_button.signal_connect("clicked") do
             if (context == "meterpreter")
-              nil
+              parent = dirname_up(@parent_remote)
+              remote_ls(parent)
             else
               parent = File.dirname(@parent_local)
               local_ls(parent)
@@ -284,7 +285,7 @@ module Msf
             Gtk::Drag.get_data(w, dc, dc.targets[0], time)
           end
         end
-        
+
         #
         # Return files widgets specified by the given directory on the remote machine
         #
@@ -358,20 +359,25 @@ module Msf
         # Parsing for remote entry
         #
         def dirname_meter(path)
-          sep  = "\\"
-          begin
-            path =~ /(.*)#{sep}(.|..)$/
-          rescue ::Exception => e
-            p "Debug mode: #{e}"
-          end
-          if ($2 == ".")
-            return $1
-          elsif ($2 == "..")
+          path =~ /(.*)\\(.*)\\(.|..)$/
+
+          if ($3 == ".")
+            return $1 + "\\" + $2
+          elsif ($3 == "..")
             return $1
           else
             return path
           end
         end # dirname_meter
+
+        #
+        # Parsing for remote entry (up button)
+        #
+        def dirname_up(path)
+          path =~ /(.*)\\(.*)$/
+
+          return $1 || path
+        end
 
       end
 
