@@ -46,6 +46,7 @@ module Msf
           # Define thes parents
           @parent_local = local
           @parent_remote = remote
+          @parent_remote_init = remote
 
           # Define the icons for folders and files
           @file_pixbuf = Gdk::Pixbuf.new(driver.get_image("msf_file.png"))
@@ -91,6 +92,7 @@ module Msf
           # Local
           #
           # Label, Entry and Signal for the path selection
+          vbox_left.pack_start( menu_toolbar(), false, false )
           hbox_path = Gtk::HBox.new(false, 0)
           vbox_left.pack_start(hbox_path, false, true, 0)
           local_label_path = Gtk::Label.new("Local Path :")
@@ -116,7 +118,7 @@ module Msf
           @iconview_local.signal_connect("item_activated") do |iview, path|
             iter = @model_local.get_iter(path)
             if ( iter[COL_DISPLAY_NAME] and iter[COL_IS_DIR] )
-              local_ls(@parent_local + ::File::SEPARATOR + iter[COL_DISPLAY_NAME])
+              local_ls(@parent_local + File::SEPARATOR + iter[COL_DISPLAY_NAME])
             end
           end
           # Enable drag'n drop if Gtk+ 2.8.0
@@ -129,6 +131,7 @@ module Msf
           # Remote iconview
           #
           # Label, Entry and Signal for the path selection
+          vbox_right.pack_start( menu_toolbar("meterpreter"), false, false )
           hbox_path = Gtk::HBox.new(false, 0)
           vbox_right.pack_start(hbox_path, false, true, 0)
           label_path = Gtk::Label.new("Remote Path :")
@@ -167,7 +170,43 @@ module Msf
           @iconview_remote.grab_focus
 
           show_all
-        end #initialize
+        end # initialize
+
+        #
+        # Build a toolbar menu
+        #
+        def menu_toolbar(context="")
+          toolbar = Gtk::Toolbar.new
+
+          up_button = Gtk::ToolButton.new(Gtk::Stock::GO_UP)
+          up_button.important = true
+          up_button.sensitive = true
+          toolbar.insert(-1, up_button)
+          up_button.signal_connect("clicked") do
+            if (context == "meterpreter")
+              nil
+            else
+              parent = File.dirname(@parent_local)
+              local_ls(parent)
+            end
+            # up_button.sensitive = @parent != "/"
+          end
+          home_button = Gtk::ToolButton.new(Gtk::Stock::HOME)
+          home_button.important = true
+          toolbar.insert(-1, home_button)
+          home_button.signal_connect("clicked") do
+            if (context == "meterpreter")
+              parent = @parent_remote_init
+              remote_ls(parent)
+            else
+              parent = GLib.home_dir
+              local_ls(parent)
+            end
+            up_button.sensitive = true
+          end
+
+          return toolbar
+        end # menu_toolbar
 
         #
         # Return an array containing all the selected widgets
@@ -177,7 +216,7 @@ module Msf
           view.selected_each do |iconview, path|
             iter = view.model.get_iter(path)
             if iter.get_value(COL_TYPE) == "local"
-              fs << iter.get_value(COL_PATH) + ::File::SEPARATOR + iter.get_value(COL_DISPLAY_NAME)
+              fs << iter.get_value(COL_PATH) + File::SEPARATOR + iter.get_value(COL_DISPLAY_NAME)
             else
               fs << iter.get_value(COL_PATH) + "\\" + iter.get_value(COL_DISPLAY_NAME)
             end
@@ -189,7 +228,6 @@ module Msf
         # Drag stuff for local view
         #
         def setup_drag_local
-
           Gtk::Drag.source_set(@iconview_local,
           Gdk::Window::BUTTON1_MASK | Gdk::Window::BUTTON2_MASK,
           [UPLOAD_TARGET_TABLE],
@@ -207,7 +245,6 @@ module Msf
         # Drag stuff for remote view
         #
         def setup_drag_remote
-
           Gtk::Drag.source_set(@iconview_remote,
           Gdk::Window::BUTTON1_MASK | Gdk::Window::BUTTON2_MASK,
           [DOWNLOAD_TARGET_TABLE],
@@ -247,6 +284,7 @@ module Msf
             Gtk::Drag.get_data(w, dc, dc.targets[0], time)
           end
         end
+        
         #
         # Return files widgets specified by the given directory on the remote machine
         #
@@ -261,10 +299,11 @@ module Msf
           begin
             @model_local.clear
             path = args[0] || @parent_local
+            path = dirname(path)
             @local_path.set_text(path)
 
             Dir.entries(path).each do |file|
-              if FileTest.directory?(path + ::File::SEPARATOR + file)
+              if FileTest.directory?(path + File::SEPARATOR + file)
                 is_dir = true
               else
                 is_dir = false
@@ -286,18 +325,53 @@ module Msf
         end #local_ls
 
         #
+        # Dummy function for download method
         #
+        def cmd_download
+          raise NotImplementedError, "Subclass must implement cmd_download()"
+        end
+
+        #
+        # Dummy function for upload method
         #
         def cmd_upload
           raise NotImplementedError, "Subclass must implement cmd_upload()"
         end
 
         #
+        # Parsing for local entry
         #
+        def dirname(path)
+          sep  = File::SEPARATOR
+          path =~ /(.*)#{sep}(.*)#{sep}(.|..)$/
+
+          if ($3 == ".")
+            return $1 + sep + $2
+          elsif ($3 == "..")
+            return $1
+          else
+            return path
+          end
+        end # dirname
+
         #
-        def cmd_upload
-          raise NotImplementedError, "Subclass must implement cmd_upload()"
-        end
+        # Parsing for remote entry
+        #
+        def dirname_meter(path)
+          sep  = "\\"
+          begin
+            path =~ /(.*)#{sep}(.|..)$/
+          rescue ::Exception => e
+            p "Debug mode: #{e}"
+          end
+          if ($2 == ".")
+            return $1
+          elsif ($2 == "..")
+            return $1
+          else
+            return path
+          end
+        end # dirname_meter
 
       end
 

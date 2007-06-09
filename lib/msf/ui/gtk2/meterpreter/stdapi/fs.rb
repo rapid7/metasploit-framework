@@ -22,17 +22,11 @@ module Msf
 
             # call the parent
             super("MsfBrowser on #{@client.tunnel_peer}", local, remote)
-            
-            # Define the icons for folders and files
-            @file_pixbuf = Gdk::Pixbuf.new(driver.get_image("msf_file.png"))
-            @folder_pixbuf = Gdk::Pixbuf.new(driver.get_image("msf_folder.png"))
-            @local_folder_pixbuf = Gdk::Pixbuf.new(driver.get_image("msf_local_folder.png"))
 
             # Populate the view
             create_dir_session()
             local_ls
             remote_ls
-
           end
 
           #
@@ -47,6 +41,7 @@ module Msf
 
               self.model_remote.clear
               path = args[0] || @client.fs.dir.getwd
+              path = self.dirname_meter(path)
               self.remote_path.set_text(path)
 
               # Enumerate each item...
@@ -60,7 +55,7 @@ module Msf
                 iter[COL_DISPLAY_NAME] = ic.iconv(p['FileName'] + ' ')[0..-2] || 'unknown'
                 iter[COL_PATH] = path
                 iter[COL_IS_DIR] = is_dir
-                iter[COL_PIXBUF] = is_dir ? @folder_pixbuf : @file_pixbuf
+                iter[COL_PIXBUF] = is_dir ? self.folder_pixbuf : self.file_pixbuf
                 iter[COL_TYPE] = "remote"
               end
               self.parent_remote = path
@@ -151,7 +146,7 @@ module Msf
                   }
                 end
               }
-            rescue  ::Exception => e
+            rescue ::Exception => e
               MsfDialog::Warning.new(self, "Upload: Operation failed", e.to_s)
             end
 
