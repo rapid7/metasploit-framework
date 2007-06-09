@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -30,7 +30,8 @@ module X86
 module BindTcp
 
 	include Msf::Payload::Stager
-
+	include Msf::Payload::Linux
+	
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Bind TCP Stager',

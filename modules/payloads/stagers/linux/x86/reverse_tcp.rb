@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -30,7 +30,8 @@ module X86
 module ReverseTcp
 
 	include Msf::Payload::Stager
-
+	include Msf::Payload::Linux
+	
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Reverse TCP Stager',

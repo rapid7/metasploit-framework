@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -29,7 +29,8 @@ module X86
 module AddUser
 
 	include Msf::Payload::Single
-
+	include Msf::Payload::Linux
+	
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Linux Add User',

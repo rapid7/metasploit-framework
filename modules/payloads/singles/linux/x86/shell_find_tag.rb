@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -23,7 +23,8 @@ module X86
 module ShellFindTag
 
 	include Msf::Payload::Single
-
+	include Msf::Payload::Linux
+	
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Linux Command Shell, Find Tag Inline',
