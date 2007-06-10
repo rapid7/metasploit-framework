@@ -205,6 +205,19 @@ module Msf
             end
             up_button.sensitive = true
           end
+          
+          refresh_button = Gtk::ToolButton.new(Gtk::Stock::REFRESH)
+          refresh_button.important = true
+          toolbar.insert(-1, refresh_button)
+          refresh_button.signal_connect("clicked") do
+            if (context == "meterpreter")
+              remote_ls()
+            else
+              local_ls()
+            end
+            up_button.sensitive = true
+            
+          end
 
           return toolbar
         end # menu_toolbar
