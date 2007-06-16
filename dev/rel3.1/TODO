@@ -1,0 +1,13 @@
+This file will hold the sweet things we plan on including in the 3.1 release:
+
+ - Remote Ruby (skape)
+   - Server-side Ruby provided as a Meterpreter extension
+	- Arbitrary Ruby code execution on remote machines
+ - Local Exploits (skape)
+   - While 3.0 "supports" local exploits, it really hasn't been flushed out
+	- Design support so that local exploits can be proxied to remote machines
+	  using dN/meterp
+ - Local Payloads (skape)
+   - Needed to nicely support local exploits
+	- Framework should classify local and remote payloads so that they are
+	  hidden from exploits that they aren't applicable to
