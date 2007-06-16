@@ -74,6 +74,8 @@ if (cmd =~ /^(p|r|c|j|x|b)/)
 		puts "Error generating payload: #{$!}"
 		exit
 	end
+			
+	$stdout.binmode
 	
 	if (cmd =~ /^x/)
 		note = 
@@ -99,7 +101,7 @@ if (cmd =~ /^(p|r|c|j|x|b)/)
 		exit(-1)
 	end
 	
-	puts buf
+	$stdout.puts(buf)
 	
 elsif (cmd =~ /^(s|o)/)
 	puts Msf::Serializer::ReadableText.dump_module(payload)
