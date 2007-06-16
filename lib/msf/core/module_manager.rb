@@ -148,6 +148,14 @@ class ModuleSet < Hash
 	def recalculate
 	end
 
+	#
+	# Forces all modules in this set to be loaded.
+	#
+	def force_load_set
+		each_module { |name, mod|
+		}
+	end
+
 	attr_reader   :module_type
 
 	#

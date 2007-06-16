@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -80,8 +80,8 @@ module DownloadExec
 	#
 	# Constructs the payload
 	#
-	def generate
-		return super + (datastore['URL'] || '') + "\x80"
+	def generate_stage
+		return module_info['Payload']['Payload'] + (datastore['URL'] || '') + "\x80"
 	end
 
 end

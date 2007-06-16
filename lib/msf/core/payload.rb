@@ -54,6 +54,24 @@ class Payload < Msf::Module
 	def initialize(info = {})
 		super
 
+		# If this is a staged payload but there is no stage information,
+		# then this is actually a stager + single combination.  Set up the
+		# information hash accordingly.
+		if self.class.include?(Msf::Payload::Single) and
+			self.class.include?(Msf::Payload::Stager)
+			self.module_info['Stage'] = {}
+
+			if self.module_info['Payload']
+				self.module_info['Stage']['Payload'] = self.module_info['Payload']['Payload'] || ""
+				self.module_info['Stage']['Offsets'] = self.module_info['Payload']['Offsets'] || {}
+			else
+				self.module_info['Stage']['Payload'] = ""
+				self.module_info['Stage']['Offsets'] = {}
+			end
+
+			@staged = true
+		end
+
 		# Update the module info hash with the connection type
 		# that is derived from the handler for this payload.  This is
 		# used for compatibility filtering purposes.
@@ -105,10 +123,26 @@ class Payload < Msf::Module
 	end
 
 	#
+	# Returns the string version of the payload type
+	#
+	def payload_type_s
+		case payload_type
+			when Type::Stage
+				return "stage"
+			when Type::Stager
+				return "stager"
+			when Type::Single
+				return "single"
+			else
+				return "unknown"
+		end
+	end
+
+	#
 	# This method returns whether or not this payload uses staging.
 	#
 	def staged?
-		(payload_type == Type::Stager or payload_type == Type::Stage)
+		(@staged or payload_type == Type::Stager or payload_type == Type::Stage)
 	end
 
 	#
@@ -208,15 +242,7 @@ class Payload < Msf::Module
 	# Generates the payload and returns the raw buffer to the caller.
 	#
 	def generate
-		raw = payload.dup
-
-		# If the payload is generated and there are offsets to substitute,
-		# do that now.
-		if (raw and offsets)
-			substitute_vars(raw, offsets)
-		end
-
-		return raw
+		internal_generate
 	end
 
 	#
@@ -376,6 +402,21 @@ class Payload < Msf::Module
 	attr_accessor :assoc_exploit
 
 protected
+
+	#
+	# Generate the payload using our local payload blob and offsets
+	#
+	def internal_generate
+		raw = payload.dup
+
+		# If the payload is generated and there are offsets to substitute,
+		# do that now.
+		if (raw and offsets)
+			substitute_vars(raw, offsets)
+		end
+
+		return raw
+	end
 
 	##
 	#

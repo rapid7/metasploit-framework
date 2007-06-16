@@ -64,15 +64,20 @@ module Payload
 				((e.nop) ?     "NOP gen: #{e.nop.refname}\n" : '') +
 				"#{ou}",
 				fmt) + buf
-	
+
 			# If it's multistage, include the second stage too
-			if (payload.staged? and payload.stage_payload)
-				buf +=
-					"\n" +
-					Buffer.comment(
-					"#{payload.refname} - #{payload.stage_payload.length} bytes (stage 2)\n" +
-					"http://www.metasploit.com\n",
-					fmt) + Buffer.transform(payload.stage_payload, fmt)
+			if payload.staged?
+				stage = payload.generate_stage
+
+				# If a stage was generated, then display it
+				if stage and stage.length > 0
+					buf +=
+						"\n" +
+						Buffer.comment(
+						"#{payload.refname} - #{stage.length} bytes (stage 2)\n" +
+						"http://www.metasploit.com\n",
+						fmt) + Buffer.transform(stage, fmt)
+				end
 			end
 
 		end

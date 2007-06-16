@@ -339,6 +339,13 @@ class Module
 	end
 
 	#
+	# Checks to see if this module is compatible with the supplied platform
+	#
+	def platform?(what)
+		(platform & what).empty? == false
+	end
+
+	#
 	# Returns whether or not the module requires or grants high privileges.
 	#
 	def privileged?

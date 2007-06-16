@@ -54,7 +54,7 @@ module AddUser
 	#
 	# Dynamically builds the adduser payload based on the user's options.
 	#
-	def generate
+	def generate_stage
 		user    = datastore['USER']  || 'metasploit'
 		pass    = datastore['PASS']  || 'metasploit'
 		shell   = datastore['SHELL'] || '/bin/sh'
