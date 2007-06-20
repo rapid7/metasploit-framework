@@ -157,58 +157,6 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkMenuItem" id="parameters">
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Parameters</property>
-	      <property name="use_underline">True</property>
-
-	      <child>
-		<widget class="GtkMenu" id="parameters_menu">
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="preferences">
-		      <property name="visible">True</property>
-		      <property name="label">gtk-preferences</property>
-		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="on_preferences_activate" last_modification_time="Mon, 19 Mar 2007 21:52:05 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="databases">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Databases</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_databases_activate" last_modification_time="Sat, 24 Mar 2007 22:11:21 GMT"/>
-
-		      <child internal-child="image">
-			<widget class="GtkImage" id="image59">
-			  <property name="visible">True</property>
-			  <property name="stock">gtk-network</property>
-			  <property name="icon_size">1</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkMenuItem" id="options">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Options</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_options_activate" last_modification_time="Sun, 25 Mar 2007 10:15:39 GMT"/>
-		    </widget>
-		  </child>
-		</widget>
-	      </child>
-	    </widget>
-	  </child>
-
-	  <child>
 	    <widget class="GtkMenuItem" id="window_tool">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">Window</property>

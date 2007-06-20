@@ -214,28 +214,6 @@ module Msf
         def on_search_activate
         end
 
-
-        #
-        # Action for "Parameters/Preferences"
-        #
-        def on_preferences_activate
-          MsfParameters::Preferences.new()
-        end
-
-        #
-        # Action for "Parameters"/"Databases" menu
-        #
-        def on_databases_activate
-          MsfParameters::Databases.new()
-        end
-
-        #
-        # Action for "Parameters"/"Options" menu
-        #
-        def on_options_activate
-          MsfParameters::Options.new()
-        end
-
         #
         # Action for "Window/Logs" menu
         #
