@@ -163,7 +163,7 @@ module Msf
         # Actions for OpCodes/Stats
         #
         def on_stats_activate
-            MsfOpcode::Stats.new()
+          MsfOpcode::Stats.new()
         end
 
         #
