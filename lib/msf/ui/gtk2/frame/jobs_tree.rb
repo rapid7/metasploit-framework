@@ -3,38 +3,81 @@ module Msf
     module Gtk2
 
       class MyJobTree < MyGlade
-        PIX, TIME, NAME, OBJECT, RHOST, REFNAME = *(0..6).to_a
+        PIX, JID, NAME = *(0..3).to_a
 
         include Msf::Ui::Gtk2::MyControls
 
+        #
+        # This module help us to modify the Rex::JobContainer class behavior
+        #
+        module ModifiedJobContainer
+
+          #
+          # Adds an already running task as a symbolic job to the container.
+          #
+          def add_job(name, ctx, run_proc, clean_proc)
+            real_name = name
+            count     = 0
+            jid       = job_id_pool
+
+            self.job_id_pool += 1
+
+            # If we were not supplied with a job name, pick one from the hat
+            if (real_name == nil)
+              real_name = '#' + jid.to_s
+            end
+
+            # Find a unique job name
+            while (j = self[real_name])
+              real_name  = name + " #{count}"
+              count     += 1
+            end
+
+            j = Rex::Job.new(self, jid, real_name, ctx, run_proc, clean_proc)
+
+            $gtk2driver.job_tree.add_oneshot(jid, name)
+            self[jid.to_s] = j
+          end
+
+          #
+          # Removes a job that was previously running.  This is typically called when
+          # a job completes its task.
+          #
+          def remove_job(inst)
+            self.delete(inst.jid.to_s)
+            $gtk2driver.job_tree.remove_job(inst.jid.to_s)
+          end
+
+        end # module
+
         def initialize(treeview)
+          framework.jobs.extend(ModifiedJobContainer)
+
           @treeview2 = treeview
 
-          @model = Gtk::TreeStore.new(Gdk::Pixbuf,	# Pix rhost
-          String, 	# process TIME
-          String, 	# exploit shortname
-          Object,		# Exploit Object
-          String,	 	# Remote host
-          String	 	# exploit refname
+          @model = Gtk::TreeStore.new(
+          Gdk::Pixbuf,	# Pix rhost
+          String, 	# process JID
+          String 	# module name
           )
 
           # Renderer
           renderer_pix = Gtk::CellRendererPixbuf.new
-          renderer_time = Gtk::CellRendererText.new
+          renderer_JID = Gtk::CellRendererText.new
           renderer_name = Gtk::CellRendererText.new
 
-          # Time Gtk::TreeViewColumn
-          column_time = Gtk::TreeViewColumn.new
-          #column_time.set_title("rhost")
-          column_time.pack_start(renderer_pix, false)
-          column_time.set_cell_data_func(renderer_pix) do |column, cell, model, iter|
+          # JID Gtk::TreeViewColumn
+          column_JID = Gtk::TreeViewColumn.new
+          column_JID.set_title("Job ID")
+          column_JID.pack_start(renderer_pix, false)
+          column_JID.set_cell_data_func(renderer_pix) do |column, cell, model, iter|
             cell.pixbuf = iter[PIX]
           end
-          column_time.pack_start(renderer_time, true)
-          column_time.set_cell_data_func(renderer_time) do |column, cell, model, iter|
-            cell.text = iter[TIME]
+          column_JID.pack_start(renderer_JID, true)
+          column_JID.set_cell_data_func(renderer_JID) do |column, cell, model, iter|
+            cell.text = iter[JID]
           end
-          column_time.sort_column_id = TIME
+          column_JID.sort_column_id = JID
 
           # Name Gtk::TreeViewColumn
           column_name = Gtk::TreeViewColumn.new
@@ -52,22 +95,23 @@ module Msf
           @treeview2.rules_hint = true
 
           # Add Gtk::TreeViewColumn
-          @treeview2.append_column(column_time)
+          @treeview2.append_column(column_JID)
           @treeview2.append_column(column_name)
 
           # Add AutoPWN
           @autopwn_iter = @model.append(nil)
           @autopwn_iter.set_value(PIX, driver.get_icon("menu_autopwn.png"))
-          @autopwn_iter.set_value(TIME, "AutoPWN")
+          @autopwn_iter.set_value(JID, "AutoPWN")
 
           # Add Parent "One shot"
           @oneshot_iter = @model.append(nil)
           @oneshot_iter.set_value(PIX, driver.get_icon("menu_oneshot.png"))
-          @oneshot_iter.set_value(TIME, "One shot")
+          @oneshot_iter.set_value(JID, "One shot")
 
           # Job Gtk::Menu
           @menu_job = Gtk::Menu.new
-
+          @menu_refresh = Gtk::Menu.new
+          
           # Stop job
           kill_job_item_shell = Gtk::ImageMenuItem.new("Kill Job")
           kill_job_image_shell = Gtk::Image.new
@@ -81,8 +125,15 @@ module Msf
           refresh_job_image_shell.set(Gtk::Stock::REFRESH, Gtk::IconSize::MENU)
           refresh_job_item_shell.set_image(refresh_job_image_shell)
           @menu_job.append(refresh_job_item_shell)
+          
+          refresh_job_item_shell2 = Gtk::ImageMenuItem.new("Refresh")
+          refresh_job_image_shell2 = Gtk::Image.new
+          refresh_job_image_shell2.set(Gtk::Stock::REFRESH, Gtk::IconSize::MENU)
+          refresh_job_item_shell2.set_image(refresh_job_image_shell2)
+          @menu_refresh.append(refresh_job_item_shell2)
 
-          @menu_job.show_all
+          @menu_job.show_all          
+          @menu_refresh.show_all          
 
           # TreeView Signals
           @treeview2.signal_connect('button_press_event') do |treeview, event|
@@ -95,8 +146,7 @@ module Msf
                   treeview.selection.select_path(path)
                   @menu_job.popup(nil, nil, event.button, event.time)
                 rescue
-                  nil
-                  #@menu_job.popup(nil, nil, event.button, event.time)
+                  @menu_refresh.popup(nil, nil, event.button, event.time)
                 end
               end
             end
@@ -112,66 +162,79 @@ module Msf
           refresh_job_item_shell.signal_connect('activate') do |item|
             refresh_job()
           end
+          
+          refresh_job_item_shell2.signal_connect('activate') do |item|
+            refresh_job()
+          end
 
         end # def initialize
 
         #
         # Add One Shot
         #
-        def add_oneshot(exploit, rhost)
-          time = Time.now
+        def add_oneshot(id, name)
           oneshot_childiter = @model.append(@oneshot_iter)
-          #oneshot_childiter.set_value(PIX, nil)
-          oneshot_childiter.set_value(TIME, Time.now.strftime("%H:%m:%S"))
-          oneshot_childiter.set_value(NAME, exploit.shortname)
-          oneshot_childiter.set_value(OBJECT, exploit)
-          oneshot_childiter.set_value(RHOST, rhost)
-          oneshot_childiter.set_value(REFNAME, exploit.refname)
+          oneshot_childiter.set_value(JID, id.to_s)
+          oneshot_childiter.set_value(NAME, name.split(":")[1])
           @treeview2.expand_all()
         end
 
         #
-        # Stop job and remove it from the job tree
+        # Stop job and and let the framework remove it from the job tree
         #
         def stop_job(iter)
-          framework.jobs.each_key do |i|
-            if (framework.jobs[i].name.split(": ")[1] ==  iter[REFNAME])
 
-              # Stopping job
-              framework.jobs.stop_job(i)
+          # Isolate the job ID
+          jid = iter[JID]
 
-              # Informing the user
-              $gtk2driver.append_log_view("[*] Stopping exploit: #{iter[REFNAME]}")
+          # Informing the user
+          $gtk2driver.append_log_view("[*] Stopping exploit: #{iter[NAME]}\n")
 
-              # Removing the job from the job tree
-              @model.remove(iter)
-            end
-          end
+          # Stopping job
+          framework.jobs.stop_job(jid)
         end
 
         #
-        # Refresh job
+        # Refresh jobs tree
         #
         def refresh_job
-          puts "TODO: refresh the job tree =>"
+          clear_tree()
           framework.jobs.keys.sort.each do |k|
-            puts framework.jobs[k].name
+            add_oneshot(framework.jobs[k].jid, framework.jobs[k].name)
           end
         end
 
         #
-        # Remove Target if not a passive exploit
+        # Remove job by id and remote it from jobs tree
         #
-        def remove_job(rhost, name)
+        def remove_job(id)
           found = nil
           @model.each do |model,path,iter|
-            if (iter[RHOST] == rhost and iter[REFNAME] == name and iter[OBJECT].passive? == false)
+            if (iter[JID] == id)
               found = iter
               break
             end
           end
 
           @model.remove(found) if found
+        end
+
+        protected
+
+        #
+        # Clear tree and add parents iter
+        #
+        def clear_tree
+          @model.clear
+          # Add AutoPWN
+          @autopwn_iter = @model.append(nil)
+          @autopwn_iter.set_value(PIX, driver.get_icon("menu_autopwn.png"))
+          @autopwn_iter.set_value(JID, "AutoPWN")
+
+          # Add Parent "One shot"
+          @oneshot_iter = @model.append(nil)
+          @oneshot_iter.set_value(PIX, driver.get_icon("menu_oneshot.png"))
+          @oneshot_iter.set_value(JID, "One shot")
         end
 
       end

@@ -33,10 +33,6 @@ module Msf
           $gtk2driver.append_log_view("[*] Session #{session.sid} created for #{session.tunnel_peer}\n")
           $gtk2driver.session_tree.add_session(session)
 
-          # remove job if not a passive exploit
-          rhost = session.tunnel_peer.split(':')[0]
-          $gtk2driver.job_tree.remove_job(rhost, session.via_exploit)
-
           if (Msf::Logging.session_logging_enabled? == true)
             Msf::Logging.start_session_log(session)
           end
