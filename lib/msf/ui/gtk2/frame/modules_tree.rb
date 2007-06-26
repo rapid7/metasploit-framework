@@ -177,62 +177,65 @@ module Msf
             @@completion.push(t_module)
           end
 
-          # Add Parent "Payloads (nbr payloads)"
-          iter = @model.append(nil)
-          iter.set_value(PIX, driver.get_icon("bomb.png"))
-          iter.set_value(CATEGORY, "Payloads (#{framework.stats.num_payloads.to_s})")
-          iter.set_value(MODULE, nil)
-          iter.set_value(ADV, true)
-
-          # Add Payloads childs
-          framework.payloads.each_module do |mod, obj|
-            next if not mod.match(filter)
-            t_module = obj.new.name
-            child_iter = @model.append(iter)
-            child_iter.set_value(CATEGORY, t_module)
-            child_iter.set_value(MODULE, obj.new)
-            child_iter.set_value(ADV, false)
-            child_iter.set_value(APP, "Payloads")
-            @@completion.push(t_module)
-          end
-
-          # Add Parent "Nops (nbr nops)"
-          iter = @model.append(nil)
-          iter.set_value(PIX, driver.get_icon("encoders.png"))
-          iter.set_value(CATEGORY, "NOPs (#{framework.stats.num_nops.to_s})")
-          iter.set_value(MODULE, nil)
-          iter.set_value(ADV, true)
-
-          # Add nops childs
-          framework.nops.each_module do |mod, obj|
-            next if not mod.match(filter)
-            t_module = obj.new.name
-            child_iter = @model.append(iter)
-            child_iter.set_value(CATEGORY, t_module)
-            child_iter.set_value(MODULE, obj.new)
-            child_iter.set_value(ADV, false)
-            child_iter.set_value(APP, "NOPs")
-            @@completion.push(t_module)
-          end
-
-          # Add Parent "Encoders (nbr encoders)"
-          iter = @model.append(nil)
-          iter.set_value(PIX, driver.get_icon("encoders.png"))
-          iter.set_value(CATEGORY, "Encoders (#{framework.stats.num_encoders.to_s})")
-          iter.set_value(MODULE, nil)
-          iter.set_value(ADV, true)
-
-          # Add Encoders childs
-          framework.encoders.each_module do |mod, obj|
-            next if not mod.match(filter)
-            t_module = obj.new.name
-            child_iter = @model.append(iter)
-            child_iter.set_value(CATEGORY, t_module)
-            child_iter.set_value(MODULE, obj.new)
-            child_iter.set_value(ADV, false)
-            iter.set_value(APP, "Encoders")
-            @@completion.push(t_module)
-          end
+          #
+          # TODO: To implement later ...
+          #
+          # # Add Parent "Payloads (nbr payloads)"
+          # iter = @model.append(nil)
+          # iter.set_value(PIX, driver.get_icon("bomb.png"))
+          # iter.set_value(CATEGORY, "Payloads (#{framework.stats.num_payloads.to_s})")
+          # iter.set_value(MODULE, nil)
+          # iter.set_value(ADV, true)
+          # 
+          # # Add Payloads childs
+          # framework.payloads.each_module do |mod, obj|
+          #   next if not mod.match(filter)
+          #   t_module = obj.new.name
+          #   child_iter = @model.append(iter)
+          #   child_iter.set_value(CATEGORY, t_module)
+          #   child_iter.set_value(MODULE, obj.new)
+          #   child_iter.set_value(ADV, false)
+          #   child_iter.set_value(APP, "Payloads")
+          #   @@completion.push(t_module)
+          # end
+          # 
+          # # Add Parent "Nops (nbr nops)"
+          # iter = @model.append(nil)
+          # iter.set_value(PIX, driver.get_icon("encoders.png"))
+          # iter.set_value(CATEGORY, "NOPs (#{framework.stats.num_nops.to_s})")
+          # iter.set_value(MODULE, nil)
+          # iter.set_value(ADV, true)
+          # 
+          # # Add nops childs
+          # framework.nops.each_module do |mod, obj|
+          #   next if not mod.match(filter)
+          #   t_module = obj.new.name
+          #   child_iter = @model.append(iter)
+          #   child_iter.set_value(CATEGORY, t_module)
+          #   child_iter.set_value(MODULE, obj.new)
+          #   child_iter.set_value(ADV, false)
+          #   child_iter.set_value(APP, "NOPs")
+          #   @@completion.push(t_module)
+          # end
+          # 
+          # # Add Parent "Encoders (nbr encoders)"
+          # iter = @model.append(nil)
+          # iter.set_value(PIX, driver.get_icon("encoders.png"))
+          # iter.set_value(CATEGORY, "Encoders (#{framework.stats.num_encoders.to_s})")
+          # iter.set_value(MODULE, nil)
+          # iter.set_value(ADV, true)
+          # 
+          # # Add Encoders childs
+          # framework.encoders.each_module do |mod, obj|
+          #   next if not mod.match(filter)
+          #   t_module = obj.new.name
+          #   child_iter = @model.append(iter)
+          #   child_iter.set_value(CATEGORY, t_module)
+          #   child_iter.set_value(MODULE, obj.new)
+          #   child_iter.set_value(ADV, false)
+          #   iter.set_value(APP, "Encoders")
+          #   @@completion.push(t_module)
+          # end
         end # def add_modules
 
         #
