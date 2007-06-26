@@ -113,9 +113,9 @@ module Msf
           session = iter[O_SESSION]
           if (session.type == "meterpreter")
             #Msf::Ui::Gtk2::Console::Meterpreter.new(iter)
-            Msf::Ui::Gtk2::Console::Basic.new(iter)
+            Msf::Ui::Gtk2::Console::Meterpreter.new(iter)
           else
-            Msf::Ui::Gtk2::Console::Basic.new(iter)
+            Msf::Ui::Gtk2::Console::Shell.new(iter)
           end
         end
 
