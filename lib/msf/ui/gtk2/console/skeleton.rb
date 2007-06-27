@@ -14,7 +14,7 @@ module Msf
         ID_SESSION, PEER, PAYLOAD, O_SESSION, O_BUFFER = *(0..5).to_a
 
         @@offset = 0
-
+        
         def initialize(iter)
           # Style
           console_style = File.join(driver.resource_directory, 'style', 'console.rc')

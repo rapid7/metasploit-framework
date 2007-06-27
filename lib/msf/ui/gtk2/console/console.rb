@@ -21,15 +21,22 @@ module Msf
         # Meterpreter Console
         #
         class Meterpreter < Msf::Ui::Gtk2::SkeletonConsole
+          def initialize(iter)
 
-          def inititialize(iter)
-            print "TODO: On the meterpreter console place"
+            # meterpreter client
+            client = iter[3]
+
+            # call the parent
             super(iter)
-            run_cmd("help")
+            
+            # Not sexy
+            # TODO: use the API
+            send_cmd("execute -f cmd.exe -i -H")            
+
           end
 
         end # Meterpreter
-        
+
       end # Console
 
     end
