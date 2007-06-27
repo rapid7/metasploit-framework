@@ -1,6 +1,7 @@
 # Define background for msfconsole
 
-style "console2"
+# For a black background
+style "console"
 {
 	base[NORMAL] = { 0.0, 0.0, 0.0 }	# black
 	fg[NORMAL] = { 1.0, 1.0, 1.0 }		# white
@@ -9,5 +10,12 @@ style "console2"
 	fontset="-*-lucida-medium-r-*-*-14-*-*-*-*-*-*-*"
 }
 
+
+# For the cursor
+style "white-cursor" {
+  GtkTextView::cursor-color = "white"
+}
+
 # Attach style with the specific widget name 
-widget_class "GtkWindow.GtkVBox.GtkScrolledWindow.GtkTextView" style "console2"
+widget_class "GtkWindow.GtkVBox.GtkScrolledWindow.GtkTextView" style "console"
+widget_class "GtkWindow.GtkVBox.GtkScrolledWindow.GtkTextView" style "white-cursor"
