@@ -221,7 +221,7 @@ class Encoder < Module
 		init_state(state)
 
 		# Save the buffer in the encoding state
-		state.badchars = badchars
+		state.badchars = badchars || ''
 		state.buf      = buf
 
 		# If this encoder is key-based and we don't already have a key, find one
