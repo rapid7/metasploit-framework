@@ -1,0 +1,13 @@
+disasm:
+ data xref: trackback memory write/read (read is when you read a value and modify it/its derivates, (!= push eax ; trash ; pop eax))
+ remove maxdepth param? + detect loops
+ path-specific backtracking ( foo: call a ; a: jmp retloc ; bar: call b ; b: jmp retloc ; retloc: ret ; call foo ; ret : last ret trackback should only reach a:)
+ disasm some code sequences to C
+ externs / C header parser (prototypes, + OS abi ?)
+ somehow handle unknown external calls (fake func body with special 'trashed' backtrack instruction to allow abi like 'ebp is kept, eax is mutable' ? could need something like stack not accessed below [esp+12])
+ gui
+ allow program-wide label renaming
+
+ia32: emu fpu
+mips: cpu emu for trackback
+all:  unittests ?
