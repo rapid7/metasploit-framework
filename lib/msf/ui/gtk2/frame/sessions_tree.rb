@@ -115,12 +115,7 @@ module Msf
         # Open the session with the selected iter
         #
         def open_session(iter)
-          session = iter[O_SESSION]
-          if (session.type == "meterpreter")
-            Msf::Ui::Gtk2::Console::Meterpreter.new(iter)
-          else
-            Msf::Ui::Gtk2::Console::Shell.new(iter)
-          end
+          Msf::Ui::Gtk2::Console::Shell.new(iter)
         end
 
         #
@@ -157,13 +152,20 @@ module Msf
 
           session_item_shell = Gtk::ImageMenuItem.new("Interact Session")
           session_image_shell = Gtk::Image.new
-          session_image_shell.set(Gtk::Stock::EXECUTE, Gtk::IconSize::MENU)
+          session_image_shell.set(Gtk::Stock::CONNECT, Gtk::IconSize::MENU)
           session_item_shell.set_image(session_image_shell)
           menu_session.append(session_item_shell)
 
           if (type == "meterpreter")
             meterpreter_separator = Gtk::SeparatorMenuItem.new
             menu_session.append(meterpreter_separator)
+
+            # Meterpreter shell
+            meterpreter_item_shell = Gtk::ImageMenuItem.new("Meterpreter Shell")
+            meterpreter_image_shell = Gtk::Image.new
+            meterpreter_image_shell.set(Gtk::Stock::EXECUTE, Gtk::IconSize::MENU)
+            meterpreter_item_shell.set_image(meterpreter_image_shell)
+            menu_session.append(meterpreter_item_shell)
 
             # sdapi/process
             meterpreter_proc_item_shell = Gtk::ImageMenuItem.new("Process")
@@ -179,14 +181,21 @@ module Msf
             meterpreter_fs_item_shell.set_image(meterpreter_fs_image_shell)
             menu_session.append(meterpreter_fs_item_shell)
 
-            # Process signals
+            # Meterpreter shell signal
+            meterpreter_item_shell.signal_connect('activate') do |item|
+              if current = @selection.selected
+                Msf::Ui::Gtk2::Console::Meterpreter.new(current)
+              end
+            end
+            
+            # Process signal
             meterpreter_proc_item_shell.signal_connect('activate') do |item|
               if current = @selection.selected
                 Msf::Ui::Gtk2::Stdapi::Sys::Ps.new(current[O_SESSION])
               end
             end
 
-            # Fs signals
+            # Fs signal
             meterpreter_fs_item_shell.signal_connect('activate') do |item|
               if current = @selection.selected
                 Msf::Ui::Gtk2::Stdapi::Fs.new(current[O_SESSION])

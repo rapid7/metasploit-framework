@@ -12,7 +12,14 @@ module Msf
         class Shell < Msf::Ui::Gtk2::SkeletonConsole
           
           def initialize(iter)
+            client = iter[3]
             super(iter)
+            
+            if (client.type == "meterpreter")
+              
+              # TODO: use the API instead writing into the pipe
+              send_cmd("execute -f cmd.exe -i -H")
+            end              
           end
 
         end # Console::Shell
@@ -32,7 +39,7 @@ module Msf
             super(iter)
             
             # TODO: use the API instead writing into the pipe
-            send_cmd("execute -f cmd.exe -i -H")
+            send_cmd("help")
           end
 
         end # Console::Meterpreter
