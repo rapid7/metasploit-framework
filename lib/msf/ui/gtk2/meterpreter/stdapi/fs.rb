@@ -16,7 +16,7 @@ module Msf
 
             # The session
             @client = client
-            
+
             local = File.join(driver.resource_directory, "sessions")
             remote = @client.fs.dir.getwd
 
@@ -133,19 +133,20 @@ module Msf
               end
 
               # Go through each source item and upload them
-              src_items.each { |src|
+              src_items.each do |src|
                 stat = ::File.stat(src)
 
                 if (stat.directory?)
-                  @client.fs.dir.upload(dest, src, recursive) { |step, src, dst|
+                  @client.fs.dir.upload(dest, src, recursive) do |step, src, dst|
                     $gtk2driver.append_log_view("#{step.ljust(11)}: #{src} -> #{dst}\n")
-                  }
+                  end
                 elsif (stat.file?)
-                  @client.fs.file.upload(dest, src) { |step, src, dst|
+                  @client.fs.file.upload(dest, src) do |step, src, dst|
                     $gtk2driver.append_log_view("#{step.ljust(11)}: #{src} -> #{dst}\n")
-                  }
+                  end
                 end
-              }
+              end
+              
             rescue ::Exception => e
               MsfDialog::Warning.new(self, "Upload: Operation failed", e.to_s)
             end

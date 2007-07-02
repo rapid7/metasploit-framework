@@ -2,6 +2,11 @@ module Msf
   module Ui
     module Gtk2
 
+      ###
+      #
+      # This class perform the sessions display
+      #
+      ###
       class MySessionTree
         ID_SESSION, PEER, TYPE, O_SESSION, O_BUFFER = *(0..5).to_a
 

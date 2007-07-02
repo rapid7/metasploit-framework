@@ -3,9 +3,11 @@ module Msf
     module Gtk2
 
 
-      ##
-      # This class perform a wizard
-      ##
+      ###
+      #
+      # This class provides a skeleton wizard (assitant) to configure the MSF module
+      #
+      ###
       class Assistant < Gtk::Window
 
         include Msf::Ui::Gtk2::MyControls
@@ -14,7 +16,7 @@ module Msf
         attr_accessor :button_back, :button_forward
 
         def initialize(title)
-          super
+          super()
           self.resizable = false
           self.set_default_size(600, 400)
           self.title = title
@@ -286,7 +288,8 @@ module Msf
 
           return frame_label
         end
-      end
+        
+      end # Assistant
 
     end
   end

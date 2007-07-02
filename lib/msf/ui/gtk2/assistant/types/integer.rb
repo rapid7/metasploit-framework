@@ -1,12 +1,19 @@
 module Msf
   module Ui
     module Gtk2
-
+      
+      ###
+      #
+      # This class is dedicated to support all MSF options by a Gtk2 widget
+      #
+      ###
       class MsfTypes
 
+        ###
         #
         # OptInt     - An integer value
         #
+        ###
         class Int < Msf::Ui::Gtk2::SkeletonType
 
           include Msf::Ui::Gtk2::MyControls
@@ -55,9 +62,9 @@ module Msf
             return self.key, @entry.text
           end
 
-        end
+        end # MSfTypes::Integer
 
-      end
+      end # MsfTypes
 
     end
   end

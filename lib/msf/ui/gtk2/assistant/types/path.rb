@@ -1,12 +1,19 @@
 module Msf
   module Ui
     module Gtk2
-
+      
+      ###
+      #
+      # This class is dedicated to support all MSF options by a Gtk2 widget
+      #
+      ###
       class MsfTypes
 
+        ###
         #
         # OptPath    - Path name on disk
         #
+        ###
         class Path < Msf::Ui::Gtk2::SkeletonType
           
           def initialize(key, opt, store)
@@ -51,11 +58,10 @@ module Msf
             return self.key, @button.filename
           end
 
-        end
+        end # MsfTypes::Path
 
-      end
+      end # MsfTypes
 
     end
-
   end
 end

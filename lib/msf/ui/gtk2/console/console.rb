@@ -4,38 +4,38 @@ module Msf
 
       class Console
 
-
-
+        ###
         #
-        # Classic console herited from Gtk::Window
+        # Classic console herited from SkeletonConsole
         #
+        ###
         class Shell < Msf::Ui::Gtk2::SkeletonConsole
-
+          
           def initialize(iter)
             super(iter)
           end
 
-        end # Shell
+        end # Console::Shell
 
+        ###
         #
-        # Meterpreter Console
+        # Meterpreter Console herited from SkeletonConsole
         #
+        ###
         class Meterpreter < Msf::Ui::Gtk2::SkeletonConsole
+          
           def initialize(iter)
-
             # meterpreter client
             client = iter[3]
 
             # call the parent
             super(iter)
             
-            # Not sexy
-            # TODO: use the API
-            send_cmd("execute -f cmd.exe -i -H")            
-
+            # TODO: use the API instead writing into the pipe
+            send_cmd("execute -f cmd.exe -i -H")
           end
 
-        end # Meterpreter
+        end # Console::Meterpreter
 
       end # Console
 

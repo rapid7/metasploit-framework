@@ -2,9 +2,11 @@ module Msf
   module Ui
     module Gtk2
 
+      ###
       #
       # Subclass the TreeViewTooltips to add our get_tooltip function
       #
+      ###
       class AssistantTips < Msf::Ui::Gtk2::TreeViewTooltips
 
         def initialize(column)
@@ -19,8 +21,8 @@ module Msf
             return iter.get_value(3)
           end
         end
-      end
-      
+        
+      end # AssistantTips
       
     end
   end

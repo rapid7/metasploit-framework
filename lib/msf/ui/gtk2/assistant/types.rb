@@ -23,5 +23,7 @@ require 'msf/ui/gtk2/assistant/types/port'
 require 'msf/ui/gtk2/assistant/types/address'
 require 'msf/ui/gtk2/assistant/types/path'
 require 'msf/ui/gtk2/assistant/types/integer'
+
+# TODO
 #require 'msf/ui/gtk2/assistant/types/enum'
 #require 'msf/ui/gtk2/assistant/types/addressrange'

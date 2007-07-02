@@ -2,19 +2,24 @@ module Msf
   module Ui
     module Gtk2
 
-      ##
-      # This class perform an assistant to configure module
-      ##
+      ###
+      #
+      # This class provides an assistant to configure module
+      #
+      ###
       class MsfAssistant
 
+        ###
+        #
+        # This class provides an assistant to configure auxiliary module
+        #
+        ###
         class Auxiliary < Msf::Ui::Gtk2::Assistant
 
           # to stock our values
           WIZARD2 = {}
 
-          WizardStruct2 = Struct.new('Wizard2',
-          :description, :page,
-          :options_state, :review_state)
+          WizardStruct2 = Struct.new('Wizard2', :description, :page, :options_state, :review_state)
 
           ARRAY2 = [
             ['Options',
@@ -34,9 +39,6 @@ module Msf
 
           include Msf::Ui::Gtk2::MyControls
 
-          #
-          # Init
-          #
           def initialize(active_module)
             @active_module = active_module
 
@@ -47,15 +49,9 @@ module Msf
             super(@active_module.refname)
 
             # Initialize exploit driver's exploit instance
-            #@mydriver = Msf::ExploitDriver.new(framework)
-            #@mydriver.exploit = framework.auxiliary.create(@active_module.refname)
             @mydriver = $gtk2driver
             @mydriver.exploit = framework.auxiliary.create(@active_module.refname)
             @mydriver.active_module = @active_module
-
-            # Populate the datastore if possible
-            #@mydriver.exploit.load_config
-
 
             # Main interface
             @frame_advanced = Gtk::Expander.new("Advanced")
@@ -86,7 +82,6 @@ module Msf
           # Save configuration for MsfAssistant
           #
           def save
-
             dump_to_hash()
 
             @mydriver.exploit.datastore.import_options_from_hash(@hash, imported = false)
@@ -113,7 +108,6 @@ module Msf
                 [@label_options], 			# actual
                 [@label_review]				# next
                 )
-                #button_forward.set_sensitive(false)
                 display()
                 options_completion()
               else
@@ -147,7 +141,6 @@ module Msf
           # Display options view
           #
           def options_completion
-
             self.page = "options"
 
             # Expanded frame
@@ -254,7 +247,6 @@ module Msf
           # Validate options in datastore
           #
           def validate
-
             dump_to_hash()
 
             errors = []
@@ -340,12 +332,11 @@ module Msf
               MsfDialog::Error.new(self, "Auxiliary failed", e.to_s)
               return false
             end
-
-
           end
-        end
+          
+        end # MsfAssistant::Auxiliary
 
-      end
+      end # Auxiliary
 
     end
   end

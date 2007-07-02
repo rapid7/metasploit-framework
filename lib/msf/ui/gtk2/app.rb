@@ -2,9 +2,11 @@ module Msf
   module Ui
     module Gtk2
 
-      ##
+      ###
+      #
       # This class help us to wait the next release of ruby-libglade2 package
-      ##
+      #
+      ###
       class GladeXML < GladeXML
         def connect(source, target, signal, handler, data, after = false)
           @handler_proc ||= Proc.new{}
@@ -52,11 +54,12 @@ module Msf
         end
       end
 
-      ##
+      ###
+      #
       # This class help us to retreive all glade widgets and place them in your user instance
       # like @windows, @widget, ...
-      ##
-
+      #
+      ###
       class MyGlade
         include Msf::Ui::Gtk2::MyControls
 
@@ -75,9 +78,11 @@ module Msf
         end
       end
 
-      ##
-      # This is the main class
-      ##
+      ###
+      #
+      # This class provides the main window.
+      #
+      ###
       class MyApp < MyGlade
 
         include Msf::Ui::Gtk2::MyControls
@@ -246,6 +251,7 @@ module Msf
           framework.stats.num_auxiliary.to_s + " auxiliary"
           )
         end
+        
       end
 
     end

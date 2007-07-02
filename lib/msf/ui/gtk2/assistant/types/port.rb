@@ -2,11 +2,18 @@ module Msf
   module Ui
     module Gtk2
 
+      ###
+      #
+      # This class is dedicated to support all MSF options by a Gtk2 widget
+      #
+      ###
       class MsfTypes
 
+        ###
         #
         # OptPort    - TCP/UDP service port
         #
+        ###
         class Port < Msf::Ui::Gtk2::SkeletonType
 
           def initialize(key, opt, store)
@@ -16,7 +23,7 @@ module Msf
           end
 
           #
-          #
+          # An entry port port 
           #
           def pack_option(default, store)
             hbox = Gtk::HBox.new(false, 10)

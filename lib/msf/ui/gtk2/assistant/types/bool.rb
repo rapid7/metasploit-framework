@@ -1,12 +1,19 @@
 module Msf
   module Ui
     module Gtk2
-
+      
+      ###
+      #
+      # This class is dedicated to support all MSF options by a Gtk2 widget
+      #
+      ###
       class MsfTypes
 
+        ###
         #
         # OptBool    - Boolean true or false indication
         #
+        ###
         class Bool < Msf::Ui::Gtk2::SkeletonType
 
           def initialize(key, opt, store)
@@ -55,11 +62,10 @@ module Msf
             return self.key, @checkbutton.active?
           end
 
-        end
+        end # MsfTypes::Bool
 
-      end
+      end # MSfTypes
 
     end
-
   end
 end

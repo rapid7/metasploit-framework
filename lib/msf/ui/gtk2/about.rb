@@ -2,16 +2,24 @@ module Msf
   module Ui
     module Gtk2
 
+      ###
+      #
+      # This class provides the about button
+      #
+      ###
       class MyAbout < Gtk::AboutDialog
 
         include Msf::Ui::Gtk2::MyControls
 
-        Gtk::AboutDialog.set_email_hook {|about, link|
+        # TODO
+        Gtk::AboutDialog.set_email_hook do |about, link|
           puts "Mail to #{link}"
-        }
-        Gtk::AboutDialog.set_url_hook {|about, link|
+        end
+        
+        # TODO
+        Gtk::AboutDialog.set_url_hook do |about, link|
           puts "Launch a browser to url #{link}"
-        }
+        end
 
         def initialize(parent)
           super()

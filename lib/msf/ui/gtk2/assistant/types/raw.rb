@@ -1,12 +1,19 @@
 module Msf
   module Ui
     module Gtk2
-
+      
+      ###
+      #
+      # This class is dedicated to support all MSF options by a Gtk2 widget
+      #
+      ###
       class MsfTypes
 
+        ###
         #
         # OptRaw     - Multi-byte raw string
         #
+        ###
         class Raw < Msf::Ui::Gtk2::SkeletonType
 
           def initialize(key, opt, store)
@@ -16,7 +23,7 @@ module Msf
           end
 
           #
-          #
+          # Pack a ComboBox to choose between seh, raw and process
           #
           def pack_option(default, store)
             lock_by_store = nil
