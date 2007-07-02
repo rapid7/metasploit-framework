@@ -14,7 +14,62 @@ module Msf
         ID_SESSION, PEER, PAYLOAD, O_SESSION, O_BUFFER = *(0..5).to_a
 
         @@offset = 0
-        
+
+        ###
+        #
+        # Basic command history class
+        #
+        ###
+        class History
+
+          def initialize
+            @history = [""]
+            @position = @history.length - 1
+          end
+
+          #
+          # Get previous command in history array
+          #
+          def prev(current)
+            l = current
+            l = l[0,1] if (l.length > 0 and l[0,1] == '\n')
+            l = l[-1,1] if (l.length > 0 and l[-1,1] == '\n')
+            if (@position > 0)
+              if (@position == (@history.length - 1))
+                @history[@history.length - 1] = l
+              end
+              @position = @position - 1
+              return @history[@position]
+            end
+            return current
+          end
+
+          #
+          # Get next command in history array
+          #
+          def next(current)
+            if (@position < @history.length - 1)
+              @position = @position + 1
+              return @history[@position]
+            end
+            return current
+          end
+
+          #
+          # Append a new command to history
+          #
+          def append(cmd)
+            @position = @history.length - 1
+            return if cmd.length == 0
+            if ( (@position == 0) or (@position > 0 and cmd != @history[@position - 1]) )
+              @history[@position] = cmd
+              @position = @position + 1
+              @history.push('')
+            end
+          end
+
+        end
+
         def initialize(iter)
           # Style
           console_style = File.join(driver.resource_directory, 'style', 'console.rc')
@@ -81,6 +136,8 @@ module Msf
             insert_text(Rex::Text.to_utf8(data))
           end
 
+          @historic = History.new()
+
           # Display all
           self.show_all
 
@@ -115,17 +172,60 @@ module Msf
         ###########
 
         #
+        # Get the current line
+        #
+        def current_line
+          # get the actual offset
+          start = @buffer.get_iter_at_offset(@@offset)
+
+          # get the command
+          line = @buffer.get_text(start, @buffer.end_iter)
+
+          return line
+        end
+
+        #
+        # Replace the current active line with another line
+        #
+        def replace(line)
+          # get the actual offset
+          start = @buffer.get_iter_at_offset(@@offset)
+
+          # Delete all
+          @buffer.delete(start, @buffer.end_iter)
+
+          # Save the new offset
+          @@offset = @buffer.end_iter.offset
+
+          # insert the old command
+          @buffer.insert(@buffer.end_iter, line)
+        end
+
+        #
         # Catch the text from the textview
         #
         def catch_text
+          # get the actual offset
           start = @buffer.get_iter_at_offset(@@offset)
+
+          # get the command
           cmd = @buffer.get_text(start, @buffer.end_iter)
+
+          # Save the command to the history object
+          @historic.append(cmd)
+
+          # Write the command to our pipe
           send_cmd(cmd)
+
+          # Add a return line to our buffer
           insert_text("\n")
 
+          # Create the mark tag if not exist
           if (not @buffer.get_mark('end_mark'))
             @buffer.create_mark('end_mark', @buffer.end_iter, false)
           end
+
+          # Save our offset
           @@offset = @buffer.end_iter.offset
         end
 
@@ -133,14 +233,16 @@ module Msf
         # Insert the text into the buffer
         #
         def insert_text(text)
-          # get the actual offset
-          start = @buffer.get_iter_at_offset(@@offset)
-
+          # Create the mark tag if not exist
           @buffer.insert(@buffer.end_iter, text)
           if (not @buffer.get_mark('end_mark'))
             @buffer.create_mark('end_mark', @buffer.end_iter, false)
           end
+
+          # Save our offset
           @@offset = @buffer.end_iter.offset
+
+          # Scrolled the view until the end of the buffer
           @textview.scroll_mark_onscreen(@buffer.get_mark('end_mark'))
         end
 
@@ -150,11 +252,11 @@ module Msf
         def on_key_pressed(event)
 
           # Enter key
-          if event.keyval == Gdk::Keyval::GDK_Return
+          if (event.keyval == Gdk::Keyval::GDK_Return)
             catch_text()
 
             # Backspace key
-          elsif event.keyval == Gdk::Keyval::GDK_BackSpace
+          elsif (event.keyval == Gdk::Keyval::GDK_BackSpace)
             iter = @buffer.end_iter
             if iter.offset == @@offset
               return true
@@ -163,14 +265,25 @@ module Msf
             end
 
             # Delete key
-          elsif event.keyval == Gdk::Keyval::GDK_Delete
+          elsif (event.keyval == Gdk::Keyval::GDK_Delete)
             iter = @buffer.end_iter
             if iter.offset == @@offset
               return true
             else
               return false
             end
-            
+
+            # Previous command
+          elsif (event.keyval == Gdk::Keyval::GDK_Up)
+            cmd = @historic.prev(current_line())
+            replace(cmd)
+            return true
+
+            # Next command
+          elsif (event.keyval == Gdk::Keyval::GDK_Down)
+            cmd = @historic.next(current_line())
+            replace(cmd)
+            return true
           end
 
         end
