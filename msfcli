@@ -229,22 +229,12 @@ case mode.downcase
 			end
 		when 'auxiliary'
 			begin
-				session = exploit.run_simple(
+				exploit.run_simple(
 					'Encoder'       => exploit.datastore['ENCODER'],
 					'Action'        => exploit.datastore['ACTION'],
 					'LocalInput'    => Rex::Ui::Text::Input::Stdio.new,
 					'LocalOutput'   => Rex::Ui::Text::Output::Stdio.new,
 					'ForceBlocking' => true)
-
-				if (session)
-					$stdout.puts("[*] #{session.desc} session #{session.name} opened (#{session.tunnel_to_s})\n\n")
-
-					session.interact(
-						Rex::Ui::Text::Input::Stdio.new,
-						Rex::Ui::Text::Output::Stdio.new				
-					)
-				end
-
 			rescue
 				$stderr.puts("Auxiliary failed: #{$!}")
 				$stderr.puts("Backtrace:")
