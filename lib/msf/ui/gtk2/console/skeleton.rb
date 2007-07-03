@@ -11,10 +11,6 @@ module Msf
         require 'rex/io/bidirectional_pipe'
         include Msf::Ui::Gtk2::MyControls
 
-        ID_SESSION, PEER, PAYLOAD, O_SESSION, O_BUFFER = *(0..5).to_a
-
-        @@offset = 0
-
         ###
         #
         # Basic command history class
@@ -70,6 +66,14 @@ module Msf
 
         end
 
+        ID_SESSION, PEER, TYPE, O_SESSION = *(0..4).to_a
+        @@offset = 0
+
+        attr_accessor :type, :buffer
+
+        #
+        # Init the SkeletonConsole class
+        #
         def initialize(iter)
           # Style
           console_style = File.join(driver.resource_directory, 'style', 'console.rc')
@@ -78,9 +82,8 @@ module Msf
           # Call the parent
           super(Gtk::Window::TOPLEVEL)
 
-          # initialize the session and buffer vars from the iter sessions tree
+          # initialize the session var from the iter sessions tree
           @session = iter[O_SESSION]
-          @buffer = iter[O_BUFFER]
 
           # Layout stuff
           self.set_default_size(500, 400)
@@ -93,8 +96,9 @@ module Msf
           vbox = Gtk::VBox.new(false, 5)
           self.add(vbox)
 
-          # Setup text view
+          # Setup text view and buffer
           @textview = Gtk::TextView.new
+          @buffer = Gtk::TextBuffer.new
           scrolled_window = Gtk::ScrolledWindow.new
           scrolled_window.add(@textview)
           vbox.pack_start(scrolled_window, true, true, 5)
@@ -111,7 +115,7 @@ module Msf
           hbox.layout_style = Gtk::ButtonBox::END
           button = Gtk::Button.new(Gtk::Stock::CLOSE)
           button.signal_connect("clicked") do
-            close_console
+            close_console()
           end
 
           # Pack
@@ -136,7 +140,11 @@ module Msf
             insert_text(Rex::Text.to_utf8(data))
           end
 
+          # Init an history object
           @historic = History.new()
+
+          # Init the prompt variable with the session type
+          @type = @session.type
 
           # Display all
           self.show_all
@@ -144,17 +152,11 @@ module Msf
         end #intialize
 
         #
-        # update access
-        #
-        def update_access
-          last_access = Time.now
-        end
-
-        #
         # Send command to bidirectionnal_pipe
         #
         def send_cmd(cmd)
-          update_access
+          # What time is it ?
+          # update_access
 
           # Write the command plus a newline to the input
           @pipe.write_input(cmd + "\n")
@@ -170,6 +172,27 @@ module Msf
         ###########
         protected #
         ###########
+
+        #
+        # update access
+        #
+        def update_access
+          last_access = Time.now
+        end
+
+        #
+        # meterpreter prompt
+        #
+        def prompt
+          null_prompt = ""
+          meta_prompt = "meterpreter >> "
+          if (@type == "meterpreter")
+            @buffer.insert(@buffer.end_iter, meta_prompt)
+          else
+            @buffer.insert(@buffer.end_iter, null_prompt)
+          end
+          @@offset = @buffer.end_iter.offset
+        end
 
         #
         # Get the current line
@@ -219,6 +242,9 @@ module Msf
 
           # Add a return line to our buffer
           insert_text("\n")
+
+          # Call the prompt
+          prompt()
 
           # Create the mark tag if not exist
           if (not @buffer.get_mark('end_mark'))

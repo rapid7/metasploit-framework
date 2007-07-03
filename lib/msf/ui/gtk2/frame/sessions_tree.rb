@@ -8,7 +8,7 @@ module Msf
       #
       ###
       class MySessionTree
-        ID_SESSION, PEER, TYPE, O_SESSION, O_BUFFER = *(0..5).to_a
+        ID_SESSION, PEER, TYPE, O_SESSION = *(0..4).to_a
 
         include Msf::Ui::Gtk2::MyControls
 
@@ -17,8 +17,7 @@ module Msf
           @model = Gtk::ListStore.new(String,		# Session ID
           String,		# IP Address
           String,		# Session Type
-          Object,		# Session Object
-          Object		# Gtk::TextBuffer
+          Object		# Session Object
           )
 
           # Renderer
@@ -108,7 +107,6 @@ module Msf
           iter[TYPE] = session.type ? session.type : nil
           #iter[PAYLOAD] = session.via_payload ? session.via_payload : nil
           iter[O_SESSION] = session
-          iter[O_BUFFER] = Gtk::TextBuffer.new
         end
 
         #
