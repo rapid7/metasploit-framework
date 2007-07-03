@@ -10,109 +10,18 @@ module Msf
         #
         ###
         class Shell < Msf::Ui::Gtk2::SkeletonConsole
-          module InteractiveChannel
-
-            include Rex::Ui::Interactive
-
-            #
-            # Interacts with self.
-            #
-            def _interact
-              # If the channel has a left-side socket, then we can interact with it.
-              if (self.lsock)
-                self.interactive(true)
-
-                interact_stream(self)
-
-                self.interactive(false)
-              else
-                print_error("Channel #{self.cid} does not support interaction.")
-
-                self.interacting = false
-              end
-            end
-
-            #
-            # Called when an interrupt is sent.
-            #
-            def _interrupt
-              prompt_yesno("Terminate channel #{self.cid}?")
-            end
-
-            #
-            # Suspends interaction with the channel.
-            #
-            def _suspend
-              # Ask the user if they would like to background the session
-              if (prompt_yesno("Background channel #{self.cid}?") == true)
-                self.interactive(false)
-
-                self.interacting = false
-              end
-            end
-
-            #
-            # Closes the channel like it aint no thang.
-            #
-            def _interact_complete
-              begin
-                self.interactive(false)
-
-                self.close
-              rescue IOError
-              end
-            end
-
-            #
-            # Reads data from local input and writes it remotely.
-            #
-            def _stream_read_local_write_remote(channel)
-              data = user_input.gets
-
-              self.write(data)
-            end
-
-            #
-            # Reads from the channel and writes locally.
-            #
-            def _stream_read_remote_write_local(channel)
-              data = self.lsock.sysread(16384)
-
-              user_output.print(data)
-            end
-
-            #
-            # Returns the remote file descriptor to select on
-            #
-            def _remote_fd(stream)
-              self.lsock
-            end
-
-          end
-
-          module Pipe
-            #
-            # Interacts with the supplied channel.
-            #
-            def interact_with_channel(channel, pipe)
-              channel.extend(InteractiveChannel) unless (channel.kind_of?(InteractiveChannel) == true)
-              @t_run = Thread.new do
-                channel.interact(pipe, pipe)
-              end
-            end
-          end
 
           def initialize(iter)
             session = iter[3]
             super(iter)
 
             if (session.type == "meterpreter")
+              require 'msf/ui/gtk2/console/interactive_channel.rb'
+
               self.type = "shell"
 
-              # TODO: use the API instead writing into the pipe
               meterconsole = Rex::Post::Meterpreter::Ui::Console.new(session)
               meterconsole.extend(Pipe)
-              #send_cmd("execute -f cmd.exe -i -H")
               cmd_exec = "cmd.exe"
               cmd_args = nil
               channelized = true
@@ -124,24 +33,25 @@ module Msf
               'Hidden'      => hidden,
               'InMemory'    => (from_mem) ? dummy_exec : nil)
 
+              # Create a new pipe to not use the pipe class
               @pipe = Rex::IO::BidirectionalPipe.new
+
               # Create a subscriber with a callback for the UI
               @pipe.create_subscriber_proc() do |data|
                 self.insert_text(Rex::Text.to_utf8(data))
               end
+
+              # Interact with the supplied channel
               meterconsole.interact_with_channel(p.channel, @pipe)
-
             end
-            #
-            # Send command to bidirectionnal_pipe
-            #
-            def send_cmd(cmd)
-              # What time is it ?
-              # update_access
+          end
 
-              # Write the command plus a newline to the input
-              @pipe.write_input(cmd + "\n")
-            end
+          #
+          # Send command to bidirectionnal_pipe
+          #
+          def send_cmd(cmd)
+            # Write the command plus a newline to the input
+            @pipe.write_input(cmd + "\n")
           end
 
         end # Console::Shell
@@ -152,16 +62,39 @@ module Msf
         #
         ###
         class Meterpreter < Msf::Ui::Gtk2::SkeletonConsole
+          #require 'msf/ui/gtk2/console/interactive_channel.rb'
 
           def initialize(iter)
             # meterpreter client
-            client = iter[3]
+            session = iter[3]
 
             # call the parent
             super(iter)
 
-            # TODO: use the API instead writing into the pipe
-            send_cmd("help")
+            meterconsole = Rex::Post::Meterpreter::Ui::Console.new(session)
+            # meterconsole.extend(Pipe)
+
+            # Create a new pipe to not use the pipe class
+            @pipe = Rex::IO::BidirectionalPipe.new
+
+            # Create a subscriber with a callback for the UI
+            @pipe.create_subscriber_proc() do |data|
+              self.insert_text(Rex::Text.to_utf8(data))
+            end
+            
+            meterconsole.init_ui(@pipe, @pipe)
+
+            @t_run = Thread.new do
+              meterconsole.interact { self.interacting != true }
+            end
+          end
+
+          #
+          # Send command to bidirectionnal_pipe
+          #
+          def send_cmd(cmd)
+            # Write the command plus a newline to the input
+            @pipe.write_input(cmd + "\n")
           end
 
         end # Console::Meterpreter
