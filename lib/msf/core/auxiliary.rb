@@ -89,14 +89,16 @@ class Auxiliary < Msf::Module
 	# Returns a boolean indicating whether this module should be run passively
 	#
 	def passive?
-		passive
+		act = action()
+		return passive_action?(act.name) if act
+		return self.passive
 	end
 	
 	#
 	# Returns a boolean indicating whether this specific action should be run passively
 	#
-	def passive_action?(action)
-		passive_actions.include?(action)
+	def passive_action?(name)
+		passive_actions.include?(name)
 	end
 
 	#

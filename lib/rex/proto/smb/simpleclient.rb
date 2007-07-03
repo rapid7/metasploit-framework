@@ -197,7 +197,40 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 		
 		return true
 	end
+
+
+	def login_split_start_ntlm1(name = '')
+
+		begin
+			
+			if (self.direct != true)
+				self.client.session_request(name)
+			end
+			
+			# Disable extended security
+			self.client.negotiate(false)
+		rescue ::Exception
+			e = XCEPT::LoginError.new
+			e.source = $!.to_s
+			raise e
+		end
+		
+		return true
+	end
 	
+	
+	def login_split_next_ntlm1(user, domain, hash_lm, hash_nt)
+		begin
+			ok = self.client.session_setup_ntlmv1_prehash(user, domain, hash_lm, hash_nt)
+		rescue ::Exception
+			e = XCEPT::LoginError.new
+			e.source = $!.to_s
+			raise e
+		end
+		
+		return true			
+	end
+		
 	def connect(share)
 		ok = self.client.tree_connect(share)
 		tree_id = ok['Payload']['SMB'].v['TreeID']

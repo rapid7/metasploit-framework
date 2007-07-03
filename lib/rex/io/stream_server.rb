@@ -142,10 +142,11 @@ protected
 				self.clients << cli
 
 				on_client_connect(cli)
-			end
+			end		
 		rescue
-			elog("Error in stream server listener monitor: #{$!}")
+			elog("Error (#{$!.class}) in stream server listener monitor:  #{$!}")
 			rlog(ExceptionCallStack)
+			break
 		end while true
 
 	end
@@ -166,11 +167,12 @@ protected
 			sd[0].each { |fd|
 				begin
 					on_client_data(fd)
+				rescue EOFError
+					on_client_close(fd)
+					close_client(fd)
 				rescue
 					elog("Error in stream server client monitor: #{$!}")
 					rlog(ExceptionCallStack)
-				ensure
-					close_client(fd)
 				end
 			}
 		rescue

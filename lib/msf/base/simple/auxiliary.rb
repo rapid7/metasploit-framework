@@ -54,25 +54,31 @@ module Auxiliary
 		mod.options.validate(mod.datastore)
 
 		# Initialize user interaction
-		mod.init_ui(
-			opts['LocalInput'],
-			opts['LocalOutput'])
+		mod.init_ui(opts['LocalInput'],opts['LocalOutput'])
 
-		if (opts['RunAsJob'])
-			mod.framework.jobs.start_job(
+		
+		p mod.passive?
+		
+		if(mod.passive?)		
+			mod.framework.jobs.start_bg_job(
 				"Auxiliary: #{mod.refname}", 
 				mod,
 				Proc.new { |mod| self.job_run_proc(mod) },
-				Proc.new { |mod| self.job_cleanup_proc(mod) },
-				false
+				Proc.new { |mod| self.job_cleanup_proc(mod) }
 			)
-		else
-			self.job_run_proc(mod)
-			self.job_cleanup_proc(mod)
+		else		
+			if (opts['RunAsJob'])
+				mod.framework.jobs.start_job(
+					"Auxiliary: #{mod.refname}", 
+					mod,
+					Proc.new { |mod| self.job_run_proc(mod) },
+					Proc.new { |mod| self.job_cleanup_proc(mod) }
+				)
+			else
+				self.job_run_proc(mod)
+				self.job_cleanup_proc(mod)
+			end
 		end
-
-		# Reset the user interface
-		mod.reset_ui
 	end
 
 	#

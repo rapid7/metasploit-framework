@@ -432,7 +432,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Negotiate a SMB dialect
-	def negotiate()
+	def negotiate(extended=true)
 		
 		dialects = ['LANMAN1.0', 'LM1.2X002' ]
 		
@@ -447,7 +447,13 @@ EVADE = Rex::Proto::SMB::Evasions
 		
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NEGOTIATE
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2801 
+		
+		if(extended)
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2801 
+		else
+			pkt['Payload']['SMB'].v['Flags2'] = 0xc001 
+		end
+		
 		pkt['Payload'].v['Payload'] = data
 		
 		self.smb_send(pkt.to_s)
@@ -618,6 +624,53 @@ EVADE = Rex::Proto::SMB::Evasions
 				
 		return ack
 	end	
+
+
+	# Authenticate using NTLMv1 with a precomputed hash pair
+	def session_setup_ntlmv1_prehash(user, domain, hash_lm, hash_nt)
+
+		data = ''
+		data << hash_lm
+		data << hash_nt
+		data << user + "\x00"
+		data << domain + "\x00"
+		data << self.native_os + "\x00"
+		data << self.native_lm + "\x00"		
+		
+		pkt = CONST::SMB_SETUP_NTLMV1_PKT.make_struct
+		self.smb_defaults(pkt['Payload']['SMB'])
+				
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
+		pkt['Payload']['SMB'].v['Flags1'] = 0x18
+		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		pkt['Payload']['SMB'].v['WordCount'] = 13
+		pkt['Payload'].v['AndX'] = 255
+		pkt['Payload'].v['MaxBuff'] = 0xffdf
+		pkt['Payload'].v['MaxMPX'] = 2
+		pkt['Payload'].v['VCNum'] = 1		
+		pkt['Payload'].v['PasswordLenLM'] = hash_lm.length
+		pkt['Payload'].v['PasswordLenNT'] = hash_nt.length
+		pkt['Payload'].v['Capabilities'] = 64
+		pkt['Payload'].v['SessionKey'] = self.session_id
+		pkt['Payload'].v['Payload'] = data
+		
+		self.smb_send(pkt.to_s)
+		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX)
+			
+		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
+			self.auth_user = user
+		end
+		
+		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
+
+		info = ack['Payload'].v['Payload'].split(/\x00/)
+
+		self.peer_native_os = info[0]
+		self.peer_native_lm = info[1]
+		self.default_domain = info[2]
+				
+		return ack
+	end
 	
 	# Authenticate using extended security negotiation (NTLMv2)
 	def session_setup_ntlmv2(user = '', pass = '', domain = '', name = nil)
@@ -741,6 +794,10 @@ EVADE = Rex::Proto::SMB::Evasions
 		end
 				
 		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
+		
+		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
+			self.auth_user = user
+		end		
 
 		return ack
 	end	
