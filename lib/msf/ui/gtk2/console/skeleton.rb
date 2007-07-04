@@ -66,10 +66,10 @@ module Msf
 
         end
 
-        ID_SESSION, PEER, TYPE, O_SESSION = *(0..4).to_a
+        ID_SESSION, PEER, TYPE, O_SESSION, O_BUFFER = *(0..5).to_a
         @@offset = 0
 
-        attr_accessor :type, :buffer
+        attr_accessor :type, :button_close
 
         #
         # Init the SkeletonConsole class
@@ -98,7 +98,12 @@ module Msf
 
           # Setup text view and buffer
           @textview = Gtk::TextView.new
-          @buffer = Gtk::TextBuffer.new
+          if iter[O_BUFFER].nil?
+            @buffer = Gtk::TextBuffer.new
+            iter[O_BUFFER] = @buffer
+          else
+            @buffer = iter[O_BUFFER]
+          end
           scrolled_window = Gtk::ScrolledWindow.new
           scrolled_window.add(@textview)
           vbox.pack_start(scrolled_window, true, true, 5)
@@ -113,13 +118,10 @@ module Msf
           # Setup button close
           hbox = Gtk::HButtonBox.new
           hbox.layout_style = Gtk::ButtonBox::END
-          button = Gtk::Button.new(Gtk::Stock::CLOSE)
-          button.signal_connect("clicked") do
-            close_console()
-          end
+          @button_close = Gtk::Button.new(Gtk::Stock::CLOSE)
 
           # Pack
-          hbox.pack_end(button, false, false, 5)
+          hbox.pack_end(@button_close, false, false, 5)
           vbox.pack_start(hbox, false, false, 0)
 
           # Signal for the Return key pressed

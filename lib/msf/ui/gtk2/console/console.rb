@@ -15,6 +15,7 @@ module Msf
             session = iter[3]
             super(iter)
 
+            # When the session type is meterperter
             if (session.type == "meterpreter")
               require 'msf/ui/gtk2/console/interactive_channel.rb'
 
@@ -41,8 +42,28 @@ module Msf
                 self.insert_text(Rex::Text.to_utf8(data))
               end
 
+              # When the close button was clicked ...
+              self.button_close.signal_connect('clicked') do
+                begin
+                  iter[4] = nil
+                  p.channel.close
+                  session.sys.process.kill(p.pid)
+                  self.destroy
+                  session.channels.each_pair { |cid, channel|
+                    puts "#{cid}: #{channel.class.cls}"
+                  }
+                rescue IOError
+                end
+              end
+
               # Interact with the supplied channel
               meterconsole.interact_with_channel(p.channel, @pipe)
+
+            else
+              # Bind the signal to the close button
+              self.button_close.signal_connect('clicked') do
+                self.close_console
+              end
             end
           end
 
@@ -62,8 +83,6 @@ module Msf
         #
         ###
         class Meterpreter < Msf::Ui::Gtk2::SkeletonConsole
-          #require 'msf/ui/gtk2/console/interactive_channel.rb'
-
           def initialize(iter)
             # meterpreter client
             session = iter[3]
@@ -72,7 +91,6 @@ module Msf
             super(iter)
 
             meterconsole = Rex::Post::Meterpreter::Ui::Console.new(session)
-            # meterconsole.extend(Pipe)
 
             # Create a new pipe to not use the pipe class
             @pipe = Rex::IO::BidirectionalPipe.new
@@ -81,7 +99,7 @@ module Msf
             @pipe.create_subscriber_proc() do |data|
               self.insert_text(Rex::Text.to_utf8(data))
             end
-            
+
             meterconsole.init_ui(@pipe, @pipe)
 
             @t_run = Thread.new do

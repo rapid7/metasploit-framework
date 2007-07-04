@@ -8,16 +8,18 @@ module Msf
       #
       ###
       class MySessionTree
-        ID_SESSION, PEER, TYPE, O_SESSION = *(0..4).to_a
+        ID_SESSION, PEER, TYPE, O_SESSION, O_BUFFER = *(0..5).to_a
 
         include Msf::Ui::Gtk2::MyControls
 
         def initialize(treeview)
           @treeview = treeview
-          @model = Gtk::ListStore.new(String,		# Session ID
+          @model = Gtk::ListStore.new(
+          String,		# Session ID
           String,		# IP Address
           String,		# Session Type
-          Object		# Session Object
+          Object,		# Session Object
+          Object		# Gtk::TextBuffer
           )
 
           # Renderer
@@ -107,6 +109,7 @@ module Msf
           iter[TYPE] = session.type ? session.type : nil
           #iter[PAYLOAD] = session.via_payload ? session.via_payload : nil
           iter[O_SESSION] = session
+          iter[O_BUFFER] = nil
         end
 
         #
@@ -185,7 +188,7 @@ module Msf
                 Msf::Ui::Gtk2::Console::Meterpreter.new(current)
               end
             end
-            
+
             # Process signal
             meterpreter_proc_item_shell.signal_connect('activate') do |item|
               if current = @selection.selected
