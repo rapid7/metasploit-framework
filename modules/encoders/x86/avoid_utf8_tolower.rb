@@ -17,6 +17,22 @@ module Encoders
 module X86
 
 #
+# NOTE: Read this if you plan on using this encoder:
+#
+# This encoder has some limitations that must be considered.  First, this
+# encoder cannot be used with all of the payloads included in the framework.
+# Most notably, this includes windows/shell_reverse_tcp.  The reason for this
+# is that some payloads are of a size that leads to a bad character (uppercase
+# character) being generated in the decoder stub header.  
+#
+# A second thing to consider is that some IP addresses used in payloads are
+# incompatible with this encoder depending on their alignment within the
+# payload.  For example, the use of 127.0.0.1 may not work due to the fact
+# that it's impossible to reach the bytes 127, 0, and 1 in a single add or sub
+# due to the algorithm that this encoder uses.
+#
+# Here's a description of how it works:
+#
 # This encoder is pretty lame.  It has a huge size overhead.  Alas, it
 # does produce tolower safe and UTF8 safe payloads.  The decoder itself is
 # split into three distinct chunks.  The first chunk is the header, the second
@@ -83,6 +99,20 @@ module X86
 #
 class AvoidUtf8 < Msf::Encoder
 
+	#
+	# In some cases, payloads can be an invalid size that is incompatible with
+	# this encoder
+	#
+	class InvalidPayloadSizeException < ::Exception
+		def initialize(msg)
+			@msg = msg
+		end
+
+		def to_s
+			@msg
+		end
+	end
+
 	# This encoder has a manual ranking because it should only be used in cases
 	# where information has been explicitly supplied, like the BufferOffset.
 	Rank = ManualRanking
@@ -113,6 +143,11 @@ class AvoidUtf8 < Msf::Encoder
 		# Grab the number of additional bytes that we need to adjust by in order
 		# to get the context register to point immediately after the stub header
 		off = (datastore['BufferOffset'] || 0).to_i
+
+		# Check to make sure that the length is a valid size
+		if is_badchar(state, len)
+			raise InvalidPayloadSizeException.new("The payload being encoded is of an incompatible size (#{len} bytes)")
+		end
 
 		decoder =
 			"\x6a" + [len].pack('C')      +  # push len
