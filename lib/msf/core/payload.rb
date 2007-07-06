@@ -20,6 +20,7 @@ class Payload < Msf::Module
 	# Platform specific includes
 	require 'msf/core/payload/windows'
 	require 'msf/core/payload/linux'
+	require 'msf/core/payload/osx'
 	
 	##
 	#

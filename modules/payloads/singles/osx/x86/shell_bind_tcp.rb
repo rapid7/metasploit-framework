@@ -23,6 +23,7 @@ module X86
 module ShellBindTcp
 
 	include Msf::Payload::Single
+	include Msf::Payload::Osx
 
 	def initialize(info = {})
 		super(merge_info(info,

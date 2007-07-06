@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -23,6 +23,7 @@ module Ppc
 module ShellBindTcp
 
 	include Msf::Payload::Single
+	include Msf::Payload::Osx
 
 	def initialize(info = {})
 		super(merge_info(info,
