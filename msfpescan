@@ -67,6 +67,12 @@ opt.on('-f', '--fingerprint', 'Attempt to identify the packer/compiler') do |t|
 	param['database'] = File.join(File.dirname(__FILE__), 'data', 'msfpescan', 'identify.txt')
 end
 
+opt.on('-i', '--info', 'Display detailed information about the image') do |t|
+	worker = Rex::PeScan::Analyze::Information
+	param['database'] = File.join(File.dirname(__FILE__), 'data', 'msfpescan', 'identify.txt')
+end
+
+
 opt.separator('')
 opt.separator('Options:')
 

@@ -410,8 +410,8 @@ class PeBase
 	  [ 'uint32v', 'ImageBase',                    0 ],
 	  [ 'uint32v', 'SectionAlignment',             0 ],
 	  [ 'uint32v', 'FileAlignment',                0 ],
-	  [ 'uint16v', 'MajorOperatingsystemVersion',  0 ],
-	  [ 'uint16v', 'MinorOperatingsystemVersion',  0 ],
+	  [ 'uint16v', 'MajorOperatingSystemVersion',  0 ],
+	  [ 'uint16v', 'MinorOperatingSystemVersion',  0 ],
 	  [ 'uint16v', 'MajorImageVersion',            0 ],
 	  [ 'uint16v', 'MinorImageVersion',            0 ],
 	  [ 'uint16v', 'MajorSubsystemVersion',        0 ],
@@ -686,9 +686,14 @@ class PeBase
 	class RelocationDirectory
 		attr_accessor :entries, :rva
 
-		def initialize(_rva, _entries)
-			self.rva     = _rva
-			self.entries = _entries
+		def initialize(rva, entries)
+			self.rva     = rva
+			self.entries = entries
+			self.name    = name
+			self.characteristics = chars
+			self.timedate = timedate
+			self.version = version
+			self.entries = []
 		end
 	end
 
@@ -702,6 +707,32 @@ class PeBase
 	end
 
 
+	class ResourceDirectory
+		attr_accessor :entries, :name
+
+		def initialize(name, entries)
+			self.name   = name
+			self.entries = entries
+		end
+	end
+
+	class ResourceEntry
+		attr_accessor :path, :lang, :code, :rva, :size, :pe
+		
+		def initialize(pe, path, lang, code, rva, size)
+			self.pe    = pe
+			self.path  = path
+			self.lang  = lang
+			self.code  = code
+			self.rva   = rva
+			self.size  = size
+		end
+		
+		def data
+			pe._isource.read(pe.rva_to_file_offset(rva), size)
+		end
+	end
+	
 	#
 	# typedef struct {
 	#     DWORD   Size;
@@ -829,7 +860,13 @@ class PeBase
 
 		header.from_s(dirdata)
 			
-		ConfigHeader.new(header)
+		@config = ConfigHeader.new(header)
+	end
+	
+	
+	def config
+		_parse_config_header if @config.nil?
+		@config
 	end
 
 
@@ -994,6 +1031,7 @@ class PeBase
 	attr_accessor :_imports_cache, :_imports_cached
 	attr_accessor :_exports_cache, :_exports_cached
 	attr_accessor :_relocations_cache, :_relocations_cached
+	attr_accessor :_resources_cache, :_resources_cached
 
 	attr_accessor :hdr
 	
@@ -1110,7 +1148,7 @@ class PeBase
 
 	#
 	#
-	# Some convient methods to read a vma/rva without having
+	# Some convenient methods to read a vma/rva without having
 	# the section... (inefficent though I suppose...)
 	#
 	#
@@ -1180,7 +1218,7 @@ class PeBase
 
 			import = ImportDescriptor.new(dllname, [ ])
 
-			# we perfer the Characteristics/OriginalFirstThunk...
+			# we prefer the Characteristics/OriginalFirstThunk...
 			thunk_off = rva_to_file_offset(othunk == 0 ? fthunk : othunk)
 
 			while (orgrva = _isource.read(thunk_off, 4).unpack('V')[0]) != 0
@@ -1342,6 +1380,131 @@ class PeBase
 		end
 
 		return relocdirs
+	end
+	
+
+	#
+	# We lazily parse the resources, and then cache them
+	#
+	def resources
+		if !_resources_cached
+			_load_resources
+			self._resources_cached = true
+		end
+		
+		return self._resources_cache
+	end
+
+	def _load_resources
+		#
+		# Get the data directory entry, size, etc
+		#
+		rsrc_entry = _optional_header['DataDirectory'][IMAGE_DIRECTORY_ENTRY_RESOURCE]
+		rva        = rsrc_entry.v['VirtualAddress']
+		size       = rsrc_entry.v['Size']
+
+		return nil if size == 0
+
+		#
+		# Ok, so we have the data directory, now lets parse it
+		#
+		data = _isource.read(rva_to_file_offset(rva), size)
+		
+		self._resources_cache = {}
+		_parse_resource_directory(data)
+	end
+	
+	def _parse_resource_directory(data, rname=0, rvalue=0x80000000, path='0', pname=nil)
+		
+		pname = _parse_resource_name(data, rname)
+		if (path.scan('/').length == 1)
+			if (pname !~ /^\d+/)
+				path = "/" + pname
+			else
+				path = "/" + _resource_lookup( (rname & ~0x80000000).to_s)
+			end
+		end
+		
+		
+		rvalue &= ~0x80000000
+		vals  = data[rvalue, 16].unpack('VVvvvv')
+		
+		chars = vals[0]
+		tdate = vals[1]
+		vers  = "#{vals[2]}#{vals[3]}"
+		count = vals[4] + vals[5]
+		
+		0.upto(count-1) do |i|
+
+			ename, evalue = data[rvalue + 16 + ( i * 8), 8].unpack('VV')
+			epath = path + '/' + i.to_s
+
+			if (ename & 0x80000000 != 0)
+				pname = _parse_resource_name(data, ename)
+			end
+			
+			if (evalue & 0x80000000 != 0) 
+				# This is a subdirectory
+				_parse_resource_directory(data, ename, evalue, epath, pname)
+			else
+				# This is an entry
+				_parse_resource_entry(data, ename, evalue, epath, pname)
+			end	
+		end
+		
+	end
+	
+	def _resource_lookup(i)
+    	tbl = {
+			'1'      => 'CURSOR',
+			'2'      => 'BITMAP',
+			'3'      => 'ICON',
+			'4'      => 'MENU',
+			'5'      => 'DIALOG',
+			'6'      => 'STRING',
+			'7'      => 'FONTDIR',
+			'8'      => 'FONT',
+			'9'      => 'ACCELERATORS',
+			'10'     => 'RCDATA',
+			'11'     => 'MESSAGETABLE',
+			'12'     => 'GROUP_CURSOR',
+			'14'     => 'GROUP_ICON',
+			'16'     => 'VERSION',
+			'23'     => 'RT_HTML',
+			'32767'  => 'ERROR',
+			'8192'   => 'NEWRESOURCE',
+			'8194'   => 'NEWBITMAP',
+			'8196'   => 'NEWMENU',
+			'8197'   => 'NEWDIALOG'
+		}
+		tbl[i] || i
+	end
+	
+	def _parse_resource_entry(data, rname, rvalue, path, pname)
+		
+		rva, size, code = data[rvalue, 12].unpack('VVV')
+		lang = _parse_resource_name(data, rname)
+		
+		ent = ResourceEntry.new(
+			self,
+			path,
+			lang,
+			code,
+			rva,
+			size
+		)
+		self._resources_cache[path] = ent
+	end
+	
+	def _parse_resource_name(data, rname)
+		if (rname & 0x80000000 != 0)
+			rname &= ~0x80000000
+			unistr = data[rname+2, 2 * data[rname,2].unpack('v')[0] ]
+			unistr, trash = unistr.split(/\x00\x00/, 2)
+			return unistr ? unistr.gsub(/\x00/, '') : nil
+		end
+		
+		rname.to_s
 	end
 
 end end end
