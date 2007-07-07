@@ -56,7 +56,7 @@ module Sparc
 	def self.set(constant, dst)
 		if (constant <= 4095 and constant >= 0)
 			ori('g0', constant, dst)
-		elsif (constant & 0x3ff == 0)
+		elsif (constant & 0x3ff != 0)
 			set_dword(constant, dst)
 		else
 			sethi(constant, dst)
