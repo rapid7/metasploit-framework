@@ -137,7 +137,7 @@ class Pe < PeBase
 		self.hdr               = HeaderAccessor.new
 		self.hdr.dos           = self._dos_header
 		self.hdr.file          = self._file_header		
-	   self.hdr.opt           = self._optional_header
+		self.hdr.opt           = self._optional_header
 		self.hdr.sections      = self._section_headers
 		self.hdr.config        = self._config_header
 	end

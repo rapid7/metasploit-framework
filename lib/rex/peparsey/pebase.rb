@@ -726,7 +726,7 @@ class PeBase
 			self.code  = code
 			self.rva   = rva
 			self.size  = size
-			self.file  = file
+			self.file  = file.to_s
 		end
 		
 		def data

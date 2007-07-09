@@ -204,6 +204,37 @@ module Analyze
 		end
 	end
 
+
+	class Ripper
+	
+		require "fileutils"
+	
+		attr_accessor :pe
+		
+		def initialize(pe)
+			self.pe = pe
+		end
+		
+		def scan(param)
+			dest = param['dir']
+			
+			if (param['filename'])
+				dest = File.join(dest, File.basename(param['filename']))
+			end
+			
+			FileUtils.mkdir_p(dest)
+			
+			pe.resources.keys.sort.each do |rkey|
+				res  = pe.resources[rkey]
+				path = File.join(dest, rkey.split('/')[1] + '_' + res.file)
+				
+				fd = File.new(path, 'w')
+				fd.write(res.data)
+				fd.close
+			end	
+		end
+	end
+		
 # EOC
 
 end
