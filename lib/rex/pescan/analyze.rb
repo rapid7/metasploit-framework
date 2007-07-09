@@ -136,22 +136,26 @@ module Analyze
 			})
 			$stdout.puts tbl.to_s
 			$stdout.puts "\n\n"
-			
-			tbl = table("Exported Functions", ['Ordinal', 'Name', 'Address'])
-			pe.exports.entries.each do |ent|
-				tbl << [ent.ordinal, ent.name, "0x%.8x" % pe.rva_to_vma(ent.rva)]
-			end
-			$stdout.puts tbl.to_s
-			$stdout.puts "\n\n"
 
-			tbl = table("Imported Functions", ['Library', 'Ordinal', 'Name'])
-			pe.imports.each do |lib|
-				lib.entries.each do |ent|
-					tbl << [lib.name, ent.ordinal, ent.name]
+			if (pe.exports)			
+				tbl = table("Exported Functions", ['Ordinal', 'Name', 'Address'])
+				pe.exports.entries.each do |ent|
+					tbl << [ent.ordinal, ent.name, "0x%.8x" % pe.rva_to_vma(ent.rva)]
 				end
+				$stdout.puts tbl.to_s
+				$stdout.puts "\n\n"
 			end
-			$stdout.puts tbl.to_s
-			$stdout.puts "\n\n"
+			
+			if (pe.imports)
+				tbl = table("Imported Functions", ['Library', 'Ordinal', 'Name'])
+				pe.imports.each do |lib|
+					lib.entries.each do |ent|
+						tbl << [lib.name, ent.ordinal, ent.name]
+					end
+				end
+				$stdout.puts tbl.to_s
+				$stdout.puts "\n\n"
+			end
 			
 			if(pe.config)
 				tbl = table("Configuration Header", ['Name', 'Value'])
@@ -182,10 +186,10 @@ module Analyze
 			end
 
 
-			tbl = table("Resources", ['Name', 'Language', 'Code Page', 'Size'])
+			tbl = table("Resources", ['ID', 'Language', 'Code Page', 'Size', 'Name'])
 			pe.resources.keys.sort.each do |rkey|
 				res = pe.resources[rkey]
-				tbl << [rkey, res.lang, res.code, res.size]
+				tbl << [rkey, res.lang, res.code, res.size, res.file]
 			end
 			$stdout.puts tbl.to_s
 			$stdout.puts "\n\n"

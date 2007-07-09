@@ -717,15 +717,16 @@ class PeBase
 	end
 
 	class ResourceEntry
-		attr_accessor :path, :lang, :code, :rva, :size, :pe
+		attr_accessor :path, :lang, :code, :rva, :size, :pe, :file
 		
-		def initialize(pe, path, lang, code, rva, size)
+		def initialize(pe, path, lang, code, rva, size, file)
 			self.pe    = pe
 			self.path  = path
 			self.lang  = lang
 			self.code  = code
 			self.rva   = rva
 			self.size  = size
+			self.file  = file
 		end
 		
 		def data
@@ -1481,7 +1482,7 @@ class PeBase
 	end
 	
 	def _parse_resource_entry(data, rname, rvalue, path, pname)
-		
+	
 		rva, size, code = data[rvalue, 12].unpack('VVV')
 		lang = _parse_resource_name(data, rname)
 		
@@ -1491,7 +1492,8 @@ class PeBase
 			lang,
 			code,
 			rva,
-			size
+			size,
+			pname
 		)
 		self._resources_cache[path] = ent
 	end
