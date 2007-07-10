@@ -16,11 +16,12 @@ exploit is added to the Targets list while its in running state
 when a new session is created, those are added automatically to the sessions list
 and the output of the exploits are sent to the MSFLogs window.
 Add some colours with tags
-=> Partially done
+=> DONE
 
 3 - bind a signal-connect to a running exploit
 you can right click running exploits and kill them (this is technically a job)
 (right click from Targets)
+=> DONE
 
 4 - session interaction
 needs a wider console, some little  buttons for sending '^C' and stuff 
@@ -29,6 +30,7 @@ so when youre typing on a command shell and need to send like ^D to close out 'c
 also, sessions needs a right-click meny for 'Close'
 and some way to detect when a session is dead and remove it from the list
 ie. you type "exit" on the shell
+=> Partially done
 
 5 - Preferences page
 Ton of stuff like binding all Databases stuff or adding preselected payloads user

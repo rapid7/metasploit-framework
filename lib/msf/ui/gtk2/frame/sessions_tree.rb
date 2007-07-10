@@ -166,7 +166,8 @@ module Msf
             meterpreter_image_shell = Gtk::Image.new
             meterpreter_image_shell.set(Gtk::Stock::EXECUTE, Gtk::IconSize::MENU)
             meterpreter_item_shell.set_image(meterpreter_image_shell)
-            menu_session.append(meterpreter_item_shell)
+            # TODO
+            # menu_session.append(meterpreter_item_shell)
 
             # sdapi/process
             meterpreter_proc_item_shell = Gtk::ImageMenuItem.new("Process")
