@@ -29,6 +29,7 @@ module X86
 module Exec
 
 	include Msf::Payload::Single
+	include Msf::Payload::Bsd
 
 	def initialize(info = {})
 		super(merge_info(info,

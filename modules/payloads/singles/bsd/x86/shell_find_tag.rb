@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -23,6 +23,7 @@ module X86
 module ShellFindTag
 
 	include Msf::Payload::Single
+	include Msf::Payload::Bsd
 
 	def initialize(info = {})
 		super(merge_info(info,
