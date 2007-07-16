@@ -97,7 +97,7 @@ CONST = Rex::Proto::SMB::Constants
 	#
 	# Prepends an ASN1 formatted length field to a piece of data
 	#
-	def self.asn1encode(str = '')
+	def self.asn1encode(data = '')
 		res = ''
 
 		# If the high bit of the first byte is 1, it contains the number of
