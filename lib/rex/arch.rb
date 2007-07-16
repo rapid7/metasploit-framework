@@ -66,8 +66,6 @@ module Arch
 				return ENDIAN_BIG
 		end
 		
-		p "XXXXXXXXXXXXXXXXXXX"
-		p arch 
 		return ENDIAN_LITTLE
 	end
 

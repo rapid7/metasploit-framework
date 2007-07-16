@@ -56,9 +56,6 @@ module Auxiliary
 		# Initialize user interaction
 		mod.init_ui(opts['LocalInput'],opts['LocalOutput'])
 
-		
-		p mod.passive?
-		
 		if(mod.passive?)		
 			mod.framework.jobs.start_bg_job(
 				"Auxiliary: #{mod.refname}", 

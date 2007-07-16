@@ -111,7 +111,7 @@ module Ole
 			# mkdir, and rmdir are the main ones we'd need to support
 			def rmdir path
 				dirent = @ole.dirent_from_path path
-				p dirent
+
 				# repeating myself
 				raise "#{path.inspect} is not a directory" unless dirent.dir?
 				# ENOTEMPTY:
