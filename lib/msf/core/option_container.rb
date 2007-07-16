@@ -367,7 +367,7 @@ class OptAddressRange < OptBase
 		ranges.each do |range|
 			begin
 			case range
-			when /-/
+			when /[0-9]+-[0-9]+/
 				tmp = range.split('-')
 				next if tmp.length != 2
 
@@ -382,8 +382,7 @@ class OptAddressRange < OptBase
 				sets << [tmp, tmp]
 			end
 			rescue ::Exception => e
-				p e
-				p e.backtrace
+				raise e
 			end
 		end
 
