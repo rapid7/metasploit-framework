@@ -50,6 +50,11 @@ module Arch
 	# This routine reports the endianess of a given architecture
 	#
 	def self.endian(arch)
+	
+		if ( arch.is_a?(::Array))
+			arch = arch[0]
+		end
+		
 		case arch
 			when ARCH_X86
 				return ENDIAN_LITTLE
@@ -60,6 +65,9 @@ module Arch
 			when ARCH_SPARC
 				return ENDIAN_BIG
 		end
+		
+		p "XXXXXXXXXXXXXXXXXXX"
+		p arch 
 		return ENDIAN_LITTLE
 	end
 
