@@ -54,7 +54,7 @@ class DBManager
 		
 		begin
 			ActiveRecord::Base.threaded_connections = false
-			ActiveRecord::Base.establish_connection(opts)
+			ActiveRecord::Base.establish_connection(nopts)
 		rescue ::Exception => e
 			elog("DB.connect threw an exception: #{e.to_s}")
 			return false
