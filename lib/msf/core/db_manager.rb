@@ -45,7 +45,13 @@ class DBManager
 	def connect(opts={})
 		
 		return false if not @usable
-
+		
+		nopts = opts.dup
+		if (nopts['port'])
+			nopts['port'] = nopts['port'].to_i
+		end
+		
+		
 		begin
 			ActiveRecord::Base.threaded_connections = false
 			ActiveRecord::Base.establish_connection(opts)
