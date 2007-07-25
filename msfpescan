@@ -71,7 +71,7 @@ opt.on('-i', '--info', 'Display detailed information about the image') do |t|
 	worker = Rex::PeScan::Analyze::Information
 end
 
-opt.on('-r', '--ripper [directory]', 'Rip all module resources to disk ') do |t|
+opt.on('-R', '--ripper [directory]', 'Rip all module resources to disk ') do |t|
 	worker = Rex::PeScan::Analyze::Ripper
 	param['dir'] = t
 end
