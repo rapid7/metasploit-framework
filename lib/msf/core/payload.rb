@@ -21,8 +21,9 @@ class Payload < Msf::Module
 	require 'msf/core/payload/bsd'
 	require 'msf/core/payload/linux'
 	require 'msf/core/payload/osx'
+	require 'msf/core/payload/solaris'
 	require 'msf/core/payload/windows'
-	
+
 	##
 	#
 	# Payload types
@@ -34,7 +35,7 @@ class Payload < Msf::Module
 		# do not go through any staging.
 		#
 		Single = (1 << 0)
-		
+
 		#
 		# The stager half of a staged payload.  Its responsibility in life is to
 		# read in the stage and execute it.
@@ -285,13 +286,13 @@ class Payload < Msf::Module
 
 					# NOTE:
 					# Packing assumes integer format at this point, should fix...
-					val = [ val.to_i ].pack(pack)	
+					val = [ val.to_i ].pack(pack)
 				end
 
 				# Substitute it
 				raw[offset, val.length] = val
 			else
-				wlog("Missing value for payload offset #{name}, skipping.", 
+				wlog("Missing value for payload offset #{name}, skipping.",
 					'core', LEV_3)
 			end
 		}
@@ -346,7 +347,7 @@ class Payload < Msf::Module
 	# Event notifications.
 	#
 	##
-	
+
 	#
 	# Once an exploit completes and a session has been created on behalf of the
 	# payload, the framework will call the payload's on_session notification
@@ -354,10 +355,10 @@ class Payload < Msf::Module
 	# control to the user.
 	#
 	def on_session(session)
-	
-	
+
+
 		# If this payload is associated with an exploit, inform the exploit
-		# that a session has been created and potentially shut down any 
+		# that a session has been created and potentially shut down any
 		# open sockets. This allows active exploits to continue hammering
 		# on a service until a session is created.
 		if (assoc_exploit)
@@ -366,7 +367,7 @@ class Payload < Msf::Module
 			# on_new_session handler. The default behavior is to set an
 			# instance variable, which the exploit will have to check.
 			assoc_exploit.on_new_session(session)
-			
+
 			# Set the abort sockets flag only if the exploit is not passive
 			# and the connection type is not 'find'
 			if (

