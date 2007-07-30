@@ -97,25 +97,25 @@ CONST = Rex::Proto::SMB::Constants
 	#
 	# Prepends an ASN1 formatted length field to a piece of data
 	#
-	def self.asn1encode(data = '')
+	def self.asn1encode(str = '')
 		res = ''
 
 		# If the high bit of the first byte is 1, it contains the number of
 		# length bytes that follow
 
-		case data.length
+		case str.length
 			when 0 .. 0x7F
-				res = [data.length].pack('C') + data
+				res = [str.length].pack('C') + str
 			when 0x80 .. 0xFF
-				res = [0x81, data.length].pack('CC') + data
+				res = [0x81, str.length].pack('CC') + str
 			when 0x100 .. 0xFFFF
-				res = [0x82, data.length].pack('Cn') + data
+				res = [0x82, str.length].pack('Cn') + str
 			when  0x10000 .. 0xffffff
-				res = [0x83, data.length >> 16, data.length & 0xFFFF].pack('CCn') + data
+				res = [0x83, str.length >> 16, str.length & 0xFFFF].pack('CCn') + str
 			when  0x1000000 .. 0xffffffff
-				res = [0x84, data.length].pack('CN') + data
+				res = [0x84, str.length].pack('CN') + str
 			else
-				raise "ASN1 data too long"
+				raise "ASN1 str too long"
 			end
 		return res
 	end
