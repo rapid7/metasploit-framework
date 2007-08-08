@@ -103,7 +103,9 @@ class Core
 		    driver.current_dispatcher.name != 'Core')
 			# Reset the active module if we have one
 			if (active_module)
-				active_module.reset_ui
+				
+				# Do NOT reset the UI anymore
+				# active_module.reset_ui
 
 				# Save the module's datastore so that we can load it later 
 				# if the module is used again
