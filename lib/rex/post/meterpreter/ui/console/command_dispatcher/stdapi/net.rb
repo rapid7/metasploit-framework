@@ -18,6 +18,23 @@ class Console::CommandDispatcher::Stdapi::Net
 	include Console::CommandDispatcher
 
 	#
+	# This module is used to extend the meterpreter session
+	# so that local port forwards can be tracked and cleaned
+	# up when the meterpreter session goes away
+	#
+	module PortForwardTracker
+		def cleanup
+			super
+
+			if pfservice
+				pfservice.deref
+			end
+		end
+
+		attr_accessor :pfservice
+	end
+
+	#
 	# Options for the route command.
 	#
 	@@route_opts = Rex::Parser::Arguments.new(
@@ -159,32 +176,34 @@ class Console::CommandDispatcher::Stdapi::Net
 			end
 		}
 
+		# If we haven't extended the session, then do it now since we'll
+		# need to track port forwards
+		if client.kind_of?(PortForwardTracker) == false
+			client.extend(PortForwardTracker)
+			client.pfservice = Rex::ServiceManager.start(Rex::Services::LocalRelay)
+		end
+
+		# Build a local port forward in association with the channel
+		service = client.pfservice
+
 		# Process the command
 		case args.shift
 			when "list"
 
-				# Get the service context
-				service = Rex::ServiceManager.start(Rex::Services::LocalRelay)
+				cnt = 0
 
-				begin
+				# Enumerate each TCP relay
+				service.each_tcp_relay { |lhost, lport, rhost, rport, opts|
+					next if (opts['MeterpreterRelay'] == nil)
 
-					cnt = 0
+					print_line("#{cnt}: #{lhost}:#{lport} -> #{rhost}:#{rport}")
 
-					# Enumerate each TCP relay
-					service.each_tcp_relay { |lhost, lport, rhost, rport, opts|
-						next if (opts['MeterpreterRelay'] == nil)
+					cnt += 1
+				}
 
-						print_line("#{cnt}: #{lhost}:#{lport} -> #{rhost}:#{rport}")
+				print_line
+				print_line("#{cnt} total local port forwards.")
 
-						cnt += 1
-					}
-
-					print_line
-					print_line("#{cnt} total local port forwards.")
-
-				ensure
-					service.deref
-				end
 				
 			when "add"
 
@@ -194,26 +213,17 @@ class Console::CommandDispatcher::Stdapi::Net
 					return
 				end
 
-				# Build a local port forward in association with the channel
-				service = Rex::ServiceManager.start(Rex::Services::LocalRelay)
+				# Start the local TCP relay in association with this stream
+				service.start_tcp_relay(lport, 
+					'LocalHost'         => lhost,
+					'PeerHost'          => rhost,
+					'PeerPort'          => rport,
+					'MeterpreterRelay'  => true,
+					'OnLocalConnection' => Proc.new { |relay, lfd|
+						create_tcp_channel(relay)
+						})
 
-				begin
-					# Start the local TCP relay in association with this stream
-					service.start_tcp_relay(lport, 
-						'LocalHost'         => lhost,
-						'PeerHost'          => rhost,
-						'PeerPort'          => rport,
-						'MeterpreterRelay'  => true,
-						'OnLocalConnection' => Proc.new { |relay, lfd|
-							create_tcp_channel(relay)
-							})
-	
-					print_status("Local TCP relay created: #{lhost || '0.0.0.0'}:#{lport} <-> #{rhost}:#{rport}")
-
-				ensure
-					# Lost our reference to the service now that we're done with it
-					service.deref
-				end
+				print_status("Local TCP relay created: #{lhost || '0.0.0.0'}:#{lport} <-> #{rhost}:#{rport}")
 
 			# Delete local port forwards
 			when "delete"
@@ -224,17 +234,11 @@ class Console::CommandDispatcher::Stdapi::Net
 					return
 				end
 
-				service = Rex::ServiceManager.start(Rex::Services::LocalRelay)
-
 				# Stop the service
-				begin
-					if (service.stop_tcp_relay(lport, lhost))
-						print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
-					else
-						print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
-					end
-				ensure
-					service.deref
+				if (service.stop_tcp_relay(lport, lhost))
+					print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+				else
+					print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
 				end
 
 		end
