@@ -263,9 +263,12 @@ protected
 	def close_relay(relay)
 		self.rfds.delete(relay.listener)
 		self.relays.delete(relay.name)
-			
-		relay.shutdown 
-		relay.close
+		
+		begin
+			relay.shutdown 
+			relay.close
+		rescue IOError
+		end
 	end
 
 	#
