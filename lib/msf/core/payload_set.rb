@@ -55,6 +55,9 @@ class PayloadSet < ModuleSet
 		# Single instance cache of modules for use with doing quick referencing
 		# of attributes that would require an instance.
 		self._instances = {}
+
+		# Initializes an empty blob cache
+		@blob_cache = {}
 	end
 
 	#
@@ -165,6 +168,8 @@ class PayloadSet < ModuleSet
 				sizes[combined] = p.new.size
 			}
 		}
+
+		flush_blob_cache
 	end
 
 	#
@@ -304,6 +309,37 @@ class PayloadSet < ModuleSet
 	#
 	def stagers
 		_stagers
+	end
+
+	#
+	# When a payload module is reloaded, the blob cache entry associated with
+	# it must be removed (if one exists)
+	#
+	def on_module_reload(mod)
+		@blob_cache.delete(mod.refname)
+	end
+
+	#
+	# Adds a blob to the blob cache so that the payload does not have to be
+	# recompiled in the future
+	#
+	def add_blob_cache(key, blob, offsets)
+		@blob_cache[key] = [ blob, offsets ]
+	end
+
+	#
+	# Checks to see if a payload has a blob cache entry.  If it does, the blob
+	# is returned to the caller.
+	#
+	def check_blob_cache(key)
+		@blob_cache[key]
+	end
+
+	#
+	# Flushes all entries from the blob cache
+	#
+	def flush_blob_cache
+		@blob_cache.clear
 	end
 
 	#

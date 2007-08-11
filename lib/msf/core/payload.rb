@@ -1,4 +1,5 @@
 require 'msf/core'
+require 'metasm'
 
 module Msf
 
@@ -65,11 +66,13 @@ class Payload < Msf::Module
 			self.module_info['Stage'] = {}
 
 			if self.module_info['Payload']
-				self.module_info['Stage']['Payload'] = self.module_info['Payload']['Payload'] || ""
-				self.module_info['Stage']['Offsets'] = self.module_info['Payload']['Offsets'] || {}
+				self.module_info['Stage']['Payload']  = self.module_info['Payload']['Payload'] || ""
+				self.module_info['Stage']['Assembly'] = self.module_info['Payload']['Assembly'] || ""
+				self.module_info['Stage']['Offsets']  = self.module_info['Payload']['Offsets'] || {}
 			else
-				self.module_info['Stage']['Payload'] = ""
-				self.module_info['Stage']['Offsets'] = {}
+				self.module_info['Stage']['Payload']  = ""
+				self.module_info['Stage']['Assembly'] = ""
+				self.module_info['Stage']['Offsets']  = {}
 			end
 
 			@staged = true
@@ -160,14 +163,21 @@ class Payload < Msf::Module
 	# Returns the raw payload that has not had variable substitution occur.
 	#
 	def payload
-		return module_info['Payload']['Payload']
+		return module_info['Payload'] ? module_info['Payload']['Payload'] : nil
+	end
+
+	#
+	# Returns the assembly string that describes the payload if one exists.
+	#
+	def assembly
+		return module_info['Payload'] ? module_info['Payload']['Assembly'] : nil
 	end
 
 	#
 	# Returns the offsets to variables that must be substitute, if any.
 	#
 	def offsets
-		return module_info['Payload']['Offsets']
+		return module_info['Payload'] ? module_info['Payload']['Offsets'] : nil
 	end
 
 	#
@@ -407,10 +417,54 @@ class Payload < Msf::Module
 protected
 
 	#
+	# If the payload has assembly that needs to be compiled, do so now.
+	# This method takes the raw payload (p), the assembly text (asm), and the
+	# offsets hash for variables that need to be substituted (off).  The suffix
+	# is used to localize the way the generated payload is cached (whether the
+	# blob is part of a single, stager, or stage, for example).
+	#
+	def build(p, asm, off, suffix = '')
+		# If there is no assembly to be compiled, then we return a duplicated
+		# copy of the raw payload blob
+		return p.dup if asm.nil?
+
+		cache_key   = refname + suffix
+		cache_entry = framework.payloads.check_blob_cache(cache_key)
+
+		# If there is a valid cache entry, then we don't need to worry about
+		# rebuilding the assembly
+		if cache_entry
+			# Update the local offsets from the cache
+			off.each_key { |option|
+				off[option] = cache_entry[1][option]
+			}
+
+			# Return the cached payload blob
+			return cache_entry[0].dup
+		end
+
+		# Assemble the payload from the assembly
+		sc = Metasm::Shellcode.assemble(Metasm::Ia32.new, asm).encoded
+	
+		# Calculate the actual offsets now that it's been built
+		off.each_pair { |option, val|
+			off[option] = [ sc.offset_of_reloc(option), val[1] ]
+		}
+
+		# Cache the payload blob
+		framework.payloads.add_blob_cache(cache_key, sc.data, off)
+
+		# Return a duplicated copy of the assembled payload
+		sc.data.dup
+	end
+
+	#
 	# Generate the payload using our local payload blob and offsets
 	#
 	def internal_generate
-		raw = payload.dup
+		# Build the payload, either by using the raw payload blob defined in the
+		# module or by actually assembling it
+		raw = build(payload, assembly, offsets, '-stg0')
 
 		# If the payload is generated and there are offsets to substitute,
 		# do that now.

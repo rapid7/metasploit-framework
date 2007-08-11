@@ -149,6 +149,12 @@ class ModuleSet < Hash
 	end
 
 	#
+	# Gives the module set an opportunity to handle a module reload event
+	#
+	def on_module_reload(mod)
+	end
+
+	#
 	# Forces all modules in this set to be loaded.
 	#
 	def force_load_set
@@ -683,6 +689,11 @@ class ModuleManager < ModuleSet
 		else
 			elog("Failed to create instance of #{refname} after reload.", 'core')
 		end
+
+		# Let the specific module sets have an opportunity to handle the fact
+		# that this module was reloaded.  For instance, the payload module set
+		# will need to flush the blob cache entry associated with this module
+		module_sets[mod.type].on_module_reload(mod)
 
 		mod
 	end

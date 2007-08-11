@@ -22,6 +22,13 @@ module Msf::Payload::Stager
 	end
 
 	#
+	# Return the stager payload's assembly text, if any.
+	#
+	def assembly
+		return module_info['Stager']['Assembly']
+	end
+
+	#
 	# Return the stager payload's offsets.
 	#
 	def offsets
@@ -33,6 +40,13 @@ module Msf::Payload::Stager
 	#
 	def stage_payload
 		return module_info['Stage']['Payload']
+	end
+
+	#
+	# Returns the assembly text of the stage payload.
+	#
+	def stage_assembly
+		return module_info['Stage']['Assembly']
 	end
 
 	#
@@ -54,7 +68,8 @@ module Msf::Payload::Stager
 	# Generates the stage payload and substitutes all offsets.
 	#
 	def generate_stage
-		p = stage_payload.dup
+		# Compile the stage as necessary
+		p = build(stage_payload, stage_assembly, stage_offsets, '-stg1')
 
 		# Substitute variables in the stage
 		substitute_vars(p, stage_offsets) if (stage_offsets)
