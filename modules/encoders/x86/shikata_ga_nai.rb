@@ -106,7 +106,13 @@ protected
 		# Declare logical registers
 		count_reg = Rex::Poly::LogicalRegister::X86.new('count', 'ecx')
 		addr_reg  = Rex::Poly::LogicalRegister::X86.new('addr')
-		key_reg   = Rex::Poly::LogicalRegister::X86.new('key')
+		key_reg = nil
+	
+		if state.context_encoding
+			key_reg = Rex::Poly::LogicalRegister::X86.new('key', 'eax')
+		else
+			key_reg = Rex::Poly::LogicalRegister::X86.new('key')
+		end
 
 		# Declare individual blocks
 		endb = Rex::Poly::SymbolicBlock::End.new
@@ -143,8 +149,17 @@ protected
 		end
 
 		# Key initialization block
-		init_key = Rex::Poly::LogicalBlock.new('init_key',
-			Proc.new { |b| (0xb8 + b.regnum_of(key_reg)).chr + 'XORK'})
+		init_key = nil
+
+		# If using context encoding, we use a mov reg, [addr]
+		if state.context_encoding
+			init_key = Rex::Poly::LogicalBlock.new('init_key',
+				Proc.new { |b| (0xa1 + b.regnum_of(key_reg)).chr + 'XORK'})
+		# Otherwise, we do a direct mov reg, val
+		else
+			init_key = Rex::Poly::LogicalBlock.new('init_key',
+				Proc.new { |b| (0xb8 + b.regnum_of(key_reg)).chr + 'XORK'})
+		end
 
 		# Decoder loop block
 		loop_block = Rex::Poly::LogicalBlock.new('loop_block')

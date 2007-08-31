@@ -51,6 +51,11 @@ class EncoderState
 	attr_accessor :context # :nodoc:
 	attr_accessor :badchars # :nodoc:
 
+	# A boolean that indicates whether context encoding is enabled
+	attr_accessor :context_encoding
+	# The address that contains they key on the target machine
+	attr_accessor :context_address
+
 	# Decoder settings
 	attr_accessor :decoder_key_offset, :decoder_key_size, :decoder_key_pack # :nodoc:
 	attr_accessor :decoder_stub # :nodoc:
@@ -229,7 +234,7 @@ class Encoder < Module
 		    (state.key == nil))
 			# Find a key that doesn't contain and wont generate any bad
 			# characters
-			state.init_key(find_key(buf, badchars, state))
+			state.init_key(obtain_key(buf, badchars, state))
 
 			if (state.key == nil)
 				raise NoKeyError, "A key could not be found for the #{self.name} encoder.", caller
@@ -264,7 +269,14 @@ class Encoder < Module
 		if (state.key != nil and state.decoder_key_offset)
 			# Substitute the decoder key in the copy of the decoder stub with the
 			# one that we found
-			stub[state.decoder_key_offset,state.decoder_key_size] = [ state.key.to_i ].pack(state.decoder_key_pack)
+			real_key = state.key
+	
+			# If we're using context encoding, the actual value we use for
+			# substitution is the context address, not the key we use for
+			# encoding
+			real_key = state.context_address if (state.context_encoding)
+
+			stub[state.decoder_key_offset,state.decoder_key_size] = [ real_key.to_i ].pack(state.decoder_key_pack)
 		else
 			stub = encode_finalize_stub(state, stub)
 		end
@@ -378,13 +390,27 @@ protected
 		state.buf                = state.orig_buf
 	end
 
+	# 
+	# Obtains the key to use during encoding.  If context encoding is enabled,
+	# special steps are taken.  Otherwise, the derived class is given an
+	# opportunity to find the key.
+	#
+	def obtain_key(buf, badchars, state)
+		if datastore['EnableContextEncoding']
+			return find_context_key(buf, badchars, state)
+		else
+			return find_key(buf, badchars, state)
+		end
+	end
+
 	#
 	# This method finds a compatible key for the supplied buffer based also on
 	# the supplied bad characters list.  This is meant to make encoders more
 	# reliable and less prone to bad character failure by doing a fairly
 	# complete key search before giving up on an encoder.
 	#
-	def find_key(buf, badchars, state = nil)
+	def find_key(buf, badchars, state)
+		# Otherwise, we use the traditional method
 		key_bytes = [ ]
 		cur_key   = [ ]
 		bad_keys  = find_bad_keys(buf, badchars)
@@ -429,6 +455,93 @@ protected
 		end
 
 		return key_bytes_to_integer(key_bytes)
+	end
+
+	#
+	# Parses a context information file in an effort to find a compatible key
+	#
+	def find_context_key(buf, badchars, state)
+		# Make sure our context information file is sane
+		if File.exists?(datastore['ContextInformationFile']) == false
+			raise NoKeyError, "A context information file must specified when using context encoding", caller
+		end
+
+		# Holds the address and key that we ultimately find
+		address = nil
+		key = nil
+
+		# Now, parse records from the information file searching for entries
+		# that are compatible with our bad character set
+		File.open(datastore['ContextInformationFile']) { |f|
+			begin
+				# Keep looping until we hit an EOF error or we find
+				# a compatible key
+				while key.nil?
+					# Read in the header
+					type, current_address, size = f.read(9).unpack('CNV')
+
+					# Read in the blob of data that will act as our key state
+					data = f.read(size)
+
+					# Pack it back to byte form so that we can check each byte for
+					# bad characters
+					address_bytes = integer_to_key_bytes(current_address)
+				
+					puts "Trying #{"%.8x" % current_address} size is #{size}"
+					
+					# Scan each byte and see what we've got going on to make sure
+					# no funny business is happening
+					invalid_key = false
+
+					address_bytes.each { |byte|
+						if badchars.index(byte)
+							invalid_key = true
+						end
+					}
+
+					next if invalid_key
+
+					# If the address doesn't contain bad characters, check to see
+					# the data itself will result in bad characters being generated
+					while data.length > decoder_key_size
+						# Extract the current set of key bytes
+						key_bytes = []
+
+						# My ruby is rusty
+						data[0, decoder_key_size].each_byte { |b|
+							key_bytes << b
+						}
+
+						# If the key verifies correctly, then we're good to go
+						if find_key_verify(buf, key_bytes, badchars)
+							address = key_bytes_to_integer(address_bytes)
+							key     = key_bytes_to_integer(key_bytes)
+							break
+						end
+
+						# If it didn't verify, then we need to proceed
+						data = data[1, data.length - 1]
+					end
+				end
+			rescue EOFError
+			end
+		}
+
+		# If the key is nil after all is said and done, then we failed to locate
+		# a compatible context-sensitive key
+		if key.nil?
+			raise NoKeyError, "No context key could be located in #{datastore['ContextInformationFile']}", caller
+		# Otherwise, we successfully determined the key, now we need to update
+		# the encoding state with our context address and set context encoding
+		# to true so that the encoders know to use it
+		else
+			ilog("#{refname}: Successfully found context address @ #{"%.8x" % address} using key #{"%.8x" % key}")
+
+			state.context_address  = address
+			state.context_encoding = true
+		end
+
+		return key
 	end
 
 	#

@@ -30,7 +30,7 @@ class Msf::Encoder::XorAdditiveFeedback < Msf::Encoder::Xor
 	# Finds a key that is compatible with the badchars list.
 	#
 	def find_key(buf, badchars, state = Msf::EncoderState.new)
-		key_bytes = integer_to_key_bytes(super(buf, badchars))
+		key_bytes = integer_to_key_bytes(super(buf, badchars, nil))
 		valid = false
 
 		# Save the original key_bytes so we can tell if we loop around

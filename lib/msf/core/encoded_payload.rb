@@ -121,6 +121,7 @@ class EncodedPayload
 				    (self.encoder.encoder_type.split(/\s+/).include?(reqs['EncoderType']) == false))
 					wlog("#{pinst.refname}: Encoder #{encoder.refname} is not a compatible encoder type: #{reqs['EncoderType']} != #{self.encoder.encoder_type}",
 						'core', LEV_1)
+					
 					next
 				end
 
@@ -134,6 +135,7 @@ class EncodedPayload
 				    (self.encoder.rank == ManualRanking))
 					wlog("#{pinst.refname}: Encoder #{encoder.refname} is manual ranked and was not defined as a preferred encoder.",
 						'core', LEV_1)
+					
 					next
 				end
 	
@@ -149,6 +151,7 @@ class EncodedPayload
 				rescue ::Exception
 					wlog("#{pinst.refname}: Failed to validate encoder #{encoder.refname}: #{$!}",
 						'core', LEV_1)
+					
 					next
 				end
 		
@@ -160,6 +163,7 @@ class EncodedPayload
 						'core', LEV_1)
 
 					dlog("#{pinst.refname}: Call stack\n#{$@.join("\n")}", 'core', LEV_3)
+
 					next
 				end
 
