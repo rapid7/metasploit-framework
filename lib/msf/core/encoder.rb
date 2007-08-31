@@ -487,8 +487,6 @@ protected
 					# bad characters
 					address_bytes = integer_to_key_bytes(current_address)
 				
-					puts "Trying #{"%.8x" % current_address} size is #{size}"
-					
 					# Scan each byte and see what we've got going on to make sure
 					# no funny business is happening
 					invalid_key = false
