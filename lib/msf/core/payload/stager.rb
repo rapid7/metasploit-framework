@@ -74,9 +74,6 @@ module Msf::Payload::Stager
 		# Substitute variables in the stage
 		substitute_vars(p, stage_offsets) if (stage_offsets)
 
-		# Prefix to the stage with whatever may be required and then rock it.
-		p = (self.stage_prefix || '') + p
-
 		return p
 	end
 
@@ -93,7 +90,12 @@ module Msf::Payload::Stager
 			# the stage is sent.  This gives derived classes an opportunity to
 			# augment the stage and the process through which it is read on the
 			# remote machine.
-			handle_intermediate_stage(conn, p)
+			#
+			# If we don't use an intermediate stage, then we need to prepend the
+			# stage prefix, such as a tag
+			if handle_intermediate_stage(conn, p) == false
+				p = (self.stage_prefix || '') + p
+			end
 
 			print_status("Sending stage (#{p.length} bytes)")
 
@@ -128,6 +130,7 @@ module Msf::Payload::Stager
 	# encapsulate its transmission.
 	#
 	def handle_intermediate_stage(conn, payload)
+		false
 	end
 
 	# Aliases

