@@ -656,6 +656,12 @@ module Text
 		rand_base(len, bad, *foo )
 	end
 
+	# Generate random bytes of numeric data
+	def self.rand_text_numeric(len, bad='')
+		foo = ('0' .. '9').to_a
+		rand_base(len, bad, *foo )
+	end
+	
 	# Generate random bytes of english-like data
 	def self.rand_text_english(len, bad='')
 		foo = []
