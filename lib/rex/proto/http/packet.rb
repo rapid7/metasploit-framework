@@ -274,13 +274,13 @@ protected
 			connection    = self.headers['Connection']
 			comp_on_close = false
 
-			if (connection and connection == 'close')
+			if (connection and connection == 'close'.downcase)
 				comp_on_close = true
 			end
 			
 			# Change states to processing the body if we have a content length or
 			# the connection type is close.
-			if ((self.body_bytes_left > 0) or (comp_on_close) or self.transfer_chunked)
+			if ((self.body_bytes_left > 0) or self.transfer_chunked)
 				self.state = ParseState::ProcessingBody
 			else
 				self.state = ParseState::Completed
