@@ -209,6 +209,7 @@ module Text
 	# utf-8 defaults to 2 byte 'normal' encoding
 	# 
 	def self.to_unicode(str='', type = 'utf-16le', mode = '', size = '')
+		return '' if not str
 		case type 
 		when 'utf-16le'
 			return str.unpack('C*').pack('v*')
