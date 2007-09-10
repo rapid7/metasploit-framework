@@ -1,4 +1,4 @@
-# $Id: shell_reverse_tcp.rb 4984 2007-06-09 02:25:31Z hdm $
+# $Id$
 ##
 
 ##
@@ -33,7 +33,7 @@ module ShellReverseTcp2
 # and: puts shellcode.decode
 		super(merge_info(info,
 			'Name'          => 'Linux Command Shell, Reverse TCP Inline - Metasm demo',
-			'Version'       => '$Revision: 4984 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => 'skape + Yoann Guillot and Julien Tinnes for metasm PoC',
 			'License'       => MSF_LICENSE,
