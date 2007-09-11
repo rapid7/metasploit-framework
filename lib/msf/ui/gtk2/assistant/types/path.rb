@@ -34,7 +34,9 @@ module Msf
             if store
               @button.set_filename(store.to_s)
             else
-              @button.set_filename(default.to_s)
+              if File.exist?(default)
+                @button.set_filename(default)
+              end
             end
             
             hbox.pack_start(@button, false, false, 0)
