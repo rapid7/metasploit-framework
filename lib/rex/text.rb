@@ -690,7 +690,12 @@ module Text
 				break
 			end
 		end
-
+		
+		# Maximum permutations reached, but we need more data
+		if (buf.length < length)
+			buf = buf * (length / buf.length.to_f).ceil
+		end
+		
 		buf[0,length]
 	end
 
