@@ -674,6 +674,10 @@ class Core
 												
 						self.active_session = nil
 						
+						if (driver.input.supports_readline)
+							driver.input.reset_tab_completion
+						end
+						
 					else
 						print_error("Session #{sid} is non-interactive.")
 					end
