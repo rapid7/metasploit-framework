@@ -227,7 +227,12 @@ module DispatcherShell
 	#
 	def run_command(dispatcher, method, arguments)
 		self.busy = true
-		dispatcher.send('cmd_' + method, *arguments)
+		
+		if(blocked_command?(method))
+			print_error("The #{method} command has been disabled.")
+		else
+			dispatcher.send('cmd_' + method, *arguments)
+		end
 		self.busy = false
 	end
 
@@ -321,9 +326,36 @@ module DispatcherShell
 	end
 
 
+		
+	#
+	# Returns nil for an empty set of blocked commands.
+	#
+	def blocked_command?(cmd)
+		return false if not self.blocked
+		self.blocked.has_key?(cmd)
+	end
+
+	#
+	# Block a specific command
+	#
+	def block_command(cmd)
+		self.blocked ||= {}
+		self.blocked[cmd] = true
+	end
+
+	#
+	# Unblock a specific command
+	#
+	def unblock_command(cmd)
+		self.blocked || return
+		self.blocked.delete(cmd)
+	end
+	
+
 	attr_accessor :dispatcher_stack # :nodoc:
 	attr_accessor :tab_words # :nodoc:
 	attr_accessor :busy # :nodoc:
+	attr_accessor :blocked # :nodoc:
 
 end
 
