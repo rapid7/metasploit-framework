@@ -1,0 +1,127 @@
+# tree mixins
+tree_1:
+  id: 1001
+  type: TreeMixin
+  parent_id:
+  
+tree_2:
+  id: 1002
+  type: TreeMixin
+  parent_id: 1001
+
+tree_3:
+  id: 1003
+  type: TreeMixin  
+  parent_id: 1002
+
+tree_4:
+  id: 1004
+  type: TreeMixin  
+  parent_id: 1001
+
+tree2_1:
+  id: 1005
+  type: TreeMixin
+  parent_id:
+
+tree3_1:
+  id: 1006
+  type: TreeMixin
+  parent_id:
+
+tree_without_order_1:
+  id: 1101
+  type: TreeMixinWithoutOrder
+  parent_id:
+
+tree_without_order_2:
+  id: 1100
+  type: TreeMixinWithoutOrder
+  parent_id:
+
+recursively_cascaded_tree_1:
+  id: 5005
+  type: RecursivelyCascadedTreeMixin
+  parent_id:
+
+recursively_cascaded_tree_2:
+  id: 5006
+  type: RecursivelyCascadedTreeMixin
+  parent_id: 5005
+
+recursively_cascaded_tree_3:
+  id: 5007
+  type: RecursivelyCascadedTreeMixin
+  parent_id: 5006
+
+recursively_cascaded_tree_4:
+  id: 5008
+  type: RecursivelyCascadedTreeMixin
+  parent_id: 5007
+
+# List mixins
+
+<% (1..4).each do |counter| %>  
+list_<%= counter %>:
+  id: <%= counter+1006 %>
+  pos: <%= counter  %>
+  type: ListMixin
+  parent_id: 5
+<% end %>
+
+# Nested set mixins
+
+<% (1..10).each do |counter| %>  
+set_<%= counter %>:
+  id: <%= counter+3000 %>
+  type: NestedSet
+<% end %>
+
+# Nested set with STI
+<%
+[ [3100,    0, 1, 10, "NestedSetSuperclass"],
+  [3101, 3100, 2, 5, "NestedSetSubclass"],
+  [3102, 3101, 3, 4, "NestedSetSuperclass"],
+  [3103, 3100, 6, 9, "NestedSetSuperclass"],
+  [3104, 3103, 7, 8, "NestedSetSubclass"]
+].each do |sti| %>
+sti_set_<%= sti[0] %>:
+  id: <%= sti[0] %>
+  parent_id: <%= sti[1] %>
+  lft: <%= sti[2] %>
+  rgt: <%= sti[3] %>
+  type: <%= sti[4] %>
+  root_id: 3100
+  
+<% end %>
+
+# Big old set
+<%
+[[4001, 0, 1, 20],
+  [4002, 4001, 2, 7],
+  [4003, 4002, 3, 4],
+  [4004, 4002, 5, 6],
+  [4005, 4001, 8, 13],
+  [4006, 4005, 9, 10],
+  [4007, 4005, 11, 12],
+  [4008, 4001, 14, 19],
+  [4009, 4008, 15, 16],
+  [4010, 4008, 17, 18]].each do |set| %>
+tree_<%= set[0] %>:
+  id: <%= set[0]%>
+  parent_id: <%= set[1]%>
+  type: NestedSetWithStringScope
+  lft: <%= set[2]%>
+  rgt: <%= set[3]%>
+  root_id: 42
+
+<% end %>
+
+# subclasses of list items
+<% (1..4).each do |i| %>
+list_sub_<%= i %>:
+  id: <%= i + 5000 %>
+  pos: <%= i %>
+  parent_id: 5000
+  type: <%= (i % 2 == 1) ? ListMixinSub1 : ListMixinSub2 %> 
+<% end %>

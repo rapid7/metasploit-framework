@@ -1,0 +1,334 @@
+require 'rake'
+require 'rake/testtask'
+require 'rake/rdoctask'
+require 'rake/gempackagetask'
+require 'rake/contrib/rubyforgepublisher'
+
+require 'date'
+require 'rbconfig'
+
+require File.join(File.dirname(__FILE__), 'lib/rails', 'version')
+
+PKG_BUILD       = ENV['PKG_BUILD'] ? '.' + ENV['PKG_BUILD'] : ''
+PKG_NAME        = 'rails'
+PKG_VERSION     = Rails::VERSION::STRING + PKG_BUILD
+PKG_FILE_NAME   = "#{PKG_NAME}-#{PKG_VERSION}"
+PKG_DESTINATION = ENV["RAILS_PKG_DESTINATION"] || "../#{PKG_NAME}"
+
+RELEASE_NAME  = "REL #{PKG_VERSION}"
+
+RUBY_FORGE_PROJECT = "rails"
+RUBY_FORGE_USER    = "webster132"
+
+
+## This is required until the regular test task
+## below passes.  It's not ideal, but at least
+## we can see the failures
+task :test do 
+  Dir['test/**/*_test.rb'].all? do |file|
+    system("ruby #{file}")
+  end or raise "Failures"
+end
+
+Rake::TestTask.new("regular_test") do |t|
+  t.libs << 'test'
+  t.pattern = 'test/**/*_test.rb'
+  t.warning = true
+  t.verbose = true
+end
+
+
+BASE_DIRS   = %w( 
+  app config/environments components db doc log lib lib/tasks public script script/performance script/process test vendor vendor/plugins
+  tmp/sessions tmp/cache tmp/sockets tmp/pids
+)
+
+APP_DIRS    = %w( models controllers helpers views views/layouts )
+PUBLIC_DIRS = %w( images javascripts stylesheets )
+TEST_DIRS   = %w( fixtures unit functional mocks mocks/development mocks/test )
+
+LOG_FILES    = %w( server.log development.log test.log production.log )
+HTML_FILES   = %w( 404.html 500.html index.html robots.txt favicon.ico images/rails.png
+                   javascripts/prototype.js javascripts/application.js
+                   javascripts/effects.js javascripts/dragdrop.js javascripts/controls.js )
+BIN_FILES    = %w( about breakpointer console destroy generate performance/benchmarker performance/profiler process/reaper process/spawner process/inspector runner server plugin )
+
+VENDOR_LIBS = %w( actionpack activerecord actionmailer activesupport actionwebservice railties )
+
+
+desc "Generates a fresh Rails package with documentation"
+task :fresh_rails => [ :clean, :make_dir_structure, :initialize_file_stubs, :copy_vendor_libraries, :copy_ties_content, :generate_documentation ]
+
+desc "Generates a fresh Rails package using GEMs with documentation"
+task :fresh_gem_rails => [ :clean, :make_dir_structure, :initialize_file_stubs, :copy_ties_content, :copy_gem_environment ]
+
+desc "Generates a fresh Rails package without documentation (faster)"
+task :fresh_rails_without_docs => [ :clean, :make_dir_structure, :initialize_file_stubs, :copy_vendor_libraries, :copy_ties_content ]
+
+desc "Generates a fresh Rails package without documentation (faster)"
+task :fresh_rails_without_docs_using_links => [ :clean, :make_dir_structure, :initialize_file_stubs, :link_vendor_libraries, :copy_ties_content ]
+
+desc "Generates minimal Rails package using symlinks"
+task :dev => [ :clean, :make_dir_structure, :initialize_file_stubs, :link_vendor_libraries, :copy_ties_content ]
+
+desc "Packages the fresh Rails package with documentation"
+task :package => [ :clean, :fresh_rails ] do
+  system %{cd ..; tar -czvf #{PKG_NAME}-#{PKG_VERSION}.tgz #{PKG_NAME}}
+  system %{cd ..; zip -r #{PKG_NAME}-#{PKG_VERSION}.zip #{PKG_NAME}}
+end
+
+task :clean do
+  rm_rf PKG_DESTINATION
+end
+
+# Get external spinoffs -------------------------------------------------------------------
+
+desc "Updates railties to the latest version of the javascript spinoffs"
+task :update_js do
+  for js in %w( prototype controls dragdrop effects )
+    rm "html/javascripts/#{js}.js"
+    cp "./../actionpack/lib/action_view/helpers/javascripts/#{js}.js", "html/javascripts"
+  end
+end
+
+# Make directory structure ----------------------------------------------------------------
+
+def make_dest_dirs(dirs, path = '.')
+  mkdir_p dirs.map { |dir| File.join(PKG_DESTINATION, path.to_s, dir) }
+end
+
+desc "Make the directory structure for the new Rails application"
+task :make_dir_structure => [ :make_base_dirs, :make_app_dirs, :make_public_dirs, :make_test_dirs ]
+
+task(:make_base_dirs)   { make_dest_dirs BASE_DIRS              }
+task(:make_app_dirs)    { make_dest_dirs APP_DIRS,    'app'     }
+task(:make_public_dirs) { make_dest_dirs PUBLIC_DIRS, 'public'  }
+task(:make_test_dirs)   { make_dest_dirs TEST_DIRS,   'test'    }
+
+
+# Initialize file stubs -------------------------------------------------------------------
+
+desc "Initialize empty file stubs (such as for logging)"
+task :initialize_file_stubs => [ :initialize_log_files ]
+
+task :initialize_log_files do
+  log_dir = File.join(PKG_DESTINATION, 'log')
+  chmod 0777, log_dir
+  LOG_FILES.each do |log_file|
+    log_path = File.join(log_dir, log_file)
+    touch log_path
+    chmod 0666, log_path
+  end
+end
+
+
+# Copy Vendors ----------------------------------------------------------------------------
+
+desc "Copy in all the Rails packages to vendor"
+task :copy_vendor_libraries do
+  mkdir File.join(PKG_DESTINATION, 'vendor', 'rails')
+  VENDOR_LIBS.each { |dir| cp_r File.join('..', dir), File.join(PKG_DESTINATION, 'vendor', 'rails', dir) }
+  FileUtils.rm_r(Dir.glob(File.join(PKG_DESTINATION, 'vendor', 'rails', "**", ".svn")))
+end
+
+desc "Link in all the Rails packages to vendor"
+task :link_vendor_libraries do
+  mkdir File.join(PKG_DESTINATION, 'vendor', 'rails')
+  VENDOR_LIBS.each { |dir| ln_s File.join('..', '..', '..', dir), File.join(PKG_DESTINATION, 'vendor', 'rails', dir) }
+end
+
+
+# Copy Ties Content -----------------------------------------------------------------------
+
+# :link_apache_config
+desc "Make copies of all the default content of ties"
+task :copy_ties_content => [ 
+  :copy_rootfiles, :copy_dispatches, :copy_html_files, :copy_application,
+  :copy_configs, :copy_binfiles, :copy_test_helpers, :copy_app_doc_readme ]
+
+task :copy_dispatches do
+  copy_with_rewritten_ruby_path("dispatches/dispatch.rb", "#{PKG_DESTINATION}/public/dispatch.rb")
+  chmod 0755, "#{PKG_DESTINATION}/public/dispatch.rb"
+
+  copy_with_rewritten_ruby_path("dispatches/dispatch.rb", "#{PKG_DESTINATION}/public/dispatch.cgi")
+  chmod 0755, "#{PKG_DESTINATION}/public/dispatch.cgi"
+
+  copy_with_rewritten_ruby_path("dispatches/dispatch.fcgi", "#{PKG_DESTINATION}/public/dispatch.fcgi")
+  chmod 0755, "#{PKG_DESTINATION}/public/dispatch.fcgi"
+
+  # copy_with_rewritten_ruby_path("dispatches/gateway.cgi", "#{PKG_DESTINATION}/public/gateway.cgi")
+  # chmod 0755, "#{PKG_DESTINATION}/public/gateway.cgi"
+end
+
+task :copy_html_files do
+  HTML_FILES.each { |file| cp File.join('html', file), File.join(PKG_DESTINATION, 'public', file) }
+end
+
+task :copy_application do
+  cp "helpers/application.rb", "#{PKG_DESTINATION}/app/controllers/application.rb"
+  cp "helpers/application_helper.rb", "#{PKG_DESTINATION}/app/helpers/application_helper.rb"
+end
+
+task :copy_configs do
+  app_name = "rails"
+  socket = nil
+  require 'erb'
+  File.open("#{PKG_DESTINATION}/config/database.yml", 'w') {|f| f.write ERB.new(IO.read("configs/databases/mysql.yml"), nil, '-').result(binding)}
+  
+  cp "configs/routes.rb", "#{PKG_DESTINATION}/config/routes.rb"
+
+  cp "configs/apache.conf", "#{PKG_DESTINATION}/public/.htaccess"
+
+  cp "environments/boot.rb", "#{PKG_DESTINATION}/config/boot.rb"
+  cp "environments/environment.rb", "#{PKG_DESTINATION}/config/environment.rb"
+  cp "environments/production.rb", "#{PKG_DESTINATION}/config/environments/production.rb"
+  cp "environments/development.rb", "#{PKG_DESTINATION}/config/environments/development.rb"
+  cp "environments/test.rb", "#{PKG_DESTINATION}/config/environments/test.rb"
+end
+
+task :copy_binfiles do
+  BIN_FILES.each do |file|
+    dest_file = File.join(PKG_DESTINATION, 'script', file)
+    copy_with_rewritten_ruby_path(File.join('bin', file), dest_file)
+    chmod 0755, dest_file
+  end
+end
+
+task :copy_rootfiles do
+  cp "fresh_rakefile", "#{PKG_DESTINATION}/Rakefile"
+  cp "README", "#{PKG_DESTINATION}/README"
+  cp "CHANGELOG", "#{PKG_DESTINATION}/CHANGELOG"
+end
+
+task :copy_test_helpers do
+  cp "helpers/test_helper.rb", "#{PKG_DESTINATION}/test/test_helper.rb"
+end
+
+task :copy_app_doc_readme do
+  cp "doc/README_FOR_APP", "#{PKG_DESTINATION}/doc/README_FOR_APP"
+end
+
+task :link_apache_config do
+  chdir(File.join(PKG_DESTINATION, 'config')) {
+    ln_s "../public/.htaccess", "apache.conf"
+  }
+end
+
+def copy_with_rewritten_ruby_path(src_file, dest_file)
+  ruby = File.join(Config::CONFIG['bindir'], Config::CONFIG['ruby_install_name'])
+
+  File.open(dest_file, 'w') do |df|
+    File.open(src_file) do |sf|
+      line = sf.gets
+      if (line =~ /#!.+ruby\s*/) != nil
+        df.puts("#!#{ruby}")
+      else
+        df.puts(line)
+      end
+      df.write(sf.read)
+    end
+  end
+end
+
+
+# Generate documentation ------------------------------------------------------------------
+
+desc "Generate documentation for the framework and for the empty application"
+task :generate_documentation => [ :generate_app_doc, :generate_rails_framework_doc ]
+
+task :generate_rails_framework_doc do
+  system %{cd #{PKG_DESTINATION}; rake apidoc}
+end
+
+task :generate_app_doc do
+  File.cp "doc/README_FOR_APP", "#{PKG_DESTINATION}/doc/README_FOR_APP"
+  system %{cd #{PKG_DESTINATION}; rake appdoc}
+end
+
+Rake::RDocTask.new { |rdoc|
+  rdoc.rdoc_dir = 'doc'
+  rdoc.title    = "Railties -- Gluing the Engine to the Rails"
+  rdoc.options << '--line-numbers' << '--inline-source' << '--accessor' << 'cattr_accessor=object'
+  rdoc.template = "#{ENV['template']}.rb" if ENV['template']
+  rdoc.rdoc_files.include('README', 'CHANGELOG')
+  rdoc.rdoc_files.include('lib/*.rb')
+  rdoc.rdoc_files.include('lib/rails_generator/*.rb')
+  rdoc.rdoc_files.include('lib/commands/**/*.rb')
+}
+
+# Generate GEM ----------------------------------------------------------------------------
+
+task :copy_gem_environment do
+  cp "environments/environment.rb", "#{PKG_DESTINATION}/config/environment.rb"
+  chmod 0755, dest_file
+end
+
+
+PKG_FILES = FileList[
+  '[a-zA-Z]*',
+  'bin/**/*', 
+  'builtin/**/*',
+  'configs/**/*', 
+  'doc/**/*', 
+  'dispatches/**/*', 
+  'environments/**/*', 
+  'helpers/**/*', 
+  'generators/**/*', 
+  'html/**/*', 
+  'lib/**/*'
+] - [ 'test' ]
+
+spec = Gem::Specification.new do |s|
+  s.name = 'rails'
+  s.version = PKG_VERSION
+  s.summary = "Web-application framework with template engine, control-flow layer, and ORM."
+  s.description = <<-EOF
+    Rails is a framework for building web-application using CGI, FCGI, mod_ruby, or WEBrick
+    on top of either MySQL, PostgreSQL, SQLite, DB2, SQL Server, or Oracle with eRuby- or Builder-based templates.
+  EOF
+
+  s.add_dependency('rake', '>= 0.7.2')
+  s.add_dependency('activesupport',    '= 1.4.2' + PKG_BUILD)
+  s.add_dependency('activerecord',     '= 1.15.3' + PKG_BUILD)
+  s.add_dependency('actionpack',       '= 1.13.3' + PKG_BUILD)
+  s.add_dependency('actionmailer',     '= 1.3.3' + PKG_BUILD)
+  s.add_dependency('actionwebservice', '= 1.2.3' + PKG_BUILD)
+
+  s.rdoc_options << '--exclude' << '.'
+  s.has_rdoc = false
+
+  s.files = PKG_FILES.to_a.delete_if {|f| f.include?('.svn')}
+  s.require_path = 'lib'
+
+  s.bindir = "bin"                               # Use these for applications.
+  s.executables = ["rails"]
+  s.default_executable = "rails"
+
+  s.author = "David Heinemeier Hansson"
+  s.email = "david@loudthinking.com"
+  s.homepage = "http://www.rubyonrails.org"
+  s.rubyforge_project = "rails"
+end
+
+Rake::GemPackageTask.new(spec) do |pkg|
+  pkg.gem_spec = spec
+end
+
+
+# Publishing -------------------------------------------------------
+desc "Publish the API documentation"
+task :pgem => [:gem] do 
+  Rake::SshFilePublisher.new("davidhh@wrath.rubyonrails.org", "public_html/gems/gems", "pkg", "#{PKG_FILE_NAME}.gem").upload
+  `ssh davidhh@wrath.rubyonrails.org './gemupdate.sh'`
+end
+
+desc "Publish the release files to RubyForge."
+task :release => [ :package ] do
+  require 'rubyforge'
+
+  packages = %w( gem tgz zip ).collect{ |ext| "pkg/#{PKG_NAME}-#{PKG_VERSION}.#{ext}" }
+
+  rubyforge = RubyForge.new
+  rubyforge.login
+  rubyforge.add_release(PKG_NAME, PKG_NAME, "REL #{PKG_VERSION}", *packages)
+end

@@ -1,0 +1,64 @@
+== Creating the test database
+
+The default names for the test databases are "activerecord_unittest" and 
+"activerecord_unittest2". If you want to use another database name then be sure 
+to update the connection adapter setups you want to test with in 
+test/connections/<your database>/connection.rb. 
+When you have the database online, you can import the fixture tables with 
+the test/fixtures/db_definitions/*.sql files.
+
+Make sure that you create database objects with the same user that you specified in 
+connection.rb otherwise (on Postgres, at least) tests for default values will fail.
+
+== Running with Rake
+
+The easiest way to run the unit tests is through Rake. The default task runs
+the entire test suite for all the adapters. You can also run the suite on just
+one adapter by using the tasks test_mysql, test_sqlite, test_postgresql or any
+of the other test_ tasks. For more information, checkout the full array of rake
+tasks with "rake -T"
+
+Rake can be found at http://rake.rubyforge.org
+
+== Running by hand
+
+Unit tests are located in test directory. If you only want to run a single test suite, 
+or don't want to bother with Rake, you can do so with something like:
+
+   cd test; ruby -I "connections/native_mysql" base_test.rb
+   
+That'll run the base suite using the MySQL-Ruby adapter. Change the adapter
+and test suite name as needed.
+
+You can also run all the suites on a specific adapter with:
+
+   cd test; all.sh "connections/native_mysql"
+
+== Faster tests
+
+If you are using a database that supports transactions, you can set the
+"AR_TX_FIXTURES" environment variable to "yes" to use transactional fixtures.
+This gives a very large speed boost. With rake:
+
+  rake AR_TX_FIXTURES=yes
+
+Or, by hand:
+
+  AR_TX_FIXTURES=yes ruby -I connections/native_sqlite3 base_test.rb
+
+== Testing with Oracle
+
+In order to allow for testing against Oracle using an "arunit" schema within an existing
+Oracle database, the database name and tns connection string must be set in environment
+variables prior to running the unit tests.
+
+  $ export ARUNIT_DB_NAME=MYDB
+  $ export ARUNIT_DB=MYDB
+
+The ARUNIT_DB_NAME variable should be set to the name by which the database knows
+itself, ie., what will be returned by the query:
+
+  select sys_context('userenv','db_name') db from dual
+
+And the ARUNIT_DB variable should be set to the tns connection string.
+
