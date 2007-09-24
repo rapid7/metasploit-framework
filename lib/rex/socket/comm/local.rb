@@ -208,11 +208,13 @@ class Rex::Socket::Comm::Local
 	end
 				
 	def self.proxy (sock, type, host, port)
-		if type == 'socks4'
-			setup = [4,1,port.to_i].pack('CCn') + Socket.gethostbyname(host)[3] + "bmc\x00"
+	
+		case type.downcase
+		when 'socks4'
+			setup = [4,1,port.to_i].pack('CCn') + Socket.gethostbyname(host)[3] + Rex::Text.rand_text_alpha(rand(8)+1) + "\x00"
 			size = sock.put(setup)
-			if size != setup.length
-				raise 'ack, we did not write as much as expected!'
+			if (size != setup.length)
+				raise ArgumentError, "Wrote less data than expected to the socks proxy"
 			end
 	
 			begin
@@ -222,13 +224,13 @@ class Rex::Socket::Comm::Local
 			end
 	
 			if (ret.nil? or ret.length < 8)
-				raise 'ack, sock4 server did not respond with a socks4 response'
+				raise ArgumentError, 'SOCKS4 server did not respond with a proper response'
 			end
 			if ret[1] != 90
 				raise "ack, socks4 server responded with error code #{ret[0]}"
 			end
 		else
-			raise 'unsupported socks protocol', caller
+			raise ArgumentError, 'Unsupported proxy type and/or version', caller
 		end
 	end
 

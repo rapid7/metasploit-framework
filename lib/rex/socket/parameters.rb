@@ -118,10 +118,10 @@ class Rex::Socket::Parameters
 			self.ssl = false
 		end
 
-		if hash['Proxies']
+		if hash['Proxies']	
 			self.proxies = hash['Proxies'].split('-').map{|a| a.strip}.map{|a| a.split(':').map{|b| b.strip}}
 		end
-
+		
 		# The protocol this socket will be using
 		if (hash['Proto'])
 			self.proto = hash['Proto'].downcase

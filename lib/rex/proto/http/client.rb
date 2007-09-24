@@ -17,11 +17,12 @@ class Client
 	#
 	# Creates a new client instance
 	#
-	def initialize(host, port = 80, context = {}, ssl = nil)
+	def initialize(host, port = 80, context = {}, ssl = nil, proxies = nil)
 		self.hostname = host
 		self.port     = port.to_i
 		self.context  = context
 		self.ssl      = ssl
+		self.proxies  = proxies
 		self.config = {
 			'read_max_data'   => (1024*1024*1),
 			'vhost'           => self.hostname,
@@ -263,7 +264,8 @@ class Client
 			'LocalHost' => self.local_host,
 			'LocalPort' => self.local_port,
 			'Context'   => self.context,
-			'SSL'       => self.ssl
+			'SSL'       => self.ssl,
+			'Proxies'   => self.proxies
 		)
 	end
 
@@ -756,6 +758,11 @@ class Client
 	# The calling context to pass to the socket
 	#
 	attr_accessor :context
+	#
+	# The proxy list
+	#
+	attr_accessor :proxies
+	
 
 	# When parsing the request, thunk off the first response from the server, since junk
 	attr_accessor :junk_pipeline
