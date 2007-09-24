@@ -1,5 +1,5 @@
 ##
-# $Id: shell_reverse_tcp.rb 5033 2007-07-06 01:22:54Z ramon $
+# $Id$
 ##
 
 ##
@@ -28,7 +28,7 @@ module ShellReverseTcp
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'OSX Command Shell, Reverse TCP Inline',
-			'Version'       => '$Revision: 5033 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,

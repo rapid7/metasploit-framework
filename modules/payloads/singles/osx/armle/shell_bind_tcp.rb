@@ -1,5 +1,5 @@
 ##
-# $Id: shell_bind_tcp.rb 5033 2007-07-06 01:22:54Z ramon $
+# $Id$
 ##
 
 ##
@@ -28,7 +28,7 @@ module ShellBindTcp
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'OSX Command Shell, Bind TCP Inline',
-			'Version'       => '$Revision: 5033 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,

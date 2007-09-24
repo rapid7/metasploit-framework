@@ -1,5 +1,5 @@
 ##
-# $Id: simple.rb 4419 2007-02-18 00:10:39Z hdm $
+# $Id$
 ##
 
 ##
@@ -31,7 +31,7 @@ class Simple < Msf::Nop
 		super(
 			'Name'        => 'Simple',
 			'Alias'       => 'armle_simple',
-			'Version'     => '$Revision: 4419 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Simple NOP generator',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,
