@@ -591,7 +591,23 @@ module Text
 
 		return pe
 	end
-	
+
+	def self.to_osx_arm(code = "", note="")
+		pe = ''
+
+		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "data", "templates", "template_armle_darwin.bin"), "rb")
+		mo = fd.read(fd.stat.size)
+		fd.close
+
+		bo = mo.index( [0xe1a00000].pack("V") * 1024 )
+		co = mo.index( " " * 512 )
+
+		mo[bo, 1024] = [code].pack('a1024') if bo
+		mo[co, 512]  = [note].pack('a512') if co
+
+		return mo
+	end
+		
 	##
 	#
 	# Generators
