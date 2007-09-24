@@ -227,7 +227,7 @@ class Rex::Socket::Comm::Local
 				raise ArgumentError, 'SOCKS4 server did not respond with a proper response'
 			end
 			if ret[1] != 90
-				raise "ack, socks4 server responded with error code #{ret[0]}"
+				raise "SOCKS4 server responded with error code #{ret[0]}"
 			end
 		else
 			raise ArgumentError, 'Unsupported proxy type and/or version', caller
