@@ -70,12 +70,16 @@ ARCH_PPC   = 'ppc'
 ARCH_SPARC = 'sparc'
 ARCH_CMD   = 'cmd'
 ARCH_PHP   = 'php'
+ARCH_ARMLE = 'armle'
+ARCH_ARMBE = 'armbe'
 ARCH_TYPES =
 	[
 		ARCH_X86,
 		ARCH_MIPS,
 		ARCH_PPC,
 		ARCH_SPARC,
+		ARCH_ARMLE,
+		ARCH_ARMBE,
 		ARCH_CMD,
 		ARCH_PHP
 	]

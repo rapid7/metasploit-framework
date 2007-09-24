@@ -42,7 +42,11 @@ module Arch
 			when ARCH_PPC  # ambiguous
 				[addr].pack('N')			
 			when ARCH_SPARC
-				[addr].pack('N')			
+				[addr].pack('N')
+			when ARCH_ARMLE
+				[addr].pack('V')
+			when ARCH_ARMBE
+				[addr].pack('N')		
 		end
 	end
 
@@ -63,6 +67,10 @@ module Arch
 			when ARCH_PPC  # ambiguous
 				return ENDIAN_BIG
 			when ARCH_SPARC
+				return ENDIAN_BIG
+			when ARCH_ARMLE
+				return ENDIAN_LITTLE
+			when ARCH_ARMBE
 				return ENDIAN_BIG
 		end
 		
