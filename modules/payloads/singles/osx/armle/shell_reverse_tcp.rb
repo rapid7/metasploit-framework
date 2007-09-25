@@ -40,8 +40,8 @@ module ShellReverseTcp
 				{
 					'Offsets' =>
 						{
-							'LPORT'    => [ 34, 'n'    ],
-							'LHOST'    => [ 36, 'ADDR' ],
+							'LPORT'    => [ 30, 'n'    ],
+							'LHOST'    => [ 32, 'ADDR' ],
 						},
 					'Payload' =>			
 						[

@@ -40,7 +40,7 @@ module ShellBindTcp
 				{
 					'Offsets' =>
 						{
-							'LPORT'    => [ 34, 'n' ],
+							'LPORT'    => [ 30, 'n' ],
 						},
 					'Payload' =>
 						[

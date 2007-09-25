@@ -592,22 +592,54 @@ module Text
 		return pe
 	end
 
-	def self.to_osx_arm(code = "", note="")
-		pe = ''
+	def self.to_osx_arm_macho(code = "", note="")
+		mo = ''
 
 		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "data", "templates", "template_armle_darwin.bin"), "rb")
 		mo = fd.read(fd.stat.size)
 		fd.close
 
-		bo = mo.index( [0xe1a00000].pack("V") * 1024 )
+		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
 		co = mo.index( " " * 512 )
 
-		mo[bo, 1024] = [code].pack('a1024') if bo
+		mo[bo, 8192] = [code].pack('a8192') if bo
 		mo[co, 512]  = [note].pack('a512') if co
 
 		return mo
 	end
-		
+
+	def self.to_osx_ppc_macho(code = "", note="")
+		mo = ''
+
+		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "data", "templates", "template_ppc_darwin.bin"), "rb")
+		mo = fd.read(fd.stat.size)
+		fd.close
+
+		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
+		co = mo.index( " " * 512 )
+
+		mo[bo, 8192] = [code].pack('a8192') if bo
+		mo[co, 512]  = [note].pack('a512') if co
+
+		return mo
+	end
+	
+	def self.to_linux_x86_elf(code = "", note="")
+		mo = ''
+
+		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "data", "templates", "template_x86_linux.bin"), "rb")
+		mo = fd.read(fd.stat.size)
+		fd.close
+
+		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
+		co = mo.index( " " * 512 )
+
+		mo[bo, 8192] = [code].pack('a8192') if bo
+		mo[co, 512]  = [note].pack('a512') if co
+
+		return mo
+	end
+			
 	##
 	#
 	# Generators
