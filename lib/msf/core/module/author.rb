@@ -22,6 +22,7 @@ class Msf::Module::Author
 			'cazz'      => 'bmc' + 0x40.chr + 'shmoo.com',
 			'pusscat'   => 'pusscat' + 0x40.chr + 'metasploit.com',
 			'skylined'  => 'skylined' + 0x40.chr + 'edup.tudelft.nl',
+			'patrick'   => 'patrick' + 0x40.chr + 'aushack.com',
 		}
 
 	#
@@ -87,7 +88,7 @@ class Msf::Module::Author
 		#   user[at]host.tld
 		#   Name <user [at] host.tld>
 
-		
+
 		if ((m = str.match(/^\s*([^<]+)<([^>]+)>\s*$/)))
 			self.name  = m[1].sub(/<.*/, '')
 			self.email = m[2].sub(/\s*\[at\]\s*/, '@')
@@ -105,7 +106,7 @@ class Msf::Module::Author
 		if self.name
 			self.name.gsub!(/\s+$/, '')
 		end
-		
+
 		return true
 	end
 
