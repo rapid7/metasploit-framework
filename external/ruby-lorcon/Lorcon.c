@@ -90,14 +90,8 @@ static VALUE lorcon_driver_open(int argc, VALUE *argv, VALUE self) {
 		rb_raise(rb_eRuntimeError, "Lorcon could not initialize the interface");
 		return(Qnil);
 	}
-		
-	/*
-	 *FUNCMODE_INJ_MON gets us injection -and- monitor mode if supported 
-	 *This seems like a good default, but i havent tried it on any cards
-	 *other than atheros with madwifi-old 
-	 */
-	//ret = tx80211_setmode(in_tx, IW_MODE_MONITOR); 
-	ret = tx80211_setfunctionalmode(in_tx, TX80211_FUNCMODE_INJMON);
+
+	ret = tx80211_setfunctionalmode(in_tx, TX80211_FUNCMODE_INJECT);
 	if (ret != 0) {
 		//rb_raise(rb_eRuntimeError, "Lorcon could not place the card into monitor mode");
 		rb_raise(rb_eRuntimeError, "Lorcon could not place the card into injection + monitor mode");
@@ -144,7 +138,28 @@ static VALUE lorcon_driver_write(int argc, VALUE *argv, VALUE self) {
 
 	cnt = NUM2INT(rbcnt);
 	dly = NUM2INT(rbdelay);
+
 	
+	/* Initialize the packet structure */
+	tx80211_initpacket(&in_packet);
+
+	/* Modulation and rate are per-packet parameters */
+	if ((tx80211_getcapabilities(in_tx) & TX80211_CAP_SETMODULATION) != 0) {
+		ret = tx80211_setmodulation(in_tx, &in_packet, TX80211_MOD_DSSS);
+		if (ret < 0) {
+			rb_raise(rb_eRuntimeError, "Lorcon could not set the modulation mechanism.");
+			return(Qnil);
+		}
+	}
+
+	if ((tx80211_getcapabilities(in_tx) & TX80211_CAP_SETRATE) != 0) {
+		ret = tx80211_settxrate(in_tx, &in_packet, TX80211_RATE_2MB);
+		if (ret < 0) {
+			rb_raise(rb_eRuntimeError, "Lorcon could not set the tx rate.");
+			return(Qnil);
+		}
+	}
+		
 	in_packet.packet = StringValuePtr(rbbuff);
 	in_packet.plen = RSTRING(rbbuff)->len;
 
