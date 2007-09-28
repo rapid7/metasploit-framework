@@ -9,4 +9,11 @@
 #include <tx80211.h>
 #include <tx80211_packet.h>
 
+
+struct rldev {
+	struct tx80211 in_tx;
+	struct tx80211_packet in_packet;
+};
+
+
 #endif
