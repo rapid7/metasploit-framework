@@ -317,12 +317,12 @@ module Text
 			else
 				mode = mode.to_i
 			end
-			if $codepage_map_cache[mode].nil?
+			if @@codepage_map_cache[mode].nil?
 				raise TypeError, "Invalid codepage #{mode}"
 			end
 			str.each_byte {|byte|
 				char = [byte].pack('C*')
-				possible = $codepage_map_cache[mode]['data'][char]
+				possible = @@codepage_map_cache[mode]['data'][char]
 				if possible.nil?
 					raise TypeError, "codepage #{mode} does not provide an encoding for 0x#{char.unpack('H*')[0]}"
 				end
@@ -345,7 +345,7 @@ module Text
                     string += "\xFF" + [byte ^ 96].pack('C')
                 else
                     char = [byte].pack('C')
-					possible = $codepage_map_cache[mode]['data'][char]
+					possible = @@codepage_map_cache[mode]['data'][char]
 					if possible.nil?
 						raise TypeError, "codepage #{mode} does not provide an encoding for 0x#{char.unpack('H*')[0]}"
 					end
@@ -919,7 +919,7 @@ protected
 	end
 	
 	def self.load_codepage()
-		return if (!$codepage_map_cache.nil?)
+		return if (!@@codepage_map_cache.nil?)
 		file = File.join(File.dirname(__FILE__),'codepage.map')
 		page = ''
 		name = ''
@@ -947,7 +947,7 @@ protected
 				}
 			end
 		}
-		$codepage_map_cache = map
+		@@codepage_map_cache = map
 	end
 
 end
