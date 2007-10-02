@@ -292,7 +292,7 @@ class ReadableText
 			next if (opt.advanced?)
 			next if (opt.evasion?)
 			
-			val = mod.datastore[name] || opt.default || ''
+			val = mod.datastore[name] || opt.default.to_s
 
 			tbl << [ name, val.to_s, opt.required? ? "yes" : "no", opt.desc ]
 		}
@@ -312,7 +312,7 @@ class ReadableText
 
 			next if (!opt.advanced?)
 
-			val = mod.datastore[name] || opt.default || ''
+			val = mod.datastore[name] || opt.default.to_s
 			desc = word_wrap(opt.desc, indent.length + 3)
 			desc = desc.slice(indent.length + 3, desc.length)
 
