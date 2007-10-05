@@ -15,9 +15,9 @@ class Plugin::DBMySQL < Msf::Plugin
 	
 	
 	#
-	# Command dispatcher for configuring Postgres
+	# Command dispatcher for configuring Mysql
 	#
-	class PostgresCommandDispatcher
+	class MysqlCommandDispatcher
 		include Msf::Ui::Console::CommandDispatcher
 
 		#
@@ -207,7 +207,7 @@ class Plugin::DBMySQL < Msf::Plugin
 	
 	def initialize(framework, opts)
 		super
-		add_console_dispatcher(PostgresCommandDispatcher)
+		add_console_dispatcher(MysqlCommandDispatcher)
 	end
 	
 

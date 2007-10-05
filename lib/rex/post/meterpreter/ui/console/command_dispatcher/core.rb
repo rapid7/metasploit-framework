@@ -260,6 +260,10 @@ class Console::CommandDispatcher::Core
 		return true
 	end
 
+	def cmd_use_tabs(str, words)
+		return []
+	end
+
 	#
 	# Reads data from a channel.
 	#
@@ -311,6 +315,21 @@ class Console::CommandDispatcher::Core
 			client.execute_script(args.shift, binding)
 		rescue
 			print_error("Error in script: #{$!}")
+		end
+	end
+
+	def cmd_run_tabs(str, words)
+		if(not words[1] or not words[1].match(/^\//))
+			begin
+				my_directory = Msf::Config.script_directory + ::File::SEPARATOR + "meterpreter"
+				return ::Dir.new(my_directory).find_all { |e|
+					path = my_directory + ::File::SEPARATOR + e
+					::File.file?(path) and ::File.readable?(path)
+				}.map { |e|
+					e.sub!(/\.rb$/, '')
+				}
+			rescue Exception
+			end
 		end
 	end
 
@@ -394,6 +413,29 @@ class Console::CommandDispatcher::Core
 		end
 
 		return true
+	end
+
+	#
+	# Provide command-specific tab completion
+	# Stolen directly from msf/ui/console/command_dispatcher/core.rb
+	# perhaps this should be moved into rex/ui/text/dispatcher_shell.rb ?
+	#
+	def tab_complete_helper(str, words)
+		items = []
+		
+		# Is the user trying to tab complete one of our commands?
+		if (commands.include?(words[0]))
+			if (self.respond_to?('cmd_'+words[0]+'_tabs')) 
+				res = self.send('cmd_'+words[0]+'_tabs', str, words)
+				return nil if res.nil?
+				items.concat(res)
+			else
+				# Avoid the default completion list for known commands
+				return nil
+			end
+		end
+		
+		return items
 	end
 
 protected
