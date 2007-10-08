@@ -1,0 +1,15 @@
+This goal of this project is to provide a consistent interface to LBL's libpcap
+packet capture library. This project was created because the currently
+available ruby-pcap library is poorly designed and has been unmaintained since
+2000. This does not provide packet processing functionality, it simply provides
+the interface for capturing packets. For packet processing capability, see the
+PacketRub project (http://packetrub.rubyforge.org).
+
+Requirements:
+  libpcap - http://www.tcpdump.org
+
+The latest version can be obtained from Subversion:
+  svn checkout http://pcaprub.rubyforge.org/svn/trunk/
+
+The Metasploit Project also provides a Subversion repository:
+  svn checkout http://metasploit.com/svn/framework3/trunk/external/pcaprub/
