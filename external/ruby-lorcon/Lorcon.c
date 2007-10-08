@@ -148,8 +148,9 @@ void lorcon_device_free(struct rldev *rld) {
 
 static VALUE lorcon_device_get_mode(VALUE self) {
 	struct rldev *rld;
-	Data_Get_Struct(self, struct rldev, rld);
 	int mode;
+	Data_Get_Struct(self, struct rldev, rld);
+	
 
 	mode = tx80211_getmode(&rld->in_tx);
 	if (mode < 0) {
@@ -187,11 +188,11 @@ static VALUE lorcon_device_get_mode(VALUE self) {
 
 static VALUE lorcon_device_set_mode(VALUE self, VALUE rmode) {
 	struct rldev *rld;
-	Data_Get_Struct(self, struct rldev, rld);
-	
 	char *setmode = StringValuePtr(rmode);
 	int mode = -1;
 
+	Data_Get_Struct(self, struct rldev, rld);
+	
 	if (strcmp(setmode, "AUTO") == 0) {
 		mode = TX80211_MODE_AUTO;
 	} else if (strcmp(setmode, "ADHOC") == 0) {
@@ -217,11 +218,11 @@ static VALUE lorcon_device_set_mode(VALUE self, VALUE rmode) {
 	
 static VALUE lorcon_device_set_functional_mode(VALUE self, VALUE rmode) {
 	struct rldev *rld;
-	Data_Get_Struct(self, struct rldev, rld);
-	
 	char *funcmode = StringValuePtr(rmode);
 	int mode = -1;
-	
+
+	Data_Get_Struct(self, struct rldev, rld);
+		
 	if (strcmp(funcmode, "RFMON") == 0) {
 		mode = TX80211_FUNCMODE_RFMON;
 	} else if (strcmp(funcmode, "INJECT") == 0) {
@@ -243,10 +244,10 @@ static VALUE lorcon_device_set_functional_mode(VALUE self, VALUE rmode) {
 
 static VALUE lorcon_device_get_txrate(VALUE self) {
 	struct rldev *rld;
-	Data_Get_Struct(self, struct rldev, rld);
-	
 	int txrate;
+	
 	txrate = tx80211_gettxrate(&rld->in_packet);
+	Data_Get_Struct(self, struct rldev, rld);
 
 	switch (txrate) {
 		case TX80211_RATE_DEFAULT:
@@ -491,7 +492,11 @@ static VALUE lorcon_device_write(int argc, VALUE *argv, VALUE self) {
 		if (ret < 0) 
 			return(INT2NUM(ret));
 		if (dly > 0)
+#ifdef _MSC_VER
+			Sleep(dly);
+#else
 			usleep(dly);
+#endif
 	}
 
 	return (rbcnt);
