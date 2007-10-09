@@ -489,8 +489,10 @@ static VALUE lorcon_device_write(int argc, VALUE *argv, VALUE self) {
 
 	for (; cnt > 0; cnt--) {
 		ret = tx80211_txpacket(&rld->in_tx, &rld->in_packet);
-		if (ret < 0) 
+		if (ret < 0) {
+			rb_raise(rb_eRuntimeError, "Lorcon could not transmit packet: %s", tx80211_geterrstr(&rld->in_tx));			
 			return(INT2NUM(ret));
+		}
 		if (dly > 0)
 #ifdef _MSC_VER
 			Sleep(dly);
