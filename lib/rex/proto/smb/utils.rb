@@ -344,6 +344,119 @@ CONST = Rex::Proto::SMB::Constants
 		return blob
 	end
 	
+	#
+	# Process Type 3 NTLM Message (in Base64)
+	#
+	def self.process_type3_message(message)
+		decode = Rex::Text.decode_base64(message.strip)
+		type = decode[8]
+		if (type == 3)
+			domoff = decode[32]	 # domain offset
+			domlen = decode[28]	 # domain length
+			useroff = decode[40] # username offset
+			userlen = decode[36] # username length
+			hostoff = decode[48] # hostname offset
+			hostlen = decode[44] # hostname length
+			lmoff = decode[16]	 # LM hash offset
+			lmlen = decode[12]	 # LM hash length
+			ntoff = decode[24]	 # NT hash offset
+			ntlen = decode[20]	 # NT hash length
+
+			domain = decode[domoff..domoff+domlen-1]
+			user = decode[useroff..useroff+userlen-1]
+			host = decode[hostoff..hostoff+hostlen-1]
+			lm = decode[lmoff..lmoff+lmlen-1].unpack("H*")
+			nt = decode[ntoff..ntoff+ntlen-1].unpack("H*")
+		
+			return domain, user, host, lm, nt
+		else
+			return "", "", "", "", ""
+		end
+	end
+	
+	#	 
+	# Process Type 1 NTLM Messages, return a Base64 Type 2 Message
+	#
+	def self.process_type1_message(message, nonce = "\x11\x22\x33\x44\x55\x66\x77\x88", win_domain = 'DOMAIN', 
+					win_name = 'SERVER', dns_name = 'server', dns_domain = 'example.com')
+
+		dns_name = Rex::Text.to_unicode(dns_name + "." + dns_domain)
+		win_domain = Rex::Text.to_unicode(win_domain)
+		dns_domain = Rex::Text.to_unicode(dns_domain)
+		win_name = Rex::Text.to_unicode(win_name)
+		decode = Rex::Text.decode_base64(message.strip)
+
+		puts "dns_name = #{dns_name}, dns_domain = #{dns_domain}"
+
+		type = decode[8]
+
+		if (type == 1)
+			# A type 1 message has been received, lets build a type 2 message response
+
+			reqflags = decode[12..15]
+			reqflags = Integer("0x" + reqflags.unpack("h8").to_s.reverse)
+
+			if (reqflags & CONST::REQUEST_TARGET) == CONST::REQUEST_TARGET
+				# At this time NTLMv2 and signing requirements are not supported
+				#flags = CONST::NEGOTIATE_UNICODE | CONST::NEGOTIATE_NTLM | CONST::NEGOTIATE_TARGET_INFO | CONST::TARGET_TYPE_DOMAIN | CONST::TARGET_TYPE_SERVER
+				flags = 0x00810201
+				tid = true
+
+				tidoffset = 48 + win_domain.length
+				tidbuff = 
+					[2].pack('v') +				# tid type, win domain
+					[win_domain.length].pack('v') +
+					win_domain +
+					[1].pack('v') +				# tid type, server name
+					[win_name.length].pack('v') +
+					win_name +
+					[4].pack('v')	+			 # tid type, domain name
+					[dns_domain.length].pack('v') +
+					dns_domain +
+					[3].pack('v')	+			# tid type, dns_name
+					[dns_name.length].pack('v') +
+					dns_name
+			else
+				flags = CONST::NEGOTIATE_UNICODE | CONST::NEGOTIATE_NTLM
+				tid = false
+			end
+
+			type2msg = "NTLMSSP\0" + # protocol, 8 bytes
+				   "\x02\x00\x00\x00"		# type, 4 bytes
+
+			if (tid)
+				type2msg +=	# Target security info, 8 bytes. Filled if REQUEST_TARGET
+				[win_domain.length].pack('v') +	 # Length, 2 bytes
+				[win_domain.length].pack('v')	 # Allocated space, 2 bytes
+			end
+
+			type2msg +="\x30\x00\x00\x00" + #		Offset, 4 bytes
+				 [flags].pack('V') +	# flags, 4 bytes
+				 nonce +		# the nonce, 8 bytes
+			 	 "\x00" * 8		# Context (all 0s), 8 bytes
+
+			if (tid)
+				type2msg +=		# Target information security buffer. Filled if REQUEST_TARGET
+					[tidbuff.length].pack('v') +	# Length, 2 bytes
+					[tidbuff.length].pack('v') +	# Allocated space, 2 bytes
+					[tidoffset].pack('V') +		# Offset, 4 bytes (usually \x48 + length of win_domain)
+					win_domain +			# Target name data (domain in unicode if REQUEST_UNICODE)
+									# Target information data
+					tidbuff +			#	Type, 2 bytes
+									#	Length, 2 bytes
+									#	Data (in unicode if REQUEST_UNICODE)
+					"\x00\x00\x00\x00"		# Terminator, 4 bytes, all \x00
+			end
+
+			type2msg = Rex::Text.encode_base64(type2msg).delete("\n") # base64 encode and remove the returns
+		else
+			# This is not a Type2 message
+			type2msg = ""
+		end
+
+		return type2msg
+	end
+	
 end
 end
 end
