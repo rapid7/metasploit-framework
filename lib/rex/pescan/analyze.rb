@@ -266,7 +266,7 @@ module Analyze
 				next if section.name == ".reloc"
 				
 				data = section.read(0, section.size)
-				buff = [ 0x01, pe.rva_to_vma( section.base_rva ), data.length, data].pack("CVVA*")
+				buff = [ 0x01, pe.rva_to_vma( section.base_rva ), data.length, data].pack("CNNA*")
 				
 				fd.write(buff)
 				
