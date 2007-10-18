@@ -218,8 +218,8 @@ module Analyze
 		def scan(param)
 			dest = param['dir']
 			
-			if (param['filename'])
-				dest = File.join(dest, File.basename(param['filename']))
+			if (param['file'])
+				dest = File.join(dest, File.basename(param['file']))
 			end
 			
 			FileUtils.mkdir_p(dest)
@@ -234,7 +234,48 @@ module Analyze
 			end	
 		end
 	end
+
+	class ContextMapDumper
+
+		attr_accessor :pe
 		
+		def initialize(pe)
+			self.pe = pe
+		end
+		
+		def scan(param)
+			dest = param['dir']
+			path = ''
+			
+			FileUtils.mkdir_p(dest)
+			
+			if(not (param['dir'] and param['file']))
+				$stderr.puts "No directory or file specified"
+				return
+			end
+			
+			if (param['file'])
+				path = File.join(dest, File.basename(param['file']) + ".map")
+			end
+
+			fd = File.new(path, "w")
+			pe.all_sections.each do |section|
+
+				# Skip over known bad sections
+				next if section.name == ".data"
+				next if section.name == ".reloc"
+				
+				data = section.read(0, section.size)
+				buff = [ 0x01, pe.rva_to_vma( section.base_rva ), data.length, data].pack("CVVA*")
+				
+				fd.write(buff)
+				
+			end
+			
+			fd.close
+		end
+	end
+			
 # EOC
 
 end

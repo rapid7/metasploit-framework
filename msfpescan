@@ -76,6 +76,10 @@ opt.on('-R', '--ripper [directory]', 'Rip all module resources to disk ') do |t|
 	param['dir'] = t
 end
 
+opt.on('--context-map [directory]', 'Generate context-map files') do |t|
+	worker = Rex::PeScan::Analyze::ContextMapDumper
+	param['dir'] = t
+end
 
 opt.separator('')
 opt.separator('Options:')
@@ -126,9 +130,7 @@ ARGV.each do |file|
 	if (param['imagebase'])
 		pe.image_base = param['imagebase'];
 	end
-	
-	param['filename'] = file
-	
+
 	o = worker.new(pe)
 	o.scan(param)
 	
