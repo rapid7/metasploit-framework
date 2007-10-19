@@ -265,7 +265,8 @@ module Analyze
 				next if section.name == ".data"
 				next if section.name == ".reloc"
 				
-				for offset in 0...section.size
+				offset = 0
+				while offset < section.size
 					byte = section.read(offset, 1)[0]
 					if byte != 0
 						chunkbase = pe.rva_to_vma( section.base_rva) + offset
@@ -281,6 +282,7 @@ module Analyze
 				
 						fd.write(buff) if buff
 					end
+					offset += 1
 				end
 
 			end
