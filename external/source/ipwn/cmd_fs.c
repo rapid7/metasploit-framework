@@ -258,16 +258,48 @@ void cmd_cp(int argc, char * argv[])
 {
 	int src, dst, len;
 	char buff[4096];
+	struct stat s;
+	char *path, *p, *t;
+	
+	path = strdup(argv[2]);
 		
 	src = open(argv[1], O_RDONLY);
-	if(src == -1)
+	if(src == -1) {
+		free(path);
 		perror("open(src)");
-	
-	dst = open(argv[2], O_RDWR | O_CREAT | O_TRUNC, S_IRWXU);
-	if (dst == -1) {
-		close(src);
-		perror("open(dst)");
 	}
+	
+	dst = open(path, O_RDWR | O_CREAT | O_TRUNC, S_IRWXU);
+	if (dst == -1) {
+		
+		if(errno == EISDIR)  {
+			t = strrchr(argv[1], '/');
+			if (t != NULL) {
+				t++;
+			} else {
+				t = argv[1];
+			}
+			
+			p = malloc(strlen(path) + strlen(t) + 1);
+			sprintf(p, "%s/%s", path, t);
+			free(path);
+			path = p;
+
+			dst = open(path, O_RDWR | O_CREAT | O_TRUNC, S_IRWXU);
+			if ( dst == -1 ) {
+				close(src);
+				free(path);
+				perror("open(dst)");				
+			}
+			
+		} else {
+			close(src);
+			free(path);
+			perror("open(dst)");
+		}
+	}
+	
+	stat(argv[1], &s);
 	
 	while(1) 
 	{
@@ -279,5 +311,8 @@ void cmd_cp(int argc, char * argv[])
 		if (len < sizeof(buff)) break;
 	}
 	close(src);
-	close(dst);	
+	close(dst);
+	
+	chmod(path, s.st_mode);
+	free(path);
 }
