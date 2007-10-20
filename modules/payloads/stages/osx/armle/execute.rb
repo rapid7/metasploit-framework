@@ -155,7 +155,7 @@ module Execute
 	end
 	
 	def generate_stage
-		data = stage_payload
+		data = super
 		
 		begin
 			print_status("Reading executable file #{datastore['PEXEC']}...")
