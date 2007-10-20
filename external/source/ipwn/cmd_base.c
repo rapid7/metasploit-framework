@@ -94,15 +94,39 @@ void cmd_fork(int argc, char * argv[])
 	signal(SIGCHLD, &sig_chld_waitpid);
 }
 
-void cmd_exec(char * string)
+void cmd_exec(int argc, char * argv[])
 {
-	execl("/bin/sh", "sh", "-c", string, NULL);
-	perror("execl");
+	int i;
+	char *prog;
+	
+	argv++;
+	
+	prog = argv[0];
+	
+	printf("Executing");
+	for(i=0; argv[i]; i++) {
+		printf(" %s", argv[i]);	
+	}
+	printf("\n");
+	
+	execve(prog, argv, NULL);
+	perror("execve");
 }
 
-void cmd_system(char * string)
+void cmd_system(int argc, char * argv[])
 {
-	system(string);
+	pid_t fork_pid;
+	
+	signal(SIGCHLD, &sig_chld_ignore);
+	if((fork_pid = fork()) != 0)
+	{
+		while(waitpid(fork_pid, NULL, WNOHANG) <= 0)
+			usleep(300);
+	} else {
+		cmd_exec(argc, argv);
+		exit(0);
+	}
+	signal(SIGCHLD, &sig_chld_waitpid);
 }
 
 void cmd_quit(int argc, char * argv[])

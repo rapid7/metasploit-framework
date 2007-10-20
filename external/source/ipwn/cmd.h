@@ -12,9 +12,8 @@
 	/* XXX: Re-do help to specify a category and print the commands in that category? */
 	void cmd_help(int, char * []);
 	void cmd_fork(int, char * []);
-	void cmd_exec(char *);
-	/* XXX: system sucks, it may block, we need a better solution that backgrounds it */
-	void cmd_system(char *);
+	void cmd_exec(int, char * []);
+	void cmd_system(int, char * []);
 	void cmd_quit(int, char * []);
 
 	/* File descriptor handling */

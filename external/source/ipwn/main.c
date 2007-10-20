@@ -33,8 +33,8 @@ struct __cmdhandler handlerlist[] =
 {
 	{ "help", &cmd_help, 1, 0, 0 },
 	{ "fork", &cmd_fork, 1, 0, 0 },
-	{ "exec", &cmd_exec, 0, 0, 0 },
-	{ "system", &cmd_system, 0, 0, 0 },
+	{ "exec", &cmd_exec, 1, 1, 14 },
+	{ "system", &cmd_system, 1, 1, 14 },
 	{ "quit", &cmd_quit, 1, 0, 0 },
 	{ "exit", &cmd_quit, 1, 0, 0 },
 
@@ -167,7 +167,8 @@ int main(void)
 void parse(char * str, int * const argc, char * argv[])
 {
 	*argc = 0;
-
+	argv[0] = '\0';
+				
 	if(strlen(str) == 0)
 		return;
 
@@ -177,6 +178,7 @@ void parse(char * str, int * const argc, char * argv[])
 		{
 			*str = '\0';
 			argv[(*argc)++] = str+1;
+			argv[(*argc)] = '\0';
 		}
 		if(*str == '\\')
 		{
