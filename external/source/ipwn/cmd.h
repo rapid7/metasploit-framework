@@ -42,8 +42,9 @@
 	void cmd_chroot(int, char * []);
 	void cmd_link(int, char * []);
 	void cmd_symlink(int, char * []);
-
-	/* Privilges */
+	void cmd_cp(int, char * []);
+	
+	/* Privileges */
 	/* XXX: Print groups */
 	void cmd_getid(int, char * []);
 	void cmd_setuid(int, char * []);

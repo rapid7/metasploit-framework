@@ -51,6 +51,7 @@ void cmd_help(int argc, char * argv[])
 		"    chroot <path>                   Change root directory to <path>\n"
 		"    link <file> <reference>         Hard link <reference> to <file>\n"
 		"    symlink <file> <reference>      Symbolically link <reference> to <file>\n"
+		"    cp <file> <file>                Copy a file from one directory to another\n"
 		
 		"\n"
 		"    getid                           Print information about [e][ug]id\n"

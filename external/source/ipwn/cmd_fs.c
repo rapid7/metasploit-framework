@@ -16,6 +16,7 @@
 #include <dirent.h>
 #include <pwd.h>
 #include <grp.h>
+#include <sys/fcntl.h>
 
 #include "cmd.h"
 
@@ -251,4 +252,32 @@ void cmd_symlink(int argc, char * argv[])
 {
 	if(symlink(argv[1], argv[2]) == -1)
 		perror("symlink");
+}
+
+void cmd_cp(int argc, char * argv[])
+{
+	int src, dst, len;
+	char buff[4096];
+		
+	src = open(argv[1], O_RDONLY);
+	if(src == -1)
+		perror("open(src)");
+	
+	dst = open(argv[2], O_RDWR | O_CREAT | O_TRUNC, S_IRWXU);
+	if (dst == -1) {
+		close(src);
+		perror("open(dst)");
+	}
+	
+	while(1) 
+	{
+		len = read(src, buff, sizeof(buff));
+		if (len == -1) break;
+		if (len ==  0) break;
+		
+		write(dst, buff, len);
+		if (len < sizeof(buff)) break;
+	}
+	close(src);
+	close(dst);	
 }

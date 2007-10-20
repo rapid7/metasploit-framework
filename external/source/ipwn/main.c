@@ -61,6 +61,7 @@ struct __cmdhandler handlerlist[] =
 	{ "chroot", &cmd_chroot, 1, 1, 1 },
 	{ "link", &cmd_link, 1, 2, 2 },
 	{ "symlink", &cmd_symlink, 1, 2, 2 },
+	{ "cp", &cmd_cp, 1, 2, 2 },
 
 	{ "getid", &cmd_getid, 1, 0, 0 },
 	{ "setuid", &cmd_setuid, 1, 1, 1 },
