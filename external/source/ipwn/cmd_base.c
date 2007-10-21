@@ -76,6 +76,9 @@ void cmd_help(int argc, char * argv[])
 		"    lsfd                            Show information about open file descriptors\n"
 		
 		"\n"
+		"    download <url> <file>           Download a file to disk over HTTP\n"
+		
+		"\n"
 		"Warning! Before using any of the following you are recommended to fork for your own safety!\n"
 		"    fchdir_breakchroot <temp_dir>   Use <temp_dir> to attempt to break out of chroot\n");
 }

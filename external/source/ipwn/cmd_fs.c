@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2004-2005 vlad902 <vlad902 [at] gmail.com>
+ * Copyright (c) 2007 H D Moore <hdm [at] metasploit.com>  
  * This file is part of the Metasploit Framework.
  * $Revision: 2053 $
  */
@@ -280,7 +281,7 @@ void cmd_cp(int argc, char * argv[])
 				t = argv[1];
 			}
 			
-			p = malloc(strlen(path) + strlen(t) + 1);
+			p = malloc(strlen(path) + strlen(t) + 2);
 			sprintf(p, "%s/%s", path, t);
 			free(path);
 			path = p;

@@ -57,7 +57,7 @@
 	void cmd_getppid(int, char * []);
 	void cmd_ps(int, char * []);
 	
-	/* Enviornment */
+	/* Environment */
 	/* XXX: setenv, showenv */
 
 	/* System */
@@ -69,6 +69,9 @@
 	void cmd_shutdown(int, char * []);
 	void cmd_halt(int, char * []);
 
+	/* Network */
+	void cmd_download(int, char * []);
+	
 	/* Misc. */
 	void cmd_lsfd(int, char * []);
 

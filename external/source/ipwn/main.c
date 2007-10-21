@@ -80,6 +80,8 @@ struct __cmdhandler handlerlist[] =
 	{ "halt", &cmd_halt, 1, 0, 0 },
 
 	{ "lsfd", &cmd_lsfd, 1, 0, 0 },
+	
+	{ "download", &cmd_download, 1, 2, 2 },
 
 	{ "fchdir_breakchroot", &cmd_fchdir_breakchroot, 1, 1, 1 },
 };
