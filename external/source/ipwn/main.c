@@ -89,10 +89,15 @@ struct __cmdhandler handlerlist[] =
 #define	HANDLERLIST_SIZE	(sizeof(handlerlist) / sizeof(struct __cmdhandler))
 #define	MAX_ARGV	15
 #define VERSION "0.01"
-int main(void)
-{
+int main(int argc, char **argv) {
 	int sig;
 
+	if (argc <= 1 || strcmp(argv[1], "-k") != 0) {
+		printf("Self-destruction mode is enabled by default, use -k to keep.\n");
+		printf("Removing %s...\n", argv[0]);
+		unlink(argv[0]);
+	}
+	
 /* XXX: Big negative sbrk() to remove heap? */
 	for(sig = 1; sig <= 64; sig++)
 		signal(sig, SIG_IGN);
