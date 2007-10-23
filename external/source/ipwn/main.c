@@ -2,7 +2,7 @@
  * Copyright (c) 2004-2005 vlad902 <vlad902 [at] gmail.com>
  * Copyright (c) 2007 H D Moore <hdm [at] metasploit.com> 
  * This file is part of the Metasploit Framework.
- * $Revision: 2054 $
+ * $Revision$
  */
 
 #include <sys/types.h>
@@ -15,9 +15,7 @@
 #include <signal.h>
 
 #include "cmd.h"
-
-void parse(char *, int *, char * []);
-void chomp(char *);
+#include "auto.h"
 
 struct __cmdhandler
 {
@@ -91,6 +89,7 @@ struct __cmdhandler handlerlist[] =
 #define VERSION "0.01"
 
 int main(int argc, char **argv) {
+	char *p, *s, *b;
 	int sig;
 
 	if (argc <= 1 || strcmp(argv[1], "-k") != 0) {
@@ -99,7 +98,24 @@ int main(int argc, char **argv) {
 		unlink(argv[0]);
 	}
 	
-/* XXX: Big negative sbrk() to remove heap? */
+	/* process any embedded commands */
+	if (automatic[0] != '#') {
+		b = s = strdup(automatic);
+		while ((p = strstr(s, "\n")) != NULL) {
+			*p = '\0';
+			
+			printf("(auto) %s\n", s);
+			process_input(s, strlen(s));
+			
+			s = p + 1;
+		}
+		printf("(auto) %s\n", s);
+		
+		process_input(s, strlen(s));
+		free(b);
+	}
+	
+	/* XXX: Big negative sbrk() to remove heap? */
 	for(sig = 1; sig <= 64; sig++)
 		signal(sig, SIG_IGN);
 

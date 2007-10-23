@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2004-2005 vlad902 <vlad902 [at] gmail.com>
  * This file is part of the Metasploit Framework.
- * $Revision: 2036 $
+ * $Revision$
  */
 
 #include <stdio.h>

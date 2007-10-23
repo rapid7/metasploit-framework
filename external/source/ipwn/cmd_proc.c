@@ -2,7 +2,7 @@
  * Copyright (c) 2004-2005 vlad902 <vlad902 [at] gmail.com>
  * Copyright (c) 2007 H D Moore <hdm [at] metasploit.com>
  * This file is part of the Metasploit Framework.
- * $Revision: 2036 $
+ * $Revision$
  */
 
 

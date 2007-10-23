@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2007 H D Moore <hdm [at] metasploit.com>  
  * This file is part of the Metasploit Framework.
- * $Revision: 2053 $
+ * $Revision$
  */
 
 #include <sys/types.h>
