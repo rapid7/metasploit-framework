@@ -8,7 +8,15 @@
 #ifndef _CMD_H
 #define	_CMD_H
 
+	
+
 	/* Base */
+	int process_input(char *, int);
+	void parse(char *, int *, char * []);
+	void chomp(char *);
+	
+	void cmd_script(int, char * []);
+	
 	/* XXX: Re-do help to specify a category and print the commands in that category? */
 	void cmd_help(int, char * []);
 	void cmd_fork(int, char * []);

@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "cmd.h"
 
@@ -137,3 +138,25 @@ void cmd_quit(int argc, char * argv[])
 {
 	exit(0);
 }
+
+
+void cmd_script(int argc, char * argv[])
+{
+	FILE *fd;
+	char buff[2048];
+	
+	fd = fopen(argv[1], "r");
+	if (fd == NULL) {
+		perror("fopen");
+		return;
+	}
+	
+	printf("Executing script %s\n", argv[1]);
+	while (fgets(buff, sizeof(buff), fd)) {
+		chomp(buff);
+		process_input(buff, sizeof(buff));
+	}
+	
+	fclose(fd);
+}
+

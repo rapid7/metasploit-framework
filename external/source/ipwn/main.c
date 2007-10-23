@@ -16,7 +16,6 @@
 
 #include "cmd.h"
 
-
 void parse(char *, int *, char * []);
 void chomp(char *);
 
@@ -32,6 +31,7 @@ struct __cmdhandler
 struct __cmdhandler handlerlist[] =
 {
 	{ "help", &cmd_help, 1, 0, 0 },
+	{ "script", &cmd_script, 1, 1, 1 },			
 	{ "fork", &cmd_fork, 1, 0, 0 },
 	{ "exec", &cmd_exec, 1, 1, 14 },
 	{ "system", &cmd_system, 1, 1, 14 },
@@ -89,6 +89,7 @@ struct __cmdhandler handlerlist[] =
 #define	HANDLERLIST_SIZE	(sizeof(handlerlist) / sizeof(struct __cmdhandler))
 #define	MAX_ARGV	15
 #define VERSION "0.01"
+
 int main(int argc, char **argv) {
 	int sig;
 
@@ -119,13 +120,9 @@ int main(int argc, char **argv) {
 	{
 		char cmd[2048];
 		char cmd_bak[sizeof(cmd)];
-		char * argv[MAX_ARGV];
 		char buf[1024];
-		int argc;
-		int i, hit;
 		char *cwd;
 	
-
 		if(getcwd(buf, sizeof(buf)) == NULL)
 			cwd = "(unknown)";
 		else
@@ -136,41 +133,59 @@ int main(int argc, char **argv) {
 		memset(cmd, 0, sizeof(cmd));
 		if(fgets(cmd, sizeof(cmd), stdin) == NULL)
 			exit(0);
+		
 		chomp(cmd);
 		memcpy(cmd_bak, cmd, sizeof(cmd_bak));
-
-		parse(cmd, &argc, argv);
-		if(argc == 0)
-			continue;
-
-		for(hit = i = 0; i < HANDLERLIST_SIZE; i++)
-		{
-			if(strcmp(argv[0], handlerlist[i].cmd) == 0)
-			{
-				hit = 1;
-
-				if(handlerlist[i].arg_process)
-				{
-					if(argc > handlerlist[i].arg_max+1)
-						printf("%s: Too many arguments\n", argv[0]);
-					else if(argc < handlerlist[i].arg_min+1)
-						printf("%s: Too few arguments\n", argv[0]);
-					else
-						handlerlist[i].handler(argc, argv);
-				}
-				else
-				{
-					handlerlist[i].handler(cmd_bak + strlen(handlerlist[i].cmd) + 1);
-				}
-			}
-		}
-
-		if(hit == 0)
-		{
-			printf("%s: Unknown command.\n", argv[0]);
-		}
+		
+		process_input(cmd, sizeof(cmd));
 	}
 }
+
+
+int process_input(char *cmd, int cmd_size) {
+	char * argv[MAX_ARGV];
+	int argc;
+	int i, hit;
+	char *bak;
+				
+	parse(cmd, &argc, argv);
+	if(argc == 0)
+		return(0);
+
+	bak = strdup(cmd);
+	
+	for(hit = i = 0; i < HANDLERLIST_SIZE; i++)
+	{
+		if(strcmp(argv[0], handlerlist[i].cmd) == 0)
+		{
+			hit = 1;
+
+			if(handlerlist[i].arg_process)
+			{
+				if(argc > handlerlist[i].arg_max+1)
+					printf("%s: Too many arguments\n", argv[0]);
+				else if(argc < handlerlist[i].arg_min+1)
+					printf("%s: Too few arguments\n", argv[0]);
+				else
+					handlerlist[i].handler(argc, argv);
+			}
+			else
+			{
+				handlerlist[i].handler(bak + strlen(handlerlist[i].cmd) + 1);
+			}
+		}
+	}
+
+	if(hit == 0)
+	{
+		printf("%s: Unknown command.\n", argv[0]);
+	}
+	
+	free(bak);
+	
+	return 0;
+}
+
 
 void parse(char * str, int * const argc, char * argv[])
 {
