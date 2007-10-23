@@ -478,26 +478,11 @@ protected
 				# a compatible key
 				while key.nil?
 					# Read in the header
-					type, current_address, size = f.read(9).unpack('CNV')
+					type, chunk_base_address, size = f.read(9).unpack('CNN')
+					offset = 0
 
 					# Read in the blob of data that will act as our key state
 					data = f.read(size)
-
-					# Pack it back to byte form so that we can check each byte for
-					# bad characters
-					address_bytes = integer_to_key_bytes(current_address)
-				
-					# Scan each byte and see what we've got going on to make sure
-					# no funny business is happening
-					invalid_key = false
-
-					address_bytes.each { |byte|
-						if badchars.index(byte)
-							invalid_key = true
-						end
-					}
-
-					next if invalid_key
 
 					# If the address doesn't contain bad characters, check to see
 					# the data itself will result in bad characters being generated
@@ -510,15 +495,32 @@ protected
 							key_bytes << b
 						}
 
-						# If the key verifies correctly, then we're good to go
+						# If the key verifies correctly, we need to check it's address
 						if find_key_verify(buf, key_bytes, badchars)
-							address = key_bytes_to_integer(address_bytes)
-							key     = key_bytes_to_integer(key_bytes)
-							break
+							address = chunk_base_address + offset
+
+							# Pack it to byte form so that we can check each byte for
+							# bad characters
+							address_bytes = integer_to_key_bytes(address)
+				
+							# Scan each byte and see what we've got going on to make sure
+							# no funny business is happening with the address
+							invalid_key = false
+							address_bytes.each { |byte|
+								if badchars.index(byte)
+									invalid_key = true
+								end
+							}
+
+							if invalid_key == false
+								key = key_bytes_to_integer(key_bytes)
+								break
+							end
 						end
 
 						# If it didn't verify, then we need to proceed
 						data = data[1, data.length - 1]
+						offset += 1
 					end
 				end
 			rescue EOFError
