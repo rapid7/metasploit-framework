@@ -56,7 +56,7 @@ module Db
 		def cmd_db_vulns(*args)
 			framework.db.each_vuln do |vuln|
 				reflist = vuln.refs.map { |r| r.name }
-				puts "Vuln: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}"
+				print_status("Vuln: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}")
 			end
 		end	
 		
