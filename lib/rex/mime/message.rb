@@ -102,7 +102,7 @@ class Message
 			msg << part.to_s
 		end
 
-		msg << "--" + self.bound + "--"
+		msg << "--" + self.bound + "--\r\n"
 		
 		msg
 	end
