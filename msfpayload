@@ -89,7 +89,7 @@ if (cmd =~ /^(p|r|c|j|x|b)/)
 
 
 		
-		if (arch.index("x86"))
+		if (arch.index(ARCH_X86))
 
 			# Automatically prepend stack adjustment
 			buf = Rex::Arch.adjust_stack_pointer('x86', -3500) + buf
@@ -107,10 +107,16 @@ if (cmd =~ /^(p|r|c|j|x|b)/)
 				$stdout.write(buf)
 				exit(0)
 			end
-						
+			
+			if(plat.index(Msf::Module::Platform::OSX))
+				buf = Rex::Text.to_osx_x86_macho(buf, note)
+				$stderr.puts(note)
+				$stdout.write(buf)
+				exit(0)			
+			end						
 		end
 
-		if(arch.index("armle"))
+		if(arch.index(ARCH_ARMLE))
 			if(plat.index(Msf::Module::Platform::OSX))
 				buf = Rex::Text.to_osx_arm_macho(buf, note)
 				$stderr.puts(note)
@@ -119,7 +125,7 @@ if (cmd =~ /^(p|r|c|j|x|b)/)
 			end
 		end
 
-		if(arch.index("ppc"))
+		if(arch.index(ARCH_PPC))
 			if(plat.index(Msf::Module::Platform::OSX))
 				buf = Rex::Text.to_osx_ppc_macho(buf, note)
 				$stderr.puts(note)
@@ -127,7 +133,7 @@ if (cmd =~ /^(p|r|c|j|x|b)/)
 				exit(0)			
 			end
 		end
-				
+						
 		$stderr.puts "No executable format support for this arch/platform"
 		exit(-1)
 	end

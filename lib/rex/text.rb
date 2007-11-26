@@ -624,6 +624,22 @@ module Text
 		return mo
 	end
 	
+	def self.to_osx_x86_macho(code = "", note="")
+		mo = ''
+
+		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "data", "templates", "template_x86_darwin.bin"), "rb")
+		mo = fd.read(fd.stat.size)
+		fd.close
+
+		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
+		co = mo.index( " " * 512 )
+
+		mo[bo, 8192] = [code].pack('a8192') if bo
+		mo[co, 512]  = [note].pack('a512') if co
+
+		return mo
+	end
+		
 	def self.to_linux_x86_elf(code = "", note="")
 		mo = ''
 
