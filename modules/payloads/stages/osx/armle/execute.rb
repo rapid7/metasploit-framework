@@ -150,7 +150,7 @@ module Execute
 			))
 		register_options(
 			[
-				OptPath.new('PEXEC', [ true, "Full path to the file to execute" ])
+				OptPath.new('PEXEC', [ true, "Full path to the file to execute", File.join(Msf::Config.install_root, "data", "ipwn", "ipwn")])
 			], self.class)			
 	end
 	
