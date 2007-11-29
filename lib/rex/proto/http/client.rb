@@ -368,6 +368,7 @@ class Client
 					end
 				end
 			rescue EOFError
+				return nil
 			end
 		} if (t)
 
