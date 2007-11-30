@@ -43,6 +43,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 			"pwd"      => "Print working directory",
 			"rmdir"    => "Remove directory",
 			"upload"   => "Upload a file or directory",
+			"lcd"      => "Change local directory",
 		}
 	end
 
@@ -87,6 +88,20 @@ class Console::CommandDispatcher::Stdapi::Fs
 		return true
 	end
 
+	#
+	# Change the local working directory.
+	#
+	def cmd_lcd(*args)
+		if (args.length == 0)
+			print_line("Usage: lcd directory")
+			return true
+		end
+
+		Dir.chdir(args[0])
+
+		return true
+	end
+	
 	#
 	# Downloads a file or directory from the remote machine to the local
 	# machine.
