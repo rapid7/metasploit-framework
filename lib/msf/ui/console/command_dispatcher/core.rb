@@ -64,6 +64,7 @@ class Core
 			"route"    => "Route traffic through a session",
 			"save"     => "Saves the active datastores",
 			"loadpath" => "Searches for and loads modules from a path",
+			"search"   => "Searches module names and descriptions",
 			"sessions" => "Dump session listings and display information about sessions",
 			"set"      => "Sets a variable to a value",
 			"setg"     => "Sets a global variable to a value",
@@ -596,6 +597,44 @@ class Core
 		print(added)
 	end
 
+	#
+	# Searches modules (name and description) for specified regex
+	#
+	def cmd_search(*args)
+		case args.length
+			when 1
+				section = 'all'
+				match = args[0]
+			when 2
+				section = args[0]
+				match = args[1]
+			else
+				return
+		end
+
+		regex = Regexp.new(match)
+
+		case section
+			when 'all'
+				show_encoders(regex)
+				show_nops(regex)
+				show_exploits(regex)
+				show_payloads(regex)
+				show_auxiliary(regex)
+			when 'encoders'
+				show_encoders(regex)
+			when 'nops'
+				show_nops(regex)
+			when 'exploits'
+				show_exploits(regex)
+			when 'payloads'
+				show_payloads(regex)
+			when 'auxiliary'
+				show_auxiliary(regex)
+		end
+	end
+	
+	#
 	#
 	# Provides an interface to the sessions currently active in the framework.
 	#
@@ -1362,48 +1401,60 @@ protected
 	# Module list enumeration
 	#
 	
-	def show_encoders # :nodoc:
+	def show_encoders(regex = nil) # :nodoc:
 		# If an active module has been selected and it's an exploit, get the
 		# list of compatible encoders and display them
 		if (active_module and active_module.exploit? == true)
 			tbl = generate_module_table("Compatible encoders")
             
 			active_module.compatible_encoders.each { |refname, encoder|
-				tbl << [ refname, encoder.new.name ]
+				name = encoder.new.name
+
+				if not regex or
+				   refname =~ regex or
+				   name =~ regex
+					tbl << [ refname, name ]
+				end
 			}
 
 			print(tbl.to_s)
 		else
-			show_module_set("Encoders", framework.encoders)
+			show_module_set("Encoders", framework.encoders, regex)
 		end
 	end
 	
-	def show_nops # :nodoc:
-		show_module_set("NOP Generators", framework.nops)
+	def show_nops(regex = nil) # :nodoc:
+		show_module_set("NOP Generators", framework.nops, regex)
 	end
 
-	def show_exploits # :nodoc:
-		show_module_set("Exploits", framework.exploits)
+	def show_exploits(regex = nil) # :nodoc:
+		show_module_set("Exploits", framework.exploits, regex)
 	end
 
-	def show_payloads # :nodoc:
+	def show_payloads(regex = nil) # :nodoc:
 		# If an active module has been selected and it's an exploit, get the
 		# list of compatible payloads and display them
 		if (active_module and active_module.exploit? == true)
 			tbl = generate_module_table("Compatible payloads")
 
 			active_module.compatible_payloads.each { |refname, payload|
-				tbl << [ refname, payload.new.name ]
+				name = payload.new.name
+
+				if not regex or
+				   refname =~ regex or
+				   name =~ regex
+					tbl << [ refname, name ]
+				end
 			}
 
 			print(tbl.to_s)
 		else
-			show_module_set("Payloads", framework.payloads)
+			show_module_set("Payloads", framework.payloads, regex)
 		end
 	end
 
-	def show_auxiliary # :nodoc:
-		show_module_set("Auxiliary", framework.auxiliary)
+	def show_auxiliary(regex = nil) # :nodoc:
+		show_module_set("Auxiliary", framework.auxiliary, regex)
 	end
 
 	def show_options(mod) # :nodoc:
@@ -1504,13 +1555,17 @@ protected
 		print(tbl.to_s)
 	end
 
-	def show_module_set(type, module_set) # :nodoc:
+	def show_module_set(type, module_set, regex = nil) # :nodoc:
 		tbl = generate_module_table(type)
 
 		module_set.each_module { |refname, mod|
 			instance = mod.new
 
-			tbl << [ refname, instance.name ]
+			if not regex or
+			   refname =~ regex or
+			   instance.name =~ regex
+				tbl << [ refname, instance.name ]
+			end
 		}
 
 		print(tbl.to_s)
