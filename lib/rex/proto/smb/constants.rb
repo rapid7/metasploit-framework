@@ -80,6 +80,29 @@ SMB_COM_READ_BULK                  = 0xd8
 SMB_COM_WRITE_BULK                 = 0xd9
 SMB_COM_NO_ANDX_COMMAND            = 0xff
 
+
+# SMB Version 2 Commands
+SMB2_OP_NEGPROT   = 0x00
+SMB2_OP_SESSSETUP = 0x01
+SMB2_OP_LOGOFF    = 0x02
+SMB2_OP_TCON      = 0x03
+SMB2_OP_TDIS      = 0x04
+SMB2_OP_CREATE    = 0x05
+SMB2_OP_CLOSE     = 0x06
+SMB2_OP_FLUSH     = 0x07
+SMB2_OP_READ      = 0x08
+SMB2_OP_WRITE     = 0x09
+SMB2_OP_LOCK      = 0x0a
+SMB2_OP_IOCTL     = 0x0b
+SMB2_OP_CANCEL    = 0x0c
+SMB2_OP_KEEPALIVE = 0x0d
+SMB2_OP_FIND      = 0x0e
+SMB2_OP_NOTIFY    = 0x0f
+SMB2_OP_GETINFO   = 0x10
+SMB2_OP_SETINFO   = 0x11
+SMB2_OP_BREAK     = 0x12
+
+
 # SMB_COM_NT_TRANSACT Subcommands
 NT_TRANSACT_CREATE                   = 1 # File open/create
 NT_TRANSACT_IOCTL                    = 2 # Device IOCTL
@@ -355,6 +378,36 @@ SMB_HDR = Rex::Struct2::CStructTemplate.new(
 	[ 'uint8',   'WordCount',         0 ]
 )
 
+
+# The SMB2 header template
+SMB2_HDR = Rex::Struct2::CStructTemplate.new(
+	[ 'uint32n', 'Magic',             0xfe534d42 ],
+	[ 'uint16v', 'HeaderLen',         64 ],
+	[ 'uint16v', 'Reserved0',         0 ],
+	[ 'uint32v', 'NTStatus',          0 ],
+	
+	[ 'uint16v', 'Opcode',            0 ],
+	[ 'uint16v', 'Reserved1',         0 ],	
+	
+	[ 'uint16v', 'Flags1',            0 ],
+	[ 'uint16v', 'Flags2',            0 ],	
+	
+	[ 'uint32v', 'ChainOffset',       0 ],
+
+	[ 'uint32v', 'SequenceHigh',      0 ],
+	[ 'uint32v', 'SequenceLow',       0 ],
+			
+	[ 'uint32v', 'ProcessID',         0 ],
+	[ 'uint32v', 'TreeID',            0 ],
+	[ 'uint32v', 'UserIDHigh',        0 ],
+	[ 'uint32v', 'UserIDLow',         0 ],
+	
+	[ 'uint32v', 'SignatureA',        0 ],
+	[ 'uint32v', 'SignatureB',        0 ],
+	[ 'uint32v', 'SignatureC',        0 ],
+	[ 'uint32v', 'SignatureD',        0 ],
+	[ 'string',  'Payload', nil,      ''] 
+)
 
 # A basic SMB template to read all responses
 SMB_BASE_HDR_PKT = Rex::Struct2::CStructTemplate.new(

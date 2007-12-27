@@ -378,15 +378,13 @@ CONST = Rex::Proto::SMB::Constants
 	# Process Type 1 NTLM Messages, return a Base64 Type 2 Message
 	#
 	def self.process_type1_message(message, nonce = "\x11\x22\x33\x44\x55\x66\x77\x88", win_domain = 'DOMAIN', 
-					win_name = 'SERVER', dns_name = 'server', dns_domain = 'example.com')
+					win_name = 'SERVER', dns_name = 'server', dns_domain = 'example.com', downgrade = true)
 
 		dns_name = Rex::Text.to_unicode(dns_name + "." + dns_domain)
 		win_domain = Rex::Text.to_unicode(win_domain)
 		dns_domain = Rex::Text.to_unicode(dns_domain)
 		win_name = Rex::Text.to_unicode(win_name)
 		decode = Rex::Text.decode_base64(message.strip)
-
-		puts "dns_name = #{dns_name}, dns_domain = #{dns_domain}"
 
 		type = decode[8]
 
@@ -397,9 +395,18 @@ CONST = Rex::Proto::SMB::Constants
 			reqflags = Integer("0x" + reqflags.unpack("h8").to_s.reverse)
 
 			if (reqflags & CONST::REQUEST_TARGET) == CONST::REQUEST_TARGET
-				# At this time NTLMv2 and signing requirements are not supported
-				#flags = CONST::NEGOTIATE_UNICODE | CONST::NEGOTIATE_NTLM | CONST::NEGOTIATE_TARGET_INFO | CONST::TARGET_TYPE_DOMAIN | CONST::TARGET_TYPE_SERVER
-				flags = 0x00810201
+
+				if (downgrade)
+					# At this time NTLMv2 and signing requirements are not supported
+					if (reqflags & CONST::NEGOTIATE_NTLM2_KEY) == CONST::NEGOTIATE_NTLM2_KEY
+						reqflags = reqflags - CONST::NEGOTIATE_NTLM2_KEY
+					end
+					if (reqflags & CONST::NEGOTIATE_ALWAYS_SIGN) == CONST::NEGOTIATE_ALWAYS_SIGN
+						reqflags = reqflags - CONST::NEGOTIATE_ALWAYS_SIGN
+					end				
+				end
+
+				flags = reqflags + CONST::TARGET_TYPE_DOMAIN + CONST::TARGET_TYPE_SERVER				
 				tid = true
 
 				tidoffset = 48 + win_domain.length
@@ -417,7 +424,7 @@ CONST = Rex::Proto::SMB::Constants
 					[dns_name.length].pack('v') +
 					dns_name
 			else
-				flags = CONST::NEGOTIATE_UNICODE | CONST::NEGOTIATE_NTLM
+				flags = CONST::NEGOTIATE_UNICODE + CONST::NEGOTIATE_NTLM
 				tid = false
 			end
 
@@ -455,6 +462,50 @@ CONST = Rex::Proto::SMB::Constants
 		end
 
 		return type2msg
+	end
+	
+	#
+	# Downgrading Type messages to LMv1/NTLMv1 and removing signing
+	#
+	def self.downgrade_type_message(message)
+		decode = Rex::Text.decode_base64(message.strip)
+
+		type = decode[8]
+
+		if (type > 0 and type < 4)
+			reqflags = decode[12..15] if (type == 1 or type == 3)
+			reqflags = decode[20..23] if (type == 2)
+			reqflags = Integer("0x" + reqflags.unpack("h8").to_s.reverse)
+
+			# Remove NEGOTIATE_NTLMV2_KEY and NEGOTIATE_ALWAYS_SIGN, this lowers the negotiation
+			# down to LMv1/NTLMv1.
+			if (reqflags & CONST::NEGOTIATE_NTLM2_KEY) == CONST::NEGOTIATE_NTLM2_KEY
+				reqflags = reqflags - CONST::NEGOTIATE_NTLM2_KEY
+			end
+			if (reqflags & CONST::NEGOTIATE_ALWAYS_SIGN) == CONST::NEGOTIATE_ALWAYS_SIGN
+				reqflags = reqflags - CONST::NEGOTIATE_ALWAYS_SIGN
+			end				
+			
+			# Return the flags back to the decode so we can base64 it again
+			flags = reqflags.to_s(16)
+			0.upto(8) do |idx|
+			  if (idx > flags.length)
+			    flags.insert(0, "0")
+			  end
+			end
+
+			idx = 0
+			0.upto(3) do |cnt|
+				if (type == 2)
+					decode[23-cnt] = Integer("0x" + flags[idx .. idx + 1])
+				else
+					decode[15-cnt] = Integer("0x" + flags[idx .. idx + 1])
+				end
+				idx += 2
+			end
+			
+		end
+		return Rex::Text.encode_base64(decode).delete("\n") # base64 encode and remove the returns 
 	end
 	
 end
