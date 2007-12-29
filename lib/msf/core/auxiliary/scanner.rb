@@ -93,7 +93,8 @@ def run
 		
 			# Clear the host/port list
 			self.scanner_lists_clear
-								
+			
+			nohosts = false	
 			while (tl.length < datastore['THREADS'])
 				
 				batch = []
@@ -101,9 +102,13 @@ def run
 				# Create batches from each set
 				while (batch.length < size)
 					ip = ar.next_ip
-					break if not ip
+					if (not ip)
+						nohosts = true
+						break
+					end
 					batch << ip
 				end
+				
 				
 				# Create a thread for each batch
 				if (batch.length > 0)
@@ -119,18 +124,18 @@ def run
 				end
 				
 				# Exit once we run out of hosts
-				if (tl.length == 0)
+				if (tl.length == 0 or nohosts)
 					break
 				end
 			end
 			
-			# Exit once we run out of hosts
-			if (tl.length == 0)
-				break
-			end
-			
 			# Wait for the threads
 			tl.each { |t| t.join }
+
+			# Exit if there are no more pending threads
+			if (tl.length == 0)
+				break
+			end			
 		end
 		
 		return
