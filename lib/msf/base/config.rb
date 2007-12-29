@@ -23,7 +23,7 @@ class Config < Hash
 		# Windows-specific environment variables
 		['LOCALAPPDATA', 'APPDATA', 'USERPROFILE'].each do |dir|
 			if (ENV[dir] and File.directory?(ENV[dir]))
-				return ENV[dir]
+				return File.join(ENV[dir], "msf3")
 			end
 		end
 								
