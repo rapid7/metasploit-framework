@@ -19,17 +19,20 @@ class Config < Hash
 	# Determines the base configuration directory.
 	#
 	def self.get_config_root
+	
+		# Windows-specific environment variables
+		['LOCALAPPDATA', 'APPDATA', 'USERPROFILE'].each do |dir|
+			if (ENV[dir] and File.directory?(ENV[dir]))
+				return ENV[dir]
+			end
+		end
+								
 		begin
 			# First we try $HOME/.msf3
 			File.expand_path("~#{FileSep}.msf3")
 		rescue ::ArgumentError
-			# Next we look for USERPROFILE (Windows)
-			if (ENV['USERPROFILE'] and File.directory?(ENV['USERPROFILE']))
-				File.join(ENV['USERPROFILE'], '.msf3')
-			else
-			# Finally, we give up and user base + ".msf3"
-				InstallRoot + ".msf3"
-			end
+			# Give up and install root + ".msf3"
+			InstallRoot + ".msf3"
 		end
 	end
 
