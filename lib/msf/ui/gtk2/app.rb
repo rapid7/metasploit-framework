@@ -181,6 +181,13 @@ module Ui
 			# Update the StatusBar with all framework modules
 			refresh()
 		end
+		
+		#
+		# Actions for options stuff (databases, global variable, ...)
+		#
+		def on_options_activate
+		  MsfPreferences::Main.new()
+	  end
 
 		#
 		# Signal to refresh the treeview module
