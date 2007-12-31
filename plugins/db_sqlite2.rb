@@ -83,31 +83,31 @@ class Plugin::DBSQLite2 < Msf::Plugin
 			opts['dbfile'] = info[:path]
 			
 			sql = File.join(Msf::Config.install_root, "data", "sql", "sqlite.sql")
-			
 			if (File.exists?(opts['dbfile']))
-				print_status("The specified database already exists, use db_connect or delete this file")
-				print_status("File: #{opts['dbfile']}")
-				return
-			end
+				print_status("The specified database already exists, connecting")
+			else
 						
-			print_status("Creating a new database instance...")
+				print_status("Creating a new database instance...")
 
-			db = SQLite::Database.new(opts['dbfile'])
-			File.read(sql).split(";").each do |line|
-				begin
-					db.execute(line.strip)
-				rescue ::SQLite::Exceptions::SQLException, ::NoMethodError
+				db = SQLite::Database.new(opts['dbfile'])
+				File.read(sql).split(";").each do |line|
+					begin
+						db.execute(line.strip)
+					rescue ::SQLite::Exceptions::SQLException, ::NoMethodError
+					end
 				end
+				db.close
 			end
-			db.close
-
 
 
 			if (not framework.db.connect(opts))
 				raise PluginLoadError.new("Failed to connect to the database")
 			end
+			
 			driver.append_dispatcher(DatabaseCommandDispatcher)	
-
+			
+			print_status("Successfully connected to the database")
+			print_status("File: #{opts['dbfile']}")
 		end
 
 		#
