@@ -32,7 +32,7 @@ module Msf
             @button.set_width_chars(15)
             
             if store
-              @button.set_filename(store.to_s)
+              @button.set_filename(File.expand_path(store.to_s))
             else
               if File.exist?(default)
                 @button.set_filename(default)
