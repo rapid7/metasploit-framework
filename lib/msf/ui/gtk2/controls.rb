@@ -22,7 +22,7 @@ module Msf
           if ($gtk2logger)
             $gtk2logger.append_text(msg + "\n")
           else
-            $stderr.puts Time.now.to_s + " " + msg
+            # $stderr.puts Time.now.to_s + " " + msg
           end
         end
 
