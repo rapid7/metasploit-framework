@@ -30,7 +30,7 @@ class Auxiliary::Server::SMBSniffer < Msf::Auxiliary
 			hardcoded challenge string (\x00\x01\x02\x03\x04\x05\x06\x07),
 			allowing for easy cracking using Cain & Abel or L0phtcrack. 
 			
-			To exploit this, the target system	must try to	authenticate
+			To exploit this, the target system must try to authenticate
 			to this module. The easiest way to force a SMB authentication attempt
 			is by embedding a UNC path (\\\\SERVER\\SHARE) into a web page or 
 			email message. When the victim views the web page or email, their 
