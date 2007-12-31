@@ -58,29 +58,26 @@ module Ui
 			# Initialize logging
 			initialize_logging
 
-			# Initialize attributes
-			self.framework = Msf::Simple::Framework.create
-
 			# Create the gtk2driver global
 			$gtk2driver = self
 
 			# Init GTK2
 			Gtk.init
 
-			
+			# Initialize the splash screen
 			@splash = Msf::Ui::Gtk2::MySplash.new()
-			
 			done_splash = false
 			
 			Gtk.idle_add do 
-
 				if(done_splash)
+					self.framework = Msf::Simple::Framework.create
 					@gtk2app = Msf::Ui::Gtk2::MyApp.new()
 					@gtk2app.window.show
 					@splash.destroy
 					register_event_handlers
 					false
 				else
+					# Queue a redraw and let the main window start
 					@splash.queue_draw
 					done_splash = true
 					true

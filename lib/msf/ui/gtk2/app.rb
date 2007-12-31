@@ -97,14 +97,11 @@ module Ui
 			set_window_position(Gtk::Window::POS_CENTER)
 
 			set_default_size(460,301)
-			set_border_width(0)
+			set_border_width(5)
 			
 			image = Gtk::Image.new(driver.get_icon("splash.png"))
-			image.queue_draw
 			add(image)
-			
-			realize
-			
+
 			show_all
 		end
 	end
