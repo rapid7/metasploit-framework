@@ -381,8 +381,11 @@ module Db
 			fd = Tempfile.new('dbnmap')
 			args.push('-oX', fd.path)
 			args.unshift(nmap)
-
-			IO.popen( args.map{|x| '"'+x+'"'}.join(" ") + " 2>&1" ) do |io|
+			
+			cmd = args.map{|x| '"'+x+'"'}.join(" ") + " 2>&1"
+			
+			print_status("exec: #{cmd}")
+			IO.popen( cmd ) do |io|
 				io.each_line do |line|
 					print_line("NMAP: " + line.strip)
 				end
