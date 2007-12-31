@@ -60,6 +60,7 @@ class Nasm
 
 		# Remove temporary files
 		File.unlink(opath)
+		File.unlink(tpath)
 		tmp.close
 
 		rv

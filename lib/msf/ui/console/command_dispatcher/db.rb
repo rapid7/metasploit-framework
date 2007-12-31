@@ -395,6 +395,8 @@ module Db
 			
 			fd.close
 			
+			File.unlink(x.path)
+			
 			load_nmap_xml(data)
 		end		
 		

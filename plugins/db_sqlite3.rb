@@ -107,11 +107,17 @@ class Plugin::DBSQLite3 < Msf::Plugin
 				return
 			end
 			
-			IO.popen("#{sqlite3} \"#{opts['dbfile']}\" < \"#{sql}\"") do |io|
-				io.each_line do |line|
-					print_line("OUTPUT: " + line.strip)
-				end
+			
+			tmp = Tempfile.new("sqlXXXXXXX")
+			
+			system("#{sqlite3} \"#{opts['dbfile']}\" < \"#{sql}\" >\"#{tmp.path}\" 2>&1")
+			
+			tmp.read.each_line do |line|
+				print_status("OUTPUT: #{line.strip}")
 			end
+
+			tmp.close
+			File.unlink(tmp.path)
 
 			if (not framework.db.connect(opts))
 				raise PluginLoadError.new("Failed to connect to the database")
