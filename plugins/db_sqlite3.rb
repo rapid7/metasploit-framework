@@ -111,7 +111,9 @@ class Plugin::DBSQLite3 < Msf::Plugin
 			tmp = Tempfile.new("sqlXXXXXXX")
 			tmp.close
 			
-			cmd = "\"#{sqlite3}\" \"#{opts['dbfile']}\" < \"#{sql}\" >\"#{tmp.path}\" 2>&1"
+			cmd = "\"#{sqlite3}\" \"#{opts['dbfile']}\" < \"#{sql}\" >\"#{tmp.path}\""
+			print_status("exec: #{cmd}")
+			
 			system(cmd)
 			
 			File.read(tmp.path).each_line do |line|
