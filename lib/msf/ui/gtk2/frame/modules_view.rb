@@ -34,7 +34,7 @@ module Msf
           obj.description.each_line do |line|
             desc << line.strip + "\n"
           end
-          @buffer.insert_with_tags(start, desc, 'black_wrap')
+          @buffer.insert_with_tags(start, desc)
         end
       end
 
