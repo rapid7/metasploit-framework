@@ -124,6 +124,7 @@ module Msf
               migrate_item_shell.signal_connect('activate') do |item|
                 if current = @selection.selected
                   cmd_migrate(current.get_value(PID).to_i)
+				  update()
                 end
               end
               
@@ -131,6 +132,7 @@ module Msf
               kill_item_shell.signal_connect('activate') do |item|
                 if current = @selection.selected
                   cmd_kill(current.get_value(PID))
+				  update()				  
                 end
               end
 

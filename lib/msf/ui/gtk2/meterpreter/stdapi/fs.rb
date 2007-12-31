@@ -9,7 +9,7 @@ module Msf
         # The file system portion of the standard API extension.
         #
         ###
-        class Fs <  Msf::Ui::Gtk2::SkeletonBrowser
+        class Fs < Msf::Ui::Gtk2::SkeletonBrowser
           COL_TYPE, COL_PATH, COL_DISPLAY_NAME, COL_IS_DIR, COL_PIXBUF = (0..5).to_a
 
           def initialize(client)
@@ -17,7 +17,7 @@ module Msf
             # The session
             @client = client
 
-            local = File.join(driver.resource_directory, "sessions")
+            local = File.join(driver.config_directory, "logs", "sessions")
             remote = @client.fs.dir.getwd
 
             # call the parent
