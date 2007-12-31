@@ -5,7 +5,7 @@ module Msf
       class MsfWindow
 
         #
-        #
+        # This class performs a Gtk::Window to display logs from framework
         #
         class Logs < Msf::Ui::Gtk2::SkeletonBasic
 
@@ -27,6 +27,7 @@ module Msf
             add(vbox)
             
             textview = Gtk::TextView.new($gtk2driver.log_text.buffer)
+            textview.set_editable(false)
             
             sw = Gtk::ScrolledWindow.new()
             sw.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
