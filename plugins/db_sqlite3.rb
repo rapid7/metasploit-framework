@@ -96,31 +96,16 @@ class Plugin::DBSQLite3 < Msf::Plugin
 			end
 						
 			print_status("Creating a new database instance...")
-		
-			sqlite3 = 
-				Rex::FileUtils.find_full_path("sqlite3") || 
-				Rex::FileUtils.find_full_path("sqlite3.exe")
-				
-			if (not sqlite3)
-				print_error("The sqlite3 executable was not found in the system path")
-				print_error("Please install sqlite3")
-				return
-			end
-			
-			
-			tmp = Tempfile.new("sqlXXXXXXX")
-			tmp.close
-			
-			cmd = "\"#{sqlite3}\" \"#{opts['dbfile']}\" < \"#{sql}\" >\"#{tmp.path}\""
-			print_status("exec: #{cmd}")
-			
-			system(cmd)
-			
-			File.read(tmp.path).each_line do |line|
-				print_status("OUTPUT: #{line.strip}")
-			end
 
-			File.unlink(tmp.path)
+			db = SQLite3::Database.new(opts['dbfile'])
+			File.read(sql).split(";").each do |line|
+				begin
+					db.execute(line.strip)
+				rescue ::SQLite3::SQLException, ::SQLite3::MisuseException
+				end
+			end
+			db.close
+			
 
 			if (not framework.db.connect(opts))
 				raise PluginLoadError.new("Failed to connect to the database")
