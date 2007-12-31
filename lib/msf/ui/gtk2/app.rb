@@ -1,259 +1,294 @@
 module Msf
-  module Ui
-    module Gtk2
+module Ui
+	module Gtk2
 
-      ###
-      #
-      # This class help us to wait the next release of ruby-libglade2 package
-      #
-      ###
-      class GladeXML < GladeXML
-        def connect(source, target, signal, handler, data, after = false)
-          @handler_proc ||= Proc.new{}
-          handler = canonical_handler(handler)
-          if target
-            signal_proc = target.method(handler)
-          else
-            signal_proc = @handler_proc.call(handler)
-          end
+	###
+	#
+	# This class help us to wait the next release of ruby-libglade2 package
+	#
+	###
+	class GladeXML < GladeXML
+		def connect(source, target, signal, handler, data, after = false)
 
-          if after
-            sig_conn_proc = source.method(:signal_connect_after)
-          else
-            sig_conn_proc = source.method(:signal_connect)
-          end
+			@handler_proc ||= Proc.new{}
+			handler = canonical_handler(handler)
+			if target
+				signal_proc = target.method(handler)
+			else
+				signal_proc = @handler_proc.call(handler)
+			end
 
-          if signal_proc
-            guard_source_from_gc(source)
-            case signal_proc.arity
-            when 0
-              sig_conn_proc.call(signal) {signal_proc.call}
-            else
-              sig_conn_proc.call(signal, &signal_proc)
-            end
-          elsif $DEBUG
-            puts "Undefined handler: #{handler}"
-          end
-        end
+			if after
+				sig_conn_proc = source.method(:signal_connect_after)
+			else
+				sig_conn_proc = source.method(:signal_connect)
+			end
 
-        def guard_source_from_gc(source)
-          return if source.nil?
-          @sources ||= {}
-          @sources[source.object_id] = source
+			if signal_proc
+				guard_source_from_gc(source)
+				case signal_proc.arity
+				when 0
+					sig_conn_proc.call(signal) {signal_proc.call}
+				else
+					sig_conn_proc.call(signal, &signal_proc)
+				end
+			elsif $DEBUG
+				puts "Undefined handler: #{handler}"
+			end
+		end
 
-          source.signal_connect("destroy") do |object|
-            @sources.delete(object.object_id)
-          end
+		def guard_source_from_gc(source)
+			return if source.nil?
+			@sources ||= {}
+			@sources[source.object_id] = source
 
-          # To get the parent window of the source as a ruby object.
-          # Ruby/GTK keeps the Window objects on the memory to prevend from GC.
-          parent = source.parent
-          while parent
-            parent = parent.parent
-          end
-        end
-      end
+			source.signal_connect("destroy") do |object|
+				@sources.delete(object.object_id)
+			end
 
-      ###
-      #
-      # This class help us to retreive all glade widgets and place them in your user instance
-      # like @windows, @widget, ...
-      #
-      ###
-      class MyGlade
-        include Msf::Ui::Gtk2::MyControls
+			# To get the parent window of the source as a ruby object.
+			# Ruby/GTK keeps the Window objects on the memory to prevend from GC.
+			parent = source.parent
+			while parent
+				parent = parent.parent
+			end
+		end
+	end
 
-        def initialize(root)
-          # Give the glade file and instance the glade object
-          file_glade = File.join(driver.resource_directory, 'msfgui.glade')
-          glade = GladeXML.new(file_glade, root) { |handler|method(handler) }
+	###
+	#
+	# This class help us to retreive all glade widgets and place them in your user instance
+	# like @windows, @widget, ...
+	#
+	###
+	class MyGlade
+		include Msf::Ui::Gtk2::MyControls
 
-          # For all widget names, instance a variable
-          glade.widget_names.each do |name|
-            begin
-              instance_variable_set("@#{name}".intern, glade[name])
-            rescue
-            end
-          end
-        end
-      end
+		def initialize(root)
+			# Give the glade file and instance the glade object
+			file_glade = File.join(driver.resource_directory, 'msfgui.glade')
+			glade = GladeXML.new(file_glade, root) { |handler|method(handler) }
 
-      ###
-      #
-      # This class provides the main window.
-      #
-      ###
-      class MyApp < MyGlade
+			# For all widget names, instance a variable
+			glade.widget_names.each do |name|
+				begin
+					instance_variable_set("@#{name}".intern, glade[name])
+				rescue
+				end
+			end
+		end
+	end
 
-        include Msf::Ui::Gtk2::MyControls
+	###
+	#
+	# This class provides the splash screen
+	#
+	###
+	class MySplash < Gtk::Window
 
-        def initialize
-          # console_style = File.join(driver.resource_directory, 'style', 'main.rc')
-          # Gtk::RC.parse(console_style)
+		include Msf::Ui::Gtk2::MyControls
 
-          super('window')
+		def initialize
+          	super(Gtk::Window::TOPLEVEL)
+			
+			set_type_hint(Gdk::Window::TYPE_HINT_SPLASHSCREEN)
+			
+			set_decorated(false)
+			set_window_position(Gtk::Window::POS_CENTER)
 
-          # Set a default icon for all widgets
-          Gtk::Window.set_default_icon(driver.get_icon('msfwx.xpm'))
-          @window.set_icon(driver.get_icon('msfwx.xpm'))
+			set_default_size(460,301)
+			set_border_width(0)
+			
+			image = Gtk::Image.new(driver.get_icon("splash.png"))
+			image.queue_draw
+			add(image)
+			
+			realize
+			
+			show_all
+		end
+	end
 
-          # Set a title with the version
-          @window.set_title("msfgui v#{Msf::Framework::Version}")
+	  
+	###
+	#
+	# This class provides the main window.
+	#
+	###
 
-          # Destroy
-          @window.signal_connect('destroy') { Gtk.main_quit }
+	class MyApp < MyGlade
 
-          # Default size
-          # @window.set_default_size(1024, 768)
+		attr_accessor :window
+		
+		include Msf::Ui::Gtk2::MyControls
 
-          # Defaults policies for Gtk::ScrolledWindow
-          @scrolledwindow_module.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
-          @scrolledwindow_jobs.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
-          @scrolledwindow_session.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
-          @scrolledwindow_information.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
-          @scrolledwindow_logs.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+		def initialize
+			# console_style = File.join(driver.resource_directory, 'style', 'main.rc')
+			# Gtk::RC.parse(console_style)
 
-          # Logs Buffer
-          @buffer = Gtk::TextBuffer.new
-          @viewlogs.set_buffer(@buffer_logs)
-          @viewlogs.set_editable(false)
-          @viewlogs.set_cursor_visible(false)
+			super('window')
 
-          # Sessions Tree
-          @session_tree = MySessionTree.new(@treeview_session)
+			# Set a default icon for all widgets
+			Gtk::Window.set_default_icon(driver.get_icon('msfwx.xpm'))
+			@window.set_icon(driver.get_icon('msfwx.xpm'))
 
-          # Target Tree
-          @job_tree = MyJobTree.new(@treeview2)
+			# Set a title with the version
+			@window.set_title("msfgui v#{Msf::Framework::Version}")
 
-          # Module Tree
-          @module_tree = MyModuleTree.new(@treeview1, @viewmodule)
+			# Destroy
+			@window.signal_connect('destroy') { Gtk.main_quit }
 
-          # Tooltips
-          tooltips = Gtk::Tooltips.new
+			# Default size
+			# @window.set_default_size(1024, 768)
 
-          # Configure the window handles for easy reference
-          $gtk2driver.main = @window
-          $gtk2driver.session_tree = @session_tree
-          $gtk2driver.job_tree = @job_tree
-          $gtk2driver.module_tree = @module_tree
-          $gtk2driver.log_text = @viewlogs
-          $gtk2driver.tips = tooltips
+			# Defaults policies for Gtk::ScrolledWindow
+			@scrolledwindow_module.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+			@scrolledwindow_jobs.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+			@scrolledwindow_session.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+			@scrolledwindow_information.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+			@scrolledwindow_logs.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
 
-          # Initialize the search class
-          ModuleSearch.new(@search_entry, @search_button, @search_cancel_button)
+			# Logs Buffer
+			@buffer = Gtk::TextBuffer.new
+			@viewlogs.set_buffer(@buffer_logs)
+			@viewlogs.set_editable(false)
+			@viewlogs.set_cursor_visible(false)
 
-          # Focus on the search widget
-          @search_entry.can_focus = true
-          @search_entry.grab_focus
+			# Sessions Tree
+			@session_tree = MySessionTree.new(@treeview_session)
 
-          # Update the StatusBar with all framework modules
-          refresh()
-        end
+			# Target Tree
+			@job_tree = MyJobTree.new(@treeview2)
 
-        #
-        # Signal to refresh the treeview module
-        #
-        def on_refresh_activate
-          refresh()
-        end
+			# Module Tree
+			@module_tree = MyModuleTree.new(@treeview1, @viewmodule)
 
-        #
-        # Bye bye
-        #
-        def on_leave_activate
-          Gtk.main_quit
-        end
+			# Tooltips
+			tooltips = Gtk::Tooltips.new
 
-        #
-        # Actions for OpCodes/Stats
-        #
-        def on_stats_activate
-          MsfOpcode::Stats.new()
-        end
+			# Configure the window handles for easy reference
+			$gtk2driver.main = @window
+			$gtk2driver.session_tree = @session_tree
+			$gtk2driver.job_tree = @job_tree
+			$gtk2driver.module_tree = @module_tree
+			$gtk2driver.log_text = @viewlogs
+			$gtk2driver.tips = tooltips
 
-        #
-        # Actions for OpCodes/Locales
-        #
-        def on_locales_activate
-          MsfOpcode::Locales.new()
-        end
+			# Initialize the search class
+			ModuleSearch.new(@search_entry, @search_button, @search_cancel_button)
 
-        #
-        # Actions for OpCodes/Metatypes
-        #
-        def on_metatypes_activate
-          MsfOpcode::Metatypes.new()
-        end
+			# Focus on the search widget
+			@search_entry.can_focus = true
+			@search_entry.grab_focus
 
-        #
-        # Actions for OpCodes/Groups
-        #
-        def on_groups_activate
-          MsfOpcode::Groups.new()
-        end
+			# Update the StatusBar with all framework modules
+			refresh()
+		end
 
-        #
-        # Actions for OpCodes/Types
-        #
-        def on_types_activate
-          MsfOpcode::Types.new()
-        end
+		#
+		# Signal to refresh the treeview module
+		#
+		def on_refresh_activate
+			refresh()
+		end
 
-        #
-        # Actions for OpCodes/Platforms
-        #
-        def on_platforms_activate
-          MsfOpcode::Platforms.new()
-        end
+		#
+		# Bye bye
+		#
+		def on_leave_activate
+			Gtk.main_quit
+		end
 
-        #
-        # Actions for OpCodes/Modules
-        #
-        def on_modules_activate
-          MsfOpcode::Modules.new()
-        end
+		#
+		# Actions for OpCodes/Stats
+		#
+		def on_stats_activate
+			MsfOpcode::Stats.new()
+		end
 
-        #
-        # Actions for OpCodes/Search
-        #
-        def on_search_activate
-        end
+		#
+		# Actions for OpCodes/Locales
+		#
+		def on_locales_activate
+			MsfOpcode::Locales.new()
+		end
 
-        #
-        # Action for "Window/Logs" menu
-        #
-        def on_logs_activate
-          MsfWindow::Logs.new
-        end
+		#
+		# Actions for OpCodes/Metatypes
+		#
+		def on_metatypes_activate
+			MsfOpcode::Metatypes.new()
+		end
 
-        #
-        # The About Dialog
-        #
-        def on_about_activate
-          ad = MyAbout.new(@window)
-          ad.signal_connect('response'){ ad.destroy }
-          ad.show
-        end
+		#
+		# Actions for OpCodes/Groups
+		#
+		def on_groups_activate
+			MsfOpcode::Groups.new()
+		end
 
-        #
-        # Call the refresh method to reload all module
-        #
-        def refresh
-          @module_tree.refresh
-          context_id = @statusbar.get_context_id("update")
-          @statusbar.push(
-          context_id,
-          "Loaded " +
-          framework.stats.num_exploits.to_s + " exploits, " +
-          framework.stats.num_payloads.to_s + " payloads, " +
-          framework.stats.num_encoders.to_s + " encoders, " +
-          framework.stats.num_nops.to_s + " nops, and " +
-          framework.stats.num_auxiliary.to_s + " auxiliary"
-          )
-        end
-        
-      end
+		#
+		# Actions for OpCodes/Types
+		#
+		def on_types_activate
+			MsfOpcode::Types.new()
+		end
 
-    end
-  end
+		#
+		# Actions for OpCodes/Platforms
+		#
+		def on_platforms_activate
+			MsfOpcode::Platforms.new()
+		end
+
+		#
+		# Actions for OpCodes/Modules
+		#
+		def on_modules_activate
+			MsfOpcode::Modules.new()
+		end
+
+		#
+		# Actions for OpCodes/Search
+		#
+		def on_search_activate
+		end
+
+		#
+		# Action for "Window/Logs" menu
+		#
+		def on_logs_activate
+			MsfWindow::Logs.new
+		end
+
+		#
+		# The About Dialog
+		#
+		def on_about_activate
+			ad = MyAbout.new(@window)
+			ad.signal_connect('response'){ ad.destroy }
+			ad.show
+		end
+
+		#
+		# Call the refresh method to reload all module
+		#
+		def refresh
+			@module_tree.refresh
+			context_id = @statusbar.get_context_id("update")
+			@statusbar.push(
+			context_id,
+			"Loaded " +
+			framework.stats.num_exploits.to_s + " exploits, " +
+			framework.stats.num_payloads.to_s + " payloads, " +
+			framework.stats.num_encoders.to_s + " encoders, " +
+			framework.stats.num_nops.to_s + " nops, and " +
+			framework.stats.num_auxiliary.to_s + " auxiliary"
+			)
+		end
+		
+	end
+
+	end
+end
 end
