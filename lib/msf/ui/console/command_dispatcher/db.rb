@@ -220,12 +220,12 @@ module Db
 						mod.datastore['RPORT'] = xref[0].to_s
 
 						if (code == :bind)
-							mod.datastore['PAYLOAD'] = 'generic/shell/bind_tcp'
+							mod.datastore['PAYLOAD'] = 'generic/shell_bind_tcp'
 							mod.datastore['LPORT']   = (rand(0x8fff) + 4000).to_s
 						end
 						
 						if (code == :conn)
-							mod.datastore['PAYLOAD'] = 'generic/shell/reverse_tcp'
+							mod.datastore['PAYLOAD'] = 'generic/shell_reverse_tcp'
 							mod.datastore['LHOST']   = 	Rex::Socket.source_address(xref[2])
 							mod.datastore['LPORT']   = 	(rand(0x8fff) + 4000).to_s
 							
