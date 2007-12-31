@@ -109,14 +109,14 @@ class Plugin::DBSQLite3 < Msf::Plugin
 			
 			
 			tmp = Tempfile.new("sqlXXXXXXX")
+			tmp.close
 			
 			system("#{sqlite3} \"#{opts['dbfile']}\" < \"#{sql}\" >\"#{tmp.path}\" 2>&1")
 			
-			tmp.read.each_line do |line|
+			File.read(tmp.path).each_line do |line|
 				print_status("OUTPUT: #{line.strip}")
 			end
 
-			tmp.close
 			File.unlink(tmp.path)
 
 			if (not framework.db.connect(opts))
