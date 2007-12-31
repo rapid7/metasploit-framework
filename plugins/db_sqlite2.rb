@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'msf/ui/console/command_dispatcher/db'
-
+require "rubygems"
+require "sqlite"
 
 module Msf
 
@@ -83,8 +84,24 @@ class Plugin::DBSQLite2 < Msf::Plugin
 			
 			sql = File.join(Msf::Config.install_root, "data", "sql", "sqlite.sql")
 			
+			if (File.exists?(opts['dbfile']))
+				print_status("The specified database already exists, use db_connect or delete this file")
+				print_status("File: #{opts['dbfile']}")
+				return
+			end
+						
 			print_status("Creating a new database instance...")
-			system("sqlite #{opts['dbfile']} < #{sql}")
+
+			db = SQLite::Database.new(opts['dbfile'])
+			File.read(sql).split(";").each do |line|
+				begin
+					db.execute(line.strip)
+				rescue ::SQLite::Exceptions::SQLException, ::NoMethodError
+				end
+			end
+			db.close
+
+
 
 			if (not framework.db.connect(opts))
 				raise PluginLoadError.new("Failed to connect to the database")
