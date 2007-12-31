@@ -295,19 +295,23 @@ protected
 	# executable.  This is only allowed if command passthru has been permitted
 	#
 	def unknown_command(method, line)
-		if (command_passthru == true and Rex::FileUtils.find_full_path(method))
-			
-			print_status("Executing: `#{line}`")
-			print_line('')
-			
-			io = ::IO.popen(line, "r")
-			io.each_line do |data|
-				print(data)
+
+		[method, method+".exe"].each do |cmd|
+			if (command_passthru == true and Rex::FileUtils.find_full_path(cmd))
+
+				print_status("exec: #{line}")
+				print_line('')
+
+				io = ::IO.popen(line, "r")
+				io.each_line do |data|
+					print(data)
+				end
+				io.close
+				return
 			end
-			io.close
-		else
-			super
 		end
+		
+		super
 	end
 	
 	##

@@ -20,7 +20,7 @@ module Msf
       ]
       LIST = 'framework-subscribe@metasploit.com'
       BUGREPORT_URL = 'http://metasploit.com/dev/trac/report/9'
-      WEBSITE_URL = 'http://www.metasploit3.com'
+      WEBSITE_URL = 'http://metasploit3.com'
       VERSION = "v#{Msf::Framework::Version}"
 
       #

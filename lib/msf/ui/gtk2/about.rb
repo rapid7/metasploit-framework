@@ -12,7 +12,7 @@ module Msf
         include Msf::Ui::Gtk2::MyControls
 
         Gtk::AboutDialog.set_email_hook do |about, link|
-          Rex::Compat.open_browser("mailto:#{link}")
+          Rex::Compat.open_email(link)
         end
 
         Gtk::AboutDialog.set_url_hook do |about, link|
