@@ -21,7 +21,7 @@ module Msf
             remote = @client.fs.dir.getwd
 
             # call the parent
-            super("MsfBrowser on #{@client.tunnel_peer}", local, remote)
+            super("msfbrowser on #{@client.tunnel_peer}", local, remote)
 
             # Populate the view
             create_dir_session()
