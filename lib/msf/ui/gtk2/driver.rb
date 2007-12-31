@@ -41,7 +41,9 @@ module Ui
 		# The default resource directory for msfgui
 		#
 		DefaultResourceDirectory = Msf::Config.data_directory + File::SEPARATOR + "msfgui"
-
+		
+		DefaultConfigDirectory = Msf::Config.config_directory + File::SEPARATOR
+		
 		#
 		# Initializes a gtk2 driver instance
 		#
@@ -102,6 +104,14 @@ module Ui
 			opts['ResourceDirectory'] || DefaultResourceDirectory
 		end
 
+
+		#
+		# Returns the local directory that will hold the files to be serviced.
+		#
+		def config_directory
+			opts['ConfigDirectory'] || DefaultConfigDirectory
+		end
+		
 		#
 		# Saves configuration for MsfAssistant.
 		#

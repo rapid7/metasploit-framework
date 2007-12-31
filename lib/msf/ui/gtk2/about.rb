@@ -30,7 +30,7 @@ module Msf
           self.authors = Gtk2::AUTHORS
           self.documenters = Gtk2::DOCUMENTERS
           self.artists = Gtk2::ARTISTS
-          self.logo = driver.get_icon('msfwx.xpm')
+          self.logo = driver.get_icon('splash.png')
           self.website = Gtk2::WEBSITE_URL
           self.license = File.read(File.join(Msf::Config.install_root, 'documentation', 'LICENSE'))
           self.transient_for = parent
