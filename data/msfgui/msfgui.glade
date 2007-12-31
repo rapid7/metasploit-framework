@@ -7,10 +7,10 @@
   <property name="border_width">5</property>
   <property name="width_request">800</property>
   <property name="height_request">600</property>
-  <property name="visible">True</property>
+  <property name="visible">False</property>
   <property name="title" translatable="yes"></property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
+  <property name="window_position">GTK_WIN_POS_CENTER</property>
   <property name="modal">False</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
