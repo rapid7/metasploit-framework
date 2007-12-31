@@ -382,7 +382,7 @@ module Db
 			args.push('-oX', fd.path)
 			args.unshift(nmap)
 			
-			cmd = args.map{|x| '"'+x+'"'}.join(" ") + " 2>&1"
+			cmd = args.map{|x| '"'+x+'"'}.join(" ")
 			
 			print_status("exec: #{cmd}")
 			IO.popen( cmd ) do |io|
