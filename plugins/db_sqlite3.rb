@@ -1,6 +1,8 @@
 require 'fileutils'
 require 'msf/ui/console/command_dispatcher/db'
 
+require 'rubygems'
+require 'sqlite3'
 
 module Msf
 
@@ -53,6 +55,7 @@ class Plugin::DBSQLite3 < Msf::Plugin
 		# Connect to an existing SQLite database
 		#
 		def cmd_db_connect(*args)
+
 			info = parse_db_uri(args[0])
 			opts = { 'adapter' => 'sqlite3' }
 
@@ -62,12 +65,15 @@ class Plugin::DBSQLite3 < Msf::Plugin
 				print_status("The specified database does not exist")
 				return
 			end
-			
+						
 			if (not framework.db.connect(opts))
 				raise PluginLoadError.new("Failed to connect to the database")
 			end
 			
 			driver.append_dispatcher(DatabaseCommandDispatcher)
+			
+			print_status("Successfully connected to the database")
+			print_status("File: #{opts['dbfile']}")			
 		end
 
 		#
@@ -82,14 +88,38 @@ class Plugin::DBSQLite3 < Msf::Plugin
 			opts['dbfile'] = info[:path]
 			
 			sql = File.join(Msf::Config.install_root, "data", "sql", "sqlite.sql")
-			
+
+			if (File.exists?(opts['dbfile']))
+				print_status("The specified database already exists, use db_connect or delete this file")
+				print_status("File: #{opts['dbfile']}")
+				return
+			end
+						
 			print_status("Creating a new database instance...")
-			system("sqlite3 #{opts['dbfile']} < #{sql}")
+		
+			sqlite3 = 
+				Rex::FileUtils.find_full_path("sqlite3") || 
+				Rex::FileUtils.find_full_path("sqlite3.exe")
+				
+			if (not sqlite3)
+				print_error("The sqlite3 executable was not found in the system path")
+				print_error("Please install sqlite3")
+				return
+			end
+			
+			IO.popen("#{sqlite3} \"#{opts['dbfile']}\" < \"#{sql}\"") do |io|
+				io.each_line do |line|
+					print_line("OUTPUT: " + line.strip)
+				end
+			end
 
 			if (not framework.db.connect(opts))
 				raise PluginLoadError.new("Failed to connect to the database")
 			end
 			driver.append_dispatcher(DatabaseCommandDispatcher)	
+			
+			print_status("Successfully created the database")
+			print_status("File: #{opts['dbfile']}")
 		end
 
 		#

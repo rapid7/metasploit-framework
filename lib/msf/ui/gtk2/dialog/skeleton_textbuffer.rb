@@ -84,7 +84,7 @@ module Msf
           :'foreground' => 'blue',
           :'weight' => Pango::FontDescription::WEIGHT_BOLD,
           :'underline' => Pango::UNDERLINE_SINGLE,
-          :'left_margin' => 100
+          :'left_margin' => 5
           )
           
           # Black
@@ -93,7 +93,13 @@ module Msf
           :'wrap_mode' => Gtk::TextTag::WRAP_WORD,
           :'left_margin' => 5
           )
-          
+
+          # Black
+          self.create_tag("black_wrap",
+          :'wrap_mode' => Gtk::TextTag::WRAP_WORD,
+          :'left_margin' => 5
+          )
+		            
           # White
           self.create_tag("white",
           :'foreground' => 'white',

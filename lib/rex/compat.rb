@@ -41,6 +41,16 @@ def self.open_browser(url='http://metasploit.com/')
 	end
 end
 
+def self.open_email(addr)
+	case RUBY_PLATFORM
+	when /mswin32/
+		system("start mailto:#{addr}")
+	when /darwin/
+		system("open mailto:#{addr}")
+	else
+		# ?
+	end
+end
 
 #
 # Change the Windows console to non-blocking mode

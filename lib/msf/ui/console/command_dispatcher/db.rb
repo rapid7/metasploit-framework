@@ -220,12 +220,12 @@ module Db
 						mod.datastore['RPORT'] = xref[0].to_s
 
 						if (code == :bind)
-							mod.datastore['PAYLOAD'] = 'generic/shell_bind_tcp'
+							mod.datastore['PAYLOAD'] = 'generic/shell/bind_tcp'
 							mod.datastore['LPORT']   = (rand(0x8fff) + 4000).to_s
 						end
 						
 						if (code == :conn)
-							mod.datastore['PAYLOAD'] = 'generic/shell_reverse_tcp'
+							mod.datastore['PAYLOAD'] = 'generic/shell/reverse_tcp'
 							mod.datastore['LHOST']   = 	Rex::Socket.source_address(xref[2])
 							mod.datastore['LPORT']   = 	(rand(0x8fff) + 4000).to_s
 							
@@ -369,11 +369,24 @@ module Db
 				return
 			end
 			
+			nmap = 
+				Rex::FileUtils.find_full_path("nmap") || 
+				Rex::FileUtils.find_full_path("nmap.exe")
+				
+			if(not nmap)
+				print_error("The nmap executable could not be found")
+				return
+			end
+
 			fd = Tempfile.new('dbnmap')
 			args.push('-oX', fd.path)
-			args.unshift('nmap')
+			args.unshift(nmap)
 
-			system(*args)			
+			IO.popen( args.map{|x| '"'+x+'"'}.join(" ") + " 2>&1" ) do |io|
+				io.each_line do |line|
+					print_line("NMAP: " + line.strip)
+				end
+			end
 
 			data = fd.read
 			

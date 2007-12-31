@@ -43,7 +43,7 @@ class DBManager
 	# Connects this instance to a database
 	#
 	def connect(opts={})
-		
+
 		return false if not @usable
 		
 		nopts = opts.dup
@@ -53,7 +53,6 @@ class DBManager
 		
 		
 		begin
-			ActiveRecord::Base.threaded_connections = false
 			ActiveRecord::Base.establish_connection(nopts)
 		rescue ::Exception => e
 			elog("DB.connect threw an exception: #{e.to_s}")
