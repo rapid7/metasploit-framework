@@ -30,6 +30,17 @@ def self.is_linux
 	(RUBY_PLATFORM =~ /linux/) ? true : false
 end
 
+def self.open_browser(url='http://metasploit.com/')
+	case RUBY_PLATFORM
+	when /mswin32/
+		system("start #{url}")
+	when /darwin/
+		system("open #{url}")
+	else
+		system("firefox #{url} &")
+	end
+end
+
 
 #
 # Change the Windows console to non-blocking mode

@@ -11,14 +11,12 @@ module Msf
 
         include Msf::Ui::Gtk2::MyControls
 
-        # TODO
         Gtk::AboutDialog.set_email_hook do |about, link|
-          puts "Mail to #{link}"
+          Rex::Compat.open_browser("mailto:#{link}")
         end
-        
-        # TODO
+
         Gtk::AboutDialog.set_url_hook do |about, link|
-          puts "Launch a browser to url #{link}"
+          Rex::Compat.open_browser(link)
         end
 
         def initialize(parent)
