@@ -5,7 +5,7 @@ module Msf
       class MsfWindow
 
         #
-        #
+        # This class is dedicated to output auxiliary modules
         #
         class Auxiliary < Msf::Ui::Gtk2::SkeletonBasic
 
@@ -17,8 +17,6 @@ module Msf
 
             # call the parent
             super(title)
-
-
 
             # Define the size and border
             set_default_size(400, 400)
@@ -36,7 +34,6 @@ module Msf
             r_sw.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
             vbox.pack_start(r_sw, false, false, 0)
             r_sw.add(@r_view)
-
 
             # Live log
             @buffer = SkeletonTextBuffer.new
@@ -64,6 +61,7 @@ module Msf
             @buffer.insert_with_tags(@buffer.end_iter, Time.now.strftime("%H:%m:%S "), 'forestgreen_bold')
             @buffer.insert_with_tags(@buffer.end_iter, Rex::Text.to_utf8(data), 'white_wrap')
 
+            # scroll to the end
             @buffer.move_mark('end_mark', @buffer.end_iter)
             @view.scroll_mark_onscreen(@buffer.get_mark('end_mark'))
           end
