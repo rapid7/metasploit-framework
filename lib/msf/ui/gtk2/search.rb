@@ -57,8 +57,18 @@ module Msf
           # Perform the search
           found = []
           filter = Regexp.new(text, Regexp::IGNORECASE)
+		  
+		  i_type = Msf::Ui::Gtk2::MyModuleTree::TYPE
+		  i_type_dir = Msf::Ui::Gtk2::MyModuleTree::DIR
+		  i_desc = Msf::Ui::Gtk2::MyModuleTree::DESC
+		  i_name = Msf::Ui::Gtk2::MyModuleTree::NAME
+		  i_mod  = Msf::Ui::Gtk2::MyModuleTree::MOD
+		  
           $gtk2driver.module_model.each do |model, path, iter|
-            if (not iter[1][filter])
+            next if iter[i_type] == i_type_dir
+            if ( iter[i_desc] =~ filter or iter[i_name] =~ filter)
+              # Its a keeper
+            else
               found.push(iter)
             end
           end
