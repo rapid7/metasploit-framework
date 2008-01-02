@@ -229,7 +229,7 @@ module Gtk2
 					:top_desc => "All loaded auxiliary modules (#{framework.stats.num_exploits.to_s})",
 					:dir_icon => "msf_local_folder.png",
 					:mod_icon => "zoom.png",
-					:type     => EXP
+					:type     => AUX
 				}
 			)
 								
