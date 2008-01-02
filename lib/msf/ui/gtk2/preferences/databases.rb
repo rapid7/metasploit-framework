@@ -23,15 +23,15 @@ module Msf
             rebuild = Gtk::Button.new(Gtk::Stock::EXECUTE)
             
             test.signal_connect('clicked') do
-              p "perform a test database connection"
+             MsfDialog::Error.new($gtk2driver.main, "Not available")
             end
             
             modify.signal_connect('clicked') do
-              p 'launch a wizard for database configuration'
+              MsfDialog::Error.new($gtk2driver.main, "Not available")
             end
             
             rebuild.signal_connect('clicked') do
-              p 'rebuild database'
+              MsfDialog::Error.new($gtk2driver.main, "Not available")
             end
             
             bb.pack_start(test, false, false)

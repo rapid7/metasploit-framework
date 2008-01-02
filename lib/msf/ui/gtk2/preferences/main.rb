@@ -16,7 +16,7 @@ module Msf
             buttons = [ Gtk::Stock::OK, Gtk::Dialog::RESPONSE_OK ], [ Gtk::Stock::CLOSE, Gtk::Dialog::RESPONSE_NONE ]
 
             # call the parent
-            super("", $gtk2driver.main, Gtk::Dialog::DESTROY_WITH_PARENT, *buttons)
+            super("Preferences", $gtk2driver.main, Gtk::Dialog::DESTROY_WITH_PARENT, *buttons)
             self.default_response = Gtk::Dialog::RESPONSE_OK  
             
             # Define the size and border
