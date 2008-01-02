@@ -226,7 +226,7 @@ module Gtk2
 				@model, nil, "Auxiliary", mod_auxiliary, 
 				{
 					:top_icon => "zoom.png",
-					:top_desc => "All loaded auxiliary modules (#{framework.stats.num_exploits.to_s})",
+					:top_desc => "All loaded auxiliary modules (#{framework.stats.num_auxiliary.to_s})",
 					:dir_icon => "msf_local_folder.png",
 					:mod_icon => "zoom.png",
 					:type     => AUX
