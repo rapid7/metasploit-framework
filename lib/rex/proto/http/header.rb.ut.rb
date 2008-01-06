@@ -31,6 +31,8 @@ class Rex::Proto::Http::Packet::Header::UnitTest < Test::Unit::TestCase
 			"\r\n")
 
 		assert_equal('Babies', h['Eat'], 'header')
+		assert_equal('Satan', h['HoHo'], 'header')
+		assert_equal('Satan', h['hOhO'], 'header')
 
 		assert_equal("POST /foo HTTP/1.0\r\n", h.cmd_string, 'cmd_string')
 	end
