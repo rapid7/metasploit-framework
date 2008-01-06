@@ -64,10 +64,11 @@ class ModuleSet < Hash
 	# Create an instance of the supplied module by its name
 	#
 	def create(name)
-		if (mod_ambiguous[name])
-			raise Rex::AmbiguousArgumentError.new(name), 
-				"The module name #{name} is ambiguous.", caller
-		end
+		
+		# if (mod_ambiguous[name])
+		#	raise Rex::AmbiguousArgumentError.new(name), 
+		#		"The module name #{name} is ambiguous.", caller
+		# end
 
 		klass    = get_hash_val(name)
 		instance = nil
