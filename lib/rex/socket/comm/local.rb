@@ -48,7 +48,11 @@ class Rex::Socket::Comm::Local
 
 			# Force IPv6 mode for non-connected UDP sockets
 			if (type == ::Socket::SOCK_DGRAM and not param.peerhost)
-				usev6 = true
+				# FreeBSD allows IPv6 socket creation, but throws an error on sendto()
+				
+				if (not Rex::Compat.is_freebsd())
+					usev6 = true
+				end
 			end
 		
 			local = Rex::Socket.resolv_nbo(param.localhost) if param.localhost

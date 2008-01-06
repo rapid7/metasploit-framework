@@ -30,6 +30,11 @@ def self.is_linux
 	(RUBY_PLATFORM =~ /linux/) ? true : false
 end
 
+
+def self.is_freebsd
+	(RUBY_PLATFORM =~ /freebsd/) ? true : false
+end
+
 def self.open_browser(url='http://metasploit.com/')
 	case RUBY_PLATFORM
 	when /mswin32/
