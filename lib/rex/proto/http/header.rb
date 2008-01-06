@@ -58,11 +58,16 @@ class Packet::Header < Hash
 	#
 	def [](key)
 		begin
-			if ((rv = self.fetch(key)) == nil)
-				rv = self.dcase_hash[key.downcase]	
-			end
+			rv = self.fetch(key)
 		rescue IndexError
 			rv = nil
+		end
+		if (rv == nil)
+			begin
+				rv = self.dcase_hash[key.downcase]	
+			rescue IndexError
+				rv = nil
+			end
 		end
 
 		return rv
