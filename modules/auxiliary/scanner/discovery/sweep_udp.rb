@@ -70,7 +70,7 @@ class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
 				begin
 					data, port = self.send(probe, ip)
 					udp_sock.sendto(data, ip, port, 0)
-				rescue Errno::EACCES, Errno::EHOSTUNREACH, Errno::EHOSTDOWN, Errno::ENETDOWN, Errno::ENETUNREACH, Errno:ENETRESET
+				rescue Errno::EACCES, Errno::EHOSTUNREACH, Errno::EHOSTDOWN, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET
 				end
 				
 				if (idx % 30 == 0)
