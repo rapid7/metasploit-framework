@@ -48,7 +48,11 @@ class Packet::Header < Hash
 		# Extract each header value pair
 		header.split(/\r\n/m).each { |str|
 			if (md = str.match(/^(.+?): (.+?)$/))
-				self[md[1]] = md[2]
+				if (self[md[1]])
+					self[md[1]] += ", " + md[2]
+				else
+					self[md[1]] = md[2]
+				end
 			end
 		}
 	end
