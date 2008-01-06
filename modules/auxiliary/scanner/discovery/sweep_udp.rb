@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -90,7 +90,7 @@ class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			print_status("Unknown error: #{e.to_s}")
+			print_status("Unknown error: #{e.class} #{e.to_s}")
 			print_status(e.backtrace.join("\n"))
 		end
 	end
