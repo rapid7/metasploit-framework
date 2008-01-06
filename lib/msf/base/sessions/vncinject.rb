@@ -14,7 +14,7 @@ class VncInject
 	# The vncinject session is interactive
 	#
 	include Msf::Session
-	include Msf::Session::Interactive
+	include Msf::Session::Basic
 
 	#
 	# Initializes a vncinject session instance using the supplied rstream
@@ -78,6 +78,13 @@ class VncInject
 		sleep(1)
 	end
 
+	#
+	# Not interactive in the normal sense
+	#
+	def interactive?
+		false
+	end
+	
 	##
 	#
 	# VNC Server specific interfaces
@@ -100,6 +107,7 @@ class VncInject
 						'LocalHost'         => host,
 						'Stream'            => true,
 						'OnLocalConnection' => Proc.new {
+							
 							if (self.got_conn == true)
 								nil
 							else
@@ -109,10 +117,17 @@ class VncInject
 							end
 						},
 						'OnConnectionClose' => Proc.new {
+							
 							if (self.conn_eof == false)	
 								print_status("VNC connection closed.")
 								self.conn_eof = true
+								
+								# Closing time
+								self.view.kill if self.view
+								self.view = nil
+								self.kill
 							end
+							
 						},
 						'__RelayType'       => 'vncinject')
 				end
@@ -131,7 +146,7 @@ class VncInject
 			Rex::FileUtils::find_full_path('vncviewer.exe')
 			
 		if (vnc)
-			Thread.new {
+			self.view = Thread.new {
 				system("vncviewer #{vlhost}::#{vlport}")
 			}
 
@@ -145,6 +160,7 @@ protected
 	attr_accessor :vlport    # :nodoc:
 	attr_accessor :conn_eof  # :nodoc:
 	attr_accessor :got_conn  # :nodoc:
+	attr_accessor :view      # :nodoc:
 
 end
 
