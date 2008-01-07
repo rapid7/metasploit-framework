@@ -180,6 +180,28 @@
 		<widget class="GtkMenu" id="window_tool_menu">
 
 		  <child>
+		    <widget class="GtkImageMenuItem" id="consoles">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Console</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_consoles_activate" last_modification_time="Mon, 07 Jan 2008 05:23:51 GMT"/>
+		      <accelerator key="O" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image61">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-justify-fill</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
 		    <widget class="GtkImageMenuItem" id="logs">
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Display logs</property>
@@ -188,7 +210,7 @@
 		      <accelerator key="l" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image60">
+			<widget class="GtkImage" id="image62">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-zoom-fit</property>
 			  <property name="icon_size">1</property>
