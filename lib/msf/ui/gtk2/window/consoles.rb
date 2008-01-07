@@ -262,11 +262,11 @@ class MsfWindow
 
 			prompt.editable = false
 			prompt.xalign = 1
-			prompt.shadow_type = Gtk::SHADOW_NONE if prompt.respond_to?('shadow_type')
-
+			prompt.has_frame = false
+			
 			input = MyInput.new(text)
 			input.set_size_request(-1, 25)
-			input.shadow_type = Gtk::SHADOW_NONE if input.respond_to?('shadow_type')
+			input.has_frame = false
 			input.focus = true
 
 			text.prompt = prompt
