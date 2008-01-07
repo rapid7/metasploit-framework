@@ -264,6 +264,13 @@ module Ui
 		def on_logs_activate
 			MsfWindow::Logs.new
 		end
+		
+		#
+		# Action for "Window/Console" menu
+		#
+		def on_consoles_activate
+			MsfWindow::Consoles.new
+		end
 
 		#
 		# The About Dialog
