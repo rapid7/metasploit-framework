@@ -16,7 +16,7 @@ module Gtk2
 			@buffer.delete(*@buffer.bounds)
 			start = @buffer.get_iter_at_offset(0)
 			@buffer.insert_with_tags(start, "Type: ", '_')
-			@buffer.insert_with_tags(start, obj.class.to_s + "\n", 'red_bold_cust')
+			@buffer.insert_with_tags(start, obj.type + "\n", 'red_bold_cust')
 			@buffer.insert_with_tags(start, "Author(s): ", "_")
 			@buffer.insert_with_tags(start, obj.author_to_s + "\n", 'forestgreen_bold_cust')
 			@buffer.insert_with_tags(start, "Path: ", "_")

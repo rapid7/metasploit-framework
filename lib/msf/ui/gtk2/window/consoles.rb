@@ -258,7 +258,7 @@ class MsfWindow
 			hbox = Gtk::HBox.new
 			prompt = Gtk::Entry.new
 			prompt.set_size_request(-1, 25)
-			prompt.text = "msf > "
+			prompt.text = ""
 
 			prompt.editable = false
 			prompt.xalign = 1
