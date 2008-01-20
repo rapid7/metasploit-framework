@@ -13,6 +13,7 @@ class MsfWindow
 			attr_accessor :input, :prompt
 			attr_accessor :pipe, :console
 			attr_accessor :console_thread, :reader_thread
+			attr_accessor :console_window
 
 			class MyPipe < Rex::IO::BidirectionalPipe
 				def prompting?
@@ -126,18 +127,43 @@ class MsfWindow
 						self.output.buffer.text = ""
 						self.history = []
 						self.hindex  = 0
+					when 'irb'
+						skip = true
 					end
 				
 					self.history.push(line)
 					self.hindex = self.history.length - 1
+					self.output.append_output(self.output.prompt.text) if not self.output.console.busy
+					self.output.append_output(line + "\n")
 					self.output.pipe.write_input(line+"\n") if not skip
-					
+
 					obj.text = ''
 				end
 
 				self.signal_connect('key-press-event') do |obj, key|
 				
 					case key.keyval
+					
+					when "c"[0]
+						if (key.state.name == "GDK_CONTROL_MASK")			
+							if(self.output.console.active_session)
+								MsfDialog::Confirm.new(self.output.console_window, "Close Session", "Close this session?") {
+									self.output.append_output("\n[*] Closing session...\n")
+									self.output.console.active_session.kill()								
+								}
+							end
+							true
+						end
+					when "z"[0]
+						if (key.state.name == "GDK_CONTROL_MASK")
+							if(self.output.console.active_session)
+								MsfDialog::Confirm.new(self.output.console_window, "Suspend Session", "Suspend this session?") {
+									self.output.append_output("\n[*] Suspending session...\n")
+									self.output.console.active_session.detach()
+								}
+							end
+							true
+						end					
 					when Gdk::Keyval::GDK_Up
 						if history.length > 0
 							self.text = history[hindex]
@@ -246,6 +272,8 @@ class MsfWindow
 			vbox = Gtk::VBox.new
 			scrl = Gtk::ScrolledWindow.new
 			text = ConsoleOutput.new
+			
+			text.console_window = self
 
 			text.editable = false
 			text.accepts_tab = false
@@ -267,7 +295,6 @@ class MsfWindow
 			input = MyInput.new(text)
 			input.set_size_request(-1, 25)
 			input.has_frame = false
-			input.focus = true
 
 			text.prompt = prompt
 
@@ -285,6 +312,7 @@ class MsfWindow
 			tab.set_page(tab.page_num(vbox))
 			input.can_focus = true
 			input.has_focus = true
+			input.focus     = true
 			
 			label_btn.signal_connect("clicked") do |obj|
 				idx = tab.page_num(vbox)
@@ -316,6 +344,9 @@ class MsfWindow
 			hbox = Gtk::HBox.new
 
 			btn = Gtk::Button.new("New Console")
+			btn.set_image(Gtk::Image.new(Gtk::Stock::NEW, Gtk::IconSize::MENU))
+			btn.relief = Gtk::RELIEF_NONE
+			
 			hbox.add(btn)
 
 			vbox.pack_start(hbox, false, false, 0)

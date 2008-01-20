@@ -138,7 +138,19 @@ module Gtk2
 					end
 				end
 			end
-
+			
+			@view_code.signal_connect('activate') do |item|
+				if active_module = @selection.selected
+					type = active_module.get_value(TYPE)
+					if (type == EXP or type == AUX)
+						MsfWindow::CodeView.new(active_module.get_value(MOD))
+					elsif (type == DIR)
+						# Ignore
+					else
+						MsfDialog::Error.new($gtk2driver.main, "Not available")
+					end
+				end
+			end
 			# Add modules in the Gtk::TreeView
 			add_modules()
 
@@ -179,6 +191,32 @@ module Gtk2
 		end
 
 		#
+		# Prune empty module directories from the hash
+		#
+		def prune_hash(key, hash)
+			
+			cnt = 0
+			
+			hash.keys.each do |k|
+				if(hash[k].class != ::Hash)
+					cnt += 1
+					next
+				end
+				
+				num = prune_hash(k, hash[k])
+				if (num == 0)
+					hash.delete(k)
+				end
+				
+				cnt += num
+			end
+			
+			# $stdout.puts "#{key} == #{cnt}"
+			
+			cnt
+		end
+
+		#
 		# Add Exploits module in the treeview
 		#
 		def add_modules(filter=/.*/)
@@ -193,10 +231,20 @@ module Gtk2
 					ref[part] ||= {}
 					ref = ref[part]
 				end
-
-				ref[name] = obj.new
+				
+				ins = obj.new
+				if (
+					mod =~ filter or
+					ins.name =~ filter or 
+					ins.description.gsub(/\s+/, " ") =~ filter or 
+					ins.author_to_s =~ filter or
+					ins.references.map {|x| x.to_s}.join(" ") =~ filter
+				   )
+					ref[name] = obj.new
+				end
 			end
 			
+			prune_hash("exploits", mod_exploits)
 
 			mod_auxiliary = {}
 			framework.auxiliary.each_module do |mod, obj|
@@ -208,8 +256,20 @@ module Gtk2
 					ref = ref[part]
 				end
 
-				ref[name] = obj.new
+				ins = obj.new
+				if (
+					mod =~ filter or
+					ins.name =~ filter or 
+					ins.description.gsub(/\s+/, " ") =~ filter or 
+					ins.author_to_s =~ filter or
+					ins.references.map {|x| x.to_s}.join(" ") =~ filter
+				   )
+					ref[name] = obj.new
+				end
 			end
+			
+			prune_hash("auxiliary", mod_auxiliary)
+			
 			
 			add_modules_to_store(
 				@model, nil, "Exploits", mod_exploits, 
@@ -232,7 +292,6 @@ module Gtk2
 					:type     => AUX
 				}
 			)
-								
 
 			#
 			# TODO: To implement later ...
@@ -307,9 +366,9 @@ module Gtk2
 		#
 		# Refresh the module treeview with all msf modules
 		#
-		def refresh
+		def refresh(filter=/.*/)
 			@model.clear()
-			add_modules()
+			add_modules(filter)
 		end
 
 		#

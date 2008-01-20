@@ -26,7 +26,7 @@ module Msf
               ["Select your options", "option", true, true, true, false],
             ],
             ['Review',
-              ["Check your review", "end", true, true, true, true],
+              ["Confirm settings", "end", true, true, true, true],
             ],
           ].collect do |item, state|
             WIZARD2[item] = WizardStruct2.new(

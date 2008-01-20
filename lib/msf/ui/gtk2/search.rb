@@ -58,6 +58,10 @@ module Msf
           found = []
           filter = Regexp.new(text, Regexp::IGNORECASE)
 		  
+		  $gtk2driver.module_tree.refresh(filter)
+		  $gtk2driver.module_tree.expand
+		  return
+		  
 		  i_type = Msf::Ui::Gtk2::MyModuleTree::TYPE
 		  i_type_dir = Msf::Ui::Gtk2::MyModuleTree::DIR
 		  i_desc = Msf::Ui::Gtk2::MyModuleTree::DESC

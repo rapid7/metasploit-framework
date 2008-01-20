@@ -689,6 +689,14 @@
       <property name="use_stock">True</property>
     </widget>
   </child>
+  
+  <child>
+    <widget class="GtkImageMenuItem" id="view_code">
+      <property name="visible">True</property>
+      <property name="label">gtk-open</property>
+      <property name="use_stock">True</property>
+    </widget>
+  </child>
 </widget>
 
 </glade-interface>

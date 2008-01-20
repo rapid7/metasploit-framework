@@ -18,9 +18,10 @@ module Msf
         def initialize(title)
           super()
           self.resizable = false
-          self.set_default_size(600, 400)
+          self.set_window_position(Gtk::Window::POS_CENTER)
           self.title = title
-
+          self.set_border_width(1)
+			
           # First page
           @page = "intro"
 
@@ -42,8 +43,8 @@ module Msf
           @vbox_left.pack_start(create_save(), false, false, 5)
 
           # Main frame
-          @main = Gtk::VBox.new(false, 5)
-          @hbox.pack_start(@main, true, true, 5)
+          @main = Gtk::VBox.new(false, 10)
+          @hbox.pack_start(@main, true, true, 10)
 
           # Separator
           separator = Gtk::HSeparator.new

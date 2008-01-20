@@ -44,9 +44,9 @@ module Interactive
 	#
 	def tunnel_peer
 		begin
-			rstream.peerinfo
+			@peer_info = rstream.peerinfo
 		rescue
-			framework.sessions.deregister(self)
+			@peer_info
 		end
 	end
 
