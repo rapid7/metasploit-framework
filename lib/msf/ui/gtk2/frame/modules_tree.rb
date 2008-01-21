@@ -276,7 +276,7 @@ module Gtk2
 				{
 					:top_icon => "bug.png",
 					:top_desc => "All loaded exploit modules (#{framework.stats.num_exploits.to_s})",
-					:dir_icon => "msf_local_folder.png",
+					:dir_icon => "gnome-fs-directory.png",
 					:mod_icon => "bug.png",
 					:type     => EXP
 				}
@@ -287,7 +287,7 @@ module Gtk2
 				{
 					:top_icon => "zoom.png",
 					:top_desc => "All loaded auxiliary modules (#{framework.stats.num_auxiliary.to_s})",
-					:dir_icon => "msf_local_folder.png",
+					:dir_icon => "gnome-fs-directory.png",
 					:mod_icon => "zoom.png",
 					:type     => AUX
 				}

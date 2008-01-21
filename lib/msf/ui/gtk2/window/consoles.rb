@@ -53,7 +53,9 @@ class MsfWindow
 						'LocalOutput' => self.pipe
 					}
 				)
-
+				
+				bang()
+				
 				self.console_thread = Thread.new { 
 
 					begin
@@ -77,18 +79,44 @@ class MsfWindow
 						else
 							select(nil, nil, nil, 0.10)
 						end
-						
-						self.prompt.text = self.pipe.prompt
-						
+	
 						if (self.console.busy)
-							self.prompt.text = " (busy) "
+							if (self.console.active_session)
+								
+								case self.console.active_session.type
+								when 'meterpreter'
+									# Show the meterpreter prompt
+									self.prompt.text = "meterpreter> "
+									
+								when 'shell'
+									# Show the remote shell prompt
+									data.strip!
+									if(data.length > 0)
+										self.prompt.text = data.split(/\n/)[-1].strip
+									end
+									
+								else
+									# Busy with an unknown session type
+									self.prompt.text = " ( busy ) "
+								end
+								
+							else
+								# No active session, just busy
+								self.prompt.text = " ( busy ) "
+							end
+						else
+							# Not busy, show the normal prompt
+							self.prompt.text = self.pipe.prompt
 						end
 						
 						self.prompt.width_chars = self.prompt.text.length
 					end
-
+					
+					rescue ::TypeError
+						stop_console
+					
 					rescue ::Exception => e
-		#				$stderr.puts "#{e.class} #{e} #{e.backtrace}"
+						# $stderr.puts "#{e.class} #{e} #{e.backtrace}"
 					end
 				}
 			end
@@ -144,8 +172,8 @@ class MsfWindow
 				
 					case key.keyval
 					
-					when "c"[0]
-						if (key.state.name == "GDK_CONTROL_MASK")			
+					when Gdk::Keyval::GDK_c
+						if (key.state.control_mask?)			
 							if(self.output.console.active_session)
 								MsfDialog::Confirm.new(self.output.console_window, "Close Session", "Close this session?") {
 									self.output.append_output("\n[*] Closing session...\n")
@@ -154,8 +182,8 @@ class MsfWindow
 							end
 							true
 						end
-					when "z"[0]
-						if (key.state.name == "GDK_CONTROL_MASK")
+					when Gdk::Keyval::GDK_z
+						if (key.state.control_mask?)	
 							if(self.output.console.active_session)
 								MsfDialog::Confirm.new(self.output.console_window, "Suspend Session", "Suspend this session?") {
 									self.output.append_output("\n[*] Suspending session...\n")
@@ -163,7 +191,13 @@ class MsfWindow
 								}
 							end
 							true
-						end					
+						end
+					when Gdk::Keyval::GDK_u
+						if (key.state.control_mask?)	
+							self.text = ""
+							self.position = 0
+							true
+						end											
 					when Gdk::Keyval::GDK_Up
 						if history.length > 0
 							self.text = history[hindex]

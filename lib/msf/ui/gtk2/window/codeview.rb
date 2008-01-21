@@ -16,11 +16,11 @@ class MsfWindow
 		def initialize(m)
 
 			# call the parent
-			super("Source Code of #{m.type.capitalize} #{m.refname}")
+			super("View Source: #{m.file_path}")
 
 			# Define the size and border
 			set_default_size(600, 480)
-			set_border_width(10)
+			set_border_width(1)
 
 			# Main hbox
 			vbox = Gtk::VBox.new(false, 0)
@@ -44,13 +44,11 @@ class MsfWindow
 			)
 	
 
-			font_desc = Pango::FontDescription.new('Courier')
+			font_desc = Pango::FontDescription.new('Courier 10')
 			textview.modify_font(font_desc)
-#			textview.set_pixels_above_lines(2)
-#			textview.set_pixels_below_lines(2)
 			
 		
-			buff.create_tag('comment', {'foreground' => 'ForestGreen'})
+			buff.create_tag('comment', {'foreground' => 'DarkGray'})
 			buff.create_tag('const', {'foreground' => 'DarkGreen'})
 			buff.create_tag('method', {'foreground' => 'DarkRed'})
 			buff.create_tag('string', {
@@ -82,6 +80,7 @@ class MsfWindow
 
 		#
 		# Pulled from ruby-gtk2 / gtk-demo (under Ruby license)
+		# Modified to work better with MSF module source
 		#
 		class RubyTokenizer
 			RESERVED_WORDS = %w(begin end module class def if then else while unless do case when require yield)
