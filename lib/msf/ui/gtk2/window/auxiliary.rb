@@ -53,7 +53,8 @@ module Msf
           # Adds text to the main logging screen
           #
           def append_log_view(data)
-
+            data.gsub!(/[\x80-\xff\x00]/, '?')
+			
             if (not @buffer.get_mark('end_mark'))
               @buffer.create_mark('end_mark', @buffer.end_iter, false)
             end

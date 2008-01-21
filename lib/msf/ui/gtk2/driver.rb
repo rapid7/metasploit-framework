@@ -152,7 +152,7 @@ module Ui
 		# Adds text to the main logging screen
 		#
 		def append_log_view(data)
-
+			data.gsub!(/[\x80-\xff\x00]/, '?')
 			data = Time.now.strftime("%H:%m:%S") + " " + data
 
 			return if not self.log_text
