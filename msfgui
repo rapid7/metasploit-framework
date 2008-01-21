@@ -35,10 +35,12 @@ require 'msf/ui/gtk2'
 arguments = Rex::Parser::Arguments.new(
 	"-v" => [ true,  "A number between 0 and 3 that controls log verbosity" ],
 	"-d" => [ false, "Keep running in the foreground"                       ],
+	"-D" => [ false, "Keep stdio and stderr open for debugging"             ],
 	"-h" => [ false, "Help banner"                                          ])
 
 opts = {}
 foreground = true
+debug = false
 
 # Parse command line arguments.
 arguments.parse(ARGV) { |opt, idx, val|
@@ -47,6 +49,8 @@ arguments.parse(ARGV) { |opt, idx, val|
 			opts['LogLevel'] = val
 		when "-d"
 			foreground = false
+		when "-D"
+			debug = true
 		when "-h"
 			print(
 				"\nUsage: msfgui <options>\n" +
@@ -63,6 +67,26 @@ begin
 rescue ::NotImplementedError
 	$stderr.puts "[*] Background mode is not available on this platform"
 end
+
+class FakeOut
+	def write(buff)
+		buff.length
+	end
+	
+	def method_missing(meth, *args)
+	end
+end
+
+if(not debug)
+	$stdout.close
+	$stderr.close
+	
+	fake = FakeOut.new
+	$stdout = fake
+	$stderr = fake
+end
+
+$stderr.puts "[*] Debugging mode is enabled"
 
 # Language is English
 ENV['LANG'] = 'C'

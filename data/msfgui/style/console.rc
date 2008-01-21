@@ -3,10 +3,13 @@
 # For a black background
 style "console"
 {
-	base[NORMAL] = { 0.0, 0.0, 0.0 }	# black
-	fg[NORMAL] = { 1.0, 1.0, 1.0 }		# white
-	text[NORMAL] = { 1.0, 1.0, 1.0 }	# white
+#	base[NORMAL] = { 0.0, 0.0, 0.0 }	# black
+#	fg[NORMAL] = { 1.0, 1.0, 1.0 }		# white
+#	text[NORMAL] = { 1.0, 1.0, 1.0 }	# white
 
+	base[NORMAL] = { 1.0, 1.0, 1.0 }	# white
+	fg[NORMAL] = { 0.0, 0.0, 0.0 }		# black
+	text[NORMAL] = { 0.0, 0.0, 0.0 }	# black
 	fontset="-*-lucida-medium-r-*-*-14-*-*-*-*-*-*-*"
 }
 

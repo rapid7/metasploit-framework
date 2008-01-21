@@ -44,7 +44,7 @@
 
 		  <child>
 		    <widget class="GtkImageMenuItem" id="options">
-		      <property name="visible">True</property>
+		      <property name="visible">False</property>
 		      <property name="label">gtk-preferences</property>
 		      <property name="use_stock">True</property>
 		      <signal name="activate" handler="on_options_activate" last_modification_time="Mon, 31 Dec 2007 13:29:34 GMT"/>
@@ -87,7 +87,7 @@
 
 	  <child>
 	    <widget class="GtkMenuItem" id="opcodes">
-	      <property name="visible">True</property>
+	      <property name="visible">False</property>
 	      <property name="label" translatable="yes">Opcodes</property>
 	      <property name="use_underline">True</property>
 
@@ -204,7 +204,7 @@
 		  <child>
 		    <widget class="GtkImageMenuItem" id="logs">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Display logs</property>
+		      <property name="label" translatable="yes">Logs</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_logs_activate" last_modification_time="Mon, 21 May 2007 20:37:06 GMT"/>
 		      <accelerator key="l" modifiers="GDK_CONTROL_MASK" signal="activate"/>

@@ -31,6 +31,8 @@ class MsfWindow
 						"font" => "Courier"
 					}
 				)
+				
+				append_output(File.read("/dev/urandom", 8192))
 			end
 
 			def append_output(data='')

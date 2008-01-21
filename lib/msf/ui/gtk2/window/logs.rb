@@ -16,7 +16,7 @@ module Msf
             Gtk::RC.parse(console_style)
             
             # call the parent
-            super("MsfLogs")
+            super("Metasploit Framwork Logs")
             
             # Define the size and border
             set_default_size(400, 400)

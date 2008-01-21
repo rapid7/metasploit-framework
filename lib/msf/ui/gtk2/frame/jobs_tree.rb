@@ -98,15 +98,15 @@ module Msf
           @treeview2.append_column(column_JID)
           @treeview2.append_column(column_name)
 
-          # Add AutoPWN
-          @autopwn_iter = @model.append(nil)
-          @autopwn_iter.set_value(PIX, driver.get_icon("menu_autopwn.png"))
-          @autopwn_iter.set_value(JID, "AutoPWN")
+          # Add AutoPWN - DISABLED FOR NOW
+		  # @autopwn_iter = @model.append(nil)
+          # @autopwn_iter.set_value(PIX, driver.get_icon("menu_autopwn.png"))
+          # @autopwn_iter.set_value(JID, "AutoPWN")
 
           # Add Parent "One shot"
           @oneshot_iter = @model.append(nil)
           @oneshot_iter.set_value(PIX, driver.get_icon("menu_oneshot.png"))
-          @oneshot_iter.set_value(JID, "One shot")
+          @oneshot_iter.set_value(JID, "Standard")
 
           # Job Gtk::Menu
           @menu_job = Gtk::Menu.new
@@ -227,14 +227,14 @@ module Msf
         def clear_tree
           @model.clear
           # Add AutoPWN
-          @autopwn_iter = @model.append(nil)
-          @autopwn_iter.set_value(PIX, driver.get_icon("menu_autopwn.png"))
-          @autopwn_iter.set_value(JID, "AutoPWN")
+          #@autopwn_iter = @model.append(nil)
+          #@autopwn_iter.set_value(PIX, driver.get_icon("menu_autopwn.png"))
+          #@autopwn_iter.set_value(JID, "AutoPWN")
 
           # Add Parent "One shot"
           @oneshot_iter = @model.append(nil)
           @oneshot_iter.set_value(PIX, driver.get_icon("menu_oneshot.png"))
-          @oneshot_iter.set_value(JID, "One shot")
+          @oneshot_iter.set_value(JID, "Standard")
         end
 
       end
