@@ -78,9 +78,6 @@ class FakeOut
 end
 
 if(not debug)
-	$stdout.close
-	$stderr.close
-	
 	fake = FakeOut.new
 	$stdout = fake
 	$stderr = fake
