@@ -153,7 +153,7 @@ class MsfWindow
 						self.output.buffer.text = ""
 						self.history = []
 						self.hindex  = 0
-					when 'irb'
+					when 'irb', 'exit', 'quit'
 						skip = true
 					end
 				
