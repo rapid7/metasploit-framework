@@ -36,6 +36,9 @@ class MsfWindow
 			end
 
 			def append_output(data='')
+				
+				data = Rex::Text.to_unicode(data)
+			
 				buff = self.buffer
 				buff.insert(buff.end_iter, data, "fixr")
 				buff.move_mark('end_mark', buff.end_iter)
