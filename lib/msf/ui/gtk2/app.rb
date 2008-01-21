@@ -33,7 +33,7 @@ module Ui
 					sig_conn_proc.call(signal, &signal_proc)
 				end
 			elsif $DEBUG
-				puts "Undefined handler: #{handler}"
+				$stderr.puts "Undefined handler: #{handler}"
 			end
 		end
 
@@ -130,7 +130,7 @@ module Ui
 			@window.set_icon(driver.get_icon('msfwx.xpm'))
 
 			# Set a title with the version
-			@window.set_title("msfgui v#{Msf::Framework::Version}")
+			@window.set_title("Metasploit Framework GUI v#{Msf::Framework::Version}")
 
 			# Destroy
 			@window.signal_connect('destroy') { Gtk.main_quit }

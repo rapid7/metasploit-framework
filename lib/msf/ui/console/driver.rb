@@ -302,11 +302,13 @@ protected
 				print_status("exec: #{line}")
 				print_line('')
 
+				self.busy = true
 				io = ::IO.popen(line, "r")
 				io.each_line do |data|
 					print(data)
 				end
 				io.close
+				self.busy = false
 				return
 			end
 		end
