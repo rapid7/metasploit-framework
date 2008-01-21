@@ -53,9 +53,7 @@ class MsfWindow
 						'LocalOutput' => self.pipe
 					}
 				)
-				
-				bang()
-				
+
 				self.console_thread = Thread.new { 
 
 					begin
