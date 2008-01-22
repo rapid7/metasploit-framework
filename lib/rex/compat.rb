@@ -171,21 +171,22 @@ end
 def self.win32_dev_null
 	begin
 		@@k32 ||= DL.dlopen("kernel32.dll")
-		crt = @@k32['CreateFile', 'LPPPLPLL']
+		crt = @@k32['CreateFile', 'LPPLLLLL']
 
-		hnd = crt.call(
-			Rex::Text.to_unicode("NUL").to_ptr, 
+		hnd, rs = crt.call(
+			Rex::Text.to_unicode("NUL\x00").to_ptr, 
 			[GENERIC_READ | GENERIC_WRITE].pack("L"), 
-			[FILE_SHARE_READ | FILE_SHARE_WRITE].pack("L"),
+			FILE_SHARE_READ | FILE_SHARE_WRITE,
 			0,
-			[OPEN_EXISTING].pack("L"),
+			OPEN_EXISTING,
 			0,
 			0
 		)
 		
-		p hnd 
-		hnd[0]
+		p hnd
+		p rs
 		
+		hnd
 	rescue ::Exception
 		raise $!	
 	end
