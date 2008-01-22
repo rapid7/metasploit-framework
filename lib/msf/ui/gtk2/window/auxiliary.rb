@@ -60,7 +60,7 @@ module Msf
             end
 
             @buffer.insert_with_tags(@buffer.end_iter, Time.now.strftime("%H:%m:%S "), 'forestgreen_bold')
-            @buffer.insert_with_tags(@buffer.end_iter, Rex::Text.to_utf8(data), 'white_wrap')
+            @buffer.insert_with_tags(@buffer.end_iter, Rex::Text.to_utf8(data), 'black_wrap')
 
             # scroll to the end
             @buffer.move_mark('end_mark', @buffer.end_iter)
@@ -80,9 +80,9 @@ module Msf
             @r_buffer.insert_with_tags(start, aux + "\n", 'forestgreen_bold_center')
 
             # Pair key => Value
-            data.each do |key, value|
+            data.sort.each do |key, value|
               @r_buffer.insert_with_tags(start, "#{key}", 'rosybrown_bold')
-              @r_buffer.insert_with_tags(start, " => #{value}\n", 'white_bold')
+              @r_buffer.insert_with_tags(start, " => #{value}\n", 'black_bold')
             end
           end
 
