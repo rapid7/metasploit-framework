@@ -203,7 +203,7 @@ def self.win32_set_std_handle(std, hnd)
 		when 'stderr'
 			sid = STD_ERROR_HANDLE
 		when 'stdout'
-			sid = STD_STDOUT_HANDLE
+			sid = STD_OUTPUT_HANDLE
 		else
 			raise ArgumentError, "Standard handle must be one of stdin/stdout/stderr"
 			return
