@@ -89,7 +89,7 @@ if(not debug)
 		Rex::Compat.win32_set_std_handle('stdin', nul)
 		
 		# The following will crash rubyw.exe without the above code
-		# GLib::Log.log("Gtk", GLib::Log::LEVEL_CRITICAL, "TEST")
+		GLib::Log.log("Gtk", GLib::Log::LEVEL_CRITICAL, "gtk + rubyw problems > /dev/null")
 	end
 end
 
