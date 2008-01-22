@@ -81,17 +81,19 @@ if(not debug)
 	fake = FakeOut.new
 	$stdout = fake
 	$stderr = fake
-	
-	if(Rex::Compat.is_windows)
-		nul = Rex::Compat.win32_dev_null()
-		Rex::Compat.win32_set_std_handle('stdout', nul)
-		Rex::Compat.win32_set_std_handle('stderr', nul)
-		Rex::Compat.win32_set_std_handle('stdin', nul)
-		
-		# The following will crash rubyw.exe without the above code
-		GLib::Log.log("Gtk", GLib::Log::LEVEL_CRITICAL, "gtk + rubyw problems > /dev/null")
-	end
 end
+
+
+if(Rex::Compat.is_windows)
+	nul = Rex::Compat.win32_dev_null()
+	Rex::Compat.win32_set_std_handle('stdout', nul)
+	Rex::Compat.win32_set_std_handle('stderr', nul)
+	Rex::Compat.win32_set_std_handle('stdin', nul)
+
+	# The following will crash rubyw.exe without the above code
+	GLib::Log.log("Gtk", GLib::Log::LEVEL_CRITICAL, "gtk + rubyw problems > /dev/null")
+end
+	
 
 $stderr.puts "[*] Debugging mode is enabled"
 
