@@ -174,7 +174,7 @@ def self.win32_dev_null
 		crt = @@k32['CreateFile', 'LPPLLLLL']
 
 		hnd, rs = crt.call(
-			Rex::Text.to_unicode("NUL\x00").to_ptr, 
+			("NUL\x00").to_ptr, 
 			[GENERIC_READ | GENERIC_WRITE].pack("L"), 
 			FILE_SHARE_READ | FILE_SHARE_WRITE,
 			0,
