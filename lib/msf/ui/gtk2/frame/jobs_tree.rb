@@ -106,7 +106,7 @@ module Msf
           # Add Parent "One shot"
           @oneshot_iter = @model.append(nil)
           @oneshot_iter.set_value(PIX, driver.get_icon("menu_oneshot.png"))
-          @oneshot_iter.set_value(JID, "Standard")
+          @oneshot_iter.set_value(JID, "Jobs")
 
           # Job Gtk::Menu
           @menu_job = Gtk::Menu.new
@@ -234,7 +234,7 @@ module Msf
           # Add Parent "One shot"
           @oneshot_iter = @model.append(nil)
           @oneshot_iter.set_value(PIX, driver.get_icon("menu_oneshot.png"))
-          @oneshot_iter.set_value(JID, "Standard")
+          @oneshot_iter.set_value(JID, "Jobs")
         end
 
       end
