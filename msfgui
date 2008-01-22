@@ -78,28 +78,28 @@ class FakeOut
 end
 
 if(not debug)
+
+	begin; $stdout.close; rescue; end
+	begin; $stderr.close; rescue; end
+	
 	fake = FakeOut.new
 	$stdout = fake
 	$stderr = fake
-end
-
-
-if(Rex::Compat.is_windows)
-	nul = Rex::Compat.win32_dev_null()
-	Rex::Compat.win32_set_std_handle('stdout', nul)
-	Rex::Compat.win32_set_std_handle('stderr', nul)
-	Rex::Compat.win32_set_std_handle('stdin', nul)
-
-	# The following will crash rubyw.exe without the above code
-	GLib::Log.log("Gtk", GLib::Log::LEVEL_CRITICAL, "gtk + rubyw problems > /dev/null")
-end
 	
+	# Only treat super nasty Gtk errors as fatal	
+	GLib::Log.set_fatal_mask("GLib", GLib::Log::LEVEL_ERROR)
+	GLib::Log.set_fatal_mask("Gtk", GLib::Log::LEVEL_ERROR)
+	GLib::Log.set_fatal_mask("Gdk", GLib::Log::LEVEL_ERROR)
+	GLib::Log.set_fatal_mask(nil, GLib::Log::LEVEL_ERROR)
+end
+
+GLib::Log.log("Gtk", GLib::Log::LEVEL_CRITICAL, "TESTING > /dev/null")
 
 $stderr.puts "[*] Debugging mode is enabled"
 
 # Language is English
 ENV['LANG'] = 'C'
-
+	
 # Create the driver instance and run it.
 Msf::Ui::Gtk2::Driver.new(opts).run
 
