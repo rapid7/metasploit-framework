@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -94,8 +94,8 @@ class Auxiliary::Scanner::Smb::Pipe_Auditor < Msf::Auxiliary
 
 			break
 		rescue ::Exception => e
-			print_line($!.to_s)
-			print_line($!.backtrace.join("\n"))			
+			# print_line($!.to_s)
+			# print_line($!.backtrace.join("\n"))			
 		end
 		end
 
