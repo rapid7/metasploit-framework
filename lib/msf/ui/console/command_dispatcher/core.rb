@@ -609,11 +609,19 @@ class Core
 				section = args[0]
 				match = args[1]
 			else
+				print_status("usage: search (all|encoders|nops|exploits|payloads|auxiliary) regex")
 				return
 		end
 
-		regex = Regexp.new(match)
+		begin
+			regex = Regexp.new(match, true)
+		rescue RegexpError => e
+			print_status("Invalid regular expression: #{match} (hint: try .*)")
+			return
+		end
 
+		print_status("Searching loaded modules for pattern '#{match}'...")
+		
 		case section
 			when 'all'
 				show_encoders(regex)
@@ -631,6 +639,8 @@ class Core
 				show_payloads(regex)
 			when 'auxiliary'
 				show_auxiliary(regex)
+			else
+				print_status("usage: search (all|encoders|nops|exploits|payloads|auxiliary) regex")
 		end
 	end
 	
