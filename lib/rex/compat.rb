@@ -183,7 +183,8 @@ def self.win32_dev_null
 			0
 		)
 		
-		hnd
+		p hnd 
+		hnd[0]
 		
 	rescue ::Exception
 		raise $!	
