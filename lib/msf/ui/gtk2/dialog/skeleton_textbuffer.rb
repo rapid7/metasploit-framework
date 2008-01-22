@@ -93,7 +93,11 @@ module Msf
           :'wrap_mode' => Gtk::TextTag::WRAP_WORD,
           :'left_margin' => 5
           )
-
+          self.create_tag("black_bold",
+          :'foreground' => 'black',
+          :'weight' => Pango::FontDescription::WEIGHT_BOLD,
+          :'left_margin' => 5
+          )
           # Black
           self.create_tag("black_wrap",
           :'wrap_mode' => Gtk::TextTag::WRAP_WORD,
