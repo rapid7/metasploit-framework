@@ -91,9 +91,9 @@ if(not debug)
 	GLib::Log.set_fatal_mask("Gtk", GLib::Log::LEVEL_ERROR)
 	GLib::Log.set_fatal_mask("Gdk", GLib::Log::LEVEL_ERROR)
 	GLib::Log.set_fatal_mask(nil, GLib::Log::LEVEL_ERROR)
+	
+	# GLib::Log.log("Gtk", GLib::Log::LEVEL_CRITICAL, "TESTING > /dev/null")
 end
-
-GLib::Log.log("Gtk", GLib::Log::LEVEL_CRITICAL, "TESTING > /dev/null")
 
 $stderr.puts "[*] Debugging mode is enabled"
 
