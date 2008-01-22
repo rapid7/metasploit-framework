@@ -84,9 +84,9 @@ if(not debug)
 	
 	if(Rex::Compat.is_windows)
 		nul = Rex::Compat.win32_dev_null()
-		Rex::Compat.win32_set_std_handle('stdout', nul)
-		Rex::Compat.win32_set_std_handle('stderr', nul)
-		Rex::Compat.win32_set_std_handle('stdin', nul)
+		#Rex::Compat.win32_set_std_handle('stdout', nul)
+		#Rex::Compat.win32_set_std_handle('stderr', nul)
+		#Rex::Compat.win32_set_std_handle('stdin', nul)
 		GLib::Log.log("Gtk", GLib::Log::LEVEL_CRITICAL, "TEST")
 	end
 end
