@@ -225,9 +225,10 @@ module Gtk2
 			mod_exploits = {}
 			framework.exploits.each_module do |mod, obj|
 			
-				while (Gtk.events_pending?)
-					Gtk.main_iteration
-				end
+			# SEGV :(
+			#	while (Gtk.events_pending?)
+			#		Gtk.main_iteration
+			#	end
 			
 			
 				parts = mod.split("/")
@@ -255,9 +256,10 @@ module Gtk2
 			mod_auxiliary = {}
 			framework.auxiliary.each_module do |mod, obj|
 			
-				while (Gtk.events_pending?)
-					Gtk.main_iteration
-				end
+			# SEGV :(
+			#	while (Gtk.events_pending?)
+			#		Gtk.main_iteration
+			#	end
 			
 				parts = mod.split("/")
 				name  = parts.pop
