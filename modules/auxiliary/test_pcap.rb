@@ -42,7 +42,7 @@ class Auxiliary::TestPcap < Msf::Auxiliary
 		print_status("Opening the network interface...")
 		open_pcap()
 		print_status("Sniffing HTTP requests...")
-		capture.each_packet do |pkt|
+		capture.each do |pkt|
 			next if not pkt.tcp?
 			next if not pkt.tcp_data
 			if (pkt.tcp_data =~ /^GET\s+([^\s]+)\s+HTTP/)
