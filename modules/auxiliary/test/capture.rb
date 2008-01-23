@@ -14,7 +14,7 @@ require 'msf/core'
 
 module Msf
 
-class Auxiliary::TestPcap < Msf::Auxiliary
+class Auxiliary::Test::TestPcap < Msf::Auxiliary
 
 	include Auxiliary::Report
 	include Msf::Exploit::Capture

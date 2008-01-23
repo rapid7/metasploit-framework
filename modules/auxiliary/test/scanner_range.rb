@@ -14,7 +14,7 @@ require 'msf/core'
 
 module Msf
 
-class Auxiliary::Scanner::RangeTest < Msf::Auxiliary
+class Auxiliary::Test::RangeTest < Msf::Auxiliary
 
 	include Auxiliary::Scanner
 	

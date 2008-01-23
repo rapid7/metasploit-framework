@@ -14,7 +14,7 @@ require 'msf/core'
 
 module Msf
 
-class Auxiliary::Scanner::BatchTest < Msf::Auxiliary
+class Auxiliary::Test::BatchTest < Msf::Auxiliary
 
 	include Auxiliary::Scanner
 	

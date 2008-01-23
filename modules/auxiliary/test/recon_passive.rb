@@ -14,7 +14,7 @@ require 'msf/core'
 
 module Msf
 
-class Auxiliary::ReconTestPassive < Msf::Auxiliary
+class Auxiliary::Test::ReconTestPassive < Msf::Auxiliary
 	
 	include Auxiliary::Report
 	include Exploit::Remote::Tcp

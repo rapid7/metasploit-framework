@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -14,7 +14,7 @@ require 'msf/core'
 
 module Msf
 
-class Auxiliary::Scanner::HostTest < Msf::Auxiliary
+class Auxiliary::Test::HostTest < Msf::Auxiliary
 
 	include Auxiliary::Scanner
 	
