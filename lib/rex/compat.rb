@@ -49,7 +49,9 @@ end
 def self.open_browser(url='http://metasploit.com/')
 	case RUBY_PLATFORM
 	when /mswin32/
-		system("start #{url}")
+		@s32 ||= DL.dlopen("shell32.dll")
+		se = @s32['ShellExecute', 'LPPPPPL')
+		se.call(nil, "open".to_s, url, nil, nil, 0)	
 	when /darwin/
 		system("open #{url}")
 	else
@@ -60,7 +62,9 @@ end
 def self.open_email(addr)
 	case RUBY_PLATFORM
 	when /mswin32/
-		system("start mailto:#{addr}")
+		@s32 ||= DL.dlopen("shell32.dll")
+		se = @s32['ShellExecute', 'LPPPPPL')
+		se.call(nil, "open".to_s, url, nil, nil, 0)
 	when /darwin/
 		system("open mailto:#{addr}")
 	else
