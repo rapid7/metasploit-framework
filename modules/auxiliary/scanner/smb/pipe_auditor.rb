@@ -100,7 +100,7 @@ class Auxiliary::Scanner::Smb::Pipe_Auditor < Msf::Auxiliary
 		end
 
 		if(pass.length > 0)
-			print_status("Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}")
+			print_status("#{ip} - Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}")
 		end
 	end
 	
