@@ -180,6 +180,10 @@ module Ui
 
 			# Update the StatusBar with all framework modules
 			refresh()
+			
+			# Print a welcome message
+			$gtk2driver.append_log_view("Initialized the Metasploit Framework GUI.")
+			
 		end
 		
 		#

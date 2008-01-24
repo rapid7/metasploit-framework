@@ -298,7 +298,7 @@ module Msf
             # Import options from the supplied assistant
             @mydriver.exploit.datastore.import_options_from_hash(@hash)
             
-            result = MsfWindow::Auxiliary.new(@mydriver.active_module.refname, @hash)
+            result = MsfWindow::Auxiliary.new(@mydriver.active_module.fullname, @hash)
 
             action  = @mydriver.exploit.datastore['ACTION']
             jobify  = false
@@ -306,7 +306,7 @@ module Msf
             @pipe = Msf::Ui::Gtk2::GtkConsolePipe.new
 
             @pipe.create_subscriber_proc() do |msg|
-              $gtk2driver.append_log_view(msg)
+              $gtk2driver.append_log_view(@mydriver.exploit.refname.split("/")[-1] + " " + msg)
               result.append_log_view(msg)
             end
 
@@ -316,7 +316,7 @@ module Msf
             if (@mydriver.exploit.passive? or @mydriver.exploit.passive_action?(action))
               jobify = true
             end
-
+	
             begin
               Thread.new do
                 @mydriver.exploit.run_simple(
@@ -326,10 +326,13 @@ module Msf
                 'LocalOutput'   => @pipe,
                 'RunAsJob'      => jobify
                 )
+                @pipe.print_status("Auxiliary #{@mydriver.exploit.refname} completed.")			
               end
+                
               result.show_all
             rescue ::Exception => e
-              MsfDialog::Error.new(self, "Auxiliary failed", e.to_s)
+              select(nil, nil, nil, 0.01)
+              @pipe.print_status("Auxiliary #{@mydriver.exploit.refname} completed.")			
               return false
             end
           end

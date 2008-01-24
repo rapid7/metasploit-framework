@@ -222,7 +222,7 @@ class MsfWindow
 							case res.length
 							when 0
 							when 1
-								self.text = res[0]
+								self.text = res[0] + " "
 								self.position = -1
 							else
 

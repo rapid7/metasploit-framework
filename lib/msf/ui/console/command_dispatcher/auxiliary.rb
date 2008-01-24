@@ -136,7 +136,6 @@ class Auxiliary
 				'RunAsJob'       => jobify
 			)
 		rescue ::Exception => e
-			log_error("Auxiliary failed: #{e.to_s}")
 			return false
 		end
 		

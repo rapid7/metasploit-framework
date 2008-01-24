@@ -406,6 +406,8 @@ module Gtk2
 		def active(iter)
 			if not iter[MOD].nil?
 				@buffer.insert_module(iter.get_value(MOD))
+			else
+				@buffer.insert_help(iter.get_value(NAME))
 			end
 		end
 
@@ -415,6 +417,7 @@ module Gtk2
 		def refresh(filter=/.*/)
 			@model.clear()
 			add_modules(filter)
+			@buffer.insert_help("Exploits")
 		end
 
 		#

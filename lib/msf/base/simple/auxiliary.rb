@@ -95,6 +95,7 @@ protected
 			mod.setup
 			mod.run
 		rescue ::Exception
+			mod.print_error("Auxiliary failed: #{$!}")
 			elog("Auxiliary failed: #{$!}", 'core', LEV_0)
 			dlog("Call stack:\n#{$@.join("\n")}", 'core', LEV_3)
 

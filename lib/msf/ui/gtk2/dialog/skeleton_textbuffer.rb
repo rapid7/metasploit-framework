@@ -103,7 +103,14 @@ module Msf
           :'wrap_mode' => Gtk::TextTag::WRAP_WORD,
           :'left_margin' => 5
           )
-		            
+
+
+          self.create_tag("black_center",
+          :'foreground' => 'black',
+          :'weight' => Pango::FontDescription::WEIGHT_BOLD,
+          :'justification' => Gtk::JUSTIFY_CENTER
+          )
+		  		            
           # White
           self.create_tag("white",
           :'foreground' => 'white',

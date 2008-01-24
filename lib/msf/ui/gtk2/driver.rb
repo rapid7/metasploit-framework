@@ -153,7 +153,7 @@ module Ui
 		#
 		def append_log_view(data)
 			data.gsub!(/[\x80-\xff\x00]/, '?')
-			data = Time.now.strftime("%H:%m:%S") + " " + data
+			data = Time.now.strftime("%H:%m:%S") + " - " + data
 
 			return if not self.log_text
 
@@ -164,7 +164,7 @@ module Ui
 				buff.create_mark('end_mark', buff.end_iter, false)
 			end
 
-			buff.insert(buff.end_iter, Rex::Text.to_utf8(data))
+			buff.insert(buff.end_iter, data)
 			buff.move_mark('end_mark', buff.end_iter)
 			view.scroll_mark_onscreen(buff.get_mark('end_mark'))
 		end

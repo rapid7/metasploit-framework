@@ -17,6 +17,22 @@ module Gtk2
 			@buffer = buffer
 		end
 
+		def insert_help(name)
+			@buffer.delete(*@buffer.bounds)
+			start = @buffer.get_iter_at_offset(0)
+
+			help_intro = %Q{
+				This interface can be used in either wizard-mode or console-mode. To start the
+				wizard, browse to a module in the list above, and double-click its name. To 
+				view the source code of a module, right-click its name and select the View Code
+				option. If you prefer to work in a msfconsole interface instead, select the 
+				Console option from the Window menu (or just press Control+O). Have fun!
+			}
+
+			@buffer.insert_with_tags(start, "\nWelcome to the Metasploit Framework GUI!\n\n", "black_center")	
+			@buffer.insert_with_tags(start, help_intro.gsub(/\s+/, " ").strip, "black_wrap")	
+		end
+
 		def insert_module(obj)
 			@buffer.delete(*@buffer.bounds)
 			start = @buffer.get_iter_at_offset(0)
@@ -35,6 +51,11 @@ module Gtk2
 				end
 			end
 			desc.strip!
+			
+			if(not (desc[-1]  >= 0x21 and desc[-1] <= 0x2e) )
+				desc << "."
+			end
+			
 			
 			@buffer.insert_with_tags(start, "Module: ", "_")
 			@buffer.insert_with_tags(start, "#{obj.fullname}\n\n", "black_wrap")

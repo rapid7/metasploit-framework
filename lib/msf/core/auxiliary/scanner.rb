@@ -55,6 +55,7 @@ def run
 				tl << Thread.new do
 					begin
 						self.target_host = ip
+						# print_status("Scanning #{ip}...")
 						run_host(ip)
 					rescue ::Interrupt
 						raise $!
