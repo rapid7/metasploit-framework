@@ -88,8 +88,12 @@ module Ui
 
 		include Msf::Ui::Gtk2::MyControls
 
+		attr_accessor :done
+		
 		def initialize
           	super(Gtk::Window::TOPLEVEL)
+			
+			self.done = false
 			
 			set_type_hint(Gdk::Window::TYPE_HINT_SPLASHSCREEN)
 			
@@ -101,8 +105,18 @@ module Ui
 			
 			image = Gtk::Image.new(driver.get_icon("splash.png"))
 			add(image)
-
+			
 			show_all
+		end
+		
+		def preload_modules(framework)
+			framework.modules.each do |name, klass|
+				while (Gtk.events_pending?)
+					Gtk.main_iteration
+				end
+				klass.new
+			end
+			self.done = true
 		end
 	end
 

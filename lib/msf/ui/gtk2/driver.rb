@@ -74,6 +74,7 @@ module Ui
 			Gtk.idle_add do 
 				if(done_splash)
 					self.framework = Msf::Simple::Framework.create
+					@splash.preload_modules(self.framework)
 					@gtk2app = Msf::Ui::Gtk2::MyApp.new()
 					@gtk2app.window.show
 					@splash.destroy
