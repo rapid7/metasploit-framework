@@ -74,15 +74,11 @@ module Ui
 			Gtk.idle_add do 
 				if(done_splash)
 					self.framework = Msf::Simple::Framework.create
-					if(not @splash.done)
-						@splash.preload_modules(self.framework)
-					else
-						@gtk2app = Msf::Ui::Gtk2::MyApp.new()
-						@gtk2app.window.show
-						@splash.destroy
-						register_event_handlers						
-						false
-					end
+					@gtk2app = Msf::Ui::Gtk2::MyApp.new()
+					@gtk2app.window.show
+					@splash.destroy
+					register_event_handlers
+					false
 				else
 					# Queue a redraw and let the main window start
 					@splash.queue_draw
