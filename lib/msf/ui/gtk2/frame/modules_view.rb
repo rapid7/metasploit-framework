@@ -8,6 +8,11 @@ module Gtk2
 	# TODO: Add a pixmap for platform
 	#
 	class MyModuleView
+	
+		module TagHref
+			attr_accessor :href
+		end
+	
 		def initialize(buffer)
 			@buffer = buffer
 		end
@@ -15,28 +20,10 @@ module Gtk2
 		def insert_module(obj)
 			@buffer.delete(*@buffer.bounds)
 			start = @buffer.get_iter_at_offset(0)
-			@buffer.insert_with_tags(start, "Type: ", '_')
-			@buffer.insert_with_tags(start, obj.type + "\n", 'red_bold_cust')
-			@buffer.insert_with_tags(start, "Author(s): ", "_")
-			@buffer.insert_with_tags(start, obj.author_to_s + "\n", 'forestgreen_bold_cust')
-			@buffer.insert_with_tags(start, "Path: ", "_")
-			@buffer.insert_with_tags(start, obj.refname + "\n\n", 'rosybrown_bold_cust')
-
-
-			if(obj.references.length > 0)
-				@buffer.insert_with_tags(start, "References:\n", "_")
-
-				obj.references.each do |ref|
-					@buffer.insert_with_tags(start, ref.to_s + "\n", 'blue_bold_cust')
-				end
 			
-				@buffer.insert_with_tags(start, "\n")
-			end
+			credit = [ *obj.author ].map {|a| "#{a.name} (#{a.email})" }.join(" and ")
 			
-			
-			@buffer.insert_with_tags(start, "Description:\n", '_')
-
-			# Ugly ... ;-( but crafty
+			# The description goes first
 			desc = ""
 			obj.description.each_line do |line|
 				line.strip!
@@ -47,11 +34,37 @@ module Gtk2
 					desc << line.gsub(/\s+/, " ").strip
 				end
 			end
+			desc.strip!
 			
-			@buffer.insert_with_tags(start, Rex::Text.wordwrap(desc, 0, 70), "black_wrap")
+			@buffer.insert_with_tags(start, "Module: ", "_")
+			@buffer.insert_with_tags(start, "#{obj.fullname}\n\n", "black_wrap")
+			
+			@buffer.insert_with_tags(start, 
+				desc + " This #{obj.type} module was written by #{credit}\n\n",
+				"black_wrap"
+			)
+
+
+			if(obj.references.length > 0)
+				@buffer.insert_with_tags(start, "References:\n", "_")
+
+				obj.references.each do |ref|
+					tag = @buffer.create_tag(nil, {
+						'foreground' => 'blue',
+						'underline' => Pango::AttrUnderline::SINGLE,
+						'left_margin' => 25
+					})
+					tag.extend(TagHref)
+					tag.href = ref.to_s				
+					@buffer.insert_with_tags(start, ref.to_s + "\n", tag)
+				end
+			
+				@buffer.insert_with_tags(start, "\n")
+			end
+			
 		end
 	end
 
-	end
+end
 end
 end

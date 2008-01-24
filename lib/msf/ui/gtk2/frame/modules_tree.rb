@@ -157,6 +157,39 @@ module Gtk2
 			# Configure the module completion handles for easy reference
 			$gtk2driver.module_completion = @@completion
 
+			# Modified hyperlink code from gtk-demo
+			viewmodule.signal_connect("event-after") do |viewtext, event|
+				if ( 
+					event.kind_of?(Gdk::EventButton) and 
+					event.button == 1 and 
+					event.event_type == Gdk::Event::BUTTON_PRESS
+				   )
+
+					buffer = viewtext.buffer
+
+					# we shouldn't follow a link if the user has selected something
+					range = buffer.selection_bounds
+					if range and range[0].offset != range[1].offset
+						return false
+					end
+
+					x, y = viewtext.window_to_buffer_coords(Gtk::TextView::WINDOW_WIDGET, event.x, event.y)
+					iter = viewtext.get_iter_at_location(x, y)
+
+					tags = iter.tags
+					tags.each do |tag|
+						if (tag.respond_to?('href') and tag.href)
+							Rex::Compat.open_browser(tag.href)
+							break
+						end
+					end
+					
+					true
+				else
+					false
+				end
+			end
+
 		end # def initialize
 
 
