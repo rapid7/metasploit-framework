@@ -182,7 +182,7 @@ module Ui
 			refresh()
 			
 			# Print a welcome message
-			$gtk2driver.append_log_view("Initialized the Metasploit Framework GUI.")
+			$gtk2driver.append_log_view("Initialized the Metasploit Framework GUI.\n")
 			
 		end
 		
