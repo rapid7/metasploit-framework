@@ -52,10 +52,9 @@ module Gtk2
 			end
 			desc.strip!
 			
-			if(not (desc[-1]  >= 0x21 and desc[-1] <= 0x2e) )
+			if(desc.length > 0 and not (desc[-1]  >= 0x21 and desc[-1] <= 0x2e) )
 				desc << "."
 			end
-			
 			
 			@buffer.insert_with_tags(start, "Module: ", "_")
 			@buffer.insert_with_tags(start, "#{obj.fullname}\n\n", "black_wrap")
