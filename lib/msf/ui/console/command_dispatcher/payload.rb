@@ -20,6 +20,7 @@ class Payload
 		"-h" => [ false, "Help banner."                                         ],
 		"-o" => [ true,  "A comma separated list of options in VAR=VAL format." ],
 		"-s" => [ true,  "NOP sled length."                                     ],
+		"-f" => [ true,  "The output file name (otherwise stdout)"              ],
 		"-t" => [ true,  "The output type: ruby, perl, c, or raw."              ])
 
 	#
@@ -49,7 +50,8 @@ class Payload
 		option_str   = nil
 		badchars     = nil
 		type         = "ruby"
-
+		ofile        = nil
+		
 		@@generate_opts.parse(args) { |opt, idx, val|
 			case opt
 				when '-b'
@@ -62,6 +64,8 @@ class Payload
 					sled_size = val.to_i
 				when '-t'
 					type = val
+				when '-f'
+					ofile = val
 				when '-h'
 					print(
 						"Usage: generate [options]\n\n" +
@@ -84,8 +88,15 @@ class Payload
 			return false
 		end
 
-		# Display generated payload
-		print(buf)
+		if(not ofile)
+			# Display generated payload
+			print(buf)
+		else
+			print_status("Writing #{buf.length} bytes to #{ofile}...")
+			fd = File.open(ofile, "wb")
+			fd.write(buf)
+			fd.close
+		end
 
 		return true
 
