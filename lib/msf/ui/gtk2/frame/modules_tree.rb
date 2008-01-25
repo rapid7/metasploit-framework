@@ -254,68 +254,82 @@ module Gtk2
 		#
 		def add_modules(filter=/.*/)
 
+			
+			mod_exploits  = {}
+			mod_auxiliary = {}
+			
+			if(not (@module_cache and filter == /.*/))
+				
+				framework.exploits.each_module do |mod, obj|
 
-			mod_exploits = {}
-			framework.exploits.each_module do |mod, obj|
-			
-			# SEGV :(
-			#	while (Gtk.events_pending?)
-			#		Gtk.main_iteration
-			#	end
-			
-			
-				parts = mod.split("/")
-				name  = parts.pop
-				ref   = mod_exploits
-				parts.each do |part|
-					ref[part] ||= {}
-					ref = ref[part]
+				# SEGV :(
+				#	while (Gtk.events_pending?)
+				#		Gtk.main_iteration
+				#	end
+
+
+					parts = mod.split("/")
+					name  = parts.pop
+					ref   = mod_exploits
+					parts.each do |part|
+						ref[part] ||= {}
+						ref = ref[part]
+					end
+
+					ins = obj.new
+					if (
+						mod =~ filter or
+						ins.name =~ filter or 
+						ins.description.gsub(/\s+/, " ") =~ filter or 
+						ins.author_to_s =~ filter or
+						ins.references.map {|x| x.to_s}.join(" ") =~ filter
+					   )
+						ref[name] = obj.new
+					end
+				end
+
+				prune_hash("exploits", mod_exploits)
+
+				framework.auxiliary.each_module do |mod, obj|
+
+				# SEGV :(
+				#	while (Gtk.events_pending?)
+				#		Gtk.main_iteration
+				#	end
+
+					parts = mod.split("/")
+					name  = parts.pop
+					ref   = mod_auxiliary
+					parts.each do |part|
+						ref[part] ||= {}
+						ref = ref[part]
+					end
+
+					ins = obj.new
+					if (
+						mod =~ filter or
+						ins.name =~ filter or 
+						ins.description.gsub(/\s+/, " ") =~ filter or 
+						ins.author_to_s =~ filter or
+						ins.references.map {|x| x.to_s}.join(" ") =~ filter
+					   )
+						ref[name] = obj.new
+					end
+				end
+
+				prune_hash("auxiliary", mod_auxiliary)
+				
+				# Cache the entire tree
+				if(filter == /.*/)
+					@module_cache ||= {}
+					@module_cache[:exploits]  = mod_exploits
+					@module_cache[:auxiliary] = mod_auxiliary
 				end
 				
-				ins = obj.new
-				if (
-					mod =~ filter or
-					ins.name =~ filter or 
-					ins.description.gsub(/\s+/, " ") =~ filter or 
-					ins.author_to_s =~ filter or
-					ins.references.map {|x| x.to_s}.join(" ") =~ filter
-				   )
-					ref[name] = obj.new
-				end
+			else
+				mod_exploits  = @module_cache[:exploits]
+				mod_auxiliary = @module_cache[:auxiliary]
 			end
-			
-			prune_hash("exploits", mod_exploits)
-
-			mod_auxiliary = {}
-			framework.auxiliary.each_module do |mod, obj|
-			
-			# SEGV :(
-			#	while (Gtk.events_pending?)
-			#		Gtk.main_iteration
-			#	end
-			
-				parts = mod.split("/")
-				name  = parts.pop
-				ref   = mod_auxiliary
-				parts.each do |part|
-					ref[part] ||= {}
-					ref = ref[part]
-				end
-
-				ins = obj.new
-				if (
-					mod =~ filter or
-					ins.name =~ filter or 
-					ins.description.gsub(/\s+/, " ") =~ filter or 
-					ins.author_to_s =~ filter or
-					ins.references.map {|x| x.to_s}.join(" ") =~ filter
-				   )
-					ref[name] = obj.new
-				end
-			end
-			
-			prune_hash("auxiliary", mod_auxiliary)
-			
 			
 			add_modules_to_store(
 				@model, nil, "Exploits", mod_exploits, 

@@ -286,6 +286,13 @@ module Ui
 		end
 
 		#
+		# The Online Help link
+		#
+		def on_online_activate
+			Rex::Compat.open_browser('http://metasploit3.com/msf/support')
+		end
+		
+		#
 		# Call the refresh method to reload all module
 		#
 		def refresh

@@ -44,7 +44,6 @@
 
 		  <child>
 		    <widget class="GtkImageMenuItem" id="options">
-		      <property name="visible">False</property>
 		      <property name="label">gtk-preferences</property>
 		      <property name="use_stock">True</property>
 		      <signal name="activate" handler="on_options_activate" last_modification_time="Mon, 31 Dec 2007 13:29:34 GMT"/>
@@ -87,7 +86,6 @@
 
 	  <child>
 	    <widget class="GtkMenuItem" id="opcodes">
-	      <property name="visible">False</property>
 	      <property name="label" translatable="yes">Opcodes</property>
 	      <property name="use_underline">True</property>
 
@@ -173,7 +171,7 @@
 	  <child>
 	    <widget class="GtkMenuItem" id="window_tool">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Window</property>
+	      <property name="label" translatable="yes">_Window</property>
 	      <property name="use_underline">True</property>
 
 	      <child>
@@ -188,7 +186,7 @@
 		      <accelerator key="O" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image61">
+			<widget class="GtkImage" id="image635">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-justify-fill</property>
 			  <property name="icon_size">1</property>
@@ -210,7 +208,7 @@
 		      <accelerator key="l" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image62">
+			<widget class="GtkImage" id="image636">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-zoom-fit</property>
 			  <property name="icon_size">1</property>
@@ -228,11 +226,33 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkMenuItem" id="on_about">
+	    <widget class="GtkMenuItem" id="help">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_About</property>
+	      <property name="label" translatable="yes">_Help</property>
 	      <property name="use_underline">True</property>
-	      <signal name="activate" handler="on_about_activate"/>
+
+	      <child>
+		<widget class="GtkMenu" id="help_menu">
+
+		  <child>
+		    <widget class="GtkMenuItem" id="online">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">_Online</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_online_activate" last_modification_time="Fri, 25 Jan 2008 02:59:19 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="on_about">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">_About</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_about_activate"/>
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
 	    </widget>
 	  </child>
 	</widget>
@@ -689,24 +709,24 @@
       <property name="use_stock">True</property>
     </widget>
   </child>
-  
+
   <child>
     <widget class="GtkImageMenuItem" id="view_code">
       <property name="visible">True</property>
       <property name="label">View Code</property>
+      <property name="use_underline">True</property>
 
-		<child internal-child="image">
-		<widget class="GtkImage" id="image632">
-			<property name="visible">True</property>
-			<property name="stock">gtk-edit</property>
-			<property name="icon_size">1</property>
-			<property name="xalign">0.5</property>
-			<property name="yalign">0.5</property>
-			<property name="xpad">0</property>
-			<property name="ypad">0</property>
-		</widget>
-		</child>
-
+      <child internal-child="image">
+	<widget class="GtkImage" id="image632">
+	  <property name="visible">True</property>
+	  <property name="stock">gtk-edit</property>
+	  <property name="icon_size">1</property>
+	  <property name="xalign">0.5</property>
+	  <property name="yalign">0.5</property>
+	  <property name="xpad">0</property>
+	  <property name="ypad">0</property>
+	</widget>
+      </child>
     </widget>
   </child>
 </widget>

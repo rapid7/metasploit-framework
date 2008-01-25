@@ -60,30 +60,6 @@ module Msf
 		  
 		  $gtk2driver.module_tree.refresh(filter)
 		  $gtk2driver.module_tree.expand
-		  return
-		  
-		  i_type = Msf::Ui::Gtk2::MyModuleTree::TYPE
-		  i_type_dir = Msf::Ui::Gtk2::MyModuleTree::DIR
-		  i_desc = Msf::Ui::Gtk2::MyModuleTree::DESC
-		  i_name = Msf::Ui::Gtk2::MyModuleTree::NAME
-		  i_mod  = Msf::Ui::Gtk2::MyModuleTree::MOD
-		  
-          $gtk2driver.module_model.each do |model, path, iter|
-            next if iter[i_type] == i_type_dir
-            if ( iter[i_desc] =~ filter or iter[i_name] =~ filter)
-              # Its a keeper
-            else
-              found.push(iter)
-            end
-          end
-
-          # Colorize the Gtk::Entry
-          state(RUNNING)
-
-          # pass the found array to the MyModuleTree and remove all not matched iter
-          # and finish by expanding the treeview
-          $gtk2driver.module_tree.remove(found)
-          $gtk2driver.module_tree.expand
         end
 
 
