@@ -70,7 +70,10 @@ class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
 				begin
 					data, port = self.send(probe, ip)
 					udp_sock.sendto(data, ip, port, 0)
-				rescue Errno::EACCES, Errno::EHOSTUNREACH, Errno::EHOSTDOWN, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET
+				rescue ::Interrupt
+					raise $!
+				rescue ::Exception
+					nil
 				end
 				
 				if (idx % 30 == 0)
@@ -91,7 +94,6 @@ class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
 			raise $!
 		rescue ::Exception => e
 			print_status("Unknown error: #{e.class} #{e.to_s}")
-			print_status(e.backtrace.join("\n"))
 		end
 	end
 
