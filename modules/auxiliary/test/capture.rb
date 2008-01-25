@@ -42,12 +42,22 @@ class Auxiliary::Test::TestPcap < Msf::Auxiliary
 		print_status("Opening the network interface...")
 		open_pcap()
 		print_status("Sniffing HTTP requests...")
-		capture.each do |pkt|
-			next if not pkt.tcp?
-			next if not pkt.tcp_data
-			if (pkt.tcp_data =~ /^GET\s+([^\s]+)\s+HTTP/)
+		each_packet() do |decoded, pkt|
+			data = ''
+			
+			if(not decoded)
+				data = pkt.to_s
+			else
+				if(pkt.has_layer(Scruby::TCP))
+					data = pkt.last_layer.to_net
+				end
+			end
+			
+			if (data =~ /GET\s+([^\s]+)\s+HTTP/smi)
 				print_status("GET #{$1}")
 			end
+			
+			true
 		end
 	end
 	
