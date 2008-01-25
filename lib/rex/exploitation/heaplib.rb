@@ -13,7 +13,7 @@ class HeapLib
 	#
 	# The source file to load the javascript from
 	#
-	JavascriptFile = File.join(File.dirname(__FILE__), "heaplib.js")
+	JavascriptFile = File.join(File.dirname(__FILE__), "heaplib.js.b64")
 
 	#
 	# The list of symbols found in the file.  This is used to dynamically
@@ -72,10 +72,16 @@ protected
 	# Loads the raw javascript from the source file and strips out comments
 	#
 	def load_js(custom_js)
+		
 		# Grab the complete javascript
 		File.open(JavascriptFile) { |f|
 			@js = f.read
 		}
+		
+		# Decode the text
+		@js = Rex::Text.decode_base64(@js)
+		
+		# Append the real code
 		@js += "\n" + custom_js
 	
 		# Obfuscate the javascript
