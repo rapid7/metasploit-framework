@@ -136,6 +136,7 @@ class Auxiliary
 				'RunAsJob'       => jobify
 			)
 		rescue ::Exception => e
+			print_error("Auxiliary failed: #{e}")
 			return false
 		end
 		
