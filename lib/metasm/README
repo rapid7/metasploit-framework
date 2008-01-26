@@ -1,0 +1,128 @@
+Metasm, the Ruby assembly manipulation suite
+============================================
+
+* You have some samples in samples/
+* LICENCE is LGPL
+
+Author: Yoann Guillot <yoann at ofjj.net>
+
+
+Basic overview:
+
+Metasm allows you to interact with executables formats (ExeFormat):
+PE, ELF, Shellcode, etc
+There are three approaches of an ExeFormat:
+ - compiling one up, from scratch ( -> source)
+ - decompiling an existing format ( -> blocks)
+ - manipulating the file structure( -> encoded)
+
+
+Assembly:
+
+When compiling, you start from a source text (ruby String, consisting
+mostly in a sequence of instructions/data/padding directive), then you parse
+it.
+The string is handed to a Preprocessor (which handles #if, #ifdef, #include,
+#define, comments etc, almost 100% compatible with gcc -E), which is
+encapsulated in an AsmPreprocessor (which handles asm macro definitions, equ and
+asm comments).
+This AsmPreprocessor returns tokens to the ExeFormat, which parses them as Data,
+Padding, Labels or parser directives. Parser directives always start with a dot.
+They can be generic (.pad, .offset...) or ExeFormat-specific (.section,
+.import...).
+If the ExeFormat does not recognize a word, it hands it to its CPU instance,
+which is responsible for parsing Instructions, or raise an exception.
+All these tokens are stored in one or more arrays in the @source attribute of
+the ExeFormat (Shellcode's @source is an Array, for PE/ELF it is a hash of
+section name => Array)
+Every immediate value can be an arbitrary Expression (see later).
+
+You can then assemble the source to binary sections.
+
+ExeFormat has a constructor to do that: ExeFormat.assemble(cpu, source)
+it parses the source, assemble it, and return the ExeFormat instance.
+
+
+EncodedData:
+
+In Metasm all binary data is stored as an EncodedData.
+EncodedData has 3 main attributes:
+ - @data which holds the raw binary data (generally a ruby String, but see
+VirtualString)
+ - @export which is a hash associating an export name (label name) to an offset
+within @data
+ - @reloc which is a hash whose keys are offsets within @data, and whose values
+are Relocation objects.
+A Relocation object has an endianness (:little/:big), a sign (:signed/:unsigned/:any),
+a size (in bits) and a target.
+The target is an arbitrary arithmetic/logic Expression.
+
+EncodedData also has a @virtualsize (for e.g. .bss sections), and a @ptr (used
+when decoding things)
+
+You can fixup an EncodedData, with a Hash variable name => value (value should
+be an Expression or a numeric value). When you do that, each relocation's target
+is bound using the binding, and if the result is calculable (no external variable
+name used in the Expression), the result is encoded using the relocation's
+size/sign/endianness information. If it overflows (try to store 128 in an 8bit
+signed relocation), an EncodeError exception is raised.
+If the relocation's target is not numeric, the target is unchanged if you use 
+EncodedData#fixup, or it is replaced with the bound target with #fixup! .
+
+
+Desassembly: (experimental)
+
+When decompiling, you start from a decoded ExeFormat (you need to be able to
+say what data is at which virtual address), you specify a virtual address to
+start (virtual address or export name). The ExeFormat starts disassembling
+instructions. When it encounters an Opcode marked as :setip, it calls the CPU
+to find the jump destination, and backtracks instructions until it finds the
+numeric value.
+The disassembled code is stored as InstructionBlocks, whichs holds a list of
+DecodedInstruction, a list of @from and @to (array of block addresses)
+A DecodedInstruction has an Instruction, an Opcode and a bin_length (to allow
+printing the hex dump)
+(experimental for now, does not handle external calls, does not handle well
+subfunctions, should only be used on small shellcodes)
+
+Constructor: Shellcode.disassemble(cpu, binary)
+
+
+ExeFormat manipulation:
+
+You can encode/decode an ExeFormat (ie decode sections, imports, headers etc)
+
+Constructor: ExeFormat.decode_file(str), ExeFormat.decode_file_header(str)
+Methods: ExeFormat#encode_file(filename), ExeFormat#encode_string
+
+
+VirtualString:
+
+A VirtualString is an object String-like : you can read/maybe write slices of
+it. It can be used as @data in an EncodedData, and thus allows virtualization
+of most Metasm algorithms.
+You cannot change a VirtualString length.
+Taking a slice of a VirtualString can return either a String (length smaller
+than 4096) or another VirtualString. You can force getting a small VirtualString
+using the #dup(from, length) method.
+Any unimplemented method called on it is forwarded to frozen String which is
+a full copy of the VirtualString (should generally not be used).
+
+There are currently 3 VirtualStrings implemented:
+- VirtualFile, whichs loads a file by 4096-bytes chunks, on demand,
+- WindowsRemoteString, which maps another process' virtual memory (uses windows
+debug api)
+- LinuxRemoteString, which maps another process' virtual memory (need ptrace
+rights, memory reading is done using /proc/pid/mem)
+
+The Win/Lin version are quite powerful, and allow things like live process
+disassembly/patching easily (use LoadedPE/LoadedELF as ExeFormat)
+
+
+Things planned:
+
+Write a C parser (at least for headers), and adding syntax to support C structs
+in assembly.
+Write a good disassembler, supporting external calls through C header parsing,
+recognize/handle sub functions.
+Write an UI for dasm
