@@ -342,7 +342,8 @@ protected
 			rfd.other_stream = lfd
 
 			self.rfds << lfd
-			self.rfds << rfd
+			self.rfds << rfd 
+			
 		# Otherwise, we don't have both sides, we'll close them.
 		else
 			close_relay_conn(lfd)
@@ -353,11 +354,13 @@ protected
 	# Monitors the relays for data and passes it in both directions.
 	#
 	def monitor_relays
-		begin	
+		begin
+			# Helps with latency
+			Thread.current.priority = 2
 
 			# Poll all the streams...
 			begin
-				socks = select(rfds, nil, nil, 0.2)
+				socks = select(rfds, nil, nil, 0.25)
 			rescue StreamClosedError => e
 				dlog("monitor_relays: closing stream #{e.stream}", 'rex', LEV_3)
 
