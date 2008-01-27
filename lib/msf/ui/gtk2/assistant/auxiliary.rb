@@ -46,20 +46,16 @@ module Msf
             @hash = {}
 
             # Call the parent
-            super(@active_module.refname)
+            super(@active_module.name)
 
             # Initialize exploit driver's exploit instance
             @mydriver = $gtk2driver
             @mydriver.exploit = framework.auxiliary.create(@active_module.refname)
             @mydriver.active_module = @active_module
 
-            # Main interface
-            @frame_advanced = Gtk::Expander.new("Advanced")
-            @frame_evasion = Gtk::Expander.new("Evasion")
-            @options_required = Gtk::VBox.new(false, 0)
-            @options_advanced = Gtk::VBox.new(false, 0)
-            @options_evasion = Gtk::VBox.new(false, 0)
+			initialize_options()
 
+			
             # Begin the wizard
             options_completion()
 
@@ -93,7 +89,12 @@ module Msf
             # Save the framework's datastore
             framework.save_config
             @mydriver.exploit.datastore.to_file(Msf::Config.config_file,  @mydriver.exploit.refname)
-
+			MsfDialog::Information.new(self, 
+				"Configuration Saved", 
+				"Settings for auxiliary module #{@mydriver.exploit.refname} have been saved to #{Msf::Config.config_file}. " +
+				"These settings will be loaded the next time this module is accessed."
+			)
+			
             $gtk2driver.append_log_view("Saved configuration to: #{Msf::Config.config_file}\n")
           end
 
@@ -109,6 +110,7 @@ module Msf
                 [@label_review]				# next
                 )
                 display()
+				initialize_options()
                 options_completion()
               else
                 self.page = "end"
@@ -117,6 +119,7 @@ module Msf
                 nil
                 )
                 display()
+				initialize_options()
                 review_completion()
               end
             end
@@ -137,73 +140,103 @@ module Msf
             end
           end
 
-          #
-          # Display options view
-          #
-          def options_completion
-            self.page = "options"
+		#
+		# Instantiate the options page controls
+		#
+		def initialize_options
+			@frame_standard = Gtk::Expander.new("Standard")
+			@frame_advanced = Gtk::Expander.new("Advanced")
+			@frame_evasion  = Gtk::Expander.new("Evasion")
+			@options_standard = Gtk::VBox.new(false, 0)
+			@options_advanced = Gtk::VBox.new(false, 0)
+			@options_evasion  = Gtk::VBox.new(false, 0)
 
-            # Expanded frame
-            @frame_advanced.each do |widget|
-              @frame_advanced.remove(widget)
-            end
-            @frame_evasion.each do |widget|
-              @frame_evasion.remove(widget)
-            end
+			@framer   = Gtk::VBox.new(false, 10)
+			@scroller = Gtk::ScrolledWindow.new
+			@scroller.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC) 
+			@scroller.set_size_request(580, 420)
 
-            # Required
-            @options_required.each do |widget|
-              @options_required.remove(widget)
-            end
+			@viewport = Gtk::Viewport.new(@scroller.hadjustment, @scroller.vadjustment)
 
-            # Advanced
-            @options_advanced.each do |widget|
-              @options_advanced.remove(widget)
-            end
+			@frame_standard.expanded = true	
+		end
+		
+		#
+		# Display options view
+		#
+		def options_completion
+			self.page = "options"
 
-            # Evasion
-            @options_evasion.each do |widget|
-              @options_evasion.remove(widget)
-            end
+			# Title and three sets of options
+			title = Gtk::Label.new
+			title.set_markup("<big><b>#{@mydriver.exploit.name}</b></big>")
+			@framer.pack_start(title, false, true, 5)	
+			@framer.pack_start(@frame_standard, false, false, 10)
+			@framer.pack_start(@frame_advanced, false, false, 10)
+			@framer.pack_start(@frame_evasion, false, false, 10)
 
-            # Pack
-            self.main.pack_start(@options_required, false, false, 10)
-            self.main.pack_start(@frame_advanced, false, false, 10)
-            self.main.pack_start(@frame_evasion, false, false, 10)
+			# Standard options
+			@mydriver.exploit.options.sorted.each do |key, opt|
+				next if (opt.evasion?)
+				next if (opt.advanced?)
+				@options_standard.pack_start(add_option(key, opt, @mydriver.exploit.datastore[key]), false, false, 10)
+			end
 
-            # Standards options
-            @mydriver.exploit.options.sorted.each do |key, opt|
-              next if (opt.evasion?)
-              next if (opt.advanced?)
-              @options_required.pack_start(add_option(key, opt, @mydriver.exploit.datastore[key]), false, false, 10)
-            end
+			# Advanced options
+			@mydriver.exploit.options.sorted.each do |key, opt|
+				next if (!opt.advanced?)
+				@options_advanced.pack_start(add_option(key, opt, @mydriver.exploit.datastore[key]), false, false, 10)
+			end
 
-            # Advanced options
-            @mydriver.exploit.options.sorted.each do |key, opt|
-              next if (!opt.advanced?)
-              @options_advanced.pack_start(add_option(key, opt, @mydriver.exploit.datastore[key]), false, false, 10)
-            end
+			# Evasion options
+			@mydriver.exploit.options.sorted.each do |key, opt|
+				next if (!opt.evasion?)
+				@options_evasion.pack_start(add_option(key, opt, @mydriver.exploit.datastore[key]), false, false, 10)
+			end
 
-            # Evasion options
-            @mydriver.exploit.options.sorted.each do |key, opt|
-              next if (!opt.evasion?)
-              @options_evasion.pack_start(add_option(key, opt, @mydriver.exploit.datastore[key]), false, false, 10)
-            end
+			# Display
+			indent = Gtk::HBox.new(false, 5)
+			indent.pack_start(Gtk::Label.new(""), false, false, 5)
+			indent.pack_start(@options_standard, false, false, 0)
+			indent.pack_start(Gtk::Label.new(""),true, true, 5)
+			@frame_standard.add(indent)
 
-            # Display
-            @frame_advanced.set_label("Advanced")
-            @frame_advanced.add(@options_advanced)
-            @frame_evasion.set_label("Evasion")
-            @frame_evasion.add(@options_evasion)
+			indent = Gtk::HBox.new(false, 5)
+			indent.pack_start(Gtk::Label.new(""), false, false, 5)
+			indent.pack_start(@options_advanced, false, false, 0)
+			indent.pack_start(Gtk::Label.new(""),true, true, 5)
+			@frame_advanced.add(indent)
 
-            self.main.show_all
-          end
+			indent = Gtk::HBox.new(false, 5)				
+			indent.pack_start(Gtk::Label.new(""), false, false, 5)				
+			indent.pack_start(@options_evasion, false, false, 0)			
+			indent.pack_start(Gtk::Label.new(""),true, true, 5)						
+			@frame_evasion.add(indent)
+
+			labels = ["Standard", "Advanced", "Evasion"]
+			[@frame_standard, @frame_advanced, @frame_evasion].each do |obj|
+				txt = labels.shift
+				obj.spacing = 10
+				obj.use_markup = true
+				obj.label = "<big><b>#{txt}</b></big>"
+			end
+
+			# Stuff it into a viewport
+			@viewport.add(@framer)
+
+			# Stuff the viewport into a scrolledwindow
+			@scroller.add(@viewport)
+
+			# Stuff this into main and call it done
+			self.main.pack_start(@scroller, true, true, 10)	
+			self.main.show_all
+		end
 
           #
           # Put all values in a hash
           #
           def dump_to_hash
-            @options_required.each do |widget|
+            @options_standard.each do |widget|
               name, value = widget.get_pair
               begin
                 if (@mydriver.exploit.options[name].default.to_s == value)
@@ -263,7 +296,7 @@ module Msf
             end
 
             if (errors.empty? == false)
-              MsfDialog::Error.new(self, "Failed to validate : #{errors.join(', ')}")
+              MsfDialog::Error.new(self, "Failed to validate: #{errors.join(', ')}")
               false
             else
               true
@@ -281,7 +314,7 @@ module Msf
             label = Gtk::Label.new
             review = "\n\n"
             @hash.each do |key, value|
-              review << "<b>#{key}</b> : #{value}\n"
+              review << "<b>#{key}</b>: #{value}\n"
             end
             label.set_markup(review)
 
