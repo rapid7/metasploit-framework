@@ -170,21 +170,22 @@ module Gtk2
 					# we shouldn't follow a link if the user has selected something
 					range = buffer.selection_bounds
 					if range and range[0].offset != range[1].offset
-						return false
-					end
+						false
+					else
 
-					x, y = viewtext.window_to_buffer_coords(Gtk::TextView::WINDOW_WIDGET, event.x, event.y)
-					iter = viewtext.get_iter_at_location(x, y)
+						x, y = viewtext.window_to_buffer_coords(Gtk::TextView::WINDOW_WIDGET, event.x, event.y)
+						iter = viewtext.get_iter_at_location(x, y)
 
-					tags = iter.tags
-					tags.each do |tag|
-						if (tag.respond_to?('href') and tag.href)
-							Rex::Compat.open_browser(tag.href)
-							break
+						tags = iter.tags
+						tags.each do |tag|
+							if (tag.respond_to?('href') and tag.href)
+								Rex::Compat.open_browser(tag.href)
+								break
+							end
 						end
-					end
 					
-					true
+						true
+					end
 				else
 					false
 				end
