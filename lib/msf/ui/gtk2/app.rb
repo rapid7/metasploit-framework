@@ -32,8 +32,7 @@ module Ui
 				else
 					sig_conn_proc.call(signal, &signal_proc)
 				end
-			elsif $DEBUG
-				$stderr.puts "Undefined handler: #{handler}"
+
 			end
 		end
 

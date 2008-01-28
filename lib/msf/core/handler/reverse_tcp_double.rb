@@ -245,8 +245,6 @@ protected
 				rescue ::Exception
 				end
 				
-				$stderr.puts "Exiting the monitor thread loop..."
-				
 				# Clean up the sockets...
 				begin
 					@sock_inp.close
