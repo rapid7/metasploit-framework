@@ -899,7 +899,7 @@ protected
 		# Load the file like it aint no thang
 		begin
 			if (!load(file))
-				elog("Failed to load from file #{file}.")
+				elog("Failed to load module from #{file}")
 				return false
 			end
 		rescue NameError
@@ -916,6 +916,10 @@ protected
 			raise $!
 		rescue LoadError
 			elog("LoadError: #{$!}.")
+			return false
+		rescue ::Exception => e
+			elog("Failed to load module from #{file}: #{e.class} #{e}")
+			self.module_failed[file] = e
 			return false
 		end
 

@@ -18,7 +18,10 @@ require 'rex/proto/smb/exceptions'
 		self.options = {
 			'smb_user'   => '',
 			'smb_pass'   => '',
-			'smb_pipeio' => 'rw' 
+			'smb_pipeio' => 'rw',
+			'smb_name'   => nil,
+			'read_timeout'    => 10,
+			'connect_timeout' => 5
 		}
 		
 		self.options.merge!(useroptions)
@@ -63,11 +66,7 @@ require 'rex/proto/smb/exceptions'
 				else
 					raise "ack, #{self.handle.protocol} requires socket type tcp, not #{self.socket.type?}!"
 				end
-				# don't support ncacn_ip_udp yet
-				## when 'ncacn_ip_udp'
-				## if self.socket.type? != 'udp'
-				## raise "ack, #{self.handle.protocol} requires socket type tcp, not #{self.socket.type?}!"
-				## end
+				# No support ncacn_ip_udp (is it needed now that its ripped from Vista?)
 			else
 				raise "Unsupported protocol : #{self.handle.protocol}"
 		end
@@ -75,20 +74,34 @@ require 'rex/proto/smb/exceptions'
 
 	# Create the appropriate socket based on protocol
 	def socket_setup()
-	 	ctx = { 'Msf' => options['Msf'], 'MsfExploit' => options['MsfExploit'] }
+	 	ctx = { 'Msf' => self.options['Msf'], 'MsfExploit' => self.options['MsfExploit'] }
 		self.socket = case self.handle.protocol
-			when 'ncacn_ip_tcp' then Rex::Socket.create_tcp('PeerHost' => self.handle.address, 'PeerPort' => self.handle.options[0], 'Context' => ctx)
-			when 'ncacn_np' then begin 
-				socket = ''
+			
+			when 'ncacn_ip_tcp'
+				Rex::Socket.create_tcp(
+					'PeerHost' => self.handle.address, 
+					'PeerPort' => self.handle.options[0], 
+					'Context' => ctx,
+					'Timeout' => self.options['connect_timeout']
+				)
+				
+			when 'ncacn_np'
 				begin
-				timeout(10) {
-					socket = Rex::Socket.create_tcp('PeerHost' => self.handle.address, 'PeerPort' => 445, 'Context' => ctx)
-				}
+					socket = Rex::Socket.create_tcp(
+						'PeerHost' => self.handle.address, 
+						'PeerPort' => 445, 
+						'Context' => ctx, 
+						'Timeout' => self.options['connect_timeout']
+					)
 				rescue Timeout::Error, Rex::ConnectionRefused
-					socket = Rex::Socket.create_tcp('PeerHost' => self.handle.address, 'PeerPort' => 139, 'Context' => ctx)
+					socket = Rex::Socket.create_tcp(
+						'PeerHost' => self.handle.address, 
+						'PeerPort' => 139, 
+						'Context' => ctx,
+						'Timeout' => self.options['connect_timeout']
+					)
 				end
 				socket
-			end
 			else nil
 		end
 
@@ -107,8 +120,9 @@ require 'rex/proto/smb/exceptions'
 			end
 
 			smb.login('*SMBSERVER', self.options['smb_user'], self.options['smb_pass'])
-			smb.connect('IPC$')
+			smb.connect("\\\\#{self.handle.address}\\IPC$")
 			self.smb = smb
+			self.smb.read_timeout = self.options['read_timeout']
 		end
 		
 		f = self.smb.create_pipe(self.handle.options[0])
@@ -141,13 +155,13 @@ require 'rex/proto/smb/exceptions'
 			if self.socket.type? == 'tcp'
 				if self.options['segment_read']
 					while (true)
-						data = self.socket.get_once(rand(5)+5, 10)
+						data = self.socket.get_once(rand(5)+5, self.options['read_timeout'])
 						break if data == nil
 						break if ! data.length
 						raw_response << data
 					end
 				else 
-					raw_response = self.socket.get_once(-1, 5)
+					raw_response = self.socket.get_once(-1, self.options['read_timeout'])
 				end
 			else
 				raw_response = self.socket.read(0xFFFFFFFF / 2 - 1)  # read max data
@@ -252,7 +266,7 @@ require 'rex/proto/smb/exceptions'
 	end
 
 	# Process a DCERPC response packet from a socket
-	def self.read_response (socket, timeout=5) 
+	def self.read_response(socket, timeout=self.options['read_timeout'])
 
 		data = socket.get_once(-1, timeout)
 
@@ -279,7 +293,8 @@ require 'rex/proto/smb/exceptions'
 
 		# Still missing some data...
 		if (data.length() != resp.frag_len - 10)
-			$stderr.puts "Truncated DCERPC response :-("
+			# TODO: Bubble this up somehow
+			# $stderr.puts "Truncated DCERPC response :-("
 			return resp
 		end
 

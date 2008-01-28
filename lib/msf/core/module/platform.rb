@@ -289,6 +289,14 @@ class Msf::Module::Platform
 	end
 
 	#
+	# NetWare
+	#
+	class Netware < Msf::Module::Platform
+		Rank = 100
+		Alias = "netware"
+	end
+
+	#
 	# Linux
 	#
 	class Linux < Msf::Module::Platform

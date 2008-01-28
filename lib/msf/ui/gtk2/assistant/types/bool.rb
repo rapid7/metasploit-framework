@@ -29,7 +29,7 @@ module Msf
             hbox = Gtk::HBox.new(false, 0)
             self.pack_start(hbox, false, false, 0)
 
-            @checkbutton = Gtk::CheckButton.new(self.key)
+            @checkbutton = Gtk::CheckButton.new(self.key.gsub("_", "__"))
             hbox.pack_start(@checkbutton, true, true, 0)
 
             # Define the CheckButton state

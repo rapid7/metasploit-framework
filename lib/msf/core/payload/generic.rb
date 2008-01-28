@@ -227,11 +227,10 @@ protected
 				session,
 				payload_type)
 
-			dlog("Selected payload #{actual_payload.refname} from generic payload #{refname}", 'core', LEV_2)
-
 			if actual_payload.nil?
-				raise NoCompatiblePayloadError, "Could not locate a compatible payload for #{actual_platform}/#{actual_arch}"
+				raise NoCompatiblePayloadError, "Could not locate a compatible payload for #{actual_platform.names.join("/")}/#{actual_arch}"
 			else
+				dlog("Selected payload #{actual_payload.refname} from generic payload #{refname}", 'core', LEV_2)
 				# Share our datastore with the actual payload so that it has the
 				# appropriate values to substitute ad so on.
 				self.actual_payload.share_datastore(self.datastore)

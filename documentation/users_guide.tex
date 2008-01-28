@@ -23,7 +23,7 @@
         		
         \huge{Metasploit Framework User Guide}
 		\ \\[10mm]
-		\large{Version 3.0}
+		\large{Version 3.1}
 		\\[120mm]
 		
         \small{\url{http://www.metasploit.com/}}
@@ -41,7 +41,7 @@
 \chapter{Introduction}
 
 \par
-This is the official user guide for version 3.0 of the Metasploit Framework. This 
+This is the official user guide for version 3.1 of the Metasploit Framework. This 
 guide is designed to provide an overview of what the framework is, how it works,
 and what you can do with it. The latest version of this document can be found
 on the Metasploit Framework web site. 
@@ -63,7 +63,7 @@ Installing the Framework is as easy as extracting the tarball, changing into the
 created directory, and executing your preferred user interface. We strongly
 recommend that you use a version of the Ruby interpreter that was built with
 support for the GNU Readline library. If you are using the Framework on Mac OS
-X, you will need to install GNU Readline and then recompile the Ruby
+X prior to 10.5.1, you will need to install GNU Readline and then recompile the Ruby
 interpreter.  Using a version of Ruby with Readline support enables tab completion
 of the console interface.  The \texttt{msfconsole} user interface is preferred for everyday
 use, but the \texttt{msfweb} interface can be useful for live demonstrations.
@@ -81,28 +81,21 @@ distribution.
     \label{INSTALL-WIN32}
 
 \par
-The Metasploit Framework is only partially supported on the Windows platform. If you would like
-to access most of the Framework features from Windows, we recommend using a virtualization environment,
-such as VMWare, with a supported Linux distribution
-\footnote{We highly recommend the BackTrack live CD, available from \url{http://www.remote-exploit.org/}}. If this is not possible, you can also use the
-Framework from within Cygwin. To use the Framework from within Cygwin, follow the instructions for
-installation on a Unix system. For more information on Cygwin, please see the Cygwin web site at
-\url{http://www.cygwin.com/}
+The Metasploit Framework is fully supported on the Windows platform. To install the Framework on Windows, 
+download the latest version of the Windows installer from \url{http://framework.metasploit.com/}, perform 
+an online update, and launch the \texttt{msfgui} interface from the Start Menu. To access a standard
+\texttt{msfconsole} interface, select the Console option from the Window menu. As an alternative, you can
+use the \texttt{msfweb} interface, which supports Mozilla Firefox and Internet Explorer.
 
-To install the Framework on Windows, download the latest version of the Windows installer from 
-\url{http://framework.metasploit.com/}, perform an online update, and launch the \texttt{msfweb}
-interface. Once \texttt{msfweb} is running, access the \url{http://127.0.0.1:55555/} URL from within
-your browser. At this time, only Mozilla and Internet Explorer are fully supported.
 
     \section{Platform Caveats}
     \label{INSTALL-CAVEAT}
 
 \par
-When using the Framework on the Windows platform, keep in mind that \texttt{msfweb} is the only
-supported user interface. While \texttt{msfconsole} and \texttt{msfcli} may appear to work, they
-are severely limited by the way stdio operations are handled. The result is that all Ruby threads
-will block when input is being read from the console. This can prevent most exploits, auxiliary modules,
-and plugins from functioning. This problem does not occur within Cygwin.
+When using the Framework on the Windows platform, keep in mind that \texttt{msfgui} and \texttt{msfweb} are the only
+supported user interfaces. While \texttt{msfcli} may appear to work on the command line, it will will run into
+trouble as soon as more than one active thread is present. This can prevent most exploits, auxiliary modules,
+and plugins from functioning. This problem does not occur within Cygwin environment.
 
     \section{Supported Operating Systems}
     \label{INSTALL-SUPPORT}
@@ -114,21 +107,25 @@ version of the Framework is tested with three primary platforms:
 
 \begin{itemize}
 \item Linux 2.6 (x86, ppc)
-\item Windows NT (2000, XP, 2003)
-\item MacOS X 10.4 (x86, ppc)
+\item Windows NT (2000, XP, 2003, Vista)
+\item MacOS X 10.4 (x86, ppc), 10.5 (x86)
 \end{itemize}
+
+\par
+For information about manually installing the framework, including all of the required dependencies needed
+to use the new \texttt{msfgui} interface, please see the framework web site: \url{http://framework.metasploit.com/msf/support}
 
     \section{Updating the Framework}
     \label{INSTALL-UPDATE}
 
 \par
 The Framework can be updated using a standard \texttt{Subversion} client. The
-old \texttt{msfupdate} tool is no longer supported. To obtain the latest updates,
-change into the Framework installation directory and execute \texttt{svn update}. If
-you are accessing the internet through a HTTP proxy server, please see the
-Subversion FAQ on proxy access: \url{http://subversion.tigris.org/faq.html#proxy}
-If your version of Subversion does not support SSL, execute the following command
-to switch to non-SSL HTTP:
+old \texttt{msfupdate} tool is no longer supported. Windows users can click on
+the Online Update link within the Metasploit 3 program folder on the Start Menu.
+To obtain the latest updates on a Unix-like platform, change into the Framework 
+installation directory and execute \texttt{svn update}. If you are accessing the
+internet through a HTTP proxy server, please see the Subversion FAQ on proxy 
+access: \url{http://subversion.tigris.org/faq.html#proxy}
 
 \pagebreak
 
@@ -140,8 +137,8 @@ to switch to non-SSL HTTP:
 \par
 After you have installed the Framework, you should verify that everything is
 working properly  The easiest way to do this is to execute the
-\texttt{msfconsole} user interface. If you are using Windows, start the \texttt{msfweb}
-interface and access the \texttt{Console} link from within your browser.
+\texttt{msfconsole} user interface. If you are using Windows, start the \texttt{msfgui}
+interface and access the \texttt{Console} link from the Window menu.
 The console should display an ASCII art logo, print the current version, some module
 counts, and drop to a "msf> " prompt. From this prompt, type \texttt{help} to get a list of
 valid commands. You are currently in the "main" mode; this allows you to list
@@ -166,6 +163,8 @@ The console startup will similar to the text below.
 
 \begin{verbatim}
 
+
+
                  o                       8         o   o
                  8                       8             8
 ooYoYo. .oPYo.  o8P .oPYo. .oPYo. .oPYo. 8 .oPYo. o8  o8P
@@ -177,13 +176,35 @@ ooYoYo. .oPYo.  o8P .oPYo. .oPYo. .oPYo. 8 .oPYo. o8  o8P
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
-       =[ msf v3.0-beta-dev
-+ -- --=[ 179 exploits - 104 payloads
-+ -- --=[ 18 encoders - 5 nops
-       =[ 29 aux
+       =[ msf v3.1-release
++ -- --=[ 263 exploits - 116 payloads
++ -- --=[ 17 encoders - 6 nops
+       =[ 45 aux
 
 msf >            
 \end{verbatim}
+
+    \section{The GUI Interface}
+    \label{STARTED-GUI}
+
+\par
+The \texttt{msfgui} interface was introduced in version 3.1 and provides the functionality
+of \texttt{msfconsole} in addition to many new features. To access a \texttt{msfconsole}
+shell, select the Console option from the Window menu. To search for a module within the
+module tree, enter a string or regular expression into the search box and click the button
+labeled Find. All matching modules will appear the tree below. To execute a module, 
+double-click its name in the tree, or right-click its name and select the Execute option.
+To view the source code of any module, right-click its name and select the View Code option.
+
+\par
+Once a module is selected, a wizard-based interface will walk you through the process of
+configuring and launching the module. In the case of exploit modules, the output from
+the module will appear in the main window under the Module Output tab. Any sessions created
+by the module will appear in the Sessions view in the main window. To access a session,
+double-click the session name in the view, or open a Console and use the \texttt{sessions}
+command to interact with the shell. Metepreter sessions will spawn a shell when double-clicked,
+but also offer a process and file browser via the right-click context menu. 
+
 
     \section{The Command Line Interface}
     \label{STARTED-CLI}
@@ -204,23 +225,15 @@ actions, C to try a vulnerability check, and E to exploit. The saved
 datastore will be loaded and used at startup, allowing you to configure
 convenient default options in the Global or module-specific datastore of
 \texttt{msfconsole}, save them, and take advantage of them in the
-\texttt{msfcli} interface. 
+\texttt{msfcli} interface. As of version 3.1, the \texttt{msfcli} interface
+will also work with auxiliary modules.
 
     \section{The Web Interface}
     \label{STARTED-WEB}
 
 \par
-The \texttt{msfweb} interface is based on Ruby on Rails. To use this interface, you need to have
-the \texttt{rubygems} package and the appropriate version of \texttt{rails} gem. Once
-\texttt{rubygems} has been installed, you can get the correct version of \texttt{rails}
-with the following command.\footnote{The Windows version already includes the \texttt{rubygems}
-and the correct version of \texttt{rails}}
-
-\begin{verbatim}
-$ gem install -v1.2.2 rails
-\end{verbatim}
-
-Once \texttt{rails} is configured, execute \texttt{msfweb} to start up the server. The \texttt{msfweb}
+The \texttt{msfweb} interface is based on Ruby on Rails. To access this interface,
+execute \texttt{msfweb} to start up the server. The \texttt{msfweb}
 interface uses the WEBrick web server to handle requests. By default, \texttt{msfweb} will listen
 on the loopback address (127.0.0.1) on port 55555. A log message should be displayed indicating that
 the service has started. To access the interface, open your browser to the appropriate URL 
@@ -512,7 +525,8 @@ Using the options supported by the \texttt{generate} command, different
 formats of a payload can be generated.  Some payloads will require options
 which can be specified through the \texttt{-o} parameter.  Additionally, a
 format to convey the generated payload can be specified through the
-\texttt{-t} parameter.  
+\texttt{-t} parameter. To save the resulting data to a local file, pass the
+\texttt{-f} parameter followed by the output file name.
 
 \begin{verbatim}
 msf payload(shell_reverse_tcp) > set LHOST 1.2.3.4
@@ -708,7 +722,7 @@ running with System privileges.
 \par
 If there is no interactive user logged into the system or the screen has been
 locked, the command shell can be used to launch explorer.exe anyways. This can
-result in some very confused users when the logon screen also has a start menu.
+result in some very confused users when the logon screen also has a Start Menu.
 If the interactive desktop is changed, either through someone logging into the
 system or locking the screen, the VNC server will disconnect the client. Future
 versions may attempt to follow a desktop switch. 
@@ -796,7 +810,7 @@ use a terminal emulator which limits the functionality available through
 hostile escape sequences. Please see the Terminal Emulator Security Issues paper
 below for more information on this topic:
 
-\url{http://www.digitaldefense.net/labs/papers/Termulation.txt}
+\url{http://marc.info/?l=bugtraq&m=104612710031920&q=p3}
 
 
 	\section{Web Interface}
