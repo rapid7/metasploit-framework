@@ -65,11 +65,14 @@ Borland's InterBase product line. "I found so many holes that I just
 gave up releasing all of them", said Ramon de Carvalho, founder of RISE
 Security, and Metasploit contributor. 
 
-  The Metasploit Framework is used by network security professionals
-to perform penetration tests, system administrators to verify patch
-installations, product vendors to perform regression testing, and 
-security researchers world-wide. The framework is written in the Ruby
-programming language and includes components written in C and assembler. 
+  "Metasploit continues to be an indispensable and reliable penetration
+testing framework for our modern era", says C. Wilson, a security
+engineer who uses Metasploit in his daily work. Metasploit is used by
+network security professionals to perform penetration tests, system
+administrators to verify patch installations, product vendors to
+perform regression testing, and  security researchers world-wide. The
+framework is written in the Ruby  programming language and includes
+components written in C and assembler.
 
   Metasploit runs on all modern operating systems, including Linux,
 Windows, Mac OS X, and most flavors of BSD. Metasploit has been used
