@@ -9,3 +9,4 @@ end
 end
 
 require 'rex/elfscan/scanner'
+require 'rex/elfscan/search'

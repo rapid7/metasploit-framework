@@ -41,49 +41,26 @@ opt.on('-r', '--regex [regex]', 'Search for regex match') do |t|
 	param['args'] = t
 end
 
-#opt.on('-a', '--analyze-address [address]', 'Display the code at the specified address') do |t|
-#	worker = Rex::ElfScan::Search::DumpRVA
-#	param['args'] = opt2i(t)
-#end
+opt.on('-a', '--analyze-address [address]', 'Display the code at the specified address') do |t|
+	worker = Rex::ElfScan::Search::DumpRVA
+	param['args'] = opt2i(t)
+end
 
-#opt.on('-b', '--analyze-offset [offset]', 'Display the code at the specified offset') do |t|
-#	worker = Rex::ElfScan::Search::DumpOffset
-#	param['args'] = opt2i(t)
-#end
-
-#opt.on('-f', '--fingerprint', 'Attempt to identify the packer/compiler') do |t|
-#	worker = Rex::ElfScan::Analyze::Fingerprint
-#	param['database'] = File.join(File.dirname(__FILE__), 'data', 'msfpescan', 'identify.txt')
-#end
-
-#opt.on('-i', '--info', 'Display detailed information about the image') do |t|
-#	worker = Rex::ElfScan::Analyze::Information
-#end
-
-#opt.on('-R', '--ripper [directory]', 'Rip all module resources to disk ') do |t|
-#	worker = Rex::ElfScan::Analyze::Ripper
-#	param['dir'] = t
-#end
-
-#opt.on('--context-map [directory]', 'Generate context-map files') do |t|
-#	worker = Rex::ElfScan::Analyze::ContextMapDumper
-#	param['dir'] = t
-#end
+opt.on('-b', '--analyze-offset [offset]', 'Display the code at the specified offset') do |t|
+	worker = Rex::ElfScan::Search::DumpOffset
+	param['args'] = opt2i(t)
+end
 
 opt.separator('')
 opt.separator('Options:')
 
-#opt.on('-M', '--memdump', 'The targets are memdump.exe directories') do |t|
-#	pe_klass = Rex::ElfParsey::ElfMemDump
-#end
+opt.on('-A', '--after [bytes]', 'Number of bytes to show after match (-a/-b)') do |t|
+	param['after'] = opt2i(t)
+end
 
-#opt.on('-A', '--after [bytes]', 'Number of bytes to show after match (-a/-b)') do |t|
-#	param['after'] = opt2i(t)
-#end
-
-#opt.on('-B', '--before [bytes]', 'Number of bytes to show before match (-a/-b)') do |t|
-#	param['before'] = opt2i(t)
-#end
+opt.on('-B', '--before [bytes]', 'Number of bytes to show before match (-a/-b)') do |t|
+	param['before'] = opt2i(t)
+end
 
 opt.on('-I', '--image-base [address]', 'Specify an alternate ImageBase') do |t|
 	param['imagebase'] = opt2i(t)

@@ -91,6 +91,10 @@ class Elf < ElfBase
 		isource.read(offset, len)
 	end
 
+	def read_rva(rva, len)
+		isource.read(rva_to_offset(rva), len)
+	end
+
 	def close
 		isource.close
 	end
