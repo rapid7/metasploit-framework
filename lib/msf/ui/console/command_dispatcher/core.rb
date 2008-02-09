@@ -128,9 +128,14 @@ class Core
 	# Change the current working directory
 	#
 	def cmd_cd(*args)
+		if(args.length == 0)
+			print_error("No path specified")
+			return
+		end
+		
 		begin
 			Dir.chdir(args.join(" ").strip)
-		rescue ::Errno::ENOENT
+		rescue ::Exception
 			print_error("The specified path does not exist")
 		end
 	end
