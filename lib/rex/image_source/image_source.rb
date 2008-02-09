@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 
+# $Id$
+
 module Rex
-module ElfParsey
 module ImageSource
 class ImageSource
 
@@ -41,5 +42,5 @@ class ImageSource
 
 end
 
-end end end
-
+end
+end

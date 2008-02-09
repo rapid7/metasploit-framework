@@ -23,6 +23,7 @@ class Msf::Module::Author
 			'pusscat'   => 'pusscat' + 0x40.chr + 'metasploit.com',
 			'skylined'  => 'skylined' + 0x40.chr + 'edup.tudelft.nl',
 			'patrick'   => 'patrick' + 0x40.chr + 'aushack.com',
+			'ramon'     => 'ramon' + 0x40.chr + 'risesecurity.org',
 		}
 
 	#

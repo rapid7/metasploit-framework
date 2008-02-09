@@ -4,7 +4,7 @@
 
 require 'rex/elfparsey/elfbase'
 require 'rex/elfparsey/exceptions'
-require 'rex/elfparsey/image_source'
+require 'rex/image_source'
 
 module Rex
 module ElfParsey

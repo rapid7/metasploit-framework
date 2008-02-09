@@ -1,8 +1,9 @@
 #!/usr/bin/env ruby
 
+# $Id$
+
 require 'rex/peparsey/pebase'
 require 'rex/peparsey/exceptions'
-
 require 'rex/struct2'
 
 module Rex

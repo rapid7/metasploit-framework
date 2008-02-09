@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 
-require 'rex/peparsey/image_source/image_source'
+# $Id$
 
+require 'rex/image_source/image_source'
 require 'rex/struct2'
 
 module Rex
-module ElfParsey
 module ImageSource
 class Memory < ImageSource
 
@@ -33,5 +33,5 @@ class Memory < ImageSource
 	end
 end
 
-end end end
-
+end
+end

@@ -1,4 +1,6 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
+
+# $Id$
 
 module Rex
 module PeParsey
