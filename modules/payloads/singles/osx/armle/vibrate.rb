@@ -29,7 +29,7 @@ module PlaySystemSound
 			'Version'       => '$Revision$',
 			'Description'   => %q|
 				Causes the iPhone to vibrate, only works when the AudioToolkit library has been loaded. 
-				Based on work by Chris Miller <cmiller[at]securityevaluators.com>.
+				Based on work by Charlie Miller <cmiller[at]securityevaluators.com>.
 			|,
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,
