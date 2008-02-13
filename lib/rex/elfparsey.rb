@@ -8,5 +8,4 @@ module ElfParsey
 end
 end
 
-require 'rex/elfparsey/exceptions'
 require 'rex/elfparsey/elf'

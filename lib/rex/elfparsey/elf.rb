@@ -19,7 +19,9 @@ class Elf < ElfBase
 		# ELF Header
 		elf_header = ElfHeader.new(isource.read(offset, ELF_HEADER_SIZE))
 
+		# Data encoding
 		ei_data = elf_header.e_ident[EI_DATA]
+
 		e_phoff = elf_header.e_phoff
 		e_phentsize = elf_header.e_phentsize
 		e_phnum = elf_header.e_phnum
@@ -46,8 +48,6 @@ class Elf < ElfBase
 		self.isource = isource
 	end
 
-	# Stolen from lib/rex/peparsey/pebase.rb
-
 	def self.new_from_file(filename, disk_backed = false)
 
 		file = ::File.new(filename)
@@ -62,21 +62,36 @@ class Elf < ElfBase
 		end
 	end
 
-	# Stolen from lib/rex/peparsey/pebase.rb
-
 	def self.new_from_string(data)
 		return self.new(ImageSource::Memory.new(data))
 	end
 
-	# Stolen from lib/rex/peparsey/pe.rb
+	#
+	# Returns true if this binary is for a 64-bit architecture.
+	#
+	def ptr_64?
+		unless [ ELFCLASS32, ELFCLASS64 ].include?(
+		elf_header.e_ident[EI_CLASS])
+			raise ElfHeaderError, 'Invalid class', caller
+		end
+
+		elf_header.e_ident[EI_CLASS] == ELFCLASS64
+	end
+
+	#
+	# Returns true if this binary is for a 32-bit architecture.
+	# This check does not take into account 16-bit binaries at the moment.
+	#
+	def ptr_32?
+		ptr_64? == false
+	end
 
 	#
 	# Converts a virtual address to a string representation based on the
 	# underlying architecture.
 	#
-	def ptr_s(va)
-		#(ptr_32?) ? ("0x%.8x" % va) : ("0x%.16x" % va)
-		"0x%.8x" % va
+	def ptr_s(rva)
+		(ptr_32?) ? ("0x%.8x" % rva) : ("0x%.16x" % rva)
 	end
 
 	def offset_to_rva(offset)
@@ -95,12 +110,12 @@ class Elf < ElfBase
 		isource.read(rva_to_offset(rva), len)
 	end
 
-	def close
-		isource.close
-	end
-
 	def index(*args)
 		isource.index(*args)
+	end
+
+	def close
+		isource.close
 	end
 
 end

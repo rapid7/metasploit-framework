@@ -2,10 +2,10 @@
 
 # $Id$
 
-require 'rex/peparsey/pebase'
-require 'rex/peparsey/exceptions'
-require 'rex/peparsey/section'
 require 'rex/image_source'
+require 'rex/peparsey/exceptions'
+require 'rex/peparsey/pebase'
+require 'rex/peparsey/section'
 require 'rex/struct2'
 
 module Rex

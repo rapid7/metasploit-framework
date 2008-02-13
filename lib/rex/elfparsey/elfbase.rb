@@ -99,9 +99,11 @@ class ElfBase
 	#
 
 	ELFMAG0 = 0x7f  # e_ident[EI_MAG0]
-	ELFMAG1 = 'E'   # e_ident[EI_MAG1]
-	ELFMAG2 = 'L'   # e_ident[EI_MAG2]
-	ELFMAG3 = 'F'   # e_ident[EI_MAG3]
+	ELFMAG1 = ?E   # e_ident[EI_MAG1]
+	ELFMAG2 = ?L   # e_ident[EI_MAG2]
+	ELFMAG3 = ?F   # e_ident[EI_MAG3]
+
+	ELFMAG = ELFMAG0.chr + ELFMAG1.chr + ELFMAG2.chr + ELFMAG3.chr
 
 	# EI_CLASS  Identifies the file's class, or capacity
 
@@ -117,8 +119,6 @@ class ElfBase
 	ELFDATANONE = 0  # Invalid data encoding
 	ELFDATA2LSB = 1  # Least significant byte first
 	ELFDATA2MSB = 2  # Most significant byte first
-
-	# Stolen from lib/rex/peparsey/pebase.rb
 
 	class GenericStruct
 		attr_accessor :struct
@@ -154,6 +154,8 @@ class ElfBase
 
 	class ElfHeader < GenericHeader
 		def initialize(rawdata)
+
+			# Identify the data encoding and parse ELF Header
 			elf_header = ELF32_EHDR_LSB.make_struct
 
 			if !elf_header.from_s(rawdata)
@@ -168,16 +170,14 @@ class ElfBase
 				end
 			end
 
-			unless elf_header.v['e_ident'][EI_DATA] == ELFDATA2LSB ||
-			elf_header.v['e_ident'][EI_DATA] == ELFDATA2MSB
+			unless [ ELFDATA2LSB, ELFDATA2MSB ].include?(
+			elf_header.v['e_ident'][EI_DATA])
 				raise ElfHeaderError, 'Invalid data encoding', caller
 			end
 
-			unless elf_header.v['e_ident'][EI_MAG0].to_i == ELFMAG0 &&
-				elf_header.v['e_ident'][EI_MAG1] == ELFMAG1 &&
-				elf_header.v['e_ident'][EI_MAG2] == ELFMAG2 &&
-				elf_header.v['e_ident'][EI_MAG3] == ELFMAG3
-				#raise ElfHeaderError, 'Invalid magic number', caller
+			# Identify the file as an ELF object file
+			unless elf_header.v['e_ident'][EI_MAG0, 4] == ELFMAG
+				raise ElfHeaderError, 'Invalid magic number', caller
 			end
 
 			self.struct = elf_header
@@ -237,6 +237,8 @@ class ElfBase
 
 	class ProgramHeader < GenericHeader
 		def initialize(rawdata, ei_data)
+
+			# Identify the data encoding and parse Program Header
 			if ei_data == ELFDATA2LSB
 				program_header = ELF32_PHDR_LSB.make_struct
 			elsif ei_data == ELFDATA2MSB

@@ -2,8 +2,8 @@
 
 # $Id$
 
-require 'rex/peparsey/pebase'
 require 'rex/peparsey/exceptions'
+require 'rex/peparsey/pebase'
 require 'rex/struct2'
 
 module Rex

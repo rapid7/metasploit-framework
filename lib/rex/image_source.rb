@@ -2,6 +2,11 @@
 
 # $Id$
 
-require 'rex/image_source/image_source.rb'
-require 'rex/image_source/memory.rb'
-require 'rex/image_source/disk.rb'
+module Rex
+module ImageSource
+
+end
+end
+
+require 'rex/image_source/disk'
+require 'rex/image_source/memory'
