@@ -2,8 +2,11 @@
 #include "rubysig.h"
 
 #include <pcap.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+
+#if !defined(WIN32)
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+#endif
 
 static VALUE rb_cPcap;
 
@@ -24,17 +27,44 @@ rbpcap_s_version(VALUE class)
     return rb_str_new2(PCAPRUB_VERSION);	
 }
 
+
 static VALUE
 rbpcap_s_lookupdev(VALUE self)
 {
-    char *dev;
+    char *dev = NULL;
     char eb[PCAP_ERRBUF_SIZE];
-	
+    VALUE ret_dev;  /* device string to return */
+#if defined(WIN32)  /* pcap_lookupdev is broken on windows */    
+    pcap_if_t *alldevs;
+    pcap_if_t *d;
+
+    /* Retrieve the device list from the local machine */
+    if (pcap_findalldevs(&alldevs,eb) == -1) {
+        rb_raise(rb_eRuntimeError,"%s",eb);
+    }
+
+    /* Find the first interface with an address and not loopback */
+    for(d = alldevs; d != NULL; d= d->next)  {
+        if(d->name && d->addresses && !(d->flags & PCAP_IF_LOOPBACK)) {
+            dev=d->name;
+            break;
+        }
+    }
+    
+    if (dev == NULL) {
+        rb_raise(rb_eRuntimeError,"%s","No valid interfaces found, Make sure WinPcap is installed.\n");
+    }
+    ret_dev = rb_str_new2(dev);
+    /* We don't need any more the device list. Free it */
+    pcap_freealldevs(alldevs);
+#else
     dev = pcap_lookupdev(eb);
     if (dev == NULL) {
 		rb_raise(rb_eRuntimeError, "%s", eb);
     }
-    return rb_str_new2(dev);
+    ret_dev = rb_str_new2(dev);
+#endif
+    return ret_dev;
 }
 
 static VALUE
@@ -118,14 +148,15 @@ rbpcap_setfilter(VALUE self, VALUE filter)
     return self;
 }
 
+
 static VALUE
-rbpcap_open_live(VALUE self, VALUE interface, VALUE snaplen, VALUE promisc, VALUE timeout)
+rbpcap_open_live(VALUE self, VALUE iface,VALUE snaplen,VALUE promisc, VALUE timeout)
 {
     char eb[PCAP_ERRBUF_SIZE];
     rbpcap_t *rbp;
     int promisc_value = 0;
 
-    if(TYPE(interface) != T_STRING)
+    if(TYPE(iface) != T_STRING)
     	rb_raise(rb_eArgError, "interface must be a string");
     if(TYPE(snaplen) != T_FIXNUM)
     	rb_raise(rb_eArgError, "snaplen must be a fixnum");
@@ -147,10 +178,10 @@ rbpcap_open_live(VALUE self, VALUE interface, VALUE snaplen, VALUE promisc, VALU
 
     rbp->type = LIVE;
     memset(rbp->iface, 0, sizeof(rbp->iface));
-    strncpy(rbp->iface, RSTRING(interface)->ptr, sizeof(rbp->iface) - 1);
+    strncpy(rbp->iface, RSTRING(iface)->ptr, sizeof(rbp->iface) - 1);
 
     rbp->pd = pcap_open_live(
-    	RSTRING(interface)->ptr,
+    	RSTRING(iface)->ptr,
     	NUM2INT(snaplen),
     	promisc_value,
     	NUM2INT(timeout),
@@ -164,11 +195,10 @@ rbpcap_open_live(VALUE self, VALUE interface, VALUE snaplen, VALUE promisc, VALU
 }
 
 static VALUE
-rbpcap_open_live_s(VALUE class, VALUE interface, VALUE snaplen, VALUE promisc, VALUE timeout)
+rbpcap_open_live_s(VALUE class, VALUE iface, VALUE snaplen, VALUE promisc, VALUE timeout)
 {
     VALUE iPcap = rb_funcall(rb_cPcap, rb_intern("new"), 0);
-
-    return rbpcap_open_live(iPcap, interface, snaplen, promisc, timeout);
+    return rbpcap_open_live(iPcap, iface, snaplen, promisc, timeout);
 }
 
 static VALUE
@@ -216,8 +246,17 @@ rbpcap_inject(VALUE self, VALUE payload)
     Data_Get_Struct(self, rbpcap_t, rbp);
 
 	if(! rbpcap_ready(rbp)) return self; 
-	
+#if defined(WIN32)   
+    /* WinPcap does not have a pcap_inject call we use pcap_sendpacket, if it suceedes 
+     * we simply return the amount of packets request to inject, else we fail.
+     */
+    if(pcap_sendpacket(rbp->pd, RSTRING(payload)->ptr, RSTRING(payload)->len) != 0) {
+    	rb_raise(rb_eRuntimeError, "%s", pcap_geterr(rbp->pd));
+    }
+    return INT2NUM(RSTRING(payload)->len);
+#else
     return INT2NUM(pcap_inject(rbp->pd, RSTRING(payload)->ptr, RSTRING(payload)->len));
+#endif
 }
 
 static VALUE
