@@ -46,7 +46,7 @@ module Rex::Socket::Tcp
 	def shutdown(how = ::Socket::SHUT_RDWR)
 		begin
 			return (super(how) == 0)
-		rescue Errno::ENOTCONN
+		rescue ::Exception
 		end
 	end
 
