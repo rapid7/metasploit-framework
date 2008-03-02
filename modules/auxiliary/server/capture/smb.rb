@@ -209,19 +209,19 @@ class Auxiliary::Server::Capture::SMBSniffer < Msf::Auxiliary
 			:host  => smb[:ip],
 			:type  => "smb_peer_os",
 			:data  => smb[:peer_os]
-		) if smb[:peer_os]
+		) if (smb[:peer_os] and smb[:peer_os].strip.length > 0)
 
 		report_note(
 			:host  => smb[:ip],
 			:type  => "smb_peer_lm",
 			:data  => smb[:peer_lm]
-		) if smb[:peer_lm]
+		) if (smb[:peer_lm] and smb[:peer_lm].strip.length > 0)
 
 		report_note(
 			:host  => smb[:ip],
 			:type  => "smb_domain",
 			:data  => smb[:domain]
-		) if smb[:domain]
+		) if (smb[:domain] and smb[:domain].strip.length > 0)
 						
 		fd = File.open(datastore['LOGFILE'], "a")
 		fd.puts(

@@ -89,7 +89,7 @@ class Auxiliary::Server::FakeDNS < Msf::Auxiliary
             # Debian 3.1: Static source port (32906) until timeout, 
             #  randomized IDs
             #
-            log = "FakeDNS: #{addr[3]}:#{addr[1]} XID #{request.id} "
+
 			lst = []
 			
             request.each_question {|name, typeclass|
@@ -137,10 +137,16 @@ class Auxiliary::Server::FakeDNS < Msf::Auxiliary
 					request.add_answer(name, 60, ns)
 					request.add_additional(name, 60, ar)	
 				else
-					print_status("UNKNOWN #{tc_s}")		
+					lst << "UNKNOWN #{tc_s}"
 				end
             }
-			print_status("#{log} (#{lst.join(", ")})")
+			print_status("DNS #{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})")
+			
+			report_note(
+				:host => addr[3],
+				:type => "dns_lookup",
+				:data => "#{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})"
+			) if lst.length > 0
 			
             @sock.send(request.encode(), 0, addr[3], addr[1])
         end
