@@ -32,8 +32,10 @@ module Db
 				"db_hosts"    => "List all hosts in the database",
 				"db_services" => "List all services in the database",
 				"db_vulns"    => "List all vulnerabilities in the database",
+				"db_notes"    => "List all notes in the database",
 				"db_add_host" => "Add one or more hosts to the database",
 				"db_add_port" => "Add a port to host",
+				"db_add_note" => "Add a note to host",
 				"db_autopwn"  => "Automatically exploit everything",
 				"db_import_nessus_nbe" => "Import a Nessus scan result file (NBE)",
 				"db_import_nmap_xml"   => "Import a Nmap scan results file (-oX)",
@@ -43,27 +45,34 @@ module Db
 
 		def cmd_db_hosts(*args)
 			framework.db.each_host do |host|
-				print_status("Host: #{host.address}")
+				print_status("Time: #{host.created} Host: #{host.address}")
 			end
 		end
 
 		def cmd_db_services(*args)
 			framework.db.each_service do |service|
-				print_status("Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state} name=#{service.name}")			
+				print_status("Time: #{service.created}] Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state} name=#{service.name}")			
 			end
 		end		
 		
 		def cmd_db_vulns(*args)
 			framework.db.each_vuln do |vuln|
 				reflist = vuln.refs.map { |r| r.name }
-				print_status("Vuln: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}")
+				print_status("Time: #{vuln.created} Vuln: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}")
 			end
 		end	
-		
+
+		def cmd_db_notes(*args)
+			framework.db.each_note do |note|
+				print_status("Time: #{note.created} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")			
+			end
+		end	
+				
 		def cmd_db_add_host(*args)
 			print_status("Adding #{args.length.to_s} hosts...")
 			args.each do |address|
-				framework.db.get_host(nil, address)
+				host = framework.db.get_host(nil, address)
+				print_status("Time: #{host.created} Host: host=#{service.host.address}")
 			end
 		end
 
@@ -79,9 +88,28 @@ module Db
 			service = framework.db.get_service(nil, host, args[2].downcase, args[1].to_i)
 			return if not service
 			
-			print_status("Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}")
+			print_status("Time: #{service.created} Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}")
 		end
 
+		def cmd_db_add_note(*args)
+			if (not args or args.length < 3)
+				print_status("Usage: db_add_note [host] [type] [note]")
+				return
+			end
+
+			naddr = args.shift 
+			ntype = args.shift
+			ndata = args.join(" ")
+
+			host = framework.db.get_host(nil, naddr)
+			return if not host
+			
+			note = framework.db.get_note(nil, host, ntype, ndata)
+			return if not note
+			
+			print_status("Time: #{note.created} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
+		end
+		
 		#
 		# A shotgun approach to network-wide exploitation
 		#

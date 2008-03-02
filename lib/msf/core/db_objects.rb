@@ -84,5 +84,16 @@ class VulnRefs < ActiveRecord::Base
 	include DBSave
 end
 
+
+# Service object definition
+class Note < ActiveRecord::Base
+	include DBSave
+	belongs_to :host
+
+	def host
+		Host.find(:first, :conditions => [ "id = ?", host_id ])
+	end	
+end
+
 end
 end

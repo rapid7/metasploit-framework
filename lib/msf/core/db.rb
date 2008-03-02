@@ -193,14 +193,32 @@ class DBManager
 	def vulns
 		Vuln.find(:all)
 	end
+
+
+	#
+	# This method iterates the notes table calling the supplied block with the
+	# note instance of each entry.
+	#
+	def each_note(&block)
+		notes.each do |note|
+			block.call(note)
+		end
+	end
 	
+	#
+	# This methods returns a list of all notes in the database
+	#
+	def notes
+		Note.find(:all)
+	end
+		
 	#
 	# Find or create a host matching this address/comm
 	#
 	def get_host(context, address, comm='')
 		host = Host.find(:first, :conditions => [ "address = ? and comm = ?", address, comm])
 		if (not host)
-			host = Host.create(:address => address, :comm => comm, :state => HostState::Unknown)
+			host = Host.create(:address => address, :comm => comm, :state => HostState::Unknown, :created => Time.now)
 			host.save
 			framework.events.on_db_host(context, host)
 		end
@@ -218,7 +236,8 @@ class DBManager
 				:host_id    => host.id,
 				:proto      => proto,
 				:port       => port,
-				:state      => state
+				:state      => state,
+				:created    => Time.now
 			)
 			rec.save
 			framework.events.on_db_service(context, rec)
@@ -235,7 +254,8 @@ class DBManager
 			vuln = Vuln.create(
 				:service_id => service.id,
 				:name       => name,
-				:data       => data
+				:data       => data,
+				:created    => Time.now
 			)
 			vuln.save
 			framework.events.on_db_vuln(context, vuln)
@@ -251,7 +271,8 @@ class DBManager
 		ref = Ref.find(:first, :conditions => [ "name = ?", name])
 		if (not ref)
 			ref = Ref.create(
-				:name       => name
+				:name       => name,
+				:created    => Time.now
 			)
 			ref.save
 			framework.events.on_db_ref(context, ref)
@@ -260,6 +281,24 @@ class DBManager
 		return ref
 	end
 
+	#
+	# Find or create a note matching this type/data
+	#	
+	def get_note(context, host, ntype, data)
+		rec = Note.find(:first, :conditions => [ "host_id = ? and ntype = ? and data = ?", host.id, ntype, data])
+		if (not rec)
+			rec = Note.create(
+				:host_id    => host.id,
+				:ntype      => ntype,
+				:data       => data,
+				:created    => Time.now
+			)
+			rec.save
+			framework.events.on_db_note(context, rec)
+		end
+		return rec
+	end
+	
 	#
 	# Find a reference matching this name
 	#

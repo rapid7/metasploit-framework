@@ -830,6 +830,78 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, false)
 	end	
 
+
+	# Authenticate using extended security negotiation (NTLMv2), but stop half-way, using the temporary ID
+	def session_setup_ntlmv2_temp(domain = '', name = nil)
+	
+		if (name == nil)
+			name = Rex::Text.rand_text_alphanumeric(16)
+		end
+		
+		blob = UTILS.make_ntlmv2_secblob_init(domain, name)
+		
+		native_data = ''
+		native_data << self.native_os + "\x00"
+		native_data << self.native_lm + "\x00"		
+
+		pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
+		self.smb_defaults(pkt['Payload']['SMB'])
+				
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
+		pkt['Payload']['SMB'].v['Flags1'] = 0x18
+		pkt['Payload']['SMB'].v['Flags2'] = 0x2801
+		pkt['Payload']['SMB'].v['WordCount'] = 12
+		pkt['Payload'].v['AndX'] = 255
+		pkt['Payload'].v['MaxBuff'] = 0xffdf
+		pkt['Payload'].v['MaxMPX'] = 2
+		pkt['Payload'].v['VCNum'] = 1		
+		pkt['Payload'].v['SecurityBlobLen'] = blob.length
+		pkt['Payload'].v['Capabilities'] = 0x8000d05c
+		pkt['Payload'].v['SessionKey'] = self.session_id
+		pkt['Payload'].v['Payload'] = blob + native_data 
+		
+		self.smb_send(pkt.to_s)
+		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
+		
+		# The server doesn't know about NTLM_NEGOTIATE, try ntlmv1
+		if (ack['Payload']['SMB'].v['ErrorClass'] == 0x00020002)
+			return session_setup_ntlmv1(user, pass, domain)
+		end
+		
+		# Make sure the error code tells us to continue processing
+		if (ack['Payload']['SMB'].v['ErrorClass'] != 0xc0000016)
+			failure = XCEPT::ErrorCode.new
+			failure.word_count = ack['Payload']['SMB'].v['WordCount']
+			failure.command = ack['Payload']['SMB'].v['Command']
+			failure.error_code = ack['Payload']['SMB'].v['ErrorClass']
+			raise failure
+		end
+
+		# Extract the SecurityBlob from the response
+		data = ack['Payload'].v['Payload']
+		blob = data.slice!(0, ack['Payload'].v['SecurityBlobLen'])
+
+		# Extract the native lanman and os strings
+		info = data.split(/\x00/)
+		self.peer_native_os = info[0]
+		self.peer_native_lm = info[1]
+		
+		# Save the temporary UserID for use in the next request
+		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
+		
+		# Extract the NTLM challenge key the lazy way
+		cidx = blob.index("NTLMSSP\x00\x02\x00\x00\x00")
+		
+		if (cidx == -1)
+			raise XCEPT::NTLM2MissingChallenge
+		end
+		
+		# Store the challenge key
+		self.challenge_key = blob[cidx + 24, 8]
+		
+		return ack
+	end	
+
 	# Connect to a specified share with an optional password
 	def tree_connect(share = 'IPC$', pass = '')
 		
@@ -1591,7 +1663,6 @@ EVADE = Rex::Proto::SMB::Evasions
 	attr_reader		:security_mode, :server_guid
 	
 # private methods
-protected
 	attr_writer		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
 	attr_writer		:default_domain, :default_name, :auth_user, :auth_user_id
 	attr_writer		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
