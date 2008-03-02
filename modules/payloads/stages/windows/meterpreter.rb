@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -79,8 +79,12 @@ module Meterpreter
 	#
 	def on_session(session)
 		super
-		
-		session.load_stdapi if (datastore['AutoLoadStdapi'] == true)
+		if (datastore['AutoLoadStdapi'] == true)
+			session.load_stdapi 
+			if (framework.exploits.create(session.via_exploit).privileged?)
+				session.load_priv 
+			end
+		end
 	end
 
 end

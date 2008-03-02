@@ -160,6 +160,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	end
 
 	#
+	# Load the priv extension.
+	#
+	def load_priv()
+		original = console.disable_output
+
+		console.disable_output = true
+		console.run_single('use priv')
+		console.disable_output = original
+	end
+
+	#
 	# Interacts with the meterpreter client at a user interface level.
 	#
 	def _interact
