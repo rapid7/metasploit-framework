@@ -26,7 +26,8 @@ packet = [
 	0x50, 0xf2, 0x02
 ].pack('C*')
 
-tx = Lorcon::Device.new('ath0', 'madwifing', 1)
+tx = Lorcon::Device.new('ath0', 'madwifing')
+tx.channel = 11
 
 sa = Time.now.to_f
 tx.write(packet, 500, 0)
