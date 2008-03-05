@@ -32,7 +32,7 @@ end
 $framework = Msf::Simple::Framework.create
 
 if (ARGV.length <= 1)
-	puts "\n" + "    Usage: #{$0} <payload> [var=val] <S[ummary]|C|P[erl]|R[aw]|J[avascript]|e[X]ecutable>\n"
+	puts "\n" + "    Usage: #{$0} <payload> [var=val] <S[ummary]|C|P[erl]|[Rub]y|R[aw]|J[avascript]|e[X]ecutable>\n"
 	puts dump_payloads
 	exit
 end
@@ -57,8 +57,9 @@ cmd = ARGV.pop.downcase
 # Populate the framework datastore
 options = ARGV.join(',')
 
-if (cmd =~ /^(p|r|c|j|x|b)/)
+if (cmd =~ /^(p|y|r|c|j|x|b)/)
 	fmt = 'perl' if (cmd =~ /^p/)
+	fmt = 'ruby' if (cmd =~ /^y/)
 	fmt = 'raw' if (cmd =~ /^(r|x)/)
 	fmt = 'c' if (cmd == 'c')
 	fmt = 'js_be' if (cmd =~ /^j/ and Rex::Arch.endian(payload.arch) == ENDIAN_BIG)
