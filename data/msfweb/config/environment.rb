@@ -33,6 +33,13 @@ end
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
 $:.unshift(File.join(File.dirname(msfbase), '..', '..', '..', 'lib'))
 
+
+
+# Monkey patch the webrick vulnerability
+if(Object.const_defined?(:WEBrick))
+	load(File.join(File.dirname(msfbase), "..", "patches", "filehandler.rb"))
+end
+
 require 'rex'
 require 'msf/ui'
 require 'msf/base'
