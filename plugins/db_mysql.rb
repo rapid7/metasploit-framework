@@ -7,7 +7,7 @@ module Msf
 ###
 # 
 # This class intializes the database db with a shiny new
-# SQLite3 database instance.
+# MySQL database instance.
 #
 ###
 
