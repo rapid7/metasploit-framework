@@ -344,8 +344,10 @@ class ClientCore < Extension
 		wrote = client.sock.write([size].pack("V"))
 		wrote = client.sock.write(buf)
 
-		# Re-load the STDAPI extension server-side
-		client.core.use('stdapi')
+		# Load all the extensions that were loaded in the previous instance
+		client.ext.aliases.keys.each { |e| 
+			client.core.use(e) 
+		}
 
 ###           ###
 ### TEMPORARY ###
