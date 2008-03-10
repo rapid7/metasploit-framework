@@ -33,7 +33,9 @@ module Scruby
 
 	# Constants for Ethernet
 	ETHERTYPE_IPv4 = 0x800
-	ETHERTYPE_ALL = { ETHERTYPE_IPv4 => "IPv4"}
+	ETHERTYPE_ARP = 0x806 
+	ETHERTYPE_ALL = { ETHERTYPE_IPv4 => "IPv4",
+	                  ETHERTYPE_ARP => "ARP"}
 
 	# Constants for BSD loopback interfaces
 	BSDLOOPBACKTYPE_IPv4 = 2

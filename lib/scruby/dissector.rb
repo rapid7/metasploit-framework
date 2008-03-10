@@ -51,7 +51,41 @@ module Scruby
 		end
 		
 	end
+	
+	# Dissector for ARP 
+	class ARP<Layer
+		Scruby.register_dissector(self)
+		def method_missing(method, *args)
+			return Scruby.field(method, *args)
+		end
+	  
+		attr_accessor  :hw_type, :ptype, :hwlen, :plen, :op, :hwsrc, :psrc, :pdst, :hwdst, :pdst
 
+		@@request = {"who-has"=>1, "is-at"=>2, "RARP-req"=>3, "RARP-rep"=>4, 
+				"Dyn-RARP-req"=>5, "Dyn-RAR-rep"=>6, "Dyn-RARP-err"=>7, 
+				"InARP-req"=>8, "InARP-rep"=>9}
+
+		def init
+			@protocol = 'ARP'
+			@fields_desc = [ XShortField("hwtype", 0x0001), 
+					XShortEnumField("ptype",  ETHERTYPE_IPv4, ETHERTYPE_ALL),
+					ByteField("hwlen", 6), 
+					ByteField("plen", 4),  
+					ShortField("op", @@request["who-has"]),   
+					MACField("hwsrc", '00:00:00:00:00:00'), 
+					IPField("psrc", '127.0.0.1'),            
+					MACField("hwdst", '00:00:00:00:00:00'),     
+					IPField("pdst", '127.0.0.1') ]            
+		end
+
+		def pre_send(underlayer, payload)
+			if underlayer.is_a?(Ether)
+				underlayer.type = ETHERTYPE_ARP
+			end
+		end
+	end	
+    
+  
 	# Dissector for IPv4
 	class IP<Layer
 		Scruby.register_dissector(self)
@@ -399,7 +433,8 @@ module Scruby
 	{
 		'Ether' => 
 		[
-			['type', ETHERTYPE_IPv4, IP]
+			['type', ETHERTYPE_IPv4, IP],
+			['type', ETHERTYPE_ARP, ARP]
 		],
 
 		'ClassicBSDLoopback' => 
@@ -449,6 +484,7 @@ end
 Scruby packet dissectors/types:
 ===============================
 	ANI
+	ARP
 	ClassicBSDLoopback
 	Ether
 	ICMP
