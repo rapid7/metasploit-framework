@@ -17,9 +17,9 @@ def help(command = nil)
 
   if command.nil?
     print <<EOF
-This is Scruby, a portable, customizable packet creation and sending/sniffing tool written in Ruby. It was tested on NetBSD and GNU/Linux, and should theoretically work on some other platforms such as FreeBSD, OpenBSD, Mac OS X and proprietary Unixes.
+This is Scruby, a portable, customizable packet creation and sending/sniffing tool written in Ruby. It was tested on NetBSD, GNU/Linux and MacOS X, and should theoretically work on some other platforms such as FreeBSD, OpenBSD and proprietary Unixes.
 
-See http://sylvainsarmejeanne.free.fr/projects/scruby for more information.
+See http://sylv1.tuxfamily.org/projects/scruby.html for more information.
 
 With Scruby, you can:
 - create custom packet: p=IP(:src=>"1.2.3.4", :dst=>"www.google.com")/TCP()/"GET / HTTP 1.0\\r\\n\\r\\n"
@@ -29,10 +29,10 @@ With Scruby, you can:
 - dissect a string to a recreate the packet: s=p.to_net;puts "string=\#{s.inspect}\\nresult=\#{IP(s)}"
 
 Available dissectors (type "ls 'MyDissector'" to have detailed information):
-#{DISSECTORS_LIST_S.inspect}
+#{Scruby.dissectors.keys.sort.join(", ")}
 
 Available functions (type "lsc 'myfunction'" to have detailed information):
-#{FUNCTIONS_LIST.inspect}
+#{(Scruby.methods - Object.methods).sort.join(", ")}
 EOF
   else
     # Executing the specific help function

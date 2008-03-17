@@ -37,21 +37,18 @@ module Scruby
 	# Dissector for Ethernet
 	class Ether<Layer
 		Scruby.register_dissector(self)
-		def method_missing(method, *args)
-			return Scruby.field(method, *args)
-		end
 
 		attr_accessor :dst, :src, :type
 
 		def init
 			@protocol = 'Ethernet'
-			@fields_desc =  [ MACField('dst', '00:00:00:00:00:00'),
-								MACField('src', '00:00:00:00:00:00'),
-								XShortField('type', ETHERTYPE_IPv4) ]
+			@fields_desc =  [ MACField('dst', ETHERADDR_ANY),
+								MACField('src', ETHERADDR_ANY),
+								XShortEnumField('type', ETHERTYPE_IPv4, ETHERTYPE_ALL) ]
 		end
 		
 	end
-	
+
 	# Dissector for ARP 
 	class ARP<Layer
 		Scruby.register_dissector(self)
@@ -83,27 +80,23 @@ module Scruby
 				underlayer.type = ETHERTYPE_ARP
 			end
 		end
-	end	
-    
-  
+	end
+
 	# Dissector for IPv4
 	class IP<Layer
 		Scruby.register_dissector(self)
-		def method_missing(method, *args)
-			return Scruby.field(method, *args)
-		end
-
+		
 		attr_accessor :version, :ihl, :tos, :len, :id, :flags, :frag
 		attr_accessor :ttl, :proto, :chksum, :src, :dst
 
 		def init
 			@protocol = 'IPv4'
-			@fields_desc = [ BitField("version", 4, 4),
-							BitField("ihl", 5, 4),
+			@fields_desc = [ BitField('version', 4, 4),
+							BitField('ihl', 5, 4),
 							XByteField('tos', 0),
 							ShortField('len', 20),
 							XShortField('id', 0),
-							BitField('flags', 0, 3),
+							FlagsField('flags', 0, 3, IPFLAGS),
 							BitField('frag', 0, 13),
 							ByteField('ttl', 64),
 							ByteEnumField('proto', IPPROTO_TCP, IPPROTO_ALL),
@@ -126,15 +119,12 @@ module Scruby
 	# Dissector for ICMP
 	class ICMP<Layer
 		Scruby.register_dissector(self)
-		def method_missing(method, *args)
-			return Scruby.field(method, *args)
-		end
-
+		
 		attr_accessor :type, :code, :chksum, :id, :seq
 
 		def init
 			@protocol = 'ICMP'
-			@fields_desc = [ ByteField('type', ICMPTYPE_ECHO),
+			@fields_desc = [ ByteEnumField('type', ICMPTYPE_ECHO_REQ, ICMPTYPE_ALL),
 							ByteField('code', 0),
 							XShortField('chksum', 0),
 							XShortField('id', 0),
@@ -152,10 +142,7 @@ module Scruby
 	# Dissector for Raw
 	class Raw<Layer
 		Scruby.register_dissector(self)
-		def method_missing(method, *args)
-			return Scruby.field(method, *args)
-		end
-
+		
 		attr_accessor :load
 
 		def init
@@ -168,9 +155,6 @@ module Scruby
 	# Dissector for TCP
 	class TCP<Layer
 		Scruby.register_dissector(self)
-		def method_missing(method, *args)
-			return Scruby.field(method, *args)
-		end
 
 		attr_accessor :sport, :dport, :seq, :ack, :dataofs, :reserved
 		attr_accessor :flags, :window, :chksum, :urgptr
@@ -181,9 +165,9 @@ module Scruby
 							ShortField('dport', 80),
 							IntField('seq', 0),
 							IntField('ack', 0),
-							BitField("dataofs", 5, 4),
-							BitField("reserved", 0, 4),
-							XByteField('flags', 0x2),
+							BitField('dataofs', 5, 4),
+							BitField('reserved', 0, 4),
+							FlagsField('flags', 0x2, 8, TCPFLAGS),
 							ShortField('window', 8192),
 							XShortField('chksum', 0),
 							ShortField('urgptr', 0) ]
@@ -217,10 +201,7 @@ module Scruby
 	# Dissector for UDP
 	class UDP<Layer
 		Scruby.register_dissector(self)
-		def method_missing(method, *args)
-			return Scruby.field(method, *args)
-		end
-
+		
 		attr_accessor :sport, :dport, :len, :chksum
 
 		def init
@@ -263,10 +244,7 @@ module Scruby
 	# Dissector for the classic BSD loopback header (NetBSD, FreeBSD and Mac OS X)
 	class ClassicBSDLoopback<Layer
 		Scruby.register_dissector(self)
-		def method_missing(method, *args)
-			return Scruby.field(method, *args)
-		end
-
+		
 		attr_accessor :header
 
 		def init
@@ -279,10 +257,7 @@ module Scruby
 	# Dissector for the OpenBSD loopback header
 	class OpenBSDLoopback<Layer
 		Scruby.register_dissector(self)
-		def method_missing(method, *args)
-			return Scruby.field(method, *args)
-		end
-
+		
 		attr_accessor :header
 
 		def init
@@ -296,10 +271,7 @@ module Scruby
 	# Dissector for the Prism header
 	class Prism<Layer
 		Scruby.register_dissector(self)
-		def method_missing(method, *args)
-			return Scruby.field(method, *args)
-		end
-
+		
 		attr_accessor :header
 
 		def init
@@ -352,43 +324,12 @@ module Scruby
 		end
 
 	end
-
-=begin
-	class Dot11<Layer
-		Scruby.register_dissector(self)
-		def method_missing(method, *args)
-			return Scruby.field(method, *args)
-		end
-
-		attr_accessor :header
-
-		def init
-			@protocol = '802.11'
-			@fields_desc = [
-				BitField("subtype", 0, 4),
-				BitEnumField("type", 0, 2, ["Management", "Control", "Data", "Reserved"]),
-				BitField("proto", 0, 2),
-				FlagsField("FCfield", 0, 8, ["to-DS", "from-DS", "MF", "retry", "pw-mgt", "MD", "wep", "order"]),
-				ShortField("ID",0),
-				MACField("addr1", ETHER_ANY),
-				Dot11Addr2MACField("addr2", ETHER_ANY),
-				Dot11Addr3MACField("addr3", ETHER_ANY),
-				Dot11SCField("SC", 0),
-				Dot11Addr4MACField("addr4", ETHER_ANY) 
-			]
-		end
-
-	end
-=end
 		
 	# Dissector for RIFF file format header
 	class RIFF<Layer
 		Scruby.register_dissector(self)
-		def method_missing(method, *args)
-			return Scruby.field(method, *args)
-		end
 
-		attr_accessor :id, :size
+		attr_accessor :id, :size, :headerid
 
 		def init
 			@protocol = 'RIFF chunk'
@@ -402,11 +343,8 @@ module Scruby
 	# Dissector for ANI header chunk  format
 	class ANI<Layer
 		Scruby.register_dissector(self)
-		def method_missing(method, *args)
-			return Scruby.field(method, *args)
-		end
-
-		attr_accessor :headersize, :frames, :steps, :width, :height, :bitcount, :planes
+		
+		attr_accessor :id, :size, :headersize, :frames, :steps, :width, :height, :bitcount, :planes
 		attr_accessor :displayrate, :reserved, :sequence, :icon
 
 		def init
@@ -428,6 +366,239 @@ module Scruby
 
 	end
 
+
+
+	# Dot11 dissectors
+	class RadioTap<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :version, :pad, :len, :notdecoded, :present
+
+		def init
+			@protocol = 'RadioTap'
+			@fields_desc = [ ByteField('version', 0),
+							ByteField('pad', 0),
+							FieldLenField('len', 0, 'radiotap', 's', { :adjust => -8 } ),
+							FlagsField('present', 0, 32, RADIOTAP_PRESENT),
+							StrLenField('radiotap', '', 'len')
+			               ]
+		end
+
+	end
+	
+	
+	# Dot11 dissectors
+	class Dot11<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :subtype, :type, :proto, :FCfield, :ID, :addr1, :addr2, :addr3, :SC, :addr4
+
+		def init
+			@protocol = '802.11'
+			@fields_desc = [ BitField('subtype', 0, 4),
+							BitEnumField('type', DOT11TYPE_DATA, 2, DOT11TYPE_ALL),
+							BitField('proto', 0, 2),
+							FlagsField('FCfield', 0, 8, DOT11_FC_FLAGS),
+							ShortField('ID', 0),
+							MACField('addr1', ETHERADDR_ANY),
+							Dot11Addr2MACField('addr2', ETHERADDR_ANY),
+							Dot11Addr3MACField('addr3', ETHERADDR_ANY),
+							Dot11SCField('SC', 0),
+							Dot11Addr4MACField('addr4', ETHERADDR_ANY) ]
+		end
+
+	end
+
+	class Dot11QoS<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :TID, :EOSP, :AckPolicy, :Reserved, :TXOP
+
+		def init
+			@protocol = '802.11 QoS'
+			@fields_desc = [ BitField('TID',0,4),
+							BitField('EOSP',0,1),
+							BitField('AckPolicy',0,2),
+							BitField('Reserved',0,1),
+							ByteField('TXOP',0) ]
+		end
+
+	end
+
+	class Dot11Beacon<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :timestamp, :beacon_interval, :cap
+
+		def init
+			@protocol = '802.11 Beacon'
+			@fields_desc = [ LongField('timestamp', 0), # Bug: should be little endian
+							LEShortField('beacon_interval', 0x64),
+							FlagsField('cap', 0, 16, DOT11_CAPABILITIES) ]
+		end
+
+	end
+
+	class Dot11Elt<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :ID, :len, :info
+
+		def init
+			@protocol = '802.11 Information Element'
+			@fields_desc = [ ByteEnumField('ID', 0, DOT11_ID),
+							FieldLenField('len', 0, 'info', 'C'),
+							StrLenField('info', '', 'len') ]
+		end
+
+	end
+
+	class Dot11ATIM<Layer
+		Scruby.register_dissector(self)
+
+		def init
+			@protocol = '802.11 ATIM'
+		end
+	end
+
+	class Dot11Disas<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :reason
+
+		def init
+			@protocol = '802.11 Disassociation'
+			@fields_desc = [ LEShortEnumField('reason', 1, DOT11_REASON) ]
+		end
+
+	end
+
+	class Dot11AssoReq<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :cap, :listen_interval
+
+		def init
+			@protocol = '802.11 Association Request'
+			@fields_desc = [ FlagsField('cap', 0, 16, DOT11_CAPABILITIES),
+							LEShortField('listen_interval', 0xc8) ]
+		end
+
+	end
+
+	class Dot11AssoResp<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :cap, :status, :AID
+
+		def init
+			@protocol = '802.11 Association Response'
+			@fields_desc = [ FlagsField('cap', 0, 16, DOT11_CAPABILITIES),
+							LEShortField('status', 0),
+							LEShortField('AID', 0) ]
+		end
+
+	end
+
+	class Dot11ReassoReq<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :cap, :current_AP, :listen_interval
+
+		def init
+			@protocol = '802.11 Reassociation Request'
+			@fields_desc = [ FlagsField('cap', 0, 16, DOT11_CAPABILITIES),
+							MACField('current_AP', ETHERADDR_ANY),
+							LEShortField('listen_interval', 0xc8) ]
+		end
+
+	end
+
+	class Dot11ReassoResp<Dot11AssoResp
+		Scruby.register_dissector(self)
+
+		def init
+			@protocol = '802.11 Reassociation Response'
+		end
+	end
+
+	class Dot11ProbeReq<Layer
+		Scruby.register_dissector(self)
+
+		def init
+			@protocol = '802.11 Probe Request'
+		end
+	end
+
+	class Dot11ProbeResp<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :timestamp, :beacon_interval, :cap
+
+		def init
+			@protocol = '802.11 Probe Response'
+			@fields_desc = [ LongField('timestamp', 0), # Bug: should be little endian
+							LEShortField('beacon_interval', 0x64),
+							FlagsField('cap', 0, 16, DOT11_CAPABILITIES) ]
+		end
+
+	end
+
+	class Dot11Auth<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :algo, :seqnum, :status
+
+		def init
+			@protocol = '802.11 Authentication'
+			@fields_desc = [ LEShortEnumField('algo', 0, DOT11_AUTH_ALGO),
+							LEShortField('seqnum', 0),
+							LEShortEnumField('status', 0, DOT11_STATUS) ]
+		end
+
+	end
+
+	class Dot11Deauth<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :reason
+
+		def init
+			@protocol = '802.11 Deauthentication'
+			@fields_desc = [ LEShortEnumField('reason', 1, DOT11_REASON) ]
+		end
+
+	end
+
+	class Dot11WEP<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :iv, :keyid, :wepdata, :icv
+
+		def init
+			@protocol = '802.11 WEP packet'
+			@fields_desc = [ StrFixedLenField('iv', "\0\0\0", 3),
+							ByteField('keyid', 0),
+							StrField('wepdata', ''), # Bug: 4 bytes remains
+							IntField('icv', 0) ]
+		end
+
+	end
+
+	class LLC<Layer
+		Scruby.register_dissector(self)
+
+		attr_accessor :dsap, :ssap, :ctrl
+
+		def init
+			@protocol = 'LLC'
+			@fields_desc = [ XByteField('dsap', 0),
+							XByteField('ssap', 0),
+							ByteField('ctrl', 0) ]
+		end
+
+	end
+
 	# Layer bounds
 	@@layer_bounds =
 	{
@@ -436,7 +607,63 @@ module Scruby
 			['type', ETHERTYPE_IPv4, IP],
 			['type', ETHERTYPE_ARP, ARP]
 		],
+		
+		'RadioTap' =>
+		[
+			[BIND_ALWAYS, BIND_ALWAYS, Dot11]
+		],
+		
+		'Prism' =>
+		[
+			[BIND_ALWAYS, BIND_ALWAYS, Dot11]
+		],
 
+		'Dot11' => [
+			['type', 2, LLC],
+			['subtype', 0, Dot11AssoReq],
+			['subtype', 1, Dot11AssoResp],
+			['subtype', 2, Dot11ReassoReq],
+			['subtype', 3, Dot11ReassoResp],
+			['subtype', 4, Dot11ProbeReq],
+			['subtype', 5, Dot11ProbeResp],
+			['subtype', 8, Dot11Beacon],
+			['subtype', 9, Dot11ATIM],
+			['subtype', 10, Dot11Disas],
+			['subtype', 11, Dot11Auth],
+			['subtype', 12, Dot11Deauth],
+		],
+
+		'Dot11QoS' => [
+			[BIND_ALWAYS, BIND_ALWAYS, LLC]
+		],
+		'Dot11Beacon' => [
+			[BIND_ALWAYS, BIND_ALWAYS, Dot11Elt]
+		],
+		'Dot11AssoReq' => [
+			[BIND_ALWAYS, BIND_ALWAYS, Dot11Elt]
+		],
+		'Dot11AssoResp' => [
+			[BIND_ALWAYS, BIND_ALWAYS, Dot11Elt]
+		],
+		'Dot11ReassoReq' => [
+			[BIND_ALWAYS, BIND_ALWAYS, Dot11Elt]
+		],
+		'Dot11ReassoResp' => [
+			[BIND_ALWAYS, BIND_ALWAYS, Dot11Elt]
+		],
+		'Dot11ProbeReq' => [
+			[BIND_ALWAYS, BIND_ALWAYS, Dot11Elt]
+		],
+		'Dot11ProbeResp' => [
+			[BIND_ALWAYS, BIND_ALWAYS, Dot11Elt]
+		],
+		'Dot11Auth' => [
+			[BIND_ALWAYS, BIND_ALWAYS, Dot11Elt]
+		],
+		'Dot11Elt' => [
+			[BIND_ALWAYS, BIND_ALWAYS, Dot11Elt]
+		],
+		
 		'ClassicBSDLoopback' => 
 		[
 			['header', BSDLOOPBACKTYPE_IPv4, IP]
@@ -466,10 +693,17 @@ module Scruby
 			Ether(pkt)
 		when Pcap::DLT_NULL
 			ClassicBSDLoopback(pkt)
-		when Pcap::DLT_RAW
+		when DLT_OPENBSD
 			OpenBSDLoopback(pkt)
 		when Pcap::DLT_PRISM_HEADER
 			Prism(pkt)
+		when Pcap::DLT_IEEE802
+		when Pcap::DLT_IEEE802_11
+			Dot11(pkt)
+		when Pcap::DLT_IEEE802_11_RADIO
+			RadioTap(pkt)
+		when Pcap::DLT_IEEE802_11_RADIO_AVS
+			RadioTap(pkt)	
 		when 101,
 			IP(pkt)			
 		else
@@ -494,6 +728,23 @@ Scruby packet dissectors/types:
 	Raw
 	TCP
 	UDP
+	LLC
+	ARP
+	Prism
+	Dot11
+	Dot11Beacon
+        Dot11Elt
+        Dot11ATIM
+        Dot11Disas
+        Dot11AssoReq
+        Dot11AssoResp
+        Dot11ReassoReq
+        Dot11ReassoResp
+        Dot11ProbeReq
+        Dot11ProbeResp
+        Dot11Auth
+        Dot11Deauth
+        Dot11WEP
 
 Scapy (1.2.0.1) packet dissectors/types:
 ========================================

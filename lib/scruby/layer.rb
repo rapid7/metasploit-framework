@@ -67,7 +67,7 @@ class Layer
 					# e.g. for ['type', ETHERTYPE_IPv4, IP], if the field "type"
 					# in the current Ethernet layer is 0x800, then the upper layer
 					# is (may be) IP.
-					if self.instance_variable_get("@#{triplet[0]}") == triplet[1]
+					if triplet[0] == BIND_ALWAYS or self.instance_variable_get("@#{triplet[0]}") == triplet[1]
 						# Adding this possibility
 						@guesses.push(triplet[2])
 						break
@@ -102,6 +102,11 @@ class Layer
 	# Redefines the "/" operator (allows "p=IP()/TCP()").
 	def /(upper)
 		return Packet./(self, upper)
+	end
+
+	# To use 'MyField(foo, bar)' in dissectors, instead of Scruby.MyField(foo, bar)'
+	def method_missing(method, *args)
+		  return Scruby.field(method, *args)
 	end
 
 	# Converts an object to a string
@@ -144,7 +149,9 @@ class Layer
 		out = ''
 
 		@fields_desc.each do |field|
-			out += field.to_net(self.instance_variable_get("@#{field.name}"))
+			if field.is_applicable?(self)
+				out += field.to_net(self.instance_variable_get("@#{field.name}"))
+			end
 		end
 
 		return out
@@ -159,8 +166,10 @@ class Layer
 	def dissect(string)
 
 		@fields_desc.each do |field|
-			string = field.dissect(self, string)
-			return "" if string.nil?
+			if field.is_applicable?(self)
+				string = field.dissect(self, string)
+			end
+			return '' if string.nil?
 		end
 
 		return string

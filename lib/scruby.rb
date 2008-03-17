@@ -52,10 +52,6 @@ module Scruby
 		end
 	end
 	
-	def method_missing(method, *args)
-		Scruby.method_missing(method, *args)
-	end
-
 	# Same as above, for fields
 	def self.field(method, *args)
 

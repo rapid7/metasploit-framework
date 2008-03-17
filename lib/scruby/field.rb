@@ -45,6 +45,9 @@ module Scruby
 		# Retrieves the field value from a string. This may be redefined by subclasses.
 		def dissect(layer, string)
 
+			# Preparing the packet for building
+			self.pre_build()
+
 			part = string.unpack(self.format + 'a*')
 
 			# Returning if nothing could be unpacked
@@ -73,7 +76,7 @@ module Scruby
 		end
 
 		# Converts from human to internal encoding
-		# e.g. allows TCP(:sport=>'http')
+		# e.g. allows TCP(:proto=>'ICMP')
 		def from_human(value)
 			return value
 		end
@@ -84,10 +87,21 @@ module Scruby
 			return value.to_s
 		end
 
-		# Same as tuhuman() but displays more information
+		# Same as to_human() but displays more information
 		# e.g. "6 (TCP)" instead of "6" for IP protocol
 		def to_human_complete(value)
 			return value.to_s
+		end
+
+		# Returns yes if the field is to be added to the dissectors, e.g. depending
+		# on the value of another field of the layer (see Dot11*)
+		def is_applicable?(layer)
+			return true
+		end
+
+		# Prepares the packet for building
+		# e.g. for StrLenField, retrieves the right format size from the associated FieldLenField
+		def pre_build
 		end
 
 	end
@@ -100,6 +114,24 @@ module Scruby
 
 		def to_human_complete(value)
 			return sprintf('0x%x', value)
+		end	
+	end
+
+	# Shortcut mixins for reducing code size
+	module FieldHumanHexEnum
+		def to_human(value)
+			return sprintf('0x%x', value)
+		end
+
+		def to_human_complete(value)
+			# Checking if the value is in the enumeration keys
+			if @enum.keys.include?(value)
+				return sprintf('0x%x', value) + ' (' + @enum[value].to_s + ')'
+
+			# Otherwise, just returning the value
+			else
+				return sprintf('0x%x', value)
+			end
 		end	
 	end
 	
@@ -147,7 +179,7 @@ module Scruby
 		end
 
 		def to_human_complete(value)
-
+			puts "ok"
 			# Checking if the value is in the enumeration keys
 			if @enum.keys.include?(value)
 				return value.to_s + ' (' + @enum[value].to_s + ')'
@@ -201,18 +233,6 @@ module Scruby
 			@format = 'A' + size.to_s
 		end
 
-		def to_net(value)
-			return value.to_s
-		end
-
-		def to_human(value)
-			return value.to_s.inspect
-		end
-
-		def to_human_complete(value)
-			return value.to_s.inspect
-		end
-
 	end
 
 	# Field for a set of bits
@@ -235,6 +255,7 @@ module Scruby
 
 		def dissect(layer, string)
 
+			@@bitsdone ||= 0
 			# Cannot dissect if the wanted size is greater than the length of the string
 			# e.g. "IP('A'*7)" should not set frag=65
 			return '' if (@@bitsdone + @size)/8  > string.length
@@ -276,6 +297,9 @@ module Scruby
 		end
 
 		def to_net(value)
+		
+			@@bitsdone ||= 0
+			
 			# OR'ing this value the value the previous ones
 			@@byte <<= @size
 			@@byte |= value
@@ -326,7 +350,7 @@ module Scruby
 
 	# Same as ByteEnumField, displayed in hexadecimal form
 	class XByteEnumField<ByteEnumField
-		include FieldHumanHex
+		include FieldHumanHexEnum
 	end
 
 	# Field for one short (big endian/network order)
@@ -350,7 +374,7 @@ module Scruby
 
 	# Same as ShortEnumField, displayed in hexadecimal form
 	class XShortEnumField<ShortEnumField
-		include FieldHumanHex
+		include FieldHumanHexEnum
 	end
 
 	# Field for a short (little endian order)
@@ -374,7 +398,7 @@ module Scruby
 
 	# Same as LEShortField, displayed in hexadecimal form
 	class XLEShortEnumField<LEShortEnumField
-		include FieldHumanHex
+		include FieldHumanHexEnum
 	end
 
 	# Field for one integer
@@ -406,7 +430,7 @@ module Scruby
 
 	# Same as LEIntField, displayed in hexadecimal form
 	class XIntEnumField<IntEnumField
-		include FieldHumanHex
+		include FieldHumanHexEnum
 	end
 
 	# Field for one integer with enumeration
@@ -446,7 +470,7 @@ module Scruby
 
 	# Same as LEIntField, displayed in hexadecimal form
 	class XLEIntEnumField<LEIntEnumField
-		include FieldHumanHex
+		include FieldHumanHexEnum
 	end
 
 	# Field for one integer (host order)
@@ -472,7 +496,7 @@ module Scruby
 
 	# Same as HostOrderIntEnumField, displayed in hexadecimal form
 	class XHostOrderIntEnumField<HostOrderIntEnumField
-		include FieldHumanHex
+		include FieldHumanHexEnum
 	end
 
 	# Field for a float (big endian/network order)
@@ -630,7 +654,7 @@ module Scruby
 			# Checking if the value is in the enumeration keys
 			if @enum.keys.include?(value)
 				return value.to_s + ' (' + @enum[value].to_s + ')'
-				# Otherwise, just returning the value
+			# Otherwise, just returning the value
 			else
 				return value.to_s
 			end
@@ -649,6 +673,203 @@ module Scruby
 
 	end
 
+	# Field for a set of flags (e.g. each bit has a label)
+	class FlagsField<BitField
+
+		def initialize(name, default_value, size, flags)
+			@name = name
+			@default_value = default_value
+			@format = 'B'
+			@flags = flags
+
+			# Number of bits in the field
+			@size = size
+
+			# Number of bits processed so far within the current byte (class/static variable)
+			@@bitsdone = 0
+
+			# Byte being processed (class/static variable)
+			@@byte = 0
+		end
+
+		def from_human(value)
+
+			return value if not value.is_a?(String)
+
+			# Run through the flags and set the corresponding bit if it matches
+			out = 0
+			@flags.length.times do |index|
+				out |= 2**index if value.include?(@flags[index])
+			end
+
+			return out
+		end
+
+		def to_human_complete(value)
+
+			loops = 0
+			out = ''
+
+			begin
+				bit = value & (2**loops)
+				out = @flags[loops] + ' ' + out if bit != 0
+				loops += 1
+			end until loops == @size
+
+			# Removing the last space
+			out = out[0, out.length - 1] if out.length > 0
+
+			return value.to_s + ' (' + out + ')'
+		end
+
+	end
+
+	# Field for one long (big endian/network order)
+	class LongField<Field
+		def init
+			@format = 'Q'
+		end
+	end
+
+	# Same as LongField, displayed in hexadecimal form
+	class XLongField<LongField
+		include FieldHumanHex
+	end
+
+	# Field for one long (big endian/network order) with enumeration
+	class LongEnumField<EnumField
+		def init
+			@format = 'n'
+		end
+	end
+
+	# Same as LongEnumField, displayed in hexadecimal form
+	class XLongEnumField<LongEnumField
+		include FieldHumanHexEnum
+	end
+
+	# Field that holds the length of a subsequent field
+	class FieldLenField<IntField
+
+		def initialize(name, default_value, length_of, format, opts={})
+			@name = name
+			@default_value = default_value
+			@format = format
+			@length_of = length_of
+			@opts = opts
+
+			# Length of the other field (class/static variable)
+			@@length = {}
+
+			# Saving the size of the associated field
+			@@length[@length_of] = @default_value		
+		end
+
+		def from_net(value)
+			@opts ||= {}
+			value[0] = (value[0].to_i + @opts[:adjust].to_i)
+			
+			# Saving the size of the associated field
+			@@length[@length_of] = value[0]
+		end
+
+		def to_net(value)
+			@opts ||= {}
+			# value -= @opts[:adjust].to_i
+			
+			[ value ].pack(@format)
+		end
+	end
+
+	# Field holding a string whose size is given by a previous FieldLenField
+	# NB : in Scapy, the third field is a lambda-function indicating how to compute the value.
+	# This is not implemented in Scruby yet.
+	class StrLenField<FieldLenField
+
+		def initialize(name, default_value, length_from)
+			@name = name
+			@default_value = default_value
+			@length_from = length_from
+			@size = @@length[name]
+			@format = 'a' + @size.to_s
+		end
+
+		def pre_build
+			@size = @@length[@name]
+			@format = 'a' + @size.to_s
+		end
+
+		def to_net(value)
+			
+			@size = @@length[@name]
+			@format = 'a' + @size.to_s
+
+			# By default, value is ''
+			if value
+				return value[0, @size].to_s
+			else
+				return ''
+			end
+		end
+		
+		def from_net(value)
+			value[0]
+		end
+
+		def to_human(value)
+			return value.inspect
+		end
+
+		def to_human_complete(value)
+			return value.inspect
+		end
+
+	end
+
+	# NB for Dot11* fields: 
+	# These functions have different 'is_applicable?' methods, to build different
+	# kinds of packets with the same dissector, depending on its type.
+	# http://trac.secdev.org/scapy/ticket/4 (second point)
+	# http://sss-mag.com/pdf/802_11tut.pdf
+
+	# Field for a 802.11 address field
+	class Dot11AddrMACField<MACField
+	end
+
+	# Field for a 802.11 address field #2
+	class Dot11Addr2MACField<MACField
+		def is_applicable?(layer)
+			if layer.type == DOT11TYPE_CONTROL
+				should = [DOT11SUBTYPE_PS_POLL, DOT11SUBTYPE_RTS, DOT11SUBTYPE_CF_END, DOT11SUBTYPE_CF_END_CF_ACK]
+				return should.include?(layer.subtype)
+			else
+				return true
+			end
+		end
+	end
+
+	# Field for a 802.11 address field #3 
+	class Dot11Addr3MACField<MACField
+		def is_applicable?(layer)
+			return true if layer.type == DOT11TYPE_MANAGEMENT or layer.type == DOT11TYPE_DATA
+			return false
+		end
+	end
+
+	# Field for a 802.11 address field #4
+	class Dot11Addr4MACField<MACField
+		def is_applicable?(layer)
+			return true if layer.type == DOT11TYPE_DATA and layer.FCfield & 0x3 == 0x3
+			return false
+		end
+	end
+
+	# Field for a 802.11 SC field
+	class Dot11SCField<LEShortField
+		def is_applicable?(layer)
+			return layer.type != DOT11TYPE_CONTROL
+		end
+	end
 
 	# Grep out our field list here
 	self.constants.grep(/^([a-zA-Z0-9]+)Field$/).each do |f|
@@ -685,7 +906,6 @@ Scapy (1.2.0.1) fields that Scruby is missing:
 ==============================================
 	ARPSourceMACField
 	BCDFloatField
-	BitEnumField
 	BitFieldLenField
 	CharEnumField
 	DHCPOptionsField
@@ -694,21 +914,13 @@ Scapy (1.2.0.1) fields that Scruby is missing:
 	DNSRRField
 	DNSStrField
 	DestMACField
-	Dot11Addr2MACField
-	Dot11Addr3MACField
-	Dot11Addr4MACField
-	Dot11AddrMACField
-	Dot11SCField
-	FieldLenField
 	FieldListField
-	FlagsField
 	IPoptionsField
 	ISAKMPTransformSetField
 	LEFieldLenField
 	LELongField
 	LESignedIntField
 	LenField
-	LongField
 	NetBIOSNameField
 	PacketField
 	PacketLenField
@@ -720,7 +932,6 @@ Scapy (1.2.0.1) fields that Scruby is missing:
 	SignedIntField
 	SourceIPField
 	SourceMACField
-	StrLenField
 	StrNullField
 	StrStopField
 	TCPOptionsField
