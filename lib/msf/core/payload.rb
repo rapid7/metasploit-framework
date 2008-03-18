@@ -432,6 +432,13 @@ protected
 		cache_key   = refname + suffix
 		cache_entry = framework.payloads.check_blob_cache(cache_key)
 
+		off.each_pair { |option, val|
+			if (val[1] == 'RAW')
+				asm = asm.gsub(/#{option}/){ datastore[option] }
+				off.delete(option)
+			end
+		}
+
 		# If there is a valid cache entry, then we don't need to worry about
 		# rebuilding the assembly
 		if cache_entry
