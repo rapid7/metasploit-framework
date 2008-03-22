@@ -92,7 +92,22 @@ class Auxiliary::Server::Capture::Pop3 < Msf::Auxiliary
 			return			
 		end
 
-		print_status("POP3 COMMAND #{@state[c][:name]} \"#{data.strip}\"")
+		if(cmd.upcase == "STAT")
+			c.put "+OK 0 0\r\n"
+			return		
+		end
+
+		if(cmd.upcase == "LIST")
+			c.put "+OK 0 Messages\r\n"
+			return		
+		end
+
+		if(cmd.upcase == "QUIT" || cmd.upcase == "RSET" || cmd.upcase == "DELE")
+			c.put "+OK\r\n"
+			return		
+		end
+						
+		print_status("POP3 UNKNOWN CMD #{@state[c][:name]} \"#{data.strip}\"")
 		c.put "+OK\r\n"
 	end
 	
