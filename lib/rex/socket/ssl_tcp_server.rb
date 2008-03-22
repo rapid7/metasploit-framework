@@ -25,19 +25,23 @@ module  Rex::Socket::SslTcpServer
 
 	def accept(opts = {})
 		sock = super()
-		if (sock)
-			sock.extend(Rex::Socket::Tcp)
-			sock.context = self.context
-			pn = sock.getpeername
+		return nil if not sock
+		
+		sock.extend(Rex::Socket::Tcp)
+		sock.context = self.context
+		pn = sock.getpeername
 
-			sock.peerhost = pn[1]
-			sock.peerport = pn[2]
-        end
-		t = OpenSSL::SSL::SSLSocket.new(sock, self.sslctx)
-		t.extend(Rex::Socket::Tcp)
-		t.accept
-	
-        t
+		begin
+			t = OpenSSL::SSL::SSLSocket.new(sock, self.sslctx)
+			t.extend(Rex::Socket::Tcp)
+			t.peerhost = pn[1]
+			t.peerport = pn[2]		
+			t.accept
+        	t
+		rescue ::OpenSSL::SSL::SSLError
+			sock.close
+			nil
+		end
 	end
 
 
@@ -65,8 +69,8 @@ module  Rex::Socket::SslTcpServer
 
 		cert.subject = subject
 		cert.issuer = issuer
-		cert.not_before = Time.now
-		cert.not_after = Time.now + 3600
+		cert.not_before = Time.now - 7200
+		cert.not_after = Time.now + 7200
 		cert.public_key = key.public_key
 		ef = OpenSSL::X509::ExtensionFactory.new(nil,cert)
 		cert.extensions = [
