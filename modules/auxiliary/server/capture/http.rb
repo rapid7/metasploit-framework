@@ -72,7 +72,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 					dispatch_request(cli, cli.request)
 
 					cli.reset_cli
-				when  Rex::Proto::Http::Packet::Packet::ParseCode::Error
+				when  Rex::Proto::Http::Packet::ParseCode::Error
 					close_client(cli)
 			end
 		rescue EOFError
