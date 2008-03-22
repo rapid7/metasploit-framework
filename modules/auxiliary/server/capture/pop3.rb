@@ -53,6 +53,8 @@ class Auxiliary::Server::Capture::Pop3 < Msf::Auxiliary
 	end
 
 	def run
+		@myhost = datastore['SRVHOST']
+		@myport = datastore['SRVPORT']
 		exploit()
 	end
 	
@@ -79,18 +81,19 @@ class Auxiliary::Server::Capture::Pop3 < Msf::Auxiliary
 			report_auth_info(
 				:host      => @state[c][:ip],
 				:proto     => 'pop3',
-				:targ_host => datastore['SRVHOST'],
-				:targ_port => datastore['SRVPORT'],
+				:targ_host => @myhost,
+				:targ_port => @myport,
 				:user      => @state[c][:user],
 				:pass      => @state[c][:pass]
 			)
 			print_status("POP3 LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+			@state[c][:pass] = data.strip
+			c.put "+OK\r\n"
+			return			
 		end
 
-		@state[c][:pass] = data.strip
-		c.put "-ERR\r\n"
-		return
-							
+		print_status("POP3 COMMAND #{@state[c][:name]} \"#{data.strip}\"")
+		c.put "+OK\r\n"
 	end
 	
 	def on_client_close(c)
