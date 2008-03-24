@@ -94,7 +94,10 @@ class Auxiliary::Server::FakeDNS < Msf::Auxiliary
 			
             request.each_question {|name, typeclass|
                 tc_s = typeclass.to_s().gsub(/^Resolv::DNS::Resource::/, "")
-                
+
+				request.qr = 1
+				request.ra = 1
+					               
                 lst << "#{tc_s} #{name}"
 				case tc_s
 				when 'IN::A'
@@ -110,32 +113,39 @@ class Auxiliary::Server::FakeDNS < Msf::Auxiliary
                     #
                     # <hostname> SOA -> windows XP self hostname lookup
                     #
-                    
-                    request.qr = 1
-                    request.ra = 1
+
                     answer = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
                     request.add_answer(name, 60, answer)
                 
 				when 'IN::MX'
-                    request.qr = 1
-                    request.ra = 1
                     mx = Resolv::DNS::Resource::IN::MX.new(10, Resolv::DNS::Name.create("mail.#{name}"))
                     ns = Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create("dns.#{name}"))
-					
 					ar = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
-
 					request.add_answer(name, 60, mx)
 					request.add_authority(name, 60, ns)	
 					request.add_additional(Resolv::DNS::Name.create("mail.#{name}"), 60, ar)
 					
 				when 'IN::NS'
-                    request.qr = 1
-                    request.ra = 1
                     ns = Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create("dns.#{name}"))
-					ar = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
-					
+					ar = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )	
 					request.add_answer(name, 60, ns)
-					request.add_additional(name, 60, ar)	
+					request.add_additional(name, 60, ar)
+				when 'IN::PTR'
+					soa = Resolv::DNS::Resource::IN::SOA.new(
+						Resolv::DNS::Name.create("ns.internet.com"),
+						Resolv::DNS::Name.create("root.internet.com"),
+						1,
+						3600,
+						3600,
+						3600,
+						3600
+					)
+					ans = Resolv::DNS::Resource::IN::PTR.new(
+						Resolv::DNS::Name.create("www")
+					)
+					
+					request.add_answer(name, 60, ans)
+					request.add_authority(name, 60, soa)
 				else
 					lst << "UNKNOWN #{tc_s}"
 				end
