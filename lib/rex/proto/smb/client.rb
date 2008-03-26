@@ -408,6 +408,8 @@ EVADE = Rex::Proto::SMB::Evasions
 						
 	# Request a SMB session over NetBIOS
 	def session_request(name = '*SMBSERVER')
+
+		name ||= '*SMBSERVER'
 		
 		data = ''
 		data << "\x20" + UTILS.nbname_encode(name) + "\x00"
