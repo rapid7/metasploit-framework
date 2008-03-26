@@ -182,7 +182,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 						"Content-Length: #{idata.length}\r\n" +
 						"Connection: Close\r\n\r\n#{idata}"			
 
-					cli.syswrite(res)
+					cli.put(res)
 					return
 				end
 			rescue ::Exception
