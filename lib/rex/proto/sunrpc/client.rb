@@ -5,6 +5,16 @@ module Rex
 module Proto
 module SunRPC
 
+class RPCTimeout < ::Interrupt
+   def initialize(msg = 'Operation timed out.')
+      @msg = msg
+   end
+
+	def to_s
+		@msg
+	end
+end
+
 # XXX: CPORT!
 class Client 
 	AUTH_NULL = 0
@@ -31,7 +41,7 @@ class Client
 
 	def initialize(rhost, rport, proto, program, version)
 		if proto.downcase !~ /^(tcp|udp)$/
-			raise ArgumentError, 'Protocol is not "tcp" or "udp"'
+			raise ::Rex::ArgumentError, 'Protocol is not "tcp" or "udp"'
 		end
 
 		@rhost, @rport, @program, @version, @proto = \
@@ -62,18 +72,23 @@ class Client
 		sock = make_rpc(@proto, @rhost, @rport)
 		send_rpc(sock, buf)
 		ret = recv_rpc(sock)
+		raise ::Rex::RuntimeError, "No response to SunRPC PortMap request" if ! ret
 		close_rpc(sock)
 
 		arr = Rex::Encoder::XDR.decode!(ret, Integer, Integer, Integer, String, Integer,
 			Integer)
 		if arr[1] != MSG_ACCEPTED || arr[4] != SUCCESS || arr[5] == 0
 # Check PRO[CG]_*/GARBAGE_ARGS
-			raise RuntimeError, 'create failed'
+			err = "SunRPC PortMap request to #{@rhost}:#{rport} failed: "
+			err << 'Message not accepted'  if arr[1] != MSG_ACCEPTED
+			err << 'RPC did not execute'   if arr[4] != SUCCESS
+			err << 'Program not available' if arr[5] == 0
+			raise ::Rex::RuntimeError, err
 		end
 
 		@pport = arr[5]
 	end
-	
+
 	def call(procedure, buffer)
 		buf =
 			Rex::Encoder::XDR.encode(CALL, 2, @program, @version, procedure,
@@ -86,10 +101,22 @@ class Client
 
 		send_rpc(@call_sock, buf)
 		ret = recv_rpc(@call_sock)
-		
-		arr = Rex::Encoder::XDR.decode!(ret, Integer, Integer, Integer, String, Integer)
-		if arr[1] != MSG_ACCEPTED || arr[4] != SUCCESS
-			raise 'call failed'
+
+		if ret
+			arr = Rex::Encoder::XDR.decode!(ret, Integer, Integer, Integer, String, Integer)
+			if arr[1] != MSG_ACCEPTED || arr[4] != SUCCESS
+				err = "SunRPC call for program #{program}, procedure #{procedure}, failed: "
+				case arr[4]
+					when PROG_UMAVAIL  then err << "Program Unavailable"
+					when PROG_MISMATCH then err << "Program Version Mismatch"
+					when PROC_UNAVAIL  then err << "Procedure Unavailable"
+					when GARBAGE_ARGS  then err << "Garbage Arguments"
+					else err << "Unknown Error"
+				end
+				raise ::Rex::RuntimeError, err
+			end
+		else
+			raise RPCTimeout, "No response to SunRPC call for procedure #{procedure}"
 		end
 		
 		return ret
@@ -100,22 +127,20 @@ class Client
 		@call_sock = nil
 	end
 	
-	
 	def authnull_create
 		@auth_type = AUTH_NULL
 		@auth_data = ''
 	end
 	
 	def authunix_create(host, uid, gid, groupz)
-		raise ArgumentError, 'Hostname length is too long' if host.length > 255
+		raise ::Rex::ArgumentError, 'Hostname length is too long' if host.length > 255
 # 10?
-		raise ArgumentError, 'Too many groups' if groupz.length > 10
+		raise ::Rex::ArgumentError, 'Too many groups' if groupz.length > 10
 		
 		@auth_type = AUTH_UNIX
 		@auth_data =
 			Rex::Encoder::XDR.encode(0, host, uid, gid, groupz) # XXX: TIME! GROUPZ?!
 	end
-	
 	
 # XXX: Dirty, integrate some sort of request system into create/call?
 	def portmap_req(host, port, rpc_vers, procedure, buffer)
@@ -125,11 +150,20 @@ class Client
 		sock = make_rpc('tcp', host, port)
 		send_rpc(sock, buf)
 		ret = recv_rpc(sock)
+		raise ::Rex::RuntimeError, "No response to SunRPC request" if ! ret
 		close_rpc(sock)
 		
 		arr = Rex::Encoder::XDR.decode!(ret, Integer, Integer, Integer, String, Integer)
 		if arr[1] != MSG_ACCEPTED || arr[4] != SUCCESS || arr[5] == 0
-			raise 'portmap_req failed'
+			err = "SunRPC call for program #{program}, procedure #{procedure}, failed: "
+			case arr[4]
+				when PROG_UMAVAIL  then err << "Program Unavailable"
+				when PROG_MISMATCH then err << "Program Version Mismatch"
+				when PROC_UNAVAIL  then err << "Procedure Unavailable"
+				when GARBAGE_ARGS  then err << "Garbage Arguments"
+				else err << "Unknown Error"
+			end
+			raise ::Rex::RuntimeError, err
 		end
 		
 		return ret
@@ -187,12 +221,13 @@ class Client
 	end
 	
 	def recv_rpc(sock)
-		buf = sock.get(5)
+		buf = sock.get(60) # 5 secs was WAY too slow for some RPC calls
 		buf.slice!(0..3)
 		if sock.type?.eql?('tcp')
 			buf.slice!(0..3)
 		end
-		return buf
+		return buf if buf.length > 1
+		return nil
 	end
 	
 	def close_rpc(sock)
