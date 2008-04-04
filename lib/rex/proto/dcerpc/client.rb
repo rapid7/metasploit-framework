@@ -131,14 +131,20 @@ require 'rex/proto/smb/exceptions'
 	end
 
 	def read()
+	
+		max_read = self.options['pipe_read_max_size'] || nil
+		min_read = self.options['pipe_read_min_size'] || max_read
+		
 		raw_response = ''
-			
-		if self.socket.class == Rex::Proto::SMB::SimpleClient::OpenPipe
+		
+		# Are we reading from a remote pipe over SMB?	
+		if (self.socket.class == Rex::Proto::SMB::SimpleClient::OpenPipe)
 			begin
-				if self.options['segment_read']
+				if(max_read)
 					while(true)
-						data = self.socket.read((rand(20)+5), rand(1024)+1)
-						last if ! data.length
+						# Random read offsets will not work on Windows NT 4.0 (thanks Dave!)
+						data = self.socket.read( (rand(max_read-min_read)+min_read), rand(1024)+1)
+						last if not data.length
 						raw_response += data
 					end
 				else
@@ -151,19 +157,22 @@ require 'rex/proto/smb/exceptions'
 					raise exception
 				end
 			end
-		else # must be a regular socket
-			if self.socket.type? == 'tcp'
-				if self.options['segment_read']
+		# This must be a regular TCP or UDP socket
+		else 
+			if (self.socket.type? == 'tcp')
+				if (max_read)
 					while (true)
-						data = self.socket.get_once(rand(5)+5, self.options['read_timeout'])
-						break if data == nil
-						break if ! data.length
+						data = self.socket.get_once((rand(max_read-min_read)+min_read), self.options['read_timeout'])
+						break if not data
+						break if not data.length
 						raw_response << data
 					end
 				else 
+					# Just read the entire response in one go
 					raw_response = self.socket.get_once(-1, self.options['read_timeout'])
 				end
 			else
+				# No segmented read support for non-TCP sockets
 				raw_response = self.socket.read(0xFFFFFFFF / 2 - 1)  # read max data
 			end
 		end
@@ -171,14 +180,22 @@ require 'rex/proto/smb/exceptions'
 		raw_response
 	end
 
+	# Write data to the underlying socket, limiting the sizes of the writes based on
+	# the pipe_write_min / pipe_write_max options.
 	def write(data)
 	
-		if (! self.options['segment_write'] or (self.handle.protocol == 'ncacn_np'))
-			self.socket.write(data)
-		else
-			while (data.length > 0)
-				len = self.socket.write( data.slice!(0, (rand(20)+5)) )
+		max_write = self.options['pipe_write_max_size'] || data.length
+		min_write = self.options['pipe_write_min_size'] || max_write
+		idx = 0
+
+		if (self.socket.class == Rex::Proto::SMB::SimpleClient::OpenPipe)
+			while(idx < data.length)
+				bsize = (rand(max_write-min_write)+min_write).to_i
+				len = self.socket.write(data[idx, bsize], rand(1024)+1)
+				idx += bsize
 			end
+		else
+			self.socket.write(data)
 		end
 
 		data.length
