@@ -141,11 +141,36 @@ require 'rex/proto/smb/exceptions'
 		if (self.socket.class == Rex::Proto::SMB::SimpleClient::OpenPipe)
 			begin
 				if(max_read)
+					
+					read_limit = nil
+					
 					while(true)
 						# Random read offsets will not work on Windows NT 4.0 (thanks Dave!)
-						data = self.socket.read( (rand(max_read-min_read)+min_read), rand(1024)+1)
+						
+						read_cnt = (rand(max_read-min_read)+min_read)
+						if(read_limit)
+							if(read_cnt + raw_response.length > read_limit)
+								read_cnt = raw_response.length - read_limit
+							end
+						end
+						
+						data = self.socket.read( read_cnt, rand(1024)+1)
 						last if not data.length
 						raw_response += data
+						
+						# Keep reading until we have at least the DCERPC header
+						next if raw_response.length < 10
+						
+						# We now have to process the raw_response and parse out the DCERPC fragment length
+						# if we have read enough data. Once we have the length value, we need to make sure
+						# that we don't read beyond this amount, or it can screw up the SMB state
+						begin 
+							check = Rex::Proto::DCERPC::Response.new(raw_response)
+							read_limit = check.frag_len
+						rescue ::Rex::Proto::DCERPC::Exceptions::InvalidPacket
+						end
+						
+						break if (read_limit and read_limit == raw_response.length)
 					end
 				else
 					raw_response = self.socket.read()
@@ -160,7 +185,7 @@ require 'rex/proto/smb/exceptions'
 		# This must be a regular TCP or UDP socket
 		else 
 			if (self.socket.type? == 'tcp')
-				if (max_read)
+				if (false and max_read)
 					while (true)
 						data = self.socket.get_once((rand(max_read-min_read)+min_read), self.options['read_timeout'])
 						break if not data
@@ -186,6 +211,11 @@ require 'rex/proto/smb/exceptions'
 	
 		max_write = self.options['pipe_write_max_size'] || data.length
 		min_write = self.options['pipe_write_min_size'] || max_write
+		
+		if(min_write > max_write)
+			max_write = min_write
+		end
+		
 		idx = 0
 
 		if (self.socket.class == Rex::Proto::SMB::SimpleClient::OpenPipe)

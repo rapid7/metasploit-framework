@@ -26,7 +26,7 @@ class Response
 		self.ack_xfer_syntax_vers = []		
 		
 		if (! data or data.length < 10)
-			raise Rex::Proto::DCERPC::Exceptions::InvalidPacket, 'Packet header must be at least 10 bytes long'
+			raise Rex::Proto::DCERPC::Exceptions::InvalidPacket, 'DCERPC response packet is incomplete'
 		end
 		
 		if (data.length == 10)
@@ -47,7 +47,12 @@ class Response
 		
 		uuid = Rex::Proto::DCERPC::UUID
 		data = self.raw
-			
+		
+		
+		if(not data)
+			raise Rex::Proto::DCERPC::Exceptions::InvalidPacket, 'DCERPC response packet is incomplete'
+		end
+		
 		# BIND_ACK == 12, ALTER_CONTEXT_RESP == 15
 		if (self.type == 12 or self.type == 15)
 			
