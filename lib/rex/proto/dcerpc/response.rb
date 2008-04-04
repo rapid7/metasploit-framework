@@ -70,6 +70,11 @@ class Response
 			self.assoc_group,
 			self.sec_addr_len = data.unpack('CCCCNvvVvvVv')
 
+
+			if(not self.frag_len or data.length < self.frag_len)
+				raise Rex::Proto::DCERPC::Exceptions::InvalidPacket, 'DCERPC response packet is incomplete'
+			end
+					
 			# Keep an offset into the packet handy
 			x = 0
 			

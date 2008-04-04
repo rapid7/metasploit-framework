@@ -164,10 +164,12 @@ require 'rex/proto/smb/exceptions'
 						# We now have to process the raw_response and parse out the DCERPC fragment length
 						# if we have read enough data. Once we have the length value, we need to make sure
 						# that we don't read beyond this amount, or it can screw up the SMB state
-						begin 
-							check = Rex::Proto::DCERPC::Response.new(raw_response)
-							read_limit = check.frag_len
-						rescue ::Rex::Proto::DCERPC::Exceptions::InvalidPacket
+						if (not read_limit)
+							begin 
+								check = Rex::Proto::DCERPC::Response.new(raw_response)
+								read_limit = check.frag_len
+							rescue ::Rex::Proto::DCERPC::Exceptions::InvalidPacket
+							end
 						end
 						
 						break if (read_limit and read_limit == raw_response.length)
