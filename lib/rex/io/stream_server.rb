@@ -175,6 +175,10 @@ protected
 					rlog(ExceptionCallStack)
 				end
 			}
+			
+		rescue ::Rex::StreamClosedError => e
+			# Remove the closed stream from the list
+			clients.delete(e.stream)
 		rescue
 			elog("Error in stream server client monitor: #{$!}")
 			rlog(ExceptionCallStack)
