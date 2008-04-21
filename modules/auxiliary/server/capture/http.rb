@@ -150,7 +150,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		hhead = (req['Host'] || @myhost).split(':', 2)[0]
 
 
-		cookies = req['Cookies'] || ''
+		cookies = req['Cookie'] || ''
 		
 
 		if(req['Authorization'] and req['Authorization'] =~ /basic/i)
@@ -230,13 +230,22 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		req_ext = req.resource.split(".")[-1].downcase
 		
 		if(ctypes[req_ext])
-			ctype = ctypes[req_ext]
+			ctype = ctypes['gif']
+
+			data = 
+				"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00" +
+				"\x00\xff\xff\xff\xff\xff\xff\x2c\x00\x00\x00\x00" +
+				"\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3b"
+
 			res =
     			   "HTTP/1.1 200 OK\r\n" +
     			   "Host: #{mysrc}\r\n" +
     			   "Content-Type: #{ctype}\r\n" +
-    			   "Content-Length: 0\r\n" +
-    			   "Connection: Close\r\n\r\n"
+    			   "Content-Length: #{data.length}\r\n" +
+    			   "Connection: Close\r\n\r\n#{data}"
+
+
+
 
 			cli.put(res)
 			return
