@@ -70,6 +70,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 	end
 	
 	def on_client_data(cli)
+
 		begin
 			data = cli.get_once(-1, 5)
 			case cli.request.parse(data)
@@ -82,12 +83,12 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 					close_client(cli)
 			end
 		rescue ::EOFError, ::Errno::EACCES, ::Errno::ECONNABORTED, ::Errno::ECONNRESET
+		rescue ::OpenSSL::SSL::SSLError
 		rescue ::Exception
 			print_status("Error: #{$!.class} #{$!} #{$!.backtrace}")
 		end
 		
-		close_client(cli)
-							
+		close_client(cli)						
 	end
 
 	def close_client(cli)
