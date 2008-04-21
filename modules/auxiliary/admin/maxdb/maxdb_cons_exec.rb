@@ -1,5 +1,5 @@
 ##
-# $Id: maxdb_cons_exec.rb 5282 2008-01-06 22:02:01Z hdm $
+# $Id$
 ##
 
 ##

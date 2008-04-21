@@ -1,5 +1,5 @@
 ##
-# $Id: socks_unc.rb 5069 2007-08-08 02:46:31Z hdm $
+# $Id$
 ##
 
 ##
@@ -23,7 +23,7 @@ class Auxiliary::Server::FakeDNS < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Fake DNS Service',
-			'Version'     => '$Revision: 5069 $',
+			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module provides a DNS service that redirects
 			all queries to a particular address.

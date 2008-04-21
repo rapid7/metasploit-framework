@@ -1,5 +1,5 @@
 ##
-# $Id: smb_sniffer.rb 5241 2007-12-31 03:03:08Z hdm $
+# $Id$
 ##
 
 ##
@@ -22,7 +22,7 @@ class Auxiliary::Server::Capture::SMBSniffer < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Authentication Capture: SMB',
-			'Version'     => '$Revision: 5241 $',
+			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module provides a SMB service that can be used to
 			capture the challenge-response password hashes of SMB client
