@@ -230,7 +230,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		req_ext = req.resource.split(".")[-1].downcase
 		
 		if(ctypes[req_ext])
-			ctype = ctypes[img_ext] || ctypes["jpg"]
+			ctype = ctypes[req_ext]
 			res =
     			   "HTTP/1.1 200 OK\r\n" +
     			   "Host: #{mysrc}\r\n" +
