@@ -183,6 +183,31 @@ module Ui
 			# Print a welcome message
 			$gtk2driver.append_log_view("Initialized the Metasploit Framework GUI.\n")
 			
+			# Handle any initalization options
+			process_cli_options()
+		end
+		
+		def process_cli_options
+			res  = $gtk2driver.opts['Resource'] || return
+			data = ""
+			begin
+				data = File.read(res)
+			rescue ::Exception => e
+				$gtk2driver.append_log_view("Failed to open the resource file: #{e}\n")
+				return
+			end
+			
+			# spawn a new console
+			pipe = MsfWindow::Consoles.new.last_console.pipe
+			
+			data.each_line do |line|
+				line.strip
+				next if line.length == 0
+				next if line =~ /^#/
+				$gtk2driver.append_log_view("Executing: #{line}...\n")
+				pipe.write_input(line + "\n")
+			end
+
 		end
 		
 		#

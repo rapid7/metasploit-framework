@@ -31,7 +31,7 @@ class MsfWindow
 						"font" => "Courier"
 					}
 				)
-				
+				self
 			end
 
 			def append_output(data='')
@@ -354,11 +354,14 @@ class MsfWindow
 				tab.remove_page(idx)
 				text.stop_console
 			end
+			
+			@last_console = text
 
 		end
 		
 		include Msf::Ui::Gtk2::MyControls
-		 
+		attr_accessor :last_console
+		
 		def initialize
 
 			super("Metasploit Console - #{Time.now.to_s}")

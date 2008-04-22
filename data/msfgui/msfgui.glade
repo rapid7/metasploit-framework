@@ -6,7 +6,7 @@
 <widget class="GtkWindow" id="window">
   <property name="border_width">5</property>
   <property name="width_request">800</property>
-  <property name="height_request">600</property>
+  <property name="height_request">400</property>
   <property name="title" translatable="yes"></property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_CENTER</property>

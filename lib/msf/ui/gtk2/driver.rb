@@ -179,9 +179,6 @@ module Ui
 		# The active module associated with the driver.
 		#
 		attr_accessor :active_module, :exploit
-
-		protected
-
 		attr_writer   :framework # :nodoc:
 		attr_accessor :opts      # :nodoc:
 

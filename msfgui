@@ -18,6 +18,7 @@ begin
 rescue ::Exception => e
 	$stderr.puts "[*] The msfgui interface requires the ruby-gtk2 and ruby-libglade2 packages"
 	$stderr.puts "[*] Dependencies include ruby-pango, ruby-glib2, ruby-gdkpixbuf2, and ruby-atk"
+	$stderr.puts "[*] Error: #{e.class} #{e}"
 	exit(0)
 end
 
@@ -35,6 +36,7 @@ require 'msf/ui/gtk2'
 # Declare the argument parser for msfgui
 arguments = Rex::Parser::Arguments.new(
 	"-v" => [ true,  "A number between 0 and 3 that controls log verbosity" ],
+	"-r" => [ true,  "Execute the specified resource file"                  ],
 	"-d" => [ false, "Keep running in the foreground"                       ],
 	"-D" => [ false, "Keep stdio and stderr open for debugging"             ],
 	"-h" => [ false, "Help banner"                                          ])
@@ -48,6 +50,8 @@ arguments.parse(ARGV) { |opt, idx, val|
 	case opt
 		when "-v"
 			opts['LogLevel'] = val
+		when "-r"
+			opts['Resource'] = val
 		when "-d"
 			foreground = false
 		when "-D"

@@ -59,38 +59,28 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			], self.class)
 	end
 
-	def setup
-		super
-		@state = {}
-	end
-
 	def run
 		@formsdir = datastore['FORMSDIR']
 		@template = datastore['TEMPLATE']
 		@sitelist = datastore['SITELIST']
 		@myhost   = datastore['SRVHOST']
 		@myport   = datastore['SRVPORT']
+		Thread.current.priority = 20
 		exploit()
 	end
 	
 	def on_client_connect(c)
-		@state[c.peerhost] ||= {
-			:ip    => c.peerhost, 
-			:sites => {}
-		}
 		c.extend(Rex::Proto::Http::ServerClient)
 		c.init_cli(self)
 	end
 	
 	def on_client_data(cli)
-
 		begin
 			data = cli.get_once(-1, 5)
 			case cli.request.parse(data)
 			
 				when Rex::Proto::Http::Packet::ParseCode::Completed
 					dispatch_request(cli, cli.request)
-
 					cli.reset_cli
 				when  Rex::Proto::Http::Packet::ParseCode::Error
 					close_client(cli)
@@ -101,7 +91,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			print_status("Error: #{$!.class} #{$!} #{$!.backtrace}")
 		end
 		
-		close_client(cli)						
+		close_client(cli)
 	end
 
 	def close_client(cli)
@@ -109,6 +99,8 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 	end
 	
 	def dispatch_request(cli, req)
+		
+		phost = cli.peerhost
 		
 		os_name = nil
 		os_type = nil
@@ -231,7 +223,13 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			cli.put(res)
 			return
 		end
-		
+
+		report_note(
+			:host => cli.peerhost,
+			:type => "http_request",
+			:data => "#{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers}"
+		)
+					
 		print_status("HTTP REQUEST #{cli.peerhost} > #{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers} cookies=#{cookies}")
 				
 		if(req.resource =~ /^\/*forms.html$/)
