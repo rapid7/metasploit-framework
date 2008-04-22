@@ -418,6 +418,13 @@ module Text
 			raise TypeError, 'invalid mode'
 		end
 	end
+
+	# 	
+	# Decode a URI encoded string
+	#
+	def self.uri_decode(str)
+		str.gsub(/(%[a-z0-9]{2})/i){ |c| [c[1,2]].pack("H*") }
+	end
 	
 	#
 	# Converts a string to random case

@@ -1,0 +1,1 @@
+<form name='search' action='/misc/gamesearch/gamesearch.do' method='post'> <input name="pogoword" class="s-search-input" type="text" id="pogoword" maxlength="20" /><input class="s-search-button" type="image" src="/img/gamesearch/en_US/s-btn-search.gif" onclick="submit()" /></form>
