@@ -791,6 +791,22 @@ module Text
 		str.gsub(/\n/m, ' ').gsub(/\s+/, ' ').gsub(/^\s+/, '').gsub(/\s+$/, '')
 	end
 
+	#
+	# Randomize the whitespace in a string
+	#
+	def self.randomize_space(str)
+		str.gsub(/\s+/) { |s|
+			len = rand(50)+2
+			set = "\x09\x20\x0d\x0a"
+			buf = ''
+			while (buf.length < len)
+				buf << set[rand(set.length)].chr
+			end
+			
+			buf
+		}
+	end
+
 	# Returns true if zlib can be used.
 	def self.zlib_present?
 		begin
