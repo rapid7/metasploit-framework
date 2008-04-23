@@ -1,0 +1,1 @@
+<form name='quicksearch' action='/progSearch' method='post' onsubmit='return validate(document.quicksearch.src)'> <input name="src" size="15" class="searchfield" type="text" id="src" /><input type="image" src="" border="0" height="69" onclick="this.blur()" width="53" /></form>

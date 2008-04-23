@@ -1,0 +1,1 @@
+<form action='http://search.kakaku.com/ksearch/search.aspx' method='get'> <input name="query" class="keywordBox" type="text" /><input name="search" type="image" src="" alt="ŒŸõ" /></form><form name='FrmCRMBase' action='' method='post'> <input name="ScreenID" type="hidden" value="" /><input name="DispType" type="hidden" value="" /></form>

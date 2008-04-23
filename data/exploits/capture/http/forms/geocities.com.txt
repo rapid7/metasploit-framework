@@ -1,0 +1,1 @@
+<form name='form1' action='http://us.rd.yahoo.com/geohome/signinpage/searchbox/*http://us.geocities.yahoo.com/search' method='get'> <input name="p" size="25" type="text" maxlength="200" /><input name="Submit" type="image" src="" value="" /></form>

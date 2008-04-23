@@ -1,0 +1,1 @@
+<form name='searchform' action='/search/' method='get'> <input name="type_of_search" type="hidden" value="" /><input name="words" tabindex="1" type="text" id="searchbox" value="" /><input tabindex="0" type="submit" id="searchsubmit" value="" /></form>

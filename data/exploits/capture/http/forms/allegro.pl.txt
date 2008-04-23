@@ -1,0 +1,1 @@
+<form name='search' action='/search.php' method='get' id='search' accept-charset='utf-8'> <input tabindex="1" name="string" size="15" type="text" id="string" /><input class="formSubmit" type="submit" value="" /></form>

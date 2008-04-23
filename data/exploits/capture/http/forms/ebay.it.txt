@@ -1,0 +1,1 @@
+<form name='headerSearch' action='http://search.ebay.it/search/search.dll' method='get'> <input name="from" type="hidden" value="" /><input name="_trksid" type="hidden" value="" /><input tabindex="1" name="satitle" size="60" class="srchfld" type="text" id="satitle" value="" maxlength="300" /><input tabindex="3" type="submit" value="" /></form>

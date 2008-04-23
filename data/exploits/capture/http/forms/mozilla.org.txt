@@ -1,0 +1,1 @@
+<form title='mozilla.org Search' action='http://www.google.com/cse' id='searchbox_002443141534113389537:ysdmevkkknw'> <input name="cx" type="hidden" value="" /><input name="cof" type="hidden" value="" /><input name="q" size="30" type="text" id="q" accesskey="s" /><input type="submit" id="submit" value="" /></form>

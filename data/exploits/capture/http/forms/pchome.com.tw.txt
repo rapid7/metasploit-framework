@@ -1,0 +1,1 @@
+<form name='search' action='http://google.pchome.com.tw/search_aux.jsp' method='get' style='margin:0px;padding:0px;'> <input name="s" type="hidden" id="s" /><input name="q" class="input3" type="text" id="s_input" style="width:282px" /><input name="s_submit" class="input2" type="submit" id="s_submit" value="" /></form>

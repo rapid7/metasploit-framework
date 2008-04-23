@@ -1,0 +1,1 @@
+<form name='rech' action='/recherche/' method='get'> <input name="motcle" size="48" type="text" value="" /><input type="image" src="" style="border:0" /><input name="rub" type="hidden" value="" /></form><form name='search' action='/recherche/' method='get'> <input name="motcle" size="48" type="text" value="" /><input type="image" src="" style="border:0" /></form>

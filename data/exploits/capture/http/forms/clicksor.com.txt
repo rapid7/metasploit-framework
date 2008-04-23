@@ -1,0 +1,1 @@
+<form name='login' method='post'> <input name="username" class="login_field" onkeydown="if (event.keyCode==13) radioFormHandler(document.login,'checklogin.php','login');" type="text" id="username" /><input name="password" class="login_field" onkeydown="if (event.keyCode==13) radioFormHandler(document.login,'checklogin.php','login');" type="password" id="password" /></form>

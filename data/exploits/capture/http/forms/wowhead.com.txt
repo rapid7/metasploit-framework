@@ -1,0 +1,1 @@
+<form action='/' method='get' onsubmit='if(trim(this.elements[0].value) == ) return false'> <input name="search" size="38" type="text" id="kghjklvhj43v6" /><input type="submit" value="" /></form>

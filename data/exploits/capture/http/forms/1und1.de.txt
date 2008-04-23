@@ -1,0 +1,1 @@
+<form name='searchform' action='/index.php?MSID=ac1704c4PXE8mt1VQ9J1Zp4Bekno35tl&page=search' method='post'> <input name="query" size="7" class="srch" type="text" /><input name="go" title="Los!" type="image" src="img/btn/los.gif" alt="Los!" style="width: 43px; height:19px; border: 0px" /><input name="search" type="hidden" value="" /></form>

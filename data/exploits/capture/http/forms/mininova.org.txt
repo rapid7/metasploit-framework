@@ -1,0 +1,1 @@
+<form action='/search/' id='searchform' method='get'> <input name="search" size="35" type="text" id="search" /><input class="button" type="submit" value="" /><input name="usenext" class="button" type="submit" value="" /><input name="websearch" class="button" type="submit" value="" onclick="document.forms.searchform.target = '_blank'" /></form>

@@ -1,0 +1,1 @@
+<form name='s' action='search.htm' method='get'> <input name="q" type="text" value="" /></form>

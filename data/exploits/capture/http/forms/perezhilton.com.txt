@@ -1,0 +1,1 @@
+<form name='starseeker_form' action='' id='starseeker_form'> </form><form action='http://perezhilton.com/' method='get' id='searchform'> <input name="s" type="text" id="s" value="" style="text-align:left;" /><input type="submit" id="searchsubmit" value="" style="text-align:left;" /></form>

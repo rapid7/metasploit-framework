@@ -1,0 +1,1 @@
+<form name='frmCountry' action='/' onsubmit='return popLanguage(frmCountry, frmCountry.cookie, frmCountry.setCookie);'> <input name="Site" type="hidden" value="" /><input name="inputImgTag" src="/img/btn_arrow_large.gif" type="image" alt="Go" /><input name="setCookie" class="rad" type="checkbox" value="" /></form>

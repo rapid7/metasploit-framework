@@ -1,0 +1,1 @@
+<form name='gform1' action='http://www.google.cn/search' method='get' target='_blank' style='display: none'> <input name="q" type="hidden" value="" /><input name="client" type="hidden" value="" /><input name="ie" type="hidden" value="" /><input name="oe" type="hidden" value="" /><input name="hl" type="hidden" value="" /><input name="channel" type="hidden" value="" /></form>

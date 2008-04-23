@@ -1,0 +1,1 @@
+<form action='http://search.yahoo.co.jp/bin/search' method='get'> <input name="p" size="30" /><input name="vs" type="hidden" value="" /><input name="fr" type="hidden" value="" /><input type="submit" value="" /></form>

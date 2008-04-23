@@ -1,0 +1,1 @@
+<form name='login' action='/index.php' method='POST'> <input name="email" size="12" type="text" /><input name="password" size="12" type="password" /><input name="login" type="submit" value="" /></form>

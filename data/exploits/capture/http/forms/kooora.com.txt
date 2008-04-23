@@ -1,0 +1,1 @@
+<form action='default.aspx' method='post'> <input name="ln" class="pickerSelect" type="text" value="" style="width:80px;font-size:10px;" /><input name="lp" class="pickerSelect" type="password" style="width:80px;font-size:10px;" /><input class="pickerClear" type="submit" value="" style="font-size:11px;" /><input name="remember" type="checkbox" /></form>

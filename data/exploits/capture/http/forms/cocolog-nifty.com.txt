@@ -1,0 +1,1 @@
+<form action='http://search.nifty.com/blogsearch/search' method='GET' style='margin:0px;'> <input name="cflg" type="hidden" value="" /><input name="q" size="55" class="sform" type="TEXT" value="" style="width:350px" /><input name="submit" type="submit" value="" /><input name="type" checked type="hidden" value="" /></form>

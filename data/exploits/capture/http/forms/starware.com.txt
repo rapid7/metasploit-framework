@@ -1,0 +1,1 @@
+<form action='http://as.starware.com/dp/search'> <input name="src_id" type="hidden" value="" /><input name="product" type="hidden" value="" /><input name="qry" size="40" class="t" value="" maxlength="120" /><input name="z" class="i" type="submit" value="" /></form>

@@ -1,0 +1,1 @@
+<form action='Desktop/Login.aspx' method='post'> <input name="username" size="19" autocomplete="on" class="Textbox" dir="ltr" type="text" maxlength="41" /><input name="password" size="19" class="Textbox" dir="ltr" type="password" maxlength="20" /><input name="btnSubmit" class="oBtn" type="submit" value="" style="WIDTH: 98px" /></form>

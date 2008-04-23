@@ -1,0 +1,1 @@
+<form action='http://my.break.com/Content/Search/Search.aspx' method='get' onsubmit='return validateSearch();' style='margin:0;padding:0;'> <input name="SEARCH1" class="new_button" type="submit" value="" /><input name="s" class="new_search" type="text" id="SearchTextbox1" onfocus="ActivateSilverLight()" maxlength="64" /><input name="SearchType" type="hidden" value="" /></form>

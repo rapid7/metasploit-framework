@@ -1,0 +1,1 @@
+<form action='http://www.truveo.com/search.php' method='GET' id='headersearch'> <input name="query" class="hdrSearch" type="text" id="query" value="" /></form>

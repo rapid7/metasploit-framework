@@ -1,0 +1,1 @@
+<form action='login.php?sid=eda3e836257eb9f520f551fb43630920' method='post'> <input name="username" size="10" class="post" type="text" /><input name="password" size="10" class="post" type="password" maxlength="32" /><input name="autologin" checked="checked" class="text" type="checkbox" /><input name="login" class="mainoption" type="submit" value="" /></form>

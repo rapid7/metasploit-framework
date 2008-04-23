@@ -1,0 +1,1 @@
+<form name='globalnav-search' class='en' action='/go/gnav_search' id='globalnav-search' method='get' accept-charset='utf-8'> <input name="loc" type="hidden" value="" /><input name="term" title="Search for..." type="text" id="search-input" /></form>

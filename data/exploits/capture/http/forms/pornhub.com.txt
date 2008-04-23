@@ -1,0 +1,1 @@
+<form class='header_search' action='main.php' method='get'> <input name="action" type="hidden" value="" /><input name="search_id" size="30" type="text" value="" style="font-size: 11px; height: 13px;" /><input class="search" type="submit" value="" style="vertical-align: bottom;" /></form>

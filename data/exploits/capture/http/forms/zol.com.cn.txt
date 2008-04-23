@@ -1,0 +1,1 @@
+<form name='search_frm' action='http://product.zol.com.cn/products/product_search.php' method='get'> <input name="keyword" class="input_div" type="text" id="keyword" value="" /><input type="hidden" id="current_id" value="" /></form>

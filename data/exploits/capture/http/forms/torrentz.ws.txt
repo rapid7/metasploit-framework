@@ -1,0 +1,1 @@
+<form action='/s.php' id='search' method='get'> <input name="query" size="50" type="text" value="" /><input type="submit" value="" /></form>

@@ -1,0 +1,1 @@
+<form name='search' action='/search/' method='get'> <input name="searchterm" onkeypress="catchEnter(this.form)" type="text" id="searchmtv-text" value="" onclick="this.value='';" /><input type="image" src="/sitewide/images/u/btn-comgo.gif" id="searchmtv-btn" alt="Go" onclick="submitSearch(this.form); return false;" /></form>

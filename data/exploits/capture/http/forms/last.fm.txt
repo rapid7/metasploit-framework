@@ -1,0 +1,1 @@
+<form action='/music/' method='get'> <input results="5" name="q" autosave="com.lastfm.searchhistory" class="sbox hint" type="search" id="searchInput" value="" /></form><form method='post' id='favArtistForm'> <input name="favArtist" class="hint" type="text" id="favArtist" value="" /><input type="submit" id="favArtistSubmit" value="" /></form>

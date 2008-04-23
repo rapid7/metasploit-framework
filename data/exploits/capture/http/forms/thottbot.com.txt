@@ -1,0 +1,1 @@
+<form action='http://thottbot.com/' style='margin-bottom:2;margin-top:0;'> <input name="s" size="30" type="text" /><input type="submit" value="" /></form>

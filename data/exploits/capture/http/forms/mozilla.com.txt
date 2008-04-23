@@ -1,0 +1,1 @@
+<form dir='ltr' action='' id='lang_form' method='get'> <input type="submit" id="lang_submit" value="" /></form>

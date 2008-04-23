@@ -1,0 +1,1 @@
+<form name='ul' enctype='multipart/form-data' action='http://ul8.rapidshare.de/cgi-bin/upload.cgi?rsuploadid=121956019810816478' method='post' onsubmit='document.ul.u.value=Uploading...;document.ul.u.disabled=true'> <input name="filecontent" size="64" type="file" /><input name="u" type="submit" value="" /></form>

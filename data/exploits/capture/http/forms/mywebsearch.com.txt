@@ -1,0 +1,1 @@
+<form name='hpForm' action='AJmain.jhtml'> <input name="searchfor" size="45" value="" style="{width:350px}" maxlength="256" /><input type="submit" value="" /></form>

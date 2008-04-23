@@ -1,0 +1,1 @@
+<form name='trova' action='http://search.alice.it/search/cgi/search.cgi'> <input name="f" type="hidden" value="" /><input name="qs" type="text" id="ricerca" onfocus="javascript: advIsSearchOnFocus=true; return false;" style="float:left" /></form><form name='form1' action='' method='post'> </form>

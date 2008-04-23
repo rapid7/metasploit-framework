@@ -1,0 +1,1 @@
+<form name='searchForm' action='http://search.vmn.net/' method='get' target='_parent'> <input name="q" class="field" type="text" id="searchBox" value="" /><input name="btnS" class="submit_button" type="submit" value="" /><input name="type" type="hidden" value="" /><input name="lz" type="hidden" value="" /></form>
