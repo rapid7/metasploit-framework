@@ -178,8 +178,11 @@ class Driver < Msf::Ui::Driver
 		
 		rcfd = File.open(path, 'r')
 		rcfd.each_line do |line|
-			print_line("resource> #{line.strip}")
-			run_single(line.strip)
+			line.strip!
+			next if line.length == 0
+			next if line =~ /^#/
+			print_line("resource> #{line}")
+			run_single(line)
 		end
 		rcfd.close
 	end

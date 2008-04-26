@@ -201,7 +201,7 @@ module Ui
 			pipe = MsfWindow::Consoles.new.last_console.pipe
 			
 			data.each_line do |line|
-				line.strip
+				line.strip!
 				next if line.length == 0
 				next if line =~ /^#/
 				$gtk2driver.append_log_view("Executing: #{line}...\n")
