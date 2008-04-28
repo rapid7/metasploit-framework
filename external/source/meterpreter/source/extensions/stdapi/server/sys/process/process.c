@@ -91,6 +91,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 	BOOL inherit = FALSE;
 	Tlv inMemoryData;
 	BOOL doInMemory = FALSE;
+	HANDLE token, pToken;
 
 	// Initialize the startup information
 	memset(&si, 0, sizeof(si));
@@ -226,12 +227,37 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 		if (flags & PROCESS_EXECUTE_FLAG_SUSPENDED)
 			createFlags |= CREATE_SUSPENDED;
 
-		// Try to execute the process
-		if (!CreateProcess(NULL, commandLine, NULL, NULL, inherit, 
-				createFlags, NULL, NULL, &si, &pi))
+		if (flags & PROCESS_EXECUTE_FLAG_USE_THREAD_TOKEN)
 		{
-			result = GetLastError();
-			break;
+			// If there is a thread token use that, otherwise use current process token
+			if (!OpenThreadToken(GetCurrentThread(), TOKEN_ALL_ACCESS, TRUE, &token))
+				OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &token);
+			
+			// Duplicate to make primary token (try delegation first)
+			if (!DuplicateTokenEx(token, TOKEN_ALL_ACCESS, NULL, SecurityDelegation, TokenPrimary, &pToken))
+			if (!DuplicateTokenEx(token, TOKEN_ALL_ACCESS, NULL, SecurityImpersonation, TokenPrimary, &pToken))
+			{
+				result = GetLastError();
+				break;
+			}
+
+			// Try to execute the process with duplicated token
+			if (!CreateProcessAsUser(pToken, NULL, commandLine, NULL, NULL, inherit, 
+					createFlags, NULL, NULL, &si, &pi))
+			{
+				result = GetLastError();
+				break;
+			}
+		}
+		else
+		{
+			// Try to execute the process
+			if (!CreateProcess(NULL, commandLine, NULL, NULL, inherit, 
+					createFlags, NULL, NULL, &si, &pi))
+			{
+				result = GetLastError();
+				break;
+			}
 		}
 
 		//

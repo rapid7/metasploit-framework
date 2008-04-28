@@ -10,19 +10,36 @@ DWORD request_sys_config_getuid(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
 	DWORD res = ERROR_SUCCESS;
-	CHAR username[512];
-	DWORD size = sizeof(username);
+	CHAR username[512], username_only[512], domainname_only[512];
+	LPVOID TokenUserInfo[4096];
+	HANDLE token;
+	DWORD user_length = sizeof(username_only), domain_length = sizeof(domainname_only);
+	DWORD size = sizeof(username), sid_type = 0, returned_tokinfo_length;
 
 	memset(username, 0, sizeof(username));
+	memset(username_only, 0, sizeof(username_only));
+	memset(domainname_only, 0, sizeof(domainname_only));
 
 	do
 	{
-		// Get the username
-		if (!GetUserName(username, &size))
+		if (!OpenThreadToken(GetCurrentThread(), TOKEN_ALL_ACCESS, TRUE, &token))
+			OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &token);
+
+		if (!GetTokenInformation(token, TokenUser, TokenUserInfo, 4096, &returned_tokinfo_length))
 		{
 			res = GetLastError();
 			break;
 		}
+		
+		if (!LookupAccountSidA(NULL, ((TOKEN_USER*)TokenUserInfo)->User.Sid, username_only, &user_length, domainname_only, &domain_length, (PSID_NAME_USE)&sid_type))
+		{
+			res = GetLastError();
+			break;
+		}
+
+ 		// Make full name in DOMAIN\USERNAME format
+		_snprintf(username, 512, "%s\\%s", domainname_only, username_only);
+		username[511] = '\0';
 
 		packet_add_tlv_string(response, TLV_TYPE_USER_NAME, username);
 
@@ -85,7 +102,7 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 			else if (v.dwMinorVersion == 0 && v.dwPlatformId == VER_PLATFORM_WIN32_NT)
 				osName = "Windows NT 4.0";
 		}
-		else if (v.dwMajorVersion == 5)
+		else 
 		{
 			if (v.dwMinorVersion == 0)
 				osName = "Windows 2000";
@@ -93,11 +110,6 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 				osName = "Windows XP";
 			else if (v.dwMinorVersion == 2)
 				osName = "Windows .NET Server";
-		}
-		else if (v.dwMajorVersion == 6)
-		{
-			if (v.dwMinorVersion == 0)
-				osName = "Windows Vista";
 		}
 		
 		if (!osName)

@@ -27,7 +27,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 		"-H" => [ false, "Create the process hidden from view."                    ],
 		"-i" => [ false, "Interact with the process after creating it."            ],
 		"-m" => [ false, "Execute from memory."                                    ],
-		"-d" => [ true,  "The 'dummy' executable to launch when using -m."         ])
+		"-d" => [ true,  "The 'dummy' executable to launch when using -m."         ],
+		"-t" => [ false, "Execute process with currently impersonated thread token"])
 
 	#
 	# Options used by the 'reg' command.
@@ -79,6 +80,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		dummy_exec  = "cmd"
 		cmd_args    = nil
 		cmd_exec    = nil
+		use_thread_token = false
 
 		@@execute_opts.parse(args) { |opt, idx, val|
 			case opt
@@ -103,6 +105,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 				when "-i"
 					channelized = true
 					interact = true
+				when "-t"
+					use_thread_token = true
 			end
 		}
 
@@ -116,7 +120,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 		p = client.sys.process.execute(cmd_exec, cmd_args, 
 			'Channelized' => channelized,
 			'Hidden'      => hidden,
-			'InMemory'    => (from_mem) ? dummy_exec : nil)
+			'InMemory'    => (from_mem) ? dummy_exec : nil,
+			'UseThreadToken' => use_thread_token)
 
 		print_line("Process #{p.pid} created.")
 		print_line("Channel #{p.channel.cid} created.") if (p.channel)

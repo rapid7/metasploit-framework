@@ -128,6 +128,9 @@ class Process < Rex::Post::Process
 			if (opts['Suspended'])
 				flags |= PROCESS_EXECUTE_FLAG_SUSPENDED
 			end
+			if (opts['UseThreadToken'])
+				flags |= PROCESS_EXECUTE_FLAG_USE_THREAD_TOKEN
+			end
 
 			inmem = opts['InMemory']
 			if inmem
