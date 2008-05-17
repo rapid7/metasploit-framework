@@ -801,11 +801,17 @@ class Core
 					(global) ? "Global" : "Module: #{active_module.refname}",
 					datastore) + "\n")
 			return true
-		elsif (args.length < 2)
-			print(
-				"Usage: set name value\n\n" +
-				"Sets an arbitrary name to an arbitrary value.\n")
-			return false
+		elsif (args.length == 1)
+			if (not datastore[args[0]].nil?)
+				print_line("#{args[0]} => #{datastore[args[0]]}")
+				return true
+			else
+				print_error("Unknown variable")
+				print(
+					"Usage: set name value\n\n" +
+					"Sets an arbitrary name to an arbitrary value.\n")
+				return false
+			end
 		end
 
 		# Set the supplied name to the supplied value
