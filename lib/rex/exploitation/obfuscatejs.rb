@@ -5,8 +5,6 @@ module Exploitation
 # Obfuscates javascript in various ways
 #
 class ObfuscateJS
-	STRINGS_SINGLE_QUOTES = 0
-	STRINGS_DOUBLE_QUOTES = 1
 
 	#
 	# Obfuscates symbols found within a javascript string.  The symbols
@@ -41,11 +39,7 @@ class ObfuscateJS
 	# Returns the dynamic symbol associated with the supplied symbol name
 	#
 	def sym(name)
-		if (@dynsym[name])
-			@dynsym[name]
-		else 
-			name
-		end
+		@dynsym[name]
 	end
 
 	#
@@ -57,15 +51,6 @@ class ObfuscateJS
 
 		# Globally replace symbols
 		replace_symbols(opts['Symbols']) if opts['Symbols']
-
-		if (opts['Strings'])
-			obfuscate_strings(opts['Strings'])
-			# since there shouldn't be spaces in strings after the call to
-			# obfuscate_strings, we can safely randomize the spaces as well
-			@js = Rex::Text.compress(@js)
-			@js = Rex::Text.randomize_space(@js)
-		end
-
 
 		@js
 	end
@@ -113,34 +98,7 @@ protected
 		}
 	end
 
-	def obfuscate_strings(type=STRINGS_SINGLE_QUOTES)
-		if type == STRINGS_SINGLE_QUOTES
-			regex = /'.*?[^\\]'/
-		else 
-			regex = /".*?[^\\]"/ 
-		end
-		return @js.gsub!(regex) { |str|
-			str = str[1,str.length-2]
 
-			case (rand(3))
-			when 0
-				buf = '"' + Rex::Text.to_hex(str) + '"'
-			when 1
-				buf = "unescape(\"" + Rex::Text.to_hex(str, "%") + "\")"
-			else 
-				buf = "String.fromCharCode("
-				str.each_byte { |c|
-					if (0 == rand(2))
-						buf << "%i,"%(c)
-					else
-						buf << "0x%0.2x,"%(c)
-					end
-				}
-				buf = buf[0,buf.length-1] + ")"
-			end
-			buf
-		}
-	end
 end
 
 end

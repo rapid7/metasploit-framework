@@ -175,25 +175,6 @@ module Text
 		end
 		return buff	
 	end
-	def self.from_unescape(data, endian=ENDIAN_LITTLE)
-		buf = 
-			if (data =~ /%u/)
-				data.split("%u").collect { |b| 
-					next if b == ""
-					if (endian == ENDIAN_LITTLE)
-						"#{(b[2,2].to_i 16).chr}#{(b[0,2].to_i 16).chr}" 
-					else
-						"#{(b[0,2].to_i 16).chr}#{(b[2,2].to_i 16).chr}" 
-					end
-				}.join('')
-			else
-				data.split("%").collect { |b|
-					next if b == ""
-					"#{(b.to_i 16).chr}"
-				}.join('')
-			end
-		return buf
-	end
 
 	#
 	# Returns the hex version of the supplied string
