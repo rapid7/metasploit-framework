@@ -866,8 +866,10 @@ class Core
 		if (mod.exploit?)
 			res << 'PAYLOAD'
 			res << 'NOP'
-			res << 'ENCODER'
 			res << 'TARGET'
+		end
+		if (mod.exploit? or mod.payload?)
+			res << 'ENCODER'
 		end
 
 		if (mod.auxiliary?)

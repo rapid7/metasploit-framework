@@ -74,6 +74,10 @@ class Payload
 					return true
 			end
 		}
+		if (encoder_name.nil? and mod.datastore['ENCODER'])
+			encoder_name = mod.datastore['ENCODER']
+		end
+
 
 		# Generate the payload
 		begin
