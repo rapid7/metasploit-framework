@@ -6,7 +6,7 @@
  *
  * Platforms: Windows NT4/2000/XP/2003
  *
- * Compile: cl libloader.c
+ * Compile: cl /GS- /Os libloader.c /link /fixed /release
  *
  *
  * How to use:
