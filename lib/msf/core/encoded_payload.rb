@@ -16,11 +16,11 @@ class EncodedPayload
 	# This method creates an encoded payload instance and returns it to the
 	# caller.
 	#
-	def self.create(pinst, reqs)
+	def self.create(pinst, reqs = {})
 		# Create the encoded payload instance
 		p = EncodedPayload.new(pinst.framework, pinst, reqs)
 
-		p.generate
+		p.generate(reqs['Raw'])
 
 		return p
 	end
@@ -38,8 +38,8 @@ class EncodedPayload
 	# This method enerates the full encoded payload and returns the encoded
 	# payload buffer.
 	#
-	def generate
-		self.raw           = nil
+	def generate(raw = nil)
+		self.raw           = raw
 		self.encoded       = nil
 		self.nop_sled_size = 0
 		self.nop_sled      = nil
@@ -60,7 +60,7 @@ class EncodedPayload
 			pinst.validate()
 
 			# Generate the raw version of the payload first
-			generate_raw()
+			generate_raw() if self.raw.nil?
 
 			# Encode the payload
 			encode()
@@ -100,7 +100,7 @@ class EncodedPayload
 	def encode
 		# If the exploit has bad characters, we need to run the list of encoders
 		# in ranked precedence and try to encode without them.
-		if (reqs['BadChars'] or reqs['Encoder'])
+		if reqs['BadChars'] or reqs['Encoder'] or reqs['ForceEncode']
 			encoders = pinst.compatible_encoders
 
 			# If the caller had a preferred encoder, try to find it and prefix it
