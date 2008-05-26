@@ -26,7 +26,7 @@ class Input::Socket < Rex::Ui::Text::Input
 	# Reads input from the raw socket.
 	#
 	def sysread(len = 1)
-		@sock.sysread(1)
+		@sock.sysread(len)
 	end
 
 	#

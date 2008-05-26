@@ -25,12 +25,7 @@ class IO < Rex::Post::IO
 		self.filed.read(length)
 	end
 
-	#
-	# Synonym for sysread.
-	#
-	def read(length = nil)
-		sysread
-	end
+	alias read sysread
 
 	#
 	# Writes the supplied buffer to the channel.
@@ -39,12 +34,7 @@ class IO < Rex::Post::IO
 		self.filed.write(buf)
 	end
 
-	#
-	# Synonym for syswrite.
-	#
-	def write(buf)
-		syswrite(buf)
-	end
+	alias write syswrite
 
 	#
 	# Closes the channel.

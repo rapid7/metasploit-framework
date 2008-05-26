@@ -27,7 +27,7 @@ class Input::Buffer < Rex::Ui::Text::Input
 	end
 
 	def sysread(len = 1)
-		@sock.rsock.sysread(1)
+		@sock.rsock.sysread(len)
 	end
 
 	def put(msg)
