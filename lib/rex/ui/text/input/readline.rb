@@ -98,7 +98,7 @@ begin
 			::Process.waitpid(pid, 0)
 
 			if line
-				HISTORY.pop if (line.empty?)
+				HISTORY.push(line) if (not line.empty?)
 				return line + "\n"
 			else
 				eof = true
