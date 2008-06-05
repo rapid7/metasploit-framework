@@ -75,7 +75,7 @@ module Msf::Payload::Stager
 		substitute_vars(p, stage_offsets) if (stage_offsets)
 
 		# Encode the stage of stage encoding is enabled
-		p = encode_stage(p)
+		#p = encode_stage(p)
 
 		return p
 	end
