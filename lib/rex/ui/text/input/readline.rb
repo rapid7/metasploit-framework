@@ -75,6 +75,14 @@ begin
 		#
 		def pgets
 			
+			if(true)
+				output.prompting
+				line = Readline.readline(prompt, true)
+				HISTORY.pop if line.empty?
+				return line
+			end
+			
+			
 			output.prompting
 
 			rdr,wtr = ::IO.pipe
