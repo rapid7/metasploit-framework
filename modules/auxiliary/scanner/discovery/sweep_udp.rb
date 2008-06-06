@@ -41,6 +41,7 @@ class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
 		@probes << 'probe_pkt_netbios'
 		@probes << 'probe_pkt_portmap'
 		@probes << 'probe_pkt_mssql'
+		@probes << 'probe_pkt_ntp'		
 		@probes << 'probe_pkt_snmp'		
 		@probes << 'probe_pkt_sentinel'
 
@@ -134,6 +135,15 @@ class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
 			when 111
 				app = 'Portmap'
 				inf = pkt[0].unpack('H*')[0]
+			when 123
+				app = 'NTP'
+				ver = nil
+				ver = pkt[0].unpack('H*')[0]
+				ver = 'NTP v3'                  if (ver =~ /^1c06|^1c05/)
+				ver = 'NTP v4'                  if (ver =~ /^240304/)
+				ver = 'NTP v4 (unsynchronized)' if (ver =~ /^e40/)
+				ver = 'Microsoft NTP'           if (ver =~ /^dc00|^dc0f/)
+				inf = ver if ver
 			when 1434
 				app = 'SQL Server'
 				mssql_ping_parse(pkt[0]).each_pair { |k,v|
@@ -298,6 +308,14 @@ class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
 		return ["\x02", 1434]
 	end
 
+	def probe_pkt_ntp(ip)
+		data = 
+			"\xe3\x00\x04\xfa\x00\x01\x00\x00\x00\x01\x00\x00\x00" +
+			"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+			"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+			"\x00\xc5\x4f\x23\x4b\x71\xb1\x52\xf3"
+		return [data, 123]
+	end
 
 	def probe_pkt_snmp(ip)
 		data =  
