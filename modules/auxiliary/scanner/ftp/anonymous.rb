@@ -18,7 +18,7 @@ class Auxiliary::Scanner::Ftp::Anonymous < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Anonymous FTP Access Detection',
-			'Version'     => '$Revision: $',
+			'Version'     => '$Revision$',
 			'Description' => 'Detect anonymous (read/write) FTP server access.',
 			'References'  =>
 				[

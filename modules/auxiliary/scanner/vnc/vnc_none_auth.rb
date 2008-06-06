@@ -18,7 +18,7 @@ class Auxiliary::Scanner::Vnc::Vnc_None_Auth < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'VNC Authentication None Detection',
-			'Version'     => '$Revision: $',
+			'Version'     => '$Revision$',
 			'Description' => 'Detect VNC server with empty password.',
 			'References'  =>
 				[
