@@ -213,7 +213,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		# Notify now that we've created the socket
 		notify_socket_created(self, sock, param)
 
-		# Return the socket ot the caller
+		# Return the socket to the caller
 		sock
 	end
 
