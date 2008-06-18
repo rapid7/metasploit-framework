@@ -1498,7 +1498,7 @@ protected
 
 			if (p)
 				p_opt = Serializer::ReadableText.dump_options(p, '   ') 
-				print("\nPayload options:\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
+				print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
 			end
 		end
 
@@ -1540,7 +1540,7 @@ protected
 
 			if (p)
 				p_opt = Serializer::ReadableText.dump_advanced_options(p, '   ') 
-				print("\nPayload advanced options:\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
+				print("\nPayload advanced options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
 			end
 		end
 	end
@@ -1563,7 +1563,7 @@ protected
 
 			if (p)
 				p_opt = Serializer::ReadableText.dump_evasion_options(p, '   ') 
-				print("\nPayload evasion options:\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
+				print("\nPayload evasion options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
 			end
 		end
 	end
