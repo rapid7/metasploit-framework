@@ -233,6 +233,36 @@ class Rex::Socket::Comm::Local
 			if ret[1] != 90
 				raise "SOCKS4 server responded with error code #{ret[0]}"
 			end
+		when 'socks5'
+			# TODO: add dns lookups through socks5
+			auth_methods = [5,1,0].pack('CCC')
+			size = sock.put(auth_methods)
+			if (size != auth_methods.length)
+				raise ArgumentError, "Wrote less data than expected to the socks proxy"
+			end
+			response = sock.get_once(2,30)
+			if (0xff == response[1,1])
+				raise ArgumentError, "Proxy requires authentication"
+			end
+
+			setup = [5,1,0,1].pack('CCCC') + Socket.gethostbyname(host)[3] + [port.to_i].pack('n')
+			size = sock.put(setup)
+			if (size != setup.length)
+				raise ArgumentError, "Wrote less data than expected to the socks proxy"
+			end
+	
+			begin
+				response = sock.get_once(10, 30)
+			rescue IOError
+				raise Rex::ConnectionRefused.new(host, port), caller
+			end
+	
+			if (response.nil? or response.length < 8)
+				raise ArgumentError, 'SOCKS5 server did not respond with a proper response'
+			end
+			if response[1] != 0
+				raise "SOCKS5 server responded with error code #{response[1]}"
+			end
 		else
 			raise ArgumentError, 'Unsupported proxy type and/or version', caller
 		end
