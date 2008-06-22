@@ -50,6 +50,7 @@ class Core
 			"?"        => "Help menu",
 			"back"     => "Move back from the current context",
 			"banner"   => "Display an awesome metasploit banner",
+			"cd"       => "Change the current working directory",
 			"exit"     => "Exit the console",
 			"help"     => "Help menu",
 			"info"     => "Displays information about one or more module",
@@ -60,22 +61,22 @@ class Core
 # XXX complete this before re-enabling
 #			"persist"  => "Persist or restore framework state information",
 
+			"loadpath" => "Searches for and loads modules from a path",
 			"quit"     => "Exit the console",
+			"resource" => "Run the commands stored in a file",
 			"route"    => "Route traffic through a session",
 			"save"     => "Saves the active datastores",
-			"loadpath" => "Searches for and loads modules from a path",
 			"search"   => "Searches module names and descriptions",
 			"sessions" => "Dump session listings and display information about sessions",
 			"set"      => "Sets a variable to a value",
 			"setg"     => "Sets a global variable to a value",
 			"show"     => "Displays modules of a given type, or all modules",
+			"sleep"    => "Do nothing for the specified number of seconds",
 			"unload"   => "Unload a framework plugin",
 			"unset"    => "Unsets one or more variables",
 			"unsetg"   => "Unsets one or more global variables",
 			"use"      => "Selects a module by name",
 			"version"  => "Show the console library version number",
-			"sleep"    => "Do nothing for the specified number of seconds",
-			"cd"       => "Change the current working directory",
 		}
 	end
 
@@ -94,6 +95,11 @@ class Core
 	def name
 		"Core"
 	end
+
+    def cmd_resource(*args)
+        driver.load_resource(*args)
+	end
+
 
 	#
 	# Pop the current dispatcher stack context, assuming it isn't pointed at
@@ -277,10 +283,15 @@ class Core
 	#
 	def cmd_jobs_tabs(str, words)
 		if(not words[1])
-			return %w{-l -k -h}
+			return %w{-l -k -K -h}
 		end
 		if (words[1] == '-k')
 			# XXX return the list of job values
+			ret = []
+			framework.jobs.each_key do |i|
+				ret.push i
+			end
+			return ret
 		end
 	end	
 	
