@@ -96,8 +96,8 @@ class Core
 		"Core"
 	end
 
-    def cmd_resource(*args)
-        driver.load_resource(*args)
+	def cmd_resource(*args)
+		driver.load_resource(*args)
 	end
 
 
