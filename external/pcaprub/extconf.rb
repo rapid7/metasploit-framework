@@ -8,8 +8,10 @@ if /i386-mswin32/ =~ RUBY_PLATFORM
     $CFLAGS  = "-DWIN32 -I#{pcap_includedir}"
     $LDFLAGS = "/link /LIBPATH:#{pcap_libdir}"
     have_library("wpcap", "pcap_open_live")
+	have_library("wpcap", "pcap_setnonblock")
 else
     have_library("pcap", "pcap_open_live")
+	have_library("pcap", "pcap_setnonblock")
 end
 
 create_makefile("pcaprub")

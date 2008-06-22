@@ -79,5 +79,17 @@ class Pcap::UnitTest < Test::Unit::TestCase
 		r = o.stats
 		assert_equal(Hash, r.class)
 	end
-						
+
+	def test_pcap_next
+=begin
+		d = Pcap.lookupdev
+		o = Pcap.open_live(d, 1344, true, 1)
+		@c = 0
+		t = Thread.new { while(true); @c += 1; end; }
+		x = o.next
+		t.kill
+=end
+		true
+	end
+							
 end

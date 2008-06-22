@@ -10,7 +10,7 @@
 
 static VALUE rb_cPcap;
 
-#define PCAPRUB_VERSION "0.7-dev"
+#define PCAPRUB_VERSION "0.8-dev"
 
 #define OFFLINE 1
 #define LIVE 2
@@ -20,6 +20,13 @@ typedef struct rbpcap {
     char iface[256];
     char type;
 } rbpcap_t;
+
+
+typedef struct rbpcapjob {
+	struct pcap_pkthdr hdr;
+    char *pkt;
+	int wtf;
+} rbpcapjob_t;
 
 static VALUE
 rbpcap_s_version(VALUE class)
@@ -259,25 +266,35 @@ rbpcap_inject(VALUE self, VALUE payload)
 #endif
 }
 
+
+static void rbpcap_handler(rbpcapjob_t *job, struct pcap_pkthdr *hdr, u_char *pkt){
+	job->pkt = pkt;
+	job->hdr = *hdr;
+}
+
 static VALUE
 rbpcap_next(VALUE self)
 {
-    char *pkt;
     rbpcap_t *rbp;
-    struct pcap_pkthdr pkthdr;
-
+	rbpcapjob_t job;
+	char eb[PCAP_ERRBUF_SIZE];
+	int ret;	
+	
     Data_Get_Struct(self, rbpcap_t, rbp);
-	
 	if(! rbpcap_ready(rbp)) return self; 
-	
-    memset(&pkthdr, 0, sizeof(pkthdr));
+	pcap_setnonblock(rbp->pd, 1, eb);
 
     TRAP_BEG;
-    pkt = (char *)pcap_next(rbp->pd, &pkthdr);
+	
+	while(! (ret = pcap_dispatch(rbp->pd, 1, (pcap_handler) rbpcap_handler, (u_char *)&job))) {		
+		rb_thread_schedule();
+	}
+    
     TRAP_END;
 
-    if(pkthdr.caplen > 0)
-    	return rb_str_new(pkt, pkthdr.caplen);
+
+    if(job.hdr.caplen > 0)
+    	return rb_str_new(job.pkt, job.hdr.caplen);
 
     return Qnil;
 }
