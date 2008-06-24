@@ -78,7 +78,7 @@ begin
 			if(true)
 				output.prompting
 				line = ::Readline.readline(prompt, true)
-				HISTORY.pop if line.empty?
+				HISTORY.pop if (line and line.empty?)
 				return line
 			end
 			
