@@ -60,6 +60,11 @@ class Auxiliary::Server::FakeDNS < Msf::Auxiliary
 
 		@port = datastore['SRVPORT'].to_i
 
+
+		# LOG REQUESTS?
+		@log_requests = false
+		
+
         # MacOS X workaround
         ::Socket.do_not_reverse_lookup = true
             
@@ -152,11 +157,13 @@ class Auxiliary::Server::FakeDNS < Msf::Auxiliary
             }
 			print_status("DNS #{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})")
 			
-			report_note(
-				:host => addr[3],
-				:type => "dns_lookup",
-				:data => "#{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})"
-			) if lst.length > 0
+			if(@log_requests)
+				report_note(
+					:host => addr[3],
+					:type => "dns_lookup",
+					:data => "#{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})"
+				) if lst.length > 0
+			end
 			
             @sock.send(request.encode(), 0, addr[3], addr[1])
         end
