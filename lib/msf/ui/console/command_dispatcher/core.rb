@@ -736,7 +736,7 @@ class Core
 						self.active_session = session
 
 						session.interact(driver.input.dup, driver.output)
-												
+		
 						self.active_session = nil
 						
 						if (driver.input.supports_readline)
@@ -756,7 +756,9 @@ class Core
 
 		rescue IOError, EOFError, Rex::StreamClosedError
 			print_status("Session stream closed.")
-		rescue
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception
 			log_error("Session manipulation failed: #{$!} #{$!.backtrace.inspect}")
 		end
 

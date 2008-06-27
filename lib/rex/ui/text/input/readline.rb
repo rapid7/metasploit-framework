@@ -37,12 +37,16 @@ begin
 
 		def child_readline(wtr, prompt, history)
 			$0 = "<readline>"
+			
 			line = ::Readline.readline(prompt, history)
 			line = "\n" if (line and line.strip.length == 0)
+
 			wtr.write(line || "exit\n")
 			wtr.flush
 			wtr.close
-			exit(0)
+			
+			# Self-destruct mechanism activated
+			Process.kill(9, $$)
 		end
 		
 		#
@@ -57,7 +61,6 @@ begin
 		#
 		def sysread(len = 1)
 			$stdin.sysread(len)
-
 		end
 		
 		#
@@ -75,19 +78,15 @@ begin
 		#
 		def pgets
 		
-			# if(Rex::Compat.is_windows())
-			if(true)
+			if(Rex::Compat.is_windows())
 				output.prompting
 				line = ::Readline.readline(prompt, true)
 				HISTORY.pop if (line and line.empty?)
 				return line
 			end
 
-			# Wrap readline in a child process and secure with a mutex
-			# This prevents threading hangs in the calling process.
-			require "thread"
-			@@child_mutex ||= Mutex.new
-			@@child_mutex.synchronize do
+
+			line = ""
 			
 			output.prompting
 
@@ -111,16 +110,15 @@ begin
 
 			::Process.waitpid(pid, 0)
 
+			# Parse the results
 			if line
 				HISTORY.push(line) if (not line.empty?)
 				return line + "\n"
 			else
 				eof = true
 				return line
-			end
-			
-			# Release the readline mutex
-			end
+			end			
+
 		end
 
 		#
