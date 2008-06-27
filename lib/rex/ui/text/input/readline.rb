@@ -15,7 +15,7 @@ begin
 	###
 	class Input::Readline < Rex::Ui::Text::Input
 		include ::Readline
-
+		
 		#
 		# Initializes the readline-aware Input instance for text.
 		#
@@ -74,14 +74,19 @@ begin
 		# receives, massively slowing down the entire framework.
 		#
 		def pgets
-			
-			if(true)
+		
+			if(Rex::Compat.is_windows())
 				output.prompting
 				line = ::Readline.readline(prompt, true)
 				HISTORY.pop if (line and line.empty?)
 				return line
 			end
-			
+
+			# Wrap readline in a child process and secure with a mutex
+			# This prevents threading hangs in the calling process.
+			require "thread"
+			@@child_mutex ||= Mutex.new
+			@@child_mutex.synchronize do
 			
 			output.prompting
 
@@ -111,6 +116,9 @@ begin
 			else
 				eof = true
 				return line
+			end
+			
+			# Release the readline mutex
 			end
 		end
 
