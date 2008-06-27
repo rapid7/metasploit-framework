@@ -77,6 +77,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 	def on_client_data(cli)
 		begin
 			data = cli.get_once(-1, 5)
+			raise ::Errno::ECONNABORTED if not (data or data.length == 0)
 			case cli.request.parse(data)
 			
 				when Rex::Proto::Http::Packet::ParseCode::Completed
