@@ -75,7 +75,8 @@ begin
 		#
 		def pgets
 		
-			if(Rex::Compat.is_windows())
+			# if(Rex::Compat.is_windows())
+			if(true)
 				output.prompting
 				line = ::Readline.readline(prompt, true)
 				HISTORY.pop if (line and line.empty?)
