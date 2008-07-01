@@ -213,20 +213,21 @@ class Rex::Socket::Comm::Local
 				
 	def self.proxy (sock, type, host, port)
 	
+		#$stdout.print("PROXY\n")
 		case type.downcase
 		when 'socks4'
 			setup = [4,1,port.to_i].pack('CCn') + Socket.gethostbyname(host)[3] + Rex::Text.rand_text_alpha(rand(8)+1) + "\x00"
 			size = sock.put(setup)
 			if (size != setup.length)
-				raise ArgumentError, "Wrote less data than expected to the socks proxy"
+				raise ArgumentError, "Wrote less data than expected to the socks4 proxy"
 			end
-	
+
 			begin
 				ret = sock.get_once(8, 30)
 			rescue IOError
 				raise Rex::ConnectionRefused.new(host, port), caller
 			end
-	
+
 			if (ret.nil? or ret.length < 8)
 				raise ArgumentError, 'SOCKS4 server did not respond with a proper response'
 			end
@@ -234,30 +235,42 @@ class Rex::Socket::Comm::Local
 				raise "SOCKS4 server responded with error code #{ret[0]}"
 			end
 		when 'socks5'
-			# TODO: add dns lookups through socks5
 			auth_methods = [5,1,0].pack('CCC')
 			size = sock.put(auth_methods)
 			if (size != auth_methods.length)
-				raise ArgumentError, "Wrote less data than expected to the socks proxy"
+				raise ArgumentError, "Wrote less data than expected to the socks5 proxy"
 			end
 			response = sock.get_once(2,30)
 			if (0xff == response[1,1])
 				raise ArgumentError, "Proxy requires authentication"
 			end
 
-			setup = [5,1,0,1].pack('CCCC') + Socket.gethostbyname(host)[3] + [port.to_i].pack('n')
+			if (Rex::Socket.is_ipv4?(host))
+				addr = Rex::Socket.gethostbyname(host)[3] 
+				setup = [5,1,0,1].pack('C4') + addr + [port.to_i].pack('n')
+			elsif (Rex::Socket.support_ipv6? and Rex::Socket.is_ipv6?(host))
+				# IPv6 stuff all untested
+				addr = Rex::Socket.gethostbyname(host)[3] 
+				setup = [5,1,0,4].pack('C4') + addr + [port.to_i].pack('n')
+			else
+				# Then it must be a domain name.
+				# Unfortunately, it looks like the host has always been
+				# resolved by the time it gets here, so this code never runs.
+				setup = [5,1,0,3].pack('C4') + [host.length].pack('C') + host + [port.to_i].pack('n')
+			end
+
 			size = sock.put(setup)
 			if (size != setup.length)
-				raise ArgumentError, "Wrote less data than expected to the socks proxy"
+				raise ArgumentError, "Wrote less data than expected to the socks5 proxy"
 			end
-	
+
 			begin
 				response = sock.get_once(10, 30)
 			rescue IOError
 				raise Rex::ConnectionRefused.new(host, port), caller
 			end
-	
-			if (response.nil? or response.length < 8)
+
+			if (response.nil? or response.length < 10)
 				raise ArgumentError, 'SOCKS5 server did not respond with a proper response'
 			end
 			if response[1] != 0

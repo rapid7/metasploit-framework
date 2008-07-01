@@ -39,7 +39,7 @@ class ObfuscateJS
 	# Returns the dynamic symbol associated with the supplied symbol name
 	#
 	def sym(name)
-		@dynsym[name]
+		@dynsym[name] || name
 	end
 
 	#

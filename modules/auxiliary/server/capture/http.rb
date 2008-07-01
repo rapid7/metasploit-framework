@@ -134,7 +134,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 				os_name = 'iPhone'
 				os_arch = 'armle'
 			when /Mac OS X/
-				os = 'Mac'
+				os_name = 'Mac'
 		end
 		
 		case (ua)
