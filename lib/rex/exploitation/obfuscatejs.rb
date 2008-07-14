@@ -7,8 +7,13 @@ module Exploitation
 class ObfuscateJS
 
 	#
-	# Obfuscates symbols found within a javascript string.  The symbols
-	# argument should have the following format:
+	# Obfuscates a javascript string.  
+	#
+	# Options are 'Symbols', described below, and 'Strings', a boolean
+	# which specifies whether strings within the javascript should be 
+	# mucked with (defaults to false).
+	#
+	# The 'Symbols' argument should have the following format:
 	#
 	# {
 	#    'Variables'  => [ 'var1', ... ],
@@ -22,6 +27,30 @@ class ObfuscateJS
 	# instance, if you have two methods (joe and joeBob), you should place
 	# joeBob before joe because it is more specific and will be globally
 	# replaced before joe is replaced.
+	#
+	# A simple example follows:
+	#
+	# <code>
+	# js = ObfuscateJS.new <<ENDJS
+	#     function say_hi() {
+	#         var foo = "Hello, world";
+	#         document.writeln(foo);
+	#     }
+	# ENDJS
+	# js.obfuscate(
+	#     'Symbols' => { 
+	#	       'Variables' => [ 'foo' ],
+	#	       'Methods'   => [ 'say_hi' ] 
+	#	  }
+	#     'Strings' => true
+	# )
+	# </code>
+	#
+	# which should generate something like the following:
+	#
+	# <code>
+	# function oJaDYRzFOyJVQCOHk() { var cLprVG = "\x48\x65\x6c\x6c\x6f\x2c\x20\x77\x6f\x72\x6c\x64"; document.writeln(cLprVG); }
+	# </code>
 	#
 	def self.obfuscate(js, opts = {})
 		ObfuscateJS.new(js).obfuscate(opts)
@@ -49,6 +78,26 @@ class ObfuscateJS
 		# Remove our comments
 		remove_comments
 
+		if opts['Strings']
+			obfuscate_strings()
+
+			# Normal space randomization does not work for
+			# javascript -- despite claims that space is irrelavent,
+			# newlines break things.  Instead, use only space (0x20)
+			# and tab (0x09).
+
+			@js = Rex::Text.compress(@js)
+			@js.gsub!(/\s+/) { |s|
+				len = rand(50)+2
+				set = "\x09\x20"
+				buf = ''
+				while (buf.length < len)
+					buf << set[rand(set.length)].chr
+				end
+				
+				buf
+			}
+		end
 		# Globally replace symbols
 		replace_symbols(opts['Symbols']) if opts['Symbols']
 
@@ -61,12 +110,19 @@ class ObfuscateJS
 	def to_s
 		@js
 	end
+	alias :to_str :to_s
 
 protected
 
-	# Get rid of comments
+	#
+	# Get rid of both single-line C++ style comments and multiline C style comments.
+	#
+	# Note: embedded comments (e.g.: "/*/**/*/") will break this,
+	# but they also break real javascript engines so I don't care.
+	#
 	def remove_comments
-		@js.gsub!(/(\/\/.+?\n)/m, '')
+		@js.gsub!(%r{//.*$}, '')
+		@js.gsub!(%r{/\*.*?\*/}m, '')
 	end
 
 	# Replace method, class, and namespace symbols found in the javascript
@@ -98,6 +154,37 @@ protected
 		}
 	end
 
+	#
+	# Change each string into some javascript that will generate that string
+	#
+	# This tries to deal with escaped quotes within strings but
+	# won't catch things like 
+	#     "\\"
+	# so be careful.
+	#
+	def obfuscate_strings()
+		@js.gsub!(/".*?[^\\]"|'.*?[^\\]'/) { |str|
+			str = str[1, str.length-2]
+			case (rand(3))
+			when 0
+				buf = '"' + Rex::Text.to_hex(str) + '"'
+			when 1
+				 buf = "unescape(\"" + Rex::Text.to_hex(str, "%") + "\")" 
+			when 2
+				buf = "String.fromCharCode(" 
+				str.each_byte { |c| 
+					if (0 == rand(2))
+						buf << " %i,"%(c)
+					else
+						buf << " 0x%0.2x,"%(c) 
+					end
+				}
+				buf = buf[0,buf.length-1] + " )" 
+			end
+			buf
+		}
+		@js
+	end
 
 end
 
