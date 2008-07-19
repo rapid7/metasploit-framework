@@ -58,7 +58,8 @@ module Meterpreter
 						true,
 						"Automatically load the Stdapi extension",
 						true
-					])
+					]),
+				OptString.new('AutoRunScript', [false, "Script to autorun on meterpreter session creation", ''])
 			], Meterpreter)
 
 		# Don't let people set the library name option
@@ -84,6 +85,9 @@ module Meterpreter
 			if (framework.exploits.create(session.via_exploit).privileged?)
 				session.load_priv 
 			end
+		end
+		if (datastore['AutoRunScript'].empty? == false)
+			session.execute_script(datastore['AutoRunScript'], binding)
 		end
 	end
 
