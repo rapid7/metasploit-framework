@@ -343,10 +343,13 @@ module Socket
 	
 	def self.source_address(dest='1.2.3.4')
 		begin
-			return self.create_udp(
+			s = self.create_udp(
 				'PeerHost' => dest,
 				'PeerPort' => 31337
-			).getsockname[1]
+			)
+			r = s.getsockname[1]
+			s.close
+			return r
 		rescue ::Exception
 			return '127.0.0.1'
 		end
