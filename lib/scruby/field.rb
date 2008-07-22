@@ -11,7 +11,8 @@
 # General Public License for more details. 
 
 module Scruby
-
+	require "rex/socket"
+	
 	# Trackin fields
 	@@fields = {}
 
@@ -579,8 +580,7 @@ module Scruby
 
 		# Ruby equivalent to inet_aton. It takes a hostname or an IP as an argument.
 		def inet_aton(name)
-			ip = Socket.getaddrinfo(name, nil)[0][3]
-			return [IPAddr.new(ip).to_i].pack(@format)
+			ip = Rex::Socket.resolv_nbo(name)
 		end
 
 		def to_net(value)

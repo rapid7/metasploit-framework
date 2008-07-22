@@ -180,6 +180,13 @@ class Packet
 		return Packet.new(@layers_list[index..-1], nil)
 	end
 
+	# Return the first layer of this type with its payload
+	# Differs from get_layer() in that it returns the layer not the packet object
+	def layer(wanted_layer)
+		ret = get_layer(wanted_layer)
+		ret.layers_list[0]
+	end
+	
 	# Checks wether the packet has a given layer
 	def has_layer(wanted_layer)
 		return (not self.get_layer(wanted_layer).nil?)
