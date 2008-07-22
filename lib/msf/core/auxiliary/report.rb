@@ -8,21 +8,49 @@ module Msf
 
 module Auxiliary::Report
 
-# 
-# Report host and service information
-#
-			
+
+	module HttpClients
+		IE = "MSIE"
+		FF = "Firefox"
+		SAFARI = "Safari"
+		OPERA  = "Opera"
+	end
+	module OperatingSystems
+		LINUX   = "Linux"
+		MAC_OSX = "Mac OSX"
+		WINDOWS = "Windows"
+
+		UNKNOWN = "Unknown"
+	end
+	
+
 	# Shortcut method for detecting when the DB is active
 	def db
 		framework.db.active
 	end
 	
+	# 
+	# Report a host's liveness and attributes such as operating system and service pack
+	#
+	# opts must contain :host, which is an IP address identifying the host
+	# you're reporting about
+	#
+	# See data/sql/*.sql and lib/msf/core/db.rb for more info
+	#
 	def report_host(opts)
 		return if not db
 		addr = opts[:host] || return
 		framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+
+		opts.delete(:host)
+		if (opts.length > 0) 
+			framework.db.report_host(self, addr, opts)
+		end
 	end
 
+	# 
+	# Report detection of a service
+	#
 	def report_service(opts={})
 		return if not db
 		addr  = opts[:host]  || return

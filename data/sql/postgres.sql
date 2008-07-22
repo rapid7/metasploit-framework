@@ -7,7 +7,12 @@ address VARCHAR(16) UNIQUE,
 comm VARCHAR(255),
 name VARCHAR(255),
 state VARCHAR(255),
-info VARCHAR(1024)
+info VARCHAR(1024),
+os_name VARCHAR(255),
+os_flavor VARCHAR(255),
+os_sp VARCHAR(255),
+os_lang VARCHAR(255),
+arch VARCHAR(255)
 );
 
 drop table services;

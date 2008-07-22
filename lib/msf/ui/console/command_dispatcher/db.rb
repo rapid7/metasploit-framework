@@ -45,7 +45,7 @@ module Db
 
 		def cmd_db_hosts(*args)
 			framework.db.each_host do |host|
-				print_status("Time: #{host.created} Host: #{host.address}")
+				print_status("Time: #{host.created} Host: #{host.address} Status: #{host.state} OS: #{host.os_name} #{host.os_flavor}")
 			end
 		end
 

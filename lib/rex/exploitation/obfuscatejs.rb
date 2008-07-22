@@ -5,6 +5,7 @@ module Exploitation
 # Obfuscates javascript in various ways
 #
 class ObfuscateJS
+	attr_reader :opts
 
 	#
 	# Obfuscates a javascript string.  
@@ -18,8 +19,8 @@ class ObfuscateJS
 	# {
 	#    'Variables'  => [ 'var1', ... ],
 	#    'Methods'    => [ 'method1', ... ],
-	#    'Classes'    => [ { 'Namespace' => 'n', 'Class' => 'y'}, ... ],
-	#    'Namespaces' => [ 'n', ... ]
+	#    'Namespaces' => [ 'n', ... ],
+	#    'Classes'    => [ { 'Namespace' => 'n', 'Class' => 'y'}, ... ]
 	# }
 	#
 	# Make sure you order your methods, classes, and namespaces by most
@@ -52,6 +53,11 @@ class ObfuscateJS
 	# function oJaDYRzFOyJVQCOHk() { var cLprVG = "\x48\x65\x6c\x6c\x6f\x2c\x20\x77\x6f\x72\x6c\x64"; document.writeln(cLprVG); }
 	# </code>
 	#
+	# String obfuscation tries to deal with escaped quotes within strings but
+	# won't catch things like 
+	#     "\\"
+	# so be careful.
+	#
 	def self.obfuscate(js, opts = {})
 		ObfuscateJS.new(js).obfuscate(opts)
 	end
@@ -59,13 +65,49 @@ class ObfuscateJS
 	#
 	# Initialize an instance of the obfuscator
 	#
-	def initialize(js)
+	def initialize(js, opts = {})
 		@js      = js
 		@dynsym  = {}
+		@opts    = {
+			'Symbols' => {
+				'Variables'=>[],
+				'Methods'=>[],
+				'Namespaces'=>[],
+				'Classes'=>[]
+			},
+			'Strings'=>false
+		}
+		@done = false
+		update_opts(opts) if (opts.length > 0)
+	end
+
+	def update_opts(opts)
+		if (opts.nil? or opts.length < 1)
+			return
+		end
+		if (@opts['Symbols'] && opts['Symbols'])
+			['Variables', 'Methods', 'Namespaces', 'Classes'].each { |k|
+				if (@opts['Symbols'][k] && opts['Symbols'][k])
+					opts['Symbols'][k].each { |s|
+						if (not @opts['Symbols'][k].include? s)
+							@opts['Symbols'][k].push(s)
+						end
+					}
+				elsif (opts['Symbols'][k])
+					@opts['Symbols'][k] = opts['Symbols'][k] 
+				end
+			}
+		elsif opts['Symbols']
+			@opts['Symbols'] = opts['Symbols']
+		end
+		@opts['Strings'] = opts['Strings'] || false
 	end
 
 	#
 	# Returns the dynamic symbol associated with the supplied symbol name
+	#
+	# If obfuscation has not yet been performed (i.e. obfuscate() has not been
+	# called), then this method simply returns its argument
 	#
 	def sym(name)
 		@dynsym[name] || name
@@ -75,16 +117,21 @@ class ObfuscateJS
 	# Obfuscates the javascript string passed to the constructor
 	#
 	def obfuscate(opts = {})
+		return @js if (@done)
+		@done = true
+
 		# Remove our comments
 		remove_comments
+		
+		update_opts(opts)
 
-		if opts['Strings']
+		#$stderr.puts @opts.inspect
+		if (@opts['Strings'])
 			obfuscate_strings()
 
-			# Normal space randomization does not work for
-			# javascript -- despite claims that space is irrelavent,
-			# newlines break things.  Instead, use only space (0x20)
-			# and tab (0x09).
+			# Full space randomization does not work for javascript -- despite
+			# claims that space is irrelavent, newlines break things.  Instead,
+			# use only space (0x20) and tab (0x09).
 
 			@js = Rex::Text.compress(@js)
 			@js.gsub!(/\s+/) { |s|
@@ -99,9 +146,9 @@ class ObfuscateJS
 			}
 		end
 		# Globally replace symbols
-		replace_symbols(opts['Symbols']) if opts['Symbols']
+		replace_symbols(@opts['Symbols']) if @opts['Symbols']
 
-		@js
+		return @js
 	end
 
 	#
@@ -113,6 +160,7 @@ class ObfuscateJS
 	alias :to_str :to_s
 
 protected
+	attr_accessor :done
 
 	#
 	# Get rid of both single-line C++ style comments and multiline C style comments.
@@ -157,9 +205,11 @@ protected
 	#
 	# Change each string into some javascript that will generate that string
 	#
-	# This tries to deal with escaped quotes within strings but
-	# won't catch things like 
-	#     "\\"
+	# There are a couple of caveats to using string obfuscation:
+	#   * it tries to deal with escaped quotes within strings but won't catch
+	#     things like: "\\"
+	#   * multiple calls to this method are very likely to result in incorrect
+	#     code.  DON'T CALL THIS METHOD MORE THAN ONCE
 	# so be careful.
 	#
 	def obfuscate_strings()

@@ -107,16 +107,47 @@ class DBManager
 	# Reports a host as being in a given state by address.
 	#
 	def report_host_state(mod, addr, state, context = nil)
-
+		
 		# TODO: use the current thread's Comm to find the host
 		comm = ''
 		host = get_host(context, addr, comm)
 		
 		ostate = host.state
-		host.state
+		host.state = state
 		host.save
 		
 		framework.events.on_db_host_state(context, host, ostate)
+		return host
+	end
+
+	#
+	# Report a host's attributes such as operating system and service pack
+	#
+	# At the time of this writing, the opts parameter can contain:
+	#	:state       -- one of the Msf::HostState constants
+	#	:os_name     -- one of the Msf::Auxiliary::Report::OperatingSystems constants
+	#	:os_flavor   -- something like "XP" or "Gentoo"
+	#	:os_sp       -- something like "SP2"
+	#	:os_lang     -- something like "English" or "French"
+	#	:arch        -- one of the ARCH_* constants
+	#
+	# See <MSF install dir>/data/sql/*.sql for more info
+	#
+	def report_host(mod, addr, opts = {}, context = nil)
+
+		report_host_state(mod, addr, opts[:state] || Msf::HostState::Alive)
+		opts.delete(:state)
+		
+		host = get_host(context, addr, '')
+		
+		opts.each { |k,v|
+			if (host.attribute_names.include?(k.to_s))
+				host[k] = v
+			end
+		}
+
+		host.save 
+		
 		return host
 	end
 
@@ -140,7 +171,7 @@ class DBManager
 		
 		return port
 	end
-	
+
 
 	#
 	# This method iterates the hosts table calling the supplied block with the
