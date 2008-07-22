@@ -192,6 +192,13 @@ class Rex::Socket::Parameters
 	end
 
 	#
+	# Returns true if the protocol for the parameters is IP.
+	#
+	def ip?
+		return (proto == 'ip')
+	end
+	
+	#
 	# Returns true if the socket is a bare socket that does not inherit from
 	# any extended Rex classes.
 	#

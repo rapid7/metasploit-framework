@@ -4,6 +4,7 @@ require 'rex/socket/tcp'
 require 'rex/socket/ssl_tcp'
 require 'rex/socket/ssl_tcp_server'
 require 'rex/socket/udp'
+require 'rex/socket/ip'
 require 'timeout'
 
 ###
@@ -25,11 +26,33 @@ class Rex::Socket::Comm::Local
 				return create_by_type(param, ::Socket::SOCK_STREAM, ::Socket::IPPROTO_TCP)
 			when 'udp'
 				return create_by_type(param, ::Socket::SOCK_DGRAM, ::Socket::IPPROTO_UDP)
+			when 'ip'
+				return create_ip(param)
 			else
 				raise Rex::UnsupportedProtocol.new(param.proto), caller
 		end
 	end
 
+
+	#
+	# Creates a raw IP socket using the supplied Parameter instance.
+	# Special-cased because of how different it is from UDP/TCP
+	#
+	def self.create_ip(param)
+		sock = ::Socket.open(::Socket::PF_INET, ::Socket::SOCK_RAW, ::Socket::IPPROTO_RAW)
+		unless sock.getsockopt(::Socket::SOL_IP, ::Socket::IP_HDRINCL)
+			sock.setsockopt(::Socket::SOL_IP, ::Socket::IP_HDRINCL, true)
+		end		
+
+		return sock if (param.bare?)
+
+		sock.extend(::Rex::Socket::Ip)
+		sock.initsock(param)
+		
+		sock
+	end
+	
+	
 	#
 	# Creates a socket using the supplied Parameter instance.
 	#

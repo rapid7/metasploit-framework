@@ -66,6 +66,13 @@ module Socket
 		return create_param(Rex::Socket::Parameters.from_hash(opts.merge('Proto' => 'udp')))
 	end
 
+	#
+	# Create a IP socket using the supplied parameter hash.
+	#
+	def self.create_ip(opts = {})
+		return create_param(Rex::Socket::Parameters.from_hash(opts.merge('Proto' => 'ip')))
+	end
+	
 	##
 	#
 	# Serialization
