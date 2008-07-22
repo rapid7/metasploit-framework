@@ -101,7 +101,7 @@ protected
 
 			mod.cleanup
 
-			raise $!
+			return
 		end
 	end
 
