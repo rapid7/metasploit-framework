@@ -31,7 +31,7 @@ class Auxiliary::Spoof::Dns::BaliWickedHost < Msf::Auxiliary
 				[
 					[ 'CVE', '2008-1447' ],
 					[ 'US-CERT-VU', '8000113' ],
-					[ 'URL', 'http://www.caughq.org/exploits/CAU-EX-2008-0002.html' ],
+					[ 'URL', 'http://www.caughq.org/exploits/CAU-EX-2008-0002.txt' ],
 				],
 			'Privileged'     => true,
 			'Targets'        => 
