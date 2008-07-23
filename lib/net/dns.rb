@@ -1,1 +1,1 @@
-require "net/dns/dns"
+require "net/dns/resolver"

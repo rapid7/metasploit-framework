@@ -242,7 +242,7 @@ module Socket
 	
 		# IPv4 
 		if (addr.length == 4)
-			return [addr].pack('N').unpack('C4').join('.')
+			return addr.unpack('C4').join('.')
 		end
 		
 		# IPv6
