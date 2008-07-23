@@ -49,7 +49,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			register_options(
 				[
 					OptPort.new('SRCPORT', [true, "The target server's source query port (0 for automatic)", nil]),
-					OptString.new('HOSTNAME', [true, 'Hostname to hijack', 'pwned.doxpara.com']),
+					OptString.new('HOSTNAME', [true, 'Hostname to hijack', 'pwned.example.com']),
 					OptAddress.new('NEWADDR', [true, 'New address for hostname', '1.3.3.7']),
 					OptAddress.new('RECONS', [true, 'Nameserver used for reconnaissance', '208.67.222.222']),
 					OptInt.new('XIDS', [true, 'Number of XIDs to try for each query', 10]),
