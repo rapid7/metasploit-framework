@@ -89,7 +89,7 @@ class Auxiliary::Server::Dns::SpoofHelper < Msf::Auxiliary
 				case tc_s
 				when 'IN::TXT'
                     answer = Resolv::DNS::Resource::IN::TXT.new("#{addr[3]}:#{addr[1]} #{name}")
-                    request.add_answer(name, 60, answer)
+                    request.add_answer(name, 1, answer)
 				end
             }
 			print_status("DNS #{addr[3]}:#{addr[1]} XID #{request.id}")
