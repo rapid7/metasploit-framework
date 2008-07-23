@@ -5,13 +5,13 @@ require 'resolv'
 
 module Msf
 
-class Auxiliary::Spoof::Dns::BaliWickedHost < Msf::Auxiliary
+class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 
 	include Exploit::Remote::Ip
 
 	def initialize(info = {})
 		super(update_info(info,	
-			'Name'           => 'DNS BaliWicked Attack',
+			'Name'           => 'DNS BailiWicked Attack',
 			'Description'    => %q{
 				This exploit attacks a fairly ubiquitous flaw in DNS implementations which 
 				Dan Kaminsky found and disclosed ~Jul 2008.  This exploit caches a single
@@ -21,7 +21,7 @@ class Auxiliary::Spoof::Dns::BaliWickedHost < Msf::Auxiliary
 				malicious host entry for the hostname to be poisoned in the authority and
 				additional records sections.  Eventually, a guessed ID will match and the
 				spoofed packet will get accepted, and due to the additional hostname entry
-				being within baliwick constraints of the original request the malicious host
+				being within bailiwick constraints of the original request the malicious host
 				entry will get cached.
 			},
 			'Author'         => [ 'I)ruid', 'hdm' ],
