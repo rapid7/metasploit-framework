@@ -209,18 +209,18 @@ class Auxiliary::Spoof::Dns::BaliWickedHost < Msf::Auxiliary
 		answer0.answer.each do |rr0|
 			print_status " Got an #{rr0.type} record: #{rr0.inspect}"
 			if rr0.type == 'NS'
-				print_status "Querying recon nameserver for address of #{rr0.nsdname}..."
+				print_status "  Querying recon nameserver for address of #{rr0.nsdname}..."
 				answer1 = res0.send(rr0.nsdname) # get the ns's answer for the hostname
 				#print_status " Got answer with #{answer1.header.anCount} answers, #{answer1.header.nsCount} authorities"
 				answer1.answer.each do |rr1|
-					print_status " Got an #{rr1.type} record: #{rr1.inspect}"
+					print_status "   Got an #{rr1.type} record: #{rr1.inspect}"
 					res2 = Net::DNS::Resolver.new(:nameservers => rr1.address, :dns_search => false, :recursive => false, :retry => 1) 
-					print_status "Checking Authoritativeness: Querying #{rr1.address} for #{domain}..."
+					print_status "    Checking Authoritativeness: Querying #{rr1.address} for #{domain}..."
 					answer2 = res2.send(domain)
 					if answer2 and answer2.header.auth? and answer2.header.anCount >= 1
 						nsrec = {:name => rr0.nsdname, :addr => rr1.address}
 						barbs << nsrec
-						print_status "  #{rr0.nsdname} is authoritative for #{domain}, adding to list of nameservers to spoof as"
+						print_status "    #{rr0.nsdname} is authoritative for #{domain}, adding to list of nameservers to spoof as"
 					end
 				end
 			end	
