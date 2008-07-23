@@ -1,0 +1,1 @@
+require "net/dns/dns"

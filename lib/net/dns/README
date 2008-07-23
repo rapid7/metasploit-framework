@@ -1,0 +1,55 @@
+Net::DNS README
+============
+
+  This is a port of the Perl Net::DNS module, written by Michael Fuhr
+and now currently maintained by Olaf Kolkman (www.net-dns.org). It
+keeps the same interfaces and function names, although has a bit
+improved OO and some other stuff.
+It can be used to query DNS servers for various kind of records, perform
+zone transfer and dynamic updates. It has even a class for acting as a
+nameserver.
+This version is quite incomplete. You can use it as a resolver.
+
+
+Requirements
+------------
+
+  * Ruby 1.6
+
+
+Install
+-------
+
+  De-compress archive and enter its top directory.
+  Then type:
+
+   ($ su)
+    # ruby setup.rb
+
+  These simple step installs this program under the default
+  location of Ruby libraries.  You can also install files into
+  your favorite directory by supplying setup.rb some options.
+  Try "ruby setup.rb --help".
+
+
+Usage
+-----
+
+  Have a look on the manual pages.
+  In doc/ you will find many useful documents too.
+
+
+License
+-------
+
+  Net::DNS is distributed under the same license Ruby is.
+
+
+Author
+------
+
+  See AUTHORS
+
+
+#	$Id: README,v 1.2 2005/06/17 15:11:18 bluemonk Exp $	
+
