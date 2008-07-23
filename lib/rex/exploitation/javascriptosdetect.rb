@@ -114,6 +114,13 @@ function getVersion(){
 				os_flavor = "2000";
 				os_sp = "SP4";
 				break;
+			case "566626":
+				// found on 
+				//   IE 6.0.2600.0000 
+				//   XP SP0
+				os_flaver = "XP"; 
+				os_sp = "SP0";
+				break;
 			case "568827":
 				os_flavor = "2003";
 				os_sp = "SP1";
