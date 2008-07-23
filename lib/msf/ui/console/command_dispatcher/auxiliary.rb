@@ -38,9 +38,6 @@ class Auxiliary
 	#
 	def method_missing(meth, *args)
 		if (mod and mod.respond_to?(meth.to_s))
-			
-			# Verify the options
-			mod.options.validate(mod.datastore)
 
 			# Initialize user interaction
 			mod.init_ui(driver.input, driver.output)
