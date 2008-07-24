@@ -124,8 +124,8 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 		newttl   = datastore['TTL'].to_i
 		xidbase  = rand(65536-xids)
 
-		domain = hostname.match(/[^\x2e]+\x2e[^\x2e]+\x2e$/)[0]
-
+		domain = hostname.sub(/\w+\x2e/,"")
+		
 		srv_sock = Rex::Socket.create_udp(
 			'PeerHost' => target,
 			'PeerPort' => 53
