@@ -20,7 +20,7 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 				replies to those queries from the authoritative nameservers for that domain.
 				Eventually, a guessed ID will match, the spoofed packet will get accepted, and
 				the nameserver entries for the target domain will be replaced by the server
-				specified in the NEWDNS option of this exploit.
+				specified in the NEWDNS option of this exploit. 
 			},
 			'Author'         => 
 				[ 
