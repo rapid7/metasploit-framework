@@ -22,7 +22,14 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 				the nameserver entries for the target domain will be replaced by the server
 				specified in the NEWDNS option of this exploit.
 			},
-			'Author'         => [ 'I)ruid', 'hdm' ],
+			'Author'         => 
+				[ 
+				'	I)ruid', 'hdm',
+					                                      #
+					'Cedric Blancher <sid[at]rstack.org>' # Cedric figured out the NS injection method 
+					                                      # and was cool enough to email us and share!
+					                                      #
+				],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>
