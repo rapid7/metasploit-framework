@@ -216,7 +216,7 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 					print_status "   Got an #{rr1.type} record: #{rr1.inspect}"
 					res2 = Net::DNS::Resolver.new(:nameservers => rr1.address, :dns_search => false, :recursive => false, :retry => 1) 
 					print_status "    Checking Authoritativeness: Querying #{rr1.address} for #{domain}..."
-					answer2 = res2.send(domain)
+					answer2 = res2.send(domain, Net::DNS::SOA)
 					if answer2 and answer2.header.auth? and answer2.header.anCount >= 1
 						nsrec = {:name => rr0.nsdname, :addr => rr1.address}
 						barbs << nsrec
