@@ -40,7 +40,7 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 			register_options(
 				[
 					OptPort.new('SRCPORT', [true, "The target server's source query port (0 for automatic)", nil]),
-					OptString.new('DOMAIN', [true, 'The domain to hijack', 'doxpara.com']),
+					OptString.new('DOMAIN', [true, 'The domain to hijack', 'example.com']),
 					OptString.new('NEWDNS', [true, 'The hostname of the replacement DNS server', nil]),
 					OptAddress.new('RECONS', [true, 'Nameserver used for reconnaissance', '208.67.222.222']),
 					OptInt.new('XIDS', [true, 'Number of XIDs to try for each query', 10]),
