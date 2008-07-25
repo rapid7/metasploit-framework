@@ -1027,7 +1027,7 @@ module Net # :nodoc:
       # Parse a configuration file specified as the argument. 
       #
       def parse_config_file
-        if RUBY_PLATFORM =~ /win/
+        if RUBY_PLATFORM =~ /mswin32|cygwin|mingw|bccwin/
           require 'win32/resolv'
           arr = Win32::Resolv.get_resolv_info
           self.domain = arr[0]
