@@ -39,11 +39,8 @@ class Rex::Socket::Comm::Local
 	# Special-cased because of how different it is from UDP/TCP
 	#
 	def self.create_ip(param)
-		sock = ::Socket.open(::Socket::AF_INET, ::Socket::SOCK_RAW, ::Socket::IPPROTO_RAW)
-
-		unless sock.getsockopt(::Socket::IPPROTO_IP, ::Socket::IP_HDRINCL)
-			sock.setsockopt(::Socket::IPPROTO_IP, ::Socket::IP_HDRINCL, true)
-		end	
+		sock = ::Socket.open(::Socket::PF_INET, ::Socket::SOCK_RAW, ::Socket::IPPROTO_RAW)
+		sock.setsockopt(::Socket::IPPROTO_IP, ::Socket::IP_HDRINCL, 1)
 
 		return sock if (param.bare?)
 

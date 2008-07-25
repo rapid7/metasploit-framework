@@ -87,7 +87,7 @@ module Rex::Socket::Ip
 	# Sends a datagram to the supplied host:port with optional flags.
 	#
 	def sendto(gram, peerhost, flags = 0)
-		dest = ::Socket.pack_sockaddr_in(1024, peerhost)
+		dest = ::Socket.pack_sockaddr_in(0, peerhost)
 		send(gram, flags, dest)
 	end
 
