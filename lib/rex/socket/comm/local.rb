@@ -40,9 +40,17 @@ class Rex::Socket::Comm::Local
 	#
 	def self.create_ip(param)
 		sock = ::Socket.open(::Socket::PF_INET, ::Socket::SOCK_RAW, ::Socket::IPPROTO_RAW)
-		unless sock.getsockopt(::Socket::SOL_IP, ::Socket::IP_HDRINCL)
-			sock.setsockopt(::Socket::SOL_IP, ::Socket::IP_HDRINCL, true)
-		end		
+		
+		if(::Socket.const_defined?('SOL_IP'))
+			unless sock.getsockopt(::Socket::SOL_IP, ::Socket::IP_HDRINCL)
+				sock.setsockopt(::Socket::SOL_IP, ::Socket::IP_HDRINCL, true)
+			end			
+		else
+			# Support for BSD
+			unless sock.getsockopt(::Socket::IPPROTO_IP, ::Socket::IP_HDRINCL)
+				sock.setsockopt(::Socket::IPPROTO_IP, ::Socket::IP_HDRINCL, true)
+			end	
+		end
 
 		return sock if (param.bare?)
 
