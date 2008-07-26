@@ -72,6 +72,7 @@ class Auxiliary::Server::Dns::SpoofHelper < Msf::Auxiliary
 		begin
 			name = ''
 			while @run
+				reply = false
 				packet, addr = @sock.recvfrom(65535)
 				if (packet.length == 0)
 					break
@@ -90,10 +91,11 @@ class Auxiliary::Server::Dns::SpoofHelper < Msf::Auxiliary
 						print_status("DNS #{addr[3]}:#{addr[1]} XID #{request.id} #{name}")						
 						answer = Resolv::DNS::Resource::IN::TXT.new("#{addr[3]}:#{addr[1]} #{name}")
 						request.add_answer(name, 1, answer)
+						reply = true
 					end
 				}
 
-				@sock.send(request.encode(), 0, addr[3], addr[1])
+				@sock.send(request.encode(), 0, addr[3], addr[1]) if reply
 			end
 
 		# Make sure the socket gets closed on exit
