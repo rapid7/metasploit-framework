@@ -81,10 +81,11 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 		)		
 
 		random = false
-		ports  = []
+		ports  = {}
 		lport  = nil
+		reps   = 0
 		
-		1.upto(5) do |i|
+		1.upto(30) do |i|
 		
 			req = Resolv::DNS::Message.new
 			txt = "spoofprobe-check-#{i}-#{$$}#{(rand()*1000000).to_i}.red.metasploit.com"
@@ -92,10 +93,11 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 			req.rd = 1
 			
 			srv_sock.put(req.encode)
-			res, addr = srv_sock.recvfrom()
-			
+			res, addr = srv_sock.recvfrom(65535, 1.0)
+
 
 			if res and res.length > 0
+				reps += 1
 				res = Resolv::DNS::Message.decode(res)
 				res.each_answer do |name, ttl, data|
 					if (name.to_s == txt and data.strings.join('') =~ /^([^\s]+)\s+.*red\.metasploit\.com/m)
@@ -107,24 +109,38 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 							random = true
 						end
 						lport  = t_port
-						ports << t_port
+						ports[t_port] ||=0
+						ports[t_port]  +=1
 					end
 				end
+			end
+			
+	
+			if(i>5 and ports.keys.length == 0)
+				break
 			end	
 		end
 		
 		srv_sock.close
 		
-		if(ports.length < 5)
-			print_status("UNKNOWN: This server did not reply to our vulnerability check requests")
+		if(ports.keys.length == 0)
+			print_status("ERROR: This server is not replying to recursive requests")
 			return
 		end
 		
+		if(reps < 30)
+			print_status("WARNING: This server did not reply to all of our requests")
+		end
+		
 		if(random)
-			print_status("PASS: This server does not use a static source port. Ports: #{ports.join(", ")}")
-			print_status("      This server may still be exploitable, but not by this tool.")
+			ports_u = ports.keys.length
+			ports_r = ((ports.keys.length/30.0)*100).to_i
+			print_status("PASS: This server does not use a static source port. Randomness: #{ports_u}/30 %#{ports_r}")
+			if(ports_r != 100)
+				print_status("INFO: This server's source ports are not really random and may still be exploitable, but not by this tool.")
+			end
 		else
-			print_status("FAIL: This server uses static source ports and is vulnerable to poisoning")
+			print_status("FAIL: This server uses a static source port and is vulnerable to poisoning")
 		end
 	end
 		
