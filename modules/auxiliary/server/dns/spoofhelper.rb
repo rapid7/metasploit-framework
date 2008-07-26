@@ -78,6 +78,7 @@ class Auxiliary::Server::Dns::SpoofHelper < Msf::Auxiliary
 					break
 				end
 
+				names = []
 				request = Resolv::DNS::Message.decode(packet)
 
 				request.each_question {|name, typeclass|
@@ -85,17 +86,22 @@ class Auxiliary::Server::Dns::SpoofHelper < Msf::Auxiliary
 
 					request.qr = 1
 					request.ra = 1
-
+					
+					names << "IN #{tc_s} #{name}"
 					case tc_s
 					when 'IN::TXT'
-						print_status("DNS #{addr[3]}:#{addr[1]} XID #{request.id} #{name}")						
-						answer = Resolv::DNS::Resource::IN::TXT.new("#{addr[3]}:#{addr[1]} #{name}")
+						print_status("Answering DNS #{addr[3]}:#{addr[1]} XID #{request.id} #{name}")						
+						answer = Resolv::DNS::Resource::IN::TXT.new("#{addr[3]}:#{addr[1]} #{names.join(",")}")
 						request.add_answer(name, 1, answer)
 						reply = true
 					end
 				}
-
-				@sock.send(request.encode(), 0, addr[3], addr[1]) if reply
+				
+				if(reply)
+					@sock.send(request.encode(), 0, addr[3], addr[1])
+				else
+					print_status("Ignoring request DNS #{addr[3]}:#{addr[1]} XID #{request.id} #{names.join(",")}")
+				end
 			end
 
 		# Make sure the socket gets closed on exit
