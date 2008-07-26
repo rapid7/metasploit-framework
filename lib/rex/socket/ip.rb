@@ -96,9 +96,9 @@ module Rex::Socket::Ip
 			Rex::Compat.is_bsdi or
 			Rex::Compat.is_macosx
 		  )
-		  	dgram=dgram.dup
-			dgram[2,2]=dgram[2,2].unpack("n").pack("s")
-			dgram[6,2]=dgram[6,2].unpack("n").pack("s")
+		  	gram=gram.dup
+			gram[2,2]=gram[2,2].unpack("n").pack("s")
+			gram[6,2]=gram[6,2].unpack("n").pack("s")
 		end
 		
 		send(gram, flags, dest)
