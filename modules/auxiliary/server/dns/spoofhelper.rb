@@ -90,7 +90,7 @@ class Auxiliary::Server::Dns::SpoofHelper < Msf::Auxiliary
 					names << "IN #{tc_s} #{name}"
 					case tc_s
 					when 'IN::TXT'
-						print_status("Answering DNS #{addr[3]}:#{addr[1]} XID #{request.id} #{name}")						
+						print_status("#{Time.now.to_s} PASSED #{addr[3]}:#{addr[1]} XID #{request.id} #{name}")						
 						answer = Resolv::DNS::Resource::IN::TXT.new("#{addr[3]}:#{addr[1]} #{names.join(",")}")
 						request.add_answer(name, 1, answer)
 						reply = true
@@ -100,7 +100,7 @@ class Auxiliary::Server::Dns::SpoofHelper < Msf::Auxiliary
 				if(reply)
 					@sock.send(request.encode(), 0, addr[3], addr[1])
 				else
-					print_status("Ignoring request DNS #{addr[3]}:#{addr[1]} XID #{request.id} #{names.join(",")}")
+					print_status("#{Time.now.to_s} IGNORE #{addr[3]}:#{addr[1]} XID #{request.id} #{names.join(",")}")
 				end
 			end
 
