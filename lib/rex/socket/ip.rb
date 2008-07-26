@@ -88,6 +88,19 @@ module Rex::Socket::Ip
 	#
 	def sendto(gram, peerhost, flags = 0)
 		dest = ::Socket.pack_sockaddr_in(0, peerhost)
+		
+		# Some BSDs require byteswap for len and offset
+		if(
+			Rex::Compat.is_freebsd or
+			Rex::Compat.is_netbsd or
+			Rex::Compat.is_bsdi or
+			Rex::Compat.is_macosx
+		  )
+		  	dgram=dgram.dup
+			dgram[2,2]=dgram[2,2].unpack("n").pack("s")
+			dgram[6,2]=dgram[6,2].unpack("n").pack("s")
+		end
+		
 		send(gram, flags, dest)
 	end
 

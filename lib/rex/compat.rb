@@ -29,21 +29,42 @@ ENABLE_PROCESSED_INPUT = 1
 #
 # Platform detection
 #
+
+@@is_windows = @@is_macosx = @@is_linux = @@is_bsdi = @@is_freebsd = @@is_netbsd = @@is_openbsd = false
+
 def self.is_windows
-	(RUBY_PLATFORM =~ /mswin32/) ? true : false
+	return @@is_windows if @@is_windows
+	@@is_windows = (RUBY_PLATFORM =~ /mswin32/) ? true : false
 end
 
 def self.is_macosx
-	(RUBY_PLATFORM =~ /darwin/) ? true : false
+	return @@is_macosx if @@is_macosx
+	@@is_macosx = (RUBY_PLATFORM =~ /darwin/) ? true : false
 end
 
 def self.is_linux
-	(RUBY_PLATFORM =~ /linux/) ? true : false
+	return @@is_linux if @@is_linux
+	@@is_linux = (RUBY_PLATFORM =~ /linux/) ? true : false
 end
 
+def self.is_bsdi
+	return @@is_bsdi if @@is_bsdi
+	@@is_bsdi = (RUBY_PLATFORM =~ /bsdi/i) ? true : false
+end
+
+def self.is_netbsd
+	return @@is_netbsd if @@is_netbsd
+	@@is_netbsd = (RUBY_PLATFORM =~ /netbsd/) ? true : false
+end
 
 def self.is_freebsd
-	(RUBY_PLATFORM =~ /freebsd/) ? true : false
+	return @@is_freebsd if @@is_freebsd
+	@@is_freebsd = (RUBY_PLATFORM =~ /freebsd/) ? true : false
+end
+
+def self.is_openbsd
+	return @@is_openbsd if @@is_openbsd
+	@@is_openbsd = (RUBY_PLATFORM =~ /openbsd/) ? true : false
 end
 
 def self.open_browser(url='http://metasploit.com/')
