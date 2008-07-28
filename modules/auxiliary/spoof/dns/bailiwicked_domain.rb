@@ -49,7 +49,7 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 					OptString.new('NEWDNS', [true, 'The hostname of the replacement DNS server', nil]),
 					OptAddress.new('RECONS', [true, 'The nameserver used for reconnaissance', '208.67.222.222']),
 					OptInt.new('XIDS', [true, 'The number of XIDs to try for each query (0 for automatic)', 0]),
-					OptInt.new('TTL', [true, 'The TTL for the malicious NS entry', 31337]),
+					OptInt.new('TTL', [true, 'The TTL for the malicious host entry', rand(20000)+30000]),
 				], self.class)
 					
 	end
