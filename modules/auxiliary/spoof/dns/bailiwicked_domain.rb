@@ -276,7 +276,7 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 				disconnect_ip
 				return
 			end			
-			print_status("Sending #{numxids} spoofed replies for each query")
+			print_status("Sending #{numxids} spoofed replies from each nameserver (#{barbs.length}) for each query")
 		end
 		
 		# Flood the target with queries and spoofed responses, one will eventually hit
@@ -355,7 +355,7 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 						disconnect_ip
 						return
 					end
-					print_status("Now sending #{numxids} spoofed replies for each query")
+					print_status("Now sending #{numxids} spoofed replies from each nameserver (#{barbs.length}) for each query")
 				end	
 			end
 
@@ -465,7 +465,7 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 			
 			sock.put(req.encode)		
 		end
-		
+
 		Thread.critical = false
 		
 		min_time = (times.map{|i| i[0]}.min * 100).to_i / 100.0

