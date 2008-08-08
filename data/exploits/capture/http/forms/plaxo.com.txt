@@ -1,0 +1,1 @@
+<form action='http://pulse.plaxo.com/pulse/search/publicPeopleSearch' method='GET' onsubmit='return validateSearch();'> <input name="q" class="text" type="text" id="directoryQuery" /><input class="button" type="submit" value="" /></form>

@@ -1,0 +1,1 @@
+<form name='form1' action='loginprocess.php' method='POST'> <input name="flogin" size="20" /><input name="fpassword" size="20" type="password" /><input name="fcookie" type="checkbox" value="" /><input type="submit" value="" /></form>
