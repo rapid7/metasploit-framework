@@ -45,7 +45,14 @@ class Auxiliary::Server::FakeDNS < Msf::Auxiliary
 			[
 				OptAddress.new('SRVHOST',   [ true, "The local host to listen on.", '0.0.0.0' ]),
 				OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 53 ]),
-				OptAddress.new('TARGETHOST', [ false, "The address that all names should resolve to", nil ])
+				OptAddress.new('TARGETHOST', [ false, "The address that all names should resolve to", nil ]),
+
+			], self.class)
+
+		register_advanced_options(
+			[
+				OptBool.new('LogConsole', [ false, "Determines whether to log all request to the console", true]),
+				OptBool.new('LogDatabase', [ false, "Determines whether to log all request to the database", false]),
 			], self.class)
 	end
 
@@ -64,8 +71,16 @@ class Auxiliary::Server::FakeDNS < Msf::Auxiliary
 
 		@port = datastore['SRVPORT'].to_i
 
-		# LOG REQUESTS?
-		@log_requests = false
+		@log_console  = false
+		@log_database = false
+		
+		if (datastore['LogConsole'].to_s.match(/^(t|y|1)/i))
+			@log_console = true
+		end
+		
+		if (datastore['LogDatabase'].to_s.match(/^(t|y|1)/i))
+			@log_database = true
+		end
 		
         # MacOS X workaround
         ::Socket.do_not_reverse_lookup = true
@@ -157,9 +172,12 @@ class Auxiliary::Server::FakeDNS < Msf::Auxiliary
 					lst << "UNKNOWN #{tc_s}"
 				end
             }
-			print_status("DNS #{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})")
 			
-			if(@log_requests)
+			if(@log_console)
+				print_status("DNS #{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})")
+			end
+			
+			if(@log_database)
 				report_note(
 					:host => addr[3],
 					:type => "dns_lookup",
