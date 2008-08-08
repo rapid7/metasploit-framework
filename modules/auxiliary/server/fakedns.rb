@@ -45,7 +45,7 @@ class Auxiliary::Server::FakeDNS < Msf::Auxiliary
 			[
 				OptAddress.new('SRVHOST',   [ true, "The local host to listen on.", '0.0.0.0' ]),
 				OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 53 ]),
-				OptString.new('TARGETHOST', [ false, "The address that all names should resolve to", nil ])
+				OptAddress.new('TARGETHOST', [ false, "The address that all names should resolve to", nil ])
 			], self.class)
 	end
 
@@ -57,14 +57,16 @@ class Auxiliary::Server::FakeDNS < Msf::Auxiliary
 		if(@targ and @targ.strip.length == 0)
 			@targ = nil
 		end
+		
+		if(@targ)
+			@targ = ::Rex::Socket.resolv_to_dotted(@targ)
+		end
 
 		@port = datastore['SRVPORT'].to_i
-
 
 		# LOG REQUESTS?
 		@log_requests = false
 		
-
         # MacOS X workaround
         ::Socket.do_not_reverse_lookup = true
             
