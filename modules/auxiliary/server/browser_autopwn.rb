@@ -197,7 +197,7 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 				response = build_sploit_response(cli, request)
 				response['Expires'] = '0'
 				response['Cache-Control'] = 'must-revalidate'
-
+				
 				cli.send_response(response)
 			else
 				print_error("I don't know how to handle this request #{request.uri}, sending 404")
