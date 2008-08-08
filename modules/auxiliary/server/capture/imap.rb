@@ -58,7 +58,7 @@ class Auxiliary::Server::Capture::Imap < Msf::Auxiliary
 	
 	def on_client_connect(c)
 		@state[c] = {:name => "#{c.peerhost}:#{c.peerport}", :ip => c.peerhost, :port => c.peerport, :user => nil, :pass => nil}
-		c.put "* OK IMAP4\r\n\r\n"
+		c.put "* OK IMAP4\r\n"
 	end
 	
 	def on_client_data(c)
@@ -66,6 +66,12 @@ class Auxiliary::Server::Capture::Imap < Msf::Auxiliary
 		return if not data
 		num,cmd,arg = data.strip.split(/\s+/, 3)
 		arg ||= ""
+		
+		
+		if(cmd.upcase == "CAPABILITY") 
+			c.put "* CAPABILITY IMAP4 IMAP4rev1 IDLE LOGIN-REFERRALS MAILBOX-REFERRALS NAMESPACE LITERAL+ UIDPLUS CHILDREN\r\n"
+			c.put "#{num} OK CAPABILITY completed.\r\n"
+		end
 		
 		if(cmd.upcase == "LOGIN")
 			@state[c][:user], @state[c][:pass] = arg.split(/\s+/, 2)

