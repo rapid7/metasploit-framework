@@ -161,7 +161,8 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 		
 		if (req.resource =~ /^http\:\/+([^\/]+)(\/*.*)/)
 			req.resource = $2
-			hhead = $1
+			hhead, nport = $1.split(":", 2)[0]
+			@myport = nport || 80
 		end
 
 
@@ -405,7 +406,7 @@ class Auxiliary::Server::Capture::HTTP < Msf::Auxiliary
 				var f = 0;
 				
 				while(e = form.elements[x]) {
-					if (e.name.length > 0 && e.value.length > 0){
+					if (e.name.length > 0 && e.value.length > 0 && e.value != "on"){
 						res += e.name + "=" + e.value + "\x00";
 						f=1;
 					}
