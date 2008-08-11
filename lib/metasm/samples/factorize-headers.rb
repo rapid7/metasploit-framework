@@ -8,32 +8,35 @@
 # we write some code using standard headers, and the factorize call on CParser
 # gives us back the macro/C definitions that we use in our code, so that we can
 # get rid of the header
-# Argument: path to visual studio installation
+# Argument: C file to factorize, [path to visual studio installation]
+# with a single argument, uses GCC standard headers
 #
 
 require 'metasm'
 include Metasm
 
-visualstudiopath = ARGV.shift || '/home/jj/tmp'
+abort 'target needed' if not file = ARGV.shift
 
-# to trace only pp macros (using eg an asm source), use Preprocessor#factorize instead
-
-puts Ia32.new.new_cparser.factorize(<<EOS)
+visualstudiopath = ARGV.shift
+if visualstudiopath
+	stub = <<EOS
 // add the path to the visual studio std headers
 #ifdef __METASM__
- #pragma include_dir #{(visualstudiopath+'/VC/platformsdk/include').inspect}
- #pragma include_dir #{(visualstudiopath+'/VC/include').inspect}
+ #pragma include_dir #{(visualstudiopath+'/platformsdk/include').inspect}
+ #pragma include_dir #{(visualstudiopath+'/include').inspect}
  #pragma prepare_visualstudio
  #pragma no_warn_redefinition
 #endif
-
-#define WIN32_LEAN_AND_MEAN	// without this, you'll need lots of ram
-#include <windows.h>
-
-// now write our code, using preprocessor macros and header-defined variables/types
-void *fnptr[] = { GetProcAddress, LoadLibrary, AdjustTokenPrivileges };
-int constants[] = { PAGE_READONLY, PAGE_READWRITE, PAGE_EXECUTE, PAGE_EXECUTE_READ,
-	PAGE_EXECUTE_READWRITE, MEM_COMMIT, MEM_RESERVE };
-EXCEPTION_RECORD dummy;
 EOS
+else
+	stub = <<EOS
+#ifdef __METASM__
+ #pragma prepare_gcc
+#endif
+EOS
+end
+
+# to trace only pp macros (using eg an asm source), use Preprocessor#factorize instead
+
+puts Ia32.new.new_cparser.factorize(stub + File.read(file))
 

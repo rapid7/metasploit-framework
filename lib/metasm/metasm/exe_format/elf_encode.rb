@@ -13,15 +13,15 @@ class ELF
 		def encode elf
 			set_default_values elf
 
-			@indent[0,4] = @magic
-			@indent[4] = elf.int_from_hash(@e_class, CLASS)
-			@indent[5] = elf.int_from_hash(@data, DATA)
-			@indent[6] = elf.int_from_hash(@i_version, VERSION)
-			@indent[7] = elf.int_from_hash(@abi, ABI)
-			@indent[8] = @abi_version
+			@ident[0,4] = @magic
+			@ident[4] = elf.int_from_hash(@e_class, CLASS)
+			@ident[5] = elf.int_from_hash(@data, DATA)
+			@ident[6] = elf.int_from_hash(@i_version, VERSION)
+			@ident[7] = elf.int_from_hash(@abi, ABI)
+			@ident[8] = @abi_version
 
 			EncodedData.new <<
-			@indent <<
+			@ident <<
 			elf.encode_half(elf.int_from_hash(@type, TYPE)) <<
 			elf.encode_half(elf.int_from_hash(@machine, MACHINE)) <<
 			elf.encode_word(elf.int_from_hash(@version, VERSION)) <<
@@ -38,7 +38,7 @@ class ELF
 		end
 
 		def set_default_values elf
-			@indent    ||= 0.chr*16
+			@ident    ||= 0.chr*16
 			@magic     ||= "\x7fELF"
 			@e_class   ||= elf.bitsize.to_s
 			@data      ||= (elf.endianness == :big ? 'MSB' : 'LSB')
@@ -245,7 +245,7 @@ class ELF
 		# order: r rx rw noalloc
 		rank = proc { |sec|
 			f = sec.flags
-			sec.type == 'NULL' ? -1 :
+			sec.type == 'NULL' ? -2 : sec.addr ? -1 :
 			f.include?('ALLOC') ? !f.include?('WRITE') ? !f.include?('EXECINSTR') ? 0 : 1 : 2 : 3
 		}
 		srank = rank[s]
@@ -649,6 +649,8 @@ class ELF
 			s.encoded.reloc.each_value { |r|
 				if r.target.op == :- and r.target.rexpr.kind_of?(::String) and r.target.lexpr.kind_of?(::String)
 					symname = r.target.lexpr
+				else
+					symname = r.target.reduce_rec
 				end
 				next if not dll = autoexports[symname]
 				@tag['NEEDED'] ||= []
@@ -753,9 +755,13 @@ class ELF
 		}
 
 		# put every section in a segment
+		# assume addr-bound sections come first in @sections, and are addr-ordered
 		@sections.each { |sec|
 			if sec.flags and sec.flags.include? 'ALLOC'
-				if not seg = @segments.find { |seg| seg.type == 'LOAD' and not seg.memsz and prot_match[seg.flags, sec.flags] }
+				if sec.addr or not seg = @segments.find { |seg| seg.type == 'LOAD' and not seg.memsz and prot_match[seg.flags, sec.flags] and
+						not @segments[@segments.index(seg)+1..-1].find { |sseg|
+							sseg.type == 'LOAD' and o = Expression[sseg.vaddr, :-, [seg.vaddr, :+, seg.encoded.length+sec.encoded.length]].reduce and o.kind_of? ::Integer and o < 0
+						} }
 					seg = Segment.new
 					seg.type = 'LOAD'
 					seg.flags = ['R']
@@ -763,7 +769,7 @@ class ELF
 					seg.align = 0x1000
 					seg.encoded = EncodedData.new
 					seg.offset = new_label('segment_offset')
-					seg.vaddr = new_label('segment_address')
+					seg.vaddr = sec.addr || new_label('segment_address')
 					@segments << seg
 				end
 				seg.flags |= ['X'] if sec.flags.include? 'EXECINSTR'
@@ -775,7 +781,10 @@ class ELF
 		}
 		# ensure PT_INTERP is mapped if present
 		if interp = @segments.find { |i| i.type == 'INTERP' }
-			if not seg = @segments.find { |seg| seg.type == 'LOAD' and not seg.memsz and interp.flags & seg.flags == interp.flags }
+			if not seg = @segments.find { |seg| seg.type == 'LOAD' and not seg.memsz and interp.flags & seg.flags == interp.flags and
+					not @segments[@segments.index(seg)+1..-1].find { |sseg|
+						sseg.type == 'LOAD' and o = Expression[sseg.vaddr, :-, [seg.vaddr, :+, seg.encoded.length+interp.encoded.length]].reduce and o.kind_of? ::Integer and o < 0
+					} }
 				seg = Segment.new
 				seg.type = 'LOAD'
 				seg.flags = interp.flags.dup
@@ -797,6 +806,7 @@ class ELF
 			seg = Segment.new
 			seg.type = 'LOAD'
 			seg.flags = ['R', 'W']
+			seg.encoded = EncodedData.new
 			@segments << seg
 		end
 
@@ -812,33 +822,82 @@ class ELF
 			@segments << seg
 		end
 
-		if false
-		phdr = Segment.new
-		phdr.type = 'PHDR'
-		phdr.flags = @segments.find { |seg| seg.type == 'LOAD' }.flags
-		@segments.unshift phdr
+		# use variables in the first segment descriptor, to allow fixup later
+		# (when we'll be able to include the program header)
+		if first_seg = @segments.find { |seg| seg.type == 'LOAD' }
+			first_seg_oaddr = first_seg.vaddr	# section's vaddr depend on oaddr
+			first_seg_off = first_seg.offset
+			first_seg.vaddr  = new_label('segvaddr')
+			first_seg.offset = new_label('segoff')
+			first_seg.memsz  = new_label('segmemsz')
+			first_seg.filesz = new_label('segfilsz')
 		end
 
+		if first_seg and not @segments.find { |seg| seg.type == 'PHDR' }
+			phdr = Segment.new
+			phdr.type = 'PHDR'
+			phdr.flags = first_seg.flags
+			phdr.offset = new_label('segoff')
+			phdr.vaddr = new_label('segvaddr')
+			phdr.filesz = phdr.memsz = new_label('segmemsz')
+			@segments.unshift phdr
+		end
+
+		# encode section&program headers
 		st = @sections.inject(EncodedData.new) { |edata, s| edata << s.encode(self) }
 		pt = @segments.inject(EncodedData.new) { |edata, s| edata << s.encode(self) }
 
+		binding = {}
 		@encoded << @header.encode(self)
-
-		addr = @header.type == 'EXEC' ? 0x08048000 : 0
-		binding = @encoded.binding(addr)
+		@encoded.align 8
 		binding[@header.phoff] = @encoded.length
+		if phdr
+			binding[phdr.offset] = @encoded.length
+			pt.add_export phdr.vaddr, 0
+			binding[phdr.memsz] = pt.length
+		end
 		@encoded << pt
 		@encoded.align 8
 
-		addr += @encoded.length
+		if first_seg
+			# put headers into the 1st mmaped segment
+			if first_seg_oaddr.kind_of? ::Integer
+				# pad headers to align the 1st segment's data
+				@encoded.virtsize += (first_seg_oaddr - @encoded.virtsize) & 0xfff
+				addr = first_seg_oaddr - @encoded.length
+			else
+				addr = ((@header.type == 'EXEC') ? 0x08048000 : 0)
+				binding[first_seg_oaddr] = addr + @encoded.length
+			end
+			binding[first_seg_off] = @encoded.length
+			first_seg.encoded = @encoded << first_seg.encoded
+			@encoded = EncodedData.new
+			binding[first_seg.memsz] = first_seg.encoded.virtsize
+			binding[first_seg.filesz] = first_seg.encoded.rawsize
+		end
+
 		@segments.each { |seg|
 			next if not seg.encoded
-			binding[seg.vaddr] = addr
+			if seg.vaddr.kind_of? ::Integer
+				raise "cannot put segment at address #{Expression[seg.vaddr]} (now at #{Expression[addr]})" if seg.vaddr < addr
+				addr = seg.vaddr
+			else
+				binding[seg.vaddr] = addr
+			end
+			# ensure seg.vaddr & page_size == seg.offset & page_size
+			@encoded.virtsize += (addr - @encoded.virtsize) & 0xfff
 			binding.update seg.encoded.binding(addr)
 			binding[seg.offset] = @encoded.length
 			seg.encoded.align 8
-			@encoded << seg.encoded
-			addr += seg.encoded.length + 0x1000	# 1page gap for memory permission enforcement
+			@encoded << seg.encoded[0, seg.encoded.rawsize]
+			addr += seg.encoded.length
+
+			# page break for memory permission enforcement
+			if @segments[@segments.index(seg)+1..-1].find { |seg| seg.encoded and seg.vaddr.kind_of? ::Integer }
+				addr += 0x1000 - (addr & 0xfff) if addr & 0xfff != 0 # minimize memory size
+			else
+				addr += 0x1000 # minimize file size
+			end
 		}
 
 		binding[@header.shoff] = @encoded.length
@@ -890,7 +949,9 @@ class ELF
 	# syntax:
 	#   .section "<name>" [<perms>] [base=<base>]
 	#     change current section (where normal instruction/data are put)
-	#     perms = list of 'w' 'x' 'alloc', may be prefixed by 'no' to remove perm from an existing section
+	#     perms = list of 'w' 'x' 'alloc', may be prefixed by 'no'
+	#       'r' ignored
+	#       defaults to 'alloc'
 	#     shortcuts: .text .data .rodata .bss
 	#     base: immediate expression representing the section base address
 	#   .entrypoint [<label>]
@@ -901,15 +962,18 @@ class ELF
 	#     builds a symbol with specified type/scope/size, type defaults to 'func'
 	#     if plt_label_name is specified, the compiler will build an entry in the plt for this symbol, with this label (PIC & on-demand resolution)
 	#     XXX plt ignored (automagic)
+	#   .symbol [global|weak|local] "<name>" ...   see .global/.weak/.local
 	#   .needed "<libpath>"
 	#     marks the elf as requiring the specified library (DT_NEEDED)
 	#   .soname "<soname>"
 	#     defines the current elf DT_SONAME (exported library name)
 	#   .interp "<interpreter_path>"
-	#     defines the ELF interpreter required (if directive not specified, set to '/lib/ld.so')
-	#     use 'nil' to remove interpreter
+	#   .nointerp
+	#     defines the required ELF interpreter
+	#     defaults to '/lib/ld.so'
+	#     'nil'/'none' remove the interpreter specification
 	#   .pt_gnu_stack rw|rwx
-	#     defines the PT_GNU_STACK flag (defaults to rw)
+	#     defines the PT_GNU_STACK flag (default: unspecified, => rwx)
 	#   .init/.fini [<label>]
 	#     defines the DT_INIT/DT_FINI dynamic tags, same semantic as .entrypoint
 	#   .init_array/.fini_array/.preinit_array <label> [, <label>]*
@@ -946,21 +1010,21 @@ class ELF
 			check_eol[] if instr.backtrace  # special case for magic @cursource
 			
 		when '.section'
-			# .section <section name|"section name"> [(no) w x alloc] [base=<expr>]
+			# .section <section name|"section name"> [(no)wxalloc] [base=<expr>]
 			sname = readstr[]
 			if not s = @sections.find { |s| s.name == sname }
 				s = Section.new
 				s.type = 'PROGBITS'
 				s.name = sname
 				s.encoded = EncodedData.new
-				s.flags = []
+				s.flags = ['ALLOC']
 				@sections << s
 			end
 			loop do
 				@lexer.skip_space
 				break if not tok = @lexer.nexttok or tok.type != :string
 				case @lexer.readtok.raw.downcase
-				when /^(no)?(w)?(x)?(alloc)?$/
+				when /^(no)?r?(w)?(x)?(alloc)?$/
 					ar = []
 					ar << 'WRITE' if $2
 					ar << 'EXECINSTR' if $3
@@ -970,9 +1034,9 @@ class ELF
 					end
 				when 'base'
 					@lexer.skip_space
-					raise instr, 'syntax error' if not tok = @lexer.readtok or tok.type != :punct or tok.raw != '='
-					raise instr, 'syntax error' if not s.addr = Expression.parse(@lexer).reduce or not s.addr.kind_of? Integer
-				else raise instr, 'unknown parameter'
+					@lexer.readtok if tok = @lexer.nexttok and tok.type == :punct and tok.raw == '='
+					raise instr, 'bad section base' if not s.addr = Expression.parse(@lexer).reduce or not s.addr.kind_of? ::Integer
+				else raise instr, 'unknown specifier'
 				end
 			end
 			@cursource = @source[sname] ||= []
@@ -982,7 +1046,7 @@ class ELF
 			# ".entrypoint <somelabel/expression>" or ".entrypoint" (here)
 			@lexer.skip_space
 			if tok = @lexer.nexttok and tok.type == :string
-				raise instr, 'syntax error' if not entrypoint = Expression.parse(@lexer)
+				raise instr if not entrypoint = Expression.parse(@lexer)
 			else
 				entrypoint = new_label('entrypoint')
 				@cursource << Label.new(entrypoint, instr.backtrace.dup)
@@ -990,11 +1054,15 @@ class ELF
 			@header.entry = entrypoint
 			check_eol[]
 
-		when '.global', '.weak', '.local'
+		when '.global', '.weak', '.local', '.symbol'
+			if instr.raw == '.symbol'
+				bind = readstr[]
+			end
+
 			s = Symbol.new
 			s.name = readstr[]
 			s.type = 'FUNC'
-			s.bind = instr.raw[1..-1].upcase
+			s.bind = (bind || instr.raw[1..-1]).upcase
 			# define s.section ? should check the section exporting s.target, but it may not be defined now
 			
 			# parse pseudo instruction arguments
@@ -1048,12 +1116,14 @@ class ELF
 			@tag['SONAME'] = readstr[]
 			check_eol[]
 
-		when '.interp'
+		when '.interp', '.nointerp'
 			# required ELF interpreter
-			interp = readstr[]
+			interp = ((instr.raw == '.nointerp') ? 'nil' : readstr[])
 
 			@segments.delete_if { |s| s.type == 'INTERP' }
-			if interp != 'nil'
+			case interp.downcase
+			when 'nil', 'no', 'none'
+			else
 				seg = Segment.new
 				seg.type = 'INTERP'
 				seg.encoded = EncodedData.new << interp << 0
@@ -1116,8 +1186,9 @@ class ELF
 	end
 
 	def encode_file(path, *a)
-		super
+		ret = super
 		File.chmod(0755, path) if @header.type == 'EXEC'
+		ret
 	end
 
 	def c_set_default_entrypoint
@@ -1125,7 +1196,7 @@ class ELF
 		if @sections.find { |s| s.encoded and s.encoded.export['_start'] }
 			@header.entry = '_start'
 		elsif @sections.find { |s| s.encoded and s.encoded.export['main'] }
-			# entrypoint stack: [sp] = argc, [sp+1] = argv0, [sp+1] = argv1, [sp+argc] = 0, [sp+argc+1] = envp0, etc
+			# entrypoint stack: [sp] = argc, [sp+1] = argv0, [sp+2] = argv1, [sp+argc+1] = 0, [sp+argc+2] = envp0, etc
 			cp = @cpu.new_cparser
 			cp.parse <<EOS
 __stdcall int main(int, char **, char **);

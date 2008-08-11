@@ -213,10 +213,10 @@ EOS
 			sz = @cpu.size/8
 			sehptr = Indirection.new(Expression[Indirection.new(sehptr, sz, di.address), :+, sz], sz, di.address)
 			a = dasm.backtrace(sehptr, di.address, :include_start => true, :origin => di.address, :type => :x, :detached => true)
-puts "backtrace seh from #{di} => #{a.map { |addr| Expression[addr] }.join(', ')}" if $VERBOSE
+			puts "backtrace seh from #{di} => #{a.map { |addr| Expression[addr] }.join(', ')}" if $VERBOSE
 			a.each { |aa|
 				next if aa == Expression::Unknown
-				l = dasm.label_at(aa, 'seh', 'loc', 'sub')
+				l = dasm.auto_label_at(aa, 'seh', 'loc', 'sub')
 				dasm.addrs_todo << [aa] 
 			}
 			super
@@ -237,7 +237,7 @@ puts "backtrace seh from #{di} => #{a.map { |addr| Expression[addr] }.join(', ')
 			d.c_parser = old_cp
 			@getprocaddr_unknown = []
 			gpa.btbind_callback = proc { |dasm, bind, funcaddr, calladdr, expr, origin, maxdepth|
-				next bind if @getprocaddr_unknown.include? [dasm, calladdr]
+				break bind if @getprocaddr_unknown.include? [dasm, calladdr] or not Expression[expr].externals.include? :eax
 				sz = @cpu.size/8
 				raise 'getprocaddr call error' if not dasm.decoded[calladdr]
 				fnaddr = dasm.backtrace(Indirection.new(Expression[:esp, :+, 2*sz], sz, calladdr), calladdr, :include_start => true, :maxdepth => maxdepth)
@@ -259,6 +259,8 @@ end
 # an instance of a PE file, loaded in memory
 # just change the rva_to_off and the section content decoding methods
 class LoadedPE < PE
+	attr_accessor :load_address
+
 	# just check the bounds / check for 0
 	def rva_to_off(rva)
 		rva if rva and rva > 0 and rva <= @encoded.virtsize
@@ -271,23 +273,85 @@ class LoadedPE < PE
 		}
 	end
 
-	# returns a PE which should give us back when loaded
-	# TODO rebuild imports + revert base relocations
-	def dump(baseaddr = @optheader.image_base, oep = baseaddr + @optheader.entrypoint)
-		pe = PE.new
-		pe.optheader.entrypoint = oep - baseaddr
-		pe.optheader.image_base = @optheader.image_base
-		@sections.each { |s|
+	# reads a loaded PE from memory, returns a PE object
+	# dumps the header, optheader and all sections ; try to rebuild IAT (#memdump_imports)
+	def self.memdump(memory, baseaddr, entrypoint = nil)
+		loaded = LoadedPE.load memory[baseaddr, 0x1000_0000]
+		loaded.load_address = baseaddr
+		loaded.decode
+
+		dump = PE.new(loaded.cpu_from_headers)
+		dump.share_namespace loaded
+		dump.optheader.image_base = baseaddr
+		dump.optheader.entrypoint = (entrypoint || loaded.optheader.entrypoint + baseaddr) - baseaddr
+		dump.directory['resource_table'] = loaded.directory['resource_table']
+
+		loaded.sections.each { |s|
 			ss = Section.new
 			ss.name = s.name
 			ss.virtaddr = s.virtaddr
 			ss.encoded = s.encoded
 			ss.characteristics = s.characteristics
-			pe.sections << s
+			dump.sections << ss
 		}
-		# pe.imports
-		# pe.relocations
-		pe
+
+		loaded.memdump_imports(memory, dump)
+
+		dump
+	end
+
+	# rebuilds an IAT from the loaded pe and the memory
+	# for each loaded iat, find the matching dll in memory
+	# for each loaded iat entry, retrieve the exported name from the loaded dll
+	# then build the dump iat
+	# scans page by page backward from the first iat address for the loaded dll (must not be forwarded)
+	# TODO bound imports
+	def memdump_imports(memory, dump)
+		dump.imports ||= []
+		@imports.each { |id|
+			next if not id.iat or not id.iat.first
+			addr = id.iat.first & ~0xffff
+			256.times { break if memory[addr, 2] == 'MZ' ; addr -= 0x10000 }
+			next if memory[addr, 2] != 'MZ'
+			loaded_dll = LoadedPE.load memory[addr, 0x1000_0000]
+			loaded_dll.load_address = addr
+			loaded_dll.decode_header
+			loaded_dll.decode_exports
+			next if not loaded_dll.export
+
+			dump_id = ImportDirectory.new
+			dump_id.libname = loaded_dll.export.libname
+			dump_id.imports = []
+			dump_id.iat_p = id.iat_p
+
+			id.iat.each { |ptr|
+				if not e = loaded_dll.export.exports.find { |e| e.target == ptr - loaded_dll.load_address }
+					# check for forwarder
+					# XXX won't handle forwarder to forwarder
+					addr = ptr & ~0xffff
+					256.times { break if memory[addr, 2] == 'MZ' ; addr -= 0x10000 }
+					if memory[addr, 2] == 'MZ'
+						f_dll = LoadedPE.load memory[addr, 0x1000_0000]
+						f_dll.decode_header ; f_dll.decode_exports
+						if f_dll.export and ee = f_dll.export.exports.find { |ee| ee.target == ptr - addr }
+							e = loaded_dll.export.exports.find { |e| e.forwarder_name == ee.name }
+						end
+					end
+					if not e
+						dump_id = nil
+						break
+					end
+				end
+				dump_id.imports << ImportDirectory::Import.new
+				if e.name
+					dump_id.imports.last.name = e.name
+				else
+					dump_id.imports.last.ordinal = e.ordinal
+				end
+			}
+
+			dump.imports << dump_id if dump_id
+		} if @imports
 	end
 end
 end

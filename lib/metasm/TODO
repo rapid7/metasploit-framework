@@ -1,16 +1,19 @@
 disasm:
- handle delay slot
- data xref: trackback memory write/read (read is when you read a value and modify it/its derivates, (!= push eax ; trash ; pop eax)) - detect self-modifying code
- remove maxdepth param? + detect loops
+ find a way to recognize non-returning subfunction (eg thunk_exit)
+ DecodedData (dword, string, array, structs? ...)
+ make exe.decode generate DecodedData ? (for elf symbols, import names etc)
+ handle function-local stack space (esp+XX) -> private, nobacktrace
+ handle function-local labels (also rename local stack vars offsets)
+ forward register tracking ? with weak values ?
  path-specific backtracking ( foo: call a ; a: jmp retloc ; bar: call b ; b: jmp retloc ; retloc: ret ; call foo ; ret : last ret trackback should only reach a:)
- disasm some code sequences to C
- externs / C header parser (prototypes, + OS abi ?)
- somehow handle unknown external calls (fake func body with special 'trashed' backtrack instruction to allow abi like 'ebp is kept, eax is mutable' ? could need something like stack not accessed below [esp+12])
- gui
- allow program-wide label renaming
+ function signatures (a la FLIRT?)
 
+decompiler: make one
 ia32: emu fpu
-mips: cpu emu for trackback
-encode: SplitReloc for pseudo-instrs (mips li => reloc high :a16 + reloc low :a16), use Reloc.encode(edata, off) or sumthin for edata.fixup (allows ducktyping)
-asm:  asmpp.pp (instead of asm < pp)
+encode: SplitReloc for pseudo-instrs (mips li => reloc high :a16 + reloc low :a16), use Reloc.encode(edata, off) or sumthin for edata.fixup
+mips: find a way to have a 'li' instruction that resolve as 'loadlow' or 'loadhigh+orlow'
 optimizer/deoptimizer (asm/dasm): reorder instructions
+compile: optimize (jmp -> jmp, non-volatile vars, ..), support intrinsics?
+debug: unify windows/linux API, support hw dbg registers uses (bpx/r/w..)
+gui: debugger, hexedit, C code navigation
+elf: symbol versions

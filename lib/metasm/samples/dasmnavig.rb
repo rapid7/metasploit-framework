@@ -95,7 +95,7 @@ class Viewer
 
 
 	def initialize(text)
-		text = File.read(text) if File.exist? text
+		text = File.read(text) if File.exist? text rescue nil
 		@text = text.gsub("\t", " "*8).to_a.map { |l| l.chomp }
 		@pos = @posh = 0
 		@x = @y = 0
@@ -297,6 +297,7 @@ class Viewer
 		when ?o: @text.insert(@pos+@y+1, '')
 		when ?O: @text.insert(@pos+@y, '') ; handle_key_navig(:down)
 		when :suppr: @text.delete_at(@pos+@y) if @text[@pos+@y] == ''
+		when ?D: @text.delete_at(@pos+@y)
 		when ?/
 			@mode = :search
 			@searchtext = ''

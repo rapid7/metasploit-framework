@@ -84,7 +84,13 @@ class Ia32 < CPU
 			  #64 => %w{rax rcx rdx rbx rsp rbp rsi rdi}
 
 		Sym = @i_to_s[32].map { |s| s.to_sym }
-		def symbolic ; Sym[@val] end
+		def symbolic
+			if @sz == 8 and to_s[-1] == ?h
+				Expression[Sym[@val-4], :>>, 8]
+			else
+				Sym[@val]
+			end
+		end
 	end
 	
 	class Farptr < Argument
@@ -121,13 +127,13 @@ class Ia32 < CPU
 			@seg = seg if seg
 		end
 
-		def symbolic(orig)
+		def symbolic(orig=nil)
 			p = nil
 			p = Expression[p, :+, @b.symbolic] if b
 			p = Expression[p, :+, [@s, :*, @i.symbolic]] if i
 			p = Expression[p, :+, @imm] if imm
 			p = Expression["segment_base_#@seg", :+, p] if seg and seg.val != ((b && (@b.val == 4 || @b.val == 5)) ? 2 : 3)
-			Indirection.new(p, @sz/8, orig).reduce
+			Indirection[p.reduce, @sz/8, orig]
 		end
 	end
 

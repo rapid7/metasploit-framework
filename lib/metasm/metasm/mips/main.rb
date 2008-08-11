@@ -20,10 +20,13 @@ class MIPS < CPU
 		     s0 s1 s2 s3 s4 s5 s6 s7
 		     t8 t9 k0 k1 gp sp fp ra].each_with_index { |r, i| @s_to_i[r] = @s_to_i['$'+r] = i ; @i_to_s[i] = '$'+r }
 
-		attr_reader :i
+		attr_accessor :i
 		def initialize(i)
 			@i = i
 		end
+
+		Sym = @i_to_s.sort.map { |k, v| v.to_sym }
+		def symbolic ; @i == 0 ? 0 : Sym[@i] end
 	end
 
 	class FpReg
@@ -32,16 +35,23 @@ class MIPS < CPU
 		end
 		@s_to_i = (0..31).inject({}) { |h, i| h.update "f#{i}" => i, "$f#{i}" => i }
 		
-		attr_reader :i
+		attr_accessor :i
 		def initialize(i)
 			@i = i
 		end
 	end
 
 	class Memref
-		attr_reader :base, :offset
+		attr_accessor :base, :offset
 		def initialize(base, offset)
 			@base, @offset = base, offset
+		end
+
+		def symbolic(orig)
+			p = nil
+			p = Expression[p, :+, @base.symbolic] if base
+			p = Expression[p, :+, @offset] if offset
+			Expression[Indirection.new(p, 4, orig)].reduce
 		end
 	end
 

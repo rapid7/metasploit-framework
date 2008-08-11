@@ -67,12 +67,7 @@ class Shellcode < ExeFormat
 	end
 	alias encode assemble
 
-	# creates a new shellcode from a binary string
-	# does not disassemble the instructions
-	def self.decode(str, cpu=nil)
-		sc = new(cpu)
-		sc.encoded << str
-		sc
+	def decode
 	end
 
 	def self.disassemble(cpu, str, eip=0)
@@ -89,6 +84,13 @@ class Shellcode < ExeFormat
 
 	def get_default_entrypoints
 		[@base_addr || 0]
+	end
+
+	# returns a virtual subclass of Shellcode whose cpu_from_headers will return cpu
+	def self.withcpu(cpu)
+		c = Class.new(self)
+		c.send(:define_method, :cpu_from_headers) { cpu }
+		c
 	end
 end
 end

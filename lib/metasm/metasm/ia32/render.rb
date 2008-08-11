@@ -49,8 +49,8 @@ class Ia32
 
 			e = nil
 			e = Expression[e, :+, @b] if b
+			e = Expression[e, :+, @imm.reduce] if imm
 			e = Expression[e, :+, (@s == 1 ? @i : [@s, :*, @i])] if s
-			e = Expression[e, :+, @imm] if imm
 			r << '[' << e << ']'
 		end
 
@@ -63,8 +63,8 @@ class Ia32
 
 	def render_instruction(i)
 		r = []
-		r << 'lock ' if i.prefix[:lock]
-		r << i.prefix[:rep] << ' ' if i.prefix[:rep]
+		r << 'lock ' if i.prefix and i.prefix[:lock]
+		r << i.prefix[:rep] << ' ' if i.prefix and i.prefix[:rep]
 		r << i.opname
 		i.args.each { |a|
 			r << (r.last == i.opname ? ' ' : ', ') << a
@@ -76,17 +76,17 @@ class Ia32
 		# XXX
 		h = {}
 		op = opcode_list_byname[i.opname].first
-		if i.prefix[:rep]
+		if i.prefix and i.prefix[:rep]
 			h['toogle repz'] = proc { i.prefix[:rep] = {'repnz' => 'repz', 'repz' => 'repnz'}[i.prefix[:rep]] } if op.props[:stropz]
 			h['rm rep']      = proc { i.prefix.delete :rep }
 		else
-			h['set rep']     = proc { i.prefix[:rep] = 'rep'  } if op.props[:strop]
-			h['set rep']     = proc { i.prefix[:rep] = 'repz' } if op.props[:stropz]
+			h['set rep']     = proc { (i.prefix ||= {})[:rep] = 'rep'  } if op.props[:strop]
+			h['set rep']     = proc { (i.prefix ||= {})[:rep] = 'repz' } if op.props[:stropz]
 		end
 		if i.args.find { |a| a.kind_of? ModRM and a.seg }
 			h['rm seg'] = proc { i.args.find { |a| a.kind_of? ModRM and a.seg }.seg = nil }
 		end
-		h['toggle lock'] = proc { i.prefix[:lock] = !i.prefix[:lock] }
+		h['toggle lock'] = proc { (i.prefix ||= {})[:lock] = !i.prefix[:lock] }
 		h
 	end
 end

@@ -198,7 +198,7 @@ class COFF
 					edata['addrtable'] << coff.encode_word(Expression[e.target, :-, coff.label_at(coff.encoded, 0)])
 				end
 				if e.name
-					edata['ord_table'] << coff.encode_half(edata['addrtable'].virtsize/4 - @ordinal_base)
+					edata['ord_table'] << coff.encode_half(edata['addrtable'].virtsize/4 - 1)
 					edata['namptable'] << coff.encode_word(rva_end['nametable'])
 					edata['nametable'] << e.name << 0
 				end
@@ -428,7 +428,7 @@ class COFF
 			else
 				secs.delete_if { |ss| ss.characteristics.include? 'MEM_SHARED' }
 			end
-			secs.delete_if { |ss| ss.virtsize.kind_of?(::Integer) or ss.rawsize.kind_of?(::Integer) }
+			secs.delete_if { |ss| ss.virtsize.kind_of?(::Integer) or ss.rawsize.kind_of?(::Integer) or secs[secs.index(ss)+1..-1].find { |ss| ss.virtaddr.kind_of?(::Integer) } }
 
 			# try to find superset of characteristics
 			if target = secs.find { |ss| (ss.characteristics & char) == char }
@@ -486,7 +486,7 @@ class COFF
 		plt.characteristics = %w[MEM_READ MEM_EXECUTE]
 
 		@imports.zip(iat) { |id, it|
-			if id.iat_p and s = @sections.find { |s| s.virtaddr <= id.iat_p and s.virtaddr + s.virtsize > id.iat_p }
+			if id.iat_p and s = @sections.find { |s| s.virtaddr <= id.iat_p and s.virtaddr + (s.virtsize || s.encoded.virtsize) > id.iat_p }
 				id.iat = it	# will be fixed up after encode_section
 			else
 				# XXX should not be mixed (for @directory['iat'][1])
@@ -706,12 +706,12 @@ class COFF
 		binding[@optheader.image_size] = curaddr - baseaddr if @optheader.image_size.kind_of?(::String)
 
 		# patch the iat where iat_p was defined
-		@imports.each { |id|
-			if id.iat_p
-				p = rva_to_off(id.iat_p)
-				@encoded[p, id.iat.virtsize] = id.iat
-				binding.update id.iat.binding(baseaddr + id.iat_p)
-			end
+		# sort to ensure a 0-terminated will not overwrite an entry
+		# (try to dump notepad.exe, which has a forwarder;)
+		@imports.find_all { |id| id.iat_p }.sort_by { |id| id.iat_p }.each { |id|
+			p = rva_to_off(id.iat_p)
+			@encoded[p, id.iat.virtsize] = id.iat
+			binding.update id.iat.binding(baseaddr + id.iat_p)
 		} if @imports
 
 		@encoded.fill
@@ -879,7 +879,7 @@ class COFF
 			@export.libname ||= 'metalib'
 			e = ExportDirectory::Export.new
 			e.name = exportname
-			e.target = exportlabel || new_label(exportname)
+			e.target = exportlabel || exportname
 			@export.exports << e
 			check_eol[]
 		

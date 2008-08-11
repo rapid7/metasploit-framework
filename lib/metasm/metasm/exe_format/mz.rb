@@ -178,16 +178,6 @@ class MZ < ExeFormat
 		decode_body
 	end
 
-	# returns an MZ object from reading the specified string
-	# decodes the header, relocs and body
-	def self.decode(str)
-		mz = new
-		mz.encoded << str
-		mz.encoded.ptr = 0
-		mz.decode
-		mz
-	end
-
 	def each_section
 		yield @body, 0
 	end

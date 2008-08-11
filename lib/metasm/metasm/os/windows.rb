@@ -179,7 +179,7 @@ class WindowsRemoteString < VirtualString
 		else
 			handle = WinAPI.openprocess(WinAPI::PROCESS_ALL_ACCESS, 0, pid)
 			if not handle
-				puts "cannot openprocess ALL_ACCESS pid #{pid}"
+				puts "cannot openprocess ALL_ACCESS pid #{pid}" if $VERBOSE
 				handle = WinAPI.openprocess(WinAPI::PROCESS_VM_READ, 0, pid)
 			end
 		end
@@ -271,7 +271,7 @@ class WinDbg
 
 		attr_accessor :hthread, :ctx
 		# retrieves the thread context
-		def initialize(hthread, flags = WinAPI::CONTEXT86_FULL)
+		def initialize(hthread, flags)
 			@hthread = hthread
 			@ctx = 0.chr * (OFFSETS.values.max + 4 + 512)
 			set_val(:ctxflags, flags)
@@ -301,7 +301,7 @@ class WinDbg
 	end
 
 	# returns the specified thread context
-	def get_context(pid, tid, flags = WinAPI::CONTEXT86_FULL)
+	def get_context(pid, tid, flags = WinAPI::CONTEXT86_FULL | WinAPI::CONTEXT86_DEBUG_REGISTERS)
 		Context.new(@hthread[pid][tid], flags)
 	end
 
@@ -315,7 +315,7 @@ class WinDbg
 	class CreateThreadInfo
 		attr_reader :hthread, :threadlocalbase, :startaddr
 		def initialize(str)
-			@handle, @threadlocalbase, @startaddr = str.unpack('LLL')
+			@hthread, @threadlocalbase, @startaddr = str.unpack('LLL')
 		end
 	end
 	class CreateProcessInfo
@@ -362,55 +362,77 @@ class WinDbg
 		end
 	end
 
+	# returns a string suitable for use as a debugevent structure
+	def debugevent_alloc
+		# on wxpsp2, debugevent is at most 24*uint
+		([0]*30).pack('L*')
+	end
+
 	# waits for debug events
 	# dispatches to the different handler_*
 	# custom handlers should call the default version
 	def debugloop
-		# on wxpsp2, debugevent is at most 24*uint
-		debugevent = ([0]*30).pack('L*')
+		debugevent = debugevent_alloc
 		while not @mem.empty?
 			WinAPI.waitfordebugevent(debugevent, WinAPI::INFINITE)
-			code, pid, tid = debugevent.unpack('LLL')
-			info = debugevent[[0,0,0].pack('LLL').length..-1]
-
-			cont = \
-			case code
-			when WinAPI::EXCEPTION_DEBUG_EVENT
-				handler_exception pid, tid, ExceptionInfo.new(info)
-			when WinAPI::CREATE_PROCESS_DEBUG_EVENT
-				handler_newprocess pid, tid, CreateProcessInfo.new(info)
-			when WinAPI::CREATE_THREAD_DEBUG_EVENT
-				handler_newthread pid, tid, CreateThreadInfo.new(info)
-			when WinAPI::EXIT_PROCESS_DEBUG_EVENT
-				handler_endprocess pid, tid, ExitProcessInfo.new(info)
-			when WinAPI::EXIT_THREAD_DEBUG_EVENT
-				handler_endthread pid, tid, ExitThreadInfo.new(info)
-			when WinAPI::LOAD_DLL_DEBUG_EVENT
-				handler_loaddll pid, tid, LoadDllInfo.new(info)
-			when WinAPI::UNLOAD_DLL_DEBUG_EVENT
-				handler_unloaddll pid, tid, UnloadDllInfo.new(info)
-			when WinAPI::OUTPUT_DEBUG_STRING_EVENT
-				handler_debugstring pid, tid, OutputDebugStringInfo.new(info)
-			when WinAPI::RIP_EVENT
-				handler_rip pid, tid, RipInfo.new(info)
-			end
-
-			WinAPI.continuedebugevent(pid, tid, cont)
+			debugloop_step(debugevent)
 		end
+	end
+
+	# handles one debug event
+	# arg is a packed string containing a debugevent structure
+	# usage:
+	#  de = debugevent_alloc
+	#  waitfordebugevent(de, <timeout>)
+	#  debugloop_step(de)
+	def debugloop_step(debugevent)
+		code, pid, tid = debugevent.unpack('LLL')
+		info = debugevent[[0,0,0].pack('LLL').length..-1]
+		
+		cont = \
+		case code
+		when WinAPI::EXCEPTION_DEBUG_EVENT
+			handler_exception pid, tid, ExceptionInfo.new(info)
+		when WinAPI::CREATE_PROCESS_DEBUG_EVENT
+			handler_newprocess pid, tid, CreateProcessInfo.new(info)
+		when WinAPI::CREATE_THREAD_DEBUG_EVENT
+			handler_newthread pid, tid, CreateThreadInfo.new(info)
+		when WinAPI::EXIT_PROCESS_DEBUG_EVENT
+			handler_endprocess pid, tid, ExitProcessInfo.new(info)
+		when WinAPI::EXIT_THREAD_DEBUG_EVENT
+			handler_endthread pid, tid, ExitThreadInfo.new(info)
+		when WinAPI::LOAD_DLL_DEBUG_EVENT
+			handler_loaddll pid, tid, LoadDllInfo.new(info)
+		when WinAPI::UNLOAD_DLL_DEBUG_EVENT
+			handler_unloaddll pid, tid, UnloadDllInfo.new(info)
+		when WinAPI::OUTPUT_DEBUG_STRING_EVENT
+			handler_debugstring pid, tid, OutputDebugStringInfo.new(info)
+		when WinAPI::RIP_EVENT
+			handler_rip pid, tid, RipInfo.new(info)
+		end
+
+		WinAPI.continuedebugevent(pid, tid, cont)
 	end
 
 	def handler_exception(pid, tid, info)
 		puts "wdbg: #{pid}:#{tid} exception" if $DEBUG
-		if info.code == WinAPI::STATUS_ACCESS_VIOLATION
+		case info.code
+		when WinAPI::STATUS_ACCESS_VIOLATION
 			# fix fs bug in xpsp1
-			ctx = get_context(pid, tid, WinAPI::CONTEXT86_SEGMENTS)
+			ctx = get_context(pid, tid)
 			if ctx[:fs] != 0x3b
 				puts "wdbg: #{pid}:#{tid} fix fs bug" if $DEBUG
 				ctx[:fs] = 0x3b
 				return WinAPI::DBG_CONTINUE
 			end
+			WinAPI::DBG_EXCEPTION_NOT_HANDLED
+		when WinAPI::STATUS_BREAKPOINT
+			# we must ack ntdll interrupts on process start
+			# but we should not mask process-generated exceptions by default..
+			WinAPI::DBG_CONTINUE
+		else
+			WinAPI::DBG_EXCEPTION_NOT_HANDLED
 		end
-		WinAPI::DBG_EXCEPTION_NOT_HANDLED
 	end
 
 	def handler_newprocess(pid, tid, info)
@@ -446,8 +468,13 @@ class WinDbg
 	end
 
 	def handler_loaddll(pid, tid, info)
-		str = read_str_indirect(pid, info.imagename, info.unicode)
-		puts "wdbg: #{pid}:#{tid} loaddll #{str.inspect} at #{'0x%08X' % info.imagebase}"
+		if $DEBUG
+			dll = LoadedPE.load(@mem[pid][info.imagebase, 0x1000_0000])
+			dll.decode_header
+			dll.decode_exports
+			str = (dll.export ? dll.export.libname : read_str_indirect(pid, info.imagename, info.unicode))
+			puts "wdbg: #{pid}:#{tid} loaddll #{str.inspect} at #{'0x%08X' % info.imagebase}"
+		end
 		WinAPI::DBG_CONTINUE
 	end
 

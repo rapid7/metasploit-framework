@@ -241,8 +241,10 @@ class Rubstop < Metasm::PTrace32
 			sname = s.name
 			sname = 'weak_'+sname if s.bind == 'WEAK'
 			sname = 'local_'+sname if s.bind == 'LOCAL'
-			@symbols[baseaddr + s.value] = sname
-			@symbols_len[baseaddr + s.value] = s.size
+			v = s.value
+			v = baseaddr + v if v < baseaddr
+			@symbols[v] = sname
+			@symbols_len[v] = s.size
 		}
 		if e.header.type == 'EXEC'
 			@symbols[e.header.entry] = 'entrypoint'

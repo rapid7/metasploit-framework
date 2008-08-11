@@ -158,6 +158,7 @@ end
 	def parse_prefix(i, pfx)
 		# XXX check for redefinition ?
 		# implicit 'true' return value when assignment occur
+		i.prefix ||= {}
 		case pfx
 		when 'lock': i.prefix[:lock] = true
 		when 'rep':            i.prefix[:rep] = 'rep'

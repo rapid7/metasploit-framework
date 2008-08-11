@@ -430,6 +430,12 @@ class COFF
 		@header.num_sect.times {
 			s = Section.new
 			s.decode self
+			if s.rawaddr == 0 and s.rawsize == 0
+				# add a bias to rva_to_off to allow exports (eg. relocation
+				#  target) in .bss without conflicting w/ existing sections
+				s.rawaddr = @encoded.virtsize
+				@encoded.virtsize += s.virtsize
+			end
 			@sections << s
 		}
 		if off = rva_to_off(@optheader.entrypoint)
@@ -552,7 +558,8 @@ class COFF
 	def decode_sections
 		@sections.each { |s|
 			# decode up to s.virtsize to retrieve exports (like base relocs to .bss)
-			s.encoded = @encoded[s.rawaddr, s.virtsize]
+			s.encoded = @encoded[s.rawaddr, s.virtsize] || EncodedData.new
+			s.encoded.virtsize = s.virtsize
 			s.encoded.data = s.encoded.data[0, s.rawsize] if s.rawsize < s.virtsize
 		}
 	end

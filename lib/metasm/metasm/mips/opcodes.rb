@@ -61,7 +61,7 @@ end
 		init_mips32_reserved
 
 		addop 'j',    0b000010 << 26, :i26, :setip, :stopexec	# sets the program counter to (i26 << 2) | ((pc+4) & 0xfc000000) ie i26*4 in the 256M-aligned section containing the instruction in the delay slot
-		addop 'jal',  0b000011 << 26, :i26, :setip, :stopexec	# same thing, saves return addr in r31
+		addop 'jal',  0b000011 << 26, :i26, :setip, :stopexec, :saveip	# same thing, saves return addr in r31
 
 		addop 'mov',  0b001000 << 26, :rt, :rs			# rt <- rs+0
 		addop 'addi', 0b001000 << 26, :rt, :rs, :i16		# add		rt <- rs+i
@@ -74,10 +74,10 @@ end
 		addop 'lui',  0b001111 << 26, :rt, :i16			# load upper
 #		addop 'li',   0b001111 << 26, :rt, :i32			# pseudoinstruction
 
-		addop 'beq',  0b000100 << 26, :rt, :rs, :i16, :setip, :saveip	# ==
-		addop 'bne',  0b000101 << 26, :rt, :rs, :i16, :setip, :saveip	# !=
-		addop 'blez', 0b000110 << 26, :rs, :i16, :setip, :saveip		# <= 0
-		addop 'bgtz', 0b000111 << 26, :rs, :i16, :setip, :saveip		# > 0
+		addop 'beq',  0b000100 << 26, :rt, :rs, :i16, :setip	# ==
+		addop 'bne',  0b000101 << 26, :rt, :rs, :i16, :setip	# !=
+		addop 'blez', 0b000110 << 26, :rs, :i16, :setip		# <= 0
+		addop 'bgtz', 0b000111 << 26, :rs, :i16, :setip		# > 0
 
 		addop 'lb',   0b100000 << 26, :rt, :rs_i16		# load byte	rs <- [rt+i]
 		addop 'lh',   0b100001 << 26, :rt, :rs_i16		# load halfword
@@ -124,12 +124,12 @@ end
 		addop 'srlv', 0b000110, :rd, :rt, :rs
 		addop 'srav', 0b000111, :rd, :rt, :rs
 		
-		addop 'jr',   0b001000, :rs, :setip			# hint field ?
-		addop 'jr.hb',0b001000 | (1<<10), :rs, :setip
-		addop 'jalr', 0b001001 | (31<<11), :rs, :setip		# rd = r31 implicit
-		addop 'jalr', 0b001001, :rd, :rs, :setip
-		addop 'jalr.hb', 0b001001 | (1<<10) | (31<<11), :rs, :setip
-		addop 'jalr.hb', 0b001001 | (1<<10), :rd, :rs, :setip
+		addop 'jr',   0b001000, :rs, :setip, :stopexec			# hint field ?
+		addop 'jr.hb',0b001000 | (1<<10), :rs, :setip, :stopexec
+		addop 'jalr', 0b001001 | (31<<11), :rs, :setip, :stopexec, :saveip	# rd = r31 implicit
+		addop 'jalr', 0b001001, :rd, :rs, :setip, :stopexec, :saveip
+		addop 'jalr.hb', 0b001001 | (1<<10) | (31<<11), :rs, :setip, :stopexec, :saveip
+		addop 'jalr.hb', 0b001001 | (1<<10), :rd, :rs, :setip, :stopexec, :saveip
 		addop 'movz', 0b001010, :rd, :rs, :rt			# rt == 0 ? rd <- rs
 		addop 'movn', 0b001011, :rd, :rs, :rt
 		addop 'syscall', 0b001100, :i20
@@ -167,16 +167,16 @@ end
 
 
 		# regimm
-		addop 'bltz', (1<<26) | (0b00000<<16), :rs, :i16, :setip, :saveip
-		addop 'bgez', (1<<26) | (0b00001<<16), :rs, :i16, :setip, :saveip
+		addop 'bltz', (1<<26) | (0b00000<<16), :rs, :i16, :setip
+		addop 'bgez', (1<<26) | (0b00001<<16), :rs, :i16, :setip
 		addop 'tgei', (1<<26) | (0b01000<<16), :rs, :i16, :setip
 		addop 'tgfiu',(1<<26) | (0b01001<<16), :rs, :i16, :setip
 		addop 'tlti', (1<<26) | (0b01010<<16), :rs, :i16, :setip
 		addop 'tltiu',(1<<26) | (0b01011<<16), :rs, :i16, :setip
 		addop 'teqi', (1<<26) | (0b01100<<16), :rs, :i16, :setip
 		addop 'tnei', (1<<26) | (0b01110<<16), :rs, :i16, :setip
-		addop 'bltzal', (1<<26) | (0b10000<<16), :rs, :i16, :setip, :saveip
-		addop 'bgezal', (1<<26) | (0b10001<<16), :rs, :i16, :setip, :saveip
+		addop 'bltzal', (1<<26) | (0b10000<<16), :rs, :i16, :setip
+		addop 'bgezal', (1<<26) | (0b10001<<16), :rs, :i16, :setip
 
 
 		# special2

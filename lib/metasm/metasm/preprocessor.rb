@@ -5,7 +5,6 @@
 
 
 require 'metasm/main'
-require 'metasm/parse'
 
 
 module Metasm
@@ -283,7 +282,6 @@ class Preprocessor
 			invalid_body = nil
 			if (@body[-1] and @body[-1].raw == '##') or (@body[0] and @body[0].raw == '##')
 				invalid_body ||= 'cannot have ## at begin or end of macro body'
-				lexer.definition.delete(name.raw)
 			end
 			if args
 				if @args.map { |a| a.raw }.uniq.length != @args.length
@@ -302,7 +300,9 @@ class Preprocessor
 			end
 			if invalid_body
 				puts "W: #{lexer.filename}:#{lexer.lineno}, in #{@name.raw}: #{invalid_body}" if $VERBOSE
-				lexer.definition.delete(name.raw)
+				false
+			else
+				true
 			end
 		end
 
@@ -742,8 +742,8 @@ class Preprocessor
 
 	# defines a simple preprocessor macro (expands to 0 or 1 token)
 	# does not check overwriting
-	def define(name, value=nil)
-		caller.first =~ /^(.*?):(\d+)/
+	def define(name, value=nil, from=caller.first)
+		from =~ /^(.*?):(\d+)/
 		btfile, btlineno = $1, $2.to_i
 		t = Token.new([btfile, btlineno])
 		t.type = :string
@@ -755,6 +755,17 @@ class Preprocessor
 			t.raw = value.to_s
 			@definition[name].body << t
 		end
+	end
+
+	# defines a pp constant if it is not already defined
+	def define_weak(name, value=nil, from=caller.first)
+		define(name, value, from) if not @definition[name]
+	end
+
+	# defines a pp constant so that later #define/#undef will be ignored
+	def define_strong(name, value=nil, from=caller.first)
+		(@defined_strong ||= []) << name
+		define(name, value, from)
 	end
 
 	# handles #directives
@@ -855,16 +866,21 @@ class Preprocessor
 			return if @ifelse_nesting.last and @ifelse_nesting.last != :accept
 
 			raise tok || cmd, 'pp syntax error' if not tok = skipspc[] or tok.type != :string
-			puts "W: pp: redefinition of #{tok.raw} at #{tok.backtrace_str},\n prev def at #{@definition[tok.raw].name.backtrace_str}" if @definition[tok.raw] and $VERBOSE and @warn_redefinition
-			@definition[tok.raw] = Macro.new(tok)
-			@definition[tok.raw].parse_definition(self)
+			m = Macro.new(tok)
+			valid = m.parse_definition(self)
+			if not defined? @defined_strong or not @defined_strong.include? tok.raw
+				puts "W: pp: redefinition of #{tok.raw} at #{tok.backtrace_str},\n prev def at #{@definition[tok.raw].name.backtrace_str}" if @definition[tok.raw] and $VERBOSE and @warn_redefinition
+				@definition[tok.raw] = m if valid
+			end
 
 		when 'undef'
 			return if @ifelse_nesting.last and @ifelse_nesting.last != :accept
 
 			raise eol || tok || cmd, 'pp syntax error' if not tok = skipspc[] or tok.type != :string or (eol = skipspc[] and eol.type != :eol)
-			@definition.delete tok.raw
-			unreadtok eol
+			if not defined? @defined_strong or not @defined_strong.include? tok.raw
+				@definition.delete tok.raw
+				unreadtok eol
+			end
 
 		when 'include'
 			return if @ifelse_nesting.last and @ifelse_nesting.last != :accept
@@ -904,9 +920,10 @@ class Preprocessor
 			if not @pragma_once[path || ipath]
 				@backtrace << [@filename, @lineno, @text, @pos, @queue, @ifelse_nesting.length]
 
-				if @hooked_include[ipath || path]
-					puts "metasm preprocessor: including hooked #{ipath || path}" if $DEBUG
-					@text = @hooked_include[ipath || path]
+				if @hooked_include[ipath]
+					path = '<hooked>/'+ipath
+					puts "metasm preprocessor: including #{path}" if $DEBUG
+					@text = @hooked_include[ipath]
 				else
 					puts "metasm preprocessor: including #{path}" if $DEBUG
 					raise cmd, "No such file or directory #{ipath.inspect}" if not path or not ::File.exist? path

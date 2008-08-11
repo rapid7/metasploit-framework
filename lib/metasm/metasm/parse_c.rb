@@ -357,6 +357,10 @@ module C
 		def arithmetic? ; true ; end
 		def base ; @type.base ; end
 		def align(parser) BaseType.new(:ptr).align(parser) end
+
+		def ==(o)
+			o.class == self.class and o.type == self.type
+		end
 	end
 	class Array < Pointer
 		attr_accessor :length
@@ -795,16 +799,68 @@ module C
 				end
 			when 'prepare_visualstudio'
 				@auto_predeclare_unknown_structs = true
-				@lexer.define('_WIN32') if not @lexer.definition['_WIN32']
-				@lexer.define('_WIN32_WINNT', 0x500) if not @lexer.definition['_WIN32_WINNT']
-				@lexer.define('_INTEGRAL_MAX_BITS', 64) if not @lexer.definition['_INTEGRAL_MAX_BITS']
-				@lexer.define('__w64') if not @lexer.definition['__w64']
-				@lexer.define('_cdecl', '__cdecl') if not @lexer.definition['_cdecl']	# typo ? seen in winreg.h
-				@lexer.define('_fastcall', '__fastcall') if not @lexer.definition['_fastcall']	# typo ? seen in ntddk.h
-				@lexer.define('_MSC_VER', 1300) if not @lexer.definition['_MSC_VER']	# handle '#pragma once' and _declspec(noreturn)
-				@lexer.define('__forceinline', '__inline') if not @lexer.definition['__forceinline']
-				@lexer.define('__ptr32') if not @lexer.definition['__ptr32']	# needed with msc_ver 1300, don't understand their use
-				@lexer.define('__ptr64') if not @lexer.definition['__ptr64']
+				@lexer.define_weak('_WIN32')
+				@lexer.define_weak('_WIN32_WINNT', 0x500)
+				@lexer.define_weak('_INTEGRAL_MAX_BITS', 64)
+				@lexer.define_weak('__w64')
+				@lexer.define_weak('_cdecl', '__cdecl')	# typo ? seen in winreg.h
+				@lexer.define_weak('_fastcall', '__fastcall')	# typo ? seen in ntddk.h
+				@lexer.define_weak('_MSC_VER', 1300)	# handle '#pragma once' and _declspec(noreturn)
+				@lexer.define_weak('__forceinline', '__inline')
+				@lexer.define_weak('__ptr32')	# needed with msc_ver 1300, don't understand their use
+				@lexer.define_weak('__ptr64')
+			when 'prepare_gcc'
+				@lexer.hooked_include['stddef.h'] = <<EOH 
+#if !defined (_STDDEF_H) || defined(__need_NULL) || defined(__need_ptrdiff_t) || defined(__need_size_t) || defined(__need_wint_t)
+#if !defined(__need_NULL) && !defined(__need_ptrdiff_t) && !defined(__need_size_t) && !defined(__need_wint_t)
+ #define _STDDEF_H
+#endif
+#if defined(_STDDEF_H) || defined(__need_ptrdiff_t)
+ #define __PTRDIFF_TYPE__ long int
+ typedef __PTRDIFF_TYPE__ ptrdiff_t;
+ #undef __need_ptrdiff_t
+#endif
+#if defined(_STDDEF_H) || defined(__need_size_t)
+ #define __SIZE_TYPE__ long unsigned int
+ typedef __SIZE_TYPE__ size_t;
+ #undef __need_size_t
+#endif
+#if defined(_STDDEF_H) || defined(__need_wint_t)
+ #define __WINT_TYPE__ unsigned int
+ typedef __WINT_TYPE__ wint_t;
+ #undef __need_wint_t
+#endif
+#if defined(_STDDEF_H) || defined(__need_wchar_t)
+ #define __WCHAR_TYPE__ int
+ typedef __WCHAR_TYPE__ wchar_t;
+ #undef __need_wchar_t
+#endif
+#if defined (_STDDEF_H) || defined (__need_NULL)
+ #undef NULL
+ #ifndef __cplusplus
+  #define NULL ((void *)0)
+ #else 
+  #define NULL 0
+ #endif  /* C++ */
+ #undef	__need_NULL
+#endif
+#ifdef _STDDEF_H
+ #define offsetof(TYPE, MEMBER) __builtin_offsetof (TYPE, MEMBER)
+#endif
+#endif
+EOH
+				# TODO va_args
+				@lexer.hooked_include['stdarg.h'] = <<EOH
+// TODO
+typedef void* __gnuc_va_list;
+/*
+typedef void* va_list;
+#define va_start(v, l)
+#define va_end(v)
+#define va_arg(v, l)
+#define va_copy(d, s)
+*/
+EOH
 			else @prev_pragma_callback[otok]
 			end
 		end
@@ -1457,7 +1513,7 @@ module C
 				raise @backtrace, 'void type is invalid' if name and (t = @type.untypedef).kind_of? BaseType and
 						t.name == :void and @storage != :typedef
 				raise @backtrace, "uninitialized structure #{@type.name}" if (@type.kind_of? Union or @type.kind_of? Enum) and
-						not @type.members and @storage != :typedef
+						not @type.members and @storage != :typedef and @storage != :extern	# gcc uses an undefined extern struct just to cast it later (_IO_FILE_plus)
 			end
 		end
 	
@@ -2148,10 +2204,17 @@ module C
 	class Parser	
 		# returns a big string containing all definitions from headers used in the source (including macros)
 		def factorize(src)
-			@lexer.traced_macros = []
+			factorize_init
 			parse(src)
 			raise @lexer.readtok || self, 'eof expected' if not @lexer.eos?
+			factorize_final
+		end
+
+		def factorize_init
+			@lexer.traced_macros = []
+		end
 	
+		def factorize_final
 			# now find all types/defs not coming from the standard headers
 			# all
 			all = @toplevel.struct.values + @toplevel.symbol.values
@@ -2813,7 +2876,17 @@ module C
 				if not @op
 					case @rexpr
 					when ::Numeric
-						r.last << @rexpr.to_s
+						if @rexpr < 0
+							r.last << ?-
+							re = -@rexpr
+						else
+							re = @rexpr
+						end
+						if re >= 0x1000
+							r.last << ("0x%X" % re)
+						else
+							r.last << re.to_s
+						end
 						if @type.kind_of? BaseType
 							r.last << 'U' if @type.specifier == :unsigned
 							case @type.name
@@ -2870,9 +2943,12 @@ module C
 					r.last << ' : '
 					r, dep = CExpression.dump(@rexpr[1], scope, r, dep, true)
 				else
-					r, dep = CExpression.dump(@lexpr, scope, r, dep, (@lexpr.kind_of? CExpression and @lexpr.lexpr and OP_PRIO.fetch(@op, {})[@lexpr.op]))
+					r, dep = CExpression.dump(@lexpr, scope, r, dep, (@lexpr.kind_of? CExpression and
+						@lexpr.lexpr and OP_PRIO[@op] != OP_PRIO[@lexpr.op]))
 					r.last << ' ' << @op.to_s << ' '
-					r, dep = CExpression.dump(@rexpr, scope, r, dep, (@rexpr.kind_of? CExpression and @rexpr.lexpr and not OP_PRIO.fetch(@rexpr.op, {})[@op]))	# rtl assoc
+					r, dep = CExpression.dump(@rexpr, scope, r, dep, (@rexpr.kind_of? CExpression and
+						OP_PRIO[@op] != OP_PRIO[:'='] and
+						@rexpr.lexpr and OP_PRIO[@op] != OP_PRIO[@rexpr.op]))
 				end
 			end
 			r.last << ')' if brace and @op != :'->' and @op != :'.' and @op != :'[]' and (@op or @rexpr.kind_of? CExpression)

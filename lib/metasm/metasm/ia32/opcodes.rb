@@ -8,100 +8,154 @@ require 'metasm/ia32/main'
 
 module Metasm
 class Ia32
-	def init_386
-		@fields_mask.update :w => 1, :s => 1, :d => 1, :modrm => 0xc7
-		@fields_mask.update :reg => 7, :eeec => 7, :eeed => 7, :seg2 => 3, :seg3 => 7
+	def init_cpu_constants
+		@fields_mask.update :w => 1, :s => 1, :d => 1, :modrm => 0xc7,
+			:reg => 7, :eeec => 7, :eeed => 7, :seg2 => 3, :seg3 => 7,
+			:regfp => 7, :regmmx => 7, :regxmm => 7
 		@fields_mask[:seg2A]    = @fields_mask[:seg2]
 		@fields_mask[:seg3A]    = @fields_mask[:seg3]
 		@fields_mask[:modrmA]   = @fields_mask[:modrm]
 
-		@valid_args.push :i, :i8, :u8, :u16
-		@valid_args.push :reg, :seg2, :seg2A, :seg3, :seg3A, :eeec, :eeed
-		@valid_args.push :modrm, :modrmA, :mrm_imm, :farptr
-		@valid_args.push :imm_val1, :imm_val3, :reg_cl, :reg_eax, :reg_dx
+		@valid_args.concat [:i, :i8, :u8, :u16, :reg, :seg2, :seg2A,
+			:seg3, :seg3A, :eeec, :eeed, :modrm, :modrmA, :mrm_imm,
+			:farptr, :imm_val1, :imm_val3, :reg_cl, :reg_eax,
+			:reg_dx, :regfp, :regfp0, :modrmmmx, :regmmx,
+			:modrmxmm, :regxmm] - @valid_args
 
-		@valid_props.push :strop, :stropz, :opsz, :argsz
-		@valid_props.push :setip, :stopexec, :saveip, :unsigned_imm, :random
-		
-		addop 'aaa',   [0x37]
-		addop 'aad',   [0xD5, 0x0A]
-		addop 'aam',   [0xD4, 0x0A]
-		addop 'aas',   [0x3F]
+		@valid_props.concat [:strop, :stropz, :opsz, :argsz, :setip,
+			:stopexec, :saveip, :unsigned_imm, :random, :needpfx,
+			:xmmx] - @valid_props
+	end
+
+	# only most common instructions from the 386 instruction set
+	# inexhaustive list : 
+	# no aaa, arpl, mov crX, call/jmp/ret far, in/out, bts, xchg...
+	def init_386_common_only
+		init_cpu_constants
 		
 		addop_macro1 'adc', 2
 		addop_macro1 'add', 0
 		addop_macro1 'and', 4, :u
-		
+		addop 'bswap', [0x0F, 0xC8], :reg
+		addop 'call',  [0xE8], nil,  {}, :stopexec, :setip, :i, :saveip
+		addop 'call',  [0xFF], 2,    {}, :stopexec, :setip, :saveip
+		addop('cbw',   [0x98]) { |o| o.props[:opsz] = 16 }
+		addop('cdq',   [0x99]) { |o| o.props[:opsz] = 32 }
+		addop_macro1 'cmp', 7
+		addop_macrostr 'cmps',  [0xA6], :stropz
+		addop 'dec',   [0x48], :reg
+		addop 'dec',   [0xFE], 1,    {:w => [0, 0]}
+		addop 'div',   [0xF6], 6,    {:w => [0, 0]}
+		addop 'enter', [0xC8], nil,  {}, :u16, :u8
+		addop 'idiv',  [0xF6], 7,    {:w => [0, 0]}
+		addop 'imul',  [0xF6], 5,    {:w => [0, 0]}, :reg_eax
+		addop 'imul',  [0x0F, 0xAF], :mrm
+		addop 'imul',  [0x69], :mrm, {:s => [0, 1]}, :i
+		addop 'inc',   [0x40], :reg
+		addop 'inc',   [0xFE], 0,    {:w => [0, 0]}
+		addop 'int',   [0xCC], nil,  {}, :imm_val3
+		addop 'int',   [0xCD], nil,  {}, :u8
+		addop_macrotttn 'j', [0x70], nil, {}, :setip, :i8
+		addop_macrotttn 'j', [0x0F, 0x80], nil, {}, :setip, :i
+		addop 'jmp',   [0xE9], nil,  {:s => [0, 1]}, :setip, :i,  :stopexec
+		addop 'jmp',   [0xFF], 4,    {}, :setip, :stopexec
+		addop 'lea',   [0x8D], :mrmA
+		addop 'leave', [0xC9]
+		addop_macrostr 'lods',  [0xAC], :strop
+		addop 'loop',  [0xE2], nil,  {}, :setip, :i8
+		addop 'loopz', [0xE1], nil,  {}, :setip, :i8
+		addop 'loope', [0xE1], nil,  {}, :setip, :i8
+		addop 'loopnz',[0xE0], nil,  {}, :setip, :i8
+		addop 'loopne',[0xE0], nil,  {}, :setip, :i8
+		addop 'mov',   [0xA0], nil,  {:w => [0, 0], :d => [0, 1]}, :mrm_imm, :reg_eax
+		addop 'mov',   [0x88], :mrmw,{:d => [0, 1]}
+		addop 'mov',   [0xB0], :reg, {:w => [0, 3]}, :u
+		addop 'mov',   [0xC6], 0,    {:w => [0, 0]}, :u
+		addop_macrostr 'movs',  [0xA4], :strop
+		addop 'movsx', [0x0F, 0xBE], :mrmw
+		addop 'movzx', [0x0F, 0xB6], :mrmw
+		addop 'mul',   [0xF6], 4,    {:w => [0, 0]}
+		addop 'neg',   [0xF6], 3,    {:w => [0, 0]}
+		addop 'nop',   [0x90]
+		addop 'not',   [0xF6], 2,    {:w => [0, 0]}
+		addop_macro1 'or', 1, :u
+		addop 'pop',   [0x58], :reg
+		addop 'pop',   [0x8F], 0
+		addop 'push',  [0x50], :reg
+		addop 'push',  [0xFF], 6
+		addop('push.i16', [0x68], nil, {}, :i) { |o| o.props[:opsz] = 16 }	# order matters !
+		addop 'push',  [0x68], nil,  {:s => [0, 1]}, :i				# order matters !
+		addop('push.i32', [0x68], nil, {}, :i) { |o| o.props[:opsz] = 32 }	# order matters !
+		addop 'ret',   [0xC3], nil,  {}, :stopexec, :setip
+		addop 'ret',   [0xC2], nil,  {}, :stopexec, :u16, :setip
+		addop_macro3 'rol', 0
+		addop_macro3 'ror', 1
+		addop_macro3 'sar', 7
+		addop_macro1 'sbb', 3
+		addop_macrostr 'scas',  [0xAE], :stropz
+		addop_macrotttn('set', [0x0F, 0x90], 0) { |o| o.props[:argsz] = 8 }
+		addop_macro3 'shl', 4
+		addop_macro3 'sal', 4
+		addop 'shld',  [0x0F, 0xA4], :mrm, {}, :u8
+		addop 'shld',  [0x0F, 0xA5], :mrm, {}, :reg_cl
+		addop_macro3 'shr', 5
+		addop 'shrd',  [0x0F, 0xAC], :mrm, {}, :u8
+		addop 'shrd',  [0x0F, 0xAD], :mrm, {}, :reg_cl
+		addop_macrostr 'stos',  [0xAA], :strop
+		addop_macro1 'sub', 5
+		addop 'test',  [0x84], :mrmw
+		addop 'test',  [0xA8], nil,  {:w => [0, 0]}, :reg_eax, :u
+		addop 'test',  [0xF6], 0,    {:w => [0, 0]}, :u
+		addop_macro1 'xor', 6, :u
+	end
+
+	def init_386_only
+		init_cpu_constants
+
+		addop 'aaa',   [0x37]
+		addop 'aad',   [0xD5, 0x0A]
+		addop 'aam',   [0xD4, 0x0A]
+		addop 'aas',   [0x3F]
 		addop 'arpl',  [0x63], :mrm
 		addop 'bound', [0x62], :mrmA
 		addop 'bsf',   [0x0F, 0xBC], :mrm
 		addop 'bsr',   [0x0F, 0xBD], :mrm
-		addop 'bswap', [0x0F, 0xC8], :reg
-		
 		addop_macro2 'bt' , 0
 		addop_macro2 'btc', 3
 		addop_macro2 'btr', 2
 		addop_macro2 'bts', 1
-		
-		addop 'call',  [0xE8], nil,  {}, :stopexec, :setip, :i, :saveip
-		addop 'call',  [0xFF], 2,    {}, :stopexec, :setip, :saveip
 		addop 'call',  [0x9A], nil,  {}, :stopexec, :setip, :farptr, :saveip
 		addop 'callf', [0xFF], 3,    {}, :stopexec, :setip, :saveip
-		
-		addop('cbw',   [0x98]) { |o| o.props[:opsz] = 16 }
-		addop('cdq',   [0x99]) { |o| o.props[:opsz] = 32 }
 		addop 'clc',   [0xF8]
 		addop 'cld',   [0xFC]
 		addop 'cli',   [0xFA]
 		addop 'clts',  [0x0F, 0x06]
 		addop 'cmc',   [0xF5]
-		
-		addop_macro1 'cmp', 7
-		
-		addop_macrostr 'cmps',  [0xA6], :stropz
 		addop 'cmpxchg',[0x0F, 0xB0], :mrmw
 		addop 'cpuid', [0x0F, 0xA2]
 		addop('cwd',   [0x99]) { |o| o.props[:opsz] = 16 }
 		addop('cwde',  [0x98]) { |o| o.props[:opsz] = 32 }
 		addop 'daa',   [0x27]
 		addop 'das',   [0x2F]
-		addop 'dec',   [0x48], :reg
-		addop 'dec',   [0xFE], 1,    {:w => [0, 0]}
-		addop 'div',   [0xF6], 6,    {:w => [0, 0]}
-		addop 'enter', [0xC8], nil,  {}, :u16, :u8
 		addop 'hlt',   [0xF4], nil, {}, :stopexec
-		addop 'idiv',  [0xF6], 7,    {:w => [0, 0]}
-		addop 'imul',  [0xF6], 5,    {:w => [0, 0]}, :reg_eax
-		addop 'imul',  [0x0F, 0xAF], :mrm
-		addop 'imul',  [0x69], :mrm, {:s => [0, 1]}, :i
 		addop 'in',    [0xE4], nil,  {:w => [0, 0]}, :reg_eax, :u8
 		addop 'in',    [0xE4], nil,  {:w => [0, 0]}, :u8
 		addop 'in',    [0xEC], nil,  {:w => [0, 0]}, :reg_eax, :reg_dx
 		addop 'in',    [0xEC], nil,  {:w => [0, 0]}, :reg_eax
 		addop 'in',    [0xEC], nil,  {:w => [0, 0]}
-		addop 'inc',   [0x40], :reg
-		addop 'inc',   [0xFE], 0,    {:w => [0, 0]}
 		addop_macrostr 'ins',   [0x6C], :strop
-		addop 'int',   [0xCC], nil,  {}, :imm_val3
-		addop 'int',   [0xCD], nil,  {}, :u8
 		addop 'into',  [0xCE]
 		addop 'invd',  [0x0F, 0x08]
 		addop 'invlpg',[0x0F, 0x01], 7
 		addop 'iret',  [0xCF], nil,  {}, :stopexec, :setip
 		addop 'iretd', [0xCF], nil,  {}, :stopexec, :setip
-		addop_macrotttn 'j', [0x70], nil, {}, :setip, :i8
-		addop_macrotttn 'j', [0x0F, 0x80], nil, {}, :setip, :i
 		addop('jcxz',  [0xE3], nil,  {}, :setip, :i8) { |o| o.props[:opsz] = 16 }
 		addop('jecxz', [0xE3], nil,  {}, :setip, :i8) { |o| o.props[:opsz] = 32 }
-		addop 'jmp',   [0xE9], nil,  {:s => [0, 1]}, :setip, :i,  :stopexec
-		addop 'jmp',   [0xFF], 4,    {}, :setip, :stopexec
 		addop 'jmp',   [0xEA], nil,  {}, :farptr, :stopexec
 		addop 'jmpf',  [0xFF], 5,    {}, :stopexec		# reg ?
 		addop 'lahf',  [0x9F]
 		addop 'lar',   [0x0F, 0x02], :mrm
 		addop 'lds',   [0xC5], :mrmA
-		addop 'lea',   [0x8D], :mrmA
-		addop 'leave', [0xC9]
 		addop 'les',   [0xC4], :mrmA
 		addop 'lfs',   [0x0F, 0xB4], :mrmA
 		addop 'lgs',   [0x0F, 0xB5], :mrmA
@@ -110,107 +164,47 @@ class Ia32
 		addop 'lldt',  [0x0F, 0x00], 2
 		addop 'lmsw',  [0x0F, 0x01], 6
 # prefix	addop 'lock',  [0xF0]
-		addop_macrostr 'lods',  [0xAC], :strop
-		addop 'loop',  [0xE2], nil,  {}, :setip, :i8
-		addop 'loopz', [0xE1], nil,  {}, :setip, :i8
-		addop 'loope', [0xE1], nil,  {}, :setip, :i8
-		addop 'loopnz',[0xE0], nil,  {}, :setip, :i8
-		addop 'loopne',[0xE0], nil,  {}, :setip, :i8
 		addop 'lsl',   [0x0F, 0x03], :mrm
 		addop 'lss',   [0x0F, 0xB2], :mrmA
 		addop 'ltr',   [0x0F, 0x00], 3
-		addop 'mov',   [0xA0], nil,  {:w => [0, 0], :d => [0, 1]}, :mrm_imm, :reg_eax
-		addop 'mov',   [0x88], :mrmw,{:d => [0, 1]}
-		addop 'mov',   [0xB0], :reg, {:w => [0, 3]}, :u
-		addop 'mov',   [0xC6], 0,    {:w => [0, 0]}, :u
 		addop 'mov',   [0x0F, 0x20, 0xC0], :reg, {:d => [1, 1], :eeec => [2, 3]}, :eeec
 		addop 'mov',   [0x0F, 0x21, 0xC0], :reg, {:d => [1, 1], :eeed => [2, 3]}, :eeed
 		addop('mov',   [0x8C], 0,    {:d => [0, 1], :seg3 => [1, 3]}, :seg3) { |op| op.args.reverse! }
-		addop_macrostr 'movs',  [0xA4], :strop
-		addop 'movsx', [0x0F, 0xBE], :mrmw
-		addop 'movzx', [0x0F, 0xB6], :mrmw
-		addop 'mul',   [0xF6], 4,    {:w => [0, 0]}
-		addop 'neg',   [0xF6], 3,    {:w => [0, 0]}
-		addop 'nop',   [0x90]
-		addop 'not',   [0xF6], 2,    {:w => [0, 0]}
-		
-		addop_macro1 'or', 1, :u
-		
 		addop 'out',   [0xE6], nil,  {:w => [0, 0]}, :reg_eax, :u8
 		addop 'out',   [0xE6], nil,  {:w => [0, 0]}, :u8
 		addop 'out',   [0xEE], nil,  {:w => [0, 0]}, :reg_eax, :reg_dx
 		addop 'out',   [0xEE], nil,  {:w => [0, 0]}, :reg_eax			# implicit arguments
 		addop 'out',   [0xEE], nil,  {:w => [0, 0]}
 		addop_macrostr 'outs',  [0x6E], :strop
-		addop 'pop',   [0x58], :reg
-		addop 'pop',   [0x8F], 0
 		addop 'pop',   [0x07], nil,  {:seg2A => [0, 3]}, :seg2A
 		addop 'pop',   [0x0F, 0x81], nil,  {:seg3A => [1, 3]}, :seg3A
 		addop('popa',  [0x61]) { |o| o.props[:opsz] = 16 }
 		addop('popad', [0x61]) { |o| o.props[:opsz] = 32 }
 		addop('popf',  [0x9D]) { |o| o.props[:opsz] = 16 }
 		addop('popfd', [0x9D]) { |o| o.props[:opsz] = 32 }
-		addop 'push',  [0x50], :reg
-		addop 'push',  [0xFF], 6
-		addop('push.i16', [0x68], nil, {}, :i) { |o| o.props[:opsz] = 16 }
-		addop 'push',  [0x68], nil,  {:s => [0, 1]}, :i
-		addop('push.i32', [0x68], nil, {}, :i) { |o| o.props[:opsz] = 32 }
 		addop 'push',  [0x06], nil,  {:seg2 => [0, 3]}, :seg2
 		addop 'push',  [0x0F, 0x80], nil,  {:seg3A => [1, 3]}, :seg3A
 		addop('pusha', [0x60]) { |o| o.props[:opsz] = 16 }
 		addop('pushad',[0x60]) { |o| o.props[:opsz] = 32 }
 		addop('pushf', [0x9C]) { |o| o.props[:opsz] = 16 }
 		addop('pushfd',[0x9C]) { |o| o.props[:opsz] = 32 }
-		
 		addop_macro3 'rcl', 2
 		addop_macro3 'rcr', 3
-		
 		addop 'rdmsr', [0x0F, 0x32]
 		addop 'rdpmc', [0x0F, 0x33]
 		addop 'rdtsc', [0x0F, 0x31], nil, {}, :random
-		addop 'ret',   [0xC3], nil,  {}, :stopexec, :setip
-		addop 'ret',   [0xC2], nil,  {}, :stopexec, :u16, :setip
 		addop 'retf',  [0xCB], nil,  {}, :stopexec, :setip
 		addop 'retf',  [0xCA], nil,  {}, :stopexec, :u16, :setip
-		
-		addop_macro3 'rol', 0
-		addop_macro3 'ror', 1
-		
 		addop 'rsm',   [0x0F, 0xAA]
 		addop 'sahf',  [0x9E]
-		
-		addop_macro3 'sar', 7
-		
-		addop_macro1 'sbb', 3
-		
-		addop_macrostr 'scas',  [0xAE], :stropz
-		addop_macrotttn('set', [0x0F, 0x90], 0) { |o| o.props[:argsz] = 8 }
 		addop 'sgdt',  [0x0F, 0x01, 0x00], nil,  {:modrmA => [2, 0]}, :modrmA
-		
-		addop_macro3 'shl', 4
-		addop_macro3 'sal', 4
-		
-		addop 'shld',  [0x0F, 0xA4], :mrm, {}, :u8
-		addop 'shld',  [0x0F, 0xA5], :mrm, {}, :reg_cl
-		
-		addop_macro3 'shr', 5
-		
-		addop 'shrd',  [0x0F, 0xAC], :mrm, {}, :u8
-		addop 'shrd',  [0x0F, 0xAD], :mrm, {}, :reg_cl
 		addop 'sidt',  [0x0F, 0x01, 0x08], nil,  {:modrmA => [2, 0]}, :modrmA
 		addop 'sldt',  [0x0F, 0x00], 0
 		addop 'smsw',  [0x0F, 0x01], 4
 		addop 'stc',   [0xF9]
 		addop 'std',   [0xFD]
 		addop 'sti',   [0xFB]
-		addop_macrostr 'stos',  [0xAA], :strop
 		addop 'str',   [0x0F, 0x00], 1
-		
-		addop_macro1 'sub', 5
-		
-		addop 'test',  [0x84], :mrmw
-		addop 'test',  [0xA8], nil,  {:w => [0, 0]}, :reg_eax, :u
-		addop 'test',  [0xF6], 0,    {:w => [0, 0]}, :u
 		addop 'ud2',   [0x0F, 0x0B]
 		addop 'verr',  [0x0F, 0x00], 4
 		addop 'verw',  [0x0F, 0x00], 5
@@ -222,12 +216,9 @@ class Ia32
 		addop('xchg',  [0x90], :reg, {}, :reg_eax) { |o| o.args.reverse! }	# xchg eax, ebx == xchg ebx, eax)
 		addop 'xchg',  [0x86], :mrmw
 		addop 'xlat',  [0xD7]
-		
-		addop_macro1 'xor', 6, :u
 	
 # pfx:  addrsz = 0x67, lock = 0xf0, opsz = 0x66, repnz = 0xf2, rep/repz = 0xf3
 #	cs/nojmp = 0x2E, ds/jmp = 0x3E, es = 0x26, fs = 0x64, gs = 0x65, ss = 0x36
-
 		# undocumented opcodes
 		# TODO put these in the right place (486/P6/...)
 		addop 'aad',   [0xD5], nil,  {}, :u8
@@ -238,9 +229,8 @@ class Ia32
 		addop 'umov',  [0x0F, 0x10], :mrmw,{:d => [1, 1]}
 	end
 
-	def init_387
-		@fields_mask[:regfp] = 0x7
-		@valid_args.push :regfp, :regfp0
+	def init_387_only
+		init_cpu_constants
 		
 		addop 'f2xm1', [0xD9, 0xF0]
 		addop 'fabs',  [0xD9, 0xE1]
@@ -334,16 +324,13 @@ class Ia32
 		addop 'fwait',  [0x9B]
 	end
 	
-	def init_486
-		# TODO add new segments (fs/gs)..
-		init_386
-		init_387
+	def init_486_only
+		init_cpu_constants
+		# TODO add new segments (fs/gs) ?
 	end
 
-	def init_pentium
-		init_486
-		@fields_mask[:regmmx] = 0x7
-		@valid_args.push :modrmmmx, :regmmx
+	def init_pentium_only
+		init_cpu_constants
 		
 		addop 'cmpxchg8b', [0x0F, 0xC7], 1
 		# lock cmpxchg8b eax
@@ -379,9 +366,7 @@ class Ia32
 		addop 'pxor',  [0x0F, 0xEF], :mrmmmx
 	end
 	
-	def init_p6
-		init_pentium
-		
+	def init_p6_only
 		addop_macrotttn 'cmov', [0x0F, 0x40], :mrm
 		
 		%w{b e be u}.each_with_index { |tt, i|
@@ -395,26 +380,28 @@ class Ia32
 		addop 'sysexit', [0x0F, 0x35]
 	end
 	
-	def init_3dnow
-		init_pentium
+	def init_3dnow_only
+		init_cpu_constants
 
+		[['pavgusb', 0xBF], ['pfadd', 0x9E], ['pfsub', 0x9A],
+		 ['pfsubr', 0xAA], ['pfacc', 0xAE], ['pfcmpge', 0x90],
+		 ['pfcmpgt', 0xA0], ['fpcmpeq', 0xB0], ['pfmin', 0x94],
+		 ['pfmax', 0xA4], ['pi2fd', 0x0D], ['pf2id', 0x1D],
+		 ['pfrcp', 0x96], ['pfrsqrt', 0x97], ['pfmul', 0xB4],
+		 ['pfrcpit1', 0xA6], ['pfrsqit1', 0xA7], ['pfrcpit2', 0xB6],
+		 ['pmulhrw', 0xB7]].each { |str, bin|
+			addop str, [0x0F, 0x0F, bin], :mrmmmx
+		}
+		# 3dnow prefix fallback
 		addop '3dnow', [0x0F, 0x0F], :mrmmmx, {}, :u8
-		# 3dnow is a multiplexer, the real instruction depends on :u8:
-		#  BF pavgusb  9E pfadd    9A pfsub   AA pfsubr
-		#  AE pfacc    90 pfcmpge  A0 pfcmpgt B0 fpcmpeq
-		#  94 pfmin    A4 pfmax    0D pi2fd   1D pf2id
-		#  96 pfrcp    97 pfrsqrt  B4 pfmul   A6 pfrcpit1
-		#  A7 pfrsqit1 B6 pfrcpit2 B7 pmulhrw
+
 		addop 'femms', [0x0F, 0x0E]
 		addop 'prefetch', [0x0F, 0x0D, 0x00], nil, {:modrmA => [2, 0] }, :modrmA
 		addop 'prefetchw', [0x0F, 0x0D, 0x08], nil, {:modrmA => [2, 0] }, :modrmA
 	end
 
-	def init_sse
-		init_p6
-		@fields_mask[:regxmm] = 0x7
-		@valid_args.push :modrmxmm, :regxmm
-		@valid_props.push :needpfx, :xmmx
+	def init_sse_only
+		init_cpu_constants
 
 		addop_macrossps 'addps', [0x0F, 0xA8], :mrmxmm
 		addop 'andnps',  [0x0F, 0xAA], :mrmxmm
@@ -422,7 +409,7 @@ class Ia32
 		addop_macrossps 'cmpps', [0x0F, 0xC2], :mrmxmm
 		addop 'comiss',  [0x0F, 0x2F], :mrmxmm
 		
-		%w[pi2ps ps2pi tps2pi].zip([0x2A, 0x2D, 0x2C]).each { |str, bin|
+		[['pi2ps', 0x2A], ['ps2pi', 0x2D], ['tps2pi', 0x2C]].each { |str, bin|
 			addop('cvt' << str, [0x0F, bin], :mrmxmm) { |o| o.args[o.args.index(:modrmxmm)] = :modrmmmx }
 			addop('cvt' << str.tr('p', 's'), [0x0F, bin], :mrmxmm) { |o| o.args[o.args.index(:modrmxmm)] = :modrm ; o.props[:needpfx] = 0xF3 }
 		}
@@ -478,14 +465,14 @@ class Ia32
 		addop 'sfence',  [0x0F, 0xAE, 0xF8]
 	end
 
-	def init_sse2
-		init_sse
+	# XXX must be done after init_sse (patches :regmmx opcodes)
+	# TODO complete the list
+	def init_sse2_only
+		init_cpu_constants
 
 		@opcode_list.each { |o| o.props[:xmmx] = true if o.args.include? :regmmx and o.args.include? :modrmmmx }
 
-		# TODO
 		# TODO <..blabla...integer...blabla..>
-		# TODO
 		
 		# nomem
 		addop 'clflush', [0x0F, 0xAE, 0x38], nil, {:modrm => [2, 0]}, :modrm	# mrmA ?
@@ -498,8 +485,8 @@ class Ia32
 		addop 'mfence',  [0x0F, 0xAE, 0xF0]
 	end
 
-	def init_sse3
-		init_sse2
+	def init_sse3_only
+		init_cpu_constants
 
 		addop('addsubpd', [0x0F, 0xD0], :mrmxmm) { |o| o.props[:needpfx] = 0x66 }
 		addop('addsubps', [0x0F, 0xD0], :mrmxmm) { |o| o.props[:needpfx] = 0xF2 }
@@ -520,12 +507,12 @@ class Ia32
 		addop('movsldup', [0x0F, 0x12], :mrmxmm) { |o| o.props[:needpfx] = 0xF3 }
 	end
 
-	def init_vmx
-		init_sse3
+	def init_vmx_only
+		init_cpu_constants
 
 		addop 'vmcall',   [0x0F, 0x01, 0xC1]
 
-		if @size == 64
+		# 64bits only, if I trust intel manuals..
 		addop('vmclear',  [0x66, 0x0F, 0xC7, 6<<3], nil, {:modrmA => [3, 0]}, :modrmA) { |o| o.props[:argsz] = 64 }
 		addop 'vmlaunch', [0x0F, 0x01, 0xC2]
 		addop 'vmresume', [0x0F, 0x01, 0xC3]
@@ -536,17 +523,83 @@ class Ia32
 		addop 'vmwrite',  [0x0F, 0x79], :mrm
 		addop 'vmxoff',   [0x0F, 0x01, 0xC4]
 		addop('vmxon',    [0xF3, 0x0F, 0xC7, 6<<3], nil, {:modrmA => [3, 0]}, :modrmA) { |o| o.props[:argsz] = 64 }
-		end
 	end
 
-	alias init_latest init_vmx
 
-	private
+	# 
+	# CPU family dependencies
+	#
 
+	def init_386_common
+		init_386_common_only
+	end
+
+	def init_386
+		init_386_common
+		init_386_only
+	end
+
+	def init_387
+		init_387_only
+	end
+
+	def init_486
+		init_386
+		init_387
+		init_486_only
+	end
+
+	def init_pentium
+		init_486
+		init_pentium_only
+	end
+
+	def init_3dnow
+		init_pentium
+		init_3dnow_only
+	end
+
+	def init_p6
+		init_pentium
+		init_p6_only
+	end
+		
+	def init_sse
+		init_p6
+		init_sse_only
+	end
+
+	def init_sse2
+		init_sse
+		init_sse2_only
+	end
+
+	def init_sse3
+		init_sse2
+		init_sse3_only
+	end
+
+	def init_vmx
+		init_sse3
+		init_vmx_only
+	end
+
+	def init_all
+		init_vmx
+		init_3dnow_only
+	end
+
+	alias init_latest init_all
+
+
+	#
+	# addop_* macros
+	#
+	
 	def addop_macro1(name, num, immtype=:i)
-		addop name, [(num << 3) | 4], nil, {:w => [0, 0]}, :reg_eax, :u
+		addop name, [(num << 3) | 4], nil, {:w => [0, 0]}, :reg_eax, immtype
 		addop name, [num << 3], :mrmw, {:d => [0, 1]}
-		addop name, [0x80], num, {:w => [0, 0], :s => [0, 1]}, :u
+		addop name, [0x80], num, {:w => [0, 0], :s => [0, 1]}, immtype
 	end
 	def addop_macro2(name, num)
 		addop name, [0x0F, 0xBA], (4 | num), {}, :u8

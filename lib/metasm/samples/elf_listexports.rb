@@ -6,7 +6,7 @@
 # 
 # this script takes a list of dll filenames as arguments, and outputs each lib export
 # libname, followed by the list of the exported symbol names, in a format usable
-# by the PE class autoimport functionnality (see metasm/os/windows.rb)
+# by the Elf class autoimport functionnality (see metasm/os/linux.rb)
 #
 
 require 'metasm'

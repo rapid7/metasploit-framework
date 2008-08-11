@@ -408,7 +408,7 @@ class ELF
 				if not o = addr_to_off(s.value)
 					# allow to point to end of segment
 					if not seg = @segments.find { |seg| seg.type == 'LOAD' and seg.vaddr + seg.memsz == s.value }	# check end
-						puts "W: Elf: symbol points to unmmaped space (#{s.inspect})" if $VERBOSE
+						puts "W: Elf: symbol points to unmmaped space (#{s.inspect})" if $VERBOSE and s.shndx != 'ABS'
 						next
 					end
 					# LoadedELF would have returned an addr_to_off = addr
@@ -470,6 +470,7 @@ class ELF
 		relocproc = "arch_decode_segments_reloc_#{@header.machine.to_s.downcase}"
 		if not respond_to? relocproc
 			puts "W: Elf: relocs for arch #{@header.machine} unsupported" if $VERBOSE
+			@relocations.each { |r| puts Expression[r.offset] }
 			return
 		end
 		@relocations.each { |r|
@@ -544,6 +545,35 @@ class ELF
 		Metasm::Relocation.new(Expression[target], :u32, @endianness) if target
 	end
 
+	# returns the Metasm::Relocation that should be applied for reloc
+	# self.encoded.ptr must point to the location that will be relocated (for implicit addends)
+	def arch_decode_segments_reloc_mips(reloc)
+		if reloc.symbol and n = reloc.symbol.name and reloc.symbol.shndx == 'UNDEF' and @sections and
+			s = @sections.find { |s| s.name and s.offset <= @encoded.ptr and s.offset + s.size > @encoded.ptr }
+			@encoded.add_export(new_label("#{s.name}_#{n}"), @encoded.ptr, true)
+		end
+
+		# decode addend if needed
+		case reloc.type
+		when 'NONE' # no addend
+		else addend = reloc.addend || decode_sword
+		end
+
+		case reloc.type
+		when 'NONE'
+		when '32', 'REL32'
+			target = 0
+			target = reloc.symbol.name if reloc.symbol.kind_of?(Symbol) and reloc.symbol.name
+			target = Expression[target, :-, reloc.offset] if reloc.type == 'REL32'
+			target = Expression[target, :+, addend] if addend and addend != 0
+		else
+			puts "W: Elf: unhandled MIPS reloc #{reloc.inspect}" if $VERBOSE
+			target = nil
+		end
+
+		Metasm::Relocation.new(Expression[target], :u32, @endianness) if target
+	end
+
 	# decodes the ELF dynamic tags, interpret them, and decodes symbols and relocs
 	def decode_segments_dynamic
 		return if not dynamic = @segments.find { |s| s.type == 'DYNAMIC' }
@@ -559,7 +589,8 @@ class ELF
 	def decode_segments
 		decode_segments_dynamic
 		@segments.each { |s|
-			if s.type == 'LOAD'
+			case s.type
+			when 'LOAD', 'INTERP'
 				s.encoded = @encoded[s.offset, s.filesz]
 				s.encoded.virtsize = s.memsz if s.memsz > s.encoded.virtsize
 			end
@@ -579,7 +610,8 @@ class ELF
 				if s.type == 'NOBITS'
 					s.encoded = EncodedData.new :virtsize => s.size
 				else
-					s.encoded = @encoded[s.offset, s.size]
+					s.encoded = @encoded[s.offset, s.size] || EncodedData.new
+					s.encoded.virtsize = s.size
 				end
 			end
 		}
@@ -604,7 +636,8 @@ class ELF
 	def cpu_from_headers
 		case @header.machine
 		when '386': Ia32.new
-		else raise 'unknown cpu'
+		when 'MIPS': MIPS.new @endianness
+		else raise "unknown cpu #{@header.machine}"
 		end
 	end
 
@@ -629,19 +662,17 @@ class ELF
 	# returns a disassembler with a special decodedfunction for dlsym, __libc_start_main, and a default function (i386 only)
 	def init_disassembler
 		d = super
-		d.backtrace_maxblocks_data = 8
-		if @cpu.kind_of? Ia32
+		d.backtrace_maxblocks_data = 4
+		case @cpu
+		when Ia32
 			old_cp = d.c_parser
 			d.c_parser = nil
 			d.parse_c 'void *dlsym(int, char *);'
 			d.parse_c 'void __libc_start_main(void(*)(), int, int, void(*)(), void(*)()) __attribute__((noreturn));'
-			d.parse_c 'void stdfunc(void);'
 			dls  = @cpu.decode_c_function_prototype(d.c_parser, 'dlsym')
 			main = @cpu.decode_c_function_prototype(d.c_parser, '__libc_start_main')
-			df   = @cpu.decode_c_function_prototype(d.c_parser, 'stdfunc', :default)
 			d.c_parser = old_cp
 			dls.btbind_callback = proc { |dasm, bind, funcaddr, calladdr, expr, origin, maxdepth|
-
 				sz = @cpu.size/8
 				raise 'dlsym call error' if not dasm.decoded[calladdr]
 				fnaddr = dasm.backtrace(Indirection.new(Expression[:esp, :+, 2*sz], sz, calladdr), calladdr, :include_start => true, :maxdepth => maxdepth)
@@ -652,7 +683,16 @@ class ELF
 			}
 			d.function[Expression['dlsym']] = dls
 			d.function[Expression['__libc_start_main']] = main
-			d.function[:default] = df
+			df = d.function[:default] = @cpu.disassembler_default_func
+			df.backtrace_binding[:esp] = Expression[:esp, :+, 4]
+			df.btbind_callback = nil
+		when MIPS
+			(d.address_binding[@header.entry] ||= {})[:$t9] ||= Expression[@header.entry]
+			@symbols.each { |s|
+				next if s.shndx == 'UNDEF' or s.type != 'FUNC'
+				(d.address_binding[s.value] ||= {})[:$t9] ||= Expression[s.value]
+			}
+			d.function[:default] = @cpu.disassembler_default_func
 		end
 		d
 	end

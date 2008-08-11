@@ -439,7 +439,7 @@ class CCompiler < C::Compiler
 				if expr.rexpr.type.name == :__int64 and @cpusz != 64
 					raise # TODO
 				end
-				instr 'test', r, Expression[-1]
+				instr 'test', r, r
 			elsif expr.rexpr.type.float?
 				if @exeformat.cpu.opcode_list_byname['fucomip']
 					instr 'fldz'
@@ -515,7 +515,7 @@ class CCompiler < C::Compiler
 				if m.sz == 64 and @cpusz < 64
 					foo, m = get_composite_parts m
 				end
-				instr 'test', m, -1
+				instr 'test', m, m
 				instr 'jns', Expression[label]
 				instr 'push.i32', Expression[0x7fff_ffff]
 				instr 'push.i32', Expression[0xffff_ffff]
@@ -1160,12 +1160,12 @@ class CCompiler < C::Compiler
 		when :'!'
 			r = c_cexpr_inner(expr.rexpr)
 			unuse r
-			instr 'test', r, Expression[-1]
+			instr 'test', r, r
 			instr 'jz', Expression[target]
 		else
 			r = c_cexpr_inner(expr)
 			unuse r
-			instr 'test', r, Expression[-1]
+			instr 'test', r, r
 			instr 'jnz', Expression[target]
 		end
 	end

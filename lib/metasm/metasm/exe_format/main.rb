@@ -44,6 +44,18 @@ class ExeFormat
 		e
 	end
 
+	def self.decode(raw, *a)
+		e = load(raw, *a)
+		e.decode
+		e
+	end
+
+	def self.decode_header(raw, *a)
+		e = load(raw, *a)
+		e.decode_header
+		e
+	end
+
 	# creates a new object using the specified cpu, parses the asm source, and assemble
 	def self.assemble(cpu, source, file=nil, lineno=nil)
 		caller.first =~ /^(.*?):(\d+)/
@@ -96,11 +108,9 @@ class ExeFormat
 	# returns the exe disassembler
 	# if it does not exist, creates one, and feeds it with the exe sections
 	def init_disassembler
-		if not defined? @disassembler or not @disassembler
-			@cpu ||= cpu_from_headers
-			@disassembler = Disassembler.new(self)
-			each_section { |edata, base| @disassembler.add_section edata, base }
-		end
+		@cpu ||= cpu_from_headers
+		@disassembler = Disassembler.new(self)
+		each_section { |edata, base| @disassembler.add_section edata, base }
 		@disassembler
 	end
 
@@ -109,7 +119,7 @@ class ExeFormat
 	# uses get_default_entrypoints if the argument list is empty
 	# returns the disassembler
 	def disassemble(*entrypoints)
-		init_disassembler
+		init_disassembler if not disassembler
 		entrypoints = get_default_entrypoints if entrypoints.empty?
 		@disassembler.disassemble(*entrypoints)
 	end
@@ -130,7 +140,7 @@ class ExeFormat
 	# saves the result of +encode_string+ in the specified file
 	# fails if the file already exists
 	def encode_file(path, *a)
-		raise Errno::EEXIST, path if File.exist? path	# race, but cannot use O_EXCL, as O_BINARY is not defined in ruby
+		#raise Errno::EEXIST, path if File.exist? path	# race, but cannot use O_EXCL, as O_BINARY is not defined in ruby
 		encode_string(*a)
 		File.open(path, 'wb') { |fd| fd.write(@encoded.data) }
 	end

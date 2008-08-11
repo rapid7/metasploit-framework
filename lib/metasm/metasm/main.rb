@@ -142,16 +142,17 @@ class Instruction
 
 	include Backtrace
 
-	def initialize(cpu, opname=nil, args=[], pfx={}, backtrace=nil)
+	def initialize(cpu, opname=nil, args=[], pfx=nil, backtrace=nil)
 		@cpu = cpu
-		@prefix, @args = pfx, args
 		@opname = opname
+		@args = args
+		@prefix = pfx if pfx
 		@backtrace = backtrace
 	end
 
 	# duplicates the argument list and prefix hash
 	def dup
-		Instruction.new(@cpu, (@opname.dup rescue @opname), @args.dup, @prefix.dup, @backtrace.dup)
+		Instruction.new(@cpu, (@opname.dup if opname), @args.dup, (@prefix.dup if prefix), (@backtrace.dup if backtrace))
 	end
 end
 
@@ -280,11 +281,18 @@ class ExeFormat
 	end
 end
 
+# superclass for classes similar to Expression
+# must define #bind, #reduce_rec, #match_rec, #externals
+class ExpressionType
+	def +(o) Expression[self, :+, o].reduce end
+	def -(o) Expression[self, :-, o].reduce end
+end
+
 # handle immediate values, and arbitrary arithmetic/logic expression involving variables
 # boolean values are treated as in C : true is 1, false is 0
 # TODO replace #type with #size => bits + #type => [:signed/:unsigned/:any/:floating]
 # TODO handle floats
-class Expression
+class Expression < ExpressionType
 	INT_SIZE = {:u8 => 8,    :u16 => 16,     :u32 => 32, :u64 => 64,
 		    :i8 => 8,    :i16 => 16,     :i32 => 32, :i64 => 64,
 		    :a8 => 8,    :a16 => 16,     :a32 => 32, :a64 => 64
@@ -365,13 +373,13 @@ class Expression
 		if l and binding[l]
 			raise "internal error - bound #{l.inspect}" if l.kind_of? ::Numeric
 			l = binding[l]
-		elsif l.respond_to? :bind
+		elsif l.kind_of? ExpressionType
 			l = l.bind(binding)
 		end
 		if r and binding[r]
 			raise "internal error - bound #{r.inspect}" if r.kind_of? ::Numeric
 			r = binding[r]
-		elsif r.respond_to? :bind
+		elsif r.kind_of? ExpressionType
 			r = r.bind(binding)
 		end
 		Expression[l, @op, r]
@@ -411,11 +419,11 @@ class Expression
 	# canonicalize additions: put variables in the lhs, descend addition tree in the rhs => (a + (b + (c + 12)))
 	# make formal reduction if finds somewhere in addition tree (a) and (-a)
 	def reduce_rec
-		l = @lexpr.respond_to?(:reduce_rec) ? @lexpr.reduce_rec : @lexpr
-		r = @rexpr.respond_to?(:reduce_rec) ? @rexpr.reduce_rec : @rexpr
+		l = @lexpr.kind_of?(ExpressionType) ? @lexpr.reduce_rec : @lexpr
+		r = @rexpr.kind_of?(ExpressionType) ? @rexpr.reduce_rec : @rexpr
 
 		v = 
-		if r.kind_of?(Numeric) and (l == nil or l.kind_of?(Numeric))
+		if r.kind_of?(::Numeric) and (l == nil or l.kind_of?(::Numeric))
 			# calculate numerics
 			if [:'&&', :'||', :'>', :'<', :'>=', :'<=', :'==', :'!='].include?(@op)
 				# bool expr
@@ -445,7 +453,7 @@ class Expression
 		# shortcircuit
 		elsif l == 0 and @op == :'&&'
 			0
-		elsif l.kind_of?(Numeric) and l != 0 and @op == :'||'
+		elsif l.kind_of?(::Numeric) and l != 0 and @op == :'||'
 			1
 
 		elsif @op == :>> or @op == :<<
@@ -456,28 +464,60 @@ class Expression
 			# XXX (a >> 1) << 1  !=  a (lose low bit)
 			# XXX (a << 1) >> 1  !=  a (with real cpus, lose high bit)
 			end
+		elsif @op == :'!'
+			if r.kind_of? Expression and op = {:'==' => :'!=', :'!=' => :'==', :< => :>=, :> => :<=, :<= => :>, :>= => :<}[r.op]
+				Expression[r.lexpr, op, r.rexpr].reduce_rec
+			end
 		elsif @op == :^
 			if l == :unknown or r == :unknown: :unknown
 			elsif l == 0: r
 			elsif r == 0: l
 			elsif l == r: 0
+			elsif r == 1 and l.kind_of? Expression and [:'==', :'!=', :<, :>, :<=, :>=].include? l.op
+				Expression[nil, :'!', l].reduce_rec
 			elsif l.kind_of? Expression and l.op == :^
 				# a^(b^c) => (a^b)^c
 				Expression[l.lexpr, :^, [l.rexpr, :^, r]].reduce_rec
 			elsif r.kind_of? Expression and r.op == :^
 				# (a^b)^a => b
-				if r.rexpr == l
-					Expression[r.lexpr].reduce_rec
-				elsif r.lexpr == l
-					Expression[r.rexpr].reduce_rec
+				if    r.rexpr == l: r.lexpr
+				elsif r.lexpr == l: r.rexpr
 				end
 			end
 		elsif @op == :&
-			0 if l == 0 or r == 0
+			if l == 0 or r == 0: 0
+			elsif r == 1 and l.kind_of? Expression and [:'==', :'!=', :<, :>, :<=, :>=].include? l.op
+				l
+			elsif l == r: l
+			elsif l.kind_of? Expression and l.op == :& and r.kind_of? Integer and l.rexpr.kind_of? Integer: Expression[l.lexpr, :&, r & l.rexpr].reduce_rec
+			elsif r.kind_of? ::Integer and l.kind_of? Expression and l.op == :|
+				# check for rol/ror composition
+				m = Expression[[['var', :sh_op, 'amt'], :|, ['var', :inv_sh_op, 'inv_amt']], :&, 'mask']
+				if vars = match(m, 'var', :sh_op, 'amt', :inv_sh_op, 'inv_amt', 'mask') and vars[:sh_op] == {:>> => :<<, :<< => :>>}[ vars[:inv_sh_op]] and
+				   ((vars['amt'].kind_of?(::Integer) and  vars['inv_amt'].kind_of?(::Integer) and ampl = vars['amt'] + vars['inv_amt']) or
+				    (vars['amt'].kind_of? Expression and vars['amt'].op == :% and vars['amt'].rexpr.kind_of? ::Integer and
+				     vars['inv_amt'].kind_of? Expression and vars['inv_amt'].op == :% and vars['amt'].rexpr == vars['inv_amt'].rexpr and ampl = vars['amt'].rexpr)) and
+				   vars['mask'].kind_of?(::Integer) and vars['mask'] == (1<<ampl)-1 and vars['var'].kind_of? Expression and	# it's a rotation
+				  ivars = vars['var'].match(m, 'var', :sh_op, 'amt', :inv_sh_op, 'inv_amt', 'mask') and ivars[:sh_op] == {:>> => :<<, :<< => :>>}[ivars[:inv_sh_op]] and
+				   ((ivars['amt'].kind_of?(::Integer) and  ivars['inv_amt'].kind_of?(::Integer) and ampl = ivars['amt'] + ivars['inv_amt']) or
+				    (ivars['amt'].kind_of? Expression and ivars['amt'].op == :% and ivars['amt'].rexpr.kind_of? ::Integer and
+				     ivars['inv_amt'].kind_of? Expression and ivars['inv_amt'].op == :% and ivars['amt'].rexpr == ivars['inv_amt'].rexpr and ampl = ivars['amt'].rexpr)) and
+				   ivars['mask'].kind_of?(::Integer) and ivars['mask'] == (1<<ampl)-1 and ivars['mask'] == vars['mask']		# it's a composed rotation
+					if ivars[:sh_op] != vars[:sh_op]
+						# ensure the rotations are the same orientation
+						ivars[:sh_op], ivars[:inv_sh_op] = ivars[:inv_sh_op], ivars[:sh_op]
+						ivars['amt'],  ivars['inv_amt']  = ivars['inv_amt'],  ivars['amt']
+					end
+					amt = Expression[[vars['amt'], :+, ivars['amt']], :%, ampl]
+					invamt = Expression[[vars['inv_amt'], :+, ivars['inv_amt']], :%, ampl]
+					Expression[[[ivars['var'], vars[:sh_op], amt], :|, [ivars['var'], vars[:inv_sh_op], invamt]], :&, vars['mask']].reduce_rec
+				end
+			end
 		elsif @op == :|
 			if    l == 0: r
 			elsif r == 0: l
 			elsif l == -1 or r == -1: -1
+			elsif l == r: l
 			end
 		elsif @op == :*
 			if    l == 0 or r == 0: 0
@@ -513,6 +553,8 @@ class Expression
 			elsif l.kind_of? Expression and l.op == :+
 				# (a+b)+foo => a+(b+foo)
 				Expression[l.lexpr, :+, [l.rexpr, :+, r]].reduce_rec
+			elsif l.kind_of? Expression and r.kind_of? Expression and l.op == :% and r.op == :% and l.rexpr.kind_of?(::Integer) and l.rexpr == r.rexpr
+				Expression[[l.lexpr, :+, r.lexpr], :%, l.rexpr].reduce_rec
 			else
 				# a+(b+(c+(-a))) => b+c+0
 				# a+((-a)+(b+c)) => 0+b+c
@@ -550,20 +592,56 @@ class Expression
 		end
 	end
 
+	# a pattern-matching method
+	# Expression[42, :+, 28].match(Expression['any', :+, 28], 'any') => {'any' => 42}
+	# Expression[42, :+, 28].match(Expression['any', :+, 'any'], 'any') => false
+	# Expression[42, :+, 42].match(Expression['any', :+, 'any'], 'any') => {'any' => 42}
+	# vars can match anything except nil
+	def match(target, *vars)
+		match_rec(target, vars.inject({}) { |h, v| h.update v => nil })
+	end
+
+	def match_rec(target, vars)
+		return false if not target.kind_of? Expression
+		[target.lexpr, target.op, target.rexpr].zip([@lexpr, @op, @rexpr]) { |targ, exp|
+			if targ and vars[targ]
+				return false if exp != vars[targ]
+			elsif targ and vars.has_key? targ
+				return false if not vars[targ] = exp
+			elsif targ.kind_of? ExpressionType
+				return false if not exp.kind_of? ExpressionType or not exp.match_rec(targ, vars)
+			else
+				return false if targ != exp
+			end
+		}
+		vars
+	end
+
 	# returns the array of non-numeric members of the expression
 	# if a variables appears 3 times, it will be present 3 times in the returned array
 	def externals
 		[@rexpr, @lexpr].inject([]) { |a, e|
 			case e
-			when Expression: a.concat e.externals
-			when nil, Numeric: a
+			when ExpressionType: a.concat e.externals
+			when nil, ::Numeric: a
+			else a << e
+			end
+		}
+	end
+
+	# returns the externals that appears in the expression, does not walk through other ExpressionType
+	def expr_externals
+		[@rexpr, @lexpr].inject([]) { |a, e|
+			case e
+			when Expression: a.concat e.expr_externals
+			when nil, ::Numeric, ExpressionType: a
 			else a << e
 			end
 		}
 	end
 
 	def inspect
-		"#<Expression:#{'%08x' % object_id} #{@lexpr.inspect} #{@op.inspect} #{@rexpr.inspect}>"
+		"Expression[#{@lexpr.inspect.sub(/^Expression/, '') + ', ' if @lexpr}#{@op.inspect + ', ' if @lexpr or @op != :+}#{@rexpr.inspect.sub(/^Expression/, '')}]"
 	end
 
 	Unknown = self[:unknown]
@@ -730,6 +808,7 @@ class EncodedData
 			other.export.each { |k, v| @export[k] = v + @virtsize }
 			other.inv_export.each { |k, v| @inv_export[@virtsize + k] = v }
 			if @data.empty?: @data = other.data.dup
+			elsif defined? VirtualString and @data.kind_of? VirtualString: @data = @data.realstring << other.data
 			else @data << other.data
 			end
 			@virtsize += other.virtsize

@@ -84,7 +84,7 @@ module Ansi
 	end
 end
 
-class Indirect
+class Indirect < Metasm::ExpressionType
 	attr_accessor :ptr, :sz
 	UNPACK_STR = {1 => 'C', 2 => 'S', 4 => 'L'}
 	def initialize(ptr, sz) @ptr, @sz = ptr, sz end
@@ -92,6 +92,7 @@ class Indirect
 		raw = bd['tracer_memory'][@ptr.bind(bd).reduce, @sz]
 		Metasm::Expression[raw.unpack(UNPACK_STR[@sz]).first]
 	end
+	def externals ; @ptr.externals end
 end
 
 class ExprParser < Metasm::Expression
@@ -373,7 +374,6 @@ class LinDebug
 	def mem_binding(expr)
 		b = @rs.regs_cache.dup
 		ext = expr.externals
-		ext.map! { |exte| exte.kind_of?(Indirect) ? exte.ptr.externals : exte }.flatten! while not ext.grep(Indirect).empty?
 		(ext - @rs.regs_cache.keys).each { |ex|
 			if not s = @rs.symbols.index(ex)
 				log "unknown value #{ex}"
@@ -511,7 +511,10 @@ class LinDebug
 					@dataptr -= 16
 				when :code
 					@codeptr ||= @rs.regs_cache['eip']
-					@codeptr -= (1..10).find { |off| @rs.mnemonic_di(@codeptr-off).bin_length == off rescue false } || 10
+					@codeptr -= (1..10).find { |off|
+						di = @rs.mnemonic_di(@codeptr-off)
+						di.bin_length == off if di
+					} || 10
 				end
 			when :down
 				case @focus
@@ -529,7 +532,8 @@ class LinDebug
 					@dataptr += 16
 				when :code
 					@codeptr ||= @rs.regs_cache['eip']
-					@codeptr += (((o = @rs.mnemonic_di(@codeptr).bin_length) == 0) ? 1 : o)
+					di = @rs.mnemonic_di(@codeptr)
+					@codeptr += (di ? (di.bin_length || 1) : 1)
 				end
 			when :left:  @promptpos -= 1 if @promptpos > 0
 			when :right: @promptpos += 1 if @promptpos < @promptbuf.length
@@ -544,7 +548,10 @@ class LinDebug
 				when :code
 					@codeptr ||= @rs.regs_cache['eip']
 					(@win_code_height-1).times {
-						@codeptr -= (1..10).find { |off| @rs.mnemonic_di(@codeptr-off).bin_length == off rescue false } || 10
+						@codeptr -= (1..10).find { |off|
+							di = @rs.mnemonic_di(@codeptr-off)
+							di.bin_length == off if di
+						} || 10
 					}
 				end
 			when :pgdown
@@ -629,8 +636,8 @@ class LinDebug
 			if r == 'fl'
 				flag = ntok.raw
 				if i = Rubstop::EFLAGS.index(flag)
-					@rs.eflags = @rs.regs_cache['eflags'] ^ (1 << i)
-					readregs
+					@rs.eflags ^= 1 << i
+					@rs.readregs
 				else
 					log "bad flag #{flag}"
 				end
@@ -638,8 +645,11 @@ class LinDebug
 				log "bad reg #{r}"
 			elsif ntok
 				lex.unreadtok ntok
-				@rs.send r+'=', int[]
-				@rs.readregs
+				newval = int[]
+				if newval and newval.kind_of? ::Integer
+					@rs.send r+'=', newval
+					@rs.readregs
+				end
 			else
 				log "#{r} = #{@rs.regs_cache[r]}"
 			end
@@ -766,6 +776,11 @@ if $0 == __FILE__
 	begin
 		require 'samples/rubstop'
 	rescue LoadError
+		if not defined? Rubstop
+			$: << File.dirname(__FILE__)
+			require 'rubstop'
+			$:.pop
+		end
 	end
 
 	LinDebug.new(Rubstop.new(ARGV.join(' '))).main_loop
