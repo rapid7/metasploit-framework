@@ -27,10 +27,10 @@ function getVersion(){
 	var os_lang = "English";
 	var browser_name;
 	var browser_version;
+	var useragent = navigator.userAgent;
 
 	var ver = "";
-	useragent = navigator.userAgent;
-	ver = navigator.userAgent;
+	ver = useragent;
 	
 	document.write("navigator.userAgent = '"+navigator.userAgent+"'<br>");
 	document.write("navigator.appVersion = '"+navigator.appVersion+"'<br>");
@@ -81,22 +81,6 @@ function getVersion(){
 		// any sploits for it yet and it's a very low market share
 		os_name = "#{oses::WINDOWS}";
 		browser_name = "#{clients::IE}";
-		if (document.documentElement && typeof document.documentElement.style.maxHeight!="undefined") {
-			browser_version = "7.0";
-		} else if (document.compatMode) { 
-			browser_version = "6.0";
-		} else if (window.createPopup) {
-			browser_version = "5.5";
-		} else if (window.attachEvent) {
-			browser_version = "5.0";
-		} else {
-			browser_version = "4.0";
-		}
-		switch (navigator.appMinorVersion){
-			case ";SP2;":
-				browser_version += ";SP2";
-				break;
-		}
 		ver = ScriptEngineMajorVersion().toString();
 		ver += ScriptEngineMinorVersion().toString();
 		ver += ScriptEngineBuildVersion().toString();
@@ -115,10 +99,13 @@ function getVersion(){
 				os_sp = "SP4";
 				break;
 			case "566626":
-				// found on 
-				//   IE 6.0.2600.0000 
-				//   XP SP0
+				// IE 6.0.2600.0000, XP SP0 English
 				os_flaver = "XP"; 
+				os_sp = "SP0";
+				break;
+			case "568515":
+				// IE 6.0.3790.0, 2003 Standard SP0 English
+				os_flavor = "2003";
 				os_sp = "SP0";
 				break;
 			case "568827":
@@ -138,6 +125,31 @@ function getVersion(){
 				os_flavor = "2003";
 				os_sp = "SP2";
 				break;
+			case "575730":
+				// IE 7.0.5730.13, Server 2003 Standard SP2 English
+				// IE 7.0.5730.13, XP Professional SP2 English
+				// rely on the user agent matching above to determine the OS,
+				// but we know it's SP2 either way
+				os_sp = "SP2";
+				break;
+		}
+		if (!browser_version) {
+			if (document.documentElement && typeof document.documentElement.style.maxHeight!="undefined") {
+				browser_version = "7.0";
+			} else if (document.compatMode) { 
+				browser_version = "6.0";
+			} else if (window.createPopup) {
+				browser_version = "5.5";
+			} else if (window.attachEvent) {
+				browser_version = "5.0";
+			} else {
+				browser_version = "4.0";
+			}
+			switch (navigator.appMinorVersion){
+				case ";SP2;":
+					browser_version += ";SP2";
+					break;
+			}
 		}
 	}
 
