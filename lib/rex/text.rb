@@ -932,6 +932,39 @@ module Text
 		States[rand(States.size)]
 	end
 
+
+	#
+	# Calculate the ROR13 hash of a given string
+	#
+	def self.ror13_hash(name)
+		hash = 0
+		name.unpack("C*").each {|c| hash = ror(hash, 13); hash += c }
+		hash
+	end
+
+	#
+	# Rotate a 32-bit value to the right by cnt bits
+	#
+	def self.ror(val, cnt)
+		bits = [val].pack("N").unpack("B32")[0].split(//)
+		1.upto(cnt) do |c|
+			bits.unshift( bits.pop )
+		end
+		[bits.join].pack("B32").unpack("N")[0]
+	end
+	
+	#
+	# Rotate a 32-bit value to the left by cnt bits
+	#
+	def self.rol(val, cnt)
+		bits = [val].pack("N").unpack("B32")[0].split(//)
+		1.upto(cnt) do |c|
+			bits.push( bits.shift )
+		end
+		[bits.join].pack("B32").unpack("N")[0]
+	end
+
+
 protected
 
 	def self.converge_sets(sets, idx, offsets, length) # :nodoc:
