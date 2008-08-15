@@ -100,7 +100,7 @@ class ObfuscateJS
 		elsif opts['Symbols']
 			@opts['Symbols'] = opts['Symbols']
 		end
-		@opts['Strings'] = opts['Strings'] || false
+		@opts['Strings'] ||= opts['Strings']
 	end
 
 	#

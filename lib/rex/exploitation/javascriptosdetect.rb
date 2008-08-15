@@ -29,8 +29,8 @@ function getVersion(){
 	var browser_version;
 	var useragent = navigator.userAgent;
 
-	var ver = "";
-	ver = useragent;
+	var version = "";
+	version = useragent;
 	
 	document.write("navigator.userAgent = '"+navigator.userAgent+"'<br>");
 	document.write("navigator.appVersion = '"+navigator.appVersion+"'<br>");
@@ -39,17 +39,17 @@ function getVersion(){
 	// userAgent all the time.  If userAgent is spoofed, appVersion will lie
 	// also, so we don't lose anything by doing it this way.
 
-	if (ver.indexOf("Windows 95") != -1)          { os_name = "#{oses::WINDOWS}"; os_flavor = "95";    }
-	else if (ver.indexOf("Windows NT 4") != -1)   { os_name = "#{oses::WINDOWS}"; os_flavor = "NT";    }
-	else if (ver.indexOf("Win 9x 4.9") != -1)     { os_name = "#{oses::WINDOWS}"; os_flavor = "ME";    }
-	else if (ver.indexOf("Windows 98") != -1)     { os_name = "#{oses::WINDOWS}"; os_flavor = "98";    }
-	else if (ver.indexOf("Windows NT 5.0") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "2000";  }
-	else if (ver.indexOf("Windows NT 5.1") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "XP";    }
-	else if (ver.indexOf("Windows NT 5.2") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "2003";  }
-	else if (ver.indexOf("Windows NT 6.0") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "Vista"; }
-	else if (ver.indexOf("Windows") != -1)        { os_name = "#{oses::WINDOWS}";                      }
-	else if (ver.indexOf("Mac") != -1)            { os_name = "#{oses::MAC_OSX}";                      }
-	else if (ver.indexOf("Linux") != -1)          { os_name = "#{oses::LINUX}";                        }
+	if (version.indexOf("Windows 95") != -1)          { os_name = "#{oses::WINDOWS}"; os_flavor = "95";    }
+	else if (version.indexOf("Windows NT 4") != -1)   { os_name = "#{oses::WINDOWS}"; os_flavor = "NT";    }
+	else if (version.indexOf("Win 9x 4.9") != -1)     { os_name = "#{oses::WINDOWS}"; os_flavor = "ME";    }
+	else if (version.indexOf("Windows 98") != -1)     { os_name = "#{oses::WINDOWS}"; os_flavor = "98";    }
+	else if (version.indexOf("Windows NT 5.0") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "2000";  }
+	else if (version.indexOf("Windows NT 5.1") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "XP";    }
+	else if (version.indexOf("Windows NT 5.2") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "2003";  }
+	else if (version.indexOf("Windows NT 6.0") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "Vista"; }
+	else if (version.indexOf("Windows") != -1)        { os_name = "#{oses::WINDOWS}";                      }
+	else if (version.indexOf("Mac") != -1)            { os_name = "#{oses::MAC_OSX}";                      }
+	else if (version.indexOf("Linux") != -1)          { os_name = "#{oses::LINUX}";                        }
 
 	if (os_name == "#{oses::LINUX}") {
 		if (useragent.indexOf("Gentoo") != -1)         { os_flavor = "Gentoo";   }
@@ -81,11 +81,11 @@ function getVersion(){
 		// any sploits for it yet and it's a very low market share
 		os_name = "#{oses::WINDOWS}";
 		browser_name = "#{clients::IE}";
-		ver = ScriptEngineMajorVersion().toString();
-		ver += ScriptEngineMinorVersion().toString();
-		ver += ScriptEngineBuildVersion().toString();
-		document.write("ScriptEngine: "+ver+"<br />");
-		switch (ver){
+		version = ScriptEngineMajorVersion().toString();
+		version += ScriptEngineMinorVersion().toString();
+		version += ScriptEngineBuildVersion().toString();
+		document.write("ScriptEngine: "+version+"<br />");
+		switch (version){
 			case "514615":
 				os_flavor = "2000";
 				os_sp = "SP0";
@@ -155,19 +155,19 @@ function getVersion(){
 
 	if (navigator.systemLanguage) {
 		// ie
-		ver = navigator.systemLanguage; 
+		version = navigator.systemLanguage; 
 	} else if (navigator.language) {
 		// gecko derivatives
-		ver = navigator.language; 
+		version = navigator.language; 
 	} else {
 		// some other browser and we don't know how to get the language, so
 		// just guess english 
-		ver = "en"; 
+		version = "en"; 
 	}
 
-	document.write("language = '"+ver+"'<br>");
-	os_lang = ver;
-	//switch (ver){
+	document.write("language = '"+version+"'<br>");
+	os_lang = version;
+	//switch (version){
 	//	case "fr": os_lang = "French";     break;
 	//	case "zh": os_lang = "Chinese";    break;
 	//	case "nl": os_lang = "Dutch";      break;
@@ -187,10 +187,10 @@ function getVersion(){
 	//		os_lang = "English"; break;
 	//} // switch navigator.systemLanguage
 
-	ver = navigator.platform;
-	if ( ("Win32" == ver) || (ver.match(/i.86/)) ) {
+	version = navigator.platform;
+	if ( ("Win32" == version) || (version.match(/i.86/)) ) {
 	    arch = "#{ARCH_X86}";
-	} else if (-1 != ver.indexOf('PPC'))  {
+	} else if (-1 != version.indexOf('PPC'))  {
 		arch = "#{ARCH_PPC}";
 	}
 
@@ -208,7 +208,7 @@ ENDJS
 				'arch',
 				'browser_name', 
 				'browser_version', 
-				'useragent', 'ver'
+				'useragent', 'version'
 				],
 			'Methods' => [ 'getVersion' ]
 			}
