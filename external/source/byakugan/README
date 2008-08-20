@@ -1,0 +1,84 @@
+Byakugan - Increase Your Sight
+	Pusscat		Lin0xx
+
+NOTE: If you trust me, skip to 4a. - I've already included built libs.
+
+A. Building / Installation
+	1. Requirements
+		a. Windows Server 2003 DDK
+		b. Debugging Tools For Windows
+			- Install to C:\windbg\ - or injectsu will not be found
+			- Make sure to install with the custom setting
+			- Explicitly choose to install the SDK
+	2. Fixing the WinDBG SDK
+		a. Find the sdk/inc/wdbgexts.h file in the windbg directory
+		b. Add the following like to the file after the _WDBGEXTS_ definition:
+			#define __field_ecount_opt(x) ()
+	3. Building the libraries
+		a. Open a Windows Server 2003 Free x86 Build Environment (from the DDK)
+		b. Go to the byakugan base directory
+		c. type: setup
+		
+	4. Installation
+		a. copy injectsu\i386\injectsu.dll C:\windbg\
+		b. copy bin\detoured.dll C:\windows\system32\
+		c. copy i386\byakugan.dll C:\windbg\
+
+B. Deployment:
+	1.	Start up windbg and attach to (or start up) a new process
+		a. Ensure that both process are at the same priv level,
+		   so they can both access the named pipe 
+		b. Load the byakugan dll:
+			!load C:\windbg\byakugan.dll
+		c. Display options with !byakugan command if desired
+
+C. Testing:
+	1. testPattern
+		a. This tests the pattern matcher in byakugan
+		b. Build and run in windbg
+		c. on crash you should be able to type:
+			!pattern_offset 500
+
+			And have it give you the registers you control,
+			and at what offset into the buffer they occur
+	2. testTenketsu
+		a. This tests the heap visualization in byakugan
+		b. Build and run in windbg
+		c. On the first break, type
+			!tenketsu listHeaps
+			
+			to find the heap containing the chunks you see (should say 11),
+			then type
+
+			!tenketsu listChunks <heap base>
+
+			to list the chunks information
+		d. Let it go, then when it breaks again, check the chunks again,
+		   and it should show half of them as freed.  You can for fun try to
+		   find out what that extra allocation is for. Should be pretty simple.
+
+D. Usage:
+	1. Tenketsu (Heap Visualization)
+        a. Load tenketsu heap visualization with:
+            !tenketsu
+        b. When process is broken, display heaps with
+            !tenketsu listHeaps
+        c. Display chunks with
+            !tenketsu listChunks <heap base>
+	2. Jutsu (Buffer Handling)
+		a. Register input with !jutsu identBuf <bufname> <CONTENTS>
+		b. Can also autoregister MSF pattern bufs with !jutsu identBuf msfpattern <size>
+		c. List registered buffers with !jutsu listBuf
+		d. Remove registered buffers with !jutsu rmBuf <name>
+		e. After crash, type !jutsu hunt to find out:
+			1. What buffer caused a crash
+			2. What registers you've overwritten (and if pattern, at what offset)
+			3. What registers point at what buffers
+			4. What corruption has occured (toupper, tolower, etc)
+		f. Use !jutsu findReturn to find valid return addresses
+			1. hunt will use all knowledge about controlled registers and buffer offsets
+			   to find all possible usable return addresses
+	3. Mushishi (Anti-debugging detection / removal)
+		a. Not much in here now, but growing
+		b. !mushishi detect - detects several methods
+		c. !mushishi defeat - defeats known defeatable methods

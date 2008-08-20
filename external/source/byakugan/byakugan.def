@@ -1,0 +1,16 @@
+EXPORTS
+
+;--------------------------------------------------------------------
+; These are the extensions exported by dll
+;--------------------------------------------------------------------
+    byakugan
+    pattern_offset
+	jutsu
+	tenketsu
+	mushishi
+
+    DebugExtensionNotify
+    DebugExtensionInitialize
+    DebugExtensionUninitialize
+    KnownStructOutput
+    _EFN_Analyze
