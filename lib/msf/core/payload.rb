@@ -267,9 +267,10 @@ class Payload < Msf::Module
 	#
 	# Supprted packing types:
 	#
-	# - ADDR (foo.com, 1.2.3.4)
-	# - HEX  (0x12345678, "\x41\x42\x43\x44")
-	# - RAW  (raw bytes)
+	# - ADDR  (foo.com, 1.2.3.4)
+	# - ADDR6 (foo.com, fe80::1234:5678:8910:1234)
+	# - HEX   (0x12345678, "\x41\x42\x43\x44")
+	# - RAW   (raw bytes)
 	#
 	def substitute_vars(raw, offsets)
 		offsets.each_pair { |name, info|
@@ -282,6 +283,19 @@ class Payload < Msf::Module
 			if ((val = datastore[name]))
 				if (pack == 'ADDR')
 					val = Rex::Socket.resolv_nbo(val)
+					
+					# Someone gave us a funky address (ipv6?)
+					if(val.length == 4)
+						raise RuntimeError, "IPv6 address specified for IPv4 payload"
+					end
+				elsif (pack == 'ADDR6')
+					val = Rex::Socket.resolv_nbo(val)
+					
+					# Convert v4 to the v6ish address
+					if(val.length == 4)
+						nip = "fe80::5efe:" + val.unpack("C*").join(".")
+						val = Rex::Socket.resolv_nbo(val)
+					end					
 				elsif (pack == 'RAW')
 					# Just use the raw value...
 				else
