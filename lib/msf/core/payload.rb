@@ -285,7 +285,7 @@ class Payload < Msf::Module
 					val = Rex::Socket.resolv_nbo(val)
 					
 					# Someone gave us a funky address (ipv6?)
-					if(val.length == 4)
+					if(val.length == 16)
 						raise RuntimeError, "IPv6 address specified for IPv4 payload"
 					end
 				elsif (pack == 'ADDR6')
