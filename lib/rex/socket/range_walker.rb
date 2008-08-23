@@ -20,6 +20,9 @@ class RangeWalker
 		ranges.split(',').each do |range|
 			a,b = range.split('-')
 			b ||= a
+			
+			a,scope = a.split("%")
+			b,scope = b.split("%") if not scope
 
 			a = Rex::Socket.addr_atoi(a)
 			b = Rex::Socket.addr_atoi(b)
@@ -30,7 +33,7 @@ class RangeWalker
 				b = t
 			end
 		
-			self.ranges << [a,b]
+			self.ranges << [a,b,scope]
 		end
 		
 		reset
@@ -42,6 +45,7 @@ class RangeWalker
 	def reset
 		self.curr_range  = 0
 		self.curr_ip     = self.ranges[0][0]
+		self.curr_scope  = self.ranges[0][2]
 		self.num_ips     = 0
 		self.ranges.each {|r| self.num_ips += r[1]-r[0] + 1 }
 	end
@@ -56,10 +60,13 @@ class RangeWalker
 			end
 			self.curr_range += 1
 			self.curr_ip = self.ranges[self.curr_range][0]
+			self.curr_scope = self.ranges[self.curr_range][1]
 		end
 		
 		addr = Rex::Socket.addr_itoa(self.curr_ip)
 		self.curr_ip += 1
+		
+		addr += "%#{self.curr_scope}" if self.curr_scope
 		return addr
 	end
 
@@ -71,7 +78,7 @@ class RangeWalker
 protected
 
 	attr_writer   :num_ips # :nodoc:
-	attr_accessor :addr_start, :addr_stop, :curr_ip, :curr_range, :ranges # :nodoc:
+	attr_accessor :addr_start, :addr_stop, :curr_ip, :curr_range, :ranges, :curr_scope # :nodoc:
 
 end
 

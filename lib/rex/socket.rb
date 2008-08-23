@@ -294,7 +294,12 @@ module Socket
 	#
 	def self.cidr_crack(cidr, v6=false)
 		tmp = cidr.split('/')
-		addr = addr_atoi(tmp[0])
+		
+		tst,scope = tmp[0].split("%",2)
+		scope     = "%" + scope if scope
+		scope   ||= ""
+
+		addr = addr_atoi(tst)
 		
 		bits = 32
 		mask = 0
@@ -309,7 +314,7 @@ module Socket
 		base = addr & mask
 
 		stop = base + (2 ** (bits - tmp[1].to_i)) - 1
-		return [self.addr_itoa(base, use6), self.addr_itoa(stop, use6)]	
+		return [self.addr_itoa(base, use6) + scope, self.addr_itoa(stop, use6) + scope]	
 	end
 
 	#

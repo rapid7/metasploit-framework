@@ -365,28 +365,28 @@ class OptAddressRange < OptBase
 
 		ranges = value.split(',')		
 		ranges.each do |range|
-			begin
 			case range
-			when /[0-9]+-[0-9]+/
+			when /[0-9%a-z]+-[0-9%a-z]+/i
 				tmp = range.split('-')
 				next if tmp.length != 2
+				
+				addr_a, addr_b = tmp
+				addr_a, scope = tmp[0].split("%")
+				addr_b, scope = tmp[1].split("%") if not scope
+				
 
-				if (Rex::Socket.addr_atoi(tmp[0]) <= Rex::Socket.addr_atoi(tmp[1]))
+				if (Rex::Socket.addr_atoi(addr_a) <= Rex::Socket.addr_atoi(addr_b))
 					sets << tmp
 				end
 	
 			when /\//
 				sets << Rex::Socket.cidr_crack(range)
 			else
-				tmp = Rex::Socket.addr_itoa(Rex::Socket.addr_atoi(range))
-				sets << [tmp, tmp]
-			end
-			rescue ::Exception => e
-				raise e
+				sets << [range]
 			end
 		end
-
-		return sets.map{|i| i[0]+'-'+i[1]}.join(',')
+		
+		sets.map {|i| (i.length == 2 and i[0] != i[1]) ? i[0]+'-'+i[1] : i[0] }.join(",")
 	end
 	
 	def valid?(value)
