@@ -142,9 +142,9 @@ begin
 
 
 	attr_reader :peer_verified # :nodoc:
+	attr_accessor :sslsock, :sslctx # :nodoc:
 protected
 
-	attr_accessor :sslsock, :sslctx # :nodoc:
 	attr_writer :peer_verified # :nodoc:
 
 rescue LoadError
