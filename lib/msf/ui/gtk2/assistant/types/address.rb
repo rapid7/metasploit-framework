@@ -47,8 +47,8 @@ module Msf
                 @entry.set_text(default)
               end
             end
-            @entry.set_width_chars(15)
-            @entry.set_max_length(15)
+            @entry.set_width_chars(75)
+            @entry.set_max_length(128)
             hbox.pack_start(@entry, false, false, 0)
           end
 
