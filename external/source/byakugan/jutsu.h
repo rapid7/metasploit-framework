@@ -59,6 +59,7 @@ struct bufInstance {
 
 void    helpJutsu(void);
 void    bindJutsu(char *);
+void	searchOpcodes(char *);
 DWORD WINAPI listenJutsu(LPVOID lpvParam);
 void	parseJutsu(char *, ULONG);
 void	identBufJutsu(char *, char *);

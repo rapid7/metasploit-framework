@@ -413,30 +413,39 @@ unsigned short getInstructionBytes(char * instruction, unsigned char * opcodeBuf
 	ULONG64 byteEnd = 0;
 	BYTE i = 0;
 
+    if(!disassemblyBuffer){
+        if(!(disassemblyBuffer = allocateMemoryBlock(0x1000))){
+            dprintf("[J] allocateMemoryBlock failed\n");
+            return (0);
+        }
+    }
+	
+
 	if(g_ExtControl->Assemble(disassemblyBuffer, instruction, &byteEnd) != S_OK){
 		dprintf("[J] failed to assemble instruction\n");
-		return 0;
+		return (0);
 	}
 
 	if(!ReadMemory(disassemblyBuffer, opcodeBuffer, (byteEnd-disassemblyBuffer), NULL)){
 		dprintf("[J] failed to read opcode sequence\n");
-		return 0;
+		return (0);
 	}
 
 	for(i=0; i<(byteEnd-disassemblyBuffer); i++){
 		if(!WriteMemory((disassemblyBuffer+i), &zero, 1, NULL)){ 
 			dprintf("[J] failed to zero memory\n");
-			return 0;
+			return (0);
 		}
 	}
-
-	//dprintf("[J] Opcode sequence for instruction %s:", instruction);
+#if 0
+	dprintf("[J] Opcode sequence for instruction %s:", instruction);
 
 	for(byteCounter=0; ((disassemblyBuffer+byteCounter)<byteEnd); byteCounter++){
 		dprintf("%02x ", opcodeBuffer[byteCounter]);
 	}
 
 	dprintf("\n");
+#endif
 	return (byteEnd-disassemblyBuffer);
 }
 
@@ -454,9 +463,11 @@ ULONG64 searchMemory(unsigned char * byteBuffer, unsigned long length){
 				dprintf("[J] byte search failed for another reason\n");
 			}
 #endif
-			return 0;
+			return (0);
 	}
-	return addressHit;
+	if (!(addressHit >= disassemblyBuffer && addressHit <= (disassemblyBuffer+0x1000)))
+		return (addressHit);
+	return (0);
 }
 
 BOOL checkExecutability(ULONG64 checkAddress){
@@ -467,16 +478,76 @@ BOOL checkExecutability(ULONG64 checkAddress){
 		return FALSE;
 	}
 
-	dprintf("allocation info: 0x%08x and 0x%08x\n", protectionInfo.AllocationProtect, protectionInfo.Protect);
+	//dprintf("allocation info: 0x%08x and 0x%08x\n", protectionInfo.AllocationProtect, protectionInfo.Protect);
 
 	if((protectionInfo.Protect & PAGE_EXECUTE_READ) != 0)
 		return TRUE;
 
-	dprintf("[J] 0x%08x isn't executable\n");
+	//dprintf("[J] 0x%08x isn't executable\n");
 	return FALSE;
 }
 
+void searchOpcodes(char *instructions) {
+	char			**instructionList;
+	unsigned char	*byteSequence;
+	DWORD			length, i, j, semiCount = 1, offset = 0; 
+	ULONG64			ptr;
 
+	// Split instructions into seperate strings at pipes
+	length = 0;
+	while (instructions[length] != NULL) {
+		if (instructions[length] == '|')
+			semiCount++; 
+		length++;
+	}
+
+	// Malloc space for instructionList;
+	instructionList = (char **) malloc((semiCount+1) * sizeof (char *));
+	if (instructionList == NULL) {
+		dprintf("[J] OOM!\n");
+		return;
+	}
+	instructionList[0] = instructions;
+	dprintf("[J] Searching for:\n");
+	i = 0; j = 0;
+	while (i < length) {
+		if (instructions[i] == '|') {
+			instructions[i] = '\x00';
+			dprintf("> %s\n", instructionList[j++]);
+			instructionList[j] = &(instructions[i+1]);
+		}
+		i++;
+	}
+	dprintf("> %s\n", instructionList[j]);
+
+
+	// Allocate space for byteSequence
+	byteSequence = (unsigned char *) malloc(semiCount * 6);
+	if (byteSequence == NULL) {
+		dprintf("[J] OOM!\n");
+		return;
+	}
+
+	// Generate byte sequence and display it
+	for (i = 0; i < semiCount; i++) {
+		unsigned char	tmpbuf[8];
+		offset += getInstructionBytes(instructionList[i], byteSequence+offset);
+	}
+	
+	dprintf("[J] Machine Code:\n> ");
+	for (i = 0; i < offset; i++) {
+		dprintf("%02x ", byteSequence[i]);
+		if (i != 0 && !(i % 16))
+			dprintf("\n> ");
+	}
+	dprintf("\n");
+
+	// Search for sequence in executable memory
+	ptr = searchMemory(byteSequence, offset);
+	if (ptr && checkExecutability(ptr))
+		dprintf("[J] Executable opcode sequence found at: 0x%08x\n", ptr);
+	return;
+}
 
 void returnAddressHuntJutsu(){
 	struct trackedBuf *curBuf;
@@ -492,15 +563,6 @@ void returnAddressHuntJutsu(){
 	unsigned short instructionLength = 0;
 	dprintf("[J] started return address hunt\n");
 
-	//this part might need to be changed
-	if(!disassemblyBuffer){
-		if(!(disassemblyBuffer = allocateMemoryBlock(0x1000))){
-			dprintf("[J] allocateMemoryBlock failed\n");
-			return;
-		}
-	}
-
-	dprintf("opcode test buffer starts at 0x%08x\n", disassemblyBuffer);
 
 	for(i; i<6; i++){			//6, because we don't want to waste time on the eip register
 		curBuf = trackedBufList;	

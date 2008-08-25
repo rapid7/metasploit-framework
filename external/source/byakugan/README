@@ -78,6 +78,18 @@ D. Usage:
 		f. Use !jutsu findReturn to find valid return addresses
 			1. hunt will use all knowledge about controlled registers and buffer offsets
 			   to find all possible usable return addresses
+		g. Use !jutsu searchOpcode to fine opcodes in executable memory
+			1. delimit instructions with pipes - example:
+
+			0:000> !jutsu searchOpcode  pop ecx | pop ecx | ret
+			[J] Searching for:
+			>  pop ecx
+			>  pop ecx
+			>  ret
+			[J] Machine Code:
+			> 59 59 c3
+			[J] Opcode sequence found at: 0x004012f9
+
 	3. Mushishi (Anti-debugging detection / removal)
 		a. Not much in here now, but growing
 		b. !mushishi detect - detects several methods

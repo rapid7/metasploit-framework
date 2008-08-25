@@ -97,6 +97,13 @@ HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
 			helpJutsu();
 			return (S_OK);
 		}
+		if (!_stricmp(command, "searchOpcode")) {
+			char	*instructions;
+			
+			instructions = (char *) args + strlen(command) + 1;
+			searchOpcodes(instructions);
+			return (S_OK);
+		}
 		if (!_stricmp(command, "listen")) {
 			bindPort = strtok(NULL, " ");
 			if (bindPort == NULL)
