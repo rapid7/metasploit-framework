@@ -1,7 +1,7 @@
 require 'msf/core'
 
 ###
-#
+# 
 ###
 module Msf::Payload::Php
 
@@ -38,8 +38,8 @@ module Msf::Payload::Php
             @dis = dis
         end
 
-		cmd = '$' + cmd if (cmd[0,1] != '$')
-		dis = '$' + dis if (dis[0,1] != '$')
+		cmd    = '$' + cmd if (cmd[0,1] != '$')
+		dis    = '$' + dis if (dis[0,1] != '$')
 		output = '$' + output if (output[0,1] != '$')
 
 		is_callable = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
@@ -100,8 +100,7 @@ module Msf::Payload::Php
 			}
 		"
 
-		#exec_methods = [shell_exec, passthru, system, exec, proc_open, popen].sort_by { rand }
-		exec_methods = [passthru, shell_exec, system, exec, proc_open, popen]#.sort_by { rand }
+		exec_methods = [passthru, shell_exec, system, exec, proc_open, popen].sort_by { rand }
 		buf = setup + exec_methods.join("") + fail_block
 		#buf = Rex::Text.compress(buf)
 
