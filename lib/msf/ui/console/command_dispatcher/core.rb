@@ -237,6 +237,11 @@ class Core
 		rescue
 			print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
 		end
+		
+		# Reset tab completion
+		if (driver.input.supports_readline)
+			driver.input.reset_tab_completion
+		end		
 	end
 
 	alias cmd_? cmd_help
