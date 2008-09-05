@@ -294,7 +294,7 @@ class Payload < Msf::Module
 					# Convert v4 to the v6ish address
 					if(val.length == 4)
 						nip = "fe80::5efe:" + val.unpack("C*").join(".")
-						val = Rex::Socket.resolv_nbo(val)
+						val = Rex::Socket.resolv_nbo(nip)
 					end					
 				elsif (pack == 'RAW')
 					# Just use the raw value...
