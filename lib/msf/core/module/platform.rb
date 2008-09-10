@@ -382,6 +382,14 @@ class Msf::Module::Platform
 	end
 
 	#
+	# AIX
+	#
+	class AIX < Msf::Module::Platform
+		Rank = 100
+		Alias = "aix"
+	end
+	
+	#
 	# HP-UX
 	#
 	class HPUX < Msf::Module::Platform
