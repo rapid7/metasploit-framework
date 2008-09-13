@@ -214,7 +214,7 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 			when %r{^#{datastore['URIPATH']}.*sessid=}: 
 				record_detection(cli, request)
 				send_not_found(cli)
-			when %r{^#{datastore['URIPATH']}$}: 
+			when self.get_resource: 
 				#
 				# This is the request for exploits.  At this point all we know
 				# about the target came from the useragent string which could
