@@ -94,8 +94,10 @@ int main(int argc, char **argv) {
 
 	while (1)
 	{
+#if defined _WIN32
 		__try
 		{
+#endif
 			len = sizeof(sin);
 			new_s = accept(s, (struct sockaddr *)&sin, &len);
 
@@ -104,14 +106,20 @@ int main(int argc, char **argv) {
 
 			printf("recv'd %d\n", bytes);
 
+#if defined _WIN32
 			__asm mov edi, new_s
+#else
+			// TODO: add inlined assembly for "non windows" compiler
+#endif
 
 			funct = (int (*)()) buf;
 			(int)(*funct)();
+#if defined _WIN32
 		} __except(EXCEPTION_EXECUTE_HANDLER)
 		{
 			fprintf(stderr, "Got exception: %lu\n", GetExceptionCode());
 		}
+#endif
 	}
 	
 	return (0);
