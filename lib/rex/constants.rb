@@ -66,6 +66,8 @@ LEV_3     = 3
 ARCH_ANY   = '_any_'
 ARCH_X86   = 'x86'
 ARCH_MIPS  = 'mips'
+ARCH_MIPSLE  = 'mipsle'
+ARCH_MIPSBE  = 'mipsbe'
 ARCH_PPC   = 'ppc'
 ARCH_SPARC = 'sparc'
 ARCH_CMD   = 'cmd'
@@ -76,6 +78,8 @@ ARCH_TYPES =
 	[
 		ARCH_X86,
 		ARCH_MIPS,
+		ARCH_MIPSLE,
+		ARCH_MIPSBE,
 		ARCH_PPC,
 		ARCH_SPARC,
 		ARCH_ARMLE,
