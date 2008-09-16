@@ -56,7 +56,7 @@ class Plugin::DBPostgres < Msf::Plugin
 		def cmd_db_connect(*args)
 			info = parse_db_uri(args[0])
 			opts = { 'adapter' => 'postgresql' }
-			
+
 			opts['username'] = info[:user] if (info[:user])
 			opts['password'] = info[:pass] if (info[:pass])
 			opts['database'] = info[:name]
@@ -79,19 +79,22 @@ class Plugin::DBPostgres < Msf::Plugin
 			info = parse_db_uri(args[0])
 			opts = { 'adapter' => 'postgresql' }
 			argv = []
-			
+
 			if (info[:user])
 				opts['username'] = info[:user] 
 				argv.push('-U')
 				argv.push(info[:user])
+            else
+			    opts['username'] = 'postgres'
+			    argv.push('-U')
+			    argv.push('postgres')
 			end
-			
+
 			if (info[:pass])
 				print()
 				print_status("Warning: You will need to enter the password at the prompts below")
 				print()
 				argv.push('-W')
-				opts['password'] = info[:pass]
 			end
 			
 			if (info[:host])
@@ -145,8 +148,10 @@ class Plugin::DBPostgres < Msf::Plugin
 			end
 			
 			if (info[:pass])
-				argv.push('-P')
-				argv.push(info[:pass])			
+				print()
+				print_status("Warning: You will need to enter the password at the prompts below")
+				print()
+				argv.push('-W')
 			end
 			
 			if (info[:host])
