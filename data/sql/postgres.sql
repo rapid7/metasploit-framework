@@ -54,7 +54,7 @@ ref_id INTEGER,
 vuln_id INTEGER
 );
 
-drop table notes
+drop table notes;
 
 create table notes (
 id SERIAL PRIMARY KEY,
