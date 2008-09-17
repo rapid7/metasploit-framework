@@ -32,7 +32,7 @@ module ShellBindTcp
 			'Author'        => 'Ramon de Carvalho Valle <ramon@risesecurity.org>',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'aix',
-			'Arch'          => ARCH_X86,
+			'Arch'          => ARCH_POWER,
 			'Handler'       => Msf::Handler::BindTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'Payload'       =>

@@ -89,7 +89,7 @@ class Client
 		@pport = arr[5]
 	end
 
-	def call(procedure, buffer)
+	def call(procedure, buffer, timeout=60)
 		buf =
 			Rex::Encoder::XDR.encode(CALL, 2, @program, @version, procedure,
 				@auth_type, [@auth_data, 400], AUTH_NULL, '')+
@@ -100,7 +100,7 @@ class Client
 		end
 
 		send_rpc(@call_sock, buf)
-		ret = recv_rpc(@call_sock)
+		ret = recv_rpc(@call_sock, timeout)
 
 		if ret
 			arr = Rex::Encoder::XDR.decode!(ret, Integer, Integer, Integer, String, Integer)
@@ -220,8 +220,8 @@ class Client
 		sock.write(buf)
 	end
 	
-	def recv_rpc(sock)
-		buf = sock.get(60) # 5 secs was WAY too slow for some RPC calls
+	def recv_rpc(sock, timeout=60)
+		buf = sock.get(timeout)
 		buf.slice!(0..3)
 		if sock.type?.eql?('tcp')
 			buf.slice!(0..3)

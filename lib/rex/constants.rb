@@ -68,6 +68,7 @@ ARCH_X86   = 'x86'
 ARCH_MIPS  = 'mips'
 ARCH_MIPSLE  = 'mipsle'
 ARCH_MIPSBE  = 'mipsbe'
+ARCH_POWER = 'power'
 ARCH_PPC   = 'ppc'
 ARCH_SPARC = 'sparc'
 ARCH_CMD   = 'cmd'
@@ -80,6 +81,7 @@ ARCH_TYPES =
 		ARCH_MIPS,
 		ARCH_MIPSLE,
 		ARCH_MIPSBE,
+        ARCH_POWER,
 		ARCH_PPC,
 		ARCH_SPARC,
 		ARCH_ARMLE,

@@ -32,7 +32,7 @@ module ShellReverseTcp
 			'Author'        => 'Ramon de Carvalho Valle <ramon[at]risesecurity.org>',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'aix',
-			'Arch'          => ARCH_X86,
+			'Arch'          => ARCH_POWER,
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'Payload'       =>
