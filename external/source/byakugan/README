@@ -1,35 +1,37 @@
 Byakugan - Increase Your Sight
 	Pusscat		Lin0xx
 
-NOTE: If you trust me, skip to 4a. - I've already included built libs.
+NOTE: If you trust me, skip to 4. - I've already included built libs.
 
 A. Building / Installation
 	1. Requirements
-		a. Windows Server 2003 DDK
+		a. WDK
 		b. Debugging Tools For Windows
 			- Install to C:\windbg\ - or injectsu will not be found
 			- Make sure to install with the custom setting
 			- Explicitly choose to install the SDK
-	2. Fixing the WinDBG SDK
-		a. Find the sdk/inc/wdbgexts.h file in the windbg directory
-		b. Add the following like to the file after the _WDBGEXTS_ definition:
-			#define __field_ecount_opt(x) ()
-	3. Building the libraries
-		a. Open a Windows Server 2003 Free x86 Build Environment (from the DDK)
+	2. Building the libraries
+		a. Open a WDK build environment for the proper windows version
 		b. Go to the byakugan base directory
 		c. type: setup
 		
-	4. Installation
+	3. Installation (self built)
 		a. copy injectsu\i386\injectsu.dll C:\windbg\
 		b. copy bin\detoured.dll C:\windows\system32\
 		c. copy i386\byakugan.dll C:\windbg\
+
+	4. Installation (Prebuilt binaries)
+		a. copy bin\<platform>\injectsu.dll C:\windbg\
+		b. copy bin\<platform>\detoured.dll C:\windows\system32\
+		c.  copy bin\<platform>\byakugan.dll C:\windbg\
+
 
 B. Deployment:
 	1.	Start up windbg and attach to (or start up) a new process
 		a. Ensure that both process are at the same priv level,
 		   so they can both access the named pipe 
 		b. Load the byakugan dll:
-			!load C:\windbg\byakugan.dll
+			!load byakugan.dll
 		c. Display options with !byakugan command if desired
 
 C. Testing:
