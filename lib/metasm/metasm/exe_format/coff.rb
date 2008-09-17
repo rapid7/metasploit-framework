@@ -186,10 +186,14 @@ class COFF < ExeFormat
 
 		def to_hash(depth=0)
 			map =	case depth
-				when 0: TYPE
-				when 1: {}	# resource-id
-				when 2: {}	# lang
-				else {}
+				when 0
+					TYPE
+				when 1
+					{}	# resource-id
+				when 2
+					{}	# lang
+				else
+					{}
 				end
 			@entries.inject({}) { |h, e|
 				k = e.id ? map.fetch(e.id, e.id) : e.name ? e.name : e.name_w
@@ -200,10 +204,14 @@ class COFF < ExeFormat
 
 		def self.from_hash(h, depth=0)
 			map =	case depth
-				when 0: TYPE
-				when 1: {}	# resource-id
-				when 2: {}	# lang
-				else {}
+				when 0
+					TYPE
+				when 1
+					{}	# resource-id
+				when 2
+					{}	# lang
+				else
+					{}
 				end
 			ret = new
 			ret.entries = h.map { |k, v|
@@ -224,8 +232,10 @@ class COFF < ExeFormat
 			@entries.map { |e|
 				ar = []
 				ar << if e.id
-					if depth == 0 and TYPE.has_key?(e.id): "#{e.id.to_s} (#{TYPE[e.id]})".ljust(18)
-					else e.id.to_s.ljust(5)
+					if depth == 0 and TYPE.has_key?(e.id)
+						"#{e.id.to_s} (#{TYPE[e.id]})".ljust(18)
+					else
+						e.id.to_s.ljust(5)
 					end
 				else (e.name || e.name_w).inspect
 				end
@@ -277,9 +287,12 @@ class COFF < ExeFormat
 		@header = Header.new
 		@optheader = OptionalHeader.new
 		@header.machine = case cpu
-		when nil: 'UNKNOWN'
-		when Ia32: 'I386'
-		else 'UNKNOWN'
+		when nil
+			'UNKNOWN'
+		when Ia32
+			'I386'
+		else
+			'UNKNOWN'
 		end
 		super(cpu)
 	end

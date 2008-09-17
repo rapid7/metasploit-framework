@@ -390,27 +390,40 @@ class Expression
 	# returns the complexity of the expression (number of externals +1 per indirection)
 	def complexity
 		case @lexpr
-		when ExpressionType: @lexpr.complexity
-		when nil, ::Numeric: 0
-		else 1
-		end +
+		when ExpressionType
+			@lexpr.complexity
+		when nil, ::Numeric
+			0
+		else
+			1
+		end
+		+
 		case @rexpr
-		when ExpressionType: @rexpr.complexity
-		when nil, ::Numeric: 0
-		else 1
+		when ExpressionType
+			@rexpr.complexity
+		when nil, ::Numeric
+			0
+		else
+			1
 		end
 	end
 
 	def expr_indirections
 		ret = case @lexpr
-		when Indirection: [@lexpr]
-		when ExpressionType: @lexpr.expr_indirections
-		else []
+		when Indirection
+			[@lexpr]
+		when ExpressionType
+			@lexpr.expr_indirections
+		else
+			[]
 		end
 		case @rexpr
-		when Indirection: ret << @rexpr
-		when ExpressionType: ret.concat @rexpr.expr_indirections
-		else ret
+		when Indirection
+			ret << @rexpr
+		when ExpressionType
+			ret.concat @rexpr.expr_indirections
+		else
+			ret
 		end
 	end
 end
@@ -457,10 +470,13 @@ end
 
 class Expression
 	def self.decode_imm(str, type, endianness)
-                val = 0
-                case endianness
-                when :little : str.reverse
-		when :big : str
+		val = 0
+		
+		case endianness
+		when :little
+			str.reverse
+		when :big
+			str
 		end.unpack('C*').each { |b| val = (val << 8) | b }
 		val = val - (1 << (INT_SIZE[type])) if type.to_s[0] == ?i and val >> (INT_SIZE[type]-1) == 1	# XXX booh
 		val
@@ -546,8 +562,10 @@ class CPU
 	def replace_instr_arg_immediate(i, old, new)
 		i.args.map! { |a|
 			case a
-			when Expression: Expression[a.bind(old => new).reduce]
-			else a
+			when Expression
+				Expression[a.bind(old => new).reduce]
+			else
+				a
 			end
 		}
 	end
@@ -652,7 +670,8 @@ class Disassembler
 			raise "invalid section base #{base.inspect} - not at section start" if encoded.export[base] and encoded.export[base] != 0
 			raise "invalid section base #{base.inspect} - already seen at #{@prog_binding[base]}" if @prog_binding[base] and @prog_binding[base] != Expression[base]
 			encoded.add_export base, 0
-		else raise "invalid section base #{base.inspect} - expected string or integer"
+		else
+			raise "invalid section base #{base.inspect} - expected string or integer"
 		end
 
 		@sections[base] = encoded
@@ -664,10 +683,13 @@ class Disassembler
 
 	def add_xref(addr, x)
 		case @xrefs[addr]
-		when nil: @xrefs[addr] = x
+		when nil
+			@xrefs[addr] = x
 		when x
-		when ::Array: @xrefs[addr] |= [x]
-		else @xrefs[addr] = [@xrefs[addr], x]
+		when ::Array
+			@xrefs[addr] |= [x]
+		else
+			@xrefs[addr] = [@xrefs[addr], x]
 		end
 	end
 
@@ -676,8 +698,10 @@ class Disassembler
 		addr = normalize addr
 		case @xrefs[addr]
 		when nil
-		when ::Array: @xrefs[addr].each { |x| yield x if not type or x.type == type }
-		else yield @xrefs[addr] if not type or @xrefs[addr].type == type
+		when ::Array
+			@xrefs[addr].each { |x| yield x if not type or x.type == type }
+		else
+			yield @xrefs[addr] if not type or @xrefs[addr].type == type
 		end
 	end
 
@@ -763,8 +787,10 @@ class Disassembler
 		@prog_binding[new] = @prog_binding.delete(old)
 		@addrs_todo.each { |at|
 			case at[0]
-			when old: at[0] = new
-			when Expression: at[0] = at[0].bind(old => new)
+			when old
+				at[0] = new
+			when Expression
+				at[0] = at[0].bind(old => new)
 			end
 		}
 		new
@@ -1367,8 +1393,10 @@ puts "  not backtracking stack address #{expr}" if debug_backtrace
 
 oldexpr = expr
 				case ev
-				when :di: expr = backtrace_emu_instr(h[:di], expr)
-				when :func: expr = backtrace_emu_subfunc(h[:func], h[:funcaddr], h[:addr], expr, origin, maxdepth-h[:loopdetect].length)
+				when :di
+					expr = backtrace_emu_instr(h[:di], expr)
+				when :func
+					expr = backtrace_emu_subfunc(h[:func], h[:funcaddr], h[:addr], expr, origin, maxdepth-h[:loopdetect].length)
 				if snapshot_addr and snapshot_addr == h[:funcaddr]
 puts "  backtrace: recursive function #{Expression[h[:funcaddr]]}" if debug_backtrace
 					next false
@@ -1387,7 +1415,8 @@ puts "  backtrace aborting, expr too complex" if debug_backtrace
 					next false
 				end
 				expr
-			else raise ev.inspect
+			else
+				raise ev.inspect
 			end
 		}
 
@@ -1675,13 +1704,17 @@ puts "   backtrace_indirection for #{ind.target} failed: #{ev}" if debug_backtra
 		if di and type == :r and (len == 1 or len == 2) and s = get_section_at(n)
 			l = s[0].inv_export[s[0].ptr]
 			case len
-			when 1: str = s[0].read(32).unpack('C*')
-			when 2: str = s[0].read(64).unpack('v*')
+			when 1
+				str = s[0].read(32).unpack('C*')
+			when 2
+				str = s[0].read(64).unpack('v*')
 			end
 			str = str.inject('') { |str, c|
 				case c
-				when 0x20..0x7e, ?\n, ?\r, ?\t: str << c
-				else break str
+				when 0x20..0x7e, ?\n, ?\r, ?\t
+					str << c
+				else
+					break str
 				end
 			}
 			if str.length >= 4
@@ -1761,8 +1794,10 @@ puts "    backtrace_found: addrs_todo << #{n} from #{Expression[origin] if origi
 		xr = []
 		each_xref(block.address) { |x|
 			case x.type
-			when :x: xr << Expression[x.origin]
-			when :r, :w: xr << "#{x.type}#{x.len}:#{Expression[x.origin]}"
+			when :x
+				xr << Expression[x.origin]
+			when :r, :w
+				xr << "#{x.type}#{x.len}:#{Expression[x.origin]}"
 			end
 		}
 		if not xr.empty?
@@ -1785,7 +1820,8 @@ puts "    backtrace_found: addrs_todo << #{n} from #{Expression[origin] if origi
 	def dump_data(addr, edata, off, &b)
 		if l = @prog_binding.index(addr)
 			l = (l + ' ').ljust(16)
-		else l = ''
+		else
+			l = ''
 		end
 		elemlen = 1	# size of each element we dump (db by default)
 		dumplen = -off % 16	# number of octets to dump
@@ -1859,12 +1895,16 @@ puts "    backtrace_found: addrs_todo << #{n} from #{Expression[origin] if origi
 			if (elemlen == 1 or elemlen == 2)
 				case value
 				when 0x20..0x7e, 0x0a, 0x0d
-					if vals.last.kind_of? ::String: vals.last << value ; vals
-					else vals << value.chr
+					if vals.last.kind_of? ::String
+						vals.last << value ; vals
+					else
+						vals << value.chr
 					end
-				else vals << value
+				else
+					vals << value
 				end
-			else vals << value
+			else
+				vals << value
 			end
 		}
 

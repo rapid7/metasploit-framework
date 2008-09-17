@@ -24,11 +24,16 @@ class XCoff < ExeFormat
 		attr_accessor :endianness, :intsize
 		def decode(xcoff)
 			@endianness, @intsize = case xcoff.encoded.read(2)
-			when "\1\xdf": [:big,    32]
-			when "\xdf\1": [:little, 32]
-			when "\1\xef": [:big,    64]
-			when "\xef\1": [:little, 64]
-			else raise InvalidExeFormat, "invalid a.out signature"
+			when "\1\xdf"
+				[:big,    32]
+			when "\xdf\1"
+				[:little, 32]
+			when "\1\xef"
+				[:big,    64]
+			when "\xef\1"
+				[:little, 64]
+			else
+				raise InvalidExeFormat, "invalid a.out signature"
 			end
 			@nsec   = xcoff.decode_half
 			@timdat = xcoff.decode_word

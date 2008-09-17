@@ -79,7 +79,8 @@ module C
 			    when 'inline', '__inline', '__inline__', '__stdcall', '__fastcall', '__cdecl'
 				break if not allow_declspec
 				attrib = keyword.delete '_'
-			    else break
+			    else
+					break
 			    end
 			    (@attributes ||= []) << attrib
 			end
@@ -130,10 +131,13 @@ module C
 			@name = name
 			specs.each { |s|
 				case s
-				when :const, :volatile: (@qualifier ||= []) << s
-				when :signed, :unsigned: @specifier = s
+				when :const, :volatile
+					(@qualifier ||= []) << s
+				when :signed, :unsigned
+					@specifier = s
 				when nil
-				else raise "internal error, got #{name.inspect} #{specs.inspect}"
+				else
+					raise "internal error, got #{name.inspect} #{specs.inspect}"
 				end
 			}
 		end
@@ -224,9 +228,11 @@ module C
 					end
 	
 					case tok.raw
-					when ';': break
+					when ';'
+						break
 					when ','
-					else raise tok, '"," or ";" expected'
+					else
+						raise tok, '"," or ";" expected'
 					end
 				end
 			end
@@ -339,7 +345,8 @@ module C
 				if tok.type == :punct and tok.raw == '}'
 					break
 				elsif tok.type == :punct and tok.raw == ','
-				else raise tok, '"," or "}" expected'
+				else
+					raise tok, '"," or "}" expected'
 				end
 			end
 			parse_attributes(parser)
@@ -595,16 +602,23 @@ module C
 						raise ftok, 'unterminated asm block' if not tok = parser.readtok
 						break if tok.type == :punct and tok.raw == '}'
 						case tok.type
-						when :space: body << ' '
-						when :eol: body << "\n"
-						when :punct: body << tok.raw
-						when :quoted: body << tok.value.inspect	# concat adjacent c strings
+						when :space
+							body << ' '
+						when :eol
+							body << "\n"
+						when :punct
+							body << tok.raw
+						when :quoted
+							body << tok.value.inspect	# concat adjacent c strings
 						when :string
 							body << \
 							case tok.raw
-							when 'asm', '__asm', '__asm__': "\n"
-							when '_emit': 'db'
-							else tok.raw
+							when 'asm', '__asm', '__asm__'
+								"\n"
+							when '_emit'
+								'db'
+							else
+								tok.raw
 							end
 						end
 					end
@@ -613,21 +627,27 @@ module C
 					loop do
 						break if not tok = parser.readtok or tok.type == :eol
 						case tok.type
-						when :space: body << ' '
+						when :space
+							body << ' '
 						when :punct
 							case tok.raw
 							when '}'
 								parser.unreadtok tok
 								break
-							else body << tok.raw
+							else
+								body << tok.raw
 							end
-						when :quoted: body << tok.value.inspect
+						when :quoted
+							body << tok.value.inspect
 						when :string
 							body << \
 							case tok.raw
-							when 'asm', '__asm', '__asm__': "\n"
-							when '_emit': 'db'
-							else tok.raw
+							when 'asm', '__asm', '__asm__'
+								"\n"
+							when '_emit'
+								'db'
+							else
+								tok.raw
 							end
 						end
 					end
@@ -784,7 +804,8 @@ module C
 					raise v2, '2nd arg unexpected' if v2
 					@pragma_pack = v1.raw.to_i
 					raise v1, 'bad pack value' if @pragma_pack == 0
-				else raise otok
+				else
+					raise otok
 				end
 				# the caller checks for :eol
 			when 'auto_predeclare_unknown_structs'
@@ -861,7 +882,8 @@ typedef void* va_list;
 #define va_copy(d, s)
 */
 EOH
-			else @prev_pragma_callback[otok]
+			else
+				@prev_pragma_callback[otok]
 			end
 		end
 	
@@ -994,7 +1016,8 @@ EOH
 							t.raw << ' ' << nt.raw
 							t.value << nt.value
 						when :space, :eol
-						else break
+						else
+							break
 						end
 					end
 					@lexer.unreadtok nt
@@ -1025,18 +1048,22 @@ EOH
 					end
 					raise self, 'unknown array size' if not var.kind_of? Variable or not var.initializer
 					case var.initializer
-					when ::String: sizeof(nil, type.type) * var.initializer.length
+					when ::String
+						sizeof(nil, type.type) * var.initializer.length
 					when ::Array
 						v = var.initializer.compact.first
 						v ? (sizeof(nil, type.type) * var.initializer.length) : 0
-					else sizeof(var.initializer)
+					else
+						sizeof(var.initializer)
 					end
-				when ::Integer: type.length * sizeof(type)
+				when ::Integer
+					type.length * sizeof(type)
 				when CExpression
 					len = type.length.reduce(self)
 					raise self, 'unknown array size' if not len.kind_of? ::Integer
 					len * sizeof(type)
-				else raise self, 'unknown array size'
+				else
+					raise self, 'unknown array size'
 				end
 			when Pointer
 				@typesize[:ptr]
@@ -1072,7 +1099,8 @@ EOH
 			if tok and tok.type == :punct and tok.raw == ';' and basetype.type and
 					(basetype.type.kind_of? Union or basetype.type.kind_of? Enum)
 				return true
-			else unreadtok tok
+			else
+				unreadtok tok
 			end
 	
 			nofunc = false
@@ -1153,9 +1181,12 @@ EOH
 				end
 	
 				case tok.raw
-				when ',': nofunc = true
-				when ';': break
-				else raise tok, '";" or "," expected'
+				when ','
+					nofunc = true
+				when ';'
+					break
+				else
+					raise tok, '";" or "," expected'
 				end
 			end
 			true
@@ -1471,7 +1502,8 @@ EOH
 					when 'const', 'volatile'
 						(ptr.qualifier ||= []) << ntok.raw.to_sym
 						ptr.parse_attributes(parser)
-					else break
+					else
+						break
 					end
 				end
 				parser.unreadtok ntok
@@ -1567,7 +1599,8 @@ EOH
 							raise tok, '")" expected' if t.type.args.last != v		# last arg of type :void
 						elsif tok and tok.type == :punct and tok.raw == ')'
 							break
-						else raise tok || parser, '"," or ")" expected'
+						else
+							raise tok || parser, '"," or ")" expected'
 						end
 					end
 				end
@@ -1586,11 +1619,14 @@ EOH
 		end
 		def lvalue?
 			case @op
-			when :*: true if not @lexpr
-			when :'[]', :'.', :'->': true
+			when :*
+				true if not @lexpr
+			when :'[]', :'.', :'->'
+				true
 			when nil	# cast
 				CExpression.lvalue?(@rexpr)
-			else false
+			else
+				false
 			end
 		end
 
@@ -1601,8 +1637,10 @@ EOH
 			# gcc considers '1, 2' not constant
 			if [:',', :funcall, :'=', :'--', :'++', :'+=', :'-=', :'*=', :'/=', :'>>=', :'<<=', :'&=', :'|=', :'^=', :'%=', :'->', :'[]'].include?(@op)
 				false
-			elsif @op == :'*' and not @lexpr: false
-			elsif not @lexpr and not @op and @rexpr.kind_of? Block: false
+			elsif @op == :'*' and not @lexpr
+				false
+			elsif not @lexpr and not @op and @rexpr.kind_of? Block
+				false
 			else
 				out = true
 				walk { |e| break out = false if not CExpression.constant?(e) }
@@ -1618,12 +1656,16 @@ EOH
 			case @op
 			when :'&&'
 				case l = CExpression.reduce(parser, @lexpr)
-				when 0: 0
+				when 0
+					0
 				when ::Integer
 					case r = CExpression.reduce(parser, @rexpr)
-					when 0: 0
-					when ::Integer: 1
-					else CExpression.new(l, @op, r, @type)
+					when 0
+						0
+					when ::Integer
+						1
+					else
+						CExpression.new(l, @op, r, @type)
 					end
 				else CExpression.new(l, @op, @rexpr, @type)
 				end
@@ -1631,46 +1673,62 @@ EOH
 				case l = CExpression.reduce(parser, @lexpr)
 				when 0
 					case r = CExpression.reduce(parser, @rexpr)
-					when 0: 0
-					when ::Integer: 1
-					else CExpression.new(l, @op, r, @type)
+					when 0
+						0
+					when ::Integer
+						1
+					else
+						CExpression.new(l, @op, r, @type)
 					end
-				when ::Integer: 1
-				else CExpression.new(l, @op, @rexpr, @type)
+				when ::Integer
+					1
+				else
+					CExpression.new(l, @op, @rexpr, @type)
 				end
 			when :'!'
 				case r = CExpression.reduce(parser, @rexpr)
-				when 0: 1
-				when ::Integer: 0
-				else CExpression.new(nil, @op, r, @type)
+				when 0
+					1
+				when ::Integer
+					0
+				else
+					CExpression.new(nil, @op, r, @type)
 				end
 			when :'!=', :'==', :'<', :'>', :'>=', :'<='
 				l = CExpression.reduce(parser, @lexpr)
 				r = CExpression.reduce(parser, @rexpr)
 				if l.kind_of?(::Integer) and r.kind_of?(::Integer)
-					if @op == :'!=': l != r ? 1 : 0
-					else l.send(@op, r) ? 1 : 0
+					if @op == :'!='
+						l != r ? 1 : 0
+					else
+						l.send(@op, r) ? 1 : 0
 					end
-				else CExpression.new(l, @op, r, @type)
+				else
+					CExpression.new(l, @op, r, @type)
 				end
 			when :'.'
 				le = CExpression.reduce(parser, @lexpr)
 				if le.kind_of? Variable and le.initializer.kind_of? ::Array
 					midx = le.type.members.index(le.type.members.find { |m| m.name == @rexpr })
 					CExpression.reduce(parser, le.initializer[midx] || 0)
-				else CExpression.new(le, @op, @rexpr, @type)
+				else
+					CExpression.new(le, @op, @rexpr, @type)
 				end
 			when :'?:'
 				case c = CExpression.reduce(parser, @lexpr)
-				when 0:         CExpression.reduce(parser, @rexpr[0])
-				when ::Integer: CExpression.reduce(parser, @rexpr[1])
-				else CExpression.new(c, @op, @rexpr, @type)
+				when 0
+					CExpression.reduce(parser, @rexpr[0])
+				when ::Integer
+					CExpression.reduce(parser, @rexpr[1])
+				else
+					CExpression.new(c, @op, @rexpr, @type)
 				end
 			when :'+', :'-', :'*', :'/', :'^', :'%', :'&', :'|', :'>>', :'<<', :'~', nil
 				t = @type.untypedef
 				case t
 				when BaseType
-				when Pointer: return self #raise parser, 'address unknown for now'
+				when Pointer
+					return self #raise parser, 'address unknown for now'
 				else
 					return @rexpr if not @op and not @lexpr and @rexpr.kind_of? Variable and @rexpr.type == @type
 					return self # raise parser, 'not arithmetic type'
@@ -1685,11 +1743,15 @@ EOH
 					when :'+', nil, :'-', :'~'
 						return CExpression.new(nil, @op, r, @type) if not r.kind_of? ::Numeric
 						case @op
-						when :'-': -r
-						when :'~': ~r
-						else r
+						when :'-'
+							-r
+						when :'~'
+							~r
+						else
+							r
 						end
-					else return CExpression.new(nil, @op, r, @type)
+					else
+						return CExpression.new(nil, @op, r, @type)
 					end
 				else
 					l = CExpression.reduce(parser, @lexpr)
@@ -1849,8 +1911,10 @@ EOH
 					type = :double
 					if (?0..?9).include?(tok.raw[0])
 						case tok.raw.downcase[-1]
-						when ?l: type = :longdouble
-						when ?f: type = :float
+						when ?l
+							type = :longdouble
+						when ?f
+							type = :float
 						end
 					end
 					val = CExpression.new(nil, nil, val, BaseType.new(type))
@@ -1867,7 +1931,8 @@ EOH
 						type = :long if suffix.count('l') == 1
 					end
 					val = CExpression.new(nil, nil, val, BaseType.new(type, *specifier))
-				else raise parser, "internal error #{val.inspect}"
+				else
+					raise parser, "internal error #{val.inspect}"
 				end
 
 			when :quoted
@@ -1919,8 +1984,10 @@ EOH
 					val = tok.value || tok.raw
 					type = :double
 					case tok.raw.downcase[-1]
-					when ?l: type = :longdouble
-					when ?f: type = :float
+					when ?l
+						type = :longdouble
+					when ?f
+						type = :float
 					end
 					val = CExpression.new(nil, nil, val, BaseType.new(type))
 
@@ -1963,7 +2030,8 @@ EOH
 						raise tok, 'type not arithmetic' if not val.type.arithmetic?
 						val = CExpression.new(nil, tok.raw.to_sym, val, val.type)
 						val.type = BaseType.new(:int) if tok.raw == '!'
-					else raise tok, 'internal error'
+					else
+						raise tok, 'internal error'
 					end
 				else
 					parser.unreadtok tok
@@ -2089,10 +2157,14 @@ EOH
 					if l.type.pointer? and r.type.pointer?
 						type = \
 						case op
-						when :'-': BaseType.new(:long)	# addr_t or sumthin ?
-						when :'-=': l.type
-						when :'>', :'>=', :'<', :'<=', :'==', :'!=': BaseType.new(:long)
-						else raise parser, "cannot do #{op.inspect} on pointers"
+						when :'-'
+							BaseType.new(:long)	# addr_t or sumthin ?
+						when :'-='
+							l.type
+						when :'>', :'>=', :'<', :'<=', :'==', :'!='
+							BaseType.new(:long)
+						else
+							raise parser, "cannot do #{op.inspect} on pointers"
 						end
 					elsif l.type.pointer? or r.type.pointer?
 						raise parser, "cannot do #{op.inspect} on pointer" if not [:'+', :'-', :'=', :'+=', :'-='].include? op
@@ -2265,7 +2337,8 @@ EOH
 	class Statement
 		def self.dump(e, scope, r=[''], dep=[])
 			case e
-			when nil: r.last << ';'
+			when nil
+				r.last << ';'
 			when Block
 				r.last << ' ' if not r.last.empty?
 				r.last << '{'
@@ -2315,8 +2388,10 @@ EOH
 			dep_cycle = proc { |ary|
 				# sexyness inside (c)
 				deps = todo_deps[ary.last]
-				if deps.include? ary.first: ary
-				elsif (deps-ary).find { |d| deps = dep_cycle[ary + [d]] }: deps
+				if deps.include? ary.first
+					ary
+				elsif (deps-ary).find { |d| deps = dep_cycle[ary + [d]] }
+					deps
 				end
 			}
 			todo_rndr.keys.grep(Union).find_all { |t| t.name }.sort_by { |t| t.name }.each { |t|
@@ -2433,7 +2508,8 @@ EOH
 			if init.kind_of? ::Numeric
 				r.last << init.to_s
 				[r, dep]
-			else init.dump_inner(scope, r, dep)
+			else
+				init.dump_inner(scope, r, dep)
 			end
 		end
 
@@ -2533,9 +2609,12 @@ EOH
 			r.last << @qualifier.map { |q| q.to_s << ' ' }.join if qualifier
 			r.last << @specifier.to_s << ' ' if specifier
 			r.last << case @name
-			when :longlong: 'long long'
-			when :longdouble: 'long double'
-			else @name.to_s
+			when :longlong
+				'long long'
+			when :longdouble
+				'long double'
+			else
+				@name.to_s
 			end
 			[r, dep]
 		end
@@ -2619,8 +2698,10 @@ EOH
 			if pack
 				r, dep = super
 				r.last <<
-				if @pack == 1: (attributes and @attributes.include? 'packed') ? '' : " __attribute__((packed))"
-				else (attributes and @attributes.include? "pack(#@pack)") ? '' : " __attribute__((pack(#@pack)))"
+				if @pack == 1
+					(attributes and @attributes.include? 'packed') ? '' : " __attribute__((packed))"
+				else
+					(attributes and @attributes.include? "pack(#@pack)") ? '' : " __attribute__((pack(#@pack)))"
 				end
 				[r, dep]
 			else
@@ -2668,7 +2749,8 @@ EOH
 				r.last << k
 				dep |= [scope.struct_ancestors[@name]]
 				[r, dep]
-			else super
+			else
+				super
 			end
 		end
 	end
@@ -2793,10 +2875,14 @@ EOH
 
 		def self.dump_indent(s, short=false)
 			case s
-			when /^(case|default)\W/: (short ? '    ' : "\t") << s
-			when /^\s+(case|default)\W/: "\t" << s
-			when /:$/: s
-			else "\t" << s
+			when /^(case|default)\W/
+				(short ? '    ' : "\t") << s
+			when /^\s+(case|default)\W/
+				"\t" << s
+			when /:$/
+				s
+			else 
+				"\t" << s
 			end
 		end
 	end
@@ -2806,9 +2892,12 @@ EOH
 			dump_inner(scope, r, dep)
 		end
 		def dump_inner(scope, r=[''], dep=[])
-			if not @statement: [r, dep]
-			elsif @statement.kind_of? Block: Statement.dump(@statement, scope, r, dep)
-			else  @statement.dump(scope, r << '', dep)
+			if not @statement
+				[r, dep]
+			elsif@statement.kind_of? Block
+				Statement.dump(@statement, scope, r, dep)
+			else
+				@statement.dump(scope, r << '', dep)
 			end
 		end
 	end
@@ -2851,12 +2940,18 @@ EOH
 			end
 			r, dep = 
 			case e
-			when ::Numeric: r.last << e.to_s ; [r, dep]
-			when ::String: r.last << e.inspect ; [r, dep]
-			when CExpression: e.dump_inner(scope, r, dep, brace)
-			when Variable: e.dump(scope, r, dep)
-			when nil: [r, dep]
-			else raise 'wtf?' + e.inspect
+			when ::Numeric
+				r.last << e.to_s ; [r, dep]
+			when ::String
+				r.last << e.inspect ; [r, dep]
+			when CExpression
+				e.dump_inner(scope, r, dep, brace)
+			when Variable
+				e.dump(scope, r, dep)
+			when nil
+				[r, dep]
+			else
+				raise 'wtf?' + e.inspect
 			end
 			if $DEBUG
 				r.last << ')'
@@ -2890,9 +2985,12 @@ EOH
 						if @type.kind_of? BaseType
 							r.last << 'U' if @type.specifier == :unsigned
 							case @type.name
-							when :longlong: r.last << 'LL'
-							when :long, :longdouble: r.last << 'L'
-							when :float: r.last << 'F'
+							when :longlong
+								r.last << 'LL'
+							when :long, :longdouble
+								r.last << 'L'
+							when :float
+								r.last << 'F'
 							end
 						end
 					when ::String
@@ -2909,7 +3007,8 @@ EOH
 						r.last << ' )'
 					when Label
 						r.last << '&&' << @rexpr.name
-					else raise "wtf? #{inspect}"
+					else
+						raise "wtf? #{inspect}"
 					end
 				else
 					r.last << @op.to_s

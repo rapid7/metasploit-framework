@@ -24,7 +24,7 @@ class Ia32 < CPU
 		def self.simple_map(a)
 			Argument.simple_list << self
 
-			@i_to_s = Hash[*a.flatten]
+			@i_to_s = Hash[*a.to_a.flatten]
 			@s_to_i = @i_to_s.invert
 			
 			class_eval {

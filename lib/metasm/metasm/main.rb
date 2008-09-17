@@ -406,8 +406,10 @@ class Expression < ExpressionType
 	# see +reduce_rec+ for simplifications description
 	def reduce
 		case e = reduce_rec
-		when Expression, Numeric: e
-		else Expression[e]
+		when Expression, Numeric
+			e
+		else
+			Expression[e]
 		end
 	end
 
@@ -429,21 +431,33 @@ class Expression < ExpressionType
 				# bool expr
 				raise 'internal error' if not l
 				case @op
-				when :'&&': (l != 0) && (r != 0)
-				when :'||': (l != 0) || (r != 0)
-				when :'>' : l > r
-				when :'>=': l >= r
-				when :'<' : l < r
-				when :'<=': l <= r
-				when :'==': l == r
-				when :'!=': l != r
+				when :'&&'
+					(l != 0) && (r != 0)
+				when :'||'
+					(l != 0) || (r != 0)
+				when :'>'
+					l > r
+				when :'>='
+					l >= r
+				when :'<' 
+					l < r
+				when :'<='
+					l <= r
+				when :'=='
+					l == r
+				when :'!='
+					l != r
 				end ? 1 : 0
 			elsif not l
 				case @op
-				when :'!': (r == 0) ? 1 : 0
-				when :+:  r
-				when :-: -r
-				when :~: ~r
+				when :'!'
+					(r == 0) ? 1 : 0
+				when :+
+					r
+				when :-
+					-r
+				when :~
+					~r
 				end
 			else
 				# use ruby evaluator
@@ -457,8 +471,10 @@ class Expression < ExpressionType
 			1
 
 		elsif @op == :>> or @op == :<<
-			if l == 0: 0
-			elsif r == 0: l
+			if l == 0
+				 0
+			elsif r == 0
+				 l
 			elsif l.kind_of? Expression and l.op == @op
 				Expression[l.lexpr, @op, [l.rexpr, :+, r]].reduce_rec
 			# XXX (a >> 1) << 1  !=  a (lose low bit)
@@ -469,10 +485,14 @@ class Expression < ExpressionType
 				Expression[r.lexpr, op, r.rexpr].reduce_rec
 			end
 		elsif @op == :^
-			if l == :unknown or r == :unknown: :unknown
-			elsif l == 0: r
-			elsif r == 0: l
-			elsif l == r: 0
+			if l == :unknown or r == :unknown
+				:unknown
+			elsif l == 0
+				r
+			elsif r == 0
+				l
+			elsif l == r
+				0
 			elsif r == 1 and l.kind_of? Expression and [:'==', :'!=', :<, :>, :<=, :>=].include? l.op
 				Expression[nil, :'!', l].reduce_rec
 			elsif l.kind_of? Expression and l.op == :^
@@ -480,15 +500,19 @@ class Expression < ExpressionType
 				Expression[l.lexpr, :^, [l.rexpr, :^, r]].reduce_rec
 			elsif r.kind_of? Expression and r.op == :^
 				# (a^b)^a => b
-				if    r.rexpr == l: r.lexpr
-				elsif r.lexpr == l: r.rexpr
+				if    r.rexpr == l
+					r.lexpr
+				elsif r.lexpr == l
+					r.rexpr
 				end
 			end
 		elsif @op == :&
-			if l == 0 or r == 0: 0
+			if l == 0 or r == 0
+				0
 			elsif r == 1 and l.kind_of? Expression and [:'==', :'!=', :<, :>, :<=, :>=].include? l.op
 				l
-			elsif l == r: l
+			elsif l == r
+				l
 			elsif l.kind_of? Expression and l.op == :& and r.kind_of? Integer and l.rexpr.kind_of? Integer: Expression[l.lexpr, :&, r & l.rexpr].reduce_rec
 			elsif r.kind_of? ::Integer and l.kind_of? Expression and l.op == :|
 				# check for rol/ror composition
@@ -514,18 +538,26 @@ class Expression < ExpressionType
 				end
 			end
 		elsif @op == :|
-			if    l == 0: r
-			elsif r == 0: l
-			elsif l == -1 or r == -1: -1
-			elsif l == r: l
+			if    l == 0
+				r
+			elsif r == 0
+				l
+			elsif l == -1 or r == -1
+				-1
+			elsif l == r
+				l
 			end
 		elsif @op == :*
-			if    l == 0 or r == 0: 0
-			elsif l == 1: r
-			elsif r == 1: l
+			if    l == 0 or r == 0
+				0
+			elsif l == 1
+				r
+			elsif r == 1
+				l
 			end
 		elsif @op == :-
-			if l == :unknown or r == :unknown: :unknown
+			if l == :unknown or r == :unknown
+				:unknown
 			elsif not l and r.kind_of? Expression and (r.op == :- or r.op == :+)
 				if r.op == :- # no lexpr (reduced)
 					# -(-x) => x
@@ -539,9 +571,12 @@ class Expression < ExpressionType
 				Expression[l, :+, [:-, r]].reduce_rec
 			end
 		elsif @op == :+
-			if l == :unknown or r == :unknown: :unknown
-			elsif not l: r	# +x  => x
-			elsif r == 0: l	# x+0 => x
+			if l == :unknown or r == :unknown
+				:unknown
+			elsif not l
+				r	# +x  => x
+			elsif r == 0
+				l	# x+0 => x
 			elsif l.kind_of?(::Numeric)
 				if r.kind_of? Expression and r.op == :+
 					# 1+(x+y) => x+(y+1)
@@ -622,9 +657,12 @@ class Expression < ExpressionType
 	def externals
 		[@rexpr, @lexpr].inject([]) { |a, e|
 			case e
-			when ExpressionType: a.concat e.externals
-			when nil, ::Numeric: a
-			else a << e
+			when ExpressionType
+				a.concat e.externals
+			when nil, ::Numeric
+				a
+			else
+				a << e
 			end
 		}
 	end
@@ -633,9 +671,12 @@ class Expression < ExpressionType
 	def expr_externals
 		[@rexpr, @lexpr].inject([]) { |a, e|
 			case e
-			when Expression: a.concat e.expr_externals
-			when nil, ::Numeric, ExpressionType: a
-			else a << e
+			when Expression
+				a.concat e.expr_externals
+			when nil, ::Numeric, ExpressionType
+				a
+			else 
+				a << e
 			end
 		}
 	end
@@ -807,15 +848,20 @@ class EncodedData
 			raise "edata merge: label conflict #{cf.inspect}" if not cf.empty?
 			other.export.each { |k, v| @export[k] = v + @virtsize }
 			other.inv_export.each { |k, v| @inv_export[@virtsize + k] = v }
-			if @data.empty?: @data = other.data.dup
-			elsif defined? VirtualString and @data.kind_of? VirtualString: @data = @data.realstring << other.data
-			else @data << other.data
+			if @data.empty?
+				@data = other.data.dup
+			elsif defined? VirtualString and @data.kind_of? VirtualString
+				@data = @data.realstring << other.data
+			else
+				@data << other.data
 			end
 			@virtsize += other.virtsize
 		else
 			fill
-			if @data.empty?: @data = other.dup
-			else @data << other
+			if @data.empty?
+				@data = other.dup
+			else
+				@data << other
 			end
 			@virtsize += other.length
 		end

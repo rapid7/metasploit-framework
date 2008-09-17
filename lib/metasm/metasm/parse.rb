@@ -678,8 +678,10 @@ class Expression
 				tok.value = l.name
 			elsif not tok.value and tok.raw =~ /^([1-9][0-9]*)([fb])$/
 				case $2
-				when 'b': tok.value = lexer.program.locallabels_bkw($1)	# may fallback to binary parser
-				when 'f': tok.value = lexer.program.locallabels_fwd($1)
+				when 'b'
+					tok.value = lexer.program.locallabels_bkw($1)	# may fallback to binary parser
+				when 'f'
+					tok.value = lexer.program.locallabels_fwd($1)
 				end
 			end
 

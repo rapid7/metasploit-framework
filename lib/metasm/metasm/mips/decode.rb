@@ -67,12 +67,18 @@ class MIPS
 
 		op.args.each { |a|
 			di.instruction.args << case a
-			when :rs, :rt, :rd: Reg.new field_val[a]
-			when :sa, :i16, :i20, :i26, :it: Expression[field_val[a]]
-			when :rs_i16: Memref.new Reg.new(field_val[:rs]), Expression[field_val[:i16]]
-			when :ft: FpReg.new field_val[a]
-			when :idm1, :idb: Expression['unsupported']
-			else raise SyntaxError, "Internal error: invalid argument #{a} in #{op.name}"
+			when :rs, :rt, :rd
+				Reg.new field_val[a]
+			when :sa, :i16, :i20, :i26, :it
+				Expression[field_val[a]]
+			when :rs_i16
+				Memref.new Reg.new(field_val[:rs]), Expression[field_val[:i16]]
+			when :ft
+				FpReg.new field_val[a]
+			when :idm1, :idb
+				Expression['unsupported']
+			else
+				raise SyntaxError, "Internal error: invalid argument #{a} in #{op.name}"
 			end
 		}
 		di.bin_length += edata.ptr - before_ptr
@@ -97,36 +103,61 @@ class MIPS
 	def backtrace_binding(di)
 		a = di.instruction.args.map { |arg|
 			case arg
-			when Memref: arg.symbolic(di.address)
-			when Reg: arg.symbolic
-			else arg
+			when Memref
+				arg.symbolic(di.address)
+			when Reg
+				arg.symbolic
+			else
+				arg
 			end
 		}
 
 		binding =
 		case op = di.opcode.name
-		when 'nop', 'j', 'jr': {}
-		when 'lui': { a[0] => Expression[a[1], :<<, 16] }
-		when 'add', 'addu', 'addi', 'addiu': { a[0] => Expression[a[1], :+, a[2]] }	# XXX addiu $sp, -40h should be addiu $sp, 0xffc0 from the books, but..
-		when 'sub', 'subu': { a[0] => Expression[a[1], :-, a[2]] }
-		when 'slt', 'slti': { a[0] => Expression[a[1], :<, a[2]] }
-		when 'and', 'andi': { a[0] => Expression[a[1], :&, a[2]] }
-		when 'or', 'ori':   { a[0] => Expression[a[1], :|, a[2]] }
-		when 'nor':   { a[0] => Expression[:~, [a[1], :|, a[2]]] }
-		when 'xor':   { a[0] => Expression[a[1], :^, a[2]] }
-		when 'sll':   { a[0] => Expression[a[1], :>>, a[2]] }
-		when 'srl', 'sra': { a[0] => Expression[a[1], :<<, a[2]] }	# XXX sign-extend
-		when 'lw':    { a[0] => Expression[a[1]] }
-		when 'sw':    { a[1] => Expression[a[0]] }
-		when 'lh', 'lhu': { a[0] => Expression[a[1]] }	# XXX sign-extend
-		when 'sh':        { a[1] => Expression[a[0]] }
-		when 'lb', 'lbu': { a[0] => Expression[a[1]] }
-		when 'sb':        { a[1] => Expression[a[0]] }
-		when 'mfhi':  { a[0] => Expression[:hi] }
-		when 'mflo':  { a[0] => Expression[:lo] }
-		when 'mult':  { :hi => Expression[[a[0], :*, a[1]], :>>, 32], :lo => Expression[[a[0], :*, a[1]], :&, 0xffff_ffff] }
-		when 'div':   { :hi => Expression[a[0], :%, a[1]], :lo => Expression[a[0], :/, a[1]] }
-		when 'jalr':  { :$ra => Expression[Expression[di.address, :+, 2*di.bin_length].reduce] }
+		when 'nop', 'j', 'jr'
+			{}
+		when 'lui'
+			{ a[0] => Expression[a[1], :<<, 16] }
+		when 'add', 'addu', 'addi', 'addiu'
+			{ a[0] => Expression[a[1], :+, a[2]] }	# XXX addiu $sp, -40h should be addiu $sp, 0xffc0 from the books, but..
+		when 'sub', 'subu'
+			{ a[0] => Expression[a[1], :-, a[2]] }
+		when 'slt', 'slti'
+			{ a[0] => Expression[a[1], :<, a[2]] }
+		when 'and', 'andi'
+			{ a[0] => Expression[a[1], :&, a[2]] }
+		when 'or', 'ori'
+			{ a[0] => Expression[a[1], :|, a[2]] }
+		when 'nor'
+			{ a[0] => Expression[:~, [a[1], :|, a[2]]] }
+		when 'xor'
+			{ a[0] => Expression[a[1], :^, a[2]] }
+		when 'sll'
+			{ a[0] => Expression[a[1], :>>, a[2]] }
+		when 'srl','sra'
+			{ a[0] => Expression[a[1], :<<, a[2]] }	# XXX sign-extend
+		when 'lw'
+			{ a[0] => Expression[a[1]] }
+		when 'sw'
+			{ a[1] => Expression[a[0]] }
+		when 'lh', 'lhu'
+			{ a[0] => Expression[a[1]] }	# XXX sign-extend
+		when 'sh'
+			{ a[1] => Expression[a[0]] }
+		when 'lb', 'lbu'
+			{ a[0] => Expression[a[1]] }
+		when 'sb'
+			{ a[1] => Expression[a[0]] }
+		when 'mfhi'
+			{ a[0] => Expression[:hi] }
+		when 'mflo'
+			{ a[0] => Expression[:lo] }
+		when 'mult'
+			{ :hi => Expression[[a[0], :*, a[1]], :>>, 32], :lo => Expression[[a[0], :*, a[1]], :&, 0xffff_ffff] }
+		when 'div'
+			{ :hi => Expression[a[0], :%, a[1]], :lo => Expression[a[0], :/, a[1]] }
+		when 'jalr'
+			{ :$ra => Expression[Expression[di.address, :+, 2*di.bin_length].reduce] }
 		else
 			if op[0] == ?b and di.opcode.props[:setip]
 			else
@@ -146,9 +177,12 @@ class MIPS
 		arg = di.instruction.args.last
 		[Expression[
 		case arg
-		when Memref: Indirection[[arg.base.to_s.to_sym, :+, arg.offset], @size/8, di.address]
-		when Reg: arg.to_s.to_sym
-		else arg
+		when Memref
+			Indirection[[arg.base.to_s.to_sym, :+, arg.offset], @size/8, di.address]
+		when Reg
+			arg.to_s.to_sym
+		else
+			arg
 		end]]
 	end
 
@@ -180,11 +214,13 @@ class MIPS
         def replace_instr_arg_immediate(i, old, new)
                 i.args.map! { |a|
                         case a
-                        when Expression: a == old ? new : Expression[a.bind(old => new).reduce]
+                        when Expression
+							a == old ? new : Expression[a.bind(old => new).reduce]
                         when Memref
                                 a.offset = (a.offset == old ? new : Expression[a.offset.bind(old => new).reduce]) if a.offset
                                 a
-                        else a
+                        else
+							a
                         end
                 }
         end

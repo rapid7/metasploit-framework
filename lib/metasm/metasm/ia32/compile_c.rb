@@ -105,10 +105,15 @@ class CCompiler < C::Compiler
 	def flushcachereg(regval)
 		@state.cache.delete_if { |e, val|
 			case e
-			when Reg: e.val == regval
-			when Address: e = e.modrm ; redo
-			when ModRM: e.b && (e.b.val == regval) or e.i && (e.i.val == regval)
-			when Composite: e.low.val == regval or e.high.val == regval
+			when Reg
+				e.val == regval
+			when Address
+				e = e.modrm
+				redo
+			when ModRM
+				e.b && (e.b.val == regval) or e.i && (e.i.val == regval)
+			when Composite
+				e.low.val == regval or e.high.val == regval
 			end
 		}
 	end
@@ -128,10 +133,14 @@ class CCompiler < C::Compiler
 			next if exempt.include? regval
 			not @state.inuse.find { |val|
 				case val
-				when Reg: val.val == regval
-				when ModRM: (val.b and val.b.val == regval) or (val.i and val.i.val == regval)
-				when Composite: val.low.val == regval or val.high.val == regval
-				else raise 'internal error - inuse ' + val.inspect
+				when Reg
+					val.val == regval
+				when ModRM
+					(val.b and val.b.val == regval) or (val.i and val.i.val == regval)
+				when Composite
+					val.low.val == regval or val.high.val == regval
+				else
+					raise 'internal error - inuse ' + val.inspect
 				end
 			}
 		}
@@ -140,13 +149,17 @@ class CCompiler < C::Compiler
 	# marks an arg as in use, returns the arg
 	def inuse(v)
 		case v
-		when Reg: @state.used |= [v.val]
+		when Reg
+			@state.used |= [v.val]
 		when ModRM
 			@state.used |= [v.i.val] if v.i
 			@state.used |= [v.b.val] if v.b
-		when Composite: @state.used |= [v.low.val, v.high.val]
-		when Address: inuse v.modrm ; return v
-		else return v
+		when Composite
+			@state.used |= [v.low.val, v.high.val]
+		when Address
+			inuse v.modrm ; return v
+		else
+			return v
 		end
 		@state.inuse |= [v]
 		v
@@ -212,8 +225,10 @@ class CCompiler < C::Compiler
 		end
 
 		case var.type
-		when C::Array: inuse Address.new(v)
-		else inuse v
+		when C::Array
+			inuse Address.new(v)
+		else
+			inuse v
 		end
 	end
 
@@ -272,7 +287,8 @@ class CCompiler < C::Compiler
 				unuse e
 				instr 'fld', e
 				FpReg.new nil
-			else raise
+			else
+				raise
 			end
 		elsif e.kind_of? Address
 			make_volatile resolve_address(e), type, rsz
@@ -289,8 +305,10 @@ class CCompiler < C::Compiler
 				e2
 			elsif type.float?
 				case e.reduce
-				when 0: instr 'fldz'
-				when 1: instr 'fld1'
+				when 0
+					instr 'fldz'
+				when 1
+					instr 'fld1'
 				else
 					esp = Reg.new(4, @cpusz)
 					instr 'push.i32', Expression[expr, :>>, 32]
@@ -319,7 +337,8 @@ class CCompiler < C::Compiler
 		when Composite
 			el = e.low
 			eh = e.high
-		else raise
+		else
+			raise
 		end
 		[el, eh]
 	end
@@ -327,21 +346,30 @@ class CCompiler < C::Compiler
 	# returns the instruction prefix for a comparison operator
 	def getcc(op, type)
 		case op
-		when :'==': 'z'
-		when :'!=': 'nz'
-		when :'<' : 'b'
-		when :'>' : 'a'
-		when :'<=': 'be'
-		when :'>=': 'ae'
-		else raise "bad comparison op #{op}"
+		when :'=='
+			'z'
+		when :'!='
+			'nz'
+		when :'<'
+			'b'
+		when :'>'
+			'a'
+		when :'<='
+			'be'
+		when :'>='
+			'ae'
+		else
+			raise "bad comparison op #{op}"
 		end.tr((type.specifier == :unsigned ? '' : 'ab'), 'gl')
 	end
 
 	# compiles a c expression, returns an Ia32 instruction argument
 	def c_cexpr_inner(expr)
 		case expr
-		when ::Integer: Expression[expr]
-		when C::Variable: findvar(expr)
+		when ::Integer
+			Expression[expr]
+		when C::Variable
+			findvar(expr)
 		when C::CExpression
 			if not expr.lexpr or not expr.rexpr
 				c_cexpr_inner_nol(expr)
@@ -380,7 +408,8 @@ class CCompiler < C::Compiler
 				end
 			elsif expr.type.float?
 				instr 'fchs'
-			else raise
+			else
+				raise
 			end
 			r
 		when :'++', :'--'
@@ -425,11 +454,15 @@ class CCompiler < C::Compiler
 				e = e.modrm.dup
 				e.sz = sz
 				inuse e
-			when ModRM: e = make_volatile(e, expr.rexpr.type)
+			when ModRM
+				e = make_volatile(e, expr.rexpr.type)
 			end
 			case e
-			when Reg: unuse e ; e = inuse ModRM.new(@cpusz, sz, nil, nil, e, nil)
-			when Expression: e = inuse ModRM.new(@cpusz, sz, nil, nil, nil, e)
+			when Reg
+				unuse e
+				e = inuse ModRM.new(@cpusz, sz, nil, nil, e, nil)
+			when Expression
+				e = inuse ModRM.new(@cpusz, sz, nil, nil, nil, e)
 			end
 			e
 		when :'!'
@@ -448,7 +481,8 @@ class CCompiler < C::Compiler
 					raise # TODO
 				end
 				r = inuse findreg
-			else raise 'bad comparison ' + expr.to_s
+			else
+				raise 'bad comparison ' + expr.to_s
 			end
 			if @exeformat.cpu.opcode_list_byname['setz']
 				instr 'setz', Reg.new(r.val, 8)
@@ -461,7 +495,8 @@ class CCompiler < C::Compiler
 				@source << Label.new(label)
 			end
 			r
-		else raise 'mmh ? ' + expr.to_s
+		else
+			raise 'mmh ? ' + expr.to_s
 		end
 	end
 
@@ -780,7 +815,8 @@ class CCompiler < C::Compiler
 				raise # TODO
 				instr 'fucompp', l, r
 				l = inuse findreg
-			else raise 'bad comparison ' + expr.to_s
+			else
+				raise 'bad comparison ' + expr.to_s
 			end
 			opcc = getcc(expr.op, expr.type)
 			if @exeformat.cpu.opcode_list_byname['set'+opcc]
@@ -941,17 +977,22 @@ class CCompiler < C::Compiler
 				}
 				if (lr = log2[rr]).kind_of? ::Integer
 					case op
-					when :*: return c_cexpr_inner_arith(l, :<<, Expression[lr], type)
-					when :/: return c_cexpr_inner_arith(l, :>>, Expression[lr], type)
-					when :%: return c_cexpr_inner_arith(l, :&, Expression[rr-1], type)
+					when :*
+						return c_cexpr_inner_arith(l, :<<, Expression[lr], type)
+					when :/
+						return c_cexpr_inner_arith(l, :>>, Expression[lr], type)
+					when :%
+						return c_cexpr_inner_arith(l, :&, Expression[rr-1], type)
 					end
 				else
 					# TODO :/ => *(r^(-1)), *3..
 				end
 			elsif type.float?
 				case op
-				when :<<: return c_cexpr_inner_arith(l, :*, Expression[1<<rr], type)
-				when :>>: return c_cexpr_inner_arith(l, :/, Expression[1<<rr], type)
+				when :<<
+					return c_cexpr_inner_arith(l, :*, Expression[1<<rr], type)
+				when :>>
+					return c_cexpr_inner_arith(l, :/, Expression[1<<rr], type)
 				end
 			end
 		end
@@ -969,33 +1010,50 @@ class CCompiler < C::Compiler
 	# l is ST(0)
 	def c_cexpr_inner_arith_float(l, op, r, type)
 		op = case op
-		when :+: 'fadd'
-		when :-: 'fsub'
-		when :*: 'fmul'
-		when :/: 'fdiv'
-		else raise "unsupported FPU operation #{l} #{op} #{r}"
+		when :+
+			'fadd'
+		when :-
+			'fsub'
+		when :*
+			'fmul'
+		when :/
+			'fdiv'
+		else
+			raise "unsupported FPU operation #{l} #{op} #{r}"
 		end
 
 		unuse r
 		case r
-		when FpReg: instr op+'p', FpReg.new(1)
-		when ModRM: instr op, r
+		when FpReg
+			instr op+'p', FpReg.new(1)
+		when ModRM
+			instr op, r
 		end
 	end
 
 	# compile an integral arithmetic expression, reg-sized
 	def c_cexpr_inner_arith_int(l, op, r, type)
 		op = case op
-		when :+: 'add'
-		when :-: 'sub'
-		when :&: 'and'
-		when :|: 'or'
-		when :^: 'xor'
-		when :>>: type.specifier == :unsigned ? 'shr' : 'sar'
-		when :<<: 'shl'
-		when :*: 'mul'
-		when :/: 'div'
-		when :%: 'mod'
+		when :+
+			'add'
+		when :-
+			'sub'
+		when :&
+			'and'
+		when :|
+			'or'
+		when :^
+			'xor'
+		when :>>
+			type.specifier == :unsigned ? 'shr' : 'sar'
+		when :<<
+			'shl'
+		when :*
+			'mul'
+		when :/
+			'div'
+		when :%
+			'mod'
 		end
 
 		case op
@@ -1043,16 +1101,26 @@ class CCompiler < C::Compiler
 	# compile an integral arithmetic 64-bits expression on a non-64 cpu
 	def c_cexpr_inner_arith_int64compose(l, op, r, type)
 		op = case op
-		when :+: 'add'
-		when :-: 'sub'
-		when :&: 'and'
-		when :|: 'or'
-		when :^: 'xor'
-		when :>>: type.specifier == :unsigned ? 'shr' : 'sar'
-		when :<<: 'shl'
-		when :*: 'mul'
-		when :/: 'div'
-		when :%: 'mod'
+		when :+
+			'add'
+		when :-
+			'sub'
+		when :&
+			'and'
+		when :|
+			'or'
+		when :^
+			'xor'
+		when :>>
+			type.specifier == :unsigned ? 'shr' : 'sar'
+		when :<<
+			'shl'
+		when :*
+			'mul'
+		when :/
+			'div'
+		when :%
+			'mod'
 		end
 
 		ll, lh = get_composite_parts l
@@ -1112,15 +1180,18 @@ class CCompiler < C::Compiler
 			# skip no-ops
 			c_cexpr(expr.lexpr) if expr.lexpr.kind_of? C::CExpression
 			c_cexpr(expr.rexpr) if expr.rexpr.kind_of? C::CExpression
-		else unuse c_cexpr_inner(expr)
+		else
+			unuse c_cexpr_inner(expr)
 		end
 	end
 
 	def c_block_exit(block)
 		@state.cache.delete_if { |k, v|
 			case v
-			when C::Variable: block.symbol.index v
-			when Address: block.symbol.index v.target
+			when C::Variable
+				block.symbol.index v
+			when Address
+				block.symbol.index v.target
 			end
 		}
 		block.symbol.each { |s|
@@ -1153,7 +1224,8 @@ class CCompiler < C::Compiler
 			elsif expr.lexpr.type.float?
 				raise # TODO
 				instr 'fcmpp', l, r
-			else raise 'bad comparison ' + expr.to_s
+			else
+				raise 'bad comparison ' + expr.to_s
 			end
 			op = 'j' + getcc(expr.op, expr.lexpr.type)
 			instr op, Expression[target]

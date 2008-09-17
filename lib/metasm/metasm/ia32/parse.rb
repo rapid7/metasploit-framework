@@ -23,12 +23,18 @@ class ModRM
 				$1.to_i
 			else
 				case tok.raw
-				when  'byte':   8
-				when  'word':  16
-				when 'dword':  32
-				when 'qword':  64
-				when 'oword': 128
-				else raise otok, 'mrm: bad ptr size'
+				when  'byte'
+					8
+				when  'word'
+					16
+				when 'dword'
+					32
+				when 'qword'
+					64
+				when 'oword'
+					128
+				else
+					raise otok, 'mrm: bad ptr size'
 				end
 			end
 			lexer.skip_space
@@ -160,10 +166,14 @@ end
 		# implicit 'true' return value when assignment occur
 		i.prefix ||= {}
 		case pfx
-		when 'lock': i.prefix[:lock] = true
-		when 'rep':            i.prefix[:rep] = 'rep'
-		when 'repe', 'repz':   i.prefix[:rep] = 'repz'
-		when 'repne', 'repnz': i.prefix[:rep] = 'repnz'
+		when 'lock'
+			i.prefix[:lock] = true
+		when 'rep'
+			i.prefix[:rep] = 'rep'
+		when 'repe', 'repz'
+			i.prefix[:rep] = 'repz'
+		when 'repne', 'repnz'
+			i.prefix[:rep] = 'repnz'
 		end
 	end
 
@@ -243,31 +253,53 @@ end
 					!arg.sz or arg.sz <= 16
 				else true
 				end
-		when :i:        arg.kind_of? Expression
-		when :imm_val1: arg.kind_of? Expression and arg.reduce == 1
-		when :imm_val3: arg.kind_of? Expression and arg.reduce == 3
-		when :reg_eax:  arg.class == Reg     and arg.val == 0
-		when :reg_cl:   arg.class == Reg     and arg.val == 1 and arg.sz == 8
-		when :reg_dx:   arg.class == Reg     and arg.val == 2 and arg.sz == 16
-		when :seg3:     arg.class == SegReg
-		when :seg3A:    arg.class == SegReg  and arg.val > 3
-		when :seg2:     arg.class == SegReg  and arg.val < 4
-		when :seg2A:    arg.class == SegReg  and arg.val < 4 and arg.val != 1
-		when :eeec:     arg.class == CtrlReg
-		when :eeed:     arg.class == DbgReg
-		when :modrmA:   arg.class == ModRM
-		when :mrm_imm:  arg.class == ModRM   and not arg.s and not arg.i and not arg.b
-		when :farptr:   arg.class == Farptr
-		when :regfp:    arg.class == FpReg
-		when :regfp0:   arg.class == FpReg   and (arg.val == nil or arg.val == 0)	# XXX optional argument
-		when :modrmmmx: arg.class == ModRM   or (arg.class == SimdReg and (arg.sz == 64 or (arg.sz == 128 and o.props[:xmmx])))
-		when :regmmx:   arg.class == SimdReg and (arg.sz == 64 or (arg.sz == 128 and o.props[:xmmx]))
-		when :modrmxmm: arg.class == ModRM   or (arg.class == SimdReg and arg.sz == 128)
-		when :regxmm:   arg.class == SimdReg and arg.sz == 128
-		when :i8, :u8, :u16:
+		when :i
+			arg.kind_of? Expression
+		when :imm_val1
+			arg.kind_of? Expression and arg.reduce == 1
+		when :imm_val3
+			arg.kind_of? Expression and arg.reduce == 3
+		when :reg_eax
+			arg.class == Reg     and arg.val == 0
+		when :reg_cl
+			arg.class == Reg     and arg.val == 1 and arg.sz == 8
+		when :reg_dx
+			arg.class == Reg     and arg.val == 2 and arg.sz == 16
+		when :seg3
+			arg.class == SegReg
+		when :seg3A
+			arg.class == SegReg  and arg.val > 3
+		when :seg2
+			arg.class == SegReg  and arg.val < 4
+		when :seg2A
+			arg.class == SegReg  and arg.val < 4 and arg.val != 1
+		when :eeec
+			arg.class == CtrlReg
+		when :eeed
+			arg.class == DbgReg
+		when :modrmA
+			arg.class == ModRM
+		when :mrm_imm
+			arg.class == ModRM   and not arg.s and not arg.i and not arg.b
+		when :farptr
+			arg.class == Farptr
+		when :regfp
+			arg.class == FpReg
+		when :regfp0
+			arg.class == FpReg   and (arg.val == nil or arg.val == 0)	# XXX optional argument
+		when :modrmmmx
+			arg.class == ModRM   or (arg.class == SimdReg and (arg.sz == 64 or (arg.sz == 128 and o.props[:xmmx])))
+		when :regmmx
+			arg.class == SimdReg and (arg.sz == 64 or (arg.sz == 128 and o.props[:xmmx]))
+		when :modrmxmm
+			arg.class == ModRM   or (arg.class == SimdReg and arg.sz == 128)
+		when :regxmm
+			arg.class == SimdReg and arg.sz == 128
+		when :i8, :u8, :u16
 			arg.kind_of? Expression and
 			Expression.in_range?(arg, spec) != false	# true or nil allowed
-		else raise EncodeError, "Internal error: unknown argument specification #{spec.inspect}"
+		else
+			raise EncodeError, "Internal error: unknown argument specification #{spec.inspect}"
 		end
 	end
 

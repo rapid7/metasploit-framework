@@ -113,9 +113,12 @@ class Preprocessor
 						tok.raw = ' '
 					when :punct
 						case tok.raw
-						when ',': break if nest == 0
-						when ')': break if nest == 0 ; nest -= 1
-						when '(': nest += 1
+						when ','
+							break if nest == 0
+						when ')'
+							break if nest == 0 ; nest -= 1
+						when '('
+							nest += 1
 						end
 					end
 					arg << tok
@@ -247,7 +250,8 @@ class Preprocessor
 					raise @name, 'invalid arg separator' if not tok or tok.type != :punct or (tok.raw != ')' and tok.raw != ',')
 					break if tok.raw == ')'
 				end
-			else lexer.unreadtok tok
+			else
+				lexer.unreadtok tok
 			end
 
 			nil while tok = lexer.readtok_nopp and tok.type == :space
@@ -340,8 +344,10 @@ class Preprocessor
 				when '__FILE__'
 					name = name.expanded_from.first if name.expanded_from
 					name.backtrace.to_a[-2].to_s
-				when '__DATE__': Time.now.strftime('%b %e %Y')
-				when '__TIME__': Time.now.strftime('%H:%M:%S')
+				when '__DATE__'
+					Time.now.strftime('%b %e %Y')
+				when '__TIME__'
+					Time.now.strftime('%H:%M:%S')
 				end
 				tok.raw = tok.value.inspect
 			when '__LINE__', '__COUNTER__'		# returns a :string
@@ -355,7 +361,8 @@ class Preprocessor
 					@counter += 1
 				end
 				tok.raw = tok.value.to_s
-			else raise name, 'internal error'
+			else
+				raise name, 'internal error'
 			end
 			[tok]
 		end
@@ -421,10 +428,14 @@ class Preprocessor
 		while not eos?
 			t = readtok
 			case t.type
-			when :space: ret << ' '
-			when :eol: ret << "\n" if (neol += 1) <= 2
-			when :quoted: neol = 0 ; ret << t.raw	# keep quoted style
-			else neol = 0 ; ret << (t.value || t.raw).to_s
+			when :space
+				ret << ' '
+			when :eol
+				ret << "\n" if (neol += 1) <= 2
+			when :quoted
+				neol = 0 ; ret << t.raw	# keep quoted style
+			else
+				neol = 0 ; ret << (t.value || t.raw).to_s
 			end
 		end
 		ret
@@ -467,8 +478,10 @@ class Preprocessor
 			if todo_now.empty?
 				dep_cycle = proc { |ary|
 					deps = depend[ary.last]
-					if deps.include? ary.first: ary
-					elsif (deps-ary).find { |d| deps = dep_cycle[ary + [d]] }: deps
+					if deps.include? ary.first
+						ary
+					elsif (deps-ary).find { |d| deps = dep_cycle[ary + [d]] }
+						deps
 					end
 				}
 				if not depend.find { |k, dep| todo_now = dep_cycle[[k]] }
@@ -582,7 +595,8 @@ class Preprocessor
 				elsif state == 2 and ntok.type == :string and not ntok.expanded_from
 					rewind = false if preprocessor_directive(ntok)
 					break
-				else break
+				else
+					break
 				end
 			end
 			if rewind
@@ -626,51 +640,70 @@ class Preprocessor
 				raise tok, 'unterminated string' if not c = getchar
 				tok.raw << c
 				case c
-				when delimiter: break
+				when delimiter
+					break
 				when ?\\
 					raise tok, 'unterminated escape' if not c = getchar
 					tok.raw << c
 					tok.value << \
 					case c
-					when ?n: ?\n
-					when ?r: ?\r
-					when ?t: ?\t
-					when ?a: ?\a
-					when ?b: ?\b
-					when ?v: ?\v
-					when ?f: ?\f
-					when ?e: ?\e
-					when ?#, ?\\, ?', ?": c
-					when ?\n: ''	# already handled by getchar
-					when ?x:
+					when ?n
+						?\n
+					when ?r
+						?\r
+					when ?t
+						?\t
+					when ?a
+						?\a
+					when ?b
+						?\b
+					when ?v
+						?\v
+					when ?f
+						?\f
+					when ?e
+						?\e
+					when ?#, ?\\, ?', ?"
+						c
+					when ?\n
+						 ''	# already handled by getchar
+					when ?x
 						hex = ''
 						while hex.length < 2
 							raise tok, 'unterminated escape' if not c = getchar
 							case c
 							when ?0..?9, ?a..?f, ?A..?F
-							else ungetchar; break
+							else
+								ungetchar
+								break
 							end
 							hex << c
 							tok.raw << c
 						end
 						raise tok, 'unterminated escape' if hex.empty?
 						hex.hex
-					when ?0..?7:
+					when ?0..?7
 						oct = '' << c
 						while oct.length < 3
 							raise tok, 'unterminated escape' if not c = getchar
 							case c
 							when ?0..?7
-							else ungetchar; break
+							else
+								ungetchar
+								break
 							end
 							oct << c
 							tok.raw << c
 						end
 						oct.oct
-					else b	# raise tok, 'unknown escape sequence'
+					else
+						b	# raise tok, 'unknown escape sequence'
 					end
-				when ?\n: ungetchar ; raise tok, 'unterminated string'
-				else tok.value << c
+				when ?\n
+					ungetchar
+					raise tok, 'unterminated string'
+				else
+					tok.value << c
 				end
 			end
 
@@ -679,10 +712,14 @@ class Preprocessor
 			tok.raw << c
 			loop do
 				case c = getchar
-				when nil: ungetchar; break		# avoids 'no method "coerce" for nil' warning
+				when nil
+					ungetchar
+					break		# avoids 'no method "coerce" for nil' warning
 				when ?a..?z, ?A..?Z, ?0..?9, ?$, ?_
 					tok.raw << c
-				else ungetchar; break
+				else
+					ungetchar
+					break
 				end
 			end
 
@@ -691,10 +728,13 @@ class Preprocessor
 			tok.raw << c
 			loop do
 				case c = getchar
-				when nil: break
+				when nil
+					break
 				when ?\ , ?\t
-				when ?\n, ?\f, ?\r: tok.type = :eol
-				else break
+				when ?\n, ?\f, ?\r
+					tok.type = :eol
+				else
+					break
 				end
 				tok.raw << c
 			end
@@ -721,9 +761,12 @@ class Preprocessor
 					raise tok, 'unterminated c++ comment' if not c = getchar
 					tok.raw << c
 					case c
-					when ?*: seenstar = true
-					when ?/: break if seenstar	# no need to reset seenstar, already false
-					else seenstar = false
+					when ?*
+						seenstar = true
+					when ?/
+						break if seenstar	# no need to reset seenstar, already false
+					else
+						seenstar = false
 					end
 				end
 			else
@@ -794,9 +837,12 @@ class Preprocessor
 				raise eol, 'pp syntax error' if eol and eol.type != :eol
 				unreadtok eol
 				case test.reduce
-				when 0:       @ifelse_nesting[-1] = :discard
-				when Integer: @ifelse_nesting[-1] = :accept
-				else          @ifelse_nesting[-1] = :discard
+				when 0
+					@ifelse_nesting[-1] = :discard
+				when Integer
+					@ifelse_nesting[-1] = :accept
+				else
+					@ifelse_nesting[-1] = :discard
 				end
 			when :discard, :discard_all
 				@ifelse_nesting << :discard_all
@@ -834,12 +880,16 @@ class Preprocessor
 				raise eol, 'pp syntax error' if eol = skipspc[] and eol.type != :eol
 				unreadtok eol
 				case test.reduce
-				when 0:       @ifelse_nesting[-1] = :discard
-				when Integer: @ifelse_nesting[-1] = :accept
-				else          @ifelse_nesting[-1] = :discard
+				when 0
+					@ifelse_nesting[-1] = :discard
+				when Integer
+					@ifelse_nesting[-1] = :accept
+				else
+					@ifelse_nesting[-1] = :discard
 				end
 			when :discard_all
-			else raise cmd, 'pp syntax error'
+			else
+				raise cmd, 'pp syntax error'
 			end
 
 		when 'else'
@@ -1005,7 +1055,8 @@ class Preprocessor
 			raise eol, 'eol expected' if eol = skipspc[] and eol.type != :eol
 			unreadtok eol
 
-		else return false
+		else
+			return false
 		end
 
 		# skip #ifndef'd parts of the source
@@ -1018,11 +1069,16 @@ class Preprocessor
 				retry
 			end
 
-			if not tok: raise ocmd, 'pp unterminated conditional'
-			elsif tok.type == :eol: state = 1
-			elsif state == 1 and tok.type == :punct and tok.raw == '#': state = 2
-			elsif state == 2 and tok.type == :string: state = preprocessor_directive(tok, ocmd) ? 1 : 0
-			else state = 0
+			if not tok
+				raise ocmd, 'pp unterminated conditional'
+			elsif tok.type == :eol
+				state = 1
+			elsif state == 1 and tok.type == :punct and tok.raw == '#'
+				state = 2
+			elsif state == 2 and tok.type == :string
+				state = preprocessor_directive(tok, ocmd) ? 1 : 0
+			else
+				state = 0
 			end
 		end
 

@@ -207,8 +207,10 @@ class AOut < ExeFormat
 
 		tlen = @header.text
 		case @header.magic
-		when 'ZMAGIC': @encoded.ptr = 1024
-		when 'QMAGIC': tlen -= 32	# header is included in .text
+		when 'ZMAGIC'
+			@encoded.ptr = 1024
+		when 'QMAGIC'
+			tlen -= 32	# header is included in .text
 		end
 		@text = EncodedData.new << @encoded.read(tlen)
 
@@ -253,8 +255,10 @@ class AOut < ExeFormat
 
 	def parse_parser_instruction(instr)
 		case instr.raw.downcase
-		when '.text': @cursource = @textsrc
-		when '.data': @cursource = @datasrc
+		when '.text'
+			@cursource = @textsrc
+		when '.data'
+			@cursource = @datasrc
 		when '.entrypoint'
 			# ".entrypoint <somelabel/expression>" or ".entrypoint" (here)
 			@lexer.skip_space
@@ -265,7 +269,8 @@ class AOut < ExeFormat
 				@cursource << Label.new(entrypoint, instr.backtrace.dup)
 			end
 			@header.entry = entrypoint
-		else super
+		else
+			super
 		end
 	end
 

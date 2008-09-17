@@ -581,8 +581,10 @@ class ELF
 		}
 		@tag.keys.each { |k|
 			case k
-			when 'NEEDED': @tag[k].each { |n| encode_tag[k, add_str[n]] }
-			when 'SONAME', 'RPATH', 'RUNPATH': encode_tag[k, add_str[@tag[k]]]
+			when 'NEEDED'
+				@tag[k].each { |n| encode_tag[k, add_str[n]] }
+			when 'SONAME', 'RPATH', 'RUNPATH'
+				encode_tag[k, add_str[@tag[k]]]
 			when 'INIT_ARRAY', 'FINI_ARRAY', 'PREINIT_ARRAY'	# build section containing the array
 				if not ar = @sections.find { |s| s.name == '.' + k.downcase }
 					ar = Section.new
@@ -610,10 +612,14 @@ class ELF
 			case k
 			when Integer	# unknown tags = array of values
 				@tag[k].each { |n| encode_tag[k, n] }
-			when 'PLTREL':     encode_tag[k,  int_from_hash(@tag[k], DYNAMIC_TAG)]
-			when 'FLAGS':      encode_tag[k, bits_from_hash(@tag[k], DYNAMIC_FLAGS)]
-			when 'FLAGS_1':    encode_tag[k, bits_from_hash(@tag[k], DYNAMIC_FLAGS_1)]
-			when 'FEATURES_1': encode_tag[k, bits_from_hash(@tag[k], DYNAMIC_FEATURES_1)]
+			when 'PLTREL'
+				encode_tag[k,  int_from_hash(@tag[k], DYNAMIC_TAG)]
+			when 'FLAGS'
+				encode_tag[k, bits_from_hash(@tag[k], DYNAMIC_FLAGS)]
+			when 'FLAGS_1'
+				encode_tag[k, bits_from_hash(@tag[k], DYNAMIC_FLAGS_1)]
+			when 'FEATURES_1'
+				encode_tag[k, bits_from_hash(@tag[k], DYNAMIC_FEATURES_1)]
 			when 'NULL'	# keep last
 			when 'STRTAB'
 				encode_tag[k, @tag[k]]
@@ -638,7 +644,7 @@ class ELF
 	# creates the undef symbol list from the section.encoded.reloc and a list of known exported symbols (e.g. from libc)
 	# also populates @tag['NEEDED']
 	def automagic_symbols
-		next if not defined? GNUExports
+		return if not defined? GNUExports
 		autoexports = GNUExports::EXPORT.dup
 		@sections.each { |s|
 			next if not s.encoded
@@ -999,9 +1005,12 @@ class ELF
 				s.type = 'PROGBITS'
 				s.encoded = EncodedData.new
 				s.flags = case sname
-					when '.text': %w[ALLOC EXECINSTR]
-					when '.data', '.bss': %w[ALLOC WRITE]
-					when '.rodata': %w[ALLOC]
+					when '.text'
+						%w[ALLOC EXECINSTR]
+					when '.data', '.bss'
+						%w[ALLOC WRITE]
+					when '.rodata'
+						%w[ALLOC]
 					end
 				s.addralign = 8
 				encode_add_section s
@@ -1029,14 +1038,17 @@ class ELF
 					ar << 'WRITE' if $2
 					ar << 'EXECINSTR' if $3
 					ar << 'ALLOC' if $4
-					if $1: s.flags -= ar
-					else   s.flags |= ar
+					if $1
+						s.flags -= ar
+					else
+						s.flags |= ar
 					end
 				when 'base'
 					@lexer.skip_space
 					@lexer.readtok if tok = @lexer.nexttok and tok.type == :punct and tok.raw == '='
 					raise instr, 'bad section base' if not s.addr = Expression.parse(@lexer).reduce or not s.addr.kind_of? ::Integer
-				else raise instr, 'unknown specifier'
+				else
+					raise instr, 'unknown specifier'
 				end
 			end
 			@cursource = @source[sname] ||= []
@@ -1142,9 +1154,12 @@ class ELF
 			s = Segment.new
 			s.type = 'GNU_STACK'
 			case mode
-			when /^rw$/i: s.flags = %w[R W]
-			when /^rwx$/i: s.flags = %w[R W X]
-			else raise instr, "syntax error: expected rw|rwx, found #{mode.inspect}"
+			when /^rw$/i
+				s.flags = %w[R W]
+			when /^rwx$/i
+				s.flags = %w[R W X]
+			else
+				raise instr, "syntax error: expected rw|rwx, found #{mode.inspect}"
 			end
 			@segments << s
 
@@ -1172,7 +1187,8 @@ class ELF
 				@lexer.readtok
 			end
 
-		else super
+		else
+			super
 		end
 	end
 
