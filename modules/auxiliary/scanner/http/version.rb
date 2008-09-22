@@ -18,7 +18,7 @@ class Auxiliary::Scanner::Http::Version < Msf::Auxiliary
 	
 	# Exploit mixins should be called first
 	include Exploit::Remote::HttpClient
-	
+	include Auxiliary::WMAPScanServer
 	# Scanner mixin should be near last
 	include Auxiliary::Scanner
 

@@ -13,6 +13,7 @@ module Msf
 class Auxiliary::Scanner::Http::FrontPage < Msf::Auxiliary
 	
 	include Exploit::Remote::HttpClient
+	include Auxiliary::WMAPScanServer
 	include Auxiliary::Scanner
 
 	def initialize
@@ -30,7 +31,6 @@ class Auxiliary::Scanner::Http::FrontPage < Msf::Auxiliary
 	
 		register_options(
 			[
-				Opt::RPORT(80),
 				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request", 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ])
 			], self.class)
 	end

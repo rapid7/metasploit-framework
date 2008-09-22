@@ -18,7 +18,7 @@ class Auxiliary::Scanner::Http::Writable < Msf::Auxiliary
 	
 	# Exploit mixins should be called first
 	include Exploit::Remote::HttpClient
-	
+	include Auxiliary::WMAPScanDir	
 	# Scanner mixin should be near last
 	include Auxiliary::Scanner
 
@@ -31,7 +31,8 @@ class Auxiliary::Scanner::Http::Writable < Msf::Auxiliary
 			upload and delete web content via PUT and DELETE HTTP
 			requests.
 			},
-			'Author'      => [ 'Kashif [at] compulife.com.pk' ],
+			'Author'      => [ 'Kashif [at] compulife.com.pk',
+					 ],
 			'License'     => BSD_LICENSE,
 			'Actions'     =>
 				[
