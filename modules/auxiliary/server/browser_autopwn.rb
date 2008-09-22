@@ -211,10 +211,10 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 		#--
 	
 		case request.uri
-			when %r{^#{datastore['URIPATH']}.*sessid=}: 
+			when %r{^#{datastore['URIPATH']}.*sessid=}
 				record_detection(cli, request)
 				send_not_found(cli)
-			when self.get_resource: 
+			when self.get_resource
 				#
 				# This is the request for exploits.  At this point all we know
 				# about the target came from the useragent string which could
@@ -500,18 +500,18 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 				when /Version\/(\d+\.\d+\.\d+).*Safari/
 					ua_name = HttpClients::SAFARI
 					ua_vers  = $1
-				when /Firefox\/((:?[0-9]+\.)+[0-9]+)/:
+				when /Firefox\/((:?[0-9]+\.)+[0-9]+)/
 					ua_name = HttpClients::FF
 					ua_vers  = $1
-				when /Mozilla\/[0-9]\.[0-9] \(compatible; MSIE ([0-9]\.[0-9]+)/:
+				when /Mozilla\/[0-9]\.[0-9] \(compatible; MSIE ([0-9]\.[0-9]+)/
 					ua_name = HttpClients::IE
 					ua_vers  = $1
 			end
 			case (ua)
-				when /Windows/:
+				when /Windows/
 					os_name = OperatingSystems::WINDOWS
 					arch = ARCH_X86
-				when /Linux/:
+				when /Linux/
 					os_name = OperatingSystems::LINUX
 				when /iPhone/
 					os_name = OperatingSystems::MAC_OSX
@@ -520,25 +520,25 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 					os_name = OperatingSystems::MAC_OSX
 			end
 			case (ua)
-				when /Windows 95/:
+				when /Windows 95/
 					os_flavor = '95'
-				when /Windows 98/:
+				when /Windows 98/
 					os_flavor = '98'
-				when /Windows NT 4/:
+				when /Windows NT 4/
 					os_flavor = 'NT'
-				when /Windows NT 5.0/:
+				when /Windows NT 5.0/
 					os_flavor = '2000'
-				when /Windows NT 5.1/:
+				when /Windows NT 5.1/
 					os_flavor = 'XP'
-				when /Windows NT 5.2/:
+				when /Windows NT 5.2/
 					os_flavor = '2003'
-				when /Windows NT 6.0/:
+				when /Windows NT 6.0/
 					os_flavor = 'Vista'
-				when /Gentoo/:
+				when /Gentoo/
 					os_flavor = 'Gentoo'
-				when /Debian/:
+				when /Debian/
 					os_flavor = 'Debian'
-				when /Ubuntu/:
+				when /Ubuntu/
 					os_flavor = 'Ubuntu'
 			end
 			case (ua)

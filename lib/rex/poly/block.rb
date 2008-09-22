@@ -377,31 +377,39 @@ protected
 		end
 
 		@depends.length.times { |cidx|
-			if (@depends[cidx].generated)
-				next
-
-			# If this dependent block is a once block and the magic 8 ball turns
-			# up zero, skip it and let a later block pick it up.  We only do this
-			# if we are not the last block to have a dependency on this block.
-			elsif ((@depends[cidx].once) and
-			    (rand(2).to_i == 0) and
-			    (@depends[cidx].last_reference? == false))
-				next
-			end
 		
-			# Generate this block
-			@depends[cidx].generate_block_list(state, level+1)
+			pass = false
+		
+			while (not pass)
+			
+				if (@depends[cidx].generated)
+					break
 
-			if level != 0
-				return
-			else
-				@depends.length.times {
-					f = rand(@depends.length)
-					@depends.push(@depends.delete_at(f))
-				}
+				# If this dependent block is a once block and the magic 8 ball turns
+				# up zero, skip it and let a later block pick it up.  We only do this
+				# if we are not the last block to have a dependency on this block.
+				elsif ((@depends[cidx].once) and
+			    	(rand(2).to_i == 0) and
+			    	(@depends[cidx].last_reference? == false))
+					break
+				end
 
-				retry
+				# Generate this block
+				@depends[cidx].generate_block_list(state, level+1)
+
+				if level != 0
+					return
+				else
+					@depends.length.times {
+						f = rand(@depends.length)
+						@depends.push(@depends.delete_at(f))
+					}
+
+					next
+				end
 			end
+				
+			next
 		}
 
 		self.deref
