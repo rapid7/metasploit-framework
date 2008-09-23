@@ -56,9 +56,12 @@ module Auxiliary::WMAPModule
    	# Levenshtein distance algorithm  (slow, huge mem consuption)
    	def distance(a, b)
    		case
-   		when a.empty?: b.length
-   		when b.empty?: a.length
-   		else [(a[0] == b[0] ? 0 : 1) + distance(a[1..-1], b[1..-1]),
+   		when a.empty?
+			b.length
+   		when b.empty?
+			a.length
+   		else
+			[(a[0] == b[0] ? 0 : 1) + distance(a[1..-1], b[1..-1]),
 			1 + distance(a[1..-1], b),
 			2 + distance(a, b[1..-1])].min
    		end
