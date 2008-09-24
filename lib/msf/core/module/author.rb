@@ -24,7 +24,8 @@ class Msf::Module::Author
 			'skylined'  => 'skylined' + 0x40.chr + 'edup.tudelft.nl',
 			'patrick'   => 'patrick' + 0x40.chr + 'aushack.com',
 			'ramon'     => 'ramon' + 0x40.chr + 'risesecurity.org',
-			'I)ruid'    => 'druid' +  0x40.chr + 'caughq.org'
+			'I)ruid'    => 'druid' +  0x40.chr + 'caughq.org',
+			'egypt'     => 'egypt' + 0x40.chr + 'metasploit.com'
 		}
 
 	#

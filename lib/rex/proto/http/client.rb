@@ -315,7 +315,7 @@ class Client
 		resp.max_data = config['read_max_data']
 
 		# Tell the remote side if we aren't pipelining
-		conn.shutdown(::Socket::SHUT_WR) if (!pipelining?)
+		#conn.shutdown(::Socket::SHUT_WR) if (!pipelining?)
 
 		# Wait at most t seconds for the full response to be read in.  We only
 		# do this if t was specified as a negative value indicating an infinite
@@ -369,15 +369,17 @@ class Client
 				end
 			rescue EOFError
 				return nil
+			rescue ::TimeoutError, ::Timeout::Error
+				#$stdout.puts("timeout\n")
 			end
 		} if (t)
 
 		# Close our side if we aren't pipelining
-		close if (!pipelining?)
+		#close if (!pipelining?)
 
 		# if the server said stop pipelining, we listen... 
 		if resp['Connection'] == 'close'
-			close
+			#close
 		end
 
 		# XXX - How should we handle this?

@@ -95,7 +95,14 @@ protected
 	# Check to see if the user wants to abort.
 	#
 	def _interrupt
-		user_want_abort?
+		begin
+			user_want_abort?
+		rescue Interrupt
+			# The user hit ctrl-c while we were handling a ctrl-c, send a
+			# literal ctrl-c to the shell.  XXX Doesn't actually work.
+			#$stdout.puts("\n[*] interrupted interrupt, sending literal ctrl-c\n")
+			#$stdout.puts(run_cmd("\x03"))
+		end
 	end
 
 	#

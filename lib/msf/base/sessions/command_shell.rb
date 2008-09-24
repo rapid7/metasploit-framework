@@ -36,6 +36,10 @@ class CommandShell
 		"Command shell"
 	end
 
+	def run_cmd(cmd)
+		write_shell(cmd)
+		return rstream.get
+	end
 	#
 	# Calls the class method.
 	#
@@ -54,7 +58,12 @@ class CommandShell
 	# Read from the command shell.
 	#
 	def read_shell(length = nil)
-		return rstream.read(length)
+		if length.nil?
+			rv = rstream.get
+		else
+			rv = rstream.read(length)
+		end
+		return rv
 	end
 
 	#

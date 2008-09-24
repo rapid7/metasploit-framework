@@ -123,6 +123,8 @@ protected
 			Rex::ThreadSafe.sleep(1.5)
 		end
 
+		# Make sure the read buffer is empty before we test for a shell
+		sock.get_once(-1,1)
 		# Check to see if the shell exists
 		sock.put("\necho #{ebuf}\n")
 

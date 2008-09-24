@@ -54,6 +54,7 @@ module Stream
 	# This method reads data of the supplied length from the stream.
 	#
 	def read(length = nil, opts = {})
+		# XXX handle length being nil
 		begin
 			fd.sysread(length)
 		rescue IOError
