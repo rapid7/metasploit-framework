@@ -37,7 +37,12 @@ module WinAPI
 	def self.new_api(lib, name, args, zero_is_err = true)
 		args = args.delete(' ').split(//)
 		retval = args.pop
-		const_set(name, Win32API.new(lib, name, args, retval))
+		begin
+			const_set(name, Win32API.new(lib, name, args, retval))
+		rescue
+			puts "no export #{name} found in #{lib}" if $VERBOSE
+ 			return
+		end
 		define_method(name.downcase) { |*a|
 			r = const_get(name).call(*a)
 			if r == 0 and zero_is_err
