@@ -195,7 +195,7 @@ class Dir < Rex::Post::Dir
 	def Dir.download(dst, src, recursive = false, &stat)
 		self.entries(src).each { |src_sub|
 			dst_item = dst + ::File::SEPARATOR + src_sub
-			src_item = src + ::File::SEPARATOR + src_sub
+			src_item = src + File::SEPARATOR + src_sub
 
 			if (src_sub == '.' or src_sub == '..')
 				next
@@ -230,7 +230,7 @@ class Dir < Rex::Post::Dir
 	#
 	def Dir.upload(dst, src, recursive = false, &stat)
 		::Dir.entries(src).each { |src_sub|
-			dst_item = dst + ::File::SEPARATOR + src_sub
+			dst_item = dst + File::SEPARATOR + src_sub
 			src_item = src + ::File::SEPARATOR + src_sub
 
 			if (src_sub == '.' or src_sub == '..')
