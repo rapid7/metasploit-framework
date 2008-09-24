@@ -501,6 +501,7 @@ class ModuleManager < ModuleSet
 				@modcache['ModuleTypeCounts'].clear
 
 				MODULE_TYPES.each { |type|
+					module_sets[type] ||= []
 					@modcache['ModuleTypeCounts'][type] = module_sets[type].length.to_s
 				}
 			end
@@ -782,7 +783,7 @@ protected
 		Rex::Find.find(path) { |file|
 			
 			# Skip non-ruby files
-			next if (file !~ /\.rb$/i)
+			next if (file !~ /\.rb$/)
 			
 			# Skip unit test files
 			next if (file =~ /rb\.(ut|ts)\.rb$/)
@@ -793,7 +794,6 @@ protected
 			begin
 				load_module_from_file(path, file, loaded, recalc, counts, demand)
 			rescue NameError
-				
 				# As of Jan-06-2007 this code isn't hit with the official module tree
 				
 				# If we get a name error, it's possible that this module depends
@@ -838,9 +838,15 @@ protected
 		}
 
 		# Perform any required recalculations for the individual module types
-		# that actually had load changes
+		# that actually had load changes. Remove modules which generate
+		# exceptions during the recalculation phase.
 		recalc.each_key { |key|
-			module_sets[key].recalculate
+			begin
+				module_sets[key].recalculate
+			rescue ::Exception => e
+				elog("Module #{key} threw exception #{e.class} #{e}: removing.")
+				module_sets.delete(key)
+			end
 		}
 
 		# Return per-module loaded counts
@@ -895,7 +901,7 @@ protected
 
 		# Get the module and grab the current number of constants
 		old_constants = mod.constants
-
+		
 		# Load the file like it aint no thang
 		begin
 			if (!load(file))
@@ -918,7 +924,7 @@ protected
 			elog("LoadError: #{$!}.")
 			return false
 		rescue ::Exception => e
-			elog("Failed to load module from #{file}: #{e.class} #{e}")
+			elog("Failed to load module from #{file}: #{e.class} #{e} #{e.backtrace}")
 			self.module_failed[file] = e
 			return false
 		end
@@ -1014,31 +1020,24 @@ protected
 	# name.
 	#
 	def mod_from_name(name)
-		obj = Msf
+	
+		# The root namespace
+		obj = ::Msf
 
-		name.split(File::SEPARATOR).each { |m|
+		# Build up a module container 
+		name.split(File::SEPARATOR).each do |m|
+
 			# Up-case the first letter and any prefixed by _
 			m.gsub!(/^[a-z]/) { |s| s.upcase }
 			m.gsub!(/(_[a-z])/) { |s| s[1..1].upcase }
 
-			begin
-				new_obj = obj.const_get(m)
-
-				# I can't really explain why this check is necessary.  Perhaps
-				# someone cooloer than I can explain it.  Here's the scenario.
-				# const_get is returning constants that are not accessible
-				# immediately from within the object passed.  However, the
-				# documentation states that this is how it should operate.
-				# Perhaps I misread.
-				if obj.constants.grep(m).length == 0
-					raise NameError
-				end
-
-				obj = new_obj
-			rescue NameError
+			if(obj.const_defined?(m))
+				obj = obj.const_get(m)
+			else
+				elog("Setting module constant #{obj}::#{m}")
 				obj = obj.const_set(m, ::Module.new)
 			end
-		}
+		end
 
 		return obj
 	end

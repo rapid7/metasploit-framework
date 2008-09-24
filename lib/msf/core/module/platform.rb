@@ -53,7 +53,7 @@ class Msf::Module::Platform
 		str = str.gsub(' ', '').downcase
 
 		# Start at the base platform module
-		mod = Msf::Module::Platform
+		mod = ::Msf::Module::Platform
 
 		# Scan forward, trying to find the end module
 		while str.length > 0
@@ -83,7 +83,7 @@ class Msf::Module::Platform
 	def self.build_child_platform_abbrev(mod)
 		# Flush out any non-class and non-inherited children
 		children = mod.find_children
-	
+
 		# No children to speak of?
 		return if (children.length == 0)
 
@@ -130,11 +130,22 @@ class Msf::Module::Platform
 	# the string).
 	#
 	def self.find_portion(mod, str)
+		
 		# Check to see if we've built the abbreviated cache
-		if (mod.const_defined?('Abbrev') == false)
+		if (not (
+					mod.const_defined?('Abbrev') and
+					mod.const_defined?('Names') and
+					mod.const_defined?('Ranks')
+		   )    )
 			build_child_platform_abbrev(mod) 
 		end
 
+		if (not mod.const_defined?('Names'))
+			elog("Failed to instantiate the platform list for module #{mod}")
+			exit(0)
+			return nil
+		end
+		
 		abbrev   = mod.const_get('Abbrev')
 		names    = mod.const_get('Names')
 		ranks    = mod.const_get('Ranks')
