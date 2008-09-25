@@ -21,3 +21,13 @@ if (RUBY_VERSION =~ /^1\.[0-7]\./ or RUBY_VERSION =~ /^1\.8\.[0-1]$/)
 	puts "*** This version of ruby is not supported, please upgrade to 1.8.2+"
 	exit(0)
 end
+
+if(RUBY_VERSION == "1.8.7")
+	$stderr.puts ""
+	$stderr.puts "***********************************************************************"
+	$stderr.puts "*** This version of the Ruby interpreter has significant problems, we *"
+	$stderr.puts "*** strongly recommend that you switch to version 1.8.6 until these   *"
+	$stderr.puts "*** issues have been corrected.                                       *"
+	$stderr.puts "***********************************************************************"
+	$stderr.puts ""
+end
