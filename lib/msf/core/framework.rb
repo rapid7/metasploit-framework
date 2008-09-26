@@ -15,7 +15,7 @@ class Framework
 	#
 	Major    = 3
 	Minor    = 2
-	Release  = "-release"
+	Release  = "-testing"
 	Version  = "#{Major}.#{Minor}#{Release}"
 	Revision = "$Revision$"
 	

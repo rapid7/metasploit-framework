@@ -1,0 +1,45 @@
+
+                     888                           888        d8b888
+                     888                           888        Y8P888
+                     888                           888           888
+88888b.d88b.  .d88b. 888888 8888b. .d8888b 88888b. 888 .d88b. 888888888
+888 "888 "88bd8P  Y8b888       "88b88K     888 "88b888d88""88b888888
+888  888  88888888888888   .d888888"Y8888b.888  888888888  888888888
+888  888  888Y8b.    Y88b. 888  888     X88888 d88P888Y88..88P888Y88b.
+888  888  888 "Y8888  "Y888"Y888888 88888P'88888P" 888 "Y88P" 888 "Y888
+                                           888
+                                           888
+                                           888
+
+
+ Contact: H D Moore                              FOR IMMEDIATE RELEASE
+   Email: hdm[at]metasploit.com
+
+     
+	=========================================================
+          ------------------------------------------
+	    
+
+[ Announce Text ]
+
+
+  Metasploit runs on all modern operating systems, including Linux,
+Windows, Mac OS X, and most flavors of BSD. Metasploit has been used
+on a wide range of hardware platforms, from massive Unix mainframes to
+the tiny Nokia n800 handheld. Users can access Metasploit using the
+tab-completing console interface, the Gtk GUI, the command line scripting 
+interface, or the AJAX-enabled web interface. The Windows version of
+Metasploit includes all software dependencies and a selection of useful
+networking tools. 
+
+  The latest version of the Metasploit Framework, as well as screen
+shots, video demonstrations, documentation and installation
+instructions for many platforms, can be found online at
+
+http://metasploit3.com/
+
+
+                              # # #
+								   
+If you'd like more information about this topic, or to schedule an
+interview with the developers, please email msfdev[at]metasploit.com
