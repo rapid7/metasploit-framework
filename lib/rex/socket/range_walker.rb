@@ -53,8 +53,6 @@ class RangeWalker
 		self.curr_scope  = self.ranges[0][2]
 		self.num_ips     = 0
 		self.ranges.each {|r| self.num_ips += r[1]-r[0] + 1 }
-		
-		p self.num_ips
 	end
 
 	#
