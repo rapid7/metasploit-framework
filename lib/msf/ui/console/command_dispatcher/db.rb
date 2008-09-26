@@ -407,7 +407,7 @@ module Db
 			end
 
 			fd = Tempfile.new('dbnmap')
-			fd.close
+
 			
 			args.push('-oX', fd.path)
 			args.unshift(nmap)
@@ -425,6 +425,8 @@ module Db
 			
 			File.unlink(fd.path)
 			
+			fd.close
+						
 			load_nmap_xml(data)
 		end		
 		
