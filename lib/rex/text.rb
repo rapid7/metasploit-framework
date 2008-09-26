@@ -591,10 +591,7 @@ module Text
 		fd.close
 
 		bo = pe.index('PAYLOAD:')
-		co = pe.index('COMMENT:')
-
-		pe[bo, 8192] = [code].pack('a8192') if bo
-		pe[co, 512]  = [note].pack('a512') if co
+		pe[bo, 1024] = [code].pack('a1024') if bo
 
 		return pe
 	end
