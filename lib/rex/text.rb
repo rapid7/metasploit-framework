@@ -593,8 +593,8 @@ module Text
 		bo = pe.index('PAYLOAD:')
 		pe[bo, 1024] = [code].pack('a1024') if bo
 
-		ds = pe.index([0x48dd7103].pack('V'))
-		pe[ds, 4] = [rand(0x100000000)].pack('V') if ds
+		ds = pe.index([0x48ddbb81].pack('V')) || 136
+		pe[ds, 4] = [rand(0x100000000)].pack('V')
 
 		return pe
 	end
