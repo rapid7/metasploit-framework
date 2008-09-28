@@ -1,0 +1,236 @@
+=[ WMAP v0.1                                ET LoWNOISE  et[]metasploit.com
+---------------------------------------------------------------------------
+                        "Metasploit goes Web" ,H D Moore.
+
+
+=[ Intro.
+
+WMAP is a general purpose web application scanning framework for 
+Metasploit 3. The architechture is simple and its simplicity is what makes
+it powerfull. It's a different approach compared to other open source 
+alternatives and commercial scanners as WMAP is not build around any browser 
+or spider for data capture and manipulation. 
+
+
+=[ How it works.
+
+In the WMAP design, the attack proxy acts as a data gathering tool. All 
+traffic between the client(s) (i.e. favorite browser and/or spider) will be 
+stored in the WMAP database. (See figure.) 
+
+[CLIENT] ----- [ATTACK PROXY] ----- [TARGET]
+                      |                 ^ 
+                  [WMAP DB]             |
+                      |                 |
+            [MSF 3 - WMAP SCANNER]      | 
+            [MSF 3 - WMAP MODULES] -----+
+
+WMAP is a Metasploit plugin and will interact with the database, reading all
+gathered traffic, processing it and launching the different tests 
+implemented as modules.  As WMAP Modules are MSF Modules they can be easily 
+implemented, be run manually from the command line or automatically via WMAP.
+
+As you may see this simple architecture allows you to have different 
+distributed clients and even different proxies all storing data to the 
+central repository. Remember everything is based on Metasploit, the test 
+modules are implemented as auxiliary modules and they can interact with any 
+other MSF component including exploits and plugins.
+
+
+=[ WMAP Modules.
+ 	 
+The test modules implemented at this time are basic and will improve over 
+time not only in quality and quantity, so you are more than welcome to 
+submit new modules.
+
+Each module has a WMAP type, this determine when the module is lunched and
+to a certain degree, the minimum type of information it requires to be 
+executed. The best way to develop a new test for WMAP, use already 
+implemented modules and develop a normal MSF module that can be run 
+manually from the command line. To enable a module to be run automatically
+via WMAP is just include the mixin that determine the type of the module. 
+
+	Example:
+
+	include Auxiliary::WMAPScanFile
+
+The following are the types of modules implemented at this time and they are
+listed in the order WMAP runs them:
+
+WMAPScanServer     - Run once against the target Web Server
+WMAPScanDir        - Runs for every directory found in the target 
+WMAPScanFile       - Runs for every file found in the target
+WMAPScanQuery      - Runs for every query found in each request to the target
+WMAPScanBody       - Runs for every Body found in each request to the target
+WMAPScanHeaders    - Runs for every Header found in each request to the target
+	
+=[ Simple example.
+
+The following are the basic steps for testing a web server/app using WMAP: 
+
+  1. Mentally choose a target ...;
+  2. Launch a wmap enabled attack proxy;
+          
+     NOTE: Eventually WMAP will include its own attack proxy code and spider
+     and at this time WMAP integrates very well with lcamtuf's ratproxy 
+     (via a patch located in the /external/ratproxy directory). 
+
+	    ratproxy (ratproxy_wmap.diff applied) basic example: 
+
+	    $ ./ratproxy -v metasploit3/data/wmap/ -b wmap_sqlite3.db 
+   	    ratproxy version 1.51-beta by <lcamtuf@google.com>
+   	    [*] Proxy configured successfully. Have fun, and please do not be evil.
+   	    [+] Accepting connections on port 8080/tcp (local only)...
+
+     NOTE: If you want to use a different database than 'wmap_sqlite3.db'
+     stored in /data/wmap/ or destroy it. You have to load the WMAP plugin 
+     (go to step 4) and use wmap command 'wmap_create <path/database>':
+
+         msf > wmap_create /dir/target_test.db
+         [*] Creating a new database instance...
+         [*] Successfully connected to the database
+         [*] File: /dir/target_test.db
+
+  3. Browse the target by running your favorite spider/crawler/browser etc.
+     NOTE: Dont forget to configure the proxy;
+
+  4. In Metasploit load the WMAP plugin;
+
+     $ ./msfconsole
+
+                      |                    |      _) |  
+       __ `__ \   _ \ __|  _` |  __| __ \  |  _ \  | __|
+       |   |   |  __/ |   (   |\__ \ |   | | (   | | |  
+      _|  _|  _|\___|\__|\__,_|____/ .__/ _|\___/ _|\__|
+                                    _|                  
+
+
+            =[ msf v3.2-release
+     + -- --=[ 304 exploits - 172 payloads
+     + -- --=[ 20 encoders - 6 nops
+            =[ 74 aux
+
+     msf > load db_wmap
+     [*] =[ WMAP v0.1 - ET LoWNOISE
+     [*] Successfully loaded plugin: db_wmap_sqlite3
+
+  5. Connect to the WMAP database;
+
+     msf > wmap_connect
+     [*] Successfully connected to the wmap database
+     [*] File: /metasploit3/data/wmap/wmap_sqlite3.db
+     [*] Reloading targets...
+     [*] Added. metasploit.com 80 0
+     [*] Added. target.com 80 0
+     [*] Added. framework.metasploit.com 80 0
+     [*] Added. www.uninformed.org 80 0
+
+  6. View available targets;
+
+     msf > wmap_targets -p
+     [*]    Id. Host                              Port    SSL
+     [*]    1. metasploit.com                     80   
+     [*]    2. target.com                         80   
+     [*]    3. framework.metasploit.com           80   
+     [*]    4. www.uninformed.org                 80   
+     [*] Done.
+  
+  7. Select target (i.e. select target.com);   
+
+     msf > wmap_targets -s 2   
+     msf > wmap_targets -p
+     [*]    Id. Host                              Port    SSL
+     [*]    1. metasploit.com                     80   
+     [*] => 2. target.com                         80   
+     [*]    3. framework.metasploit.com           80   
+     [*]    4. www.uninformed.org                 80   
+     [*] Done.
+
+  8. View target website structure; 	
+     msf > wmap_website
+     [*] Website structure
+     [*] target.com:80 SSL:0
+     ROOT_TREE
+		index.asp
+    		images
+        		logo.gif
+		login.asp
+		menu
+			menu.asp
+			logout.asp
+			help.asp
+	[*] Done.
+
+  9. List loaded modules; 
+  
+     msf > wmap_run -t
+     [*] Loaded auxiliary/scanner/http/wmap_vhost_scanner ...
+     [*] Loaded auxiliary/scanner/http/frontpage_login ...
+     [*] Loaded auxiliary/scanner/http/version ...
+     ...
+     [*] Loaded auxiliary/scanner/http/wmap_blind_sql_query ...
+     [*] Analysis completed in 3.1337145306448364 seconds.
+     [*] Done.
+
+  10. If a test module requires a specific parameter to be set 
+      or you want to modify the value of a predefined variable, 
+      this can be done with the 'setg' command.  
+
+      Example:
+            
+      msf > setg DOMAIN targetco.com
+      DOMAIN => targetco.com
+
+      msf > setg EXT .asp
+      EXT => .asp
+
+  11. Test the target;
+
+      msf > wmap_run -e
+      [*] Launching auxiliary/scanner/http/wmap_vhost_scanner WMAP_SERVER against 
+          www.target.com:80
+      [*] Sending request with random domain rGvsV.targetco.com 
+      [*] NOT Found admin.targetco.com
+      [*] NOT Found services.targetco.com
+      [*] Vhost found webmail.targetco.com
+      [*] NOT Found console.targetco.com
+      [*] NOT Found apps.targetco.com
+      [*] NOT Found mail.targetco.com
+      [*] NOT Found intranet.targetco.com
+      [*] NOT Found intra.targetco.com
+      [*] NOT Found corporate.targetco.com
+      [*] Launching auxiliary/scanner/http/frontpage WMAP_SERVER against 
+          www.targetco.com:80
+      [*] http://xxx.xxx.xxx.xxx:80 is running Apache
+      [*] FrontPage not found on http://200.41.9.39:80 [302 Object Moved]
+      ...
+      ...
+      [*] Done.
+
+=[ TODO. 
+  
+This is first release version of WMAP and as you know, the Metasploit project
+welcomes feedback, comments, ideas, patches, module, etc. This TODO list is
+more of a placeholder of the things you may see in the near future.
+
+- Add more commands
+- Develop more modules
+- Create more module types to perform tasks like response analysis
+- Support other databases (only sqlite3 supported at this time)
+- Develop plugins for more proxies
+- Add reporting capabilities
+- Develop WMAP Proxy
+- Develop WMAP Spider
+- Include you idea here.
+
+
+=[ EOF.		                     ET LoWNOISE  et[]metasploit.com   2008.
+
+
+
+
+
+
+
+
+
