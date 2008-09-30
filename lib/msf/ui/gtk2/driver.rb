@@ -153,7 +153,7 @@ module Ui
 		#
 		def append_log_view(data)
 			data.gsub!(/[\x80-\xff\x00]/, '?')
-			data = Time.now.strftime("%H:%m:%S") + " - " + data
+			data = Time.now.strftime("%H:%M:%S") + " - " + data
 
 			return if not self.log_text
 
