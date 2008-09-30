@@ -2,7 +2,7 @@ require 'rex/socket'
 
 ###
 #
-# This class provides methods for interacting with a UDP socket.
+# This class provides methods for interacting with a IP socket.
 #
 ###
 module Rex::Socket::Ip
@@ -24,7 +24,7 @@ module Rex::Socket::Ip
 
 	#
 	# Wrapper around the base socket class' creation method that automatically
-	# sets the parameter's protocol to UDP.
+	# sets the parameter's protocol to IP.
 	#
 	def self.create_param(param)
 		param.proto = 'ip'
@@ -53,14 +53,14 @@ module Rex::Socket::Ip
 	end
 
 	#
-	# Read a datagram from the UDP socket.
+	# Read a datagram from the IP socket.
 	#
 	def read(length = 65535)
 		raise RuntimeError, "IP sockets must use recvfrom(), not read()"
 	end
 
 	#
-	# Read a datagram from the UDP socket with a timeout
+	# Read a datagram from the IP socket with a timeout
 	#
 	def timed_read(length = 65535, timeout=def_read_timeout)
 		begin
