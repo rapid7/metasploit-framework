@@ -287,7 +287,7 @@ rbpcap_next(VALUE self)
     TRAP_BEG;
 	
 	while(! (ret = pcap_dispatch(rbp->pd, 1, (pcap_handler) rbpcap_handler, (u_char *)&job))) {
-		if(rbp->type = OFFLINE) break;
+		if(rbp->type == OFFLINE) break;
 		rb_thread_schedule();
 	}
     
