@@ -129,7 +129,7 @@ class Auxiliary::Server::Capture::Smtp < Msf::Auxiliary
 				:user      => @state[c][:user],
 				:pass      => @state[c][:pass]
 			)
-			print_status("POP3 LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+			print_status("SMTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
 		end
 
 		c.put "503 Server Error\r\n"
