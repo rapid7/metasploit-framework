@@ -60,14 +60,22 @@ begin
 		# Calls sysread on the standard input handle.
 		#
 		def sysread(len = 1)
-			$stdin.sysread(len)
+			begin
+				self.fd.sysread(len)
+			rescue ::Errno::EINTR
+				retry
+			end
 		end
 		
 		#
 		# Read a line from stdin
 		#
 		def gets()
-			$stdin.gets()
+			begin
+				self.fd.gets()
+			rescue ::Errno::EINTR
+				retry
+			end
 		end
 
 		#
