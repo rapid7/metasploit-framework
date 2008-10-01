@@ -182,6 +182,9 @@ module Wmap
 			# WMAP_HEADERS
 			matches4 = {}
 			
+			# WMAP_UNIQUE_QUERY
+			matches5 = {}
+			
 			
 			[ [ framework.auxiliary, 'auxiliary' ] ].each do |mtype|
 
@@ -206,7 +209,9 @@ module Wmap
 							when :WMAP_BODY	
 								matches3[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
 							when :WMAP_HEADERS	
-								matches4[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true		
+								matches4[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
+							when :WMAP_UNIQUE_QUERY	
+								matches5[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true				
 							when :WMAP_DIR, :WMAP_FILE
 								matches[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
 							else
@@ -398,6 +403,102 @@ module Wmap
 					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
 				end
 			end	
+			
+			#
+			# Run modules for each request to play with URI with UNIQUE query parameters.
+			# WMAP_UNIQUE_QUERY
+			#
+			idx = 0
+			matches5.each_key do |xref|
+				idx += 1
+				
+				begin
+					mod = nil
+
+					#Carefull with the references on this one
+					if ((mod = framework.modules.create(xref[3])) == nil)
+						print_status("Failed to initialize #{xref[3]}")
+						next
+					end
+
+					if (mode & WMAP_SHOW != 0)
+						print_status("Loaded #{xref[3]} ...")
+					end
+					
+					#
+					# The code is just a proof-of-concept and will be expanded in the future
+					#
+					if (mode & WMAP_EXPL != 0)
+
+						#
+						# Parameters passed in hash xref
+						# 
+						mod.datastore['RHOSTS'] = xref[0] 
+						mod.datastore['RPORT'] = xref[1].to_s
+						mod.datastore['SSL'] = xref[2].to_s
+
+						#
+						# For modules to have access to the global datastore
+						# i.e. set -g DOMAIN test.com
+						#
+						self.framework.datastore.each do |gkey,gval|
+							mod.datastore[gkey]=gval
+						end
+
+						#
+						# Run the plugins for each request that have a distinct 
+						# GET/POST  URI QUERY string.
+						#
+
+						wtype = mod.wmap_type
+						
+						utest_query = {}
+						
+						Request.find(:all, :conditions => ["requests.host = ? AND requests.port = ? AND requests.path IS NOT NULL",selected_host,selected_port]).each do |req|
+							#
+							# Only test unique query strings by comparing signature to previous tested signatures 'path,p1,p2,pn' 
+							#
+							if (utest_query.has_key?(mod.signature(req.path,req.query)) == false)		
+								#
+								# Weird bug req.method doesnt work
+								# collides with some method named 'method'
+								# column table renamed to 'meth'.
+								# 
+								mod.datastore['METHOD'] = req.meth.upcase
+								mod.datastore['PATH'] =  req.path
+								mod.datastore['QUERY'] = req.query
+								mod.datastore['HEADERS'] = req.headers
+								mod.datastore['BODY'] = req.body
+								#
+								# TODO: Add method, headers, etc.
+								# 
+							
+								if wtype == :WMAP_UNIQUE_QUERY 
+									print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1].to_s}")
+
+									begin
+										session = mod.run_simple(
+												'LocalInput' 	=> driver.input,
+												'LocalOutput'	=> driver.output,
+												'RunAsJob'   	=> false)
+									rescue ::Exception
+										print_status(" >> Exception during launch from #{xref[3]}: #{$!.to_s}")
+									end
+								end
+								
+								#
+								# Unique query tested, actually the value does not matter
+								#
+								utest_query[mod.signature(req.path,req.query)]=1 
+							end
+						end
+					end
+					
+				rescue ::Exception
+					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
+				end
+			end
+			
 			
 			#
 			# Run modules for each request to play with URI query parameters.

@@ -19,7 +19,7 @@ module Msf
 class Auxiliary::Scanner::Http::Wmap_Blind_SQL < Msf::Auxiliary
 
 	include Exploit::Remote::HttpClient
-	include Auxiliary::WMAPScanQuery
+	include Auxiliary::WMAPScanUniqueQuery
 	include Auxiliary::Scanner
 
 

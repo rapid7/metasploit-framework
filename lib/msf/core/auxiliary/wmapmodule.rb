@@ -127,6 +127,37 @@ end
 
 ###
 #
+# This module provides methods for WMAP Unique Query Scanner modules
+#
+###
+
+module Auxiliary::WMAPScanUniqueQuery
+	include Auxiliary::WMAPModule
+
+	def wmap_type
+		:WMAP_UNIQUE_QUERY
+	end 
+	
+	def signature(path,query)
+		hsig = Hash.new()
+		
+		hsig = queryparse(query)
+		
+		#
+		# Signature of the form ',p1,p2,pn' then to be appended to path: path,p1,p2,pn
+		#
+		
+		sig = path
+		hsig.each_pair do |par, val|
+			sig << ","
+			sig << par
+		end
+		sig
+	end
+end
+
+###
+#
 # This module provides methods for WMAP Body Scanner modules
 #
 ###
