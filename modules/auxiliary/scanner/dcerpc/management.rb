@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,15 +12,14 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Scanner::Dcerpc::RPC_MGMT < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
-	include Exploit::Remote::DCERPC
+	include Msf::Exploit::Remote::DCERPC
 	
 	# Scanner mixin should be near last
-	include Auxiliary::Scanner
+	include Msf::Auxiliary::Scanner
 	
 	def initialize
 		super(
@@ -74,5 +73,5 @@ class Auxiliary::Scanner::Dcerpc::RPC_MGMT < Msf::Auxiliary
 	
 
 end
-end
+
 

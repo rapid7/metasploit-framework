@@ -13,14 +13,13 @@ require 'rex/proto/http'
 require 'msf/core'
 
 
-module Msf
 
 
-class Auxiliary::Scanner::Http::Wmap_Blind_SQL < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::HttpClient
-	include Auxiliary::WMAPScanUniqueQuery
-	include Auxiliary::Scanner
+	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::WMAPScanUniqueQuery
+	include Msf::Auxiliary::Scanner
 
 
 	def initialize(info = {})
@@ -161,4 +160,4 @@ class Auxiliary::Scanner::Http::Wmap_Blind_SQL < Msf::Auxiliary
 		end	
 	end
 end
-end	
+	

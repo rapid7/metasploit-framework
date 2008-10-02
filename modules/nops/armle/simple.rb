@@ -12,9 +12,6 @@
 
 require 'msf/core'
 
-module Msf
-module Nops
-module Armle
 
 ###
 #
@@ -24,7 +21,7 @@ module Armle
 # This class implements simple NOP generator for ARM (little endian)
 #
 ###
-class Simple < Msf::Nop
+class Metasploit3 < Msf::Nop
 
 
 	def initialize
@@ -72,4 +69,4 @@ class Simple < Msf::Nop
 
 end
 
-end end end
+  

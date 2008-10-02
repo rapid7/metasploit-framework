@@ -12,15 +12,14 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Scanner::Http::Version < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 	
 	# Exploit mixins should be called first
-	include Exploit::Remote::HttpClient
-	include Auxiliary::WMAPScanServer
+	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::WMAPScanServer
 	# Scanner mixin should be near last
-	include Auxiliary::Scanner
+	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
@@ -95,4 +94,4 @@ class Auxiliary::Scanner::Http::Version < Msf::Auxiliary
 	end
 
 end
-end
+

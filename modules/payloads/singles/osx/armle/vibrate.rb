@@ -12,13 +12,8 @@
 
 require 'msf/core'
 
-module Msf
-module Payloads
-module Singles
-module Osx
-module Armle
 
-module PlaySystemSound
+module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Osx
@@ -48,4 +43,4 @@ module PlaySystemSound
 
 end
 
-end end end end end
+    

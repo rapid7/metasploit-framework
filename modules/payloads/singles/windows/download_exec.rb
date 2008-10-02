@@ -13,17 +13,13 @@
 require 'msf/core'
 require 'msf/core/payload/windows/exec'
 
-module Msf
-module Payloads
-module Singles
-module Windows
 
 ###
 #
 # Extends the Exec payload to add a new user.
 #
 ###
-module DownloadExec
+module Metasploit3
 	
 	include Msf::Payload::Windows
 	include Msf::Payload::Single
@@ -74,7 +70,7 @@ module DownloadExec
 		register_options(
 			[
 				OptString.new('URL', [ true, "The pre-encoded URL to the executable" ])
-			], Msf::Payloads::Singles::Windows::DownloadExec)
+			], self.class)
 	end
 
 	#
@@ -86,4 +82,4 @@ module DownloadExec
 
 end
 
-end end end end
+   

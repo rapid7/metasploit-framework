@@ -12,9 +12,6 @@
 
 require 'msf/core'
 
-module Msf
-module Encoders
-module X86
 
 #
 # NOTE: Read this if you plan on using this encoder:
@@ -97,7 +94,7 @@ module X86
 # 0000004A  3401              xor al,0x1
 # 0000004C  7F                db 0x7F
 #
-class AvoidUtf8 < Msf::Encoder
+class Metasploit3 < Msf::Encoder
 
 	#
 	# In some cases, payloads can be an invalid size that is incompatible with
@@ -284,4 +281,4 @@ class AvoidUtf8 < Msf::Encoder
 
 end
 
-end end end
+  

@@ -13,12 +13,11 @@
 require 'msf/core'
 require 'rex/exploitation/javascriptosdetect.rb'
 
-module Msf
 
-class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::HttpServer::HTML
-	include Auxiliary::Report
+	include Msf::Exploit::Remote::HttpServer::HTML
+	include Msf::Auxiliary::Report
 	
 	def initialize(info = {})
 		super(update_info(info, 
@@ -625,5 +624,5 @@ class Auxiliary::Server::BrowserAutoPwn < Msf::Auxiliary
 		return ret
 	end
 end
-end
+
 

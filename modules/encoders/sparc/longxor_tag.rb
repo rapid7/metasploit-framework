@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,11 +12,8 @@
 
 require 'msf/core'
 
-module Msf
-module Encoders
-module Sparc
 
-class LongXorTag < Msf::Encoder::XorAdditiveFeedback
+class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 
 	def initialize
 		super(
@@ -73,4 +70,4 @@ class LongXorTag < Msf::Encoder::XorAdditiveFeedback
 		
 end
 
-end end end
+  

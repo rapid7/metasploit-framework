@@ -13,12 +13,8 @@
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 
-module Msf
-module Payloads
-module Stagers
-module Windows
 
-module ReverseTcpNoNx
+module Metasploit3
 
 	include Msf::Payload::Stager
 	include Msf::Payload::Windows
@@ -65,4 +61,4 @@ module ReverseTcpNoNx
 
 end
 
-end end end end
+   

@@ -12,11 +12,6 @@
 
 require 'msf/core'
 
-module Msf
-module Payloads
-module Singles
-module Bsd
-module X86
 
 ###
 #
@@ -26,7 +21,7 @@ module X86
 # Executes an arbitrary command.
 #
 ###
-module Exec
+module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Bsd
@@ -45,7 +40,7 @@ module Exec
 		register_options(
 			[
 				OptString.new('CMD',  [ true,  "The command string to execute" ]),
-			], Msf::Payloads::Singles::Bsd::X86::Exec)
+			], self.class)
 	end
 
 	#
@@ -63,4 +58,4 @@ module Exec
 
 end
 
-end end end end end
+    

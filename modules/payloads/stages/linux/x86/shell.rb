@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -13,13 +13,8 @@
 require 'msf/core'
 require 'msf/base/sessions/command_shell'
 
-module Msf
-module Payloads
-module Stages
-module Linux
-module X86
 
-module Shell
+module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -43,4 +38,4 @@ module Shell
 
 end
 
-end end end end end
+    

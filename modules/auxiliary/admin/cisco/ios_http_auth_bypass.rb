@@ -12,11 +12,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Admin::Cisco::IOS_HTTP_Auth_Bypass < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Tcp
+	include Msf::Exploit::Remote::Tcp
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -82,7 +81,6 @@ class Auxiliary::Admin::Cisco::IOS_HTTP_Auth_Bypass < Msf::Auxiliary
 	end
 
 end
-end	
 
 =begin
 

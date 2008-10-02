@@ -12,12 +12,11 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Server::Capture::Smtp < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::TcpServer
-	include Auxiliary::Report
+	include Msf::Exploit::Remote::TcpServer
+	include Msf::Auxiliary::Report
 
 	
 	def initialize
@@ -143,4 +142,4 @@ class Auxiliary::Server::Capture::Smtp < Msf::Auxiliary
 
 
 end
-end
+

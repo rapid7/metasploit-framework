@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -13,9 +13,6 @@
 require 'msf/core'
 require 'rex/nop/opty2'
 
-module Msf
-module Nops
-module X86
 
 ###
 #
@@ -26,7 +23,7 @@ module X86
 # ADMmutate and from spoonfu.
 #
 ###
-class Opty2 < Msf::Nop
+class Metasploit3 < Msf::Nop
 
 	def initialize
 		super(
@@ -48,4 +45,4 @@ class Opty2 < Msf::Nop
 
 end
 
-end end end
+  

@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -13,11 +13,6 @@
 require 'msf/core'
 require 'msf/core/handler/find_tag'
 
-module Msf
-module Payloads
-module Stagers
-module Osx
-module Ppc
 
 ###
 #
@@ -27,7 +22,7 @@ module Ppc
 # OSX find tag stager.
 #
 ###
-module FindTag
+module Metasploit3
 
 	include Msf::Payload::Stager
 
@@ -71,4 +66,4 @@ module FindTag
 
 end
 
-end end end end end
+    

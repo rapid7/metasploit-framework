@@ -13,12 +13,11 @@
 require 'msf/core'
 require 'scruby'
 
-module Msf
 
-class Auxiliary::Test::IP_Spoof < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Ip
-	include Auxiliary::Scanner
+	include Msf::Exploit::Remote::Ip
+	include Msf::Auxiliary::Scanner
 		
 	def initialize
 		super(
@@ -52,4 +51,4 @@ class Auxiliary::Test::IP_Spoof < Msf::Auxiliary
 
 	
 end
-end
+

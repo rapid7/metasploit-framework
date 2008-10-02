@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -13,11 +13,8 @@
 require 'msf/core'
 require 'rex/encoder/nonalpha'
 
-module Msf
-module Encoders
-module X86
 
-class NonAlpha < Msf::Encoder::NonAlpha
+class Metasploit3 < Msf::Encoder::NonAlpha
 
 	Rank = LowRanking
 
@@ -70,4 +67,4 @@ class NonAlpha < Msf::Encoder::NonAlpha
     end
 end
 
-end end end
+  

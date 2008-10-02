@@ -12,11 +12,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Test::BatchTest < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Auxiliary::Scanner
+	include Msf::Auxiliary::Scanner
 	
 	def initialize
 		super(
@@ -43,4 +42,4 @@ class Auxiliary::Test::BatchTest < Msf::Auxiliary
 	end
 	
 end
-end
+

@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,11 +12,8 @@
 
 require 'msf/core'
 
-module Msf
-module Encoders
-module Ppc
 
-class LongXorTag < Msf::Encoder::Xor
+class Metasploit3 < Msf::Encoder::Xor
 
 	def initialize
 		super(
@@ -80,4 +77,4 @@ class LongXorTag < Msf::Encoder::Xor
 
 end
 
-end end end
+  

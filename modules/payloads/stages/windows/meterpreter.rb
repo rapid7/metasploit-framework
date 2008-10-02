@@ -14,17 +14,13 @@ require 'msf/core'
 require 'msf/core/payload/windows/dllinject'
 require 'msf/base/sessions/meterpreter'
 
-module Msf
-module Payloads
-module Stages
-module Windows
 
 ###
 #
 # Injects the meterpreter server instance DLL via the DLL injection payload.
 #
 ###
-module Meterpreter
+module Metasploit3
 
 	include Msf::Payload::Windows::DllInject
 
@@ -48,7 +44,7 @@ module Meterpreter
 						"The local path to the DLL to upload", 
 						File.join(Msf::Config.install_root, "data", "meterpreter", "metsrv.dll")
 					]),
-			], Meterpreter)
+			], self.class)
 
 		# Set advanced options
 		register_advanced_options(
@@ -60,7 +56,7 @@ module Meterpreter
 						true
 					]),
 				OptString.new('AutoRunScript', [false, "Script to autorun on meterpreter session creation", ''])
-			], Meterpreter)
+			], self.class)
 
 		# Don't let people set the library name option
 		options.remove_option('LibraryName')
@@ -93,4 +89,4 @@ module Meterpreter
 
 end
 
-end end end end
+   

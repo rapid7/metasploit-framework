@@ -12,11 +12,8 @@
 
 require 'msf/core'
 
-module Msf
-module Encoders
-module Php
 
-class Base64 < Msf::Encoder
+class Metasploit3 < Msf::Encoder
 
 	def initialize
 		super(
@@ -69,4 +66,4 @@ class Base64 < Msf::Encoder
 
 end
 
-end end end
+  

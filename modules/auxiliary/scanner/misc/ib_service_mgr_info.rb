@@ -12,14 +12,13 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Scanner::Misc::Ib_Service_Mgr_Info < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Tcp
+	include Msf::Exploit::Remote::Tcp
 
 	# Scanner mixin should be near last
-	include Auxiliary::Scanner
+	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
@@ -228,4 +227,4 @@ class Auxiliary::Scanner::Misc::Ib_Service_Mgr_Info < Msf::Auxiliary
 
 end
 
-end
+

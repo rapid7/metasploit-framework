@@ -1,9 +1,8 @@
 require 'msf/core'
 
-module Msf
-class Auxiliary::Dos::Windows::Ftp::Winftp230_nlst < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Ftp
+	include Msf::Exploit::Remote::Ftp
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -33,5 +32,5 @@ class Auxiliary::Dos::Windows::Ftp::Winftp230_nlst < Msf::Auxiliary
 		disconnect
 	end
 end
-end	
+	
 

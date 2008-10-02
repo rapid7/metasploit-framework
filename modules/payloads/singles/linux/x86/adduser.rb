@@ -12,11 +12,6 @@
 
 require 'msf/core'
 
-module Msf
-module Payloads
-module Singles
-module Linux
-module X86
 
 ###
 #
@@ -26,7 +21,7 @@ module X86
 # Adds a UID 0 user to /etc/passwd.
 #
 ###
-module AddUser
+module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Linux
@@ -48,7 +43,7 @@ module AddUser
 				OptString.new('USER',  [ true,  "The username to create",     "metasploit" ]),
 				OptString.new('PASS',  [ true,  "The password for this user", "metasploit" ]),
 				OptString.new('SHELL', [ false, "The shell for this user",    "/bin/sh"    ]),
-			], Msf::Payloads::Singles::Linux::X86::AddUser)
+			], self.class)
 	end
 
 	#
@@ -70,4 +65,4 @@ module AddUser
 
 end
 
-end end end end end
+    

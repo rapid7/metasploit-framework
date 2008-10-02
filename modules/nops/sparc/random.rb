@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,9 +12,6 @@
 
 require 'msf/core'
 
-module Msf
-module Nops
-module Sparc
 
 ###
 #
@@ -24,7 +21,7 @@ module Sparc
 # This class implements NOP generator for the SPARC platform
 #
 ###
-class Vlad902 < Msf::Nop
+class Metasploit3 < Msf::Nop
 	
 	# Nop types
 	InsSethi      = 0
@@ -220,4 +217,4 @@ class Vlad902 < Msf::Nop
 	
 end
 
-end end end
+  

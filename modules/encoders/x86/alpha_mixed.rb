@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -13,11 +13,8 @@
 require 'msf/core'
 require 'rex/encoder/alpha2/alpha_mixed'
 
-module Msf
-module Encoders
-module X86
 
-class AlphaMixed < Msf::Encoder::Alphanum
+class Metasploit3 < Msf::Encoder::Alphanum
 
 	Rank = LowRanking
 
@@ -76,4 +73,4 @@ class AlphaMixed < Msf::Encoder::Alphanum
 	end
 end
 
-end end end
+  

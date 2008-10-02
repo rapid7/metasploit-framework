@@ -3,11 +3,10 @@ require 'net/dns'
 require 'scruby'
 require 'resolv'
 
-module Msf
 
-class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Ip
+	include Msf::Exploit::Remote::Ip
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -490,4 +489,4 @@ class Auxiliary::Spoof::Dns::BailiWickedDomain < Msf::Auxiliary
 	end	
 	
 end
-end	
+	

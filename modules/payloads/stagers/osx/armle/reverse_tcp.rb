@@ -13,11 +13,6 @@
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 
-module Msf
-module Payloads
-module Stagers
-module Osx
-module Armle
 
 ###
 #
@@ -27,7 +22,7 @@ module Armle
 # OSX reverse TCP stager.
 #
 ###
-module ReverseTcp
+module Metasploit3
 
 	include Msf::Payload::Stager
 
@@ -141,4 +136,4 @@ module ReverseTcp
 	
 end
 
-end end end end end
+    

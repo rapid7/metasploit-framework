@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,11 +12,8 @@
 
 require 'msf/core'
 
-module Msf
-module Encoders
-module X86
 
-class Call4Dword < Msf::Encoder::Xor
+class Metasploit3 < Msf::Encoder::Xor
 
 	def initialize
 		super(
@@ -56,4 +53,4 @@ class Call4Dword < Msf::Encoder::Xor
 
 end
 
-end end end
+  

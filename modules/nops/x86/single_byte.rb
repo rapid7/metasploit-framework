@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,9 +12,6 @@
 
 require 'msf/core'
 
-module Msf
-module Nops
-module X86
 
 ###
 #
@@ -22,7 +19,7 @@ module X86
 # ADMmutate and from spoonfu.
 #
 ###
-class SingleByte < Msf::Nop
+class Metasploit3 < Msf::Nop
 
 SINGLE_BYTE_SLED = 
 	{
@@ -100,7 +97,7 @@ SINGLE_BYTE_SLED =
 		register_advanced_options(
 			[
 				OptBool.new('RandomNops', [ false, "Generate a random NOP sled", true ])
-			], Msf::Nops::X86::SingleByte)
+			], self.class)
 	end
 
 	# Generate a single-byte NOP sled for X86
@@ -157,4 +154,4 @@ SINGLE_BYTE_SLED =
 
 end
 
-end end end
+  

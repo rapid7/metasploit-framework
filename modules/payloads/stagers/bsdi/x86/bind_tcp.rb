@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -13,11 +13,6 @@
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 
-module Msf
-module Payloads
-module Stagers
-module Bsdi
-module X86
 
 ###
 #
@@ -27,7 +22,7 @@ module X86
 # BSD bind TCP stager.
 #
 ###
-module BindTcp
+module Metasploit3
 
 	include Msf::Payload::Stager
 
@@ -59,4 +54,4 @@ module BindTcp
 
 end
 
-end end end end end
+    

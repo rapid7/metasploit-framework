@@ -12,14 +12,13 @@
 require 'rex/proto/http'
 require 'msf/core'
 
-module Msf
 
 
-class Auxiliary::Scanner::Http::Lucky_Punch < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::HttpClient
-	include Auxiliary::WMAPScanQuery	
-	include Auxiliary::Scanner
+	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::WMAPScanQuery
+	include Msf::Auxiliary::Scanner
 
 
 	def initialize(info = {})
@@ -121,4 +120,4 @@ DECLARE @T varchar(255),@C varchar(255)
 	end
       
 end
-end	
+	

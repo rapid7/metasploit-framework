@@ -11,11 +11,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Admin::Maxdb::MaxDB_Cons_Exec < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Tcp
+	include Msf::Exploit::Remote::Tcp
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -26,7 +25,7 @@ class Auxiliary::Admin::Maxdb::MaxDB_Cons_Exec < Msf::Auxiliary
 			},
 			'Author'         => [ 'MC' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision:$',
+			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['BID', '27206'],
@@ -83,4 +82,4 @@ class Auxiliary::Admin::Maxdb::MaxDB_Cons_Exec < Msf::Auxiliary
 	end
 
 end
-end
+

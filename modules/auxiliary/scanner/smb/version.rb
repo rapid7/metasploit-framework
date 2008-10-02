@@ -12,20 +12,19 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Scanner::Smb::Version < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
 	
 	# Exploit mixins should be called first
-	include Exploit::Remote::Tcp
+	include Msf::Exploit::Remote::Tcp
 	
 	# We can't use SMB here, since the SMB mixin
 	# is not thread-safe and will not become so
 	# without a ton of work (self.sock, etc).
 	
 	# Scanner mixin should be near last
-	include Auxiliary::Scanner
+	include Msf::Auxiliary::Scanner
 
 	# Aliases for common classes
 	SIMPLE = Rex::Proto::SMB::SimpleClient
@@ -144,4 +143,4 @@ class Auxiliary::Scanner::Smb::Version < Msf::Auxiliary
 	end
 
 end
-end
+

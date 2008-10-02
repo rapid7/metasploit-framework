@@ -14,13 +14,8 @@ require 'msf/core'
 require 'msf/core/handler/find_port'
 require 'msf/base/sessions/command_shell'
 
-module Msf
-module Payloads
-module Singles
-module Osx
-module X86
 
-module ShellFindPort
+module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Osx
@@ -83,4 +78,4 @@ module ShellFindPort
 
 end
 
-end end end end end
+    

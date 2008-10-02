@@ -445,6 +445,13 @@ class Module
 	end
 
 	#
+	# Returns false since this is the real module
+	#
+	def self.cached?
+		false
+	end
+	
+	#
 	# The array of zero or more authors.
 	#
 	attr_reader   :author

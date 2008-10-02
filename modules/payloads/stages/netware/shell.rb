@@ -10,12 +10,8 @@ require 'metasm'
 require 'msf/core'
 require 'msf/base/sessions/command_shell'
 
-module Msf
-module Payloads
-module Stages
-module Netware
 
-module NetwareConsole
+module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -477,4 +473,4 @@ EOS
 
 end
 
-end end end end
+   

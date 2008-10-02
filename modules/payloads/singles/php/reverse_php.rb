@@ -15,12 +15,8 @@ require 'msf/core/payload/php'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 
-module Msf
-module Payloads
-module Singles
-module Php
 
-module ReversePhp
+module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Php
@@ -123,4 +119,4 @@ module ReversePhp
 	
 end
 
-end end end end
+   

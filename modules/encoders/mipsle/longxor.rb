@@ -13,11 +13,8 @@
 require 'msf/core'
 require 'metasm'
 
-module Msf
-module Encoders
-module Mipsle
 
-class LongXor < Msf::Encoder::Xor
+class Metasploit3 < Msf::Encoder::Xor
 
 	def initialize
 		super(
@@ -156,4 +153,4 @@ EOS
 
 end
 
-end end end
+  

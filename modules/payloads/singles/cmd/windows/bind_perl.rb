@@ -14,13 +14,8 @@ require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 
-module Msf
-module Payloads
-module Singles
-module Cmd
-module Windows
 
-module BindPerlW
+module Metasploit3
 
 	include Msf::Payload::Single
 
@@ -63,4 +58,4 @@ module BindPerlW
 
 end
 
-end end end end end
+    

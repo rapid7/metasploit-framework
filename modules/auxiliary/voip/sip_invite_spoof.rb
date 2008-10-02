@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,12 +12,11 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Voip::SipSpoof < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
         
-	include Exploit::Remote::Udp
-	include Auxiliary::Scanner
+	include Msf::Exploit::Remote::Udp
+	include Msf::Auxiliary::Scanner
 	
 	def initialize
 		super(
@@ -62,4 +61,4 @@ class Auxiliary::Voip::SipSpoof < Msf::Auxiliary
 		end
 	end
 end
-end
+

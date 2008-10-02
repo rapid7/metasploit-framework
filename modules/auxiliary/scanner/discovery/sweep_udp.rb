@@ -12,12 +12,11 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Auxiliary::Report
-	include Auxiliary::Scanner
+	include Msf::Auxiliary::Report
+	include Msf::Auxiliary::Scanner
 	
 	def initialize
 		super(
@@ -173,7 +172,7 @@ class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
 	# Parse a asn1 buffer into a hash tree
 	#
 
-	class ASNData < Hash
+	class ASNData < ::Hash
 
 		def initialize(data)
 			_parse_asn1(data, self)
@@ -335,4 +334,4 @@ class Auxiliary::Scanner::Discovery::SweepUDP < Msf::Auxiliary
 		return ["\x7a\x00\x00\x00\x00\x00", 5093]
 	end
 end
-end
+

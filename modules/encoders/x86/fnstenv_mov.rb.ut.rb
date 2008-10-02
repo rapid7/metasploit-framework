@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -20,7 +20,7 @@ require 'rex/ui'
 require 'msf/core'
 require 'fnstenv_mov'
 
-class Msf::Encoders::X86::FnstenvMov::UnitTest < Test::Unit::TestCase
+class Metasploit3 < Msf::Test::Unit::TestCase
 
 	Klass = Msf::Encoders::X86::FnstenvMov
 

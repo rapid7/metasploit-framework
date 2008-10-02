@@ -13,11 +13,6 @@
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 
-module Msf
-module Payloads
-module Stagers
-module Osx
-module Armle
 
 ###
 #
@@ -27,7 +22,7 @@ module Armle
 # OSX bind TCP stager.
 #
 ###
-module BindTcp
+module Metasploit3
 
 	include Msf::Payload::Stager
 
@@ -165,4 +160,4 @@ module BindTcp
 	
 end
 
-end end end end end
+    

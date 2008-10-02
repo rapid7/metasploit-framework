@@ -12,11 +12,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Dos::Cisco::IOS_HTTP_PercentPercent < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Tcp
+	include Msf::Exploit::Remote::Tcp
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -58,7 +57,6 @@ class Auxiliary::Dos::Cisco::IOS_HTTP_PercentPercent < Msf::Auxiliary
 	end
 
 end
-end	
 
 =begin
 

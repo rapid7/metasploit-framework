@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -13,11 +13,8 @@
 require 'msf/core'
 require 'rex/encoder/nonupper'
 
-module Msf
-module Encoders
-module X86
 
-class NonUpper < Msf::Encoder::NonUpper
+class Metasploit3 < Msf::Encoder::NonUpper
 
 	Rank = LowRanking
 
@@ -70,4 +67,4 @@ class NonUpper < Msf::Encoder::NonUpper
     end
 end
 
-end end end
+  

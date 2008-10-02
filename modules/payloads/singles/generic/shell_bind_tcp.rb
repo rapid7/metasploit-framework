@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -14,12 +14,8 @@ require 'msf/core'
 require 'msf/core/payload/generic'
 require 'msf/core/handler/bind_tcp'
 
-module Msf
-module Payloads
-module Singles
-module Generic
 
-module ShellBindTcp
+module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Generic
@@ -38,4 +34,4 @@ module ShellBindTcp
 
 end
 
-end end end end
+   

@@ -13,11 +13,8 @@
 require 'rex/poly'
 require 'msf/core'
 
-module Msf
-module Encoders
-module X86
 
-class ShikataGaNai < Msf::Encoder::XorAdditiveFeedback
+class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 
 	# The shikata encoder has an excellent ranking because it is polymorphic.
 	# Party time, excellent!
@@ -200,4 +197,4 @@ protected
 
 end
 
-end end end
+  

@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,12 +12,11 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Admin::Backupexec::RegistryAccess < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::DCERPC
-	include Rex::Platforms::Windows
+	include Msf::Exploit::Remote::DCERPC
+	include ::Rex::Platforms::Windows
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -282,4 +281,4 @@ class Auxiliary::Admin::Backupexec::RegistryAccess < Msf::Auxiliary
 	end
 		
 end
-end	
+	

@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,12 +12,8 @@
 
 require 'msf/core'
 
-module Msf
-module Payloads
-module Stages
-module Windows
 
-module PipeShell
+module Metasploit3
 
 	include Msf::Payload::Windows
 
@@ -78,4 +74,4 @@ module PipeShell
 
 end
 
-end end end end
+   

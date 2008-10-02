@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,11 +12,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Dos::Wireless::Netgear_WG311_SSID < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Lorcon
+	include Msf::Exploit::Lorcon
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -101,7 +100,6 @@ class Auxiliary::Dos::Wireless::Netgear_WG311_SSID < Msf::Auxiliary
 		return frame
 
 	end	
-end
 end
 
 =begin

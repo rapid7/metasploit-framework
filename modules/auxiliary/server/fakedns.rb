@@ -13,11 +13,10 @@
 require 'msf/core'
 require 'resolv'
 
-module Msf
 
-class Auxiliary::Server::FakeDNS < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Auxiliary::Report
+	include Msf::Auxiliary::Report
 
 	
 	def initialize
@@ -200,4 +199,4 @@ class Auxiliary::Server::FakeDNS < Msf::Auxiliary
 	end
 
 end
-end
+

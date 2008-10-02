@@ -12,12 +12,11 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Test::ReconTestPassive < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 	
-	include Auxiliary::Report
-	include Exploit::Remote::Tcp
+	include Msf::Auxiliary::Report
+	include Msf::Exploit::Remote::Tcp
 	
 	def initialize
 		super(
@@ -80,4 +79,4 @@ class Auxiliary::Test::ReconTestPassive < Msf::Auxiliary
 
 	
 end
-end
+

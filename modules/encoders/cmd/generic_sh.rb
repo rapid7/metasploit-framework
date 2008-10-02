@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,11 +12,8 @@
 
 require 'msf/core'
 
-module Msf
-module Encoders
-module Cmd
 
-class GenericSh < Msf::Encoder
+class Metasploit3 < Msf::Encoder
 
 	def initialize
 		super(
@@ -131,4 +128,4 @@ class GenericSh < Msf::Encoder
 	
 end
 
-end end end
+  

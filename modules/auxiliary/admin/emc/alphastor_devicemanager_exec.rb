@@ -7,11 +7,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Admin::Emc::ALPHASTOR_DEVICEMANAGER_EXEC < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Tcp
+	include Msf::Exploit::Remote::Tcp
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -62,4 +61,4 @@ class Auxiliary::Admin::Emc::ALPHASTOR_DEVICEMANAGER_EXEC < Msf::Auxiliary
 
 	end
 end
-end
+

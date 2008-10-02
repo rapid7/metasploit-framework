@@ -12,12 +12,11 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Scanner::Mssql::Mssql_login < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
         
-	include Exploit::Remote::MSSQL
-	include Auxiliary::Scanner
+	include Msf::Exploit::Remote::MSSQL
+	include Msf::Auxiliary::Scanner
 	
 	def initialize
 		super(	
@@ -46,4 +45,4 @@ class Auxiliary::Scanner::Mssql::Mssql_login < Msf::Auxiliary
 	end	
 
 end
-end
+

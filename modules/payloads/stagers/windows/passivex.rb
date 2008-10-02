@@ -13,12 +13,8 @@
 require 'msf/core'
 require 'msf/core/handler/passivex'
 
-module Msf
-module Payloads
-module Stagers
-module Windows
 
-module PassiveX
+module Metasploit3
 
 	include Msf::Payload::Stager
 	include Msf::Payload::Windows
@@ -107,4 +103,4 @@ module PassiveX
 
 end
 
-end end end end
+   

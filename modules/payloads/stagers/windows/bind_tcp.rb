@@ -1,5 +1,5 @@
 ##
-# $Id: bind_nx_tcp.rb 5625 2008-08-11 22:51:28Z hdm $
+# $Id$
 ##
 
 ##
@@ -13,12 +13,8 @@
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 
-module Msf
-module Payloads
-module Stagers
-module Windows
 
-module BindTcp
+module Metasploit3
 
 	include Msf::Payload::Stager
 	include Msf::Payload::Windows
@@ -26,7 +22,7 @@ module BindTcp
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Bind TCP Stager',
-			'Version'       => '$Revision: 5625 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection',
 			'Author'        => ['hdm', 'skape'],
 			'License'       => MSF_LICENSE,
@@ -68,4 +64,4 @@ module BindTcp
 
 end
 
-end end end end
+   

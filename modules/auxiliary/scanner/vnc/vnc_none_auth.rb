@@ -8,12 +8,11 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Scanner::Vnc::Vnc_None_Auth < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Tcp
-	include Auxiliary::Scanner
+	include Msf::Exploit::Remote::Tcp
+	include Msf::Auxiliary::Scanner
 	
 	def initialize
 		super(
@@ -98,5 +97,4 @@ class Auxiliary::Scanner::Vnc::Vnc_None_Auth < Msf::Auxiliary
 
 		disconnect
 	end
-end
 end

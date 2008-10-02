@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -13,17 +13,13 @@
 require 'msf/core'
 require 'msf/core/payload/windows/exec'
 
-module Msf
-module Payloads
-module Singles
-module Windows
 
 ###
 #
 # Extends the Exec payload to add a new user.
 #
 ###
-module AddUser
+module Metasploit3
 
 	include Msf::Payload::Windows::Exec
 
@@ -43,7 +39,7 @@ module AddUser
 			[
 				OptString.new('USER', [ true, "The username to create",     "metasploit" ]),
 				OptString.new('PASS', [ true, "The password for this user", ""           ]),
-			], Msf::Payloads::Singles::Windows::AddUser)
+			], self.class)
 
 		# Hide the CMD option...this is kinda ugly
 		deregister_options('CMD')
@@ -62,4 +58,4 @@ module AddUser
 
 end
 
-end end end end
+   

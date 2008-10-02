@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,12 +12,11 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Dos::Windows::Smb::MS06_035_SRVSYS_CORRUPT < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Auxiliary::Dos
-	include Exploit::Remote::SMB
+	include Msf::Auxiliary::Dos
+	include Msf::Exploit::Remote::SMB
 
 
 	def initialize(info = {})
@@ -105,4 +104,4 @@ class Auxiliary::Dos::Windows::Smb::MS06_035_SRVSYS_CORRUPT < Msf::Auxiliary
 	end
 
 end
-end	
+	

@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,12 +12,11 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Dos::Windows::Smb::TRANS_PIPE_NONULL < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Auxiliary::Dos
-	include Exploit::Remote::SMB
+	include Msf::Auxiliary::Dos
+	include Msf::Exploit::Remote::SMB
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -72,4 +71,4 @@ class Auxiliary::Dos::Windows::Smb::TRANS_PIPE_NONULL < Msf::Auxiliary
 	end
 
 end
-end	
+	

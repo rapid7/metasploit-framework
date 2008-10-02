@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,9 +12,6 @@
 
 require 'msf/core'
 
-module Msf
-module Encoders
-module X86
 
 ###
 #
@@ -32,7 +29,7 @@ module X86
 #	"\xe8\xef\xff\xff\xff", # call 0x8
 #
 ###
-class JmpCallAdditive < Msf::Encoder::XorAdditiveFeedback
+class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 
 	Rank = GreatRanking
 
@@ -125,4 +122,4 @@ protected
 
 end
 
-end end end
+  

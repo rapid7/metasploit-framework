@@ -13,11 +13,6 @@
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 
-module Msf
-module Payloads
-module Stagers
-module Linux
-module X86
 
 ###
 #
@@ -27,7 +22,7 @@ module X86
 # Linux reverse TCP stager.
 #
 ###
-module ReverseTcp
+module Metasploit3
 
 	include Msf::Payload::Stager
 	include Msf::Payload::Linux
@@ -60,4 +55,4 @@ module ReverseTcp
 
 end
 
-end end end end end
+    

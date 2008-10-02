@@ -4,9 +4,10 @@ module Msf
 
 #
 # Define used for a place-holder module that is used to indicate that the
-# module has not yet been demand-loaded.
+# module has not yet been demand-loaded. Soon to go away.
 #
 SymbolicModule = "__SYMBOLIC__"
+
 
 ###
 #
@@ -233,6 +234,7 @@ protected
 			block.call(name, mod)
 		}
 	end
+	
 
 	#
 	# Ranks modules based on their constant rank value, if they have one.
@@ -501,7 +503,6 @@ class ModuleManager < ModuleSet
 				@modcache['ModuleTypeCounts'].clear
 
 				MODULE_TYPES.each { |type|
-					module_sets[type] ||= []
 					@modcache['ModuleTypeCounts'][type] = module_sets[type].length.to_s
 				}
 			end
@@ -560,9 +561,9 @@ class ModuleManager < ModuleSet
 	#
 	# Synchronizes the module cache information 
 	#
-	def update_module_cache_info(fullname, modinfo)
+	def update_module_cache_info(fullname, mod, modinfo)
 		return if (modinfo and modinfo['noup'] == true)
-
+		
 		if (@modcache)
 			if (fullname)
 				@modcache.add_group(fullname)
@@ -570,14 +571,21 @@ class ModuleManager < ModuleSet
 				@modcache[fullname]['FileNames'] = modinfo['files'].join(',') 
 				@modcache[fullname]['FilePaths'] = modinfo['paths'].join(',') 
 				@modcache[fullname]['Type']      = modinfo['type']
+				
+				
+				# Deep cache classes (ignore payloads)
+				# if(mod.class == ::Class and mod.cached?)
+				# 	@modcache[fullname]['CacheData'] = [Marshal.dump(mod.infos)].pack("m").gsub(/\s+/, '')
+				# end
+				
 			end
 
-			modinfo['files'].each { |p|
+			modinfo['files'].each do |f|
 				begin
-					@modcache['FileModificationTimes'][p] = File::Stat.new(p).mtime.to_i.to_s
+					@modcache['FileModificationTimes'][f] = File::Stat.new(f).mtime.to_i.to_s
 				rescue Errno::ENOENT
 				end
-			}
+			end
 		end
 	end
 
@@ -661,27 +669,39 @@ class ModuleManager < ModuleSet
 
 		dlog("Reloading module #{refname}...", 'core')
 
-		if (mod.file_path)
-			begin
-				if (!load(mod.file_path))
-					elog("Failed to load module from #{mod.file_path}")
-					self.module_failed[mod.file_path] = "Failed to reload the module"
-					return nil
-				end
-			self.module_failed.delete(mod.file_path)
-			
-			rescue
-				elog("Failed to reload module #{mod} from #{mod.file_path}: #{$!}")
-				raise $!
-			end
+
+		# Set the target file
+		file = mod.file_path
+
+		# Load the module into a new Module wrapper
+		begin
+			wrap = ::Module.new
+			wrap.module_eval(File.read(file, File.size(file)))
+
+		rescue ::Exception => e
+			elog("Failed to reload module from #{file}: #{e.class} #{e}")
+			self.module_failed[mod.file_path] = "Failed to reload the module"
+			return nil
 		end
+
+		if(not wrap.const_defined?('Metasploit3'))
+			elog("Reloaded file did not contain a valid module (#{file}).")
+			self.module_failed[mod.file_path] = "Failed to reload the module"
+			return nil
+		end
+
+		added = wrap.const_get('Metasploit3')
+
+
+		self.module_failed.delete(mod.file_path)
+
 
 		# Remove the original reference to this module
 		self.delete(mod.refname)
 
 		# Indicate that the module is being loaded again so that any necessary
 		# steps can be taken to extend it properly.
-		on_module_load(mod.orig_cls, mod.type, refname, {
+		on_module_load(added, mod.type, refname, {
 			'files' => [ mod.file_path ],
 			'noup'  => true})
 
@@ -712,7 +732,7 @@ class ModuleManager < ModuleSet
 		# If the module cache is not being used, update the cache with
 		# information about the files that are associated with this module.
 		if (!using_cache)
-			update_module_cache_info(dup.fullname, file_paths)
+			update_module_cache_info(dup.fullname, mod, file_paths)
 		end
 
 		# Automatically subscribe a wrapper around this module to the necessary
@@ -783,7 +803,7 @@ protected
 		Rex::Find.find(path) { |file|
 			
 			# Skip non-ruby files
-			next if (file !~ /\.rb$/)
+			next if (file !~ /\.rb$/i)
 			
 			# Skip unit test files
 			next if (file =~ /rb\.(ut|ts)\.rb$/)
@@ -794,6 +814,7 @@ protected
 			begin
 				load_module_from_file(path, file, loaded, recalc, counts, demand)
 			rescue NameError
+				
 				# As of Jan-06-2007 this code isn't hit with the official module tree
 				
 				# If we get a name error, it's possible that this module depends
@@ -838,15 +859,9 @@ protected
 		}
 
 		# Perform any required recalculations for the individual module types
-		# that actually had load changes. Remove modules which generate
-		# exceptions during the recalculation phase.
+		# that actually had load changes
 		recalc.each_key { |key|
-			begin
-				module_sets[key].recalculate
-			rescue ::Exception => e
-				elog("Module #{key} threw exception #{e.class} #{e}: removing.")
-				module_sets.delete(key)
-			end
+			module_sets[key].recalculate
 		}
 
 		# Return per-module loaded counts
@@ -874,9 +889,6 @@ protected
 		# Chop off the file name
 		path_base.sub!(/(.+)(#{File::SEPARATOR}.+)(.rb?)$/, '\1')
 
-		# Extract the module's namespace from its path
-		mod = mod_from_name(path_base)
-
 		if (m = path_base.match(/^(.+?)#{File::SEPARATOR}+?/)) 
 			type = m[1]
 		else
@@ -885,70 +897,30 @@ protected
 		
 		type.sub!(/s$/, '')
 
-		#
-		# If the cached version of the file is still okay, then we just return
-		# as we don't need to load it yet.  We do not currently support demand
-		# loading of encoders and nops due to some API assumptions
-		# (EncodedPayload assumes it can enumerate through all encoders/nops).
-		#
-		# FIXME: support demand loading of encoders/nops
-		#
-		if ((demand == false) and
-		    (check_cache(file)) and
-		    ([ MODULE_ENCODER, MODULE_NOP ].include?(type) == false))
-			return false 
-		end
-
-		# Get the module and grab the current number of constants
-		old_constants = mod.constants
 		
-		# Load the file like it aint no thang
+		added = nil
+		
+
+		# Load the module into a new Module wrapper
 		begin
-			if (!load(file))
-				elog("Failed to load module from #{file}")
-				return false
-			end
-		rescue NameError
-			added = mod.constants - old_constants
+			wrap = ::Module.new
+			wrap.module_eval(File.read(file, File.size(file)))
 
-			# Super hack.  If a constant was added (which will represent the
-			# module), then we need to remove it so that our logic for
-			# detecting new classes in the future will work when we
-			# subsequently try to reload it.
-			r = mod.module_eval { remove_const(added[0]) } if (added[0])
-
-			# Re-raise the name error so that the caller catches it and adds this
-			# file path to the list of files that are to be delay loaded.
-			raise $!
-		rescue LoadError
-			elog("LoadError: #{$!}.")
-			return false
 		rescue ::Exception => e
-			elog("Failed to load module from #{file}: #{e.class} #{e} #{e.backtrace}")
-			self.module_failed[file] = e
+			errmsg = "#{e.class} #{e}"
+			self.module_failed[file] = errmsg
+			elog(errmsg)
 			return false
 		end
 
-		added = mod.constants - old_constants
-		
-		if (added.length > 1)
-			elog("Loaded file contained more than one class (#{file}).")
+		if(not wrap.const_defined?('Metasploit3'))
+			errmsg = "Missing Metasploit3 constant"
+			self.module_failed[file] = errmsg
+			elog(errmsg)
 			return false
 		end
+		added = wrap.const_get('Metasploit3')
 
-		# If nothing was added, check to see if there's anything
-		# in the cache
-		if (added.empty?)
-			if (module_history[file])
-				added = module_history[file]
-			else
-				elog("Loaded #{file} but no classes were added.")
-				self.module_failed[file] = "Loaded file, but no classes were registered"
-				return false
-			end
-		else
-			added = mod.const_get(added[0])
-		end
 
 		# If the module indicates that it is not usable on this system, then we 
 		# will not try to use it.
@@ -964,14 +936,13 @@ protected
 		end
 			
 		# Synchronize the modification time for this file.
-		update_module_cache_info(nil, {
+		update_module_cache_info(nil, added, {
 			'paths' => [ path ],
 			'files' => [ file ],
 			'type'  => type}) if (!using_cache)	
 
 		if (usable == false)
-			ilog("Skipping module in #{file} because is_usable returned false.", 
-				'core', LEV_1)
+			ilog("Skipping module in #{file} because is_usable returned false.", 'core', LEV_1)
 			return false
 		end
 
@@ -1013,33 +984,6 @@ protected
 		rescue Errno::ENOENT
 			return true
 		end
-	end
-
-	#
-	# Returns the module object that is associated with the supplied module
-	# name.
-	#
-	def mod_from_name(name)
-	
-		# The root namespace
-		obj = ::Msf
-
-		# Build up a module container 
-		name.split(File::SEPARATOR).each do |m|
-
-			# Up-case the first letter and any prefixed by _
-			m.gsub!(/^[a-z]/) { |s| s.upcase }
-			m.gsub!(/(_[a-z])/) { |s| s[1..1].upcase }
-
-			if(obj.const_defined?(m))
-				obj = obj.const_get(m)
-			else
-				elog("Setting module constant #{obj}::#{m}")
-				obj = obj.const_set(m, ::Module.new)
-			end
-		end
-
-		return obj
 	end
 
 	#

@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -14,13 +14,8 @@ require 'msf/core'
 require 'msf/core/handler/reverse_tcp_double'
 require 'msf/base/sessions/command_shell'
 
-module Msf
-module Payloads
-module Singles
-module Cmd
-module Unix
 
-module Reverse
+module Metasploit3
 
 	include Msf::Payload::Single
 
@@ -66,4 +61,4 @@ module Reverse
 
 end
 
-end end end end end
+    

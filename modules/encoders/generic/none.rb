@@ -12,11 +12,8 @@
 
 require 'msf/core'
 
-module Msf
-module Encoders
-module Generic
 
-class None < Msf::Encoder
+class Metasploit3 < Msf::Encoder
 
 	def initialize
 		super(
@@ -40,4 +37,4 @@ class None < Msf::Encoder
 
 end
 
-end end end
+  

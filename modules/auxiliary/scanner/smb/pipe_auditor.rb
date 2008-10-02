@@ -12,15 +12,14 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Scanner::Smb::Pipe_Auditor < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
-	include Exploit::Remote::SMB
+	include Msf::Exploit::Remote::SMB
 	
 	# Scanner mixin should be near last
-	include Auxiliary::Scanner
+	include Msf::Auxiliary::Scanner
 	
 	def initialize
 		super(
@@ -106,4 +105,4 @@ class Auxiliary::Scanner::Smb::Pipe_Auditor < Msf::Auxiliary
 	
 
 end
-end
+

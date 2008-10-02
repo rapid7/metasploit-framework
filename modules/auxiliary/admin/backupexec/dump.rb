@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,11 +12,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Admin::Backupexec::FileAccess < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::NDMP
+	include Msf::Exploit::Remote::NDMP
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -283,4 +282,4 @@ class Auxiliary::Admin::Backupexec::FileAccess < Msf::Auxiliary
 	end
 		
 end
-end	
+	

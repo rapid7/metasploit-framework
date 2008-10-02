@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -13,12 +13,8 @@
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 
-module Msf
-module Payloads
-module Singles
-module Windows
 
-module ShellBindTcpXPFW
+module Metasploit3
 
 	include Msf::Payload::Windows
 	include Msf::Payload::Single
@@ -84,4 +80,4 @@ module ShellBindTcpXPFW
 
 end
 
-end end end end
+   

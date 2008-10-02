@@ -8,12 +8,11 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Scanner::Ftp::Anonymous < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Ftp
-	include Auxiliary::Scanner
+	include Msf::Exploit::Remote::Ftp
+	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
@@ -56,5 +55,4 @@ class Auxiliary::Scanner::Ftp::Anonymous < Msf::Auxiliary
 
 		disconnect
 	end
-end
 end

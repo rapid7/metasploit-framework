@@ -13,12 +13,8 @@
 require 'msf/core'
 require 'msf/core/payload/generic'
 
-module Msf
-module Payloads
-module Singles
-module Generic
 
-module DebugTrap
+module Metasploit3
 
 	include Msf::Payload::Single
 
@@ -41,4 +37,4 @@ module DebugTrap
 
 end
 
-end end end end
+   

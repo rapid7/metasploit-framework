@@ -12,11 +12,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Dos::Windows::Smtp::MS06_019_EXCHANGE < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Smtp
+	include Msf::Exploit::Remote::Smtp
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -121,4 +120,4 @@ class Auxiliary::Dos::Windows::Smtp::MS06_019_EXCHANGE < Msf::Auxiliary
 	end
 
 end
-end	
+	

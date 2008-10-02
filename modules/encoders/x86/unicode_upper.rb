@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -13,11 +13,8 @@
 require 'msf/core'
 require 'rex/encoder/alpha2/unicode_upper'
 
-module Msf
-module Encoders
-module X86
 
-class UnicodeUpper < Msf::Encoder::Alphanum
+class Metasploit3 < Msf::Encoder::Alphanum
 
 	Rank = ManualRanking
 
@@ -76,4 +73,4 @@ class UnicodeUpper < Msf::Encoder::Alphanum
 
 end
 
-end end end
+  

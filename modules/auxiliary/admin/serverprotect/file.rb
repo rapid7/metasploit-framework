@@ -12,11 +12,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Admin::Serverprotect::FileAccess < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::DCERPC
+	include Msf::Exploit::Remote::DCERPC
 	include Rex::Platforms::Windows
 
 	def initialize(info = {})
@@ -410,4 +409,4 @@ class Auxiliary::Admin::Serverprotect::FileAccess < Msf::Auxiliary
 	end
 		
 end
-end	
+	

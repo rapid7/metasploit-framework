@@ -12,12 +12,11 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Dos::Windows::Appian::AppianBPM < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Auxiliary::Dos
-	include Exploit::Remote::Tcp
+	include Msf::Auxiliary::Dos
+	include Msf::Exploit::Remote::Tcp
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -100,4 +99,4 @@ class Auxiliary::Dos::Windows::Appian::AppianBPM < Msf::Auxiliary
 	end
 
 end
-end	
+	

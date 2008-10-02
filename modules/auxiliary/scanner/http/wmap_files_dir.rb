@@ -12,13 +12,12 @@
 require 'rex/proto/http'
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Scanner::Http::Wmap_Files_Dir < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::HttpClient
-	include Auxiliary::WMAPScanDir		
-	include Auxiliary::Scanner
+	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::WMAPScanDir
+	include Msf::Auxiliary::Scanner
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -73,4 +72,4 @@ class Auxiliary::Scanner::Http::Wmap_Files_Dir < Msf::Auxiliary
 	
 	end
 end
-end	
+	

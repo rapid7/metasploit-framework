@@ -8,11 +8,10 @@
 require 'msf/core'
 require 'scruby'
 
-module Msf
 
-class Auxiliary::Dos::Wireshark::Ldap < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Ip
+	include Msf::Exploit::Remote::Ip
 		
 	def initialize
 		super(
@@ -64,4 +63,4 @@ class Auxiliary::Dos::Wireshark::Ldap < Msf::Auxiliary
 	end
 
 end
-end
+

@@ -10,12 +10,8 @@ require 'metasm'
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 
-module Msf
-module Payloads
-module Stagers
-module Netware
 
-module ReverseTcp
+module Metasploit3
 
 	include Msf::Payload::Stager
 	include Msf::Payload::Netware
@@ -219,4 +215,4 @@ EOS
 
 end
 
-end end end end
+   

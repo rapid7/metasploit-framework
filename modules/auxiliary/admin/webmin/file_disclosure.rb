@@ -11,11 +11,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Admin::Webmin::File_Disclosure < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::HttpClient
+	include Msf::Exploit::Remote::HttpClient
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -87,4 +86,4 @@ class Auxiliary::Admin::Webmin::File_Disclosure < Msf::Auxiliary
 	end
 
 end
-end
+

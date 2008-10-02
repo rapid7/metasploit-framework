@@ -3,9 +3,8 @@ require 'net/dns'
 require 'scruby'
 require 'resolv'
 
-module Msf
 
-class Auxiliary::Spoof::Dns::CompareResults < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -174,4 +173,4 @@ class Auxiliary::Spoof::Dns::CompareResults < Msf::Auxiliary
 	end
 	
 end
-end	
+	

@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -20,7 +20,7 @@ require 'rex/ui'
 require 'msf/core'
 require 'none'
 
-class Msf::Encoders::Generic::None::UnitTest < Test::Unit::TestCase
+class Metasploit3 < Msf::Test::Unit::TestCase
 
 	Klass = Msf::Encoders::Generic::None
 

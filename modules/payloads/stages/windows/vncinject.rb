@@ -14,17 +14,13 @@ require 'msf/core'
 require 'msf/core/payload/windows/dllinject'
 require 'msf/base/sessions/vncinject'
 
-module Msf
-module Payloads
-module Stages
-module Windows
 
 ###
 #
 # Injects the VNC server DLL and runs it over the established connection.
 #
 ###
-module VncInject
+module Metasploit3
 
 	include Msf::Payload::Windows::DllInject
 
@@ -66,7 +62,7 @@ module VncInject
 						"Automatically launch VNC viewer if present",
 						true
 					])
-			], VncInject)
+			], self.class)
 
 		register_advanced_options(
 			[
@@ -76,7 +72,7 @@ module VncInject
 						"Disables the Metasploit Courtesy shell",
 						false
 					])
-			], VncInject)
+			], self.class)
 
 		# Don't let people set the library name option
 		options.remove_option('LibraryName')
@@ -121,4 +117,4 @@ module VncInject
 
 end
 
-end end end end
+   

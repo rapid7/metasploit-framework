@@ -15,12 +15,8 @@ require 'msf/core/payload/php'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 
-module Msf
-module Payloads
-module Singles
-module Php
 
-module BindPhp
+module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Php
@@ -89,4 +85,4 @@ module BindPhp
 
 end
 
-end end end end
+   

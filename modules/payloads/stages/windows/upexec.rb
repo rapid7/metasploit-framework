@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,12 +12,8 @@
 
 require 'msf/core'
 
-module Msf
-module Payloads
-module Stages
-module Windows
 
-module UploadExec
+module Metasploit3
 
 	include Msf::Payload::Windows
 
@@ -69,7 +65,7 @@ module UploadExec
 		register_options(
 			[
 				OptPath.new('PEXEC', [ true, "Full path to the file to upload and execute" ])
-			], UploadExec)
+			], self.class)
 	end
 
 	#
@@ -98,4 +94,4 @@ module UploadExec
 
 end
 
-end end end end
+   

@@ -1,9 +1,8 @@
 require 'msf/core'
 
-module Msf
-class Auxiliary::Dos::Wireless::DEAUTH_Flood < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Lorcon
+	include Msf::Exploit::Lorcon
 
 	def initialize(info ={})
 		super(update_info(info,
@@ -58,5 +57,5 @@ class Auxiliary::Dos::Wireless::DEAUTH_Flood < Msf::Auxiliary
 		return frame
 	end
 end
-end
+
 

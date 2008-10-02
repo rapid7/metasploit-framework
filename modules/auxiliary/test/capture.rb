@@ -12,11 +12,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Test::TestPcap < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Auxiliary::Report
+	include Msf::Auxiliary::Report
 	include Msf::Exploit::Capture
 	
 	def initialize
@@ -63,4 +62,4 @@ class Auxiliary::Test::TestPcap < Msf::Auxiliary
 	
 end
 
-end
+

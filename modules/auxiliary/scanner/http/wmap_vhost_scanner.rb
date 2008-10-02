@@ -17,14 +17,13 @@ require 'msf/core'
 #
 require 'cgi'
 
-module Msf
 
 
-	class Auxiliary::Scanner::Http::Wmap_Vhost_Scanner < Msf::Auxiliary
+	class Metasploit3 < Msf::Auxiliary
 
-		include Exploit::Remote::HttpClient
-		include Auxiliary::WMAPScanServer	
-		include Auxiliary::Scanner
+		include Msf::Exploit::Remote::HttpClient
+		include Msf::Auxiliary::WMAPScanServer
+		include Msf::Auxiliary::Scanner
 
 
 		def initialize(info = {})
@@ -117,4 +116,4 @@ module Msf
 	
 		end
 	end
-end	
+	

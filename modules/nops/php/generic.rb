@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,16 +12,13 @@
 
 require 'msf/core'
 
-module Msf
-module Nops
-module Php
 
 ###
 #
 # This class implements a "nop" generator for PHP payloads
 #
 ###
-class Generic < Msf::Nop
+class Metasploit3 < Msf::Nop
 
 	def initialize
 		super(
@@ -42,4 +39,4 @@ class Generic < Msf::Nop
 
 end
 
-end end end
+  

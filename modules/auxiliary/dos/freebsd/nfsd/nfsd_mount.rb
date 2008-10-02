@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,11 +12,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Dos::Freebsd::Nfsd::Nfs_Mount < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Tcp
+	include Msf::Exploit::Remote::Tcp
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -53,4 +52,4 @@ class Auxiliary::Dos::Freebsd::Nfsd::Nfs_Mount < Msf::Auxiliary
 	end
 
 end
-end	
+	

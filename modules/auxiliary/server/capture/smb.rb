@@ -12,12 +12,11 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Server::Capture::SMBSniffer < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Auxiliary::Report
-	include Exploit::Remote::SMBServer
+	include Msf::Auxiliary::Report
+	include Msf::Exploit::Remote::SMBServer
 	
 	def initialize
 		super(
@@ -285,4 +284,4 @@ class Auxiliary::Server::Capture::SMBSniffer < Msf::Auxiliary
 
 
 end
-end
+

@@ -12,11 +12,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Admin::Pop2::Uw_FileRetrieval < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Pop2
+	include Msf::Exploit::Remote::Pop2
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -64,4 +63,4 @@ class Auxiliary::Admin::Pop2::Uw_FileRetrieval < Msf::Auxiliary
 	end
 
 end
-end	
+	

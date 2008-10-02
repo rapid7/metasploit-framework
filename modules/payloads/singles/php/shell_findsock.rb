@@ -16,12 +16,8 @@ require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/core/handler/find_shell'
 
-module Msf
-module Payloads
-module Singles
-module Php
 
-module ShellFindsock
+module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Php
@@ -90,4 +86,4 @@ END_OF_PHP_CODE
 
 end
 
-end end end end
+   

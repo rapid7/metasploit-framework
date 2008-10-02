@@ -12,11 +12,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Test::RangeTest < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Auxiliary::Scanner
+	include Msf::Auxiliary::Scanner
 	
 	def initialize
 		super(
@@ -40,4 +39,4 @@ class Auxiliary::Test::RangeTest < Msf::Auxiliary
 
 	
 end
-end
+

@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -12,11 +12,10 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Dos::Windows::Nat::Nat_Helper < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Udp
+	include Msf::Exploit::Remote::Udp
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -56,4 +55,4 @@ class Auxiliary::Dos::Windows::Nat::Nat_Helper < Msf::Auxiliary
 	end
 
 end
-end	
+	

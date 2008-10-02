@@ -14,13 +14,8 @@ require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 
-module Msf
-module Payloads
-module Singles
-module Bsd
-module Sparc
 
-module ShellBindTcp
+module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Bsd
@@ -57,4 +52,4 @@ module ShellBindTcp
 
 end
 
-end end end end end
+    

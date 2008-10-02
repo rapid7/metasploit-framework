@@ -8,13 +8,12 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Scanner::Http::FrontPage < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 	
-	include Exploit::Remote::HttpClient
-	include Auxiliary::WMAPScanServer
-	include Auxiliary::Scanner
+	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
@@ -63,4 +62,4 @@ class Auxiliary::Scanner::Http::FrontPage < Msf::Auxiliary
 		end
 	end
 end
-end
+

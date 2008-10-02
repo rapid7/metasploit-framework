@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -13,12 +13,8 @@
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 
-module Msf
-module Payloads
-module Singles
-module Windows
 
-module ShellReverseTcp
+module Metasploit3
 
 	include Msf::Payload::Windows
 	include Msf::Payload::Single
@@ -74,4 +70,4 @@ module ShellReverseTcp
 
 end
 
-end end end end
+   
