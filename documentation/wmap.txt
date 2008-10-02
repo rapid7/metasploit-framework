@@ -8,7 +8,7 @@
 WMAP is a general purpose web application scanning framework for 
 Metasploit 3. The architechture is simple and its simplicity is what makes
 it powerfull. It's a different approach compared to other open source 
-alternatives and commercial scanners as WMAP is not build around any browser 
+alternatives and commercial scanners, as WMAP is not build around any browser 
 or spider for data capture and manipulation. 
 
 
@@ -28,7 +28,8 @@ stored in the WMAP database. (See figure.)
 WMAP is a Metasploit plugin and will interact with the database, reading all
 gathered traffic, processing it and launching the different tests 
 implemented as modules.  As WMAP Modules are MSF Modules they can be easily 
-implemented, be run manually from the command line or automatically via WMAP.
+implemented, and can be run manually from the command line or automatically 
+via WMAP.
 
 As you may see this simple architecture allows you to have different 
 distributed clients and even different proxies all storing data to the 
@@ -43,12 +44,13 @@ The test modules implemented at this time are basic and will improve over
 time not only in quality and quantity, so you are more than welcome to 
 submit new modules.
 
-Each module has a WMAP type, this determine when the module is lunched and
+Each module has a WMAP type, this determine when the module is launched and
 to a certain degree, the minimum type of information it requires to be 
-executed. The best way to develop a new test for WMAP, use already 
-implemented modules and develop a normal MSF module that can be run 
-manually from the command line. To enable a module to be run automatically
-via WMAP is just include the mixin that determine the type of the module. 
+executed. The best way to develop a new test for WMAP, is to use already 
+implemented modules as a base and then develop a normal MSF module that can 
+be run manually from the command line. To enable a module to be run 
+automatically via WMAP  just include the mixin that determine the type 
+of the module. 
 
 	Example:
 
@@ -57,12 +59,14 @@ via WMAP is just include the mixin that determine the type of the module.
 The following are the types of modules implemented at this time and they are
 listed in the order WMAP runs them:
 
-WMAPScanServer     - Run once against the target Web Server
-WMAPScanDir        - Runs for every directory found in the target 
-WMAPScanFile       - Runs for every file found in the target
-WMAPScanQuery      - Runs for every query found in each request to the target
-WMAPScanBody       - Runs for every Body found in each request to the target
-WMAPScanHeaders    - Runs for every Header found in each request to the target
+WMAPScanServer      - Run once against the target Web Server
+WMAPScanDir         - Runs for every directory found in the target 
+WMAPScanFile        - Runs for every file found in the target
+WMAPScanUniqueQuery - Runs for every unique query found in each request to the 
+                      target 
+WMAPScanQuery       - Runs for every query found in each request to the target
+WMAPScanBody        - Runs for every Body found in each request to the target
+WMAPScanHeaders     - Runs for every Header found in each request to the target
 	
 =[ Simple example.
 
@@ -75,12 +79,12 @@ The following are the basic steps for testing a web server/app using WMAP:
      and at this time WMAP integrates very well with lcamtuf's ratproxy 
      (via a patch located in the /external/ratproxy directory). 
 
-	    ratproxy (ratproxy_wmap.diff applied) basic example: 
+	 ratproxy (ratproxy_wmap.diff applied) basic example: 
 
-	    $ ./ratproxy -v metasploit3/data/wmap/ -b wmap_sqlite3.db 
-   	    ratproxy version 1.51-beta by <lcamtuf@google.com>
-   	    [*] Proxy configured successfully. Have fun, and please do not be evil.
-   	    [+] Accepting connections on port 8080/tcp (local only)...
+	 $ ./ratproxy -v metasploit3/data/wmap/ -b wmap_sqlite3.db 
+   	 ratproxy version 1.51-beta by <lcamtuf@google.com>
+   	 [*] Proxy configured successfully. Have fun, and please do not be evil.
+   	 [+] Accepting connections on port 8080/tcp (local only)...
 
      NOTE: If you want to use a different database than 'wmap_sqlite3.db'
      stored in /data/wmap/ or destroy it. You have to load the WMAP plugin 
