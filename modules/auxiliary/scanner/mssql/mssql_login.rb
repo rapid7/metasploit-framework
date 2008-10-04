@@ -22,25 +22,37 @@ class Metasploit3 < Msf::Auxiliary
 		super(	
 			'Name'           => 'MSSQL Login Utility',
 			'Version'        => '$Revision$',
-			'Description'    => 'This module simply queries the MSSQL instance for a null SA account.',
+			'Description'    => 'This module simply queries the MSSQL instance for a specific user/pass (default is sa with blank).',
 			'Author'         => 'MC',
 			'License'        => MSF_LICENSE
 		)
 	
 		register_options(
 			[
+				OptString.new('MSSQL_USER', [ false, 'The username to authenticate as', 'sa']),
+				OptString.new('MSSQL_PASS', [ false, 'The password for the specified username', '']),
 				Opt::RPORT(1433)
 			], self.class)
 	end
 		
 	def run_host(ip)
 
+		user = datastore['MSSQL_USER'].to_s
+		pass = datastore['MSSQL_PASS'].to_s
+		
+		user = "sa" if user.length == 0
+		
+		begin
 		info = mssql_login
 
 		if (info == true)
-			print_status("Target #{ip} DOES have a null sa account!")
+			print_status("#{ip}:#{rport} successful logged in as '#{user}' with password '#{pass}'")
 		else
-			print_status("Target #{ip} does not have a null sa account...")
+			print_status("#{ip}:#{rport} failed to login as '#{user}'")
+		end
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
 		end
 	end	
 
