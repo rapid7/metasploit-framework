@@ -164,6 +164,7 @@ def scanner_lists_clear
 	self.scanner_ports = {}
 	self.scanner_simples = {}
 	self.scanner_dcerpcs = {}
+	self.scanner_banners = {}
 	
 	self.scanner_socks ||= {}
 	self.scanner_socks.each_pair do |t,s|
@@ -193,7 +194,8 @@ end
 #
 # Tracks the current hosts
 #
-attr_accessor :scanner_hosts, :scanner_ports, :scanner_socks, :scanner_udp_socks, :scanner_simples, :scanner_dcerpcs
+attr_accessor :scanner_hosts, :scanner_ports, :scanner_socks, :scanner_udp_socks
+attr_accessor :scanner_simples, :scanner_dcerpcs, :scanner_banners
 
 #
 # Overloads the Exploit mixins for rhost
@@ -303,6 +305,22 @@ end
 def dcerpc=(dcerpc)
 	self.scanner_dcerpcs ||= {}
 	self.scanner_dcerpcs[Thread.current.to_s] = dcerpc
+end
+
+#
+# Provides a per-thread self.banner value
+#
+def banner
+	self.scanner_banners ||= {}
+	self.scanner_banners[Thread.current.to_s]
+end
+
+#
+# Sets a per-thread self.banner value
+#
+def banner=(banner)
+	self.scanner_banners ||= {}
+	self.scanner_banners[Thread.current.to_s] = banner
 end
 
 end

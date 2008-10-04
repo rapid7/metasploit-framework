@@ -35,24 +35,31 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(target_host)
 
-		res = connect_login
+		begin
+		
+		res = connect_login(true, false)
 
-		if banner 
-			banner.gsub!(/\n|\r/, "")
-			print_status("#{target_host}:#{rport} [#{banner}]")
-		end
+		banner.strip! if banner
 
+		dir = Rex::Text.rand_text_alpha(8)
 		if res 
-			write_check = send_cmd( ['MKD', "test"] , true)
+			write_check = send_cmd( ['MKD', dir] , true)
 
-			if write_check 
-				send_cmd( ['RMD', "test"] , true)
-				print_status("Anonymous read and write access on #{target_host}:#{rport}")
+			if (write_check and write_check =~ /^2/)
+				send_cmd( ['RMD', dir] , true)
+				p write_check
+				print_status("#{target_host}:#{rport} Anonymous READ/WRITE (#{banner})")
 			else
-				print_status("Anonymous read access on #{target_host}:#{rport}")
+				print_status("#{target_host}:#{rport} Anonymous READ (#{banner})")
 			end
 		end
 
 		disconnect
+		
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
+		end
+		
 	end
 end
