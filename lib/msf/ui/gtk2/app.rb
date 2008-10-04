@@ -313,7 +313,7 @@ module Ui
 		# The Online Help link
 		#
 		def on_online_activate
-			Rex::Compat.open_browser('http://metasploit3.com/msf/support')
+			Rex::Compat.open_browser('http://metasploit.com/framework/support')
 		end
 		
 		#
