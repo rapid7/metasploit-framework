@@ -89,6 +89,10 @@ exploit_name = ARGV.shift
 exploit      = nil
 module_class = "exploit"
 
+if(exploit_name == "-h")
+	usage()
+end
+
 # Process special var/val pairs...
 Msf::Ui::Common.process_cli_arguments($framework, ARGV)
 
@@ -106,6 +110,8 @@ else
 	exploit = $framework.exploits.create(exploit_name)
 
 end
+
+
 
 if (exploit == nil)
 	usage("Invalid module: #{exploit_name}")
