@@ -630,7 +630,7 @@ class Ia32
 		# emulate ret <n>
 		al = cp.typesize[:ptr]
 		if sym.attributes.to_a.include? 'stdcall'
-			argsz = sym.type.args.inject(al) { |sum, a| sum += (cp.sizeof(a) + al - 1) / al * al }
+			argsz = sym.type.args.to_a.inject(al) { |sum, a| sum += (cp.sizeof(a) + al - 1) / al * al }
 			df.backtrace_binding[:esp] = Expression[:esp, :+, argsz]
 		else
 			df.backtrace_binding[:esp] = Expression[:esp, :+, al]

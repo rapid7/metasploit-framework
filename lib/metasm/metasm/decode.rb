@@ -13,8 +13,10 @@ module Metasm
 class DecodedInstruction
 	# the instance of InstructionBlock this di is into
 	attr_accessor :block
-	# our offset (in bytes) from the start of the block
+	# our offset (in bytes) from the start of the block, used only for hexdump
 	attr_accessor :block_offset
+	# the address of the instruction's first byte in memory
+	attr_accessor :address
 	# the disassembled data
 	attr_accessor :instruction, :opcode
 	# our, length in bytes
@@ -29,12 +31,12 @@ class DecodedInstruction
 		@bin_length = 0
 	end
 
-	def address
-		@block.address + @block_offset
-	end
-
 	def next_addr
 		address + @bin_length
+	end
+
+	def block_head?
+		self == @block.list.first
 	end
 
 	def show
@@ -151,6 +153,10 @@ class InstructionBlock
 		@backtracked_for = []
 	end
 
+	def bin_length
+		(di = @list.last) ? di.block_offset + di.bin_length : 0
+	end
+	
 	# splits the current block into a new one with all di from address addr to end
 	# caller is responsible for rebacktracing new.bt_for to regenerate correct old.btt/new.btt
 	def split(addr)
@@ -174,7 +180,8 @@ class InstructionBlock
 	# adds a decodedinstruction to the block list, updates di.block and di.block_offset
 	def add_di(di)
 		di.block = self
-		di.block_offset = (@list.empty? ? 0 : (@list.last.block_offset + @list.last.bin_length))
+		di.block_offset = bin_length
+		di.address ||= @address + di.block_offset
 		@list << di
 	end
 
@@ -855,7 +862,7 @@ puts "  finalize subfunc #{Expression[subfunc]}" if debug_backtrace
 
 		if di = @decoded[addr]
 			if di.kind_of? DecodedInstruction
-				split_block(di.block, di.address) if di.block_offset != 0	# this updates di.block
+				split_block(di.block, di.address) if not di.block_head?	# this updates di.block
 				di.block.add_from(from, from_subfuncret ? :subfuncret : :normal) if from and from != :default
 				bf = di.block
 			end
@@ -1741,7 +1748,7 @@ puts "   backtrace_indirection for #{ind.target} failed: #{ev}" if debug_backtra
 	def dump(dump_data=true, &b)
 		b ||= proc { |l| puts l }
 		@sections.sort.each { |addr, edata|
-			blockoffs = @decoded.values.map { |di| Expression[di.block.address, :-, addr].reduce if di.kind_of? DecodedInstruction and di.block_offset == 0 }.grep(::Integer).sort.reject { |o| o < 0 or o >= edata.length }
+			blockoffs = @decoded.values.map { |di| Expression[di.block.address, :-, addr].reduce if di.kind_of? DecodedInstruction and di.block_head? }.grep(::Integer).sort.reject { |o| o < 0 or o >= edata.length }
 			b[@program.dump_section_header(addr, edata)]
 			if not dump_data and edata.length > 16*1024 and blockoffs.empty?
 				b["// [#{edata.length} data bytes]"]
@@ -1750,15 +1757,14 @@ puts "   backtrace_indirection for #{ind.target} failed: #{ev}" if debug_backtra
 			unk_off = 0
 			# blocks.sort_by { |b| b.addr }.each { |b|
 			edata.length.times { |i|
-				if di = @decoded[addr+i] and di.kind_of? DecodedInstruction and di.block_offset == 0
+				if di = @decoded[addr+i] and di.kind_of? DecodedInstruction and di.block_head?
 					if unk_off != di.block.edata_ptr
 						b["\n// ------ overlap (#{unk_off-di.block.edata_ptr}) ------"]
 					elsif di.block.from_normal.kind_of? ::Array
 						b["\n"]
 					end
 					dump_block(di.block, &b)
-					di = di.block.list.last
-					unk_off = i + di.block_offset + di.bin_length
+					unk_off = i + di.block.bin_length
 				elsif i >= unk_off
 					next_off = blockoffs.find { |bo| bo > i } || edata.length
 					if dump_data or next_off - i < 16

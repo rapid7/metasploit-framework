@@ -401,7 +401,7 @@ class GraphViewWidget < Gtk::HBox
 		else
 			@selected_boxes = []
 			@caret_box = nil
-			@hl_word = nil
+			#@hl_word = nil
 		end
 		redraw
 	end
@@ -413,6 +413,7 @@ class GraphViewWidget < Gtk::HBox
 
 	def doubleclick(ev)
 		if b = find_box_xy(ev.x, ev.y)
+			@mousemove_origin = nil
 			if @hl_word and @zoom >= 0.90 and @zoom <= 1.1
 				@parent_widget.focus_addr(@hl_word)
 			else
@@ -978,6 +979,10 @@ class GraphViewWidget < Gtk::HBox
 			@curcontext = Graph.new 'testic'
 			@curcontext.root_addrs = dasm_find_roots(addr)
 			gui_update
+			# find an address that can be shown if addr is not
+			if not @curcontext.box.find { |b| b[:line_address].index(addr) }
+				addr = @curcontext.box.first[:line_address].values.first
+			end
 			return focus_addr(addr, false)
 		else
 			return
