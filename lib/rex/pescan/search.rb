@@ -2,6 +2,8 @@ module Rex
 module PeScan
 module Search
 
+	require "rex/assembly/nasm"
+	
 	class DumpRVA
 		attr_accessor :pe
 		
@@ -26,6 +28,10 @@ module Search
 			@address = 0 if (@address < 0 || ! @address)
 			buf = pe.read_rva(@address, suf)
 			$stdout.puts pe.ptr_s(pe.rva_to_vma(@address)) + " " + buf.unpack("H*")[0]
+			if(param['disasm'])
+				$stdout.puts(::Rex::Assembly::Nasm.disassemble(buf))
+			end
+			
 		end	
 	end
 
