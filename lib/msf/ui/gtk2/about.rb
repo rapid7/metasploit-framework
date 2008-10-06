@@ -30,7 +30,7 @@ module Msf
           self.artists = Gtk2::ARTISTS
           self.logo = driver.get_icon('splash.png')
           self.website = Gtk2::WEBSITE_URL
-          self.license = File.read(File.join(Msf::Config.install_root, 'documentation', 'LICENSE'))
+          self.license = File.read(File.join(Msf::Config.install_root, 'README'))
           self.transient_for = parent
           self.signal_connect('response') { self.destroy }
         end

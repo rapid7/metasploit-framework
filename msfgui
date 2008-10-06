@@ -37,7 +37,7 @@ require 'msf/ui/gtk2'
 arguments = Rex::Parser::Arguments.new(
 	"-v" => [ true,  "A number between 0 and 3 that controls log verbosity" ],
 	"-r" => [ true,  "Execute the specified resource file"                  ],
-	"-d" => [ false, "Keep running in the foreground"                       ],
+	"-d" => [ false, "Fork and run in the background"                       ],
 	"-D" => [ false, "Keep stdio and stderr open for debugging"             ],
 	"-h" => [ false, "Help banner"                                          ])
 
