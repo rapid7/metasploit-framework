@@ -59,7 +59,7 @@ module Msf
               @buffer.create_mark('end_mark', @buffer.end_iter, false)
             end
 
-            @buffer.insert_with_tags(@buffer.end_iter, Time.now.strftime("%H:%m:%S "), 'forestgreen_bold')
+            @buffer.insert_with_tags(@buffer.end_iter, Time.now.strftime("%H:%M:%S "), 'forestgreen_bold')
             @buffer.insert_with_tags(@buffer.end_iter, Rex::Text.to_utf8(data), 'black_wrap')
 
             # scroll to the end
