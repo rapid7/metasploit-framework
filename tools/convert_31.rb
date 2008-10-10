@@ -33,8 +33,10 @@ end
 
 endc.downto(1) do |idx|
 	i = outp.rindex("end")
-	outp[i, 3] = "" if i
+	outp[i, 4] = "" if i
 end
+
+outp.rstrip!
 
 fd = File.open(path, "w")
 fd.write(outp)
