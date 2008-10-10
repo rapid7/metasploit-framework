@@ -40,24 +40,20 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		print_status("Opening the network interface...")
 		open_pcap()
+
 		print_status("Sniffing HTTP requests...")
-		each_packet() do |decoded, pkt|
-			data = ''
+		each_packet() do |pkt|
+			next if not pkt.tcp?
 			
-			if(not decoded)
-				data = pkt.to_s
-			else
-				if(pkt.has_layer(Scruby::TCP))
-					data = pkt.last_layer.to_net
-				end
-			end
-			
-			if (data =~ /GET\s+([^\s]+)\s+HTTP/smi)
+			if (pkt.payload =~ /GET\s+([^\s]+)\s+HTTP/smi)
 				print_status("GET #{$1}")
+				p pkt.payload
 			end
 			
 			true
 		end
+		
+		print_status("Finished sniffing")
 	end
 	
 end
