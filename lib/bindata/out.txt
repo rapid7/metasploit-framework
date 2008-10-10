@@ -1,0 +1,86 @@
+Index: array.rb
+===================================================================
+--- array.rb	(revision 98)
++++ array.rb	(working copy)
+@@ -26,7 +26,12 @@
+   #           :read_until => lambda { array[index] + array[index - 1] == 13 })
+   #   obj.read(data)
+   #   obj.snapshot #=> [3, 4, 5, 6, 7]
+-  #
++  #		
++	#		obj = BinData::Array.new(:type => :int8, :read_until_eof => true)
++	#		obj.read(data)
++	#		obj.snapshot #=> [3, 4, 5, 6, 7, 8, 9]
++	#
++	#
+   # == Parameters
+   #
+   # Parameters may be provided at initialisation to control the behaviour of
+@@ -54,8 +59,8 @@
+ 
+     # These are the parameters used by this class.
+     mandatory_parameter :type
+-    optional_parameters :initial_length, :read_until
+-    mutually_exclusive_parameters :initial_length, :read_until
++    optional_parameters :initial_length, :read_until, :read_until_eof
++    mutually_exclusive_parameters :initial_length, :read_until, :read_until_eof
+ 
+     class << self
+       # Returns a sanitized +params+ that is of the form expected
+@@ -63,8 +68,8 @@
+       def sanitize_parameters(sanitizer, params)
+         params = params.dup
+ 
+-        unless params.has_key?(:initial_length) or params.has_key?(:read_until)
+-          # ensure one of :initial_length and :read_until exists
++        unless params.has_key?(:initial_length) or params.has_key?(:read_until) or params.has_key?(:read_until_eof)
++          # ensure one of :initial_length, :read_until, or :read_until_eof exists
+           params[:initial_length] = 0
+         end
+ 
+@@ -249,7 +254,7 @@
+     def _do_read(io)
+       if has_param?(:initial_length)
+         elements.each { |f| f.do_read(io) }
+-      else # :read_until
++			elsif has_param?(:read_until)
+         @element_list = nil
+         loop do
+           element = append_new_element
+@@ -259,7 +264,20 @@
+           finished = eval_param(:read_until, variables)
+           break if finished
+         end
+-      end
++			else # :read_until_eof
++				loop do
++						element = append_new_element
++					begin
++						element.do_read(io)
++					rescue EOFError
++						finished = true
++						remove_last_element
++					end
++					variables = { :index => self.length - 1, :element => self.last,
++												:array => self }
++					break if finished
++        end
++			end
+     end
+ 
+     # Writes the values for all fields in this object to +io+.
+@@ -310,5 +328,14 @@
+       @element_list << element
+       element
+     end
++
++		# Pops the last element off the end of @element_list.
++		# Returns the popped element.
++		# This is important for the :read_until_eof option to properly close
++		# the do_read io handle.
++		def remove_last_element
++			elements()
++			@element_list.pop
++		end
+   end
+ end

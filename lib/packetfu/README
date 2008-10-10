@@ -1,0 +1,28 @@
+= PacketFu
+
+A library for reading a writing packets to an interface or to a libpcap-formatted file.
+It is maintained at http://code.google.com/p/packetfu
+
+== Installation
+
+PacketFu should live somewhere in your path. I haven't decided yet on packaging, will probably succumb to gems; your best bet is to just drop it into /usr/local/lib/site_ruby/1.8 or where ever you install bindata to.
+
+== Requirements
+
+BinData: http://bindata.rubyforge.org
+
+Dion Mendel's BinData is absolutely critical for PacketFu. Specifically, BinData's subversion r99 or later is required, in order to make use of the :eof patch. So, BinData r101 is included in this distribution until 0.9.3 or later is released.
+
+PcapRub: www.metasploit.com/svn/framework3/trunk/external/pcaprub
+
+Marshall Beddoe's PcapRub is required only for packet reading and writing from a network interfaces (which is a pretty big only). PcapRub itself relies on libpcap 0.9.8 or later for packet injection. It also requires root privilieges to access the interface directly. Perhaps most noteworthy, PcapRub is <b>not</b> included in this distribution, as the vagaries of libpcap driver install can lead to some unexpected results. You are on your own for that.
+
+== Examples
+
+Wouldn't that be nice? The best way to learn right now is to pore over the documentation, and mess around with packetfu-shell.rb
+
+== Author
+
+PacketFu is maintained primarily by Tod Beardsley <todb@planb-security.net>
+
+== License
