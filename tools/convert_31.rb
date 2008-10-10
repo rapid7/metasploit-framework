@@ -37,6 +37,7 @@ endc.downto(1) do |idx|
 end
 
 outp.rstrip!
+outp << "\n"
 
 fd = File.open(path, "w")
 fd.write(outp)
