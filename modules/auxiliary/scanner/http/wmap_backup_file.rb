@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'   		=> 'HTTP Backup File Scanner',
 			'Description'	=> %q{
 				This module identifies the existence of possible copies 
-				of a especific file in a given path.
+				of a specific file in a given path.
 			},
 			'Author' 		=> [ 'et [at] cyberspace.org' ],
 			'License'		=> BSD_LICENSE,
