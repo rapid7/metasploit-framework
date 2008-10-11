@@ -39,36 +39,45 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-	
 		bakextensions = [
-						'bak',
-						'backup',
-						'txt', 
-						'old', 
-						'copy',
-						'temp'
+						'.backup',
+						'.bak',
+						'.copy',
+						'.old', 
+						'.orig',
+						'.temp',
+						'.txt',
+						'~'
 						]
 
 		bakextensions.each do |ext|
-				begin
-				res = send_request_cgi({
-					'uri'  		=>  datastore['PATH']+"."+ext,
+			file = datastore['PATH']+ext
+			check_for_file(file)
+		end
+		if datastore['PATH'] =~ %r#(.*)(/.+$)#
+			file = $1 + $2.sub('/', '/.') + '.swp'
+			check_for_file(file)
+		end
+	end
+	def check_for_file(file)
+		begin
+			res = send_request_cgi({
+					'uri'  		=>  file,
 					'method'   	=> 'GET',
 					'ctype'		=> 'text/plain'
 					}, 20)
 
-				if (res and res.code >= 200 and res.code < 300) 
-				 	print_status("Found http://#{target_host}:#{datastore['RPORT']}#{datastore['PATH']}.#{ext}")
+			if (res and res.code >= 200 and res.code < 300) 
+				 	print_status("Found http://#{target_host}:#{datastore['RPORT']}#{file}")
 				else
-				   	print_status("NOT Found http://#{target_host}:#{datastore['RPORT']}#{datastore['PATH']}.#{ext}") 
+				   	print_status("NOT Found http://#{target_host}:#{datastore['RPORT']}#{file}") 
 					#To be removed or just displayed with verbose debugging.
 				end
 
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			rescue ::Timeout::Error, ::Errno::EPIPE			
-			end
-	
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+		rescue ::Timeout::Error, ::Errno::EPIPE			
 		end
+	
 	
 	end
 
