@@ -184,4 +184,18 @@ module Auxiliary::WMAPScanHeaders
 	end 
 end
 
+###
+#
+# This module provides methods for WMAP Generic Scanner modules
+#
+###
+
+module Auxiliary::WMAPScanGeneric
+	include Auxiliary::WMAPModule
+
+	def wmap_type
+		:WMAP_GENERIC
+	end 
+end
+
 end

@@ -95,5 +95,19 @@ class Note < ActiveRecord::Base
 	end	
 end
 
+
+# WMAP Request object definition	
+class Request < ::ActiveRecord::Base
+	include DBSave
+	# Magic.
+end
+
+# WMAP Target object definition
+class Target < ::ActiveRecord::Base
+	include DBSave
+	# Magic.
+end
+		
+
 end
 end

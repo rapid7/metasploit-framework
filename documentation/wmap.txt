@@ -1,4 +1,4 @@
-=[ WMAP v0.1                                ET LoWNOISE  et[]metasploit.com
+=[ WMAP v0.2                                ET LoWNOISE  et[]metasploit.com
 ---------------------------------------------------------------------------
                         "Metasploit goes Web" ,H D Moore.
 
@@ -16,11 +16,11 @@ or spider for data capture and manipulation.
 
 In the WMAP design, the attack proxy acts as a data gathering tool. All 
 traffic between the client(s) (i.e. favorite browser and/or spider) will be 
-stored in the WMAP database. (See figure.) 
+stored in the MSF database. (See figure.) 
 
 [CLIENT] ----- [ATTACK PROXY] ----- [TARGET]
                       |                 ^ 
-                  [WMAP DB]             |
+               [METASPLOIT DB]          |
                       |                 |
             [MSF 3 - WMAP SCANNER]      | 
             [MSF 3 - WMAP MODULES] -----+
@@ -35,7 +35,7 @@ As you may see this simple architecture allows you to have different
 distributed clients and even different proxies all storing data to the 
 central repository. Remember everything is based on Metasploit, the test 
 modules are implemented as auxiliary modules and they can interact with any 
-other MSF component including exploits and plugins.
+other MSF component including the database, exploits and plugins.
 
 
 =[ WMAP Modules.
@@ -67,6 +67,9 @@ WMAPScanUniqueQuery - Runs for every unique query found in each request to the
 WMAPScanQuery       - Runs for every query found in each request to the target
 WMAPScanBody        - Runs for every Body found in each request to the target
 WMAPScanHeaders     - Runs for every Header found in each request to the target
+WMAPScanGeneric     - Modules to be run after all tests complete. Good place to
+                      perform passive analysis of responses, analysis of test
+                      results to launch other modules (i.e. exploits). 
 	
 =[ Simple example.
 
@@ -81,16 +84,16 @@ The following are the basic steps for testing a web server/app using WMAP:
 
 	 ratproxy (ratproxy_wmap.diff applied) basic example: 
 
-	 $ ./ratproxy -v metasploit3/data/wmap/ -b wmap_sqlite3.db 
+	 $ ./ratproxy -v /Users/et/.msf3/ -b sqlite3.db 
    	 ratproxy version 1.51-beta by <lcamtuf@google.com>
    	 [*] Proxy configured successfully. Have fun, and please do not be evil.
    	 [+] Accepting connections on port 8080/tcp (local only)...
 
-     NOTE: If you want to use a different database than 'wmap_sqlite3.db'
-     stored in /data/wmap/ or destroy it. You have to load the WMAP plugin 
-     (go to step 4) and use wmap command 'wmap_create <path/database>':
+     NOTE: If you want to use a different database than the default MSF database
+     or was destroyed. You have to create again the database with the 'db_create'
+     command. 'db_create <path/database>':
 
-         msf > wmap_create /dir/target_test.db
+         msf > db_create /dir/target_test.db
          [*] Creating a new database instance...
          [*] Successfully connected to the database
          [*] File: /dir/target_test.db
@@ -98,7 +101,7 @@ The following are the basic steps for testing a web server/app using WMAP:
   3. Browse the target by running your favorite spider/crawler/browser etc.
      NOTE: Dont forget to configure the proxy;
 
-  4. In Metasploit load the WMAP plugin;
+  4. In Metasploit load the db_<database> plugin;
 
      $ ./msfconsole
 
@@ -114,15 +117,19 @@ The following are the basic steps for testing a web server/app using WMAP:
      + -- --=[ 20 encoders - 6 nops
             =[ 74 aux
 
+     msf > load db_sqlite3
      msf > load db_wmap
-     [*] =[ WMAP v0.1 - ET LoWNOISE
-     [*] Successfully loaded plugin: db_wmap_sqlite3
+     [*] =[ WMAP v0.2 - ET LoWNOISE
+     [*] Successfully loaded plugin: db_wmap
 
   5. Connect to the WMAP database;
 
      msf > wmap_connect
      [*] Successfully connected to the wmap database
-     [*] File: /metasploit3/data/wmap/wmap_sqlite3.db
+     [*] File: /users/et/.msf3/sqlite3.db
+
+
+     msf > wmap_targets -r
      [*] Reloading targets...
      [*] Added. metasploit.com 80 0
      [*] Added. target.com 80 0
@@ -155,15 +162,15 @@ The following are the basic steps for testing a web server/app using WMAP:
      [*] Website structure
      [*] target.com:80 SSL:0
      ROOT_TREE
-		index.asp
-    		images
-        		logo.gif
-		login.asp
-		menu
-			menu.asp
-			logout.asp
-			help.asp
-	[*] Done.
+	+------	index.asp
+    	|	images
+        |	+------	logo.gif
+	+------	login.asp
+	|	menu
+	|	+------	menu.asp
+	|	+------	logout.asp
+	|	+------	help.asp
+     [*] Done.
 
   9. List loaded modules; 
   

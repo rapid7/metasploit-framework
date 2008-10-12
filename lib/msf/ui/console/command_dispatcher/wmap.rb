@@ -15,21 +15,7 @@ module Wmap
 		# 
 		# MSF WMAP Web scanner		ET LowNOISE
 		# et[cron]cyberspace.org   
-		# 	
-
-	
-		#	
-		# Ugly fix for wmap tables.
-		# Reason: Not to mess with DbManager/DBObjects.
-		#
-
-		class Request < ::ActiveRecord::Base
-			# Magic.
-		end
-
-		class Target < ::ActiveRecord::Base
-			# Magic.
-		end
+		# 		
 		
 		#
 		# Constants
@@ -52,7 +38,6 @@ module Wmap
 		def commands
 			{
 				"wmap_website"  => "List website structure",
-#				"wmap_vulns"	=> "List all vulnerabilities in the database",
 				"wmap_targets"  => "List all targets in the database",
 				"wmap_run"  => "Automatically test/exploit everything",
 			}
@@ -69,13 +54,6 @@ module Wmap
 			print_status("Done.")
 		end
 
-		def cmd_wmap_vulns(*args)
-			framework.db.each_vuln do |vuln|
-				reflist = vuln.refs.map { |r| r.name }
-				print_status("Time: #{vuln.created} Vuln: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}")
-			end
-		end
-
 		def cmd_wmap_targets(*args)
 			args.push("-h") if args.length == 0
 			
@@ -84,7 +62,7 @@ module Wmap
 				when '-p'
 				
 					print_status("   Id. Host\t\t\t\t\tPort\tSSL")
-					Target.find(:all).each do |tgt|
+					framework.db.each_target do |tgt|
 						if tgt.ssl == 1
 							usessl = "[*]"
 						else
@@ -104,18 +82,17 @@ module Wmap
 					end
 					print_status("Done.")
 				when '-r'
-					Target.delete_all
-					Request.find(:all, :select => 'DISTINCT host,port,ssl').each do |req|
-						target = Target.create(:host => req.host, :port => req.port, :ssl => req.ssl, :selected => 0)
-						target.save
+					framework.db.delete_all_targets
+					framework.db.each_distinct_target do |req|
+						framework.db.create_target(req.host, req.port, req.ssl, 0)
 						print_status("Added. #{req.host} #{req.port} #{req.ssl}")  		
 					end	
 				when '-s'
-					Target.find(:all).each do |tgt|
+					framework.db.each_target do |tgt|
 						tgt.selected = 0
 						tgt.save	
 					end
-					seltgt = Target.find(:first, :conditions => ["id = ?", args.shift])
+					seltgt = framework.db.get_target(args.shift)
 					if seltgt == nil
 						print_error("Target id not found.")
 					else
@@ -185,6 +162,9 @@ module Wmap
 			# WMAP_UNIQUE_QUERY
 			matches5 = {}
 			
+			# WMAP_GENERIC
+			matches10 = {}
+			
 			
 			[ [ framework.auxiliary, 'auxiliary' ] ].each do |mtype|
 
@@ -211,11 +191,13 @@ module Wmap
 							when :WMAP_HEADERS	
 								matches4[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
 							when :WMAP_UNIQUE_QUERY	
-								matches5[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true				
+								matches5[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
+							when :WMAP_GENERIC	
+								matches10[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true																	
 							when :WMAP_DIR, :WMAP_FILE
 								matches[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
 							else
-								# To add oter types in the future. (i.e EXPLOIT)	
+								# Black Hole	
 							end	
 						end
 					end					
@@ -454,7 +436,7 @@ module Wmap
 						
 						utest_query = {}
 						
-						Request.find(:all, :conditions => ["requests.host = ? AND requests.port = ? AND requests.path IS NOT NULL",selected_host,selected_port]).each do |req|
+						framework.db.each_request_target_with_path do |req|
 							#
 							# Only test unique query strings by comparing signature to previous tested signatures 'path,p1,p2,pn' 
 							#
@@ -498,7 +480,6 @@ module Wmap
 					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
 				end
 			end
-			
 			
 			#
 			# Run modules for each request to play with URI query parameters.
@@ -551,7 +532,7 @@ module Wmap
 						wtype = mod.wmap_type
 						
 						
-						Request.find(:all, :conditions => ["requests.host = ? AND requests.port = ? AND requests.path IS NOT NULL",selected_host,selected_port]).each do |req|
+						framework.db.each_request_target_with_path do |req|
 							#
 							# Weird bug req.method doesnt work
 							# collides with some method named 'method'
@@ -636,7 +617,7 @@ module Wmap
 						wtype = mod.wmap_type
 						
 						
-						Request.find(:all, :conditions => ["requests.host = ? AND requests.port = ? AND requests.body IS NOT NULL",selected_host,selected_port]).each do |req|
+						framework.db.each_request_target_with_body do |req|
 							#
 							# Weird bug req.method doesnt work
 							# collides with some method named 'method'
@@ -721,7 +702,7 @@ module Wmap
 						wtype = mod.wmap_type
 						
 						
-						Request.find(:all, :conditions => ["requests.host = ? AND requests.port = ? AND requests.headers IS NOT NULL",selected_host,selected_port]).each do |req|
+						framework.db.each_request_target_with_headers do |req|
 							#
 							# Weird bug req.method doesnt work
 							# collides with some method named 'method'
@@ -755,6 +736,75 @@ module Wmap
 					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
 				end
 			end
+			
+			#
+			# Handle modules that need to be after all tests, once.
+			# Good place to have modules that analize the test results and/or
+			# launch exploits.
+			# :WMAP_GENERIC
+			#
+			idx = 0
+			matches10.each_key do |xref|
+				idx += 1
+				
+				begin
+					mod = nil
+
+					#Carefull with the references on this one
+					if ((mod = framework.modules.create(xref[3])) == nil)
+						print_status("Failed to initialize #{xref[3]}")
+						next
+					end
+
+					if (mode & WMAP_SHOW != 0)
+						print_status("Loaded #{xref[3]} ...")
+					end
+					
+					#
+					# The code is just a proof-of-concept and will be expanded in the future
+					#
+					if (mode & WMAP_EXPL != 0)
+
+						#
+						# Parameters passed in hash xref
+						# 
+						mod.datastore['RHOSTS'] = xref[0] 
+						mod.datastore['RPORT'] = xref[1].to_s
+						mod.datastore['SSL'] = xref[2].to_s
+
+						#
+						# For modules to have access to the global datastore
+						# i.e. set -g DOMAIN test.com
+						#
+						self.framework.datastore.each do |gkey,gval|
+							mod.datastore[gkey]=gval
+						end
+
+						#
+						# Run the plugins that only need to be
+						# launched once.
+						#
+
+						wtype = mod.wmap_type
+
+						if wtype == :WMAP_GENERIC 
+							print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1].to_s}")
+
+							begin
+								session = mod.run_simple(
+										'LocalInput' 	=> driver.input,
+										'LocalOutput'	=> driver.output,
+										'RunAsJob'   	=> false)
+							rescue ::Exception
+								print_status(" >> Exception during launch from #{xref[3]}: #{$!.to_s}")
+							end
+						end
+					end
+					
+				rescue ::Exception
+					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
+				end
+			end
 		
 			if (mode & WMAP_SHOW != 0)
 				print_status("Analysis completed in #{(Time.now.to_f - stamp).to_s} seconds.")	
@@ -764,28 +814,6 @@ module Wmap
 		# EOM
 		end
 	
-
-		#
-		# Wmap support methods
-		#
-		
-		def selected_host
-			selhost = Target.find(:first, :conditions => ["selected > 0"] )
-			if selhost
-				return selhost.host
-			else
-				return
-			end	
-		end
-
-		def selected_port
-			Target.find(:first, :conditions => ["selected > 0"] ).port
-		end
-
-		def selected_ssl
-			Target.find(:first, :conditions => ["selected > 0"] ).ssl
-		end
-
 
 		#
 		# Load website structure into a tree
@@ -798,7 +826,7 @@ module Wmap
 				print_error("Target not selected")
 			else
 			
-				Request.find(:all, :conditions => ["requests.host = ? AND requests.port = ?",selected_host,selected_port]).each do |req|	
+				framework.db.each_request_target do |req|	
 					tarray = req.path.to_s.split(WMAP_PATH)
 					tarray.delete("")
 					tpath = Pathname.new(WMAP_PATH)
@@ -817,12 +845,32 @@ module Wmap
 		#
 
 		def print_tree(tree)
-			print_line(("\t"*tree.depth)+tree.name)
+			if tree.is_leaf?
+				print_line(("|\t"*(tree.depth-1))+"+------"+tree.name)
+			else
+				print_line(("|\t"*tree.depth)+tree.name)
+			end		
 			tree.children.each_pair do |name,child|
-				print_tree(child)
+					print_tree(child)
 			end
 		end
-
+		
+		#
+		# Selected target
+		#
+		def selected_host
+			framework.db.selected_host
+		end
+		
+		def selected_port
+			framework.db.selected_port
+		end
+		
+		def selected_ssl
+			framework.db.selected_ssl
+		end
+		
+		
 end
 end
 end

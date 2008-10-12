@@ -372,7 +372,180 @@ class DBManager
 			"vulns_refs.vuln_id = vulns.id"
 		)
 	end	
+	
+	#
+	# WMAP
+	# Support methods
+	#
+	
+	#
+	# WMAP
+	# Selected host
+	#
+	def selected_host
+		selhost = Target.find(:first, :conditions => ["selected > 0"] )
+		if selhost
+			return selhost.host
+		else
+			return
+		end	
+	end
+	
+	#
+	# WMAP
+	# Selected port
+	#
+	def selected_port
+		Target.find(:first, :conditions => ["selected > 0"] ).port
+	end
 
+	#
+	# WMAP
+	# Selected ssl
+	#
+	def selected_ssl
+		Target.find(:first, :conditions => ["selected > 0"] ).ssl
+	end	
+	
+	#
+	# WMAP
+	# This method iterates the requests table identifiying possible targets
+	# This method wiil be remove on second phase of db merging.
+	#
+	def each_distinct_target(&block)
+		request_distinct_targets.each do |target|
+			block.call(target)
+		end
+	end
+	
+	#
+	# WMAP
+	# This method returns a list of all possible targets available in requests
+	# This method wiil be remove on second phase of db merging.
+	#
+	def request_distinct_targets
+		Request.find(:all, :select => 'DISTINCT host,port,ssl')
+	end
+	
+	#
+	# WMAP
+	# This method iterates the requests table returning a list of all requests of a specific target
+	#
+	def each_request_target_with_path(&block)
+		target_requests('AND requests.path IS NOT NULL').each do |req|
+			block.call(req)
+		end
+	end
+	
+	#
+	# WMAP
+	# This method iterates the requests table returning a list of all requests of a specific target
+	#
+	def each_request_target_with_body(&block)
+		target_requests('AND requests.body IS NOT NULL').each do |req|
+			block.call(req)
+		end
+	end
+	
+	#
+	# WMAP
+	# This method iterates the requests table returning a list of all requests of a specific target
+	#
+	def each_request_target_with_headers(&block)
+		target_requests('AND requests.headers IS NOT NULL').each do |req|
+			block.call(req)
+		end
+	end
+	
+	#
+	# WMAP
+	# This method iterates the requests table returning a list of all requests of a specific target
+	#
+	def each_request_target(&block)
+		target_requests('').each do |req|
+			block.call(req)
+		end
+	end
+	
+	#
+	# WMAP
+	# This method returns a list of all requests from target
+	#
+	def target_requests(extra_condition)
+		Request.find(:all, :conditions => ["requests.host = ? AND requests.port = ? #{extra_condition}",selected_host,selected_port])
+	end
+	
+	#
+	# WMAP
+	# This method iterates the requests table calling the supplied block with the
+	# request instance of each entry.
+	#
+	def each_request(&block)
+		requests.each do |request|
+			block.call(request)
+		end
+	end
+	
+	#
+	# WMAP
+	# This methods returns a list of all targets in the database
+	#
+	def requests
+		Request.find(:all)
+	end
+	
+	#
+	# WMAP
+	# This method iterates the targets table calling the supplied block with the
+	# target instance of each entry.
+	#
+	def each_target(&block)
+		targets.each do |target|
+			block.call(target)
+		end
+	end
+	
+	#
+	# WMAP
+	# This methods returns a list of all targets in the database
+	#
+	def targets
+		Target.find(:all)
+	end
+
+	#
+	# WMAP
+	# This methods deletes all targets from targets table in the database
+	#
+	def delete_all_targets
+		Target.delete_all
+	end
+	
+	#
+	# WMAP
+	# Find a target matching this id
+	#
+	def get_target(id)
+		target = Target.find(:first, :conditions => [ "id = ?", id])
+		return target
+	end
+	
+	#
+	# WMAP
+	# Create a target 
+	#
+	def create_target(host,port,ssl,sel)
+		tar = Target.create(
+				:host => host, 
+				:port => port, 
+				:ssl => ssl, 
+				:selected => sel
+			)
+		tar.save	
+		#framework.events.on_db_target(context, rec)
+	end
+	
+	
 									
 end
 
