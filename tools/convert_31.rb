@@ -12,7 +12,11 @@ data.each_line do |line|
 	end
 
 	if(line =~ /^(\s*)include (.*)/)
-		line = "#{$1}include Msf::#{$2.strip}\n"
+		spaces = $1
+		inc = $2
+		if (inc !~ /Msf/)
+			line = "#{spaces}include Msf::#{inc.strip}\n"
+		end
 	end
 		
 	if(line =~ /^(\s*)class ([^\<]+)\s*<\s*(.*)/)
