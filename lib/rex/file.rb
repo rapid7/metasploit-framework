@@ -15,32 +15,16 @@ module FileUtils
 	# a fully qualified path to the supplied file name.
 	#
 	def self.find_full_path(file_name)
-		
-		case RUBY_PLATFORM
-		when /mswin32/
-			if (ENV['PATH'])
-				ENV['PATH'].split(';').each { |base|
-					begin
-						path = base + ::File::SEPARATOR + file_name
-						if (::File::Stat.new(path))
-							return path
-						end
-					rescue
+		if (ENV['PATH'])
+			ENV['PATH'].split(::File::PATH_SEPARATOR).each { |base|
+				begin
+					path = base + ::File::SEPARATOR + file_name
+					if (::File::Stat.new(path))
+						return path
 					end
-				}
-			end
-		else
-			if (ENV['PATH'])
-				ENV['PATH'].split(':').each { |base|
-					begin
-						path = base + ::File::SEPARATOR + file_name
-						if (::File::Stat.new(path))
-							return path
-						end
-					rescue
-					end
-				}
-			end
+				rescue
+				end
+			}
 		end
 		return nil
 	end

@@ -1,6 +1,5 @@
 require 'msf/core'
 require 'net/dns'
-require 'scruby'
 require 'resolv'
 
 
