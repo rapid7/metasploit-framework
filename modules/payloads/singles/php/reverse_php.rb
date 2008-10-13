@@ -47,10 +47,6 @@ module Metasploit3
 	#      Perhaps it should be special-cased to call chdir()
 	#   - Tries to get around disable_functions but makes no attempts to 
 	#      circumvent safe mode.  
-  	#   - Should this add '2>&1' to the end of the executed command to avoid
-	#      logging suspicious error messages?  I'm afraid this will break
-	#      the payload, especially on Windows, but I also don't like my tools
-	#      ratting on me to the administrator.
 	#
 	def php_reverse_shell
 
