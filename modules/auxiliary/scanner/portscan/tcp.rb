@@ -12,14 +12,13 @@
 
 require 'msf/core'
 
-module Msf
 
-class Auxiliary::Scanner::Portscan::TCP < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Tcp
+	include Msf::Exploit::Remote::Tcp
 	
-	include Auxiliary::Report
-	include Auxiliary::Scanner
+	include Msf::Auxiliary::Report
+	include Msf::Auxiliary::Scanner
 
 	
 	def initialize
@@ -83,5 +82,4 @@ class Auxiliary::Scanner::Portscan::TCP < Msf::Auxiliary
 
 
 
-end
 end
