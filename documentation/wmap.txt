@@ -124,8 +124,8 @@ The following are the basic steps for testing a web server/app using WMAP:
 
   5. Connect to the WMAP database;
 
-     msf > wmap_connect
-     [*] Successfully connected to the wmap database
+     msf > db_connect
+     [*] Successfully connected to the database
      [*] File: /users/et/.msf3/sqlite3.db
 
 
