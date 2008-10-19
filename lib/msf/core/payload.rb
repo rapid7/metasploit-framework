@@ -269,6 +269,12 @@ class Payload < Msf::Module
 	#
 	# - ADDR  (foo.com, 1.2.3.4)
 	# - ADDR6 (foo.com, fe80::1234:5678:8910:1234)
+	# - ADDR16MSB, ADD16LSB, ADDR32MSB, ADD32LSB (foo.com, 1.2.3.4)
+	#   Advanced packing types for 16/16 and 22/10 bits substitution. The 16
+	#   bits types uses two offsets indicating where the 16 bits pair will be
+	#   substituted, while the 22 bits types uses two offsets indicating the
+	#   instructions where the 22/10 bits pair will be substituted. Normally
+	#   these are offsets to "sethi" and "or" instructions on SPARC architecture.
 	# - HEX   (0x12345678, "\x41\x42\x43\x44")
 	# - RAW   (raw bytes)
 	#
@@ -286,7 +292,7 @@ class Payload < Msf::Module
 					
 					# Someone gave us a funky address (ipv6?)
 					if(val.length == 16)
-						raise RuntimeError, "IPv6 address specified for IPv4 payload"
+						raise RuntimeError, "IPv6 address specified for IPv4 payload."
 					end
 				elsif (pack == 'ADDR6')
 					val = Rex::Socket.resolv_nbo(val)
@@ -296,6 +302,13 @@ class Payload < Msf::Module
 						nip = "fe80::5efe:" + val.unpack("C*").join(".")
 						val = Rex::Socket.resolv_nbo(nip)
 					end					
+				elsif (['ADDR16MSB', 'ADDR16LSB', 'ADDR22MSB', 'ADDR22LSB'].include?(pack))
+					val = Rex::Socket.resolv_nbo(val)
+					
+					# Someone gave us a funky address (ipv6?)
+					if(val.length == 16)
+						raise RuntimeError, "IPv6 address specified for IPv4 payload."
+					end
 				elsif (pack == 'RAW')
 					# Just use the raw value...
 				else
@@ -315,7 +328,40 @@ class Payload < Msf::Module
 				end
 
 				# Substitute it
-				raw[offset, val.length] = val
+				if (['ADDR16MSB', 'ADDR16LSB'].include?(pack))
+					if (offset.length != 2)
+						raise RuntimeError, "Missing value for payload offset, there must be two offsets."
+					end
+
+					if (pack == 'ADDR16LSB')
+						val = val.unpack('N').pack('V')
+					end
+
+					raw[offset[0], 2] = val[0, 2]
+					raw[offset[1], 2] = val[2, 2]
+
+				elsif (['ADDR22MSB', 'ADDR22LSB'].include?(pack))
+					if (offset.length != 2)
+						raise RuntimeError, "Missing value for payload offset, there must be two offsets."
+					end
+
+					if (pack == 'ADDR22LSB')
+						val = val.unpack('N').pack('V')
+					end
+
+					hi = (0xfffffc00 & val) >> 10
+					lo = 0x3ff & val
+
+					ins = raw[offset[0], 4]
+					raw[offset[0], 4] = ins | hi
+
+					ins = raw[offset[1], 4]
+					raw[offset[1], 4] = ins | lo
+
+				else
+					raw[offset, val.length] = val
+
+				end
 			else
 				wlog("Missing value for payload offset #{name}, skipping.",
 					'core', LEV_3)
