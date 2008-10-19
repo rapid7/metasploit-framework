@@ -269,7 +269,7 @@ class Payload < Msf::Module
 	#
 	# - ADDR  (foo.com, 1.2.3.4)
 	# - ADDR6 (foo.com, fe80::1234:5678:8910:1234)
-	# - ADDR16MSB, ADD16LSB, ADDR32MSB, ADD32LSB (foo.com, 1.2.3.4)
+	# - ADDR16MSB, ADD16LSB, ADDR22MSB, ADD22LSB (foo.com, 1.2.3.4)
 	#   Advanced packing types for 16/16 and 22/10 bits substitution. The 16
 	#   bits types uses two offsets indicating where the 16 bits pair will be
 	#   substituted, while the 22 bits types uses two offsets indicating the
