@@ -27,7 +27,7 @@ module Metasploit3
 			'Author'        => 'Ramon de Carvalho Valle <ramon[at]risesecurity.org>',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'aix',
-			'Arch'          => ARCH_POWER,
+			'Arch'          => [ ARCH_POWER, ARCH_PPC ],
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'Payload'       =>
