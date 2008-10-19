@@ -70,7 +70,7 @@ WMAPScanHeaders     - Runs for every Header found in each request to the target
 WMAPScanGeneric     - Modules to be run after all tests complete. Good place to
                       perform passive analysis of responses, analysis of test
                       results to launch other modules (i.e. exploits). 
-	
+
 =[ Simple example.
 
 The following are the basic steps for testing a web server/app using WMAP: 

@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if (res and res.code >= 200 and res.code < 300)
 				if res.to_s.include? "<title>Index of /" and res.to_s.include? "<h1>Index of /"
-	 				print_status("Found Directoty Listing http://#{target_host}:#{datastore['RPORT']}#{tpath}")
+	 				print_status("Found Directory Listing http://#{target_host}:#{datastore['RPORT']}#{tpath}")
 				end
 			else
 				print_status("NOT Vulnerable to directoy listing http://#{target_host}:#{datastore['RPORT']}#{tpath}") 
@@ -58,7 +58,6 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE			
 		end
-	
 	end
 end
 	

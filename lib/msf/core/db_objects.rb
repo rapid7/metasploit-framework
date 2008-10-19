@@ -107,7 +107,11 @@ class Target < ::ActiveRecord::Base
 	include DBSave
 	# Magic.
 end
-		
+
+# WMAP Report object definition
+class Report < ::ActiveRecord::Base
+	include DBSave
+end		
 
 end
 end

@@ -128,6 +128,9 @@ module Wmap
 					mode |= WMAP_SHOW
 				when '-e'
 					mode |= WMAP_EXPL
+					
+					# Create report entry
+					framework.db.create_report(0,'WMAP','REPORT',"#{selected_host},#{selected_port},#{selected_ssl}","Metasploit WMAP Report",'WMAP Scanner')
 				when '-h'
 					print_status("Usage: wmap_run [options]")
 					print_line("\t-h 		Display this help text")

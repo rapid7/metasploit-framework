@@ -95,7 +95,6 @@ end
 ###
 class DBManager
 
-
 	#
 	# Determines if the database is functional
 	#
@@ -409,6 +408,14 @@ class DBManager
 	
 	#
 	# WMAP
+	# Selected id
+	#
+	def selected_id
+		Target.find(:first, :conditions => ["selected > 0"] ).id
+	end
+	
+	#
+	# WMAP
 	# This method iterates the requests table identifiying possible targets
 	# This method wiil be remove on second phase of db merging.
 	#
@@ -545,8 +552,57 @@ class DBManager
 		#framework.events.on_db_target(context, rec)
 	end
 	
+	#
+	# WMAP
+	# Store data in report table
+	# First attempt for reporting. parent_id to point to other report entries
+	# to define context.
+	#
+	#
+	def create_report(parent_id,entity,etype,value,notes,source)
+		rep = Report.create(
+				:target_id => self.selected_id,
+				:parent_id => parent_id, 
+				:entity => entity, 
+				:etype => etype, 
+				:value => value,
+				:notes => notes,
+				:source => source,
+				:created => Time.now
+			)
+		rep.save
+
+		return rep.id	
+		#framework.events.on_db_target(context, rec)
+	end
+
+	#
+	# WMAP
+	# Last report available for the target to store new report entries.
+	#
+	def last_report_id(host,port,ssl)
+		rep = Report.find(:first, :order => 'id desc', :conditions => [ "parent_id = ? and value = ?",0,"#{host},#{port},#{ssl}"])		
+		
+		if (not rep)
+			rep_id = framework.db.create_report(0,'WMAP','REPORT',"#{host},#{port},#{ssl}","Metasploit WMAP Report",'WMAP Scanner')
+		else
+			rep_id = rep.id
+		end	
+
+		return rep_id
+	end
 	
-									
+	#
+	# Quick way to identify if the report database is available
+	#
+	def report_exists?
+		begin
+			Report.table_exists?
+		rescue
+			false
+		end
+	end	
+
 end
 
 end

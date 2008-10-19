@@ -6,6 +6,8 @@ module Msf
 ###
 
 module Auxiliary::WMAPModule
+
+
 	#
 	# Initializes an instance of a WMAP module
 	#
@@ -22,8 +24,33 @@ module Auxiliary::WMAPModule
 		#default type
 		nil
 	end
+
+	def wmap_base_report_id(host,port,ssl)
+		if not ssl
+			num_ssl = 0
+		else
+			num_ssl = 1
+		end
+		
+		framework.db.last_report_id(host,port,num_ssl)
+	end
 	
-	#modified from CGI.rb as we dont use arrays, this function may need to be included in proto/http
+	#
+	# This method is used to add a new entry to the report table
+	# It return the id to be used to add context to additional data
+	#
+	def wmap_report(parent_id,entity,etype,value,notes)
+		framework.db.create_report(parent_id,entity,etype,value,notes,self.name)
+	end
+
+	#
+	# Report if report exists
+	#
+	def wmap_report_exists?
+		framework.db.report_exists?
+	end
+	
+	#modified from CGI.rb as we dont use arrays
 	def headersparse(qheaders)
 		params = Hash.new()
 
@@ -38,7 +65,7 @@ module Auxiliary::WMAPModule
 		params
 	end
 
-	#modified from CGI.rb as we dont use arrays, this function may need to be included in proto/http
+	#modified from CGI.rb as we dont use arrays
 	def queryparse(query)
 		params = Hash.new()
 
