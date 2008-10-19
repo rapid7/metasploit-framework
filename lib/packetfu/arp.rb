@@ -174,4 +174,3 @@ module PacketFu
 	end # class ARPPacket
 
 end # module PacketFu
-

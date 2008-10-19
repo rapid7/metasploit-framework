@@ -153,5 +153,3 @@ protected
 	attr_writer :site, :ctx_id, :ctx_val
 
 end
-
-

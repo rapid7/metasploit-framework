@@ -152,5 +152,3 @@ EOS
 	end
 
 end
-
-  

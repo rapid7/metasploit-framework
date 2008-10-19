@@ -49,4 +49,3 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Found username \"#{user}\" and password \"#{pass}\"") if user and pass
 	end
 end
-

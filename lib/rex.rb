@@ -99,4 +99,3 @@ Kernel.class_eval("
 		Rex::ThreadSafe.select(rfd, wfd, efd, to)
 	end
 ")
-

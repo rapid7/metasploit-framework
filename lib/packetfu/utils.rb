@@ -125,4 +125,3 @@ module PacketFu
 	end # class Utils
 
 end # module PacketFu
-

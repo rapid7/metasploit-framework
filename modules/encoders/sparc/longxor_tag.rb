@@ -69,5 +69,3 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 	end
 		
 end
-
-  

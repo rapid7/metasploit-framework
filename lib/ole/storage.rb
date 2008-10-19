@@ -932,4 +932,3 @@ end
 if $0 == __FILE__
 	puts Ole::Storage.open(ARGV[0]) { |ole| ole.root.to_tree }
 end
-

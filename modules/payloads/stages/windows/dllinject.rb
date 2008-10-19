@@ -24,5 +24,3 @@ module Metasploit3
 	include Msf::Payload::Windows::DllInject
 
 end
-
-   

@@ -39,4 +39,3 @@ end
 # to trace only pp macros (using eg an asm source), use Preprocessor#factorize instead
 
 puts Ia32.new.new_cparser.factorize(stub + File.read(file))
-

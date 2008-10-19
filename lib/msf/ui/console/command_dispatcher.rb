@@ -112,4 +112,3 @@ end
 end end end
 	
 require 'msf/ui/console/command_dispatcher/core'
-

@@ -153,5 +153,3 @@ SINGLE_BYTE_SLED =
 	end
 
 end
-
-  

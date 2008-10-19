@@ -66,5 +66,3 @@ class Metasploit3 < Msf::Encoder::NonAlpha
         state.encoded[0x24, 0] = state.key
     end
 end
-
-  

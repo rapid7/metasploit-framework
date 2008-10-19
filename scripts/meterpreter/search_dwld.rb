@@ -57,4 +57,3 @@ def scan(path)
 		end
 	}
 end
-

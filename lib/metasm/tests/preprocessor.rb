@@ -246,4 +246,3 @@ EOS
 		t_float['0x.1lp1']
 	end
 end
-

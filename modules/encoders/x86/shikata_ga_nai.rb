@@ -196,5 +196,3 @@ protected
 	end
 
 end
-
-  

@@ -219,4 +219,4 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 	end
 
 	
-end	
+end

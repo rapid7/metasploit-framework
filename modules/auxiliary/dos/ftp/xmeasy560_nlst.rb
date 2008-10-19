@@ -36,4 +36,3 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("OK, server may still be technically listening, but it won't respond")
 	end
 end
-

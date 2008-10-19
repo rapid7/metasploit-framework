@@ -124,4 +124,4 @@ class Rex::Proto::SMB::SimpleClient::UnitTest < Test::Unit::TestCase
 			flunk('timeout')
 		end
 	end
-end	
+end

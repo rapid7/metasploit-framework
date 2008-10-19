@@ -65,5 +65,3 @@ module Net
     end # class RR
   end # module DNS
 end # module Net
-
-

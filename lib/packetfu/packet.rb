@@ -333,4 +333,3 @@ module PacketFu
 	end # class Packet
 
 end # module PacketFu
-

@@ -15,4 +15,4 @@ class Rex::Proto::SMB::Constants::UnitTest < Test::Unit::TestCase
 		assert_equal(Klass::NT_TRANSACT_QUERY_SECURITY_DESC, 0x06)
 	end
 	
-end	
+end

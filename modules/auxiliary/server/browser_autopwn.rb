@@ -624,5 +624,3 @@ class Metasploit3 < Msf::Auxiliary
 		return ret
 	end
 end
-
-

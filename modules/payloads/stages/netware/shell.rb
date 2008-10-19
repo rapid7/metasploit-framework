@@ -472,5 +472,3 @@ EOS
 	end
 
 end
-
-   

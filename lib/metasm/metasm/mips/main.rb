@@ -64,4 +64,3 @@ class MIPS < CPU
 	end
 end
 end
-

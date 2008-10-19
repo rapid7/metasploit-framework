@@ -127,5 +127,3 @@ class Metasploit3 < Msf::Encoder
 
 	
 end
-
-  

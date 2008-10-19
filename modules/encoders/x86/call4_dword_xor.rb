@@ -52,5 +52,3 @@ class Metasploit3 < Msf::Encoder::Xor
 	end
 
 end
-
-  

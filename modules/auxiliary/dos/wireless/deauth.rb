@@ -57,5 +57,3 @@ class Metasploit3 < Msf::Auxiliary
 		return frame
 	end
 end
-
-

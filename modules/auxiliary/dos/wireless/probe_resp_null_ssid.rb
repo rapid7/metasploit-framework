@@ -83,4 +83,3 @@ class Metasploit3 < Msf::Auxiliary
 
 	end	
 end
-	

@@ -118,4 +118,3 @@ module BinData
     def_delegators :@hash, :[], :has_key?, :include?, :keys
   end
 end
-

@@ -17,4 +17,4 @@ class Rex::Proto::SMB::Utils::UnitTest < Test::Unit::TestCase
 		assert_equal(Klass.nbname_encode(nbdecoded),  nbencoded )
 		assert_equal(Klass.nbname_decode(nbencoded),  nbdecoded )
 	end
-end	
+end

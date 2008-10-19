@@ -19,4 +19,3 @@ int main(void)
 	printf("Hello, %s !\n", "world");
 	exit(0x28);
 }
-

@@ -88,4 +88,3 @@ module PacketFu
 
 	end
 end
-

@@ -52,4 +52,3 @@ protected
 	attr_writer :name, :opts # :nodoc:
 
 end
-

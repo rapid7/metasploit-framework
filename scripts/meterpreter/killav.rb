@@ -688,4 +688,3 @@ client.sys.process.get_processes().each do |x|
 		client.sys.process.kill(x['pid'])
 	end
 end
-

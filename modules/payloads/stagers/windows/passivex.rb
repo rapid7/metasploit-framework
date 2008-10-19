@@ -102,5 +102,3 @@ module Metasploit3
 	end
 
 end
-
-   

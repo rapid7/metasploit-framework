@@ -72,5 +72,3 @@ class Metasploit3 < Msf::Encoder::Alphanum
 	end
 
 end
-
-  

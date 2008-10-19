@@ -70,5 +70,3 @@ class Metasploit3 < Msf::Nop
 	end
 
 end
-
-  

@@ -36,4 +36,3 @@ module PacketFu
 		pcap_packets		:body
 	end
 end
-

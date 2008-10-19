@@ -288,4 +288,3 @@ protected
 	attr_writer :bruteforce # :nodoc:
 
 end
-

@@ -25,4 +25,3 @@ module Ole # :nodoc:
 		end
 	end
 end
-

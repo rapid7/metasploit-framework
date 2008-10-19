@@ -162,4 +162,3 @@ module PacketFu
 
 	end # class Capture
 end # module PacketFu
-

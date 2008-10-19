@@ -151,4 +151,3 @@ class UdpRawSocket < RawSocket # :nodoc:
   end
   
 end
-

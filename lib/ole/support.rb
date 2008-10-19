@@ -49,4 +49,3 @@ class Logger # :nodoc:
 		log
 	end
 end
-

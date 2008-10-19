@@ -241,4 +241,4 @@ class Tree
 	def each_datum
 		self.walk(self,lambda { |tree| yield tree.data})
 	end
-end	
+end

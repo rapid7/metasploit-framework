@@ -80,4 +80,3 @@ $stderr.puts "[*] Starting msfweb v#{Msf::Framework::Version} on #{$browser_url}
 $stderr.puts ""
 
 load(msfserv)
-	

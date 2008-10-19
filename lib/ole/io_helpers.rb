@@ -183,4 +183,3 @@ class RangesIO
 			"current_range=#{range_str}>"
 	end
 end
-

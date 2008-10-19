@@ -363,4 +363,3 @@ case cmd
 	else
 		$stderr.puts("Unsupported command: #{cmd}")
 end
-

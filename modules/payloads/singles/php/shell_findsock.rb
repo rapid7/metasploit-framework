@@ -85,5 +85,3 @@ END_OF_PHP_CODE
 	end
 
 end
-
-   

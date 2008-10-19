@@ -32,4 +32,3 @@ nop
 EOS
 prog.header.machine='R4000'
 data = prog.encode_file 'mipspe.exe'
-

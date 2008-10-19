@@ -107,5 +107,3 @@ ENV['LANG'] = 'C'
 	
 # Create the driver instance and run it.
 Msf::Ui::Gtk2::Driver.new(opts).run
-
-

@@ -41,4 +41,3 @@ metasm_intern_geteip:
  pop eax
  add eax, metasm_intern_geteip - 1b
  ret
-

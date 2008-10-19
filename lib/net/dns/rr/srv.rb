@@ -52,6 +52,3 @@ module Net
         
   end # module DNS
 end # module Net
-
-
-

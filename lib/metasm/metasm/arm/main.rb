@@ -36,4 +36,3 @@ class ARM < CPU
 	end
 end
 end
-

@@ -138,4 +138,3 @@ class Metasploit3 < Msf::Auxiliary
 		@state.delete(c)
 	end
 end
-

@@ -58,4 +58,3 @@ class Metasploit3 < Msf::Auxiliary
 		disconnect
 	end
 end
-

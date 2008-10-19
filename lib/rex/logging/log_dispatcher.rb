@@ -177,4 +177,3 @@ end
 
 # Creates the global log dispatcher
 $dispatcher = Rex::Logging::LogDispatcher.new
-

@@ -598,4 +598,3 @@ typedef struct {
 #define	SYMINFO_NUM		2
 
  P
-

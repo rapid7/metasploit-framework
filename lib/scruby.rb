@@ -131,4 +131,3 @@ if (__FILE__ == $0)
 	end until line == nil
 	puts
 end
-

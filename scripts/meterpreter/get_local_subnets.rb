@@ -9,4 +9,3 @@ client.net.config.each_route { |route|
     next if route.netmask == '255.255.255.255'
     print_line("Local subnet: #{route.subnet}/#{route.netmask}")
 }
-

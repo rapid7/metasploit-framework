@@ -334,4 +334,3 @@ class Metasploit3 < Msf::Auxiliary
 		return ["\x7a\x00\x00\x00\x00\x00", 5093]
 	end
 end
-
