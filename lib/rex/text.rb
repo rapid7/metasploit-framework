@@ -915,6 +915,31 @@ module Text
 		return arr
 	end
 
+	# Permute the case of a word
+	def self.permute_case(word, idx=0)
+		res = []
+
+		if( (UpperAlpha+LowerAlpha).index(word[idx,1]))
+
+			word_ucase = word.dup
+			word_ucase[idx, 1] = word[idx, 1].upcase
+			
+			word_lcase = word.dup
+			word_lcase[idx, 1] = word[idx, 1].downcase
+	
+			if (idx == word.length)
+				return [word]
+			else
+				res << permute_case(word_ucase, idx+1)
+				res << permute_case(word_lcase, idx+1)
+			end
+		else
+			res << permute_case(word, idx+1)
+		end
+		
+		res.flatten
+	end
+
 	# Generate a random hostname
 	def self.rand_hostname
 		host = []
