@@ -51,7 +51,18 @@ begin
 	
 	def self.md5_hash(data)
 		digest = OpenSSL::Digest::Digest.digest('md5', data)
-	end	
+	end
+	
+	def self.lm2nt(pass, ntlm)
+		res = nil
+		Rex::Text.permute_case( pass.upcase ).each do |word|
+			if(md4_hash(Rex::Text.to_unicode(word)) == ntlm)
+				res = word
+				break
+			end
+		end
+		res
+	end
 
 rescue LoadError
 end

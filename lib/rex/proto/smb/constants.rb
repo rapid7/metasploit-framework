@@ -1017,6 +1017,20 @@ SMB_READ_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 )
 SMB_READ_RES_PKT = self.make_nbs(SMB_READ_RES_HDR_PKT)
 
+
+
+# A SMB template for SMB Search requests
+SMB_SEARCH_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+	[ 'template', 'SMB',                 SMB_HDR ],
+	[ 'uint16v',  'MaxCount',            0 ],
+	[ 'uint16v',  'Attributes',          0 ],
+	[ 'uint16v',  'ByteCount',           0 ],
+	[ 'string',   'Payload', nil,       '' ]
+).create_restraints(
+	[ 'Payload',   'ByteCount',  nil, true ]
+)
+SMB_SEARCH_PKT = self.make_nbs(SMB_SEARCH_HDR_PKT)
+
 # NTLMSSP Message Flags
 NEGOTIATE_UNICODE     = 0x00000001  # Only set if Type 1 contains it - this or oem, not both
 NEGOTIATE_OEM         = 0x00000002  # Only set if Type 1 contains it - this or unicode, not both
