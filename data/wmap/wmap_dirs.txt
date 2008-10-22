@@ -1,0 +1,10 @@
+admin
+backup
+backups
+files
+log
+logs
+temp
+tmp
+upload
+uploads
