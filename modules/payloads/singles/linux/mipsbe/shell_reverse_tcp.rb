@@ -1,5 +1,5 @@
 ##
-# $Id: shell_reverse_tcp.rb 4984 2007-06-09 02:25:31Z hdm $
+# $Id$
 ##
 
 ##
@@ -24,7 +24,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Linux Command Shell, Reverse TCP Inline',
-			'Version'       => '$Revision: 4984 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
 			'Author'        => 'Julien Tinnes',
 			'License'       => MSF_LICENSE,

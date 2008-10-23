@@ -1,5 +1,5 @@
 ##
-# $Id: shell_bind_tcp.rb 4419 2007-02-18 00:10:39Z hdm $
+# $Id$
 ##
 
 ##
@@ -21,7 +21,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Generic x86 Debug Trap',
-			'Version'       => '$Revision: 4419 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Generate a debug trap in the target process',
 			'Author'        => 'robert <robertmetasploit [at] gmail.com>',
 			'Platform'	=> [ 'win', 'linux', 'bsd', 'solaris', 'bsdi', 'osx' ],

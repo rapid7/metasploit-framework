@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP SSL Certificate VHOST Detection',
-			'Version'     => '$Revision: 5771 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Display vhost associated to server using SSL certificate',
 			'Author'      => 'et',
 			'License'     => MSF_LICENSE

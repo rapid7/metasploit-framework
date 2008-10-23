@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info, 
 			'Name'        => 'HTTP Client Automatic Exploiter',
-			'Version'     => '$Revision: $',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module uses a combination of client-side and server-side techniques to
 				fingerprint HTTP clients and then automatically exploit them.

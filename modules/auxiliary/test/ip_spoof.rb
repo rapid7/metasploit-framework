@@ -1,5 +1,5 @@
 ##
-# $Id: scanner_host.rb 5330 2008-01-23 02:28:12Z hdm $
+# $Id$
 ##
 
 ##
@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Simple IP Spoofing Tester',
-			'Version'     => '$Revision: 5330 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Simple IP Spoofing Tester',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

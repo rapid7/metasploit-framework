@@ -1,5 +1,5 @@
 ##
-# $Id: bind_php.rb 5546 2008-07-01 01:44:56Z egypt $
+# $Id$
 ##
 
 ##
@@ -25,7 +25,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'PHP Command Shell, Find Port',
-			'Version'       => '$Revision: 5546 $',
+			'Version'       => '$Revision$',
 			'Description'   => %Q{
 				Spawn a shell on the established connection to
 				the webserver.  Only tested on Apache but it 

@@ -1,5 +1,5 @@
 ##
-# $Id: bind_php.rb 5546 2008-07-01 01:44:56Z egypt $
+# $Id$
 ##
 
 ##
@@ -24,7 +24,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'PHP Execute Command ',
-			'Version'       => '$Revision: 5546 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Execute a single shell command',
 			'Author'        => [ 'egypt <egypt@metasploit.com>' ],
 			'License'       => BSD_LICENSE,

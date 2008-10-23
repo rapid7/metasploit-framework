@@ -1,5 +1,5 @@
 ##
-# $Id: repextfile.rb 1000 2008-25-02 08:21:36Z et $
+# $Id$
 ##
 
 ##
@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author' 		=> [ 'et [at] cyberspace.org' ],
 			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision: 1000 $'))   
+			'Version'		=> '$Revision$'))   
 			
 		register_options(
 			[

@@ -1,5 +1,5 @@
 ##
-# $Id: sweep_udp.rb 5523 2008-06-06 04:29:19Z hdm $
+# $Id$
 ##
 
 ##
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'TCP Port Scanner',
-			'Version'     => '$Revision: 5523 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Enumerate open TCP services',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
