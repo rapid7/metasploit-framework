@@ -41,12 +41,12 @@ module Metasploit3
 
 	register_options(
 	  [
-		OptString.new('AIX_VERSION', [ true, "AIX Version", "5.3" ]),
+		OptString.new('AIXLEVEL', [ true, "AIX Level", "5.3" ]),
 	  ], self.class)
 	end
 
 	def generate
-		case datastore['AIX_VERSION']
+		case datastore['AIXLEVEL']
 		when '4.1'
 			cal_socket = "\x38\x5d\xfe\x58"      #   cal     r2,-424(r29)               #
 			cal_bind   = "\x38\x5d\xfe\x57"      #   cal     r2,-425(r29)               #
