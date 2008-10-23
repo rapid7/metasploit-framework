@@ -26,13 +26,17 @@ module Auxiliary::WMAPModule
 	end
 
 	def wmap_base_report_id(host,port,ssl)
-		if not ssl
-			num_ssl = 0
-		else
-			num_ssl = 1
+		if framework.db.report_active?
+			if not ssl
+				num_ssl = 0
+			else
+				num_ssl = 1
+			end
+		
+			return	framework.db.last_report_id(host,port,num_ssl)
 		end
 		
-		framework.db.last_report_id(host,port,num_ssl)
+		nil	
 	end
 	
 	#
@@ -40,15 +44,13 @@ module Auxiliary::WMAPModule
 	# It return the id to be used to add context to additional data
 	#
 	def wmap_report(parent_id,entity,etype,value,notes)
-		framework.db.create_report(parent_id,entity,etype,value,notes,self.name)
+		if parent_id and framework.db.report_active? 
+			return framework.db.create_report(parent_id,entity,etype,value,notes,self.name)
+		end
+		
+		nil
 	end
 
-	#
-	# Report if report exists
-	#
-	def wmap_report_exists?
-		framework.db.report_exists?
-	end
 	
 	#modified from CGI.rb as we dont use arrays
 	def headersparse(qheaders)

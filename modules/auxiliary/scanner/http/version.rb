@@ -47,14 +47,12 @@ class Metasploit3 < Msf::Auxiliary
 				extra = http_fingerprint(res)
 				print_status("#{ip} is running #{res.headers['Server']}#{extra}")
 
-				if wmap_report_exists?
-					rep_id = wmap_base_report_id(
-							self.target_host,
-							self.target_port,
-							self.ssl
-					)
-					wmap_report(rep_id,'WEB_SERVER','TYPE',"#{res.headers['Server']}#{extra}",nil)
-				end
+				rep_id = wmap_base_report_id(
+						self.target_host,
+						self.target_port,
+						self.ssl
+				)
+				wmap_report(rep_id,'WEB_SERVER','TYPE',"#{res.headers['Server']}#{extra}",nil)
 			end
 			
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

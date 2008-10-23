@@ -411,7 +411,7 @@ class DBManager
 	# Selected id
 	#
 	def selected_id
-		Target.find(:first, :conditions => ["selected > 0"] ).id
+		Target.find(:first, :conditions => ["selected > 0"] ).object_id
 	end
 	
 	#
@@ -595,7 +595,7 @@ class DBManager
 	#
 	# Quick way to identify if the report database is available
 	#
-	def report_exists?
+	def report_active?
 		begin
 			Report.table_exists?
 		rescue
