@@ -36,19 +36,27 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			ssock = Rex::Socket::SslTcp.create(
-                                'PeerHost' => datastore['RHOSTS'],
-                                'PeerPort' => datastore['RPORT'])
-                
-            
-			cert  = OpenSSL::X509::Certificate.new(ssock.peer_cert)	
+				'PeerHost' => ip,
+				'PeerPort' => datastore['RPORT'])
+
+			cert  = OpenSSL::X509::Certificate.new(ssock.peer_cert)
+
+			ssock.close	
 			
 			if cert
 				print_status("Subject: #{cert.subject.to_s}")
 				sub = cert.subject.to_a
+				
+				sub.each do |n|
+					if n[0] == 'CN'
+						vhostn = n[1]
+					end
+				end
+
 				vhostn = sub[sub.length-1][1]
 			
 				if vhostn
-					print_status("#{datastore['RHOSTS']} is host #{vhostn}")
+					print_status("#{ip} is host #{vhostn}")
 				end
 			else
 				print_status("No certificate subject or CN found")
