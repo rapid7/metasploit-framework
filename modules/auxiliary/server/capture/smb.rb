@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
 		smb[:process_id] = pkt['Payload']['SMB'].v['ProcessID']
 
 		# The hardcoded challenge value
-		challenge = "\x00\x01\x02\x03\x04\x05\x06\x07"
+		challenge = "\x11\x22\x33\x44\x55\x66\x77\x88"
 
 		group    = ''
 		machine  = smb[:nbsrc]
