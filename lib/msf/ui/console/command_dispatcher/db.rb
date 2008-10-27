@@ -72,7 +72,7 @@ module Db
 			print_status("Adding #{args.length.to_s} hosts...")
 			args.each do |address|
 				host = framework.db.get_host(nil, address)
-				print_status("Time: #{host.created} Host: host=#{service.host.address}")
+				print_status("Time: #{host.created} Host: host=#{host.address}")
 			end
 		end
 
