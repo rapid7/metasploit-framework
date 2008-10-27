@@ -26,15 +26,14 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'TCP Port Scanner',
 			'Version'     => '$Revision$',
 			'Description' => 'Enumerate open TCP services',
-			'Author'      => 'hdm',
+			'Author'      => [ 'hdm', 'Kris Katterjohn <katterjohn[at]gmail.com>' ],
 			'License'     => MSF_LICENSE
 		)
 
 		register_options(
 		[
-			OptPort.new('PORTSTART', [true, 'The starting port number', 1]),
-			OptPort.new('PORTSTOP', [true, 'The stopping port number', 10000]),
-			OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
+			OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-10000"]),
+			OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000])
 		], self.class)
 		
 		deregister_options('RPORT')
@@ -44,17 +43,30 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def run_host(ip)
 	
-		port_start = datastore['PORTSTART'].to_i
-		port_stop  = datastore['PORTSTOP'].to_i
-		timeout    = datastore['TIMEOUT'].to_i
-		
-		if(port_stop < port_start)
-			tmp = port_start
-			port_start = port_stop
-			port_stop  = tmp
+		timeout = datastore['TIMEOUT'].to_i
+		ports = []
+
+		# Build ports array from port specification
+		datastore['PORTS'].split(/,/).each do |item|
+			start, stop = item.split(/-/).map { |p| p.to_i }
+
+			start ||= 0
+			stop ||= item.match(/-/) ? 65535 : start
+
+			start, stop = stop, start if stop < start
+
+			start.upto(stop) { |p| ports << p }
 		end
-	
-		port_start.upto(port_stop) do |port|
+
+		# Sort, and remove dups and invalid ports
+		ports = ports.sort.uniq.delete_if { |p| p < 0 or p > 65535 }
+
+		if ports.empty?
+			print_status("Error: No valid ports specified")
+			return
+		end
+
+		ports.each do |port|
 
 			begin
 				s = connect(false,
