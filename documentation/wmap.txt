@@ -71,6 +71,91 @@ WMAPScanGeneric     - Modules to be run after all tests complete. Good place to
                       perform passive analysis of responses, analysis of test
                       results to launch other modules (i.e. exploits). 
 
+=[ Reporting.
+
+Each module is capable of storing reporting information. 
+Reporting key concepts:
+	
+	+ Reporting is used to gather and store data
+	+ Bye bye to useless risk levels 
+	+ Data is not only findings (i.e vulnerabilities) but also any relevant 
+	  data (i.e. Database name from a SQL injection)
+	+ Data is available to other modules so reporting becomes a method to 
+	  share information
+	+ Data has context and that context is preserved. 
+ 	+ Context is preserved by having a tree structure in the Report database 
+	  table
+	+ Every report entry has a parent_id the top parent_id is 0 and only used 
+	  to create a report entry (this allows for the storage of multiple reports)
+	+ The report table is basically a type,name,value database.
+	+ This schema allows the storage of data/vulnerabilities with any classification/naming 
+	  convention. (very useful to store vulnerabilities discovered in year 2060).
+
+	So how it works:
+
+	When q module is executed (using WMAP 'wmap_run -e' or standalone):
+
+	WMAP creates a new report entry, then in each module when something is found or 
+	something needs to be reported the module should implement the following lines:			
+
+	Example:
+
+	if (vulnerability is found)
+		print_status("FOUND BLAH BLAH BLAH")
+
+             	#OBTAIN THE LATEST REPORT ID FOR HOST,PORT,SSL (target)
+		rep_id = wmap_base_report_id(
+                      	self.target_host,
+                  	self.target_port,
+                    	self.ssl
+                )
+		
+		# REPORT ABOUT THE FINDING
+             	vuln_id = wmap_report(rep_id,'VULNERABILITY','SQL_INJECTION',url_path,"A SQL injection 
+				vulnerability was found in the following URL in the parameter 'test'")
+                		
+		# LETS SAY WE NEED TO STORE ALSO THE PARAMETER VULNERABLE TO THE INJECTION AND THE TYPE 
+		# OF INJECTION. 
+
+		NOTE: wmap_report() returns the id of this entry
+
+		wmap_report(vuln_id,'SQL_INJECTION','PARAMETER',parameter,"Notes balh blah")
+		wmap_report(vuln_id,'SQL_INJECTION','TYPE','String',"Notes 2 balh blah")	 
+      	end
+
+	
+ 	If you are connected to a database (db_connect) then reporting is active and every module executed will 
+	store its results for reporting. Even if you define a RHOSTS range then the results auto-magically will 
+	be organized per host,port as wmap_base_report_id() returns the last available report for the specified 
+	host,port,ssl target.  
+
+	Anything can be represented and reported and other modules will have access to this information to do 
+	whatever they want.
+
+	To view available reports use the 'wmap_reports' command:
+
+	msf > load db_sqlite3
+	[*] Successfully loaded plugin: db_sqlite3
+	msf > load db_wmap
+	[*] =[ WMAP v0.2 - ET LoWNOISE
+	[*] Successfully loaded plugin: db_wmap
+	msf > db_connect
+	[*] Successfully connected to the database
+	[*] File: /Users/et/.msf3/sqlite3.db
+	...
+	msf > wmap_reports -p
+	[*] 	Id. Created				Target (host,port,ssl)
+		1.  Wed Oct 22 23:22:16 -0500 2008	XX.XXX.XXX.XXX,80,0
+	[*] Done.
+	msf > wmap_reports -s 1
+	WMAP REPORT: XX.XXX.XXX.XXX,80,0 Metasploit WMAP Report 	[Wed Oct 22 23:22:16 -0500 2008]
+	WEB_SERVER TYPE: Apache  					[Wed Oct 22 23:22:16 -0500 2008]
+	VULNERABILITY SQL_INJECTION: /test.asp 	SQL injection found.    [Wed Oct 22 23:22:31 -0500 2008]
+	SQL_INJECTION PARAMETER: id					[Wed Oct 22 23:22:31 -0500 2008]
+	SQL_INJECTION TYPE: String					[Wed Oct 22 23:22:31 -0500 2008]
+	[*] Done.
+
+
 =[ Simple example.
 
 The following are the basic steps for testing a web server/app using WMAP: 
@@ -225,11 +310,11 @@ welcomes feedback, comments, ideas, patches, module, etc. This TODO list is
 more of a placeholder of the things you may see in the near future.
 
 - Add more commands
+- Add more types of reports (PDF, XML, etc.)
 - Develop more modules
 - Create more module types to perform tasks like response analysis
 - Support other databases (only sqlite3 supported at this time)
 - Develop plugins for more proxies
-- Add reporting capabilities
 - Develop WMAP Proxy
 - Develop WMAP Spider
 - Include you idea here.
