@@ -66,6 +66,14 @@ class Metasploit3 < Msf::Auxiliary
 				return if not res
 				if (res and res.code >= 200 and res.code < 300)
 					print_status("Upload succeeded on http://#{target_host}:#{target_port}#{datastore['PATH']} [#{res.code}]")
+					
+					rep_id = wmap_base_report_id(
+										self.target_host,
+										self.target_port,
+										self.ssl
+								)
+								
+					wmap_report(rep_id,'VULNERABILITY','PUT_ENABLED',"#{datastore['PATH']}","Upload succeeded on #{datastore['PATH']}")
 				else
 					print_status("Upload failed on http://#{target_host}:#{target_port} [#{res.code} #{res.message}]")
 				end
@@ -84,6 +92,14 @@ class Metasploit3 < Msf::Auxiliary
 				return if not res
 				if (res and res.code >= 200 and res.code < 300)
 					print_status("Delete succeeded on http://#{target_host}:#{target_port}#{datastore['PATH']} [#{res.code}]")
+					
+					rep_id = wmap_base_report_id(
+										self.target_host,
+										self.target_port,
+										self.ssl
+								)
+								
+					wmap_report(rep_id,'VULNERABILITY','DELETE_ENABLED',"#{datastore['PATH']}","Delete succeeded on #{datastore['PATH']}")
 				else
 					print_status("Delete failed on http://#{target_host}:#{target_port} [#{res.code} #{res.message}]")
 				end

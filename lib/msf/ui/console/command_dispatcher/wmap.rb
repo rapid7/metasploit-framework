@@ -39,6 +39,7 @@ module Wmap
 			{
 				"wmap_website"  => "List website structure",
 				"wmap_targets"  => "List all targets in the database",
+				"wmap_reports" => "List all reported results",
 				"wmap_run"  => "Automatically test/exploit everything",
 			}
 		end
@@ -60,8 +61,8 @@ module Wmap
 			while (arg = args.shift)
 				case arg
 				when '-p'
-				
 					print_status("   Id. Host\t\t\t\t\tPort\tSSL")
+					
 					framework.db.each_target do |tgt|
 						if tgt.ssl == 1
 							usessl = "[*]"
@@ -110,6 +111,37 @@ module Wmap
 					return
 				end
 			end
+		end
+		
+		def cmd_wmap_reports(*args)
+		
+			entity = nil
+		
+			args.push("-h") if args.length == 0
+			
+			while (arg = args.shift)
+				case arg
+				when '-p'
+					print_status("Id. Created\t\t\t\tTarget (host,port,ssl)")
+					
+					framework.db.each_report do |rep|
+						print_line("#{rep.id}.  #{rep.created}\t#{rep.value}")
+					end
+					print_status("Done.")						
+				when '-s'
+					get_report_id(args.shift)
+					print_status("Done.")				
+				when '-h'
+					print_status("Usage: wmap_reports [options]")
+					print_line("\t-h 		Display this help text")
+					print_line("\t-p 		Print all available reports")
+					print_line("\t-s [id]	Select report for display")
+					
+					print_line("")
+					return
+				end
+			end
+
 		end
 		
 		#
@@ -855,6 +887,24 @@ module Wmap
 			end		
 			tree.children.each_pair do |name,child|
 					print_tree(child)
+			end
+		end
+		
+		#
+		# This scary method iterates the reports table to display the report 
+		#
+		def get_report_id(id) 
+			begin
+				par = framework.db.report_parent(id)
+			rescue ::Exception
+				print_error("Report error #{$!.to_s}")
+				return
+			end
+			
+			print_line("\t#{par.entity} #{par.etype}: #{par.value} #{par.notes} [#{par.created}]")
+			
+			framework.db.report_children(id).each do |chl|
+				get_report_id(chl.id) 
 			end
 		end
 		

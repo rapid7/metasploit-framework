@@ -81,6 +81,14 @@ class Metasploit3 < Msf::Auxiliary
 				if res
 					if res.code.to_i != datastore['ERROR_CODE'].to_i
 						print_status("Found http://#{target_host}:#{target_port}#{teststr} #{res.code.to_i}")
+									
+						rep_id = wmap_base_report_id(
+										self.target_host,
+										self.target_port,
+										self.ssl
+								)
+						wmap_report(rep_id,'DIRECTORY','NAME',"#{teststr}","Directory #{teststr} found.")
+									
 					else
 						print_status("NOT Found http://#{target_host}:#{target_port}#{teststr}  #{res.code.to_i}") 
 						#blah

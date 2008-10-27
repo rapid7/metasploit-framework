@@ -593,6 +593,7 @@ class DBManager
 	end
 	
 	#
+	# WMAP
 	# Quick way to identify if the report database is available
 	#
 	def report_active?
@@ -601,8 +602,36 @@ class DBManager
 		rescue
 			false
 		end
-	end	
-
+	end
+	
+	#
+	# WMAP
+	# This method iterates the reports table to list available reports
+	#
+	def each_report(&block)
+		Report.find(:all, :order => 'id desc', :conditions => [ "entity =? and etype=?",'WMAP','REPORT']).each do |report|
+			block.call(report)
+		end
+	end
+	
+	#
+	# WMAP
+	# This scary method iterates the reports table parent
+	#
+	def report_parent(id) 
+		Report.find(id)			
+	end
+	
+	#
+	# WMAP
+	# This scary method iterates the reports table children
+	#
+	def report_children(parent_id) 
+		Report.find(:all, :conditions => ["parent_id=?",parent_id])			
+	end
+	
+	
+		
 end
 
 end

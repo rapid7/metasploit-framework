@@ -140,6 +140,16 @@ class Metasploit3 < Msf::Auxiliary
 
   								if reltruesize > relfalsesize
  									print_status("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+									
+									rep_id = wmap_base_report_id(
+												self.target_host,
+												self.target_port,
+												self.ssl
+											)
+									vul_id = wmap_report(rep_id,'VULNERABILITY','BLIND_SQL_INJECTION',"#{datastore['PATH']}","Possible blind SQL Injection Found  #{datastore['PATH']}")
+									wmap_report(vul_id,'BLIND_SQL_INJECTION','PARAMETER',"#{key}","Vulnerable parameter is #{key}")
+									wmap_report(vul_id,'BLIND_SQL_INJECTION','TYPE',"#{tarr[0]}","Type of injection is #{tarr[0]}")
+
   								else 
  									print_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}") 
 								end

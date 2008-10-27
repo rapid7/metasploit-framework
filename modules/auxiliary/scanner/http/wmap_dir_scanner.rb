@@ -85,6 +85,13 @@ class Metasploit3 < Msf::Auxiliary
 
 					if (res and res.code.to_i != ecode.to_i) 
 						print_status("Found http://#{target_host}:#{datastore['RPORT']}#{tpath}#{testfdir}  #{res.code}")
+						rep_id = wmap_base_report_id(
+										self.target_host,
+										self.target_port,
+										self.ssl
+								)
+						vul_id = wmap_report(rep_id,'DIRECTORY','NAME',"#{tpath}#{testfdir}","Directory #{tpath}#{testfdir} found.")
+						wmap_report(vul_id,'DIRECTORY','RESP_CODE',"#{res.code}",nil)
 					else
 						print_status("NOT Found http://#{target_host}:#{datastore['RPORT']}#{tpath}#{testfdir}  #{res.code}") 
 					end

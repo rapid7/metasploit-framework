@@ -57,6 +57,14 @@ class Metasploit3 < Msf::Auxiliary
 			
 				if vhostn
 					print_status("#{ip} is host #{vhostn}")
+					rep_id = wmap_base_report_id(
+										self.target_host,
+										self.target_port,
+										self.ssl
+								)
+								
+					wmap_report(rep_id,'VHOST','NAME',"#{vhostn}","Vhost #{vhostn} found.")
+					wmap_report(rep_id,'X509','SUBJECT',"#{cert.subject.to_s}",nil)
 				end
 			else
 				print_status("No certificate subject or CN found")

@@ -71,9 +71,18 @@ class Metasploit3 < Msf::Auxiliary
 				target_port = datastore['RPORT']
 
 				if (res and res.code >= 200 and res.code < 300) 
-				   print_status("Found http://#{target_host}:#{target_port}#{tpath}")
+					print_status("Found http://#{target_host}:#{target_port}#{tpath}")
+				   
+					rep_id = wmap_base_report_id(
+										self.target_host,
+										self.target_port,
+										self.ssl
+								)
+								
+					vul_id = wmap_report(rep_id,'FILE','NAME',"#{tpath}","File #{tpath} found.")
+					wmap_report(vul_id,'FILE','RESP_CODE',"#{res.code}",nil)
 				else
-				   print_status("NOT Found http://#{target_host}:#{target_port}#{tpath}") 
+					print_status("NOT Found http://#{target_host}:#{target_port}#{tpath}") 
 					#blah
 				end
 

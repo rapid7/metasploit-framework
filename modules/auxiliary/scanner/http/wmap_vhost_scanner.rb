@@ -101,6 +101,14 @@ require 'cgi'
 
 						if res.body !=  noexistsres.body 
 							print_status("Vhost found  #{thost} ")
+							
+							rep_id = wmap_base_report_id(
+										self.target_host,
+										self.target_port,
+										self.ssl
+								)
+								
+							wmap_report(rep_id,'VHOST','NAME',"#{thost}","Vhost #{thost} found.")
 						else 
 							print_status("NOT Found #{thost}") 
 						end
