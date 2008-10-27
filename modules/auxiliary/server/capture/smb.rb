@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module provides a SMB service that can be used to
 			capture the challenge-response password hashes of SMB client
 			systems. All responses sent by this service have the same
-			hardcoded challenge string (\x00\x01\x02\x03\x04\x05\x06\x07),
+			hardcoded challenge string (\x11\x22\x33\x44\x55\x66\x77\x88),
 			allowing for easy cracking using Cain & Abel or L0phtcrack. 
 			
 			To exploit this, the target system must try to authenticate
@@ -179,11 +179,11 @@ class Metasploit3 < Msf::Auxiliary
 			smb[:domain] = nil
 		end
 
-		if (lm_hash == "0a392b11cf052b026d65cff568bde415a61bfa0671ea5fc8" or lm_hash == "" or lm_hash == "00")
+		if (lm_hash == "52d536dbcefa63b9101f9c7a9d0743882f85252cc731bb25" or lm_hash == "" or lm_hash == "00")
 			lm_hash = nil
 		end
 
-		if (nt_hash == "4afd81ec0187e88d97778df793c6dad4f03a3663669d201c" or nt_hash == "")
+		if (nt_hash == "eefabc742621a883aec4b24e0f7fbf05e17dc2880abe07cc" or nt_hash == "")
 			nt_hash = nil
 		end
 				
