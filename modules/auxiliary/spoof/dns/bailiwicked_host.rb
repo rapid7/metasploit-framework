@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'CVE', '2008-1447' ],
-					[ 'US-CERT-VU', '8000113' ],
+					[ 'US-CERT-VU', '800113' ],
 					[ 'URL', 'http://www.caughq.org/exploits/CAU-EX-2008-0002.txt' ],
 				],
 			'DisclosureDate' => 'Jul 21 2008'
