@@ -86,6 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 				break
 			rescue ::SocketError
 			rescue ::Rex::ConnectionRefused, ::Rex::ConnectionTimeout
+			rescue ::Errno::EACCES
 			rescue ::Exception => e
 				print_status("Unknown error: #{e.class} #{e.to_s}")
 			end
