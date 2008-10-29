@@ -51,7 +51,7 @@ module Db
 
 		def cmd_db_services(*args)
 			framework.db.each_service do |service|
-				print_status("Time: #{service.created}] Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state} name=#{service.name}")			
+				print_status("Time: #{service.created} Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state} name=#{service.name}")			
 			end
 		end		
 		
