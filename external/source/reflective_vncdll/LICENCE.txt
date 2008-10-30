@@ -1,3 +1,5 @@
+The Reflective DLL Injection source code is provided under the BSD license:
+
 Copyright (c) 2008, Harmony Security
 All rights reserved.
 
@@ -25,3 +27,6 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+The RealVNC software (and patches) are licensed under the GPL
