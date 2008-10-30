@@ -1,0 +1,17 @@
+
+SRCS = d3des.c vncauth.c
+
+OBJS = d3des.o vncauth.o
+
+DIR_CPPFLAGS = -I$(top_srcdir)
+
+library = librfb.a
+
+all:: $(library)
+
+$(library): $(OBJS)
+	rm -f $(library)
+	$(AR) $(library) $(OBJS)
+	$(RANLIB) $(library)
+
+# followed by boilerplate.mk

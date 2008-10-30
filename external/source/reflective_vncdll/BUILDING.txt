@@ -1,0 +1,2 @@
+Use the solutions file 'winvnc\VNC DLL Injection.sln' to build vncdll.dll
+This build has only been tested with Visual Studio 2003.
