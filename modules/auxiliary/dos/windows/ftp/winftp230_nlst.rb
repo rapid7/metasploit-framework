@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		connect_login
+		return unless connect_login
 
 		raw_send_recv("PASV\r\n") # NLST has to follow a PORT or PASV
 

@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		connect_login
+		return unless connect_login
 		print_status("Sending command...")
 		raw_send("SITE WHO\r\n")
 		sleep 1

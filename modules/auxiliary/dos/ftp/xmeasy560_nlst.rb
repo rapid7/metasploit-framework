@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		connect_login
+		return unless connect_login
 
 		raw_send("NLST -1\r\n")
 
