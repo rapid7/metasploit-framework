@@ -325,6 +325,10 @@ module Db
 				host = framework.db.get_host(nil, addr)
 				next if not host
 				
+				if host.state != Msf::HostState::Alive
+					framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+				end
+					
 				service = framework.db.get_service(nil, host, m[3].downcase, m[2].to_i)
 				service.name = m[1]
 				service.save
@@ -453,6 +457,10 @@ module Db
 					
 					host = framework.db.get_host(nil, addr)
 					next if not host
+
+					if host.state != Msf::HostState::Alive
+						framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+					end
 					
 					service = framework.db.get_service(nil, host, prot.downcase, pnum.to_i)
 					service.name = name
