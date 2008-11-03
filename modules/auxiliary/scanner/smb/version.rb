@@ -47,18 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-	def dword_align(offset)
-		(offset / 4.0).to_i * 4
-	end
-	
-	def read_unicode(buff,offset)
-		return nil if offset > (buff.length-1)
-		
-		p buff[offset,32]
-		
-		eoff = buff[offset,buff.length].index("\x00\x00")
-		buff[offset, eoff]
-	end
+
 
 	def smb_enumprinters(flags, name, level, blen)
 		stub =
@@ -69,17 +58,19 @@ class Metasploit3 < Msf::Auxiliary
 			NDR.long(blen) +
 			"\x00" * blen +
 			NDR.long(blen)
+			
 		handle = dcerpc_handle(
 			'12345678-1234-abcd-ef00-0123456789ab', '1.0', 
 			'ncacn_np', ["\\SPOOLSS"]
 		)
 
-		dcerpc_bind(handle)
-
 		begin
+			dcerpc_bind(handle)
 			dcerpc.call(0x00, stub)
 			return dcerpc.last_response.stub_data
-		rescue => e
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
 			return nil
 		end				
 	end
@@ -217,29 +208,60 @@ class Metasploit3 < Msf::Auxiliary
 
 				#
 				# Service Pack 2 added a range(0,64000) to opnum 0x22 in SRVSVC
+				# Credit to spoonm for first use of unbounded [out] buffers
 				#
+				handle = dcerpc_handle(
+					'4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0', 
+					'ncacn_np', ["\\BROWSER"]
+				)
+
 				begin
+					dcerpc_bind(handle)
+
+					stub = 
+						NDR.uwstring(Rex::Text.rand_text_alpha(rand(10)+1)) +
+						NDR.wstring(Rex::Text.rand_text_alpha(rand(10)+1))  +
+						NDR.long(64001) +
+						NDR.long(0) +
+						NDR.long(0)
+
+					dcerpc.call(0x22, stub)
+					sp = "Service Pack 0 / 1"
+
+				rescue ::Interrupt
+					raise $!
+				rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
+				rescue ::Rex::Proto::SMB::Exceptions::ReadPacket
+				rescue ::Rex::Proto::DCERPC::Exceptions::Fault
+					sp = "Service Pack 2+"
+				rescue ::Exception
+				end
 				
-					handle = dcerpc_handle(
-						'4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0', 
-						'ncacn_np', ["\\BROWSER"]
-					)
-	
+
+				#
+				# Service Pack 3 fixed information leaks via [unique][out] pointers
+				# Call SRVSVC::NetRemoteTOD() to return [out] [ref] [unique]
+				# Credit:
+				#   Pointer leak is well known, but Immunity also covered in a paper
+				#   Silent fix of pointer leak in SP3 and detection method by Rhys Kidd
+				#
+				handle = dcerpc_handle(
+					'4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0', 
+					'ncacn_np', ["\\BROWSER"]
+				)
+
+				begin
 					dcerpc_bind(handle)
 					
-					begin
-						stub = 
-							NDR.uwstring(Rex::Text.rand_text_alpha(rand(10)+1)) +
-							NDR.wstring(Rex::Text.rand_text_alpha(rand(10)+1))  +
-							NDR.long(64001) +
-							NDR.long(0) +
-							NDR.long(0)
-						
-						dcerpc.call(0x22, stub)
-						sp = "Service Pack 0 / 1"
-					rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
-					rescue ::Rex::Proto::DCERPC::Exceptions::Fault => e
-						sp = "Service Pack 2+"
+					stub = NDR.uwstring(Rex::Text.rand_text_alpha(rand(8)+1))
+					resp = dcerpc.call(0x1c, stub)
+
+					if(resp and resp[0,4] == "\x00\x00\x02\x00")
+						sp = "Service Pack 3"
+					else
+						if(resp and sp =~ /Service Pack 2\+/)
+							sp = "Service Pack 2"
+						end
 					end
 
 				rescue ::Interrupt
@@ -248,54 +270,6 @@ class Metasploit3 < Msf::Auxiliary
 				rescue ::Rex::Proto::SMB::Exceptions::ReadPacket
 				rescue ::Exception
 				end
-
-
-				#
-				# Service Pack 3 added opnum 0x4F in LSARPC
-				# This PIPE is only available when file sharing is on
-				#
-				begin
-					handle = dcerpc_handle(
-						'12345778-1234-abcd-ef00-0123456789ab', '0.0', 
-						'ncacn_np', ["\\LSARPC"]
-					)
-								
-					dcerpc_bind(handle)
-					
-					if(sp == "Service Pack 2+")
-						sp = "Service Pack 2"
-					end
-													
-					begin
-						stub = 
-							NDR.long(0) + 
-							NDR.long(0)
-							
-						dcerpc.call(0x4f, stub)
-						sp = "Service Pack 3"
-					rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-						if(e.error_code == 0xc0000022)
-							sp = "Service Pack 3"
-						end						
-					rescue ::Rex::Proto::DCERPC::Exceptions::Fault
-						# SP2 or below
-					end
-		
-				rescue ::Interrupt
-					raise $!
-				rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
-				rescue ::Rex::Proto::SMB::Exceptions::LoginError
-				rescue ::Exception => e
-					print_status("Error SP2/SP3 check: #{e.class} #{e}")
-				end
-				
-
-				#
-				# DHCP Client Service and Wireless both had SP3 changes, but
-				# calling any opnums results in the disconnected pipe SMB error.
-				# Still looking for a better XP SP2 vs XP SP3 method over SMB
-				#			
-				
 			end
 
 
@@ -353,6 +327,10 @@ class Metasploit3 < Msf::Auxiliary
 				'Dutch' =>
 					[
 						Rex::Text.to_unicode('Externe printers voor NT')
+					],
+				'Danish' =>
+					[
+						Rex::Text.to_unicode('Fjernprintere')
 					],
 				'Swedish' =>
 					[
