@@ -598,6 +598,24 @@ module Text
 		return pe
 	end
 
+	def self.to_win32pe_service(code = "\xcc", name="SERVICENAME")
+		pe = ''
+
+		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "data", "templates", "service.exe"), "rb")
+		pe = fd.read(fd.stat.size)
+		fd.close
+
+		bo = pe.index('PAYLOAD:')
+		pe[bo, 8192] = [code].pack('a8192') if bo
+
+		bo = pe.index('SERVICENAME')
+		pe[bo, 11] = [name].pack('a11') if bo
+		
+		pe[136, 4] = [rand(0x100000000)].pack('V')
+
+		return pe
+	end
+	
 	def self.to_osx_arm_macho(code = "", note="")
 		mo = ''
 
