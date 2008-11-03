@@ -165,6 +165,7 @@ def scanner_lists_clear
 	self.scanner_simples = {}
 	self.scanner_dcerpcs = {}
 	self.scanner_banners = {}
+	self.scanner_smb_directs = {}
 	
 	self.scanner_socks ||= {}
 	self.scanner_socks.each_pair do |t,s|
@@ -196,6 +197,7 @@ end
 #
 attr_accessor :scanner_hosts, :scanner_ports, :scanner_socks, :scanner_udp_socks
 attr_accessor :scanner_simples, :scanner_dcerpcs, :scanner_banners
+attr_accessor :scanner_smb_directs
 
 #
 # Overloads the Exploit mixins for rhost
@@ -289,6 +291,22 @@ end
 def simple=(simple)
 	self.scanner_simples ||= {}
 	self.scanner_simples[Thread.current.to_s] = simple
+end
+
+#
+# Provides a per-thread self.smb_directory value
+#
+def smb_direct
+	self.scanner_smb_directs ||= {}
+	self.scanner_smb_directs[Thread.current.to_s]
+end
+
+#
+# Sets a per-thread self.simple value
+#
+def smb_direct=(direct)
+	self.scanner_smb_directs ||= {}
+	self.scanner_smb_directs[Thread.current.to_s] = direct
 end
 
 #
