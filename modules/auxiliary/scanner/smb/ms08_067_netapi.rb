@@ -43,6 +43,12 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)		
 	end
 
+	#
+	# This method is based on the python script:  http://labs.portcullis.co.uk/download/ms08-067_check.py
+	# There are two problems with this method:
+	#   1. It can sometimes lead to a crash of svchost.exe due to a race condition
+	#	2. The Python script may be based on a Nessus plugin, which violates the Tenable license
+	# 
 
 	# Overload the RPORT setting
 	def rport
