@@ -4,7 +4,7 @@
 #
 
 # Get the target process name
-target = args[0] || "lsass.exe"
+target = "lsass.exe"
 
 print_status("Migrating to #{target}...")
 
