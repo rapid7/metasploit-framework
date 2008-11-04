@@ -56,10 +56,6 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Sending #{cnt} frames...")
 		0.upto(cnt) { |i| wifi.write(frame)	}
 	end
-	
-	def eton(addr)
-		addr.split(':').map { |c| c.hex.chr }.join
-	end
 
 	def create_frame
 		bssid    = Rex::Text.rand_text(6)
