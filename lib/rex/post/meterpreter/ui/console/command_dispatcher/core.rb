@@ -301,7 +301,7 @@ class Console::CommandDispatcher::Core
 	def cmd_run(*args)
 		if args.length == 0
 			print_line(
-				"Usage: run script [args]\n\n" +
+				"Usage: run <script>\n\n" +
 				"Executes a ruby script in the context of the meterpreter session.")
 			return true
 		end

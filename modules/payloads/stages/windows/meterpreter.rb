@@ -83,6 +83,7 @@ module Metasploit3
 			end
 		end
 		if (datastore['AutoRunScript'].empty? == false)
+			client = session
 			session.execute_script(datastore['AutoRunScript'], binding)
 		end
 	end
