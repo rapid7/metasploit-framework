@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Wireless Test Module',
 			'Description'    => %q{
 				This module is a test of the wireless packet injection system.
-			Please see external/msflorcon/README for more information.
+			Please see external/ruby-lorcon/README for more information.
 			},
 			
 			'Author'         => [ 'hdm' ],
