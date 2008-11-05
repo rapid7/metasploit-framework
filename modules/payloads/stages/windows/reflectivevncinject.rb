@@ -29,7 +29,7 @@ module Metasploit3
 					[ 
 						true, 
 						"The local path to the VNC DLL to upload", 
-						File.join(Msf::Config.install_root, "data", "reflective_vncdll.dll")
+						File.join(Msf::Config.install_root, "data", "vncdll.dll")
 					]),
 				OptPort.new('VNCPORT',
 					[
