@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Wireless Fake Access Point Beacon Flood',
 			'Description'    => %q{
 				This module advertises thousands of fake access
-			points, using random SIDs and BSSID addresses. Inspired
+			points, using random SSIDs and BSSID addresses. Inspired
 			by Black Alchemy's fakeap tool.
 			},
 			
