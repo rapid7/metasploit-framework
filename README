@@ -35,11 +35,11 @@ The copyright on this package is held by Metasploit LLC.
 This copyright does not apply to the following components:
  - The vncdll.dll binary or its associated source code (modified RealVNC)
  - The icons used by msfweb that were not created by the Metasploit Project
- - The Ole::Storage library located under lib/ole/
+ - The Ole::Storage library located under lib/ole
  - The Scruby library located under lib/scruby
  - The PcapRub library located under external/pcaprub
- - The Ruby-Lorcon library located under external/lorcon
- - The Byakugan plugin located under external/byakugan
+ - The Ruby-Lorcon library located under external/ruby-lorcon
+ - The Byakugan plugin located under external/source/byakugan
 
 The latest version of this software is available from http://metasploit.com/
 
