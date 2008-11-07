@@ -94,9 +94,17 @@ protected
 		begin
 			mod.setup
 			mod.run
-		rescue ::Exception
-			mod.print_error("Auxiliary failed: #{$!}")
-			elog("Auxiliary failed: #{$!}", 'core', LEV_0)
+		rescue ::Exception => e
+			mod.print_error("Auxiliary failed: #{e.class} #{e}")
+			if(e.class.to_s != 'Msf::OptionValidateError')
+				mod.print_error("Call stack:")
+				e.backtrace.each do |line|
+					break if line =~ /lib.msf.base.simple.auxiliary.rb/
+					mod.print_error("  #{line}")
+				end
+			end
+						
+			elog("Auxiliary failed: #{e.class} #{e}", 'core', LEV_0)
 			dlog("Call stack:\n#{$@.join("\n")}", 'core', LEV_3)
 
 			mod.cleanup
