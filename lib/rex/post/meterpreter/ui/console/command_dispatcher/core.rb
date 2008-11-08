@@ -301,7 +301,7 @@ class Console::CommandDispatcher::Core
 	def cmd_run(*args)
 		if args.length == 0
 			print_line(
-				"Usage: run <script>\n\n" +
+				"Usage: run <script> [arguments]\n\n" +
 				"Executes a ruby script in the context of the meterpreter session.")
 			return true
 		end
@@ -312,6 +312,7 @@ class Console::CommandDispatcher::Core
 			input  = shell.input
 			output = shell.output
 
+			# the rest of the arguments get passed in through the binding
 			client.execute_script(args.shift, binding)
 		rescue
 			print_error("Error in script: #{$!}")

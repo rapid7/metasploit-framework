@@ -4,7 +4,11 @@
 #
 
 # Get the target process name
-target = "lsass.exe"
+if (args)
+	target = args[0]
+else
+	target = "lsass.exe"
+end
 
 print_status("Migrating to #{target}...")
 
