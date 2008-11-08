@@ -38,7 +38,8 @@ module BindTcp
 
 		register_options(
 			[
-				Opt::LPORT(4444)
+				Opt::LPORT(4444),
+				OptAddress.new('RHOST', [false, 'The target address', '']),
 			], Msf::Handler::BindTcp)
 
 		self.conn_threads = []
