@@ -136,14 +136,17 @@ nop     = nil
 
 if (exploit.datastore['PAYLOAD'])
 	payload = $framework.payloads.create(exploit.datastore['PAYLOAD'])
+	payload.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
 end
 
 if (exploit.datastore['ENCODER'])
 	encoder = $framework.encoders.create(exploit.datastore['ENCODER'])
+	encoder.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
 end
 
 if (exploit.datastore['NOP'])
 	nop = $framework.nops.create(exploit.datastore['NOP'])
+	nop.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
 end
 
 case mode.downcase

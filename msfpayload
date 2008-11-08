@@ -143,5 +143,6 @@ if (cmd =~ /^(p|y|r|c|j|x|b)/)
 	$stdout.puts(buf)
 	
 elsif (cmd =~ /^(s|o)/)
+	payload.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
 	puts Msf::Serializer::ReadableText.dump_module(payload)
 end
