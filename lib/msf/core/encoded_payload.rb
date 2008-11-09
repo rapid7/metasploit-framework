@@ -103,22 +103,12 @@ class EncodedPayload
 		if reqs['BadChars'] or reqs['Encoder'] or reqs['ForceEncode']
 			encoders = pinst.compatible_encoders
 
-			# If the caller had a preferred encoder, try to find it and prefix it
-			if ((reqs['Encoder']) and
-			    (preferred = framework.encoders[reqs['Encoder']]))
-				encoders.unshift([reqs['Encoder'], preferred ])
+			# If the caller had a preferred encoder, use this encoder only
+			if ((reqs['Encoder']) and (preferred = framework.encoders[reqs['Encoder']]))
+				encoders = [ [reqs['Encoder'], preferred] ]
 			elsif (reqs['Encoder'])
 				wlog("#{pinst.refname}: Failed to find preferred encoder #{reqs['Encoder']}")
-			end
-
-			# If we don't want to allow encoder fall through and we have a
-			# non-zero number of encoders to choose from, then just choose the
-			# first one because it must succeed or we fail.  Normally, the
-			# encoder don't fall through option will only be used when a
-			# preferred encoder is explicitly defined.  Using don't fall through
-			# without selecting an encoder is ill-advised.
-			if reqs['EncoderDontFallThrough'] and encoders.length > 0
-				encoders = [encoders[0]]
+				raise NoEncodersSucceededError, "Failed to find preferred encoder #{reqs['Encoder']}"
 			end
 
 			encoders.each { |encname, encmod|
