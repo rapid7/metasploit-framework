@@ -34,20 +34,6 @@ begin
 			::Readline.basic_word_break_characters = "\x00"
 			::Readline.completion_proc = tab_complete_proc || @rl_saved_proc
 		end
-
-		def child_readline(wtr, prompt, history)
-			$0 = "<readline>"
-			
-			line = ::Readline.readline(prompt, history)
-			line = "\n" if (line and line.strip.length == 0)
-
-			wtr.write(line || "exit\n")
-			wtr.flush
-			wtr.close
-			
-			# Self-destruct mechanism activated
-			Process.kill(9, $$)
-		end
 		
 		#
 		# Whether or not the input medium supports readline.
@@ -79,54 +65,25 @@ begin
 		end
 
 		#
-		# Prompt-based getline using readline. We run the actual Readline routine inside of
-		# a forked child process. This solves a ton of problems introduced by the Readline
-		# extension. Specifically, readline will use 100ms for each time slice that its thread
-		# receives, massively slowing down the entire framework.
+		# Stick readline into a low-priority thread so that the scheduler doesn't slow
+		# down other background threads. This is important when there are many active
+		# background jobs, such as when the user is running Karmetasploit
 		#
 		def pgets
 		
-			if(Rex::Compat.is_windows())
+			line = nil
+			orig = Thread.current.priority
+			
+			begin
+				Thread.current.priority = -20
 				output.prompting
 				line = ::Readline.readline(prompt, true)
 				HISTORY.pop if (line and line.empty?)
-				return line
+			ensure
+				Thread.current.priority = orig
 			end
-
-
-			line = ""
 			
-			output.prompting
-
-			rdr,wtr = ::IO.pipe
-			pid = fork()
-
-			if(not pid)
-				child_readline(wtr, prompt, true)
-			end
-
-			line = nil
-			while(not line)
-				r = select([rdr], nil, nil, 0.01)
-				if(r)
-					line = rdr.sysread(16384)
-					break if not line
-				end
-			end
-
-			output.prompting(false)
-
-			::Process.waitpid(pid, 0)
-
-			# Parse the results
-			if line
-				HISTORY.push(line) if (not line.empty?)
-				return line + "\n"
-			else
-				eof = true
-				return line
-			end			
-
+			line
 		end
 
 		#
