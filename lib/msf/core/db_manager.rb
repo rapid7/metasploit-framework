@@ -26,6 +26,14 @@ class DBManager
 		@usable = false
 		@active = false
 		
+		#
+		# Prefer our local copy of active_record
+		#
+		dir_ar = File.join(Msf::Config.data_directory, 'msfweb', 'vendor', 'rails', 'activerecord', 'lib')
+		if(File.directory?(dir_ar) and not $:.include?(dir_ar))
+			$:.unshift(dir_ar)
+		end
+
 		# Load ActiveRecord if it is available
 		begin	
 			require 'rubygems'
