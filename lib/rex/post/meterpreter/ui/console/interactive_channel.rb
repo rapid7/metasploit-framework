@@ -67,7 +67,7 @@ module Console::InteractiveChannel
 	#
 	def _stream_read_local_write_remote(channel)
 		data = user_input.gets
-
+		return if not data
 		self.write(data)
 	end
 
