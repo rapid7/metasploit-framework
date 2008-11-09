@@ -139,7 +139,11 @@ module Socket
 	# These calls can be quite slow.
 	#
 	def self.getaddress(addr)
-		dotted_ip?(addr) ? addr : Resolv.getaddress(addr)
+		begin
+			dotted_ip?(addr) ? addr : Resolv.getaddress(addr)
+		rescue ::ArgumentError # Win32 bug
+			nil
+		end
 	end
 
 	#
