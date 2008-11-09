@@ -1,4 +1,0 @@
-<%= class_name %>
-<%= "=" * class_name.size %>
-
-Description goes here
