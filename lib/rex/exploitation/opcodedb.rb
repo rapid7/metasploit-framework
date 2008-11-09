@@ -745,6 +745,8 @@ protected
 
 			# Convert the return value to the native type.
 			parse_response(response.body)
+		rescue ::SocketError
+			raise RuntimeError, "Could not communicate with the opcode service: #{$!.class} #{$!}"
 		ensure
 			client.close
 		end
