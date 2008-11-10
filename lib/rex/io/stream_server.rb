@@ -158,7 +158,7 @@ protected
 	def monitor_clients
 		begin
 			if (clients.length == 0)
-				Rex::ThreadSafe::sleep(0.2)
+				Rex::ThreadSafe::sleep(0.25)
 				next
 			end
 
@@ -170,18 +170,24 @@ protected
 				rescue EOFError
 					on_client_close(fd)
 					close_client(fd)
-				rescue
+				rescue ::Interrupt
+					raise $!					
+				rescue ::Exception
+					close_client(fd)
 					elog("Error in stream server client monitor: #{$!}")
 					rlog(ExceptionCallStack)
+					
 				end
 			}
 			
 		rescue ::Rex::StreamClosedError => e
 			# Remove the closed stream from the list
 			clients.delete(e.stream)
-		rescue
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception
 			elog("Error in stream server client monitor: #{$!}")
-			rlog(ExceptionCallStack)
+			rlog(ExceptionCallStack)		
 		end while true
 	end
 
