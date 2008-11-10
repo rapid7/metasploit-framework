@@ -68,9 +68,9 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("Upload succeeded on http://#{target_host}:#{target_port}#{datastore['PATH']} [#{res.code}]")
 					
 					rep_id = wmap_base_report_id(
-										self.target_host,
-										self.target_port,
-										self.ssl
+										wmap_target_host,
+										wmap_target_port,
+										wmap_target_ssl
 								)
 								
 					wmap_report(rep_id,'VULNERABILITY','PUT_ENABLED',"#{datastore['PATH']}","Upload succeeded on #{datastore['PATH']}")

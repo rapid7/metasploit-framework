@@ -41,6 +41,10 @@ class Metasploit3 < Msf::Auxiliary
 						
 	end
 
+	def wmap_enabled
+		true
+	end
+
 	def run_host(ip)
 	
 		numb = []
@@ -83,9 +87,9 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("Found http://#{target_host}:#{target_port}#{teststr} #{res.code.to_i}")
 									
 						rep_id = wmap_base_report_id(
-										self.target_host,
-										self.target_port,
-										self.ssl
+										wmap_target_host,
+										wmap_target_port,
+										wmap_target_ssl
 								)
 						wmap_report(rep_id,'DIRECTORY','NAME',"#{teststr}","Directory #{teststr} found.")
 									

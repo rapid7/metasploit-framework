@@ -83,10 +83,24 @@ module Wmap
 					end
 					print_status("Done.")
 				when '-r'
+					# Default behavior to handle hosts names in the db as RHOSTS only 
+					# accepts IP addresses
+					resolv_hosts = false 
+
 					framework.db.delete_all_targets
 					framework.db.each_distinct_target do |req|
-						framework.db.create_target(req.host, req.port, req.ssl, 0)
-						print_status("Added. #{req.host} #{req.port} #{req.ssl}")  		
+						if Rex::Socket.dotted_ip?(req.host)
+							framework.db.create_target(req.host, req.port, req.ssl, 0)
+							print_status("Added. #{req.host} #{req.port} #{req.ssl}")
+						else
+							print_error("RHOSTS only accepts IP addresses: #{req.host}") 
+							
+							if resolv_hosts
+								hip = Rex::Socket.resolv_to_dotted(req.host)
+								framework.db.create_target(hip, req.port, req.ssl, 0)
+								print_status("Added host #{req.host} resolved as #{hip}.")
+							end
+						end  		
 					end	
 				when '-s'
 					framework.db.each_target do |tgt|
@@ -471,7 +485,7 @@ module Wmap
 						
 						utest_query = {}
 						
-						framework.db.each_request_target_with_path do |req|
+						framework.db.each_request_target_with_query do |req|
 							#
 							# Only test unique query strings by comparing signature to previous tested signatures 'path,p1,p2,pn' 
 							#
@@ -567,7 +581,7 @@ module Wmap
 						wtype = mod.wmap_type
 						
 						
-						framework.db.each_request_target_with_path do |req|
+						framework.db.each_request_target_with_query do |req|
 							#
 							# Weird bug req.method doesnt work
 							# collides with some method named 'method'

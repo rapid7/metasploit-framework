@@ -443,6 +443,16 @@ class DBManager
 			block.call(req)
 		end
 	end
+
+	#
+	# WMAP
+	# This method iterates the requests table returning a list of all requests of a specific target
+	#
+	def each_request_target_with_query(&block)
+		target_requests('AND requests.query IS NOT NULL').each do |req|
+			block.call(req)
+		end
+	end
 	
 	#
 	# WMAP

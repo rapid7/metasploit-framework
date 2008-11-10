@@ -71,9 +71,9 @@ class Metasploit3 < Msf::Auxiliary
 				 	print_status("Found http://#{target_host}:#{datastore['RPORT']}#{file}")
 					
 					rep_id = wmap_base_report_id(
-						self.target_host,
-						self.target_port,
-						self.ssl
+						wmap_target_host,
+						wmap_target_port,
+						wmap_target_ssl
 					)
 					wmap_report(rep_id,'VULNERABILITY','BACKUP_FILE',"#{file}","A backup file was found.")
 				else

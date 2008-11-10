@@ -25,6 +25,29 @@ module Auxiliary::WMAPModule
 		nil
 	end
 
+	#
+	# Oveload target_port method as the one in scanner.rb has issues
+	# - target_host works ok as run() receives ip 
+	#
+
+	def wmap_target_host
+		self.target_host	
+	end
+	
+	def wmap_target_port
+		self.datastore['RPORT']
+	end
+
+	def wmap_target_ssl
+		self.ssl
+	end
+
+
+
+	#
+	# WMAP Reporting methods	
+	#
+
 	def wmap_base_report_id(host,port,ssl)
 		if framework.db.report_active?
 			if not ssl
@@ -51,8 +74,9 @@ module Auxiliary::WMAPModule
 		nil
 	end
 
-	
-	#modified from CGI.rb as we dont use arrays
+	#
+	# Modified from CGI.rb as we dont use arrays
+	#
 	def headersparse(qheaders)
 		params = Hash.new()
 

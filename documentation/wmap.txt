@@ -169,7 +169,7 @@ The following are the basic steps for testing a web server/app using WMAP:
 
 	 ratproxy (ratproxy_wmap.diff applied) basic example: 
 
-	 $ ./ratproxy -v /Users/et/.msf3/ -b sqlite3.db 
+	 $ ./ratproxy -v /Users/et/.msf3/ -b sqlite3.db -a 
    	 ratproxy version 1.51-beta by <lcamtuf@google.com>
    	 [*] Proxy configured successfully. Have fun, and please do not be evil.
    	 [+] Accepting connections on port 8080/tcp (local only)...
@@ -216,19 +216,19 @@ The following are the basic steps for testing a web server/app using WMAP:
 
      msf > wmap_targets -r
      [*] Reloading targets...
-     [*] Added. metasploit.com 80 0
-     [*] Added. target.com 80 0
-     [*] Added. framework.metasploit.com 80 0
-     [*] Added. www.uninformed.org 80 0
+     [*] Added. 192.168.1.1 80 0
+     [*] Added. 192.168.2.10 80 0
+     [*] Added. 192.168.5.11 80 0
+     [*] Added. 192.168.1.3 80 0
 
   6. View available targets;
 
      msf > wmap_targets -p
      [*]    Id. Host                              Port    SSL
-     [*]    1. metasploit.com                     80   
-     [*]    2. target.com                         80   
-     [*]    3. framework.metasploit.com           80   
-     [*]    4. www.uninformed.org                 80   
+     [*]    1. 192.168.1.1                        80   
+     [*]    2. 192.168.2.10                       80   
+     [*]    3. 192.168.5.11                       80   
+     [*]    4. 192.168.1.3                        80   
      [*] Done.
   
   7. Select target (i.e. select target.com);   
@@ -236,16 +236,16 @@ The following are the basic steps for testing a web server/app using WMAP:
      msf > wmap_targets -s 2   
      msf > wmap_targets -p
      [*]    Id. Host                              Port    SSL
-     [*]    1. metasploit.com                     80   
-     [*] => 2. target.com                         80   
-     [*]    3. framework.metasploit.com           80   
-     [*]    4. www.uninformed.org                 80   
+     [*]    1. 192.168.1.1                        80   
+     [*] => 2. 192.168.2.10                       80   
+     [*]    3. 192.168.5.11                       80   
+     [*]    4. 192.168.1.3                        80   
      [*] Done.
 
   8. View target website structure; 	
      msf > wmap_website
      [*] Website structure
-     [*] target.com:80 SSL:0
+     [*] 192.168.2.10:80 SSL:0
      ROOT_TREE
 	+------	index.asp
     	|	images
@@ -273,7 +273,10 @@ The following are the basic steps for testing a web server/app using WMAP:
       this can be done with the 'setg' command.  
 
       Example:
-            
+
+      msf > setg VHOST www.targetco.com
+      VHOST => www.targetco.com		            
+
       msf > setg DOMAIN targetco.com
       DOMAIN => targetco.com
 
@@ -298,7 +301,7 @@ The following are the basic steps for testing a web server/app using WMAP:
       [*] Launching auxiliary/scanner/http/frontpage WMAP_SERVER against 
           www.targetco.com:80
       [*] http://xxx.xxx.xxx.xxx:80 is running Apache
-      [*] FrontPage not found on http://200.41.9.39:80 [302 Object Moved]
+      [*] FrontPage not found on http://192.168.2.10:80 [302 Object Moved]
       ...
       ...
       [*] Done.

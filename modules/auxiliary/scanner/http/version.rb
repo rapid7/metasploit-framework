@@ -48,9 +48,9 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("#{ip} is running #{res.headers['Server']}#{extra}")
 
 				rep_id = wmap_base_report_id(
-						self.target_host,
-						self.target_port,
-						self.ssl
+						wmap_target_host,
+						wmap_target_port,
+						wmap_target_ssl
 				)
 				wmap_report(rep_id,'WEB_SERVER','TYPE',"#{res.headers['Server']}#{extra}",nil)
 			end

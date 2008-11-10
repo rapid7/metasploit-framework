@@ -42,6 +42,7 @@ content
 core
 custom
 customers
+CVS
 data
 database
 db
@@ -152,6 +153,7 @@ search
 sections
 secure
 server
+share
 shared
 shop
 shopping_cart

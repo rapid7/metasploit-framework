@@ -74,9 +74,9 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("Found http://#{target_host}:#{target_port}#{tpath}")
 				   
 					rep_id = wmap_base_report_id(
-										self.target_host,
-										self.target_port,
-										self.ssl
+										wmap_target_host,
+										wmap_target_port,
+										wmap_target_ssl
 								)
 								
 					vul_id = wmap_report(rep_id,'FILE','NAME',"#{tpath}","File #{tpath} found.")

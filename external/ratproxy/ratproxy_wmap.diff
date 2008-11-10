@@ -1,6 +1,5 @@
-diff -Naur ratproxy/Makefile ratproxymod/Makefile
---- ratproxy/Makefile	2008-06-10 11:44:28.000000000 +0000
-+++ ratproxymod/Makefile	2008-09-25 18:53:31.000000000 +0000
+--- ratproxy/Makefile	2008-06-10 06:44:28.000000000 -0500
++++ ratproxymod/Makefile	2008-11-06 16:36:22.000000000 -0600
 @@ -21,7 +21,7 @@
  
  PROGNAME = ratproxy
@@ -10,9 +9,8 @@ diff -Naur ratproxy/Makefile ratproxymod/Makefile
  
  all: $(PROGNAME) flare-check
  
-diff -Naur ratproxy/ratproxy.c ratproxymod/ratproxy.c
---- ratproxy/ratproxy.c	2008-07-03 06:27:15.000000000 +0000
-+++ ratproxymod/ratproxy.c	2008-09-25 22:15:54.000000000 +0000
+--- ratproxy/ratproxy.c	2008-07-03 01:27:15.000000000 -0500
++++ ratproxymod/ratproxy.c	2008-11-06 16:36:24.000000000 -0600
 @@ -43,6 +43,9 @@
  #include <openssl/md5.h>
  #include <time.h>
@@ -23,15 +21,20 @@ diff -Naur ratproxy/ratproxy.c ratproxymod/ratproxy.c
  #include "config.h"
  #include "types.h"
  #include "debug.h"
-@@ -75,6 +78,7 @@
+@@ -75,8 +78,11 @@
  
  _u8* use_proxy;					/* Upstream proxy             */
  _u8* trace_dir;					/* Trace directory            */
 +_u8* db_file;				        /* Sqlite3 DB    	      */	
  _u32 proxy_port = 8080;				/* Upstream proxy port        */
- _u8  use_len;					/* Use length, not cksum      */
+-_u8  use_len;					/* Use length, not cksum      */
++_u8  use_len;                                   /* Use length, not cksum      */
++
++_u8  ip_addr[18];
  
-@@ -90,6 +94,7 @@
+ static FILE* outfile;				/* Output file descriptor     */
+ 
+@@ -90,6 +96,7 @@
          "   -p port       - listen on a custom TCP port (default: 8080)\n"
          "   -d domain     - analyze requests to specified domains only (default: all)\n"
          "   -P host:port  - use upstream proxy for all requests (format host:port)\n"
@@ -39,7 +42,7 @@ diff -Naur ratproxy/ratproxy.c ratproxymod/ratproxy.c
          "   -r            - accept remote connections (default: 127.0.0.1 only)\n"
          "   -l            - use response length, not checksum, for identity check\n"
          "   -2            - perform two, not one, page identity check\n"
-@@ -111,7 +116,8 @@
+@@ -111,7 +118,8 @@
          "Example settings suitable for most tests:\n"
          "  1) Low verbosity  : -v <outdir> -w <outfile> -d <domain> -lfscm\n"
          "  2) High verbosity : -v <outdir> -w <outfile> -d <domain> -lextifscgjm\n"
@@ -49,7 +52,7 @@ diff -Naur ratproxy/ratproxy.c ratproxymod/ratproxy.c
  
          "Multiple -d options are allowed. Consult the documentation for more.\n", argv0);
  
-@@ -538,12 +544,23 @@
+@@ -538,12 +546,23 @@
  
  static _u8 dump_fn[1024];
  static _u8 dumped_already;
@@ -73,7 +76,7 @@ diff -Naur ratproxy/ratproxy.c ratproxymod/ratproxy.c
  
    if (!trace_dir) return "-";
  
-@@ -551,6 +568,109 @@
+@@ -551,6 +570,109 @@
    if (dumped_already) return dump_fn;
    dumped_already = 1;
  
@@ -147,7 +150,7 @@ diff -Naur ratproxy/ratproxy.c ratproxymod/ratproxy.c
 +	      if(rc==SQLITE_OK){
 +	      //fprintf(stderr, "SQL OK: retries %d\n", kr++);
 +			
-+                sqlite3_bind_text(pStmt, 1, req->host, -1, SQLITE_STATIC);
++                sqlite3_bind_text(pStmt, 1, ip_addr, -1, SQLITE_STATIC);
 +                sqlite3_bind_int(pStmt, 2, req->port);
 +                sqlite3_bind_int(pStmt, 3, req->from_ssl);
 +                sqlite3_bind_text(pStmt, 4, req->method, -1, SQLITE_STATIC);
@@ -183,7 +186,7 @@ diff -Naur ratproxy/ratproxy.c ratproxymod/ratproxy.c
    sprintf(dump_fn,"%.512s/%08x-%04x.trace",trace_dir,(_u32)time(0),getpid());
  
    f = open(dump_fn, O_WRONLY | O_CREAT | O_EXCL, 0600);
-@@ -594,6 +714,7 @@
+@@ -594,6 +716,7 @@
    fclose(out);
    close(f);
  
@@ -191,7 +194,7 @@ diff -Naur ratproxy/ratproxy.c ratproxymod/ratproxy.c
    return dump_fn;
  
  }
-@@ -1653,7 +1774,7 @@
+@@ -1653,7 +1776,7 @@
  
    debug("ratproxy version " VERSION " by <lcamtuf@google.com>\n");
  
@@ -200,7 +203,7 @@ diff -Naur ratproxy/ratproxy.c ratproxymod/ratproxy.c
      switch (opt) {
  
        case 'w': {
-@@ -1761,6 +1882,11 @@
+@@ -1761,6 +1884,11 @@
          use_any = 1;
          break;
  
@@ -212,3 +215,34 @@ diff -Naur ratproxy/ratproxy.c ratproxymod/ratproxy.c
        default: 
          usage(argv[0]);
      }
+--- ratproxy/http.c	2008-06-10 07:28:26.000000000 -0500
++++ ratproxymod/http.c	2008-11-06 16:36:24.000000000 -0600
+@@ -32,6 +32,7 @@
+ #include <unistd.h>
+ #include <sys/socket.h>
+ #include <netinet/in.h>
++#include <arpa/inet.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+@@ -57,6 +58,8 @@
+ static _u8 srv_buf[MAXLINE],	/* libc IO buffers */
+            cli_buf[MAXLINE];
+ 
++extern _u8 ip_addr[18];
++
+ 
+ /* Read a single line of HTTP headers, strip whitespaces */
+ static _u8* grab_line(FILE* where) {
+@@ -657,7 +660,10 @@
+   struct hostent* he;
+   _s32 ss;
+ 
+-  if (!(he = gethostbyname(host)) || !(he->h_addr_list[0])) 
++  he = gethostbyname(host);
++  strncpy(ip_addr,inet_ntoa(*((struct in_addr *)he->h_addr_list[0])),18);
++
++  if (!(he) || !(he->h_addr_list[0])) 
+     http_error(client,"Unable to find target host",0);
+ 
+   ss = socket(PF_INET, SOCK_STREAM, 0);

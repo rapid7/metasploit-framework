@@ -52,9 +52,9 @@ class Metasploit3 < Msf::Auxiliary
 	 				print_status("Found Directory Listing http://#{target_host}:#{datastore['RPORT']}#{tpath}")
 					
 					rep_id = wmap_base_report_id(
-										self.target_host,
-										self.target_port,
-										self.ssl
+										wmap_target_host,
+										wmap_target_port,
+										wmap_target_ssl
 								)
 					wmap_report(rep_id,'VULNERABILITY','DIR_LISTING',"#{tpath}","Directory #{teststr} disclose its contents.")
 				end
