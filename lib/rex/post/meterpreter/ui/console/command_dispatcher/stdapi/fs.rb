@@ -107,7 +107,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 	# machine.
 	#
 	def cmd_download(*args)
-		if (args.length < 2)
+		if (args.empty?)
 			print(
 				"Usage: download [options] src1 src2 src3 ... destination\n\n" +
 				"Downloads remote files and directories to the local machine.\n" +
@@ -133,12 +133,12 @@ class Console::CommandDispatcher::Stdapi::Fs
 			end
 		}
 
-		dest = last
+		return true if not last
 
-		# If there is no destination, assume it's the same as the source.
-		if (!dest)
-			dest = src_items[0]
-		end
+		# Source and destination will be the same
+		src_items << last if src_items.empty?
+
+		dest = last
 
 		# Go through each source item and download them
 		src_items.each { |src|
@@ -287,7 +287,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 	# machine.
 	#
 	def cmd_upload(*args)
-		if (args.length < 2)
+		if (args.empty?)
 			print(
 				"Usage: upload [options] src1 src2 src3 ... destination\n\n" +
 				"Uploads local files and directories to the remote machine.\n" +
@@ -313,12 +313,12 @@ class Console::CommandDispatcher::Stdapi::Fs
 			end
 		}
 
-		dest = last
+		return true if not last
 
-		# If there is no destination, assume it's the same as the source.
-		if (!dest)
-			dest = src_items[0]
-		end
+		# Source and destination will be the same
+		src_items << last if src_items.empty?
+
+		dest = last
 
 		# Go through each source item and upload them
 		src_items.each { |src|
