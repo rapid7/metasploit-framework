@@ -149,7 +149,7 @@ class Console::CommandDispatcher::Stdapi::Net
 	# network.  This provides an elementary pivoting interface.
 	#
 	def cmd_portfwd(*args)
-		args.unshift("list") unless args.length
+		args.unshift("list") if args.empty?
 
 		# For clarity's sake.
 		lport = nil
