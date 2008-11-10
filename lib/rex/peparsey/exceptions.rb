@@ -26,4 +26,7 @@ end
 class WtfError < PeError
 end
 
+class SkipError < PeError
+end
+
 end end

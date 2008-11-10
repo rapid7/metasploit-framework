@@ -118,17 +118,42 @@ if (! worker)
 	exit(0)
 end
 
+
+files = []
+
 ARGV.each do |file|
 	
+	if(File.directory?(file))
+		dir = Dir.open(file)
+		dir.entries.each do |ent|
+			path = File.join(file, ent)
+			next if not File.file?(path)
+			files << File.join(path)
+		end
+	else
+		files << file
+	end
+end
+
+files.each do |file|
+	$stdout.puts ""
+
 	param['file'] = file
 	
 	begin
 		pe = pe_klass.new_from_file(file, true)
+	rescue ::Interrupt
+		raise $!
 	rescue Rex::PeParsey::FileHeaderError
 		next if $!.message == "Couldn't find the PE magic!"
 		raise $!
 	rescue Errno::ENOENT
-		$stderr.puts("File does not exist: #{file}")
+		$stdout.puts("File does not exist: #{file}")
+		next
+	rescue ::Rex::PeParsey::SkipError
+		next
+	rescue ::Exception => e
+		$stdout.puts "[#{file}] #{e.class}: #{e}"
 		next
 	end
 	
@@ -140,5 +165,6 @@ ARGV.each do |file|
 	o.scan(param)
 	
 	pe.close
-
+	
 end
+$stdout.puts ""

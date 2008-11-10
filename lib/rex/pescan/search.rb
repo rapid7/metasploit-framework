@@ -26,10 +26,18 @@ module Search
 			
 			@address -= pre
 			@address = 0 if (@address < 0 || ! @address)
-			buf = pe.read_rva(@address, suf)
+			
+			begin
+				buf = pe.read_rva(@address, suf)
+			rescue ::Rex::PeParsey::WtfError
+				return
+			end
+			
 			$stdout.puts pe.ptr_s(pe.rva_to_vma(@address)) + " " + buf.unpack("H*")[0]
 			if(param['disasm'])
-				$stdout.puts(::Rex::Assembly::Nasm.disassemble(buf))
+				::Rex::Assembly::Nasm.disassemble(buf).split("\n").each do |line|
+					$stdout.puts "\t#{line.strip}"
+				end
 			end
 			
 		end	
