@@ -31,6 +31,7 @@ ENABLE_PROCESSED_INPUT = 1
 #
 
 @@is_windows = @@is_macosx = @@is_linux = @@is_bsdi = @@is_freebsd = @@is_netbsd = @@is_openbsd = false
+@@loaded_win32api = false
 
 def self.is_windows
 	return @@is_windows if @@is_windows
@@ -90,6 +91,27 @@ def self.open_email(addr)
 		system("open mailto:#{addr}")
 	else
 		# ?
+	end
+end
+
+def self.getenv(var)
+	if (is_windows and @@loaded_win32api)
+		f = Win32API.new("kernel32", "GetEnvironmentVariable", ["P", "P", "I"], "I")
+		buff = "\x00" * 65536
+		sz = f.call(var, buff, buff.length)
+		return nil if sz == 0
+		buff[0,sz]	
+	else
+		ENV[var]
+	end
+end
+
+def self.setenv(var,val)
+	if (is_windows and @@loaded_win32api)
+		f = Win32API.new("kernel32", "SetEnvironmentVariable", ["P", "P"], "I")
+		f.call(var, val + "\x00")
+	else
+		ENV[var]= val
 	end
 end
 
@@ -272,6 +294,19 @@ def self.pipe
 	serv.close
 	
 	return [pipe1, pipe2]
+end
+
+
+#
+# Initialization
+#
+
+if(is_windows)
+	begin
+		require "Win32API"
+		@@loaded_win32api = true
+	rescue ::Exception
+	end
 end
 
 

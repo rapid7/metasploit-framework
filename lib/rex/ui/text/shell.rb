@@ -185,12 +185,9 @@ module Shell
 	def supports_color?
 		# Color is disabled until we resolve some bugs
 		return false
-				
-		begin
-			(ENV['TERM'].match(/(?:vt10[03]|xterm(?:-color)?|linux|screen)/i) != nil)
-		rescue
-			false
-		end
+
+		term = Rex::Compat.getenv('TERM')
+		(term and term.match(/(?:vt10[03]|xterm(?:-color)?|linux|screen)/i) != nil)
 	end
 
 	#
