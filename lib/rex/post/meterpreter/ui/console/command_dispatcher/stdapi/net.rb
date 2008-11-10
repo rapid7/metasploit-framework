@@ -107,8 +107,10 @@ class Console::CommandDispatcher::Stdapi::Net
 			end
 		}
 
+		cmd = args.shift
+
 		# Process the commands
-		case args.shift
+		case cmd
 			when "list"
 				routes = client.net.config.routes
 
@@ -140,7 +142,7 @@ class Console::CommandDispatcher::Stdapi::Net
 
 				client.net.config.remove_route(*args)
 			else
-				print_error("Unsupported command: #{args[0]}")
+				print_error("Unsupported command: #{cmd}")
 		end
 	end
 
