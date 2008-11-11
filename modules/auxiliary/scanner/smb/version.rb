@@ -47,14 +47,16 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	# Fingerprint a single host
-	def run_host(ip)
-
+	def run_host(ip)	
 		[[139, false], [445, true]].each do |info|
 
 		@target_port = info[0]
 		self.smb_direct = info[1]
 		
 		begin
+			connect()
+			smb_login()
+			
 			res = smb_fingerprint()
 			
 			if(res['os'] and res['os'] != 'Unknown')
