@@ -41,7 +41,7 @@ module Stream
 				bidx  += sent if sent > 0
 				tsent += sent
 			end
-		rescue IOError
+		rescue ::IOError, ::Errno::EPIPE,
 			return nil if (fd.abortive_close == true)
 
 			raise $!
@@ -57,7 +57,7 @@ module Stream
 		# XXX handle length being nil
 		begin
 			fd.sysread(length)
-		rescue IOError
+		rescue ::IOError, ::EOFError, ::Errno::EPIPE,
 			return nil if (fd.abortive_close == true)
 			raise $!
 		end
@@ -76,7 +76,7 @@ module Stream
 			else
 				false
 			end
-		rescue StreamClosedError, IOError
+		rescue StreamClosedError, ::IOError, ::EOFError, ::Errno::EPIPE,
 			# If the thing that lead to the closure was an abortive close, then
 			# don't raise the stream closed error.
 			return false if (fd.abortive_close == true)

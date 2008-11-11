@@ -181,8 +181,8 @@ class Rex::Socket::Comm::Local
 							raise ::Errno::ETIMEDOUT
 						end
 					end
-				
-				rescue Errno::EHOSTUNREACH, ::Errno::ENETUNREACH
+
+				rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENONET,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL 
 					sock.close
 					raise Rex::HostUnreachable.new(param.peerhost, param.peerport), caller
 				
@@ -190,7 +190,7 @@ class Rex::Socket::Comm::Local
 					sock.close
 					raise Rex::ConnectionTimeout.new(param.peerhost, param.peerport), caller
 				
-				rescue Errno::ECONNREFUSED
+				rescue ::Errno::ECONNRESET,::Errno::ECONNREFUSED,::Errno::ENOTCONN,::Errno::ECONNABORTED
 					sock.close
 					raise Rex::ConnectionRefused.new(param.peerhost, param.peerport), caller
 				end

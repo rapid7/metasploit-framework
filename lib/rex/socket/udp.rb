@@ -42,7 +42,11 @@ module Rex::Socket::Udp
 	# Write the supplied datagram to the connected UDP socket.
 	#
 	def write(gram)
-		return syswrite(gram)
+		begin
+			return syswrite(gram)
+		rescue  ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENONET,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL
+			return nil	
+		end	
 	end
 
 	#
@@ -99,7 +103,12 @@ module Rex::Socket::Udp
 			peerhost = '::ffff:' + Rex::Socket.getaddress(peerhost)
 		end
 
-		return send(gram, flags, Rex::Socket.to_sockaddr(peerhost, peerport))
+		begin
+			send(gram, flags, Rex::Socket.to_sockaddr(peerhost, peerport))
+		rescue  ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENONET,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL
+			return nil
+		end
+		
 	end
 
 	#

@@ -100,8 +100,13 @@ module Rex::Socket::Ip
 			gram[2,2]=gram[2,2].unpack("n").pack("s")
 			gram[6,2]=gram[6,2].unpack("n").pack("s")
 		end
+
+		begin
+			send(gram, flags, dest)
+		rescue  ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENONET,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL
+			return nil
+		end		
 		
-		send(gram, flags, dest)
 	end
 
 	#

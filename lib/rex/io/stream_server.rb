@@ -129,11 +129,15 @@ protected
 	# the +on_client_connect+ callback routine.
 	#
 	def monitor_listener
+	
+		p "LLLLLLLLLLLLLLLL"
+		p fd
+		
 		begin
-			sd = Kernel.select([ fd ])
+			sd = Kernel.select([ fd ], nil, nil, 0)
 
 			# Accept the new client connection
-			if (sd[0].length > 0)
+			if (sd and sd[0].length > 0)
 				cli = accept
 
 				next unless cli
@@ -142,10 +146,11 @@ protected
 				self.clients << cli
 
 				on_client_connect(cli)
-			end		
-		rescue
+			end
+
+		rescue ::Exception
 			elog("Error (#{$!.class}) in stream server listener monitor:  #{$!}")
-			rlog(ExceptionCallStack)
+			rlog($!.backtrace)
 			break
 		end while true
 

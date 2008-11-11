@@ -97,7 +97,7 @@ begin
 
 		begin
 			return sslsock.read(length)
-		rescue EOFError
+		rescue EOFError, ::Errno::EPIPE
 			return nil
 		end
 	end

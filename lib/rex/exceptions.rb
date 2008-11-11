@@ -161,16 +161,26 @@ module HostCommunicationError
 	attr_accessor :host, :port
 end
 
+
 ###
 #
 # This exception is raised when a connection attempt fails because the remote
 # side refused the connection.
 #
 ###
-class ConnectionRefused < ::IOError
+
+class ConnectionError < ::IOError
 	include SocketError
 	include HostCommunicationError
+end
 
+###
+#
+# This exception is raised when a connection attempt fails because the remote
+# side refused the connection.
+#
+###
+class ConnectionRefused < ConnectionError
 	def to_s
 		"The connection was refused by the remote host #{addr_to_s}."
 	end
@@ -182,10 +192,7 @@ end
 # side is unreachable.
 #
 ###
-class HostUnreachable < ::IOError
-	include SocketError
-	include HostCommunicationError
-
+class HostUnreachable < ConnectionError
 	def to_s
 		"The host #{addr_to_s} was unreachable."
 	end
@@ -196,10 +203,7 @@ end
 # This exception is raised when a connection attempt times out.
 #
 ###
-class ConnectionTimeout < ::IOError
-	include SocketError
-	include HostCommunicationError
-
+class ConnectionTimeout < ConnectionError
 	def to_s
 		"The connection timed out #{addr_to_s}."
 	end
