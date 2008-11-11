@@ -270,7 +270,7 @@ class Metasploit3 < Msf::Auxiliary
 				bcnt += data.length
 				lfd.write(data)
 			end
-		rescue ::EOFError => e
+		rescue ::EOFError
 		end
 		
 		lfd.close

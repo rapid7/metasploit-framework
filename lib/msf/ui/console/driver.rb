@@ -197,7 +197,7 @@ class Driver < Msf::Ui::Driver
 			rcfd = File.open(path, 'w')
 			rcfd.write(data)
 			rcfd.close
-		rescue ::Exception => e
+		rescue ::Exception
 		end
 	end
 	
