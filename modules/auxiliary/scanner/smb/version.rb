@@ -52,11 +52,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		@target_port = info[0]
 		self.smb_direct = info[1]
+		self.simple = nil
 		
 		begin
-			connect()
-			smb_login()
-			
 			res = smb_fingerprint()
 			
 			if(res['os'] and res['os'] != 'Unknown')
