@@ -44,7 +44,7 @@ module Rex::Socket::Udp
 	def write(gram)
 		begin
 			return syswrite(gram)
-		rescue  ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENONET,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL
+		rescue  ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL
 			return nil	
 		end	
 	end
@@ -105,7 +105,7 @@ module Rex::Socket::Udp
 
 		begin
 			send(gram, flags, Rex::Socket.to_sockaddr(peerhost, peerport))
-		rescue  ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENONET,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL
+		rescue  ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL
 			return nil
 		end
 		

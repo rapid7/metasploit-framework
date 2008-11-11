@@ -182,7 +182,7 @@ class Rex::Socket::Comm::Local
 						end
 					end
 
-				rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENONET,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL 
+				rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL 
 					sock.close
 					raise Rex::HostUnreachable.new(param.peerhost, param.peerport), caller
 				
