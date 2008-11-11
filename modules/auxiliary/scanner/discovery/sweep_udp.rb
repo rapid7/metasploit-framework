@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 					udp_sock.sendto(data, ip, port, 0)
 				rescue ::Interrupt
 					raise $!
-				rescue ::Exception
+				rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
 					nil
 				end
 				

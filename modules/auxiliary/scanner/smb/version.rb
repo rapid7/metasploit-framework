@@ -75,9 +75,8 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			
 			return
-		rescue ::Rex::ConnectionRefused, ::Rex::ConnectionTimeout
+		rescue ::Rex::ConnectionError
 			next
-		rescue ::Errno::ECONNRESET, ::Rex::HostUnreachable
 		rescue ::Exception => e
 			print_error("#{rhost}: #{e.class} #{e} #{e.backtrace}")
 		ensure

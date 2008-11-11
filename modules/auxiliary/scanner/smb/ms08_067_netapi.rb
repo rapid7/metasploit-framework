@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
 				raise $!
 			rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
 			rescue ::Rex::Proto::SMB::Exceptions::LoginError
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			rescue ::Rex::ConnectionError
 			rescue ::Exception => e
 				print_error("Error: #{e.class} #{e} #{e.backtrace}")
 		end

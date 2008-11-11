@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		rescue ::Interrupt
 			raise $!
-		rescue ::Exception => e
+		rescue ::Rex::ConnectionError
 		end
 	end	
 

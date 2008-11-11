@@ -96,8 +96,8 @@ DECLARE @T varchar(255),@C varchar(255)
 				}, 20)
 
 		
-	rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-	rescue ::Timeout::Error, ::Errno::EPIPE			
+	rescue ::Rex::ConnectionError
+	rescue ::Errno::EPIPE			
 	end
         
 	print_status("Request sent.")          

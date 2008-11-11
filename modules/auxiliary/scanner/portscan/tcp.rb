@@ -80,13 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 				s.close
 			rescue ::Interrupt
 				raise $!
-			rescue ::Errno::EINVAL
-				raise $!
-			rescue ::Rex::HostUnreachable
-				break
-			rescue ::SocketError
-			rescue ::Rex::ConnectionRefused, ::Rex::ConnectionTimeout
-			rescue ::Errno::EACCES
+			rescue ::Rex::ConnectionError
 			rescue ::Exception => e
 				print_status("Unknown error: #{e.class} #{e.to_s}")
 			end

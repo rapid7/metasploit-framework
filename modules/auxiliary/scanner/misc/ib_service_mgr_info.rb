@@ -218,8 +218,8 @@ class Metasploit3 < Msf::Auxiliary
 
 			# print(Rex::Text.to_hex_dump(response))
 
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable
-		rescue ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
+		rescue ::Rex::ConnectionError
+		rescue ::Errno::EPIPE
 
 		end
 

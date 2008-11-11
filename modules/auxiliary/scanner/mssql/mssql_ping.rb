@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 			}
 		end
 		
-		rescue Errno::EACCES
+		rescue ::Rex::ConnectionError
 		end
 	end
 end

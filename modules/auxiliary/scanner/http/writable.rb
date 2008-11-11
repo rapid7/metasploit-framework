@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("Delete failed on http://#{target_host}:#{target_port} [#{res.code} #{res.message}]")
 				end
 
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			rescue ::Rex::ConnectionError
 			rescue ::Timeout::Error, ::Errno::EPIPE			
 			end		
 		end

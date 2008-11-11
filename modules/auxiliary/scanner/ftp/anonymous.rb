@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if (write_check and write_check =~ /^2/)
 				send_cmd( ['RMD', dir] , true)
-				p write_check
+
 				print_status("#{target_host}:#{rport} Anonymous READ/WRITE (#{banner})")
 			else
 				print_status("#{target_host}:#{rport} Anonymous READ (#{banner})")
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 		
 		rescue ::Interrupt
 			raise $!
-		rescue ::Exception => e
+		rescue ::Rex::ConnectionError, ::IOError
 		end
 		
 	end

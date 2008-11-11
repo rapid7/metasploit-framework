@@ -73,9 +73,8 @@ class Metasploit3 < Msf::Auxiliary
 				# X can return a reason for auth failure but we don't really care for this
 			end
 
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable
-		rescue ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
-
+		rescue ::Rex::ConnectionError
+		rescue ::Errno::EPIPE
 
 		end
 
