@@ -143,7 +143,7 @@ class Response
 			self.cancel_cnt = data.unpack('CCCCNvvVVvC')
 			
 			# Error out if the whole header was not read
-			if(not self.alloc_hint and self.cancel_cnt)
+			if(not (self.alloc_hint and self.context_id and self.cancel_cnt))
 				raise Rex::Proto::DCERPC::Exceptions::InvalidPacket, 'DCERPC response packet is incomplete'
 			end
 
