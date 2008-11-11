@@ -835,7 +835,7 @@ end
 
 class LoginError < SimpleClientError
 	def to_s
-		"Login Failed: " + self.source
+		"Login Failed: " + self.source.to_s
 	end
 end
 
