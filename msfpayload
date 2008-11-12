@@ -32,7 +32,7 @@ end
 $framework = Msf::Simple::Framework.create
 
 if (ARGV.length <= 1)
-	puts "\n" + "    Usage: #{$0} <payload> [var=val] <S[ummary]|C|P[erl]|[Rub]y|R[aw]|J[avascript]|e[X]ecutable>\n"
+	puts "\n" + "    Usage: #{$0} <payload> [var=val] <S[ummary]|C|P[erl]|[Rub]y|R[aw]|J[avascript]|e[X]ecutable|[V]BA>\n"
 	puts dump_payloads
 	exit
 end
@@ -57,10 +57,11 @@ cmd = ARGV.pop.downcase
 # Populate the framework datastore
 options = ARGV.join(',')
 
-if (cmd =~ /^(p|y|r|c|j|x|b)/)
+if (cmd =~ /^(p|y|r|c|j|x|b|v)/)
 	fmt = 'perl' if (cmd =~ /^p/)
 	fmt = 'ruby' if (cmd =~ /^y/)
 	fmt = 'raw' if (cmd =~ /^(r|x)/)
+	fmt = 'raw' if (cmd =~ /^v/)
 	fmt = 'c' if (cmd == 'c')
 	fmt = 'js_be' if (cmd =~ /^j/ and Rex::Arch.endian(payload.arch) == ENDIAN_BIG)
 	fmt = 'js_le' if (cmd =~ /^j/ and ! fmt)
@@ -89,8 +90,6 @@ if (cmd =~ /^(p|y|r|c|j|x|b)/)
 		arch = payload.arch
 		plat = payload.platform.platforms
 
-
-		
 		if (arch.index(ARCH_X86))
 
 			# XXX: Automatically prepend stack adjustment
@@ -139,9 +138,23 @@ if (cmd =~ /^(p|y|r|c|j|x|b)/)
 		$stderr.puts "No executable format support for this arch/platform"
 		exit(-1)
 	end
-	
+
+	if(cmd =~ /^v/)
+		exe = Rex::Text.to_win32pe(buf, '')
+		note = 
+			"'Created by msfpayload (http://www.metasploit.com).\r\n" +
+			"'Payload: " + payload.refname + "\r\n" +
+			"' Length: " + buf.length.to_s + "\r\n" +
+			"'Options: " + options + "\r\n"
+
+		vba = note + "\r\n" + Rex::Text.to_exe_vba(exe)
+		$stdout.write(vba)
+		exit(0)
+	end
+			
 	$stdout.puts(buf)
-	
+
+
 elsif (cmd =~ /^(s|o)/)
 	payload.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
 	puts Msf::Serializer::ReadableText.dump_module(payload)
