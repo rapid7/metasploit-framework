@@ -9,7 +9,14 @@ require 'rex/socket'
 module Rex::Socket::SslTcp
 
 begin
-	require 'openssl'
+	@@loaded_openssl = false
+	
+	begin
+		require 'openssl'
+		@@loaded_openssl = true
+	rescue ::Exception
+	end
+	
 
 	include Rex::Socket::Tcp
 
@@ -23,6 +30,7 @@ begin
 	# Creates an SSL TCP instance.
 	#
 	def self.create(hash)
+		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		self.create_param(Rex::Socket::Parameters.from_hash(hash))
 	end
 

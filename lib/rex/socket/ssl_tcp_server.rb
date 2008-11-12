@@ -1,7 +1,6 @@
 require 'rex/socket'
 require 'rex/socket/tcp_server'
 require 'rex/io/stream_server'
-require 'openssl'
 
 ###
 #
@@ -9,7 +8,17 @@ require 'openssl'
 # implements the StreamServer IO interface.
 #
 ###
-module  Rex::Socket::SslTcpServer
+module Rex::Socket::SslTcpServer
+
+	@@loaded_openssl = false
+	
+	begin
+		require 'openssl'
+		@@loaded_openssl = true
+	rescue ::Exception
+	end
+	
+	
 	include Rex::Socket::TcpServer
 	
 	##
@@ -19,6 +28,7 @@ module  Rex::Socket::SslTcpServer
 	##
 
 	def initsock(params = nil)
+		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		self.sslctx  = makessl()
 		super
 	end

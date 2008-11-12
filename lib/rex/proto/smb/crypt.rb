@@ -1,4 +1,3 @@
-require 'openssl'
 require 'rex/text'
 
 module Rex
@@ -6,6 +5,14 @@ module Proto
 module SMB
 class Crypt
 
+	@@loaded_openssl = false
+	
+	begin
+		require 'openssl'
+		@@loaded_openssl = true
+	rescue ::Exception
+	end
+	
 begin
 
 	def self.lanman_des(pass, chal)
@@ -22,6 +29,7 @@ begin
 	end
 
 	def self.des_hash(data, ckey)
+		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		cipher = OpenSSL::Cipher::Cipher.new('des-ecb')
 		cipher.encrypt
 		cipher.key = des_56_to_64(ckey)
@@ -46,10 +54,12 @@ begin
 	end
 	
 	def self.md4_hash(data)
+		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		digest = OpenSSL::Digest::Digest.digest('md4', data)
 	end
 	
 	def self.md5_hash(data)
+		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		digest = OpenSSL::Digest::Digest.digest('md5', data)
 	end
 	

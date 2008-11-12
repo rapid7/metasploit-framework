@@ -1,5 +1,3 @@
-require 'dl'
-
 module Rex
 
 ###
@@ -26,12 +24,14 @@ ENABLE_ECHO_INPUT = 4
 ENABLE_PROCESSED_INPUT = 1
 
 
+
 #
 # Platform detection
 #
 
-@@is_windows = @@is_macosx = @@is_linux = @@is_bsdi = @@is_freebsd = @@is_netbsd = @@is_openbsd = false
+@@is_windows = @@is_macosx = @@is_linux = @@is_bsdi = @@is_freebsd = @@is_netbsd = @@is_openbsd = @@is_java = false
 @@loaded_win32api = false
+@@loaded_dl       = false
 
 def self.is_windows
 	return @@is_windows if @@is_windows
@@ -66,6 +66,11 @@ end
 def self.is_openbsd
 	return @@is_openbsd if @@is_openbsd
 	@@is_openbsd = (RUBY_PLATFORM =~ /openbsd/) ? true : false
+end
+
+def self.is_java
+	return @@is_java if @@is_java
+	@@is_java = (RUBY_PLATFORM =~ /java/) ? true : false
 end
 
 def self.open_browser(url='http://metasploit.com/')
@@ -308,6 +313,16 @@ if(is_windows)
 	rescue ::Exception
 	end
 end
+
+
+begin
+	require "dl"
+	@@loaded_dl = true
+rescue ::Exception
+end
+
+
+
 
 
 end

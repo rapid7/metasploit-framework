@@ -27,6 +27,12 @@ class Input
 	def supports_readline
 		true
 	end
+	
+	#
+	# Stub for tab completion reset
+	#
+	def reset_tab_completion
+	end
 
 	#
 	# Calls the underlying system read.
