@@ -62,7 +62,7 @@ class Plugin::DBWmap < Msf::Plugin
 		add_console_dispatcher(WmapSQLiteCommandDispatcher)
 		add_console_dispatcher(WmapDatabaseCommandDispatcher)	
 
-		print_status("=[ WMAP v0.2 - ET LoWNOISE")	
+		print_status("=[ WMAP v0.3 - ET LoWNOISE")	
 	end
 	
 

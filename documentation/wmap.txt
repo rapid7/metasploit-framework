@@ -1,4 +1,4 @@
-=[ WMAP v0.2                                ET LoWNOISE  et[]metasploit.com
+=[ WMAP v0.3                                ET LoWNOISE  et[]metasploit.com
 ---------------------------------------------------------------------------
                         "Metasploit goes Web" ,H D Moore.
 
@@ -76,38 +76,39 @@ WMAPScanGeneric     - Modules to be run after all tests complete. Good place to
 Each module is capable of storing reporting information. 
 Reporting key concepts:
 	
-	+ Reporting is used to gather and store data
-	+ Bye bye to useless risk levels 
+	+ Reporting is used to gather and store data.
+	+ Bye bye to useless risk levels. 
 	+ Data is not only findings (i.e vulnerabilities) but also any relevant 
-	  data (i.e. Database name from a SQL injection)
+	  data (i.e. Database name from a SQL injection).
 	+ Data is available to other modules so reporting becomes a method to 
-	  share information
-	+ Data has context and that context is preserved. 
+	  share information.
+	+ Data has context and that context can be preserved. 
  	+ Context is preserved by having a tree structure in the Report database 
-	  table
+	  table.
 	+ Every report entry has a parent_id the top parent_id is 0 and only used 
-	  to create a report entry (this allows for the storage of multiple reports)
+	  to create a report entry (this allows for the storage of multiple reports).
 	+ The report table is basically a type,name,value database.
-	+ This schema allows the storage of data/vulnerabilities with any classification/naming 
-	  convention. (very useful to store vulnerabilities discovered in year 2060).
+	+ This schema allows the storage of data/vulnerabilities with any
+       classification/naming convention. (very useful to store vulnerabilities 
+       discovered in year 2060).
 
 	So how it works:
 
-	When q module is executed (using WMAP 'wmap_run -e' or standalone):
+	When a module is executed (using WMAP 'wmap_run -e' or standalone):
 
 	WMAP creates a new report entry, then in each module when something is found or 
-	something needs to be reported the module should implement the following lines:			
+	something needs to be reported, the module should implement the following lines:			
 
 	Example:
 
 	if (vulnerability is found)
 		print_status("FOUND BLAH BLAH BLAH")
 
-             	#OBTAIN THE LATEST REPORT ID FOR HOST,PORT,SSL (target)
-		rep_id = wmap_base_report_id(
-                      	self.target_host,
-                  	self.target_port,
-                    	self.ssl
+          #OBTAIN THE LATEST REPORT ID FOR HOST,PORT,SSL (target)
+          rep_id = wmap_base_report_id(
+                   wmap_target_host,
+                   wmap_target_port,
+                   wmap_target_ssl
                 )
 		
 		# REPORT ABOUT THE FINDING
@@ -121,16 +122,17 @@ Reporting key concepts:
 
 		wmap_report(vuln_id,'SQL_INJECTION','PARAMETER',parameter,"Notes balh blah")
 		wmap_report(vuln_id,'SQL_INJECTION','TYPE','String',"Notes 2 balh blah")	 
-      	end
+     end
 
 	
- 	If you are connected to a database (db_connect) then reporting is active and every module executed will 
-	store its results for reporting. Even if you define a RHOSTS range then the results auto-magically will 
-	be organized per host,port as wmap_base_report_id() returns the last available report for the specified 
-	host,port,ssl target.  
+ 	If you are connected to a database (db_connect) then reporting is active 
+     and every module executed will store its results for reporting. Even if 
+     you define a RHOSTS range then the results auto-magically will be organized 
+     per host,port as wmap_base_report_id() returns the last available report 
+     for the specified host,port,ssl target.  
 
-	Anything can be represented and reported and other modules will have access to this information to do 
-	whatever they want.
+	Anything can be represented and reported and other modules will have access 
+     to this information to do whatever they want.
 
 	To view available reports use the 'wmap_reports' command:
 
@@ -248,8 +250,8 @@ The following are the basic steps for testing a web server/app using WMAP:
      [*] 192.168.2.10:80 SSL:0
      ROOT_TREE
 	+------	index.asp
-    	|	images
-        |	+------	logo.gif
+     |	images
+     |	+------	logo.gif
 	+------	login.asp
 	|	menu
 	|	+------	menu.asp
