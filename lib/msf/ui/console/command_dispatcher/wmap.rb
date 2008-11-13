@@ -144,7 +144,12 @@ module Wmap
 					print_status("Done.")						
 				when '-s'
 					get_report_id(args.shift)
-					print_status("Done.")				
+					print_status("Done.")
+				when '-x'
+					doc  = REXML::Document.new
+					get_xml_report_id(args.shift,doc)
+					doc.write( $stdout, 0 )
+					print_status("Done.")			
 				when '-h'
 					print_status("Usage: wmap_reports [options]")
 					print_line("\t-h 		Display this help text")
@@ -380,13 +385,17 @@ module Wmap
 							#
 							# Fixing paths
 							#	
-								
-							if node.is_leaf? or node.is_root?
+							
+							if node.is_leaf? 
 								#		
 								# Later we can add here more checks to see if its a file
 								#
 							else 
-								strpath = strpath.chomp + "/"
+								if node.is_root?
+									strpath = "/"	
+								else
+									strpath = strpath.chomp + "/"
+								end
 							end			
 								
 							#print_status("Testing path: #{strpath}")
@@ -874,7 +883,8 @@ module Wmap
 			if selected_host == nil
 				print_error("Target not selected")
 			else
-			
+							
+				
 				framework.db.each_request_target do |req|	
 					tarray = req.path.to_s.split(WMAP_PATH)
 					tarray.delete("")
@@ -920,6 +930,31 @@ module Wmap
 			framework.db.report_children(id).each do |chl|
 				get_report_id(chl.id) 
 			end
+		end
+
+		#
+		# This  method iterates the reports table to generate an xml doc from the report 
+		#
+		def get_xml_report_id(id,root) 
+			begin
+				par = framework.db.report_parent(id)
+			rescue ::Exception
+				print_error("Report error #{$!.to_s}")
+				return
+			end
+			
+			#print_line("\t#{par.entity} #{par.etype}: #{par.value} #{par.notes} [#{par.created}]")
+			
+			tempel = REXML::Element.new "#{par.entity}"
+			tempel.attributes["#{par.etype}"] = "#{par.value}"
+			tempel.attributes["TESTED"] = "#{par.created}" 
+			tempel.text = "#{par.notes}"
+
+			root.elements << tempel
+						
+			framework.db.report_children(id).each do |chl|
+				get_xml_report_id(chl.id,tempel) 
+			end			
 		end
 		
 		#
