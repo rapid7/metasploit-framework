@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 										wmap_target_port,
 										wmap_target_ssl
 								)
-					wmap_report(rep_id,'VULNERABILITY','DIR_LISTING',"#{tpath}","Directory #{teststr} disclose its contents.")
+					wmap_report(rep_id,'VULNERABILITY','DIR_LISTING',"#{tpath}","Directory #{tpath} discloses its contents.")
 				end
 			else
 				print_status("NOT Vulnerable to directoy listing http://#{target_host}:#{datastore['RPORT']}#{tpath}") 
