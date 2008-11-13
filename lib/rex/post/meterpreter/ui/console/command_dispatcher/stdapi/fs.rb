@@ -97,7 +97,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 			return true
 		end
 
-		Dir.chdir(args[0])
+		::Dir.chdir(args[0])
 
 		return true
 	end
