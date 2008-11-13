@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 		frame = create_frame()
 		
 		print_status("Sending #{cnt} frames...")
-		0.upto(cnt) { |i| wifi.write(frame)	}
+		cnt.times { wifi.write(frame) }
 	end
 	
 	def create_frame

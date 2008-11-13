@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Sending #{datastore['NUM']} frames.....")
 
-		0.upto(datastore['NUM'].to_i) do
+		datastore['NUM'].to_i.times do
 			wifi.write(create_deauth())
 		end
 		close_wifi

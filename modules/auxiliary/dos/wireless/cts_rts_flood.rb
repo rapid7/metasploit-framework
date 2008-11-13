@@ -42,9 +42,9 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	
 		open_wifi	
-		print_status("Sending #{datastore['NUM']} #{datastore['TYPE'].upcase} frame.....")
+		print_status("Sending #{datastore['NUM']} #{datastore['TYPE'].upcase} frames.....")
 
-		0.upto(datastore['NUM'].to_i) do
+		datastore['NUM'].to_i.times do
 			wifi.write(frame)
 		end
 
