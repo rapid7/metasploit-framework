@@ -76,6 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 			tcode = res.code.to_i 
 
+	
 			# Look for a string we can signature on as well
 			if(tcode >= 200 and tcode <= 299)
 			
@@ -92,6 +93,9 @@ class Metasploit3 < Msf::Auxiliary
 				else
 					print_status("Using custom 404 string of '#{emesg}'")
 				end
+			else
+				ecode = tcode
+				print_status("Using code '#{ecode}' as not found.")
 			end
 			
 			
