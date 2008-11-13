@@ -18,6 +18,7 @@ atom
 back-up
 backend
 backup
+backup_
 backups
 bak
 bin
@@ -203,3 +204,6 @@ wp-register
 ws
 ws4ee
 xml
+_bak
+_backup
+.ssh
