@@ -37,19 +37,29 @@ class Metasploit3 < Msf::Auxiliary
 				OptPath.new('DICTIONARY',   [ false, "Path of word dictionary to use", 
 						File.join(Msf::Config.install_root, "data", "wmap", "wmap_dirs.txt")
 					]
-				)
+				),
+				OptPath.new('HTTP404S',   [ false, "Path of 404 signatures to use", 
+						File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
+					]
+				)				
 			], self.class)	
 						
 	end
 
 	def run_host(ip)
 		conn = true
+		ecode = nil
+		emesg = nil
 	
 		tpath = datastore['PATH'] 	
 		if tpath[-1,1] != '/'
 			tpath += '/'
 		end
  	
+		vhost = datastore['VHOST'] || target_host
+		prot  = datastore['SSL'] ? 'https' : 'http'
+		
+		 
 		#
 		# Detect error code
 		# 		
@@ -61,45 +71,67 @@ class Metasploit3 < Msf::Auxiliary
 				'ctype'		=> 'text/html'
 			}, 20)
 
-			if (res)
-				ecode = res.code.to_i 
-				print_status("Error code set to #{ecode}")
-			else
-				ecode = datastore['ERROR_CODE']
-				print_status("Using default error code #{ecode}")
+
+			ecode = datastore['ERROR_CODE'].to_i
+
+			return if not res
+			
+			tcode = res.code.to_i 
+
+			# Look for a string we can signature on as well
+			if(tcode >= 200 and tcode <= 299)
+				ecode = nil
+				File.open(datastore['HTTP404S']).each do |str|
+					if(res.body.index(str))
+						emesg = str
+						break
+					end
+				end
+
+				if(not emesg)
+					print_status("Using first 256 bytes of the response as 404 string")
+					emesg = res.body[0,256]
+				else
+					print_status("Using custom 404 string of '#{emesg}'")
+				end
 			end
+			
+			
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			conn = false		
 		rescue ::Timeout::Error, ::Errno::EPIPE			
 		end
+
+		return if not conn
 		
-		if conn
-			File.open(datastore['DICTIONARY']).each { |testf|
-				begin
-					testfdir = testf.chomp + '/'
-					res = send_request_cgi({
-						'uri'  		=>  tpath+testfdir,
-						'method'   	=> 'GET',
-						'ctype'		=> 'text/html'
-					}, 20)
+	
+		File.open(datastore['DICTIONARY']).each do |testf|
+			begin
+				testfdir = testf.chomp + '/'
+				res = send_request_cgi({
+					'uri'  		=>  tpath+testfdir,
+					'method'   	=> 'GET',
+					'ctype'		=> 'text/html'
+				}, 20)
 
-					if (res and res.code.to_i != ecode.to_i) 
-						print_status("Found http://#{target_host}:#{datastore['RPORT']}#{tpath}#{testfdir}  #{res.code}")
-						rep_id = wmap_base_report_id(
-										wmap_target_host,
-										wmap_target_port,
-										wmap_target_ssl
-								)
-						vul_id = wmap_report(rep_id,'DIRECTORY','NAME',"#{tpath}#{testfdir}","Directory #{tpath}#{testfdir} found.")
-						wmap_report(vul_id,'DIRECTORY','RESP_CODE',"#{res.code}",nil)
-					else
-						print_status("NOT Found http://#{target_host}:#{datastore['RPORT']}#{tpath}#{testfdir}  #{res.code}") 
-					end
 
-				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-				rescue ::Timeout::Error, ::Errno::EPIPE			
+				if(not res or (res.code.to_i == ecode) or (emesg and res.body.index(emesg)))
+					print_status("NOT Found #{prot}://#{vhost}:#{datastore['RPORT']}#{tpath}#{testfdir} #{res.code} (#{target_host})") 					
+				else
+					print_status("Found #{prot}://#{vhost}:#{datastore['RPORT']}#{tpath}#{testfdir} #{res.code} (#{target_host})")
+					rep_id = wmap_base_report_id(
+									wmap_target_host,
+									wmap_target_port,
+									wmap_target_ssl
+							)
+					vul_id = wmap_report(rep_id,'DIRECTORY','NAME',"#{tpath}#{testfdir}","Directory #{tpath}#{testfdir} found.")
+					wmap_report(vul_id,'DIRECTORY','RESP_CODE',"#{res.code}",nil)
 				end
-			}
+
+			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			rescue ::Timeout::Error, ::Errno::EPIPE			
+			end
 		end
+	
 	end
 end
