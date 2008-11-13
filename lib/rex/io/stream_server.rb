@@ -130,9 +130,6 @@ protected
 	#
 	def monitor_listener
 	
-		p "LLLLLLLLLLLLLLLL"
-		p fd
-		
 		begin
 			sd = Kernel.select([ fd ], nil, nil, 0)
 
