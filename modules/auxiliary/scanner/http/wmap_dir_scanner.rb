@@ -56,6 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 			tpath += '/'
 		end
  	
+		ecode = datastore['ERROR_CODE'].to_i
 		vhost = datastore['VHOST'] || target_host
 		prot  = datastore['SSL'] ? 'https' : 'http'
 		
@@ -71,16 +72,13 @@ class Metasploit3 < Msf::Auxiliary
 				'ctype'		=> 'text/html'
 			}, 20)
 
-
-			ecode = datastore['ERROR_CODE'].to_i
-
 			return if not res
 			
 			tcode = res.code.to_i 
 
 			# Look for a string we can signature on as well
 			if(tcode >= 200 and tcode <= 299)
-				ecode = nil
+			
 				File.open(datastore['HTTP404S']).each do |str|
 					if(res.body.index(str))
 						emesg = str
@@ -114,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 					'ctype'		=> 'text/html'
 				}, 20)
 
-
+				
 				if(not res or (res.code.to_i == ecode) or (emesg and res.body.index(emesg)))
 					print_status("NOT Found #{prot}://#{vhost}:#{datastore['RPORT']}#{tpath}#{testfdir} #{res.code} (#{target_host})") 					
 				else
