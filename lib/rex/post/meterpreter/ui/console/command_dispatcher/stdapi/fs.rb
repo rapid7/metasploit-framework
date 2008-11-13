@@ -43,7 +43,9 @@ class Console::CommandDispatcher::Stdapi::Fs
 			"pwd"      => "Print working directory",
 			"rmdir"    => "Remove directory",
 			"upload"   => "Upload a file or directory",
-			"lcd"      => "Change local directory",
+			"lcd"      => "Change local working directory",
+			"getlwd"   => "Print local working directory",
+			"lpwd"     => "Print local working directory"
 		}
 	end
 
@@ -193,6 +195,16 @@ class Console::CommandDispatcher::Stdapi::Fs
 		# Get rid of that pesky temporary file
 		::File.unlink(temp_path)
 	end
+
+	#
+	# Display the local working directory.
+	#
+	def cmd_lpwd(*args)
+		print_line(::Dir.pwd)
+		return true
+	end
+
+	alias cmd_getlwd cmd_lpwd
 
 	#
 	# Lists files
