@@ -162,6 +162,13 @@ module X86
 	end
 
 	#
+	# This method generates a push word instruction.
+	#
+	def self.push_word(val)
+		return "\x66\x68" + [ val ].pack('v') 
+	end
+
+	#
 	# This method generates a push dword instruction.
 	#
 	def self.push_dword(val)
