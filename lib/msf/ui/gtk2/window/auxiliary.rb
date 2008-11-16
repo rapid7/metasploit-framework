@@ -64,7 +64,13 @@ module Msf
 
             # scroll to the end
             @buffer.move_mark('end_mark', @buffer.end_iter)
-            @view.scroll_mark_onscreen(@buffer.get_mark('end_mark'))
+			
+			# Handle cases where the window was closed
+			begin
+	            @view.scroll_mark_onscreen(@buffer.get_mark('end_mark'))
+			rescue
+			end
+			
           end
 
           private
