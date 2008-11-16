@@ -334,7 +334,7 @@ module Msf
             result = MsfWindow::Auxiliary.new(@mydriver.active_module.fullname, @hash)
 
             action  = @mydriver.exploit.datastore['ACTION']
-            jobify  = false
+            jobify  = true
 
             @pipe = Msf::Ui::Gtk2::GtkConsolePipe.new
 
@@ -343,12 +343,7 @@ module Msf
               result.append_log_view(msg)
             end
 
-            @pipe.print_status("Launching auxiliary #{@mydriver.exploit.refname}...")
-
-            # Always run passive modules in the background
-            if (@mydriver.exploit.passive? or @mydriver.exploit.passive_action?(action))
-              jobify = true
-            end
+            @pipe.print_status("Launching auxiliary #{@mydriver.exploit.refname}...")  
 	
             begin
               Thread.new do
@@ -358,14 +353,12 @@ module Msf
                 'LocalInput'    => @pipe,
                 'LocalOutput'   => @pipe,
                 'RunAsJob'      => jobify
-                )
-                @pipe.print_status("Auxiliary #{@mydriver.exploit.refname} completed.")			
+                )		
               end
                 
               result.show_all
             rescue ::Exception => e
-              select(nil, nil, nil, 0.01)
-              @pipe.print_status("Auxiliary #{@mydriver.exploit.refname} completed.")			
+              select(nil, nil, nil, 0.01)		
               return false
             end
           end
