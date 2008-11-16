@@ -20,24 +20,24 @@ class ApplicationController < ActionController::Base
     mlist.each do |m|
 	  
       if (terms.length == 0)
-        res[m.name]=m
+        res[m.refname]=m
         next
       end
 	
       terms.split(/,/).each do |term|
         
         if (m.name.downcase.index(term.downcase))
-          res[m.name]=m
+          res[m.refname]=m
           break
         end
 
         if (m.refname.downcase.index(term.downcase))
-          res[m.name]=m
+          res[m.refname]=m
           break
         end
 
         if (m.description.downcase.index(term.downcase))
-          res[m.name]=m
+          res[m.refname]=m
           break
         end
         
@@ -47,7 +47,7 @@ class ApplicationController < ActionController::Base
 	
     # Sort the modules by name
     list = []
-    res.keys.sort.each do |n|
+    res.keys.sort{|a,b| res[a].name <=> res[b].name }.each do |n|
       list << res[n]
     end
       
