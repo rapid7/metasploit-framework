@@ -4,7 +4,7 @@
 #
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
-$:.unshift(File.join(File.dirname(msfbase), 'lib'))
+$:.unshift(File.join(File.expand_path(File.dirname(msfbase)), 'lib'))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex'

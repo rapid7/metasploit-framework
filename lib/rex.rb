@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =end
 
 module Rex
-	Root = File.join(File.dirname(__FILE__), 'rex')
+	Root = File.join(File.expand_path(File.dirname(__FILE__)), 'rex')
 	LogSource = "rex"
 end
 

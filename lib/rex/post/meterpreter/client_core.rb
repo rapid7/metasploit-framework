@@ -140,7 +140,7 @@ class ClientCore < Extension
 		end
 		# Get us to the installation root and then into data/meterpreter, where
 		# the file is expected to be
-		path = File.join(File.dirname(__FILE__), '..', '..', '..', '..', 'data/meterpreter/ext_server_' + mod.downcase + '.dll')
+		path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter', 'ext_server_' + mod.downcase + '.dll')
 
 		if (opts['ExtensionPath'])
 			path = opts['ExtensionPath']
@@ -320,7 +320,7 @@ class ClientCore < Extension
 		wrote = client.sock.write(inject_lib)
 
 		# Transmit the size of the server
-		metsrv = File.join(File.dirname(__FILE__), '..', '..', '..', '..', "data", "meterpreter", "metsrv.dll")
+		metsrv = ::File.join(Msf::Config.install_root, "data", "meterpreter", "metsrv.dll")
 		buf    = "metsrv.dll\x00"
 	
 		::File.open(metsrv, 'rb') { |f|
