@@ -127,6 +127,7 @@ class Server
 	# Listens on the defined port and host and starts monitoring for clients.
 	#
 	def start
+	
 		self.listener = Rex::Socket::TcpServer.create(
 			'LocalHost' => self.listen_host,
 			'LocalPort' => self.listen_port,
@@ -151,6 +152,14 @@ class Server
 	def stop
 		self.listener.stop
 		self.listener.close
+	end
+
+
+	#
+	# Waits for the HTTP service to terminate
+	#
+	def wait
+		self.listener.wait if self.listener
 	end
 
 	#
