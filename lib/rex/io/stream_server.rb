@@ -96,6 +96,13 @@ module StreamServer
 			end
 		end
 	end
+	
+	#
+	# This method waits on the server listener thread
+	#
+	def wait
+		self.listener_thread.join if self.listener_thread
+	end	
 
 	##
 	#
@@ -131,7 +138,7 @@ protected
 	def monitor_listener
 	
 		begin
-			sd = Kernel.select([ fd ], nil, nil, 0)
+			sd = Kernel.select([ fd ], nil, nil, 0.25)
 
 			# Accept the new client connection
 			if (sd and sd[0].length > 0)

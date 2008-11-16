@@ -26,15 +26,10 @@ class Job
 	#
 	def start(async = false)
 		if (async)
-			begin
-				run_proc.call(ctx)
-			rescue ::Exception
-				container.stop_job(jid)
-
-				raise $!
-			end
-		else
 			self.job_thread = Thread.new {
+				# Deschedule our thread momentarily
+				select(nil, nil, nil, 0.01)
+				
 				begin
 					run_proc.call(ctx)
 				ensure
@@ -42,6 +37,13 @@ class Job
 					container.remove_job(self)
 				end
 			}
+		else
+			begin
+				run_proc.call(ctx)
+			rescue ::Exception
+				container.stop_job(jid)
+				raise $!
+			end
 		end
 	end
 

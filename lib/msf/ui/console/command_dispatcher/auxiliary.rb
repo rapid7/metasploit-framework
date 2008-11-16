@@ -17,7 +17,8 @@ class Auxiliary
 		"-h" => [ false, "Help banner."                                                        ],
 		"-j" => [ false, "Run in the context of a job."                                       ],
 		"-o" => [ true,  "A comma separated list of options in VAR=VAL format."                ],
-		"-a" => [ true,  "The action to use.  If none is specified, ACTION is used."           ]
+		"-a" => [ true,  "The action to use.  If none is specified, ACTION is used."           ],
+		"-q" => [ false, "Run the module in quiet mode with no output"                         ]
 	)
 		
 	#
@@ -101,7 +102,8 @@ class Auxiliary
 		opt_str = nil
 		action  = mod.datastore['ACTION']
 		jobify  = false
-
+		quiet   = false
+		
 		@@auxiliary_opts.parse(args) { |opt, idx, val|
 			case opt
 				when '-j'
@@ -110,6 +112,8 @@ class Auxiliary
 					opt_str = val
 				when '-a'
 					action = val
+				when '-q'
+					quiet  = true
 				when '-h'
 					print(
 						"Usage: run [options]\n\n" +
@@ -130,7 +134,8 @@ class Auxiliary
 				'OptionStr'      => opt_str,
 				'LocalInput'     => driver.input,
 				'LocalOutput'    => driver.output,
-				'RunAsJob'       => jobify
+				'RunAsJob'       => jobify,
+				'Quiet'          => quiet
 			)
 		rescue ::Exception => e
 			print_error("Auxiliary failed: #{e.class} #{e}")

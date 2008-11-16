@@ -54,27 +54,22 @@ module Auxiliary
 		mod.options.validate(mod.datastore)
 
 		# Initialize user interaction
-		mod.init_ui(opts['LocalInput'],opts['LocalOutput'])
+		if(not opts['Quiet'])
+			mod.init_ui(opts['LocalInput'],opts['LocalOutput'])
+		else
+			mod.init_ui(nil, nil)
+		end
 
-		if(mod.passive?)		
+		if(mod.passive? or opts['RunAsJob'])
 			mod.framework.jobs.start_bg_job(
 				"Auxiliary: #{mod.refname}", 
 				mod,
 				Proc.new { |mod| self.job_run_proc(mod) },
 				Proc.new { |mod| self.job_cleanup_proc(mod) }
 			)
-		else		
-			if (opts['RunAsJob'])
-				mod.framework.jobs.start_job(
-					"Auxiliary: #{mod.refname}", 
-					mod,
-					Proc.new { |mod| self.job_run_proc(mod) },
-					Proc.new { |mod| self.job_cleanup_proc(mod) }
-				)
-			else
-				self.job_run_proc(mod)
-				self.job_cleanup_proc(mod)
-			end
+		else
+			self.job_run_proc(mod)
+			self.job_cleanup_proc(mod)
 		end
 	end
 
@@ -103,7 +98,7 @@ protected
 					mod.print_error("  #{line}")
 				end
 			end
-						
+
 			elog("Auxiliary failed: #{e.class} #{e}", 'core', LEV_0)
 			dlog("Call stack:\n#{$@.join("\n")}", 'core', LEV_3)
 
