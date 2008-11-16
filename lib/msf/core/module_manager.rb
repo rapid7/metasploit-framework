@@ -444,6 +444,7 @@ class ModuleManager < ModuleSet
 			@modcache.add_group(type, false)
 
 			@modcache[type].each_key { |name|
+
 				fullname = type + '/' + name
 
 				# Make sure the files associated with this module exist.  If it
@@ -462,10 +463,14 @@ class ModuleManager < ModuleSet
 						LEV_1);
 					next
 				end
-
 				module_sets[type][name] = SymbolicModule
 			}
 		}
+		
+		if(not (@modcache['ModuleTypeCounts'] and @modcache['ModuleTypeCounts'].keys.length > 0))
+			@modcache_invalidated = true
+		end
+						
 	end
 
 	#
