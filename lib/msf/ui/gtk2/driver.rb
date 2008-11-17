@@ -138,7 +138,10 @@ module Ui
 		#
 		def get_icon(name)
 			path = get_image(name) + ".gz"
-			buff = File.read(path, File.size(path))
+			fd   = File.open(path, "rb")
+			buff = fd.read( File.size(path) )
+			fd.close 
+			
 			Gdk::Pixbuf.new(Rex::Text.ungzip(buff).split("\n"))
 		end
 
