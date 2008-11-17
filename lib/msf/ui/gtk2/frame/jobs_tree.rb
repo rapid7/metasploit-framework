@@ -100,12 +100,12 @@ module Msf
 
           # Add AutoPWN - DISABLED FOR NOW
 		  # @autopwn_iter = @model.append(nil)
-          # @autopwn_iter.set_value(PIX, driver.get_icon("menu_autopwn.png"))
+          # @autopwn_iter.set_value(PIX, driver.get_icon("menu_autopwn.xpm"))
           # @autopwn_iter.set_value(JID, "AutoPWN")
 
           # Add Parent "One shot"
           @oneshot_iter = @model.append(nil)
-          @oneshot_iter.set_value(PIX, driver.get_icon("menu_oneshot.png"))
+          @oneshot_iter.set_value(PIX, driver.get_icon("menu_oneshot.xpm"))
           @oneshot_iter.set_value(JID, "Jobs")
 
           # Job Gtk::Menu
@@ -228,12 +228,12 @@ module Msf
           @model.clear
           # Add AutoPWN
           #@autopwn_iter = @model.append(nil)
-          #@autopwn_iter.set_value(PIX, driver.get_icon("menu_autopwn.png"))
+          #@autopwn_iter.set_value(PIX, driver.get_icon("menu_autopwn.xpm"))
           #@autopwn_iter.set_value(JID, "AutoPWN")
 
           # Add Parent "One shot"
           @oneshot_iter = @model.append(nil)
-          @oneshot_iter.set_value(PIX, driver.get_icon("menu_oneshot.png"))
+          @oneshot_iter.set_value(PIX, driver.get_icon("menu_oneshot.xpm"))
           @oneshot_iter.set_value(JID, "Jobs")
         end
 

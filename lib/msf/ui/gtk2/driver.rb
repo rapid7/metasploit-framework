@@ -137,7 +137,9 @@ module Ui
 		# Returns a new Gdk::Pixbuf object
 		#
 		def get_icon(name)
-			Gdk::Pixbuf.new(File.join(resource_directory, 'pix', name))
+			path = get_image(name) + ".gz"
+			buff = File.read(path, File.size(path))
+			Gdk::Pixbuf.new(Rex::Text.ungzip(buff).split("\n"))
 		end
 
 		#

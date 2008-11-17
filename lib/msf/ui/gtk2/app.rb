@@ -98,7 +98,7 @@ module Ui
 			set_default_size(460,301)
 			set_border_width(5)
 			
-			image = Gtk::Image.new(driver.get_icon("splash.png"))
+			image = Gtk::Image.new(driver.get_icon("splash.xpm"))
 			add(image)
 
 			show_all

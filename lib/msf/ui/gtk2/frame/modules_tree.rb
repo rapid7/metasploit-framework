@@ -335,10 +335,10 @@ module Gtk2
 			add_modules_to_store(
 				@model, nil, "Exploits", mod_exploits, 
 				{
-					:top_icon => "bug.png",
+					:top_icon => "bug.xpm",
 					:top_desc => "All loaded exploit modules (#{framework.stats.num_exploits.to_s})",
-					:dir_icon => "gnome-fs-directory.png",
-					:mod_icon => "bug.png",
+					:dir_icon => "gnome-fs-directory.xpm",
+					:mod_icon => "bug.xpm",
 					:type     => EXP
 				}
 			)
@@ -346,10 +346,10 @@ module Gtk2
 			add_modules_to_store(
 				@model, nil, "Auxiliary", mod_auxiliary, 
 				{
-					:top_icon => "zoom.png",
+					:top_icon => "zoom.xpm",
 					:top_desc => "All loaded auxiliary modules (#{framework.stats.num_auxiliary.to_s})",
-					:dir_icon => "gnome-fs-directory.png",
-					:mod_icon => "zoom.png",
+					:dir_icon => "gnome-fs-directory.xpm",
+					:mod_icon => "zoom.xpm",
 					:type     => AUX
 				}
 			)
@@ -359,7 +359,7 @@ module Gtk2
 			#
 			# # Add Parent "Payloads (nbr payloads)"
 			# iter = @model.append(nil)
-			# iter.set_value(PIX, driver.get_icon("bomb.png"))
+			# iter.set_value(PIX, driver.get_icon("bomb.xpm"))
 			# iter.set_value(NAME, "Payloads (#{framework.stats.num_payloads.to_s})")
 			# iter.set_value(MOD, nil)
 			# iter.set_value(ADV, true)
@@ -378,7 +378,7 @@ module Gtk2
 			# 
 			# # Add Parent "Nops (nbr nops)"
 			# iter = @model.append(nil)
-			# iter.set_value(PIX, driver.get_icon("encoders.png"))
+			# iter.set_value(PIX, driver.get_icon("encoders.xpm"))
 			# iter.set_value(NAME, "NOPs (#{framework.stats.num_nops.to_s})")
 			# iter.set_value(MOD, nil)
 			# iter.set_value(ADV, true)
@@ -397,7 +397,7 @@ module Gtk2
 			# 
 			# # Add Parent "Encoders (nbr encoders)"
 			# iter = @model.append(nil)
-			# iter.set_value(PIX, driver.get_icon("encoders.png"))
+			# iter.set_value(PIX, driver.get_icon("encoders.xpm"))
 			# iter.set_value(NAME, "Encoders (#{framework.stats.num_encoders.to_s})")
 			# iter.set_value(MOD, nil)
 			# iter.set_value(ADV, true)
