@@ -1,5 +1,5 @@
 /*
- *  $Id: sco-x86-shellcode.c 2 2008-02-27 17:34:58Z ramon $
+ *  $Id: sco-x86-shellcode.c 40 2008-11-17 02:45:30Z ramon $
  *
  *  sco-x86-shellcode.c
  *  Copyright 2004 Ramon de Carvalho Valle <ramon@risesecurity.org>

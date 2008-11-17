@@ -1,5 +1,5 @@
 /*
- *  $Id: lin-x86-bndsockcode.c 2 2008-02-27 17:34:58Z ramon $
+ *  $Id: lin-x86-bndsockcode.c 40 2008-11-17 02:45:30Z ramon $
  *
  *  lin-x86-bndsockcode.c
  *  Copyright 2004 Ramon de Carvalho Valle <ramon@risesecurity.org>

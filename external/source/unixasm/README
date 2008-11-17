@@ -1,0 +1,73 @@
+UNIX Assembly Components for Proof of Concept Codes
+------------------------------------------------------------------------------
+
+Introduction
+
+This project contains a set of assembly components for proof of concept codes
+on different operating systems and architectures. These components were
+carefully designed and implemented for maximum reliability, following strict
+coding standards and requirements, such as system call invocation standards,
+position independent, register independent and zero free code. A special
+attention was put on code length when designing and implementing them,
+resulting in the most reliable and shortest codes for such purpose available
+today.
+
+
+Code length
+
+Operating System    bndsockcode         cntsockcode         fndsockcode
+and Architecture
+
+AIX Power           264                 204                 220
+BSD x86             73                  64                  60
+Linux x86           78                  71                  62
+Linux Power/CBEA    223                 183                 171
+Mac OS X x86        74                  65                  61
+Solaris x86         95                  91                  86
+
+
+Code functionality
+
+These components are differentiated by their actual functionality and impact
+of practical application. Here follows a brief description of the
+functionality of some of them.
+
+Network server code (bndsockcode)
+
+This code creates a listening TCP socket on a port defined at BNDSOCKPORT
+offset of bndsockcode routine (its value is set to 1234 by default). Upon
+accepting a connection, it duplicates the socket descriptor of the remote TCP
+endpoint to the process standard descriptors (stdin, stdout and stderr) and
+executes an interactive shell.
+
+Network connect code (cntsockcode)
+
+This code establishes a TCP connection with a remote IP address and port
+defined at CNTSOCKADDR and CNTSOCKPORT offsets of cntsockcode routine (its
+values are set to 127.0.0.1 and 1234 by default respectively). Upon
+establishing a connection, it duplicates the socket descriptor of the remote
+TCP endpoint to the process standard descriptors (stdin, stdout and stderr)
+and executes an interactive shell.
+
+Find socket code (fndsockcode)
+
+This code walks the process descriptor table in a search for a socket
+descriptor of the remote TCP endpoint identified by a port number defined at
+FNDSOCKPORT offset of the fndsockcode. In a case such a endpoint is located,
+the loop is terminated and found socket descriptor is duplicated on the
+process standard descriptors (stdin, stdout and stderr).
+
+Prior to executing the fndsockcode, a client software should establish a TCP
+connection with a process in which context the code is to be executed.
+Appropriate setting of the code data at FNDSOCKPORT offset of fndsockcode
+should be also made to assure proper identification of the client's
+connection.
+
+
+Get the latest development version
+
+The latest development version is available in our Subversion repository. Get
+it with the following command, which requires Subversion.
+
+svn co http://risesecurity.org/svn/unixasm/trunk
+

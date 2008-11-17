@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 #
-#   $Id: objdumptoc.rb 4 2008-08-28 23:28:59Z ramon $
+#   $Id: objdumptoc.rb 40 2008-11-17 02:45:30Z ramon $
 #
 #   objdumptoc.rb - Convert GNU objdump output to C source
 #   Copyright 2007 Ramon de Carvalho Valle <ramon@risesecurity.org>
@@ -82,12 +82,12 @@ class Parser
 		self.block[-1][-1] = block[-1][-1].ljust(SIZE1)
 		self.block[-1][-1] << '/*  '
 
-        # For file format aixcoff-rs6000
-        if temp.length == 4
-            temp[2] << ' '
-            temp[2] << temp[3]
-            temp.pop
-        end
+		# For file format aixcoff-rs6000
+		if temp.length == 4
+			temp[2] << ' '
+			temp[2] << temp[3]
+			temp.pop
+		end
 
 		if temp.length == 3
 			temp[2].strip!

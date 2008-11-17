@@ -1,5 +1,5 @@
 /*
- *  $Id: aix-power.h 6 2008-09-10 17:27:50Z ramon $
+ *  $Id: aix-power.h 40 2008-11-17 02:45:30Z ramon $
  *
  *  aix-power.h
  *  Copyright 2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
@@ -25,7 +25,7 @@
 
 #define __CAL 511
 
-#ifdef V41
+#ifdef V410
 #define __NR_execve      3
 #define __NR_getpeername 67
 #define __NR_accept      83
@@ -37,7 +37,7 @@
 #define __NR_kfcntl      214
 #endif
 
-#ifdef V42
+#ifdef V420
 #define __NR_execve      2
 #define __NR_getpeername 72
 #define __NR_accept      88
@@ -49,7 +49,7 @@
 #define __NR_kfcntl      231
 #endif
 
-#ifdef V43
+#ifdef V430
 #define __NR_execve      4
 #define __NR_getpeername 85
 #define __NR_accept      101
@@ -61,7 +61,7 @@
 #define __NR_kfcntl      252
 #endif
 
-#ifdef V4330
+#ifdef V433
 #define __NR_execve      3
 #define __NR_getpeername 101
 #define __NR_accept      117
@@ -73,7 +73,7 @@
 #define __NR_kfcntl      271
 #endif
 
-#ifdef V53
+#ifdef V530
 #define __NR_execve      5
 #define __NR_getpeername 122
 #define __NR_accept      138

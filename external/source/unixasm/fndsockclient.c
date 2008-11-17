@@ -1,5 +1,5 @@
 /*
- *  $Id: fndsockclient.c 6 2008-09-10 17:27:50Z ramon $
+ *  $Id: fndsockclient.c 40 2008-11-17 02:45:30Z ramon $
  *
  *  fndsockclient.c - Sample fndsockcode client for testing purposes
  *  Copyright 2006 Ramon de Carvalho Valle <ramon@risesecurity.org>
@@ -36,6 +36,10 @@
 #include "aix-power-fndsockcode.c"
 #elif defined(BSD) && defined(X86)
 #include "bsd-x86-fndsockcode.c"
+#elif defined(LINUX) && (defined(POWER) || defined(POWERPC)) && defined(M64)
+#include "lin-power-fndsockcode64.c"
+#elif defined(LINUX) && (defined(POWER) || defined(POWERPC))
+#include "lin-power-fndsockcode.c"
 #elif defined(LINUX) && defined(X86)
 #include "lin-x86-fndsockcode.c"
 #elif defined(OSX) && defined(X86)
@@ -86,8 +90,9 @@ main(int argc, char **argv)
     int debug = 0, verbose = 0;
     struct sockaddr_in sin;
     struct hostent *he;
-    size_t sin_len = sizeof(sin);
+    socklen_t sin_len = sizeof(sin);
     int count;
+    char *buf;
 
     while ((c = getopt(argc, argv, "a:dp:v")) != -1) {
         switch (c) {
@@ -138,16 +143,24 @@ main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    fndsockcode[FNDSOCKPORT] = (unsigned char)((ntohs(sin.sin_port)>>8)&0xff);
-    fndsockcode[FNDSOCKPORT+1] = (unsigned char)(ntohs(sin.sin_port)&0xff);
+#if defined(M64)
+    #define BUFSIZE sizeof(fndsockcode64)
+    buf = fndsockcode64;
+#else
+    #define BUFSIZE sizeof(fndsockcode)
+    buf = fndsockcode;
+#endif
 
-    if ((count = send(s, fndsockcode, sizeof(fndsockcode)-1, 0)) == -1) {
+    buf[FNDSOCKPORT] = (unsigned char)((ntohs(sin.sin_port)>>8)&0xff);
+    buf[FNDSOCKPORT+1] = (unsigned char)(ntohs(sin.sin_port)&0xff);
+
+    if ((count = send(s, buf, BUFSIZE-1, 0)) == -1) {
         perror("send");
         exit(EXIT_FAILURE);
     }
 
     if (debug)
-        hexdump(fndsockcode, sizeof(fndsockcode)-1);
+        hexdump(buf, BUFSIZE-1);
 
     if (debug || verbose)
         printf("%d bytes sent\n", count);
@@ -191,3 +204,4 @@ main(int argc, char **argv)
 
     exit(EXIT_SUCCESS);
 }
+

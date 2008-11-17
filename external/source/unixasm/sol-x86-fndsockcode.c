@@ -1,5 +1,5 @@
 /*
- *  $Id: sol-x86-fndsockcode.c 2 2008-02-27 17:34:58Z ramon $
+ *  $Id: sol-x86-fndsockcode.c 40 2008-11-17 02:45:30Z ramon $
  *
  *  sol-x86-fndsockcode.c
  *  Copyright 2006 Ramon de Carvalho Valle <ramon@risesecurity.org>

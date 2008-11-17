@@ -1,5 +1,5 @@
 /*
- *  $Id: fndsockserver.c 6 2008-09-10 17:27:50Z ramon $
+ *  $Id: fndsockserver.c 40 2008-11-17 02:45:30Z ramon $
  *
  *  fndsockserver.c - Sample fndsockcode server for testing purposes
  *  Copyright 2006 Ramon de Carvalho Valle <ramon@risesecurity.org>
@@ -125,7 +125,7 @@ main(int argc, char **argv)
     while (1) {
         int tmp;
         struct sockaddr_in sin;
-        size_t sin_len = sizeof(sin);
+        socklen_t sin_len = sizeof(sin);
 
         if((tmp = accept(s, (struct sockaddr *)&sin, &sin_len)) == -1) {
             perror("accept");
@@ -150,10 +150,11 @@ main(int argc, char **argv)
 
             sleep(2);
 
-#if defined(AIX)
+#if (defined(POWER) || defined(POWERPC)) && defined(M64)
             {
-            	int jump[2] = {(int)buf, 0};
-            	(*(void (*)())jump)();
+                /* fake function descriptor */
+                unsigned long fdesc[2] = {(unsigned long)buf, 0};
+                (*(void (*)())fdesc)();
             }
 #else
             (*(void (*)())buf)();
@@ -165,3 +166,4 @@ main(int argc, char **argv)
 
     exit(EXIT_SUCCESS);
 }
+
