@@ -30,8 +30,11 @@ ENABLE_PROCESSED_INPUT = 1
 #
 
 @@is_windows = @@is_macosx = @@is_linux = @@is_bsdi = @@is_freebsd = @@is_netbsd = @@is_openbsd = @@is_java = false
-@@loaded_win32api = false
-@@loaded_dl       = false
+@@loaded_win32api  = false
+@@loaded_dl        = false
+@@loaded_tempfile  = false
+@@loaded_fileutils = false
+
 
 def self.is_windows
 	return @@is_windows if @@is_windows
@@ -301,6 +304,32 @@ def self.pipe
 	return [pipe1, pipe2]
 end
 
+#
+# Copy a file to a temporary path
+#
+
+def self.temp_copy(path)
+	raise RuntimeError,"missing Tempfile" if not @@loaded_tempfile	
+	fd = File.open(path, "rb")
+	tp = Tempfile.new("msftemp")	
+	tp.write(fd.read(File.size(path)))
+	tp.close
+	fd.close	
+	tp
+end
+
+#
+# Delete an opened temporary file
+#
+
+def self.temp_delete(tp)
+	raise RuntimeError,"missing FileUtils" if not @@loaded_fileutils
+	begin
+		FileUtils.rm(tp.path)
+	rescue
+	end
+end
+
 
 #
 # Initialization
@@ -321,7 +350,17 @@ begin
 rescue ::Exception
 end
 
+begin
+	require "tempfile"
+	@@loaded_tempfile = true
+rescue ::Exception
+end
 
+begin
+	require "fileutils"
+	@@loaded_fileutils = true
+rescue ::Exception
+end
 
 
 

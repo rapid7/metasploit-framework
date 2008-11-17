@@ -63,10 +63,12 @@ module Ui
 	class MyGlade
 		include Msf::Ui::Gtk2::MyControls
 
+
 		def initialize(root)
 			# Give the glade file and instance the glade object
-			file_glade = File.join(driver.resource_directory, 'msfgui.glade')
-			glade = GladeXML.new(file_glade, root) { |handler|method(handler) }
+			file_glade = ::Rex::Compat.temp_copy(File.join(driver.resource_directory, 'msfgui.glade'))
+
+			glade = GladeXML.new(file_glade.path, root) { |handler| method(handler) }
 
 			# For all widget names, instance a variable
 			glade.widget_names.each do |name|
@@ -75,6 +77,8 @@ module Ui
 				rescue
 				end
 			end
+			
+			::Rex::Compat.temp_delete(file_glade)
 		end
 	end
 
