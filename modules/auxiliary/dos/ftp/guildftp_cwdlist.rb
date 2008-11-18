@@ -3,7 +3,8 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Ftp
-
+	include Msf::Auxiliary::Dos
+	
 	def initialize(info = {})
 		super(update_info(info,	
 			'Name'           => 'Guild FTPd 0.999.8.11/0.999.14 Heap Corruption',

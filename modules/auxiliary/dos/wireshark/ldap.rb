@@ -12,7 +12,8 @@ require 'scruby'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Ip
-		
+	include Msf::Auxiliary::Dos
+			
 	def initialize
 		super(
 			'Name'        => 'Wireshark LDAP dissector DOS',
@@ -22,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'      => ['MC'],
 			'License'     => MSF_LICENSE,
-			'Version'     => '$Revision:$',
+			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					[ 'CVE', '2008-1562' ],

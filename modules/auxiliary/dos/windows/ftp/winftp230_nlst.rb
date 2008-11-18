@@ -3,7 +3,8 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Ftp
-
+	include Msf::Auxiliary::Dos
+	
 	def initialize(info = {})
 		super(update_info(info,	
 			'Name'           => 'WinFTP 2.3.0 NLST Denial of Service',

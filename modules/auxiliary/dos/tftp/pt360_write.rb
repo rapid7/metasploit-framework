@@ -3,7 +3,8 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Udp
-
+	include Msf::Auxiliary::Dos
+	
 	def initialize(info = {})
 		super(update_info(info,	
 			'Name'           => 'PacketTrap TFTP Server 2.2.5459.0 DoS',

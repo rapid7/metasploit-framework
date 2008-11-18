@@ -3,7 +3,8 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Lorcon
-
+	include Msf::Auxiliary::Dos
+	
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'Wireless Frame (File) Injector',

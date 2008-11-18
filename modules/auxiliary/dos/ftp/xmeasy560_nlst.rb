@@ -3,7 +3,8 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Ftp
-
+	include Msf::Auxiliary::Dos
+	
 	def initialize(info = {})
 		super(update_info(info,	
 			'Name'           => 'XM Easy Personal FTP Server 5.6.0 NLST DoS',

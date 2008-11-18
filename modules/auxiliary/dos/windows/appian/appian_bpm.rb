@@ -15,9 +15,9 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Auxiliary::Dos
 	include Msf::Exploit::Remote::Tcp
-
+	include Msf::Auxiliary::Dos
+	
 	def initialize(info = {})
 		super(update_info(info,	
 			'Name'           => 'Appian Enterprise Business Suite 5.6 SP1 DoS',
