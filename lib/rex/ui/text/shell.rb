@@ -112,21 +112,28 @@ module Shell
 	def run(&block)
 		stop_flag = false
 
-		while ((line = input.pgets))
-			log_output(input.prompt)
+		begin
+		
+			while ((line = input.pgets))
+				log_output(input.prompt)
 
-			# If a block was passed in, pass the line to it.  If it returns true,
-			# break out of the shell loop.
-			if (block)
-				break if (block.call(line))
-			# Otherwise, call what should be an overriden instance method to
-			# process the line.
-			else
-				run_single(line)
+				# If a block was passed in, pass the line to it.  If it returns true,
+				# break out of the shell loop.
+				if (block)
+					break if (block.call(line))
+				# Otherwise, call what should be an overriden instance method to
+				# process the line.
+				else
+					run_single(line)
+				end
+
+				# If the stop flag was set or we've hit EOF, break out
+				break if (input.eof? or self.stop_flag)
 			end
-
-			# If the stop flag was set or we've hit EOF, break out
-			break if (input.eof? or self.stop_flag)
+		# Prevent accidental console quits
+		rescue ::Interrupt
+			output.print("Interrupt: use the 'exit' command to quit\n")
+			retry
 		end
 	end
 
