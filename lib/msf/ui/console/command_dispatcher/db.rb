@@ -426,10 +426,9 @@ module Db
 			end
 
 			data = File.read(fd.path)
+			fd.close
 			
 			File.unlink(fd.path)
-			
-			fd.close
 						
 			load_nmap_xml(data)
 		end		
