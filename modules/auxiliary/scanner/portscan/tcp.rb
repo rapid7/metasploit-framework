@@ -77,6 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 					}
 				)
 				print_status(" TCP OPEN #{ip}:#{port}")
+				report_service(:host => ip, :port => port)
 				s.close
 			rescue ::Interrupt
 				raise $!
