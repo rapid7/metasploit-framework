@@ -49,9 +49,9 @@ module Msf
           @parent_remote_init = remote
 
           # Define the icons for folders and files
-          @file_pixbuf = Gdk::Pixbuf.new(driver.get_image("msf_file.xpm"))
-          @folder_pixbuf = Gdk::Pixbuf.new(driver.get_image("msf_folder.xpm"))
-          @local_folder_pixbuf = Gdk::Pixbuf.new(driver.get_image("msf_local_folder.xpm"))
+          @file_pixbuf = driver.get_icon("msf_file.xpm")
+          @folder_pixbuf = driver.get_icon("msf_folder.xpm")
+          @local_folder_pixbuf = driver.get_icon("msf_local_folder.xpm")
 
           @model_local.set_default_sort_func do |a, b|
             if !a[COL_IS_DIR] and b[COL_IS_DIR]
