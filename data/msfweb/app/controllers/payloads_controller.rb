@@ -39,11 +39,23 @@ class PayloadsController < ApplicationController
           payload_opts += "#{$1}=#{v} "
         end
       }
-      
+	  
+	  
+	  badchars_buff = ""
+	  badchars.split(/,|\s+/).each do |c|
+		c.strip!
+		next if c.length == 0
+		if(c =~ /^0x/)
+			badchars_buff << c.hex.chr
+		else
+			badchars_buff << c.to_i.chr
+		end
+	  end
+	  
       begin
         @generation = modinst.generate_simple(
           'Encoder'   => (pencoder == '__default') ? nil : pencoder,
-          'BadChars'  => badchars,
+          'BadChars'  => badchars_buff,
           'Format'    => pformat || 'c',
           'OptionStr' => payload_opts,
           'MaxSize'   => (max_size == 0) ? nil : max_size)
