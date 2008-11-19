@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'SOCKS Proxy UNC Path Redirection',
 			'Version'     => '$Revision$',
 			'Description'    => %q{
-				This module provides a Socks proxy service a
+				This module provides a Socks proxy service
 			that redirects all HTTP requests to a web page that
 			loads a UNC path.
 			},
