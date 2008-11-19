@@ -1,7 +1,0 @@
-
-
--= Logging
-
-The following descriptions explain when each log level should be used.
-
-
