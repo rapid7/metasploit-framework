@@ -97,7 +97,7 @@ class Console
 		rescue RequestError => info
 			log_error(info.to_s)
 		rescue
-			log_error("Error running command #{method}: #{$!}")
+			log_error("Error running command #{method}: #{$!} #{$!.backtrace}")
 		end
 	end
 
