@@ -57,20 +57,30 @@ module ReverseTcp
 			raise 'tcp connectback can not be used with proxies'
 		end
 
+		ex = false
 		# Switch to IPv6 ANY address if the LHOST is also IPv6
 		addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
-		lsnr = (addr.length == 4) ? "0.0.0.0" : "::0" 
-
-		self.listener_sock = Rex::Socket::TcpServer.create(
-			'LocalHost' => lsnr,
-			'LocalPort' => datastore['LPORT'].to_i,
-			'Comm'      => comm,
-			'Context'   =>
-				{
-					'Msf'        => framework,
-					'MsfPayload' => self,
-					'MsfExploit' => assoc_exploit
-				})
+		[ Rex::Socket.addr_ntoa(addr), "0.0.0.0" ].each { |ip|
+			begin 
+				print_status("Handler binding to LHOST #{ip}")
+				self.listener_sock = Rex::Socket::TcpServer.create(
+					'LocalHost' => ip,
+					'LocalPort' => datastore['LPORT'].to_i,
+					'Comm'      => comm,
+					'Context'   =>
+						{
+							'Msf'        => framework,
+							'MsfPayload' => self,
+							'MsfExploit' => assoc_exploit
+						})
+				ex = false
+				break
+			rescue
+				ex = $!
+				print_error("Bind failed on #{ip}")
+			end
+		}
+		raise ex if (ex) 
 	end
 
 	#
