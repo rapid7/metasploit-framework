@@ -24,7 +24,7 @@ function getVersion(){
 	var os_name;
 	var os_flavor;
 	var os_sp;
-	var os_lang = "English";
+	var os_lang;
 	var browser_name;
 	var browser_version;
 	var useragent = navigator.userAgent;
@@ -32,8 +32,8 @@ function getVersion(){
 	var version = "";
 	version = useragent;
 	
-	document.write("navigator.userAgent = '"+navigator.userAgent+"'<br>");
-	document.write("navigator.appVersion = '"+navigator.appVersion+"'<br>");
+	//document.write("navigator.userAgent = '"+navigator.userAgent+"'<br>");
+	//document.write("navigator.appVersion = '"+navigator.appVersion+"'<br>");
 
 	// Firefox's appVersion on windows doesn't tell us the flavor, so use
 	// userAgent all the time.  If userAgent is spoofed, appVersion will lie
@@ -84,7 +84,7 @@ function getVersion(){
 		version = ScriptEngineMajorVersion().toString();
 		version += ScriptEngineMinorVersion().toString();
 		version += ScriptEngineBuildVersion().toString();
-		document.write("ScriptEngine: "+version+"<br />");
+		//document.write("ScriptEngine: "+version+"<br />");
 		switch (version){
 			case "514615":
 				os_flavor = "2000";
@@ -155,37 +155,15 @@ function getVersion(){
 
 	if (navigator.systemLanguage) {
 		// ie
-		version = navigator.systemLanguage; 
+		os_lang = navigator.systemLanguage;
 	} else if (navigator.language) {
 		// gecko derivatives
-		version = navigator.language; 
+		os_lang = navigator.language;
 	} else {
 		// some other browser and we don't know how to get the language, so
 		// just guess english 
-		version = "en"; 
+		os_lang = "en";
 	}
-
-	document.write("language = '"+version+"'<br>");
-	os_lang = version;
-	//switch (version){
-	//	case "fr": os_lang = "French";     break;
-	//	case "zh": os_lang = "Chinese";    break;
-	//	case "nl": os_lang = "Dutch";      break;
-	//	case "de": os_lang = "German";     break;
-	//	case "it": os_lang = "Italian";    break;
-	//	case "ja": os_lang = "Japanese";   break;
-	//	case "ko": os_lang = "Korean";     break;
-	//	case "pl": os_lang = "Polish";     break;
-	//	case "pt": os_lang = "Portuguese"; break;
-	//	case "ru": os_lang = "Russian";    break;
-	//	case "es": os_lang = "Spanish";    break;
-	//	case "sv": os_lang = "Swedish";    break;
-	//	case "tr": os_lang = "Turkish";    break;
-	//	case "uk": os_lang = "Ukrainian";  break;
-	//	case "vi": os_lang = "Vietnamese"; break;
-	//	default:	//"en", "en-*"
-	//		os_lang = "English"; break;
-	//} // switch navigator.systemLanguage
 
 	version = navigator.platform;
 	if ( ("Win32" == version) || (version.match(/i.86/)) ) {
@@ -194,7 +172,7 @@ function getVersion(){
 		arch = "#{ARCH_PPC}";
 	}
 
-	document.write("Target is: "+os_name+" "+os_flavor+" "+os_sp+" "+os_lang+" / "+browser_name+" "+browser_version +"<br>");
+	//document.write("Target is: "+os_name+" "+os_flavor+" "+os_sp+" "+os_lang+" / "+browser_name+" "+browser_version +"<br>");
 
 	return { os_name:os_name, os_flavor:os_flavor, os_sp:os_sp, os_lang:os_lang, arch:arch, browser_name:browser_name, browser_version:browser_version };
 } // function getVersion
