@@ -59,7 +59,7 @@ module ReverseTcp
 
 		# Switch to IPv6 ANY address if the LHOST is also IPv6
 		addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
-		lsnr = Rex::Socket.addr_ntoa(addr)
+		lsnr = (addr.length == 4) ? "0.0.0.0" : "::0" 
 
 		self.listener_sock = Rex::Socket::TcpServer.create(
 			'LocalHost' => lsnr,
