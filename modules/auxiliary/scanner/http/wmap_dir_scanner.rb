@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 				}, 20)
 
 				
-				if(not res or (res.code.to_i == ecode) or (emesg and res.body.index(emesg)))
+				if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
 					print_status("NOT Found #{prot}://#{vhost}:#{datastore['RPORT']}#{tpath}#{testfdir} #{res.code} (#{target_host})") 					
 				else
 					print_status("Found #{prot}://#{vhost}:#{datastore['RPORT']}#{tpath}#{testfdir} #{res.code} (#{target_host})")
