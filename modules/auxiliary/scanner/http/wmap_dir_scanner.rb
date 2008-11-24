@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path  to identify files", '/']),
-				OptString.new('ERROR_CODE', [ true, "Error code for non existent directory", '404']),
+				OptInt.new('ERROR_CODE', [ true, "Error code for non existent directory", 404]),
 				OptPath.new('DICTIONARY',   [ false, "Path of word dictionary to use", 
 						File.join(Msf::Config.install_root, "data", "wmap", "wmap_dirs.txt")
 					]

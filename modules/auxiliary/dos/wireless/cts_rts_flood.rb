@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('ADDR_DST',[true, "TARGET MAC (e.g 00:DE:AD:BE:EF:00)"]),
 				OptString.new('ADDR_SRC',[false, "Source MAC (not needed for CTS)"]),
 				OptString.new('TYPE',[true,"Type of Frame (RTS, CTS)",'RTS']),
-				OptString.new('NUM',[true, "Number of frames to send",'100'])
+				OptInt.new('NUM',[true, "Number of frames to send",100])
 			],self.class)
 	end
 

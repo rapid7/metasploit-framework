@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path to identify directories", '/']),
-				OptString.new('ERROR_CODE', [ true,  "The expected http code for non existant directories", '404']),
+				OptInt.new('ERROR_CODE', [ true,  "The expected http code for non existant directories", 404]),
 				OptString.new('FORMAT', [ true,  "The expected directory format (a alpha, d digit, A upperalpha, N, n)", 'Aaa'])
 			], self.class)	
 						
