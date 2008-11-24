@@ -439,6 +439,7 @@ module Db
 				
 				vuln.refs << (rids - vuln.refs)
 			end
+			fd.close
 		end
 		
 		
