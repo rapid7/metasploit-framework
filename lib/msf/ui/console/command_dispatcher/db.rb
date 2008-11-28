@@ -401,8 +401,11 @@ module Db
 				end
 					
 				service = framework.db.get_service(nil, host, m[3].downcase, m[2].to_i)
-				service.name = m[1].strip
-				service.save
+				name = m[1].strip
+				if name != "unknown"
+					service.name = name
+					service.save
+				end
 				
 				next if not nasl
 				
@@ -534,8 +537,10 @@ module Db
 					end
 					
 					service = framework.db.get_service(nil, host, prot.downcase, pnum.to_i)
-					service.name = name
-					service.save
+					if name != "unknown"
+						service.name = name
+						service.save
+					end
 				end
 			end
 		end
