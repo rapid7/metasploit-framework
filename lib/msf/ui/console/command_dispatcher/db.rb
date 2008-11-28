@@ -401,7 +401,7 @@ module Db
 				end
 					
 				service = framework.db.get_service(nil, host, m[3].downcase, m[2].to_i)
-				service.name = m[1]
+				service.name = m[1].strip
 				service.save
 				
 				next if not nasl
