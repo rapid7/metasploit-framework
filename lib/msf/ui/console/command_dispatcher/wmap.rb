@@ -60,6 +60,41 @@ module Wmap
 			
 			while (arg = args.shift)
 				case arg
+				when '-a'
+					target_url = args.shift
+					
+					if target_url == nil
+						print_error("URI required.")
+					else
+						puri = uri_parse(target_url)
+					
+						scheme, authority, path, query = puri[2], puri[4], puri[5], puri[7]
+					
+						uri_ssl= 0
+						if scheme == 'https'
+							uri_ssl = 1
+						end
+					
+						uri_auth = authority.split(':')
+					
+						uri_host = uri_auth[0]
+					
+						uri_port = 80
+						if uri_auth[1]
+							uri_port = uri_auth[1]
+						end
+					
+						if Rex::Socket.dotted_ip?(uri_host)
+							framework.db.create_target(uri_host, uri_port, uri_ssl, 0)
+							print_status("Added. #{uri_host} #{uri_port} #{uri_ssl}")
+						else
+							print_error("RHOSTS only accepts IP addresses: #{uri_host}") 
+							
+							hip = Rex::Socket.resolv_to_dotted(uri_host)
+							framework.db.create_target(hip, uri_port, uri_ssl, 0)
+							print_status("Added host #{uri_host} resolved as #{hip}.")
+						end
+					end
 				when '-p'
 					print_status("   Id. Host\t\t\t\t\tPort\tSSL")
 					
@@ -120,6 +155,7 @@ module Wmap
 					print_line("\t-p 		Print all available targets")
 					print_line("\t-r 		Reload targets table")
 					print_line("\t-s [id]	Select target for testing")
+					print_line("\t-a [url]	Add new target")
 					
 					print_line("")
 					return
@@ -955,6 +991,23 @@ module Wmap
 			framework.db.report_children(id).each do |chl|
 				get_xml_report_id(chl.id,tempel) 
 			end			
+		end
+		
+		#
+		# Method to parse URIs Regex RFC3986
+		#
+		def uri_parse(uri)
+			if uri == ''
+				print_error("URI required")		
+				return
+			end
+		
+			regexstr = '^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?' 
+			
+			regexurl = Regexp.new(regexstr, false, 'N')
+			ret = regexurl.match(uri)
+			
+			return ret
 		end
 		
 		#
