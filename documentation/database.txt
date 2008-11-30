@@ -12,22 +12,22 @@ The database support has the following structure:
 
 	lib/msf/core/db_objects.rb
 	data/sql/*.sql
-	data/sql/*.db
 
 [Generic API]
 	lib/msf/core/db.rb
-	lib/msf/core/db_backend.rb
+	lib/msf/core/db_manager.rb
 
 [Generic Commands]
 	lib/msf/ui/console/command_dispatcher/db.rb
 	
 [Specific Plugins]
-	lib/db_sqlite2.db
-	lib/db_sqlite3.db
-	lib/db_postgres.db
+	plugins/db_sqlite2.rb
+	plugins/db_sqlite3.rb
+	plugins/db_postgres.rb
+	plugins/db_mysql.rb
 
 [Extra Plugins]
-	lib/db_tracker.rb
+	plugins/db_tracker.rb
 
 To test the database support, install the appropriate Ruby support module,
 start msfconsole, and load the vendor-specific plugin:
