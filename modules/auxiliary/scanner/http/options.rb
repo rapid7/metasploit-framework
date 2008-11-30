@@ -50,6 +50,8 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				#not sure about this one, can you add columns in the db on the fly?
 				wmap_report(rep_id,'WEB_SERVER','OPTIONS',"#{res.headers['Allow']}",nil)
+			else
+				print_status("No options.")
 			end
 			
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

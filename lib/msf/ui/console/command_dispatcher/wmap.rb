@@ -83,17 +83,26 @@ module Wmap
 						if uri_auth[1]
 							uri_port = uri_auth[1]
 						end
+						
+						uri_path = path
+						if path == nil or path == '' 
+							uri_path = '/'
+						end
 					
 						if Rex::Socket.dotted_ip?(uri_host)
-							framework.db.create_target(uri_host, uri_port, uri_ssl, 0)
-							print_status("Added. #{uri_host} #{uri_port} #{uri_ssl}")
+						    hip = uri_host
 						else
 							print_error("RHOSTS only accepts IP addresses: #{uri_host}") 
 							
 							hip = Rex::Socket.resolv_to_dotted(uri_host)
-							framework.db.create_target(hip, uri_port, uri_ssl, 0)
-							print_status("Added host #{uri_host} resolved as #{hip}.")
+							print_status("Host #{uri_host} resolved as #{hip}.")
 						end
+						
+						framework.db.create_target(hip, uri_port, uri_ssl, 0)
+						print_status("Added target #{hip} #{uri_port} #{uri_ssl}")
+						
+						framework.db.create_request(hip,uri_port,uri_ssl,'GET',uri_path,'',query,'','','','')
+						print_status("Added request #{uri_path} #{query}")
 					end
 				when '-p'
 					print_status("   Id. Host\t\t\t\t\tPort\tSSL")
@@ -422,7 +431,7 @@ module Wmap
 							# Fixing paths
 							#	
 							
-							if node.is_leaf? 
+							if node.is_leaf? and not node.is_root? 
 								#		
 								# Later we can add here more checks to see if its a file
 								#
@@ -445,7 +454,7 @@ module Wmap
 
 							case wtype
 							when :WMAP_FILE  
-								if node.is_leaf? 
+								if node.is_leaf? and not node.is_root? 
 									mod.datastore['PATH'] = strpath
 									print_status("Launching #{xref[3]} #{wtype} #{strpath} against #{xref[0].to_s}:#{xref[1].to_s}...")
 									
@@ -459,7 +468,7 @@ module Wmap
 									end	
 								end	 
 							when :WMAP_DIR 
-								if not node.is_leaf?	
+								if not node.is_leaf? or node.is_root?	
 									mod.datastore['PATH'] = strpath
 									print_status("Launching #{xref[3]} #{wtype} #{strpath} against #{xref[0].to_s}:#{xref[1].to_s}...")
 									
@@ -919,8 +928,6 @@ module Wmap
 			if selected_host == nil
 				print_error("Target not selected")
 			else
-							
-				
 				framework.db.each_request_target do |req|	
 					tarray = req.path.to_s.split(WMAP_PATH)
 					tarray.delete("")
@@ -940,7 +947,7 @@ module Wmap
 		#
 
 		def print_tree(tree)
-			if tree.is_leaf?
+			if tree.is_leaf? and tree.depth > 0
 				print_line(("|\t"*(tree.depth-1))+"+------"+tree.name)
 			else
 				print_line(("|\t"*tree.depth)+tree.name)
@@ -1024,7 +1031,6 @@ module Wmap
 		def selected_ssl
 			framework.db.selected_ssl
 		end
-		
 		
 end
 end

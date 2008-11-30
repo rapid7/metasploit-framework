@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 			tpath += '/'
 		end	
 
-		print_status("Running..")
+		print_status("Using error code #{datastore['ERROR_CODE']}...")
 			
 		Enumerable.cart(*numb).each {|testd| 
 			begin
@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				if res
 					if res.code.to_i != datastore['ERROR_CODE'].to_i
-						print_status("Found http://#{target_host}:#{target_port}#{teststr} #{res.code.to_i}")
+						print_status("Found http://#{wmap_target_host}:#{wmap_target_port}#{teststr} #{res.code.to_i}")
 									
 						rep_id = wmap_base_report_id(
 										wmap_target_host,
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 						wmap_report(rep_id,'DIRECTORY','NAME',"#{teststr}","Directory #{teststr} found.")
 									
 					else
-						print_status("NOT Found http://#{target_host}:#{target_port}#{teststr}  #{res.code.to_i}") 
+						print_status("NOT Found http://#{wmap_target_host}:#{wmap_target_port}#{teststr}  #{res.code.to_i}") 
 						#blah
 					end
 				end

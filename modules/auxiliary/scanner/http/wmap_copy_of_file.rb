@@ -48,10 +48,12 @@ class Metasploit3 < Msf::Auxiliary
 		tpathf = datastore['PATH']
 		testf = tpathf.split('/').last
 
-		prestr.each do |pre|
-			filec = tpathf.sub(testf,pre + testf)
-			check_for_file(filec)
-		end
+		if testf
+			prestr.each do |pre|
+				filec = tpathf.sub(testf,pre + testf)
+				check_for_file(filec)
+			end
+		end	
 	end
 	
 	def check_for_file(file)

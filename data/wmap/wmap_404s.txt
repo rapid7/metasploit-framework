@@ -19,6 +19,7 @@ Reload acp_userinfo database
 TYPE=.password
 TYPE=password
 The page you requested 
+The page you were looking for
 The userid or password that was specified is not valid.
 Unable to complete your request due to added security features
 Web access denied

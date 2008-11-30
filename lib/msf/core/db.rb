@@ -640,6 +640,29 @@ class DBManager
 		Report.find(:all, :conditions => ["parent_id=?",parent_id])			
 	end
 	
+	#
+	# WMAP
+	# Create a request (by hand) 
+	#
+	def create_request(host,port,ssl,meth,path,headers,query,body,respcode,resphead,response)
+		req = Request.create(
+				:host => host, 
+				:port => port, 
+				:ssl => ssl, 
+				:meth => meth,
+				:path => path,
+				:headers => headers,
+				:query => query,
+				:body => body,
+				:respcode => respcode,
+				:resphead => resphead,
+				:response => response,
+				:created => Time.now
+			)
+		req.save	
+		#framework.events.on_db_request(context, rec)
+	end
+	
 	
 		
 end
