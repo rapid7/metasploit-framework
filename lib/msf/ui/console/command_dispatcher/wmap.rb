@@ -216,6 +216,9 @@ module Wmap
 			stamp = Time.now.to_f
 			mode  = 0
 			
+			eprofile = []
+			using_p = false
+			
 			args.push("-h") if args.length == 0
 			
 			while (arg = args.shift)
@@ -225,13 +228,38 @@ module Wmap
 				when '-e'
 					mode |= WMAP_EXPL
 					
+					profile = args.shift
+					
+					if profile
+						print_status("Using profile #{profile}.")
+						
+						begin
+							File.open(profile).each do |str|
+								if not str.include? '#'
+									# Not a comment
+									modname = str.strip
+									if not modname.empty?
+										eprofile << modname
+									end
+								end
+								using_p = true
+							end
+						rescue
+							print_error("Profile not found or invalid.")
+							return
+						end	
+					else
+						print_status("Using ALL wmap enabled modules.")
+					end
+					
 					# Create report entry
 					framework.db.create_report(0,'WMAP','REPORT',"#{selected_host},#{selected_port},#{selected_ssl}","Metasploit WMAP Report",'WMAP Scanner')
 				when '-h'
 					print_status("Usage: wmap_run [options]")
-					print_line("\t-h 		Display this help text")
-					print_line("\t-t 		Show all matching exploit modules")
-					print_line("\t-e 		Launch exploits against all matched targets")
+					print_line("\t-h			Display this help text")
+					print_line("\t-t			Show all matching exploit modules")
+					print_line("\t-e [profile]	Launch profile test modules against all matched targets.")
+					print_line("\t				No profile runs all enabled modules.")
 					
 					print_line("")
 					return
@@ -276,28 +304,30 @@ module Wmap
 						
 						penabled = e.wmap_enabled
 						
-						if (penabled)
-							#
-							# First run the WMAP_SERVER plugins
-							#
-							case e.wmap_type
-							when :WMAP_SERVER
-								matches1[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
-							when :WMAP_QUERY	
-								matches2[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
-							when :WMAP_BODY	
-								matches3[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
-							when :WMAP_HEADERS	
-								matches4[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
-							when :WMAP_UNIQUE_QUERY	
-								matches5[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
-							when :WMAP_GENERIC	
-								matches10[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true																	
-							when :WMAP_DIR, :WMAP_FILE
-								matches[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
-							else
-								# Black Hole	
-							end	
+						if penabled 
+							if not using_p or eprofile.include? n.split('/').last 
+								#
+								# First run the WMAP_SERVER plugins
+								#
+								case e.wmap_type
+								when :WMAP_SERVER
+									matches1[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
+								when :WMAP_QUERY	
+									matches2[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
+								when :WMAP_BODY	
+									matches3[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
+								when :WMAP_HEADERS	
+									matches4[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
+								when :WMAP_UNIQUE_QUERY	
+									matches5[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
+								when :WMAP_GENERIC	
+									matches10[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true																	
+								when :WMAP_DIR, :WMAP_FILE
+									matches[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
+								else
+									# Black Hole	
+								end	
+							end
 						end
 					end					
 				end

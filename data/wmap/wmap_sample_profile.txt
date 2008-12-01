@@ -1,0 +1,23 @@
+# 
+# WMAP Sample Profile
+# wmap_run -e /path/to/profile
+#
+frontpage
+frontpage_login
+lucky_punch 
+options 
+version 
+wmap_backup_file 
+wmap_blind_sql_query 
+#wmap_brute_dirs 
+wmap_copy_of_file 
+wmap_dir_listing 
+wmap_dir_scanner
+wmap_file_same_name_dir
+wmap_files_dir
+wmap_prev_dir_same_name_file
+wmap_replace_ext
+wmap_ssl_vhost 
+wmap_verb_auth_bypass
+wmap_vhost_scanner
+writable
