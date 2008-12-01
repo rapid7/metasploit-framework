@@ -256,10 +256,10 @@ module Wmap
 					framework.db.create_report(0,'WMAP','REPORT',"#{selected_host},#{selected_port},#{selected_ssl}","Metasploit WMAP Report",'WMAP Scanner')
 				when '-h'
 					print_status("Usage: wmap_run [options]")
-					print_line("\t-h			Display this help text")
-					print_line("\t-t			Show all matching exploit modules")
+					print_line("\t-h		Display this help text")
+					print_line("\t-t		Show all matching exploit modules")
 					print_line("\t-e [profile]	Launch profile test modules against all matched targets.")
-					print_line("\t				No profile runs all enabled modules.")
+					print_line("\t		No profile runs all enabled modules.")
 					
 					print_line("")
 					return
