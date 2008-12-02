@@ -104,7 +104,7 @@ begin
 		length = 16384 unless length
 
 		begin
-			return sslsock.read(length)
+			return sslsock.sysread(length)
 		rescue EOFError, ::Errno::EPIPE
 			return nil
 		end

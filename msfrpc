@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+#
+# This user interface allows users to interact with a remote framework
+# instance through a RPCXML socket.
+#
+
+msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
+$:.unshift(File.join(File.dirname(msfbase), 'lib'))
+$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+
+require 'msf/core/rpc'
+require 'rex/ui'
+
+# Declare the argument parser for msfxmld
+arguments = Rex::Parser::Arguments.new(
+	"-h" => [ true,  "Connect to this IP address"                           ],
+	"-p" => [ true,  "Connect to the specified port instead of 55553"       ],
+	"-U" => [ true,  "Specify the username to access msfrpcd"               ],
+	"-P" => [ true,  "Specify the password to access msfrpcd"               ],
+	"-S" => [ false, "Disable SSL on the XMLRPC socket"                     ]
+)
+
+opts = { 
+	'User' => 'msf',
+	'SSL'  => true,
+	'ServerPort' => 55553
+}
+
+# Parse command line arguments.
+arguments.parse(ARGV) { |opt, idx, val|
+	case opt
+		when "-h"
+			opts['ServerHost'] = val
+		when "-S"
+			opts['SSL'] = false
+		when "-p"
+			opts['ServerPort'] = val
+		when '-U'
+			opts['User'] = val
+		when '-P'
+			opts['Pass'] = val
+		when "-h"
+			print("\nUsage: #{File.basename(__FILE__)} <options>\n" +	arguments.usage)
+			exit
+	end
+}
+
+
+if(not opts['ServerHost'])
+	$stderr.puts "[*] Error: a server IP must be specified (-h)"
+	$stderr.puts arguments.usage
+	exit(0)
+end
+
+if(not opts['Pass'])
+	$stderr.puts "[*] Error: a password must be specified (-P)"
+	$stderr.puts arguments.usage
+	exit(0)
+end
+
+$0 = "msfrpc"
+
+
+rpc = Msf::RPC::Client.new(
+	:host => opts['ServerHost'],
+	:port => opts['ServerPort'],
+	:ssl  => opts['SSL'] 
+)
+
+res = rpc.login(opts['User'], opts['Pass'])
+
+puts "[*] The 'rpc' object holds the RPC client interface"
+puts ""
+
+while(ARGV.shift)
+end
+
+Rex::Ui::Text::IrbShell.new(binding).run

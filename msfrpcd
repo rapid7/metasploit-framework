@@ -1,0 +1,81 @@
+#!/usr/bin/env ruby
+#
+# This user interface listens on a port and provides clients that connect to
+# it with an XMLRPC interface to the Metasploit Framework.
+#
+
+msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
+$:.unshift(File.join(File.dirname(msfbase), 'lib'))
+$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+
+require 'msf/base'
+require 'msf/ui'
+
+# Declare the argument parser for msfrpcd
+arguments = Rex::Parser::Arguments.new(
+	"-a" => [ true,  "Bind to this IP address instead of loopback"          ],
+	"-p" => [ true,  "Bind to this port instead of 55553"                   ],
+	"-U" => [ true,  "Specify the username to access msfrpcd"               ],
+	"-P" => [ true,  "Specify the password to access msfrpcd"               ],
+	"-S" => [ false, "Disable SSL on the XMLRPC socket"                     ],
+	"-f" => [ false, "Run the daemon in the foreground"                     ],
+	"-h" => [ false, "Help banner"                                          ])
+
+opts = { 
+	'RunInForeground' => true,
+	'SSL'             => true,
+	'ServerHost'      => '0.0.0.0',
+	'ServerPort'      => 55553
+}
+
+foreground = false
+
+
+# Parse command line arguments.
+arguments.parse(ARGV) { |opt, idx, val|
+	case opt
+		when "-a"
+			opts['ServerHost'] = val
+		when "-S"
+			opts['SSL'] = false
+		when "-p"
+			opts['ServerPort'] = val
+		when '-U'
+			opts['User'] = val
+		when '-P'
+			opts['Pass'] = val
+		when "-f"
+			foreground = true
+		when "-h"
+			print("\nUsage: #{File.basename(__FILE__)} <options>\n" +	arguments.usage)
+			exit
+	end
+}
+
+if(not opts['Pass'])
+	$stderr.puts "[*] Error: a password must be specified (-P)"
+	exit(0)
+end
+
+$0 = "msfrpcd"
+
+$stderr.puts "[*] XMLRPC starting on #{opts['ServerHost']}:#{opts['ServerPort']} (#{opts['SSL'] ? "SSL" : "NO SSL"})..."
+
+# Create an instance of the framework
+$framework = Msf::Simple::Framework.create
+
+$stderr.puts "[*] XMLRPC initializing..."
+
+
+# Fork into the background if requested
+begin
+	if (not foreground)
+		$stderr.puts "[*] XMLRPC backgrounding..."
+		exit(0) if Process.fork()
+	end
+rescue ::NotImplementedError
+	$stderr.puts "[*] Background mode is not available on this platform"
+end
+
+# Run the plugin instance in the foreground.
+$framework.plugins.load('xmlrpc', opts).run
