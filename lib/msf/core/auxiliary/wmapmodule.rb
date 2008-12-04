@@ -7,7 +7,6 @@ module Msf
 
 module Auxiliary::WMAPModule
 
-
 	#
 	# Initializes an instance of a WMAP module
 	#
@@ -43,11 +42,10 @@ module Auxiliary::WMAPModule
 	end
 
 
-
 	#
 	# WMAP Reporting methods	
+	# Returns the base report id for a host,port,ssl
 	#
-
 	def wmap_base_report_id(host,port,ssl)
 		if framework.db.report_active?
 			if not ssl
@@ -73,7 +71,24 @@ module Auxiliary::WMAPModule
 		
 		nil
 	end
-
+	
+	#
+	# This method allows wmap modules to access  
+	# reports table.  Not tied to a specific report to be able to use data from other targets.
+	#
+	def wmap_report_sql(condition)
+			return framework.db.report_sql(condition)
+	end
+	
+	#
+	# This method allows wmap modules to access  
+	# requests table. The extra condition requires to start with a logical
+	# operator like AND, OR. Not tied to a specific host,port to be able to use data from other targets. 
+	#
+	def wmap_request_sql(host,port,extra_condition)
+			return framework.db.request_sql(host,port,extra_condition)
+	end
+	
 	#
 	# Modified from CGI.rb as we dont use arrays
 	#

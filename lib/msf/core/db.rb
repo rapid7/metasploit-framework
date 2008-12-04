@@ -505,6 +505,14 @@ class DBManager
 	
 	#
 	# WMAP
+	# This method allows to query directly the requests table. To be used mainly by modules
+	#
+	def request_sql(host,port,extra_condition)
+		Request.find(:all, :conditions => ["requests.host = ? AND requests.port = ? #{extra_condition}",host,port])
+	end
+	
+	#
+	# WMAP
 	# This methods returns a list of all targets in the database
 	#
 	def requests
@@ -638,6 +646,15 @@ class DBManager
 	#
 	def report_children(parent_id) 
 		Report.find(:all, :conditions => ["parent_id=?",parent_id])			
+	end
+	
+	#
+	# WMAP
+	# This method allows to query directly the reports table. To be used mainly by modules
+	# Not tied to a specific report to be able to use data from other targets.
+	#
+	def report_sql(condition)
+		Report.find(:all, :conditions => ["#{condition}"])
 	end
 	
 	#
