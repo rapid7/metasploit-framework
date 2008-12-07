@@ -20,7 +20,7 @@ $ ./msfrpcd -P s3cr3tp4ss
  - or -
 msf> load xmlrpc Pass=s3cr3tp4ss
 
-Once the interface is started, any compatible RPC interface be used
+Once the interface is started, any compatible RPC interface can be used
 to interact with the service. The 'msfrpc' client provides a Ruby
 shell that can be used to talk to the service.
 
@@ -143,7 +143,7 @@ block.
 
 When an error occurs, an exception is thrown on the client side. This
 exception will be of class XMLRPC::FaultException and the faultCode
-and faultString methods of this exception will contain defailed
+and faultString methods of this exception will contain detailed
 information about the problem. Many API calls will raise faultCode
 of 404 when the specified item is not found. An unhandled, server
 exception will result in a faultCode of 500 on the client side.
