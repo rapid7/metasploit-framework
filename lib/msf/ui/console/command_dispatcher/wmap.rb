@@ -24,6 +24,9 @@ module Wmap
 		WMAP_PATH = '/'
 		WMAP_SHOW = 2**0
 		WMAP_EXPL = 2**1
+		
+		# Exclude files can be modified by setting datastore['WMAP_EXCLUDE_FILE']
+		WMAP_EXCLUDE_FILE = '.*\.(gif|jpg|png*)$'
 			
 		#
 		# The dispatcher's name.
@@ -484,17 +487,28 @@ module Wmap
 
 							case wtype
 							when :WMAP_FILE  
-								if node.is_leaf? and not node.is_root? 
-									mod.datastore['PATH'] = strpath
-									print_status("Launching #{xref[3]} #{wtype} #{strpath} against #{xref[0].to_s}:#{xref[1].to_s}...")
+								if node.is_leaf? and not node.is_root?
+									#
+									# Check if an exclusion regex has been defined
+									#
+									if self.framework.datastore['WMAP_EXCLUDE_FILE']
+										excludefilestr = self.framework.datastore['WMAP_EXCLUDE_FILE']
+									else
+										excludefilestr = WMAP_EXCLUDE_FILE	
+									end
+								
+									if not strpath.match(excludefilestr)
+										mod.datastore['PATH'] = strpath
+										print_status("Launching #{xref[3]} #{wtype} #{strpath} against #{xref[0].to_s}:#{xref[1].to_s}...")
 									
-									begin
-										session = mod.run_simple(
+										begin
+											session = mod.run_simple(
 												'LocalInput' 	=> driver.input,
 												'LocalOutput'	=> driver.output,
 												'RunAsJob'   	=> false)
-									rescue ::Exception
-										print_status(" >> Exception during launch from #{name}: #{$!.to_s}")
+										rescue ::Exception
+											print_status(" >> Exception during launch from #{name}: #{$!.to_s}")
+										end
 									end	
 								end	 
 							when :WMAP_DIR 
