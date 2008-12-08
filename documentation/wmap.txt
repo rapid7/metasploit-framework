@@ -139,7 +139,7 @@ Reporting key concepts:
 	msf > load db_sqlite3
 	[*] Successfully loaded plugin: db_sqlite3
 	msf > load db_wmap
-	[*] =[ WMAP v0.2 - ET LoWNOISE
+	[*] =[ WMAP v0.3 - ET LoWNOISE
 	[*] Successfully loaded plugin: db_wmap
 	msf > db_connect
 	[*] Successfully connected to the database
@@ -206,7 +206,7 @@ The following are the basic steps for testing a web server/app using WMAP:
 
      msf > load db_sqlite3
      msf > load db_wmap
-     [*] =[ WMAP v0.2 - ET LoWNOISE
+     [*] =[ WMAP v0.3 - ET LoWNOISE
      [*] Successfully loaded plugin: db_wmap
 
   5. Connect to the WMAP database;
@@ -285,9 +285,21 @@ The following are the basic steps for testing a web server/app using WMAP:
       msf > setg EXT .asp
       EXT => .asp
 
+      msf > setg WMAP_EXCLUDE_FILE <regex_to_exclude_testing_files>
+
+            NOTE: By default image files are not included in the tests.	
+
   11. Test the target;
 
       msf > wmap_run -e
+
+            NOTE: If required profiles can be defined in the following way:
+
+                  wmap_run -e path/to/profile/file
+
+                  The profile file contains the list of modules to execute.
+                  See data/wmap/wmap_sample.profile for a sample.		
+
       [*] Launching auxiliary/scanner/http/wmap_vhost_scanner WMAP_SERVER against 
           www.target.com:80
       [*] Sending request with random domain rGvsV.targetco.com 

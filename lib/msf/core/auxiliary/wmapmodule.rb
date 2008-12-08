@@ -73,6 +73,13 @@ module Auxiliary::WMAPModule
 	end
 	
 	#
+	# This method identifies if we are connecetd to database
+	#
+	def report_active?
+		framework.db.report_active?
+	end
+	
+	#
 	# This method allows wmap modules to access  
 	# reports table.  Not tied to a specific report to be able to use data from other targets.
 	#
