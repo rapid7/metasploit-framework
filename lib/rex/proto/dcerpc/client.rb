@@ -141,6 +141,10 @@ require 'rex/proto/smb/exceptions'
 		if (self.socket.class == Rex::Proto::SMB::SimpleClient::OpenPipe)
 			begin
 	
+				# Max SMB read is 65535, cap it at 64000
+				max_read = [64000, max_read].min
+				min_read = [64000, min_read].min
+	
 				read_limit = nil
 
 				while(true)
@@ -152,9 +156,9 @@ require 'rex/proto/smb/exceptions'
 							read_cnt = raw_response.length - read_limit
 						end
 					end
-
+					
 					data = self.socket.read( read_cnt, rand(1024)+1)
-					last if not data.length
+					break if not (data and data.length > 0)
 					raw_response += data
 
 					# Keep reading until we have at least the DCERPC header
