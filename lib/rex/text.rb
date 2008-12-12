@@ -743,6 +743,36 @@ module Text
 	def self.to_win32pe_vba(code = "\xcc", note="")
 		to_exe_vba(to_win32pe(code, note))
 	end
+
+	# Creates a .NET DLL which loads data into memory
+	# at a specified location with read/execute permissions
+	#    - the data will be loaded at: base+0x2065
+	#    - max size is 0x8000 (32768)
+	def self.to_dotnetmem(base=0x12340000, data="")
+		pe = ''
+
+		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "data", "templates", "dotnetmem.dll"), "rb")
+		pe = fd.read(fd.stat.size)
+		fd.close
+
+		# Configure the image base
+		pe[180, 4] = [base].pack('V')
+		
+		# Configure the TimeDateStamp
+		pe[136, 4] = [rand(0x100000000)].pack('V')
+
+		# XXX: Unfortunately we cant make this RWX only RX
+		# Mark this segment as read-execute AND writable
+		# pe[412,4] = [0xe0000020].pack("V")
+		
+		# Write the data into the .text segment
+		pe[0x1065, 0x8000] = [data].pack("a32768")
+		
+		# Generic a randomized UUID
+		pe[37656,16] = Rex::Text.rand_text(16)
+		
+		return pe
+	end
 				
 	##
 	#
