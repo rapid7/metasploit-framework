@@ -670,12 +670,8 @@ class Core
 	# Provides an interface to the sessions currently active in the framework.
 	#
 	def cmd_sessions(*args)
-		if (args.length == 0)
-			args.unshift("-h")
-		end
-
 		begin
-		method  = nil
+		method  = 'list'
 		quiet   = false
 		verbose = false
 		sid     = nil
