@@ -465,9 +465,7 @@ ULONG64 searchMemory(unsigned char * byteBuffer, unsigned long length){
 #endif
 			return (0);
 	}
-	if (!(addressHit >= disassemblyBuffer && addressHit <= (disassemblyBuffer+0x1000)))
-		return (addressHit);
-	return (0);
+	return (addressHit);
 }
 
 BOOL checkExecutability(ULONG64 checkAddress){

@@ -298,6 +298,7 @@ void tenkHelp() {
 	dprintf("\t<no command>\t- Load tenketsu heap visualization libraries and hooks\n");
 	dprintf("\tlistHeaps\t- List all currently tracked heaps and their information\n");
 	dprintf("\tlistChunks <heap base>\t- List all chunks associated with a givend heap\n");
+	dprintf("\tvalidate <heap base> - check the chunk chain and find corrupted chunk headers\n");
 }
 
 void tenkListHeaps() {
@@ -314,6 +315,65 @@ void tenkListHeaps() {
 				curHeap->flags, curHeap->reserve, curHeap->commit);
 		dprintf("\tLock: 0x%08x\n\n", curHeap->lock);
 	}
+}
+
+void tenkValidate(PVOID heapHandle) {
+	struct HPool            *heap;
+    struct DestroyStruct    dStruct;
+    struct HeapChunk        *curChunk;
+	ULONG					chunkPtr;
+    ULONG                   i, nextIndex;
+	BOOL					screwed = FALSE;
+
+	heap = getHeap(&heapModel, heapHandle);
+
+	i = heap->inUseHead;
+	while (i != NULLNODE) {
+		if (CHUNK(i).free) {
+			// CHUNK(i).nextInUse must be equal to the next ptr
+			if(!ReadMemory((ULONG64)(CHUNK(i).addr)+4, (PVOID) &chunkPtr, 4, NULL)) {
+				dprintf("[T] Unable to read memory at address 0x%08x\n!");
+				return;
+			}
+
+			// Find next free chunk - continue if there are no more
+			nextIndex = CHUNK(i).nextInUse;
+			while (nextIndex != NULLNODE && !(CHUNK(nextIndex).free))
+				nextIndex = CHUNK(nextIndex).nextInUse;
+			if (nextIndex == NULLNODE) {
+				i = CHUNK(i).nextInUse;
+				continue;
+			}
+
+			// Validate next free chunk
+			if (CHUNK(nextIndex).addr != (PVOID) chunkPtr) {
+				dprintf("[T] Corruped next pointer for chunk at 0x%08x\n", CHUNK(i).addr);
+				dprintf(">\tGot: 0x%08x\tExpected: 0x%08x\n", chunkPtr, CHUNK(nextIndex).addr);
+				screwed = TRUE;
+			}
+			
+			// next free chunk prev, must equal CHUNK(i).addr
+			if(!ReadMemory((ULONG64)CHUNK(nextIndex).addr, (PVOID) &chunkPtr, 4, NULL)) {
+                dprintf("[T] Unable to read memory at address 0x%08x\n!");
+                return; 
+            }
+			if ((PVOID) chunkPtr != CHUNK(i).addr) {
+                dprintf("[T] Corruped prev pointer for chunk at 0x%08x\n", CHUNK(nextIndex).addr);
+                dprintf(">\tGot: 0x%08x\tExpected: 0x%08x\n", chunkPtr, CHUNK(i).addr);
+				screwed = TRUE;
+			}
+		
+		
+		} else {
+		}
+		i = CHUNK(i).nextInUse;
+	}
+	
+	dprintf("[T] Validation complete: ");
+	if (!screwed)
+		dprintf("all known free chunks are correct\n");
+	else
+		dprintf("errors found\n");
 }
 
 void tenkListChunks(PVOID heapHandle) {

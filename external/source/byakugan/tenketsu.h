@@ -24,6 +24,7 @@ int hookRtlHeap(void);
 int tenkListener(void);
 void tenkListHeaps(void);
 void tenkListChunks(PVOID);
+void tenkValidate(PVOID);
 void tenkHelp(void);
 DWORD WINAPI tenkBackChannel(LPVOID);
 HRESULT CALLBACK showHeap(void);

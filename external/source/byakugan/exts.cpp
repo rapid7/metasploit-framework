@@ -3,6 +3,7 @@
 #include "jutsu.h"
 #include "tenketsu.h"
 #include "mushishi.h"
+#include "symPort.h"
 
 char *registers[] = {
     "eax",
@@ -84,6 +85,25 @@ HRESULT CALLBACK mushishi(PDEBUG_CLIENT4 Client, PCSTR args) {
 
 	EXIT_API();
 	return (S_OK);
+}
+
+HRESULT CALLBACK symport(PDEBUG_CLIENT4 Client, PCSTR args) {
+    char    *command;
+    
+    INIT_API();
+
+    command = strtok((char *)args, " ");
+    if (command != NULL) {
+        if (!_stricmp(command, "test")) {
+			addMapFile("calc", "C:\\Users\\lgrenier\\calc.map");
+			//addMapFile();
+            return (S_OK);
+        }
+    }
+    dprintf("[symPort] Proper commands are: 'test'\n");
+
+    EXIT_API();
+    return (S_OK);
 }
 
 HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
@@ -169,7 +189,17 @@ HRESULT CALLBACK tenketsu(PDEBUG_CLIENT4 Client, PCSTR args) {
 		tenkHelp();
 		return (S_OK);
 	}
-    else if (!_stricmp(command, "listHeaps")) {
+    else if (!_stricmp(command, "validate")) {
+        heapName = strtok(NULL, " ");
+        if (heapName == NULL) {
+            dprintf("[Byakugan] Please provide a heap handle.\n");
+            return (S_OK);
+        }
+        heapHandle = (PVOID) strtoul(heapName, NULL, 16);
+		tenkValidate(heapHandle);
+		return (S_OK);
+	}
+	else if (!_stricmp(command, "listHeaps")) {
 		tenkListHeaps();
 		return (S_OK);
 	}

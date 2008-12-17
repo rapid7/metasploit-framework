@@ -13,3 +13,4 @@ build -cZMg
  cd ..
 
 copy /Y i386\byakugan.dll C:\windbg\
+copy /Y injectsu\i386\injectsu.dll C:\windbg\

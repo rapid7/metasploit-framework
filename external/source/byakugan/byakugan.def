@@ -8,6 +8,7 @@ EXPORTS
 	jutsu
 	tenketsu
 	mushishi
+	symport
 
     DebugExtensionNotify
     DebugExtensionInitialize

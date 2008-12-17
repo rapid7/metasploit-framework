@@ -32,4 +32,5 @@ SOURCES= byakugan.cpp       \
 		 heapModeler.cpp	\
          byakugan.rc		\
 		 mushishi.cpp		\
+		 symPort.cpp		\
 		 stdwindbg.cpp
