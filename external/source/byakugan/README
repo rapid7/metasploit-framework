@@ -96,3 +96,14 @@ D. Usage:
 		a. Not much in here now, but growing
 		b. !mushishi detect - detects several methods
 		c. !mushishi defeat - defeats known defeatable methods
+
+	4. Sympath (Import IDA map files into windbg - map files contain all custom names)
+		a. !sympath moduleName mapFilePath
+
+		0:001> !symport calc C:\Users\lgrenier\calc.map
+		[S] Adjusting symbols to base address of: 0x calc (00680000)
+		[S] Failed to add synthetic symbol: ?bFocus@@3HA
+		[S] Failed to add synthetic symbol: ?machine@@3PAY04DA
+		[S] Failed to add synthetic symbol: ?init_num_ten@@3U_number@@A
+		[S] Failed to add synthetic symbol: ?init_p_rat_exp@@3U_number@@A
+		[S] Successfully imported 566 symbols.
