@@ -88,20 +88,18 @@ HRESULT CALLBACK mushishi(PDEBUG_CLIENT4 Client, PCSTR args) {
 }
 
 HRESULT CALLBACK symport(PDEBUG_CLIENT4 Client, PCSTR args) {
-    char    *command;
+    char    *command, *module, *path;
     
     INIT_API();
 
-    command = strtok((char *)args, " ");
-    if (command != NULL) {
-        if (!_stricmp(command, "test")) {
-			addMapFile("calc", "C:\\Users\\lgrenier\\calc.map");
-			//addMapFile();
+    module	= strtok((char *)args, " ");
+	path	= strtok(NULL, " ");
+    if (module != NULL && path != NULL) {
+			addMapFile(module, path);
             return (S_OK);
-        }
-    }
-    dprintf("[symPort] Proper commands are: 'test'\n");
-
+    } else {
+		dprintf("[symPort] Proper format is: !symport <moduleName> <map file path>\n");
+	}
     EXIT_API();
     return (S_OK);
 }
