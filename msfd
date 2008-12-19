@@ -17,6 +17,7 @@ require 'msf/ui'
 arguments = Rex::Parser::Arguments.new(
 	"-a" => [ true,  "Bind to this IP address instead of loopback"          ],
 	"-p" => [ true,  "Bind to this port instead of 55554"                   ],
+	"-s" => [ false, "Use SSL"                                              ],
 	"-f" => [ false, "Run the daemon in the foreground"                     ],
 	"-h" => [ false, "Help banner"                                          ])
 
@@ -32,6 +33,8 @@ arguments.parse(ARGV) { |opt, idx, val|
 			opts['ServerPort'] = val
 		when "-f"
 			foreground = true
+		when "-s"
+			opts['SSL'] = true
 		when "-h"
 			print(
 				"\nUsage: #{File.basename(__FILE__)} <options>\n" +

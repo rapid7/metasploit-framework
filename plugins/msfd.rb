@@ -39,6 +39,10 @@ class Plugin::Msfd < Msf::Plugin
 	#
 	# 	The local port to listen on for connections.  The default is 55554.
 	#
+	# SSL
+	#
+	#	Use SSL
+	#
 	# RunInForeground
 	#
 	# 	Instructs the plugin to now execute the daemon in a worker thread and to
@@ -51,7 +55,8 @@ class Plugin::Msfd < Msf::Plugin
 		# Start listening for connections.
 		self.server	= Rex::Socket::TcpServer.create(
 			'LocalHost' => opts['ServerHost'] || DefaultHost,
-			'LocalPort' => opts['ServerPort'] || DefaultPort)
+			'LocalPort' => opts['ServerPort'] || DefaultPort,
+			'SSL'       => opts['SSL'])
 
 		# If the run in foreground flag is not specified, then go ahead and fire
 		# it off in a worker thread.
