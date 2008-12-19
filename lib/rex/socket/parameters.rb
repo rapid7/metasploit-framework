@@ -81,7 +81,7 @@ class Rex::Socket::Parameters
 		if (hash['PeerHost'])
 			self.peerhost = hash['PeerHost']
 		elsif (hash['PeerAddr'])
-			self.peerhost = hash['PeerHost']
+			self.peerhost = hash['PeerAddr']
 		else
 			self.peerhost = nil
 		end
