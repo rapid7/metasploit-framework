@@ -140,8 +140,8 @@ class Rex::Socket::Parameters
 
 		# If no comm was supplied, try to use the comm that is best fit to
 		# handle the provided host based on the current routing table.
-		if (self.comm == nil and hash['PeerHost'])
-			self.comm = Rex::Socket::SwitchBoard.best_comm(hash['PeerHost'])
+		if (self.comm == nil and self.peerhost)
+			self.comm = Rex::Socket::SwitchBoard.best_comm(self.peerhost)
 		end
 
 		# If we still haven't found a comm, we default to the local comm.
