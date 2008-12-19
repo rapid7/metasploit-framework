@@ -59,6 +59,18 @@ class Rex::Socket::Parameters
 	#
 	# 	Whether or not SSL should be used.
 	#
+	# Proxies
+	#
+	#	List of proxies to use.
+	#
+	# Proto
+	#
+	#	The underlying protocol to use.
+	#
+	# IPv6
+	#
+	#	Force the use of IPv6.
+	#
 	# Comm
 	#
 	# 	The underlying Comm class to use to create the socket for this parameter
