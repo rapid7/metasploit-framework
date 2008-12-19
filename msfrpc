@@ -11,7 +11,7 @@ $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 require 'msf/core/rpc'
 require 'rex/ui'
 
-# Declare the argument parser for msfxmld
+# Declare the argument parser for msfrpc
 arguments = Rex::Parser::Arguments.new(
 	"-h" => [ true,  "Connect to this IP address"                           ],
 	"-p" => [ true,  "Connect to the specified port instead of 55553"       ],
