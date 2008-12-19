@@ -20,7 +20,7 @@ module Service
 	# by the service manager to manage singleton services.
 	#
 	def self.hardcore_alias(*args)
-		return "__#{args.to_s}"
+		return "__#{args}"
 	end
 
 	def deref

@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			print_status("Error: #{e.to_s}")
+			print_status("Error: #{e}")
 		end
 	end
 	

@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
                 req  <<  "To: <sip:#{ip}>" + "\r\n"
                 req  <<  "Via: SIP/2.0/UDP #{ip}" + "\r\n"
                 req  <<  "From: \"#{name}\"<sip:#{src}>" + "\r\n"
-                req  <<  "Call-ID: #{(rand(100)+100).to_s}#{ip}" + "\r\n"
+                req  <<  "Call-ID: #{(rand(100)+100)}#{ip}" + "\r\n"
                 req  <<  "CSeq: 1 INVITE" + "\r\n"
                 req  <<  "Max-Forwards: 20" +  "\r\n"
                 req  <<  "Contact: <sip:127.0.0.1>" + "\r\n\r\n"

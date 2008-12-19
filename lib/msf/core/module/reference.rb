@@ -111,7 +111,7 @@ class Msf::Module::SiteReference < Msf::Module::Reference
 			self.site = in_ctx_val.to_s
 		else
 			self.site  = in_ctx_id
-			self.site += " (#{in_ctx_val.to_s})" if (in_ctx_val)
+			self.site += " (#{in_ctx_val})" if (in_ctx_val)
 		end
 	end
 

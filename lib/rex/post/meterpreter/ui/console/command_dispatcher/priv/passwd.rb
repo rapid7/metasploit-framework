@@ -37,7 +37,7 @@ class Console::CommandDispatcher::Priv::Passwd
 	#
 	def cmd_hashdump(*args)
 		client.priv.sam_hashes.each { |user|
-			print_line("#{user.to_s}")
+			print_line("#{user}")
 		}
 		
 		return true

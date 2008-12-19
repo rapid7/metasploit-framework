@@ -364,7 +364,7 @@ class MsfWindow
 		
 		def initialize
 
-			super("Metasploit Console - #{Time.now.to_s}")
+			super("Metasploit Console - #{Time.now}")
 				
 			set_window_position(Gtk::Window::POS_CENTER)
 			set_default_size(640,480)

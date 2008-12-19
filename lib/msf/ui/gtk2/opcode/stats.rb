@@ -32,7 +32,7 @@ module Msf
 
                 textbuffer.set_text(
                 "\n" +
-                "Last Updated             : #{stats.last_update.to_s}\n" +
+                "Last Updated             : #{stats.last_update}\n" +
                 "Number of Opcodes        : #{stats.opcodes}\n" +
                 "Number of Opcode Types   : #{stats.opcode_types}\n" +
                 "Number of Platforms      : #{stats.platforms}\n" +

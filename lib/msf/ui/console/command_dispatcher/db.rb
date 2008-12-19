@@ -70,7 +70,7 @@ module Db
 		end	
 				
 		def cmd_db_add_host(*args)
-			print_status("Adding #{args.length.to_s} hosts...")
+			print_status("Adding #{args.length} hosts...")
 			args.each do |address|
 				host = framework.db.get_host(nil, address)
 				print_status("Time: #{host.created} Host: host=#{host.address}")
@@ -272,7 +272,7 @@ module Db
 
 
 			if (mode & PWN_SHOW != 0)
-				print_status("Analysis completed in #{(Time.now.to_f - stamp).to_s} seconds (#{vcnt.to_s} vulns / #{rcnt.to_s} refs)")
+				print_status("Analysis completed in #{(Time.now.to_f - stamp)} seconds (#{vcnt} vulns / #{rcnt} refs)")
 			end
 			
 
@@ -290,7 +290,7 @@ module Db
 					end
 
 					if (mode & PWN_SHOW != 0)
-						print_status("Matched #{xref[3]} against #{xref[2].to_s}:#{mod.datastore['RPORT'].to_s}...")
+						print_status("Matched #{xref[3]} against #{xref[2]}:#{mod.datastore['RPORT']}...")
 					end
 					
 					#
@@ -328,7 +328,7 @@ module Db
 						
 						next if not mod.autofilter()
 
-						print_status("(#{idx.to_s}/#{matches.length.to_s}): Launching #{xref[3]} against #{xref[2].to_s}:#{mod.datastore['RPORT'].to_s}...")
+						print_status("(#{idx}/#{matches.length}): Launching #{xref[3]} against #{xref[2]}:#{mod.datastore['RPORT']}...")
 
 						
 						begin
@@ -351,14 +351,14 @@ module Db
 						rescue ::Interrupt
 							raise $!
 						rescue ::Exception
-							print_status(" >> autopwn exception during launch from #{xref[3]}: #{$!.to_s} ")
+							print_status(" >> autopwn exception during launch from #{xref[3]}: #{$!} ")
 						end
 					end
 				
 				rescue ::Interrupt
 					raise $!
 				rescue ::Exception
-					print_status(" >> autopwn exception from #{xref[3]}: #{$!.to_s} #{$!.backtrace}")
+					print_status(" >> autopwn exception from #{xref[3]}: #{$!} #{$!.backtrace}")
 				end
 			end
 

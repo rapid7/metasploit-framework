@@ -385,7 +385,7 @@ module Wmap
 						wtype = mod.wmap_type
 
 						if wtype == :WMAP_SERVER 
-							print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1].to_s}")
+							print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
 
 							begin
 								session = mod.run_simple(
@@ -393,13 +393,13 @@ module Wmap
 										'LocalOutput'	=> driver.output,
 										'RunAsJob'   	=> false)
 							rescue ::Exception
-								print_status(" >> Exception during launch from #{xref[3]}: #{$!.to_s}")
+								print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
 							end
 						end
 					end
 					
 				rescue ::Exception
-					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
+					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
 			end
 
@@ -499,7 +499,7 @@ module Wmap
 								
 									if not strpath.match(excludefilestr)
 										mod.datastore['PATH'] = strpath
-										print_status("Launching #{xref[3]} #{wtype} #{strpath} against #{xref[0].to_s}:#{xref[1].to_s}...")
+										print_status("Launching #{xref[3]} #{wtype} #{strpath} against #{xref[0]}:#{xref[1]}...")
 									
 										begin
 											session = mod.run_simple(
@@ -507,14 +507,14 @@ module Wmap
 												'LocalOutput'	=> driver.output,
 												'RunAsJob'   	=> false)
 										rescue ::Exception
-											print_status(" >> Exception during launch from #{name}: #{$!.to_s}")
+											print_status(" >> Exception during launch from #{name}: #{$!}")
 										end
 									end	
 								end	 
 							when :WMAP_DIR 
 								if not node.is_leaf? or node.is_root?	
 									mod.datastore['PATH'] = strpath
-									print_status("Launching #{xref[3]} #{wtype} #{strpath} against #{xref[0].to_s}:#{xref[1].to_s}...")
+									print_status("Launching #{xref[3]} #{wtype} #{strpath} against #{xref[0]}:#{xref[1]}...")
 									
 									begin
 										session = mod.run_simple(
@@ -522,14 +522,14 @@ module Wmap
 												'LocalOutput'	=> driver.output,
 												'RunAsJob'   	=> false)
 									rescue ::Exception
-										print_status(" >> Exception during launch from #{name}: #{$!.to_s}")
+										print_status(" >> Exception during launch from #{name}: #{$!}")
 									end
 								end
 							end							
 						end
 					end					
 				rescue ::Exception
-					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
+					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
 			end	
 			
@@ -603,7 +603,7 @@ module Wmap
 								# 
 							
 								if wtype == :WMAP_UNIQUE_QUERY 
-									print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1].to_s}")
+									print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
 
 									begin
 										session = mod.run_simple(
@@ -611,7 +611,7 @@ module Wmap
 												'LocalOutput'	=> driver.output,
 												'RunAsJob'   	=> false)
 									rescue ::Exception
-										print_status(" >> Exception during launch from #{xref[3]}: #{$!.to_s}")
+										print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
 									end
 								end
 								
@@ -624,7 +624,7 @@ module Wmap
 					end
 					
 				rescue ::Exception
-					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
+					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
 			end
 			
@@ -695,7 +695,7 @@ module Wmap
 							# 
 							
 							if wtype == :WMAP_QUERY 
-								print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1].to_s}")
+								print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
 
 								begin
 									session = mod.run_simple(
@@ -703,14 +703,14 @@ module Wmap
 											'LocalOutput'	=> driver.output,
 											'RunAsJob'   	=> false)
 								rescue ::Exception
-									print_status(" >> Exception during launch from #{xref[3]}: #{$!.to_s}")
+									print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
 								end
 							end
 						end
 					end
 					
 				rescue ::Exception
-					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
+					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
 			end
 			
@@ -780,7 +780,7 @@ module Wmap
 							# 
 							
 							if wtype == :WMAP_BODY 
-								print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1].to_s}")
+								print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
 
 								begin
 									session = mod.run_simple(
@@ -788,14 +788,14 @@ module Wmap
 											'LocalOutput'	=> driver.output,
 											'RunAsJob'   	=> false)
 								rescue ::Exception
-									print_status(" >> Exception during launch from #{xref[3]}: #{$!.to_s}")
+									print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
 								end
 							end
 						end
 					end
 					
 				rescue ::Exception
-					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
+					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
 			end
 			
@@ -865,7 +865,7 @@ module Wmap
 							# 
 							
 							if wtype == :WMAP_HEADERS 
-								print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1].to_s}")
+								print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
 
 								begin
 									session = mod.run_simple(
@@ -873,14 +873,14 @@ module Wmap
 											'LocalOutput'	=> driver.output,
 											'RunAsJob'   	=> false)
 								rescue ::Exception
-									print_status(" >> Exception during launch from #{xref[3]}: #{$!.to_s}")
+									print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
 								end
 							end
 						end
 					end
 					
 				rescue ::Exception
-					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
+					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
 			end
 			
@@ -935,7 +935,7 @@ module Wmap
 						wtype = mod.wmap_type
 
 						if wtype == :WMAP_GENERIC 
-							print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1].to_s}")
+							print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
 
 							begin
 								session = mod.run_simple(
@@ -943,18 +943,18 @@ module Wmap
 										'LocalOutput'	=> driver.output,
 										'RunAsJob'   	=> false)
 							rescue ::Exception
-								print_status(" >> Exception during launch from #{xref[3]}: #{$!.to_s}")
+								print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
 							end
 						end
 					end
 					
 				rescue ::Exception
-					print_status(" >> Exception from #{xref[3]}: #{$!.to_s}")
+					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
 			end
 		
 			if (mode & WMAP_SHOW != 0)
-				print_status("Analysis completed in #{(Time.now.to_f - stamp).to_s} seconds.")	
+				print_status("Analysis completed in #{(Time.now.to_f - stamp)} seconds.")	
 				print_status("Done.")
 			end
 						
@@ -1008,7 +1008,7 @@ module Wmap
 			begin
 				par = framework.db.report_parent(id)
 			rescue ::Exception
-				print_error("Report error #{$!.to_s}")
+				print_error("Report error #{$!}")
 				return
 			end
 			
@@ -1026,7 +1026,7 @@ module Wmap
 			begin
 				par = framework.db.report_parent(id)
 			rescue ::Exception
-				print_error("Report error #{$!.to_s}")
+				print_error("Report error #{$!}")
 				return
 			end
 			

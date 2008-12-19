@@ -90,10 +90,10 @@ class Console::CommandDispatcher::Priv::Timestomp
 				when "-v"
 					hash = client.priv.fs.get_file_mace(file_path)
 
-					print_line("Modified      : #{hash['Modified'].to_s}")
-					print_line("Accessed      : #{hash['Accessed'].to_s}")
-					print_line("Created       : #{hash['Created'].to_s}")
-					print_line("Entry Modified: #{hash['Entry Modified'].to_s}")
+					print_line("Modified      : #{hash['Modified']}")
+					print_line("Accessed      : #{hash['Accessed']}")
+					print_line("Created       : #{hash['Created']}")
+					print_line("Entry Modified: #{hash['Entry Modified']}")
 				when "-h"
 					print_line("\nUsage: timestomp file_path OPTIONS\n" +
 						@@timestomp_opts.usage)

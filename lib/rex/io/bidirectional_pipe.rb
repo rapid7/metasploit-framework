@@ -67,7 +67,7 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 			begin
 				@subscribers_ref[id] ? @subscribers_ref[id].call(msg) : buf.print(msg)
 			rescue ::Exception => e
-				# $stderr.puts "Error handling subscriber #{id}: #{e.to_s} #{e.backtrace.inspect}"
+				# $stderr.puts "Error handling subscriber #{id}: #{e} #{e.backtrace.inspect}"
 				raise e
 			end
 		}

@@ -212,7 +212,7 @@ class Metasploit3 < Msf::Auxiliary
 						if((name.to_s + ".") == domain and data.name.to_s == newdns)
 							t = Time.now + ttl
 							print_status("Failure: This domain is already using #{newdns} as a nameserver")
-							print_status("         Cache entry expires on #{t.to_s}")
+							print_status("         Cache entry expires on #{t}")
 							srv_sock.close
 							disconnect_ip
 							return

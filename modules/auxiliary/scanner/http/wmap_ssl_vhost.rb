@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 			ssock.close	
 			
 			if cert
-				print_status("Subject: #{cert.subject.to_s}")
+				print_status("Subject: #{cert.subject}")
 				sub = cert.subject.to_a
 				
 				sub.each do |n|
@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 								)
 								
 					wmap_report(rep_id,'VHOST','NAME',"#{vhostn}","Vhost #{vhostn} found.")
-					wmap_report(rep_id,'X509','SUBJECT',"#{cert.subject.to_s}",nil)
+					wmap_report(rep_id,'X509','SUBJECT',"#{cert.subject}",nil)
 				end
 			else
 				print_status("No certificate subject or CN found")

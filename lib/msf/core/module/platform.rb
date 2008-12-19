@@ -175,7 +175,7 @@ class Msf::Module::Platform
 
 		# If we couldn't find a best match at this stage, it's time to warn.
 		if (best == nil)
-			raise ArgumentError, "No classes in #{mod.to_s} for #{str}!", caller
+			raise ArgumentError, "No classes in #{mod} for #{str}!", caller
 		end
 		
 		return best

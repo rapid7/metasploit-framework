@@ -99,7 +99,7 @@ module Session
 	# Returns a pretty representation of the tunnel.
 	#
 	def tunnel_to_s
-		"#{(tunnel_local || '??').to_s} -> #{(tunnel_peer || '??').to_s}"
+		"#{(tunnel_local || '??')} -> #{(tunnel_peer || '??')}"
 	end
 
 	##
@@ -124,7 +124,7 @@ module Session
 	# Returns the log source that should be used for this session.
 	#
 	def log_source
-		"session_#{name.to_s}"
+		"session_#{name}"
 	end
 
 	#

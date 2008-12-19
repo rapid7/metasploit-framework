@@ -158,7 +158,7 @@ case cmd
 
 		puts(
 			"\n" +
-			"Last Updated             : #{stats.last_update.to_s}\n" +
+			"Last Updated             : #{stats.last_update}\n" +
 			"Number of Opcodes        : #{stats.opcodes}\n" +
 			"Number of Opcode Types   : #{stats.opcode_types}\n" +
 			"Number of Platforms      : #{stats.platforms}\n" +
@@ -201,7 +201,7 @@ case cmd
 					"  Base Address: #{"0x%.8x" % mod.base_address}\n" +
 					"  Size        : #{mod.image_size}\n" +
 					"  Version     : #{mod.maj_maj_ver}.#{mod.maj_min_ver}.#{mod.min_maj_ver}.#{mod.min_min_ver}\n" +
-					"  Timestamp   : #{mod.timestamp.to_s}\n" +
+					"  Timestamp   : #{mod.timestamp}\n" +
 					"  Locale      : #{mod.locale.name}\n" +
 					"  Platforms   : \n\n" +
 					"#{mod.platforms.map { |p| "    " + p.desc }.join("\n")}\n\n")

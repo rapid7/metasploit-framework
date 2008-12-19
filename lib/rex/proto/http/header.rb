@@ -112,9 +112,9 @@ class Packet::Header < Hash
 
 		each_pair { |var, val|
 			if self.fold
-				str += "#{var.to_s}:\r\n\t#{val.to_s}\r\n"
+				str += "#{var}:\r\n\t#{val}\r\n"
 			else
-				str += "#{var.to_s}: #{val.to_s}\r\n"
+				str += "#{var}: #{val}\r\n"
 			end
 		}
 		

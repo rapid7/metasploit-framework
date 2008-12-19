@@ -207,7 +207,7 @@ class Metasploit3 < Msf::Auxiliary
 						if((name.to_s + ".") == hostname)
 							t = Time.now + ttl
 							print_status("Failure: This hostname is already in the target cache: #{name}")
-							print_status("         Cache entry expires on #{t.to_s}... sleeping.")
+							print_status("         Cache entry expires on #{t}... sleeping.")
 							cached = true
 							sleep ttl
 						end
@@ -367,7 +367,7 @@ class Metasploit3 < Msf::Auxiliary
 						answer.each_answer do |name, ttl, data|
 							if((name.to_s + ".") == hostname)
 								print_status("Poisoning successful after #{queries} queries and #{responses} responses: #{name} == #{address}")
-								print_status("TTL: #{ttl} DATA: #{data.to_s}")
+								print_status("TTL: #{ttl} DATA: #{data}")
 								disconnect_ip
 								return
 							end

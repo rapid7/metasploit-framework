@@ -175,7 +175,7 @@ module ReverseTcpDouble
 			end
 			
 		rescue ::Exception
-			print_status("Caught exception in detect_input_output: #{$!.to_s}")
+			print_status("Caught exception in detect_input_output: #{$!}")
 		end
 		
 	end

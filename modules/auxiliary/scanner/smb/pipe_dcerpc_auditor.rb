@@ -285,7 +285,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				begin
 					dcerpc_bind(handle)
-					print_line("#{ip} - UUID #{uuid[0]} #{uuid[1].to_f.to_s} OPEN VIA #{datastore['SMBPIPE']}")
+					print_line("#{ip} - UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['SMBPIPE']}")
 				rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 					# print_line("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
 				rescue ::Exception => e

@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			1.upto(5) do |i|
-				print_status("Sending bad SMB transaction request #{i.to_s}...");
+				print_status("Sending bad SMB transaction request #{i}...");
 				self.simple.client.trans_nonull(
 					"\\#{Rex::Text.rand_text_alphanumeric(rand(16)+1)}", 
 					'', 
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 
 		rescue ::Exception => e
-			print_status("Error: #{e.class.to_s} > #{e.to_s}")
+			print_status("Error: #{e.class} > #{e}")
 		end
 
 

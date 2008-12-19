@@ -60,7 +60,7 @@ def run
 					rescue ::Interrupt
 						raise $!
 					rescue ::Exception => e
-						print_status("Error: #{ip} #{e.to_s}")
+						print_status("Error: #{ip} #{e}")
 					end
 				end
 			end
@@ -119,7 +119,7 @@ def run
 						rescue ::Interrupt
 							raise $!
 						rescue ::Exception => e
-							print_status("Error: #{batch[0]}-#{batch[-1]}: #{e.to_s}")
+							print_status("Error: #{batch[0]}-#{batch[-1]}: #{e}")
 						end
 					end
 				end

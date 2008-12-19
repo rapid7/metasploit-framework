@@ -43,7 +43,7 @@ class DBManager
 			@usable = true
 			
 		rescue ::Exception => e
-			elog("DB is not enabled due to load error: #{e.to_s}")
+			elog("DB is not enabled due to load error: #{e}")
 		end
 	end
 	
@@ -63,7 +63,7 @@ class DBManager
 		begin
 			ActiveRecord::Base.establish_connection(nopts)
 		rescue ::Exception => e
-			elog("DB.connect threw an exception: #{e.to_s}")
+			elog("DB.connect threw an exception: #{e}")
 			return false
 		end
 		
@@ -77,7 +77,7 @@ class DBManager
 		begin
 			ActiveRecord::Base.remove_connection
 		rescue ::Exception => e
-			elog("DB.disconnect threw an exception: #{e.to_s}")
+			elog("DB.disconnect threw an exception: #{e}")
 		end
 		@active = false
 	end

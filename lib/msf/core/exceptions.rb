@@ -280,7 +280,7 @@ class PluginLoadError < RuntimeError
 	end
 	
 	def to_s
-		"This plugin failed to load:  #{reason.to_s}"
+		"This plugin failed to load:  #{reason}"
 	end
 end
 

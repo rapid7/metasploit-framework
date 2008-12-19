@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Fingerprint a single host
 	def run_batch(batch)
 	
-		print_status("Sending #{@probes.length.to_s} probes to #{batch[0]}->#{batch[-1]} (#{batch.length.to_s} hosts)")
+		print_status("Sending #{@probes.length} probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
 
 		begin		
 			udp_sock = nil
@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			print_status("Unknown error: #{e.class} #{e.to_s}")
+			print_status("Unknown error: #{e.class} #{e}")
 		end
 	end
 
@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 		return if not pkt[1]
 		
 		# Ignore duplicates
-		hkey = "#{pkt[1]}:#{pkt[2].to_s}"
+		hkey = "#{pkt[1]}:#{pkt[2]}"
 		return if @results[hkey]
 		
 		app = 'unknown'

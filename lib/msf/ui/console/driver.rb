@@ -210,7 +210,7 @@ class Driver < Msf::Ui::Driver
 		if (framework.modules.failed.length > 0)
 			print("[*] WARNING! The following modules could not be loaded!\n\n")
 			framework.modules.failed.each_pair do |file, err|
-				print("\t#{file}: #{err.to_s}\n\n")
+				print("\t#{file}: #{err}\n\n")
 			end
 			print("\n")
 		end

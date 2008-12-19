@@ -586,7 +586,7 @@ protected
 	# way of doing it, but I couldn't find a better one, so meh.
 	#
 	def derived_implementor?(parent, method_name)
-		(self.method(method_name).to_s.match(/#{parent.to_s}[^:]/)) ? false : true
+		(self.method(method_name).to_s.match(/#{parent}[^:]/)) ? false : true
 	end
 
 	#

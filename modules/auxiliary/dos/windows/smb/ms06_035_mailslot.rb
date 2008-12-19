@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 			1.upto(1024) do |i|
 
 				if (i % 100 == 0)
-					print_status("Sending request containing #{i.to_s} bytes...")
+					print_status("Sending request containing #{i} bytes...")
 				end
 
 				begin
@@ -84,11 +84,11 @@ class Metasploit3 < Msf::Auxiliary
 				rescue ::Exception => e
 
 					if (i == 1) 
-						print_status("Failed to write any data to the mailslot: #{e.to_s}")
+						print_status("Failed to write any data to the mailslot: #{e}")
 						break
 					end
-					print_status("Exception occurred on interation #{i.to_s}")
-			 		print_status("Error: #{e.class.to_s} > #{e.to_s}")
+					print_status("Exception occurred on interation #{i}")
+			 		print_status("Error: #{e.class} > #{e}")
 					break
 				end
 			end

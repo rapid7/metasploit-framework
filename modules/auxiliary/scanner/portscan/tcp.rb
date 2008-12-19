@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 				raise $!
 			rescue ::Rex::ConnectionError
 			rescue ::Exception => e
-				print_status("Unknown error: #{e.class} #{e.to_s}")
+				print_status("Unknown error: #{e.class} #{e}")
 			end
 		end
 	end
