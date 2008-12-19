@@ -125,11 +125,7 @@ class Rex::Socket::Comm::Local
 		# Bind to a given local address and/or port if they are supplied
 		if (param.localhost || param.localport)
 			begin	
-				if (param.server?)
-					sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
-				end
-
-				sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
+				sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, true)
 
 				sock.bind(Rex::Socket.to_sockaddr(param.localhost, param.localport))
 
