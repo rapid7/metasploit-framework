@@ -112,29 +112,6 @@ module Db
 		end
 		
 		
-		def parse_port_range(desc)
-			res = []
-			desc.split(",").each do |r|
-				s,e = r.split("-")
-				e ||= s
-				s = s.to_i
-				e = e.to_i
-				
-				if(e < s)
-					t = s
-					s = e
-					e = t
-				end
-				
-				s.to_i.upto(e.to_i) do |i|
-					next if i == 0
-					res << i
-				end
-			end
-			
-			res
-		end
-		
 		#
 		# A shotgun approach to network-wide exploitation
 		#
@@ -181,9 +158,9 @@ module Db
 				when '-X'
 					targ_exc << OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(args.shift)
 				when '-PI'
-					port_inc = parse_port_range(args.shift)
+					port_inc = Rex::Socket.portspec_crack(args.shift)
 				when '-PX'
-					port_exc = parse_port_range(args.shift)
+					port_exc = Rex::Socket.portspec_crack(args.shift)
 				when '-m'
 					regx = args.shift
 				when '-h'

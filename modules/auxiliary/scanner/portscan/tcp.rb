@@ -12,7 +12,6 @@
 
 require 'msf/core'
 
-
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
@@ -44,22 +43,8 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 	
 		timeout = datastore['TIMEOUT'].to_i
-		ports = []
 
-		# Build ports array from port specification
-		datastore['PORTS'].split(/,/).each do |item|
-			start, stop = item.split(/-/).map { |p| p.to_i }
-
-			start ||= 0
-			stop ||= item.match(/-/) ? 65535 : start
-
-			start, stop = stop, start if stop < start
-
-			start.upto(stop) { |p| ports << p }
-		end
-
-		# Sort, and remove dups and invalid ports
-		ports = ports.sort.uniq.delete_if { |p| p < 0 or p > 65535 }
+		ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
 		if ports.empty?
 			print_status("Error: No valid ports specified")

@@ -351,6 +351,29 @@ module Socket
 		[ (~((2 ** (32 - bitmask)) - 1)) & 0xffffffff ].pack('N').unpack('CCCC').join('.')
 	end
 
+	#
+	# Converts a port specification like "80,21-23,443" into a sorted,
+	# unique array of valid port numbers like [21,22,23,80,443]
+	#
+	def self.portspec_crack(pspec)
+		ports = []
+
+		# Build ports array from port specification
+		pspec.split(/,/).each do |item|
+			start, stop = item.split(/-/).map { |p| p.to_i }
+
+			start ||= 0
+			stop ||= item.match(/-/) ? 65535 : start
+
+			start, stop = stop, start if stop < start
+
+			start.upto(stop) { |p| ports << p }
+		end
+
+		# Sort, and remove dups and invalid ports
+		ports.sort.uniq.delete_if { |p| p < 0 or p > 65535 }
+	end
+
 	##
 	#
 	# Utility class methods
