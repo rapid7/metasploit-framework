@@ -108,6 +108,11 @@ when /auxiliary\/(.*)/
 
 else
 	exploit = $framework.exploits.create(exploit_name)
+	if exploit == nil
+		# Try falling back on aux modules
+		exploit = $framework.auxiliary.create(exploit_name)
+		module_class = 'auxiliary'
+	end
 
 end
 
