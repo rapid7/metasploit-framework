@@ -13,7 +13,7 @@ require 'rex/ui'
 
 # Declare the argument parser for msfrpc
 arguments = Rex::Parser::Arguments.new(
-	"-h" => [ true,  "Connect to this IP address"                           ],
+	"-a" => [ true,  "Connect to this IP address"                           ],
 	"-p" => [ true,  "Connect to the specified port instead of 55553"       ],
 	"-U" => [ true,  "Specify the username to access msfrpcd"               ],
 	"-P" => [ true,  "Specify the password to access msfrpcd"               ],
@@ -29,7 +29,7 @@ opts = {
 # Parse command line arguments.
 arguments.parse(ARGV) { |opt, idx, val|
 	case opt
-		when "-h"
+		when "-a"
 			opts['ServerHost'] = val
 		when "-S"
 			opts['SSL'] = false
@@ -47,7 +47,7 @@ arguments.parse(ARGV) { |opt, idx, val|
 
 
 if(not opts['ServerHost'])
-	$stderr.puts "[*] Error: a server IP must be specified (-h)"
+	$stderr.puts "[*] Error: a server IP must be specified (-a)"
 	$stderr.puts arguments.usage
 	exit(0)
 end
