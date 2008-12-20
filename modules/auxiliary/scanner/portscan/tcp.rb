@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'TCP Port Scanner',
 			'Version'     => '$Revision$',
 			'Description' => 'Enumerate open TCP services',
-			'Author'      => [ 'hdm', 'Kris Katterjohn <katterjohn[at]gmail.com>' ],
+			'Author'      => [ 'hdm', 'kris' ],
 			'License'     => MSF_LICENSE
 		)
 

@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 				more information is available through this request, but
 				you can get it all and more after logging in.
 			},
-			'Author'         => 'Kris Katterjohn <katterjohn@gmail.com>',
+			'Author'         => 'kris',
 			'License'        => MSF_LICENSE,
 			'Version'        => '1',
 			'References'     =>

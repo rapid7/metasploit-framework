@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 				non-DLLs in this directory after installation are
 				users.txt, install.daf and readme.daf.
 			},
-			'Author'         => 'Kris Katterjohn <katterjohn@gmail.com>',
+			'Author'         => 'kris',
 			'License'        => MSF_LICENSE,
 			'Version'        => '1',
 			'References'     => [

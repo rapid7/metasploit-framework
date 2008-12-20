@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 				to heap corruption.  You need to have a valid login
 				so you can run CWD and LIST.
 			},
-			'Author'         => 'Kris Katterjohn <katterjohn@gmail.com>',
+			'Author'         => 'kris',
 			'License'        => MSF_LICENSE,
 			'Version'        => '1',
 			'References'     =>

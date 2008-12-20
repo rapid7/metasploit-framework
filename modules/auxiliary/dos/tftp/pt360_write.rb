@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 				The PacketTrap TFTP server version 2.2.5459.0 can be
 				brought down by sending a special write request.
 			},
-			'Author'         => 'Kris Katterjohn <katterjohn@gmail.com>',
+			'Author'         => 'kris',
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>
