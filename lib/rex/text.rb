@@ -67,8 +67,8 @@ module Text
 	#
 	# Converts a raw string into a ruby buffer
 	#
-	def self.to_ruby(str, wrap = DefaultWrap)
-		return hexify(str, wrap, '"', '" +', '', '"')
+	def self.to_ruby(str, wrap = DefaultWrap, name = "buf")
+		return hexify(str, wrap, '"', '" +', "#{name} = \n", '"')
 	end
 
 	#
@@ -102,15 +102,15 @@ module Text
 	#
 	# Converts a raw string into a perl buffer
 	#
-	def self.to_perl(str, wrap = DefaultWrap)
-		return hexify(str, wrap, '"', '" .', '', '";')
+	def self.to_perl(str, wrap = DefaultWrap, name = "buf")
+		return hexify(str, wrap, '"', '" .', "my $#{name} = \n", '";')
 	end
 
 	#
 	# Converts a raw string into a java byte array
 	#
-	def self.to_java(str)
-		buff = "byte shell[] = new byte[]\n{\n"
+	def self.to_java(str, name = "shell")
+		buff = "byte #{name}[] = new byte[]\n{\n"
 		cnt = 0
 		max = 0
 		str.unpack('C*').each do |c|
