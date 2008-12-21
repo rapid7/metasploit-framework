@@ -213,7 +213,9 @@ class Module
 	# Return the module's version information.
 	#
 	def version
-		module_info['Version'].gsub(/\$Rev.s.on:\s+|\s+\$$/, '')
+		module_info['Version'].split(/,/).map { |ver|
+			ver.gsub(/\$Rev.s.on:\s+|\s+\$$/, '')
+		}.join(',')
 	end
 
 	#
