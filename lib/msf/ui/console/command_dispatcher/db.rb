@@ -37,6 +37,7 @@ module Db
 				"db_add_host" => "Add one or more hosts to the database",
 				"db_add_port" => "Add a port to host",
 				"db_add_note" => "Add a note to host",
+				"db_del_host" => "Delete one or more hosts from the database",
 				"db_autopwn"  => "Automatically exploit everything",
 				"db_import_nessus_nbe" => "Import a Nessus scan result file (NBE)",
 				"db_import_nmap_xml"   => "Import a Nmap scan results file (-oX)",
@@ -112,6 +113,14 @@ module Db
 		end
 		
 		
+		def cmd_db_del_host(*args)
+			args.each do |address|
+				if framework.db.del_host(nil, address)
+					print_status("Host #{address} deleted")
+				end
+			end
+		end
+
 		#
 		# A shotgun approach to network-wide exploitation
 		#

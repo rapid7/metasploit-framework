@@ -330,6 +330,25 @@ class DBManager
 	end
 	
 	#
+	# Deletes a host and associated data matching this address/comm
+	#
+	def del_host(context, address, comm='')
+		host = Host.find(:first, :conditions => ["address = ? and comm = ?", address, comm])
+
+		return unless host
+
+		services = Service.find(:all, :conditions => ["host_id = ?", host.id]).map { |s| s.id }
+
+		services.each do |sid|
+			Vuln.delete_all(["service_id = ?", sid])
+			Service.delete(sid)
+		end
+
+		Note.delete_all(["host_id = ?", host.id])
+		Host.delete(host.id)
+	end
+
+	#
 	# Find a reference matching this name
 	#
 	def has_ref?(name)
