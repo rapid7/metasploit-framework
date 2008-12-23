@@ -40,6 +40,11 @@ class Core
 		"-r" => [ false, "Restore framework state."                       ],
 		"-h" => [ false, "Help banner."                                   ])
 
+	@@connect_opts = Rex::Parser::Arguments.new(
+		"-p" => [ true, "List of proxies to use."                         ],
+		"-c" => [ true, "Comm to use."                                    ],
+		"-s" => [ false, "Use SSL to connect."                            ])
+
 	# The list of data store elements that cannot be set when in defanged
 	# mode.
 	DefangedProhibitedDataStoreElements = [ "ModulePaths" ]
@@ -51,6 +56,7 @@ class Core
 			"back"     => "Move back from the current context",
 			"banner"   => "Display an awesome metasploit banner",
 			"cd"       => "Change the current working directory",
+			"connect"  => "Communicate with a host",
 			"exit"     => "Exit the console",
 			"help"     => "Help menu",
 			"info"     => "Displays information about one or more module",
@@ -164,6 +170,125 @@ class Core
 
 		# Display the banner
 		print(banner)
+	end
+
+	#
+	# Talk to a host
+	#
+	def cmd_connect(*args)
+		if args.length < 2
+			print_line("Usage: connect [-c comm/sid] [-p proxies] [-s] <host> <port>\n\n" +
+				   "Communicate with host:port over TCP, similar to\n" +
+				   "interacting via netcat\n")
+			return false
+		end
+
+		commval = nil
+		proxies = nil
+		ssl = false
+		aidx = 0
+
+		@@connect_opts.parse(args) do |opt, idx, val|
+			case opt
+				when "-c"
+					commval = val
+					aidx = idx + 2
+				when "-p"
+					proxies = val
+					aidx = idx + 2
+				when "-s"
+					ssl = true
+					aidx = idx + 1
+			end
+		end
+
+		commval = "Local" if commval =~ /local/i
+
+		args = args[aidx .. -1]
+		host = args[0]
+		port = args[1]
+
+		comm = nil
+
+		if commval
+			begin
+				if Rex::Socket::Comm.const_defined?(commval)
+					comm = Rex::Socket::Comm.const_get(commval)
+				end
+			rescue NameError
+			end
+
+			if not comm
+				session = framework.sessions.get(commval)
+
+				if session.kind_of?(Msf::Session::Comm)
+					comm = session
+				end
+			end
+
+			if not comm
+				print_line("Invalid comm '#{commval}' selected")
+				return false
+			end
+		end
+
+		begin
+			sock = Rex::Socket::Tcp.create({
+				'Comm'     => comm,
+				'Proxies'  => proxies,
+				'SSL'      => ssl,
+				'PeerHost' => host,
+				'PeerPort' => port
+			})
+		rescue
+			print_line("Unable to connect: #{$!}")
+			return false
+		end
+
+		print_line("Connected to #{host}:#{port}")
+
+		cin = driver.input
+		cout = driver.output
+
+		begin
+			# Console -> Network
+			c2n = Thread.new(cin, sock) do |input, output|
+				while true
+					begin
+						res = input.gets
+						break if not res
+						output.write res
+					rescue ::EOFError, ::IOError
+						break
+					end
+				end
+			end
+
+			# Network -> Console
+			n2c = Thread.new(sock, cout, c2n) do |input, output, cthr|
+				while true
+					begin
+						res = input.read(65535)
+						break if not res
+						output.print res
+					rescue ::EOFError, ::IOError
+						break
+					end
+				end
+
+				Thread.kill(cthr)
+			end
+
+			c2n.join
+
+		rescue Interrupt
+			c2n.kill
+			n2c.kill
+		end
+
+		sock.close
+
+		true
 	end
 
 	#
