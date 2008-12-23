@@ -41,9 +41,9 @@ class Core
 		"-h" => [ false, "Help banner."                                   ])
 
 	@@connect_opts = Rex::Parser::Arguments.new(
-		"-p" => [ true, "List of proxies to use."                         ],
-		"-c" => [ true, "Comm to use."                                    ],
-		"-s" => [ false, "Use SSL to connect."                            ])
+		"-p" => [ true,  "List of proxies to use."                        ],
+		"-c" => [ true,  "Specify which Comm to use."                             ],
+		"-s" => [ false, "Connect with SSL."                              ])
 
 	# The list of data store elements that cannot be set when in defanged
 	# mode.
@@ -177,9 +177,10 @@ class Core
 	#
 	def cmd_connect(*args)
 		if args.length < 2
-			print_line("Usage: connect [-c comm/sid] [-p proxies] [-s] <host> <port>\n\n" +
-				   "Communicate with host:port over TCP, similar to\n" +
-				   "interacting via netcat\n")
+			print(  "Usage: connect [options] <host> <port>\n\n" +
+				"Communicate with a host, similar to interacting\n" +
+				"via netcat.\n" +
+				@@connect_opts.usage)
 			return false
 		end
 
