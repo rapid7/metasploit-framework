@@ -124,7 +124,7 @@
                 <option value="c">C</option>
                 <option value="ruby">Ruby</option>
                 <option value="perl">Perl</option>
-                <option value="javascript">Javascript</option>
+                <option value="js_<%= Rex::Arch.endian(@tmod.arch) == ENDIAN_BIG ? "b" : "l" %>e">Javascript</option>
                 <option value="java">Java</option>
                 <option value="raw">Raw</option>
             </select>
