@@ -42,7 +42,8 @@ class Core
 
 	@@connect_opts = Rex::Parser::Arguments.new(
 		"-p" => [ true,  "List of proxies to use."                        ],
-		"-c" => [ true,  "Specify which Comm to use."                             ],
+		"-c" => [ true,  "Specify which Comm to use."                     ],
+		"-i" => [ true,  "Send the contents of a file."                   ],
 		"-s" => [ false, "Connect with SSL."                              ])
 
 	# The list of data store elements that cannot be set when in defanged
@@ -185,6 +186,7 @@ class Core
 		end
 
 		commval = nil
+		fileval = nil
 		proxies = nil
 		ssl = false
 		aidx = 0
@@ -193,6 +195,9 @@ class Core
 			case opt
 				when "-c"
 					commval = val
+					aidx = idx + 2
+				when "-i"
+					fileval = val
 					aidx = idx + 2
 				when "-p"
 					proxies = val
@@ -204,6 +209,16 @@ class Core
 		end
 
 		commval = "Local" if commval =~ /local/i
+
+		if fileval
+			begin
+				raise "Not a file" if File.ftype(fileval) != "file"
+				infile = ::File.open(fileval)
+			rescue
+				print_line("Can't read from '#{fileval}': #{$!}")
+				return false
+			end
+		end
 
 		args = args[aidx .. -1]
 		host = args[0]
@@ -248,7 +263,7 @@ class Core
 
 		print_line("Connected to #{host}:#{port}")
 
-		cin = driver.input
+		cin = infile || driver.input
 		cout = driver.output
 
 		begin
@@ -288,6 +303,7 @@ class Core
 		end
 
 		sock.close
+		infile.close if infile
 
 		true
 	end
