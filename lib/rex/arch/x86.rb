@@ -332,6 +332,13 @@ module X86
 	end
 
 	#
+	# This method wrappers packing a short integer as a little-endian buffer.
+	#
+	def self.pack_word(num)
+		[num].pack('v')
+	end
+
+	#
 	# This method wrappers packing an integer as a little-endian buffer.
 	#
 	def self.pack_dword(num)
