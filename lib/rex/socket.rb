@@ -87,22 +87,20 @@ module Socket
 	# Determine whether we support IPv6
 	#		
 	def self.support_ipv6?
-		if(@@support_ipv6)
-			return (@@support_ipv6 == "yes" ? true : false)
-		end
-		
-		@@support_ipv6 = "no"
+		return @@support_ipv6 if not @@support_ipv6.nil?
+
+		@@support_ipv6 = false
 		
 		if (::Socket.const_defined?('AF_INET6'))
 			begin
 				s = ::Socket.new(::Socket::AF_INET6, ::Socket::SOCK_DGRAM, ::Socket::IPPROTO_UDP)
 				s.close
-				@@support_ipv6 = "yes"
+				@@support_ipv6 = true
 			rescue
 			end
 		end
 		
-		return (@@support_ipv6 == "yes" ? true : false)
+		return @@support_ipv6
 	end
 	
 	#

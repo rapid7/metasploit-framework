@@ -46,6 +46,10 @@ class Driver < Msf::Ui::Driver
 	# 	Whether or not unknown commands should be passed through and executed by
 	# 	the local system.
 	#
+	# NoBanner
+	#
+	#	Don't display a banner message
+	#
 	def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
 		
 		if (Rex::Compat.is_windows())
@@ -91,7 +95,7 @@ class Driver < Msf::Ui::Driver
 		self.framework.modules.add_module_path(opts['ModulePath'], false) if opts['ModulePath']
 
 		# Process things before we actually display the prompt and get rocking
-		on_startup
+		on_startup(opts)
 
 		# Process the resource script
 		load_resource(opts['Resource'])
@@ -205,7 +209,7 @@ class Driver < Msf::Ui::Driver
 	# Called before things actually get rolling such that banners can be
 	# displayed, scripts can be processed, and other fun can be had.
 	#
-	def on_startup
+	def on_startup(opts)
 		# Check for modules that failed to load
 		if (framework.modules.failed.length > 0)
 			print("[*] WARNING! The following modules could not be loaded!\n\n")
@@ -216,7 +220,7 @@ class Driver < Msf::Ui::Driver
 		end
 		
 		# Build the banner message
-		run_single("banner")
+		run_single("banner") if not opts['NoBanner']
 	end
 
 	#
