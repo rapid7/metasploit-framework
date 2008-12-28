@@ -45,7 +45,8 @@ class Core
 		"-c" => [ true,  "Specify which Comm to use."                     ],
 		"-i" => [ true,  "Send the contents of a file."                   ],
 		"-S" => [ true,  "Specify source address."                        ],
-		"-s" => [ false, "Connect with SSL."                              ])
+		"-s" => [ false, "Connect with SSL."                              ],
+		"-w" => [ true,  "Specify connect timeout."                       ])
 
 	# The list of data store elements that cannot be set when in defanged
 	# mode.
@@ -191,6 +192,7 @@ class Core
 		proxies = nil
 		source = nil
 		ssl = false
+		cto = nil
 		aidx = 0
 
 		@@connect_opts.parse(args) do |opt, idx, val|
@@ -210,6 +212,9 @@ class Core
 				when "-s"
 					ssl = true
 					aidx = idx + 1
+				when "-w"
+					cto = val.to_i
+					aidx = idx + 2
 			end
 		end
 
@@ -260,7 +265,8 @@ class Core
 				'SSL'       => ssl,
 				'PeerHost'  => host,
 				'PeerPort'  => port,
-				'LocalHost' => source
+				'LocalHost' => source,
+				'Timeout'   => cto
 			})
 		rescue
 			print_line("Unable to connect: #{$!}")
