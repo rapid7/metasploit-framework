@@ -42,6 +42,7 @@ class Core
 
 	@@connect_opts = Rex::Parser::Arguments.new(
 		"-p" => [ true,  "List of proxies to use."                        ],
+		"-C" => [ false, "Try to use CRLF for EOL sequence."              ],
 		"-c" => [ true,  "Specify which Comm to use."                     ],
 		"-i" => [ true,  "Send the contents of a file."                   ],
 		"-S" => [ true,  "Specify source address."                        ],
@@ -186,6 +187,7 @@ class Core
 			return false
 		end
 
+		crlf = false
 		commval = nil
 		fileval = nil
 		proxies = nil
@@ -196,6 +198,9 @@ class Core
 
 		@@connect_opts.parse(args) do |opt, idx, val|
 			case opt
+				when "-C"
+					crlf = true
+					aidx = idx + 1
 				when "-c"
 					commval = val
 					aidx = idx + 2
@@ -284,6 +289,9 @@ class Core
 					begin
 						res = input.gets
 						break if not res
+						if crlf and (res =~ /^\n$/ or res =~ /[^\r]\n$/)
+							res.gsub!(/\n$/, "\r\n")
+						end
 						output.write res
 					rescue ::EOFError, ::IOError
 						break
