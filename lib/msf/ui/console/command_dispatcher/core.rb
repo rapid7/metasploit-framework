@@ -44,6 +44,7 @@ class Core
 		"-p" => [ true,  "List of proxies to use."                        ],
 		"-c" => [ true,  "Specify which Comm to use."                     ],
 		"-i" => [ true,  "Send the contents of a file."                   ],
+		"-S" => [ true,  "Specify source address."                        ],
 		"-s" => [ false, "Connect with SSL."                              ])
 
 	# The list of data store elements that cannot be set when in defanged
@@ -188,6 +189,7 @@ class Core
 		commval = nil
 		fileval = nil
 		proxies = nil
+		source = nil
 		ssl = false
 		aidx = 0
 
@@ -201,6 +203,9 @@ class Core
 					aidx = idx + 2
 				when "-p"
 					proxies = val
+					aidx = idx + 2
+				when "-S"
+					source = val
 					aidx = idx + 2
 				when "-s"
 					ssl = true
@@ -250,11 +255,12 @@ class Core
 
 		begin
 			sock = Rex::Socket::Tcp.create({
-				'Comm'     => comm,
-				'Proxies'  => proxies,
-				'SSL'      => ssl,
-				'PeerHost' => host,
-				'PeerPort' => port
+				'Comm'      => comm,
+				'Proxies'   => proxies,
+				'SSL'       => ssl,
+				'PeerHost'  => host,
+				'PeerPort'  => port,
+				'LocalHost' => source
 			})
 		rescue
 			print_line("Unable to connect: #{$!}")
