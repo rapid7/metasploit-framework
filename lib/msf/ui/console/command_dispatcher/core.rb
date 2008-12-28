@@ -181,8 +181,7 @@ class Core
 	def cmd_connect(*args)
 		if args.length < 2
 			print(  "Usage: connect [options] <host> <port>\n\n" +
-				"Communicate with a host, similar to interacting\n" +
-				"via netcat.\n" +
+				"Communicate with a host, similar to interacting via netcat.\n" +
 				@@connect_opts.usage)
 			return false
 		end
