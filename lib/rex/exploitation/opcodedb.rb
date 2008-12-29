@@ -740,7 +740,7 @@ protected
 
 			# Non-200 return code?
 			if (response.code != 200)
-				raise RuntimeError, "Invalid response recieved from server."
+				raise RuntimeError, "Invalid response received from server."
 			end
 
 			# Convert the return value to the native type.

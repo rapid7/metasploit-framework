@@ -21,7 +21,7 @@ class Job
 	end
 
 	#
-	# Runs the job in the context of its own thread if the async flag is flase.
+	# Runs the job in the context of its own thread if the async flag is false.
 	# Otherwise, the job is run inline.
 	#
 	def start(async = false)

@@ -83,7 +83,7 @@ class Rex::Socket::Parameters
 	#
 	# Retries
 	#
-	# 	The number of times a connection should be retryed.
+	# 	The number of times a connection should be retried.
 	#
 	# Timeout
 	#
