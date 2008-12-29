@@ -160,10 +160,18 @@ class Rex::Socket::Parameters
 		self.comm      = Rex::Socket::Comm::Local if (self.comm == nil)
 
 		# The number of connection retries to make (client only)
-		self.retries   = hash['Retries'] || 0
+		if hash['Retries']
+			self.retries = hash['Retries'].to_i
+		else
+			self.retries = 0
+		end
 
 		# The number of seconds before a connect attempt times out (client only)
-		self.timeout   = hash['Timeout'] || 5
+		if hash['Timeout']
+			self.timeout = hash['Timeout'].to_i
+		else
+			self.timeout = 5
+		end
 		
 		# Whether to force IPv6 addressing
 		self.v6        = hash['IPv6'] || false
