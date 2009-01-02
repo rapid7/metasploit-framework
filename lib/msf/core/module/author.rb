@@ -18,7 +18,7 @@ class Msf::Module::Author
 			'optyx'     => 'optyx' + 0x40.chr + 'no$email.com',
 			'anonymous' => 'anonymous-contributor' + 0x40.chr + 'metasploit.com',
 			'stinko'    => 'vinnie' + 0x40.chr + 'metasploit.com',
-			'MC'        => 'y0' + 0x40.chr + 'w00t-shell.net',
+			'MC'        => 'mc' + 0x40.chr + 'metasploit.com',
 			'cazz'      => 'bmc' + 0x40.chr + 'shmoo.com',
 			'pusscat'   => 'pusscat' + 0x40.chr + 'metasploit.com',
 			'skylined'  => 'skylined' + 0x40.chr + 'edup.tudelft.nl',
