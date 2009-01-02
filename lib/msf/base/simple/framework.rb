@@ -66,8 +66,7 @@ module Framework
 	#   instance is created.
 	#
 	def self.create(opts = {})
-		framework = Msf::Framework.new
-
+		framework = Msf::Framework.new(opts)
 		return simplify(framework, opts)
 	end
 
@@ -84,7 +83,7 @@ module Framework
 
 		# Initialize the simplified framework
 		framework.init_simplified()
-
+		
 		# Call the creation procedure if one was supplied
 		if (opts['OnCreateProc'])
 			opts['OnCreateProc'].call(framework)
@@ -93,6 +92,7 @@ module Framework
 		# Initialize configuration and logging
 		Msf::Config.init
 		Msf::Logging.init
+
 
 		# Load the configuration
 		framework.load_config

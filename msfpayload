@@ -29,7 +29,10 @@ def dump_payloads
 end
 
 # Initialize the simplified framework instance.
-$framework = Msf::Simple::Framework.create
+$framework = Msf::Simple::Framework.create(
+	:module_types => [ Msf::MODULE_PAYLOAD ]
+)
+
 
 if (ARGV.length <= 1)
 	puts "\n" + "    Usage: #{$0} <payload> [var=val] <S[ummary]|C|P[erl]|[Rub]y|R[aw]|J[avascript]|e[X]ecutable|[V]BA>\n"

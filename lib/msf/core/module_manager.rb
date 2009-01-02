@@ -325,17 +325,20 @@ class ModuleManager < ModuleSet
 
 	#
 	# Initializes an instance of the overall module manager using the supplied
-	# framework instance.
+	# framework instance. The types parameter can be used to only load specific
+	# module types on initialization
 	#
-	def initialize(framework)
+	def initialize(framework,types=MODULE_TYPES)
 		self.module_paths         = []
 		self.module_history       = {}
 		self.module_history_mtime = {}
 		self.module_sets          = {}
 		self.module_failed        = {}
+		self.enabled_types        = {}
 		self.framework            = framework
 
-		MODULE_TYPES.each { |type|
+		types.each { |type|
+			self.enabled_types[type] = true
 			case type
 				when MODULE_PAYLOAD
 					instance = PayloadSet.new(self)
@@ -444,7 +447,9 @@ class ModuleManager < ModuleSet
 			@modcache.add_group(type, false)
 
 			@modcache[type].each_key { |name|
-
+				next if not @modcache[type]
+				next if not module_sets[type]
+				
 				fullname = type + '/' + name
 
 				# Make sure the files associated with this module exist.  If it
@@ -508,6 +513,7 @@ class ModuleManager < ModuleSet
 				@modcache['ModuleTypeCounts'].clear
 
 				MODULE_TYPES.each { |type|
+					next if not @modcache['ModuleTypeCounts'][type]
 					@modcache['ModuleTypeCounts'][type] = module_sets[type].length.to_s
 				}
 			end
@@ -797,38 +803,47 @@ protected
 	# Load all of the modules from the supplied module path (independent of
 	# module type).
 	#
-	def load_modules(path, demand = false)
+	def load_modules(bpath, demand = false)
 		loaded = {}
 		recalc = {}
 		counts = {}
 		delay  = {}
 		ks     = true
+		
+		dbase  = Dir.new(bpath)
+		dbase.entries.each do |ent|
+			path  = File.join(bpath, ent)
+			mtype = ent.gsub(/s$/, '')
+			next if not File.directory?(path)
+			next if not MODULE_TYPES.include?(mtype)
+			next if not enabled_types[mtype]
 
-		# Try to load modules from all the files in the supplied path
-		Rex::Find.find(path) { |file|
-			
-			# Skip non-ruby files
-			next if (file !~ /\.rb$/i)
-			
-			# Skip unit test files
-			next if (file =~ /rb\.(ut|ts)\.rb$/)
+			# Try to load modules from all the files in the supplied path
+			Rex::Find.find(path) do |file|
 
-			# Skip files with a leading period
-			next if (file =~ /^\./)
+				# Skip non-ruby files
+				next if (file !~ /\.rb$/i)
 
-			begin
-				load_module_from_file(path, file, loaded, recalc, counts, demand)
-			rescue NameError
-				
-				# As of Jan-06-2007 this code isn't hit with the official module tree
-				
-				# If we get a name error, it's possible that this module depends
-				# on another one that we haven't loaded yet.  Let's postpone
-				# the load operation for now so that we can resolve all 
-				# dependencies.  This is pretty much a hack.
-				delay[file] = $!
+				# Skip unit test files
+				next if (file =~ /rb\.(ut|ts)\.rb$/)
+
+				# Skip files with a leading period
+				next if (file =~ /^\./)
+
+				begin
+					load_module_from_file(bpath, file, loaded, recalc, counts, demand)
+				rescue NameError
+
+					# As of Jan-06-2007 this code isn't hit with the official module tree
+
+					# If we get a name error, it's possible that this module depends
+					# on another one that we haven't loaded yet.  Let's postpone
+					# the load operation for now so that we can resolve all 
+					# dependencies.  This is pretty much a hack.
+					delay[file] = $!
+				end
 			end
-		}
+		end
 
 		# Keep processing all delayed module loads until we've gotten
 		# all the dependencies resolved or until we just suck.
@@ -1049,6 +1064,7 @@ protected
 	attr_accessor :module_paths # :nodoc:
 	attr_accessor :module_history, :module_history_mtime # :nodoc:
 	attr_accessor :module_failed # :nodoc:
+	attr_accessor :enabled_types # :nodoc:
 
 end
 

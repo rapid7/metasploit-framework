@@ -39,9 +39,13 @@ class Framework
 	#
 	# Creates an instance of the framework context.
 	#
-	def initialize()
+	def initialize(opts={})
+		
+		# Allow specific module types to be loaded
+		types = opts[:module_types] || MODULE_TYPES
+
 		self.events    = EventDispatcher.new(self)
-		self.modules   = ModuleManager.new(self)
+		self.modules   = ModuleManager.new(self,types)
 		self.sessions  = SessionManager.new(self)
 		self.datastore = DataStore.new
 		self.jobs      = Rex::JobContainer.new
