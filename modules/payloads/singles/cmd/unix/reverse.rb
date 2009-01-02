@@ -21,7 +21,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Unix Command, Double reverse TCP connection (telnet)',
+			'Name'          => 'Unix Command Shell, Double reverse TCP (telnet)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Creates an interactive shell through two inbound connections',
 			'Author'        => 'hdm',
