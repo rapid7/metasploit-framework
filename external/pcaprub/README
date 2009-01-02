@@ -8,6 +8,9 @@ PacketRub project (http://packetrub.rubyforge.org).
 Requirements:
   libpcap - http://www.tcpdump.org
 
+Build & Install:
+  ruby extconf.rb && make && make install
+
 The latest version can be obtained from Subversion:
   svn checkout http://pcaprub.rubyforge.org/svn/trunk/
 
