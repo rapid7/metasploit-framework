@@ -74,6 +74,10 @@ function getVersion(){
 			browser_version = "1.0";
 		}
 	}
+
+	if (window.opera) {
+		browser_name = "#{clients::OPERA}";
+	}
 	
 	if (typeof ScriptEngineMajorVersion == "function") {
 		// then this is IE and we can detect the OS
@@ -157,7 +161,7 @@ function getVersion(){
 		// ie
 		os_lang = navigator.systemLanguage;
 	} else if (navigator.language) {
-		// gecko derivatives
+		// gecko derivatives, safari, opera
 		os_lang = navigator.language;
 	} else {
 		// some other browser and we don't know how to get the language, so
