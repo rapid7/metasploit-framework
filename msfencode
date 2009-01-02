@@ -75,11 +75,6 @@ def usage
 	exit
 end
 
-# Initialize the simplified framework instance.
-$framework = Msf::Simple::Framework.create(
-	:module_types => [ Msf::MODULE_ENCODER ]
-)
-
 # Defaults
 cmd      = "encode"
 arch     = nil
@@ -133,6 +128,11 @@ $args.parse(ARGV) { |opt, idx, val|
 			end
 	end	
 }
+
+# Initialize the simplified framework instance.
+$framework = Msf::Simple::Framework.create(
+	:module_types => [ Msf::MODULE_ENCODER ]
+)
 
 # Get the list of encoders to try
 encoders = get_encoders(arch, encoder)
