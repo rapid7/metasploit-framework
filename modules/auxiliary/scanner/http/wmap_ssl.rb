@@ -21,9 +21,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'HTTP SSL Certificate VHOST Detection',
-			'Version'     => '$Revision$',
-			'Description' => 'Display vhost associated to server using SSL certificate',
+			'Name'        => 'HTTP SSL Certificate tester',
+			'Version'     => '$Revision: 6022 $',
+			'Description' => 'Display vhost associated to server using SSL certificate and check for signature algorithm',
 			'Author'      => 'et',
 			'License'     => MSF_LICENSE
 		)
@@ -44,16 +44,23 @@ class Metasploit3 < Msf::Auxiliary
 			ssock.close	
 			
 			if cert
-				print_status("Subject: #{cert.subject}")
+				print_status("Subject: #{cert.subject} Signature Alg: #{cert.signature_algorithm}")
+				alg = cert.signature_algorithm
+				
+				if alg.downcase.include? "md5"
+					print_status("#{ip} WARNING: Signature algorithm using MD5 (#{alg})")
+				end
+				
 				sub = cert.subject.to_a
 				
+				vhostn = 'EMPTY' 
 				sub.each do |n|
+					#print_line "#{n[0]}"
 					if n[0] == 'CN'
+						#print_line "> #{n[1]}"
 						vhostn = n[1]
 					end
 				end
-
-				vhostn = sub[sub.length-1][1]
 			
 				if vhostn
 					print_status("#{ip} is host #{vhostn}")
@@ -65,6 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 								
 					wmap_report(rep_id,'VHOST','NAME',"#{vhostn}","Vhost #{vhostn} found.")
 					wmap_report(rep_id,'X509','SUBJECT',"#{cert.subject}",nil)
+					wmap_report(rep_id,'X509','SIGN_ALGORITHM',"#{cert.signature_algorithm}","Signature algorithm")
 				end
 			else
 				print_status("No certificate subject or CN found")
