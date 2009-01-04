@@ -261,7 +261,14 @@ class Console::CommandDispatcher::Core
 	end
 
 	def cmd_use_tabs(str, words)
-		return []
+		tabs = []
+		path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter')
+		::Dir.entries(path).each { |f| 
+			if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.dll/ )
+				tabs.push($1)
+			end
+		}
+		return tabs
 	end
 
 	#
