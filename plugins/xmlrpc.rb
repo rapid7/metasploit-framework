@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # This plugin provides an msf daemon interface that spawns a listener on a
-# defined port (default 55554) and gives each connecting client its own
+# defined port (default 55553) and gives each connecting client its own
 # console interface.  These consoles all share the same framework instance.
 # Be aware that the console instance that spawns on the port is entirely
 # unauthenticated, so realize that you have been warned.
@@ -32,7 +32,7 @@ class Plugin::XMLRPC < Msf::Plugin
 	#
 	# ServerPort
 	#
-	# 	The local port to listen on for connections.  The default is 8888
+	# 	The local port to listen on for connections.  The default is 55553
 	#
 	def initialize(framework, opts)
 		super
