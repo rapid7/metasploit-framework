@@ -31,7 +31,7 @@ class Plugin::ThreadTest < Msf::Plugin
 		def commands
 			{
 				"start_thread" => "Start a background thread that writes to the console",
-				"stop_thread" => "Start a background thread that writes to the console",
+				"stop_thread" => "Stop a background thread",
 				"list_thread" => "List running threads"
 			}
 		end
