@@ -75,7 +75,7 @@ module SocketTracer
 	def write(buf, opts = {})
 		@fd.puts "WRITE (#{buf.length} bytes)"
 		@fd.puts Rex::Text.to_hex_dump(buf)
-		super(buf)
+		super(buf, opts)
 	end
 
 	# Hook the read method
