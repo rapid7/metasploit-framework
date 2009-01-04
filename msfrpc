@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # This user interface allows users to interact with a remote framework
-# instance through a RPCXML socket.
+# instance through a XMLRPC socket.
 #
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
