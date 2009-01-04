@@ -66,7 +66,7 @@ module SocketTracer
 			$stderr.puts "*** Outbound write blocked due to possible signature match"
 			return 0
 		end
-		super(buf)
+		super(buf, opts)
 	end
 
 	# Hook the read method
