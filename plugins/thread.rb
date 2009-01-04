@@ -58,6 +58,7 @@ class Plugin::ThreadTest < Msf::Plugin
 			end
 			
 			@mythread.kill
+			@mythread = nil
 			print_line("Test thread stopped")
 		end
 		
