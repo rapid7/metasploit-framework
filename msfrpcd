@@ -13,7 +13,7 @@ require 'msf/ui'
 
 # Declare the argument parser for msfrpcd
 arguments = Rex::Parser::Arguments.new(
-	"-a" => [ true,  "Bind to this IP address instead of loopback"          ],
+	"-a" => [ true,  "Bind to this IP address"                              ],
 	"-p" => [ true,  "Bind to this port instead of 55553"                   ],
 	"-U" => [ true,  "Specify the username to access msfrpcd"               ],
 	"-P" => [ true,  "Specify the password to access msfrpcd"               ],
