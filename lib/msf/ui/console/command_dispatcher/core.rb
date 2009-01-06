@@ -229,7 +229,7 @@ class Core
 				raise "Not a file" if File.ftype(fileval) != "file"
 				infile = ::File.open(fileval)
 			rescue
-				print_line("Can't read from '#{fileval}': #{$!}")
+				print_error("Can't read from '#{fileval}': #{$!}")
 				return false
 			end
 		end
@@ -257,7 +257,7 @@ class Core
 			end
 
 			if not comm
-				print_line("Invalid comm '#{commval}' selected")
+				print_error("Invalid comm '#{commval}' selected")
 				return false
 			end
 		end
@@ -273,11 +273,11 @@ class Core
 				'Timeout'   => cto
 			})
 		rescue
-			print_line("Unable to connect: #{$!}")
+			print_error("Unable to connect: #{$!}")
 			return false
 		end
 
-		print_line("Connected to #{host}:#{port}")
+		print_status("Connected to #{host}:#{port}")
 
 		cin = infile || driver.input
 		cout = driver.output
