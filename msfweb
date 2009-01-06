@@ -27,7 +27,10 @@ arguments = Rex::Parser::Arguments.new(
 	"-s" => [ false, "Automatically open the browser"                       ],
 	"-h" => [ false, "Help banner"                                          ])
 
-opts = {}
+opts = {
+	'ServerHost' => '127.0.0.1',
+	'ServerPort' => '55555'
+}
 background = false
 browser_start = false
 
@@ -53,18 +56,14 @@ arguments.parse(ARGV) { |opt, idx, val|
 }
 
 
-host = (opts['ServerHost'] || '127.0.0.1')
-port = (opts['ServerPort'] || '55555')
-
-
 # This is stupid, but we need to override the ARGV constant
 
 ostderr = $stderr
 $stderr = StringIO.new
 
 ARGV = [
-	'-p', port, 
-	'-b', host,
+	'-p', opts['ServerPort'], 
+	'-b', opts['ServerHost'],
 	'-e', 'production',
 	(background ? '-d' : '')
 ]
@@ -72,7 +71,7 @@ ARGV = [
 $stderr.close
 $stderr = ostderr
 
-$browser_url   = "http://#{host}:#{port}/"
+$browser_url   = "http://#{opts['ServerHost']}:#{opts['ServerPort']}/"
 $browser_start = browser_start
 
 $stderr.puts ""
