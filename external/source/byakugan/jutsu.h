@@ -56,6 +56,21 @@ struct bufInstance {
 	struct bufInstance	*next;
 };
 
+struct trackedVal {
+    char    *valName;
+    BYTE    valSize;
+    ULONG   candidates;
+
+    struct  valInstance *instances;
+    struct  trackedVal  *next;
+};
+
+struct valInstance {
+    ULONG64 address;
+
+    struct valInstance *next;
+};
+
 
 void    helpJutsu(void);
 void    bindJutsu(char *);
@@ -68,8 +83,10 @@ void	listTrackedBufJutsu(void);
 void	showRequestsJutsu(void);
 void	hunterJutsu(void);
 void	returnAddressHuntJutsu(void);
-ULONG64 	allocateMemoryBlock(unsigned long); 
+void	trackValJutsu(char *name, DWORD size, DWORD value);
+ULONG64 allocateMemoryBlock(unsigned long); 
 ULONG64 searchMemory(unsigned char * byteBuffer, unsigned long length);
+DWORD   findAllVals(unsigned char *byteBuffer, BYTE size, struct valInstance **instance);
 
 // Handlers
 void	executeJutsu(struct request *);

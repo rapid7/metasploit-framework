@@ -6,7 +6,8 @@
 #include "msfpattern.h"
 
 struct requestQueue	jutsuRequests;
-struct trackedBuf	*trackedBufList;
+struct trackedBuf	*trackedBufList = NULL;
+struct trackedVal	*trackedValList = NULL;
 
 ULONG64				disassemblyBuffer;
 HANDLE				processHandle = 0;
@@ -32,6 +33,78 @@ char *regs[] = {
 void helpJutsu(void) {
 	return;
 }
+
+void trackValJutsu(char *name, DWORD size, DWORD value) {
+    struct trackedVal   *newTrackedVal, *parent = NULL;
+	struct valInstance	*last, *curr;
+	char				findValExpression[18] =  {'\x00'};
+
+	newTrackedVal = trackedValList;
+	while (newTrackedVal != NULL) {
+		if (!_stricmp(newTrackedVal->valName, name))
+			break;
+		newTrackedVal = newTrackedVal->next;
+	}
+
+	// Search the list for the new value, purge old addresses
+	if (newTrackedVal) {
+		dprintf("[J] Narrowing down candidate list for %s from %d candidates.\n", name, newTrackedVal->candidates);
+		curr = newTrackedVal->instances;
+		last = NULL;
+		while (curr != NULL) {
+			StringCchPrintf(findValExpression, sizeof(findValExpression), "poi(0x%08x)", curr->address);
+        	if (value != GetExpression(findValExpression)) {
+				if (last) {
+					last->next = curr->next;
+					free(curr);
+					curr = last->next;
+				} else {
+					newTrackedVal->instances = curr->next;
+					free(curr);
+					curr = newTrackedVal->instances;
+				}
+				newTrackedVal->candidates--;
+				if (newTrackedVal->candidates == 1) {
+					dprintf("[J] Value %s is stored at address 0x%08x\n", 
+							newTrackedVal->valName, newTrackedVal->instances->address);
+					return;
+				}
+			} else {
+				last = curr; curr = curr->next;
+			}
+		}
+		dprintf("[J] Narrowed down address of %s to %d possible candidates.\n", name, newTrackedVal->candidates);
+		return;
+	} 
+	dprintf("[J] Creating new list of candidates for %s.\n", name);
+
+	// Create a new list and search all memory for the value
+    newTrackedVal = (struct trackedVal *) malloc(sizeof (struct trackedVal));
+    if (newTrackedVal == NULL) {
+        dprintf("[J] OOM!");
+        return;
+    }
+    newTrackedVal->next 		= NULL;
+	newTrackedVal->valSize 		= size;
+	newTrackedVal->valName 		= _strdup(name);
+	if(!newTrackedVal->valName) {
+		free(newTrackedVal);
+		dprintf("[J] OOM!\n");
+		return;
+	}
+
+	newTrackedVal->candidates = findAllVals((BYTE*) &value, size, &(newTrackedVal->instances));	
+	dprintf("[J] Discovered %d possible candidate addresses for %s\n", newTrackedVal->candidates, name);
+
+	newTrackedVal->next = trackedValList;
+	trackedValList = newTrackedVal;
+
+	return;
+}
+
+void listTrackedVals() {
+}
+
 
 void bindJutsu(char  *bindPort) {
 	HANDLE					hThread;
@@ -466,6 +539,32 @@ ULONG64 searchMemory(unsigned char * byteBuffer, unsigned long length){
 			return (0);
 	}
 	return (addressHit);
+}
+
+DWORD	findAllVals(unsigned char *byteBuffer, BYTE size, struct valInstance **instance) {
+	ULONG64 addressHit = 0;
+	DWORD	addressCount = 0;
+	HRESULT memSearch;
+	struct	valInstance	*newValInstance;
+	
+	*instance = NULL;
+
+	while ((memSearch = g_ExtData->SearchVirtual(addressHit+size, (ULONG64)-1, byteBuffer,
+        size, 1, &addressHit)) == S_OK) {
+		
+		if (!*instance) {
+			*instance = (struct valInstance *) malloc(sizeof (struct valInstance));
+			newValInstance = *instance;
+		} else {
+			newValInstance->next = (struct valInstance *) malloc(sizeof (struct valInstance));
+			newValInstance = newValInstance->next;
+		}
+		newValInstance->address = addressHit;
+		newValInstance->next = NULL;
+		addressCount++;
+	}
+
+	return (addressCount);
 }
 
 BOOL checkExecutability(ULONG64 checkAddress){

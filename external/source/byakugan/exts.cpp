@@ -105,7 +105,7 @@ HRESULT CALLBACK symport(PDEBUG_CLIENT4 Client, PCSTR args) {
 }
 
 HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
-    char    *command, *bufName, *bufPatt, *bindPort;
+    char    *command, *bufName, *bufPatt, *bindPort, *bufSize;
 
     INIT_API();
     
@@ -114,6 +114,12 @@ HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
 		if (!_stricmp(command, "help")) {
 			helpJutsu();
 			return (S_OK);
+		}
+		if (!_stricmp(command, "trackVal")) {
+			bufName = strtok(NULL, " ");
+			bufSize = strtok(NULL, " ");
+			bufPatt = strtok(NULL, " ");
+			trackValJutsu(bufName, strtoul(bufSize, NULL, 10), strtoul(bufPatt, NULL, 0x10));
 		}
 		if (!_stricmp(command, "searchOpcode")) {
 			char	*instructions;
