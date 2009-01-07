@@ -84,6 +84,8 @@ void	showRequestsJutsu(void);
 void	hunterJutsu(void);
 void	returnAddressHuntJutsu(void);
 void	trackValJutsu(char *name, DWORD size, DWORD value);
+void	listTrackedVals(void);
+void	listTrackedValByName(char *name);
 ULONG64 allocateMemoryBlock(unsigned long); 
 ULONG64 searchMemory(unsigned char * byteBuffer, unsigned long length);
 DWORD   findAllVals(unsigned char *byteBuffer, BYTE size, struct valInstance **instance);

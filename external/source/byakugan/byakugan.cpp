@@ -13,8 +13,6 @@ WINDBG_EXTENSION_APIS   ExtensionApis;
 ULONG   TargetMachine;
 BOOL    Connected;
 
-extern struct trackedBuf	*trackedBufList;
-
 // Queries for all debugger interfaces.
 extern "C" HRESULT
 ExtQuery(PDEBUG_CLIENT4 Client)
@@ -130,13 +128,12 @@ DebugExtensionInitialize(PULONG Version, PULONG Flags)
         DebugControl->Release();
 
     }
-    DebugClient->Release();
 	
-	trackedBufList = NULL;
+	dprintf("[Byakugan] Successfully loaded!\n");
+    DebugClient->Release();
 
 
-
-    return Hr;
+    return (Hr);
 }
 
 

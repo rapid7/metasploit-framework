@@ -34,6 +34,57 @@ void helpJutsu(void) {
 	return;
 }
 
+void listTrackedVals() {
+	struct trackedVal   *newTrackedVal;
+
+	if (trackedValList == NULL) {
+		dprintf("[J] Currently tracking no primitive values.\n");
+		return;
+	}
+
+	dprintf("[J] Currently tracking:\n");
+
+	newTrackedVal = trackedValList;
+	while (newTrackedVal != NULL) {
+		dprintf("\tName: %s\t\tSize: %d\tCandidates: %d\n", 
+				newTrackedVal->valName, newTrackedVal->valSize, newTrackedVal->candidates);
+		newTrackedVal = newTrackedVal->next;
+	}
+}
+
+void listTrackedValByName(char *name) {
+	struct trackedVal   *newTrackedVal;
+	struct valInstance	*curr;
+
+	newTrackedVal = trackedValList;
+	if (newTrackedVal == NULL) goto nada;
+
+	while (newTrackedVal != NULL) {
+        if (!_stricmp(newTrackedVal->valName, name))
+            break;
+        newTrackedVal = newTrackedVal->next;
+    }
+
+	if (newTrackedVal) {
+
+		curr = newTrackedVal->instances;
+		
+		if (curr != NULL)
+			dprintf("[J] Currently tracking %d candidates for %s:\n", 
+					newTrackedVal->candidates, newTrackedVal->valName);
+		else
+			goto nada;
+
+		while (curr != NULL) {
+			dprintf("\tAddress: 0x%08x\n", curr->address);
+			curr = curr->next;
+		}
+		return;
+	}
+nada:
+	dprintf("[J] No candidates are being tracked for %s.\n", name);	
+}
+
 void trackValJutsu(char *name, DWORD size, DWORD value) {
     struct trackedVal   *newTrackedVal, *parent = NULL;
 	struct valInstance	*last, *curr;
@@ -101,10 +152,6 @@ void trackValJutsu(char *name, DWORD size, DWORD value) {
 
 	return;
 }
-
-void listTrackedVals() {
-}
-
 
 void bindJutsu(char  *bindPort) {
 	HANDLE					hThread;

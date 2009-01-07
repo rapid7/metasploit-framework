@@ -119,7 +119,13 @@ HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
 			bufName = strtok(NULL, " ");
 			bufSize = strtok(NULL, " ");
 			bufPatt = strtok(NULL, " ");
-			trackValJutsu(bufName, strtoul(bufSize, NULL, 10), strtoul(bufPatt, NULL, 0x10));
+			
+			if (bufName == NULL) {
+				listTrackedVals();
+			} else if (bufSize == NULL) {
+				listTrackedValByName(bufName);
+			} else
+				trackValJutsu(bufName, strtoul(bufSize, NULL, 10), strtoul(bufPatt, NULL, 0x10));
 		}
 		if (!_stricmp(command, "searchOpcode")) {
 			char	*instructions;
