@@ -329,7 +329,7 @@ protected
 	# SessionLogging.
 	#
 	def handle_session_logging(val)
-		if (val =~ /^(yes|y|true|t|1)/i)
+		if (val =~ /^(y|t|1)/i)
 			Msf::Logging.enable_session_logging(true)
 			print_line("Session logging will be enabled for future sessions.")
 		else
@@ -342,7 +342,7 @@ protected
 	# ConsoleLogging.
 	#
 	def handle_console_logging(val)
-		if (val =~ /^(yes|y|true|t|1)/i)
+		if (val =~ /^(y|t|1)/i)
 			Msf::Logging.enable_log_source('console')
 			print_line("Console logging is now enabled.")
 
