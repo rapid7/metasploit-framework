@@ -10,14 +10,15 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::TNS
+	include Msf::Auxiliary::Scanner
 
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Oracle Version Enumeration.',
 			'Description'    => %q{
-				This module simply queries the TNS listner for the Oracle build..
+				This module simply queries the TNS listner for the Oracle build.
 			},
-			'Author'         => [ 'CG'],
+			'Author'         => ['CG'],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'DisclosureDate' => 'Jan 7 2009'))
@@ -29,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	def run
+def run_host(ip)
 
 		connect_data = "(CONNECT_DATA=(COMMAND=VERSION))"
 
@@ -49,12 +50,12 @@ class Metasploit3 < Msf::Auxiliary
 		data = sock.get_once
 
 		if ( data and data =~ /\\*.TNSLSNR for (.*)/ )
-			return print_status("Host #{rhost} is running: " + $1)
+			return print_status("Host #{ip} is running: " + $1)
 		else
-			return print_error("Unable to determine version info for #{rhost}...")
+			return print_error("Unable to determine version info for #{ip}...")
 
 		disconnect
-
+		
 		end
 	end
 end

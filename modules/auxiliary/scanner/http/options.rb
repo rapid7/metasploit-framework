@@ -22,13 +22,12 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'HTTP Options Detection',
 			'Version'     => '$Revision: $',
 			'Description' => 'Display available HTTP options for each system',
-			'Author'      => 'CG |at| carnal0wnage |dot| com',
+			'Author'       => ['CG'],
 			'License'     => MSF_LICENSE
 		)
 		
 	end
 
-	# Fingerprint a single host
 	def run_host(ip)
 
 		self.target_port = datastore['RPORT']	
@@ -48,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 						wmap_target_port,
 						wmap_target_ssl
 				)
-				#not sure about this one, can you add columns in the db on the fly?
+				
 				wmap_report(rep_id,'WEB_SERVER','OPTIONS',"#{res.headers['Allow']}",nil)
 			else
 				print_status("No options.")
