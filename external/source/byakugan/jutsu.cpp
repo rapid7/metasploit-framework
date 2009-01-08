@@ -34,6 +34,21 @@ void helpJutsu(void) {
 	return;
 }
 
+void memDiffJutsu(char *inputType, DWORD size, char *input, ULONG64 address) {
+	DWORD	i;
+	BOOL	upperFlag, lowerFlag, nullFlag;
+	char	*badChars;
+
+	upperFlag = lowerFlag = nullFlag = FALSE;
+	badChars = (char *) malloc(size);
+	
+	for (i = 0; i < size; i++) {
+		// Diff the two locations
+		// Store badchars, and bad offsets
+		// Take note of upper / lower / null exclusions
+	}
+}
+
 void listTrackedVals() {
 	struct trackedVal   *newTrackedVal;
 
@@ -89,7 +104,17 @@ void trackValJutsu(char *name, DWORD size, DWORD value) {
     struct trackedVal   *newTrackedVal, *parent = NULL;
 	struct valInstance	*last, *curr;
 	char				findValExpression[18] =  {'\x00'};
+	DWORD				valResult, andExpression;
 
+	switch(size) {
+		case 1: andExpression = 0xFF;			break;
+		case 2: andExpression = 0xFFFF;			break;
+		case 4: andExpression = 0xFFFFFFFF;		break;
+		default:
+			dprintf("[J] Valid primitive sizes are 1, 2, and 4.\n");
+			return;
+	}                    	
+	
 	newTrackedVal = trackedValList;
 	while (newTrackedVal != NULL) {
 		if (!_stricmp(newTrackedVal->valName, name))
@@ -102,9 +127,11 @@ void trackValJutsu(char *name, DWORD size, DWORD value) {
 		dprintf("[J] Narrowing down candidate list for %s from %d candidates.\n", name, newTrackedVal->candidates);
 		curr = newTrackedVal->instances;
 		last = NULL;
+
 		while (curr != NULL) {
 			StringCchPrintf(findValExpression, sizeof(findValExpression), "poi(0x%08x)", curr->address);
-        	if (value != GetExpression(findValExpression)) {
+			valResult = (GetExpression(findValExpression) & andExpression);
+        	if (value != valResult) {
 				if (last) {
 					last->next = curr->next;
 					free(curr);
