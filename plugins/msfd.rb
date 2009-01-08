@@ -49,6 +49,14 @@ class Plugin::Msfd < Msf::Plugin
 	# 	instead allow the caller to manage executing the daemon through the
 	# 	``run'' method.
 	#
+	# HostsAllowed
+	#
+	#	List of hosts (in NBO) allowed to use msfd
+	#
+	# HostsDenied
+	#
+	#	List of hosts (in NBO) not allowed to use msfd
+	#
 	def initialize(framework, opts)
 		super
 
@@ -62,7 +70,7 @@ class Plugin::Msfd < Msf::Plugin
 		# it off in a worker thread.
 		if (opts['RunInForeground'] != true)
 			Thread.new {
-				run
+				run(opts)
 			}
 		end
 	end
@@ -85,9 +93,23 @@ class Plugin::Msfd < Msf::Plugin
 	# Runs the msfd plugin by blocking on new connections and then spawning
 	# threads to handle the console interface for each client.
 	#
-	def run
+	def run(opts={})
 		begin
 			client = server.accept
+
+			addr = Rex::Socket.resolv_nbo(client.getpeername[1])
+
+			if opts['HostsAllowed'] and
+			   not opts['HostsAllowed'].find { |x| x == addr }
+				client.close
+				next
+			end
+
+			if opts['HostsDenied'] and
+			   opts['HostsDenied'].find { |x| x == addr }
+				client.close
+				next
+			end
 
 			# Spawn a thread for the client connection
 			Thread.new(client) { |cli|

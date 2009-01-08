@@ -19,6 +19,8 @@ arguments = Rex::Parser::Arguments.new(
 	"-p" => [ true,  "Bind to this port instead of 55554"                   ],
 	"-s" => [ false, "Use SSL"                                              ],
 	"-f" => [ false, "Run the daemon in the foreground"                     ],
+	"-A" => [ true,  "Specify list of hosts allowed to connect"             ],
+	"-D" => [ true,  "Specify list of hosts not allowed to connect"         ],
 	"-h" => [ false, "Help banner"                                          ])
 
 opts = { 'RunInForeground' => true }
@@ -35,6 +37,24 @@ arguments.parse(ARGV) { |opt, idx, val|
 			foreground = true
 		when "-s"
 			opts['SSL'] = true
+		when "-A"
+			begin
+				opts['HostsAllowed'] = val.split(',').map { |a|
+					Rex::Socket.resolv_nbo(a)
+				}
+			rescue
+				$stderr.puts "Bad argument for -A: #{$!}"
+				exit
+			end
+		when "-D"
+			begin
+				opts['HostsDenied'] = val.split(',').map { |a|
+					Rex::Socket.resolv_nbo(a)
+				}
+			rescue
+				$stderr.puts "Bad argument for -D: #{$!}"
+				exit
+			end
 		when "-h"
 			print(
 				"\nUsage: #{File.basename(__FILE__)} <options>\n" +
@@ -56,4 +76,4 @@ rescue ::NotImplementedError
 end
 
 # Run the plugin instance in the foreground.
-$framework.plugins.load('msfd', opts).run
+$framework.plugins.load('msfd', opts).run(opts)
