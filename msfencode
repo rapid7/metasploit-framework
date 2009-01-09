@@ -110,7 +110,7 @@ $args.parse(ARGV) { |opt, idx, val|
 		when "-s"
 			space = val.to_i
 		when "-t"
-			if (val =~ /^(perl|ruby|raw|c|exe|vba)$/)
+			if (val =~ /^(perl|ruby|raw|c|js_le|js_be|java|exe|vba)$/)
 				fmt = val
 			else
 				$stderr.puts(OutError + "Invalid format: #{val}")
