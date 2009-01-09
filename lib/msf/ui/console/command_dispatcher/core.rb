@@ -1351,7 +1351,7 @@ class Core
 			end
 		end
 		
-		return res
+		return res.sort
 	end
 	
 	#
