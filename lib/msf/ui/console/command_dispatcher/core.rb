@@ -791,7 +791,7 @@ class Core
 				section = args[0]
 				match = args[1]
 			else
-				print_status("usage: search (all|encoders|nops|exploits|payloads|auxiliary) regex")
+				print("Usage: search (all|encoders|nops|exploits|payloads|auxiliary) regex\n")
 				return
 		end
 
@@ -822,7 +822,7 @@ class Core
 			when 'auxiliary'
 				show_auxiliary(regex)
 			else
-				print_status("usage: search (all|encoders|nops|exploits|payloads|auxiliary) regex")
+				print("Usage: search (all|encoders|nops|exploits|payloads|auxiliary) regex\n")
 		end
 	end
 	
