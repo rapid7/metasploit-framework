@@ -107,6 +107,12 @@ class Core
 	end
 
 	def cmd_resource(*args)
+		if args.empty?
+			print(
+				"Usage: resource <path>\n\n" +
+				"Run the commands stored in the supplied file.\n")
+			return false
+		end
 		driver.load_resource(*args)
 	end
 
