@@ -3,7 +3,7 @@ module Simple
 
 ###
 #
-# A simplified recon wrapper.
+# A simplified auxiliary wrapper.
 #
 ###
 module Auxiliary

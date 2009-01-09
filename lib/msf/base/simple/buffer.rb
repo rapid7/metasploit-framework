@@ -14,7 +14,7 @@ module Buffer
 
 	#
 	# Serializes a buffer to a provided format.  The formats supported are raw,
-	# ruby, perl, and c.
+	# ruby, perl, c, js_be, js_le and java
 	#
 	def self.transform(buf, fmt = "ruby")
 		case fmt
@@ -40,7 +40,7 @@ module Buffer
 
 	#
 	# Creates a comment using the supplied format.  The formats supported are
-	# raw, ruby, perl, js_be, js_le, and c.
+	# raw, ruby, perl, js_be, js_le, c, and java.
 	#
 	def self.comment(buf, fmt = "ruby")
 		case fmt
