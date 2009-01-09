@@ -201,6 +201,15 @@ class ReadableText
 		output += word_wrap(Rex::Text.compress(mod.description))
 		output += "\n"
 
+		# References
+		if (mod.references.length > 0)
+			output += "References:\n"
+			mod.references.each { |ref|
+				output += indent + ref.to_s + "\n"
+			}
+			output += "\n"
+		end
+	
 		return output
 	end
 
