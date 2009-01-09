@@ -29,7 +29,7 @@ def lic_short(l)
 	end
 end
 
-Indent = '   ' 
+Indent = '    ' 
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create
@@ -37,7 +37,7 @@ $framework = Msf::Simple::Framework.create
 
 tbl = Rex::Ui::Text::Table.new(
 	'Header'  => 'Licensed Modules',
-	'Indent'  => 4,
+	'Indent'  => Indent.length,
 	'Columns' => [ 'License','Type', 'Name' ]
 )
 
