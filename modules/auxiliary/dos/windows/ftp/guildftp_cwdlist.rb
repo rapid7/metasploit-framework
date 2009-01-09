@@ -1,3 +1,14 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to 
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/projects/Framework/ 
+##
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -15,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => 'kris',
 			'License'        => MSF_LICENSE,
-			'Version'        => '1',
+			'Version'        => '$Revision$',
 			'References'     =>
 				[ [ 'URL', 'http://milw0rm.com/exploits/6738'] ],
 			'DisclosureDate' => 'Oct 12 2008'))

