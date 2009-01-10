@@ -10,7 +10,6 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::TNS
-	include Msf::Auxiliary::Scanner
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -30,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-def run_host(ip)
+	def run
 
 		connect_data = "(CONNECT_DATA=(COMMAND=STATUS))"
 		pkt = tns_packet(connect_data)
@@ -44,9 +43,10 @@ def run_host(ip)
 
 		sock.put(pkt)
 
-		#sleep(1)
+		sleep(1)
 
 		data = sock.get_once
+		disconnect
 
 		if ( data =~ /ERROR_STACK/ )
 			print_error("TNS listener protected for #{rhost}...")
@@ -63,7 +63,7 @@ def run_host(ip)
 		service_name = data.scan(/SERVICE_NAME=(\w+)/)
 			service_name.each do |s|
 				print_status("Identified SERVICE_NAME for #{rhost}: #{s}")
+			
 			end
-disconnect
 		end
-	end
+end
