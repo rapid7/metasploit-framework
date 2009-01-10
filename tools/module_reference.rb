@@ -10,15 +10,14 @@ require 'rex'
 require 'msf/ui'
 require 'msf/base'
 
-Indent = '   ' 
+Indent = '    ' 
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create
 
-
 tbl = Rex::Ui::Text::Table.new(
 	'Header'  => 'Module References',
-	'Indent'  => 0,
+	'Indent'  => Indent.length,
 	'Columns' => [ 'Module', 'Reference' ]
 )
 
