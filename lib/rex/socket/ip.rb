@@ -59,24 +59,6 @@ module Rex::Socket::Ip
 		raise RuntimeError, "IP sockets must use recvfrom(), not read()"
 	end
 
-	#
-	# Read a datagram from the IP socket with a timeout
-	#
-	def timed_read(length = 65535, timeout=def_read_timeout)
-		begin
-			if ((rv = Kernel.select([ fd ], nil, nil, timeout)) and
-			    (rv[0]) and (rv[0][0] == fd)
-			   )
-					return read(length)
-			else
-				return ''
-			end
-		rescue Exception
-			return ''
-		end	
-	end
-
-
 	##
 	#
 	# IP non-connected state methods
