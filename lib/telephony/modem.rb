@@ -45,8 +45,8 @@ class Modem
 		end
 	end
 
-	# This provides pass-through support for the SerialPort 
-	def method_missing(meth, *args); self.sp(meth, *args); end
+	# This provides pass-through method support for the SerialPort object
+	def method_missing(meth, *args); self.sp.send(meth, *args); end
 
 	def put_command(command, timeout)
 		switchback = false
