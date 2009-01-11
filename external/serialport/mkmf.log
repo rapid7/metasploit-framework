@@ -1,0 +1,20 @@
+have_header: checking for termios.h... -------------------- yes
+
+"gcc -E -I. -I/usr/lib/ruby/1.8/i486-linux -I.  -O2 -march=i486 -mtune=i686  -fPIC -Dlinux  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include <termios.h>
+/* end */
+
+--------------------
+
+have_header: checking for unistd.h... -------------------- yes
+
+"gcc -E -I. -I/usr/lib/ruby/1.8/i486-linux -I.  -O2 -march=i486 -mtune=i686  -fPIC -Dlinux  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include <unistd.h>
+/* end */
+
+--------------------
+

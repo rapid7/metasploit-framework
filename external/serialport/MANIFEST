@@ -1,0 +1,10 @@
+test/miniterm.rb
+README
+CHANGELOG
+debian/control
+debian/rules
+debian/changelog
+debian/copyright
+extconf.rb
+serialport.c
+.cvsignore

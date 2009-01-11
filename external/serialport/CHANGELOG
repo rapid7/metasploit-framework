@@ -1,0 +1,14 @@
+0.6 => 12/02/2003:      Windows support
+                        Get/set modem parameters
+                        Read and write timeouts
+                        Open method
+
+0.5 => 25/10/2002:      Cygwin support
+
+0.4 => 19/09/2002:      Added more serial ports (total of 8 ports)
+
+0.3 => 15/03/2002:      Damn, another bug found
+
+0.2 => 14/03/2002:      A bug fixed (read() was not blocking)
+
+0.1 => 14/03/2002:      First release
