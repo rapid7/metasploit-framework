@@ -10,11 +10,11 @@ require 'ftools'
 @@exec_opts = Rex::Parser::Arguments.new(
   "-h"  => [ false,  "Help menu."],
   "-r"  => [ true,  "The target address range or CIDR identifier"],
-  "-ps" => [ false,  "To Perform Ping Sweeo on IP Range"],
+  "-ps" => [ false,  "To Perform Ping Sweep on IP Range"],
   "-rl" => [ false,  "To Perform DNS Reverse Lookup on IP Range"],
-  "-fl" => [ false,  "To Perform DNS Fordward Lookup on host list and domain"],
-  "-hl" => [ true,  "File with Host List for DNS Fordward Lookup"],
-  "-d"  => [ true,  "Domain Name for DNS Fordward Lookup"],
+  "-fl" => [ false,  "To Perform DNS Forward Lookup on host list and domain"],
+  "-hl" => [ true,  "File with Host List for DNS Forward Lookup"],
+  "-d"  => [ true,  "Domain Name for DNS Forward Lookup"],
   "-st" => [ false,  "To Perform DNS lookup of MX, NS and SOA records for a domain"]
 
 )
@@ -126,11 +126,11 @@ def reverselookup(session,iprange,dest)
 	end
 end
 #-------------------------------------------------------------------------------
-#Function for Executing Fordward Lookups
+#Function for Executing Forward Lookups
 def frwdlp(session,hostlst,domain,dest)
-	dest = dest + "-DNS-fordward-lookup.txt"
-	print_status("Performing DNS Fordward Lookup for hosts in #{hostlst} for domain #{domain}")
-	filewrt(dest,"DNS Fordward Lookup for hosts in #{hostlst} for domain #{domain}")
+	dest = dest + "-DNS-forward-lookup.txt"
+	print_status("Performing DNS Forward Lookup for hosts in #{hostlst} for domain #{domain}")
+	filewrt(dest,"DNS Forward Lookup for hosts in #{hostlst} for domain #{domain}")
 	result = []
 	threads = []
 	tmpout = []

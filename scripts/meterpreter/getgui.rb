@@ -4,7 +4,7 @@
 #Windows 2008 and Windows XP targets using native windows commands.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
 #Verion: 0.1.1
-#Note: Port Fordwarding option provided by Natron at natron[at]invisibledenizen.org
+#Note: Port Forwarding option provided by Natron at natron[at]invisibledenizen.org
 #      We are still working in making this option more stable.
 ################## Variable Declarations ##################
 
