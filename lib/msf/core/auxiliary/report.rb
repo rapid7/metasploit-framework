@@ -17,7 +17,7 @@ module Auxiliary::Report
 	end
 	module OperatingSystems
 		LINUX   = "Linux"
-		MAC_OSX = "Mac OSX"
+		MAC_OSX = "MacOSX"
 		WINDOWS = "Windows"
 
 		UNKNOWN = "Unknown"
@@ -85,6 +85,7 @@ module Auxiliary::Report
 	end
 
 	def report_auth_info(opts={})		
+		return if not db
 		addr  = opts[:host]   || return
 		data  = opts[:proto]  || return
 		
