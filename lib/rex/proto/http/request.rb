@@ -251,7 +251,7 @@ class Request < Packet
 	#
 	# If there were CGI parameters in the URI, this will hold a hash of each
 	# variable to value.  If there is more than one value for a given variable,
-	# and array of each value is returned.
+	# an array of each value is returned.
 	#
 	def qstring
 		self.uri_parts['QueryString']
