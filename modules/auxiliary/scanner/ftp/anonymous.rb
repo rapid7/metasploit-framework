@@ -13,6 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Ftp
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 
 	def initialize
 		super(
@@ -52,6 +53,14 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				print_status("#{target_host}:#{rport} Anonymous READ (#{banner})")
 			end
+			report_auth_info(
+				:host   => target_host,
+				:proto  => 'FTP',
+				:user   => datastore['FTPUSER'],
+				:pass   => datastore['FTPPASS'],
+				:targ_host      => target_host,
+				:targ_port      => rport
+			)
 		end
 
 		disconnect

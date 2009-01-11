@@ -93,6 +93,7 @@ module Auxiliary::Report
 		opts[:data] = 
 			"AUTH #{ opts[:targ_host] || 'unknown' }:#{ opts[:targ_port] || 'unknown' } " +
 			"#{opts[:user] || "<NULL>"} #{opts[:pass] || "<NULL>" } #{opts[:extra]}"
+		print_status("Recording successful #{data} credentials for #{addr}")
 		report_note(opts)	
 	end
 

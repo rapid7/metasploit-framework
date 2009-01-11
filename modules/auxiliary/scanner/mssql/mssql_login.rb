@@ -17,6 +17,7 @@ class Metasploit3 < Msf::Auxiliary
         
 	include Msf::Exploit::Remote::MSSQL
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 	
 	def initialize
 		super(	
@@ -47,7 +48,15 @@ class Metasploit3 < Msf::Auxiliary
 
 		if (info == true)
 			print_status("#{ip}:#{rport} successful logged in as '#{user}' with password '#{pass}'")
-		else
+			report_auth_info(
+				:host   => ip,
+				:proto  => 'MSSQL',
+				:user   => user,
+				:pass   => pass,
+				:targ_host      => ip,
+				:targ_port      => rport
+			)
+                else
 			print_status("#{ip}:#{rport} failed to login as '#{user}'")
 		end
 		rescue ::Interrupt
