@@ -47,6 +47,9 @@ class Modem
 		end
 	end
 
+	# This provides pass-through support for the SerialPort 
+	def method_missing(meth, *args); self.sp(meth, *args); end
+
 	def put_command(command, timeout)
 		switchback = false
 		if ! @commandstate
@@ -163,35 +166,15 @@ class Modem
 		return false
 	end
 
+	# flush any stale data in the read buffer
 	def flush
-		# flush any stale data in the read buffer
 		@sp.read_timeout = -1
 		while @sp.getc; end
 	end
 
-   #
-   # Pass-through methods to SerialPort Object
-   #
-	def close
-		@sp.close
-	end
-   def getc
-		@sp.getc
-	end
-   def gets
-		@sp.gets
-	end
-   def puts(s)
-		@sp.puts(s)
-	end
+	# TODO: confert all calls to Modem.params to Modem.modem_params and remove this def
 	def params=(params)
 		@sp.modem_params = params
-	end
-	def dcd
-		@sp.dcd
-	end
-	def read_timeout (timeout)
-		@sp.read_timeout timeout
 	end
 
 end
