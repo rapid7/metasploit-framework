@@ -1,5 +1,3 @@
-require 'serialport'
-
 module Telephony
 
 class Modem
