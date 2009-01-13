@@ -29,8 +29,7 @@ module Metasploit3
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_TTY,
 			'Handler'       => Msf::Handler::FindTty,
-			'Session'       => Msf::Sessions::CommandShell,
-			'PayloadType'   => 'cmd_tty',
+			'Session'       => Msf::Sessions::TTY,
 			'Payload'       =>
 				{
 					'Offsets' => { },
