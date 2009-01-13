@@ -75,6 +75,7 @@ ARCH_CBEA64 = 'cbea64'
 ARCH_SPARC  = 'sparc'
 ARCH_CMD    = 'cmd'
 ARCH_PHP    = 'php'
+ARCH_TTY    = 'tty'
 ARCH_ARMLE  = 'armle'
 ARCH_ARMBE  = 'armbe'
 ARCH_TYPES  =
@@ -91,7 +92,8 @@ ARCH_TYPES  =
 		ARCH_ARMLE,
 		ARCH_ARMBE,
 		ARCH_CMD,
-		ARCH_PHP
+		ARCH_PHP,
+		ARCH_TTY
 	]
 
 ARCH_ALL = ARCH_TYPES
