@@ -5,7 +5,7 @@ module Handler
 
 ###
 #
-# This handler expects a plain Unix command shell on the supplied socket
+# This handler expects a interactive TTY on the supplied socket/io object
 #
 ###
 module FindTty
@@ -39,6 +39,9 @@ module FindTty
 protected
 
 	def _check_shell(sock)
+		if(sock.respond_to?('commandstate'))
+			return (sock.commandstate ? false : true)
+		end
 		return true
 	end	  
 
