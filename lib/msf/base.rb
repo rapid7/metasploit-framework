@@ -27,6 +27,7 @@ require 'msf/base/simple'
 
 # Sessions
 require 'msf/base/sessions/command_shell'
+require 'msf/base/sessions/tty'
 
 # Serialization
 require 'msf/base/serializer/readable_text'
