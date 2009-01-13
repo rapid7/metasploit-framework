@@ -184,7 +184,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 			end
 		end
 
-		# Spawn the editor
+		# Spawn the editor (default to vi)
 		editor = Rex::Compat.getenv('EDITOR') || 'vi'
 
 		# If it succeeds, upload it to the remote side.
