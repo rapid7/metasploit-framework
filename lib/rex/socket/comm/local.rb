@@ -39,6 +39,8 @@ class Rex::Socket::Comm::Local
 	# Special-cased because of how different it is from UDP/TCP
 	#
 	def self.create_ip(param)
+		self.instance.notify_before_socket_create(self, param)
+
 		sock = ::Socket.open(::Socket::PF_INET, ::Socket::SOCK_RAW, ::Socket::IPPROTO_RAW)
 		sock.setsockopt(::Socket::IPPROTO_IP, ::Socket::IP_HDRINCL, 1)
 
@@ -46,7 +48,9 @@ class Rex::Socket::Comm::Local
 
 		sock.extend(::Rex::Socket::Ip)
 		sock.initsock(param)
-		
+
+		self.instance.notify_socket_created(self, sock, param)
+
 		sock
 	end
 	
