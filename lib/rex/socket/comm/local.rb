@@ -44,10 +44,10 @@ class Rex::Socket::Comm::Local
 		sock = ::Socket.open(::Socket::PF_INET, ::Socket::SOCK_RAW, ::Socket::IPPROTO_RAW)
 		sock.setsockopt(::Socket::IPPROTO_IP, ::Socket::IP_HDRINCL, 1)
 
-		return sock if (param.bare?)
-
-		sock.extend(::Rex::Socket::Ip)
-		sock.initsock(param)
+		if (param.bare? == false)
+			sock.extend(::Rex::Socket::Ip)
+			sock.initsock(param)
+		end
 
 		self.instance.notify_socket_created(self, sock, param)
 
@@ -147,15 +147,15 @@ class Rex::Socket::Comm::Local
 		if (param.server?)
 			sock.listen(32)
 
-			return sock if (param.bare?)
+			if (param.bare? == false)
+				klass = Rex::Socket::TcpServer
+				if (param.ssl)
+					klass = Rex::Socket::SslTcpServer
+				end
+				sock.extend(klass)
 
-			klass = Rex::Socket::TcpServer
-			if (param.ssl)
-				klass = Rex::Socket::SslTcpServer
+				sock.initsock(param)
 			end
-			sock.extend(klass)
-
-			sock.initsock(param)
 		# Otherwise, if we're creating a client...
 		else
 			chain = []
