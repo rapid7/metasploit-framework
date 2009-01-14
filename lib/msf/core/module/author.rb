@@ -88,21 +88,19 @@ class Msf::Module::Author
 
 		# Supported formats:
 		#   known_name
-		#   user@host.tld
-		#   Name <user@host.rld>
-		#   user[at]host.tld
-		#   Name <user [at] host.tld>
+		#   user [at/@] host [dot/.] tld
+		#   Name <user [at/@] host [dot/.] tld>
 
 
 		if ((m = str.match(/^\s*([^<]+)<([^>]+)>\s*$/)))
 			self.name  = m[1].sub(/<.*/, '')
-			self.email = m[2].sub(/\s*\[at\]\s*/, '@')
+			self.email = m[2].sub(/\s*\[at\]\s*/, '@').sub(/\s*\[dot\]\s*/, '.')
 		else
 			if (Known[str])
 				self.email = Known[str]
 				self.name  = str
 			else
-				self.email = str.sub(/\s*\[at\]\s*/, '@').gsub(/^<|>$/, '')
+				self.email = str.sub(/\s*\[at\]\s*/, '@').sub(/\s*\[dot\]\s*/, '.').gsub(/^<|>$/, '')
 				m = self.email.match(/([^@]+)@/)
 				self.name = m ? m[1] : 'unknown'
 			end
