@@ -872,7 +872,7 @@ class Core
 				# Display help banner
 				when "-h"
 					print(
-						"Usage: session [options]\n\n" +
+						"Usage: sessions [options]\n\n" +
 						"Active session manipulation and interaction.\n" +
 						@@sessions_opts.usage())
 					return false
