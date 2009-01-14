@@ -18,7 +18,7 @@ module Payload::Generic
 	#
 	def initialize(info = {})
 		super(merge_info(info,
-			'Arch'     => ARCH_ALL,
+			'Arch'     => ARCH_ALL - [ARCH_TTY],
 			'Platform' => ''))
 
 		register_advanced_options(

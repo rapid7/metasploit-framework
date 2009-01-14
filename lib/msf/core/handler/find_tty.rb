@@ -14,18 +14,19 @@ module FindTty
 
 	#
 	# Returns the string representation of the handler type, in this case
-	# 'find_tag'.
+	# 'none', which is kind of a lie, but we don't have a better way to
+	# handle this yet
 	#
 	def self.handler_type
-		return "find_shell"
+		return "none"
 	end
 
 	#
 	# Returns the connection oriented general handler type, in this case
-	# 'find'.
+	# 'none'
 	#
 	def self.general_handler_type
-		"find"
+		"none"
 	end
 
 	#
@@ -39,6 +40,7 @@ module FindTty
 protected
 
 	def _check_shell(sock)
+		# Verify that the modem is online
 		if(sock.respond_to?('commandstate'))
 			return (sock.commandstate ? false : true)
 		end
