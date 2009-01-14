@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 		user = "sa" if user.length == 0
 		
 		begin
-		info = mssql_login
+		info = mssql_login(user, pass)
 
 		if (info == true)
 			print_status("#{ip}:#{rport} successful logged in as '#{user}' with password '#{pass}'")
