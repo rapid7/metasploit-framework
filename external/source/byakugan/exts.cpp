@@ -105,7 +105,7 @@ HRESULT CALLBACK symport(PDEBUG_CLIENT4 Client, PCSTR args) {
 }
 
 HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
-    char    *command, *bufName, *bufPatt, *bindPort, *bufSize;
+    char    *command, *bufName, *bufPatt, *bindPort, *bufSize, *bufType, *bufAddr;
 
     INIT_API();
     
@@ -114,6 +114,21 @@ HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
 		if (!_stricmp(command, "help")) {
 			helpJutsu();
 			return (S_OK);
+		}
+		if (!_stricmp(command, "memDiff")) {
+			bufType = strtok(NULL, " ");
+			bufSize = strtok(NULL, " ");
+			bufPatt = strtok(NULL, " ");
+			bufAddr	= strtok(NULL, " ");
+			if (!bufAddr) {
+				dprintf("[J] Format: memDiff <type> <size> <value> <address>\n");
+				dprintf("Valid Types:\n\thex: Value is any hex characters\n");
+				dprintf("\tfile: Buffer is read in from file at path <value>\n");
+				dprintf("\tbuf: Buffer is taken from known tracked Buffers\n");
+				return (S_OK);
+			}
+			memDiffJutsu(bufType, strtoul(bufSize, NULL, 10), 
+						bufPatt, strtoul(bufAddr, NULL, 0x10));
 		}
 		if (!_stricmp(command, "trackVal")) {
 			bufName = strtok(NULL, " ");
@@ -125,7 +140,8 @@ HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
 			} else if (bufSize == NULL) {
 				listTrackedValByName(bufName);
 			} else
-				trackValJutsu(bufName, strtoul(bufSize, NULL, 10), strtoul(bufPatt, NULL, 0x10));
+				trackValJutsu(bufName, strtoul(bufSize, NULL, 10), 
+						strtoul(bufPatt, NULL, 0x10));
 		}
 		if (!_stricmp(command, "searchOpcode")) {
 			char	*instructions;

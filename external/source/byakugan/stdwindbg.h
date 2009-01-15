@@ -11,6 +11,8 @@ BOOL detectCallByName(char *, char *);
 PDEBUG_BREAKPOINT detectExecByAddr(ULONG64, char *);
 PDEBUG_BREAKPOINT detectReadByAddr(ULONG64, char *);
 PDEBUG_BREAKPOINT detectWriteByAddr(ULONG64, char *);
+DWORD parseHexInput(char *, DWORD, char **);
+DWORD readBinaryFile(char *, DWORD, char **);
 
 class detectionCallBack : public IDebugEventCallbacks {
     public:

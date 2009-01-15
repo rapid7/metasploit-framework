@@ -284,3 +284,10 @@ PDEBUG_BREAKPOINT detectReadByAddr(ULONG64 funcAddr64, char *detectionName) {
     return (bp);
 }
 
+DWORD parseHexInput(char *hexInput, DWORD size, char **output) {
+	return (0);
+}
+
+DWORD readBinaryFile(char *path, DWORD size, char **output) {
+	return (0);
+}

@@ -4,6 +4,7 @@
 #include "byakugan.h"
 #include "jutsu.h"
 #include "msfpattern.h"
+#include "stdwindbg.h"
 
 struct requestQueue	jutsuRequests;
 struct trackedBuf	*trackedBufList = NULL;
@@ -35,18 +36,128 @@ void helpJutsu(void) {
 }
 
 void memDiffJutsu(char *inputType, DWORD size, char *input, ULONG64 address) {
-	DWORD	i;
+	DWORD	i, j, valResult, numBadChars = 0;
 	BOOL	upperFlag, lowerFlag, nullFlag;
-	char	*badChars;
+	char	*pureBuf = NULL, findValExpression[64] = {'\x00'};
+	char	lineExpected[16], lineActual[16];
+	
+	struct trackedBuf *curr = trackedBufList;
+	struct corruption *badChars;
+
+	// Valid inputs: ASCII, hex, file, buf
+	if (!_stricmp(inputType, "ASCII")) {
+		pureBuf = input;
+	} else if (!_stricmp(inputType, "hex")) {
+		if (size != parseHexInput(input, size, &pureBuf)) {
+			dprintf("[J] Failed to parse %d bytes from hex input.\n", size);
+			return;
+		}
+	} else if (!_stricmp(inputType, "file")) {
+		if (size != readBinaryFile(input, size, &pureBuf)) {
+			dprintf("[J] Failed to read %d bytes from %s.\n", size, input);
+			return;
+		}
+	} else if (!_stricmp(inputType, "buf")) {
+		// Grab the buf by name from the trackedBufList
+     
+    	while (curr != NULL) {
+        	if(!_stricmp(input, curr->bufName)) {
+				pureBuf = curr->bufPatt;
+            	break;
+			}
+        	curr = curr->next;
+    	}
+		if (pureBuf == NULL) {
+			dprintf("[J] Unable to find buffer: %s\n", input);
+			return;
+		}	
+	} else {
+		dprintf("[J] The valid input types are buf, hex, and file.\n");
+		return;
+	}
 
 	upperFlag = lowerFlag = nullFlag = FALSE;
-	badChars = (char *) malloc(size);
-	
+	badChars = (struct corruption *) malloc(size * sizeof (struct corruption));
+
+	dprintf("\t\t\tACTUAL\t\t\t\t\t\t\t\tEXPECTED\n");
 	for (i = 0; i < size; i++) {
-		// Diff the two locations
-		// Store badchars, and bad offsets
-		// Take note of upper / lower / null exclusions
+		// Get byte at the important memory location
+		StringCchPrintf(findValExpression, sizeof(findValExpression), 
+				"poi(0x%08x)", address + i);
+		valResult = (GetExpression(findValExpression) & 0xFF);
+		
+		lineExpected[i%16] = pureBuf[i];
+		lineActual[i%16] = valResult;
+
+		if (pureBuf[i] != valResult) {
+			badChars[numBadChars].value = pureBuf[i];
+			badChars[numBadChars].offset = i;
+			badChars[numBadChars].seenAgain = FALSE;
+			badChars[numBadChars].seenBefore = FALSE;
+			for (j = 0; j < numBadChars; j++) {
+				if (badChars[j].value == badChars[numBadChars].value) {
+					badChars[numBadChars].seenBefore = TRUE;
+				}
+			}
+			numBadChars++;
+		} else {
+			for (j = 0; j < numBadChars; j++)
+				if (valResult == badChars[j].value)
+					badChars[j].seenAgain = TRUE;
+		}
+
+
+		if (i % 16 == 15 || i == size-1) {
+			// Print the actual characters with differences in bold
+			for (j = 0; j < 16; j++) {
+				// Diff the two locations
+				if (lineActual[j] != lineExpected[j]) {
+					// Store badchars, and bad offsets
+					// Print this character in bold!
+					StringCchPrintf(findValExpression, sizeof(findValExpression), 
+					".printf /D \"<b><red>%02x</red></b> \"", lineActual[j]);
+					g_ExtControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, findValExpression, 
+										DEBUG_EXECUTE_NOT_LOGGED);
+
+				} else {
+					dprintf("%02x ", lineActual[j]);
+				}
+
+				// Take note of upper / lower / null exclusions
+			}
+			dprintf("\t");
+
+			// Now print the Expected characters
+			for (j = 0; j < 16; j++) { 
+				dprintf("%02x ", lineExpected[j]);
+			}
+			dprintf("\n");
+		}
 	}
+
+	// Display bad chars
+	i = 0;
+	if (numBadChars) {
+		dprintf("\n[J] Bytes replaced: ");
+		while (i < numBadChars) {
+			if (!badChars[i].seenAgain && !badChars[i].seenBefore)
+				dprintf("0x%02x ", badChars[i].value);
+			i++;
+		}
+		i = 0;
+		dprintf("\n[J] Offset corruption occurs at: ");
+        while (i < numBadChars) {
+            if (badChars[i].seenAgain) 
+                dprintf("%02x ", badChars[i].offset);
+            i++;
+        }
+		dprintf("\n");
+	}
+	
+	// Unless pureBuf came from a tracked buffer, free the memory
+	if (_stricmp(inputType, "buf"))
+		free(pureBuf);
+	free(badChars);
 }
 
 void listTrackedVals() {

@@ -71,6 +71,13 @@ struct valInstance {
     struct valInstance *next;
 };
 
+struct corruption {
+	DWORD				offset;
+	BYTE				value;
+	BOOL				seenAgain;
+	BOOL				seenBefore;
+};
+
 
 void    helpJutsu(void);
 void    bindJutsu(char *);
@@ -89,6 +96,7 @@ void	listTrackedValByName(char *name);
 ULONG64 allocateMemoryBlock(unsigned long); 
 ULONG64 searchMemory(unsigned char * byteBuffer, unsigned long length);
 DWORD   findAllVals(unsigned char *byteBuffer, BYTE size, struct valInstance **instance);
+void	memDiffJutsu(char *inputType, DWORD size, char *input, ULONG64 address);
 
 // Handlers
 void	executeJutsu(struct request *);
