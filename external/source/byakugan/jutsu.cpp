@@ -109,7 +109,7 @@ void memDiffJutsu(char *inputType, DWORD size, char *input, ULONG64 address) {
 
 		if (i % 16 == 15 || i == size-1) {
 			// Print the actual characters with differences in bold
-			for (j = 0; j < 16; j++) {
+			for (j = 0; j != i % 16 + 1; j++) {
 				// Diff the two locations
 				if (lineActual[j] != lineExpected[j]) {
 					// Store badchars, and bad offsets
@@ -125,10 +125,13 @@ void memDiffJutsu(char *inputType, DWORD size, char *input, ULONG64 address) {
 
 				// Take note of upper / lower / null exclusions
 			}
+			if (i == size-1)
+				for (j = 0; j < 15 - i % 16; j+=2)
+					dprintf("\t");
 			dprintf("\t");
 
 			// Now print the Expected characters
-			for (j = 0; j < 16; j++) { 
+			for (j = 0; j != i % 16 + 1; j++) { 
 				dprintf("%02x ", lineExpected[j]);
 			}
 			dprintf("\n");
