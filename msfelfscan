@@ -86,7 +86,10 @@ ARGV.each do |file|
 	begin
 		elf = Rex::ElfParsey::Elf.new_from_file(file, true)
 	rescue Rex::ElfParsey::ElfHeaderError
-		next if $!.message == 'Invalid magic number'
+		if $!.message == 'Invalid magic number'
+			$stderr.puts("Skipping #{file}: #{$!}")
+			next
+		end
 		raise $!
 	rescue Errno::ENOENT
 		$stderr.puts("File does not exist: #{file}")
