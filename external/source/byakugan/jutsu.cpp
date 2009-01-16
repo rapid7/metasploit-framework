@@ -48,12 +48,17 @@ void memDiffJutsu(char *inputType, DWORD size, char *input, ULONG64 address) {
 	if (!_stricmp(inputType, "ASCII")) {
 		pureBuf = input;
 	} else if (!_stricmp(inputType, "hex")) {
-		if (size != parseHexInput(input, size, &pureBuf)) {
+		if (size != parseHexInput(input, size, pureBuf)) {
 			dprintf("[J] Failed to parse %d bytes from hex input.\n", size);
 			return;
 		}
 	} else if (!_stricmp(inputType, "file")) {
-		if (size != readBinaryFile(input, size, &pureBuf)) {
+		pureBuf = (char *) malloc(size+1);
+		if (pureBuf = NULL) {
+			dprintf("[J] Failed to allocate %d bytes!\n", size);
+			return;
+		}
+		if (size != readFileIntoBuf(input, size, pureBuf)) {
 			dprintf("[J] Failed to read %d bytes from %s.\n", size, input);
 			return;
 		}
@@ -489,11 +494,9 @@ void showRequestsJutsu() {
 		node = node->next;
 	}
 }
-
-void identBufJutsu(char *bufName, char *bufPatt) {
+void identBufJutsu(char *inputType, char *bufName, char *bufPatt, DWORD size) {
 	struct trackedBuf	*newTrackedBuf, *curBuf;
 	char				*msfPattern;
-	ULONG				msfPatternLen;
 
 	newTrackedBuf = (struct trackedBuf *) malloc(sizeof (struct trackedBuf));
 	if (newTrackedBuf == NULL) {
@@ -503,16 +506,31 @@ void identBufJutsu(char *bufName, char *bufPatt) {
 
 	newTrackedBuf->next = NULL;
 	newTrackedBuf->prev = NULL;
-	if (!_stricmp(bufName, "msfpattern")) {
-		msfPatternLen = strtoul(bufPatt, NULL, 10);
-		msfPattern = (char *) malloc(msfPatternLen+1);
-		msf_pattern_create(msfPatternLen, msfPattern);
-		msfPattern[msfPatternLen] = '\x00';
+	if (!_stricmp(inputType, "msfpattern")) {
+		size = strtoul(bufPatt, NULL, 10);
+		msfPattern = (char *) malloc(size+1);
+		if (msfPattern == NULL) {
+			dprintf("[J] Failed to allocate %d bytes!\n", size+1);
+			return;
+		}
+		msf_pattern_create(size, msfPattern);
+		msfPattern[size] = '\x00';
 		newTrackedBuf->bufPatt = msfPattern;
-	} else {
+	} else if (!_stricmp(inputType, "ascii")){
 		newTrackedBuf->bufPatt = _strdup(bufPatt);
+		size = strlen(bufPatt);
+	} else if (!_stricmp(inputType, "file")) {
+		newTrackedBuf->bufPatt = (char *) malloc(size+1);
+		if (newTrackedBuf->bufPatt == NULL) {
+			dprintf("[J] Failed to allocate %d bytes!\n", size+1);
+			return;
+		}
+		readFileIntoBuf(bufPatt, size, newTrackedBuf->bufPatt);
 	}
+
+
 	newTrackedBuf->bufName = _strdup(bufName);
+	newTrackedBuf->bufSize = size;
 	if (newTrackedBuf->bufName == NULL || newTrackedBuf->bufPatt == NULL) {
 		dprintf("[J] OOM!");
 		return;
@@ -528,7 +546,7 @@ void identBufJutsu(char *bufName, char *bufPatt) {
 		curBuf->next			= newTrackedBuf;
 		newTrackedBuf->prev		= curBuf;
 	}
-	dprintf("[J] Creating buffer \"%s\" containing \"%s\".\n", bufName, bufPatt);
+	dprintf("[J] Creating buffer %s.\n", bufName);
 }
 
 void rmBufJutsu(char *bufName) {
@@ -584,7 +602,7 @@ void hunterJutsu() {
 		curBuf = trackedBufList;
 		caught = FALSE;
     	while (curBuf != NULL) {
-			range = strlen(curBuf->bufPatt);
+			range = curBuf->bufSize;
 			for (j = 0; j < range-3; j++) {
 				nextNum = (ULONG *) ((curBuf->bufPatt) + j);
 				if (*nextNum == addr) {
@@ -605,7 +623,7 @@ void hunterJutsu() {
 	curBuf = trackedBufList;
 	while (curBuf != NULL) {
 		foundInstance = searchMemory((unsigned char *) curBuf->bufPatt, 
-				(strlen(curBuf->bufPatt) > 32) ? 32 : strlen(curBuf->bufPatt));
+				(curBuf->bufSize > 32) ? 32 : curBuf->bufSize);
 		if (foundInstance != 0) {
 			// try for larger increments
 			instance = (struct bufInstance *) malloc(sizeof (struct bufInstance));
@@ -614,7 +632,7 @@ void hunterJutsu() {
 			dprintf("[J] Found buffer %s @ 0x%08x\n", curBuf->bufName, foundInstance);
 		}
 			// try standard corruptions
-			range = (strlen(curBuf->bufPatt) > 32) ? 32 : strlen(curBuf->bufPatt);
+			range = (curBuf->bufSize > 32) ? 32 : curBuf->bufSize;
 			corUpper	= (char *) malloc(range + 1);
 			corLower	= (char *) malloc(range + 1);
 			corUni		= (char *) malloc((range + 1) * 2);
@@ -863,7 +881,7 @@ void returnAddressHuntJutsu(){
 	
 		//tests if a register points to a location in user controlled data
 		while(curBuf != NULL){
-			for(bufferIndex=0; bufferIndex < strlen(curBuf->bufPatt); bufferIndex++){
+			for(bufferIndex=0; bufferIndex < curBuf->bufSize; bufferIndex++){
 				if(*(PULONG)((curBuf->bufPatt)+bufferIndex) == bytes){
 					memset(opcodeBuffer, 0x00, sizeof(opcodeBuffer));
 					memset(returnInstruction, 0x00, sizeof(returnInstruction));
@@ -905,7 +923,7 @@ void returnAddressHuntJutsu(){
 			//walk through the buffer to see if any dword in there matches the current 
 			//value returned by the expression 
 			while(curBuf != NULL){
-				for(bufferIndex=0; bufferIndex < strlen(curBuf->bufPatt); bufferIndex++){
+				for(bufferIndex=0; bufferIndex < curBuf->bufSize; bufferIndex++){
 					if(*(PULONG)((curBuf->bufPatt)+bufferIndex) == bytes){
 						memset(opcodeBuffer, 0x00, sizeof(opcodeBuffer));
 						memset(returnInstruction, 0x00, sizeof(returnInstruction));

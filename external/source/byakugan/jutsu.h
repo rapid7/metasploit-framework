@@ -41,6 +41,7 @@ struct requestHeader {
 struct trackedBuf {
 	char	*bufName;
 	char	*bufPatt;
+	DWORD	bufSize;
 	USHORT	found;
 
 	struct bufInstance	*instances;
@@ -84,7 +85,7 @@ void    bindJutsu(char *);
 void	searchOpcodes(char *);
 DWORD WINAPI listenJutsu(LPVOID lpvParam);
 void	parseJutsu(char *, ULONG);
-void	identBufJutsu(char *, char *);
+void	identBufJutsu(char *, char *, char *, DWORD);
 void	rmBufJutsu(char *);
 void	listTrackedBufJutsu(void);
 void	showRequestsJutsu(void);

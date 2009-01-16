@@ -68,8 +68,11 @@ D. Usage:
         c. Display chunks with
             !tenketsu listChunks <heap base>
 	2. Jutsu (Buffer Handling)
-		a. Register input with !jutsu identBuf <bufname> <CONTENTS>
-		b. Can also autoregister MSF pattern bufs with !jutsu identBuf msfpattern <size>
+		a. Register input with !jutsu identBuf <bufType> <bufname> <VALUE> <size>
+			1. Viable types are ascii, msfpattern, and file
+				ascii requires a name, and pattern, but no size
+				file takes the file path as a VALUE and requires a size argument
+				msfpattern requires no value argument
 		c. List registered buffers with !jutsu listBuf
 		d. Remove registered buffers with !jutsu rmBuf <name>
 		e. After crash, type !jutsu hunt to find out:
@@ -91,6 +94,7 @@ D. Usage:
 			[J] Machine Code:
 			> 59 59 c3
 			[J] Opcode sequence found at: 0x004012f9
+		h. use !jutsu trackVal to find and primitive values in memory
 
 	3. Mushishi (Anti-debugging detection / removal)
 		a. Not much in here now, but growing

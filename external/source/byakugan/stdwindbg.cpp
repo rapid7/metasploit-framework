@@ -284,10 +284,24 @@ PDEBUG_BREAKPOINT detectReadByAddr(ULONG64 funcAddr64, char *detectionName) {
     return (bp);
 }
 
-DWORD parseHexInput(char *hexInput, DWORD size, char **output) {
+DWORD parseHexInput(char *hexInput, DWORD size, char *output) {
 	return (0);
 }
 
-DWORD readBinaryFile(char *path, DWORD size, char **output) {
-	return (0);
+DWORD readFileIntoBuf(char *path, DWORD size, char *output) {
+    HANDLE      inputFile;
+    DWORD       readOut = 1, i = 0;
+    char        out;
+    BYTE        state = 0;
+
+    if((inputFile = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                            FILE_ATTRIBUTE_NORMAL, NULL)) == INVALID_HANDLE_VALUE) {
+        dprintf("[S] Unable to open file: %s\n", path);
+        return (-1);
+    }
+    while (readOut > 0 && i < size) {
+        ReadFile(inputFile, &out, 1, &readOut, NULL);
+    	output[i++] = out;
+	}
+    return (i);
 }
