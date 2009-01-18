@@ -241,6 +241,12 @@ class Core
 		end
 
 		args = args[aidx .. -1]
+
+		if args.length < 2
+			print_error("You must specify a host and port")
+			return false
+		end
+
 		host = args[0]
 		port = args[1]
 
