@@ -333,7 +333,7 @@ class Core
 			n2c.kill
 		end
 
-		sock.close
+		sock.close if not sock.closed?
 		infile.close if infile
 
 		true
