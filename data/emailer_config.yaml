@@ -1,0 +1,30 @@
+# YAML:1.0
+# Configuration file for emailer.rb module
+# Taken from Jabra spl0it.org
+#
+# Emails CSV File (Fname Lname,email)
+to: email_addresses.csv
+# Email is sent from this address
+from: attacker@metasf.com
+# Subject
+subject: "Email Subject"
+# Type ( text or text/html )
+type: text/html
+# Msg body file
+msg_file: email_body.txt
+# Number of seconds to wait before next email
+wait: 5
+# Prepend the first name to the email body
+add_name: yes
+# Add custom signature from file
+sig: yes
+# Signature file
+sig_file: sig.txt
+# Add an email attachment (File exploit anyone?) 
+attachment: yes
+# Path to file attachment
+attachment_file: test.jpg
+# Name of file attachment
+attachment_file_name: msf.jpg
+# Type of attachment
+attachment_file_type: image/jpeg
