@@ -1,7 +1,7 @@
 [ INTRODUCTION ]
 
 The msfrpcd daemon uses the xmlrpc plugin to provide a remote
-interface to the Metasploit Framework. By default, This service
+interface to the Metasploit Framework. By default, this service
 listens on port 55553, uses SSL, and is password protected.
 
 The RPC interface allows access to a minimal set of framework
@@ -59,9 +59,9 @@ Returns: { "version" => "<framework-version>" }
  Method. module.encoders
  Method: module.nops
 Expects: none
-Returns: { "modules" => ["module1", "module2", ...] } 
+Returns: { "modules" => [ "module1", "module2", ... ] } 
 Summary: This method is used to obtain a list of available modules
-of the specified type. The resulting module namees can be used in
+of the specified type. The resulting module names can be used in
 other calls within the module service.
 
  Method: module.info
@@ -115,7 +115,7 @@ Summary: This method kills a specific job by ID
 
  Method: session.list
 Expects: none
-Returns: { "<session_id>" => { "type" => "shell", ... }}
+Returns: { "<session_id>" => { "type" => "shell", ... } }
 Summary: This method returns a list of active sessions, including
 the fields type, tunnel_local, tunnel_peer, via_exploit,
 via_payload, and desc.  
