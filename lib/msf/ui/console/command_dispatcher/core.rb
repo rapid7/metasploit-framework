@@ -363,6 +363,8 @@ class Core
 		print(driver.help_to_s)
 	end
 
+	alias cmd_? cmd_help
+
 	#
 	# Displays information about one or more module.
 	#
@@ -416,8 +418,6 @@ class Core
 			driver.input.reset_tab_completion
 		end		
 	end
-
-	alias cmd_? cmd_help
 
 	#
 	# Displays and manages running jobs for the active instance of the
