@@ -39,6 +39,7 @@ module Db
 				"db_add_note" => "Add a note to host",
 				"db_del_host" => "Delete one or more hosts from the database",
 				"db_autopwn"  => "Automatically exploit everything",
+				"db_import_amap_mlog" => "Import a THC-Amap scan results file (-o -m)",
 				"db_import_nessus_nbe" => "Import a Nessus scan result file (NBE)",
 				"db_import_nmap_xml"   => "Import a Nmap scan results file (-oX)",
 				"db_nmap" => "Executes nmap and records the output automatically",
@@ -531,6 +532,53 @@ module Db
 			end
 		end
 		
+		#
+		# Import from a THC-Amap machine-readable log file
+		#
+		def cmd_db_import_amap_mlog(*args)
+			if args.length == 0
+				print_status("Usage: db_import_amap_mlog [logfile]")
+				return
+			end
+
+			if not File.readable?(args[0])
+				print_error("Could not read the log file")
+				return
+			end
+
+			fd = File.open(args[0], 'r')
+
+			fd.each_line do |line|
+				line.sub!(/#.*/, "")
+
+				r = line.split(':')
+				next if r.length < 6
+
+				addr   = r[0]
+				port   = r[1].to_i
+				proto  = r[2].downcase
+				status = r[3]
+				name   = r[5]
+
+				next if status != "open"
+
+				host = framework.db.get_host(nil, addr)
+				next if not host
+
+				if host.state != Msf::HostState::Alive
+					framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+				end
+
+				service = framework.db.get_service(nil, host, proto, port)
+				if not service.name and name != "unidentified"
+					service.name = name
+					service.save
+				end
+			end
+
+			fd.close
+		end
+
 		#
 		# Determine if an IP address is inside a given range
 		#
