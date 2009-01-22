@@ -36,7 +36,7 @@ void helpJutsu(void) {
 }
 
 void memDiffJutsu(char *inputType, DWORD size, char *input, ULONG64 address) {
-	DWORD	i, j, valResult, numBadChars = 0;
+	DWORD	i, j, valResult, readSize, numBadChars = 0;
 	BOOL	upperFlag, lowerFlag, nullFlag;
 	char	*pureBuf = NULL, findValExpression[64] = {'\x00'};
 	char	lineExpected[16], lineActual[16];
@@ -58,10 +58,12 @@ void memDiffJutsu(char *inputType, DWORD size, char *input, ULONG64 address) {
 			dprintf("[J] Failed to allocate %d bytes!\n", size);
 			return;
 		}
-		if (size != readFileIntoBuf(input, size, pureBuf)) {
+		readSize = readFileIntoBuf(input, size, pureBuf);
+		if (size && size != readSize) {
 			dprintf("[J] Failed to read %d bytes from %s.\n", size, input);
 			return;
 		}
+		size = (size ? size : readSize);
 	} else if (!_stricmp(inputType, "buf")) {
 		// Grab the buf by name from the trackedBufList
      
@@ -497,6 +499,7 @@ void showRequestsJutsu() {
 void identBufJutsu(char *inputType, char *bufName, char *bufPatt, DWORD size) {
 	struct trackedBuf	*newTrackedBuf, *curBuf;
 	char				*msfPattern;
+	DWORD				readSize;
 
 	newTrackedBuf = (struct trackedBuf *) malloc(sizeof (struct trackedBuf));
 	if (newTrackedBuf == NULL) {
@@ -525,7 +528,12 @@ void identBufJutsu(char *inputType, char *bufName, char *bufPatt, DWORD size) {
 			dprintf("[J] Failed to allocate %d bytes!\n", size+1);
 			return;
 		}
-		readFileIntoBuf(bufPatt, size, newTrackedBuf->bufPatt);
+		readSize = readFileIntoBuf(bufPatt, size, newTrackedBuf->bufPatt);
+		if (size && readSize != size) {
+			dprintf("[J] Unable to read %d bytes from %s\n", size, bufName);
+			return;
+		}
+		size = (size ? size : readSize);
 	}
 
 
@@ -576,6 +584,7 @@ void rmBufJutsu(char *bufName) {
 
 void listTrackedBufJutsu() {
 	struct trackedBuf	*curBuf;
+	DWORD				i;
 
 	curBuf = trackedBufList;
 	if (curBuf == NULL) {
@@ -583,7 +592,10 @@ void listTrackedBufJutsu() {
 	} else {
 		dprintf("[J] Currently tracked buffer patterns:\n");
 		while (curBuf != NULL) {
-			dprintf("\tBuf: %s\tPattern: %s\n", curBuf->bufName, curBuf->bufPatt);
+			dprintf("\tBuf: %s\tPattern: ", curBuf->bufName);
+			for (i = 0; i < curBuf->bufSize; i++)
+				dprintf("%c", curBuf->bufPatt[i]);
+			dprintf("\n");
 			curBuf = curBuf->next;
 		}
 	}
@@ -605,7 +617,7 @@ void hunterJutsu() {
 			range = curBuf->bufSize;
 			for (j = 0; j < range-3; j++) {
 				nextNum = (ULONG *) ((curBuf->bufPatt) + j);
-				if (*nextNum == addr) {
+				if (addr != 0 && *nextNum == addr) {
 					dprintf("[J] Controlling %s with %s at offset %d.\n", 
 							regs[i], curBuf->bufName, j);
 					caught = TRUE;

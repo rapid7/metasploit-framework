@@ -299,6 +299,8 @@ DWORD readFileIntoBuf(char *path, DWORD size, char *output) {
         dprintf("[S] Unable to open file: %s\n", path);
         return (-1);
     }
+	if (size == 0)
+		size = GetFileSize(inputFile, NULL) - 1;
     while (readOut > 0 && i < size) {
         ReadFile(inputFile, &out, 1, &readOut, NULL);
     	output[i++] = out;
