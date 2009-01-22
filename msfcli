@@ -16,7 +16,7 @@ require 'msf/base'
 Indent = '   ' 
 
 if(RUBY_PLATFORM =~ /mswin32/)
-	$stderr.puts "[*] The msfconsole interface is not supported on the native Windows Ruby\n"
+	$stderr.puts "[*] The msfcli interface is not supported on the native Windows Ruby\n"
 	$stderr.puts "    interpreter. Things will break, exploits will fail, payloads will not\n"
 	$stderr.puts "    be handled correctly. Please use the msfweb 'console' or install \n"
 	$stderr.puts "    Cygwin or Linux in VMWare.\n\n"
