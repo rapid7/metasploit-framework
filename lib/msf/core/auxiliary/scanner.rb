@@ -60,7 +60,7 @@ def run
 					rescue ::Interrupt
 						raise $!
 					rescue ::Exception => e
-						print_status("Error: #{ip} #{e}")
+						print_status("Error: #{ip}: #{e}")
 					end
 				end
 			end
