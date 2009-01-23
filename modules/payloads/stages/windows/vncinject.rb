@@ -38,12 +38,6 @@ module Metasploit3
 		# Override the DLL path with the path to the meterpreter server DLL
 		register_options(
 			[
-				OptPath.new('DLL', 
-					[ 
-						true, 
-						"The local path to the VNC DLL to upload", 
-						File.join(Msf::Config.install_root, "data", "vncdll.dll")
-					]),
 				OptPort.new('VNCPORT',
 					[
 						true,
@@ -76,6 +70,7 @@ module Metasploit3
 
 		# Don't let people set the library name option
 		options.remove_option('LibraryName')
+		options.remove_option('DLL')
 	end
 
 	#
@@ -83,6 +78,10 @@ module Metasploit3
 	#
 	def library_name
 		Rex::Text::rand_text_alpha(8) + ".dll"
+	end
+
+	def library_path
+		File.join(Msf::Config.install_root, "data", "vncdll.dll")
 	end
 
 	#
