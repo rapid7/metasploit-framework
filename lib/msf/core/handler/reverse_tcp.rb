@@ -60,11 +60,11 @@ module ReverseTcp
 		ex = false
 		# Switch to IPv6 ANY address if the LHOST is also IPv6
 		addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
-		# First attempt to bind LHOST.  If that fails, the user has probably
-		# set LHOST to a gateway for forwarding back through NAT and we need to
-		# bind any address; use the any addr for whatever LHOST was, ipv4 or 6.
+		# First attempt to bind ANY_ADDR.  If that fails, the user probably has
+		# something else listening on one interface.  Try again with the
+		# specific LHOST.  Use the any addr for whatever LHOST was, ipv4 or 6.
 		any = (addr.length == 4) ? "0.0.0.0" : "::0"
-		[ Rex::Socket.addr_ntoa(addr), any ].each { |ip|
+		[ any, Rex::Socket.addr_ntoa(addr) ].each { |ip|
 			begin 
 				print_status("Handler binding to LHOST #{ip}")
 				self.listener_sock = Rex::Socket::TcpServer.create(
