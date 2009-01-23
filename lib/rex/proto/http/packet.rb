@@ -264,7 +264,7 @@ protected
 			if (self.headers['Content-Length'])
 				self.body_bytes_left = self.headers['Content-Length'].to_i
 			else
-				self.body_bytes_left = -1
+				self.body_bytes_left = self.bufq.length
 			end
 
 			if (self.headers['Transfer-Encoding'])
@@ -272,9 +272,9 @@ protected
 			end
 
 			connection    = self.headers['Connection']
-			comp_on_close = false
 
-			if (connection and connection == 'close'.downcase)
+			comp_on_close = false
+			if (connection and connection.downcase == 'close')
 				comp_on_close = true
 			end
 			
