@@ -240,6 +240,22 @@ class Rex::Socket::Comm::Local
 	
 		#$stdout.print("PROXY\n")
 		case type.downcase
+		when 'http'
+			setup = "CONNECT #{host}:#{port} HTTP/1.0\n\n"
+			size = sock.put(setup)
+			if (size != setup.length)
+				raise ArgumentError, "Wrote less data than expected to the http proxy"
+			end
+			
+			begin
+				ret = sock.get_once(39,30)
+			rescue IOError
+				raise Rex::ConnectionRefused.new(host, port), caller
+			end
+			
+			if ret != "HTTP/1.0 200 Connection established\r\n\r\n"
+				raise ArgumentError, "Connection with http proxy failed"
+			end
 		when 'socks4'
 			setup = [4,1,port.to_i].pack('CCn') + Socket.gethostbyname(host)[3] + Rex::Text.rand_text_alpha(rand(8)+1) + "\x00"
 			size = sock.put(setup)
