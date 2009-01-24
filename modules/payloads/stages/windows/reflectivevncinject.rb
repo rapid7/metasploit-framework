@@ -25,12 +25,6 @@ module Metasploit3
 		# Override the DLL path with the path to the meterpreter server DLL
 		register_options(
 			[
-				OptPath.new('DLL', 
-					[ 
-						true, 
-						"The local path to the VNC DLL to upload", 
-						File.join(Msf::Config.install_root, "data", "vncdll.dll")
-					]),
 				OptPort.new('VNCPORT',
 					[
 						true,
@@ -60,7 +54,11 @@ module Metasploit3
 						false
 					])
 			], self.class)
+		options.remove_option('DLL')
+	end
 
+	def library_path
+		File.join(Msf::Config.install_root, "data", "vncdll.dll")
 	end
 
 	#
