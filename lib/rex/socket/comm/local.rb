@@ -252,8 +252,15 @@ class Rex::Socket::Comm::Local
 			rescue IOError
 				raise Rex::ConnectionRefused.new(host, port), caller
 			end
-			
-			if ret != "HTTP/1.0 200 Connection established\r\n\r\n"
+
+			if ret.nil?
+				raise ArgumentError, "The http proxy did not respond"
+			end
+
+			resp = Rex::Proto::Http::Response.new
+			resp.update_cmd_parts(ret.split(/\r?\n/)[0])
+
+			if resp.code != 200
 				raise ArgumentError, "Connection with http proxy failed"
 			end
 		when 'socks4'
