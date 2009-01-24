@@ -33,19 +33,6 @@ module Metasploit3
 			'License'       => MSF_LICENSE,
 			'Session'       => Msf::Sessions::Meterpreter))
 
-		sep = File::SEPARATOR
-
-		# Override the DLL path with the path to the meterpreter server DLL
-		register_options(
-			[
-				OptPath.new('DLL', 
-					[ 
-						true, 
-						"The local path to the DLL to upload", 
-						File.join(Msf::Config.install_root, "data", "meterpreter", "metsrv.dll")
-					]),
-			], self.class)
-
 		# Set advanced options
 		register_advanced_options(
 			[
@@ -60,6 +47,11 @@ module Metasploit3
 
 		# Don't let people set the library name option
 		options.remove_option('LibraryName')
+		options.remove_option('DLL')
+	end
+
+	def library_path
+		File.join(Msf::Config.install_root, "data", "meterpreter", "metsrv.dll")
 	end
 
 	#
