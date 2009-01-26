@@ -45,6 +45,7 @@ class Core
 		"-C" => [ false, "Try to use CRLF for EOL sequence."              ],
 		"-c" => [ true,  "Specify which Comm to use."                     ],
 		"-i" => [ true,  "Send the contents of a file."                   ],
+		"-P" => [ true,  "Specify source port."                           ],
 		"-S" => [ true,  "Specify source address."                        ],
 		"-s" => [ false, "Connect with SSL."                              ],
 		"-w" => [ true,  "Specify connect timeout."                       ])
@@ -197,7 +198,8 @@ class Core
 		commval = nil
 		fileval = nil
 		proxies = nil
-		source = nil
+		srcaddr = nil
+		srcport = nil
 		ssl = false
 		cto = nil
 		aidx = 0
@@ -213,11 +215,14 @@ class Core
 				when "-i"
 					fileval = val
 					aidx = idx + 2
+				when "-P"
+					srcport = val
+					aidx = idx + 2
 				when "-p"
 					proxies = val
 					aidx = idx + 2
 				when "-S"
-					source = val
+					srcaddr = val
 					aidx = idx + 2
 				when "-s"
 					ssl = true
@@ -281,7 +286,8 @@ class Core
 				'SSL'       => ssl,
 				'PeerHost'  => host,
 				'PeerPort'  => port,
-				'LocalHost' => source,
+				'LocalHost' => srcaddr,
+				'LocalPort' => srcport,
 				'Timeout'   => cto
 			})
 		rescue
