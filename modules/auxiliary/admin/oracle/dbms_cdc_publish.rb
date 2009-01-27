@@ -71,7 +71,8 @@ class Metasploit3 < Msf::Auxiliary
 			END;
 			/
 			|
-		
+
+		print_status("Creating '#{datastore['FILENAME']}' file ...")		
 		file_create(sql)
 	end
 
