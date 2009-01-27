@@ -71,7 +71,6 @@ class Metasploit3 < Msf::Auxiliary
 			END;
 			/
 			DROP FUNCTION #{name};
-			/
 			|
 
 		print_status("Creating '#{datastore['FILENAME']}' file ...")		
