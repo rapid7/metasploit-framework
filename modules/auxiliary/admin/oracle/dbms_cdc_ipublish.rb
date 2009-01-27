@@ -13,9 +13,9 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'SQL Injection via SYS.DBMS_CDC_IPUBLISH.ALTER_AUTOLOG_CHANGE_SOURCE.',
+			'Name'           => 'SQL Injection via SYS.DBMS_CDC_IPUBLISH.ALTER_HOTLOG_CHANGE_SOURCE.',
 			'Description'    => %q{
-				This module exploits an sql injection flaw in the ALTER_AUTOLOG_CHANGE_SOURCE
+				This module exploits an sql injection flaw in the ALTER_HOTLOG_INTERNAL_CSOURCE
 				procedure of the PL/SQL package DBMS_CDC_IPUBLISH. Any user with execute
 				privilege on the vulnerable package can exploit this vulnerability.
 			},
