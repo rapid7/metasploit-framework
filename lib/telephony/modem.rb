@@ -140,6 +140,7 @@ class Modem
 	end
 
 	def hangup
+		flush
 		if @commandstate == true
 			#print( "Hanging up... (commandstate ATH0)\r\n" )
 			result = put_command('ATH0', 3)
