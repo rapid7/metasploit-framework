@@ -86,6 +86,12 @@ class Metasploit3 < Msf::Auxiliary
 		@logmethod = :file
 		@commandstate = true
 
+		@confdir      = Msf::Config.get_config_root + '/wardial'
+		@datadir      = Msf::Config.get_config_root + '/logs/wardial'
+		# make sure working dirs exist
+		Dir.mkdir(@confdir) if ! Dir.new(@confdir)
+		Dir.mkdir(@datadir) if ! Dir.new(@datadir)
+
 		begin
 			require 'telephony'
 			@telephony_loaded = true
@@ -134,13 +140,6 @@ class Metasploit3 < Msf::Auxiliary
 		dialdelay    = datastore['DialDelay'].to_i
 		redialbusy   = datastore['RedialBusy']
 		@displaymodem = datastore['DisplayModem']
-		@confdir      = Msf::Config.get_config_root + '/wardial'
-		@datadir      = Msf::Config.get_config_root + '/log/wardial'
-
-		# setup working directory
-		# TODO: fix this to build full paths to files and use those (no chdir)
-		Dir.mkdir(@confdir) if ! Dir.new(@confdir)
-		Dir.mkdir(@datadir) if ! Dir.new(@datadir)
 
 		# Connect to and init modem
 		modem = Telephony::Modem.new(serialport)
