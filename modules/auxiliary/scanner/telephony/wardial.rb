@@ -249,7 +249,7 @@ class Metasploit3 < Msf::Auxiliary
 						initmodem(modem, initstring)
 						num_carriers += 1
 						log_result(dialrange[dialnum])
-					when /CARRIER/i:
+					when /HK_CARRIER/i:
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:carrier] = true
@@ -273,25 +273,25 @@ class Metasploit3 < Msf::Auxiliary
 						dialrange[dialnum][:voice] = true
 						dialrange[dialnum][:timestamp] = Time.now
 						modem.hangup
-					when /VMB/i:
+					when /HK_VMB/i:
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:voicemail] = true
 						dialrange[dialnum][:timestamp] = Time.now
 						modem.hangup
-					when /AVS/i:
+					when /HK_AVS/i:
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:avs] = true
 						dialrange[dialnum][:timestamp] = Time.now
 						modem.hangup
-					when /NOTED/i:
+					when /HK_NOTED/i:
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:noted] = true
 						dialrange[dialnum][:timestamp] = Time.now
 						modem.hangup
-					when /GIRL/i:
+					when /HK_GIRL/i:
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:girl] = true
