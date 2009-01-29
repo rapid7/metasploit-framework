@@ -134,12 +134,13 @@ class Metasploit3 < Msf::Auxiliary
 		dialdelay    = datastore['DialDelay'].to_i
 		redialbusy   = datastore['RedialBusy']
 		@displaymodem = datastore['DisplayModem']
-		workingdir   = Msf::Config.get_config_root + '/wardial'
+		@confdir      = Msf::Config.get_config_root + '/wardial'
+		@datadir      = Msf::Config.get_config_root + '/log/wardial'
 
 		# setup working directory
 		# TODO: fix this to build full paths to files and use those (no chdir)
-		Dir.mkdir(workingdir) if ! Dir.new(workingdir)
-		Dir.chdir(workingdir)
+		Dir.mkdir(@confdir) if ! Dir.new(@confdir)
+		Dir.mkdir(@datadir) if ! Dir.new(@datadir)
 
 		# Connect to and init modem
 		modem = Telephony::Modem.new(serialport)
@@ -155,7 +156,7 @@ class Metasploit3 < Msf::Auxiliary
 		modem.flush
 
 		# reload data from previous scan
-		datfile = dialmask.gsub(/[( ]/, '').gsub(/[).]/, '-').gsub(/[#]/, 'X').upcase + '.dat'
+		datfile = @datadir + '/' + dialmask.gsub(/[( ]/, '').gsub(/[).]/, '-').gsub(/[#]/, 'X').upcase + '.dat'
 		dialrange = Object.load_from_file(datfile)
 		if dialrange
 			print_status( "Previous scan data loaded from #{datfile}" )
@@ -395,7 +396,8 @@ class Metasploit3 < Msf::Auxiliary
 	def log_result(dialnum)
 		case @logmethod
 			when :file :
-				file = File.new('found.log', 'a')
+				logfile = @datadir + '/found.log'
+				file = File.new(logfile, 'a')
 				file.puts( "#####( NEW LOG ENTRY )#####\n")
 				file.puts( "#{Time.now}\n")
 				file.puts( "#{dialnum[:dialed]} : #{dialnum[:result]}\n")
