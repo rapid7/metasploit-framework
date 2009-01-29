@@ -86,12 +86,6 @@ class Metasploit3 < Msf::Auxiliary
 		@logmethod = :file
 		@commandstate = true
 
-		@confdir      = Msf::Config.get_config_root + '/wardial'
-		@datadir      = Msf::Config.get_config_root + '/logs/wardial'
-		# make sure working dirs exist
-		Dir.mkdir(@confdir) if ! Dir.new(@confdir)
-		Dir.mkdir(@datadir) if ! Dir.new(@datadir)
-
 		begin
 			require 'telephony'
 			@telephony_loaded = true
@@ -106,6 +100,12 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("The Telephony module is not available: #{@telephony_error}")
 			raise RuntimeError, "Telephony not available"
 		end
+
+		@confdir      = Msf::Config.get_config_root + '/wardial'
+		@datadir      = Msf::Config.get_config_root + '/logs/wardial'
+		# make sure working dirs exist
+		Dir.mkdir(@confdir) if ! Dir.new(@confdir)
+		Dir.mkdir(@datadir) if ! Dir.new(@datadir)
 
 		@logmethod   = case datastore['LogMethod']
 			when 'DataBase' : :database
