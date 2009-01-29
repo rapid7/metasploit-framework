@@ -53,27 +53,31 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 		[
-			OptInt.new(   'BAUDRATE',     [true,  'Baud Rate', 19200]),
-			OptInt.new(   'CONNTIMEOUT',  [true,  'Timeout per data connection in seconds', 45]),
-			OptEnum.new(  'DATABITS',     [true,  'Data Bits (4 is Windows Only)', '8', ['4', '5', '6', '7', '8'], '8']),
-			OptInt.new(   'DIALDELAY',    [true,  'Time to wait between dials in seconds (rec. min. 1)', 1]),
 			OptString.new('DIALMASK',     [true,  'Dial Mask (e.g. 1.800.95X.99XX, (202) 358-XXXX, 358.####, etc.)', '202.358.XXXX']),
 			OptString.new('DIALPREFIX',   [true,  'Dial Prefix', 'ATDT']),
-			OptString.new('DIALSUFFIX',   [false, 'Dial Suffix', nil]),
-			OptInt.new(   'DIALTIMEOUT',  [true,  'Timeout per dialed number in seconds', 40]),
-			OptBool.new(  'DISPLAYMODEM', [true,  'Displays modem commands and responses on the console', false]),
-			OptEnum.new(  'FLOWCONTROL',  [true,  'Flow Control', 'None', ['None', 'Hardware', 'Software', 'Both'], 'None']),
-			OptInt.new(   'INITINTERVAL', [true,  'Number of dials before reinitializing modem', 30]),
 			OptString.new('INITSTRING',   [true,  'Initialization String', 'AT X6 S11=80']),
-			#OptEnum.new(  'LOGMETHOD',    [true,  'Log Method', 'File', ['File', 'DataBase', 'TIDBITS'], 'File']),
-			OptEnum.new(  'LOGMETHOD',    [true,  'Log Method', 'File', ['File'], 'File']),
-			OptString.new('NUDGESTRING',  [false, 'Nudge String', '\x1b\x1b\r\n\r\n']),
-			OptEnum.new(  'PARITY',       [true,  'Parity (Mark & Space are Windows Only)', 'None', ['None', 'Even', 'Odd', 'Mark', 'Space'], 'None']),
-			OptBool.new(  'REDIALBUSY',   [true,  'Redails numbers found to be busy', false]),
 			OptString.new('SERIALPORT',   [true,  'Serial Port (e.g. 0 (COM1), 1 (COM2), /dev/ttyS0, etc.)', '/dev/ttyS0']),
-			OptEnum.new(  'STOPBITS',     [true,  'Stop Bits', '1', ['1', '2'], '1']),
 		], self.class)
-		
+	
+		register_advanced_options(
+		[
+			OptInt.new(   'BaudRate',     [true,  'Baud Rate', 19200]),
+			OptEnum.new(  'DataBits',     [true,  'Data Bits (4 is Windows Only)', '8', ['4', '5', '6', '7', '8'], '8']),
+			OptInt.new(   'ConnTimeout',  [true,  'Timeout per data connection in seconds', 45]),
+			OptInt.new(   'DialDelay',    [true,  'Time to wait between dials in seconds (rec. min. 1)', 1]),
+			OptString.new('DialSuffix',   [false, 'Dial Suffix', nil]),
+			OptInt.new(   'DialTimeout',  [true,  'Timeout per dialed number in seconds', 40]),
+			OptBool.new(  'DisplayModem', [true,  'Displays modem commands and responses on the console', false]),
+			OptEnum.new(  'FlowControl',  [true,  'Flow Control', 'None', ['None', 'Hardware', 'Software', 'Both'], 'None']),
+			OptInt.new(   'InitInterval', [true,  'Number of dials before reinitializing modem', 30]),
+			#OptEnum.new(  'LogMethod',    [true,  'Log Method', 'File', ['File', 'DataBase', 'TIDBITS'], 'File']),
+			OptEnum.new(  'LogMethod',    [true,  'Log Method', 'File', ['File'], 'File']),
+			OptString.new('NudgeString',  [false, 'Nudge String', '\x1b\x1b\r\n\r\n']),
+			OptEnum.new(  'Parity',       [true,  'Parity (Mark & Space are Windows Only)', 'None', ['None', 'Even', 'Odd', 'Mark', 'Space'], 'None']),
+			OptBool.new(  'RedialBusy',   [true,  'Redails numbers found to be busy', false]),
+			OptEnum.new(  'StopBits',     [true,  'Stop Bits', '1', ['1', '2'], '1']),
+		], self.class)
+
 		deregister_options('NUMBER')
 		deregister_options('RPORT')
 		deregister_options('RHOSTS')
@@ -97,43 +101,43 @@ class Metasploit3 < Msf::Auxiliary
 			raise RuntimeError, "Telephony not available"
 		end
 
-		@logmethod   = case datastore['LOGMETHOD']
+		@logmethod   = case datastore['LogMethod']
 			when 'DataBase' : :database
 			when 'TIDBITS'  : :tidbits
 			else              :file
 		end
 		serialport   = datastore['SERIALPORT']
-		baud         = datastore['BAUDRATE'].to_i
-		data_bits    = datastore['DATABITS'].to_i
-		stop_bits    = datastore['STOPBITS'].to_i
-		parity       = case datastore['PARITY']
+		baud         = datastore['BaudRate'].to_i
+		data_bits    = datastore['DataBits'].to_i
+		stop_bits    = datastore['StopBits'].to_i
+		parity       = case datastore['Parity']
 			when 'Even' : Telephony::Modem::EVEN
 			when 'Odd'  : Telephony::Modem::ODD
 			when 'Mark' : Telephony::Modem::MARK
 			when 'Space': Telephony::Modem::SPACE
 			else          Telephony::Modem::NONE
 		end
-		flowcontrol  = case datastore['FLOWCONTROL']
+		flowcontrol  = case datastore['FlowControl']
 			when 'Hardware' : Telephony::Modem::HARD
 			when 'Software' : Telephony::Modem::SOFT
 			when 'Both'     : Telephony::Modem::HARD | Telephony::Modem::SOFT
 			else              Telephony::Modem::NONE
 		end
 		initstring   = datastore['INITSTRING']
-		initinterval = datastore['INITINTERVAL']
+		initinterval = datastore['InitInterval']
 		dialprefix   = datastore['DIALPREFIX']
-		dialsuffix   = datastore['DIALSUFFIX']
-		nudgestring  = datastore['NUDGESTRING'] ? eval('"'+datastore['NUDGESTRING']+'"') : eval("\r\n\r\n")
-		dialtimeout  = datastore['DIALTIMEOUT'].to_i
-		conntimeout  = datastore['CONNTIMEOUT'].to_i
-		faxtimeout   = datastore['FAXTIMEOUT'].to_i
+		dialsuffix   = datastore['DialSuffix']
+		nudgestring  = datastore['NudgeString'] ? eval('"'+datastore['NudgeString']+'"') : "\r\n\r\n"
+		dialtimeout  = datastore['DialTimeout'].to_i
+		conntimeout  = datastore['ConnTimeout'].to_i
 		dialmask     = datastore['DIALMASK'].tr(' ', '')
-		dialdelay    = datastore['DIALDELAY'].to_i
-		redialbusy   = datastore['REDIALBUSY']
-		@displaymodem = datastore['DISPLAYMODEM']
+		dialdelay    = datastore['DialDelay'].to_i
+		redialbusy   = datastore['RedialBusy']
+		@displaymodem = datastore['DisplayModem']
 		workingdir   = Msf::Config.get_config_root + '/wardial'
 
 		# setup working directory
+		# TODO: fix this to build full paths to files and use those (no chdir)
 		Dir.mkdir(workingdir) if ! Dir.new(workingdir)
 		Dir.chdir(workingdir)
 
@@ -410,12 +414,12 @@ class Metasploit3 < Msf::Auxiliary
 		time = Time.now
 		gotchar = Time.now
 		while Time.now < time + timeout
-			if Time.now >= gotchar + 5 # nudges after 5 seconds of receiving nothing
+			if Time.now >= gotchar + 8 # nudges after 8 seconds of receiving nothing
 				if nudgestring
 					print_status( "Nudging..." )
 					modem.puts nudgestring 
 				end
-				gotchar = Time.now # resets timer so we don't nudge too much
+				gotchar = Time.now # resets timer so we don't nudge too often
 			end
 
 			c = modem.getc
