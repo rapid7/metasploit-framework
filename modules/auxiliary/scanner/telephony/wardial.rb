@@ -101,8 +101,8 @@ class Metasploit3 < Msf::Auxiliary
 			raise RuntimeError, "Telephony not available"
 		end
 
-		@confdir      = Msf::Config.get_config_root + '/wardial'
-		@datadir      = Msf::Config.get_config_root + '/logs/wardial'
+		@confdir      = File.join(Msf::Config.get_config_root, 'wardial')
+		@datadir      = File.join(Msf::Config.get_config_root, 'logs', 'wardial')
 		# make sure working dirs exist
 		Dir.mkdir(@confdir) if ! Dir.new(@confdir)
 		Dir.mkdir(@datadir) if ! Dir.new(@datadir)
