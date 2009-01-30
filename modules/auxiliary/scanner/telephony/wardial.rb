@@ -40,7 +40,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
@@ -67,14 +66,14 @@ class Metasploit3 < Msf::Auxiliary
 			OptInt.new(   'DialDelay',    [true,  'Time to wait between dials in seconds (rec. min. 1)', 1]),
 			OptString.new('DialSuffix',   [false, 'Dial Suffix', nil]),
 			OptInt.new(   'DialTimeout',  [true,  'Timeout per dialed number in seconds', 40]),
-			OptBool.new(  'DisplayModem', [true,  'Displays modem commands and responses on the console', false]),
+			OptBool.new(  'DisplayModem', [false,  'Displays modem commands and responses on the console', false]),
 			OptEnum.new(  'FlowControl',  [true,  'Flow Control', 'None', ['None', 'Hardware', 'Software', 'Both'], 'None']),
 			OptInt.new(   'InitInterval', [true,  'Number of dials before reinitializing modem', 30]),
 			#OptEnum.new(  'LogMethod',    [true,  'Log Method', 'File', ['File', 'DataBase', 'TIDBITS'], 'File']),
 			OptEnum.new(  'LogMethod',    [true,  'Log Method', 'File', ['File'], 'File']),
 			OptString.new('NudgeString',  [false, 'Nudge String', '\x1b\x1b\r\n\r\n']),
-			OptEnum.new(  'Parity',       [true,  'Parity (Mark & Space are Windows Only)', 'None', ['None', 'Even', 'Odd', 'Mark', 'Space'], 'None']),
-			OptBool.new(  'RedialBusy',   [true,  'Redails numbers found to be busy', false]),
+			OptEnum.new(  'Parity',       [false,  'Parity (Mark & Space are Windows Only)', 'None', ['None', 'Even', 'Odd', 'Mark', 'Space'], 'None']),
+			OptBool.new(  'RedialBusy',   [false,  'Redials numbers found to be busy', false]),
 			OptEnum.new(  'StopBits',     [true,  'Stop Bits', '1', ['1', '2'], '1']),
 		], self.class)
 
@@ -103,9 +102,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		@confdir      = File.join(Msf::Config.get_config_root, 'wardial')
 		@datadir      = File.join(Msf::Config.get_config_root, 'logs', 'wardial')
+		
 		# make sure working dirs exist
-		Dir.mkdir(@confdir) if ! Dir.new(@confdir)
-		Dir.mkdir(@datadir) if ! Dir.new(@datadir)
+		FileUtils.mkdir_p(@confdir)
+		FileUtils.mkdir_p(@datadir)
 
 		@logmethod   = case datastore['LogMethod']
 			when 'DataBase' : :database
@@ -395,7 +395,7 @@ class Metasploit3 < Msf::Auxiliary
 	def log_result(dialnum)
 		case @logmethod
 			when :file :
-				logfile = @datadir + '/found.log'
+				logfile = File.join(@datadir, 'found.log')
 				file = File.new(logfile, 'a')
 				file.puts( "#####( NEW LOG ENTRY )#####\n")
 				file.puts( "#{Time.now}\n")
@@ -427,7 +427,7 @@ class Metasploit3 < Msf::Auxiliary
 			next if ! c
 
 			gotchar = Time.now
-			printf( "%c", c) if @displaymodem
+			print( c.chr ) if @displaymodem
 
 			# stop if carrier dropped
 			break if modem.dcd == 0
@@ -435,7 +435,7 @@ class Metasploit3 < Msf::Auxiliary
 			banner += c.chr
 		end
 
-		print "\n" if @displaymodem
+		print("\n") if @displaymodem
 		return banner
 	end
 
