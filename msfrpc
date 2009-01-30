@@ -4,7 +4,11 @@
 # instance through a XMLRPC socket.
 #
 
-msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
+msfbase = __FILE__
+while File.symlink?(msfbase)
+	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
+
 $:.unshift(File.join(File.dirname(msfbase), 'lib'))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
