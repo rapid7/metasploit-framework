@@ -4,7 +4,7 @@ require 'ftools'
 #Meterpreter script for ping sweeps on Windows 2003, Windows Vista
 #Windows 2008 and Windows XP targets using native windows commands.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.1.1
+#Verion: 0.1.2
 #Note:
 ################## Variable Declarations ##################
 @@exec_opts = Rex::Parser::Arguments.new(
@@ -15,7 +15,8 @@ require 'ftools'
   "-fl" => [ false,  "To Perform DNS Forward Lookup on host list and domain"],
   "-hl" => [ true,  "File with Host List for DNS Forward Lookup"],
   "-d"  => [ true,  "Domain Name for DNS Forward Lookup"],
-  "-st" => [ false,  "To Perform DNS lookup of MX, NS and SOA records for a domain"]
+  "-st" => [ false,  "To Perform DNS lookup of MX and NS records for a domain"],
+  "-sr" => [ false,  "To Perform Service Record DNS lookup for a domain"]
 
 )
 session = client
@@ -38,12 +39,14 @@ dest = logs + "/" + host + filenameinfo
 def stdlookup(session,domain,dest)
 	dest = dest + "-general-record-lookup.txt"
 	print_status("Getting MX and NS Records for Domain #{domain}")
-	filewrt(dest,"MX and NS Records for Domain #{domain}")
+	filewrt(dest,"SOA, NS and MX Records for Domain #{domain}")
+	types = ["SOA","NS","MX"]
 	mxout = []
 	results = []
 	garbage = []
+	types.each do |t|
 	begin
-		r = session.sys.process.execute("nslookup -query=mx #{domain}", nil, {'Hidden' => true, 'Channelized' => true})
+		r = session.sys.process.execute("nslookup -type=#{t} #{domain}", nil, {'Hidden' => true, 'Channelized' => true})
 		while(d = r.channel.read)
 			mxout << d
 		end
@@ -51,16 +54,18 @@ def stdlookup(session,domain,dest)
 		r.close
 		results = mxout.to_s.split(/\n/)
 		results.each do |rec|
-			if rec =~ /(Name:)/ or rec =~ /(Address:)/ or rec =~ /(Server:)/
-				garbage << rec
-			else
-				print_status("\t#{rec}")
-				filewrt(dest,"#{rec}")
-			end
+				if  rec.match(/\s*internet\saddress\s\=\s/)
+					garbage << rec.split(/\s*internet\saddress\s\=/)
+					print_status("#{garbage[0].to_s.sub(" ","   ")} #{t} ")
+					filewrt(dest,garbage[0].to_s.sub(" ","   ")+" #{t} ")
+					garbage.clear
+				end
+				garbage.clear
 		end
 
 	rescue ::Exception => e
     		print_status("The following Error was encountered: #{e.class} #{e}")
+	end
 	end
 end
 #-------------------------------------------------------------------------------
@@ -215,6 +220,39 @@ def pingsweep(session,iprange,dest)
 	end
 end
 #-------------------------------------------------------------------------------
+#Function for enumerating srv records
+def srvreclkp(session,domain,dest)
+	dest = dest + "-srvenum.txt"
+	srout = []
+	garbage = []
+	srvrcd = [
+	    "_gc._tcp.","_kerberos._tcp.", "_kerberos._udp.","_ldap._tcp.","_test._tcp.",
+	    "_sips._tcp.","_sip._udp.","_sip._tcp.","_aix._tcp.","_aix._tcp.","_finger._tcp.",
+	    "_ftp._tcp.","_http._tcp.","_nntp._tcp.","_telnet._tcp.","_whois._tcp."]
+	print_status("Performing SRV Record Enumeration for #{domain}")
+	filewrt(dest,"SRV Record Enumeration for #{domain}")
+	srvrcd.each do |srv|
+		r = session.sys.process.execute("nslookup -query=srv #{srv}#{domain}", nil, {'Hidden' => true, 'Channelized' => true})
+		while(d = r.channel.read)
+			srout << d
+		end
+		r.channel.close
+		r.close
+		results = srout.to_s.split(/\n/)
+		results.each do |rec|
+				if  rec.match(/\s*internet\saddress\s\=\s/)
+					garbage << rec.split(/\s*internet\saddress\s\=/)
+					print_status("\tfor #{srv}#{domain}   #{garbage[0].to_s.sub(" ","   ")}")
+					filewrt(dest,"for #{srv}#{domain}   #{garbage[0].to_s.sub(" ","   ")}")
+					garbage.clear
+				end
+		garbage.clear
+		srout.clear
+		end
+	end
+    
+end
+#-------------------------------------------------------------------------------
 #Function to print message during run
 def message(dest)
 	print_status "Network Enumerator Meterpreter Script "
@@ -231,10 +269,12 @@ frdlkp = nil
 dom = nil
 hostlist = nil
 helpcall = nil
+srvrc = nil
 # Parsing of Options
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
-
+  when "-sr"
+    srvrc = 1
   when "-rl"
     rvrslkp = 1
   when "-fl"
@@ -249,6 +289,7 @@ helpcall = nil
     hostlist = val
   when "-r"
     range = val
+
   when "-h"
     print(
       "Network Enumerator Meterpreter Script\n" +
@@ -270,7 +311,11 @@ elsif dom != nil && hostlist!= nil && frdlkp == 1
 	message(logs)
 	frwdlp(session,hostlist,dom,dest)
 elsif dom != nil && stdlkp == 1
+	message(logs)
 	stdlookup(session,dom,dest)
+elsif dom != nil && srvrc == 1
+	message(logs)
+	srvreclkp(session,dom,dest)
 elsif helpcall == nil
 	print(
     	"Network Enumerator Meterpreter Script\n" +

