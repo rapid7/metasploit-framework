@@ -6,9 +6,13 @@
 print_status("Killing Antivirus services on the target...")
 
 avs = %W{
+	AAWTray.exe	
+	Ad-Aware.exe
+	MSASCui.exe
 	_avp32.exe
 	_avpcc.exe
 	_avpm.exe
+	aAvgApi.exe
 	ackwin32.exe
 	adaware.exe
 	advxdwin.exe
@@ -40,107 +44,9 @@ avs = %W{
 	ave32.exe
 	avgcc32.exe
 	avgctrl.exe
+	avgemc.exe
 	avgnt.exe
-	avguard.exe
-	avkserv.exe
-	avnt.exe
-	avp.exe
-	avp.exe 
-	avp32.exe
-	avpcc.exe
-	avpdos32.exe
-	avpm.exe
-	avptc32.exe
-	avpupd.exe
-	avsched32.exe
-	avwin.exe
-	avwin95.exe
-	avwupd32.exe
-	blackd.exe
-	blackice.exe
-	cfiadmin.exe
-	cfiaudit.exe
-	cfinet.exe
-	cfinet32.exe
-	claw95.exe
-	claw95cf.exe
-	cleaner.exe
-	cleaner3.exe
-	defwatch.exe
-	dvp95.exe
-	dvp95_0.exe
-	ecengine.exe
-	esafe.exe
-	espwatch.exe
-	f-agnt95.exe
-	f-prot.exe
-	f-prot95.exe
-	f-stopw.exe
-	findviru.exe
-	fp-win.exe
-	fprot.exe
-	frw.exe
-	iamapp.exe
-	iamserv.exe
-	ibmasn.exe
-	ibmavsp.exe
-	icload95.exe
-	icloadnt.exe
-	icmon.exe
-	icsupp95.exe
-	icsuppnt.exe
-	iface.exe
-	iomon98.exe
-	jedi.exe
-	lockdown2000.exe
-	lookout.exe
-	luall.exe
-	moolive.exe
-	mpftray.exe
-	n32scanw.exe
-	navapw32.exe
-	navlu32.exe
-	navnt.exe
-	navw32.exe
-	navwnt.exe
-	nisum.exe
-	nmain.exe
-	normist.exe
-	nupgrade.exe
-	nvc95.exe
-	outpost.exe
-	padmin.exe
-	pavcl.exe
-	pavsched.exe
-	pavw.exe
-	pccwin98.exe
-	pcfwallicon.exe
-	persfw.exe
-	rav7.exe
-	rav7win.exe
-	rescue.exe
-	safeweb.exe
-	scan32.exe
-	scan95.exe
-	scanpm.exe
-	scrscan.exe
-	serv95.exe
-	smc.exe
-	sphinx.exe
-	sweep95.exe
-	tbscan.exe
-	tca.exe
-	tds2-98.exe
-	tds2-nt.exe
-	vet95.exe
-	vettray.exe
-	vscan40.exe
-	vsecomr.exe
-	vshwin32.exe
-	vsstat.exe
-	webscanx.exe
-	wfindv32.exe
-	zonealarm.exe
+	avgrsx.exe
 	avgserv.exe
 	avgserv9.exe
 	avguard.exe
@@ -152,23 +58,23 @@ avs = %W{
 	avltmain.exe
 	avnt.exe
 	avp.exe
+	avp.exe 
 	avp32.exe
 	avpcc.exe
 	avpdos32.exe
 	avpm.exe
 	avptc32.exe
 	avpupd.exe
-	avpupd.exe
 	avsched32.exe
 	avsynmgr.exe
+	avwin.exe
+	avwin95.exe
 	avwinnt.exe
 	avwupd.exe
-	avwupd32.exe
 	avwupd32.exe
 	avwupsrv.exe
 	avxmonitor9x.exe
 	avxmonitornt.exe
-	avxquar.exe
 	avxquar.exe
 	backweb.exe
 	bargains.exe
@@ -182,6 +88,7 @@ avs = %W{
 	bisp.exe
 	blackd.exe
 	blackice.exe
+	blink.exe
 	blss.exe
 	bootconf.exe
 	bootwarn.exe
@@ -199,9 +106,9 @@ avs = %W{
 	cfgwiz.exe
 	cfiadmin.exe
 	cfiaudit.exe
-	cfiaudit.exe
 	cfinet.exe
 	cfinet32.exe
+	claw95.exe
 	claw95cf.exe
 	clean.exe
 	cleaner.exe
@@ -255,6 +162,10 @@ avs = %W{
 	exe.avxw.exe
 	expert.exe
 	explore.exe
+	f-agnt95.exe
+	f-prot.exe
+	f-prot95.exe
+	f-stopw.exe
 	fameh32.exe
 	fast.exe
 	fch32.exe
@@ -262,11 +173,9 @@ avs = %W{
 	findviru.exe
 	firewall.exe
 	fnrb32.exe
-	fprot.exe
-	f-prot.exe
-	f-prot95.exe
 	fp-win.exe
 	fp-win_trial.exe
+	fprot.exe
 	frw.exe
 	fsaa.exe
 	fsav.exe
@@ -278,7 +187,6 @@ avs = %W{
 	fsm32.exe
 	fsma32.exe
 	fsmb32.exe
-	f-stopw.exe
 	gator.exe
 	gbmenu.exe
 	gbpoll.exe
@@ -301,6 +209,7 @@ avs = %W{
 	iamstats.exe
 	ibmasn.exe
 	ibmavsp.exe
+	icload95.exe
 	icloadnt.exe
 	icmon.exe
 	icsupp95.exe
@@ -346,7 +255,6 @@ avs = %W{
 	lordpe.exe
 	lsetup.exe
 	luall.exe
-	luall.exe
 	luau.exe
 	lucomserver.exe
 	luinit.exe
@@ -356,7 +264,6 @@ avs = %W{
 	mcmnhdlr.exe
 	mcshield.exe
 	mctool.exe
-	mcupdate.exe
 	mcupdate.exe
 	mcvsrte.exe
 	mcvsshld.exe
@@ -442,7 +349,6 @@ avs = %W{
 	ntxconfig.exe
 	nui.exe
 	nupgrade.exe
-	nupgrade.exe
 	nvarch16.exe
 	nvc95.exe
 	nvsvc32.exe
@@ -455,7 +361,6 @@ avs = %W{
 	ostronet.exe
 	otfix.exe
 	outpost.exe
-	outpost.exe
 	outpostinstall.exe
 	outpostproinstall.exe
 	padmin.exe
@@ -465,6 +370,7 @@ avs = %W{
 	pavproxy.exe
 	pavsched.exe
 	pavw.exe
+	pccwin98.exe
 	pcfwallicon.exe
 	pcip10117_0.exe
 	pcscan.exe
@@ -532,6 +438,7 @@ avs = %W{
 	scan95.exe
 	scanpm.exe
 	scrscan.exe
+	serv95.exe
 	setup_flowprotector_us.exe
 	setupvameeval.exe
 	sfc.exe
@@ -584,8 +491,9 @@ avs = %W{
 	tc.exe
 	tca.exe
 	tcm.exe
-	tds2-nt.exe
 	tds-3.exe
+	tds2-98.exe
+	tds2-nt.exe
 	teekids.exe
 	tfak.exe
 	tfak5.exe
@@ -602,7 +510,6 @@ avs = %W{
 	tvtmd.exe
 	undoboot.exe
 	updat.exe
-	update.exe
 	update.exe
 	upgrad.exe
 	utpost.exe
@@ -645,10 +552,10 @@ avs = %W{
 	wfindv32.exe
 	whoswatchingme.exe
 	wimmun32.exe
+	win-bugsfix.exe
 	win32.exe
 	win32us.exe
 	winactive.exe
-	win-bugsfix.exe
 	window.exe
 	windows.exe
 	wininetd.exe
