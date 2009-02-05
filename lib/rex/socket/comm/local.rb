@@ -241,7 +241,7 @@ class Rex::Socket::Comm::Local
 		#$stdout.print("PROXY\n")
 		case type.downcase
 		when 'http'
-			setup = "CONNECT #{host}:#{port} HTTP/1.0\n\n"
+			setup = "CONNECT #{host}:#{port} HTTP/1.0\r\n\r\n"
 			size = sock.put(setup)
 			if (size != setup.length)
 				raise ArgumentError, "Wrote less data than expected to the http proxy"
