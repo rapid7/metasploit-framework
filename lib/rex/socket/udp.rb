@@ -49,12 +49,7 @@ module Rex::Socket::Udp
 		end	
 	end
 
-	#
-	# Another alias for write
-	#
-	def put(gram)
-		return write(gram)
-	end
+	alias put write
 
 	#
 	# Read a datagram from the UDP socket.
