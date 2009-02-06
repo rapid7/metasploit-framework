@@ -151,11 +151,17 @@ module HostCommunicationError
 	end
 
 	#
-	# This method returns a printable address and port associated with the host
-	# that triggered the exception.
+	# This method returns a printable address and optional port associated
+	# with the host that triggered the exception.
 	#
 	def addr_to_s
-		(host && port) ? "(#{host}:#{port})" : ""
+		if host and port
+			"(#{host}:#{port})"
+		elsif host
+			"(#{host})"
+		else
+			""
+		end
 	end
 
 	attr_accessor :host, :port
