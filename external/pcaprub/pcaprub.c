@@ -275,12 +275,12 @@ static void rbpcap_handler(rbpcapjob_t *job, struct pcap_pkthdr *hdr, u_char *pk
 static VALUE
 rbpcap_next(VALUE self)
 {
-    rbpcap_t *rbp;
+	rbpcap_t *rbp;
 	rbpcapjob_t job;
 	char eb[PCAP_ERRBUF_SIZE];
 	int ret;	
 	
-    Data_Get_Struct(self, rbpcap_t, rbp);
+	Data_Get_Struct(self, rbpcap_t, rbp);
 	if(! rbpcap_ready(rbp)) return self; 
 	pcap_setnonblock(rbp->pd, 1, eb);
 
@@ -288,17 +288,18 @@ rbpcap_next(VALUE self)
 	
 	while(! (ret = pcap_dispatch(rbp->pd, 1, (pcap_handler) rbpcap_handler, (u_char *)&job))) {
 		if(rbp->type == OFFLINE) break;
+		printf("type = %d and ret = %d\n", rbp->type, ret);
 		rb_thread_schedule();
 	}
     
     TRAP_END;
 
-	if(rbp->type = OFFLINE && ret <= 0) return Qnil;
+	if(rbp->type == OFFLINE && ret <= 0) return Qnil;
 
-    if(job.hdr.caplen > 0)
-    	return rb_str_new(job.pkt, job.hdr.caplen);
+	if(job.hdr.caplen > 0)
+		return rb_str_new(job.pkt, job.hdr.caplen);
 
-    return Qnil;
+	return Qnil;
 }
 
 static VALUE
