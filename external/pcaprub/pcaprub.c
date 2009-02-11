@@ -288,7 +288,6 @@ rbpcap_next(VALUE self)
 	
 	while(! (ret = pcap_dispatch(rbp->pd, 1, (pcap_handler) rbpcap_handler, (u_char *)&job))) {
 		if(rbp->type == OFFLINE) break;
-		printf("type = %d and ret = %d\n", rbp->type, ret);
 		rb_thread_schedule();
 	}
     
