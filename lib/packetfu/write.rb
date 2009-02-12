@@ -64,6 +64,26 @@ module PacketFu
 			end
 			
 		end
+		def self.append(args={})
+			file = args[:file] || args[:out] || :nowrite
+			pkt  = args[:packet] || args[:pkt] || nil
+			ts   = args[:ts] || args[:timestamp] || Time.now.to_i
+			if (file == :nowrite)
+				return false
+			end
+			if (!file.kind_of?(File)) 
+				file = File.new(file, "a")
+			end
+
+			pc_pkt = PcapPacket.new
+			pc_pkt.data = pkt.to_s[0,0xffff]
+			pc_pkt.orig_len = pkt.size
+			pc_pkt.ts_sec = decimal_to_usecs(ts)[0]
+			file.print(pc_pkt.to_s)
+
+			return pc_pkt.to_s.size
+		end
+
 
 		# A synonym for array_to_file()
 		def self.a2f(args={})

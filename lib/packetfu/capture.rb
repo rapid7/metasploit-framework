@@ -117,7 +117,10 @@ module PacketFu
 			while this_pkt = @stream.next
 				@array << this_pkt
 			end
-				@array.size
+			@array.size
+		end
+		def next
+			return @stream.next
 		end
 
 		# w2a() is a equivalent to wire_to_array()
