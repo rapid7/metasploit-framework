@@ -284,18 +284,15 @@ rbpcap_next(VALUE self)
 	if(! rbpcap_ready(rbp)) return self; 
 	pcap_setnonblock(rbp->pd, 1, eb);
 
-    TRAP_BEG;
-	
-	while(! (ret = pcap_dispatch(rbp->pd, 1, (pcap_handler) rbpcap_handler, (u_char *)&job))) {
-		if(rbp->type == OFFLINE) break;
-		rb_thread_schedule();
-	}
+	TRAP_BEG;
+
+	ret = pcap_dispatch(rbp->pd, 1, (pcap_handler) rbpcap_handler, (u_char *)&job);
     
-    TRAP_END;
+	TRAP_END;
 
 	if(rbp->type == OFFLINE && ret <= 0) return Qnil;
 
-	if(job.hdr.caplen > 0)
+	if(ret > 0 && job.hdr.caplen > 0)
 		return rb_str_new(job.pkt, job.hdr.caplen);
 
 	return Qnil;
