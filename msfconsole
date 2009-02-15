@@ -66,9 +66,9 @@ class OptsConsole
 			end
 		end
 
-	  opts.parse!(args)
-	 
-	  options
+		opts.parse!(args)
+
+		options
 	end
 end
 

@@ -13,7 +13,7 @@ module Msf
         'Nobody :-)'
       ]
       ARTISTS = [
-        'Fabrice MOURRON <fab@metasploit.com>',
+		"Fabrice MOURRON <fab@metasploit.com>",
 		"H D Moore <hdm@metasploit.com>",
 		"BRUTE <brute@bruteprop.com>",		
 		"Anonymous",
