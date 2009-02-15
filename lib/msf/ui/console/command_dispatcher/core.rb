@@ -504,7 +504,7 @@ class Core
 			}
 
 		# Parse any extra options that should be passed to the plugin
-		args.join(' ').split(/\s+/).each { |opt|
+		args.each { |opt|
 			k, v = opt.split(/=/)
 
 			opts[k] = v if (k and v)
