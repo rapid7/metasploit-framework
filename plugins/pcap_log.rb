@@ -25,7 +25,7 @@ class Plugin::PcapLog < Msf::Plugin
 	end
 	def usage
 		print_error("No interface given") 
-		print ("usage: load #{self.name} iface=<iface> [path=<logpath>] [prefix=<logprefix>]\n")
+		print ("usage: load #{self.name} iface=<iface> [path=<logpath>] [prefix=<logprefix>] [filter=<filter>]\n")
 	end
 
 	def initialize(framework, opts)
@@ -33,6 +33,7 @@ class Plugin::PcapLog < Msf::Plugin
 		log_path    = opts['path'] || "/tmp"
 		log_prefix  = opts['prefix'] || "msf3-session_"
 		iface       = opts['iface'] || nil
+		filter      = opts['filter']
 
 		begin 
 			require 'pcaprub'
@@ -53,7 +54,7 @@ class Plugin::PcapLog < Msf::Plugin
 		@fname += "%04d-%02d-%02d_%02d-%02d-%02d.pcap" % [t.year, t.month, t.mday, t.hour, t.min, t.sec]
 		print_status("Logs in #{@fname}")
 
-		stream = PacketFu::Capture.new(:iface => iface, :timeout => 0, :start => true)
+		stream = PacketFu::Capture.new(:iface => iface, :timeout => 0, :start => true, :filter => filter)
 		PacketFu::Write.a2f(:filename => @fname, :arr => [])
 		@capture_file = File.open(@fname, "ab")
 
