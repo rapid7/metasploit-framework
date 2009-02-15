@@ -949,7 +949,7 @@ class Core
 	end
 
 	#
-	# Tab completion for the route command
+	# Tab completion for the sessions command
 	#
 	def cmd_sessions_tabs(str, words)
 		if (not words[1])
