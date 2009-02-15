@@ -797,6 +797,36 @@ class Core
 		print(added)
 	end
 
+	def cmd_loadpath_tabs(str, words)
+		paths = []
+		if (File.directory?(str))
+			paths = Dir.entries(str)
+			paths = paths.map { |f|
+				if File.directory? File.join(str,f)
+					File.join(str,f)
+				end
+			}
+			paths.delete_if { |f| f.nil? or File.basename(f) == '.' or File.basename(f) == '..' }
+		else
+			d = Dir.glob(str + "*").map { |f| f if File.directory?(f) }
+			d.delete_if { |f| f.nil? or f == '.' or f == '..' }
+			# If there's only one possibility, descend to the next level
+			if (1 == d.length)
+				paths = Dir.entries(d[0])
+				paths = paths.map { |f|
+					if File.directory? File.join(d[0],f)
+						File.join(d[0],f)
+					end
+				}
+				paths.delete_if { |f| f.nil? or File.basename(f) == '.' or File.basename(f) == '..' }
+			else
+				paths = d
+			end
+		end
+		paths.sort!
+		return paths
+	end
+
 	#
 	# Searches modules (name and description) for specified regex
 	#
