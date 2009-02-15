@@ -25,7 +25,7 @@ class Plugin::PcapLog < Msf::Plugin
 	end
 	def usage
 		print_error("No interface given") 
-		print ("usage: load #{self.name} iface=<iface> [path=<logpath>] [prefix=<logprefix>] [filter=<filter>]\n")
+		print ("usage: load #{self.name} iface=<iface> [path=<logpath>] [prefix=<logprefix>] [filter=\"<filter>\"]\n")
 	end
 
 	def initialize(framework, opts)
