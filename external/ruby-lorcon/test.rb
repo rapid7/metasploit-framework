@@ -40,7 +40,7 @@ tx.write(packet, 500, 0)
 ea = Time.now.to_f - sa
 
 sb = Time.now.to_f
-1.upto(500) { |i| tx.write(packet, 11, 0) }
+500.times { tx.write(packet, 1, 0) }
 eb = Time.now.to_f - sb
 
 $stdout.puts "Sent 500 packets (C) in #{ea.to_s} seconds"
