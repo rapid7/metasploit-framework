@@ -85,6 +85,9 @@ class Arguments
 
 		return txt
 	end
+	def include?(search)
+		return fmt.include?(search)
+	end
 
 	attr_accessor :fmt # :nodoc:
 

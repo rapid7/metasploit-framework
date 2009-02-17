@@ -41,6 +41,7 @@ class Core
 		"-h" => [ false, "Help banner."                                   ])
 
 	@@connect_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner."                                   ],
 		"-p" => [ true,  "List of proxies to use."                        ],
 		"-C" => [ false, "Try to use CRLF for EOL sequence."              ],
 		"-c" => [ true,  "Specify which Comm to use."                     ],
@@ -187,7 +188,7 @@ class Core
 	# Talk to a host
 	#
 	def cmd_connect(*args)
-		if args.length < 2
+		if args.length < 2 or args.include?("-h")
 			print(  "Usage: connect [options] <host> <port>\n\n" +
 				"Communicate with a host, similar to interacting via netcat.\n" +
 				@@connect_opts.usage)
@@ -363,11 +364,38 @@ class Core
 	end
 	
 	#
-	# Displays the command help banner.
+	# Displays the command help banner or an individual command's help banner
+	# if we can figure out how to invoke it.
 	#
 	def cmd_help(*args)
-		print(driver.help_to_s)
+		if args and args.length > 0 and commands.include?(args[0])
+			if self.respond_to? "cmd_"+ args[0] + "_help"
+				self.send("cmd_"+ args[0] + "_help")
+			else
+				#
+				# This part is done in a hackish way because not all of the
+				# usage info is available from self.commands() or @@*_opts, so
+				# we check @@<cmd>_opts for "-h".  It's non-optimal because
+				# several commands have usage info, but don't use -h to invoke
+				# it.
+				begin
+					opts = eval("@@" + args[0] + "_opts")
+				rescue
+				end
+				if opts and opts.include?("-h")
+					self.send("cmd_" + args[0], "-h")
+				else
+					print_line("No help available for #{args[0]}")
+				end
+			end
+		else
+			print(driver.help_to_s)
+		end
 	end
+	def cmd_help_tabs(str, words)
+		return commands.keys
+	end
+
 
 	alias cmd_? cmd_help
 
