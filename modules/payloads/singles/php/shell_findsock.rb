@@ -28,9 +28,17 @@ module Metasploit3
 			'Version'       => '$Revision$',
 			'Description'   => %Q{
 				Spawn a shell on the established connection to
-				the webserver.  Only tested on Apache but it 
-				might work on other web servers that leak file
-				descriptors to child processes.
+				the webserver.  Unfortunately, this payload
+				leaves conspicuous evil-looking entries in the
+				apache error logs, so it is probably a good idea
+				to use a bind or reverse shell unless firewalls
+				prevent them from working.  The issue this
+				payload takes advantage of (CLOEXEC flag not set
+				on sockets) appears to have been patched on the
+				Ubuntu version of Apache and may not work on
+				other Debian-based distributions.  Only tested on
+				Apache but it might work on other web servers
+				that leak file descriptors to child processes.
 				},
 			'Author'        => [ 'egypt <egypt@metasploit.com>' ],
 			'License'       => BSD_LICENSE,
