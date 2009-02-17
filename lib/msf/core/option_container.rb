@@ -329,7 +329,7 @@ class OptAddress < OptBase
 
 		if (value != nil and value.empty? == false)
 			begin
-				Resolv.getaddress(value)
+				::Rex::Socket.getaddress(value)
 			rescue
 				return false
 			end
