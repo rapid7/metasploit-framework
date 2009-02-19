@@ -49,7 +49,8 @@ class Core
 		"-P" => [ true,  "Specify source port."                           ],
 		"-S" => [ true,  "Specify source address."                        ],
 		"-s" => [ false, "Connect with SSL."                              ],
-		"-w" => [ true,  "Specify connect timeout."                       ])
+		"-w" => [ true,  "Specify connect timeout."                       ],
+		"-z" => [ false, "Just try to connect, then return."              ])
 
 	# The list of data store elements that cannot be set when in defanged
 	# mode.
@@ -203,6 +204,7 @@ class Core
 		srcport = nil
 		ssl = false
 		cto = nil
+		justconn = false
 		aidx = 0
 
 		@@connect_opts.parse(args) do |opt, idx, val|
@@ -231,6 +233,9 @@ class Core
 				when "-w"
 					cto = val.to_i
 					aidx = idx + 2
+				when "-z"
+					justconn = true
+					aidx = idx + 1
 			end
 		end
 
@@ -297,6 +302,12 @@ class Core
 		end
 
 		print_status("Connected to #{host}:#{port}")
+
+		if justconn
+			sock.close
+			infile.close if infile
+			return true
+		end
 
 		cin = infile || driver.input
 		cout = driver.output
