@@ -55,12 +55,12 @@ begin
 	
 	def self.md4_hash(data)
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		digest = OpenSSL::Digest::Digest.digest('md4', data)
+		digest = OpenSSL::Digest::MD4.digest(data)
 	end
 	
 	def self.md5_hash(data)
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		digest = OpenSSL::Digest::Digest.digest('md5', data)
+		digest = OpenSSL::Digest::MD5.digest(data)
 	end
 	
 	def self.lm2nt(pass, ntlm)
