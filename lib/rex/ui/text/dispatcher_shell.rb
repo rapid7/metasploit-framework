@@ -38,28 +38,28 @@ module DispatcherShell
 		end
 	
 		#
-		# Wrapps shell.print_error
+		# Wraps shell.print_error
 		#
 		def print_error(msg = '')
 			shell.print_error(msg)
 		end
 
 		#
-		# Wrapps shell.print_status
+		# Wraps shell.print_status
 		#
 		def print_status(msg = '')
 			shell.print_status(msg)
 		end
 
 		#
-		# Wrapps shell.print_line
+		# Wraps shell.print_line
 		#
 		def print_line(msg = '')
 			shell.print_line(msg)
 		end
 
 		#
-		# Wrapps shell.print
+		# Wraps shell.print
 		#
 		def print(msg = '')
 			shell.print(msg)

@@ -4,7 +4,7 @@ module Rex
 
 ###
 #
-# This class provides helper mehods for dealing with files that are not
+# This class provides helper methods for dealing with files that are not
 # supplied by the standard ruby API.
 #
 ###

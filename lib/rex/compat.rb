@@ -188,7 +188,7 @@ def self.win32_ruby_path
 end
 
 #
-# Call WinExec (equiv to system("cmd &")
+# Call WinExec (equiv to system("cmd &"))
 #
 def self.win32_winexec(cmd)
 	begin
