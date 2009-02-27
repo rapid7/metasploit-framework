@@ -34,19 +34,20 @@ class Console::CommandDispatcher::Core
 	#
 	def commands
 		{
-			"?"        => "Help menu",
-			"close"    => "Closes a channel",
-			"channel"  => "Displays information about active channels",
-			"exit"     => "Terminate the meterpreter session",
-			"help"     => "Help menu",
-			"interact" => "Interacts with a channel",
-			"irb"      => "Drop into irb scripting mode",
-			"migrate"  => "Migrate the server to another process",
-			"use"      => "Load a one or more meterpreter extensions",
-			"quit"     => "Terminate the meterpreter session",
-			"read"     => "Reads data from a channel",
-			"run"      => "Executes a meterpreter script",
-			"write"    => "Writes data to a channel",
+			"?"          => "Help menu",
+			"background" => "Backgrounds the current session",
+			"close"      => "Closes a channel",
+			"channel"    => "Displays information about active channels",
+			"exit"       => "Terminate the meterpreter session",
+			"help"       => "Help menu",
+			"interact"   => "Interacts with a channel",
+			"irb"        => "Drop into irb scripting mode",
+			"migrate"    => "Migrate the server to another process",
+			"use"        => "Load a one or more meterpreter extensions",
+			"quit"       => "Terminate the meterpreter session",
+			"read"       => "Reads data from a channel",
+			"run"        => "Executes a meterpreter script",
+			"write"      => "Writes data to a channel",
 		}
 	end
 
@@ -55,6 +56,10 @@ class Console::CommandDispatcher::Core
 	#
 	def name
 		"Core"
+	end
+
+	def cmd_background
+		client.interacting = false
 	end
 
 	#
