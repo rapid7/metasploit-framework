@@ -511,8 +511,6 @@ module Db
 					
 					next if not port.elements['service']
 					name = port.elements['service'].attributes['name']
-					prod = port.elements['service'].attributes['product']
-					xtra = port.elements['service'].attributes['extrainfo']
 
 					next if stat != 'open'
 					
