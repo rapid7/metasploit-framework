@@ -22,6 +22,11 @@ if (RUBY_VERSION =~ /^1\.[0-7]\./ or RUBY_VERSION =~ /^1\.8\.[0-1]$/)
 	exit(0)
 end
 
+# Check for ruby 1.9.0 and throw a big nasty warning
+if (RUBY_VERSION =~ /^1\.9\./)
+	puts "*** Ruby 1.9.x is not currently supported, you may experience significant"
+	puts "    issues trying to use this version with the Metasploit Framework"
+end
 
 #
 # Check for the ugly 1.8.7 short-named constants bug
@@ -57,11 +62,16 @@ if(ruby_187_const_bug())
 	$stderr.puts ""
 	$stderr.puts "***********************************************************************"
 	$stderr.puts "***                                                                   *"
-	$stderr.puts "*** This version of the Ruby interpreter has significant problems, we *"
-	$stderr.puts "*** strongly recommend that you switch to version 1.8.6 until these   *"
-	$stderr.puts "*** issues have been corrected. Alternatively, you can download,      *"
-	$stderr.puts "*** build, and install the latest Ruby snapshot from:                 *"
+	$stderr.puts "*** This version of the Ruby interpreter contains a serious bug       *"
+	$stderr.puts "*** related to short-named constants, we strongly recommend that you  *"
+	$stderr.puts "*** switch to a fixed version. Unfortunately, some Linux distros have *"
+	$stderr.puts "*** backported the buggy patch into 1.8.6, so you may need to contact *"
+	$stderr.puts "*** your vendor and ask them to review the URL below.                 *"
+	$stderr.puts "***                                                                   *"
+	$stderr.puts "*** Alternatively, you can download, build, and install the latest    *"
+	$stderr.puts "*** stable snapshot of Ruby from the following URL:                   *"	
 	$stderr.puts "***  - http://www.ruby-lang.org/                                      *"
+	$stderr.puts "***                                                                   *"	
 	$stderr.puts "*** For more information, please see the following URL:               *"
 	$stderr.puts "***  - https://bugs.launchpad.net/bugs/282302                         *"
 	$stderr.puts "***                                                                   *"
