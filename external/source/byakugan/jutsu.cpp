@@ -53,13 +53,8 @@ void memDiffJutsu(char *inputType, DWORD size, char *input, ULONG64 address) {
 			return;
 		}
 	} else if (!_stricmp(inputType, "file")) {
-		pureBuf = (char *) malloc(size+1);
-		if (pureBuf = NULL) {
-			dprintf("[J] Failed to allocate %d bytes!\n", size);
-			return;
-		}
-		readSize = readFileIntoBuf(input, size, pureBuf);
-		if (size && size != readSize) {
+		readSize = readFileIntoBuf(input, size, &pureBuf);
+		if ((size && size != readSize) || readSize == 0) {
 			dprintf("[J] Failed to read %d bytes from %s.\n", size, input);
 			return;
 		}
@@ -500,6 +495,18 @@ void identBufJutsu(char *inputType, char *bufName, char *bufPatt, DWORD size) {
 	struct trackedBuf	*newTrackedBuf, *curBuf;
 	char				*msfPattern;
 	DWORD				readSize;
+	HANDLE				hFile;
+
+	if (trackedBufList != NULL) {
+		curBuf = trackedBufList;
+		while (curBuf->next != NULL) {
+			if (!_stricmp(bufName, curBuf->bufName)) {
+				dprintf("[J] Buf %s already exists. Please delete it first.\n", bufName);
+				return;
+			}
+			curBuf = curBuf->next;
+		}
+	}
 
 	newTrackedBuf = (struct trackedBuf *) malloc(sizeof (struct trackedBuf));
 	if (newTrackedBuf == NULL) {
@@ -523,13 +530,8 @@ void identBufJutsu(char *inputType, char *bufName, char *bufPatt, DWORD size) {
 		newTrackedBuf->bufPatt = _strdup(bufPatt);
 		size = strlen(bufPatt);
 	} else if (!_stricmp(inputType, "file")) {
-		newTrackedBuf->bufPatt = (char *) malloc(size+1);
-		if (newTrackedBuf->bufPatt == NULL) {
-			dprintf("[J] Failed to allocate %d bytes!\n", size+1);
-			return;
-		}
-		readSize = readFileIntoBuf(bufPatt, size, newTrackedBuf->bufPatt);
-		if (size && readSize != size) {
+		readSize = readFileIntoBuf(bufPatt, size, &(newTrackedBuf->bufPatt));
+		if ((size && readSize != size) || readSize == 0) {
 			dprintf("[J] Unable to read %d bytes from %s\n", size, bufName);
 			return;
 		}
@@ -547,10 +549,6 @@ void identBufJutsu(char *inputType, char *bufName, char *bufPatt, DWORD size) {
 	if (trackedBufList == NULL) {
 		trackedBufList = newTrackedBuf;
 	} else {
-		curBuf = trackedBufList;
-		while (curBuf->next != NULL) {
-			curBuf = curBuf->next;
-		}
 		curBuf->next			= newTrackedBuf;
 		newTrackedBuf->prev		= curBuf;
 	}

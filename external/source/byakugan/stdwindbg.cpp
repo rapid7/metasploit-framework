@@ -288,7 +288,7 @@ DWORD parseHexInput(char *hexInput, DWORD size, char *output) {
 	return (0);
 }
 
-DWORD readFileIntoBuf(char *path, DWORD size, char *output) {
+DWORD readFileIntoBuf(char *path, DWORD size, char **output) {
     HANDLE      inputFile;
     DWORD       readOut = 1, i = 0;
     char        out;
@@ -301,9 +301,16 @@ DWORD readFileIntoBuf(char *path, DWORD size, char *output) {
     }
 	if (size == 0)
 		size = GetFileSize(inputFile, NULL) - 1;
+	
+	*output = (char *) malloc(size + 1);
+	if (!*output) {
+		dprintf("[S] Unable to allocate memory for %s\n", path);
+		return (0);
+	}
+
     while (readOut > 0 && i < size) {
         ReadFile(inputFile, &out, 1, &readOut, NULL);
-    	output[i++] = out;
+    	(*output)[i++] = out;
 	}
     return (i);
 }
