@@ -60,6 +60,10 @@ class Rex::Socket::Comm::Local
 	#
 	def self.create_by_type(param, type, proto = 0)
 
+		if(Rex::Compat.is_java)
+			return create_by_type_jruby(param, type, proto)
+		end
+
 		# Whether to use IPv6 addressing
 		usev6 = false
 			
@@ -131,7 +135,10 @@ class Rex::Socket::Comm::Local
 		end
 
 		# Bind to a given local address and/or port if they are supplied
-		if (param.localhost || param.localport)
+		if (
+		     (param.localhost and param.localhost != "0.0.0.0") || 
+			 (param.localport and param.localport != 0)
+		   )
 			begin	
 				sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, true)
 
@@ -324,6 +331,27 @@ class Rex::Socket::Comm::Local
 			if response[1] != 0
 				raise "SOCKS5 server responded with error code #{response[1]}"
 			end
+		when 'bbproxy'
+			setup = "#{host}:#{port}\r\n"
+			
+			[4,1,port.to_i].pack('CCn') + Socket.gethostbyname(host)[3] + Rex::Text.rand_text_alpha(rand(8)+1) + "\x00"
+			size = sock.put(setup)
+			if (size != setup.length)
+				raise ArgumentError, "Wrote less data than expected to the socks4 proxy"
+			end
+
+			begin
+				ret = sock.get_once(8, 30)
+			rescue IOError
+				raise Rex::ConnectionRefused.new(host, port), caller
+			end
+
+			if (ret.nil? or ret.length < 8)
+				raise ArgumentError, 'SOCKS4 server did not respond with a proper response'
+			end
+			if ret[1] != 90
+				raise "SOCKS4 server responded with error code #{ret[0]}"
+			end			
 		else
 			raise ArgumentError, 'Unsupported proxy type and/or version', caller
 		end
@@ -345,6 +373,48 @@ class Rex::Socket::Comm::Local
 
 	def self.each_event_handler(handler) # :nodoc:
 		self.instance.each_event_handler(handler)
+	end
+	
+	
+	#
+	# JRuby is still really, really broken, but this lets us test
+	#
+	def self.create_by_type_jruby(param, type, proto = 0)
+
+		begin	
+			klass = nil
+			sock  = nil
+
+			if(type == 1 and proto == 6)
+				sock = TCPSocket.new(param.peerhost, param.peerport)
+				klass = Rex::Socket::Tcp
+				klass = Rex::Socket::SslTcp if param.ssl
+			end
+
+			if(proto == 17)
+				sock = UDPSocket.new(param.peerhost, param.peerport)
+				klass = Rex::Socket::Udp
+			end
+
+			raise ArgumentError,"Unsupported socket type" if not sock
+			
+			sock.extend(klass)
+			sock.initsock(param)
+			
+			return sock
+		
+		rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
+			sock.close if sock
+			raise Rex::HostUnreachable.new(param.peerhost, param.peerport), caller
+
+		rescue Errno::ETIMEDOUT
+			sock.close if sock
+			raise Rex::ConnectionTimeout.new(param.peerhost, param.peerport), caller
+
+		rescue ::Errno::ECONNRESET,::Errno::ECONNREFUSED,::Errno::ENOTCONN,::Errno::ECONNABORTED
+			sock.close if sock
+			raise Rex::ConnectionRefused.new(param.peerhost, param.peerport), caller
+		end	
 	end
 
 end

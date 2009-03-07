@@ -138,6 +138,7 @@ module Socket
 	#
 	def self.getaddress(addr)
 		begin
+			addr,scope_id  = addr.split('%')
 			dotted_ip?(addr) ? addr : Resolv.getaddress(addr)
 		rescue ::ArgumentError # Win32 bug
 			nil

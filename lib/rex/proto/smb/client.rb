@@ -1364,7 +1364,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 	
 	# Perform a transaction2 request using the specified subcommand, parameters, and data
-	def trans2(subcommand, param = '', body = '')
+	def trans2(subcommand, param = '', body = '', opts={})
 
 		setup_count = 1
 		setup_data = [subcommand].pack('v')
