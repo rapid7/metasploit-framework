@@ -71,7 +71,7 @@ if ($framework.modules.failed.length > 0)
   end
 end
 
-if (ARGV.length < 1)
+if (not exploit_name)
 	ext = ''
 	
 	tbl = Rex::Ui::Text::Table.new(
