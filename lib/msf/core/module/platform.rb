@@ -316,14 +316,6 @@ class Msf::Module::Platform
 	end
 
 	#
-	# SCO
-	#
-	class SCO < Msf::Module::Platform
-		Rank = 100
-		Alias = "sco"
-	end
-
-	#
 	# Solaris
 	#
 	class Solaris < Msf::Module::Platform

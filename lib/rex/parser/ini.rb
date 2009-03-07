@@ -114,13 +114,13 @@ class Ini < Hash
 	def to_s
 		str = ''
 		keys.sort.each { |k|
-			str << "[#{k}]\n"
+			str += "[#{k}]\n"
 
 			self[k].each_pair { |var, val|
-				str << "#{var}=#{val}\n"
+				str += "#{var}=#{val}\n"
 			}
 
-			str << "\n";
+			str += "\n";
 		}
 
 		return str
