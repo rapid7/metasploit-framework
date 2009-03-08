@@ -87,7 +87,7 @@ class Table
 	# Converts table contents to a string.
 	# 
 	def to_s
-	   str  = prefix
+		str  = prefix
 		str << header_to_s || ''
 		str << columns_to_s || ''
 		str << hr_to_s || ''
@@ -182,7 +182,7 @@ protected
 	#
 	def columns_to_s # :nodoc:
 		nameline = ' ' * indent
-		barline  = nameline
+		barline  = nameline.dup
 
 		columns.each_with_index { |col,idx|
 			nameline << col + pad(' ', col, idx)
