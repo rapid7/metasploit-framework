@@ -133,7 +133,7 @@ class DataStore < Hash
 		str = ''
 
 		keys.sort.each { |key|
-			str += "#{key}=#{self[key]}" + ((str.length) ? delim : '')
+			str << "#{key}=#{self[key]}" + ((str.length) ? delim : '')
 		}
 
 		return str

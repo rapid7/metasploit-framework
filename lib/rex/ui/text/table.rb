@@ -88,19 +88,19 @@ class Table
 	# 
 	def to_s
 	   str  = prefix
-		str += header_to_s || ''
-		str += columns_to_s || ''
-		str += hr_to_s || ''
+		str << header_to_s || ''
+		str << columns_to_s || ''
+		str << hr_to_s || ''
 		
 		rows.each { |row|
 			if (is_hr(row))
-				str += hr_to_s
+				str << hr_to_s
 			else
-				str += row_to_s(row)
+				str << row_to_s(row)
 			end
 		}
 
-		str += postfix
+		str << postfix
 
 		return str
 	end
@@ -185,14 +185,14 @@ protected
 		barline  = nameline
 
 		columns.each_with_index { |col,idx|
-			nameline  += col + pad(' ', col, idx)
-			remainder  = colprops[idx]['MaxWidth'] - col.length
+			nameline << col + pad(' ', col, idx)
+			remainder = colprops[idx]['MaxWidth'] - col.length
 
 			if (remainder < 0)
 				remainder = 0
 			end
 				
-			barline   += ('-' * col.length) + (' ' * (cellpad + remainder))
+			barline << ('-' * col.length) + (' ' * (cellpad + remainder))
 		}
 
 		return "#{nameline}\n#{barline}"
@@ -212,7 +212,7 @@ protected
 		line = ' ' * indent
 
 		row.each_with_index { |cell, idx|
-			line += cell.to_s + pad(' ', cell.to_s, idx)
+			line << cell.to_s + pad(' ', cell.to_s, idx)
 		}
 
 		return line + "\n"
@@ -227,7 +227,7 @@ protected
 		val       = chr * remainder;
 
 		if (use_cell_pad)
-			val += ' ' * cellpad
+			val << ' ' * cellpad
 		end
 
 		return val

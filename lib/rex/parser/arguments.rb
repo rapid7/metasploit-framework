@@ -77,11 +77,11 @@ class Arguments
 		fmt.sort.each { |entry|
 			fmtspec, val = entry
 
-			txt += "    #{fmtspec}" + ((val[0] == true) ? " <opt>  " : "        ")
-			txt += val[1] + "\n"
+			txt << "    #{fmtspec}" + ((val[0] == true) ? " <opt>  " : "        ")
+			txt << val[1] + "\n"
 		}
 
-		txt += "\n"
+		txt << "\n"
 
 		return txt
 	end

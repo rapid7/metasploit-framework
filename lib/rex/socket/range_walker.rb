@@ -72,7 +72,7 @@ class RangeWalker
 		addr = Rex::Socket.addr_itoa(self.curr_ip)
 		self.curr_ip += 1
 		
-		addr += "%#{self.curr_scope}" if self.curr_scope
+		addr << "%#{self.curr_scope}" if self.curr_scope
 
 		return addr
 	end

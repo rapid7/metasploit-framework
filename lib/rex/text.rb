@@ -298,9 +298,9 @@ module Text
 								raise TypeError, 'Invalid mode.  Only "overlong" and "invalid" are acceptable modes for utf-8'
 							end
 						end
-						string += [out.join('')].pack('B*')
+						string << [out.join('')].pack('B*')
 					else
-						string += [a].pack('C')
+						string << [a].pack('C')
 					end
 				}
 				return string
@@ -326,7 +326,7 @@ module Text
 				if possible.nil?
 					raise TypeError, "codepage #{mode} does not provide an encoding for 0x#{char.unpack('H*')[0]}"
 				end
-				string += possible[ rand(possible.length) ]
+				string << possible[ rand(possible.length) ]
 			}
 			return string
 		when 'uhwtfms-half' # suggested name from HD :P
@@ -340,16 +340,16 @@ module Text
 			end
 			str.each_byte {|byte|
                 if ((byte >= 33 && byte <= 63) || (byte >= 96 && byte <= 126))
-                    string += "\xFF" + [byte ^ 32].pack('C')
+                    string << "\xFF" + [byte ^ 32].pack('C')
                 elsif (byte >= 64 && byte <= 95)
-                    string += "\xFF" + [byte ^ 96].pack('C')
+                    string << "\xFF" + [byte ^ 96].pack('C')
                 else
                     char = [byte].pack('C')
 					possible = @@codepage_map_cache[mode]['data'][char]
 					if possible.nil?
 						raise TypeError, "codepage #{mode} does not provide an encoding for 0x#{char.unpack('H*')[0]}"
 					end
-					string += possible[ rand(possible.length) ]
+					string << possible[ rand(possible.length) ]
                 end
 			}
 			return string
@@ -508,12 +508,12 @@ module Text
 			# If this is a new line, prepend with the
 			# line start text
 			if (new_line == true)
-				append   += line_start
+				append   << line_start
 				new_line  = false
 			end
 
 			# Append the hexified version of the byte
-			append += sprintf("\\x%.2x", byte)
+			append << sprintf("\\x%.2x", byte)
 			cur    += append.length
 
 			# If we're about to hit the column or have gone past it,
@@ -526,18 +526,18 @@ module Text
 				# If this is the last byte, use the buf_end instead of
 				# line_end
 				if (count == str.length)
-					append += buf_end + "\n"
+					append << buf_end + "\n"
 				else
-					append += line_end + "\n"
+					append << line_end + "\n"
 				end
 			end
 
-			output += append
+			output << append
 		}
 
 		# If we were in the middle of a line, finish the buffer at this point
 		if (new_line == false)
-			output += buf_end + "\n"
+			output << buf_end + "\n"
 		end	
 
 		return output
@@ -800,7 +800,7 @@ module Text
 		if foo.length >= 256
 			len.times { buff << Kernel.rand(256) }
 		else 
-			len.times { buff += foo[ rand(foo.length) ] }
+			len.times { buff << foo[ rand(foo.length) ] }
 		end
 
 		return buff
@@ -867,7 +867,7 @@ module Text
 
 		until buf.length >= length
 			begin
-				buf += converge_sets(sets, 0, offsets, length)
+				buf << converge_sets(sets, 0, offsets, length)
 			rescue RuntimeError
 				break
 			end
@@ -1108,7 +1108,7 @@ protected
 
 		# If there are more sets after use, converage with them.
 		if (sets[idx + 1])
-			buf += converge_sets(sets, idx + 1, offsets, length)
+			buf << converge_sets(sets, idx + 1, offsets, length)
 		else
 			# Increment the current set offset as well as previous ones if we
 			# wrap back to zero.

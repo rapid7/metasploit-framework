@@ -118,55 +118,55 @@ class ReadableText
 	#
 	def self.dump_exploit_module(mod, indent = '')
 		output  = "\n"
-		output += "       Name: #{mod.name}\n"
-		output += "    Version: #{mod.version}\n"
-		output += "   Platform: #{mod.platform_to_s}\n"
-		output += " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
-		output += "    License: #{mod.license}\n"
-		output += "\n"
+		output << "       Name: #{mod.name}\n"
+		output << "    Version: #{mod.version}\n"
+		output << "   Platform: #{mod.platform_to_s}\n"
+		output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
+		output << "    License: #{mod.license}\n"
+		output << "\n"
 
 		# Authors
-		output += "Provided by:\n"
+		output << "Provided by:\n"
 		mod.each_author { |author|
-			output += indent + author.to_s + "\n"
+			output << indent + author.to_s + "\n"
 		}
-		output += "\n"
+		output << "\n"
 
 		# Targets
-		output += "Available targets:\n"
-		output += dump_exploit_targets(mod, indent)
+		output << "Available targets:\n"
+		output << dump_exploit_targets(mod, indent)
 		
 		# Options
 		if (mod.options.has_options?)
-			output += "Basic options:\n"
-			output += dump_options(mod, indent)
-			output += "\n"
+			output << "Basic options:\n"
+			output << dump_options(mod, indent)
+			output << "\n"
 		end
 		
 		# Payload information
 		if (mod.payload_info.length)
-			output += "Payload information:\n"
+			output << "Payload information:\n"
 			if (mod.payload_space)
-				output += indent + "Space: " + mod.payload_space.to_s + "\n"
+				output << indent + "Space: " + mod.payload_space.to_s + "\n"
 			end
 			if (mod.payload_badchars)
-				output += indent + "Avoid: " + mod.payload_badchars.length.to_s + " characters\n"
+				output << indent + "Avoid: " + mod.payload_badchars.length.to_s + " characters\n"
 			end
-			output += "\n"
+			output << "\n"
 		end
 	
 		# Description
-		output += "Description:\n"
-		output += word_wrap(Rex::Text.compress(mod.description))
-		output += "\n"
+		output << "Description:\n"
+		output << word_wrap(Rex::Text.compress(mod.description))
+		output << "\n"
 
 		# References
 		if (mod.references.length > 0)
-			output += "References:\n"
+			output << "References:\n"
 			mod.references.each { |ref|
-				output += indent + ref.to_s + "\n"
+				output << indent + ref.to_s + "\n"
 			}
-			output += "\n"
+			output << "\n"
 		end
 	
 		return output
@@ -178,36 +178,36 @@ class ReadableText
 	#
 	def self.dump_auxiliary_module(mod, indent = '')
 		output  = "\n"
-		output += "       Name: #{mod.name}\n"
-		output += "    Version: #{mod.version}\n"
-		output += "\n"
+		output << "       Name: #{mod.name}\n"
+		output << "    Version: #{mod.version}\n"
+		output << "\n"
 
 		# Authors
-		output += "Provided by:\n"
+		output << "Provided by:\n"
 		mod.each_author { |author|
-			output += indent + author.to_s + "\n"
+			output << indent + author.to_s + "\n"
 		}
-		output += "\n"
+		output << "\n"
 
 		# Options
 		if (mod.options.has_options?)
-			output += "Basic options:\n"
-			output += dump_options(mod, indent)
-			output += "\n"
+			output << "Basic options:\n"
+			output << dump_options(mod, indent)
+			output << "\n"
 		end
 		
 		# Description
-		output += "Description:\n"
-		output += word_wrap(Rex::Text.compress(mod.description))
-		output += "\n"
+		output << "Description:\n"
+		output << word_wrap(Rex::Text.compress(mod.description))
+		output << "\n"
 
 		# References
 		if (mod.references.length > 0)
-			output += "References:\n"
+			output << "References:\n"
 			mod.references.each { |ref|
-				output += indent + ref.to_s + "\n"
+				output << indent + ref.to_s + "\n"
 			}
-			output += "\n"
+			output << "\n"
 		end
 	
 		return output
@@ -219,32 +219,32 @@ class ReadableText
 	def self.dump_payload_module(mod, indent = '')
 		# General
 		output  = "\n"
-		output += "       Name: #{mod.name}\n"
-		output += "    Version: #{mod.version}\n"
-		output += "   Platform: #{mod.platform_to_s}\n"
-		output += "       Arch: #{mod.arch_to_s}\n"
-		output += "Needs Admin: " + (mod.privileged? ? "Yes" : "No") + "\n"
-		output += " Total size: #{mod.size}\n"
-		output += "\n"
+		output << "       Name: #{mod.name}\n"
+		output << "    Version: #{mod.version}\n"
+		output << "   Platform: #{mod.platform_to_s}\n"
+		output << "       Arch: #{mod.arch_to_s}\n"
+		output << "Needs Admin: " + (mod.privileged? ? "Yes" : "No") + "\n"
+		output << " Total size: #{mod.size}\n"
+		output << "\n"
 
 		# Authors
-		output += "Provided by:\n"
+		output << "Provided by:\n"
 		mod.each_author { |author|
-			output += indent + author.to_s + "\n"
+			output << indent + author.to_s + "\n"
 		}
-		output += "\n"
+		output << "\n"
 
 		# Options
 		if (mod.options.has_options?)
-			output += "Basic options:\n"
-			output += dump_options(mod)
-			output += "\n"
+			output << "Basic options:\n"
+			output << dump_options(mod)
+			output << "\n"
 		end
 
 		# Description
-		output += "Description:\n"
-		output += word_wrap(Rex::Text.compress(mod.description))
-		output += "\n\n"
+		output << "Description:\n"
+		output << word_wrap(Rex::Text.compress(mod.description))
+		output << "\n\n"
 	
 		return output
 	end
@@ -255,23 +255,23 @@ class ReadableText
 	def self.dump_basic_module(mod, indent = '')
 		# General
 		output  = "\n"
-		output += "       Name: #{mod.name}\n"
-		output += "    Version: #{mod.version}\n"
-		output += "   Platform: #{mod.platform_to_s}\n"
-		output += "       Arch: #{mod.arch_to_s}\n"
-		output += "\n"
+		output << "       Name: #{mod.name}\n"
+		output << "    Version: #{mod.version}\n"
+		output << "   Platform: #{mod.platform_to_s}\n"
+		output << "       Arch: #{mod.arch_to_s}\n"
+		output << "\n"
 
 		# Authors
-		output += "Provided by:\n"
+		output << "Provided by:\n"
 		mod.each_author { |author|
-			output += indent + author.to_s + "\n"
+			output << indent + author.to_s + "\n"
 		}
-		output += "\n"
+		output << "\n"
 		
 		# Description
-		output += "Description:\n"
-		output += word_wrap(Rex::Text.compress(mod.description))
-		output += "\n\n"
+		output << "Description:\n"
+		output << word_wrap(Rex::Text.compress(mod.description))
+		output << "\n\n"
 	
 		return output
 
@@ -325,9 +325,9 @@ class ReadableText
 			desc = word_wrap(opt.desc, indent.length + 3)
 			desc = desc.slice(indent.length + 3, desc.length)
 
-			output += pad + "Name           : #{name}\n"
-			output += pad + "Current Setting: #{val}\n"
-			output += pad + "Description    : #{desc}\n"
+			output << pad + "Name           : #{name}\n"
+			output << pad + "Current Setting: #{val}\n"
+			output << pad + "Description    : #{desc}\n"
 		}
 
 		return output
@@ -350,9 +350,9 @@ class ReadableText
 			desc = word_wrap(opt.desc, indent.length + 3)
 			desc = desc.slice(indent.length + 3, desc.length)
 
-			output += pad + "Name           : #{name}\n"
-			output += pad + "Current Setting: #{val}\n"
-			output += pad + "Description    : #{desc}\n"
+			output << pad + "Name           : #{name}\n"
+			output << pad + "Current Setting: #{val}\n"
+			output << pad + "Description    : #{desc}\n"
 		}
 
 		return output

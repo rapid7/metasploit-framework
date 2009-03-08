@@ -31,7 +31,7 @@ module XDR
 	def XDR.encode_string(str, max=MAX_ARG)
 		raise ArgumentError, 'XDR: String too long' if str.length > max
 		len = str.length
-		str += "\x00" * ((4 - (len & 3)) & 3)
+		str << "\x00" * ((4 - (len & 3)) & 3)
 		return encode_int(len) + str
 	end
 

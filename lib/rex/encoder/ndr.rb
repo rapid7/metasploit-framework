@@ -41,7 +41,7 @@ module NDR
     # use to encode:
     #       char *element_1;
     def NDR.string(string)
-        string += "\x00" # null pad
+        string << "\x00" # null pad
         return long(string.length) + long(0) + long(string.length) + string + align(string)
     end
     
@@ -49,7 +49,7 @@ module NDR
     # use to encode:
     #       w_char *element_1;
     def NDR.wstring(string)
-        string += "\x00" # null pad
+        string << "\x00" # null pad
         return long(string.length) + long(0) + long(string.length) + Rex::Text.to_unicode(string) + align(Rex::Text.to_unicode(string))
     end
 	
@@ -57,7 +57,7 @@ module NDR
     # use to encode:
     #       [unique] w_char *element_1;
     def NDR.uwstring(string)
-        string += "\x00" # null pad
+        string << "\x00" # null pad
         return long(rand(0xffffffff))+long(string.length) + long(0) + long(string.length) + Rex::Text.to_unicode(string) + align(Rex::Text.to_unicode(string))
     end
 	   
@@ -67,7 +67,7 @@ module NDR
     def NDR.wstring_prebuilt(string)
         # if the string len is odd, thats bad!
         if string.length % 2 > 0
-            string += "\x00"
+            string << "\x00"
         end
         len = string.length / 2;
         return long(len) + long(0) + long(len) + string + align(string)

@@ -121,31 +121,31 @@ class Client
 		uri    = set_uri(c_uri)
 		
 		req = ''
-		req += set_method(c_meth)
-		req += set_method_uri_spacer()
-		req += set_uri_prepend()
-		req += (c_enc ? set_encode_uri(uri) : uri)
+		req << set_method(c_meth)
+		req << set_method_uri_spacer()
+		req << set_uri_prepend()
+		req << (c_enc ? set_encode_uri(uri) : uri)
 		
 		if (c_qs)
-			req += '?'
-			req += (c_enc ? set_encode_qs(c_qs) : c_qs)
+			req << '?'
+			req << (c_enc ? set_encode_qs(c_qs) : c_qs)
 		end
 				
-		req += set_uri_append()
-		req += set_uri_version_spacer()
-		req += set_version(c_prot, c_vers)
-		req += set_host_header(c_host)
-		req += set_agent_header(c_ag)
+		req << set_uri_append()
+		req << set_uri_version_spacer()
+		req << set_version(c_prot, c_vers)
+		req << set_host_header(c_host)
+		req << set_agent_header(c_ag)
 
 		if (c_auth.length > 0)
-			req += set_basic_auth_header(c_auth)
+			req << set_basic_auth_header(c_auth)
 		end
 				
-		req += set_cookie_header(c_cook)
-		req += set_connection_header(c_conn)
-		req += set_extra_headers(c_head)
-		req += set_raw_headers(c_rawh)			
-		req += set_body(c_body)
+		req << set_cookie_header(c_cook)
+		req << set_connection_header(c_conn)
+		req << set_extra_headers(c_head)
+		req << set_raw_headers(c_rawh)			
+		req << set_body(c_body)
 		
 		req
 	end
@@ -211,36 +211,36 @@ class Client
 		end
 
 		req = ''
-		req += set_method(c_meth)
-		req += set_method_uri_spacer()
-		req += set_uri_prepend()
-		req += set_encode_uri(uri)
+		req << set_method(c_meth)
+		req << set_method_uri_spacer()
+		req << set_uri_prepend()
+		req << set_encode_uri(uri)
 
 		if (qstr.length > 0)
-			req += '?'
-			req += qstr
+			req << '?'
+			req << qstr
 		end
 		
-		req += set_path_info(c_path)
-		req += set_uri_append()
-		req += set_uri_version_spacer()
-		req += set_version(c_prot, c_vers)
-		req += set_host_header(c_host)
-		req += set_agent_header(c_ag)
+		req << set_path_info(c_path)
+		req << set_uri_append()
+		req << set_uri_version_spacer()
+		req << set_version(c_prot, c_vers)
+		req << set_host_header(c_host)
+		req << set_agent_header(c_ag)
 
 		if (c_auth.length > 0)
-			req += set_basic_auth_header(c_auth)
+			req << set_basic_auth_header(c_auth)
 		end
 				
-		req += set_cookie_header(c_cook)
-		req += set_connection_header(c_conn)		
-		req += set_extra_headers(c_head)
+		req << set_cookie_header(c_cook)
+		req << set_connection_header(c_conn)		
+		req << set_extra_headers(c_head)
 			
-		req += set_content_type_header(c_type)
-		req += set_content_len_header(pstr.length)
-		req += set_chunked_header()
-		req += set_raw_headers(c_rawh)
-		req += set_body(pstr)
+		req << set_content_type_header(c_type)
+		req << set_content_len_header(pstr.length)
+		req << set_chunked_header()
+		req << set_raw_headers(c_rawh)
+		req << set_body(pstr)
 
 		req	
 	end	
@@ -448,19 +448,19 @@ class Client
 			uri.split('/').each do |part|
 				cnt = rand(8)+2
 				1.upto(cnt) { |idx|
-					buf += "/" + Rex::Text.rand_text_alphanumeric(rand(32)+1)
+					buf << "/" + Rex::Text.rand_text_alphanumeric(rand(32)+1)
 				}
-				buf += ("/.." * cnt)
-				buf += "/" + part
+				buf << ("/.." * cnt)
+				buf << "/" + part
 			end
 			uri = buf
 		end
 			
 		if (self.config['uri_full_url'])
 			url = self.ssl ? "https" : "http"
-			url += self.config['vhost']
-			url += (self.port == 80) ? "" : ":#{self.port}"
-			url += uri
+			url << self.config['vhost']
+			url << (self.port == 80) ? "" : ":#{self.port}"
+			url << uri
 			url
 		else
 			uri
@@ -481,10 +481,10 @@ class Client
 			uri.split('/').each do |part|
 				cnt = rand(8)+2
 				1.upto(cnt) { |idx|
-					buf += "/" + Rex::Text.rand_text_alphanumeric(rand(32)+1)
+					buf << "/" + Rex::Text.rand_text_alphanumeric(rand(32)+1)
 				}
-				buf += ("/.." * cnt)
-				buf += "/" + part
+				buf << ("/.." * cnt)
+				buf << "/" + part
 			end
 			uri = buf
 		end
@@ -493,9 +493,9 @@ class Client
 	
 		if (self.config['uri_full_url'])
 			url = self.ssl ? "https" : "http"
-			url += self.config['vhost']
-			url += (self.port == 80) ? "" : ":#{self.port}"
-			url += uri
+			url << self.config['vhost']
+			url << (self.port == 80) ? "" : ":#{self.port}"
+			url << uri
 		end
 		
 		url
@@ -540,7 +540,7 @@ class Client
 			ret = Rex::Text.to_rand_case(ret)
 		end
 		
-		ret += "\r\n"
+		ret << "\r\n"
 	end
 
 	#
@@ -552,7 +552,7 @@ class Client
 		chunked = ''
 		while str.size > 0
 			chunk = str.slice!(0,rand(self.config['chunked_size']) + 1)
-			chunked += sprintf("%x", chunk.size) + "\r\n" + chunk + "\r\n"
+			chunked << sprintf("%x", chunk.size) + "\r\n" + chunk + "\r\n"
 		end
 		"\r\n" + chunked + "0\r\n\r\n"
 	end
@@ -694,7 +694,7 @@ class Client
 
 		if (self.config['pad_fake_headers'])
 			1.upto(self.config['pad_fake_headers_count'].to_i) do |i|
-				buf += set_formatted_header(
+				buf << set_formatted_header(
 					Rex::Text.rand_text_alphanumeric(rand(32)+1), 
 					Rex::Text.rand_text_alphanumeric(rand(32)+1)
 				)
@@ -702,7 +702,7 @@ class Client
 		end
 
 		headers.each_pair do |var,val|
-			buf += set_formatted_header(var, val)
+			buf << set_formatted_header(var, val)
 		end
 		
 		buf

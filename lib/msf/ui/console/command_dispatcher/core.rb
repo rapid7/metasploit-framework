@@ -170,16 +170,16 @@ class Core
 	#
 	def cmd_banner(*args)
 		banner  = Banner.to_s + "\n\n"
-		banner += "       =[ msf v#{Msf::Framework::Version}\n"
-		banner += "+ -- --=[ "
-		banner += "#{framework.stats.num_exploits} exploits - "
-		banner += "#{framework.stats.num_payloads} payloads\n"
-		banner += "+ -- --=[ "
-		banner += "#{framework.stats.num_encoders} encoders - "
-		banner += "#{framework.stats.num_nops} nops\n"
-		banner += "       =[ "
-		banner += "#{framework.stats.num_auxiliary} aux\n"
-		banner += "\n"
+		banner << "       =[ msf v#{Msf::Framework::Version}\n"
+		banner << "+ -- --=[ "
+		banner << "#{framework.stats.num_exploits} exploits - "
+		banner << "#{framework.stats.num_payloads} payloads\n"
+		banner << "+ -- --=[ "
+		banner << "#{framework.stats.num_encoders} encoders - "
+		banner << "#{framework.stats.num_nops} nops\n"
+		banner << "       =[ "
+		banner << "#{framework.stats.num_auxiliary} aux\n"
+		banner << "\n"
 
 		# Display the banner
 		print(banner)
@@ -830,7 +830,7 @@ class Core
 		added = "Loaded #{overall} modules:\n"
 
 		totals.each_pair { |type, count|
-			added += "    #{count} #{type}#{count != 1 ? 's' : ''}\n"
+			added << "    #{count} #{type}#{count != 1 ? 's' : ''}\n"
 		}
 
 		print(added)

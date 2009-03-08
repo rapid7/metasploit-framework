@@ -21,7 +21,7 @@ class AlphaMixed < Generic
 		else
 			mod = 'A' * (offset - 16) 
 			nop = 'C' * (16 - mod.length)
-			mod += nop + '7QZ'
+			mod << nop + '7QZ'
 			edxmod = 'B' * (17 - (offset - 16))
 		end
 		regprefix = {

@@ -46,7 +46,7 @@ class Handler::Erb < Handler
 			return
 		# If the request is for the root directory, use the document index file.
 		elsif (resource == '/')
-			resource += opts['DocumentIndex'] || 'index.rhtml'
+			resource << opts['DocumentIndex'] || 'index.rhtml'
 		end
 
 		begin

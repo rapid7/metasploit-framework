@@ -249,42 +249,42 @@ module Net # :nodoc:
       def inspect
         retval = ""
         if @answerfrom != "0.0.0.0:0" and @answerfrom
-          retval += ";; Answer received from #@answerfrom (#{@answersize} bytes)\n;;\n"
+          retval << ";; Answer received from #@answerfrom (#{@answersize} bytes)\n;;\n"
         end
         
-        retval += ";; HEADER SECTION\n"
-        retval += @header.inspect
+        retval << ";; HEADER SECTION\n"
+        retval << @header.inspect
         
-        retval += "\n"
+        retval << "\n"
         section = (@header.opCode == "UPDATE") ? "ZONE" : "QUESTION"
-        retval += ";; #{section} SECTION (#{@header.qdCount} record#{@header.qdCount == 1 ? '' : 's'}):\n"
+        retval << ";; #{section} SECTION (#{@header.qdCount} record#{@header.qdCount == 1 ? '' : 's'}):\n"
         @question.each do |qr|
-          retval += ";; " + qr.inspect + "\n"
+          retval << ";; " + qr.inspect + "\n"
         end
 
         unless @answer.size == 0
-          retval += "\n"
+          retval << "\n"
           section = (@header.opCode == "UPDATE") ? "PREREQUISITE" : "ANSWER"
-          retval += ";; #{section} SECTION (#{@header.anCount} record#{@header.anCount == 1 ? '' : 's'}):\n"
+          retval << ";; #{section} SECTION (#{@header.anCount} record#{@header.anCount == 1 ? '' : 's'}):\n"
           @answer.each do |rr|
-            retval += rr.inspect + "\n"
+            retval << rr.inspect + "\n"
           end
         end
 
         unless @authority.size == 0
-          retval += "\n"
+          retval << "\n"
           section = (@header.opCode == "UPDATE") ? "UPDATE" : "AUTHORITY"
-          retval += ";; #{section} SECTION (#{@header.nsCount} record#{@header.nsCount == 1 ? '' : 's'}):\n"
+          retval << ";; #{section} SECTION (#{@header.nsCount} record#{@header.nsCount == 1 ? '' : 's'}):\n"
           @authority.each do |rr|
-            retval += rr.inspect + "\n"
+            retval << rr.inspect + "\n"
           end
         end
         
         unless @additional.size == 0
-          retval += "\n"
-          retval += ";; ADDITIONAL SECTION (#{@header.arCount} record#{@header.arCount == 1 ? '' : 's'}):\n"
+          retval << "\n"
+          retval << ";; ADDITIONAL SECTION (#{@header.arCount} record#{@header.arCount == 1 ? '' : 's'}):\n"
           @additional.each do |rr|
-            retval += rr.inspect + "\n"
+            retval << rr.inspect + "\n"
           end
         end
         

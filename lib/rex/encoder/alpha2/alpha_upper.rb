@@ -22,7 +22,7 @@ class AlphaUpper < Generic
 		else
 			mod = 'A' * (offset - 10)
 			nop = 'C' * (10 - mod.length)
-			mod += nop + 'QZ'
+			mod << nop + 'QZ'
 			edxmod = 'B' * (11 - (offset - 10))
 		end
 		regprefix = {

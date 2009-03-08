@@ -319,7 +319,7 @@ module DispatcherShell
 				tbl << c
 			}
 
-			str += "\n" + tbl.to_s + "\n"
+			str << "\n" + tbl.to_s + "\n"
 		}
 
 		return str

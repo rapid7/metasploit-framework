@@ -323,19 +323,19 @@ module Net # :nodoc:
         del = ("+-" * 16) + "+\n"
         len = del.length
         str = del + "|" + @id.to_s.center(len-3) + "|\n"
-        str += del + "|" + @qr.to_s
-        str += "|" + @opCode.to_s.center(7)
-        str += "|" + @aa.to_s
-        str += "|" + @tc.to_s
-        str += "|" + @rd.to_s
-        str += "|" + @ra.to_s
-        str += "|" + @ad.to_s
-        str += "|" + @cd.to_s.center(3)
-        str += "|" + @rCode.to_s.center(7) + "|\n"
-        str += del + "|" + @qdCount.to_s.center(len-3) + "|\n"
-        str += del + "|" + @anCount.to_s.center(len-3) + "|\n"
-        str += del + "|" + @nsCount.to_s.center(len-3) + "|\n"
-        str += del + "|" + @arCount.to_s.center(len-3) + "|\n" + del
+        str << del + "|" + @qr.to_s
+        str << "|" + @opCode.to_s.center(7)
+        str << "|" + @aa.to_s
+        str << "|" + @tc.to_s
+        str << "|" + @rd.to_s
+        str << "|" + @ra.to_s
+        str << "|" + @ad.to_s
+        str << "|" + @cd.to_s.center(3)
+        str << "|" + @rCode.to_s.center(7) + "|\n"
+        str << del + "|" + @qdCount.to_s.center(len-3) + "|\n"
+        str << del + "|" + @anCount.to_s.center(len-3) + "|\n"
+        str << del + "|" + @nsCount.to_s.center(len-3) + "|\n"
+        str << del + "|" + @arCount.to_s.center(len-3) + "|\n" + del
         str
       end
       

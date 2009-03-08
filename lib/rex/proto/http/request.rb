@@ -129,7 +129,7 @@ class Request < Packet
 			str.gsub!(/\//) {
 				dirs = ''
 				(rand(5)+5).times {
-					dirs += '/' + Rex::Text.rand_text_alpha(rand(5) + 1) + '/..'
+					dirs << '/' + Rex::Text.rand_text_alpha(rand(5) + 1) + '/..'
 				}
 				dirs + '/'
 			}
@@ -155,7 +155,7 @@ class Request < Packet
 
 		if !PostRequests.include?(self.method)
 			if param_string.size > 0
-				str += '?' + param_string
+				str << '?' + param_string
 			end
 		end
 		str	
@@ -206,7 +206,7 @@ class Request < Packet
 			if self.headers['Host']
 				host = "Host: #{self.headers['Host']}\r\n"
 			end
-			str += "GET / HTTP/1.1\r\n#{host}Connection: Keep-Alive\r\n\r\n" * self.junk_pipeline
+			str << "GET / HTTP/1.1\r\n#{host}Connection: Keep-Alive\r\n\r\n" * self.junk_pipeline
 			self.headers['Connection'] = 'Closed'
 		end
 		str + super

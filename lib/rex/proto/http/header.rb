@@ -32,7 +32,7 @@ class Packet::Header < Hash
 		# ghettoooooo!
 		# If we don't have any newlines..., put one there.
 		if (header.size > 0 && header !~ /\r\n/)
-			header += "\r\n"
+			header << "\r\n"
 		end
 
 		# put the non-standard line terminations back to normal
@@ -49,7 +49,7 @@ class Packet::Header < Hash
 		header.split(/\r\n/m).each { |str|
 			if (md = str.match(/^(.+?): (.+?)$/))
 				if (self[md[1]])
-					self[md[1]] += ", " + md[2]
+					self[md[1]] << ", " + md[2]
 				else
 					self[md[1]] = md[2]
 				end
@@ -103,22 +103,22 @@ class Packet::Header < Hash
 		if self.junk_headers
 			while str.length < 4096
 				if self.fold
-					str += "X-#{Rex::Text.rand_text_alphanumeric(rand(30) + 5)}:\r\n\t#{Rex::Text.rand_text_alphanumeric(rand(1024) + 1)}\r\n"
+					str << "X-#{Rex::Text.rand_text_alphanumeric(rand(30) + 5)}:\r\n\t#{Rex::Text.rand_text_alphanumeric(rand(1024) + 1)}\r\n"
 				else 
-					str += "X-#{Rex::Text.rand_text_alphanumeric(rand(30) + 5)}: #{Rex::Text.rand_text_alphanumeric(rand(1024) + 1)}\r\n"
+					str << "X-#{Rex::Text.rand_text_alphanumeric(rand(30) + 5)}: #{Rex::Text.rand_text_alphanumeric(rand(1024) + 1)}\r\n"
 				end
 			end
 		end
 
 		each_pair { |var, val|
 			if self.fold
-				str += "#{var}:\r\n\t#{val}\r\n"
+				str << "#{var}:\r\n\t#{val}\r\n"
 			else
-				str += "#{var}: #{val}\r\n"
+				str << "#{var}: #{val}\r\n"
 			end
 		}
 		
-		str += "\r\n"
+		str << "\r\n"
 
 		return str
 	end
