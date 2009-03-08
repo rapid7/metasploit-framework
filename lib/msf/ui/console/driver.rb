@@ -162,10 +162,9 @@ class Driver < Msf::Ui::Driver
 
 		# Save it
 		begin 
-			Msf::Config.save(
-				ConfigGroup => group)
-		rescue
-			log_error("Failed to save console config: #{$!}")
+			Msf::Config.save(ConfigGroup => group)
+		rescue ::Exception
+			print_error("Failed to save console config: #{$!}")
 		end
 	end
 
