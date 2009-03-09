@@ -67,7 +67,8 @@ def const_missing(c)
 	if name =~ /^Metasm::/ or ancestors.include? Metasm
 		Metasm.const_missing(c, method(:premetasm_const_missing))
 	else
-		premetasm_const_missing(c)
+		# premetasm_const_missing(c)
+		super(c)
 	end
 end
 end
