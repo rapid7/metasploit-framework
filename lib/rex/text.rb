@@ -16,6 +16,7 @@ module Rex
 #
 ###
 module Text
+	@@codepage_map_cache = nil
 	
 	##
 	#
