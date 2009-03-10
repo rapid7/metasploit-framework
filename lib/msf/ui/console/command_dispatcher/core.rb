@@ -89,7 +89,7 @@ class Core
 			"unset"    => "Unsets one or more variables",
 			"unsetg"   => "Unsets one or more global variables",
 			"use"      => "Selects a module by name",
-			"version"  => "Show the console library version number",
+			"version"  => "Show the framework and console library version numbers",
 		}
 	end
 
@@ -1442,7 +1442,7 @@ class Core
 	end
 	
 	#
-	# Returns the revision of the console library
+	# Returns the revision of the framework and console library
 	#
 	def cmd_version(*args)
 		ver = "$Revision$"
