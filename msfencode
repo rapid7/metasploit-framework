@@ -24,6 +24,7 @@ $args = Rex::Parser::Arguments.new(
 	"-s" => [ true, "The maximum size of the encoded data"                               ],
 	"-e" => [ true, "The encoder to use"                                                 ],
 	"-o" => [ true, "The output file"                                                    ],
+	"-c" => [ true, "The number of times to encode the data"                             ],	
 	"-n" => [ false, "Dump encoder information"                                          ],
 	"-h" => [ false, "Help banner"                                                       ],
 	"-l" => [ false, "List available encoders"                                           ])
@@ -90,6 +91,7 @@ input    = $stdin
 options  = ''
 delim    = '_|_'
 output   = nil
+ecount   = 1
 
 # Parse the argument and rock that shit.
 $args.parse(ARGV) { |opt, idx, val|
@@ -109,6 +111,8 @@ $args.parse(ARGV) { |opt, idx, val|
 			cmd = "dump"
 		when "-a"
 			arch = val
+		when "-c"
+			ecount = val.to_i
 		when "-b"
 			badchars = Rex::Text.hex_to_raw(val)
 		when "-s"
@@ -162,17 +166,28 @@ case cmd
 				# Imports options
 				enc.datastore.import_options_from_s(options, delim)
 
-				# Encode it up
-				raw = enc.encode(buf, badchars)
+				skip = false
+				eout = buf.dup
+				raw  = nil
+				
+				1.upto(ecount) do |iteration|
 
-				# Is it too big?
-				if (space and space > 0 and raw.length > space)
-					$stderr.puts(OutError + "#{enc.refname} created buffer that is too big (#{raw.length})")
-					next
+					# Encode it up
+					raw = enc.encode(eout, badchars)
+
+					# Is it too big?
+					if (space and space > 0 and raw.length > space)
+						$stderr.puts(OutError + "#{enc.refname} created buffer that is too big (#{raw.length})")
+						skip = true
+						break
+					end
+
+					# Print it out
+					$stderr.puts(OutStatus + "#{enc.refname} succeeded with size #{raw.length} (iteration=#{iteration})\n\n")
+					eout = raw
 				end
-
-				# Print it out
-				$stderr.puts(OutStatus + "#{enc.refname} succeeded, final size #{raw.length}\n\n")
+				
+				next if skip
 				
 				case fmt
 				when 'exe'
