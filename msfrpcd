@@ -57,7 +57,7 @@ arguments.parse(ARGV) { |opt, idx, val|
 }
 
 if(not opts['Pass'])
-	$stderr.puts "[*] Error: a password must be specified (-P)"
+	$stderr.puts "[-] Error: a password must be specified (-P)"
 	exit(0)
 end
 
@@ -78,7 +78,7 @@ begin
 		exit(0) if Process.fork()
 	end
 rescue ::NotImplementedError
-	$stderr.puts "[*] Background mode is not available on this platform"
+	$stderr.puts "[-] Background mode is not available on this platform"
 end
 
 # Run the plugin instance in the foreground.

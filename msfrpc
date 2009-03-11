@@ -52,13 +52,13 @@ arguments.parse(ARGV) { |opt, idx, val|
 
 
 if(not opts['ServerHost'])
-	$stderr.puts "[*] Error: a server IP must be specified (-a)"
+	$stderr.puts "[-] Error: a server IP must be specified (-a)"
 	$stderr.puts arguments.usage
 	exit(0)
 end
 
 if(not opts['Pass'])
-	$stderr.puts "[*] Error: a password must be specified (-P)"
+	$stderr.puts "[-] Error: a password must be specified (-P)"
 	$stderr.puts arguments.usage
 	exit(0)
 end

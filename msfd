@@ -80,7 +80,7 @@ begin
 		exit(0) if Process.fork()
 	end
 rescue ::NotImplementedError
-	$stderr.puts "[*] Background mode is not available on this platform"
+	$stderr.puts "[-] Background mode is not available on this platform"
 end
 
 # Run the plugin instance in the foreground.
