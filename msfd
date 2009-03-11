@@ -67,8 +67,12 @@ arguments.parse(ARGV) { |opt, idx, val|
 	end
 }
 
+$stderr.puts "[*] Initializing msfd..."
+
 # Create an instance of the framework
 $framework = Msf::Simple::Framework.create
+
+$stderr.puts "[*] Running msfd..."
 
 # Fork into the background if requested
 begin
