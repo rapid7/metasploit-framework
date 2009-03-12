@@ -8,6 +8,8 @@
  #include <arpa/inet.h>
 #endif
 
+#include <sys/time.h>
+
 static VALUE rb_cPcap;
 
 #define PCAPRUB_VERSION "0.8-dev"
@@ -17,6 +19,7 @@ static VALUE rb_cPcap;
 
 typedef struct rbpcap {
     pcap_t *pd;
+    pcap_dumper_t *pdt;
     char iface[256];
     char type;
 } rbpcap_t;
@@ -68,7 +71,7 @@ rbpcap_s_lookupdev(VALUE self)
     dev = pcap_lookupdev(eb);
     if (dev == NULL) {
 		rb_raise(rb_eRuntimeError, "%s", eb);
-    }
+   }
     ret_dev = rb_str_new2(dev);
 #endif
     return ret_dev;
@@ -108,7 +111,12 @@ static void rbpcap_close(rbpcap_t *rbp) {
 	if (rbp->pd)
 		pcap_close(rbp->pd);
 
+        if (rbp->pdt)
+                pcap_dump_close(rbp->pdt);
+
 	rbp->pd = NULL;
+	rbp->pdt = NULL;
+
 	free(rbp);
 }
 
@@ -240,6 +248,85 @@ rbpcap_open_offline_s(VALUE class, VALUE filename)
     VALUE iPcap = rb_funcall(rb_cPcap, rb_intern("new"), 0);
 
     return rbpcap_open_offline(iPcap, filename);
+}
+
+static VALUE
+rbpcap_open_dead(VALUE self, VALUE linktype, VALUE snaplen)
+{
+    rbpcap_t *rbp;
+
+
+    if(TYPE(linktype) != T_FIXNUM)
+        rb_raise(rb_eArgError, "linktype must be a fixnum");
+    if(TYPE(snaplen) != T_FIXNUM)
+        rb_raise(rb_eArgError, "snaplen must be a fixnum");
+
+    Data_Get_Struct(self, rbpcap_t, rbp);
+
+    memset(rbp->iface, 0, sizeof(rbp->iface));
+    rbp->type = OFFLINE;
+
+    rbp->pd = pcap_open_dead(
+        NUM2INT(linktype),
+        NUM2INT(snaplen)
+     );
+	
+    return self;
+}
+
+static VALUE
+rbpcap_open_dead_s(VALUE class, VALUE linktype, VALUE snaplen)
+{
+    VALUE iPcap = rb_funcall(rb_cPcap, rb_intern("new"), 0);
+
+    return rbpcap_open_dead(iPcap, linktype, snaplen);
+}
+
+
+static VALUE
+rbpcap_dump_open(VALUE self, VALUE filename)
+{
+    rbpcap_t *rbp;
+
+    if(TYPE(filename) != T_STRING)
+       rb_raise(rb_eArgError, "filename must be a string");
+
+    Data_Get_Struct(self, rbpcap_t, rbp);
+    rbp->pdt = pcap_dump_open(
+        rbp->pd,
+        RSTRING(filename)->ptr
+    );
+
+    return self;
+}
+
+//not sure if this deviates too much from the way the rest of this class works?
+static VALUE
+rbpcap_dump(VALUE self, VALUE caplen, VALUE pktlen, VALUE packet)
+{
+    rbpcap_t *rbp;
+    struct pcap_pkthdr pcap_hdr;
+
+    if(TYPE(packet) != T_STRING)
+        rb_raise(rb_eArgError, "packet data must be a string");
+    if(TYPE(caplen) != T_FIXNUM)
+        rb_raise(rb_eArgError, "caplen must be a fixnum");
+    if(TYPE(pktlen) != T_FIXNUM)
+        rb_raise(rb_eArgError, "pktlen must be a fixnum");
+
+    Data_Get_Struct(self, rbpcap_t, rbp);
+    
+    gettimeofday(&pcap_hdr.ts, NULL);
+    pcap_hdr.caplen = NUM2UINT(caplen);
+    pcap_hdr.len = NUM2UINT(pktlen);
+
+    pcap_dump(
+        (u_char*)rbp->pdt,        
+        &pcap_hdr,
+        RSTRING(packet)->ptr
+    );
+
+    return self;
 }
 
 static VALUE
@@ -402,6 +489,10 @@ Init_pcaprub()
 
     rb_define_singleton_method(rb_cPcap, "open_live", rbpcap_open_live_s, 4);
     rb_define_singleton_method(rb_cPcap, "open_offline", rbpcap_open_offline_s, 1);
+    rb_define_singleton_method(rb_cPcap, "open_dead", rbpcap_open_dead_s, 2);
+
+    rb_define_method(rb_cPcap, "dump_open", rbpcap_dump_open, 1);
+    rb_define_method(rb_cPcap, "dump", rbpcap_dump, 3);
 
     rb_define_method(rb_cPcap, "each", rbpcap_capture, 0);
     rb_define_method(rb_cPcap, "next", rbpcap_next, 0);
