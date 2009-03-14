@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 		when 'DATA'
 			@state[c][:data_mode] = true
-			c.put "354 OK\r\n"
+			c.put "500 Error\r\n"
 			return
 			
 		when 'QUIT'
