@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'tebo <tebo [at] attackresearch [dot] com>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision:$',
+			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'URL', 'www.attackresearch.com' ],

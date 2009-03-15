@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'Sh2kerr <research[ad]dsec.ru>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision:$',
+			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2008-3979' ],
