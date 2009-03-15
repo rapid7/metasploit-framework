@@ -881,14 +881,14 @@ class Core
 				section = args[0]
 				match = args[1]
 			else
-				print("Usage: search (all|encoders|nops|exploits|payloads|auxiliary) regex\n")
+				print_line("Usage: search (all|encoders|nops|exploits|payloads|auxiliary) regex")
 				return
 		end
 
 		begin
 			regex = Regexp.new(match, true)
 		rescue RegexpError => e
-			print_status("Invalid regular expression: #{match} (hint: try .*)")
+			print_error("Invalid regular expression: #{match} (hint: try .*)")
 			return
 		end
 
@@ -912,7 +912,7 @@ class Core
 			when 'auxiliary'
 				show_auxiliary(regex)
 			else
-				print("Usage: search (all|encoders|nops|exploits|payloads|auxiliary) regex\n")
+				print_line("Usage: search (all|encoders|nops|exploits|payloads|auxiliary) regex")
 		end
 	end
 	
