@@ -96,6 +96,11 @@ class Metasploit3 < Msf::Auxiliary
 			return		
 		end
 
+		if(cmd.upcase == "CAPA")
+			c.put "-ERR No Extended Capabilities\r\n"
+			return		
+		end
+
 		if(cmd.upcase == "LIST")
 			c.put "+OK 0 Messages\r\n"
 			return		
