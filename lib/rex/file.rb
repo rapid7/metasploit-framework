@@ -1,4 +1,5 @@
 require 'find'
+require 'rex/compat'
 
 module Rex
 
