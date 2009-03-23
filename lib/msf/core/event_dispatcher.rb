@@ -42,7 +42,6 @@ class EventDispatcher
 		self.exploit_event_subscribers = []
 		self.session_event_subscribers = []
 		self.db_event_subscribers      = []
-		self.subscribers_rwlock        = Rex::ReadWriteLock.new
 	end
 
 	##
@@ -129,10 +128,8 @@ class EventDispatcher
 	# notifies all registered general event subscribers.
 	#
 	def on_module_load(name, mod)
-		subscribers_rwlock.synchronize_read {
-			general_event_subscribers.each { |subscriber|
-				subscriber.on_module_load(name, mod)
-			}
+		general_event_subscribers.each { |subscriber|
+			subscriber.on_module_load(name, mod)
 		}
 	end
 
@@ -141,10 +138,8 @@ class EventDispatcher
 	# notifies all registered general event subscribers.
 	#
 	def on_module_created(instance)
-		subscribers_rwlock.synchronize_read {
-			general_event_subscribers.each { |subscriber|
-				subscriber.on_module_created(instance)
-			}
+		general_event_subscribers.each { |subscriber|
+			subscriber.on_module_created(instance)
 		}
 	end
 	
@@ -153,42 +148,37 @@ class EventDispatcher
 	#
 	def method_missing(name, *args)
 
-		# Prevent this from hooking events prior to it actually loading
-		return false if not subscribers_rwlock
-		
-		subscribers_rwlock.synchronize_read do		
-			case name.to_s
-			
-			# Exploit events
-			when /^on_exploit/
-				exploit_event_subscribers.each do |subscriber|
+		case name.to_s
+
+		# Exploit events
+		when /^on_exploit/
+			exploit_event_subscribers.each do |subscriber|
+				next if not subscriber.respond_to?(name)
+				subscriber.send(name, *args)
+			end
+
+		# Session events
+		when /^on_session/
+			session_event_subscribers.each do |subscriber|
+				next if not subscriber.respond_to?(name)
+				subscriber.send(name, *args)
+			end
+
+		# db events
+		when /^on_db/
+			# Only process these events if the db is active
+			if (framework.db.active)
+				db_event_subscribers.each do |subscriber|
 					next if not subscriber.respond_to?(name)
 					subscriber.send(name, *args)
 				end
-			
-			# Session events
-			when /^on_session/
-				session_event_subscribers.each do |subscriber|
-					next if not subscriber.respond_to?(name)
-					subscriber.send(name, *args)
-				end
-			
-			# db events
-			when /^on_db/
-				# Only process these events if the db is active
-				if (framework.db.active)
-					db_event_subscribers.each do |subscriber|
-						next if not subscriber.respond_to?(name)
-						subscriber.send(name, *args)
-					end
-				end
-			# Everything else								
-			else
-				elog("Event dispatcher received an unhandled event: #{name}")
-				return false
-			end		
-		end
-		
+			end
+		# Everything else								
+		else
+			elog("Event dispatcher received an unhandled event: #{name}")
+			return false
+		end		
+
 		return true
 	end
 	
@@ -199,25 +189,20 @@ protected
 	# Adds an event subscriber to the supplied subscriber array.
 	#
 	def add_event_subscriber(array, subscriber) # :nodoc:
-		subscribers_rwlock.synchronize_write {
-			array << subscriber
-		}
+		array << subscriber
 	end
 
 	#
 	# Removes an event subscriber from the supplied subscriber array.
 	#
 	def remove_event_subscriber(array, subscriber) # :nodoc:
-		subscribers_rwlock.synchronize_write {
-			array.delete(subscriber)
-		}
+		array.delete(subscriber)
 	end
 
 	attr_accessor :general_event_subscribers # :nodoc:
 	attr_accessor :exploit_event_subscribers # :nodoc:
 	attr_accessor :session_event_subscribers # :nodoc:
 	attr_accessor :db_event_subscribers # :nodoc:	
-	attr_accessor :subscribers_rwlock # :nodoc:
 
 end
 
