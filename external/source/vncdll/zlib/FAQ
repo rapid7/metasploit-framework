@@ -1,0 +1,100 @@
+
+		Frequently Asked Questions about zlib
+
+
+If your question is not there, please check the zlib home page 
+http://www.zlib.org which may have more recent information.
+The lastest zlib FAQ is at http://www.gzip.org/zlib/zlib_faq.html
+
+
+ 1. Is zlib Y2K-compliant?
+
+    Yes. zlib doesn't handle dates.
+
+ 2. Where can I get a Windows DLL version?
+
+    The zlib sources can be compiled without change to produce a DLL. If you
+    want a precompiled DLL, see http://www.winimage.com/zLibDll/ . Questions
+    about the zlib DLL should be sent to Gilles Vollant (info@winimage.com).
+
+ 3. Where can I get a Visual Basic interface to zlib?
+
+    See
+        * http://www.winimage.com/zLibDll/cmp-z-it.zip
+        * http://www.dogma.net/markn/articles/zlibtool/zlibtool.htm
+        * contrib/visual-basic.txt in the zlib distribution
+
+ 4. compress() returns Z_BUF_ERROR
+
+    Make sure that before the call of compress, the length of the compressed
+    buffer is equal to the total size of the compressed buffer and not
+    zero. For Visual Basic, check that this parameter is passed by reference
+    ("as any"), not by value ("as long").
+
+ 5. deflate() or inflate() returns Z_BUF_ERROR
+
+    Before making the call, make sure that avail_in and avail_out are not
+    zero. When setting the parameter flush equal to Z_FINISH, also make sure
+    that avail_out is big enough to allow processing all pending input.
+
+ 6. Where's the zlib documentation (man pages, etc.)?
+
+    It's in zlib.h for the moment, and Francis S. Lin has converted it to a
+    web page zlib.html. Volunteers to transform this to Unix-style man pages,
+    please contact Jean-loup Gailly (jloup@gzip.org). Examples of zlib usage
+    are in the files example.c and minigzip.c.
+
+ 7. Why don't you use GNU autoconf or libtool or ...?
+
+    Because we would like to keep zlib as a very small and simple
+    package. zlib is rather portable and doesn't need much configuration.
+
+ 8. I found a bug in zlib.
+
+    Most of the time, such problems are due to an incorrect usage of
+    zlib. Please try to reproduce the problem with a small program and send
+    the corresponding source to us at zlib@gzip.org . Do not send
+    multi-megabyte data files without prior agreement.
+
+ 9. Why do I get "undefined reference to gzputc"?
+
+    If "make test" produces something like
+
+       example.o(.text+0x154): undefined reference to `gzputc'
+      
+    check that you don't have old files libz.* in /usr/lib, /usr/local/lib or
+    /usr/X11R6/lib. Remove any old versions, then do "make install".
+
+10. I need a Delphi interface to zlib.
+
+    See the directories contrib/delphi and contrib/delphi2 in the zlib
+    distribution.
+
+11. Can zlib handle .zip archives?
+
+    See the directory contrib/minizip in the zlib distribution.
+
+12. Can zlib handle .Z files?
+
+    No, sorry. You have to spawn an uncompress or gunzip subprocess, or adapt
+    the code of uncompress on your own.
+
+13. How can I make a Unix shared library?
+
+    make clean
+    ./configure -s
+    make
+
+14. Why does "make test" fail on Mac OS X?
+
+    Mac OS X already includes zlib as a shared library, and so -lz links the
+    shared library instead of the one that the "make" compiled. For zlib
+    1.1.3, the two are incompatible due to different compile-time
+    options. Simply change the -lz in the Makefile to libz.a, and it will use
+    the compiled library instead of the shared one and the "make test" will
+    succeed.
+
+15. I have a question about OttoPDF
+
+    We are not the authors of OttoPDF. The real author is on the OttoPDF web
+    site Joel Hainley jhainley@myndkryme.com.

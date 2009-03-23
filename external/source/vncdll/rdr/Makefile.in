@@ -1,0 +1,18 @@
+
+SRCS = FdInStream.cxx FdOutStream.cxx InStream.cxx NullOutStream.cxx \
+       ZlibInStream.cxx ZlibOutStream.cxx
+
+OBJS = $(SRCS:.cxx=.o)
+
+DIR_CPPFLAGS = -I$(top_srcdir) @ZLIB_INCLUDE@
+
+library = librdr.a
+
+all:: $(library)
+
+$(library): $(OBJS)
+	rm -f $(library)
+	$(AR) $(library) $(OBJS)
+	$(RANLIB) $(library)
+
+# followed by boilerplate.mk

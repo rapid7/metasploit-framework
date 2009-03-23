@@ -1,0 +1,33 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Xregion", "..\Xregion\Xregion.vcproj", "{2B336221-F3CC-4100-AFC6-FE6F7D1348A3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rdr", "..\rdr\rdr.vcproj", "{F2473D0A-3E49-4127-9FF6-51D53C45590A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vncdll", "vncdll\vncdll.vcproj", "{AC521037-8079-4B64-9135-115F1CF6B467}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F2473D0A-3E49-4127-9FF6-51D53C45590A} = {F2473D0A-3E49-4127-9FF6-51D53C45590A}
+		{2B336221-F3CC-4100-AFC6-FE6F7D1348A3} = {2B336221-F3CC-4100-AFC6-FE6F7D1348A3}
+		{79543867-ADAB-4DA1-A4BB-6950AA81C090} = {79543867-ADAB-4DA1-A4BB-6950AA81C090}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "..\zlib\zlib.vcproj", "{79543867-ADAB-4DA1-A4BB-6950AA81C090}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2B336221-F3CC-4100-AFC6-FE6F7D1348A3}.Release|Win32.ActiveCfg = Release|Win32
+		{2B336221-F3CC-4100-AFC6-FE6F7D1348A3}.Release|Win32.Build.0 = Release|Win32
+		{F2473D0A-3E49-4127-9FF6-51D53C45590A}.Release|Win32.ActiveCfg = Release|Win32
+		{F2473D0A-3E49-4127-9FF6-51D53C45590A}.Release|Win32.Build.0 = Release|Win32
+		{AC521037-8079-4B64-9135-115F1CF6B467}.Release|Win32.ActiveCfg = Release|Win32
+		{AC521037-8079-4B64-9135-115F1CF6B467}.Release|Win32.Build.0 = Release|Win32
+		{79543867-ADAB-4DA1-A4BB-6950AA81C090}.Release|Win32.ActiveCfg = Release|Win32
+		{79543867-ADAB-4DA1-A4BB-6950AA81C090}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
