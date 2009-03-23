@@ -45,7 +45,7 @@
 				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;USE_DLL;METERPRETER_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="common.h"
 				PrecompiledHeaderFile=".\Debug/common.pch"

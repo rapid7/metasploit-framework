@@ -112,7 +112,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy release\ext_server_priv.dll ..\..\output\extensions"
+				CommandLine="copy /y &quot;$(ProjectDir)\release\*.dll&quot; &quot;$(ProjectDir)..\output\&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -153,7 +153,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EXT_SERVER_PRIV_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="precomp.h"
 				PrecompiledHeaderFile=".\Debug/ext_server_priv.pch"

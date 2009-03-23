@@ -47,7 +47,7 @@
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;USE_DLL;METERPRETER_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="metcli.h"
 				PrecompiledHeaderFile=".\Debug/metcli.pch"
@@ -202,7 +202,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy release\metcli.exe ..\..\output\client"
+				CommandLine="copy /y &quot;$(ProjectDir)\release\metcli.exe&quot; &quot;$(ProjectDir)..\output\&quot;"
 			/>
 		</Configuration>
 	</Configurations>

@@ -52,7 +52,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EXT_SERVER_SYS_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="precomp.h"
 				PrecompiledHeaderFile=".\Debug/ext_server_stdapi.pch"
@@ -212,7 +212,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy release\ext_server_stdapi.dll ..\..\output\extensions"
+				CommandLine="copy /y &quot;$(ProjectDir)\release\*.dll&quot; &quot;$(ProjectDir)..\output\&quot;"
 			/>
 		</Configuration>
 	</Configurations>

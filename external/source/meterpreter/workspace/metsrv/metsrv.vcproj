@@ -51,7 +51,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;METSRV_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="metsrv.h"
 				PrecompiledHeaderFile=".\Debug/metsrv.pch"
@@ -212,8 +212,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy release\metsrv.dll ..\..\output\server"
-				ExcludedFromBuild="true"
+				CommandLine="copy /y &quot;$(ProjectDir)\release\metsrv.dll&quot; &quot;$(ProjectDir)..\output\&quot;"
 			/>
 		</Configuration>
 	</Configurations>

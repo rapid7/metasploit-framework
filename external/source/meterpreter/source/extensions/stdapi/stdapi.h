@@ -398,6 +398,12 @@
 				TLV_TYPE_EXTENSION_STDAPI, \
 				3000)
 
+#define TLV_TYPE_KEYS_DUMP             \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_STRING,        \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				3001)
+
 // Event Log
 #define TLV_TYPE_EVENT_SOURCENAME      \
 		MAKE_CUSTOM_TLV(                 \
