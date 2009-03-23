@@ -97,12 +97,31 @@ class UI < Rex::Post::UI
 	#
 	# Hijack the input desktop
 	#
-	def grab_desktop
-		request  = Packet.create_request('stdapi_ui_grabdesktop')
+	def grab_input_desktop
+		request  = Packet.create_request('stdapi_ui_grab_input_desktop')
 		response = client.send_request(request)
 		return true
 	end
 
+	#
+	# List desktops
+	#
+	def enum_desktops
+		request  = Packet.create_request('stdapi_ui_enumdesktops')
+		response = client.send_request(request)
+		return response.get_tlv_values(TLV_TYPE_STRING)
+	end
+
+	#
+	# List desktops
+	#
+	def set_desktop(name="WinSta0\\Default")
+		request  = Packet.create_request('stdapi_ui_set_desktop')
+		request.add_tlv(TLV_TYPE_STRING, name)
+		response = client.send_request(request)
+		return true
+	end
+		
 	#
 	# Start the keyboard sniffer
 	#

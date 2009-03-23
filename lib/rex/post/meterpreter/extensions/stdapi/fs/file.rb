@@ -91,9 +91,9 @@ Separator = "\\"
 		# all of the contents of the local file
 		dest_fd = client.fs.file.new(dest_file, "wb")
 		src_buf = ''
-	
+		
 		::File.open(src_file, 'rb') { |f|
-			src_buf = f.read
+			src_buf = f.read(f.stat.size)
 		}
 
 		begin

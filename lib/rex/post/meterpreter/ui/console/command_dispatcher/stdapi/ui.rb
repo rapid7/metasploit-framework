@@ -23,7 +23,9 @@ class Console::CommandDispatcher::Stdapi::Ui
 		{
 			"idletime"      => "Returns the number of seconds the remote user has been idle",
 			"uictl"         => "Control some of the user interface components",
-			"grabdesktop"   => "Take over the active input desktop (needed for keyboard sniffing)",
+			"grabinputdesktop" => "Take over the active input desktop",
+			"enumdesktops"  => "List all accessible desktops and window stations",
+			"setdesktop"    => "Move to a different workstation and desktop",
 			"keyscan_start" => "Start capturing keystrokes",
 			"keyscan_stop"  => "Stop capturing keystrokes",
 			"keyscan_dump"  => "Dump they keystroke buffer"
@@ -92,12 +94,37 @@ class Console::CommandDispatcher::Stdapi::Ui
 	#
 	# Hijack the input desktop
 	#
-	def cmd_grabdesktop(*args)
+	def cmd_grabinputdesktop(*args)
 		print_line("Trying to hijack the input desktop...")
-		client.ui.grab_desktop
+		client.ui.grab_input_desktop
+		return true
+	end	
+	
+	#
+	# Enumerate desktops
+	#
+	def cmd_enumdesktops(*args)
+		print_line("Enumerating all accessible desktops")
+		client.ui.enum_desktops.each do |d|
+			print_line(" - #{d}")
+		end
 		return true
 	end	
 
+	#
+	# Take over a specific desktop
+	#
+	def cmd_setdesktop(*args)
+		if(args.length == 0)
+			print_line("Usage: setdesktop [workstation\\\\desktop]")
+			return
+		end
+		
+		print_line("Changing to desktop #{args[0]})")
+		client.ui.set_desktop(*args)
+		return true
+	end	
+		
 	#
 	# Start the keyboard sniffer
 	#

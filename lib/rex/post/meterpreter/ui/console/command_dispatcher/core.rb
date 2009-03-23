@@ -389,8 +389,8 @@ class Console::CommandDispatcher::Core
 			begin
 				data = ''
 			
-				File.open(src_file, 'rb') { |f|
-					data = f.read
+				::File.open(src_file, 'rb') { |f|
+					data = f.read(f.stat.size)
 				}
 
 			rescue Errno::ENOENT
@@ -398,7 +398,7 @@ class Console::CommandDispatcher::Core
 				return true
 			end
 
-			if (data and data.length)
+			if (data and data.length > 0)
 				channel.write(data)
 				print_status("Wrote #{data.length} bytes to channel #{cid}.")
 			else
