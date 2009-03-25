@@ -160,7 +160,7 @@ def winver(session)
 			# Read the output file of the wmic commands
 			r = session.sys.process.execute("cmd.exe /c type #{wmitmptxt}", nil, {'Hidden' => 'true','Channelized' => true})
 			while(d = r.channel.read)
-				if d =~ /Windows Server 2008/
+				if d =~ /Windows Serverr 2008/
 					version = "Windows 2008"
 				elsif d =~ /Windows Vista/
 					version = "Windows Vista"
