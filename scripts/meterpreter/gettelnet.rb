@@ -65,7 +65,7 @@ def insttlntsrv(session)
 		if checkifinst(session)
 			print_status("Telnet Service Installed on Target")
 		else
-			print "[*] Installing Telnet Server Service ......")
+			print "[*] Installing Telnet Server Service ......"
 			session.response_timeout=90
 			r = session.sys.process.execute("pkgmgr /iu:\"TelnetServer\"",nil, {'Hidden' => true, 'Channelized' => true})
 			sleep(2)
