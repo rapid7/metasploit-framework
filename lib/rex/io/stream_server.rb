@@ -142,14 +142,19 @@ protected
 
 			# Accept the new client connection
 			if (sd and sd[0].length > 0)
-				cli = accept
+				begin
+					cli = accept
 
-				next unless cli
+					next unless cli
 
-				# Insert it into some lists
-				self.clients << cli
+					# Insert it into some lists
+					self.clients << cli
 
-				on_client_connect(cli)
+					on_client_connect(cli)
+					
+				# Skip exceptions caused by accept() [ SSL ]
+				rescue ::EOFError, ::Errno::ECONNRESET, ::Errno::ENOTCONN, ::Errno::ECONNABORTED
+				end
 			end
 
 		rescue ::Exception
@@ -176,7 +181,7 @@ protected
 			sd[0].each { |fd|
 				begin
 					on_client_data(fd)
-				rescue EOFError
+				rescue ::EOFError, ::Errno::ECONNRESET, ::Errno::ENOTCONN, ::Errno::ECONNABORTED
 					on_client_close(fd)
 					close_client(fd)
 				rescue ::Interrupt
