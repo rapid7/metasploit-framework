@@ -83,7 +83,7 @@ def insttlntsrv(session)
 			end
 			r.channel.close
 			r.close
-			print_status("Finnished installing the Telnet Service.")
+			print_status("Finished installing the Telnet Service.")
 			end
 		end
 	end

@@ -82,7 +82,7 @@ def wmicexec(session,wmic,user,pass,trgt)
 		        sleep(1)
 		        #print_status "\twmic #{command}"
 		        r = session.sys.process.execute("cmd.exe /c wmic #{command}", nil, {'Hidden' => true})
-			#Making sure that wmic finnishes before executing next wmic command
+			#Making sure that wmic finishes before executing next wmic command
 			prog2check = "wmic.exe"
 			found = 0
 			sleep(2)
@@ -160,7 +160,7 @@ def winver(session)
 			# Read the output file of the wmic commands
 			r = session.sys.process.execute("cmd.exe /c type #{wmitmptxt}", nil, {'Hidden' => 'true','Channelized' => true})
 			while(d = r.channel.read)
-				if d =~ /Windows Serverr 2008/
+				if d =~ /Windows Server 2008/
 					version = "Windows 2008"
 				elsif d =~ /Windows Vista/
 					version = "Windows Vista"

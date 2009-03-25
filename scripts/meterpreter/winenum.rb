@@ -205,7 +205,7 @@ def wmicexec(session,wmiccmds= nil)
 		sleep(1)
 		r = session.sys.process.execute("cmd.exe /c wmic /append:#{wmicfl} #{wmi}", nil, {'Hidden' => true})
 		sleep(2)
-		#Making sure that wmic finnishes before executing next wmic command
+		#Making sure that wmic finishes before executing next wmic command
 		prog2check = "wmic.exe"
 		found = 0
 		while found == 0
@@ -400,7 +400,7 @@ def findprogs(session)
 	         proglist <<  "\t#{software}"
 	        end
 	end
-	print_status("Finnished Extraction of software list from registry")
+	print_status("Finished Extraction of software list from registry")
 	proglist
 end
 
@@ -563,7 +563,7 @@ def winver(session)
 			# Read the output file of the wmic commands
 			r = session.sys.process.execute("cmd.exe /c type #{wmitmptxt}", nil, {'Hidden' => 'true','Channelized' => true})
 			while(d = r.channel.read)
-				if d =~ /Windows Serverr 2008/
+				if d =~ /Windows Server 2008/
 					version = "Windows 2008"
 				elsif d =~ /Windows Vista/
 					version = "Windows Vista"
