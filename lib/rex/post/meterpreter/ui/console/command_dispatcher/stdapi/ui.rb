@@ -23,12 +23,17 @@ class Console::CommandDispatcher::Stdapi::Ui
 		{
 			"idletime"      => "Returns the number of seconds the remote user has been idle",
 			"uictl"         => "Control some of the user interface components",
-			"grabinputdesktop" => "Take over the active input desktop",
 			"enumdesktops"  => "List all accessible desktops and window stations",
 			"setdesktop"    => "Move to a different workstation and desktop",
 			"keyscan_start" => "Start capturing keystrokes",
 			"keyscan_stop"  => "Stop capturing keystrokes",
-			"keyscan_dump"  => "Dump they keystroke buffer"
+			"keyscan_dump"  => "Dump they keystroke buffer",
+			
+			# no longer needed with setdesktop
+			# "grabinputdesktop" => "Take over the active input desktop",
+			
+			#  not working yet
+			# "unlockdesktop" => "Unlock or lock the workstation (must be inside winlogon.exe)",
 		}
 	end
 
@@ -120,11 +125,31 @@ class Console::CommandDispatcher::Stdapi::Ui
 			return
 		end
 		
-		print_line("Changing to desktop #{args[0]})")
+		print_line("Changing to desktop #{args[0]}")
 		client.ui.set_desktop(*args)
 		return true
 	end	
+
+	#
+	# Unlock or lock the desktop
+	#
+	def cmd_unlockdesktop(*args)
+		mode = 0
+		if(args.length > 0)
+			mode = args[0].to_i
+		end
 		
+		if(mode == 0)
+			print_line("Unlocking the workstation...")
+			client.ui.unlock_desktop(true)
+		else
+			print_line("Locking the workstation...")
+			client.ui.unlock_desktop(false)	
+		end
+
+		return true
+	end	
+			
 	#
 	# Start the keyboard sniffer
 	#

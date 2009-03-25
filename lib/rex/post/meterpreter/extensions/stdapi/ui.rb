@@ -117,11 +117,22 @@ class UI < Rex::Post::UI
 	#
 	def set_desktop(name="WinSta0\\Default")
 		request  = Packet.create_request('stdapi_ui_set_desktop')
-		request.add_tlv(TLV_TYPE_STRING, name)
+		request.add_tlv(TLV_TYPE_DESKTOP, name)
 		response = client.send_request(request)
 		return true
 	end
-		
+
+
+	#
+	# Unlock or lock the desktop
+	#
+	def unlock_desktop(unlock=true)
+		request  = Packet.create_request('stdapi_ui_unlock_desktop')
+		request.add_tlv(TLV_TYPE_BOOL, unlock)
+		response = client.send_request(request)
+		return true
+	end
+			
 	#
 	# Start the keyboard sniffer
 	#
