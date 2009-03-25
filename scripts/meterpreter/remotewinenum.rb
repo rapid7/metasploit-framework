@@ -3,7 +3,7 @@
 #Meterpreter script for basic enumeration of Windows 2003, Windows Vista
 # and Windows XP remote targets using native windows command wmic.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.1.1
+#Verion: 0.1.0
 #Note: 
 ################## Variable Declarations ##################
 session = client
@@ -39,10 +39,17 @@ wmic = [
 	'group list',
 	'sysaccount list',
 	'volume list brief',
+	'logicaldisk get description,filesystem,name,size',
+	'netlogin get name,lastlogon,badpasswordcount',
+	'netclient list brief',
+	'netuse get name,username,connectiontype,localname',
+	'share get name,path',
+	'nteventlog get path,filename,writeable',
 	'service list brief',
 	'process list brief',
 	'startup list full',
 	'rdtoggle list',
+	'product get name,version',
 	'qfe list'
 ]
 ################## Function Declarations ##################
@@ -75,7 +82,19 @@ def wmicexec(session,wmic,user,pass,trgt)
 		        sleep(1)
 		        #print_status "\twmic #{command}"
 		        r = session.sys.process.execute("cmd.exe /c wmic #{command}", nil, {'Hidden' => true})
-		         sleep(2)
+			#Making sure that wmic finnishes before executing next wmic command
+			prog2check = "wmic.exe"
+			found = 0
+			sleep(2)
+			while found == 0
+				session.sys.process.get_processes().each do |x|
+					found =1
+					if prog2check == (x['name'].downcase)
+						sleep(0.5)
+						found = 0
+					end
+				end
+			end
 		        r.close
 		      end
 		      # Read the output file of the wmic commands
@@ -122,6 +141,9 @@ end
 def winver(session)
 	stringtest = ""
 	verout = []
+	tmp = session.fs.file.expand_path("%TEMP%")
+	wmitmptxt = tmp + "\\" + sprintf("%.5d",rand(100000))
+
 	r = session.sys.process.execute("cmd.exe /c ver", nil, {'Hidden' => 'true','Channelized' => true})
 		while(d = r.channel.read)
 			stringtest << d
@@ -133,7 +155,19 @@ def winver(session)
 	version = nil
 	if verout[0] == "6"
 		if verout[1] == "0"
-			version = "Windows Vista/Windows 2008"
+			r = session.sys.process.execute("cmd.exe /c wmic /append:#{wmitmptxt} os get name", nil, {'Hidden' => true})
+			sleep(2)
+			# Read the output file of the wmic commands
+			r = session.sys.process.execute("cmd.exe /c type #{wmitmptxt}", nil, {'Hidden' => 'true','Channelized' => true})
+			while(d = r.channel.read)
+				if d =~ /Windows Serverr 2008/
+					version = "Windows 2008"
+				elsif d =~ /Windows Vista/
+					version = "Windows Vista"
+				end
+			end
+			r.channel.close
+			r.close
 		elsif verout[1] == "1"
 			version = "Windpows 7"
 		end

