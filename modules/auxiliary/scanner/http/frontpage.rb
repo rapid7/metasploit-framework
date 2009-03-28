@@ -47,17 +47,17 @@ class Metasploit3 < Msf::Auxiliary
 
 		if (res.code >= 200)
 			if (res.headers['Server'])
-				print_status("http://#{target_host}:#{rport} is running #{res.headers['Server']}")
+				print_status("#{wmap_base_url} is running #{res.headers['Server']}")
 			end
 			if (fpversion = res.body.match(/FPVersion="(.*)"/))
 				fpversion = $1
 				print_status("FrontPage Version: #{fpversion}")
 				if (fpauthor = res.body.match(/FPAuthorScriptUrl="([^"]*)/))
 					fpauthor = $1
-					print_status("FrontPage Author: http://#{target_host}/#{fpauthor}")
+					print_status("FrontPage Author: #{wmap_base_url}/#{fpauthor}")
 				end
 			else
-				print_status("FrontPage not found on http://#{target_host}:#{rport} [#{res.code} #{res.message}]")
+				print_status("FrontPage not found on #{wmap_base_url} [#{res.code} #{res.message}]")
 			end
 		end
 	end

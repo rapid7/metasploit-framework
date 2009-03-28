@@ -41,28 +41,28 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		extensions = [	
-					'.null',					
-					'.backup',
-					'.bak',
-					'.c',
-					'.class',
-					'.copy',
-					'.conf',
-					'.exe',
-					'.html',
-					'.htm',
-					'.log',
-					'.old', 
-					'.orig',
-					'.tar',
-					'.tar.gz',
-					'.tgz',
-					'.temp',
-					'.txt',
-					'.zip',
-					'~',
-					''
-				]
+			'.null',					
+			'.backup',
+			'.bak',
+			'.c',
+			'.class',
+			'.copy',
+			'.conf',
+			'.exe',
+			'.html',
+			'.htm',
+			'.log',
+			'.old', 
+			'.orig',
+			'.tar',
+			'.tar.gz',
+			'.tgz',
+			'.temp',
+			'.txt',
+			'.zip',
+			'~',
+			''
+		]
 
 		tpath = datastore['PATH']
 		
@@ -89,18 +89,18 @@ class Metasploit3 < Msf::Auxiliary
 				}, 20)
 
 				if (res and res.code >= 200 and res.code < 300) 
-					print_status("Found http://#{target_host}:#{datastore['RPORT']}#{tpath}#{testfext}")
+					print_status("Found #{wmap_base_url}#{tpath}#{testfext}")
 					
 					rep_id = wmap_base_report_id(
-										wmap_target_host,
-										wmap_target_port,
-										wmap_target_ssl
-								)
-								
+						wmap_target_host,
+						wmap_target_port,
+						wmap_target_ssl
+					)
+
 					vul_id = wmap_report(rep_id,'FILE','NAME',"#{tpath}#{testfext}","File #{tpath}#{testfext} found.")
 					wmap_report(vul_id,'FILE','RESP_CODE',"#{res.code}",nil)
 				else
-					print_status("NOT Found http://#{target_host}:#{datastore['RPORT']}#{tpath}#{testfext}") 
+					print_status("NOT Found #{wmap_base_url}#{tpath}#{testfext}") 
 				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

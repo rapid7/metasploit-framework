@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 					}, 20)
 
 			if (res and res.code >= 200 and res.code < 300) 
-				 	print_status("Found http://#{target_host}:#{datastore['RPORT']}#{file}")
+				 	print_status("Found #{wmap_base_url}#{file}")
 					
 					rep_id = wmap_base_report_id(
 						wmap_target_host,
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 					)
 					wmap_report(rep_id,'VULNERABILITY','COPY_FILE',"#{file}","A copy of file was found.")
 				else
-				   	print_status("NOT Found http://#{target_host}:#{datastore['RPORT']}#{file}") 
+				   	print_status("NOT Found #{wmap_base_url}#{file}") 
 					#To be removed or just displayed with verbose debugging.
 				end
 

@@ -51,8 +51,9 @@ class Metasploit3 < Msf::Auxiliary
 	# Test a single host
 	def run_host(ip)
 
-		self.target_port = datastore['RPORT']	
-
+		target_host = ip
+		target_port = datastore['RPORT']
+		
 		case action.name
 		when 'PUT'
 			begin
@@ -65,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				return if not res
 				if (res and res.code >= 200 and res.code < 300)
-					print_status("Upload succeeded on http://#{target_host}:#{target_port}#{datastore['PATH']} [#{res.code}]")
+					print_status("Upload succeeded on #{wmap_base_url}#{datastore['PATH']} [#{res.code}]")
 					
 					rep_id = wmap_base_report_id(
 										wmap_target_host,
@@ -75,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 								
 					wmap_report(rep_id,'VULNERABILITY','PUT_ENABLED',"#{datastore['PATH']}","Upload succeeded on #{datastore['PATH']}")
 				else
-					print_status("Upload failed on http://#{target_host}:#{target_port} [#{res.code} #{res.message}]")
+					print_status("Upload failed on #{wmap_base_url} [#{res.code} #{res.message}]")
 				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
@@ -91,17 +92,17 @@ class Metasploit3 < Msf::Auxiliary
 
 				return if not res
 				if (res and res.code >= 200 and res.code < 300)
-					print_status("Delete succeeded on http://#{target_host}:#{target_port}#{datastore['PATH']} [#{res.code}]")
+					print_status("Delete succeeded on #{wmap_base_url}#{datastore['PATH']} [#{res.code}]")
 					
 					rep_id = wmap_base_report_id(
-										self.target_host,
-										self.target_port,
-										self.ssl
-								)
+						wmap_target_host,
+						wmap_target_port,
+						wmap_target_ssl
+					)
 								
 					wmap_report(rep_id,'VULNERABILITY','DELETE_ENABLED',"#{datastore['PATH']}","Delete succeeded on #{datastore['PATH']}")
 				else
-					print_status("Delete failed on http://#{target_host}:#{target_port} [#{res.code} #{res.message}]")
+					print_status("Delete failed on #{wmap_base_url} [#{res.code} #{res.message}]")
 				end
 
 			rescue ::Rex::ConnectionError

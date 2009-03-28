@@ -43,9 +43,9 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("#{ip} allows #{res.headers['Allow']} methods")
 
 				rep_id = wmap_base_report_id(
-						wmap_target_host,
-						wmap_target_port,
-						wmap_target_ssl
+					wmap_target_host,
+					wmap_target_port,
+					wmap_target_ssl
 				)
 				
 				wmap_report(rep_id,'WEB_SERVER','OPTIONS',"#{res.headers['Allow']}",nil)

@@ -36,8 +36,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			ssock = Rex::Socket::SslTcp.create(
-				'PeerHost' => ip,
-				'PeerPort' => datastore['RPORT'])
+				'PeerHost' => wmap_target_host,
+				'PeerPort' => wmap_target_port
+			)
 
 			cert  = OpenSSL::X509::Certificate.new(ssock.peer_cert)
 
@@ -65,10 +66,10 @@ class Metasploit3 < Msf::Auxiliary
 				if vhostn
 					print_status("#{ip} is host #{vhostn}")
 					rep_id = wmap_base_report_id(
-										wmap_target_host,
-										wmap_target_port,
-										wmap_target_ssl
-								)
+						wmap_target_host,
+						wmap_target_port,
+						wmap_target_ssl
+					)
 								
 					wmap_report(rep_id,'VHOST','NAME',"#{vhostn}","Vhost #{vhostn} found.")
 					wmap_report(rep_id,'X509','SUBJECT',"#{cert.subject}",nil)

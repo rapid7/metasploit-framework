@@ -49,17 +49,17 @@ class Metasploit3 < Msf::Auxiliary
 
 			if (res and res.code >= 200 and res.code < 300)
 				if res.to_s.include? "<title>Index of /" and res.to_s.include? "<h1>Index of /"
-	 				print_status("Found Directory Listing http://#{target_host}:#{datastore['RPORT']}#{tpath}")
+	 				print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
 					
 					rep_id = wmap_base_report_id(
-										wmap_target_host,
-										wmap_target_port,
-										wmap_target_ssl
-								)
+						wmap_target_host,
+						wmap_target_port,
+						wmap_target_ssl
+					)
 					wmap_report(rep_id,'VULNERABILITY','DIR_LISTING',"#{tpath}","Directory #{tpath} discloses its contents.")
 				end
 			else
-				print_status("NOT Vulnerable to directoy listing http://#{target_host}:#{datastore['RPORT']}#{tpath}") 
+				print_status("NOT Vulnerable to directoy listing #{wmap_base_url}#{tpath}") 
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 		method = datastore['METHOD'].upcase
 
 		sqlmap_url  = (datastore['SSL'] ? "https" : "http")
-		sqlmap_url += "://" + self.target_host + ":" + datastore['RPORT']
+		sqlmap_url += "://" + wmap_target_host + ":" + wmap_target_port
 		sqlmap_url += "/" + datastore['PATH'] 
 
 		if method == "GET"

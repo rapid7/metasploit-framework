@@ -40,15 +40,15 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		bakextensions = [
-						'.backup',
-						'.bak',
-						'.copy',
-						'.old', 
-						'.orig',
-						'.temp',
-						'.txt',
-						'~'
-						]
+			'.backup',
+			'.bak',
+			'.copy',
+			'.old', 
+			'.orig',
+			'.temp',
+			'.txt',
+			'~'
+		]
 
 		bakextensions.each do |ext|
 			file = datastore['PATH']+ext
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 					}, 20)
 
 			if (res and res.code >= 200 and res.code < 300) 
-				 	print_status("Found http://#{target_host}:#{datastore['RPORT']}#{file}")
+				 	print_status("Found #{wmap_base_url}#{file}")
 					
 					rep_id = wmap_base_report_id(
 						wmap_target_host,
@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 					)
 					wmap_report(rep_id,'VULNERABILITY','BACKUP_FILE',"#{file}","A backup file was found.")
 				else
-				   	print_status("NOT Found http://#{target_host}:#{datastore['RPORT']}#{file}") 
+				   	print_status("NOT Found http:#{wmap_base_url}#{file}") 
 					#To be removed or just displayed with verbose debugging.
 				end
 

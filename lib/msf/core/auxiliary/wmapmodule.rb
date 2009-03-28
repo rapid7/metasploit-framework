@@ -24,21 +24,20 @@ module Auxiliary::WMAPModule
 		nil
 	end
 
-	#
-	# Oveload target_port method as the one in scanner.rb has issues
-	# - target_host works ok as run() receives ip 
-	#
-
 	def wmap_target_host
-		self.target_host	
+		datastore['RHOST']
 	end
 	
 	def wmap_target_port
-		self.datastore['RPORT']
+		datastore['RPORT']
 	end
 
 	def wmap_target_ssl
-		self.ssl
+		ssl
+	end
+	
+	def wmap_base_url
+		(ssl ? "https://" : "http://") + wmap_target_host + wmap_target_port
 	end
 
 

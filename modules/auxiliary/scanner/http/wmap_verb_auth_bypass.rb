@@ -32,9 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path to test", '/'])
-				
 			], self.class)	
-						
 	end
 
 	# Fingerprint a single host
@@ -47,7 +45,6 @@ class Metasploit3 < Msf::Auxiliary
 				'WMAP'		
 			]
 
-		self.target_port = datastore['RPORT']	
 
 		begin
 			res = send_request_raw({
@@ -57,9 +54,9 @@ class Metasploit3 < Msf::Auxiliary
 
 			if res
 				rep_id = wmap_base_report_id(
-						wmap_target_host,
-						wmap_target_port,
-						wmap_target_ssl
+					wmap_target_host,
+					wmap_target_port,
+					wmap_target_ssl
 				)
 
 				auth_code = res.code
@@ -84,7 +81,6 @@ class Metasploit3 < Msf::Auxiliary
 					end	
 				else
 					print_status("#{ip} No requires authentication. #{datastore['PATH']} #{res.code}")
-					
 				end
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

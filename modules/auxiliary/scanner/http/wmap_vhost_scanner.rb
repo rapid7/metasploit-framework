@@ -103,9 +103,9 @@ require 'cgi'
 							print_status("Vhost found  #{thost} ")
 							
 							rep_id = wmap_base_report_id(
-										self.target_host,
-										self.target_port,
-										self.ssl
+										rhost,
+										rport,
+										ssl
 								)
 								
 							wmap_report(rep_id,'VHOST','NAME',"#{thost}","Vhost #{thost} found.")
