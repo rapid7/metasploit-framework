@@ -812,8 +812,11 @@ protected
 		
 		dbase  = Dir.new(bpath)
 		dbase.entries.each do |ent|
+			next if ent.downcase == '.svn'
+			
 			path  = File.join(bpath, ent)
 			mtype = ent.gsub(/s$/, '')
+
 			next if not File.directory?(path)
 			next if not MODULE_TYPES.include?(mtype)
 			next if not enabled_types[mtype]
@@ -822,61 +825,17 @@ protected
 			Rex::Find.find(path) do |file|
 
 				# Skip non-ruby files
-				next if (file !~ /\.rb$/i)
+				next if file[-3,3] != ".rb"
 
 				# Skip unit test files
 				next if (file =~ /rb\.(ut|ts)\.rb$/)
 
 				# Skip files with a leading period
-				next if (file =~ /^\./)
+				next if file[0,1] =="."
 
-				begin
-					load_module_from_file(bpath, file, loaded, recalc, counts, demand)
-				rescue NameError
-
-					# As of Jan-06-2007 this code isn't hit with the official module tree
-
-					# If we get a name error, it's possible that this module depends
-					# on another one that we haven't loaded yet.  Let's postpone
-					# the load operation for now so that we can resolve all 
-					# dependencies.  This is pretty much a hack.
-					delay[file] = $!
-				end
+				load_module_from_file(bpath, file, loaded, recalc, counts, demand)
 			end
 		end
-
-		# Keep processing all delayed module loads until we've gotten
-		# all the dependencies resolved or until we just suck.
-		while (ks == true)
-			ks = false
-
-			delay.each_key { |file|
-
-				begin
-					# Load the module from the file...
-					load_module_from_file(path, file, loaded, recalc, counts, demand)
-
-					# Remove this file path from the list of delay load files
-					# because if we get here it means all went swell...maybe.
-					delay.delete(file)
-
-					# Keep scanning since we just successfully loaded a delay load
-					# module.
-					ks = true
-
-				# Trap the name error and flag this file path as still needing to
-				# be delay loaded.
-				rescue NameError
-					delay[file] = $!
-				end
-			}
-		end
-
-		# Log all modules that failed to load due to problems
-		delay.each_pair { |file, err|
-			elog("Failed to load module from #{file}: #{err}")
-			self.module_failed[file] = err
-		}
 
 		# Perform any required recalculations for the individual module types
 		# that actually had load changes
@@ -920,12 +879,11 @@ protected
 		
 		added = nil
 		
-
-		# Load the module into a new Module wrapper
 		begin
 			wrap = ::Module.new
 			wrap.module_eval(File.read(file, File.size(file)))
-
+		rescue ::Interrupt
+			raise $!
 		rescue ::Exception => e
 			errmsg = "#{e.class} #{e}"
 			self.module_failed[file] = errmsg
@@ -940,7 +898,6 @@ protected
 			return false
 		end
 		added = wrap.const_get('Metasploit3')
-
 
 		# If the module indicates that it is not usable on this system, then we 
 		# will not try to use it.

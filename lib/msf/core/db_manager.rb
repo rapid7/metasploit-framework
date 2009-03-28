@@ -20,6 +20,9 @@ class DBManager
 	# Returns true if the prerequisites have been installed
 	attr_accessor :usable
 	
+	# Returns the list of usable database drivers
+	attr_accessor :drivers
+	
 	def initialize(framework)
 			
 		self.framework = framework
@@ -44,6 +47,27 @@ class DBManager
 			
 		rescue ::Exception => e
 			elog("DB is not enabled due to load error: #{e}")
+		end
+		
+		#
+		# Determine what drivers are available
+		#
+		initialize_drivers
+	end
+	
+	#
+	# 
+	#	
+	def initialize_drivers
+		self.drivers = []
+		tdrivers = %W{ sqlite sqlite3 mysql postgresql }
+		tdrivers.each do |driver|
+			begin
+				ActiveRecord::Base.establish_connection(:adapter => driver)
+				ActiveRecord::Base.remove_connection
+				self.drivers << driver
+			rescue ::Exception
+			end
 		end
 	end
 	
