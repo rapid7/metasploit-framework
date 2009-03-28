@@ -1457,27 +1457,6 @@ class Core
 	end
 
 	#
-	# Provide command-specific tab completion
-	#
-	def tab_complete_helper(str, words)
-		items = []
-		
-		# Is the user trying to tab complete one of our commands?
-		if (commands.include?(words[0]))
-			if (self.respond_to?('cmd_'+words[0]+'_tabs')) 
-				res = self.send('cmd_'+words[0]+'_tabs', str, words)
-				return nil if res.nil?
-				items.concat(res)
-			else
-				# Avoid the default completion list for known commands
-				return nil
-			end
-		end
-		
-		return items
-	end
-
-	#
 	# Provide tab completion for option values
 	#
 	def tab_complete_option(str, words)

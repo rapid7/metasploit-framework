@@ -2,11 +2,13 @@ module Msf
 module Ui
 module Console
 module CommandDispatcher
-module Db
+class Db
 
 		require 'rexml/document'
 		require 'tempfile'
-		
+
+		include Msf::Ui::Console::CommandDispatcher
+			
 		#
 		# Constants
 		#
@@ -29,21 +31,31 @@ module Db
 		# Returns the hash of commands supported by this dispatcher.
 		#
 		def commands
-			{
-				"db_hosts"    => "List all hosts in the database",
-				"db_services" => "List all services in the database",
-				"db_vulns"    => "List all vulnerabilities in the database",
-				"db_notes"    => "List all notes in the database",
-				"db_add_host" => "Add one or more hosts to the database",
-				"db_add_port" => "Add a port to host",
-				"db_add_note" => "Add a note to host",
-				"db_del_host" => "Delete one or more hosts from the database",
-				"db_autopwn"  => "Automatically exploit everything",
-				"db_import_amap_mlog" => "Import a THC-Amap scan results file (-o -m)",
-				"db_import_nessus_nbe" => "Import a Nessus scan result file (NBE)",
-				"db_import_nmap_xml"   => "Import a Nmap scan results file (-oX)",
-				"db_nmap" => "Executes nmap and records the output automatically",
+			base = {
+				"db_driver"     => "Specify a database driver",
+				"db_connect"    => "Connect to an existing database",
+				"db_disconnect" => "Disconnect from the current database instance",
+				"db_create"     => "Create a brand new database",
+				"db_destroy"    => "Drop an existing database",
 			}
+
+			more = {
+				"db_hosts"      => "List all hosts in the database",
+				"db_services"   => "List all services in the database",
+				"db_vulns"      => "List all vulnerabilities in the database",
+				"db_notes"      => "List all notes in the database",
+				"db_add_host"   => "Add one or more hosts to the database",
+				"db_add_port"   => "Add a port to host",
+				"db_add_note"   => "Add a note to host",
+				"db_del_host"   => "Delete one or more hosts from the database",
+				"db_autopwn"    => "Automatically exploit everything",
+				"db_import_amap_mlog"   => "Import a THC-Amap scan results file (-o -m)",
+				"db_import_nessus_nbe"  => "Import a Nessus scan result file (NBE)",
+				"db_import_nmap_xml"    => "Import a Nmap scan results file (-oX)",
+				"db_nmap"               => "Executes nmap and records the output automatically",
+			}
+			
+			framework.db.active ? base.merge(more) : base
 		end
 
 		def cmd_db_hosts(*args)
@@ -594,6 +606,558 @@ module Db
 			
 			false
 		end
+		
+		
+		#
+		# Database management
+		#
+			
+		def db_check_driver
+			if(not framework.db.driver)
+				print_error("No database driver has been specified")
+				return false
+			end
+			true
+		end
+
+		def cmd_db_driver(*args)
+		
+			if(args[0])
+				if(args[0] == "-h")
+					print_status("Usage: db_driver [driver-name]")
+					return
+				end
+			
+				if(framework.db.drivers.include?(args[0]))
+					framework.db.driver = args[0]
+					print_status("Using database driver #{args[0]}")
+				else
+					print_error("Invalid driver specified")
+				end
+				return
+			end
+		
+			if(framework.db.driver)
+				print_status("   Active Driver: #{framework.db.driver}")
+			else
+				print_status("No Active Driver")
+			end
+			print_status("       Available: #{framework.db.drivers.join(", ")}")
+		end
+		
+		def cmd_db_driver_tabs(str, words)
+			return framework.db.drivers
+		end
+			
+		def cmd_db_create(*args)
+			return if not db_check_driver
+			meth = "db_create_#{framework.db.driver}"
+			if(self.respond_to?(meth))
+				self.send(meth, *args)
+			else
+				print_error("This database driver is not currently supported")
+			end
+		end
+		
+		def cmd_db_destroy(*args)
+			return if not db_check_driver
+			meth = "db_destroy_#{framework.db.driver}"
+			if(self.respond_to?(meth))
+				self.send(meth, *args)
+			else
+				print_error("This database driver is not currently supported")
+			end
+		end
+		
+		def cmd_db_connect(*args)
+			return if not db_check_driver
+			meth = "db_connect_#{framework.db.driver}"
+			if(self.respond_to?(meth))
+				self.send(meth, *args)
+			else
+				print_error("This database driver is not currently supported")
+			end
+		end
+		
+		def cmd_db_disconnect(*args)
+			return if not db_check_driver
+			meth = "db_disconnect_#{framework.db.driver}"
+			if(self.respond_to?(meth))
+				self.send(meth, *args)
+			else
+				print_error("This database driver is not currently supported")
+			end
+		end
+
+		
+		#
+		# Database management: SQLite
+		#
+		
+		#
+		# Disconnect from the current SQLite instance
+		#
+		def db_disconnect_sqlite(*args)
+			if (framework.db)
+				framework.db.disconnect()
+			end
+		end
+
+		#
+		# Connect to an existing SQLite database
+		#
+		def db_connect_sqlite(*args)
+
+			info = db_parse_db_uri_sqlite(args[0])
+			opts = { 'adapter' => 'sqlite3' }
+
+			opts['dbfile'] = info[:path]
+
+			if (not File.exists?(opts['dbfile']))
+				print_status("The specified database does not exist")
+				return
+			end
+						
+			if (not framework.db.connect(opts))
+				raise RuntimeError.new("Failed to connect to the database")
+			end
+			
+			print_status("Successfully connected to the database")
+			print_status("File: #{opts['dbfile']}")			
+		end
+
+		#
+		# Create a new SQLite database instance
+		#				
+		def db_create_sqlite(*args)
+			cmd_db_disconnect()
+			
+			info = db_parse_db_uri_sqlite(args[0])
+			opts = { 'adapter' => 'sqlite3' }
+	
+			opts['dbfile'] = info[:path]
+			
+			sql = ::File.join(Msf::Config.install_root, "data", "sql", "sqlite.sql")
+
+			if (::File.exists?(opts['dbfile']))
+				print_status("The specified database already exists, connecting")
+			else
+						
+				print_status("Creating a new database instance...")
+
+				db = ::SQLite3::Database.new(opts['dbfile'])
+				::File.read(sql).split(";").each do |line|
+					begin
+						db.execute(line.strip)
+					rescue ::SQLite3::SQLException, ::SQLite3::MisuseException
+					end
+				end
+				db.close
+			end
+			
+			if (not framework.db.connect(opts))
+				raise RuntimeError.new("Failed to connect to the database")
+			end
+
+			print_status("Successfully connected to the database")
+			print_status("File: #{opts['dbfile']}")
+		end
+
+		#
+		# Drop an existing database
+		#
+		def db_destroy_sqlite(*args)
+			cmd_db_disconnect()
+			info = db_parse_db_uri_sqlite(args[0])
+			File.unlink(info[:path])
+		end
+		
+		def db_parse_db_uri_sqlite(path)
+			res = {}
+			res[:path] = path || File.join(Msf::Config.config_directory, 'sqlite3.db')
+			res
+		end
+		
+		#
+		# Database management: SQLite3
+		#
+		
+		#
+		# Disconnect from the current SQLite instance
+		#
+		def db_disconnect_sqlite3(*args)
+			if (framework.db)
+				framework.db.disconnect()
+			end
+		end
+
+		#
+		# Connect to an existing SQLite database
+		#
+		def db_connect_sqlite3(*args)
+
+			info = db_parse_db_uri_sqlite3(args[0])
+			opts = { 'adapter' => 'sqlite3' }
+
+			opts['dbfile'] = info[:path]
+
+			if (not File.exists?(opts['dbfile']))
+				print_status("The specified database does not exist")
+				return
+			end
+						
+			if (not framework.db.connect(opts))
+				raise RuntimeError.new("Failed to connect to the database")
+			end
+
+			print_status("Successfully connected to the database")
+			print_status("File: #{opts['dbfile']}")			
+		end
+
+		#
+		# Create a new SQLite database instance
+		#				
+		def db_create_sqlite3(*args)
+			cmd_db_disconnect()
+			
+			info = db_parse_db_uri_sqlite3(args[0])
+			opts = { 'adapter' => 'sqlite3' }
+	
+			opts['dbfile'] = info[:path]
+			
+			sql = ::File.join(Msf::Config.install_root, "data", "sql", "sqlite.sql")
+
+			if (::File.exists?(opts['dbfile']))
+				print_status("The specified database already exists, connecting")
+			else
+						
+				print_status("Creating a new database instance...")
+
+				db = ::SQLite3::Database.new(opts['dbfile'])
+				::File.read(sql).split(";").each do |line|
+					begin
+						db.execute(line.strip)
+					rescue ::SQLite3::SQLException, ::SQLite3::MisuseException
+					end
+				end
+				db.close
+			end
+			
+			if (not framework.db.connect(opts))
+				raise RuntimeError.new("Failed to connect to the database")
+			end
+		
+			print_status("Successfully connected to the database")
+			print_status("File: #{opts['dbfile']}")
+		end
+
+		#
+		# Drop an existing database
+		#
+		def db_destroy_sqlite3(*args)
+			cmd_db_disconnect()
+			info = db_parse_db_uri_sqlite3(args[0])
+			File.unlink(info[:path])
+		end
+		
+		def db_parse_db_uri_sqlite3(path)
+			res = {}
+			res[:path] = path || ::File.join(Msf::Config.config_directory, 'sqlite3.db')
+			res
+		end
+		
+		#
+		# Database management: MySQL
+		#
+			
+		#
+		# Disconnect from the current MySQL instance
+		#
+		def db_disconnect_mysql(*args)
+			if (framework.db)
+				framework.db.disconnect()
+			end
+		end
+
+		#
+		# Connect to an existing MySQL database
+		#
+		def db_connect_mysql(*args)
+			info = db_parse_db_uri_mysql(args[0])
+			opts = { 'adapter' => 'mysql' }
+			
+			opts['username'] = info[:user] if (info[:user])
+			opts['password'] = info[:pass] if (info[:pass])
+			opts['database'] = info[:name]
+			opts['host'] = info[:host] if (info[:host])
+			opts['port'] = info[:port] if (info[:port])
+
+			# This is an ugly hack for a broken MySQL adapter:
+			# 	http://dev.rubyonrails.org/ticket/3338
+			if (opts['host'].strip.downcase == 'localhost')
+				opts['host'] = Socket.gethostbyname("localhost")[3].unpack("C*").join(".")
+			end
+							
+			if (not framework.db.connect(opts))
+				raise RuntimeError.new("Failed to connect to the database")
+			end
+		end
+
+		#
+		# Create a new MySQL database instance
+		#				
+		def db_create_mysql(*args)
+			cmd_db_disconnect()
+			
+			info = db_parse_db_uri_mysql(args[0])
+			opts = { 'adapter' => 'mysql' }
+						
+			argv = []
+			
+			if (info[:user])
+				opts['username'] = info[:user] 
+				argv.push('-u')
+				argv.push(info[:user])
+			end
+			
+			if (info[:pass])
+				argv.push('--password=' + info[:pass])
+				opts['password'] = info[:pass]				
+			end
+			
+			if (info[:host])
+				opts['host'] = info[:host]
+				argv.push('-h')
+				argv.push(info[:host])
+			end
+			
+			if (info[:port])
+				opts['port'] = info[:port]
+				argv.push('-P')
+				argv.push(info[:port])
+				
+				# This is an ugly hack for a broken MySQL adapter:
+				# 	http://dev.rubyonrails.org/ticket/3338
+				if (opts['host'].strip.downcase == 'localhost')
+					opts['host'] = Socket.gethostbyname("localhost")[3].unpack("C*").join(".")
+				end
+			end
+
+			argv.push('-f')
+			
+			opts['database'] = info[:name]
+
+			cargs = argv.map{|c| "'#{c}' "}.join
+			
+			sql = File.join(Msf::Config.install_root, "data", "sql", "mysql.sql")
+			fd  = File.open(sql, 'r')
+			
+			system("mysqladmin #{cargs} drop #{info[:name]} >/dev/null 2>&1")
+			system("mysqladmin #{cargs} create #{info[:name]}")
+
+			psql = File.popen("mysql #{cargs} #{info[:name]}", "w")
+			psql.write(fd.read)
+			psql.close
+			fd.close
+			
+			print_status("Database creation complete (check for errors)")
+
+			if (not framework.db.connect(opts))
+				raise RuntimeError.new("Failed to connect to the database")
+			end
+
+		end
+
+		#
+		# Drop an existing database
+		#
+		def db_destroy_mysql(*args)
+
+			cmd_db_disconnect()
+
+			info = db_parse_db_uri_mysql(args[0])
+			argv = []
+			
+			if (info[:user])
+				argv.push('-u')
+				argv.push(info[:user])
+			end
+			
+			if (info[:pass])
+				argv.push('--password=' + info[:pass])
+			end
+			
+			if (info[:host])
+				argv.push('-h')
+				argv.push(info[:host])
+			end
+			
+			if (info[:port])
+				argv.push('-P')
+				argv.push(info[:port])
+			end
+			
+			argv.push("-f")
+
+			cargs = argv.map{|c| "'#{c}' "}.join
+			system("mysqladmin -f #{cargs} drop #{info[:name]}")
+		end
+		
+		def db_parse_db_uri_mysql(path)
+			res = {}
+			if (path)
+				auth, dest = path.split('@')
+				(dest = auth and auth = nil) if not dest
+				res[:user],res[:pass] = auth.split(':') if auth
+				targ,name = dest.split('/')
+				(name = targ and targ = nil) if not name
+				res[:host],res[:port] = targ.split(':') if targ
+			end
+			res[:name] = name || 'metasploit3'
+			res
+		end
+		
+		#
+		# Database management: Postgres
+		#
+		#
+		# Disconnect from the current Postgres instance
+		#
+		def db_disconnect_postgres(*args)
+			if (framework.db)
+				framework.db.disconnect()
+			end
+		end
+
+		#
+		# Connect to an existing Postgres database
+		#
+		def db_connect_postgres(*args)
+			info = db_parse_db_uri_postgres(args[0])
+			opts = { 'adapter' => 'postgresql' }
+
+			opts['username'] = info[:user] if (info[:user])
+			opts['password'] = info[:pass] if (info[:pass])
+			opts['database'] = info[:name]
+			opts['host'] = info[:host] if (info[:host])
+			opts['port'] = info[:port] if (info[:port])
+			
+			if (not framework.db.connect(opts))
+				raise RuntimeError.new("Failed to connect to the database")
+			end
+		end
+
+		#
+		# Create a new Postgres database instance
+		#				
+		def db_create_postgres(*args)
+			cmd_db_disconnect()
+			
+			info = db_parse_db_uri_postgres(args[0])
+			opts = { 'adapter' => 'postgresql' }
+			argv = []
+
+			if (info[:user])
+				opts['username'] = info[:user] 
+				argv.push('-U')
+				argv.push(info[:user])
+            else
+			    opts['username'] = 'postgres'
+			    argv.push('-U')
+			    argv.push('postgres')
+			end
+
+			if (info[:pass])
+				print()
+				print_status("Warning: You will need to enter the password at the prompts below")
+				print()
+				argv.push('-W')
+			end
+			
+			if (info[:host])
+				opts['host'] = info[:host]
+				argv.push('-h')
+				argv.push(info[:host])
+			end
+			
+			if (info[:port])
+				opts['port'] = info[:port]
+				argv.push('-p')
+				argv.push(info[:port])
+			end
+						
+			opts['database'] = info[:name]
+
+			cargs = argv.map{|c| "'#{c}' "}.join
+			
+			sql = File.join(Msf::Config.install_root, "data", "sql", "postgres.sql")
+			fd  = File.open(sql, 'r')
+			
+			system("dropdb #{cargs} #{info[:name]} >/dev/null 2>&1")
+			system("createdb #{cargs} #{info[:name]}")
+
+			psql = File.popen("psql -q " + cargs + info[:name], "w")
+			psql.write(fd.read)
+			psql.close
+			fd.close
+			
+			print_status("Database creation complete (check for errors)")
+
+			if (not framework.db.connect(opts))
+				raise RuntimeError.new("Failed to connect to the database")
+			end
+		end
+
+		#
+		# Drop an existing database
+		#
+		def db_destroy_postgres(*args)
+
+			cmd_db_disconnect()
+
+			info = db_parse_db_uri_postgres(args[0])
+			argv = []
+			
+			if (info[:user])
+				argv.push('-U')
+				argv.push(info[:user])
+			end
+			
+			if (info[:pass])
+				print()
+				print_status("Warning: You will need to enter the password at the prompts below")
+				print()
+				argv.push('-W')
+			end
+			
+			if (info[:host])
+				argv.push('-h')
+				argv.push(info[:host])
+			end
+			
+			if (info[:port])
+				argv.push('-p')
+				argv.push(info[:port])
+			end
+
+			cargs = argv.map{|c| "'#{c}' "}.join
+			system("dropdb #{cargs} #{info[:name]}")
+		end
+		
+		def db_parse_db_uri_postgres(path)
+			res = {}
+			if (path)
+				auth, dest = path.split('@')
+				(dest = auth and auth = nil) if not dest
+				res[:user],res[:pass] = auth.split(':') if auth
+				targ,name = dest.split('/')
+				(name = targ and targ = nil) if not name
+				res[:host],res[:port] = targ.split(':') if targ
+			end
+			res[:name] = name || 'metasploit3'
+			res
+		end
+								
 end
 end
 end

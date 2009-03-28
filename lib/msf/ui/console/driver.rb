@@ -77,6 +77,12 @@ class Driver < Msf::Ui::Driver
 		# Add the core command dispatcher as the root of the dispatcher
 		# stack
 		enstack_dispatcher(CommandDispatcher::Core)
+		
+		# Add the database dispatcher if it is usable
+		if(framework.db.usable)
+			require 'msf/ui/console/command_dispatcher/db'
+			enstack_dispatcher(CommandDispatcher::Db)
+		end
 
 		# Register event handlers
 		register_event_handlers

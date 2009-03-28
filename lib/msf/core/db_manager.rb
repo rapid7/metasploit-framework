@@ -23,6 +23,9 @@ class DBManager
 	# Returns the list of usable database drivers
 	attr_accessor :drivers
 	
+	# Returns the active driver
+	attr_accessor :driver
+	
 	def initialize(framework)
 			
 		self.framework = framework
@@ -60,7 +63,7 @@ class DBManager
 	#	
 	def initialize_drivers
 		self.drivers = []
-		tdrivers = %W{ sqlite sqlite3 mysql postgresql }
+		tdrivers = %W{ sqlite3 mysql postgresql }
 		tdrivers.each do |driver|
 			begin
 				ActiveRecord::Base.establish_connection(:adapter => driver)
@@ -68,6 +71,10 @@ class DBManager
 				self.drivers << driver
 			rescue ::Exception
 			end
+		end
+		
+		if(not self.drivers.empty?)
+			self.driver = self.drivers[0]
 		end
 	end
 	
