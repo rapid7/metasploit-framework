@@ -30,8 +30,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		self.target_port = datastore['RPORT']	
-
 		begin
 			res = send_request_raw({
 				'version'      => '1.0',

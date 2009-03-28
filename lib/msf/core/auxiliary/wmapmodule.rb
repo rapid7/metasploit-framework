@@ -33,11 +33,14 @@ module Auxiliary::WMAPModule
 	end
 
 	def wmap_target_ssl
-		ssl
+		datastore['SSL']
 	end
 	
 	def wmap_base_url
-		(ssl ? "https://" : "http://") + wmap_target_host + wmap_target_port
+		res = (ssl ? "https://" : "http://")
+		res << datastore['VHOST'] || wmap_target_host
+		res << ":" + wmap_target_port
+		res
 	end
 
 

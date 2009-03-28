@@ -35,8 +35,6 @@ class Metasploit3 < Msf::Auxiliary
 	# Fingerprint a single host
 	def run_host(ip)
 
-		self.target_port = datastore['RPORT']	
-
 		begin
 			res = send_request_raw({
 				'uri'          => '/',
