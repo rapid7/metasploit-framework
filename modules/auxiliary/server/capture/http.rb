@@ -90,7 +90,6 @@ class Metasploit3 < Msf::Auxiliary
 			data = cli.get_once(-1, 5)
 			raise ::Errno::ECONNABORTED if not (data or data.length == 0)
 			case cli.request.parse(data)
-			
 				when Rex::Proto::Http::Packet::ParseCode::Completed
 					dispatch_request(cli, cli.request)
 					cli.reset_cli
@@ -102,12 +101,14 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Exception
 			print_status("Error: #{$!.class} #{$!} #{$!.backtrace}")
 		end
-		
+	
 		close_client(cli)
 	end
 
 	def close_client(cli)
 		cli.close
+		# Require to clean up the service properly
+		raise ::EOFError
 	end
 	
 	def dispatch_request(cli, req)
