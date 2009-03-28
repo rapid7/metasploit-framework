@@ -1070,10 +1070,10 @@ class Db
 				opts['username'] = info[:user] 
 				argv.push('-U')
 				argv.push(info[:user])
-            else
-			    opts['username'] = 'postgres'
-			    argv.push('-U')
-			    argv.push('postgres')
+			else
+				opts['username'] = 'postgres'
+				argv.push('-U')
+				argv.push('postgres')
 			end
 
 			if (info[:pass])
