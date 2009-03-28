@@ -1,5 +1,5 @@
 ##
-# $Id: wmap_backup_file.rb 5869 2008-11-10 04:38:05Z et $
+# $Id$
 ##
 
 ##
@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author' 		=> [ 'et [at] cyberspace.org' ],
 			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision: 5869 $'))   
+			'Version'		=> '$Revision$'))   
 			
 		register_options(
 			[

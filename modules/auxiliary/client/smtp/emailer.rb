@@ -22,8 +22,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Generic Emailer (SMTP)',
 			'Description'    => %q{
-				Based on Jabra spl0it.org email script for social engineering,  
-				this module simply sends emails.
+				This module can be used to automate email delivery.
+			This code is based on Joshua Abraham's email script for social 
+			engineering.
 			},
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
@@ -37,15 +38,15 @@ class Metasploit3 < Msf::Auxiliary
 				[	
 					OptString.new('RHOST', [true, "SMTP server address",'127.0.0.1']),
 					OptString.new('RPORT', [true, "SMTP server port",'25']),
-					OptString.new('MAILTO', [false, "DO NOT MODIFY",'nil@nil.nil']),
 					OptString.new('YAML_CONFIG', [true, "Full path to YAML Configuration file",File.join(Msf::Config.install_root, "data","emailer_config.yaml")]),
 				], self.class)	
-
+		
+		# Hide this option from the user		
+		deregister_options('MAILTO')
 	end
 	
 	def run
-		
-		
+
 		fileconf = File.open(datastore['YAML_CONFIG'])
 		yamlconf = YAML::load(fileconf) 
 		

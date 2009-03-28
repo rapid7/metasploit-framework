@@ -1,5 +1,5 @@
 ##
-# $Id: interact.rb 5773 2008-10-19 21:03:39Z ramon $
+# $Id$
 ##
 
 ##
@@ -22,7 +22,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Unix TTY, Interact with established connection',
-			'Version'       => '$Revision: 5773 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Interacts with a TTY on an established socket connection',
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,

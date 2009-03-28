@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author' 	=> [ 'Matteo Cantoni <goony[at]nothink.org>' ],
 			'License'       => MSF_LICENSE,
-			'Version'       => '$Revision: $',
+			'Version'       => '$Revision$',
 			'References'    =>
 				[
 					[ 'URL', 'https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1394'],

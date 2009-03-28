@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Tomcat Administration Tool default access',
-			'Version'     => '$Revision: $',
+			'Version'     => '$Revision$',
 			'Description' => 'Detect Tomcat Administration Tool default access.',
 			'References'  =>
 				[

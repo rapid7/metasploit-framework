@@ -1,5 +1,5 @@
 ##
-# $Id: generic.rb 5773 2008-10-19 21:03:39Z ramon $
+# $Id$
 ##
 
 ##
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Nop
 		super(
 			'Name'        => 'TTY Nop Generator',
 			'Alias'       => 'tty_generic',
-			'Version'     => '$Revision: 5773 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Generates harmless padding for TTY input',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,
