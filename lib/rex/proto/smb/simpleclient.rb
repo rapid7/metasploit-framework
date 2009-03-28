@@ -189,10 +189,16 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 		
 			self.client.negotiate
 			ok = self.client.session_setup(user, pass, domain)
-		rescue ::Exception
-			e = XCEPT::LoginError.new
-			e.source = $!.to_s
-			raise e
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
+			n = XCEPT::LoginError.new
+			n.source = e
+			if(e.respond_to?('error_code'))
+				n.error_code   = e.error_code
+				n.error_reason = e.get_error(e.error_code)
+			end
+			raise n
 		end
 		
 		return true
@@ -209,10 +215,16 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 			
 			# Disable extended security
 			self.client.negotiate(false)
-		rescue ::Exception
-			e = XCEPT::LoginError.new
-			e.source = $!.to_s
-			raise e
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
+			n = XCEPT::LoginError.new
+			n.source = e
+			if(e.respond_to?('error_code'))
+				n.error_code   = e.error_code
+				n.error_reason = e.get_error(e.error_code)
+			end
+			raise n
 		end
 		
 		return true
@@ -222,10 +234,16 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 	def login_split_next_ntlm1(user, domain, hash_lm, hash_nt)
 		begin
 			ok = self.client.session_setup_ntlmv1_prehash(user, domain, hash_lm, hash_nt)
-		rescue ::Exception
-			e = XCEPT::LoginError.new
-			e.source = $!.to_s
-			raise e
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
+			n = XCEPT::LoginError.new
+			n.source = e
+			if(e.respond_to?('error_code'))
+				n.error_code   = e.error_code
+				n.error_reason = e.get_error(e.error_code)
+			end
+			raise n
 		end
 		
 		return true			

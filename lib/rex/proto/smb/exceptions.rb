@@ -834,6 +834,7 @@ class SimpleClientError < Error
 end
 
 class LoginError < SimpleClientError
+	attr_accessor :error_code, :error_reason
 	def to_s
 		"Login Failed: " + self.source.to_s
 	end

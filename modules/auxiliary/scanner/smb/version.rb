@@ -41,19 +41,14 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('RPORT')
 	end
 
-	# Overload the RPORT setting
-	def rport
-		@target_port
-	end
-
 	# Fingerprint a single host
 	def run_host(ip)	
 		[[139, false], [445, true]].each do |info|
 
-		@target_port = info[0]
-		self.smb_direct = info[1]
+		datastore['RPORT'] = info[0]
+		datastore['SMBDirect'] = info[1]
 		self.simple = nil
-		
+
 		begin
 			res = smb_fingerprint()
 			
@@ -66,9 +61,8 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect
 			
 			break
-		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
+		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode  => e
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
-			
 			# Vista has 139 open but doesnt like *SMBSERVER
 			if(e.to_s =~ /server refused our NetBIOS/)
 				next

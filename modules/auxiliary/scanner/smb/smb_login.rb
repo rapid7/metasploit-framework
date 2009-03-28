@@ -15,11 +15,12 @@ require 'msf/core'
 
 
 class Metasploit3 < Msf::Auxiliary
-	
+
+	include Msf::Exploit::Remote::DCERPC
+	include Msf::Exploit::Remote::SMB	
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
-	include Msf::Exploit::Remote::DCERPC
-	include Msf::Exploit::Remote::SMB
+
 	
 	def initialize
 		super(
@@ -39,14 +40,27 @@ class Metasploit3 < Msf::Auxiliary
 			[	
 				OptString.new('SMBPass', [ false, "SMB Password", '']),
 				OptString.new('SMBUser', [ false, "SMB Username", 'Administrator']),
+				OptString.new('SMBDomain', [ false, "SMB Domain", 'WORKGROUP']),
 			], self.class)
 	end
 
 	def run_host(ip)
-		print_status("Trying to login to #{ip}...")
-		connect()	
-		if simple.login(datastore['SMBName'], datastore['SMBUser'], datastore['SMBPass'], datastore['SMBDomain'])
-			print_status("Login successful on #{ip}")
+
+		connect()
+		
+		begin
+			smb_login()
+		rescue Rex::Proto::SMB::Exceptions::LoginError => e
+			if(e.error_code)
+				print_status("#{ip} - FAILED #{ "0x%.8x" % e.error_code } - #{e.error_reason}")			
+			else
+				print_status("#{ip} - FAILED #{e}")
+			end
+			return
+		end
+
+		if(simple.client.auth_user)
+			print_status("#{ip} - SUCCESSFUL LOGIN (#{smb_peer_os})")
 			report_auth_info(
 				:host	=> ip,
 				:proto	=> 'SMB',
@@ -55,7 +69,10 @@ class Metasploit3 < Msf::Auxiliary
 				:targ_host	=> ip,
 				:targ_port	=> datastore['RPORT']
 			)
+		else 
+			print_status("#{ip} - GUEST LOGIN (#{smb_peer_os})")
 		end
+
 		disconnect()
 	end
 end

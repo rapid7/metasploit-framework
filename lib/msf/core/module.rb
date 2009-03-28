@@ -132,7 +132,17 @@ class Module
 		self.privileged = module_info['Privileged'] || false
 		self.license = module_info['License'] || MSF_LICENSE
 	end
-
+	
+	#
+	# Creates a fresh copy of an instantiated module
+	#
+	def replicant
+		obj = self.class.new
+		obj.datastore = self.datastore.dup
+		obj.user_input = self.user_input
+		obj.user_output = self.user_output
+		obj
+	end
 
 	#
 	# Returns the module's framework full reference name.  This is the

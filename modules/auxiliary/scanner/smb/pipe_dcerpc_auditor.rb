@@ -258,18 +258,12 @@ class Metasploit3 < Msf::Auxiliary
 	
 ]
 
-
-	# Overload the RPORT setting
-	def rport
-		@target_port
-	end
-	
 	# Fingerprint a single host
 	def run_host(ip)
 
 		[[139, false], [445, true]].each do |info|
 
-		@target_port = info[0]
+		datastore['RPORT'] = info[0]
 		datastore['SMBDirect'] = info[1]
 		
 		begin

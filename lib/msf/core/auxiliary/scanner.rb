@@ -42,9 +42,6 @@ def run
 	if (self.respond_to?('run_host'))
 		ar = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
 		
-		# Clear the host/port list
-		self.scanner_lists_clear
-		
 		while (true)
 			tl = []
 
@@ -53,14 +50,17 @@ def run
 				ip = ar.next_ip
 				break if not ip
 				tl << Thread.new do
+					targ = ip.dup
+					nmod = self.replicant
+					nmod.datastore['RHOST'] = targ
+					
 					begin
-						self.target_host = ip
-						# print_status("Scanning #{ip}...")
-						run_host(ip)
+						nmod.run_host(nmod.rhost)
 					rescue ::Interrupt
 						raise $!
+					rescue ::Rex::ConnectionError
 					rescue ::Exception => e
-						print_status("Error: #{ip}: #{e}")
+						print_status("Error: #{targ}: #{e} #{e.backtrace}")
 					end
 				end
 			end
@@ -91,9 +91,6 @@ def run
 		while(true)
 			
 			tl = []
-		
-			# Clear the host/port list
-			self.scanner_lists_clear
 			
 			nohosts = false	
 			while (tl.length < datastore['THREADS'])
@@ -114,12 +111,15 @@ def run
 				# Create a thread for each batch
 				if (batch.length > 0)
 					tl << Thread.new do
+						nmod = self.replicant
+						mybatch = batch.dup
 						begin
-							run_batch(batch)
+							nmod.run_batch(mybatch)
 						rescue ::Interrupt
 							raise $!
+						rescue ::Rex::ConnectionError
 						rescue ::Exception => e
-							print_status("Error: #{batch[0]}-#{batch[-1]}: #{e}")
+							print_status("Error: #{mybatch[0]}-#{mybatch[-1]}: #{e}")
 						end
 					end
 				end
@@ -148,7 +148,6 @@ def run
 		print_status("Caught interrupt from the console...")
 		return
 	ensure
-		self.scanner_lists_clear
 		tl.each do |t|
 			begin
 				t.kill
@@ -157,188 +156,6 @@ def run
 		end
 	end
 
-end
-
-def scanner_lists_clear
-	self.scanner_hosts = {}
-	self.scanner_ports = {}
-	self.scanner_simples = {}
-	self.scanner_dcerpcs = {}
-	self.scanner_banners = {}
-	self.scanner_smb_directs = {}
-	
-	self.scanner_socks ||= {}
-	self.scanner_socks.each_pair do |t,s|
-		begin
-			s.close
-		rescue ::Exception
-		end
-	end
-
-	self.scanner_udp_socks ||= {}	
-	self.scanner_udp_socks.each_pair do |t,s|
-		begin
-			s.close
-		rescue ::Exception
-		end
-	end	
-end
-
-
-#
-# The hacks below allow Exploit mixins to be used inside of threaded
-# Auxilliary modules that inherit from Scanner. Not the best solution,
-# but they do the job for 90% of the common uses.
-#
-
-
-#
-# Tracks the current hosts
-#
-attr_accessor :scanner_hosts, :scanner_ports, :scanner_socks, :scanner_udp_socks
-attr_accessor :scanner_simples, :scanner_dcerpcs, :scanner_banners
-attr_accessor :scanner_smb_directs
-
-#
-# Overloads the Exploit mixins for rhost
-#
-def rhost
-	self.target_host
-end
-
-#
-# Provides a per-thread RHOST value
-#
-def target_host
-	self.scanner_hosts ||= {}
-	self.scanner_hosts[Thread.current.to_s]
-end
-
-#
-# Sets a per-thread RHOST value
-#
-def target_host=(ip)
-	self.scanner_hosts ||= {}
-	self.scanner_hosts[Thread.current.to_s] = ip
-end
-
-#
-# Overloads the Exploit mixins for rport
-#
-def rport
-	self.target_port || datastore['RPORT']
-end
-
-#
-# Provides a per-thread RPORT value
-#
-def target_port
-	self.scanner_ports ||= {}
-	self.scanner_ports[Thread.current.to_s]
-end
-
-#
-# Sets a per-thread RPORT value
-#
-def target_port=(port)
-	self.scanner_ports ||= {}
-	self.scanner_ports[Thread.current.to_s] = port
-end
-
-#
-# Provides a per-thread self.sock value
-#
-def sock
-	self.scanner_socks ||= {}
-	self.scanner_socks[Thread.current.to_s]
-end
-
-#
-# Sets a per-thread self.sock value
-#
-def sock=(sock)
-	self.scanner_socks ||= {}
-	self.scanner_socks[Thread.current.to_s] = sock
-end
-
-#
-# Provides a per-thread self.udp_sock value
-#
-def udp_sock
-	self.scanner_udp_socks ||= {}
-	self.scanner_udp_socks[Thread.current.to_s]
-end
-
-#
-# Sets a per-thread self.udp_sock value
-#
-def udp_sock=(udp_sock)
-	self.scanner_udp_socks ||= {}
-	self.scanner_udp_socks[Thread.current.to_s] = udp_sock
-end
-
-#
-# Provides a per-thread self.simple value
-#
-def simple
-	self.scanner_simples ||= {}
-	self.scanner_simples[Thread.current.to_s]
-end
-
-#
-# Sets a per-thread self.simple value
-#
-def simple=(simple)
-	self.scanner_simples ||= {}
-	self.scanner_simples[Thread.current.to_s] = simple
-end
-
-#
-# Provides a per-thread self.smb_directory value
-#
-def smb_direct
-	self.scanner_smb_directs ||= {}
-	self.scanner_smb_directs[Thread.current.to_s]
-end
-
-#
-# Sets a per-thread self.simple value
-#
-def smb_direct=(direct)
-	self.scanner_smb_directs ||= {}
-	self.scanner_smb_directs[Thread.current.to_s] = direct
-end
-
-#
-# Provides a per-thread self.dcerpc value
-#
-def dcerpc
-	self.scanner_dcerpcs ||= {}
-	self.scanner_dcerpcs[Thread.current.to_s]
-end
-
-#
-# Sets a per-thread self.dcerpc value
-#
-def dcerpc=(dcerpc)
-	self.scanner_dcerpcs ||= {}
-	self.scanner_dcerpcs[Thread.current.to_s] = dcerpc
-end
-
-#
-# Provides a per-thread self.banner value
-#
-def banner
-	self.scanner_banners ||= {}
-	self.scanner_banners[Thread.current.to_s]
-end
-
-#
-# Sets a per-thread self.banner value
-#
-def banner=(banner)
-	self.scanner_banners ||= {}
-	self.scanner_banners[Thread.current.to_s] = banner
 end
 
 end
