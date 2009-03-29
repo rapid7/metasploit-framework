@@ -137,8 +137,21 @@ class Metasploit3 < Msf::Auxiliary
 				:targ_host => pkt[1],
 				:targ_port => pkt[2]
 			)
-		else
-			p "NO COMM"
+			
+			report_service(
+				:host   => pkt[1],
+				:port   => pkt[2],
+				:proto  => 'udp',
+				:name   => 'snmp'							
+			)
+			
+			report_note(
+				:host   => pkt[1],
+				:proto  => 'snmp',
+				:port   => pkt[2],
+				:type   => 'snmp_sysdesc',
+				:data   => inf
+			)
 		end
 	end
 
