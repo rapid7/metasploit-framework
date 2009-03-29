@@ -5,7 +5,17 @@
 
 
 Metasmdir = File.dirname(__FILE__)
+$:.unshift(Metasmdir)
 
+
+##
+# The code below is used to do demand loading of requires, but it breaks
+# Metasploit integration. It has been commented out until a better
+# long-term solution is developed.
+##
+
+
+=begin
 module Metasm
 def self.fix_const_missing(c)
 	# constant defined in the same file as another
@@ -70,12 +80,15 @@ def const_missing(c)
 end
 end
 
+
+=end
+
 # load core files by default (too many classes to check for otherwise)
-Metasm.require 'metasm/encode'
-Metasm.require 'metasm/decode'
-Metasm.require 'metasm/main'
-Metasm.require 'metasm/exe_format/main'
-Metasm.require 'metasm/os/main'
+require 'metasm/encode'
+require 'metasm/decode'
+require 'metasm/main'
+require 'metasm/exe_format/main'
+require 'metasm/os/main'
 
 
 # remove an 1.9 warning, couldn't find a compatible way...
