@@ -53,14 +53,16 @@ class Metasploit3 < Msf::Auxiliary
 
 		else
 
-		sid = data.scan(/INSTANCE_NAME=(\w+)/)
+		#sid = data.scan(/INSTANCE_NAME=(\w+)/)
+		sid = data.scan(/INSTANCE_NAME=([^\)]+)/)
 			sid.uniq.each do |s|
 				print_status("Identified SID for #{rhost}: #{s}")
 			end
 
 		end 
 
-		service_name = data.scan(/SERVICE_NAME=(\w+)/)
+		#service_name = data.scan(/SERVICE_NAME=(\w+)/)
+		service_name = data.scan(/SERVICE_NAME=([^\)]+)/)
 			service_name.each do |s|
 				print_status("Identified SERVICE_NAME for #{rhost}: #{s}")
 			
