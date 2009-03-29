@@ -699,100 +699,13 @@ class Db
 		end
 
 		
-		#
-		# Database management: SQLite
-		#
-		
-		#
-		# Disconnect from the current SQLite instance
-		#
-		def db_disconnect_sqlite(*args)
-			if (framework.db)
-				framework.db.disconnect()
-			end
-		end
-
-		#
-		# Connect to an existing SQLite database
-		#
-		def db_connect_sqlite(*args)
-
-			info = db_parse_db_uri_sqlite(args[0])
-			opts = { 'adapter' => 'sqlite3' }
-
-			opts['dbfile'] = info[:path]
-
-			if (not File.exists?(opts['dbfile']))
-				print_status("The specified database does not exist")
-				return
-			end
-						
-			if (not framework.db.connect(opts))
-				raise RuntimeError.new("Failed to connect to the database")
-			end
-			
-			print_status("Successfully connected to the database")
-			print_status("File: #{opts['dbfile']}")			
-		end
-
-		#
-		# Create a new SQLite database instance
-		#				
-		def db_create_sqlite(*args)
-			cmd_db_disconnect()
-			
-			info = db_parse_db_uri_sqlite(args[0])
-			opts = { 'adapter' => 'sqlite3' }
 	
-			opts['dbfile'] = info[:path]
-			
-			sql = ::File.join(Msf::Config.install_root, "data", "sql", "sqlite.sql")
-
-			if (::File.exists?(opts['dbfile']))
-				print_status("The specified database already exists, connecting")
-			else
-						
-				print_status("Creating a new database instance...")
-
-				db = ::SQLite3::Database.new(opts['dbfile'])
-				::File.read(sql).split(";").each do |line|
-					begin
-						db.execute(line.strip)
-					rescue ::SQLite3::SQLException, ::SQLite3::MisuseException
-					end
-				end
-				db.close
-			end
-			
-			if (not framework.db.connect(opts))
-				raise RuntimeError.new("Failed to connect to the database")
-			end
-
-			print_status("Successfully connected to the database")
-			print_status("File: #{opts['dbfile']}")
-		end
-
-		#
-		# Drop an existing database
-		#
-		def db_destroy_sqlite(*args)
-			cmd_db_disconnect()
-			info = db_parse_db_uri_sqlite(args[0])
-			File.unlink(info[:path])
-		end
-		
-		def db_parse_db_uri_sqlite(path)
-			res = {}
-			res[:path] = path || File.join(Msf::Config.config_directory, 'sqlite3.db')
-			res
-		end
-		
 		#
 		# Database management: SQLite3
 		#
 		
 		#
-		# Disconnect from the current SQLite instance
+		# Disconnect from the current SQLite3 instance
 		#
 		def db_disconnect_sqlite3(*args)
 			if (framework.db)
@@ -841,6 +754,7 @@ class Db
 			else
 						
 				print_status("Creating a new database instance...")
+				require_library_or_gem('sqlite3')
 
 				db = ::SQLite3::Database.new(opts['dbfile'])
 				::File.read(sql).split(";").each do |line|
