@@ -15,8 +15,11 @@ print_status("Current server process: #{server.name} (#{server.pid})")
 # Get the target process pid
 target_pid = client.sys.process[target]
 
-if target_pid.nil?
-	raise ArgumentError, "Could not find target process: #{target}"
+if not target_pid
+	print_error("Could not access the target process")
+	print_status("Spawning a calc.exe host process...")
+	calc = client.sys.process.execute('calc.exe', {'Hidden' => true })
+	target_pid = calc.pid
 end
 
 # Do the migration
