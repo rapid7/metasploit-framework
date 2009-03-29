@@ -81,6 +81,8 @@ class Metasploit3 < Msf::Auxiliary
 			raise $!
 		rescue ::Exception => e
 			print_status("Unknown error: #{e.class} #{e}")
+		ensure
+			udp_sock.close if udp_sock
 		end
 	end
 
@@ -126,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
 			:name   => 'sip'							
 		)
 		
-		if(agent != 'Unknown')
+		if(not agent.empty?)
 			report_note(
 				:host   => pkt[1],
 				:ntype  => 'sip_useragent',
