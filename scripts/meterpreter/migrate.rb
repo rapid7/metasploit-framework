@@ -18,7 +18,7 @@ target_pid = client.sys.process[target]
 if not target_pid
 	print_error("Could not access the target process")
 	print_status("Spawning a calc.exe host process...")
-	calc = client.sys.process.execute('calc.exe', {'Hidden' => true })
+	calc = client.sys.process.execute('calc.exe', nil, {'Hidden' => true })
 	target_pid = calc.pid
 end
 
