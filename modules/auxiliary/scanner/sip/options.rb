@@ -69,6 +69,8 @@ class Metasploit3 < Msf::Auxiliary
 						parse_reply(r)
 					end
 				end
+
+				idx += 1
 			end
 
 			while (r = udp_sock.recvfrom(65535, 3) and r[1])
