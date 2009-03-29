@@ -1,0 +1,10 @@
+List of known bugs/missing featurs, in no particular order:
+
+PPC cpu cannot parse/encode code
+Disassembler is sloooow
+The GTK UI is quite sluggish too
+Disassembler backtracker does weird things
+Mach-O encoder does not work (binaries won't load)
+Ia32 compile_c misses many features (division, bitfields), and really needs a register allocator
+The BUGS file is incomplete
+
