@@ -11,7 +11,7 @@
 
 # Filters
 filters = {
-	'office' => '\.(doc|ppt|pps|xls|mdb|od.)$',
+	'office' => '\.(doc|docx|ppt|pptx|pps|xls|xlsx|mdb|od.)$',
 	'win9x'  => '\.pwl$',
 	'passwd' => '(pass|pwd)',
 	'free'   => args[2] 
@@ -26,7 +26,7 @@ if basedir == "-h" then
 	print_line "[=] Usage :"
 	print_line "[-] 	run search_dwld [base directory] [filter] [pattern]"
 	print_line "[-] 	[filter] can be a already defined pattern or 'free'"
-	print_line "[=] Exemples :"
+	print_line "[=] Examples :"
 	print_line "[-] run search_dwld"
 	print_line "[-] 	=> recursively look for (MS|Open)Office in C:\\"
 	print_line "[-] run search_dwld %USERPROFILE% win9x"
