@@ -67,11 +67,11 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Discovered #{datastore['COMMUNITY']} on #{ip} (#{ans})")
 				report_auth_info(
 					:host   => ip,
-					:proto  => 'SNMP',
-					:user   => 'N/A',
+					:proto  => 'snmp',
+					:user   => 'n/a',
 					:pass   => datastore['COMMUNITY'],
 					:targ_host      => ip,
-					:targ_port      => rport
+					:targ_port      => 161
 	                        )
         		end
 			

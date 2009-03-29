@@ -55,7 +55,7 @@ def run
 					nmod.datastore['RHOST'] = targ
 					
 					begin
-						nmod.run_host(nmod.rhost)
+						nmod.run_host(targ)
 					rescue ::Interrupt
 						raise $!
 					rescue ::Rex::ConnectionError
