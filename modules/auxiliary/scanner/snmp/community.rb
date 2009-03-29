@@ -68,7 +68,8 @@ class Metasploit3 < Msf::Auxiliary
 			
 			# Create an unbound UDP socket
 			udp_sock = Rex::Socket::Udp.create()
-	
+
+			print_status(">> progress (#{batch[0]}-#{batch[-1]}) #{idx}/#{@comms.length * batch.length}...")	
 			@comms.each do |comm|
 
 				data = create_probe(comm)
@@ -82,13 +83,15 @@ class Metasploit3 < Msf::Auxiliary
 						nil
 					end
 				
-					if (idx % 50 == 0)
-						while (r = udp_sock.recvfrom(65535, 0.10) and r[1])
+					if (idx % 10 == 0)
+						while (r = udp_sock.recvfrom(65535, 0.01) and r[1])
 							parse_reply(r)
 						end
 					end
 
-					idx += 1
+					if( (idx+=1) % 1000 == 0)
+						print_status(">> progress (#{batch[0]}-#{batch[-1]}) #{idx}/#{@comms.length * batch.length}...")
+					end					
 				end
 			end
 
@@ -108,6 +111,12 @@ class Metasploit3 < Msf::Auxiliary
 	# The response parsers
 	#
 	def parse_reply(pkt)
+
+		return if not pkt[1]
+		
+		if(pkt[1] =~ /^::ffff:/)
+			pkt[1] = pkt[1].sub(/^::ffff:/, '')
+		end
 
 		asn = ASNData.new(pkt[0])
 		inf = asn.access("L0.L0.L0.L0.V1.value")

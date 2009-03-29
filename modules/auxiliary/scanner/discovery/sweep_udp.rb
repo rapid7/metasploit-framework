@@ -102,11 +102,16 @@ class Metasploit3 < Msf::Auxiliary
 	# The response parsers
 	#
 	def parse_reply(pkt)
+
 		@results ||= {}
 		
 		# Ignore "empty" packets
 		return if not pkt[1]
-		
+
+		if(pkt[1] =~ /^::ffff:/)
+			pkt[1] = pkt[1].sub(/^::ffff:/, '')
+		end
+				
 		# Ignore duplicates
 		hkey = "#{pkt[1]}:#{pkt[2]}"
 		return if @results[hkey]
