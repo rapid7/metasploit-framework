@@ -888,6 +888,8 @@ class EncodedData
 
 	# concatenation of another +EncodedData+ (or nil/Fixnum/anything supporting String#<<)
 	def << other
+	
+		
 		case other
 		when nil
 		when ::Fixnum
@@ -904,7 +906,12 @@ class EncodedData
 			other.inv_export.each { |k, v| @inv_export[@virtsize + k] = v }
 			if @data.empty?; @data = other.data.dup
 			elsif defined? VirtualString and @data.kind_of? VirtualString; @data = @data.realstring << other.data
-			else @data << other.data
+			else
+				if(other.data.respond_to?('force_encoding'))
+					other.data.force_encoding("binary")
+				end
+				
+				@data << other.data
 			end
 			@virtsize += other.virtsize
 		else

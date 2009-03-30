@@ -26,7 +26,14 @@ end
 if (RUBY_VERSION =~ /^1\.9\./)
 	puts "*** Ruby 1.9.x is not currently supported, you may experience significant"
 	puts "    issues trying to use this version with the Metasploit Framework"
+
+
+	# Force binary encoding
+	Encoding.default_external = Encoding.default_internal = "binary"
 end
+
+
+
 
 #
 # Check for the ugly 1.8.7 short-named constants bug
