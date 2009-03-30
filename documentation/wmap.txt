@@ -1,13 +1,13 @@
 =[ WMAP v0.3                                ET LoWNOISE  et[]metasploit.com
 ---------------------------------------------------------------------------
-                        "Metasploit goes Web" ,H D Moore.
+                        "Metasploit goes Web", H D Moore.
 
 
 =[ Intro.
 
 WMAP is a general purpose web application scanning framework for 
-Metasploit 3. The architechture is simple and its simplicity is what makes
-it powerfull. It's a different approach compared to other open source 
+Metasploit 3. The architecture is simple and its simplicity is what makes
+it powerful. It's a different approach compared to other open source 
 alternatives and commercial scanners, as WMAP is not build around any browser 
 or spider for data capture and manipulation. 
 
@@ -326,7 +326,7 @@ The following are the basic steps for testing a web server/app using WMAP:
 =[ TODO. 
   
 This is first release version of WMAP and as you know, the Metasploit project
-welcomes feedback, comments, ideas, patches, module, etc. This TODO list is
+welcomes feedback, comments, ideas, patches, modules, etc. This TODO list is
 more of a placeholder of the things you may see in the near future.
 
 - Add more commands
