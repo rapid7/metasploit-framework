@@ -36,6 +36,9 @@ class Plugin::CredCollect < Msf::Plugin
 	end
 
 	def on_session_open(session)
+	
+		return if not self.framework.db.active
+		
 		print_status("This is CredCollect, I have the conn!")
 		
 		if (session.type == "meterpreter")
