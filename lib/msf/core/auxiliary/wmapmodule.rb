@@ -38,7 +38,11 @@ module Auxiliary::WMAPModule
 	
 	def wmap_base_url
 		res = (ssl ? "https://" : "http://")
-		res << datastore['VHOST'] || wmap_target_host
+		if datastore['VHOST'].nil?
+			res << wmap_target_host
+		else
+			res << datastore['VHOST']
+		end
 		res << ":" + wmap_target_port
 		res
 	end
@@ -272,6 +276,20 @@ module Auxiliary::WMAPScanGeneric
 
 	def wmap_type
 		:WMAP_GENERIC
+	end 
+end
+
+###
+#
+# This module provides methods for WMAP Crawler modules
+#
+###
+
+module Auxiliary::WMAPCrawler
+	include Auxiliary::WMAPModule
+
+	def wmap_type
+		:WMAP_CRAWLER
 	end 
 end
 
