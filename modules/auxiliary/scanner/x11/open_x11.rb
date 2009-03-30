@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'		=> 'X11 No-Auth Scanner',
-			'Version'	=> '1',
+			'Version'	=> '$Revision$',
 			'Description'	=> %q{
 				This module scans for X11 servers that allow anyone
 				to connect without authentication.

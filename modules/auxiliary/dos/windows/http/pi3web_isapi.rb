@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => 'kris',
 			'License'        => MSF_LICENSE,
-			'Version'        => '1',
+			'Version'        => '$Revision$',
 			'References'     => [
 				[ 'URL', 'http://milw0rm.com/exploits/7109' ]
 			],

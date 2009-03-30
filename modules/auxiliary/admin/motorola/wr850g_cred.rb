@@ -16,12 +16,15 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => 'kris',
 			'License'        => MSF_LICENSE,
-			'Version'        => '1',
-			'References'     =>
-				[ [ 'URL', 'http://seclists.org/bugtraq/2004/Sep/0339.html'] ],
+			'Version'        => '$Revision$',
+			'References'     => [
+				[ 'URL', 'http://seclists.org/bugtraq/2004/Sep/0339.html']
+			],
 			'DisclosureDate' => 'Sep 24 2004'))
 
-		register_options([Opt::RPORT(80)])
+		register_options([
+			Opt::RPORT(80)
+		])
 	end
 
 	def run
