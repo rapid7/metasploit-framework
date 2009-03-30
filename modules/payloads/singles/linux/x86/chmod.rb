@@ -13,7 +13,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'        => 'Linux Chmod',
-			'Version'     => '1',
+			'Version'     => '$Revision$',
 			'Description' => 'Runs chmod on specified file with specified mode',
 			'Author'      => 'Kris Katterjohn <katterjohn@gmail.com>',
 			'License'     => BSD_LICENSE,
