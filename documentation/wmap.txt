@@ -136,8 +136,9 @@ Reporting key concepts:
 
 	To view available reports use the 'wmap_reports' command:
 
-	msf > load db_sqlite3
-	[*] Successfully loaded plugin: db_sqlite3
+	msf > db_driver
+	[*]	Active Driver: sqlite3
+	[*]        Available: sqlite3, mysql
 	msf > load db_wmap
 	[*] =[ WMAP v0.3 - ET LoWNOISE
 	[*] Successfully loaded plugin: db_wmap
@@ -188,7 +189,7 @@ The following are the basic steps for testing a web server/app using WMAP:
   3. Browse the target by running your favorite spider/crawler/browser etc.
      NOTE: Dont forget to configure the proxy;
 
-  4. In Metasploit load the db_<database> plugin;
+  4. In Metasploit select sqlite3 using the db_driver command;
 
      $ ./msfconsole
 
@@ -204,7 +205,9 @@ The following are the basic steps for testing a web server/app using WMAP:
      + -- --=[ 20 encoders - 6 nops
             =[ 74 aux
 
-     msf > load db_sqlite3
+     msf > load db_driver
+     [*]    Active Driver: sqlite3
+     [*]        Available: sqlite3, mysql
      msf > load db_wmap
      [*] =[ WMAP v0.3 - ET LoWNOISE
      [*] Successfully loaded plugin: db_wmap
