@@ -76,8 +76,8 @@ DECLARE @T varchar(255),@C varchar(255)
  
 		if gvars.has_key?(datastore['VULN_PAR'])
            
-			datastore['TEXT_INT_INJECTION']? prestr = "\'"+prestr:nil
-			datastore['COMMENTED']? poststr += "--":nil
+			prestr  = datastore['TEXT_INT_INJECTION'] ? "\'#{prestr}" : nil
+			poststr = datastore['COMMENTED'] ? "#{poststr}--" : nil
 
 			attstr = ""          
 			infstr.unpack("C*").collect! { |i| attstr += i.to_s(base=16).upcase+"00" } 	

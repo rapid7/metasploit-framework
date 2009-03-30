@@ -108,8 +108,8 @@ class Metasploit3 < Msf::Auxiliary
 		FileUtils.mkdir_p(@datadir)
 
 		@logmethod   = case datastore['LogMethod']
-			when 'DataBase' : :database
-			when 'TIDBITS'  : :tidbits
+			when 'DataBase' ; :database
+			when 'TIDBITS'  ; :tidbits
 			else              :file
 		end
 		serialport   = datastore['SERIALPORT']
@@ -117,17 +117,17 @@ class Metasploit3 < Msf::Auxiliary
 		data_bits    = datastore['DataBits'].to_i
 		stop_bits    = datastore['StopBits'].to_i
 		parity       = case datastore['Parity']
-			when 'Even' : Telephony::Modem::EVEN
-			when 'Odd'  : Telephony::Modem::ODD
-			when 'Mark' : Telephony::Modem::MARK
-			when 'Space': Telephony::Modem::SPACE
+			when 'Even' ; Telephony::Modem::EVEN
+			when 'Odd'  ; Telephony::Modem::ODD
+			when 'Mark' ; Telephony::Modem::MARK
+			when 'Space'; Telephony::Modem::SPACE
 			else          Telephony::Modem::NONE
 		end
 		flowcontrol  = case datastore['FlowControl']
-			when 'Hardware' : Telephony::Modem::HARD
-			when 'Software' : Telephony::Modem::SOFT
-			when 'Both'     : Telephony::Modem::HARD | Telephony::Modem::SOFT
-			else              Telephony::Modem::NONE
+			when 'Hardware' ; Telephony::Modem::HARD
+			when 'Software' ; Telephony::Modem::SOFT
+			when 'Both'     ; Telephony::Modem::HARD | Telephony::Modem::SOFT
+			else            ; Telephony::Modem::NONE
 		end
 		initstring   = datastore['INITSTRING']
 		initinterval = datastore['InitInterval']
@@ -161,8 +161,8 @@ class Metasploit3 < Msf::Auxiliary
 			print_status( "Previous scan data loaded from #{datfile}" )
 			select = dialrange.select {|key, value|
 				case @target
-					when :carrier : value[:carrier] == true
-					when :fax     : value[:fax]     == true
+					when :carrier ; value[:carrier] == true
+					when :fax     ; value[:fax]     == true
 				end
 			}
 			num_identified = select.size
@@ -233,7 +233,7 @@ class Metasploit3 < Msf::Auxiliary
 				dialrange[dialnum][:dialed] = dialnum
 
 				case result
-					when /TIMEOUT/i:
+					when /TIMEOUT/i
 						print_status( 'Timeout' )
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
@@ -241,7 +241,7 @@ class Metasploit3 < Msf::Auxiliary
 						dialrange[dialnum][:timestamp] = Time.now
 						modem.puts "\r\n" # force the modem to respond to last command (hangup/abort)
 						result = modem.get_response(3)
-					when /CONNECT/i:
+					when /CONNECT/i
 						print_status( "Carrier: #{result}" )
 						@commandstate = false
 						dialrange[dialnum][:identified] = true
@@ -253,7 +253,7 @@ class Metasploit3 < Msf::Auxiliary
 						initmodem(modem, initstring)
 						num_carriers += 1
 						log_result(dialrange[dialnum])
-					when /HK_CARRIER/i:
+					when /HK_CARRIER/i
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:carrier] = true
@@ -262,7 +262,7 @@ class Metasploit3 < Msf::Auxiliary
 						initmodem(modem, initstring)
 						num_carriers += 1
 						log_result(dialrange[dialnum])
-					when /\+FCO/i:
+					when /\+FCO/i
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:fax] = true
@@ -271,56 +271,56 @@ class Metasploit3 < Msf::Auxiliary
 						initmodem(modem, initstring)
 						num_faxes += 1
 						log_result(dialrange[dialnum])
-					when /VOICE/i:
+					when /VOICE/i
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:voice] = true
 						dialrange[dialnum][:timestamp] = Time.now
 						modem.hangup
-					when /HK_VMB/i:
+					when /HK_VMB/i
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:voicemail] = true
 						dialrange[dialnum][:timestamp] = Time.now
 						modem.hangup
-					when /HK_AVS/i:
+					when /HK_AVS/i
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:avs] = true
 						dialrange[dialnum][:timestamp] = Time.now
 						modem.hangup
-					when /HK_NOTED/i:
+					when /HK_NOTED/i
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:noted] = true
 						dialrange[dialnum][:timestamp] = Time.now
 						modem.hangup
-					when /HK_GIRL/i:
+					when /HK_GIRL/i
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:girl] = true
 						dialrange[dialnum][:timestamp] = Time.now
 						modem.hangup
-					when /NO CARRIER/i:
+					when /NO CARRIER/i
 						print_status( "No Carrier" )
 						dialrange[dialnum][:identified] = true #TODO: should this be false?
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:timestamp] = Time.now
-					when /BUSY/i:
+					when /BUSY/i
 						print_status( "Busy" )
 						dialrange[dialnum][:identified] = false
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:busy] = true
 						dialrange[dialnum][:timestamp] = Time.now
 						num_busy += 1
-					when /OK/i:
+					when /OK/i
 						print_status( "Unexpected OK response..." )
-					when /NO DIAL *TONE/i:
+					when /NO DIAL *TONE/i
 						nextnum = false
 						modem.hangup
 						sleep 1
 						next
-					when nil:
+					when nil
 						modem.hangup
 					else
 						print_status( "Unrecognized Response String" )
@@ -394,7 +394,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def log_result(dialnum)
 		case @logmethod
-			when :file :
+			when :file
 				logfile = File.join(@datadir, 'found.log')
 				file = File.new(logfile, 'a')
 				file.puts( "#####( NEW LOG ENTRY )#####\n")
@@ -403,8 +403,8 @@ class Metasploit3 < Msf::Auxiliary
 				file.puts( "#{dialnum[:banner]}\n") if dialnum[:banner]
 				file.puts( "#####( END LOG ENTRY )#####\n")
 				file.close
-			when :database :
-			when :tidbits :
+			when :database
+			when :tidbits
 		end
 	end
 
