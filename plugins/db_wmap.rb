@@ -1,8 +1,5 @@
 require 'fileutils'
-require 'msf/ui/console/command_dispatcher/db'
 require 'msf/ui/console/command_dispatcher/wmap'
-require 'rubygems'
-require 'sqlite3'
 
 module Msf
 
