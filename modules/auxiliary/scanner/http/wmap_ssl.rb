@@ -32,7 +32,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Fingerprint a single host
 	def run_host(ip)
-
+		if !datastore['SSL'] 
+			print_error("SSL set to false")
+			return
+		end	
 
 		begin
 			ssock = Rex::Socket::SslTcp.create(
