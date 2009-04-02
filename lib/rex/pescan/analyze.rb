@@ -222,7 +222,7 @@ module Analyze
 				dest = File.join(dest, File.basename(param['file']))
 			end
 			
-			FileUtils.mkdir_p(dest)
+			::FileUtils.mkdir_p(dest)
 			
 			pe.resources.keys.sort.each do |rkey|
 				res  = pe.resources[rkey]
@@ -247,7 +247,7 @@ module Analyze
 			dest = param['dir']
 			path = ''
 			
-			FileUtils.mkdir_p(dest)
+			::FileUtils.mkdir_p(dest)
 			
 			if(not (param['dir'] and param['file']))
 				$stderr.puts "No directory or file specified"
