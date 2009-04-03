@@ -147,17 +147,23 @@ nop     = nil
 
 if (exploit.datastore['PAYLOAD'])
 	payload = $framework.payloads.create(exploit.datastore['PAYLOAD'])
+	if (payload != nil)
 	payload.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
+	end
 end
 
 if (exploit.datastore['ENCODER'])
 	encoder = $framework.encoders.create(exploit.datastore['ENCODER'])
+	if (encoder != nil)
 	encoder.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
+	end
 end
 
 if (exploit.datastore['NOP'])
 	nop = $framework.nops.create(exploit.datastore['NOP'])
+	if (nop != nil)
 	nop.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
+	end
 end
 
 case mode.downcase
