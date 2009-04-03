@@ -97,7 +97,7 @@ class Plugin::Msfd < Msf::Plugin
 		begin
 			client = server.accept
 
-			addr = Rex::Socket.resolv_nbo(client.getpeername[1])
+			addr = Rex::Socket.resolv_nbo(client.peerhost)
 
 			if opts['HostsAllowed'] and
 			   not opts['HostsAllowed'].find { |x| x == addr }
