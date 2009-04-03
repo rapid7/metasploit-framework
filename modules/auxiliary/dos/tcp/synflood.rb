@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'TCP SYN Flooder',
 			'Description' => 'A simple TCP SYN flooder',
-			'Author'      => 'Kris Katterjohn <katterjohn[at]gmail[dot]com>',
+			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE,
 			'Version'     => '$Revision$' # 03/13/2009
 		)

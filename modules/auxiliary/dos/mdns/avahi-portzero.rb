@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 				Avahi-daemon versions prior to 0.6.24 can be DoS'd
 				with an mDNS packet with a source port of 0
 			},
-			'Author'      => 'kris',
+			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE,
 			'Version'     => '$Revision$',
 			'References'  => [ [ 'CVE', '2008-5081' ] ],

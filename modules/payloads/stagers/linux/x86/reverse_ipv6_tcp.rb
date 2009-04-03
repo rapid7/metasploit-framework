@@ -27,7 +27,7 @@ module Metasploit3
 			'Name'        => 'Reverse TCP Stager (IPv6)',
 			'Version'     => '$Revision$',
 			'Description' => 'Connect back to attacker over IPv6',
-			'Author'      => 'Kris Katterjohn <katterjohn[at]gmail.com>',
+			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE,
 			'Platform'    => 'linux',
 			'Arch'        => ARCH_X86,

@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 			except for ECHO at the time of the password prompt since
 			the server controls that for a bit more realism.
 			},
-			'Author'         => 'kris',
+			'Author'         => 'kris katterjohn',
 			'License'        => MSF_LICENSE,
 			'Actions'        => [ [ 'Capture' ] ],
 			'PassiveActions' => [ 'Capture' ],

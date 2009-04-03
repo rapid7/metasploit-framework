@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 				a valid login, but even anonymous can do it as long
 				as it has permission to call NLST.
 			},
-			'Author'         => 'kris',
+			'Author'         => 'kris katterjohn',
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>

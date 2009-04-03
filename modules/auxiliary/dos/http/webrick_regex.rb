@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 				to 1.8.7-p71, and 1.9 to r18423 allows for a DoS
 				(CPU consumption) via a crafted HTTP request.
 			},
-			'Author'         => 'kris',
+			'Author'         => 'kris katterjohn',
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     => [

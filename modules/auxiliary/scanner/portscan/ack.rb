@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 				unfiltered ports found means a stateful firewall is
 				not in place for them.
 			},
-			'Author'      => 'Kris Katterjohn <katterjohn[at]gmail[dot]com>',
+			'Author'      => 'kris katterjohn',
 			'Version'     => '$Revision$', # 03/26/2009
 			'License'     => MSF_LICENSE
 		)

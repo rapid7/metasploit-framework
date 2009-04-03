@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 				The Victory FTP Server v5.0 can be brought down by sending
 				a very simple LIST command
 			},
-			'Author'         => 'kris',
+			'Author'         => 'kris katterjohn',
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>

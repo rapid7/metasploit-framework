@@ -23,7 +23,7 @@ module Metasploit3
 			'Name'          => 'Linux Command Shell, Bind TCP Inline (IPv6)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection over IPv6 and spawn a command shell',
-			'Author'        => 'Kris Katterjohn <katterjohn@gmail.com>',
+			'Author'        => 'kris katterjohn',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'linux',
 			'Arch'          => ARCH_X86,

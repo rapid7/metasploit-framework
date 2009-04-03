@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			by Black Alchemy's fakeap tool.
 			},
 			
-			'Author'         => [ 'hdm', 'kris' ],
+			'Author'         => [ 'hdm', 'kris katterjohn' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$'
 		))			

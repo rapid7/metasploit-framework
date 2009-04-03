@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => %q{
 				Enumerate open TCP services using a raw SYN scan.
 			},
-			'Author'      => 'Kris Katterjohn <katterjohn[at]gmail[dot]com>',
+			'Author'      => 'kris katterjohn',
 			'Version'     => '$Revision$', # 03/26/2009
 			'License'     => MSF_LICENSE
 		)

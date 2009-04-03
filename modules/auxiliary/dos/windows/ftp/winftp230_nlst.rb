@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 				PoC.  You need a valid login, but even anonymous can
 				do it if it has permission to call NLST.
 			},
-			'Author'         => 'kris',
+			'Author'         => 'kris katterjohn',
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>

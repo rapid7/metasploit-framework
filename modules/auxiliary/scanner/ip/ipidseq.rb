@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 				Nmap's Idle Scan can use hosts whose IPID sequences are
 				classified as "Incremental" or "Broken little-endian incremental".
 			},
-			'Author'      => 'Kris Katterjohn <katterjohn[at]gmail[dot]com>',
+			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE,
 			'Version'     => '$Revision$' # 03/28/2009
 		)

@@ -22,7 +22,7 @@ module Metasploit3
 			'Name'        => 'Unix Command Shell, Bind TCP (via Ruby)',
 			'Version'     => '$Revision$',
 			'Description' => 'Continually listen for a connection and spawn a command shell via Ruby',
-			'Author'      => 'Kris Katterjohn <katterjohn[at]gmail.com>',
+			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE,
 			'Platform'    => 'unix',
 			'Arch'        => ARCH_CMD,

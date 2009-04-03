@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 				frame when replacing any specified addresses.
 			},
 			# 11/03/2008
-			'Author'      => 'Kris Katterjohn <katterjohn[at]gmail.com>',
+			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE,
 			'Version'     => '$Revision$'
 		))

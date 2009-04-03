@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				a while (I know of a server that still allows this
 				just fine...).
 			},
-			'Author'      => 'Kris Katterjohn <katterjohn[at]gmail.com>',
+			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE
 		)
 

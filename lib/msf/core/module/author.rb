@@ -26,7 +26,7 @@ class Msf::Module::Author
 			'ramon'     => 'ramon' + 0x40.chr + 'risesecurity.org',
 			'I)ruid'    => 'druid' +  0x40.chr + 'caughq.org',
 			'egypt'     => 'egypt' + 0x40.chr + 'metasploit.com',
-			'kris'      => 'katterjohn' + 0x40.chr + 'gmail.com',
+			'kris katterjohn' => 'katterjohn' + 0x40.chr + 'gmail.com',
 			'CG'        => 'cg' + 0x40.chr + 'carnal0wnage.com'
 		}
 

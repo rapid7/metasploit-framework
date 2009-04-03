@@ -27,7 +27,7 @@ module Metasploit3
 			'Name'        => 'Bind TCP Stager (IPv6)',
 			'Version'     => '$Revision$',
 			'Description' => 'Listen for a connection over IPv6',
-			'Author'      => 'Kris Katterjohn <katterjohn[at]gmail.com>',
+			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE,
 			'Platform'    => 'linux',
 			'Arch'        => ARCH_X86,

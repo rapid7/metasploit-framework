@@ -15,7 +15,7 @@ module Metasploit3
 			'Name'        => 'Linux Chmod',
 			'Version'     => '$Revision$',
 			'Description' => 'Runs chmod on specified file with specified mode',
-			'Author'      => 'Kris Katterjohn <katterjohn@gmail.com>',
+			'Author'      => 'kris katterjohn',
 			'License'     => BSD_LICENSE,
 			'Platform'    => 'linux',
 			'Arch'        => ARCH_X86))

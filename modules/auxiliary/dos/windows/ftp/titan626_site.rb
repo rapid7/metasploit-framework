@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 				issuing "SITE WHO".  You need a valid login so you
 				can send this command.
 			},
-			'Author'         => 'kris',
+			'Author'         => 'kris katterjohn',
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>

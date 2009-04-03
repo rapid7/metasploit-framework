@@ -22,7 +22,7 @@ module Metasploit3
 			'Name'        => 'Windows Command Shell, Reverse TCP (via Ruby)',
 			'Version'     => '$Revision$',
 			'Description' => 'Connect back and create a command shell via Ruby',
-			'Author'      => 'Kris Katterjohn <katterjohn[at]gmail.com>',
+			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE,
 			'Platform'    => 'win',
 			'Arch'        => ARCH_CMD,
