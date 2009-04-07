@@ -39,14 +39,12 @@ class Plugin::PcapLog < Msf::Plugin
 			require 'pcaprub'
 		rescue LoadError
 			self.no_pcaprub_error
-			# what is the right way to deal with errors without printing backtraces
-			# so users don't freak out?
-			Thread.exit
+			raise
 		end
 
 		if (iface.nil?) 
 			self.usage
-			Thread.exit
+			raise RuntimeError.new("No interface specified")
 		end
 
 		t = Time.now

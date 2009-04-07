@@ -553,10 +553,13 @@ class Core
 		path = Msf::Config.plugin_directory + File::SEPARATOR + path if (path !~ /#{File::SEPARATOR}/)
 
 		# Load that plugin!
-		if ((inst = framework.plugins.load(path, opts)))
-			print_status("Successfully loaded plugin: #{inst.name}")
-		else
-			print_error("Failed to load plugin from #{arg[0]}")
+		begin
+			if (inst = framework.plugins.load(path, opts))
+				print_status("Successfully loaded plugin: #{inst.name}")
+			end
+		rescue ::Exception => e
+			elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", src = 'core', level = 0, from = caller)
+			print_error("Failed to load plugin from #{path}: #{e}")
 		end
 	end
 	
