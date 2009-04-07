@@ -97,7 +97,7 @@ module SocketTracer
 		@log_prefix  = prefix
 		@log_id      = @@last_id
 		@@last_id   += 1
-		@fd = File.open("#{@log_path}/#{@log_prefix}#{@log_id}.log", "w")
+		@fd = File.open(File.join(@log_path, "#{@log_prefix}#{@log_id}.log"), "w")
 		@fd.puts "Socket created at #{Time.now}"
 		@fd.puts "Info: #{params.proto} #{params.localhost}:#{params.localport} -> #{params.peerhost}:#{params.peerport}"
 		@fd.puts ""
