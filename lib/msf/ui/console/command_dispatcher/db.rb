@@ -724,10 +724,10 @@ class Db
 			opts['dbfile'] = info[:path]
 
 			if (not File.exists?(opts['dbfile']))
-				print_status("The specified database does not exist")
+				print_error("The specified database does not exist")
 				return
 			end
-						
+
 			if (not framework.db.connect(opts))
 				raise RuntimeError.new("Failed to connect to the database")
 			end
