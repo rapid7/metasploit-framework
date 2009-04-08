@@ -780,9 +780,13 @@ class Db
 		def db_destroy_sqlite3(*args)
 			cmd_db_disconnect()
 			info = db_parse_db_uri_sqlite3(args[0])
-			File.unlink(info[:path])
+			begin
+				File.unlink(info[:path])
+			rescue Errno::ENOENT
+				print_error("The specified database does not exist")
+			end
 		end
-		
+
 		def db_parse_db_uri_sqlite3(path)
 			res = {}
 			res[:path] = path || ::File.join(Msf::Config.config_directory, 'sqlite3.db')
