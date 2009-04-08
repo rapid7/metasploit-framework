@@ -828,7 +828,7 @@ class Core
 					}
 				end
 			}
-		rescue NameError
+		rescue NameError, RuntimeError
 			log_error("Failed to add search path #{curr_path}: #{$!}")
 			return true
 		end
