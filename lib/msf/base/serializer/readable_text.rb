@@ -180,6 +180,7 @@ class ReadableText
 		output  = "\n"
 		output << "       Name: #{mod.name}\n"
 		output << "    Version: #{mod.version}\n"
+		output << "    License: #{mod.license}\n"
 		output << "\n"
 
 		# Authors
