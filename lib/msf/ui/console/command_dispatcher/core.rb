@@ -122,11 +122,12 @@ class Core
 
 	#
 	# Pop the current dispatcher stack context, assuming it isn't pointed at
-	# the core stack context.
+	# the core or database backend stack context.
 	#
 	def cmd_back(*args)
 		if (driver.dispatcher_stack.size > 1 and
-		    driver.current_dispatcher.name != 'Core')
+		    driver.current_dispatcher.name != 'Core' and
+		    driver.current_dispatcher.name != 'Database Backend')
 			# Reset the active module if we have one
 			if (active_module)
 				
