@@ -39,6 +39,8 @@ class Metasploit3 < Msf::Auxiliary
 			s = connect(false)
 			data = s.get
 			disconnect(s)
+		rescue ::Rex::ConnectionError, ::EOFError
+			return
 		rescue ::Exception
 			print_error("Error: #{$!}")
 			return
