@@ -142,7 +142,7 @@ def run
 		return
 	end
 
-	print_status("This module defined no run_host or run_range methods")
+	print_error("This module defined no run_host, run_range or run_batch methods")
 	
 	rescue ::Interrupt
 		print_status("Caught interrupt from the console...")
