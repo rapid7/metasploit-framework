@@ -295,7 +295,10 @@ class Core
 				'PeerPort'  => port,
 				'LocalHost' => srcaddr,
 				'LocalPort' => srcport,
-				'Timeout'   => cto
+				'Timeout'   => cto,
+				'Context'   => {
+					'Msf' => framework
+				}
 			})
 		rescue
 			print_error("Unable to connect: #{$!}")
