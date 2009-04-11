@@ -26,6 +26,10 @@ class Plugin::DB_Tracer < Msf::Plugin
 
 			if (sock.peerhost != '0.0.0.0' and sock.peerport)
 
+				# Ignore sockets that didn't set up their context 
+				# to hold the framework in 'Msf'
+				return if not param.context['Msf']
+
 				host = param.context['Msf'].db.get_host(param.context, sock.peerhost)
 				return if not host
 				
