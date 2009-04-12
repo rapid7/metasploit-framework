@@ -664,7 +664,7 @@ class Db
 			if(self.respond_to?(meth))
 				self.send(meth, *args)
 			else
-				print_error("This database driver is not currently supported")
+				print_error("This database driver #{framework.db.driver} is not currently supported")
 			end
 		end
 		
@@ -674,7 +674,7 @@ class Db
 			if(self.respond_to?(meth))
 				self.send(meth, *args)
 			else
-				print_error("This database driver is not currently supported")
+				print_error("This database driver #{framework.db.driver} is not currently supported")
 			end
 		end
 		
@@ -684,7 +684,7 @@ class Db
 			if(self.respond_to?(meth))
 				self.send(meth, *args)
 			else
-				print_error("This database driver is not currently supported")
+				print_error("This database driver #{framework.db.driver} is not currently supported")
 			end
 		end
 		
@@ -694,7 +694,7 @@ class Db
 			if(self.respond_to?(meth))
 				self.send(meth, *args)
 			else
-				print_error("This database driver is not currently supported")
+				print_error("This database driver #{framework.db.driver} is not currently supported")
 			end
 		end
 
@@ -950,7 +950,7 @@ class Db
 		#
 		# Disconnect from the current Postgres instance
 		#
-		def db_disconnect_postgres(*args)
+		def db_disconnect_postgresql(*args)
 			if (framework.db)
 				framework.db.disconnect()
 			end
@@ -959,8 +959,8 @@ class Db
 		#
 		# Connect to an existing Postgres database
 		#
-		def db_connect_postgres(*args)
-			info = db_parse_db_uri_postgres(args[0])
+		def db_connect_postgresql(*args)
+			info = db_parse_db_uri_postgresql(args[0])
 			opts = { 'adapter' => 'postgresql' }
 
 			opts['username'] = info[:user] if (info[:user])
@@ -977,10 +977,10 @@ class Db
 		#
 		# Create a new Postgres database instance
 		#				
-		def db_create_postgres(*args)
+		def db_create_postgresql(*args)
 			cmd_db_disconnect()
 			
-			info = db_parse_db_uri_postgres(args[0])
+			info = db_parse_db_uri_postgresql(args[0])
 			opts = { 'adapter' => 'postgresql' }
 			argv = []
 
@@ -1038,11 +1038,11 @@ class Db
 		#
 		# Drop an existing database
 		#
-		def db_destroy_postgres(*args)
+		def db_destroy_postgresql(*args)
 
 			cmd_db_disconnect()
 
-			info = db_parse_db_uri_postgres(args[0])
+			info = db_parse_db_uri_postgresql(args[0])
 			argv = []
 			
 			if (info[:user])
@@ -1071,7 +1071,7 @@ class Db
 			system("dropdb #{cargs} #{info[:name]}")
 		end
 		
-		def db_parse_db_uri_postgres(path)
+		def db_parse_db_uri_postgresql(path)
 			res = {}
 			if (path)
 				auth, dest = path.split('@')
