@@ -118,9 +118,9 @@ class Metasploit3 < Msf::Auxiliary
 
 				
 				if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
-					print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{target_host})") 					
+					print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})") 					
 				else
-					print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{target_host})")
+					print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
 					rep_id = wmap_base_report_id(
 									wmap_target_host,
 									wmap_target_port,

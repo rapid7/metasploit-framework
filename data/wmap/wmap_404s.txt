@@ -9,9 +9,11 @@ ExtendNet
 FAIL
 FireWall-1 message
 HP Web JetAdmin
+gina de error
 IMail Server Web Messaging
 Management Console
 No web site is configured at this address
+NO ENCONTRADA
 PHP Fatal error:  Unable to open
 Please identify yourself:
 RSA SecurID User Name Request
