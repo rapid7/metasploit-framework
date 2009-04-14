@@ -12,6 +12,7 @@ class Plugin::DeprecatedStub < Msf::Plugin
 		print_error("command to use a database driver other than sqlite3 (which")
 		print_error("is now the default).  All of the old commands are the same.")
 		print_error("")
+		raise RuntimeError.new("Deprecated plugin")
 	end
 end
 end
