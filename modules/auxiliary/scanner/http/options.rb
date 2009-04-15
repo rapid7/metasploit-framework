@@ -16,11 +16,12 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::WMAPScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 
 	def initialize
 		super(
 			'Name'        => 'HTTP Options Detection',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision:$',
 			'Description' => 'Display available HTTP options for each system',
 			'Author'       => ['CG'],
 			'License'     => MSF_LICENSE
@@ -28,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 		
 	end
 
-	def run_host(ip)
+	def run_host(target_host)
 
 		begin
 			res = send_request_raw({
@@ -38,14 +39,22 @@ class Metasploit3 < Msf::Auxiliary
 			}, 10)
 
 			if (res and res.headers['Allow'])
-				print_status("#{ip} allows #{res.headers['Allow']} methods")
+				print_status("#{target_host} allows #{res.headers['Allow']} methods")
 
 				rep_id = wmap_base_report_id(
 					wmap_target_host,
 					wmap_target_port,
 					wmap_target_ssl
 				)
-				
+
+				report_note(
+				:host	=> target_host,
+				:proto	=> 'HTTP',
+				:port	=> rport,
+				:type	=> 'HTTP_OPTIONS',
+				:data	=> res.headers['Allow']
+			)
+
 				wmap_report(rep_id,'WEB_SERVER','OPTIONS',"#{res.headers['Allow']}",nil)
 			else
 				print_status("No options.")
