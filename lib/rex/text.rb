@@ -853,6 +853,13 @@ module Text
 		rand_base(len, bad, *foo )
 	end
 	
+	# Generate random bytes of high ascii data
+	def self.rand_text_highascii(len, bad='')
+		foo = []
+                foo += (0x80 .. 0xff).map{ |c| c.chr }
+                rand_base(len, bad, *foo )
+        end
+	
 	#
 	# Creates a pattern that can be used for offset calculation purposes.  This
 	# routine is capable of generating patterns using a supplied set and a
