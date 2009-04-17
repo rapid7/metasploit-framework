@@ -117,7 +117,8 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 			
-			send_message(mime_msg.to_s)		
+			send_message(mime_msg.to_s)
+			sleep wait		
 		end
 	
 		print_status("Email sent..")
