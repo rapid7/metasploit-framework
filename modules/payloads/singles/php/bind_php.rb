@@ -25,7 +25,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'PHP Command Shell, Bind TCP (via php)',
 			'Version'       => '$Revision$',
-			'Description'   => 'Listen for a connection and spawn a command shell via php (persistent)',
+			'Description'   => 'Listen for a connection and spawn a command shell via php',
 			'Author'        => ['egypt', 'diaul <diaul@devilopers.org>',],
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'php',
