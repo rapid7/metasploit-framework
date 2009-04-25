@@ -104,7 +104,7 @@ function getVersion(){
 				break;
 			case "566626":
 				// IE 6.0.2600.0000, XP SP0 English
-				os_flaver = "XP"; 
+				os_flavor = "XP"; 
 				os_sp = "SP0";
 				break;
 			case "568515":
