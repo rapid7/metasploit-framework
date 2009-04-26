@@ -48,6 +48,7 @@ class Db
 				"db_add_port"   => "Add a port to host",
 				"db_add_note"   => "Add a note to host",
 				"db_del_host"   => "Delete one or more hosts from the database",
+				"db_del_port"   => "Delete one port from the database",
 				"db_autopwn"    => "Automatically exploit everything",
 				"db_import_amap_mlog"   => "Import a THC-Amap scan results file (-o -m)",
 				"db_import_nessus_nbe"  => "Import a Nessus scan result file (NBE)",
@@ -105,6 +106,17 @@ class Db
 			
 			print_status("Time: #{service.created} Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}")
 		end
+        
+        def cmd_db_del_port(*args)
+            if (not args or args.length < 3)
+                print_status("Usage: db_del_port [host] [port] [proto]")
+                return
+            end
+
+            if framework.db.del_service(nil, args[0], args[2].downcase, args[1].to_i)
+                print_status("Service: host=#{args[0]} port=#{args[1].to_i} proto=#{args[2].downcase} deleted")
+            end
+        end
 
 		def cmd_db_add_note(*args)
 			if (not args or args.length < 3)
