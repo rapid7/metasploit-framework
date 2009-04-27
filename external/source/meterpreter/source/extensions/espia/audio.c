@@ -93,7 +93,6 @@ DWORD request_audio_get_dev_audio(Remote *remote, Packet *packet)
 	if (controlmic(&wave))
 	{
 		res = GetLastError();
-		break;
 	}
 
 	//packet_add_tlv_string(response, TLV_TYPE_DEV_AUDIO, wave);
