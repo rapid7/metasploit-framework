@@ -214,7 +214,7 @@ class Client
 		req << set_method(c_meth)
 		req << set_method_uri_spacer()
 		req << set_uri_prepend()
-		req << set_encode_uri(uri)
+		req << (c_enc ? set_encode_uri(uri):uri)
 
 		if (qstr.length > 0)
 			req << '?'
