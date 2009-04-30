@@ -76,6 +76,11 @@ class Metasploit3 < Msf::Encoder
 		# parse errors on the server side, so do the same for them.
 		b64.gsub!("+", ".chr(43).")
 		b64.gsub!("/", ".chr(47).")
+		# In the case where a plus or slash happened at the end of a chunk,
+		# we'll have two dots next to each other, so fix it up.  Note that this
+		# is searching for literal dots, not a regex matching any two
+		# characters
+		b64.gsub!("..", ".")
 
 		
 		return "eval(base64_decode(" + b64 + "));"
