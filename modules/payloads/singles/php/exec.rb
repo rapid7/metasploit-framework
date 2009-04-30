@@ -25,8 +25,8 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'PHP Execute Command ',
 			'Version'       => '$Revision$',
-			'Description'   => 'Execute a single shell command',
-			'Author'        => [ 'egypt <egypt@metasploit.com>' ],
+			'Description'   => 'Execute a single system command',
+			'Author'        => [ 'egypt' ],
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'php',
 			'Arch'          => ARCH_PHP
@@ -47,7 +47,7 @@ module Metasploit3
 		#{php_system_block({:cmd_varname=>"$c", :disabled_varname => dis})}
 		END_OF_PHP_CODE
 		
-		return shell
+		return Rex::Text.compress(shell)
 	end
 
 	#
