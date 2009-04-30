@@ -27,7 +27,8 @@ class Console::CommandDispatcher::Core
 	end
 
 	@@use_opts = Rex::Parser::Arguments.new(
-		"-h" => [ false, "Help menu."      ])
+		"-l" => [ false, "List all available extensions" ],
+		"-h" => [ false, "Help menu."                    ])
 
 	#
 	# List of supported commands.
@@ -229,6 +230,17 @@ class Console::CommandDispatcher::Core
 
 		@@use_opts.parse(args) { |opt, idx, val|
 			case opt
+				when "-l"
+					exts = []
+					path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter')
+					::Dir.entries(path).each { |f| 
+						if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.dll/ )
+							exts.push($1)
+						end
+					}
+					print(exts.join("\n"))
+
+					return true
 				when "-h"
 					print(
 						"Usage: use ext1 ext2 ext3 ...\n\n" +
@@ -270,7 +282,9 @@ class Console::CommandDispatcher::Core
 		path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter')
 		::Dir.entries(path).each { |f| 
 			if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.dll/ )
-				tabs.push($1)
+				if (not extensions.include?($1))
+					tabs.push($1)
+				end
 			end
 		}
 		return tabs
