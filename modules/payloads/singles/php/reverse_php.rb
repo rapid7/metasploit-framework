@@ -26,7 +26,7 @@ module Metasploit3
 			'Name'          => 'PHP Command Shell, Reverse TCP (via php)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Reverse PHP connect back shell with checks for disabled functions',
-			'Author'        => 'egypt <egypt@nmt.edu>',
+			'Author'        => 'egypt',
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'php',
 			'Arch'          => ARCH_PHP,
