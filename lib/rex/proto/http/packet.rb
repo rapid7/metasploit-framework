@@ -74,7 +74,7 @@ class Packet
 	def parse(buf)
 
 		# Append the incoming buffer to the buffer queue.
-		self.bufq << buf
+		self.bufq += buf
 
 		begin
 			# If we're processing headers, do that now.
@@ -147,9 +147,9 @@ class Packet
 
 	    while (str.size > 0)
 	        chunk = str.slice!(0, rand(max_size - min_size) + min_size)
-	        chunked << sprintf("%x", chunk.size) + "\r\n" + chunk + "\r\n"
+	        chunked += sprintf("%x", chunk.size) + "\r\n" + chunk + "\r\n"
 	    end
-	    chunked << "0\r\n\r\n"
+	    chunked += "0\r\n\r\n"
 	end
 
 	#
@@ -189,7 +189,7 @@ class Packet
 	    end
 
 		str  = self.headers.to_s(cmd_string)
-		str << content || ''
+		str += content || ''
 	end
 
 	#
@@ -393,11 +393,11 @@ protected
 		if (self.body_bytes_left > 0)
 			part = self.bufq.slice!(0, self.body_bytes_left)
 
-			self.body << part
+			self.body += part
 			self.body_bytes_left -= part.length
 		# Otherwise, just read it all.
 		else
-			self.body << self.bufq
+			self.body += self.bufq
 			self.bufq  = ''
 		end
 
