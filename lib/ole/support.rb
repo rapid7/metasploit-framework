@@ -70,7 +70,7 @@ class Logger # :nodoc:
 	# A helper method for creating a +Logger+ which produce call stack
 	# in their output
 	def self.new_with_callstack logdev=STDERR
-		log = Logger.new logdev
+		log = Logger.new
 		log.level = WARN
 		log.formatter = proc do |severity, time, progname, msg|
 			# find where we were called from, in our code
