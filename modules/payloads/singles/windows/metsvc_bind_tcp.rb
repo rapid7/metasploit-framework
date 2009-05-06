@@ -36,6 +36,36 @@ module Metasploit3
 					'Payload' => ""
 				}
 			))
+		# Set advanced options
+		register_advanced_options(
+			[
+				OptBool.new('AutoLoadStdapi',
+					[
+						true,
+						"Automatically load the Stdapi extension",
+						true
+					]),
+				OptString.new('AutoRunScript', [false, "Script to autorun on meterpreter session creation", ''])
+			], self.class)			
 	end
 
+	#
+	# Once a session is created, automatically load the stdapi extension if the
+	# advanced option is set to true.
+	#
+	def on_session(session)
+		super
+		if (datastore['AutoLoadStdapi'] == true)
+			session.load_stdapi 
+			if (framework.exploits.create(session.via_exploit).privileged?)
+				session.load_priv 
+			end
+		end
+		if (datastore['AutoRunScript'].empty? == false)
+			client = session
+			args = datastore['AutoRunScript'].split
+			session.execute_script(args.shift, binding)
+		end
+	end
+	
 end
