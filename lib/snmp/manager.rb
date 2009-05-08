@@ -39,6 +39,28 @@ class UDPTransport
     end
 end
 
+
+##
+# Wrap socket in a Metasploit friendly Rex compatibility layer
+#
+class RexUDPTransport
+    def initialize(socket)
+        @socket = socket
+    end
+
+    def close
+        @socket.close
+    end
+
+    def send(data, host, port, flags=0)
+        @socket.sendto(data, host, port, flags)
+    end
+
+    def recv(max_bytes)
+        @socket.recvfrom(max_bytes)
+    end
+end
+
 ##
 # Manage a request-id in the range 1..2**31-1
 #
@@ -124,6 +146,7 @@ class Manager
         :Host => 'localhost',
         :Port => 161,
         :TrapPort => 162,
+		:Socket => nil,
         :Community => 'public',
         :WriteCommunity => nil,
         :Version => :SNMPv2c,
@@ -154,13 +177,18 @@ class Manager
         @config[:WriteCommunity] = @config[:WriteCommunity] || @config[:Community]
         @host = @config[:Host]
         @port = @config[:Port]
+        @socket = @config[:Socket]
         @trap_port = @config[:TrapPort]
         @community = @config[:Community]
         @write_community = @config[:WriteCommunity]
         @snmp_version = @config[:Version]
         @timeout = @config[:Timeout]
         @retries = @config[:Retries]
-        @transport = @config[:Transport].new 
+        if(@socket)
+            @transport = @config[:Transport].new(@socket)
+        else
+            @transport = @config[:Transport].new 
+        end
         @max_bytes = @config[:MaxReceiveBytes]
         @mib = MIB.new
         load_modules(@config[:MibModules], @config[:MibDir])
@@ -458,7 +486,7 @@ class Manager
     end
     
     def try_request(request, community=@community, host=@host, port=@port)
-        (@retries + 1).times do |n|
+        (@retries.to_i + 1).times do |n|
             send_request(request, community, host, port)
             begin
                 timeout(@timeout) do
@@ -466,8 +494,8 @@ class Manager
                 end
             rescue Timeout::Error
                 # no action - try again
-            rescue => e
-                warn e.to_s
+			rescue ::Interrupt
+				raise $!
             end
         end
         raise RequestTimeout, "host #{@config[:Host]} not responding", caller
