@@ -1,0 +1,18 @@
+--- 
+dsx0SeizedCode: 1.3.6.1.2.1.10.81.1.1.5
+ds0: 1.3.6.1.2.1.10.81
+dsx0RobbedBitSignalling: 1.3.6.1.2.1.10.81.1.1.2
+dsx0IdleCode: 1.3.6.1.2.1.10.81.1.1.4
+ds0Compliances: 1.3.6.1.2.1.10.81.2.2
+ds0Conformance: 1.3.6.1.2.1.10.81.2
+dsx0ChanMappedIfIndex: 1.3.6.1.2.1.10.81.3.1.1
+ds0Groups: 1.3.6.1.2.1.10.81.2.1
+dsx0CircuitIdentifier: 1.3.6.1.2.1.10.81.1.1.3
+dsx0Ds0BundleMappedIfIndex: 1.3.6.1.2.1.10.81.1.1.8
+dsx0Ds0ChannelNumber: 1.3.6.1.2.1.10.81.1.1.1
+dsx0TransmitCodesEnable: 1.3.6.1.2.1.10.81.1.1.7
+dsx0ChanMappingTable: 1.3.6.1.2.1.10.81.3
+dsx0ChanMappingEntry: 1.3.6.1.2.1.10.81.3.1
+dsx0ConfigTable: 1.3.6.1.2.1.10.81.1
+dsx0ConfigEntry: 1.3.6.1.2.1.10.81.1.1
+dsx0ReceivedCode: 1.3.6.1.2.1.10.81.1.1.6

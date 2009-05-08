@@ -1,0 +1,9 @@
+--- 
+ifInvStackEntry: 1.3.6.1.2.1.77.1.1.1
+ifInvGroups: 1.3.6.1.2.1.77.1.2.1
+ifInvStackTable: 1.3.6.1.2.1.77.1.1
+ifInvCompliances: 1.3.6.1.2.1.77.1.2.2
+ifInvConformance: 1.3.6.1.2.1.77.1.2
+ifInvMIBObjects: 1.3.6.1.2.1.77.1
+ifInvertedStackMIB: 1.3.6.1.2.1.77
+ifInvStackStatus: 1.3.6.1.2.1.77.1.1.1.1

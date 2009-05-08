@@ -1,0 +1,24 @@
+--- 
+paraPortOutSigNumber: 1.3.6.1.2.1.10.34.2.1.4
+paraInSigTable: 1.3.6.1.2.1.10.34.3
+paraCompliances: 1.3.6.1.2.1.10.34.5.2
+paraOutSigState: 1.3.6.1.2.1.10.34.4.1.3
+paraConformance: 1.3.6.1.2.1.10.34.5
+para: 1.3.6.1.2.1.10.34
+paraOutSigTable: 1.3.6.1.2.1.10.34.4
+paraOutSigEntry: 1.3.6.1.2.1.10.34.4.1
+paraOutSigChanges: 1.3.6.1.2.1.10.34.4.1.4
+paraInSigPortIndex: 1.3.6.1.2.1.10.34.3.1.1
+paraInSigName: 1.3.6.1.2.1.10.34.3.1.2
+paraInSigChanges: 1.3.6.1.2.1.10.34.3.1.4
+paraPortTable: 1.3.6.1.2.1.10.34.2
+paraOutSigPortIndex: 1.3.6.1.2.1.10.34.4.1.1
+paraOutSigName: 1.3.6.1.2.1.10.34.4.1.2
+paraNumber: 1.3.6.1.2.1.10.34.1
+paraPortType: 1.3.6.1.2.1.10.34.2.1.2
+paraPortInSigNumber: 1.3.6.1.2.1.10.34.2.1.3
+paraInSigState: 1.3.6.1.2.1.10.34.3.1.3
+paraGroups: 1.3.6.1.2.1.10.34.5.1
+paraPortEntry: 1.3.6.1.2.1.10.34.2.1
+paraPortIndex: 1.3.6.1.2.1.10.34.2.1.1
+paraInSigEntry: 1.3.6.1.2.1.10.34.3.1

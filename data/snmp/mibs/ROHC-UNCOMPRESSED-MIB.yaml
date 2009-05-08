@@ -1,0 +1,11 @@
+--- 
+rohcUncmprContextEntry: 1.3.6.1.2.1.113.1.1.1
+rohcUncmprObjects: 1.3.6.1.2.1.113.1
+rohcUncmprCompliances: 1.3.6.1.2.1.113.2.1
+rohcUncmprContextTable: 1.3.6.1.2.1.113.1.1
+rohcUncmprConformance: 1.3.6.1.2.1.113.2
+rohcUncmprGroups: 1.3.6.1.2.1.113.2.2
+rohcUncmprMIB: 1.3.6.1.2.1.113
+rohcUncmprContextState: 1.3.6.1.2.1.113.1.1.1.3
+rohcUncmprContextMode: 1.3.6.1.2.1.113.1.1.1.4
+rohcUncmprContextACKs: 1.3.6.1.2.1.113.1.1.1.5

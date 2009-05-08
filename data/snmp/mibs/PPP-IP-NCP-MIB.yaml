@@ -1,0 +1,13 @@
+--- 
+pppIpRemoteToLocalCompressionProtocol: 1.3.6.1.2.1.10.23.3.1.1.3
+pppIp: 1.3.6.1.2.1.10.23.3
+pppIpTable: 1.3.6.1.2.1.10.23.3.1
+pppIpOperStatus: 1.3.6.1.2.1.10.23.3.1.1.1
+pppIpConfigAdminStatus: 1.3.6.1.2.1.10.23.3.2.1.1
+pppIpLocalToRemoteCompressionProtocol: 1.3.6.1.2.1.10.23.3.1.1.2
+pppIpConfigCompression: 1.3.6.1.2.1.10.23.3.2.1.2
+pppIpConfigTable: 1.3.6.1.2.1.10.23.3.2
+pppIpConfigEntry: 1.3.6.1.2.1.10.23.3.2.1
+pppIpRemoteMaxSlotId: 1.3.6.1.2.1.10.23.3.1.1.4
+pppIpEntry: 1.3.6.1.2.1.10.23.3.1.1
+pppIpLocalMaxSlotId: 1.3.6.1.2.1.10.23.3.1.1.5

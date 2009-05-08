@@ -1,0 +1,19 @@
+--- 
+atmTCMIB: 1.3.6.1.2.1.37.3
+atmNoClpTaggingNoScr: 1.3.6.1.2.1.37.1.1.11
+atmClpTaggingNoScr: 1.3.6.1.2.1.37.1.1.4
+atmClpNoTaggingMcr: 1.3.6.1.2.1.37.1.1.8
+atmObjectIdentities: 1.3.6.1.2.1.37.3.1
+atmClpNoTaggingNoScr: 1.3.6.1.2.1.37.1.1.3
+atmNoClpScr: 1.3.6.1.2.1.37.1.1.5
+atmClpTaggingScr: 1.3.6.1.2.1.37.1.1.7
+atmClpNoTaggingScrCdvt: 1.3.6.1.2.1.37.1.1.14
+atmNoTrafficDescriptor: 1.3.6.1.2.1.37.1.1.1
+atmClpTransparentNoScr: 1.3.6.1.2.1.37.1.1.9
+atmTrafficDescriptorTypes: 1.3.6.1.2.1.37.1.1
+atmClpTransparentScr: 1.3.6.1.2.1.37.1.1.10
+atmClpTaggingScrCdvt: 1.3.6.1.2.1.37.1.1.15
+atmClpNoTaggingScr: 1.3.6.1.2.1.37.1.1.6
+atmNoClpNoScrCdvt: 1.3.6.1.2.1.37.1.1.12
+atmNoClpNoScr: 1.3.6.1.2.1.37.1.1.2
+atmNoClpScrCdvt: 1.3.6.1.2.1.37.1.1.13

@@ -1,0 +1,17 @@
+--- 
+dsx0BondingTable: 1.3.6.1.2.1.10.82.1
+ds0BundleGroups: 1.3.6.1.2.1.10.82.4.1
+dsx0BondMode: 1.3.6.1.2.1.10.82.1.1.1
+dsx0BondRowStatus: 1.3.6.1.2.1.10.82.1.1.3
+dsx0BundleEntry: 1.3.6.1.2.1.10.82.3.1
+dsx0BundleIndex: 1.3.6.1.2.1.10.82.3.1.1
+dsx0BundleCircuitIdentifier: 1.3.6.1.2.1.10.82.3.1.3
+ds0BundleCompliances: 1.3.6.1.2.1.10.82.4.2
+dsx0BundleNextIndex: 1.3.6.1.2.1.10.82.2
+dsx0BundleTable: 1.3.6.1.2.1.10.82.3
+dsx0BundleIfIndex: 1.3.6.1.2.1.10.82.3.1.2
+ds0Bundle: 1.3.6.1.2.1.10.82
+dsx0BundleRowStatus: 1.3.6.1.2.1.10.82.3.1.4
+ds0BundleConformance: 1.3.6.1.2.1.10.82.4
+dsx0BondingEntry: 1.3.6.1.2.1.10.82.1.1
+dsx0BondStatus: 1.3.6.1.2.1.10.82.1.1.2

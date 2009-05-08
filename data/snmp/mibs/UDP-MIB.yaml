@@ -1,0 +1,14 @@
+--- 
+udp: 1.3.6.1.2.1.7
+udpLocalPort: 1.3.6.1.2.1.7.5.1.2
+udpInDatagrams: 1.3.6.1.2.1.7.1
+udpNoPorts: 1.3.6.1.2.1.7.2
+udpMIB: 1.3.6.1.2.1.50
+udpInErrors: 1.3.6.1.2.1.7.3
+udpTable: 1.3.6.1.2.1.7.5
+udpEntry: 1.3.6.1.2.1.7.5.1
+udpMIBGroups: 1.3.6.1.2.1.50.2.2
+udpMIBCompliances: 1.3.6.1.2.1.50.2.1
+udpOutDatagrams: 1.3.6.1.2.1.7.4
+udpMIBConformance: 1.3.6.1.2.1.50.2
+udpLocalAddress: 1.3.6.1.2.1.7.5.1.1

@@ -1,0 +1,14 @@
+--- 
+tcp: 1.3.6.1.2.1.6
+ipv6TcpConnTable: 1.3.6.1.2.1.6.16
+ipv6TcpMIB: 1.3.6.1.3.86
+ipv6TcpCompliances: 1.3.6.1.3.86.2.1
+ipv6TcpConnRemPort: 1.3.6.1.2.1.6.16.1.4
+ipv6TcpGroups: 1.3.6.1.3.86.2.2
+ipv6TcpConnLocalAddress: 1.3.6.1.2.1.6.16.1.1
+ipv6TcpConnRemAddress: 1.3.6.1.2.1.6.16.1.3
+ipv6TcpConnIfIndex: 1.3.6.1.2.1.6.16.1.5
+ipv6TcpConnState: 1.3.6.1.2.1.6.16.1.6
+ipv6TcpConnEntry: 1.3.6.1.2.1.6.16.1
+ipv6TcpConformance: 1.3.6.1.3.86.2
+ipv6TcpConnLocalPort: 1.3.6.1.2.1.6.16.1.2

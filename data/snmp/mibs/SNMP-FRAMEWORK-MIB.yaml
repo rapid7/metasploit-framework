@@ -1,0 +1,14 @@
+--- 
+snmpFrameworkMIBCompliances: 1.3.6.1.6.3.10.3.1
+snmpAuthProtocols: 1.3.6.1.6.3.10.1.1
+snmpFrameworkMIBObjects: 1.3.6.1.6.3.10.2
+snmpFrameworkAdmin: 1.3.6.1.6.3.10.1
+snmpEngine: 1.3.6.1.6.3.10.2.1
+snmpEngineMaxMessageSize: 1.3.6.1.6.3.10.2.1.4
+snmpFrameworkMIBConformance: 1.3.6.1.6.3.10.3
+snmpEngineBoots: 1.3.6.1.6.3.10.2.1.2
+snmpFrameworkMIB: 1.3.6.1.6.3.10
+snmpEngineTime: 1.3.6.1.6.3.10.2.1.3
+snmpPrivProtocols: 1.3.6.1.6.3.10.1.2
+snmpFrameworkMIBGroups: 1.3.6.1.6.3.10.3.2
+snmpEngineID: 1.3.6.1.6.3.10.2.1.1

@@ -1,0 +1,27 @@
+--- 
+ospfNbrStateChange: 1.3.6.1.2.1.14.16.2.2
+ospfIfAuthFailure: 1.3.6.1.2.1.14.16.2.6
+ospfLsdbApproachingOverflow: 1.3.6.1.2.1.14.16.2.15
+ospfTrapControl: 1.3.6.1.2.1.14.16.1
+ospfVirtIfTxRetransmit: 1.3.6.1.2.1.14.16.2.11
+ospfLsdbOverflow: 1.3.6.1.2.1.14.16.2.14
+ospfPacketSrc: 1.3.6.1.2.1.14.16.1.4
+ospfIfStateChange: 1.3.6.1.2.1.14.16.2.16
+ospfSetTrap: 1.3.6.1.2.1.14.16.1.1
+ospfVirtIfConfigError: 1.3.6.1.2.1.14.16.2.5
+ospfVirtIfAuthFailure: 1.3.6.1.2.1.14.16.2.7
+ospfIfRxBadPacket: 1.3.6.1.2.1.14.16.2.8
+ospfTxRetransmit: 1.3.6.1.2.1.14.16.2.10
+ospfMaxAgeLsa: 1.3.6.1.2.1.14.16.2.13
+ospfTraps: 1.3.6.1.2.1.14.16.2
+ospfPacketType: 1.3.6.1.2.1.14.16.1.3
+ospfTrapCompliances: 1.3.6.1.2.1.14.16.3.2
+ospfVirtNbrStateChange: 1.3.6.1.2.1.14.16.2.3
+ospfTrap: 1.3.6.1.2.1.14.16
+ospfTrapConformance: 1.3.6.1.2.1.14.16.3
+ospfIfConfigError: 1.3.6.1.2.1.14.16.2.4
+ospfOriginateLsa: 1.3.6.1.2.1.14.16.2.12
+ospfVirtIfRxBadPacket: 1.3.6.1.2.1.14.16.2.9
+ospfTrapGroups: 1.3.6.1.2.1.14.16.3.1
+ospfVirtIfStateChange: 1.3.6.1.2.1.14.16.2.1
+ospfConfigErrorType: 1.3.6.1.2.1.14.16.1.2

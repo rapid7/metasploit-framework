@@ -1,0 +1,15 @@
+--- 
+mplsLdpEntityGenericLRRowStatus: 1.3.6.1.2.1.10.166.7.1.1.1.1.6
+mplsLdpGenericGroups: 1.3.6.1.2.1.10.166.7.2.1
+mplsLdpGenericStdMIB: 1.3.6.1.2.1.10.166.7
+mplsLdpGenericConformance: 1.3.6.1.2.1.10.166.7.2
+mplsLdpEntityGenericLRTable: 1.3.6.1.2.1.10.166.7.1.1.1
+mplsLdpEntityGenericLRMax: 1.3.6.1.2.1.10.166.7.1.1.1.1.2
+mplsLdpEntityGenericLabelSpace: 1.3.6.1.2.1.10.166.7.1.1.1.1.3
+mplsLdpEntityGenericLRStorageType: 1.3.6.1.2.1.10.166.7.1.1.1.1.5
+mplsLdpGenericObjects: 1.3.6.1.2.1.10.166.7.1
+mplsLdpEntityGenericLRMin: 1.3.6.1.2.1.10.166.7.1.1.1.1.1
+mplsLdpEntityGenericObjects: 1.3.6.1.2.1.10.166.7.1.1
+mplsLdpEntityGenericIfIndexOrZero: 1.3.6.1.2.1.10.166.7.1.1.1.1.4
+mplsLdpGenericCompliances: 1.3.6.1.2.1.10.166.7.2.2
+mplsLdpEntityGenericLREntry: 1.3.6.1.2.1.10.166.7.1.1.1.1

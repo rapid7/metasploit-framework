@@ -1,0 +1,24 @@
+--- 
+hprIpAppnPortAppnTrafficType: 1.3.6.1.2.1.34.6.1.5.2.1.2
+hprIpLsTable: 1.3.6.1.2.1.34.6.1.5.3
+hprIpLsAppnTrafficType: 1.3.6.1.2.1.34.6.1.5.3.1.2
+hprIpCnVrnName: 1.3.6.1.2.1.34.6.1.5.4.1.1
+hprIpActiveLsEntry: 1.3.6.1.2.1.34.6.1.5.1.1
+hprIpLsRowStatus: 1.3.6.1.2.1.34.6.1.5.3.1.4
+hprIpAppnPortName: 1.3.6.1.2.1.34.6.1.5.2.1.1
+hprIpLsLsName: 1.3.6.1.2.1.34.6.1.5.3.1.1
+hprIpCnAppnTrafficType: 1.3.6.1.2.1.34.6.1.5.4.1.2
+hprIpCnEntry: 1.3.6.1.2.1.34.6.1.5.4.1
+hprIpActiveLsTable: 1.3.6.1.2.1.34.6.1.5.1
+hprIpActiveLsAppnTrafficType: 1.3.6.1.2.1.34.6.1.5.1.1.2
+hprIp: 1.3.6.1.2.1.34.6.1.5
+hprIpCnTOSPrecedence: 1.3.6.1.2.1.34.6.1.5.4.1.3
+hprIpAppnPortTOSPrecedence: 1.3.6.1.2.1.34.6.1.5.2.1.3
+hprIpCnTable: 1.3.6.1.2.1.34.6.1.5.4
+hprIpActiveLsUdpPackets: 1.3.6.1.2.1.34.6.1.5.1.1.3
+hprIpAppnPortTable: 1.3.6.1.2.1.34.6.1.5.2
+hprIpAppnPortEntry: 1.3.6.1.2.1.34.6.1.5.2.1
+hprIpLsEntry: 1.3.6.1.2.1.34.6.1.5.3.1
+hprIpActiveLsLsName: 1.3.6.1.2.1.34.6.1.5.1.1.1
+hprIpCnRowStatus: 1.3.6.1.2.1.34.6.1.5.4.1.4
+hprIpLsTOSPrecedence: 1.3.6.1.2.1.34.6.1.5.3.1.3
