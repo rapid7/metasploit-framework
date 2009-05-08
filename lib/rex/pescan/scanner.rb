@@ -23,6 +23,11 @@ module Scanner
 					vma  = pe.rva_to_vma(hit[0])
 					msg  = hit[1].is_a?(Array) ? hit[1].join(" ") : hit[1]
 					$stdout.puts pe.ptr_s(vma) + " " + msg
+					if(param['disasm'])
+						::Rex::Assembly::Nasm.disassemble([msg].pack("H*")).split("\n").each do |line|
+							$stdout.puts "\t#{line.strip}"
+						end
+					end					
 				end
 			end
 		end		
