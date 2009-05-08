@@ -58,7 +58,12 @@ class RexUDPTransport
     end
 
     def send(data, host, port, flags = 0)
-        @socket.sendto(data, host, port, flags)
+        begin
+            @socket.sendto(data, host, port, flags)
+        rescue NoMethodError
+            @socket.send(data, 0, host, port)
+        end
+
     end
 
     def recv(max_bytes)
