@@ -22,6 +22,8 @@ end
 # Straight up gangsta shit from spoon (ripped from BION)
 module DBSave
 
+# XXX: Removing the lock, may no longer be necessary
+=begin
 	def save(*args)
 		Lock.mutex.synchronize do
 			super(*args)
@@ -37,6 +39,7 @@ module DBSave
 			end			
 		end
 	end
+=end
 end
 
 # Host object definition
