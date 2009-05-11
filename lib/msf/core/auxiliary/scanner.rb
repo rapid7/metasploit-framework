@@ -60,7 +60,7 @@ def run
 						raise $!
 					rescue ::Rex::ConnectionError
 					rescue ::Exception => e
-						print_status("Error: #{targ}: #{e} #{e.backtrace}")
+						print_status("Error: #{targ}: #{e.message}")
 					end
 				end
 			end
