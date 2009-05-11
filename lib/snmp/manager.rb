@@ -499,8 +499,6 @@ class Manager
                 timeout(@timeout) do
                     return get_response(request)
                 end
-            rescue ::Interrupt
-                raise $!
             rescue Timeout::Error
                 # no action - try again
             end
