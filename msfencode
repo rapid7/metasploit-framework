@@ -19,7 +19,7 @@ $args = Rex::Parser::Arguments.new(
 	"-i" => [ true, "Encode the contents of the supplied file path"                      ],
 	"-m" => [ true, "Specifies an additional module search path"                         ],
 	"-a" => [ true, "The architecture to encode as"                                      ],
-	"-t" => [ true, "The format to display the encoded buffer with (raw, ruby, perl, c, exe, vba)" ],
+	"-t" => [ true, "The format to display the encoded buffer with (c, elf, exe, java, perl, raw, ruby, vba)" ],
 	"-b" => [ true, "The list of characters to avoid: '\\x00\\xff'"                      ],
 	"-s" => [ true, "The maximum size of the encoded data"                               ],
 	"-e" => [ true, "The encoder to use"                                                 ],
@@ -118,7 +118,7 @@ $args.parse(ARGV) { |opt, idx, val|
 		when "-s"
 			space = val.to_i
 		when "-t"
-			if (val =~ /^(perl|ruby|raw|c|js_le|js_be|java|exe|vba)$/)
+			if (val =~ /^(perl|ruby|raw|c|js_le|js_be|java|exe|elf|vba)$/)
 				fmt = val
 			else
 				$stderr.puts(OutError + "Invalid format: #{val}")
@@ -197,6 +197,15 @@ case cmd
 					else
 						File.open(output, "wb") do |fd|
 							fd.write(exe)
+						end
+					end				
+				when 'elf'
+					elf = Rex::Text.to_linux_x86_elf(raw, "")
+					if(not output)
+						$stdout.write(elf)
+					else
+						File.open(output, "wb") do |fd|
+							fd.write(elf)
 						end
 					end				
 				when 'vba'
