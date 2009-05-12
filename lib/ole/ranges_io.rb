@@ -95,7 +95,7 @@ class RangesIO
 			pos = @size + pos
 		else raise Errno::EINVAL
 		end
-		raise Errno::EINVAL unless (0...@size) === pos
+		raise Errno::EINVAL unless (0..@size) === pos
 		@pos = pos
 	end
 
