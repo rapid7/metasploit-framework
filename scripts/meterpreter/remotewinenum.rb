@@ -137,51 +137,6 @@ def headerbuid(session,target,dest)
   header
 
 end
-#------------------------------------------------------------------------------
-def winver(session)
-	stringtest = ""
-	verout = []
-	tmp = session.fs.file.expand_path("%TEMP%")
-	wmitmptxt = tmp + "\\" + sprintf("%.5d",rand(100000))
-
-	r = session.sys.process.execute("cmd.exe /c ver", nil, {'Hidden' => 'true','Channelized' => true})
-		while(d = r.channel.read)
-			stringtest << d
-		end
-	r.channel.close
-	r.close
-
-	verout, minor, major = stringtest.scan(/(\d)\.(\d)\.(\d*)/)
-	version = nil
-	if verout[0] == "6"
-		if verout[1] == "0"
-			r = session.sys.process.execute("cmd.exe /c wmic /append:#{wmitmptxt} os get name", nil, {'Hidden' => true})
-			sleep(2)
-			# Read the output file of the wmic commands
-			r = session.sys.process.execute("cmd.exe /c type #{wmitmptxt}", nil, {'Hidden' => 'true','Channelized' => true})
-			while(d = r.channel.read)
-				if d =~ /Windows Serverr 2008/
-					version = "Windows 2008"
-				elsif d =~ /Windows Vista/
-					version = "Windows Vista"
-				end
-			end
-			r.channel.close
-			r.close
-		elsif verout[1] == "1"
-			version = "Windpows 7"
-		end
-	elsif verout [0] == "5"
-		if verout[1] == "0"
-			version = "Windows 2000"
-		elsif verout[1] == "1"
-			version = "Windows XP"
-		elsif verout[1] == "2"
-			version = "Windows 2003"
-		end
-	end
-	version
-end
 
 #------------------------------------------------------------------------------
 # Function Help Message
@@ -197,7 +152,7 @@ def helpmsg
 end
 ################## MAIN ##################
 
-localos = winver(session)
+localos = session.sys.config.sysinfo
 
 # Check that the command is not being ran on a Win2k host
 # since wmic is not present in Windows 2000

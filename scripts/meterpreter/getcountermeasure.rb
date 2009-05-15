@@ -329,7 +329,7 @@ end
 #---------------------------------------------------------------------------------------------------------
 def checkuac(session)
 	print_status("Checking if UAC is enaled ...")
-	key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\System'
+	key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
 	root_key, base_key = session.sys.registry.splitkey(key)
 	value = "EnableLUA"
 	open_key = session.sys.registry.open_key(root_key, base_key, KEY_READ)
@@ -339,52 +339,6 @@ def checkuac(session)
 	else
 		print_status("\tUAC is Disabled")
 	end
-end
-#---------------------------------------------------------------------------------------------------------
-#Function for identifying the version of windows
-def winver(session)
-	stringtest = ""
-	verout = []
-	tmp = session.fs.file.expand_path("%TEMP%")
-	wmitmptxt = tmp + "\\" + sprintf("%.5d",rand(100000))
-
-	r = session.sys.process.execute("cmd.exe /c ver", nil, {'Hidden' => 'true','Channelized' => true})
-		while(d = r.channel.read)
-			stringtest << d
-		end
-	r.channel.close
-	r.close
-
-	verout, minor, major = stringtest.scan(/(\d)\.(\d)\.(\d*)/)
-	version = nil
-	if verout[0] == "6"
-		if verout[1] == "0"
-			r = session.sys.process.execute("cmd.exe /c wmic /append:#{wmitmptxt} os get name", nil, {'Hidden' => true})
-			sleep(2)
-			# Read the output file of the wmic commands
-			r = session.sys.process.execute("cmd.exe /c type #{wmitmptxt}", nil, {'Hidden' => 'true','Channelized' => true})
-			while(d = r.channel.read)
-				if d =~ /Windows Serverr 2008/
-					version = "Windows 2008"
-				elsif d =~ /Windows Vista/
-					version = "Windows Vista"
-				end
-			end
-			r.channel.close
-			r.close
-		elsif verout[1] == "1"
-			version = "Windpows 7"
-		end
-	elsif verout [0] == "5"
-		if verout[1] == "0"
-			version = "Windows 2000"
-		elsif verout[1] == "1"
-			version = "Windows XP"
-		elsif verout[1] == "2"
-			version = "Windows 2003"
-		end
-	end
-	version
 end
 
 ################## MAIN ##################
@@ -412,15 +366,15 @@ hlp = 0
 }
 #---------------------------------------------------------------------------------------------------------
 #get the version of windows
-wnvr = winver(session)
+wnvr = session.sys.config.sysinfo
 if (hlp == 0)
 	print_status("Running Getcountermeasure on the target...")
 	check(session,avs,killbt)
-	if not wnvr == "Windows 2000"
+	if not wnvr =~ (/Windows 2000/)
 		checklocalfw(session,killfw)
 		checkdep(session)
 	end
-	if wnvr == "Windows Vista"
+	if wnvr =~ (/Windows Vista/)
 		checkuac(session)
 	end
 end

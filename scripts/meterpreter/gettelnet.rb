@@ -27,40 +27,9 @@ def checkifinst(session)
 	r.close
 end
 
-#-------------------------------------------------------------------------------
-def winver(session)
-	stringtest = ""
-	verout = []
-	r = session.sys.process.execute("cmd.exe /c ver", nil, {'Hidden' => 'true','Channelized' => true})
-		while(d = r.channel.read)
-			stringtest << d
-		end
-	r.channel.close
-	r.close
-
-	verout, minor, major = stringtest.scan(/(\d)\.(\d)\.(\d*)/)
-	version = nil
-	if verout[0] == "6"
-		if verout[1] == "0"
-			version = "Windows Vista/Windows 2008"
-		elsif verout[1] == "1"
-			version = "Windpows 7"
-		end
-	elsif verout [0] == "5"
-		if verout[1] == "0"
-			version = "Windows 2000"
-		elsif verout[1] == "1"
-			version = "Windows XP"
-		elsif verout[1] == "2"
-			version = "Windows 2003"
-		end
-	end
-	version
-end
-
 #---------------------------------------------------------------------------------------------------------
 def insttlntsrv(session)
-	trgtos = winver(session)
+	trgtos = session.sys.config.sysinfo
 	if trgtos =~ /(Windows Vista)/ 
 		if checkifinst(session)
 			print_status("Telnet Service Installed on Target")

