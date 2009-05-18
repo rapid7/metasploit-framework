@@ -144,6 +144,7 @@ bank
 banner
 banner01
 banners
+basic
 batch
 bb-dnbd
 bbv
@@ -760,6 +761,7 @@ webboard
 webcart
 webcart-lite
 webdata
+webdav
 webdb
 webimages
 webimages2
