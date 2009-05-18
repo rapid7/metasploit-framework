@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
 			]
 
 		target_port = datastore['RPORT']
-		vhost = datastore['VHOST'] || datastore['RHOST'] || target_host
+		vhost = datastore['VHOST'] || wmap_target_host || ip
 
 		begin
 			# Check service exists
