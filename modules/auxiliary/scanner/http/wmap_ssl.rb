@@ -40,7 +40,8 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			ssock = Rex::Socket::SslTcp.create(
 				'PeerHost' => wmap_target_host,
-				'PeerPort' => wmap_target_port
+				'PeerPort' => wmap_target_port,
+				'Proxies'  => datastore['PROXIES'] 	
 			)
 
 			cert  = OpenSSL::X509::Certificate.new(ssock.peer_cert)
