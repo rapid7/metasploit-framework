@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		connect
-		if mssql_login
+		if mssql_login(datastore['MSSQL_USER'], datastore['MSSQL_PASS'])
 			cmd = datastore['CMD']
 			cmd_exec(cmd)
 		end
