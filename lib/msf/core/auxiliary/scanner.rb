@@ -61,6 +61,7 @@ def run
 					rescue ::Rex::ConnectionError
 					rescue ::Exception => e
 						print_status("Error: #{targ}: #{e.message}")
+						elog("Error running against host #{targ}: #{e.message}\n#{e.backtrace.join("\n")}")
 					end
 				end
 			end
