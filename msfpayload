@@ -97,51 +97,14 @@ if (cmd =~ /^(p|y|r|c|j|x|b|v)/)
 		arch = payload.arch
 		plat = payload.platform.platforms
 
-		if (arch.index(ARCH_X86))
-
-			# XXX: Automatically prepend stack adjustment
-			# XXX: buf = Rex::Arch.adjust_stack_pointer('x86', -3500) + buf
-
-			if (plat.index(Msf::Module::Platform::Windows))
-				buf = Rex::Text.to_win32pe(buf, note)
-				$stderr.puts(note)
-				$stdout.write(buf)
-				exit(0)
-			end
-
-			if (plat.index(Msf::Module::Platform::Linux))
-				buf = Rex::Text.to_linux_x86_elf(buf, note)
-				$stderr.puts(note)
-				$stdout.write(buf)
-				exit(0)
-			end
-			
-			if(plat.index(Msf::Module::Platform::OSX))
-				buf = Rex::Text.to_osx_x86_macho(buf, note)
-				$stderr.puts(note)
-				$stdout.write(buf)
-				exit(0)			
-			end						
+		exe  = Rex::Text.to_executable(arch, plat, buf, note)
+		
+		if(exe)
+			$stderr.puts(note)
+			$stdout.write(exe)
+			exit(0)
 		end
-
-		if(arch.index(ARCH_ARMLE))
-			if(plat.index(Msf::Module::Platform::OSX))
-				buf = Rex::Text.to_osx_arm_macho(buf, note)
-				$stderr.puts(note)
-				$stdout.write(buf)
-				exit(0)			
-			end
-		end
-
-		if(arch.index(ARCH_PPC))
-			if(plat.index(Msf::Module::Platform::OSX))
-				buf = Rex::Text.to_osx_ppc_macho(buf, note)
-				$stderr.puts(note)
-				$stdout.write(buf)
-				exit(0)			
-			end
-		end
-						
+		
 		$stderr.puts "No executable format support for this arch/platform"
 		exit(-1)
 	end
