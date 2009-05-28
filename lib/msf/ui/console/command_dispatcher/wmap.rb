@@ -43,6 +43,7 @@ module Wmap
 				"wmap_website"  => "List website structure",
 				"wmap_targets"  => "List all targets in the database",
 				"wmap_reports" => "List all reported results",
+				"wmap_sql" => "Query the database",
 				"wmap_run"  => "Automatically test/exploit everything",
 			}
 		end
@@ -59,6 +60,7 @@ module Wmap
 		end
 
 		def cmd_wmap_targets(*args)
+		
 			args.push("-h") if args.length == 0
 			
 			while (arg = args.shift)
@@ -203,12 +205,49 @@ module Wmap
 					print_line("\t-h 		Display this help text")
 					print_line("\t-p 		Print all available reports")
 					print_line("\t-s [id]	Select report for display")
+					print_line("\t-x [id]   Display XML report")
 					
 					print_line("")
 					return
 				end
 			end
 
+		end
+		
+		def cmd_wmap_sql(*args)
+			qsql = args.join(" ")
+			
+			args.push("-h") if args.length == 0
+			
+			while (arg = args.shift)
+				case arg
+				when '-h'
+					print_status("Usage: wmap_sql [sql query]")
+					print_line("\t-h 		Display this help text")
+										
+					print_line("")
+					return
+				end
+			end
+			
+			print_line("SQL:  #{qsql}")
+			
+			begin	
+				res =framework.db.sql_query(qsql)
+				res.each do |o|
+					line = ''
+					o.each do |k, v|
+						if v
+							line << v
+						end	
+						line << '|'
+					end
+					print_line(line)
+				end
+			rescue ::Exception
+				print_error("SQL Error #{$!}")
+				return
+			end			
 		end
 		
 		#

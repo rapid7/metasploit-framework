@@ -715,7 +715,13 @@ class DBManager
 		#framework.events.on_db_request(context, rec)
 	end
 	
-	
+	#
+	# WMAP
+	# Quick way to query the database (used by wmap_sql) 
+	#
+	def sql_query(sqlquery)
+		ActiveRecord::Base.connection.select_all(sqlquery)
+	end
 		
 end
 
