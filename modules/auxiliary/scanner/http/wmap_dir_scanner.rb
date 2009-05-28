@@ -120,14 +120,21 @@ class Metasploit3 < Msf::Auxiliary
 				if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
 					print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})") 					
 				else
-					print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
 					rep_id = wmap_base_report_id(
 									wmap_target_host,
 									wmap_target_port,
 									wmap_target_ssl
 							)
+					
 					vul_id = wmap_report(rep_id,'DIRECTORY','NAME',"#{tpath}#{testfdir}","Directory #{tpath}#{testfdir} found.")
-					wmap_report(vul_id,'DIRECTORY','RESP_CODE',"#{res.code}",nil)
+					wmap_report(vul_id,'DIRECTORY','RESP_CODE',"#{res.code}",nil)		
+					
+					print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
+					
+					if res.code_to_i == 401
+						print_status("#{wmap_base_url}#{tpath}#{testfdir} requires authentication: #{res.headers['WWW-Authenticate']}")
+						wmap_report(vul_id,'DIRECTORY','WWW-AUTHENTICATE',"#{res.headers['WWW-Authenticate']}",nil)
+					end
 				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
