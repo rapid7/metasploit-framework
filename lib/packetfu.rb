@@ -1,7 +1,3 @@
-if VERSION < "1.8.5"
-	$stderr.puts "[*] WARNING: Ruby not at a minimum version of 1.8.5"
-end
-
 require 'bindata'
 
 # This version requirement is a bit of a lie; we need svn version 

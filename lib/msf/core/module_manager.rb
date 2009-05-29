@@ -257,37 +257,35 @@ protected
 	#
 	# Adds a module with a the supplied name.
 	#
-	def add_module(module_class, name, modinfo = nil)
-		# Duplicate the module class so that we can operate on a
-		# framework-specific copy of it.
-		dup = module_class.dup
+	def add_module(mod, name, modinfo = nil)
+
 
 		# Set the module's name so that it can be referenced when
 		# instances are created.
-		dup.framework = framework
-		dup.refname   = name
-		dup.file_path = ((modinfo and modinfo['files']) ? modinfo['files'][0] : nil)
-		dup.orig_cls  = module_class
+		mod.framework = framework
+		mod.refname   = name
+		mod.file_path = ((modinfo and modinfo['files']) ? modinfo['files'][0] : nil)
+		mod.orig_cls  = mod
 
 		if (get_hash_val(name) and get_hash_val(name) != SymbolicModule)
 			mod_ambiguous[name] = true
 
-			wlog("The module #{dup.refname} is ambiguous with #{self[name].refname}.")
+			wlog("The module #{mod.refname} is ambiguous with #{self[name].refname}.")
 		else
-			self[name] = dup
+			self[name] = mod
 		end
 
 		# Check to see if we should update info
 		noup = true if (modinfo and modinfo['noup'])
 
 		# Add this module to the module cache for this type
-		framework.modules.cache_module(dup) if (noup != true)
+		framework.modules.cache_module(mod) if (noup != true)
 	
 		# Invalidate the sorted array
 		invalidate_sorted_cache
 
-		# Return the duplicated instance for use
-		dup
+		# Return the modlicated instance for use
+		mod
 	end
 
 	#

@@ -29,7 +29,7 @@ if (RUBY_VERSION =~ /^1\.9\./)
 
 
 	# Force binary encoding
-	Encoding.default_external = Encoding.default_internal = "binary"
+	# Encoding.default_external = Encoding.default_internal = "binary"
 end
 
 

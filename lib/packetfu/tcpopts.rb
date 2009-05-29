@@ -191,13 +191,13 @@ module PacketFu
 			when 11; "CC:#{value.unpack("N")}" # Connection Count. RFC 1644 is hi-larious, btw.
 			when 12; "CC.NEW:#{value.unpack("N")}" # Connection Count New.
 			when 13; "CC.EHCO:#{value.unpack("N")}" # Conn. Count Echo.
-			when 14: "ALT.CRC:#{value.unpack("C")}" # Alt Checksum request
-			when 15: "ALT.DATA:#{value.unpack("H*")}" # Alt checksum data. I'm too dumb for this.
-			when 16: "Skeeter:#{value.unpack("H*")}" # Skeeter crypto.
-			when 17: "Bubba:#{value.unpack("H*")}" # Bubba crypto.
-			when 18: "TCO:#{value.unpack("C")}" # Trailer Checksum Option. Nobody knows what this is.
-			when 19: "MD5:#{value.unpack("H*")}" # MD5 Signature Option. Hash-signed TCP? Outrageous!
-			when 27: qsr_opt = "QSR:" # Quick-Start Request. Experimental in Jan 2007.
+			when 14; "ALT.CRC:#{value.unpack("C")}" # Alt Checksum request
+			when 15; "ALT.DATA:#{value.unpack("H*")}" # Alt checksum data. I'm too dumb for this.
+			when 16; "Skeeter:#{value.unpack("H*")}" # Skeeter crypto.
+			when 17; "Bubba:#{value.unpack("H*")}" # Bubba crypto.
+			when 18; "TCO:#{value.unpack("C")}" # Trailer Checksum Option. Nobody knows what this is.
+			when 19; "MD5:#{value.unpack("H*")}" # MD5 Signature Option. Hash-signed TCP? Outrageous!
+			when 27; qsr_opt = "QSR:" # Quick-Start Request. Experimental in Jan 2007.
 				qsr_val = []
 				qsr_val << (value[0,1].unpack("C")[0] >> 4)
 				qsr_val << (value[0,1].unpack("C")[0] & 0x0f)
