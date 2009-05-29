@@ -49,8 +49,9 @@ def run
 			while (tl.length < datastore['THREADS'])
 				ip = ar.next_ip
 				break if not ip
-				tl << Thread.new do
-					targ = ip.dup
+				
+				tl << Thread.new(ip.dup) do |tip|
+					targ = tip
 					nmod = self.replicant
 					nmod.datastore['RHOST'] = targ
 					
