@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
 					
 					print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
 					
-					if res.code_to_i == 401
+					if res.code.to_i == 401
 						print_status("#{wmap_base_url}#{tpath}#{testfdir} requires authentication: #{res.headers['WWW-Authenticate']}")
 						wmap_report(vul_id,'DIRECTORY','WWW-AUTHENTICATE',"#{res.headers['WWW-Authenticate']}",nil)
 					end
