@@ -45,10 +45,15 @@ class SStruct
 		# maybe throw an exception, because that is most likely
 		# a usage error
 
+		buff = ""
+		elements.each do |e|
+			buff << e.to_s
+		end
+		
 		if restraint && restraint.max
-			return elements.to_s.slice(0, restraint.max)
+			return buff.slice(0, restraint.max)
 		else
-			return elements.to_s
+			return buff
 		end
 	end
 

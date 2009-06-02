@@ -36,8 +36,9 @@ begin
 		cipher.update(data)
 	end
 
-	def self.des_56_to_64(ckey56)
+	def self.des_56_to_64(ckey56s)
 		ckey64 = []
+		ckey56 = ckey56s.unpack('C*')
 		ckey64[0] = ckey56[0]
 		ckey64[1] = ((ckey56[0] << 7) & 0xFF) | (ckey56[1] >> 1)
 		ckey64[2] = ((ckey56[1] << 6) & 0xFF) | (ckey56[2] >> 2)

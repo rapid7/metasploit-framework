@@ -39,6 +39,7 @@ class Generic
 		# example if it is nil.  That should only happen for a user
 		# error so that's what I want it to do...
 		string = [ @value ].pack(@packspec)
+		
 		if restraint && restraint.max
 			return string.slice(0, restraint.max)
 		else

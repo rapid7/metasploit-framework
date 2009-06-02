@@ -60,6 +60,14 @@ class Event
 	# Waits for the event to become signaled.  Timeout is measured in 
 	# seconds.  Raises TimeoutError if the condition does not become signaled.
 	#
+	
+	begin
+		# XXX: we need to replace this code
+		#      continuations slow down YARV
+		require "continuation"
+	rescue ::LoadError
+	end
+	
 	def wait(t = Infinite)
 		callcc { |ctx|
 			self.mutex.synchronize {

@@ -34,7 +34,7 @@ module Text
 	Numerals     = "0123456789"
 	Alpha        = UpperAlpha + LowerAlpha
 	AlphaNumeric = Alpha + Numerals
-	HighAscii    = (0x80 .. 0xff).map { |b| [b].pack('C') }.to_s
+	HighAscii    = [*(0x80 .. 0xff)].pack("C*")
 	DefaultWrap  = 60
 	AllChars	 = 	
 		"\xff\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c" +
@@ -1060,8 +1060,8 @@ module Text
 	# nil if there wasn't any badchar occurences.
 	#
 	def self.badchar_index(data, badchars = '')
-		badchars.each_byte { |badchar|
-			pos = data.index(badchar)
+		badchars.unpack("C*") { |badchar|
+			pos = data.index(badchar.chr)
 			return pos if pos
 		}
 		return nil

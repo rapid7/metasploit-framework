@@ -80,7 +80,7 @@ begin
 				line = ::Readline.readline(prompt, true)
 				HISTORY.pop if (line and line.empty?)
 			ensure
-				Thread.current.priority = orig
+				Thread.current.priority = orig || 0
 			end
 			
 			line
