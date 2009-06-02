@@ -186,14 +186,15 @@ module Analyze
 			end
 
 
-			tbl = table("Resources", ['ID', 'Language', 'Code Page', 'Size', 'Name'])
-			pe.resources.keys.sort.each do |rkey|
-				res = pe.resources[rkey]
-				tbl << [rkey, res.lang, res.code, res.size, res.file]
-			end
-			$stdout.puts tbl.to_s
-			$stdout.puts "\n\n"
-						
+			if(pe.resources)
+				tbl = table("Resources", ['ID', 'Language', 'Code Page', 'Size', 'Name'])
+				pe.resources.keys.sort.each do |rkey|
+					res = pe.resources[rkey]
+					tbl << [rkey, res.lang, res.code, res.size, res.file]
+				end
+				$stdout.puts tbl.to_s
+				$stdout.puts "\n\n"
+			end			
 		end	
 		
 		def table(name, cols)
