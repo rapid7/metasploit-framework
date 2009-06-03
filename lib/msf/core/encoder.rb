@@ -263,6 +263,7 @@ class Encoder < Module
 	# initialized and is ready to go.
 	#
 	def do_encode(state)
+	
 		# Copy the decoder stub since we may need to modify it
 		stub = decoder_stub(state).dup
 

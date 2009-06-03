@@ -474,7 +474,7 @@ module X86
 			end
 
 			pad = 0
-			while (pad < (128-12) and badchars.index( (256-12-pad)))
+			while (pad < (128-12) and badchars.index( (256-12-pad).chr))
 				pad += 4
 			end
 

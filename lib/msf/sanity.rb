@@ -28,8 +28,10 @@ if (RUBY_VERSION =~ /^1\.9\./)
 	puts "    issues trying to use this version with the Metasploit Framework"
 
 
-	# Force binary encoding
-	# Encoding.default_external = Encoding.default_internal = "binary"
+	# Force binary encoding for Ruby versions that support it
+	if(Object.const_defined?('Encoding') and Encoding.respond_to?('default_external='))
+		Encoding.default_external = Encoding.default_internal = "binary"
+	end
 end
 
 
