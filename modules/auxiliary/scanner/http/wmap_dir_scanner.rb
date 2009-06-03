@@ -11,6 +11,7 @@
 
 require 'rex/proto/http'
 require 'msf/core'
+require 'thread'
 
 
 class Metasploit3 < Msf::Auxiliary
@@ -34,6 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('PATH', [ true,  "The path  to identify files", '/']),
 				OptInt.new('ERROR_CODE', [ true, "Error code for non existent directory", 404]),
+				OptInt.new('WTHREADS', [true, "Number of test threads", 25]),
 				OptPath.new('DICTIONARY',   [ false, "Path of word dictionary to use", 
 						File.join(Msf::Config.install_root, "data", "wmap", "wmap_dirs.txt")
 					]
@@ -98,7 +100,6 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Using code '#{ecode}' as not found.")
 			end
 			
-			
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			conn = false		
 		rescue ::Timeout::Error, ::Errno::EPIPE			
@@ -106,41 +107,51 @@ class Metasploit3 < Msf::Auxiliary
 
 		return if not conn
 		
+		nt = datastore['WTHREADS'].to_i
+		nt = 1 if nt == 0
 	
-		File.open(datastore['DICTIONARY']).each do |testf|
-			begin
-				testfdir = testf.chomp + '/'
-				res = send_request_cgi({
-					'uri'  		=>  tpath+testfdir,
-					'method'   	=> 'GET',
-					'ctype'		=> 'text/html'
-				}, 20)
-
-				
-				if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
-					print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})") 					
-				else
-					rep_id = wmap_base_report_id(
-									wmap_target_host,
-									wmap_target_port,
-									wmap_target_ssl
-							)
-					
-					vul_id = wmap_report(rep_id,'DIRECTORY','NAME',"#{tpath}#{testfdir}","Directory #{tpath}#{testfdir} found.")
-					wmap_report(vul_id,'DIRECTORY','RESP_CODE',"#{res.code}",nil)		
-					
-					print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
-					
-					if res.code.to_i == 401
-						print_status("#{wmap_base_url}#{tpath}#{testfdir} requires authentication: #{res.headers['WWW-Authenticate']}")
-						wmap_report(vul_id,'DIRECTORY','WWW-AUTHENTICATE',"#{res.headers['WWW-Authenticate']}",nil)
-					end
-				end
-
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			rescue ::Timeout::Error, ::Errno::EPIPE			
-			end
+		queue = []
+		File.open(datastore['DICTIONARY']).each_line do |testd|
+			queue << testd.strip + '/'
 		end
+
+		while(not queue.empty?)
+			t = []
+			1.upto(nt) do 
+				t << Thread.new(queue.shift) do |testf|
+					Thread.current.kill if not testf
 	
+					testfdir = testf
+					res = send_request_cgi({
+						'uri'  		=>  tpath+testfdir,
+						'method'   	=> 'GET',
+						'ctype'		=> 'text/html'
+					}, 20)
+
+
+					if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
+						print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})") 					
+					else
+						rep_id = wmap_base_report_id(
+							wmap_target_host,
+							wmap_target_port,
+							wmap_target_ssl
+						)
+
+						vul_id = wmap_report(rep_id,'DIRECTORY','NAME',"#{tpath}#{testfdir}","Directory #{tpath}#{testfdir} found.")
+						wmap_report(vul_id,'DIRECTORY','RESP_CODE',"#{res.code}",nil)		
+
+						print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
+
+						if res.code.to_i == 401
+							print_status("#{wmap_base_url}#{tpath}#{testfdir} requires authentication: #{res.headers['WWW-Authenticate']}")
+							wmap_report(vul_id,'DIRECTORY','WWW-AUTHENTICATE',"#{res.headers['WWW-Authenticate']}",nil)
+						end
+					end			
+					
+				end
+			end
+			t.map{|x| x.join }
+		end
 	end
 end
