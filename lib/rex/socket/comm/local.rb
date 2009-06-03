@@ -236,7 +236,7 @@ class Rex::Socket::Comm::Local
 		sock
 	end
 				
-	def self.proxy (sock, type, host, port)
+	def self.proxy(sock, type, host, port)
 	
 		#$stdout.print("PROXY\n")
 		case type.downcase
