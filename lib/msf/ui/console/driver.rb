@@ -82,6 +82,10 @@ class Driver < Msf::Ui::Driver
 		if(framework.db.usable)
 			require 'msf/ui/console/command_dispatcher/db'
 			enstack_dispatcher(CommandDispatcher::Db)
+		else
+			print_error("***")
+			print_error("* WARNING: No database support: #{framework.db.error.class} #{framework.db.error}") 
+			print_error("***")
 		end
 
 		# Register event handlers

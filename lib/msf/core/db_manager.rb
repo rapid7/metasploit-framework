@@ -26,6 +26,9 @@ class DBManager
 	# Returns the active driver
 	attr_accessor :driver
 	
+	# Stores the error message for why the db was not loaded
+	attr_accessor :error
+	
 	def initialize(framework)
 			
 		self.framework = framework
@@ -45,11 +48,12 @@ class DBManager
 			require 'rubygems'
 			require 'active_record'
 			require 'msf/core/db_objects'
-			
 			@usable = true
 			
 		rescue ::Exception => e
+			self.error = e
 			elog("DB is not enabled due to load error: #{e}")
+			return
 		end
 		
 		#
