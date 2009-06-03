@@ -20,7 +20,7 @@ class Elf < ElfBase
 		elf_header = ElfHeader.new(isource.read(offset, ELF_HEADER_SIZE))
 
 		# Data encoding
-		ei_data = elf_header.e_ident[EI_DATA]
+		ei_data = elf_header.e_ident[EI_DATA,1].unpack("C")[0]
 
 		e_phoff = elf_header.e_phoff
 		e_phentsize = elf_header.e_phentsize
@@ -71,11 +71,11 @@ class Elf < ElfBase
 	#
 	def ptr_64?
 		unless [ ELFCLASS32, ELFCLASS64 ].include?(
-		elf_header.e_ident[EI_CLASS])
+		elf_header.e_ident[EI_CLASS,1].unpack("C*")[0])
 			raise ElfHeaderError, 'Invalid class', caller
 		end
 
-		elf_header.e_ident[EI_CLASS] == ELFCLASS64
+		elf_header.e_ident[EI_CLASS,1].unpack("C*")[0] == ELFCLASS64
 	end
 
 	#

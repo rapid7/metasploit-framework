@@ -162,7 +162,7 @@ class ElfBase
 				raise ElfHeaderError, "Couldn't parse ELF Header", caller
 			end
 
-			if elf_header.v['e_ident'][EI_DATA] == ELFDATA2MSB
+			if elf_header.v['e_ident'][EI_DATA,1].unpack('C')[0] == ELFDATA2MSB
 				elf_header = ELF32_EHDR_MSB.make_struct
 
 				if !elf_header.from_s(rawdata)
@@ -171,8 +171,8 @@ class ElfBase
 			end
 
 			unless [ ELFDATA2LSB, ELFDATA2MSB ].include?(
-			elf_header.v['e_ident'][EI_DATA])
-				raise ElfHeaderError, 'Invalid data encoding', caller
+			elf_header.v['e_ident'][EI_DATA,1].unpack('C')[0])
+				raise ElfHeaderError, "Invalid data encoding", caller
 			end
 
 			# Identify the file as an ELF object file
@@ -237,14 +237,13 @@ class ElfBase
 
 	class ProgramHeader < GenericHeader
 		def initialize(rawdata, ei_data)
-
 			# Identify the data encoding and parse Program Header
 			if ei_data == ELFDATA2LSB
 				program_header = ELF32_PHDR_LSB.make_struct
 			elsif ei_data == ELFDATA2MSB
 				program_header = ELF32_PHDR_MSB.make_struct
 			else
-				raise ElfHeaderError, 'Invalid data encoding', caller
+				raise ElfHeaderError, "Invalid data encoding", caller
 			end
 
 			if !program_header.from_s(rawdata)

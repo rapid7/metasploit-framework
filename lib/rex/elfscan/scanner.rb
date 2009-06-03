@@ -99,10 +99,10 @@ class JmpRegScanner < Generic
 
 			parse_ret = false
 
-			byte1 = elf.read(offset, 1)[0]
+			byte1 = elf.read(offset, 1).unpack('C')[0]
 
 			if byte1 == 0xff
-				byte2   = elf.read(offset+1, 1)[0]
+				byte2   = elf.read(offset+1, 1).unpack('C')[0]
 				regname = Rex::Arch::X86.reg_name32(byte2 & 0x7)
 
 				case byte2 & 0xf8
