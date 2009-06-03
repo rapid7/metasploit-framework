@@ -76,7 +76,7 @@ class JmpRegScanner < Generic
 	end
 
 	def _ret_size(offset)
-			case mach.read(offset, 1)
+		case mach.read(offset, 1)
 		when "\xc3"
 				return 1
 		when "\xc2"
@@ -107,10 +107,10 @@ class JmpRegScanner < Generic
 
 			parse_ret = false
 
-			byte1 = mach.read(offset, 1)[0]
+			byte1 = mach.read(offset, 1).unpack("C*")[0]
 
 			if byte1 == 0xff
-				byte2   = mach.read(offset+1, 1)[0]
+				byte2   = mach.read(offset+1, 1).unpack("C*")[0]
 				regname = Rex::Arch::X86.reg_name32(byte2 & 0x7)
 
 				case byte2 & 0xf8
@@ -161,8 +161,8 @@ class PopPopRetScanner < JmpRegScanner
 			message = ''
 
 			pops = mach.read(offset, 2)
-			reg1 = Rex::Arch::X86.reg_name32(pops[0] & 0x7)
-			reg2 = Rex::Arch::X86.reg_name32(pops[1] & 0x7)
+			reg1 = Rex::Arch::X86.reg_name32(pops[0,1].unpack("C*")[0] & 0x7)
+			reg2 = Rex::Arch::X86.reg_name32(pops[1,1].unpack("C*")[0] & 0x7)
 
 			message = "pop #{reg1}; pop #{reg2}; "
 
