@@ -35,7 +35,6 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('PATH', [ true,  "The path  to identify files", '/']),
 				OptInt.new('ERROR_CODE', [ true, "Error code for non existent directory", 404]),
-				OptInt.new('WTHREADS', [true, "Number of test threads", 25]),
 				OptPath.new('DICTIONARY',   [ false, "Path of word dictionary to use", 
 						File.join(Msf::Config.install_root, "data", "wmap", "wmap_dirs.txt")
 					]
@@ -44,7 +43,13 @@ class Metasploit3 < Msf::Auxiliary
 						File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
 					]
 				)				
-			], self.class)	
+			], self.class)
+			
+		register_advanced_options(
+			[
+				OptBool.new('NoDetailMessages', [ true, "Do not display detailed test messages", false]),
+				OptInt.new('TestThreads', [ true, "Number of test threads", 25])
+			], self.class)			
 						
 	end
 
@@ -107,8 +112,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		return if not conn
 		
-		nt = datastore['WTHREADS'].to_i
+		nt = datastore['TestThreads'].to_i
 		nt = 1 if nt == 0
+		
+		dm = datastore['NoDetailMessages']
 	
 		queue = []
 		File.open(datastore['DICTIONARY']).each_line do |testd|
@@ -130,7 +137,9 @@ class Metasploit3 < Msf::Auxiliary
 
 
 					if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
-						print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})") 					
+						if dm
+							print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})") 					
+						end
 					else
 						rep_id = wmap_base_report_id(
 							wmap_target_host,
