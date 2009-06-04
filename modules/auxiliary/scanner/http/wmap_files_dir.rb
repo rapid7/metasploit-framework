@@ -39,6 +39,12 @@ class Metasploit3 < Msf::Auxiliary
 					]
 				)
 			], self.class)	
+			
+		register_advanced_options(
+			[
+				OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
+				OptInt.new('TestThreads', [ true, "Number of test threads", 25])
+			], self.class)	
 						
 	end
 
@@ -47,37 +53,51 @@ class Metasploit3 < Msf::Auxiliary
 		tpath = datastore['PATH'] 	
 		if tpath[-1,1] != '/'
 			tpath += '/'
-		end 	
+		end
+		
+		nt = datastore['TestThreads'].to_i
+		nt = 1 if nt == 0
+		
+		dm = datastore['NoDetailMessages']
+	
+		queue = []
+		
+		File.open(datastore['DICTIONARY']).each do |testf|
+			queue << testf.strip
+		end							 	
 
-		File.open(datastore['DICTIONARY']).each { |testf|
-			begin
-				testfext = testf.chomp + datastore['EXT']
-				res = send_request_cgi({
-					'uri'  		=>  tpath+testfext,
-					'method'   	=> 'GET',
-					'ctype'		=> 'text/plain'
-				}, 20)
+		while(not queue.empty?)
+			t = []
+			1.upto(nt) do 
+				t << Thread.new(queue.shift) do |testf|
+					Thread.current.kill if not testf
+		
+					testfext = testf.chomp + datastore['EXT']
+					res = send_request_cgi({
+						'uri'  		=>  tpath+testfext,
+						'method'   	=> 'GET',
+						'ctype'		=> 'text/plain'
+					}, 20)
 
-				if (res and res.code >= 200 and res.code < 300) 
-					print_status("Found #{wmap_base_url}#{tpath}#{testfext}")
+					if (res and res.code >= 200 and res.code < 300) 
+						print_status("Found #{wmap_base_url}#{tpath}#{testfext}")
 					
-					rep_id = wmap_base_report_id(
-						wmap_target_host,
-						wmap_target_port,
-						wmap_target_ssl
-					)
+						rep_id = wmap_base_report_id(
+							wmap_target_host,
+							wmap_target_port,
+							wmap_target_ssl
+						)
 								
-					vul_id = wmap_report(rep_id,'FILE','NAME',"#{tpath}#{testfext}","File #{tpath}#{testfext} found.")
-					wmap_report(vul_id,'FILE','RESP_CODE',"#{res.code}",nil)
-				else
-					print_status("NOT Found #{wmap_base_url}#{tpath}#{testfext}") 
+						vul_id = wmap_report(rep_id,'FILE','NAME',"#{tpath}#{testfext}","File #{tpath}#{testfext} found.")
+						wmap_report(vul_id,'FILE','RESP_CODE',"#{res.code}",nil)
+					else
+						if dm == false
+							print_status("NOT Found #{wmap_base_url}#{tpath}#{testfext}")
+						end	 
+					end
 				end
-
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			rescue ::Timeout::Error, ::Errno::EPIPE			
 			end
-	
-		}
-	
+			t.map{|x| x.join }
+		end
 	end
 end
