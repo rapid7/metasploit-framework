@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 		register_advanced_options(
 			[
-				OptBool.new('NoDetailMessages', [ true, "Do not display detailed test messages", false]),
+				OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
 				OptInt.new('TestThreads', [ true, "Number of test threads", 25])
 			], self.class)			
 						
@@ -137,7 +137,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 					if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
-						if dm
+						if dm == false
 							print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})") 					
 						end
 					else
