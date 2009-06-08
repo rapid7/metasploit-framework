@@ -110,6 +110,10 @@ opt.on('-I', '--image-base [address]', 'Specify an alternate ImageBase') do |t|
 	param['imagebase'] = opt2i(t)
 end
 
+opt.on('-F', '--filter-addresses [regex]', 'Filter addresses based on a regular expression') do |t|
+	param['filteraddr'] = t
+end
+
 opt.on_tail("-h", "--help", "Show this message") do
 	puts opt
 	exit

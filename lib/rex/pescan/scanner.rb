@@ -21,6 +21,9 @@ module Scanner
 				hits = scan_section(section, param)
 				hits.each do |hit|
 					vma  = pe.rva_to_vma(hit[0])
+					
+					next if (param['filteraddr'] and [vma].pack("V").reverse !~ /#{param['filteraddr']}/)
+					
 					msg  = hit[1].is_a?(Array) ? hit[1].join(" ") : hit[1]
 					$stdout.puts pe.ptr_s(vma) + " " + msg
 					if(param['disasm'])
