@@ -11,7 +11,7 @@ class Common
 	# features
 	def self.process_cli_arguments(framework, argv)
 		argv.delete_if { |assign|
-			var, val = assign.split(/=/)
+			var, val = assign.split('=', 2)
 
 			next if var.nil? or val.nil?
 
