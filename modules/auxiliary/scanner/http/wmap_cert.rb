@@ -47,8 +47,8 @@ class Metasploit3 < Msf::Auxiliary
 			ssock.close
 
 			if(not cert)	
-				print_status("No certificate subject or CN found")
-				next
+				print_status("#{ip} No certificate subject or CN found")
+				return
 			end
 
 			issuer_pattern = Regexp.new(datastore['ISSUER'], Regexp::EXTENDED)
