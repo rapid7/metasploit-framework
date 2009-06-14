@@ -152,8 +152,8 @@ class PopPopRetScanner < JmpRegScanner
 			message = ''
 
 			pops = elf.read(offset, 2)
-			reg1 = Rex::Arch::X86.reg_name32(pops[0] & 0x7)
-			reg2 = Rex::Arch::X86.reg_name32(pops[1] & 0x7)
+			reg1 = Rex::Arch::X86.reg_name32(pops[0,1].unpack('C*')[0] & 0x7)
+			reg2 = Rex::Arch::X86.reg_name32(pops[1,1].unpack('C*')[0] & 0x7)
 
 			message = "pop #{reg1}; pop #{reg2}; "
 
