@@ -27,8 +27,7 @@ class PacketResponseWaiter
 			self.completion_routine = completion_routine
 			self.completion_param   = completion_param
 		else
-			self.mutex = Mutex.new
-			self.cond  = ConditionVariable.new
+			self.done  = false
 		end
 	end
 
@@ -49,9 +48,7 @@ class PacketResponseWaiter
 		if (self.completion_routine)
 			self.completion_routine(self.completion_param, response)
 		else
-			self.mutex.synchronize {
-				self.cond.signal
-			}
+			self.done = true
 		end
 	end
 
@@ -61,9 +58,9 @@ class PacketResponseWaiter
 	def wait(interval)
 		begin
 			timeout(interval) { 
-				self.mutex.synchronize { 
-					self.cond.wait(self.mutex) 
-				} 
+				while(not self.done)
+					select(nil, nil, nil, 0.1)
+				end
 			}
 		rescue Timeout::Error
 			self.response = nil
@@ -72,7 +69,7 @@ class PacketResponseWaiter
 		return self.response
 	end
 
-	attr_accessor :rid, :mutex, :cond, :response # :nodoc:
+	attr_accessor :rid, :done, :response # :nodoc:
 	attr_accessor :completion_routine, :completion_param # :nodoc:
 end
 
