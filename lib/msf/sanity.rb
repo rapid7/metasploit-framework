@@ -38,7 +38,15 @@ if(RUBY_VERSION =~ /^1\.9\./)
 	end
 end
 
-
+if(RUBY_PLATFORM == 'java')
+	require 'socket'
+	s = Socket.new(::Socket::AF_INET, ::Socket::SOCK_STREAM, ::Socket::IPPROTO_TCP)
+	if(not s.respond_to?('bind'))
+		puts "*** JRuby will not be supported until the Socket API is complete"
+		puts "*** Information: http://jira.codehaus.org/browse/JRUBY-2739"
+		exit(0)
+	end
+end
 
 
 #
