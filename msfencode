@@ -230,8 +230,8 @@ case cmd
 				
 				exit
 
-			rescue
-				$stderr.puts(OutError + "#{enc.refname} failed: #{$!}")
+			rescue => e
+				$stderr.puts(OutError + "#{enc.refname} failed: #{e}")
 			end
 		}
 

@@ -23,10 +23,14 @@ if (RUBY_VERSION =~ /^1\.[0-7]\./ or RUBY_VERSION =~ /^1\.8\.[0-1]$/)
 end
 
 # Check for ruby 1.9.0 and throw a big nasty warning
-if (RUBY_VERSION =~ /^1\.9\./)
-	puts "*** Ruby 1.9.x is not currently supported, you may experience significant"
-	puts "    issues trying to use this version with the Metasploit Framework"
+if (RUBY_VERSION =~ /^1\.9\.0/)
+	puts "*** Ruby 1.9.0 is not supported, please upgrade to Ruby 1.9.1 or newer."
+	exit(0)
+end
 
+if(RUBY_VERSION =~ /^1\.9\./)	
+	puts "*** Metasploit only has EXPERIMENTAL support for Ruby 1.9.1 and newer, things may break!"
+	puts "*** Please report bugs to msfdev[at]metasploit.com"
 
 	# Force binary encoding for Ruby versions that support it
 	if(Object.const_defined?('Encoding') and Encoding.respond_to?('default_external='))
