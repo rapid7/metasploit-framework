@@ -1,0 +1,98 @@
+<div class="wizard_page">
+    <% if flash[:error] and flash[:error].length > 0 %>
+    <p class="error">
+    <%= flash[:error] %>
+    </p>
+    <% end %>
+
+<% if @step == 1 %>
+    <h3>Step 1: Generic information</h3>
+    <p>
+    </p>
+    <table width="100%">
+    <%= start_form_tag %>
+        <%= hidden_field "exploit", "step", :value => 2 %>
+        <tr>
+            <td>Name:</td>
+            <td><%= text_field "exploit", "name" %></td>
+        </tr>
+        <tr>
+            <td>Title:</td>
+            <td><%= text_field "exploit", "title" %></td>
+        </tr>
+        <tr>
+            <td>Description:</td>
+            <td><%= text_area "exploit", "description", :cols => 40, :rows => 5 %></td>
+        </tr>
+        <tr>
+            <td>Authors:</td>
+            <td><%= text_area "exploit", "authors", :cols => 40, :rows => 5 %></td>
+        </tr>
+        <tr>
+            <td>References:</td>
+            <td><%= text_area "exploit", "references", :cols => 40, :rows => 5 %></td>
+        </tr>
+        <tr>
+            <td>License:</td>
+            <td><%= select ("exploit", "license", return_selectable_licenses()) %></td>
+        </tr>
+        <tr>
+            <td colspan="2"><%= submit_tag "Next" %></td>
+        </tr>
+    <%= end_form_tag %>
+    </table>
+<% elsif @step == 2 %>
+    <h3>Step 2: Configure payload</h3>
+    <p>
+    </p>
+    <table width="100%">
+    <%= start_form_tag %>
+        <%= hidden_field "exploit", "step", :value => 3 %>
+        <tr>
+            <td>Space for payload:</td>
+            <td><%= text_field "exploit", "payload_space" %></td>
+        </tr>
+        <tr>
+            <td>Bad characters:</td>
+            <td><%= text_field "exploit", "payload_badchars" %></td>
+        </tr>
+        <tr>
+            <td>Prepend:</td>
+            <td><%= text_field "exploit", "payload_prepend" %></td>
+        </tr>
+        <tr>
+            <td>Append:</td>
+            <td><%= text_field "exploit", "payload_append" %></td>
+        </tr>
+        <tr>
+            <td>SaveRegisters:</td>
+            <td><%= text_field "exploit", "payload_saveregs" %></td>
+        </tr>
+        <tr>
+            <td>Previous</td>
+            <td><%= submit_tag "Next" %></td>
+        </tr>
+    <%= end_form_tag %>
+    </table>
+<% elsif @step == 3 %>
+    <h3>Step 2: Configure targets</h3>
+    <p>
+    </p>
+    <table width="100%">
+    <%= start_form_tag %>
+        <%= hidden_field "exploit", "step", :value => 4 %>
+        <tr>
+            <td>SaveRegisters:</td>
+            <td><%= text_field "exploit", "payload_saveregs" %></td>
+        </tr>
+        <tr>
+            <td>Previous</td>
+            <td><%= submit_tag "Next" %></td>
+        </tr>
+    <%= end_form_tag %>
+    </table>
+<% end %>
+    <span class="wizard_subs">
+        <%= link_to "Dump current exploit in YAML", :action => "dump_current", :format => "yaml" %>
+    </span>
+</div>

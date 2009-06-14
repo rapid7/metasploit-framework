@@ -1,0 +1,47 @@
+<div id="ide-start" class="wizard_page">
+    <p class="motto">Find bug. Click. Profit.</p>
+
+    <table width="100%" align="center">
+        <tr width="100%" align="center">
+            <td>
+                <a href="#"
+                   onclick="new Effect.Appear('edit_new'); new Effect.Fade('create_new');"
+                   onmouseout="document.getElementById('devil').src = '/images/ide/devil.png';"
+                   onmouseover="document.getElementById('devil').src = '/images/ide/devil_ne.png';">
+                    <img src="/images/ide/devil.png" alt="" id="devil" /> <br />
+                    <strong>edit existent<s/trong>
+                </a>
+            </td>
+            <td>
+                <a href="#"
+                   onclick="new Effect.Appear('create_new'); new Effect.Fade('edit_new');"
+                   onmouseout="document.getElementById('doomed').src = '/images/ide/doomed.png';"
+                   onmouseover="document.getElementById('doomed').src = '/images/ide/doomed_ne.png';">
+                    <img src="/images/ide/doomed.png" alt="" id="doomed" /> <br />
+                    <strong>new exploit</strong>
+                </a>
+            </td>
+        </tr>
+    </table>
+
+    <div id="edit_new" style="display: none;">
+        <p>Editing an existing exploit...</p>
+        <div id="module_search_box">
+            Type in name or keyword:&nbsp;
+            <input id="exploit_search" name="terms" type="text" size="40" value="Edit me"/>
+            <div id="search_results"></div>
+        </div>
+        <a href="#" onclick="new Effect.Fade('edit_new')"><strong>hide</strong></a>
+        <script type="text/javascript">
+            generic_live_search('exploit_search', 'exploits', 'spinner', 1);
+        </script>
+    </div>
+    <div id="create_new" style="display: none;">
+        <p>Select the exploit type from the options below:</p>
+        <%= start_form_tag :action => "wizard" %>
+            <%= hidden_field "exploit", "step", :value => 1 %>
+            <%= select ("exploit", "mixin", return_selectable_exploit_mixins()) %>
+            <%= submit_tag "Next" %>
+        <%= end_form_tag %>
+    </div>
+</div>

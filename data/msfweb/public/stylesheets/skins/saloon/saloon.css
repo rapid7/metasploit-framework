@@ -1,0 +1,82 @@
+/* 
+ * Copyright (c) 2007 Mike Whitehead <mwhite22[at]caledonian.ac.uk>
+ * Added to Metasploit under the terms of the Metasploit Framework License v1.2
+ * Additions Copyright (C) 2006-2007 Metasploit LLC
+*/
+
+* {
+	margin: 0;
+	padding : 0;
+}
+
+html,body {
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+}
+
+body {
+	background: #00354C url(images/banner.gif) fixed center no-repeat;
+	font-size: 8pt;
+	font-family: Trebuchet, Sans, Arial, serif;
+}
+
+body>div#menuBar {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+}
+
+#menuBar {
+	height: 35px;
+	width: 100%;
+	background-color: #F4F4F4;
+	overflow: hidden;
+}
+
+#menuBar ul {
+	padding: 0px;
+	list-style-type: none;
+	list-style-image: none;
+}
+
+/* IE7 Padding hack */
+*:first-child+html #menuBar ul {
+	padding-top: 10px;
+}
+
+#menuBar li {
+	padding-top: 10px;
+	padding-bottom: 11px;
+	display: inline;
+}
+
+.menuButton {
+	line-height: 35px;
+	max-width: 300px;
+	border-right: 1px solid #DDDDDD;
+	padding-left: 5px;
+	padding-right: 10px;
+	background-color: inherit;
+	color: #000000;
+}
+
+.menuButton:hover {
+	cursor: pointer;
+	max-width: 300px;
+	padding-top: 15px;
+	padding-bottom: 10px;
+	padding-left: 5px;
+	padding-right: 10px;
+	background-color: #316AC5;
+	color: #FFFFFF;
+}
+
+.menuButton img {
+    padding-right: 8px;
+    vertical-align: text-bottom;
+}
+
+div#mainContents {
+	padding: 0px;
+}

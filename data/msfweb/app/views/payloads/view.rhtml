@@ -1,0 +1,155 @@
+<table align="center" cellspacing="0" cellpadding="0" border="0" class="Pview_moduleFull">
+    <tr>
+        <td width="100%" class="Pview_moduleName" colspan="2">
+            <%= h(@tmod.name) %> <br />
+	</td>
+    </tr>
+    <tr>
+        <td height="10" colspan="2">
+        </td>
+    </tr>
+    <tr>
+        <td width="100%" class="Pview_moduleDescription" colspan="2">
+            <%= @tmod.description.split("\n\n").map{ |t| h(t) }.join("<br/><br/>") %>
+        </td>
+    </tr>
+    <tr>
+        <td height="10" colspan="2">
+        </td>
+    </tr>
+    <tr>
+        <td width="100%" class="Pview_moduleAuthor" colspan="2">
+            This module (v<%= h @tmod.version.gsub(/\$Revision:\s+|\s+\$/, '') %>) was
+            provided by <%= h @tmod.author.map{ |a| a.to_s.gsub(/\<.*/, '') }.join(' and ').strip %>,
+            under the <%= @tmod.license %>. 
+        </td>  
+    </tr>
+    <tr>
+        <td height="10" colspan="2">
+        </td>
+    </tr>
+	<% if (@tmod.references.length > 0) %>
+
+        <tr>
+            <td width="100%" class="Pview_moduleReferences_Title" colspan="2">
+                External references:
+            </td>
+        </tr>
+        <tr>
+            <td width="100%" class="Pview_moduleReferences" colspan="2">
+                <ul>
+                    <% @tmod.references.each { |ref| %>
+                        <% if (ref.kind_of?(Msf::Module::SiteReference)) %>
+                            <li><a href="<%= ref.site %>" target="_blank"><%= h(ref.to_s) %></a></li>
+                        <% else %>
+                            <li><%= h(ref.to_s) %></li>
+                        <% end %>
+                    <% } %>
+                </ul>
+            </td>
+        </tr>
+
+	<% end %>
+	
+    <tr>
+		<td>Size:</td>
+		<td><%= @tmod.generate.length %></td>
+    </tr>
+
+    <tr>
+		<td>Architecture:</td>
+		<td><%= @tmod.arch_to_s %></td>
+    </tr>
+    
+    <tr>
+		<td>Operating system:</td>
+		<td><%= @tmod.platform_to_s %></td>
+    </tr>
+
+    <tr>
+        <th colspan="2"></th>
+    </tr>
+
+<% if @module_step == 0 %>
+
+    <tr>
+        <th colspan="2" class="moduleOptionsHeader">OPTIONS</th>
+    </tr>
+
+<form action="/payloads/view" method="post">
+    
+    <%= hidden_field_tag "refname", h(params[:refname]) %>
+    <%= hidden_field_tag "step", "1" %>
+    <% @tmod.options.each { |name, option|
+        next if (option.advanced?)
+        next if (option.evasion?) %>
+        <tr>
+            <td class="opt_name"><%= name %></td>
+            <td class="opt_required"><%= (option.required?) ? "Required" : "" %></td>
+        </tr>
+        <tr>
+            <td><%= html_escape(option.desc) %> (type: <%= option.type %>)</td>
+            <td>
+                <input type="text" name="opt_<%= h(name) %>" value="<%= h(option.default || '') %>"/>
+            </td>
+        </tr>
+        <% } %>
+    
+    <tr>
+        <td>Max Size:</td>
+        <td><input type="text" name="max_size" size="10"/></td>
+    </tr>
+    
+    <tr>
+        <td>Restricted Characters (format: 0x00 0x01):</td>
+        <td><input type="text" name="badchars" size="25" value="0x00 "/></td>
+    </tr>
+    
+    <tr>
+        <td>Selected Encoder:</td>
+        <td>
+            <select name="encoder" size="1">
+                <option value="__default">Default
+                <% @tmod.compatible_encoders.each { |encname, mod| %>
+                    <option><%= encname %></option>
+                <% } %>
+            </select>
+        </td>
+    </tr>
+
+    <tr>       
+        <td>Format:</td>
+        <td>
+            <select name="format" size="1">
+                <option value="c">C</option>
+                <option value="ruby">Ruby</option>
+                <option value="perl">Perl</option>
+                <option value="js_<%= Rex::Arch.endian(@tmod.arch) == ENDIAN_BIG ? "b" : "l" %>e">Javascript</option>
+                <option value="java">Java</option>
+                <option value="raw">Raw</option>
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <td><%= submit_tag "Generate" %></td>
+    </tr>
+
+</form>
+<% else %>
+
+    <tr>
+        <th colspan="2" class="moduleOptionsHeader">
+            Payload code
+            (<%= link_to "back", :action => "view", :refname => h(params[:refname]) %>)
+        </th>
+    </tr>
+
+    <tr>
+        <td colspan="2">
+            <textarea cols="64" rows="10"><%=@generation%></textarea>
+        </td>
+    </tr>
+<% end %>
+</table>
+

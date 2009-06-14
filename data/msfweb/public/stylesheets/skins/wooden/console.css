@@ -1,0 +1,80 @@
+/* 
+ * Copyright (c) 2006 LMH <lmh[at]info-pull.com>
+ * Added to Metasploit under the terms of the Metasploit Framework License v1.2
+ * Additions Copyright (C) 2006-2007 Metasploit LLC
+*/
+
+html,body {
+    width: 100%;
+    height: 100%;
+    background: #000000;
+    color: #eeeeee;
+    font-family: monospace, console, fixed, terminal;
+	font-size: 11px;
+}
+
+#console_window {
+	background: #000000;
+	padding: 1em;
+}
+
+#console_output {
+    width: 100%;
+	white-space: pre-wrap;       /* css-3 */
+	white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+	white-space: -pre-wrap;      /* Opera 4-6 */
+	white-space: -o-pre-wrap;    /* Opera 7 */
+	word-wrap: break-word;       /* Internet Explorer 5.5+ */
+	background: #000000;
+}
+
+.output_line {
+	white-space: pre-wrap;       /* css-3 */
+	white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+	white-space: -pre-wrap;      /* Opera 4-6 */
+	white-space: -o-pre-wrap;    /* Opera 7 */
+	word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+
+#input {
+    width: 100%;
+    border: none;
+    padding: 0;
+	background: #000000;
+	font-size: 11px;
+}
+
+.input {
+	font-family: monospace, console, fixed, terminal;
+	background: #000000;
+	border: 0;
+	color: white;
+	width: 600px;
+	overflow: hidden;
+	font-size: 11px;
+}
+
+.prompt {
+	color: white;
+	font-family: monospace, console, fixed, terminal;
+	text-align: right;
+	font-size: 11px;
+}
+
+#console_command_bar {
+	background: #000000;
+	margin-top: 1em;
+}
+
+#console_input {
+	font-size: 11px;
+	font-family: monospace, console, fixed, terminal;	
+}
+
+#console_status {
+	color: #fff;
+	font-family: monospace;
+	font-size: 12px;
+	text-transform: smallcaps;
+}

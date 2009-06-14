@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="eng">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+        <meta name="Author" content="LMH (lmh@info-pull.com)" />
+        <meta name="Copyright" content="(c) 2006, LMH (lmh@info-pull.com)" />
+        <title>Metasploit Console</title>
+        <% ["prototype","effects","controls","window","application","console","cookiecheck"].each do |js| %>
+        <%= javascript_include_tag js %><% end %>
+        <script>document.writeln('<link rel="stylesheet" type="text/css" href="' + consoleStyle +'">');</script>
+    </head>
+
+    <body onload="console_init(<%=params[:id]%>)">
+
+        <div id="console_window">
+
+            <div id="console_output">
+				Welcome to the Metasploit Web Console!
+				<br/><br/>
+            </div>
+
+			<table id="console_command_bar" border=0 padding=4 cellspacing=0 width='100%'>
+			<tr>
+			<td 
+				nowrap='true'
+				valign='top'
+				id="console_prompt"
+			>
+				<%=h @console.prompt %>
+			</td>
+			<td nowrap='true' width='100%'>
+            
+			<textarea 
+				id="console_input" 
+				class="input" 
+				wrap="off" 
+				onkeydown="return console_keydown(event)"
+				onkeypress="return console_keypress(event)"
+				rows="1"
+			></textarea>
+			
+			</td>
+			</tr>
+			</table>
+        </div>
+		
+    </body>
+</html>
+

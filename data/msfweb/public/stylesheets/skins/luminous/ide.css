@@ -1,0 +1,66 @@
+/*
+ * Copyright (c) 2006, LMH <lmh@info-pull.com>
+ * All Rights Reserved.
+ */
+ 
+body {
+    font-family: Trebuchet, Sans, Arial, serif;
+}
+
+#logo {
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+#spinner {
+    float: right;
+}
+
+.motto {
+    font-size: 140%;
+    text-align: center;
+    margin-top: 0;
+    font-family: 'Trebuchet MS', Trebuchet, Sans, Arial, serif;
+    text-transform: lowercase;
+}
+
+#footer {
+    clear:both;
+    font-size: 70%;
+    width: 100%;
+    margin-top: 1em;
+    text-align: center;
+}
+
+.wizard_page {
+    padding: 1em;
+    background: #ddd;
+    border: 1px solid #ccc;
+    width: 50%;
+    margin: 0px auto;
+}
+
+.wizard_page .error {
+    background: #fff;
+    padding: 0.2em;
+    border: 1px solid #C82536;
+}
+
+.wizard_page img {
+    border: 0;
+}
+
+.wizard_page a {
+    text-decoration: none;
+    color: #000;
+}
+
+.wizard_subs {
+    float: right;
+    font-size: 75%;
+}
+
+.wizard_subs a {
+    text-decoration: none;
+    color: #3366FF;
+}

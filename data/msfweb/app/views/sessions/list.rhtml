@@ -1,0 +1,24 @@
+
+<% if(@sessions.length > 0) %>
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+	<thead>
+		<tr>
+			<th width="10">ID</th>
+			<th width="40">Target</th>			
+			<th width="60">Payload</th>
+			<th width="60">Exploit</th>
+		</tr>
+	</thead>
+	<tbody>
+	    <% @sessions.each_pair do |n,m| %>
+		<tr>
+			<td><%= n %></td>
+			<td><a onclick="window.parent.openConsoleWindowSession(<%= n %>);" href="#"><%= m.tunnel_peer %></a></td>
+			<td><%= m.via_payload %></td>
+			<td><%= m.via_exploit %></td>		
+		<% end %>
+	</tbody>
+</table>
+<% else %>
+There are no active sessions, go exploit something ;-)
+<% end %>

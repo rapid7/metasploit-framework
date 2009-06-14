@@ -1,0 +1,160 @@
+<%
+	def draw_option(name, opt)
+
+		defval =  h(opt.default || '') 
+		
+		if (params[name.to_sym])
+			defval = params[name.to_sym].to_s
+		end
+		
+		case opt.class.to_s
+		when 'Msf::OptEnum'
+			ret = '<select name="' + name + '">' + "\n"
+
+			opt.enums.sort.each do |val|
+				sel = (val == defval) ? 'SELECTED' : ''
+				ret << '<option value="' + val + '"' + " #{sel}>" + h(val) + "</option>\n"
+			end
+			
+			ret << "</select>\n"
+			
+			ret
+		else
+			'<input type="text" name="' + name + '" value="' + defval + '" />'
+		end
+	end
+
+
+%>
+ 
+<table width="100%" align="center" cellspacing="0" cellpadding="3" border="0">
+    <tr>
+        <td width="100%" class="EAconf_moduleName" colspan="2">
+            <%= h(@tmod.name) %> <br />
+	</td>
+    </tr>
+    <tr>
+        <td height="10">
+        </td>
+    </tr>
+
+<% if @aux_error %>
+
+    <tr>
+        <td width="100%" class="moduleError" colspan="2">
+            Validation Error: <%= h(@aux_error) %><br />
+        </td>
+    </tr>
+
+<% end %>
+
+
+<% if @aux_console %>
+
+    <tr>
+        <td width="100%" class="moduleError" colspan="2">
+            Auxiliary launched. If the auxiliary console window does not appear, please click
+			<a href="#" onclick="window.parent.openConsoleWindowExploit(<%= @aux_console %>);">here</a>.
+        </td>
+    </tr>
+
+<% end %>
+    <p>Please enter all of the required options and press 'Launch Auxiliary' to continue.</p>
+    
+    <tr>
+        <th colspan="2" class="moduleOptionsHeader">
+            CURRENT CONFIGURATION -
+            <%= link_to "change action", :action => "view", :refname => h(params[:refname]) %>
+        </th>
+    </tr>
+	<tr>
+        <td class="opt_name">AUXILIARY</td>
+        <td><%= @tmod.refname %></td>
+    </tr>
+	
+    <tr>
+        <td class="opt_name">ACTION</td>
+        <td><%= h(@act ? @act.name : 'Default Action') %></td>
+    </tr>
+	
+    <tr>
+        <th colspan="2" class="moduleOptionsHeader">STANDARD OPTIONS</th>
+    </tr>
+    
+    <form action="/auxiliaries/config" method="post">
+        <%= hidden_field_tag "refname", h(params[:refname]) %>
+        <%= hidden_field_tag "step", "run" %>
+        <%= hidden_field_tag "act", h(params[:act]) %>
+    
+    <% @tmod.options.sort.each { |name, option|
+        next if (option.advanced?)
+        next if (option.evasion?) %>
+        <tr>
+            <td class="opt_name"><%= name %></td>
+            <td class="opt_required"><%= (option.required?) ? "Required" : "" %></td>
+        </tr>
+        <tr>
+            <td><%= html_escape(option.desc) %> (type: <%= option.type %>)</td>
+            <td>
+				<%= draw_option('aopt_'+h(name), option) %>
+            </td>
+        </tr>
+    <% } %>
+ 
+    <tr>
+        <th colspan="2"><br/><%= submit_tag "Launch Auxiliary" %><br/></th>
+    </tr>
+
+    <tr>
+        <th colspan="2" class="moduleOptionsHeader">ADVANCED OPTIONS</th>
+    </tr> 
+	
+    <% @tmod.options.sort.each { |name, option|
+        next if not option.advanced? %>
+        <tr>
+            <td class="opt_name"><%= name %></td>
+            <td class="opt_required"><%= (option.required?) ? "Required" : "" %></td>
+        </tr>
+        <tr>
+            <td><%= html_escape(option.desc) %> (type: <%= option.type %>)</td>
+            <td>
+                <%= draw_option('aopt_'+h(name), option) %>
+            </td>
+        </tr>
+    <% } %>
+
+    <tr>
+        <th colspan="2"><br/><%= submit_tag "Launch Auxiliary" %><br/></th>
+    </tr>
+
+    <tr>
+        <th colspan="2" class="moduleOptionsHeader">EVASION OPTIONS</th>
+    </tr>
+	
+    <% @tmod.options.sort.each { |name, option|
+        next if not option.evasion? %>
+        <tr>
+            <td class="opt_name"><%= name %></td>
+            <td class="opt_required"><%= (option.required?) ? "Required" : "" %></td>
+        </tr>
+        <tr>
+            <td><%= html_escape(option.desc) %> (type: <%= option.type %>)</td>
+            <td>
+                <%= draw_option('aopt_'+h(name), option) %>
+            </td>
+        </tr>
+    <% } %>
+    
+	<tr>
+        <th colspan="2"><br/><%= submit_tag "Launch Auxiliary" %><br/></th>
+    </tr>
+				  
+    </form>
+
+	<% if @aux_console %>
+	<script>
+		window.parent.openConsoleWindowExploit(<%= @aux_console %>);
+	</script>
+	<% end %>
+
+</table>

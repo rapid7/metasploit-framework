@@ -1,0 +1,27 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="eng">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+        <meta name="Author" content="LMH (lmh@info-pull.com)" />
+        <meta name="Copyright" content="(c) 2006, LMH (lmh@info-pull.com)" />
+        <title>Metasploit Framework Web IDE</title>
+        <%= stylesheet_link_tag "msfide" %>
+        <%= javascript_include_tag :defaults %>
+    </head>
+
+    <body>
+        <div id="logo">
+            <img src="/images/ide-logo.png" alt="Metasploit Framework Web IDE" />
+        </div>
+        <div id="spinner" style="display: none;">
+            <img src="/images/spinner_alt.gif" alt="Loading" />
+        </div>
+        <%= @content_for_layout %>
+        <div id="dyn_content"></div>
+        <div id="footer">
+            &copy; Copyright 2006 LMH &lt;lmh@info-pull.com&gt;.
+        </div>
+    </body>
+</html>

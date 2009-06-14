@@ -1,0 +1,77 @@
+/*
+ * Copyright (c) 2006, LMH <lmh@info-pull.com>
+ * All Rights Reserved.
+ *
+ * Standards compliant:
+ *  Valid, warning-free CSS: http://jigsaw.w3.org/css-validator
+ */
+
+html,body {
+    width: 100%;
+    height: 100%;
+    background: #000000;
+    color: #eeeeee;
+    font-family: fixed;
+	font-size: 12px;
+}
+
+#session_window {
+	background: #000000;
+	padding: 1em;
+}
+
+#session_output {
+    width: 100%;
+	white-space: pre-wrap;       /* css-3 */
+	white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+	white-space: -pre-wrap;      /* Opera 4-6 */
+	white-space: -o-pre-wrap;    /* Opera 7 */
+	word-wrap: break-word;       /* Internet Explorer 5.5+ */
+	background: #000000;
+}
+
+.output_line {
+	white-space: pre-wrap;       /* css-3 */
+	white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+	white-space: -pre-wrap;      /* Opera 4-6 */
+	white-space: -o-pre-wrap;    /* Opera 7 */
+	word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+
+#input {
+    width: 100%;
+    border: none;
+    padding: 0;
+	background: #000000;
+}
+
+.input {
+	font: inherit;
+	font-family: fixed;
+	background: #000000;
+	border: 0;
+	color: white;
+	width: 600px;
+	overflow: hidden;
+	font-size: 12px;
+}
+
+.prompt {
+	color: white;
+	font: inherit;
+	text-align: right;
+	font-family: fixed;
+	font-size: 12px;
+}
+
+#session_command_bar {
+	background: #000000;
+}
+
+#session_status {
+	color: #fff;
+	font-family: monospace;
+	font-size: 12px;
+	text-transform: smallcaps;
+}

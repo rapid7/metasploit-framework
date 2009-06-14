@@ -1,0 +1,2 @@
+module AuxiliariesHelper
+end

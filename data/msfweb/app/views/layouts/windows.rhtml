@@ -1,0 +1,22 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="eng">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+        <meta name="Author" content="LMH (lmh@info-pull.com)" />
+        <meta name="Copyright" content="(c) 2006, LMH (lmh@info-pull.com)" />
+        <% ["prototype","effects","dragdrop","controls","application","cookiecheck"].each do |js| %>
+        <%= javascript_include_tag js %><% end %>
+
+      <script>
+         document.writeln('<link rel="stylesheet" type="text/css" href="' + contentStyle +'">'); // Window content stylesheet
+      </script>
+
+    </head>
+
+    <body>
+        <%= @content_for_layout %>
+    </body>
+ 
+</html>

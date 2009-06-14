@@ -1,0 +1,13 @@
+<table cellpadding="0" cellspacing="0" border="0">
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+	    <% @jobs.each_pair do |n,m| %>
+		<tr><td><%= n %></td><td><%= m %></td></tr>
+		<% end %>
+	</tbody>
+</table>

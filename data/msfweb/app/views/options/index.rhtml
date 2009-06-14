@@ -1,0 +1,45 @@
+<%
+	if (@force_reload)
+		%>
+		<script language="javascript">
+			window.parent.location.reload();
+		</script>
+		<%
+	end
+%>
+<form method="POST">
+<table cellpadding="0" border="0" width="100%" class="EAConf_moduleFull">
+   <tr colspan="2">
+      <th align="center" class="moduleOptionsHeader">Style Name</td>
+   </tr>
+   <tr>
+      <td class="EAconf_moduleDescription">
+          Use the drop-down menu to select the desired theme for the Metasploit Framework Web Console<br /><br />
+          Current style: <strong><em><script language="javascript">document.writeln(styleName);</script></em></strong>
+      </td>
+   </tr>
+   <tr>
+      <td>
+         <select name="style">
+            <option value="empty">Choose a skin</option>
+			<%
+				sbase = File.join(Msf::Config::InstallRoot, "data", "msfweb", "public", "stylesheets", "skins")
+				sdirs = Dir.new(sbase).grep(/^[a-z0-9]+/i)
+				sdirs.each do |style|
+					next if not File.directory?(File.join(sbase, style))
+					sname = style.capitalize + " Style"
+				%>
+					<option value="<%=h style%>"><%=h sname%></option>
+				<%
+				end
+			%>
+         </select>
+      </td>
+   </tr>
+   <tr>
+      <td>
+         <input type="submit" value="Save Skin" name="save">
+      </td>
+   </tr>
+</table>
+</form>

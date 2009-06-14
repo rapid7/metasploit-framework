@@ -1,0 +1,12 @@
+    <div id="module-search-box">
+		
+        <span>Search</span>
+        <input id="module_search" name="terms" type="text" size="55" value=""/>
+		<img alt="Spinner" id="search_spinner" src="/images/spinner.gif" style="display: none;" />
+        <div id="search_results"></div>
+    </div>
+    
+    <script type="text/javascript">
+		document.getElementById('module_search').focus();
+        generic_live_search('module_search', 'nops', 'search_spinner', 0);
+    </script>
