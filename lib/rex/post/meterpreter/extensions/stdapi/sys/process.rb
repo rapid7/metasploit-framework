@@ -168,7 +168,7 @@ class Process < Rex::Post::Process
 					channel_id, "stdapi_process", CHANNEL_FLAG_SYNCHRONOUS)
 		end
 
-		# Retrun a process instance
+		# Return a process instance
 		return self.new(pid, handle, channel)
 	end
 
