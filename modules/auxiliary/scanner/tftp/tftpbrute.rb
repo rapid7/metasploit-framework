@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'TFTP Brute Forcer',
-			'Description' => 'This module is a TFTP filename Brute Forcer.',
+			'Description' => 'This module uses a dictionary to brute force valid TFTP image names from a TFTP server.',
 			'Author'      => 'antoine',
 			'Version'     => '$Revision$',
 			'License'     => BSD_LICENSE
@@ -34,16 +34,27 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		begin
-			udp_sock = Rex::Socket::Udp.create()
-			IO.foreach(datastore['DICTIONARY']) do |filename|
-				filename.chomp!
+
+			# Create an unbound UDP socket
+			udp_sock = Rex::Socket::Udp.create(
+				'Context'   =>
+					{
+						'Msf'        => framework,
+						'MsfExploit' => self,
+					}				
+			)
+			
+			fd = File.open(datastore['DICTIONARY'], 'r')
+			fd.read(fd.stat.size).split("\n").each do |filename|
+				filename.strip!
 				pkt = "\x00\x01" + filename + "\x00" + "netascii" + "\x00"
-				udp_sock.sendto(pkt, ip, rport)
+				udp_sock.sendto(pkt, ip, datastore['RPORT'])
 				resp = udp_sock.get(1)
 				if resp and resp.length >= 2 and resp[0, 2] == "\x00\x03"
 					print_status("Found #{filename} on #{ip}")
 				end
 			end
+			fd.close
 		rescue
 		ensure
 			udp_sock.close
