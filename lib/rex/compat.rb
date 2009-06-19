@@ -29,7 +29,7 @@ ENABLE_PROCESSED_INPUT = 1
 # Platform detection
 #
 
-@@is_windows = @@is_macosx = @@is_linux = @@is_bsdi = @@is_freebsd = @@is_netbsd = @@is_openbsd = @@is_java = false
+@@is_windows = @@is_cygwin = @@is_macosx = @@is_linux = @@is_bsdi = @@is_freebsd = @@is_netbsd = @@is_openbsd = @@is_java = false
 @@loaded_win32api  = false
 @@loaded_dl        = false
 @@loaded_tempfile  = false
@@ -39,6 +39,11 @@ ENABLE_PROCESSED_INPUT = 1
 def self.is_windows
 	return @@is_windows if @@is_windows
 	@@is_windows = (RUBY_PLATFORM =~ /mswin32/) ? true : false
+end
+
+def self.is_cygwin
+	return @@is_cygwin if @@is_cygwin
+	@@is_cygwin = (RUBY_PLATFORM =~ /mswin32/) ? true : false
 end
 
 def self.is_macosx

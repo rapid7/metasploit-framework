@@ -31,7 +31,28 @@ end
 #
 def run
 
+	threads_max = datastore['THREADS']
 	tl = []
+	
+	#
+	# Sanity check threading on different platforms
+	#
+	
+	if(Rex::Compat.is_windows)
+		if(threads_max > 16)
+			print_error("Warning: The Windows platform cannot reliably support more than 16 threads")
+			print_error("Thread count has been adjusted to 16")
+			threads_max = 16
+		end
+	end
+
+	if(Rex::Compat.is_cygwin)
+		if(threads_max > 200)
+			print_error("Warning: The Cygwin platform cannot reliably support more than 200 threads")
+			print_error("Thread count has been adjusted to 200")
+			threads_max = 200
+		end
+	end
 	
 	begin
 	
@@ -46,7 +67,7 @@ def run
 			tl = []
 
 			# Spawn threads for each host
-			while (tl.length < datastore['THREADS'])
+			while (tl.length < threads_max)
 				ip = ar.next_ip
 				break if not ip
 				
@@ -95,7 +116,7 @@ def run
 			tl = []
 			
 			nohosts = false	
-			while (tl.length < datastore['THREADS'])
+			while (tl.length < threads_max)
 				
 				batch = []
 
