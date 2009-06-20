@@ -67,9 +67,10 @@ LKernel32Base:
     pop ecx
     mov ebx, [fs:ecx]
     mov ebx, [ebx + 0x0c] 
-    mov ebx, [ebx + 0x1c] 
+    mov ebx, [ebx + 0x14] 
     mov ebx, [ebx]		  
-    mov ebx, [ebx + 0x08]
+    mov ebx, [ebx]		  
+    mov ebx, [ebx + 0x10]
 
     push ebx                ; kernel32.dll base
     push 0xec0e4e8e         ; LoadLibraryA
