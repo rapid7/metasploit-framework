@@ -191,7 +191,7 @@ case cmd
 				
 				case fmt
 				when 'exe'
-					exe = Rex::Text.to_win32pe(raw, "")
+					exe = Msf::Util::EXE.to_win32pe($framework, raw)
 					if(not output)
 						$stdout.write(exe)
 					else

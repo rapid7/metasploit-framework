@@ -34,3 +34,6 @@ require 'msf/base/serializer/readable_text'
 
 # Persistent Storage
 require 'msf/base/persistent_storage'
+
+# Utilities
+require 'msf/util'

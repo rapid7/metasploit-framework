@@ -565,6 +565,7 @@ module Text
 	#
 	##
 	
+	# XXX: depends on the Msf code being loaded, not just Rex
 	def self.to_executable(arch, plat, code, note='')
 		if (arch.index(ARCH_X86))
 
@@ -608,9 +609,16 @@ module Text
 		fd.close
 
 		bo = pe.index('PAYLOAD:')
-		pe[bo, 8192] = [code].pack('a8192') if bo
+		pe[bo,  8192] = [code].pack('a8192') if bo
+		pe[136,    4] = [rand(0x100000000)].pack('V')
 
-		pe[136, 4] = [rand(0x100000000)].pack('V')
+		ci = pe.index("\x31\xc9" * 160)
+		cd = pe.index("\x31\xc9" * 160, ci + 320)
+		rc = pe[ci+320, cd-ci-320]
+		
+		# 640 + rc.length bytes of room to store an encoded rc at offset ci
+		
+		
 
 		return pe
 	end
