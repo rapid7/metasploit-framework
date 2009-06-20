@@ -28,9 +28,10 @@ def wmicexec(session,wmiccmds= nil)
         begin
                 tmp = session.fs.file.expand_path("%TEMP%")
                 wmicfl = tmp + "\\"+ sprintf("%.5d",rand(100000))
-                wmiccmds.each_line do |wmi|
+                wmiccmds.each do |wmi|
                         print_status "running command wmic #{wmi}"
-                        r = session.sys.process.execute("cmd.exe /c wmic /append:#{wmicfl} #{wmi}", nil, {'Hidden' => true})
+			puts wmicfl
+                        r = session.sys.process.execute("cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe /append:#{wmicfl} #{wmi}", nil, {'Hidden' => true})
                         sleep(2)
                         #Making sure that wmic finnishes before executing next wmic command
                         prog2check = "wmic.exe"
@@ -86,7 +87,7 @@ end
         case opt
 
         when "-c"
-                commands = val
+                commands = val.split("/")
         when "-s"
                 script = val
                 if not ::File.exists?(script)
