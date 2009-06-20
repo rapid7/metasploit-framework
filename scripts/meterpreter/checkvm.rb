@@ -37,13 +37,13 @@ def chkvm(session)
 			open_key2 = session.sys.registry.open_key(root_key2,base_key2,KEY_READ)
 			v2 = open_key2.query_value('Identifier')
 
-			if v2.data.downcase.grep("vmware")
+			if v2.data.downcase =~ /vmware/
 				print_status "\tThis is a VMWare virtual Machine"
-			elsif v2.data.downcase.grep("vbox")
+			elsif v2.data.downcase =~ /vbox/
 				print_status "\tThis is a Sun VirtualBox virtual Machine"
-			elsif v2.data.downcase.grep("xen")
+			elsif v2.data.downcase =~ /xen/
 				print_status "\tThis is a Xen virtual Machine"
-			elsif v2.data.downcase.grep("virtual hd")
+			elsif v2.data.downcase =~ /virtual hd/
 				print_status "\tThis is a Hyper-V/Virtual Server virtual Machine"
 			end
 		rescue::Exception => e

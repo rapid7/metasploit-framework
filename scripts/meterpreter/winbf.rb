@@ -127,7 +127,7 @@ end
 # Function for writing results of other functions to a file
 def filewrt(file2wrt, data2wrt)
 	output = ::File.open(file2wrt, "a")
-	data2wrt.each do |d|
+	data2wrt.each_line do |d|
 		output.puts(d)
 	end
 	output.close

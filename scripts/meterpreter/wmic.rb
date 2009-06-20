@@ -28,7 +28,7 @@ def wmicexec(session,wmiccmds= nil)
         begin
                 tmp = session.fs.file.expand_path("%TEMP%")
                 wmicfl = tmp + "\\"+ sprintf("%.5d",rand(100000))
-                wmiccmds.each do |wmi|
+                wmiccmds.each_line do |wmi|
                         print_status "running command wmic #{wmi}"
                         r = session.sys.process.execute("cmd.exe /c wmic /append:#{wmicfl} #{wmi}", nil, {'Hidden' => true})
                         sleep(2)
@@ -64,7 +64,7 @@ end
 # Function for writing results of other functions to a file
 def filewrt(file2wrt, data2wrt)
         output = ::File.open(file2wrt, "a")
-        data2wrt.each do |d|
+        data2wrt.each_line do |d|
                 output.puts(d)
         end
         output.close

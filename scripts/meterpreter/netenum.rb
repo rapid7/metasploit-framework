@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-require 'ftools'
 #
 #Meterpreter script for ping sweeps on Windows 2003, Windows Vista
 #Windows 2008 and Windows XP targets using native windows commands.
@@ -52,12 +51,12 @@ def stdlookup(session,domain,dest)
 		end
 		r.channel.close
 		r.close
-		results = mxout.to_s.split(/\n/)
+		results = mxout.join.split(/\n/)
 		results.each do |rec|
 				if  rec.match(/\s*internet\saddress\s\=\s/)
 					garbage << rec.split(/\s*internet\saddress\s\=/)
-					print_status("#{garbage[0].to_s.sub(" ","   ")} #{t} ")
-					filewrt(dest,garbage[0].to_s.sub(" ","   ")+" #{t} ")
+					print_status("#{garbage[0].join.sub(" ","   ")} #{t} ")
+					filewrt(dest,garbage[0].join.sub(" ","   ")+" #{t} ")
 					garbage.clear
 				end
 				garbage.clear
@@ -72,7 +71,7 @@ end
 # Function for writing results of other functions to a file
 def filewrt(file2wrt, data2wrt)
 	output = ::File.open(file2wrt, "a")
-	data2wrt.each do |d|
+	data2wrt.each_line do |d|
 		output.puts(d)
 	end
 	output.close
@@ -160,8 +159,8 @@ def frwdlp(session,hostlst,domain,dest)
 		}
 	threads.each { |aThread|  aThread.join }
 	tmpout.uniq.each do |t|
-        	print_status ("\t#{t.to_s.sub(/Address\w*:/, "\t")}")
-        	filewrt(dest,"#{t.to_s.sub(/Address\w*:/, "\t")}")
+        	print_status("\t#{t.join.sub(/Address\w*:/, "\t")}")
+        	filewrt(dest,"#{t.join.sub(/Address\w*:/, "\t")}")
         end
 
 	else
@@ -238,12 +237,12 @@ def srvreclkp(session,domain,dest)
 		end
 		r.channel.close
 		r.close
-		results = srout.to_s.split(/\n/)
+		results = srout.join.split(/\n/)
 		results.each do |rec|
 				if  rec.match(/\s*internet\saddress\s\=\s/)
 					garbage << rec.split(/\s*internet\saddress\s\=/)
-					print_status("\tfor #{srv}#{domain}   #{garbage[0].to_s.sub(" ","   ")}")
-					filewrt(dest,"for #{srv}#{domain}   #{garbage[0].to_s.sub(" ","   ")}")
+					print_status("\tfor #{srv}#{domain}   #{garbage[0].join.sub(" ","   ")}")
+					filewrt(dest,"for #{srv}#{domain}   #{garbage[0].join.sub(" ","   ")}")
 					garbage.clear
 				end
 		garbage.clear

