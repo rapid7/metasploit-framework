@@ -627,7 +627,10 @@ class PeBase
 	  [ 'uint32v', 'VirtualAddress',         0 ],
 	  [ 'uint32v', 'SizeOfRawData',          0 ],
 	  [ 'uint32v', 'PointerToRawData',       0 ],
-	  [ 'uint32v', 'PointerToRelocations',   0 ]
+	  [ 'uint32v', 'PointerToRelocations',   0 ],
+	  [ 'uint32v', 'NumberOfRelocations',    0 ],
+	  [ 'uint32v', 'NumberOfLineNumbers',    0 ],
+	  [ 'uint32v', 'Characteristics',        0 ]
 	)
 
 	class SectionHeader < GenericHeader

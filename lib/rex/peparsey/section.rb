@@ -42,6 +42,24 @@ class Section
 		_section_header.v['Name'].gsub(/\x00+$/, '')
 	end
 
+	def flags
+		# a section header is not required
+		return nil if !_section_header
+		_section_header.v['Characteristics']
+	end
+	
+	def vma
+		# a section header is not required
+		return nil if !_section_header
+		_section_header.v['VirtualAddress']
+	end
+
+	def raw_size
+		# a section header is not required
+		return nil if !_section_header
+		_section_header.v['SizeOfRawData']
+	end		
+	
 	def _check_offset(offset, len = 1)
 		if offset < 0 || offset+len > size
 			raise BoundsError, "Offset #{offset} outside of section", caller

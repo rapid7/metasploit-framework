@@ -194,7 +194,15 @@ module Analyze
 				end
 				$stdout.puts tbl.to_s
 				$stdout.puts "\n\n"
-			end			
+			end
+			
+			tbl = table("Section Header", ["Name", "VirtualAddress", "SizeOfRawData", "Characteristics"])
+			pe.sections.each do |sec|
+				tbl << [ sec.name, *[sec.vma, sec.raw_size, sec.flags].map{|x| "0x%.8x" % x} ]			
+			end
+			$stdout.puts tbl.to_s
+			$stdout.puts "\n\n"	
+							
 		end	
 		
 		def table(name, cols)
