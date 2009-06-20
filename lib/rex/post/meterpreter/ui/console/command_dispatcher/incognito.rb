@@ -78,17 +78,17 @@ class Console::CommandDispatcher::Incognito
 		print_line("Delegation Tokens Available")
 		print_line("========================================")
 
-		tokens['delegation'].each { |string|
+		tokens['delegation'].each_line { |string|
 			print(string)
-                }
+		}
 
 		print_line()
 		print_line("Impersonation Tokens Available")
 		print_line("========================================")
 
-		tokens['impersonation'].each { |string|
+		tokens['impersonation'].each_line { |string|
 			print(string)
-                }
+		}
 
 		print_line()
 
@@ -106,7 +106,7 @@ class Console::CommandDispatcher::Incognito
 
 		system_privilege_check
 		username = args[0]
-		client.incognito.incognito_impersonate_token(username).each { |string|
+		client.incognito.incognito_impersonate_token(username).each_line { |string|
 			print(string)
 		}
 
@@ -136,7 +136,7 @@ class Console::CommandDispatcher::Incognito
 		username = args[0]
 		password = args[1]
 
-		client.incognito.incognito_add_user(host, username, password).each { |string|
+		client.incognito.incognito_add_user(host, username, password).each_line { |string|
 			print(string)
 		}
 
@@ -166,7 +166,7 @@ class Console::CommandDispatcher::Incognito
 		groupname = args[0]
 		username = args[1]
 
-		client.incognito.incognito_add_localgroup_user(host, groupname, username).each { |string|
+		client.incognito.incognito_add_localgroup_user(host, groupname, username).each_line { |string|
 			print(string)
 		}
 
@@ -196,7 +196,7 @@ class Console::CommandDispatcher::Incognito
 		groupname = args[0]
 		username = args[1]
 
-		client.incognito.incognito_add_group_user(host, groupname, username).each { |string|
+		client.incognito.incognito_add_group_user(host, groupname, username).each_line { |string|
 			print(string)
 		}
 
