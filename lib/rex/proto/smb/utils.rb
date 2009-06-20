@@ -74,7 +74,7 @@ CONST = Rex::Proto::SMB::Constants
 			if (x >= str.length)
 				encoded << 'CA'
 			else
-				c = str[x, 1].upcase[0]
+				c = str[x, 1].upcase[0,1].unpack('C*')[0]
 				encoded << [ (c / 16) + 0x41, (c % 16) + 0x41 ].pack('CC')
 			end
 		end
@@ -86,7 +86,7 @@ CONST = Rex::Proto::SMB::Constants
 		decoded = ''
 		str << 'A' if str.length % 2 != 0
 		while (str.length > 0)
-			two = str.slice!(0, 2)
+			two = str.slice!(0, 2).unpack('C*')
 			if (two.length == 2)
 				decoded << [ ((two[0] - 0x41) * 16) + two[1] - 0x41 ].pack('C')
 			end
