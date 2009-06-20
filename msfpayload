@@ -97,7 +97,7 @@ if (cmd =~ /^(p|y|r|c|j|x|b|v)/)
 		arch = payload.arch
 		plat = payload.platform.platforms
 
-		exe  = Rex::Text.to_executable(arch, plat, buf, note)
+		exe  = Msf::Util::EXE.to_executable(arch, plat, buf, note)
 		
 		if(exe)
 			$stderr.puts(note)
@@ -110,14 +110,14 @@ if (cmd =~ /^(p|y|r|c|j|x|b|v)/)
 	end
 
 	if(cmd =~ /^v/)
-		exe = Rex::Text.to_win32pe(buf, '')
+		exe = Msf::Util::EXE.to_win32pe(buf, '')
 		note = 
 			"'Created by msfpayload (http://www.metasploit.com).\r\n" +
 			"'Payload: " + payload.refname + "\r\n" +
 			"' Length: " + buf.length.to_s + "\r\n" +
 			"'Options: " + options + "\r\n"
 
-		vba = note + "\r\n" + Rex::Text.to_exe_vba(exe)
+		vba = note + "\r\n" + Msf::Util::EXE.to_exe_vba(exe)
 		$stdout.write(vba)
 		exit(0)
 	end
