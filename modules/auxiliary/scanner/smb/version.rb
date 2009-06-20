@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Fingerprint a single host
 	def run_host(ip)	
-		[[139, false], [445, true]].each do |info|
+		[[445, true], [139, false]].each do |info|
 
 		datastore['RPORT'] = info[0]
 		datastore['SMBDirect'] = info[1]
