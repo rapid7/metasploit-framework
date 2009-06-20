@@ -91,8 +91,8 @@ if ($browser_start)
 		select(nil, nil, nil, 0.5)
 		
 		case RUBY_PLATFORM
-		when /mswin32/
-			system("start #{$browser_url}")
+		when /mswin32|cygwin/
+			system("cmd.exe /c start #{$browser_url}")
 		when /darwin/
 			system("open #{$browser_url}")
 		else
