@@ -21,7 +21,7 @@ class Config < Hash
 	def self.get_config_root
 	
 		# Windows-specific environment variables
-		['LOCALAPPDATA', 'APPDATA', 'USERPROFILE', 'HOME'].each do |dir|
+		['HOME', 'LOCALAPPDATA', 'APPDATA', 'USERPROFILE'].each do |dir|
 			val = Rex::Compat.getenv(dir)
 			if (val and File.directory?(val))
 				return File.join(val, ".msf3")
