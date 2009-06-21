@@ -62,14 +62,14 @@ class Metasploit3 < Msf::Auxiliary
 					fpauthor = $1
 					print_status("#{info}FrontPage Author: #{info}#{fpauthor}")
 				end
-				check_account(info, fpversion)
+				check_account(info, fpversion, target_host)
 			end
 		else
 			print_status("#{info} may not support FrontPage Server Extensions")
 		end
 	end
 
-	def check_account(info, fpversion)
+	def check_account(info, fpversion, target_host)
 
 		return if not fpversion 
 
