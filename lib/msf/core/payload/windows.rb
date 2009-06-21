@@ -38,7 +38,7 @@ module Msf::Payload::Windows
 
 		register_options(
 			[
-				Msf::OptRaw.new('EXITFUNC', [ true, "Exit technique: #{@@exit_types.keys.join(", ")}", 'seh' ])
+				Msf::OptRaw.new('EXITFUNC', [ true, "Exit technique: #{@@exit_types.keys.join(", ")}", 'thread' ])
 			], Msf::Payload::Windows)
 	end
 
@@ -48,7 +48,7 @@ module Msf::Payload::Windows
 	def replace_var(raw, name, offset, pack)
 		if (name == 'EXITFUNC')
 			method = datastore[name]
-			method = 'seh' if (!method or @@exit_types.include?(method) == false)
+			method = 'thread' if (!method or @@exit_types.include?(method) == false)
 
 			raw[offset, 4] = [ @@exit_types[method] ].pack(pack || 'V')
 
