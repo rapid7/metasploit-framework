@@ -90,8 +90,8 @@ class EXE
 
 		return pe
 	end
-
-	def self.to_win32pe_service(framework, code, name="SERVICENAME")
+	
+	def self.to_win32pe_service(framework, code, name='SERVICENAME')
 		pe = ''
 
 		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "service.exe"), "rb")
@@ -305,6 +305,7 @@ class EXE
 	
 	
 	def self.encode_stub(framework, arch, code)
+		return code if not framework.encoders
 		framework.encoders.each_module_ranked('Arch' => arch) do |name, mod|
 			begin
 				enc = framework.encoders.create(name)

@@ -139,7 +139,7 @@ $args.parse(ARGV) { |opt, idx, val|
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create(
-	:module_types => [ Msf::MODULE_ENCODER ]
+	:module_types => [ Msf::MODULE_ENCODER, Msf::MODULE_NOP ]
 )
 
 # Get the list of encoders to try
