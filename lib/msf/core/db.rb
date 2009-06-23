@@ -234,6 +234,15 @@ class DBManager
 			block.call(note)
 		end
 	end
+
+	#
+	# Find a note matching this host address and note type
+	#
+	def find_note(host, ntype)
+		Note.find_by_ntype(ntype, :include => [:host],
+				:conditions => ['hosts.address = ?', host])
+	end
+
 	
 	#
 	# This methods returns a list of all notes in the database

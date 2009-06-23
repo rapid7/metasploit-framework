@@ -97,6 +97,11 @@ module Auxiliary::Report
 		report_note(opts)	
 	end
 
+	def find_note(host, ntype)
+		return if not db
+		framework.db.find_note(host, ntype)
+	end
+
 
 end
 end

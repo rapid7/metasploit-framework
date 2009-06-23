@@ -19,6 +19,7 @@ class Payload < Msf::Module
 	require 'msf/core/payload/stager'
 
 	# Platform specific includes
+	require 'msf/core/payload/aix'
 	require 'msf/core/payload/bsd'
 	require 'msf/core/payload/linux'
 	require 'msf/core/payload/osx'
