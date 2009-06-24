@@ -168,7 +168,8 @@ class EXE
 		return mo
 	end
 
-	def self.to_exe_vba(exe='')
+	def self.to_exe_vba(exes='')
+		exe = exes.unpack('C*')
 		vba = ""
 		pcs = (exe.length/2000)+1
 		idx = 0
@@ -232,9 +233,10 @@ class EXE
 		to_exe_vba(to_win32pe(framework, code))
 	end
 
-	def self.to_exe_vbs(exe = '')
+	def self.to_exe_vbs(exes = '')
+		exe = exes.unpack('C*')
 		vbs = ""
-
+		
 		var_bytes =  Rex::Text.rand_text_alpha(rand(8)+8)
 		var_fname =  Rex::Text.rand_text_alpha(rand(8)+8)
 		var_func =  Rex::Text.rand_text_alpha(rand(8)+8)
@@ -244,7 +246,7 @@ class EXE
 
 		vbs << "Function #{var_func}()\r\n"
 
-		vbs << "#{var_bytes} = Chr(&H#{("%02x" % exe[0])})"
+		vbs << "#{var_bytes} = Chr(&H#{("%02x" % exe)})"
 		
 		1.upto(exe.length) do |byte|
 			vbs << "&Chr(&H#{("%02x" % exe[byte])})" 

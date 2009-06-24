@@ -8,6 +8,7 @@ msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
 $:.unshift(File.join(File.dirname(msfbase), '..', 'lib'))
 
 require 'rex'
+require 'msf/base'
 
 def usage
 	$stderr.puts("    Usage: #{$0} [exe] [vba]\n")
