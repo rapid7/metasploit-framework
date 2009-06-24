@@ -207,7 +207,7 @@ class EXE
 		vba << "\tDim #{var_datnr} As Integer\r\n"
 		vba << "\tDim #{var_lname} As String\r\n"
 		vba << "\tDim #{var_lpath} As String\r\n"
-		vba << "\t#{var_lname} = \"#{rand_text_alpha(rand(8)+8)}.exe\"\r\n"
+		vba << "\t#{var_lname} = \"#{Rex::Text.rand_text_alpha(rand(8)+8)}.exe\"\r\n"
 		vba << "\t#{var_lpath} = Environ(\"USERPROFILE\")\r\n"
 		vba << "\tChDrive (#{var_lpath})\r\n"
 		vba << "\tChDir (#{var_lpath})\r\n"

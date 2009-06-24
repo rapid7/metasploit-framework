@@ -200,7 +200,7 @@ case cmd
 						end
 					end				
 				when 'elf'
-					elf = Rex::Text.to_linux_x86_elf($framework, raw)
+					elf = Msf::Util::EXE.to_linux_x86_elf($framework, raw)
 					if(not output)
 						$stdout.write(elf)
 					else
@@ -209,8 +209,8 @@ case cmd
 						end
 					end				
 				when 'vba'
-					exe = Rex::Text.to_win32pe($framework, raw)
-					vba = Rex::Text.to_exe_vba($framework, exe)
+					exe = Msf::Util::EXE.to_win32pe($framework, raw)
+					vba = Msf::Util::EXE.to_exe_vba(exe)
 					if(not output)
 						$stdout.write(vba)
 					else

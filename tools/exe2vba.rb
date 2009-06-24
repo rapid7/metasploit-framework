@@ -29,7 +29,7 @@ while(buf = inp.read(8192))
 	dat << buf
 end
 
-out.write(Rex::Text.to_exe_vba(dat))
+out.write(Msf::Util::EXE.to_exe_vba(dat))
 out.close
 inp.close
 
