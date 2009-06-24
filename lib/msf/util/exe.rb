@@ -120,8 +120,6 @@ class EXE
 		co = mo.index( " " * 512 )
 
 		mo[bo, 8192] = [code].pack('a8192') if bo
-		mo[co, 512]  = [note].pack('a512') if co
-
 		return mo
 	end
 
@@ -136,7 +134,6 @@ class EXE
 		co = mo.index( " " * 512 )
 
 		mo[bo, 8192] = [code].pack('a8192') if bo
-		mo[co, 512]  = [note].pack('a512') if co
 
 		return mo
 	end
@@ -152,7 +149,6 @@ class EXE
 		co = mo.index( " " * 512 )
 
 		mo[bo, 8192] = [code].pack('a8192') if bo
-		mo[co, 512]  = [note].pack('a512') if co
 
 		return mo
 	end
@@ -168,7 +164,6 @@ class EXE
 		co = mo.index( " " * 512 )
 
 		mo[bo, 8192] = [code].pack('a8192') if bo
-		mo[co, 512]  = [note].pack('a512') if co
 
 		return mo
 	end
