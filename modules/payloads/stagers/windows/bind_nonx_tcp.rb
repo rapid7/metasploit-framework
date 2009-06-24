@@ -25,7 +25,7 @@ module Metasploit3
 	
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Bind TCP Stager (No NX Support)',
+			'Name'          => 'Bind TCP Stager (No NX or Win7)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection (No NX)',
 			'Author'        => 'vlad902',

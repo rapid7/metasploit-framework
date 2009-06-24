@@ -26,7 +26,7 @@ module Metasploit3
 	
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Reverse TCP Stager (No NX Support)',
+			'Name'          => 'Reverse TCP Stager (No NX or Win7)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to the attacker (No NX)',
 			'Author'        => 'vlad902',

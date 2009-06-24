@@ -1835,12 +1835,22 @@ protected
 		tbl = generate_module_table(type)
 
 		module_set.each_module { |refname, mod|
-			instance = mod.new
+			o = mod.new
 
-			if not regex or
-			   refname =~ regex or
-			   instance.name =~ regex
-				tbl << [ refname, instance.name ]
+			if not regex
+				tbl << [ refname, o.name ]
+				next
+			end
+			
+			# handle a search string, search deep
+			if(
+				o.name.match(regex) or
+				o.description.match(regex) or
+				o.refname.match(regex) or
+				o.references.to_s.match(regex) or
+				o.author.to_s.match(regex)
+			)
+				tbl << [ refname, o.name ]
 			end
 		}
 

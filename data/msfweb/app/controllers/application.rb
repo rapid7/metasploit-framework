@@ -25,24 +25,20 @@ class ApplicationController < ActionController::Base
       end
 	
       terms.split(/,/).each do |term|
-        
-        if (m.name.downcase.index(term.downcase))
-          res[m.refname]=m
-          break
-        end
-
-        if (m.refname.downcase.index(term.downcase))
-          res[m.refname]=m
-          break
-        end
-
-        if (m.description.downcase.index(term.downcase))
+			
+		# handle a search string, search deep
+		if(
+			m.name.downcase.index(term) or
+			m.description.downcase.index(term) or
+			m.refname.downcase.index(term) or
+			m.references.to_s.downcase.index(term) or
+			m.author.to_s.downcase.index(term)
+		)
           res[m.refname]=m
           break
         end
         
-      end
-            
+      end 
     end
 	
     # Sort the modules by name
