@@ -64,7 +64,7 @@ class Event
 	begin
 		# XXX: we need to replace this code
 		#      continuations slow down YARV
-		require "continuation"
+		require "continuation" if not defined? callcc
 	rescue ::LoadError
 	end
 	

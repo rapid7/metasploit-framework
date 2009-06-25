@@ -928,7 +928,6 @@ class PeBase
 		end
 
 		attr_reader :code_offset, :unwind_op, :op_info, :frame_offset
-	private
 		attr_writer :code_offset, :unwind_op, :op_info, :frame_offset
 
 	end
@@ -973,9 +972,6 @@ class PeBase
 
 		attr_reader :begin_address, :end_address, :unwind_info_address
 		attr_reader :unwind_info
-
-	private
-
 		attr_writer :unwind_info
 
 	end

@@ -78,6 +78,8 @@ class Payload < Msf::Module
 			end
 
 			@staged = true
+		else
+			@staged = false
 		end
 
 		# Update the module info hash with the connection type

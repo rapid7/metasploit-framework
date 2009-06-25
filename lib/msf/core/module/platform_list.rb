@@ -83,10 +83,7 @@ class Msf::Module::PlatformList
 	# Symbolic check to see if this platform list represents 'all' platforms.
 	#
 	def all?
-		names.each do |name|
-			return true if name == ''
-		end
-		return false
+		names.include? ''
 	end
 
 	#
@@ -119,39 +116,30 @@ class Msf::Module::PlatformList
 	# used for say, building a payload from a stage and stager
 	#
 	def &(plist)
-		list1 = plist.platforms
-		list2 = platforms
-		total = [ ]
-
-		# If either list has all in it, just merge the two
-		if (plist.all? or all?)
-			return list1.dup.concat(list2)
+		# If either list has all in it, return the other one
+		if plist.all?
+			return self
+		elsif self.all?
+			return plist
 		end
 
-		#
-		# um, yeah, expand the lowest depth (like highest superset)
-		# each time and then do another intersection, keep doing
-		# this until no one has any children anymore...
-		#
+		list1 = plist.platforms
+		list2 = platforms
+		total = []
 
 		loop do
 			# find any intersections
 			inter = list1 & list2
 			# remove them from the two sides
-			list1 = list1 - inter
-			list2 = list2 - inter
+			list1 -= inter
+			list2 -= inter
 			# add them to the total
 			total += inter
 
-			if list1.empty? || list2.empty?
-				break
-			end
+			break if list1.empty? || list2.empty?
 
-			begin
-				list1, list2 = _intersect_expand(list1, list2)
-			rescue ::RuntimeError
-				break
-			end
+			# try to expand to subclasses to refine the match
+			break if ! _intersect_expand(list1, list2)
 		end
 
 		return Msf::Module::PlatformList.new(*total)
@@ -165,21 +153,28 @@ class Msf::Module::PlatformList
 	# been intersected with each other..
 	#
 	def _intersect_expand(list1, list2)
-		(list1 + list2).sort { |a, b|
-		  a.name.split('::').length <=> b.name.split('::').length }.
-		  each { |m|
-		  	children = m.find_children
-			if !children.empty?
-				if list1.include?(m)
-					return [ list1 - [ m ] + children, list2 ]
-				else
-					return [ list1, list2 - [ m ] + children ]
-				end
-			end
+		# abort if no shared prefix is found between l1 and l2
+		# shortcircuits [Windows] & [Linux] without going
+		#  through XP => SP2 => DE
+		ln1 = list1.map { |c| c.name }
+		ln2 = list2.map { |c| c.name }
+		return if not ln1.find { |n1|
+			ln2.find { |n2| n1[0, n2.length] == n2[0, n1.length] }
 		}
 
-		# XXX what's a better exception to throw here?
-		raise RuntimeError, "No more expansion possible", caller
+		(list1 + list2).sort { |a, b|
+			# find the superest class in both lists
+			a.name.count(':') <=> b.name.count(':')
+		}.find { |m|
+			# which has children
+		  	children = m.find_children
+			next if children.empty?
+			# replace this class in its list by its children
+			l = list1.include?(m) ? list1 : list2
+			l.delete m
+			l.concat children
+			true
+		}
 	end
 
 end

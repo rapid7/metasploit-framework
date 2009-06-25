@@ -67,13 +67,13 @@ class Msf::Module::Platform
 	# Finds all inherited children from a given module.
 	# 
 	def self.find_children
-		constants.map { |c| 
-			const_get(c) 
-		}.delete_if { |m| 
-			!m.kind_of?(Class) || ! (m < self) 
-		}.sort { |a, b|
-			a::Rank <=> b::Rank
-		}
+		@subclasses ||= []
+		@subclasses.sort_by { |a| a::Rank }
+	end
+
+	def self.inherited(subclass)
+		@subclasses ||= []
+		@subclasses << subclass
 	end
 
 	#
