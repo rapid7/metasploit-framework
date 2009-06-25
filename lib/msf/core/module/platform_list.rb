@@ -106,75 +106,14 @@ class Msf::Module::PlatformList
 	end
 
 	#
-	# WARNING: I pulled this algorithm out of my ass, it's probably broken
-	#
-	# Ok, this was a bit weird, but I think it should work.  We basically
-	# want to do a set intersection, but with like superset expansion or
-	# something or another.  So I try to do that recursively, and the
-	# result should be a the valid platform intersection...
-	#
 	# used for say, building a payload from a stage and stager
+	# finds common subarchitectures between the arguments
 	#
 	def &(plist)
-		# If either list has all in it, return the other one
-		if plist.all?
-			return self
-		elsif self.all?
-			return plist
-		end
-
-		list1 = plist.platforms
-		list2 = platforms
-		total = []
-
-		loop do
-			# find any intersections
-			inter = list1 & list2
-			# remove them from the two sides
-			list1 -= inter
-			list2 -= inter
-			# add them to the total
-			total += inter
-
-			break if list1.empty? || list2.empty?
-
-			# try to expand to subclasses to refine the match
-			break if ! _intersect_expand(list1, list2)
-		end
-
-		return Msf::Module::PlatformList.new(*total)
+		l1 = platforms
+		l2 = plist.platforms
+		total = l1.find_all { |m| l2.find { |mm| m <= mm } } |
+			    l2.find_all { |m| l1.find { |mm| m <= mm } }
+		Msf::Module::PlatformList.from_a(total)
 	end
-
-	protected
-
-	#
-	# man this be ghetto.  Expand the 'superest' set of the two lists.
-	# will only ever expand 1 set, excepts both sets to already have
-	# been intersected with each other..
-	#
-	def _intersect_expand(list1, list2)
-		# abort if no shared prefix is found between l1 and l2
-		# shortcircuits [Windows] & [Linux] without going
-		#  through XP => SP2 => DE
-		ln1 = list1.map { |c| c.name }
-		ln2 = list2.map { |c| c.name }
-		return if not ln1.find { |n1|
-			ln2.find { |n2| n1[0, n2.length] == n2[0, n1.length] }
-		}
-
-		(list1 + list2).sort { |a, b|
-			# find the superest class in both lists
-			a.name.count(':') <=> b.name.count(':')
-		}.find { |m|
-			# which has children
-		  	children = m.find_children
-			next if children.empty?
-			# replace this class in its list by its children
-			l = list1.include?(m) ? list1 : list2
-			l.delete m
-			l.concat children
-			true
-		}
-	end
-
 end
