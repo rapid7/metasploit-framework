@@ -40,6 +40,7 @@ This copyright does not apply to the following components:
  - The PcapRub library located under external/pcaprub
  - The Ruby-Lorcon library located under external/ruby-lorcon
  - The Byakugan plugin located under external/source/byakugan
+ - The PolarSSL library used by the Meterpreter payload under external/source/meterpreter
 
 The latest version of this software is available from http://metasploit.com/
 
