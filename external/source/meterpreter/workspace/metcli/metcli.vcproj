@@ -202,7 +202,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /y &quot;$(ProjectDir)\release\metcli.exe&quot; &quot;$(ProjectDir)..\output\&quot;"
+				CommandLine="copy /y &quot;$(ProjectDir)\release\metcli.exe&quot; &quot;$(ProjectDir)..\..\output\&quot;"
 			/>
 		</Configuration>
 	</Configurations>

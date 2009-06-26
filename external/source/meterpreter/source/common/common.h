@@ -10,6 +10,10 @@
 	#include <windows.h>
 #endif
 
+#include "polarssl/net.h"
+#include "polarssl/ssl.h"
+#include "polarssl/havege.h"
+
 #include "linkage.h"
 
 #include "args.h"
@@ -20,5 +24,6 @@
 
 #include "channel.h"
 #include "scheduler.h"
+
 
 #endif

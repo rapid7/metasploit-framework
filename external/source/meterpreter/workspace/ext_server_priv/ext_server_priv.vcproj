@@ -112,7 +112,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /y &quot;$(ProjectDir)\release\*.dll&quot; &quot;$(ProjectDir)..\output\&quot;"
+				CommandLine="copy /y &quot;$(ProjectDir)\release\*.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
 			/>
 		</Configuration>
 		<Configuration

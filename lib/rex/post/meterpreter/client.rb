@@ -78,6 +78,25 @@ class Client
 		self.ext         = ObjectAliases.new
 		self.ext_aliases = ObjectAliases.new
 
+		# XXX: Determine when to enable SSL here
+		begin
+			# Create a new SSL session on the existing socket
+			ssl = OpenSSL::SSL::SSLSocket.new(sock, generate_ssl_context())
+			
+			# This won't fire until there is remote data
+			ssl.accept
+			
+			sock.extend(Rex::Socket::SslTcp)		
+			sock.sslsock = ssl
+			sock.sslctx  = ctx
+			tag = sock.read(18)
+			if(not tag or tag != "GET / HTTP/1.0\r\n\r\n")
+				raise RuntimeError, "Could not read the SSL hello tag"
+			end
+		rescue ::Exception => e
+			$stderr.puts "SSL Error: #{e} #{e.backtrace}"
+		end
+		
 		self.response_timeout = to
 
 		register_extension_alias('core', ClientCore.new(self))
@@ -91,6 +110,54 @@ class Client
 		monitor_socket
 	end
 
+
+	def generate_ssl_context
+		key = OpenSSL::PKey::RSA.new(512){ }
+		
+		cert = OpenSSL::X509::Certificate.new
+		cert.version = 2
+		cert.serial = rand(0xFFFFFFFF)
+		# name = OpenSSL::X509::Name.new([["C","JP"],["O","TEST"],["CN","localhost"]])
+		subject = OpenSSL::X509::Name.new([
+				["C","US"], 
+				['ST', Rex::Text.rand_state()], 
+				["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
+				["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
+				["CN", Rex::Text.rand_hostname],
+			])
+		issuer = OpenSSL::X509::Name.new([
+				["C","US"], 
+				['ST', Rex::Text.rand_state()], 
+				["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
+				["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
+				["CN", Rex::Text.rand_hostname],
+			])
+
+		cert.subject = subject
+		cert.issuer = issuer
+		cert.not_before = Time.now - 7200
+		cert.not_after = Time.now + 7200
+		cert.public_key = key.public_key
+		ef = OpenSSL::X509::ExtensionFactory.new(nil,cert)
+		cert.extensions = [
+			ef.create_extension("basicConstraints","CA:FALSE"),
+			ef.create_extension("subjectKeyIdentifier","hash"),
+			ef.create_extension("extendedKeyUsage","serverAuth"),
+			ef.create_extension("keyUsage","keyEncipherment,dataEncipherment,digitalSignature")
+		]
+		ef.issuer_certificate = cert
+		cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
+		cert.sign(key, OpenSSL::Digest::SHA1.new)
+		
+		ctx = OpenSSL::SSL::SSLContext.new()
+		ctx.key = key
+		ctx.cert = cert
+
+		ctx.session_id_context = OpenSSL::Digest::MD5.hexdigest($0)
+
+		return ctx
+	end
+	
 	#
 	# Loads the contents of the supplied file and executes it as a script using
 	# the binding context of the session

@@ -10,12 +10,12 @@ class Rex::Proto::Http::Client::UnitTest < Test::Unit::TestCase
 	Klass = Rex::Proto::Http::Client
 
 	def test_parse
-		c = Klass.new('www.google.com')
+		c = Klass.new('www.metasploit.com')
 
 		# Set request factory parameters
 		c.set_config(
-			'vhost'      => 'www.google.com',
-			'agent'      => 'Metasploit Framework/3.0',
+			'vhost'      => 'www.metasploit.com',
+			'agent'      => 'Metasploit Framework/3.3',
 			'version'    => '1.1',
 			'cookie'     => 'NoCookie=NotACookie'
 		)

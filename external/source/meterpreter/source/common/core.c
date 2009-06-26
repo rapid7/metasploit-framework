@@ -1,5 +1,8 @@
 #include "common.h"
 
+// include the PolarSSL library
+#pragma comment(lib,"polarssl.lib")
+
 DWORD packet_find_tlv_buf(PUCHAR payload, DWORD payloadLength, DWORD index,
 		TlvType type, Tlv *tlv);
 
@@ -702,13 +705,13 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 		}
 
 		// Transmit the packet's header (length, type)
-		if (send(remote_get_fd(remote), (LPCSTR)&packet->header, 
-				sizeof(packet->header), 0) == SOCKET_ERROR)
+		if (ssl_write(&remote->ssl, (LPCSTR)&packet->header, 
+				sizeof(packet->header)) == SOCKET_ERROR)
 			break;
 
 		// Transmit the packet's payload
-		if (send(remote_get_fd(remote), packet->payload, 
-				packet->payloadLength, 0) == SOCKET_ERROR)
+		if (ssl_write(&remote->ssl, packet->payload, 
+				packet->payloadLength) == SOCKET_ERROR)
 			break;
 
 		// Destroy the packet
@@ -759,10 +762,11 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 		// Read the packet length
 		while (inHeader)
 		{
-			if ((bytesRead = recv(remote_get_fd(remote), 
+			if ((bytesRead = ssl_read(&remote->ssl, 
 					((PUCHAR)&header + headerBytes), 
 					sizeof(TlvHeader) - headerBytes, 0)) <= 0)
 			{
+				if(bytesRead == POLARSSL_ERR_NET_TRY_AGAIN) continue;
 				if (!bytesRead)
 					SetLastError(ERROR_NOT_FOUND);
 
@@ -796,10 +800,12 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 		// Read the payload
 		while (payloadBytesLeft > 0)
 		{
-			if ((bytesRead = recv(remote_get_fd(remote), 
+			if ((bytesRead = ssl_read(&remote->ssl, 
 					payload + payloadLength - payloadBytesLeft, 
 					payloadBytesLeft, 0)) <= 0)
 			{
+				if(bytesRead == POLARSSL_ERR_NET_TRY_AGAIN) continue;
+
 				if (GetLastError() == WSAEWOULDBLOCK)
 					continue;
 

@@ -117,8 +117,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="1"
 				InlineFunctionExpansion="1"
+				FavorSizeOrSpeed="2"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;USE_DLL;METERPRETER_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
 				RuntimeLibrary="0"
