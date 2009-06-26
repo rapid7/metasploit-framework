@@ -15,8 +15,8 @@ class Rex::Proto::Http::Response::UnitTest < Test::Unit::TestCase
 		h.compress = 'deflate'
 		assert_equal(
 			"HTTP/1.1 200 OK\r\n" +
-			"Content-Encoding: deflate\r\n" +
-			"Content-Length: 14\r\n\r\n" +
+			"Content-Length: 14\r\n" +
+			"Content-Encoding: deflate\r\n\r\n" +
 			"x\234\313\310T\310\315\317\005\000\a\225\002;", 
 			h.to_s, 'deflate'
 			)
@@ -34,8 +34,8 @@ class Rex::Proto::Http::Response::UnitTest < Test::Unit::TestCase
 
 		assert_equal(
 			"HTTP/1.1 200 OK\r\n" +
-			"Content-Encoding: gzip\r\n" +
-			"Content-Length: 26\r\n\r\n", 
+			"Content-Length: 26\r\n"+			
+			"Content-Encoding: gzip\r\n\r\n",
 			http_header, 'http headers'
 			)
 
@@ -56,15 +56,15 @@ class Rex::Proto::Http::Response::UnitTest < Test::Unit::TestCase
 
 		assert_equal(
 			"HTTP/1.1 200 OK\r\n" +
-			"Foo: Fishing\r\n" +
 			"Content-Length: 0\r\n" +
+			"Foo: Fishing\r\n" +
 			"Chicken: 47\r\n\r\n", h.to_s, 'to_s w/o body')
 
 		h.body = 'hi mom'
 		assert_equal(
 			"HTTP/1.1 200 OK\r\n" +
-			"Foo: Fishing\r\n" +
 			"Content-Length: 6\r\n" +
+			"Foo: Fishing\r\n" +			
 			"Chicken: 47\r\n\r\nhi mom", h.to_s, 'to_s w/ body')
 	end
 
