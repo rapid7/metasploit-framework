@@ -1,5 +1,8 @@
 #include "metsrv.h"
 
+#include <windows.h> // for EXCEPTION_ACCESS_VIOLATION 
+#include <excpt.h> 
+
 // include the PolarSSL library
 #pragma comment(lib,"polarssl.lib")
 
@@ -14,13 +17,20 @@
 
 DWORD monitor_loop(Remote *remote);
 
+
+
+
+int exceptionfilter(unsigned int code, struct _EXCEPTION_POINTERS *ep) {
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+
 /*
  * Entry point for the DLL (or not if compiled as an EXE)
  */
 DWORD __declspec(dllexport) Init(SOCKET fd)
 {
 	Remote *remote = NULL;
-	DWORD res;
+	DWORD res = 0;
 
 	// if hAppInstance is still == NULL it means that we havent been
 	// reflectivly loaded so we must patch in the hAppInstance value
@@ -30,12 +40,14 @@ DWORD __declspec(dllexport) Init(SOCKET fd)
 
 	srand(time(NULL));
 
+	__try 
+	{
+
 	do
 	{
 		if (!(remote = remote_allocate(fd)))
 		{
 			SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-
 			break;
 		}
 
@@ -62,6 +74,12 @@ DWORD __declspec(dllexport) Init(SOCKET fd)
 
 	if (remote)
 		remote_deallocate(remote);
+
+	}
+	/* Invoke the fatal error handler */
+	__except(exceptionfilter(GetExceptionCode(), GetExceptionInformation())) {
+
+	}
 
 	return res;
 }
@@ -92,7 +110,7 @@ DWORD negotiate_ssl(Remote *remote)
     ssl_set_session( ssl, 1, 60000, ssn );
 
 	/* This wakes up the ssl.accept() on the remote side */
-	ssl_write(ssl, "GET / HTTP/1.0\r\n\r\n", 18);
+	while(ssl_write(ssl, "GET / HTTP/1.0\r\n\r\n", 18) == POLARSSL_ERR_NET_TRY_AGAIN) {}
 
 	return(0);
 }
