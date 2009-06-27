@@ -649,6 +649,7 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 	CryptoContext *crypto;
 	Tlv requestId;
 	DWORD res;
+	DWORD idx;
 
 	// If the packet does not already have a request identifier, create
 	// one for it
@@ -704,24 +705,37 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 			packet->header.length = htonl(packet->payloadLength + sizeof(TlvHeader));
 		}
 
-		// Transmit the packet's header (length, type)
-		if (ssl_write(&remote->ssl, (LPCSTR)&packet->header, 
-				sizeof(packet->header)) == SOCKET_ERROR)
-			break;
+		idx = 0;
+		while( idx < sizeof(packet->header)) { 
+			// Transmit the packet's header (length, type)
+			while( (res = ssl_write(
+						&remote->ssl, 
+						(LPCSTR)(&packet->header) + idx, 
+						sizeof(packet->header) - idx)) == POLARSSL_ERR_NET_TRY_AGAIN) { }
+			if(res < 0) break;
+			idx += res;
+		}
+		if(res < 0) break;
 
-		// Transmit the packet's payload
-		if (ssl_write(&remote->ssl, packet->payload, 
-				packet->payloadLength) == SOCKET_ERROR)
-			break;
+		idx = 0;
+		while( idx < packet->payloadLength) { 
+			// Transmit the packet's payload (length, type)
+			while( (res = ssl_write(
+						&remote->ssl, 
+						packet->payload + idx,
+						packet->payloadLength - idx)) == POLARSSL_ERR_NET_TRY_AGAIN) { }
+			if(res < 0) break;
+			idx += res;
+		}
+		if(res < 0) break;
 
-		// Destroy the packet
-		packet_destroy(packet);
-		
 		SetLastError(ERROR_SUCCESS);
-
 	} while (0);
 
 	res = GetLastError();
+	
+	// Destroy the packet
+	packet_destroy(packet);
 
 	return res;
 }
@@ -764,7 +778,7 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 		{
 			if ((bytesRead = ssl_read(&remote->ssl, 
 					((PUCHAR)&header + headerBytes), 
-					sizeof(TlvHeader) - headerBytes, 0)) <= 0)
+					sizeof(TlvHeader) - headerBytes)) <= 0)
 			{
 				if(bytesRead == POLARSSL_ERR_NET_TRY_AGAIN) continue;
 				if (!bytesRead)
@@ -802,7 +816,7 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 		{
 			if ((bytesRead = ssl_read(&remote->ssl, 
 					payload + payloadLength - payloadBytesLeft, 
-					payloadBytesLeft, 0)) <= 0)
+					payloadBytesLeft)) <= 0)
 			{
 				if(bytesRead == POLARSSL_ERR_NET_TRY_AGAIN) continue;
 
