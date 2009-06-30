@@ -117,7 +117,7 @@ if (cmd =~ /^(p|y|r|c|j|x|b|v)/)
 			"' Length: " + buf.length.to_s + "\r\n" +
 			"'Options: " + options + "\r\n"
 
-		vba = note + "\r\n" + Msf::Util::EXE.to_exe_vba($framework, exe)
+		vba = note + "\r\n" + Msf::Util::EXE.to_exe_vba(exe)
 		$stdout.write(vba)
 		exit(0)
 	end
