@@ -254,6 +254,7 @@ class Metasploit3 < Msf::Auxiliary
 						num_carriers += 1
 						log_result(dialrange[dialnum])
 					when /HK_CARRIER/i
+						print_status( "Carrier: #{result}" )
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:carrier] = true
@@ -263,6 +264,7 @@ class Metasploit3 < Msf::Auxiliary
 						num_carriers += 1
 						log_result(dialrange[dialnum])
 					when /\+FCO/i
+						print_status( "Fax: #{result}" )
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:fax] = true
@@ -272,6 +274,7 @@ class Metasploit3 < Msf::Auxiliary
 						num_faxes += 1
 						log_result(dialrange[dialnum])
 					when /VOICE/i
+						print_status( "Voice" )
 						dialrange[dialnum][:identified] = true
 						dialrange[dialnum][:result] = result
 						dialrange[dialnum][:voice] = true
