@@ -252,6 +252,7 @@ class Metasploit3 < Msf::Auxiliary
 						modem.hangup
 						initmodem(modem, initstring)
 						num_carriers += 1
+						report_note(:host => dialnum, :type => "wardial_result", :data => result)
 						log_result(dialrange[dialnum])
 					when /HK_CARRIER/i
 						print_status( "Carrier: #{result}" )
@@ -262,6 +263,7 @@ class Metasploit3 < Msf::Auxiliary
 						modem.hangup
 						initmodem(modem, initstring)
 						num_carriers += 1
+						report_note(:host => dialnum, :type => "wardial_result", :data => result)
 						log_result(dialrange[dialnum])
 					when /\+FCO/i
 						print_status( "Fax: #{result}" )
@@ -272,6 +274,7 @@ class Metasploit3 < Msf::Auxiliary
 						modem.hangup
 						initmodem(modem, initstring)
 						num_faxes += 1
+						report_note(:host => dialnum, :type => "wardial_result", :data => result)
 						log_result(dialrange[dialnum])
 					when /VOICE/i
 						print_status( "Voice" )
