@@ -33,9 +33,21 @@ class Metasploit3 < Msf::Encoder
 	#
 	def encode_block(state, buf)
 		
-		# Remove spaces from the command string
-		if (state.badchars.include?(" "))
-			buf.gsub!(/\s/, '${IFS}')
+		if (state.badchars.include?("-"))
+			# Then neither of the others will work.  Get rid of spaces and hope
+			# for the best.  This obviously won't work if the command already
+			# has other badchars in it, in which case we're basically screwed.
+			if (state.badchars.include?(" "))
+				buf.gsub!(/\s/, '${IFS}')
+			end
+		else
+			# Without an escape character we can't escape anything, so echo
+			# won't work.  Try perl.
+			if (state.badchars.include?("\\"))
+				buf = encode_block_perl(state,buf)
+			else
+				buf = encode_block_bash_echo(state,buf)
+			end
 		end
 		
 		return buf
@@ -51,7 +63,7 @@ class Metasploit3 < Msf::Encoder
 		qot = ',-:.=+!@#$%^&'
 		
 		# Find a quoting character to use
-		state.badchars.unpack('C*') { |c| quot.delete(c.chr) }
+		state.badchars.unpack('C*') { |c| qot.delete(c.chr) }
 		
 		# Throw an error if we ran out of quotes
 		raise RuntimeError if qot.length == 0
@@ -72,7 +84,7 @@ class Metasploit3 < Msf::Encoder
 				raise RuntimeError
 			end
 
-			cmd << "system\\(pack\\(qq#{sep}H\\*#{sep},#{hex}\\)\\)"
+			cmd << "system\\(pack\\(qq#{sep}H\\*#{sep},qq#{sep}#{hex}#{sep}\\)\\)"
 				
 		else
 			if (state.badchars.match(/\(|\)/))
@@ -81,9 +93,9 @@ class Metasploit3 < Msf::Encoder
 					raise RuntimeError
 				end
 				
-				cmd << "'system pack qq#{sep}H*#{sep},#{hex}'"
+				cmd << "'system pack qq#{sep}H*#{sep},qq#{sep}#{hex}#{sep}'"
 			else
-				cmd << "'system(pack(qq#{sep}H*#{sep},#{hex}))'"
+				cmd << "'system(pack(qq#{sep}H*#{sep},qq#{sep}#{hex}#{sep}))'"
 			end
 		end
 		
@@ -106,10 +118,14 @@ class Metasploit3 < Msf::Encoder
 		
 		# Are pipe characters restricted?
 		if (state.badchars.include?("|"))
-			
 			# How about backticks?
 			if (state.badchars.include?("`"))
-				raise RuntimeError
+				# Last ditch effort, dollar paren
+				if (state.badchars.include?("$") or state.badchars.include?("(")) 
+					raise RuntimeError
+				else
+					buf = "$(echo -ne #{hex})"
+				end
 			else
 				buf = "`echo -ne #{hex}`"
 			end
@@ -125,5 +141,4 @@ class Metasploit3 < Msf::Encoder
 		return buf
 	end	
 
-	
 end
