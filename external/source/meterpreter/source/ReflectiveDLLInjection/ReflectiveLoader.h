@@ -43,7 +43,7 @@ typedef HMODULE (WINAPI * LOADLIBRARYA)( LPCSTR );
 typedef FARPROC (WINAPI * GETPROCADDRESS)( HMODULE, LPCSTR );
 typedef LPVOID  (WINAPI * VIRTUALALLOC)( LPVOID, SIZE_T, DWORD, DWORD );
 
-
+#define KERNEL32DLL_HASH		0x6A4ABC5B
 #define LOADLIBRARYA_HASH		0xEC0E4E8E
 #define GETPROCADDRESS_HASH		0x7C0DFCAA
 #define VIRTUALALLOC_HASH		0x91AFCA54
@@ -89,6 +89,29 @@ __forceinline VOID __memcpy( DWORD dwDest, DWORD dwSource, DWORD dwLength )
 	}
 }
 //===============================================================================================//
+
+typedef struct _UNICODE_STR
+{
+  USHORT Length;
+  USHORT MaximumLength;
+  PWSTR pBuffer;
+} UNICODE_STR, *PUNICODE_STR;
+
+typedef struct _LDR_MODULE_MEMORY_ORDER
+{
+	LIST_ENTRY InMemoryOrderModuleList;
+	LIST_ENTRY InInitializationOrderModuleList;
+	PVOID BaseAddress;
+	PVOID EntryPoint;
+	ULONG SizeOfImage;
+	UNICODE_STR FullDllName;
+	UNICODE_STR BaseDllName;
+	ULONG Flags;
+	SHORT LoadCount;
+	SHORT TlsIndex;
+	LIST_ENTRY HashTableEntry;
+	ULONG TimeDateStamp;
+} LDR_MODULE_MEMORY_ORDER, *PLDR_MODULE_MEMORY_ORDER;
 
 // WinDbg> dt -v ntdll!_PEB_LDR_DATA
 typedef struct _PEB_LDR_DATA //, 7 elements, 0x28 bytes

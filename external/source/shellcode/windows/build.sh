@@ -140,13 +140,13 @@ sub BufferPerl
     {
         if ($count == $width)
         {
-            $res .= '".' . "\n" . '"';
+            $res .= '" + ' . "\n" . '"';
             $count = 0;
         }
         $res .= sprintf("\\x%.2x", ord($char));
         $count++;
     }
-    if ($count) { $res .= '";' . "\n"; }
+    if ($count) { $res .= '"' . "\n"; }
     return $res;
 }
 

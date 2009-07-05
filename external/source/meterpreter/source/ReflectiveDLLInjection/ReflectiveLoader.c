@@ -40,7 +40,7 @@ DLLEXPORT DWORD WINAPI ReflectiveLoader( VOID )
 	LOADLIBRARYA pLoadLibraryA;
 	GETPROCADDRESS pGetProcAddress;
 	VIRTUALALLOC pVirtualAlloc;
-	BYTE bCounter = 3;
+	BYTE bCounter;
 
 	// the initial location of this image in memory
 	DWORD dwLibraryAddress;
@@ -89,10 +89,35 @@ DLLEXPORT DWORD WINAPI ReflectiveLoader( VOID )
 	// get the processes loaded modules. ref: http://msdn.microsoft.com/en-us/library/aa813708(VS.85).aspx
 	dwBaseAddress = (DWORD)((_PPEB)dwBaseAddress)->pLdr;
 
-	dwBaseAddress = DEREF_32( ((PPEB_LDR_DATA)dwBaseAddress)->InInitializationOrderModuleList.Flink );
-
-	// get this kernels base address
-	dwBaseAddress = DEREF_32( dwBaseAddress + 8 );
+	// get the first entry of the InMemoryOrder module list
+	dwValueA = (DWORD)((PPEB_LDR_DATA)dwBaseAddress)->InMemoryOrderModuleList.Flink;
+	while( dwValueA )
+	{
+		// get pointer to current modules name (unicode string)
+		dwValueB = (DWORD)((PLDR_MODULE_MEMORY_ORDER)dwValueA)->BaseDllName.pBuffer;
+		// set bCounter to the length for the loop
+		bCounter = (BYTE)((PLDR_MODULE_MEMORY_ORDER)dwValueA)->BaseDllName.Length;
+		// clear dwValueC which will store the hash of the module name
+		dwValueC = 0;
+		// compute the hash of the module name...
+		do
+		{
+			__asm ror dwValueC, HASH_KEY
+			// normalize to uppercase if the madule name is in lowercase
+			if( *((BYTE *)dwValueB) >= 'a' )
+				dwValueC += *((BYTE *)dwValueB) - 0x20;
+			else
+				dwValueC += *((BYTE *)dwValueB);
+			dwValueB++;
+		} while( --bCounter );
+		// get this modules base address
+		dwBaseAddress = (DWORD)((PLDR_MODULE_MEMORY_ORDER)dwValueA)->BaseAddress;
+		// compare the hash with that of kernel32.dll
+		if( dwValueC == KERNEL32DLL_HASH )
+			break;
+		// get the next entry
+		dwValueA = DEREF_32( dwValueA );
+	}
 
 	// get the VA of the modules NT Header
 	dwExportDir = dwBaseAddress + ((PIMAGE_DOS_HEADER)dwBaseAddress)->e_lfanew;
@@ -108,6 +133,8 @@ DLLEXPORT DWORD WINAPI ReflectiveLoader( VOID )
 			
 	// get the VA for the array of name ordinals
 	dwNameOrdinals = ( dwBaseAddress + ((PIMAGE_EXPORT_DIRECTORY )dwExportDir)->AddressOfNameOrdinals );
+
+	bCounter = 3;
 
 	// loop while we still have imports to find
 	while( bCounter > 0 )

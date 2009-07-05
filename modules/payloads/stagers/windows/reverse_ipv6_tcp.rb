@@ -39,9 +39,9 @@ module Metasploit3
 				{
 					'Offsets' =>
 						{
-							'LHOST'   => [ 248+1, 'ADDR6' ],
-							'LPORT'   => [ 242+1, 'n'     ],
-							'SCOPEID' => [ 264+1, 'V'     ]
+							'LHOST'   => [ 278+1, 'ADDR6' ],
+							'LPORT'   => [ 272+1, 'n'     ],
+							'SCOPEID' => [ 294+1, 'V'     ]
 						},
 					'Payload' =>
 						"\xfc" +
