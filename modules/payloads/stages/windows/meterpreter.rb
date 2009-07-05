@@ -26,7 +26,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'          => 'Windows Meterpreter',
+			'Name'          => 'Windows Meterpreter (Reflective Injection)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload',
 			'Author'        => ['skape','Stephen Fewer <info@harmonysecurity.com>'],

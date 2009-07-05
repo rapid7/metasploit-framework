@@ -15,7 +15,7 @@ module Metasploit3
   
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'          => 'Reflective VNC Dll Injection',
+			'Name'          => 'VNC Server (Reflective Injection)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Inject a VNC Dll via a reflective loader',
 			'Author'        => [ 'Stephen Fewer <info@harmonysecurity.com>' ],
