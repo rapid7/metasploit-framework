@@ -26,7 +26,7 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'          => 'Windows VNC Inject',
+			'Name'          => 'Windows VNC Inject (skape/jt injection)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Inject the VNC server DLL and run it from memory',
 			'Author'        => [ 'skape', 'jt <jt@klake.org>' ],
