@@ -181,19 +181,15 @@ class ClientCore < Extension
 		request = Packet.create_request( 'core_migrate' )
 		request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
 		request.add_tlv( TLV_TYPE_MIGRATE_LEN, payload.length )
+		request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, payload )
 		response = client.send_request( request )
 	
 		# Stop the socket monitor
 		client.dispatcher_thread.kill if client.dispatcher_thread 
 
-		# flush the receive buffer just in case
-		buff = client.sock.get_once(-1, 1)
-
-		# Send the payload over SSL
-		client.sock.write( payload )
-		client.sock.flush
-		
+		###
 		# Now communicating with the new process
+		###
 		
 		# Renegotiate SSL over this socket
 		client.swap_sock_ssl_to_plain()
@@ -207,7 +203,6 @@ class ClientCore < Extension
 		
 		# Load all the extensions that were loaded in the previous instance
 		client.ext.aliases.keys.each { |e|
-			$stderr.puts "loading extension #{e}"
 			client.core.use(e) 
 		}
 		

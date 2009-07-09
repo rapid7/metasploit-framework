@@ -33,8 +33,8 @@ DWORD module_load_client(Remote *remote, LPCSTR name, LPCSTR path)
 		// Zero the buffer
 		memset(current, 0, sizeof(ClientModule));
 
-		current->name = strdup(name);
-		current->path = strdup(path);
+		current->name = _strdup(name);
+		current->path = _strdup(path);
 
 		// Duplication of name/path failed?
 		if ((!current->name) || (!current->path))

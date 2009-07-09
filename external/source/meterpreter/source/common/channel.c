@@ -177,7 +177,7 @@ VOID channel_set_type(Channel *channel, PCHAR type)
 	channel->type = NULL;
 
 	if (type)
-		channel->type = strdup(type);
+		channel->type = _strdup(type);
 }
 
 /*

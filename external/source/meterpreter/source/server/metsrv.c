@@ -16,9 +16,9 @@
 #define PREPEND_WARN  "### Warn : "
 
 DWORD monitor_loop(Remote *remote);
-
-
-
+DWORD negotiate_ssl(Remote *remote);
+void ssl_debug_log( void *ctx, int level, char *str );
+void flush_socket(Remote *remote);
 
 int exceptionfilter(unsigned int code, struct _EXCEPTION_POINTERS *ep) {
 	return EXCEPTION_EXECUTE_HANDLER;
@@ -53,7 +53,11 @@ DWORD __declspec(dllexport) Init(SOCKET fd)
 
 		// Do not allow the file descriptor to be inherited by child 
 		// processes
-		SetHandleInformation(fd, HANDLE_FLAG_INHERIT, 0);
+		SetHandleInformation((HANDLE)fd, HANDLE_FLAG_INHERIT, 0);
+
+		// Flush the socket handle
+		dprintf("Flushing the socket handle...");
+		flush_socket(remote);
 
 		// Initialize SSL on the socket
 		dprintf("Negotiating SSL...");
@@ -73,8 +77,7 @@ DWORD __declspec(dllexport) Init(SOCKET fd)
 
 	} while (0);
 
-	dprintf("Closing down SSL...");		
-	ssl_close_notify(&remote->ssl);
+	dprintf("Closing down SSL...");
 	ssl_free(&remote->ssl);
 
 	if (remote)
@@ -89,16 +92,46 @@ DWORD __declspec(dllexport) Init(SOCKET fd)
 
 	return res;
 }
+void ssl_debug_log( void *ctx, int level, char *str ) {
+	if(level < 2) dprintf("polarssl[0x%.8x]: <%d> %s", ctx, level, str );
+}
 
+// Flush all pending data on the connected socket before doing SSL
+void flush_socket(Remote *remote) {
+	fd_set fdread;
+	DWORD ret;
+	SOCKET fd;
+    unsigned char buff[4096];
+
+	fd = remote_get_fd(remote);
+	while (1) {
+		struct timeval tv;
+		LONG data;
+
+		FD_ZERO(&fdread);
+		FD_SET(fd, &fdread);
+
+		// Wait for up to one second for any errant socket data to appear
+		tv.tv_sec  = 1;
+		tv.tv_usec = 0;
+
+		data = select(fd + 1, &fdread, NULL, NULL, &tv);
+		if(! data) break;
+
+		ret = recv(fd, buff, sizeof(buff), 0);
+		dprintf("Flushed %d bytes from the buffer");
+		continue;
+	}
+}
 /*
- * Monitor for requests and local waitable items in the scheduler
+ * Negotiate SSL on the socket
  */
 DWORD negotiate_ssl(Remote *remote)
 {
 	DWORD hres = ERROR_SUCCESS;
 	SOCKET fd = remote_get_fd(remote);
-	fd_set fdread;
-    
+    DWORD ret;
+
 	havege_state hs;
 	ssl_context *ssl = &remote->ssl;
     ssl_session *ssn = &remote->ssn;
@@ -110,19 +143,25 @@ DWORD negotiate_ssl(Remote *remote)
 
     ssl_set_endpoint( ssl, SSL_IS_CLIENT );
     ssl_set_authmode( ssl, SSL_VERIFY_NONE );
+	ssl_set_dbg( ssl, ssl_debug_log, NULL);
     ssl_set_rng( ssl, havege_rand, &hs );
     ssl_set_bio( ssl, net_recv, &fd, net_send, &fd );
     ssl_set_ciphers( ssl, ssl_default_ciphers );
-    ssl_set_session( ssl, 1, 60000, ssn );
-
+    ssl_set_session( ssl, 0, 0, ssn );
 
 	dprintf("Sending a HTTP GET request to the remote side...");
-	/* This wakes up the sock.ssl.accept() on the remote side */
-	while(ssl_write(ssl, "GET / HTTP/1.0\r\n\r\n", 18) == POLARSSL_ERR_NET_TRY_AGAIN) {}
-	dprintf("Completed writing the HTTP GET request");
+	do {
+		ret = ssl_write(ssl, "GET / HTTP/1.0\r\n\r\n", 18);
+	}while(ret == POLARSSL_ERR_NET_TRY_AGAIN);
+
+	dprintf("Completed writing the HTTP GET request: %d", ret);
+	
+	if(ret < 0)
+		ExitThread(0);
 
 	return(0);
 }
+
 /*
  * Monitor for requests and local waitable items in the scheduler
  */

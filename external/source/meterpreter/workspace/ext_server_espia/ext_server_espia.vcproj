@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="ext_server_espia"
-	ProjectGUID="{C427F6B9-C287-4BDA-A5BB-401FC19E207C}"
+	ProjectGUID="{CF56DDCC-505F-4D5C-AC2E-9787C7EF1504}"
 	RootNamespace="ext_server_espia"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
@@ -177,7 +177,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /y &quot;$(ProjectDir)\release\*.dll&quot; &quot;$(ProjectDir)..\output\&quot;"
+				CommandLine="copy /y &quot;$(ProjectDir)\release\*.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -194,13 +194,13 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\extensions\espia\video.c"
+				RelativePath="..\..\source\extensions\espia\espia.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\extensions\espia\espia.c"
+				RelativePath="..\..\source\extensions\espia\video.c"
 				>
-			</File>			
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -212,11 +212,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\extensions\espia\video.h"
+				RelativePath="..\..\source\extensions\espia\espia.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\extensions\espia\espia.h"
+				RelativePath="..\..\source\extensions\espia\video.h"
 				>
 			</File>
 		</Filter>

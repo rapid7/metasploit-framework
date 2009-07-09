@@ -26,15 +26,26 @@
 #include "scheduler.h"
 
 
-static void dprintf(char *format, ...) {
-  va_list args;
-  char buffer[1024];
-  va_start(args,format);
 
-  vsnprintf(buffer, sizeof(buffer)-3, format,args);
-  strcat(buffer, "\r\n");
-  OutputDebugString(buffer);
-  }
+
+
+#ifdef DEBUGTRACE
+#define dprintf(...) real_dprintf(__VA_ARGS__)
+#else
+#define dprintf(...) do{}while(0);
+#endif
+
+
+
+
+static void real_dprintf(char *format, ...) {
+	va_list args;
+	char buffer[1024];
+	va_start(args,format);
+	vsnprintf_s(buffer, sizeof(buffer), sizeof(buffer)-3, format,args);
+	strcat_s(buffer, sizeof(buffer), "\r\n");
+	OutputDebugString(buffer);
+}
 
 	
 

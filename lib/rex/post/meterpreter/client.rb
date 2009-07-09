@@ -94,31 +94,33 @@ class Client
 	end
 
 	def swap_sock_plain_to_ssl
-		begin
-			# Create a new SSL session on the existing socket
-			ctx = generate_ssl_context()
-			ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
-			
-			# This won't fire until there is remote data
-			ssl.accept
-			
-			sock.extend(Rex::Socket::SslTcp)		
-			sock.sslsock = ssl
-			sock.sslctx  = ctx
-			tag = sock.read(18)
-			if(not tag or tag != "GET / HTTP/1.0\r\n\r\n")
-				raise RuntimeError, "Could not read the SSL hello tag"
-			end
-		rescue ::Exception => e
-			$stderr.puts "SSL Error: #{e} #{e.backtrace}"
+
+		# Create a new SSL session on the existing socket
+		ctx = generate_ssl_context()
+		ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
+		ssl.accept
+
+		sock.extend(Rex::Socket::SslTcp)		
+		sock.sslsock = ssl
+		sock.sslctx  = ctx
+		
+		tag = sock.read(18)
+		if(not tag or tag != "GET / HTTP/1.0\r\n\r\n")
+			raise RuntimeError, "Could not read the SSL hello tag"
 		end
 	end
 	
 	def swap_sock_ssl_to_plain
-		self.sock =  self.sock.fd
-		self.sock.extend(::Rex::Socket::Tcp)
+	
+		# Remove references to the SSLSocket and Context
 		self.sock.sslsock = nil
 		self.sock.sslctx  = nil
+		
+		# Force garbage cleanup / SSL_free()
+		GC.start()
+		
+		self.sock =  self.sock.fd
+		self.sock.extend(::Rex::Socket::Tcp)
 	end
 
 	def generate_ssl_context
@@ -144,8 +146,8 @@ class Client
 
 		cert.subject = subject
 		cert.issuer = issuer
-		cert.not_before = Time.now - 7200
-		cert.not_after = Time.now + 7200
+		cert.not_before = Time.now - (3600 * 365) + rand(3600 * 14)
+		cert.not_after = Time.now + (3600 * 365) + rand(3600 * 14)
 		cert.public_key = key.public_key
 		ef = OpenSSL::X509::ExtensionFactory.new(nil,cert)
 		cert.extensions = [
@@ -158,11 +160,11 @@ class Client
 		cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
 		cert.sign(key, OpenSSL::Digest::SHA1.new)
 		
-		ctx = OpenSSL::SSL::SSLContext.new()
+		ctx = OpenSSL::SSL::SSLContext.new(:TLSv1)
 		ctx.key = key
 		ctx.cert = cert
 
-		ctx.session_id_context = OpenSSL::Digest::MD5.hexdigest($0)
+		ctx.session_id_context = OpenSSL::Digest::MD5.hexdigest(::Rex::Text.rand_text(64))
 
 		return ctx
 	end

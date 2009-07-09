@@ -44,7 +44,7 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 			sprintf(tempDirectory, "%s\\*", directory);	
 
 			// Dupe!
-			if (!(baseDirectory = strdup(directory)))
+			if (!(baseDirectory = _strdup(directory)))
 			{
 				result = ERROR_NOT_ENOUGH_MEMORY;
 				goto out;
@@ -61,7 +61,7 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 			{
 				*slash = 0;
 
-				if (!(baseDirectory = strdup(directory)))
+				if (!(baseDirectory = _strdup(directory)))
 				{
 					result = ERROR_NOT_ENOUGH_MEMORY;
 					goto out;

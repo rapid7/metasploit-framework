@@ -650,12 +650,12 @@ DWORD cmd_use(Remote *remote, UINT argc, CHAR **argv)
 				*comma = 0;
 
 			// Populate the client and server path buffers
-			_snprintf(clientLibraryPath, sizeof(clientLibraryPath) - 1,
+			_snprintf_s(clientLibraryPath, sizeof(clientLibraryPath), sizeof(clientLibraryPath) - 1,
 					"%s%sext_client_%s.dll", 
 					(path) ? path : "",
 					(path) ? "\\" : "",
 					currentModule);
-			_snprintf(serverLibraryPath, sizeof(clientLibraryPath) - 1,
+			_snprintf_s(serverLibraryPath, sizeof(clientLibraryPath), sizeof(clientLibraryPath) - 1,
 					"%s%sext_server_%s.dll", 
 					(path) ? path : "",
 					(path) ? "\\" : "",

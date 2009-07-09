@@ -550,7 +550,7 @@ DWORD packet_add_completion_handler(LPCSTR requestId,
 		memcpy(&entry->handler, completion, sizeof(PacketRequestCompletion));
 
 		// Copy the request identifier
-		if (!(entry->requestId = strdup(requestId)))
+		if (!(entry->requestId = _strdup(requestId)))
 		{
 			res = ERROR_NOT_ENOUGH_MEMORY;
 
@@ -712,7 +712,10 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 						&remote->ssl, 
 						(LPCSTR)(&packet->header) + idx, 
 						sizeof(packet->header) - idx)) == POLARSSL_ERR_NET_TRY_AGAIN) { }
-			if(res < 0) break;
+			if(res < 0) {
+				dprintf("transmit header failed with return %d at index %d\n", res, idx);
+				break;
+			}
 			idx += res;
 		}
 		if(res < 0) break;
@@ -724,10 +727,13 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 						&remote->ssl, 
 						packet->payload + idx,
 						packet->payloadLength - idx)) == POLARSSL_ERR_NET_TRY_AGAIN) { }
-			if(res < 0) break;
+			
 			idx += res;
 		}
-		if(res < 0) break;
+		if(res < 0) {
+			dprintf("transmit header failed with return %d at index %d\n", res, idx);
+			break;
+		}
 
 		SetLastError(ERROR_SUCCESS);
 	} while (0);
@@ -781,8 +787,14 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 					sizeof(TlvHeader) - headerBytes)) <= 0)
 			{
 				if(bytesRead == POLARSSL_ERR_NET_TRY_AGAIN) continue;
+				
 				if (!bytesRead)
 					SetLastError(ERROR_NOT_FOUND);
+
+				if(bytesRead < 0) {
+					dprintf("receive header failed with error code %d\n", bytesRead);
+					SetLastError(ERROR_NOT_FOUND);
+				}
 
 				break;
 			}
@@ -825,6 +837,11 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 
 				if (!bytesRead)
 					SetLastError(ERROR_NOT_FOUND);
+
+				if(bytesRead < 0) {
+					dprintf("receive payload of length %d failed with error code %d\n", payloadLength, bytesRead);
+					SetLastError(ERROR_NOT_FOUND);
+				}
 
 				break;
 			}

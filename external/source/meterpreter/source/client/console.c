@@ -430,7 +430,7 @@ VOID console_process_command(Remote *remote)
 				*space = 0;
 
 			// If we're using quoting for this argument, skip one past current.
-			argv[index++] = strdup(current + ((edquote) ? 1 : 0));
+			argv[index++] = _strdup(current + ((edquote) ? 1 : 0));
 			current       = ((edquote) ? edquote : space) + 1;
 
 			if (space)

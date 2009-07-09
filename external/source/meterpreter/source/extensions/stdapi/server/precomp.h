@@ -16,7 +16,7 @@
 #include "../../../ReflectiveDLLInjection/GetProcAddressR.h"
 #include "../../../ReflectiveDLLInjection/ReflectiveLoader.h"
 
-#define strcasecmp stricmp
+#define strcasecmp _stricmp
 
 // declared in ReflectiveLoader.c and set by DllMain also in ReflectiveLoader.c
 extern HINSTANCE hAppInstance;
