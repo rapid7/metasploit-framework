@@ -163,28 +163,23 @@ class Rex::Socket::Comm::Local
 			# If we were supplied with host information
 			if (param.peerhost)
 				begin
+					ip = param.peerhost
+					port = param.peerport
+
 					if param.proxies
 						chain = param.proxies.dup
 						chain.push(['host',param.peerhost,param.peerport])
 						ip = chain[0][1]
 						port = chain[0][2].to_i
-						
-						begin
-							timeout(param.timeout) do
-							    sock.connect(Rex::Socket.to_sockaddr(ip, port))
-							end
-						rescue ::Timeout::Error
-							raise ::Errno::ETIMEDOUT
-						end						
-					else
-						begin
-							timeout(param.timeout) do
-							    sock.connect(Rex::Socket.to_sockaddr(param.peerhost, param.peerport))
-							end
-						rescue ::Timeout::Error
-							raise ::Errno::ETIMEDOUT
-						end
 					end
+
+					begin
+						timeout(param.timeout) do
+						    sock.connect(Rex::Socket.to_sockaddr(ip, port))
+						end
+					rescue ::Timeout::Error
+						raise ::Errno::ETIMEDOUT
+					end						
 
 				rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
 					sock.close
