@@ -56,29 +56,35 @@ DWORD __declspec(dllexport) Init(SOCKET fd)
 		SetHandleInformation(fd, HANDLE_FLAG_INHERIT, 0);
 
 		// Initialize SSL on the socket
+		dprintf("Negotiating SSL...");
 		negotiate_ssl(remote);
 
 		// Register extension dispatch routines
+		dprintf("Registering dispatch routines...");		
 		register_dispatch_routines();
 
+		dprintf("Entering the monitor loop...");		
 		// Keep processing commands
 		res = monitor_loop(remote);
 	
+		dprintf("Deregistering dispatch routines...");		
 		// Clean up our dispatch routines
 		deregister_dispatch_routines();
 
 	} while (0);
 
+	dprintf("Closing down SSL...");		
 	ssl_close_notify(&remote->ssl);
 	ssl_free(&remote->ssl);
 
 	if (remote)
 		remote_deallocate(remote);
-
 	}
+
 	/* Invoke the fatal error handler */
 	__except(exceptionfilter(GetExceptionCode(), GetExceptionInformation())) {
-
+		dprintf("*** exception triggered!");
+		ExitThread(0);
 	}
 
 	return res;
@@ -109,8 +115,11 @@ DWORD negotiate_ssl(Remote *remote)
     ssl_set_ciphers( ssl, ssl_default_ciphers );
     ssl_set_session( ssl, 1, 60000, ssn );
 
-	/* This wakes up the ssl.accept() on the remote side */
+
+	dprintf("Sending a HTTP GET request to the remote side...");
+	/* This wakes up the sock.ssl.accept() on the remote side */
 	while(ssl_write(ssl, "GET / HTTP/1.0\r\n\r\n", 18) == POLARSSL_ERR_NET_TRY_AGAIN) {}
+	dprintf("Completed writing the HTTP GET request");
 
 	return(0);
 }

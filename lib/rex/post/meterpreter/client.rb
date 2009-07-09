@@ -77,11 +77,27 @@ class Client
 		self.parser      = PacketParser.new
 		self.ext         = ObjectAliases.new
 		self.ext_aliases = ObjectAliases.new
+		self.response_timeout = to
+		
+		# Switch the socket to SSL mode
+		swap_sock_plain_to_ssl()
 
-		# XXX: Determine when to enable SSL here
+		register_extension_alias('core', ClientCore.new(self))
+
+		initialize_inbound_handlers
+		initialize_channels
+
+		# Register the channel inbound packet handler
+		register_inbound_handler(Rex::Post::Meterpreter::Channel)
+
+		monitor_socket
+	end
+
+	def swap_sock_plain_to_ssl
 		begin
 			# Create a new SSL session on the existing socket
-			ssl = OpenSSL::SSL::SSLSocket.new(sock, generate_ssl_context())
+			ctx = generate_ssl_context()
+			ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
 			
 			# This won't fire until there is remote data
 			ssl.accept
@@ -96,27 +112,20 @@ class Client
 		rescue ::Exception => e
 			$stderr.puts "SSL Error: #{e} #{e.backtrace}"
 		end
-		
-		self.response_timeout = to
-
-		register_extension_alias('core', ClientCore.new(self))
-
-		initialize_inbound_handlers
-		initialize_channels
-
-		# Register the channel inbound packet handler
-		register_inbound_handler(Rex::Post::Meterpreter::Channel)
-
-		monitor_socket
+	end
+	
+	def swap_sock_ssl_to_plain
+		self.sock =  self.sock.fd
+		self.sock.extend(::Rex::Socket::Tcp)
+		self.sock.sslsock = nil
+		self.sock.sslctx  = nil
 	end
 
-
 	def generate_ssl_context
-		key = OpenSSL::PKey::RSA.new(512){ }
-		
+		key  = OpenSSL::PKey::RSA.new(1024){ }
 		cert = OpenSSL::X509::Certificate.new
 		cert.version = 2
-		cert.serial = rand(0xFFFFFFFF)
+		cert.serial  = rand(0xFFFFFFFF)
 		# name = OpenSSL::X509::Name.new([["C","JP"],["O","TEST"],["CN","localhost"]])
 		subject = OpenSSL::X509::Name.new([
 				["C","US"], 

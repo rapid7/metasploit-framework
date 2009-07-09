@@ -181,6 +181,7 @@ DWORD command_process_remote(Remote *remote, Packet *inPacket)
 		if ((packet_get_tlv_string(inPacket, TLV_TYPE_METHOD, &methodTlv)
 				!= ERROR_SUCCESS))
 			break;
+		dprintf("Processing method %s", methodTlv.buffer);
 
 		// Get the request identifier if the packet has one.
 		if (packet_get_tlv_string(inPacket, TLV_TYPE_REQUEST_ID, 
@@ -216,6 +217,7 @@ DWORD command_process_remote(Remote *remote, Packet *inPacket)
 			res = command_call_dispatch(current, remote, inPacket);
 		}
 
+		dprintf("Calling completion handlers...");
 		// Finally, call completion routines for the provided identifier
 		if (((packet_get_type(inPacket) == PACKET_TLV_TYPE_RESPONSE) ||
 		     (packet_get_type(inPacket) == PACKET_TLV_TYPE_PLAIN_RESPONSE)) &&

