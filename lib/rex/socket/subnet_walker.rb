@@ -27,7 +27,7 @@ class SubnetWalker
 	#
 	def reset
 		self.curr_ip     = self.subnet.split('.')
-		self.num_ips     = (1 << (32 - Socket.net2bitmask(self.netmask).to_i)) - 1
+		self.num_ips     = (1 << (32 - Socket.net2bitmask(self.netmask).to_i))
 		self.curr_ip_idx = 0
 	end
 
@@ -35,7 +35,7 @@ class SubnetWalker
 	# Returns the next IP address.
 	#
 	def next_ip
-		if (curr_ip_idx > num_ips)
+		if (curr_ip_idx >= num_ips)
 			return nil
 		end
 
