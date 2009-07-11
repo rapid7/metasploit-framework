@@ -711,7 +711,9 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 			while( (res = ssl_write(
 						&remote->ssl, 
 						(LPCSTR)(&packet->header) + idx, 
-						sizeof(packet->header) - idx)) == POLARSSL_ERR_NET_TRY_AGAIN) { }
+						sizeof(packet->header) - idx)) == POLARSSL_ERR_NET_TRY_AGAIN) { 
+				dprintf("resending SSL header data on blocked socket");
+			}
 			if(res < 0) {
 				dprintf("transmit header failed with return %d at index %d\n", res, idx);
 				break;
@@ -726,7 +728,9 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 			while( (res = ssl_write(
 						&remote->ssl, 
 						packet->payload + idx,
-						packet->payloadLength - idx)) == POLARSSL_ERR_NET_TRY_AGAIN) { }
+						packet->payloadLength - idx)) == POLARSSL_ERR_NET_TRY_AGAIN) { 
+				dprintf("resending SSL payload data on blocked socket");
+			}
 			
 			idx += res;
 		}

@@ -50,6 +50,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_espia", "ext_ser
 		{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB} = {37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_sniffer", "ext_server_sniffer\ext_server_sniffer.vcproj", "{BF0C0D6E-9119-4518-A3BC-2CF99C0E27D9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{72F0246A-A38D-4547-9057-46020E8E503D} = {72F0246A-A38D-4547-9057-46020E8E503D}
+		{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB} = {37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -92,6 +98,10 @@ Global
 		{CF56DDCC-505F-4D5C-AC2E-9787C7EF1504}.Debug|Win32.Build.0 = Debug|Win32
 		{CF56DDCC-505F-4D5C-AC2E-9787C7EF1504}.Release|Win32.ActiveCfg = Release|Win32
 		{CF56DDCC-505F-4D5C-AC2E-9787C7EF1504}.Release|Win32.Build.0 = Release|Win32
+		{BF0C0D6E-9119-4518-A3BC-2CF99C0E27D9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BF0C0D6E-9119-4518-A3BC-2CF99C0E27D9}.Debug|Win32.Build.0 = Debug|Win32
+		{BF0C0D6E-9119-4518-A3BC-2CF99C0E27D9}.Release|Win32.ActiveCfg = Release|Win32
+		{BF0C0D6E-9119-4518-A3BC-2CF99C0E27D9}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

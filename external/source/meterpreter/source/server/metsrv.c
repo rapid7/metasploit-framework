@@ -38,7 +38,7 @@ DWORD __declspec(dllexport) Init(SOCKET fd)
 	if( hAppInstance == NULL )
 		hAppInstance = GetModuleHandle( NULL );
 
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 
 	__try 
 	{
@@ -145,7 +145,7 @@ DWORD negotiate_ssl(Remote *remote)
     ssl_set_authmode( ssl, SSL_VERIFY_NONE );
 	ssl_set_dbg( ssl, ssl_debug_log, NULL);
     ssl_set_rng( ssl, havege_rand, &hs );
-    ssl_set_bio( ssl, net_recv, &fd, net_send, &fd );
+	ssl_set_bio( ssl, net_recv, &remote->fd, net_send, &remote->fd );
     ssl_set_ciphers( ssl, ssl_default_ciphers );
     ssl_set_session( ssl, 0, 0, ssn );
 

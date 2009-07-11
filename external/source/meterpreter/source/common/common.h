@@ -25,10 +25,6 @@
 #include "channel.h"
 #include "scheduler.h"
 
-
-
-
-
 #ifdef DEBUGTRACE
 #define dprintf(...) real_dprintf(__VA_ARGS__)
 #else
