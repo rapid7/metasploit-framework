@@ -318,7 +318,7 @@ DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
 
 DWORD request_sniffer_capture_stop(Remote *remote, Packet *packet) {
 	Packet *response = packet_create_response(packet);
-	unsigned int ifid;
+	unsigned int ifid,i;
 	CaptureJob *j;
 	DWORD result;
 
@@ -348,8 +348,18 @@ DWORD request_sniffer_capture_stop(Remote *remote, Packet *packet) {
 		j->active = 0;
 		AdpCloseAdapter(j->adp);
 		AdpDestroy(j->adp);
+
+		EnterCriticalSection(&sniffercs);
+		
+		for(i=0; i<j->max_pkts; i++) {
+			if(!j->pkts[i]) break;
+			PktDestroy(j->pkts[i]);
+			j->pkts[i] = NULL;
+		}
 		free(j->pkts);
 		memset(j, 0, sizeof(CaptureJob));
+		
+		LeaveCriticalSection(&sniffercs);
 
 		dprintf("sniffer>> stop_capture() interface %d processed %d packets/%d bytes", j->intf, j->cur_pkts, j->cur_bytes); 
 	} while(0);
