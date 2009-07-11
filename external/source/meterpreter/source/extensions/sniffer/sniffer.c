@@ -56,6 +56,11 @@ DWORD pktsdk_initialize(void) {
 	}
 	
 	hErr = MgrInitialize(hMgr);
+	if(hErr != HNERR_OK) {
+		MgrDestroy(hMgr);
+		hMgr = NULL;
+	}
+
 	dprintf("sniffer>> Mgr object initialized with return %d (handle %d)", hErr, hMgr);
 	return hErr;
 }
