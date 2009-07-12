@@ -39,10 +39,11 @@ DWORD request_sniffer_capture_start(Remote *remote, Packet *packet);
 DWORD request_sniffer_capture_stop(Remote *remote, Packet *packet);
 DWORD request_sniffer_capture_stats(Remote *remote, Packet *packet);
 DWORD request_sniffer_capture_dump(Remote *remote, Packet *packet);
+DWORD request_sniffer_capture_dump_read(Remote *remote, Packet *packet);
 HANDLE pktsdk_interface_by_index(unsigned int fidx);
 DWORD pktsdk_initialize(void);
 
-void __stdcall sniffer_queue_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacket, LPVOID pPacketData, DWORD IncPacketSize);
+void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacket, LPVOID pPacketData, DWORD IncPacketSize);
 
 
 #define check_pssdk(); if(!hMgr && pktsdk_initialize()!=0){packet_transmit_response(hErr, remote, response);return(hErr);}
@@ -184,7 +185,8 @@ void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacke
 	do {
 		// Skip matching on short packets
 		if(IncPacketSize < sizeof(ETHERNET_HEADER)+sizeof(IP_HEADER)+sizeof(TCP_HEADER)){
-			dprintf("sniffer>> skipping exclusion because the packet is too small");	
+			dprintf("sniffer>> skipping exclusion because the packet is too small");
+			break;
 		}
 
 		// Match IP packets
@@ -307,6 +309,7 @@ DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
 		j->max_pkts = maxp;
 		j->cur_pkts = 0;
 		j->mtu      = AdpCfgGetMaxPacketSize(AdpGetConfig(j->adp));
+		j->remote   = remote;
 
 		AdpSetOnPacketRecv(j->adp, (FARPROC) sniffer_receive, (DWORD_PTR)j);
 		AdpSetMacFilter(j->adp, mfAll);
@@ -407,10 +410,65 @@ DWORD request_sniffer_capture_stats(Remote *remote, Packet *packet) {
 	return ERROR_SUCCESS;
 }
 
+static DWORD request_sniffer_capture_dump_read(Remote *remote, Packet *packet) {
+	Packet *response = packet_create_response(packet);
+	unsigned int ifid;
+	unsigned int bcnt;
+	CaptureJob *j;
+	DWORD result;
+
+	check_pssdk();
+	dprintf("sniffer>> capture_dump_read()");
+
+	ifid = packet_get_tlv_value_uint(packet,TLV_TYPE_SNIFFER_INTERFACE_ID);
+	bcnt = packet_get_tlv_value_uint(packet,TLV_TYPE_SNIFFER_BYTE_COUNT);
+	bcnt = min(bcnt, 32*1024*1024);
+
+	dprintf("sniffer>> capture_dump_read(0x%.8x, %d)", ifid, bcnt);
+
+	result = ERROR_SUCCESS;
+
+	do {
+		// the interface is invalid
+		if(ifid == 0 || ifid >= SNIFFER_MAX_INTERFACES) {
+			packet_add_tlv_uint(response, TLV_TYPE_SNIFFER_BYTE_COUNT, 0);
+			break;
+		}
+		
+		j = &open_captures[ifid];
+		if(! j->dbuf) {
+			packet_add_tlv_uint(response, TLV_TYPE_SNIFFER_BYTE_COUNT, 0);
+			break;
+		}
+		
+		if(j->didx + bcnt > j->dlen) {
+			bcnt = j->dlen - j->didx;
+		}
+
+		packet_add_tlv_uint(response, TLV_TYPE_SNIFFER_BYTE_COUNT, bcnt);
+		packet_add_tlv_raw(response, TLV_TYPE_SNIFFER_PACKET, (unsigned char *)j->dbuf+j->didx, bcnt);
+		j->didx += bcnt;
+	} while(0);
+	
+	// Free memory if the read is complete
+	if(j->didx >= j->dlen-1) {
+		free(j->dbuf);
+		j->dbuf = NULL;
+		j->didx = 0;
+		j->dlen = 0;
+	}
+
+	packet_transmit_response(result, remote, response);
+	return ERROR_SUCCESS;
+}
+
 
 DWORD request_sniffer_capture_dump(Remote *remote, Packet *packet) {
 	Packet *response = packet_create_response(packet);
 	unsigned int ifid;
+	unsigned int rbuf,mbuf;
+	unsigned int *tmp;
+
 	CaptureJob *j;
 	DWORD result,pcnt,bcnt,rcnt,i;
 	DWORD thi, tlo;
@@ -422,6 +480,8 @@ DWORD request_sniffer_capture_dump(Remote *remote, Packet *packet) {
 	dprintf("sniffer>> capture_dump(0x%.8x)", ifid);
 
 	result = ERROR_SUCCESS;
+
+	EnterCriticalSection(&sniffercs);
 
 	do {
 		// the interface is invalid
@@ -438,40 +498,72 @@ DWORD request_sniffer_capture_dump(Remote *remote, Packet *packet) {
 			break;
 		}
 
-		EnterCriticalSection(&sniffercs);
+		// Free any existing packet buffer
+		if(j->dbuf) {
+			free(j->dbuf);
+			j->dbuf = NULL;
+			j->dlen = 0;
+			j->didx = 0;
+		}
 
-		bcnt = j->cur_bytes;
-		pcnt = j->cur_pkts;
+		// Add basic stats
+		pcnt = 0;
+		bcnt = 0;
 		rcnt = 0;
 
-		packet_add_tlv_uint(response, TLV_TYPE_SNIFFER_PACKET_COUNT, pcnt);
-		packet_add_tlv_uint(response, TLV_TYPE_SNIFFER_BYTE_COUNT, bcnt);
+		mbuf = (1024*1024);
+		j->dbuf = malloc(mbuf);
+		rbuf = 0;
 
 		for(i=0; i<j->max_pkts; i++) {
 			if(!j->pkts[i]) break;
+
+			rbuf += (8 + 8 + 4 + PktGetPacketSize(j->pkts[i]));
+			if(mbuf < rbuf) {
+				mbuf += (1024*1024);
+				j->dbuf = realloc(j->dbuf, mbuf);
+			
+				if(!j->dbuf) {
+					dprintf("sniffer>> realloc of %d bytes failed!", rbuf);
+					result = ERROR_NOT_ENOUGH_MEMORY;
+					break;
+				}
+			}
+
+			tmp = (unsigned int *)( j->dbuf + rcnt );
+			tlo = PktGetId(j->pkts[i], &thi);
+			*tmp = htonl(thi); tmp++;
+			*tmp = htonl(tlo); tmp++;
+
 			tlo = PktGetTimeStamp(j->pkts[i], &thi);
-			packet_add_tlv_uint(response, TLV_TYPE_UINT, PktGetId(j->pkts[i], NULL));
-			packet_add_tlv_uint(response, TLV_TYPE_UINT, thi);
-			packet_add_tlv_uint(response, TLV_TYPE_UINT, tlo);
-			packet_add_tlv_raw(
-				response, 
-				TLV_TYPE_SNIFFER_PACKET, 
-				PktGetPacketData(j->pkts[i]),
-				PktGetPacketSize(j->pkts[i])
-			);
+			*tmp = htonl(thi); tmp++;
+			*tmp = htonl(tlo); tmp++;
+
+			tlo = PktGetPacketSize(j->pkts[i]);
+			*tmp = htonl(tlo); tmp++;
+
+			memcpy(j->dbuf+rcnt+20, PktGetPacketData(j->pkts[i]), tlo);
+			
+			rcnt += 20 + tlo;
+			pcnt++;
+
 			PktDestroy(j->pkts[i]);
 			j->pkts[i] = NULL;
 		}
+
+		j->dlen = rcnt;
+
+		packet_add_tlv_uint(response, TLV_TYPE_SNIFFER_PACKET_COUNT, pcnt);
+		packet_add_tlv_uint(response, TLV_TYPE_SNIFFER_BYTE_COUNT, rcnt);
+
 		dprintf("sniffer>> finished processing packets");
 
 		j->cur_bytes = 0;
 		j->cur_pkts  = 0;
 		j->idx_pkts  = 0;
-
-		LeaveCriticalSection(&sniffercs);
-
 	} while(0);
-	
+
+	LeaveCriticalSection(&sniffercs);
 	packet_transmit_response(result, remote, response);
 	return ERROR_SUCCESS;
 }
@@ -498,9 +590,14 @@ Command customCommands[] =
 	  { request_sniffer_capture_stats,                       { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                        },
 	},
-	// Sniffing dump
+	// Sniffing packet dump
 	{ "sniffer_capture_dump",
 	  { request_sniffer_capture_dump,                        { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                        },
+	},
+	// Sniffing packet dump read
+	{ "sniffer_capture_dump_read",
+	  { request_sniffer_capture_dump_read,                   { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                        },
 	},
 	// Terminator

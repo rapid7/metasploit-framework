@@ -51,6 +51,7 @@ DWORD request_sys_config_getuid(Remote *remote, Packet *packet)
 	return res;
 }
 
+
 /*
  * sys_sysinfo
  * ----------
@@ -63,8 +64,7 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 	CHAR computer[512], buf[512], *osName = NULL;
 	DWORD res = ERROR_SUCCESS;
 	DWORD size = sizeof(computer);
-	OSVERSIONINFO v;
-
+	OSVERSIONINFOEX v;
 	memset(&v, 0, sizeof(v));
 	memset(computer, 0, sizeof(computer));
 	memset(buf, 0, sizeof(buf));
@@ -102,7 +102,7 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 			else if (v.dwMinorVersion == 0 && v.dwPlatformId == VER_PLATFORM_WIN32_NT)
 				osName = "Windows NT 4.0";
 		}
-		else 
+		else if (v.dwMajorVersion == 5)
 		{
 			if (v.dwMinorVersion == 0)
 				osName = "Windows 2000";
@@ -110,6 +110,20 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 				osName = "Windows XP";
 			else if (v.dwMinorVersion == 2)
 				osName = "Windows .NET Server";
+		}
+		else if (v.dwMajorVersion == 6 && v.dwMinorVersion == 0)
+		{
+			if (v.wProductType == VER_NT_WORKSTATION)
+				osName = "Windows Vista";
+			else 
+				osName = "Windows 2008";
+		}
+		else if (v.dwMajorVersion == 6 && v.dwMinorVersion == 1)
+		{
+			if (v.wProductType == VER_NT_WORKSTATION)
+				osName = "Windows 7";
+			else 
+				osName = "Windows 2008 R2";
 		}
 		
 		if (!osName)

@@ -67,41 +67,34 @@ class Sniffer < Extension
 		request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
 		response = client.send_request(request)
 		{
-			'packets' => response.get_tlv_value(TLV_TYPE_SNIFFER_PACKET_COUNT),
-			'bytes'   => response.get_tlv_value(TLV_TYPE_SNIFFER_BYTE_COUNT),
+			:packets => response.get_tlv_value(TLV_TYPE_SNIFFER_PACKET_COUNT),
+			:bytes   => response.get_tlv_value(TLV_TYPE_SNIFFER_BYTE_COUNT),
 		}
 	end
 	
-	# Retrieve the packet dump for this capture
+	# Buffer the current capture to a readable buffer
 	def capture_dump(intf)
 		request = Packet.create_request('sniffer_capture_dump')
 		request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
-		response = client.send_request(request)	
-		
-		res  = {}
-		data = response.tlvs.map{|x| x.value}
-		data.shift # sniffer_capture_dump
-		data.shift # request id
-		data.pop   # result code
-		
-		# Grab the packet and byte count stats
-		res[:packet_count] = data.shift
-		res[:byte_count]   = data.shift
-		res[:packets]      = []
-
-		# Parse the packet queue
-		while(data.length > 3)
-			res[:packets] << { 
-				:id   => data.shift,
-				:time => Time.at(Rex::Proto::SMB::Utils.time_smb_to_unix(data.shift, data.shift)), 
-				:data => data.shift
-			}
-		end
-
-		# Sort the packets by receive order
-		res[:packets].sort!{|a,b| a[:id] <=> b[:id]}
-		res	
+		response = client.send_request(request, 3600)
+		{
+			:packets => response.get_tlv_value(TLV_TYPE_SNIFFER_PACKET_COUNT),
+			:bytes   => response.get_tlv_value(TLV_TYPE_SNIFFER_BYTE_COUNT),
+		}
 	end
+	
+	# Retrieve the packet data for the specified capture
+	def capture_dump_read(intf, len=16384)
+		request = Packet.create_request('sniffer_capture_dump_read')
+		request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
+		request.add_tlv(TLV_TYPE_SNIFFER_BYTE_COUNT, len.to_i)		
+		response = client.send_request(request, 3600)
+		{
+			:bytes   => response.get_tlv_value(TLV_TYPE_SNIFFER_BYTE_COUNT),
+			:data    => response.get_tlv_value(TLV_TYPE_SNIFFER_PACKET)
+		}
+	end
+		
 end
 
 end; end; end; end; end

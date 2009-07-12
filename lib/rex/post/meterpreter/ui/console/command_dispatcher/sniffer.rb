@@ -7,7 +7,7 @@ module Ui
 
 ###
 #
-# Privilege escalation extension user interface.
+# Packet sniffer extension user interface.
 #
 ###
 class Console::CommandDispatcher::Sniffer
@@ -28,11 +28,11 @@ class Console::CommandDispatcher::Sniffer
 	#
 	def commands
 		{
-			"sniffer_interfaces" => "List all remote sniffable interfaces",
-			"sniffer_start" => "Capture packets on a previously opened interface",
-			"sniffer_stop"  => "Stop packet captures on the specified interface",
+			"sniffer_interfaces" => "Enumerate all sniffable network interfaces",
+			"sniffer_start" => "Start packet capture on a specific interface",
+			"sniffer_stop"  => "Stop packet capture on a specific interface",
 			"sniffer_stats" => "View statistics of an active capture",
-			"sniffer_dump"  => "Retrieve captured packet data",
+			"sniffer_dump"  => "Retrieve captured packet data to PCAP file",
 		}
 	end
 
@@ -58,11 +58,11 @@ class Console::CommandDispatcher::Sniffer
 	def cmd_sniffer_start(*args)
 		intf = args[0].to_i
 		if (intf == 0)
-			print_error("Usage: sniffer_start [interface-id] [packet-buffer]")
+			print_error("Usage: sniffer_start [interface-id] [packet-buffer (1-200000)]")
 			return
 		end
 		maxp = args[1].to_i
-		maxp = 200000 if maxp == 0
+		maxp = 50000 if maxp == 0
 		 
 		client.sniffer.capture_start(intf, maxp)
 		print_status("Capture started on interface #{intf} (#{maxp} packet buffer)")
@@ -104,27 +104,72 @@ class Console::CommandDispatcher::Sniffer
 			return
 		end
 		
-		fd = nil
-		if(::File.exist?(args[1]) and ::File.size(args[1]) >= 24)
-			fd = ::File.new(args[1], 'ab+')
-		else
-			fd = ::File.new(args[1], 'wb+')
-			fd.write([0xa1b2c3d4, 2, 4, 0, 0, 65536, 1].pack('NnnNNNN'))
-		end
+		path_cap = args[1]
+		path_raw = args[1] + '.raw'
 		
-		print_status("Dumping packets from interface #{intf}...")
+		fd = ::File.new(path_raw, 'wb+')
 		
+		print_status("Flushing packet capture buffer for interface #{intf}...")
 		res = client.sniffer.capture_dump(intf)
-		res[:packets].each do |pkt|
-			fd.write([pkt[:time].to_i, pkt[:time].usec, pkt[:data].length, pkt[:data].length].pack('NNNN') + pkt[:data])
+		print_status("Flushed #{res[:packets]} packets (#{res[:bytes]} bytes)")
+		
+		bytes_all = res[:bytes] || 0
+		bytes_got = 0
+		bytes_pct = 0
+
+		while (bytes_all > 0)
+			res = client.sniffer.capture_dump_read(intf,1024*512)
+			
+			bytes_got += res[:bytes]
+
+			pct = ((bytes_got.to_f / bytes_all.to_f) * 100).to_i
+			if(pct > bytes_pct)
+				print_status("Downloaded #{"%.3d" % pct}% (#{bytes_got}/#{bytes_all})...")
+				bytes_pct = pct
+			end		
+			break if res[:bytes] == 0
+			fd.write(res[:data])
 		end
 		
-		# print_status("#{pkt[:id]} - #{pkt[:time].to_s} - #{pkt[:data].length}")
-		
-		print_status("Wrote #{res[:packet_count]} packets to PCAP file #{args[1]}")
 		fd.close
 		
-		return true		
+		print_status("Download completed, converting to PCAP...")
+		
+		fd = nil
+		if(::File.exist?(path_cap))
+			fd = ::File.new(path_cap, 'ab+')
+		else
+			fd = ::File.new(path_cap, 'wb+')
+			fd.write([0xa1b2c3d4, 2, 4, 0, 0, 65536, 1].pack('NnnNNNN'))
+		end	
+
+		pkts = {}		
+		od = ::File.new(path_raw, 'rb')
+
+
+		# TODO: reorder packets based on the ID (only an issue if the buffer wraps)
+		while(true)
+			buf = od.read(20)
+			break if not buf
+		
+			idh,idl,thi,tlo,len = buf.unpack('N5')
+			break if not len
+			if(len > 10000) 
+				print_error("Corrupted packet data (length:#{len})")
+				break
+			end
+			
+			pkt_id = (idh << 32) +idl
+			pkt_ts = Rex::Proto::SMB::Utils.time_smb_to_unix(thi,tlo)
+			pkt    = od.read(len)
+			
+			fd.write([pkt_ts,0,len,len].pack('NNNN')+pkt)
+		end
+		od.close
+		fd.close
+		
+		::File.unlink(path_raw)
+		print_status("PCAP file written to #{path_cap}")
 	end	
 	
 	#
