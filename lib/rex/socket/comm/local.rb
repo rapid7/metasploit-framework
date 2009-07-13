@@ -44,10 +44,8 @@ class Rex::Socket::Comm::Local
 		sock = ::Socket.open(::Socket::PF_INET, ::Socket::SOCK_RAW, ::Socket::IPPROTO_RAW)
 		sock.setsockopt(::Socket::IPPROTO_IP, ::Socket::IP_HDRINCL, 1)
 
-		# Configure broadcast support if the parameter is requested
-		if(param.broadcast)
-			sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_BROADCAST, true)
-		end
+		# Configure broadcast support
+		sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_BROADCAST, true)
 
 		if (param.bare? == false)
 			sock.extend(::Rex::Socket::Ip)
@@ -148,8 +146,8 @@ class Rex::Socket::Comm::Local
 			end
 		end
 		
-		# Configure broadcast support if the parameter is requested
-		if(param.broadcast)
+		# Configure broadcast support for all datagram sockets
+		if (type == ::Socket::SOCK_DGRAM)
 			sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_BROADCAST, true)
 		end
 

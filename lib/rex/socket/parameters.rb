@@ -89,10 +89,6 @@ class Rex::Socket::Parameters
 	#
 	# 	The number of seconds before a connection should time out
 	#
-	# Broadcast
-	#
-	# 	Specify this as true to send traffic to broadcast addresses
-	#
 	
 	def initialize(hash)
 		if (hash['PeerHost'])
@@ -177,12 +173,7 @@ class Rex::Socket::Parameters
 		else
 			self.timeout = 5
 		end
-		
-		# Enable sends to broadcast addresses
-		if hash['Broadcast']
-			self.broadcast = true
-		end
-			
+	
 		# Whether to force IPv6 addressing
 		self.v6        = hash['IPv6'] || false
 	end
@@ -300,10 +291,6 @@ class Rex::Socket::Parameters
 	# The number of seconds before a connection attempt should time out.
 	#
 	attr_accessor :timeout
-	#
-	# Whether or not to enable broadcast sends on this socket
-	#
-	attr_accessor :broadcast
 	#
 	# Whether or not this is a bare (non-extended) socket instance that should
 	# be created.
