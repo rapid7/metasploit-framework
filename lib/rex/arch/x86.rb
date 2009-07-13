@@ -41,7 +41,7 @@ module X86
 	# This method adds/subs a packed long integer
 	#
 	def self.dword_adjust(dword, amount=0)
-		[dword.unpack('V')[0] + amount].pack('V')
+		pack_dword(dword.unpack('V')[0] + amount)
 	end
 	
 	#
@@ -70,7 +70,7 @@ module X86
 
 		stub =
 			"\xeb\x0f"+                # jmp _end
-			"\x68" + [len].pack('V')+  # push n
+			push_dword(len)+           # push n
 			"\x59"+                    # pop ecx
 			"\x5e"+                    # pop esi
 			"\x29\xcc"+                # sub esp, ecx
@@ -211,7 +211,7 @@ module X86
 		if val < 0 || val > 0xffff
 			raise RangeError, "Can only take unsigned word values!", caller()
 		end
-		return "\x66" + (0xb8 | reg).chr + [ val ].pack('v')
+		return "\x66" + (0xb8 | reg).chr + pack_word(val)
 	end
 
 	#
@@ -220,7 +220,7 @@ module X86
 	#
 	def self.mov_dword(reg, val)
 		_check_reg(reg)
-		return (0xb8 | reg).chr + [ val ].pack('V')
+		return (0xb8 | reg).chr + pack_dword(val)
 	end
 
 	#
