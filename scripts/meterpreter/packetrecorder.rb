@@ -162,15 +162,17 @@ background = 0
 
 }
 if helpcall == 0
-        if (user != "NT AUTHORITY\\SYSTEM")
+        if (user != "NT AUTHORITY\\SYSTEM") && intid != 0
                 if not checkuac(session)
 			startsniff(session,intid)
                         packetrecord(session,packtime,logfile,intid)
 		else 
 			print_line("[-] The Meterpreter process is not running as System and UAC is not enable, Insufficient Privileges to run")
                 end
-        else
+        elsif intid != 0
 		startsniff(session,intid)
 		packetrecord(session,packtime,logfile,intid)
+	else
+		helpmsg
 	end
 end
