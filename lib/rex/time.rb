@@ -29,7 +29,7 @@ module ExtTime
 			str = "#{parts[idx]} #{name + ((parts[idx] != 1) ? 's' :'')} " + str
 		}
 
-		str.empty? ? "0 secs" : str
+		str.empty? ? "0 secs" : str.strip
 	end
 
 	#
