@@ -181,7 +181,7 @@ class Rex::Socket::Parameters
 		# Enable sends to broadcast addresses
 		if hash['Broadcast']
 			self.broadcast = true
-		else
+		end
 			
 		# Whether to force IPv6 addressing
 		self.v6        = hash['IPv6'] || false
