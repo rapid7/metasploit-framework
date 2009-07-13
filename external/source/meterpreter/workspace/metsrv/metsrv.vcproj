@@ -146,8 +146,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="1"
 				InlineFunctionExpansion="1"
+				FavorSizeOrSpeed="2"
+				AdditionalIncludeDirectories="..\..\source\openssl\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;METSRV_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -179,7 +181,7 @@
 				OutputFile=".\Release/metsrv.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\common\Release"
+				AdditionalLibraryDirectories="..\common\Release; ..\..\source\openssl\lib"
 				GenerateManifest="false"
 				ModuleDefinitionFile="..\..\source\server\metsrv.def"
 				GenerateDebugInformation="false"

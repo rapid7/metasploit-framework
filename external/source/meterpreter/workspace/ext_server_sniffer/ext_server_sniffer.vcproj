@@ -117,7 +117,7 @@
 				InlineFunctionExpansion="0"
 				EnableIntrinsicFunctions="false"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\source\extensions\sniffer; .\pssdk"
+				AdditionalIncludeDirectories="..\..\source\extensions\sniffer; .\pssdk;..\..\source\openssl\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_SNIFFER_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"

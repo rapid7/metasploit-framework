@@ -116,7 +116,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				EnableIntrinsicFunctions="false"
-				AdditionalIncludeDirectories="..\..\source\extensions\incognito"
+				AdditionalIncludeDirectories="..\..\source\extensions\incognito;..\..\source\openssl\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_INCOGNITO_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
