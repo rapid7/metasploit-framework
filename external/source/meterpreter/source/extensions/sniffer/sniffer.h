@@ -23,14 +23,9 @@ typedef struct capturejob
 	unsigned int mtu;
 	HANDLE adp;
 	HANDLE *pkts;
-	Remote *remote;
-
 	unsigned char *dbuf;
 	unsigned int dlen;
 	unsigned int didx;
-	PoolChannelOps chops;
-	Channel *channel;
-
 } CaptureJob;
 
 #define TLV_TYPE_EXTENSION_SNIFFER	0

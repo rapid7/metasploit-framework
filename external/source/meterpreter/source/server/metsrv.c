@@ -3,8 +3,9 @@
 #include <windows.h> // for EXCEPTION_ACCESS_VIOLATION 
 #include <excpt.h> 
 
-// include the PolarSSL library
-#pragma comment(lib,"polarssl.lib")
+// include the OpenSSL library
+#pragma comment(lib,"libeay32.lib")
+#pragma comment(lib,"ssleay32.lib")
 
 // include the Reflectiveloader() function
 #include "../ReflectiveDLLInjection/ReflectiveLoader.c"
@@ -78,7 +79,8 @@ DWORD __declspec(dllexport) Init(SOCKET fd)
 	} while (0);
 
 	dprintf("Closing down SSL...");
-	ssl_free(&remote->ssl);
+	SSL_free(remote->ssl);
+	SSL_CTX_free(remote->ctx);
 
 	if (remote)
 		remote_deallocate(remote);
@@ -91,9 +93,6 @@ DWORD __declspec(dllexport) Init(SOCKET fd)
 	}
 
 	return res;
-}
-void ssl_debug_log( void *ctx, int level, char *str ) {
-	if(level < 2) dprintf("polarssl[0x%.8x]: <%d> %s", ctx, level, str );
 }
 
 // Flush all pending data on the connected socket before doing SSL
@@ -131,28 +130,24 @@ DWORD negotiate_ssl(Remote *remote)
 	DWORD hres = ERROR_SUCCESS;
 	SOCKET fd = remote_get_fd(remote);
     DWORD ret;
+	int serr;
+	
+	SSL_load_error_strings();
+	SSL_library_init();
 
-	havege_state hs;
-	ssl_context *ssl = &remote->ssl;
-    ssl_session *ssn = &remote->ssn;
+	remote->meth = TLSv1_client_method();
+	remote->ctx  = SSL_CTX_new(remote->meth);
+	remote->ssl  = SSL_new(remote->ctx);
 
-    havege_init( &hs );
-    memset( ssn, 0, sizeof( ssl_session ) );
+	SSL_set_verify(remote->ssl, SSL_VERIFY_NONE, NULL);
+	SSL_set_fd(remote->ssl, remote->fd);
 
-    if(ssl_init(ssl) != 0 ) return(1);
-
-    ssl_set_endpoint( ssl, SSL_IS_CLIENT );
-    ssl_set_authmode( ssl, SSL_VERIFY_NONE );
-	ssl_set_dbg( ssl, ssl_debug_log, NULL);
-    ssl_set_rng( ssl, havege_rand, &hs );
-	ssl_set_bio( ssl, net_recv, &remote->fd, net_send, &remote->fd );
-    ssl_set_ciphers( ssl, ssl_default_ciphers );
-    ssl_set_session( ssl, 0, 0, ssn );
+	serr = SSL_connect(remote->ssl);
 
 	dprintf("Sending a HTTP GET request to the remote side...");
-	do {
-		ret = ssl_write(ssl, "GET / HTTP/1.0\r\n\r\n", 18);
-	}while(ret == POLARSSL_ERR_NET_TRY_AGAIN);
+	if((ret = SSL_write(remote->ssl, "GET / HTTP/1.0\r\n\r\n", 18)) <= 0) {
+		dprintf("SSL write failed during negotiation with return: %d (%d)", ret, SSL_get_error(ret));
+	}
 
 	dprintf("Completed writing the HTTP GET request: %d", ret);
 	
