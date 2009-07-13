@@ -44,6 +44,11 @@ class Rex::Socket::Comm::Local
 		sock = ::Socket.open(::Socket::PF_INET, ::Socket::SOCK_RAW, ::Socket::IPPROTO_RAW)
 		sock.setsockopt(::Socket::IPPROTO_IP, ::Socket::IP_HDRINCL, 1)
 
+		# Configure broadcast support if the parameter is requested
+		if(param.broadcast)
+			sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_BROADCAST, true)
+		end
+
 		if (param.bare? == false)
 			sock.extend(::Rex::Socket::Ip)
 			sock.initsock(param)
@@ -141,6 +146,11 @@ class Rex::Socket::Comm::Local
 				sock.close
 				raise Rex::AddressInUse.new(param.localhost, param.localport), caller
 			end
+		end
+		
+		# Configure broadcast support if the parameter is requested
+		if(param.broadcast)
+			sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_BROADCAST, true)
 		end
 
 		# If a server TCP instance is being created...
