@@ -318,7 +318,10 @@ module Text
 			if mode == ''
 				mode = 1252 # ANSI - Latan 1, default for US installs of MS products
 			else
-                raise TypeError, "Invalid codepage #{mode}, only 1252 supported for uhwtfms_half"
+				mode = mode.to_i
+			end
+			if mode != 1252
+		                raise TypeError, "Invalid codepage #{mode}, only 1252 supported for uhwtfms_half"
 			end
 			str.each_byte {|byte|
                 if ((byte >= 33 && byte <= 63) || (byte >= 96 && byte <= 126))
