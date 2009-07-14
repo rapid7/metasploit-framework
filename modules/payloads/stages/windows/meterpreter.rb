@@ -67,7 +67,9 @@ module Metasploit3
 			end
 		end
 		if (datastore['AutoRunScript'].empty? == false)
-			session.execute_script(datastore['AutoRunScript'], binding)
+			client = session
+			args = datastore['AutoRunScript'].split
+			session.execute_script(args.shift, binding)
 		end
 	end
 
