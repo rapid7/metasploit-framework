@@ -98,12 +98,13 @@ class Client
 		# Create a new SSL session on the existing socket
 		ctx = generate_ssl_context()
 		ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
+
 		ssl.accept
 
 		sock.extend(Rex::Socket::SslTcp)		
 		sock.sslsock = ssl
 		sock.sslctx  = ctx
-		
+
 		tag = sock.read(18)
 		if(not tag or tag != "GET / HTTP/1.0\r\n\r\n")
 			raise RuntimeError, "Could not read the SSL hello tag"
