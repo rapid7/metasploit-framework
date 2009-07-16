@@ -63,9 +63,9 @@ def run
 	if (self.respond_to?('run_host'))
 		ar = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
 		
-		while (true)
-			tl = []
+		tl = []
 
+		while (true)
 			# Spawn threads for each host
 			while (tl.length < threads_max)
 				ip = ar.next_ip
@@ -75,7 +75,7 @@ def run
 					targ = tip
 					nmod = self.replicant
 					nmod.datastore['RHOST'] = targ
-					
+
 					begin
 						nmod.run_host(targ)
 					rescue ::Interrupt
@@ -92,9 +92,14 @@ def run
 			if(tl.length == 0)
 				break
 			end
-			
-			# Wait for the threads
-			tl.each { |t| t.join }
+
+			# Assume that the oldest thread will be one of the
+			# first to finish and wait for it.  After that's
+			# done, remove any finished threads from the list
+			# and continue on.  This will open up at least one
+			# spot for a new thread
+			tl.first.join
+			tl.delete_if { |t| not t.alive? }
 		end
 		
 		return
@@ -111,10 +116,9 @@ def run
 
 		ar = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
 					
+		tl = []
+
 		while(true)
-			
-			tl = []
-			
 			nohosts = false	
 			while (tl.length < threads_max)
 				
@@ -129,7 +133,6 @@ def run
 					end
 					batch << ip
 				end
-				
 				
 				# Create a thread for each batch
 				if (batch.length > 0)
@@ -152,14 +155,19 @@ def run
 					break
 				end
 			end
-			
-			# Wait for the threads
-			tl.each { |t| t.join }
 
 			# Exit if there are no more pending threads
 			if (tl.length == 0)
 				break
 			end			
+
+			# Assume that the oldest thread will be one of the
+			# first to finish and wait for it.  After that's
+			# done, remove any finished threads from the list
+			# and continue on.  This will open up at least one
+			# spot for a new thread
+			tl.first.join
+			tl.delete_if { |t| not t.alive? }
 		end
 		
 		return
