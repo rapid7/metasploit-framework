@@ -3,6 +3,11 @@
 extern VOID remote_register_core_dispatch_routines();
 extern VOID remote_deregister_core_dispatch_routines();
 
+// include the OpenSSL library
+#pragma comment(lib,"libeay32.lib")
+#pragma comment(lib,"ssleay32.lib")
+
+
 HANDLE clientLock = NULL;
 
 /*
@@ -18,6 +23,9 @@ int main(int argc, char **argv)
 	srand(time(NULL));
 
 	WSAStartup(0x0202, &data);
+
+	printf("ERROR: This client is out of date and does not support SSL\n");
+	exit(0);
 
 	if (argc < 3)
 	{

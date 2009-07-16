@@ -136,9 +136,11 @@ DWORD negotiate_ssl(Remote *remote)
 	SSL_library_init();
 
 	remote->meth = TLSv1_client_method();
-	remote->ctx  = SSL_CTX_new(remote->meth);
-	remote->ssl  = SSL_new(remote->ctx);
 
+	remote->ctx  = SSL_CTX_new(remote->meth);
+	SSL_CTX_set_mode(remote->ctx, SSL_MODE_AUTO_RETRY);
+
+	remote->ssl  = SSL_new(remote->ctx);
 	SSL_set_verify(remote->ssl, SSL_VERIFY_NONE, NULL);
 	SSL_set_fd(remote->ssl, remote->fd);
 

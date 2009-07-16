@@ -1,8 +1,5 @@
 #include "common.h"
 
-// include the PolarSSL library
-#pragma comment(lib,"polarssl.lib")
-
 DWORD packet_find_tlv_buf(PUCHAR payload, DWORD payloadLength, DWORD index,
 		TlvType type, Tlv *tlv);
 
@@ -708,13 +705,13 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 		idx = 0;
 		while( idx < sizeof(packet->header)) { 
 			// Transmit the packet's header (length, type)
-			while( (res = ssl_write(
-						&remote->ssl, 
-						(LPCSTR)(&packet->header) + idx, 
-						sizeof(packet->header) - idx)) == POLARSSL_ERR_NET_TRY_AGAIN) { 
-				dprintf("resending SSL header data on blocked socket");
-			}
-			if(res < 0) {
+			res = SSL_write(
+				remote->ssl, 
+				(LPCSTR)(&packet->header) + idx, 
+				sizeof(packet->header) - idx
+			);
+				
+			if(res <= 0) {
 				dprintf("transmit header failed with return %d at index %d\n", res, idx);
 				break;
 			}
@@ -725,13 +722,14 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 		idx = 0;
 		while( idx < packet->payloadLength) { 
 			// Transmit the packet's payload (length, type)
-			while( (res = ssl_write(
-						&remote->ssl, 
-						packet->payload + idx,
-						packet->payloadLength - idx)) == POLARSSL_ERR_NET_TRY_AGAIN) { 
-				dprintf("resending SSL payload data on blocked socket");
-			}
-			
+			res = SSL_write(
+				remote->ssl, 
+				packet->payload + idx,
+				packet->payloadLength - idx
+			);
+			if(res < 0)
+				break;
+
 			idx += res;
 		}
 		if(res < 0) {
@@ -786,12 +784,10 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 		// Read the packet length
 		while (inHeader)
 		{
-			if ((bytesRead = ssl_read(&remote->ssl, 
+			if ((bytesRead = SSL_read(remote->ssl, 
 					((PUCHAR)&header + headerBytes), 
 					sizeof(TlvHeader) - headerBytes)) <= 0)
 			{
-				if(bytesRead == POLARSSL_ERR_NET_TRY_AGAIN) continue;
-				
 				if (!bytesRead)
 					SetLastError(ERROR_NOT_FOUND);
 
@@ -830,11 +826,10 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 		// Read the payload
 		while (payloadBytesLeft > 0)
 		{
-			if ((bytesRead = ssl_read(&remote->ssl, 
+			if ((bytesRead = SSL_read(remote->ssl, 
 					payload + payloadLength - payloadBytesLeft, 
 					payloadBytesLeft)) <= 0)
 			{
-				if(bytesRead == POLARSSL_ERR_NET_TRY_AGAIN) continue;
 
 				if (GetLastError() == WSAEWOULDBLOCK)
 					continue;

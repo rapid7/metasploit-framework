@@ -10,9 +10,7 @@
 	#include <windows.h>
 #endif
 
-#include "polarssl/net.h"
-#include "polarssl/ssl.h"
-#include "polarssl/havege.h"
+#include <openssl/ssl.h>
 
 #include "linkage.h"
 

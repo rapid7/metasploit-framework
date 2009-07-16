@@ -170,7 +170,7 @@ void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacke
 	ETHERNET_HEADER *eth;
 	IP_HEADER *ip;
 	TCP_HEADER *tcp;
-	UDP_HEADER *udp;
+//	UDP_HEADER *udp;
 
 
 	j = (CaptureJob *)Param;
@@ -309,7 +309,6 @@ DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
 		j->max_pkts = maxp;
 		j->cur_pkts = 0;
 		j->mtu      = AdpCfgGetMaxPacketSize(AdpGetConfig(j->adp));
-		j->remote   = remote;
 
 		AdpSetOnPacketRecv(j->adp, (FARPROC) sniffer_receive, (DWORD_PTR)j);
 		AdpSetMacFilter(j->adp, mfAll);
