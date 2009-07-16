@@ -133,9 +133,9 @@ def run
 				
 				# Create a thread for each batch
 				if (batch.length > 0)
-					tl << Thread.new do
+					tl << Thread.new(batch) do |bat|
 						nmod = self.replicant
-						mybatch = batch.dup
+						mybatch = bat.dup
 						begin
 							nmod.run_batch(mybatch)
 						rescue ::Interrupt
