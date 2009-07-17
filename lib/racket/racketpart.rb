@@ -26,6 +26,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 require 'bit-struct'
+
+module Racket
 class RacketPart < BitStruct
 
   # Boolean indicating whether or not this instance should be
@@ -56,5 +58,6 @@ class RacketPart < BitStruct
  
   def fix!
   end
+end
 end
 # vim: set ts=2 et sw=2:

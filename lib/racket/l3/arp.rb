@@ -28,6 +28,7 @@
 # Address Resolution Protocol: ARP
 #
 # RFC826 (http://www.faqs.org/rfcs/rfc826.html)
+module Racket
 class ARP < RacketPart
   ARPOP_REQUEST = 0x0001
   ARPOP_REPLY = 0x0002
@@ -56,5 +57,6 @@ class ARP < RacketPart
   octets :tpa, 32
   # Payload
   rest :payload
+end
 end
 # vim: set ts=2 et sw=2:

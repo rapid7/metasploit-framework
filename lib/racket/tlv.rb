@@ -27,6 +27,7 @@
 #
 # Simple class for your average type, length, value datastructure.
 # Everything after the TLV is stuff into +rest+
+module Racket
 class TLV
   attr_accessor :type, :length, :value, :rest
 
@@ -83,5 +84,6 @@ private
   end
   
 
+end
 end
 # vim: set ts=2 et sw=2:

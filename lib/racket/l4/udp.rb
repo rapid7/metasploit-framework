@@ -28,6 +28,7 @@
 # User Datagram Protocol: UDP
 #
 # RFC768 (http://www.faqs.org/rfcs/rfc768.html)
+module Racket
 class UDP < RacketPart
   # Source Port
   unsigned :src_port, 16
@@ -73,5 +74,6 @@ private
     L3::Misc.checksum((pseudo << header).flatten.pack("NNnnnnnna*"))
   end
 
+end
 end
 # vim: set ts=2 et sw=2:

@@ -26,6 +26,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 #     XXX: currently broken.  all of the "optional" fields must be made dynamic
+module Racket
 class GRE < RacketPart
   # Is a checksum present?
   unsigned :checksum_present, 1
@@ -57,5 +58,6 @@ class GRE < RacketPart
   unsigned :routing, 32
   # Payload
   rest :payload
+end
 end
 # vim: set ts=2 et sw=2:

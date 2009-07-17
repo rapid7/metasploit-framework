@@ -26,6 +26,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 # Domain Name System
+module Racket
 class DNS < RacketPart
   # Transaction ID
   unsigned :tx_id, 16
@@ -102,5 +103,6 @@ private
     q
   end
 
+end
 end
 # vim: set ts=2 et sw=2:

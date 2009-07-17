@@ -29,6 +29,7 @@
 #
 # XXX: todo -- add a method for moving/shifting
 # members around
+module Racket
 class OrderedHash < Hash
   def initialize
     @keys = []
@@ -56,5 +57,5 @@ class OrderedHash < Hash
     @keys.each { |k| yield self[k] }
   end
 end
-
+end
 # vim: set ts=2 et sw=2:

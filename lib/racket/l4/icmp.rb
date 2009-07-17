@@ -28,6 +28,7 @@
 # Internet Control Message Protcol.  
 #
 # RFC792 (http://www.faqs.org/rfcs/rfc792.html)
+module Racket
 class ICMP < RacketPart
   ICMP_TYPE_ECHO_REPLY = 0
   ICMP_TYPE_DESTINATION_UNREACHABLE = 3
@@ -81,5 +82,5 @@ private
     L3::Misc.checksum(pseudo.pack("CCnnna*"))
   end
 end
-
+end
 # vim: set ts=2 et sw=2:

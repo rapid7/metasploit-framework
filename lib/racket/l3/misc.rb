@@ -25,6 +25,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+module Racket
 module L3
   module Misc
     # given an IPv4 address packed as an integer
@@ -71,5 +72,6 @@ module L3
       ([csum].pack("S*")).unpack("n*")[0]
     end
   end
+end
 end
 # vim: set ts=2 et sw=2:

@@ -29,6 +29,9 @@
 require 'socket'
 require 'pcaprub'
 
+
+
+
 require 'racket/racketpart'
 require 'racket/tlv'
 require 'racket/lv'
@@ -39,6 +42,8 @@ require 'racket/l3'
 require 'racket/l4'
 require 'racket/l5'
 
+
+module Racket
 class Racket
 
   attr_accessor :iface, :mtu, :timeout
@@ -144,6 +149,8 @@ class Racket
 
     return s.send(pack, 0, Socket.pack_sockaddr_in(1024, @layers[3].dst_ip))
   end
+end
+
 end
 
 # vim: set ts=2 et sw=2:

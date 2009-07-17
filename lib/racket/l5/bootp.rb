@@ -28,6 +28,7 @@
 # Bootstrap Protocol -- BOOTP
 #
 # RFC951 (http://www.faqs.org/rfcs/rfc951.html)
+module Racket
 class BOOTP < RacketPart
   BOOTP_REQUEST = 1
   BOOTP_REPLY = 2
@@ -98,5 +99,6 @@ class BOOTP < RacketPart
     @autofix = false
   end
 
+end
 end
 # vim: set ts=2 et sw=2:

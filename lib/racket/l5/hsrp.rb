@@ -28,6 +28,7 @@
 # Hot Standby Router Protocol: HSRP
 #
 # RFC2281 (http://www.faqs.org/rfcs/rfc2281.html)
+module Racket
 class HSRP < RacketPart
   HSRP_HELLO = 0
   HSRP_COUP = 1
@@ -64,5 +65,6 @@ class HSRP < RacketPart
   octets :vip, 32
   # Payload.  Generally unused.
   rest :payload
+end
 end
 # vim: set ts=2 et sw=2:

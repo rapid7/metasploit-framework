@@ -28,6 +28,7 @@
 # Internet Protocol Version 6 (IPV6)
 # RFC2460
 # XXX: not tested, incomplete.
+module Racket
 class IPv6 < RacketPart
   # IP Version (defaults to 6)
   unsigned :version, 4, { :default => 6 }
@@ -47,5 +48,6 @@ class IPv6 < RacketPart
   unsigned :dst_ip, 128
   # Payload
   rest :payload
+end
 end
 # vim: set ts=2 et sw=2:

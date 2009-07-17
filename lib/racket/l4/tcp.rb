@@ -28,6 +28,7 @@
 # Transmission Control Protocol: TCP
 #
 # RFC793 (http://www.faqs.org/rfcs/rfc793.html)
+module Racket
 class TCP < RacketPart
   # Source port
   unsigned :src_port, 16
@@ -103,7 +104,6 @@ class TCP < RacketPart
     self.payload = newpayload + self.payload + next_payload
     self.offset = self.class.bit_length/32 + newpayload.length/4
     self.checksum!(ip_src, ip_dst)
-    self.payload = newpayload
   end
 
   def initialize(*args)
@@ -133,5 +133,6 @@ private
               self.window, 0, self.urg, self.payload]
     L3::Misc.checksum((pseudo << header).flatten.pack("NNnnnnNNnnnna*"))
   end
+end
 end
 # vim: set ts=2 et sw=2:

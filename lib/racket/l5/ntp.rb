@@ -25,6 +25,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+module Racket
 class NTP < RacketPart
   # Leap Indicator
   unsigned :leap, 2
@@ -49,6 +50,7 @@ class NTP < RacketPart
   # Transmit Timestamp
   unsigned :tr_ts, 64
   rest :payload
+end
 end
 # vim: set ts=2 et sw=2:
 

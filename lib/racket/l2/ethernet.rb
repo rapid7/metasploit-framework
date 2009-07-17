@@ -28,6 +28,7 @@
 # Ethernet II (DIX v2.0)
 #
 # http://en.wikipedia.org/wiki/Ethernet_II_framing
+module Racket
 class Ethernet < RacketPart
   ETHERTYPE_IPV4 = 0x0800
   ETHERTYPE_ARP = 0x0806
@@ -54,5 +55,6 @@ class Ethernet < RacketPart
   unsigned :ethertype, 16, { :default => ETHERTYPE_IPV4 }
   # Payload
   rest :payload
+end
 end
 #set ts=2 et sw=2: vim

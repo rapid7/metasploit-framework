@@ -25,6 +25,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+module Racket
 module Misc
   # Return a number that is at most size bits long
   def Misc.randbits(size)
@@ -63,5 +64,6 @@ module Misc
   end
 
 
+end
 end
 # vim: set ts=2 et sw=2:

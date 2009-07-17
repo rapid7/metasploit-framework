@@ -28,6 +28,7 @@
 # Internet Protcol Version 4 (IPV4)
 #
 # RFC791 (http://www.ietf.org/rfc/rfc791.txt)
+module Racket
 class IPv4 < RacketPart
   # Version (defaults to 4)
   unsigned :version, 4, { :default => 4 }
@@ -122,5 +123,6 @@ private
     pseudo << L3::Misc.ipv42long(self.dst_ip)
     L3::Misc.checksum(pseudo.pack("nnnnnnNN"))
   end
+end
 end
 # vim: set ts=2 et sw=2:

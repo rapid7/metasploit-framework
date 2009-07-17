@@ -29,6 +29,7 @@
 #
 # RFC1112 (http://www.faqs.org/rfcs/rfc1112.html)
 # 
+module Racket
 class IGMPv1 < RacketPart
   # Version (defaults to 1)
   unsigned :version, 4
@@ -71,5 +72,6 @@ private
     tmp << self.payload
     L3::Misc.checksum(tmp.pack("nnNa*"))
   end
+end
 end
 # vim: set ts=2 et sw=2:

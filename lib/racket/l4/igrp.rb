@@ -37,6 +37,7 @@
 #   uchar reliability;     /* percent packets successfully tx/rx */
 #   uchar load;            /* percent of channel occupied */
 #   uchar hopcount;        /* hop count */
+module Racket
 class IGRP < RacketPart
   IGRP_UPDATE  = 1
   IGRP_REQUEST = 2
@@ -130,6 +131,6 @@ private
     L3::Misc.checksum(tmp.pack("Cnnnnnna*"))
   end
 end
-
+end
 
 # vim: set ts=2 et sw=2:

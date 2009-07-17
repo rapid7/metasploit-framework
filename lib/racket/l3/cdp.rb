@@ -27,6 +27,7 @@
 #
 # CDP -- Cisco Discovery Protocol
 # http://www.cisco.biz/univercd/cc/td/doc/product/lan/trsrb/frames.htm#xtocid12
+module Racket
 class CDP < RacketPart
   # CDP Version (generally 1)
   unsigned :version, 8, { :default => 1 }
@@ -72,5 +73,6 @@ private
     L3::Misc.checksum(pseudo.pack("nna*"))
   end# }}}
 
+end
 end
 # vim: set ts=2 et sw=2:

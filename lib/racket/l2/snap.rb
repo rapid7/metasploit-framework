@@ -26,11 +26,13 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 # Subnetwork Access Protocl (http://en.wikipedia.org/wiki/Subnetwork_Access_Protocol)
+module Racket
 class SNAP < RacketPart
   # Organizational code
   unsigned :org, 24, { :default => 0x00000c }
   # Protocol ID
   unsigned :pid, 16
   rest :payload
+end
 end
 # vim: set ts=2 et sw=2:

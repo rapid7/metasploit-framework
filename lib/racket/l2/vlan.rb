@@ -26,6 +26,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 # IEEE 802.1Q VLAN tag (http://en.wikipedia.org/wiki/IEEE_802.1Q)
+module Racket
 class VLAN < RacketPart
   ETHERTYPE_IPV4 = 0x0800
   ETHERTYPE_ARP = 0x0806
@@ -51,5 +52,6 @@ class VLAN < RacketPart
   # L3 protocol type.  Defaults to IPV4
   unsigned :type, 16, { :default => ETHERTYPE_IPV4 }
   rest :payload
+end
 end
 # vim: set ts=2 et sw=2:
