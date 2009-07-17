@@ -81,14 +81,23 @@ class Pcap::UnitTest < Test::Unit::TestCase
 	end
 
 	def test_pcap_next
-=begin
 		d = Pcap.lookupdev
 		o = Pcap.open_live(d, 1344, true, 1)
+
 		@c = 0
-		t = Thread.new { while(true); @c += 1; end; }
-		x = o.next
+		t = Thread.new { while(true); @c += 1; select(nil, nil, nil, 0.10); end; }
+
+		require 'timeout'
+		begin
+		Timeout.timeout(10) do
+			o.each do |pkt|
+			end
+		end
+		rescue ::Timeout::Error
+		end
+		
 		t.kill
-=end
+		puts "Background thread ticked #{@c} times while capture was running"
 		true
 	end
 							

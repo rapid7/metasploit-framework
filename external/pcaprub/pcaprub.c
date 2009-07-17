@@ -389,14 +389,20 @@ static VALUE
 rbpcap_capture(VALUE self)
 {
     rbpcap_t *rbp;
-
+	int fno = -1;
+	
     Data_Get_Struct(self, rbpcap_t, rbp);
 
 	if(! rbpcap_ready(rbp)) return self; 
 	
+	fno = pcap_fileno(rbp->pd);
+	
     for(;;) {
 
-    	VALUE packet = rbpcap_next(self);
+    	VALUE packet;
+		if(fno != -1) rb_thread_wait_fd(fno);
+		
+		packet = rbpcap_next(self);
 
     	if(packet == Qnil && rbp->type == OFFLINE)
     		break;
