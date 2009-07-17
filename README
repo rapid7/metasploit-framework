@@ -50,7 +50,6 @@ This license does not apply to the following components:
  - The Racket library located under lib/racket
  - The Ruby-Lorcon library located under external/ruby-lorcon
  - The SNMP library located under lib/snmp
- - The Scruby library located under lib/scruby
  - The Zip library located under lib/zip
 
 The latest version of this software is available from http://metasploit.com/
