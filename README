@@ -28,31 +28,43 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ================================================================================
 
-The Metasploit Framework is provided under the BSD license above.
+The Metasploit Framework is provided under the 3-clause BSD license above.
 
 The copyright on this package is held by Metasploit LLC.
 
-This copyright does not apply to the following components:
- - The vncdll.dll binary or its associated source code (modified RealVNC)
- - The icons used by msfweb that were not created by the Metasploit Project
- - The Ole::Storage library located under lib/ole
- - The Scruby library located under lib/scruby
- - The PcapRub library located under external/pcaprub
- - The Ruby-Lorcon library located under external/ruby-lorcon
+This license does not apply to the following components:
+ - The OpenSSL library embedded into the Meterpreter payload binaries and the 
+   corresponding header files in the source tree
+ - The Packet Sniffer SDK (MicroOLAP) library embedded into the Meterpreter 
+   Sniffer extension. Metasploit LLC has a single-seat developer license.  
+ - The vncdll.dll binary and its associated source code (modified RealVNC)
+ - The icons used by msfweb that were not created by Metasploit
+ - The BinData library located under lib/bindata
+ - The Bit-Struct library located under lib/bit-struct
  - The Byakugan plugin located under external/source/byakugan
+ - The Metasm library located under lib/metasm
+ - The Ole::Storage library located under lib/ole
+ - The PacketFu library located under lib/packetfu
+ - The PcapRub library located under external/pcaprub
+ - The Rabal library located under lib/rabal
+ - The Racket library located under lib/racket
+ - The Ruby-Lorcon library located under external/ruby-lorcon
+ - The SNMP library located under lib/snmp
+ - The Scruby library located under lib/scruby
+ - The Zip library located under lib/zip
 
 The latest version of this software is available from http://metasploit.com/
 
 Bug tracking and development information can be found at:
- http://metasploit.com/dev/trac
+ http://trac.metasploit.com/
 
 Questions and suggestions can be sent to:
  msfdev[at]metasploit.com
  
 The framework mailing list is the place to discuss features and ask for help. 
 To subscribe, visit the following web page:
- http://spool.metasploit.com/mailman/listinfo/framework
+ https://mail.metasploit.com/mailman/listinfo/framework
 
 The archives are available from:
- http://spool.metasploit.com/pipermail/framework/
+ https://mail.metasploit.com/pipermail/framework/
 
