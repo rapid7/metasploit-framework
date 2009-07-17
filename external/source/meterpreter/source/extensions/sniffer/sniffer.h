@@ -6,11 +6,7 @@
 #include <ws2tcpip.h>
 
 #include "HNPsSdkUser.h"
-#include "ethernet.h"
-#include "ip.h"
-#include "tcp.h"
-#include "udp.h"
-
+#include "dnet.h"
 
 typedef struct capturejob
 {

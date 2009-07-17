@@ -167,10 +167,10 @@ void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacke
 	HANDLE pkt;
 	unsigned char *pktbuf;
 	unsigned char *pktmax;
-	ETHERNET_HEADER *eth;
-	IP_HEADER *ip;
-	TCP_HEADER *tcp;
-//	UDP_HEADER *udp;
+ 	struct eth_hdr *eth;
+ 	struct ip_hdr *ip;
+ 	struct tcp_hdr *tcp;
+//	struct udp_hdr *udp;
 
 
 	j = (CaptureJob *)Param;
@@ -184,41 +184,41 @@ void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacke
 	// Traffic filtering goes here
 	do {
 		// Skip matching on short packets
-		if(IncPacketSize < sizeof(ETHERNET_HEADER)+sizeof(IP_HEADER)+sizeof(TCP_HEADER)){
+		if(IncPacketSize < ETH_HDR_LEN + IP_HDR_LEN + TCP_HDR_LEN){
 			dprintf("sniffer>> skipping exclusion because the packet is too small");
 			break;
 		}
 
 		// Match IP packets
-		if(! peername4)  {
+ 		if(!peername4) {
 			dprintf("sniffer>> skipping exclusion because peername4 is not defined");
 			break;
 		}
 
 		// Skip non-IP packets
-		eth = (ETHERNET_HEADER *) pktbuf;
-		if(ntohs(eth->EthType) != ETHERTYPE_IP) {
+ 		eth = (struct eth_hdr *) pktbuf;
+ 		if(ntohs(eth->eth_type) != ETH_TYPE_IP) {
 			dprintf("sniffer>> skipping non-IP packet from filter");
 			break;
 		}
 
 		// Skip non-TCP/UDP packets
-		ip = (IP_HEADER *)&pktbuf[sizeof(ETHERNET_HEADER)];
-		if(ip->Protocol != IPPROTO_TCP && ip->Protocol != IPPROTO_UDP) {
-			dprintf("sniffer>> skipping non-TCP/UDP packet from filter: %d", ip->Protocol);
+ 		ip = (struct ip_hdr *) &pktbuf[ETH_HDR_LEN];
+ 		if(ip->ip_p != IP_PROTO_TCP && ip->ip_p != IP_PROTO_UDP) {
+ 			dprintf("sniffer>> skipping non-TCP/UDP packet from filter: %d", ip->ip_p);
 			break;
 		}
 
-		if(ip->Protocol == IPPROTO_TCP) {
-			tcp = (TCP_HEADER *)&pktbuf[sizeof(ETHERNET_HEADER) + (ip->Len * 4)];
-			if( (unsigned char *)tcp + sizeof(TCP_HEADER) > pktmax) {
+ 		if(ip->ip_p == IP_PROTO_TCP) {
+ 			tcp = (struct tcp_hdr *) &pktbuf[ETH_HDR_LEN + (ip->ip_hl * 4)];
+ 			if( (unsigned char *)tcp + TCP_HDR_LEN > pktmax) {
 				dprintf("sniffer>> TCP packet is too short");
 				break;
 			}
 			
 			// Ignore our own control session's traffic
-			if ( (memcmp(&ip->SrcAddr,  &peername4->sin_addr, 4) == 0 && tcp->Sport == peername4->sin_port) ||
-				 (memcmp(&ip->DestAddr, &peername4->sin_addr, 4) == 0 && tcp->Dport == peername4->sin_port) ) {
+ 			if ( (memcmp(&ip->ip_src,  &peername4->sin_addr, 4) == 0 && tcp->th_sport == peername4->sin_port) ||
+ 				 (memcmp(&ip->ip_dst, &peername4->sin_addr, 4) == 0 && tcp->th_dport == peername4->sin_port) ) {
 				return;
 			}
 			// TODO: Scan through a list of included/excluded ports
