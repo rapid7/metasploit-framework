@@ -10,7 +10,7 @@
 ##
 
 require 'msf/core'
-require 'scruby'
+require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -105,33 +105,50 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def buildprobe(shost, sport, dhost, dport)
-		(
-			Scruby::IP.new(
-				:src   => shost,
-				:dst   => dhost,
-				:proto => 6,
-				:len   => 40,
-				:id    => rand(0xffff)
-			) / Scruby::TCP.new(
-				:sport => sport,
-				:dport => dport,
-				:flags => 0x10,
-				:ack   => rand(0xffffffff)
-			)
-		).to_net
+		n = Racket::Racket.new
+
+		n.l3 = Racket::IPv4.new
+		n.l3.src_ip = shost
+		n.l3.dst_ip = dhost
+		n.l3.protocol = 0x6
+		n.l3.id = rand(0x10000)
+		
+		n.l4 = Racket::TCP.new
+		n.l4.src_port = sport
+		n.l4.seq = rand(0x100000000)
+		n.l4.ack = rand(0x100000000)
+		n.l4.flag_ack = 1
+		n.l4.dst_port = dport
+		n.l4.window = 3072
+		
+		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, "")	
+	
+		n.pack
 	end
 
 	def readreply(pcap, to)
+		reply = nil
+
 		begin
 			timeout(to) do
 				pcap.each do |r|
-					return true
+					eth = Racket::Ethernet.new(r)
+					next if not eth.ethertype == 0x0800
+					
+					ip = Racket::IPv4.new(eth.payload)
+					next if not ip.protocol == 6
+					
+					tcp = Racket::TCP.new(ip.payload)
+					
+					reply = {:raw => r, :eth => eth, :ip => ip, :tcp => tcp}
+					
+					break
 				end
 			end
 		rescue TimeoutError
 		end
 
-		return false
+		return reply
 	end
 end
 

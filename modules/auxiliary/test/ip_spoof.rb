@@ -11,8 +11,7 @@
 
 
 require 'msf/core'
-require 'scruby'
-
+require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -33,18 +32,24 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Sending a packet to host #{ip}")
 		
 		connect_ip if not ip_sock
-		buff = (
-			Scruby::IP.new(
-				:src   => ip, 
-				:dst   => ip,
-				:proto => 17,
-				:ttl   => 255,
-				:id    => 0xdead
-			)/Scruby::UDP.new(
-				:sport => 53,
-				:dport => 53
-			)/"HELLO WORLD"
-		).to_net
+
+		n = Racket::Racket.new
+
+		n.l3 = Racket::IPv4.new
+		n.l3.src_ip = ip
+		n.l3.dst_ip = ip
+		n.l3.protocol = 17
+		n.l3.id = 0xdead
+		n.l3.ttl = 255
+				
+		n.l4 = Racket::UDP.new
+		n.l4.src_port = 53
+		n.l4.dst_port = 53
+		n.l4.payload  = "HELLO WORLD"
+		
+		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)	
+	
+		buff = n.pack
 		
 		ip_sock.sendto(buff, ip)
 	end

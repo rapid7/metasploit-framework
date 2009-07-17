@@ -10,8 +10,7 @@
 ##
 
 require 'msf/core'
-require 'scruby'
-require 'packetfu'
+require 'racket'
 require 'timeout'
 
 class Metasploit3 < Msf::Auxiliary
@@ -37,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE,
-			'Version'     => '$Revision$' # 03/28/2009
+			'Version'     => '$Revision$'
 		)
 
 		begin
@@ -71,6 +70,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		ipids = []
 
+
+		pcap.setfilter(getfilter(shost, ip, rport))
+			
 		6.times do
 			sport = rand(0xffff - 1025) + 1025
 
@@ -78,13 +80,11 @@ class Metasploit3 < Msf::Auxiliary
 
 			socket.sendto(probe, ip)
 
-			pcap.setfilter(getfilter(shost, sport, ip, rport))
-
 			reply = readreply(pcap, to)
 
 			next if not reply
 
-			ipids << reply.ip_id
+			ipids << reply[:ip].id
 		end
 
 		disconnect_ip(socket)
@@ -101,9 +101,9 @@ class Metasploit3 < Msf::Auxiliary
 		mul256 = true
 		inc = true
 
-		#ipids.each do |ipid|
+		# ipids.each do |ipid|
 		#	print_status("Got IPID ##{ipid}")
-		#end
+		# end
 
 		return "Unknown" if ipids.size < 2
 
@@ -154,25 +154,29 @@ class Metasploit3 < Msf::Auxiliary
 		"Unknown"
 	end
 
-	def getfilter(shost, sport, dhost, dport)
+	def getfilter(shost, dhost, dport)
 		"tcp and src host #{dhost} and src port #{dport} and " +
-		"dst host #{shost} and dst port #{sport}"
+		"dst host #{shost}"
 	end
 
 	def buildprobe(shost, sport, dhost, dport)
-		(
-			Scruby::IP.new(
-				:src   => shost,
-				:dst   => dhost,
-				:proto => 6,
-				:len   => 40,
-				:id    => rand(0xffff)
-			) / Scruby::TCP.new(
-				:sport => sport,
-				:dport => dport,
-				:seq   => rand(0xffffffff)
-			)
-		).to_net
+		n = Racket::Racket.new
+
+		n.l3 = Racket::IPv4.new
+		n.l3.src_ip = shost
+		n.l3.dst_ip = dhost
+		n.l3.protocol = 0x6
+		n.l3.id = rand(0x10000)
+		
+		n.l4 = Racket::TCP.new
+		n.l4.src_port = sport
+		n.l4.seq = rand(0x100000000)
+		n.l4.dst_port = dport
+		n.l4.flag_syn = 1
+		
+		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, "")	
+	
+		n.pack
 	end
 
 	def readreply(pcap, to)
@@ -181,7 +185,17 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			timeout(to) do
 				pcap.each do |r|
-					reply = PacketFu::Packet.parse(r)
+					eth = Racket::Ethernet.new(r)
+					
+					next if not eth.ethertype == 0x0800
+					
+					ip = Racket::IPv4.new(eth.payload)
+					next if not ip.protocol == 6
+					
+					tcp = Racket::TCP.new(ip.payload)
+					
+					reply = {:raw => r, :eth => eth, :ip => ip, :tcp => tcp}
+					
 					break
 				end
 			end
@@ -190,5 +204,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		return reply
 	end
+	
 end
 
