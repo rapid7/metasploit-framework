@@ -12,7 +12,7 @@
 
 static VALUE rb_cPcap;
 
-#define PCAPRUB_VERSION "0.8-dev"
+#define PCAPRUB_VERSION "0.9-dev"
 
 #define OFFLINE 1
 #define LIVE 2
@@ -372,9 +372,9 @@ rbpcap_next(VALUE self)
 	pcap_setnonblock(rbp->pd, 1, eb);
 
 	TRAP_BEG;
-
+	
 	ret = pcap_dispatch(rbp->pd, 1, (pcap_handler) rbpcap_handler, (u_char *)&job);
-    
+	
 	TRAP_END;
 
 	if(rbp->type == OFFLINE && ret <= 0) return Qnil;
@@ -395,20 +395,12 @@ rbpcap_capture(VALUE self)
 
 	if(! rbpcap_ready(rbp)) return self; 
 	
-	fno = pcap_fileno(rbp->pd);
-	
+	fno = pcap_get_selectable_fd(rbp->pd);
+
     for(;;) {
-
-    	VALUE packet;
-		if(fno != -1) rb_thread_wait_fd(fno);
-		
-		packet = rbpcap_next(self);
-
-    	if(packet == Qnil && rbp->type == OFFLINE)
-    		break;
-
-    	if(packet != Qnil)
-    		rb_yield(packet);
+    	VALUE packet = rbpcap_next(self);
+    	if(packet == Qnil && rbp->type == OFFLINE) break;
+		packet == Qnil ? rb_thread_wait_fd(fno) : rb_yield(packet);
     }
 
     return self;
