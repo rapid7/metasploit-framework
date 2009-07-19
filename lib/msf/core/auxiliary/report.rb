@@ -14,11 +14,20 @@ module Auxiliary::Report
 		FF = "Firefox"
 		SAFARI = "Safari"
 		OPERA  = "Opera"
+
+		UNKNOWN = "Unknown"
 	end
 	module OperatingSystems
 		LINUX   = "Linux"
 		MAC_OSX = "MacOSX"
 		WINDOWS = "Windows"
+
+		module WindowsVersions
+			XP    = "XP"
+			TWOK  = "2000"
+			TWOK3 = "2003"
+			VISTA = "Vista"
+		end
 
 		UNKNOWN = "Unknown"
 	end
@@ -46,6 +55,36 @@ module Auxiliary::Report
 		if (opts.length > 0) 
 			framework.db.report_host(self, addr, opts)
 		end
+	end
+
+	def get_host(addr)
+		return nil if not db
+		framework.db.get_host(self, addr)
+	end
+
+	# 
+	# Report a client connection
+	#
+	# opts must contain 
+	#	:host      the address of the client connecting
+	#	:ua_string a string that uniquely identifies this client
+	# opts can contain
+	#	:ua_name a brief identifier for the client, e.g. "Firefox"
+	#	:ua_ver  the version number of the client, e.g. "3.0.11"
+	#
+	def report_client(opts={})
+		return if not db
+		addr = opts.delete(:host) || return
+		
+		framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+		
+		cli = framework.db.report_client(self, addr, opts)
+		return cli
+	end
+
+	def get_client(addr, ua_string)
+		return nil if not db
+		framework.db.get_client(self, addr, ua_string)
 	end
 
 	# 

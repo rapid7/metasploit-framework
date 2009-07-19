@@ -15,6 +15,16 @@ arch VARCHAR(255)
 );
 
 
+create table clients (
+id INTEGER PRIMARY KEY NOT NULL,
+host_id INTEGER,
+created TIMESTAMP,
+ua_string VARCHAR(1024) NOT NULL,
+ua_name VARCHAR(64),
+ua_ver VARCHAR(32)
+);
+
+
 create table services (
 id SERIAL PRIMARY KEY,
 host_id INTEGER,

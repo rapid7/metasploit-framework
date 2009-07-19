@@ -27,6 +27,10 @@
 #
 
 require 'socket'
+require 'pcaprub'
+
+
+
 
 require 'racket/racketpart'
 require 'racket/tlv'
@@ -44,13 +48,6 @@ class Racket
 
   attr_accessor :iface, :mtu, :timeout
   attr_accessor :layers, :payload
-
-  @@loaded_pcaprub = false
-  begin
-  	require 'pcaprub'
-  	@@loaded_pcaprub = true
-  rescue ::LoadError
-  end
 
   def initialize(payload="")
     @layers = []
@@ -124,10 +121,6 @@ class Racket
 
   # Write raw layer2 frames
   def send2
-    if(not @@loaded_pcaprub)
-      raise RuntimeError, "Could not initialize the pcaprub library"	
-	end
-	
     begin
       p = Pcap::open_live(@iface, @mtu, false, @timeout)
     rescue Exception => e
