@@ -67,13 +67,6 @@ module DatabaseEvent
 	end
 
 	#
-	# Called when a new client is added to the database.  The client
-	# parameter is of type Client.
-	#
-	def on_db_client(context, client)
-	end
-
-	#
 	# Called when a new service is added to the database.  The service
 	# parameter is of type Service.
 	#
@@ -149,41 +142,12 @@ class DBManager
 		opts.each { |k,v|
 			if (host.attribute_names.include?(k.to_s))
 				host[k] = v
-			else
-				dlog("Unknown attribute for Host: #{k}")
 			end
 		}
 
 		host.save 
 		
 		return host
-	end
-
-	#
-	# Report a client running on a host.
-	#
-	# opts must contain :ua_string
-	# opts can contain :ua_name and :ua_ver
-	#
-	def report_client(mod, addr, opts = {}, context = nil)
-		if opts[:ua_string].nil?
-			elog("report_client requires a ua_string", 'db', LEV_0, caller)
-			return
-		end
-		# TODO: use the current thread's Comm to find the host
-		comm = ''
-		host = get_host(context, addr, comm)
-		cli = get_client(context, host, opts[:ua_string])
-
-		opts.each { |k,v|
-			if (cli.attribute_names.include?(k.to_s))
-				cli[k] = v
-			else
-				dlog("Unknown attribute for Client: #{k}")
-			end
-		}
-		cli.save
-		return cli
 	end
 
 	#
@@ -302,33 +266,13 @@ class DBManager
 	end
 
 	#
-	# Find or create a client matching ua_string
-	#	
-	def get_client(context, host, ua_string, comm='')
-		if !host.kind_of? Host
-			host = get_host(host)
-		end
-		rec = Client.find(:first, :conditions => [ "host_id = ? and ua_string = ?", host[:id], ua_string])
-		if (not rec)
-			rec = Client.create(
-				:host_id   => host[:id],
-				:ua_string => ua_string,
-				:created   => Time.now
-			)
-			rec.save
-			framework.events.on_db_client(context, rec)
-		end
-		return rec
-	end
-
-	#
 	# Find or create a service matching this host/proto/port/state
 	#	
 	def get_service(context, host, proto, port, state=ServiceState::Up)
-		rec = Service.find(:first, :conditions => [ "host_id = ? and proto = ? and port = ?", host[:id], proto, port])
+		rec = Service.find(:first, :conditions => [ "host_id = ? and proto = ? and port = ?", host.id, proto, port])
 		if (not rec)
 			rec = Service.create(
-				:host_id    => host[:id],
+				:host_id    => host.id,
 				:proto      => proto,
 				:port       => port,
 				:state      => state,
@@ -344,10 +288,10 @@ class DBManager
 	# Find or create a vuln matching this service/name
 	#	
 	def get_vuln(context, service, name, data='')
-		vuln = Vuln.find(:first, :conditions => [ "name = ? and service_id = ?", name, service[:id]])
+		vuln = Vuln.find(:first, :conditions => [ "name = ? and service_id = ?", name, service.id])
 		if (not vuln)
 			vuln = Vuln.create(
-				:service_id => service[:id],
+				:service_id => service.id,
 				:name       => name,
 				:data       => data,
 				:created    => Time.now
@@ -380,10 +324,10 @@ class DBManager
 	# Find or create a note matching this type/data
 	#	
 	def get_note(context, host, ntype, data)
-		rec = Note.find(:first, :conditions => [ "host_id = ? and ntype = ? and data = ?", host[:id], ntype, data])
+		rec = Note.find(:first, :conditions => [ "host_id = ? and ntype = ? and data = ?", host.id, ntype, data])
 		if (not rec)
 			rec = Note.create(
-				:host_id    => host[:id],
+				:host_id    => host.id,
 				:ntype      => ntype,
 				:data       => data,
 				:created    => Time.now
@@ -402,15 +346,15 @@ class DBManager
 
 		return unless host
 
-		services = Service.find(:all, :conditions => ["host_id = ?", host[:id]]).map { |s| s[:id] }
+		services = Service.find(:all, :conditions => ["host_id = ?", host.id]).map { |s| s.id }
 
 		services.each do |sid|
 			Vuln.delete_all(["service_id = ?", sid])
 			Service.delete(sid)
 		end
 
-		Note.delete_all(["host_id = ?", host[:id]])
-		Host.delete(host[:id])
+		Note.delete_all(["host_id = ?", host.id])
+		Host.delete(host.id)
 	end
     
     #
@@ -421,7 +365,7 @@ class DBManager
 
         return unless host
 
-        services = Service.find(:all, :conditions => ["host_id = ? and proto = ? and port = ?", host[:id], proto, port]).map { |s| s[:id] }
+        services = Service.find(:all, :conditions => ["host_id = ? and proto = ? and port = ?", host.id, proto, port]).map { |s| s.id }
 
         services.each do |sid|
             Vuln.delete_all(["service_id = ?", sid])
@@ -456,7 +400,7 @@ class DBManager
 	def refs_by_vuln(vuln)
 		Ref.find_by_sql(
 			"SELECT refs.* FROM refs, vulns_refs WHERE " +
-			"vulns_refs.vuln_id = #{vuln[:id]} AND " +
+			"vulns_refs.vuln_id = #{vuln.id} AND " +
 			"vulns_refs.ref_id = refs.id"
 		)
 	end	
@@ -467,7 +411,7 @@ class DBManager
 	def vulns_by_ref(ref)
 		Vuln.find_by_sql(
 			"SELECT vulns.* FROM vulns, vulns_refs WHERE " +
-			"vulns_refs.ref_id = #{ref[:id]} AND " +
+			"vulns_refs.ref_id = #{ref.id} AND " +
 			"vulns_refs.vuln_id = vulns.id"
 		)
 	end	
@@ -690,7 +634,7 @@ class DBManager
 			)
 		rep.save
 
-		return rep[:id]	
+		return rep.id	
 		#framework.events.on_db_target(context, rec)
 	end
 
@@ -704,7 +648,7 @@ class DBManager
 		if (not rep)
 			rep_id = framework.db.create_report(0,'WMAP','REPORT',"#{host},#{port},#{ssl}","Metasploit WMAP Report",'WMAP Scanner')
 		else
-			rep_id = rep[:id]
+			rep_id = rep.id
 		end	
 
 		return rep_id
