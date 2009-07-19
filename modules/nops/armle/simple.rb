@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Nop
 			return ([nops[rand(nops.length)]].pack("V*") * (length/4))
 		end
 
-		return (nops[0].pack("V*") * (length/4))
+		return ([nops[0]].pack("V*") * (length/4))
 	end
 
 end
