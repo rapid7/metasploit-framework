@@ -62,12 +62,12 @@ class EXE
 		pe = fd.read(fd.stat.size)
 		fd.close
 
-		if(code.length < 8192)
-			code << Rex::Text.rand_text(8192-code.length)
+		if(code.length < 2048)
+			code << Rex::Text.rand_text(2048-code.length)
 		end
 		
 		bo = pe.index('PAYLOAD:')
-		pe[bo,  8192] = code if bo
+		pe[bo,  2048] = code if bo
 		pe[136,    4] = [rand(0x100000000)].pack('V')
 
 		ci = pe.index("\x31\xc9" * 160)
@@ -86,7 +86,7 @@ class EXE
 		pe[xi,4] = [0xe0300020].pack('V')
 		
 		# Add a couple random bytes for fun
-		pe << Rex::Text.rand_text(rand(4096)+128)
+		pe << Rex::Text.rand_text(rand(64)+4)
 
 		return pe
 	end
@@ -99,7 +99,7 @@ class EXE
 		fd.close
 
 		bo = pe.index('PAYLOAD:')
-		pe[bo, 8192] = [code].pack('a8192') if bo
+		pe[bo, 2048] = [code].pack('a2048') if bo
 
 		bo = pe.index('SERVICENAME')
 		pe[bo, 11] = [name].pack('a11') if bo
@@ -119,7 +119,7 @@ class EXE
 		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
 		co = mo.index( " " * 512 )
 
-		mo[bo, 8192] = [code].pack('a8192') if bo
+		mo[bo, 2048] = [code].pack('a2048') if bo
 		return mo
 	end
 
@@ -133,7 +133,7 @@ class EXE
 		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
 		co = mo.index( " " * 512 )
 
-		mo[bo, 8192] = [code].pack('a8192') if bo
+		mo[bo, 2048] = [code].pack('a2048') if bo
 
 		return mo
 	end
@@ -148,7 +148,7 @@ class EXE
 		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
 		co = mo.index( " " * 512 )
 
-		mo[bo, 8192] = [code].pack('a8192') if bo
+		mo[bo, 2048] = [code].pack('a2048') if bo
 
 		return mo
 	end
@@ -163,7 +163,7 @@ class EXE
 		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
 		co = mo.index( " " * 512 )
 
-		mo[bo, 8192] = [code].pack('a8192') if bo
+		mo[bo, 2048] = [code].pack('a2048') if bo
 
 		return mo
 	end

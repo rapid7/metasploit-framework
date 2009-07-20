@@ -612,7 +612,7 @@ module Text
 		fd.close
 
 		bo = pe.index('PAYLOAD:')
-		pe[bo,  8192] = [code].pack('a8192') if bo
+		pe[bo,  2048] = [code].pack('a2048') if bo
 		pe[136,    4] = [rand(0x100000000)].pack('V')
 
 		ci = pe.index("\x31\xc9" * 160)
@@ -634,7 +634,7 @@ module Text
 		fd.close
 
 		bo = pe.index('PAYLOAD:')
-		pe[bo, 8192] = [code].pack('a8192') if bo
+		pe[bo, 2048] = [code].pack('a2048') if bo
 
 		bo = pe.index('SERVICENAME')
 		pe[bo, 11] = [name].pack('a11') if bo
@@ -654,7 +654,7 @@ module Text
 		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
 		co = mo.index( " " * 512 )
 
-		mo[bo, 8192] = [code].pack('a8192') if bo
+		mo[bo, 2048] = [code].pack('a2048') if bo
 		mo[co, 512]  = [note].pack('a512') if co
 
 		return mo
@@ -670,7 +670,7 @@ module Text
 		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
 		co = mo.index( " " * 512 )
 
-		mo[bo, 8192] = [code].pack('a8192') if bo
+		mo[bo, 2048] = [code].pack('a2048') if bo
 		mo[co, 512]  = [note].pack('a512') if co
 
 		return mo
@@ -686,7 +686,7 @@ module Text
 		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
 		co = mo.index( " " * 512 )
 
-		mo[bo, 8192] = [code].pack('a8192') if bo
+		mo[bo, 2048] = [code].pack('a2048') if bo
 		mo[co, 512]  = [note].pack('a512') if co
 
 		return mo
@@ -702,7 +702,7 @@ module Text
 		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
 		co = mo.index( " " * 512 )
 
-		mo[bo, 8192] = [code].pack('a8192') if bo
+		mo[bo, 2048] = [code].pack('a2048') if bo
 		mo[co, 512]  = [note].pack('a512') if co
 
 		return mo
