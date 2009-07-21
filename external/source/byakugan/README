@@ -73,6 +73,36 @@ D. Usage:
 				ascii requires a name, and pattern, but no size
 				file takes the file path as a VALUE and requires a size argument
 				msfpattern requires no value argument
+
+				Depending on the TYPE, the rest of the command may have different parts. 
+				Lets examine the currently supported types:
+
+				ASCII
+				The ascii type acts in the same way as you're used to. It requires a name, 
+				and a value which will be tracked, but no size. The string will be null terminated as normal.
+
+				!jutsu identBuf ascii myAsciiBuf CatImAKittyCatAndIDanceDanceDance
+
+				msfPattern
+				The msfpattern input type has been enhanced to allow for you to provide a custom 
+				name. It requires a name and a size, but no value. Future enhancements may involve 
+				multiple msfpatterns starting where the last left off in the pattern so as to not 
+				confuse multiple pattern buffers with one another. The format looks like this:
+
+				!jutsu identBuf msfpattern myMsfPattern 16
+
+				File
+				The file input type will suck in a file of any format and register it as a tracked 
+				buffer. It requires a name, and takes the file path as a value. It also requires a 
+				size to be input. Future enhancements may include ability to provide an offset into 
+				the file to start reading from. Let me know if you'd like to see this. Currently 
+				though, the format looks like:
+
+				!jutsu identBuf file myFileBuf C:\msf3\input.bin 64
+
+				Note that listing non-ascii buffers with !jutsu listBuf may result in some funny output, 
+				but this wont break anything...
+
 		c. List registered buffers with !jutsu listBuf
 		d. Remove registered buffers with !jutsu rmBuf <name>
 		e. After crash, type !jutsu hunt to find out:
