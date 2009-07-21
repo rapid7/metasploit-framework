@@ -32,6 +32,7 @@ module Metasploit3
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd',
 			'Privileged'    => true,
+			'RequiredCmd'   => 'inetd',
 			'Payload'       =>
 				{
 					'Offsets' => { },

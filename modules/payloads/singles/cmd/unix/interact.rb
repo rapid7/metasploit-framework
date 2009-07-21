@@ -31,6 +31,7 @@ module Metasploit3
 			'Handler'       => Msf::Handler::FindShell,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd_interact',
+			'RequiredCmd'   => 'generic',
 			'Payload'       =>
 				{
 					'Offsets' => { },

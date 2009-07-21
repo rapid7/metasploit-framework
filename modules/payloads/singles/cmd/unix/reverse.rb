@@ -31,6 +31,7 @@ module Metasploit3
 			'Handler'       => Msf::Handler::ReverseTcpDouble,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd',
+			'RequiredCmd'   => 'telnet',			
 			'Payload'       =>
 				{
 					'Offsets' => { },

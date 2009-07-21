@@ -29,6 +29,7 @@ module Metasploit3
 			'Handler'     => Msf::Handler::ReverseTcp,
 			'Session'     => Msf::Sessions::CommandShell,
 			'PayloadType' => 'cmd',
+			'RequiredCmd' => 'ruby',					
 			'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
 		))
 	end

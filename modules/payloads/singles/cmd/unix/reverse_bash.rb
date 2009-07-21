@@ -36,6 +36,7 @@ module Metasploit3
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd_bash',
+			'RequiredCmd'   => 'bash-tcp',			
 			'Payload'       =>
 				{
 					'Offsets' => { },
