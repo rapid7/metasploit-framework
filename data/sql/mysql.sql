@@ -3,6 +3,8 @@ create table hosts (
 id SERIAL PRIMARY KEY,
 created TIMESTAMP,
 address VARCHAR(16) UNIQUE,
+address6 VARCHAR(255),
+mac VARCHAR(255),
 comm VARCHAR(255),
 name VARCHAR(255),
 state VARCHAR(255),
@@ -29,6 +31,7 @@ info VARCHAR(1024)
 
 create table vulns (
 id SERIAL PRIMARY KEY,
+host_id INTEGER,
 service_id INTEGER,
 created TIMESTAMP,
 name VARCHAR(255),

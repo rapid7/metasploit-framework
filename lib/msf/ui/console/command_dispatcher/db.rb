@@ -453,7 +453,7 @@ class Db
 								
 				refs[ 'NSS-' + nasl.to_s ] = true
 								
-				vuln = framework.db.get_vuln(nil, service, 'NSS-' + nasl.to_s, data)
+				vuln = framework.db.get_vuln(nil, host, service, 'NSS-' + nasl.to_s, data)
 				
 				rids = []
 				refs.keys.each do |r|
