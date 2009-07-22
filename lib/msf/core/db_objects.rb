@@ -46,7 +46,7 @@ end
 class Host < ActiveRecord::Base
 	include DBSave
 	has_many :services
-	has_many :vulns, :through => :services
+	has_many :vulns
 end
 
 # Service object definition
@@ -63,6 +63,7 @@ end
 # Vuln object definition
 class Vuln < ActiveRecord::Base
 	include DBSave
+	belongs_to :host
 	belongs_to :service
 	has_and_belongs_to_many :refs, :join_table => :vulns_refs
 
@@ -71,7 +72,7 @@ class Vuln < ActiveRecord::Base
 	end
 
 	def host
-		Host.find(:first, :conditions => [ "id = ?", service.host_id ])
+		Host.find(:first, :conditions => [ "id = ?", host_id ])
 	end
 end
 

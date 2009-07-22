@@ -287,11 +287,19 @@ class DBManager
 	#
 	# Find or create a vuln matching this service/name
 	#	
-	def get_vuln(context, service, name, data='')
-		vuln = Vuln.find(:first, :conditions => [ "name = ? and service_id = ?", name, service.id])
+	def get_vuln(context, host, service, name, data='')
+		vuln = nil
+		
+		if(service)
+			vuln = Vuln.find(:first, :conditions => [ "name = ? and service_id = ? and host_id = ?", name, service.id, host.id])
+		else
+			vuln = Vuln.find(:first, :conditions => [ "name = ? and host_id = ?", name, host.id])
+		end
+		
 		if (not vuln)
 			vuln = Vuln.create(
-				:service_id => service.id,
+				:service_id => service ? service.id : 0,
+				:host_id    => host.id,
 				:name       => name,
 				:data       => data,
 				:created    => Time.now
