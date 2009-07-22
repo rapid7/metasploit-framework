@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 		return if not eth.ethertype == 0x0806
 
 		arp = Racket::ARP.new(eth.payload)
-		next if not arp.opcode == Racket::ARP::ARPOP_REPLY
+		return if not arp.opcode == Racket::ARP::ARPOP_REPLY
 
 		{:raw => pkt, :eth => eth, :arp => arp}
 	end
