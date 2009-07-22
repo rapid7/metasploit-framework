@@ -146,15 +146,16 @@ class BitStruct < String
       if fields.find {|f|f.name == name}
         raise FieldNameError, "Field #{name} is already defined as a field."
       end
-
+=begin
       if instance_methods(true).find {|m| m == name}
         if opts[:allow_method_conflict] || opts["allow_method_conflict"]
           warn "Field #{name} is already defined as a method."
         else
-          raise FieldNameError,"Field #{name} is already defined as a method."
+          raise FieldNameError,"Field #{name} is already defined as a method. #{caller}"
         end
       end
-      
+=end
+
       field_class = opts[:field_class]
       
       prev = fields[-1] || NULL_FIELD
