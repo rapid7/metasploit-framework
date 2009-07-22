@@ -86,7 +86,7 @@ class ReadableText
 				])
 
 		mod.actions.each_with_index { |target, idx|
-			tbl << [ target.name || 'All' ]	
+			tbl << [ target.name || 'All' , target.description || '' ]	
 		}
 
 		tbl.to_s + "\n"

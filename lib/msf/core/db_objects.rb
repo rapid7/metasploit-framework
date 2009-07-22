@@ -46,7 +46,17 @@ end
 class Host < ActiveRecord::Base
 	include DBSave
 	has_many :services
+	has_many :clients
 	has_many :vulns
+end
+
+class Client < ActiveRecord::Base
+	include DBSave
+	belongs_to :host
+
+	def host
+		Host.find(:first, :conditions => [ "id = ?", host_id ])
+	end	
 end
 
 # Service object definition

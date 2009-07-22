@@ -65,7 +65,7 @@ class ObfuscateJS
 	#
 	# Initialize an instance of the obfuscator
 	#
-	def initialize(js, opts = {})
+	def initialize(js = "", opts = {})
 		@js      = js
 		@dynsym  = {}
 		@opts    = {
@@ -133,8 +133,7 @@ class ObfuscateJS
 			# claims that space is irrelavent, newlines break things.  Instead,
 			# use only space (0x20) and tab (0x09).
 
-			@js = Rex::Text.compress(@js)
-			@js.gsub!(/\s+/) { |s|
+			@js.gsub!(/[\x09\x20]+/) { |s|
 				len = rand(50)+2
 				set = "\x09\x20"
 				buf = ''
@@ -158,6 +157,13 @@ class ObfuscateJS
 		@js
 	end
 	alias :to_str :to_s
+
+	def <<(str)
+		@js << str
+	end
+	def +(str)
+		@js + str
+	end
 
 protected
 	attr_accessor :done

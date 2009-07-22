@@ -27,8 +27,9 @@ class Msf::Module::AuxiliaryAction
 	# Creates a new action definition
 	#
 	def initialize(name, opts={})
-		self.name           = name
-		self.opts           = opts
+		self.name        = name
+		self.opts        = opts
+		self.description = opts['Description'] || ''
 	end
 
 	#
@@ -43,12 +44,16 @@ class Msf::Module::AuxiliaryAction
 	#
 	attr_reader :name
 	#
+	# The action's description
+	#
+	attr_reader :description
+	#
 	# Action specific parameters
 	#
 	attr_reader :opts
 
 protected
 
-	attr_writer :name, :opts # :nodoc:
+	attr_writer :name, :opts, :description # :nodoc:
 
 end

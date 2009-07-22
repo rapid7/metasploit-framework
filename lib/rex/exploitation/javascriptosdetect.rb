@@ -25,66 +25,119 @@ function getVersion(){
 	var os_flavor;
 	var os_sp;
 	var os_lang;
-	var browser_name;
-	var browser_version;
+	var ua_name;
+	var ua_version;
 	var useragent = navigator.userAgent;
 
 	var version = "";
-	version = useragent;
-	
-	//document.write("navigator.userAgent = '"+navigator.userAgent+"'<br>");
-	//document.write("navigator.appVersion = '"+navigator.appVersion+"'<br>");
 
-	// Firefox's appVersion on windows doesn't tell us the flavor, so use
-	// userAgent all the time.  If userAgent is spoofed, appVersion will lie
-	// also, so we don't lose anything by doing it this way.
-
-	if (version.indexOf("Windows 95") != -1)          { os_name = "#{oses::WINDOWS}"; os_flavor = "95";    }
-	else if (version.indexOf("Windows NT 4") != -1)   { os_name = "#{oses::WINDOWS}"; os_flavor = "NT";    }
-	else if (version.indexOf("Win 9x 4.9") != -1)     { os_name = "#{oses::WINDOWS}"; os_flavor = "ME";    }
-	else if (version.indexOf("Windows 98") != -1)     { os_name = "#{oses::WINDOWS}"; os_flavor = "98";    }
-	else if (version.indexOf("Windows NT 5.0") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "2000";  }
-	else if (version.indexOf("Windows NT 5.1") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "XP";    }
-	else if (version.indexOf("Windows NT 5.2") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "2003";  }
-	else if (version.indexOf("Windows NT 6.0") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "Vista"; }
-	else if (version.indexOf("Windows") != -1)        { os_name = "#{oses::WINDOWS}";                      }
-	else if (version.indexOf("Mac") != -1)            { os_name = "#{oses::MAC_OSX}";                      }
-	else if (version.indexOf("Linux") != -1)          { os_name = "#{oses::LINUX}";                        }
-
-	if (os_name == "#{oses::LINUX}") {
-		if (useragent.indexOf("Gentoo") != -1)         { os_flavor = "Gentoo";   }
-		else if (useragent.indexOf("Ubuntu") != -1)    { os_flavor = "Ubuntu";   }
-		else if (useragent.indexOf("Debian") != -1)    { os_flavor = "Debian";   }
-		else if (useragent.indexOf("RHEL") != -1)      { os_flavor = "RHEL";     }
-		else if (useragent.indexOf("CentOS") != -1)    { os_flavor = "CentOS";   }
-	}
-
+	//--
+	// Client
+	//--
 	if (window.getComputedStyle) {
 		// Then this is a gecko derivative, assume firefox since that's the
 		// only one we have sploits for.  We may need to revisit this in the
-		// future.
-		browser_name = "#{clients::FF}";
+		// future.  This works for multi/browser/mozilla_compareto against
+		// Firefox and Mozilla, so it's probably good enough for now.
+		ua_name = "#{clients::FF}";
 		if (document.getElementsByClassName) {
-			browser_version = "3.0";
+			ua_version = "3.0";
 		} else if (window.Iterator) {
-			browser_version = "2.0";
+			ua_version = "2.0";
 		} else if (Array.every) {
-			browser_version = "1.5";
+			ua_version = "1.5";
 		} else {
-			browser_version = "1.0";
+			ua_version = "1.0";
 		}
 	}
 
 	if (window.opera) {
-		browser_name = "#{clients::OPERA}";
-	}
-	
-	if (typeof ScriptEngineMajorVersion == "function") {
-		// then this is IE and we can detect the OS
-		// TODO: add detection for IE on Mac.  low priority, since we don't have
-		// any sploits for it yet and it's a very low market share
+		ua_name = "#{clients::OPERA}";
+		// This seems to be completely accurate, e.g. "9.21" is the return
+		// value of opera.version() when run on Opera 9.21
+		ua_version = opera.version();
+		if (!os_name) {
+			// The 'inconspicuous' argument is there to give us a real value on
+			// Opera 6 where, without it, the return value is supposedly 
+			// "Hm, were you only as smart as Bjørn Vermo..."
+			// though I have not verfied this claim.
+			switch (opera.buildNumber('inconspicuous')) {
+				case "344":
+					// opera-9.0-20060616.1-static-qt.i386-en-344
+					os_name = "#{oses::LINUX}";
+					break;
+				case "2091":
+					// opera-9.52-2091.gcc3-shared-qt3.i386.rpm
+					os_name = "#{oses::LINUX}";
+					break;
+				case "8501":
+					// "Opera 9 Eng Setup.exe"
+					os_name = "#{oses::WINDOWS}";
+					break;
+				case "8679":
+					// "Opera_9.10_Eng_Setup.exe"
+					os_name = "#{oses::WINDOWS}";
+					break;
+				case "8771":
+					// "Opera_9.20_Eng_Setup.exe"
+					os_name = "#{oses::WINDOWS}";
+					break;
+				case "8776":
+					// "Opera_9.21_Eng_Setup.exe"
+					os_name = "#{oses::WINDOWS}";
+					break;
+				case "8801":
+					// "Opera_9.22_Eng_Setup.exe"
+					os_name = "#{oses::WINDOWS}";
+					break;
+				case "10108":
+					// "Opera_952_10108_en.exe"
+					os_name = "#{oses::WINDOWS}";
+					break;
+				case "10467":
+					// "Opera_962_en_Setup.exe"
+					os_name = "#{oses::WINDOWS}";
+					break;
+			}
+		}
+	} else if (window.getComputedStyle) {
+		// Then this is a gecko derivative, assume firefox since that's the
+		// only one we have sploits for.  We may need to revisit this in the
+		// future.  This works for multi/browser/mozilla_compareto against
+		// Firefox and Mozilla, so it's probably good enough for now.
+		ua_name = "#{clients::FF}";
+		if (String.trimRight) {
+			// XXX: untested
+			ua_version = "3.5";
+		} else if (document.getElementsByClassName) {
+			ua_version = "3";
+		} else if (window.Iterator) {
+			ua_version = "2";
+		} else if (Array.every) {
+			ua_version = "1.5";
+		} else {
+			ua_version = "1";
+		}
+		// Verify whether the ua string is lying by checking the major version
+		// number against what we detected using known objects above.  If it
+		// appears to be truthful, then use its more precise version number.
+		version = searchVersion("Firefox", navigator.userAgent);
+		if (version.substr(0,1) == ua_version.substr(0,1)) {
+			// The version number will end with a space or end of line, so strip
+			// off anything after a space if one exists
+			if (-1 != version.indexOf(" ")) {
+				version = version.substr(0,version.indexOf(" "));
+			}
+			ua_version = version;
+		}
+
+	} else if (typeof ScriptEngineMajorVersion == "function") {
+		// Then this is IE and we can very reliably detect the OS.
+		// Need to add detection for IE on Mac.  Low priority, since we
+		// don't have any sploits for it yet and it's a very low market
+		// share.
 		os_name = "#{oses::WINDOWS}";
-		browser_name = "#{clients::IE}";
+		ua_name = "#{clients::IE}";
 		version = ScriptEngineMajorVersion().toString();
 		version += ScriptEngineMinorVersion().toString();
 		version += ScriptEngineBuildVersion().toString();
@@ -104,11 +157,13 @@ function getVersion(){
 				break;
 			case "566626":
 				// IE 6.0.2600.0000, XP SP0 English
+				ua_version = "6.0";
 				os_flavor = "XP"; 
 				os_sp = "SP0";
 				break;
 			case "568515":
 				// IE 6.0.3790.0, 2003 Standard SP0 English
+				ua_version = "6.0";
 				os_flavor = "2003";
 				os_sp = "SP0";
 				break;
@@ -131,32 +186,94 @@ function getVersion(){
 				break;
 			case "575730":
 				// IE 7.0.5730.13, Server 2003 Standard SP2 English
+				// IE 7.0.5730.13, Server 2003 Standard SP1 English
 				// IE 7.0.5730.13, XP Professional SP2 English
-				// rely on the user agent matching above to determine the OS,
-				// but we know it's SP2 either way
+				// Rely on the user agent matching above to determine the OS.
+				// This will incorrectly identify 2k3 SP1 as SP2
+				ua_version = "7.0";
 				os_sp = "SP2";
 				break;
+			case "5718066":
+				// IE 7.0.5730.13, XP Professional SP3 English
+				ua_version = "7.0";
+				os_flavor = "XP";
+				os_sp = "SP3";
+				break;
+			case "5818702":
+				// IE 8.0.6001.18702, XP Professional SP3 English
+				ua_version = "8.0";
+				os_flavor = "XP";
+				os_sp = "SP3";
+				break;
+			case "580":
+				// IE 8.0.7100.0, Windows 7 English
+				// IE 8.0.7100.0, Windows 7 64-bit English
+				ua_version = "8.0";
+				os_flavor = "7";
+				os_sp = "SP0";
+				break;
 		}
-		if (!browser_version) {
-			if (document.documentElement && typeof document.documentElement.style.maxHeight!="undefined") {
-				browser_version = "7.0";
+		if (!ua_version) {
+			if (document.documentElement && (typeof document.documentElement.style.maxHeight)!="undefined") {
+				// IE8 detection straight from IEBlog.  Thank you Microsoft.
+				try {
+					ua_version = "8.0";
+					document.documentElement.style.display = "table-cell";
+				} catch(e) {
+					// This executes in IE7,
+					// but not IE8, regardless of mode
+					ua_version = "7.0";
+				}
 			} else if (document.compatMode) { 
-				browser_version = "6.0";
+				ua_version = "6.0";
 			} else if (window.createPopup) {
-				browser_version = "5.5";
+				ua_version = "5.5";
 			} else if (window.attachEvent) {
-				browser_version = "5.0";
+				ua_version = "5.0";
 			} else {
-				browser_version = "4.0";
+				ua_version = "4.0";
 			}
 			switch (navigator.appMinorVersion){
 				case ";SP2;":
-					browser_version += ";SP2";
+					ua_version += ";SP2";
 					break;
 			}
 		}
 	}
 
+	//--
+	// Flavor
+	//--
+	version = useragent.toLowerCase();
+	if (!os_name || 0 == os_name.length || !os_flavor || 0 == os_flavor.length) {
+		// Firefox's appVersion on windows doesn't tell us the flavor, so use
+		// userAgent all the time.  If userAgent is spoofed, appVersion will lie
+		// also, so we don't lose anything by doing it this way.
+		if (version.indexOf("windows 95") != -1)          { os_name = "#{oses::WINDOWS}"; os_flavor = "95";    }
+		else if (version.indexOf("windows nt 4") != -1)   { os_name = "#{oses::WINDOWS}"; os_flavor = "NT";    }
+		else if (version.indexOf("win 9x 4.9") != -1)     { os_name = "#{oses::WINDOWS}"; os_flavor = "ME";    }
+		else if (version.indexOf("windows 98") != -1)     { os_name = "#{oses::WINDOWS}"; os_flavor = "98";    }
+		else if (version.indexOf("windows nt 5.0") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "2000";  }
+		else if (version.indexOf("windows nt 5.1") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "XP";    }
+		else if (version.indexOf("windows nt 5.2") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "2003";  }
+		else if (version.indexOf("windows nt 6.0") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "Vista"; }
+		else if (version.indexOf("windows") != -1)        { os_name = "#{oses::WINDOWS}";                      }
+		else if (version.indexOf("mac") != -1)            { os_name = "#{oses::MAC_OSX}";                      }
+		else if (version.indexOf("linux") != -1)          { os_name = "#{oses::LINUX}";                        }
+	}
+
+	if (os_name == "#{oses::LINUX}" && (!os_flavor || 0 == os_flavor.length)) {
+		if (version.indexOf("gentoo") != -1)      { os_flavor = "Gentoo"; }
+		else if (version.indexOf("ubuntu") != -1) { os_flavor = "Ubuntu"; }
+		else if (version.indexOf("debian") != -1) { os_flavor = "Debian"; }
+		else if (version.indexOf("rhel") != -1)   { os_flavor = "RHEL";   }
+		else if (version.indexOf("red hat") != -1){ os_flavor = "RHEL";   }
+		else if (version.indexOf("centos") != -1) { os_flavor = "CentOS"; }
+	}
+
+	//--
+	// Language 
+	//--
 	if (navigator.systemLanguage) {
 		// ie
 		os_lang = navigator.systemLanguage;
@@ -169,17 +286,40 @@ function getVersion(){
 		os_lang = "en";
 	}
 
+	//--
+	// Architecture 
+	//--
 	version = navigator.platform;
+	//document.write(version + "\\n");
+	var arch = "";
+	// IE 8 does a bit of wacky user-agent switching for "Compatibility View"; 
+	// 64-bit client on Windows 7, 64-bit:
+	//     Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Win64; x64; Trident/4.0)
+	// 32-bit client on Windows 7, 64-bit:
+	//     Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)
+	// 32-bit client on Vista, 32-bit, "Compatibility View":
+	//     Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/4.0)
+	//
+	// Report 32-bit client on 64-bit OS as being 32 because exploits will
+	// need to know the bittedness of the process, not the OS.
 	if ( ("Win32" == version) || (version.match(/i.86/)) ) {
 	    arch = "#{ARCH_X86}";
+	} else if (-1 != version.indexOf('x64') || (-1 != version.indexOf('x86_64')))  {
+		arch = "#{ARCH_X86_64}";
 	} else if (-1 != version.indexOf('PPC'))  {
 		arch = "#{ARCH_PPC}";
 	}
 
-	//document.write("Target is: "+os_name+" "+os_flavor+" "+os_sp+" "+os_lang+" / "+browser_name+" "+browser_version +"<br>");
-
-	return { os_name:os_name, os_flavor:os_flavor, os_sp:os_sp, os_lang:os_lang, arch:arch, browser_name:browser_name, browser_version:browser_version };
+	return { os_name:os_name, os_flavor:os_flavor, os_sp:os_sp, os_lang:os_lang, arch:arch, ua_name:ua_name, ua_version:ua_version };
 } // function getVersion
+function searchVersion(needle, haystack) {
+	var index = haystack.indexOf(needle);
+	if (index == -1) return;
+	found_version = haystack.substring(index+needle.length+1);
+	// Strip off any junk at the end such as a CLR declaration
+	found_version.replace(/\s.*/, '');
+	return found_version;
+}
 ENDJS
 		super @js
 		update_opts(opts) if (opts)
@@ -188,11 +328,13 @@ ENDJS
 				'os_name', 'os_flavor',
 				'os_sp', 'os_lang',
 				'arch',
-				'browser_name', 
-				'browser_version', 
-				'useragent', 'version'
+				'ua_name', 
+				'ua_version', 
+				'found_version', 
+				'needle', 
+				'haystack',
 				],
-			'Methods' => [ 'getVersion' ]
+			'Methods' => [ 'getVersion', 'searchVersion' ]
 			}
 		})
 
