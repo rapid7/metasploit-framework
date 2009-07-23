@@ -306,7 +306,7 @@ class DBManager
 	end
 
 	#
-	# Find or create a client matching ua_string
+	# Find or create a client on host that matches ua_string
 	#	
 	def get_client(context, host, ua_string, comm='')
 		# Allow host to be an address to look up
