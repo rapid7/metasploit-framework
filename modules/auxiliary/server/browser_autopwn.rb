@@ -491,7 +491,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		@js_tests.each { |browser, sploits|
 			next if sploits.length == 0
-			#print_status("Building sploits for #{client_info[:ua_name]}")
 			if (client_info.nil? || [nil, browser, "generic"].include?(client_info[:ua_name]))
 				# Make sure the browser names can be used as an identifier in
 				# case something wacky happens to them.
@@ -544,7 +543,7 @@ class Metasploit3 < Msf::Auxiliary
 		ua_ver = nil
 
 		data_offset = request.uri.index('sessid=')
-		p request['User-Agent']
+		#p request['User-Agent']
 		if (data_offset.nil? or -1 == data_offset) 
 			# then we didn't get a report back from our javascript
 			# detection; make a best guess effort from information 
