@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module makes a request to the Oracle  Enterprise Manager Control Console
 					 in an attempt to discover the SID.
 			},
-			'Version'     => '$Revision:$',
+			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					[ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
