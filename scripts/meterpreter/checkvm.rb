@@ -1,54 +1,306 @@
-#!/usr/bin/env ruby
-
 #Meterpreter script for detecting if target host is a Virtual Machine
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.1.0
-################## Variable Declarations ##################
+#Verion: 0.2.0
 session = client
-def chkvm(session)
-	check = nil
-	info = session.sys.config.sysinfo
-	print_status "Checking if #{info['Computer']} is a Virtual Machine ........"
+#Function for detecting if it is a Hyper-V VM
+def hypervchk(session)
+ 	begin
+	vm = false
+	key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft', KEY_READ)
+	sfmsvals = key.enum_key
+	if sfmsvals.include?("Hyper-V")
+		print_status("This is a Hyper-V Virtual Machine")
+		vm = true
+	elsif sfmsvals.include?("VirtualMachine")
+		print_status("This is a Hyper-V Virtual Machine")
+                vm = true
+	end
+	key.close
+	rescue
+	end
+	if not vm
+		begin
+		key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
+		srvvals = key.enum_key
+		if srvvals.include?("vmicheartbeat")
+			print_status("This is a Hyper-V Virtual Machine")
+                	vm = true
+		elsif srvvals.include?("vmicvss")
+			print_status("This is a Hyper-V Virtual Machine")
+                        vm = true
+		elsif srvvals.include?("vmicshutdown")
+			print_status("This is a Hyper-V Virtual Machine")
+                        vm = true
+		elsif srvvals.include?("vmicexchange")
+			print_status("This is a Hyper-V Virtual Machine")
+                        vm = true
+		end
+		rescue
+		end
 
-	# Check for Target Machines if running in VM, only fo VMware Workstation/Fusion
+	end	
+	return vm
+end
+#Function for checking if it is a VMware VM
+def vmwarechk(session)
+	vm = false
 	begin
-		key = 'HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS'
-		root_key, base_key = session.sys.registry.splitkey(key)
-		open_key = session.sys.registry.open_key(root_key,base_key,KEY_READ)
-		v = open_key.query_value('SystemManufacturer')
-		sysmnfg =  v.data.downcase
-		if sysmnfg =~ /vmware/
-			print_status "\tThis is a VMware Workstation/Fusion Virtual Machine"
-			check = 1
-		elsif sysmnfg =~ /xen/
-			print_status("\tThis is a Xen Virtual Machine.")
-			check = 1
+	key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
+        srvvals = key.enum_key
+        if srvvals.include?("vmci")
+        	print_status("This is a VMware Virtual Machine")
+                vm = true
+        elsif srvvals.include?("vmdebug")
+                print_status("This is a VMware Virtual Machine")
+                vm = true
+        elsif srvvals.include?("vmmouse")
+                print_status("This is a VMware Virtual Machine")
+                vm = true
+        elsif srvvals.include?("VMTools")
+                print_status("This is a VMware Virtual Machine")
+                vm = true
+        elsif srvvals.include?("VMMEMCTL")
+                print_status("This is a VMware Virtual Machine")
+                vm = true               
+        end
+	key.close
+	rescue
+	end
+        if not vm
+		begin
+                key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0')
+                if key.query_value('Identifier').data.downcase =~ /vmware/
+                        print_status("This is a VMware Virtual Machine")
+                        vm = true
+                end
+		rescue
+		end
+        end
+	if not vm
+		vmwareprocs = [
+			"vmwareuser.exe",
+			"vmwaretray.exe"
+		]
+		vmwareprocs.each do |p|
+			session.sys.process.get_processes().each do |x|
+				if p == (x['name'].downcase)
+					print_status("This is a VMware Virtual Machine") if not vm
+					vm = true	
+				end
+			end
+		end
+	end
+        key.close
+        return vm
+
+end
+#Function for checking if it is a Virtual PC VM
+def checkvrtlpc(session)
+	vm = false
+	vpcprocs = [
+        	"vmusrvc.exe",
+                "vmsrvc.exe"
+        ]
+        vpcprocs.each do |p|
+                session.sys.process.get_processes().each do |x|
+        	        if p == (x['name'].downcase)
+                        	print_status("This is a VirtualPC Virtual Machine") if not vm
+                                vm = true
+                        end
+                end
+        end
+	if not vm
+		begin
+        	key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
+        	srvvals = key.enum_key
+        	if srvvals.include?("vpcbus")
+        	        print_status("This is a VirtualPC Virtual Machine")
+        	        vm = true
+        	elsif srvvals.include?("vpc-s3")
+                	print_status("This is a VirtualPC Virtual Machine")
+                	vm = true
+        	elsif srvvals.include?("vpcuhub")
+                	print_status("This is a VirtualPC Virtual Machine")
+                	vm = true
+        	elsif srvvals.include?("msvmmouf")
+                	print_status("This is a VirtualPC Virtual Machine")
+                	vm = true
+        	end
+        	key.close
+        	rescue
+        	end
+	end
+	return vm
+end
+
+def vboxchk(session)
+	vm = false
+	vboxprocs = [
+                "vboxservice.exe",
+                "vboxtray.exe"
+        ]
+        vboxprocs.each do |p|
+                session.sys.process.get_processes().each do |x|
+                        if p == (x['name'].downcase)
+                                print_status("This is a Sun VirtualBox Virtual Machine") if not vm
+                                vm = true
+                        end
+                end
+        end
+	if not vm
+	begin
+		key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\DSDT', KEY_READ)
+		srvvals = key.enum_key
+		if srvvals.include?("VBOX__")
+                        print_status("This is a Sun VirtualBox Virtual Machine")
+                        vm = true
 		end
 	rescue
-		print_status("BIOS Check Failed")
-
 	end
-	if check != 1
-		begin
-			#Registry path using the HD and CD rom entries in the registry in case propirtary tools are
-			#not installed.
-			key2 = "HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0"
-			root_key2, base_key2 = session.sys.registry.splitkey(key2)
-			open_key2 = session.sys.registry.open_key(root_key2,base_key2,KEY_READ)
-			v2 = open_key2.query_value('Identifier')
-
-			if v2.data.downcase =~ /vmware/
-				print_status "\tThis is a VMWare virtual Machine"
-			elsif v2.data.downcase =~ /vbox/
-				print_status "\tThis is a Sun VirtualBox virtual Machine"
-			elsif v2.data.downcase =~ /xen/
-				print_status "\tThis is a Xen virtual Machine"
-			elsif v2.data.downcase =~ /virtual hd/
-				print_status "\tThis is a Hyper-V/Virtual Server virtual Machine"
-			end
-		rescue::Exception => e
-			print_status("#{e.class} #{e}")
-		end
 	end
+	if not vm
+	        begin
+                key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\FADT', KEY_READ)
+                srvvals = key.enum_key
+                if srvvals.include?("VBOX__")
+                        print_status("This is a Sun VirtualBox Virtual Machine")
+                        vm = true
+                end
+        	rescue
+        	end
+	end
+        if not vm
+                begin
+                key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\RSDT', KEY_READ)
+                srvvals = key.enum_key
+                if srvvals.include?("VBOX__")
+                        print_status("This is a Sun VirtualBox Virtual Machine")
+                        vm = true
+                end
+                rescue
+                end
+        end
+        if not vm
+                begin
+                key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0')
+                if key.query_value('Identifier').data.downcase =~ /vbox/
+                        print_status("This is a Sun VirtualBox Virtual Machine")
+                        vm = true
+                end
+                rescue
+                end
+        end
+        if not vm
+                begin
+                key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DESCRIPTION\System')
+                if key.query_value('SystemBiosVersion').data.downcase =~ /vbox/
+                        print_status("This is a Sun VirtualBox Virtual Machine")
+                        vm = true
+                end
+                rescue
+                end
+        end
+        if not vm
+                begin
+                key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
+                srvvals = key.enum_key
+                if srvvals.include?("VBoxMouse")
+                        print_status("This is a Sun VirtualBox Virtual Machine")
+                        vm = true
+                elsif srvvals.include?("VBoxGuest")
+                        print_status("This is a Sun VirtualBox Virtual Machine")
+                        vm = true
+                elsif srvvals.include?("VBoxService")
+                        print_status("This is a Sun VirtualBox Virtual Machine")
+                        vm = true
+                elsif srvvals.include?("VBoxSF")
+                        print_status("This is a Sun VirtualBox Virtual Machine")
+                        vm = true
+                end
+                key.close
+                rescue
+                end
+        end
+	return vm
 end
-chkvm(session)
+
+def xenchk(session)
+        vm = false
+        xenprocs = [
+                "xenservice.exe"
+        ]
+        xenprocs.each do |p|
+                session.sys.process.get_processes().each do |x|
+                        if p == (x['name'].downcase)
+                                print_status("This is a Xen Virtual Machine") if not vm
+                                vm = true
+                        end
+                end
+        end
+        if not vm
+        begin
+                key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\DSDT', KEY_READ)
+                srvvals = key.enum_key
+                if srvvals.include?("Xen")
+                        print_status("This is a Xen Virtual Machine")
+                        vm = true
+                end
+        rescue
+        end
+        end
+        if not vm
+                begin
+                key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\FADT', KEY_READ)
+                srvvals = key.enum_key
+                if srvvals.include?("Xen")
+                        print_status("This is a Xen Virtual Machine")
+                        vm = true
+                end
+                rescue
+                end
+        end
+        if not vm
+                begin
+                key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\RSDT', KEY_READ)
+                srvvals = key.enum_key
+                if srvvals.include?("Xen")
+                        print_status("This is a Xen Virtual Machine")
+                        vm = true
+                end
+                rescue
+                end
+        end
+	if not vm
+		begin
+        	key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
+        	srvvals = key.enum_key
+        	if srvvals.include?("xenevtchn")
+                	print_status("This is a Xen Virtual Machine")
+                	vm = true
+        	elsif srvvals.include?("xennet")
+                	print_status("This is a Xen Virtual Machine")
+                	vm = true
+        	elsif srvvals.include?("xennet6")
+                	print_status("This is a Xen Virtual Machine")
+                	vm = true
+        	elsif srvvals.include?("xensvc")
+                	print_status("This is a Xen Virtual Machine")
+                	vm = true
+        	elsif srvvals.include?("xenvdb")
+                	print_status("This is a Xen Virtual Machine")
+                	vm = true
+        	end
+        	key.close
+        	rescue
+        	end
+	end
+	return vm
+end
+print_status("Checking if target is a Virtual Machine .....")
+found = hypervchk(session)
+found = vmwarechk(session) if not found 
+found = checkvrtlpc(session) if not found
+found = vboxchk(session) if not found
+found = xenchk(session) if not found
+print_status("It appears to be phisical host.") if not found
+
