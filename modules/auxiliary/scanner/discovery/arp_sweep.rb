@@ -45,7 +45,9 @@ class Metasploit3 < Msf::Auxiliary
 
 			while(reply = getreply())
 				next if not reply[:arp]
-				print_status("#{reply[:arp].spa} is at #{reply[:arp].sha}")
+				print_status("#{reply[:arp].spa} appears to be up.")
+				
+				report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
 			end
 		end
 		
@@ -53,7 +55,9 @@ class Metasploit3 < Msf::Auxiliary
 		while (Time.now.to_f < etime)
 			while(reply = getreply())
 				next if not reply[:arp]
-				print_status("#{reply[:arp].spa} is at #{reply[:arp].sha}")
+				print_status("#{reply[:arp].spa} appears to be up.")
+				
+				report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
 			end
 			Kernel.select(nil, nil, nil, 0.50)
 		end
