@@ -1,6 +1,7 @@
 class Metasploit3 < Msf::Auxiliary
 
     include Msf::Exploit::Remote::SMB
+    include Msf::Auxiliary::Dos
 
     def initialize(info = {})
 		super(update_info(info,	
