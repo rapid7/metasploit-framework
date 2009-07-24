@@ -116,7 +116,7 @@ def checkuac(session)
 	begin
 		winversion = session.sys.config.sysinfo
 		if winversion['OS']=~ /Windows Vista/ or  winversion['OS']=~ /Windows 7/
-			print_status("Checking if UAC is enaled ...")
+			print_status("Checking if UAC is enabled ...")
 			key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
 			root_key, base_key = session.sys.registry.splitkey(key)
 			value = "EnableLUA"

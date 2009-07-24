@@ -328,7 +328,7 @@ def checkdep(session)
 end
 #---------------------------------------------------------------------------------------------------------
 def checkuac(session)
-	print_status("Checking if UAC is enaled ...")
+	print_status("Checking if UAC is enabled ...")
 	key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
 	root_key, base_key = session.sys.registry.splitkey(key)
 	value = "EnableLUA"

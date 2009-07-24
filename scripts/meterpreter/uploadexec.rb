@@ -38,7 +38,7 @@ def upload(session,file,trgloc = "")
                         else
                                 fileontrgt = "#{location}\\TMP#{rand(100)}#{ext}"
                         end
-                        print_status("Uploadingd #{file}....")
+                        print_status("Uploading #{file}....")
                         session.fs.file.upload_file("#{fileontrgt}","#{file}")
                         print_status("#{file} uploaded!")
                         print_status("#{fileontrgt}")

