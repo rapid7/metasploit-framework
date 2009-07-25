@@ -59,7 +59,6 @@ function getVersion(){
 		if (!os_name) {
 			// The 'inconspicuous' argument is there to give us a real value on
 			// Opera 6 where, without it, the return value is supposedly 
-			// "Hm, were you only as smart as Bjørn Vermo..."
 			// though I have not verfied this claim.
 			switch (opera.buildNumber('inconspicuous')) {
 				case "344":
