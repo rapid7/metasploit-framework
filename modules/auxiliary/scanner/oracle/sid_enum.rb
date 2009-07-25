@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'SID Enumeration.',
 			'Description'    => %q{
 				This module simply queries the TNS listner for the Oracle SID. 
-				With 10g Release 2 and above the listener will be protected and 
+				With Oracle 9.2.0.8 and above the listener will be protected and 
 				the SID will have to be bruteforced or guessed.
 			},
 			'Author'         => ['CG'],
