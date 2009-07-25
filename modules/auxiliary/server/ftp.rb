@@ -40,7 +40,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('FTPROOT',    [ true, "The FTP root directory to serve files from", '/tmp/ftproot' ])
+				OptString.new('FTPROOT',    [ true,  "The FTP root directory to serve files from", '/tmp/ftproot' ]),
+				OptString.new('FTPUSER',    [ false, "Configure a specific username that should be allowed access"]),
+				OptString.new('FTPPASS',    [ false, "Configure a specific password that should be allowed access"]),
 			], self.class)
 	end
 
@@ -48,9 +50,36 @@ class Metasploit3 < Msf::Auxiliary
 		exploit()
 	end
 
+	def on_client_command_user(c,arg)
+		@state[c][:user] = arg
+		if(not datastore['FTPUSER'] or (arg == datastore['FTPUSER']))
+			c.put "331 User name okay, need password...\r\n"
+		else
+			c.put "500 User name invalid\r\n"
+		end
+		return
+	end
+	
+	def on_client_command_pass(c,arg)
+		@state[c][:pass] = arg
+		if(not datastore['FTPPASS'] or (arg == datastore['FTPPASS']))
+			c.put "230 Login OK\r\n"
+			@state[c][:auth] = true
+		else
+			c.put "500 Password invalid\r\n"
+			@state[c][:auth] = false
+		end
+		return
+	end	
+	
 	def on_client_command_retr(c,arg)
 		print_status("#{@state[c][:name]} FTP download request for #{arg}")
 
+		if(not @state[c][:auth])
+			c.put "500 Access denied\r\n"
+			return
+		end
+		
 		path = ::File.join(datastore['FTPROOT'], arg.gsub("../", '').gsub("..\\", ''))
 		if(not ::File.exists?(path))
 			c.put "550 File does not exist\r\n"
@@ -70,6 +99,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 	
 	def on_client_command_list(c,arg)
+
+		if(not @state[c][:auth])
+			c.put "500 Access denied\r\n"
+			return
+		end
+			
 		conn = establish_data_connection(c)
 		if(not conn)
 			c.put("425 Can't build data connection\r\n")
@@ -95,6 +130,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 	
 	def on_client_command_size(c,arg)
+	
+		if(not @state[c][:auth])
+			c.put "500 Access denied\r\n"
+			return
+		end
+			
 		path = ::File.join(datastore['FTPROOT'], arg.gsub("../", '').gsub("..\\", ''))
 		if(not ::File.exists?(path))
 			c.put "550 File does not exist\r\n"
