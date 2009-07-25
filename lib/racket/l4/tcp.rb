@@ -105,6 +105,10 @@ class TCP < RacketPart
     self.offset = self.class.bit_length/32 + newpayload.length/4
     self.checksum!(ip_src, ip_dst)
   end
+  
+  def payload_data
+    self.payload[(self.offset * 4)-20, self.payload.length-((self.offset * 4)-20)] || ''  
+  end
 
   def initialize(*args)
     @options = []
