@@ -5,7 +5,7 @@
 #to provide future compatibility since MS will retire the AT command
 #in future versions of windows. This script works with Windows XP,
 #Windows 2003, Windows Vista and Windows 2008.
-#Verion: 0.1.1
+#Verion: 0.1.2
 #Note: in Vista UAC must be disabled to be able to perform scheduling
 #and the meterpreter must be running under the profile of local admin
 #or system.
@@ -54,21 +54,23 @@ end
 #---------------------------------------------------------------------------------------------------------
 def checkuac(session)
 	uac = false
-	winversion = session.sys.config.sysinfo
-	if winversion['OS']=~ /Windows Vista/ or  winversion['OS']=~ /Windows 7/
-		print_status("Checking if UAC is enabled ...")
-		key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
-		root_key, base_key = session.sys.registry.splitkey(key)
-		value = "EnableLUA"
-		open_key = session.sys.registry.open_key(root_key, base_key, KEY_READ)
-		v = open_key.query_value(value)
-		if v.data == 1
-			uac = true
-		else
-			uac = false
-		end
-	end
-	uac
+        winversion = session.sys.config.sysinfo
+        if winversion['OS']=~ /Windows Vista/ or  winversion['OS']=~ /Windows 7/
+                if session.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
+                        begin
+                                print_status("Checking if UAC is enabled .....")
+                                key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System')
+                                if key.query_value('Identifier') == 1
+                                        print_status("UAC is Enabled")
+                                        uac = true
+                                end
+                                key.close
+                        rescue::Exception => e
+                                print_status("Error Checking UAC: #{e.class} #{e}")
+                        end
+                end
+        end
+        return uac
 end
 #---------------------------------------------------------------------------------------------------------
 def scheduleme(session,schtype,cmd,tmmod,cmdopt,username,password)
