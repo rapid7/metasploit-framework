@@ -29,5 +29,6 @@ require 'racket/l5/bootp'
 require 'racket/l5/ntp'
 require 'racket/l5/dns'
 require 'racket/l5/hsrp'
+require 'racket/l5/raw'
 
 # vim: set ts=2 et sw=2:
