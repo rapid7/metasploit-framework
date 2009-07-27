@@ -879,7 +879,7 @@ protected
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			errmsg = "#{e.class} #{e}"
+			errmsg = "#{file}: #{e.class} #{e}"
 			self.module_failed[file] = errmsg
 			elog(errmsg)
 			return false
