@@ -27,7 +27,10 @@ function getVersion(){
 	var os_lang;
 	var ua_name;
 	var ua_version;
+	var arch = "";
 	var useragent = navigator.userAgent;
+	// Trust but verify...
+	var ua_is_lying = false;
 
 	var version = "";
 
@@ -59,6 +62,7 @@ function getVersion(){
 		if (!os_name) {
 			// The 'inconspicuous' argument is there to give us a real value on
 			// Opera 6 where, without it, the return value is supposedly 
+			// 'Hm, were you only as smart as Bjorn Vermo...'
 			// though I have not verfied this claim.
 			switch (opera.buildNumber('inconspicuous')) {
 				case "344":
@@ -100,13 +104,12 @@ function getVersion(){
 			}
 		}
 	} else if (window.getComputedStyle) {
-		// Then this is a gecko derivative, assume firefox since that's the
+		// Then this is a Gecko derivative, assume Firefox since that's the
 		// only one we have sploits for.  We may need to revisit this in the
 		// future.  This works for multi/browser/mozilla_compareto against
 		// Firefox and Mozilla, so it's probably good enough for now.
 		ua_name = "#{clients::FF}";
 		if (String.trimRight) {
-			// XXX: untested
 			ua_version = "3.5";
 		} else if (document.getElementsByClassName) {
 			ua_version = "3";
@@ -117,17 +120,29 @@ function getVersion(){
 		} else {
 			ua_version = "1";
 		}
+
+		// oscpu is unaffected by changes in the useragent and has values like:
+		//    "Linux i686"
+		//    "Windows NT 6.0"
+		version = navigator.oscpu;
+		os_name = version.split(' ')[0];
+		if (version.match(/i.86/)) {
+			arch = "#{ARCH_X86}";
+		}
+
 		// Verify whether the ua string is lying by checking the major version
 		// number against what we detected using known objects above.  If it
 		// appears to be truthful, then use its more precise version number.
 		version = searchVersion("Firefox", navigator.userAgent);
-		if (version.substr(0,1) == ua_version.substr(0,1)) {
+		if (version && version.substr(0,ua_version.length) == ua_version) {
 			// The version number will end with a space or end of line, so strip
 			// off anything after a space if one exists
 			if (-1 != version.indexOf(" ")) {
 				version = version.substr(0,version.indexOf(" "));
 			}
 			ua_version = version;
+		} else {
+			ua_is_lying = true;
 		}
 
 	} else if (typeof ScriptEngineMajorVersion == "function") {
@@ -243,24 +258,31 @@ function getVersion(){
 	//--
 	// Flavor
 	//--
-	version = useragent.toLowerCase();
-	if (!os_name || 0 == os_name.length || !os_flavor || 0 == os_flavor.length) {
-		// Firefox's appVersion on windows doesn't tell us the flavor, so use
-		// userAgent all the time.  If userAgent is spoofed, appVersion will lie
-		// also, so we don't lose anything by doing it this way.
-		if (version.indexOf("windows 95") != -1)          { os_name = "#{oses::WINDOWS}"; os_flavor = "95";    }
-		else if (version.indexOf("windows nt 4") != -1)   { os_name = "#{oses::WINDOWS}"; os_flavor = "NT";    }
-		else if (version.indexOf("win 9x 4.9") != -1)     { os_name = "#{oses::WINDOWS}"; os_flavor = "ME";    }
-		else if (version.indexOf("windows 98") != -1)     { os_name = "#{oses::WINDOWS}"; os_flavor = "98";    }
-		else if (version.indexOf("windows nt 5.0") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "2000";  }
-		else if (version.indexOf("windows nt 5.1") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "XP";    }
-		else if (version.indexOf("windows nt 5.2") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "2003";  }
-		else if (version.indexOf("windows nt 6.0") != -1) { os_name = "#{oses::WINDOWS}"; os_flavor = "Vista"; }
-		else if (version.indexOf("windows") != -1)        { os_name = "#{oses::WINDOWS}";                      }
-		else if (version.indexOf("mac") != -1)            { os_name = "#{oses::MAC_OSX}";                      }
-		else if (version.indexOf("linux") != -1)          { os_name = "#{oses::LINUX}";                        }
+	if (navigator.oscpu) {
+		// Then this is Gecko and we can do it without the useragent
+		version = navigator.oscpu.toLowerCase();
+	} else if (!ua_is_lying) {
+		version = useragent.toLowerCase();
+	} else { 
+		// All we have left is the useragent and we know it's lying, so don't bother
+		version = " ";
 	}
-
+	if (!os_name || 0 == os_name.length) {
+		if (version.indexOf("windows") != -1)    { os_name = "#{oses::WINDOWS}"; }
+		else if (version.indexOf("mac") != -1)   { os_name = "#{oses::MAC_OSX}"; }
+		else if (version.indexOf("linux") != -1) { os_name = "#{oses::LINUX}";   }
+	}
+	if (os_name == "#{oses::WINDOWS}" && (!os_flavor || 0 == os_flavor.length)) {
+		if (version.indexOf("windows 95") != -1)          { os_flavor = "95";    }
+		else if (version.indexOf("windows nt 4") != -1)   { os_flavor = "NT";    }
+		else if (version.indexOf("win 9x 4.9") != -1)     { os_flavor = "ME";    }
+		else if (version.indexOf("windows 98") != -1)     { os_flavor = "98";    }
+		else if (version.indexOf("windows nt 5.0") != -1) { os_flavor = "2000";  }
+		else if (version.indexOf("windows nt 5.1") != -1) { os_flavor = "XP";    }
+		else if (version.indexOf("windows nt 5.2") != -1) { os_flavor = "2003";  }
+		else if (version.indexOf("windows nt 6.0") != -1) { os_flavor = "Vista"; }
+		else if (version.indexOf("windows nt 6.1") != -1) { os_flavor = "7";     }
+	}
 	if (os_name == "#{oses::LINUX}" && (!os_flavor || 0 == os_flavor.length)) {
 		if (version.indexOf("gentoo") != -1)      { os_flavor = "Gentoo"; }
 		else if (version.indexOf("ubuntu") != -1) { os_flavor = "Ubuntu"; }
@@ -288,25 +310,26 @@ function getVersion(){
 	//--
 	// Architecture 
 	//--
-	version = navigator.platform;
-	//document.write(version + "\\n");
-	var arch = "";
-	// IE 8 does a bit of wacky user-agent switching for "Compatibility View"; 
-	// 64-bit client on Windows 7, 64-bit:
-	//     Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Win64; x64; Trident/4.0)
-	// 32-bit client on Windows 7, 64-bit:
-	//     Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)
-	// 32-bit client on Vista, 32-bit, "Compatibility View":
-	//     Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/4.0)
-	//
-	// Report 32-bit client on 64-bit OS as being 32 because exploits will
-	// need to know the bittedness of the process, not the OS.
-	if ( ("Win32" == version) || (version.match(/i.86/)) ) {
-	    arch = "#{ARCH_X86}";
-	} else if (-1 != version.indexOf('x64') || (-1 != version.indexOf('x86_64')))  {
-		arch = "#{ARCH_X86_64}";
-	} else if (-1 != version.indexOf('PPC'))  {
-		arch = "#{ARCH_PPC}";
+	if (!arch || 0 == arch.length) {
+		version = navigator.platform;
+		//document.write(version + "\\n");
+		// IE 8 does a bit of wacky user-agent switching for "Compatibility View"; 
+		// 64-bit client on Windows 7, 64-bit:
+		//     Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Win64; x64; Trident/4.0)
+		// 32-bit client on Windows 7, 64-bit:
+		//     Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)
+		// 32-bit client on Vista, 32-bit, "Compatibility View":
+		//     Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/4.0)
+		//
+		// Report 32-bit client on 64-bit OS as being 32 because exploits will
+		// need to know the bittedness of the process, not the OS.
+		if ( ("Win32" == version) || (version.match(/i.86/)) ) {
+			arch = "#{ARCH_X86}";
+		} else if (-1 != version.indexOf('x64') || (-1 != version.indexOf('x86_64')))  {
+			arch = "#{ARCH_X86_64}";
+		} else if (-1 != version.indexOf('PPC'))  {
+			arch = "#{ARCH_PPC}";
+		}
 	}
 
 	return { os_name:os_name, os_flavor:os_flavor, os_sp:os_sp, os_lang:os_lang, arch:arch, ua_name:ua_name, ua_version:ua_version };
