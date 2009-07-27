@@ -118,7 +118,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			true
 		end
-		 
+		close_pcap()
 		print_status("Finished sniffing")
 	end
 end 

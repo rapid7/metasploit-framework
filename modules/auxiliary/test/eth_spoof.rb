@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Opening the network interface...")
 		open_pcap()
 
-		r   = Racket::Racket.new
+		r = Racket::Racket.new
 		r.l2 = Racket::Ethernet.new
 		r.l2.ethertype = 0x0800
 		r.l2.src_mac = "00:41:41:41:41:41"
@@ -56,6 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 			capture.inject(r.pack)
 		end
 		
+		close_pcap()
 		print_status("Finished sending")
 	end
 	
