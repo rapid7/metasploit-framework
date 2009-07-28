@@ -25,7 +25,7 @@ module Metasploit3
 			'Name'          => 'AIX Command Shell, Bind TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
-			'Author'        => 'Ramon de Carvalho Valle <ramon@risesecurity.org>',
+			'Author'        => 'Ramon de Carvalho Valle <ramon[at]risesecurity.org>',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'aix',
 			'Arch'          => ARCH_PPC,

