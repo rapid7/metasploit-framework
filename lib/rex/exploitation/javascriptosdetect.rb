@@ -37,23 +37,6 @@ function getVersion(){
 	//--
 	// Client
 	//--
-	if (window.getComputedStyle) {
-		// Then this is a gecko derivative, assume firefox since that's the
-		// only one we have sploits for.  We may need to revisit this in the
-		// future.  This works for multi/browser/mozilla_compareto against
-		// Firefox and Mozilla, so it's probably good enough for now.
-		ua_name = "#{clients::FF}";
-		if (document.getElementsByClassName) {
-			ua_version = "3.0";
-		} else if (window.Iterator) {
-			ua_version = "2.0";
-		} else if (Array.every) {
-			ua_version = "1.5";
-		} else {
-			ua_version = "1.0";
-		}
-	}
-
 	if (window.opera) {
 		ua_name = "#{clients::OPERA}";
 		// This seems to be completely accurate, e.g. "9.21" is the return
