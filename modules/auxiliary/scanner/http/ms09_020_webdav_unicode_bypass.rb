@@ -17,16 +17,24 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,	
-			'Name'   		=> 'MS09-XXX 0day IIS6 WebDAV Unicode Auth Bypass',
+			'Name'   		=> 'MS09-020 IIS6 WebDAV Unicode Auth Bypass',
 			'Description'	=> %q{
-				Simplified version of MS09-XXX 0day IIS6 WebDAV Unicode Auth Bypass scanner. It attempts
+				Simplified version of MS09-020 IIS6 WebDAV Unicode Auth Bypass scanner. It attempts
 				to bypass authentication using the WebDAV IIS6 Unicode vulnerability
 				discovered by Kingcope. The vulnerability appears to be exploitable
 				where WebDAV is enabled on the IIS6 server, and any protected folder
 				requires either Basic, Digest or NTLM authentication.
 			},
-			'Author' 		=> [ 'patrick' ],
+			'Author' 		=> [ 'et', 'patrick' ],
 			'License'		=> MSF_LICENSE,
+			'References'     =>
+				[
+					[ 'MSB', 'MS09-020' ],
+					[ 'CVE', '2009-1535' ],
+					[ 'CVE', '2009-1122' ],
+					[ 'OSVDB', '54555' ],
+					[ 'BID', '34993' ],
+				],
 			'Version'		=> '$Revision: 6580 $'))   
 			
 		register_options(

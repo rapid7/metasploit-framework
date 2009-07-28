@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,	
-			'Name'   		=> 'MS09-XXX 0day IIS6 WebDAV Unicode Auth Bypass Directory Scanner',
+			'Name'   		=> 'MS09-020 IIS6 WebDAV Unicode Auth Bypass Directory Scanner',
 			'Description'	=> %q{
 				This module is based on et's HTTP Directory Scanner module,
 				with one exception. Where authentication is required, it attempts
@@ -32,6 +32,14 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author' 		=> [ 'patrick' ],
 			'License'		=> MSF_LICENSE,
+			'References'     =>
+				[
+					[ 'MSB', 'MS09-020' ],
+					[ 'CVE', '2009-1535' ],
+					[ 'CVE', '2009-1122' ],
+					[ 'OSVDB', '54555' ],
+					[ 'BID', '34993' ],
+				],
 			'Version'		=> '$Revision$'))   
 			
 		register_options(
