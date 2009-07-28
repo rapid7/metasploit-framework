@@ -86,7 +86,23 @@ function getVersion(){
 					break;
 			}
 		}
-	} else if (window.getComputedStyle) {
+	} else if (typeof window.onmousewheel != 'undefined') {
+		// XXX Flesh this out.
+		ua_name = "#{clients::SAFARI}";
+		// Unlike every body else, the version isn't after the browser's
+		// name.  That's where it puts Webkit's version.  The real version is
+		// after "Version".  e.g.:
+		// Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/3.2.1 Safari/525.27.1
+		ua_version = searchVersion("Version", navigator.userAgent);
+		if (!ua_version || 0 == ua_version.length) {
+			ua_is_lying = true;
+		}
+	} else if (!document.all && navigator.taintEnabled) {
+		// Use taintEnabled to identify FF since other recent browsers
+		// implement window.getComputedStyle now.  For some reason, checking for
+		// taintEnabled seems to cause IE 6 to stop parsing, so make sure this
+		// isn't IE first.
+		// 
 		// Then this is a Gecko derivative, assume Firefox since that's the
 		// only one we have sploits for.  We may need to revisit this in the
 		// future.  This works for multi/browser/mozilla_compareto against
@@ -107,6 +123,7 @@ function getVersion(){
 		// oscpu is unaffected by changes in the useragent and has values like:
 		//    "Linux i686"
 		//    "Windows NT 6.0"
+		// haven't tested on 64-bit Windows
 		version = navigator.oscpu;
 		os_name = version.split(' ')[0];
 		if (version.match(/i.86/)) {
@@ -319,10 +336,11 @@ function getVersion(){
 } // function getVersion
 function searchVersion(needle, haystack) {
 	var index = haystack.indexOf(needle);
-	if (index == -1) return;
+	var found_version;
+	if (index == -1) { return; }
 	found_version = haystack.substring(index+needle.length+1);
 	// Strip off any junk at the end such as a CLR declaration
-	found_version.replace(/\s.*/, '');
+	found_version = found_version.substring(0,found_version.indexOf(' '));
 	return found_version;
 }
 ENDJS
