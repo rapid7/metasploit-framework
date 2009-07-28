@@ -11,7 +11,7 @@
 
 
 require 'msf/core'
-require 'msf/core/payload/windows/exec'
+require 'msf/core/payload/php'
 
 
 module Metasploit3
