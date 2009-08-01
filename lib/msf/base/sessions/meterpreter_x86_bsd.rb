@@ -13,7 +13,7 @@ class Meterpreter_x86_BSD < Msf::Sessions::Meterpreter
 		'x86/bsd'
 	end
 	def self.binary_suffix
-		'fso'
+		'bso'
 	end
 end
 
