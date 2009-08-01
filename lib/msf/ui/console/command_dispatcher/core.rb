@@ -553,8 +553,18 @@ class Core
 			opts[k] = v if (k and v)
 		}
 
-		# If no absolute path was supplied, use the plugin directory as a base.
-		path = Msf::Config.plugin_directory + File::SEPARATOR + path if (path !~ /#{File::SEPARATOR}/)
+		# If no absolute path was supplied, check the base and user plugin directories
+		if (path !~ /#{File::SEPARATOR}/)
+			plugin_file_name = path
+
+			# If the plugin isn't in the user direcotry (~/.msf3/plugins/), use the base 
+			path = Msf::Config.user_plugin_directory + File::SEPARATOR + plugin_file_name
+			if not File.exists?( path  + ".rb" )
+				# If the following "path" doesn't exist it will be caught when we attempt to load
+				path = Msf::Config.plugin_directory + File::SEPARATOR + plugin_file_name
+			end
+
+		end
 
 		# Load that plugin!
 		begin

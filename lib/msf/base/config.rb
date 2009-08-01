@@ -104,6 +104,13 @@ class Config < Hash
 	#
 	# Calls the instance method.
 	#
+	def self.user_plugin_directory
+		self.new.user_plugin_directory
+	end
+
+	#
+	# Calls the instance method.
+	#
 	def self.session_log_directory
 		self.new.session_log_directory
 	end
@@ -228,6 +235,13 @@ class Config < Hash
 	end
 
 	#
+	# Returns the user-specific plugin base path
+	#
+	def user_plugin_directory
+		config_directory + FileSep + "plugins"
+	end
+
+	#
 	# Returns the user-specific script base path
 	#
 	def user_script_directory
@@ -249,6 +263,7 @@ class Config < Hash
 		FileUtils.mkdir_p(log_directory)
 		FileUtils.mkdir_p(session_log_directory)
 		FileUtils.mkdir_p(user_module_directory)
+		FileUtils.mkdir_p(user_plugin_directory)
 	end
 
 	#
