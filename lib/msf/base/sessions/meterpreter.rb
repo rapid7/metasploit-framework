@@ -87,6 +87,14 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	def type
 		self.class.type
 	end
+	
+	def platform
+		self.class.platform
+	end
+
+	def binary_suffix
+		self.class.binary_suffix
+	end
 
 	##
 	#
