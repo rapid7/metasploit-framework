@@ -12,7 +12,7 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/meterpreter'
+require 'msf/base/sessions/meterpreter_x86_win32'
 
 module Metasploit3
 
@@ -29,7 +29,7 @@ module Metasploit3
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::ReverseTcp,
-			'Session'       => Msf::Sessions::Meterpreter,
+			'Session'       => Msf::Sessions::Meterpreter_x86_Win32,
 			'Payload'       =>
 				{
 					'Offsets' => {},

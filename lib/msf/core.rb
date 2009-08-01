@@ -45,10 +45,11 @@ require 'msf/core/handler'
 # Modules
 require 'msf/core/module'
 require 'msf/core/encoder'
+require 'msf/core/auxiliary'
 require 'msf/core/exploit'
 require 'msf/core/nop'
 require 'msf/core/payload'
-require 'msf/core/auxiliary'
+
 
 # Drivers
 require 'msf/core/exploit_driver'

@@ -44,6 +44,20 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	def self.type
 		"meterpreter"
 	end
+	
+	#
+	# Returns the exact type of meterpreter
+	#
+	def self.platform
+		"generic/generic"
+	end
+	
+	#
+	# Returns the extension for binary files
+	#
+	def self.binary_suffix
+		"generic"
+	end
 
 	##
 	#

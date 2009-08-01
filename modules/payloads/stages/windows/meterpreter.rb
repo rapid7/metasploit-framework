@@ -12,8 +12,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/windows/reflectivedllinject'
-require 'msf/base/sessions/meterpreter'
-
+require 'msf/base/sessions/meterpreter_x86_win32'
 
 ###
 #
@@ -31,7 +30,7 @@ module Metasploit3
 			'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload',
 			'Author'        => ['skape','Stephen Fewer <info@harmonysecurity.com>'],
 			'License'       => MSF_LICENSE,
-			'Session'       => Msf::Sessions::Meterpreter))
+			'Session'       => Msf::Sessions::Meterpreter_x86_Win32))
 
 		# Set advanced options
 		register_advanced_options(
