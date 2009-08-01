@@ -234,7 +234,7 @@ class Console::CommandDispatcher::Core
 					exts = []
 					path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter')
 					::Dir.entries(path).each { |f| 
-						if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.dll/ )
+						if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
 							exts.push($1)
 						end
 					}
@@ -281,7 +281,7 @@ class Console::CommandDispatcher::Core
 		tabs = []
 		path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter')
 		::Dir.entries(path).each { |f| 
-			if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.dll/ )
+			if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
 				if (not extensions.include?($1))
 					tabs.push($1)
 				end

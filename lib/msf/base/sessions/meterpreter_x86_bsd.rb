@@ -16,3 +16,6 @@ class Meterpreter_x86_BSD < Msf::Sessions::Meterpreter
 		'fso'
 	end
 end
+
+end
+end

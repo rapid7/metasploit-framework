@@ -16,3 +16,6 @@ class Meterpreter_x86_Win < Msf::Sessions::Meterpreter
 		'dll'
 	end
 end
+
+end
+end

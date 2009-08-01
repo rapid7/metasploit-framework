@@ -16,3 +16,6 @@ class Meterpreter_x86_Linux < Msf::Sessions::Meterpreter
 		'lso'
 	end
 end
+
+end
+end

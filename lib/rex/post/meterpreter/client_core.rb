@@ -98,7 +98,7 @@ class ClientCore < Extension
 			# path of the local and target so that it gets loaded with a random
 			# name
 			if (opts['Extension'])
-				library_path = "ext" + rand(1000000).to_s + ".dll"
+				library_path = "ext" + rand(1000000).to_s + ".#{client.binary_suffix}"
 				target_path  = library_path
 			end
 		end
@@ -141,7 +141,7 @@ class ClientCore < Extension
 		end
 		# Get us to the installation root and then into data/meterpreter, where
 		# the file is expected to be
-		path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter', 'ext_server_' + mod.downcase + '.dll')
+		path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter', 'ext_server_' + mod.downcase + ".#{client.binary_suffix}")
 
 		if (opts['ExtensionPath'])
 			path = opts['ExtensionPath']
@@ -174,7 +174,7 @@ class ClientCore < Extension
 		
 		# Create the migrate stager
 		migrate_stager = c.new()
-		migrate_stager.datastore['DLL'] = ::File.join( Msf::Config.install_root, "data", "meterpreter", "metsrv.dll" )
+		migrate_stager.datastore['DLL'] = ::File.join( Msf::Config.install_root, "data", "meterpreter", "metsrv.#{client.binary_suffix}" )
 		payload = migrate_stager.stage_payload
 		
 		# Send the migration request
