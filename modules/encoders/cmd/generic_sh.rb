@@ -124,13 +124,13 @@ class Metasploit3 < Msf::Encoder
 				if (state.badchars.include?("$") or state.badchars.include?("(")) 
 					raise RuntimeError
 				else
-					buf = "$(echo -ne #{hex})"
+					buf = "$(/bin/echo -ne #{hex})"
 				end
 			else
-				buf = "`echo -ne #{hex}`"
+				buf = "`/bin/echo -ne #{hex}`"
 			end
 		else
-			buf = "echo -ne #{hex}|sh"
+			buf = "/bin/echo -ne #{hex}|sh"
 		end
 		
 		# Remove spaces from the command string
