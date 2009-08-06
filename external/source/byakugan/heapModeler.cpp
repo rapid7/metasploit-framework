@@ -71,7 +71,6 @@ void removeBucket(PVOID addr, struct HPool *heap) {
     if (heap == NULL)
         return;
 	
-	heap->numChunks--;
 
     offset 		= hash(addr, heap);
 	chunkNum 	= heap->map[offset];
@@ -91,15 +90,44 @@ void removeBucket(PVOID addr, struct HPool *heap) {
             heap->map[offset] = NULLNODE;
         else
             CHUNK(last).nextBucket = CHUNK(chunkNum).nextBucket;
+		
+		heap->numChunks--;
     } else 
 		dprintf("[T] Couldnt find chunk 0x%08x to delete :(\n", addr);
+
+
+	// Head of the list case
+	chunkNum = heap->inUseHead;
+	if (CHUNK(chunkNum).addr == addr) {
+		heap->inUseHead = CHUNK(chunkNum).nextInUse;
+		return;
+	}
+
+	// search the list for the previous chunk
+	while (chunkNum != NULLNODE && CHUNK(chunkNum).addr != addr) {
+			last = chunkNum;
+			chunkNum = CHUNK(chunkNum).nextInUse;
+	}
+	if (chunkNum != NULLNODE) {
+		CHUNK(last).nextInUse = CHUNK(chunkNum).nextInUse;
+		if (heap->lastInUse == chunkNum) heap->lastInUse = last;
+	}
 }
 
 void initializeHeapModel(struct HeapState *heapModel) {
 	
-	memset(heapModel, 0, sizeof (struct HeapState));
+	memset(heapModel+1, 0, sizeof (struct HeapState));
 	heapModel->hPoolListLen = 16;
 	heapModel->heaps = (struct HPool *) calloc(heapModel->hPoolListLen, sizeof (struct HPool));
+}
+
+void logAllocate(struct HeapState *heapModel, struct AllocateStruct *aStruct) {
+}
+
+void logReallocate(struct HeapState *heapModel, struct ReallocateStruct *rStruct) {
+}
+
+void logFree(struct HeapState *heapModel, struct FreeStruct *fStruct) {
 }
 
 void heapAllocate(struct HeapState *heapModel, struct AllocateStruct *aStruct) {
@@ -171,21 +199,17 @@ void heapFree(struct HeapState *heapModel, struct FreeStruct *fStruct) {
 	
 	//dprintf("[XXX] Freeing 0x%08x\n", fStruct->memoryPointer);
 
-	//#ifndef THREEDHEAPFU_ENABLED
-	#ifdef THREEDHEAPFU_ENABLED
 	if (fStruct->heapHandle == 0 || fStruct->memoryPointer == 0x00000000) { 
 		// So many of these that it slows us down :(
 		//dprintf("[T] Program attempted to free a NULL pointer.\n\n");
 		return;
 	}
-	#endif
-
 	myHeap	= getHeap(heapModel, fStruct->heapHandle);
 	myChunk	= getChunk(myHeap, fStruct->memoryPointer, NULLNODE);
 	if (myChunk == NULL)
 		return; // dupe free :(
 
-	#ifndef THREEDHEAPFU_ENABLED
+	#if 0
 	if (myChunk->free == 2)
 		dprintf("[T] Possible 'double free' of chunk @ 0x%08x:0x%x\n\n", 
 				myChunk->addr, myChunk->free);
@@ -252,7 +276,7 @@ void heapCoalesce(struct HeapState *heapModel, struct CoalesceStruct *cfbStruct)
 	while (i != NULLNODE) {
 		if (CHUNK(i).free) {
 			//dprintf("[T] Found free chunk %d at 0x%08x\n", i, CHUNK(i).addr);
-			j = CHUNK(i).nextInUse;
+			j = FindOffsetForChunk(heap, NEXTADDR(i));
 			while (j != NULLNODE && CHUNK(j).free) {
 
 				//dprintf("[T] Found free chunk %d at 0x%08x\n", j, CHUNK(j).addr);
@@ -262,17 +286,13 @@ void heapCoalesce(struct HeapState *heapModel, struct CoalesceStruct *cfbStruct)
 															// most of the time - win2k is insane and 
 															// goes backwards :(
 				
-				// fix up in use list
-				CHUNK(i).nextInUse = CHUNK(j).nextInUse;
-				if (heap->lastInUse == j) heap->lastInUse = i;
-				
 				// fix up hash bucket list
 				removeBucket(CHUNK(j).addr, heap);
 
 				//dprintf("[T] Coalescing 0x%08x and 0x%08x. New size: %d bytes\n",
 				//CHUNK(i).addr, CHUNK(j).addr, CHUNK(i).size);
 				
-				j = CHUNK(i).nextInUse;
+				j = FindOffsetForChunk(heap, NEXTADDR(i));
 			}
 		} 
        	i = CHUNK(i).nextInUse;

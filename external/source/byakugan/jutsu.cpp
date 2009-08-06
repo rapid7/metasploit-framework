@@ -606,6 +606,7 @@ void hunterJutsu() {
 	ULONG				i, j, range, addr, *nextNum, foundInstance;
 	BOOLEAN				caught;
 	char				*corUpper, *corLower, *corUni;
+	ULONG64				ptr = 0;
 
     for (i = 0; regs[i] != NULL; i++) {
 		addr = GetExpression(regs[i]);
@@ -633,7 +634,7 @@ void hunterJutsu() {
 	curBuf = trackedBufList;
 	while (curBuf != NULL) {
 		foundInstance = searchMemory((unsigned char *) curBuf->bufPatt, 
-				(curBuf->bufSize > 32) ? 32 : curBuf->bufSize);
+				(curBuf->bufSize > 32) ? 32 : curBuf->bufSize, &ptr);
 		if (foundInstance != 0) {
 			// try for larger increments
 			instance = (struct bufInstance *) malloc(sizeof (struct bufInstance));
@@ -652,13 +653,13 @@ void hunterJutsu() {
 				corUni[j++] = curBuf->bufPatt[i];
 				corUni[j++] = '\x00';
 			}
-			if ((foundInstance = searchMemory((unsigned char *) corUpper, range)) != 0)
+			if ((foundInstance = searchMemory((unsigned char *) corUpper, range, &ptr)) != 0)
 				dprintf("[J] Found buffer %s @ 0x%08x - Victim of toUpper!\n",
 						curBuf->bufName, foundInstance);
-			if ((foundInstance = searchMemory((unsigned char *) corLower, range)) != 0)
+			if ((foundInstance = searchMemory((unsigned char *) corLower, range, &ptr)) != 0)
 				dprintf("[J] Found buffer %s @ 0x%08x - Victim of toLower!\n",
 						curBuf->bufName, foundInstance);
-			if ((foundInstance = searchMemory((unsigned char *) corUni, range*2)) != 0)
+			if ((foundInstance = searchMemory((unsigned char *) corUni, range*2, &ptr)) != 0)
 				dprintf("[J] Found buffer %s @ 0x%08x - Victim of Unicode Conversion!\n",
 						curBuf->bufName, foundInstance);
 			free(corUpper);
@@ -738,12 +739,11 @@ unsigned short getInstructionBytes(char * instruction, unsigned char * opcodeBuf
 	return (byteEnd-disassemblyBuffer);
 }
 
-ULONG64 searchMemory(unsigned char * byteBuffer, unsigned long length){
-	ULONG64 addressHit = 0;
+ULONG64 searchMemory(unsigned char * byteBuffer, unsigned long length, ULONG64 *addressHit){
 	HRESULT memSearch = S_OK;
 
-	if((memSearch = g_ExtData->SearchVirtual((ULONG64)0, (ULONG64)-1, byteBuffer, 
-		length, 1, &addressHit)) != S_OK){
+	if((memSearch = g_ExtData->SearchVirtual((ULONG64)*addressHit, (ULONG64)-1, byteBuffer, 
+		length, 1, addressHit)) != S_OK){
 #if 0
 			if(memSearch == HRESULT_FROM_NT(STATUS_NO_MORE_ENTRIES)){
 				dprintf("[J] byte sequence not found in virtual memory\n");
@@ -754,7 +754,7 @@ ULONG64 searchMemory(unsigned char * byteBuffer, unsigned long length){
 #endif
 			return (0);
 	}
-	return (addressHit);
+	return (*addressHit);
 }
 
 DWORD	findAllVals(unsigned char *byteBuffer, BYTE size, struct valInstance **instance) {
@@ -804,7 +804,7 @@ void searchOpcodes(char *instructions) {
 	char			**instructionList;
 	unsigned char	*byteSequence;
 	DWORD			length, i, j, semiCount = 1, offset = 0; 
-	ULONG64			ptr;
+	ULONG64			ptr = 0;
 
 	// Split instructions into seperate strings at pipes
 	length = 0;
@@ -856,9 +856,11 @@ void searchOpcodes(char *instructions) {
 	dprintf("\n");
 
 	// Search for sequence in executable memory
-	ptr = searchMemory(byteSequence, offset);
-	if (ptr && checkExecutability(ptr))
-		dprintf("[J] Executable opcode sequence found at: 0x%08x\n", ptr);
+	while((ptr = searchMemory(byteSequence, offset, &ptr)) != 0) {
+		if (ptr && checkExecutability(ptr))
+			dprintf("[J] Executable opcode sequence found at: 0x%08x\n", ptr);
+		ptr++;
+	}
 	return;
 }
 
@@ -867,7 +869,7 @@ void returnAddressHuntJutsu(){
 	int i = 0, bufferIndex = 0;
 	ULONG offset = 0, bytes = 0;	
 	char findBufferExpression[25];
-	ULONG64 returnAddress = 0;
+	ULONG64 returnAddress = 0, ptr = 0;
 	HRESULT memSearch = S_OK;
 
 	//disassembly variables
@@ -902,7 +904,7 @@ void returnAddressHuntJutsu(){
 					StringCchPrintf(returnInstruction, sizeof(returnInstruction), "call %s", regs[i]);
 					if(!(instructionLength = getInstructionBytes(returnInstruction, opcodeBuffer)))
 						dprintf("[J] getInstructionBytes failed for '%s'\n", returnInstruction);
-					if(returnAddress = searchMemory(opcodeBuffer, instructionLength)){
+					if(returnAddress = searchMemory(opcodeBuffer, instructionLength, &ptr)){
 						if(checkExecutability(returnAddress))
 							dprintf("[J] valid return address (call %s) found at 0x%08x\n", regs[i], returnAddress);
 					}
@@ -913,7 +915,7 @@ void returnAddressHuntJutsu(){
 					StringCchPrintf(returnInstruction, sizeof(returnInstruction), "jmp %s", regs[i]);
 					if(!(instructionLength = getInstructionBytes(returnInstruction, opcodeBuffer)))
 						dprintf("[J] getInstructionBytes failed for '%s'\n", returnInstruction);
-					if(returnAddress = searchMemory(opcodeBuffer, instructionLength)){
+					if(returnAddress = searchMemory(opcodeBuffer, instructionLength, &ptr)){
 						if(checkExecutability(returnAddress))
 							dprintf("[J] valid return address (jmp %s) found at 0x%08x\n", regs[i], returnAddress);
 					}
@@ -948,7 +950,7 @@ void returnAddressHuntJutsu(){
 						StringCchPrintf(returnInstruction, sizeof(returnInstruction), "call [%s+%x]", regs[i], offset);
 						if(!(instructionLength = getInstructionBytes(returnInstruction, opcodeBuffer)))
 							dprintf("[J] getInstructionBytes failed for '%s'\n", returnInstruction);
-						if(returnAddress = searchMemory(opcodeBuffer, instructionLength)){
+						if(returnAddress = searchMemory(opcodeBuffer, instructionLength, &ptr)){
 							if(checkExecutability(returnAddress))
 								dprintf("[J] valid return address (call [%s+%x]) found at 0x%08x\n", regs[i], offset, returnAddress);
 						}
@@ -959,7 +961,7 @@ void returnAddressHuntJutsu(){
 						StringCchPrintf(returnInstruction, sizeof(returnInstruction), "jmp [%s+%x]", regs[i], offset);
 						if(!(instructionLength = getInstructionBytes(returnInstruction, opcodeBuffer)))
 							dprintf("[J] getInstructionBytes failed for '%s'\n", returnInstruction);
-						if(returnAddress = searchMemory(opcodeBuffer, instructionLength)){
+						if(returnAddress = searchMemory(opcodeBuffer, instructionLength, &ptr)){
 							if(checkExecutability(returnAddress))
 								dprintf("[J] valid return address (jmp [%s+%x]) found at 0x%08x\n", regs[i], offset, returnAddress);
 						}

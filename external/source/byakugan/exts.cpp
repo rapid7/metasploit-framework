@@ -207,11 +207,26 @@ HRESULT CALLBACK tenketsu(PDEBUG_CLIENT4 Client, PCSTR args) {
     command = strtok((char *)args, " ");
 	
 	if (command == NULL) {
-    	if(hookRtlHeap()) {
-        	dprintf("[Byakugan] Unable to begin realtime heap debugging.\n");
+		tenkHelp();
+		return (S_OK);
+	}
+	else if (!_stricmp(command, "model")) {
+    	if(hookRtlHeap(1)) {
+        	dprintf("[Byakugan] Unable to begin realtime heap modeling.\n");
             EXIT_API();
         	return (S_FALSE);
     	}
+	}
+	else if (!_stricmp(command, "log")) {
+    	if(hookRtlHeap(2)) {
+			dprintf("[Byakugan] Unable to begin realtime heap modeling.\n");
+			EXIT_API(); 
+            return (S_FALSE);
+		}
+	}
+	else if (!_stricmp(command, "help")) {
+		tenkHelp();
+		return (S_OK);
 	}
     else if (!_stricmp(command, "help")) {
 		tenkHelp();

@@ -22,11 +22,12 @@ PCSTR	undocdFunc[] = { "ntdll!RtlpCoalesceFreeBlocks", NULL };
 ULONG	undocdAddr[sizeof (undocdFunc)+1];
 
 struct HeapState		heapModel;
+BOOLEAN					running = FALSE;
 
 // Two things that fucking rock? Bunnies and Jaguars. Werd.
 
 
-int hookRtlHeap(void) {
+int hookRtlHeap(BYTE type) {
     HRESULT     Status;
     HANDLE      process;
     DWORD       pid;
@@ -36,6 +37,15 @@ int hookRtlHeap(void) {
     LPCSTR dllName = "C:\\windbg\\injectsu.dll";
     ULONG64     funcAddr64;
     ULONG       *funcAddr, i;
+
+	heapModel.state = heapModel.state ^ type;
+
+	if (running) {
+		dprintf("[Byakugan] Hooks are already injected.\n");
+		return (0);
+	}
+
+	running = TRUE;
 
 	dprintf("[Byakugan] Beginning data gathering thread... ");
 	if(tenkListener()) {
@@ -185,9 +195,9 @@ DWORD WINAPI tenkBackChannel(LPVOID lpvParam) {
 
 	initializeHeapModel(&heapModel);
 
-#define THREEDHEAPFU_ENABLED //Place this in setup.bat
+#undef THREEDHEAPFU_ENABLED //Place this in setup.bat
 
-#ifdef THREEDHEAPFU_ENABLED
+#if 0 //#ifdef THREEDHEAPFU_ENABLED
 //Create a heap event proxy, play these back out to 3dheapfu
 LPTSTR	lpszProxyPipename = TEXT("\\\\.\\pipe\\tenketsuProxy");
 BOOL	fProxySuccess;
@@ -221,7 +231,7 @@ HANDLE hProxyPipe = CreateFile(lpszProxyPipename,
 			dprintf("[Byakugan] ReadFile failed, or read 0 bytes.\n");
 			continue;
 		}
-#ifdef THREEDHEAPFU_ENABLED
+#if 0 //#ifdef THREEDHEAPFU_ENABLED
 		//dprintf("jc: receieved an event of size %d. Forwarding on to ProxyPipe\n", bytesRead);
 		//WriteFile(hPipe, &freeinfo, sizeof(struct FreeStruct), &bytesWritten, NULL);
 
@@ -243,7 +253,8 @@ HANDLE hProxyPipe = CreateFile(lpszProxyPipename,
 				//dprintf("[T] New Chunk @ 0x%08x\n", aStruct->ret);
 				//dprintf("Heap: 0x%08x\tFlags: 0x%08x\tSize: 0x%08x\n\n", 
 				//		aStruct->heapHandle, aStruct->flags, aStruct->size);
-				heapAllocate(&heapModel, aStruct);
+				if (heapModel.state & MODEL) heapAllocate(&heapModel, aStruct);
+				if (heapModel.state & LOG) logAllocate(&heapModel, aStruct);
 				break;
 
 			case REALLOCATESTRUCT:
@@ -253,13 +264,15 @@ HANDLE hProxyPipe = CreateFile(lpszProxyPipename,
 				//if (rStruct->ret !=  (PVOID) rStruct->memoryPointer)
 				//	dprintf("Replaces chunk @ 0x%08x\n", rStruct->memoryPointer);
 				//dprintf("\n");
-				heapReallocate(&heapModel, rStruct);
+				if (heapModel.state & MODEL) heapReallocate(&heapModel, rStruct);
+				if (heapModel.state & LOG) logReallocate(&heapModel, rStruct);
 				break;
 
 			case FREESTRUCT:
 				//dprintf("[T] Free'd Chunk @ 0x%08x\n", fStruct->memoryPointer);
 				//dprintf("Heap: 0x%08x\tFlags: 0x%08x\n\n", fStruct->heapHandle, fStruct->flags);
-				heapFree(&heapModel, fStruct);
+				if (heapModel.state & MODEL) heapFree(&heapModel, fStruct);
+				if (heapModel.state & LOG) logFree(&heapModel, fStruct);
 				break;
 
 			case CREATESTRUCT:
@@ -267,19 +280,19 @@ HANDLE hProxyPipe = CreateFile(lpszProxyPipename,
 				dprintf("Base: 0x%08x\tReserve: 0x%08x\tFlags: 0x%08x\n",
 						cStruct->base, cStruct->reserve, cStruct->flags);
 				//dprintf("Commit: 0x%08x\tLock: 0x%08x\n\n", cStruct->commit, cStruct->lock);
-				heapCreate(&heapModel, cStruct);
+				if (heapModel.state & MODEL) heapCreate(&heapModel, cStruct);
 				break;
 
 			case DESTROYSTRUCT:
 				dprintf("[T] Heap Destroyed: 0x%08x\n\n", dStruct->heapHandle);
-				heapDestroy(&heapModel, dStruct);
+				if (heapModel.state & MODEL) heapDestroy(&heapModel, dStruct);
 				break;
 			
 			case COALESCESTRUCT:
 				//dprintf("[T] Free Block Consolidation (returned 0x%08x)\n", cfbStruct->ret);
 				//dprintf("Heap: 0x%08x\tArg2: 0x%08x\tArg3: 0x%08x\tArg4: 0x%08x\n\n",
 				//		cfbStruct->heapHandle, cfbStruct->arg2, cfbStruct->arg3, cfbStruct->arg4);
-				heapCoalesce(&heapModel, cfbStruct);
+				if (heapModel.state & MODEL) heapCoalesce(&heapModel, cfbStruct);
 				break;
 
 			default:
@@ -295,7 +308,8 @@ HANDLE hProxyPipe = CreateFile(lpszProxyPipename,
 void tenkHelp() {
 	dprintf(HELPSTRING);
 	dprintf("Tenketsu Commands:\n");
-	dprintf("\t<no command>\t- Load tenketsu heap visualization libraries and hooks\n");
+	dprintf("\tmodel\t- Load tenketsu heap visualization libraries and begin modeling\n");
+	dprintf("\tlog\t- Load tenketsu heap visualization libraries and begin logging\n");
 	dprintf("\tlistHeaps\t- List all currently tracked heaps and their information\n");
 	dprintf("\tlistChunks <heap base>\t- List all chunks associated with a givend heap\n");
 	dprintf("\tvalidate <heap base> - check the chunk chain and find corrupted chunk headers\n");
@@ -388,8 +402,11 @@ void tenkListChunks(PVOID heapHandle) {
 	
 	i = heap->inUseHead;
 	while (i != NULLNODE) {
-		dprintf("\tAddress: 0x%08x\tSize: 0x%08x", CHUNK(i).addr, CHUNK(i).size);
-		dprintf("\tFlags: 0x%08x\t%s\n\n", CHUNK(i).flags, (CHUNK(i).free)?"FREE'D":"IN USE");
+		if (CHUNK(i).inUse) {
+			dprintf("\tAddress: 0x%08x\tSize: 0x%08x", CHUNK(i).addr, CHUNK(i).size);
+			dprintf("\tFlags: 0x%08x\t%s\n\n", CHUNK(i).flags, 
+					(CHUNK(i).free)?"FREE'D":"IN USE");
+		}
 		i = CHUNK(i).nextInUse;
 	}
 

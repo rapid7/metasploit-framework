@@ -18,6 +18,9 @@ int main(int argc, char **argv) {
 	for (i = 0; i < NUMPTRS; i+=2) {
 		free(foo[i]);
 	}
+	free(foo[1]);
+	free(foo[7]);
+	free(foo[3]);
 	__asm {
 		int 3
 	}

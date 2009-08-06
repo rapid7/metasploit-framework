@@ -20,7 +20,7 @@ typedef struct _RTL_HEAP_DEFINITION {
 
 /* FUNCTIONS */
 
-int hookRtlHeap(void);
+int hookRtlHeap(BYTE);
 int tenkListener(void);
 void tenkListHeaps(void);
 void tenkListChunks(PVOID);

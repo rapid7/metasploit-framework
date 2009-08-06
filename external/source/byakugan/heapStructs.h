@@ -5,18 +5,28 @@
 #define	DESTROYSTRUCT			0x4
 #define COALESCESTRUCT			0x5
 
+#define SPACEBETWEEN			0x18 
+
 #define CHUNK(x)				(heap->chunks[x])
+
+#define NEXTADDR(x)				(PVOID)(*((ULONG *)(&(CHUNK(i).addr))) + CHUNK(i).size + SPACEBETWEEN)
+
 #define NULLNODE				0xffffffff
 
+#define MODEL					1
+#define LOG						2
+#define RUNNING					4
+
 // Space between chunks on vista
-#define SPACEBETWEEN			0x18 
 
 // Dont use a direct access list here because looping should
 // be faster for our number of heaps (I think!)
 struct HeapState {
+	BYTE			state;
 	ULONG			numHeaps;
 	ULONG			hPoolListLen;
 	struct HPool	*heaps;
+
 };
 
 struct HPool {
@@ -34,6 +44,16 @@ struct HPool {
 	BOOLEAN				inUse;
 };
 
+struct LookAsideList {
+	DWORD			placeHolder;
+};
+
+struct HeapCache {
+	ULONG			NumBuckets;
+	unsigned __int8	*pBitmap;
+	ULONG			**pBuckets;
+};
+
 struct HeapChunk {
 	PVOID		addr;
 	PVOID		heapHandle;
@@ -41,6 +61,7 @@ struct HeapChunk {
 	ULONG		flags;
 	ULONG		nextBucket;
 	ULONG		nextInUse;
+	ULONG		nextFreeListChunk;
 	BOOLEAN		free;
 	BOOLEAN		inUse;
 };
@@ -99,8 +120,14 @@ struct CoalesceStruct {
 
 void initializeHeapModel(struct HeapState *);
 void heapAllocate(struct HeapState *heapModel, struct AllocateStruct *aStruct);
+void logAllocate(struct HeapState *heapModel, struct AllocateStruct *aStruct);
+
 void heapReallocate(struct HeapState *heapModel, struct ReallocateStruct *aStruct);
+void logReallocate(struct HeapState *heapModel, struct ReallocateStruct *aStruct);
+
 void heapFree(struct HeapState *heapModel, struct FreeStruct *fStruct);
+void logFree(struct HeapState *heapModel, struct FreeStruct *fStruct);
+
 void heapCreate(struct HeapState *heapModel, struct CreateStruct *cStruct);
 void heapDestroy(struct HeapState *heapModel, struct DestroyStruct *dStruct);
 void heapCoalesce(struct HeapState *heapModel, struct CoalesceStruct *cfbStruct);
