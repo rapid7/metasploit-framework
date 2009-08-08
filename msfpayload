@@ -39,7 +39,7 @@ $framework = Msf::Simple::Framework.create(
 
 
 if (ARGV.length <= 1)
-	puts "\n" + "    Usage: #{$0} <payload> [var=val] <S[ummary]|C|P[erl]|[Rub]y|R[aw]|J[avascript]|e[X]ecutable|[V]BA>\n"
+	puts "\n" + "    Usage: #{$0} <payload> [var=val] <[S]ummary|C|[P]erl|Rub[y]|[R]aw|[J]avascript|e[X]ecutable|[V]BA>\n"
 	puts dump_payloads
 	exit
 end
