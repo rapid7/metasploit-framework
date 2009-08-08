@@ -148,7 +148,7 @@ DWORD negotiate_ssl(Remote *remote)
 
 	dprintf("Sending a HTTP GET request to the remote side...");
 	if((ret = SSL_write(remote->ssl, "GET / HTTP/1.0\r\n\r\n", 18)) <= 0) {
-		dprintf("SSL write failed during negotiation with return: %d (%d)", ret, SSL_get_error(ret));
+		dprintf("SSL write failed during negotiation with return: %d (%d)", ret, SSL_get_error(remote->ssl, ret));
 	}
 
 	dprintf("Completed writing the HTTP GET request: %d", ret);

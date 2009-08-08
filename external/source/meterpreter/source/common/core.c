@@ -169,9 +169,11 @@ Packet *packet_create_response(Packet *request)
  */
 VOID packet_destroy(Packet *packet)
 {
-	if (packet->payload)
+	if (packet->payload) {
+		memset(packet->payload, 0, packet->payloadLength);
 		free(packet->payload);
-
+	}
+	memset(packet, 0, sizeof(Packet));
 	free(packet);
 }
 
