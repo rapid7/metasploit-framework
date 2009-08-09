@@ -58,6 +58,18 @@ class Metasploit3 < Msf::Auxiliary
 					)
 					wmap_report(rep_id,'VULNERABILITY','DIR_LISTING',"#{tpath}","Directory #{tpath} discloses its contents.")
 				end
+
+				if res.to_s.include? "[To Parent Directory]</A>" and res.to_s.include? "#{tpath}</H1><hr>"
+	 				print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
+					
+					rep_id = wmap_base_report_id(
+						wmap_target_host,
+						wmap_target_port,
+						wmap_target_ssl
+					)
+					wmap_report(rep_id,'VULNERABILITY','DIR_LISTING',"#{tpath}","Directory #{tpath} discloses its contents.")
+				end
+
 			else
 				print_status("NOT Vulnerable to directoy listing #{wmap_base_url}#{tpath}") 
 			end
