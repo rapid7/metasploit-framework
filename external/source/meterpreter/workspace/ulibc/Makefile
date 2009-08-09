@@ -45,19 +45,24 @@ OSVPATH= ../../source/ulibc/arch/$(OS)
 ARCHVPATH= $(OSVPATH)/$(ARCH)
 VPATH=$(BASEVPATH):$(OSVPATH):$(ARCHVPATH)
 
+MACHINE_LINK=../../source/ulibc/machine
+
 CFLAGS+= -I$(ARCHVPATH)
 CPPFLAGS+= -I$(ARCHVPATH)
 
 all: libuc.so libuc.a
 
-libuc.so: $(library_headers) $(libc_objects)
+$(MACHINE_LINK):
+	ln -s $(ARCHVPATH) $(MACHINE_LINK)
+
+libuc.so: $(MACHINE_LINK) $(library_headers) $(libc_objects) 
 	$(LD) -Bshareable -o $@ $(libc_objects)
 
-libuc.a: $(libc_objects)
+libuc.a: $(MACHINE_LINK) $(libc_objects) 
 	$(AR) rc $@ $(libc_objects) 
 
 clean:
-	$(RM) -f *.o *.a *.so
+	$(RM) -f *.o *.a *.so $(MACHINE_LINK)	
 
 .PHONY: clean
 
