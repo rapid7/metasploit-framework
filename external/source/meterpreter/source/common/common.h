@@ -9,8 +9,12 @@
 	#include <winsock2.h>
 	#include <windows.h>
 #endif
+#include "openssl/ssl.h"
+#ifdef _UNIX
+#include "compat_types.h"
+#endif
 
-#include <openssl/ssl.h>
+
 
 #include "linkage.h"
 
@@ -32,6 +36,7 @@
 
 
 
+#ifdef _WIN32
 static void real_dprintf(char *format, ...) {
 	va_list args;
 	char buffer[1024];
@@ -40,6 +45,10 @@ static void real_dprintf(char *format, ...) {
 	strcat_s(buffer, sizeof(buffer), "\r\n");
 	OutputDebugString(buffer);
 }
+#else
+static void real_dprintf(char *format, ...) {
+}
+#endif
 
 	
 

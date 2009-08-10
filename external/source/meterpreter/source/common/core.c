@@ -649,6 +649,9 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 	Tlv requestId;
 	DWORD res;
 	DWORD idx;
+#ifdef _UNIX
+	int local_error = -1;
+#endif	
 
 	// If the packet does not already have a request identifier, create
 	// one for it
@@ -780,7 +783,9 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 	BOOL inHeader = TRUE;
 	PUCHAR payload = NULL;
 	ULONG payloadLength;
-
+#ifdef _UNIX
+	int local_error = -1;
+#endif	
 	do
 	{
 		// Read the packet length

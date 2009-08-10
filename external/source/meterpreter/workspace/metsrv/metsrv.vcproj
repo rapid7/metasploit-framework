@@ -80,7 +80,7 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\common\Debug"
-				ModuleDefinitionFile="..\..\source\server\metsrv.def"
+				ModuleDefinitionFile="..\..\source\server\win\metsrv.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/metsrv.pdb"
 				RandomizedBaseAddress="1"
@@ -181,9 +181,9 @@
 				OutputFile=".\Release/metsrv.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\common\Release; ..\..\source\openssl\lib"
+				AdditionalLibraryDirectories="..\common\Release; ..\..\source\openssl\lib\win"
 				GenerateManifest="false"
-				ModuleDefinitionFile="..\..\source\server\metsrv.def"
+				ModuleDefinitionFile="..\..\source\server\win\metsrv.def"
 				GenerateDebugInformation="false"
 				GenerateMapFile="true"
 				MapFileName=".\Release/metsrv.map"
@@ -226,7 +226,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="..\..\source\server\libloader.c"
+				RelativePath="..\..\source\server\win\libloader.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -268,11 +268,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\source\server\metsrv.def"
+				RelativePath="..\..\source\server\win\metsrv.def"
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\server\remote_dispatch.c"
+				RelativePath="..\..\source\server\win\remote_dispatch.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"

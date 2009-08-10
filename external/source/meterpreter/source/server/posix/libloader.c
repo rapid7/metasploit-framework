@@ -237,7 +237,7 @@ check_header(unsigned char **input_buffer, int *input_length)
 #include "metsrv_main.h"
 #include "libcrypto_so.h"
 #include "libssl_so.h"
-#include "libcommon_so.h"
+#include "libuc_so.h"
 
 typedef struct library_object {
 	void *lo_ptr;
@@ -255,7 +255,7 @@ typedef struct library_info {
 lobj_t metsrv_main_obj;
 lobj_t libcrypto_so_obj;
 lobj_t libssl_so_obj;
-lobj_t libcommon_so_obj;
+lobj_t libuc_so_obj;
 
 /*
  * The user must make sure that the list of library names matches those
@@ -265,19 +265,19 @@ static linfo_t startlibs[] = {
 	{metsrv_main_size, metsrv_main_length, "meta server", metsrv_main, NULL, &metsrv_main_obj},
 	{libcrypto_so_size, libcrypto_so_length, "libcrypto.so", libcrypto_so, NULL, &libcrypto_so_obj},
 	{libssl_so_size, libssl_so_length, "libssl.so", libssl_so, NULL, &libssl_so_obj},
-	{libcommon_so_size, libcommon_so_length, "libc.so", libcommon_so, NULL, &libcommon_so_obj},
-	{libcommon_so_size, libcommon_so_length, "libcommon.so", libcommon_so, NULL, &libcommon_so_obj},
+	{libuc_so_size, libuc_so_length, "libc.so", libuc_so, NULL, &libuc_so_obj},
+	{libuc_so_size, libuc_so_length, "libuc.so", libuc_so, NULL, &libuc_so_obj},
 	
-	{libcommon_so_size, libcommon_so_length, "libdl.so", libcommon_so, NULL, &libcommon_so_obj},
-	{libcommon_so_size, libcommon_so_length, "libz.so",  libcommon_so, NULL, &libcommon_so_obj},
-	{libcommon_so_size, libcommon_so_length, "libgssapi_krb5.so", libcommon_so, NULL, &libcommon_so_obj},
-	{libcommon_so_size, libcommon_so_length, "libkrb5.so", libcommon_so, NULL, &libcommon_so_obj}, 
-	{libcommon_so_size, libcommon_so_length, "libcom_err.so", libcommon_so, NULL, &libcommon_so_obj},
-	{libcommon_so_size, libcommon_so_length, "libk5crypto.so", libcommon_so, NULL, &libcommon_so_obj},
-	{libcommon_so_size, libcommon_so_length, "libresolv.so", libcommon_so, NULL, &libcommon_so_obj},
-	{libcommon_so_size, libcommon_so_length, "libkeyutils.so", libcommon_so, NULL, &libcommon_so_obj},
-	{libcommon_so_size, libcommon_so_length, "libselinux.so", libcommon_so, NULL, &libcommon_so_obj},
-	{libcommon_so_size, libcommon_so_length, "libsepol.so", libcommon_so, NULL, &libcommon_so_obj},
+	{libuc_so_size, libuc_so_length, "libdl.so", libuc_so, NULL, &libuc_so_obj},
+	{libuc_so_size, libuc_so_length, "libz.so",  libuc_so, NULL, &libuc_so_obj},
+	{libuc_so_size, libuc_so_length, "libgssapi_krb5.so", libuc_so, NULL, &libuc_so_obj},
+	{libuc_so_size, libuc_so_length, "libkrb5.so", libuc_so, NULL, &libuc_so_obj}, 
+	{libuc_so_size, libuc_so_length, "libcom_err.so", libuc_so, NULL, &libuc_so_obj},
+	{libuc_so_size, libuc_so_length, "libk5crypto.so", libuc_so, NULL, &libuc_so_obj},
+	{libuc_so_size, libuc_so_length, "libresolv.so", libuc_so, NULL, &libuc_so_obj},
+	{libuc_so_size, libuc_so_length, "libkeyutils.so", libuc_so, NULL, &libuc_so_obj},
+	{libuc_so_size, libuc_so_length, "libselinux.so", libuc_so, NULL, &libuc_so_obj},
+	{libuc_so_size, libuc_so_length, "libsepol.so", libuc_so, NULL, &libuc_so_obj},
 	{0, 0, NULL, NULL, NULL, NULL},
 };
 

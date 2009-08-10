@@ -219,7 +219,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\source\common\base_dispatch.c"
+				RelativePath="..\..\source\common\arch\win\i386\base_dispatch.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -239,7 +239,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\source\common\buffer.c"
+				RelativePath="..\..\source\common\arch\win\buffer.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -341,7 +341,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\source\common\scheduler.c"
+				RelativePath="..\..\source\common\arch\win\scheduler.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"

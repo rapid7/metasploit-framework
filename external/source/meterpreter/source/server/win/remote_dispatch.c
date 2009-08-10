@@ -3,40 +3,6 @@
 // see ReflectiveLoader.c...
 extern HINSTANCE hAppInstance;
 
-/**************************
- * Core dispatch routines *
- **************************/
-DWORD remote_request_core_console_write(Remote *remote, Packet *packet)
-{
-	return ERROR_SUCCESS;
-}
-
-DWORD remote_response_core_console_write(Remote *remote, Packet *packet)
-{
-	return ERROR_SUCCESS;
-}
-
-/****************************
- * Custom dispatch routines *
- ****************************/
-
-/*
- * core_loadlib
- * ------------
- *
- * Load a library into the address space of the executing process.
- *
- * TLVs:
- *
- * req: TLV_TYPE_LIBRARY_PATH -- The path of the library to load.
- * req: TLV_TYPE_FLAGS        -- Library loading flags.
- * opt: TLV_TYPE_TARGET_PATH  -- The contents of the library if uploading.
- * opt: TLV_TYPE_DATA         -- The contents of the library if uploading.
- *
- * TODO:
- *
- *   - Implement in-memory library loading
- */
 DWORD request_core_loadlib(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
@@ -151,46 +117,4 @@ DWORD request_core_loadlib(Remote *remote, Packet *packet)
 
 	dprintf("Returning back to cmd handler...");
 	return res;
-}
-
-// Dispatch table
-Command custom_commands[] = 
-{
-	{
-	  "core_loadlib", 
-	  { request_core_loadlib,              { 0 }, 0 },
-	  { EMPTY_DISPATCH_HANDLER                      },
-	},
-
-	// Terminator
-	{ NULL,
-	  { EMPTY_DISPATCH_HANDLER                      },
-	  { EMPTY_DISPATCH_HANDLER                      },
-	},
-};
-
-/*
- * Registers custom command handlers
- */
-VOID register_dispatch_routines()
-{
-	DWORD index;
-
-	for (index = 0;
-	     custom_commands[index].method;
-	     index++)
-		command_register(&custom_commands[index]);
-}
-
-/*
- * Deregisters previously registered custom commands
- */
-VOID deregister_dispatch_routines()
-{
-	DWORD index;
-
-	for (index = 0;
-	     custom_commands[index].method;
-	     index++)
-		command_deregister(&custom_commands[index]);
 }

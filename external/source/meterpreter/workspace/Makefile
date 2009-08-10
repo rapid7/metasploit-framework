@@ -1,4 +1,4 @@
-SUBDIRS = common metsrv ext_posix_sample
+SUBDIRS = ulibc common metsrv ext_posix_sample
 
 subdirs:
 	for dir in $(SUBDIRS); do \

@@ -22,6 +22,18 @@ extern DWORD remote_response_core_console_write(Remote *remote, Packet *packet);
 extern DWORD remote_response_core_channel_open(Remote *remote, Packet *packet);
 extern DWORD remote_response_core_channel_close(Remote *remote, Packet *packet);
 
+DWORD remote_request_core_console_write(Remote *remote, Packet *packet)
+{
+	return ERROR_SUCCESS;
+}
+
+DWORD remote_response_core_console_write(Remote *remote, Packet *packet)
+{
+	return ERROR_SUCCESS;
+}
+
+
+
 /*
  * Base RPC dispatch table
  */

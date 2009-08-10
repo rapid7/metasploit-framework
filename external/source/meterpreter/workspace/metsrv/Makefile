@@ -1,11 +1,11 @@
- BASEVPATH=../../source/server:../../source/common/crypto:../../source/common/arch/posix:../../source/server/zlib:../../source/server/posix:../../source/server/elf
+BASEVPATH=../../source/server:../../source/common/crypto:../../source/common/arch/posix:../../source/server/zlib:../../source/server/posix:../../source/server/elf
 SRCPATH=../../source/server
 COMMONPATH=../../source/common
 ELFPATH=../../source/server/elf
 SSLPATH=../../source/openssl/include
-MALLOC_PATH=../../source/common/malloc
+ULIBCPATH=../../source/ulibc
 XOR_PATH=../../source/common/crypto
-CFLAGS= -D_UNIX -I$(SRCPATH) -DPIC -I$(SSLPATH) -I$(COMMONPATH) -I$(ELFPATH) -I.
+CFLAGS= -D_UNIX -I$(SRCPATH) -DPIC -I$(SSLPATH) -I$(COMMONPATH) -I$(ULIBCPATH) -I$(ELFPATH) -I.
 CFLAGS+= -fPIC  -g -nostdinc
 #CFLAGS+= -Os
 CPPFLAGS= -I$(COMMONPATH) -DPIC 
@@ -25,9 +25,12 @@ RARCH=$(ARCH)
 
 ifeq ($(ARCH), i686)
 	CFLAGS+= -D__i386__
-	RARCH=i386	
+	RARCH=i386
 endif
 
+ifeq ($(OSNAME), Linux)
+	OSNAME= linux
+endif
 
 ifeq ($(OSNAME), FreeBSD)
 	OS= bsd
@@ -53,7 +56,7 @@ objects = metsrv.o libloader.o zlib.o rtld_late.o rtld_malloc.o rtld_lock.o \
 server_objects = server_setup.o remote_dispatch_common.o remote_dispatch.o \
 	metsrv_main.o metsrv_standalone.o 
 other_objects = metsrv_test.o $(CRT1) crtn.o
-library_headers = metsrv_main.h libcrypto_so.h libssl_so.h libcommon_so.h
+library_headers = metsrv_main.h libcrypto_so.h libssl_so.h libuc_so.h
 
 all:  metsrv.a  metsrv.so metsrv_test metsrv_main 
 # metsrv_standalone
@@ -65,12 +68,13 @@ metsrv_main.h: metsrv_main
 	../../tools/so2h.pl metsrv_main metsrv_main
 
 libcrypto_so.h: ../../source/openssl/lib/$(OS)/$(RARCH)/libcrypto.so.gz
+	@echo 	../../tools/so2h.pl ../../source/openssl/lib/$(OS)/$(RARCH)/libcrypto.so.gz libcrypto_so
 	../../tools/so2h.pl ../../source/openssl/lib/$(OS)/$(RARCH)/libcrypto.so.gz libcrypto_so
 
 libssl_so.h: ../../source/openssl/lib/$(OS)/$(RARCH)/libssl.so.gz 
 	../../tools/so2h.pl ../../source/openssl/lib/$(OS)/$(RARCH)/libssl.so.gz  libssl_so
-libcommon_so.h: ../common/libcommon.so
-	../../tools/so2h.pl ../common/libcommon.so  libcommon_so
+libuc_so.h: ../ulibc/libuc.so
+	../../tools/so2h.pl ../ulibc/libuc.so  libuc_so
 
 metsrv.a: $(library_headers) $(server_objects)
 	$(AR) rc $@ $(server_objects)
