@@ -296,7 +296,7 @@ class Metasploit3 < Msf::Auxiliary
 				src_ip = Rex::Text.rand_text(4).unpack("C4").join(".")
 			end
 			
-			n = Racket.new
+			n = Racket::Racket.new
 			n.l3 = Racket::IPv4.new
 			n.l3.src_ip = src_ip
 			n.l3.dst_ip = target
