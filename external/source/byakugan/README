@@ -113,7 +113,7 @@ D. Usage:
 		f. Use !jutsu findReturn to find valid return addresses
 			1. hunt will use all knowledge about controlled registers and buffer offsets
 			   to find all possible usable return addresses
-		g. Use !jutsu searchOpcode to fine opcodes in executable memory
+		g. Use !jutsu searchOpcode to find opcodes in executable memory
 			1. delimit instructions with pipes - example:
 
 			0:000> !jutsu searchOpcode  pop ecx | pop ecx | ret
@@ -124,7 +124,28 @@ D. Usage:
 			[J] Machine Code:
 			> 59 59 c3
 			[J] Opcode sequence found at: 0x004012f9
-		h. use !jutsu trackVal to find and primitive values in memory
+
+		h. Use !jutsu searchVtptr to find ptr -> ptr - x -> ptr -> opcodes
+			Use this just like searchOpcode, except with the second ptr offset
+			as the first argument:
+
+			if your crash looks like:
+
+			mov eax, [ebx]
+			push ebx
+			call [eax+4]
+
+			Where you control ebx, and esp+0x14 points at a buffer you own,
+			you would use:
+
+			!jutsu searchVtptr 4  add esp, 0x14 | ret
+
+			0x75cb4b36 -> 0x10450107 -> 0x100ffc08 -> sequence
+			0x6bb322a6 -> 0x1045891b -> 0x100ffc08 -> sequence
+
+			You may then use 0x75cb4b36 or 0x6bb322a6 for your vtable overwrite
+
+		i. use !jutsu trackVal to find and primitive values in memory
 
 	3. Mushishi (Anti-debugging detection / removal)
 		a. Not much in here now, but growing
