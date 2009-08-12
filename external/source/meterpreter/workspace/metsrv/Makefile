@@ -90,7 +90,9 @@ metsrv_main: metsrv.o libserver.a ../common/libsupport.a $(CRT1) crtn.o
 	-lcrypto -lssl -L../common -lcommon
 else
 metsrv_main: metsrv.o libserver.a ../common/libsupport.a 
-	$(CC) -pie -o $@ libserver.a  ../common/libsupport.a  -lcrypto -lssl
+#	$(CC) -pie -o $@ libserver.a  ../common/libsupport.a  -lcrypto -lssl
+	$(CC) -o $@ libserver.a  ../common/libsupport.a  -lcrypto -lssl \
+	-export-dynamic
 endif
 
 

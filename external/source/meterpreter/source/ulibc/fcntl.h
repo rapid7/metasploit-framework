@@ -87,8 +87,9 @@ typedef	__pid_t		pid_t;
 #define	FREAD		0x0001
 #define	FWRITE		0x0002
 #endif
-#define	O_NONBLOCK	0x0004		/* no delay */
-#define	O_APPEND	0x0008		/* set append mode */
+
+
+
 #if __BSD_VISIBLE
 #define	O_SHLOCK	0x0010		/* open with shared file lock */
 #define	O_EXLOCK	0x0020		/* open with exclusive file lock */
@@ -99,15 +100,28 @@ typedef	__pid_t		pid_t;
 #if __BSD_VISIBLE
 #define	O_NOFOLLOW	0x0100		/* don't follow symlinks */
 #endif
-#define	O_CREAT		0x0200		/* create if nonexistent */
-#define	O_TRUNC		0x0400		/* truncate to zero length */
-#define	O_EXCL		0x0800		/* error if already exists */
+
+#ifdef __linux__
+ #define O_CREAT    0100	/* not fcntl */
+ #define O_EXCL	    0200	/* not fcntl */
+ #define O_NOCTTY   0400	/* not fcntl */
+ #define O_TRUNC    01000	/* not fcntl */
+ #define O_APPEND   02000
+ #define O_NONBLOCK 04000
+#else
+ #define O_APPEND	0x0008		/* set append mode */
+ #define O_CREAT	0x0200		/* create if nonexistent */
+ #define O_TRUNC	0x0400		/* truncate to zero length */
+ #define O_EXCL		0x0800		/* error if already exists */
+ #define O_NONBLOCK	0x0004		/* no delay */
+ /* Defined by POSIX 1003.1; BSD default, but must be distinct from O_RDONLY. */
+ #define	O_NOCTTY	0x8000		/* don't assign controlling terminal */
+
+#endif
+
 #ifdef _KERNEL
 #define	FHASLOCK	0x4000		/* descriptor holds advisory lock */
 #endif
-
-/* Defined by POSIX 1003.1; BSD default, but must be distinct from O_RDONLY. */
-#define	O_NOCTTY	0x8000		/* don't assign controlling terminal */
 
 #if __BSD_VISIBLE
 /* Attempt to bypass buffer cache */

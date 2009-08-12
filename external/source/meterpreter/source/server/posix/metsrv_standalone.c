@@ -38,7 +38,9 @@ _dlopenbuf(const char *name, char *buffer, size_t length)
 	} else
 		file = name;
 
-	return dlopen(file, 0444);
+	dl = dlopen(file, RTLD_GLOBAL|RTLD_LAZY);
+	file = dlerror();
+	return dl;
 }
 
 int

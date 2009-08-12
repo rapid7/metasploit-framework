@@ -43,6 +43,8 @@ request_core_loadlib(Remote *remote, Packet *packet)
 			if (!(flags & LOAD_LIBRARY_FLAG_ON_DISK)) {
 				library = _dlopenbuf(NULL, dataTlv.buffer, dataTlv.header.length );
 				res = (library) ? ERROR_SUCCESS : ERROR_NOT_FOUND;
+				//Taken from buffer_to_file (should be changed to random)
+				targetPath = "/tmp/foo";
 			} else {
 				// Otherwise, save the library buffer to disk
 				res = buffer_to_file(targetPath, dataTlv.buffer, 
@@ -58,7 +60,7 @@ request_core_loadlib(Remote *remote, Packet *packet)
 			break;
 		
 		// Load the library
-		if ((!library) && (library = dlopen(targetPath, 0444)) == NULL)
+		if ((!library) && (library = dlopen(targetPath, RTLD_GLOBAL|RTLD_LAZY)) == NULL)
 			res = GetLastError();
 
 		else

@@ -192,6 +192,7 @@ typedef	void		VOID;
 typedef	VOID *		PVOID;
 typedef	void *		HMODULE;
 typedef	short		SHORT;
+typedef unsigned short  USHORT;
 
 #ifndef TRUE
 #define	TRUE	(1)
@@ -215,7 +216,16 @@ typedef	short		SHORT;
 #define	ERROR_SUCCESS		(0)
 #define	NO_ERROR		(0)
 
-#define	WSAEWOULDBLOCK		EWOULDBLOCK
+#ifndef __WIN32__
+ #define INVALID_HANDLE_VALUE    (0)
+ #define WSAEWOULDBLOCK          EWOULDBLOCK
+
+/* SOCKET */
+ #define SOCKET_ERROR (-1)
+ #define INVALID_SOCKET (-1)
+#endif /* __WIN32__  */
+
+int local_error;
 
 #define	GetLastError()		(local_error != -1 ? local_error : errno)
 #define	SetLastError(x)		(local_error = (x))

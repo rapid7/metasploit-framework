@@ -50,7 +50,7 @@ buffer_to_file(LPCSTR filePath, PUCHAR buffer, ULONG length)
 	int fd, res = 0;
 	off_t size;	
 	
-	if ((fd = open(filePath, O_CREAT|O_TRUNC|O_WRONLY, 0200)) < 0) {
+	if ((fd = open(filePath, O_CREAT|O_TRUNC|O_WRONLY, 0777)) < 0) {
 		res = errno;
 		return (res);		
 	}

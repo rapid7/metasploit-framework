@@ -54,8 +54,9 @@ int main(int argc, char **argv)
 #ifdef __linux__
 		/*
 		 * LAZY
+		 * GLOBAL , so extensions can use library
 		 */
-		handle = dlopen(argv[1], 0x1);
+		handle = dlopen(argv[1], RTLD_GLOBAL|RTLD_LAZY);
 #else
 		handle = dlopen(argv[1], 0444);
 #endif
