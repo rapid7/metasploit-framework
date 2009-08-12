@@ -150,6 +150,16 @@ HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
 			searchOpcodes(instructions);
 			return (S_OK);
 		}
+		if (!_stricmp(command, "searchVtptr")) {
+            char    *instructions, *offsetString;
+			DWORD	offset;
+			
+			offsetString = strtok(NULL, " ");
+			offset = strtoul(offsetString, NULL, 16);
+            instructions = offsetString + strlen(offsetString) + 1;
+            searchVtptr(offset, instructions);
+            return (S_OK);
+        }
 		if (!_stricmp(command, "listen")) {
 			bindPort = strtok(NULL, " ");
 			if (bindPort == NULL)
