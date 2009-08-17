@@ -78,7 +78,8 @@ class Module < Base
 	
 	def compatible_payloads(token, mname)
 		authenticate(token)
-		m = @framework.exploits[mname]
+		#m = @framework.exploits[mname]
+		m = _find_module('exploit',mname)
 		if(not m)
 			raise ::XMLRPC::FaultException.new(404, "unknown module")
 		end

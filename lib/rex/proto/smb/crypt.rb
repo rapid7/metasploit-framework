@@ -75,6 +75,17 @@ begin
 		res
 	end
 
+	def self.lmchal2ntchal(pass, ntlm, challenge)
+		res = nil
+		Rex::Text.permute_case( pass.upcase ).each do |word|
+			if(ntlm_md4(word,challenge) == ntlm)
+				res = word
+				break
+			end
+		end
+		res
+	end
+
 rescue LoadError
 end
 
