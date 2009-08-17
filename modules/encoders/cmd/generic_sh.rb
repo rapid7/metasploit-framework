@@ -33,6 +33,11 @@ class Metasploit3 < Msf::Encoder
 	#
 	def encode_block(state, buf)
 		
+		# Skip encoding for empty badchars
+		if(state.badchars.length == 0)
+			return buf
+		end
+		
 		if (state.badchars.include?("-"))
 			# Then neither of the others will work.  Get rid of spaces and hope
 			# for the best.  This obviously won't work if the command already
