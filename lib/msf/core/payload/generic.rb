@@ -231,6 +231,7 @@ protected
 				raise NoCompatiblePayloadError, "Could not locate a compatible payload for #{actual_platform.names.join("/")}/#{actual_arch}"
 			else
 				dlog("Selected payload #{actual_payload.refname} from generic payload #{refname}", 'core', LEV_2)
+				print_status("Selected payload #{actual_payload.refname} from generic payload #{refname}")
 				# Share our datastore with the actual payload so that it has the
 				# appropriate values to substitute ad so on.
 				self.actual_payload.share_datastore(self.datastore)
