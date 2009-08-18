@@ -181,7 +181,6 @@ module PassiveX
 				OptAddress.new('PXHOST', [ true, "The local HTTP listener hostname" ]),
 				OptPort.new('PXPORT', [ true, "The local HTTP listener port", 8080 ]),
 				OptString.new('PXURI', [ false, "The URI root for requests", "/" + Rex::Text.rand_text_alphanumeric(32) ]),
-				OptPath.new('PXAXDLL', [ true, "ActiveX DLL to inject", File.join(Msf::Config.install_root, "data", "passivex", "passivex.dll") ]),
 				OptString.new('PXAXCLSID', [ true, "ActiveX CLSID", "B3AC7307-FEAE-4e43-B2D6-161E68ABA838" ]),
 				OptString.new('PXAXVER', [ true, "ActiveX DLL Version", "-1,-1,-1,-1" ]),
 			], Msf::Handler::PassiveX)
@@ -190,6 +189,10 @@ module PassiveX
 		self.sid_pool = 0
 		self.session_channels = Hash.new
 		self.handler_ref = PxRef.new
+	end
+
+	def dll_path
+		File.join(Msf::Config.install_root, "data", "passivex", "passivex.dll")
 	end
 
 	#
@@ -374,7 +377,7 @@ if (marker == false) {
 				resp['Content-Type'] = 'application/octet-stream'
 				resp.body = ''
 				
-				File.open(datastore['PXAXDLL'], "rb") { |f|
+				File.open(dll_path, "rb") { |f|
 					resp.body = f.read
 				}
 				
