@@ -160,12 +160,12 @@ module Shell
 		# Substitute colors
 		new_prompt.gsub!(/%u/, colorize('underline'))
 		new_prompt.gsub!(/%b/, colorize('bold'))
+		new_prompt.gsub!(/%cya/, colorize('cyan'))
 		new_prompt.gsub!(/%c/, colorize('clear'))
 		new_prompt.gsub!(/%red/, colorize('red'))
 		new_prompt.gsub!(/%grn/, colorize('green'))
 		new_prompt.gsub!(/%blu/, colorize('blue'))
 		new_prompt.gsub!(/%yel/, colorize('yellow'))
-		new_prompt.gsub!(/%cya/, colorize('cyan'))
 		new_prompt.gsub!(/%whi/, colorize('white'))
 		new_prompt.gsub!(/%mag/, colorize('magenta'))
 		new_prompt.gsub!(/%blk/, colorize('black'))
