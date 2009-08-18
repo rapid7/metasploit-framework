@@ -145,6 +145,28 @@ class Module
 	end
 
 	#
+	# Overwrite the Subscriber print_line to do time stamps
+	#
+	
+	def print_prefix
+		if(
+			datastore['TimestampOutput'] =~ /^(t|y|1)/i or 
+			framework.datastore['TimestampOutput'] =~ /^(t|y|1)/i
+		)
+			return "[#{Time.now.strftime("%Y.%m.%d-%H:%M:%S")}] "
+		end
+		""
+	end
+	
+	def print_status(msg='')
+		print_line(print_prefix + "[*] " + msg)
+	end
+	
+	def print_error(msg='')
+		print_line(print_prefix + "[-] " + msg)
+	end
+		
+	#
 	# Returns the module's framework full reference name.  This is the
 	# short name that end-users work with (refname) plus the type
 	# of module prepended.  Ex:
@@ -748,6 +770,7 @@ protected
 	def merge_info_evasion_options(info, val)
 		merge_info_options(info, val, false, true)
 	end
+
 	
 	attr_accessor :module_info # :nodoc:
 	attr_writer   :author, :arch, :platform, :references, :datastore, :options # :nodoc:
