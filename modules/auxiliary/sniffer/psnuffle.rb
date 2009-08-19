@@ -118,7 +118,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			true
 		end
-		close_pcap()
+		close_pcap
 		print_status("Finished sniffing")
 	end
 end 
@@ -145,8 +145,27 @@ class BaseProtocolParser
 	def register_sigs
 		self.sigs = {}
 	end
-
-	def find_session(sessionid, host)
+	
+	#
+	# Glue methods to bridge parsers to the main module class
+	#
+	def print_status(msg)
+		self.module.print_status(msg)
+	end
+	
+	def print_error(msg)
+		self.module.print_error(msg)
+	end
+	
+	def report_auth_info(*s)
+		self.module.report_auth_info(*s)
+	end
+	
+	def report_service(*s)
+		self.module.report_service(*s)
+	end
+		
+	def find_session(sessionid)
 		sessions.each_key do |ses|
 			# Check for cleanup abilities... kills performance in large environments maybe
 			if ((sessions[ses][:mtime]-sessions[ses][:ctime])>300)		#When longer than 5 minutes no packet was related to the session, delete it
@@ -160,11 +179,34 @@ class BaseProtocolParser
 			# Refresh the timestamp
 			sessions[sessionid][:mtime] = Time.now
 		else
-			# Create it and add a creation time
-			sessions[sessionid]={:host => host, :session => sessionid, :ctime => Time.now, :mtime => Time.now}
+			# Create a new session entry along with the host/port from the id
+			if (sessionid =~ /^([^:]+):([^-]+)-/s)
+				sessions[sessionid] = {
+					:host      => $1, 
+					:targ_host => $1, 
+					:port      => $2, 
+					:targ_port => $2, 
+					:session   => sessionid, 
+					:ctime     => Time.now, 
+					:mtime     => Time.now
+				}
+			end
 		end
 		
 		return sessions[sessionid]
-	end	
+	end
+	
+	def get_session_src(pkt)	
+		return "#{pkt[:ip].dst_ip}:#{pkt[:tcp].dst_port}-#{pkt[:ip].src_ip}:#{pkt[:tcp].src_port}" if pkt[:tcp]
+		return "#{pkt[:ip].dst_ip}:#{pkt[:udp].dst_port}-#{pkt[:ip].src_ip}:#{pkt[:udp].src_port}" if pkt[:udp]	
+		return "#{pkt[:ip].dst_ip}:0-#{pkt[:ip].src_ip}:0"		
+	end
+	
+	def get_session_dst(pkt)	
+		return "#{pkt[:ip].src_ip}:#{pkt[:tcp].src_port}-#{pkt[:ip].dst_ip}:#{pkt[:tcp].dst_port}" if pkt[:tcp]
+		return "#{pkt[:ip].src_ip}:#{pkt[:udp].src_port}-#{pkt[:ip].dst_ip}:#{pkt[:udp].dst_port}" if pkt[:udp]	
+		return "#{pkt[:ip].src_ip}:0-#{pkt[:ip].dst_ip}:0"		
+	end
+
 end
 
