@@ -4,10 +4,10 @@ set DBGSDK_INC_PATH=C:\windbg\sdk\inc
 set DBGSDK_LIB_PATH=C:\windbg\sdk\lib
 set DBGLIB_LIB_PATH=C:\windbg\sdk\lib
 
-#build byakugan
+REM build byakugan
 build -cZMg
 
-#build injectsu
+REM build injectsu
  cd injectsu\
  build -cZMg
  cd ..
