@@ -297,7 +297,7 @@ DWORD readFileIntoBuf(char *path, DWORD size, char **output) {
     if((inputFile = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                             FILE_ATTRIBUTE_NORMAL, NULL)) == INVALID_HANDLE_VALUE) {
         dprintf("[S] Unable to open file: %s\n", path);
-        return (-1);
+        return (0);
     }
 	if (size == 0)
 		size = GetFileSize(inputFile, NULL) - 1;

@@ -194,7 +194,10 @@ HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
 				dprintf("[Byakugan] This command requires a buffer type, name, (sometimes) value, and size\n");
 				return (S_OK);
 			}
-			identBufJutsu(bufType, bufName, bufPatt, strtoul(bufSize, NULL, 10));
+			if (bufSize == NULL)
+				identBufJutsu(bufType, bufName, bufPatt, 0);
+			else
+				identBufJutsu(bufType, bufName, bufPatt, strtoul(bufSize, NULL, 10));
 			return (S_OK);
 		}
 		if (!_stricmp(command, "hunt")) {

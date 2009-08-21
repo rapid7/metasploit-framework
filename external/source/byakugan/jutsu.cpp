@@ -533,6 +533,7 @@ void identBufJutsu(char *inputType, char *bufName, char *bufPatt, DWORD size) {
 		readSize = readFileIntoBuf(bufPatt, size, &(newTrackedBuf->bufPatt));
 		if ((size && readSize != size) || readSize == 0) {
 			dprintf("[J] Unable to read %d bytes from %s\n", size, bufName);
+			dprintf("\nThis command requires a buffer type, name, (sometimes) value, and size - maybe you forgot one?\n");
 			return;
 		}
 		size = (size ? size : readSize);
