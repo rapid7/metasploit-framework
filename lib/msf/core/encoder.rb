@@ -549,7 +549,7 @@ protected
 	# Returns the list of bad keys associated with this encoder.
 	#
 	def find_bad_keys(buf, badchars)
-		return [ {}, {}, {}, {} ]
+		return Array.new( decoder_key_size, {} )
 	end
 
 	#

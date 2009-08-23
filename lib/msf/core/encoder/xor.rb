@@ -11,14 +11,21 @@ class Msf::Encoder::Xor < Msf::Encoder
 	# Encodes a block using the XOR encoder from the Rex library.
 	#
 	def encode_block(state, block)
-		Rex::Encoding::Xor::Dword.encode(block, [ state.key ].pack(state.decoder_key_pack))[0]
+		encoder = case state.decoder_key_size
+			when Rex::Encoding::Xor::Qword.keysize then Rex::Encoding::Xor::Qword
+			when Rex::Encoding::Xor::Dword.keysize then	Rex::Encoding::Xor::Dword
+			when Rex::Encoding::Xor::Word.keysize then Rex::Encoding::Xor::Word
+			when Rex::Encoding::Xor::Byte.keysize then Rex::Encoding::Xor::Byte
+			else Rex::Encoding::Xor::Dword
+		end
+		encoder.encode(block, [ state.key ].pack(state.decoder_key_pack))[0]
 	end
 
 	#
 	# Finds keys that are incompatible with the supplied bad character list.
 	#
 	def find_bad_keys(buf, badchars)
-		bad_keys = [ {}, {}, {}, {} ]
+		bad_keys = Array.new( decoder_key_size, {} )
 		byte_idx = 0
 
 		# Scan through all the badchars and build out the bad_keys array

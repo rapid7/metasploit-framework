@@ -27,19 +27,32 @@ module Msf::Payload::Windows
 	# payloads.
 	#
 	def initialize(info = {})
-		if (info['Alias'])
-			info['Alias'] = 'windows/' + info['Alias']
-		end
+		ret = super( info )
 
 		# All windows payload hint that the stack must be aligned to nop
 		# generators and encoders.
-		super(merge_info(info,
-			'SaveRegisters' => [ 'esp' ]))
+		if( info['Arch'] == ARCH_X86_64 )
+			if( info['Alias'] )
+				info['Alias'] = 'windows/x64/' + info['Alias']
+			end
+			merge_info( info, 'SaveRegisters' => [ 'rsp' ] )
+		elsif( info['Arch'] == ARCH_X86 )
+			if( info['Alias'] )
+				info['Alias'] = 'windows/' + info['Alias']
+			end
+			merge_info( info, 'SaveRegisters' => [ 'esp' ] )
+		end
+		
+		#if (info['Alias'])
+		#	info['Alias'] = 'windows/' + info['Alias']
+		#end
 
 		register_options(
 			[
 				Msf::OptRaw.new('EXITFUNC', [ true, "Exit technique: #{@@exit_types.keys.join(", ")}", 'thread' ])
-			], Msf::Payload::Windows)
+			], Msf::Payload::Windows )
+      
+    ret
 	end
 
 	#

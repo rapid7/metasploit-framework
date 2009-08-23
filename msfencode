@@ -191,14 +191,15 @@ case cmd
 				
 				case fmt
 				when 'exe'
-					exe = Msf::Util::EXE.to_win32pe($framework, raw)
+					exe = Msf::Util::EXE.to_win32pe($framework, raw) if arch.index( ARCH_X86 )
+					exe = Msf::Util::EXE.to_win64pe($framework, raw) if arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )
 					if(not output)
 						$stdout.write(exe)
 					else
 						File.open(output, "wb") do |fd|
 							fd.write(exe)
 						end
-					end				
+					end		
 				when 'elf'
 					elf = Msf::Util::EXE.to_linux_x86_elf($framework, raw)
 					if(not output)

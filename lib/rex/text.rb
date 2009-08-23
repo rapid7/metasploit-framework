@@ -570,6 +570,7 @@ module Text
 	
 	# XXX: depends on the Msf code being loaded, not just Rex
 	def self.to_executable(arch, plat, code, note='')
+
 		if (arch.index(ARCH_X86))
 
 			if (plat.index(Msf::Module::Platform::Windows))
@@ -586,7 +587,13 @@ module Text
 			
 			# XXX: Add remaining x86 systems here					
 		end
-
+		
+		if( arch.index(ARCH_X86_64) or arch.index( ARCH_X64 ) )
+			if (plat.index(Msf::Module::Platform::Windows))
+				return Rex::Text.to_win64pe(code, note)
+			end
+		end
+		
 		if(arch.index(ARCH_ARMLE))
 			if(plat.index(Msf::Module::Platform::OSX))
 				return Rex::Text.to_osx_arm_macho(code, note)		
@@ -625,7 +632,20 @@ module Text
 
 		return pe
 	end
+	
+	def self.to_win64pe(code = "\xcc", note="")
+		pe = ''
 
+		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "data", "templates", "template_x64_windows.exe"), "rb")
+		pe = fd.read(fd.stat.size)
+		fd.close
+
+		bo = pe.index('PAYLOAD:')
+		pe[bo,  2048] = [code].pack('a2048') if bo
+
+		return pe
+	end
+	
 	def self.to_win32pe_service(code = "\xcc", name="SERVICENAME")
 		pe = ''
 

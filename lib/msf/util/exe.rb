@@ -37,7 +37,13 @@ class EXE
 			
 			# XXX: Add remaining x86 systems here					
 		end
-
+		
+		if( arch.index(ARCH_X86_64) or arch.index( ARCH_X64 ) )
+			if (plat.index(Msf::Module::Platform::Windows))
+				return to_win64pe(framework, code)
+			end
+		end
+		
 		if(arch.index(ARCH_ARMLE))
 			if(plat.index(Msf::Module::Platform::OSX))
 				return to_osx_arm_macho(framework, code)		
@@ -87,6 +93,19 @@ class EXE
 		
 		# Add a couple random bytes for fun
 		pe << Rex::Text.rand_text(rand(64)+4)
+
+		return pe
+	end
+	
+	def self.to_win64pe(framework, code)
+		pe = ''
+		
+		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x64_windows.exe"), "rb")
+		pe = fd.read(fd.stat.size)
+		fd.close
+		
+		bo = pe.index('PAYLOAD:')
+		pe[bo,2048] = [code].pack('a2048') if bo
 
 		return pe
 	end
