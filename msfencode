@@ -197,7 +197,7 @@ case cmd
 					end
 					
 					if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-						exe = Msf::Util::EXE.to_win64pe($framework, raw) if arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )
+						exe = Msf::Util::EXE.to_win64pe($framework, raw)
 					end
 				
 					if(not output)
