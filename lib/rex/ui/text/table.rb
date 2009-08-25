@@ -183,16 +183,23 @@ protected
 	def columns_to_s # :nodoc:
 		nameline = ' ' * indent
 		barline  = nameline.dup
-
+		last_col = nil
+		last_idx = nil
 		columns.each_with_index { |col,idx|
-			nameline << col + pad(' ', col, idx)
-			remainder = colprops[idx]['MaxWidth'] - col.length
+			if (last_col)
+				nameline << pad(' ', last_col, last_idx)
 
+				remainder = colprops[last_idx]['MaxWidth'] - last_col.length
 			if (remainder < 0)
 				remainder = 0
 			end
+				barline << (' ' * (cellpad + remainder))
+			end
+			nameline << col
+			barline << ('-' * col.length)
 				
-			barline << ('-' * col.length) + (' ' * (cellpad + remainder))
+			last_col = col
+			last_idx = idx
 		}
 
 		return "#{nameline}\n#{barline}"
@@ -210,9 +217,16 @@ protected
 	#
 	def row_to_s(row) # :nodoc:
 		line = ' ' * indent
-
+		last_cell = nil
+		last_idx = nil
 		row.each_with_index { |cell, idx|
-			line << cell.to_s + pad(' ', cell.to_s, idx)
+			if (last_cell)
+				line << pad(' ', last_cell.to_s, last_idx)
+			end
+			line << cell.to_s
+			# line << pad(' ', cell.to_s, idx)
+			last_cell = cell
+			last_idx = idx
 		}
 
 		return line + "\n"
