@@ -347,6 +347,7 @@ module Text
 	# Encode a string in a manor useful for HTTP URIs and URI Parameters.  
 	#
 	def self.uri_encode(str, mode = 'hex-normal')
+		return "" if str == nil 
 
 		return str if mode == 'none' # fast track no encoding
 
