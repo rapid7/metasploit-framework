@@ -28,9 +28,9 @@ class FileStat < Rex::Post::FileStat
 	  'pad1',       2,  # 14
 	  'st_rdev',    4,  # 16
 	  'st_size',    4,  # 20
-	  'st_atime',   4,  # 24
-	  'st_mtime',   4,  # 28
-	  'st_ctime',   4,  # 32
+	  'st_atime',   8,  # 24
+	  'st_mtime',   8,  # 32
+	  'st_ctime',   8,  # 40
 	]
 
 	class <<self
