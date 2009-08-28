@@ -261,10 +261,9 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 
 		begin
-			connect()
 
 			@@target_uuids.each do |uuid|
-			
+				connect()
 				handle = dcerpc_handle(
 					uuid[0], uuid[1], 
 					'ncacn_ip_tcp', ''
@@ -278,9 +277,8 @@ class Metasploit3 < Msf::Auxiliary
 				rescue ::Exception => e
 					# print_line("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")					
 				end
+				disconnect()
 			end
-			
-			disconnect()
 
 			return
 		rescue ::Exception
