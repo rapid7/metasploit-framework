@@ -1,39 +1,5 @@
 #include "metcli.h"
 
-/*
- * Process a request to print one or more strings
- */
-DWORD remote_request_core_console_write(Remote *remote, Packet *packet)
-{
-	DWORD res = ERROR_NOT_FOUND;
-	DWORD index;
-	Tlv tlv;
-
-	console_write_output("\n");
-
-	do
-	{
-		for (index = 0;
-		     packet_enum_tlv(packet, index, TLV_TYPE_STRING, &tlv) 
-			  	== ERROR_SUCCESS;
-		     index++)
-			console_write_output("%s", (PCHAR)tlv.buffer);
-
-		res = ERROR_SUCCESS;
-
-	} while (0);
-
-	fflush(stdout);
-
-	console_write_prompt();
-
-	return res;
-}
-
-DWORD remote_response_core_console_write(Remote *remote, Packet *packet)
-{
-	return ERROR_SUCCESS;
-}
 
 /*
  * Extension callback for printing out notifications for channels opening

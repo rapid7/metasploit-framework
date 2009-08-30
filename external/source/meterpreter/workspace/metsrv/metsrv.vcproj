@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="metsrv"
 	ProjectGUID="{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}"
+	RootNamespace="metsrv"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -48,6 +49,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\source\server;..\..\source\openssl\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;METSRV_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -79,7 +81,7 @@
 				OutputFile=".\Debug/metsrv.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\common\Debug"
+				AdditionalLibraryDirectories="..\common\Release; ..\..\source\openssl\lib\win\"
 				ModuleDefinitionFile="..\..\source\server\win\metsrv.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/metsrv.pdb"
@@ -149,7 +151,7 @@
 				Optimization="1"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\source\openssl\include"
+				AdditionalIncludeDirectories="..\..\source\openssl\include;..\..\source\server"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;METSRV_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -177,7 +179,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="common.lib ws2_32.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="ws2_32.lib odbc32.lib odbccp32.lib"
 				OutputFile=".\Release/metsrv.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -290,6 +292,14 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\source\server\remote_dispatch_common.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\server\server_setup.c"
+				>
 			</File>
 		</Filter>
 		<Filter

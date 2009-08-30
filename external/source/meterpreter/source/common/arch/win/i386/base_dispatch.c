@@ -1,8 +1,5 @@
 #include "common.h"
 
-// include the PolarSSL library
-#pragma comment(lib,"polarssl.lib")
-
 
 /*
  * core_migrate

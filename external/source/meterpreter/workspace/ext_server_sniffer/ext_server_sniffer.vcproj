@@ -41,6 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\source\openssl\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EXT_SERVER_INCOGNITO_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -143,7 +144,7 @@
 				AdditionalDependencies="Netapi32.lib Mpr.lib ws2_32.lib metsrv.lib .\pssdk\pssdk.lib"
 				OutputFile=".\Release/ext_server_sniffer.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\metsrv\Release;.\pssdk\"
+				AdditionalLibraryDirectories="..\metsrv\Release;.\pssdk\;..\..\source\openssl\lib\win"
 				GenerateManifest="false"
 				DelayLoadDLLs="metsrv.dll"
 				GenerateDebugInformation="false"

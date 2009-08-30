@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="ext_server_stdapi"
 	ProjectGUID="{405245AB-0071-4CB9-BFBE-ED4E2A987EFF}"
+	RootNamespace="ext_server_stdapi"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -48,7 +49,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\source\extensions\stdapi\server"
+				AdditionalIncludeDirectories="..\..\source\extensions\stdapi\server;..\..\source\openssl\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EXT_SERVER_SYS_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -180,7 +181,7 @@
 				OutputFile=".\Release/ext_server_stdapi.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\metsrv\Release"
+				AdditionalLibraryDirectories="..\metsrv\Release;..\..\source\openssl\lib\win"
 				GenerateManifest="false"
 				DelayLoadDLLs="metsrv.dll"
 				GenerateMapFile="true"

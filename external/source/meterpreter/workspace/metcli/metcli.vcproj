@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="metcli"
 	ProjectGUID="{4DECF649-2B11-47A2-908E-031105D706F8}"
+	RootNamespace="metcli"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -172,7 +173,7 @@
 				OutputFile=".\Release/metcli.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\common\Release; ..\..\source\openssl\lib"
+				AdditionalLibraryDirectories="..\common\Release; ..\..\source\openssl\lib\win"
 				ModuleDefinitionFile="..\..\source\client\metcli.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Release/metcli.pdb"

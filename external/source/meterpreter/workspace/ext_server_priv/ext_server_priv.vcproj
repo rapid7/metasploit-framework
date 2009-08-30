@@ -81,7 +81,7 @@
 				OutputFile=".\Release/ext_server_priv.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\metsrv\Release"
+				AdditionalLibraryDirectories="..\metsrv\Release;..\..\source\openssl\lib\win"
 				GenerateManifest="false"
 				DelayLoadDLLs="metsrv.dll"
 				ProgramDatabaseFile=".\Release/ext_server_priv.pdb"
@@ -149,7 +149,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\source\extensions\priv\server"
+				AdditionalIncludeDirectories="..\..\source\extensions\priv\server;..\..\source\openssl\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EXT_SERVER_PRIV_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

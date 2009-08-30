@@ -12,10 +12,10 @@
 int exceptionfilter(unsigned int code, struct _EXCEPTION_POINTERS *ep) 
 {
 	return EXCEPTION_EXECUTE_HANDLER;
-}^M
+}
 
 #define InitAppInstance() do {					\
-		if( hAppInstance == NULL )^M			\
+		if( hAppInstance == NULL )		\
 		    hAppInstance = GetModuleHandle( NULL );	\
 	} while (0)
 
@@ -107,7 +107,7 @@ DWORD server_setup(SOCKET fd)
 
 // Flush all pending data on the connected socket before doing SSL
 static void flush_socket(Remote *remote) {
-        fd_set fdread, fdother ;
+	fd_set fdread;
 	DWORD ret;
 	SOCKET fd;
     unsigned char buff[4096];
@@ -140,7 +140,6 @@ static DWORD negotiate_ssl(Remote *remote)
 	DWORD hres = ERROR_SUCCESS;
 	SOCKET fd = remote_get_fd(remote);
     DWORD ret;
-	int serr;
 	
 	SSL_load_error_strings();
 	SSL_library_init();
@@ -158,7 +157,7 @@ static DWORD negotiate_ssl(Remote *remote)
 	    }
 	    
 
-	    if ((serr = SSL_connect(remote->ssl)) != 1) {
+	    if ((ret = SSL_connect(remote->ssl)) != 1) {
 		    printf("connect failed %d\n", SSL_get_error(remote->ssl, ret));
 		    exit(1);
 	    }

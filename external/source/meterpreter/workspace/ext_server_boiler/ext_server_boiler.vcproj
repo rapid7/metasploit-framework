@@ -141,7 +141,7 @@
 				AdditionalDependencies="metsrv.lib"
 				OutputFile=".\Release/ext_server_boiler.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\metsrv\Release"
+				AdditionalLibraryDirectories="..\metsrv\Release; ;..\..\source\openssl\lib\win"
 				GenerateManifest="false"
 				DelayLoadDLLs="metsrv.dll"
 				GenerateDebugInformation="false"
