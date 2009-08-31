@@ -37,9 +37,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Winsock2.h>
 #include <Winternl.h>
 
-#define EXITFUNC_SEH		0x5F048AF0
-#define EXITFUNC_THREAD		0x60E0CEEF
-#define EXITFUNC_PROCESS	0x73E2D87E
+#define EXITFUNC_SEH		0xEA320EFE
+#define EXITFUNC_THREAD		0x0A2A1DE0
+#define EXITFUNC_PROCESS	0x56A2B5F0
 
 #define DLL_METASPLOIT_ATTACH	4
 #define DLL_METASPLOIT_DETACH	5
@@ -55,6 +55,7 @@ typedef FARPROC (WINAPI * GETPROCADDRESS)( HMODULE, LPCSTR );
 typedef LPVOID  (WINAPI * VIRTUALALLOC)( LPVOID, SIZE_T, DWORD, DWORD );
 typedef BOOL    (WINAPI * DLLMAIN)( HINSTANCE, DWORD, LPVOID );
 
+#define KERNEL32DLL_HASH		0x6A4ABC5B
 #define LOADLIBRARYA_HASH		0xEC0E4E8E
 #define GETPROCADDRESS_HASH		0x7C0DFCAA
 #define VIRTUALALLOC_HASH		0x91AFCA54
@@ -100,6 +101,29 @@ __forceinline VOID __memcpy( DWORD dwDest, DWORD dwSource, DWORD dwLength )
 	}
 }
 //===============================================================================================//
+
+typedef struct _UNICODE_STR
+{
+  USHORT Length;
+  USHORT MaximumLength;
+  PWSTR pBuffer;
+} UNICODE_STR, *PUNICODE_STR;
+
+typedef struct _LDR_MODULE_MEMORY_ORDER
+{
+	LIST_ENTRY InMemoryOrderModuleList;
+	LIST_ENTRY InInitializationOrderModuleList;
+	PVOID BaseAddress;
+	PVOID EntryPoint;
+	ULONG SizeOfImage;
+	UNICODE_STR FullDllName;
+	UNICODE_STR BaseDllName;
+	ULONG Flags;
+	SHORT LoadCount;
+	SHORT TlsIndex;
+	LIST_ENTRY HashTableEntry;
+	ULONG TimeDateStamp;
+} LDR_MODULE_MEMORY_ORDER, *PLDR_MODULE_MEMORY_ORDER;
 
 // WinDbg> dt -v ntdll!_PEB_LDR_DATA
 typedef struct _PEB_LDR_DATA //, 7 elements, 0x28 bytes
