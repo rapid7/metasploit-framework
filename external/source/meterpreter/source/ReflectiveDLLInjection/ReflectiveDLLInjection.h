@@ -1,5 +1,5 @@
 //===============================================================================================//
-// Copyright (c) 2008, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
+// Copyright (c) 2009, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted 
@@ -37,6 +37,8 @@
 #define DLL_METASPLOIT_DETACH	5
 #define DLL_QUERY_HMODULE		6
 
+#define DEREF( name )*(UINT_PTR *)(name)
+#define DEREF_64( name )*(DWORD64 *)(name)
 #define DEREF_32( name )*(DWORD *)(name)
 #define DEREF_16( name )*(WORD *)(name)
 #define DEREF_8( name )*(BYTE *)(name)

@@ -45,6 +45,13 @@ BOOL MapNewExecutableRegionInProcess(
 // the original executable.  All necessary fixups are performed to allow the
 // transfer of execution control the new executable in a seamless fashion.
 //
+#ifdef _WIN64
+// sf: we have to rewrite this for x64
+BOOL MapNewExecutableRegionInProcess( IN HANDLE TargetProcessHandle, IN HANDLE TargetThreadHandle, IN LPVOID NewExecutableRawImage )
+{
+	return FALSE;
+}
+#else
 BOOL MapNewExecutableRegionInProcess(
 		IN HANDLE TargetProcessHandle,
 		IN HANDLE TargetThreadHandle,
@@ -202,3 +209,5 @@ BOOL MapNewExecutableRegionInProcess(
 
 	return Success;
 }
+
+#endif

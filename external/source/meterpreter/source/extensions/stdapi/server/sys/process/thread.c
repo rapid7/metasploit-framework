@@ -458,6 +458,34 @@ DWORD request_sys_process_thread_set_regs(Remote *remote, Packet *packet)
  * Returns a pointer to a four byte wide register within the context structure
  * that is associated with the supplied register name
  */
+// sf: we have to rewrite this for x64
+#ifdef _WIN64
+PULONG get_thread_register_4(LPCONTEXT context, LPCSTR name)
+{
+	if (!strcasecmp(name, "rax"))
+		return (PULONG)&context->Rax;
+	else if (!strcasecmp(name, "rbx"))
+		return (PULONG)&context->Rbx;
+	else if (!strcasecmp(name, "rcx"))
+		return (PULONG)&context->Rcx;
+	else if (!strcasecmp(name, "rdx"))
+		return (PULONG)&context->Rdx;
+	else if (!strcasecmp(name, "rsi"))
+		return (PULONG)&context->Rsi;
+	else if (!strcasecmp(name, "rdi"))
+		return (PULONG)&context->Rdi;
+	else if (!strcasecmp(name, "rbp"))
+		return (PULONG)&context->Rbp;
+	else if (!strcasecmp(name, "rsp"))
+		return (PULONG)&context->Rsp;
+	else if (!strcasecmp(name, "rip"))
+		return (PULONG)&context->Rip;
+	else if (!strcasecmp(name, "Eflags"))
+		return (PULONG)&context->EFlags;
+
+	return NULL;
+}
+#else
 PULONG get_thread_register_4(LPCONTEXT context, LPCSTR name)
 {
 	if (!strcasecmp(name, "eax"))
@@ -483,7 +511,7 @@ PULONG get_thread_register_4(LPCONTEXT context, LPCSTR name)
 
 	return NULL;
 }
-
+#endif
 /*
  * Returns a pointer to a two byte wide register within the context structure
  * that is associated with the supplied register name
@@ -491,17 +519,17 @@ PULONG get_thread_register_4(LPCONTEXT context, LPCSTR name)
 PULONG get_thread_register_2(LPCONTEXT context, LPCSTR name)
 {
 	if (!strcasecmp(name, "ss"))
-		return &context->SegSs;
+		return (PULONG)&context->SegSs;
 	else if (!strcasecmp(name, "cs"))
-		return &context->SegCs;
+		return (PULONG)&context->SegCs;
 	else if (!strcasecmp(name, "ds"))
-		return &context->SegDs;
+		return (PULONG)&context->SegDs;
 	else if (!strcasecmp(name, "es"))
-		return &context->SegEs;
+		return (PULONG)&context->SegEs;
 	else if (!strcasecmp(name, "fs"))
-		return &context->SegFs;
+		return (PULONG)&context->SegFs;
 	else if (!strcasecmp(name, "gs"))
-		return &context->SegGs;
+		return (PULONG)&context->SegGs;
 
 	return NULL;
 }

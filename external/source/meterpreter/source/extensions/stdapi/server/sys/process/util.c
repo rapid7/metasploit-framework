@@ -78,7 +78,7 @@ DWORD copy_memory_to_process(HANDLE process, BOOLEAN allocate,
 		LPVOID *buffer, DWORD length, DWORD prot)
 {
 	LPVOID remoteBuffer = *buffer;
-	DWORD  written;
+	SIZE_T  written;
 	DWORD  result = ERROR_SUCCESS;
 
 	do

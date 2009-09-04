@@ -1,5 +1,5 @@
 //===============================================================================================//
-// Copyright (c) 2008, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
+// Copyright (c) 2009, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted 
@@ -25,31 +25,25 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 // POSSIBILITY OF SUCH DAMAGE.
 //===============================================================================================//
-//#include <stdio.h>
-//#include <string.h>
 #include "LoadLibraryR.h"
 //===============================================================================================//
-DWORD Rva2Offset( DWORD dwRva, DWORD dwBaseAddress )
+DWORD Rva2Offset( DWORD dwRva, UINT_PTR uiBaseAddress )
 {    
-    DWORD dwExportDir = 0;
-	DWORD dwTotalSections = 0;
+	WORD wIndex                          = 0;
 	PIMAGE_SECTION_HEADER pSectionHeader = NULL;
-	DWORD dwIndex = 0;
-	PIMAGE_NT_HEADERS32 pNtHeaders = NULL;
+	PIMAGE_NT_HEADERS pNtHeaders         = NULL;
 	
-	pNtHeaders = (PIMAGE_NT_HEADERS32)(dwBaseAddress + ((PIMAGE_DOS_HEADER)dwBaseAddress)->e_lfanew);
+	pNtHeaders = (PIMAGE_NT_HEADERS)(uiBaseAddress + ((PIMAGE_DOS_HEADER)uiBaseAddress)->e_lfanew);
 
-	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)(&pNtHeaders->OptionalHeader) + pNtHeaders->FileHeader.SizeOfOptionalHeader);
-
-	dwTotalSections = pNtHeaders->FileHeader.NumberOfSections;
+	pSectionHeader = (PIMAGE_SECTION_HEADER)((UINT_PTR)(&pNtHeaders->OptionalHeader) + pNtHeaders->FileHeader.SizeOfOptionalHeader);
 
     if( dwRva < pSectionHeader[0].PointerToRawData )
         return dwRva;
 
-    for( dwIndex=0 ; dwIndex<dwTotalSections ; dwIndex++ )
+    for( wIndex=0 ; wIndex < pNtHeaders->FileHeader.NumberOfSections ; wIndex++ )
     {   
-        if(dwRva >= pSectionHeader[dwIndex].VirtualAddress && dwRva < pSectionHeader[dwIndex].VirtualAddress + pSectionHeader[dwIndex].SizeOfRawData )           
-           return ( dwRva - pSectionHeader[dwIndex].VirtualAddress + pSectionHeader[dwIndex].PointerToRawData );
+        if( dwRva >= pSectionHeader[wIndex].VirtualAddress && dwRva < (pSectionHeader[wIndex].VirtualAddress + pSectionHeader[wIndex].SizeOfRawData) )           
+           return ( dwRva - pSectionHeader[wIndex].VirtualAddress + pSectionHeader[wIndex].PointerToRawData );
     }
     
     return 0;
@@ -57,62 +51,57 @@ DWORD Rva2Offset( DWORD dwRva, DWORD dwBaseAddress )
 //===============================================================================================//
 DWORD GetReflectiveLoaderOffset( VOID * lpReflectiveDllBuffer )
 {
-	DWORD dwBaseAddress   = 0;
-	DWORD dwExportDir     = 0;
-	DWORD dwNameArray     = 0;
-	DWORD dwAddressArray  = 0;
-	DWORD dwNameOrdinals  = 0;
-	DWORD dwCounter       = 0;
+	UINT_PTR uiBaseAddress   = 0;
+	UINT_PTR uiExportDir     = 0;
+	UINT_PTR uiNameArray     = 0;
+	UINT_PTR uiAddressArray  = 0;
+	UINT_PTR uiNameOrdinals  = 0;
+	DWORD dwCounter          = 0;
 
-	dwBaseAddress = (DWORD)lpReflectiveDllBuffer;
+	uiBaseAddress = (UINT_PTR)lpReflectiveDllBuffer;
 
 	// get the File Offset of the modules NT Header
-	dwExportDir = dwBaseAddress + ((PIMAGE_DOS_HEADER)dwBaseAddress)->e_lfanew;
+	uiExportDir = uiBaseAddress + ((PIMAGE_DOS_HEADER)uiBaseAddress)->e_lfanew;
 
-	// dwNameArray = the address of the modules export directory entry
-	dwNameArray = (DWORD)&((PIMAGE_NT_HEADERS32)dwExportDir)->OptionalHeader.DataDirectory[ IMAGE_DIRECTORY_ENTRY_EXPORT ];
+	// uiNameArray = the address of the modules export directory entry
+	uiNameArray = (UINT_PTR)&((PIMAGE_NT_HEADERS)uiExportDir)->OptionalHeader.DataDirectory[ IMAGE_DIRECTORY_ENTRY_EXPORT ];
 
 	// get the File Offset of the export directory
-	dwExportDir = ((PIMAGE_DATA_DIRECTORY)dwNameArray)->VirtualAddress;
-	dwExportDir = dwBaseAddress + Rva2Offset( dwExportDir, dwBaseAddress );
+	uiExportDir = uiBaseAddress + Rva2Offset( ((PIMAGE_DATA_DIRECTORY)uiNameArray)->VirtualAddress, uiBaseAddress );
 
 	// get the File Offset for the array of name pointers
-	dwNameArray = ((PIMAGE_EXPORT_DIRECTORY )dwExportDir)->AddressOfNames;
-	dwNameArray = dwBaseAddress + Rva2Offset( dwNameArray, dwBaseAddress );
+	uiNameArray = uiBaseAddress + Rva2Offset( ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)->AddressOfNames, uiBaseAddress );
 
 	// get the File Offset for the array of addresses
-	dwAddressArray = ((PIMAGE_EXPORT_DIRECTORY )dwExportDir)->AddressOfFunctions;
-	dwAddressArray = dwBaseAddress + Rva2Offset( dwAddressArray, dwBaseAddress );
+	uiAddressArray = uiBaseAddress + Rva2Offset( ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)->AddressOfFunctions, uiBaseAddress );
 
 	// get the File Offset for the array of name ordinals
-	dwNameOrdinals = ((PIMAGE_EXPORT_DIRECTORY )dwExportDir)->AddressOfNameOrdinals;
-	dwNameOrdinals = dwBaseAddress + Rva2Offset( dwNameOrdinals, dwBaseAddress );	
+	uiNameOrdinals = uiBaseAddress + Rva2Offset( ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)->AddressOfNameOrdinals, uiBaseAddress );	
 
 	// get a counter for the number of exported functions...
-	dwCounter = ((PIMAGE_EXPORT_DIRECTORY )dwExportDir)->NumberOfNames;
+	dwCounter = ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)->NumberOfNames;
 
 	// loop through all the exported functions to find the ReflectiveLoader
 	while( dwCounter-- )
 	{
-		char * cpExportedFunctionName = (char *)(dwBaseAddress + Rva2Offset( DEREF_32( dwNameArray ), dwBaseAddress ));
+		char * cpExportedFunctionName = (char *)(uiBaseAddress + Rva2Offset( DEREF_32( uiNameArray ), uiBaseAddress ));
 
 		if( strstr( cpExportedFunctionName, "ReflectiveLoader" ) != NULL )
 		{
 			// get the File Offset for the array of addresses
-			dwAddressArray = ((PIMAGE_EXPORT_DIRECTORY )dwExportDir)->AddressOfFunctions;
-			dwAddressArray = dwBaseAddress + Rva2Offset( dwAddressArray, dwBaseAddress );	
+			uiAddressArray = uiBaseAddress + Rva2Offset( ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)->AddressOfFunctions, uiBaseAddress );	
 	
 			// use the functions name ordinal as an index into the array of name pointers
-			dwAddressArray += ( DEREF_16( dwNameOrdinals ) * sizeof(DWORD) );
+			uiAddressArray += ( DEREF_16( uiNameOrdinals ) * sizeof(DWORD) );
 
 			// return the File Offset to the ReflectiveLoader() functions code...
-			return Rva2Offset( DEREF_32( dwAddressArray ), dwBaseAddress );
+			return Rva2Offset( DEREF_32( uiAddressArray ), uiBaseAddress );
 		}
 		// get the next exported function name
-		dwNameArray += sizeof(DWORD);
+		uiNameArray += sizeof(DWORD);
 
 		// get the next exported function name ordinal
-		dwNameOrdinals += sizeof(WORD);
+		uiNameOrdinals += sizeof(WORD);
 	}
 
 	return 0;
@@ -137,7 +126,7 @@ HMODULE WINAPI LoadLibraryR( LPVOID lpBuffer, DWORD dwLength )
 		dwReflectiveLoaderOffset = GetReflectiveLoaderOffset( lpBuffer );
 		if( dwReflectiveLoaderOffset != 0 )
 		{
-			pReflectiveLoader = (REFLECTIVELOADER)((DWORD)lpBuffer + dwReflectiveLoaderOffset);
+			pReflectiveLoader = (REFLECTIVELOADER)((UINT_PTR)lpBuffer + dwReflectiveLoaderOffset);
 
 			// we must VirtualProtect the buffer to RWX so we can execute the ReflectiveLoader...
 			// this assumes lpBuffer is the base address of the region of pages and dwLength the size of the region
@@ -152,7 +141,6 @@ HMODULE WINAPI LoadLibraryR( LPVOID lpBuffer, DWORD dwLength )
 					if( !pDllMain( NULL, DLL_QUERY_HMODULE, &hResult ) )	
 						hResult = NULL;
 				}
-
 				// revert to the previous protection flags...
 				VirtualProtect( lpBuffer, dwLength, dwOldProtect1, &dwOldProtect2 );
 			}

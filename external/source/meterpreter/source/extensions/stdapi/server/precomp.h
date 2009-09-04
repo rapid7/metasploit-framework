@@ -1,7 +1,9 @@
 #ifndef METERPRETER_SOURCE_EXTENSION_STDAPI_SERVER_PRECOMP_H
 #define METERPRETER_SOURCE_EXTENSION_STDAPI_SERVER_PRECOMP_H
 
-#define  _WIN32_WINNT 0x0400
+// sf: Compatability fix for a broken sdk? We get errors in Iphlpapi.h using the latest Windows SDK if we dont do this.
+#define  _WIN32_WINNT _WIN32_WINNT_WIN2K
+
 #include "../stdapi.h"
 #include <Tlhelp32.h>
 #include <iphlpapi.h>

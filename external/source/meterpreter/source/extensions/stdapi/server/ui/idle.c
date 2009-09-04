@@ -1,9 +1,15 @@
 #include "precomp.h"
 
+/*
+#ifdef _WIN64
+// sf: for the x64 build we dont need to redifine this
+#else
 typedef struct tagLASTINPUTINFO {
     UINT cbSize;
     DWORD dwTime;
 } LASTINPUTINFO, *PLASTINPUTINFO;
+#endif
+*/
 
 /*
  * Returns the number of seconds the local user has been idle

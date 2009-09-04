@@ -1,5 +1,5 @@
 //===============================================================================================//
-// Copyright (c) 2008, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
+// Copyright (c) 2009, Stephen Fewer of Harmony Security (www.harmonysecurity.com)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted 
@@ -14,7 +14,7 @@
 // 
 //     * Neither the name of Harmony Security nor the names of its contributors may be used to
 // endorse or promote products derived from this software without specific prior written permission.
-// 
+	// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR 
 // IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 // FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
@@ -31,7 +31,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <Winsock2.h>
-//#include <Winternl.h>
+#include <intrin.h>
 
 #include "ReflectiveDLLInjection.h"
 
@@ -48,48 +48,29 @@ typedef LPVOID  (WINAPI * VIRTUALALLOC)( LPVOID, SIZE_T, DWORD, DWORD );
 #define GETPROCADDRESS_HASH		0x7C0DFCAA
 #define VIRTUALALLOC_HASH		0x91AFCA54
 
-#define HASH_KEY	13	
+#define HASH_KEY	13
 //===============================================================================================//
-__forceinline DWORD __hash( char * c )
+#pragma intrinsic( _rotr )
+
+__forceinline DWORD ror( DWORD d )
+{
+	return _rotr( d, HASH_KEY );
+}
+
+
+
+__forceinline DWORD hash( char * c )
 {
     register DWORD h = 0;
 	do
 	{
-		__asm ror h, HASH_KEY
+		h = ror( h );
         h += *c;
 	} while( *++c );
 
     return h;
 }
 //===============================================================================================//
-__forceinline DWORD __get_peb()
-{
-	__asm mov eax, fs:[ 0x30 ]
-}
-//===============================================================================================//
-__forceinline VOID __memzero( DWORD dwDest, DWORD dwLength )
-{
-	__asm
-	{
-		mov ecx, dwLength
-		xor eax, eax
-		mov edi, dwDest
-		rep stosb
-	}
-}
-//===============================================================================================//
-__forceinline VOID __memcpy( DWORD dwDest, DWORD dwSource, DWORD dwLength )
-{
-	__asm
-	{
-		mov ecx, dwLength
-		mov esi, dwSource
-		mov edi, dwDest
-		rep movsb
-	}
-}
-//===============================================================================================//
-
 typedef struct _UNICODE_STR
 {
   USHORT Length;
@@ -97,11 +78,14 @@ typedef struct _UNICODE_STR
   PWSTR pBuffer;
 } UNICODE_STR, *PUNICODE_STR;
 
-typedef struct _LDR_MODULE_MEMORY_ORDER
+// WinDbg> dt -v ntdll!_LDR_DATA_TABLE_ENTRY
+//__declspec( align(8) ) 
+typedef struct _LDR_DATA_TABLE_ENTRY
 {
+	//LIST_ENTRY InLoadOrderLinks; // As we search from PPEB_LDR_DATA->InMemoryOrderModuleList we dont use the first entry.
 	LIST_ENTRY InMemoryOrderModuleList;
 	LIST_ENTRY InInitializationOrderModuleList;
-	PVOID BaseAddress;
+	PVOID DllBase;
 	PVOID EntryPoint;
 	ULONG SizeOfImage;
 	UNICODE_STR FullDllName;
@@ -111,7 +95,7 @@ typedef struct _LDR_MODULE_MEMORY_ORDER
 	SHORT TlsIndex;
 	LIST_ENTRY HashTableEntry;
 	ULONG TimeDateStamp;
-} LDR_MODULE_MEMORY_ORDER, *PLDR_MODULE_MEMORY_ORDER;
+} LDR_DATA_TABLE_ENTRY, *PLDR_DATA_TABLE_ENTRY;
 
 // WinDbg> dt -v ntdll!_PEB_LDR_DATA
 typedef struct _PEB_LDR_DATA //, 7 elements, 0x28 bytes
@@ -131,16 +115,6 @@ typedef struct _PEB_FREE_BLOCK // 2 elements, 0x8 bytes
    struct _PEB_FREE_BLOCK * pNext;
    DWORD dwSize;
 } PEB_FREE_BLOCK, * PPEB_FREE_BLOCK;
-
-
-// You may or may not need to uncomment this structure.
-// we add in __ to avoid a conflict with the redefinition in libloader.h
-typedef struct __UNICODE_STRING {
-    USHORT Length;
-    USHORT MaximumLength;
-    PWSTR  Buffer;
-} ___UNICODE_STRING;
-typedef ___UNICODE_STRING *___PUNICODE_STRING;
 
 // struct _PEB is defined in Winternl.h but it is incomplete
 // WinDbg> dt -v ntdll!_PEB
@@ -205,7 +179,7 @@ typedef struct __PEB // 65 elements, 0x210 bytes
    ULARGE_INTEGER liAppCompatFlagsUser;
    LPVOID lppShimData;
    LPVOID lpAppCompatInfo;
-   ___UNICODE_STRING usCSDVersion;
+   UNICODE_STR usCSDVersion;
    LPVOID lpActivationContextData;
    LPVOID lpProcessAssemblyStorageMap;
    LPVOID lpSystemDefaultActivationContextData;

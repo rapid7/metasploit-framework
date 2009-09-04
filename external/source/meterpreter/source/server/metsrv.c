@@ -5,9 +5,6 @@
 #include <windows.h> // for EXCEPTION_ACCESS_VIOLATION 
 #include <excpt.h> 
 
-// include the OpenSSL library
-#pragma comment(lib,"libeay32.lib")
-#pragma comment(lib,"ssleay32.lib")
 #define	UnpackAndLinkLibs(p, s)
 
 #endif

