@@ -166,11 +166,19 @@ class ClientCore < Extension
 	# by pid.  The connection to the server remains established.
 	#
 	def migrate( pid )
-		
+
 		# Create a new payload stub
 		c = Class.new( ::Msf::Payload )
 		c.include( ::Msf::Payload::Stager )
-		c.include( ::Msf::Payload::Windows::ReflectiveDllInject )
+		
+		# Include the appropriate reflective dll injection module for the client architecture...
+		if( client.platform == 'x86/win32' )
+			c.include( ::Msf::Payload::Windows::ReflectiveDllInject )
+		elsif( client.platform == 'x64/win64' )
+			c.include( ::Msf::Payload::Windows::ReflectiveDllInject_x64 )
+		else
+			raise RuntimeError, "Unsupported migrate client platform #{client.platform}.", caller
+		end
 		
 		# Create the migrate stager
 		migrate_stager = c.new()
