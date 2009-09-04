@@ -43,7 +43,7 @@ end
 
 def self.is_cygwin
 	return @@is_cygwin if @@is_cygwin
-	@@is_cygwin = (RUBY_PLATFORM =~ /mswin32/) ? true : false
+	@@is_cygwin = (RUBY_PLATFORM =~ /cygwin/) ? true : false
 end
 
 def self.is_macosx
