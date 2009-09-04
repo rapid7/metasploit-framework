@@ -507,8 +507,12 @@ class Db
 
 			fd = Tempfile.new('dbnmap')
 
+			if(Rex::Compat.is_cygwin)
+				args.push(IO.popen("cygpath -aw #{fd.path}").read.strip)
+			else
+				args.push('-oX', fd.path)
+			end
 			
-			args.push('-oX', fd.path)
 			args.unshift(nmap)
 			
 			cmd = args.map{|x| '"'+x+'"'}.join(" ")
