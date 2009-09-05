@@ -52,6 +52,7 @@ class Db
 				"db_autopwn"    => "Automatically exploit everything",
 				"db_import_amap_mlog"   => "Import a THC-Amap scan results file (-o -m)",
 				"db_import_nessus_nbe"  => "Import a Nessus scan result file (NBE)",
+				"db_import_nessus_xml"	=> "Import a Nessus scan result file (NESSUS)",
 				"db_import_nmap_xml"    => "Import a Nmap scan results file (-oX)",
 				"db_nmap"               => "Executes nmap and records the output automatically",
 			}
@@ -107,16 +108,16 @@ class Db
 			print_status("Time: #{service.created} Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}")
 		end
         
-        def cmd_db_del_port(*args)
-            if (not args or args.length < 3)
-                print_status("Usage: db_del_port [host] [port] [proto]")
-                return
-            end
+    		def cmd_db_del_port(*args)
+      			if (not args or args.length < 3)
+        			print_status("Usage: db_del_port [host] [port] [proto]")
+        			return
+      			end
 
-            if framework.db.del_service(nil, args[0], args[2].downcase, args[1].to_i)
-                print_status("Service: host=#{args[0]} port=#{args[1].to_i} proto=#{args[2].downcase} deleted")
-            end
-        end
+      			if framework.db.del_service(nil, args[0], args[2].downcase, args[1].to_i)
+        			print_status("Service: host=#{args[0]} port=#{args[1].to_i} proto=#{args[2].downcase} deleted")
+      			end
+    		end
 
 		def cmd_db_add_note(*args)
 			if (not args or args.length < 3)
@@ -385,7 +386,67 @@ class Db
 		# EOM
 		end
 
-		
+		#
+		# This holds all of the shared parsing/handling used by the
+		# Nessus NBE and NESSUS methods
+		#
+		def handle_nessus(addr, port, nasl, data)
+			p = port.match(/^([^\(]+)\((\d+)\/([^\)]+)\)/)
+			return if not p 
+
+			host = framework.db.get_host(nil, addr)
+			return if not host
+
+			if host.state != Msf::HostState::Alive
+				framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+			end
+
+			service = framework.db.get_service(nil, host, p[3].downcase, p[2].to_i)
+			name = p[1].strip
+			if name != "unknown"
+				service.name = name
+				service.save
+			end
+
+			return if not nasl
+
+			data.gsub!("\\n", "\n")
+
+			refs = {}
+
+			if (data =~ /^CVE : (.*)$/)
+				$1.gsub(/C(VE|AN)\-/, '').split(',').map { |r| r.strip }.each do |r|
+					refs[ 'CVE-' + r ] = true
+				end
+			end
+
+			if (data =~ /^BID : (.*)$/)
+				$1.split(',').map { |r| r.strip }.each do |r|
+					refs[ 'BID-' + r ] = true
+				end
+			end
+
+			if (data =~ /^Other references : (.*)$/)
+				$1.split(',').map { |r| r.strip }.each do |r|
+					ref_id, ref_val = r.split(':')
+					ref_val ? refs[ ref_id + '-' + ref_val ] = true : refs[ ref_id ] = true
+				end
+			end
+
+			nss = 'NSS-' + nasl.to_s
+
+			refs[nss] = true
+
+			vuln = framework.db.get_vuln(nil, host, service, nss, data)
+
+			rids = []
+			refs.keys.each do |r|
+				rids << framework.db.get_ref(nil, r)
+			end
+
+			vuln.refs << (rids - vuln.refs)
+		end
+
 		#
 		# Import Nessus NBE files
 		#
@@ -405,67 +466,47 @@ class Db
 				r = line.split('|')
 				next if r[0] != 'results'
 				addr = r[2]
+				port = r[3]
 				nasl = r[4]
-				hole = r[5]
 				data = r[6]
-				refs = {}
-				
-				m = r[3].match(/^([^\(]+)\((\d+)\/([^\)]+)\)/)
-				next if not m
-				
-				host = framework.db.get_host(nil, addr)
-				next if not host
-				
-				if host.state != Msf::HostState::Alive
-					framework.db.report_host_state(self, addr, Msf::HostState::Alive)
-				end
-					
-				service = framework.db.get_service(nil, host, m[3].downcase, m[2].to_i)
-				name = m[1].strip
-				if name != "unknown"
-					service.name = name
-					service.save
-				end
-				
-				next if not nasl
-				
-				data.gsub!("\\n", "\n")
-				
-				
-				if (data =~ /^CVE : (.*)$/)
-					$1.gsub(/C(VE|AN)\-/, '').split(',').map { |r| r.strip }.each do |r|
-						refs[ 'CVE-' + r ] = true
-					end
-				end
 
-				if (data =~ /^BID : (.*)$/)
-					$1.split(',').map { |r| r.strip }.each do |r|
-						refs[ 'BID-' + r ] = true
-					end
-				end
-
-				if (data =~ /^Other references : (.*)$/)
-					$1.split(',').map { |r| r.strip }.each do |r|
-						ref_id, ref_val = r.split(':')
-						ref_val ? refs[ ref_id + '-' + ref_val ] = true : refs[ ref_id ] = true
-					end
-				end
-								
-				refs[ 'NSS-' + nasl.to_s ] = true
-								
-				vuln = framework.db.get_vuln(nil, host, service, 'NSS-' + nasl.to_s, data)
-				
-				rids = []
-				refs.keys.each do |r|
-					rids << framework.db.get_ref(nil, r)
-				end
-				
-				vuln.refs << (rids - vuln.refs)
+				handle_nessus(addr, port, nasl, data)
 			end
 			fd.close
 		end
 		
-		
+		#
+		# Import Nessus NESSUS files
+		#                     
+		def cmd_db_import_nessus_xml(*args)
+			if (not (args and args.length == 1))
+				print_status("Usage: db_import_nessus_xml [nessus.nessus]")
+				return
+			end
+
+			if (not File.readable?(args[0]))
+				print_status("Could not read the NESSUS file")
+				return
+			end
+
+			fd = File.open(args[0], 'r')
+			data = fd.read
+			fd.close
+
+			doc = REXML::Document.new(data)
+			doc.elements.each('/NessusClientData/Report/ReportHost') do |host|
+				addr = host.elements['HostName'].text
+
+				host.elements.each('ReportItem') do |item|
+					nasl = item.elements['pluginID'].text
+					port = item.elements['port'].text
+					data = item.elements['data'].text
+
+					handle_nessus(addr, port, nasl, data)
+				end
+			end
+		end
+
 		#
 		# Import Nmap data from a file
 		#
@@ -613,7 +654,7 @@ class Db
 
 			fd.close
 		end
-
+		
 		#
 		# Determine if an IP address is inside a given range
 		#
