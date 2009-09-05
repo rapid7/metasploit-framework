@@ -107,17 +107,17 @@ class Db
 			
 			print_status("Time: #{service.created} Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}")
 		end
-        
-    		def cmd_db_del_port(*args)
-      			if (not args or args.length < 3)
-        			print_status("Usage: db_del_port [host] [port] [proto]")
-        			return
-      			end
 
-      			if framework.db.del_service(nil, args[0], args[2].downcase, args[1].to_i)
-        			print_status("Service: host=#{args[0]} port=#{args[1].to_i} proto=#{args[2].downcase} deleted")
-      			end
-    		end
+		def cmd_db_del_port(*args)
+			if (not args or args.length < 3)
+				print_status("Usage: db_del_port [host] [port] [proto]")
+				return
+			end
+
+			if framework.db.del_service(nil, args[0], args[2].downcase, args[1].to_i)
+				print_status("Service: host=#{args[0]} port=#{args[1].to_i} proto=#{args[2].downcase} deleted")
+			end
+		end
 
 		def cmd_db_add_note(*args)
 			if (not args or args.length < 3)
