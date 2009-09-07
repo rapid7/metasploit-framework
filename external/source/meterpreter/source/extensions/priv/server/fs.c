@@ -70,7 +70,7 @@ DWORD request_fs_get_file_mace(Remote *remote, Packet *packet)
 
 			SystemTimeToEpochTime(&lt, &epoch);
 
-			packet_add_tlv_uint(response, fields[x].tlv, epoch);
+			packet_add_tlv_uint(response, fields[x].tlv, (UINT)epoch);
 		}
 		
 		SetLastError(ERROR_SUCCESS);
@@ -120,7 +120,7 @@ DWORD request_fs_set_file_mace(Remote *remote, Packet *packet)
 		for (x = 0; x < (sizeof(fields) / sizeof(fields[0])); x++)
 		{
 			SYSTEMTIME st;
-			unsigned long epoch = packet_get_tlv_value_uint(packet, fields[x].tlv);
+			time_t epoch = packet_get_tlv_value_uint(packet, fields[x].tlv);
 
 			if (!epoch)
 				continue;
