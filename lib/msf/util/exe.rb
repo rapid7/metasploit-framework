@@ -72,6 +72,10 @@ class EXE
 			code << Rex::Text.rand_text(2048-code.length)
 		end
 		
+		if(code.length > 2048)
+			raise RuntimeError, "The EXE generator now has a max size of 2048 bytes, please fix the calling module"
+		end
+		
 		bo = pe.index('PAYLOAD:')
 		pe[bo,  2048] = code if bo
 		pe[136,    4] = [rand(0x100000000)].pack('V')
