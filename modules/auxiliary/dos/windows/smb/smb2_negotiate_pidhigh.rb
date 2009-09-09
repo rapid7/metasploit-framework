@@ -19,9 +19,9 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Microsoft SRV2.SYS SMB Negotiate ProcessID Function Table Dereference',
 			'Description'    => %q{
 				This module exploits an out of bounds function table dereference in the SMB
-			Negotiate request parsing code of the SRV2.SYS driver included with Windows Vista,
-			Windows 7, and Windows 2008 Server.  Windows Vista without SP1 does not seem 
-			affected by this flaw (but is affected by vista_negotiate_stop).
+			request validation code of the SRV2.SYS driver included with Windows Vista, Windows 7
+			release candidates (not RTM), and Windows 2008 Server prior to R2.  Windows	Vista
+			without SP1 does not seem affected by this flaw.
 			},
 
 			'Author'         => [ 'laurent.gaffie[at]gmail.com', 'hdm' ],
@@ -30,6 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References' => 
 				[
 					['URL', 'http://seclists.org/fulldisclosure/2009/Sep/0039.html'],
+					['URL', 'http://www.microsoft.com/technet/security/advisory/975497.mspx']
 				]
 		))
 		register_options([
