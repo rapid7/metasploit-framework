@@ -287,7 +287,16 @@
 				TLV_META_TYPE_STRING,      \
 				TLV_TYPE_EXTENSION_STDAPI, \
 				1042)
-
+#define TLV_TYPE_ARCHITECTURE             \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_STRING,      \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1043)
+#define TLV_TYPE_LANG_SYSTEM             \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_STRING,      \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1044)
 // Net
 #define TLV_TYPE_HOST_NAME             \
 		MAKE_CUSTOM_TLV(                 \

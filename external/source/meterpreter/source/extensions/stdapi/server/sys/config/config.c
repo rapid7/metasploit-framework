@@ -130,6 +130,11 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 		
 		if (!osName)
 			osName = "Unknown";
+		
+		_snprintf(buf, sizeof(buf) - 1, "%s (Build %lu, %s).", osName, 
+				v.dwBuildNumber, v.szCSDVersion, osArch, osWow );
+
+		packet_add_tlv_string(response, TLV_TYPE_OS_NAME, buf);
 
 		// sf: we dynamically retrieve GetNativeSystemInfo & IsWow64Process as NT and 2000 dont support it.
 		hKernel32 = LoadLibraryA( "kernel32.dll" );
@@ -173,11 +178,48 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 		if( !osWow )
 			osWow = "";
 
-		_snprintf(buf, sizeof(buf) - 1, "%s (Build %lu, %s) %s%s.", osName, 
-				v.dwBuildNumber, v.szCSDVersion, osArch, osWow );
+		_snprintf( buf, sizeof(buf) - 1, "%s%s", osArch, osWow );
+		packet_add_tlv_string(response, TLV_TYPE_ARCHITECTURE, buf);
 
-		packet_add_tlv_string(response, TLV_TYPE_OS_NAME, buf);
+		if( hKernel32 )
+		{
+			char * ctryname = NULL, * langname = NULL;
+			typedef LANGID (WINAPI * GETSYSTEMDEFAULTLANGID)( VOID );
+			GETSYSTEMDEFAULTLANGID pGetSystemDefaultLangID = (GETSYSTEMDEFAULTLANGID)GetProcAddress( hKernel32, "GetSystemDefaultLangID" );
+			if( pGetSystemDefaultLangID )
+			{
+				LANGID langId = pGetSystemDefaultLangID();
 
+				int len = GetLocaleInfo( langId, LOCALE_SISO3166CTRYNAME, 0, 0 );
+				if( len > 0 )
+				{
+					ctryname = (char *)malloc( len );
+					GetLocaleInfo( langId, LOCALE_SISO3166CTRYNAME, ctryname, len ); 
+				}
+				
+				len = GetLocaleInfo( langId, LOCALE_SISO639LANGNAME, 0, 0 );
+				if( len > 0 )
+				{
+					langname = (char *)malloc( len );
+					GetLocaleInfo( langId, LOCALE_SISO639LANGNAME, langname, len ); 
+				}
+			}
+
+			if( !ctryname || !langname )
+				_snprintf( buf, sizeof(buf) - 1, "Unknown");
+			else
+				_snprintf( buf, sizeof(buf) - 1, "%s_%s", langname, ctryname );
+				
+			packet_add_tlv_string( response, TLV_TYPE_LANG_SYSTEM, buf );
+
+			if( ctryname )
+				free( ctryname );
+
+			if( langname )
+				free( langname );
+		}
+
+			
 	} while (0);
 
 	// Transmit the response
@@ -185,6 +227,7 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 
 	return res;
 }
+
 
 /*
  * sys_config_rev2self

@@ -41,8 +41,10 @@ class Config
 		response = client.send_request(request)
 
 		{
-			'Computer' => response.get_tlv_value(TLV_TYPE_COMPUTER_NAME),
-			'OS'       => response.get_tlv_value(TLV_TYPE_OS_NAME),
+			'Computer'        => response.get_tlv_value(TLV_TYPE_COMPUTER_NAME),
+			'OS'              => response.get_tlv_value(TLV_TYPE_OS_NAME),
+			'Architecture'    => response.get_tlv_value(TLV_TYPE_ARCHITECTURE),
+			'System Language' => response.get_tlv_value(TLV_TYPE_LANG_SYSTEM),
 		}
 	end
 
