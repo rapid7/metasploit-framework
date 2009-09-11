@@ -248,7 +248,7 @@ class Db
 									next if (targ_exc.length > 0 and range_include?(targ_exc, xhost))
 									next if (port_inc.length > 0 and not port_inc.include?(serv.port.to_i))
 									next if (port_exc.length > 0 and port_exc.include?(serv.port.to_i))
-									next if (regx and n !~ /#{regx}/)
+									next if (regx and e.fullname !~ /#{regx}/)
 									
 									matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
 								end
@@ -273,7 +273,7 @@ class Db
 							
 								next if (port_inc.length > 0 and not port_inc.include?(serv.port.to_i))
 								next if (port_exc.length > 0 and port_exc.include?(serv.port.to_i))
-								next if (regx and n !~ /#{regx}/)
+								next if (regx and e.fullname !~ /#{regx}/)
 										
 								matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
 							end
