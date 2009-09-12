@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				next_channel
 
-				if (datastore['VERBOSE'])
+				if (datastore['VERBOSE'] =~ /^([ty1])/i)
 					print_status("Switching to channel: #{channel}")
 				end
 				sleep(1)
