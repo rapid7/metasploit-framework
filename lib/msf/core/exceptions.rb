@@ -101,7 +101,14 @@ class BadcharError < EncodingError
 	end
 
 	def to_s
-		"Encoding failed due to a bad character (index=#{index}, char=#{sprintf("0x%.2x", char)})"
+		# Deal with elements of a String being an instance of String instead of
+		# Integer in ruby 1.9.
+		if (char.respond_to? :ord)
+			c = char.ord
+		else 
+			c = char
+		end
+		return "Encoding failed due to a bad character (index=#{index}, char=#{sprintf("0x%.2x", c)})"
 	end
 
 	attr_reader :buf, :index, :stub_size, :char
