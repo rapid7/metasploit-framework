@@ -171,7 +171,7 @@ class Core
 	#
 	def cmd_banner(*args)
 		banner  = Banner.to_s + "\n\n"
-		banner << "       =[ msf v#{Msf::Framework::Version}\n"
+		banner << "       =[ msf v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]\n"
 		banner << "+ -- --=[ "
 		banner << "#{framework.stats.num_exploits} exploits - "
 		banner << "#{framework.stats.num_payloads} payloads\n"

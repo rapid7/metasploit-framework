@@ -677,16 +677,39 @@ class ModuleManager < ModuleSet
 
 		# Set the target file
 		file = mod.file_path
+		wrap = ::Module.new
 
 		# Load the module into a new Module wrapper
 		begin
-			wrap = ::Module.new
 			wrap.module_eval(File.read(file, File.size(file)))
-
+			if(wrap.const_defined?(:RequiredVersions))
+				mins = wrap.const_get(:RequiredVersions)
+				if( mins[0] > ::Msf::Framework::VersionCore or 
+				    mins[1] > ::Msf::Framework::VersionAPI
+				  )
+					errmsg = "Failed to load module from #{file} due to version check (requires Core:#{mins[0]} API:#{mins[1]})"
+					elog(errmsg)
+					self.module_failed[mod.file_path] = errmsg
+					return false
+				end
+			end				
 		rescue ::Exception => e
+		
+			# Hide eval errors when the module version is not compatible
+			if(wrap.const_defined?(:RequiredVersions))
+				mins = wrap.const_get(:RequiredVersions)
+				if( mins[0] > ::Msf::Framework::VersionCore or 
+				    mins[1] > ::Msf::Framework::VersionAPI
+				  )
+					elog("Failed to reload module from #{file} due to version check (requires Core:#{mins[0]} API:#{mins[1]})")
+					self.module_failed[mod.file_path] = "Failed to reload the module"
+					return
+				end 
+			end
+		
 			elog("Failed to reload module from #{file}: #{e.class} #{e}")
 			self.module_failed[mod.file_path] = "Failed to reload the module"
-			return nil
+			return
 		end
 
 		if(not wrap.const_defined?('Metasploit3'))
@@ -876,9 +899,33 @@ protected
 		begin
 			wrap = ::Module.new
 			wrap.module_eval(File.read(file, File.size(file)))
+			if(wrap.const_defined?(:RequiredVersions))
+				mins = wrap.const_get(:RequiredVersions)
+				if( mins[0] > ::Msf::Framework::VersionCore or 
+				    mins[1] > ::Msf::Framework::VersionAPI
+				  )
+					errmsg = "Failed to load module from #{file} due to version check (requires Core:#{mins[0]} API:#{mins[1]})"
+					elog(errmsg)
+					self.module_failed[file] = errmsg
+					return false
+				end
+			end		
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
+			# Hide eval errors when the module version is not compatible
+			if(wrap.const_defined?(:RequiredVersions))
+				mins = wrap.const_get(:RequiredVersions)
+				if( mins[0] > ::Msf::Framework::VersionCore or 
+				    mins[1] > ::Msf::Framework::VersionAPI
+				  )
+					errmsg = "Failed to load module from #{file} due to error and failed version check (requires Core:#{mins[0]} API:#{mins[1]})"
+					elog(errmsg)
+					self.module_failed[file] = errmsg
+					return false
+				end 
+			end
+			
 			errmsg = "#{file}: #{e.class} #{e}"
 			self.module_failed[file] = errmsg
 			elog(errmsg)

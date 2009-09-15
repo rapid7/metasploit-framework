@@ -18,6 +18,18 @@ class Framework
 	Release  = "-dev"
 	Version  = "#{Major}.#{Minor}#{Release}"
 	Revision = "$Revision$"
+
+	# API Version
+	APIMajor = 1
+	APIMinor = 0
+	
+	# Base/API Version
+	VersionCore  = Major + (Minor / 10.0)
+	VersionAPI   = APIMajor + (APIMinor / 10.0)
+	
+	# Default Versions
+	DefaultRequiredVersionCore = [3.0]
+	DefaultRequiredVersionAPI  = [1.0]
 	
 	#
 	# Mixin meant to be included into all classes that can have instances that
