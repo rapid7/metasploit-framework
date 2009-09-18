@@ -435,8 +435,6 @@ class Db
 
 			nss = 'NSS-' + nasl.to_s
 
-			refs[nss] = true
-
 			vuln = framework.db.get_vuln(nil, host, service, nss, data)
 
 			rids = []
