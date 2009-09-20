@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			# LsarLookupSids
 			dcerpc.call(0x0f, stub)
-		rescue Rex::Proto::DCERPC::Exceptions::NoResponse
+		rescue Rex::Proto::DCERPC::Exceptions::NoResponse, ::EOFError
 			print_good('Server did not respond, this is expected')
 		rescue => e
 			if e.to_s =~ /STATUS_PIPE_DISCONNECTED/
