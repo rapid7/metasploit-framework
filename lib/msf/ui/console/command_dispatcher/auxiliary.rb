@@ -68,7 +68,12 @@ class Auxiliary
 	#	
 	def cmd_reload(*args)
 		begin
+			omod = self.mod
 			self.mod = framework.modules.reload_module(mod)
+			if(not self.mod)
+				print_status("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
+				self.mod = omod
+			end			
 		rescue
 			log_error("Failed to reload: #{$!}")
 		end	
@@ -79,7 +84,13 @@ class Auxiliary
 	#
 	def cmd_rerun(*args)
 		begin
+			omod = self.mod
 			self.mod = framework.modules.reload_module(mod)
+			if(not self.mod)
+				print_status("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
+				self.mod = omod
+				return
+			end
 			cmd_run(*args)
 		rescue
 			log_error("Failed to rerun: #{$!}")
