@@ -1857,7 +1857,7 @@ protected
 				o.name.match(regex) or
 				o.description.match(regex) or
 				o.refname.match(regex) or
-				o.references.to_s.match(regex) or
+				o.references.map{|x| [x.ctx_id + '-' + x.ctx_val, x.to_s]}.join(' ').match(regex) or
 				o.author.to_s.match(regex)
 			)
 				tbl << [ refname, o.name ]
