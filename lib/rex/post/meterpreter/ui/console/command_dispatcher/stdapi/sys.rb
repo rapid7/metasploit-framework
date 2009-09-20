@@ -45,6 +45,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def commands
 		{
+			"clearev"  => "Clear the event log",
 			"execute"  => "Execute a command",
 			"getpid"   => "Get the current process identifier",
 			"getuid"   => "Get the user that the server is running as",
@@ -146,6 +147,22 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def cmd_getuid(*args)
 		print_line("Server username: #{client.sys.config.getuid}")
+	end
+	
+	#
+	# Clears the event log
+	#
+	def cmd_clearev(*args)
+
+		logs = ['Application', 'System', 'Security']
+		logs << args
+		logs.flatten!
+		
+		logs.each do |name|
+			log = client.sys.eventlog.open(name)
+			print_status("Wiping #{log.length} records from #{name}...")
+			log.clear
+		end
 	end
 
 	#
