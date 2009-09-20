@@ -27,10 +27,6 @@ class Framework
 	VersionCore  = Major + (Minor / 10.0)
 	VersionAPI   = APIMajor + (APIMinor / 10.0)
 	
-	# Default Versions
-	DefaultRequiredVersionCore = [3.0]
-	DefaultRequiredVersionAPI  = [1.0]
-	
 	#
 	# Mixin meant to be included into all classes that can have instances that
 	# should be tied to the framework, such as modules.
