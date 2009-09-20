@@ -701,20 +701,23 @@ class ModuleManager < ModuleSet
 				if( mins[0] > ::Msf::Framework::VersionCore or 
 				    mins[1] > ::Msf::Framework::VersionAPI
 				  )
-					elog("Failed to reload module from #{file} due to version check (requires Core:#{mins[0]} API:#{mins[1]})")
-					self.module_failed[mod.file_path] = "Failed to reload the module"
+					errmsg = "Failed to reload module from #{file} due to version check (requires Core:#{mins[0]} API:#{mins[1]})"
+					elog(errmsg)
+					self.module_failed[mod.file_path] = errmsg
 					return
 				end 
 			end
 		
-			elog("Failed to reload module from #{file}: #{e.class} #{e}")
-			self.module_failed[mod.file_path] = "Failed to reload the module"
+			errmsg = "Failed to reload module from #{file}: #{e.class} #{e}"
+			elog(errmsg)
+			self.module_failed[mod.file_path] = errmsg
 			return
 		end
 
 		if(not wrap.const_defined?('Metasploit3'))
-			elog("Reloaded file did not contain a valid module (#{file}).")
-			self.module_failed[mod.file_path] = "Failed to reload the module"
+			errmsg = "Reloaded file did not contain a valid module (#{file})."
+			elog(errmsg)
+			self.module_failed[mod.file_path] = errmsg
 			return nil
 		end
 
