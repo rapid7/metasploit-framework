@@ -90,7 +90,7 @@ class Dir < Rex::Post::Dir
 			st = nil
 			
 			if (sbuf[idx])
-				st = FileStat.new(nil)
+				st = ::Rex::Post::FileStat.new
 				st.update(sbuf[idx].value)
 			end
 
