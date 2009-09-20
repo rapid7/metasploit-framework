@@ -179,7 +179,7 @@ module PassiveX
 		register_options(
 			[
 				OptAddress.new('PXHOST', [ true, "The local HTTP listener hostname" ]),
-				OptPort.new('PXPORT', [ true, "The local HTTP listener port", 8080 ]),
+				OptPort.new('PXPORT', [ true, "The local HTTP listener port", 8000 ]),
 				OptString.new('PXURI', [ false, "The URI root for requests", "/" + Rex::Text.rand_text_alphanumeric(32) ]),
 				OptString.new('PXAXCLSID', [ true, "ActiveX CLSID", "B3AC7307-FEAE-4e43-B2D6-161E68ABA838" ]),
 				OptString.new('PXAXVER', [ true, "ActiveX DLL Version", "-1,-1,-1,-1" ]),
