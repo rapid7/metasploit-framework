@@ -424,7 +424,7 @@ protected
 			0.upto(decoder_key_size - 1) { |index|
 				
 				# Subtract the bad and leave the good
-				good_keys = allset-bad_keys[index].keys
+				good_keys = allset - bad_keys[index].keys
 
 				# Was there anything left for this index?
 				if (good_keys.length == 0)
@@ -549,7 +549,7 @@ protected
 	# Returns the list of bad keys associated with this encoder.
 	#
 	def find_bad_keys(buf, badchars)
-		return Array.new( decoder_key_size, {} )
+		return Array.new(decoder_key_size) { Hash.new }
 	end
 
 	#
