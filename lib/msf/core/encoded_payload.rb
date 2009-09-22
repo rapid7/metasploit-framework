@@ -121,10 +121,8 @@ class EncodedPayload
 				    (self.encoder.encoder_type.split(/\s+/).include?(reqs['EncoderType']) == false))
 					wlog("#{pinst.refname}: Encoder #{encoder.refname} is not a compatible encoder type: #{reqs['EncoderType']} != #{self.encoder.encoder_type}",
 						'core', LEV_1)
-				
 					next
 				end
-
 				# If the exploit did not explicitly request a kind of encoder and
 				# the current encoder has a manual ranking, then it should not be
 				# considered as a valid encoder.  A manual ranking tells the
@@ -158,31 +156,30 @@ class EncodedPayload
 				# Try encoding with the current encoder
 				begin
 					self.encoded = self.encoder.encode(self.raw, reqs['BadChars'])
-				rescue ::Exception
-					wlog("#{pinst.refname}: Failed to encode payload with encoder #{encoder.refname}: #{$!}",
-						'core', LEV_1)
-
+				rescue EncodingError
+					wlog("#{pinst.refname}: Encoder #{encoder.refname} failed: #{$!}", 'core', LEV_1)
 					dlog("#{pinst.refname}: Call stack\n#{$@.join("\n")}", 'core', LEV_3)
-
+					next
+				rescue ::Exception
+					elog("#{pinst.refname}: Broken encoder #{encoder.refname}: #{$!}", 'core', LEV_0)
+					dlog("#{pinst.refname}: Call stack\n#{$@.join("\n")}", 'core', LEV_1)
 					next
 				end
-
-				dlog("#{pinst.refname}: Successfully encoded with encoder #{encoder.refname} (size is #{self.encoded.length})", 
-					'core', LEV_2)
 
 				# Get the minimum number of nops to use
 				min = (reqs['MinNops'] || 0).to_i
 				min = 0 if reqs['DisableNops']
 				
-
 				# Check to see if we have enough room for the minimum requirements
-				if ((reqs['Space']) and
-				    (reqs['Space'] < self.encoded.length + min))
+				if ((reqs['Space']) and (reqs['Space'] < self.encoded.length + min))
 					wlog("#{pinst.refname}: Encoded payload version is too large with encoder #{encoder.refname}",
 						'core', LEV_1)
 
 					next
 				end
+
+				ilog("#{pinst.refname}: Successfully encoded with encoder #{encoder.refname} (size is #{self.encoded.length})",
+					 'core', LEV_0)
 
 				break
 			}
