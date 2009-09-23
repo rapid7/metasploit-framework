@@ -25,50 +25,64 @@ class FileStat
 	  'blockSpecial', 'file', 'link', 'socket'
 	]
 
-	private
 	attr_accessor :stathash
-	public
 
+	def initialize(buf='')
+		self.stathash = {}
+		update(buf) if (buf and not buf.empty?)
+	end
+	
 	def dev
-		stathash['st_dev']
+		self.stathash['st_dev']
 	end
 	def ino
-		stathash['st_ino']
+		self.stathash['st_ino']
 	end
 	def mode
-		stathash['st_mode']
+		self.stathash['st_mode']
 	end
 	def nlink
-		stathash['st_nlink']
+		self.stathash['st_nlink']
 	end
 	def uid
-		stathash['st_uid']
+		self.stathash['st_uid']
 	end
 	def gid
-		stathash['st_gid']
+		self.stathash['st_gid']
 	end
 	def rdev
-		stathash['st_rdev']
+		self.stathash['st_rdev']
 	end
 	def size
-		stathash['st_size']
+		self.stathash['st_size']
 	end
 	def blksize
-		stathash['st_blksize']
+		self.stathash['st_blksize']
 	end
 	def blocks
-		stathash['st_blocks']
+		self.stathash['st_blocks']
 	end
 	def atime
-		Time.at(stathash['st_atime'])
+		Time.at(self.stathash['st_atime'])
 	end
 	def mtime
-		Time.at(stathash['st_mtime'])
+		Time.at(self.stathash['st_mtime'])
 	end
 	def ctime
-		Time.at(stathash['st_ctime'])
+		Time.at(self.stathash['st_ctime'])
 	end
 
+	def update(buf)
+
+		# XXX: This needs to understand more than just 'stat' structures
+		# Windows can also return _stat32, _stat32i64, _stat64i32, and _stat64 structures
+		
+		skeys = %W{st_dev st_ino st_mode st_wtf st_nlink st_uid st_gid st_rdev st_size st_ctime st_atime st_mtime}
+		svals = buf.unpack("VvvvvvvVVVVV")
+		skeys.each_index do |i|
+			self.stathash[ skeys[i] ] = svals[i]
+		end
+	end
 
 	#
 	# S_IFMT     0170000   bitmask for the file type bitfields
