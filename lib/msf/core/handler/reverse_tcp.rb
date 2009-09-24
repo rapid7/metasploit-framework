@@ -54,7 +54,7 @@ module ReverseTcp
 	#
 	def setup_handler
 		if datastore['Proxies']
-			raise 'tcp connectback can not be used with proxies'
+			raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies'
 		end
 
 		ex = false
@@ -65,8 +65,8 @@ module ReverseTcp
 		# specific LHOST.  Use the any addr for whatever LHOST was, ipv4 or 6.
 		any = (addr.length == 4) ? "0.0.0.0" : "::0"
 		[ any, Rex::Socket.addr_ntoa(addr) ].each { |ip|
-			begin 
-				print_status("Handler binding to LHOST #{ip}")
+			begin
+				print_status("Handler trying to bind to #{ip}") if ip != any
 				self.listener_sock = Rex::Socket::TcpServer.create(
 					'LocalHost' => ip,
 					'LocalPort' => datastore['LPORT'].to_i,
@@ -81,7 +81,7 @@ module ReverseTcp
 				break
 			rescue
 				ex = $!
-				print_error("Bind failed on #{ip}")
+				print_error("Handler failed to bind to #{ip}")
 			end
 		}
 		raise ex if (ex) 
