@@ -1,5 +1,5 @@
 ##
-# $Id: reverse_tcp.rb 7035 2009-09-14 08:45:01Z egypt $
+# $Id$
 ##
 
 ##
@@ -22,7 +22,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Reverse All-Port TCP Stager',
-			'Version'       => '$Revision: 7035 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Try to connect back to the attacker, on all possible ports (1-65535, slowly)',
 			'Author'        => ['hdm', 'skape', 'Stephen Fewer <stephen_fewer[at]harmonysecurity[dot]com>'],
 			'License'       => MSF_LICENSE,
