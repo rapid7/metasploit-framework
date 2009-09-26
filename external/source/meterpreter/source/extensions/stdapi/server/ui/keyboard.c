@@ -216,10 +216,14 @@ DWORD request_ui_get_keys(Remote *remote, Packet *request)
 	Packet *response = packet_create_response(request);
 	DWORD result = ERROR_SUCCESS;
 	
-	// This works because NULL defines the end of data (or if its wrapped, the whole buffer)
-	packet_add_tlv_string(response, TLV_TYPE_KEYS_DUMP, KeyScanBuff);
-	memset(KeyScanBuff, 0, KeyScanSize);
-	KeyScanIndex = 0;
+	if(tKeyScan) {
+		// This works because NULL defines the end of data (or if its wrapped, the whole buffer)
+		packet_add_tlv_string(response, TLV_TYPE_KEYS_DUMP, KeyScanBuff);
+		memset(KeyScanBuff, 0, KeyScanSize);
+		KeyScanIndex = 0;
+	} else {
+		result = 1;
+	}
 
 	// Transmit the response
 	packet_transmit_response(result, remote, response);

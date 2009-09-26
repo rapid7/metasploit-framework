@@ -347,11 +347,13 @@ DWORD request_sniffer_capture_stop(Remote *remote, Packet *packet) {
 			break;
 		}
 
+		
+		EnterCriticalSection(&sniffercs);
+
 		j->active = 0;
+		AdpSetMacFilter(j->adp, 0);
 		AdpCloseAdapter(j->adp);
 		AdpDestroy(j->adp);
-
-		EnterCriticalSection(&sniffercs);
 		
 		for(i=0; i<j->max_pkts; i++) {
 			if(!j->pkts[i]) break;
