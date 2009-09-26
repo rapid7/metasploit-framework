@@ -44,6 +44,8 @@ module Auxiliary
 
 		# Import options from the OptionStr or Option hash.
 		mod._import_extra_options(opts)
+
+		mod.datastore['ACTION'] = opts['Action'] if opts['Action']
 		
 		# Verify the ACTION
 		if (mod.actions.length > 0 and not mod.action)

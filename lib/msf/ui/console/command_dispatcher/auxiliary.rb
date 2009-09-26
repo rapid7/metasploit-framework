@@ -135,7 +135,7 @@ class Auxiliary
 		}
 	
 		# Always run passive modules in the background
-		if (mod.passive? or mod.passive_action?(action))
+		if (mod.passive or mod.passive_action?(action))
 			jobify = true
 		end
 		
