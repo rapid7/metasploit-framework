@@ -196,11 +196,6 @@ protected
 				'Exploit' => assoc_exploit ? assoc_exploit.refname : nil,
 				'Payload' => self.refname)
 
-			# Call the payload's on_session handler.  We run this prior to
-			# registering the session because the act of registering the session
-			# may lead to the termination of this thread.
-			on_session(s)
-
 			# If the session is valid, register it with the framework and
 			# notify any waiters we may have.
 			if (s)
@@ -220,6 +215,9 @@ protected
 		# Register the session with the framework
 		framework.sessions.register(session)
 
+		# Call the handler's on_session() method
+		on_session(session)
+		
 		# If there is an exploit associated with this payload, then let's notify
 		# anyone who is interested that this exploit succeeded
 		if assoc_exploit
