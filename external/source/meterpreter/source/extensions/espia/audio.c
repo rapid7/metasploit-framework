@@ -64,7 +64,7 @@ BOOL capmicaudio(char *szFile, int millisecs)
 
 
 
-int __declspec(dllexport) controlmic(char **waveresults) {
+int __declspec(dllexport) controlmic(char **waveresults, int msecs) {
 	DWORD dwError = 0;
 	char *wavestring = NULL;
 
@@ -72,7 +72,7 @@ int __declspec(dllexport) controlmic(char **waveresults) {
 	char buffer[100];
 	/* END METERPRETER CODE */
 
-	capmicaudio("C:\\test.wav", 10000);
+	capmicaudio("C:\\test.wav", msecs);
 
 	*waveresults = wavestring;
 
@@ -90,8 +90,7 @@ DWORD request_audio_get_dev_audio(Remote *remote, Packet *packet)
 	DWORD res = ERROR_SUCCESS;
 	char *wave = NULL;
 
-
-	if (controlmic(&wave))
+	if (controlmic(&wave,packet_get_tlv_value_uint(packet, TLV_TYPE_DEV_RECTIME)))
 	{
 		res = GetLastError();
 	}

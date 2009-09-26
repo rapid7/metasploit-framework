@@ -367,6 +367,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\source\extensions\espia\screen.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\extensions\espia\video.c"
 				>
 			</File>
@@ -382,6 +386,10 @@
 			</File>
 			<File
 				RelativePath="..\..\source\extensions\espia\espia.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\extensions\espia\screen.h"
 				>
 			</File>
 			<File

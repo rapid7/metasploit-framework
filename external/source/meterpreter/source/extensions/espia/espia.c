@@ -6,6 +6,7 @@
 #include "espia.h"
 #include "audio.h"
 #include "video.h"
+#include "screen.h"
 
 
 #include "../../ReflectiveDLLInjection/DelayLoadMetSrv.h"
@@ -30,6 +31,12 @@ Command customCommands[] =
 	// Audio
 	{ "espia_audio_get_dev_audio",
 	  { request_audio_get_dev_audio,                     { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+
+	// Screen
+	{ "espia_image_get_dev_screen",
+	  { request_image_get_dev_screen,                     { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
