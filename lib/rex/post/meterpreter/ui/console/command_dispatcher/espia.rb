@@ -28,9 +28,9 @@ class Console::CommandDispatcher::Espia
 	#
 	def commands
 		{
-			"dev_image" => "Attempt to grab a frame from webcam",
-			"dev_audio" => "Attempt to record mic audio",
-			"dev_screen" => "Attempt to grab screen shot"
+			"dev_image"  => "Attempt to grab a frame from webcam",
+			"dev_audio"  => "Attempt to record microphone audio",
+			"screenshot" => "Attempt to grab screen shot from process's active desktop"
 		}
 	end
 	
@@ -63,19 +63,30 @@ class Console::CommandDispatcher::Espia
 		return true
 	end
 	
-	def cmd_dev_screen(*args)
-		if (args.length < 1)
-			print_line("Usage: dev_screen <store_path>\n")
-			print_line("Grab screen shot\n")
+	def cmd_screenshot(*args)
+		if (args.length < 1 or args[0] == "-h")
+			print_line("Usage: screenshot <path.bmp> [view in browser: true|false]\n")
 			return true
 		end
 		
-		storepath = args[0]	
+		show = true
+		show = false if (args[1] and args[1] =~ /^(f|n|0)/i)
 		
-		sf = client.espia.espia_image_get_dev_screen(storepath)
-		print_line("[*] Image saved: #{sf}")
-		print_line("[*] Done.")
-
+		path = args[0]
+		
+		data = client.espia.espia_image_get_dev_screen
+		
+		if(data)
+			::File.open(path, 'wb') do |fd|
+				fd.write(data)
+			end
+		end
+		
+		print_line("[*] Image saved to #{path}")
+		if(show)
+			print_line("Opening browser to image...")
+			::Rex::Compat.open_browser(path)
+		end
 		return true
 	end
 

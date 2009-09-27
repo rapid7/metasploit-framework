@@ -44,19 +44,10 @@ class Espia < Extension
 		return true
 	end
 	
-	def espia_image_get_dev_screen(storepath)		
-		request = Packet.create_request('espia_image_get_dev_screen')		
+	def espia_image_get_dev_screen
+		request  = Packet.create_request('espia_image_get_dev_screen')		
 		response = client.send_request(request)
-		
-		t = Time.now   
-	    tstr = t.strftime("%d%m%Y%H%M%S")
-		fn = "#{storepath}espia_screen#{tstr}.bmp"
-
-		dst_fd = ::File.new(fn, "wb")
-		dst_fd.write(response.get_tlv_value(TLV_TYPE_DEV_SCREEN))
-		dst_fd.close
-				
-		return fn
+		response.get_tlv_value(TLV_TYPE_DEV_SCREEN)
 	end
 
 end
