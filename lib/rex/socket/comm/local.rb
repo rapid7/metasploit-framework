@@ -207,17 +207,10 @@ class Rex::Socket::Comm::Local
 				case param.proto
 					when 'tcp'
 						klass = Rex::Socket::Tcp
-	
-						if (param.ssl)
-							klass = Rex::Socket::SslTcp
-						end
-	
 						sock.extend(klass)
-	
 						sock.initsock(param)
 					when 'udp'
 						sock.extend(Rex::Socket::Udp)
-	
 						sock.initsock(param)
 				end
 			end
@@ -231,6 +224,15 @@ class Rex::Socket::Comm::Local
 					end
 				}
 			end
+			
+			# Now extend the socket with SSL and perform the handshake
+			if(param.bare? == false and param.ssl)
+				klass = Rex::Socket::SslTcp
+				sock.extend(klass)
+				sock.initsock(param)			
+			end
+			
+			
 		end
 
 		# Notify handlers that a socket has been created.
@@ -282,8 +284,8 @@ class Rex::Socket::Comm::Local
 			if (ret.nil? or ret.length < 8)
 				raise ArgumentError, 'SOCKS4 server did not respond with a proper response'
 			end
-			if ret[1] != 90
-				raise "SOCKS4 server responded with error code #{ret[0]}"
+			if ret[1,1] != "\x5a"
+				raise "SOCKS4 server responded with error code #{ret[0,1].unpack("C")[0]}"
 			end
 		when 'socks5'
 			auth_methods = [5,1,0].pack('CCC')
@@ -291,8 +293,8 @@ class Rex::Socket::Comm::Local
 			if (size != auth_methods.length)
 				raise ArgumentError, "Wrote less data than expected to the socks5 proxy"
 			end
-			response = sock.get_once(2,30)
-			if (0xff == response[1,1])
+			ret = sock.get_once(2,30)
+			if (ret[1,1] == "\xff")
 				raise ArgumentError, "Proxy requires authentication"
 			end
 
