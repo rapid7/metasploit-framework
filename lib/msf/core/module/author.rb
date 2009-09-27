@@ -28,7 +28,10 @@ class Msf::Module::Author
 			'egypt'     => 'egypt' + 0x40.chr + 'metasploit.com',
 			'kris katterjohn' => 'katterjohn' + 0x40.chr + 'gmail.com',
 			'CG'        => 'cg' + 0x40.chr + 'carnal0wnage.com',
-			'et'        => 'et' + 0x40.chr + 'metasploit.com'
+			'et'        => 'et' + 0x40.chr + 'metasploit.com',
+			'sf'        => 'stephen_fewer' + 0x40.chr + 'harmonysecurity.com',
+			'kf'        => 'kf_list' + 0x40.chr + 'digitalmunition.com',
+			'ddz'       => 'ddz' + 0x40.chr + 'theta44.org'
 		}
 
 	#
@@ -73,7 +76,7 @@ class Msf::Module::Author
 	def to_s
 		str = "#{name}"
 
-		if (email != nil)
+		if (email and not email.empty?)
 			str += " <#{email}>"
 		end
 
@@ -103,13 +106,15 @@ class Msf::Module::Author
 			else
 				self.email = str.sub(/\s*\[at\]\s*/, '@').sub(/\s*\[dot\]\s*/, '.').gsub(/^<|>$/, '')
 				m = self.email.match(/([^@]+)@/)
-				self.name = m ? m[1] : 'unknown'
+				self.name = m ? m[1] : nil
+				if(not (self.email and self.email.index('@')))
+					self.name  = self.email
+					self.email = ''					
+				end
 			end
 		end
 
-		if self.name
-			self.name.gsub!(/\s+$/, '')
-		end
+		self.name.strip! if self.name
 
 		return true
 	end

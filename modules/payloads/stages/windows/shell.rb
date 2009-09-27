@@ -22,7 +22,7 @@ module Metasploit3
 			'Name'          => 'Windows Command Shell',
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a piped command shell',
-			'Author'        => [ 'spoonm', 'Stephen Fewer <stephen_fewer[at]harmonysecurity[dot]com>' ],
+			'Author'        => [ 'spoonm', 'sf' ],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,

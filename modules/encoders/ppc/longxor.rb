@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Encoder::Xor
 				This encoder is ghandi's PPC dword xor encoder with some size tweaks
 				by HDM.
 			},
-			'Author'           => [ 'Dino Dai Zovi <ddz [at] theta44.org>', 'hdm' ],
+			'Author'           => [ 'ddz', 'hdm' ],
 			'Arch'             => ARCH_PPC,
 			'License'          => MSF_LICENSE,
 			'Decoder'          =>

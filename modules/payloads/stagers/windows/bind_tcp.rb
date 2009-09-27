@@ -24,7 +24,7 @@ module Metasploit3
 			'Name'          => 'Bind TCP Stager',
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection',
-			'Author'        => ['hdm', 'skape', 'Stephen Fewer <stephen_fewer[at]harmonysecurity[dot]com>'],
+			'Author'        => ['hdm', 'skape', 'sf'],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,

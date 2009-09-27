@@ -128,6 +128,8 @@ class Msf::Module::SiteReference < Msf::Module::Reference
 	def from_s(str)
 		if (/(http:\/\/|https:\/\/|ftp:\/\/)/.match(str))
 			self.site = str
+			self.ctx_id  = 'URL'
+			self.ctx_val = self.site
 		else
 			return false
 		end

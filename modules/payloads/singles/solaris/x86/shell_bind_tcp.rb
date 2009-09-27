@@ -25,7 +25,7 @@ module Metasploit3
 			'Name'          => 'Solaris Command Shell, Bind TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
-			'Author'        => 'Ramon de Carvalho Valle <ramon@risesecurity.org>',
+			'Author'        => 'ramon',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'solaris',
 			'Arch'          => ARCH_X86,

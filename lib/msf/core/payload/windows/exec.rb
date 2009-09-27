@@ -20,7 +20,7 @@ module Payload::Windows::Exec
 			'Name'          => 'Windows Execute Command',
 			'Version'       => '$Revision$',
 			'Description'   => 'Execute an arbitrary command',
-			'Author'        => [ 'vlad902', 'Stephen Fewer <stephen_fewer[at]harmonysecurity[dot]com>' ],
+			'Author'        => [ 'vlad902', 'sf' ],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,

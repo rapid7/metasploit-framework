@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Nop
 			'Alias'       => 'x64_simple',
 			'Version'     => '$Revision$',
 			'Description' => 'An x64 single/multi byte NOP instruction generator.',
-			'Author'      => [ 'Stephen Fewer <stephen_fewer[at]harmonysecurity[dot]com>' ],
+			'Author'      => [ 'sf' ],
 			'License'     => MSF_LICENSE,
 			'Arch'        => ARCH_X86_64 )
 

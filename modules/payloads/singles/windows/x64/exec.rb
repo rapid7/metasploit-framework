@@ -23,7 +23,7 @@ module Metasploit3
 			'Name'          => 'Windows x64 Execute Command',
 			'Version'       => '$Revision$',
 			'Description'   => 'Execute an arbitrary command (Windows x64)',
-			'Author'        => [ 'Stephen Fewer <stephen_fewer[at]harmonysecurity[dot]com>' ],
+			'Author'        => [ 'sf' ],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86_64,

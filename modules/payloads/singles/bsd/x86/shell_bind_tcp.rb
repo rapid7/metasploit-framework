@@ -25,7 +25,7 @@ module Metasploit3
 			'Name'          => 'BSD Command Shell, Bind TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
-			'Author'        => 'Ramon de Carvalho Valle <ramon[at]risesecurity.org>',
+			'Author'        => 'ramon',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'bsd',
 			'Arch'          => ARCH_X86,

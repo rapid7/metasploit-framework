@@ -24,7 +24,7 @@ module Metasploit3
 			'Name'          => 'Windows Command Shell, Bind TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection and spawn a command shell',
-			'Author'        => [ 'vlad902', 'Stephen Fewer <stephen_fewer[at]harmonysecurity[dot]com>' ],
+			'Author'        => [ 'vlad902', 'sf' ],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,

@@ -30,7 +30,7 @@ module Metasploit3
 			'Name'          => 'Mac OS X x86 iSight photo capture',
 			'Version'       => '$Revision$',
 			'Description'   => 'Inject a Mach-O bundle to capture a photo from the iSight',
-			'Author'        => [ 'Dino Dai Zovi <ddz@theta44.org' ],
+			'Author'        => 'ddz',
 			'License'       => MSF_LICENSE,
 			'Session'       => Msf::Sessions::CommandShell))
 

@@ -21,7 +21,7 @@ module Payload::Windows::ReflectiveDllInject_x64
 			'Name'          => 'Reflective Dll Injection',
 			'Version'       => '$Revision$',
 			'Description'   => 'Inject a Dll via a reflective loader',
-			'Author'        => [ 'Stephen Fewer <stephen_fewer[at]harmonysecurity[dot]com>' ],
+			'Author'        => [ 'sf' ],
 			'References'    => [ [ 'URL', 'http://www.harmonysecurity.com/ReflectiveDllInjection.html' ] ],
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86_64,

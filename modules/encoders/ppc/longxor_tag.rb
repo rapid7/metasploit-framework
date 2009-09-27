@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Encoder::Xor
 				This encoder is ghandi's PPC dword xor encoder but uses a tag-based
 				terminator rather than a length.
 			},
-			'Author'           => [ 'Dino Dai Zovi <ddz [at] theta44.org>', 'hdm' ],
+			'Author'           => [ 'ddz', 'hdm' ],
 			'Arch'             => ARCH_PPC,
 			'Decoder'          =>
 				{

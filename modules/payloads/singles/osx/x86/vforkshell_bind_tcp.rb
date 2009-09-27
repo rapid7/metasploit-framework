@@ -25,7 +25,7 @@ module Metasploit3
 			'Name'          => 'OSX (vfork) Command Shell, Bind TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection, vfork if necessary, and spawn a command shell',
-			'Author'        => 'Dino Dai Zovi <ddz@theta44.org>',
+			'Author'        => 'ddz',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',
 			'Arch'          => ARCH_X86,

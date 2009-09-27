@@ -18,7 +18,7 @@ module Metasploit3
 			'Name'          => 'VNC Server (Reflective Injection)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Inject a VNC Dll via a reflective loader',
-			'Author'        => [ 'Stephen Fewer <info@harmonysecurity.com>' ],
+			'Author'        => [ 'sf' ],
 			'Session'       => Msf::Sessions::VncInject ))
       
 

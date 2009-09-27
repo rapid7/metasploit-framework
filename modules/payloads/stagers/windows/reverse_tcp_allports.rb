@@ -24,7 +24,7 @@ module Metasploit3
 			'Name'          => 'Reverse All-Port TCP Stager',
 			'Version'       => '$Revision$',
 			'Description'   => 'Try to connect back to the attacker, on all possible ports (1-65535, slowly)',
-			'Author'        => ['hdm', 'skape', 'Stephen Fewer <stephen_fewer[at]harmonysecurity[dot]com>'],
+			'Author'        => ['hdm', 'skape', 'sf'],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,

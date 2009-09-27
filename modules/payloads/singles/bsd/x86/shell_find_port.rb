@@ -25,7 +25,7 @@ module Metasploit3
 			'Name'          => 'BSD Command Shell, Find Port Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Spawn a shell on an established connection',
-			'Author'        => 'Ramon de Carvalho Valle <ramon@risesecurity.org>',
+			'Author'        => 'ramon',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'bsd',
 			'Arch'          => ARCH_X86,

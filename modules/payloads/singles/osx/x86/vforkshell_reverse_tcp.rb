@@ -25,7 +25,7 @@ module Metasploit3
 			'Name'          => 'OSX (vfork) Command Shell, Reverse TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker, vfork if necessary, and spawn a command shell',
-			'Author'        => 'Dino Dai Zovi <ddz@theta44.org>',
+			'Author'        => 'ddz',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',
 			'Arch'          => ARCH_X86,

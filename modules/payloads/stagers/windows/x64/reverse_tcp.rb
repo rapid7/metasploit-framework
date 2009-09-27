@@ -24,7 +24,7 @@ module Metasploit3
 			'Name'          => 'Windows x64 Reverse TCP Stager',
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to the attacker (Windows x64)',
-			'Author'        => [ 'Stephen Fewer <stephen_fewer[at]harmonysecurity[dot]com>' ],
+			'Author'        => [ 'sf' ],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86_64,

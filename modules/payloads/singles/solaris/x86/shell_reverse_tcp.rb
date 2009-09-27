@@ -25,7 +25,7 @@ module Metasploit3
 			'Name'          => 'Solaris Command Shell, Reverse TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
-			'Author'        => 'Ramon de Carvalho Valle <ramon@risesecurity.org>',
+			'Author'        => 'ramon',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'solaris',
 			'Arch'          => ARCH_X86,

@@ -18,7 +18,7 @@ module Metasploit3
 			'Name'		=> 'Reverse TCP Stager',
 			'Version'	=> '$Revision$',
 			'Description'	=> 'Connect, read length, read buffer, execute',
-			'Author'	=> 'Dino Dai Zovi <ddz@theta44.org>',
+			'Author'	=> 'ddz',
 			'License'	=> MSF_LICENSE,
 			'Platform'	=> 'osx',
 			'Arch'		=> ARCH_X86,

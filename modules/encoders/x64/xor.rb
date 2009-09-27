@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Encoder::Xor
 			'Name'             => 'XOR Encoder',
 			'Version'          => '$Revision$',
 			'Description'      => 'An x64 XOR encoder. Uses an 8 byte key and takes advantage of x64 relative addressing.',
-			'Author'           => [ 'Stephen Fewer <stephen_fewer[at]harmonysecurity[dot]com>' ],
+			'Author'           => [ 'sf' ],
 			'Arch'             => ARCH_X86_64,
 			'License'          => MSF_LICENSE,
 			'Decoder'          =>

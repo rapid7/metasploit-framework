@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 				use lately by concatenation of HTML string that forces a persistant
 				XSS attack to redirect user browser to a attacker controller website.
 			},
-			'Author'         => [ 'ET LoWNOISE et [at] metasploit.com' ],
+			'Author'         => [ 'et' ],
 			'License'        => BSD_LICENSE,
 			'Version'        => '$Revision$'))   
 			
