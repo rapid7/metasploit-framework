@@ -28,10 +28,7 @@ if (RUBY_VERSION =~ /^1\.9\.0/)
 	exit(0)
 end
 
-if(RUBY_VERSION =~ /^1\.9\./)	
-	$stderr.puts "*** Metasploit only has EXPERIMENTAL support for Ruby 1.9.1 and newer, things may break!"
-	$stderr.puts "*** Please report bugs to msfdev[at]metasploit.com"
-
+if(RUBY_VERSION =~ /^1\.9\./)
 	# Force binary encoding for Ruby versions that support it
 	if(Object.const_defined?('Encoding') and Encoding.respond_to?('default_external='))
 		Encoding.default_external = Encoding.default_internal = "binary"
