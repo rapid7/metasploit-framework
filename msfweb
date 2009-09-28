@@ -11,11 +11,10 @@ end
 $:.unshift(File.join(File.dirname(msfbase), 'lib'))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
-
-require 'msf/base'
-require 'rex'
 require 'stringio'
-
+require 'rex'
+require 'msf/base'
+require 'msf/ui/web'
 
 
 msfroot = File.join(File.dirname(msfbase), 'data', 'msfweb')
