@@ -1822,7 +1822,7 @@ module RbReadline
 
    def get_term_capabilities(buffer)
       hash = {}
-      `infocmp -C`.split(':').select{|x| x =~ /(.*)=(.*)/ and hash[$1]=$2.gsub('\\E',"\e").gsub(/\^(.)/){($1[0].ord ^ ((?a..?z).include?($1[0]) ? 0x60 : 0x40)).chr}}
+      IO.popen('infocmp -C 2>/dev/null').read.split(':').select{|x| x =~ /(.*)=(.*)/ and hash[$1]=$2.gsub('\\E',"\e").gsub(/\^(.)/){($1[0].ord ^ ((?a..?z).include?($1[0]) ? 0x60 : 0x40)).chr}}
       @_rl_term_at7          =     hash["@7"]
       @_rl_term_DC           =     hash["DC"]
       @_rl_term_IC           =     hash["IC"]
