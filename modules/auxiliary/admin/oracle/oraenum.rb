@@ -13,34 +13,32 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def initialize(info = {})
 		super(update_info(info,
-				'Name'           => 'Simple Oracle Database Enumeration.',
-				'Description'    => %q{
-					This module allows for simple Oracle Database Enumeration of parameters
-					that might be of importance during a Pentest. DBA Credentials must be 
-					used.
-				},
-				'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
-				'License'        => MSF_LICENSE,
-				'Version'        => '$Revision$',
+			'Name'           => 'Simple Oracle Database Enumeration.',
+			'Description'    => %q{
+				This module provides a simple way to scan an Oracle database server
+				for configuration parameters that may be useful during a penetration
+				test. Valid database credentials must be provided for this module to
+				run.
+			},
+			'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
+			'License'        => MSF_LICENSE,
+			'Version'        => '$Revision$'
 		))
 
 	end
 	
 	def plsql_query(exec)
+		@dbh ||= connect
+
 		querydata = ""
-		begin
-			sploit = connect.prepare(exec)
-			sploit.execute
-		rescue DBI::DatabaseError => e
-			raise e.to_s
-			#print_status("\t#{e.to_s}")
-			return
-		end
+
+		sploit = @dbh.prepare(exec)
+		sploit.execute
 
 		begin
 			sploit.each do | data |
-			querydata << ("#{data.join(",").to_s} \n")
-		end
+				querydata << ("#{data.join(",").to_s} \n")
+			end
 			sploit.finish
 		rescue DBI::DatabaseError => e
 			#print_error("#{e.to_s}")
@@ -127,10 +125,10 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 
-			print_status("\tUTL Directory Access is set to #{utl.chomp}") if vparm["utl_file_dir"] != " "
+			print_status("\tUTL Directory Access is set to #{vparm["utl_file_dir"].strip}") if vparm["utl_file_dir"] != " "
 			report_note(:host => datastore['RHOST'], :proto => 'TNS', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "UTL_DIR: #{ vparm["utl_file_dir"]}") if not  vparm["utl_file_dir"].empty?
 
-			print_status("\tAudit log is saved at #{vparm["audit_file_dest"]}")
+			print_status("\tAudit log is saved at #{vparm["audit_file_dest"].strip}")
 			report_note(:host => datastore['RHOST'], :proto => 'TNS', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Audit Log Location: #{ vparm["audit_file_dest"]}") if not  vparm["audit_file_dest"].empty?
 		end
 
@@ -445,7 +443,6 @@ class Metasploit3 < Msf::Auxiliary
 						report_note(:host => datastore['RHOST'], :proto => 'TNS', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Account with Default Password #{accrcrd[0]} is #{accrcrd[1]}")
 					end
 				end
-
 			end
 		end
 	end
