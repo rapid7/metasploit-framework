@@ -624,7 +624,8 @@ module RbReadline
       "\C-x" => :rl_insert  ,
       "\C-y" => :rl_yank  ,
       "\C-z" => :rl_insert  ,
-      "\C-[" => :rl_vi_movement_mode  ,
+#      "\C-[" => :rl_vi_movement_mode,
+# XXX: NOT IMPLEMENTED
       "\C-\\" => :rl_insert  ,
       "\C-]" => :rl_insert  ,
       "\C-^" => :rl_insert  ,
@@ -2179,7 +2180,8 @@ module RbReadline
          if args[5..-1] == "emacs"
             mode = @emacs_mode
          elsif args[5..-1] == "vi"
-            mode = @vi_mode
+            $stderr.puts "*** Warning: vi-mode not supported, switching back to emacs mode"		 
+            mode = @emacs_mode
          else
             mode = @no_mode
          end
@@ -2329,8 +2331,11 @@ module RbReadline
       when "editing-mode"
          case value
          when "vi"
-            @_rl_keymap = @vi_insertion_keymap
-            @rl_editing_mode = @vi_mode
+            $stderr.puts "*** Warning: vi editing-mode not supported, switching back to emacs"		 		 
+            #@_rl_keymap = @vi_insertion_keymap
+            #@rl_editing_mode = @vi_mode
+            @_rl_keymap = @emacs_standard_keymap
+            @rl_editing_mode = @emacs_mode
          when "emacs"
             @_rl_keymap = @emacs_standard_keymap
             @rl_editing_mode = @emacs_mode
