@@ -4,7 +4,7 @@ module Msf
 
       TITLE = 'Metasploit Framework'
       DESCRIPTION = 'A cross-platform GUI interface for the Metasploit Framework.'
-      COPYRIGHT = 'Copyright (C) 2006-2008 Metasploit LLC'
+      COPYRIGHT = 'Copyright (C) 2006-2009 Metasploit LLC'
       AUTHORS = [
         'Fabrice MOURRON <fab@metasploit.com>',
         'H D Moore <hdm@metasploit.com>',
@@ -18,9 +18,9 @@ module Msf
 		"BRUTE <brute@bruteprop.com>",		
 		"Anonymous",
       ]
-      LIST = 'framework-subscribe@metasploit.com'
-      BUGREPORT_URL = 'http://metasploit.com/dev/trac/report/9'
-      WEBSITE_URL = 'http://metasploit3.com'
+      LIST = 'framework-subscribe@spool.metasploit.com'
+      BUGREPORT_URL = 'http://trac.metasploit.com/report/9'
+      WEBSITE_URL = 'http://metasploit.com'
       VERSION = "v#{Msf::Framework::Version}"
 
       #
@@ -31,5 +31,6 @@ module Msf
     end
   end
 end
+
 
 require 'msf/ui/gtk2/driver'

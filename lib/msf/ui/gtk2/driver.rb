@@ -2,6 +2,8 @@ require 'msf/core'
 require 'msf/base'
 require 'msf/ui'
 
+require 'rex/io/bidirectional_pipe'
+
 require 'msf/ui/gtk2/treeviewtooltips'
 require 'msf/ui/gtk2/controls'
 require 'msf/ui/gtk2/app'
