@@ -193,19 +193,32 @@ module Wmap
 					end
 					print_status("Done.")						
 				when '-s'
-					get_report_id(args.shift)
+					repid = args.shift
+					repfile = nil
+					if repfile = args.shift
+						print_status("Saving report: #{repfile}")	
+					end
+					get_report_id(repid,repfile)
 					print_status("Done.")
 				when '-x'
 					doc  = REXML::Document.new
 					get_xml_report_id(args.shift,doc)
-					doc.write( $stdout, 0 )
+					
+					if rfile = args.shift
+						print_status("Saving XML report: #{rfile}")
+						f = File.new(rfile,"a")
+						doc.write(f,0)
+						f.close()
+					else
+						doc.write( $stdout, 0 )
+					end
 					print_status("Done.")			
 				when '-h'
 					print_status("Usage: wmap_reports [options]")
-					print_line("\t-h 		Display this help text")
-					print_line("\t-p 		Print all available reports")
-					print_line("\t-s [id]	Select report for display")
-					print_line("\t-x [id]   Display XML report")
+					print_line("\t-h				Display this help text")
+					print_line("\t-p				Print all available reports")
+					print_line("\t-s [id] [file]	Select report for display")
+					print_line("\t-x [id] [file]	Display XML report")
 					
 					print_line("")
 					return
@@ -1043,7 +1056,7 @@ module Wmap
 		#
 		# This scary method iterates the reports table to display the report 
 		#
-		def get_report_id(id) 
+		def get_report_id(id,rfile) 
 			begin
 				par = framework.db.report_parent(id)
 			rescue ::Exception
@@ -1051,10 +1064,18 @@ module Wmap
 				return
 			end
 			
-			print_line("\t#{par.entity} #{par.etype}: #{par.value} #{par.notes} [#{par.created}]")
+			l = "\t#{par.entity} #{par.etype}: #{par.value} #{par.notes} [#{par.created}]" 
+			
+			if rfile
+				r = File.new(rfile, "a")
+				r.puts(l)
+				r.close() 
+			end
+			
+			print_line(l)
 			
 			framework.db.report_children(id).each do |chl|
-				get_report_id(chl.id) 
+				get_report_id(chl.id,rfile) 
 			end
 		end
 
