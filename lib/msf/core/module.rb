@@ -369,7 +369,7 @@ class Module
 	# Return a comma separated list of supported platforms, if any.
 	#
 	def platform_to_s
-		return (platform.all?) ? [ "All" ] : platform.names
+		return ((platform.all?) ? [ "All" ] : platform.names).join(", ")
 	end
 
 	#
