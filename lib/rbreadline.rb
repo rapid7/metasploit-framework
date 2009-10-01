@@ -2429,8 +2429,13 @@ module RbReadline
       end
 
       key,funname = string.split(/\s*:\s*/)
-      key = instance_eval(key)
-      rl_bind_key(key, rl_named_function(funname))
+
+      begin
+         key = instance_eval(key)
+         rl_bind_key(key, rl_named_function(funname))
+      rescue ::Exception => e
+         $stderr.puts "[-] RbReadline error parsing inputrc: #{e} '#{key}'"
+	  end	
 
       0
    end
