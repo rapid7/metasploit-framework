@@ -4184,7 +4184,9 @@ module RbReadline
       #   the location.
       if (cxt.sflags & SF_FOUND)!=0
          cxt.prev_line_found = cxt.lines[cxt.history_pos]
-         rl_replace_line(cxt.lines[cxt.history_pos], false)
+         if (cxt.prev_line_found)
+           rl_replace_line(cxt.lines[cxt.history_pos], false)
+         end
          @rl_point = cxt.sline_index
          cxt.last_found_line = cxt.history_pos
          rl_display_search(cxt.search_string, (cxt.sflags & SF_REVERSE)!=0, (cxt.history_pos == cxt.save_line) ? -1 : cxt.history_pos)
