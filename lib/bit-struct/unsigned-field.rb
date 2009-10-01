@@ -41,8 +41,8 @@ class BitStruct
       
       if length_byte == 1
         rest = 8 - length_bit
-        mask  = ["0"*offset_bit + "1"*length + "0"*rest].pack("B8")[0]
-        mask2 = ["1"*offset_bit + "0"*length + "1"*rest].pack("B8")[0]
+        mask  = ["0"*offset_bit + "1"*length + "0"*rest].pack("B8").unpack('C')[0]
+        mask2 = ["1"*offset_bit + "0"*length + "1"*rest].pack("B8").unpack('C')[0]
         
         cl.class_eval do
           if divisor

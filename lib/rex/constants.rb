@@ -109,5 +109,5 @@ ARCH_ALL = ARCH_TYPES
 ENDIAN_LITTLE = 0
 ENDIAN_BIG    = 1
 
-IS_ENDIAN_LITTLE = ( [1].pack('s')[0] == 1 ) ? true : false
+IS_ENDIAN_LITTLE = ( [1].pack('s') == "\x01\x00" ) ? true : false
 IS_ENDIAN_BIG    = ( not IS_ENDIAN_LITTLE )

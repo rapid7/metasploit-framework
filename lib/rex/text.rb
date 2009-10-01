@@ -1003,7 +1003,7 @@ module Text
 			set = "\x09\x20\x0d\x0a"
 			buf = ''
 			while (buf.length < len)
-				buf << set[rand(set.length)].chr
+				buf << set[rand(set.length),1]
 			end
 			
 			buf
