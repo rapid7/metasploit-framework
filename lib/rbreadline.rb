@@ -2414,7 +2414,7 @@ module RbReadline
    def rl_parse_and_bind(string)
 
       # If this is a parser directive, act on it.
-      if (string[0] == ?$)
+      if (string[0,1] == ?$)
          handle_parser_directive(string[1..-1])
          return 0
       end
@@ -3000,7 +3000,7 @@ module RbReadline
             #   _rl_horizontal_scroll_mode == 1, inserting the characters with
             #   _rl_term_IC or _rl_term_ic will screw up the screen because of the
             #   invisible characters.  We need to just draw them.
-            if (old[ostart+ols] != ?\0 && (!@_rl_horizontal_scroll_mode || @_rl_last_c_pos > 0 ||
+            if (old[ostart+ols,1] != ?\0 && (!@_rl_horizontal_scroll_mode || @_rl_last_c_pos > 0 ||
                lendiff <= @prompt_visible_length || current_invis_chars==0))
 
                insert_some_chars(new[nfd..-1], lendiff, col_lendiff)
@@ -3119,7 +3119,7 @@ module RbReadline
       # If someone thought that the redisplay was handled, but the currently
       #   visible line has a different modification state than the one about
       #   to become visible, then correct the caller's misconception.
-      if (@visible_line[0] != @invisible_line[0])
+      if (@visible_line[0,1] != @invisible_line[0,1])
          @rl_display_fixed = false
       end
 
@@ -3277,7 +3277,7 @@ module RbReadline
             wc = @rl_line_buffer[0,@rl_end].scan(/./mu)[0]
             wc_bytes = wc ? wc.length : 1
          when 'X'
-            wc = @rl_line_buffer[0,@rl_end].force_encoding(@encoding_name)[0]
+            wc = @rl_line_buffer[0,@rl_end].force_encoding(@encoding_name)[0,1]
             wc_bytes = wc ? wc.bytesize : 1
          end
       else
@@ -3445,7 +3445,7 @@ module RbReadline
                wc = @rl_line_buffer[_in,@rl_end - _in].scan(/./mu)[0]
                wc_bytes = wc ? wc.length : 1
             when 'X'
-               wc = @rl_line_buffer[_in,@rl_end - _in].force_encoding(@encoding_name)[0]
+               wc = @rl_line_buffer[_in,@rl_end - _in].force_encoding(@encoding_name)[0,1]
                wc_bytes = wc ? wc.bytesize : 1
             end
 
@@ -3812,7 +3812,9 @@ module RbReadline
       when 'E'
          str[start ... _end].scan(/./me).each {|s| width += s.length }
       when 'X'
-         str[start ... _end].force_encoding(@encoding_name).codepoints.each {|s| width += s > 0x1000 ? 2 : 1 }
+         tmp = str[start ... _end]
+		 return 0 if not tmp
+		 tmp.force_encoding(@encoding_name).codepoints.each {|s| width += s > 0x1000 ? 2 : 1 }
       end
       width
    end
@@ -3987,7 +3989,7 @@ module RbReadline
       #   variable isearch-terminators) are used to terminate the search but
       #   not subsequently execute the character as a command.  The default
       #   value is "\033\012" (ESC and C-J).
-      if (cxt.search_terminators.include?(cxt.lastc))
+      if (cxt.lastc.class == ::String and cxt.search_terminators.include?(cxt.lastc))
          # ESC still terminates the search, but if there is pending
          #input or if input arrives within 0.1 seconds (on systems
          #with select(2)) it is used as a prefix character
@@ -4024,8 +4026,10 @@ module RbReadline
          # search again
       when -1
          if (cxt.search_string_index == 0)
-            if (last_isearch_string)
-               cxt.search_string_size = 64 + last_isearch_string_len
+		 	# XXX: This variable is not defined
+            # if (last_isearch_string) 
+            if(false)
+			   cxt.search_string_size = 64 + last_isearch_string_len
                cxt.search_string = last_isearch_string.dup
                cxt.search_string_index = last_isearch_string_len
                rl_display_search(cxt.search_string, (cxt.sflags & SF_REVERSE)!=0, -1)
@@ -7089,7 +7093,7 @@ module RbReadline
    def _rl_scxt_alloc(type, flags)
       cxt = Struct.new(:type,:sflags,:search_string,:search_string_index,:search_string_size,:lines,:allocated_line,
       :hlen,:hindex,:save_point,:save_mark,:save_line,:last_found_line,:prev_line_found,:save_undo_list,:history_pos,
-      :direction,:lastc,:sline,:sline_len,:sline_index,:search_terminators).new
+      :direction,:lastc,:sline,:sline_len,:sline_index,:search_terminators, :mb).new
 
       cxt.type = type
       cxt.sflags = flags
@@ -8538,7 +8542,7 @@ module RbReadline
    # if an invalid multibyte sequence was encountered. It returns (size_t)(-2)
    # if it couldn't parse a complete  multibyte character.
    def _rl_get_char_len(src)
-      return 0 if src[0] == ?\0 || src.length==0
+      return 0 if src[0,1] == ?\0 || src.length==0
       case @encoding
       when 'E'
          len = src.scan(/./me)[0].to_s.length
@@ -8548,7 +8552,7 @@ module RbReadline
          len = src.scan(/./mu)[0].to_s.length
       when 'X'
          src = src.dup.force_encoding(@encoding_name)
-         len = src.valid_encoding? ? src[0].bytesize : 0
+         len = src.valid_encoding? ? src[0,1].bytesize : 0
       else
          len = 1
       end
