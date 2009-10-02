@@ -56,7 +56,12 @@ class OptsConsole
 			opts.on("-v", "--version", "Show version") do |v|
 				options['Version'] = true
 			end
-
+			
+			# Boolean switch.
+			opts.on("-L", "--real-readline", "Use the system Readline library instead of RbReadline") do |v|
+				options['RealReadline'] = true
+			end
+			
 			opts.separator ""
 			opts.separator "Common options:"
 

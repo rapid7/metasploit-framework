@@ -59,7 +59,7 @@ module Readline
          raise IOError, "stdin closed"
       end
 
-      RbReadline.rl_instream = $stdin
+      RbReadline.rl_instream  = $stdin
       RbReadline.rl_outstream = $stdout
 
       status = 0

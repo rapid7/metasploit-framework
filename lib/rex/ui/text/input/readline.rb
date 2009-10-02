@@ -5,7 +5,6 @@ module Ui
 module Text
 
 begin 
-	require 'readline'
 
 	###
 	#
@@ -14,12 +13,24 @@ begin
 	#
 	###
 	class Input::Readline < Rex::Ui::Text::Input
-		include ::Readline
 		
 		#
 		# Initializes the readline-aware Input instance for text.
 		#
 		def initialize(tab_complete_proc = nil)
+		
+		
+			if(not Object.const_defined?('Readline'))
+				$stderr.puts "TRYING TO FIGURE OUT WHICH READLINE LIBRARY: #{caller}"
+				begin 
+					require 'readline'
+				rescue ::LoadError
+					require 'readline_compat'
+				end
+			end
+			
+			self.extend(::Readline)
+			
 			if (tab_complete_proc)
 				::Readline.basic_word_break_characters = "\x00"
 				::Readline.completion_proc = tab_complete_proc

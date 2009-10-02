@@ -46,13 +46,25 @@ class Driver < Msf::Ui::Driver
 	# 	Whether or not unknown commands should be passed through and executed by
 	# 	the local system.
 	#
+	# RealReadline
+	#
+	# 	Whether or to use the system Readline or the RBReadline (default)
+	#	
 	def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
-		
-		if (Rex::Compat.is_windows())
-			# Disable the color support
-			prompt      = "msf"
-			prompt_char = ">"
+
+		# Choose a readline library before calling the parent
+		rl = false
+		begin
+			if(opts['RealReadline'])
+				require 'readline'
+				rl = true
+			end
+		rescue ::LoadError
 		end
+		
+		# Default to the RbReadline wrapper		
+		require 'readline_compatible' if(not rl)
+
 
 		# Call the parent
 		super(prompt, prompt_char)
@@ -65,7 +77,7 @@ class Driver < Msf::Ui::Driver
 	
 		# Initialize attributes
 		self.framework = opts['Framework'] || Msf::Simple::Framework.create
-
+		
 		# Initialize the user interface to use a different input and output
 		# handle if one is supplied
 		if (opts['LocalInput'] or opts['LocalOutput'])

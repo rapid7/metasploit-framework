@@ -16,6 +16,12 @@ module FileUtils
 	# a fully qualified path to the supplied file name.
 	#
 	def self.find_full_path(file_name)
+	
+		# Check for the absolute fast first
+		if (file_name[0,1] == "/" and ::File::Stat.new(file_name))
+			return file_name
+		end
+	
 		path = Rex::Compat.getenv('PATH')
 		if (path)
 			path.split(::File::PATH_SEPARATOR).each { |base|
