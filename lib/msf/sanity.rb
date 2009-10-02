@@ -45,6 +45,14 @@ if(RUBY_PLATFORM == 'java')
 	end
 end
 
+# Check for OpenSSL and print a warning if it is not installed
+begin
+	require 'openssl'
+rescue ::LoadError
+	$stderr.puts "*** The ruby-openssl library is not installed, many features will be disabled!"
+	$stderr.puts "*** Examples: Meterpreter, SSL Sockets, SMB/NTLM Authentication, and more"
+end
+
 
 #
 # Check for the ugly 1.8.7 short-named constants bug
