@@ -2101,6 +2101,13 @@ module RbReadline
    #   If the file existed and could be opened and read, 0 is returned,
    #   otherwise errno is returned.
    def rl_read_init_file(filename)
+   
+   #
+   # This code is too problematic at the moment
+   # Just hardcode things and move on
+   #
+      return 0
+   
       # Default the filename.
       filename ||= @last_readline_init_file
       filename ||= ENV["INPUTRC"]
