@@ -1,9 +1,10 @@
 #Meterpreter script for running multiple scripts on a Meterpreter Session
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
-#Verion: 0.1
+#Verion: 0.2
 ################## Variable Declarations ##################
 session = client
-# Setting Arguments
+# Setting Argument 
+
 @@exec_opts = Rex::Parser::Arguments.new(
         "-h" => [ false,"Help menu."                        ],
         "-c" => [ true,"Collection of scripts to execute. Each script command must be enclosed in double quotes and separated by a semicolon."],
@@ -20,14 +21,10 @@ def script_exec(session,scrptlst)
 	print_status("Running script List ...")
 	scrptlst.each do |scrpt|
 		begin
-			print_status "\trunning command #{scrpt}"
-
-                        # Set up some local bindings.
-                        input  = shell.input
-                        output = shell.output
-
+			print_status "\trunning command #{scrpt.chomp}"
+			client = session
                         args = scrpt.split
-                        session.execute_script(args.shift, binding)
+                        session.execute_script(args.shift,binding)
                 rescue ::Exception => e
                         print_error("Error: #{e.class} #{e}")
                         print_error("Error in script: #{scrpt}")
@@ -44,7 +41,7 @@ end
 case opt
 
 when "-c"
-        commands = val.split(";")
+        commands = val.gsub(/;/,"\n")
 when "-s"
         script = val
         if not ::File.exists?(script)
