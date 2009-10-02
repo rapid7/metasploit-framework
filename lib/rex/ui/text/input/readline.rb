@@ -89,7 +89,7 @@ begin
 				Thread.current.priority = -20
 				output.prompting
 				line = ::Readline.readline(prompt, true)
-				HISTORY.pop if (line and line.empty?)
+				::Readline::HISTORY.pop if (line and line.empty?)
 			ensure
 				Thread.current.priority = orig || 0
 			end
