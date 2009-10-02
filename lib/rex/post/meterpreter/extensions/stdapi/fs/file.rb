@@ -6,6 +6,7 @@ require 'rex/post/meterpreter/channels/pools/file'
 require 'rex/post/meterpreter/extensions/stdapi/stdapi'
 require 'rex/post/meterpreter/extensions/stdapi/fs/io'
 require 'rex/post/meterpreter/extensions/stdapi/fs/file_stat'
+require 'fileutils'
 
 module Rex
 module Post
@@ -128,6 +129,7 @@ Separator = "\\"
 	#
 	def File.download_file(dest_file, src_file)
 		src_fd = client.fs.file.new(src_file, "rb")
+		::FileUtils.mkdir_p(::File.dirname(dest_file))
 		dst_fd = ::File.new(dest_file, "wb")
 
 		# Keep transferring until EOF is reached...

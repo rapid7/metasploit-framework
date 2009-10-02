@@ -18,6 +18,10 @@ module Fs
 ###
 class FileStat < Rex::Post::FileStat
 
+	class <<self
+		attr_accessor :client
+	end
+
 	@@struct_stat = [
 	  'st_dev',     4,  # 0
 	  'st_ino',     2,  # 4
@@ -32,10 +36,6 @@ class FileStat < Rex::Post::FileStat
 	  'st_mtime',   8,  # 32
 	  'st_ctime',   8,  # 40
 	]
-
-	class <<self
-		attr_accessor :client
-	end
 
 	##
 	#
