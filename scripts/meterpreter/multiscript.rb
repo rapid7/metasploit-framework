@@ -21,7 +21,7 @@ def script_exec(session,scrptlst)
 	print_status("Running script List ...")
 	scrptlst.each_line do |scrpt|
 		begin
-			print_status "\trunning command #{scrpt.chomp}"
+			print_status "\trunning script #{scrpt.chomp}"
 			client = session
                         args = scrpt.split
                         session.execute_script(args.shift,binding)
