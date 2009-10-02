@@ -11,7 +11,7 @@ session = client
         "-s" => [ true,"Text file with list of commands, one per line."]
 )
 #Setting Argument variables
-commands = []
+commands = ""
 script = []
 help = 0
 
@@ -19,7 +19,7 @@ help = 0
 # Function for running a list of scripts stored in a array
 def script_exec(session,scrptlst)
 	print_status("Running script List ...")
-	scrptlst.each do |scrpt|
+	scrptlst.each_line do |scrpt|
 		begin
 			print_status "\trunning command #{scrpt.chomp}"
 			client = session
@@ -48,7 +48,7 @@ when "-s"
                 raise "Script List File does not exists!"
         else
                 ::File.open(script, "r").each_line do |line|
-                        commands << line.chomp
+                        commands << line
                 end
         end
 
