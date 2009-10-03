@@ -577,8 +577,10 @@ class Db
 		def load_nmap_xml(data)
 			doc = REXML::Document.new(data)
 			doc.elements.each('/nmaprun/host') do |host|
-				addr = host.elements['address'].attributes['addr']
-				host.elements['ports'].elements.each('port') do |port|
+				addr  = host.elements['address'].attributes['addr']
+				ports = host.elements['ports']
+				next if not ports
+				ports.elements.each('port') do |port|
 					prot = port.attributes['protocol']
 					pnum = port.attributes['portid']
 					
