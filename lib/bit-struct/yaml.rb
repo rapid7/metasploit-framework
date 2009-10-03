@@ -1,4 +1,3 @@
-require 'bit-struct/bit-struct'
 require 'yaml'
 
 class BitStruct

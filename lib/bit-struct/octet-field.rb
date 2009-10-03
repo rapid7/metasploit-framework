@@ -42,20 +42,4 @@ class BitStruct
       end
     end
   end
-  
-  class << self
-    # Define an octet string field in the current subclass of BitStruct,
-    # with the given _name_ and _length_ (in bits). Trailing nulls are
-    # not considered part of the string. The field is accessed using
-    # period-separated decimal digits.
-    #
-    # If a class is provided, use it for the Field class.
-    # If a string is provided, use it for the display_name.
-    # If a hash is provided, use it for options.
-    #
-    def octets(name, length, *rest)
-      opts = parse_options(rest, name, OctetField)
-      add_field(name, length, opts)
-    end
-  end
 end

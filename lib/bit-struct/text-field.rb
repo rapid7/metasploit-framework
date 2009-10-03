@@ -1,5 +1,3 @@
-require 'bit-struct/bit-struct'
-
 class BitStruct
   # Class for null-terminated printable text strings.
   # Declared with BitStruct.text.
@@ -41,23 +39,6 @@ class BitStruct
           self[byte_range] = val[val_byte_range]
         end
       end
-    end
-  end
-  
-  class << self
-    # Define a printable text string field in the current subclass of BitStruct,
-    # with the given _name_ and _length_ (in bits). Trailing nulls are
-    # _not_ considered part of the string.
-    #
-    # If a class is provided, use it for the Field class.
-    # If a string is provided, use it for the display_name.
-    # If a hash is provided, use it for options.
-    #
-    # Note that the accessors have COPY semantics, not reference.
-    #
-    def text(name, length, *rest)
-      opts = parse_options(rest, name, TextField)
-      add_field(name, length, opts)
     end
   end
 end

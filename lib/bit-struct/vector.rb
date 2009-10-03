@@ -1,5 +1,3 @@
-require 'bit-struct/bit-struct'
-
 # A Vector is, like a BitStruct, a String. It retains all of the String
 # methods, except for #[], #[]=, and #each. These methods operate on entries
 # instead of chars. Other methods, including #length and #slice, are unchanged.
@@ -16,8 +14,15 @@ class BitStruct::Vector < String
   include Enumerable
 
   @default_options = {}
+  @struct_class = nil
 
-  class << self 
+  class << self
+    def inherited cl
+      cl.instance_eval do
+        @struct_class = nil
+      end
+    end
+    
     # Called as a class method with a single argument in a user-defined
     # subclass to specify a particular BitStruct class to use for each entry,
     # instead of generating an anonymous class. Called without arguments to

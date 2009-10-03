@@ -1,5 +1,3 @@
-require 'bit-struct/bit-struct'
-
 class BitStruct
   # Class for floats (single and double precision) in network order.
   # Declared with BitStruct.float.
@@ -58,25 +56,6 @@ class BitStruct
           self[byte_range] = [val].pack(ctl)
         end
       end
-    end
-  end
-
-  class << self
-    # Define a floating point field in the current subclass of BitStruct,
-    # with the given _name_ and _length_ (in bits).
-    #
-    # If a class is provided, use it for the Field class.
-    # If a string is provided, use it for the display_name.
-    # If a hash is provided, use it for options.
-    #
-    # The <tt>:endian => :native</tt> option overrides the default of
-    # <tt>:network</tt> byte ordering, in favor of native byte ordering. Also
-    # permitted are <tt>:big</tt> (same as <tt>:network</tt>) and
-    # <tt>:little</tt>.
-    #
-    def float name, length, *rest
-      opts = parse_options(rest, name, FloatField)
-      add_field(name, length, opts)
     end
   end
 end
