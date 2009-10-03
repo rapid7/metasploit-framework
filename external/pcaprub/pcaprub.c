@@ -153,7 +153,7 @@ rbpcap_setfilter(VALUE self, VALUE filter)
     	if(pcap_lookupnet(rbp->iface, &netid, &mask, eb) < 0)
     		rb_raise(rb_eRuntimeError, "%s", eb);
 
-    if(pcap_compile(rbp->pd, &bpf, RSTRING(filter)->ptr, 0, mask) < 0)
+    if(pcap_compile(rbp->pd, &bpf, RSTRING_PTR(filter), 0, mask) < 0)
     	rb_raise(rb_eRuntimeError, "invalid bpf filter");
 
     if(pcap_setfilter(rbp->pd, &bpf) < 0)
@@ -193,7 +193,7 @@ rbpcap_open_live(VALUE self, VALUE iface,VALUE snaplen,VALUE promisc, VALUE time
 	
     rbp->type = LIVE;
     memset(rbp->iface, 0, sizeof(rbp->iface));
-    strncpy(rbp->iface, RSTRING(iface)->ptr, sizeof(rbp->iface) - 1);
+    strncpy(rbp->iface, RSTRING_PTR(iface), sizeof(rbp->iface) - 1);
 
 	
 	if(rbp->pd) {
@@ -201,7 +201,7 @@ rbpcap_open_live(VALUE self, VALUE iface,VALUE snaplen,VALUE promisc, VALUE time
 	}
 	
     rbp->pd = pcap_open_live(
-    	RSTRING(iface)->ptr,
+    	RSTRING_PTR(iface),
     	NUM2INT(snaplen),
     	promisc_value,
     	NUM2INT(timeout),
@@ -236,7 +236,7 @@ rbpcap_open_offline(VALUE self, VALUE filename)
     rbp->type = OFFLINE;
 
     rbp->pd = pcap_open_offline(
-    	RSTRING(filename)->ptr,
+    	RSTRING_PTR(filename),
     	eb
     );
 
@@ -299,7 +299,7 @@ rbpcap_dump_open(VALUE self, VALUE filename)
     Data_Get_Struct(self, rbpcap_t, rbp);
     rbp->pdt = pcap_dump_open(
         rbp->pd,
-        RSTRING(filename)->ptr
+        RSTRING_PTR(filename)
     );
 
     return self;
@@ -328,7 +328,7 @@ rbpcap_dump(VALUE self, VALUE caplen, VALUE pktlen, VALUE packet)
     pcap_dump(
         (u_char*)rbp->pdt,        
         &pcap_hdr,
-        RSTRING(packet)->ptr
+        RSTRING_PTR(packet)
     );
 
     return self;
@@ -349,12 +349,12 @@ rbpcap_inject(VALUE self, VALUE payload)
     /* WinPcap does not have a pcap_inject call we use pcap_sendpacket, if it suceedes 
      * we simply return the amount of packets request to inject, else we fail.
      */
-    if(pcap_sendpacket(rbp->pd, RSTRING(payload)->ptr, RSTRING(payload)->len) != 0) {
+    if(pcap_sendpacket(rbp->pd, RSTRING_PTR(payload), RSTRING_LEN(payload)) != 0) {
     	rb_raise(rb_eRuntimeError, "%s", pcap_geterr(rbp->pd));
     }
-    return INT2NUM(RSTRING(payload)->len);
+    return INT2NUM(RSTRING_LEN(payload));
 #else
-    return INT2NUM(pcap_inject(rbp->pd, RSTRING(payload)->ptr, RSTRING(payload)->len));
+    return INT2NUM(pcap_inject(rbp->pd, RSTRING_PTR(payload), RSTRING_LEN(payload)));
 #endif
 }
 
