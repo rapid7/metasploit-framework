@@ -184,8 +184,7 @@ class Metasploit3 < Msf::Auxiliary
 		def _parse_asn1(data, tree)
 			x = 0
 			while (data.length > 0)
-				t = data[0]
-				l = data[1]
+				t,l = data[0,2].unpack('CC')
 				i = 2
 
 				if (l > 0x7f)
