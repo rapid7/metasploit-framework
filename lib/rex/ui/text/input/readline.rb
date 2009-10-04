@@ -21,7 +21,6 @@ begin
 		
 		
 			if(not Object.const_defined?('Readline'))
-				$stderr.puts "TRYING TO FIGURE OUT WHICH READLINE LIBRARY: #{caller}"
 				begin 
 					require 'readline'
 				rescue ::LoadError
