@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'CG' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision:$',
+			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuoct2008.html' ],

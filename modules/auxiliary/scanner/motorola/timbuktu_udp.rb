@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => ['MC'],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision:$',
+			'Version'        => '$Revision$',
 			'DisclosureDate' => 'Sep 25 2009'))
 
                         register_options([Opt::RPORT(407),], self.class) 
