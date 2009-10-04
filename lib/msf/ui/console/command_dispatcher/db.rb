@@ -664,7 +664,9 @@ class Db
 				sets.split(',').each do |set|
 					rng = set.split('-').map{ |c| Rex::Socket::addr_atoi(c) }
 					tst = Rex::Socket::addr_atoi(addr)
-					if (tst >= rng[0] and tst <= rng[1])
+					if (not rng[1])
+						return tst == rng[0]
+					elsif (tst >= rng[0] and tst <= rng[1])
 						return true
 					end
 				end
