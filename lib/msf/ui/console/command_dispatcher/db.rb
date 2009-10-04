@@ -207,7 +207,7 @@ class Db
 					print_line("\t-e          Launch exploits against all matched targets")
 #					print_line("\t-s          Only obtain a single shell per target system (NON-FUNCTIONAL)")
 					print_line("\t-r          Use a reverse connect shell")
-					print_line("\t-b          Use a bind shell on a random port")
+					print_line("\t-b          Use a bind shell on a random port (default)")
 					print_line("\t-q          Disable exploit module output")
 					print_line("\t-I  [range] Only exploit hosts inside this range")
 					print_line("\t-X  [range] Always exclude hosts inside this range")
