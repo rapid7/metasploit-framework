@@ -661,7 +661,7 @@ class Db
 		def range_include?(ranges, addr)
 
 			ranges.each do |sets|
-				sets.each do |set|
+				sets.split(',').each do |set|
 					rng = set.split('-').map{ |c| Rex::Socket::addr_atoi(c) }
 					tst = Rex::Socket::addr_atoi(addr)
 					if (tst >= rng[0] and tst <= rng[1])
