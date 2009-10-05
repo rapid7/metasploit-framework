@@ -391,25 +391,6 @@ class BitStruct < String
     ary
   end
   
-  ## temporary hack for 1.9
-  if "a"[0].kind_of? String
-    def [](*args)
-      if args.size == 1 and args[0].kind_of?(Fixnum)
-        super.ord
-      else
-        super
-      end
-    end
-
-    def []=(*args)
-      if args.size == 2 and (i=args[0]).kind_of?(Fixnum)
-        super(i, args[1].chr)
-      else
-        super
-      end
-    end
-  end
-  
   class << self
     # The unique "prototype" object from which new instances are copied.
     # The fields of this instance can be modified in the class definition

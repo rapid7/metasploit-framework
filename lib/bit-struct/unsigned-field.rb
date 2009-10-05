@@ -45,23 +45,23 @@ class BitStruct
         cl.class_eval do
           if divisor
             define_method attr do ||
-              ((self[offset_byte] & mask) >> rest) / divisor_f
+              ((self[offset_byte,1].unpack('C')[0] & mask) >> rest) / divisor_f
             end
 
             define_method "#{attr}=" do |val|
               val = (val * divisor).round
-              self[offset_byte] =
-                (self[offset_byte] & mask2) | ((val<<rest) & mask)
+              self[offset_byte,1] = [
+                (self[offset_byte,1].unpack('C')[0] & mask2) | ((val<<rest) & mask) ].pack('C')
             end
 
           else
             define_method attr do ||
-              (self[offset_byte] & mask) >> rest
+              (self[offset_byte,1].unpack('C')[0] & mask) >> rest
             end
 
             define_method "#{attr}=" do |val|
-              self[offset_byte] =
-                (self[offset_byte] & mask2) | ((val<<rest) & mask)
+              self[offset_byte,1] = [
+                (self[offset_byte,1].unpack('C')[0] & mask2) | ((val<<rest) & mask) ].pack('C')
             end
           end
         end
@@ -75,17 +75,17 @@ class BitStruct
           when 8
             if divisor
               define_method attr do ||
-                self[offset_byte] / divisor_f
+                self[offset_byte,1].unpack('C')[0] / divisor_f
               end
 
               define_method "#{attr}=" do |val|
                 val = (val * divisor).round
-                self[offset_byte] = val
+                self[offset_byte,1].unpack('C')[0] = val
               end
           
             else
               define_method attr do ||
-                self[offset_byte]
+                self[offset_byte,1].unpack('C')[0]
               end
 
               define_method "#{attr}=" do |val|

@@ -1,3 +1,4 @@
+# encoding: ascii-8bit
 class BitStruct
   # Class for fixed length binary strings of characters.
   # Declared with BitStruct.char.
@@ -36,10 +37,18 @@ class BitStruct
         end
 
         define_method "#{attr}=" do |val|
+
           val = val.to_s
+          val.force_encoding('ASCII-8BIT') if val.respond_to?('force_encoding')
+		  
           if val.length < length_byte
             val += "\0" * (length_byte - val.length)
           end
+          
+          if(self.respond_to?('force_encoding') and self.encoding != 'ASCII-8BIT')
+            self.force_encoding('ASCII-8BIT')
+          end
+		  
           self[byte_range] = val[val_byte_range]
         end
       end
