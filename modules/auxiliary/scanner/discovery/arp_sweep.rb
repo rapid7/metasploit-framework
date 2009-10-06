@@ -24,6 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('SMAC', [true, "Source MAC Address"]),
 		], self.class)
 		
+		deregister_options('SNAPLEN', 'FILTER')
 	end
 
 	def run_batch_size
