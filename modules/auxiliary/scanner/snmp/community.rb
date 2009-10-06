@@ -60,6 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Operate on an entire batch of hosts at once
 	def run_batch(batch)
 	
+		@found = {}
 		configure_wordlist if not @comms
 
 		begin		
@@ -72,11 +73,14 @@ class Metasploit3 < Msf::Auxiliary
 			print_status(">> progress (#{batch[0]}-#{batch[-1]}) #{idx}/#{@comms.length * batch.length}...")	
 			@comms.each do |comm|
 
-				data = create_probe(comm)
+				data1 = create_probe_snmp1(comm)
+				data2 = create_probe_snmp2(comm)
+				
 				batch.each do |ip|
 
 					begin
-						udp_sock.sendto(data, ip, datastore['RPORT'].to_i, 0)
+						udp_sock.sendto(data1, ip, datastore['RPORT'].to_i, 0)
+						udp_sock.sendto(data2, ip, datastore['RPORT'].to_i, 0)						
 					rescue ::Interrupt
 						raise $!
 					rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
@@ -127,7 +131,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		com = asn.access("L0.V1.value")
 		if(com)
-			print_status("#{pkt[1]} '#{com}' '#{inf}'")
+			@found[pkt[1]]||={}
+			if(not @found[pkt[1]][com])
+				print_status("#{pkt[1]} '#{com}' '#{inf}'")
+				@found[pkt[1]][com] = inf
+			end
+			
+			
 
 			report_auth_info(
 				:host   => pkt[1],
@@ -155,7 +165,24 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def create_probe(name)
+
+	def create_probe_snmp1(name)
+		xid = rand(0x100000000)
+		pdu =	
+			"\x02\x01\x00" +
+			"\x04" + [name.length].pack('c') + name +
+			"\xa0\x1c" +
+			"\x02\x04" + [xid].pack('N') +
+			"\x02\x01\x00" +
+			"\x02\x01\x00" +
+			"\x30\x0e\x30\x0c\x06\x08\x2b\x06\x01\x02\x01" +
+			"\x01\x01\x00\x05\x00"
+		head = "\x30" + [pdu.length].pack('C')
+		data = head + pdu
+		data
+	end	
+	
+	def create_probe_snmp2(name)
 		xid = rand(0x100000000)
 		pdu =	
 			"\x02\x01\x01" +
@@ -166,11 +193,12 @@ class Metasploit3 < Msf::Auxiliary
 			"\x02\x01\x00" +
 			"\x30\x0b\x30\x09\x06\x05\x2b\x06\x01\x02\x01" +
 			"\x05\x00"
-		head = "\x30" + [pdu.length].pack('c')
+		head = "\x30" + [pdu.length].pack('C')
 		data = head + pdu
 		data
 	end
 	
+		
 	#
 	# Parse a asn1 buffer into a hash tree
 	#
