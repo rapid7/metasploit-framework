@@ -302,5 +302,5 @@ found = vmwarechk(session) if not found
 found = checkvrtlpc(session) if not found
 found = vboxchk(session) if not found
 found = xenchk(session) if not found
-print_status("It appears to be phisical host.") if not found
+print_status("It appears to be physical host.") if not found
 
