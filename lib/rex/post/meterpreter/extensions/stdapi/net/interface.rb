@@ -38,14 +38,17 @@ class Interface
 	# Returns a pretty string representation of the interface's properties.
 	#
 	def pretty
+		macocts = []
+		mac_addr.each_byte { |o| macocts << o }
+		macocts += [0] * (6 - macocts.size) if macocts.size < 6
 		return sprintf(
 				"#{mac_name}\n" +
 				"Hardware MAC: %02x:%02x:%02x:%02x:%02x:%02x\n" +
 				"IP Address  : %s\n" +
 				"Netmask     : %s\n" +
 				"\n", 
-				mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], 
-				mac_addr[4], mac_addr[5], ip, netmask)
+				macocts[0], macocts[1], macocts[2], macocts[3], 
+				macocts[4], macocts[5], ip, netmask)
 	end
 
 	#
