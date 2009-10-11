@@ -1,5 +1,7 @@
 .cobalt
+.cvs
 .ssh
+.svn
 1
 10
 2
