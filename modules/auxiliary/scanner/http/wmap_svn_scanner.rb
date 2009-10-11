@@ -54,7 +54,9 @@ class Metasploit3 < Msf::Auxiliary
 
 						
 			if res.code == 200 and res.body.length > 0 
-				
+			
+				print_status("[#{target_host}] SVN Entries file found.")
+					
 				rep_id = wmap_base_report_id(
 						wmap_target_host,
 						wmap_target_port,
@@ -65,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 				vers = res.body[0..1].chomp.to_i
 				if vers <= 6
-					print_error("Version #{vers} not supported")
+					print_error("[#{target_host}] Version #{vers} not supported")
 					return
 				end
 				n = 0
@@ -90,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
 						slastauthor = resarr[10]
 					end	
 
-					print_status("#{skind} #{sname} [#{slastauthor}]")
+					print_status("[#{target_host}] #{skind} #{sname} [#{slastauthor}]")
 					
 					if slastauthor and slastauthor.length > 0
 						wmap_report(vuln_id,'SVN_ENTRIES','USERNAME',"#{slastauthor}","Username found.")
@@ -105,11 +107,11 @@ class Metasploit3 < Msf::Auxiliary
 							ent_id = wmap_report(vuln_id,'SVN_ENTRIES','FILE',"#{sname}","File in .svn/entries found.")
 							
 							if datastore['GET_SOURCE']
-								print_status("Trying to get file #{sname} source code.")
+								print_status("- Trying to get file #{sname} source code.")
 						
 								begin
 									turl = tpath+'.svn/text-base/'+sname+'.svn-base'
-									print_status("Location: #{turl}")
+									print_status("- Location: #{turl}")
 		
 									srcres = send_request_cgi({
 										'uri'          => turl,					
@@ -133,7 +135,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 				print_status("Done. #{n} records.")
 			else
-					print_error("#{turl} file not found.")
+					print_error("[#{target_host}] #{turl} file not found.")
 			end	
 			
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
