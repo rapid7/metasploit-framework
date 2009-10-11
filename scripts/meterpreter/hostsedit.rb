@@ -57,7 +57,7 @@ end
 def helpmsg
 	puts "This Meterpreter script is for adding entries in to the Windows Hosts file."
 	puts "Since Windows will check first the Hosts file instead of the configured DNS Server"
-	puts "it will assist in diverting traffic to the fake entrie or entries. Either a single"
+	puts "it will assist in diverting traffic to the fake entry or entries. Either a single"
 	puts "entry can be provided or a series of entries provided a file with one per line."
 	puts @@exec_opts.usage
 	puts "Example:\n\n"

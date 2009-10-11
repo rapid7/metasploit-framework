@@ -13,7 +13,7 @@ session = client
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
 	"-h" => [ false,"Help menu."                        ],
-	"-c" => [ true,"Commands to execute. Several command can be given but separated by commas and enclose the list in doble quotes if arguments are used."],
+	"-c" => [ true,"Commands to execute. Several commands can be given but separated by commas and enclose the list in double quotes if arguments are used."],
 	"-u" => [ true,"Username to schedule task, if none is given the current user credentials will be used."],
 	"-p" => [ true,"Password for user account specified, it must be given if a user is given."],
 	"-d" => [ true,"Delay between the execution of commands in seconds, default is 2 seconds if not given."],

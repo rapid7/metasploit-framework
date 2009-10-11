@@ -8,7 +8,7 @@ wininfo = client.sys.config.sysinfo
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
         "-h" => [ false,"Help menu."                        ],
-        "-c" => [ true,"Command to execute. The command must be enclosed in doble quotes."],
+        "-c" => [ true,"Command to execute. The command must be enclosed in double quotes."],
         "-f" => [ true,"File where to saved output of command."],
         "-s" => [ true,"Text file with list of commands, one per line."]
 )
@@ -78,7 +78,7 @@ def usage
         print_line("run wmic -c \"WMIC Command Argument\"\n")
 	print_line("NOTE:")
 	print_line("Not all arguments for WMIC can be used, the /append: option is used by the script")
-	print_line("for output retrival. Arguments must be encased in doble quotes and special charechters escaped\n")
+	print_line("for output retrieval. Arguments must be encased in double quotes and special characters escaped\n")
 	print_line("Example:")
 	print_line("run wmic -c \"useraccount where (name = \\\'Administrator\\\') get name, sid\"\n")
 end

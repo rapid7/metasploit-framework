@@ -138,7 +138,7 @@ def helpmsg
         print(
                 "Packet Recorder Meterpreter Script\n" +
                   "This script will start the Meterpreter Sniffer and save all packets\n" +
-                  "in a PCAP file for later anlysis. To stop capture hit Ctrl-C\n" +
+                  "in a PCAP file for later analysis. To stop capture hit Ctrl-C\n" +
                   "Usage:" +
                   @@exec_opts.usage
         )
