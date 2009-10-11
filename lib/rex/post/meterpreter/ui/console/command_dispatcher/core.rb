@@ -238,7 +238,7 @@ class Console::CommandDispatcher::Core
 							exts.push($1)
 						end
 					}
-					print(exts.join("\n") + "\n")
+					print(exts.sort.join("\n") + "\n")
 
 					return true
 				when "-h"
