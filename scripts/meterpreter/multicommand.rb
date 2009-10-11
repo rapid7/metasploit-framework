@@ -8,7 +8,7 @@ wininfo = client.sys.config.sysinfo
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
         "-h" => [ false,"Help menu."                        ],
-        "-c" => [ true,"Commands to execute. The command must be enclosed in doble quotes and sepparated by a comma."],
+        "-c" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
         "-f" => [ true,"File where to saved output of command."],
         "-s" => [ true,"Text file with list of commands, one per line."]
 )
