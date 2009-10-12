@@ -107,7 +107,8 @@ remove = 0
 	end
 
 }
-if args.length != 0 or helpcall != 0
+
+if helpcall == 0 and file != ""
         print_status("Running Upload and Execute Meterpreter script....")
 	exec = upload(session,file,path)
 	cmd_exec(session,exec,cmdopt,verbose)
@@ -116,6 +117,6 @@ if args.length != 0 or helpcall != 0
                 m_unlink(session, exec)
         end
         print_status("Finnished!")
-else
+elsif helpcall == 1 or file == ""
 	usage()
 end
