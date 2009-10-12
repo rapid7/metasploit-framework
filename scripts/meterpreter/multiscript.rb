@@ -23,7 +23,7 @@ def script_exec(session,scrptlst)
 		begin
 			print_status "\trunning script #{scrpt.chomp}"
 			client = session
-                        args = scrpt.split
+                        args = scrpt.chomp.split
                         session.execute_script(args.shift,binding)
                 rescue ::Exception => e
                         print_error("Error: #{e.class} #{e}")

