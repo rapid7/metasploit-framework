@@ -30,8 +30,6 @@ class Metasploit3 < Msf::Auxiliary
 	
 		register_options(
 			[
-				OptString.new('MSSQL_USER', [ false, 'The username to authenticate as', 'sa']),
-				OptString.new('MSSQL_PASS', [ false, 'The password for the specified username', '']),
 				OptString.new('MSSQL_PASS_FILE', [ false, 'A dictionary of passwords to perform a bruteforce attempt', '']),
 				Opt::RPORT(1433)
 			], self.class)
@@ -54,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 			@passwds << datastore['MSSQL_PASS'].to_s
 		end
 
-		user = "sa" if user.length == 0
+		user = "sa" if user.empty?
 		@passwds.each do |pass|		
 			print_status("Trying username:'#{user}' with password:'#{pass}' against #{ip}:#{rport}")
 			begin

