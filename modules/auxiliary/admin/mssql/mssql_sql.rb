@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('SQL', [ false, 'The SQL query to execute',  'select @@version']),
 			], self.class)
 	end
-
+	
 	def run
 		mssql_query(datastore['SQL'], true) if mssql_login_datastore
 		disconnect
