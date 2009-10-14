@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'URL', 'http://labs.idefense.com/intelligence/vulnerabilities/display.php?id=703' ],
-					[ 'CVE', 'CVE-2008-2157' ],
+					[ 'CVE', '2008-2157' ],
 					[ 'BID', '29398' ],
 				],
 			'DisclosureDate' => 'May 27 2008'))
