@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			via the xp_cmdshell procedure. A valid username and password is required
 			to use this module
 			},
-			'Author'         => [ 'tebo <tebo [at] attackresearch [dot] com' ],
+			'Author'         => [ 'tebo <tebo[at]attackresearch.com>' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>
