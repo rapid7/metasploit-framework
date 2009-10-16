@@ -324,18 +324,18 @@ module Text
 		                raise TypeError, "Invalid codepage #{mode}, only 1252 supported for uhwtfms_half"
 			end
 			str.each_byte {|byte|
-                if ((byte >= 33 && byte <= 63) || (byte >= 96 && byte <= 126))
-                    string << "\xFF" + [byte ^ 32].pack('C')
-                elsif (byte >= 64 && byte <= 95)
-                    string << "\xFF" + [byte ^ 96].pack('C')
-                else
-                    char = [byte].pack('C')
+				if ((byte >= 33 && byte <= 63) || (byte >= 96 && byte <= 126))
+					string << "\xFF" + [byte ^ 32].pack('C')
+				elsif (byte >= 64 && byte <= 95)
+					string << "\xFF" + [byte ^ 96].pack('C')
+				else
+					char = [byte].pack('C')
 					possible = @@codepage_map_cache[mode]['data'][char]
 					if possible.nil?
 						raise TypeError, "codepage #{mode} does not provide an encoding for 0x#{char.unpack('H*')[0]}"
 					end
 					string << possible[ rand(possible.length) ]
-                end
+				end
 			}
 			return string
 		else 
@@ -352,41 +352,41 @@ module Text
 		return str if mode == 'none' # fast track no encoding
 
 		all = /[^\/\\]+/
-        normal = /[^a-zA-Z0-9\/\\\.\-]+/
+		normal = /[^a-zA-Z0-9\/\\\.\-]+/
 		normal_na = /[a-zA-Z0-9\/\\\.\-]/
 		
-        case mode
-        when 'hex-normal'
-            return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
-        when 'hex-all'
-            return str.gsub(all) { |s| Rex::Text.to_hex(s, '%') }
-		when 'hex-random'
-			res = ''
-			str.each_byte do |c|
-				b = c.chr
-				res << ((rand(2) == 0) ? 
-					b.gsub(all)   { |s| Rex::Text.to_hex(s, '%') } :
-					b.gsub(normal){ |s| Rex::Text.to_hex(s, '%') } )
-			end
-			return res
-        when 'u-normal'
-            return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
-        when 'u-all'
-            return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
-		when 'u-random'
-			res = ''
-			str.each_byte do |c|
-				b = c.chr
-				res << ((rand(2) == 0) ? 
-					b.gsub(all)   { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } :
-					b.gsub(normal){ |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } )
-			end
-			return res		
-        when 'u-half'
-            return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms-half'), '%u', 2) }
-        else
-            raise TypeError, 'invalid mode'
-        end
+		case mode
+		when 'hex-normal'
+			return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
+		when 'hex-all'
+			return str.gsub(all) { |s| Rex::Text.to_hex(s, '%') }
+			when 'hex-random'
+				res = ''
+				str.each_byte do |c|
+					b = c.chr
+					res << ((rand(2) == 0) ? 
+						b.gsub(all)   { |s| Rex::Text.to_hex(s, '%') } :
+						b.gsub(normal){ |s| Rex::Text.to_hex(s, '%') } )
+				end
+				return res
+		when 'u-normal'
+			return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+		when 'u-all'
+			return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+			when 'u-random'
+				res = ''
+				str.each_byte do |c|
+					b = c.chr
+					res << ((rand(2) == 0) ? 
+						b.gsub(all)   { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } :
+						b.gsub(normal){ |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } )
+				end
+				return res		
+		when 'u-half'
+			return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms-half'), '%u', 2) }
+		else
+			raise TypeError, 'invalid mode'
+		end
 	end
 
 	# Encode a string in a manor useful for HTTP URIs and URI Parameters.  
@@ -940,10 +940,10 @@ module Text
 	# Generate random bytes of high ascii data
 	def self.rand_text_highascii(len, bad='')
 		foo = []
-                foo += (0x80 .. 0xff).map{ |c| c.chr }
-                rand_base(len, bad, *foo )
-        end
-	
+		foo += (0x80 .. 0xff).map{ |c| c.chr }
+		rand_base(len, bad, *foo )
+	end
+
 	#
 	# Creates a pattern that can be used for offset calculation purposes.  This
 	# routine is capable of generating patterns using a supplied set and a

@@ -425,22 +425,22 @@ class DBManager
 		Note.delete_all(["host_id = ?", host[:id]])
 		Host.delete(host[:id])
 	end
-    
-    #
-    # Deletes a port and associated vulns matching this port
-    #
-    def del_service(context, address, proto, port, comm='')
-        host = get_host(context, address, comm)
 
-        return unless host
+	#
+	# Deletes a port and associated vulns matching this port
+	#
+	def del_service(context, address, proto, port, comm='')
+		host = get_host(context, address, comm)
 
-        services = Service.find(:all, :conditions => ["host_id = ? and proto = ? and port = ?", host[:id], proto, port]).map { |s| s[:id] }
+		return unless host
 
-        services.each do |sid|
-            Vuln.delete_all(["service_id = ?", sid])
-            Service.delete(sid)
-        end
-    end
+		services = Service.find(:all, :conditions => ["host_id = ? and proto = ? and port = ?", host[:id], proto, port]).map { |s| s[:id] }
+
+		services.each do |sid|
+			Vuln.delete_all(["service_id = ?", sid])
+			Service.delete(sid)
+		end
+	end
 
 	#
 	# Find a reference matching this name

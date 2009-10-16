@@ -51,8 +51,8 @@ module Msf::Payload::Windows
 			[
 				Msf::OptRaw.new('EXITFUNC', [ true, "Exit technique: #{@@exit_types.keys.join(", ")}", 'thread' ])
 			], Msf::Payload::Windows )
-      
-    ret
+
+		ret
 	end
 
 	#
@@ -77,13 +77,12 @@ module Msf::Payload::Windows
 	# ensure that the entire stage is read in.
 	#
 	def handle_intermediate_stage(conn, payload)
-  
-    if( self.module_info['Stager']['RequiresMidstager'] == false )
-      conn.put( [ payload.length ].pack('V') )
-      # returning false allows stager.rb!handle_connection() to prepend the stage_prefix if needed
-      return false
-    end
-    
+		if( self.module_info['Stager']['RequiresMidstager'] == false )
+			conn.put( [ payload.length ].pack('V') )
+			# returning false allows stager.rb!handle_connection() to prepend the stage_prefix if needed
+			return false
+		end
+
 		return false if (payload.length < 512)
 
 		# The mid-stage works by reading in a four byte length in host-byte

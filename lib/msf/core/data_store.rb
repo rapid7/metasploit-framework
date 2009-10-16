@@ -106,7 +106,7 @@ class DataStore < Hash
 
 			# Remove trailing whitespaces from the value
 			val.gsub!(/\s+$/, '')
-            
+
 			# Store the value
 			hash[var] = val
 		}

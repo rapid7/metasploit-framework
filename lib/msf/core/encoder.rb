@@ -91,14 +91,14 @@ class Encoder < Module
 		# Unicode-safe 'a' - 'z', 'A' - 'Z', '0' - '9'
 		#
 		AlphanumUnicodeMixed = "alpha_unicode_mixed"
-      #
-      # toupper/tolower safe ascii - not 'a' - 'z', 'A' - 'Z' 
-      #
-      NonAlpha = "non_alpha"
-      #
-      # tolower safe ascii - not 'A' - 'Z' (more flexable than nonalpha)
-      #
-      NonUpper = "non_upper"
+		#
+		# toupper/tolower safe ascii - not 'a' - 'z', 'A' - 'Z' 
+		#
+		NonAlpha = "non_alpha"
+		#
+		# tolower safe ascii - not 'A' - 'Z' (more flexable than nonalpha)
+		#
+		NonUpper = "non_upper"
 		#
 		# tolower safe ascii UTF8-safe (<= 0x7f only)
 		#

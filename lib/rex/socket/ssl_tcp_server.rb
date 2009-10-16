@@ -47,7 +47,7 @@ module Rex::Socket::SslTcpServer
 			t.peerhost = pn[1]
 			t.peerport = pn[2]		
 			t.accept
-        	t
+			t
 		rescue ::OpenSSL::SSL::SSLError
 			sock.close
 			nil

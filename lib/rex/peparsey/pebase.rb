@@ -1456,7 +1456,7 @@ class PeBase
 	end
 	
 	def _resource_lookup(i)
-    	tbl = {
+		tbl = {
 			'1'      => 'RT_CURSOR',
 			'2'      => 'RT_BITMAP',
 			'3'      => 'RT_ICON',

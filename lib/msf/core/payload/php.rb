@@ -13,7 +13,7 @@ module Msf::Payload::Php
 		dis = options[:disabled_varname] || '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
 		dis = '$' + dis if (dis[0,1] != '$')
 
-        @dis = dis
+		@dis = dis
 
 		preamble = "
 			@set_time_limit(0); @ignore_user_abort(1); @ini_set('max_execution_time',0);
@@ -34,9 +34,9 @@ module Msf::Payload::Php
 		dis = options[:disabled_varname] || @dis || '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
 		output = options[:output_varname] || '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
 
-        if (@dis.nil?)
-            @dis = dis
-        end
+		if (@dis.nil?)
+			@dis = dis
+		end
 
 		cmd    = '$' + cmd if (cmd[0,1] != '$')
 		dis    = '$' + dis if (dis[0,1] != '$')
