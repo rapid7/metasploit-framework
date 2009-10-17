@@ -109,13 +109,14 @@ class Module
 		# Initialize module compatibility hashes
 		init_compat
 
+		# Fixup module fields as needed
+		info_fixups
+
 		# Transform some of the fields to arrays as necessary
 		self.author = Author.transform(module_info['Author'])
-		self.arch = Rex::Transformer.transform(module_info['Arch'], Array, 
-				[ String ], 'Arch')
+		self.arch = Rex::Transformer.transform(module_info['Arch'], Array, [ String ], 'Arch')
 		self.platform = PlatformList.transform(module_info['Platform'])
-		self.references = Rex::Transformer.transform(module_info['References'], Array,
-				[ SiteReference, Reference ], 'Ref')
+		self.references = Rex::Transformer.transform(module_info['References'], Array, [ SiteReference, Reference ], 'Ref')
 
 		# Create and initialize the option container for this module
 		self.options = OptionContainer.new
@@ -577,6 +578,24 @@ protected
 		c['Payload'].update(module_info['PayloadCompat'] || {})
 		c['Encoder'].update(module_info['EncoderCompat'] || {})
 		c['Nop'].update(module_info['NopCompat'] || {})
+	end
+	
+	#
+	# Register options with a specific owning class.
+	#
+	def info_fixups
+		# Each reference should be an array consisting of two elements
+		refs = module_info['References']
+		if(refs and not refs.empty?)
+			refs.each_index do |i|
+				if(not (refs[i].respond_to?('[]') and refs[i].length == 2))
+					refs[i] = nil
+				end
+			end
+		
+			# Purge invalid references
+			refs.delete(nil)
+		end
 	end
 
 	#
