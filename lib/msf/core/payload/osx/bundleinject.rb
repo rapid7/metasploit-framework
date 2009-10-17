@@ -17,7 +17,7 @@ module Payload::Osx::BundleInject
 			'Description'   => 'Inject a custom Mach-O bundle into the exploited process',
 			'Author'        => 
 				[
-					'Dino Dai Zovi <ddz@theta44.org>',
+					'ddz',
 				],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',
