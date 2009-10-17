@@ -110,11 +110,10 @@ module Shell
 	# Run the command processing loop.
 	#
 	def run(&block)
-		stop_flag = false
 
 		begin
-		
-			while ((line = input.pgets))
+			
+			while (not self.stop_flag and (line = input.pgets))
 				log_output(input.prompt)
 
 				# If a block was passed in, pass the line to it.  If it returns true,
