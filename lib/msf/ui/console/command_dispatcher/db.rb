@@ -546,7 +546,8 @@ class Db
 
 			fd = Tempfile.new('dbnmap')
 
-			if(Rex::Compat.is_cygwin)
+			# When executing native Nmap, expand the Cygwin path to a Win32 path
+			if(Rex::Compat.is_cygwin and nmap[0,1] != "/")
 				args.push('-oX', IO.popen("cygpath -aw #{fd.path}").read.strip)
 			else
 				args.push('-oX', fd.path)
