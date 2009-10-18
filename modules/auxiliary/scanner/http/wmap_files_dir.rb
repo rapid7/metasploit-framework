@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module identifies the existence of interesting files 
 				in a given directory path.					
 			},
-			'Author' 		=> [ 'et [at] cyberspace.org' ],
+			'Author' 		=> [ 'et' ],
 			'License'		=> BSD_LICENSE,
 			'Version'		=> '$Revision$'))   
 			
@@ -42,6 +42,11 @@ class Metasploit3 < Msf::Auxiliary
 			
 		register_advanced_options(
 			[
+				OptInt.new('ErrorCode', [ true,  "The expected http code for non existant files", 404]),
+				OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use", 
+						File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
+					]
+				),
 				OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
 				OptInt.new('TestThreads', [ true, "Number of test threads", 25])
 			], self.class)	
@@ -49,6 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+		conn = false
 	
 		tpath = datastore['PATH'] 	
 		if tpath[-1,1] != '/'
@@ -64,7 +70,50 @@ class Metasploit3 < Msf::Auxiliary
 		
 		File.open(datastore['DICTIONARY']).each do |testf|
 			queue << testf.strip
-		end							 	
+		end	
+		
+		#
+		# Detect error code
+		# 
+		ecode = datastore['ErrorCode'].to_i		
+		begin
+			randfile = Rex::Text.rand_text_alpha(5).chomp
+			
+			res = send_request_cgi({
+				'uri'  		=>  tpath+randfile+ datastore['EXT'],
+				'method'   	=> 'GET',
+				'ctype'		=> 'text/html'
+			}, 20)
+
+			return if not res
+			
+			tcode = res.code.to_i 
+
+			# Look for a string we can signature on as well
+			if(tcode >= 200 and tcode <= 299)
+				File.open(datastore['HTTP404Sigs']).each do |str|
+					if(res.body.index(str))
+						emesg = str
+						break
+					end
+				end
+
+				if(not emesg)
+					print_status("Using first 256 bytes of the response as 404 string")
+					emesg = res.body[0,256]
+				else
+					print_status("Using custom 404 string of '#{emesg}'")
+				end
+			else
+				ecode = tcode
+				print_status("Using code '#{ecode}' as not found.")
+			end
+			
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			conn = false		
+		rescue ::Timeout::Error, ::Errno::EPIPE			
+		end							
+																						 	
 
 		while(not queue.empty?)
 			t = []
@@ -78,22 +127,27 @@ class Metasploit3 < Msf::Auxiliary
 						'method'   	=> 'GET',
 						'ctype'		=> 'text/plain'
 					}, 20)
-
-					if (res and res.code >= 200 and res.code < 300) 
-						print_status("Found #{wmap_base_url}#{tpath}#{testfext}")
 					
-						rep_id = wmap_base_report_id(
-							wmap_target_host,
-							wmap_target_port,
-							wmap_target_ssl
-						)
-								
-						vul_id = wmap_report(rep_id,'FILE','NAME',"#{tpath}#{testfext}","File #{tpath}#{testfext} found.")
-						wmap_report(vul_id,'FILE','RESP_CODE',"#{res.code}",nil)
-					else
+					if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
 						if dm == false
-							print_status("NOT Found #{wmap_base_url}#{tpath}#{testfext}")
-						end	 
+							print_status("NOT Found #{wmap_base_url}#{tpath}#{testfext}  #{res.code.to_i}") 
+							#blah
+						end
+					else
+						if res.code.to_i == 400  and ecode != 400    
+							print_error("Server returned an error code. #{wmap_base_url}#{tpath}#{testfext} #{res.code.to_i}") 
+						else
+							print_status("Found #{wmap_base_url}#{tpath}#{testfext} #{res.code.to_i}")
+					
+							rep_id = wmap_base_report_id(
+								wmap_target_host,
+								wmap_target_port,
+								wmap_target_ssl
+							)
+								
+							vul_id = wmap_report(rep_id,'FILE','NAME',"#{tpath}#{testfext}","File #{tpath}#{testfext} found.")
+							wmap_report(vul_id,'FILE','RESP_CODE',"#{res.code}",nil)
+						end							 
 					end
 				end
 			end
