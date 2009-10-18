@@ -39,8 +39,8 @@ require 'cgi'
 			
 			register_options(
 			[
-				OptString.new('URI', [ true,  "The URL to use while testing", '/']),
-				OptString.new('GET_QUERY', [ false,  "HTTP URI Query", '']),
+				OptString.new('PATH', [ true,  "The PATH to use while testing", '/']),
+				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
 				OptString.new('DOMAIN', [ true,  "Domain name", '']),
 				OptString.new('HEADERS', [ false,  "HTTP Headers", '']),
 			], self.class)	
@@ -58,49 +58,67 @@ require 'cgi'
 				"mail",
 				"intranet",
 				"intra",
+				"spool",
 				"corporate",
 				"www",
 				"web"
 			]
 		
-			datastore['GET_QUERY'] ? tquery = queryparse(datastore['GET_QUERY']): nil
+			datastore['QUERY'] ? tquery = queryparse(datastore['QUERY']): nil
 			datastore['HEADERS'] ? thead = headersparse(datastore['HEADERS']) : nil
 
-			randhost = Rex::Text.rand_text_alpha(5)+"."+datastore['DOMAIN']
-		
-			begin
-				noexistsres = send_request_cgi({
-					'uri'  		=>  datastore['URI'],
-					'vars_get' 	=>  tquery,
-					'headers' 	=>  thead,
-					'vhost'		=>  randhost,   
-					'method'   	=> 'GET',
-					'ctype'		=> 'text/plain'
-				}, 20)
+			noexistsres = nil
+			resparr = []
+			
+			2.times do |n|
+			
+				randhost = Rex::Text.rand_text_alpha(5)+"."+datastore['DOMAIN']
 
-				print_status("Sending request with random domain #{randhost} ")
-   	
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			rescue ::Timeout::Error, ::Errno::EPIPE			
-			end
 		
+				begin
+					noexistsres = send_request_cgi({
+						'uri'  		=>  datastore['PATH'],
+						'vars_get' 	=>  tquery,
+						'headers' 	=>  thead,
+						'vhost'		=>  randhost,   
+						'method'   	=> 'GET',
+						'ctype'		=> 'text/plain'
+					}, 20)
+
+					print_status("[#{ip}] Sending request with random domain #{randhost} ")
+				
+					if noexistsres
+						resparr[n] = noexistsres.body
+					end
+	
+				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+				rescue ::Timeout::Error, ::Errno::EPIPE			
+				end
+			end
+			
+			if resparr[0] != resparr[1]
+				print_error("[#{ip}] Unable to identify error response")
+				return
+			end
+			
 			valstr.each do |astr|
 				thost = astr+"."+datastore['DOMAIN']
 				
 				begin
 					res = send_request_cgi({
-						'uri'  		=>  datastore['URI'],
+						'uri'  		=>  datastore['PATH'],
 						'vars_get' 	=>  tquery,
 						'headers' 	=>  thead, 
 						'vhost'		=>  thost,   
 						'method'   	=> 'GET',
 						'ctype'		=> 'text/plain'
 					}, 20)
+					
 			
 					if res and noexistsres
 
 						if res.body !=  noexistsres.body 
-							print_status("Vhost found  #{thost} ")
+							print_status("[#{ip}] Vhost found  #{thost} ")
 							
 							rep_id = wmap_base_report_id(
 										rhost,
@@ -113,7 +131,7 @@ require 'cgi'
 							print_status("NOT Found #{thost}") 
 						end
 					else
-						print_status("NO Response")  	
+						print_status("[#{ip}] NO Response")  	
 					end
 
 				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
