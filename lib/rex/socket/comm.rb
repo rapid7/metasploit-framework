@@ -1,5 +1,4 @@
 require 'rex/socket'
-require 'rex/sync/read_write_lock'
 
 module Rex
 module Socket
@@ -67,7 +66,6 @@ module Comm
 	def register_event_handler(handler)
 		if (handlers == nil)
 			self.handlers        = []
-			self.handlers_rwlock = Rex::ReadWriteLock.new
 		end
 
 		self.handlers << handler
@@ -78,9 +76,7 @@ module Comm
 	#
 	def deregister_event_handler(handler)
 		if (handlers)
-			handlers_rwlock.synchronize_write {
-				handlers.delete(handler)
-			}
+			handlers.delete(handler)
 		end
 	end
 
@@ -90,9 +86,7 @@ module Comm
 	#
 	def each_event_handler(&block)
 		if (handlers)
-			handlers_rwlock.synchronize_read {
-				handlers.each(&block)
-			}
+			handlers.each(&block)
 		end
 	end
 
