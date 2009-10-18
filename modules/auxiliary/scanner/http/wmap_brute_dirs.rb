@@ -34,9 +34,19 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path to identify directories", '/']),
-				OptInt.new('ERROR_CODE', [ true,  "The expected http code for non existant directories", 404]),
 				OptString.new('FORMAT', [ true,  "The expected directory format (a alpha, d digit, A upperalpha, N, n)", 'Aaa'])
 			], self.class)	
+
+		register_advanced_options(
+			[
+				OptInt.new('ErrorCode', [ true,  "The expected http code for non existant directories", 404]),
+				OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use", 
+						File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
+					]
+				),
+				OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
+				OptInt.new('TestThreads', [ true, "Number of test threads", 25])
+			], self.class)
 						
 	end
 
@@ -46,64 +56,131 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 	
-		numb = []
-		datastore['FORMAT'].scan(/./) { |c|
-			case c
-			when 'a'
-				numb << ('a'..'z')
-			when 'd'
-				numb << ('0'..'9')
-			when 'A'
-				numb << ('A'..'Z')
-			when 'N'
-				numb << ('A'..'Z')+('0'..'9')
-			when 'n'
-				numb << ('a'..'z')+('0'..'9')
-			else
-				print_status("Format string error")
-				return
-			end
-		} 		
+		conn = false			
 
 		tpath = datastore['PATH'] 	
 		if tpath[-1,1] != '/'
 			tpath += '/'
-		end	
+		end
 
-		print_status("Using error code #{datastore['ERROR_CODE']}...")
-			
-		Enumerable.cart(*numb).each {|testd| 
+		dm = datastore['NoDetailMessages']
+		
+
+		
+		# You may add more extensions in the extens array
+		extens = ["/"]
+		
+		# You may add multiple formats in the array
+		forma = []
+		forma << datastore['FORMAT']
+
+		ecode = datastore['ErrorCode'].to_i
+		extens.each do |exte|
+	
+			#
+			# Detect error code
+			# 
+			ecode = datastore['ErrorCode'].to_i		
 			begin
-			  	teststr = tpath+testd.to_s + '/'
+				randdir = Rex::Text.rand_text_alpha(5).chomp
+				randdir << exte
 				res = send_request_cgi({
-					'uri'  		=>  teststr,
+					'uri'  		=>  tpath+randdir,
 					'method'   	=> 'GET',
-					'ctype'		=> 'text/plain'
+					'ctype'		=> 'text/html'
 				}, 20)
 
-				if res
-					if res.code.to_i != datastore['ERROR_CODE'].to_i
-						print_status("Found #{wmap_base_url}#{teststr} #{res.code.to_i}")
-									
-						rep_id = wmap_base_report_id(
-							wmap_target_host,
-							wmap_target_port,
-							wmap_target_ssl
-						)
-						wmap_report(rep_id,'DIRECTORY','NAME',"#{teststr}","Directory #{teststr} found.")
-									
-					else
-						print_status("NOT Found #{wmap_base_url}#{teststr}  #{res.code.to_i}") 
-						#blah
-					end
-				end
+				return if not res
+			
+				tcode = res.code.to_i 
 
+	
+				# Look for a string we can signature on as well
+				if(tcode >= 200 and tcode <= 299)
+			
+					File.open(datastore['HTTP404Sigs']).each do |str|
+						if(res.body.index(str))
+							emesg = str
+							break
+						end
+					end
+
+					if(not emesg)
+						print_status("Using first 256 bytes of the response as 404 string")
+						emesg = res.body[0,256]
+					else
+						print_status("Using custom 404 string of '#{emesg}'")
+					end
+				else
+					ecode = tcode
+					print_status("Using code '#{ecode}' as not found.")
+				end
+			
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+				conn = false		
 			rescue ::Timeout::Error, ::Errno::EPIPE			
 			end
 	
-		}
-	
-	end
+			forma.each do |f|
 
+				numb = []
+				f.scan(/./) { |c|
+					case c
+					when 'a'
+						numb << ('a'..'z')
+					when 'd'
+						numb << ('0'..'9')
+					when 'A'
+						numb << ('A'..'Z')
+					when 'N'
+						numb << ('A'..'Z')+('0'..'9')
+					when 'n'
+						numb << ('a'..'z')+('0'..'9')
+					else
+						print_status("Format string error")
+						return
+					end
+				} 
+
+				exte.scan(/./) { |c|
+					numb << "#{c}"	
+				}
+			
+				Enumerable.cart(*numb).each {|testd| 
+					begin
+						teststr = tpath+testd.to_s 
+						res = send_request_cgi({
+							'uri'  		=>  teststr,
+							'method'   	=> 'GET',
+							'ctype'		=> 'text/plain'
+						}, 20)
+
+						if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
+							if dm == false
+								print_status("NOT Found #{wmap_base_url}#{teststr}  #{res.code.to_i}") 
+								#blah
+							end
+						else
+							if res.code.to_i == 400  and ecode == 404    
+								print_error("Server returned an error code. #{wmap_base_url}#{teststr} #{res.code.to_i}") 
+							else
+								print_status("Found #{wmap_base_url}#{teststr} #{res.code.to_i}")
+									
+								rep_id = wmap_base_report_id(
+									wmap_target_host,
+									wmap_target_port,
+									wmap_target_ssl
+								)
+								wmap_report(rep_id,'DIRECTORY/FILE','NAME',"#{teststr}","Directory/File #{teststr} found.")														
+							end
+						end
+
+					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+					rescue ::Timeout::Error, ::Errno::EPIPE			
+					end
+	
+				}
+			end
+		end	
+	end
 end

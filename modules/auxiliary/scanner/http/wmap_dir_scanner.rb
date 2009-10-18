@@ -34,21 +34,23 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path  to identify files", '/']),
-				OptInt.new('ERROR_CODE', [ true, "Error code for non existent directory", 404]),
 				OptPath.new('DICTIONARY',   [ false, "Path of word dictionary to use", 
 						File.join(Msf::Config.install_root, "data", "wmap", "wmap_dirs.txt")
 					]
-				),
-				OptPath.new('HTTP404S',   [ false, "Path of 404 signatures to use", 
-						File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
-					]
-				)				
+				)
+								
 			], self.class)
 			
 		register_advanced_options(
 			[
+				OptInt.new('ErrorCode', [ true, "Error code for non existent directory", 404]),
+				OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use", 
+						File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
+					]
+				),
 				OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
 				OptInt.new('TestThreads', [ true, "Number of test threads", 25])
+				
 			], self.class)			
 						
 	end
@@ -63,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 			tpath += '/'
 		end
  	
-		ecode = datastore['ERROR_CODE'].to_i
+		ecode = datastore['ErrorCode'].to_i
 		vhost = datastore['VHOST'] || wmap_target_host
 		prot  = datastore['SSL'] ? 'https' : 'http'
 		
@@ -87,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 			# Look for a string we can signature on as well
 			if(tcode >= 200 and tcode <= 299)
 			
-				File.open(datastore['HTTP404S']).each do |str|
+				File.open(datastore['HTTP404Sigs']).each do |str|
 					if(res.body.index(str))
 						emesg = str
 						break

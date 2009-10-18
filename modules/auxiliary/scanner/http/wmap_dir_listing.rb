@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 			else
-				print_status("NOT Vulnerable to directoy listing #{wmap_base_url}#{tpath}") 
+				print_status("NOT Vulnerable to directory listing #{wmap_base_url}#{tpath}") 
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

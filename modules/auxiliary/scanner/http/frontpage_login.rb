@@ -11,6 +11,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
+	include Msf::Exploit::Remote::HttpClient
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::WMAPScanServer
 	include Msf::Auxiliary::Scanner
@@ -37,8 +38,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(target_host)
 
+		if datastore['RPORT'].to_i == 80 or datastore['RPORT'].to_i == 443
+			port = ""
+		else
+			port = ":" + datastore['RPORT']
+		end
 
-		info = (datastore['SSL'] ? "https" : "http") + "://#{target_host}:#{rport}/"
+		info = (datastore['SSL'] ? "https" : "http") + "://#{target_host}#{port}/"
 		
 		connect
 
@@ -60,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("#{info} FrontPage Version: #{fpversion}")
 				if (fpauthor = res.match(/FPAuthorScriptUrl="([^"]*)/))
 					fpauthor = $1
-					print_status("#{info}FrontPage Author: #{info}#{fpauthor}")
+					print_status("#{info} FrontPage Author: #{info}#{fpauthor}")
 				end
 				check_account(info, fpversion, target_host)
 			end

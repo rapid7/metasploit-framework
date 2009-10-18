@@ -27,19 +27,34 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE
 		)
 		
+		register_options(
+			[
+				OptString.new('PATH', [ true,  "The test path to find robots.txt file", '/'])
+				
+			], self.class)
+		
 	end
 
 	def run_host(target_host)
+	
+		tpath = datastore['PATH'] 	
+		if tpath[-1,1] != '/'
+			tpath += '/'
+		end
 
 		begin
+			turl = tpath+'robots.txt'
+		
 			res = send_request_cgi({
-				'uri'          => '/robots.txt',					
+				'uri'          => turl,					
 				'method'       => 'GET',
 				'version' => '1.0',
 			}, 10)
 
 						
 			if res and res.body.include?("llow:") 
+				print_status("[#{target_host}] Path:#{tpath} Robots.txt found.")
+				
 				# short url regex 
 				aregex = /llow:[ ]{0,2}(.*?)$/i
 
@@ -49,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 				
 
 				result.each do |u|
-					print_status("Found file or directory in robot.txt file (#{target_host}) #{u}")
+					print_status("[#{target_host}] Path:#{tpath} Found file or directory. #{u.to_s.chomp}")
 						
 					rep_id = wmap_base_report_id(
 							wmap_target_host,
