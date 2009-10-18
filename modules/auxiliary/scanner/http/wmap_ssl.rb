@@ -49,11 +49,11 @@ class Metasploit3 < Msf::Auxiliary
 			ssock.close	
 			
 			if cert
-				print_status("Subject: #{cert.subject} Signature Alg: #{cert.signature_algorithm}")
+				print_status("[#{ip}:#{datastore['RPORT']}] Subject: #{cert.subject} Signature Alg: #{cert.signature_algorithm}")
 				alg = cert.signature_algorithm
 				
 				if alg.downcase.include? "md5"
-					print_status("#{ip} WARNING: Signature algorithm using MD5 (#{alg})")
+					print_status("[#{ip}:#{datastore['RPORT']}] WARNING: Signature algorithm using MD5 (#{alg})")
 				end
 				
 				sub = cert.subject.to_a
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			
 				if vhostn
-					print_status("#{ip} is host #{vhostn}")
+					print_status("[#{ip}:#{datastore['RPORT']}] is host #{vhostn}")
 					rep_id = wmap_base_report_id(
 						wmap_target_host,
 						wmap_target_port,
@@ -80,14 +80,11 @@ class Metasploit3 < Msf::Auxiliary
 					wmap_report(rep_id,'X509','SIGN_ALGORITHM',"#{cert.signature_algorithm}","Signature algorithm")
 				end
 			else
-				print_status("No certificate subject or CN found")
-			end
-			
+				print_status("[#{ip}:#{datastore['RPORT']}] No certificate subject or CN found")
+			end			
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
-
-	end	
-	
+	end		
 end
 
