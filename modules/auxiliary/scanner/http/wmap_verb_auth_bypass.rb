@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 						end
 					end	
 				else
-					print_status("#{ip} No requires authentication. #{datastore['PATH']} #{res.code}")
+					print_status("[#{ip}] Authentication not required. #{datastore['PATH']} #{res.code}")
 				end
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
