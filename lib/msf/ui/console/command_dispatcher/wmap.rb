@@ -204,7 +204,8 @@ module Wmap
 					doc  = REXML::Document.new
 					get_xml_report_id(args.shift,doc)
 					
-					if rfile = args.shift
+					rfile = args.shift
+					if rfile
 						print_status("Saving XML report: #{rfile}")
 						f = File.new(rfile,"a")
 						doc.write(f,0)
@@ -649,7 +650,7 @@ module Wmap
 								mod.datastore['PATH'] =  req.path
 								mod.datastore['QUERY'] = req.query
 								mod.datastore['HEADERS'] = req.headers
-								mod.datastore['BODY'] = req.body
+								mod.datastore['DATA'] = req.body
 								#
 								# TODO: Add method, headers, etc.
 								# 
@@ -741,7 +742,7 @@ module Wmap
 							mod.datastore['PATH'] =  req.path
 							mod.datastore['QUERY'] = req.query
 							mod.datastore['HEADERS'] = req.headers
-							mod.datastore['BODY'] = req.body
+							mod.datastore['DATA'] = req.body
 							#
 							# TODO: Add method, headers, etc.
 							# 
@@ -826,7 +827,7 @@ module Wmap
 							mod.datastore['PATH'] =  req.path
 							mod.datastore['QUERY'] = req.query
 							mod.datastore['HEADERS'] = req.headers
-							mod.datastore['BODY'] = req.body
+							mod.datastore['DATA'] = req.body
 							#
 							# TODO: Add method, headers, etc.
 							# 
@@ -911,7 +912,7 @@ module Wmap
 							mod.datastore['PATH'] =  req.path
 							mod.datastore['QUERY'] = req.query
 							mod.datastore['HEADERS'] = req.headers
-							mod.datastore['BODY'] = req.body
+							mod.datastore['DATA'] = req.body
 							#
 							# TODO: Add method, headers, etc.
 							# 

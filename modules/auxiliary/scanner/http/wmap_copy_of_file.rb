@@ -35,54 +35,121 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('PATH', [ true,  "The path/file to identify copies", '/index.asp'])
 			], self.class)	
+		
+		register_advanced_options(
+			[
+				OptInt.new('ErrorCode', [ true, "Error code for non existent directory", 404]),
+				OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use", 
+						File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
+					]
+				),
+				OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])				
+			], self.class)	
 							
 	end
 
 	def run_host(ip)
+		conn = true
+		ecode = nil
+		emesg = nil
+		
+		ecode = datastore['ErrorCode'].to_i
+		dm = datastore['NoDetailMessages']
+	
 		prestr = [
+						'Copy_(1)_of_',
+						'Copy_(2)_of_',
 						'Copy of ',
+						'Copy_of_',
+						'Copy_',
 						'Copy',
 						'_'
 				 ]
+				 	 
 
 		tpathf = datastore['PATH']
 		testf = tpathf.split('/').last
 
+		#
+		# Detect error code
+		# 		
+		begin
+			randfile = Rex::Text.rand_text_alpha(5).chomp
+			filec = tpathf.sub(testf,randfile + testf)
+			
+			res = send_request_cgi({
+				'uri'  		=>  filec,
+				'method'   	=> 'GET',
+				'ctype'		=> 'text/html'
+			}, 20)
+
+			return if not res
+			
+			tcode = res.code.to_i 
+
+	
+			# Look for a string we can signature on as well
+			if(tcode >= 200 and tcode <= 299)
+			
+				File.open(datastore['HTTP404Sigs']).each do |str|
+					if(res.body.index(str))
+						emesg = str
+						break
+					end
+				end
+
+				if(not emesg)
+					print_status("Using first 256 bytes of the response as 404 string")
+					emesg = res.body[0,256]
+				else
+					print_status("Using custom 404 string of '#{emesg}'")
+				end
+			else
+				ecode = tcode
+				print_status("Using code '#{ecode}' as not found.")
+			end
+			
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			conn = false		
+		rescue ::Timeout::Error, ::Errno::EPIPE			
+		end
+
+		return if not conn
+
 		if testf
 			prestr.each do |pre|
 				filec = tpathf.sub(testf,pre + testf)
-				check_for_file(filec)
+				
+				begin
+					res = send_request_cgi({
+						'uri'  		=>  filec,
+						'method'   	=> 'GET',
+						'ctype'		=> 'text/plain'
+					}, 20)
+					
+					if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
+						if dm == false
+							print_status("NOT Found #{filec} #{res.code} [#{wmap_target_host}] [#{res.code.to_i}]") 					
+						end
+					else
+						if ecode != 400 and res.code.to_i == 400
+							print_error("[#{wmap_target_host}] Server returned a 400 error on #{wmap_base_url}#{filec} [#{res.code.to_i}]")
+						else				
+							print_status("[#{wmap_target_host}] Found #{wmap_base_url}#{filec} [#{res.code.to_i}]")
+					
+							rep_id = wmap_base_report_id(
+								wmap_target_host,
+								wmap_target_port,
+								wmap_target_ssl
+							)
+							wmap_report(rep_id,'VULNERABILITY','COPY_FILE',"#{filec}","A copy of file was found.")
+						end
+					end
+
+				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+				rescue ::Timeout::Error, ::Errno::EPIPE			
+				end
 			end
 		end	
 	end
-	
-	def check_for_file(file)
-		begin
-			res = send_request_cgi({
-					'uri'  		=>  file,
-					'method'   	=> 'GET',
-					'ctype'		=> 'text/plain'
-					}, 20)
-
-			if (res and res.code >= 200 and res.code < 300) 
-				 	print_status("Found #{wmap_base_url}#{file}")
-					
-					rep_id = wmap_base_report_id(
-						wmap_target_host,
-						wmap_target_port,
-						wmap_target_ssl
-					)
-					wmap_report(rep_id,'VULNERABILITY','COPY_FILE',"#{file}","A copy of file was found.")
-				else
-				   	print_status("NOT Found #{wmap_base_url}#{file}") 
-					#To be removed or just displayed with verbose debugging.
-				end
-
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue ::Timeout::Error, ::Errno::EPIPE			
-		end
-	
-	
-	end
-
 end
