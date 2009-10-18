@@ -38,63 +38,65 @@ class Metasploit3 < Msf::Auxiliary
 		
 		connect
 
-		ver = sock.get_once(50,1)
-		ver,msg = (ver.split(/\n/))
+		begin
+			banner = sock.get_once(50,1)
 
-		# RFB Protocol Version 3.3 (1998-01) 
-		# RFB Protocol Version 3.7 (2003-08) 
-		# RFB Protocol Version 3.8 (2007-06) 
-		if (ver =~ /RFB 003.003|RFB 003.007|RFB 003.008/)
+			# RFB Protocol Version 3.3 (1998-01) 
+			# RFB Protocol Version 3.7 (2003-08) 
+			# RFB Protocol Version 3.8 (2007-06) 
+			if (banner and banner =~ /RFB 003\.003|RFB 003\.007|RFB 003\.008/)
+				ver,msg = (banner.split(/\n/))
 
-			print_status("#{target_host}:#{rport}, VNC server protocol version : #{ver}")
+				print_status("#{target_host}:#{rport}, VNC server protocol version : #{ver}")
 
-			if msg
-
-				if (msg =~ /Too many security failures/)
-					msg = msg + ". " + "Wait for a moment!"
-				end
-				print_status("#{target_host}:#{rport}, VNC server warning messages : #{msg}") 
-
-			else	
-
-				# send VNC client protocol version
-				cver = ver + "\x0a"
-				sock.put(cver)
-		
-				res = sock.get_once
-
-				# number of security types, security type	
-				a,b,c,d = res.unpack("C*")
-
-				# 0 : invalid
-				# 1 : none
-				# 2 : vnc authentication
-				
-				if (a and b and c and  d)
-					if (a == 0 and b == 0 and c == 0 and d == 2)
-						sec_type = "VNC authentication"
+				if msg
+					if (msg =~ /Too many security failures/)
+						msg = msg + ". " + "Wait for a moment!"
 					end
-					if (a == 0 and b == 0 and c == 0 and d == 0)
-						sec_type = "No response. Try again!"
+					print_status("#{target_host}:#{rport}, VNC server warning messages : \"#{msg}\"") 
+				else	
+					# send VNC client protocol version
+					cver = ver + "\x0a"
+					sock.put(cver)
+			
+					# first byte is number of security types
+					num_types = sock.get_once(1).unpack("C").first
+					if (num_types == 0)
+						msg_len = sock.get_once(4).unpack("N").first
+						raise RunTimeError.new("Server error: #{sock.get_once(msg_len)}")
 					end
-				elsif (a and b)
-					if (a == 0 and b == 0)
-						sec_type = "Invalid"
-					elsif (a == 0 and b == 1 or a == 1 and b == 1)
-						sec_type = "None, free access!"
-					elsif (a == 0 and b == 2 or a == 1 and b == 2)
-						sec_type = "VNC authentication"
+					types = sock.get_once(num_types).unpack("C*")
+
+					# Security types
+					#  1 : No authentication, no encryption
+					#  2 : Standard VNC authentication
+					# 16 : Tight (tightvncserver)
+					# 17 : Ultra
+					# 18 : TLS
+					
+					sec_type = []
+					if types
+						sec_type << "None"   if (types.include? 1)
+						sec_type << "VNC"    if (types.include? 2)
+						sec_type << "Tight"  if (types.include? 16)  
+						sec_type << "Ultra"  if (types.include? 17)
+						sec_type << "TLS"    if (types.include? 18)  
+						print_status("#{target_host}:#{rport}, VNC server security types supported : #{sec_type.join(",")}")
+						if (types.include? 1)
+							print_status("#{target_host}:#{rport}, VNC server security types includes None, free access!")
+						end
 					else
-						sec_type = "Unknown"
+						print_error("#{target_host}:#{rport}, failed to parse security types")
 					end
 				end
-
-				print_status("#{target_host}:#{rport}, VNC server security types supported : #{sec_type}")
+			elsif banner
+				print_status("#{target_host}:#{rport}, VNC server protocol version : \"#{banner.chomp}\", not supported!")
+			else
+				print_error("#{target_host}:#{rport}, failed to retreive banner")
 			end
-		else
-			print_status("#{target_host}:#{rport}, VNC server protocol version : #{ver}, not supported!")
-		end
 
-		disconnect
+		ensure
+			disconnect
+		end
 	end
 end
