@@ -50,6 +50,10 @@ class Metasploit3 < Msf::Auxiliary
 			Opt::RPORT(80),
 			OptInt.new('TIMEOUT', [true, "The reply read timeout in milliseconds", 500])
 		])
+
+		register_advanced_options([
+			OptInt.new('SAMPLES', [true, "The IPID sample size", 6])
+		])
 	end
 
 	def rport
@@ -57,10 +61,11 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+		raise "Pcaprub is not available" if not @@havepcap
+		raise "SAMPLES option must be >= 2" if datastore['SAMPLES'] < 2
+
 		socket = connect_ip(false)
 		return if not socket
-
-		raise "Pcaprub is not available" if not @@havepcap
 
 		pcap = ::Pcap.open_live(::Pcap.lookupdev, 68, false, 1)
 
@@ -70,10 +75,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		ipids = []
 
-
 		pcap.setfilter(getfilter(shost, ip, rport))
-			
-		6.times do
+
+		datastore['SAMPLES'].times do
 			sport = rand(0xffff - 1025) + 1025
 
 			probe = buildprobe(shost, sport, ip, rport)
