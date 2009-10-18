@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('METHOD', [ true, "HTTP Method",'GET']),
 				OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/default.aspx']),
 				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
-				OptString.new('BODY', [ false, "HTTP Body Data", '']),
+				OptString.new('DATA', [ false, "HTTP Body Data", '']),
 				OptString.new('COOKIE',[ false, "HTTP Cookies", ''])
 			], self.class)	
 						
@@ -74,12 +74,12 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			gvars = nil
 		end
-		
-		if !datastore['BODY'] or datastore['BODY'].empty?
-			datastore['BODY'] = nil
+	
+		if !datastore['DATA'] or datastore['DATA'].empty?
+			datastore['DATA'] = nil
 			pvars = nil
 		else
-			pvars = queryparse(datastore['BODY'])
+			pvars = queryparse(datastore['DATA'])
 		end
 		
 		if !datastore['COOKIE'] or datastore['COOKIE'].empty?
@@ -103,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
 				'method'   	=>  datastore['METHOD'],
 				'ctype'		=> 'application/x-www-form-urlencoded',
 	            'cookie'    => datastore['COOKIE'],
-	            'data'      => datastore['BODY']
+	            'data'      => datastore['DATA']
 				}, 20)
 
 		
@@ -176,7 +176,7 @@ class Metasploit3 < Msf::Auxiliary
 							'method'   	=>  datastore['METHOD'],
 							'ctype'		=> 'application/x-www-form-urlencoded',
 							'cookie'    => datastore['COOKIE'],
-							'data'      => datastore['BODY']
+							'data'      => datastore['DATA']
 						}, 20)
 					
 					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
@@ -235,7 +235,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 				
 				pvars.each do |key,value|		
-					pvars = queryparse(datastore['BODY']) #Now its a Hash
+					pvars = queryparse(datastore['DATA']) #Now its a Hash
 				
 					print_status("- Testing data with #{idesc}. Parameter #{key}:") 
 					pvars[key] = pvars[key]+istr

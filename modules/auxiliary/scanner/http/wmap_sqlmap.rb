@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('METHOD', [ true,  "HTTP Method", 'GET' ]),
 				OptString.new('PATH', [ true,  "The path/file to test for SQL injection", 'index.php' ]),
 				OptString.new('QUERY', [ false, "HTTP GET query", 'id=1' ]),
-				OptString.new('BODY', [ false, "The data string to be sent through POST", '' ]),
+				OptString.new('DATA', [ false, "The data string to be sent through POST", '' ]),
 				OptString.new('OPTS', [ false,  "The sqlmap options to use", ' ' ]),
 				OptPath.new('SQLMAP_PATH', [ true,  "The sqlmap >= 0.6.1 full path ", '/sqlmap/sqlmap.py' ]), 
 				OptBool.new('BATCH', [ true,  "Never ask for user input, use the default behaviour", true ])
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		data = datastore['BODY']
+		data = datastore['DATA']
 		method = datastore['METHOD'].upcase
 
 		sqlmap_url  = (datastore['SSL'] ? "https" : "http")
