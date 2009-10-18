@@ -38,13 +38,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(target_host)
-		
 		connect
 
 		ver = sock.get_once(50,1)
-		ver,msg = (ver.split(/(\n|\r)/))
 
-		if (ver =~ /SSH/)
+		if (ver and ver =~ /SSH/)
+			ver,msg = (ver.split(/(\n|\r)/))
 			print_status("#{target_host}:#{rport}, SSH server version: #{ver}")
 			report_service(:host => rhost, :port => rport, :name => "ssh")
 		else
