@@ -53,19 +53,15 @@ class Metasploit3 < Msf::Auxiliary
 
 						
 			if res and res.body.include?("llow:") 
-				print_status("[#{target_host}] Path:#{tpath} Robots.txt found.")
+				print_status("[#{target_host}] #{tpath}robots.txt found")
 				
 				# short url regex 
 				aregex = /llow:[ ]{0,2}(.*?)$/i
 
-				#print_status("#{res.body}")
-
-				result = res.body.scan(aregex).uniq
+				result = res.body.scan(aregex).flatten.map{|s| s.strip}.uniq
 				
-
-				result.each do |u|
-					print_status("[#{target_host}] Path:#{tpath} Found file or directory. #{u.to_s.chomp}")
-						
+				print_status("[#{target_host}] #{tpath}robots.txt - #{result.join(", ")}")
+				result.each do |u|				
 					rep_id = wmap_base_report_id(
 							wmap_target_host,
 							wmap_target_port,
