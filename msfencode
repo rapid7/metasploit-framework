@@ -19,7 +19,7 @@ $args = Rex::Parser::Arguments.new(
 	"-i" => [ true, "Encode the contents of the supplied file path"                      ],
 	"-m" => [ true, "Specifies an additional module search path"                         ],
 	"-a" => [ true, "The architecture to encode as"                                      ],
-	"-t" => [ true, "The format to display the encoded buffer with (c, elf, exe, java, perl, raw, ruby, vba)" ],
+	"-t" => [ true, "The format to display the encoded buffer with (c, elf, exe, java, perl, raw, ruby, vba, vbs, loop-vbs)" ],
 	"-b" => [ true, "The list of characters to avoid: '\\x00\\xff'"                      ],
 	"-s" => [ true, "The maximum size of the encoded data"                               ],
 	"-e" => [ true, "The encoder to use"                                                 ],
@@ -86,7 +86,7 @@ arch     = nil
 badchars = ''
 space    = nil
 encoder  = nil
-fmt      = "c"
+fmt      = nil
 input    = $stdin
 options  = ''
 delim    = '_|_'
@@ -118,7 +118,7 @@ $args.parse(ARGV) { |opt, idx, val|
 		when "-s"
 			space = val.to_i
 		when "-t"
-			if (val =~ /^(perl|ruby|raw|c|js_le|js_be|java|exe|elf|vba)$/)
+			if (val =~ /^(perl|ruby|rb|raw|c|js_le|js_be|java|exe|elf|vba|vbs|loop-vbs)$/)
 				fmt = val
 			else
 				$stderr.puts(OutError + "Invalid format: #{val}")
@@ -136,6 +136,14 @@ $args.parse(ARGV) { |opt, idx, val|
 			end
 	end	
 }
+
+
+if(not fmt)
+	pre,ext = output.split('.')
+	if(ext and not ext.empty?)
+		fmt = ext
+	end
+end
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create(
@@ -225,7 +233,25 @@ case cmd
 						File.open(output, "wb") do |fd|
 							fd.write(vba)
 						end
-					end				
+					end
+				when 'vbs'
+					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw)
+					if(not output)
+						$stdout.write(vbs)
+					else
+						File.open(output, "wb") do |fd|
+							fd.write(vbs)
+						end
+					end
+				when 'loop-vbs'
+					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw, true)
+					if(not output)
+						$stdout.write(vbs)
+					else
+						File.open(output, "wb") do |fd|
+							fd.write(vbs)
+						end
+					end														
 				else
 					if(not output)
 						$stdout.print(Msf::Simple::Buffer.transform(raw, fmt))
@@ -239,7 +265,7 @@ case cmd
 				exit
 
 			rescue => e
-				$stderr.puts(OutError + "#{enc.refname} failed: #{e}")
+				$stderr.puts(OutError + "#{enc.refname} failed: #{e} #{e.backtrace}")
 			end
 		}
 
