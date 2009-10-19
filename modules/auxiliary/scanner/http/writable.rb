@@ -66,15 +66,42 @@ class Metasploit3 < Msf::Auxiliary
 
 				return if not res
 				if (res and res.code >= 200 and res.code < 300)
-					print_status("Upload succeeded on #{wmap_base_url}#{datastore['PATH']} [#{res.code}]")
+				
+					#
+					# Detect if file was really uploaded
+					# 
+	
+					begin
+						res = send_request_cgi({
+							'uri'  		=>  datastore['PATH'],
+							'method'   	=> 'GET',
+							'ctype'		=> 'text/html'
+						}, 20)
+
+						return if not res
+			
+						tcode = res.code.to_i 
+
+						if res and (tcode >= 200 and tcode <= 299)
+							if res.body.include? datastore['DATA']
+								print_status("Upload succeeded on #{wmap_base_url}#{datastore['PATH']} [#{res.code}]")
 					
-					rep_id = wmap_base_report_id(
+								rep_id = wmap_base_report_id(
 										wmap_target_host,
 										wmap_target_port,
 										wmap_target_ssl
 								)
 								
-					wmap_report(rep_id,'VULNERABILITY','PUT_ENABLED',"#{datastore['PATH']}","Upload succeeded on #{datastore['PATH']}")
+								wmap_report(rep_id,'VULNERABILITY','PUT_ENABLED',"#{datastore['PATH']}","Upload succeeded on #{datastore['PATH']}")
+							
+							end
+						else
+							print_status("Received a #{tcode} code but upload failed on #{wmap_base_url} [#{res.code} #{res.message}]")
+						end
+			
+					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout		
+					rescue ::Timeout::Error, ::Errno::EPIPE			
+					end					
 				else
 					print_status("Upload failed on #{wmap_base_url} [#{res.code} #{res.message}]")
 				end
