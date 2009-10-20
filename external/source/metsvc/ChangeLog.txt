@@ -1,0 +1,3 @@
+29 May 2007     metsvc-1.0
+
+    * Initial public release
