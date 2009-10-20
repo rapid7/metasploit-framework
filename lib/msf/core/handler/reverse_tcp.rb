@@ -44,6 +44,13 @@ module ReverseTcp
 				Opt::LPORT(4444)
 			], Msf::Handler::ReverseTcp)
 
+		# XXX: Not supported by all modules
+		register_advanced_options(
+			[
+				OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ])
+			], Msf::Handler::ReverseTcp)
+
+			
 		self.conn_threads = []
 	end
 

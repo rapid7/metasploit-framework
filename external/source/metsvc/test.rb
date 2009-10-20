@@ -7,11 +7,11 @@ require 'rex'
 
 require 'rex/post/meterpreter'
 
-ip   = ARGV[0]
-port = ARGV[1]
+ip   = ARGV.shift() || exit
+port = ARGV.shift() || 31337
 
 if (ip == nil || port == nil)
-  puts "Syntax: test.rb <ip> <port>\n"
+  puts "Syntax: test.rb <ip> [port]\n"
   exit
 end
 
