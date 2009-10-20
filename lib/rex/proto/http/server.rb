@@ -106,7 +106,7 @@ class Server
 		self.listener    = nil
 		self.resources   = {}
 		self.server_name = DefaultServer
-		self.ssl 		 = false
+		self.ssl         = false
 	end
 
 	#

@@ -225,7 +225,7 @@ protected
 			when 0
 				buf = '"' + Rex::Text.to_hex(str) + '"'
 			when 1
-				 buf = "unescape(\"" + Rex::Text.to_hex(str, "%") + "\")" 
+				buf = "unescape(\"" + Rex::Text.to_hex(str, "%") + "\")" 
 			when 2
 				buf = "String.fromCharCode(" 
 				str.each_byte { |c| 

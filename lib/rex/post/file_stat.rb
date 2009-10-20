@@ -21,8 +21,8 @@ class FileStat
 	# Basic file types.
 	#
 	@@ftypes = [
-	  'fifo', 'characterSpecial', 'directory',
-	  'blockSpecial', 'file', 'link', 'socket'
+		'fifo', 'characterSpecial', 'directory',
+		'blockSpecial', 'file', 'link', 'socket'
 	]
 
 	attr_accessor :stathash

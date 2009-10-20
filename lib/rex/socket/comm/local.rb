@@ -183,7 +183,7 @@ class Rex::Socket::Comm::Local
 
 					begin
 						timeout(param.timeout) do
-						    sock.connect(Rex::Socket.to_sockaddr(ip, port))
+							sock.connect(Rex::Socket.to_sockaddr(ip, port))
 						end
 					rescue ::Timeout::Error
 						raise ::Errno::ETIMEDOUT

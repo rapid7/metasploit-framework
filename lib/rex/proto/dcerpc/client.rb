@@ -74,7 +74,7 @@ require 'rex/proto/smb/exceptions'
 
 	# Create the appropriate socket based on protocol
 	def socket_setup()
-	 	ctx = { 'Msf' => self.options['Msf'], 'MsfExploit' => self.options['MsfExploit'] }
+		ctx = { 'Msf' => self.options['Msf'], 'MsfExploit' => self.options['MsfExploit'] }
 		self.socket = case self.handle.protocol
 			
 			when 'ncacn_ip_tcp'

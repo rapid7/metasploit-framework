@@ -166,7 +166,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 				else 
 					raise XCEPT::InvalidCommand
-				end
+			end
 				
 			if (pkt['Payload']['SMB'].v['Command'] != expected_type)
 				raise XCEPT::InvalidType

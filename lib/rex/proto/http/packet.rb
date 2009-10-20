@@ -137,56 +137,56 @@ class Packet
 	# Build a 'Transfer-Encoding: chunked' payload with random chunk sizes
 	#
 	def chunk(str, min_size = 1, max_size = 1000)
-	    chunked = ''
+		chunked = ''
 
-	    # min chunk size is 1 byte
-	    if (min_size < 1); min_size = 1; end
+		# min chunk size is 1 byte
+		if (min_size < 1); min_size = 1; end
 
-	    # don't be dumb
-	    if (max_size < min_size); max_size = min_size; end
+		# don't be dumb
+		if (max_size < min_size); max_size = min_size; end
 
-	    while (str.size > 0)
-	        chunk = str.slice!(0, rand(max_size - min_size) + min_size)
-	        chunked += sprintf("%x", chunk.size) + "\r\n" + chunk + "\r\n"
-	    end
-	    chunked += "0\r\n\r\n"
+		while (str.size > 0)
+			chunk = str.slice!(0, rand(max_size - min_size) + min_size)
+			chunked += sprintf("%x", chunk.size) + "\r\n" + chunk + "\r\n"
+		end
+		chunked += "0\r\n\r\n"
 	end
 
 	#
 	# Converts the packet to a string.
 	#
 	def to_s
-	    content = self.body.dup
+		content = self.body.dup
 		# Update the content length field in the header with the body length.
 		if (content)
-	        if !self.compress.nil?
-	            case self.compress
-	                when 'gzip'
-	                    self.headers['Content-Encoding'] = 'gzip'
-	                    content = Rex::Text.gzip(content)
-	                when 'deflate'
-	                    self.headers['Content-Encoding'] = 'deflate'
-	                    content = Rex::Text.zlib_deflate(content)
+			if !self.compress.nil?
+				case self.compress
+					when 'gzip'
+						self.headers['Content-Encoding'] = 'gzip'
+						content = Rex::Text.gzip(content)
+					when 'deflate'
+						self.headers['Content-Encoding'] = 'deflate'
+						content = Rex::Text.zlib_deflate(content)
 					when 'none'
 						# this one is fine...
-	                # when 'compress'
-	                else
-	                    raise RuntimeError, 'Invalid Content-Encoding'
-	            end
-	        end
+					# when 'compress'
+					else
+						raise RuntimeError, 'Invalid Content-Encoding'
+				end
+			end
 
-	        if (self.auto_cl == true && self.transfer_chunked == true)
-	            raise RuntimeError, "'Content-Length' and 'Transfer-Encoding: chunked' are incompatable"
-	        elsif self.auto_cl == true
+			if (self.auto_cl == true && self.transfer_chunked == true)
+				raise RuntimeError, "'Content-Length' and 'Transfer-Encoding: chunked' are incompatable"
+			elsif self.auto_cl == true
 				self.headers['Content-Length'] = content.length
-	        elsif self.transfer_chunked == true
-	            if self.proto != '1.1'
-	                raise RuntimeError, 'Chunked encoding is only available via 1.1'
-	            end
-	            self.headers['Transfer-Encoding'] = 'chunked'
-	            content = self.chunk(content, self.chunk_min_size, self.chunk_max_size)
-	        end
-	    end
+			elsif self.transfer_chunked == true
+				if self.proto != '1.1'
+					raise RuntimeError, 'Chunked encoding is only available via 1.1'
+				end
+				self.headers['Transfer-Encoding'] = 'chunked'
+				content = self.chunk(content, self.chunk_min_size, self.chunk_max_size)
+			end
+		end
 
 		str  = self.headers.to_s(cmd_string)
 		str += content || ''
@@ -256,11 +256,11 @@ protected
 
 	def parse_header_re
 		m = /(.*?)\r?\n\r?\n(.*)/smi.match(self.bufq)
-	    if m != nil
-	        self.headers.from_s(m[1])
-	        self.bufq = m[2]
+		if m != nil
+			self.headers.from_s(m[1])
+			self.bufq = m[2]
 			
-	        # Extract the content length, if any.
+			# Extract the content length, if any.
 			if (self.headers['Content-Length'])
 				self.body_bytes_left = self.headers['Content-Length'].to_i
 			else
@@ -271,7 +271,7 @@ protected
 				self.transfer_chunked = 1 if self.headers['Transfer-Encoding'] =~ /chunked/i
 			end
 
-			connection    = self.headers['Connection']
+			connection = self.headers['Connection']
 
 			comp_on_close = false
 			if (connection and connection.downcase == 'close')
@@ -285,11 +285,11 @@ protected
 			else
 				self.state = ParseState::Completed
 			end
-	    else
-	        self.headers.from_s(self.bufq)
-	    end
+		else
+			self.headers.from_s(self.bufq)
+		end
 
-	    # No command string?  Wack.
+		# No command string?  Wack.
 		if (self.headers.cmd_string == nil)
 			raise RuntimeError, "Invalid command string", caller
 		end

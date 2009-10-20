@@ -36,7 +36,7 @@ module Text
 	AlphaNumeric = Alpha + Numerals
 	HighAscii    = [*(0x80 .. 0xff)].pack("C*")
 	DefaultWrap  = 60
-	AllChars	 = [*(0x00 .. 0xff)].pack("C*")
+	AllChars     = [*(0x00 .. 0xff)].pack("C*")
 
 	DefaultPatternSets = [ Rex::Text::UpperAlpha, Rex::Text::LowerAlpha, Rex::Text::Numerals ]
 	
@@ -321,7 +321,7 @@ module Text
 				mode = mode.to_i
 			end
 			if mode != 1252
-		                raise TypeError, "Invalid codepage #{mode}, only 1252 supported for uhwtfms_half"
+				raise TypeError, "Invalid codepage #{mode}, only 1252 supported for uhwtfms_half"
 			end
 			str.each_byte {|byte|
 				if ((byte >= 33 && byte <= 63) || (byte >= 96 && byte <= 126))

@@ -101,7 +101,7 @@ module Payload::Windows::ReflectiveDllInject
 		
 		# return our stage to be loaded by the intermediate stager
 		return dll
-  end
+	end
   
 end
 

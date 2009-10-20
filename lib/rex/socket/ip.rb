@@ -73,7 +73,7 @@ module Rex::Socket::Ip
 			Rex::Compat.is_bsdi or
 			Rex::Compat.is_macosx
 		  )
-		  	gram=gram.dup
+			gram=gram.dup
 			gram[2,2]=gram[2,2].unpack("n").pack("s")
 			gram[6,2]=gram[6,2].unpack("n").pack("s")
 		end

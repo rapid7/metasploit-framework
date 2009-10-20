@@ -116,7 +116,7 @@ CONST = Rex::Proto::SMB::Constants
 				res = [0x84, str.length].pack('CN') + str
 			else
 				raise "ASN1 str too long"
-			end
+		end
 		return res
 	end
 	
@@ -489,9 +489,9 @@ CONST = Rex::Proto::SMB::Constants
 			# Return the flags back to the decode so we can base64 it again
 			flags = reqflags.to_s(16)
 			0.upto(8) do |idx|
-			  if (idx > flags.length)
-			    flags.insert(0, "0")
-			  end
+				if (idx > flags.length)
+					flags.insert(0, "0")
+				end
 			end
 
 			idx = 0

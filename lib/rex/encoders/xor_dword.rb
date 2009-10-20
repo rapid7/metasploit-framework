@@ -16,9 +16,9 @@ class XorDword < Rex::Encoder::Xor::Dword
 		def _prepend
 			# set the counter to the rounded up number of dwords to decode
 			Rex::Arch::X86.set(
-			  Rex::Arch::X86::ECX,
-			  (encoded.length - 1 >> 2) + 1,
-			  badchars
+				Rex::Arch::X86::ECX,
+				(encoded.length - 1 >> 2) + 1,
+				badchars
 			) +
 			"\xe8\xff\xff\xff" +                # call $+4
 			"\xff\xc0" +                        # inc eax
