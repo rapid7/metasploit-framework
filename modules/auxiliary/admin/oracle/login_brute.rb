@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 				This module uses a list of well known authentication credentials
 				for bruteforcing the TNS service. A log file of discoverd credentials 
-				can be found in ./data/wordlists/oracle_default_found.log.
+				can be found in ./data/wordlists/oracle_default_found.log.  Oracle default passwords in oracle_default_passwords.csv. 				McKesson HCI Oracle default passwords in hci_oracle_passwords.csv.
 			},
 			'Author'         => [ 'MC' ],
 			'License'        => MSF_LICENSE,
@@ -28,6 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'URL', 'https://www.metasploit.com/users/mc' ],
 					[ 'URL', 'http://www.petefinnigan.com/default/oracle_default_passwords.csv' ],
+					[ 'URL', 'http://seclists.org/fulldisclosure/2009/Oct/261' ],
 				],
 			'DisclosureDate' => 'Nov 20 2008'))
 
