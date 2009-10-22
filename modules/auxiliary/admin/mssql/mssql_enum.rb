@@ -16,12 +16,14 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def initialize(info = {})
 		super(update_info(info,
-				'Name'           => 'Run SQL Server Enumeration against the MSSQL instance',
+				'Name'           => 'Microsoft SQL Server Configuration Enumerator',
 				'Description'    => %q{
-				This module will allow for simple SQL Server enumeration against a
-				MSSQL 2k, 2k5 and 2k8 instance given SYSDBA credentials.
+				This module will perform a series of configuration audits and
+				security checks against a Microsoft SQL Server database. For this
+				module to work, valid administrative user credentials must be
+				supplied.
 				},
-				'Author'         => [ 'Carlos Perez <carlos_perez [at] darkoperator [dot] com>' ],
+				'Author'         => [ 'Carlos Perez <carlos_perez [at] darkoperator.com>' ],
 				'License'        => MSF_LICENSE,
 				'Version'        => '$Revision$'
 			))
