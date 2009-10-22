@@ -16,14 +16,12 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def initialize(info = {})
 		super(update_info(info,
-				'Name'           => 'Microsoft SQL Server Configuration Enumerator',
+				'Name'           => 'Run SQL Server Enumeration against the MSSQL instance',
 				'Description'    => %q{
-					This module will perform a series of configuration audits and
-				security checks against a Microsoft SQL Server database. For this
-				module to work, valid administrative user credentials must be
-				supplied.
+				This module will allow for simple SQL Server enumeration against a
+				MSSQL 2k, 2k5 and 2k8 instance given SYSDBA credentials.
 				},
-				'Author'         => [ 'Carlos Perez <carlos_perez [at] darkoperator.com>' ],
+				'Author'         => [ 'Carlos Perez <carlos_perez [at] darkoperator [dot] com>' ],
 				'License'        => MSF_LICENSE,
 				'Version'        => '$Revision$'
 			))
@@ -35,11 +33,13 @@ class Metasploit3 < Msf::Auxiliary
 		if mssql_login_datastore
 			#Get Version
 			print_status("Version:")
+			vernum =""
 			ver = mssql_query("select @@version")
 			sqlversion = ver[:rows].join
 			sqlversion.each_line do |row|
 				print "[*]\t#{row}"
 			end
+			vernum = sqlversion.gsub("\n"," ").scan(/SQL Server\s*(200\d)/m)
 			report_note(:host => datastore['RHOST'], 
 				:proto => 'TCP',
 				:port => datastore['RPORT'],
@@ -47,13 +47,24 @@ class Metasploit3 < Msf::Auxiliary
 				:data => "Version: #{sqlversion}")
 			#-------------------------------------------------------
 			#Check Configuration Parameters and check what is enabled
-
 			print_status("Configuration Parameters:")
-			query = "SELECT name, CAST(value_in_use AS INT) from sys.configurations"
-			ver = mssql_query(query)[:rows]
-			sysconfig = {}
-			ver.each do |l|
-				sysconfig[l[0].strip] = l[1].to_i
+			if vernum.join != "2000"
+				query = "SELECT name, CAST(value_in_use AS INT) from sys.configurations"
+				ver = mssql_query(query)[:rows]
+				sysconfig = {}
+				ver.each do |l|
+					sysconfig[l[0].strip] = l[1].to_i
+				end
+			else
+				#enable advanced options
+				mssql_query("EXEC sp_configue \'show advanced options\', 1; RECONFIGURE")[:rows]
+				query = "EXECUTE sp_configure"
+				ver = mssql_query(query)[:rows]
+				ver.class
+				sysconfig = {}
+				ver.each do |l|
+					sysconfig[l[0].strip] = l[3].to_i
+				end
 			end
 			#-------------------------------------------------------
 			#checking for C2 Audit Mode
@@ -74,20 +85,39 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			#-------------------------------------------------------
 			#check if xp_cmdshell is enabled
-			if sysconfig['xp_cmdshell'] == 1
-				print_status("\txp_cmdshell is Enabled")
-				report_note(:host => datastore['RHOST'], 
-					:proto => 'TCP',
-					:port => datastore['RPORT'],
-					:type => 'MSSQL_ENUM',
-					:data => "xp_cmdshell is Enabled")
+			if vernum.join != "2000"
+				if sysconfig['xp_cmdshell'] == 1
+					print_status("\txp_cmdshell is Enabled")
+					report_note(:host => datastore['RHOST'],
+						:proto => 'TCP',
+						:port => datastore['RPORT'],
+						:type => 'MSSQL_ENUM',
+						:data => "xp_cmdshell is Enabled")
+				else
+					print_status("\txp_cmdshell is Not Enabled")
+					report_note(:host => datastore['RHOST'],
+						:proto => 'TCP',
+						:port => datastore['RPORT'],
+						:type => 'MSSQL_ENUM',
+						:data => "xp_cmdshell is Not Enabled")
+				end
 			else
-				print_status("\txp_cmdshell is Not Enabled")
-				report_note(:host => datastore['RHOST'], 
-					:proto => 'TCP',
-					:port => datastore['RPORT'],
-					:type => 'MSSQL_ENUM',
-					:data => "xp_cmdshell is Not Enabled")
+				xpspexist = mssql_query("select sysobjects.name from sysobjects where name = \'xp_cmdshell\'")[:rows]
+				if xpspexist != nil
+					print_status("\txp_cmdshell is Enabled")
+					report_note(:host => datastore['RHOST'],
+						:proto => 'TCP',
+						:port => datastore['RPORT'],
+						:type => 'MSSQL_ENUM',
+						:data => "xp_cmdshell is Enabled")
+				else
+					print_status("\txp_cmdshell is Not Enabled")
+					report_note(:host => datastore['RHOST'],
+						:proto => 'TCP',
+						:port => datastore['RPORT'],
+						:type => 'MSSQL_ENUM',
+						:data => "xp_cmdshell is Not Enabled")
+				end
 			end
 			#-------------------------------------------------------
 			#check if remote access is enabled
@@ -125,37 +155,76 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			#-------------------------------------------------------
 			#check if Mail stored procedures are enabled
-			if sysconfig['Database Mail XPs'] == 1
-				print_status("\tDatabase Mail XPs is Enabled")
-				report_note(:host => datastore['RHOST'], 
-					:proto => 'TCP',
-					:port => datastore['RPORT'],
-					:type => 'MSSQL_ENUM',
-					:data => "Database Mail XPs is Enabled")
+			if vernum.join != "2000"
+				if sysconfig['Database Mail XPs'] == 1
+					print_status("\tDatabase Mail XPs is Enabled")
+					report_note(:host => datastore['RHOST'],
+						:proto => 'TCP',
+						:port => datastore['RPORT'],
+						:type => 'MSSQL_ENUM',
+						:data => "Database Mail XPs is Enabled")
+				else
+					print_status("\tDatabase Mail XPs is Not Enabled")
+					report_note(:host => datastore['RHOST'],
+						:proto => 'TCP',
+						:port => datastore['RPORT'],
+						:type => 'MSSQL_ENUM',
+						:data => "Database Mail XPs is not Enabled")
+				end
 			else
-				print_status("\tDatabase Mail XPs is Not Enabled")
-				report_note(:host => datastore['RHOST'], 
-					:proto => 'TCP',
-					:port => datastore['RPORT'],
-					:type => 'MSSQL_ENUM',
-					:data => "Database Mail XPs is not Enabled")
+				mailexist = mssql_query("select sysobjects.name from sysobjects where name like \'%mail%\'")[:rows]
+				if mailexist != nil
+					print_status("\tDatabase Mail XPs is Enabled")
+					report_note(:host => datastore['RHOST'],
+						:proto => 'TCP',
+						:port => datastore['RPORT'],
+						:type => 'MSSQL_ENUM',
+						:data => "Database Mail XPs is Enabled")
+				else
+					print_status("\tDatabase Mail XPs is Not Enabled")
+					report_note(:host => datastore['RHOST'],
+						:proto => 'TCP',
+						:port => datastore['RPORT'],
+						:type => 'MSSQL_ENUM',
+						:data => "Database Mail XPs is not Enabled")
+				end
+
 			end
 			#-------------------------------------------------------
 			#check if OLE stored procedures are enabled
-			if sysconfig['Ole Automation Procedures'] == 1
-				print_status("\tOle Automation Procedures is Enabled")
-				report_note(:host => datastore['RHOST'], 
-					:proto => 'TCP',
-					:port => datastore['RPORT'],
-					:type => 'MSSQL_ENUM',
-					:data => "Ole Automation Procedures is Enabled")
+			if vernum.join != "2000"
+				if sysconfig['Ole Automation Procedures'] == 1
+					print_status("\tOle Automation Procedures are Enabled")
+					report_note(:host => datastore['RHOST'],
+						:proto => 'TCP',
+						:port => datastore['RPORT'],
+						:type => 'MSSQL_ENUM',
+						:data => "Ole Automation Procedures are Enabled")
+				else
+					print_status("\tOle Automation Procedures are Not Enabled")
+					report_note(:host => datastore['RHOST'],
+						:proto => 'TCP',
+						:port => datastore['RPORT'],
+						:type => 'MSSQL_ENUM',
+						:data => "Ole Automation Procedures are not Enabled")
+				end
 			else
-				print_status("\tOle Automation Procedures is Not Enabled")
-				report_note(:host => datastore['RHOST'], 
-					:proto => 'TCP',
-					:port => datastore['RPORT'],
-					:type => 'MSSQL_ENUM',
-					:data => "Ole Automation Procedures is not Enabled")
+				oleexist = mssql_query("select sysobjects.name from sysobjects where name like \'%sp_OA%\'")[:rows]
+				if oleexist != nil
+					print_status("\tOle Automation Procedures is Enabled")
+					report_note(:host => datastore['RHOST'],
+						:proto => 'TCP',
+						:port => datastore['RPORT'],
+						:type => 'MSSQL_ENUM',
+						:data => "Ole Automation Procedures are Enabled")
+				else
+					print_status("\tOle Automation Procedures are Not Enabled")
+					report_note(:host => datastore['RHOST'],
+						:proto => 'TCP',
+						:port => datastore['RPORT'],
+						:type => 'MSSQL_ENUM',
+						:data => "Ole Automation Procedures are not Enabled")
+				end
 			end
 			#-------------------------------------------------------
 			# Get list of Databases on System
@@ -164,19 +233,35 @@ class Metasploit3 < Msf::Auxiliary
 			dbs.each do |dbn|
 				print_status("\tDatabase name:#{dbn.strip}")
 				print_status("\tDatabse Files for #{dbn.strip}:")
-				mssql_query("select filename from #{dbn.strip}.sys.sysfiles")[:rows].each do |fn|
-					print_status("\t\t#{fn.join}")
-					report_note(:host => datastore['RHOST'], 
-						:proto => 'TCP',
-						:port => datastore['RPORT'],
-						:type => 'MSSQL_ENUM',
-						:data => "Database: #{dbn.strip} File: #{fn.join}")
+				if vernum.join != "2000"
+					mssql_query("select filename from #{dbn.strip}.sys.sysfiles")[:rows].each do |fn|
+						print_status("\t\t#{fn.join}")
+						report_note(:host => datastore['RHOST'],
+							:proto => 'TCP',
+							:port => datastore['RPORT'],
+							:type => 'MSSQL_ENUM',
+							:data => "Database: #{dbn.strip} File: #{fn.join}")
+					end
+				else
+					mssql_query("select filename from #{dbn.strip}..sysfiles")[:rows].each do |fn|
+						print_status("\t\t#{fn.join.strip}")
+						report_note(:host => datastore['RHOST'],
+							:proto => 'TCP',
+							:port => datastore['RPORT'],
+							:type => 'MSSQL_ENUM',
+							:data => "Database: #{dbn.strip} File: #{fn.join}")
+					end
 				end
 			end
+
 			#-------------------------------------------------------
 			# Get list of syslogins on System
 			print_status("System Logins on this Server:")
-			syslogins = mssql_query("select loginname from master.sys.syslogins")[:rows]
+			if vernum.join != "2000"
+				syslogins = mssql_query("select loginname from master.sys.syslogins")[:rows]
+			else
+				syslogins = mssql_query("select loginname from master..syslogins")[:rows]
+			end
 			if syslogins != nil
 				syslogins.each do |acc|
 					print_status("\t#{acc.join}")
@@ -196,71 +281,81 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			#-------------------------------------------------------
 			# Get list of disabled accounts on System
-			print_status("Disabled Accounts:")
-			disabledsyslogins = mssql_query("select name from master.sys.server_principals where is_disabled = 1")[:rows]
-			if disabledsyslogins != nil
-				disabledsyslogins.each do |acc|
-					print_status("\t#{acc.join}")
-					report_note(:host => datastore['RHOST'], 
+			if vernum.join != "2000"
+				print_status("Disabled Accounts:")
+				disabledsyslogins = mssql_query("select name from master.sys.server_principals where is_disabled = 1")[:rows]
+				if disabledsyslogins != nil
+					disabledsyslogins.each do |acc|
+						print_status("\t#{acc.join}")
+						report_note(:host => datastore['RHOST'],
+							:proto => 'TCP',
+							:port => datastore['RPORT'],
+							:type => 'MSSQL_ENUM',
+							:data => "Disabled User: #{acc.join}")
+					end
+				else
+					print_status("\tNo Disabled Logins Found")
+					report_note(:host => datastore['RHOST'],
 						:proto => 'TCP',
 						:port => datastore['RPORT'],
 						:type => 'MSSQL_ENUM',
-						:data => "Disabled User: #{acc.join}")
+						:data => "No Disabled Logins Found")
 				end
-			else
-				print_status("\tNo Disabled Logins Found")
-				report_note(:host => datastore['RHOST'],
-					:proto => 'TCP',
-					:port => datastore['RPORT'],
-					:type => 'MSSQL_ENUM',
-					:data => "No Disabled Logins Found")
 			end
 			#-------------------------------------------------------
 			# Get list of accounts for which password policy does not apply on System
-			print_status("No Accounts Policy is set for:")
-			nopolicysyslogins = mssql_query("select name from master.sys.sql_logins where is_policy_checked = 0")[:rows]
-			if nopolicysyslogins != nil
-				nopolicysyslogins.each do |acc|
-					print_status("\t#{acc.join}")
-					report_note(:host => datastore['RHOST'], 
+			if vernum.join != "2000"
+				print_status("No Accounts Policy is set for:")
+				nopolicysyslogins = mssql_query("select name from master.sys.sql_logins where is_policy_checked = 0")[:rows]
+				if nopolicysyslogins != nil
+					nopolicysyslogins.each do |acc|
+						print_status("\t#{acc.join}")
+						report_note(:host => datastore['RHOST'],
+							:proto => 'TCP',
+							:port => datastore['RPORT'],
+							:type => 'MSSQL_ENUM',
+							:data => "None Policy Checked User: #{acc.join}")
+					end
+				else
+					print_status("\tAll System Accounts have the Windows Account Policy Applied to them.")
+					report_note(:host => datastore['RHOST'],
 						:proto => 'TCP',
 						:port => datastore['RPORT'],
 						:type => 'MSSQL_ENUM',
-						:data => "None Policy Checked User: #{acc.join}")
+						:data => "All System Accounts have the Windows Account Policy Applied to them")
 				end
-			else
-				print_status("\tAll System Accounts have the Windows Account Policy Applied to them.")
-				report_note(:host => datastore['RHOST'],
-					:proto => 'TCP',
-					:port => datastore['RPORT'],
-					:type => 'MSSQL_ENUM',
-					:data => "All System Accounts have the Windows Account Policy Applied to them")
 			end
 			#-------------------------------------------------------
 			# Get list of accounts for which password expiration is not checked
-			print_status("Password Expiration is not checked for:")
-			passexsyslogins = mssql_query("select name from master.sys.sql_logins where is_expiration_checked = 0")[:rows]
-			if passexsyslogins != nil
-				passexsyslogins.each do |acc|
-					print_status("\t#{acc.join}")
-					report_note(:host => datastore['RHOST'], 
+			if vernum.join != "2000"
+				print_status("Password Expiration is not checked for:")
+				passexsyslogins = mssql_query("select name from master.sys.sql_logins where is_expiration_checked = 0")[:rows]
+				if passexsyslogins != nil
+					passexsyslogins.each do |acc|
+						print_status("\t#{acc.join}")
+						report_note(:host => datastore['RHOST'],
+							:proto => 'TCP',
+							:port => datastore['RPORT'],
+							:type => 'MSSQL_ENUM',
+							:data => "None Password Expiration User: #{acc.join}")
+					end
+				else
+					print_status("\tAll System Accounts are checked for Password Expiration.")
+					report_note(:host => datastore['RHOST'],
 						:proto => 'TCP',
 						:port => datastore['RPORT'],
 						:type => 'MSSQL_ENUM',
-						:data => "None Password Expiration User: #{acc.join}")
+						:data => "All System Accounts are checked for Password Expiration")
 				end
-			else
-				print_status("\tAll System Accounts are checked for Password Expiration.")
-				report_note(:host => datastore['RHOST'],
-					:proto => 'TCP',
-					:port => datastore['RPORT'],
-					:type => 'MSSQL_ENUM',
-					:data => "All System Accounts are checked for Password Expiration")
 			end
 			#-------------------------------------------------------
 			# Get list of sysadmin logins on System
 			print_status("System Admin Logins on this Server:")
-			sysadmins = mssql_query("select name from master.sys.syslogins where sysadmin = 1")[:rows]
+			if vernum.join != "2000"
+				sysadmins = mssql_query("select name from master.sys.syslogins where sysadmin = 1")[:rows]
+			else
+				sysadmins = mssql_query("select name from master..syslogins where sysadmin = 1")[:rows]
+			end
 			if sysadmins != nil
 				sysadmins.each do |acc|
 					print_status("\t#{acc.join}")
@@ -281,7 +376,11 @@ class Metasploit3 < Msf::Auxiliary
 			#-------------------------------------------------------
 			# Get list of Windows logins on System
 			print_status("Windows Logins on this Server:")
-			winusers = mssql_query("select name from master.sys.syslogins where isntuser = 1")[:rows]
+			if vernum.join != "2000"
+				winusers = mssql_query("select name from master.sys.syslogins where isntuser = 1")[:rows]
+			else
+				winusers = mssql_query("select name from master..syslogins where isntuser = 1")[:rows]
+			end
 			if winusers != nil
 				winusers.each do |acc|
 					print_status("\t#{acc.join}")
@@ -302,7 +401,11 @@ class Metasploit3 < Msf::Auxiliary
 			#-------------------------------------------------------
 			# Get list of windows groups that can logins on the System
 			print_status("Windows Groups that can logins on this Server:")
-			wingroups = mssql_query("select name from master.sys.syslogins where isntgroup = 1")[:rows]
+			if vernum.join != "2000"
+				wingroups = mssql_query("select name from master.sys.syslogins where isntgroup = 1")[:rows]
+			else
+				wingroups = mssql_query("select name from master..syslogins where isntgroup = 1")[:rows]
+			end
 			if wingroups != nil
 				wingroups.each do |acc|
 					print_status("\t#{acc.join}")
@@ -313,18 +416,22 @@ class Metasploit3 < Msf::Auxiliary
 						:data => "Windows Groups: #{acc.join}")
 				end
 			else
-				print_status("\tNo Windows Groups were found with permission to login to system.")
+				print_status("\tNo Windows Groups where found with permission to login to system.")
 				report_note(:host => datastore['RHOST'],
 					:proto => 'TCP',
 					:port => datastore['RPORT'],
 					:type => 'MSSQL_ENUM',
-					:data => "No Windows Groups were found with permission to login to system")
+					:data => "No Windows Groups where found with permission to login to system")
 
 			end
 			#-------------------------------------------------------
 			#Check for local accounts with same username as password
 			sameasuser = []
-			sameasuser = mssql_query("SELECT name FROM sys.sql_logins WHERE PWDCOMPARE\(name, password_hash\) = 1")[:rows]
+			if vernum.join != "2000"
+				sameasuser = mssql_query("SELECT name FROM sys.sql_logins WHERE PWDCOMPARE\(name, password_hash\) = 1")[:rows]
+			else
+				sameasuser = mssql_query("SELECT name FROM master.dbo.syslogins WHERE PWDCOMPARE\(name, password\) = 1")[:rows]
+			end
 			print_status("Accounts with Username and Password being the same:")
 			if sameasuser != nil
 				sameasuser.each do |up|
@@ -346,7 +453,11 @@ class Metasploit3 < Msf::Auxiliary
 			#-------------------------------------------------------
 			#Check for local accounts with empty password
 			blankpass = []
-			blankpass = mssql_query("SELECT name FROM sys.sql_logins WHERE PWDCOMPARE\(\'\', password_hash\) = 1")[:rows]
+			if vernum.join != "2000"
+				blankpass = mssql_query("SELECT name FROM sys.sql_logins WHERE PWDCOMPARE\(\'\', password_hash\) = 1")[:rows]
+			else
+				blankpass = mssql_query("SELECT name FROM master.dbo.syslogins WHERE password IS NULL AND isntname = 0")[:rows]
+			end
 			print_status("Accounts with empty password:")
 			if blankpass != nil
 				blankpass.each do |up|
@@ -358,12 +469,12 @@ class Metasploit3 < Msf::Auxiliary
 						:data => "Username: #{up.join} Password: EMPTY ")
 				end
 			else
-				print_status("\tNo Accounts with empty passwords were found.")
+				print_status("\tNo Accounts with empty passwords where found.")
 				report_note(:host => datastore['RHOST'],
 					:proto => 'TCP',
 					:port => datastore['RPORT'],
 					:type => 'MSSQL_ENUM',
-					:data => "No Accounts with empty passwords were found")
+					:data => "No Accounts with empty passwords where found")
 			end
 			#-------------------------------------------------------
 			#Check for dangerous stored procedures
@@ -590,19 +701,29 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			#-------------------------------------------------------
 			#Enumerate Instances
-			querykey = "EXEC master..xp_regenumvalues \'HKEY_LOCAL_MACHINE\',\'SOFTWARE\\Microsoft\\Microsoft SQL Server\\Instance Names\\SQL\'"
-			instancenames = []
-			instances = mssql_query(querykey)[:rows]
+			instances =[]
+			if vernum.join != "2000"
+				querykey = "EXEC master..xp_regenumvalues \'HKEY_LOCAL_MACHINE\',\'SOFTWARE\\Microsoft\\Microsoft SQL Server\\Instance Names\\SQL\'"
+				mssql_query(querykey)[:rows].each do |i|
+					instances << i[0]
+				end
+			else
+				querykey = "exec xp_regread \'HKEY_LOCAL_MACHINE\',\'SOFTWARE\\Microsoft\\Microsoft SQL Server\', \'InstalledInstances\'"
+				mssql_query(querykey)[:rows].each do |i|
+					instances << i[1]
+				end
+			end			
 			print_status("Instances found on this server:")
+			instancenames = []
 			if instances != nil
 				instances.each do |i|
-					print_status("\t#{i[0]}")
-					instancenames << i[0].strip
+					print_status("\t#{i}")
+					instancenames << i.strip
 					report_note(:host => datastore['RHOST'],
 						:proto => 'TCP',
 						:port => datastore['RPORT'],
 						:type => 'MSSQL_ENUM',
-						:data => "Instance Name: #{i[0].strip}")
+						:data => "Instance Name: #{i}")
 				end
 			else
 				print_status("No instances found, possible permission problem")
@@ -629,7 +750,7 @@ class Metasploit3 < Msf::Auxiliary
 					if i.strip != "MSSQLSERVER"
 						privinst = mssql_query("EXEC master..xp_regread \'HKEY_LOCAL_MACHINE\' ,\'SYSTEM\\CurrentControlSet\\Services\\MSSQL$#{i.strip}\',\'ObjectName\'")[:rows]
 						if privinst != nil
-							print_status("Instance #{i} SQL Server Service is running under the privilege of:")
+							print_status("Instance #{i} SQL Server Service is running under the privilage of:")
 							privinst.each do |p|
 								print_status("\t#{p[1]}")
 								report_note(:host => datastore['RHOST'],
