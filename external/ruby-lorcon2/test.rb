@@ -18,10 +18,10 @@ pp Lorcon.find_driver("mac80211")
 
 $stdout.puts "\nAuto-detecting driver for interface wlan0"
 
-pp Lorcon.auto_driver("wlan0")
+pp Lorcon.auto_driver("mon0")
 
 #tx = Lorcon::Device.new('kismet0', 'tuntap')
-tx = Lorcon::Device.new('wlan0')
+tx = Lorcon::Device.new('mon0')
 $stdout.puts "\nCreated LORCON context"
 
 if tx.openinjmon()
@@ -30,6 +30,7 @@ else
 	$stdout.puts "\nFAILED to open " + tx.capiface + " as INJMON: " + tx.error
 end
 
+tx.channel = 11
 scan_patterns = ["^GET ([^ ?]+)"]
 
 tx.each_packet { |pkt| 

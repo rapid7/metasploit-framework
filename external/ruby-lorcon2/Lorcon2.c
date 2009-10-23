@@ -592,7 +592,7 @@ void Init_Lorcon2() {
 	rb_define_method(cDevice, "capiface", Lorcon_get_capiface, 0);
 
 	rb_define_method(cDevice, "filter=", Lorcon_set_filter, 1);
-	rb_define_method(cPacket, "channel=", Lorcon_set_channel, 1);
+	rb_define_method(cDevice, "channel=", Lorcon_set_channel, 1);
 
 	rb_define_method(cDevice, "loop", Lorcon_capture_loop, -1);
 	rb_define_method(cDevice, "each", Lorcon_capture_loop, -1);
