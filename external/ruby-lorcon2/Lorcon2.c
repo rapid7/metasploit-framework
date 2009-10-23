@@ -457,12 +457,15 @@ static VALUE Lorcon_inject_packet(VALUE self, VALUE packet) {
 	lorcon_packet_t *pack = NULL;
 	int ret;
 
+
 	if (rb_obj_is_kind_of(packet, cPacket) == 0) {
-		rb_raise(rb_eTypeError, "wrong type %s expected %s",
-				 rb_class2name(packet), rb_class2name(cPacket));
+		rb_raise(rb_eTypeError, "wrong type expected %s", rb_class2name(cPacket));
 		return Qnil;
 	}
 
+		return Qnil;
+	
+		
 	Data_Get_Struct(self, struct rldev, rld);
 	Data_Get_Struct(packet, struct rlpack, rlp);
 
@@ -474,6 +477,21 @@ static VALUE Lorcon_inject_packet(VALUE self, VALUE packet) {
 		ret = lorcon_inject(rld->context, rlp->packet);
 	}
 
+	return INT2FIX(ret);
+}
+
+static VALUE Lorcon_write_raw(VALUE self, VALUE rpacket) {
+	struct rldev *rld;
+	int ret;
+	
+	Data_Get_Struct(self, struct rldev, rld);
+	
+    if(TYPE(rpacket) != T_STRING) {
+    	rb_raise(rb_eArgError, "packet data must be a string");
+		return Qnil;
+	}
+	
+	ret = lorcon_send_bytes(rld->context, RSTRING_LEN(rpacket), RSTRING_PTR(rpacket));
 	return INT2FIX(ret);
 }
 
@@ -597,9 +615,8 @@ void Init_Lorcon2() {
 	rb_define_method(cDevice, "loop", Lorcon_capture_loop, -1);
 	rb_define_method(cDevice, "each", Lorcon_capture_loop, -1);
 	rb_define_method(cDevice, "each_packet", Lorcon_capture_loop, -1);
-
+	rb_define_method(cDevice, "write", Lorcon_write_raw, 1);
 	rb_define_method(cDevice, "inject", Lorcon_inject_packet, 1);
-
 	rb_define_module_function(mLorcon, "drivers", Lorcon_list_drivers, 0);
 	rb_define_module_function(mLorcon, "version", Lorcon_get_version, 0);
 	rb_define_module_function(mLorcon, "find_driver", Lorcon_find_driver, 1);

@@ -8,7 +8,6 @@
 #include <sys/socket.h>
 
 #include <lorcon2/lorcon.h>
-#include <lorcon2/lorcon_packet.h>
 
 struct rldev {
 	struct lorcon *context;
