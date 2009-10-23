@@ -15,7 +15,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Lorcon
+	include Msf::Exploit::Lorcon2
 	include Msf::Auxiliary::Dos
 	
 	def initialize(info = {})
@@ -31,8 +31,8 @@ class Metasploit3 < Msf::Auxiliary
 				This DoS was tested with version 5.148.724.2003 of the MA521nd5.SYS driver and a 
 				NetGear MA521 Cardbus adapter. A remote code execution module is also in development.
 
-				This module depends on the Lorcon library and only works on the Linux platform
-				with a supported wireless card. Please see the Ruby Lorcon documentation 
+				This module depends on the Lorcon2 library and only works on the Linux platform
+				with a supported wireless card. Please see the Ruby Lorcon2 documentation 
 				(external/ruby-lorcon/README) for more information.
 			},
 			

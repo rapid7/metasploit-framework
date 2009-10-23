@@ -2,7 +2,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Lorcon
+	include Msf::Exploit::Lorcon2
 	include Msf::Auxiliary::Dos
 	
 	def initialize(info = {})
