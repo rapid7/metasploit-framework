@@ -1,5 +1,6 @@
 #include "Lorcon2.h"
 #include "ruby.h"
+#include "rubysig.h"
 
 /*
 	self.license = GPLv2;
@@ -518,10 +519,9 @@ static VALUE Lorcon_capture_loop(int argc, VALUE *argv, VALUE self) {
 	int count, ret, p = 0;
 	struct lorcon_packet *packet;
 	VALUE v_cnt;
-	fd_set rset;
 	struct timeval tm;
 	int fd;
-
+	
 	Data_Get_Struct(self, struct rldev, rld);
 
 	if (rb_scan_args(argc, argv, "01", &v_cnt) >= 1) {
@@ -530,10 +530,6 @@ static VALUE Lorcon_capture_loop(int argc, VALUE *argv, VALUE self) {
 	} else {
 		count = -1;
 	}
-
-	FD_ZERO(&rset);
-	tm.tv_sec = 0;
-	tm.tv_usec = 0;
 
 	fd = lorcon_get_selectable_fd(rld->context);
 
@@ -544,12 +540,13 @@ static VALUE Lorcon_capture_loop(int argc, VALUE *argv, VALUE self) {
 	}
 
 	while (p < count || count <= 0) {
-		FD_SET(fd, &rset);
-		if (select(fd + 1, &rset, NULL, NULL, &tm) == 0) 
-			rb_thread_wait_fd(fd);
 		
+		rb_thread_wait_fd(fd);
+		
+		TRAP_BEG;
 		ret = lorcon_next_ex(rld->context, &packet);
-
+		TRAP_END;
+		
 		/* timeout */
 		if (ret == 0)
 			continue;
