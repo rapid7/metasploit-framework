@@ -174,7 +174,7 @@ module Msf
           end
 
           # if we have something queued up, cancel it
-          if @next:
+          if @next
             Gtk.timeout_remove(@next)
             @next = nil
           end
