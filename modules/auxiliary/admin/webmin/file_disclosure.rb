@@ -36,7 +36,6 @@ class Metasploit3 < Msf::Auxiliary
 					['OSVDB', '26772'],
 					['BID', '18744'],
 					['CVE', '2006-3392'],
-					['MIL', '2017'],
 					['URL', 'http://www.kb.cert.org/vuls/id/999601'],
 					['URL', 'http://secunia.com/advisories/20892/'],
 				],

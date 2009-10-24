@@ -28,7 +28,6 @@ class Metasploit3 < Msf::Auxiliary
 					['OSVDB', '30172'],
 					['BID', '20858'],
 					['CVE', '2006-5702'],
-					['MIL', '2701'],
 					['URL', 'http://secunia.com/advisories/22678/'],
 				],
 			'DisclosureDate' => 'Nov 1 2006',

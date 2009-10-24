@@ -36,7 +36,6 @@ class Metasploit3 < Msf::Auxiliary
 					['OSVDB', '18695'],	  
 					['BID', '14551'],
 					['URL', 'http://www.fpns.net/willy/msbksrc.lzh'],
-					['MIL', '88'],
 				],
 			'Actions'     =>
 				[
