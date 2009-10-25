@@ -13,8 +13,8 @@
 	when "-h"
 		print_line("Get a list of local subnets based on the host's routes")
 		print_line("USAGE: run get_local_subnets")
-		puts @@exec_opts.usage
-		raise "Usage"
+		print_line(@@exec_opts.usage)
+		raise Rex::Script::Completed
 	end
 }
 
