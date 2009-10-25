@@ -1,3 +1,4 @@
+# $Id:$
 #Meterpreter script for running multiple commands on Windows 2003, Windows Vista
 # and Windows XP and Windows 2008 targets.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com

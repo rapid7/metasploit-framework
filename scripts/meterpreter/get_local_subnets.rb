@@ -1,3 +1,4 @@
+# $Id:$
 
 ## Meterpreter script that display local subnets
 ## Provided by Nicob <nicob [at] nicob.net>

@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+# $Id:$
 #
 #Meterpreter script for basic enumeration of Windows 2003, Windows Vista
 # and Windows XP remote targets using native windows command wmic.

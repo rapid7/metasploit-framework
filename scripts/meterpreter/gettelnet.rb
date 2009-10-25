@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+# $Id:$
 #
 #Meterpreter script for enabling Telnet Server on Windows 2003, Windows Vista
 #Windows 2008 and Windows XP targets using native windows commands.

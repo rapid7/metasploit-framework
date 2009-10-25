@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+# $Id:$
 
 #Meterpreter script for brute forcin logins on Windows 2003, Windows Vista
 #Windows 2008 and Windows XP targets using native windows commands.

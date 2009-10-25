@@ -1,3 +1,4 @@
+# $Id:$
 #Meterpreter script for running multiple scripts on a Meterpreter Session
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 #Verion: 0.2

@@ -1,3 +1,4 @@
+# $Id:$
 #
 # Simple example script that migrates to a specific process by name. 
 # This is meant as an illustration.

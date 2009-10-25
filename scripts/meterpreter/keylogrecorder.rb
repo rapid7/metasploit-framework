@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+# $Id:$
 require 'sqlite3'
 #
 #Meterpreter script for monitoring and capturing Keystrokes and

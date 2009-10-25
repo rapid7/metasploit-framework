@@ -1,3 +1,4 @@
+# $Id:$
 # credcollect - tebo[at]attackresearch.com
 
 # Make sure we're rockin Priv and Incognito

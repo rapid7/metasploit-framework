@@ -1,3 +1,4 @@
+# $Id:$
 #
 # This is a Meterpreter script designed to be used by the Metasploit Framework
 #

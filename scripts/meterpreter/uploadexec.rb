@@ -1,3 +1,4 @@
+# $Id:$
 session = client
 @@exec_opts = Rex::Parser::Arguments.new(
 	"-h" => [ false,"Help menu."                        ],

@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+# $Id:$
 
 #
 # Meterpreter script for installing the meterpreter service
