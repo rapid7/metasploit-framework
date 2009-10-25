@@ -24,7 +24,7 @@ module Auxiliary::Fuzzer
 	#
 	def fuzz_numbers
 		res = []
-		self.methods.grep(/^fuzzer_number/).each do |m|
+		self.methods.sort.grep(/^fuzzer_number/).each do |m|
 			@last_fuzzer_input = m
 			block_given? ? self.send(m) {|x| yield(x) } : (res << self.send(m))
 		end
@@ -33,7 +33,7 @@ module Auxiliary::Fuzzer
 	
 	def fuzz_strings
 		res = []
-		self.methods.grep(/^fuzzer_string/).each do |m|
+		self.methods.sort.grep(/^fuzzer_string/).each do |m|
 			@last_fuzzer_input = m		
 			block_given? ? self.send(m) {|x| yield(x) } : (res << self.send(m))
 		end
@@ -43,10 +43,27 @@ module Auxiliary::Fuzzer
 	#
 	# General input mangling routines
 	#
-	def fuzz_string_corrupt_byte(str)
+	
+	# Modify each byte of the string moving forward
+	def fuzz_string_corrupt_byte(str,max=nil)
 		res = []
-		0.upto(str.length - 1) do |offset|
+		0.upto(max ? [max,str.length-1].min : (str.length - 1)) do |offset|
 			0.upto(255) do |val|
+				@last_fuzzer_input = "fuzz_string_corrupt_byte offset:#{offset}/#{str.length} byte:#{val}"
+				buf = str.dup
+				buf[offset,1] = [val].pack('C')
+				block_given? ? yield(buf) : (res << buf)
+			end
+		end
+		res
+	end
+
+	# Modify each byte of the string moving backward
+	def fuzz_string_corrupt_byte_reverse(str,max=nil)
+		res = []
+		(max ? [max,str.length-1].min : (str.length - 1)).downto(0) do |offset|
+			0.upto(255) do |val|
+				@last_fuzzer_input = "fuzz_string_corrupt_byte_reverse offset:#{offset}/#{str.length} byte:#{val}"			
 				buf = str.dup
 				buf[offset,1] = [val].pack('C')
 				block_given? ? yield(buf) : (res << buf)
@@ -102,12 +119,17 @@ module Auxiliary::Fuzzer
 	end
 	
 	def fuzzer_gen_string(len)
-		datastore['FuzzChar'][0,1] * len
+		@gen_string_block ||= datastore['FuzzChar'][0,1] * (1024 * 512)
+		res = ''
+		while (res.length < len)
+			res += @gen_string_block
+		end
+		res[0,len]
 	end
 	
 	def fuzzer_string_small
 		res = []
-		1.upto(512) do |len|
+		16.step(512,16) do |len|
 			buf = fuzzer_gen_string(len)
 			block_given? ? yield(buf) : (res << buf)
 		end
@@ -152,7 +174,7 @@ module Auxiliary::Fuzzer
 	end
 	
 	def fuzzer_string_uri_dividers
-		res = %W{ : :/ :// }
+		res = %W{ : :// }
 		block_given? ? res.each { |n| yield(n) } : res
 	end
 	
