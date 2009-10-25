@@ -1,5 +1,6 @@
 # $Id:$
 require 'sqlite3'
+
 #
 #Meterpreter script for monitoring and capturing Keystrokes and
 #saving them in to  a sqlite db.

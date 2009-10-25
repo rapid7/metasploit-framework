@@ -29,12 +29,12 @@ password = nil
 delay = 2
 help = 0
 def usage
-	puts "This Meterpreter script is for running commands on targets system using the"
-	puts "Windows Scheduler, it is based on the tool presented but not released by Val Smith"
-	puts "in Defcon 16 ATAbuser. If no user and password is given it will use the permissions"
-	puts "of the process Meterpreter is running under."
-	puts "Options:"
-	puts @@exec_opts.usage
+	print_status( "This Meterpreter script is for running commands on targets system using the")
+	print_status( "Windows Scheduler, it is based on the tool presented but not released by Val Smith")
+	print_status( "in Defcon 16 ATAbuser. If no user and password is given it will use the permissions")
+	print_status( "of the process Meterpreter is running under.")
+	print_status( "Options:")
+	print_status( @@exec_opts.usage )
 end
 def abuse(session,targets,commands,username,password,delay)
 	#for each target
@@ -134,7 +134,7 @@ end
 	end
 
 }
-puts "Meterpreter session running as #{session.sys.config.getuid}"
+print_status("Meterpreter session running as #{session.sys.config.getuid}")
 if help == 0 && commands.length != 0
 	abuse(session,targets,commands,username,password,delay)
 else

@@ -14,8 +14,8 @@ session = client
 	when "-h"
 		print_line("CheckVM -- Check various attributes on the target for evidence that it is a virtual machine")
 		print_line("USAGE: run checkvm")
-		puts @@exec_opts.usage
-		raise RuntimeError, "Usage"
+		print_status(@@exec_opts.usage)
+		raise Rex::Script::Completed
 	end
 }
 

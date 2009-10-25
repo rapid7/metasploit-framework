@@ -28,14 +28,14 @@ user = session.sys.config.getuid
 #Function for Starting Capture
 def startsniff(session,intid)
 	begin
-                #Load Sniffer module
-                session.core.use("sniffer")
-                print_status("Starting Packet capture on interface #{intid}")
-                #starting packet capture with a buffer size of 200,000 packets
-                session.sniffer.capture_start(intid, 200000)
-                print_status("Packet capture started")
+		#Load Sniffer module
+		session.core.use("sniffer")
+		print_status("Starting Packet capture on interface #{intid}")
+		#starting packet capture with a buffer size of 200,000 packets
+		session.sniffer.capture_start(intid, 200000)
+		print_status("Packet capture started")
 	rescue ::Exception => e
-                print_status("Error Starting Packet Capture: #{e.class} #{e}")
+		print_status("Error Starting Packet Capture: #{e.class} #{e}")
 	end
 end
 

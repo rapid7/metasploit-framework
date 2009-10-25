@@ -36,21 +36,22 @@ def usage()
 		  "the file uploaded. All scheduled task are as System so Meterpreter process must\n"+
 		  "be System or local admin for local schedules and Administrator for remore shcedules\n"
 	)
-	puts "\t-h \t\tHelp menu."
-	puts "\t-c <opt>\tCommand to execute at the given time. If options for execution needed use double quotes"
-	puts "\t-d \t\tDaily."
-	puts "\t-hr <opt> \tEvery specified hours 1-23."
-	puts "\t-m <opt> \tEvery specified amount of minutes 1-1439"
-	puts "\t-l \t\tWhen a user logs on."
-	puts "\t-s \t\tAt system startup."
-	puts "\t-i \t\tRun command imediatly and only once."
-	puts "\t-r \t\tRemote Schedule. Executable has to be already on remote target"
-	puts "\t-e <opt> \tExecutable or script to upload to target host, will not work with remote schedule"
-	puts "\t-o <opt> \tOptions for executable when upload method used"
-	puts "\t-u \t\tUsername of account with administrative privelages."
-	puts "\t-p \t\tPassword for account provided."
-	puts "\t-t <opt> \tRemote system to schedule job."
+	print_status( "\t-h \t\tHelp menu.")
+	print_status( "\t-c <opt>\tCommand to execute at the given time. If options for execution needed use double quotes")
+	print_status( "\t-d \t\tDaily.")
+	print_status( "\t-hr <opt> \tEvery specified hours 1-23.")
+	print_status( "\t-m <opt> \tEvery specified amount of minutes 1-1439")
+	print_status( "\t-l \t\tWhen a user logs on.")
+	print_status( "\t-s \t\tAt system startup.")
+	print_status( "\t-i \t\tRun command imediatly and only once.")
+	print_status( "\t-r \t\tRemote Schedule. Executable has to be already on remote target")
+	print_status( "\t-e <opt> \tExecutable or script to upload to target host, will not work with remote schedule")
+	print_status( "\t-o <opt> \tOptions for executable when upload method used")
+	print_status( "\t-u \t\tUsername of account with administrative privelages.")
+	print_status( "\t-p \t\tPassword for account provided.")
+	print_status( "\t-t <opt> \tRemote system to schedule job.")
 end
+
 #---------------------------------------------------------------------------------------------------------
 def checkuac(session)
 	uac = false

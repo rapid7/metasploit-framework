@@ -34,34 +34,33 @@ def script_exec(session,scrptlst)
 end
 
 def usage
-print_line("Multi Script Execution Meterpreter Script ")
-puts @@exec_opts.usage
+	print_line("Multi Script Execution Meterpreter Script ")
+	print_status(@@exec_opts.usage)
 end
+
 ################## Main ##################
-@@exec_opts.parse(args) { |opt, idx, val|
+@@exec_opts.parse(args) do |opt, idx, val|
 case opt
 
 when "-c"
-        commands = val.gsub(/;/,"\n")
+	commands = val.gsub(/;/,"\n")
 when "-s"
-        script = val
-        if not ::File.exists?(script)
-                raise "Script List File does not exists!"
-        else
-                ::File.open(script, "r").each_line do |line|
-                        commands << line
-                end
-        end
-
+	script = val
+	if not ::File.exists?(script)
+		raise "Script List File does not exists!"
+	else
+		::File.open(script, "r").each_line do |line|
+			commands << line
+		end
+	end
 when "-h"
         help = 1
 end
-
-}
+end
 
 if args.length == 0 or help == 1 
-        usage
+	usage
 else
-        print_status("Running Multiscript script.....")
-        script_exec(session,commands)
+	print_status("Running Multiscript script.....")
+	script_exec(session,commands)
 end

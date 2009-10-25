@@ -122,7 +122,7 @@ end
 }
 
 if outfile == nil
-	puts wmicexec(session,commands)
+	print_status wmicexec(session,commands)
 else
 	print_status("Saving output of WMIC to #{outfile}")
 	filewrt(outfile, wmicexec(session,commands))

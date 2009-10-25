@@ -10,8 +10,8 @@
 	when "-h"
 		print_line("CredCollect -- harvest credentials found on the host and store them in the database")
 		print_line("USAGE: run credcollect")
-		puts @@exec_opts.usage
-		raise "Usage"
+		print_status(@@exec_opts.usage)
+		raise Rex::Script::Completed
 	end
 }
 

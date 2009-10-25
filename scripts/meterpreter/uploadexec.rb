@@ -5,24 +5,25 @@ session = client
 	"-e" => [ true, "Executable or script to upload to target host."],
 	"-o" => [ true,"Options for executable."],
 	"-p" => [ false,"Path on target where to upload executable if none given %TEMP% directory will be used."],
-        "-v" => [ false,"Verbose, return output of execution of uploaded executable."],
-        "-r" => [ false,"Remove executable after running by deleting it of the file system."]
+	"-v" => [ false,"Verbose, return output of execution of uploaded executable."],
+	"-r" => [ false,"Remove executable after running by deleting it of the file system."]
 )
+
 ################## function declaration Declarations ##################
 def usage()
-	print(
+	print_line(
 		"Uploadexec Meterpreter Script\n" +
 		  "It has the functionality to upload a desired executable or script and execute\n"+
 		  "the file uploaded"
 	)
-	puts "\n\t-h \t\tHelp menu."
-	puts "\t-e <opt> \tExecutable or script to upload to target host"
-	puts "\t-o <opt> \tOptions for executable"
-	puts "\t-p <opt> \tPath on target where to upload executable if none given %TEMP% directory will be used"
-        puts "\t-v       \tVerbose, return output of execution of uploaded executable."
-        puts "\t-r       \tRemove executable after running by deleting it of the file system."
-
+	print_status("\n\t-h \t\tHelp menu.")
+	print_status("\t-e <opt> \tExecutable or script to upload to target host")
+	print_status("\t-o <opt> \tOptions for executable")
+	print_status("\t-p <opt> \tPath on target where to upload executable if none given %TEMP% directory will be used")
+	print_status("\t-v       \tVerbose, return output of execution of uploaded executable.")
+	print_status("\t-r       \tRemove executable after running by deleting it of the file system.")
 end
+
 def upload(session,file,trgloc = "")
         if not ::File.exists?(file)
                 raise "File to Upload does not exists!"

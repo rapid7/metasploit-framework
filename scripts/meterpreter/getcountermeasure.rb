@@ -6,11 +6,10 @@
 #Version: 0.1.0
 session = client
 @@exec_opts = Rex::Parser::Arguments.new(
-		"-h" => [ false,  "Help menu."                        ],
-		"-k" => [ false,  "Kill any AV, HIPS and Third Party Firewall process found."  ],
-		"-d" => [ false, "Disable built in Firewall"]
-
-		)
+	"-h" => [ false,  "Help menu."                        ],
+	"-k" => [ false,  "Kill any AV, HIPS and Third Party Firewall process found."  ],
+	"-d" => [ false, "Disable built in Firewall"]
+)
 #---------------------------------------------------------------------------------------------------------
 avs = %W{ 
 	a2adguard.exe
@@ -346,24 +345,20 @@ end
 killbt = 0
 killfw = 0
 hlp = 0
-@@exec_opts.parse(args) { |opt, idx, val|
-	case opt
+@@exec_opts.parse(args) do |opt, idx, val|
+case opt
+when "-k"
+	killbt = 1
+when "-d"
+	killfw = 1
+when "-h"
+	hlp = 1
+	print( "Getcountermeasure Meterpreter Script\n" + @@exec_opts.usage )
+	raise Rex::Script::Compeleted
+end
 
-		when "-k"
-			killbt = 1
-		when "-d"
-			killfw = 1
-		when "-h"
-			hlp = 1
-			print(
-			"Getcountermeasure Meterpreter Script\n" +
-			@@exec_opts.usage			
-			)
-			break
+end
 
-		end
-
-}
 #---------------------------------------------------------------------------------------------------------
 #get the version of windows
 wnvr = session.sys.config.sysinfo
