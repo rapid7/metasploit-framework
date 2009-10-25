@@ -12,14 +12,7 @@ module Msf
 ###
 class Auxiliary < Msf::Module
 
-	#
-	# Auxiliary mixins
-	#
-	require 'msf/core/auxiliary/scanner'
-	require 'msf/core/auxiliary/report'
-	require 'msf/core/auxiliary/dos'
-	require 'msf/core/auxiliary/timed'
-	require 'msf/core/auxiliary/wmapmodule'
+	require 'msf/core/auxiliary/mixins'
 	
 	#
 	# Returns MODULE_AUX to indicate that this is an auxiliary module.
