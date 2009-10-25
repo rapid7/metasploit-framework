@@ -13,8 +13,8 @@ module Wmap
 		require 'active_record'
 
 		# 
-		# MSF WMAP Web scanner		ET LowNOISE
-		# et[cron]cyberspace.org   
+		# MSF WMAP Web scanner		ET
+		# et[cron]metasploit.com  
 		# 		
 		
 		#
@@ -60,6 +60,11 @@ module Wmap
 		end
 
 		def cmd_wmap_targets(*args)
+			# Default behavior to handle hosts names in the db as RHOSTS only 
+			# accepts IP addresses
+			accept_hostnames = true
+			resolv_hosts = false 
+		
 		
 			args.push("-h") if args.length == 0
 			
@@ -95,19 +100,33 @@ module Wmap
 						end
 					
 						if Rex::Socket.dotted_ip?(uri_host)
-						    hip = uri_host
+							hip = uri_host
+							framework.db.create_target(hip, uri_port, uri_ssl, 0)
+							print_status("Added target #{hip} #{uri_port} #{uri_ssl}")
+						
+							framework.db.create_request(hip,uri_port,uri_ssl,'GET',uri_path,'',query,'','','','')
+							print_status("Added request #{uri_path} #{query}")
 						else
-							print_error("RHOSTS only accepts IP addresses: #{uri_host}") 
+							if accept_hostnames
+								framework.db.create_target(uri_host, uri_port, uri_ssl, 0)
+								print_status("Added target #{uri_host} #{uri_port} #{uri_ssl}")
+						
+								framework.db.create_request(uri_host,uri_port,uri_ssl,'GET',uri_path,'',query,'','','','')
+								print_status("Added request #{uri_host} #{query}")	
+							else
+								print_error("RHOSTS only accepts IP addresses: #{req.host}") 
 							
-							hip = Rex::Socket.resolv_to_dotted(uri_host)
-							print_status("Host #{uri_host} resolved as #{hip}.")
+								if resolv_hosts
+									hip = Rex::Socket.resolv_to_dotted(req.host)
+									
+									framework.db.create_target(hip, uri_port, uri_ssl, 0)
+									print_status("Added target #{hip} #{uri_port} #{uri_ssl}")
+						
+									framework.db.create_request(hip,uri_port,uri_ssl,'GET',uri_path,'',query,'','','','')
+									print_status("Added request #{uri_path} #{query}")
+								end
+							end	
 						end
-						
-						framework.db.create_target(hip, uri_port, uri_ssl, 0)
-						print_status("Added target #{hip} #{uri_port} #{uri_ssl}")
-						
-						framework.db.create_request(hip,uri_port,uri_ssl,'GET',uri_path,'',query,'','','','')
-						print_status("Added request #{uri_path} #{query}")
 					end
 				when '-p'
 					print_status("   Id. Host\t\t\t\t\tPort\tSSL")
@@ -132,23 +151,24 @@ module Wmap
 					end
 					print_status("Done.")
 				when '-r'
-					# Default behavior to handle hosts names in the db as RHOSTS only 
-					# accepts IP addresses
-					resolv_hosts = false 
-
 					framework.db.delete_all_targets
 					framework.db.each_distinct_target do |req|
 						if Rex::Socket.dotted_ip?(req.host)
 							framework.db.create_target(req.host, req.port, req.ssl, 0)
 							print_status("Added. #{req.host} #{req.port} #{req.ssl}")
 						else
-							print_error("RHOSTS only accepts IP addresses: #{req.host}") 
+							if accept_hostnames
+									framework.db.create_target(req.host, req.port, req.ssl, 0)
+									print_status("Added host #{req.host}")							
+							else
+								print_error("RHOSTS only accepts IP addresses: #{req.host}") 
 							
-							if resolv_hosts
-								hip = Rex::Socket.resolv_to_dotted(req.host)
-								framework.db.create_target(hip, req.port, req.ssl, 0)
-								print_status("Added host #{req.host} resolved as #{hip}.")
-							end
+								if resolv_hosts
+									hip = Rex::Socket.resolv_to_dotted(req.host)
+									framework.db.create_target(hip, req.port, req.ssl, 0)
+									print_status("Added host #{req.host} resolved as #{hip}.")
+								end
+							end	
 						end  		
 					end	
 				when '-s'
@@ -416,19 +436,19 @@ module Wmap
 					if (mode & WMAP_EXPL != 0)
 
 						#
-						# Parameters passed in hash xref
-						# 
-						mod.datastore['RHOSTS'] = xref[0] 
-						mod.datastore['RPORT'] = xref[1].to_s
-						mod.datastore['SSL'] = xref[2].to_s
-
-						#
 						# For modules to have access to the global datastore
 						# i.e. set -g DOMAIN test.com
 						#
 						self.framework.datastore.each do |gkey,gval|
 							mod.datastore[gkey]=gval
 						end
+
+						#
+						# Parameters passed in hash xref
+						# 
+						mod.datastore['RHOSTS'] = xref[0] 
+						mod.datastore['RPORT'] = xref[1].to_s
+						mod.datastore['SSL'] = xref[2].to_s
 
 						#
 						# Run the plugins that only need to be
@@ -481,21 +501,20 @@ module Wmap
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
 					if (mode & WMAP_EXPL != 0)
+												#
+						# For modules to have access to the global datastore
+						# i.e. set -g DOMAIN test.com
+						#
+						self.framework.datastore.each do |gkey,gval|
+							mod.datastore[gkey]=gval
+						end
 
 						#
 						# Parameters passed in hash xref
 						# 
 						mod.datastore['RHOSTS'] = xref[0] 
 						mod.datastore['RPORT'] = xref[1].to_s
-						mod.datastore['SSL']   = xref[2].to_s 
-
-						#
-						# For modules to have access to the global datastore
-						# i.e. set -g DOMAIN test.com
-						#
-						self.framework.datastore.each do |gkey,gval|
-							mod.datastore[gkey]=gval
-						end	
+						mod.datastore['SSL']   = xref[2].to_s 	
 
 						#
 						# Run the plugins that only need to be
@@ -611,6 +630,13 @@ module Wmap
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
 					if (mode & WMAP_EXPL != 0)
+												#
+						# For modules to have access to the global datastore
+						# i.e. set -g DOMAIN test.com
+						#
+						self.framework.datastore.each do |gkey,gval|
+							mod.datastore[gkey]=gval
+						end
 
 						#
 						# Parameters passed in hash xref
@@ -618,14 +644,6 @@ module Wmap
 						mod.datastore['RHOSTS'] = xref[0] 
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
-
-						#
-						# For modules to have access to the global datastore
-						# i.e. set -g DOMAIN test.com
-						#
-						self.framework.datastore.each do |gkey,gval|
-							mod.datastore[gkey]=gval
-						end
 
 						#
 						# Run the plugins for each request that have a distinct 
@@ -708,14 +726,7 @@ module Wmap
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
 					if (mode & WMAP_EXPL != 0)
-
-						#
-						# Parameters passed in hash xref
-						# 
-						mod.datastore['RHOSTS'] = xref[0] 
-						mod.datastore['RPORT'] = xref[1].to_s
-						mod.datastore['SSL'] = xref[2].to_s
-
+					
 						#
 						# For modules to have access to the global datastore
 						# i.e. set -g DOMAIN test.com
@@ -723,6 +734,13 @@ module Wmap
 						self.framework.datastore.each do |gkey,gval|
 							mod.datastore[gkey]=gval
 						end
+
+						#
+						# Parameters passed in hash xref
+						# 
+						mod.datastore['RHOSTS'] = xref[0] 
+						mod.datastore['RPORT'] = xref[1].to_s
+						mod.datastore['SSL'] = xref[2].to_s
 
 						#
 						# Run the plugins for each request that have a distinct 
@@ -792,14 +810,7 @@ module Wmap
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
 					if (mode & WMAP_EXPL != 0)
-
-						#
-						# Parameters passed in hash xref
-						# 
-						mod.datastore['RHOSTS'] = xref[0] 
-						mod.datastore['RPORT'] = xref[1].to_s
-						mod.datastore['SSL'] = xref[2].to_s
-
+					
 						#
 						# For modules to have access to the global datastore
 						# i.e. set -g DOMAIN test.com
@@ -807,6 +818,13 @@ module Wmap
 						self.framework.datastore.each do |gkey,gval|
 							mod.datastore[gkey]=gval
 						end
+
+						#
+						# Parameters passed in hash xref
+						# 
+						mod.datastore['RHOSTS'] = xref[0] 
+						mod.datastore['RPORT'] = xref[1].to_s
+						mod.datastore['SSL'] = xref[2].to_s
 
 						#
 						# Run the plugins for each request for all headers  
@@ -876,7 +894,14 @@ module Wmap
 					#
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
-					if (mode & WMAP_EXPL != 0)
+					if (mode & WMAP_EXPL != 0)					
+												#
+						# For modules to have access to the global datastore
+						# i.e. set -g DOMAIN test.com
+						#
+						self.framework.datastore.each do |gkey,gval|
+							mod.datastore[gkey]=gval
+						end
 
 						#
 						# Parameters passed in hash xref
@@ -884,14 +909,6 @@ module Wmap
 						mod.datastore['RHOSTS'] = xref[0] 
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
-
-						#
-						# For modules to have access to the global datastore
-						# i.e. set -g DOMAIN test.com
-						#
-						self.framework.datastore.each do |gkey,gval|
-							mod.datastore[gkey]=gval
-						end
 
 						#
 						# Run the plugins for each request for all headers  
@@ -964,14 +981,7 @@ module Wmap
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
 					if (mode & WMAP_EXPL != 0)
-
-						#
-						# Parameters passed in hash xref
-						# 
-						mod.datastore['RHOSTS'] = xref[0] 
-						mod.datastore['RPORT'] = xref[1].to_s
-						mod.datastore['SSL'] = xref[2].to_s
-
+						
 						#
 						# For modules to have access to the global datastore
 						# i.e. set -g DOMAIN test.com
@@ -979,6 +989,13 @@ module Wmap
 						self.framework.datastore.each do |gkey,gval|
 							mod.datastore[gkey]=gval
 						end
+
+						#
+						# Parameters passed in hash xref
+						# 
+						mod.datastore['RHOSTS'] = xref[0] 
+						mod.datastore['RPORT'] = xref[1].to_s
+						mod.datastore['SSL'] = xref[2].to_s
 
 						#
 						# Run the plugins that only need to be

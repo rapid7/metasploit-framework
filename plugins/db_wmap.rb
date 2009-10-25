@@ -12,6 +12,9 @@ module Msf
 #
 ###
 
+WMAPVersion = "0.6"
+WMAPAuthor = "et [  ] metasploit.com"
+
 class Plugin::DBWmap < Msf::Plugin
 
 	#
@@ -59,7 +62,7 @@ class Plugin::DBWmap < Msf::Plugin
 		add_console_dispatcher(WmapSQLiteCommandDispatcher)
 		add_console_dispatcher(WmapDatabaseCommandDispatcher)	
 
-		print_status("=[ WMAP v0.3 - ET LoWNOISE")	
+		print_status("=[ WMAP v#{WMAPVersion} - #{WMAPAuthor}")	
 	end
 	
 
