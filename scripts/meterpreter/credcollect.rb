@@ -1,5 +1,25 @@
-# $Id:$
+# $Id: $
 # credcollect - tebo[at]attackresearch.com
+
+@@exec_opts = Rex::Parser::Arguments.new(
+	"-h" => [ false,"Help menu." ]
+)
+
+@@exec_opts.parse(args) { |opt, idx, val|
+	case opt
+	when "-h"
+		print_line("CredCollect -- harvest credentials found on the host and store them in the database")
+		print_line("USAGE: run credcollect")
+		puts @@exec_opts.usage
+		raise "Usage"
+	end
+}
+
+# No sense trying to grab creds if we don't have any place to put them
+if !client.framework.db.active
+	raise "Database not connected. Run db_connect first."
+end
+
 
 # Make sure we're rockin Priv and Incognito
 if not extensions.include?("priv"); client.core.use("priv") end
