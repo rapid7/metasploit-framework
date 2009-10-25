@@ -464,7 +464,7 @@ module X86
 			if (dst != ESP)
 				next if badchars.index( (0x70 + dst).chr )
 
-				if (not (badchars.index("\x89") or badchars.index( (0xE0+dst).chr )))
+				if !(badchars.index("\x89") or badchars.index( (0xE0+dst).chr ))
 					buf << "\x89" + (0xE0 + dst).chr
 				else
 					next if badchars.index("\x54")

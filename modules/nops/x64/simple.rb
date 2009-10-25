@@ -207,8 +207,8 @@ class Metasploit3 < Msf::Nop
 		end
 		
 		# Now that we have chosen all the instructions to use we must generate the actual sled.
-		opcodes_stack.each do | opcodes |
-			sled += opcodes
+		opcodes_stack.each do | opcodes_ |
+			sled += opcodes_
 		end
 		
 		return sled

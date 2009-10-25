@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 			next if not ip.protocol == 6
 	
 			tcp = Racket::TCP.new(ip.payload)
-			next if not (tcp.payload and tcp.payload.length > 0)
+			next if !(tcp.payload and tcp.payload.length > 0)
 			
 			if (tcp.payload =~ /GET\s+([^\s]+)\s+HTTP/smi)
 				print_status("GET #{$1}")

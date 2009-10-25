@@ -69,7 +69,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Wrap in exception handler
 		begin
-			name = ''
 			while @run
 				reply = false
 				packet, addr = @sock.recvfrom(65535)

@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def process_socks(client)
 		req = client.get_once
-		return if not (req and req.length > 2)
+		return if !(req and req.length > 2)
 		
 		# Versions
 		case req[0]

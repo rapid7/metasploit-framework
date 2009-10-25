@@ -158,7 +158,7 @@ require 'rex/proto/smb/exceptions'
 					end
 					
 					data = self.socket.read( read_cnt, rand(1024)+1)
-					break if not (data and data.length > 0)
+					break if !(data and data.length > 0)
 					raw_response += data
 
 					# Keep reading until we have at least the DCERPC header

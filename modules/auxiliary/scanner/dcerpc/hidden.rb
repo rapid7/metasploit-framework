@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 			eports = {}
 			
 			epm.each do |ep|
-				next if not (ep[:port] and ep[:prot] and ep[:prot] == "tcp")
+				next if !(ep[:port] and ep[:prot] and ep[:prot] == "tcp")
 				eports[ep[:port]] ||= {}
 				eports[ep[:port]][ep[:uuid]+'_'+ep[:vers]] = true
 			end

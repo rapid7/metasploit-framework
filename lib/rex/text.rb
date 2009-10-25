@@ -233,7 +233,7 @@ module Text
 						bin = [a].pack('C').unpack('B8')[0].split(//)
 
 						# even more ugh.
-						bin.collect!{|a| a = a.to_i}
+						bin.collect!{|a_| a_.to_i}
 
 						out = Array.new(8 * size, 0)
 

@@ -5,7 +5,8 @@ module Msf
 
 ###
 #
-# The db module provides persistent storage and events
+# The db module provides persistent storage and events. This class should be instantiated LAST
+# as the active_suppport library overrides Kernel.require, slowing down all future code loads.
 #
 ###
 

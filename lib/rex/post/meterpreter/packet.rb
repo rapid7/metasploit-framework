@@ -283,7 +283,6 @@ class GroupTlv < Tlv
 	# Adds a TLV of a given type and value.
 	#
 	def add_tlv(type, value = nil, replace = false)
-		tlv = nil
 
 		# If we should replace any TLVs with the same type...remove them first
 		if (replace)

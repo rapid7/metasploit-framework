@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 		targ = args[0] || rhost()
 		dom  = args[1] || "example.com"
 		
-		if(not (targ and targ.length > 0))
+		if !(targ and targ.length > 0)
 			print_status("usage: racer [dns-server] [domain]")
 			return
 		end
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def cmd_check(*args)
 		targ = args[0] || rhost()
-		if(not (targ and targ.length > 0))
+		if !(targ and targ.length > 0)
 			print_status("usage: check [dns-server]")
 			return
 		end

@@ -107,7 +107,7 @@ class Msf::Module::Author
 				self.email = str.sub(/\s*\[at\]\s*/, '@').sub(/\s*\[dot\]\s*/, '.').gsub(/^<|>$/, '')
 				m = self.email.match(/([^@]+)@/)
 				self.name = m ? m[1] : nil
-				if(not (self.email and self.email.index('@')))
+				if !(self.email and self.email.index('@'))
 					self.name  = self.email
 					self.email = ''					
 				end

@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 			next if not ip.protocol == 6
 			
 			tcp = Racket::TCP.new(ip.payload)
-			next if not (tcp.payload and tcp.payload.length > 0)
+			next if !(tcp.payload and tcp.payload.length > 0)
 			
 			data = {:raw => pkt, :eth => eth, :ip => ip, :tcp => tcp}
 

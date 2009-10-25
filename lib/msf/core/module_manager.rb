@@ -466,7 +466,7 @@ class ModuleManager < ModuleSet
 			}
 		}
 		
-		if(not (@modcache['ModuleTypeCounts'] and @modcache['ModuleTypeCounts'].keys.length > 0))
+		if !(@modcache['ModuleTypeCounts'] and @modcache['ModuleTypeCounts'].keys.length > 0)
 			@modcache_invalidated = true
 		end
 						

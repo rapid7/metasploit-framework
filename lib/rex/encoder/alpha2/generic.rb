@@ -48,7 +48,8 @@ class Generic
 		second   = 1
 		randbase = 0
 		
-		gen_base_set(block).each do |randbase|
+		gen_base_set(block).each do |randbase_|
+			randbase = randbase_
 			second   = gen_second(block, randbase)
 			next  if second < 0
 			break if accepted_chars.include?(second.chr)

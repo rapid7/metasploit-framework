@@ -96,12 +96,12 @@ module Msf::Payload::Solaris
 			end
 
 			# Prepend syscall code to prepend block
-			if not (pre.empty?)
+			if !(pre.empty?)
 				pre = sc + pre
 			end
 
 			# Prepend syscall code to append block
-			if not (app.empty?)
+			if !(app.empty?)
 				app = sc + app
 			end
 

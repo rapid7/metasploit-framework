@@ -66,8 +66,8 @@ module Auxiliary
 			mod.framework.jobs.start_bg_job(
 				"Auxiliary: #{mod.refname}", 
 				mod,
-				Proc.new { |mod| self.job_run_proc(mod) },
-				Proc.new { |mod| self.job_cleanup_proc(mod) }
+				Proc.new { |mod_| self.job_run_proc(mod_) },
+				Proc.new { |mod_| self.job_cleanup_proc(mod_) }
 			)
 		else
 			self.job_run_proc(mod)

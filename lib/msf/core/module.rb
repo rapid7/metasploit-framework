@@ -588,7 +588,7 @@ protected
 		refs = module_info['References']
 		if(refs and not refs.empty?)
 			refs.each_index do |i|
-				if(not (refs[i].respond_to?('[]') and refs[i].length == 2))
+				if !(refs[i].respond_to?('[]') and refs[i].length == 2)
 					refs[i] = nil
 				end
 			end
