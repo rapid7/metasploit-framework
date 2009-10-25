@@ -17,7 +17,6 @@ wininfo = client.sys.config.sysinfo
 commands = []
 script = []
 outfile = nil
-help = 0
 
 ################## Function Declarations ##################
 # Function for running a list of WMIC commands stored in a array, returs string
@@ -83,13 +82,19 @@ def usage
 	print_line("Example:")
 	print_line("run wmic -c \"useraccount where (name = \\\'Administrator\\\') get name, sid\"\n")
 end
+
 ################## Main ##################
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
-
 	when "-c"
-		commands = val.split("/")
+		if !val
+			raise "-c requires an argument"
+		end
+		commands.concat(val.split("/"))
 	when "-s"
+		if !val
+			raise "-s requires an argument"
+		end
 		script = val
 		if not ::File.exists?(script)
 			raise "Command List File does not exists!"
@@ -99,16 +104,24 @@ end
 			end
 		end
 	when "-f"
+		if !val
+			raise "-f requires an argument"
+		end
 		outfile = val
 	when "-h"
-		help = 1
+		usage
+		raise RuntimeError, "Usage"
+	else
+		raise RuntimeError, "Unknown option: #{opt}"
 	end
 
+	if commands.empty?
+		usage
+		raise RuntimeError, "Empty command list"
+	end
 }
 
-if args.length == 0 or help == 1 
-	usage
-elsif outfile == nil
+if outfile == nil
 	puts wmicexec(session,commands)
 else
 	print_status("Saving output of WMIC to #{outfile}")
