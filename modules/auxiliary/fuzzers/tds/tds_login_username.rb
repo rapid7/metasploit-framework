@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'TDS Protocol Login Request Fuzzer',
+			'Name'           => 'TDS Protocol Login Request Username Fuzzer',
 			'Description'    => %q{
 				This module sends a series of malformed TDS login requests.
 			},
