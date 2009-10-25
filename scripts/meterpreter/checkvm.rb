@@ -1,8 +1,23 @@
-# $Id:$
+# $Id: $
 # Meterpreter script for detecting if target host is a Virtual Machine
 # Provided by Carlos Perez at carlos_perez[at]darkoperator.com
 # Version: 0.2.0
 session = client
+
+@@exec_opts = Rex::Parser::Arguments.new(
+	"-h" => [ false,"Help menu." ]
+)
+
+@@exec_opts.parse(args) { |opt, idx, val|
+	p opt
+	case opt
+	when "-h"
+		print_line("CheckVM -- Check various attributes on the target for evidence that it is a virtual machine")
+		print_line("USAGE: run checkvm")
+		puts @@exec_opts.usage
+		raise RuntimeError, "Usage"
+	end
+}
 
 # Function for detecting if it is a Hyper-V VM
 def hypervchk(session)
