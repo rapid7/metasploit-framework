@@ -280,9 +280,6 @@ class Metasploit3 < Msf::Auxiliary
 	def smb_cmd_nttrans(c, buff)
 	end
 
-	def smb_cmd_nttrans(c, buff)
-	end
-
 	def smb_cmd_open(c, buff)
 	end
 

@@ -471,4 +471,7 @@ EOS
 			))
 	end
 
+	def size
+		279
+	end
 end

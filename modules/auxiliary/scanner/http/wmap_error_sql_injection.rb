@@ -130,9 +130,9 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			
 			if found
-				print_error ("Error string appears in the normal response, unable to test")
-				print_error ("Error string: '#{inje}'") 
-				print_error ("DB TYPE: #{dbt}, Error type '#{injt}'")
+				print_error("Error string appears in the normal response, unable to test")
+				print_error("Error string: '#{inje}'") 
+				print_error("DB TYPE: #{dbt}, Error type '#{injt}'")
 				
 				rep_id = wmap_base_report_id(
 						wmap_target_host,
@@ -195,7 +195,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 						if found
 							print_status("SQL Injection found.")
-							print_status ("Error string: '#{inje}' Test Value: #{istr}") 
+							print_status("Error string: '#{inje}' Test Value: #{istr}") 
 							print_status("Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 							
 							rep_id = wmap_base_report_id(
@@ -274,7 +274,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 						if found
 							print_status("SQL Injection found.")
-							print_status ("Error string: '#{inje}' Test Value: #{istr}") 
+							print_status("Error string: '#{inje}' Test Value: #{istr}") 
 							print_status("Vuln data parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 							
 							rep_id = wmap_base_report_id(
@@ -353,7 +353,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 						if found
 							print_status("SQL Injection found.")
-							print_status ("Error string: '#{inje}' Test Value: #{istr}") 
+							print_status("Error string: '#{inje}' Test Value: #{istr}") 
 							print_status("Vuln cookie parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 							
 							rep_id = wmap_base_report_id(

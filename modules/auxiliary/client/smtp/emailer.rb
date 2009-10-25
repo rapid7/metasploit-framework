@@ -94,14 +94,14 @@ class Metasploit3 < Msf::Auxiliary
 
             if msf_change_ext 
                 msf_payload_newext = msf_filename
-                msf_payload_newext = msf_payload_newext.gsub /\.\w+/, ".#{msf_payload_ext}"
-                system("mv /tmp/#{msf_filename} /tmp/#{msf_payload_newext}")
+                msf_payload_newext = msf_payload_newext.sub(/\.\w+$/, ".#{msf_payload_ext}")
+                File.rename("/tmp/#{msf_filename}", "/tmp/#{msf_payload_newext}")
                 msf_filename = msf_payload_newext
             end
 
             if zip_payload 
                 zip_file = msf_filename
-                zip_file = zip_file.gsub /\.\w+/, '.zip' 
+                zip_file = zip_file.gsub(/\.\w+/, '.zip')
                 system("zip -r /tmp/#{zip_file} /tmp/#{msf_filename} > /dev/null 2>&1");
                 msf_filename         = zip_file
                 attachment_file_type = 'application/zip'

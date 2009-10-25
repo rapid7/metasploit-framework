@@ -92,4 +92,10 @@ EOS
 			))
 	end
 
+
+	# hardcode the size of the encoded payload, otherwise the shellcode is assembled during msf initialization
+	def size
+		#puts "size of #{name}: #{super()}"
+		103
+	end
 end

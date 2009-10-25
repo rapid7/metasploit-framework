@@ -8,7 +8,7 @@ module Alpha2
 
 class Generic
 		
-	@@default_accepted_chars = ('a' .. 'z').to_a + ('B' .. 'Z').to_a + ('0' .. '9').to_a
+	def Generic.default_accepted_chars ; ('a' .. 'z').to_a + ('B' .. 'Z').to_a + ('0' .. '9').to_a ; end
 	
 	def Generic.gen_decoder_prefix(reg, offset)
 		# Should never happen - have to pick a specifc
@@ -36,7 +36,7 @@ class Generic
 	end
 
 	def Generic.encode_byte(block, badchars)
-		accepted_chars = @@default_accepted_chars.dup
+		accepted_chars = default_accepted_chars.dup
 		
 		# Remove bad chars from the accepted_chars list.  Sadly 'A' must be 
 		# an accepted char or we'll certainly fail at this point.  This could

@@ -7,7 +7,7 @@ module Encoder
 module Alpha2
 
 class UnicodeUpper < Generic
-	@@default_accepted_chars = ('B' .. 'Z').to_a + ('0' .. '9').to_a
+	def self.default_accepted_chars ; ('B' .. 'Z').to_a + ('0' .. '9').to_a ; end
 
 	def self.gen_base_set(max)
 		Rex::Text.shuffle_a(
