@@ -214,10 +214,11 @@ static VALUE Lorcon_get_capiface(VALUE self) {
 }
 
 void Lorcon_packet_free(struct rlpack *rlp) {
-	/*
-	if (rlp->packet != NULL)
+	if (rlp->packet != NULL) {
 		lorcon_packet_free(rlp->packet);
-		*/
+		rlp->packet = NULL;
+		free(rlp);
+	}
 }
 
 static VALUE Lorcon_packet_create(int argc, VALUE *argv, VALUE self) {
@@ -448,7 +449,6 @@ VALUE new_lorcon_packet(struct lorcon_packet *packet) {
 	obj = Data_Make_Struct(cPacket, struct rlpack, 0, Lorcon_packet_free, rlp);
 
 	rlp->packet = packet;
-
 	rb_obj_call_init(obj, 0, 0);	
 	return(obj);
 }
@@ -535,16 +535,16 @@ static VALUE Lorcon_capture_loop(int argc, VALUE *argv, VALUE self) {
 	}
 
 	while (p < count || count <= 0) {
-		
 		rb_thread_wait_fd(fd);
 
 #ifndef RUBY_19
 		TRAP_BEG;
 #endif
 		ret = lorcon_next_ex(rld->context, &packet);
-#ifndef RUBY_19		
+#ifndef RUBY_19
 		TRAP_END;
-#endif		
+#endif
+
 		/* timeout */
 		if (ret == 0)
 			continue;
