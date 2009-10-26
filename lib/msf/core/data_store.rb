@@ -235,26 +235,26 @@ class ModuleDataStore < DataStore
 	# if we can't directly find it
 	#
 	def fetch(key)
-		val = super 
-
-		if (val == nil and @_module and @_module.framework)
+		val = nil
+		val = super if(@imported_by[key] != 'self')
+		if (val.nil? and @_module and @_module.framework)
 			val = @_module.framework.datastore[key]
 		end
-
-		return val
+		val = super if val.nil?
+		val
 	end
 
 	#
 	# Same as fetch
 	#
-	def [](key)
-		val = super
-		
-		if (val == nil and @_module and @_module.framework)
+	def [](key)		
+		val = nil
+		val = super if(@imported_by[key] != 'self')
+		if (val.nil? and @_module and @_module.framework)
 			val = @_module.framework.datastore[key]
 		end
-
-		return val
+		val = super if val.nil?
+		val
 	end
 
 end
