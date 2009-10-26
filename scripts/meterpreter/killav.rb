@@ -1,4 +1,4 @@
-# $Id:$
+# $Id$
 #
 # Meterpreter script that kills all Antivirus processes
 # Provided by: Jerome Athias <jerome.athias [at] free.fr>

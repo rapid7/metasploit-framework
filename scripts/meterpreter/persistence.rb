@@ -1,4 +1,4 @@
-# $Id:$
+# $Id$
 
 #
 # Meterpreter script for installing a persistent meterpreter

@@ -1,4 +1,4 @@
-# $Id:$
+# $Id$
 #Meterpreter script for extracting information from windows prefetch folder
 #Provided by Milo at keith.lee2012[at]gmail.com
 #Verion: 0.1.0 

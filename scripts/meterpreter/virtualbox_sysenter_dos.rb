@@ -1,4 +1,4 @@
-# $Id:$
+# $Id$
 
 # Meterpreter script for triggering the VirtualBox DoS published at:
 # http://milw0rm.com/exploits/9323

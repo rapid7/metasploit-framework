@@ -1,4 +1,4 @@
-# $Id:$
+# $Id$
 
 ## Meterpreter script that recursively search and download
 ## files matching a given pattern

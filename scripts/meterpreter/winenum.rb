@@ -1,4 +1,4 @@
-# $Id:$
+# $Id$
 #
 #Meterpreter script for basic enumeration of Windows 2000, Windows 2003, Windows Vista
 # and Windows XP targets using native windows commands.

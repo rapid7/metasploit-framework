@@ -1,4 +1,4 @@
-# $Id:$
+# $Id$
 
 #Meterpreter script for automating the most common scheduling tasks
 #during a pentest. This script will use the schtasks command so as
