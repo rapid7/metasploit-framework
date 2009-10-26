@@ -1,5 +1,9 @@
 #include "ruby.h"
+
+#ifndef RUBY_19
 #include "rubysig.h"
+#endif
+
 
 #include <pcap.h>
 
@@ -27,7 +31,7 @@ typedef struct rbpcap {
 
 typedef struct rbpcapjob {
 	struct pcap_pkthdr hdr;
-    char *pkt;
+    unsigned char *pkt;
 	int wtf;
 } rbpcapjob_t;
 
@@ -328,7 +332,7 @@ rbpcap_dump(VALUE self, VALUE caplen, VALUE pktlen, VALUE packet)
     pcap_dump(
         (u_char*)rbp->pdt,        
         &pcap_hdr,
-        RSTRING_PTR(packet)
+        (unsigned char *)RSTRING_PTR(packet)
     );
 
     return self;
@@ -360,7 +364,7 @@ rbpcap_inject(VALUE self, VALUE payload)
 
 
 static void rbpcap_handler(rbpcapjob_t *job, struct pcap_pkthdr *hdr, u_char *pkt){
-	job->pkt = pkt;
+	job->pkt = (unsigned char *)pkt;
 	job->hdr = *hdr;
 }
 
@@ -376,16 +380,18 @@ rbpcap_next(VALUE self)
 	if(! rbpcap_ready(rbp)) return self; 
 	pcap_setnonblock(rbp->pd, 1, eb);
 
+#ifndef RUBY_19
 	TRAP_BEG;
-	
+#endif
 	ret = pcap_dispatch(rbp->pd, 1, (pcap_handler) rbpcap_handler, (u_char *)&job);
-	
+#ifndef RUBY_19
 	TRAP_END;
+#endif
 
 	if(rbp->type == OFFLINE && ret <= 0) return Qnil;
 
 	if(ret > 0 && job.hdr.caplen > 0)
-		return rb_str_new(job.pkt, job.hdr.caplen);
+		return rb_str_new((char *) job.pkt, job.hdr.caplen);
 
 	return Qnil;
 }

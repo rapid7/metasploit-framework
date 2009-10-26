@@ -14,4 +14,8 @@ else
 	have_library("pcap", "pcap_setnonblock")
 end
 
+if ( RUBY_VERSION =~ /^1\.9/ )
+	$CFLAGS += " -DRUBY_19"
+end
+
 create_makefile("pcaprub")
