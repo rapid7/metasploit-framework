@@ -7,8 +7,9 @@
 // include the Reflectiveloader() function, we end up linking back to the metsrv.dll's Init function
 // but this doesnt matter as we wont ever call DLL_METASPLOIT_ATTACH as that is only used by the 
 // second stage reflective dll inject payload and not the metsrv itself when it loads extensions.
-#include "../../../ReflectiveDLLInjection/ReflectiveLoader.c"
-
+#ifdef __WIN32__
+ #include "../../../ReflectiveDLLInjection/ReflectiveLoader.c"
+#endif
 // NOTE: _CRT_SECURE_NO_WARNINGS has been added to Configuration->C/C++->Preprocessor->Preprocessor
 
 // this sets the delay load hook function, see DelayLoadMetSrv.h
@@ -321,12 +322,16 @@ Command customCommands[] =
 /*
  * Initialize the server extension
  */
+#ifdef __WIN32__
 DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
+#else
+DWORD InitServerExtension(Remote *remote)
+#endif
 {
 	DWORD index;
-
+#ifdef __WIN32__
 	hMetSrv = remote->hMetSrv;
-
+#endif
 	for (index = 0;
 	     customCommands[index].method;
 	     index++)
@@ -338,7 +343,11 @@ DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
 /*
  * Deinitialize the server extension
  */
+#ifdef __WIN32
 DWORD __declspec(dllexport) DeinitServerExtension(Remote *remote)
+#else
+DWORD DeinitServerExtension(Remote *remote)
+#endif
 {
 	DWORD index;
 

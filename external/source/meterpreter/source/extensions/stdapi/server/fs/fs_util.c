@@ -5,6 +5,7 @@
  */
 LPSTR fs_expand_path(LPCSTR regular)
 {
+#ifdef __WIN32__
 	DWORD expandedFilePathSize = 32768;
 	LPSTR expandedFilePath = NULL;
 
@@ -30,4 +31,10 @@ LPSTR fs_expand_path(LPCSTR regular)
 	} while (0);	
 
 	return expandedFilePath;
+#else /* Hack to make it work with existing code under *nix */
+	char *expandedFilePath;
+	expandedFilePath = malloc(strlen(regular)+1);
+	strcpy(expandedFilePath, regular);
+	return expandedFilePath;
+#endif
 }

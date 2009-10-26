@@ -1,5 +1,9 @@
-#include "precomp.h"
+#include "../precomp.h"
 #include <sys/stat.h>
+
+#ifndef __WIN32__
+ #include <dirent.h>
+#endif
 
 /*
  * Gets the contents of a given directory path and returns the list of file
@@ -26,11 +30,17 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 		result = ERROR_INVALID_PARAMETER;
 	else
 	{
+#ifdef __WIN32__
 		WIN32_FIND_DATA data;
-		BOOLEAN freeDirectory = FALSE;
 		HANDLE ctx = NULL;
+#else
+		DIR *ctx;
+		struct dirent *data;
+#endif
+		BOOLEAN freeDirectory = FALSE;
 		LPSTR tempDirectory = (LPSTR)directory;
 
+#ifdef __WIN32__
 		// If there is not wildcard mask on the directory, create a version of the
 		// directory with a mask appended
 		if (!strrchr(directory, '*'))
@@ -81,9 +91,24 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 		// Start the find operation
 		ctx = FindFirstFile(expanded, &data);
 
+ #define DF_NAME data.cFileName
+#else
+		expanded = 0;
+		ctx = opendir(tempDirectory);
+		if(ctx == NULL)
+		{
+		  result = errno;
+		  goto out;
+		}
+		data = readdir(ctx);
+	      
+ #define DF_NAME data->d_name
+
+#endif
+
 		do
 		{
-			DWORD fullSize = (baseDirectory ? strlen(baseDirectory) : 0) + strlen(data.cFileName) + 2;
+			DWORD fullSize = (baseDirectory ? strlen(baseDirectory) : 0) + strlen(DF_NAME) + 2;
 
 			// No context?  Sucktastic
 			if (ctx == INVALID_HANDLE_VALUE)
@@ -113,13 +138,13 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 
 			// Build the full path
 			if (baseDirectory)
-				sprintf(tempFile, "%s\\%s", baseDirectory, data.cFileName);
+				sprintf(tempFile, "%s\\%s", baseDirectory, DF_NAME);
 			else
-				sprintf(tempFile, "%s", data.cFileName);
+				sprintf(tempFile, "%s", DF_NAME);
 
 			// Add the file name to the response
 			packet_add_tlv_string(response, TLV_TYPE_FILE_NAME, 
-					data.cFileName);
+					DF_NAME);
 			// Add the full path
 			packet_add_tlv_string(response, TLV_TYPE_FILE_PATH,
 					tempFile);
@@ -129,13 +154,22 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 				packet_add_tlv_raw(response, TLV_TYPE_STAT_BUF, &buf,
 						sizeof(buf));
 
+#ifdef __WIN32__
 		} while (FindNextFile(ctx, &data));
+#else
+	        } while (data = readdir(ctx));
+#endif
+#undef DF_NAME
 
 		// Clean up resources
 		if (freeDirectory)
 			free(tempDirectory);
 		if (ctx)
+#ifdef __WIN32__
 			FindClose(ctx);
+#else
+			closedir(ctx);
+#endif
 	}
 
 	if (expanded)
@@ -175,7 +209,11 @@ again:
 
 		memset(directory, 0, directorySize);
 
+#ifdef __WIN32__
 		if (!(realSize = GetCurrentDirectory(directorySize, directory)))
+#else
+		if (!(realSize = getcwd(directory, directorySize)))
+#endif
 		{
 			result = ERROR_NOT_ENOUGH_MEMORY;
 			break;
@@ -223,7 +261,11 @@ DWORD request_fs_chdir(Remote *remote, Packet *packet)
 
 	if (!directory)
 		result = ERROR_INVALID_PARAMETER;
+#ifdef __WIN32__
 	else if (!SetCurrentDirectory(directory))
+#else
+	else if (!chdir(directory))
+#endif
 		result = GetLastError();
 
 	packet_add_tlv_uint(response, TLV_TYPE_RESULT, result);
@@ -250,7 +292,11 @@ DWORD request_fs_mkdir(Remote *remote, Packet *packet)
 
 	if (!directory)
 		result = ERROR_INVALID_PARAMETER;
+#ifdef __WIN32__
 	else if (!CreateDirectory(directory, NULL))
+#else
+	else if (!mkdir(directory, 777))
+#endif
 		result = GetLastError();
 
 	packet_add_tlv_uint(response, TLV_TYPE_RESULT, result);
@@ -277,7 +323,11 @@ DWORD request_fs_delete_dir(Remote *remote, Packet *packet)
 
 	if (!directory)
 		result = ERROR_INVALID_PARAMETER;
+#ifdef __WIN32__
 	else if (!RemoveDirectory(directory))
+#else
+	else if (!rmdir(directory))
+#endif
 		result = GetLastError();
 
 	packet_add_tlv_uint(response, TLV_TYPE_RESULT, result);

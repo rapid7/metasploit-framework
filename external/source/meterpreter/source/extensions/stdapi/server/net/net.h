@@ -8,7 +8,11 @@ typedef struct _SocketContext
 {
 	Remote   *remote;
 	Channel  *channel;
+#ifdef __WIN32__
 	WSAEVENT notify;
+#else
+	int notify;
+#endif
 	SOCKET   fd;
 } SocketContext;
 
