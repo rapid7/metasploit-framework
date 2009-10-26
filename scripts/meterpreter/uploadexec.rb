@@ -60,7 +60,7 @@ def cmd_exec(session,cmdexe,opt,verbose)
 			r = session.sys.process.execute(cmdexe, opt, {'Hidden' => true, 'Channelized' => true})
 			while(d = r.channel.read)
 
-				prin_status("\t#{d}")
+				print_status("\t#{d}")
 			end
 			r.channel.close
 			r.close
