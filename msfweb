@@ -38,7 +38,7 @@ background = false
 browser_start = false
 
 # Parse command line arguments.
-arguments.parse(ARGV) { |opt, idx, val|
+arguments.parse(ARGV)  do |opt, idx, val|
 	case opt
 		when "-a"
 			opts['ServerHost'] = val
@@ -56,23 +56,20 @@ arguments.parse(ARGV) { |opt, idx, val|
 				arguments.usage)
 			exit
 	end
-}
+end
 
+# Drain ARGV
+while(ARGV.shift) do
+end
 
-# This is stupid, but we need to override the ARGV constant
-
-ostderr = $stderr
-$stderr = StringIO.new
-
-ARGV = [
+# Rebuild ARGV
+ARGV.unshift([
 	'-p', opts['ServerPort'], 
 	'-b', opts['ServerHost'],
 	'-e', 'production',
 	(background ? '-d' : '')
-]
-
-$stderr.close
-$stderr = ostderr
+])
+ARGV.flatten!
 
 $browser_url   = "http://#{opts['ServerHost']}:#{opts['ServerPort']}/"
 $browser_start = browser_start

@@ -25,7 +25,7 @@ ARGV.clone.options do |opts|
   opts.on("-p", "--port=port", Integer,
           "Runs Rails on the specified port.", "Default: 3000") { |v| options[:Port] = v }
   opts.on("-b", "--binding=ip", String,
-          "Binds Rails to the specified ip.", "Default: 0.0.0.0") { |v| options[:Host] = v }
+          "Binds Rails to the specified ip.", "Default: 0.0.0.0") { |v| options[:BindAddress] = options[:Host] = v }
   opts.on("-c", "--config=file", String,
           "Use custom rackup configuration file") { |v| options[:config] = v }
   opts.on("-d", "--daemon", "Make server run as a Daemon.") { options[:detach] = true }
