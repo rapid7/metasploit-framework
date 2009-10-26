@@ -139,7 +139,7 @@ class Console::CommandDispatcher::Core
 			print_error("Invalid channel identifier specified.")
 			return true
 		else
-			channel.close
+			channel._close # Issue #410
 
 			print_status("Closed channel #{cid}.")
 		end
