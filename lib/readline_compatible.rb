@@ -138,16 +138,27 @@ module Readline
 
       RbReadline.rl_attempted_completion_over = true
 
+      # Remove leading spaces
+      text.gsub!(/^\s+/, '')
+
       case_fold = @completion_case_fold
       ary = proc.call(text)
       if ary.class != Array
          ary = Array(ary)
       else
          ary.compact!
+         ary.uniq!
       end
+
+      ary.delete('')
 
       matches = ary.length
       return nil if (matches == 0)
+      
+      if(matches == 1)
+        ary[0] = ary[0].strip + " "
+      end
+      
       result = Array.new(matches+2)
       for i in 0 ... matches
          result[i+1] = ary[i].dup
