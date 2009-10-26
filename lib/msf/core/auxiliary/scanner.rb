@@ -153,7 +153,7 @@ def run
 				
 				# Create a thread for each batch
 				if (batch.length > 0)
-					t << Thread.new(batch) do |bat|
+					t = Thread.new(batch) do |bat|
 						nmod = self.replicant
 						mybatch = bat.dup
 						begin
@@ -192,7 +192,7 @@ def run
 			tlb = 0
 			tl.map {|t| tlb += t[:batch_size] }
 			
-			@range_done = tla - tlb
+			@range_done += tla - tlb
 			scanner_show_progress()			
 		end
 		
