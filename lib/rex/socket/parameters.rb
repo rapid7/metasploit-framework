@@ -59,6 +59,10 @@ class Rex::Socket::Parameters
 	#
 	# 	Whether or not SSL should be used.
 	#
+	# SSLVersion
+	#
+	# 	Specify SSL2, SSL3, or TLS1 (SSL3 is default)
+	#	
 	# Proxies
 	#
 	#	List of proxies to use.
@@ -130,7 +134,11 @@ class Rex::Socket::Parameters
 		else
 			self.ssl = false
 		end
-
+		
+		if (hash['SSLVersion'] and hash['SSLVersion'].to_s =~ /^(SSL2|SSL3|TLS1)$/i)
+			self.ssl_version = hash['SSLVersion']
+		end
+		
 		if hash['Proxies']	
 			self.proxies = hash['Proxies'].split('-').map{|a| a.strip}.map{|a| a.split(':').map{|b| b.strip}}
 		end
@@ -300,6 +308,10 @@ class Rex::Socket::Parameters
 	# Whether or not SSL should be used to wrap the connection.
 	#
 	attr_accessor :ssl
+	#
+	# What version of SSL to use (SSL2, SSL3, TLS1)
+	#
+	attr_accessor :ssl_version
 	#
 	# Whether we should use IPv6
 	#

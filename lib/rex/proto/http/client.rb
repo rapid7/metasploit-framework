@@ -17,11 +17,12 @@ class Client
 	#
 	# Creates a new client instance
 	#
-	def initialize(host, port = 80, context = {}, ssl = nil, proxies = nil)
+	def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil)
 		self.hostname = host
 		self.port     = port.to_i
 		self.context  = context
 		self.ssl      = ssl
+		self.ssl_version = ssl_version
 		self.proxies  = proxies
 		self.config = {
 			'read_max_data'   => (1024*1024*1),
@@ -265,6 +266,7 @@ class Client
 			'LocalPort' => self.local_port,
 			'Context'   => self.context,
 			'SSL'       => self.ssl,
+			'SSLVersion'=> self.ssl_version,
 			'Proxies'   => self.proxies
 		)
 	end
@@ -773,7 +775,7 @@ class Client
 protected
 
 	# https
-	attr_accessor :ssl
+	attr_accessor :ssl, :ssl_version # :nodoc:
 
 	attr_accessor :hostname, :port # :nodoc:
 

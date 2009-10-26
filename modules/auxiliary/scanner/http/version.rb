@@ -52,8 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				wmap_report(rep_id,'WEB_SERVER','TYPE',"#{res.headers['Server']}#{extra}",nil)
 			end
-			
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 

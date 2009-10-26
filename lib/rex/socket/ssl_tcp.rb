@@ -39,7 +39,6 @@ begin
 	#
 	def self.create_param(param)
 		param.ssl   = true
-
 		Rex::Socket::Tcp.create_param(param)
 	end
 
@@ -55,8 +54,19 @@ begin
 	def initsock(params = nil)
 		super
 
+
+		version = :SSLv3
+		if(params)
+			case params.ssl_version
+			when 'SSL2'
+				version = :SSLv2
+			when 'TLS1'
+				version = :TLSv1
+			end
+		end
+		
 		# Build the SSL connection
-		self.sslctx  = OpenSSL::SSL::SSLContext.new
+		self.sslctx  = OpenSSL::SSL::SSLContext.new(version)
 		
 		# Configure the SSL context
 		# TODO: Allow the user to specify the verify mode and callback
