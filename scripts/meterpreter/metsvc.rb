@@ -44,8 +44,8 @@ remove   = false
 opts.parse(args) do |opt, idx, val|
 	case opt
 	when "-h"
-		print_status(opts.usage)
-		return
+		print_line(opts.usage)
+		raise Rex::Script::Completed
 	when "-A"
 		autoconn = true
 	when "-r"
@@ -87,12 +87,12 @@ if(not remove)
 	print_status("Starting the service...")
 	client.fs.dir.chdir(tempdir)
 	data = m_exec(client, "metsvc.exe install-service")
-	print_status("\t#{data}")
+	print_line("\t#{data}")
 else
 	print_status("Stopping the service...")
 	client.fs.dir.chdir(tempdir)
 	data = m_exec(client, "metsvc.exe remove-service")
-	print_status("\t#{data}")
+	print_line("\t#{data}")
 end
 
 if(remove)
