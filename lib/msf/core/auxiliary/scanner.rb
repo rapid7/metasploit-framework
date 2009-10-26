@@ -15,14 +15,18 @@ module Auxiliary::Scanner
 def initialize(info = {})
 	super
 
-	register_options(
-		[
+	register_options([
 			OptAddressRange.new('RHOSTS', [ true, "The target address range or CIDR identifier"]),
 			OptInt.new('THREADS', [ true, "The number of concurrent threads", 1 ] )
 		], Auxiliary::Scanner)
 	
 	# RHOST should not be used in scanner modules, only RHOSTS
 	deregister_options('RHOST')
+	
+	register_advanced_options([
+		OptBool.new('ShowProgress', [true, 'Display progress messages during a scan', true]),
+		OptInt.new('ShowProgressPercent', [true, 'The interval in percent that progress should be shown', 10])
+	], Auxiliary::Scanner)
 end
 
 
@@ -31,7 +35,15 @@ end
 #
 def run
 
-	threads_max = datastore['THREADS']
+	@show_progress = datastore['ShowProgress']
+	@show_percent  = datastore['ShowProgressPercent'].to_i
+
+	ar             = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
+	@range_count   = ar.num_ips
+	@range_done    = 0
+	@range_percent = 0
+	
+	threads_max = datastore['THREADS'].to_i
 	tl = []
 	
 	#
@@ -57,12 +69,12 @@ def run
 	begin
 	
 	if (self.respond_to?('run_range'))
+		# No automated progress reporting for run_range
 		return run_range(datastore['RHOSTS'])
 	end
 	
 	if (self.respond_to?('run_host'))
-		ar = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
-		
+	
 		tl = []
 
 		while (true)
@@ -80,7 +92,7 @@ def run
 						nmod.run_host(targ)
 					rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
 						raise $!
-					rescue ::Rex::ConnectionError
+					rescue ::Rex::ConnectionError, ::Errno::ECONNRESET
 					rescue ::Exception => e
 						print_status("Error: #{targ}: #{e.class} #{e.message}")
 						elog("Error running against host #{targ}: #{e.message}\n#{e.backtrace.join("\n")}")
@@ -98,8 +110,13 @@ def run
 			# done, remove any finished threads from the list
 			# and continue on.  This will open up at least one
 			# spot for a new thread
+			tla = tl.length
 			tl.first.join
 			tl.delete_if { |t| not t.alive? }
+			tlb = tl.length
+			
+			@range_done += tla - tlb
+			scanner_show_progress()
 		end
 		
 		return
@@ -136,18 +153,20 @@ def run
 				
 				# Create a thread for each batch
 				if (batch.length > 0)
-					tl << Thread.new(batch) do |bat|
+					t << Thread.new(batch) do |bat|
 						nmod = self.replicant
 						mybatch = bat.dup
 						begin
 							nmod.run_batch(mybatch)
 						rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
 							raise $!
-						rescue ::Rex::ConnectionError
+						rescue ::Rex::ConnectionError, ::Errno::ECONNRESET
 						rescue ::Exception => e
 							print_status("Error: #{mybatch[0]}-#{mybatch[-1]}: #{e}")
 						end
 					end
+					t[:batch_size] = batch.length
+					tl << t
 				end
 				
 				# Exit once we run out of hosts
@@ -166,8 +185,15 @@ def run
 			# done, remove any finished threads from the list
 			# and continue on.  This will open up at least one
 			# spot for a new thread
+			tla = 0
+			tl.map {|t| tla += t[:batch_size] }
 			tl.first.join
 			tl.delete_if { |t| not t.alive? }
+			tlb = 0
+			tl.map {|t| tlb += t[:batch_size] }
+			
+			@range_done = tla - tlb
+			scanner_show_progress()			
 		end
 		
 		return
@@ -186,7 +212,15 @@ def run
 			end
 		end
 	end
+end
 
+def scanner_show_progress
+	pct = (@range_done / @range_count.to_f) * 100
+	if(pct >= (@range_percent + @show_percent))
+		@range_percent = @range_percent + @show_percent
+		tdlen = @range_count.to_s.length
+		print_status("Scanned #{"%.#{tdlen}d" % @range_done} of #{@range_count} hosts (#{"%.3d" % pct.to_i}% complete)")
+	end
 end
 
 end
