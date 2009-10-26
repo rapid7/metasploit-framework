@@ -4,6 +4,21 @@
 # Provided by: Jerome Athias <jerome.athias [at] free.fr>
 #
 
+@@exec_opts = Rex::Parser::Arguments.new(
+	"-h"  => [ false, "Help menu." ]
+)
+def usage
+	print_line("Usage:" + @@exec_opts.usage)
+	raise Rex::Script::Completed
+end
+
+@@exec_opts.parse(args) { |opt, idx, val|
+	case opt
+	when "-h"
+		usage
+	end
+}
+
 print_status("Killing Antivirus services on the target...")
 
 avs = %W{
