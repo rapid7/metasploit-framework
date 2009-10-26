@@ -487,10 +487,12 @@ protected
 	# is used to localize the way the generated payload is cached (whether the
 	# blob is part of a single, stager, or stage, for example).
 	#
-	def build(p, asm, off, suffix = '')
+	def build(x, asm, off, suffix = '')
 		# If there is no assembly to be compiled, then we return a duplicated
 		# copy of the raw payload blob
-		return p.dup if asm.nil?
+		if(asm.nil? or asm.empty?)
+			return x.dup	
+		end
 
 		cache_key   = refname + suffix
 		cache_entry = framework.payloads.check_blob_cache(cache_key)
