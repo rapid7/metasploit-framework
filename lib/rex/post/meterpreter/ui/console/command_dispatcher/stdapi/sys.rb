@@ -55,6 +55,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"reg"      => "Modify and interact with the remote registry",
 			"rev2self" => "Calls RevertToSelf() on the remote machine",
 			"sysinfo"  => "Gets information about the remote system, such as OS",
+			"shell"    => "Drop into a system command shell",
 			"shutdown" => "Shuts down the remote computer",
 		}
 	end
@@ -132,6 +133,17 @@ class Console::CommandDispatcher::Stdapi::Sys
 		end
 	end
 
+
+	#
+	# Drop into a system shell as specified by %COMSPEC%
+	#
+	def cmd_shell(*args)
+		path = client.fs.file.expand_path("%COMSPEC%")
+		path = (path and not path.empty?) ? path : "cmd.exe"
+		cmd_execute("-f", path, "-c", "-H", "-i")
+	end
+	
+	
 	#
 	# Gets the process identifier that meterpreter is running in on the remote
 	# machine.
