@@ -1,7 +1,7 @@
 #include "../precomp.h"
 #include <sys/stat.h>
 
-#ifndef __WIN32__
+#ifndef _WIN32
  #include <dirent.h>
 #endif
 
@@ -30,7 +30,7 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 		result = ERROR_INVALID_PARAMETER;
 	else
 	{
-#ifdef __WIN32__
+#ifdef _WIN32
 		WIN32_FIND_DATA data;
 		HANDLE ctx = NULL;
 #else
@@ -40,7 +40,7 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 		BOOLEAN freeDirectory = FALSE;
 		LPSTR tempDirectory = (LPSTR)directory;
 
-#ifdef __WIN32__
+#ifdef _WIN32
 		// If there is not wildcard mask on the directory, create a version of the
 		// directory with a mask appended
 		if (!strrchr(directory, '*'))
@@ -154,7 +154,7 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 				packet_add_tlv_raw(response, TLV_TYPE_STAT_BUF, &buf,
 						sizeof(buf));
 
-#ifdef __WIN32__
+#ifdef _WIN32
 		} while (FindNextFile(ctx, &data));
 #else
 	        } while (data = readdir(ctx));
@@ -165,7 +165,7 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 		if (freeDirectory)
 			free(tempDirectory);
 		if (ctx)
-#ifdef __WIN32__
+#ifdef _WIN32
 			FindClose(ctx);
 #else
 			closedir(ctx);
@@ -209,7 +209,7 @@ again:
 
 		memset(directory, 0, directorySize);
 
-#ifdef __WIN32__
+#ifdef _WIN32
 		if (!(realSize = GetCurrentDirectory(directorySize, directory)))
 #else
 		if (!(realSize = getcwd(directory, directorySize)))
@@ -261,7 +261,7 @@ DWORD request_fs_chdir(Remote *remote, Packet *packet)
 
 	if (!directory)
 		result = ERROR_INVALID_PARAMETER;
-#ifdef __WIN32__
+#ifdef _WIN32
 	else if (!SetCurrentDirectory(directory))
 #else
 	else if (!chdir(directory))
@@ -292,7 +292,7 @@ DWORD request_fs_mkdir(Remote *remote, Packet *packet)
 
 	if (!directory)
 		result = ERROR_INVALID_PARAMETER;
-#ifdef __WIN32__
+#ifdef _WIN32
 	else if (!CreateDirectory(directory, NULL))
 #else
 	else if (!mkdir(directory, 777))
@@ -323,7 +323,7 @@ DWORD request_fs_delete_dir(Remote *remote, Packet *packet)
 
 	if (!directory)
 		result = ERROR_INVALID_PARAMETER;
-#ifdef __WIN32__
+#ifdef _WIN32
 	else if (!RemoveDirectory(directory))
 #else
 	else if (!rmdir(directory))

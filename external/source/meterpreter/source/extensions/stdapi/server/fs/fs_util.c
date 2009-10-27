@@ -5,7 +5,7 @@
  */
 LPSTR fs_expand_path(LPCSTR regular)
 {
-#ifdef __WIN32__
+#ifdef _WIN32
 	DWORD expandedFilePathSize = 32768;
 	LPSTR expandedFilePath = NULL;
 

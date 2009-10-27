@@ -1,7 +1,7 @@
 #ifndef METERPRETER_SOURCE_EXTENSION_STDAPI_SERVER_PRECOMP_H
 #define METERPRETER_SOURCE_EXTENSION_STDAPI_SERVER_PRECOMP_H
 
-#ifdef __WIN32__
+#ifdef _WIN32
 // sf: Compatability fix for a broken sdk? We get errors in Iphlpapi.h using the latest Windows SDK if we dont do this.
 #define  _WIN32_WINNT _WIN32_WINNT_WIN2K
 
@@ -21,7 +21,7 @@
 #include "net/net.h"
 #include "ui/ui.h"
 
-#ifdef __WIN32__
+#ifdef _WIN32
  #include "../../../ReflectiveDLLInjection/DelayLoadMetSrv.h"
  #include "../../../ReflectiveDLLInjection/GetProcAddressR.h"
  #include "../../../ReflectiveDLLInjection/ReflectiveLoader.h"
