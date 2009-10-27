@@ -4,6 +4,7 @@ $:.unshift(File.dirname(__FILE__))
 require "Lorcon2"
 require "pp"
 
+=begin
 $stdout.puts "Checking LORCON version"
 
 pp Lorcon.version
@@ -19,9 +20,10 @@ pp Lorcon.find_driver("mac80211")
 $stdout.puts "\nAuto-detecting driver for interface wlan0"
 
 pp Lorcon.auto_driver("mon0")
+=end
 
 #tx = Lorcon::Device.new('kismet0', 'tuntap')
-tx = Lorcon::Device.new('mon0')
+tx = Lorcon::Device.new('wlan2')
 $stdout.puts "\nCreated LORCON context"
 
 if tx.openinjmon()
@@ -30,34 +32,19 @@ else
 	$stdout.puts "\nFAILED to open " + tx.capiface + " as INJMON: " + tx.error
 end
 
-tx.channel = 11
-scan_patterns = ["^GET ([^ ?]+)"]
+@pkts = 0
 
-tx.each_packet { |pkt| 
-	d3 = pkt.dot3
-
-	if d3 != nil then 
-		p3pfu = PacketFu::Packet.parse(d3)
-
-		scan_patterns.each {|sig| hit = p3pfu.payload.scan(/#{sig}/i) || nil 
-		 	printf "#{Time.now}: %s HTTP GET %s [%s] SEQ %u\n" % [p3pfu.ip_saddr, p3pfu.ip_daddr, sig, p3pfu.tcp_seq] unless hit.size.zero? 
-		}
+Thread.new do 
+	while(true)
+		select(nil, nil, nil, 5)
+		puts "count: #{@pkts}"
 	end
+end
+
+# tx.filter = "port 80"
+tx.each_packet { |pkt| 
+	if(pkt.dot3)
+		p pkt.dot3
+	end
+	@pkts += 1
 }
-
-
-# tx.fmode      = "INJECT"
-# tx.channel    = 11
-# tx.txrate     = 2
-# tx.modulation = "DSSS"
-# 
-# sa = Time.now.to_f
-# tx.write(packet, 500, 0)
-# ea = Time.now.to_f - sa
-# 
-# sb = Time.now.to_f
-# 500.times { tx.write(packet, 1, 0) }
-# eb = Time.now.to_f - sb
-# 
-# $stdout.puts "Sent 500 packets (C) in #{ea.to_s} seconds"
-# $stdout.puts "Sent 500 packets (Ruby) in #{eb.to_s} seconds"
