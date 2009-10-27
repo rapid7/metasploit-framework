@@ -209,7 +209,11 @@ class Console::CommandDispatcher::Core
 		end
 
 		pid = args[0].to_i
-
+		if(pid == 0)
+			print_error("A process ID must be specified, not a process name")
+			return
+		end
+		
 		print_status("Migrating to #{pid}...")
 
 		# Do this thang.
