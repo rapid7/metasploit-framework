@@ -1,4 +1,4 @@
-#include "../precomp.h"
+#include "precomp.h"
 #include <sys/stat.h>
 
 /***************************
@@ -261,6 +261,37 @@ DWORD request_fs_stat(Remote *remote, Packet *packet)
 
 	if (expanded)
 		free(expanded);
+
+	return ERROR_SUCCESS;
+}
+
+/*
+ * Removes the supplied file from disk
+ *
+ * TLVs:
+ *
+ * req: TLV_TYPE_FILE_PATH - The file that is to be removed.
+ */
+DWORD request_fs_delete_file(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	LPCSTR path;
+	DWORD result = ERROR_SUCCESS;
+
+	path = packet_get_tlv_value_string(packet, TLV_TYPE_FILE_PATH);
+
+	if (!path)
+		result = ERROR_INVALID_PARAMETER;
+#ifdef __WIN32__
+	else if (!DeleteFile(path))
+#else
+	else if (!unlink(path))
+#endif
+		result = GetLastError();
+
+	packet_add_tlv_uint(response, TLV_TYPE_RESULT, result);
+
+	packet_transmit(remote, response, NULL);
 
 	return ERROR_SUCCESS;
 }

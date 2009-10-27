@@ -11,6 +11,7 @@ DWORD request_fs_getwd(Remote *remote, Packet *packet);
 DWORD request_fs_chdir(Remote *remote, Packet *packet);
 DWORD request_fs_mkdir(Remote *remote, Packet *packet);
 DWORD request_fs_delete_dir(Remote *remote, Packet *packet);
+DWORD request_fs_delete_file(Remote *remote, Packet *packet);
 DWORD request_fs_stat(Remote *remote, Packet *packet);
 DWORD request_fs_file_expand_path(Remote *remote, Packet *packet);
 

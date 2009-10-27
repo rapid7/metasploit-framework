@@ -65,7 +65,27 @@ Separator = "\\"
 	def File.stat(name)
 		return client.fs.filestat.new(name)
 	end
+	
+	#
+	# Performs a delete on the specified file.
+	#
+	def File.rm(name)		
+		request = Packet.create_request('stdapi_fs_delete_file')
 
+		request.add_tlv(TLV_TYPE_FILE_PATH,name)
+
+		response = client.send_request(request)
+		
+		return response
+	end
+	
+	#
+	# Performs a delete on the specified file.
+	#
+	def File.unlink(name)
+		return File.rm(name)
+	end	
+	
 	#
 	# Upload one or more files to the remote computer the remote
 	# directory supplied in destination.

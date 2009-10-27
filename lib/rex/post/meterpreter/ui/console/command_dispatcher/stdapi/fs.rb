@@ -45,7 +45,9 @@ class Console::CommandDispatcher::Stdapi::Fs
 			"upload"   => "Upload a file or directory",
 			"lcd"      => "Change local working directory",
 			"getlwd"   => "Print local working directory",
-			"lpwd"     => "Print local working directory"
+			"lpwd"     => "Print local working directory",
+			"rm"       => "Delete the specified file",
+			"del"       => "Delete the specified file"
 		}
 	end
 
@@ -103,6 +105,22 @@ class Console::CommandDispatcher::Stdapi::Fs
 
 		return true
 	end
+	
+	#
+	# Delete the specified file.
+	#
+	def cmd_rm(*args)
+		if (args.length == 0)
+			print_line("Usage: rm file")
+			return true
+		end
+
+		client.fs.file.rm(args[0])
+
+		return true
+	end
+	
+	alias :cmd_del :cmd_rm
 	
 	#
 	# Downloads a file or directory from the remote machine to the local

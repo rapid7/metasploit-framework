@@ -1,4 +1,4 @@
-#include "../precomp.h"
+#include "precomp.h"
 #include <sys/stat.h>
 
 #ifndef _WIN32
