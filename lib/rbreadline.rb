@@ -1877,7 +1877,7 @@ module RbReadline
          @_rl_screenwidth = wc
          @_rl_screenheight = wr
       else
-         wr,wc = `stty size`.split(' ').map{|x| x.to_i}
+         wr,wc = `stty size 2>/dev/null`.split(' ').map{|x| x.to_i}
          @_rl_screenwidth = wc
          @_rl_screenheight = wr
          if ignore_env==0 && ENV['LINES']
@@ -2070,7 +2070,7 @@ module RbReadline
    # New public way to set the system default editing chars to their readline
    #   equivalents.
    def rl_tty_set_default_bindings(kmap)
-      h = Hash[*`stty -a`.scan(/(\w+) = ([^;]+);/).flatten]
+      h = Hash[*`stty -a 2>/dev/null`.scan(/(\w+) = ([^;]+);/).flatten]
       h.each {|k,v| v.gsub!(/\^(.)/){($1[0].ord ^ ((?a..?z).include?($1[0]) ? 0x60 : 0x40)).chr}}
       kmap[h['erase']] = :rl_rubout
       kmap[h['kill']] = :rl_unix_line_discard
@@ -6854,7 +6854,7 @@ module RbReadline
 
    def save_tty_chars()
       @_rl_last_tty_chars = @_rl_tty_chars
-      h = Hash[*`stty -a`.scan(/(\w+) = ([^;]+);/).flatten]
+      h = Hash[*`stty -a 2>/dev/null`.scan(/(\w+) = ([^;]+);/).flatten]
       h.each {|k,v| v.gsub!(/\^(.)/){($1[0].ord ^ ((?a..?z).include?($1[0]) ? 0x60 : 0x40)).chr}}
       @_rl_tty_chars.t_erase = h['erase']
       @_rl_tty_chars.t_kill = h['kill']
@@ -6872,7 +6872,7 @@ module RbReadline
       @_rl_tty_chars.t_werase = h['werase']
       @_rl_tty_chars.t_lnext = h['lnext']
       @_rl_tty_chars.t_status = -1
-      @otio = `stty -g`
+      @otio = `stty -g 2>/dev/null`
    end
 
    def _rl_bind_tty_special_chars(kmap)
@@ -6883,7 +6883,7 @@ module RbReadline
    end
 
    def prepare_terminal_settings(meta_flag)
-      @readline_echoing_p = (`stty -a`.scan(/-*echo\b/).first == 'echo')
+      @readline_echoing_p = (`stty -a 2>/dev/null`.scan(/-*echo\b/).first == 'echo')
 
       # First, the basic settings to put us into character-at-a-time, no-echo
       #   input mode.
@@ -6892,7 +6892,7 @@ module RbReadline
       # If this terminal doesn't care how the 8th bit is used, then we can
       #   use it for the meta-key.  If only one of even or odd parity is
       #  specified, then the terminal is using parity, and we cannot.
-      if (`stty -a`.scan(/-parenb\b/).first == '-parenb')
+      if (`stty -a 2>/dev/null`.scan(/-parenb\b/).first == '-parenb')
          setting << " pass8"
       end
 
@@ -6903,7 +6903,7 @@ module RbReadline
 
       #setting << " -isig"
 
-      `stty #{setting}`
+      `stty #{setting} 2>/dev/null`
    end
 
    def _rl_control_keypad(on)
@@ -6990,7 +6990,7 @@ module RbReadline
       @rl_outstream.flush
 
       # restore terminal setting
-      `stty #{@otio}`
+      `stty #{@otio} 2>/dev/null`
 
       @terminal_prepped = false
       rl_unsetstate(RL_STATE_TERMPREPPED)
