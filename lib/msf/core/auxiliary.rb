@@ -109,6 +109,40 @@ class Auxiliary < Msf::Module
 	def autofilter
 		false
 	end
+	
+	#
+	# Provides a list of ports that can be used for matching this module 
+	# against target systems.
+	#
+	def autofilter_ports
+		@autofilter_ports || []
+	end
+	
+	#
+	# Provides a list of services that can be used for matching this module 
+	# against target systems.
+	#	
+	def autofilter_services
+		@autofilter_services || []	
+	end
+	
+	#
+	# Adds a port into the list of ports
+	#
+	def register_autofilter_ports(ports=[])
+		@autofilter_ports ||= []
+		@autofilter_ports << ports
+		@autofilter_ports.flatten!
+		@autofilter_ports.uniq!
+	end
+	
+	def register_autofilter_services(services=[])
+		@autofilter_services ||= []
+		@autofilter_services << services
+		@autofilter_services.flatten!
+		@autofilter_services.uniq!	
+	end
+	
 		
 	#
 	# Called directly before 'run'

@@ -198,7 +198,7 @@ class Db
 					port_exc = Rex::Socket.portspec_crack(args.shift)
 				when '-m'
 					regx = args.shift
-				when '-h'
+				when '-h','--help'
 					print_status("Usage: db_autopwn [options]")
 					print_line("\t-h          Display this help text")
 					print_line("\t-t          Show all matching exploit modules")
@@ -260,23 +260,57 @@ class Db
 					# Match based on ports alone
 					#
 					if (mode & PWN_PORT != 0)
-						rport = e.datastore['RPORT']
-						if (rport)
-							framework.db.services.each do |serv|
-								next if not serv.host
+						rports = {}
+						rservs = {}
+						
+						if(e.datastore['RPORT'])
+							rports[e.datastore['RPORT'].to_s] = true
+						end
+
+						if(e.respond_to?('autofilter_ports'))
+							e.autofilter_ports.each do |rport|
+								rports[rport.to_s] = true 
+							end
+						end
+						
+						if(e.respond_to?('autofilter_services'))
+							e.autofilter_services.each do |serv|
+								rservs[serv] = true 
+							end
+						end	
+											
+						framework.db.services.each do |serv|
+							next if not serv.host
+
+							# Match port numbers
+							rports.keys.sort.each do |rport|
 								next if serv.port.to_i != rport.to_i
 								xport = serv.port
 								xprot = serv.proto
 								xhost = serv.host.address
 								next if (targ_inc.length > 0 and not range_include?(targ_inc, xhost))
 								next if (targ_exc.length > 0 and range_include?(targ_exc, xhost))
-							
+
 								next if (port_inc.length > 0 and not port_inc.include?(serv.port.to_i))
 								next if (port_exc.length > 0 and port_exc.include?(serv.port.to_i))
 								next if (regx and e.fullname !~ /#{regx}/)
-										
 								matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
 							end
+
+							# Match service names 
+							rservs.keys.sort.each do |rserv|
+								next if serv.name.to_s != rserv
+								xport = serv.port
+								xprot = serv.proto
+								xhost = serv.host.address
+								next if (targ_inc.length > 0 and not range_include?(targ_inc, xhost))
+								next if (targ_exc.length > 0 and range_include?(targ_exc, xhost))
+
+								next if (port_inc.length > 0 and not port_inc.include?(serv.port.to_i))
+								next if (port_exc.length > 0 and port_exc.include?(serv.port.to_i))
+								next if (regx and e.fullname !~ /#{regx}/)
+								matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
+							end								
 						end
 					end					
 				end
