@@ -59,18 +59,18 @@ module Readline
          raise IOError, "stdin closed"
       end
 
-      RbReadline.rl_instream  = $stdin
-      RbReadline.rl_outstream = $stdout
-
       status = 0
       
       begin
+         RbReadline.rl_instream  = $stdin
+         RbReadline.rl_outstream = $stdout	  
          buff = RbReadline.readline(prompt)
       rescue Exception => e
          buff = nil
          RbReadline.rl_cleanup_after_signal()
          RbReadline.rl_deprep_terminal()
-         raise e
+         $stderr.puts "[-] RbReadline Error: #{e.class} #{e} #{e.backtrace}"
+		 retry
       end
 
       if add_history && buff
