@@ -1,10 +1,13 @@
 #!/usr/bin/env ruby
 
 $:.unshift(File.dirname(__FILE__))
+
 require "Lorcon2"
+require 'thread'
 require "pp"
 
-=begin
+intf = ARGV.shift || "wlan0"
+
 $stdout.puts "Checking LORCON version"
 
 pp Lorcon.version
@@ -19,11 +22,10 @@ pp Lorcon.find_driver("mac80211")
 
 $stdout.puts "\nAuto-detecting driver for interface wlan0"
 
-pp Lorcon.auto_driver("mon0")
-=end
+pp Lorcon.auto_driver(intf)
 
-#tx = Lorcon::Device.new('kismet0', 'tuntap')
-tx = Lorcon::Device.new('wlan2')
+
+tx = Lorcon::Device.new(intf)
 $stdout.puts "\nCreated LORCON context"
 
 if tx.openinjmon()
@@ -32,19 +34,26 @@ else
 	$stdout.puts "\nFAILED to open " + tx.capiface + " as INJMON: " + tx.error
 end
 
-@pkts = 0
+def safe_loop(wifi)
+	@q = Queue.new
+	reader = Thread.new do 
+		wifi.each_packet {|pkt| @q << pkt }
+	end
 
-Thread.new do 
-	while(true)
-		select(nil, nil, nil, 5)
-		puts "count: #{@pkts}"
+	eater = Thread.new do
+		while(pkt = @q.pop)
+			yield(pkt)
+		end
+	end
+	
+	begin
+		eater.join
+	rescue ::Interrupt => e
+		reader.kill if reader.alive?
+		puts "ALL DONE!"
 	end
 end
-
-# tx.filter = "port 80"
-tx.each_packet { |pkt| 
-	if(pkt.dot3)
-		p pkt.dot3
-	end
-	@pkts += 1
-}
+		
+safe_loop(tx) do |pkt|
+	pp pkt
+end

@@ -516,14 +516,12 @@ static VALUE Lorcon_capture_next(VALUE self) {
 	struct rldev *rld;
 	int ret = 0;
 	struct lorcon_packet *packet;
-	char eb[PCAP_ERRBUF_SIZE];
 	unsigned char *raw;
 	pcap_t *pd;
 	rblorconjob_t job;
 	Data_Get_Struct(self, struct rldev, rld);
 
 	pd = lorcon_get_pcap(rld->context);
-	pcap_setnonblock(pd, 1, eb);
 	
 #ifndef RUBY_19
 	TRAP_BEG;
@@ -567,6 +565,11 @@ static VALUE Lorcon_capture_loop(int argc, VALUE *argv, VALUE self) {
 	}
 
 	fd = lorcon_get_selectable_fd(rld->context);
+	if(fd < 0 ) {
+		rb_raise(rb_eRuntimeError,
+				 "LORCON context could not provide a pollable descriptor "
+				 "and we need one for the threaded dispatch loop");
+	}
 	
 	while (p < count || count <= 0) {
 		ret = Lorcon_capture_next(self);
@@ -581,7 +584,6 @@ static VALUE Lorcon_capture_loop(int argc, VALUE *argv, VALUE self) {
 	
 	return INT2FIX(p);
 }
-
 
 
 void Init_Lorcon2() {	

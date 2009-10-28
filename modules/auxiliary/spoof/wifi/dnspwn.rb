@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 		open_wifi
 
 		self.wifi.filter = @filter if not @filter.empty?
-		self.wifi.each_packet do |pkt|
+		each_packet do |pkt|
 			d3 = pkt.dot3
 
 			next if not d3
