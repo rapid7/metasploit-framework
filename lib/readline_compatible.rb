@@ -65,6 +65,8 @@ module Readline
          RbReadline.rl_instream  = $stdin
          RbReadline.rl_outstream = $stdout	  
          buff = RbReadline.readline(prompt)
+      rescue ::Interrupt
+         raise $!	  
       rescue Exception => e
          buff = nil
          RbReadline.rl_cleanup_after_signal()
