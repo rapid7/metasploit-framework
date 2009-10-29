@@ -22,6 +22,7 @@ module Wmap
 		#
 
 		WMAP_PATH = '/'
+		WMAP_CHECK = true
 		WMAP_SHOW = 2**0
 		WMAP_EXPL = 2**1
 		
@@ -369,7 +370,7 @@ module Wmap
 			matches10 = {}
 			
 			
-			[ [ framework.auxiliary, 'auxiliary' ] ].each do |mtype|
+			[ [ framework.auxiliary, 'auxiliary' ], [framework.exploits, 'exploit' ] ].each do |mtype|
 
 				# Scan all exploit modules for matching references
 				mtype[0].each_module do |n,m|
@@ -446,6 +447,7 @@ module Wmap
 						#
 						# Parameters passed in hash xref
 						# 
+						mod.datastore['RHOST'] = xref[0] 
 						mod.datastore['RHOSTS'] = xref[0] 
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
@@ -459,15 +461,40 @@ module Wmap
 
 						if wtype == :WMAP_SERVER 
 							print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
-
-							begin
-								session = mod.run_simple(
+							
+							# To run check function for modules that are exploits
+							if mod.respond_to?("check") and WMAP_CHECK
+								begin
+									session = mod.check_simple(
 										'LocalInput' 	=> driver.input,
 										'LocalOutput'	=> driver.output,
 										'RunAsJob'   	=> false)
-							rescue ::Exception
-								print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
-							end
+
+									if session
+										stat = '[*]'
+
+										if (session == Msf::Exploit::CheckCode::Vulnerable)
+											stat = '[+]'
+										end
+					
+										print_line(stat + ' ' + session[1])
+									else
+										print_error("Check failed: The state could not be determined.")
+									end	
+										
+								rescue ::Exception
+									print_status(" >> Exception during check launch from #{xref[3]}: #{$!}")
+								end
+							else
+								begin
+									session = mod.run_simple(
+										'LocalInput' 	=> driver.input,
+										'LocalOutput'	=> driver.output,
+										'RunAsJob'   	=> false)
+								rescue ::Exception
+									print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
+								end
+							end	
 						end
 					end
 					
@@ -512,6 +539,7 @@ module Wmap
 						#
 						# Parameters passed in hash xref
 						# 
+						mod.datastore['RHOST'] = xref[0]
 						mod.datastore['RHOSTS'] = xref[0] 
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL']   = xref[2].to_s 	
@@ -572,6 +600,46 @@ module Wmap
 									if not strpath.match(excludefilestr)
 										mod.datastore['PATH'] = strpath
 										print_status("Launching #{xref[3]} #{wtype} #{strpath} against #{xref[0]}:#{xref[1]}...")
+										
+										# To run check function for modules that are exploits
+										if mod.respond_to?("check") and WMAP_CHECK
+											begin
+												session = mod.check_simple(
+													'LocalInput' 	=> driver.input,
+													'LocalOutput'	=> driver.output,
+													'RunAsJob'   	=> false)
+											rescue ::Exception
+												print_status(" >> Exception during check launch from #{xref[3]}: #{$!}")
+											end
+										else
+									
+											begin
+												session = mod.run_simple(
+													'LocalInput' 	=> driver.input,
+													'LocalOutput'	=> driver.output,
+													'RunAsJob'   	=> false)
+											rescue ::Exception
+												print_status(" >> Exception during launch from #{name}: #{$!}")
+											end
+										end	
+									end	
+								end	 
+							when :WMAP_DIR 
+								if not node.is_leaf? or node.is_root?	
+									mod.datastore['PATH'] = strpath
+									print_status("Launching #{xref[3]} #{wtype} #{strpath} against #{xref[0]}:#{xref[1]}...")
+									
+									# To run check function for modules that are exploits
+									if mod.respond_to?("check") and WMAP_CHECK
+										begin
+											session = mod.check_simple(
+												'LocalInput' 	=> driver.input,
+												'LocalOutput'	=> driver.output,
+												'RunAsJob'   	=> false)
+										rescue ::Exception
+											print_status(" >> Exception during check launch from #{xref[3]}: #{$!}")
+										end
+									else
 									
 										begin
 											session = mod.run_simple(
@@ -582,20 +650,6 @@ module Wmap
 											print_status(" >> Exception during launch from #{name}: #{$!}")
 										end
 									end	
-								end	 
-							when :WMAP_DIR 
-								if not node.is_leaf? or node.is_root?	
-									mod.datastore['PATH'] = strpath
-									print_status("Launching #{xref[3]} #{wtype} #{strpath} against #{xref[0]}:#{xref[1]}...")
-									
-									begin
-										session = mod.run_simple(
-												'LocalInput' 	=> driver.input,
-												'LocalOutput'	=> driver.output,
-												'RunAsJob'   	=> false)
-									rescue ::Exception
-										print_status(" >> Exception during launch from #{name}: #{$!}")
-									end
 								end
 							end							
 						end
@@ -641,6 +695,7 @@ module Wmap
 						#
 						# Parameters passed in hash xref
 						# 
+						mod.datastore['RHOST'] = xref[0]
 						mod.datastore['RHOSTS'] = xref[0] 
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
@@ -675,15 +730,28 @@ module Wmap
 							
 								if wtype == :WMAP_UNIQUE_QUERY 
 									print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
-
-									begin
-										session = mod.run_simple(
+									
+									# To run check function for modules that are exploits
+									if mod.respond_to?("check") and WMAP_CHECK
+										begin
+											session = mod.check_simple(
 												'LocalInput' 	=> driver.input,
 												'LocalOutput'	=> driver.output,
 												'RunAsJob'   	=> false)
-									rescue ::Exception
-										print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
-									end
+										rescue ::Exception
+											print_status(" >> Exception during check launch from #{xref[3]}: #{$!}")
+										end
+									else
+
+										begin
+											session = mod.run_simple(
+												'LocalInput' 	=> driver.input,
+												'LocalOutput'	=> driver.output,
+												'RunAsJob'   	=> false)
+										rescue ::Exception
+											print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
+										end
+									end	
 								end
 								
 								#
@@ -738,6 +806,7 @@ module Wmap
 						#
 						# Parameters passed in hash xref
 						# 
+						mod.datastore['RHOST'] = xref[0]
 						mod.datastore['RHOSTS'] = xref[0] 
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
@@ -767,15 +836,28 @@ module Wmap
 							
 							if wtype == :WMAP_QUERY 
 								print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
-
-								begin
-									session = mod.run_simple(
+								
+								# To run check function for modules that are exploits
+								if mod.respond_to?("check") and WMAP_CHECK
+									begin
+										session = mod.check_simple(
 											'LocalInput' 	=> driver.input,
 											'LocalOutput'	=> driver.output,
 											'RunAsJob'   	=> false)
-								rescue ::Exception
-									print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
-								end
+									rescue ::Exception
+										print_status(" >> Exception during check launch from #{xref[3]}: #{$!}")
+									end
+								else
+
+									begin
+										session = mod.run_simple(
+											'LocalInput' 	=> driver.input,
+											'LocalOutput'	=> driver.output,
+											'RunAsJob'   	=> false)
+									rescue ::Exception
+										print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
+									end
+								end	
 							end
 						end
 					end
@@ -822,6 +904,7 @@ module Wmap
 						#
 						# Parameters passed in hash xref
 						# 
+						mod.datastore['RHOST'] = xref[0]
 						mod.datastore['RHOSTS'] = xref[0] 
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
@@ -852,15 +935,28 @@ module Wmap
 							
 							if wtype == :WMAP_BODY 
 								print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
-
-								begin
-									session = mod.run_simple(
+								
+								# To run check function for modules that are exploits
+								if mod.respond_to?("check") and WMAP_CHECK
+									begin
+										session = mod.check_simple(
 											'LocalInput' 	=> driver.input,
 											'LocalOutput'	=> driver.output,
 											'RunAsJob'   	=> false)
-								rescue ::Exception
-									print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
-								end
+									rescue ::Exception
+										print_status(" >> Exception during check launch from #{xref[3]}: #{$!}")
+									end
+								else
+
+									begin
+										session = mod.run_simple(
+											'LocalInput' 	=> driver.input,
+											'LocalOutput'	=> driver.output,
+											'RunAsJob'   	=> false)
+									rescue ::Exception
+										print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
+									end
+								end	
 							end
 						end
 					end
@@ -906,6 +1002,7 @@ module Wmap
 						#
 						# Parameters passed in hash xref
 						# 
+						mod.datastore['RHOST'] = xref[0]
 						mod.datastore['RHOSTS'] = xref[0] 
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
@@ -936,15 +1033,28 @@ module Wmap
 							
 							if wtype == :WMAP_HEADERS 
 								print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
-
-								begin
-									session = mod.run_simple(
+								
+								# To run check function for modules that are exploits
+								if mod.respond_to?("check") and WMAP_CHECK
+									begin
+										session = mod.check_simple(
 											'LocalInput' 	=> driver.input,
 											'LocalOutput'	=> driver.output,
 											'RunAsJob'   	=> false)
-								rescue ::Exception
-									print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
-								end
+									rescue ::Exception
+										print_status(" >> Exception during check launch from #{xref[3]}: #{$!}")
+									end
+								else
+
+									begin
+										session = mod.run_simple(
+											'LocalInput' 	=> driver.input,
+											'LocalOutput'	=> driver.output,
+											'RunAsJob'   	=> false)
+									rescue ::Exception
+										print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
+									end
+								end	
 							end
 						end
 					end
@@ -993,6 +1103,7 @@ module Wmap
 						#
 						# Parameters passed in hash xref
 						# 
+						mod.datastore['RHOST'] = xref[0]
 						mod.datastore['RHOSTS'] = xref[0] 
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
@@ -1006,15 +1117,28 @@ module Wmap
 
 						if wtype == :WMAP_GENERIC 
 							print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
-
-							begin
-								session = mod.run_simple(
+							
+							# To run check function for modules that are exploits
+							if mod.respond_to?("check") and WMAP_CHECK
+								begin
+									session = mod.check_simple(
 										'LocalInput' 	=> driver.input,
 										'LocalOutput'	=> driver.output,
 										'RunAsJob'   	=> false)
-							rescue ::Exception
-								print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
-							end
+								rescue ::Exception
+									print_status(" >> Exception during check launch from #{xref[3]}: #{$!}")
+								end
+							else
+
+								begin
+									session = mod.run_simple(
+										'LocalInput' 	=> driver.input,
+										'LocalOutput'	=> driver.output,
+										'RunAsJob'   	=> false)
+								rescue ::Exception
+									print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
+								end
+							end	
 						end
 					end
 					
