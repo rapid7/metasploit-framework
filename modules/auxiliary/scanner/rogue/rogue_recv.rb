@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def parse_reply(r)
 		eth = Racket::Ethernet.new(r)
-		next if not eth.ethertype == 0x0800
+		return if not eth.ethertype == 0x0800
 
 		ip = Racket::IPv4.new(eth.payload)
 		case ip.protocol
