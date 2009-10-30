@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 			icmp = Racket::ICMP.new(ip.payload)
 			reply = {:raw => r, :eth => eth, :ip => ip, :icmp => icmp}
 			reply[:type]     = :icmp
-			return if(icmp.payload[4,2] != [datastore['ECHOID']].pack('n')
+			return if(icmp.payload[4,2] != [datastore['ECHOID']].pack('n'))
 			reply[:internal] = Rex::Socket.addr_ntoa(icmp.payload[0,4])
 			reply[:external] = ip.src_ip
 			return reply
