@@ -80,7 +80,7 @@ class Client
 		self.ext         = ObjectAliases.new
 		self.ext_aliases = ObjectAliases.new
 		self.response_timeout = to
-		
+
 		# Switch the socket to SSL mode
 		swap_sock_plain_to_ssl()
 
@@ -103,7 +103,7 @@ class Client
 
 		ssl.accept
 
-		sock.extend(Rex::Socket::SslTcp)		
+		sock.extend(Rex::Socket::SslTcp)
 		sock.sslsock = ssl
 		sock.sslctx  = ctx
 
@@ -112,16 +112,16 @@ class Client
 			raise RuntimeError, "Could not read the SSL hello tag"
 		end
 	end
-	
+
 	def swap_sock_ssl_to_plain
-	
+
 		# Remove references to the SSLSocket and Context
 		self.sock.sslsock = nil
 		self.sock.sslctx  = nil
-		
+
 		# Force garbage cleanup / SSL_free()
 		GC.start()
-		
+
 		self.sock =  self.sock.fd
 		self.sock.extend(::Rex::Socket::Tcp)
 	end
@@ -131,20 +131,20 @@ class Client
 		cert = OpenSSL::X509::Certificate.new
 		cert.version = 2
 		cert.serial  = rand(0xFFFFFFFF)
-		# name = OpenSSL::X509::Name.new([["C","JP"],["O","TEST"],["CN","localhost"]])
+
 		subject = OpenSSL::X509::Name.new([
-				["C","US"], 
-				['ST', Rex::Text.rand_state()], 
+				["C","US"],
+				['ST', Rex::Text.rand_state()],
 				["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
 				["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
-				["CN", Rex::Text.rand_hostname],
+				["CN", self.sock.getsockname[1] || Rex::Text.rand_hostname],
 			])
 		issuer = OpenSSL::X509::Name.new([
-				["C","US"], 
-				['ST', Rex::Text.rand_state()], 
+				["C","US"],
+				['ST', Rex::Text.rand_state()],
 				["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
 				["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
-				["CN", Rex::Text.rand_hostname],
+				["CN", Rex::Text.rand_text_alpha(rand(20) + 10)],
 			])
 
 		cert.subject = subject
@@ -162,16 +162,16 @@ class Client
 		ef.issuer_certificate = cert
 		cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
 		cert.sign(key, OpenSSL::Digest::SHA1.new)
-		
-		ctx = OpenSSL::SSL::SSLContext.new(:TLSv1)
+
+		ctx = OpenSSL::SSL::SSLContext.new(:SSLv3)
 		ctx.key = key
 		ctx.cert = cert
 
-		ctx.session_id_context = OpenSSL::Digest::MD5.hexdigest(::Rex::Text.rand_text(64))
+		ctx.session_id_context = Rex::Text.rand_text(16)
 
 		return ctx
 	end
-	
+
 	#
 	# Loads the contents of the supplied file and executes it as a script using
 	# the binding context of the session
@@ -183,7 +183,7 @@ class Client
 	end
 
 	##
-	# 
+	#
 	# Accessors
 	#
 	##
@@ -226,12 +226,12 @@ class Client
 			old = Rex::Post::Meterpreter::Extensions.constants
 			require("rex/post/meterpreter/extensions/#{name.downcase}/#{name.downcase}")
 			new = Rex::Post::Meterpreter::Extensions.constants
-	
+
 			# No new constants added?
 			if ((diff = new - old).empty?)
 				return false
 			end
-	
+
 			klass = Rex::Post::Meterpreter::Extensions.const_get(diff[0]).const_get(diff[0])
 
 			# Save the module name to class association now that the code is
@@ -318,3 +318,4 @@ protected
 end
 
 end; end; end
+

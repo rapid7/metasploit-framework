@@ -144,7 +144,7 @@ static DWORD negotiate_ssl(Remote *remote)
 	SSL_load_error_strings();
 	SSL_library_init();
 
-	remote->meth = TLSv1_client_method();
+	remote->meth = SSLv3_client_method();
 
 	remote->ctx  = SSL_CTX_new(remote->meth);
 	SSL_CTX_set_mode(remote->ctx, SSL_MODE_AUTO_RETRY);
