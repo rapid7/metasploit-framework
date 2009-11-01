@@ -24,9 +24,10 @@ $args = Rex::Parser::Arguments.new(
 	"-s" => [ true, "The maximum size of the encoded data"                               ],
 	"-e" => [ true, "The encoder to use"                                                 ],
 	"-o" => [ true, "The output file"                                                    ],
-	"-c" => [ true, "The number of times to encode the data"                             ],	
+	"-c" => [ true, "The number of times to encode the data"                             ],
 	"-n" => [ false, "Dump encoder information"                                          ],
 	"-h" => [ false, "Help banner"                                                       ],
+	"-x" => [ true, "Specify an alternate win32 executable template"                     ],
 	"-l" => [ false, "List available encoders"                                           ])
 
 #
@@ -36,7 +37,7 @@ def dump_encoders(arch = nil)
 	tbl = Rex::Ui::Text::Table.new(
 		'Indent'  => 4,
 		'Header'  => "Framework Encoders" + ((arch) ? " (architectures: #{arch})" : ""),
-		'Columns' => 
+		'Columns' =>
 			[
 				"Name",
 				"Rank",
@@ -92,6 +93,7 @@ options  = ''
 delim    = '_|_'
 output   = nil
 ecount   = 1
+altexe   = nil
 
 # Parse the argument and rock that shit.
 $args.parse(ARGV) { |opt, idx, val|
@@ -128,13 +130,15 @@ $args.parse(ARGV) { |opt, idx, val|
 			output = val
 		when "-e"
 			encoder = val
+		when "-x"
+			altexe = val
 		when "-h"
 			usage
 		else
 			if (val =~ /=/)
 				options += ((options.length > 0) ? delim : "") + "#{val}"
 			end
-	end	
+	end
 }
 
 
@@ -167,7 +171,7 @@ case cmd
 		end
 	when "encode"
 		buf = input.read
-		
+
 		encoders.each { |enc|
 			next if not enc
 			begin
@@ -177,7 +181,7 @@ case cmd
 				skip = false
 				eout = buf.dup
 				raw  = nil
-				
+
 				1.upto(ecount) do |iteration|
 
 					# Encode it up
@@ -194,27 +198,27 @@ case cmd
 					$stderr.puts(OutStatus + "#{enc.refname} succeeded with size #{raw.length} (iteration=#{iteration})\n\n")
 					eout = raw
 				end
-				
+
 				next if skip
-				
+
 				case fmt
 				when 'exe'
 					exe = nil
 					if(not arch or (arch.index(ARCH_X86)))
-						exe = Msf::Util::EXE.to_win32pe($framework, raw)
+						exe = Msf::Util::EXE.to_win32pe($framework, raw, {:template => altexe})
 					end
-					
+
 					if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-						exe = Msf::Util::EXE.to_win64pe($framework, raw)
+						exe = Msf::Util::EXE.to_win64pe($framework, raw, {:template => altexe})
 					end
-				
+
 					if(not output)
 						$stdout.write(exe)
 					else
 						File.open(output, "wb") do |fd|
 							fd.write(exe)
 						end
-					end		
+					end
 				when 'elf'
 					elf = Msf::Util::EXE.to_linux_x86_elf($framework, raw)
 					if(not output)
@@ -223,9 +227,9 @@ case cmd
 						File.open(output, "wb") do |fd|
 							fd.write(elf)
 						end
-					end				
+					end
 				when 'vba'
-					exe = Msf::Util::EXE.to_win32pe($framework, raw)
+					exe = Msf::Util::EXE.to_win32pe($framework, raw, {:template => altexe})
 					vba = Msf::Util::EXE.to_exe_vba(exe)
 					if(not output)
 						$stdout.write(vba)
@@ -235,7 +239,7 @@ case cmd
 						end
 					end
 				when 'vbs'
-					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw)
+					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw, {:persist => false, :template => altexe})
 					if(not output)
 						$stdout.write(vbs)
 					else
@@ -244,24 +248,24 @@ case cmd
 						end
 					end
 				when 'loop-vbs'
-					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw, true)
+					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw, {:persist => true, :template => altexe})
 					if(not output)
 						$stdout.write(vbs)
 					else
 						File.open(output, "wb") do |fd|
 							fd.write(vbs)
 						end
-					end														
+					end
 				else
 					if(not output)
 						$stdout.print(Msf::Simple::Buffer.transform(raw, fmt))
 					else
 						File.open(output, "wb") do |fd|
 							fd.write(Msf::Simple::Buffer.transform(raw, fmt))
-						end					
+						end
 					end
 				end
-				
+
 				exit
 
 			rescue => e
@@ -271,3 +275,4 @@ case cmd
 
 		$stderr.puts(OutError + "No encoders succeeded.")
 end
+

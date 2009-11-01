@@ -61,6 +61,7 @@ def xmit( name, dump_ruby=True ):
   print "# Name: %s\n# Length: %d bytes" % ( name, len( data ) )
   xmit_offset( data, "Port", pack( ">H", 4444 ) )           # 4444
   xmit_offset( data, "Host", pack( ">L", 0x7F000001 ) )     # 127.0.0.1
+  xmit_offset( data, "CodeLen", pack( "<L", 0x12345678 ) )  # Filler
   xmit_offset( data, "ExitFunk", pack( "<L", 0x0A2A1DE0 ) ) # kernel32.dll!ExitThread
   xmit_offset( data, "ExitFunk", pack( "<L", 0x56A2B5F0 ) ) # kernel32.dll!ExitProcess
   xmit_offset( data, "ExitFunk", pack( "<L", 0xEA320EFE ) ) # kernel32.dll!SetUnhandledExceptionFilter
