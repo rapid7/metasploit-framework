@@ -170,16 +170,6 @@ class Metasploit3 < Msf::Auxiliary
 						vul_id = wmap_report(rep_id,'DIRECTORY','NAME',"#{tpath}#{testfdir}","Directory #{tpath}#{testfdir} found.")
 						wmap_report(vul_id,'DIRECTORY','RESP_CODE',"#{res.code}",nil)
 					end
-				
-				else
-					print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
-					rep_id = wmap_base_report_id(
-									wmap_target_host,
-									wmap_target_port,
-									wmap_target_ssl
-							)
-					vul_id = wmap_report(rep_id,'DIRECTORY','NAME',"#{tpath}#{testfdir}","Directory #{tpath}#{testfdir} found.")
-					wmap_report(vul_id,'DIRECTORY','RESP_CODE',"#{res.code}",nil)
 				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
