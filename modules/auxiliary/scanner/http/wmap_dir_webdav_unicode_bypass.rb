@@ -54,7 +54,12 @@ class Metasploit3 < Msf::Auxiliary
 						File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
 					]
 				)				
-			], self.class)	
+			], self.class)
+			
+		register_advanced_options(
+			[
+				OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
+			], self.class)			
 						
 	end
 
@@ -135,7 +140,9 @@ class Metasploit3 < Msf::Auxiliary
 
 				
 				if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
-					print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
+					if !datastore['NoDetailMessages']
+						print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
+					end
 				elsif (res.code.to_i == 401)
 					print_status("Found protected folder #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
 					print_status("\tTesting for unicode bypass in IIS6 with WebDAV enabled using PROPFIND request.")
