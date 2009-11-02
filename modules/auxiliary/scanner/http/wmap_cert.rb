@@ -1,6 +1,6 @@
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'nebulus',
 			'License'     => MSF_LICENSE,
 			'Description' => %q{
-				This module will check the certificate of the specified web servers 
+				This module will check the certificate of the specified web servers
 				to ensure the subject and issuer match the supplied pattern and that the certificate
 				is not expired.
 			}
@@ -46,12 +46,12 @@ class Metasploit3 < Msf::Auxiliary
 			cert  = OpenSSL::X509::Certificate.new(ssock.peer_cert)
 			ssock.close
 
-			if(not cert)	
+			if(not cert)
 				print_status("#{ip} No certificate subject or CN found")
 				return
 			end
 
-			issuer_pattern = Regexp.new(datastore['ISSUER'], Regexp::EXTENDED)
+			issuer_pattern = Regexp.new(datastore['ISSUER'], Regexp::EXTENDED, 'n')
 			sub = cert.subject.to_a
 
 			before_d = "#{cert.not_before}".split
@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 			a = now <=> before
 			b = now <=> after
 
-			vhostn = 'EMPTY' 
+			vhostn = 'EMPTY'
 			sub.each do |n|
 				if n[0] == 'CN'
 					vhostn = n[1]
@@ -88,5 +88,4 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-
 
