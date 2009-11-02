@@ -25,7 +25,7 @@ class Event
 		self.mutex      = Mutex.new
 		self.cond       = ConditionVariable.new
 	end
-	
+
 	#
 	# Sets the event and wakes up anyone who was waiting.
 	#
@@ -33,7 +33,7 @@ class Event
 		self.param = param
 
 		self.mutex.synchronize {
-			# If this event does not automatically reset its state, 
+			# If this event does not automatically reset its state,
 			# set the state to true
 			if (auto_reset == false)
 				self.state = true
@@ -57,23 +57,23 @@ class Event
 	alias notify set
 
 	#
-	# Waits for the event to become signaled.  Timeout is measured in 
+	# Waits for the event to become signaled.  Timeout is measured in
 	# seconds.  Raises TimeoutError if the condition does not become signaled.
 	#
-	
+
 	begin
 		# XXX: we need to replace this code
 		#      continuations slow down YARV
 		require "continuation" if not defined? callcc
 	rescue ::LoadError
 	end
-	
+
 	def wait(t = Infinite)
 		callcc { |ctx|
 			self.mutex.synchronize {
 				ctx.call if (self.state == true)
 
-				timeout(t) {
+				Timeout.timeout(t) {
 					self.cond.wait(self.mutex)
 				}
 			}
@@ -91,3 +91,4 @@ end
 
 end
 end
+

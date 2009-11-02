@@ -34,7 +34,7 @@ module Stream
 	def write(buf, opts = {})
 		tsent = 0
 		bidx  = 0
-		
+
 		begin
 			while (bidx < buf.length)
 				sent  = fd.syswrite(buf[bidx, 32768])
@@ -112,14 +112,14 @@ module Stream
 	def >>
 		get_once
 	end
-	
+
 	#
 	# This method writes to the stream, optionally timing out after a period of
 	# time.
 	#
 	def timed_write(buf, wait = def_write_timeout, opts = {})
 		if (wait and wait > 0)
-			timeout(wait) {
+			Timeout.timeout(wait) {
 				return write(buf, opts)
 			}
 		else
@@ -133,7 +133,7 @@ module Stream
 	#
 	def timed_read(length = nil, wait = def_read_timeout, opts = {})
 		if (wait and wait > 0)
-			timeout(wait) {
+			Timeout.timeout(wait) {
 				return read(length, opts)
 			}
 		else
@@ -167,7 +167,7 @@ module Stream
 	end
 
 
-	# 
+	#
 	# This method emulates the behavior of Pex::Socket::Recv in MSF2
 	#
 	def get_once(length = -1, timeout = def_read_timeout)
@@ -175,14 +175,14 @@ module Stream
 		if (has_read_data?(timeout) == false)
 			return nil
 		end
-		
+
 		bsize = (length == -1) ? def_block_size : length
 
 		begin
 			return read(bsize)
 		rescue Exception
 		end
-		
+
 		return ''
 	end
 
@@ -213,7 +213,7 @@ module Stream
 			rescue EOFError
 				eof = true
 			end
-		
+
 			# If we read zero bytes and we had data, then we've hit EOF
 			if (temp and temp.length == 0)
 				eof = true
@@ -235,7 +235,7 @@ module Stream
 
 			buf += temp
 			lps += 1
-			
+
 			break if (lps >= def_max_loops)
 		end
 
@@ -296,3 +296,4 @@ protected
 end
 
 end end
+

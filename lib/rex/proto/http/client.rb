@@ -56,10 +56,10 @@ class Client
 			'pad_post_params_count'  => 8,       # integer
 			'uri_fake_end'           => false,   # bool
 			'uri_fake_params_start'  => false,   # bool
-			'header_folding'         => false,   # bool 
+			'header_folding'         => false,   # bool
 			'chunked_size'           => 0        # integer
 		}
-		
+
 		# This is not used right now...
 		self.config_types = {
 			'uri_encode_mode'        => ['hex-normal', 'hex-all', 'hex-random', 'u-normal', 'u-random', 'u-all'],
@@ -90,7 +90,7 @@ class Client
 			'chunked_size'           => 'integer'
 		}
 	end
-	
+
 	#
 	# Set configuration options
 	#
@@ -99,7 +99,7 @@ class Client
 			self.config[var]=val
 		end
 	end
-	
+
 	#
 	# Create an arbitrary HTTP request
 	#
@@ -108,30 +108,30 @@ class Client
 		c_uri  = opts['uri']        || '/'
 		c_body = opts['data']       || ''
 		c_meth = opts['method']     || 'GET'
-		c_prot = opts['proto']      || 'HTTP'		
+		c_prot = opts['proto']      || 'HTTP'
 		c_vers = opts['version']    || config['version'] || '1.1'
 		c_qs   = opts['query']
 		c_ag   = opts['agent']      || config['agent']
 		c_cook = opts['cookie']     || config['cookie']
 		c_host = opts['vhost']      || config['vhost']
 		c_head = opts['headers']    || config['headers'] || {}
-		c_rawh = opts['raw_headers']|| config['raw_headers'] || ''		
-		c_conn = opts['connection']	
+		c_rawh = opts['raw_headers']|| config['raw_headers'] || ''
+		c_conn = opts['connection']
 		c_auth = opts['basic_auth'] || config['basic_auth'] || ''
-		
+
 		uri    = set_uri(c_uri)
-		
+
 		req = ''
 		req << set_method(c_meth)
 		req << set_method_uri_spacer()
 		req << set_uri_prepend()
 		req << (c_enc ? set_encode_uri(uri) : uri)
-		
+
 		if (c_qs)
 			req << '?'
 			req << (c_enc ? set_encode_qs(c_qs) : c_qs)
 		end
-				
+
 		req << set_uri_append()
 		req << set_uri_version_spacer()
 		req << set_version(c_prot, c_vers)
@@ -141,17 +141,17 @@ class Client
 		if (c_auth.length > 0)
 			req << set_basic_auth_header(c_auth)
 		end
-				
+
 		req << set_cookie_header(c_cook)
 		req << set_connection_header(c_conn)
 		req << set_extra_headers(c_head)
-		req << set_raw_headers(c_rawh)			
+		req << set_raw_headers(c_rawh)
 		req << set_body(c_body)
-		
+
 		req
 	end
 
-				
+
 	#
 	# Create a CGI compatible request
 	#
@@ -178,16 +178,16 @@ class Client
 		uri    = set_cgi(c_cgi)
 		qstr   = c_qs
 		pstr   = c_body
-		
+
 		if (config['pad_get_params'])
 			1.upto(config['pad_get_params_count'].to_i) do |i|
 				qstr << '&' if qstr.length > 0
 				qstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
 				qstr << '='
-				qstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))			
+				qstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
 			end
 		end
-		
+
 		c_varg.each_pair do |var,val|
 			qstr << '&' if qstr.length > 0
 			qstr << set_encode_uri(var)
@@ -200,10 +200,10 @@ class Client
 				pstr << '&' if qstr.length > 0
 				pstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
 				pstr << '='
-				pstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))			
+				pstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
 			end
 		end
-		
+
 		c_varp.each_pair do |var,val|
 			pstr << '&' if pstr.length > 0
 			pstr << set_encode_uri(var)
@@ -221,7 +221,7 @@ class Client
 			req << '?'
 			req << qstr
 		end
-		
+
 		req << set_path_info(c_path)
 		req << set_uri_append()
 		req << set_uri_version_spacer()
@@ -232,19 +232,19 @@ class Client
 		if (c_auth.length > 0)
 			req << set_basic_auth_header(c_auth)
 		end
-				
+
 		req << set_cookie_header(c_cook)
-		req << set_connection_header(c_conn)		
+		req << set_connection_header(c_conn)
 		req << set_extra_headers(c_head)
-			
+
 		req << set_content_type_header(c_type)
 		req << set_content_len_header(pstr.length)
 		req << set_chunked_header()
 		req << set_raw_headers(c_rawh)
 		req << set_body(pstr)
 
-		req	
-	end	
+		req
+	end
 
 	#
 	# Connects to the remote server if possible.
@@ -277,7 +277,7 @@ class Client
 	def close
 		if (self.conn)
 			self.conn.shutdown
-			self.conn.close 
+			self.conn.close
 		end
 
 		self.conn = nil
@@ -295,7 +295,7 @@ class Client
 	# Send a HTTP request to the server
 	# TODO:
 	#  * Handle junk pipeline requests
-	def send_request(req) 
+	def send_request(req)
 		# Connect to the server
 		connect
 
@@ -307,7 +307,7 @@ class Client
 
 		ret
 	end
-	
+
 	#
 	# Read a response from the server
 	#
@@ -323,7 +323,7 @@ class Client
 		# do this if t was specified as a negative value indicating an infinite
 		# wait cycle.  If t were specified as nil it would indicate that no
 		# response parsing is required.
-		timeout((t < 0) ? nil : t) {
+		Timeout.timeout((t < 0) ? nil : t) {
 			# Now, read in the response until we're good to go.
 			begin
 				if self.junk_pipeline
@@ -379,7 +379,7 @@ class Client
 		# Close our side if we aren't pipelining
 		#close if (!pipelining?)
 
-		# if the server said stop pipelining, we listen... 
+		# if the server said stop pipelining, we listen...
 		if resp['Connection'] == 'close'
 			#close
 		end
@@ -413,38 +413,38 @@ class Client
 	def pipelining?
 		pipeline
 	end
-	
+
 	#
 	# Return the encoded URI
 	# ['none','hex-normal', 'hex-all', 'u-normal', 'u-all']
-	def set_encode_uri(uri)	
+	def set_encode_uri(uri)
 		a = uri
 		self.config['uri_encode_count'].times {
 			a = Rex::Text.uri_encode(a, self.config['uri_encode_mode'])
 		}
 		return a
 	end
-	
+
 	#
 	# Return the encoded query string
 	#
 	def set_encode_qs(qs)
-		a = qs 
+		a = qs
 		self.config['uri_encode_count'].times {
 			a = Rex::Text.uri_encode(a, self.config['uri_encode_mode'])
 		}
 		return a
 	end
-	
+
 	#
 	# Return the uri
 	#
 	def set_uri(uri)
-		
+
 		if (self.config['uri_dir_self_reference'])
 			uri.gsub!('/', '/./')
 		end
-		
+
 		if (self.config['uri_dir_fake_relative'])
 			buf = ""
 			uri.split('/').each do |part|
@@ -457,7 +457,7 @@ class Client
 			end
 			uri = buf
 		end
-			
+
 		if (self.config['uri_full_url'])
 			url = self.ssl ? "https" : "http"
 			url << self.config['vhost']
@@ -477,7 +477,7 @@ class Client
 		if (self.config['uri_dir_self_reference'])
 			uri.gsub!('/', '/./')
 		end
-		
+
 		if (self.config['uri_dir_fake_relative'])
 			buf = ""
 			uri.split('/').each do |part|
@@ -490,37 +490,37 @@ class Client
 			end
 			uri = buf
 		end
-			
+
 		url = uri
-	
+
 		if (self.config['uri_full_url'])
 			url = self.ssl ? "https" : "http"
 			url << self.config['vhost']
 			url << (self.port == 80) ? "" : ":#{self.port}"
 			url << uri
 		end
-		
+
 		url
 	end
-		
+
 	#
 	# Return the HTTP method string
 	#
 	def set_method(method)
 		ret = method
-		
+
 		if (self.config['method_random_valid'])
 			ret = ['GET', 'POST', 'HEAD'][rand(3)]
 		end
-		
+
 		if (self.config['method_random_invalid'])
 			ret = Rex::Text.rand_text_alpha(rand(20)+1)
 		end
-		
+
 		if (self.config['method_random_case'])
 			ret = Rex::Text.to_rand_case(ret)
 		end
-		
+
 		ret
 	end
 
@@ -529,19 +529,19 @@ class Client
 	#
 	def set_version(protocol, version)
 		ret = protocol + "/" + version
-		
+
 		if (self.config['version_random_valid'])
 			ret = protocol + "/" +  ['1.0', '1.1'][rand(2)]
 		end
-		
+
 		if (self.config['version_random_invalid'])
 			ret = Rex::Text.rand_text_alphanumeric(rand(20)+1)
 		end
-		
+
 		if (self.config['version_random_case'])
 			ret = Rex::Text.to_rand_case(ret)
 		end
-		
+
 		ret << "\r\n"
 	end
 
@@ -558,7 +558,7 @@ class Client
 		end
 		"\r\n" + chunked + "0\r\n\r\n"
 	end
-	
+
 	#
 	# Return the HTTP path info
 	# TODO:
@@ -566,7 +566,7 @@ class Client
 	def set_path_info(path)
 		path ? path : ''
 	end
-	
+
 	#
 	# Return the spacing between the method and uri
 	#
@@ -574,18 +574,18 @@ class Client
 		len = self.config['pad_method_uri_count'].to_i
 		set = " "
 		buf = ""
-		
+
 		case self.config['pad_method_uri_type']
 		when 'tab'
 			set = "\t"
 		when 'apache'
 			set = "\t \x0b\x0c\x0d"
 		end
-		
+
 		while(buf.length < len)
 			buf << set[ rand(set.length) ]
 		end
-		
+
 		return buf
 	end
 
@@ -596,18 +596,18 @@ class Client
 		len = self.config['pad_uri_version_count'].to_i
 		set = " "
 		buf = ""
-		
+
 		case self.config['pad_uri_version_type']
 		when 'tab'
 			set = "\t"
 		when 'apache'
 			set = "\t \x0b\x0c\x0d"
 		end
-		
+
 		while(buf.length < len)
 			buf << set[ rand(set.length) ]
 		end
-		
+
 		return buf
 	end
 
@@ -616,15 +616,15 @@ class Client
 	#
 	def set_uri_prepend
 		prefix = ""
-		
+
 		if (self.config['uri_fake_params_start'])
 			prefix << '/%3fa=b/../'
 		end
-		
+
 		if (self.config['uri_fake_end'])
 			prefix << '/%20HTTP/1.0/../../'
 		end
-		
+
 		prefix
 	end
 
@@ -649,7 +649,7 @@ class Client
 	#
 	# Return the HTTP agent header
 	#
-	def set_agent_header(agent)		
+	def set_agent_header(agent)
 		agent ? set_formatted_header("User-Agent", agent) : ""
 	end
 
@@ -664,9 +664,9 @@ class Client
 	# Return the HTTP connection header
 	#
 	def set_connection_header(conn)
-		conn ? set_formatted_header("Connection", conn) : ""				
+		conn ? set_formatted_header("Connection", conn) : ""
 	end
-		
+
 	#
 	# Return the content type header
 	#
@@ -697,7 +697,7 @@ class Client
 		if (self.config['pad_fake_headers'])
 			1.upto(self.config['pad_fake_headers_count'].to_i) do |i|
 				buf << set_formatted_header(
-					Rex::Text.rand_text_alphanumeric(rand(32)+1), 
+					Rex::Text.rand_text_alphanumeric(rand(32)+1),
 					Rex::Text.rand_text_alphanumeric(rand(32)+1)
 				)
 			end
@@ -706,7 +706,7 @@ class Client
 		headers.each_pair do |var,val|
 			buf << set_formatted_header(var, val)
 		end
-		
+
 		buf
 	end
 
@@ -721,7 +721,7 @@ class Client
 	def set_raw_headers(data)
 		data
 	end
-		
+
 	#
 	# Return a formatted header string
 	#
@@ -732,7 +732,7 @@ class Client
 			"#{var}: #{val}\r\n"
 		end
 	end
-	
+
 
 
 	#
@@ -767,11 +767,11 @@ class Client
 	# The proxy list
 	#
 	attr_accessor :proxies
-	
+
 
 	# When parsing the request, thunk off the first response from the server, since junk
 	attr_accessor :junk_pipeline
-	
+
 protected
 
 	# https
@@ -779,9 +779,10 @@ protected
 
 	attr_accessor :hostname, :port # :nodoc:
 
-	
+
 end
 
 end
 end
 end
+

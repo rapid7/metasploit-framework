@@ -20,7 +20,7 @@ def initialize(info = {})
 		[
 			OptInt.new('RUNTIME', [ true, "The number of seconds to run the test", 5 ] )
 		], Auxiliary::Timed)
-	
+
 end
 
 #
@@ -30,10 +30,11 @@ def run
 	secs = datastore['RUNTIME']
 	print_status("Running module for #{secs} seconds...")
 	begin
-		timeout(secs) {	self.run_timed }
+		Timeout.timeout(secs) {	self.run_timed }
 	rescue Timeout::Error
 	end
 end
 
 end
 end
+

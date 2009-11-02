@@ -20,11 +20,11 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 
 	def setup_test(read, write, force_mock = false)
 		srand(0)
-		mock_unmake() # always do this, just to be sure.  yes, it slows it down.  but... 
+		mock_unmake() # always do this, just to be sure.  yes, it slows it down.  but...
 
 		if (force_mock or !$_REX_TEST_NO_MOCK)
 			mock_make(read,write)
-		end 
+		end
 	end
 
 	def mock_make(read, write)
@@ -40,7 +40,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 				mock.mock_handle(:close) { nil }
 				mock.mock_handle(:read) { read.shift }
 				mock.mock_handle(:get_once) { read.shift }
-				mock.mock_handle(:write) { |data| 
+				mock.mock_handle(:write) { |data|
 					expected = write.shift
 					if data != expected
 						write_id = write_size - write.size
@@ -49,7 +49,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 					end
 					data.length
 				}
-				mock.mock_handle(:put) { |data| 
+				mock.mock_handle(:put) { |data|
 					expected = write.shift
 					if data != expected
 						write_id = write_size - write.size
@@ -98,7 +98,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 		c = Klass.new(handle, socket)
 		assert_instance_of(Rex::Proto::DCERPC::Client, c, 'instance')
 	end
-	
+
 	def test_bind_fail
 		write = ["\x05\x00\x0b\x03\x10\x00\x00\x00\x48\x00\x00\x00\x00\x00\x00\x00\xd0\x16\xd0\x16\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x01\x00\xbb\xbb\xaa\xaa\x00\x00\x10\x36\x98\x33\x46\xc3\xf8\x7e\x34\x5a\x02\x00\x00\x00\x04\x5d\x88\x8a\xeb\x1c\xc9\x11\x9f\xe8\x08\x00\x2b\x10\x48\x60\x02\x00\x00\x00"]
 		read = [ "\x05\x00\x0c\x03\x10\x00\x00\x00\x3c\x00\x00\x00\x00\x00\x00\x00\xd0\x16\xd0\x16\x6c\x66\x00\x00\x04\x00\x31\x33\x35\x00\x92\xc0\x01\x00\x00\x00\x02\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"]
@@ -139,10 +139,10 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 			"\x05\x00\x03\x23\x10\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x01\x1c\x00\x00\x00\x00"
 		]
 		setup_test(read, write)
-		
+
 		socket = Rex::Socket.create_tcp('PeerHost' => $_REX_TEST_SMB_HOST, 'PeerPort' => 135)
 		handle = Rex::Proto::DCERPC::Handle.new(['E1AF8308-5D1F-11C9-91A4-08002B14A0FA', '3.0'], 'ncacn_ip_tcp', $_REX_TEST_SMB_HOST, [135])
-		
+
 		c = Klass.new(handle, socket)
 		assert_instance_of(Rex::Proto::DCERPC::Client, c, 'instance')
 		assert_raise(Rex::Proto::DCERPC::Exceptions::Fault) {
@@ -155,10 +155,10 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 	def test_segmented_read_writes
 		bind_expected = "\005\000\v\003\020\000\000\000H\000\000\000\000\000\000\000\320\026\320\026\000\000\000\000\001\000\000\000\000\000\001\000\230\320\377k\022\241\0206\2303F\303\370~4Z\001\000\000\000\004]\210\212\353\034\311\021\237\350\010\000+\020H`\002\000\000\000"
 		bind_response = "\x05\x00\x0C\x03\x10\x00\x00\x00\x44\x00\x00\x00\x00\x00\x00\x00\xB8\x10\xB8\x10\xB2\x73\x00\x00\x0C\x00\x5C\x50\x49\x50\x45\x5C\x6C\x73\x61\x73\x73\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x04\x5D\x88\x8A\xEB\x1C\xC9\x11\x9F\xE8\x08\x00\x2B\x10\x48\x60\x02\x00\x00\x00"
-		
+
 		socket = FlexMock.new
 		#socket.should_ignore_missing()
-		
+
 		@write_data = ''
 
 		socket.mock_handle(:write) {
@@ -175,7 +175,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 			end
 			data = read_data.slice!(0, size)
 			if data.length == 0
-				data = nil 
+				data = nil
 			end
 			data
 		}
@@ -186,7 +186,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 			end
 			data = read_data.slice!(0, size)
 			if data.length == 0
-				data = nil 
+				data = nil
 			end
 			data
 		}
@@ -195,7 +195,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 		c = Klass.new(@handle, socket, 'segment_write' => 1, 'segment_read' => 1)
 		assert_equal(bind_expected, @write_data, 'bind')
 		assert_instance_of(Rex::Proto::DCERPC::Client, c, 'instance')
-	
+
 		# XXX - would be nice to test a success, as well as a failure, but
 		# hell... we don't care if the decoder is "right" here, just that it
 		# returns data.  Test the decoder in the decoder I say!
@@ -213,8 +213,8 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 			|size|
 			data = read_data.slice!(0, size)
 			if data.length == 0
-				data = nil 
-			else 
+				data = nil
+			else
 			end
 			data
 		}
@@ -249,7 +249,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 		setup_test(read, write)
 		require 'rex/proto/smb/simpleclient'
 		begin
-			timeout($_REX_TEST_TIMEOUT) {
+			Timeout.timeout($_REX_TEST_TIMEOUT) {
 				s = Rex::Socket.create_tcp( 'PeerHost' => $_REX_TEST_SMB_HOST, 'PeerPort' => 445)
 
 				smb = Rex::Proto::SMB::SimpleClient.new(s, true)
@@ -267,7 +267,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 				assert_instance_of(Rex::Proto::DCERPC::Handle, handle, 'handle')
 				dcerpc = Rex::Proto::DCERPC::Client.new(handle, f) # , 'segment_read' => 0)
 				assert_instance_of(Rex::Proto::DCERPC::Client, dcerpc, 'bind')
-				s.close	
+				s.close
 			}
 		rescue Timeout::Error
 			flunk('timeout')
@@ -285,7 +285,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 		]
 		setup_test(read, write)
 		begin
-			timeout($_REX_TEST_TIMEOUT) {
+			Timeout.timeout($_REX_TEST_TIMEOUT) {
 				s = Rex::Socket.create_tcp('PeerHost' => $_REX_TEST_SMB_HOST, 'PeerPort' => 135)
 				handle = Rex::Proto::DCERPC::Handle.new(['E1AF8308-5D1F-11C9-91A4-08002B14A0FA', '3.0'], 'ncacn_ip_tcp', $_REX_TEST_SMB_HOST, [135])
 				assert_instance_of(Rex::Proto::DCERPC::Handle, handle, 'handle')
@@ -294,7 +294,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 
 				stub = "\x00" * (4 * 9) + "\x01\x00\x00\x00"
 				got = dcerpc.call(0x02, stub)
-				s.close	
+				s.close
 			}
 		rescue Timeout::Error
 			flunk('timeout')
@@ -312,7 +312,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 		]
 		setup_test(read, write)
 		begin
-			timeout($_REX_TEST_TIMEOUT) {
+			Timeout.timeout($_REX_TEST_TIMEOUT) {
 				s = Rex::Socket.create_tcp('PeerHost' => $_REX_TEST_SMB_HOST, 'PeerPort' => 135)
 				handle = Rex::Proto::DCERPC::Handle.new(['E1AF8308-5D1F-11C9-91A4-08002B14A0FA', '3.0'], 'ncacn_ip_tcp', $_REX_TEST_SMB_HOST, [135])
 				assert_instance_of(Rex::Proto::DCERPC::Handle, handle, 'handle')
@@ -321,7 +321,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 
 				stub = "\x00" * (4 * 9) + "\x01\x00\x00\x00"
 				got = dcerpc.call(0x02, stub)
-				s.close	
+				s.close
 			}
 		rescue Timeout::Error
 			flunk('timeout')
@@ -338,7 +338,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 		]
 		setup_test(read, write)
 		begin
-			timeout($_REX_TEST_TIMEOUT) {
+			Timeout.timeout($_REX_TEST_TIMEOUT) {
 				s = Rex::Socket.create_tcp('PeerHost' => $_REX_TEST_SMB_HOST, 'PeerPort' => 135)
 				handle = Rex::Proto::DCERPC::Handle.new(['E1AF8308-5D1F-11C9-91A4-08002B14A0FA', '3.0'], 'ncacn_ip_tcp', $_REX_TEST_SMB_HOST, [135])
 				assert_instance_of(Rex::Proto::DCERPC::Handle, handle, 'handle')
@@ -347,7 +347,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 
 				stub = "\x00" * (4 * 9) + "\x01\x00\x00\x00"
 				got = dcerpc.call(0x02, stub)
-				s.close	
+				s.close
 			}
 		rescue Timeout::Error
 			flunk('timeout')
@@ -363,7 +363,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 		write = ["\005\000\v\003\020\000\000\000H\000\000\000\000\000\000\000\320\026\320\026\000\000\000\000\001\000\000\000\000\000\001\000\010\203\257\341\037]\311\021\221\244\010\000+\024\240\372\003\000\000\000\004]\210\212\353\034\311\021\237\350\010\000+\020H`\002\000\000\000"]
 		setup_test(read, write)
 		begin
-			timeout($_REX_TEST_TIMEOUT) {
+			Timeout.timeout($_REX_TEST_TIMEOUT) {
 				handle = Rex::Proto::DCERPC::Handle.new(['E1AF8308-5D1F-11C9-91A4-08002B14A0FA', '3.0'], 'ncacn_ip_tcp', $_REX_TEST_SMB_HOST, [135])
 				assert_instance_of(Rex::Proto::DCERPC::Handle, handle, 'handle')
 				dcerpc = Rex::Proto::DCERPC::Client.new(handle, nil)
@@ -373,7 +373,7 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 			flunk('timeout')
 		end
 	end
-	
+
 	def test_setup_socket_ncacn_np_socket
 		read = ["\x82\x00\x00\x00",
 		"\x00\x00\x00\x55\xff\x53\x4d\x42\x72\x00\x00\x00\x00\x98\x01\x28\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x2f\xaa\x00\x00\xac\x0a\x11\x03\x00\x03\x0a\x00\x01\x00\x04\x11\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\xfd\xe3\x00\x80\xca\x3d\x91\x3c\x0b\xfd\xc5\x01\xe0\x01\x00\x10\x00\x8b\x3c\x73\xd2\x53\x9e\x28\x48\xa2\xac\x68\xae\xd1\x2e\x41\x5a",
@@ -402,8 +402,8 @@ class Rex::Proto::DCERPC::Client::UnitTest < Test::Unit::TestCase
 		]
 		setup_test(read, write)
 		begin
-			timeout($_REX_TEST_TIMEOUT) {
-				s = Rex::Socket.create_tcp('PeerHost' => $_REX_TEST_SMB_HOST, 'PeerPort' => 139) 
+			Timeout.timeout($_REX_TEST_TIMEOUT) {
+				s = Rex::Socket.create_tcp('PeerHost' => $_REX_TEST_SMB_HOST, 'PeerPort' => 139)
 
 				handle = Rex::Proto::DCERPC::Handle.new(['4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0'], 'ncacn_np', $_REX_TEST_SMB_HOST, ['\BROWSER'])
 				assert_instance_of(Rex::Proto::DCERPC::Handle, handle, 'handle')
@@ -449,16 +449,16 @@ read = [
 ]
 		setup_test(read, write)
 
-		timeout($_REX_TEST_TIMEOUT) {
+		Timeout.timeout($_REX_TEST_TIMEOUT) {
 			handle = Rex::Proto::DCERPC::Handle.new(['4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0'], 'ncacn_np', $_REX_TEST_SMB_HOST, ['\BROWSER'])
 			dcerpc = Rex::Proto::DCERPC::Client.new(handle, nil)
 			assert_instance_of(Rex::Proto::DCERPC::Client, dcerpc, 'bind')
 
 			require 'rex/proto/dcerpc/ndr'
-			stub = 
+			stub =
 				Rex::Proto::DCERPC::NDR.long(1) +
 				Rex::Proto::DCERPC::NDR.UnicodeConformantVaryingString('AAAA') +
-			
+
 				# Type 33
 				Rex::Proto::DCERPC::NDR.long(1) +
 				Rex::Proto::DCERPC::NDR.short(2) +
@@ -488,3 +488,4 @@ end
 
 rescue LoadError
 end
+

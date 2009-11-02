@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'timeout'
-require 'thread' 
+require 'thread'
 
 module Rex
 module Post
@@ -32,7 +32,7 @@ class PacketResponseWaiter
 	end
 
 	#
-	# Checks to see if this waiter instance is waiting for the supplied 
+	# Checks to see if this waiter instance is waiting for the supplied
 	# packet based on its request identifier.
 	#
 	def waiting_for?(packet)
@@ -57,7 +57,7 @@ class PacketResponseWaiter
 	#
 	def wait(interval)
 		begin
-			timeout(interval) { 
+			Timeout.timeout(interval) {
 				while(not self.done)
 					select(nil, nil, nil, 0.1)
 				end
@@ -74,3 +74,4 @@ class PacketResponseWaiter
 end
 
 end; end; end
+

@@ -56,8 +56,8 @@ class Rex::Socket::Comm::Local
 
 		sock
 	end
-	
-	
+
+
 	#
 	# Creates a socket using the supplied Parameter instance.
 	#
@@ -65,7 +65,7 @@ class Rex::Socket::Comm::Local
 
 		# Whether to use IPv6 addressing
 		usev6 = false
-			
+
 		# Detect IPv6 addresses and enable IPv6 accordingly
 		if ( Rex::Socket.support_ipv6?())
 
@@ -77,23 +77,23 @@ class Rex::Socket::Comm::Local
 			# Force IPv6 mode for non-connected UDP sockets
 			if (type == ::Socket::SOCK_DGRAM and not param.peerhost)
 				# FreeBSD allows IPv6 socket creation, but throws an error on sendto()
-				
+
 				if (not Rex::Compat.is_freebsd())
 					usev6 = true
 				end
 			end
-		
+
 			local = Rex::Socket.resolv_nbo(param.localhost) if param.localhost
 			peer  = Rex::Socket.resolv_nbo(param.peerhost) if param.peerhost
-			
+
 			if (local and local.length == 16)
-				usev6 = true			
+				usev6 = true
 			end
-			
+
 			if (peer and peer.length == 16)
-				usev6 = true			
+				usev6 = true
 			end
-			
+
 			if (usev6)
 				if (local and local.length == 4)
 					if (local == "\x00\x00\x00\x00")
@@ -104,7 +104,7 @@ class Rex::Socket::Comm::Local
 						param.localhost = '::ffff:' + Rex::Socket.getaddress(param.localhost)
 					end
 				end
-				
+
 				if (peer and peer.length == 4)
 					if (peer == "\x00\x00\x00\x00")
 						param.peerhost = '::'
@@ -114,28 +114,28 @@ class Rex::Socket::Comm::Local
 						param.peerhost = '::ffff:' + Rex::Socket.getaddress(param.peerhost)
 					end
 				end
-				
+
 				param.v6 = true
-			end	
+			end
 		else
 			# No IPv6 support
 			param.v6 = false
 		end
-		
+
 		# Notify handlers of the before socket create event.
 		self.instance.notify_before_socket_create(self, param)
 
 		# Create the socket
 		sock = nil
 		if (param.v6)
-			sock = ::Socket.new(::Socket::AF_INET6, type, proto)		
+			sock = ::Socket.new(::Socket::AF_INET6, type, proto)
 		else
 			sock = ::Socket.new(::Socket::AF_INET, type, proto)
 		end
 
 		# Bind to a given local address and/or port if they are supplied
 		if (param.localhost || param.localport)
-			begin	
+			begin
 				sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, true)
 
 				sock.bind(Rex::Socket.to_sockaddr(param.localhost, param.localport))
@@ -145,7 +145,7 @@ class Rex::Socket::Comm::Local
 				raise Rex::AddressInUse.new(param.localhost, param.localport), caller
 			end
 		end
-		
+
 		# Configure broadcast support for all datagram sockets
 		if (type == ::Socket::SOCK_DGRAM)
 			sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_BROADCAST, true)
@@ -182,21 +182,21 @@ class Rex::Socket::Comm::Local
 					end
 
 					begin
-						timeout(param.timeout) do
+						Timeout.timeout(param.timeout) do
 							sock.connect(Rex::Socket.to_sockaddr(ip, port))
 						end
 					rescue ::Timeout::Error
 						raise ::Errno::ETIMEDOUT
-					end						
+					end
 
 				rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
 					sock.close
 					raise Rex::HostUnreachable.new(param.peerhost, param.peerport), caller
-				
+
 				rescue Errno::ETIMEDOUT
 					sock.close
 					raise Rex::ConnectionTimeout.new(param.peerhost, param.peerport), caller
-				
+
 				rescue ::Errno::ECONNRESET,::Errno::ECONNREFUSED,::Errno::ENOTCONN,::Errno::ECONNABORTED
 					sock.close
 					raise Rex::ConnectionRefused.new(param.peerhost, param.peerport), caller
@@ -224,15 +224,15 @@ class Rex::Socket::Comm::Local
 					end
 				}
 			end
-			
+
 			# Now extend the socket with SSL and perform the handshake
 			if(param.bare? == false and param.ssl)
 				klass = Rex::Socket::SslTcp
 				sock.extend(klass)
-				sock.initsock(param)			
+				sock.initsock(param)
 			end
-			
-			
+
+
 		end
 
 		# Notify handlers that a socket has been created.
@@ -240,9 +240,9 @@ class Rex::Socket::Comm::Local
 
 		sock
 	end
-				
+
 	def self.proxy(sock, type, host, port)
-	
+
 		#$stdout.print("PROXY\n")
 		case type.downcase
 		when 'http'
@@ -251,7 +251,7 @@ class Rex::Socket::Comm::Local
 			if (size != setup.length)
 				raise ArgumentError, "Wrote less data than expected to the http proxy"
 			end
-			
+
 			begin
 				ret = sock.get_once(39,30)
 			rescue IOError
@@ -299,11 +299,11 @@ class Rex::Socket::Comm::Local
 			end
 
 			if (Rex::Socket.is_ipv4?(host))
-				addr = Rex::Socket.gethostbyname(host)[3] 
+				addr = Rex::Socket.gethostbyname(host)[3]
 				setup = [5,1,0,1].pack('C4') + addr + [port.to_i].pack('n')
 			elsif (Rex::Socket.support_ipv6? and Rex::Socket.is_ipv6?(host))
 				# IPv6 stuff all untested
-				addr = Rex::Socket.gethostbyname(host)[3] 
+				addr = Rex::Socket.gethostbyname(host)[3]
 				setup = [5,1,0,4].pack('C4') + addr + [port.to_i].pack('n')
 			else
 				# Then it must be a domain name.
@@ -339,7 +339,7 @@ class Rex::Socket::Comm::Local
 	# Registration
 	#
 	##
-	
+
 	def self.register_event_handler(handler) # :nodoc:
 		self.instance.register_event_handler(handler)
 	end
@@ -353,3 +353,4 @@ class Rex::Socket::Comm::Local
 	end
 
 end
+
