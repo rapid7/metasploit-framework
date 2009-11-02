@@ -6,10 +6,10 @@
 =begin
 Copyright (c) 2009, Park Heesob
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
- 
+
 * Redistributions of source code must retain the above copyright notice, this
   list of conditions and the following disclaimer.
 * Redistributions in binary form must reproduce the above copyright notice
@@ -18,7 +18,7 @@ modification, are permitted provided that the following conditions are met:
 * Neither the name of Park Heesob nor the names of its contributors
   may be used to endorse or promote products derived from this software
   without specific prior written permission.
- 
+
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -38,6 +38,11 @@ module Readline
 
    @completion_proc = nil
    @completion_case_fold = false
+
+   #
+   # A sneaky way to prevent the real Readline from loading after us
+   #
+   $LOADED_FEATURES.unshift("readline.rb")
 
    # Begins an interactive terminal process using +prompt+ as the command
    # prompt that users see when they type commands. The method returns the
@@ -60,13 +65,13 @@ module Readline
       end
 
       status = 0
-      
+
       begin
          RbReadline.rl_instream  = $stdin
-         RbReadline.rl_outstream = $stdout	  
+         RbReadline.rl_outstream = $stdout
          buff = RbReadline.readline(prompt)
       rescue ::Interrupt
-         raise $!	  
+         raise $!
       rescue Exception => e
          buff = nil
          RbReadline.rl_cleanup_after_signal()
@@ -78,7 +83,7 @@ module Readline
       if add_history && buff
          RbReadline.add_history(buff)
       end
-      
+
       return buff ? buff.dup : nil
    end
 
@@ -106,7 +111,7 @@ module Readline
    #
    #    list = ['search', 'next', 'clear']
    #    Readline.completion_proc = proc{ |s| list.grep( /^#{Regexp.escape(s)}/) }
-   #    
+   #
    def self.completion_proc=(proc)
       unless defined? proc.call
          raise ArgumentError,"argument must respond to `call'"
@@ -156,11 +161,11 @@ module Readline
 
       matches = ary.length
       return nil if (matches == 0)
-      
+
       if(matches == 1)
         ary[0] = ary[0].strip + " "
       end
-      
+
       result = Array.new(matches+2)
       for i in 0 ... matches
          result[i+1] = ary[i].dup
@@ -333,7 +338,7 @@ module Readline
    # of all commands.
    class History
       extend Enumerable
-      
+
       # The History class, stringified in all caps.
       #--
       # Why?
@@ -387,7 +392,7 @@ module Readline
             RbReadline.add_history(str)
          end
       end
-      
+
       # Internal function that removes the item at +index+ from the history
       # buffer, performing necessary duplication in the process.
       #--
@@ -541,3 +546,4 @@ module Readline
    RbReadline.rl_attempted_completion_function = :readline_attempted_completion_function
 
 end
+
