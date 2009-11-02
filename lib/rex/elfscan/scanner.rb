@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 
 # $Id$
 
@@ -6,19 +5,19 @@ module Rex
 module ElfScan
 module Scanner
 class Generic
-	
+
 	attr_accessor :elf, :regex
-		
+
 	def initialize(elf)
 		self.elf = elf
 	end
 
 	def config(param)
 	end
-		
+
 	def scan(param)
 		config(param)
-			
+
 		$stdout.puts "[#{param['file']}]"
 		elf.program_header.each do |program_header|
 
@@ -33,7 +32,7 @@ class Generic
 			end
 
 		end
-	end		
+	end
 
 	def scan_segment(program_header, param={})
 		[]
@@ -44,7 +43,7 @@ class JmpRegScanner < Generic
 
 	def config(param)
 		regnums = param['args']
-		
+
 		# build a list of the call bytes
 		calls  = _build_byte_list(0xd0, regnums - [4]) # note call esp's don't work..
 		jmps   = _build_byte_list(0xe0, regnums)
@@ -58,7 +57,7 @@ class JmpRegScanner < Generic
 
 		regexstr += "\xff[#{jmps}]|([#{pushs1}]|\xff[#{pushs2}])(\xc3|\xc2..))"
 
-		self.regex = Regexp.new(regexstr)
+		self.regex = Regexp.new(regexstr, nil, 'n')
 	end
 
 	# build a list for regex of the possible bytes, based on a base
@@ -119,7 +118,7 @@ class JmpRegScanner < Generic
 				else
 					raise "wtf"
 				end
-			else 
+			else
 				regname = Rex::Arch::X86.reg_name32(byte1 & 0x7)
 				retsize = _ret_size(offset+1)
 				message = "push #{regname}; " + _parse_ret(elf.read(offset+1, retsize))
@@ -137,7 +136,7 @@ class PopPopRetScanner < JmpRegScanner
 
 	def config(param)
 		pops = _build_byte_list(0x58, (0 .. 7).to_a - [4]) # we don't want pop esp's...
-		self.regex = Regexp.new("[#{pops}][#{pops}](\xc3|\xc2..)")
+		self.regex = Regexp.new("[#{pops}][#{pops}](\xc3|\xc2..)", nil, 'n')
 	end
 
 	def scan_segment(program_header, param={})
@@ -172,7 +171,7 @@ end
 class RegexScanner < JmpRegScanner
 
 	def config(param)
-		self.regex = Regexp.new(param['args'])
+		self.regex = Regexp.new(param['args'], nil, 'n')
 	end
 
 	def scan_segment(program_header, param={})
@@ -186,12 +185,12 @@ class RegexScanner < JmpRegScanner
 			idx = offset
 			buf = ''
 			mat = nil
-			
+
 			while (! (mat = buf.match(regex)))
 				buf << elf.read(idx, 1)
 				idx += 1
 			end
-			
+
 			rva = elf.offset_to_rva(offset)
 
 			hits << [ rva, buf.unpack("H*") ]
@@ -200,8 +199,9 @@ class RegexScanner < JmpRegScanner
 
 		return hits
 	end
-end	
-	
+end
+
 end
 end
 end
+

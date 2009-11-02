@@ -904,7 +904,7 @@ class Core
 		end
 
 		begin
-			regex = Regexp.new(match, true)
+			regex = Regexp.new(match, true, 'n')
 		rescue RegexpError => e
 			print_error("Invalid regular expression: #{match} (hint: try .*)")
 			return

@@ -74,7 +74,7 @@ module Net # :nodoc:
                                Net::DNS::RR::Classes.regexp + 
                                "|CLASS\\d+)?\\s*(" +
                                Net::DNS::RR::Types.regexp + 
-                               "|TYPE\\d+)?\\s*(.*)$", Regexp::IGNORECASE)
+                               "|TYPE\\d+)?\\s*(.*)$", Regexp::IGNORECASE, 'n')
 
       # Dimension of the sum of class, type, TTL and rdlength fields in a
       # RR portion of the packet, in bytes

@@ -56,7 +56,7 @@ module Msf
 
           # Perform the search
           found = []
-          filter = Regexp.new(text, Regexp::IGNORECASE)
+          filter = Regexp.new(text, Regexp::IGNORECASE, 'n')
 		  
 		  $gtk2driver.module_tree.refresh(filter)
 		  $gtk2driver.module_tree.expand

@@ -41,7 +41,7 @@ class Generic
 				end
 			end
 
-	end   
+	end
 
 	def scan_segment(segment, param={})
 		[]
@@ -66,7 +66,7 @@ class JmpRegScanner < Generic
 
 		regexstr += "\xff[#{jmps}]|([#{pushs1}]|\xff[#{pushs2}])(\xc3|\xc2..))"
 
-		self.regex = Regexp.new(regexstr)
+		self.regex = Regexp.new(regexstr, nil, 'n')
 	end
 
 	# build a list for regex of the possible bytes, based on a base
@@ -127,7 +127,7 @@ class JmpRegScanner < Generic
 				else
 						raise "wtf"
 				end
-			else 
+			else
 				regname = Rex::Arch::X86.reg_name32(byte1 & 0x7)
 				retsize = _ret_size(offset+1)
 				message = "push #{regname}; " + _parse_ret(mach.read(offset+1, retsize))
@@ -145,7 +145,7 @@ class PopPopRetScanner < JmpRegScanner
 
 	def config(param)
 		pops = _build_byte_list(0x58, (0 .. 7).to_a - [4]) # we don't want pop esp's...
-		self.regex = Regexp.new("[#{pops}][#{pops}](\xc3|\xc2..)")
+		self.regex = Regexp.new("[#{pops}][#{pops}](\xc3|\xc2..)", nil, 'n')
 	end
 
 	def scan_segment(segment, param={})
@@ -181,7 +181,7 @@ end
 class RegexScanner < JmpRegScanner
 
 	def config(param)
-		self.regex = Regexp.new(param['args'])
+		self.regex = Regexp.new(param['args'], nil, 'n')
 	end
 
 	def scan_segment(segment, param={})
@@ -209,8 +209,9 @@ class RegexScanner < JmpRegScanner
 		end
 		return hits
 	end
-end 
+end
 
 end
 end
 end
+

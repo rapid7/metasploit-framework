@@ -76,7 +76,7 @@ module Kernel #:nodoc:all
   end
 
   def already_loaded?(moduleName)
-    moduleRE = Regexp.new("^"+moduleName+"(\.rb|\.so|\.dll|\.o)?$")
+    moduleRE = Regexp.new("^"+moduleName+"(\.rb|\.so|\.dll|\.o)?$", nil, 'n')
     $".detect { |e| e =~ moduleRE } != nil
   end
 

@@ -465,7 +465,7 @@ module Zip
         end
         path = @file.expand_path(aDirectoryName).ensure_end("/")
 
-        subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$")
+        subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$", nil, 'n')
         @mappedZip.each { 
           |fileName|
           match = subDirEntriesRegex.match(fileName)
