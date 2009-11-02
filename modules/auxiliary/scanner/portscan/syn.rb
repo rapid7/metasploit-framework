@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -114,7 +114,7 @@ class Metasploit3 < Msf::Auxiliary
 		n.l3.dst_ip = dhost
 		n.l3.protocol = 0x6
 		n.l3.id = rand(0x10000)
-		
+
 		n.l4 = Racket::TCP.new
 		n.l4.src_port = sport
 		n.l4.seq = rand(0x100000000)
@@ -122,9 +122,9 @@ class Metasploit3 < Msf::Auxiliary
 		n.l4.flag_syn = 1
 		n.l4.dst_port = dport
 		n.l4.window = 3072
-		
-		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, "")	
-	
+
+		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, "")
+
 		n.pack
 	end
 
@@ -132,22 +132,22 @@ class Metasploit3 < Msf::Auxiliary
 		reply = nil
 
 		begin
-			timeout(to) do
+			Timeout.timeout(to) do
 				pcap.each do |r|
 					eth = Racket::Ethernet.new(r)
 					next if not eth.ethertype == 0x0800
-					
+
 					ip = Racket::IPv4.new(eth.payload)
 					next if not ip.protocol == 6
-					
+
 					tcp = Racket::TCP.new(ip.payload)
-					
+
 					reply = {:raw => r, :eth => eth, :ip => ip, :tcp => tcp}
-					
+
 					break
 				end
 			end
-		rescue TimeoutError
+		rescue Timeout::TimeoutError
 		end
 
 		return reply
