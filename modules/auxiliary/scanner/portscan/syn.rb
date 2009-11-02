@@ -147,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
 					break
 				end
 			end
-		rescue Timeout::TimeoutError
+		rescue Timeout::Error
 		end
 
 		return reply
