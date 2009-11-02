@@ -113,16 +113,16 @@ module Handler
 
 	#
 	# Checks to see if a payload connection has been established on
-	# the supplied connection.  This is necessary for find-sock style 
+	# the supplied connection.  This is necessary for find-sock style
 	# payloads.
 	#
 	def handler(sock)
 	end
-	
+
 	#
-	# Handles an established connection supplied in the in and out 
+	# Handles an established connection supplied in the in and out
 	# handles.  The handles are passed as parameters in case this
-	# handler is capable of handling multiple simultaneous 
+	# handler is capable of handling multiple simultaneous
 	# connections.  The default behavior is to attempt to create a session for
 	# the payload.  This path will not be taken for mutli-staged payloads.
 	#
@@ -147,17 +147,17 @@ module Handler
 
 		begin
 			session = session_waiter_event.wait(t)
-		rescue ::TimeoutError
+		rescue ::Timeout::Error
 		end
-		
+
 		# If a connection has arrived, wait longer...
 		if (pending_connections > 0)
 			session = session_waiter_event.wait
 		end
-		
+
 		return session
 	end
-	
+
 	#
 	# Set by the exploit module to configure handler
 	#
@@ -182,7 +182,7 @@ protected
 		# If there is a parent payload, then use that in preference.
 		return parent_payload.create_session(conn) if (parent_payload)
 
-		# If the payload we merged in with has an associated session factory, 
+		# If the payload we merged in with has an associated session factory,
 		# allocate a new session.
 		if (self.session)
 			s = self.session.new(conn)
@@ -204,7 +204,7 @@ protected
 
 			return s
 		end
-		
+
 	end
 
 	#
@@ -217,7 +217,7 @@ protected
 
 		# Call the handler's on_session() method
 		on_session(session)
-		
+
 		# If there is an exploit associated with this payload, then let's notify
 		# anyone who is interested that this exploit succeeded
 		if assoc_exploit
@@ -234,10 +234,11 @@ protected
 
 	attr_accessor :session_waiter_event # :nodoc:
 	attr_accessor :pending_connections  # :nodoc:
-	
+
 end
 
 end
 
 # The default none handler
 require 'msf/core/handler/none'
+

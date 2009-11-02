@@ -92,7 +92,7 @@ class Console
 	def run_command(dispatcher, method, arguments)
 		begin
 			super
-		rescue TimeoutError
+		rescue Timeout::Error
 			log_error("Operation timed out.")
 		rescue RequestError => info
 			log_error(info.to_s)
@@ -115,7 +115,7 @@ class Console
 	attr_reader :client # :nodoc:
 
 protected
-	
+
 	attr_writer :client # :nodoc:
 	attr_accessor :commands # :nodoc:
 
@@ -125,3 +125,4 @@ end
 end
 end
 end
+

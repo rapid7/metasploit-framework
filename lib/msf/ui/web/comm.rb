@@ -39,12 +39,12 @@ module Comm
 		end
 	end
 
-	class SessionEventSubscriber 
+	class SessionEventSubscriber
 		include Msf::SessionEvent
 
 		def on_session_open(session)
 			pipe = Comm.create_session_pipe(session)
-			
+
 			session.init_ui(pipe, pipe)
 		end
 	end
@@ -108,7 +108,7 @@ module Comm
 		# interested in.
 		begin
 			@@read_event.wait(15)
-		rescue TimeoutError
+		rescue Timeout::Error
 			client.send_response(Rex::Proto::Http::Response::OK.new)
 			return
 		end
@@ -151,3 +151,4 @@ end
 end
 end
 end
+
