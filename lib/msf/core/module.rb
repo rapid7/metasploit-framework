@@ -18,7 +18,7 @@ class Module
 	# user interface subscribes are designed to provide a flexible way of
 	# interacting with the user, n stuff.
 	include Rex::Ui::Subscriber
-	
+
 	# Make include public so we can runtime extend
 	public_class_method :include
 
@@ -35,18 +35,18 @@ class Module
 		def fullname
 			return type + '/' + refname
 		end
-	
+
 		def shortname
 			return refname.split('/')[-1]
 		end
-		
+
 		#
 		# Returns this module's ranking.
 		#
 		def rank
 			(const_defined?('Rank')) ? const_get('Rank') : NormalRanking
 		end
-	
+
 		#
 		# Returns this module's ranking as a string representation.
 		#
@@ -54,7 +54,7 @@ class Module
 			RankingName[rank]
 		end
 
-		# 
+		#
 		# The module's name that is assigned it it by the framework
 		# or derived from the path that the module is loaded from.
 		#
@@ -133,7 +133,7 @@ class Module
 		self.privileged = module_info['Privileged'] || false
 		self.license = module_info['License'] || MSF_LICENSE
 	end
-	
+
 	#
 	# Creates a fresh copy of an instantiated module
 	#
@@ -148,25 +148,25 @@ class Module
 	#
 	# Overwrite the Subscriber print_line to do time stamps
 	#
-	
+
 	def print_prefix
 		if(
-			datastore['TimestampOutput'] =~ /^(t|y|1)/i or 
+			datastore['TimestampOutput'] =~ /^(t|y|1)/i or
 			framework.datastore['TimestampOutput'] =~ /^(t|y|1)/i
 		)
 			return "[#{Time.now.strftime("%Y.%m.%d-%H:%M:%S")}] "
 		end
 		""
 	end
-	
+
 	def print_status(msg='')
 		print_line(print_prefix + "[*] " + msg)
 	end
-	
+
 	def print_error(msg='')
 		print_line(print_prefix + "[-] " + msg)
 	end
-		
+
 	#
 	# Returns the module's framework full reference name.  This is the
 	# short name that end-users work with (refname) plus the type
@@ -180,7 +180,7 @@ class Module
 
 	#
 	# Returns the module's framework reference name.  This is the
-	# short name that end-users work with.  Ex: 
+	# short name that end-users work with.  Ex:
 	#
 	# windows/shell/reverse_tcp
 	#
@@ -205,7 +205,7 @@ class Module
 	def shortname
 		return self.class.shortname
 	end
-	
+
 	#
 	# Returns the unduplicated class associated with this module.
 	#
@@ -278,7 +278,7 @@ class Module
 		else
 			return true
 		end
-		
+
 		# Enumerate each compatibility item in our hash to find out
 		# if we're compatible with this sucker.
 		ch.each_pair do |k,v|
@@ -289,14 +289,14 @@ class Module
 
 			# Reject a filled compat item on one side, but not the other
 			return false if (v and not mval)
-	
+
 			# Track how many of our values matched the module
 			mcnt = 0
-			
+
 			# Values are whitespace separated
 			sv = v.split(/\s+/)
 			mv = mval.split(/\s+/)
-			
+
 			sv.each do |x|
 
 				dlog("Checking compat [#{mod.refname} with #{self.refname}]: #{x} to #{mv.join(", ")}", 'core', LEV_3)
@@ -309,10 +309,10 @@ class Module
 
 				mcnt += 1 if mv.include?(x)
 			end
-			
+
 			# No values matched, reject this module
 			if (mcnt == 0)
-				dlog("Module #{mod.refname} is incompatible with #{self.refname} for #{k}: limiter was #{v}, value was #{mval}", 'core', LEV_1)			
+				dlog("Module #{mod.refname} is incompatible with #{self.refname} for #{k}: limiter was #{v}, value was #{mval}", 'core', LEV_1)
 				return false
 			end
 
@@ -363,7 +363,7 @@ class Module
 	def arch?(what)
 		return true if (what == ARCH_ANY)
 
-		return arch.index(what) != nil 
+		return arch.index(what) != nil
 	end
 
 	#
@@ -420,7 +420,7 @@ class Module
 			self.datastore.import_options_from_hash(module_info['DefaultOptions'], true, 'self')
 		end
 	end
-	
+
 	#
 	# This method ensures that the options associated with this module all
 	# have valid values according to each required option in the option
@@ -485,7 +485,7 @@ class Module
 	def self.cached?
 		false
 	end
-	
+
 	#
 	# The array of zero or more authors.
 	#
@@ -536,7 +536,7 @@ protected
 	#
 	def set_defaults
 		self.module_info = {
-			'Name'        => 'No module name', 
+			'Name'        => 'No module name',
 			'Description' => 'No module description',
 			'Version'     => '0',
 			'Author'      => nil,
@@ -579,7 +579,7 @@ protected
 		c['Encoder'].update(module_info['EncoderCompat'] || {})
 		c['Nop'].update(module_info['NopCompat'] || {})
 	end
-	
+
 	#
 	# Register options with a specific owning class.
 	#
@@ -592,7 +592,7 @@ protected
 					refs[i] = nil
 				end
 			end
-		
+
 			# Purge invalid references
 			refs.delete(nil)
 		end
@@ -621,7 +621,7 @@ protected
 		self.options.add_evasion_options(options, owner)
 		self.datastore.import_options(self.options, 'self', true)
 	end
-	
+
 	#
 	# Removes the supplied options from the module's option container
 	# and data store.
@@ -725,7 +725,7 @@ protected
 	#
 	def merge_info_name(info, val)
 		merge_info_string(info, 'Name', val, ', ', true)
-	end	
+	end
 
 	#
 	# Merges the module description.
@@ -760,7 +760,7 @@ protected
 	# Merges options.
 	#
 	def merge_info_options(info, val, advanced = false, evasion = false)
-	
+
 		key_name = ((advanced) ? 'Advanced' : (evasion) ? 'Evasion' : '') + 'Options'
 
 		new_cont = OptionContainer.new
@@ -776,21 +776,21 @@ protected
 		}
 	end
 
-	# 
+	#
 	# Merges advanced options.
 	#
 	def merge_info_advanced_options(info, val)
 		merge_info_options(info, val, true, false)
 	end
 
-	# 
+	#
 	# Merges advanced options.
 	#
 	def merge_info_evasion_options(info, val)
 		merge_info_options(info, val, false, true)
 	end
 
-	
+
 	attr_accessor :module_info # :nodoc:
 	attr_writer   :author, :arch, :platform, :references, :datastore, :options # :nodoc:
 	attr_writer   :privileged # :nodoc:
@@ -809,3 +809,4 @@ Platform = Msf::Module::Platform
 Target = Msf::Module::Target
 
 end
+

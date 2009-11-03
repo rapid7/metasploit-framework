@@ -24,7 +24,7 @@ class DataStore < Hash
 		k = find_key_case(k)
 		@imported[k] = false
 		@imported_by[k] = nil
-		
+
 		super(k,v)
 	end
 
@@ -34,14 +34,14 @@ class DataStore < Hash
 	def [](k)
 		super(find_key_case(k))
 	end
-	
+
 	#
 	# Case-insensitive wrapper around store
-	# 
+	#
 	def store(k,v)
 		super(find_key_case(k), v)
 	end
-	
+
 
 	#
 	# Updates a value in the datastore with the specified name, k, to the
@@ -60,11 +60,11 @@ class DataStore < Hash
 		options.each_option { |name, opt|
 			# If there's already a value defined for this option, then skip it
 			# and don't import it.
-			next if self[name] and overwrite == false
+			next if self.has_key?(name) and overwrite == false
 
 			# If the option has a default value, import it, but only if the
 			# datastore doesn't already have a value set for it.
-			if (opt.default and (overwrite or self[name] == nil))
+			if ((opt.default != nil) and (overwrite or self[name] == nil))
 				self.store(name, opt.default.to_s)
 
 				@imported[name]    = true
@@ -100,7 +100,7 @@ class DataStore < Hash
 			if (var == nil or val == nil)
 				var = "unknown" if (!var)
 
-				raise Rex::ArgumentParseError, "Invalid option specified: #{var}", 
+				raise Rex::ArgumentParseError, "Invalid option specified: #{var}",
 					caller
 			end
 
@@ -187,28 +187,28 @@ class DataStore < Hash
 	def clear_non_user_defined
 		@imported.delete_if { |k, v|
 			if (v and @imported_by[k] != 'self')
-				self.delete(k) 
+				self.delete(k)
 				@imported_by.delete(k)
 			end
 
 			v
 		}
 	end
-	
+
 protected
-	
+
 	#
 	# Case-insensitive key lookup
 	#
 	def find_key_case(k)
-		
+
 		# Scan each key looking for a match
 		self.each_key do |rk|
 			if (rk.downcase == k.downcase)
 				return rk
 			end
 		end
-		
+
 		# Fall through to the non-existent value
 		return k
 	end
@@ -247,7 +247,7 @@ class ModuleDataStore < DataStore
 	#
 	# Same as fetch
 	#
-	def [](key)		
+	def [](key)
 		val = nil
 		val = super if(@imported_by[key] != 'self')
 		if (val.nil? and @_module and @_module.framework)
@@ -257,6 +257,13 @@ class ModuleDataStore < DataStore
 		val
 	end
 
+	#
+	# Was this entry actually set or just using its default
+	#
+	def default?(key)
+		(@imported_by[key] == 'self')
+	end
 end
 
 end
+

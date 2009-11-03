@@ -50,7 +50,7 @@ class OptBase
 	def evasion?
 		return evasion
 	end
-	
+
 	#
 	# Returns true if the supplied type is equivalent to this option's type.
 	#
@@ -123,7 +123,7 @@ class OptBase
 	#
 	# The list of potential valid values
 	#
-	attr_accessor :enums	
+	attr_accessor :enums
 
 protected
 
@@ -152,10 +152,10 @@ end
 #
 ###
 class OptString < OptBase
-	def type 
-		return 'string' 
+	def type
+		return 'string'
 	end
-	
+
 	def normalize(value)
 		if (value =~ /^file:(.*)/)
 			path = $1
@@ -167,10 +167,10 @@ class OptString < OptBase
 		end
 		value
 	end
-	
+
 	def valid?(value=self.value)
 		value = normalize(value)
-		return false if empty_required_value?(value)		
+		return false if empty_required_value?(value)
 		return super
 	end
 end
@@ -184,7 +184,7 @@ class OptRaw < OptBase
 	def type
 		return 'raw'
 	end
-	
+
 	def normalize(value)
 		if (value =~ /^file:(.*)/)
 			path = $1
@@ -196,12 +196,12 @@ class OptRaw < OptBase
 		end
 		value
 	end
-	
+
 	def valid?(value=self.value)
 		value = normalize(value)
-		return false if empty_required_value?(value)		
+		return false if empty_required_value?(value)
 		return super
-	end		
+	end
 end
 
 ###
@@ -220,7 +220,7 @@ class OptBool < OptBase
 	def valid?(value)
 		return false if empty_required_value?(value)
 
-		if ((value != nil and 
+		if ((value != nil and
 		    (value.to_s.empty? == false) and
 		    (value.to_s.match(/^(y|yes|n|no|t|f|0|1|true|false)$/i) == nil)))
 			return false
@@ -277,7 +277,7 @@ class OptEnum < OptBase
 
 		self.desc
 	end
-	
+
 	def desc
 		if self.enums
 			str = self.enums.join(', ')
@@ -298,8 +298,8 @@ end
 #
 ###
 class OptPort < OptBase
-	def type 
-		return 'port' 
+	def type
+		return 'port'
 	end
 
 	def valid?(value)
@@ -320,8 +320,8 @@ end
 #
 ###
 class OptAddress < OptBase
-	def type 
-		return 'address' 
+	def type
+		return 'address'
 	end
 
 	def valid?(value)
@@ -345,8 +345,8 @@ end
 #
 ###
 class OptAddressRange < OptBase
-	def type 
-		return 'addressrange' 
+	def type
+		return 'addressrange'
 	end
 
 	def normalize(value)
@@ -359,20 +359,20 @@ class OptAddressRange < OptBase
 				value = nil
 			end
 		end
-		
+
 		sets   = []
 		return '' if not value
 
-		ranges = value.split(',')		
+		ranges = value.split(',')
 		ranges.each do |range|
-				
+
 			tmp = range.split('-')
 			tmp[1] ||= tmp[0]
-		
+
 			if(tmp[0] == tmp[1] and tmp[0] =~ /\//)
 				tmp = Rex::Socket.cidr_crack(tmp[0])
 			end
-		
+
 			addr_a, addr_b = tmp
 			addr_a, scope = tmp[0].split("%")
 			addr_b, scope = tmp[1].split("%") if not scope
@@ -381,10 +381,10 @@ class OptAddressRange < OptBase
 				sets << tmp
 			end
 		end
-		
+
 		sets.map {|i| (i.length == 2 and i[0] != i[1]) ? i[0]+'-'+i[1] : i[0] }.join(",")
 	end
-	
+
 	def valid?(value)
 		return false if empty_required_value?(value)
 
@@ -406,8 +406,8 @@ end
 #
 ###
 class OptPath < OptBase
-	def type 
-		return 'path' 
+	def type
+		return 'path'
 	end
 
 	def valid?(value)
@@ -428,8 +428,8 @@ end
 #
 ###
 class OptInt < OptBase
-	def type 
-		return 'integer' 
+	def type
+		return 'integer'
 	end
 
 	def normalize(value)
@@ -456,7 +456,7 @@ end
 #
 # The options purpose in life is to associate named options
 # with arbitrary values at the most simplistic level.  Each
-# module contains a OptionContainer that is used to hold the 
+# module contains a OptionContainer that is used to hold the
 # various options that the module depends on.  Example of options
 # that are stored in the OptionContainer are rhost and rport for
 # payloads or exploits that need to connect to a host and
@@ -499,9 +499,9 @@ class OptionContainer < Hash
 	def has_options?
 		each_option { |name, opt|
 			return true if (opt.advanced? == false)
-			
+
 		}
-		
+
 		return false
 	end
 
@@ -516,7 +516,7 @@ class OptionContainer < Hash
 
 		return false
 	end
-	
+
 	#
 	# Returns whether or not the container has any evasion
 	# options.
@@ -528,7 +528,7 @@ class OptionContainer < Hash
 
 		return false
 	end
-	
+
 	#
 	# Removes an option.
 	#
@@ -577,8 +577,8 @@ class OptionContainer < Hash
 		if (option.kind_of?(Array))
 			option = option.shift.new(name, option)
 		elsif (!option.kind_of?(OptBase))
-			raise ArgumentError, 
-				"The option named #{name} did not come in a compatible format.", 
+			raise ArgumentError,
+				"The option named #{name} did not come in a compatible format.",
 				caller
 		end
 
@@ -611,13 +611,13 @@ class OptionContainer < Hash
 	end
 
 	#
-	# Make sures that each of the options has a value of a compatible 
+	# Make sures that each of the options has a value of a compatible
 	# format and that all the required options are set.
 	#
 	def validate(datastore)
 		errors = []
 
-		each_pair { |name, option| 
+		each_pair { |name, option|
 			if (!option.valid?(datastore[name]))
 				errors << name
 			# If the option is valid, normalize its format to the correct type.
@@ -625,9 +625,9 @@ class OptionContainer < Hash
 				datastore.update_value(name, val)
 			end
 		}
-		
+
 		if (errors.empty? == false)
-			raise OptionValidateError.new(errors), 
+			raise OptionValidateError.new(errors),
 				"One or more options failed to validate", caller
 		end
 
@@ -690,7 +690,7 @@ end
 #
 module Opt
 
-@@builtin_opts = 
+@@builtin_opts =
 	{
 		'RHOST' => [ OptAddress, 'nil',   true,  '"The target address"' ],
 		'RPORT' => [ OptPort,    'nil',   true,  '"The target port"' ],
@@ -698,8 +698,7 @@ module Opt
 		'LPORT' => [ OptPort,    'nil',   true,  '"The local port"' ],
 		'CPORT' => [ OptPort,    'nil',   false, '"The local client port"' ],
 		'CHOST' => [ OptAddress, 'nil',   false, '"The local client address"' ],
-		'SSL'   => [ OptBool,    'false', false, '"Use SSL"' ],
-		'Proxies' => [ OptString, 'nil',  'false', '"Use a proxy chain"'],
+		'Proxies' => [ OptString, 'nil',  'false', '"Use a proxy chain"']
 	}
 
 #
@@ -719,7 +718,7 @@ class <<self
 	}
 end
 
-# 
+#
 # Define the constant versions of the options which are merely redirections to
 # the class methods.
 #
@@ -730,3 +729,4 @@ end
 end
 
 end
+
