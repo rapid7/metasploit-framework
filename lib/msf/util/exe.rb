@@ -391,6 +391,9 @@ require 'rex/pescan'
 		vbs << "#{var_bytes} = Chr(&H#{("%02x" % exe[0])})"
 
 		1.upto(exe.length-1) do |byte|
+			if(byte % 100 == 0)
+				vbs << "\r\n#{var_bytes} = #{var_bytes}"
+			end
 			vbs << "&Chr(&H#{("%02x" % exe[byte])})"
 		end
 		vbs << "\r\n"
