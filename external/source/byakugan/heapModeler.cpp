@@ -121,13 +121,75 @@ void initializeHeapModel(struct HeapState *heapModel) {
 	heapModel->heaps = (struct HPool *) calloc(heapModel->hPoolListLen, sizeof (struct HPool));
 }
 
+#define ALLOCHEAD	"<Allocation>\n"
+#define ALLOCFOOT	"</Allocation>\n"
+#define REALLOCHEAD "<Reallocation>\n"
+#define REALLOCFOOT "</Reallocation>\n"
+#define FREEHEAD	"<Free>\n"
+#define FREEFOOT	"</Free>\n"
+#define HEAP		"\t<Heap>0x%08x</Heap>\n"
+#define ADDRESS		"\t<Address>0x%08x</Address>\n" 
+#define RETURNPTR	"\t<NewAddress>0x%08x</NewAddress>\n"
+#define SIZE		"\t<Size>0x%08x</Size>\n"
+#define	TRACEHEAD	"\t<StackTrace>\n"
+#define	TRACEFOOT	"\t</StackTrace>\n"
+#define CALLADDR	"\t\t<Caller>0x%08x</Caller>\n"
+
+void hprintf(HANDLE fHandle, char *format, ...) {
+	char	ptr[1024];
+	DWORD	out;
+	va_list	args;
+
+	va_start(args, format);
+
+
+	StringCbVPrintf(ptr, 1024, format, args);
+	WriteFile(fHandle, ptr, strlen(ptr), &out, NULL);
+}
+
 void logAllocate(struct HeapState *heapModel, struct AllocateStruct *aStruct) {
+	ULONG	infoUsed;
+	
+	WriteFile(heapModel->hLogFile, ALLOCHEAD, strlen(ALLOCHEAD), &infoUsed, NULL);
+	hprintf(heapModel->hLogFile, HEAP, aStruct->heapHandle);
+	hprintf(heapModel->hLogFile, ADDRESS, aStruct->ret);
+	hprintf(heapModel->hLogFile, SIZE, aStruct->size);
+	WriteFile(heapModel->hLogFile, TRACEHEAD, strlen(TRACEHEAD), &infoUsed, NULL);
+
+	hprintf(heapModel->hLogFile, CALLADDR, aStruct->caller);
+
+	WriteFile(heapModel->hLogFile, TRACEFOOT, strlen(TRACEFOOT), &infoUsed, NULL);
+	WriteFile(heapModel->hLogFile, ALLOCFOOT, strlen(ALLOCFOOT), &infoUsed, NULL);
 }
 
 void logReallocate(struct HeapState *heapModel, struct ReallocateStruct *rStruct) {
+	ULONG	infoUsed;
+
+	WriteFile(heapModel->hLogFile, REALLOCHEAD, strlen(REALLOCHEAD), &infoUsed, NULL);
+	hprintf(heapModel->hLogFile, HEAP, rStruct->heapHandle);
+	hprintf(heapModel->hLogFile, ADDRESS, rStruct->memoryPointer);
+	hprintf(heapModel->hLogFile, RETURNPTR, rStruct->ret);
+	hprintf(heapModel->hLogFile, SIZE, rStruct->size);
+	WriteFile(heapModel->hLogFile, TRACEHEAD, strlen(TRACEHEAD), &infoUsed, NULL);
+
+	hprintf(heapModel->hLogFile, CALLADDR, rStruct->caller);
+
+	WriteFile(heapModel->hLogFile, TRACEFOOT, strlen(TRACEFOOT), &infoUsed, NULL);
+	WriteFile(heapModel->hLogFile, ALLOCFOOT, strlen(REALLOCFOOT), &infoUsed, NULL);
 }
 
 void logFree(struct HeapState *heapModel, struct FreeStruct *fStruct) {
+	ULONG	infoUsed;
+
+	WriteFile(heapModel->hLogFile, FREEHEAD, strlen(FREEHEAD), &infoUsed, NULL);
+	hprintf(heapModel->hLogFile, HEAP, fStruct->heapHandle);
+	hprintf(heapModel->hLogFile, ADDRESS, fStruct->memoryPointer);
+	WriteFile(heapModel->hLogFile, TRACEHEAD, strlen(TRACEHEAD), &infoUsed, NULL);
+	
+	hprintf(heapModel->hLogFile, CALLADDR, fStruct->caller);
+
+	WriteFile(heapModel->hLogFile, TRACEFOOT, strlen(TRACEFOOT), &infoUsed, NULL);
+	WriteFile(heapModel->hLogFile, FREEFOOT, strlen(FREEFOOT), &infoUsed, NULL);
 }
 
 void heapAllocate(struct HeapState *heapModel, struct AllocateStruct *aStruct) {

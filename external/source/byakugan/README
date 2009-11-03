@@ -152,8 +152,8 @@ D. Usage:
 		b. !mushishi detect - detects several methods
 		c. !mushishi defeat - defeats known defeatable methods
 
-	4. Sympath (Import IDA map files into windbg - map files contain all custom names)
-		a. !sympath moduleName mapFilePath
+	4. Symport (Import IDA map files into windbg - map files contain all custom names)
+		a. !symport moduleName mapFilePath
 
 		0:001> !symport calc C:\Users\lgrenier\calc.map
 		[S] Adjusting symbols to base address of: 0x calc (00680000)

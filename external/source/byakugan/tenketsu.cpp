@@ -27,7 +27,7 @@ BOOLEAN					running = FALSE;
 // Two things that fucking rock? Bunnies and Jaguars. Werd.
 
 
-int hookRtlHeap(BYTE type) {
+int hookRtlHeap(BYTE type, char *fileName) {
     HRESULT     Status;
     HANDLE      process;
     DWORD       pid;
@@ -109,7 +109,13 @@ int hookRtlHeap(BYTE type) {
 	CloseHandle(threadHandle);
     CloseHandle(processHandle);
 
-
+	// Set up the log file
+	if (type == 2) {
+		heapModel.hLogFile = CreateFileA(fileName, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (!heapModel.hLogFile) {
+			dprintf("[T] Unable to open file \"%s\" for writing. :(\n");
+		}
+	}
 
     return (0);
 }

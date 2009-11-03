@@ -25,6 +25,7 @@ struct HeapState {
 	BYTE			state;
 	ULONG			numHeaps;
 	ULONG			hPoolListLen;
+	HANDLE			hLogFile;
 	struct HPool	*heaps;
 
 };
@@ -72,6 +73,7 @@ struct AllocateStruct {
 	ULONG		flags;
 	ULONG		size;
 	PVOID		ret;
+	PVOID		caller;
 };
 
 struct ReallocateStruct {
@@ -81,6 +83,7 @@ struct ReallocateStruct {
 	PVOID		memoryPointer;
 	ULONG		size;
 	PVOID		ret;
+	PVOID		caller;
 };
 
 struct FreeStruct {
@@ -89,6 +92,7 @@ struct FreeStruct {
 	ULONG		flags;
 	PVOID		memoryPointer;
 	PVOID		ret;
+	PVOID		caller;
 };
 
 struct CreateStruct {

@@ -20,13 +20,6 @@
  * along with the nature of the overflow in question.  
  */
 
-/* Build instructions:
- * C:\share\noxHeap>cl noxheap.c /LD /link "C:\Program Files\Microsoft Research\Detours Express 2.1\lib\detours.lib" "C:\Program Files\Microsoft Research\Detours Express 2.1\lib\detoured.lib"
- * -------------------------
- * This assumes all of the libraries for detours have been built correctly
- * Please copy detours.dll into C:\WINDOWS\System32
- */
-
 #define NTSTATUS	ULONG
 #define BUFSIZE		4096
 /* UNDOCUMENTED HEAP STRUCTURES */
@@ -82,6 +75,14 @@ PVOID WINAPI noxRtlFreeHeap(PVOID heapHandle, ULONG flags, PVOID memoryPointer){
 	freeinfo.memoryPointer	= memoryPointer;
 	freeinfo.ret			= ret;
 
+	__asm 
+	{ 
+		push ebx
+		mov ebx, [ebp+4]
+		mov freeinfo.caller, ebx
+		pop ebx
+	}
+
 	WriteFile(hPipe, &freeinfo, sizeof(struct FreeStruct), &bytesWritten, NULL);
 	
 	return (ret);
@@ -100,6 +101,14 @@ PVOID WINAPI noxRtlReallocateHeap(PVOID heapHandle, ULONG flags, PVOID memoryPoi
     reallocinfo.size          = size;
     reallocinfo.ret           = ret;
 
+    __asm 
+    { 
+        push ebx 
+        mov ebx, [ebp+4]            
+        mov reallocinfo.caller, ebx
+        pop ebx 
+    }
+
     WriteFile(hPipe, &reallocinfo, sizeof(struct ReallocateStruct), &bytesWritten, NULL);
 
 	return (ret);
@@ -116,6 +125,14 @@ PVOID WINAPI noxRtlAllocateHeap(PVOID heapHandle, ULONG flags, ULONG size){
 	allocinfo.flags			= flags;
 	allocinfo.size			= size;
 	allocinfo.ret			= ret;
+
+    __asm 
+    { 
+        push ebx 
+        mov ebx, [ebp+4]            
+        mov allocinfo.caller, ebx
+        pop ebx 
+    }
 
 	WriteFile(hPipe, &allocinfo, sizeof(struct AllocateStruct), &bytesWritten, NULL);
 

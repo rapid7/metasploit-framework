@@ -676,23 +676,31 @@ void hunterJutsu() {
 ULONG64 allocateMemoryBlock(unsigned long size){
 	unsigned long processId = 0;
 	void * allocBuffer = 0;
+	ULONG	Class;
+	ULONG	Qualifier;
 
-	if(g_ExtSystem->GetCurrentProcessSystemId(&processId) != S_OK){
-		dprintf("[J] failed to find process id\n");
-		return 0;
+	g_ExtControl->GetDebuggeeType(&Class, &Qualifier);
+	if (Class & DEBUG_CLASS_USER_WINDOWS) {
+		// USER LAND!
+		if(g_ExtSystem->GetCurrentProcessSystemId(&processId) != S_OK){
+			dprintf("[J] failed to find process id\n");
+			return 0;
+		}
+	
+		if(!(processHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId))){
+			dprintf("[J] OpenProcess failed\n");
+			return 0;
+		}
+	
+		if(!(allocBuffer = VirtualAllocEx(processHandle, NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE))){
+			dprintf("[J] VirtualAllocEx failed\n");
+			CloseHandle(processHandle);
+			return 0;
+		}
+	} else {
+		// KERNEL LAND!
+		
 	}
-
-	if(!(processHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId))){
-		dprintf("[J] OpenProcess failed\n");
-		return 0;
-	}
-
-	if(!(allocBuffer = VirtualAllocEx(processHandle, NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE))){
-		dprintf("[J] VirtualAllocEx failed\n");
-		CloseHandle(processHandle);
-		return 0;
-	}
-
 	//CloseHandle(processHandle);
 
 	return ((ULONG64)allocBuffer);

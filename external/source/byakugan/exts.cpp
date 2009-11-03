@@ -115,6 +115,9 @@ HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
 			helpJutsu();
 			return (S_OK);
 		}
+		if (!_stricmp(command, "moduleInfo")) {
+
+		}
 		if (!_stricmp(command, "memDiff")) {
 			bufType = strtok(NULL, " ");
 			bufSize = strtok(NULL, " ");
@@ -212,7 +215,7 @@ HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
 	return (S_OK);
 }
 HRESULT CALLBACK tenketsu(PDEBUG_CLIENT4 Client, PCSTR args) {
-	char    *command, *heapName;
+	char    *command, *heapName, *logName;
 	PVOID	heapHandle;
 	
 	INIT_API();
@@ -224,24 +227,25 @@ HRESULT CALLBACK tenketsu(PDEBUG_CLIENT4 Client, PCSTR args) {
 		return (S_OK);
 	}
 	else if (!_stricmp(command, "model")) {
-    	if(hookRtlHeap(1)) {
+    	if(hookRtlHeap(1, NULL)) {
         	dprintf("[Byakugan] Unable to begin realtime heap modeling.\n");
             EXIT_API();
         	return (S_FALSE);
     	}
 	}
 	else if (!_stricmp(command, "log")) {
-    	if(hookRtlHeap(2)) {
+		logName = strtok(NULL, " ");
+		if (logName == NULL) {
+			dprintf("[Byakugan] Please provide a log name.\n");
+			return (S_FALSE);
+		}
+    	if(hookRtlHeap(2, logName)) {
 			dprintf("[Byakugan] Unable to begin realtime heap modeling.\n");
 			EXIT_API(); 
             return (S_FALSE);
 		}
 	}
 	else if (!_stricmp(command, "help")) {
-		tenkHelp();
-		return (S_OK);
-	}
-    else if (!_stricmp(command, "help")) {
 		tenkHelp();
 		return (S_OK);
 	}

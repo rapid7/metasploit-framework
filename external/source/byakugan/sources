@@ -18,6 +18,7 @@ TARGETLIBS=$(SDK_LIB_PATH)\kernel32.lib \
            $(DBGSDK_LIB_PATH)\dbgeng.lib
 
 USE_MSVCRT=1
+USE_STL=1
 
 UMTYPE=windows
 
