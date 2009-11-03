@@ -334,7 +334,7 @@ class Client
 
 						while rv != Packet::ParseCode::Completed
 							if (rv == Packet::ParseCode::Error)
-								raise RuntimeError, resp.error, caller
+								return
 							end
 
 							if resp.bufq.length > 0
@@ -345,7 +345,7 @@ class Client
 						end
 
 						if resp['Connection'] == 'close'
-							raise RuntimeError, "junk pipelined request ##{i} caused the server to close the connection", caller
+							return
 						end
 
 						buf = resp.bufq
@@ -364,14 +364,14 @@ class Client
 					while ((rv = resp.parse(conn.get)) != Packet::ParseCode::Completed)
 						# Parsing error?  Raise an exception, our job is done.
 						if (rv == Packet::ParseCode::Error)
-							raise RuntimeError, resp.error, caller
+							break
 						end
 						select(nil, nil, nil, 0.10)
 					end
 				end
 			rescue EOFError
 				return nil
-			rescue ::TimeoutError, ::Timeout::Error
+			rescue ::Timeout::Error
 				#$stdout.puts("timeout\n")
 			end
 		} if (t)
