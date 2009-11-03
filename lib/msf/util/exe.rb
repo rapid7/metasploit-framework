@@ -146,7 +146,6 @@ require 'rex/pescan'
 		entry = generate_nops(framework, [ARCH_X86], rand(200)+51)
 
 		# Pick an offset to store the new entry point
-		eloc = 0
 		if(eloc == 0) # place the entry point before the payload
 			poff += 256
 			eidx = rand(poff-(entry.length + 5))
@@ -475,12 +474,15 @@ require 'rex/pescan'
 		nil
 	end
 
-	def self.generate_nops(framework, arch, len)
+	def self.generate_nops(framework, arch, len, opts={})
+		opts['BadChars'] ||= ''
+		opts['SaveRegisters'] ||= [ 'esp', 'ebp', 'esi', 'edi' ]
+
 		return code if not framework.nops
 		framework.nops.each_module_ranked('Arch' => arch) do |name, mod|
 			begin
 				nop = framework.nops.create(name)
-				raw = nop.generate_sled(len, '')
+				raw = nop.generate_sled(len, opts)
 				return raw if raw
 			rescue
 			end
