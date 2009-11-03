@@ -370,11 +370,8 @@ require 'rex/pescan'
 	end
 
 	def self.to_exe_vbs(exes = '', opts={})
-		opts[:delay] ||= 5
-		opts[:persist] ||= false
-
-		delay   = opts[:delay]
-		persist = opts[:persist]
+		delay   = opts[:delay]   || 5
+		persist = opts[:persist] || false
 
 		exe = exes.unpack('C*')
 		vbs = ""
