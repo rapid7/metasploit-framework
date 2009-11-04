@@ -7,12 +7,12 @@ module Encoder
 module Alpha2
 
 class Generic
-		
+
 	def Generic.default_accepted_chars ; ('a' .. 'z').to_a + ('B' .. 'Z').to_a + ('0' .. '9').to_a ; end
-	
+
 	def Generic.gen_decoder_prefix(reg, offset)
 		# Should never happen - have to pick a specifc
-		# encoding: 
+		# encoding:
 		# alphamixed, alphaupper, unicodemixed, unicodeupper
 		''
 	end
@@ -37,26 +37,38 @@ class Generic
 
 	def Generic.encode_byte(block, badchars)
 		accepted_chars = default_accepted_chars.dup
-		
-		# Remove bad chars from the accepted_chars list.  Sadly 'A' must be 
+
+
+		# Remove bad chars from the accepted_chars list.  Sadly 'A' must be
 		# an accepted char or we'll certainly fail at this point.  This could
 		# be fixed later maybe with some recalculation of the encoder stubs...
 		# - Puss
-		(badchars || '').split('').each { |c| accepted_chars.delete(c) }
+		(badchars || '').unpack('C*').map { |c| accepted_chars.delete([c].pack('C')) }
 
 		first    = 0
 		second   = 1
 		randbase = 0
-		
+		found    = nil
+
+
 		gen_base_set(block).each do |randbase_|
-			randbase = randbase_
-			second   = gen_second(block, randbase)
-			next  if second < 0
-			break if accepted_chars.include?(second.chr)
+			second   = gen_second(block, randbase_)
+			next if second < 0
+			if(accepted_chars.include?([second].pack('C')))
+				found    = second
+				randbase = randbase_
+				break
+			end
 		end
-		
+
+		if(not found)
+			raise RuntimeError, "No valid base found for #{"0x%.2x" % block}"
+		end
+
 		raise RuntimeError, "Negative" if second < 0
-		raise RuntimeError, "BadChar; #{block} to #{second}"  if not accepted_chars.include?(second.chr)
+		if !(accepted_chars.include?([second].pack('C')))
+			raise RuntimeError, "BadChar; #{block} to #{second}"
+		end
 
 		if (randbase > 0xa0)
 			# first num must be 4
@@ -75,7 +87,7 @@ class Generic
 		end
 
 		# now add our new bytes :)
-		first.to_i.chr + second.chr
+		[first.to_i, second].pack('CC')
 	end
 
 	def Generic.encode(buf, reg, offset, badchars = '')
@@ -89,7 +101,7 @@ class Generic
 
 		encoded += add_terminator()
 
-		return encoded        
+		return encoded
 	end
 
 	# 'A' signifies the end of the encoded shellcode
@@ -98,3 +110,4 @@ class Generic
 	end
 
 end end end end
+
