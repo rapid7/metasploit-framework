@@ -200,9 +200,9 @@ rbpcap_open_live(VALUE self, VALUE iface,VALUE snaplen,VALUE promisc, VALUE time
     strncpy(rbp->iface, RSTRING_PTR(iface), sizeof(rbp->iface) - 1);
 
 	
-	if(rbp->pd) {
-		pcap_close(rbp->pd);	
-	}
+    if(rbp->pd) {
+        pcap_close(rbp->pd);	
+    }
 	
     rbp->pd = pcap_open_live(
     	RSTRING_PTR(iface),
@@ -391,7 +391,7 @@ rbpcap_next(VALUE self)
 	if(rbp->type == OFFLINE && ret <= 0) return Qnil;
 
 	if(ret > 0 && job.hdr.caplen > 0)
-		return rb_str_new((char *) job.pkt, job.hdr.caplen);
+             return rb_str_new((char *) job.pkt, job.hdr.caplen);
 
 	return Qnil;
 }
