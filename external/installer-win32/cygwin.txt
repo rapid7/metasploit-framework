@@ -1,0 +1,18 @@
+The Metasploit Framework 3.3 release uses Cygwin as a compatibility environment for the Windows platform.
+The specific version of Cygwin used is a CVS snapshot from August 24th, 2009:
+	http://cygwin.com/snapshots/cygwin-src-20090824.tar.bz2
+
+A patch was applied to allow other copies of Cygwin to run in parallel to Metasploit.
+	This patch can be found in: patches/cygwin-snapshot-20090824-1_version.diff
+
+In accordance with the terms of the GPL, source code for all GNU and Cygwin packages
+included in the Windows installation of the Metasploit Framework are available by
+request. With the exception of the Cygwin patch above and items listed below, all
+binaries are taken from a standard Cygwin 1.7 installation.
+
+Packages that were not included with Cygwin but are bundled with the installer:
+
+	Ruby 1.9.1p248 (built from source)
+	VNCViewer.exe (from RealVNC)
+	WinVi32 (from www.winvi.de)
+
