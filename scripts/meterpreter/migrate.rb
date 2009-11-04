@@ -4,6 +4,21 @@
 # This is meant as an illustration.
 #
 
+opts = Rex::Parser::Arguments.new(
+	"-h" => [ false,"Help menu." ]
+)
+opts.parse(args) { |opt, idx, val|
+	case opt
+	when "-h"
+		print_line("")
+		print_line("USAGE:   run migrate [process name]")
+		print_line("EXAMPLE: run migrate explorer.exe")
+		print_line(opts.usage)
+		raise Rex::Script::Completed
+	end
+}
+
+
 # Get the target process name
 target = args[0] || "lsass.exe"
 

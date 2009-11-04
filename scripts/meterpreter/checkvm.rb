@@ -9,12 +9,11 @@ session = client
 )
 
 @@exec_opts.parse(args) { |opt, idx, val|
-	p opt
 	case opt
 	when "-h"
 		print_line("CheckVM -- Check various attributes on the target for evidence that it is a virtual machine")
 		print_line("USAGE: run checkvm")
-		print_status(@@exec_opts.usage)
+		print_line(@@exec_opts.usage)
 		raise Rex::Script::Completed
 	end
 }
