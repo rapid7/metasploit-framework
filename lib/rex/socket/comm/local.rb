@@ -249,53 +249,53 @@ class Rex::Socket::Comm::Local
 			setup = "CONNECT #{host}:#{port} HTTP/1.0\r\n\r\n"
 			size = sock.put(setup)
 			if (size != setup.length)
-				raise ArgumentError, "Wrote less data than expected to the http proxy"
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to send the entire request to the proxy"), caller
 			end
 
 			begin
 				ret = sock.get_once(39,30)
 			rescue IOError
-				raise Rex::ConnectionRefused.new(host, port), caller
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a response from the proxy"), caller
 			end
 
 			if ret.nil?
-				raise ArgumentError, "The http proxy did not respond"
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a response from the proxy"), caller
 			end
 
 			resp = Rex::Proto::Http::Response.new
 			resp.update_cmd_parts(ret.split(/\r?\n/)[0])
 
 			if resp.code != 200
-				raise ArgumentError, "Connection with http proxy failed"
+				raise Rex::ConnectionProxyError.new(host, port, type, "The proxy returned a non-OK response"), caller
 			end
 		when 'socks4'
 			setup = [4,1,port.to_i].pack('CCn') + Socket.gethostbyname(host)[3] + Rex::Text.rand_text_alpha(rand(8)+1) + "\x00"
 			size = sock.put(setup)
 			if (size != setup.length)
-				raise ArgumentError, "Wrote less data than expected to the socks4 proxy"
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to send the entire request to the proxy"), caller
 			end
 
 			begin
 				ret = sock.get_once(8, 30)
 			rescue IOError
-				raise Rex::ConnectionRefused.new(host, port), caller
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a response from the proxy"), caller
 			end
 
 			if (ret.nil? or ret.length < 8)
-				raise ArgumentError, 'SOCKS4 server did not respond with a proper response'
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a complete response from the proxy"), caller
 			end
 			if ret[1,1] != "\x5a"
-				raise "SOCKS4 server responded with error code #{ret[0,1].unpack("C")[0]}"
+				raise Rex::ConnectionProxyError.new(host, port, type, "Proxy responded with error code #{ret[0,1].unpack("C")[0]}"), caller
 			end
 		when 'socks5'
 			auth_methods = [5,1,0].pack('CCC')
 			size = sock.put(auth_methods)
 			if (size != auth_methods.length)
-				raise ArgumentError, "Wrote less data than expected to the socks5 proxy"
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to send the entire request to the proxy"), caller
 			end
 			ret = sock.get_once(2,30)
 			if (ret[1,1] == "\xff")
-				raise ArgumentError, "Proxy requires authentication"
+				raise Rex::ConnectionProxyError.new(host, port, type, "The proxy requires authentication"), caller
 			end
 
 			if (Rex::Socket.is_ipv4?(host))
@@ -314,23 +314,23 @@ class Rex::Socket::Comm::Local
 
 			size = sock.put(setup)
 			if (size != setup.length)
-				raise ArgumentError, "Wrote less data than expected to the socks5 proxy"
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to send the entire request to the proxy"), caller
 			end
 
 			begin
 				response = sock.get_once(10, 30)
 			rescue IOError
-				raise Rex::ConnectionRefused.new(host, port), caller
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a response from the proxy"), caller
 			end
 
 			if (response.nil? or response.length < 10)
-				raise ArgumentError, 'SOCKS5 server did not respond with a proper response'
+				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to receive a complete response from the proxy"), caller
 			end
-			if response[1] != 0
-				raise "SOCKS5 server responded with error code #{response[1]}"
+			if response[1,1] != "\x00"
+				raise Rex::ConnectionProxyError.new(host, port, type, "Proxy responded with error code #{response[1,1].unpack("C")[0]}"), caller
 			end
 		else
-			raise ArgumentError, 'Unsupported proxy type and/or version', caller
+			raise RuntimeError, "The proxy type specified is not valid", caller
 		end
 	end
 

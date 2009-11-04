@@ -11,7 +11,7 @@ module Exception
 end
 
 ###
-# 
+#
 # This exception is raised when a timeout occurs.
 #
 ###
@@ -53,7 +53,7 @@ end
 ###
 class ArgumentError < ::ArgumentError
 	include Exception
-	
+
 	def initialize(message = nil)
 		@message = message
 	end
@@ -139,7 +139,7 @@ module SocketError
 end
 
 ###
-# 
+#
 # This exception is raised when there is some kind of error related to
 # communication with a host.
 #
@@ -215,6 +215,7 @@ class ConnectionTimeout < ConnectionError
 	end
 end
 
+
 ###
 #
 # This exception is raised when an attempt to use an address or port that is
@@ -244,10 +245,31 @@ class UnsupportedProtocol < ::ArgumentError
 	end
 
 	def to_s
-		"The protocol #{proto} is not supported."	
+		"The protocol #{proto} is not supported."
 	end
 
 	attr_accessor :proto
 end
 
+
+###
+#
+# This exception is raised when a proxy fails to pass a connection
+#
+###
+class ConnectionProxyError < ConnectionError
+	def initialize(host,port,ptype,reason)
+		super(host,port)
+		self.ptype = ptype
+		self.reason = reason
+	end
+
+	def to_s
+		self.ptype + ": " + self.reason
+	end
+
+	attr_accessor :ptype, :reason
 end
+
+end
+
