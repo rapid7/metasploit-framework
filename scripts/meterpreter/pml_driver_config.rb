@@ -42,7 +42,7 @@ opts.parse(args) do |opt, idx, val|
         case opt
         when "-h"
                 print_status("HP PML Driver HPZ12 SERVICE_CHANGE_CONFIG privilege escalation." + opts.usage)
-                return
+		raise Rex::Script::Completed
         when "-r"
                 rhost = val
         when "-p"
