@@ -423,7 +423,7 @@ require 'rex/pescan'
 		vbs << "#{var_func}\r\n"
 		vbs << "WScript.Sleep #{delay * 1000}\r\n" if persist
 		vbs << "Loop\r\n" if persist
-
+		vbs
 	end
 
 	def self.to_win32pe_vbs(framework, code, opts={})

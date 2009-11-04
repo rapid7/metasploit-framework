@@ -257,6 +257,7 @@ case cmd
 						end
 					end
 				else
+					fmt ||= "ruby"
 					if(not output)
 						$stdout.print(Msf::Simple::Buffer.transform(raw, fmt))
 					else
