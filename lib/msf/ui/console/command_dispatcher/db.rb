@@ -1,10 +1,74 @@
+
+require 'rexml/document'
+# This parser does not maintain state as well as a tree parser, so malformed
+# xml will trip it up.  Nmap doesn't output malformed xml, so it's not really a
+# big deal.
+class NmapXMLStreamParser
+	attr_accessor :framework
+	def initialize(framework)
+		@framework = framework
+		reset_state
+	end
+
+	def reset_state
+		@addr = nil
+		@status = nil
+		@ports = []
+	end
+
+	def tag_start(name, attr_hash)
+		case name
+		when "address"
+			@addr = attr_hash["addr"]
+		when "status"
+			@status = (attr_hash["state"] == "up" ? Msf::HostState::Alive : Msf::HostState::Dead)
+		when "port"
+			@ports.push(attr_hash)
+		when "state"
+			@ports.last["state"] = attr_hash["state"]
+		when "service"
+			@ports.last["name"] = attr_hash["name"]
+		end
+	end
+
+	def tag_end(name)
+		case name 
+		when "host"
+			host = framework.db.get_host(nil, @addr)
+			if not host
+				reset_state
+				return
+			end
+
+			framework.db.report_host_state(self, @addr, @status)
+			@ports.each { |port|
+				proto = port['protocol']
+				pnum = port['portid']
+				service = framework.db.get_service(nil, host, proto.downcase, pnum.to_i)
+				if name != "unknown"
+					service.name = port["name"]
+					service.save
+				end
+			}
+			reset_state
+		end
+	end
+
+	# We don't need these methods, but they're necessary to keep REXML happy
+	def text(str); end
+	def xmldecl(version, encoding, standalone); end
+	def cdata; end
+	def comment(str); end
+	def instruction(name, instruction); end
+	def attlist; end
+end
+
 module Msf
 module Ui
 module Console
 module CommandDispatcher
 class Db
 
-		require 'rexml/document'
 		require 'tempfile'
 
 		include Msf::Ui::Console::CommandDispatcher
@@ -553,11 +617,7 @@ class Db
 				return
 			end
 			
-			fd = File.open(args[0], 'r')
-			data = fd.read
-			fd.close
-			
-			load_nmap_xml(data)
+			load_nmap_xml(args[0])
 		end
 
 		#
@@ -598,49 +658,16 @@ class Db
 				end
 			end
 
-			data = File.read(fd.path)
-			fd.close
-			
-			File.unlink(fd.path)
-						
-			load_nmap_xml(data)
+			load_nmap_xml(fd.path)
 		end		
-		
+
+
 		#
 		# Process Nmap XML data
 		#
-		def load_nmap_xml(data)
-			doc = REXML::Document.new(data)
-			doc.elements.each('/nmaprun/host') do |host|
-				addr  = host.elements['address'].attributes['addr']
-				ports = host.elements['ports']
-				next if not ports
-				ports.elements.each('port') do |port|
-					prot = port.attributes['protocol']
-					pnum = port.attributes['portid']
-					
-					next if not port.elements['state']
-					stat = port.elements['state'].attributes['state']
-					
-					next if not port.elements['service']
-					name = port.elements['service'].attributes['name']
-
-					next if stat != 'open'
-					
-					host = framework.db.get_host(nil, addr)
-					next if not host
-
-					if host.state != Msf::HostState::Alive
-						framework.db.report_host_state(self, addr, Msf::HostState::Alive)
-					end
-					
-					service = framework.db.get_service(nil, host, prot.downcase, pnum.to_i)
-					if name != "unknown"
-						service.name = name
-						service.save
-					end
-				end
-			end
+		def load_nmap_xml(filename)
+			l = NmapXMLStreamParser.new(framework)
+			REXML::Document.parse_stream(File.new(filename), l)
 		end
 		
 		#
