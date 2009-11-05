@@ -35,7 +35,7 @@ autoconn = false
 opts.parse(args) do |opt, idx, val|
 	case opt
 	when "-h"
-		print_status(opts.usage)
+		print_line(opts.usage)
 		return
 	when "-r"
 		rhost = val

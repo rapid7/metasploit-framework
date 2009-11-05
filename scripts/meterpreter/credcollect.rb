@@ -1,16 +1,16 @@
 # $Id$
 # credcollect - tebo[at]attackresearch.com
 
-@@exec_opts = Rex::Parser::Arguments.new(
+opts = Rex::Parser::Arguments.new(
 	"-h" => [ false,"Help menu." ]
 )
 
-@@exec_opts.parse(args) { |opt, idx, val|
+opts.parse(args) { |opt, idx, val|
 	case opt
 	when "-h"
 		print_line("CredCollect -- harvest credentials found on the host and store them in the database")
 		print_line("USAGE: run credcollect")
-		print_status(@@exec_opts.usage)
+		print_line(opts.usage)
 		raise Rex::Script::Completed
 	end
 }

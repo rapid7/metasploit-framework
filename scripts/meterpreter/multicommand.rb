@@ -59,7 +59,7 @@ end
 
 def usage
 	print_line("Windows Multi Command Execution Meterpreter Script ")
-	print_status(@@exec_opts.usage)
+	print_line(@@exec_opts.usage)
 end
 ################## Main ##################
 @@exec_opts.parse(args) { |opt, idx, val|
