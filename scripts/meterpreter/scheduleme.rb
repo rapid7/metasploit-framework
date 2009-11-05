@@ -5,16 +5,16 @@
 #to provide future compatibility since MS will retire the AT command
 #in future versions of windows. This script works with Windows XP,
 #Windows 2003, Windows Vista and Windows 2008.
-#Verion: 0.1.2
+#Version: 0.1.2
 #Note: in Vista UAC must be disabled to be able to perform scheduling
 #and the meterpreter must be running under the profile of local admin
 #or system.
 ################## Variable Declarations ##################
 session = client
 @@exec_opts = Rex::Parser::Arguments.new(
-	"-h" => [ false,"Help menu."                        ],
+	"-h" => [ false,"Help menu." ],
 	"-c" => [ true,"Command to execute at the given time. If options for execution needed use double quotes"],
-	"-d" => [ false,"Daily."  ],
+	"-d" => [ false,"Daily." ],
 	"-hr" => [ true,"Every specified hours 1-23."],
 	"-m" => [ true, "Every specified amount of minutes 1-1439"],
 	"-e" => [ true, "Executable or script to upload to target host, will not work with remote schedule"],
@@ -29,27 +29,12 @@ session = client
 )
 ################## function declaration Declarations ##################
 def usage()
-	print(
-		"Scheduleme Meterpreter Script\n" +
-		  "This script provides most common scheduling types used during a pentest.\n"+
-		  "It has the functionality to upload a desired executable or script and schedule\n"+
-		  "the file uploaded. All scheduled task are as System so Meterpreter process must\n"+
-		  "be System or local admin for local schedules and Administrator for remore shcedules\n"
-	)
-	print_status( "\t-h \t\tHelp menu.")
-	print_status( "\t-c <opt>\tCommand to execute at the given time. If options for execution needed use double quotes")
-	print_status( "\t-d \t\tDaily.")
-	print_status( "\t-hr <opt> \tEvery specified hours 1-23.")
-	print_status( "\t-m <opt> \tEvery specified amount of minutes 1-1439")
-	print_status( "\t-l \t\tWhen a user logs on.")
-	print_status( "\t-s \t\tAt system startup.")
-	print_status( "\t-i \t\tRun command imediatly and only once.")
-	print_status( "\t-r \t\tRemote Schedule. Executable has to be already on remote target")
-	print_status( "\t-e <opt> \tExecutable or script to upload to target host, will not work with remote schedule")
-	print_status( "\t-o <opt> \tOptions for executable when upload method used")
-	print_status( "\t-u \t\tUsername of account with administrative privelages.")
-	print_status( "\t-p \t\tPassword for account provided.")
-	print_status( "\t-t <opt> \tRemote system to schedule job.")
+	print_line("Scheduleme -- provides most common scheduling types used during a pentest")
+	print_line("This script can upload a given executable or script and schedule it to be")
+	print_line("executed. All scheduled task are run as System so the Meterpreter process")
+	print_line("must be System or local admin for local schedules and Administrator for")
+	print_line("remote schedules")
+	print_line(@@exec_opts.usage)
 end
 
 #---------------------------------------------------------------------------------------------------------
