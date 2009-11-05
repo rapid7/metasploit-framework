@@ -101,7 +101,7 @@ class Plugin::CredCollect < Msf::Plugin
 	end
 
 	def name
-		"credcollect"
+		"db_credcollect"
 	end
 
 	def desc
