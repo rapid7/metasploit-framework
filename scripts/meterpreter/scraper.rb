@@ -9,6 +9,21 @@
 # hdm[at]metasploit.com
 #
 
+opts = Rex::Parser::Arguments.new(
+	"-h" => [ false,"Help menu." ]
+)
+
+opts.parse(args) { |opt, idx, val|
+	case opt
+	when "-h"
+		print_line("Scraper -- harvest system info including network shares, registry hives and password hashes")
+		print_line("Info is stored in " + ::File.join(Msf::Config.log_directory, "scraper"))
+		print_line("USAGE: run scraper")
+		print_line(@@exec_opts.usage)
+		raise Rex::Script::Completed
+	end
+}
+
 require 'fileutils'
 
 # Some of this script was developed in conjunction with _MAX_ (max[at]remote-exploit.org)
@@ -48,7 +63,7 @@ host,port = session.tunnel_peer.split(':')
 print_status("New session on #{host}:#{port}...")
 
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.config_directory, 'logs', 'scraper', host + "_" + Time.now.strftime("%Y%m%d.%M%S")+sprintf("%.5d",rand(100000)) )
+logs = ::File.join(Msf::Config.log_directory, 'scraper', host + "_" + Time.now.strftime("%Y%m%d.%M%S")+sprintf("%.5d",rand(100000)) )
 
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
