@@ -19,6 +19,10 @@ class Plugin::CredCollect < Msf::Plugin
 		end
 
 		def cmd_db_hashes()
+			if not self.framework.db.active
+				print_error("Database not connected")
+				return
+			end
 			framework.db.each_note do |note|
 				if note.ntype == "auth_HASH"
 					print_line(note.data)
@@ -27,6 +31,10 @@ class Plugin::CredCollect < Msf::Plugin
 		end
 		
 		def cmd_db_tokens()
+			if not self.framework.db.active
+				print_error("Database not connected")
+				return
+			end
 			framework.db.each_note do |note|
 				if note.ntype == "auth_TOKEN"
 					print_line("#{note.host.address} - #{note.data}")
