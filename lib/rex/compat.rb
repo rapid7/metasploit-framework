@@ -94,6 +94,11 @@ end
 
 def self.open_browser(url='http://metasploit.com/')
 	case RUBY_PLATFORM
+	when /cygwin/
+		if(url[0,1] == "/")
+			url = cygwin_to_win32(url)
+		end
+		system("cmd.exe /c start #{url}")
 	when /mswin32/
 		@s32 ||= DL.dlopen("shell32.dll")
 		se = @s32['ShellExecute', 'LPPPPPL']
