@@ -654,13 +654,7 @@ class Db
 				args.push('-oX', fd.path)
 				args.push('-oN', fo.path)
 			end
-
-			args.unshift("nmap")
-
-			print_status("exec: #{args.join(" ")}")
-			Thread.new {
-				system(args.map{|a| "'#{a}'"})
-			}.join
+			system([nmap, "nmap"], *args)
 			fo.each_line do |line|
 				print_status("NMAP: #{line.strip}")
 			end
