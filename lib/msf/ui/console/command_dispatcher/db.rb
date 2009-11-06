@@ -655,9 +655,11 @@ class Db
 				args.push('-oN', fo.path)
 			end
 			system([nmap, "nmap"], *args)
-			fo.each_line do |line|
-				print_status("NMAP: #{line.strip}")
-			end
+
+			# Until we hide stdout above, this is pointless
+			# fo.each_line do |line|
+			#	print_status("NMAP: #{line.strip}")
+			# end
 
 			::File.unlink(fo.path)
 			load_nmap_xml(fd.path)
