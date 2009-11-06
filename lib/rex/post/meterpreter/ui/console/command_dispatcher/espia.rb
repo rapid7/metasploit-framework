@@ -64,7 +64,7 @@ class Console::CommandDispatcher::Espia
 	end
 
 	def cmd_screenshot(*args)
-		if (args.length < 1 or args[0] == "-h")
+		if (args[0] and args[0] == "-h")
 			print_line("Usage: screenshot <path.bmp> [view in browser: true|false]\n")
 			return true
 		end
@@ -72,7 +72,7 @@ class Console::CommandDispatcher::Espia
 		show = true
 		show = false if (args[1] and args[1] =~ /^(f|n|0)/i)
 
-		path = args[0]
+		path = args[0] || ::Rex::Text.rand_text_alpha(8) + ".bmp"
 
 		data = client.espia.espia_image_get_dev_screen
 
