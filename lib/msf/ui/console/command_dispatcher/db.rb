@@ -19,7 +19,9 @@ class NmapXMLStreamParser
 	def tag_start(name, attr_hash)
 		case name
 		when "address"
-			@addr = attr_hash["addr"]
+			if (attr_hash["addrtype"] =~ /ipv[46]/)
+				@addr = attr_hash["addr"]
+			end
 		when "status"
 			@status = (attr_hash["state"] == "up" ? Msf::HostState::Alive : Msf::HostState::Dead)
 		when "port"
