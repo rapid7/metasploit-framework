@@ -651,9 +651,7 @@ class Db
 				args.push('-oX', fd.path)
 			end
 
-			args.unshift(nmap)
-
-			cmd = args.map{|x| "'#{x}'"}.join(" ")
+			cmd = "nmap " + args.map{|x| "'#{x}'"}.join(" ")
 
 			print_status("exec: #{cmd}")
 			IO.popen( cmd, 'rb' ) do |io|
