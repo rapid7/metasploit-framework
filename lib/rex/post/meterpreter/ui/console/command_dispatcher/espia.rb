@@ -7,7 +7,7 @@ module Ui
 
 ###
 #
-# Nah
+# Espia - Capture audio, video, screenshots from the remote system
 #
 ###
 class Console::CommandDispatcher::Espia
