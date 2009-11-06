@@ -17,7 +17,7 @@ GENERIC_EXECUTE = 0x20000000
 
 FILE_SHARE_READ  = 0x00000001
 FILE_SHARE_WRITE = 0x00000002
-OPEN_EXISTING    = 0x00000003 
+OPEN_EXISTING    = 0x00000003
 
 ENABLE_LINE_INPUT = 2
 ENABLE_ECHO_INPUT = 4
@@ -81,12 +81,23 @@ def self.is_java
 	@@is_java = (RUBY_PLATFORM =~ /java/) ? true : false
 end
 
+def self.cygwin_to_win32(path)
+	if(path !~ /^\/cygdrive/)
+		return ::IO.popen("cygpath -w #{path}", "rb").read.strip
+	end
+	dir = path.split("/")
+	dir.shift
+	dir.shift
+	dir[0] = dir[0] + ":"
+	dir.join("\\")
+end
+
 def self.open_browser(url='http://metasploit.com/')
 	case RUBY_PLATFORM
 	when /mswin32/
 		@s32 ||= DL.dlopen("shell32.dll")
 		se = @s32['ShellExecute', 'LPPPPPL']
-		se.call(nil, "open".to_s, url, nil, nil, 0)	
+		se.call(nil, "open".to_s, url, nil, nil, 0)
 	when /darwin/
 		system("open #{url}")
 	else
@@ -113,7 +124,7 @@ def self.getenv(var)
 		buff = "\x00" * 65536
 		sz = f.call(var, buff, buff.length)
 		return nil if sz == 0
-		buff[0,sz]	
+		buff[0,sz]
 	else
 		ENV[var]
 	end
@@ -137,14 +148,14 @@ def self.win32_stdin_unblock
 		gsh = @@k32['GetStdHandle', 'LL']
 		gcm = @@k32['GetConsoleMode', 'LLP']
 		scm = @@k32['SetConsoleMode', 'LLL']
-		
+
 		inp = gsh.call(STD_INPUT_HANDLE)[0]
 		inf = DL.malloc(DL.sizeof('L'))
 		gcm.call(inp, inf)
 		old_mode = inf.to_a('L', 1)[0]
 		new_mode = old_mode & ~(ENABLE_LINE_INPUT|ENABLE_ECHO_INPUT|ENABLE_PROCESSED_INPUT)
 		scm.call(inp, new_mode)
-		
+
 	rescue ::Exception
 		raise $!
 	end
@@ -159,16 +170,16 @@ def self.win32_stdin_block
 		gsh = @@k32['GetStdHandle', 'LL']
 		gcm = @@k32['GetConsoleMode', 'LLP']
 		scm = @@k32['SetConsoleMode', 'LLL']
-		
+
 		inp = gsh.call(STD_INPUT_HANDLE)[0]
 		inf = DL.malloc(DL.sizeof('L'))
 		gcm.call(inp, inf)
 		old_mode = inf.to_a('L', 1)[0]
 		new_mode = old_mode | ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT
 		scm.call(inp, new_mode)
-		
+
 	rescue ::Exception
-		raise $!	
+		raise $!
 	end
 end
 
@@ -180,15 +191,15 @@ def self.win32_ruby_path
 		@@k32 ||= DL.dlopen("kernel32.dll")
 		gmh = @@k32['GetModuleHandle', 'LP']
 		gmf = @@k32['GetModuleFileName', 'LLPL']
-		
+
 		mod = gmh.call(nil)[0]
 		inf = DL.malloc(1024)
-		
+
 		gmf.call(mod, inf, 1024)
 		return inf.to_s
-		
+
 	rescue ::Exception
-		raise $!	
+		raise $!
 	end
 end
 
@@ -201,7 +212,7 @@ def self.win32_winexec(cmd)
 		win = @@k32['WinExec', 'LPL']
 		win.call(cmd.to_ptr, 0)
 	rescue ::Exception
-		raise $!	
+		raise $!
 	end
 end
 
@@ -219,9 +230,9 @@ def self.win32_stdin_read(size=512)
 		num = DL.malloc(DL.sizeof('L'))
 		rco.call(inp, buf, size, num, 0)
 		buf.to_s
-		
+
 	rescue ::Exception
-		raise $!	
+		raise $!
 	end
 end
 
@@ -234,18 +245,18 @@ def self.win32_dev_null
 		crt = @@k32['CreateFile', 'LPLLLLLL']
 
 		hnd, rs = crt.call(
-			("NUL\x00").to_ptr, 
-			-GENERIC_READ | -GENERIC_WRITE, 
+			("NUL\x00").to_ptr,
+			-GENERIC_READ | -GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE,
 			0,
 			OPEN_EXISTING,
 			0,
 			0
 		)
-		
+
 		hnd
 	rescue ::Exception
-		raise $!	
+		raise $!
 	end
 end
 
@@ -254,7 +265,7 @@ end
 #
 def self.win32_set_std_handle(std, hnd)
 	begin
-	
+
 		sid = STD_OUTPUT_HANDLE
 		case std.downcase
 		when 'stdin'
@@ -267,13 +278,13 @@ def self.win32_set_std_handle(std, hnd)
 			raise ArgumentError, "Standard handle must be one of stdin/stdout/stderr"
 			return
 		end
-	
+
 		@@k32 ||= DL.dlopen("kernel32.dll")
 		ssh = @@k32['SetStdHandle', 'LLL']
 		ssh.call(sid, hnd)
-		
+
 	rescue ::Exception
-		raise $!	
+		raise $!
 	end
 end
 
@@ -292,12 +303,12 @@ def self.pipe
 	port = 1024
 
 	while (! serv and port < 65535)
-		begin 
+		begin
 			serv = TCPServer.new('127.0.0.1', (port += 1))
 		rescue ::Exception
 		end
 	end
-	
+
 	pipe1 = TCPSocket.new('127.0.0.1', port)
 
 	# Accept the forked child
@@ -305,7 +316,7 @@ def self.pipe
 
 	# Shutdown the server
 	serv.close
-	
+
 	return [pipe1, pipe2]
 end
 
@@ -314,12 +325,12 @@ end
 #
 
 def self.temp_copy(path)
-	raise RuntimeError,"missing Tempfile" if not @@loaded_tempfile	
+	raise RuntimeError,"missing Tempfile" if not @@loaded_tempfile
 	fd = File.open(path, "rb")
-	tp = Tempfile.new("msftemp")	
+	tp = Tempfile.new("msftemp")
 	tp.write(fd.read(File.size(path)))
 	tp.close
-	fd.close	
+	fd.close
 	tp
 end
 
@@ -371,3 +382,4 @@ end
 
 end
 end
+

@@ -640,9 +640,11 @@ class Db
 
 			fd = Tempfile.new('dbnmap')
 
-			# When executing native Nmap, expand the Cygwin path to a Win32 path
+			# When executing native Nmap in Cygwin, expand the Cygwin path to a Win32 path
 			if(Rex::Compat.is_cygwin and nmap =~ /cygdrive/)
-				args.push('-oX', IO.popen("cygpath -aw #{fd.path}").read.strip)
+				# Custom function needed because cygpath breaks on 8.3 dirs
+				tout = Rex::Compat.cygwin_to_win32(fd.path)
+				args.push('-oX', tout)
 			else
 				args.push('-oX', fd.path)
 			end
