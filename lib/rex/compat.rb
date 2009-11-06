@@ -92,11 +92,21 @@ def self.cygwin_to_win32(path)
 	dir.join("\\")
 end
 
+def self.open_file(url='')
+	case RUBY_PLATFORM
+	when /cygwin/
+		path = cygwin_to_win32(url)
+		system(["cmd", "cmd"], "/c", "explorer", path)
+	else
+		self.open_browser(url)
+	end
+end
+
 def self.open_browser(url='http://metasploit.com/')
 	case RUBY_PLATFORM
 	when /cygwin/
 		if(url[0,1] == "/")
-			url = cygwin_to_win32(url)
+			self.open_file(url)
 		end
 		system(["cmd", "cmd"], "/c", "start", url)
 	when /mswin32/
