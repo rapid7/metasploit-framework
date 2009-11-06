@@ -659,7 +659,7 @@ class Db
 
 			print_status("exec: #{args.join(" ")}")
 			Thread.new {
-				system(args)
+				system(args.map{|a| "'#{a}'"})
 			}.join
 			fo.each_line do |line|
 				print_status("NMAP: #{line.strip}")
