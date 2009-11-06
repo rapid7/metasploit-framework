@@ -653,10 +653,10 @@ class Db
 
 			args.unshift(nmap)
 
-			cmd = args.map{|x| '"'+x+'"'}.join(" ")
+			cmd = args.map{|x| '"'+x+'"'}.join(" ").gsub("\\", "\\\\")
 
 			print_status("exec: #{cmd}")
-			IO.popen( cmd ) do |io|
+			IO.popen( cmd, 'rb' ) do |io|
 				io.each_line do |line|
 					print_line("NMAP: " + line.strip)
 				end
