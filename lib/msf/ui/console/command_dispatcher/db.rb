@@ -655,7 +655,7 @@ class Db
 				args.push('-oN', fo.path)
 			end
 
-			args.unshift(nmap)
+			args.unshift("nmap")
 
 			print_status("exec: #{args.join(" ")}")
 			Thread.new {
