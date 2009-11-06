@@ -653,7 +653,7 @@ class Db
 
 			args.unshift(nmap)
 
-			cmd = args.map{|x| '"'+x+'"'}.join(" ").gsub("\\", "\\\\")
+			cmd = args.map{|x| "'#{x}'"}.join(" ")
 
 			print_status("exec: #{cmd}")
 			IO.popen( cmd, 'rb' ) do |io|
