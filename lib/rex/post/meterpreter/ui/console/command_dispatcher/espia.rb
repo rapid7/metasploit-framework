@@ -28,8 +28,8 @@ class Console::CommandDispatcher::Espia
 	#
 	def commands
 		{
-			"dev_image"  => "Attempt to grab a frame from webcam",
-			"dev_audio"  => "Attempt to record microphone audio",
+	#		"dev_image"  => "Attempt to grab a frame from webcam",
+	#		"dev_audio"  => "Attempt to record microphone audio",
 			"screenshot" => "Attempt to grab screen shot from process's active desktop"
 		}
 	end
