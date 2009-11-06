@@ -9,10 +9,10 @@
 =begin
 Copyright (c) 2009, Park Heesob
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
- 
+
 * Redistributions of source code must retain the above copyright notice, this
   list of conditions and the following disclaimer.
 * Redistributions in binary form must reproduce the above copyright notice
@@ -21,7 +21,7 @@ modification, are permitted provided that the following conditions are met:
 * Neither the name of Park Heesob nor the names of its contributors
   may be used to endorse or promote products derived from this software
   without specific prior written permission.
- 
+
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -1877,7 +1877,7 @@ module RbReadline
          @_rl_screenwidth = wc
          @_rl_screenheight = wr
       else
-         wr,wc = `stty size 2>/dev/null`.split(' ').map{|x| x.to_i}
+         wr,wc = `stty size `.split(' ').map{|x| x.to_i}
          @_rl_screenwidth = wc
          @_rl_screenheight = wr
          if ignore_env==0 && ENV['LINES']
@@ -2070,7 +2070,7 @@ module RbReadline
    # New public way to set the system default editing chars to their readline
    #   equivalents.
    def rl_tty_set_default_bindings(kmap)
-      h = Hash[*`stty -a 2>/dev/null`.scan(/(\w+) = ([^;]+);/).flatten]
+      h = Hash[*`stty -a `.scan(/(\w+) = ([^;]+);/).flatten]
       h.each {|k,v| v.gsub!(/\^(.)/){($1[0].ord ^ ((?a..?z).include?($1[0]) ? 0x60 : 0x40)).chr}}
       kmap[h['erase']] = :rl_rubout
       kmap[h['kill']] = :rl_unix_line_discard
@@ -2101,13 +2101,13 @@ module RbReadline
    #   If the file existed and could be opened and read, 0 is returned,
    #   otherwise errno is returned.
    def rl_read_init_file(filename)
-   
+
    #
    # This code is too problematic at the moment
    # Just hardcode things and move on
    #
       return 0
-   
+
       # Default the filename.
       filename ||= @last_readline_init_file
       filename ||= ENV["INPUTRC"]
@@ -2187,7 +2187,7 @@ module RbReadline
          if args[5..-1] == "emacs"
             mode = @emacs_mode
          elsif args[5..-1] == "vi"
-            $stderr.puts "*** Warning: vi-mode not supported, switching back to emacs mode"		 
+            $stderr.puts "*** Warning: vi-mode not supported, switching back to emacs mode"
             mode = @emacs_mode
          else
             mode = @no_mode
@@ -2338,7 +2338,7 @@ module RbReadline
       when "editing-mode"
          case value
          when "vi"
-            $stderr.puts "*** Warning: vi editing-mode not supported, switching back to emacs"		 		 
+            $stderr.puts "*** Warning: vi editing-mode not supported, switching back to emacs"
             #@_rl_keymap = @vi_insertion_keymap
             #@rl_editing_mode = @vi_mode
             @_rl_keymap = @emacs_standard_keymap
@@ -2442,7 +2442,7 @@ module RbReadline
          rl_bind_key(key, rl_named_function(funname))
       rescue ::Exception => e
          $stderr.puts "[-] RbReadline error parsing inputrc: #{e} '#{key}'"
-	  end	
+	  end
 
       0
    end
@@ -4039,7 +4039,7 @@ module RbReadline
       when -1
          if (cxt.search_string_index == 0)
 		 	# XXX: This variable is not defined
-            # if (last_isearch_string) 
+            # if (last_isearch_string)
             if(false)
 			   cxt.search_string_size = 64 + last_isearch_string_len
                cxt.search_string = last_isearch_string.dup
@@ -6854,7 +6854,7 @@ module RbReadline
 
    def save_tty_chars()
       @_rl_last_tty_chars = @_rl_tty_chars
-      h = Hash[*`stty -a 2>/dev/null`.scan(/(\w+) = ([^;]+);/).flatten]
+      h = Hash[*`stty -a `.scan(/(\w+) = ([^;]+);/).flatten]
       h.each {|k,v| v.gsub!(/\^(.)/){($1[0].ord ^ ((?a..?z).include?($1[0]) ? 0x60 : 0x40)).chr}}
       @_rl_tty_chars.t_erase = h['erase']
       @_rl_tty_chars.t_kill = h['kill']
@@ -6872,7 +6872,7 @@ module RbReadline
       @_rl_tty_chars.t_werase = h['werase']
       @_rl_tty_chars.t_lnext = h['lnext']
       @_rl_tty_chars.t_status = -1
-      @otio = `stty -g 2>/dev/null`
+      @otio = `stty -g `
    end
 
    def _rl_bind_tty_special_chars(kmap)
@@ -6883,7 +6883,7 @@ module RbReadline
    end
 
    def prepare_terminal_settings(meta_flag)
-      @readline_echoing_p = (`stty -a 2>/dev/null`.scan(/-*echo\b/).first == 'echo')
+      @readline_echoing_p = (`stty -a `.scan(/-*echo\b/).first == 'echo')
 
       # First, the basic settings to put us into character-at-a-time, no-echo
       #   input mode.
@@ -6892,7 +6892,7 @@ module RbReadline
       # If this terminal doesn't care how the 8th bit is used, then we can
       #   use it for the meta-key.  If only one of even or odd parity is
       #  specified, then the terminal is using parity, and we cannot.
-      if (`stty -a 2>/dev/null`.scan(/-parenb\b/).first == '-parenb')
+      if (`stty -a `.scan(/-parenb\b/).first == '-parenb')
          setting << " pass8"
       end
 
@@ -6903,7 +6903,7 @@ module RbReadline
 
       #setting << " -isig"
 
-      `stty #{setting} 2>/dev/null`
+      `stty #{setting} `
    end
 
    def _rl_control_keypad(on)
@@ -6990,7 +6990,7 @@ module RbReadline
       @rl_outstream.flush
 
       # restore terminal setting
-      `stty #{@otio} 2>/dev/null`
+      `stty #{@otio} `
 
       @terminal_prepped = false
       rl_unsetstate(RL_STATE_TERMPREPPED)
@@ -8714,3 +8714,4 @@ module RbReadline
   private :no_terminal?
 
 end
+
