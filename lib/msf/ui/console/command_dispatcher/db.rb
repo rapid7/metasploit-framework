@@ -126,17 +126,96 @@ class Db
 			framework.db.active ? base.merge(more) : base
 		end
 
-		def cmd_db_hosts(*args)
-			framework.db.each_host do |host|
-				print_status("Time: #{host.created} Host: #{host.address} Status: #{host.state} OS: #{host.os_name} #{host.os_flavor}")
+ 		def cmd_db_hosts(*args)
+			onlyup = false
+			hosts = nil
+			while (arg = args.shift)
+				case arg
+				when '-u','--up'
+					onlyup = true
+				when '-a'
+					hostlist = args.shift
+					if(!hostlist)
+					print_status("Invalid host list")
+						return
+					end
+					hosts = hostlist.strip().split(",")
+				when '-h','--help'
+					print_status("Usage: db_hosts [-h|--help] [-u|--up] [-a <addr1,addr2>]")
+					print_line("  -u,--up           Only show hosts which are up")
+					print_line("  -a <addr1,addr2>  Search for a list of addresses")
+					print_line("  -h,--help         Show this help information")
+					return
+				end
 			end
-		end
+
+ 			framework.db.each_host do |host|
+				next if(onlyup and host.state == "down")
+				next if(hosts != nil and hosts.index(host.address) == nil)
+ 				print_status("Time: #{host.created} Host: #{host.address} Status: #{host.state} OS: #{host.os_name} #{host.os_flavor}")
+ 			end
+ 		end
 
 		def cmd_db_services(*args)
-			framework.db.each_service do |service|
-				print_status("Time: #{service.created} Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state} name=#{service.name}")
+			onlyup = false
+			hosts = nil
+			ports = nil
+			proto = nil
+			name = nil
+			while (arg = args.shift)
+				case arg
+				when '-u','--up'
+					onlyup = true
+				when '-a'
+					hostlist = args.shift
+					if(!hostlist)
+						print_status("Invalid host list")
+						return
+					end
+					hosts = hostlist.strip().split(",")
+				when '-p'
+					portlist = args.shift
+					if(!portlist)
+						print_status("Invalid port list")
+						return
+					end
+					ports = portlist.strip().split(",")
+				when '-r'
+					proto = args.shift
+					if(proto == nil)
+						print_status("Invalid protocol")
+						return
+					end
+					proto = proto.strip()
+				when '-n'
+					namelist = args.shift
+					if(!namelist)
+						print_status("Invalid name list")
+						return
+					end
+					names = namelist.strip().split(",")
+
+				when '-h','--help'
+					print_status("Usage: db_services [-h|--help] [-u|--up] [-a <addr1,addr2>] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>]")
+					print_line("  -u,--up           Only show hosts which are up")
+					print_line("  -r <protocol>     Only show [tcp|udp] services")
+					print_line("  -a <addr1,addr2>  Search for a list of addresses")
+					print_line("  -p <port1,port2>  Search for a list of ports")
+					print_line("  -n <name1,name2>  Search for a list of service names")
+					print_line("  -h,--help         Show this help information")
+					return
+				end
 			end
-		end
+ 			framework.db.each_service do |service|
+				next if(onlyup and service.state != "up")
+				next if(proto and service.proto != proto)
+				next if(hosts and hosts.index(service.host.address) == nil)
+				next if(ports and ports.index(service.port.to_s) == nil)
+				next if(names and names.index(service.name) == nil)
+ 				print_status("Time: #{service.created} Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state} name=#{service.name}")
+ 			end
+ 		end
+
 
 		def cmd_db_vulns(*args)
 			framework.db.each_vuln do |vuln|
@@ -145,11 +224,40 @@ class Db
 			end
 		end
 
-		def cmd_db_notes(*args)
-			framework.db.each_note do |note|
-				print_status("Time: #{note.created} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
+ 		def cmd_db_notes(*args)
+			hosts = nil
+			types = nil
+			while (arg = args.shift)
+				case arg
+				when '-a'
+					hostlist = args.shift
+					if(!hostlist)
+						print_status("Invalid host list")
+						return
+					end
+					hosts = hostlist.strip().split(",")
+				when '-t'
+					typelist = args.shift
+					if(!typelist)
+						print_status("Invalid host list")
+						return
+					end
+					types = typelist.strip().split(",")
+				when '-h','--help'
+					print_status("Usage: db_notes [-h|--help] [-a <addr1,addr2>] [-t <type1,type2>]")
+					print_line("  -a <addr1,addr2>  Search for a list of addresses")
+					print_line("  -t <type1,type2>  Search for a list of types")
+					print_line("  -h,--help         Show this help information")
+					return
+				end
+
 			end
-		end
+ 			framework.db.each_note do |note|
+				next if(hosts and hosts.index(note.host.address) == nil)
+				next if(types and types.index(note.ntype) == nil)
+ 				print_status("Time: #{note.created} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
+ 			end
+ 		end
 
 		def cmd_db_add_host(*args)
 			print_status("Adding #{args.length} hosts...")
