@@ -114,6 +114,7 @@ class Metasploit3 < Msf::Auxiliary
 		n.l3.dst_ip = dhost
 		n.l3.protocol = 0x6
 		n.l3.id = rand(0x10000)
+		n.l3.ttl = 255
 
 		n.l4 = Racket::TCP.new
 		n.l4.src_port = sport
