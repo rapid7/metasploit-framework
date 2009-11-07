@@ -23,6 +23,8 @@ module Wmap
 
 		WMAP_PATH = '/'
 		WMAP_CHECK = true
+		WMAP_RUNEXPL = true
+		WMAP_EXITIFSESS = true
 		WMAP_SHOW = 2**0
 		WMAP_EXPL = 2**1
 		
@@ -370,6 +372,12 @@ module Wmap
 			matches10 = {}
 			
 			
+			# EXPLOIT OPTIONS
+			opt_str = nil
+			bg      = false
+			jobify  = false
+			
+			
 			[ [ framework.auxiliary, 'auxiliary' ], [framework.exploits, 'exploit' ] ].each do |mtype|
 
 				# Scan all exploit modules for matching references
@@ -443,6 +451,14 @@ module Wmap
 						self.framework.datastore.each do |gkey,gval|
 							mod.datastore[gkey]=gval
 						end
+						
+						#
+						# For exploits
+						#
+						payload = mod.datastore['PAYLOAD']
+						encoder = mod.datastore['ENCODER']
+						target  = mod.datastore['TARGET']
+						nop     = mod.datastore['NOP']
 
 						#
 						# Parameters passed in hash xref
@@ -478,6 +494,66 @@ module Wmap
 										end
 					
 										print_line(stat + ' ' + session[1])
+										
+										#
+										# Exploit if WMAP_RUNEXPL
+										#
+										
+										if (session == Msf::Exploit::CheckCode::Vulnerable) and WMAP_RUNEXPL
+											print_status("Exploiting...")
+											
+											begin
+												session = mod.exploit_simple(
+													'Encoder'        => encoder,
+													'Payload'        => payload,
+													'Target'         => target,
+													'Nop'            => nop,
+													'OptionStr'      => opt_str,
+													'LocalInput'     => driver.input,
+													'LocalOutput'    => driver.output,
+													'RunAsJob'       => jobify)
+											rescue ::Interrupt
+												raise $!
+											rescue ::Exception => e
+												print_error("Exploit failed: #{e.class} #{e}")
+												if(e.class.to_s != 'Msf::OptionValidateError')
+													print_error("Call stack:")
+													e.backtrace.each do |line|
+														break if line =~ /lib.msf.base.simple/
+														print_error("  #{line}")
+													end
+												end
+											end
+
+											# If we were given a session, let's see what we can do with it
+											if (session)
+		
+												# If we aren't told to run in the background and the session can be
+												# interacted with, start interacting with it by issuing the session
+												# interaction command.
+												if (bg == false and session.interactive?)
+													print_line
+
+													driver.run_single("sessions -q -i #{session.sid}")
+													# Otherwise, log that we created a session
+												else
+													print_status("Session #{session.sid} created in the background.")
+												end
+												# If we ran the exploit as a job, indicate such so the user doesn't
+												# wonder what's up.
+												
+												if WMAP_EXITIFSESS
+													return
+												end
+											elsif (jobify)
+												print_status("Exploit running as background job.")
+												# Worst case, the exploit ran but we got no session, bummer.
+											else
+												print_status("Exploit completed, but no session was created.")
+											end
+																																	
+										end
+										
 									else
 										print_error("Check failed: The state could not be determined.")
 									end	
@@ -485,6 +561,7 @@ module Wmap
 								rescue ::Exception
 									print_status(" >> Exception during check launch from #{xref[3]}: #{$!}")
 								end
+							
 							else
 								begin
 									session = mod.run_simple(

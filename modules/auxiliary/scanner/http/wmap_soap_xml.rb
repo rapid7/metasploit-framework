@@ -41,6 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('XMLSCHEMA', [ true,  "XML Schema", 'http://www.w3.org/2001/XMLSchema']),
 				OptString.new('XMLSOAP', [ true,  "XML SOAP", 'http://schemas.xmlsoap.org/soap/envelope/']),
 				OptString.new('CONTENTTYPE', [ true,  "The HTTP Content-Type Header", 'application/x-www-form-urlencoded']),
+				OptBool.new('DISPLAYHTML', [ true,  "Display HTML response", false ]),
 			], self.class)
 
 	end
@@ -156,8 +157,10 @@ class Metasploit3 < Msf::Auxiliary
 							return false
 						else
 							print_status("Server responded to SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
-							print_status("The HTML content follows:")
-							print_status(res.body + "\r\n")
+							if datastore['DISPLAYHTML']
+								print_status("The HTML content follows:")
+								print_status(res.body + "\r\n")
+							end	
 						end
 						
 					end
