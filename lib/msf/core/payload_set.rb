@@ -6,7 +6,7 @@ module Msf
 ###
 #
 # This class is a special case of the generic module set class because
-# payloads are generated in terms of combinations between various 
+# payloads are generated in terms of combinations between various
 # components, such as a stager and a stage.  As such, the payload set
 # needs to be built on the fly and cannot be simply matched one-to-one
 # with a payload module.  Yeah, the term module is kind of overloaded
@@ -190,7 +190,7 @@ class PayloadSet < ModuleSet
 		instance = build_payload(pmodule).new
 
 		# Create an array of information about this payload module
-		pinfo = 
+		pinfo =
 			[
 				pmodule,
 				instance.handler_klass,
@@ -207,7 +207,11 @@ class PayloadSet < ModuleSet
 		# also convey other information about the module, such as
 		# the platforms and architectures it supports
 		payload_type_modules[instance.payload_type][name] = pinfo
-		
+
+		#
+		# Disable sending singles over stagers for now
+		#
+=begin
 		# If the payload happens to be a single, but has no defined
 		# connection, then it can also be staged.  Insert it into
 		# the staged list.
@@ -216,10 +220,11 @@ class PayloadSet < ModuleSet
 		     (instance.handler_klass == nil)))
 			payload_type_modules[Payload::Type::Stage][name] = pinfo
 		end
+=end
 	end
 
 	#
-	# Looks for a payload that matches the specified requirements and 
+	# Looks for a payload that matches the specified requirements and
 	# returns an instance of that payload.
 	#
 	def find_payload(platform, arch, handler, session, payload_type)
@@ -286,7 +291,7 @@ class PayloadSet < ModuleSet
 
 		# Add it to this stage's stager hash
 		stages[stage_name][handler_type] = p
-			
+
 		dlog("Built staged payload #{full_name}.", 'core', LEV_2)
 	end
 
@@ -396,10 +401,11 @@ protected
 		return klass
 	end
 
-	attr_accessor :manager, :payload_type_modules # :nodoc: 
-	attr_writer   :stages, :singles, :sizes # :nodoc: 
-	attr_accessor :_instances # :nodoc: 
+	attr_accessor :manager, :payload_type_modules # :nodoc:
+	attr_writer   :stages, :singles, :sizes # :nodoc:
+	attr_accessor :_instances # :nodoc:
 
 end
 
 end
+
