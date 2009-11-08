@@ -17,10 +17,12 @@ class Encoder::Alphanum < Msf::Encoder
 		register_options(
 			[
 				OptString.new('BufferRegister', [ false, "The register that pointers to the encoded payload" ]),
-				OptInt.new('BufferOffset', [ false, "The offset to the buffer from the start of the register", off ])
+				OptInt.new('BufferOffset', [ false, "The offset to the buffer from the start of the register", off ]),
+				OptBool.new('AllowWin32SEH', [ true, "Use SEH to determine the address of the stub (Windows only)", false ])
 			], Msf::Encoder::Alphanum)
 	end
-	
+
 end
 
 end
+

@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -44,14 +44,22 @@ class Metasploit3 < Msf::Encoder::Alphanum
 		reg = datastore['BufferRegister']
 		off = (datastore['BufferOffset'] || 0).to_i
 		buf = ''
-		
+
 		# We need to create a GetEIP stub for the exploit
 		if (not reg)
-			res = Rex::Arch::X86.geteip_fpu(state.badchars)
-			if (not res)
-				raise RuntimeError, "Unable to generate geteip code"
-			end
+			if(datastore['AllowWin32SEH'])
+				buf = 'VTX630VXH49HHHPhYAAQhZYYYYAAQQDDDd36FFFFTXVj0PPTUPPa301089'
+				reg = 'ECX'
+				off = 0
+			else
+				res = Rex::Arch::X86.geteip_fpu(state.badchars)
+				if (not res)
+					raise RuntimeError, "Unable to generate geteip code"
+				end
 			buf, reg, off = res
+			end
+		else
+			reg.upcase!
 		end
 
 		buf + Rex::Encoder::Alpha2::AlphaMixed::gen_decoder(reg, off)
@@ -72,3 +80,4 @@ class Metasploit3 < Msf::Encoder::Alphanum
 		state.encoded += Rex::Encoder::Alpha2::AlphaMixed::add_terminator()
 	end
 end
+
