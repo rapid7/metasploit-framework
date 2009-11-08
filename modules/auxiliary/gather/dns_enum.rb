@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 				'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 				'License'		=> MSF_LICENSE,
 				'Version'		=> '$Revision$'))
-		
+
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "The target domain name"]),
@@ -33,12 +33,12 @@ class Metasploit3 < Msf::Auxiliary
 				OptBool.new('ENUM_BRT', [ true, 'Brute force subdomains and hostnames via wordlist', true]),
 				OptBool.new('ENUM_RVL', [ true, 'Reverse lookup a range of IP addresses', true]),
 				OptBool.new('ENUM_SRV', [ true, 'Enumerate the most common SRV records', true]),
-			
+
 				OptPath.new('WORDLIST', [ false, "Wordlist file for domain name brute force.", File.join(Msf::Config.install_root, "data", "wordlists", "namelist.txt")]),
 				OptAddress.new('NS', [ false, "Specify the nameserver to use for queries, otherwise use the system DNS" ]),
 				OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"])
 			], self.class)
-			
+
 		register_advanced_options(
 			[
 				OptInt.new('THREADS', [ false, "Number of threads to use when using ENUM_BRT, ENUM_TLD, and ENUM_RVL checks", 10]),
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry", 2]),
 			], self.class)
 	end
-	
+
 	#---------------------------------------------------------------------------------
 	def switchdns(target)
 		if not datastore['NS'].nil?
@@ -58,12 +58,11 @@ class Metasploit3 < Msf::Auxiliary
 			if (querysoa)
 				(querysoa.answer.select { |i| i.class == Net::DNS::RR::SOA}).each do |rr|
 					query1soa = @res.search(rr.mname)
-					if (query1soa)
-						query1soa.answer[0]
+					if (query1soa and query1soa.answer[0])
 						print_status("Setting DNS Server to #{target} NS: #{query1soa.answer[0].address}")
 						@res.nameserver=(query1soa.answer[0].address)
 						@nsinuse = query1soa.answer[0].address
-						
+
 					end
 				end
 			end
@@ -92,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 			query.answer.each do |rr|
 				next unless rr.class == Net::DNS::RR::A
 				print_status("Domain: #{target} IP Address: #{rr.address} Record: A ")
-				report_note(:host => rr.address.to_s, 
+				report_note(:host => rr.address.to_s,
 					:proto => 'DNS',
 					:port => 53 ,
 					:type => 'DNS_ENUM',
@@ -107,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 				if (query1)
 					query1.answer.each do |ip|
 						print_status("Start of Authority: #{rr.mname} IP Address: #{ip.address} Record: SOA")
-						report_note(:host => ip.address.to_s, 
+						report_note(:host => ip.address.to_s,
 							:proto => 'DNS',
 							:port => 53 ,
 							:type => 'DNS_ENUM',
@@ -124,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
 					query1.answer.each do |ip|
 						next unless ip.class == Net::DNS::RR::A
 						print_status("Name Server: #{rr.nsdname} IP Address: #{ip.address} Record: NS")
-						report_note(:host => ip.address.to_s, 
+						report_note(:host => ip.address.to_s,
 							:proto => 'DNS',
 							:port => 53 ,
 							:type => 'DNS_ENUM',
@@ -137,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 		if (query)
 			(query.answer.select { |i| i.class == Net::DNS::RR::MX}).each do |rr|
 				print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
-				report_note(:host => @nsinuse.to_s, 
+				report_note(:host => @nsinuse.to_s,
 					:proto => 'DNS',
 					:port => 53 ,
 					:type => 'DNS_ENUM',
@@ -230,7 +229,7 @@ class Metasploit3 < Msf::Auxiliary
 							query1.answer.each do |rr|
 								if rr.class == Net::DNS::RR::A
 									print_status("Host Name: #{line.chomp}.#{target} IP Address: #{rr.address.to_s}")
-									report_note(:host => rr.address.to_s, 
+									report_note(:host => rr.address.to_s,
 										:proto => 'DNS',
 										:port => 53 ,
 										:type => 'DNS_ENUM',
@@ -239,7 +238,7 @@ class Metasploit3 < Msf::Auxiliary
 								end
 							end
 						end
-												
+
 					})
 				i += 1
 			else
@@ -272,7 +271,7 @@ class Metasploit3 < Msf::Auxiliary
 						query = @res.query(tip)
 						query.each_ptr do |addresstp|
 							print_status("Host Name: #{addresstp} IP Address: #{tip.to_s}")
-							report_note(:host => tip, 
+							report_note(:host => tip,
 								:proto => 'DNS',
 								:port => 53 ,
 								:type => 'DNS_ENUM',
@@ -335,7 +334,7 @@ class Metasploit3 < Msf::Auxiliary
 						zone = @res.query(target,Net::DNS::AXFR)
 						if zone.answer.length != 0
 							print_status("Zone Transfer Successful")
-							report_note(:host => nsip.address.to_s, 
+							report_note(:host => nsip.address.to_s,
 								:proto => 'DNS',
 								:port => 53 ,
 								:type => 'DNS_ENUM',
@@ -345,63 +344,63 @@ class Metasploit3 < Msf::Auxiliary
 								case rr.type
 								when "A"
 									print_status("Name: #{rr.name} IP Address: #{rr.address} Record: A ")
-									report_note(:host => rr.address.to_s, 
+									report_note(:host => rr.address.to_s,
 										:proto => 'DNS',
 										:port => 53 ,
 										:type => 'DNS_ENUM',
 										:data => "#{rr.address.to_s},#{rr.name},A")
 								when "SOA"
 									print_status("Name: #{rr.mname} Record: SOA")
-									report_note(:host => nsip.address.to_s, 
+									report_note(:host => nsip.address.to_s,
 										:proto => 'DNS',
 										:port => 53 ,
 										:type => 'DNS_ENUM',
 										:data => "#{rr.name},SOA")
 								when "MX"
 									print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
-									report_note(:host => nsip.address.to_s, 
+									report_note(:host => nsip.address.to_s,
 										:proto => 'DNS',
 										:port => 53 ,
 										:type => 'DNS_ENUM',
 										:data => "#{rr.exchange},MX")
 								when "CNAME"
 									print_status("Name: #{rr.cname} Record: CNAME")
-									report_note(:host => nsip.address.to_s, 
+									report_note(:host => nsip.address.to_s,
 										:proto => 'DNS',
 										:port => 53 ,
 										:type => 'DNS_ENUM',
 										:data => "#{rr.cname},CNAME")
 								when "HINFO"
 									print_status("CPU: #{rr.cpu} OS: #{rr.os} Record: HINFO")
-									report_note(:host => nsip.address.to_s, 
+									report_note(:host => nsip.address.to_s,
 										:proto => 'DNS',
 										:port => 53 ,
 										:type => 'DNS_ENUM',
 										:data => "CPU:#{rr.cpu},OS:#{rr.os},HINFO")
 								when "AAA"
 									print_status("Address: #{rr.address} Record: AAA")
-									report_note(:host => rr.address.to_s, 
+									report_note(:host => rr.address.to_s,
 										:proto => 'DNS',
 										:port => 53 ,
 										:type => 'DNS_ENUM',
 										:data => "#{rr.address.to_s}, AAA")
 								when "NS"
 									print_status("Name: #{rr.nsdname} Record: NS")
-									report_note(:host =>  nsip.address.to_s, 
+									report_note(:host =>  nsip.address.to_s,
 										:proto => 'DNS',
 										:port => 53 ,
 										:type => 'DNS_ENUM',
 										:data => "#{rr.nsdname},NS")
 								when "TXT"
 									print_status("Text: #{rr.txt} Record: TXT")
-									report_note(:host =>  nsip.address.to_s, 
+									report_note(:host =>  nsip.address.to_s,
 										:proto => 'DNS',
 										:port => 53 ,
 										:type => 'DNS_ENUM',
 										:data => "#{rr.txt},TXT")
 								when "SRV"
 									print_status("Host: #{rr.host} Port: #{rr.port} Priority: #{rr.priority} Record: SRV")
-									report_note(:host =>  nsip.address.to_s, 
+									report_note(:host =>  nsip.address.to_s,
 										:proto => 'DNS',
 										:port => 53 ,
 										:type => 'DNS_ENUM',
@@ -428,36 +427,37 @@ class Metasploit3 < Msf::Auxiliary
 		@res.retry = datastore['RETRY'].to_i
 		@res.retry_interval = datastore['RETRY_INTERVAL'].to_i
 		@threadnum = datastore['THREADS'].to_i
-				
+
 		if(datastore['ENUM_STD'])
 			switchdns(datastore['DOMAIN'])
 			genrcd(datastore['DOMAIN'])
 		end
-		
+
 		if(datastore['ENUM_TLD'])
 			wildcard(datastore['DOMAIN'])
 			tldexpnd(datastore['DOMAIN'],datastore['NS'])
 		end
-		
+
 		if(datastore['ENUM_BRT'])
 			switchdns(datastore['DOMAIN'])
 			wildcard(datastore['DOMAIN'])
 			dnsbrute(datastore['DOMAIN'],datastore['WORDLIST'])
 		end
-					
+
 		if(datastore['ENUM_AXFR'])
 			switchdns(datastore['DOMAIN'])
 			axfr(datastore['DOMAIN'],datastore['NS'])
 		end
-		
+
 		if(datastore['ENUM_SRV'])
 			switchdns(datastore['DOMAIN'])
 			srvqry(datastore['DOMAIN'],datastore['NS'])
 		end
-		
+
 		if(datastore['ENUM_RVL'] and datastore['IPRANGE'] and not datastore['IPRANGE'].empty?)
 			switchdns(datastore['DOMAIN'])
 			reverselkp(datastore['IPRANGE'],datastore['NS'])
 		end
 	end
 end
+
