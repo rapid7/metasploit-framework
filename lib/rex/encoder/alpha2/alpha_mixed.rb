@@ -9,8 +9,8 @@ module Alpha2
 class AlphaMixed < Generic
 
 	def self.gen_decoder_prefix(reg, offset)
-		if (offset > 34)
-			raise "Critical: Offset is greater than 16"
+		if (offset > 32)
+			raise "Critical: Offset is greater than 32"
 		end
 
 		# use inc ebx as a nop here so we still pad correctly
@@ -35,6 +35,10 @@ class AlphaMixed < Generic
 			'EDI'   => 'WY' + mod,                         # push edi, pop ecx
 		}
 
+		reg.upcase!
+		if (not regprefix.keys.include? reg)
+			raise ArgumentError.new("Invalid register name")
+		end
 		return regprefix[reg]
 	end
 

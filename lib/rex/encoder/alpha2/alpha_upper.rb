@@ -11,7 +11,7 @@ class AlphaUpper < Generic
 	
 	def self.gen_decoder_prefix(reg, offset)
 		if (offset > 20)
-			raise "Critical: Offset is greater than 10"
+			raise "Critical: Offset is greater than 20"
 		end
 
 		# use inc ebx as a nop here so we still pad correctly
@@ -36,6 +36,10 @@ class AlphaUpper < Generic
 			'EDI'   => 'WY' + mod,                        # push edi, pop edi
 		}
 
+		reg.upcase!
+		if (not regprefix.keys.include? reg)
+			raise ArgumentError.new("Invalid register name")
+		end
 		return regprefix[reg]
 
 	end
