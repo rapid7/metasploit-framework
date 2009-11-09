@@ -381,8 +381,8 @@ class Core
 	def cmd_exit(*args)
 		forced = false
 		forced = true if (args[0] and args[0] =~ /-y/i)
-
-	    if(framework.sessions.length > 0 and not forced)
+		
+		if(framework.sessions.length > 0 and not forced)
 			print_status("You have active sessions open, to exit anyway type \"exit -y\"")
 			return
 		end
