@@ -35,7 +35,7 @@ class Core
 		"-k" => [ true,  "Terminate the specified job name."              ],
 		"-K" => [ false, "Terminate all running jobs."                    ],
 		"-l" => [ false, "List all running jobs."                         ])
-	
+
 	@@persist_opts = Rex::Parser::Arguments.new(
 		"-s" => [ true,  "Storage medium to be used (ex: flatfile)."      ],
 		"-r" => [ false, "Restore framework state."                       ],
@@ -131,11 +131,11 @@ class Core
 		    driver.current_dispatcher.name != 'Database Backend')
 			# Reset the active module if we have one
 			if (active_module)
-				
+
 				# Do NOT reset the UI anymore
 				# active_module.reset_ui
 
-				# Save the module's datastore so that we can load it later 
+				# Save the module's datastore so that we can load it later
 				# if the module is used again
 				@dscache[active_module.fullname] = active_module.datastore.dup
 
@@ -144,7 +144,7 @@ class Core
 
 			# Destack the current dispatcher
 			driver.destack_dispatcher
-	
+
 			# Restore the prompt
 			driver.update_prompt
 		end
@@ -159,32 +159,45 @@ class Core
 			print_error("No path specified")
 			return
 		end
-		
+
 		begin
 			Dir.chdir(args.join(" ").strip)
 		rescue ::Exception
 			print_error("The specified path does not exist")
 		end
 	end
-	
+
 	#
 	# Display one of the fabulous banners.
 	#
 	def cmd_banner(*args)
 		banner  = Banner.to_s + "\n\n"
-		banner << "       =[ msf v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]\n"
+		banner << "       =[ metasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]\n"
 		banner << "+ -- --=[ "
-		banner << "#{framework.stats.num_exploits} exploits - "
-		banner << "#{framework.stats.num_payloads} payloads\n"
+		banner << "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary\n"
 		banner << "+ -- --=[ "
-		banner << "#{framework.stats.num_encoders} encoders - "
-		banner << "#{framework.stats.num_nops} nops\n"
-		banner << "       =[ "
-		banner << "#{framework.stats.num_auxiliary} aux\n"
+
+		oldwarn = nil
+		banner << "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops\n"
+		if ( ::Msf::Framework::RepoRevision > 0)
+			banner << "       =[ svn r#{::Msf::Framework::RepoRevision} updated #{::Msf::Framework::RepoUpdatedDaysNote}\n"
+			if(::Msf::Framework::RepoUpdatedDays > 7)
+				oldwarn = []
+				oldwarn << "Warning: This copy of the Metasploit Framework was last updated #{::Msf::Framework::RepoUpdatedDays}."
+				oldwarn << "         We recommend that you update the framework at least every other day."
+				oldwarn << "         For information on updating your copy of Metasploit, please see:"
+				oldwarn << "             http://dev.metasploit.com/redmine/projects/framework/wiki/Updating"
+				oldwarn << ""
+			end
+		end
 		banner << "\n"
 
 		# Display the banner
 		print(banner)
+
+		if(oldwarn)
+			oldwarn.map{|line| print_line(line) }
+		end
 	end
 
 	#
@@ -366,7 +379,7 @@ class Core
 	# Instructs the driver to stop executing.
 	#
 	def cmd_exit(*args)
-		if(framework.sessions.count() > 0 and 
+		if(framework.sessions.count() > 0 and
 			(args.length < 1 or (args[0] =~ /\-Y/i) == nil))
 				print_status("You have active sessions open, to exit anyway type \"exit -y\"")
 				return
@@ -383,7 +396,7 @@ class Core
 		return if not (args and args.length == 1)
 		Rex::ThreadSafe.sleep(args[0].to_f)
 	end
-	
+
 	#
 	# Displays the command help banner or an individual command's help banner
 	# if we can figure out how to invoke it.
@@ -446,13 +459,13 @@ class Core
 			end
 		}
 	end
-	
+
 	#
 	# Tab completion for the info command (same as use)
 	#
 	def cmd_info_tabs(str, words)
 		cmd_use_tabs(str, words)
-	end	
+	end
 
 	#
 	# Goes into IRB scripting mode
@@ -467,11 +480,11 @@ class Core
 		rescue
 			print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
 		end
-		
+
 		# Reset tab completion
 		if (driver.input.supports_readline)
 			driver.input.reset_tab_completion
-		end		
+		end
 	end
 
 	#
@@ -494,7 +507,7 @@ class Core
 				when "-k"
 					print_line("Stopping job: #{val}...")
 					framework.jobs.stop_job(val)
-					
+
 				when "-K"
 					print_line("Stopping all jobs...")
 					framework.jobs.each_key do |i|
@@ -510,7 +523,7 @@ class Core
 			end
 		}
 	end
-	
+
 	#
 	# Tab completion for the jobs command
 	#
@@ -526,8 +539,8 @@ class Core
 			end
 			return ret
 		end
-	end	
-	
+	end
+
 	#
 	# Loads a plugin from the supplied path.  If no absolute path is supplied,
 	# the framework root plugin directory is used.
@@ -563,7 +576,7 @@ class Core
 		if (path !~ /#{File::SEPARATOR}/)
 			plugin_file_name = path
 
-			# If the plugin isn't in the user direcotry (~/.msf3/plugins/), use the base 
+			# If the plugin isn't in the user direcotry (~/.msf3/plugins/), use the base
 			path = Msf::Config.user_plugin_directory + File::SEPARATOR + plugin_file_name
 			if not File.exists?( path  + ".rb" )
 				# If the following "path" doesn't exist it will be caught when we attempt to load
@@ -582,7 +595,7 @@ class Core
 			print_error("Failed to load plugin from #{path}: #{e}")
 		end
 	end
-	
+
 	#
 	# Tab completion for the load command
 	#
@@ -598,7 +611,7 @@ class Core
 			rescue Exception
 			end
 		end
-	end	
+	end
 
 	#
 	# This method persists or restores framework state from a persistent
@@ -652,9 +665,9 @@ class Core
 	def cmd_persist_tabs(str, words)
 		if (not words[1])
 			return %w{-s -r -h}
-		end	
+		end
 	end
-	
+
 	#
 	# This method handles the route command which allows a user to specify
 	# which session a given subnet should route through.
@@ -707,7 +720,7 @@ class Core
 					print_error("Missing arguments to route remove.")
 					return false
 				end
-				
+
 				gw = nil
 
 				# Satisfy case problems
@@ -757,7 +770,7 @@ class Core
 					'Header'  => "Active Routing Table",
 					'Prefix'  => "\n",
 					'Postfix' => "\n",
-					'Columns' => 
+					'Columns' =>
 						[
 							'Subnet',
 							'Netmask',
@@ -783,7 +796,7 @@ class Core
 				print(tbl.to_s)
 		end
 	end
-	
+
 	#
 	# Tab completion for the route command
 	#
@@ -806,7 +819,7 @@ class Core
 		# Save the framework's datastore
 		begin
 			framework.save_config
-	
+
 			if (active_module)
 				active_module.save_config
 			end
@@ -814,7 +827,7 @@ class Core
 			log_error("Save failed: #{$!}")
 			return false
 		end
-	
+
 		print_line("Saved configuration to: #{Msf::Config.config_file}")
 	end
 
@@ -833,7 +846,7 @@ class Core
 		overall   = 0
 		curr_path = nil
 
-		begin 
+		begin
 			# Walk the list of supplied search paths attempting to add each one
 			# along the way
 			args.each { |path|
@@ -843,7 +856,7 @@ class Core
 				if (counts = framework.modules.add_module_path(path, false))
 					counts.each_pair { |type, count|
 						totals[type] = (totals[type]) ? (totals[type] + count) : count
-	
+
 						overall += count
 					}
 				end
@@ -916,7 +929,7 @@ class Core
 		end
 
 		print_status("Searching loaded modules for pattern '#{match}'...")
-		
+
 		case section
 			when 'all'
 				show_encoders(regex)
@@ -938,7 +951,7 @@ class Core
 				print_line("Usage: search (all|encoders|nops|exploits|payloads|auxiliary) regex")
 		end
 	end
-	
+
 	#
 	#
 	# Provides an interface to the sessions currently active in the framework.
@@ -978,7 +991,7 @@ class Core
 				when "-d"
 					method = 'detach'
 					sid = val
-					
+
 				# Display help banner
 				when "-h"
 					print(
@@ -988,10 +1001,10 @@ class Core
 					return false
 			end
 		}
-	
+
 		# Now, perform the actual method
 		case method
-		
+
 			when 'kill'
 				if ((session = framework.sessions.get(sid)))
 					print_status("Killing session #{sid}")
@@ -1005,15 +1018,15 @@ class Core
 						session.kill
 					end
 				end
-				
+
 			when 'detach'
 				if ((session = framework.sessions.get(sid)))
 					print_status("Detaching session #{sid}")
-					if (session.interactive?)				
+					if (session.interactive?)
 						session.detach()
 					end
 				end
-				
+
 			when 'interact'
 				if ((session = framework.sessions.get(sid)))
 					if (session.interactive?)
@@ -1022,13 +1035,13 @@ class Core
 						self.active_session = session
 
 						session.interact(driver.input.dup, driver.output)
-		
+
 						self.active_session = nil
-						
+
 						if (driver.input.supports_readline)
 							driver.input.reset_tab_completion
 						end
-						
+
 					else
 						print_error("Session #{sid} is non-interactive.")
 					end
@@ -1036,7 +1049,7 @@ class Core
 					print_error("Invalid session identifier: #{sid}")
 				end
 			when 'list'
-					print("\n" + 
+					print("\n" +
 						Serializer::ReadableText.dump_sessions(framework, verbose) + "\n")
 		end
 
@@ -1050,7 +1063,7 @@ class Core
 
 		# Reset the active session
 		self.active_session = nil
-		
+
 		return true
 	end
 
@@ -1062,12 +1075,12 @@ class Core
 			return %w{-q -i -l -h}
 		end
 	end
-	
+
 	#
 	# Sets a name to a value in a context aware environment.
 	#
 	def cmd_set(*args)
-	
+
 		# Figure out if these are global variables
 		global = false
 
@@ -1133,34 +1146,34 @@ class Core
 
 		print_line("#{name} => #{value}")
 	end
-	
+
 	#
 	# Tab completion for the set command
 	#
 	def cmd_set_tabs(str, words)
-	
+
 		# A value has already been specified
 		if (words[2])
 			return nil
 		end
-		
+
 		# A value needs to be specified
 		if(words[1])
 			return tab_complete_option(str, words)
 		end
-		
+
 		res = cmd_unset_tabs(str, words) || [ ]
 		mod = active_module
-		
+
 		if (not mod)
 			return res
 		end
-		
+
 		mod.options.sorted.each { |e|
 			name, opt = e
 			res << name
 		}
-		
+
 		# Exploits provide these three default options
 		if (mod.exploit?)
 			res << 'PAYLOAD'
@@ -1181,14 +1194,14 @@ class Core
 				p.options.sorted.each { |e|
 					name, opt = e
 					res << name
-				}				
+				}
 			end
 		end
 
 		return res
 	end
 
-		
+
 	#
 	# Sets the supplied variables in the global datastore.
 	#
@@ -1197,14 +1210,14 @@ class Core
 
 		cmd_set(*args)
 	end
-	
+
 	#
 	# Tab completion for the setg command
 	#
 	def cmd_setg_tabs(str, words)
 		res = cmd_set_tabs(str, words) || [ ]
 	end
-	
+
 	#
 	# Displays the list of modules based on their type, or all modules if
 	# no type is provided.
@@ -1250,7 +1263,7 @@ class Core
 						show_evasion_options(mod)
 					else
 						print_error("No module selected.")
-					end					
+					end
 				when "plugins"
 					show_plugins
 				when "targets"
@@ -1268,7 +1281,7 @@ class Core
 			end
 		}
 	end
-	
+
 	#
 	# Tab completion for the show command
 	#
@@ -1279,7 +1292,7 @@ class Core
 		end
 		return res
 	end
-	
+
 	#
 	# Unloads a plugin by its name.
 	#
@@ -1302,7 +1315,7 @@ class Core
 			end
 		}
 	end
-	
+
 	#
 	# Tab completion for the unload command
 	#
@@ -1368,7 +1381,7 @@ class Core
 			datastore.delete(val)
 		end
 	end
-	
+
 	#
 	# Tab completion for the unset command
 	#
@@ -1376,7 +1389,7 @@ class Core
 		datastore = active_module ? active_module.datastore : self.framework.datastore
 		datastore.keys
 	end
-	
+
 	#
 	# Unsets variables in the global data store.
 	#
@@ -1385,14 +1398,14 @@ class Core
 
 		cmd_unset(*args)
 	end
-	
+
 	#
 	# Tab completion for the unsetg command
 	#
 	def cmd_unsetg_tabs(str, words)
 		self.framework.datastore.keys
 	end
-	
+
 	#
 	# Uses a module.
 	#
@@ -1455,29 +1468,29 @@ class Core
 		if @dscache[active_module.fullname]
 			active_module.datastore.update(@dscache[active_module.fullname])
 		end
-						
+
 		mod.init_ui(driver.input, driver.output)
 
 		# Update the command prompt
 		driver.update_prompt("#{mod.type}(#{mod.shortname}) ")
 	end
-	
+
 	#
 	# Tab completion for the use command
 	#
 	def cmd_use_tabs(str, words)
 		res = []
-		
+
 		framework.modules.module_types.each do |mtyp|
 			mset = framework.modules.module_names(mtyp)
 			mset.each do |mref|
 				res << mtyp + '/' + mref
 			end
 		end
-		
+
 		return res.sort
 	end
-	
+
 	#
 	# Returns the revision of the framework and console library
 	#
@@ -1497,12 +1510,12 @@ class Core
 		opt = words[1]
 		res = []
 		mod = active_module
-		
+
 		# With no active module, we have nothing to compare
 		if (not mod)
 			return res
 		end
-		
+
 		# Well-known option names specific to exploits
 		if (mod.exploit?)
 			return option_values_payloads() if opt.upcase == 'PAYLOAD'
@@ -1514,17 +1527,17 @@ class Core
 		if (mod.auxiliary?)
 			return option_values_actions() if opt.upcase == 'ACTION'
 		end
-		
+
 		# The ENCODER option works for payloads and exploits
 		if ((mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
 			return option_values_encoders()
 		end
-		
+
 		# Is this option used by the active module?
 		if (mod.options.include?(opt))
 			res.concat(option_values_dispatch(mod.options[opt], str, words))
 		end
-		
+
 		# How about the selected payload?
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
 			p = framework.modules.create(mod.datastore['PAYLOAD'])
@@ -1535,17 +1548,17 @@ class Core
 
 		return res
 	end
-	
+
 	#
 	# Provide possible option values based on type
 	#
-	def option_values_dispatch(o, str, words)	
+	def option_values_dispatch(o, str, words)
 
 		res = []
 		res << o.default.to_s if o.default
 
 		case o.class.to_s
-		
+
 			when 'Msf::OptAddress'
 				case o.name.upcase
 					when 'RHOST'
@@ -1556,7 +1569,7 @@ class Core
 						res << Rex::Socket.source_address()
 					else
 				end
-			
+
 			when 'Msf::OptAddressRange'
 
 				case str
@@ -1573,42 +1586,42 @@ class Core
 							res << addr+'/16'
 						end
 				end
-			
+
 			when 'Msf::OptPort'
 				case o.name.upcase
 					when 'RPORT'
 					option_values_target_ports().each do |port|
 						res << port
 					end
-				end 
-				
+				end
+
 				if (res.empty?)
 					res << (rand(65534)+1).to_s
 				end
-				
+
 			when 'Msf::OptEnum'
 				o.enums.each do |val|
 					res << val
 				end
 		end
-		
+
 		return res
 	end
-	
+
 	#
 	# Provide valid payload options for the current exploit
 	#
 	def option_values_payloads
-	
+
 		# Module caching for significant speed improvement
 		if (not (@cache_active_module and @cache_active_module == active_module.refname))
 			@cache_active_module = active_module.refname
 			@cache_payloads = active_module.compatible_payloads.map { |refname, payload| refname }
 		end
-		
+
 		@cache_payloads
 	end
-	
+
 	#
 	# Provide valid target options for the current exploit
 	#
@@ -1618,9 +1631,9 @@ class Core
 			1.upto(active_module.targets.length) { |i| res << (i-1).to_s }
 		end
 		return res
-	end	
-	
-	
+	end
+
+
 	#
 	# Provide valid action options for the current auxiliary module
 	#
@@ -1630,15 +1643,15 @@ class Core
 			active_module.actions.each { |i| res << i.name }
 		end
 		return res
-	end	
-	
+	end
+
 	#
 	# Provide valid nops options for the current exploit
 	#
 	def option_values_nops
 		framework.nops.map { |refname, mod| refname }
-	end	
-	
+	end
+
 	#
 	# Provide valid encoders options for the current exploit or payload
 	#
@@ -1653,7 +1666,7 @@ class Core
 		res = [ ]
 		res << Rex::Socket.source_address()
 		return res if not framework.db.active
-		
+
 		# List only those hosts with matching open ports?
 		mport = self.active_module.datastore['RPORT']
 		if (mport)
@@ -1664,18 +1677,18 @@ class Core
 					hosts[ service.host.address ] = true
 				end
 			end
-			
+
 			hosts.keys.each do |host|
 				res << host
 			end
-			
+
 		# List all hosts in the database
 		else
 			framework.db.each_host do |host|
 				res << host.address
 			end
 		end
-		
+
 		return res
 	end
 
@@ -1697,19 +1710,19 @@ class Core
 
 		return res
 	end
-				
+
 protected
 
 	#
 	# Module list enumeration
 	#
-	
+
 	def show_encoders(regex = nil) # :nodoc:
 		# If an active module has been selected and it's an exploit, get the
 		# list of compatible encoders and display them
 		if (active_module and active_module.exploit? == true)
 			tbl = generate_module_table("Compatible encoders")
-            
+
 			active_module.compatible_encoders.each { |refname, encoder|
 				name = encoder.new.name
 
@@ -1725,7 +1738,7 @@ protected
 			show_module_set("Encoders", framework.encoders, regex)
 		end
 	end
-	
+
 	def show_nops(regex = nil) # :nodoc:
 		show_module_set("NOP Generators", framework.nops, regex)
 	end
@@ -1763,7 +1776,7 @@ protected
 	def show_options(mod) # :nodoc:
 		mod_opt = Serializer::ReadableText.dump_options(mod, '   ')
 		print("\nModule options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
-	
+
 		# If it's an exploit and a payload is defined, create it and
 		# display the payload's options
 		if (mod.exploit? and mod.datastore['PAYLOAD'])
@@ -1773,11 +1786,11 @@ protected
 				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
 				return
 			end
-			
+
 			p.share_datastore(mod.datastore)
 
 			if (p)
-				p_opt = Serializer::ReadableText.dump_options(p, '   ') 
+				p_opt = Serializer::ReadableText.dump_options(p, '   ')
 				print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
 			end
 		end
@@ -1801,9 +1814,9 @@ protected
 		mod_actions = Serializer::ReadableText.dump_auxiliary_actions(mod, '   ')
 		print("\nAuxiliary actions:\n\n#{mod_actions}\n") if (mod_actions and mod_actions.length > 0)
 	end
-		
+
 	def show_advanced_options(mod) # :nodoc:
-		mod_opt = Serializer::ReadableText.dump_advanced_options(mod, '   ') 
+		mod_opt = Serializer::ReadableText.dump_advanced_options(mod, '   ')
 		print("\nModule advanced options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
 
 		# If it's an exploit and a payload is defined, create it and
@@ -1815,18 +1828,18 @@ protected
 				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
 				return
 			end
-			
+
 			p.share_datastore(mod.datastore)
 
 			if (p)
-				p_opt = Serializer::ReadableText.dump_advanced_options(p, '   ') 
+				p_opt = Serializer::ReadableText.dump_advanced_options(p, '   ')
 				print("\nPayload advanced options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
 			end
 		end
 	end
 
 	def show_evasion_options(mod) # :nodoc:
-		mod_opt = Serializer::ReadableText.dump_evasion_options(mod, '   ') 
+		mod_opt = Serializer::ReadableText.dump_evasion_options(mod, '   ')
 		print("\nModule evasion options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
 
 		# If it's an exploit and a payload is defined, create it and
@@ -1838,16 +1851,16 @@ protected
 				print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
 				return
 			end
-			
+
 			p.share_datastore(mod.datastore)
 
 			if (p)
-				p_opt = Serializer::ReadableText.dump_evasion_options(p, '   ') 
+				p_opt = Serializer::ReadableText.dump_evasion_options(p, '   ')
 				print("\nPayload evasion options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
 			end
 		end
 	end
-	
+
 	def show_plugins # :nodoc:
 		tbl = generate_module_table("Plugins")
 
@@ -1868,7 +1881,7 @@ protected
 				tbl << [ refname, o.name ]
 				next
 			end
-			
+
 			# handle a search string, search deep
 			if(
 				o.name.match(regex) or
@@ -1890,7 +1903,7 @@ protected
 			'Header'  => type,
 			'Prefix'  => "\n",
 			'Postfix' => "\n",
-			'Columns' => 
+			'Columns' =>
 				[
 					'Name',
 					'Description'
@@ -1908,3 +1921,4 @@ protected
 end
 
 end end end end
+

@@ -1,4 +1,5 @@
 require 'msf/core'
+require 'msf/util'
 
 module Msf
 
@@ -13,20 +14,27 @@ class Framework
 	#
 	# Versioning information
 	#
+
 	Major    = 3
 	Minor    = 3
-	Release  = "-beta"
+	Release  = "-rc1"
 	Version  = "#{Major}.#{Minor}#{Release}"
-	Revision = "$Revision$"
+
+	# Repository information
+	RepoRevision        = ::Msf::Util::SVN.revision
+	RepoUpdated         = ::Msf::Util::SVN.updated
+	RepoUpdatedDays     = ::Msf::Util::SVN.days_since_update
+	RepoUpdatedDaysNote = ::Msf::Util::SVN.last_updated_friendly
+	RepoRoot            = ::Msf::Util::SVN.root
 
 	# API Version
 	APIMajor = 1
 	APIMinor = 0
-	
+
 	# Base/API Version
 	VersionCore  = Major + (Minor / 10.0)
 	VersionAPI   = APIMajor + (APIMinor / 10.0)
-	
+
 	#
 	# Mixin meant to be included into all classes that can have instances that
 	# should be tied to the framework, such as modules.
@@ -37,7 +45,7 @@ class Framework
 		# A reference to the framework instance from which this offspring was
 		# derived.
 		#
-		attr_accessor :framework	
+		attr_accessor :framework
 	end
 
 	require 'msf/core/module_manager'
@@ -48,7 +56,7 @@ class Framework
 	# Creates an instance of the framework context.
 	#
 	def initialize(opts={})
-		
+
 		# Allow specific module types to be loaded
 		types = opts[:module_types] || MODULE_TYPES
 
@@ -100,7 +108,7 @@ class Framework
 	# Returns the framework version in Major.Minor format.
 	#
 	def version
-		Version	
+		Version
 	end
 
 	#
@@ -158,3 +166,4 @@ protected
 end
 
 end
+

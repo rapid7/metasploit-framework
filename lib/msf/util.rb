@@ -20,3 +20,6 @@ end
 
 # Executable generation and encoding
 require 'msf/util/exe'
+
+# Parse SVN entries
+require 'msf/util/svn'
