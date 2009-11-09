@@ -436,7 +436,7 @@ require 'rex/pescan'
 		exe = exes.unpack('C*')
 		vbs = ""
 
-		var_bytes   =  Rex::Text.rand_text_alpha(rand(8)+8)
+		var_bytes   =  Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
 		var_fname   =  Rex::Text.rand_text_alpha(rand(8)+8)
 		var_func    =  Rex::Text.rand_text_alpha(rand(8)+8)
 		var_stream  =  Rex::Text.rand_text_alpha(rand(8)+8)
@@ -448,15 +448,19 @@ require 'rex/pescan'
 
 		vbs << "Function #{var_func}()\r\n"
 
-		vbs << "#{var_bytes} = Chr(&H#{("%02x" % exe[0])})"
+		vbs << "#{var_bytes}=Chr(#{exe[0]})"
 
+		lines = []
 		1.upto(exe.length-1) do |byte|
 			if(byte % 100 == 0)
-				vbs << "\r\n#{var_bytes} = #{var_bytes}"
+				lines.push "\r\n#{var_bytes}=#{var_bytes}"
 			end
-			vbs << "&Chr(&H#{("%02x" % exe[byte])})"
+			# exe is an Array of bytes, not a String, thanks to the unpack
+			# above, so the following line is not subject to the different
+			# treatments of String#[] between ruby 1.8 and 1.9
+			lines.push "&Chr(#{exe[byte]})"
 		end
-		vbs << "\r\n"
+		vbs << lines.join("") + "\r\n"
 
 		vbs << "Dim #{var_obj}\r\n"
 		vbs << "Set #{var_obj} = CreateObject(\"Scripting.FileSystemObject\")\r\n"
