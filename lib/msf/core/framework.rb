@@ -19,6 +19,8 @@ class Framework
 	Minor    = 3
 	Release  = "-rc1"
 	Version  = "#{Major}.#{Minor}#{Release}"
+	Revision = "$Revision$"
+
 
 	# Repository information
 	RepoRevision        = ::Msf::Util::SVN.revision
