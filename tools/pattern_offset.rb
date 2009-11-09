@@ -17,4 +17,8 @@ len   = ARGV.shift || 8192
 value  = value.hex if (value.length >= 8 and value.hex > 0)
 buffer = Rex::Text.pattern_create(len.to_i)
 
-puts Rex::Text.pattern_offset(buffer, value)
+offset = Rex::Text.pattern_offset(buffer, value)
+while offset
+	puts offset
+	offset = Rex::Text.pattern_offset(buffer, value, offset + 1)
+end

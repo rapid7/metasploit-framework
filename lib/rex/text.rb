@@ -976,11 +976,11 @@ module Text
 	#
 	# Calculate the offset to a pattern
 	#
-	def self.pattern_offset(pattern, value)
+	def self.pattern_offset(pattern, value, start=0)
 		if (value.kind_of?(String))
-			pattern.index(value)
+			pattern.index(value, start)
 		elsif (value.kind_of?(Fixnum) or value.kind_of?(Bignum))
-			pattern.index([ value ].pack('V'))
+			pattern.index([ value ].pack('V'), start)
 		else
 			raise ::ArgumentError, "Invalid class for value: #{value.class}"
 		end
