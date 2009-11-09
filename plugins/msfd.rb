@@ -94,7 +94,7 @@ class Plugin::Msfd < Msf::Plugin
 	# threads to handle the console interface for each client.
 	#
 	def run(opts={})
-		begin
+		while true
 			client = server.accept
 
 			addr = Rex::Socket.resolv_nbo(client.peerhost)
@@ -121,24 +121,27 @@ class Plugin::Msfd < Msf::Plugin
 						'LocalInput'  => Rex::Ui::Text::Input::Socket.new(cli), 
 						'LocalOutput' => Rex::Ui::Text::Output::Socket.new(cli),
 						'AllowCommandPassthru' => false).run
-
+				rescue
+					elog("Msfd client error: #{$!}\n\n#{$@.join("\n")}", 'core')
+				ensure
+					msg = "Msfd closing client connection with #{cli.peerhost}"
+					ilog(msg, 'core')
+					print_status(msg)
 					begin 
 						cli.shutdown
 						cli.close
 					rescue IOError
 					end
-				rescue
-					elog("Msfd client error: #{$!}\n\n#{$@.join("\n")}", 'core')
 				end
 			}
-
-		end while true
+		end
 	end
 
 	#
 	# Closes the listener service.
 	#
 	def cleanup
+		ilog("Msfd shutting down server", 'core')
 		self.server.close
 	end
 
