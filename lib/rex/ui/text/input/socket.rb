@@ -44,6 +44,10 @@ class Input::Socket < Rex::Ui::Text::Input
 			
 			# Read another character of input
 			char = @sock.getc
+			if char.nil?
+				@sock.close
+				return
+			end
 			
 			# Telnet sends 0x04 as EOF
 			if (char == 4)
