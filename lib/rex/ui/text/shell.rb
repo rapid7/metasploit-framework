@@ -40,6 +40,7 @@ module Shell
 		# Set the stop flag to false
 		self.stop_flag      = false
 		self.disable_output = false
+		self.stop_count	    = 0
 
 		# Initialize the prompt
 		self.init_prompt = prompt
@@ -113,21 +114,30 @@ module Shell
 
 		begin
 			
-			while (not self.stop_flag and (line = input.pgets))
+			while true
+				# If the stop flag was set or we've hit EOF, break out
+				break if (self.stop_flag or self.stop_count > 1)
+
+				line = input.pgets
 				log_output(input.prompt)
 
 				# If a block was passed in, pass the line to it.  If it returns true,
 				# break out of the shell loop.
 				if (block)
-					break if (block.call(line))
+					break if (line == nil or block.call(line))
+				elsif(input.eof? or line == nil)
+				# If you have sessions active, this will give you a shot to exit gravefully
+				# If you really are ambitious, 2 eofs will kick this out
+					self.stop_count += 1
+					next if(self.stop_count > 1)
+					run_single("quit")
+				else
 				# Otherwise, call what should be an overriden instance method to
 				# process the line.
-				else
 					run_single(line)
+					self.stop_count = 0
 				end
 
-				# If the stop flag was set or we've hit EOF, break out
-				break if (input.eof? or self.stop_flag)
 			end
 		# Prevent accidental console quits
 		rescue ::Interrupt
@@ -313,7 +323,7 @@ protected
 	attr_writer   :input, :output # :nodoc:
 	attr_accessor :stop_flag, :init_prompt # :nodoc:
 	attr_accessor :prompt_char, :tab_complete_proc # :nodoc:
-	attr_accessor :log_source # :nodoc:
+	attr_accessor :log_source, :stop_count # :nodoc:
 
 end
 

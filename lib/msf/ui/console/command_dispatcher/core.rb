@@ -366,6 +366,11 @@ class Core
 	# Instructs the driver to stop executing.
 	#
 	def cmd_exit(*args)
+		if(framework.sessions.count() > 0 and 
+			(args.length < 1 or (args[0] =~ /\-Y/i) == nil))
+				print_status("You have active sessions open, to exit anyway type \"exit -y\"")
+				return
+		end
 		driver.stop
 	end
 
