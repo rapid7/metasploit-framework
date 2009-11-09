@@ -26,7 +26,7 @@ class Generic
 		# 0xf is max for XOR encodings - non-unicode
 		max = 0x0f
 		Rex::Text.shuffle_a(
-			[* ( (0..(max-1)).map { |i| i *= 0x10 } ) ]
+			[* ( (0..(max)).map { |i| i *= 0x10 } ) ]
 		)
 	end
 
