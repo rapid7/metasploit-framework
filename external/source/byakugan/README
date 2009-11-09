@@ -61,8 +61,13 @@ C. Testing:
 
 D. Usage:
 	1. Tenketsu (Heap Visualization)
-        a. Load tenketsu heap visualization with:
-            !tenketsu
+        a1. Load tenketsu heap logging with:
+			!tenketsu log <logname.xml>
+		
+		OR
+		
+		a2. Load tenketsu heap modeling with:
+            !tenketsu model
         b. When process is broken, display heaps with
             !tenketsu listHeaps
         c. Display chunks with
@@ -102,6 +107,13 @@ D. Usage:
 
 				Note that listing non-ascii buffers with !jutsu listBuf may result in some funny output, 
 				but this wont break anything...
+
+				To load an 010 map file, (the output from a parsed file), use identBufFile:
+
+				!jutsu identBufFile inputFile mapFile 
+
+				This will load the inputFile as many seperate buffers broken up as the 010 template has parsed
+				it, naming it as the template has named each part.
 
 		c. List registered buffers with !jutsu listBuf
 		d. Remove registered buffers with !jutsu rmBuf <name>

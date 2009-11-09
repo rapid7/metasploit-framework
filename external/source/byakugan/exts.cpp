@@ -215,7 +215,7 @@ HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
             bufType = "smartFile";
 
             if (bufFile == NULL) {
-                dprintf("[Byakugan] This command requires a path to template file and map (CSV) from 010\n");
+                dprintf("[Byakugan] This command requires a path to an input file and map (CSV) from 010\n");
                 return (S_OK);
             }
 
