@@ -1,8 +1,8 @@
 # $Id: ipv6.rb 14 2008-03-02 05:42:30Z warchild $
 #
-# Copyright (c) 2008, Jon Hart 
+# Copyright (c) 2008, Jon Hart
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
 #     * Neither the name of the <organization> nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY Jon Hart ``AS IS'' AND ANY
 # EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -36,7 +36,7 @@ class IPv6 < RacketPart
   unsigned :tclass, 8
   # Flow label
   unsigned :flow, 20
-  # Payload lenght
+  # Payload length
   unsigned :plen, 16
   # Next header type
   unsigned :nhead, 8
@@ -51,3 +51,4 @@ class IPv6 < RacketPart
 end
 end
 # vim: set ts=2 et sw=2:
+
