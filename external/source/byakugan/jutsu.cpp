@@ -53,7 +53,7 @@ void memDiffJutsu(char *inputType, DWORD size, char *input, ULONG64 address) {
 			return;
 		}
 	} else if (!_stricmp(inputType, "file")) {
-		readSize = readFileIntoBuf(input, size, &pureBuf);
+		readSize = readFileIntoBuf(input, size, &pureBuf, 0);
 		if ((size && size != readSize) || readSize == 0) {
 			dprintf("[J] Failed to read %d bytes from %s.\n", size, input);
 			return;
@@ -491,7 +491,7 @@ void showRequestsJutsu() {
 		node = node->next;
 	}
 }
-void identBufJutsu(char *inputType, char *bufName, char *bufPatt, DWORD size) {
+void identBufJutsu(char *inputType, char *bufName, char *bufPatt, DWORD size, DWORD offset) {
 	struct trackedBuf	*newTrackedBuf, *curBuf;
 	char				*msfPattern;
 	DWORD				readSize;
@@ -530,7 +530,15 @@ void identBufJutsu(char *inputType, char *bufName, char *bufPatt, DWORD size) {
 		newTrackedBuf->bufPatt = _strdup(bufPatt);
 		size = strlen(bufPatt);
 	} else if (!_stricmp(inputType, "file")) {
-		readSize = readFileIntoBuf(bufPatt, size, &(newTrackedBuf->bufPatt));
+      	readSize = readFileIntoBuf(bufPatt, size, &(newTrackedBuf->bufPatt), 0);
+      	if ((size && readSize != size) || readSize == 0) {
+              dprintf("[J] Unable to read %d bytes from %s\n", size, bufName);
+              dprintf("\nThis command requires a buffer type, name, (sometimes) value, and size - maybe you forgot one?\n");
+              return;
+      	}
+      	size = (size ? size : readSize);
+   	} else if (!_stricmp(inputType, "smartFile")) {
+        readSize = readFileIntoBuf(bufPatt, size, &(newTrackedBuf->bufPatt), offset);
 		if ((size && readSize != size) || readSize == 0) {
 			dprintf("[J] Unable to read %d bytes from %s\n", size, bufName);
 			dprintf("\nThis command requires a buffer type, name, (sometimes) value, and size - maybe you forgot one?\n");

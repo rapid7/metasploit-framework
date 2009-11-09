@@ -5,6 +5,11 @@
 #include "mushishi.h"
 #include "symPort.h"
 
+#include "csv_parser.hpp"
+#include <ios>
+#include <iostream>
+#include <sstream>
+
 char *registers[] = {
     "eax",
     "ebx",
@@ -106,7 +111,7 @@ HRESULT CALLBACK symport(PDEBUG_CLIENT4 Client, PCSTR args) {
 
 HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
     char    *command, *bufName, *bufPatt, *bindPort, *bufSize, *bufType, *bufAddr;
-
+	using namespace std;
     INIT_API();
     
 	command = strtok((char *)args, " ");
@@ -187,22 +192,74 @@ HRESULT CALLBACK jutsu(PDEBUG_CLIENT4 Client, PCSTR args) {
 			rmBufJutsu(bufName);
 			return (S_OK);
 		}
-		if (!_stricmp(command, "identBuf")) {
+        if (!_stricmp(command, "identBuf")) {
 
-			bufType = strtok(NULL, " ");
-			bufName = strtok(NULL, " ");
-			bufPatt = strtok(NULL, " ");
-			bufSize = strtok(NULL, " ");
-			if (bufPatt == NULL) {
-				dprintf("[Byakugan] This command requires a buffer type, name, (sometimes) value, and size\n");
-				return (S_OK);
-			}
-			if (bufSize == NULL)
-				identBufJutsu(bufType, bufName, bufPatt, 0);
-			else
-				identBufJutsu(bufType, bufName, bufPatt, strtoul(bufSize, NULL, 10));
-			return (S_OK);
-		}
+            bufType = strtok(NULL, " ");
+            bufName = strtok(NULL, " ");
+            bufPatt = strtok(NULL, " ");
+            bufSize = strtok(NULL, " ");
+            if (bufPatt == NULL) {
+                dprintf("[Byakugan] This command requires a buffer type, name, (sometimes) value, and size\n");
+                return (S_OK);
+            }
+            if (bufSize == NULL)
+                identBufJutsu(bufType, bufName, bufPatt, 0, 0);
+            else
+                identBufJutsu(bufType, bufName, bufPatt, strtoul(bufSize, NULL, 10), 0);
+            return (S_OK);
+        }
+        if (!_stricmp(command, "identBufFile")) {
+            char *bufFile, *bufMap;
+            bufFile = strtok(NULL, " ");
+            bufMap = strtok(NULL, " ");
+            bufType = "smartFile";
+
+            if (bufFile == NULL) {
+                dprintf("[Byakugan] This command requires a path to template file and map (CSV) from 010\n");
+                return (S_OK);
+            }
+
+            //these settings are explicting for 010 CSV export
+            const char field_terminator = ',';
+            const char line_terminator  = '\n';
+            const char enclosure_char   = '"';
+
+            //create parse object
+            csv_parser file_parser;
+
+            /* Define how many records we're gonna skip. This could be used to skip the column definitions. */
+            file_parser.set_skip_lines(1);
+
+            /* Specify the file to parse */
+            file_parser.init(bufMap);
+
+            /* Here we tell the parser how to parse the file */
+            file_parser.set_enclosed_char(enclosure_char, ENCLOSURE_OPTIONAL);
+
+            file_parser.set_field_term_char(field_terminator);
+
+            file_parser.set_line_term_char(line_terminator);
+
+            /* Check to see if there are more records, then grab each row one at a time */
+            while(file_parser.has_more_rows())
+            {
+                csv_row fileRecord = file_parser.get_row();
+
+                //the miracle of STL hex string conversion :)           
+                istringstream stFileOffset(fileRecord[2].c_str());
+                istringstream stOffSetSize(fileRecord[3].c_str());
+                unsigned int offset;
+                unsigned int size;
+                stFileOffset >> hex >> offset;
+                stOffSetSize >> hex >> size;
+
+                //dprintf("Allocating Buffer Name:%s at offset: %d with size: %d\n", fileRecord[0].c_str(), offset, size);
+
+                //create individual buffers with the record type as a name and using the offset and size
+                identBufJutsu(bufType, (char *)fileRecord[0].c_str(), bufFile, size, offset);
+            }
+            return (S_OK);
+        }
 		if (!_stricmp(command, "hunt")) {
 			hunterJutsu();
 		}

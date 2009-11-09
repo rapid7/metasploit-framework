@@ -86,7 +86,7 @@ void	searchOpcodes(char *);
 void	searchVtptr(DWORD, char *);
 DWORD WINAPI listenJutsu(LPVOID lpvParam);
 void	parseJutsu(char *, ULONG);
-void	identBufJutsu(char *, char *, char *, DWORD);
+void	identBufJutsu(char *, char *, char *, DWORD, DWORD);
 void	rmBufJutsu(char *);
 void	listTrackedBufJutsu(void);
 void	showRequestsJutsu(void);

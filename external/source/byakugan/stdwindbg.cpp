@@ -288,7 +288,7 @@ DWORD parseHexInput(char *hexInput, DWORD size, char *output) {
 	return (0);
 }
 
-DWORD readFileIntoBuf(char *path, DWORD size, char **output) {
+DWORD readFileIntoBuf(char *path, DWORD size, char **output, DWORD offset) {
     HANDLE      inputFile;
     DWORD       readOut = 1, i = 0;
     char        out;
@@ -299,18 +299,30 @@ DWORD readFileIntoBuf(char *path, DWORD size, char **output) {
         dprintf("[S] Unable to open file: %s\n", path);
         return (0);
     }
-	if (size == 0)
-		size = GetFileSize(inputFile, NULL) - 1;
-	
-	*output = (char *) malloc(size + 1);
-	if (!*output) {
-		dprintf("[S] Unable to allocate memory for %s\n", path);
-		return (0);
-	}
+    if (size == 0)
+        size = GetFileSize(inputFile, NULL) - 1;
 
-    while (readOut > 0 && i < size) {
-        ReadFile(inputFile, &out, 1, &readOut, NULL);
-    	(*output)[i++] = out;
-	}
+    *output = (char *) malloc(size + 1);
+    if (!*output) {
+        dprintf("[S] Unable to allocate memory for %s\n", path);
+        return (0);
+    }
+     if(offset == 0) {
+         while (readOut > 0 && i < size) {
+             ReadFile(inputFile, &out, 1, &readOut, NULL);
+             (*output)[i++] = out;
+          }
+    }
+    else {
+        if(SetFilePointer(inputFile,offset, NULL,FILE_BEGIN) == INVALID_SET_FILE_POINTER ){
+            dprintf("[S] Unable to read at offset %d for %s\n", offset, path);
+            return (0);
+            }
+         while (readOut > 0 && i < size) {
+
+             ReadFile(inputFile, &out, 1, &readOut, NULL);
+             (*output)[i++] = out;
+          }
+    }
     return (i);
 }

@@ -12,7 +12,7 @@ PDEBUG_BREAKPOINT detectExecByAddr(ULONG64, char *);
 PDEBUG_BREAKPOINT detectReadByAddr(ULONG64, char *);
 PDEBUG_BREAKPOINT detectWriteByAddr(ULONG64, char *);
 DWORD parseHexInput(char *, DWORD, char *);
-DWORD readFileIntoBuf(char *, DWORD, char **);
+DWORD readFileIntoBuf(char *, DWORD, char **, DWORD);
 
 class detectionCallBack : public IDebugEventCallbacks {
     public:

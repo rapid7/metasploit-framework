@@ -22,9 +22,12 @@ USE_STL=1
 
 UMTYPE=windows
 
+USE_NATIVE_EH=1
+
 MSC_WARNING_LEVEL = 
 
 SOURCES= byakugan.cpp       \
+		 csv_parser.cpp		\
          msfpattern.cpp     \
 		 jutsu.cpp			\
 		 exts.cpp			\
