@@ -17,6 +17,9 @@ require 'rex'
 require 'rex/ui'
 require 'rex/exploitation/opcodedb'
 
+$stderr.puts "Error: This utility is disabled until the opcode database has been rebuilt."
+exit(0)
+
 if (ARGV.length == 0)
 	$stderr.puts("\n" + "    Usage: #{File.basename($0)} command <options>\n\n" +
 		"SUPPORTED COMMANDS\n\n" +
@@ -63,9 +66,9 @@ $search_args = Rex::Parser::Arguments.new(
 # Command specific option argument parsing association
 cmd_args =
 {
-	"platforms" => 
-		[ 
-			$platform_args, 
+	"platforms" =>
+		[
+			$platform_args,
 			Proc.new { |opt, val|
 				case opt
 					when "-p"
@@ -76,7 +79,7 @@ cmd_args =
 						$stderr.puts("\n    Usage: #{File.basename($0)} platforms <options>\n" + $platform_args.usage)
 						exit
 				end
-			} 
+			}
 		],
 	"modules" =>
 		[
@@ -214,7 +217,7 @@ case cmd
 				if ($filter['Segments'])
 					tbl = Rex::Ui::Text::Table.new(
 						'Indent'  => 4,
-						'Columns' => 
+						'Columns' =>
 							[
 								"Type",
 								"Base Address",
@@ -240,7 +243,7 @@ case cmd
 				if ($filter['Imports'])
 					tbl = Rex::Ui::Text::Table.new(
 						'Indent'  => 4,
-						'Columns' => 
+						'Columns' =>
 							[
 								"Ordinal",
 								"Address",
@@ -262,7 +265,7 @@ case cmd
 				if ($filter['Exports'])
 					tbl = Rex::Ui::Text::Table.new(
 						'Indent'  => 4,
-						'Columns' => 
+						'Columns' =>
 							[
 								"Ordinal",
 								"Address",
@@ -325,7 +328,7 @@ case cmd
 		tbl = Rex::Ui::Text::Table.new(
 			'Indent'  => 4,
 			'Header'  => "Opcodes",
-			'Columns' => 
+			'Columns' =>
 				[
 					"Address",
 					"Type",
@@ -346,16 +349,16 @@ case cmd
 				tbl << [ '', '', '' ] if (midx >= 1)
 
 				if (opcode.modules[midx].platforms.length > 1)
-	
+
 					until (opcode.modules[midx].platforms[pidx] == nil)
 						tbl << [
 							'', '',
 							opcode.modules[midx].platforms[pidx].desc + " (#{opcode.modules[midx].name})"
 						]
-	
+
 						pidx += 1
 					end
-	
+
 					pidx = 0
 				end
 
@@ -367,3 +370,4 @@ case cmd
 	else
 		$stderr.puts("Unsupported command: #{cmd}")
 end
+
