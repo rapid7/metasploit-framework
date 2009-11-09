@@ -124,7 +124,7 @@ module Handler
 	# handles.  The handles are passed as parameters in case this
 	# handler is capable of handling multiple simultaneous
 	# connections.  The default behavior is to attempt to create a session for
-	# the payload.  This path will not be taken for mutli-staged payloads.
+	# the payload.  This path will not be taken for multi-staged payloads.
 	#
 	def handle_connection(conn)
 		create_session(conn)
