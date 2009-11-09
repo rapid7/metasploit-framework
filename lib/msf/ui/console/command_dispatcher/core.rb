@@ -183,7 +183,7 @@ class Core
 			banner << "       =[ svn r#{::Msf::Framework::RepoRevision} updated #{::Msf::Framework::RepoUpdatedDaysNote}\n"
 			if(::Msf::Framework::RepoUpdatedDays > 7)
 				oldwarn = []
-				oldwarn << "Warning: This copy of the Metasploit Framework was last updated #{::Msf::Framework::RepoUpdatedDays}."
+				oldwarn << "Warning: This copy of the Metasploit Framework was last updated #{::Msf::Framework::RepoUpdatedDaysNote}."
 				oldwarn << "         We recommend that you update the framework at least every other day."
 				oldwarn << "         For information on updating your copy of Metasploit, please see:"
 				oldwarn << "             http://dev.metasploit.com/redmine/projects/framework/wiki/Updating"
@@ -381,7 +381,7 @@ class Core
 	def cmd_exit(*args)
 		forced = false
 		forced = true if (args[0] and args[0] =~ /-y/i)
-		
+
 		if(framework.sessions.length > 0 and not forced)
 			print_status("You have active sessions open, to exit anyway type \"exit -y\"")
 			return
