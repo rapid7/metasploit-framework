@@ -23,8 +23,10 @@ cp tmp/msf3.tar tmp32/
 cp bin/linux32.tar.bz2 tmp32/metasploit.tar.bz2
 bunzip2 tmp32/metasploit.tar.bz2
 cp -a scripts/*.sh tmp32/
-makeself tmp32 ${PATH32} "${NAME32}" ./installer.sh 32
-rm -rf tmp32
+TMP32=tmp32`date +%s1`
+mv tmp32 $TMP32
+makeself $TMP32 ${PATH32} "${NAME32}" ./installer.sh 32
+rm -rf $TMP32
 
 rm -rf tmp64
 mkdir tmp64
@@ -32,6 +34,8 @@ cp tmp/msf3.tar tmp64/
 cp bin/linux64.tar.bz2 tmp64/metasploit.tar.bz2
 bunzip2 tmp64/metasploit.tar.bz2
 cp -a scripts/*.sh tmp64/
-makeself tmp64 ${PATH64} "${NAME64}" ./installer.sh 64
-rm -rf tmp64
+TMP64=tmp32`date +%s1`
+mv tmp64 $TMP64
+makeself $TMP64 ${PATH64} "${NAME64}" ./installer.sh 64
+rm -rf $TMP64
 

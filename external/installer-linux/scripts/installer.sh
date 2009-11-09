@@ -82,6 +82,7 @@ fi
 echo "Would you like to update Metasploit right now?"
 confirm "Update?"
 if [ $? -eq "1" ]; then
+	echo ""
 	/opt/metasploit3/bin/msfupdate
 	echo ""
 fi
