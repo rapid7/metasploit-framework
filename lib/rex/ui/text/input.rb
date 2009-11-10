@@ -7,7 +7,7 @@ module Text
 ###
 #
 # This class acts as a base for all input mediums.  It defines
-# the interface that will be used by anything that wants to 
+# the interface that will be used by anything that wants to
 # interact with a derived class.
 #
 ###
@@ -16,9 +16,16 @@ class Input
 	require 'rex/ui/text/input/stdio'
 	require 'rex/ui/text/input/readline'
 	require 'rex/ui/text/input/socket'
-	
+	require 'rex/ui/text/color'
+
+	include Rex::Ui::Text::Color
+
 	def initialize
 		self.eof = false
+		@config = {
+			:color => :auto, # true, false, :auto
+		}
+		super
 	end
 
 	#
@@ -27,7 +34,7 @@ class Input
 	def supports_readline
 		true
 	end
-	
+
 	#
 	# Stub for tab completion reset
 	#
@@ -72,10 +79,39 @@ class Input
 		false
 	end
 
-	attr_accessor :eof
+	def update_prompt(new_prompt = '', new_prompt_char = '')
+		self.prompt = new_prompt + new_prompt_char
+	end
+
+	attr_reader :config
+
+	def disable_color
+		return if not @config
+		@config[:color] = false
+	end
+
+	def enable_color
+		return if not @config
+		@config[:color] = true
+	end
+
+	def auto_color
+		return if not @config
+		@config[:color] = :auto
+	end
+
+	def update_prompt(prompt)
+		substitute_colors(prompt)
+	end
+
+	def reset_color
+	end
+
+	attr_accessor :eof, :prompt, :prompt_char, :config
 
 end
 
 end
 end
 end
+

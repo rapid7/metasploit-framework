@@ -26,13 +26,15 @@ class Output < Rex::Ui::Output
 		super
 	end
 	attr_reader :config
-		
+
 	def disable_color
 		@config[:color] = false
 	end
+
 	def enable_color
 		@config[:color] = true
 	end
+
 	def auto_color
 		@config[:color] = :auto
 	end
@@ -40,7 +42,6 @@ class Output < Rex::Ui::Output
 	def update_prompt(prompt)
 		substitute_colors(prompt)
 	end
-
 
 	def print_error(msg = '')
 		print_line("%red[-]%clr #{msg}")
@@ -70,3 +71,4 @@ end
 end
 end
 end
+

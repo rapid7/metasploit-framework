@@ -12,7 +12,7 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 		@subscribers_ref = {}
 		@subscribers_idx = 0
 		@pipe_input = Rex::Ui::Text::Input::Buffer.new
-		
+
 		# We are the shell, the input, and the output
 		self.output = self
 		self.input  = self
@@ -29,7 +29,7 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 	def has_subscriber?(id)
 		@subscribers_out.has_key?(id)
 	end
-	
+
 	def create_subscriber(id=nil)
 		id ||= (@subscribers_idx += 1).to_s
 		@subscribers_out[id] = Rex::Ui::Text::Output::Buffer.new
@@ -40,7 +40,7 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 		id = create_subscriber(id)
 		@subscribers_ref[id] = block
 	end
-	
+
 	def remove_subscriber(id)
 		@subscribers_out.delete(id)
 		@subscribers_ref.delete(id)
@@ -73,22 +73,22 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 		}
 		msg
 	end
-	
+
 	def print_error(msg='')
 		print_line('[-] ' + msg)
 	end
-	
+
 	def print_line(msg='')
 		print(msg + "\n")
 	end
-	
+
 	def print_good(msg='')
 		print_line('[+] ' + msg)
 	end
 
 	def flush
 	end
-	
+
 	def print_status(msg='')
 		print_line('[*] ' + msg)
 	end
@@ -108,15 +108,15 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 	def put(msg)
 		@pipe_input.put(msg)
 	end
-	
+
 	def gets
 		@pipe_input.gets
 	end
-	
+
 	def eof?
 		@pipe_input.eof?
 	end
-	
+
 	def fd
 		@pipe_input.fd
 	end
@@ -124,9 +124,9 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 	#
 	# Wrappers for shell methods
 	#
-	
+
 	attr_accessor :output, :prompt, :input
-	
+
 	def intrinsic_shell?
 		true
 	end
@@ -134,11 +134,11 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 	def supports_readline
 		false
 	end
-	
+
 	def supports_color?
 		false
 	end
-	
+
 	def pgets
 		gets
 	end
@@ -150,3 +150,4 @@ end
 
 end
 end
+
