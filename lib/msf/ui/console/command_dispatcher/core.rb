@@ -123,7 +123,7 @@ class Core
 			print_line("Usage: color <'true'|'false'|'auto'>\n")
 			print_line("Enable or disable color output.")
 		end
-		update_prompt
+		update_prompt('')
 	end
 
 	def cmd_resource(*args)
