@@ -35,6 +35,8 @@ class Handler::Proc < Handler
 	def on_request(cli, req)
 		begin
 			procedure.call(cli, req)
+		rescue Errno::EPIPE
+			elog("Proc::on_request: Client closed connection prematurely", LogSource)
 		rescue
 			elog("Proc::on_request: #{$!}\n\n#{$@.join("\n")}", LogSource)
 		end
