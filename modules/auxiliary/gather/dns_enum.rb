@@ -12,7 +12,6 @@ require "net/dns/resolver"
 
 class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
-
 	def initialize(info = {})
 		super(update_info(info,
 				'Name'		   => 'DNS Enumeration Module',
@@ -22,23 +21,21 @@ class Metasploit3 < Msf::Auxiliary
 				},
 				'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 				'License'		=> MSF_LICENSE,
-				'Version'		=> '$Revision$'))
-
+				'Version'		=> '$Rev$'))
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "The target domain name"]),
 				OptBool.new('ENUM_AXFR', [ true, 'Initiate a zone Transfer against each NS record', true]),
-				OptBool.new('ENUM_TLD', [ true, 'Perform a top-level domain expansion', true]),
+				OptBool.new('ENUM_TLD', [ true, 'Perform a top-level domain expansion by replacing TLD and testing against IANA TLD list', false]),
 				OptBool.new('ENUM_STD', [ true, 'Enumerate standard record types (A,MX,NS,TXT and SOA)', true]),
-				OptBool.new('ENUM_BRT', [ true, 'Brute force subdomains and hostnames via wordlist', true]),
-				OptBool.new('ENUM_RVL', [ true, 'Reverse lookup a range of IP addresses', true]),
+				OptBool.new('ENUM_BRT', [ true, 'Brute force subdomains and hostnames via wordlist', false]),
+				OptBool.new('ENUM_RVL', [ true, 'Reverse lookup a range of IP addresses', false]),
 				OptBool.new('ENUM_SRV', [ true, 'Enumerate the most common SRV records', true]),
-
 				OptPath.new('WORDLIST', [ false, "Wordlist file for domain name brute force.", File.join(Msf::Config.install_root, "data", "wordlists", "namelist.txt")]),
 				OptAddress.new('NS', [ false, "Specify the nameserver to use for queries, otherwise use the system DNS" ]),
-				OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"])
+				OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
+				OptBool.new('STOP_WLDCRD', [ true, 'Stops Brute Force Enumeration if wildcard resolution is detected', false])
 			], self.class)
-
 		register_advanced_options(
 			[
 				OptInt.new('THREADS', [ false, "Number of threads to use when using ENUM_BRT, ENUM_TLD, and ENUM_RVL checks", 10]),
@@ -62,7 +59,6 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("Setting DNS Server to #{target} NS: #{query1soa.answer[0].address}")
 						@res.nameserver=(query1soa.answer[0].address)
 						@nsinuse = query1soa.answer[0].address
-
 					end
 				end
 			end
@@ -84,7 +80,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 	#---------------------------------------------------------------------------------
 	def genrcd(target)
-
 		print_status("Retrieving General DNS Records")
 		query = @res.search(target)
 		if (query)
@@ -98,7 +93,6 @@ class Metasploit3 < Msf::Auxiliary
 					:data => "#{rr.address.to_s},#{target},A")
 			end
 		end
-
 		query = @res.query(target, "SOA")
 		if (query)
 			(query.answer.select { |i| i.class == Net::DNS::RR::SOA}).each do |rr|
@@ -156,7 +150,9 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 	#---------------------------------------------------------------------------------
-	def tldexpnd(target,nssrv)
+	def tldexpnd(targetdom,nssrv)
+		target = targetdom.scan(/(\S*)[.]\w*\z/).join
+		target.chomp!
 		if not nssrv.nil?
 			@res.nameserver=(nssrv)
 		end
@@ -189,13 +185,11 @@ class Metasploit3 < Msf::Auxiliary
 			"gs", "info", "biz", "su", "name", "coop", "aero" ]
 
 		tlds.each do |tld|
-
 			if i < @threadnum
 				a.push(Thread.new {
 						query1 = @res.search("#{target}.#{tld}")
 						if (query1)
 							query1.answer.each do |rr|
-
 								print_status("Domain: #{target}.#{tld} Name: #{rr.name} IP Address: #{rr.address} Record: A ") if rr.class == Net::DNS::RR::A
 								report_note(:host => rr.address.to_s,
 									:proto => 'DNS', :port => 53 ,
@@ -209,15 +203,12 @@ class Metasploit3 < Msf::Auxiliary
 				sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
 				i = 0
 			end
-
 		end
 		a.delete_if {|x| not x.alive?} while not a.empty?
-
 	end
 
 	#-------------------------------------------------------------------------------
 	def dnsbrute(target, wordlist)
-
 		arr = []
 		i, a = 0, []
 		arr = IO.readlines(wordlist)
@@ -238,7 +229,6 @@ class Metasploit3 < Msf::Auxiliary
 								end
 							end
 						end
-
 					})
 				i += 1
 			else
@@ -256,17 +246,13 @@ class Metasploit3 < Msf::Auxiliary
 			@res.nameserver = (nssrv)
 		end
 		ar = Rex::Socket::RangeWalker.new(iprange)
-
 		tl = []
-
 		while (true)
 			# Spawn threads for each host
 			while (tl.length < @threadnum)
 				ip = ar.next_ip
 				break if not ip
-
 				tl << Thread.new(ip.dup) do |tip|
-
 					begin
 						query = @res.query(tip)
 						query.each_ptr do |addresstp|
@@ -286,12 +272,10 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 			end
-
 			# Exit once we run out of hosts
 			if(tl.length == 0)
 				break
 			end
-
 			tl.first.join
 			tl.delete_if { |t| not t.alive? }
 		end
@@ -305,7 +289,8 @@ class Metasploit3 < Msf::Auxiliary
 			"_gc._tcp.","_kerberos._tcp.", "_kerberos._udp.","_ldap._tcp","_test._tcp.",
 			"_sips._tcp.","_sip._udp.","_sip._tcp.","_aix._tcp.","_aix._tcp.","_finger._tcp.",
 			"_ftp._tcp.","_http._tcp.","_nntp._tcp.","_telnet._tcp.","_whois._tcp.","_h323cs._tcp.",
-			"_h323cs._udp.","_h323be._tcp.","_h323be._udp.","_h323ls._tcp.","_h323ls._udp."]
+			"_h323cs._udp.","_h323be._tcp.","_h323be._udp.","_h323ls._tcp.","_h323ls._udp.",
+			"_sipinternal._tcp.","_sipinternaltls._tcp.","_sip._tls.","_sipfederationtls._tcp."]
 		srvrcd.each do |a|
 			trg = "#{a}#{dom}"
 			query = @res.query(trg , Net::DNS::SRV)
@@ -322,17 +307,17 @@ class Metasploit3 < Msf::Auxiliary
 		if not nssrv.nil?
 			@res.nameserver=(nssrv)
 		end
-		@res.tcp_timeout=15
+		#@res.tcp_timeout=15
 		query = @res.query(target, "NS")
 		if (query.answer.length != 0)
 			(query.answer.select { |i| i.class == Net::DNS::RR::NS}).each do |nsrcd|
 				print_status("Testing Nameserver: #{nsrcd.nsdname}")
-				namesrvips = @res.query(nsrcd.nsdname,"A")
-				namesrvips.answer.each do |nsip|
-					@res.nameserver = nsip.address
+				@res.nameserver=(nsrcd.nsdname)
 					begin
 						zone = @res.query(target,Net::DNS::AXFR)
 						if zone.answer.length != 0
+							namesrvips = @res.query(nsrcd.nsdname,"A")
+							nsip = namesrvips.answer[0]
 							print_status("Zone Transfer Successful")
 							report_note(:host => nsip.address.to_s,
 								:proto => 'DNS',
@@ -406,7 +391,6 @@ class Metasploit3 < Msf::Auxiliary
 										:type => 'DNS_ENUM',
 										:data => "#{rr.host},#{rr.port},#{rr.priority},SRV")
 								end
-
 							end
 						else
 							print_status("Zone Transfer Failed")
@@ -415,8 +399,6 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("Zone Transfer Failed")
 					end
 				end
-
-			end
 		else
 			print_error("Could not resolve domain #{target}")
 		end
@@ -440,8 +422,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		if(datastore['ENUM_BRT'])
 			switchdns(datastore['DOMAIN'])
-			wildcard(datastore['DOMAIN'])
-			dnsbrute(datastore['DOMAIN'],datastore['WORDLIST'])
+			if not wildcard(datastore['DOMAIN']) and datastore['STOP_WLDCRD']
+				dnsbrute(datastore['DOMAIN'],datastore['WORDLIST'])
+			end
 		end
 
 		if(datastore['ENUM_AXFR'])
