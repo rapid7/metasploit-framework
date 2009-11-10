@@ -422,7 +422,7 @@ class ReadableText
 					'Name'
 				])
 
-		framework.jobs.keys.sort.each { |k|
+		framework.jobs.keys.sort{|a,b| a.to_i <=> b.to_i }.each { |k|
 			tbl << [ k, framework.jobs[k].name ]
 		}
 
