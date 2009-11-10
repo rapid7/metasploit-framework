@@ -45,15 +45,15 @@ class Output < Rex::Ui::Output
 	end
 
 	def print_error(msg = '')
-		print_line("%red[-]%clr #{msg}")
+		print_line("%bld%red[-]%clr #{msg}")
 	end
 
 	def print_good(msg = '')
-		print_line("%grn[+]%clr #{msg}")
+		print_line("%bld%grn[+]%clr #{msg}")
 	end
 
 	def print_status(msg = '')
-		print_line("%blu[*]%clr #{msg}")
+		print_line("%bld%blu[*]%clr #{msg}")
 	end
 
 	def print_line(msg = '')

@@ -1491,7 +1491,7 @@ class Core
 		mod.init_ui(driver.input, driver.output)
 
 		# Update the command prompt
-		driver.update_prompt("#{mod.type}(%red#{mod.shortname}%clr) ")
+		driver.update_prompt("#{mod.type}(%bld%red#{mod.shortname}%clr) ")
 	end
 
 	#
