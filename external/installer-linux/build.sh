@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION="3.3-beta"
+VERSION="3.3-rc1"
 
 # Grab a fresh copy of Metasploit
 if [ -f "tmp/msf3/msfconsole" ]; then
@@ -23,6 +23,7 @@ cp tmp/msf3.tar tmp32/
 cp bin/linux32.tar.bz2 tmp32/metasploit.tar.bz2
 bunzip2 tmp32/metasploit.tar.bz2
 cp -a scripts/*.sh tmp32/
+cp -a scripts/msfupdate tmp32/
 TMP32=tmp32`date +%s1`
 mv tmp32 $TMP32
 makeself $TMP32 ${PATH32} "${NAME32}" ./installer.sh 32
@@ -34,6 +35,7 @@ cp tmp/msf3.tar tmp64/
 cp bin/linux64.tar.bz2 tmp64/metasploit.tar.bz2
 bunzip2 tmp64/metasploit.tar.bz2
 cp -a scripts/*.sh tmp64/
+cp -a scripts/msfupdate tmp64/
 TMP64=tmp32`date +%s1`
 mv tmp64 $TMP64
 makeself $TMP64 ${PATH64} "${NAME64}" ./installer.sh 64

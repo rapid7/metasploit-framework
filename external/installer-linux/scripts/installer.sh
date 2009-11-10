@@ -54,6 +54,7 @@ mkdir -p /opt/metasploit3
 echo "Extracting the Metasploit operating environment..."
 tar --directory=/opt -xf metasploit.tar
 cp run.sh env.sh /opt/metasploit3/
+cp msfupdate /opt/metasploit3/app/
 echo ""
 
 echo "Extracting the Metasploit Framework..."
@@ -64,6 +65,7 @@ echo "Installing links into /usr/local/bin..."
 mkdir -p /usr/local/bin
 ln -sf /opt/metasploit3/bin/msf* /usr/local/bin/
 echo ""
+hash -r
 
 echo "Installation complete."
 echo ""
@@ -77,6 +79,11 @@ if [ $? -eq "1" ]; then
 	crontab $CRON
 	rm -f $CRON
 	echo ""
+else
+	echo ""
+	echo "Warning: Automatic updates are disabled, update manually with:"
+	echo "$ sudo msfupdate"
+	echo ""
 fi
 
 echo "Would you like to update Metasploit right now?"
@@ -87,5 +94,7 @@ if [ $? -eq "1" ]; then
 	echo ""
 fi
 
+echo "Launch the Metasploit console by running 'msfconsole'"
+echo ""
 echo "Exiting the installer..."
 

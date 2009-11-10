@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [ `id -u -n` != "root" ]; then
+	echo "[*] Error: msfupdate must be run as the root user"
+	exit 1
+fi
+
+
+cd $BASE/msf3
+REPO=`grep framework3 .svn/entries`
+echo "Updating Metasploit from ${REPO}..."
+svn update
+
+
+
+if [ $? -ne "0" ]; then
+	echo " "
+	echo "Error: cleaning up the SVN directory and retrying..."
+	svn cleanup
+	svn update
+fi
+
+if [ $? -ne "0" ]; then
+	echo " "
+	echo "Error: please check connectivity to the following URL:"
+	echo "    "`grep framework3 .svn/entries`
+	echo " "
+fi
+
