@@ -187,8 +187,8 @@ class Core
 	# Display one of the fabulous banners.
 	#
 	def cmd_banner(*args)
-		banner  = "%cya" + Banner.to_s + "%c\n\n"
-		banner << "       =[ %yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%c\n"
+		banner  = "%cya" + Banner.to_s + "%clr\n\n"
+		banner << "       =[ %yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr\n"
 		banner << "+ -- --=[ "
 		banner << "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary\n"
 		banner << "+ -- --=[ "
@@ -1490,7 +1490,7 @@ class Core
 		mod.init_ui(driver.input, driver.output)
 
 		# Update the command prompt
-		driver.update_prompt("#{mod.type}(%red#{mod.shortname}%c) ")
+		driver.update_prompt("#{mod.type}(%red#{mod.shortname}%clr) ")
 	end
 
 	#

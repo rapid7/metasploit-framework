@@ -21,8 +21,8 @@ class Driver < Msf::Ui::Driver
 	ConfigCore  = "framework/core"
 	ConfigGroup = "framework/ui/console"
 
-	DefaultPrompt     = "%umsf%c"
-	DefaultPromptChar = "%c>"
+	DefaultPrompt     = "%undmsf%clr"
+	DefaultPromptChar = "%clr>"
 
 	#
 	# The console driver processes various framework notified events.

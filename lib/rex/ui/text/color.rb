@@ -66,9 +66,9 @@ module Color
 		str.gsub!(/%dcya/, colorize('dark', 'cyan'))
 		str.gsub!(/%dwhi/, colorize('dark', 'white'))
 		str.gsub!(/%dmag/, colorize('dark', 'magenta'))
-		str.gsub!(/%u/, colorize('underline'))
-		str.gsub!(/%b/, colorize('bold'))
-		str.gsub!(/%c/, colorize('clear'))
+		str.gsub!(/%und/, colorize('underline'))
+		str.gsub!(/%bld/, colorize('bold'))
+		str.gsub!(/%clr/, colorize('clear'))
 
 		str
 	end
