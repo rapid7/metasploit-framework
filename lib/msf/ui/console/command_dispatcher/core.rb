@@ -124,7 +124,7 @@ class Core
 			print_line("Enable or disable color output.")
 			return
 		end
-		driver.update_prompt('')
+		driver.update_prompt
 	end
 
 	def cmd_resource(*args)

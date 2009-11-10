@@ -39,7 +39,8 @@ class Output < Rex::Ui::Output
 		@config[:color] = :auto
 	end
 
-	def update_prompt(prompt)
+	def update_prompt(prompt = nil)
+		return if prompt.nil?
 		substitute_colors(prompt)
 	end
 

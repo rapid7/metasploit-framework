@@ -183,7 +183,8 @@ module DispatcherShell
 		found     = false
 		error     = false
 
-		output.reset_color
+		# If output is disabled output will be nil
+		output.reset_color if (output)
 
 		if (method)
 			entries = dispatcher_stack.length
