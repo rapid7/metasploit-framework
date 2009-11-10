@@ -68,7 +68,7 @@ module DispatcherShell
 		#
 		# Wraps shell.update_prompt
 		#
-		def update_prompt(prompt)
+		def update_prompt(prompt=nil)
 			shell.update_prompt(prompt)
 		end
 

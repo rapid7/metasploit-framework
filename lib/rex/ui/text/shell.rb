@@ -163,14 +163,22 @@ module Shell
 	#
 	# Change the input prompt.
 	#
-	def update_prompt(prompt = '', new_prompt_char = nil)
-		new_prompt = self.init_prompt + ' ' + prompt + prompt_char + ' '
+	def update_prompt(prompt = nil, new_prompt_char = nil)
+		if (self.input)
+			if (prompt)
+				new_prompt = self.init_prompt + ' ' + prompt + prompt_char + ' '
+			else
+				new_prompt = self.prompt || ''
+			end
 
-		# This really should be handled when it's printed, not here
-		self.output.substitute_colors(new_prompt)
+			# Save the prompt before any substitutions
+			self.prompt = new_prompt
 
-		self.input.prompt = new_prompt if (self.input)
-		self.prompt_char  = new_prompt_char if (new_prompt_char)
+			# Set the actual prompt to the saved prompt with any substitutions
+			# or updates from our output driver, be they color or whatever
+			self.input.prompt = self.output.update_prompt(new_prompt)
+			self.prompt_char  = new_prompt_char if (new_prompt_char)
+		end
 	end
 
 	#
@@ -268,6 +276,7 @@ protected
 
 	attr_writer   :input, :output # :nodoc:
 	attr_accessor :stop_flag, :init_prompt # :nodoc:
+	attr_accessor :prompt # :nodoc:
 	attr_accessor :prompt_char, :tab_complete_proc # :nodoc:
 	attr_accessor :log_source, :stop_count # :nodoc:
 

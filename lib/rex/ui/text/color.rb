@@ -49,7 +49,8 @@ module Color
 		supports_color?() ? ansi(*color) : ''
 	end
 
-	def substitute_colors(str)
+	def substitute_colors(msg)
+		str = msg.dup
 		str.gsub!(/%cya/, colorize('cyan'))
 		str.gsub!(/%red/, colorize('red'))
 		str.gsub!(/%grn/, colorize('green'))

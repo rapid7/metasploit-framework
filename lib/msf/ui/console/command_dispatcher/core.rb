@@ -65,6 +65,7 @@ class Core
 			"banner"   => "Display an awesome metasploit banner",
 			"cd"       => "Change the current working directory",
 			"connect"  => "Communicate with a host",
+			"color"    => "Toggle color",
 			"exit"     => "Exit the console",
 			"help"     => "Help menu",
 			"info"     => "Displays information about one or more module",
@@ -110,6 +111,21 @@ class Core
 		"Core"
 	end
 
+	def cmd_color(*args)
+		case args[0]
+		when "auto"
+			driver.output.auto_color
+		when "true"
+			driver.output.enable_color
+		when "false"
+			driver.output.disable_color
+		else
+			print_line("Usage: color <'true'|'false'|'auto'>\n")
+			print_line("Enable or disable color output.")
+		end
+		update_prompt
+	end
+
 	def cmd_resource(*args)
 		if args.empty?
 			print(
@@ -146,7 +162,7 @@ class Core
 			driver.destack_dispatcher
 
 			# Restore the prompt
-			driver.update_prompt
+			driver.update_prompt('')
 		end
 	end
 

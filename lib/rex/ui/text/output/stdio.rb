@@ -12,11 +12,15 @@ module Text
 class Output::Stdio < Rex::Ui::Text::Output
 
 	def supports_color?
-		# Color is disabled until we resolve some bugs
-		#return false
-
-		term = Rex::Compat.getenv('TERM')
-		(term and term.match(/(?:vt10[03]|xterm(?:-color)?|linux|screen)/i) != nil)
+		case config[:color]
+		when true
+			return true
+		when false
+			return false
+		else # auto
+			term = Rex::Compat.getenv('TERM')
+			return (term and term.match(/(?:vt10[03]|xterm(?:-color)?|linux|screen|rxvt)/i) != nil)
+		end
 	end
 
 	#

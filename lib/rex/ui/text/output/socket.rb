@@ -16,7 +16,13 @@ class Output::Socket < Rex::Ui::Text::Output
 	end
 
 	def supports_color?
-		false
+		case config[:color]
+		when true
+			# Allow color if the user forces it on
+			return true
+		else 
+			false
+		end
 	end
 
 	#
