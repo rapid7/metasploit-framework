@@ -18,10 +18,14 @@ class Output::Buffer < Rex::Ui::Text::Output
 		self.buf = ''
 	end
 
+	def supports_color?
+		false
+	end
+
 	#
 	# Appends the supplied message to the output buffer.
 	#
-	def print(msg = '')
+	def print_raw(msg = '')
 		self.buf += msg || ''
 
 		if self.on_print_proc

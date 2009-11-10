@@ -160,11 +160,11 @@ class Module
 	end
 
 	def print_status(msg='')
-		print_line(print_prefix + "[*] " + msg)
+		super(print_prefix + msg)
 	end
 
 	def print_error(msg='')
-		print_line(print_prefix + "[-] " + msg)
+		super(print_prefix + msg)
 	end
 
 	#

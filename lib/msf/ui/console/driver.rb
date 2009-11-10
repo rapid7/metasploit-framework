@@ -21,8 +21,8 @@ class Driver < Msf::Ui::Driver
 	ConfigCore  = "framework/core"
 	ConfigGroup = "framework/ui/console"
 
-	DefaultPrompt     = "%umsf"
-	DefaultPromptChar = ">%c"
+	DefaultPrompt     = "%umsf%c"
+	DefaultPromptChar = "%c>"
 
 	#
 	# The console driver processes various framework notified events.
@@ -122,12 +122,6 @@ class Driver < Msf::Ui::Driver
 		# Load additional modules as necessary
 		self.framework.modules.add_module_path(opts['ModulePath'], false) if opts['ModulePath']
 
-		# Process things before we actually display the prompt and get rocking
-		on_startup
-
-		# Process the resource script
-		load_resource(opts['Resource'])
-
 		# Whether or not command passthru should be allowed
 		self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
 
@@ -138,6 +132,12 @@ class Driver < Msf::Ui::Driver
 		if @defanged
 			self.command_passthru = false
 		end
+
+		# Process things before we actually display the prompt and get rocking
+		on_startup
+
+		# Process the resource script
+		load_resource(opts['Resource'])
 	end
 
 	#

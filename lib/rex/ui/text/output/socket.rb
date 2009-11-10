@@ -15,10 +15,14 @@ class Output::Socket < Rex::Ui::Text::Output
 		@sock = sock
 	end
 
+	def supports_color?
+		false
+	end
+
 	#
 	# Prints the supplied message to the socket.
 	#
-	def print(msg = '')
+	def print_raw(msg = '')
 		@sock.write(msg)
 		@sock.flush
 

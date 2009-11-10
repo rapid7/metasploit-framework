@@ -15,21 +15,29 @@ class Output < Rex::Ui::Output
 	require 'rex/ui/text/output/stdio'
 	require 'rex/ui/text/output/socket'
 	require 'rex/ui/text/output/buffer'
+	require 'rex/ui/text/color'
+
+	include Rex::Ui::Text::Color
 
 	def print_error(msg = '')
-		print_line("[-] #{msg}")
+		print_line("%red[-]%c #{msg}")
 	end
-	
+
 	def print_good(msg = '')
-		print_line("[+] #{msg}")
+		print_line("%grn[+]%c #{msg}")
 	end
 
 	def print_status(msg = '')
-		print_line("[*] #{msg}")
+		print_line("%blu[*]%c #{msg}")
 	end
 
 	def print_line(msg = '')
 		print(msg + "\n")
+	end
+
+	def print(msg = '')
+		substitute_colors(msg)
+		print_raw(msg)
 	end
 
 	def reset

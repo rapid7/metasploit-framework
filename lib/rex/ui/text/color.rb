@@ -36,12 +36,56 @@ module Color
 	# Return a string with ANSI codes substituted.  Derived from code
 	# written by The FaerieMUD Consortium.
 	#
-	def self.ansi(*attrs)
+	def ansi(*attrs)
 		attr = attrs.collect {|a| AnsiAttributes[a] ? AnsiAttributes[a] : nil}.compact.join(';')
 		attr = "\e[%sm" % attr if (attr.empty? == false)
 		return attr
 	end
 
+	#
+	# Colorize if this shell supports it
+	#
+	def colorize(*color) 
+		supports_color?() ? ansi(*color) : ''
+	end
+
+	def substitute_colors(str)
+		str.gsub!(/%cya/, colorize('cyan'))
+		str.gsub!(/%red/, colorize('red'))
+		str.gsub!(/%grn/, colorize('green'))
+		str.gsub!(/%blu/, colorize('blue'))
+		str.gsub!(/%yel/, colorize('yellow'))
+		str.gsub!(/%whi/, colorize('white'))
+		str.gsub!(/%mag/, colorize('magenta'))
+		str.gsub!(/%blk/, colorize('black'))
+		str.gsub!(/%dred/, colorize('dark', 'red'))
+		str.gsub!(/%dgrn/, colorize('dark', 'green'))
+		str.gsub!(/%dblu/, colorize('dark', 'blue'))
+		str.gsub!(/%dyel/, colorize('dark', 'yellow'))
+		str.gsub!(/%dcya/, colorize('dark', 'cyan'))
+		str.gsub!(/%dwhi/, colorize('dark', 'white'))
+		str.gsub!(/%dmag/, colorize('dark', 'magenta'))
+		str.gsub!(/%u/, colorize('underline'))
+		str.gsub!(/%b/, colorize('bold'))
+		str.gsub!(/%c/, colorize('clear'))
+
+		str
+	end
+
+	#
+	# Resets coloring so that it's back to normal.
+	#
+	def reset_color
+		return if not supports_color?
+		print(colorize('clear'))
+	end
+
+	#
+	# Colorize if this shell supports it
+	#
+	def do_colorize(*color) 
+		supports_color?() ? ansi(*color) : ''
+	end
 end 
 
 end end end

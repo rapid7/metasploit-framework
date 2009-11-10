@@ -183,7 +183,7 @@ module DispatcherShell
 		found     = false
 		error     = false
 
-		reset_color if (supports_color?)
+		output.reset_color
 
 		if (method)
 			entries = dispatcher_stack.length

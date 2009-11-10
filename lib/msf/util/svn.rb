@@ -73,7 +73,11 @@ class SVN
 		when 1.0 .. 2.0
 			"yesterday"
 		else
-			"#{diff.to_i} days ago"
+			if (diff.to_i > 7)
+				"%red#{diff.to_i} days ago%c"
+			else
+				"#{diff.to_i} days ago"
+			end
 		end
 	end
 

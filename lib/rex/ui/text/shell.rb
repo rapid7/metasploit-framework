@@ -166,65 +166,11 @@ module Shell
 	def update_prompt(prompt = '', new_prompt_char = nil)
 		new_prompt = self.init_prompt + ' ' + prompt + prompt_char + ' '
 
-		# Substitute colors
-		new_prompt.gsub!(/%u/, colorize('underline'))
-		new_prompt.gsub!(/%b/, colorize('bold'))
-		new_prompt.gsub!(/%cya/, colorize('cyan'))
-		new_prompt.gsub!(/%c/, colorize('clear'))
-		new_prompt.gsub!(/%red/, colorize('red'))
-		new_prompt.gsub!(/%grn/, colorize('green'))
-		new_prompt.gsub!(/%blu/, colorize('blue'))
-		new_prompt.gsub!(/%yel/, colorize('yellow'))
-		new_prompt.gsub!(/%whi/, colorize('white'))
-		new_prompt.gsub!(/%mag/, colorize('magenta'))
-		new_prompt.gsub!(/%blk/, colorize('black'))
-		new_prompt.gsub!(/%dred/, colorize('dark', 'red'))
-		new_prompt.gsub!(/%dgrn/, colorize('dark', 'green'))
-		new_prompt.gsub!(/%dblu/, colorize('dark', 'blue'))
-		new_prompt.gsub!(/%dyel/, colorize('dark', 'yellow'))
-		new_prompt.gsub!(/%dcya/, colorize('dark', 'cyan'))
-		new_prompt.gsub!(/%dwhi/, colorize('dark', 'white'))
-		new_prompt.gsub!(/%dmag/, colorize('dark', 'magenta'))
+		# This really should be handled when it's printed, not here
+		self.output.substitute_colors(new_prompt)
 
 		self.input.prompt = new_prompt if (self.input)
 		self.prompt_char  = new_prompt_char if (new_prompt_char)
-	end
-
-	#
-	# Color checks
-	#
-	
-	#
-	# Checks to see whether or not colors are supported on this shell
-	# console.
-	#
-	def supports_color?
-		# Color is disabled until we resolve some bugs
-		return false
-
-		term = Rex::Compat.getenv('TERM')
-		(term and term.match(/(?:vt10[03]|xterm(?:-color)?|linux|screen)/i) != nil)
-	end
-
-	#
-	# Resets coloring so that it's back to normal.
-	#
-	def reset_color
-		print(colorize('clear'))
-	end
-
-	#
-	# Returns colorized text if it's supported, otherwise an empty string.
-	#
-	def colorize(*color)
-		return do_colorize(*color)
-	end
-
-	#
-	# Colorize if this shell supports it
-	#
-	def do_colorize(*color) 
-		supports_color?() ? Rex::Ui::Text::Color.ansi(*color) : ''
 	end
 
 	#
