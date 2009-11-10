@@ -312,92 +312,91 @@ class Metasploit3 < Msf::Auxiliary
 		if (query.answer.length != 0)
 			(query.answer.select { |i| i.class == Net::DNS::RR::NS}).each do |nsrcd|
 				print_status("Testing Nameserver: #{nsrcd.nsdname}")
-				@res.nameserver=(nsrcd.nsdname)
-					begin
-						zone = @res.query(target,Net::DNS::AXFR)
-						if zone.answer.length != 0
-							namesrvips = @res.query(nsrcd.nsdname,"A")
-							nsip = namesrvips.answer[0]
-							print_status("Zone Transfer Successful")
+				nssrvquery = @res.query(nsrcd.nsdname, "A")
+				nssrvip = nssrvquery.answer[0].address.to_s
+				@res.nameserver=(nssrvip)
+				zone = []
+				zone = @res.query(target,Net::DNS::AXFR)
+				if zone.answer.length != 0
+					namesrvips = @res.query(nsrcd.nsdname,"A")
+					nsip = namesrvips.answer[0]
+					print_status("Zone Transfer Successful")
+					report_note(:host => nsip.address.to_s,
+						:proto => 'DNS',
+						:port => 53 ,
+						:type => 'DNS_ENUM',
+						:data => "Zone Transfer Successful")
+					#Prints each record according to its type
+					zone.answer.each do |rr|
+						case rr.type
+						when "A"
+							print_status("Name: #{rr.name} IP Address: #{rr.address} Record: A ")
+							report_note(:host => rr.address.to_s,
+								:proto => 'DNS',
+								:port => 53 ,
+								:type => 'DNS_ENUM',
+								:data => "#{rr.address.to_s},#{rr.name},A")
+						when "SOA"
+							print_status("Name: #{rr.mname} Record: SOA")
 							report_note(:host => nsip.address.to_s,
 								:proto => 'DNS',
 								:port => 53 ,
 								:type => 'DNS_ENUM',
-								:data => "Zone Transfer Successful")
-							#Prints each record according to its type
-							zone.answer.each do |rr|
-								case rr.type
-								when "A"
-									print_status("Name: #{rr.name} IP Address: #{rr.address} Record: A ")
-									report_note(:host => rr.address.to_s,
-										:proto => 'DNS',
-										:port => 53 ,
-										:type => 'DNS_ENUM',
-										:data => "#{rr.address.to_s},#{rr.name},A")
-								when "SOA"
-									print_status("Name: #{rr.mname} Record: SOA")
-									report_note(:host => nsip.address.to_s,
-										:proto => 'DNS',
-										:port => 53 ,
-										:type => 'DNS_ENUM',
-										:data => "#{rr.name},SOA")
-								when "MX"
-									print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
-									report_note(:host => nsip.address.to_s,
-										:proto => 'DNS',
-										:port => 53 ,
-										:type => 'DNS_ENUM',
-										:data => "#{rr.exchange},MX")
-								when "CNAME"
-									print_status("Name: #{rr.cname} Record: CNAME")
-									report_note(:host => nsip.address.to_s,
-										:proto => 'DNS',
-										:port => 53 ,
-										:type => 'DNS_ENUM',
-										:data => "#{rr.cname},CNAME")
-								when "HINFO"
-									print_status("CPU: #{rr.cpu} OS: #{rr.os} Record: HINFO")
-									report_note(:host => nsip.address.to_s,
-										:proto => 'DNS',
-										:port => 53 ,
-										:type => 'DNS_ENUM',
-										:data => "CPU:#{rr.cpu},OS:#{rr.os},HINFO")
-								when "AAA"
-									print_status("Address: #{rr.address} Record: AAA")
-									report_note(:host => rr.address.to_s,
-										:proto => 'DNS',
-										:port => 53 ,
-										:type => 'DNS_ENUM',
-										:data => "#{rr.address.to_s}, AAA")
-								when "NS"
-									print_status("Name: #{rr.nsdname} Record: NS")
-									report_note(:host =>  nsip.address.to_s,
-										:proto => 'DNS',
-										:port => 53 ,
-										:type => 'DNS_ENUM',
-										:data => "#{rr.nsdname},NS")
-								when "TXT"
-									print_status("Text: #{rr.txt} Record: TXT")
-									report_note(:host =>  nsip.address.to_s,
-										:proto => 'DNS',
-										:port => 53 ,
-										:type => 'DNS_ENUM',
-										:data => "#{rr.txt},TXT")
-								when "SRV"
-									print_status("Host: #{rr.host} Port: #{rr.port} Priority: #{rr.priority} Record: SRV")
-									report_note(:host =>  nsip.address.to_s,
-										:proto => 'DNS',
-										:port => 53 ,
-										:type => 'DNS_ENUM',
-										:data => "#{rr.host},#{rr.port},#{rr.priority},SRV")
-								end
-							end
-						else
-							print_status("Zone Transfer Failed")
+								:data => "#{rr.name},SOA")
+						when "MX"
+							print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
+							report_note(:host => nsip.address.to_s,
+								:proto => 'DNS',
+								:port => 53 ,
+								:type => 'DNS_ENUM',
+								:data => "#{rr.exchange},MX")
+						when "CNAME"
+							print_status("Name: #{rr.cname} Record: CNAME")
+							report_note(:host => nsip.address.to_s,
+								:proto => 'DNS',
+								:port => 53 ,
+								:type => 'DNS_ENUM',
+								:data => "#{rr.cname},CNAME")
+						when "HINFO"
+							print_status("CPU: #{rr.cpu} OS: #{rr.os} Record: HINFO")
+							report_note(:host => nsip.address.to_s,
+								:proto => 'DNS',
+								:port => 53 ,
+								:type => 'DNS_ENUM',
+								:data => "CPU:#{rr.cpu},OS:#{rr.os},HINFO")
+						when "AAA"
+							print_status("Address: #{rr.address} Record: AAA")
+							report_note(:host => rr.address.to_s,
+								:proto => 'DNS',
+								:port => 53 ,
+								:type => 'DNS_ENUM',
+								:data => "#{rr.address.to_s}, AAA")
+						when "NS"
+							print_status("Name: #{rr.nsdname} Record: NS")
+							report_note(:host =>  nsip.address.to_s,
+								:proto => 'DNS',
+								:port => 53 ,
+								:type => 'DNS_ENUM',
+								:data => "#{rr.nsdname},NS")
+						when "TXT"
+							print_status("Text: #{rr.txt} Record: TXT")
+							report_note(:host =>  nsip.address.to_s,
+								:proto => 'DNS',
+								:port => 53 ,
+								:type => 'DNS_ENUM',
+								:data => "#{rr.txt},TXT")
+						when "SRV"
+							print_status("Host: #{rr.host} Port: #{rr.port} Priority: #{rr.priority} Record: SRV")
+							report_note(:host =>  nsip.address.to_s,
+								:proto => 'DNS',
+								:port => 53 ,
+								:type => 'DNS_ENUM',
+								:data => "#{rr.host},#{rr.port},#{rr.priority},SRV")
 						end
-					rescue
-						print_status("Zone Transfer Failed")
 					end
+				else
+					print_status("Zone Transfer Failed")
+				end
 				end
 		else
 			print_error("Could not resolve domain #{target}")
