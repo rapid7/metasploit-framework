@@ -264,14 +264,14 @@ protected
 	# Writes the supplied input to the log source if one has been registered.
 	#
 	def log_input(buf)
-		rlog(do_colorize("red") + buf + do_colorize("clear"), log_source) if (log_source)
+		rlog(buf, log_source) if (log_source)
 	end
 
 	#
 	# Writes the supplied output to the log source if one has been registered.
 	#
 	def log_output(buf)
-		rlog(do_colorize("blue") + buf + do_colorize("clear"), log_source) if (log_source)
+		rlog(buf, log_source) if (log_source)
 	end
 
 	attr_writer   :input, :output # :nodoc:

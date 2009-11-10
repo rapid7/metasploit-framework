@@ -122,6 +122,7 @@ class Core
 		else
 			print_line("Usage: color <'true'|'false'|'auto'>\n")
 			print_line("Enable or disable color output.")
+			return
 		end
 		driver.update_prompt('')
 	end
