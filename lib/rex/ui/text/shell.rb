@@ -6,7 +6,7 @@ module Text
 
 ###
 #
-# The shell class provides a command-prompt style interface in a 
+# The shell class provides a command-prompt style interface in a
 # generic fashion.
 #
 ###
@@ -45,7 +45,7 @@ module Shell
 		# Initialize the prompt
 		self.init_prompt = prompt
 		self.prompt_char = prompt_char
-		
+
 		# Initialize the user interface handles
 		init_ui(Input::Stdio.new, Output::Stdio.new)
 	end
@@ -54,7 +54,7 @@ module Shell
 	# Initializes the user interface input/output classes.
 	#
 	def init_ui(in_input = nil, in_output = nil)
-	
+
 		# Initialize the input and output methods
 		self.input  = in_input
 		self.output = in_output
@@ -66,17 +66,17 @@ module Shell
 				end
 			rescue
 			end
-	
+
 			# Extend the input medium as an input shell if the input medium
 			# isn't intrinsicly a shell.
 			if (self.input.intrinsic_shell? == false)
 				self.input.extend(InputShell)
 			end
-	
+
 			self.input.output = self.output
 		end
-		
-		update_prompt
+
+		update_prompt('')
 	end
 
 	#
@@ -113,7 +113,7 @@ module Shell
 	def run(&block)
 
 		begin
-			
+
 			while true
 				# If the stop flag was set or we've hit EOF, break out
 				break if (self.stop_flag or self.stop_count > 1)
@@ -243,7 +243,7 @@ protected
 		log_input(line)
 
 		line.gsub!(/(\r|\n)/, '')
-		
+
 		begin
 			return args = Rex::Parser::Arguments.from_s(line)
 		rescue ::ArgumentError
@@ -293,3 +293,4 @@ end
 
 
 end end end
+
