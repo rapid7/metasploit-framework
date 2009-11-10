@@ -114,7 +114,7 @@ module ReverseTcp
 		self.listener_thread = Thread.new {
 			client = nil
 
-			print_status("Started reverse handler")
+			print_status("Started reverse handler on port #{datastore['LPORT']}")
 
 			begin
 				# Accept a client connection
