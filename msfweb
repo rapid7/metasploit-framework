@@ -16,6 +16,9 @@ require 'rex'
 require 'msf/base'
 require 'msf/ui/web'
 
+$stderr.puts "[*] Warning: As of Metasploit 3.3 this interface is no longer supported:"
+$stderr.puts "             Please see https://metasploit.com/redmine/issues/502"
+$stderr.puts ""
 
 msfroot = File.join(File.dirname(msfbase), 'data', 'msfweb')
 Dir.chdir(msfroot)
@@ -64,7 +67,7 @@ end
 
 # Rebuild ARGV
 ARGV.unshift([
-	'-p', opts['ServerPort'], 
+	'-p', opts['ServerPort'],
 	'-b', opts['ServerHost'],
 	'-e', 'production',
 	(background ? '-d' : '')
@@ -79,3 +82,4 @@ $stderr.puts "[*] Starting msfweb v#{Msf::Framework::Version} on #{$browser_url}
 $stderr.puts ""
 
 load(msfserv)
+

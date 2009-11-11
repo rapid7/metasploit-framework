@@ -15,6 +15,10 @@ require 'rex'
 require 'msf/base'
 require 'msf/ui'
 
+$stderr.puts "[*] Warning: As of Metasploit 3.3 this interface is no longer supported:"
+$stderr.puts "             Please see https://metasploit.com/redmine/issues/503"
+$stderr.puts ""
+
 # Check for ruby packages
 begin
 	require 'gtk2'
@@ -33,7 +37,7 @@ if gtkversion = Gtk.check_version(2,8,0)
 	$stderr.puts "[*] The msfgui interface requires Gtk+ 2.8 or later"
 	$stderr.puts "[*] Your Gtk+ version : #{gtkversion}"
 	exit
-end	
+end
 
 require 'msf/ui/gtk2'
 
@@ -81,7 +85,7 @@ class FakeOut
 	def write(buff)
 		buff.length
 	end
-	
+
 	def method_missing(meth, *args)
 	end
 end
@@ -90,17 +94,17 @@ if(not debug)
 
 	begin; $stdout.close; rescue; end
 	begin; $stderr.close; rescue; end
-	
+
 	fake = FakeOut.new
 	$stdout = fake
 	$stderr = fake
-	
-	# Only treat super nasty Gtk errors as fatal	
+
+	# Only treat super nasty Gtk errors as fatal
 	GLib::Log.set_fatal_mask("GLib", GLib::Log::LEVEL_ERROR)
 	GLib::Log.set_fatal_mask("Gtk", GLib::Log::LEVEL_ERROR)
 	GLib::Log.set_fatal_mask("Gdk", GLib::Log::LEVEL_ERROR)
 	GLib::Log.set_fatal_mask(nil, GLib::Log::LEVEL_ERROR)
-	
+
 	# GLib::Log.log("Gtk", GLib::Log::LEVEL_CRITICAL, "TESTING > /dev/null")
 end
 
@@ -108,6 +112,7 @@ $stderr.puts "[*] Debugging mode is enabled"
 
 # Language is English
 ENV['LANG'] = 'C'
-	
+
 # Create the driver instance and run it.
 Msf::Ui::Gtk2::Driver.new(opts).run
+
