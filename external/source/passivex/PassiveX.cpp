@@ -12,6 +12,19 @@ BEGIN_OBJECT_MAP(ObjectMap)
 	OBJECT_ENTRY(CLSID_PassiveX, CPassiveX)
 END_OBJECT_MAP()
 
+namespace ATL
+{
+    void * __stdcall __AllocStdCallThunk()
+    {
+        return HeapAlloc( GetProcessHeap(), 0, sizeof(_stdcallthunk) );
+    }
+
+    void __stdcall __FreeStdCallThunk( void * p )
+    {
+        HeapFree( GetProcessHeap(), 0, p );
+    }
+}
+
 extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {
 	if (dwReason == DLL_PROCESS_ATTACH)

