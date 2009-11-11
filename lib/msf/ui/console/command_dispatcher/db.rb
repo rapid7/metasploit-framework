@@ -49,9 +49,9 @@ class NmapXMLStreamParser
 				service = framework.db.get_service(nil, host, proto.downcase, pnum.to_i)
 				if name != "unknown"
 					service.name = port["name"]
-					service.state = port["state"]
-					service.save
 				end
+				service.state = port["state"]
+				service.save
 			}
 			reset_state
 		end
