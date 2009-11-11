@@ -20,7 +20,7 @@ end
 
 # Start a pseudo shell and dispatch lines to be assembled and then
 # disassembled.
-shell = Rex::Ui::Text::PseudoShell.new("%bnasm%c")
+shell = Rex::Ui::Text::PseudoShell.new("%bldnasm%clr")
 
 shell.run { |line|
 	line.gsub!(/(\r|\n)/, '')
