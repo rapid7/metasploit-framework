@@ -198,7 +198,7 @@ class Db
 
 				when '-h','--help'
 					print_status("Usage: db_services [-h|--help] [-u|--up] [-a <addr1,addr2>] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>]")
-					print_line("  -u,--up           Only show hosts which are up")
+					print_line("  -u,--up           Only show services which are up")
 					print_line("  -r <protocol>     Only show [tcp|udp] services")
 					print_line("  -a <addr1,addr2>  Search for a list of addresses")
 					print_line("  -p <port1,port2>  Search for a list of ports")
@@ -208,7 +208,7 @@ class Db
 				end
 			end
  			framework.db.each_service do |service|
-				next if(onlyup and service.state != "up")
+				next if(onlyup and !(service.state == "open" || service.state == "up"))
 				next if(proto and service.proto != proto)
 				next if(hosts and hosts.index(service.host.address) == nil)
 				next if(ports and ports.index(service.port.to_s) == nil)
