@@ -29,8 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					['URL', 'http://g-laurent.blogspot.com/2009/11/windows-7-server-2008r2-remote-kernel.html'],
-				]
-
+				],
 			'Author'         => [ 'Laurent Gaffie <laurent.gaffie[at]gmail.com>', 'hdm' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$'
@@ -42,6 +41,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		print_status("Starting the malicious SMB service...")
+		print_status("To trigger, the vulnerable client should try to access: \\\\#{Rex::Socket.source_address('1.2.3.4')}\\Shared\\Anything")
 		exploit
 	end
 
