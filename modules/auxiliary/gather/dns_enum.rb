@@ -307,12 +307,13 @@ class Metasploit3 < Msf::Auxiliary
 		if not nssrv.nil?
 			@res.nameserver=(nssrv)
 		end
-		#@res.tcp_timeout=15
+		@res.tcp_timeout=15
 		query = @res.query(target, "NS")
 		if (query.answer.length != 0)
 			(query.answer.select { |i| i.class == Net::DNS::RR::NS}).each do |nsrcd|
 				print_status("Testing Nameserver: #{nsrcd.nsdname}")
 				nssrvquery = @res.query(nsrcd.nsdname, "A")
+				begin
 				nssrvip = nssrvquery.answer[0].address.to_s
 				@res.nameserver=(nssrvip)
 				zone = []
@@ -397,7 +398,11 @@ class Metasploit3 < Msf::Auxiliary
 				else
 					print_status("Zone Transfer Failed")
 				end
+        rescue
+					print_status("Zone Transfer Failed")
 				end
+				end
+
 		else
 			print_error("Could not resolve domain #{target}")
 		end
