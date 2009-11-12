@@ -1,0 +1,81 @@
+
+CYGWIN=nodosfilewarning
+export CYGWIN
+
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/X11R6/bin:/msf3:$PATH
+export PATH
+
+# Set the user id
+USER="`id -un`"
+export USER
+
+# Set the umask
+umask 022
+
+# Make the file permissions multi-user friendly
+if [ ! -f /etc/_FRIENDLY_ ];then
+	echo "[*] Configuring multi-user permissions for first run..."
+	/bin/userfriendly.sh
+	if [ $? -eq "1" ]; then
+		exit 1
+	fi
+fi
+
+# Here is how HOME is set, in order of priority, when starting from Windows
+#  1) From existing HOME in the Windows environment, translated to a Posix path
+#  2) from /etc/passwd, if there is an entry with a non empty directory field
+#  3) from HOMEDRIVE/HOMEPATH
+#  4) / (root)
+
+# Override this to place HOME into the local directory
+export HOME=/home/${USER}
+
+# If the home directory doesn't exist, create it.
+if [ ! -d "${HOME}" ]; then
+	mkdir -p "${HOME}"
+	echo "[*] Configuring the initial user environment..."
+	tar --directory=/etc/skel/ -cp . | tar --directory=${HOME} -xp
+fi
+
+# Set a HOSTNAME variable
+HOSTNAME=`hostname`
+export HOSTNAME
+
+# Set a default prompt of: user@host and current_directory
+PS1='\[\e]0;\w\a\]\n\[\e[33m\]\u@\h \[\e[33m\]\w\[\e[0m\]\n\$ '
+export PS1
+
+alias ls="ls --color"
+
+
+# Run all of the profile.d scripts
+# Note that these are supplied by separate packages
+# Ascending alphanumerical order enforced
+if [ -d "/etc/profile.d" ]; then
+	while read f; do
+		if [ -f "${f}" ]; then
+			. "${f}"
+		fi
+	done <<- EOF
+	`/bin/find -L /etc/profile.d -type f -iname '*.sh' -or -iname '*.zsh' | LC_ALL=C sort`
+	EOF
+fi
+
+# Uncomment to use the terminal colours set in DIR_COLOR
+eval "`dircolors -b /etc/DIR_COLORS`"
+
+# Default to removing the write permission for group and other
+#  (files normally created with mode 777 become 755; files created with
+#  mode 666 become 644)
+umask 022
+
+# Define default printer
+PRINTER=""
+export PRINTER
+
+# Make sure we start in home unless invoked by CHERE
+if [ ! -z "${CHERE_INVOKING}" ]; then
+  unset CHERE_INVOKING
+else
+  cd "${HOME}"
+fi
