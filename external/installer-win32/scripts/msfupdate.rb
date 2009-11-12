@@ -2,25 +2,38 @@
 
 File.umask(0022)
 
-# Extract the user's Metasploit source tree
 msf3 = '/msf3'
-if(! (File.directory?(msf3) and File.exists?(File.join(msf3,"_EXTRACTED_"))))
-	puts "[*] The Metasploit Framework is being installed in:"
-	puts "[*] - #{msf3}"
-	puts "[*] This may take a couple minutes..."
-	Dir.chdir('/')
-	r = system("tar xf /data/msf3.tar.gz")
-	if(not r)
-		puts "[-] Extraction failed"
-		exec("/bin/bash")
-	end
-	system("touch #{msf3}/_EXTRACTED_")
+if ! File.directory?(msf3)
+	puts "[*] This Metasploit Framework installation is corrupted."
+	exit(1)
 end
+
 Dir.chdir(msf3)
+
+allowed = false
+begin
+	File.open("can_write.txt", "wb") do |fd|
+		fd.write("YES")
+	end
+	File.unlink("can_write.txt")
+	allowed = true
+rescue ::Exception
+end
+
+if(not allowed)
+	puts "[*] Error: msfupdate must be run as an administrative user"
+	$stdin.readline
+	exit(1)
+end
+
 puts "[*] Updating the Metasploit Framework..."
 puts ""
 
 system("svn update")
+
 puts ""
-puts "[*] Update complete"
-$stdin.getc
+puts "[*] Update complete, press enter to exit"
+
+$stdin.readline
+exit(0)
+

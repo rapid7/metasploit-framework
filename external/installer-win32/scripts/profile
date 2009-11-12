@@ -79,3 +79,4 @@ if [ ! -z "${CHERE_INVOKING}" ]; then
 else
   cd "${HOME}"
 fi
+
