@@ -39,14 +39,14 @@ module Auxiliary
 	#
 	# 	Whether or not the exploit should be run in the context of a background
 	# 	job.
-	#	
+	#
 	def self.run_simple(mod, opts = {})
 
 		# Import options from the OptionStr or Option hash.
 		mod._import_extra_options(opts)
 
 		mod.datastore['ACTION'] = opts['Action'] if opts['Action']
-		
+
 		# Verify the ACTION
 		if (mod.actions.length > 0 and not mod.action)
 			raise MissingActionError, "You must specify a valid Action", caller
@@ -64,7 +64,7 @@ module Auxiliary
 
 		if(mod.passive? or opts['RunAsJob'])
 			mod.framework.jobs.start_bg_job(
-				"Auxiliary: #{mod.refname}", 
+				"Auxiliary: #{mod.refname}",
 				mod,
 				Proc.new { |mod_| self.job_run_proc(mod_) },
 				Proc.new { |mod_| self.job_cleanup_proc(mod_) }
@@ -79,7 +79,7 @@ module Auxiliary
 	# Calls the class method.
 	#
 	def run_simple(opts = {})
-		Msf::Simple::Auxiliary.run_simple(self, opts)	
+		Msf::Simple::Auxiliary.run_simple(self, opts)
 	end
 
 protected
@@ -91,6 +91,10 @@ protected
 		begin
 			mod.setup
 			mod.run
+		rescue ::Interrupt
+			mod.print_error("Auxiliary interrupted by the console user")
+			mod.cleanup
+			return
 		rescue ::Exception => e
 			mod.print_error("Auxiliary failed: #{e.class} #{e}")
 			if(e.class.to_s != 'Msf::OptionValidateError')
@@ -122,3 +126,4 @@ end
 
 end
 end
+

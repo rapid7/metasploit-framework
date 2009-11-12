@@ -20,7 +20,7 @@ class Auxiliary
 		"-a" => [ true,  "The action to use.  If none is specified, ACTION is used."           ],
 		"-q" => [ false, "Run the module in quiet mode with no output"                         ]
 	)
-		
+
 	#
 	# Returns the hash of commands specific to auxiliary modules.
 	#
@@ -42,7 +42,7 @@ class Auxiliary
 
 			# Initialize user interaction
 			mod.init_ui(driver.input, driver.output)
-		
+
 			return mod.send(meth.to_s, *args)
 		end
 		return
@@ -62,10 +62,10 @@ class Auxiliary
 	def cmd_rexploit(*args)
 		cmd_rerun(*args)
 	end
-	
+
 	#
 	# Reloads an auxiliary module
-	#	
+	#
 	def cmd_reload(*args)
 		begin
 			omod = self.mod
@@ -73,12 +73,12 @@ class Auxiliary
 			if(not self.mod)
 				print_status("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
 				self.mod = omod
-			end			
+			end
 		rescue
 			log_error("Failed to reload: #{$!}")
-		end	
+		end
 	end
-	
+
 	#
 	# Reloads an auxiliary module and executes it
 	#
@@ -103,7 +103,7 @@ class Auxiliary
 	def cmd_exploit(*args)
 		cmd_run(*args)
 	end
-	
+
 	#
 	# Executes an auxiliary module
 	#
@@ -114,7 +114,7 @@ class Auxiliary
 		action  = mod.datastore['ACTION']
 		jobify  = false
 		quiet   = false
-		
+
 		@@auxiliary_opts.parse(args) { |opt, idx, val|
 			case opt
 				when '-j'
@@ -133,12 +133,12 @@ class Auxiliary
 					return false
 			end
 		}
-	
+
 		# Always run passive modules in the background
 		if (mod.passive or mod.passive_action?(action))
 			jobify = true
 		end
-		
+
 		begin
 			mod.run_simple(
 				'Action'         => action,
@@ -148,6 +148,8 @@ class Auxiliary
 				'RunAsJob'       => jobify,
 				'Quiet'          => quiet
 			)
+		rescue ::Interrupt
+			print_error("Auxiliary interrupted by the console user")
 		rescue ::Exception => e
 			print_error("Auxiliary failed: #{e.class} #{e}")
 			if(e.class.to_s != 'Msf::OptionValidateError')
@@ -157,12 +159,12 @@ class Auxiliary
 					print_error("  #{line}")
 				end
 			end
-			
+
 			return false
 		end
-		
+
 		if (jobify)
-			print_status("Auxiliary module running as background job")		
+			print_status("Auxiliary module running as background job")
 		else
 			print_status("Auxiliary module execution completed")
 		end
@@ -171,3 +173,4 @@ class Auxiliary
 end
 
 end end end end
+
