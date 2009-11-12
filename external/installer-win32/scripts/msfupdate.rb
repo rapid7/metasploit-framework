@@ -10,17 +10,10 @@ end
 
 Dir.chdir(msf3)
 
-allowed = false
 begin
-	File.open(".svn/write_test.txt", "wb") do |fd|
-		fd.write("YES")
-	end
-	File.unlink(".svn/write_test.exe")
-	allowed = true
+	fd = File.open("/bin/bash", "a")
+	fd.close
 rescue ::Exception
-end
-
-if(not allowed)
 	puts "[*] Error: msfupdate must be run as an administrative user"
 	sleep(30)
 	exit(1)
