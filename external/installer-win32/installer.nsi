@@ -74,7 +74,7 @@ var ICONS_GROUP
 RequestExecutionLevel "admin"
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "framework-3.3-RC1.exe"
+OutFile "framework-3.3.exe"
 InstallDir "$PROGRAMFILES\Metasploit\Framework3"
 ShowInstDetails show
 ShowUnInstDetails show
@@ -94,24 +94,25 @@ Section "Nmap" SecNmap
 		the permission of the Nmap Project. Nmap is provided under the GNU Public License, \
 		not the BSD license which covers most of the Metasploit Framework" /SD IDYES IDNO endNmap
 
-	ExecWait '"$INSTDIR\tmp\nmap-5.00-setup.exe"' 
+	ExecWait '"$INSTDIR\tmp\nmap-5.00-setup.exe"'
 	endNmap:
 	Delete "$INSTDIR\tmp\nmap-5.00-setup.exe"
 SectionEnd
 
 Section "Registry" SecReg
-	Exec 'regedt32 /S "$INSTDIR\tmp\nmap_performance.reg"' 
-	Delete "$INSTDIR\tmp\nmap_performance.reg" 
-SectionEnd 
+	Exec 'regedt32 /S "$INSTDIR\tmp\nmap_performance.reg"'
+	Delete "$INSTDIR\tmp\nmap_performance.reg"
+SectionEnd
 
 
 Section -AdditionalIcons
   SetShellVarContext all
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
-  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Metasploit Console.lnk" "$INSTDIR\msfconsole.bat" '' "$INSTDIR\metasploit.ico" 0  
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Metasploit Console.lnk" "$INSTDIR\msfconsole.bat" '' "$INSTDIR\metasploit.ico" 0
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Metasploit Web.lnk" "$INSTDIR\msfweb.bat" '' "$INSTDIR\metasploit.ico" 0
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Metasploit Update.lnk" "$INSTDIR\msfupdate.bat" '' "$INSTDIR\metasploit.ico" 0
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Cygwin Shell.lnk" "$INSTDIR\shell.bat" ''
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\NASM Shell.lnk" "$INSTDIR\nasm.bat" ''
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\RUBY Shell.lnk" "$INSTDIR\msfirb.bat" '' "$INSTDIR\ruby.ico" 0
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk" "$INSTDIR\uninst.exe"
@@ -123,7 +124,7 @@ Section -AdditionalIcons
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Tools\VNCViewer.lnk" "$INSTDIR\bin\vncviewer.exe"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Tools\WinVI.lnk" "$INSTDIR\bin\winvi32.exe"
 
-  CreateShortCut "$DESKTOP\Metasploit Console.lnk" "$INSTDIR\msfconsole.bat" '' "$INSTDIR\metasploit.ico" 0  
+  CreateShortCut "$DESKTOP\Metasploit Console.lnk" "$INSTDIR\msfconsole.bat" '' "$INSTDIR\metasploit.ico" 0
   CreateShortCut "$DESKTOP\Metasploit Update.lnk" "$INSTDIR\msfupdate.bat" '' "$INSTDIR\metasploit.ico" 0
 
 SectionEnd
@@ -151,13 +152,14 @@ FunctionEnd
 Section Uninstall
   SetShellVarContext all
   ReadRegStr $ICONS_GROUP ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "${PRODUCT_STARTMENU_REGVAL}"
-  
+
   RMDir /r "$INSTDIR"
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
- 
+
   RMDir /r "$SMPROGRAMS\$ICONS_GROUP"
   Delete "$DESKTOP\Metasploit Console.lnk"
   Delete "$DESKTOP\Metasploit Update.lnk"
   System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'
   SetAutoClose true
 SectionEnd
+
