@@ -5,7 +5,7 @@
 #
 umask 022
 
-touch /etc/_TESTING_ 2>/dev/null
+chmod 755 /bin/bash 2>/dev/null
 if [ $? -ne "0" ]; then
 	echo "[*] This application *MUST* be launched as an administrator the first time"
 	echo "[*] Press enter to exit"

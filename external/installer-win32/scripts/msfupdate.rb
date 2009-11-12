@@ -25,7 +25,7 @@ puts ""
 system("svn update")
 
 puts ""
-puts "[*] Update complete, press enter to exit"
+puts "[*] Update complete"
 
 sleep(10)
 exit(0)
