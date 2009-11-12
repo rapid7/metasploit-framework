@@ -12,17 +12,17 @@ Dir.chdir(msf3)
 
 allowed = false
 begin
-	File.open("can_write.txt", "wb") do |fd|
+	File.open(".svn/write_test.txt", "wb") do |fd|
 		fd.write("YES")
 	end
-	File.unlink("can_write.txt")
+	File.unlink(".svn/write_test.exe")
 	allowed = true
 rescue ::Exception
 end
 
 if(not allowed)
 	puts "[*] Error: msfupdate must be run as an administrative user"
-	$stdin.readline
+	sleep(30)
 	exit(1)
 end
 
@@ -34,6 +34,6 @@ system("svn update")
 puts ""
 puts "[*] Update complete, press enter to exit"
 
-$stdin.readline
+sleep(10)
 exit(0)
 
