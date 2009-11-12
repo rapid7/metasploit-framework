@@ -12,7 +12,6 @@ if [ $? -ne "0" ]; then
 	read BOOM
 	exit 1
 fi
-rm -f /etc/_TESTING_
 
 chmod 755 -R /bin /*.bat /lib /usr /var /dev /etc /sbin /msf3 2>/dev/null
 if [ $? -ne "0" ]; then
