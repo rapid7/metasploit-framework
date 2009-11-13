@@ -19,6 +19,7 @@ class State
 	# Initializes the polymorphic generation state.
 	#
 	def initialize
+		@block_list = nil
 		reset
 	end
 
