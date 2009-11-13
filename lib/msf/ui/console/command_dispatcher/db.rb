@@ -456,7 +456,7 @@ class Db
 
 						framework.db.services.each do |serv|
 							next if not serv.host
-							next if not (serv.state == "open" || serv.state == "up")
+							next if (serv.state != "open" && serv.state != "up")
 
 							# Match port numbers
 							rports.keys.sort.each do |rport|

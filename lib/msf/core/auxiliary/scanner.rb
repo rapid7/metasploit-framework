@@ -153,7 +153,7 @@ def run
 				
 				# Create a thread for each batch
 				if (batch.length > 0)
-					t = Thread.new(batch) do |bat|
+					thread = Thread.new(batch) do |bat|
 						nmod = self.replicant
 						mybatch = bat.dup
 						begin
@@ -166,7 +166,7 @@ def run
 						end
 					end
 					t[:batch_size] = batch.length
-					tl << t
+					tl << thread
 				end
 				
 				# Exit once we run out of hosts
