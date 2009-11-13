@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 				},
 				'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 				'License'		=> MSF_LICENSE,
-				'Version'		=> '$Rev$'
+				'Version'		=> '$Rev$',
 			 	'References' 	=>
 					[
 						['CVE', '1999-0532'],
