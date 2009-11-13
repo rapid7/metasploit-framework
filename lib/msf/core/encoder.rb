@@ -14,6 +14,8 @@ class EncoderState
 	# Initializes a new encoder state, optionally with a key.
 	#
 	def initialize(key = nil)
+		@orig_buf = nil
+		@buf = nil
 		reset(key)
 	end
 
