@@ -10,12 +10,14 @@ module Msf
 ###
 class Logging
 
+	@@initialized = false
+
 	#
 	# Initialize logging.
 	#
 	def self.init
-		if (! @initialized)
-			@initialized = true
+		if (! @@initialized)
+			@@initialized = true
 
 			f = Rex::Logging::Sinks::Flatfile.new(
 				Msf::Config.log_directory + File::SEPARATOR + "framework.log")
