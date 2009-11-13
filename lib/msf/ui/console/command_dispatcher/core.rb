@@ -197,7 +197,8 @@ class Core
 		oldwarn = nil
 		banner << "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops\n"
 		if ( ::Msf::Framework::RepoRevision.to_i > 0)
-			banner << "       =[ svn r#{::Msf::Framework::RepoRevision} updated #{::Msf::Framework::RepoUpdatedDaysNote}\n"
+			tstamp = ::Msf::Framework::RepoUpdatedDate.strftime("%Y.%m.%d")
+			banner << "       =[ svn r#{::Msf::Framework::RepoRevision} updated #{::Msf::Framework::RepoUpdatedDaysNote} (#{tstamp})\n"
 			if(::Msf::Framework::RepoUpdatedDays > 7)
 				oldwarn = []
 				oldwarn << "Warning: This copy of the Metasploit Framework was last updated #{::Msf::Framework::RepoUpdatedDaysNote}."

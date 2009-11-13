@@ -40,23 +40,23 @@ class SVN
 	end
 
 	def self.revision
-		info = load_root
-		info[:revision]
+		@@info ||= load_root
+		@@info[:revision]
 	end
 
 	def self.updated
-		info = load_root
-		info[:updated]
+		@@info ||= load_root
+		@@info[:updated]
 	end
 
 	def self.root
-		info = load_root
-		info[:root]
+		@@info ||= load_root
+		@@info[:root]
 	end
 
 	def self.days_since_update
-		info = load_root
-		svnt = info[:updated]
+		@@info ||= load_root
+		svnt = @@info[:updated]
 		if(not svnt)
 			return
 		end
@@ -67,7 +67,7 @@ class SVN
 		diff = self.days_since_update
 		case diff
 		when nil
-			"at a unknown date"
+			"at an unknown date"
 		when -2.0 .. 1.0
 			"today"
 		when 1.0 .. 2.0
@@ -81,6 +81,10 @@ class SVN
 		end
 	end
 
+	def self.last_updated_date
+		@@info ||= load_root
+		Date.parse(@@info[:updated])
+	end
 
 end
 end

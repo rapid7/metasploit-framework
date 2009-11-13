@@ -27,6 +27,7 @@ class Framework
 	RepoUpdated         = ::Msf::Util::SVN.updated
 	RepoUpdatedDays     = ::Msf::Util::SVN.days_since_update
 	RepoUpdatedDaysNote = ::Msf::Util::SVN.last_updated_friendly
+	RepoUpdatedDate     = ::Msf::Util::SVN.last_updated_date
 	RepoRoot            = ::Msf::Util::SVN.root
 
 	# API Version
