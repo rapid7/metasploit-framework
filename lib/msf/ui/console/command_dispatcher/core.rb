@@ -102,6 +102,8 @@ class Core
 		super
 
 		@dscache = {}
+		@cache_payloads = nil
+		@cache_active_module = nil
 	end
 
 	#
