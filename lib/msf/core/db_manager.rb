@@ -14,28 +14,28 @@ class DBManager
 
 	# Provides :framework and other accessors
 	include Framework::Offspring
-	
+
 	# Returns true if we are ready to load/store data
 	attr_accessor :active
-	
+
 	# Returns true if the prerequisites have been installed
 	attr_accessor :usable
-	
+
 	# Returns the list of usable database drivers
 	attr_accessor :drivers
-	
+
 	# Returns the active driver
 	attr_accessor :driver
-	
+
 	# Stores the error message for why the db was not loaded
 	attr_accessor :error
-	
+
 	def initialize(framework)
-			
+
 		self.framework = framework
 		@usable = false
 		@active = false
-		
+
 		#
 		# Prefer our local copy of active_record and active_support
 		#
@@ -43,75 +43,93 @@ class DBManager
 		if(File.directory?(dir_ar) and not $:.include?(dir_ar))
 			$:.unshift(dir_ar)
 		end
-		
+
 		dir_as = File.join(Msf::Config.data_directory, 'msfweb', 'vendor', 'rails', 'activesupport', 'lib')
 		if(File.directory?(dir_as) and not $:.include?(dir_as))
 			$:.unshift(dir_as)
 		end
-		
+
 		# Load ActiveRecord if it is available
-		begin	
+		begin
 			require 'rubygems'
 			require 'active_record'
 			require 'active_support'
 			require 'msf/core/db_objects'
 			@usable = true
-			
+
 		rescue ::Exception => e
 			self.error = e
 			elog("DB is not enabled due to load error: #{e}")
 			return
 		end
-		
+
 		#
 		# Determine what drivers are available
 		#
 		initialize_drivers
 	end
-	
+
 	#
-	# 
-	#	
+	#
+	#
 	def initialize_drivers
 		self.drivers = []
 		tdrivers = %W{ sqlite3 mysql postgresql }
 		tdrivers.each do |driver|
 			begin
 				ActiveRecord::Base.establish_connection(:adapter => driver)
+				if(self.respond_to?("driver_check_#{driver}"))
+					self.send("driver_check_#{driver}")
+				end
 				ActiveRecord::Base.remove_connection
 				self.drivers << driver
 			rescue ::Exception
 			end
 		end
-		
+
 		if(not self.drivers.empty?)
 			self.driver = self.drivers[0]
 		end
 	end
-	
+
+	# Verify that sqlite3 is ready
+	def driver_check_sqlite3
+		require 'sqlite3'
+	end
+
+	# Verify that mysql is ready
+	def driver_check_mysql
+		require 'mysql'
+	end
+
 	#
 	# Connects this instance to a database
 	#
 	def connect(opts={})
 
 		return false if not @usable
-		
+
 		nopts = opts.dup
 		if (nopts['port'])
 			nopts['port'] = nopts['port'].to_i
 		end
-		
-		
+
+
 		begin
+			# Configure the database adapter
 			ActiveRecord::Base.establish_connection(nopts)
+
+			# Try to query for hosts (triggers a real connection
+			Host.find(:first)
 		rescue ::Exception => e
+			self.error = e
 			elog("DB.connect threw an exception: #{e}")
 			return false
 		end
-		
+
 		@active = true
 	end
-	
+
 	#
 	# Disconnects a database session
 	#
@@ -119,6 +137,7 @@ class DBManager
 		begin
 			ActiveRecord::Base.remove_connection
 		rescue ::Exception => e
+			self.error = e
 			elog("DB.disconnect threw an exception: #{e}")
 		end
 		@active = false
@@ -126,3 +145,4 @@ class DBManager
 
 end
 end
+

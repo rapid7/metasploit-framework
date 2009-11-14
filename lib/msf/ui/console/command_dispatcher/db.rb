@@ -867,7 +867,7 @@ class Db
 		def cmd_db_driver(*args)
 
 			if(args[0])
-				if(args[0] == "-h")
+				if(args[0] == "-h" || args[0] == "--help")
 					print_status("Usage: db_driver [driver-name]")
 					return
 				end
@@ -887,6 +887,25 @@ class Db
 				print_status("No Active Driver")
 			end
 			print_status("       Available: #{framework.db.drivers.join(", ")}")
+			print_line("")
+
+			if ! framework.db.drivers.include?('sqlite3')
+				print_status("    DB Support: Enable the sqlite3 driver with the following command:")
+				print_status("                $ gem install sqlite3-ruby")
+				print_line("")
+			end
+
+			if ! framework.db.drivers.include?('mysql')
+				print_status("    DB Support: Enable the mysql driver with the following command:")
+				print_status("                $ gem install mysql")
+				print_line("")
+			end
+
+			if ! framework.db.drivers.include?('postgresql')
+				print_status("    DB Support: Enable the postgresql driver with the following command:")
+				print_status("                $ gem install postgres-pr")
+				print_line("")
+			end
 		end
 
 		def cmd_db_driver_tabs(str, words)
@@ -905,6 +924,12 @@ class Db
 
 		def cmd_db_destroy(*args)
 			return if not db_check_driver
+
+			if(args[0] and (args[0] == "-h" || args[0] == "--help"))
+				print_status("Usage: db_destroy")
+				return
+			end
+
 			meth = "db_destroy_#{framework.db.driver}"
 			if(self.respond_to?(meth))
 				self.send(meth, *args)
@@ -925,6 +950,12 @@ class Db
 
 		def cmd_db_disconnect(*args)
 			return if not db_check_driver
+
+			if(args[0] and (args[0] == "-h" || args[0] == "--help"))
+				print_status("Usage: db_disconnect")
+				return
+			end
+
 			meth = "db_disconnect_#{framework.db.driver}"
 			if(self.respond_to?(meth))
 				self.send(meth, *args)
@@ -933,6 +964,21 @@ class Db
 			end
 		end
 
+
+		def db_find_tools(tools)
+			found   = true
+			missed  = []
+			tools.each do |name|
+				if(! Rex::FileUtils.find_full_path(name))
+					missed << name
+				end
+			end
+			if(not missed.empty?)
+				print_error("This database command requires the following tools to be installed: #{missed.join(", ")}")
+				return
+			end
+			true
+		end
 
 
 		#
@@ -953,18 +999,23 @@ class Db
 		#
 		def db_connect_sqlite3(*args)
 
+			if(args[0] and (args[0] == "-h" || args[0] == "--help"))
+				print_status("Usage: db_connect [database-file-path]")
+				return
+			end
+
 			info = db_parse_db_uri_sqlite3(args[0])
 			opts = { 'adapter' => 'sqlite3' }
 
 			opts['dbfile'] = info[:path]
 
-			if (not File.exists?(opts['dbfile']))
+			if (not ::File.exists?(opts['dbfile']))
 				print_error("The specified database does not exist")
 				return
 			end
 
 			if (not framework.db.connect(opts))
-				raise RuntimeError.new("Failed to connect to the database")
+				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
 			end
 
 			print_status("Successfully connected to the database")
@@ -976,6 +1027,11 @@ class Db
 		#
 		def db_create_sqlite3(*args)
 			cmd_db_disconnect()
+
+			if(args[0] and (args[0] == "-h" || args[0] == "--help"))
+				print_status("Usage: db_create [database-file-path]")
+				return
+			end
 
 			info = db_parse_db_uri_sqlite3(args[0])
 			opts = { 'adapter' => 'sqlite3' }
@@ -1002,7 +1058,7 @@ class Db
 			end
 
 			if (not framework.db.connect(opts))
-				raise RuntimeError.new("Failed to connect to the database")
+				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
 			end
 
 			print_status("Successfully connected to the database")
@@ -1016,6 +1072,7 @@ class Db
 			cmd_db_disconnect()
 			info = db_parse_db_uri_sqlite3(args[0])
 			begin
+				print_status("Deleting #{info[:path]}...")
 				File.unlink(info[:path])
 			rescue Errno::ENOENT
 				print_error("The specified database does not exist")
@@ -1045,6 +1102,15 @@ class Db
 		# Connect to an existing MySQL database
 		#
 		def db_connect_mysql(*args)
+			if(args[0] == nil or args[0] == "-h" or args[0] == "--help")
+				print_status("   Usage: db_connect <user:pass>@<host:port>/<database>")
+				print_status("Examples:")
+				print_status("       db_connect user@metasploit3")
+				print_status("       db_connect user:pass@192.168.0.2/metasploit3")
+				print_status("       db_connect user:pass@192.168.0.2:1500/metasploit3")
+				return
+			end
+
 			info = db_parse_db_uri_mysql(args[0])
 			opts = { 'adapter' => 'mysql' }
 
@@ -1054,6 +1120,8 @@ class Db
 			opts['host'] = info[:host] if (info[:host])
 			opts['port'] = info[:port] if (info[:port])
 
+			opts['host'] ||= 'localhost'
+
 			# This is an ugly hack for a broken MySQL adapter:
 			# 	http://dev.rubyonrails.org/ticket/3338
 			if (opts['host'].strip.downcase == 'localhost')
@@ -1061,7 +1129,7 @@ class Db
 			end
 
 			if (not framework.db.connect(opts))
-				raise RuntimeError.new("Failed to connect to the database")
+				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
 			end
 		end
 
@@ -1070,6 +1138,17 @@ class Db
 		#
 		def db_create_mysql(*args)
 			cmd_db_disconnect()
+
+			if(args[0] == nil or args[0] == "-h" or args[0] == "--help")
+				print_status("   Usage: db_create <user:pass>@<host:port>/<database>")
+				print_status("Examples:")
+				print_status("       db_create user@metasploit3")
+				print_status("       db_create user:pass@192.168.0.2/metasploit3")
+				print_status("       db_create user:pass@192.168.0.2:1500/metasploit3")
+				return
+			end
+
+			return if ! db_find_tools(%W{mysqladmin mysql})
 
 			info = db_parse_db_uri_mysql(args[0])
 			opts = { 'adapter' => 'mysql' }
@@ -1117,7 +1196,7 @@ class Db
 			system("mysqladmin #{cargs} drop #{info[:name]} >/dev/null 2>&1")
 			system("mysqladmin #{cargs} create #{info[:name]}")
 
-			psql = File.popen("mysql #{cargs} #{info[:name]}", "w")
+			psql = ::IO.popen("mysql #{cargs} #{info[:name]}", "w")
 			psql.write(fd.read)
 			psql.close
 			fd.close
@@ -1125,7 +1204,7 @@ class Db
 			print_status("Database creation complete (check for errors)")
 
 			if (not framework.db.connect(opts))
-				raise RuntimeError.new("Failed to connect to the database")
+				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
 			end
 
 		end
@@ -1136,6 +1215,8 @@ class Db
 		def db_destroy_mysql(*args)
 
 			cmd_db_disconnect()
+
+			return if ! db_find_tools(%W{mysqladmin})
 
 			info = db_parse_db_uri_mysql(args[0])
 			argv = []
@@ -1195,6 +1276,15 @@ class Db
 		# Connect to an existing Postgres database
 		#
 		def db_connect_postgresql(*args)
+			if(args[0] == nil or args[0] == "-h" or args[0] == "--help")
+				print_status("   Usage: db_connect <user:pass>@<host:port>/<database>")
+				print_status("Examples:")
+				print_status("       db_connect user@metasploit3")
+				print_status("       db_connect user:pass@192.168.0.2/metasploit3")
+				print_status("       db_connect user:pass@192.168.0.2:1500/metasploit3")
+				return
+			end
+
 			info = db_parse_db_uri_postgresql(args[0])
 			opts = { 'adapter' => 'postgresql' }
 
@@ -1204,8 +1294,36 @@ class Db
 			opts['host'] = info[:host] if (info[:host])
 			opts['port'] = info[:port] if (info[:port])
 
+			opts['pass'] ||= ''
+
+			# Do a little legwork to find the real database socket
+			if(! opts['host'])
+				while(true)
+					done = false
+					dirs = %W{ /var/run/postgresql /tmp }
+					dirs.each do |dir|
+						if(::File.directory?(dir))
+							d = ::Dir.new(dir)
+							d.entries.grep(/^\.s\.PGSQL.(\d+)$/).each do |ent|
+								opts['port'] = ent.split('.')[-1].to_i
+								opts['host'] = dir
+								done = true
+								break
+							end
+						end
+						break if done
+					end
+					break
+				end
+			end
+
+			# Default to loopback
+			if(! opts['host'])
+				opts['host'] = '127.0.0.1'
+			end
+
 			if (not framework.db.connect(opts))
-				raise RuntimeError.new("Failed to connect to the database")
+				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
 			end
 		end
 
@@ -1214,6 +1332,17 @@ class Db
 		#
 		def db_create_postgresql(*args)
 			cmd_db_disconnect()
+
+			if(args[0] == nil or args[0] == "-h" or args[0] == "--help")
+				print_status("   Usage: db_create <user:pass>@<host:port>/<database>")
+				print_status("Examples:")
+				print_status("       db_create user@metasploit3")
+				print_status("       db_create user:pass@192.168.0.2/metasploit3")
+				print_status("       db_create user:pass@192.168.0.2:1500/metasploit3")
+				return
+			end
+
+			return if ! db_find_tools(%W{psql dropdb createdb})
 
 			info = db_parse_db_uri_postgresql(args[0])
 			opts = { 'adapter' => 'postgresql' }
@@ -1252,21 +1381,48 @@ class Db
 
 			cargs = argv.map{|c| "'#{c}' "}.join
 
-			sql = File.join(Msf::Config.install_root, "data", "sql", "postgres.sql")
-			fd  = File.open(sql, 'r')
+			sql = ::File.join(Msf::Config.install_root, "data", "sql", "postgres.sql")
+			fd  = ::File.open(sql, 'r')
 
 			system("dropdb #{cargs} #{info[:name]} >/dev/null 2>&1")
 			system("createdb #{cargs} #{info[:name]}")
 
-			psql = File.popen("psql -q " + cargs + info[:name], "w")
+			psql = ::IO.popen("psql -q " + cargs + info[:name], "w")
 			psql.write(fd.read)
 			psql.close
 			fd.close
 
 			print_status("Database creation complete (check for errors)")
+			opts['pass'] ||= ''
+
+			# Do a little legwork to find the real database socket
+			if(! opts['host'])
+				while(true)
+					done = false
+					dirs = %W{ /var/run/postgresql /tmp }
+					dirs.each do |dir|
+						if(::File.directory?(dir))
+							d = ::Dir.new(dir)
+							d.entries.grep(/^\.s\.PGSQL.(\d+)$/).each do |ent|
+								opts['port'] = ent.split('.')[-1].to_i
+								opts['host'] = dir
+								done = true
+								break
+							end
+						end
+						break if done
+					end
+					break
+				end
+			end
+
+			# Default to loopback
+			if(! opts['host'])
+				opts['host'] = '127.0.0.1'
+			end
 
 			if (not framework.db.connect(opts))
-				raise RuntimeError.new("Failed to connect to the database")
+				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
 			end
 		end
 
@@ -1276,6 +1432,8 @@ class Db
 		def db_destroy_postgresql(*args)
 
 			cmd_db_disconnect()
+
+			return if ! db_find_tools(%W{dropdb})
 
 			info = db_parse_db_uri_postgresql(args[0])
 			argv = []
