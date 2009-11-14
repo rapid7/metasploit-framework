@@ -22,13 +22,7 @@ end
 # Straight up gangsta shit from spoon (ripped from BION)
 module DBSave
 
-# XXX: Removing the lock, may no longer be necessary
-=begin
-	def save(*args)
-		Lock.mutex.synchronize do
-			super(*args)
-		end
-	end	
+
 
 	def self.included(mod)
 		class << mod
@@ -36,10 +30,17 @@ module DBSave
 				Lock.mutex.synchronize do
 					super(*args)
 				end
-			end			
+			end
+
+			def save(*args)
+				Lock.mutex.synchronize do
+					super(*args)
+				end
+			end
+
 		end
 	end
-=end
+
 end
 
 # Host object definition
@@ -56,7 +57,7 @@ class Client < ActiveRecord::Base
 
 	def host
 		Host.find(:first, :conditions => [ "id = ?", host_id ])
-	end	
+	end
 end
 
 # Service object definition
@@ -67,7 +68,7 @@ class Service < ActiveRecord::Base
 
 	def host
 		Host.find(:first, :conditions => [ "id = ?", host_id ])
-	end	
+	end
 end
 
 # Vuln object definition
@@ -106,11 +107,11 @@ class Note < ActiveRecord::Base
 
 	def host
 		Host.find(:first, :conditions => [ "id = ?", host_id ])
-	end	
+	end
 end
 
 
-# WMAP Request object definition	
+# WMAP Request object definition
 class Request < ::ActiveRecord::Base
 	include DBSave
 	# Magic.
@@ -125,7 +126,8 @@ end
 # WMAP Report object definition
 class Report < ::ActiveRecord::Base
 	include DBSave
-end		
+end
 
 end
 end
+
