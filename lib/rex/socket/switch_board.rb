@@ -21,6 +21,10 @@ class SwitchBoard
 
 	include Singleton
 	include Enumerable
+
+	def initialize
+		@_initialized = false
+	end
 	
 	###
 	#

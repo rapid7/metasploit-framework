@@ -11,6 +11,7 @@ module Msf
 class Logging
 
 	@@initialized = false
+	@@session_logging = false
 
 	#
 	# Initialize logging.
@@ -56,14 +57,14 @@ class Logging
 	# Sets whether or not session logging is to be enabled.
 	#
 	def self.enable_session_logging(tf)
-		@session_logging = tf
+		@@session_logging = tf
 	end
 
 	#
 	# Returns whether or not session logging is enabled.
 	#
 	def self.session_logging_enabled?
-		@session_logging || false
+		@@session_logging || false
 	end
 
 	#
