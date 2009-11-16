@@ -26,9 +26,7 @@ module Metasploit3
 			'Description'   => 'Tunnel communication over HTTP using IE 6',
 			'Author'        => 'skape',
 			'License'       => MSF_LICENSE,
-			# Give this module an empty platform to disable it until we can
-			# figure out why it doesn't work
-			'Platform'      => [], #'win',
+			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::PassiveX,
 			'Convention'    => 'sockedi',
