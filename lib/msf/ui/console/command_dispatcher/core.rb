@@ -1035,8 +1035,8 @@ class Core
 
 			when 'killall'
 				print_status("Killing all sessions...")
-				framework.sessions.each_sorted do |sid|
-					if ((session = framework.sessions.get(sid)))
+				framework.sessions.each_sorted do |s|
+					if ((session = framework.sessions.get(s)))
 						session.kill
 					end
 				end
