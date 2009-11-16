@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Metasploit Framework"
-!define PRODUCT_VERSION "3.3"
+!define PRODUCT_VERSION "3.3-RC2"
 !define PRODUCT_PUBLISHER "Rapid7 LLC"
 !define PRODUCT_WEB_SITE "http://www.metasploit.com/framework/support/"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -10,14 +10,14 @@
 !define PRODUCT_STARTMENU_REGVAL "NSIS:StartMenuDir"
 
 
-VIProductVersion "3.3.0.1"
+VIProductVersion "3.3.0.2"
 VIAddVersionKey /LANG=1033 "ProductName" "Metasploit Framework"
 VIAddVersionKey /LANG=1033 "Comments" "This is the official installer for Metasploit 3"
 VIAddVersionKey /LANG=1033 "CompanyName" "Rapid7 LLC"
 VIAddVersionKey /LANG=1033 "LegalTrademarks" "Metasploit is a registered trademark of Rapid7 LLC"
 VIAddVersionKey /LANG=1033 "LegalCopyright" " Copyright (C) 2003-2009 Rapid7 LLC"
 VIAddVersionKey /LANG=1033 "FileDescription" "Metasploit 3 Windows Installer"
-VIAddVersionKey /LANG=1033 "FileVersion" "3.3.0.1"
+VIAddVersionKey /LANG=1033 "FileVersion" "3.3.0.2"
 
 SetCompressor /SOLID lzma
 
@@ -41,7 +41,7 @@ FunctionEnd
 !insertmacro MUI_PAGE_WELCOME
 
 ; License page
-!insertmacro MUI_PAGE_LICENSE "metasploit_license.txt"
+!insertmacro MUI_PAGE_LICENSE "msf3\README"
 
 ; Directory page
 !insertmacro MUI_PAGE_DIRECTORY
