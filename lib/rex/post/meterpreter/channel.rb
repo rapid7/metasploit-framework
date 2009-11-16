@@ -52,13 +52,13 @@ class Channel
 		def request_handler(client, packet)
 			cid = packet.get_tlv_value(TLV_TYPE_CHANNEL_ID)
 
-			# No channel identifier, then drop out 'n shit
+			# No channel identifier, then drop it
 			if (cid == nil)
 				return false
 			end
 
 			channel = client.find_channel(cid)
-			
+
 			# Valid channel context?
 			if (channel == nil)
 				return false
@@ -77,17 +77,17 @@ class Channel
 		end
 	end
 
-	## 
+	##
 	#
 	# Factory
 	#
 	##
 
 	#
-	# Creates a logical channel between the client and the server 
+	# Creates a logical channel between the client and the server
 	# based on a given type.
 	#
-	def Channel.create(client, type = nil, klass = nil, 
+	def Channel.create(client, type = nil, klass = nil,
 			flags = CHANNEL_FLAG_SYNCHRONOUS, addends = nil)
 		request = Packet.create_request('core_channel_open')
 
@@ -114,7 +114,7 @@ class Channel
 
 		# Create the channel instance
 		channel  = klass.new(client, cid, type, flags)
-	
+
 		return channel
 	end
 
@@ -134,7 +134,7 @@ class Channel
 		self.type   = type
 		self.flags  = flags
 
-		# Add this instance to the list and shit
+		# Add this instance to the list
 		if (cid and client)
 			client.add_channel(self)
 		end
@@ -173,7 +173,7 @@ class Channel
 
 		begin
 			response = self.client.send_request(request)
-		rescue 
+		rescue
 			return nil
 		end
 
@@ -413,10 +413,11 @@ protected
 
 	#
 	# Cleans up any lingering resources
-	# 
+	#
 	def cleanup
 	end
 
 end
 
 end; end; end
+

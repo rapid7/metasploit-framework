@@ -18,7 +18,7 @@ module Net
 # This class provides an interface to interacting with sockets
 # on the remote machine.  It allows callers to open TCP, UDP,
 # and other arbitrary socket-based connections as channels that
-# can then be interacted with through the established 
+# can then be interacted with through the established
 # meterpreter connection.
 #
 ###
@@ -39,7 +39,7 @@ class Socket
 		self.monitored_sockets         = []
 		self.monitored_socket_channels = {}
 
-		# Start monitoring shit like the business
+		# Start monitoring the sockets
 		self.monitor_sockets
 	end
 
@@ -76,7 +76,7 @@ class Socket
 				# Add this channel's right socket to the socket monitor
 				add_monitored_socket(channel.rsock, channel)
 
-				# If we get a valid channel back, create a stream 
+				# If we get a valid channel back, create a stream
 				# representation of the left side of the socket for
 				# the caller to use
 				if (channel != nil)
@@ -138,14 +138,14 @@ protected
 		self.monitor_thread = ::Thread.new {
 
 			loop do
-		
+
 				# Watch for data
 				begin
 					socks = select(monitored_sockets, nil, nil, 1)
 				rescue StreamClosedError => e
 					channel = monitored_socket_channels[e.stream.object_id]
 
-					dlog("monitor_channels: channel #{channel} closed (#{e.stream})", 
+					dlog("monitor_channels: channel #{channel} closed (#{e.stream})",
 							'rex', LEV_3)
 
 					if (channel)
@@ -227,3 +227,4 @@ protected
 end
 
 end; end; end; end; end; end
+

@@ -13,7 +13,7 @@ class Xor
 	attr_accessor :raw, :encoded, :badchars, :opts, :key, :fkey # :nodoc:
 
 	#
-	# wrap that shit in a wanna be static class
+	# wrap that in a wanna be static class
 	#
 	def self.encode(*args)
 		self.new.encode(*args)
@@ -66,3 +66,4 @@ class Xor
 end
 
 end end
+

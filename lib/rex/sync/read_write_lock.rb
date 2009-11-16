@@ -33,9 +33,9 @@ class ReadWriteLock
 	#
 	def lock_read
 		read_sync_mutex.lock
-		
+
 		begin
-			# If there are a non-zero number of readers and a 
+			# If there are a non-zero number of readers and a
 			# writer is waiting to acquire the exclusive lock,
 			# free up the sync mutex temporarily and lock/unlock
 			# the exclusive lock.  This is to give the writer
@@ -51,13 +51,13 @@ class ReadWriteLock
 
 			# Increment the active reader count
 			@readers += 1
-			
-			# If we now have just one reader, acquire the exclusive 
+
+			# If we now have just one reader, acquire the exclusive
 			# lock.  Track the thread owner so that we release the
 			# lock from within the same thread context later on.
 			if (@readers == 1)
 				exclusive_mutex.lock
-				
+
 				@owner = Thread.current
 			end
 		ensure
@@ -79,8 +79,8 @@ class ReadWriteLock
 			while (!unlocked)
 				# If there are no more readers left after this one
 				if (@readers - 1 == 0)
-					# If the calling thread is the owner of the exclusive 
-					# reader lock, then let's release that shit!
+					# If the calling thread is the owner of the exclusive
+					# reader lock, then let's release it
 					if (Thread.current == @owner)
 						@owner = nil
 
@@ -117,7 +117,7 @@ class ReadWriteLock
 			@writer = true
 
 			exclusive_mutex.lock
-			
+
 			@owner  = Thread.current
 		ensure
 			write_sync_mutex.unlock
@@ -173,3 +173,4 @@ protected
 end
 
 end
+

@@ -25,7 +25,7 @@ class Packet::Header < Hash
 	#
 	# Parses a header from a string.
 	#
-	# XXX - Putting : in a header value fucks this up pretty badly
+	# XXX - Putting : in a header value breaks this badly
 	def from_s(header)
 		reset
 
@@ -36,10 +36,10 @@ class Packet::Header < Hash
 		end
 
 		# put the non-standard line terminations back to normal
-		# gah.  not having look behinds suck, 
+		# gah.  not having look behinds suck,
 		header.gsub!(/([^\r])\n/,'\1' + "\r\n")
 
-		# undo folding, kinda ugly but works for now. 
+		# undo folding, kinda ugly but works for now.
 		header.gsub!(/:\s*\r\n\s+/smi,': ')
 
 		# Extract the command string
@@ -68,7 +68,7 @@ class Packet::Header < Hash
 		end
 		if (rv == nil)
 			begin
-				rv = self.dcase_hash[key.downcase]	
+				rv = self.dcase_hash[key.downcase]
 			rescue IndexError
 				rv = nil
 			end
@@ -99,12 +99,12 @@ class Packet::Header < Hash
 	#
 	def to_s(prefix = '')
 		str = prefix
-		
+
 		if self.junk_headers
 			while str.length < 4096
 				if self.fold
 					str << "X-#{Rex::Text.rand_text_alphanumeric(rand(30) + 5)}:\r\n\t#{Rex::Text.rand_text_alphanumeric(rand(1024) + 1)}\r\n"
-				else 
+				else
 					str << "X-#{Rex::Text.rand_text_alphanumeric(rand(30) + 5)}: #{Rex::Text.rand_text_alphanumeric(rand(1024) + 1)}\r\n"
 				end
 			end
@@ -117,7 +117,7 @@ class Packet::Header < Hash
 				str << "#{var}: #{val}\r\n"
 			end
 		}
-		
+
 		str << "\r\n"
 
 		return str
@@ -146,7 +146,7 @@ class Packet::Header < Hash
 	# requests and responses.
 	#
 	attr_accessor :junk_headers
-	attr_accessor :cmd_string 
+	attr_accessor :cmd_string
 	attr_accessor :fold
 
 protected
@@ -158,3 +158,4 @@ end
 end
 end
 end
+

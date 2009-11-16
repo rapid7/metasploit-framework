@@ -79,7 +79,7 @@ class DwordAdditive < Generic
 			# increment the offending key byte
 			key[strip] = key[strip] + 1 & 0xff
 
-			# fuck, we wrapped around!
+			# We wrapped around!
 			if key[strip] == kstart[strip]
 				raise KeySearchError, "Key space exhausted on strip #{strip}!", caller
 			end
@@ -89,3 +89,4 @@ class DwordAdditive < Generic
 	end
 
 end end end end # DwordAdditive/Xor/Encoding/Rex
+

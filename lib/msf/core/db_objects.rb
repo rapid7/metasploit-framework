@@ -19,10 +19,8 @@ end
 
 # ActiveRecord/sqlite3 has locking issues when you update a table with a pending select
 # This set of instance/class wrappers should prevent a table lock
-# Straight up gangsta shit from spoon (ripped from BION)
+# Straight up gangsta from spoon (ripped from BION)
 module DBSave
-
-
 
 	def self.included(mod)
 		class << mod

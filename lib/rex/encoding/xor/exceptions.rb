@@ -5,10 +5,7 @@ module Encoding
 module Xor
 
 module Exception
-	MSG = "Hoe's be frontin n shit"
-	def to_suck
-		self.class::MSG
-	end
+
 end
 
 class KeySearchError < ::Exception
@@ -17,3 +14,4 @@ class KeySearchError < ::Exception
 end
 
 end end end
+

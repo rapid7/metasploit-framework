@@ -94,7 +94,7 @@ class Encoder < Module
 		#
 		AlphanumUnicodeMixed = "alpha_unicode_mixed"
 		#
-		# toupper/tolower safe ascii - not 'a' - 'z', 'A' - 'Z' 
+		# toupper/tolower safe ascii - not 'a' - 'z', 'A' - 'Z'
 		#
 		NonAlpha = "non_alpha"
 		#
@@ -109,7 +109,7 @@ class Encoder < Module
 		# May result in the generation of any characters
 		#
 		Unspecified = "unspecified"
-		# 
+		#
 		# The raw payload passed to the encoder will be the same as the encoded
 		# payload
 		#
@@ -265,7 +265,7 @@ class Encoder < Module
 	# initialized and is ready to go.
 	#
 	def do_encode(state)
-	
+
 		# Copy the decoder stub since we may need to modify it
 		stub = decoder_stub(state).dup
 
@@ -273,7 +273,7 @@ class Encoder < Module
 			# Substitute the decoder key in the copy of the decoder stub with the
 			# one that we found
 			real_key = state.key
-	
+
 			# If we're using context encoding, the actual value we use for
 			# substitution is the context address, not the key we use for
 			# encoding
@@ -283,17 +283,17 @@ class Encoder < Module
 		else
 			stub = encode_finalize_stub(state, stub)
 		end
-		
+
 		# Walk the buffer encoding each block along the way
 		offset = 0
 
 		if (decoder_block_size)
 			while (offset < state.buf.length)
 				block = state.buf[offset, decoder_block_size]
-	
-				state.encoded += encode_block(state, 
+
+				state.encoded += encode_block(state,
 						block + ("\x00" * (decoder_block_size - block.length)))
-			     
+
 				offset += decoder_block_size
 			end
 		else
@@ -306,8 +306,8 @@ class Encoder < Module
 		# Last but not least, do one last badchar pass to see if the stub +
 		# encoded payload leads to any bad char issues...
 		if ((badchar_idx = has_badchars?(state.encoded, state.badchars)) != nil)
-			raise BadcharError.new(state.encoded, badchar_idx, stub.length, state.encoded[badchar_idx]), 
-					"The #{self.name} encoder failed to encode without bad characters.", 
+			raise BadcharError.new(state.encoded, badchar_idx, stub.length, state.encoded[badchar_idx]),
+					"The #{self.name} encoder failed to encode without bad characters.",
 					caller
 		end
 
@@ -393,7 +393,7 @@ protected
 		state.buf                = state.orig_buf
 	end
 
-	# 
+	#
 	# Obtains the key to use during encoding.  If context encoding is enabled,
 	# special steps are taken.  Otherwise, the derived class is given an
 	# opportunity to find the key.
@@ -419,12 +419,12 @@ protected
 		bad_keys  = find_bad_keys(buf, badchars)
 		found     = false
 		allset    = [*(0..255)]
-		
+
 		# Keep chugging until we find something...right
 		while (!found)
 			# Scan each byte position
 			0.upto(decoder_key_size - 1) { |index|
-				
+
 				# Subtract the bad and leave the good
 				good_keys = allset - bad_keys[index].keys
 
@@ -438,7 +438,7 @@ protected
 				key_bytes[index] = good_keys[ rand(good_keys.length) ]
 			}
 
-			# Assume that we're going to rock this shit...
+			# Assume that we're going to rock this...
 			found = true
 
 			# Scan each byte and see what we've got going on to make sure
@@ -448,7 +448,7 @@ protected
 					found = false
 				end
 			}
-			
+
 			found = find_key_verify(buf, key_bytes, badchars) if found
 		end
 
@@ -505,7 +505,7 @@ protected
 							# Pack it to byte form so that we can check each byte for
 							# bad characters
 							address_bytes = integer_to_key_bytes(address)
-				
+
 							# Scan each byte and see what we've got going on to make sure
 							# no funny business is happening with the address
 							invalid_key = false
@@ -563,14 +563,14 @@ protected
 
 			if (idx != nil)
 				return idx
-			end	
+			end
 		}
 
 		return nil
 	end
 
 	#
-	# Convert individual key bytes into a single integer based on the 
+	# Convert individual key bytes into a single integer based on the
 	# decoder's key size and packing requirements
 	#
 	def key_bytes_to_integer(key_bytes)
@@ -585,7 +585,7 @@ protected
 	end
 
 	#
-	# Convert an integer into the individual key bytes based on the 
+	# Convert an integer into the individual key bytes based on the
 	# decoder's key size and packing requirements
 	#
 	def integer_to_key_bytes(integer)
@@ -608,3 +608,4 @@ require 'msf/core/encoder/xor_additive_feedback'
 require 'msf/core/encoder/alphanum'
 require 'msf/core/encoder/nonalpha'
 require 'msf/core/encoder/nonupper'
+

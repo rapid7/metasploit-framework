@@ -21,17 +21,17 @@ class Transformer
 	#
 	# Transformer.transform(string, Array, [ String ], target)
 	#
-	def Transformer.transform(src_instance, dst_class, supported_classes, 
+	def Transformer.transform(src_instance, dst_class, supported_classes,
 			target = nil)
 		dst_instance = dst_class.new
 
 		if (src_instance.kind_of?(Array))
 			src_instance.each { |src_inst|
-				Transformer.transform_single(src_inst, dst_instance, 
+				Transformer.transform_single(src_inst, dst_instance,
 						supported_classes, target)
 			}
 		elsif (!src_instance.kind_of?(NilClass))
-			Transformer.transform_single(src_instance, dst_instance, 
+			Transformer.transform_single(src_instance, dst_instance,
 					supported_classes, target)
 		end
 
@@ -43,15 +43,14 @@ protected
 	#
 	# Transform a single source instance.
 	#
-	def Transformer.transform_single(src_instance, dst_instance, 
+	def Transformer.transform_single(src_instance, dst_instance,
 			supported_classes, target)
-		# If the src instance's class is supported, just add it to the dst 
+		# If the src instance's class is supported, just add it to the dst
 		# instance
 		if (supported_classes.include?(src_instance.class))
 			dst_instance << src_instance
 		# If the src instance's class is an array, then we should check to see
-		# if any of the supporting classes support from_a.  If they do, we'll
-		# call it and try to rock that shit, otherwise we'll bomb out.
+		# if any of the supporting classes support from_a.
 		elsif (src_instance.kind_of?(Array))
 			new_src_instance = nil
 
@@ -73,7 +72,7 @@ protected
 			end
 
 		# If the source instance is a string, query each of the supported
-		# classes to see if they can serialize it to their particular data 
+		# classes to see if they can serialize it to their particular data
 		# type.
 		elsif (src_instance.kind_of?(String))
 			new_src_instance = nil
@@ -113,3 +112,4 @@ protected
 end
 
 end
+

@@ -22,7 +22,7 @@ module File
 		# inherits fd and mode from IO
 		attr_accessor :filename
 	public
-	
+
 	# f = File.new("testfile", "r")
 	# f = File.new("newfile",  "w+")
 	# f = File.new("newfile", File::CREAT|File::TRUNC|File::RDWR, 0644)
@@ -37,7 +37,7 @@ module File
 	# ctime/atime blah need fstat..
 	# need lchown/chown/fchown, etc, etc
 
-	# proxy this crap, whatever
+	# proxy these methods
 	def File.basename(*a)
 		::File.basename(*a)
 	end
@@ -48,7 +48,7 @@ module File
 		::File.extname(*a)
 	end
 	# !!! we might actually want to handle this File::SEPERATOR stuff
-	# for win32 support, etc.  And you know, when we rock the vax n shit
+	# for win32 support, etc.
 	def File.join(*a)
 		::File.join(*a)
 	end
@@ -169,3 +169,4 @@ module File
 end
 
 end; end # Post/Rex
+
