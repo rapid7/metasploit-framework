@@ -365,9 +365,21 @@ class OptAddressRange < OptBase
 
 		ranges = value.split(',')
 		ranges.each do |range|
+			tmp = nil
 
-			tmp = range.split('-')
-			tmp[1] ||= tmp[0]
+			# Only split into a range when the input is an IPv4 address
+			if(range.index('-') and range =~ /^[0-9\.\-]+$/)
+				tmp = range.split('-')
+				tmp[1] ||= tmp[0]
+			else
+				# Check for an IPv6 range
+				if(range =~ /^[a-f0-9\.:\-]+$/)
+					tmp = range.split('-')
+					tmp = nil if Rex::Socket.addr_aton(tmp[0]).length != 16
+				end
+
+				tmp = [range,range] if tmp.nil?
+			end
 
 			if(tmp[0] == tmp[1] and tmp[0] =~ /\//)
 				tmp = Rex::Socket.cidr_crack(tmp[0])
