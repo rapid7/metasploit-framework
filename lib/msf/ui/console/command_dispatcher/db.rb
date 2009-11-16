@@ -724,11 +724,6 @@ class Db
 				return
 			end
 
-			if (not File.readable?(args[0]))
-				print_status("Could not read the XML file")
-				return
-			end
-
 			load_nmap_xml(args[0])
 		end
 
@@ -780,6 +775,11 @@ class Db
 		# Process Nmap XML data
 		#
 		def load_nmap_xml(filename)
+			if (not File.readable?(filename))
+				print_status("Could not read the XML file")
+				return
+			end
+
 			l = NmapXMLStreamParser.new(framework)
 			REXML::Document.parse_stream(File.new(filename), l)
 		end
