@@ -775,7 +775,7 @@ class Db
 		# Process Nmap XML data
 		#
 		def load_nmap_xml(filename)
-			if (not File.readable?(filename))
+			if (not File.readable?(filename) or File.size(filename) < 1)
 				print_status("Could not read the XML file")
 				return
 			end
