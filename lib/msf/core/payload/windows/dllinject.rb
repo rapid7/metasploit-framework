@@ -17,7 +17,7 @@ module Payload::Windows::DllInject
 			'Name'          => 'Windows Inject DLL',
 			'Version'       => '$Revision$',
 			'Description'   => 'Inject a custom DLL into the exploited process',
-			'Author'        => 
+			'Author'        =>
 				[
 					'jt <jt@klake.org>',
 					'skape',
@@ -27,7 +27,7 @@ module Payload::Windows::DllInject
 			'Arch'          => ARCH_X86,
 			'PayloadCompat' =>
 				{
-					'Convention' => 'sockedi'
+					'Convention' => 'sockedi -passivex',
 				},
 			'Stage'         =>
 				{
@@ -234,3 +234,4 @@ module Payload::Windows::DllInject
 end
 
 end
+

