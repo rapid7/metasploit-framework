@@ -2102,12 +2102,8 @@ module RbReadline
    #   otherwise errno is returned.
    def rl_read_init_file(filename)
 
-   #
-   # This code is too problematic at the moment
-   # Just hardcode things and move on
-   #
-      return 0
 
+=begin
       # Default the filename.
       filename ||= @last_readline_init_file
       filename ||= ENV["INPUTRC"]
@@ -2125,6 +2121,12 @@ module RbReadline
          filename = "~/_inputrc"
       end
       return (_rl_read_init_file(filename, 0))
+=end
+	   #
+	   # This code is too problematic at the moment
+	   # Just hardcode things and move on
+	   #
+      return 0
    end
 
    def _rl_read_init_file(filename, include_level)
