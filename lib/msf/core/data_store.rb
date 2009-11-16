@@ -177,7 +177,7 @@ class DataStore < Hash
 	#
 	def user_defined
 		reject { |k, v|
-			@imported[k] == true
+			@imported[k] != 'self'
 		}
 	end
 

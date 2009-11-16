@@ -22,7 +22,7 @@ class Module
 	# Make include public so we can runtime extend
 	public_class_method :include
 
-	class <<self
+	class << self
 		include Framework::Offspring
 
 		#
@@ -604,6 +604,7 @@ protected
 	def register_options(options, owner = self.class)
 		self.options.add_options(options, owner)
 		self.datastore.import_options(self.options, 'self', true)
+		import_defaults(false)
 	end
 
 	#
@@ -612,6 +613,7 @@ protected
 	def register_advanced_options(options, owner = self.class)
 		self.options.add_advanced_options(options, owner)
 		self.datastore.import_options(self.options, 'self', true)
+		import_defaults(false)
 	end
 
 	#
@@ -620,6 +622,7 @@ protected
 	def register_evasion_options(options, owner = self.class)
 		self.options.add_evasion_options(options, owner)
 		self.datastore.import_options(self.options, 'self', true)
+		import_defaults(false)
 	end
 
 	#
