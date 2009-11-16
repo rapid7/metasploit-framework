@@ -108,7 +108,11 @@ class BadcharError < EncodingError
 		else 
 			c = char
 		end
-		return "Encoding failed due to a bad character (index=#{index}, char=#{sprintf("0x%.2x", c)})"
+		if (c)
+			return "Encoding failed due to a bad character (index=#{index}, char=#{sprintf("0x%.2x", c)})"
+		else
+			return "Encoding failed due to a nil character"
+		end
 	end
 
 	attr_reader :buf, :index, :stub_size, :char
