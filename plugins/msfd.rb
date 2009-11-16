@@ -110,7 +110,7 @@ class Plugin::Msfd < Msf::Plugin
 				client.close
 				next
 			end
-			msg = "Msfd: New connection from #{cli.peerhost}"
+			msg = "Msfd: New connection from #{client.peerhost}"
 			ilog(msg, 'core')
 			print_status(msg)
 
@@ -121,7 +121,7 @@ class Plugin::Msfd < Msf::Plugin
 						Msf::Ui::Console::Driver::DefaultPrompt,
 						Msf::Ui::Console::Driver::DefaultPromptChar,
 						'Framework'   => framework,
-						'LocalInput'  => Rex::Ui::Text::Input::Socket.new(cli), 
+						'LocalInput'  => Rex::Ui::Text::Input::Socket.new(cli),
 						'LocalOutput' => Rex::Ui::Text::Output::Socket.new(cli),
 						'AllowCommandPassthru' => false).run
 				rescue
@@ -130,7 +130,7 @@ class Plugin::Msfd < Msf::Plugin
 					msg = "Msfd: Closing client connection with #{cli.peerhost}"
 					ilog(msg, 'core')
 					print_status(msg)
-					begin 
+					begin
 						cli.shutdown
 						cli.close
 					rescue IOError
@@ -158,3 +158,4 @@ protected
 end
 
 end
+

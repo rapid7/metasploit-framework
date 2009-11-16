@@ -13,6 +13,7 @@ class Output::Socket < Rex::Ui::Text::Output
 
 	def initialize(sock)
 		@sock = sock
+		super()
 	end
 
 	def supports_color?
@@ -20,7 +21,7 @@ class Output::Socket < Rex::Ui::Text::Output
 		when true
 			# Allow color if the user forces it on
 			return true
-		else 
+		else
 			false
 		end
 	end
@@ -39,3 +40,4 @@ end
 end
 end
 end
+
