@@ -176,7 +176,6 @@ class DataStore < Hash
 	# not include default option values.
 	#
 	def user_defined
-		p @imported
 		reject { |k, v|
 			@imported[k] == true
 		}
