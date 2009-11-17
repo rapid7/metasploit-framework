@@ -19,10 +19,10 @@ def initialize(info = {})
 			OptAddressRange.new('RHOSTS', [ true, "The target address range or CIDR identifier"]),
 			OptInt.new('THREADS', [ true, "The number of concurrent threads", 1 ] )
 		], Auxiliary::Scanner)
-	
+
 	# RHOST should not be used in scanner modules, only RHOSTS
 	deregister_options('RHOST')
-	
+
 	register_advanced_options([
 		OptBool.new('ShowProgress', [true, 'Display progress messages during a scan', true]),
 		OptInt.new('ShowProgressPercent', [true, 'The interval in percent that progress should be shown', 10])
@@ -42,14 +42,14 @@ def run
 	@range_count   = ar.num_ips
 	@range_done    = 0
 	@range_percent = 0
-	
+
 	threads_max = datastore['THREADS'].to_i
 	tl = []
-	
+
 	#
 	# Sanity check threading on different platforms
 	#
-	
+
 	if(Rex::Compat.is_windows)
 		if(threads_max > 16)
 			print_error("Warning: The Windows platform cannot reliably support more than 16 threads")
@@ -65,16 +65,16 @@ def run
 			threads_max = 200
 		end
 	end
-	
+
 	begin
-	
+
 	if (self.respond_to?('run_range'))
 		# No automated progress reporting for run_range
 		return run_range(datastore['RHOSTS'])
 	end
-	
+
 	if (self.respond_to?('run_host'))
-	
+
 		tl = []
 
 		while (true)
@@ -82,7 +82,7 @@ def run
 			while (tl.length < threads_max)
 				ip = ar.next_ip
 				break if not ip
-				
+
 				tl << Thread.new(ip.dup) do |tip|
 					targ = tip
 					nmod = self.replicant
@@ -99,7 +99,7 @@ def run
 					end
 				end
 			end
-			
+
 			# Exit once we run out of hosts
 			if(tl.length == 0)
 				break
@@ -114,31 +114,31 @@ def run
 			tl.first.join
 			tl.delete_if { |t| not t.alive? }
 			tlb = tl.length
-			
+
 			@range_done += tla - tlb
 			scanner_show_progress()
 		end
-		
+
 		return
 	end
 
 	if (self.respond_to?('run_batch'))
-	
+
 		if (! self.respond_to?('run_batch_size'))
 			print_status("This module needs to export run_batch_size()")
 			return
 		end
-		
+
 		size = run_batch_size()
 
 		ar = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
-					
+
 		tl = []
 
 		while(true)
-			nohosts = false	
+			nohosts = false
 			while (tl.length < threads_max)
-				
+
 				batch = []
 
 				# Create batches from each set
@@ -150,7 +150,7 @@ def run
 					end
 					batch << ip
 				end
-				
+
 				# Create a thread for each batch
 				if (batch.length > 0)
 					thread = Thread.new(batch) do |bat|
@@ -165,10 +165,10 @@ def run
 							print_status("Error: #{mybatch[0]}-#{mybatch[-1]}: #{e}")
 						end
 					end
-					t[:batch_size] = batch.length
+					thread[:batch_size] = batch.length
 					tl << thread
 				end
-				
+
 				# Exit once we run out of hosts
 				if (tl.length == 0 or nohosts)
 					break
@@ -178,7 +178,7 @@ def run
 			# Exit if there are no more pending threads
 			if (tl.length == 0)
 				break
-			end			
+			end
 
 			# Assume that the oldest thread will be one of the
 			# first to finish and wait for it.  After that's
@@ -191,16 +191,16 @@ def run
 			tl.delete_if { |t| not t.alive? }
 			tlb = 0
 			tl.map {|t| tlb += t[:batch_size] }
-			
+
 			@range_done += tla - tlb
-			scanner_show_progress()			
+			scanner_show_progress()
 		end
-		
+
 		return
 	end
 
 	print_error("This module defined no run_host, run_range or run_batch methods")
-	
+
 	rescue ::Interrupt
 		print_status("Caught interrupt from the console...")
 		return
@@ -225,3 +225,4 @@ end
 
 end
 end
+
