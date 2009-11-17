@@ -1,5 +1,5 @@
 ##
-# $Id: wmap_error_sql_injection.rb 6479 2009-04-13 14:33:26Z kris $
+# $Id$
 ##
 
 ##
@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author' 		=> [ 'et [at] cyberspace.org' ],
 			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision: 6479 $'))   
+			'Version'		=> '$Revision$'))   
 			
 		register_options(
 			[

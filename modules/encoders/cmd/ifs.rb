@@ -1,5 +1,5 @@
 ##
-# $Id: generic_sh.rb 6957 2009-08-17 17:42:39Z hdm $
+# $Id$
 ##
 
 ##
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Encoder
 	def initialize
 		super(
 			'Name'             => 'Generic ${IFS} Substitution Command Encoder',
-			'Version'          => '$Revision: 6957 $',
+			'Version'          => '$Revision$',
 			'Description'      => %q{
 				This encoder uses standard Bourne shell variable substitution
 				to avoid spaces without being overly fancy.

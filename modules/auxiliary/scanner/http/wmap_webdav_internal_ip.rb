@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP WebDAV Internal IP Scanner',
-			'Version'     => '$Revision: 6485 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Detect webservers internal IPs though WebDAV',
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE

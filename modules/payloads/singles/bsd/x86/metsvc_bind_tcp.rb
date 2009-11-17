@@ -1,5 +1,5 @@
 ##
-# $Id: metsvc_bind_tcp.rb 6527 2009-05-06 03:27:39Z hdm $
+# $Id$
 ##
 
 ##
@@ -22,7 +22,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'FreeBSD Meterpreter Service, Bind TCP',
-			'Version'       => '$Revision: 6527 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Stub payload for interacting with a Meterpreter Service',
 			'Author'        => 'hdm',
 			'License'       => BSD_LICENSE,

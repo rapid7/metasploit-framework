@@ -22,7 +22,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'PHP Executable Download and Execute',
-			'Version'       => '$Revision: 6479 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Download an EXE from a HTTP URL and execute it',
 			'Author'        => [ 'egypt' ],
 			'License'       => BSD_LICENSE,

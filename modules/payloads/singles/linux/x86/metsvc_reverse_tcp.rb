@@ -1,5 +1,5 @@
 ##
-# $Id: metsvc_reverse_tcp.rb 6848 2009-07-19 20:51:58Z hdm $
+# $Id$
 ##
 
 ##
@@ -22,7 +22,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Linux Meterpreter Service, Reverse TCP Inline',
-			'Version'       => '$Revision: 6848 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Stub payload for interacting with a Meterpreter Service',
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,
