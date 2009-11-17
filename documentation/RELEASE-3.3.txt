@@ -1,0 +1,128 @@
+Statistics:
+
+    * Metasploit now has 443 exploit modules and 216 auxiliary modules (from 320 and 99 respectively in v3.2)
+    * Metasploit is still about twice the size of the nearest Ruby application according to Ohloh.net (375k lines of Ruby)
+    * Over 170 tickets were closed during the 3.3 development process
+
+General:
+
+    * Ruby 1.9.1 is now supported and recommended
+    * Windows Vista and Windows 7 are now supported
+    * Major improvements in startup speed thanks to patches from Yoann Guillot
+
+Windows:
+
+    * The msfconsole is now the primary user interface on Windows (using RXVT)
+    * The Windows installer now uses Ruby 1.9.1 (cygwin)
+    * The Windows installer now ships with Cygwin 1.7
+    * The Windows installer now comes in full and mini editions
+    * The Windows installer can be launched silently with /S /D=C:\path
+    * The Windows installation is now portable and can be installed to USB
+    * The Windows installation works on 64-bit Windows if launched in Compatibility Mode
+    * The Windows installer now offers to install Nmap 5.0 for your convenience
+
+Linux:
+
+    * Standalone Linux installers are now available for 32-bit and 64-bit Linux. These installers contain a complete execution environment, including Ruby 1.9.1, Subversion, and dependent libraries.
+    * The preferred installation location is /opt/metasploit3/msf3, please see the Ubuntu and generic Linux installation guides for more information.
+
+msfconsole:
+
+    * The startup banner now includes the number of days since the last update and the svn revision
+    * The RbReadline library is used by default, allowing msfconsole to work on systems without libreadline
+    * The -L parameter to msfconsole now allows the system Readline to be used if necessary
+    * A new 'connect' command, similar to netcat, that can use meterpreter routes
+    * Colorized output on terminals that support it. This can be disabled (or forced on) with the 'color' command
+
+msfencode:
+
+    * Win32 payloads can now be embedded into arbitrary executables using 'msfencode -t exe -x MYFILE.exe -o MYNEWFILE.exe'.
+    * Win64 payloads can now be embedded into arbitrary 64-bit executables using 'msfencode -a x64 -e x64/xor -t exe -o MYNEWFILE.exe'.
+    * The default executable size for generated Win32 binaries now depends on the size of data/templates/template.exe. As of the release, this file is approximately 80k.
+    * Payloads can be generated as VBS scripts using the -t vbs option to msfencode. Persistent (looping) payloads can be generated with -t loop-vbs.
+    * Payloads can be generated as VBA macros for embedding into Office documents. The output is in two parts, the first must be pasted into the Macro editor, the second (hex) must be pasted to the end of the word document.
+    * The x86/alpha_mixed and x86/alpha_upper encoders now accept the AllowWin32SEH option (boolean) to use a SEH GetPC stub and generate 100% alphanumeric output.
+
+msfxmlrpcd:
+
+    * This is a standalone Metasploit server that accepts authenticated connections over SSL.
+    * The demonstration client, msfxmlrpc, can be used to call the remote API
+
+Database:
+
+    * Database support is now active as long as rubygems and at least one database driver are installed. The only db_* plugins are no longer necessary and have been deprecated.
+    * The vulnerabilities table now references the host as the parent table and not the service. This allows vulnerability information to be ported that is not tied to an exposed service.
+
+Exploits:
+
+    * All applicable exploits now have OSVDB references thanks to a major effort by Steve Tornio
+    * New aix/rpc_ttdbserverd_realpath exploit module, which targets latest versions of IBM AIX operating system (5.3.7 to 6.1.4)
+    * Support for the Oracle InstantClient Ruby driver as an exploit mixin
+    * Support for the TDS protocol (MSSQL/Sybase) using a custom native Ruby driver (MSSQL 2000 -> 2008)
+    * Extensive support for exploitation and post-exploitation tasks against Oracle databases
+    * Extensive support for exploitation and post-exploitation tasks against Microsoft SQL Server databases
+    * The browser_autopwn module was completely rewritten using much more robust fingerprinting methods
+    * SOCKS4, SOCKS5, and HTTP proxies work much better now
+
+Payloads:
+
+    * The Windows stagers now support NX platforms by allocating RWX memory using VirtualAlloc. The stagers have been updated to perform reliable stage transfer without a middle stager requirement.
+    * The reverse_tcp stager now handles connection failures gracefully by calling EXITFUNC when the connection fails. This stager can also try to connect more than once, which is useful for unstable network connections. The default connect try is 5 and can be controlled via the ReverseConnectRetries advanced option. Setting this value to 255 will cause the stager to connect indefinitely.
+    * The reverse_tcp_allports stager has been added, this will cycle through all possible 65,535 ports trying to connect back to the Metasploit console
+    * The ExitThread EXITFUNC now works properly against newer versions of Windows
+    * The CMD payloads now indicate support for specific userland tools on a per-exploit level
+    * The Windows stagers now support Windows 7
+    * New payload modules for Linux on POWER/PowerPC/CBEA
+    * New payload modules for Java Server Pages (JSP)
+    * New payload modules for Windows x64
+    * New payload modules for IBM AIX operating systems (versions 5.3.7 to 6.1.4)
+
+Auxiliary:
+
+    * Scanner modules now run each thread in its own isolated module instance
+    * Scanner modules now report their progress (configurable via the ShowProgress and ShowProgressPercent advanced options).
+    * A simple fuzzer API is now available as well as 15 example modules covering HTTP, SMB, TDS, DCERPC, WiFi, and SSH.
+    * Ryan Linn's HTTP NTLM capture module has been integrated
+    * Support for the DECT protocol and DECT mixins have been integrated (using the COM-ON-AIR hardware)
+    * Support for the Lorcon2 library including a new Ruby-Lorcon2 extension
+    * Addition of airpwn and dnspwn modules to perform spoofing with raw WiFi injection using Lorcon2
+    * The pcaprub extension has been updated to build and run properly under Ruby 1.9.1
+    * Max Moser's pSnuffle packet sniffing framework has been integrated into Metasploit
+
+Meterpreter:
+
+    * The Meterpreter now uses Stephen Fewer's Reflective DLL Injection technique by default as opposed to the old method developed by skape and jt.
+    * The Meterpreter now uses OpenSSL to emulate a HTTPS connection once the staging process is complete. After metsrv.dll is initialized, the session is converted into a SSLv3 link using a randomly generated RSA key and certificate. The target side now sends a fake GET request through the SSL link to mimic the traffic patterns of a real HTTPS client.
+    * The Meterpreter AutoRunScript parameter now accepts script arguments and multiple scripts. Each script and its arguments should be separated by commas.
+    * The Meterpreter can now take screen shots using the 'espia' extension and the 'screenshot' command. To use this feature, enter "use espia" and "screenshot somepath.bmp" from the meterpreter prompt.
+    * The Meterpreter can now capture traffic on the target's network. This is handled in-memory using the MicroOLAP Packet SDK. This extension can buffer up to 200,000 packets at a time. To use this feature, enter "use sniffer" and "sniffer_start" from the meterpreter prompt.
+    * The Meterpreter now supports keystroke logging by migrating itself into a process on the target desktop and using the keyscan_start and keyscan_dump commands.
+    * The Meterpreter now supports the "rm" file system command.
+    * The Meterpreter now supports the "background" command for when Ctrl-Z isn't feasible.
+    * The Meterpreter now supports 64-bit Windows.
+    * Alexander Sotirov's METSVC has been added to the Metasploit tree and stub payloads are available to interact with it
+
+Meterpreter POSIX:
+
+    * The basic framework for Meterpreter on Linux, BSD, and other POSIX platforms was completed by JR
+    * The stdapi extension has been partially ported to the POSIX platform
+
+Meterpreter Scripts:
+
+    * All scripts now accept a "-h" argument to show usage
+
+Deprecated:
+
+    * The msfgui interface is not actively maintained and is looking for a new community owner
+    * The msfweb interface is not actively maintained and is looking for a new community owner
+    * The msfopcode command line utility is disabled until the Opcode Database is updated
+    * The msfopcode client API is disabled until the Opcode Database is updated and restored
+
+Known bugs:
+
+    * The Meterpreter payload does not work with the PassiveX stager (reverse_http), this is bug #291.
+    * Using the SQLite3 database with threaded scanners can lead to BusyException errors due to table locking. This is ticket #514. The workaround is to use a more robust database, such as Postgres or MySQL.
+    * Using any database with threaded scanners under Ruby 1.9.1 leads to a segmentation fault in the Ruby interpreter (ticket #513). The workaround is to use Ruby 1.8.7 with the Postgres or MySQL databases.
+    * Ctrl-R is broken with RbReadline; this is bug #492. The workaround is to start msfconsole with -L to use the system readline (which doesn't work on OSX).
+    * The screenshot command in the Espia Meterpreter extension fails to work when the console is not running as an administrator on Windows 7 and Vista. This is bug #488
+
