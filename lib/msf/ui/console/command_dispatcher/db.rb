@@ -1,70 +1,6 @@
 
 require 'rexml/document'
-# This parser does not maintain state as well as a tree parser, so malformed
-# xml will trip it up.  Nmap doesn't output malformed xml, so it's not really a
-# big deal.
-class NmapXMLStreamParser
-	attr_accessor :framework
-	def initialize(framework)
-		@framework = framework
-		reset_state
-	end
-
-	def reset_state
-		@addr = nil
-		@status = nil
-		@ports = []
-	end
-
-	def tag_start(name, attr_hash)
-		case name
-		when "address"
-			if (attr_hash["addrtype"] =~ /ipv[46]/)
-				@addr = attr_hash["addr"]
-			end
-		when "status"
-			@status = (attr_hash["state"] == "up" ? Msf::HostState::Alive : Msf::HostState::Dead)
-		when "port"
-			@ports.push(attr_hash)
-		when "state"
-			@ports.last["state"] = attr_hash["state"]
-		when "service"
-			@ports.last["name"] = attr_hash["name"]
-		end
-	end
-
-	def tag_end(name)
-		case name
-		when "host"
-			host = framework.db.get_host(nil, @addr)
-			if not host
-				reset_state
-				return
-			end
-
-			framework.db.report_host_state(self, @addr, @status)
-			@ports.each { |port|
-				proto = port['protocol']
-				pnum = port['portid']
-				service = framework.db.get_service(nil, host, proto.downcase, pnum.to_i)
-				if name != "unknown"
-					service.name = port["name"]
-				end
-				service.state = port["state"]
-				service.save
-			}
-			reset_state
-		end
-	end
-
-	# We don't need these methods, but they're necessary to keep REXML happy
-	def text(str); end
-	def xmldecl(version, encoding, standalone); end
-	def cdata; end
-	def comment(str); end
-	def instruction(name, instruction); end
-	def attlist; end
-end
+require 'rex/parser/nmap_xml'
 
 module Msf
 module Ui
@@ -780,8 +716,37 @@ class Db
 				return
 			end
 
-			l = NmapXMLStreamParser.new(framework)
-			REXML::Document.parse_stream(File.new(filename), l)
+			# Use a stream parser instead of a tree parser so we can deal with
+			# huge results files without running out of memory.
+			parser = Rex::Parser::NmapXMLStreamParser.new
+
+			# Whenever the parser pulls a host out of the nmap results, store
+			# it, along with any associated services, in the database.  
+			parser.on_found_host = Proc.new { |h|
+				if (h["addrs"].has_key?("ipv4"))
+					addr = h["addrs"]["ipv4"] 
+				elsif (h.has_key?("ipv6"))
+					addr = h["addrs"]["ipv6"]
+				else
+					# Don't care about addresses other than IP
+					return
+				end
+				host = framework.db.get_host(nil, addr)
+				status = (h["status"] == "up" ? Msf::HostState::Alive : Msf::HostState::Dead)
+				framework.db.report_host_state(self, addr, status)
+
+				# Put all the ports, regardless of state, into the db.
+				h["ports"].each { |p|
+					service = framework.db.get_service(nil, host, p["protocol"].downcase, p["portid"].to_i)
+					service.state = p["state"]
+					if p["name"] != "unknown"
+						service.name = p["name"]
+					end
+					service.save
+				}
+			}
+
+			REXML::Document.parse_stream(File.new(filename), parser)
 		end
 
 		#
