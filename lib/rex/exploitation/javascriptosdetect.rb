@@ -159,6 +159,11 @@ function getVersion(){
 				os_flavor = "2003";
 				os_sp = "SP0";
 				break;
+			case "568820":
+				// IE 6.0.2900.2180, xp sp2 english
+				os_flavor = "XP";
+				os_sp = "SP2";
+				break;
 			case "568827":
 				os_flavor = "2003";
 				os_sp = "SP1";
@@ -204,6 +209,9 @@ function getVersion(){
 				os_flavor = "7";
 				os_sp = "SP0";
 				break;
+			//default:
+			//	document.writeln(version);
+			//	break;
 		}
 		if (!ua_version) {
 			if (document.documentElement && (typeof document.documentElement.style.maxHeight)!="undefined") {
