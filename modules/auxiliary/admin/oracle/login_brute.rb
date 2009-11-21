@@ -19,7 +19,9 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 				This module uses a list of well known authentication credentials
 				for bruteforcing the TNS service. A log file of discoverd credentials 
-				can be found in ./data/wordlists/oracle_default_found.log.  Oracle default passwords in oracle_default_passwords.csv. 				McKesson HCI Oracle default passwords in hci_oracle_passwords.csv.
+				can be found in ./data/wordlists/oracle_default_found.log. 
+				Oracle default passwords in oracle_default_passwords.csv.
+				McKesson HCI Oracle default passwords in hci_oracle_passwords.csv.
 			},
 			'Author'         => [ 'MC' ],
 			'License'        => MSF_LICENSE,
@@ -44,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		list = datastore['CSVFILE']
 
-		fd = CSV::Reader.parse((File.open(list))).each do |brute|
+		fd = CSV.foreach.each do |brute|
 
 		datastore['DBUSER'] = brute[2]
 		datastore['DBPASS'] = brute[3]
