@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		list = datastore['CSVFILE']
 
-		fd = CSV.foreach.each do |brute|
+		fd = CSV.foreach(list).each do |brute|
 
 		datastore['DBUSER'] = brute[2]
 		datastore['DBPASS'] = brute[3]
