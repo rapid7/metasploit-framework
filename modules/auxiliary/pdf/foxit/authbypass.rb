@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 		result = ""
 		str.scan(/./u) do |c|
 			if rand(2) == 0 and c.upcase >= 'A' and c.upcase <= 'Z'
-				result << "#%x" % c[0]
+				result << "#%x" % c.unpack('C*')[0]
 			else
 				result << c
 			end
