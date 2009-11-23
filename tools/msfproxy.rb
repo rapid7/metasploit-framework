@@ -42,7 +42,7 @@ $tssl = false
 $printcon = false
 $printreq = false
 $printres = false
-$printstatus = true
+$printstatus = false
 
 $modulepname =  nil
 
@@ -322,7 +322,7 @@ $args = Rex::Parser::Arguments.new(
 	"-a" => [ false, "Print requests: Default false" ],
 	"-b" => [ false, "Print responses: Default false" ],
 	"-c" => [ false, "Print connection message: Default false"],
-	"-u" => [ false, "Print status: Default true"],
+	"-u" => [ false, "Print status: Default false"],
 	"-v" => [ false, "Print requests and responses: Default false" ],	
 	"-i" => [ true,  "Listening IP address. Default 0.0.0.0" ],
 	"-p" => [ true,  "Listening proxy port. Default 8080"    ],

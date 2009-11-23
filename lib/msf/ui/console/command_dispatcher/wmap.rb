@@ -48,6 +48,7 @@ module Wmap
 				"wmap_reports" => "List all reported results",
 				"wmap_sql" => "Query the database",
 				"wmap_run"  => "Automatically test/exploit everything",
+				"wmap_proxy" => "Run mitm proxy",
 			}
 		end
 
@@ -1230,6 +1231,30 @@ module Wmap
 			end
 						
 		# EOM
+		end
+		
+		#
+		# Run msf proxy
+		#
+
+		def cmd_wmap_proxy(*args)			
+			cmdline = "ruby " + File.join(Msf::Config.install_root,"tools", "msfproxy.rb")
+			defaultopts = ""
+		
+			proxyopts = defaultopts + " " + args.join(" ")
+			
+			tpid = 0
+			proxypid = Process.fork
+			if proxypid.nil?
+				exec cmdline + " " + proxyopts
+			else
+				tpid = proxypid
+				Process.detach(proxypid)
+			end
+			print_status("Cmd: #{cmdline}")
+			print_status("Options: #{proxyopts}")
+			print_status("Executing proxy. pid: #{tpid}")
+			print_status("Done.")
 		end
 	
 
