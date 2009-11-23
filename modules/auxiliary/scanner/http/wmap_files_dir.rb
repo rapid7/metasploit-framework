@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path  to identify files", '/']),
-				OptString.new('EXT', [ true, "File extension to use", '.aspx']),
+				OptString.new('EXT', [ false, "Append file extension to use", '']),
 				OptPath.new('DICTIONARY',   [ false, "Path of word dictionary to use", 
 						File.join(Msf::Config.install_root, "data", "wmap", "wmap_files.txt")
 					]
