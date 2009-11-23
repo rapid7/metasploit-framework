@@ -39,7 +39,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		c = connect
 		name = Rex::Text.rand_text_alpha_upper(rand(10) + 1) 
 
 		function = "
@@ -72,8 +71,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Done! Removing function '#{name}'...")
 		prepare_exec(clean)
-
-		c.disconnect
 	end
 
 end
