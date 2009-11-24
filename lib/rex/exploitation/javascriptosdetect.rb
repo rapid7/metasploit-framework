@@ -6,6 +6,25 @@ require 'msf/core/auxiliary'
 module Rex
 module Exploitation
 
+# 
+# Provides several javascript functions for determining the OS and browser versions of a client.
+#
+# getVersion():  returns an object with the following properties
+#	os_name      -  OS name, one of the Msf::Auxiliary::Report::OperatingSystems constants
+#	os_flavor    -  OS flavor as a string (e.g.: "XP", "2000")
+#	os_sp        -  OS service pack (e.g.: "SP2", will be empty on non-Windows)
+#	os_lang      -  OS language (e.g.: "en-us")
+#	ua_name      -  Client name, one of the Msf::Auxiliary::Report::HttpClients constants
+#	ua_version   -  Client version as a string (e.g.: "3.5.1", "6.0;SP2")
+#	arch         -  Architecture, one of the ARCH_* constants
+#
+# The following functions work on the version returned in obj.ua_version
+#
+# ua_ver_cmp(a, b): returns -1, 0, or 1 based on whether a < b, a == b, or a > b respectively
+# ua_ver_lt(a, b):  returns true if a < b
+# ua_ver_gt(a, b):  returns true if a > b
+# ua_ver_eq(a, b):  returns true if a == b
+#
 class JavascriptOSDetect < ObfuscateJS
 	
 	def initialize(custom_js = '', opts = {})
@@ -149,6 +168,7 @@ function getVersion(){
 				break;
 			case "566626":
 				// IE 6.0.2600.0000, XP SP0 English
+				// IE 6.0.2800.1106, XP SP1 English
 				ua_version = "6.0";
 				os_flavor = "XP"; 
 				os_sp = "SP0";
@@ -329,6 +349,67 @@ function searchVersion(needle, haystack) {
 	found_version = found_version.substring(0,found_version.indexOf(' '));
 	return found_version;
 }
+
+
+/*
+ * Return -1 if a < b, 0 if a == b, 1 if a > b
+ */
+function ua_ver_cmp(ver_a, ver_b) {
+	// shortcut the easy case
+	if (ver_a == ver_b) {
+		return 0;
+	}
+
+	a = ver_a.split(".");
+	b = ver_b.split(".");
+	for (i = 0; i < Math.max(a.length, b.length); i++) {
+		// 3.0 == 3
+		if (!b[i]) { b[i] = "0"; }
+		if (!a[i]) { a[i] = "0"; }
+
+		if (a[i] == b[i]) { continue; }
+
+		a_int = parseInt(a[i]);
+		b_int = parseInt(b[i]);
+		a_rest = a[i].substr(a_int.toString().length);
+		b_rest = b[i].substr(b_int.toString().length);
+		if (a_int < b_int) {
+			return -1;
+		} else if (a_int > b_int) { 
+			return 1;
+		} else { // ==
+			// Then we need to deal with the stuff after the ints, e.g.:
+			// "b4pre"
+			if (a_rest == "b" && b_rest.length == 0) {
+				return -1;
+			}
+			if (b_rest == "b" && a_rest.length == 0) {
+				return 1;
+			}
+			// Just give up and try a lexicographical comparison
+			if (a_rest < b_rest) {
+				return -1;
+			} else if (a_rest > b_rest) { 
+				return 1;
+			}
+		}
+	}
+	// If we get here, they must be equal
+	return 0;
+}
+
+function ua_ver_lt(a, b) {
+	if (-1 == ua_ver_cmp(a,b)) { return true; }
+	return false;
+}
+function ua_ver_gt(a, b) {
+	if (1 == ua_ver_cmp(a,b)) { return true; }
+	return false;
+}
+function ua_ver_eq(a, b) {
+	if (0 == ua_ver_cmp(a,b)) { return true; }
+	return false;
+}
 ENDJS
 		super @js
 		update_opts(opts) if (opts)
@@ -343,7 +424,10 @@ ENDJS
 				'needle', 
 				'haystack',
 				],
-			'Methods' => [ 'getVersion', 'searchVersion' ]
+			'Methods' => [ 
+				'getVersion', 
+				'searchVersion' 
+				]
 			}
 		})
 

