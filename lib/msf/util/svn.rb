@@ -83,6 +83,10 @@ class SVN
 
 	def self.last_updated_date
 		@@info ||= load_root
+                svnt = @@info[:updated]
+                if(not svnt)
+                        return
+                end
 		Date.parse(@@info[:updated])
 	end
 
