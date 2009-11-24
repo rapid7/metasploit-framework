@@ -66,7 +66,6 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 
 		# Determine which pipe to use
-		#pipe = target['Pipe'] ? target['Pipe'] :  datastore['SMBPIPE']
 		pipe = datastore['SMBPIPE']
 		
 		print_status("Connecting to the SMB service...")
