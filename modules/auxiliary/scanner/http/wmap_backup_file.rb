@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 					)
 					wmap_report(rep_id,'VULNERABILITY','BACKUP_FILE',"#{file}","A backup file was found.")
 				else
-				   	print_status("NOT Found http:#{wmap_base_url}#{file}") 
+				   	print_status("NOT Found #{wmap_base_url}#{file}") 
 					#To be removed or just displayed with verbose debugging.
 				end
 

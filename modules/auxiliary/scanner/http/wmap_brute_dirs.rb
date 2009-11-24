@@ -65,8 +65,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		dm = datastore['NoDetailMessages']
 		
-
-		
 		# You may add more extensions in the extens array
 		extens = ["/"]
 		
@@ -142,13 +140,18 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				} 
 
-				exte.scan(/./) { |c|
-					numb << "#{c}"	
-				}
+				#exte.scan(/./) { |c|
+				#	numb << "#{c}"	
+				#}
 			
 				Enumerable.cart(*numb).each {|testd| 
+					
+					strdir = testd.join 
+					
 					begin
-						teststr = tpath+testd.to_s 
+						teststr = tpath+strdir
+						teststr << exte						
+	
 						res = send_request_cgi({
 							'uri'  		=>  teststr,
 							'method'   	=> 'GET',

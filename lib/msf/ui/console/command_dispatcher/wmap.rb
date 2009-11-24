@@ -28,6 +28,9 @@ module Wmap
 		WMAP_SHOW = 2**0
 		WMAP_EXPL = 2**1
 		
+		# Command line does not allow multiline strings so we paas headers header:valueSEPARATOR 
+		STR_HEADER_SEPARATOR = '&'
+		
 		# Exclude files can be modified by setting datastore['WMAP_EXCLUDE_FILE']
 		WMAP_EXCLUDE_FILE = '.*\.(gif|jpg|png*)$'
 			
@@ -371,14 +374,12 @@ module Wmap
 			
 			# WMAP_GENERIC
 			matches10 = {}
-			
-			
+						
 			# EXPLOIT OPTIONS
 			opt_str = nil
 			bg      = false
 			jobify  = false
-			
-			
+						
 			[ [ framework.auxiliary, 'auxiliary' ], [framework.exploits, 'exploit' ] ].each do |mtype|
 
 				# Scan all exploit modules for matching references
@@ -649,11 +650,12 @@ module Wmap
 							else 
 								if node.is_root?
 									strpath = "/"	
-								else
+								else		
 									strpath = strpath.chomp + "/"
 								end
 							end			
-								
+							
+							strpath = strpath.gsub("//", "/")		
 							#print_status("Testing path: #{strpath}")
 
 							#
@@ -800,7 +802,9 @@ module Wmap
 								mod.datastore['METHOD'] = req.meth.upcase
 								mod.datastore['PATH'] =  req.path
 								mod.datastore['QUERY'] = req.query
-								mod.datastore['HEADERS'] = req.headers
+								mod.datastore['HEADER_SEP'] = STR_HEADER_SEPARATOR
+								mod.datastore['HEADERS'] = headers_to_s(req.headers,STR_HEADER_SEPARATOR)
+								mod.datastore['COOKIE'] = header(req.headers,"Cookie")
 								mod.datastore['DATA'] = req.body
 								#
 								# TODO: Add method, headers, etc.
@@ -835,6 +839,7 @@ module Wmap
 								#
 								# Unique query tested, actually the value does not matter
 								#
+								# print_status("#{mod.signature(req.path,req.query)}")
 								utest_query[mod.signature(req.path,req.query)]=1 
 							end
 						end
@@ -906,8 +911,11 @@ module Wmap
 							mod.datastore['METHOD'] = req.meth.upcase
 							mod.datastore['PATH'] =  req.path
 							mod.datastore['QUERY'] = req.query
-							mod.datastore['HEADERS'] = req.headers
+							mod.datastore['HEADER_SEP'] = STR_HEADER_SEPARATOR
+							mod.datastore['HEADERS'] = headers_to_s(req.headers,STR_HEADER_SEPARATOR)
+							mod.datastore['COOKIE'] = header(req.headers,"Cookie")
 							mod.datastore['DATA'] = req.body
+							
 							#
 							# TODO: Add method, headers, etc.
 							# 
@@ -1005,7 +1013,9 @@ module Wmap
 							mod.datastore['METHOD'] = req.meth.upcase
 							mod.datastore['PATH'] =  req.path
 							mod.datastore['QUERY'] = req.query
-							mod.datastore['HEADERS'] = req.headers
+							mod.datastore['HEADER_SEP'] = STR_HEADER_SEPARATOR
+							mod.datastore['HEADERS'] = headers_to_s(req.headers,STR_HEADER_SEPARATOR)
+							mod.datastore['COOKIE'] = header(req.headers,"Cookie")
 							mod.datastore['DATA'] = req.body
 							#
 							# TODO: Add method, headers, etc.
@@ -1103,7 +1113,9 @@ module Wmap
 							mod.datastore['METHOD'] = req.meth.upcase
 							mod.datastore['PATH'] =  req.path
 							mod.datastore['QUERY'] = req.query
-							mod.datastore['HEADERS'] = req.headers
+							mod.datastore['HEADER_SEP'] = STR_HEADER_SEPARATOR
+							mod.datastore['HEADERS'] = headers_to_s(req.headers,STR_HEADER_SEPARATOR)
+							mod.datastore['COOKIE'] = header(req.headers,"Cookie")
 							mod.datastore['DATA'] = req.body
 							#
 							# TODO: Add method, headers, etc.
@@ -1363,6 +1375,34 @@ module Wmap
 			ret = regexurl.match(uri)
 			
 			return ret
+		end
+		
+		#
+		# Method to transfor headers to string
+		#
+		def headers_to_s(nheaders,hsep)
+			hstr = ""
+			nheaders.each_line do |lh|
+				if hstr.empty?
+					hstr = lh
+				else	
+					hstr = lh + hsep + hstr
+				end
+			end
+			return hstr
+		end
+		
+		#
+		# Method to grab a specific header
+		#
+		def header(nheaders,hname)
+			nheaders.each_line do |lh|
+				n,v = lh.split(": ")
+				if n == hname
+					return v
+				end
+			end
+			return hstr
 		end
 		
 		#

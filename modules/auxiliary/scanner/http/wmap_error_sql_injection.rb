@@ -40,7 +40,12 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
 				OptString.new('DATA', [ false, "HTTP Body Data", '']),
 				OptString.new('COOKIE',[ false, "HTTP Cookies", ''])
-			], self.class)	
+			], self.class)
+		
+		register_advanced_options(
+			[
+				OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
+			], self.class)
 						
 	end
 
@@ -50,39 +55,42 @@ class Metasploit3 < Msf::Auxiliary
 		pvars = nil
 		cvars = nil
 	
+		
 	
 		sqlinj = [
 			[ "'" ,'Single quote'],
 			[ "')",'Single quote and parenthesis'],
-			[ "\"",'Double quote'] 				
+			[ "\"",'Double quote'],
+			[ "#{rand(10)}'", 'Random value with single quote']		
 		]
 	
 		errorstr = [
-			[
-				"Unclosed quotation mark after the character string",
-				'MSSQL',
-				'string'
-			]
+			["Unclosed quotation mark after the character string",'MSSQL','string'],
+			["Syntax error in string in query expression",'MSSQL','string'],
+			["Microsoft OLE DB Provider",'MSSQL','unknown'],
+			["You have an error in your SQL syntax",'MySQL','unknown'],
+			["java.sql.SQLException",'unknown','unknown']	
 		]
 		
 		#
 		# Dealing with empty query/data and making them hashes.
 		#
-
-		if !datastore['QUERY'] or datastore['QUERY'].empty?
-			gvars = queryparse(datastore['QUERY']) #Now its a Hash
-		else
+	
+		if  !datastore['QUERY'] or datastore['QUERY'].empty?
+			datastore['QUERY'] = nil
 			gvars = nil
+		else
+			gvars = queryparse(datastore['QUERY']) #Now its a Hash
 		end
 	
-		if !datastore['DATA'] or datastore['DATA'].empty?
+		if  !datastore['DATA'] or datastore['DATA'].empty?
 			datastore['DATA'] = nil
 			pvars = nil
 		else
 			pvars = queryparse(datastore['DATA'])
 		end
 		
-		if !datastore['COOKIE'] or datastore['COOKIE'].empty?
+		if  !datastore['COOKIE'] or datastore['COOKIE'].empty?
 			datastore['COOKIE'] = nil
 			cvars = nil
 		else
@@ -111,13 +119,14 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Timeout::Error, ::Errno::EPIPE			
 		end
 		
-		print_status("Normal request sent.")  
+		if !datastore['NoDetailMessages']
+			print_status("Normal request sent.")  
+		end
 		
 		found = false
 		inje = nil
 		dbt = nil
 		injt = nil
-		
 		
 		if normalres
 			errorstr.each do |estr,dbtype,injtype|
@@ -130,23 +139,23 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			
 			if found
-				print_error("Error string appears in the normal response, unable to test")
-				print_error("Error string: '#{inje}'") 
-				print_error("DB TYPE: #{dbt}, Error type '#{injt}'")
+				print_error("[#{wmap_target_host}] Error string appears in the normal response, unable to test")
+				print_error("[#{wmap_target_host}] Error string: '#{inje}'") 
+				print_error("[#{wmap_target_host}] DB TYPE: #{dbt}, Error type '#{injt}'")
 				
 				rep_id = wmap_base_report_id(
 						wmap_target_host,
 						wmap_target_port,
 						wmap_target_ssl
 				)
-				vul_id = wmap_report(rep_id,'ERROR','ERROR_BASED_SQL_INJECTION',"#{datastore['PATH']}","Unable to test as normal response contains error message without injecting anything parameter")
+				vul_id = wmap_report(rep_id,'ERROR','ERROR_BASED_SQL_INJECTION',"#{datastore['PATH']}","Unable to test as normal response contains error message without injecting anything in a parameter")
 				wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','ERROR_STRING',"#{inje}","Error message found #{inje}")
 				wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','DB_TYPE',"#{dbt}","Database type is #{dbt}")
 				
 				return
 			end
 		else
-			print_status("No response")
+			print_error("[#{wmap_target_host}] No response")
 			return																	
 		end
 		
@@ -165,10 +174,12 @@ class Metasploit3 < Msf::Auxiliary
 			
 				gvars.each do |key,value|		
 					gvars = queryparse(datastore['QUERY']) #Now its a Hash
-				
-					print_status("- Testing query with #{idesc}. Parameter #{key}:") 
 					gvars[key] = gvars[key]+istr
-   			
+					
+					if !datastore['NoDetailMessages']
+						print_status("- Testing query with #{idesc}. Parameter #{key}:") 
+					end
+					
 					begin
 						testres = send_request_cgi({
 							'uri'  		=>  datastore['PATH'],
@@ -194,9 +205,9 @@ class Metasploit3 < Msf::Auxiliary
 						end
 			
 						if found
-							print_status("SQL Injection found.")
-							print_status("Error string: '#{inje}' Test Value: #{istr}") 
-							print_status("Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
+							print_status("[#{wmap_target_host}] SQL Injection found. (#{idesc}) (#{datastore['PATH']})")
+							print_status("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{gvars[key]}") 
+							print_status("[#{wmap_target_host}] Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 							
 							rep_id = wmap_base_report_id(
 									wmap_target_host,
@@ -214,11 +225,12 @@ class Metasploit3 < Msf::Auxiliary
 							break
 						end
 					else
-						print_error("No response")	
+						print_error("[#{wmap_target_host}] No response")	
 						return
 					end	
 				end 
 			end	
+			gvars = queryparse(datastore['QUERY'])
 		end
 		
 		#
@@ -237,7 +249,10 @@ class Metasploit3 < Msf::Auxiliary
 				pvars.each do |key,value|		
 					pvars = queryparse(datastore['DATA']) #Now its a Hash
 				
-					print_status("- Testing data with #{idesc}. Parameter #{key}:") 
+					if !datastore['NoDetailMessages']
+						print_status("- Testing data with #{idesc}. Parameter #{key}:") 
+					end
+					
 					pvars[key] = pvars[key]+istr
 					
 					pvarstr = ""
@@ -273,9 +288,9 @@ class Metasploit3 < Msf::Auxiliary
 						end
 			
 						if found
-							print_status("SQL Injection found.")
-							print_status("Error string: '#{inje}' Test Value: #{istr}") 
-							print_status("Vuln data parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
+							print_status("[#{wmap_target_host}] SQL Injection found. (#{idesc}) (#{datastore['PATH']})")
+							print_status("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{istr}") 
+							print_status("[#{wmap_target_host}] Vuln data parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 							
 							rep_id = wmap_base_report_id(
 									wmap_target_host,
@@ -293,7 +308,7 @@ class Metasploit3 < Msf::Auxiliary
 							break
 						end
 					else
-						print_error("No response")	
+						print_error("[#{wmap_target_host}] No response")	
 						return
 					end	
 				end 
@@ -316,7 +331,10 @@ class Metasploit3 < Msf::Auxiliary
 				cvars.each do |key,value|		
 					cvars = queryparse(datastore['COOKIE']) #Now its a Hash
 				
-					print_status("- Testing cookie with #{idesc}. Parameter #{key}:") 
+					if !datastore['NoDetailMessages']
+						print_status("- Testing cookie with #{idesc}. Parameter #{key}:") 
+					end
+					
 					cvars[key] = cvars[key]+istr
 					
 					cvarstr = ""
@@ -334,7 +352,7 @@ class Metasploit3 < Msf::Auxiliary
 							'method'   	=>  datastore['METHOD'],
 							'ctype'		=> 'application/x-www-form-urlencoded',
 							'cookie'    => cvarstr,
-							'data'      => datastore['COOKIE']
+							'data'      => datastore['DATA']
 						}, 20)
 					
 					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
@@ -352,9 +370,9 @@ class Metasploit3 < Msf::Auxiliary
 						end
 			
 						if found
-							print_status("SQL Injection found.")
-							print_status("Error string: '#{inje}' Test Value: #{istr}") 
-							print_status("Vuln cookie parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
+							print_status("[#{wmap_target_host}] SQL Injection found. (#{idesc}) (#{datastore['PATH']})")
+							print_status("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{istr}") 
+							print_status("[#{wmap_target_host}] Vuln cookie parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 							
 							rep_id = wmap_base_report_id(
 									wmap_target_host,
@@ -372,7 +390,7 @@ class Metasploit3 < Msf::Auxiliary
 							break
 						end
 					else
-						print_error("No response")	
+						print_error("[#{wmap_target_host}] No response")	
 						return
 					end	
 				end 

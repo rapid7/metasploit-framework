@@ -258,6 +258,16 @@ module HttpProxy
 						if usingssl
 							sslint = 1
 						end
+						
+						strq = ""
+						modreq.qstring.each_pair do |k,v|
+							if strq.empty?
+								strq = k + "=" + v
+							else
+								strq = k + "=" + v + "&"+ strq	
+							end
+						end
+						
 				
 						# Using $db as connection
 						Thread.new{
@@ -268,7 +278,7 @@ module HttpProxy
 								modreq.method,
 								SQLite3::Blob.new(modreq.resource),
 								SQLite3::Blob.new(modreq.headers.to_s),
-								SQLite3::Blob.new(modreq.qstring.to_s),
+								SQLite3::Blob.new(strq),
 								SQLite3::Blob.new(modreq.body),
 								resp.status.to_s,
 								SQLite3::Blob.new(headstr),
