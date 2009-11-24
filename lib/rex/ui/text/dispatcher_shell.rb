@@ -265,7 +265,13 @@ module DispatcherShell
 	# it doesn't affect any enstack'd dispatchers.
 	#
 	def append_dispatcher(dispatcher)
-		self.dispatcher_stack.push(inst = dispatcher.new(self))
+		inst = dispatcher.new(self)
+		self.dispatcher_stack.each { |disp|
+			if (disp.name == inst.name)
+				raise RuntimeError.new("Attempting to load already loaded dispatcher #{disp.name}")
+			end
+		}
+		self.dispatcher_stack.push(inst)
 
 		inst
 	end
