@@ -13,7 +13,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Exploit::Remote
+class Metasploit3 < Msf::Auxiliary
 
 	
 	include Msf::Exploit::Remote::DCERPC
@@ -66,8 +66,9 @@ class Metasploit3 < Msf::Exploit::Remote
 	def run
 
 		# Determine which pipe to use
-		pipe = target['Pipe'] ? target['Pipe'] :  datastore['SMBPIPE']
-				
+		#pipe = target['Pipe'] ? target['Pipe'] :  datastore['SMBPIPE']
+		pipe = datastore['SMBPIPE']
+		
 		print_status("Connecting to the SMB service...")
 		connect()
 		smb_login()
