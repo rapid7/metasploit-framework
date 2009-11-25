@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 		connect
 
 		sock.put("GET /ver.asp HTTP/1.0\r\n\r\n")
-		response = sock.get
+		response = sock.get_once
 
 		disconnect
 
