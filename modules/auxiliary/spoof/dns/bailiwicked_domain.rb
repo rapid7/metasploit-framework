@@ -422,7 +422,6 @@ class Metasploit3 < Msf::Auxiliary
 		req.rd = 1
 		req.id = 1
 
-		Thread.critical = true
 		q_beg_t = Time.now.to_f
 		sock.put(req.encode)
 		req.rd = 0
@@ -439,15 +438,11 @@ class Metasploit3 < Msf::Auxiliary
 					
 					hostname = Rex::Text.rand_text_alphanumeric(rand(10)+10) + '.' + domain
 
-					Thread.critical = false
-					
 					sock.close					
 					sock = Rex::Socket.create_udp(
 						'PeerHost' => server,
 						'PeerPort' => 53
 					)		
-					
-					Thread.critical = true
 					
 					q_beg_t = Time.now.to_f
 					req = Resolv::DNS::Message.new
@@ -467,8 +462,6 @@ class Metasploit3 < Msf::Auxiliary
 			sock.put(req.encode)		
 		end
 
-		Thread.critical = false
-		
 		min_time = (times.map{|i| i[0]}.min * 100).to_i / 100.0
 		max_time = (times.map{|i| i[0]}.max * 100).to_i / 100.0
 		sum       = 0
