@@ -97,7 +97,7 @@ class Console
 		rescue RequestError => info
 			log_error(info.to_s)
 		rescue
-			log_error("Error running command #{method}: #{$!} #{$!.backtrace}")
+			log_error("Error running command #{method}: #{$!}")
 		end
 	end
 
@@ -107,9 +107,9 @@ class Console
 	def log_error(msg)
 		print_error(msg)
 
-		elog(msg, 'meterpreter')
+		elog(msg)
 
-		dlog("Call stack:\n#{$@.join("\n")}", 'meterpreter')
+		dlog("Call stack:\n#{$@.join("\n")}")
 	end
 
 	attr_reader :client # :nodoc:

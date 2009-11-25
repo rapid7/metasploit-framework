@@ -179,7 +179,14 @@ class ClientCore < Extension
 		else
 			raise RuntimeError, "Unsupported migrate client platform #{client.platform}.", caller
 		end
-		
+
+		if (client.ext.aliases.include?("stdapi"))
+			mypid = client.sys.process.getpid
+			if (pid == mypid)
+				raise ArgumentError, "Cannot migrate into current process", caller
+			end
+		end
+
 		# Create the migrate stager
 		migrate_stager = c.new()
 		migrate_stager.datastore['DLL'] = ::File.join( Msf::Config.install_root, "data", "meterpreter", "metsrv.#{client.binary_suffix}" )
