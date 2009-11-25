@@ -157,7 +157,11 @@ class Db
 		def cmd_db_vulns(*args)
 			framework.db.each_vuln do |vuln|
 				reflist = vuln.refs.map { |r| r.name }
-				print_status("Time: #{vuln.created} Vuln: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}")
+				if(vuln.service)
+					print_status("Time: #{vuln.created} Vuln: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}")
+				else
+					print_status("Time: #{vuln.created} Vuln: host=#{vuln.host.address} name=#{vuln.name} refs=#{reflist.join(',')}")
+				end
 			end
 		end
 
@@ -721,10 +725,10 @@ class Db
 			parser = Rex::Parser::NmapXMLStreamParser.new
 
 			# Whenever the parser pulls a host out of the nmap results, store
-			# it, along with any associated services, in the database.  
+			# it, along with any associated services, in the database.
 			parser.on_found_host = Proc.new { |h|
 				if (h["addrs"].has_key?("ipv4"))
-					addr = h["addrs"]["ipv4"] 
+					addr = h["addrs"]["ipv4"]
 				elsif (h.has_key?("ipv6"))
 					addr = h["addrs"]["ipv6"]
 				else
