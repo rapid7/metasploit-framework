@@ -48,51 +48,7 @@ module Auxiliary::WMAPModule
 	end
 
 
-	#
-	# WMAP Reporting methods	
-	# Returns the base report id for a host,port,ssl
-	#
-	def wmap_base_report_id(host,port,ssl)
-		if framework.db.report_active?
-			if not ssl
-				num_ssl = 0
-			else
-				num_ssl = 1
-			end
 		
-			return	framework.db.last_report_id(host,port,num_ssl)
-		end
-		
-		nil	
-	end
-	
-	#
-	# This method is used to add a new entry to the report table
-	# It return the id to be used to add context to additional data
-	#
-	def wmap_report(parent_id,entity,etype,value,notes)
-		if parent_id and framework.db.report_active? 
-			return framework.db.create_report(parent_id,entity,etype,value,notes,self.name)
-		end
-		
-		nil
-	end
-	
-	#
-	# This method identifies if we are connecetd to database
-	#
-	def report_active?
-		framework.db.report_active?
-	end
-	
-	#
-	# This method allows wmap modules to access  
-	# reports table.  Not tied to a specific report to be able to use data from other targets.
-	#
-	def wmap_report_sql(condition)
-			return framework.db.report_sql(condition)
-	end
-	
 	#
 	# This method allows wmap modules to access  
 	# requests table. The extra condition requires to start with a logical
