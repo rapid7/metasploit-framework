@@ -48,7 +48,6 @@ module Wmap
 			{
 				"wmap_website"  => "List website structure",
 				"wmap_targets"  => "List all targets in the database",
-				"wmap_reports" => "List all reported results",
 				"wmap_sql" => "Query the database",
 				"wmap_run"  => "Automatically test/exploit everything",
 				"wmap_proxy" => "Run mitm proxy",
@@ -202,57 +201,6 @@ module Wmap
 					return
 				end
 			end
-		end
-		
-		def cmd_wmap_reports(*args)
-		
-			entity = nil
-		
-			args.push("-h") if args.length == 0
-			
-			while (arg = args.shift)
-				case arg
-				when '-p'
-					print_status("Id. Created\t\t\t\tTarget (host,port,ssl)")
-					
-					framework.db.each_report do |rep|
-						print_line("#{rep.id}.  #{rep.created}\t#{rep.value}")
-					end
-					print_status("Done.")						
-				when '-s'
-					repid = args.shift
-					repfile = nil
-					if repfile = args.shift
-						print_status("Saving report: #{repfile}")	
-					end
-					get_report_id(repid,repfile)
-					print_status("Done.")
-				when '-x'
-					doc  = REXML::Document.new
-					get_xml_report_id(args.shift,doc)
-					
-					rfile = args.shift
-					if rfile
-						print_status("Saving XML report: #{rfile}")
-						f = File.new(rfile,"a")
-						doc.write(f,0)
-						f.close()
-					else
-						doc.write( $stdout, 0 )
-					end
-					print_status("Done.")			
-				when '-h'
-					print_status("Usage: wmap_reports [options]")
-					print_line("\t-h				Display this help text")
-					print_line("\t-p				Print all available reports")
-					print_line("\t-s [id] [file]	Select report for display")
-					print_line("\t-x [id] [file]	Display XML report")
-					
-					print_line("")
-					return
-				end
-			end
-
 		end
 		
 		def cmd_wmap_sql(*args)
@@ -1306,57 +1254,6 @@ module Wmap
 			tree.children.each_pair do |name,child|
 					print_tree(child)
 			end
-		end
-		
-		#
-		# This scary method iterates the reports table to display the report 
-		#
-		def get_report_id(id,rfile) 
-			begin
-				par = framework.db.report_parent(id)
-			rescue ::Exception
-				print_error("Report error #{$!}")
-				return
-			end
-			
-			l = "\t#{par.entity} #{par.etype}: #{par.value} #{par.notes} [#{par.created}]" 
-			
-			if rfile
-				r = File.new(rfile, "a")
-				r.puts(l)
-				r.close() 
-			end
-			
-			print_line(l)
-			
-			framework.db.report_children(id).each do |chl|
-				get_report_id(chl.id,rfile) 
-			end
-		end
-
-		#
-		# This  method iterates the reports table to generate an xml doc from the report 
-		#
-		def get_xml_report_id(id,root) 
-			begin
-				par = framework.db.report_parent(id)
-			rescue ::Exception
-				print_error("Report error #{$!}")
-				return
-			end
-			
-			#print_line("\t#{par.entity} #{par.etype}: #{par.value} #{par.notes} [#{par.created}]")
-			
-			tempel = REXML::Element.new "#{par.entity}"
-			tempel.attributes["#{par.etype}"] = "#{par.value}"
-			tempel.attributes["TESTED"] = "#{par.created}" 
-			tempel.text = "#{par.notes}"
-
-			root.elements << tempel
-						
-			framework.db.report_children(id).each do |chl|
-				get_xml_report_id(chl.id,tempel) 
-			end			
 		end
 		
 		#
