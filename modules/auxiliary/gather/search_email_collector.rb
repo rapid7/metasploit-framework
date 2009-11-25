@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptBool.new('SEARCH_GOOGLE', [ true, 'Enable Google as a backend search engine', true]),
 				OptBool.new('SEARCH_BING', [ true, 'Enable Bing as a backend search engine', true]),
 				OptBool.new('SEARCH_YAHOO', [ true, 'Enable Yahoo! as a backend search engine', true]),
-				OptPath.new('OUTFILE', [ false, "A filename to store the generated email list"]),
+				OptString.new('OUTFILE', [ false, "A filename to store the generated email list"]),
 				
 			], self.class)
 
@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 	#for writing file with all email's found
 	def write_output(data)
 		print_status("Writing email address list to #{datastore['OUTFILE']}...")		
-		::File.open(file2wrt, "a") do |fd|
+		::File.open(datastore['OUTFILE'], "a") do |fd|
 			fd.write(data)
 		end
 	end
