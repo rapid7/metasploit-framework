@@ -53,13 +53,14 @@ class Metasploit3 < Msf::Auxiliary
 
 				result.each do |addr|
 					print_status("Found internal IP in WebDAV response (#{target_host}) #{addr}")
-						
-					rep_id = wmap_base_report_id(
-							wmap_target_host,
-							wmap_target_port,
-							wmap_target_ssl
-						)
-					vuln_id = wmap_report(rep_id,'IP','INTERNAL ADDRESS',"#{addr}","Internal IP in WebDAV response found.")
+					
+					report_note(
+						:host	=> target_host,
+						:proto	=> 'HTTP',
+						:port	=> rport,
+						:type	=> 'INTERNAL_IP',
+						:data	=> "#{addr}"
+					)
 				end
 			end	
 			

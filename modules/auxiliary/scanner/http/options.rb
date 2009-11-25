@@ -41,21 +41,14 @@ class Metasploit3 < Msf::Auxiliary
 			if (res and res.headers['Allow'])
 				print_status("#{target_host} allows #{res.headers['Allow']} methods")
 
-				rep_id = wmap_base_report_id(
-					wmap_target_host,
-					wmap_target_port,
-					wmap_target_ssl
+				report_note(
+					:host	=> target_host,
+					:proto	=> 'HTTP',
+					:port	=> rport,
+					:type	=> 'HTTP_OPTIONS',
+					:data	=> res.headers['Allow']
 				)
 
-				report_note(
-				:host	=> target_host,
-				:proto	=> 'HTTP',
-				:port	=> rport,
-				:type	=> 'HTTP_OPTIONS',
-				:data	=> res.headers['Allow']
-			)
-
-				wmap_report(rep_id,'WEB_SERVER','OPTIONS',"#{res.headers['Allow']}",nil)
 			else
 				''
 			end

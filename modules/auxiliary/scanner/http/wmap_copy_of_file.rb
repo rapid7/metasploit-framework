@@ -136,13 +136,14 @@ class Metasploit3 < Msf::Auxiliary
 							print_error("[#{wmap_target_host}] Server returned a 400 error on #{wmap_base_url}#{filec} [#{res.code.to_i}]")
 						else				
 							print_status("[#{wmap_target_host}] Found #{wmap_base_url}#{filec} [#{res.code.to_i}]")
-					
-							rep_id = wmap_base_report_id(
-								wmap_target_host,
-								wmap_target_port,
-								wmap_target_ssl
+							
+							report_note(
+								:host	=> target_host,
+								:proto	=> 'HTTP',
+								:port	=> rport,
+								:type	=> 'COPY_FILE',
+								:data	=> "#{filec}"
 							)
-							wmap_report(rep_id,'VULNERABILITY','COPY_FILE',"#{filec}","A copy of file was found.")
 						end
 					end
 

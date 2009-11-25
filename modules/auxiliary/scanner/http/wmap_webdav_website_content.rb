@@ -53,13 +53,15 @@ class Metasploit3 < Msf::Auxiliary
 
 				result.each do |u|
 					print_status("Found file or directory in WebDAV response (#{target_host}) #{u}")
+					
+					report_note(
+						:host	=> target_host,
+						:proto	=> 'HTTP',
+						:port	=> rport,
+						:type	=> 'WEBDAV_FILE_DIRECTORY',
+						:data	=> "#{u}"
+					)
 						
-					rep_id = wmap_base_report_id(
-							wmap_target_host,
-							wmap_target_port,
-							wmap_target_ssl
-						)
-					vuln_id = wmap_report(rep_id,'WEBDAV','FILE/DIRECTORY',"#{u}","File/Directory in WebDAV response found.")
 				end
 			end	
 			

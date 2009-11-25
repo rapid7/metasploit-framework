@@ -69,15 +69,22 @@ class Metasploit3 < Msf::Auxiliary
 			
 				if vhostn
 					print_status("[#{ip}:#{datastore['RPORT']}] is host #{vhostn}")
-					rep_id = wmap_base_report_id(
-						wmap_target_host,
-						wmap_target_port,
-						wmap_target_ssl
+					
+					report_note(
+						:host	=> target_host,
+						:proto	=> 'HTTP',
+						:port	=> rport,
+						:type	=> 'VHOST',
+						:data	=> "#{vhostn}"
 					)
-								
-					wmap_report(rep_id,'VHOST','NAME',"#{vhostn}","Vhost #{vhostn} found.")
-					wmap_report(rep_id,'X509','SUBJECT',"#{cert.subject}",nil)
-					wmap_report(rep_id,'X509','SIGN_ALGORITHM',"#{cert.signature_algorithm}","Signature algorithm")
+					
+					report_note(
+						:host	=> target_host,
+						:proto	=> 'HTTP',
+						:port	=> rport,
+						:type	=> 'X509',
+						:data	=> "Subject: #{cert.subject} Algorithm: #{cert.signature_algorithm}"
+					)
 				end
 			else
 				print_status("[#{ip}:#{datastore['RPORT']}] No certificate subject or CN found")

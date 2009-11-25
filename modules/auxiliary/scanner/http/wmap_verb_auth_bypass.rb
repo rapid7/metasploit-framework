@@ -53,17 +53,19 @@ class Metasploit3 < Msf::Auxiliary
 			}, 10)
 
 			if res
-				rep_id = wmap_base_report_id(
-					wmap_target_host,
-					wmap_target_port,
-					wmap_target_ssl
-				)
-
+				
 				auth_code = res.code
 				
 				if res.headers['WWW-Authenticate']
 					print_status("#{ip} requires authentication: #{res.headers['WWW-Authenticate']} [#{auth_code}]")
-					wmap_report(rep_id,'WWW-AUTHENTICATE','REALM',"#{res.headers['WWW-Authenticate']}",nil)
+					
+					report_note(
+						:host	=> target_host,
+						:proto	=> 'HTTP',
+						:port	=> rport,
+						:type	=> 'WWW_AUTHENTICATE',
+						:data	=> "#{datastore['PATH']} Realm: #{res.headers['WWW-Authenticate']}"
+					)
 					
 					verbs.each do |tv|
 						resauth = send_request_raw({
@@ -75,7 +77,14 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("Testing verb #{tv} resp code: [#{resauth.code}]")
 							if resauth.code != auth_code and resauth.code <= 302
 								print_status("Possible authentication bypass with verb #{tv} code #{resauth.code}")
-								wmap_report(rep_id,'VULNERABILITY','AUTH_BYPASS_VERB',"#{tv}","Possible auth bypassing with verb #{tv} in #{datastore['PATH']}")
+					
+								report_note(
+									:host	=> target_host,
+									:proto	=> 'HTTP',
+									:port	=> rport,
+									:type	=> 'AUTH_BYPASS_VERB',
+									:data	=> "#{datastore['PATH']} Verb: #{tv}"
+								)
 							end
 						end
 					end	

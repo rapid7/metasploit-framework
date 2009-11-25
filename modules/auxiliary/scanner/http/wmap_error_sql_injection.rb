@@ -143,14 +143,13 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("[#{wmap_target_host}] Error string: '#{inje}'") 
 				print_error("[#{wmap_target_host}] DB TYPE: #{dbt}, Error type '#{injt}'")
 				
-				rep_id = wmap_base_report_id(
-						wmap_target_host,
-						wmap_target_port,
-						wmap_target_ssl
+				report_note(
+					:host	=> target_host,
+					:proto	=> 'HTTP',
+					:port	=> rport,
+					:type	=> 'DATABASE_ERROR',
+					:data	=> "#{datastore['PATH']} Error: #{inje} DB: #{dbt}"
 				)
-				vul_id = wmap_report(rep_id,'ERROR','ERROR_BASED_SQL_INJECTION',"#{datastore['PATH']}","Unable to test as normal response contains error message without injecting anything in a parameter")
-				wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','ERROR_STRING',"#{inje}","Error message found #{inje}")
-				wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','DB_TYPE',"#{dbt}","Database type is #{dbt}")
 				
 				return
 			end
@@ -209,19 +208,14 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{gvars[key]}") 
 							print_status("[#{wmap_target_host}] Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 							
-							rep_id = wmap_base_report_id(
-									wmap_target_host,
-									wmap_target_port,
-									wmap_target_ssl
+							report_note(
+								:host	=> target_host,
+								:proto	=> 'HTTP',
+								:port	=> rport,
+								:type	=> 'SQL_INJECTION',
+								:data	=> "#{datastore['PATH']} Location: QUERY Parameter: #{key} Value: #{istr} Error: #{inje} DB: #{dbt}"
 							)
-							vul_id = wmap_report(rep_id,'VULNERABILITY','ERROR_BASED_SQL_INJECTION',"#{datastore['PATH']}","SQL Injection found (Error based) in #{datastore['PATH']}.")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','PARAMETER',"#{key}","Parameter vulnerable #{key}")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','LOCATION',"QUERY","Parameter located in URI query.")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','INJECTION_TYPE',"#{injt}","Injection appears to be treated as a #{injt}.")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','VALUE',"#{istr}","String injected using #{idesc} [#{istr}].")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','ERROR_STRING',"#{inje}","Error message found #{inje}")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','DB_TYPE',"#{dbt}","Database type is #{dbt}")							
-
+							
 							break
 						end
 					else
@@ -292,18 +286,13 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{istr}") 
 							print_status("[#{wmap_target_host}] Vuln data parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 							
-							rep_id = wmap_base_report_id(
-									wmap_target_host,
-									wmap_target_port,
-									wmap_target_ssl
+							report_note(
+								:host	=> target_host,
+								:proto	=> 'HTTP',
+								:port	=> rport,
+								:type	=> 'SQL_INJECTION',
+								:data	=> "#{datastore['PATH']} Location: DATA Parameter: #{key} Value: #{istr} Error: #{inje} DB: #{dbt}"
 							)
-							vul_id = wmap_report(rep_id,'VULNERABILITY','ERROR_BASED_SQL_INJECTION',"#{datastore['PATH']}","SQL Injection found (Error based) in #{datastore['PATH']}.")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','PARAMETER',"#{key}","Parameter vulnerable #{key}")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','LOCATION',"DATA","Parameter located in request DATA (POST_DATA).")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','INJECTION_TYPE',"#{injt}","Injection appears to be treated as a #{injt}.")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','VALUE',"#{istr}","String injected using #{idesc} [#{istr}].")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','ERROR_STRING',"#{inje}","Error message found #{inje}")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','DB_TYPE',"#{dbt}","Database type is #{dbt}")
 							
 							break
 						end
@@ -374,18 +363,13 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{istr}") 
 							print_status("[#{wmap_target_host}] Vuln cookie parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 							
-							rep_id = wmap_base_report_id(
-									wmap_target_host,
-									wmap_target_port,
-									wmap_target_ssl
+							report_note(
+								:host	=> target_host,
+								:proto	=> 'HTTP',
+								:port	=> rport,
+								:type	=> 'SQL_INJECTION',
+								:data	=> "#{datastore['PATH']} Location: COOKIE Parameter: #{key} Value: #{istr} Error: #{inje} DB: #{dbt}"
 							)
-							vul_id = wmap_report(rep_id,'VULNERABILITY','ERROR_BASED_SQL_INJECTION',"#{datastore['PATH']}","SQL Injection found (Error based) in #{datastore['PATH']}.")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','PARAMETER',"#{key}","Parameter vulnerable #{key}")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','LOCATION',"COOKIE","Parameter located in Cookies.")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','INJECTION_TYPE',"#{injt}","Injection appears to be treated as a #{injt}.")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','VALUE',"#{istr}","String injected using #{idesc} [#{istr}].")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','ERROR_STRING',"#{inje}","Error message found #{inje}")
-							wmap_report(vul_id,'ERROR_BASED_SQL_INJECTION','DB_TYPE',"#{dbt}","Database type is #{dbt}")
 							
 							break
 						end

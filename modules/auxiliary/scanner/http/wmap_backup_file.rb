@@ -68,18 +68,20 @@ class Metasploit3 < Msf::Auxiliary
 					}, 20)
 
 			if (res and res.code >= 200 and res.code < 300) 
-				 	print_status("Found #{wmap_base_url}#{file}")
+				print_status("Found #{wmap_base_url}#{file}")
 					
-					rep_id = wmap_base_report_id(
-						wmap_target_host,
-						wmap_target_port,
-						wmap_target_ssl
-					)
-					wmap_report(rep_id,'VULNERABILITY','BACKUP_FILE',"#{file}","A backup file was found.")
-				else
-				   	print_status("NOT Found #{wmap_base_url}#{file}") 
-					#To be removed or just displayed with verbose debugging.
-				end
+				report_note(
+					:host	=> target_host,
+					:proto	=> 'HTTP',
+					:port	=> rport,
+					:type	=> 'BACKUP_FILE',
+					:data	=> "#{file}"
+				)
+		
+			else
+				print_status("NOT Found #{wmap_base_url}#{file}") 
+				#To be removed or just displayed with verbose debugging.
+			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE			

@@ -94,6 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 				tcode = res.code.to_i 
 
+				emesg = ""
 	
 				# Look for a string we can signature on as well
 				if(tcode >= 200 and tcode <= 299)
@@ -141,15 +142,15 @@ class Metasploit3 < Msf::Auxiliary
 						print_error("Server returned an error code. #{wmap_base_url}#{tpath} #{res.code.to_i}") 
 					else
 						print_status("Found #{wmap_base_url}#{tpath}")
-				   
-						rep_id = wmap_base_report_id(
-							wmap_target_host,
-							wmap_target_port,
-							wmap_target_ssl
+						
+						report_note(
+							:host	=> target_host,
+							:proto	=> 'HTTP',
+							:port	=> rport,
+							:type	=> 'FILE',
+							:data	=> "#{tpath} Code: #{res.code}"
 						)
-								
-						vul_id = wmap_report(rep_id,'FILE','NAME',"#{tpath}","File #{tpath} found.")
-						wmap_report(vul_id,'FILE','RESP_CODE',"#{res.code}",nil)
+				   
 					end
 				end
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

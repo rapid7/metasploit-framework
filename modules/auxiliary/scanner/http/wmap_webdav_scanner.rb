@@ -49,12 +49,6 @@ class Metasploit3 < Msf::Auxiliary
 					
 					print_status("#{target_host} (#{tserver}) has #{wdtype} ENABLED")
 
-					rep_id = wmap_base_report_id(
-						wmap_target_host,
-						wmap_target_port,
-						wmap_target_ssl
-					)
-
 					report_note(
 					:host	=> target_host,
 					:proto	=> 'HTTP',
@@ -63,7 +57,6 @@ class Metasploit3 < Msf::Auxiliary
 					:data	=> 'enabled'
 					)
 
-					wmap_report(rep_id,'WEB_SERVER',wdtype,"ENABLED",nil)
 				else
 					print_status("#{target_host} (#{tserver}) WebDAV disabled.")
 				end

@@ -85,14 +85,14 @@ class Metasploit3 < Msf::Auxiliary
 						if res and (tcode >= 200 and tcode <= 299)
 							if res.body.include? datastore['DATA']
 								print_status("Upload succeeded on #{wmap_base_url}#{datastore['PATH']} [#{res.code}]")
-					
-								rep_id = wmap_base_report_id(
-										wmap_target_host,
-										wmap_target_port,
-										wmap_target_ssl
-								)
 								
-								wmap_report(rep_id,'VULNERABILITY','PUT_ENABLED',"#{datastore['PATH']}","Upload succeeded on #{datastore['PATH']}")
+								report_note(
+									:host	=> target_host,
+									:proto	=> 'HTTP',
+									:port	=> rport,
+									:type	=> 'PUT_ENABLED',
+									:data	=> "#{datastore['PATH']}"
+								)
 							
 							end
 						else

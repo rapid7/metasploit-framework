@@ -44,13 +44,14 @@ class Metasploit3 < Msf::Auxiliary
 			if (res and res.headers['Server'])
 				extra = http_fingerprint(res)
 				print_status("#{ip} is running #{res.headers['Server']}#{extra}")
-
-				rep_id = wmap_base_report_id(
-						wmap_target_host,
-						wmap_target_port,
-						wmap_target_ssl
+				
+				report_note(
+					:host	=> target_host,
+					:proto	=> 'HTTP',
+					:port	=> rport,
+					:type	=> 'WEB_SERVER',
+					:data	=> "#{res.headers['Server']}#{extra}"
 				)
-				wmap_report(rep_id,'WEB_SERVER','TYPE',"#{res.headers['Server']}#{extra}",nil)
 			end
 
 		rescue ::Timeout::Error, ::Errno::EPIPE

@@ -143,20 +143,26 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})") 					
 						end
 					else
-						rep_id = wmap_base_report_id(
-							wmap_target_host,
-							wmap_target_port,
-							wmap_target_ssl
+						report_note(
+							:host	=> target_host,
+							:proto	=> 'HTTP',
+							:port	=> rport,
+							:type	=> 'DIRECTORY',
+							:data	=> "#{tpath}#{testfdir} Code: #{res.code}"
 						)
-
-						vul_id = wmap_report(rep_id,'DIRECTORY','NAME',"#{tpath}#{testfdir}","Directory #{tpath}#{testfdir} found.")
-						wmap_report(vul_id,'DIRECTORY','RESP_CODE',"#{res.code}",nil)		
-
+					
 						print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
 
 						if res.code.to_i == 401
 							print_status("#{wmap_base_url}#{tpath}#{testfdir} requires authentication: #{res.headers['WWW-Authenticate']}")
-							wmap_report(vul_id,'DIRECTORY','WWW-AUTHENTICATE',"#{res.headers['WWW-Authenticate']}",nil)
+							
+							report_note(
+								:host	=> target_host,
+								:proto	=> 'HTTP',
+								:port	=> rport,
+								:type	=> 'WWW_AUTHENTICATE',
+								:data	=> "#{tpath}#{testfdir} Auth: #{res.headers['WWW-Authenticate']}"
+							)
 						end
 					end			
 					

@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module identifies directory listing vulnerabilities 
 				in a given directory path.					
 			},
-			'Author' 		=> [ 'et [at] metasploit.com' ],
+			'Author' 		=> [ 'et' ],
 			'License'		=> BSD_LICENSE,
 			'Version'		=> '$Revision$'))   
 			
@@ -51,23 +51,27 @@ class Metasploit3 < Msf::Auxiliary
 				if res.to_s.include? "<title>Index of /" and res.to_s.include? "<h1>Index of /"
 	 				print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
 					
-					rep_id = wmap_base_report_id(
-						wmap_target_host,
-						wmap_target_port,
-						wmap_target_ssl
+					report_note(
+						:host	=> target_host,
+						:proto	=> 'HTTP',
+						:port	=> rport,
+						:type	=> 'DIR_LISTING',
+						:data	=> "#{tpath}"
 					)
-					wmap_report(rep_id,'VULNERABILITY','DIR_LISTING',"#{tpath}","Directory #{tpath} discloses its contents.")
+					
 				end
 
 				if res.to_s.include? "[To Parent Directory]</A>" and res.to_s.include? "#{tpath}</H1><hr>"
 	 				print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
 					
-					rep_id = wmap_base_report_id(
-						wmap_target_host,
-						wmap_target_port,
-						wmap_target_ssl
+					report_note(
+						:host	=> target_host,
+						:proto	=> 'HTTP',
+						:port	=> rport,
+						:type	=> 'DIR_LISTING',
+						:data	=> "#{tpath}"
 					)
-					wmap_report(rep_id,'VULNERABILITY','DIR_LISTING',"#{tpath}","Directory #{tpath} discloses its contents.")
+					
 				end
 
 			else

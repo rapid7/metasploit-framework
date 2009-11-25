@@ -121,14 +121,14 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			else
 				print_status("[#{target_host}] SVN Entries file found.")
-					
-				rep_id = wmap_base_report_id(
-						wmap_target_host,
-						wmap_target_port,
-						wmap_target_ssl
+				
+				report_note(
+					:host	=> target_host,
+					:proto	=> 'HTTP',
+					:port	=> rport,
+					:type	=> 'SVN_ENTRIES',
+					:data	=> "#{turl}"
 				)
-			
-				vuln_id = wmap_report(rep_id,'VULNERABILITY','SVN_ENTRIES',"#{turl}","SVN Entries file found.")
 			
 				vers = res.body[0..1].chomp.to_i
 				if vers <= 6
@@ -160,16 +160,35 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("[#{target_host}] #{skind} #{sname} [#{slastauthor}]")
 					
 					if slastauthor and slastauthor.length > 0
-						wmap_report(vuln_id,'SVN_ENTRIES','USERNAME',"#{slastauthor}","Username found.")
+						report_note(
+							:host	=> target_host,
+							:proto	=> 'HTTP',
+							:port	=> rport,
+							:type	=> 'USERNAME',
+							:data	=> "#{slastauthor}"
+						)
+					
 					end
 					
 					if skind
-						if skind == 'dir'					
-							wmap_report(vuln_id,'SVN_ENTRIES','DIRECTORY',"#{sname}","Directory in .svn/entries found.")
+						if skind == 'dir'
+							report_note(
+								:host	=> target_host,
+								:proto	=> 'HTTP',
+								:port	=> rport,
+								:type	=> 'DIRECTORY',
+								:data	=> "#{sname}"
+							)
 						end
 						
 						if skind == 'file'
-							ent_id = wmap_report(vuln_id,'SVN_ENTRIES','FILE',"#{sname}","File in .svn/entries found.")
+							report_note(
+								:host	=> target_host,
+								:proto	=> 'HTTP',
+								:port	=> rport,
+								:type	=> 'FILE',
+								:data	=> "#{sname}"
+							)
 							
 							if datastore['GET_SOURCE']
 								print_status("- Trying to get file #{sname} source code.")
@@ -188,7 +207,14 @@ class Metasploit3 < Msf::Auxiliary
 										if datastore['SHOW_SOURCE']
 											print_status("#{srcres.body}")
 										end
-										wmap_report(ent_id,'SVN_SOURCE_CODE','CODE',"#{srcres.body}","Source code found.")
+										
+										report_note(
+											:host	=> target_host,
+											:proto	=> 'HTTP',
+											:port	=> rport,
+											:type	=> 'SOURCE_CODE',
+											:data	=> "#{sname} Code: #{srcres.body}"
+										)
 									end
 								rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 								rescue ::Timeout::Error, ::Errno::EPIPE

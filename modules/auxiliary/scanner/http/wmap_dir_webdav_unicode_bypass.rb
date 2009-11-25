@@ -168,14 +168,15 @@ class Metasploit3 < Msf::Auxiliary
 					
 					if (res.code.to_i == 207)
 						print_status("\tFound vulnerable WebDAV Unicode bypass target #{wmap_base_url}#{tpath}%c0%af#{testfdir} #{res.code} (#{wmap_target_host})")
+						
+						report_note(
+							:host	=> target_host,
+							:proto	=> 'HTTP',
+							:port	=> rport,
+							:type	=> 'UNICODE_WEBDAV_BYPASS',
+							:data	=> "#{tpath}%c0%af#{testfdir} Code: #{res.code}"
+						)
 
-						rep_id = wmap_base_report_id(
-										wmap_target_host,
-										wmap_target_port,
-										wmap_target_ssl
-								)
-						vul_id = wmap_report(rep_id,'DIRECTORY','NAME',"#{tpath}#{testfdir}","Directory #{tpath}#{testfdir} found.")
-						wmap_report(vul_id,'DIRECTORY','RESP_CODE',"#{res.code}",nil)
 					end
 				end
 

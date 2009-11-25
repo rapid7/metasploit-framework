@@ -61,13 +61,16 @@ class Metasploit3 < Msf::Auxiliary
 				result = res.body.scan(aregex).flatten.map{|s| s.strip}.uniq
 				
 				print_status("[#{target_host}] #{tpath}robots.txt - #{result.join(", ")}")
-				result.each do |u|				
-					rep_id = wmap_base_report_id(
-							wmap_target_host,
-							wmap_target_port,
-							wmap_target_ssl
-						)
-					vuln_id = wmap_report(rep_id,'ROBOTS','FILE/DIRECTORY',"#{u}","File/Directory in robots.txt response found.")
+				result.each do |u|	
+				
+					report_note(
+						:host	=> target_host,
+						:proto	=> 'HTTP',
+						:port	=> rport,
+						:type	=> 'ROBOTS_TXT',
+						:data	=> "#{u}"
+					)
+										
 				end
 			end	
 			
