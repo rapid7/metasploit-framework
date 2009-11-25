@@ -355,6 +355,7 @@ class Db
 								ref.vulns.each do |vuln|
 									vcnt  += 1
 									serv  = vuln.service
+									next if not serv
 									next if not serv.host
 									xport = serv.port
 									xprot = serv.proto
@@ -452,6 +453,7 @@ class Db
 					end
 
 					if (mode & PWN_SHOW != 0)
+						next if not mod.autofilter()
 						print_status("Matched #{xref[3]} against #{xref[2]}:#{mod.datastore['RPORT']}...")
 					end
 
