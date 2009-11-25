@@ -65,7 +65,7 @@ module Payload::Generic
 	# we're like a proxy and stuff.  We can't use method_undefined
 	# because all of these methods are actually defined.
 	#
-	
+
 	def payload
 		redirect_to_actual(:payload)
 	end
@@ -85,7 +85,7 @@ module Payload::Generic
 	def compatible_encoders
 		redirect_to_actual(:compatible_encoders)
 	end
-	
+
 	def compatible_nops
 		redirect_to_actual(:compatible_nops)
 	end
@@ -101,7 +101,7 @@ module Payload::Generic
 	#
 	# Stager overrides
 	#
-	
+
 	def stage_payload
 		redirect_to_actual(:stage_payload)
 	end
@@ -165,7 +165,7 @@ module Payload::Generic
 protected
 
 	#
-	# The actual underlying platform/arch-specific payload instance that should 
+	# The actual underlying platform/arch-specific payload instance that should
 	# be used.
 	#
 	attr_accessor :actual_payload
@@ -219,34 +219,50 @@ protected
 	end
 
 	def find_actual_payload
-		if actual_payload.nil?
-			self.actual_payload = framework.payloads.find_payload(
-				actual_platform, 
+		return if not actual_payload.nil?
+
+		# Look for one based on the exploit's compatible set
+		if(assoc_exploit)
+			self.actual_payload = framework.payloads.find_payload_from_set(
+				assoc_exploit.compatible_payloads,
+				actual_platform,
 				actual_arch,
 				handler_klass,
 				session,
 				payload_type)
-
-			if actual_payload.nil?
-				raise NoCompatiblePayloadError, "Could not locate a compatible payload for #{actual_platform.names.join("/")}/#{actual_arch}"
-			else
-				dlog("Selected payload #{actual_payload.refname} from generic payload #{refname}", 'core', LEV_2)
-				# Share our datastore with the actual payload so that it has the
-				# appropriate values to substitute ad so on.
-				self.actual_payload.share_datastore(self.datastore)
-
-				# Set the associated exploit for the payload.
-				self.actual_payload.assoc_exploit  = self.assoc_exploit
-
-				# Set the parent payload to this payload so that we can handle
-				# things like session creation (so that event notifications will
-				# work properly)
-				self.actual_payload.parent_payload = self
-			end
 		end
+
+		# Fall back to the generic match (ignores size, compat flags, etc)
+		if(actual_payload.nil?)
+			self.actual_payload = framework.payloads.find_payload(
+				actual_platform,
+				actual_arch,
+				handler_klass,
+				session,
+				payload_type)
+		end
+
+		if actual_payload.nil?
+			raise NoCompatiblePayloadError, "Could not locate a compatible payload for #{actual_platform.names.join("/")}/#{actual_arch}"
+		else
+			dlog("Selected payload #{actual_payload.refname} from generic payload #{refname}", 'core', LEV_2)
+			# Share our datastore with the actual payload so that it has the
+			# appropriate values to substitute ad so on.
+			self.actual_payload.share_datastore(self.datastore)
+
+			# Set the associated exploit for the payload.
+			self.actual_payload.assoc_exploit  = self.assoc_exploit
+
+			# Set the parent payload to this payload so that we can handle
+			# things like session creation (so that event notifications will
+			# work properly)
+			self.actual_payload.parent_payload = self
+		end
+
 	end
 
 
 end
 
 end
+

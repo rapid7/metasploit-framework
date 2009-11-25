@@ -254,6 +254,32 @@ class PayloadSet < ModuleSet
 	end
 
 	#
+	# Looks for a payload from a given set that matches the specified requirements and
+	# returns an instance of that payload.
+	#
+	def find_payload_from_set(set, platform, arch, handler, session, payload_type)
+		set.each do |m|
+			name,mod = m
+			p = mod.new
+
+			# We can't substitute one generic with another one.
+			next if (p.kind_of?(Msf::Payload::Generic))
+
+			# Check to see if the handler classes match.
+			next if (handler and p.handler_klass != handler)
+
+			# Check to see if the session classes match.
+			next if (session and p.session != session)
+
+			# Check for matching payload types
+			next if (payload_type and p.payload_type != payload_type)
+
+			return p
+		end
+		return nil
+	end
+
+	#
 	# This method adds a single payload to the set and adds it to the singles
 	# hash.
 	#
