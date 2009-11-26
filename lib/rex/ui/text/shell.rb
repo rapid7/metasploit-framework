@@ -46,7 +46,7 @@ module Shell
 		self.init_prompt = prompt
 		self.prompt_char = prompt_char
 
-		self.histfile = histfile || ''
+		self.histfile = histfile
 
 		# Initialize the user interface handles
 		init_ui(Input::Stdio.new, Output::Stdio.new)
@@ -143,9 +143,9 @@ module Shell
 				# process the line.
 					ret = run_single(line)
 					# don't bother saving lines that couldn't be found as a
-					# command
-					if ret and File.exists?(self.histfile)
-						File.open(self.histfile, "a") { |f| 
+					# command, create the file if it doesn't exist
+					if ret and self.histfile
+						File.open(self.histfile, "a+") { |f| 
 							f.puts(line)
 						} 
 					end
