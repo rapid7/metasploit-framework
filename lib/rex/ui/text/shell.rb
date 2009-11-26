@@ -65,6 +65,11 @@ module Shell
 			begin
 				if (self.input.supports_readline)
 					self.input = Input::Readline.new(lambda { |str| tab_complete(str) })
+					if histfile and File.exists?(histfile)
+						File.readlines(histfile).each { |e| 
+							Readline::HISTORY << e.chomp 
+						} 
+					end
 				end
 			rescue
 			end

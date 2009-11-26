@@ -70,12 +70,6 @@ class Driver < Msf::Ui::Driver
 		require 'readline_compatible' if(not rl)
 
 		histfile = opts['HistFile'] || Msf::Config.history_file
-		
-		if histfile and File.exists?(histfile)
-			File.readlines(histfile).each { |e| 
-				Readline::HISTORY << e.chomp 
-			} 
-		end
 
 		# Call the parent
 		super(prompt, prompt_char, histfile)
