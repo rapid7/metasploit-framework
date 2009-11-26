@@ -24,6 +24,7 @@ require 'cgi'
 		include Msf::Exploit::Remote::HttpClient
 		include Msf::Auxiliary::WMAPScanServer
 		include Msf::Auxiliary::Scanner
+		include Msf::Auxiliary::Report
 
 
 		def initialize(info = {})
@@ -120,13 +121,14 @@ require 'cgi'
 						if res.body !=  noexistsres.body 
 							print_status("[#{ip}] Vhost found  #{thost} ")
 							
-							rep_id = wmap_base_report_id(
-										rhost,
-										rport,
-										ssl
-								)
-								
-							wmap_report(rep_id,'VHOST','NAME',"#{thost}","Vhost #{thost} found.")
+							report_note(
+								:host	=> ip,
+								:proto	=> 'HTTP',
+								:port	=> rport,
+								:type	=> 'VHOST',
+								:data	=> "#{thost}"
+							)
+							
 						else 
 							print_status("NOT Found #{thost}") 
 						end

@@ -19,6 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::WMAPScanFile
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -138,7 +139,7 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("[#{wmap_target_host}] Found #{wmap_base_url}#{filec} [#{res.code.to_i}]")
 							
 							report_note(
-								:host	=> target_host,
+								:host	=> ip,
 								:proto	=> 'HTTP',
 								:port	=> rport,
 								:type	=> 'COPY_FILE',

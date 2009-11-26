@@ -20,6 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::WMAPScanDir
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 
 	def initialize
 		super(
@@ -87,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 								print_status("Upload succeeded on #{wmap_base_url}#{datastore['PATH']} [#{res.code}]")
 								
 								report_note(
-									:host	=> target_host,
+									:host	=> ip,
 									:proto	=> 'HTTP',
 									:port	=> rport,
 									:type	=> 'PUT_ENABLED',
@@ -121,13 +122,14 @@ class Metasploit3 < Msf::Auxiliary
 				if (res and res.code >= 200 and res.code < 300)
 					print_status("Delete succeeded on #{wmap_base_url}#{datastore['PATH']} [#{res.code}]")
 					
-					rep_id = wmap_base_report_id(
-						wmap_target_host,
-						wmap_target_port,
-						wmap_target_ssl
+					report_note(
+						:host	=> ip,
+						:proto	=> 'HTTP',
+						:port	=> rport,
+						:type	=> 'DELETE_ENABLED',
+						:data	=> "#{datastore['PATH']}"
 					)
-								
-					wmap_report(rep_id,'VULNERABILITY','DELETE_ENABLED',"#{datastore['PATH']}","Delete succeeded on #{datastore['PATH']}")
+					
 				else
 					print_status("Delete failed on #{wmap_base_url} [#{res.code} #{res.message}]")
 				end

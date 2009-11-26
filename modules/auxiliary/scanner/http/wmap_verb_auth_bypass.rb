@@ -17,6 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::WMAPScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 	
 	def initialize(info = {})
 		super(update_info(info,	
@@ -60,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("#{ip} requires authentication: #{res.headers['WWW-Authenticate']} [#{auth_code}]")
 					
 					report_note(
-						:host	=> target_host,
+						:host	=> ip,
 						:proto	=> 'HTTP',
 						:port	=> rport,
 						:type	=> 'WWW_AUTHENTICATE',
@@ -79,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 								print_status("Possible authentication bypass with verb #{tv} code #{resauth.code}")
 					
 								report_note(
-									:host	=> target_host,
+									:host	=> ip,
 									:proto	=> 'HTTP',
 									:port	=> rport,
 									:type	=> 'AUTH_BYPASS_VERB',

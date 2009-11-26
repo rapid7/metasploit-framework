@@ -20,6 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::WMAPScanUniqueQuery
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 
 
 	def initialize(info = {})
@@ -144,7 +145,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("[#{wmap_target_host}] DB TYPE: #{dbt}, Error type '#{injt}'")
 				
 				report_note(
-					:host	=> target_host,
+					:host	=> ip,
 					:proto	=> 'HTTP',
 					:port	=> rport,
 					:type	=> 'DATABASE_ERROR',
@@ -209,7 +210,7 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("[#{wmap_target_host}] Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 							
 							report_note(
-								:host	=> target_host,
+								:host	=> ip,
 								:proto	=> 'HTTP',
 								:port	=> rport,
 								:type	=> 'SQL_INJECTION',
@@ -287,7 +288,7 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("[#{wmap_target_host}] Vuln data parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 							
 							report_note(
-								:host	=> target_host,
+								:host	=> ip,
 								:proto	=> 'HTTP',
 								:port	=> rport,
 								:type	=> 'SQL_INJECTION',
@@ -364,7 +365,7 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("[#{wmap_target_host}] Vuln cookie parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 							
 							report_note(
-								:host	=> target_host,
+								:host	=> ip,
 								:proto	=> 'HTTP',
 								:port	=> rport,
 								:type	=> 'SQL_INJECTION',

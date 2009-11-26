@@ -14,6 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::WMAPScanDir
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -93,14 +94,15 @@ class Metasploit3 < Msf::Auxiliary
 					
 				if (res.code.to_i == 207)
 					print_status("\tFound vulnerable WebDAV Unicode bypass.  #{wmap_base_url}#{tpath}#{bogus}/ #{res.code} (#{wmap_target_host})")
+					
+					report_note(
+						:host	=> ip,
+						:proto	=> 'HTTP',
+						:port	=> rport,
+						:type	=> 'WEBDAV_UNICODE_BYPASS',
+						:data	=> "#{tpath}#{bogus}/ Code: #{res.code}"
+					)
 
-					rep_id = wmap_base_report_id(
-									wmap_target_host,
-									wmap_target_port,
-									wmap_target_ssl
-							)
-					vuln_id = wmap_report(rep_id,'VULNERABILITY','WEBDAV_UNICODE_BYPASS',"#{res.code}","Directory #{tpath} vulnerable WebDAV Unicode bypass.")
-					wmap_report(vuln_id,'WEBDAV_UNICODE_BYPASS','EXPLOIT_STRING',"#{tpath}#{bogus}/",nil)
 				end
 			else
 				print_error("Folder does not require authentication. [#{res.code}]")

@@ -20,6 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::WMAPScanUniqueQuery
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 
 
 	def initialize(info = {})
@@ -142,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
  									print_status("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
 									
 									report_note(
-										:host	=> target_host,
+										:host	=> ip,
 										:proto	=> 'HTTP',
 										:port	=> rport,
 										:type	=> 'BLIND_SQL_INJECTION',

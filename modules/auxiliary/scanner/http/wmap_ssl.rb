@@ -16,6 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::WMAPScanServer
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 	
 	include Rex::Socket::Comm
 
@@ -71,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("[#{ip}:#{datastore['RPORT']}] is host #{vhostn}")
 					
 					report_note(
-						:host	=> target_host,
+						:host	=> ip,
 						:proto	=> 'HTTP',
 						:port	=> rport,
 						:type	=> 'VHOST',
@@ -79,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 					)
 					
 					report_note(
-						:host	=> target_host,
+						:host	=> ip,
 						:proto	=> 'HTTP',
 						:port	=> rport,
 						:type	=> 'X509',

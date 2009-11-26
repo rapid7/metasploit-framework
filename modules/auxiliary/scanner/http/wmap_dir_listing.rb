@@ -14,6 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::WMAPScanDir
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -52,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 	 				print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
 					
 					report_note(
-						:host	=> target_host,
+						:host	=> ip,
 						:proto	=> 'HTTP',
 						:port	=> rport,
 						:type	=> 'DIR_LISTING',
@@ -65,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 	 				print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
 					
 					report_note(
-						:host	=> target_host,
+						:host	=> ip,
 						:proto	=> 'HTTP',
 						:port	=> rport,
 						:type	=> 'DIR_LISTING',

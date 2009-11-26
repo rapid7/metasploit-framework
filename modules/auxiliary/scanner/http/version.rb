@@ -9,7 +9,7 @@
 # http://metasploit.com/framework/
 ##
 
-
+require 'rex/proto/http'
 require 'msf/core'
 
 
@@ -20,6 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::WMAPScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 
 	def initialize
 		super(
@@ -46,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("#{ip} is running #{res.headers['Server']}#{extra}")
 				
 				report_note(
-					:host	=> target_host,
+					:host	=> ip,
 					:proto	=> 'HTTP',
 					:port	=> rport,
 					:type	=> 'WEB_SERVER',
