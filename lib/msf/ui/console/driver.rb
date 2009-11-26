@@ -65,6 +65,8 @@ class Driver < Msf::Ui::Driver
 		# Default to the RbReadline wrapper		
 		require 'readline_compatible' if(not rl)
 
+		hist = Msf::Config.history_file
+		File.readlines(hist).each {|e| Readline::HISTORY << e.chomp } if File.exists?(hist)
 
 		# Call the parent
 		super(prompt, prompt_char)

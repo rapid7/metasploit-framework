@@ -146,6 +146,13 @@ class Config < Hash
 	#
 	# Calls the instance method.
 	#
+	def self.history_file
+		self.new.history_file
+	end
+
+	#
+	# Calls the instance method.
+	#
 	def self.init
 		self.new.init
 	end
@@ -190,6 +197,13 @@ class Config < Hash
 	#
 	def config_file
 		config_directory + FileSep + self['ConfigFile']
+	end
+
+	#
+	# Returns the full path to the configuration file.
+	#
+	def history_file
+		config_directory + FileSep + "history"
 	end
 
 	#
