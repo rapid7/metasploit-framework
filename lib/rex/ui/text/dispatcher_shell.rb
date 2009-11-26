@@ -87,7 +87,7 @@ module DispatcherShell
 	#
 	# Initialize the dispatcher shell.
 	#
-	def initialize(prompt, prompt_char = '>')
+	def initialize(prompt, prompt_char = '>', histfile = nil)
 		super
 
 		# Initialze the dispatcher array

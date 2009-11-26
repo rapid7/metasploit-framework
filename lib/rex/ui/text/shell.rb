@@ -36,7 +36,7 @@ module Shell
 	#
 	# Initializes a shell that has a prompt and can be interacted with.
 	#
-	def initialize(prompt, prompt_char = '>')
+	def initialize(prompt, prompt_char = '>', histfile = nil)
 		# Set the stop flag to false
 		self.stop_flag      = false
 		self.disable_output = false
@@ -45,6 +45,8 @@ module Shell
 		# Initialize the prompt
 		self.init_prompt = prompt
 		self.prompt_char = prompt_char
+
+		self.histfile = histfile || ''
 
 		# Initialize the user interface handles
 		init_ui(Input::Stdio.new, Output::Stdio.new)
@@ -134,7 +136,14 @@ module Shell
 				else
 				# Otherwise, call what should be an overriden instance method to
 				# process the line.
-					run_single(line)
+					ret = run_single(line)
+					# don't bother saving lines that couldn't be found as a
+					# command
+					if ret and File.exists?(self.histfile)
+						File.open(self.histfile, "a") { |f| 
+							f.puts(line)
+						} 
+					end
 					self.stop_count = 0
 				end
 
@@ -278,6 +287,7 @@ protected
 	attr_accessor :stop_flag, :init_prompt # :nodoc:
 	attr_accessor :prompt # :nodoc:
 	attr_accessor :prompt_char, :tab_complete_proc # :nodoc:
+	attr_accessor :histfile # :nodoc:
 	attr_accessor :log_source, :stop_count # :nodoc:
 
 end

@@ -49,6 +49,10 @@ class Driver < Msf::Ui::Driver
 	# RealReadline
 	#
 	# 	Whether or to use the system Readline or the RBReadline (default)
+	#
+	# HistFile
+	#  
+	#	Name of a file to store command history
 	#	
 	def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
 
@@ -65,11 +69,16 @@ class Driver < Msf::Ui::Driver
 		# Default to the RbReadline wrapper		
 		require 'readline_compatible' if(not rl)
 
-		hist = Msf::Config.history_file
-		File.readlines(hist).each {|e| Readline::HISTORY << e.chomp } if File.exists?(hist)
+		histfile = opts['HistFile'] || Msf::Config.history_file
+		
+		if histfile and File.exists?(histfile)
+			File.readlines(histfile).each { |e| 
+				Readline::HISTORY << e.chomp 
+			} 
+		end
 
 		# Call the parent
-		super(prompt, prompt_char)
+		super(prompt, prompt_char, histfile)
 
 		# Temporarily disable output
 		self.disable_output = true
