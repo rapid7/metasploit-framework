@@ -271,7 +271,8 @@ class Console::CommandDispatcher::Core
 					add_extension_client(md)
 				end
 			rescue
-				log_error("\nfailure: #{$!} #{$@.join("\n")}")
+				print_line
+				log_error("Failed to load extension: #{$!}")
 				next
 			end
 

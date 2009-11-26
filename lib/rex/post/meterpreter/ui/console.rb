@@ -41,6 +41,9 @@ class Console
 		reset_ui
 
 		enstack_dispatcher(Console::CommandDispatcher::Core)
+
+		# Set up logging to whatever logsink 'core' is using
+		$dispatcher['meterpreter'] = $dispatcher['core']
 	end
 
 	#
@@ -107,9 +110,9 @@ class Console
 	def log_error(msg)
 		print_error(msg)
 
-		elog(msg)
+		elog(msg, 'meterpreter')
 
-		dlog("Call stack:\n#{$@.join("\n")}")
+		dlog("Call stack:\n#{$@.join("\n")}", 'meterpreter')
 	end
 
 	attr_reader :client # :nodoc:
