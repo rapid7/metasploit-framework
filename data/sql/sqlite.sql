@@ -96,17 +96,5 @@ create table targets (
 'selected' INTEGER
 );
 
-drop table reports;
-create table reports (
-'id' INTEGER PRIMARY KEY NOT NULL,
-'target_id' INTEGER,
-'parent_id' INTEGER,
-'entity' VARCHAR(50),
-'etype' VARCHAR(50),
-'value' BLOB,
-'notes' VARCHAR,
-'source' VARCHAR,
-'created' TIMESTAMP
-);
 
 
