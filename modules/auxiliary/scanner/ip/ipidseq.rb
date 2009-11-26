@@ -48,7 +48,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			Opt::RPORT(80),
-			OptInt.new('TIMEOUT', [true, "The reply read timeout in milliseconds", 500])
+			OptInt.new('TIMEOUT', [true, "The reply read timeout in milliseconds", 500]),
+			OptString.new('INTERFACE', [false, 'The name of the interface'])
 		])
 
 		register_advanced_options([
@@ -67,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 		socket = connect_ip(false)
 		return if not socket
 
-		pcap = ::Pcap.open_live(::Pcap.lookupdev, 68, false, 1)
+		pcap = ::Pcap.open_live(datastore['INTERFACE'] || ::Pcap.lookupdev, 68, false, 1)
 
 		shost = Rex::Socket.source_address(ip)
 
