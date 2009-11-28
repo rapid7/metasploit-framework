@@ -39,12 +39,9 @@ This license does not apply to the following components:
    Sniffer extension. HD Moore has a single-seat developer license.
  - The vncdll.dll binary and its associated source code (modified RealVNC)
  - The icons used by msfweb that were not created by Metasploit
- - The BinData library located under lib/bindata
  - The Bit-Struct library located under lib/bit-struct
  - The Byakugan plugin located under external/source/byakugan
  - The Metasm library located under lib/metasm
- - The Ole::Storage library located under lib/ole
- - The PacketFu library located under lib/packetfu
  - The PcapRub library located under external/pcaprub
  - The Rabal library located under lib/rabal
  - The Racket library located under lib/racket
