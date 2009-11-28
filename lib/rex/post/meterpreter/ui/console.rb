@@ -43,7 +43,9 @@ class Console
 		enstack_dispatcher(Console::CommandDispatcher::Core)
 
 		# Set up logging to whatever logsink 'core' is using
-		$dispatcher['meterpreter'] = $dispatcher['core']
+		if ! $dispatcher['meterpreter']
+			$dispatcher['meterpreter'] = $dispatcher['core']
+		end
 	end
 
 	#
