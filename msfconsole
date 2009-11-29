@@ -71,7 +71,12 @@ class OptsConsole
 			end
 		end
 
-		opts.parse!(args)
+		begin
+			opts.parse!(args)
+		rescue OptionParser::InvalidOption
+			puts "Invalid option, try -h for usage"
+			exit
+		end
 
 		options
 	end

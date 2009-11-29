@@ -119,7 +119,12 @@ opt.on_tail("-h", "--help", "Show this message") do
 	exit
 end
 
-opt.parse!
+begin
+	opt.parse!
+rescue OptionParser::InvalidOption
+	puts "Invalid option, try -h for usage"
+	exit
+end
 
 if (! worker)
 	puts opt
