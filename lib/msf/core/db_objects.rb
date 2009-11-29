@@ -25,15 +25,15 @@ module DBSave
 	def self.included(mod)
 		class << mod
 			def find(*args)
-                ActiveRecord::Base.connection_pool.clear_stale_cached_connections!
-                Lock.mutex.synchronize do
+				ActiveRecord::Base.connection_pool.clear_stale_cached_connections!
+				Lock.mutex.synchronize do
 					super(*args)
 				end
 			end
 
 			def save(*args)
-                ActiveRecord::Base.connection_pool.clear_stale_cached_connections!
-                Lock.mutex.synchronize do
+				ActiveRecord::Base.connection_pool.clear_stale_cached_connections!
+				Lock.mutex.synchronize do
 					super(*args)
 				end
 			end
