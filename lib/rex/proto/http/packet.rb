@@ -50,13 +50,13 @@ class Packet
 		if (self.headers.include?(key))
 			return self.headers[key]
 		end
-		
+
 		self.headers.each_pair do |k,v|
 			if (k.downcase == key.downcase)
 				return v
 			end
 		end
-		
+
 		return nil
 	end
 
@@ -74,17 +74,17 @@ class Packet
 	def parse(buf)
 
 		# Append the incoming buffer to the buffer queue.
-		self.bufq += buf
+		self.bufq += buf.to_s
 
 		begin
-			# If we're processing headers, do that now.
-			if (self.state == ParseState::ProcessingHeader)
-				parse_header_re
+
+			# Process the header
+			if(self.state == ParseState::ProcessingHeader)
+				parse_header
 			end
-	
-			# If we're processing the body (possibly after having finished
-			# processing headers), do that now.
-			if (self.state == ParseState::ProcessingBody)
+
+			# Continue on to the body if the header was processed
+			if(self.state == ParseState::ProcessingBody)
 				if (self.body_bytes_left == 0)
 					self.state = ParseState::Completed
 				else
@@ -104,33 +104,30 @@ class Packet
 	# Reset the parsing state and buffers.
 	#
 	def reset
-		self.bufq  = ''
 		self.state = ParseState::ProcessingHeader
+		self.transfer_chunked = false
+		self.inside_chunk     = false
 		self.headers.reset
+		self.bufq  = ''
 		self.body  = ''
-		self.transfer_chunked = nil
-		self.inside_chunk = nil
 	end
 
 	#
 	# Returns whether or not parsing has completed.
 	#
 	def completed?
-		comp = false
+
+		return true if self.state == ParseState::Completed
 
 		# If the parser state is processing the body and there are an
 		# undetermined number of bytes left to read, we just need to say that
 		# things are completed as it's hard to tell whether or not they really
 		# are.
-		if ((self.state == ParseState::ProcessingBody) and
-			(self.body_bytes_left < 0) )
-			comp = true
-		# Or, if the parser state actually is completed, then we're good.
-		elsif (self.state == ParseState::Completed)
-			comp = true
+		if (self.state == ParseState::ProcessingBody and self.body_bytes_left < 0)
+			return true
 		end
 
-		return comp
+		false
 	end
 
 	#
@@ -168,7 +165,7 @@ class Packet
 						self.headers['Content-Encoding'] = 'deflate'
 						content = Rex::Text.zlib_deflate(content)
 					when 'none'
-						# this one is fine...
+					# this one is fine...
 					# when 'compress'
 					else
 						raise RuntimeError, 'Invalid Content-Encoding'
@@ -197,7 +194,6 @@ class Packet
 	#
 	def from_s(str)
 		reset
-
 		parse(str)
 	end
 
@@ -207,7 +203,7 @@ class Packet
 	# HTTP/1.0 200 OK for a response
 	#
 	# or
-	# 
+	#
 	# GET /foo HTTP/1.0 for a request
 	#
 	def cmd_string
@@ -215,7 +211,7 @@ class Packet
 	end
 
 	attr_reader   :headers
-	attr_reader   :error
+	attr_accessor :error
 	attr_accessor :state
 	attr_accessor :bufq
 	attr_accessor :body
@@ -227,21 +223,21 @@ class Packet
 
 	attr_accessor :chunk_min_size
 	attr_accessor :chunk_max_size
-	
+
 protected
 
 	attr_writer   :headers
-	attr_writer   :error
 	attr_writer   :incomplete
 	attr_accessor :body_bytes_left
 	attr_accessor :inside_chunk
+	attr_accessor :keepalive
 
 	##
 	#
 	# Overridable methods
 	#
 	##
-	
+
 	#
 	# Allows derived classes to split apart the command string.
 	#
@@ -254,99 +250,47 @@ protected
 	#
 	##
 
-	def parse_header_re
-		m = /(.*?)\r?\n\r?\n(.*)/smi.match(self.bufq)
-		if m != nil
-			self.headers.from_s(m[1])
-			self.bufq = m[2]
-			
-			# Extract the content length, if any.
-			if (self.headers['Content-Length'])
-				self.body_bytes_left = self.headers['Content-Length'].to_i
-			else
-				self.body_bytes_left = self.bufq.length
-			end
-
-			if (self.headers['Transfer-Encoding'])
-				self.transfer_chunked = 1 if self.headers['Transfer-Encoding'] =~ /chunked/i
-			end
-
-			connection = self.headers['Connection']
-
-			comp_on_close = false
-			if (connection and connection.downcase == 'close')
-				comp_on_close = true
-			end
-			
-			# Change states to processing the body if we have a content length or
-			# the connection type is close.
-			if ((self.body_bytes_left > 0) or self.transfer_chunked)
-				self.state = ParseState::ProcessingBody
-			else
-				self.state = ParseState::Completed
-			end
-		else
-			self.headers.from_s(self.bufq)
-		end
-
-		# No command string?  Wack.
-		if (self.headers.cmd_string == nil)
-			raise RuntimeError, "Invalid command string", caller
-		end
-
-		# Allow derived classes to update the parts of the command string
-		self.update_cmd_parts(self.headers.cmd_string)
-	end
-
-	#
-	# Parses the header portion of the request.
-	#
 	def parse_header
 
-		# Does the buffer queue contain the entire header?  If so, parse it and
-		# transition to the body parsing phase.
-		idx = self.bufq.index(/\r?\n\r?\n/)
-		
-		if (idx and idx >= 0)
-			# Extract the header block
-			head = self.bufq.slice!(0, idx + 4)
+		head,data = self.bufq.split(/\r?\n\r?\n/, 2)
+		return if not data
 
-			# Serialize the headers
-			self.headers.from_s(head)
+		self.headers.from_s(head)
+		self.bufq = data || ""
 
-			# Extract the content length, if any.
-			if (self.headers['Content-Length'])
-				self.body_bytes_left = self.headers['Content-Length'].to_i
+		# Set the content-length to -1 as a placeholder (read until EOF)
+		self.body_bytes_left = -1
+
+		# Extract the content length if it was specified
+		if (self.headers['Content-Length'])
+			self.body_bytes_left = self.headers['Content-Length'].to_i
+		end
+
+		# Look for a chunked transfer header
+		if (self.headers['Transfer-Encoding'].to_s.downcase == 'chunked')
+			self.transfer_chunked = true
+		end
+
+		# Determine how to handle data when there is no length header
+		if(self.body_bytes_left == -1 and self.transfer_chunked != true)
+			if(self.headers['Connection'].to_s.downcase == 'keep-alive')
+				# If we are using keep-alive, but have no content-length and
+				# no chunked transfer header, pretend this is the entire
+				# buffer and call it done
+				self.body_bytes_left = self.bufq.length
 			else
+				# Otherwise we need to keep reading until EOF
 				self.body_bytes_left = -1
 			end
-
-			if (self.headers['Transfer-Encoding'])
-				self.transfer_chunked = 1 if self.headers['Transfer-Encoding'] =~ /chunked/i
-			end
-
-			connection    = self.headers['Connection']
-			comp_on_close = false
-
-			if (connection and connection == 'close')
-				comp_on_close = true
-			end
-			
-			# Change states to processing the body if we have a content length or
-			# the connection type is close.
-			if ((self.body_bytes_left > 0) or (comp_on_close) or self.transfer_chunked)
-				self.state = ParseState::ProcessingBody
-			else
-				self.state = ParseState::Completed
-			end
-		else
-			return ParseState::ProcessingHeader
 		end
-		
-		# No command string?  Wack.
-		if (self.headers.cmd_string == nil)
+
+		# Throw an error if we didnt parse the header properly
+		if !self.headers.cmd_string
 			raise RuntimeError, "Invalid command string", caller
 		end
+
+		# Move the state into body processing
+		self.state = ParseState::ProcessingBody
 
 		# Allow derived classes to update the parts of the command string
 		self.update_cmd_parts(self.headers.cmd_string)
@@ -363,17 +307,23 @@ protected
 
 		# Handle chunked transfer-encoding responses
 		if (self.transfer_chunked and self.inside_chunk != 1 and self.bufq.length)
-			
+
 			# Remove any leading newlines or spaces
 			self.bufq.lstrip!
-			
+
 			# Extract the actual hexadecimal length value
 			clen = self.bufq.slice!(/^[a-zA-Z0-9]*\r?\n/)
 
 			clen.rstrip! if (clen)
 
 			# if we happen to fall upon the end of the buffer for the next chunk len and have no data left, go get some more...
-			if clen == nil and self.bufq.length == 0
+			if clen.nil? and self.bufq.length == 0
+				return
+			end
+
+			# Invalid chunk length, exit out early
+			if clen.nil?
+				self.state = ParseState::Completed
 				return
 			end
 
@@ -382,9 +332,9 @@ protected
 			if (self.body_bytes_left == 0)
 				self.bufq.sub!(/^\r?\n/s,'')
 				self.state = ParseState::Completed
-				return 
+				return
 			end
-			
+
 			self.inside_chunk = 1
 		end
 
@@ -412,7 +362,7 @@ protected
 		# ready to go.
 		if (self.transfer_chunked != 1 and self.body_bytes_left <= 0)
 			self.state = ParseState::Completed
-			return 
+			return
 		end
 	end
 
@@ -421,3 +371,4 @@ end
 end
 end
 end
+

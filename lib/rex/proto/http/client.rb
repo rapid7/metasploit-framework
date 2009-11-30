@@ -96,8 +96,25 @@ class Client
 	#
 	def set_config(opts = {})
 		opts.each_pair do |var,val|
+			typ = self.config_types[var] || 'string'
+
+			if(typ.class.to_s == 'Array')
+				if not typ.include?(val)
+					raise RuntimeError, "The specified value for #{var} is not one of the valid choices"
+				end
+			end
+
+			if(typ == 'bool')
+				val = (val =~ /^(t|y|1)$/i ? true : false)
+			end
+
+			if(typ == 'integer')
+				val = val.to_i
+			end
+
 			self.config[var]=val
 		end
+
 	end
 
 	#
@@ -113,7 +130,7 @@ class Client
 		c_qs   = opts['query']
 		c_ag   = opts['agent']      || config['agent']
 		c_cook = opts['cookie']     || config['cookie']
-		c_host = opts['vhost']      || config['vhost']
+		c_host = opts['vhost']      || config['vhost'] || self.host
 		c_head = opts['headers']    || config['headers'] || {}
 		c_rawh = opts['raw_headers']|| config['raw_headers'] || ''
 		c_conn = opts['connection']
@@ -293,19 +310,10 @@ class Client
 
 	#
 	# Send a HTTP request to the server
-	# TODO:
-	#  * Handle junk pipeline requests
+	#
 	def send_request(req)
-		# Connect to the server
 		connect
-
-		# build the request
-		req_string = req.to_s
-
-		# Send it on over
-		ret = conn.put(req_string)
-
-		ret
+		conn.put(req.to_s)
 	end
 
 	#
@@ -316,81 +324,38 @@ class Client
 		resp = Response.new
 		resp.max_data = config['read_max_data']
 
-		# Tell the remote side if we aren't pipelining
-		#conn.shutdown(::Socket::SHUT_WR) if (!pipelining?)
-
 		# Wait at most t seconds for the full response to be read in.  We only
 		# do this if t was specified as a negative value indicating an infinite
 		# wait cycle.  If t were specified as nil it would indicate that no
 		# response parsing is required.
-		Timeout.timeout((t < 0) ? nil : t) {
-			# Now, read in the response until we're good to go.
-			begin
-				if self.junk_pipeline
-					i = 0
-					self.junk_pipeline.times {
-						i += 1
-						rv = nil
 
-						while rv != Packet::ParseCode::Completed
-							if (rv == Packet::ParseCode::Error)
-								return
-							end
+		return resp if not t
 
-							if resp.bufq.length > 0
-								rv = resp.parse('')
-							else
-								rv = resp.parse(conn.get)
-							end
-						end
+		Timeout.timeout((t < 0) ? nil : t) do
 
-						if resp['Connection'] == 'close'
-							return
-						end
+			rv = nil
+			while (
+			         rv != Packet::ParseCode::Completed and
+			         rv != Packet::ParseCode::Error
+		          )
+				begin
+					buff = conn.get
+					rv   = resp.parse( buff || '')
 
-						buf = resp.bufq
-						resp.reset
-						resp.bufq = buf
-					}
-				end
-
-				rv = nil
-				if resp.bufq.length > 0
-					rv = resp.parse('')
-				end
-
-				if rv != Packet::ParseCode::Completed
-					# Keep running until we finish parsing or EOF is reached
-					while ((rv = resp.parse(conn.get)) != Packet::ParseCode::Completed)
-						# Parsing error?  Raise an exception, our job is done.
-						if (rv == Packet::ParseCode::Error)
-							break
-						end
-						select(nil, nil, nil, 0.10)
+				# Handle unexpected disconnects
+				rescue ::Errno::EPIPE, ::EOFError, ::IOError
+					case resp.state
+					when Packet::ParseState::ProcessingHeader
+						resp = nil
+					when Packet::ParseState::ProcessingBody
+						# truncated request, good enough
+						resp.error = :truncated
 					end
+					break
 				end
-			rescue EOFError
-				return nil
-			rescue ::Timeout::Error
-				#$stdout.puts("timeout\n")
 			end
-		} if (t)
-
-		# Close our side if we aren't pipelining
-		#close if (!pipelining?)
-
-		# if the server said stop pipelining, we listen...
-		if resp['Connection'] == 'close'
-			#close
 		end
-
-		# XXX - How should we handle this?
-		if (not resp.completed?)
-			# raise RuntimeError, resp.error, caller
-		end
-
-		# Always return the Response object back to the client
-		return resp
+		resp
 	end
 
 	#
@@ -461,7 +426,7 @@ class Client
 		if (self.config['uri_full_url'])
 			url = self.ssl ? "https" : "http"
 			url << self.config['vhost']
-			url << (self.port == 80) ? "" : ":#{self.port}"
+			url << ((self.port == 80) ? "" : ":#{self.port}")
 			url << uri
 			url
 		else

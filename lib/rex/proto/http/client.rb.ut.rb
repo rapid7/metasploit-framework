@@ -26,7 +26,7 @@ class Rex::Proto::Http::Client::UnitTest < Test::Unit::TestCase
 		)
 
 		#
-		# Request the main web pagfe
+		# Request the main web page
 		#
 		r = c.request_raw(
 			'method' => 'GET',
@@ -48,12 +48,12 @@ class Rex::Proto::Http::Client::UnitTest < Test::Unit::TestCase
 		)
 
 		resp = c.send_recv(r)
-		
+
 		assert_equal(404, resp.code)
 		assert_equal('Not Found', resp.message)
 		assert_equal('1.1', resp.proto)
-		
-		
+
+
 		#
 		# Send a POST request that results in a 302
 		#
@@ -75,17 +75,19 @@ class Rex::Proto::Http::Client::UnitTest < Test::Unit::TestCase
 	end
 
 	def test_ssl
-		c = Klass.new('www.geotrust.com', 443, {}, true)
-		c.set_config('vhost' => 'www.geotrust.com')
+		c = Klass.new('www.metasploit.com', 443, {}, true)
+		c.set_config('vhost' => 'www.metasploit.com')
 		r = c.request_raw(
 			'method' => 'GET',
 			'uri'    => '/'
 		)
 		resp = c.send_recv(r)
+
 		assert_equal(200, resp.code)
 		assert_equal('OK', resp.message)
-		assert_equal('1.1', resp.proto)
+		assert_equal('1.0', resp.proto)
 		c.close
 	end
 
 end
+
