@@ -35,7 +35,7 @@ class Pe < PeBase
 			raise FileHeaderError, "e_lfanew looks invalid", caller
 		end
 
-		file_header = self.class._parse_file_header(isource.read(offset, IMAGE_FILE_HEADER_SIZE)) 
+		file_header = self.class._parse_file_header(isource.read(offset, IMAGE_FILE_HEADER_SIZE))
 
 		#
 		# Optional Header
@@ -119,27 +119,31 @@ class Pe < PeBase
 		#
 		# These should not be accessed directly
 		#
-		
+
 		self._isource          = isource
 
 		self._dos_header       = dos_header
 		self._file_header      = file_header
 		self._optional_header  = optional_header
 		self._section_headers  = section_headers
-		
+
 		self.image_base        = base
 		self.sections          = sections
 		self.header_section    = header_section
-	
+
 		self._config_header    = _parse_config_header()
-		
+		self._exception_header = _load_exception_directory()
+		self._tls_header       = _parse_tls_header()
+
 		# These can be accessed directly
 		self.hdr               = HeaderAccessor.new
 		self.hdr.dos           = self._dos_header
-		self.hdr.file          = self._file_header		
+		self.hdr.file          = self._file_header
 		self.hdr.opt           = self._optional_header
 		self.hdr.sections      = self._section_headers
 		self.hdr.config        = self._config_header
+		self.hdr.tls           = self._tls_header
+		self.hdr.exceptions    = self._exception_header
 	end
 
 	#
@@ -167,7 +171,7 @@ class Pe < PeBase
 	# This check does not take into account 16-bit binaries at the moment.
 	#
 	def ptr_32?
-		ptr_64? == false	
+		ptr_64? == false
 	end
 
 	#
@@ -179,3 +183,4 @@ class Pe < PeBase
 	end
 
 end end end
+
