@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			else
 				#enable advanced options
-				mssql_query("EXEC sp_configue \'show advanced options\', 1; RECONFIGURE")[:rows]
+				mssql_query("EXEC sp_configure \'show advanced options\', 1; RECONFIGURE")[:rows]
 				query = "EXECUTE sp_configure"
 				ver = mssql_query(query)[:rows]
 				ver.class
@@ -234,7 +234,7 @@ class Metasploit3 < Msf::Auxiliary
 			dbs = mssql_query("select name from master..sysdatabases")[:rows].flatten
 			dbs.each do |dbn|
 				print_status("\tDatabase name:#{dbn.strip}")
-				print_status("\tDatabse Files for #{dbn.strip}:")
+				print_status("\tDatabase Files for #{dbn.strip}:")
 				if vernum.join != "2000"
 					mssql_query("select filename from #{dbn.strip}.sys.sysfiles")[:rows].each do |fn|
 						print_status("\t\t#{fn.join}")
