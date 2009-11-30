@@ -79,7 +79,7 @@ class PeBase
 
 
 	class HeaderAccessor
-		attr_accessor :dos, :file, :opt, :sections, :config
+		attr_accessor :dos, :file, :opt, :sections, :config, :exceptions, :tls
 		def initialize
 		end
 	end
@@ -91,22 +91,22 @@ class PeBase
 		end
 
 		# The following methods are just pass-throughs for struct
-		
+
 		# Access a value
 		def v
 			struct.v
 		end
-		
-		# Access a value by array 
+
+		# Access a value by array
 		def [](*args)
 			struct[*args]
 		end
-		
+
 		# Obtain an array of all fields
 		def keys
 			struct.keys
 		end
-		
+
 		def method_missing(meth, *args)
 			v[meth.to_s] || (raise NoMethodError.new, meth)
 		end
@@ -231,7 +231,7 @@ class PeBase
 	#                                             // -1 if bound, and real date\time stamp
 	#                                             //     in IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT (new BIND)
 	#                                             // O.W. date/time stamp of DLL bound to (Old BIND)
-	# 
+	#
 	#     DWORD   ForwarderChain;                 // -1 if no forwarders
 	#     DWORD   Name;
 	#     DWORD   FirstThunk;                     // RVA to IAT (if bound this IAT has actual addresses)
@@ -284,7 +284,7 @@ class PeBase
 	#     DWORD   AddressOfNames;         // RVA from base of image
 	#     DWORD   AddressOfNameOrdinals;  // RVA from base of image
 	# } IMAGE_EXPORT_DIRECTORY, *PIMAGE_EXPORT_DIRECTORY;
-	# 
+	#
 	IMAGE_EXPORT_DESCRIPTOR_SIZE = 40
 	IMAGE_EXPORT_DESCRIPTOR = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint32v', 'Characteristics',              0 ],
@@ -353,7 +353,7 @@ class PeBase
 	#     //
 	#     // Standard fields.
 	#     //
-	# 
+	#
 	#     WORD    Magic;
 	#     BYTE    MajorLinkerVersion;
 	#     BYTE    MinorLinkerVersion;
@@ -363,11 +363,11 @@ class PeBase
 	#     DWORD   AddressOfEntryPoint;
 	#     DWORD   BaseOfCode;
 	#     DWORD   BaseOfData;
-	# 
+	#
 	#     //
 	#     // NT additional fields.
 	#     //
-	# 
+	#
 	#     DWORD   ImageBase;
 	#     DWORD   SectionAlignment;
 	#     DWORD   FileAlignment;
@@ -564,7 +564,7 @@ class PeBase
 		end
 	end
 
-	class OptionalHeader64 < OptionalHeader	
+	class OptionalHeader64 < OptionalHeader
 		def initialize(rawdata)
 			optional_header = IMAGE_OPTIONAL_HEADER64.make_struct
 
@@ -589,7 +589,7 @@ class PeBase
 			# good, good
 			when IMAGE_SIZEOF_NT_OPTIONAL32_HEADER
 				return OptionalHeader32.new(rawdata)
-			
+
 			when IMAGE_SIZEOF_NT_OPTIONAL64_HEADER
 				return OptionalHeader64.new(rawdata)
 
@@ -616,7 +616,7 @@ class PeBase
 	#     WORD    NumberOfLinenumbers;
 	#     DWORD   Characteristics;
 	# } IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;
-	# 
+	#
 	# #define IMAGE_SIZEOF_SECTION_HEADER          40
 	#
 
@@ -675,9 +675,9 @@ class PeBase
 	# //  WORD    TypeOffset[1];
 	# } IMAGE_BASE_RELOCATION;
 	# typedef IMAGE_BASE_RELOCATION UNALIGNED * PIMAGE_BASE_RELOCATION;
-	# 
+	#
 	# #define IMAGE_SIZEOF_BASE_RELOCATION         8
-	# 
+	#
 	IMAGE_SIZEOF_BASE_RELOCATION = 8
 	IMAGE_BASE_RELOCATION = Rex::Struct2::CStructTemplate.new(
 	  [ 'uint32v', 'VirtualAddress',         0 ],
@@ -703,7 +703,7 @@ class PeBase
 
 	class RelocationEntry
 		attr_accessor :rva, :reltype
-		
+
 		def initialize(_rva, _type)
 			self.rva     = _rva
 			self.reltype = _type
@@ -722,7 +722,7 @@ class PeBase
 
 	class ResourceEntry
 		attr_accessor :path, :lang, :code, :rva, :size, :pe, :file
-		
+
 		def initialize(pe, path, lang, code, rva, size, file)
 			self.pe    = pe
 			self.path  = path
@@ -732,12 +732,12 @@ class PeBase
 			self.size  = size
 			self.file  = file.to_s
 		end
-		
+
 		def data
 			pe._isource.read(pe.rva_to_file_offset(rva), size)
 		end
 	end
-	
+
 	#
 	# typedef struct {
 	#     DWORD   Size;
@@ -834,16 +834,16 @@ class PeBase
 
 
 	class ConfigHeader < GenericHeader
-		
+
 	end
 
 	# doesn't seem to be used -- not compatible with 64-bit
 	#def self._parse_config_header(rawdata)
 	#	header = IMAGE_LOAD_CONFIG_DIRECTORY32.make_struct
-	#	header.from_s(rawdata)	
-	#	ConfigHeader.new(header)		
+	#	header.from_s(rawdata)
+	#	ConfigHeader.new(header)
 	#end
-	
+
 	def _parse_config_header
 
 		#
@@ -864,16 +864,148 @@ class PeBase
 		header  = klass.make_struct
 
 		header.from_s(dirdata)
-			
+
 		@config = ConfigHeader.new(header)
 	end
-	
-	
+
+
 	def config
 		_parse_config_header if @config.nil?
 		@config
 	end
 
+	#
+	# TLS Directory
+	#
+
+	#
+	# typedef struct {
+	#     DWORD   Size;
+	#     DWORD   TimeDateStamp;
+	#     WORD    MajorVersion;
+	#     WORD    MinorVersion;
+	#     DWORD   GlobalFlagsClear;
+	#     DWORD   GlobalFlagsSet;
+	#     DWORD   CriticalSectionDefaultTimeout;
+	#     DWORD   DeCommitFreeBlockThreshold;
+	#     DWORD   DeCommitTotalFreeThreshold;
+	#     DWORD   LockPrefixTable;            // VA
+	#     DWORD   MaximumAllocationSize;
+	#     DWORD   VirtualMemoryThreshold;
+	#     DWORD   ProcessHeapFlags;
+	#     DWORD   ProcessAffinityMask;
+	#     WORD    CSDVersion;
+	#     WORD    Reserved1;
+	#     DWORD   EditList;                   // VA
+	#     DWORD   SecurityCookie;             // VA
+	#     DWORD   SEHandlerTable;             // VA
+	#     DWORD   SEHandlerCount;
+	# } IMAGE_LOAD_CONFIG_DIRECTORY32, *PIMAGE_LOAD_CONFIG_DIRECTORY32;
+	#
+	IMAGE_LOAD_TLS_DIRECTORY32 = Rex::Struct2::CStructTemplate.new(
+	  [ 'uint32v', 'Size',                          0 ],
+	  [ 'uint32v', 'TimeDateStamp',                 0 ],
+	  [ 'uint16v', 'MajorVersion',                  0 ],
+	  [ 'uint16v', 'MinorVersion',                  0 ],
+	  [ 'uint32v', 'GlobalFlagsClear',              0 ],
+	  [ 'uint32v', 'GlobalFlagsSet',                0 ],
+	  [ 'uint32v', 'CriticalSectionDefaultTimeout', 0 ],
+	  [ 'uint32v', 'DeCommitFreeBlockThreshold',    0 ],
+	  [ 'uint32v', 'DeCommitTotalFreeThreshold',    0 ],
+	  [ 'uint32v', 'LockPrefixTable',               0 ],
+	  [ 'uint32v', 'MaximumAllocationSize',         0 ],
+	  [ 'uint32v', 'VirtualMemoryThreshold',        0 ],
+	  [ 'uint32v', 'ProcessHeapFlags',              0 ],
+	  [ 'uint32v', 'ProcessAffinityMask',           0 ],
+	  [ 'uint16v', 'CSDVersion',                    0 ],
+	  [ 'uint16v', 'Reserved1',                     0 ],
+	  [ 'uint32v', 'EditList',                      0 ],
+	  [ 'uint32v', 'SecurityCookie',                0 ],
+	  [ 'uint32v', 'SEHandlerTable',                0 ],
+	  [ 'uint32v', 'SEHandlerCount',                0 ]
+	)
+
+	#
+	# typedef struct {
+	# 	 ULONG      Size;
+	# 	 ULONG      TimeDateStamp;
+	# 	 USHORT     MajorVersion;
+	# 	 USHORT     MinorVersion;
+	# 	 ULONG      GlobalFlagsClear;
+	# 	 ULONG      GlobalFlagsSet;
+	# 	 ULONG      CriticalSectionDefaultTimeout;
+	# 	 ULONGLONG  DeCommitFreeBlockThreshold;
+	# 	 ULONGLONG  DeCommitTotalFreeThreshold;
+	# 	 ULONGLONG  LockPrefixTable;         // VA
+	# 	 ULONGLONG  MaximumAllocationSize;
+	# 	 ULONGLONG  VirtualMemoryThreshold;
+	# 	 ULONGLONG  ProcessAffinityMask;
+	# 	 ULONG      ProcessHeapFlags;
+	# 	 USHORT     CSDVersion;
+	# 	 USHORT     Reserved1;
+	# 	 ULONGLONG  EditList;                // VA
+	# 	 ULONGLONG  SecurityCookie;          // VA
+	# 	 ULONGLONG  SEHandlerTable;          // VA
+	# 	 ULONGLONG  SEHandlerCount;
+	# } IMAGE_LOAD_CONFIG_DIRECTORY64, *PIMAGE_LOAD_CONFIG_DIRECTORY64;
+	#
+	IMAGE_LOAD_TLS_DIRECTORY64 = Rex::Struct2::CStructTemplate.new(
+	  [ 'uint32v', 'Size',                          0 ],
+	  [ 'uint32v', 'TimeDateStamp',                 0 ],
+	  [ 'uint16v', 'MajorVersion',                  0 ],
+	  [ 'uint16v', 'MinorVersion',                  0 ],
+	  [ 'uint32v', 'GlobalFlagsClear',              0 ],
+	  [ 'uint32v', 'GlobalFlagsSet',                0 ],
+	  [ 'uint32v', 'CriticalSectionDefaultTimeout', 0 ],
+	  [ 'uint64v', 'DeCommitFreeBlockThreshold',    0 ],
+	  [ 'uint64v', 'DeCommitTotalFreeThreshold',    0 ],
+	  [ 'uint64v', 'LockPrefixTable',               0 ],
+	  [ 'uint64v', 'MaximumAllocationSize',         0 ],
+	  [ 'uint64v', 'VirtualMemoryThreshold',        0 ],
+	  [ 'uint64v', 'ProcessAffinityMask',           0 ],
+	  [ 'uint32v', 'ProcessHeapFlags',              0 ],
+	  [ 'uint16v', 'CSDVersion',                    0 ],
+	  [ 'uint16v', 'Reserved1',                     0 ],
+	  [ 'uint64v', 'EditList',                      0 ],
+	  [ 'uint64v', 'SecurityCookie',                0 ],
+	  [ 'uint64v', 'SEHandlerTable',                0 ],
+	  [ 'uint64v', 'SEHandlerCount',                0 ]
+	)
+
+
+	class TLSHeader < GenericHeader
+
+	end
+
+	def _parse_tls_header
+
+		#
+		# Get the data directory entry, size, etc
+		#
+		exports_entry = _optional_header['DataDirectory'][IMAGE_DIRECTORY_ENTRY_TLS]
+		rva           = exports_entry.v['VirtualAddress']
+		size          = exports_entry.v['Size']
+
+		return nil if size == 0
+
+		#
+		# Ok, so we have the data directory, now lets parse it
+		#
+
+		dirdata = _isource.read(rva_to_file_offset(rva), size)
+		klass   = (ptr_64?) ? IMAGE_LOAD_TLS_DIRECTORY64 : IMAGE_LOAD_TLS_DIRECTORY32
+		header  = klass.make_struct
+
+		header.from_s(dirdata)
+
+		@tls = TLSHeader.new(header)
+	end
+
+
+	def tls
+		_parse_config_header if @tls.nil?
+		@tls
+	end
 
 	##
 	#
@@ -992,7 +1124,7 @@ class PeBase
 				count = data.length / IMAGE_RUNTIME_FUNCTION_ENTRY_SZ
 
 				count.times { |current|
-					@exception << RuntimeFunctionEntry.new(self, 
+					@exception << RuntimeFunctionEntry.new(self,
 						data.slice!(0, IMAGE_RUNTIME_FUNCTION_ENTRY_SZ))
 				}
 			else
@@ -1001,7 +1133,7 @@ class PeBase
 		return @exception
 	end
 
-		
+
 	def exception
 		_load_exception_directory if @exception.nil?
 		@exception
@@ -1025,8 +1157,8 @@ class PeBase
 
 	attr_accessor :_isource
 	attr_accessor :_dos_header, :_file_header, :_optional_header,
-	              :_section_headers, :_config_header
-				  
+	              :_section_headers, :_config_header, :_tls_header, :_exception_header
+
 	attr_accessor :sections, :header_section, :image_base
 
 	attr_accessor :_imports_cache, :_imports_cached
@@ -1035,7 +1167,7 @@ class PeBase
 	attr_accessor :_resources_cache, :_resources_cached
 
 	attr_accessor :hdr
-	
+
 	def self.new_from_file(filename, disk_backed = false)
 
 		file = ::File.new(filename)
@@ -1212,7 +1344,7 @@ class PeBase
 
 			othunk = descriptor.v['OriginalFirstThunk']
 			fthunk = descriptor.v['FirstThunk']
-			
+
 			break if fthunk == 0
 
 			dllname = _isource.read_asciiz(rva_to_file_offset(descriptor.v['Name']))
@@ -1382,7 +1514,7 @@ class PeBase
 
 		return relocdirs
 	end
-	
+
 
 	#
 	# We lazily parse the resources, and then cache them
@@ -1392,7 +1524,7 @@ class PeBase
 			_load_resources
 			self._resources_cached = true
 		end
-		
+
 		return self._resources_cache
 	end
 
@@ -1410,13 +1542,13 @@ class PeBase
 		# Ok, so we have the data directory, now lets parse it
 		#
 		data = _isource.read(rva_to_file_offset(rva), size)
-		
+
 		self._resources_cache = {}
 		_parse_resource_directory(data)
 	end
-	
+
 	def _parse_resource_directory(data, rname=0, rvalue=0x80000000, path='0', pname=nil)
-		
+
 		pname = _parse_resource_name(data, rname)
 		if (path.scan('/').length == 1)
 			if (pname !~ /^\d+/)
@@ -1425,16 +1557,16 @@ class PeBase
 				path = "/" + _resource_lookup( (rname & ~0x80000000).to_s)
 			end
 		end
-		
-		
+
+
 		rvalue &= ~0x80000000
 		vals  = data[rvalue, 16].unpack('VVvvvv')
-		
+
 		chars = vals[0]
 		tdate = vals[1]
 		vers  = "#{vals[2]}#{vals[3]}"
 		count = vals[4] + vals[5]
-		
+
 		0.upto(count-1) do |i|
 
 			ename, evalue = data[rvalue + 16 + ( i * 8), 8].unpack('VV')
@@ -1443,18 +1575,18 @@ class PeBase
 			if (ename & 0x80000000 != 0)
 				pname = _parse_resource_name(data, ename)
 			end
-			
-			if (evalue & 0x80000000 != 0) 
+
+			if (evalue & 0x80000000 != 0)
 				# This is a subdirectory
 				_parse_resource_directory(data, ename, evalue, epath, pname)
 			else
 				# This is an entry
 				_parse_resource_entry(data, ename, evalue, epath, pname)
-			end	
+			end
 		end
-		
+
 	end
-	
+
 	def _resource_lookup(i)
 		tbl = {
 			'1'      => 'RT_CURSOR',
@@ -1486,12 +1618,12 @@ class PeBase
 		}
 		tbl[i] || i
 	end
-	
+
 	def _parse_resource_entry(data, rname, rvalue, path, pname)
-	
+
 		rva, size, code = data[rvalue, 12].unpack('VVV')
 		lang = _parse_resource_name(data, rname)
-		
+
 		ent = ResourceEntry.new(
 			self,
 			path,
@@ -1503,7 +1635,7 @@ class PeBase
 		)
 		self._resources_cache[path] = ent
 	end
-	
+
 	def _parse_resource_name(data, rname)
 		if (rname & 0x80000000 != 0)
 			rname &= ~0x80000000
@@ -1511,8 +1643,9 @@ class PeBase
 			unistr, trash = unistr.split(/\x00\x00/, 2)
 			return unistr ? unistr.gsub(/\x00/, '') : nil
 		end
-		
+
 		rname.to_s
 	end
 
 end end end
+
