@@ -148,8 +148,8 @@ class Core
 	#
 	def cmd_back(*args)
 		if (driver.dispatcher_stack.size > 1 and
-		    driver.current_dispatcher.name != 'Core' and
-		    driver.current_dispatcher.name != 'Database Backend')
+				driver.current_dispatcher.name != 'Core' and
+				driver.current_dispatcher.name != 'Database Backend')
 			# Reset the active module if we have one
 			if (active_module)
 
@@ -546,21 +546,21 @@ class Core
 						info = framework.jobs[val.to_s].info
 						mod_name = name.split(": ")[1]
 
-                        			if ((mod = framework.modules.create(mod_name)) == nil)
-                                			print_error("Failed to load module: #{mod_name}")
-                                			return false
-                        			end
+						if ((mod = framework.modules.create(mod_name)) == nil)
+							print_error("Failed to load module: #{mod_name}")
+							return false
+						end
 
 						info["datastore"].each { |key,val|
 							mod.datastore[key] = val
 						}
-                				output  = "\n"
-                				output += "Name: #{mod.name}\n"
+						output  = "\n"
+						output += "Name: #{mod.name}\n"
 						print_line(output)
 
-                				if (mod.options.has_options?)
+						if (mod.options.has_options?)
 							show_options(mod)
-                				end
+						end
 
 						mod_opt = Serializer::ReadableText.dump_advanced_options(mod,'   ')
 						print_line("\nModule advanced options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
@@ -760,8 +760,8 @@ class Core
 
 				# If we still don't have a gateway, check if it's a session.
 				if ((gw == nil) and
-				    (session = framework.sessions.get(args[2])) and
-				    (session.kind_of?(Msf::Session::Comm)))
+						(session = framework.sessions.get(args[2])) and
+						(session.kind_of?(Msf::Session::Comm)))
 					gw = session
 				elsif (gw == nil)
 					print_error("Invalid gateway specified.")
@@ -793,8 +793,8 @@ class Core
 
 				# If we still don't have a gateway, check if it's a session.
 				if ((gw == nil) and
-				    (session = framework.sessions.get(args[2])) and
-				    (session.kind_of?(Msf::Session::Comm)))
+						(session = framework.sessions.get(args[2])) and
+						(session.kind_of?(Msf::Session::Comm)))
 					gw = session
 				elsif (gw == nil)
 					print_error("Invalid gateway specified.")
@@ -814,7 +814,7 @@ class Core
 				comm = Rex::Socket::SwitchBoard.best_comm(args[0])
 
 				if ((comm) and
-				    (comm.kind_of?(Msf::Session)))
+						(comm.kind_of?(Msf::Session)))
 					print_line("#{args[0]} routes through: Session #{comm.sid}")
 				else
 					print_line("#{args[0]} routes through: Local")
