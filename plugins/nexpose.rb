@@ -120,7 +120,7 @@ class Plugin::Nexpose < Msf::Plugin
 		end
 
 		def cmd_nexpose_scan(*args)
-			return if not nexpose_verify
+
 
 			opts = Rex::Parser::Arguments.new(
 				"-h"  => [ false,  "This help menu"],
@@ -147,6 +147,7 @@ class Plugin::Nexpose < Msf::Plugin
 			opts.parse(args) do |opt, idx, val|
 				case opt
 				when "-h"
+					print_line("Usage: nexpose_scan [options] <Target IP Ranges>")
 					print_line(opts.usage)
 					return
 				when "-t"
@@ -168,7 +169,15 @@ class Plugin::Nexpose < Msf::Plugin
 				end
 			end
 
+			return if not nexpose_verify
+
 			opt_ranges = opt_ranges.join(",")
+
+			if(opt_ranges.strip.empty?)
+				print_line("Usage: nexpose_scan [options] <Target IP Ranges>")
+				print_line(opts.usage)
+				return
+			end
 
 			if(opt_verbose)
 				print_status("Creating a new scan using template #{opt_template} and #{opt_maxaddrs} concurrent IPs against #{opt_ranges}")
