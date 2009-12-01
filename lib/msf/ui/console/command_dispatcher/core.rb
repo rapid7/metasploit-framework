@@ -71,6 +71,7 @@ class Core
 			"info"     => "Displays information about one or more module",
 			"irb"      => "Drop into irb scripting mode",
 			"jobs"     => "Displays and manages jobs",
+			"kill"     => "kill a job",
 			"load"     => "Load a framework plugin",
 
 # XXX complete this before re-enabling
@@ -527,9 +528,12 @@ class Core
 
 				# Terminate the supplied job name
 				when "-k"
-					print_line("Stopping job: #{val}...")
-					framework.jobs.stop_job(val)
-
+					if (not framework.jobs.has_key?(val))
+						print_error("No such job")
+					else
+						print_line("Stopping job: #{val}...")
+						framework.jobs.stop_job(val)
+					end
 				when "-K"
 					print_line("Stopping all jobs...")
 					framework.jobs.each_key do |i|
@@ -553,14 +557,18 @@ class Core
 		if(not words[1])
 			return %w{-l -k -K -h}
 		end
-		if (words[1] == '-k')
+		if (words[1] == '-k' and not words[2])
 			# XXX return the list of job values
-			ret = []
-			framework.jobs.each_key do |i|
-				ret.push i
-			end
-			return ret
+			return framework.jobs.keys
 		end
+	end
+
+	def cmd_kill(*args)
+		cmd_jobs("-k", *args)
+	end
+
+	def cmd_kill_tabs(str, words)
+		return framework.jobs.keys if not words[1]
 	end
 
 	#
