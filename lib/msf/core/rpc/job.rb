@@ -22,6 +22,16 @@ class Job < Base
 			{ "result" => "success" }
 		end
 	end
+	def info(token,jid)
+		authenticate(token)
+		obj = @framework.jobs[jid.to_s]
+		if(not obj)
+			raise ::XMLRPC::FaultException.new(404, "no such job")
+		else
+			info = obj.info
+			{ "result" => "success" , "info" => info}
+		end
+	end
 end
 end
 end

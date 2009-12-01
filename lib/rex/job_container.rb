@@ -60,6 +60,28 @@ class Job
 	end
 
 	#
+	# Surfaces the setings from the job to determine the current settings
+	#
+	def info
+		ret = {}
+		con = nil
+		ret['jid'] = self.jid
+		ret['name'] = self.name
+		if(self.ctx.class == Array)
+			con  = self.ctx[0]
+			
+		else
+			con = self.ctx
+		end
+		ret['datastore'] = con.datastore
+		if(con.kind_of? Msf::Exploit::Remote::HttpServer)
+			
+			ret['datastore']['URIPATH'] = con.get_resource()
+		end
+		ret
+	end
+
+	#
 	# The name of the job.
 	#
 	attr_reader :name

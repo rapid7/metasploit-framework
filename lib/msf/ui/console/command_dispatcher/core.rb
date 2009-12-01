@@ -34,6 +34,7 @@ class Core
 		"-h" => [ false, "Help banner."                                   ],
 		"-k" => [ true,  "Terminate the specified job name."              ],
 		"-K" => [ false, "Terminate all running jobs."                    ],
+		"-i" => [ true, "Lists information about a running job."                    ],
 		"-l" => [ false, "List all running jobs."                         ])
 
 	@@persist_opts = Rex::Parser::Arguments.new(
@@ -539,7 +540,33 @@ class Core
 					framework.jobs.each_key do |i|
 						framework.jobs.stop_job(i)
 					end
+				when "-i"
+					if (framework.jobs[val.to_s])
+						name = framework.jobs[val.to_s].name
+						info = framework.jobs[val.to_s].info
+						mod_name = name.split(": ")[1]
 
+                        			if ((mod = framework.modules.create(mod_name)) == nil)
+                                			print_error("Failed to load module: #{mod_name}")
+                                			return false
+                        			end
+
+						info["datastore"].each { |key,val|
+							mod.datastore[key] = val
+						}
+                				output  = "\n"
+                				output += "Name: #{mod.name}\n"
+						print_line(output)
+
+                				if (mod.options.has_options?)
+							show_options(mod)
+                				end
+
+						mod_opt = Serializer::ReadableText.dump_advanced_options(mod,'   ')
+						print_line("\nModule advanced options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
+					else
+						print_line("Invalid Job ID")
+					end
 				when "-h"
 					print(
 						"Usage: jobs [options]\n\n" +
