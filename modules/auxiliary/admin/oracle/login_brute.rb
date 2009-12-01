@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 						:type  => 'ORACLE_BRUTEFORCED_ACCOUNT',
 						:data  => "#{datastore['DBUSER']}/#{datastore['DBPASS']} with sid #{datastore['SID']}"
 					)
-					found = File.new("./data/wordlists/oracle_default_found.log","a")
+					found = File.open(File.join(Msf::Config.log_directory,"oracle_default_found.log"), "a")
 						print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
 						found.write "Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}.\n"
 					found.close
