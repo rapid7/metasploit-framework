@@ -79,6 +79,10 @@ class Framework
 		self.db        = DBManager.new(self)
 	end
 
+	def inspect
+		"#<Framework (#{sessions.length} sessions, #{jobs.length} jobs, #{plugins.length} plugins#{db.active ? ", database active" : ""})>"
+	end
+
 	#
 	# Returns the module set for encoders.
 	#
