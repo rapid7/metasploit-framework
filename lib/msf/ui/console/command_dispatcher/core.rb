@@ -34,8 +34,9 @@ class Core
 		"-h" => [ false, "Help banner."                                   ],
 		"-k" => [ true,  "Terminate the specified job name."              ],
 		"-K" => [ false, "Terminate all running jobs."                    ],
-		"-i" => [ true, "Lists information about a running job."                    ],
-		"-l" => [ false, "List all running jobs."                         ])
+		"-i" => [ true, "Lists detailed information about a running job." ],
+		"-l" => [ false, "List all running jobs."                         ],
+		"-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
 
 	@@persist_opts = Rex::Parser::Arguments.new(
 		"-s" => [ true,  "Storage medium to be used (ex: flatfile)."      ],
@@ -516,16 +517,24 @@ class Core
 	# framework.
 	#
 	def cmd_jobs(*args)
-		if (args.length == 0)
+		# Make the default behavior listing all jobs if there were no options
+		# or the only option is the verbose flag
+		if (args.length == 0 or args == ["-v"])
 			args.unshift("-l")
 		end
+
+		verbose = false
+		dump_list = false
+		dump_info = false
+		job_id = nil
 
 		# Parse the command options
 		@@jobs_opts.parse(args) { |opt, idx, val|
 			case opt
+				when "-v"
+					verbose = true
 				when "-l"
-					print("\n" +
-						Serializer::ReadableText.dump_jobs(framework) + "\n")
+					dump_list = true
 
 				# Terminate the supplied job name
 				when "-k"
@@ -541,32 +550,10 @@ class Core
 						framework.jobs.stop_job(i)
 					end
 				when "-i"
-					if (framework.jobs[val.to_s])
-						name = framework.jobs[val.to_s].name
-						info = framework.jobs[val.to_s].info
-						mod_name = name.split(": ")[1]
-
-						if ((mod = framework.modules.create(mod_name)) == nil)
-							print_error("Failed to load module: #{mod_name}")
-							return false
-						end
-
-						info["datastore"].each { |key,val|
-							mod.datastore[key] = val
-						}
-						output  = "\n"
-						output += "Name: #{mod.name}\n"
-						print_line(output)
-
-						if (mod.options.has_options?)
-							show_options(mod)
-						end
-
-						mod_opt = Serializer::ReadableText.dump_advanced_options(mod,'   ')
-						print_line("\nModule advanced options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
-					else
-						print_line("Invalid Job ID")
-					end
+					# Defer printing anything until the end of option parsing
+					# so we can check for the verbose flag.
+					dump_info = true
+					job_id = val
 				when "-h"
 					print(
 						"Usage: jobs [options]\n\n" +
@@ -575,6 +562,40 @@ class Core
 					return false
 			end
 		}
+
+		if (dump_list)
+			print("\n" + Serializer::ReadableText.dump_jobs(framework, verbose) + "\n")
+		end
+		if (dump_info)
+			if (job_id and framework.jobs[job_id.to_s])
+				job = framework.jobs[job_id.to_s]
+				mod_name = job.name.split(": ")[1]
+
+				if ((mod = framework.modules.create(mod_name)) == nil)
+					print_error("Failed to load module: #{mod_name}")
+					return false
+				end
+
+				job.info["datastore"].each { |key,val|
+					mod.datastore[key] = val
+				}
+				output  = "\n"
+				output += "Name: #{mod.name}"
+				output += ", started at #{job.start_time}" if job.start_time
+				print_line(output)
+
+				if (mod.options.has_options?)
+					show_options(mod)
+				end
+
+				if (verbose)
+					mod_opt = Serializer::ReadableText.dump_advanced_options(mod,'   ')
+					print_line("\nModule advanced options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
+				end
+			else
+				print_line("Invalid Job ID")
+			end
+		end
 	end
 
 	#
@@ -582,7 +603,7 @@ class Core
 	#
 	def cmd_jobs_tabs(str, words)
 		if(not words[1])
-			return %w{-l -k -K -h}
+			return %w{-l -k -K -h -v}
 		end
 		if (words[1] == '-k' and not words[2])
 			# XXX return the list of job values

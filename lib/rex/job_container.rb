@@ -18,6 +18,7 @@ class Job
 		self.run_proc   = run_proc
 		self.clean_proc = clean_proc
 		self.ctx        = ctx
+		self.start_time = nil
 	end
 
 	#
@@ -25,6 +26,7 @@ class Job
 	# Otherwise, the job is run inline.
 	#
 	def start(async = false)
+		self.start_time = Time.now
 		if (async)
 			self.job_thread = Thread.new {
 				# Deschedule our thread momentarily
@@ -90,6 +92,11 @@ class Job
 	#
 	attr_reader :jid
 
+	# 
+	# The time at which this job was started
+	#
+	attr_reader   :start_time #:nodoc:
+
 protected
 
 	attr_writer   :name #:nodoc:
@@ -99,6 +106,7 @@ protected
 	attr_accessor :run_proc #:nodoc:
 	attr_accessor :clean_proc #:nodoc:
 	attr_accessor :ctx #:nodoc:
+	attr_writer   :start_time #:nodoc:
 
 end
 

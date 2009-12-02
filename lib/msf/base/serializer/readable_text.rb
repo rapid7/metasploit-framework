@@ -412,18 +412,36 @@ class ReadableText
 	#
 	# Dumps the list of running jobs.
 	#
-	def self.dump_jobs(framework, indent = DefaultIndent, col = DefaultColumnWrap)
+	# If verbose is true, also prints the payload, LPORT, URIPATH and start
+	# time, if they exist, for each job.
+	#
+	def self.dump_jobs(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap)
+		columns = [ 'Id', 'Name' ]
+
+		if (verbose)
+			columns << "Payload"
+			columns << "LPORT"
+			columns << "URIPATH"
+			columns << "Start Time"
+		end
+
 		tbl = Rex::Ui::Text::Table.new(
 			'Indent'  => indent,
 			'Header'  => "Jobs",
-			'Columns' =>
-				[
-					'Id',
-					'Name'
-				])
+			'Columns' => columns
+			)
 
+		# jobs are stored as a hash with the keys being a numeric job_id.
 		framework.jobs.keys.sort{|a,b| a.to_i <=> b.to_i }.each { |k|
-			tbl << [ k, framework.jobs[k].name ]
+			row = [ k, framework.jobs[k].name ]
+			if (verbose)
+				row << (framework.jobs[k].info['datastore']['PAYLOAD'] || "")
+				row << (framework.jobs[k].info['datastore']['LPORT']   || "")
+				row << (framework.jobs[k].info['datastore']['URIPATH'] || "")
+				row << (framework.jobs[k].start_time || "")
+			end
+
+			tbl << row
 		}
 
 		return framework.jobs.keys.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No active jobs.\n"
