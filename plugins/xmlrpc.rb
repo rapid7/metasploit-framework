@@ -45,13 +45,23 @@ class Plugin::XMLRPC < Msf::Plugin
 		
 		user = opts['User'] || "msf"
 		pass = opts['Pass'] || ::Rex::Text.rand_text_alphanumeric(8)
+		type = opts['ServerType'] || "Basic"
+		uri  = opts['URI'] || "/RPC2"
 		
 		print_status(" XMLRPC Service: #{host}:#{port} #{ssl ? " (SSL)" : ""}")
 		print_status("XMLRPC Username: #{user}")
 		print_status("XMLRPC Password: #{pass}")
+		print_status("XMLRPC Server Type: #{type}")
 
 		@users = [ [user,pass] ]
-		self.server	= ::Msf::RPC::Service.new(host,port,ssl,cert,ckey)
+		if(type == "Web")
+			print_status("XMLRPC Web URI: #{uri}")
+			self.server	= ::Msf::RPC::WebService.new(port,host,uri)
+		elsif(type == "Basic")
+			self.server	= ::Msf::RPC::Service.new(host,port,ssl,cert,ckey)
+		else
+			print_status("Invalid server type #{self.type}, please choose Web or Basic")
+		end
 
 		# If the run in foreground flag is not specified, then go ahead and fire
 		# it off in a worker thread.

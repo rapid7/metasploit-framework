@@ -1,5 +1,7 @@
 require "xmlrpc/server"
+require 'rex/service_manager'
 require "rex"
+
 
 module Msf
 module RPC
@@ -71,5 +73,69 @@ class Service < ::XMLRPC::BasicServer
 	end
 
 end
+
+class WebService < ::XMLRPC::BasicServer
+
+	attr_accessor :service, :state, :srvhost, :srvport, :uri
+
+	
+	def initialize(port, host, uri = "/RPC2")
+		self.srvhost = host
+		self.srvport = port
+		self.uri = uri
+                self.service = nil
+		super()
+	end
+	
+	def start
+		self.state = {}
+		self.service = Rex::ServiceManager.start(
+                        Rex::Proto::Http::Server,
+                        self.srvport ,
+                        self.srvhost,
+			{
+			}
+		)
+
+		uopts = {
+                        'Proc' => Proc.new { |cli, req|
+                                        on_request_uri(cli, req)
+                                },
+                        'Path' => self.uri
+		}
+
+		self.service.add_resource(self.uri,uopts)
+	end
+	
+	def stop
+		self.state = {}
+		self.service.stop
+	end
+	
+	def wait
+		self.service.wait
+	end
+	
+	def on_client_close(c)
+		self.state.delete(c)
+	end
+	
+	def on_client_connect(c)
+		self.state[c] = ""
+	end
+	def on_request_uri(cli, req)
+		begin 
+			res = Rex::Proto::Http::Response.new()
+			res.body = process(req.body) 
+		rescue XMLRPC::FaultException => e
+			res = Rex::Proto::Http::Response.new(e.faultCode,e.faultString)
+		rescue
+			res = Rex::Proto::Http::Response.new(404,"An Error Occured")
+		end
+		cli.send_response(res)
+	end
+	
+end
+
 end
 end

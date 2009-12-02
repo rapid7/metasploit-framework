@@ -125,8 +125,8 @@ class Module < Base
 	def execute(token, mtype, mname, opts)
 		authenticate(token)
 		
-		begin
 		mod = _find_module(mtype,mname)
+		begin
 		case mtype
 			when 'exploit'
 				_run_exploit(mod, opts)
