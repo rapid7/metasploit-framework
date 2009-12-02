@@ -87,9 +87,6 @@ class LogDispatcher
 	# Performs the actual log operation against the supplied source
 	#
 	def log(sev, src, level, msg, from)
-		if (log_sinks[src].nil? and log_sinks['core'])
-			register_log_source(src, log_sinks['core'], get_log_level('core'))
-		end
 		log_sinks_lock.synchronize {
 			if ((sink = log_sinks[src]))
 				next if (log_levels[src] and level > log_levels[src])
