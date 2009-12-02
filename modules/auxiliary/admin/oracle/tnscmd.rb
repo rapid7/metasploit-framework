@@ -45,6 +45,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("reading")
 		res = sock.get_once(-1,5)
+		res = res.tr("[\200-\377]","[\000-\177]")
+		res = res.tr("[\000-\027\]",".")
+		res = res.tr("\177",".")
 		puts res
 
 		disconnect		
