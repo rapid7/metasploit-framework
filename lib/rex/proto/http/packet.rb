@@ -273,7 +273,7 @@ protected
 
 		# Determine how to handle data when there is no length header
 		if(self.body_bytes_left == -1 and self.transfer_chunked != true)
-			if(self.headers['Connection'].to_s.downcase == 'keep-alive')
+			if(self.headers['Connection'].to_s.downcase.include?('keep-alive'))
 				# If we are using keep-alive, but have no content-length and
 				# no chunked transfer header, pretend this is the entire
 				# buffer and call it done

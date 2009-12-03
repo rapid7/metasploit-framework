@@ -274,6 +274,9 @@ protected
 	#
 	def on_client_data(cli)
 		begin
+			#
+			# XXX: Handle ParseCode::Partial
+			#
 			case cli.request.parse(cli.get)
 				when Packet::ParseCode::Completed
 					dispatch_request(cli, cli.request)
