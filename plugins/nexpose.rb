@@ -36,7 +36,33 @@ class Plugin::Nexpose < Msf::Plugin
 				print_error("No active NeXpose instance has been configured, please use 'nexpose_connect'")
 				return false
 			end
+
+			if ! (framework.db and framework.db.usable)
+				print_error("No database has been configured, please use db_create/db_connect first")
+				return false
+			end
+
 			true
+		end
+
+		#
+		# Determine if an IP address is inside a given range
+		#
+		def range_include?(ranges, addr)
+
+			ranges.each do |sets|
+				sets.split(',').each do |set|
+					rng = set.split('-').map{ |c| Rex::Socket::addr_atoi(c) }
+					tst = Rex::Socket::addr_atoi(addr)
+					if (not rng[1])
+						return tst == rng[0]
+					elsif (tst >= rng[0] and tst <= rng[1])
+						return true
+					end
+				end
+			end
+
+			false
 		end
 
 		def cmd_nexpose_connect(*args)
@@ -121,16 +147,18 @@ class Plugin::Nexpose < Msf::Plugin
 
 		def cmd_nexpose_scan(*args)
 
-
 			opts = Rex::Parser::Arguments.new(
-				"-h"  => [ false,  "This help menu"],
-				"-t"  => [ true,   "The scan template to use (default:pentest-audit options:full-audit,exhaustive-audit,discovery,aggressive-discovery,dos-audit)"],
-				"-n"  => [ true,   "The maximum number of IPs to scan at a time (default is 32)"],
-				"-s"  => [ true,   "The directory to store the raw XML files from the NeXpose instance (optional)"],
-				"-P"  => [ false,  "Leave the scan data on the server when it completes (this counts against the maximum licensed IPs)"],
-				"-v"  => [ false,  "Display diagnostic information about the scanning process"],
-				"-x"  => [ false,  "Automatically launch all exploits by matching reference after the scan completes (unsafe)"],
-				"-X"  => [ false,  "Automatically launch all exploits by matching reference and port after the scan completes (unsafe)"]
+				"-h"   => [ false,  "This help menu"],
+				"-t"   => [ true,   "The scan template to use (default:pentest-audit options:full-audit,exhaustive-audit,discovery,aggressive-discovery,dos-audit)"],
+				"-n"   => [ true,   "The maximum number of IPs to scan at a time (default is 32)"],
+				"-s"   => [ true,   "The directory to store the raw XML files from the NeXpose instance (optional)"],
+				"-P"   => [ false,  "Leave the scan data on the server when it completes (this counts against the maximum licensed IPs)"],
+				"-v"   => [ false,  "Display diagnostic information about the scanning process"],
+				"-x"   => [ false,  "Automatically launch all exploits by matching reference after the scan completes (unsafe)"],
+				"-X"   => [ false,  "Automatically launch all exploits by matching reference and port after the scan completes (unsafe)"],
+				"-d"   => [ false,  "Scan hosts based on the contents of the existing database"],
+				"-I"   => [ true,   "Only scan systems with an address within the specified range"],
+				"-E"   => [ true,   "Exclude hosts in the specified range from the scan"]
 			)
 
 			opt_template  = "pentest-audit"
@@ -140,6 +168,10 @@ class Plugin::Nexpose < Msf::Plugin
 			opt_savexml   = nil
 			opt_preserve  = false
 			opt_autopwn   = false
+			opt_rescandb  = false
+			opt_addrinc   = nil
+			opt_addrexc   = nil
+			opt_scanned   = []
 
 			opt_ranges    = []
 			report_format = "ns-xml"
@@ -164,6 +196,12 @@ class Plugin::Nexpose < Msf::Plugin
 					opt_autopwn = "-p -x"
 				when "-x"
 					opt_autopwn = "-x" unless opt_autopwn
+				when "-d"
+					opt_rescandb = true
+				when '-I'
+					opt_addrinc = OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(val)
+				when '-E'
+					opt_addrexc = OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(val)
 				else
 					opt_ranges << val
 				end
@@ -171,7 +209,16 @@ class Plugin::Nexpose < Msf::Plugin
 
 			return if not nexpose_verify
 
-			opt_ranges = opt_ranges.join(",")
+			# Include all database hosts as scan targets if specified
+			if(opt_rescandb)
+				print_status("Loading scan targets from the active database...") if opt_verbose
+				framework.db.hosts.each do |host|
+					next if host.state != ::Msf::HostState::Alive
+					opt_ranges << host.address
+				end
+			end
+
+			opt_ranges = opt_ranges.join(',')
 
 			if(opt_ranges.strip.empty?)
 				print_line("Usage: nexpose_scan [options] <Target IP Ranges>")
@@ -195,9 +242,23 @@ class Plugin::Nexpose < Msf::Plugin
 			while(completed < total)
 				count    += 1
 				queue     = []
+
 				while(ip = range.next_ip and queue.length < opt_maxaddrs)
+
+					if(opt_addrexc and range_include?([opt_addrexc], ip))
+						print_status(" >> Skipping host #{ip} due to exclusion") if opt_verbose
+						next
+					end
+
+					if(opt_addrinc and ! range_include?([opt_addrinc], ip))
+						print_status(" >> Skipping host #{ip} due to inclusion filter") if opt_verbose
+						next
+					end
+
+					opt_scanned << ip
 					queue << ip
 				end
+
 				break if queue.empty?
 				print_status("Scanning #{queue[0]}-#{queue[-1]}...") if opt_verbose
 
@@ -287,7 +348,7 @@ class Plugin::Nexpose < Msf::Plugin
 
 			if(opt_autopwn)
 				print_status("Launching an automated exploitation session")
-				driver.run_single("db_autopwn -q -r -e -t #{opt_autopwn} -I #{opt_ranges}")
+				driver.run_single("db_autopwn -q -r -e -t #{opt_autopwn} -I #{opt_scanned.join(",")}")
 			end
 		end
 
@@ -508,11 +569,6 @@ class Plugin::Nexpose < Msf::Plugin
 
 	def initialize(framework, opts)
 		super
-
-		if ! (framework.db and framework.db.active)
-			raise RuntimeError, "A database must be configured and active to use this plugin (see 'db_create -h')"
-			return
-		end
 
 		add_console_dispatcher(NexposeCommandDispatcher)
 		banner = ["0a205f5f5f5f202020202020202020202020205f20202020205f205f5f5f5f5f2020205f2020205f20202020205f5f20205f5f2020202020202020202020202020202020202020200a7c20205f205c205f5f205f205f205f5f20285f29205f5f7c207c5f5f5f20207c207c205c207c207c205f5f5f5c205c2f202f5f205f5f2020205f5f5f20205f5f5f20205f5f5f200a7c207c5f29202f205f60207c20275f205c7c207c2f205f60207c20202f202f20207c20205c7c207c2f205f205c5c20202f7c20275f205c202f205f205c2f205f5f7c2f205f205c0a7c20205f203c20285f7c207c207c5f29207c207c20285f7c207c202f202f2020207c207c5c20207c20205f5f2f2f20205c7c207c5f29207c20285f29205c5f5f205c20205f5f2f0a7c5f7c205c5f5c5f5f2c5f7c202e5f5f2f7c5f7c5c5f5f2c5f7c2f5f2f202020207c5f7c205c5f7c5c5f5f5f2f5f2f5c5f5c202e5f5f2f205c5f5f5f2f7c5f5f5f2f5c5f5f5f7c0a20202020202020202020207c5f7c20202020202020202020202020202020202020202020202020202020202020202020207c5f7c202020202020202020202020202020202020200a0a0a"].pack("H*")

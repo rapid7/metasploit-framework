@@ -445,7 +445,14 @@ class Db
 
 								e.datastore['RPORT'] = xport if xport
 								e.datastore['RHOST'] = xhost
-								next if not e.autofilter()
+
+								begin
+									next if not e.autofilter()
+								rescue ::Interrupt
+									raise $!
+								rescue ::Exception
+									next
+								end
 
 								matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
 							end
@@ -472,6 +479,7 @@ class Db
 
 			if (mode & PWN_SHOW != 0)
 				print_status("Analysis completed in #{(Time.now.to_f - stamp).to_i} seconds (#{vcnt} vulns / #{rcnt} refs)")
+				print_status("")
 				print_status("=" * 80)
 				print_status(" " * 28 + "Matching Exploit Modules")
 				print_status("=" * 80)
