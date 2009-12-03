@@ -342,11 +342,15 @@ protected
 				print_line('')
 
 				self.busy = true
-				io = ::IO.popen(line, "r")
-				io.each_line do |data|
-					print(data)
+				begin
+					io = ::IO.popen(line, "r")
+					io.each_line do |data|
+						print(data)
+					end
+					io.close
+				rescue ::Errno::EACCES, ::Errno::ENOENT
+					print_error("Permission denied exec: #{line}")
 				end
-				io.close
 				self.busy = false
 				return
 			end
