@@ -130,7 +130,7 @@ class Client
 		c_qs   = opts['query']
 		c_ag   = opts['agent']      || config['agent']
 		c_cook = opts['cookie']     || config['cookie']
-		c_host = opts['vhost']      || config['vhost'] || self.host
+		c_host = opts['vhost']      || config['vhost'] || self.hostname
 		c_head = opts['headers']    || config['headers'] || {}
 		c_rawh = opts['raw_headers']|| config['raw_headers'] || ''
 		c_conn = opts['connection']

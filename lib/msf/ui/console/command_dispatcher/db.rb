@@ -22,6 +22,7 @@ class Db
 		PWN_EXPL = 2**3
 		PWN_SING = 2**4
 		PWN_SLNT = 2**5
+		PWN_VERB = 2**6
 
 		#
 		# The dispatcher's name.
@@ -297,6 +298,8 @@ class Db
 					mode |= PWN_SING
 				when '-q'
 					mode |= PWN_SLNT
+				when '-v'
+					mode |= PWN_VERB
 				when '-j'
 					mjob = args.shift.to_i
 				when '-r'
@@ -334,7 +337,13 @@ class Db
 				end
 			end
 
-			matches = {}
+			# Default to quiet mode
+			if (mode & PWN_VERB == 0)
+				mode |= PWN_SLNT
+			end
+
+			matches    = {}
+			refmatches = {}
 
 			[ [framework.exploits, 'exploit' ], [ framework.auxiliary, 'auxiliary' ] ].each do |mtype|
 				# Scan all exploit modules for matching references
@@ -348,6 +357,9 @@ class Db
 						e.references.each do |r|
 							rcnt += 1
 
+							# Skip URL references for now (false positives)
+							next if r.ctx_id == 'URL'
+
 							ref_name = r.ctx_id + '-' + r.ctx_val
 							ref = framework.db.has_ref?(ref_name)
 
@@ -355,18 +367,37 @@ class Db
 								ref.vulns.each do |vuln|
 									vcnt  += 1
 									serv  = vuln.service
-									next if not serv
-									next if not serv.host
-									xport = serv.port
-									xprot = serv.proto
-									xhost = serv.host.address
+
+									xport = xprot = nil
+
+									if(serv and serv.host)
+										xport = serv.port
+										xprot = serv.proto
+									end
+
+									xhost = vuln.host.address
 									next if (targ_inc.length > 0 and not range_include?(targ_inc, xhost))
 									next if (targ_exc.length > 0 and range_include?(targ_exc, xhost))
-									next if (port_inc.length > 0 and not port_inc.include?(serv.port.to_i))
-									next if (port_exc.length > 0 and port_exc.include?(serv.port.to_i))
+
+									if(xport)
+										next if (port_inc.length > 0 and not port_inc.include?(serv.port.to_i))
+										next if (port_exc.length > 0 and port_exc.include?(serv.port.to_i))
+									else
+										if(e.datastore['RPORT'])
+											next if (port_inc.length > 0 and not port_inc.include?(e.datastore['RPORT'].to_i))
+											next if (port_exc.length > 0 and port_exc.include?(e.datastore['RPORT'].to_i))
+										end
+									end
+
 									next if (regx and e.fullname !~ /#{regx}/)
 
+									e.datastore['RPORT'] = xport if xport
+									e.datastore['RHOST'] = xhost
+									next if not e.autofilter()
+
 									matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
+									refmatches[[xport,xprot,xhost,mtype[1]+'/'+n]] ||= []
+									refmatches[[xport,xprot,xhost,mtype[1]+'/'+n]] << ref_name
 								end
 							end
 						end
@@ -411,6 +442,11 @@ class Db
 								next if (port_inc.length > 0 and not port_inc.include?(serv.port.to_i))
 								next if (port_exc.length > 0 and port_exc.include?(serv.port.to_i))
 								next if (regx and e.fullname !~ /#{regx}/)
+
+								e.datastore['RPORT'] = xport if xport
+								e.datastore['RHOST'] = xhost
+								next if not e.autofilter()
+
 								matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
 							end
 
@@ -435,7 +471,31 @@ class Db
 
 
 			if (mode & PWN_SHOW != 0)
-				print_status("Analysis completed in #{(Time.now.to_f - stamp)} seconds (#{vcnt} vulns / #{rcnt} refs)")
+				print_status("Analysis completed in #{(Time.now.to_f - stamp).to_i} seconds (#{vcnt} vulns / #{rcnt} refs)")
+				print_status("=" * 80)
+				print_status(" " * 28 + "Matching Exploit Modules")
+				print_status("=" * 80)
+
+				matches.each_key do |xref|
+					mod = nil
+					if ((mod = framework.modules.create(xref[3])) == nil)
+						print_status("Failed to initialize #{xref[3]}")
+						next
+					end
+
+					if (mode & PWN_SHOW != 0)
+						tport = xref[0] || mod.datastore['RPORT']
+						if(refmatches[xref])
+							print_status("  #{xref[2]}:#{tport}  #{xref[3]}  (#{refmatches[xref].join(", ")})")
+						else
+							print_status("  #{xref[2]}:#{tport}  #{xref[3]}  (port match)")
+						end
+					end
+
+				end
+				print_status("=" * 80)
+				print_status("")
+				print_status("")
 			end
 
 
@@ -452,18 +512,16 @@ class Db
 						next
 					end
 
-					if (mode & PWN_SHOW != 0)
-						next if not mod.autofilter()
-						print_status("Matched #{xref[3]} against #{xref[2]}:#{mod.datastore['RPORT']}...")
-					end
-
 					#
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
 					if (mode & PWN_EXPL != 0)
 
 						mod.datastore['RHOST'] = xref[2]
-						mod.datastore['RPORT'] = xref[0].to_s
+
+						if(xref[0])
+							mod.datastore['RPORT'] = xref[0].to_s
+						end
 
 						if (code == :bind)
 							mod.datastore['LPORT']   = (rand(0x8fff) + 4000).to_s
@@ -498,11 +556,7 @@ class Db
 							end
 						end
 
-
-						next if not mod.autofilter()
-
-						print_status("(#{idx}/#{matches.length}): Launching #{xref[3]} against #{xref[2]}:#{mod.datastore['RPORT']}...")
-
+						print_status("(#{idx}/#{matches.length} [#{framework.sessions.length} sessions]): Launching #{xref[3]} against #{xref[2]}:#{mod.datastore['RPORT']}...")
 
 						begin
 							inp = (mode & PWN_SLNT != 0) ? nil : driver.input
@@ -535,6 +589,23 @@ class Db
 				end
 			end
 
+
+			while(framework.jobs.keys.length > 0)
+				print_status("(#{matches.length}/#{matches.length} [#{framework.sessions.length} sessions]): Waiting on #{framework.jobs.length} launched modules to finish execution...")
+				select(nil, nil, nil, 5.0)
+			end
+
+			if (mode & PWN_SHOW != 0 and mode & PWN_EXPL != 0)
+				print_status("The autopwn command has completed with #{framework.sessions.length} sessions")
+				if(framework.sessions.length > 0)
+					print_status("Enter sessions -i [ID] to interact with a given session ID")
+					print_status("")
+					print_status("=" * 80)
+					driver.run_single("sessions -l -v")
+					print_status("=" * 80)
+				end
+			end
+			print_line("")
 		# EOM
 		end
 
