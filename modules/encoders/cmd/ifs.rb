@@ -15,6 +15,10 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Encoder
 
+	# Below normal ranking because this will produce incorrect code a lot of
+	# the time.
+	Rank = LowRanking
+
 	def initialize
 		super(
 			'Name'             => 'Generic ${IFS} Substitution Command Encoder',
