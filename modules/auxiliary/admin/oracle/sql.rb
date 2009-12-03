@@ -37,8 +37,14 @@ class Metasploit3 < Msf::Auxiliary
 		query = datastore['SQL']
 
 		begin
-			print_status("Sending statement: '#{query}'...")	
-			prepare_exec(query)
+			print_status("Sending statement: '#{query}'...")
+			result = prepare_exec(query)
+			#Need this if 'cause some statements won't return anything
+			if result
+				result.each do |line|
+					print_status(line)
+				end
+			end
 		rescue => e
 			return			
 		end

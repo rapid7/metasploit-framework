@@ -48,14 +48,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		fd = CSV.foreach(list) do |brute|
 
-		datastore['DBUSER'] = brute[2]
-		datastore['DBPASS'] = brute[3]
+		datastore['DBUSER'] = brute[2].downcase
+		datastore['DBPASS'] = brute[3].downcase
 
 		begin
-			c = connect
-			c.disconnect
-		rescue ::Exception => e
-			
+			connect
+			disconnect
+		rescue ::OCIError => e
+			print_error("#{e.class} #{e.to_s}")
 			else
 				if (not e)
 					report_note(

