@@ -107,7 +107,14 @@ class Socket
 	# Creates a TCP client channel.
 	#
 	def create_tcp_client(params)
+		begin
 		return SocketSubsystem::TcpClientChannel.open(client, params)
+		rescue ::Rex::Post::Meterpreter::RequestError => e
+			if(e.result == 10061)
+				raise ::Rex::ConnectionError.new
+			end
+			raise e
+		end
 	end
 
 	#
