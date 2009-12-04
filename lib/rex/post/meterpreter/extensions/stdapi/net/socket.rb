@@ -148,12 +148,12 @@ protected
 
 				# Watch for data
 				begin
-					socks = select(monitored_sockets, nil, nil, 1)
+					socks = select(monitored_sockets, nil, nil, 0.25)
+
 				rescue StreamClosedError => e
 					channel = monitored_socket_channels[e.stream.object_id]
 
-					dlog("monitor_channels: channel #{channel} closed (#{e.stream})",
-							'rex', LEV_3)
+					dlog("monitor_channels: channel #{channel} closed (#{e.stream})",'meterpreter', LEV_3)
 
 					if (channel)
 						begin

@@ -44,7 +44,7 @@ class Channel
 
 	# Class modifications to support global channel message
 	# dispatching without having to register a per-instance handler
-	class <<self
+	class << self
 		include Rex::Post::Meterpreter::InboundPacketHandler
 
 		# Class request handler for all channels that dispatches requests
@@ -58,7 +58,6 @@ class Channel
 			end
 
 			channel = client.find_channel(cid)
-
 			# Valid channel context?
 			if (channel == nil)
 				return false
@@ -73,7 +72,9 @@ class Channel
 
 			# Call the channel's dio handler and return success or fail
 			# based on what happens
-			return channel.dio_handler(dio, packet)
+			ret = channel.dio_handler(dio, packet)
+
+			return ret
 		end
 	end
 
@@ -108,9 +109,6 @@ class Channel
 		# Transmit the request and wait for the response
 		response = client.send_request(request)
 		cid      = response.get_tlv(TLV_TYPE_CHANNEL_ID).value
-
-		# FIXME: race condition where data could be sent to the channel
-		#        before it's added to the list.
 
 		# Create the channel instance
 		channel  = klass.new(client, cid, type, flags)
@@ -316,7 +314,6 @@ class Channel
 		elsif (dio == CHANNEL_DIO_CLOSE)
 			return dio_close_handler(packet)
 		end
-
 		return false;
 	end
 
@@ -324,14 +321,14 @@ class Channel
 	# Stub read handler.
 	#
 	def dio_read_handler(packet, length)
-		return false
+		return true
 	end
 
 	#
 	# Stub write handler.
 	#
 	def dio_write_handler(packet, data)
-		return false
+		return true
 	end
 
 	#
@@ -349,7 +346,7 @@ class Channel
 		# No more channel action, foo.
 		self.cid = nil
 
-		return false
+		return true
 	end
 
 	#

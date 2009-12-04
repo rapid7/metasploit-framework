@@ -57,7 +57,7 @@ module PacketDispatcher
 
 		if (raw)
 			bytes = self.sock.write(raw)
-		end	
+		end
 
 		return bytes
 	end
@@ -90,15 +90,15 @@ module PacketDispatcher
 
 		# Transmit the packet
 		if (send_packet(packet) <= 0)
-      # Remove the waiter if we failed to send the packet.  
+			# Remove the waiter if we failed to send the packet.
 			remove_response_waiter(waiter)
-      return nil
+			return nil
 		end
 
 		# Wait for the supplied time interval
 		waiter.wait(t)
 
-		# Remove the waiter from the list of waiters in case it wasn't 
+		# Remove the waiter from the list of waiters in case it wasn't
 		# removed
 		remove_response_waiter(waiter)
 
@@ -121,21 +121,35 @@ module PacketDispatcher
 
 		# Spawn a new thread that monitors the socket
 		self.dispatcher_thread = ::Thread.new {
+			backlog = []
 			while (true)
 				begin
-					rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, 2)
+					rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, 0.25)
 				rescue
 					dlog("Exception caught in monitor_socket: #{$!}", 'meterpreter', LEV_1)
 				end
 
 				begin
-					packet = receive_packet
+					if(rv)
+						packet = receive_packet
+						backlog.unshift(packet) if packet
+					end
 				rescue EOFError
 					break
 				end
 
-				if (packet)
-					dispatch_inbound_packet(packet)
+				incomplete = []
+				backlog.each do |pkt|
+					if ! dispatch_inbound_packet(pkt)
+						incomplete << pkt
+					end
+				end
+
+				backlog = incomplete
+
+				if(backlog.length > 100)
+					dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{backlog[0 .. 25].map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
+					backlog = backlog[25 .. 100]
 				end
 			end
 		}
@@ -268,3 +282,4 @@ protected
 end
 
 end; end; end
+
