@@ -95,6 +95,25 @@ describe Rex::Socket::RangeWalker do
 		walker.length.should == 512
 	end
 
+	it "should handle ipv6 cidr" do
+		walker = Rex::Socket::RangeWalker.new("::1/127") 
+		walker.should be_valid
+		walker.length.should == 2
+		walker = Rex::Socket::RangeWalker.new("::1/122") 
+		walker.should be_valid
+		walker.length.should == 2 ** 6
+		walker = Rex::Socket::RangeWalker.new("::1/116") 
+		walker.should be_valid
+		walker.length.should == 2 ** 12
+	end
+
+	#it "should handle ipv6 ranges" do
+	#	pending("Need to define how this should be handled")
+	#	walker = Rex::Socket::RangeWalker.new("::1-::1:1") 
+	#	walker.should be_valid
+	#	walker.length.should == 2 ** 16
+	#end
+
 	it "should yield all ips" do
 		walker = Rex::Socket::RangeWalker.new("10.1.1.1,2,3")
 		got = []

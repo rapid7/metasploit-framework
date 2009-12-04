@@ -35,13 +35,7 @@ class RangeWalker
 		return nil if not parseme
 		ranges = []
 		parseme.split(' ').each { |arg|
-			if arg.include?(":")
-				# Then it's IPv6
-				# Can't really do much with IPv6 right now, just return it and
-				# hope for the best
-				addr = Rex::Socket.addr_atoi(arg)
-				ranges.push [addr, addr, true]
-			elsif arg.include?("/")
+			if arg.include?("/")
 				# Then it's CIDR notation and needs special case
 				if arg =~ /[,-]/
 					# Improper CIDR notation (can't mix with 1,3 or 1-3 style IP ranges)
@@ -53,6 +47,12 @@ class RangeWalker
 				else
 					return false
 				end
+			elsif arg.include?(":")
+				# Then it's IPv6
+				# Can't really do much with IPv6 right now, just return it and
+				# hope for the best
+				addr = Rex::Socket.addr_atoi(arg)
+				ranges.push [addr, addr, true]
 			elsif arg =~ /[^-0-9,.*]/
 				# Then it's a domain name and we should send it on to addr_atoi
 				# unmolested to force a DNS lookup.
@@ -141,6 +141,7 @@ class RangeWalker
 		range = Range.new
 		range.start = Rex::Socket.addr_atoi(start)
 		range.stop = Rex::Socket.addr_atoi(stop)
+		range.ipv6 = (arg.include?(":"))
 
 		return [range]
 	end
@@ -283,8 +284,10 @@ end
 class Range < Array
 	def start; self[0]; end
 	def stop;  self[1]; end
+	def ipv6;  self[2]; end
 	def start=(val); self[0] = val; end
 	def stop=(val);  self[1] = val; end
+	def ipv6=(val);  self[2] = val; end
 end
 
 end
