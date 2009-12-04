@@ -89,6 +89,10 @@ Command customCommands[] =
 	  { request_sys_process_get_info,                      { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
+	{ "stdapi_sys_process_wait",
+	  { request_sys_process_wait,                          { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
 
 		// Image
 	{ "stdapi_sys_process_image_load",

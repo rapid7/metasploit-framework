@@ -16,6 +16,8 @@ static DWORD tcp_channel_client_write(Channel *channel, Packet *request,
 	DWORD result= ERROR_SUCCESS;
 	LONG written = 0;
 
+	dprintf( "[TCP] tcp_channel_client_write. channel=0x%08X, buffsize=%d", channel, bufferSize );
+
 	// Write a chunk
 	if ((written = send(ctx->fd, buffer, bufferSize, 0)) <= 0)
 	{
@@ -37,6 +39,8 @@ static DWORD tcp_channel_client_close(Channel *channel, Packet *request,
 		LPVOID context)
 {
 	TcpClientContext *ctx = (TcpClientContext *)context;
+
+	dprintf( "[TCP] tcp_channel_client_close. channel=0x%08X, ctx=0x%08X", channel, ctx );
 
 	if (ctx)
 	{
@@ -145,8 +149,6 @@ DWORD request_net_tcp_client_channel_open(Remote *remote, Packet *packet)
  * Creates a connection to a remote host and builds a logical channel to 
  * represent it.
  *
- * TODO: This needs to be done in a non-blocking fashion or in the context of a
- * worker thread.
  */
 DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost, 
 		USHORT remotePort, Channel **outChannel)
@@ -160,6 +162,8 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost,
 
 	if (outChannel)
 		*outChannel = NULL;
+
+	dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d", remoteHost, remotePort );
 
 	do
 	{
@@ -235,7 +239,7 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost,
 		{
 			WSAEventSelect(ctx->fd, ctx->notify, FD_READ|FD_CLOSE);
 
-			scheduler_insert_waitable(ctx->notify, ctx,
+			scheduler_insert_waitable( ctx->notify, ctx,
 					(WaitableNotifyRoutine)tcp_channel_client_local_notify);
 		}
 
@@ -263,6 +267,8 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost,
  */
 VOID free_socket_context(SocketContext *ctx)
 {
+	dprintf( "[TCP] free_socket_context. ctx=0x%08X", ctx );
+
 	// Close the socket and notification handle
 	if (ctx->fd)
 		closesocket(ctx->fd);
@@ -291,11 +297,14 @@ DWORD request_net_socket_tcp_shutdown(Remote *remote, Packet *packet)
 	Channel *channel = NULL;
 	DWORD result = ERROR_SUCCESS;
 	DWORD how;
+	dprintf( "[TCP] entering request_net_socket_tcp_shutdown" );
 
 	// Find the associated channel
-	channel = channel_find_by_id(packet_get_tlv_value_uint(packet, 
-				TLV_TYPE_CHANNEL_ID));
+	channel = channel_find_by_id(packet_get_tlv_value_uint(packet,  TLV_TYPE_CHANNEL_ID));
+
 	how = packet_get_tlv_value_uint(packet, TLV_TYPE_SHUTDOWN_HOW);
+
+	dprintf( "[TCP] request_net_socket_tcp_shutdown. channel=0x%08X", channel );
 
 	// If the channel and channel context are valid...
 	if ((channel) &&
@@ -303,9 +312,11 @@ DWORD request_net_socket_tcp_shutdown(Remote *remote, Packet *packet)
 	{
 		if (shutdown(ctx->fd, how) == SOCKET_ERROR)
 			result = WSAGetLastError();
+		else
+			free_socket_context( ctx );
 	}
 
 	packet_transmit_response(result, remote, response);
-
+	dprintf( "[TCP] leaving request_net_socket_tcp_shutdown" );
 	return ERROR_SUCCESS;
 }

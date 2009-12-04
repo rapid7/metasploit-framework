@@ -43,8 +43,11 @@ typedef struct command
 LINKAGE DWORD command_register(Command *command);
 LINKAGE DWORD command_deregister(Command *command);
 
-LINKAGE DWORD command_process_remote(Remote *remote, Packet *inPacket);
-LINKAGE DWORD command_process_remote_loop(Remote *remote);
+LINKAGE VOID command_join_threads( VOID );
+
+LINKAGE DWORD THREADCALL command_process_thread( THREAD * thread );
+//LINKAGE DWORD command_process_remote(Remote *remote, Packet *inPacket);
+//LINKAGE DWORD command_process_remote_loop(Remote *remote);
 
 LINKAGE DWORD command_call_dispatch(Command *command, Remote *remote, Packet *packet);
 LINKAGE DWORD command_validate_arguments(Command *command, Packet *packet);

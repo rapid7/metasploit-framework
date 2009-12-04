@@ -2,7 +2,7 @@
 #define _METERPRETER_LIB_REMOTE_H
 
 #include "crypto.h"
-
+#include "thread.h"
 /*
  * Remote context allocation
  *
@@ -16,6 +16,7 @@ typedef struct _Remote
 	SSL_METHOD *meth;
 	SSL_CTX *ctx;
 	SSL *ssl;
+	LOCK * lock; // lock must be acquired before doing any OpenSSL related action.
 } Remote;
 
 Remote *remote_allocate(SOCKET fd);

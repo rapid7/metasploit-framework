@@ -14,6 +14,17 @@ Remote *remote_allocate(SOCKET fd)
 
 		// Set the file descriptor
 		remote->fd = fd;
+
+		remote->lock = lock_create();
+
+
+		// If we failed to create the lock we must fail to create the remote
+		// as we wont be able to synchronize communication correctly.
+		if( remote->lock == NULL )
+		{
+			remote_deallocate( remote );
+			return NULL;
+		}
 	}
 
 	return remote;
@@ -22,10 +33,13 @@ Remote *remote_allocate(SOCKET fd)
 /*
  * Deallocate a remote context
  */
-VOID remote_deallocate(Remote *remote)
+VOID remote_deallocate( Remote * remote )
 {
-	if (remote->fd)
-		closesocket(remote->fd);
+	if( remote->fd )
+		closesocket( remote->fd );
+	
+	if( remote->lock )
+		lock_destroy( remote->lock );
 
 	free(remote);
 }

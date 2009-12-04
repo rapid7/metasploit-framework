@@ -93,6 +93,8 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 	BOOL doInMemory = FALSE;
 	HANDLE token, pToken;
 
+	dprintf( "[PROCESS] request_sys_process_execute" );
+
 	// Initialize the startup information
 	memset(&si, 0, sizeof(si));
 
@@ -151,13 +153,12 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 		if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED)
 		{
 			SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
-			ProcessChannelContext *ctx = NULL;
+			ProcessChannelContext * ctx = NULL;
 			PoolChannelOps chops;
 			Channel *newChannel;
 
 			// Allocate the channel context
-			if (!(ctx = (ProcessChannelContext *)malloc(
-					sizeof(ProcessChannelContext))))
+			if (!(ctx = (ProcessChannelContext *)malloc(sizeof(ProcessChannelContext))))
 			{
 				result = ERROR_NOT_ENOUGH_MEMORY;
 				break;
@@ -592,6 +593,8 @@ DWORD process_channel_read(Channel *channel, Packet *request,
 	ProcessChannelContext *ctx = (ProcessChannelContext *)context;
 	DWORD result = ERROR_SUCCESS;
 
+	dprintf( "[PROCESS] process_channel_read. channel=0x%08X, ctx=0x%08X", channel, ctx );
+
 	if (!ReadFile(ctx->pStdout, buffer, bufferSize, bytesRead, NULL))
 		result = GetLastError();
 
@@ -608,6 +611,8 @@ DWORD process_channel_write(Channel *channel, Packet *request,
 	ProcessChannelContext *ctx = (ProcessChannelContext *)context;
 	DWORD result = ERROR_SUCCESS;
 
+	dprintf( "[PROCESS] process_channel_write. channel=0x%08X, ctx=0x%08X", channel, ctx );
+
 	if (!WriteFile(ctx->pStdin, buffer, bufferSize, bytesWritten, NULL))
 		result = GetLastError();
 
@@ -617,16 +622,20 @@ DWORD process_channel_write(Channel *channel, Packet *request,
 /*
  * Closes the channels that were opened to the process.
  */
-DWORD process_channel_close(Channel *channel, Packet *request, 
-		LPVOID context)
+DWORD process_channel_close(Channel *channel, Packet *request, LPVOID context)
 {
 	ProcessChannelContext *ctx = (ProcessChannelContext *)context;
 	DWORD result = ERROR_SUCCESS;
 
+	dprintf( "[PROCESS] process_channel_close. channel=0x%08X, ctx=0x%08X", channel, ctx );
+
 	if (channel_is_interactive(channel))
 		scheduler_remove_waitable(ctx->pStdout);
 
-	CloseHandle(ctx->pStdout);
+	// Note: We dont close the handle ctx->pStdout as this will introduce a synchronization
+	// problem with the channels interactive thread, specifically the call to WaitForMultipleObjects
+	// will have undefined behaviour. The interactive thread will close the handle instead.
+
 	CloseHandle(ctx->pStdin);
 
 	free(ctx);
@@ -654,69 +663,52 @@ DWORD process_channel_interact_notify(Remote *remote, Channel *channel)
 				bytesRead, NULL);
 	// Otherwise, if things fail, close the channel
 	else if (GetLastError() != ERROR_SUCCESS)
-		channel_close(channel, remote, NULL, 0, NULL);
+	{
+		process_channel_close( channel, NULL, ctx );
+		channel_close( channel, remote, NULL, 0, NULL );
+	}
 
 	return ERROR_SUCCESS;
 }
 
 /*
- * Enables or disables interactivity with the standard output 
- * handle on the channel
+ * Enables or disables interactivity with the standard output handle on the channel
  */
-DWORD process_channel_interact(Channel *channel, Packet *request, 
-		LPVOID context, BOOLEAN interact)
+DWORD process_channel_interact(Channel *channel, Packet *request, LPVOID context, BOOLEAN interact)
 {
 	ProcessChannelContext *ctx = (ProcessChannelContext *)context;
 	DWORD result = ERROR_SUCCESS;
 
+	dprintf( "[PROCESS] process_channel_interact. channel=0x%08X, ctx=0x%08X, interact=%d", channel, ctx, interact );
+
 	// If the remote side wants to interact with us, schedule the stdout handle
 	// as a waitable item
 	if (interact)
-		result = scheduler_insert_waitable(ctx->pStdout, channel,
-				(WaitableNotifyRoutine)process_channel_interact_notify);
-	// Otherwise, remove it
-	else
+		result = scheduler_insert_waitable(ctx->pStdout, channel, (WaitableNotifyRoutine)process_channel_interact_notify);
+	else // Otherwise, remove it
 		result = scheduler_remove_waitable(ctx->pStdout);
-
 	return result;
 }
 
 /*
- * The routine to send a notify request (responseless request) that
- * the wait has finished...
- */
-DWORD process_wait_notify(Remote * remote, HANDLE handle)
-{
-
-	Packet * request = packet_create(PACKET_TLV_TYPE_REQUEST, "process_wait_notify");
-
-	packet_add_tlv_uint(request, TLV_TYPE_HANDLE, (DWORD)handle);
-
-	packet_transmit(remote, request, NULL);
-
-	return ERROR_SUCCESS;
-}
-
-/*
- * Wait on a process handle until it terminates
+ * Wait on a process handle until it terminates.
  *
- * req: TLV_TYPE_HANDLE - The process handle to close.
+ * req: TLV_TYPE_HANDLE - The process handle to wait on.
  */
 DWORD request_sys_process_wait(Remote *remote, Packet *packet)
 {
-	Packet *response = packet_create_response(packet);
-	HANDLE handle;
-	DWORD result;
+	Packet * response = packet_create_response( packet );
+	HANDLE handle     = NULL;
+	DWORD result      = ERROR_INVALID_PARAMETER;
 
-	handle = (HANDLE)packet_get_tlv_value_uint(packet, TLV_TYPE_HANDLE);
+	handle = (HANDLE)packet_get_tlv_value_uint( packet, TLV_TYPE_HANDLE );
+	if( handle )
+	{
+		if( WaitForSingleObject( handle, INFINITE ) == WAIT_OBJECT_0 )
+			result = ERROR_SUCCESS;
+	}
 
-	result = scheduler_insert_waitable(
-		handle,
-		(LPVOID)handle,
-		(WaitableNotifyRoutine)process_wait_notify
-	);
+	packet_transmit_response( result, remote, response );
 
-	packet_transmit_response(result, remote, response);
-
-	return ERROR_SUCCESS;
+	return result;
 }

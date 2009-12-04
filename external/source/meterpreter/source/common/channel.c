@@ -132,6 +132,7 @@ LINKAGE Channel *channel_create_pool(DWORD identifier,
  */
 VOID channel_destroy(Channel *channel, Packet *request)
 {
+	dprintf( "[CHANNEL] channel_destroy. channel=0x%08X", channel );
 	// Call the close handler as we're being destroyed.
 	if ((channel_get_class(channel) == CHANNEL_CLASS_BUFFERED) &&
 	    (channel->ops.buffered.dio))

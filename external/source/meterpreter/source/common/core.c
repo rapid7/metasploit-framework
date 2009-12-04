@@ -169,6 +169,9 @@ Packet *packet_create_response(Packet *request)
  */
 VOID packet_destroy(Packet *packet)
 {
+	if( packet == NULL )
+		return;
+
 	if (packet->payload) {
 		memset(packet->payload, 0, packet->payloadLength);
 		free(packet->payload);
@@ -642,8 +645,7 @@ DWORD packet_remove_completion_handler(LPCSTR requestId)
 /*
  * Transmit and destroy a packet
  */
-DWORD packet_transmit(Remote *remote, Packet *packet, 
-		PacketRequestCompletion *completion)
+DWORD packet_transmit(Remote *remote, Packet *packet, PacketRequestCompletion *completion)
 {
 	CryptoContext *crypto;
 	Tlv requestId;
@@ -651,12 +653,12 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 	DWORD idx;
 #ifdef _UNIX
 	int local_error = -1;
-#endif	
+#endif
 
-	// If the packet does not already have a request identifier, create
-	// one for it
-	if (packet_get_tlv_string(packet, TLV_TYPE_REQUEST_ID,
-			&requestId) != ERROR_SUCCESS)
+	lock_acquire( remote->lock );
+
+	// If the packet does not already have a request identifier, create one for it
+	if (packet_get_tlv_string(packet, TLV_TYPE_REQUEST_ID,&requestId) != ERROR_SUCCESS)
 	{
 		DWORD index;
 		CHAR rid[32];
@@ -708,24 +710,28 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 		}
 
 		idx = 0;
-		while( idx < sizeof(packet->header)) { 
+		while( idx < sizeof(packet->header))
+		{ 
 			// Transmit the packet's header (length, type)
 			res = SSL_write(
 				remote->ssl, 
 				(LPCSTR)(&packet->header) + idx, 
 				sizeof(packet->header) - idx
 			);
-				
+			
 			if(res <= 0) {
-				dprintf("transmit header failed with return %d at index %d\n", res, idx);
+				dprintf("[PACKET] transmit header failed with return %d at index %d\n", res, idx);
 				break;
 			}
 			idx += res;
 		}
-		if(res < 0) break;
+
+		if(res < 0)
+			break;
 
 		idx = 0;
-		while( idx < packet->payloadLength) { 
+		while( idx < packet->payloadLength)
+		{ 
 			// Transmit the packet's payload (length, type)
 			res = SSL_write(
 				remote->ssl, 
@@ -737,8 +743,9 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 
 			idx += res;
 		}
+
 		if(res < 0) {
-			dprintf("transmit header failed with return %d at index %d\n", res, idx);
+			dprintf("[PACKET] transmit header failed with return %d at index %d\n", res, idx);
 			break;
 		}
 
@@ -746,9 +753,11 @@ DWORD packet_transmit(Remote *remote, Packet *packet,
 	} while (0);
 
 	res = GetLastError();
-	
+
 	// Destroy the packet
 	packet_destroy(packet);
+
+	lock_release( remote->lock );
 
 	return res;
 }
@@ -783,9 +792,13 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 	BOOL inHeader = TRUE;
 	PUCHAR payload = NULL;
 	ULONG payloadLength;
+
 #ifdef _UNIX
 	int local_error = -1;
-#endif	
+#endif
+	
+	lock_acquire( remote->lock );
+
 	do
 	{
 		// Read the packet length
@@ -799,7 +812,7 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 					SetLastError(ERROR_NOT_FOUND);
 
 				if(bytesRead < 0) {
-					dprintf("receive header failed with error code %d\n", bytesRead);
+					dprintf("[PACKET] receive header failed with error code %d\n", bytesRead);
 					SetLastError(ERROR_NOT_FOUND);
 				}
 
@@ -845,7 +858,7 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 					SetLastError(ERROR_NOT_FOUND);
 
 				if(bytesRead < 0) {
-					dprintf("receive payload of length %d failed with error code %d\n", payloadLength, bytesRead);
+					dprintf("[PACKET] receive payload of length %d failed with error code %d\n", payloadLength, bytesRead);
 					SetLastError(ERROR_NOT_FOUND);
 				}
 
@@ -908,6 +921,8 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 		if (localPacket)
 			free(localPacket);
 	}
+
+	lock_release( remote->lock );
 
 	return res;
 }

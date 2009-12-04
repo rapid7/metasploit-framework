@@ -99,11 +99,11 @@ DWORD request_core_loadlib(Remote *remote, Packet *packet)
 			// wont work if we have used Reflective DLL Injection as metsrv.dll will be 'invisible' to these functions.
 			remote->hMetSrv = hAppInstance;
 
-			dprintf("Calling init()...");
+			dprintf("[SERVER] Calling init()...");
 			// Call the init routine in the library
 			if( init )
 				res = init(remote);
-			dprintf("Called init()...");
+			dprintf("[SERVER] Called init()...");
 		}
 
 	} while (0);
@@ -111,10 +111,8 @@ DWORD request_core_loadlib(Remote *remote, Packet *packet)
 	if (response)
 	{
 		packet_add_tlv_uint(response, TLV_TYPE_RESULT, res);
-
 		packet_transmit(remote, response, NULL);
 	}
 
-	dprintf("Returning back to cmd handler...");
 	return res;
 }

@@ -168,8 +168,140 @@ DWORD command_deregister(Command *command)
 }
 
 /*
+ * A list of all command threads currenlty executing.
+ */
+LIST * commandThreadList = NULL;
+
+/*
+ * Block untill all running command threads have finished.
+ */
+VOID command_join_threads( VOID )
+{
+	while( list_count( commandThreadList ) > 0 )
+	{
+		THREAD * thread = (THREAD *)list_get( commandThreadList, 0 );
+		if( thread )
+			thread_join( thread );
+	}
+}
+
+/*
+ * Crude method of throttling the ammount of concurrent command 
+ * threads we allow in the system at a given time.
+ */
+/*
+VOID command_throtle( int maxthreads )
+{
+	while( list_count( commandThreadList ) >= maxthreads )
+	{
+		Sleep( 250 );
+	}
+}
+*/
+
+/*
+ * Process a single command in a seperate thread of execution.
+ */
+DWORD THREADCALL command_process_thread( THREAD * thread )
+{
+	DWORD index       = 0;
+	DWORD result      = ERROR_SUCCESS;
+	Tlv methodTlv     = {0};
+	Tlv requestIdTlv  = {0};
+	PCHAR method      = NULL;
+	PCHAR requestId   = NULL;
+	Command * current = NULL;
+	Remote * remote   = NULL;
+	Packet * packet   = NULL;
+	
+	if( thread == NULL )
+		return ERROR_INVALID_HANDLE;
+
+	remote = (Remote *)thread->parameter1;
+	if( remote == NULL )
+		return ERROR_INVALID_HANDLE;
+	
+	packet = (Packet *)thread->parameter2;
+	if( packet == NULL )
+		return ERROR_INVALID_DATA;
+
+	if( commandThreadList == NULL )
+	{
+		commandThreadList = list_create();
+		if( commandThreadList == NULL )
+			return ERROR_INVALID_HANDLE;
+	}
+
+	list_add( commandThreadList, thread );
+
+	__try
+	{
+		do
+		{
+			// Extract the method
+			result = packet_get_tlv_string( packet, TLV_TYPE_METHOD, &methodTlv );
+			if( result != ERROR_SUCCESS )
+				break;
+
+			dprintf( "[COMMAND] Processing method %s", methodTlv.buffer );
+
+			// Get the request identifier if the packet has one.
+			result = packet_get_tlv_string( packet, TLV_TYPE_REQUEST_ID, &requestIdTlv );
+			if( result == ERROR_SUCCESS )
+				requestId = (PCHAR)requestIdTlv.buffer;
+
+			method = (PCHAR)methodTlv.buffer;
+
+			result = ERROR_NOT_FOUND;
+
+			// Try to find a match in the dispatch type
+			for( index = 0, result = ERROR_NOT_FOUND ; result == ERROR_NOT_FOUND && commands[index].method ; index++ )
+			{
+				if( strcmp( commands[index].method, method ) )
+					continue;
+
+				// Call the base handler
+				result = command_call_dispatch( &commands[index], remote, packet );
+			}
+
+			// Regardless of error code, try to see if someone has overriden a base handler
+			for( current = extensionList, result = ERROR_NOT_FOUND ; 
+				  result == ERROR_NOT_FOUND && current && current->method ; current = current->next )
+			{
+				if( strcmp( current->method, method ) )
+					continue;
+			
+				// Call the custom handler
+				result = command_call_dispatch( current, remote, packet );
+			}
+
+			dprintf("[COMMAND] Calling completion handlers...");
+			// Finally, call completion routines for the provided identifier
+			if( ((packet_get_type(packet) == PACKET_TLV_TYPE_RESPONSE) || (packet_get_type(packet) == PACKET_TLV_TYPE_PLAIN_RESPONSE)) && (requestId))
+				packet_call_completion_handlers( remote, packet, requestId );
+
+			// If we get here, we're successful.
+			result = ERROR_SUCCESS;
+			
+		} while( 0 );
+	}
+	__except( EXCEPTION_EXECUTE_HANDLER )
+	{
+		dprintf("[COMMAND] Exception hit in command thread 0x%08X!", thread );
+	}
+
+	packet_destroy( packet );
+
+	if( list_remove( commandThreadList, thread ) )
+		thread_destroy( thread );
+
+	return ERROR_SUCCESS;
+}
+
+/*
  * Process a single command
  */
+/*
 DWORD command_process_remote(Remote *remote, Packet *inPacket)
 {
 	DWORD res = ERROR_SUCCESS, index;
@@ -245,11 +377,12 @@ DWORD command_process_remote(Remote *remote, Packet *inPacket)
 		packet_destroy(localPacket);
 
 	return res;
-}
+}*/
 
 /*
  * Process incoming commands, calling dispatch tables appropriately
- */
+ */ 
+/*
 DWORD command_process_remote_loop(Remote *remote)
 {
 	DWORD res = ERROR_SUCCESS;
@@ -269,6 +402,7 @@ DWORD command_process_remote_loop(Remote *remote)
 
 	return res;
 }
+*/
 
 /*
  * Call the dispatch routine for a given command

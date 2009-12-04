@@ -132,15 +132,13 @@ DWORD remote_request_core_channel_write(Remote *remote, Packet *packet)
 		{
 			// If it's buffered, write it to the local buffer cache
 			case CHANNEL_CLASS_BUFFERED:
-				res = channel_write_to_buffered(channel, channelData.buffer,
-				    channelData.header.length, (PULONG)&written);
+				res = channel_write_to_buffered(channel, channelData.buffer, channelData.header.length, (PULONG)&written);
 				break;
 			// If it's non-buffered, call the native write operation handler if
 			// one is implemented
 			default:
 				{
 					NativeChannelOps *ops = (NativeChannelOps *)&channel->ops;
-
 					if (ops->write)
 						res = ops->write(channel, packet, ops->context, 
 								channelData.buffer, channelData.header.length, 
@@ -288,6 +286,8 @@ DWORD remote_request_core_channel_close(Remote *remote, Packet *packet)
 	Packet *response = packet_create_response(packet);
 	DWORD res = ERROR_SUCCESS, channelId;
 	Channel *channel = NULL;
+		
+	dprintf( "[CHANNEL] remote_request_core_channel_close." );
 
 	do
 	{

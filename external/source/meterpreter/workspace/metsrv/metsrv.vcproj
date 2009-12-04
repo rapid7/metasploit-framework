@@ -80,7 +80,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="common.lib ws2_32.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="ws2_32.lib odbc32.lib odbccp32.lib ssleay32.lib libeay32.lib"
 				OutputFile=".\Debug/metsrv.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -115,7 +115,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy debug\metsrv.dll ..\..\output\server"
+				CommandLine="copy /y &quot;$(ProjectDir)\debug\metsrv.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
 			/>
 		</Configuration>
 		<Configuration
