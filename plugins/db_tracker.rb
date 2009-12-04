@@ -49,6 +49,11 @@ class Plugin::DB_Tracer < Msf::Plugin
 		if(not framework.db.active)
 			raise PluginLoadError.new("The database backend has not been initialized")
 		end
+		framework.plugins.each { |plugin|
+			if (plugin.class == Msf::Plugin::DB_Tracer)
+				raise PluginLoadError.new("This plugin should not be loaded more than once")
+			end
+		}
 		
 		@eh = DBTracerEventHandler.new
 		Rex::Socket::Comm::Local.register_event_handler(@eh)
