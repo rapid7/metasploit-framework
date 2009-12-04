@@ -15,20 +15,16 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Oracle brute forcer for known default accounts.',
+			'Name'           => 'Oracle Account Discovery.',
 			'Description'    => %q{
-				This module uses a list of well known authentication credentials
-				for bruteforcing the TNS service. A log file of discoverd credentials 
-				can be found in ./data/wordlists/oracle_default_found.log. 
-				Oracle default passwords in oracle_default_passwords.csv.
-				McKesson HCI Oracle default passwords in hci_oracle_passwords.csv.
+				This module uses a list of well known default authentication credentials
+				to discover easily guessed accounts. 
 			},
 			'Author'         => [ 'MC' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>
 				[
-					[ 'URL', 'https://www.metasploit.com/users/mc' ],
 					[ 'URL', 'http://www.petefinnigan.com/default/oracle_default_passwords.csv' ],
 					[ 'URL', 'http://seclists.org/fulldisclosure/2009/Oct/261' ],
 				],
@@ -46,6 +42,8 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		list = datastore['CSVFILE']
 
+		print_status("Starting brute force on #{datastore['RHOST']}:#{datastore['RPORT']}...")
+
 		fd = CSV.foreach(list) do |brute|
 
 		datastore['DBUSER'] = brute[2].downcase
@@ -55,7 +53,6 @@ class Metasploit3 < Msf::Auxiliary
 			connect
 			disconnect
 		rescue ::OCIError => e
-			print_error("#{e.class} #{e.to_s}")
 			else
 				if (not e)
 					report_note(
@@ -65,10 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 						:type  => 'ORACLE_BRUTEFORCED_ACCOUNT',
 						:data  => "#{datastore['DBUSER']}/#{datastore['DBPASS']} with sid #{datastore['SID']}"
 					)
-					found = File.open(File.join(Msf::Config.log_directory,"oracle_default_found.log"), "a")
 						print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
-						found.write "Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}.\n"
-					found.close
 				end 
 		end
 		end
