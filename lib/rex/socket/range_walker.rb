@@ -39,8 +39,8 @@ class RangeWalker
 				# Then it's IPv6
 				# Can't really do much with IPv6 right now, just return it and
 				# hope for the best
-				addr = Rex::Socket.addr_itoa(Rex::Socket.addr_atoi(arg))
-				ranges.push [addr, addr]
+				addr = Rex::Socket.addr_atoi(arg)
+				ranges.push [addr, addr, true]
 			elsif arg.include?("/")
 				# Then it's CIDR notation and needs special case
 				if arg =~ /[,-]/
@@ -95,7 +95,7 @@ class RangeWalker
 			@curr_range += 1
 			@curr_addr = @ranges[@curr_range][0]
 		end
-		addr = Rex::Socket.addr_itoa(@curr_addr)
+		addr = Rex::Socket.addr_itoa(@curr_addr, @ranges[@curr_range][2])
 		@curr_addr += 1
 		return addr
 	end

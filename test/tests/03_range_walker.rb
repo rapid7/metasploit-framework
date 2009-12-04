@@ -4,6 +4,11 @@ require 'rex/socket'
 require 'rex/socket/range_walker'
 
 describe Rex::Socket::RangeWalker do
+	it "should handle single ipv6 addresses" do
+		walker = Rex::Socket::RangeWalker.new("::1") 
+		walker.should be_valid
+		walker.length.should == 1
+	end
 	it "should handle ranges" do
 		walker = Rex::Socket::RangeWalker.new("10.1.1.1-2")
 		walker.should be_valid
