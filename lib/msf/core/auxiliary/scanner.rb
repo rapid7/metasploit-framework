@@ -39,7 +39,7 @@ def run
 	@show_percent  = datastore['ShowProgressPercent'].to_i
 
 	ar             = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
-	@range_count   = ar.num_ips
+	@range_count   = ar.length
 	@range_done    = 0
 	@range_percent = 0
 

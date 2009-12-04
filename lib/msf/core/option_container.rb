@@ -350,60 +350,20 @@ class OptAddressRange < OptBase
 	end
 
 	def normalize(value)
-
 		if (value =~ /^file:(.*)/)
 			path = $1
-			begin
-				value = File.readlines(path).map{ |s| s.strip}.join(",")
-			rescue ::Errno::ENOENT, ::Errno::EISDIR
-				value = nil
-			end
+			return false if not File.exists?(path) or File.directory?(path)
+			return File.readlines(path).map{ |s| s.strip}.join(" ")
 		end
-
-		sets   = []
-		return '' if not value
-
-		ranges = value.split(',')
-		ranges.each do |range|
-			tmp = nil
-
-			# Only split into a range when the input is an IPv4 address
-			if(range.index('-') and range =~ /^[0-9\.\-]+$/)
-				tmp = range.split('-')
-				tmp[1] ||= tmp[0]
-			else
-				# Check for an IPv6 range
-				if(range =~ /^[a-f0-9\.:\-]+$/)
-					tmp = range.split('-')
-					tmp = nil if Rex::Socket.addr_aton(tmp[0]).length != 16
-				end
-
-				tmp = [range,range] if tmp.nil?
-			end
-
-			if(tmp[0] == tmp[1] and tmp[0] =~ /\//)
-				tmp = Rex::Socket.cidr_crack(tmp[0])
-			end
-
-			addr_a, addr_b = tmp
-			addr_a, scope = tmp[0].split("%")
-			addr_b, scope = tmp[1].split("%") if not scope
-
-			if (Rex::Socket.addr_atoi(addr_a) <= Rex::Socket.addr_atoi(addr_b))
-				sets << tmp
-			end
-		end
-
-		sets.map {|i| (i.length == 2 and i[0] != i[1]) ? i[0]+'-'+i[1] : i[0] }.join(",")
+		return value
 	end
 
 	def valid?(value)
 		return false if empty_required_value?(value)
 
 		if (value != nil and value.empty? == false)
-			begin
-				return (normalize(value).length > 0 ? true : false)
-			rescue
+			walker = Rex::Socket::RangeWalker.new(normalize(value))
+			if (not walker or not walker.valid?)
 				return false
 			end
 		end
