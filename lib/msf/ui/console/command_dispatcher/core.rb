@@ -1953,7 +1953,13 @@ protected
 		tbl = generate_module_table(type)
 
 		module_set.each_module { |refname, mod|
-			o = mod.new
+			o = nil
+
+			begin
+				o = mod.new
+			rescue ::Exception
+			end
+			next if not o
 
 			if not regex
 				tbl << [ refname, o.name ]
