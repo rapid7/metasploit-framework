@@ -12,7 +12,7 @@
                                            888
                                            888
 
-[33mMetasploit Framework v3.3.1 Release
+[33mMetasploit Framework v3.3.2 Release
     [31mReport Bugs: msfdev@metasploit.com
 [0m
 

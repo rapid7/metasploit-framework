@@ -18,6 +18,7 @@ export BASE
 export PATH=${BASE}/app:$PATH
 export LD_LIBRARY_PATH=${BASE}/lib:$LD_LIBRARY_PATH
 unset GEM_PATH
+unset GEM_HOME
 unset MY_RUBY_HOME
 unset RUBY_VERSION
 unset RUBY_OPTS
