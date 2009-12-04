@@ -129,7 +129,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		print_line("Channel #{p.channel.cid} created.") if (p.channel)
 
 		if (interact and p.channel)
-			shell.interact_with_channel(p.channel)	
+			shell.interact_with_channel(p.channel)
 		end
 	end
 

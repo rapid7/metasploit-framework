@@ -90,7 +90,9 @@ module PacketDispatcher
 
 		# Transmit the packet
 		if (send_packet(packet) <= 0)
-			return nil
+      # Remove the waiter if we failed to send the packet.  
+			remove_response_waiter(waiter)
+      return nil
 		end
 
 		# Wait for the supplied time interval

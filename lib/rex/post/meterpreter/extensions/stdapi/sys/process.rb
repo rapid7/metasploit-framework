@@ -170,8 +170,8 @@ class Process < Rex::Post::Process
 
 		# Return a process instance
 		return self.new(pid, handle, channel)
-	end
-
+  end
+  
 	#
 	# Kills one or more processes.
 	#
@@ -292,7 +292,24 @@ class Process < Rex::Post::Process
 		handle = nil;
 
 		return true
-	end
+  end
+
+  #
+  # Block untill this process terminates on the remote side.
+  # By default we choose not to allow a packet responce timeout to 
+  # occur as we may be waiting indefinatly for the process to terminate.
+  #
+  def wait( timeout = -1 )
+    request = Packet.create_request('stdapi_sys_process_wait')
+
+    request.add_tlv(TLV_TYPE_HANDLE, self.handle)
+
+    response = self.client.send_request(request, timeout)
+
+    self.handle = nil
+
+    return true
+  end
 
 	attr_reader   :client, :handle, :channel, :pid # :nodoc:
 protected
@@ -315,7 +332,7 @@ protected
 		info['path'] = response.get_tlv_value(TLV_TYPE_PROCESS_PATH)
 
 		return info
-	end
+  end
 
 end
 
