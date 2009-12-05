@@ -8,12 +8,13 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
+
 	include Msf::Auxiliary::Report
 	include Msf::Exploit::ORACLE
 	
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Simple Oracle Database Enumeration.',
+			'Name'           => 'Oracle Database Enumeration',
 			'Description'    => %q{
 				This module provides a simple way to scan an Oracle database server
 				for configuration parameters that may be useful during a penetration
@@ -26,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 		))
 
 	end
-	
 
 	def run
 		begin
@@ -38,7 +38,6 @@ class Metasploit3 < Msf::Auxiliary
 				name,value = l.split(",")
 				vparm["#{name}"] = value
 			end
-
 		end
 
 		print_status("Running Oracle Enumeration....")
@@ -90,7 +89,6 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(:host => datastore['RHOST'], :proto => 'TNS', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "SQL92: Enabled")
 			end
 
-
 			# check for encryption of logins on version before 10g
 
 			if majorrel.join.to_i < 10
@@ -128,7 +126,6 @@ class Metasploit3 < Msf::Auxiliary
 			if e.to_s =~ /ORA-00942: table or view does not exist/
 				print_error("It appears you do not have sufficient rights to perform the check")
 			end
-
 		end
 		
 		begin
@@ -146,7 +143,6 @@ class Metasploit3 < Msf::Auxiliary
 			if e.to_s =~ /ORA-00942: table or view does not exist/
 				print_error("It appears you do not have sufficient rights to perform the check")
 			end
-
 		end
 		
 		begin
@@ -164,7 +160,6 @@ class Metasploit3 < Msf::Auxiliary
 			if e.to_s =~ /ORA-00942: table or view does not exist/
 				print_error("It appears you do not have sufficient rights to perform the check")
 			end
-
 		end
 		
 		begin
@@ -182,8 +177,8 @@ class Metasploit3 < Msf::Auxiliary
 			if e.to_s =~ /ORA-00942: table or view does not exist/
 				print_error("It appears you do not have sufficient rights to perform the check")
 			end
-
 		end
+
 		begin
 			query = %Q|
 				SELECT limit
@@ -199,8 +194,8 @@ class Metasploit3 < Msf::Auxiliary
 			if e.to_s =~ /ORA-00942: table or view does not exist/
 				print_error("It appears you do not have sufficient rights to perform the check")
 			end
-
 		end
+
 		begin
 			query = %Q|
 				SELECT limit
@@ -217,8 +212,8 @@ class Metasploit3 < Msf::Auxiliary
 			if e.to_s =~ /ORA-00942: table or view does not exist/
 				print_error("It appears you do not have sufficient rights to perform the check")
 			end
-
 		end
+
 		begin
 			query = %Q|
 				SELECT limit
@@ -239,7 +234,6 @@ class Metasploit3 < Msf::Auxiliary
 			if e.to_s =~ /ORA-00942: table or view does not exist/
 				print_error("It appears you do not have sufficient rights to perform the check")
 			end
-
 		end
 
 		#-------------------------------------------------------
