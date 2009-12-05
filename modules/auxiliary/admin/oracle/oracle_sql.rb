@@ -13,14 +13,15 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Run simple SQL against the Oracle instance.',
+			'Name'           => 'Oracle SQL Generic Query',
 			'Description'    => %q{
-					This module allows for simple sql to be executed against a given
-					oracle instance.
+					This module allows for simple SQL statements to be executed
+					against a Oracle instance given the appropriate credentials
+					and sid.
 			},
 			'Author'         => [ 'MC' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
+			'Version'        => '$Revision: 7688 $',
 			'References'     =>
 				[
 					[ 'URL', 'https://www.metasploit.com/users/mc' ],
