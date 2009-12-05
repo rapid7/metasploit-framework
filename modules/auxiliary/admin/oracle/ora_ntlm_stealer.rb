@@ -20,8 +20,8 @@ class Metasploit3 < Msf::Auxiliary
 				To do this you must firstly run smb_sniffer or smb_relay module on your sever.
 				Then you must connect to Oracle database and run this module Ora_NTLM_stealer.rb
 				which will connect to your SMB sever with credentials of Oracle RDBMS.
-				So if smb_relay is working, you will Administrator access to server which runs 
-				Oracle. If not than you can decrypt HALFLM hash.
+				So if smb_relay is working, you will get Administrator access to server which 
+				runs Oracle. If not than you can decrypt HALFLM hash.
 			},
 			'Author'         => [ 'Sh2kerr <research[ad]dsecrg.com>' ],
 			'License'        => MSF_LICENSE,
