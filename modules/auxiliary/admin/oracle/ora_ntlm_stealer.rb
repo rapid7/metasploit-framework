@@ -13,15 +13,15 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Owning Windows server using Oracle database unpivileged user.',
+			'Name'           => 'Oracle SMB Relay Code Execution',
 			'Description'    => %q{
-				This module will help you to get Administrator access to OS using unprivileged
-				Oracle database user (you need only CONNECT and RESOURCE privileges)
-				To do this you must firstly run smb_sniffer of smb_relay module on your sever.
+				This module will help you to get Administrator access to OS using an unprivileged
+				Oracle database user (you need only CONNECT and RESOURCE privileges).
+				To do this you must firstly run smb_sniffer or smb_relay module on your sever.
 				Then you must connect to Oracle database and run this module Ora_NTLM_stealer.rb
 				which will connect to your SMB sever with credentials of Oracle RDBMS.
-				So if smb_relay is working you  will get Administrators access to server which runs 
-				Oracle of not than you can decrypt HALFLM hash.
+				So if smb_relay is working, you will Administrator access to server which runs 
+				Oracle. If not than you can decrypt HALFLM hash.
 			},
 			'Author'         => [ 'Sh2kerr <research[ad]dsecrg.com>' ],
 			'License'        => MSF_LICENSE,
