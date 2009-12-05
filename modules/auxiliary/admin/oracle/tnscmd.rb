@@ -13,8 +13,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'tnscmd - a lame tool to prod the oracle tnslsnr process.',
+			'Name'           => 'TNSLsnr Command Issuer',
 			'Description'    => %q{
+				This module allows for the sending of arbitrary TNS commands in order
+				to gather information.
 				Inspired from tnscmd.pl from www.jammed.com/~jwa/hacks/security/tnscmd/tnscmd
 			},
 			'Author'         => ['MC'],
