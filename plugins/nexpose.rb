@@ -68,27 +68,47 @@ class Plugin::Nexpose < Msf::Plugin
 		def cmd_nexpose_connect(*args)
 
 			if(args.length == 0 or args[0].empty? or args[0] == "-h")
-				print_status("Usage: nexpose_connect user:pass@host[:port] <ssl-confirm>")
+				print_status("Usage: ")
+				print_status("       nexpose_connect username:password@host[:port] <ssl-confirm>")
+				print_status("        -OR- ")
+				print_status("       nexpose_connect username password host port <ssl-confirm>")
 				return
 			end
 
-			cred,targ = args[0].split('@', 2)
-			user,pass = cred.split(':', 2)
+			user = pass = host = port = sslv = nil
 
-			targ ||= '127.0.0.1:3780'
-			host,port = targ.split(':', 2)
-			port ||= '3780'
-
-			if ! ((user and user.length > 0) and (host and host.length > 0) and (port and port.length > 0) and (pass and pass.length > 0))
-				print_status("Usage: nexpose_connect user:pass@host[:port] <ssl-confirm>")
+			case args.length
+			when 1,2
+				cred,targ = args[0].split('@', 2)
+				user,pass = cred.split(':', 2)
+				targ ||= '127.0.0.1:3780'
+				host,port = targ.split(':', 2)
+				port ||= '3780'
+				sslv = args[1]
+			when 4,5
+				user,pass,host,port,sslv = args
+			else
+				print_status("Usage: ")
+				print_status("       nexpose_connect username:password@host[:port] <ssl-confirm>")
+				print_status("        -OR- ")
+				print_status("       nexpose_connect username password host port <ssl-confirm>")
 				return
 			end
 
-			if(host != "localhost" and host != "127.0.0.1" and args[1] != "ok")
+
+			if ! ((user and user.length > 0) and (host and host.length > 0) and (port and port.length > 0 and port.to_i > 0) and (pass and pass.length > 0))
+				print_status("Usage: ")
+				print_status("       nexpose_connect username:password@host[:port] <ssl-confirm>")
+				print_status("        -OR- ")
+				print_status("       nexpose_connect username password host port <ssl-confirm>")
+				return
+			end
+
+			if(host != "localhost" and host != "127.0.0.1" and sslv != "ok")
 				print_error("Warning: SSL connections are not verified in this release, it is possible for an attacker")
 				print_error("         with the ability to man-in-the-middle the NeXpose traffic to capture the NeXpose")
 				print_error("         credentials. If you are running this on a trusted network, please pass in 'ok'")
-				print_error("         an an additional parameter to this command.")
+				print_error("         as an additional parameter to this command.")
 				return
 			end
 
