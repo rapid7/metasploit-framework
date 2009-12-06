@@ -120,9 +120,14 @@ class Plugin::Nexpose < Msf::Plugin
 			rescue ::Exception
 			end
 
-			print_status("Connecting to NeXpose instance at #{host}:#{port} with username #{user}...")
-			nsc = ::Nexpose::Connection.new(host, user, pass, port)
-			nsc.login
+			begin
+				print_status("Connecting to NeXpose instance at #{host}:#{port} with username #{user}...")
+				nsc = ::Nexpose::Connection.new(host, user, pass, port)
+				nsc.login
+			rescue ::Nexpose::APIError => e
+				print_error("Connection failed: #{e.reason}")
+				return
+			end
 
 			@nsc = nsc
 		end
@@ -690,8 +695,15 @@ class APIRequest
 	end
 
 	def execute
+		begin
 		resp, data = @http.post(@uri.path, @req, @headers)
 		@res = parse_xml(data)
+
+		if(not @res.root)
+			@error = "NeXpose service returned invalid XML"
+			return @sid
+		end
+
 		@sid = attributes['session-id']
 
 		if(attributes['success'] and attributes['success'].to_i == 1)
@@ -707,11 +719,23 @@ class APIRequest
 				end
 			end
 		end
+		rescue ::Interrupt
+			@error = "received a user interrupt"
+		rescue ::Timeout::Error, ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
+			@error = "NeXpose host is unreachable"
+		rescue ::Errno::ECONNRESET,::Errno::ECONNREFUSED,::Errno::ENOTCONN,::Errno::ECONNABORTED
+			@error = "NeXpose service is not available"
+		end
+
+		if ! (@success or @error)
+			@error = "NeXpose service returned an unrecognized response"
+		end
 
 		@sid
 	end
 
 	def attributes(*args)
+		return if not @res.root
 		@res.root.attributes(*args)
 	end
 
