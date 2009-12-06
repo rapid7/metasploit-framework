@@ -78,6 +78,9 @@ class LocalRelay
 			self.on_local_connection_proc = opts['OnLocalConnection']
 			self.on_conn_close_proc       = opts['OnConnectionClose']
 			self.on_other_data_proc       = opts['OnOtherData']
+			if (not $dispatcher['rex'])
+				register_log_source('rex', $dispatcher['core'], get_log_level('core'))
+			end
 		end
 
 		def shutdown
