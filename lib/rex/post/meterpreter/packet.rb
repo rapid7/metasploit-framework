@@ -85,18 +85,18 @@ LOAD_LIBRARY_FLAG_LOCAL     = (1 << 2)
 class Tlv
 	attr_accessor :type, :value
 
-	## 
+	##
 	#
 	# Constructor
 	#
 	##
 
 	#
-	# Returns an instance of a TLV. 
+	# Returns an instance of a TLV.
 	#
 	def initialize(type, value = nil)
 		@type  = type
-		
+
 		if (value != nil)
 			if (type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
 				if (value.kind_of?(Fixnum))
@@ -443,7 +443,7 @@ class Packet < GroupTlv
 		method = nil
 
 		if (request)
-			if (request.type?(PACKET_TYPE_PLAIN_REQUEST))	
+			if (request.type?(PACKET_TYPE_PLAIN_REQUEST))
 				response_type = PACKET_TYPE_PLAIN_RESPONSE
 			end
 
@@ -461,7 +461,7 @@ class Packet < GroupTlv
 
 	#
 	# Initializes the packet to the supplied packet type and method,
-	# if any.  If the packet is a request, a request identifier is 
+	# if any.  If the packet is a request, a request identifier is
 	# created.
 	#
 	def initialize(type = nil, method = nil)
@@ -473,7 +473,7 @@ class Packet < GroupTlv
 
 		# If it's a request, generate a random request identifier
 		if ((type == PACKET_TYPE_REQUEST) ||
-		    (type == PACKET_TYPE_PLAINTEXT_REQUEST))
+		    (type == PACKET_TYPE_PLAIN_REQUEST))
 			rid = ''
 
 			32.times { |val| rid << rand(10).to_s }
@@ -545,7 +545,7 @@ class Packet < GroupTlv
 		return get_tlv_value(TLV_TYPE_RESULT)
 	end
 
-	#	
+	#
 	# Gets the value of the packet's request identifier TLV.
 	#
 	def rid
@@ -554,3 +554,4 @@ class Packet < GroupTlv
 end
 
 end; end; end
+
