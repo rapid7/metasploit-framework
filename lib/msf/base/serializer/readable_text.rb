@@ -43,12 +43,12 @@ class ReadableText
 			'Header'  => h,
 			'Columns' =>
 				[
-					'Id', 
+					'Id',
 					'Name',
 				])
 
 		mod.targets.each_with_index { |target, idx|
-			tbl << [ idx.to_s, target.name || 'All' ]	
+			tbl << [ idx.to_s, target.name || 'All' ]
 		}
 
 		tbl.to_s + "\n"
@@ -63,7 +63,7 @@ class ReadableText
 			'Header'  => h,
 			'Columns' =>
 				[
-					'Id', 
+					'Id',
 					'Name',
 				])
 
@@ -71,7 +71,7 @@ class ReadableText
 
 		tbl.to_s + "\n"
 	end
-	
+
 	#
 	# Dumps an auxiliary's actions
 	#
@@ -86,12 +86,12 @@ class ReadableText
 				])
 
 		mod.actions.each_with_index { |target, idx|
-			tbl << [ target.name || 'All' , target.description || '' ]	
+			tbl << [ target.name || 'All' , target.description || '' ]
 		}
 
 		tbl.to_s + "\n"
 	end
-	
+
 	#
 	# Dumps the table of payloads that are compatible with the supplied
 	# exploit.
@@ -102,7 +102,7 @@ class ReadableText
 			'Header'  => h,
 			'Columns' =>
 				[
-					'Name', 
+					'Name',
 					'Description',
 				])
 
@@ -123,6 +123,7 @@ class ReadableText
 		output << "   Platform: #{mod.platform_to_s}\n"
 		output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
 		output << "    License: #{mod.license}\n"
+		output << "       Rank: #{mod.rank_to_s.capitalize}\n"
 		output << "\n"
 
 		# Authors
@@ -135,14 +136,14 @@ class ReadableText
 		# Targets
 		output << "Available targets:\n"
 		output << dump_exploit_targets(mod, indent)
-		
+
 		# Options
 		if (mod.options.has_options?)
 			output << "Basic options:\n"
 			output << dump_options(mod, indent)
 			output << "\n"
 		end
-		
+
 		# Payload information
 		if (mod.payload_info.length)
 			output << "Payload information:\n"
@@ -154,7 +155,7 @@ class ReadableText
 			end
 			output << "\n"
 		end
-	
+
 		# Description
 		output << "Description:\n"
 		output << word_wrap(Rex::Text.compress(mod.description))
@@ -168,7 +169,7 @@ class ReadableText
 			}
 			output << "\n"
 		end
-	
+
 		return output
 
 	end
@@ -181,6 +182,7 @@ class ReadableText
 		output << "       Name: #{mod.name}\n"
 		output << "    Version: #{mod.version}\n"
 		output << "    License: #{mod.license}\n"
+		output << "       Rank: #{mod.rank_to_s.capitalize}\n"
 		output << "\n"
 
 		# Authors
@@ -196,7 +198,7 @@ class ReadableText
 			output << dump_options(mod, indent)
 			output << "\n"
 		end
-		
+
 		# Description
 		output << "Description:\n"
 		output << word_wrap(Rex::Text.compress(mod.description))
@@ -210,11 +212,11 @@ class ReadableText
 			}
 			output << "\n"
 		end
-	
+
 		return output
 	end
 
-	# 
+	#
 	# Dumps information about a payload module.
 	#
 	def self.dump_payload_module(mod, indent = '')
@@ -226,6 +228,7 @@ class ReadableText
 		output << "       Arch: #{mod.arch_to_s}\n"
 		output << "Needs Admin: " + (mod.privileged? ? "Yes" : "No") + "\n"
 		output << " Total size: #{mod.size}\n"
+		output << "       Rank: #{mod.rank_to_s.capitalize}\n"
 		output << "\n"
 
 		# Authors
@@ -246,7 +249,7 @@ class ReadableText
 		output << "Description:\n"
 		output << word_wrap(Rex::Text.compress(mod.description))
 		output << "\n\n"
-	
+
 		return output
 	end
 
@@ -260,6 +263,7 @@ class ReadableText
 		output << "    Version: #{mod.version}\n"
 		output << "   Platform: #{mod.platform_to_s}\n"
 		output << "       Arch: #{mod.arch_to_s}\n"
+		output << "       Rank: #{mod.rank_to_s.capitalize}\n"
 		output << "\n"
 
 		# Authors
@@ -268,12 +272,12 @@ class ReadableText
 			output << indent + author.to_s + "\n"
 		}
 		output << "\n"
-		
+
 		# Description
 		output << "Description:\n"
 		output << word_wrap(Rex::Text.compress(mod.description))
 		output << "\n\n"
-	
+
 		return output
 
 	end
@@ -290,7 +294,7 @@ class ReadableText
 			'Indent'  => indent.length,
 			'Columns' =>
 				[
-					'Name', 
+					'Name',
 					'Current Setting',
 					'Required',
 					'Description'
@@ -301,7 +305,7 @@ class ReadableText
 
 			next if (opt.advanced?)
 			next if (opt.evasion?)
-			
+
 			val = mod.datastore[name] || opt.default.to_s
 
 			tbl << [ name, val.to_s, opt.required? ? "yes" : "no", opt.desc ]
@@ -347,7 +351,7 @@ class ReadableText
 			next if (!opt.evasion?)
 
 			val = mod.datastore[name] || opt.default || ''
-			
+
 			desc = word_wrap(opt.desc, indent.length + 3)
 			desc = desc.slice(indent.length + 3, desc.length)
 
@@ -358,7 +362,7 @@ class ReadableText
 
 		return output
 	end
-	
+
 	#
 	# Dumps the contents of a datastore.
 	#
@@ -368,7 +372,7 @@ class ReadableText
 			'Header'  => name,
 			'Columns' =>
 				[
-					'Name', 
+					'Name',
 					'Value'
 				])
 
@@ -383,7 +387,7 @@ class ReadableText
 	# Dumps the list of active sessions.
 	#
 	def self.dump_sessions(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap)
-		columns = 
+		columns =
 			[
 				'Id',
 				'Description',
@@ -458,3 +462,4 @@ class ReadableText
 end
 
 end end
+

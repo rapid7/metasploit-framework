@@ -55,6 +55,12 @@ class Module
 		end
 
 		#
+		# Returns this module's ranking as a string for display.
+		#
+		def rank_to_h
+			rank_to_s.gsub('Rank', '').downcase
+		end
+		#
 		# The module's name that is assigned it it by the framework
 		# or derived from the path that the module is loaded from.
 		#
@@ -193,6 +199,20 @@ class Module
 	#
 	def rank
 		return self.class.rank
+	end
+
+	#
+	# Returns the module's rank in string format.
+	#
+	def rank_to_s
+		return self.class.rank_to_s
+	end
+
+	#
+	# Returns the module's rank in display format.
+	#
+	def rank_to_h
+		return self.class.rank_to_h
 	end
 
 	#
