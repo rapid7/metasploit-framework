@@ -351,7 +351,7 @@ DWORD InitServerExtension(Remote *remote)
 /*
  * Deinitialize the server extension
  */
-#ifdef __WIN32
+#ifdef _WIN32
 DWORD __declspec(dllexport) DeinitServerExtension(Remote *remote)
 #else
 DWORD DeinitServerExtension(Remote *remote)

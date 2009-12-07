@@ -27,7 +27,8 @@ struct sockaddr_in6 *peername6;
 int sniffer_includeports[1024];
 int sniffer_excludeports[1024];
 
-CRITICAL_SECTION sniffercs;
+/* mutex */
+HANDLE snifferm;
 
 #define SNIFFER_MAX_INTERFACES 128
 #define SNIFFER_MAX_QUEUE  210000 // ~300Mb @ 1514 bytes
@@ -229,7 +230,7 @@ void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacke
 
 
 	// Thread-synchronized access to the queue
-	EnterCriticalSection(&sniffercs);
+	WaitForSingleObject(snifferm, INFINITE);
 
 	if(j->idx_pkts >= j->max_pkts) j->idx_pkts = 0;
 	j->cur_pkts++;
@@ -242,7 +243,7 @@ void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacke
 	j->pkts[j->idx_pkts] = pkt;
 	j->idx_pkts++;
 
-	LeaveCriticalSection(&sniffercs);
+	ReleaseMutex(snifferm);
 }
 
 DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
@@ -348,7 +349,7 @@ DWORD request_sniffer_capture_stop(Remote *remote, Packet *packet) {
 		}
 
 		
-		EnterCriticalSection(&sniffercs);
+		WaitForSingleObject(snifferm, INFINITE);
 
 		j->active = 0;
 		AdpSetMacFilter(j->adp, 0);
@@ -363,7 +364,7 @@ DWORD request_sniffer_capture_stop(Remote *remote, Packet *packet) {
 		free(j->pkts);
 		memset(j, 0, sizeof(CaptureJob));
 		
-		LeaveCriticalSection(&sniffercs);
+		ReleaseMutex(snifferm);
 
 		dprintf("sniffer>> stop_capture() interface %d processed %d packets/%d bytes", j->intf, j->cur_pkts, j->cur_bytes); 
 	} while(0);
@@ -482,7 +483,7 @@ DWORD request_sniffer_capture_dump(Remote *remote, Packet *packet) {
 
 	result = ERROR_SUCCESS;
 
-	EnterCriticalSection(&sniffercs);
+	WaitForSingleObject(snifferm, INFINITE);
 
 	do {
 		// the interface is invalid
@@ -564,7 +565,7 @@ DWORD request_sniffer_capture_dump(Remote *remote, Packet *packet) {
 		j->idx_pkts  = 0;
 	} while(0);
 
-	LeaveCriticalSection(&sniffercs);
+	ReleaseMutex(snifferm);
 	packet_transmit_response(result, remote, response);
 	return ERROR_SUCCESS;
 }
@@ -641,7 +642,7 @@ DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
 	if(peername.sa_family == PF_INET)  peername4 = (struct sockaddr_in *)&peername;
 	if(peername.sa_family == PF_INET6) peername6 = (struct sockaddr_in6 *)&peername;
 
-	InitializeCriticalSection(&sniffercs);
+	snifferm = CreateMutex(NULL, FALSE, NULL);
 	return hErr;
 }
 
@@ -657,5 +658,6 @@ DWORD __declspec(dllexport) DeinitServerExtension(Remote *remote)
 	     index++)
 		command_deregister(&customCommands[index]);
 	MgrDestroy(hMgr);
+	CloseHandle(snifferm);
 	return ERROR_SUCCESS;
 }
