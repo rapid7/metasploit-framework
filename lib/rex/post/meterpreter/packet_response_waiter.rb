@@ -59,15 +59,13 @@ class PacketResponseWaiter
 	def wait(interval)
     if( interval and interval == -1 )
       while(not self.done)
-        sleep 0.1
-        #select(nil, nil, nil, 0.1)
+        select(nil, nil, nil, 0.1)
       end 
     else    
       begin
           Timeout.timeout(interval) {
             while(not self.done)
-              sleep 0.1
-              #select(nil, nil, nil, 0.1)
+              select(nil, nil, nil, 0.1)
             end
           }
       rescue Timeout::Error
