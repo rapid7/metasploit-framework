@@ -1051,9 +1051,10 @@ class PeBase
 
 	class UnwindCode
 		def initialize(data)
-			self.code_offset  = data[0]
-			self.unwind_op    = data[1] & 0xf
-			self.op_info      = data[1] >> 4
+
+			self.code_offset  = data[0].to_i
+			self.unwind_op    = data[1].to_i & 0xf
+			self.op_info      = data[1].to_i >> 4
 			self.frame_offset = data[2..3].unpack("v")[0]
 
 			data.slice!(0, 4)
@@ -1067,13 +1068,16 @@ class PeBase
 	class UnwindInfo
 		def initialize(pe, unwind_rva)
 			data = pe.read_rva(unwind_rva, UNWIND_INFO_HEADER_SZ)
+		
+			unwind  = UNWIND_INFO_HEADER.make_struct
+			unwind.from_s(data)
 
-			@version               = data[0] & 0x7
-			@flags                 = data[0] >> 3
-			@size_of_prolog        = data[1]
-			@count_of_codes        = data[2]
-			@frame_register        = data[3] & 0xf
-			@frame_register_offset = data[3] >> 4
+			@version               = unwind.v['VersionFlags'] & 0x7
+			@flags                 = unwind.v['VersionFlags'] >> 3
+			@size_of_prolog        = unwind.v['SizeOfProlog']
+			@count_of_codes        = unwind.v['CountOfCodes']
+			@frame_register        = unwind.v['FrameRegisterAndOffset'] & 0xf
+			@frame_register_offset = unwind.v['FrameRegisterAndOffset'] >> 4
 
 			# Parse unwind codes
 			clist = pe.read_rva(unwind_rva + UNWIND_INFO_HEADER_SZ, count_of_codes * 4)
@@ -1110,26 +1114,26 @@ class PeBase
 
 	def _load_exception_directory
 		@exception   = []
-
+		
 		exception_entry = _optional_header['DataDirectory'][IMAGE_DIRECTORY_ENTRY_EXCEPTION]
 		rva             = exception_entry.v['VirtualAddress']
 		size            = exception_entry.v['Size']
-
+		
 		return if (rva == 0)
-
+		
 		data = _isource.read(rva_to_file_offset(rva), size)
-
+		
 		case hdr.file.Machine
 			when IMAGE_FILE_MACHINE_AMD64
 				count = data.length / IMAGE_RUNTIME_FUNCTION_ENTRY_SZ
-
+				
 				count.times { |current|
 					@exception << RuntimeFunctionEntry.new(self,
 						data.slice!(0, IMAGE_RUNTIME_FUNCTION_ENTRY_SZ))
 				}
 			else
 		end
-
+		
 		return @exception
 	end
 

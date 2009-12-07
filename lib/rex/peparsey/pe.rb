@@ -132,7 +132,6 @@ class Pe < PeBase
 		self.header_section    = header_section
 
 		self._config_header    = _parse_config_header()
-		self._exception_header = _load_exception_directory()
 		self._tls_header       = _parse_tls_header()
 
 		# These can be accessed directly
@@ -144,6 +143,9 @@ class Pe < PeBase
 		self.hdr.config        = self._config_header
 		self.hdr.tls           = self._tls_header
 		self.hdr.exceptions    = self._exception_header
+		
+		# We load the exception directory last as it relies on hdr.file to be created above.
+		self._exception_header = _load_exception_directory()
 	end
 
 	#
