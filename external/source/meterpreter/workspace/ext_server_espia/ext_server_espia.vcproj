@@ -92,98 +92,6 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|Win32"
-			OutputDirectory=".\Release"
-			IntermediateDirectory=".\Release"
-			ConfigurationType="2"
-			CharacterSet="2"
-			WholeProgramOptimization="0"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="1"
-				EnableIntrinsicFunctions="false"
-				AdditionalIncludeDirectories="..\..\source\extensions\espia;..\..\source\openssl\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_ESPIA_EXPORTS"
-				StringPooling="true"
-				RuntimeLibrary="0"
-				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="Netapi32.lib Mpr.lib metsrv.lib"
-				OutputFile=".\Release/ext_server_espia.dll"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\metsrv\Release;;..\..\source\openssl\lib\win"
-				GenerateManifest="false"
-				DelayLoadDLLs="metsrv.dll"
-				GenerateDebugInformation="false"
-				GenerateMapFile="true"
-				MapFileName=".\Release/ext_server_espia.map"
-				SubSystem="0"
-				OptimizeReferences="0"
-				EnableCOMDATFolding="0"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary=".\Release/ext_server_espia.lib"
-				TargetMachine="1"
-				Profile="false"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy /y &quot;$(ProjectDir)\release\*.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
-			/>
-		</Configuration>
-		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
@@ -257,6 +165,98 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Release|Win32"
+			OutputDirectory=".\Release"
+			IntermediateDirectory=".\Release"
+			ConfigurationType="2"
+			CharacterSet="2"
+			WholeProgramOptimization="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				EnableIntrinsicFunctions="false"
+				AdditionalIncludeDirectories="..\..\source\extensions\espia;..\..\source\openssl\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_ESPIA_EXPORTS"
+				StringPooling="true"
+				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
+				AssemblerListingLocation=".\Release/"
+				ObjectFile=".\Release/"
+				ProgramDataBaseFileName=".\Release/"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="Netapi32.lib Mpr.lib metsrv.lib"
+				OutputFile=".\Release/ext_server_espia.dll"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\metsrv\Release;..\..\source\openssl\lib\win"
+				GenerateManifest="false"
+				DelayLoadDLLs="metsrv.dll"
+				GenerateDebugInformation="false"
+				GenerateMapFile="true"
+				MapFileName=".\Release/ext_server_espia.map"
+				SubSystem="0"
+				OptimizeReferences="0"
+				EnableCOMDATFolding="0"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary=".\Release/ext_server_espia.lib"
+				TargetMachine="1"
+				Profile="false"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy /y &quot;$(ProjectDir)\release\*.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Release|x64"
 			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
@@ -309,7 +309,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Netapi32.lib Mpr.lib metsrv.lib"
-				OutputFile=".\Release/ext_server_espia.dll"
+				OutputFile=".\Release\ext_server_espia.x64.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\metsrv\Release;;..\..\source\openssl\lib\win"
 				GenerateManifest="false"
@@ -346,7 +346,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /y &quot;$(ProjectDir)\release\*.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
+				CommandLine="copy /y &quot;$(ProjectDir)\release\ext_server_espia.x64.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
 			/>
 		</Configuration>
 	</Configurations>

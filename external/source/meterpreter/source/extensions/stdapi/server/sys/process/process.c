@@ -653,16 +653,24 @@ DWORD process_channel_interact_notify(Remote *remote, Channel *channel)
 	DWORD bytesRead, bytesAvail = 0;
 	CHAR buffer[16384];
 
-	// If data is read successfully from the handler, write it
-	// to the remote channel.
-	if ((PeekNamedPipe(ctx->pStdout, NULL, 0, NULL, &bytesAvail, NULL)) &&
-	    (bytesAvail) &&
-	    (ReadFile(ctx->pStdout, buffer, sizeof(buffer) - 1, 
-			&bytesRead, NULL)))
-		channel_write(channel, remote, NULL, 0, buffer,
-				bytesRead, NULL);
-	// Otherwise, if things fail, close the channel
-	else if (GetLastError() != ERROR_SUCCESS)
+	if( PeekNamedPipe( ctx->pStdout, NULL, 0, NULL, &bytesAvail, NULL ) )
+	{
+		if( bytesAvail )
+		{
+			if( ReadFile( ctx->pStdout, buffer, sizeof(buffer) - 1, &bytesRead, NULL ) )
+			{
+				return channel_write( channel, remote, NULL, 0, buffer, bytesRead, NULL );
+			}
+		}
+		else
+		{
+			// sf: if no data is available on the pipe we sleep to avoid running a tight loop
+			// in this thread, as anonymous pipes won't block for data to arrive.
+			Sleep( 100 );
+		}
+	}
+
+	if( GetLastError() != ERROR_SUCCESS )
 	{
 		process_channel_close( channel, NULL, ctx );
 		channel_close( channel, remote, NULL, 0, NULL );

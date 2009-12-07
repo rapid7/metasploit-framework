@@ -6,7 +6,9 @@
 /*****************************************************************************************/
 
 /*
- * Create a new lock.
+ * Create a new lock. We choose Mutex's over CriticalSections as their appears to be an issue
+ * when using CriticalSections with OpenSSL on some Windows systems. Mutex's are not as optimal
+ * as CriticalSections but they appear to resolve the OpenSSL deadlock issue.
  */
 LOCK * lock_create( VOID )
 {
@@ -15,7 +17,7 @@ LOCK * lock_create( VOID )
 	{
 		memset( lock, 0, sizeof( LOCK ) );
 
-		InitializeCriticalSection( &lock->cs );
+		lock->handle = CreateMutex( NULL, FALSE, NULL );
 	}
 	return lock;
 }
@@ -29,7 +31,7 @@ VOID lock_destroy( LOCK * lock )
 	{
 		lock_release( lock );
 
-		DeleteCriticalSection( &lock->cs );
+		CloseHandle( lock->handle );
 
 		free( lock );
 	}
@@ -41,19 +43,7 @@ VOID lock_destroy( LOCK * lock )
 VOID lock_acquire( LOCK * lock )
 {
 	if( lock != NULL  )
-		EnterCriticalSection( &lock->cs );
-}
-
-/*
- * Atempt to acquire a lock, returning true if lock is acquired or allready owned. 
- * Returns false if another thread has acquired the lock. This function does not block.
- */
-BOOL lock_poll( LOCK * lock )
-{
-	if( lock != NULL  )
-		return TryEnterCriticalSection( &lock->cs );
-
-	return FALSE;
+		WaitForSingleObject( lock->handle, INFINITE );
 }
 
 /*
@@ -62,7 +52,7 @@ BOOL lock_poll( LOCK * lock )
 VOID lock_release( LOCK * lock )
 {
 	if( lock != NULL  )
-		LeaveCriticalSection( &lock->cs );
+		ReleaseMutex( lock->handle );
 }
 
 /*****************************************************************************************/

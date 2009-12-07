@@ -5,7 +5,7 @@
 
 typedef struct _LOCK
 {
-	CRITICAL_SECTION cs;
+	HANDLE handle;
 } LOCK, * LPLOCK;
 
 typedef struct _EVENT
@@ -33,8 +33,6 @@ LOCK * lock_create( VOID );
 VOID lock_destroy( LOCK * lock );
 
 VOID lock_acquire( LOCK * lock );
-
-BOOL lock_poll( LOCK * lock );
 
 VOID lock_release( LOCK * lock );
 

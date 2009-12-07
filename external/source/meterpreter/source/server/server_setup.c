@@ -170,7 +170,7 @@ static BOOL server_initialize_ssl( Remote * remote )
 	SSL_library_init();
 
 	// Setup the required OpenSSL multi-threaded enviroment...
-	ssl_locks = (LOCK**)malloc( CRYPTO_num_locks() * sizeof(LOCK) );
+	ssl_locks = (LOCK**)malloc( CRYPTO_num_locks() * sizeof(LOCK *) );
 	if( ssl_locks == NULL )
 	{
 		lock_release( remote->lock );
@@ -182,10 +182,9 @@ static BOOL server_initialize_ssl( Remote * remote )
 
 	CRYPTO_set_id_callback( server_threadid_callback );
 	CRYPTO_set_locking_callback( server_locking_callback );
-	// sf: unsure if these are required or giving optimal performance, commenting out for now.
-	//CRYPTO_set_dynlock_create_callback( server_dynamiclock_create );
-	//CRYPTO_set_dynlock_lock_callback( server_dynamiclock_lock );
-	//CRYPTO_set_dynlock_destroy_callback( server_dynamiclock_destroy  ); 
+	CRYPTO_set_dynlock_create_callback( server_dynamiclock_create );
+	CRYPTO_set_dynlock_lock_callback( server_dynamiclock_lock );
+	CRYPTO_set_dynlock_destroy_callback( server_dynamiclock_destroy  ); 
 
 	lock_release( remote->lock );
 
@@ -210,9 +209,9 @@ static BOOL server_destroy_ssl( Remote * remote )
 
 	CRYPTO_set_locking_callback( NULL );
 	CRYPTO_set_id_callback( NULL );
-	//CRYPTO_set_dynlock_create_callback( NULL );
-	//CRYPTO_set_dynlock_lock_callback( NULL );
-	//CRYPTO_set_dynlock_destroy_callback( NULL );
+	CRYPTO_set_dynlock_create_callback( NULL );
+	CRYPTO_set_dynlock_lock_callback( NULL );
+	CRYPTO_set_dynlock_destroy_callback( NULL );
 
 	for( i=0 ; i<CRYPTO_num_locks() ; i++ )
 		lock_destroy( ssl_locks[i] );

@@ -126,7 +126,8 @@ typedef struct _Channel
 	BOOL                  interactive;
 	// Operational flags
 	ULONG                 flags;
-
+	// Lock for synchronizing communication to a channel
+	LOCK *                lock;
 	// The buffered output buffer (as in being outputted bufferedly)
 	union
 	{

@@ -109,7 +109,7 @@ DWORD remote_request_core_channel_write(Remote *remote, Packet *packet)
 	Packet *response = packet_create_response(packet);
 	DWORD res = ERROR_SUCCESS, channelId, written = 0;
 	Tlv channelData;
-	Channel *channel;
+	Channel * channel = NULL;
 
 	do
 	{
@@ -121,6 +121,8 @@ DWORD remote_request_core_channel_write(Remote *remote, Packet *packet)
 			res = ERROR_NOT_FOUND;
 			break;
 		}
+
+		lock_acquire( channel->lock );
 
 		// Get the channel data buffer
 		if ((res = packet_get_tlv(packet, TLV_TYPE_CHANNEL_DATA, &channelData)) 
@@ -150,6 +152,9 @@ DWORD remote_request_core_channel_write(Remote *remote, Packet *packet)
 		}
 
 	} while (0);
+
+	if( channel )
+		lock_release( channel->lock );
 
 	// Transmit the acknowledgement
 	if (response)
@@ -200,6 +205,8 @@ DWORD remote_request_core_channel_read(Remote *remote, Packet *packet)
 			res = ERROR_NOT_FOUND;
 			break;
 		}
+
+		lock_acquire( channel->lock );
 
 		// Allocate temporary storage
 		if (!(temporaryBuffer = (PUCHAR)malloc(bytesToRead)))
@@ -256,6 +263,9 @@ DWORD remote_request_core_channel_read(Remote *remote, Packet *packet)
 		}
 
 	} while (0);
+	
+	if( channel )
+		lock_release( channel->lock );
 
 	if (temporaryBuffer)
 		free(temporaryBuffer);
@@ -378,6 +388,8 @@ DWORD remote_request_core_channel_seek(Remote *remote, Packet *packet)
 			break;
 		}
 
+		lock_acquire( channel->lock );
+
 		// Make sure this class is compatible
 		if (channel_get_class(channel) != CHANNEL_CLASS_POOL)
 		{
@@ -395,6 +407,9 @@ DWORD remote_request_core_channel_seek(Remote *remote, Packet *packet)
 			result = ERROR_NOT_SUPPORTED;
 
 	} while (0);
+	
+	if( channel )
+		lock_release( channel->lock );
 
 	// Transmit the result
 	packet_transmit_response(result, remote, response);
@@ -425,6 +440,8 @@ DWORD remote_request_core_channel_eof(Remote *remote, Packet *packet)
 			break;
 		}
 
+		lock_acquire( channel->lock );
+
 		// Make sure this class is compatible
 		if (channel_get_class(channel) != CHANNEL_CLASS_POOL)
 		{
@@ -441,6 +458,9 @@ DWORD remote_request_core_channel_eof(Remote *remote, Packet *packet)
 			result = ERROR_NOT_SUPPORTED;
 
 	} while (0);
+	
+	if( channel )
+		lock_release( channel->lock );
 
 	// Add the EOF flag
 	packet_add_tlv_bool(response, TLV_TYPE_BOOL, isEof);
@@ -474,6 +494,8 @@ DWORD remote_request_core_channel_tell(Remote *remote, Packet *packet)
 			break;
 		}
 
+		lock_acquire( channel->lock );
+
 		// Make sure this class is compatible
 		if (channel_get_class(channel) != CHANNEL_CLASS_POOL)
 		{
@@ -490,6 +512,9 @@ DWORD remote_request_core_channel_tell(Remote *remote, Packet *packet)
 			result = ERROR_NOT_SUPPORTED;
 
 	} while (0);
+
+	if( channel )
+		lock_release( channel->lock );
 
 	// Add the offset
 	packet_add_tlv_uint(response, TLV_TYPE_SEEK_POS, offset);
@@ -511,7 +536,7 @@ DWORD remote_request_core_channel_tell(Remote *remote, Packet *packet)
 DWORD remote_request_core_channel_interact(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
-	Channel *channel;
+	Channel *channel = NULL;
 	DWORD channelId;
 	DWORD result = ERROR_SUCCESS;
 	BOOLEAN interact;
@@ -523,6 +548,8 @@ DWORD remote_request_core_channel_interact(Remote *remote, Packet *packet)
 	// If the channel is found, set the interactive flag accordingly
 	if ((channel = channel_find_by_id(channelId)))
 	{
+		lock_acquire( channel->lock );
+
 		// If the response packet is valid
 		if ((response) &&
 		    (channel_get_class(channel) != CHANNEL_CLASS_BUFFERED))
@@ -537,6 +564,8 @@ DWORD remote_request_core_channel_interact(Remote *remote, Packet *packet)
 
 		// Set the channel's interactive state
 		channel_set_interactive(channel, interact);
+
+		lock_release( channel->lock );
 	}
 
 	// Send the response to the requestor so that the interaction can be 

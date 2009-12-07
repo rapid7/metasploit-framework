@@ -45,6 +45,7 @@ Channel *channel_create(DWORD identifier, DWORD flags)
 		channel->interactive = FALSE;
 		channel->flags       = flags;
 		channel->cls         = CHANNEL_CLASS_BUFFERED;
+		channel->lock        = lock_create();
 
 		memset(&channel->ops, 0, sizeof(channel->ops));
 
@@ -154,6 +155,8 @@ VOID channel_destroy(Channel *channel, Packet *request)
 
 	// Remove the channel from the list of channels
 	channel_remove_list_entry(channel);
+
+	lock_destroy( channel->lock );
 
 	// Destroy the channel context
 	free(channel);
