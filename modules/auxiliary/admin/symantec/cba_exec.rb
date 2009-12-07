@@ -25,6 +25,9 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'CVE', '2009-1429' ],
 					[ 'BID', '34671' ],
+					[ 'OSVDB', '54157' ],
+					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-060/' ],
+					[ 'URL', 'http://www.symantec.com/business/security_response/securityupdates/detail.jsp?fid=security_advisory&pvid=security_advisory&suid=20090428_02' ]
 				],
 			'DisclosureDate' => 'Apr 28 2009'))
 
