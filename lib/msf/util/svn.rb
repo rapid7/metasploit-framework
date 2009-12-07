@@ -74,7 +74,7 @@ class SVN
 			"yesterday"
 		else
 			if (diff.to_i > 7)
-				"%red#{diff.to_i} days ago%c"
+				"%red#{diff.to_i} days ago%clr"
 			else
 				"#{diff.to_i} days ago"
 			end
