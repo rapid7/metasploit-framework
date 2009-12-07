@@ -114,13 +114,9 @@ class DBManager
 			nopts['port'] = nopts['port'].to_i
 		end
 
-
 		begin
 			# Configure the database adapter
 			ActiveRecord::Base.establish_connection(nopts)
-
-			# Try to query for hosts (triggers a real connection
-			Host.find(:first)
 		rescue ::Exception => e
 			self.error = e
 			elog("DB.connect threw an exception: #{e}")
@@ -141,6 +137,22 @@ class DBManager
 			elog("DB.disconnect threw an exception: #{e}")
 		end
 		@active = false
+	end
+
+	#
+	# Migrate database to latest schema version
+	#
+	def migrate(verbose = false)
+		begin
+			migrate_dir = ::File.join(Msf::Config.install_root, "data", "sql", "migrate")
+			ActiveRecord::Migration.verbose = verbose
+			ActiveRecord::Migrator.migrate(migrate_dir, nil)
+		rescue ::Exception => e
+			self.error = e
+			elog("DB.migrate threw an exception: #{e}")
+			return false
+		end
+		return true
 	end
 
 end

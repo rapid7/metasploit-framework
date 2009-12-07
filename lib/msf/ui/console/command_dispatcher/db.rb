@@ -1029,8 +1029,7 @@ class Db
 			end
 			true
 		end
-
-
+		
 		#
 		# Database management: SQLite3
 		#
@@ -1088,30 +1087,23 @@ class Db
 
 			opts['dbfile'] = info[:path]
 
-			sql = ::File.join(Msf::Config.install_root, "data", "sql", "sqlite.sql")
-
 			if (::File.exists?(opts['dbfile']))
 				print_status("The specified database already exists, connecting")
 			else
-
 				print_status("Creating a new database instance...")
 				require_library_or_gem('sqlite3')
-
-				db = ::SQLite3::Database.new(opts['dbfile'])
-				::File.read(sql).split(";").each do |line|
-					begin
-						db.execute(line.strip)
-					rescue ::SQLite3::SQLException, ::SQLite3::MisuseException
-					end
-				end
-				db.close
 			end
-
+			
 			if (not framework.db.connect(opts))
 				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
 			end
+			
+			if (not framework.db.migrate)
+				raise RuntimeError.new("Failed to create database schema: #{framework.db.error}")
+			end
 
 			print_status("Successfully connected to the database")
+
 			print_status("File: #{opts['dbfile']}")
 		end
 
@@ -1240,23 +1232,18 @@ class Db
 
 			cargs = argv.map{|c| "'#{c}' "}.join
 
-			sql = File.join(Msf::Config.install_root, "data", "sql", "mysql.sql")
-			fd  = File.open(sql, 'r')
-
 			system("mysqladmin #{cargs} drop #{info[:name]} >/dev/null 2>&1")
 			system("mysqladmin #{cargs} create #{info[:name]}")
-
-			psql = ::IO.popen("mysql #{cargs} #{info[:name]}", "w")
-			psql.write(fd.read)
-			psql.close
-			fd.close
-
-			print_status("Database creation complete (check for errors)")
-
+			
 			if (not framework.db.connect(opts))
 				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
 			end
 
+			if (not framework.db.migrate)
+				raise RuntimeError.new("Failed to create database schema: #{framework.db.error}")
+			end
+
+			print_status("Database creation complete (check for errors)")
 		end
 
 		#
@@ -1431,18 +1418,9 @@ class Db
 
 			cargs = argv.map{|c| "'#{c}' "}.join
 
-			sql = ::File.join(Msf::Config.install_root, "data", "sql", "postgres.sql")
-			fd  = ::File.open(sql, 'r')
-
 			system("dropdb #{cargs} #{info[:name]} >/dev/null 2>&1")
 			system("createdb #{cargs} #{info[:name]}")
 
-			psql = ::IO.popen("psql -q " + cargs + info[:name], "w")
-			psql.write(fd.read)
-			psql.close
-			fd.close
-
-			print_status("Database creation complete (check for errors)")
 			opts['pass'] ||= ''
 
 			# Do a little legwork to find the real database socket
@@ -1474,6 +1452,12 @@ class Db
 			if (not framework.db.connect(opts))
 				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
 			end
+
+			if (not framework.db.migrate)
+				raise RuntimeError.new("Failed to create database schema: #{framework.db.error}")
+			end
+
+			print_status("Database creation complete (check for errors)")
 		end
 
 		#
