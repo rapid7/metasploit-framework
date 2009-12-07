@@ -51,7 +51,7 @@ module Payload::Windows::ReflectiveDllInject_x64
 		offset = 0
     
 		begin
-			File.open( library_path, "rb" ) { |f| dll += f.read }
+			::File.open( library_path, "rb" ) { |f| dll += f.read(f.stat.size) }
 
 			pe = Rex::PeParsey::Pe.new( Rex::ImageSource::Memory.new( dll ) )
       		
