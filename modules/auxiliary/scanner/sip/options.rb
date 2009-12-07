@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
 		if(not agent.empty?)
 			report_note(
 				:host   => pkt[1],
-				:ntype  => 'sip_useragent',
+				:type  => 'sip_useragent',
 				:data   => agent
 			)
 		end
