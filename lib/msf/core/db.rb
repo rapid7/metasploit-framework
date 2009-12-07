@@ -211,10 +211,9 @@ class DBManager
 	#
 	# This method iterates the hosts table calling the supplied block with the
 	# host instance of each entry.
-	# TODO: use the find() block syntax instead
 	#
 	def each_host(&block)
-		hosts.each do |host|
+		Host.find_each do |host|
 			block.call(host)
 		end
 	end
@@ -231,7 +230,7 @@ class DBManager
 	# service instance of each entry.
 	#
 	def each_service(&block)
-		services.each do |service|
+		Service.find_each do |service|
 			block.call(service)
 		end
 	end
@@ -248,7 +247,7 @@ class DBManager
 	# vuln instance of each entry.
 	#
 	def each_vuln(&block)
-		vulns.each do |vulns|
+		Vuln.find_each do |vulns|
 			block.call(vulns)
 		end
 	end
@@ -266,7 +265,7 @@ class DBManager
 	# note instance of each entry.
 	#
 	def each_note(&block)
-		notes.each do |note|
+		Note.find_each do |note|
 			block.call(note)
 		end
 	end
@@ -298,7 +297,6 @@ class DBManager
 		end
 		if (not host)
 			host = Host.create(:address => address, :comm => comm, :state => HostState::Unknown, :created => Time.now)
-			host.save
 			framework.events.on_db_host(context, host)
 		end
 
@@ -320,7 +318,6 @@ class DBManager
 				:ua_string => ua_string,
 				:created   => Time.now
 			)
-			rec.save
 			framework.events.on_db_client(context, rec)
 		end
 		return rec
@@ -339,7 +336,6 @@ class DBManager
 				:state      => state,
 				:created    => Time.now
 			)
-			rec.save
 			framework.events.on_db_service(context, rec)
 		end
 		return rec
@@ -365,7 +361,6 @@ class DBManager
 				:data       => data,
 				:created    => Time.now
 			)
-			vuln.save
 			framework.events.on_db_vuln(context, vuln)
 		end
 
@@ -382,7 +377,6 @@ class DBManager
 				:name       => name,
 				:created    => Time.now
 			)
-			ref.save
 			framework.events.on_db_ref(context, ref)
 		end
 
@@ -401,7 +395,6 @@ class DBManager
 				:data       => data,
 				:created    => Time.now
 			)
-			rec.save
 			framework.events.on_db_note(context, rec)
 		end
 		return rec
@@ -446,21 +439,21 @@ class DBManager
 	# Find a reference matching this name
 	#
 	def has_ref?(name)
-		Ref.find(:first, :conditions => [ "name = ?", name])
+		Ref.find_by_name(name)
 	end
 
 	#
 	# Find a vulnerability matching this name
 	#
 	def has_vuln?(name)
-		Vuln.find(:first, :conditions => [ "name = ?", name])
+		Vuln.find_by_name(name)
 	end
 		
 	#
 	# Look for an address across all comms
 	#			
 	def has_host?(addr)
-		Host.find(:first, :conditions => [ "address = ?", addr])
+		Host.find_by_address(addr)
 	end
 
 	#
@@ -679,7 +672,6 @@ class DBManager
 				:ssl => ssl, 
 				:selected => sel
 			)
-		tar.save	
 		#framework.events.on_db_target(context, rec)
 	end
 	
@@ -703,7 +695,6 @@ class DBManager
 				:response => response,
 				:created => Time.now
 			)
-		req.save	
 		#framework.events.on_db_request(context, rec)
 	end
 	
