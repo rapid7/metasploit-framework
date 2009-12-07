@@ -55,6 +55,12 @@ class Core
 		"-w" => [ true,  "Specify connect timeout."                       ],
 		"-z" => [ false, "Just try to connect, then return."              ])
 
+	@@search_opts = Rex::Parser::Arguments.new(
+		"-t" => [ true, "Type of module to search for (all|auxiliary|encoder|exploit|nop|payload)" ],
+		"-r" => [ true, "Minimum rank to return (#{RankingName.sort.map{|r|r[1]}.join("|")})" ],
+		"-h" => [ false, "Help banner."                                   ])
+
+
 	# The list of data store elements that cannot be set when in defanged
 	# mode.
 	DefangedProhibitedDataStoreElements = [ "ModulePaths" ]
@@ -987,17 +993,24 @@ class Core
 	# Searches modules (name and description) for specified regex
 	#
 	def cmd_search(*args)
-		case args.length
-			when 1
-				section = 'all'
-				match = args[0]
-			when 2
-				section = args[0]
-				match = args[1]
-			else
-				print_line("Usage: search (all|encoders|nops|exploits|payloads|auxiliary) regex")
+		section = 'all'
+		rank = nil
+		match = nil
+		@@search_opts.parse(args) { |opt, idx, val|
+			case opt
+			when "-h"
+				print_line("Usage: search [options] [regex]")
+				print(@@search_opts.usage)
 				return
-		end
+			when "-t"
+				section = val
+			when "-r"
+				rank = val
+			else
+				match = val
+			end
+		}
+		match = '.*' if match.nil?
 
 		begin
 			regex = Regexp.new(match, true, 'n')
@@ -1008,25 +1021,43 @@ class Core
 
 		print_status("Searching loaded modules for pattern '#{match}'...")
 
+		if rank.to_i != 0
+			rank = rank.to_i
+		elsif RankingName.has_value? rank
+			rank = RankingName.invert[rank]
+		else
+			print_error("Invalid rank, should be one of: " + RankingName.sort.map{|r| r[1]}.join(", "))
+			return
+		end
+
 		case section
-			when 'all'
-				show_encoders(regex)
-				show_nops(regex)
-				show_exploits(regex)
-				show_payloads(regex)
-				show_auxiliary(regex)
-			when 'encoders'
-				show_encoders(regex)
-			when 'nops'
-				show_nops(regex)
-			when 'exploits'
-				show_exploits(regex)
-			when 'payloads'
-				show_payloads(regex)
-			when 'auxiliary'
-				show_auxiliary(regex)
-			else
-				print_line("Usage: search (all|encoders|nops|exploits|payloads|auxiliary) regex")
+		when 'all'
+			show_auxiliary(regex, rank)
+			show_encoders(regex, rank)
+			show_exploits(regex, rank)
+			show_nops(regex)
+			show_payloads(regex)
+		when 'auxiliary'
+			show_auxiliary(regex, rank)
+		when 'encoder'
+			show_encoders(regex, rank)
+		when 'exploit'
+			show_exploits(regex, rank)
+		when 'nop'
+			show_nops(regex)
+		when 'payload'
+			show_payloads(regex)
+		end
+	end
+
+	def cmd_search_tabs(str, words)
+		case (words[-1])
+		when "-r"
+			return RankingName.sort.map{|r| r[1]}
+		when "-t"
+			return %w{auxiliary encoder exploit nop payload}
+		else
+			return ["-h", "-r", "-t"]
 		end
 	end
 
@@ -1795,25 +1826,13 @@ protected
 	# Module list enumeration
 	#
 
-	def show_encoders(regex = nil) # :nodoc:
+	def show_encoders(regex = nil, minrank = nil) # :nodoc:
 		# If an active module has been selected and it's an exploit, get the
 		# list of compatible encoders and display them
 		if (active_module and active_module.exploit? == true)
-			tbl = generate_module_table("Compatible encoders")
-
-			active_module.compatible_encoders.each { |refname, encoder|
-				name = encoder.new.name
-
-				if not regex or
-				   refname =~ regex or
-				   name =~ regex
-					tbl << [ refname, name ]
-				end
-			}
-
-			print(tbl.to_s)
+			show_module_set("Compatible Encoders", active_module.compatible_encoders, regex, minrank)
 		else
-			show_module_set("Encoders", framework.encoders, regex)
+			show_module_set("Encoders", framework.encoders, regex, minrank)
 		end
 	end
 
@@ -1821,34 +1840,22 @@ protected
 		show_module_set("NOP Generators", framework.nops, regex)
 	end
 
-	def show_exploits(regex = nil) # :nodoc:
-		show_module_set("Exploits", framework.exploits, regex)
+	def show_exploits(regex = nil, minrank = nil) # :nodoc:
+		show_module_set("Exploits", framework.exploits, regex, minrank)
 	end
 
 	def show_payloads(regex = nil) # :nodoc:
 		# If an active module has been selected and it's an exploit, get the
 		# list of compatible payloads and display them
 		if (active_module and active_module.exploit? == true)
-			tbl = generate_module_table("Compatible payloads")
-
-			active_module.compatible_payloads.each { |refname, payload|
-				name = payload.new.name
-
-				if not regex or
-				   refname =~ regex or
-				   name =~ regex
-					tbl << [ refname, name ]
-				end
-			}
-
-			print(tbl.to_s)
+			show_module_set("Compatible Payloads", active_module.compatible_payloads, regex)
 		else
 			show_module_set("Payloads", framework.payloads, regex)
 		end
 	end
 
-	def show_auxiliary(regex = nil) # :nodoc:
-		show_module_set("Auxiliary", framework.auxiliary, regex)
+	def show_auxiliary(regex = nil, minrank = nil) # :nodoc:
+		show_module_set("Auxiliary", framework.auxiliary, regex, minrank)
 	end
 
 	def show_options(mod) # :nodoc:
@@ -1949,10 +1956,10 @@ protected
 		print(tbl.to_s)
 	end
 
-	def show_module_set(type, module_set, regex = nil) # :nodoc:
+	def show_module_set(type, module_set, regex = nil, minrank = nil) # :nodoc:
 		tbl = generate_module_table(type)
 
-		module_set.each_module { |refname, mod|
+		module_set.each { |refname, mod|
 			o = nil
 
 			begin
@@ -1961,20 +1968,23 @@ protected
 			end
 			next if not o
 
-			if not regex
-				tbl << [ refname, o.name ]
-				next
-			end
+			#if not regex and (not minrank or minrank <= o.rank)
+			#	tbl << [ refname, o.rank, o.name ]
+			#	next
+			#end
 
 			# handle a search string, search deep
 			if(
+				not regex or
 				o.name.match(regex) or
 				o.description.match(regex) or
 				o.refname.match(regex) or
 				o.references.map{|x| [x.ctx_id + '-' + x.ctx_val, x.to_s]}.join(' ').match(regex) or
 				o.author.to_s.match(regex)
 			)
-				tbl << [ refname, o.name ]
+				if (not minrank or minrank <= o.rank)
+					tbl << [ refname, RankingName[o.rank], o.name ]
+				end
 			end
 		}
 
@@ -1990,6 +2000,7 @@ protected
 			'Columns' =>
 				[
 					'Name',
+					'Rank',
 					'Description'
 				],
 			'ColProps' =>
