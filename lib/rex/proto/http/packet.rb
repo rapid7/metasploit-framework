@@ -278,6 +278,15 @@ protected
 				# no chunked transfer header, pretend this is the entire
 				# buffer and call it done
 				self.body_bytes_left = self.bufq.length
+			elsif(not self.transfer_chunked and not self.headers['Content-Length'])
+				# RFC 2616 says: "The presence of a message-body in a request
+				# is signaled by the inclusion of a Content-Length or
+				# Transfer-Encoding header field in the request's
+				# message-headers."
+				#
+				# So if we haven't seen either a Content-Length or a
+				# Transfer-Encoding header, there shouldn't be a message body.
+				self.body_bytes_left = 0
 			else
 				# Otherwise we need to keep reading until EOF
 				self.body_bytes_left = -1
