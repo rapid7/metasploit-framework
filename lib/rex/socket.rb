@@ -20,7 +20,7 @@ module Socket
 
 	require 'rex/socket/comm'
 	require 'rex/socket/comm/local'
-	
+
 	require 'rex/socket/switch_board'
 	require 'rex/socket/subnet_walker'
 	require 'rex/socket/range_walker'
@@ -72,7 +72,7 @@ module Socket
 	def self.create_ip(opts = {})
 		return create_param(Rex::Socket::Parameters.from_hash(opts.merge('Proto' => 'ip')))
 	end
-	
+
 	##
 	#
 	# Serialization
@@ -82,15 +82,15 @@ module Socket
 
 	# Cache our IPv6 support flag
 	@@support_ipv6 = nil
-	
+
 	#
 	# Determine whether we support IPv6
-	#		
+	#
 	def self.support_ipv6?
 		return @@support_ipv6 if not @@support_ipv6.nil?
 
 		@@support_ipv6 = false
-		
+
 		if (::Socket.const_defined?('AF_INET6'))
 			begin
 				s = ::Socket.new(::Socket::AF_INET6, ::Socket::SOCK_DGRAM, ::Socket::IPPROTO_UDP)
@@ -99,33 +99,33 @@ module Socket
 			rescue
 			end
 		end
-		
+
 		return @@support_ipv6
 	end
-	
+
 	#
 	# Determine whether this is an IPv4 address
-	#	
+	#
 	def self.is_ipv4?(addr)
 		res = Rex::Socket.getaddress(addr)
 		res.match(/:/) ? false : true
 	end
-	
+
 	#
 	# Determine whether this is an IPv6 address
-	#		
+	#
 	def self.is_ipv6?(addr)
 		res = Rex::Socket.getaddress(addr)
 		res.match(/:/) ? true : false
 	end
 
 	#
-	# Checks to see if the supplied address is a dotted quad. 
+	# Checks to see if the supplied address is a dotted quad.
 	#
 	def self.dotted_ip?(addr)
 		# Assume anything with a colon is IPv6
 		return true if (support_ipv6? and addr =~ /:/)
-		
+
 		# Otherwise assume this is IPv4
 		(addr =~ /^(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))$/) ? true : false
 	end
@@ -165,7 +165,7 @@ module Socket
 	# address family
 	#
 	def self.to_sockaddr(ip, port)
-		
+
 		if (ip == '::ffff:0.0.0.0')
 			ip = support_ipv6?() ? '::' : '0.0.0.0'
 		end
@@ -218,16 +218,16 @@ module Socket
 	# Converts an integer address into ascii
 	#
 	def self.addr_itoa(addr, v6=false)
-	
+
 		nboa = addr_iton(addr, v6)
-		
-		# IPv4 
+
+		# IPv4
 		if (addr < 0x100000000 and not v6)
 			nboa.unpack('C4').join('.')
 		# IPv6
 		else
 			nboa.unpack('n8').map{ |c| "%.4x" % c }.join(":")
-		end		
+		end
 	end
 
 	#
@@ -241,37 +241,37 @@ module Socket
 	# Converts a network byte order address to ascii
 	#
 	def self.addr_ntoa(addr)
-	
-		# IPv4 
+
+		# IPv4
 		if (addr.length == 4)
 			return addr.unpack('C4').join('.')
 		end
-		
+
 		# IPv6
 		if (addr.length == 16)
 			return addr.unpack('n8').map{ |c| "%.4x" % c }.join(":")
 		end
-		
-		raise RuntimeError, "Invalid address format"		
+
+		raise RuntimeError, "Invalid address format"
 	end
 
 	#
 	# Converts a network byte order address to an integer
 	#
 	def self.addr_ntoi(addr)
-	
+
 		bits = addr.unpack("N*")
-		
+
 		if (bits.length == 1)
 			return bits[0]
 		end
-		
+
 		if (bits.length == 4)
 			val = 0
 			bits.each_index { |i| val += (  bits[i] << (96 - (i * 32)) ) }
 			return val
 		end
-		
+
 		raise RuntimeError, "Invalid address format"
 	end
 
@@ -287,36 +287,36 @@ module Socket
 			w[1] = (addr >> 64) & 0xffffffff
 			w[2] = (addr >> 32) & 0xffffffff
 			w[3] = addr & 0xffffffff
-			return w.pack('N4')		
+			return w.pack('N4')
 		end
 	end
-			
+
 	#
 	# Converts a CIDR subnet into an array (base, bcast)
 	#
 	def self.cidr_crack(cidr, v6=false)
 		tmp = cidr.split('/')
-		
+
 		tst,scope = tmp[0].split("%",2)
 		scope     = "%" + scope if scope
 		scope   ||= ""
 
 		addr = addr_atoi(tst)
-		
+
 		bits = 32
 		mask = 0
 		use6 = false
-		
+
 		if (addr > 0xffffffff or v6 or cidr =~ /:/)
 			use6 = true
 			bits = 128
 		end
-		
+
 		mask = (2 ** bits) - (2 ** (bits - tmp[1].to_i))
 		base = addr & mask
 
 		stop = base + (2 ** (bits - tmp[1].to_i)) - 1
-		return [self.addr_itoa(base, use6) + scope, self.addr_itoa(stop, use6) + scope]	
+		return [self.addr_itoa(base, use6) + scope, self.addr_itoa(stop, use6) + scope]
 	end
 
 	#
@@ -324,11 +324,11 @@ module Socket
 	# lame kid way of doing it.
 	#
 	def self.net2bitmask(netmask)
-	
+
 		nmask = resolv_nbo(netmask)
 		imask = addr_ntoi(nmask)
 		bits  = 32
-		
+
 		if (imask > 0xffffffff)
 			bits = 128
 		end
@@ -337,10 +337,10 @@ module Socket
 			p = 2 ** bit
 			return (bits - bit) if ((imask & p) == p)
 		end
-		
+
 		0
 	end
-		
+
 	#
 	# Converts a bitmask (28) into a netmask (255.255.255.240)
 	# TODO: IPv6 (use is ambiguous right now)
@@ -377,7 +377,7 @@ module Socket
 	# Utility class methods
 	#
 	##
-	
+
 	def self.source_address(dest='1.2.3.4')
 		begin
 			s = self.create_udp(
@@ -391,7 +391,7 @@ module Socket
 			return '127.0.0.1'
 		end
 	end
-	
+
 	def self.socket_pair
 		begin
 			pair = ::Socket.pair(::Socket::AF_UNIX, ::Socket::SOCK_STREAM, 0)
@@ -403,9 +403,9 @@ module Socket
 			lsock = srv.accept
 			srv.close
 			[lsock, rsock]
-		end	
+		end
 	end
-	
+
 
 	##
 	#
@@ -438,7 +438,7 @@ module Socket
 	# Returns local connection information.
 	#
 	def getsockname
-		return Socket.from_sockaddr(super)
+		Socket.from_sockaddr(super)
 	end
 
 	#
@@ -505,3 +505,4 @@ end
 SHUT_RDWR = ::Socket::SHUT_RDWR
 SHUT_RD   = ::Socket::SHUT_RD
 SHUT_WR   = ::Socket::SHUT_WR
+

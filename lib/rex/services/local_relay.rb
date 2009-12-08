@@ -33,7 +33,14 @@ class LocalRelay
 				relay.on_other_data_proc.call(relay, self, data)
 			# By default, simply push all the data to our side.
 			else
-				put(data)
+				# Write to the relay using a background thread and a
+				# hard timeout. This is required to avoid a block
+				# on send()
+				Thread.new do
+					Timeout.timeout(30) do
+						put(data)
+					end
+				end
 			end
 		end
 
@@ -63,7 +70,7 @@ class LocalRelay
 		attr_accessor :relay
 	end
 
-	
+
 	###
 	#
 	# This class acts as an instance of a given local relay.
@@ -136,7 +143,7 @@ class LocalRelay
 	#
 	def start
 		if (!self.relay_thread)
-			self.relay_thread = Thread.new { 
+			self.relay_thread = Thread.new {
 				begin
 					monitor_relays
 				rescue ::Exception
@@ -187,7 +194,7 @@ class LocalRelay
 		listener = Rex::Socket.create_tcp_server(
 			'LocalHost' => opts['LocalHost'],
 			'LocalPort' => lport)
-	
+
 		opts['LocalPort']   = lport
 		opts['__RelayType'] = 'tcp'
 
@@ -231,7 +238,7 @@ class LocalRelay
 			relay = self.relays[name]
 
 			if (relay)
-				close_relay(relay) 
+				close_relay(relay)
 				rv = true
 			end
 		}
@@ -247,9 +254,9 @@ class LocalRelay
 			next if (relay.opts['__RelayType'] != 'tcp')
 
 			yield(
-				relay.opts['LocalHost'] || '0.0.0.0', 
+				relay.opts['LocalHost'] || '0.0.0.0',
 				relay.opts['LocalPort'],
-				relay.opts['PeerHost'], 
+				relay.opts['PeerHost'],
 				relay.opts['PeerPort'],
 				relay.opts)
 		}
@@ -266,9 +273,9 @@ protected
 	def close_relay(relay)
 		self.rfds.delete(relay.listener)
 		self.relays.delete(relay.name)
-		
+
 		begin
-			relay.shutdown 
+			relay.shutdown
 			relay.close
 		rescue IOError
 		end
@@ -293,7 +300,7 @@ protected
 			fd.close
 		rescue IOError
 		end
-	
+
 		if (ofd)
 			self.rfds.delete(ofd)
 
@@ -345,8 +352,8 @@ protected
 			rfd.other_stream = lfd
 
 			self.rfds << lfd
-			self.rfds << rfd 
-			
+			self.rfds << rfd
+
 		# Otherwise, we don't have both sides, we'll close them.
 		else
 			close_relay_conn(lfd)
@@ -365,18 +372,18 @@ protected
 			begin
 				socks = select(rfds, nil, nil, 0.25)
 			rescue StreamClosedError => e
-				dlog("monitor_relays: closing stream #{e.stream}", 'rex', LEV_3)
+				dlog("monitor_relays: closing stream #{e.stream} #{e.backtrace}", 'rex', LEV_3)
 
 				# Close the relay connection that is associated with the stream
 				# closed error
 				if (e.stream.kind_of?(Stream))
 					close_relay_conn(e.stream)
 				end
-				
+
 				dlog("monitor_relays: closed stream #{e.stream}", 'rex', LEV_3)
 
 				next
-			rescue 
+			rescue
 				elog("Error in #{self} monitor_relays select: #{$!}", 'rex')
 				return
 			end
@@ -393,12 +400,12 @@ protected
 				# Otherwise, it's a relay connection, read data from one side
 				# and write it to the other
 				else
+					Thread.new do
 					begin
 						# Read from the read fd
 						data = rfd.sysread(16384)
 
-						dlog("monitor_relays: sending #{data.length} bytes from #{rfd} to #{rfd.other_stream}",
-							'rex', LEV_3)
+						dlog("monitor_relays: sending #{data.length} bytes from #{rfd} to #{rfd.other_stream}", 'rex', LEV_3)
 
 						# Pass the data onto the other fd, most likely writing it.
 						rfd.other_stream.on_other_data(data)
@@ -407,6 +414,8 @@ protected
 						close_relay_conn(rfd)
 					rescue
 						elog("Error in #{self} monitor_relays read: #{$!}", 'rex')
+					end
+
 					end
 				end
 
@@ -419,3 +428,4 @@ end
 
 end
 end
+

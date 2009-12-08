@@ -25,6 +25,32 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 		def type?
 			'tcp'
 		end
+
+		def getsockname
+			return super if not channel
+
+			# Find the first host in our chain (our address)
+			hops = 0
+			csock = channel.client.sock
+			while(csock.respond_to?('channel'))
+				csock = csock.channel.client.sock
+				hops += 1
+			end
+
+			tmp,caddr,cport = csock.getsockname
+			tmp,raddr,rport = csock.getpeername
+			maddr,mport = [ channel.params.localhost, channel.params.localport ]
+			[ tmp, "#{caddr}#{(hops > 0) ? "-_#{hops}_" : ""}-#{raddr}", "#{mport}" ]
+		end
+
+		def getpeername
+			return super if not channel
+			tmp,caddr,cport = channel.client.sock.getpeername
+			maddr,mport = [ channel.params.peerhost, channel.params.peerport ]
+			[ tmp, "#{maddr}", "#{mport}" ]
+		end
+
+		attr_accessor :channel
 	end
 
 	##
@@ -37,30 +63,31 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 	# Opens a TCP client channel using the supplied parameters.
 	#
 	def TcpClientChannel.open(client, params)
-		return Channel.create(client, 'stdapi_net_tcp_client',
-				self, CHANNEL_FLAG_SYNCHRONOUS,
-				[
-					{
-						'type'  => TLV_TYPE_PEER_HOST,
-						'value' => params.peerhost
-					},
-					{
-						'type'  => TLV_TYPE_PEER_PORT,
-						'value' => params.peerport
-					},
-					{
-						'type'  => TLV_TYPE_LOCAL_HOST,
-						'value' => params.localhost
-					},
-					{
-						'type'  => TLV_TYPE_LOCAL_PORT,
-						'value' => params.localport
-					},
-					{
-						'type'  => TLV_TYPE_CONNECT_RETRIES,
-						'value' => params.retries
-					}
-				])
+		c = Channel.create(client, 'stdapi_net_tcp_client', self, CHANNEL_FLAG_SYNCHRONOUS,
+			[
+				{
+					'type'  => TLV_TYPE_PEER_HOST,
+					'value' => params.peerhost
+				},
+				{
+					'type'  => TLV_TYPE_PEER_PORT,
+					'value' => params.peerport
+				},
+				{
+					'type'  => TLV_TYPE_LOCAL_HOST,
+					'value' => params.localhost
+				},
+				{
+					'type'  => TLV_TYPE_LOCAL_PORT,
+					'value' => params.localport
+				},
+				{
+					'type'  => TLV_TYPE_CONNECT_RETRIES,
+					'value' => params.retries
+				}
+			])
+		c.params = params
+		c
 	end
 
 	##
@@ -78,6 +105,9 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 		# Implement some of the required socket interfaces on the local side of
 		# the stream abstraction.
 		lsock.extend(SocketInterface)
+		rsock.extend(SocketInterface)
+		lsock.channel = self
+		rsock.channel = self
 	end
 
 	#
@@ -90,7 +120,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 	#
 	# Shutdown the connection
 	#
-	# 0 -> future reads 
+	# 0 -> future reads
 	# 1 -> future sends
 	# 2 -> both
 	#
@@ -108,3 +138,4 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 end
 
 end; end; end; end; end; end; end
+

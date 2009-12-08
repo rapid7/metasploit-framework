@@ -78,7 +78,7 @@ class Console::CommandDispatcher::Stdapi::Net
 			print_line("No interfaces were found.")
 		else
 			client.net.config.each_interface { |iface|
-				print("\n" + iface.pretty + "\n")	
+				print("\n" + iface.pretty + "\n")
 			}
 		end
 	end
@@ -120,7 +120,7 @@ class Console::CommandDispatcher::Stdapi::Net
 					tbl = Rex::Ui::Text::Table.new(
 						'Header'  => "Network routes",
 						'Indent'  => 4,
-						'Columns' => 
+						'Columns' =>
 							[
 								"Subnet",
 								"Netmask",
@@ -128,7 +128,7 @@ class Console::CommandDispatcher::Stdapi::Net
 							])
 
 					routes.each { |route|
-						tbl << [ route.subnet, route.netmask, route.gateway ]	
+						tbl << [ route.subnet, route.netmask, route.gateway ]
 					}
 
 					print("\n" + tbl.to_s + "\n")
@@ -206,7 +206,7 @@ class Console::CommandDispatcher::Stdapi::Net
 				print_line
 				print_line("#{cnt} total local port forwards.")
 
-				
+
 			when "add"
 
 				# Validate parameters
@@ -216,7 +216,7 @@ class Console::CommandDispatcher::Stdapi::Net
 				end
 
 				# Start the local TCP relay in association with this stream
-				service.start_tcp_relay(lport, 
+				service.start_tcp_relay(lport,
 					'LocalHost'         => lhost,
 					'PeerHost'          => rhost,
 					'PeerPort'          => rport,
@@ -265,3 +265,4 @@ end
 end
 end
 end
+

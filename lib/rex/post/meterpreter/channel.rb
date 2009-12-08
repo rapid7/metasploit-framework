@@ -58,16 +58,17 @@ class Channel
 			end
 
 			channel = client.find_channel(cid)
-			# Valid channel context?
+
+			# No valid channel context? The channel may not be registered yet
 			if (channel == nil)
 				return false
 			end
 
 			dio = channel.dio_map(packet.method)
 
-			# Supported DIO request?
+			# Supported DIO request? Dump it.
 			if (dio == nil)
-				return false
+				return true
 			end
 
 			# Call the channel's dio handler and return success or fail
@@ -402,10 +403,17 @@ class Channel
 	# Any channel-specific flag, like synchronous IO.
 	#
 	attr_reader   :flags
-
+	#
+	# Any channel-specific parameters.
+	#
+	attr_accessor :params
+	#
+	# The associated meterpreter client instance
+	#
+	attr_accessor :client
 protected
 
-	attr_accessor :client # :nodoc:
+
 	attr_writer   :cid, :type, :cls, :flags # :nodoc:
 
 	#

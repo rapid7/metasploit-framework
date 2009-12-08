@@ -421,6 +421,7 @@ end
 #
 ###
 class Packet < GroupTlv
+	attr_accessor :created_at
 
 	##
 	#
@@ -470,6 +471,8 @@ class Packet < GroupTlv
 		if (method)
 			self.method = method
 		end
+
+		self.created_at = ::Time.now
 
 		# If it's a request, generate a random request identifier
 		if ((type == PACKET_TYPE_REQUEST) ||

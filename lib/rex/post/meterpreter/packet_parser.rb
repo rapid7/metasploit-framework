@@ -83,7 +83,7 @@ class PacketParser
 			return packet
 		end
 	end
-	
+
 protected
 	attr_accessor :cipher, :raw, :hdr_length_left, :payload_length_left  # :nodoc:
 
@@ -91,3 +91,4 @@ end
 
 
 end; end; end
+

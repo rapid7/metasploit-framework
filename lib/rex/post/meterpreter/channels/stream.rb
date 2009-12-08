@@ -20,7 +20,7 @@ class Stream < Rex::Post::Meterpreter::Channel
 
 	include Rex::IO::StreamAbstraction
 
-	class <<self
+	class << self
 		def cls
 			return CHANNEL_CLASS_STREAM
 		end
@@ -61,7 +61,7 @@ class Stream < Rex::Post::Meterpreter::Channel
 	#
 	def dio_close_handler(packet)
 		rsock.close
-		
+
 		return super(packet)
 	end
 
@@ -77,3 +77,4 @@ class Stream < Rex::Post::Meterpreter::Channel
 end
 
 end; end; end
+

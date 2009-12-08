@@ -38,6 +38,8 @@ end
 ###
 module PacketDispatcher
 
+	PacketTimeout = 30
+
 	##
 	#
 	# Transmission
@@ -121,6 +123,8 @@ module PacketDispatcher
 
 		# Spawn a new thread that monitors the socket
 		self.dispatcher_thread = ::Thread.new {
+			begin
+
 			backlog = []
 			while (true)
 				begin
@@ -141,7 +145,10 @@ module PacketDispatcher
 				incomplete = []
 				backlog.each do |pkt|
 					if ! dispatch_inbound_packet(pkt)
-						incomplete << pkt
+						# Only requeue packets newer than the timeout
+						if (::Time.now.to_i - pkt.created_at.to_i < PacketTimeout)
+							incomplete << pkt
+						end
 					end
 				end
 
@@ -151,6 +158,10 @@ module PacketDispatcher
 					dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{backlog[0 .. 25].map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
 					backlog = backlog[25 .. 100]
 				end
+			end
+
+			rescue ::Exception => e
+				dlog("Exception caught in monitor_socket dispatcher: #{e.class} #{e} #{e.backtrace}", 'meterpreter', LEV_1)
 			end
 		}
 	end
@@ -232,8 +243,6 @@ module PacketDispatcher
 			client = self
 		end
 
-		#puts "Inbound packet: rid=#{packet.rid} method=#{packet.method}\n"
-
 		# If the packet is a response, try to notify any potential
 		# waiters
 		if ((resp = packet.response?))
@@ -241,6 +250,7 @@ module PacketDispatcher
 				return true
 			end
 		end
+
 
 		# Enumerate all of the inbound packet handlers until one handles
 		# the packet
@@ -256,7 +266,6 @@ module PacketDispatcher
 				break
 			end
 		}
-
 		return handled
 	end
 

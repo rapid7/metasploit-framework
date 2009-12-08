@@ -22,7 +22,7 @@ module Channels
 ###
 class Pool < Rex::Post::Meterpreter::Channel
 
-	class <<self
+	class << self
 		def cls
 			return CHANNEL_CLASS_POOL
 		end
@@ -79,7 +79,7 @@ class Pool < Rex::Post::Meterpreter::Channel
 			data = nil
 		end
 
-		if (((data == nil) || (data.length == 0)) && 
+		if (((data == nil) || (data.length == 0)) &&
 		    (self.eof))
 			raise EOFError
 		end
@@ -96,11 +96,11 @@ class Pool < Rex::Post::Meterpreter::Channel
 
 		# Just in case...
 		case whence
-			when ::IO::SEEK_SET 
+			when ::IO::SEEK_SET
 				sane = 0
-			when ::IO::SEEK_CUR 
+			when ::IO::SEEK_CUR
 				sane = 1
-			when ::IO::SEEK_END 
+			when ::IO::SEEK_END
 				sane = 2
 			else
 				raise RuntimeError, "Invalid seek whence #{whence}.", caller
@@ -117,7 +117,7 @@ class Pool < Rex::Post::Meterpreter::Channel
 		rescue
 			return -1
 		end
-				
+
 		return tell
 	end
 
@@ -147,7 +147,7 @@ class Pool < Rex::Post::Meterpreter::Channel
 		if (response.has_tlv?(TLV_TYPE_SEEK_POS))
 			pos = response.get_tlv_value(TLV_TYPE_SEEK_POS)
 		end
-			
+
 		return pos
 	end
 
@@ -157,3 +157,4 @@ protected
 end
 
 end; end; end; end
+
