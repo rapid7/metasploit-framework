@@ -391,6 +391,9 @@ DWORD _channel_packet_completion_routine(Remote *remote, Packet *packet,
 	Channel *channel = channel_find_by_id(channelId);
 	DWORD res = ERROR_NOT_FOUND;
 
+
+	dprintf( "[CHANNEL] _channel_packet_completion_routine. channel=0x%08X method=%s", channel, method );
+
 	// If the channel was not found and it isn't an open request, return failure
 	if (!channel && strcmp(method, "core_channel_open"))
 		return ERROR_NOT_FOUND;
@@ -665,6 +668,8 @@ DWORD channel_close(Channel *channel, Remote *remote, Tlv *addend,
 			realRequestCompletion     = &requestCompletion;
 		}
 
+		dprintf( "[CHANNEL] channel_close. channel=0x%08X completion=0x%.8x", channel, completionRoutine );
+			
 		// Transmit the packet with the supplied completion routine, if any.
 		res = packet_transmit(remote, request, realRequestCompletion);
 

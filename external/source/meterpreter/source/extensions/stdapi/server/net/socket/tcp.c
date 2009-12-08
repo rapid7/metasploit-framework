@@ -86,16 +86,33 @@ static DWORD tcp_channel_client_local_notify(Remote *remote,
 		FD_SET(ctx->fd, &set);
 
 		// Read data from the client connection
-		if (((bytesRead = recv(ctx->fd, buf, sizeof(buf), 0)) 
-				== SOCKET_ERROR) || 
-			 (bytesRead == 0))
-		{
-			channel_close(ctx->channel, ctx->remote, NULL, 0, NULL);
+		bytesRead = recv(ctx->fd, buf, sizeof(buf), 0);
+		
+		// Not sure why we get these with pending data
+		if(bytesRead == SOCKET_ERROR) {
+			printf( "[TCP] tcp_channel_client_local_notify. [error] channel=0x%08X read=0x%.8x (ignored)", ctx->channel, bytesRead );
+			continue;
+		}
 
+		if (bytesRead == 0) {
+			dprintf( "[TCP] tcp_channel_client_local_notify. [closed] channel=0x%08X read=0x%.8x", ctx->channel, bytesRead );
+
+			// Set the native channel operations context to NULL
+			channel_set_native_io_context(ctx->channel, NULL);
+			
+			// Free the context
+			free_tcp_client_context(ctx);
+
+			// Stop processing
 			break;
 		}
-		else if (ctx->channel)
+		
+		if (ctx->channel) {
+			dprintf( "[TCP] tcp_channel_client_local_notify. [data] channel=0x%08X read=0x%.8x", ctx->channel, bytesRead );
 			channel_write(ctx->channel, ctx->remote, NULL, 0, buf, bytesRead, 0);
+		} else {
+			dprintf( "[TCP] tcp_channel_client_local_notify. [data] channel=<invalid> read=0x%.8x", bytesRead );
+		}
 	
 	} while (select(0, &set, NULL, NULL, &tv) > 0);
 	
@@ -270,17 +287,23 @@ VOID free_socket_context(SocketContext *ctx)
 	dprintf( "[TCP] free_socket_context. ctx=0x%08X", ctx );
 
 	// Close the socket and notification handle
-	if (ctx->fd)
+	if (ctx->fd){
 		closesocket(ctx->fd);
+		ctx->fd = NULL;
+	}
 	if (ctx->notify)
 	{
 		scheduler_remove_waitable(ctx->notify);
 
-		WSACloseEvent(ctx->notify);
+		// XXX: Leaving this triggers an invalid handle in another thread?
+		// WSACloseEvent(ctx->notify);
+		ctx->notify = NULL;
 	}
 
-	if (ctx->channel)
+	if (ctx->channel) {
 		channel_close(ctx->channel, ctx->remote, NULL, 0, NULL);
+		ctx->channel = NULL;
+	}
 
 	// Free the context
 	free(ctx);
