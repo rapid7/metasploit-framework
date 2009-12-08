@@ -10,6 +10,7 @@ typedef struct _SocketContext
 	Channel  *channel;
 #ifdef _WIN32
 	WSAEVENT notify;
+	HANDLE mutex;
 #else
 	int notify;
 #endif

@@ -218,7 +218,9 @@ DWORD THREADCALL scheduler_waitable_thread( THREAD * thread )
 
 	while( !terminate )
 	{
+		dprintf( "[SCHEDULER] scheduler_waitable_thread( 0x%08X ) waiting on 0x%08X and 0x%08X", thread, waitableHandles[0], waitableHandles[1]);
 		result = WaitForMultipleObjects( 2, (HANDLE *)&waitableHandles, FALSE, INFINITE );
+		dprintf( "[SCHEDULER] scheduler_waitable_thread( 0x%08X ) waiting on 0x%08X and 0x%08X returned %d", thread, waitableHandles[0], waitableHandles[1], result - WAIT_OBJECT_0);
 		switch( result - WAIT_OBJECT_0 )
 		{
 			case 0:
@@ -240,7 +242,10 @@ DWORD THREADCALL scheduler_waitable_thread( THREAD * thread )
 	lock_acquire( schedulerThreadList->lock );
 	if( list_remove( schedulerThreadList, thread ) )
 	{
-		CloseHandle( entry->waitable );
+		if(entry->waitable) {
+			dprintf( "[SCHEDULER] scheduler_waitable_thread( 0x%08X ) closing handle 0x%08X", thread, entry->waitable);
+			CloseHandle( entry->waitable );
+		}
 		thread_destroy( thread );
 		free( entry );
 	}

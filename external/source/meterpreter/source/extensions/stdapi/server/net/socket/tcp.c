@@ -108,7 +108,7 @@ static DWORD tcp_channel_client_local_notify(Remote *remote,
 		}
 		
 		if (ctx->channel) {
-			dprintf( "[TCP] tcp_channel_client_local_notify. [data] channel=0x%08X read=0x%.8x", ctx->channel, bytesRead );
+			// dprintf( "[TCP] tcp_channel_client_local_notify. [data] channel=0x%08X read=0x%.8x", ctx->channel, bytesRead );
 			channel_write(ctx->channel, ctx->remote, NULL, 0, buf, bytesRead, 0);
 		} else {
 			dprintf( "[TCP] tcp_channel_client_local_notify. [data] channel=<invalid> read=0x%.8x", bytesRead );
@@ -192,10 +192,11 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost,
 			result   = GetLastError();
 			break;
 		}
-
+ 
 		s.sin_family      = AF_INET;
 		s.sin_port        = htons(remotePort);
 		s.sin_addr.s_addr = inet_addr(remoteHost);
+
 
 		// Resolve the host name locally
 		if (s.sin_addr.s_addr == (DWORD)-1)
@@ -211,6 +212,7 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost,
 			memcpy(&s.sin_addr.s_addr, h->h_addr, h->h_length);
 		}
 
+		dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d connecting...", remoteHost, remotePort );
 		// Try to connect to the host/port
 		if (connect(clientFd, (struct sockaddr *)&s, sizeof(s)) == SOCKET_ERROR)
 		{
@@ -218,6 +220,7 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost,
 			break;
 		}
 
+		dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d connected!", remoteHost, remotePort );
 		// Allocate the client context for tracking the connection
 		if (!(ctx = (TcpClientContext *)malloc(
 				sizeof(TcpClientContext))))
@@ -231,6 +234,7 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost,
 
 		ctx->remote = remote;
 		ctx->fd     = clientFd;
+		ctx->mutex  = CreateMutex(NULL, FALSE, NULL);
 
 		// Initialize the channel operations structure
 		memset(&chops, 0, sizeof(chops));
@@ -239,6 +243,7 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost,
 		chops.native.write   = tcp_channel_client_write;
 		chops.native.close   = tcp_channel_client_close;
 
+		dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d creating the channel", remoteHost, remotePort );
 		// Allocate an uninitialized channel for associated with this connection
 		if (!(channel = channel_create_stream(0, 0,
 				&chops)))
@@ -252,9 +257,11 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost,
 
 		// Finally, create a waitable event and insert it into the scheduler's 
 		// waitable list
+		dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d creating the notify", remoteHost, remotePort );
 		if ((ctx->notify = WSACreateEvent()))
 		{
 			WSAEventSelect(ctx->fd, ctx->notify, FD_READ|FD_CLOSE);
+			dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d created the notify %.8x", remoteHost, remotePort, ctx->notify );
 
 			scheduler_insert_waitable( ctx->notify, ctx,
 					(WaitableNotifyRoutine)tcp_channel_client_local_notify);
@@ -262,9 +269,12 @@ DWORD create_tcp_client_channel(Remote *remote, LPCSTR remoteHost,
 
 	} while (0);
 
+	dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d all done", remoteHost, remotePort );
+
 	// Clean up on failure
 	if (result != ERROR_SUCCESS)
 	{
+		dprintf( "[TCP] create_tcp_client_channel. host=%s, port=%d cleaning up failed connection", remoteHost, remotePort );
 		if (ctx)
 			free_tcp_client_context(ctx);
 		if (clientFd)
@@ -291,18 +301,18 @@ VOID free_socket_context(SocketContext *ctx)
 		closesocket(ctx->fd);
 		ctx->fd = NULL;
 	}
-	if (ctx->notify)
-	{
-		scheduler_remove_waitable(ctx->notify);
-
-		// XXX: Leaving this triggers an invalid handle in another thread?
-		// WSACloseEvent(ctx->notify);
-		ctx->notify = NULL;
-	}
-
+	
 	if (ctx->channel) {
 		channel_close(ctx->channel, ctx->remote, NULL, 0, NULL);
 		ctx->channel = NULL;
+	}
+
+	if (ctx->notify)
+	{
+		dprintf( "[TCP] free_socket_context. remove_waitable ctx=0x%08X notify=0x%08X", ctx, ctx->notify);
+		// The scheduler calls CloseHandle on our WSACreateEvent() for us
+		scheduler_remove_waitable(ctx->notify);
+		ctx->notify = NULL;
 	}
 
 	// Free the context

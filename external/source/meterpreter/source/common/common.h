@@ -32,6 +32,8 @@
 #include "list.h"
 
 
+// #define DEBUGTRACE
+
 #ifdef DEBUGTRACE
 #define dprintf(...) real_dprintf(__VA_ARGS__)
 #else
