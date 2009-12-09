@@ -994,8 +994,8 @@ class Core
 	#
 	def cmd_search(*args)
 		section = 'all'
-		rank = nil
-		match = nil
+		rank    = 'manual'
+		match   = nil
 		@@search_opts.parse(args) { |opt, idx, val|
 			case opt
 			when "-h"
@@ -1276,11 +1276,11 @@ class Core
 		# now all we have is an ad-hoc list of opts that the shell treats
 		# specially.
 		res += %w{
-			ConsoleLogging 
-			LogLevel 
-			MinimumRank 
+			ConsoleLogging
+			LogLevel
+			MinimumRank
 			SessionLogging
-			TimestampOutput 
+			TimestampOutput
 		}
 		mod = active_module
 
@@ -1910,13 +1910,13 @@ protected
 			'Columns' => columns
 			)
 		[
-			[ 'ConsoleLogging', framework.datastore['ConsoleLogging'] || '', 'Log all console input and output' ], 
+			[ 'ConsoleLogging', framework.datastore['ConsoleLogging'] || '', 'Log all console input and output' ],
 			[ 'LogLevel', framework.datastore['LogLevel'] || '', 'Verbosity of logs (default 0, max 3)' ],
 			[ 'MinimumRank', framework.datastore['MinimumRank'] || '', 'The minimum rank of exploits that will run without explicit confirmation' ],
 			[ 'SessionLogging', framework.datastore['SessionLogging'] || '', 'Log all input and output for sessions' ],
 			[ 'TimestampOutput', framework.datastore['TimestampOutput'] || '', 'Prefix all console output with a timestamp' ],
 		].each { |r| tbl << r }
-		
+
 		print(tbl.to_s)
 	end
 
