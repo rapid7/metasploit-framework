@@ -337,6 +337,17 @@ class Db
 				end
 			end
 
+			minrank = framework.datastore['MinimumRank'] || ''
+			if not RankingName.values.include?(minrank)
+				print_error("MinimumRank invalid, ignoring")
+				wlog("MinimumRank invalid, ignoring", 'core', LEV_0)
+				minrank = nil
+			else
+				minrank = RankingName.invert[minrank]
+			end
+			p minrank
+			
+
 			# Default to quiet mode
 			if (mode & PWN_VERB == 0)
 				mode |= PWN_SLNT
@@ -349,6 +360,7 @@ class Db
 				# Scan all exploit modules for matching references
 				mtype[0].each_module do |n,m|
 					e = m.new
+					next if minrank and minrank > e.rank
 
 					#
 					# Match based on vulnerability references

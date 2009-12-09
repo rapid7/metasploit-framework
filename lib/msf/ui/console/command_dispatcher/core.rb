@@ -1272,6 +1272,16 @@ class Core
 		end
 
 		res = cmd_unset_tabs(str, words) || [ ]
+		# There needs to be a better way to register global options, but for
+		# now all we have is an ad-hoc list of opts that the shell treats
+		# specially.
+		res += %w{
+			ConsoleLogging 
+			LogLevel 
+			MinimumRank 
+			SessionLogging
+			TimestampOutput 
+		}
 		mod = active_module
 
 		if (not mod)
@@ -1359,7 +1369,7 @@ class Core
 					if (mod)
 						show_options(mod)
 					else
-						print_error("No module selected.")
+						show_global_options
 					end
 				when 'advanced'
 					if (mod)
@@ -1395,9 +1405,9 @@ class Core
 	# Tab completion for the show command
 	#
 	def cmd_show_tabs(str, words)
-		res = %w{all encoders nops exploits payloads auxiliary plugins}
+		res = %w{all encoders nops exploits payloads auxiliary plugins options}
 		if (active_module)
-			res.concat(%w{ options advanced evasion targets actions })
+			res.concat(%w{ advanced evasion targets actions })
 		end
 		return res
 	end
@@ -1890,6 +1900,26 @@ protected
 		#print("\nTarget: #{mod.target.name}\n\n")
 	end
 
+	def show_global_options
+		columns = [ 'Option', 'Current Setting', 'Description' ]
+		tbl = Table.new(
+			Table::Style::Default,
+			'Header'  => 'Global Options:',
+			'Prefix'  => "\n",
+			'Postfix' => "\n",
+			'Columns' => columns
+			)
+		[
+			[ 'ConsoleLogging', framework.datastore['ConsoleLogging'] || '', 'Log all console input and output' ], 
+			[ 'LogLevel', framework.datastore['LogLevel'] || '', 'Verbosity of logs (default 0, max 3)' ],
+			[ 'MinimumRank', framework.datastore['MinimumRank'] || '', 'The minimum rank of exploits that will run without explicit confirmation' ],
+			[ 'SessionLogging', framework.datastore['SessionLogging'] || '', 'Log all input and output for sessions' ],
+			[ 'TimestampOutput', framework.datastore['TimestampOutput'] || '', 'Prefix all console output with a timestamp' ],
+		].each { |r| tbl << r }
+		
+		print(tbl.to_s)
+	end
+
 	def show_targets(mod) # :nodoc:
 		mod_targs = Serializer::ReadableText.dump_exploit_targets(mod, '   ')
 		print("\nExploit targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
@@ -1968,11 +1998,6 @@ protected
 			end
 			next if not o
 
-			#if not regex and (not minrank or minrank <= o.rank)
-			#	tbl << [ refname, o.rank, o.name ]
-			#	next
-			#end
-
 			# handle a search string, search deep
 			if(
 				not regex or
@@ -1983,7 +2008,7 @@ protected
 				o.author.to_s.match(regex)
 			)
 				if (not minrank or minrank <= o.rank)
-					tbl << [ refname, RankingName[o.rank], o.name ]
+					tbl << [ refname, o.rank_to_s, o.name ]
 				end
 			end
 		}
@@ -1997,22 +2022,9 @@ protected
 			'Header'  => type,
 			'Prefix'  => "\n",
 			'Postfix' => "\n",
-			'Columns' =>
-				[
-					'Name',
-					'Rank',
-					'Description'
-				],
-			'ColProps' =>
-				{
-					'Name' =>
-						{
-							# Default max width to 25
-							'MaxWidth' => 25
-						}
-				})
+			'Columns' => [ 'Name', 'Rank', 'Description' ]
+			)
 	end
-
 end
 
 end end end end
