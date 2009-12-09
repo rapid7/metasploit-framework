@@ -243,7 +243,7 @@ class Plugin::Nexpose < Msf::Plugin
 				end
 			end
 
-			opt_ranges = opt_ranges.join(',')
+			opt_ranges = opt_ranges.join(' ')
 
 			if(opt_ranges.strip.empty?)
 				print_line("Usage: nexpose_scan [options] <Target IP Ranges>")
