@@ -4,6 +4,12 @@ require 'rex/socket'
 require 'rex/socket/range_walker'
 
 describe Rex::Socket::RangeWalker do
+	it "should have a num_ips attribute" do
+		walker = Rex::Socket::RangeWalker.new("") 
+		walker.should respond_to("num_ips")
+		walker.should respond_to("length")
+		walker.num_ips.should == walker.length
+	end
 	it "should handle single ipv6 addresses" do
 		walker = Rex::Socket::RangeWalker.new("::1") 
 		walker.should be_valid
