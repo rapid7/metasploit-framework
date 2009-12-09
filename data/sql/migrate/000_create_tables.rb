@@ -52,7 +52,7 @@ class CreateTables < ActiveRecord::Migration
 			t.string    :name, :limit => 512
 		end
 		
-		create_table :vulns_refs do |t|
+		create_table :vulns_refs, :id => false do |t|
 			t.integer   :ref_id
 			t.integer   :vuln_id
 		end
