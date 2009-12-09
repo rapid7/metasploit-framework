@@ -338,10 +338,10 @@ class Db
 			end
 
 			minrank = framework.datastore['MinimumRank'] || nil
-			if minrank and not RankingName.values.include?(minrank)
-				print_error("MinimumRank invalid, ignoring")
+			if not minrank or not RankingName.values.include?(minrank)
+				print_error("MinimumRank invalid!  Possible values are (#{RankingName.sort.map{|r|r[1]}.join("|")})")
 				wlog("MinimumRank invalid, ignoring", 'core', LEV_0)
-				minrank = nil
+				return
 			else
 				minrank = RankingName.invert[minrank]
 			end
