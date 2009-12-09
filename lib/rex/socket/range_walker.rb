@@ -109,6 +109,7 @@ class RangeWalker
 	# the stored ranges.
 	#
 	def include?(addr)
+		return false if not @ranges
 		if (addr.is_a? String)
 			addr = Rex::Socket.addr_atoi(addr)
 		end
