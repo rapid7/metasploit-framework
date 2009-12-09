@@ -45,26 +45,6 @@ class Plugin::Nexpose < Msf::Plugin
 			true
 		end
 
-		#
-		# Determine if an IP address is inside a given range
-		#
-		def range_include?(ranges, addr)
-
-			ranges.each do |sets|
-				sets.split(',').each do |set|
-					rng = set.split('-').map{ |c| Rex::Socket::addr_atoi(c) }
-					tst = Rex::Socket::addr_atoi(addr)
-					if (not rng[1])
-						return tst == rng[0]
-					elsif (tst >= rng[0] and tst <= rng[1])
-						return true
-					end
-				end
-			end
-
-			false
-		end
-
 		def cmd_nexpose_connect(*args)
 
 			if(args.length == 0 or args[0].empty? or args[0] == "-h")
@@ -257,6 +237,8 @@ class Plugin::Nexpose < Msf::Plugin
 
 			range_inp = ::Msf::OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(opt_ranges)
 			range     = ::Rex::Socket::RangeWalker.new(range_inp)
+			include_range = ::Rex::Socket::RangeWalker.new(opt_addrinc) || nil
+			exclude_range = ::Rex::Socket::RangeWalker.new(opt_addrexc) || nil
 
 			completed = 0
 			total     = range.num_ips
@@ -270,12 +252,12 @@ class Plugin::Nexpose < Msf::Plugin
 
 				while(ip = range.next_ip and queue.length < opt_maxaddrs)
 
-					if(opt_addrexc and range_include?([opt_addrexc], ip))
+					if(exclude_range and exclude_range.include?(ip))
 						print_status(" >> Skipping host #{ip} due to exclusion") if opt_verbose
 						next
 					end
 
-					if(opt_addrinc and ! range_include?([opt_addrinc], ip))
+					if(include_range and ! include_range.include?(ip))
 						print_status(" >> Skipping host #{ip} due to inclusion filter") if opt_verbose
 						next
 					end
