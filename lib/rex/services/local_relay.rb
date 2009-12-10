@@ -83,11 +83,17 @@ class LocalRelay
 		end
 
 		def shutdown
-			listener.shutdown if (listener)
+			begin
+				listener.shutdown if (listener)
+			rescue ::Exception
+			end
 		end
 
 		def close
-			listener.close if (listener)
+			begin
+				listener.close if (listener)
+			rescue ::Exception
+			end
 			listener = nil
 		end
 
