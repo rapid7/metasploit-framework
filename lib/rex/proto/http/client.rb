@@ -359,6 +359,49 @@ class Client
 	end
 
 	#
+	# Read a response from the server (starting with existing data)
+	#
+	def reread_response(resp, t = -1)
+
+		resp.max_data = config['read_max_data']
+		resp.state    = Packet::ParseState::ProcessingHeader
+		resp.parse('')
+
+		# Wait at most t seconds for the full response to be read in.  We only
+		# do this if t was specified as a negative value indicating an infinite
+		# wait cycle.  If t were specified as nil it would indicate that no
+		# response parsing is required.
+
+		return resp if not t
+
+		Timeout.timeout((t < 0) ? nil : t) do
+
+			rv = resp.state
+			while (
+			         rv != Packet::ParseCode::Completed and
+			         rv != Packet::ParseCode::Error
+		          )
+				begin
+					buff = conn.get
+					rv   = resp.parse( buff || '')
+
+				# Handle unexpected disconnects
+				rescue ::Errno::EPIPE, ::EOFError, ::IOError
+					case resp.state
+					when Packet::ParseState::ProcessingHeader
+						resp = nil
+					when Packet::ParseState::ProcessingBody
+						# truncated request, good enough
+						resp.error = :truncated
+					end
+					break
+				end
+			end
+		end
+		resp
+	end
+
+	#
 	# Cleans up any outstanding connections and other resources.
 	#
 	def stop
