@@ -210,7 +210,7 @@ class Packet
 		self.headers.cmd_string
 	end
 
-	attr_reader   :headers
+	attr_accessor :headers
 	attr_accessor :error
 	attr_accessor :state
 	attr_accessor :bufq
@@ -226,7 +226,6 @@ class Packet
 
 protected
 
-	attr_writer   :headers
 	attr_writer   :incomplete
 	attr_accessor :body_bytes_left
 	attr_accessor :inside_chunk

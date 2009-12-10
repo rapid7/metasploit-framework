@@ -364,6 +364,7 @@ class Client
 	def reread_response(resp, t = -1)
 
 		resp.max_data = config['read_max_data']
+		resp.headers  = Packet::Header.new
 		resp.state    = Packet::ParseState::ProcessingHeader
 		resp.parse('')
 
