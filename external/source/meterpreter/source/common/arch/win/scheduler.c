@@ -210,25 +210,24 @@ DWORD THREADCALL scheduler_waitable_thread( THREAD * thread )
 
 	list_add( schedulerThreadList, thread );
 
-	waitableHandles[0] = entry->waitable;
-
-	waitableHandles[1] = thread->sigterm->handle;
+	waitableHandles[0] = thread->sigterm->handle;
+	waitableHandles[1] = entry->waitable;
 
 	dprintf( "[SCHEDULER] entering scheduler_waitable_thread( 0x%08X )", thread );
 
 	while( !terminate )
 	{
-		dprintf( "[SCHEDULER] scheduler_waitable_thread( 0x%08X ) waiting on 0x%08X and 0x%08X", thread, waitableHandles[0], waitableHandles[1]);
+		
 		result = WaitForMultipleObjects( 2, (HANDLE *)&waitableHandles, FALSE, INFINITE );
-		dprintf( "[SCHEDULER] scheduler_waitable_thread( 0x%08X ) waiting on 0x%08X and 0x%08X returned %d", thread, waitableHandles[0], waitableHandles[1], result - WAIT_OBJECT_0);
 		switch( result - WAIT_OBJECT_0 )
 		{
 			case 0:
-				entry->routine( entry->remote, entry->context );
-				break;
-			case 1:
 				dprintf( "[SCHEDULER] scheduler_waitable_thread( 0x%08X ), signaled to terminate...", thread );
 				terminate = TRUE;
+				break;
+			case 1:
+				dprintf( "[SCHEDULER] scheduler_waitable_thread( 0x%08X ), signaled on waitable...", thread );
+				entry->routine( entry->remote, entry->context );
 				break;
 			default:
 				break;
