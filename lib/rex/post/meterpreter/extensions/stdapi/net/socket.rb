@@ -110,7 +110,8 @@ class Socket
 		begin
 		return SocketSubsystem::TcpClientChannel.open(client, params)
 		rescue ::Rex::Post::Meterpreter::RequestError => e
-			if(e.result == 10061)
+			case e.result
+			when 10000 .. 10100
 				raise ::Rex::ConnectionError.new
 			end
 			raise e

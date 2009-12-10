@@ -51,9 +51,13 @@ class Stream < Rex::Post::Meterpreter::Channel
 	# Performs a write operation on the right side of the local stream.
 	#
 	def dio_write_handler(packet, data)
-		rsock.write(data)
-
-		return true;
+		rv = Rex::ThreadSafe.select(nil, [rsock], nil, 0.01)
+		if(rv)
+			rsock.write(data)
+			return true
+		else
+			return false
+		end
 	end
 
 	#

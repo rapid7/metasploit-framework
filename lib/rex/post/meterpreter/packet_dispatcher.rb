@@ -113,7 +113,6 @@ module PacketDispatcher
 	# Reception
 	#
 	##
-
 	#
 	# Monitors the PacketDispatcher's sock for data in its own
 	# thread context and parsers all inbound packets.
@@ -122,49 +121,100 @@ module PacketDispatcher
 		self.waiters = []
 
 		# Spawn a new thread that monitors the socket
-		self.dispatcher_thread = ::Thread.new {
-			begin
+		self.dispatcher_thread = ::Thread.new do
+			@pqueue = []
+			@finish = false
 
-			backlog = []
-			while (true)
-				begin
-					rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, 0.25)
-				rescue
-					dlog("Exception caught in monitor_socket: #{$!}", 'meterpreter', LEV_1)
-				end
-
-				begin
-					if(rv)
+			dthread = ::Thread.new do
+				while (true)
+					begin
+						rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, 0.25)
+						next if not rv
 						packet = receive_packet
-						backlog.unshift(packet) if packet
+						@pqueue << packet if packet
+					rescue ::Exception
+						dlog("Exception caught in monitor_socket: #{$!}", 'meterpreter', LEV_1)
+						@finish = true
+						break
 					end
-				rescue EOFError
-					break
+				end
+			end
+
+			begin
+			while(not @finish)
+				if(@pqueue.empty?)
+					select(nil, nil, nil, 0.10)
+					next
 				end
 
 				incomplete = []
+				backlog    = []
+
+				while(@pqueue.length > 0)
+					backlog << @pqueue.shift
+				end
+
+				#
+				# Prioritize message processing here
+				# 1. Close should always be processed at the end
+				# 2. Command responses always before channel data
+				#
+
+				tmp_command = []
+				tmp_channel = []
+				tmp_close   = []
 				backlog.each do |pkt|
+					if(pkt.response?)
+						tmp_command << pkt
+						next
+					end
+					if(pkt.method == "core_channel_close")
+						tmp_close << pkt
+						next
+					end
+					tmp_channel << pkt
+				end
+
+				backlog = []
+				backlog.push(*tmp_command)
+				backlog.push(*tmp_channel)
+				backlog.push(*tmp_close)
+
+
+				#
+				# Process the message queue
+				#
+
+				backlog.each do |pkt|
+
+					begin
 					if ! dispatch_inbound_packet(pkt)
 						# Only requeue packets newer than the timeout
 						if (::Time.now.to_i - pkt.created_at.to_i < PacketTimeout)
 							incomplete << pkt
 						end
 					end
+
+					rescue ::Exception => e
+						dlog("Dispatching exception with packet #{pkt}: #{e} #{e.backtrace}", 'meterpreter', LEV_1)
+					end
 				end
 
-				backlog = incomplete
+				@pqueue.unshift(*incomplete)
 
-				if(backlog.length > 100)
-					dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{backlog[0 .. 25].map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
-					backlog = backlog[25 .. 100]
+				if(@pqueue.length > 100)
+					dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{@pqueue[0 .. 25].map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
+					@pqueue = @pqueue[25 .. 100]
 				end
 			end
-
 			rescue ::Exception => e
 				dlog("Exception caught in monitor_socket dispatcher: #{e.class} #{e} #{e.backtrace}", 'meterpreter', LEV_1)
+			ensure
+				dthread.kill if dthread
 			end
-		}
+		end
 	end
+
 
 	#
 	# Parses data from the dispatcher's sock and returns a Packet context
@@ -256,10 +306,18 @@ module PacketDispatcher
 		# the packet
 		@inbound_handlers.each { |handler|
 
-			if (!resp)
+			handled = nil
+			begin
+
+			if ! resp
 				handled = handler.request_handler(client, packet)
 			else
 				handled = handler.response_handler(client, packet)
+			end
+
+			rescue ::Exception => e
+				dlog("Exception caught in dispatch_inbound_packet: handler=#{handler} #{e.class} #{e} #{e.backtrace}", 'meterpreter', LEV_1)
+				return true
 			end
 
 			if (handled)

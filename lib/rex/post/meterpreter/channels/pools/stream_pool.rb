@@ -14,7 +14,7 @@ module Pools
 # StreamPool
 # ----------
 #
-# This class represents a channel that is associated with a 
+# This class represents a channel that is associated with a
 # streaming pool that has no definite end-point.  While this
 # may seem a paradox given the stream class of channels, it's
 # in fact dinstinct because streams automatically forward
@@ -70,9 +70,13 @@ class StreamPool < Rex::Post::Meterpreter::Channels::Pool
 	# Transfers data to the local half of the pool for reading.
 	#
 	def dio_write_handler(packet, data)
-		rsock.write(data)
-
-		return true
+		rv = Rex::ThreadSafe.select(nil, [rsock], nil, 0.01)
+		if(rv)
+			rsock.write(data)
+			return true
+		else
+			return false
+		end
 	end
 
 	#
@@ -80,7 +84,7 @@ class StreamPool < Rex::Post::Meterpreter::Channels::Pool
 	#
 	def dio_close_handler(packet)
 		rsock.close
-		
+
 		return super(packet)
 	end
 
@@ -96,3 +100,4 @@ class StreamPool < Rex::Post::Meterpreter::Channels::Pool
 end
 
 end; end; end; end; end
+

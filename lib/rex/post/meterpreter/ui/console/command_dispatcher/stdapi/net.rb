@@ -256,7 +256,9 @@ protected
 			Rex::Socket::Parameters.new(
 				'PeerHost' => relay.opts['PeerHost'],
 				'PeerPort' => relay.opts['PeerPort'],
-				'Proto'    => 'tcp'))
+				'Proto'    => 'tcp'
+			)
+		)
 	end
 
 end

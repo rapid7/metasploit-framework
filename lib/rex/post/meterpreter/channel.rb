@@ -64,6 +64,7 @@ class Channel
 				return false
 			end
 
+
 			dio = channel.dio_map(packet.method)
 
 			# Supported DIO request? Dump it.
@@ -71,11 +72,10 @@ class Channel
 				return true
 			end
 
+
 			# Call the channel's dio handler and return success or fail
 			# based on what happens
-			ret = channel.dio_handler(dio, packet)
-
-			return ret
+			channel.dio_handler(dio, packet)
 		end
 	end
 
@@ -202,6 +202,7 @@ class Channel
 	# Writes data to the remote half of the channel.
 	#
 	def _write(buf, length = nil, addends = nil)
+
 		if (self.cid == nil)
 			raise IOError, "Channel has been closed.", caller
 		end

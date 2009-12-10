@@ -31,16 +31,8 @@ class LocalRelay
 		def on_other_data(data)
 			if (relay.on_other_data_proc)
 				relay.on_other_data_proc.call(relay, self, data)
-			# By default, simply push all the data to our side.
 			else
-				# Write to the relay using a background thread and a
-				# hard timeout. This is required to avoid a block
-				# on send()
-				Thread.new do
-					Timeout.timeout(30) do
-						put(data)
-					end
-				end
+				put(data)
 			end
 		end
 
@@ -336,6 +328,8 @@ protected
 			dlog("Got right side of relay: #{rfd}", 'rex', LEV_3)
 		rescue
 			wlog("Failed to get remote half of local connection on relay #{relay.name}: #{$!}", 'rex')
+			lfd.close
+			return
 		end
 
 		# If we have both sides, then we rock.  Extend the instances, associate
@@ -372,7 +366,7 @@ protected
 			begin
 				socks = select(rfds, nil, nil, 0.25)
 			rescue StreamClosedError => e
-				dlog("monitor_relays: closing stream #{e.stream} #{e.backtrace}", 'rex', LEV_3)
+				dlog("monitor_relays: closing stream #{e.stream}", 'rex', LEV_3)
 
 				# Close the relay connection that is associated with the stream
 				# closed error
@@ -400,22 +394,15 @@ protected
 				# Otherwise, it's a relay connection, read data from one side
 				# and write it to the other
 				else
-					Thread.new do
 					begin
-						# Read from the read fd
-						data = rfd.sysread(16384)
-
-						dlog("monitor_relays: sending #{data.length} bytes from #{rfd} to #{rfd.other_stream}", 'rex', LEV_3)
-
+						# Read from the read fd 32k at a time (helps with big downloads)
+						data = rfd.sysread(32768)
 						# Pass the data onto the other fd, most likely writing it.
 						rfd.other_stream.on_other_data(data)
-					# If we catch an EOFError, close the relay connection.
-					rescue EOFError
-						close_relay_conn(rfd)
-					rescue
+					# If we catch an error, close the connection
+					rescue ::Exception
 						elog("Error in #{self} monitor_relays read: #{$!}", 'rex')
-					end
-
+						close_relay_conn(rfd)
 					end
 				end
 
