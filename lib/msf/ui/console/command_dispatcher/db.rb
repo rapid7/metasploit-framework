@@ -337,15 +337,14 @@ class Db
 				end
 			end
 
-			minrank = framework.datastore['MinimumRank'] || nil
-			if not minrank or not RankingName.values.include?(minrank)
+			minrank = framework.datastore['MinimumRank'] || 'manual'
+			if ! RankingName.values.include?(minrank)
 				print_error("MinimumRank invalid!  Possible values are (#{RankingName.sort.map{|r|r[1]}.join("|")})")
 				wlog("MinimumRank invalid, ignoring", 'core', LEV_0)
 				return
 			else
 				minrank = RankingName.invert[minrank]
 			end
-			
 
 			# Default to quiet mode
 			if (mode & PWN_VERB == 0)
@@ -1040,7 +1039,7 @@ class Db
 			end
 			true
 		end
-		
+
 		#
 		# Database management: SQLite3
 		#
@@ -1104,11 +1103,11 @@ class Db
 				print_status("Creating a new database instance...")
 				require_library_or_gem('sqlite3')
 			end
-			
+
 			if (not framework.db.connect(opts))
 				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
 			end
-			
+
 			if (not framework.db.migrate)
 				raise RuntimeError.new("Failed to create database schema: #{framework.db.error}")
 			end
@@ -1245,7 +1244,7 @@ class Db
 
 			system("mysqladmin #{cargs} drop #{info[:name]} >/dev/null 2>&1")
 			system("mysqladmin #{cargs} create #{info[:name]}")
-			
+
 			if (not framework.db.connect(opts))
 				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
 			end
