@@ -299,7 +299,7 @@ VOID free_socket_context(SocketContext *ctx)
 	// Close the socket and notification handle
 	if (ctx->fd){
 		closesocket(ctx->fd);
-		ctx->fd = NULL;
+		ctx->fd = 0;
 	}
 	
 	if (ctx->channel) {

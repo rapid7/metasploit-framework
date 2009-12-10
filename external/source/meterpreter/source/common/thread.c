@@ -127,6 +127,59 @@ BOOL event_poll( EVENT * event, DWORD timeout )
 /*****************************************************************************************/
 
 /*
+ * Opens and create a THREAD item for the current/calling thread.
+ */
+THREAD * thread_open( VOID )
+{
+	OPENTHREAD pOpenThread = NULL;
+	HMODULE hKernel32      = NULL;
+	THREAD * thread        = NULL;
+
+	thread = (THREAD *)malloc( sizeof( THREAD ) );
+	if( thread != NULL )
+	{
+		memset( thread, 0, sizeof(THREAD) );
+			
+		thread->id      = GetCurrentThreadId();
+		thread->sigterm = event_create();
+
+		// Windows specific process of opening a handle to the current thread which
+		// works on NT4 up. We only want THREAD_TERMINATE|THREAD_SUSPEND_RESUME access
+		// for now.
+
+		// First we try to use the normal OpenThread function, available on Windows 2000 and up...
+		hKernel32 = LoadLibrary( "kernel32.dll" );
+		pOpenThread = (OPENTHREAD)GetProcAddress( hKernel32, "OpenThread" );
+		if( pOpenThread )
+		{
+			thread->handle = pOpenThread( THREAD_TERMINATE|THREAD_SUSPEND_RESUME, FALSE, thread->id );
+		}
+		else
+		{
+			NTOPENTHREAD pNtOpenThread = NULL;
+			// If we can use OpenThread, we try the older NtOpenThread function as found on NT4 machines.
+			HMODULE hNtDll = LoadLibrary( "ntdll.dll" );
+			pNtOpenThread = (NTOPENTHREAD)GetProcAddress( hNtDll, "NtOpenThread" );
+			if( pNtOpenThread )
+			{
+				_OBJECT_ATTRIBUTES oa = {0};
+				_CLIENT_ID cid        = {0};
+
+				cid.UniqueThread = (PVOID)thread->id;
+
+				pNtOpenThread( &thread->handle, THREAD_TERMINATE|THREAD_SUSPEND_RESUME, &oa, &cid );
+			}
+
+			FreeLibrary( hNtDll );
+		}
+
+		FreeLibrary( hKernel32 );
+	}
+
+	return thread;
+}
+
+/*
  * Create a new thread in a suspended state.
  */
 THREAD * thread_create( THREADFUNK funk, LPVOID param1, LPVOID param2 )

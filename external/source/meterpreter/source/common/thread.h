@@ -2,6 +2,36 @@
 #define _METERPRETER_LIB_THREAD_H
 
 /*****************************************************************************************/
+// Win32/64 specific definitions...
+
+typedef struct __UNICODE_STRING
+{
+	USHORT Length;
+	USHORT MaximumLength;
+	PWSTR Buffer;
+} _UNICODE_STRING, * _PUNICODE_STRING;
+
+typedef struct __OBJECT_ATTRIBUTES
+{
+	ULONG Length;
+	HANDLE RootDirectory;
+	_PUNICODE_STRING ObjectName;
+	ULONG Attributes;
+	PVOID SecurityDescriptor;
+	PVOID SecurityQualityOfService;
+} _OBJECT_ATTRIBUTES, * _POBJECT_ATTRIBUTES;
+
+typedef struct __CLIENT_ID
+{
+  PVOID UniqueProcess;
+  PVOID UniqueThread;
+} _CLIENT_ID, * _PCLIENT_ID;
+
+typedef HANDLE (WINAPI * OPENTHREAD)( DWORD, BOOL, DWORD ); // kernel32!OpenThread
+
+typedef DWORD (WINAPI * NTOPENTHREAD)( PHANDLE, ACCESS_MASK, _POBJECT_ATTRIBUTES, _PCLIENT_ID ); // ntdll!NtOpenThread
+
+/*****************************************************************************************/
 
 typedef struct _LOCK
 {
@@ -47,6 +77,8 @@ BOOL event_signal( EVENT * event );
 BOOL event_poll( EVENT * event, DWORD timeout );
 
 /*****************************************************************************************/
+
+THREAD * thread_open( VOID );
 
 THREAD * thread_create( THREADFUNK funk, LPVOID param1, LPVOID param2 );
 

@@ -35,7 +35,7 @@ int exceptionfilter(unsigned int code, struct _EXCEPTION_POINTERS *ep)
  * This thread is the main server thread which we use to syncronize a gracefull 
  * shutdown of the server during process migration.
  */
-THREAD serverThread = {0};
+THREAD * serverThread = NULL;
 
 /*
  * An array of locks for use by OpenSSL.
@@ -296,7 +296,7 @@ static DWORD server_dispatch( Remote * remote )
 
 	while( TRUE )
 	{
-		if( event_poll( serverThread.sigterm, 0 ) )
+		if( event_poll( serverThread->sigterm, 0 ) )
 		{
 			dprintf( "[DISPATCH] server dispatch thread signaled to terminate..." );
 			break;
@@ -358,13 +358,10 @@ DWORD server_setup( SOCKET fd )
 		{
 			dprintf( "[SERVER] module loaded at 0x%08X", hAppInstance );
 			
-			// manually create a THREAD item for the servers main thread, we use this to manage migration later.
-			memset( &serverThread, 0, sizeof(THREAD) );
-			serverThread.id      = GetCurrentThreadId();
-			serverThread.handle  = OpenThread( THREAD_TERMINATE, FALSE, serverThread.id );
-			serverThread.sigterm = event_create();
+			// Open a THREAD item for the servers main thread, we use this to manage migration later.
+			serverThread = thread_open();
 
-			dprintf( "[SERVER] main server thread: handle=0x%08X id=0x%08X sigterm=0x%08X", serverThread.handle, serverThread.id, serverThread.sigterm );
+			dprintf( "[SERVER] main server thread: handle=0x%08X id=0x%08X sigterm=0x%08X", serverThread->handle, serverThread->id, serverThread->sigterm );
 
 			if( !(remote = remote_allocate(fd)) )
 			{
@@ -409,7 +406,7 @@ DWORD server_setup( SOCKET fd )
 	{
 		dprintf("[SERVER] *** exception triggered!");
 
-		thread_kill( &serverThread );
+		thread_kill( serverThread );
 	}
 
 	dprintf("[SERVER] Finished.");

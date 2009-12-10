@@ -1,6 +1,6 @@
 #include "common.h"
 
-extern THREAD serverThread;
+extern THREAD * serverThread;
 /*
  * core_migrate
  * ------------
@@ -236,7 +236,7 @@ DWORD remote_request_core_migrate(Remote *remote, Packet *packet)
 		// Signal the main server thread to begin the shutdown as migration has been successfull.
 		dprintf("[SYSTEM] Shutting down the Meterpreter thread 1 (signaling main thread)...");
 
-		thread_sigterm( &serverThread );
+		thread_sigterm( serverThread );
 
 	} while (0);
 
