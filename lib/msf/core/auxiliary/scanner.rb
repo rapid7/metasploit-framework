@@ -92,7 +92,7 @@ def run
 						nmod.run_host(targ)
 					rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
 						raise $!
-					rescue ::Rex::ConnectionError, ::Errno::ECONNRESET
+					rescue ::Rex::ConnectionError, ::Errno::ECONNRESET, ::Errno::EINTR
 					rescue ::Exception => e
 						print_status("Error: #{targ}: #{e.class} #{e.message}")
 						elog("Error running against host #{targ}: #{e.message}\n#{e.backtrace.join("\n")}")
