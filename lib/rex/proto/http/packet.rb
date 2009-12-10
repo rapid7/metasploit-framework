@@ -113,6 +113,17 @@ class Packet
 	end
 
 	#
+	# Reset the parsing state but leave the buffers.
+	#
+	def reset_except_queue
+		self.state = ParseState::ProcessingHeader
+		self.transfer_chunked = false
+		self.inside_chunk     = false
+		self.headers.reset
+		self.body  = ''
+	end
+
+	#
 	# Returns whether or not parsing has completed.
 	#
 	def completed?
@@ -173,7 +184,7 @@ class Packet
 			end
 
 			if (self.auto_cl == true && self.transfer_chunked == true)
-				raise RuntimeError, "'Content-Length' and 'Transfer-Encoding: chunked' are incompatable"
+				raise RuntimeError, "'Content-Length' and 'Transfer-Encoding: chunked' are incompatible"
 			elsif self.auto_cl == true
 				self.headers['Content-Length'] = content.length
 			elsif self.transfer_chunked == true
@@ -268,6 +279,7 @@ protected
 		# Look for a chunked transfer header
 		if (self.headers['Transfer-Encoding'].to_s.downcase == 'chunked')
 			self.transfer_chunked = true
+			self.auto_cl = false
 		end
 
 		# Determine how to handle data when there is no length header

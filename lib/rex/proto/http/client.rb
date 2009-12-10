@@ -364,8 +364,7 @@ class Client
 	def reread_response(resp, t = -1)
 
 		resp.max_data = config['read_max_data']
-		resp.headers  = Packet::Header.new
-		resp.state    = Packet::ParseState::ProcessingHeader
+		resp.reset_except_queue
 		resp.parse('')
 
 		# Wait at most t seconds for the full response to be read in.  We only
@@ -378,6 +377,7 @@ class Client
 		Timeout.timeout((t < 0) ? nil : t) do
 
 			rv = resp.state
+
 			while (
 			         rv != Packet::ParseCode::Completed and
 			         rv != Packet::ParseCode::Error
