@@ -237,8 +237,8 @@ class Plugin::Nexpose < Msf::Plugin
 
 			range_inp = ::Msf::OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(opt_ranges)
 			range     = ::Rex::Socket::RangeWalker.new(range_inp)
-			include_range = ::Rex::Socket::RangeWalker.new(opt_addrinc) || nil
-			exclude_range = ::Rex::Socket::RangeWalker.new(opt_addrexc) || nil
+			include_range = opt_addrinc ? ::Rex::Socket::RangeWalker.new(opt_addrinc) : nil
+			exclude_range = opt_addrexc ? ::Rex::Socket::RangeWalker.new(opt_addrexc) : nil
 
 			completed = 0
 			total     = range.num_ips
