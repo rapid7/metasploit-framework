@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 				},
 				'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 				'License'		=> MSF_LICENSE,
-				'Version'		=> '$Rev$',
+				'Version'		=> '$Revision$',
 			 	'References' 	=>
 					[
 						['CVE', '1999-0532'],
@@ -214,6 +214,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	#-------------------------------------------------------------------------------
 	def dnsbrute(target, wordlist)
+	print_status("Running Brute Force against Domain #{target}")
 		arr = []
 		i, a = 0, []
 		arr = IO.readlines(wordlist)
@@ -289,20 +290,34 @@ class Metasploit3 < Msf::Auxiliary
 	#SRV Record Enumeration
 	def srvqry(dom,nssrv)
 		print_status("Enumerating SRV Records for #{dom}")
+		i, a = 0, []
 		#Most common SRV Records
 		srvrcd = [
 			"_gc._tcp.","_kerberos._tcp.", "_kerberos._udp.","_ldap._tcp","_test._tcp.",
 			"_sips._tcp.","_sip._udp.","_sip._tcp.","_aix._tcp.","_aix._tcp.","_finger._tcp.",
 			"_ftp._tcp.","_http._tcp.","_nntp._tcp.","_telnet._tcp.","_whois._tcp.","_h323cs._tcp.",
 			"_h323cs._udp.","_h323be._tcp.","_h323be._udp.","_h323ls._tcp.","_h323ls._udp.",
-			"_sipinternal._tcp.","_sipinternaltls._tcp.","_sip._tls.","_sipfederationtls._tcp."]
-		srvrcd.each do |a|
-			trg = "#{a}#{dom}"
-			query = @res.query(trg , Net::DNS::SRV)
-			query.answer.each do |srv|
-				print_status("SRV Record: #{trg} Host: #{srv.host} Port: #{srv.port} Priority: #{srv.priority}") if srv.type != "CNAME"
+			"_sipinternal._tcp.","_sipinternaltls._tcp.","_sip._tls.","_sipfederationtls._tcp.",
+			"_jabber._tcp.","_xmpp-server._tcp.","_xmpp-client._tcp.","_imap.tcp.","_certificates._tcp.",
+			"_crls._tcp.","_pgpkeys._tcp.","_pgprevokations._tcp.","_cmp._tcp.","_svcp._tcp.","_crl._tcp.",
+			"_ocsp._tcp.","_PKIXREP._tcp.","_smtp._tcp.","_hkp._tcp.","_hkps._tcp.","_jabber._udp.",
+			"_xmpp-server._udp.","_xmpp-client._udp.","_jabber-client._tcp","_jabber-client._udp"]
+		srvrcd.each do |srvt|
+			if i < @threadnum
+				a.push(Thread.new {
+					trg = "#{srvt}#{dom}"
+					query = @res.query(trg , Net::DNS::SRV)
+					query.answer.each do |srv|
+						print_status("SRV Record: #{trg} Host: #{srv.host} Port: #{srv.port} Priority: #{srv.priority}") if srv.type != "CNAME"
+					end
+					})
+				i += 1
+			else
+				sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+				i = 0
 			end
 		end
+		a.delete_if {|x| not x.alive?} while not a.empty?
 	end
 
 	#-------------------------------------------------------------------------------
@@ -418,36 +433,34 @@ class Metasploit3 < Msf::Auxiliary
 		@res.retry = datastore['RETRY'].to_i
 		@res.retry_interval = datastore['RETRY_INTERVAL'].to_i
 		@threadnum = datastore['THREADS'].to_i
+		wldcrd = wildcard(datastore['DOMAIN'])
+		switchdns(datastore['DOMAIN'])
 
 		if(datastore['ENUM_STD'])
-			switchdns(datastore['DOMAIN'])
 			genrcd(datastore['DOMAIN'])
 		end
 
 		if(datastore['ENUM_TLD'])
-			wildcard(datastore['DOMAIN'])
 			tldexpnd(datastore['DOMAIN'],datastore['NS'])
 		end
 
 		if(datastore['ENUM_BRT'])
-			switchdns(datastore['DOMAIN'])
-			if not wildcard(datastore['DOMAIN']) and datastore['STOP_WLDCRD']
+			if wldcrd & datastore['STOP_WLDCRD']
+				print_status("Wilcard Record Found!")
+			else
 				dnsbrute(datastore['DOMAIN'],datastore['WORDLIST'])
 			end
 		end
 
 		if(datastore['ENUM_AXFR'])
-			switchdns(datastore['DOMAIN'])
 			axfr(datastore['DOMAIN'],datastore['NS'])
 		end
 
 		if(datastore['ENUM_SRV'])
-			switchdns(datastore['DOMAIN'])
 			srvqry(datastore['DOMAIN'],datastore['NS'])
 		end
 
 		if(datastore['ENUM_RVL'] and datastore['IPRANGE'] and not datastore['IPRANGE'].empty?)
-			switchdns(datastore['DOMAIN'])
 			reverselkp(datastore['IPRANGE'],datastore['NS'])
 		end
 	end
