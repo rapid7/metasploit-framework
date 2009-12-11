@@ -24,6 +24,7 @@ class Core
 		"-i" => [ true,  "Interact with the supplied session identifier." ],
 		"-h" => [ false, "Help banner."                                   ],
 		"-l" => [ false, "List all active sessions."                      ],
+		"-s" => [ true,  "Run a script on all meterpreter sessions."      ],
 		"-v" => [ false, "List verbose fields."                           ],
 		"-q" => [ false, "Quiet mode."                                    ],
 		"-d" => [  true, "Detach an interactive session"                  ],
@@ -1071,6 +1072,7 @@ class Core
 		quiet   = false
 		verbose = false
 		sid     = nil
+		script  = nil
 
 		# Parse the command options
 		@@sessions_opts.parse(args) { |opt, idx, val|
@@ -1100,6 +1102,10 @@ class Core
 				when "-d"
 					method = 'detach'
 					sid = val
+                
+				when "-s"
+					method = 'scriptall'
+					script = val
 
 				# Display help banner
 				when "-h"
@@ -1118,6 +1124,8 @@ class Core
 				if ((session = framework.sessions.get(sid)))
 					print_status("Killing session #{sid}")
 					session.kill
+				else
+					print_error("Invalid session identifier: #{sid}")
 				end
 
 			when 'killall'
@@ -1134,6 +1142,8 @@ class Core
 					if (session.interactive?)
 						session.detach()
 					end
+				else
+					print_error("Invalid session identifier: #{sid}")
 				end
 
 			when 'interact'
@@ -1157,9 +1167,32 @@ class Core
 				else
 					print_error("Invalid session identifier: #{sid}")
 				end
+				  
 			when 'list'
 					print("\n" +
 						Serializer::ReadableText.dump_sessions(framework, verbose) + "\n")
+
+			when 'scriptall'
+
+				if (not script.nil?)
+					print_status("Running script #{script} on all meterpreter sessions ...")
+					framework.sessions.each_sorted do |s|
+						if ((session = framework.sessions.get(s)))
+							if (session.via_payload =~ /meterpreter/)
+								print_status("Session #{s}:")
+								begin
+									client = session
+									client.execute_script(script, binding)
+								rescue ::Exception => e
+									print_status("Error executing script: #{e.class} #{e}")
+								end
+							end
+						end
+					end
+				else
+					print_error("No script specified!")
+				end
+
 		end
 
 		rescue IOError, EOFError, Rex::StreamClosedError
