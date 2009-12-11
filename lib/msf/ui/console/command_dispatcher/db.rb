@@ -1431,7 +1431,7 @@ class Db
 			system("dropdb #{cargs} #{info[:name]} >/dev/null 2>&1")
 			system("createdb #{cargs} #{info[:name]}")
 
-			opts['pass'] ||= ''
+			opts['password'] = info[:pass] || ''
 
 			# Do a little legwork to find the real database socket
 			if(! opts['host'])
