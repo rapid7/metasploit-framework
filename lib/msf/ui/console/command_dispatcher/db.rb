@@ -450,7 +450,7 @@ class Db
 
 								filtered = false
 								begin
-									::Timeout.timeout(2) do
+									::Timeout.timeout(2, ::RuntimeError) do
 										filtered = true if not mod.autofilter()
 									end
 								rescue ::Interrupt
@@ -498,7 +498,7 @@ class Db
 
 							filtered = false
 							begin
-								::Timeout.timeout(1, ::RuntimeError) do
+								::Timeout.timeout(2, ::RuntimeError) do
 									filtered = true if not mod.autofilter()
 								end
 							rescue ::Interrupt
@@ -521,7 +521,7 @@ class Db
 
 							filtered = false
 							begin
-								::Timeout.timeout(1, ::RuntimeError) do
+								::Timeout.timeout(2, ::RuntimeError) do
 									filtered = true if not mod.autofilter()
 								end
 							rescue ::Interrupt
