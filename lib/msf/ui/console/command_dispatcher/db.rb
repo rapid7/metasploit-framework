@@ -354,138 +354,193 @@ class Db
 			matches    = {}
 			refmatches = {}
 
+			# Pre-allocate a list of references and ports for all exploits
+			mrefs  = {}
+			mports = {}
+			mservs = {}
+
 			[ [framework.exploits, 'exploit' ], [ framework.auxiliary, 'auxiliary' ] ].each do |mtype|
-				# Scan all exploit modules for matching references
-				mtype[0].each_module do |n,m|
-					e = m.new
-					next if minrank and minrank > e.rank
+				mtype[0].each_module do |modname, mod|
+					o = mod.new
 
-					#
-					# Match based on vulnerability references
-					#
-					if (mode & PWN_XREF != 0)
-						e.references.each do |r|
-							rcnt += 1
-
-							# Skip URL references for now (false positives)
+					if(mode & PWN_XREF != 0)
+						o.references.each do |r|
 							next if r.ctx_id == 'URL'
+							ref = r.ctx_id + "-" + r.ctx_val
+							ref.upcase!
 
-							ref_name = r.ctx_id + '-' + r.ctx_val
-							ref = framework.db.has_ref?(ref_name)
-
-							if (ref)
-								ref.vulns.each do |vuln|
-									vcnt  += 1
-									serv  = vuln.service
-
-									xport = xprot = nil
-
-									if(serv and serv.host)
-										xport = serv.port
-										xprot = serv.proto
-									end
-
-									xhost = vuln.host.address
-									next if (targ_inc.length > 0 and not range_include?(targ_inc, xhost))
-									next if (targ_exc.length > 0 and range_include?(targ_exc, xhost))
-
-									if(xport)
-										next if (port_inc.length > 0 and not port_inc.include?(serv.port.to_i))
-										next if (port_exc.length > 0 and port_exc.include?(serv.port.to_i))
-									else
-										if(e.datastore['RPORT'])
-											next if (port_inc.length > 0 and not port_inc.include?(e.datastore['RPORT'].to_i))
-											next if (port_exc.length > 0 and port_exc.include?(e.datastore['RPORT'].to_i))
-										end
-									end
-
-									next if (regx and e.fullname !~ /#{regx}/)
-
-									e.datastore['RPORT'] = xport if xport
-									e.datastore['RHOST'] = xhost
-									next if not e.autofilter()
-
-									matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
-									refmatches[[xport,xprot,xhost,mtype[1]+'/'+n]] ||= []
-									refmatches[[xport,xprot,xhost,mtype[1]+'/'+n]] << ref_name
-								end
-							end
+							mrefs[ref] ||= {}
+							mrefs[ref][o.fullname] = o
 						end
 					end
 
-					#
-					# Match based on ports alone
-					#
-					if (mode & PWN_PORT != 0)
-						rports = {}
-						rservs = {}
-
-						if(e.datastore['RPORT'])
-							rports[e.datastore['RPORT'].to_s] = true
+					if(mode & PWN_PORT != 0)
+						if(o.datastore['RPORT'])
+							rport = o.datastore['RPORT']
+							mports[rport.to_i] ||= {}
+							mports[rport.to_i][o.fullname] = o
 						end
 
-						if(e.respond_to?('autofilter_ports'))
-							e.autofilter_ports.each do |rport|
-								rports[rport.to_s] = true
+						if(o.respond_to?('autofilter_ports'))
+							o.autofilter_ports.each do |rport|
+								mports[rport.to_i] ||= {}
+								mports[rport.to_i][o.fullname] = o
 							end
 						end
 
-						if(e.respond_to?('autofilter_services'))
-							e.autofilter_services.each do |serv|
-								rservs[serv] = true
-							end
-						end
-
-						framework.db.services.each do |serv|
-							next if not serv.host
-							next if (serv.state != "open" && serv.state != "up")
-
-							# Match port numbers
-							rports.keys.sort.each do |rport|
-								next if serv.port.to_i != rport.to_i
-								xport = serv.port
-								xprot = serv.proto
-								xhost = serv.host.address
-								next if (targ_inc.length > 0 and not range_include?(targ_inc, xhost))
-								next if (targ_exc.length > 0 and range_include?(targ_exc, xhost))
-
-								next if (port_inc.length > 0 and not port_inc.include?(serv.port.to_i))
-								next if (port_exc.length > 0 and port_exc.include?(serv.port.to_i))
-								next if (regx and e.fullname !~ /#{regx}/)
-
-								e.datastore['RPORT'] = xport if xport
-								e.datastore['RHOST'] = xhost
-
-								begin
-									next if not e.autofilter()
-								rescue ::Interrupt
-									raise $!
-								rescue ::Exception
-									next
-								end
-
-								matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
-							end
-
-							# Match service names
-							rservs.keys.sort.each do |rserv|
-								next if serv.name.to_s != rserv
-								xport = serv.port
-								xprot = serv.proto
-								xhost = serv.host.address
-								next if (targ_inc.length > 0 and not range_include?(targ_inc, xhost))
-								next if (targ_exc.length > 0 and range_include?(targ_exc, xhost))
-
-								next if (port_inc.length > 0 and not port_inc.include?(serv.port.to_i))
-								next if (port_exc.length > 0 and port_exc.include?(serv.port.to_i))
-								next if (regx and e.fullname !~ /#{regx}/)
-								matches[[xport,xprot,xhost,mtype[1]+'/'+n]]=true
+						if(o.respond_to?('autofilter_services'))
+							o.autofilter_services.each do |serv|
+								mservs[serv] ||= {}
+								mservs[serv][o.fullname] = o
 							end
 						end
 					end
 				end
 			end
 
+
+			begin
+
+			framework.db.hosts.each do |host|
+				xhost = host.address
+				next if (targ_inc.length > 0 and not range_include?(targ_inc, xhost))
+				next if (targ_exc.length > 0 and range_include?(targ_exc, xhost))
+
+				if(mode & PWN_VERB != 0)
+					print_status("Scanning #{xhost} for matching exploit modules...")
+				end
+
+				#
+				# Match based on vulnerability references
+				#
+				if (mode & PWN_XREF != 0)
+
+					host.vulns.each do |vuln|
+
+						# Faster to handle these here
+						serv = vuln.service
+						xport = xprot = nil
+
+						if(serv)
+							xport = serv.port
+							xprot = serv.proto
+						end
+
+						vuln.refs.each do |ref|
+							mods = mrefs[ref.name.upcase] || {}
+							mods.each_key do |modname|
+								mod = mods[modname]
+								next if minrank and minrank > mod.rank
+								next if (regx and mod.fullname !~ /#{regx}/)
+
+								if(xport)
+									next if (port_inc.length > 0 and not port_inc.include?(serv.port.to_i))
+									next if (port_exc.length > 0 and port_exc.include?(serv.port.to_i))
+								else
+									if(mod.datastore['RPORT'])
+										next if (port_inc.length > 0 and not port_inc.include?(mod.datastore['RPORT'].to_i))
+										next if (port_exc.length > 0 and port_exc.include?(mod.datastore['RPORT'].to_i))
+									end
+								end
+
+								next if (regx and e.fullname !~ /#{regx}/)
+
+								mod.datastore['RPORT'] = xport if xport
+								mod.datastore['RHOST'] = xhost
+
+								filtered = false
+								begin
+									::Timeout.timeout(2) do
+										filtered = true if not mod.autofilter()
+									end
+								rescue ::Interrupt
+									raise $!
+								rescue ::Timeout::Error
+									filtered = true
+								rescue ::Exception
+									filtered = true
+								end
+								next if filtered
+
+								matches[[xport,xprot,xhost,mod.fullname]]=true
+								refmatches[[xport,xprot,xhost,mod.fullname]] ||= []
+								refmatches[[xport,xprot,xhost,mod.fullname]] << ref.name
+							end
+						end
+					end
+				end
+
+				#
+				# Match based on open ports
+				#
+				if (mode & PWN_PORT != 0)
+					host.services.each do |serv|
+						next if not serv.host
+						next if (serv.state != "open" && serv.state != "up")
+
+						xport = serv.port.to_i
+						xprot = serv.proto
+						xname = serv.name
+
+						next if xport == 0
+
+						next if (port_inc.length > 0 and not port_inc.include?(xport))
+						next if (port_exc.length > 0 and port_exc.include?(xport))
+
+						mods = mports[xport.to_i] || {}
+
+						mods.each_key do |modname|
+							mod = mods[modname]
+							next if minrank and minrank > mod.rank
+							next if (regx and mod.fullname !~ /#{regx}/)
+							mod.datastore['RPORT'] = xport
+							mod.datastore['RHOST'] = xhost
+
+							filtered = false
+							begin
+								::Timeout.timeout(1, ::RuntimeError) do
+									filtered = true if not mod.autofilter()
+								end
+							rescue ::Interrupt
+								raise $!
+							rescue ::Exception
+								filtered = true
+							end
+
+							next if filtered
+							matches[[xport,xprot,xhost,mod.fullname]]=true
+						end
+
+						mods = mservs[xname] || {}
+						mods.each_key do |modname|
+							mod = mods[modname]
+							next if minrank and minrank > mod.rank
+							next if (regx and mod.fullname !~ /#{regx}/)
+							mod.datastore['RPORT'] = xport
+							mod.datastore['RHOST'] = xhost
+
+							filtered = false
+							begin
+								::Timeout.timeout(1, ::RuntimeError) do
+									filtered = true if not mod.autofilter()
+								end
+							rescue ::Interrupt
+								raise $!
+							rescue ::Exception
+								filtered = true
+							end
+
+							next if filtered
+							matches[[xport,xprot,xhost,mod.fullname]]=true
+						end
+					end
+				end
+			end
+
+			rescue ::Exception => e
+				print_status("ERROR: #{e.class} #{e} #{e.backtrace}")
+				return
+			end
 
 			if (mode & PWN_SHOW != 0)
 				print_status("Analysis completed in #{(Time.now.to_f - stamp).to_i} seconds (#{vcnt} vulns / #{rcnt} refs)")
@@ -626,6 +681,7 @@ class Db
 			print_line("")
 		# EOM
 		end
+
 
 		#
 		# This holds all of the shared parsing/handling used by the
