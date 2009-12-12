@@ -21,15 +21,17 @@ class Core
 
 	# Session command options
 	@@sessions_opts = Rex::Parser::Arguments.new(
-		"-i" => [ true,  "Interact with the supplied session identifier." ],
+		"-c" => [ true,  "Run a command on all live sessions"             ],
 		"-h" => [ false, "Help banner."                                   ],
+		"-i" => [ true,  "Interact with the supplied session identifier." ],
 		"-l" => [ false, "List all active sessions."                      ],
 		"-s" => [ true,  "Run a script on all meterpreter sessions."      ],
 		"-v" => [ false, "List verbose fields."                           ],
 		"-q" => [ false, "Quiet mode."                                    ],
-		"-d" => [  true, "Detach an interactive session"                  ],
-		"-k" => [  true, "Terminate session."                             ],
-		"-K" => [ false, "Terminate all sessions."                        ])
+		"-d" => [ true,  "Detach an interactive session"                  ],
+		"-k" => [ true,  "Terminate session."                             ],
+		"-K" => [ false, "Terminate all sessions."                        ],
+		"-s" => [ true,  "Run a script on all live meterpreter sessions"  ])
 
 	@@jobs_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ],
@@ -1072,6 +1074,7 @@ class Core
 		quiet   = false
 		verbose = false
 		sid     = nil
+		cmds    = []
 		script  = nil
 
 		# Parse the command options
@@ -1079,6 +1082,11 @@ class Core
 			case opt
 				when "-q"
 					quiet = true
+
+				when "-c"
+					method = 'cmd'
+					cmds << val
+
 
 				when "-v"
 					verbose = true
@@ -1119,6 +1127,28 @@ class Core
 
 		# Now, perform the actual method
 		case method
+
+			when 'cmd'
+				cmds.each do |cmd|
+					framework.sessions.each_sorted do |s|
+						session = framework.sessions.get(s)
+						print_status("Running '#{cmd}' on #{session.tunnel_peer}")
+						if (session.type == "meterpreter")
+							c,args = cmd.split(' ', 2)
+							begin
+								process = session.sys.process.execute(c, args, {
+									'Channelized' => true,
+									'Hidden'      => true
+									})
+							rescue ::Rex::Post::Meterpreter::RequestError
+								print_error("Failed: #{$!.class} #{$!}")
+							end
+							print_line(process.channel.read) if process and process.channel
+						else
+							# Just send the command to the session's stdin
+						end
+					end
+				end
 
 			when 'kill'
 				if ((session = framework.sessions.get(sid)))
@@ -1169,8 +1199,8 @@ class Core
 				end
 				  
 			when 'list'
-					print("\n" +
-						Serializer::ReadableText.dump_sessions(framework, verbose) + "\n")
+				print("\n" +
+					Serializer::ReadableText.dump_sessions(framework, verbose) + "\n")
 
 			when 'scriptall'
 
@@ -1178,13 +1208,13 @@ class Core
 					print_status("Running script #{script} on all meterpreter sessions ...")
 					framework.sessions.each_sorted do |s|
 						if ((session = framework.sessions.get(s)))
-							if (session.via_payload =~ /meterpreter/)
+							if (session.type == "meterpreter")
 								print_status("Session #{s}:")
 								begin
 									client = session
 									client.execute_script(script, binding)
 								rescue ::Exception => e
-									print_status("Error executing script: #{e.class} #{e}")
+									log_error("Error executing script: #{e.class} #{e}")
 								end
 							end
 						end
