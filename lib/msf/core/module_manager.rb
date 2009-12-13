@@ -236,13 +236,17 @@ protected
 	# Ranks modules based on their constant rank value, if they have one.
 	#
 	def rank_modules
-		mod_ranked = self.sort { |a, b|
+		self.mod_ranked = self.sort { |a, b|
 			a_name, a_mod = a
 			b_name, b_mod = b
 
+			# Dynamically loads the module if needed
+			a_mod = self[a_name]
+			b_mod = self[b_name]
+
 			# Extract the ranking between the two modules
-			a_rank = a[1].const_defined?('Rank') ? a[1].const_get('Rank') : NormalRanking
-			b_rank = b[1].const_defined?('Rank') ? b[1].const_get('Rank') : NormalRanking
+			a_rank = a_mod.const_defined?('Rank') ? a_mod.const_get('Rank') : NormalRanking
+			b_rank = b_mod.const_defined?('Rank') ? b_mod.const_get('Rank') : NormalRanking
 
 			# Compare their relevant rankings.  Since we want highest to lowest,
 			# we compare b_rank to a_rank in terms of higher/lower precedence
