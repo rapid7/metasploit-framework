@@ -1,5 +1,5 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -10,7 +10,7 @@ require 'msf/core'
 
 
 class Metasploit3 < Msf::Auxiliary
-	
+
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::WMAPScanServer
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'       => ['CG'],
 			'License'     => MSF_LICENSE
 		)
-		
+
 	end
 
 	def run_host(target_host)
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_raw({
 				'version'      => '1.0',
-				'uri'          => '/',					
+				'uri'          => '/',
 				'method'       => 'OPTIONS'
 			}, 10)
 
@@ -49,10 +49,25 @@ class Metasploit3 < Msf::Auxiliary
 					:data	=> res.headers['Allow']
 				)
 
-			else
-				''
+				if(res.headers['Allow'].index('TRACE'))
+					report_vuln_service(
+						:host	=> target_host,
+						:port	=> rport,
+						:vname	=> 'HTTP-TRACE-ENABLED',
+						:vdata	=> res.headers['Allow'],
+						:refs   =>
+						[
+							[ 'CVE', '2005-3398'],
+							[ 'CVE', '2005-3498'],
+							[ 'OSVDB', '877'],
+							[ 'BID', '11604'],
+							[ 'BID', '9506'],
+							[ 'BID', '9561']
+						]
+					)
+				end
 			end
-			
+
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
