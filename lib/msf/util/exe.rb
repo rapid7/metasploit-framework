@@ -212,7 +212,7 @@ require 'metasm'
 		rc = pe[ci+320, cd-ci-320]
 
 		# 640 + rc.length bytes of room to store an encoded rc at offset ci
-		enc = encode_stub(framework, [ARCH_X86], rc)
+		enc = encode_stub(framework, [ARCH_X86], rc, ::Msf::Module::PlatformList.win32)
 		lft = 640+rc.length - enc.length
 
 		buf = enc + Rex::Text.rand_text(640+rc.length - enc.length)
@@ -541,12 +541,12 @@ require 'metasm'
 	end
 
 
-	def self.encode_stub(framework, arch, code)
+	def self.encode_stub(framework, arch, code, platform = nil)
 		return code if not framework.encoders
 		framework.encoders.each_module_ranked('Arch' => arch) do |name, mod|
 			begin
 				enc = framework.encoders.create(name)
-				raw = enc.encode(code, '')
+				raw = enc.encode(code, '', nil, platform)
 				return raw if raw
 			rescue
 			end

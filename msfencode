@@ -19,6 +19,7 @@ $args = Rex::Parser::Arguments.new(
 	"-i" => [ true, "Encode the contents of the supplied file path"                      ],
 	"-m" => [ true, "Specifies an additional module search path"                         ],
 	"-a" => [ true, "The architecture to encode as"                                      ],
+	"-p" => [ true, "The platform to encode for"                                         ],
 	"-t" => [ true, "The format to display the encoded buffer with (c, elf, exe, java, perl, raw, ruby, vba, vbs, loop-vbs)" ],
 	"-b" => [ true, "The list of characters to avoid: '\\x00\\xff'"                      ],
 	"-s" => [ true, "The maximum size of the encoded data"                               ],
@@ -94,6 +95,7 @@ delim    = '_|_'
 output   = nil
 ecount   = 1
 altexe   = nil
+plat     = nil
 
 # Parse the argument and rock that shit.
 $args.parse(ARGV) { |opt, idx, val|
@@ -117,10 +119,12 @@ $args.parse(ARGV) { |opt, idx, val|
 			ecount = val.to_i
 		when "-b"
 			badchars = Rex::Text.hex_to_raw(val)
+		when "-p"
+			plat = Msf::Module::PlatformList.transform(val)
 		when "-s"
 			space = val.to_i
 		when "-t"
-			if (val =~ /^(perl|ruby|rb|raw|c|js_le|js_be|java|exe|elf|vba|vbs|loop-vbs)$/)
+			if (val =~ /^(perl|ruby|rb|raw|c|js_le|js_be|java|exe|exe-small|elf|vba|vbs|loop-vbs)$/)
 				fmt = val
 			else
 				$stderr.puts(OutError + "Invalid format: #{val}")
@@ -185,7 +189,7 @@ case cmd
 				1.upto(ecount) do |iteration|
 
 					# Encode it up
-					raw = enc.encode(eout, badchars)
+					raw = enc.encode(eout, badchars, nil, plat)
 
 					# Is it too big?
 					if (space and space > 0 and raw.length > space)
@@ -212,6 +216,19 @@ case cmd
 						exe = Msf::Util::EXE.to_win64pe($framework, raw, {:template => altexe})
 					end
 
+					if(not output)
+						$stdout.write(exe)
+					else
+						File.open(output, "wb") do |fd|
+							fd.write(exe)
+						end
+					end
+				when 'exe-small'
+					exe = nil
+					if(not arch or (arch.index(ARCH_X86)))
+						exe = Msf::Util::EXE.to_win32pe_old($framework, raw)
+					end
+					
 					if(not output)
 						$stdout.write(exe)
 					else

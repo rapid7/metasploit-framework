@@ -213,7 +213,11 @@ class Encoder < Module
 	# an exception will be thrown if an error is encountered during the
 	# encoding process.
 	#
-	def encode(buf, badchars = nil, state = nil)
+	def encode(buf, badchars = nil, state = nil, platform = nil)
+
+		# Configure platform hints if necessary
+		init_platform(platform) if platform
+
 		# Initialize an empty set of bad characters
 		badchars = '' if (!badchars)
 
@@ -393,6 +397,13 @@ protected
 		state.buf                = state.orig_buf
 	end
 
+	#
+	# This provides a hook method for platform specific
+	# processing prior to the rest of encode() running
+	#
+	def init_platform(platform)
+
+	end
 	#
 	# Obtains the key to use during encoding.  If context encoding is enabled,
 	# special steps are taken.  Otherwise, the derived class is given an

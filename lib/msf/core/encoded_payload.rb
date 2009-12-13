@@ -155,7 +155,7 @@ class EncodedPayload
 		
 				# Try encoding with the current encoder
 				begin
-					self.encoded = self.encoder.encode(self.raw, reqs['BadChars'])
+					self.encoded = self.encoder.encode(self.raw, reqs['BadChars'], nil, pinst.platform)
 				rescue EncodingError
 					wlog("#{pinst.refname}: Encoder #{encoder.refname} failed: #{$!}", 'core', LEV_1)
 					dlog("#{pinst.refname}: Call stack\n#{$@.join("\n")}", 'core', LEV_3)

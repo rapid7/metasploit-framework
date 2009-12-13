@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
 
 		# We need to create a GetEIP stub for the exploit
 		if (not reg)
-			if(datastore['AllowWin32SEH'])
+			if(datastore['AllowWin32SEH'] and datastore['AllowWin32SEH'].to_s =~ /^(t|y|1)/i)
 				buf = 'VTX630WTX638VXH49HHHPVX5AAQQPVX5YYYYP5YYYD5KKYAPTTX638TDDNVDDX4Z4A63861816'
 				reg = 'ECX'
 				off = 0
@@ -63,6 +63,16 @@ class Metasploit3 < Msf::Encoder::Alphanum
 		end
 
 		buf + Rex::Encoder::Alpha2::AlphaUpper::gen_decoder(reg, off)
+	end
+
+
+	#
+	# Configure SEH getpc code on Windows
+	#
+	def init_platform(platform)
+		if(platform.supports?(::Msf::Module::PlatformList.win32))
+			datastore['AllowWin32SEH'] = true
+		end
 	end
 
 	#
