@@ -113,15 +113,15 @@ class DBManager
 	# Reports a host as being in a given state by address.
 	#
 	def report_host_state(mod, addr, state, context = nil)
-		
+
 		# TODO: use the current thread's Comm to find the host
 		comm = ''
 		host = get_host(context, addr, comm)
-		
+
 		ostate = host.state
 		host.state = state
 		host.save
-		
+
 		framework.events.on_db_host_state(context, host, ostate)
 		return host
 	end
@@ -143,9 +143,9 @@ class DBManager
 
 		report_host_state(mod, addr, opts[:state] || Msf::HostState::Alive)
 		opts.delete(:state)
-		
+
 		host = get_host(context, addr, '')
-		
+
 		opts.each { |k,v|
 			if (host.attribute_names.include?(k.to_s))
 				host[k] = v
@@ -154,8 +154,8 @@ class DBManager
 			end
 		}
 
-		host.save 
-		
+		host.save
+
 		return host
 	end
 
@@ -190,20 +190,20 @@ class DBManager
 	# This method reports a host's service state.
 	#
 	def report_service_state(mod, addr, proto, port, state, context = nil)
-		
+
 		# TODO: use the current thread's Comm to find the host
 		comm = ''
 		host = get_host(context, addr, comm)
 		port = get_service(context, host, proto, port, state)
-		
+
 		ostate = port.state
 		port.state = state
 		port.save
-		
+
 		if (ostate != state)
 			framework.events.on_db_service_state(context, host, port, ostate)
 		end
-		
+
 		return port
 	end
 
@@ -234,7 +234,7 @@ class DBManager
 			block.call(service)
 		end
 	end
-	
+
 	#
 	# This methods returns a list of all services in the database
 	#
@@ -251,7 +251,7 @@ class DBManager
 			block.call(vulns)
 		end
 	end
-	
+
 	#
 	# This methods returns a list of all vulnerabilities in the database
 	#
@@ -278,14 +278,14 @@ class DBManager
 				:conditions => ['hosts.address = ?', host])
 	end
 
-	
+
 	#
 	# This methods returns a list of all notes in the database
 	#
 	def notes
 		Note.find(:all)
 	end
-		
+
 	#
 	# Find or create a host matching this address/comm
 	#
@@ -305,7 +305,7 @@ class DBManager
 
 	#
 	# Find or create a client on host that matches ua_string
-	#	
+	#
 	def get_client(context, host, ua_string, comm='')
 		# Allow host to be an address to look up
 		if !host.kind_of? Host
@@ -325,7 +325,7 @@ class DBManager
 
 	#
 	# Find or create a service matching this host/proto/port/state
-	#	
+	#
 	def get_service(context, host, proto, port, state=ServiceState::Up)
 		rec = Service.find(:first, :conditions => [ "host_id = ? and proto = ? and port = ?", host[:id], proto, port])
 		if (not rec)
@@ -343,16 +343,16 @@ class DBManager
 
 	#
 	# Find or create a vuln matching this service/name
-	#	
+	#
 	def get_vuln(context, host, service, name, data='')
 		vuln = nil
-		
+
 		if(service)
 			vuln = Vuln.find(:first, :conditions => [ "name = ? and service_id = ? and host_id = ?", name, service.id, host.id])
 		else
 			vuln = Vuln.find(:first, :conditions => [ "name = ? and host_id = ?", name, host.id])
 		end
-		
+
 		if (not vuln)
 			vuln = Vuln.create(
 				:service_id => service ? service.id : 0,
@@ -385,7 +385,7 @@ class DBManager
 
 	#
 	# Find or create a note matching this type/data
-	#	
+	#
 	def get_note(context, host, ntype, data)
 		rec = Note.find(:first, :conditions => [ "host_id = ? and ntype = ? and data = ?", host[:id], ntype, data])
 		if (not rec)
@@ -399,7 +399,7 @@ class DBManager
 		end
 		return rec
 	end
-	
+
 	#
 	# Deletes a host and associated data matching this address/comm
 	#
@@ -448,60 +448,60 @@ class DBManager
 	def has_vuln?(name)
 		Vuln.find_by_name(name)
 	end
-		
+
 	#
 	# Look for an address across all comms
-	#			
+	#
 	def has_host?(addr)
 		Host.find_by_address(addr)
 	end
 
 	#
 	# Find all references matching a vuln
-	#		
+	#
 	def refs_by_vuln(vuln)
 		Ref.find_by_sql(
 			"SELECT refs.* FROM refs, vulns_refs WHERE " +
 			"vulns_refs.vuln_id = #{vuln[:id]} AND " +
 			"vulns_refs.ref_id = refs.id"
 		)
-	end	
-	
+	end
+
 	#
 	# Find all vulns matching a reference
-	#		
+	#
 	def vulns_by_ref(ref)
 		Vuln.find_by_sql(
 			"SELECT vulns.* FROM vulns, vulns_refs WHERE " +
 			"vulns_refs.ref_id = #{ref[:id]} AND " +
 			"vulns_refs.vuln_id = vulns.id"
 		)
-	end	
-	
+	end
+
 	#
 	# WMAP
 	# Support methods
 	#
-	
+
 	#
 	# WMAP
 	# Selected host
 	#
 	def selected_host
-		selhost = Target.find(:first, :conditions => ["selected > 0"] )
+		selhost = WmapTarget.find(:first, :conditions => ["selected != 0"] )
 		if selhost
 			return selhost.host
 		else
 			return
-		end	
+		end
 	end
-	
+
 	#
 	# WMAP
 	# Selected port
 	#
 	def selected_port
-		Target.find(:first, :conditions => ["selected > 0"] ).port
+		WmapTarget.find(:first, :conditions => ["selected != 0"] ).port
 	end
 
 	#
@@ -509,17 +509,17 @@ class DBManager
 	# Selected ssl
 	#
 	def selected_ssl
-		Target.find(:first, :conditions => ["selected > 0"] ).ssl
-	end	
-	
+		WmapTarget.find(:first, :conditions => ["selected != 0"] ).ssl
+	end
+
 	#
 	# WMAP
 	# Selected id
 	#
 	def selected_id
-		Target.find(:first, :conditions => ["selected > 0"] ).object_id
+		WmapTarget.find(:first, :conditions => ["selected != 0"] ).object_id
 	end
-	
+
 	#
 	# WMAP
 	# This method iterates the requests table identifiying possible targets
@@ -530,22 +530,22 @@ class DBManager
 			block.call(target)
 		end
 	end
-	
+
 	#
 	# WMAP
 	# This method returns a list of all possible targets available in requests
 	# This method wiil be remove on second phase of db merging.
 	#
 	def request_distinct_targets
-		Request.find(:all, :select => 'DISTINCT host,port,ssl')
+		WmapRequest.find(:all, :select => 'DISTINCT host,address,port,ssl')
 	end
-	
+
 	#
 	# WMAP
 	# This method iterates the requests table returning a list of all requests of a specific target
 	#
 	def each_request_target_with_path(&block)
-		target_requests('AND requests.path IS NOT NULL').each do |req|
+		target_requests('AND wmap_requests.path IS NOT NULL').each do |req|
 			block.call(req)
 		end
 	end
@@ -555,31 +555,31 @@ class DBManager
 	# This method iterates the requests table returning a list of all requests of a specific target
 	#
 	def each_request_target_with_query(&block)
-		target_requests('AND requests.query IS NOT NULL').each do |req|
+		target_requests('AND wmap_requests.query IS NOT NULL').each do |req|
 			block.call(req)
 		end
 	end
-	
+
 	#
 	# WMAP
 	# This method iterates the requests table returning a list of all requests of a specific target
 	#
 	def each_request_target_with_body(&block)
-		target_requests('AND requests.body IS NOT NULL').each do |req|
+		target_requests('AND wmap_requests.body IS NOT NULL').each do |req|
 			block.call(req)
 		end
 	end
-	
+
 	#
 	# WMAP
 	# This method iterates the requests table returning a list of all requests of a specific target
 	#
 	def each_request_target_with_headers(&block)
-		target_requests('AND requests.headers IS NOT NULL').each do |req|
+		target_requests('AND wmap_requests.headers IS NOT NULL').each do |req|
 			block.call(req)
 		end
 	end
-	
+
 	#
 	# WMAP
 	# This method iterates the requests table returning a list of all requests of a specific target
@@ -589,15 +589,15 @@ class DBManager
 			block.call(req)
 		end
 	end
-	
+
 	#
 	# WMAP
 	# This method returns a list of all requests from target
 	#
 	def target_requests(extra_condition)
-		Request.find(:all, :conditions => ["requests.host = ? AND requests.port = ? #{extra_condition}",selected_host,selected_port])
+		WmapRequest.find(:all, :conditions => ["wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}",selected_host,selected_port])
 	end
-	
+
 	#
 	# WMAP
 	# This method iterates the requests table calling the supplied block with the
@@ -608,23 +608,23 @@ class DBManager
 			block.call(request)
 		end
 	end
-	
+
 	#
 	# WMAP
 	# This method allows to query directly the requests table. To be used mainly by modules
 	#
 	def request_sql(host,port,extra_condition)
-		Request.find(:all, :conditions => ["requests.host = ? AND requests.port = ? #{extra_condition}",host,port])
+		WmapRequest.find(:all, :conditions => ["wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}",host,port])
 	end
-	
+
 	#
 	# WMAP
 	# This methods returns a list of all targets in the database
 	#
 	def requests
-		Request.find(:all)
+		WmapRequest.find(:all)
 	end
-	
+
 	#
 	# WMAP
 	# This method iterates the targets table calling the supplied block with the
@@ -635,13 +635,13 @@ class DBManager
 			block.call(target)
 		end
 	end
-	
+
 	#
 	# WMAP
 	# This methods returns a list of all targets in the database
 	#
 	def targets
-		Target.find(:all)
+		WmapTarget.find(:all)
 	end
 
 	#
@@ -649,42 +649,44 @@ class DBManager
 	# This methods deletes all targets from targets table in the database
 	#
 	def delete_all_targets
-		Target.delete_all
+		WmapTarget.delete_all
 	end
-	
+
 	#
 	# WMAP
 	# Find a target matching this id
 	#
 	def get_target(id)
-		target = Target.find(:first, :conditions => [ "id = ?", id])
+		target = WmapTarget.find(:first, :conditions => [ "id = ?", id])
 		return target
 	end
-	
+
 	#
 	# WMAP
-	# Create a target 
+	# Create a target
 	#
 	def create_target(host,port,ssl,sel)
-		tar = Target.create(
-				:host => host, 
-				:port => port, 
-				:ssl => ssl, 
+		tar = WmapTarget.create(
+				:host => host,
+				:address => host,
+				:port => port,
+				:ssl => ssl,
 				:selected => sel
 			)
 		#framework.events.on_db_target(context, rec)
 	end
-	
-		
+
+
 	#
 	# WMAP
-	# Create a request (by hand) 
+	# Create a request (by hand)
 	#
 	def create_request(host,port,ssl,meth,path,headers,query,body,respcode,resphead,response)
-		req = Request.create(
-				:host => host, 
-				:port => port, 
-				:ssl => ssl, 
+		req = WmapRequest.create(
+				:host => host,
+				:address => host,
+				:port => port,
+				:ssl => ssl,
 				:meth => meth,
 				:path => path,
 				:headers => headers,
@@ -697,15 +699,16 @@ class DBManager
 			)
 		#framework.events.on_db_request(context, rec)
 	end
-	
+
 	#
 	# WMAP
-	# Quick way to query the database (used by wmap_sql) 
+	# Quick way to query the database (used by wmap_sql)
 	#
 	def sql_query(sqlquery)
 		ActiveRecord::Base.connection.select_all(sqlquery)
 	end
-		
+
 end
 
 end
+

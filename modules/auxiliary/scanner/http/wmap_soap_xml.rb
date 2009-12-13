@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/projects/Framework/
@@ -14,25 +14,25 @@ require 'msf/core'
 
 
 class Metasploit3 < Msf::Auxiliary
-	
+
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::WMAPScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
-	
+
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'   		=> 'HTTP SOAP Verb/Noun Brute Force Scanner',
 			'Description'	=> %q{
 				This module attempts to brute force SOAP/XML requests to uncover
 				hidden methods.
-					
+
 			},
 			'Author' 		=> [ 'patrick' ],
 			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$'))   
-			
+			'Version'		=> '$Revision$'))
+
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path to test", '/']),
@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 				'add',
 				#'delete', # Best to be safe!
 			]
-			
+
 		nouns = [
 				'password',
 				'task',
@@ -117,13 +117,13 @@ class Metasploit3 < Msf::Auxiliary
 				'method'       => 'GET',
 				'vhost'         => vhost,
 			}, 10)
-			
+
 			if (res.code == 200)
 				print_status("PATH appears to be OK.")
-				
+
 				verbs.each do |v|
 					nouns.each do |n|
-					
+
 						# This could be cleaned up - patrickw
 						data = '<?xml version="1.0" encoding="utf-8"?>' + "\r\n"
 						data << '<soap:Envelope xmlns:xsi="' + datastore['XMLINSTANCE'] + '" xmlns:xsd="' + datastore['XMLSCHEMA'] + '" xmlns:soap="' + datastore['XMLSOAP'] + '">' + "\r\n"
@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 						data << "</#{v}#{n}>" + "\r\n"
 						data << '</soap:Body>' + "\r\n"
 						data << '</soap:Envelope>' + "\r\n\r\n"
-						
+
 						res = send_request_raw({
 							'uri'          => datastore['PATH'] + '/' + v + n,
 							'method'       => 'POST',
@@ -146,8 +146,8 @@ class Metasploit3 < Msf::Auxiliary
 									'Content-Type'	=> datastore['CONTENTTYPE'],
 								}
 						}, 15)
-						
-						
+
+
 						if (res.body =~ /method name is not valid/)
 							print_status("Server rejected SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
 						elsif (res.message =~ /Cannot process the message because the content type/)
@@ -155,14 +155,16 @@ class Metasploit3 < Msf::Auxiliary
 							res.message =~ /was not the expected type\s\'([^']+)'/
 							print_status("Set CONTENTTYPE to \"#{$1}\"")
 							return false
+						elsif (res.code == 404)
+							return false
 						else
 							print_status("Server responded to SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
 							if datastore['DISPLAYHTML']
 								print_status("The HTML content follows:")
 								print_status(res.body + "\r\n")
-							end	
+							end
 						end
-						
+
 					end
 				end
 
@@ -175,3 +177,4 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
+

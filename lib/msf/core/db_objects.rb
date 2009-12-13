@@ -108,13 +108,13 @@ end
 
 
 # WMAP Request object definition
-class Request < ::ActiveRecord::Base
+class WmapRequest < ::ActiveRecord::Base
 	include DBSave
 	# Magic.
 end
 
 # WMAP Target object definition
-class Target < ::ActiveRecord::Base
+class WmapTarget < ::ActiveRecord::Base
 	include DBSave
 	# Magic.
 end

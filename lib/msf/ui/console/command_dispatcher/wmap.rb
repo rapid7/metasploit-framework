@@ -2,21 +2,21 @@ module Msf
 module Ui
 module Console
 module CommandDispatcher
-module Wmap 
+module Wmap
 
 		require 'rabal/tree'
 		require 'rexml/document'
 		require 'tempfile'
-		
+
 		# Load ActiveRecord
 		require 'rubygems'
 		require 'active_record'
 
-		# 
+		#
 		# MSF WMAP Web scanner		ET
-		# et[cron]metasploit.com  
-		# 		
-		
+		# et[cron]metasploit.com
+		#
+
 		#
 		# Constants
 		#
@@ -27,13 +27,13 @@ module Wmap
 		WMAP_EXITIFSESS = true
 		WMAP_SHOW = 2**0
 		WMAP_EXPL = 2**1
-		
-		# Command line does not allow multiline strings so we paas headers header:valueSEPARATOR 
+
+		# Command line does not allow multiline strings so we paas headers header:valueSEPARATOR
 		STR_HEADER_SEPARATOR = '&'
-		
+
 		# Exclude files can be modified by setting datastore['WMAP_EXCLUDE_FILE']
 		WMAP_EXCLUDE_FILE = '.*\.(gif|jpg|png*)$'
-			
+
 		#
 		# The dispatcher's name.
 		#
@@ -58,85 +58,91 @@ module Wmap
 			print_status("Website structure")
 			if selected_host == nil
 				print_error("Target not selected.")
-			else	
+			else
 				print_status("#{selected_host}:#{selected_port} SSL:#{selected_ssl}")
 				print_tree(load_tree)
-			end	
+			end
 			print_status("Done.")
 		end
 
 		def cmd_wmap_targets(*args)
-			# Default behavior to handle hosts names in the db as RHOSTS only 
+			# Default behavior to handle hosts names in the db as RHOSTS only
 			# accepts IP addresses
 			accept_hostnames = true
-			resolv_hosts = false 
-		
-		
+			resolv_hosts = false
+
+
 			args.push("-h") if args.length == 0
-			
+
 			while (arg = args.shift)
 				case arg
 				when '-a'
 					target_url = args.shift
-					
+
 					if target_url == nil
-						print_error("URI required.")
+						print_error("URI required (http://<user:pass>@host</uri>)")
+						return
 					else
 						puri = uri_parse(target_url)
-					
+
 						scheme, authority, path, query = puri[2], puri[4], puri[5], puri[7]
-					
+
+						if(not authority)
+							print_error("URI required (http://<user:pass>@host</uri>)")
+							return
+						end
+
 						uri_ssl= 0
 						if scheme == 'https'
 							uri_ssl = 1
 						end
-					
+
 						uri_auth = authority.split(':')
-					
+
 						uri_host = uri_auth[0]
-					
+
 						uri_port = 80
 						if uri_auth[1]
 							uri_port = uri_auth[1]
 						end
-						
+
 						uri_path = path
-						if path == nil or path == '' 
+						if path == nil or path == ''
 							uri_path = '/'
 						end
-					
+
 						if Rex::Socket.dotted_ip?(uri_host)
 							hip = uri_host
 							framework.db.create_target(hip, uri_port, uri_ssl, 0)
 							print_status("Added target #{hip} #{uri_port} #{uri_ssl}")
-						
+
 							framework.db.create_request(hip,uri_port,uri_ssl,'GET',uri_path,'',query,'','','','')
 							print_status("Added request #{uri_path} #{query}")
 						else
 							if accept_hostnames
 								framework.db.create_target(uri_host, uri_port, uri_ssl, 0)
 								print_status("Added target #{uri_host} #{uri_port} #{uri_ssl}")
-						
+
 								framework.db.create_request(uri_host,uri_port,uri_ssl,'GET',uri_path,'',query,'','','','')
-								print_status("Added request #{uri_host} #{query}")	
+								print_status("Added request #{uri_host} #{query}")
 							else
-								print_error("RHOSTS only accepts IP addresses: #{req.host}") 
-							
+								print_error("RHOSTS only accepts IP addresses: #{req.host}")
+
 								if resolv_hosts
 									hip = Rex::Socket.resolv_to_dotted(req.host)
-									
+
 									framework.db.create_target(hip, uri_port, uri_ssl, 0)
 									print_status("Added target #{hip} #{uri_port} #{uri_ssl}")
-						
+
 									framework.db.create_request(hip,uri_port,uri_ssl,'GET',uri_path,'',query,'','','','')
 									print_status("Added request #{uri_path} #{query}")
 								end
-							end	
+							end
 						end
 					end
 				when '-p'
 					print_status("   Id. Host\t\t\t\t\tPort\tSSL")
-					
+
 					framework.db.each_target do |tgt|
 						if tgt.ssl == 1
 							usessl = "[*]"
@@ -146,14 +152,14 @@ module Wmap
 
 						maxcols = 35
 						cols = maxcols - tgt.host.length
-	
+
 						thost = "#{tgt.host.to_s[0..maxcols]}"+(" "*cols)
-							
-						if tgt.selected == 1	
+
+						if tgt.selected == 1
 							print_status("=> #{tgt.id}. #{thost}\t#{tgt.port}\t#{usessl}")
 						else
 							print_status("   #{tgt.id}. #{thost}\t#{tgt.port}\t#{usessl}")
-						end		
+						end
 					end
 					print_status("Done.")
 				when '-r'
@@ -165,22 +171,22 @@ module Wmap
 						else
 							if accept_hostnames
 									framework.db.create_target(req.host, req.port, req.ssl, 0)
-									print_status("Added host #{req.host}")							
+									print_status("Added host #{req.host}")
 							else
-								print_error("RHOSTS only accepts IP addresses: #{req.host}") 
-							
+								print_error("RHOSTS only accepts IP addresses: #{req.host}")
+
 								if resolv_hosts
 									hip = Rex::Socket.resolv_to_dotted(req.host)
 									framework.db.create_target(hip, req.port, req.ssl, 0)
 									print_status("Added host #{req.host} resolved as #{hip}.")
 								end
-							end	
-						end  		
-					end	
+							end
+						end
+					end
 				when '-s'
 					framework.db.each_target do |tgt|
 						tgt.selected = 0
-						tgt.save	
+						tgt.save
 					end
 					seltgt = framework.db.get_target(args.shift)
 					if seltgt == nil
@@ -188,7 +194,7 @@ module Wmap
 					else
 						seltgt.selected = 1
 						seltgt.save
-					end	
+					end
 				when '-h'
 					print_status("Usage: wmap_targets [options]")
 					print_line("\t-h 		Display this help text")
@@ -196,39 +202,39 @@ module Wmap
 					print_line("\t-r 		Reload targets table")
 					print_line("\t-s [id]	Select target for testing")
 					print_line("\t-a [url]	Add new target")
-					
+
 					print_line("")
 					return
 				end
 			end
 		end
-		
+
 		def cmd_wmap_sql(*args)
 			qsql = args.join(" ")
-			
+
 			args.push("-h") if args.length == 0
-			
+
 			while (arg = args.shift)
 				case arg
 				when '-h'
 					print_status("Usage: wmap_sql [sql query]")
 					print_line("\t-h 		Display this help text")
-										
+
 					print_line("")
 					return
 				end
 			end
-			
+
 			print_line("SQL:  #{qsql}")
-			
-			begin	
+
+			begin
 				res =framework.db.sql_query(qsql)
 				res.each do |o|
 					line = ''
 					o.each do |k, v|
 						if v
 							line << v
-						end	
+						end
 						line << '|'
 					end
 					print_line(line)
@@ -236,9 +242,9 @@ module Wmap
 			rescue ::Exception
 				print_error("SQL Error #{$!}")
 				return
-			end			
+			end
 		end
-		
+
 		#
 		# A copy of the shotgun approach to website exploitation
 		#
@@ -246,24 +252,24 @@ module Wmap
 
 			stamp = Time.now.to_f
 			mode  = 0
-			
+
 			eprofile = []
 			using_p = false
-			
+
 			args.push("-h") if args.length == 0
-			
+
 			while (arg = args.shift)
 				case arg
 				when '-t'
 					mode |= WMAP_SHOW
 				when '-e'
 					mode |= WMAP_EXPL
-					
+
 					profile = args.shift
-					
+
 					if profile
 						print_status("Using profile #{profile}.")
-						
+
 						begin
 							File.open(profile).each do |str|
 								if not str.include? '#'
@@ -278,55 +284,55 @@ module Wmap
 						rescue
 							print_error("Profile not found or invalid.")
 							return
-						end	
+						end
 					else
 						print_status("Using ALL wmap enabled modules.")
 					end
-					
-					
+
+
 				when '-h'
 					print_status("Usage: wmap_run [options]")
 					print_line("\t-h		Display this help text")
 					print_line("\t-t		Show all matching exploit modules")
 					print_line("\t-e [profile]	Launch profile test modules against all matched targets.")
 					print_line("\t		No profile runs all enabled modules.")
-					
+
 					print_line("")
 					return
 				end
 			end
-			
-			if selected_host == nil 
+
+			if selected_host == nil
 				print_error("Target not selected.")
-				return	
+				return
 			end
 
 			# WMAP_DIR, WMAP_FILE
 			matches = {}
-			
+
 			# WMAP_SERVER
 			matches1 = {}
-			
+
 			# WMAP_QUERY
 			matches2 = {}
-			
+
 			# WMAP_BODY
 			matches3 = {}
-			
+
 			# WMAP_HEADERS
 			matches4 = {}
-			
+
 			# WMAP_UNIQUE_QUERY
 			matches5 = {}
-			
+
 			# WMAP_GENERIC
 			matches10 = {}
-						
+
 			# EXPLOIT OPTIONS
 			opt_str = nil
 			bg      = false
 			jobify  = false
-						
+
 			[ [ framework.auxiliary, 'auxiliary' ], [framework.exploits, 'exploit' ] ].each do |mtype|
 
 				# Scan all exploit modules for matching references
@@ -334,36 +340,36 @@ module Wmap
 					e = m.new
 
 					# Only include wmap_enabled plugins
-					if e.respond_to?("wmap_enabled") 
-						
+					if e.respond_to?("wmap_enabled")
+
 						penabled = e.wmap_enabled
-						
-						if penabled 
-							if not using_p or eprofile.include? n.split('/').last 
+
+						if penabled
+							if not using_p or eprofile.include? n.split('/').last
 								#
 								# First run the WMAP_SERVER plugins
 								#
 								case e.wmap_type
 								when :WMAP_SERVER
 									matches1[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
-								when :WMAP_QUERY	
+								when :WMAP_QUERY
 									matches2[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
-								when :WMAP_BODY	
+								when :WMAP_BODY
 									matches3[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
-								when :WMAP_HEADERS	
+								when :WMAP_HEADERS
 									matches4[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
-								when :WMAP_UNIQUE_QUERY	
+								when :WMAP_UNIQUE_QUERY
 									matches5[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
-								when :WMAP_GENERIC	
-									matches10[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true																	
+								when :WMAP_GENERIC
+									matches10[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
 								when :WMAP_DIR, :WMAP_FILE
 									matches[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
 								else
-									# Black Hole	
-								end	
+									# Black Hole
+								end
 							end
 						end
-					end					
+					end
 				end
 			end
 
@@ -374,7 +380,7 @@ module Wmap
 			idx = 0
 			matches1.each_key do |xref|
 				idx += 1
-				
+
 				begin
 					mod = nil
 
@@ -387,7 +393,7 @@ module Wmap
 					if (mode & WMAP_SHOW != 0)
 						print_status("Loaded #{xref[3]} ...")
 					end
-					
+
 					#
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
@@ -400,7 +406,7 @@ module Wmap
 						self.framework.datastore.each do |gkey,gval|
 							mod.datastore[gkey]=gval
 						end
-						
+
 						#
 						# For exploits
 						#
@@ -411,9 +417,9 @@ module Wmap
 
 						#
 						# Parameters passed in hash xref
-						# 
-						mod.datastore['RHOST'] = xref[0] 
-						mod.datastore['RHOSTS'] = xref[0] 
+						#
+						mod.datastore['RHOST'] = xref[0]
+						mod.datastore['RHOSTS'] = xref[0]
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
 
@@ -424,9 +430,9 @@ module Wmap
 
 						wtype = mod.wmap_type
 
-						if wtype == :WMAP_SERVER 
+						if wtype == :WMAP_SERVER
 							print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
-							
+
 							# To run check function for modules that are exploits
 							if mod.respond_to?("check") and WMAP_CHECK
 								begin
@@ -441,16 +447,16 @@ module Wmap
 										if (session == Msf::Exploit::CheckCode::Vulnerable)
 											stat = '[+]'
 										end
-					
+
 										print_line(stat + ' ' + session[1])
-										
+
 										#
 										# Exploit if WMAP_RUNEXPL
 										#
-										
+
 										if (session == Msf::Exploit::CheckCode::Vulnerable) and WMAP_RUNEXPL
 											print_status("Exploiting...")
-											
+
 											begin
 												session = mod.exploit_simple(
 													'Encoder'        => encoder,
@@ -476,7 +482,7 @@ module Wmap
 
 											# If we were given a session, let's see what we can do with it
 											if (session)
-		
+
 												# If we aren't told to run in the background and the session can be
 												# interacted with, start interacting with it by issuing the session
 												# interaction command.
@@ -490,7 +496,7 @@ module Wmap
 												end
 												# If we ran the exploit as a job, indicate such so the user doesn't
 												# wonder what's up.
-												
+
 												if WMAP_EXITIFSESS
 													return
 												end
@@ -500,17 +506,17 @@ module Wmap
 											else
 												print_status("Exploit completed, but no session was created.")
 											end
-																																	
+
 										end
-										
+
 									else
 										print_error("Check failed: The state could not be determined.")
-									end	
-										
+									end
+
 								rescue ::Exception
 									print_status(" >> Exception during check launch from #{xref[3]}: #{$!}")
 								end
-							
+
 							else
 								begin
 									session = mod.run_simple(
@@ -520,10 +526,10 @@ module Wmap
 								rescue ::Exception
 									print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
 								end
-							end	
+							end
 						end
 					end
-					
+
 				rescue ::Exception
 					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
@@ -536,7 +542,7 @@ module Wmap
 			idx = 0
 			matches.each_key do |xref|
 				idx += 1
-				
+
 				begin
 					mod = nil
 
@@ -549,7 +555,7 @@ module Wmap
 					if (mode & WMAP_SHOW != 0)
 						print_status("Loaded #{xref[3]} ...")
 					end
-					
+
 					#
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
@@ -564,11 +570,11 @@ module Wmap
 
 						#
 						# Parameters passed in hash xref
-						# 
+						#
 						mod.datastore['RHOST'] = xref[0]
-						mod.datastore['RHOSTS'] = xref[0] 
+						mod.datastore['RHOSTS'] = xref[0]
 						mod.datastore['RPORT'] = xref[1].to_s
-						mod.datastore['SSL']   = xref[2].to_s 	
+						mod.datastore['SSL']   = xref[2].to_s
 
 						#
 						# Run the plugins that only need to be
@@ -576,8 +582,8 @@ module Wmap
 						#
 
 						wtype = mod.wmap_type
-						
-						#	
+
+						#
 						#Here is where the fun begins
 						#
 						test_tree = load_tree()
@@ -588,21 +594,21 @@ module Wmap
 
 							#
 							# Fixing paths
-							#	
-							
-							if node.is_leaf? and not node.is_root? 
-								#		
+							#
+
+							if node.is_leaf? and not node.is_root?
+								#
 								# Later we can add here more checks to see if its a file
 								#
-							else 
+							else
 								if node.is_root?
-									strpath = "/"	
-								else		
+									strpath = "/"
+								else
 									strpath = strpath.chomp + "/"
 								end
-							end			
-							
-							strpath = strpath.gsub("//", "/")		
+							end
+
+							strpath = strpath.gsub("//", "/")
 							#print_status("Testing path: #{strpath}")
 
 							#
@@ -613,7 +619,7 @@ module Wmap
 							#
 
 							case wtype
-							when :WMAP_FILE  
+							when :WMAP_FILE
 								if node.is_leaf? and not node.is_root?
 									#
 									# Check if an exclusion regex has been defined
@@ -621,13 +627,13 @@ module Wmap
 									if self.framework.datastore['WMAP_EXCLUDE_FILE']
 										excludefilestr = self.framework.datastore['WMAP_EXCLUDE_FILE']
 									else
-										excludefilestr = WMAP_EXCLUDE_FILE	
+										excludefilestr = WMAP_EXCLUDE_FILE
 									end
-								
+
 									if not strpath.match(excludefilestr)
 										mod.datastore['PATH'] = strpath
 										print_status("Launching #{xref[3]} #{wtype} #{strpath} against #{xref[0]}:#{xref[1]}...")
-										
+
 										# To run check function for modules that are exploits
 										if mod.respond_to?("check") and WMAP_CHECK
 											begin
@@ -639,7 +645,7 @@ module Wmap
 												print_status(" >> Exception during check launch from #{xref[3]}: #{$!}")
 											end
 										else
-									
+
 											begin
 												session = mod.run_simple(
 													'LocalInput' 	=> driver.input,
@@ -648,14 +654,14 @@ module Wmap
 											rescue ::Exception
 												print_status(" >> Exception during launch from #{name}: #{$!}")
 											end
-										end	
-									end	
-								end	 
-							when :WMAP_DIR 
-								if not node.is_leaf? or node.is_root?	
+										end
+									end
+								end
+							when :WMAP_DIR
+								if not node.is_leaf? or node.is_root?
 									mod.datastore['PATH'] = strpath
 									print_status("Launching #{xref[3]} #{wtype} #{strpath} against #{xref[0]}:#{xref[1]}...")
-									
+
 									# To run check function for modules that are exploits
 									if mod.respond_to?("check") and WMAP_CHECK
 										begin
@@ -667,7 +673,7 @@ module Wmap
 											print_status(" >> Exception during check launch from #{xref[3]}: #{$!}")
 										end
 									else
-									
+
 										begin
 											session = mod.run_simple(
 												'LocalInput' 	=> driver.input,
@@ -676,16 +682,16 @@ module Wmap
 										rescue ::Exception
 											print_status(" >> Exception during launch from #{name}: #{$!}")
 										end
-									end	
+									end
 								end
-							end							
+							end
 						end
-					end					
+					end
 				rescue ::Exception
 					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
-			end	
-			
+			end
+
 			#
 			# Run modules for each request to play with URI with UNIQUE query parameters.
 			# WMAP_UNIQUE_QUERY
@@ -693,7 +699,7 @@ module Wmap
 			idx = 0
 			matches5.each_key do |xref|
 				idx += 1
-				
+
 				begin
 					mod = nil
 
@@ -706,7 +712,7 @@ module Wmap
 					if (mode & WMAP_SHOW != 0)
 						print_status("Loaded #{xref[3]} ...")
 					end
-					
+
 					#
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
@@ -721,31 +727,31 @@ module Wmap
 
 						#
 						# Parameters passed in hash xref
-						# 
+						#
 						mod.datastore['RHOST'] = xref[0]
-						mod.datastore['RHOSTS'] = xref[0] 
+						mod.datastore['RHOSTS'] = xref[0]
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
 
 						#
-						# Run the plugins for each request that have a distinct 
+						# Run the plugins for each request that have a distinct
 						# GET/POST  URI QUERY string.
 						#
 
 						wtype = mod.wmap_type
-						
+
 						utest_query = {}
-						
+
 						framework.db.each_request_target_with_query do |req|
 							#
-							# Only test unique query strings by comparing signature to previous tested signatures 'path,p1,p2,pn' 
+							# Only test unique query strings by comparing signature to previous tested signatures 'path,p1,p2,pn'
 							#
-							if (utest_query.has_key?(mod.signature(req.path,req.query)) == false)		
+							if (utest_query.has_key?(mod.signature(req.path,req.query)) == false)
 								#
 								# Weird bug req.method doesnt work
 								# collides with some method named 'method'
 								# column table renamed to 'meth'.
-								# 
+								#
 								mod.datastore['METHOD'] = req.meth.upcase
 								mod.datastore['PATH'] =  req.path
 								mod.datastore['QUERY'] = req.query
@@ -755,11 +761,11 @@ module Wmap
 								mod.datastore['DATA'] = req.body
 								#
 								# TODO: Add method, headers, etc.
-								# 
-							
-								if wtype == :WMAP_UNIQUE_QUERY 
+								#
+
+								if wtype == :WMAP_UNIQUE_QUERY
 									print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
-									
+
 									# To run check function for modules that are exploits
 									if mod.respond_to?("check") and WMAP_CHECK
 										begin
@@ -780,33 +786,33 @@ module Wmap
 										rescue ::Exception
 											print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
 										end
-									end	
+									end
 								end
-								
+
 								#
 								# Unique query tested, actually the value does not matter
 								#
 								# print_status("#{mod.signature(req.path,req.query)}")
-								utest_query[mod.signature(req.path,req.query)]=1 
+								utest_query[mod.signature(req.path,req.query)]=1
 							end
 						end
 					end
-					
+
 				rescue ::Exception
 					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
 			end
-			
+
 			#
 			# Run modules for each request to play with URI query parameters.
-			# This approach will reduce the complexity of the Tree used before 
+			# This approach will reduce the complexity of the Tree used before
 			# and will make this shotgun implementation much simple.
 			# WMAP_QUERY
 			#
 			idx = 0
 			matches2.each_key do |xref|
 				idx += 1
-				
+
 				begin
 					mod = nil
 
@@ -819,12 +825,12 @@ module Wmap
 					if (mode & WMAP_SHOW != 0)
 						print_status("Loaded #{xref[3]} ...")
 					end
-					
+
 					#
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
 					if (mode & WMAP_EXPL != 0)
-					
+
 						#
 						# For modules to have access to the global datastore
 						# i.e. set -g DOMAIN test.com
@@ -835,26 +841,26 @@ module Wmap
 
 						#
 						# Parameters passed in hash xref
-						# 
+						#
 						mod.datastore['RHOST'] = xref[0]
-						mod.datastore['RHOSTS'] = xref[0] 
+						mod.datastore['RHOSTS'] = xref[0]
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
 
 						#
-						# Run the plugins for each request that have a distinct 
+						# Run the plugins for each request that have a distinct
 						# GET/POST  URI QUERY string.
 						#
 
 						wtype = mod.wmap_type
-						
-						
+
+
 						framework.db.each_request_target_with_query do |req|
 							#
 							# Weird bug req.method doesnt work
 							# collides with some method named 'method'
 							# column table renamed to 'meth'.
-							# 
+							#
 							mod.datastore['METHOD'] = req.meth.upcase
 							mod.datastore['PATH'] =  req.path
 							mod.datastore['QUERY'] = req.query
@@ -862,14 +868,14 @@ module Wmap
 							mod.datastore['HEADERS'] = headers_to_s(req.headers,STR_HEADER_SEPARATOR)
 							mod.datastore['COOKIE'] = header(req.headers,"Cookie")
 							mod.datastore['DATA'] = req.body
-							
+
 							#
 							# TODO: Add method, headers, etc.
-							# 
-							
-							if wtype == :WMAP_QUERY 
+							#
+
+							if wtype == :WMAP_QUERY
 								print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
-								
+
 								# To run check function for modules that are exploits
 								if mod.respond_to?("check") and WMAP_CHECK
 									begin
@@ -890,16 +896,16 @@ module Wmap
 									rescue ::Exception
 										print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
 									end
-								end	
+								end
 							end
 						end
 					end
-					
+
 				rescue ::Exception
 					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
 			end
-			
+
 			#
 			# Run modules for each request to play with request bodies.
 			# WMAP_BODY
@@ -907,7 +913,7 @@ module Wmap
 			idx = 0
 			matches3.each_key do |xref|
 				idx += 1
-				
+
 				begin
 					mod = nil
 
@@ -920,12 +926,12 @@ module Wmap
 					if (mode & WMAP_SHOW != 0)
 						print_status("Loaded #{xref[3]} ...")
 					end
-					
+
 					#
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
 					if (mode & WMAP_EXPL != 0)
-					
+
 						#
 						# For modules to have access to the global datastore
 						# i.e. set -g DOMAIN test.com
@@ -936,27 +942,27 @@ module Wmap
 
 						#
 						# Parameters passed in hash xref
-						# 
+						#
 						mod.datastore['RHOST'] = xref[0]
-						mod.datastore['RHOSTS'] = xref[0] 
+						mod.datastore['RHOSTS'] = xref[0]
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
 
 						#
-						# Run the plugins for each request for all headers  
+						# Run the plugins for each request for all headers
 						# This can be improved alot . Later versions
 						# Should only tests on unique requests.
 						#
 
 						wtype = mod.wmap_type
-						
-						
+
+
 						framework.db.each_request_target_with_body do |req|
 							#
 							# Weird bug req.method doesnt work
 							# collides with some method named 'method'
 							# column table renamed to 'meth'.
-							# 
+							#
 							mod.datastore['METHOD'] = req.meth.upcase
 							mod.datastore['PATH'] =  req.path
 							mod.datastore['QUERY'] = req.query
@@ -966,11 +972,11 @@ module Wmap
 							mod.datastore['DATA'] = req.body
 							#
 							# TODO: Add method, headers, etc.
-							# 
-							
-							if wtype == :WMAP_BODY 
+							#
+
+							if wtype == :WMAP_BODY
 								print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
-								
+
 								# To run check function for modules that are exploits
 								if mod.respond_to?("check") and WMAP_CHECK
 									begin
@@ -991,16 +997,16 @@ module Wmap
 									rescue ::Exception
 										print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
 									end
-								end	
+								end
 							end
 						end
 					end
-					
+
 				rescue ::Exception
 					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
 			end
-			
+
 			#
 			# Run modules for each request to play with request headers.
 			# WMAP_HEADERS
@@ -1008,7 +1014,7 @@ module Wmap
 			idx = 0
 			matches4.each_key do |xref|
 				idx += 1
-				
+
 				begin
 					mod = nil
 
@@ -1021,11 +1027,11 @@ module Wmap
 					if (mode & WMAP_SHOW != 0)
 						print_status("Loaded #{xref[3]} ...")
 					end
-					
+
 					#
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
-					if (mode & WMAP_EXPL != 0)					
+					if (mode & WMAP_EXPL != 0)
 												#
 						# For modules to have access to the global datastore
 						# i.e. set -g DOMAIN test.com
@@ -1036,27 +1042,27 @@ module Wmap
 
 						#
 						# Parameters passed in hash xref
-						# 
+						#
 						mod.datastore['RHOST'] = xref[0]
-						mod.datastore['RHOSTS'] = xref[0] 
+						mod.datastore['RHOSTS'] = xref[0]
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
 
 						#
-						# Run the plugins for each request for all headers  
+						# Run the plugins for each request for all headers
 						# This can be improved alot . Later versions
 						# Should only tests on unique requests.
 						#
 
 						wtype = mod.wmap_type
-						
-						
+
+
 						framework.db.each_request_target_with_headers do |req|
 							#
 							# Weird bug req.method doesnt work
 							# collides with some method named 'method'
 							# column table renamed to 'meth'.
-							# 
+							#
 							mod.datastore['METHOD'] = req.meth.upcase
 							mod.datastore['PATH'] =  req.path
 							mod.datastore['QUERY'] = req.query
@@ -1066,11 +1072,11 @@ module Wmap
 							mod.datastore['DATA'] = req.body
 							#
 							# TODO: Add method, headers, etc.
-							# 
-							
-							if wtype == :WMAP_HEADERS 
+							#
+
+							if wtype == :WMAP_HEADERS
 								print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
-								
+
 								# To run check function for modules that are exploits
 								if mod.respond_to?("check") and WMAP_CHECK
 									begin
@@ -1091,16 +1097,16 @@ module Wmap
 									rescue ::Exception
 										print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
 									end
-								end	
+								end
 							end
 						end
 					end
-					
+
 				rescue ::Exception
 					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
 			end
-			
+
 			#
 			# Handle modules that need to be after all tests, once.
 			# Good place to have modules that analize the test results and/or
@@ -1110,7 +1116,7 @@ module Wmap
 			idx = 0
 			matches10.each_key do |xref|
 				idx += 1
-				
+
 				begin
 					mod = nil
 
@@ -1123,12 +1129,12 @@ module Wmap
 					if (mode & WMAP_SHOW != 0)
 						print_status("Loaded #{xref[3]} ...")
 					end
-					
+
 					#
 					# The code is just a proof-of-concept and will be expanded in the future
 					#
 					if (mode & WMAP_EXPL != 0)
-						
+
 						#
 						# For modules to have access to the global datastore
 						# i.e. set -g DOMAIN test.com
@@ -1139,9 +1145,9 @@ module Wmap
 
 						#
 						# Parameters passed in hash xref
-						# 
+						#
 						mod.datastore['RHOST'] = xref[0]
-						mod.datastore['RHOSTS'] = xref[0] 
+						mod.datastore['RHOSTS'] = xref[0]
 						mod.datastore['RPORT'] = xref[1].to_s
 						mod.datastore['SSL'] = xref[2].to_s
 
@@ -1152,9 +1158,9 @@ module Wmap
 
 						wtype = mod.wmap_type
 
-						if wtype == :WMAP_GENERIC 
+						if wtype == :WMAP_GENERIC
 							print_status("Launching #{xref[3]} #{wtype} against #{xref[0]}:#{xref[1]}")
-							
+
 							# To run check function for modules that are exploits
 							if mod.respond_to?("check") and WMAP_CHECK
 								begin
@@ -1175,33 +1181,33 @@ module Wmap
 								rescue ::Exception
 									print_status(" >> Exception during launch from #{xref[3]}: #{$!}")
 								end
-							end	
+							end
 						end
 					end
-					
+
 				rescue ::Exception
 					print_status(" >> Exception from #{xref[3]}: #{$!}")
 				end
 			end
-		
+
 			if (mode & WMAP_SHOW != 0)
-				print_status("Analysis completed in #{(Time.now.to_f - stamp)} seconds.")	
+				print_status("Analysis completed in #{(Time.now.to_f - stamp)} seconds.")
 				print_status("Done.")
 			end
-						
+
 		# EOM
 		end
-		
+
 		#
 		# Run msf proxy
 		#
 
-		def cmd_wmap_proxy(*args)			
+		def cmd_wmap_proxy(*args)
 			cmdline = "ruby " + File.join(Msf::Config.install_root,"tools", "msfproxy.rb")
 			defaultopts = ""
-		
+
 			proxyopts = defaultopts + " " + args.join(" ")
-			
+
 			tpid = 0
 			proxypid = Process.fork
 			if proxypid.nil?
@@ -1215,7 +1221,7 @@ module Wmap
 			print_status("Executing proxy. pid: #{tpid}")
 			print_status("Done.")
 		end
-	
+
 
 		#
 		# Load website structure into a tree
@@ -1223,11 +1229,11 @@ module Wmap
 
 		def load_tree
 			wtree = Tree.new("ROOT_TREE")
-			
+
 			if selected_host == nil
 				print_error("Target not selected")
 			else
-				framework.db.each_request_target do |req|	
+				framework.db.each_request_target do |req|
 					tarray = req.path.to_s.split(WMAP_PATH)
 					tarray.delete("")
 					tpath = Pathname.new(WMAP_PATH)
@@ -1237,7 +1243,7 @@ module Wmap
 						tpath = tpath + Pathname.new(df.to_s)
 					end
 				end
-			end	
+			end
 			return wtree
 		end
 
@@ -1250,29 +1256,29 @@ module Wmap
 				print_line(("|\t"*(tree.depth-1))+"+------"+tree.name)
 			else
 				print_line(("|\t"*tree.depth)+tree.name)
-			end		
+			end
 			tree.children.each_pair do |name,child|
 					print_tree(child)
 			end
 		end
-		
+
 		#
 		# Method to parse URIs Regex RFC3986
 		#
 		def uri_parse(uri)
 			if uri == ''
-				print_error("URI required")		
+				print_error("URI required")
 				return
 			end
-		
-			regexstr = '^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?' 
-			
-			regexurl = Regexp.new(regexstr, false, 'N')
+
+			regexstr = '^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?'
+
+			regexurl = Regexp.new(regexstr, false)
 			ret = regexurl.match(uri)
-			
+
 			return ret
 		end
-		
+
 		#
 		# Method to transfor headers to string
 		#
@@ -1281,13 +1287,13 @@ module Wmap
 			nheaders.each_line do |lh|
 				if hstr.empty?
 					hstr = lh
-				else	
+				else
 					hstr = lh + hsep + hstr
 				end
 			end
 			return hstr
 		end
-		
+
 		#
 		# Method to grab a specific header
 		#
@@ -1300,24 +1306,25 @@ module Wmap
 			end
 			return hstr
 		end
-		
+
 		#
 		# Selected target
 		#
 		def selected_host
 			framework.db.selected_host
 		end
-		
+
 		def selected_port
 			framework.db.selected_port
 		end
-		
+
 		def selected_ssl
 			framework.db.selected_ssl
 		end
-		
+
 end
 end
 end
 end
 end
+
