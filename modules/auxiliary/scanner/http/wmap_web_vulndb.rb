@@ -18,9 +18,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,	
-			'Name'   		=> 'HTTP Favicon Scanner',
+			'Name'   		=> 'HTTP Vuln scanner',
 			'Description'	=> %q{
-				This module identifies the type of webserver based on the favicon.					
+				This module identifies common vulnerable files or cgis.					
 			},
 			'Author' 		=> [ 'et' ],
 			'License'		=> BSD_LICENSE,
