@@ -1132,7 +1132,7 @@ class Core
 				cmds.each do |cmd|
 					framework.sessions.each_sorted do |s|
 						session = framework.sessions.get(s)
-						print_status("Running '#{cmd}' on #{session.tunnel_peer}")
+						print_status("Running '#{cmd}' on session #{s} (#{session.tunnel_peer})")
 						if (session.type == "meterpreter")
 							c,args = cmd.split(' ', 2)
 							begin
@@ -1144,9 +1144,22 @@ class Core
 								print_error("Failed: #{$!.class} #{$!}")
 							end
 							print_line(process.channel.read) if process and process.channel
-						else
-							# Just send the command to the session's stdin
+						elsif session.type == "shell"
+							# Then it's a regular shell, just send the command
+							# to the session's stdin.
+							session.write_shell(cmd + "\n")
+							# read_shell blocks with no timeout, so we wrap
+							# it in a select in case there is no output
+							# from the command
+							if select([session.rstream],nil,nil,3)
+								output = session.read_shell
+								print_line(output)
+							end
 						end
+						# If the session isn't a meterpreter or shell type, it
+						# could be a VNC session (which can't run commands) or
+						# something custom (which we don't know how to run
+						# commands on), so don't bother.
 					end
 				end
 
@@ -1209,7 +1222,7 @@ class Core
 					framework.sessions.each_sorted do |s|
 						if ((session = framework.sessions.get(s)))
 							if (session.type == "meterpreter")
-								print_status("Session #{s}:")
+								print_status("Session #{s} (#{session.tunnel_peer}):")
 								begin
 									client = session
 									client.execute_script(script, binding)
