@@ -788,6 +788,11 @@ class Db
 			data = fd.read
 			fd.close
 
+			if(data.index("NessusClientData_v2"))
+				print_status("The v2 .nessus format is not currently supported (patches welcome).")
+				return
+			end
+
 			doc = REXML::Document.new(data)
 			doc.elements.each('/NessusClientData/Report/ReportHost') do |host|
 				addr = host.elements['HostName'].text
