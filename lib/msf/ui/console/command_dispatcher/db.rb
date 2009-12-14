@@ -1080,6 +1080,8 @@ class Db
 			if ! framework.db.drivers.include?('mysql')
 				print_status("    DB Support: Enable the mysql driver with the following command:")
 				print_status("                $ gem install mysql")
+				print_status("    This gem requires mysqlclient headers, which can be installed on Ubuntu with:")
+				print_status("                $ sudo apt-get install libmysqlclient-dev")
 				print_line("")
 			end
 
