@@ -27,6 +27,9 @@ class DBManager
 	# Returns the active driver
 	attr_accessor :driver
 
+	# Returns the active workspace
+	attr_accessor :workspace
+
 	# Stores the error message for why the db was not loaded
 	attr_accessor :error
 
@@ -55,6 +58,7 @@ class DBManager
 			require 'active_record'
 			require 'active_support'
 			require 'msf/core/db_objects'
+			require 'msf/core/model'
 			@usable = true
 
 		rescue ::Exception => e
@@ -117,6 +121,12 @@ class DBManager
 		begin
 			# Configure the database adapter
 			ActiveRecord::Base.establish_connection(nopts)
+
+			# Migrate the database, if needed
+			migrate
+
+			# Set the default workspace
+			framework.db.workspace = framework.db.default_workspace
 		rescue ::Exception => e
 			self.error = e
 			elog("DB.connect threw an exception: #{e}")

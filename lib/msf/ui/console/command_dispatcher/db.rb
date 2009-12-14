@@ -44,6 +44,7 @@ class Db
 			}
 
 			more = {
+				"db_workspace"  => "Switch between database workspaces",
 				"db_hosts"      => "List all hosts in the database",
 				"db_services"   => "List all services in the database",
 				"db_vulns"      => "List all vulnerabilities in the database",
@@ -62,6 +63,66 @@ class Db
 			}
 
 			framework.db.active ? base.merge(more) : base
+		end
+
+		def cmd_db_workspace(*args)
+			while (arg = args.shift)
+				case arg
+				when '-h','--help'
+					print_line("Usage:")
+					print_line("    db_workspace               List workspaces")
+					print_line("    db_workspace [name]        Switch workspace")
+					print_line("    db_workspace -a [name]     Add workspace")
+					print_line("    db_workspace -d [name]     Delete workspace")
+					print_line("    db_workspace -h            Show this help information")
+					return
+				when '-a','--add'
+					adding = true
+				when '-d','--del'
+					deleting = true
+				else
+					name = arg
+				end
+			end
+
+			if adding and name
+				# Add workspace
+				workspace = framework.db.add_workspace(nil, name)
+				print_status("Added workspace: #{workspace.name}")
+				framework.db.workspace = workspace
+			elsif deleting and name
+				# Delete workspace
+				workspace = framework.db.find_workspace(name)
+				if workspace.nil?
+					print_error("Workspace not found: #{name}")
+				elsif workspace.default?
+					print_error("Can't delete default workspace")
+				else
+					workspace.destroy
+					print_status("Deleted workspace: #{name}")
+					framework.db.workspace = framework.db.default_workspace if framework.db.workspace == workspace
+				end
+			elsif name
+				# Switch workspace
+				workspace = framework.db.find_workspace(name)
+				if workspace
+					framework.db.workspace = workspace
+					print_status("Workspace: #{workspace.name}")
+				else
+					print_error("Workspace not found: #{name}")
+					return
+				end
+			else
+				# List workspaces
+				framework.db.workspaces.each do |s|
+					pad = (s == framework.db.workspace) ? "* " : "  "
+					print_line(pad + s.name)
+				end
+			end
+		end
+
+		def cmd_db_workspace_tabs(str, words)
+			framework.db.workspaces.map { |s| s.name } if (words & ['-a','--add']).empty?
 		end
 
  		def cmd_db_hosts(*args)
@@ -1169,10 +1230,6 @@ class Db
 				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
 			end
 
-			if (not framework.db.migrate)
-				raise RuntimeError.new("Failed to create database schema: #{framework.db.error}")
-			end
-
 			print_status("Successfully connected to the database")
 
 			print_status("File: #{opts['dbfile']}")
@@ -1308,10 +1365,6 @@ class Db
 
 			if (not framework.db.connect(opts))
 				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
-			end
-
-			if (not framework.db.migrate)
-				raise RuntimeError.new("Failed to create database schema: #{framework.db.error}")
 			end
 
 			print_status("Database creation complete (check for errors)")
@@ -1522,10 +1575,6 @@ class Db
 
 			if (not framework.db.connect(opts))
 				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
-			end
-
-			if (not framework.db.migrate)
-				raise RuntimeError.new("Failed to create database schema: #{framework.db.error}")
 			end
 
 			print_status("Database creation complete (check for errors)")

@@ -207,13 +207,16 @@ class DBManager
 		return port
 	end
 
+	def workspaces
+		Workspace.find(:all)
+	end
 
 	#
 	# This method iterates the hosts table calling the supplied block with the
 	# host instance of each entry.
 	#
 	def each_host(&block)
-		Host.find_each do |host|
+		workspace.hosts.each do |host|
 			block.call(host)
 		end
 	end
@@ -222,7 +225,7 @@ class DBManager
 	# This methods returns a list of all hosts in the database
 	#
 	def hosts
-		Host.find(:all)
+		workspace.hosts
 	end
 
 	#
@@ -286,17 +289,36 @@ class DBManager
 		Note.find(:all)
 	end
 
+	def default_workspace
+		Workspace.default
+	end
+
+	def find_workspace(name)
+		Workspace.find_by_name(name)
+	end
+
+	#
+	# Creates a new workspace in the database
+	#
+	def add_workspace(context, name)
+		Workspace.find_or_create_by_name(name)
+	end
+
 	#
 	# Find or create a host matching this address/comm
 	#
 	def get_host(context, address, comm='')
 		if comm.length > 0
-			host = Host.find(:first, :conditions => [ "address = ? and comm = ?", address, comm])
+			host = workspace.hosts.find_by_address_and_comm(address, comm)
 		else
-			host = Host.find(:first, :conditions => [ "address = ? ", address ])
+			host = workspace.hosts.find_by_address(address)
 		end
 		if (not host)
-			host = Host.create(:address => address, :comm => comm, :state => HostState::Unknown, :created => Time.now)
+			host = workspace.hosts.create(
+				:address => address,
+				:comm => comm,
+				:state => HostState::Unknown,
+				:created => Time.now)
 			framework.events.on_db_host(context, host)
 		end
 
@@ -404,19 +426,8 @@ class DBManager
 	# Deletes a host and associated data matching this address/comm
 	#
 	def del_host(context, address, comm='')
-		host = Host.find(:first, :conditions => ["address = ? and comm = ?", address, comm])
-
-		return unless host
-
-		services = Service.find(:all, :conditions => ["host_id = ?", host[:id]]).map { |s| s[:id] }
-
-		services.each do |sid|
-			Vuln.delete_all(["service_id = ?", sid])
-			Service.delete(sid)
-		end
-
-		Note.delete_all(["host_id = ?", host[:id]])
-		Host.delete(host[:id])
+		host = workspace.hosts.find(:first, :conditions => ["address = ? and comm = ?", address, comm])
+		host.destroy if host
 	end
 
 	#
@@ -424,15 +435,9 @@ class DBManager
 	#
 	def del_service(context, address, proto, port, comm='')
 		host = get_host(context, address, comm)
-
 		return unless host
 
-		services = Service.find(:all, :conditions => ["host_id = ? and proto = ? and port = ?", host[:id], proto, port]).map { |s| s[:id] }
-
-		services.each do |sid|
-			Vuln.delete_all(["service_id = ?", sid])
-			Service.delete(sid)
-		end
+		host.services.find(:all, :conditions => { :proto => proto, :port => port}).destroy_all
 	end
 
 	#
@@ -453,7 +458,7 @@ class DBManager
 	# Look for an address across all comms
 	#
 	def has_host?(addr)
-		Host.find_by_address(addr)
+		workspace.hosts.find_by_address(addr)
 	end
 
 	#
