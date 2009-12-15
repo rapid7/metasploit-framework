@@ -115,7 +115,7 @@ class ModuleSet < Hash
 	def each_module(opts = {}, &block)
 		demand_load_modules
 
-		mod_sorted = self.sort if (mod_sorted == nil)
+		self.mod_sorted = self.sort if (mod_sorted == nil)
 		
 		each_module_list(mod_sorted, opts, &block)
 	end
@@ -127,7 +127,7 @@ class ModuleSet < Hash
 	def each_module_ranked(opts = {}, &block)
 		demand_load_modules
 
-		mod_ranked = rank_modules if (mod_ranked == nil)
+		self.mod_ranked = rank_modules if (mod_ranked == nil)
 
 		each_module_list(mod_ranked, opts, &block)
 	end
@@ -241,8 +241,8 @@ protected
 			b_name, b_mod = b
 
 			# Dynamically loads the module if needed
-			a_mod = self[a_name]
-			b_mod = self[b_name]
+			a_mod = create(a_name) if a_mod == SymbolicModule
+			b_mod = create(b_name) if b_mod == SymbolicModule
 
 			# Extract the ranking between the two modules
 			a_rank = a_mod.const_defined?('Rank') ? a_mod.const_get('Rank') : NormalRanking
