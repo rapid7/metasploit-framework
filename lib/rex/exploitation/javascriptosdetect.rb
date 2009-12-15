@@ -155,6 +155,8 @@ function getVersion(){
 		//document.write("ScriptEngine: "+version+"<br />");
 		switch (version){
 			case "514615":
+				// IE 5.00.2920.0000, 2000 Advanced Server SP0 English
+				ua_version = "5.0";
 				os_flavor = "2000";
 				os_sp = "SP0";
 				break;
