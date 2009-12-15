@@ -1,4 +1,4 @@
-# $Id: vnc.rb 7766 2009-12-09 00:18:43Z hdm $
+# $Id$
 
 #
 # Meterpreter script for obtaining a quick VNC session
