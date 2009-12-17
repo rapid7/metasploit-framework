@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 					num_types = sock.get_once(1).unpack("C").first
 					if (num_types == 0)
 						msg_len = sock.get_once(4).unpack("N").first
-						raise RunTimeError.new("Server error: #{sock.get_once(msg_len)}")
+						raise RuntimeError.new("Server error: #{sock.get_once(msg_len)}")
 					end
 					types = sock.get_once(num_types).unpack("C*")
 
