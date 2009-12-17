@@ -60,7 +60,13 @@ class SVN
 		if(not svnt)
 			return
 		end
-		diff = (Date.parse(Time.now.to_s) - Date.parse(svnt)).to_f
+
+		# Date.parse and Date.strptime are both broken beyond repair in
+		# ruby 1.8.6 and older.  Just bail if the parsing doesn't work.
+		begin
+			diff = (Date.parse(Time.now.to_s) - Date.parse(svnt)).to_f
+		rescue ArgumentError
+		end
 	end
 
 	def self.last_updated_friendly
@@ -87,7 +93,10 @@ class SVN
                 if(not svnt)
                         return
                 end
-		Date.parse(@@info[:updated])
+		begin
+			Date.parse(@@info[:updated])
+		rescue ArgumentError
+		end
 	end
 
 end

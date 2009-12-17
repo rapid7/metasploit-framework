@@ -210,7 +210,7 @@ class Core
 
 		oldwarn = nil
 		banner << "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops\n"
-		if ( ::Msf::Framework::RepoRevision.to_i > 0)
+		if ( ::Msf::Framework::RepoRevision.to_i > 0 and ::Msf::Framework::RepoUpdatedDate)
 			tstamp = ::Msf::Framework::RepoUpdatedDate.strftime("%Y.%m.%d")
 			banner << "       =[ svn r#{::Msf::Framework::RepoRevision} updated #{::Msf::Framework::RepoUpdatedDaysNote} (#{tstamp})\n"
 			if(::Msf::Framework::RepoUpdatedDays > 7)
