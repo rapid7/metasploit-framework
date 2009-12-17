@@ -21,6 +21,12 @@ class Rex::Socket::Comm::Local
 	# Creates an instance of a socket using the supplied parameters.
 	#
 	def self.create(param)
+
+		# Work around jRuby socket implementation issues
+		if(RUBY_PLATFORM == 'java')
+			return self.create_jruby(param)
+		end
+
 		case param.proto
 			when 'tcp'
 				return create_by_type(param, ::Socket::SOCK_STREAM, ::Socket::IPPROTO_TCP)
@@ -31,6 +37,53 @@ class Rex::Socket::Comm::Local
 			else
 				raise Rex::UnsupportedProtocol.new(param.proto), caller
 		end
+	end
+
+	#
+	# Creates an instance of a socket using the supplied parameters.
+	# Use various hacks to make this work with jRuby
+	#
+	def self.create_jruby(param)
+		sock = nil
+
+		# Notify handlers of the before socket create event.
+		self.instance.notify_before_socket_create(self, param)
+
+		case param.proto
+			when 'tcp'
+				if (param.server?)
+					sock  = TCPServer.new(param.localport, param.localhost)
+					klass = Rex::Socket::TcpServer
+					if (param.ssl)
+						klass = Rex::Socket::SslTcpServer
+					end
+					sock.extend(klass)
+
+				else
+					sock = TCPSocket.new(param.peerhost, param.peerport)
+					klass = Rex::Socket::Tcp
+					if (param.ssl)
+						klass = Rex::Socket::SslTcp
+					end
+					sock.extend(klass)
+				end
+			when 'udp'
+				if (param.server?)
+					sock = UDPServer.new(param.localport, param.localhost)
+					klass = Rex::Socket::UdpServer
+					sock.extend(klass)
+				else
+					sock = UDPSocket.new(param.peerhost, param.peerport)
+					klass = Rex::Socket::Udp
+					sock.extend(klass)
+				end
+			else
+				raise Rex::UnsupportedProtocol.new(param.proto), caller
+		end
+
+		sock.initsock(param)
+		self.instance.notify_socket_created(self, sock, param)
+		return sock
 	end
 
 

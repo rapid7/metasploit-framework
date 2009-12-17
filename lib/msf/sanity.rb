@@ -41,7 +41,9 @@ if(RUBY_PLATFORM == 'java')
 	if(not s.respond_to?('bind'))
 		$stderr.puts "*** JRuby will not be supported until the Socket API is complete"
 		$stderr.puts "*** Information: http://jira.codehaus.org/browse/JRUBY-2739"
-		exit(0)
+		trap Signal::list['INT'] do
+			Thread.main.raise Interrupt.new
+		end
 	end
 end
 
