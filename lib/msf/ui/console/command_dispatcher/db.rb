@@ -127,40 +127,7 @@ class Db
 
  		def cmd_db_hosts(*args)
 			onlyup = false
-			hosts = nil
-			while (arg = args.shift)
-				case arg
-				when '-u','--up'
-					onlyup = true
-				when '-a'
-					hostlist = args.shift
-					if(!hostlist)
-					print_status("Invalid host list")
-						return
-					end
-					hosts = hostlist.strip().split(",")
-				when '-h','--help'
-					print_status("Usage: db_hosts [-h|--help] [-u|--up] [-a <addr1,addr2>]")
-					print_line("  -u,--up           Only show hosts which are up")
-					print_line("  -a <addr1,addr2>  Search for a list of addresses")
-					print_line("  -h,--help         Show this help information")
-					return
-				end
-			end
-
- 			framework.db.each_host do |host|
-				next if(onlyup and host.state == "down")
-				next if(hosts != nil and hosts.index(host.address) == nil)
- 				print_status("Time: #{host.created} Host: #{host.address} Status: #{host.state} OS: #{host.os_name} #{host.os_flavor}")
- 			end
- 		end
-
-		def cmd_db_services(*args)
-			onlyup = false
-			hosts = nil
-			ports = nil
-			proto = nil
-			name = nil
+			host_search = nil
 			while (arg = args.shift)
 				case arg
 				when '-u','--up'
@@ -171,28 +138,77 @@ class Db
 						print_status("Invalid host list")
 						return
 					end
-					hosts = hostlist.strip().split(",")
+					host_search = hostlist.strip().split(",")
+				when '-h','--help'
+					print_status("Usage: db_hosts [-h|--help] [-u|--up] [-a <addr1,addr2>]")
+					print_line("  -u,--up           Only show hosts which are up")
+					print_line("  -a <addr1,addr2>  Search for a list of addresses")
+					print_line("  -h,--help         Show this help information")
+					return
+				end
+			end
+
+			columns = framework.db.hosts.columns_hash.keys.sort
+			columns.delete_if {|v| (v[-2,2] == "id")}
+			columns += ["Svcs", "Vulns", "Workspace"]
+			tbl = Rex::Ui::Text::Table.new({
+					'Header'  => "Hosts",
+					'Columns' => columns,
+				})
+			hosts = framework.db.hosts.find(:all, :include => [:services, :vulns, :workspace], :order => :address)
+ 			hosts.each do |host|
+				next if(onlyup and host.state == "down")
+				next if(host_search != nil and host_search.index(host.address) == nil)
+				columns = []
+				host.attributes.each { |k,v| 
+					next if k[-2,2] == "id"
+					columns << (v.nil? ? "" : v)
+				}
+				columns += [host.services.length, host.vulns.length, host.workspace.name]
+ 				tbl << columns
+ 			end
+			print_line
+			print_line tbl.to_s
+ 		end
+
+		def cmd_db_services(*args)
+			onlyup = false
+			host_search = nil
+			port_search = nil
+			proto_search = nil
+			name_search = nil
+			while (arg = args.shift)
+				case arg
+				when '-u','--up'
+					onlyup = true
+				when '-a'
+					hostlist = args.shift
+					if(!hostlist)
+						print_status("Invalid host list")
+						return
+					end
+					host_search = hostlist.strip().split(",")
 				when '-p'
 					portlist = args.shift
 					if(!portlist)
 						print_status("Invalid port list")
 						return
 					end
-					ports = portlist.strip().split(",")
+					port_search = portlist.strip().split(",")
 				when '-r'
-					proto = args.shift
-					if(proto == nil)
+					proto_search = args.shift
+					if(proto_search == nil)
 						print_status("Invalid protocol")
 						return
 					end
-					proto = proto.strip()
+					proto_search = proto_search.strip()
 				when '-n'
 					namelist = args.shift
 					if(!namelist)
 						print_status("Invalid name list")
 						return
 					end
-					names = namelist.strip().split(",")
+					name_search = namelist.strip().split(",")
 
 				when '-h','--help'
 					print_status("Usage: db_services [-h|--help] [-u|--up] [-a <addr1,addr2>] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>]")
@@ -205,15 +221,33 @@ class Db
 					return
 				end
 			end
- 			framework.db.each_service do |service|
-				next if(onlyup and !(service.state == "open" || service.state == "up"))
-				next if(proto and service.proto != proto)
-				next if(hosts and hosts.index(service.host.address) == nil)
-				next if(ports and ports.index(service.port.to_s) == nil)
-				next if(names and names.index(service.name) == nil)
- 				print_status("Time: #{service.created} Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state} name=#{service.name}")
- 			end
- 		end
+			columns = ::Msf::DBManager::Service.columns_hash.keys.sort
+			columns.delete_if {|v| (v[-2,2] == "id")}
+			columns += ["Host", "Workspace"]
+			tbl = Rex::Ui::Text::Table.new({
+					'Header'  => "Services",
+					'Columns' => columns,
+				})
+			hosts = framework.db.hosts.find(:all, :include => [:services, :workspace], :order => :address)
+ 			hosts.each do |host|
+				host.services.sort{|a,b| a.port<=>b.port }.each do |svc|
+					next if(onlyup and svc.state == "down")
+					next if(proto_search and svc.proto != proto_search)
+					next if(host_search and host_search.index(host.address) == nil)
+					next if(port_search and port_search.index(svc.port.to_s) == nil)
+					next if(name_search and name_search.index(svc.name) == nil)
+					columns = []
+					svc.attributes.each { |k,v| 
+						next if k[-2,2] == "id"
+						columns << (v.nil? ? "" : v)
+					}
+					columns += [host.address, host.workspace.name]
+					tbl << columns
+				end
+			end
+			print_line
+			print_line tbl.to_s
+		end
 
 
 		def cmd_db_vulns(*args)
