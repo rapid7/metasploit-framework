@@ -447,7 +447,7 @@ module Text
 			end
 			
 			chunk.unpack("C*").each do |c|
-				if (c >	0x1f and c < 0x80)
+				if (c >	0x1f and c < 0x7f)
 					buf << c.chr
 				else
 					buf << "."
