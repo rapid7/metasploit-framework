@@ -33,7 +33,7 @@ module ThreadSafe
 			# Poll the set supplied to us at least once.
 			begin
 				rv = ::IO.select(rfd, wfd, efd, DefaultCycle)
-			rescue ::IOError, ::Errno::EBADF
+			rescue ::IOError, ::Errno::EBADF, ::Errno::ENOTSOCK
 				# If a stream was detected as being closed, re-raise the error as
 				# a StreamClosedError with the specific file descriptor that was
 				# detected as being closed.  This is to better handle the case of
@@ -51,6 +51,8 @@ module ThreadSafe
 
 				# Re-raise the exception since we didn't handle it here.
 				raise $!
+#			rescue ::Exception => e
+#			$stderr.puts "SELECT(#{t}) #{[rfd,wfd,efd].inspect} #{e.class} #{e} #{e.backtrace}"
 			end
 
 			return rv if (rv)
