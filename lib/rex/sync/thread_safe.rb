@@ -22,23 +22,24 @@ module ThreadSafe
 	def self.select(rfd = nil, wfd = nil, efd = nil, t = nil)
 		left = t
 
+		# Immediately raise a StreamClosedError if the socket was closed. This
+		# prevents a bad fd from being passed downstream and solves an issue
+		# with Ruby on Windows.
+		rfd.each { |fd| raise StreamClosedError.new(fd) if (fd.closed?)	} if rfd
+
 		begin
 			orig_size = rfd.length if (rfd)
 
 			# Poll the set supplied to us at least once.
 			begin
 				rv = ::IO.select(rfd, wfd, efd, DefaultCycle)
-			rescue IOError
+			rescue ::IOError, ::Errno::EBADF
 				# If a stream was detected as being closed, re-raise the error as
 				# a StreamClosedError with the specific file descriptor that was
 				# detected as being closed.  This is to better handle the case of
 				# a closed socket being detected so that it can be cleaned up and
 				# removed.
-				if (rfd)
-					rfd.each { |fd|
-						raise StreamClosedError.new(fd) if (fd.closed?)
-					}
-				end
+				rfd.each { |fd| raise StreamClosedError.new(fd) if (fd.closed?)	} if rfd
 
 				# If the original rfd length is not the same as the current
 				# length, then the list may have been altered and as such may not
