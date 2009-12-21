@@ -224,8 +224,11 @@ class DBManager
 	#
 	# This methods returns a list of all hosts in the database
 	#
-	def hosts
-		workspace.hosts
+	def hosts(only_up = false, addresses = nil)
+		conditions = {}
+		conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if only_up
+		conditions[:address] = addresses if addresses
+		workspace.hosts.all(:conditions => conditions, :order => :address)
 	end
 
 	#
@@ -233,7 +236,7 @@ class DBManager
 	# service instance of each entry.
 	#
 	def each_service(&block)
-		Service.find_each do |service|
+		services.each do |service|
 			block.call(service)
 		end
 	end
@@ -241,8 +244,14 @@ class DBManager
 	#
 	# This methods returns a list of all services in the database
 	#
-	def services
-		Service.find(:all)
+	def services(only_up = false, proto = nil, addresses = nil, ports = nil, names = nil)
+		conditions = {}
+		conditions[:state] = [Msf::ServiceState::Up, Msf::ServiceState::Unknown] if only_up
+		conditions[:proto] = proto if proto
+		conditions["hosts.address"] = addresses if addresses
+		conditions[:port] = ports if ports
+		conditions[:name] = names if names
+		workspace.services.all(:include => :host, :conditions => conditions, :order => "hosts.address, port")
 	end
 
 	#
@@ -250,7 +259,7 @@ class DBManager
 	# vuln instance of each entry.
 	#
 	def each_vuln(&block)
-		Vuln.find_each do |vulns|
+		workspace.vulns.each do |vulns|
 			block.call(vulns)
 		end
 	end
@@ -259,16 +268,15 @@ class DBManager
 	# This methods returns a list of all vulnerabilities in the database
 	#
 	def vulns
-		Vuln.find(:all)
+		workspace.vulns
 	end
-
 
 	#
 	# This method iterates the notes table calling the supplied block with the
 	# note instance of each entry.
 	#
 	def each_note(&block)
-		Note.find_each do |note|
+		workspace.notes.each do |note|
 			block.call(note)
 		end
 	end
@@ -276,17 +284,17 @@ class DBManager
 	#
 	# Find a note matching this host address and note type
 	#
-	def find_note(host, ntype)
-		Note.find_by_ntype(ntype, :include => [:host],
-				:conditions => ['hosts.address = ?', host])
+	def find_note(address, ntype)
+		host = workspace.hosts.find_by_address(address)
+		return nil if host.nil?
+		host.notes.find_by_ntype(ntype)
 	end
-
 
 	#
 	# This methods returns a list of all notes in the database
 	#
 	def notes
-		Note.find(:all)
+		workspace.notes
 	end
 
 	def default_workspace
@@ -333,10 +341,10 @@ class DBManager
 		if !host.kind_of? Host
 			host = get_host(context, host, comm)
 		end
-		rec = Client.find(:first, :conditions => [ "host_id = ? and ua_string = ?", host[:id], ua_string])
+		return nil if host.nil?
+		rec = host.clients.find_by_ua_string(ua_string)
 		if (not rec)
-			rec = Client.create(
-				:host_id   => host[:id],
+			rec = host.clients.create(
 				:ua_string => ua_string,
 				:created   => Time.now
 			)
@@ -349,10 +357,9 @@ class DBManager
 	# Find or create a service matching this host/proto/port/state
 	#
 	def get_service(context, host, proto, port, state=ServiceState::Up)
-		rec = Service.find(:first, :conditions => [ "host_id = ? and proto = ? and port = ?", host[:id], proto, port])
+		rec = host.services.find_by_proto_and_port(proto, port)
 		if (not rec)
-			rec = Service.create(
-				:host_id    => host[:id],
+			rec = host.services.create(
 				:proto      => proto,
 				:port       => port,
 				:state      => state,
@@ -369,7 +376,7 @@ class DBManager
 	def get_vuln(context, host, service, name, data='')
 		vuln = nil
 
-		if(service)
+		if (service)
 			vuln = Vuln.find(:first, :conditions => [ "name = ? and service_id = ? and host_id = ?", name, service.id, host.id])
 		else
 			vuln = Vuln.find(:first, :conditions => [ "name = ? and host_id = ?", name, host.id])
@@ -393,7 +400,7 @@ class DBManager
 	# Find or create a reference matching this name
 	#
 	def get_ref(context, name)
-		ref = Ref.find(:first, :conditions => [ "name = ?", name])
+		ref = Ref.find_by_name(name)
 		if (not ref)
 			ref = Ref.create(
 				:name       => name,
@@ -409,10 +416,9 @@ class DBManager
 	# Find or create a note matching this type/data
 	#
 	def get_note(context, host, ntype, data)
-		rec = Note.find(:first, :conditions => [ "host_id = ? and ntype = ? and data = ?", host[:id], ntype, data])
+		rec = host.notes.find_by_ntype_and_data(ntype, data)
 		if (not rec)
-			rec = Note.create(
-				:host_id    => host[:id],
+			rec = host.notes.create(
 				:ntype      => ntype,
 				:data       => data,
 				:created    => Time.now
@@ -426,7 +432,7 @@ class DBManager
 	# Deletes a host and associated data matching this address/comm
 	#
 	def del_host(context, address, comm='')
-		host = workspace.hosts.find(:first, :conditions => ["address = ? and comm = ?", address, comm])
+		host = workspace.hosts.find_by_address_and_comm(address, comm)
 		host.destroy if host
 	end
 
@@ -459,28 +465,6 @@ class DBManager
 	#
 	def has_host?(addr)
 		workspace.hosts.find_by_address(addr)
-	end
-
-	#
-	# Find all references matching a vuln
-	#
-	def refs_by_vuln(vuln)
-		Ref.find_by_sql(
-			"SELECT refs.* FROM refs, vulns_refs WHERE " +
-			"vulns_refs.vuln_id = #{vuln[:id]} AND " +
-			"vulns_refs.ref_id = refs.id"
-		)
-	end
-
-	#
-	# Find all vulns matching a reference
-	#
-	def vulns_by_ref(ref)
-		Vuln.find_by_sql(
-			"SELECT vulns.* FROM vulns, vulns_refs WHERE " +
-			"vulns_refs.ref_id = #{ref[:id]} AND " +
-			"vulns_refs.vuln_id = vulns.id"
-		)
 	end
 
 	def vuln_add_refs(context, vuln, refs)

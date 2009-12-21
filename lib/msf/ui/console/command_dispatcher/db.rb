@@ -134,8 +134,8 @@ class Db
 					onlyup = true
 				when '-a'
 					hostlist = args.shift
-					if(!hostlist)
-						print_status("Invalid host list")
+					if (!hostlist)
+						print_error("Invalid host list")
 						return
 					end
 					host_search = hostlist.strip().split(",")
@@ -148,17 +148,14 @@ class Db
 				end
 			end
 
-			columns = framework.db.hosts.columns_hash.keys.sort
+			columns = ::Msf::DBManager::Host.column_names.sort
 			columns.delete_if {|v| (v[-2,2] == "id")}
 			columns += ["Svcs", "Vulns", "Workspace"]
 			tbl = Rex::Ui::Text::Table.new({
 					'Header'  => "Hosts",
 					'Columns' => columns,
 				})
-			hosts = framework.db.hosts.find(:all, :include => [:services, :vulns, :workspace], :order => :address)
- 			hosts.each do |host|
-				next if(onlyup and host.state == "down")
-				next if(host_search != nil and host_search.index(host.address) == nil)
+ 			framework.db.hosts(onlyup, host_search).each do |host|
 				columns = []
 				host.attributes.each { |k,v| 
 					next if k[-2,2] == "id"
@@ -182,33 +179,33 @@ class Db
 				when '-u','--up'
 					onlyup = true
 				when '-a'
-					hostlist = args.shift
-					if(!hostlist)
-						print_status("Invalid host list")
+					addrlist = args.shift
+					if (!addrlist)
+						print_error("Invalid address list")
 						return
 					end
-					host_search = hostlist.strip().split(",")
+					addrs = addrlist.strip().split(",")
 				when '-p'
 					portlist = args.shift
-					if(!portlist)
-						print_status("Invalid port list")
+					if (!portlist)
+						print_error("Invalid port list")
 						return
 					end
-					port_search = portlist.strip().split(",")
+					ports = portlist.strip().split(",")
 				when '-r'
-					proto_search = args.shift
-					if(proto_search == nil)
+					proto = args.shift
+					if (!proto)
 						print_status("Invalid protocol")
 						return
 					end
-					proto_search = proto_search.strip()
+					proto = proto.strip
 				when '-n'
 					namelist = args.shift
-					if(!namelist)
-						print_status("Invalid name list")
+					if (!namelist)
+						print_error("Invalid name list")
 						return
 					end
-					name_search = namelist.strip().split(",")
+					names = namelist.strip().split(",")
 
 				when '-h','--help'
 					print_status("Usage: db_services [-h|--help] [-u|--up] [-a <addr1,addr2>] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>]")
@@ -221,34 +218,27 @@ class Db
 					return
 				end
 			end
-			columns = ::Msf::DBManager::Service.columns_hash.keys.sort
+
+			columns = ::Msf::DBManager::Service.column_names.sort
 			columns.delete_if {|v| (v[-2,2] == "id")}
 			columns += ["Host", "Workspace"]
 			tbl = Rex::Ui::Text::Table.new({
 					'Header'  => "Services",
 					'Columns' => columns,
 				})
-			hosts = framework.db.hosts.find(:all, :include => [:services, :workspace], :order => :address)
- 			hosts.each do |host|
-				host.services.sort{|a,b| a.port<=>b.port }.each do |svc|
-					next if(onlyup and svc.state == "down")
-					next if(proto_search and svc.proto != proto_search)
-					next if(host_search and host_search.index(host.address) == nil)
-					next if(port_search and port_search.index(svc.port.to_s) == nil)
-					next if(name_search and name_search.index(svc.name) == nil)
-					columns = []
-					svc.attributes.each { |k,v| 
-						next if k[-2,2] == "id"
-						columns << (v.nil? ? "" : v)
-					}
-					columns += [host.address, host.workspace.name]
-					tbl << columns
-				end
+			framework.db.services(onlyup, proto, addrs, ports, names).each do |service|
+				columns = []
+				service.attributes.each { |k,v| 
+					next if k[-2,2] == "id"
+					columns << (v.nil? ? "" : v)
+				}
+				host = service.host
+				columns += [host.address, host.workspace.name]
+				tbl << columns
 			end
 			print_line
 			print_line tbl.to_s
 		end
-
 
 		def cmd_db_vulns(*args)
 			framework.db.each_vuln do |vuln|
