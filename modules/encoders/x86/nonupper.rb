@@ -23,10 +23,9 @@ class Metasploit3 < Msf::Encoder::NonUpper
 			'Name'             => "Non-Upper Encoder",
 			'Version'          => '$Revision$',
 			'Description'      => %q{
-				Encodes payloads a non-alpha based bytes. This allows
-                payloads to bypass both tolower() calls,
-                but will fail isalpha(). Table based design from 
-                Russel Sanford. 
+					Encodes payloads as non-alpha based bytes. This allows
+				payloads to bypass tolower() calls, but will fail isalpha().
+				Table based design from Russel Sanford.
 			},
 			'Author'           => [ 'pusscat'],
 			'Arch'             => ARCH_X86,
