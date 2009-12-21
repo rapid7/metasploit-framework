@@ -89,9 +89,17 @@ begin
 		
 		# XXX - enabling this causes infinite recursion, so disable for now
 		# self.sslsock.sync_close = true
-		
-		# Negotiate the connection
-		self.sslsock.connect
+
+		# Force a negotiation timeout
+		begin
+		Timeout.timeout(params.timeout) do 	
+			# Negotiate the connection
+			self.sslsock.connect
+		end
+
+		rescue ::Timeout::Error
+			raise Rex::ConnectionTimeout.new(params.peerhost, params.peerport)
+		end
 	end
 
 	##
