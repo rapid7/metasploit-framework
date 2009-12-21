@@ -100,6 +100,9 @@ static DWORD tcp_channel_client_local_notify(Remote *remote,
 			// Set the native channel operations context to NULL
 			channel_set_native_io_context(ctx->channel, NULL);
 			
+			// Sleep for a quarter second
+			Sleep(250);
+
 			// Free the context
 			free_tcp_client_context(ctx);
 
