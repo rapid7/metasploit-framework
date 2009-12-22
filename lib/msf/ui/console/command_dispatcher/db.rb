@@ -128,8 +128,24 @@ class Db
  		def cmd_db_hosts(*args)
 			onlyup = false
 			host_search = nil
+			col_search = nil
+			default_columns = ::Msf::DBManager::Host.column_names.sort
+			default_columns.delete_if {|v| (v[-2,2] == "id")}
 			while (arg = args.shift)
 				case arg
+				when '-c'
+					list = args.shift
+					if(!list)
+						print_error("Invalid column list")
+						return
+					end
+					col_search = list.strip().split(",")
+					col_search.each { |c|
+						if not default_columns.include? c
+							print_error("Invalid column list. Possible values are (#{default_columns.join("|")})")
+							return
+						end
+					}
 				when '-u','--up'
 					onlyup = true
 				when '-a'
@@ -140,16 +156,23 @@ class Db
 					end
 					host_search = hostlist.strip().split(",")
 				when '-h','--help'
-					print_status("Usage: db_hosts [-h|--help] [-u|--up] [-a <addr1,addr2>]")
-					print_line("  -u,--up           Only show hosts which are up")
-					print_line("  -a <addr1,addr2>  Search for a list of addresses")
-					print_line("  -h,--help         Show this help information")
+					print_line "Usage: db_hosts [-h|--help] [-u|--up] [-a <addr1,addr2>] [-c <column1,column2>]"
+					print_line
+					print_line "  -a <addr1,addr2>  Search for a list of addresses"
+					print_line "  -c <col1,col2>    Only show the given columns"
+					print_line "  -h,--help         Show this help information"
+					print_line "  -u,--up           Only show hosts which are up"
+					print_line
+					print_line "Available columns: #{default_columns.join(", ")}"
+					print_line
 					return
 				end
 			end
 
-			col_names = ::Msf::DBManager::Host.column_names.sort
-			col_names.delete_if {|v| (v[-2,2] == "id")}
+			col_names = default_columns
+			if col_search
+				col_names.delete_if {|v| not col_search.include?(v)}
+			end
 			tbl = Rex::Ui::Text::Table.new({
 					'Header'  => "Hosts",
 					'Columns' => col_names + ["Svcs", "Vulns", "Workspace"],
@@ -169,10 +192,26 @@ class Db
 			port_search = nil
 			proto_search = nil
 			name_search = nil
+			col_search = nil
+			default_columns = ::Msf::DBManager::Service.column_names.sort
+			default_columns.delete_if {|v| (v[-2,2] == "id")}
 			while (arg = args.shift)
 				case arg
 				when '-u','--up'
 					onlyup = true
+				when '-c'
+					list = args.shift
+					if(!list)
+						print_error("Invalid column list")
+						return
+					end
+					col_search = list.strip().split(",")
+					col_search.each { |c|
+						if not default_columns.include? c
+							print_error("Invalid column list. Possible values are (#{default_columns.join("|")})")
+							return
+						end
+					}
 				when '-a'
 					addrlist = args.shift
 					if (!addrlist)
@@ -203,19 +242,27 @@ class Db
 					names = namelist.strip().split(",")
 
 				when '-h','--help'
-					print_status("Usage: db_services [-h|--help] [-u|--up] [-a <addr1,addr2>] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>]")
-					print_line("  -u,--up           Only show services which are up")
-					print_line("  -r <protocol>     Only show [tcp|udp] services")
-					print_line("  -a <addr1,addr2>  Search for a list of addresses")
-					print_line("  -p <port1,port2>  Search for a list of ports")
-					print_line("  -n <name1,name2>  Search for a list of service names")
-					print_line("  -h,--help         Show this help information")
+					print_line
+					print_line "Usage: db_services [-h|--help] [-u|--up] [-a <addr1,addr2>] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>]"
+					print_line
+					print_line "  -a <addr1,addr2>  Search for a list of addresses"
+					print_line "  -c <col1,col2>    Only show the given columns"
+					print_line "  -h,--help         Show this help information"
+					print_line "  -n <name1,name2>  Search for a list of service names"
+					print_line "  -p <port1,port2>  Search for a list of ports"
+					print_line "  -r <protocol>     Only show [tcp|udp] services"
+					print_line "  -u,--up           Only show services which are up"
+					print_line
+					print_line "Available columns: #{default_columns.join(", ")}"
+					print_line
 					return
 				end
 			end
 
-			col_names = ::Msf::DBManager::Service.column_names.sort
-			col_names.delete_if {|v| (v[-2,2] == "id")}
+			col_names = default_columns
+			if col_search
+				col_names.delete_if {|v| not col_search.include?(v)}
+			end
 			tbl = Rex::Ui::Text::Table.new({
 					'Header'  => "Services",
 					'Columns' => col_names + ["Host", "Workspace"],
