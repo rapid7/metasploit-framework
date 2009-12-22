@@ -33,6 +33,7 @@ protected
 	# overriden by derived classes if they wish to do this another way.
 	#
 	def _interact
+		framework.events.on_session_interact(self)
 		interact_stream(rstream)
 	end
 

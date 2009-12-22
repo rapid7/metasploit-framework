@@ -196,6 +196,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	# Interacts with the meterpreter client at a user interface level.
 	#
 	def _interact
+		framework.events.on_session_interact(self)
 		# Call the console interaction subsystem of the meterpreter client and
 		# pass it a block that returns whether or not we should still be
 		# interacting.  This will allow the shell to abort if interaction is

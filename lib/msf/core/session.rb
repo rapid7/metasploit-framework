@@ -20,7 +20,19 @@ module SessionEvent
 	#
 	def on_session_close(session)
 	end
-	
+
+	#
+	# Called when the user interacts with a session.
+	#
+	def on_session_interact(session)
+	end
+
+	#
+	# Called when the user writes data to a session.
+	#
+	def on_session_command(session, command)
+	end
+
 end
 
 ###

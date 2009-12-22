@@ -20,6 +20,13 @@ module GeneralEventSubscriber
 	#
 	def on_module_created(instance)
 	end
+
+	#
+	# Called when a module is run
+	#
+	def on_module_run(instance)
+	end
+
 end
 
 ###
@@ -42,6 +49,7 @@ class EventDispatcher
 		self.exploit_event_subscribers = []
 		self.session_event_subscribers = []
 		self.db_event_subscribers      = []
+		self.ui_event_subscribers      = []
 	end
 
 	##
@@ -87,7 +95,7 @@ class EventDispatcher
 	# This method adds an exploit event subscriber.  Exploit event subscribers
 	# receive notifications when events occur that pertain to exploits, such as
 	# the success or failure of an exploitation attempt.  The subscriber
-	# provided must implement the ExploitEvents module methods in some form.
+	# provided must implement the ExploitEvent module methods in some form.
 	#
 	def add_exploit_subscriber(subscriber)
 		add_event_subscriber(exploit_event_subscribers, subscriber)
@@ -103,7 +111,7 @@ class EventDispatcher
 	#
 	# This method adds a session event subscriber.  Session event subscribers
 	# receive notifications when sessions are opened and closed.  The
-	# subscriber provided must implement the SessionEvents module methods in
+	# subscriber provided must implement the SessionEvent module methods in
 	# some form.
 	#
 	def add_session_subscriber(subscriber)
@@ -127,6 +135,9 @@ class EventDispatcher
 	# Called when a module is loaded into the framework.  This, in turn,
 	# notifies all registered general event subscribers.
 	#
+	# This is covered by the method_missing logic, but defining it manually
+	# reduces startup time by about 10%.
+	#
 	def on_module_load(name, mod)
 		general_event_subscribers.each { |subscriber|
 			subscriber.on_module_load(name, mod)
@@ -134,52 +145,55 @@ class EventDispatcher
 	end
 
 	#
-	# Called when a module is unloaded from the framework.  This, in turn,
-	# notifies all registered general event subscribers.
-	#
-	def on_module_created(instance)
-		general_event_subscribers.each { |subscriber|
-			subscriber.on_module_created(instance)
-		}
-	end
-	
-	#
 	# Capture incoming events and pass them off to the subscribers
+	#
+	# When receiving an on_* event, look for a subscriber type matching the
+	# type of the event.  If one exists, send the event on to each subscriber
+	# of that type.  Otherwise, try to send the event each of the general
+	# subscribers.
+	#
+	# Event method names should be like "on_<type>_<event>", e.g.:
+	# on_exploit_success.
 	#
 	def method_missing(name, *args)
 
-		case name.to_s
-
-		# Exploit events
-		when /^on_exploit/
-			exploit_event_subscribers.each do |subscriber|
-				next if not subscriber.respond_to?(name)
-				subscriber.send(name, *args)
-			end
-
-		# Session events
-		when /^on_session/
-			session_event_subscribers.each do |subscriber|
-				next if not subscriber.respond_to?(name)
-				subscriber.send(name, *args)
-			end
-
-		# db events
-		when /^on_db/
-			# Only process these events if the db is active
-			if (framework.db.active)
-				db_event_subscribers.each do |subscriber|
-					next if not subscriber.respond_to?(name)
-					subscriber.send(name, *args)
+		event,type,rest = name.to_s.split("_", 3)
+		subscribers = "#{type}_event_subscribers"
+		found = false
+		case event
+		when "on"
+			#$stdout.puts("Got event: #{name}, looking for #{type}_event_subscribers")
+			if respond_to?(subscribers)
+				found = true
+				self.send(subscribers).each do |sub|
+					next if not sub.respond_to?(name)
+					#$stdout.puts("Found subscriber: #{sub}")
+					sub.send(name, *args)
+				end
+			else
+				general_event_subscribers.each do |sub|
+					next if not sub.respond_to?(name)
+					#$stdout.puts("Found general subscriber: #{sub}")
+					sub.send(name, *args)
+					found = true
 				end
 			end
-		# Everything else								
-		else
+		when "add"
+			if respond_to?(subscribers)
+				found = true
+				add_event_subscriber(self.send(subscribers), *args)
+			end
+		when "remove"
+			if respond_to?(subscribers)
+				found = true
+				remove_event_subscriber(self.send(subscribers), *args)
+			end
+		end
+		if not found
+			#$stdout.puts("Event dispatcher received an unhandled event: #{name} #{args}")
 			elog("Event dispatcher received an unhandled event: #{name}")
-			return false
-		end		
-
-		return true
+		end
+		return found
 	end
 	
 	
@@ -203,6 +217,7 @@ protected
 	attr_accessor :exploit_event_subscribers # :nodoc:
 	attr_accessor :session_event_subscribers # :nodoc:
 	attr_accessor :db_event_subscribers # :nodoc:	
+	attr_accessor :ui_event_subscribers # :nodoc:	
 
 end
 

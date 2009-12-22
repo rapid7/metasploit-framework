@@ -89,6 +89,7 @@ protected
 	# Stub method that is meant to handler interaction.
 	#
 	def _interact
+		framework.events.on_session_interact(self)
 	end
 
 	#
@@ -119,6 +120,7 @@ protected
 	# If the session reaches EOF, deregister it.
 	#
 	def _interact_complete
+		framework.events.on_session_interact_completed()
 		framework.sessions.deregister(self)
 	end
 

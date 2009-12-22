@@ -10,6 +10,19 @@ module Msf
 module Ui
 module Console
 
+class UiEventSubscriber
+	def on_ui_command(line)
+	end
+
+	def on_ui_command_completed(result)
+	end
+
+	def on_ui_stop()
+	end
+
+	def on_ui_start()
+	end
+end
 
 ###
 #
@@ -250,6 +263,7 @@ class Driver < Msf::Ui::Driver
 			end
 			print("\n")
 		end
+		framework.events.on_ui_start(Msf::Framework::Revision)
 		
 		# Build the banner message
 		run_single("banner")
@@ -322,6 +336,22 @@ class Driver < Msf::Ui::Driver
 		if @defanged
 			raise DefangedException
 		end
+	end
+
+	#
+	# Overload the parent's run_single so we can fire events before and after
+	# running the command.
+	#
+	def run_single(line, user_initiated = false)
+		framework.events.on_ui_command(line)
+		ret = super(line)
+		framework.events.on_ui_command_completed(ret)
+		ret
+	end
+
+	def stop
+		framework.events.on_ui_stop()
+		super
 	end
 
 protected
