@@ -23,10 +23,10 @@ class Metasploit3 < Msf::Encoder::NonAlpha
 			'Name'             => "Non-Alpha Encoder",
 			'Version'          => '$Revision$',
 			'Description'      => %q{
-				Encodes payloads a non-alpha based bytes. This allows
-                payloads to bypass both toupper() and tolower() calls,
-                but will fail isalpha(). Table based design from 
-                Russel Sanford. 
+					Encodes payloads as non-alpha based bytes. This allows
+				payloads to bypass both toupper() and tolower() calls,
+				but will fail isalpha(). Table based design from 
+				Russel Sanford. 
 			},
 			'Author'           => [ 'pusscat'],
 			'Arch'             => ARCH_X86,
@@ -43,8 +43,8 @@ class Metasploit3 < Msf::Encoder::NonAlpha
 	# being encoded.
 	#
 	def decoder_stub(state)
-        state.key                   = ""
-        state.decoder_key_size      = 0
+		state.key                   = ""
+		state.decoder_key_size      = 0
 		Rex::Encoder::NonAlpha::gen_decoder()
 	end
 
@@ -54,15 +54,15 @@ class Metasploit3 < Msf::Encoder::NonAlpha
 	#
 	def encode_block(state, block)
 		newchar, state.key, state.decoder_key_size = Rex::Encoder::NonAlpha::encode_byte(block.unpack('C')[0], state.key, state.decoder_key_size)
-	    return newchar
-    end
+		return newchar
+	end
 
 	#
 	# Fix stuff, and add the table :)
 	#
 	def encode_end(state)
-	    state.encoded.gsub!(/A/, state.decoder_key_size.chr)
-	    state.encoded.gsub!(/B/, (state.decoder_key_size+5).chr)
-        state.encoded[0x24, 0] = state.key
-    end
+		state.encoded.gsub!(/A/, state.decoder_key_size.chr)
+		state.encoded.gsub!(/B/, (state.decoder_key_size+5).chr)
+		state.encoded[0x24, 0] = state.key
+	end
 end
