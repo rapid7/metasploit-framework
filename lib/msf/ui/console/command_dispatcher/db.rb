@@ -148,22 +148,17 @@ class Db
 				end
 			end
 
-			columns = ::Msf::DBManager::Host.column_names.sort
-			columns.delete_if {|v| (v[-2,2] == "id")}
-			columns += ["Svcs", "Vulns", "Workspace"]
+			col_names = ::Msf::DBManager::Host.column_names.sort
+			col_names.delete_if {|v| (v[-2,2] == "id")}
 			tbl = Rex::Ui::Text::Table.new({
 					'Header'  => "Hosts",
-					'Columns' => columns,
+					'Columns' => col_names + ["Svcs", "Vulns", "Workspace"],
 				})
- 			framework.db.hosts(onlyup, host_search).each do |host|
-				columns = []
-				host.attributes.each { |k,v| 
-					next if k[-2,2] == "id"
-					columns << (v.nil? ? "" : v)
-				}
+			framework.db.hosts(onlyup, host_search).each do |host|
+				columns = col_names.map { |n| host.attributes[n] || "" }
 				columns += [host.services.length, host.vulns.length, host.workspace.name]
- 				tbl << columns
- 			end
+				tbl << columns
+			end
 			print_line
 			print_line tbl.to_s
  		end
@@ -219,19 +214,14 @@ class Db
 				end
 			end
 
-			columns = ::Msf::DBManager::Service.column_names.sort
-			columns.delete_if {|v| (v[-2,2] == "id")}
-			columns += ["Host", "Workspace"]
+			col_names = ::Msf::DBManager::Service.column_names.sort
+			col_names.delete_if {|v| (v[-2,2] == "id")}
 			tbl = Rex::Ui::Text::Table.new({
 					'Header'  => "Services",
-					'Columns' => columns,
+					'Columns' => col_names + ["Host", "Workspace"],
 				})
 			framework.db.services(onlyup, proto, addrs, ports, names).each do |service|
-				columns = []
-				service.attributes.each { |k,v| 
-					next if k[-2,2] == "id"
-					columns << (v.nil? ? "" : v)
-				}
+				columns = col_names.map { |n| service.attributes[n] || "" }
 				host = service.host
 				columns += [host.address, host.workspace.name]
 				tbl << columns
