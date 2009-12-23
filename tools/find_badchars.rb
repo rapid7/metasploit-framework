@@ -27,6 +27,7 @@ def show_format_list
 	$stderr.puts("  raw      raw binary data\n")
 	$stderr.puts("  windbg   output from windbg's \"db\" command\n")
 	$stderr.puts("  gdb      output from gdb's \"x/bx\" command\n")
+	$stderr.puts("  hex      hex bytes like \"\\xFF\\x41\" or \"eb fe\"\n")
 end
 
 def debug_buffer(name, buf)
@@ -62,7 +63,7 @@ $args.parse(ARGV) { |opt, idx, val|
 		when "-b"
 			badchars = Rex::Text.hex_to_raw(val)
 		when "-t"
-			if (val =~ /^(raw|windbg|gdb)$/)
+			if (val =~ /^(raw|windbg|gdb|hex)$/)
 				fmt = val
 			else
 				if val.nil? or val.length < 1
@@ -105,6 +106,13 @@ case fmt
 		translated = ''
 		from_dbg.each_line do |ln|
 			translated << ln.chomp.split(':')[1].gsub!(/0x/, '\x').gsub!(/ /, '')
+		end
+		from_dbg = Rex::Text.hex_to_raw(translated)
+
+	when "hex"
+		translated = ''
+		from_dbg.each_line do |ln|
+			translated << ln.chomp.gsub!(/ /,'')
 		end
 		from_dbg = Rex::Text.hex_to_raw(translated)
 end
