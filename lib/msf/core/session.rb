@@ -84,6 +84,13 @@ module Session
 	end
 
 	#
+	# Brief and to the point
+	#
+	def inspect
+		"#<Session:#{self.type} #{self.tunnel_peer}>"
+	end
+
+	#
 	# Returns the description of the session.
 	#
 	def desc
