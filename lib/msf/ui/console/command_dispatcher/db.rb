@@ -397,6 +397,7 @@ class Db
 			code  = :bind
 			mjob  = 5
 			regx  = nil
+			minrank = nil
 
 			port_inc = []
 			port_exc = []
@@ -438,6 +439,8 @@ class Db
 					port_exc = Rex::Socket.portspec_crack(args.shift)
 				when '-m'
 					regx = args.shift
+				when '-R'
+					minrank = args.shift
 				when '-h','--help'
 					print_status("Usage: db_autopwn [options]")
 					print_line("\t-h          Display this help text")
@@ -449,6 +452,7 @@ class Db
 					print_line("\t-r          Use a reverse connect shell")
 					print_line("\t-b          Use a bind shell on a random port (default)")
 					print_line("\t-q          Disable exploit module output")
+					print_line("\t-R  [rank]  Only run modules with a minimal rank")
 					print_line("\t-I  [range] Only exploit hosts inside this range")
 					print_line("\t-X  [range] Always exclude hosts inside this range")
 					print_line("\t-PI [range] Only exploit hosts with these ports open")
@@ -459,7 +463,7 @@ class Db
 				end
 			end
 
-			minrank = framework.datastore['MinimumRank'] || 'manual'
+			minrank = minrank || framework.datastore['MinimumRank'] || 'manual'
 			if ! RankingName.values.include?(minrank)
 				print_error("MinimumRank invalid!  Possible values are (#{RankingName.sort.map{|r|r[1]}.join("|")})")
 				wlog("MinimumRank invalid, ignoring", 'core', LEV_0)
