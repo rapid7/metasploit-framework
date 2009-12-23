@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'   => %q{
 				This module scans NFS mounts and their permissions.
 			},	
-			'Author'	    => ['tebo <tebo [at] attackresearch.com>'],
+			'Author'	    => ['<tebo [at] attackresearch.com>'],
 			'References'	=>
 				[
 					['URL',	'http://www.ietf.org/rfc/rfc1094.txt'],
@@ -47,23 +47,25 @@ class Metasploit3 < Msf::Auxiliary
 			progver		= 1
 			procedure	= 1
 
-			pport = sunrpc_create('udp', program, progver)
+			sunrpc_create('udp', program, progver)
 			sunrpc_authunix(hostname, datastore['UID'], datastore['GID'], [])
 			resp = sunrpc_call(5, "")
-			
-			if (resp[3,1].unpack('C')[0] == 0x01)
-				print_status("#{ip} Exports found")
+      
+      exports = resp[3,1].unpack('C')[0]
+			if (exports == 0x01)
+				print_good("#{ip} - Exports found")
 				while XDR.decode_int!(resp) == 1 do
 					dir = XDR.decode_string!(resp)
+					grp = []
 					while XDR.decode_int!(resp) == 1 do
-						grp = XDR.decode_string!(resp)
+						grp << XDR.decode_string!(resp)
 					end
-					print_line("#{ip}\t#{dir}\t[#{grp}]")
+					print_line("\t#{dir}\t[#{grp.join(", ")}]")
 				end
-			else
-				print_status("#{ip} has no exports")
+			elsif(exports == 0x00)
+				print_status("#{ip} - No exports")
 			end
-
+      
 			sunrpc_destroy	
 		rescue ::Rex::Proto::SunRPC::RPCTimeout
 		end

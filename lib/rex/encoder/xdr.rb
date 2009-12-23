@@ -15,7 +15,8 @@ module XDR
 	end
 	
 	def XDR.decode_int!(data)
-		return data.slice!(0..3).unpack('N')[0]
+		  return data.slice!(0..3).unpack('N')[0] if data
+      data = 0
 	end
 	
 	def XDR.encode_lchar(char)

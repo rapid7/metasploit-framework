@@ -26,14 +26,6 @@ class Client
 	
 	CALL = 0
 	
-	MSG_ACCEPTED = 0
-
-	SUCCESS = 0		# RPC executed successfully
-	PROG_UMAVAIL = 1	# Remote hasn't exported program
-	PROG_MISMATCH = 2	# Remote can't support version #
-	PROC_UNAVAIL = 3	# Program can't support procedure
-	GARBAGE_ARGS = 4	# Procedure can't decode params
-	
 	attr_reader :rhost, :rport, :proto, :program, :version
 	attr_accessor :pport
 
@@ -72,54 +64,23 @@ class Client
 		sock = make_rpc(@proto, @rhost, @rport)
 		send_rpc(sock, buf)
 		ret = recv_rpc(sock)
-		raise ::Rex::RuntimeError, "No response to SunRPC PortMap request" if ! ret
 		close_rpc(sock)
 
-		arr = Rex::Encoder::XDR.decode!(ret, Integer, Integer, Integer, String, Integer,
-			Integer)
-		if arr[1] != MSG_ACCEPTED || arr[4] != SUCCESS || arr[5] == 0
-# Check PRO[CG]_*/GARBAGE_ARGS
-			err = "SunRPC PortMap request to #{@rhost}:#{rport} failed: "
-			err << 'Message not accepted'  if arr[1] != MSG_ACCEPTED
-			err << 'RPC did not execute'   if arr[4] != SUCCESS
-			err << 'Program not available' if arr[5] == 0
-			raise ::Rex::RuntimeError, err
-		end
-
-		@pport = arr[5]
+		return ret
 	end
 
 	def call(procedure, buffer, timeout=60)
 		buf =
 			Rex::Encoder::XDR.encode(CALL, 2, @program, @version, procedure,
 				@auth_type, [@auth_data, 400], AUTH_NULL, '')+
-			buffer
+			buffer		
 		
 		if !@call_sock
 			@call_sock = make_rpc(@proto, @rhost, @pport)
 		end
 
 		send_rpc(@call_sock, buf)
-		ret = recv_rpc(@call_sock, timeout)
-
-		if ret
-			arr = Rex::Encoder::XDR.decode!(ret, Integer, Integer, Integer, String, Integer)
-			if arr[1] != MSG_ACCEPTED || arr[4] != SUCCESS
-				err = "SunRPC call for program #{program}, procedure #{procedure}, failed: "
-				case arr[4]
-					when PROG_UMAVAIL  then err << "Program Unavailable"
-					when PROG_MISMATCH then err << "Program Version Mismatch"
-					when PROC_UNAVAIL  then err << "Procedure Unavailable"
-					when GARBAGE_ARGS  then err << "Garbage Arguments"
-					else err << "Unknown Error"
-				end
-				raise ::Rex::RuntimeError, err
-			end
-		else
-			raise RPCTimeout, "No response to SunRPC call for procedure #{procedure}"
-		end
-		
-		return ret
+    recv_rpc(@call_sock, timeout)
 	end
 	
 	def destroy
@@ -150,38 +111,11 @@ class Client
 		sock = make_rpc('tcp', host, port)
 		send_rpc(sock, buf)
 		ret = recv_rpc(sock)
-		raise ::Rex::RuntimeError, "No response to SunRPC request" if ! ret
 		close_rpc(sock)
-		
-		arr = Rex::Encoder::XDR.decode!(ret, Integer, Integer, Integer, String, Integer)
-		if arr[1] != MSG_ACCEPTED || arr[4] != SUCCESS || arr[5] == 0
-			err = "SunRPC call for program #{program}, procedure #{procedure}, failed: "
-			case arr[4]
-				when PROG_UMAVAIL  then err << "Program Unavailable"
-				when PROG_MISMATCH then err << "Program Version Mismatch"
-				when PROC_UNAVAIL  then err << "Procedure Unavailable"
-				when GARBAGE_ARGS  then err << "Garbage Arguments"
-				else err << "Unknown Error"
-			end
-			raise ::Rex::RuntimeError, err
-		end
 		
 		return ret
 	end
-	
-# Msf::Config.data_directory
-#	def Client.program2name(number)
-#		File.foreach('data/rpc_names') { |line|
-#			next if line.empty? || line =~ /^\s*#/
-#			
-#			if line =~ /^(\S+?)\s+(\d+)/ && number == $2.to_i
-#				return $1
-#			end
-#		}
-#		
-#		return "UNKNOWN-#{number}"
-#	end
-	
+
 	private
 	def make_rpc(proto, host, port)
 		Rex::Socket.create(
