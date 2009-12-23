@@ -161,6 +161,7 @@ class Plugin::Nexpose < Msf::Plugin
 				"-v"   => [ false,  "Display diagnostic information about the scanning process"],
 				"-x"   => [ false,  "Automatically launch all exploits by matching reference after the scan completes (unsafe)"],
 				"-X"   => [ false,  "Automatically launch all exploits by matching reference and port after the scan completes (unsafe)"],
+				"-R"   => [ true,   "Specify a minimum exploit rank to use for automated exploitation"],
 				"-d"   => [ false,  "Scan hosts based on the contents of the existing database"],
 				"-I"   => [ true,   "Only scan systems with an address within the specified range"],
 				"-E"   => [ true,   "Exclude hosts in the specified range from the scan"]
@@ -177,6 +178,7 @@ class Plugin::Nexpose < Msf::Plugin
 			opt_addrinc   = nil
 			opt_addrexc   = nil
 			opt_scanned   = []
+			opt_minrank   = "manual"
 
 			opt_ranges    = []
 			report_format = "ns-xml"
@@ -207,6 +209,8 @@ class Plugin::Nexpose < Msf::Plugin
 					opt_addrinc = OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(val)
 				when '-E'
 					opt_addrexc = OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(val)
+				when '-R'
+					opt_minrank = val
 				else
 					opt_ranges << val
 				end
@@ -355,7 +359,7 @@ class Plugin::Nexpose < Msf::Plugin
 
 			if(opt_autopwn)
 				print_status("Launching an automated exploitation session")
-				driver.run_single("db_autopwn -q -r -e -t #{opt_autopwn} -I #{opt_scanned.join(",")}")
+				driver.run_single("db_autopwn -q -r -e -t #{opt_autopwn} -R #{minrank} -I #{opt_scanned.join(",")}")
 			end
 		end
 
