@@ -25,6 +25,10 @@ module Module
 		end
 	end
 
+	def inspect
+		"#<Module:#{self.fullname} datastore=[#{self.datastore.inspect}]>"
+	end
+
 	#
 	# Initializes the simplified interface.
 	#
