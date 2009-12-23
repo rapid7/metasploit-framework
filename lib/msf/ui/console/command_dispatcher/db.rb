@@ -98,9 +98,11 @@ class Db
 				elsif workspace.default?
 					print_error("Can't delete default workspace")
 				else
+					# switch to the default workspace if we're about to delete the current one
+					framework.db.workspace = framework.db.default_workspace if framework.db.workspace.name == workspace.name
+					# now destroy the named workspace
 					workspace.destroy
 					print_status("Deleted workspace: #{name}")
-					framework.db.workspace = framework.db.default_workspace if framework.db.workspace == workspace
 				end
 			elsif name
 				# Switch workspace
@@ -115,7 +117,7 @@ class Db
 			else
 				# List workspaces
 				framework.db.workspaces.each do |s|
-					pad = (s == framework.db.workspace) ? "* " : "  "
+					pad = (s.name == framework.db.workspace.name) ? "* " : "  "
 					print_line(pad + s.name)
 				end
 			end

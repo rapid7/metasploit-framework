@@ -27,9 +27,6 @@ class DBManager
 	# Returns the active driver
 	attr_accessor :driver
 
-	# Returns the active workspace
-	attr_accessor :workspace
-
 	# Stores the error message for why the db was not loaded
 	attr_accessor :error
 
@@ -163,6 +160,14 @@ class DBManager
 			return false
 		end
 		return true
+	end
+
+	def workspace=(workspace)
+		@workspace_name = workspace.name
+	end
+
+	def workspace
+		framework.db.find_workspace(@workspace_name)
 	end
 
 end
