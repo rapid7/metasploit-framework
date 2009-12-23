@@ -19,7 +19,7 @@ class Plugin::TokenHunter < Msf::Plugin
 
 			opts = Rex::Parser::Arguments.new(
 				"-h"   => [ false,  "This help menu"],
-				"-f"   => [ true,   "A file containing a list of users to search for (one per line)"],
+				"-f"   => [ true,   "A file containing a list of users to search for (one per line)"]
 			)
 
 			opt_userfile  = nil
