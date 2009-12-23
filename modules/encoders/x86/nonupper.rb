@@ -42,8 +42,8 @@ class Metasploit3 < Msf::Encoder::NonUpper
 	# being encoded.
 	#
 	def decoder_stub(state)
-        state.key                   = ""
-        state.decoder_key_size      = 0
+		state.key                   = ""
+		state.decoder_key_size      = 0
 		Rex::Encoder::NonUpper::gen_decoder()
 	end
 
@@ -63,15 +63,15 @@ class Metasploit3 < Msf::Encoder::NonUpper
 			# to encode.
 			raise BadcharError if e.message == "BadChar"
 		end
-	    return newchar
-    end
+		return newchar
+	end
 
 	#
 	# Fix stuff, and add the table :)
 	#
 	def encode_end(state)
-	    state.encoded.gsub!(/A/, state.decoder_key_size.chr)
-	    state.encoded.gsub!(/B/, (state.decoder_key_size+5).chr)
-        state.encoded[0x24, 0] = state.key
-    end
+		state.encoded.gsub!(/A/, state.decoder_key_size.chr)
+		state.encoded.gsub!(/B/, (state.decoder_key_size+5).chr)
+		state.encoded[0x24, 0] = state.key
+	end
 end
