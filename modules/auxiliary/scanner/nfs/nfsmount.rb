@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 			sunrpc_authunix(hostname, datastore['UID'], datastore['GID'], [])
 			resp = sunrpc_call(5, "")
       
-      exports = resp[3,1].unpack('C')[0]
+			exports = resp[3,1].unpack('C')[0]
 			if (exports == 0x01)
 				print_good("#{ip} - Exports found")
 				while XDR.decode_int!(resp) == 1 do
