@@ -548,8 +548,10 @@ end
 # Function for writing results of other functions to a file
 def filewrt(file2wrt, data2wrt)
 	output = ::File.open(file2wrt, "a")
+	if data2wrt
 	data2wrt.each_line do |d|
 		output.puts(d)
+	end
 	end
 	output.close
 end
@@ -675,16 +677,17 @@ def uaccheck()
 	winversion = @client.sys.config.sysinfo
 	if winversion['OS']=~ /Windows Vista/ or  winversion['OS']=~ /Windows 7/
 		if @client.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
-			begin
-				print_status("Checking if UAC is enabled .....")
-				key = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System')
-				if key.query_value('Identifier') == 1
-					print_status("UAC is Enabled")
-					uac = true
-				end
-				key.close
-			rescue::Exception => e
-				print_status("Error Checking UAC: #{e.class} #{e}")
+			print_status("Checking if UAC is enabled ...")
+			key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
+			root_key, base_key = @client.sys.registry.splitkey(key)
+			value = "EnableLUA"
+			open_key = @client.sys.registry.open_key(root_key, base_key, KEY_READ)
+			v = open_key.query_value(value)
+			if v.data == 1
+				print_status("\tUAC is Enabled")
+				uac = true
+			else
+				print_status("\tUAC is Disabled")
 			end
 		end
 	end
