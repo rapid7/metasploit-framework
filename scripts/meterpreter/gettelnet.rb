@@ -13,7 +13,8 @@ session = client
 	"-h" => [ false, "Help menu." ],
 	"-e" => [ false, "Enable Telnet Server only."  ],
 	"-p" => [ true,  "The Password of the user to add."  ],
-	"-u" => [ true,  "The Username of the user to add."  ]
+	"-u" => [ true,  "The Username of the user to add."  ],
+	"-f" => [ true,  "Forward Telnet Connection." ]
 )
 def checkifinst(session)
 	# This won't work on windows 2000 since there is no sc.exe
@@ -145,7 +146,7 @@ end
 # Parsing of Options
 usr = nil
 pass = nil
-lport = nil
+frwrd = nil
 enbl = nil
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
@@ -155,8 +156,8 @@ enbl = nil
 			pass = val
 		when "-h"
 			usage
-		when "-n"
-			lport = val.to_i
+		when "-f"
+			frwrd = true
 		when "-e"
 			enbl = true
 		end
@@ -176,4 +177,7 @@ elsif usr!= nil && pass != nil
 else
 	usage
 end
-
+if frwrd == true
+	print_status("Starting the port forwarding at local port #{lport}")
+	client.run_cmd("portfwd add -L 0.0.0.0 -l #{lport} -p 23 -r 127.0.0.1")
+end
