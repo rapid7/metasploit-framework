@@ -180,7 +180,11 @@ class Metasploit3 < Msf::Auxiliary
 				:names => names,
 				:mac   => maddr
 			}
-			@results[addr][:name] = @results[addr][:names][0][0] if not hname
+
+			if (!hname and @results[addr][:names].length > 0)
+				@results[addr][:name] = @results[addr][:names][0][0]
+			end
+
 			@results[addr][:name] = hname if hname
 			@results[addr][:user] = uname if uname
 		when 0x20
