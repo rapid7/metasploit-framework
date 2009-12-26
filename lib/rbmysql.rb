@@ -231,7 +231,7 @@ class RbMysql
         else
           @fields = Array.new(res_packet.field_count).map{Field.new @protocol.read_field_packet}
           @protocol.read_eof_packet
-          return SimpleQueryResult.new self, @fields
+          return SimpleQueryResult.new(self, @fields)
         end
       rescue ServerError => e
         @sqlstate = e.sqlstate
