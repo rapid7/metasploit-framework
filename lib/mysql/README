@@ -1,0 +1,39 @@
+= ruby-mysql
+
+== Description
+MySQL connector for Ruby.
+
+ALPHA バージョンです。将来のバージョンで互換がない変更がされる可能性があります。
+
+== Installation
+
+ ruby setup.rb
+
+=== Gem Installation
+
+ gem install tmtm-ruby-mysql --source http://gems.github.com
+
+== Features/Problems
+
+* Ruby だけで書かれているのでコンパイル不要です。
+* Ruby 1.9 の M17N に対応しています。
+* Ruby/MySQL 0.x, MySQL/Ruby 2.x とは互換がありません。
+  require "mysql/compat" すれば、MySQL/Ruby 2.x 用のプログラムもそこそこ動くかもしれません。
+* 英語ドキュメントがありません。
+
+== Synopsis
+
+使用例:
+
+ Mysql.connect("mysql://username:password@hostname:3306/dbname") do |my|
+   my.query("select col1, col2 from tblname").each do |col1, col2|
+     p col1, col2
+   end
+   my.query("insert into tblname (col1,col2) values (?,?)", 123, "abc")
+ end
+
+== Copyright
+
+Author::    tommy <tommy@tmtm.org>
+Copyright:: Copyright (c) 2009 tommy
+License::   Ruby's
