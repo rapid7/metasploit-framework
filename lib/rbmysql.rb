@@ -12,13 +12,13 @@ require "uri"
 #      p c1, c2
 #    end
 #  end
-class Mysql
+class RbMysql
 
   dir = File.dirname __FILE__
-  require "#{dir}/mysql/constants"
-  require "#{dir}/mysql/error"
-  require "#{dir}/mysql/charset"
-  require "#{dir}/mysql/protocol"
+  require "#{dir}/rbmysql/constants"
+  require "#{dir}/rbmysql/error"
+  require "#{dir}/rbmysql/charset"
+  require "#{dir}/rbmysql/protocol"
 
   VERSION            = 30001               # Version number of this library
   MYSQL_UNIX_PORT    = "/tmp/mysql.sock"   # UNIX domain socket filename
@@ -616,7 +616,7 @@ class Mysql
         else
           unsigned = f.flags & Field::UNSIGNED_FLAG != 0
           v = Protocol.net2value(data, f.type, unsigned)
-          if v.is_a? Numeric or v.is_a? Mysql::Time
+          if v.is_a? Numeric or v.is_a? RbMysql::Time
             v
           elsif f.type == Field::TYPE_BIT or f.flags & Field::BINARY_FLAG != 0
             Charset.to_binary(v)
@@ -742,7 +742,7 @@ class Mysql
     alias sec second
 
     def ==(other)
-      other.is_a?(Mysql::Time) &&
+      other.is_a?(RbMysql::Time) &&
         @year == other.year && @month == other.month && @day == other.day &&
         @hour == other.hour && @minute == other.minute && @second == other.second &&
         @neg == neg && @second_part == other.second_part
@@ -764,3 +764,4 @@ class Mysql
   end
 
 end
+
