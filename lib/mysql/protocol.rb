@@ -7,7 +7,7 @@ require "digest/sha1"
 require "thread"
 require "stringio"
 
-class Mysql
+class RbMysql
   # MySQL network protocol
   class Protocol
 
@@ -97,12 +97,12 @@ class Mysql
       when Field::TYPE_DATE, Field::TYPE_DATETIME, Field::TYPE_TIMESTAMP
         len = data.slice!(0).ord
         y, m, d, h, mi, s, bs = data.slice!(0,len).unpack("vCCCCCV")
-        return Mysql::Time.new(y, m, d, h, mi, s, bs)
+        return RbMysql::Time.new(y, m, d, h, mi, s, bs)
       when Field::TYPE_TIME
         len = data.slice!(0).ord
         sign, d, h, mi, s, sp = data.slice!(0,len).unpack("CVCCCV")
         h = d.to_i * 24 + h.to_i
-        return Mysql::Time.new(0, 0, 0, h, mi, s, sign!=0, sp)
+        return RbMysql::Time.new(0, 0, 0, h, mi, s, sign!=0, sp)
       when Field::TYPE_YEAR
         return data.slice!(0,2).unpack("v").first
       when Field::TYPE_BIT
@@ -164,7 +164,7 @@ class Mysql
       when String
         type = Field::TYPE_STRING
         val = Protocol.lcs(v)
-      when Mysql::Time, ::Time
+      when RbMysql::Time, ::Time
         type = Field::TYPE_DATETIME
         val = [7, v.year, v.month, v.day, v.hour, v.min, v.sec].pack("CvCCCCC")
       else
@@ -248,10 +248,10 @@ class Mysql
           f, errno, message = ret.unpack("Cva*")    # Version 4.0 Error
           @sqlstate = ""
         end
-        if Mysql::ServerError::ERROR_MAP.key? errno
-          raise Mysql::ServerError::ERROR_MAP[errno].new(message, @sqlstate)
+        if RbMysql::ServerError::ERROR_MAP.key? errno
+          raise RbMysql::ServerError::ERROR_MAP[errno].new(message, @sqlstate)
         end
-        raise Mysql::ServerError.new(message, @sqlstate)
+        raise RbMysql::ServerError.new(message, @sqlstate)
       end
       ret
     end
@@ -492,7 +492,7 @@ class Mysql
           netvalues.concat n if v
           t
         end
-        [Mysql::COM_STMT_EXECUTE, statement_id, cursor_type, 1, nbm, 1, types.pack("v*"), netvalues].pack("CVCVa*Ca*a*")
+        [RbMysql::COM_STMT_EXECUTE, statement_id, cursor_type, 1, nbm, 1, types.pack("v*"), netvalues].pack("CVCVa*Ca*a*")
       end
 
       private
@@ -518,7 +518,7 @@ class Mysql
       end
 
       def serialize
-        [Mysql::COM_STMT_FETCH, statement_id, fetch_length].pack("CVV")
+        [RbMysql::COM_STMT_FETCH, statement_id, fetch_length].pack("CVV")
       end
     end
 
@@ -531,7 +531,7 @@ class Mysql
       end
 
       def serialize
-        [Mysql::COM_STMT_CLOSE, statement_id].pack("CV")
+        [RbMysql::COM_STMT_CLOSE, statement_id].pack("CV")
       end
     end
 
@@ -543,8 +543,9 @@ class Mysql
       end
 
       def serialize
-        [Mysql::COM_FIELD_LIST, "#{@table}\0#{@field}"].pack("Ca*")
+        [RbMysql::COM_FIELD_LIST, "#{@table}\0#{@field}"].pack("Ca*")
       end
     end
   end
 end
+

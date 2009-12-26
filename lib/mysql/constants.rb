@@ -1,7 +1,7 @@
 # Copyright (C) 2003-2008 TOMITA Masahiro
 # mailto:tommy@tmtm.org
 
-class Mysql
+class RbMysql
   # Command
   COM_SLEEP               = 0
   COM_QUIT                = 1
@@ -162,3 +162,4 @@ class Mysql
     CURSOR_TYPE_READ_ONLY = 1
   end
 end
+

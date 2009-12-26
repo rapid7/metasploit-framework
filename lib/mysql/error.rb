@@ -1,7 +1,7 @@
 # Copyright (C) 2003-2008 TOMITA Masahiro
 # mailto:tommy@tmtm.org
 
-class Mysql
+class RbMysql
   class Error < StandardError
   end
 
@@ -500,11 +500,11 @@ class Mysql
     errno = ServerError.const_get errname
     excname = errname.sub(/\AER_/,"").gsub(/(\A.|_.)([A-Z]+)/){$1+$2.downcase}.gsub(/_/,"")
     eval <<EOS
-    class Mysql::#{excname} < Mysql::ServerError
+    class RbMysql::#{excname} < RbMysql::ServerError
       ERRNO = #{errno}
     end
 EOS
-    ServerError::ERROR_MAP[errno] = eval "Mysql::#{excname}"
+    ServerError::ERROR_MAP[errno] = eval "RbMysql::#{excname}"
   end
 
   # client side error
@@ -516,3 +516,4 @@ EOS
   end
 
 end
+

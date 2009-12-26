@@ -3,7 +3,7 @@
 
 # for compatibility
 
-class Mysql
+class RbMysql
   class << self
 
     def connect(*args)
@@ -211,7 +211,7 @@ class Mysql
       }
     end
     def inspect
-      "#<Mysql::Field:#{@name}>"
+      "#<RbMysql::Field:#{@name}>"
     end
   end
 
@@ -265,3 +265,4 @@ class Mysql
   end
   Stmt = Statement
 end
+

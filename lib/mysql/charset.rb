@@ -3,7 +3,7 @@
 
 require "#{File.dirname __FILE__}/error"
 
-class Mysql
+class RbMysql
   class Charset
     def initialize(number, name, csname)
       @number, @name, @csname = number, name, csname
@@ -212,7 +212,7 @@ class Mysql
       # encoding [Encoding]
       def encoding
         enc = CHARSET_ENCODING[@name.downcase]
-        raise Mysql::ClientError, "unsupported charset: #{@name}" unless enc
+        raise RbMysql::ClientError, "unsupported charset: #{@name}" unless enc
         enc
       end
 
@@ -253,3 +253,4 @@ class Mysql
     end
   end
 end
+
