@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 	include Msf::Exploit::ORACLE
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Oracle Account Discovery.',
@@ -63,8 +63,9 @@ class Metasploit3 < Msf::Auxiliary
 						:data  => "#{datastore['DBUSER']}/#{datastore['DBPASS']} with sid #{datastore['SID']}"
 					)
 						print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
-				end 
+				end
 		end
 		end
 	end
 end
+

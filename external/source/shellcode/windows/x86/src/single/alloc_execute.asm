@@ -9,6 +9,9 @@
 [BITS 32]
 [ORG 0]
 
+; Disabled until this is better tested
+; %include "./src/block/block_antidebug.asm"
+
   cld                    ; Clear the direction flag.
   call start             ; Call start, this pushes the address of 'api_call' onto the stack.
 delta:                   ;

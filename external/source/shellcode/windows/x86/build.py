@@ -1,5 +1,5 @@
 #=============================================================================#
-# A simple python build script to build the singles/stages/stagers and 
+# A simple python build script to build the singles/stages/stagers and
 # some usefull information such as offsets and a hex dump. The binary output
 # will be placed in the bin directory. A hex string and usefull comments will
 # be printed to screen.
@@ -60,8 +60,10 @@ def xmit( name, dump_ruby=True ):
   data = f.read()
   print "# Name: %s\n# Length: %d bytes" % ( name, len( data ) )
   xmit_offset( data, "Port", pack( ">H", 4444 ) )           # 4444
+  xmit_offset( data, "LEPort", pack( "<H", 4444 ) )         # 4444
   xmit_offset( data, "Host", pack( ">L", 0x7F000001 ) )     # 127.0.0.1
   xmit_offset( data, "CodeLen", pack( "<L", 0x12345678 ) )  # Filler
+  xmit_offset( data, "Hostname", "https" )
   xmit_offset( data, "ExitFunk", pack( "<L", 0x0A2A1DE0 ) ) # kernel32.dll!ExitThread
   xmit_offset( data, "ExitFunk", pack( "<L", 0x56A2B5F0 ) ) # kernel32.dll!ExitProcess
   xmit_offset( data, "ExitFunk", pack( "<L", 0xEA320EFE ) ) # kernel32.dll!SetUnhandledExceptionFilter
@@ -97,3 +99,4 @@ def main( argv=None ):
 if __name__ == "__main__":
   main()
 #=============================================================================#
+
