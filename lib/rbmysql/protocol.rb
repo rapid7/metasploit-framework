@@ -506,7 +506,7 @@ class RbMysql
       # If values is [1, nil, 2, 3, nil] then returns "\x12"(0b10010).
       def null_bitmap(values)
         bitmap = values.enum_for(:each_slice,8).map do |vals|
-          vals.reverse.inject(0){|b, v|(b<<1 | (v ? 0 : 1))}
+          vals.reverse.inject(0){|b, v|(b << 1 | (v ? 0 : 1))}
         end
         return bitmap.pack("C*")
       end
