@@ -43,10 +43,10 @@ class RbMysql
         return lcb.slice!(0,2).unpack("v").first
       when ?\xfd
         c, v = lcb.slice!(0,3).unpack("Cv")
-        return (v<<8)+c
+        return (v << 8)+c
       when ?\xfe
         v1, v2 = lcb.slice!(0,8).unpack("VV")
-        return (v2<<32)+v1
+        return (v2 << 32)+v1
       else
         return v.ord
       end
@@ -88,7 +88,7 @@ class RbMysql
         return unsigned ? v : v < 2**32/2 ? v : v-2**32
       when Field::TYPE_LONGLONG
         n1, n2 = data.slice!(0,8).unpack("VV")
-        v = (n2<<32) | n1
+        v = (n2 << 32) | n1
         return unsigned ? v : v < 2**64/2 ? v : v-2**64
       when Field::TYPE_FLOAT
         return data.slice!(0,4).unpack("e").first
@@ -190,8 +190,12 @@ class RbMysql
             socket ||= ENV["MYSQL_UNIX_PORT"] || MYSQL_UNIX_PORT
             @sock = UNIXSocket.new socket
           else
-            port ||= ENV["MYSQL_TCP_PORT"] || (Socket.getservbyname("mysql","tcp") rescue MYSQL_TCP_PORT)
-            @sock = TCPSocket.new host, port
+            if !socket
+              port ||= ENV["MYSQL_TCP_PORT"] || (Socket.getservbyname("mysql","tcp") rescue MYSQL_TCP_PORT)
+              @sock = TCPSocket.new host, port
+            else
+              @sock = socket
+            end
           end
         end
       rescue Timeout::Error
