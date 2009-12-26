@@ -135,7 +135,44 @@ class Metasploit3 < Msf::Auxiliary
 				inf = ver if ver
 			when 137
 				app = 'NetBIOS'
-				inf = pkt[0].unpack('H*')[0]
+
+				data = pkt[0]
+
+				head = data.slice!(0,12)
+
+				xid, flags, quests, answers, auths, adds = head.unpack('n6')
+				return if quests != 0
+				return if answers == 0
+
+				qname = data.slice!(0,34)
+				rtype,rclass,rttl,rlen = data.slice!(0,10).unpack('nnNn')
+				buff = data.slice!(0,rlen)
+
+				names = []
+
+				case rtype
+				when 0x21
+					rcnt = buff.slice!(0,1).unpack("C")[0]
+					1.upto(rcnt) do
+						tname = buff.slice!(0,15).gsub(/\x00.*/, '').strip
+						ttype = buff.slice!(0,1).unpack("C")[0]
+						tflag = buff.slice!(0,2).unpack('n')[0]
+						names << [ tname, ttype, tflag ]
+					end
+					maddr = buff.slice!(0,6).unpack("C*").map{|c| "%.2x" % c }.join(":")
+
+					names.each do |name|
+						inf << name[0]
+						inf << ":<%.2x>" % name[1]
+						if (name[2] & 0x8000 == 0)
+							inf << ":U :"
+						else
+							inf << ":G :"
+						end
+					end
+					inf << maddr
+				end
+
 			when 111
 				app = 'Portmap'
 				inf = pkt[0].unpack('H*')[0]
