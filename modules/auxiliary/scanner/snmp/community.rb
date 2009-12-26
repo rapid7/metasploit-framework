@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	
+
 	def initialize
 		super(
 			'Name'        => 'SNMP Community Scanner',
@@ -30,12 +30,12 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 		[
 			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
-			OptPath.new('COMMUNITIES',   [ false, "The list of communities that should be attempted per host", 
+			OptPath.new('COMMUNITIES',   [ false, "The list of communities that should be attempted per host",
 					File.join(Msf::Config.install_root, "data", "wordlists", "snmp.txt")
 				]
 			),
 			Opt::RPORT(161),
-		], self.class)		
+		], self.class)
 	end
 
 
@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_batch_size
 		datastore['BATCHSIZE'].to_i
 	end
-	
+
 	def configure_wordlist
 		@comms = []
 		File.open(datastore['COMMUNITIES'], "r") do |fd|
@@ -56,37 +56,37 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 	end
-	
+
 	# Operate on an entire batch of hosts at once
 	def run_batch(batch)
-	
+
 		@found = {}
 		configure_wordlist if not @comms
 
-		begin		
+		begin
 			udp_sock = nil
 			idx = 0
-			
+
 			# Create an unbound UDP socket
 			udp_sock = Rex::Socket::Udp.create()
 
-			print_status(">> progress (#{batch[0]}-#{batch[-1]}) #{idx}/#{@comms.length * batch.length}...")	
+			print_status(">> progress (#{batch[0]}-#{batch[-1]}) #{idx}/#{@comms.length * batch.length}...")
 			@comms.each do |comm|
 
 				data1 = create_probe_snmp1(comm)
 				data2 = create_probe_snmp2(comm)
-				
+
 				batch.each do |ip|
 
 					begin
 						udp_sock.sendto(data1, ip, datastore['RPORT'].to_i, 0)
-						udp_sock.sendto(data2, ip, datastore['RPORT'].to_i, 0)						
+						udp_sock.sendto(data2, ip, datastore['RPORT'].to_i, 0)
 					rescue ::Interrupt
 						raise $!
 					rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
 						nil
 					end
-				
+
 					if (idx % 10 == 0)
 						while (r = udp_sock.recvfrom(65535, 0.01) and r[1])
 							parse_reply(r)
@@ -95,14 +95,14 @@ class Metasploit3 < Msf::Auxiliary
 
 					if( (idx+=1) % 1000 == 0)
 						print_status(">> progress (#{batch[0]}-#{batch[-1]}) #{idx}/#{@comms.length * batch.length}...")
-					end					
+					end
 				end
 			end
 
 			while (r = udp_sock.recvfrom(65535, 3) and r[1])
 				parse_reply(r)
 			end
-			
+
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 	def parse_reply(pkt)
 
 		return if not pkt[1]
-		
+
 		if(pkt[1] =~ /^::ffff:/)
 			pkt[1] = pkt[1].sub(/^::ffff:/, '')
 		end
@@ -136,8 +136,8 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("#{pkt[1]} '#{com}' '#{inf}'")
 				@found[pkt[1]][com] = inf
 			end
-			
-			
+
+
 
 			report_auth_info(
 				:host   => pkt[1],
@@ -147,14 +147,14 @@ class Metasploit3 < Msf::Auxiliary
 				:targ_host => pkt[1],
 				:targ_port => pkt[2]
 			)
-			
+
 			report_service(
 				:host   => pkt[1],
 				:port   => pkt[2],
 				:proto  => 'udp',
-				:name   => 'snmp'							
+				:name   => 'snmp'
 			)
-			
+
 			report_note(
 				:host   => pkt[1],
 				:proto  => 'snmp',
@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def create_probe_snmp1(name)
 		xid = rand(0x100000000)
-		pdu =	
+		pdu =
 			"\x02\x01\x00" +
 			"\x04" + [name.length].pack('c') + name +
 			"\xa0\x1c" +
@@ -180,11 +180,11 @@ class Metasploit3 < Msf::Auxiliary
 		head = "\x30" + [pdu.length].pack('C')
 		data = head + pdu
 		data
-	end	
-	
+	end
+
 	def create_probe_snmp2(name)
 		xid = rand(0x100000000)
-		pdu =	
+		pdu =
 			"\x02\x01\x01" +
 			"\x04" + [name.length].pack('c') + name +
 			"\xa1\x19" +
@@ -197,8 +197,8 @@ class Metasploit3 < Msf::Auxiliary
 		data = head + pdu
 		data
 	end
-	
-		
+
+
 	#
 	# Parse a asn1 buffer into a hash tree
 	#
@@ -233,7 +233,7 @@ class Metasploit3 < Msf::Auxiliary
 						x += 1
 				end
 				data = data[i + l, data.length - l]
-			end		
+			end
 		end
 
 		def access(desc)
@@ -254,7 +254,7 @@ class Metasploit3 < Msf::Auxiliary
 							next
 						else
 							return nil
-						end		
+						end
 					when 'type'
 						return (node and node[0]) ? node[0] : nil
 					when 'value'
@@ -270,3 +270,4 @@ class Metasploit3 < Msf::Auxiliary
 
 
 end
+

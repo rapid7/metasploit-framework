@@ -246,7 +246,7 @@ class DBManager
 	#
 	def services(only_up = false, proto = nil, addresses = nil, ports = nil, names = nil)
 		conditions = {}
-		conditions[:state] = [Msf::ServiceState::Up, Msf::ServiceState::Unknown] if only_up
+		conditions[:state] = ['open'] if only_up
 		conditions[:proto] = proto if proto
 		conditions["hosts.address"] = addresses if addresses
 		conditions[:port] = ports if ports

@@ -98,7 +98,8 @@ module Auxiliary::Report
 		port  = opts[:port]  || return
 		proto = opts[:proto] || 'tcp'
 		name  = opts[:name]
-		state = opts[:state] || Msf::ServiceState::Up
+		state = opts[:state] || 'open'
+		info  = opts[:info]
 
 		framework.db.report_host_state(self, addr, Msf::HostState::Alive)
 
@@ -109,10 +110,20 @@ module Auxiliary::Report
 			port,
 			state
 		)
+		changed = false
+
 		if (name and name.length > 1)
-			serv.name = name
-			serv.save!
+			serv.name = name.downcase
+			changed = true
 		end
+
+		if (info and info.length > 1)
+			serv.info = info
+			changed = true
+		end
+
+		serv.save! if changed
+
 		serv
 	end
 

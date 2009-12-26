@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	
+
 	def initialize
 		super(
 			'Name'        => 'UDP Service Sweeper',
@@ -34,14 +34,15 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Intialize the probes array
 		@probes = []
-		
+
 		# Add the UDP probe method names
 		@probes << 'probe_pkt_dns'
 		@probes << 'probe_pkt_netbios'
 		@probes << 'probe_pkt_portmap'
 		@probes << 'probe_pkt_mssql'
-		@probes << 'probe_pkt_ntp'		
-		@probes << 'probe_pkt_snmp'		
+		@probes << 'probe_pkt_ntp'
+		@probes << 'probe_pkt_snmp1'
+		@probes << 'probe_pkt_snmp2'
 		@probes << 'probe_pkt_sentinel'
 
 	end
@@ -51,19 +52,19 @@ class Metasploit3 < Msf::Auxiliary
 	def run_batch_size
 		datastore['BATCHSIZE'].to_i
 	end
-	
+
 	# Fingerprint a single host
 	def run_batch(batch)
-	
+
 		print_status("Sending #{@probes.length} probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
 
-		begin		
+		begin
 			udp_sock = nil
 			idx = 0
-			
+
 			# Create an unbound UDP socket
 			udp_sock = Rex::Socket::Udp.create()
-	
+
 			# Send each probe to each host
 			@probes.each do |probe|
 			batch.each   do |ip|
@@ -75,13 +76,13 @@ class Metasploit3 < Msf::Auxiliary
 				rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
 					nil
 				end
-				
+
 				if (idx % 30 == 0)
 					while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
 						parse_reply(r)
 					end
 				end
-				
+
 				idx += 1
 			end
 			end
@@ -89,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 			while (r = udp_sock.recvfrom(65535, 3) and r[1])
 				parse_reply(r)
 			end
-			
+
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
@@ -104,33 +105,35 @@ class Metasploit3 < Msf::Auxiliary
 	def parse_reply(pkt)
 
 		@results ||= {}
-		
+
 		# Ignore "empty" packets
 		return if not pkt[1]
 
 		if(pkt[1] =~ /^::ffff:/)
 			pkt[1] = pkt[1].sub(/^::ffff:/, '')
 		end
-				
+
 		# Ignore duplicates
 		hkey = "#{pkt[1]}:#{pkt[2]}"
 		return if @results[hkey]
-		
+
 		app = 'unknown'
 		inf = ''
-		
+		maddr = nil
+		hname = nil
+
 		case pkt[2]
 			when 53
 				app = 'DNS'
 				ver = nil
-				
+
 				if (not ver and pkt[0] =~ /([6789]\.[\w\.\-_\:\(\)\[\]\/\=\+\|\{\}]+)/i)
 					ver = 'BIND ' + $1
 				end
 
 				ver = 'Microsoft' if (not ver and pkt[0][2,4] == "\x81\x04\x00\x01")
 				ver = 'TinyDNS'   if (not ver and pkt[0][2,4] == "\x81\x81\x00\x01")
-				
+
 				ver = pkt[0].unpack('H*')[0] if not ver
 				inf = ver if ver
 			when 137
@@ -171,6 +174,10 @@ class Metasploit3 < Msf::Auxiliary
 						end
 					end
 					inf << maddr
+
+					if(names.length > 0)
+						hname = names[0][0]
+					end
 				end
 
 			when 111
@@ -186,11 +193,11 @@ class Metasploit3 < Msf::Auxiliary
 				ver = 'Microsoft NTP'           if (ver =~ /^dc00|^dc0f/)
 				inf = ver if ver
 			when 1434
-				app = 'SQL Server'
+				app = 'MSSQL'
 				mssql_ping_parse(pkt[0]).each_pair { |k,v|
 					inf += k+'='+v+' '
 				}
-				
+
 			when 161
 				app = 'SNMP'
 				begin
@@ -205,9 +212,30 @@ class Metasploit3 < Msf::Auxiliary
 			when 5093
 				app = 'Sentinel'
 		end
-		
+
+		s = report_service(
+			:host  => pkt[1],
+			:port  => pkt[2],
+			:proto => 'udp',
+			:name  => app,
+			:info  => inf
+		)
+
+		changed = false
+		if (s and maddr and maddr != '00:00:00:00:00:00')
+			s.host.mac = maddr
+			changed = true
+		end
+
+		if (s and hname)
+			s.host.name = hname.downcase
+			changed = true
+		end
+
+		s.host.save! if changed
+
 		print_status("Discovered #{app} on #{pkt[1]} (#{inf})")
-		
+
 	end
 
 	#
@@ -244,7 +272,7 @@ class Metasploit3 < Msf::Auxiliary
 						x += 1
 				end
 				data = data[i + l, data.length - l]
-			end		
+			end
 		end
 
 		def access(desc)
@@ -265,7 +293,7 @@ class Metasploit3 < Msf::Auxiliary
 							next
 						else
 							return nil
-						end		
+						end
 					when 'type'
 						return (node and node[0]) ? node[0] : nil
 					when 'value'
@@ -286,7 +314,7 @@ class Metasploit3 < Msf::Auxiliary
 		var = nil
 		idx = data.index('ServerName')
 		return res if not idx
-		
+
 		data[idx, data.length-idx].split(';').each do |d|
 			if (not var)
 				var = d
@@ -297,37 +325,37 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 		end
-		
+
 		return res
 	end
-	
+
 	#
 	# The probe definitions
 	#
 
-	def probe_pkt_dns(ip)	
+	def probe_pkt_dns(ip)
 		data = [rand(0xffff)].pack('n') +
 		"\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00"+
 		"\x07"+ "VERSION"+
 		"\x04"+ "BIND"+
 		"\x00\x00\x10\x00\x03"
-		
+
 		return [data, 53]
 	end
-	
+
 	def probe_pkt_netbios(ip)
-		data = 
+		data =
 		[rand(0xffff)].pack('n')+
 		"\x00\x00\x00\x01\x00\x00\x00\x00"+
 		"\x00\x00\x20\x43\x4b\x41\x41\x41"+
 		"\x41\x41\x41\x41\x41\x41\x41\x41"+
 		"\x41\x41\x41\x41\x41\x41\x41\x41"+
 		"\x41\x41\x41\x41\x41\x41\x41\x41"+
-		"\x41\x41\x41\x00\x00\x21\x00\x01"	
+		"\x41\x41\x41\x00\x00\x21\x00\x01"
 
 		return [data, 137]
 	end
-	
+
 	def probe_pkt_portmap(ip)
 		data =
 		[
@@ -340,16 +368,16 @@ class Metasploit3 < Msf::Auxiliary
 			0, 0,   # Credentials
 			0, 0,   # Verifier
 		].pack('N*')
-		
+
 		return [data, 111]
 	end
-	
+
 	def probe_pkt_mssql(ip)
 		return ["\x02", 1434]
 	end
 
 	def probe_pkt_ntp(ip)
-		data = 
+		data =
 			"\xe3\x00\x04\xfa\x00\x01\x00\x00\x00\x01\x00\x00\x00" +
 			"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
 			"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
@@ -357,21 +385,43 @@ class Metasploit3 < Msf::Auxiliary
 		return [data, 123]
 	end
 
-	def probe_pkt_snmp(ip)
-		data =  
-			"\x30\x26" +
+
+	def probe_pkt_sentinel(ip)
+		return ["\x7a\x00\x00\x00\x00\x00", 5093]
+	end
+
+	def probe_pkt_snmp1(ip)
+		name = 'public'
+		xid = rand(0x100000000)
+		pdu =
+			"\x02\x01\x00" +
+			"\x04" + [name.length].pack('c') + name +
+			"\xa0\x1c" +
+			"\x02\x04" + [xid].pack('N') +
+			"\x02\x01\x00" +
+			"\x02\x01\x00" +
+			"\x30\x0e\x30\x0c\x06\x08\x2b\x06\x01\x02\x01" +
+			"\x01\x01\x00\x05\x00"
+		head = "\x30" + [pdu.length].pack('C')
+		data = head + pdu
+		[data, 161]
+	end
+
+	def probe_pkt_snmp2(ip)
+		name = 'public'
+		xid = rand(0x100000000)
+		pdu =
 			"\x02\x01\x01" +
-			"\x04\x06" + "public" +
+			"\x04" + [name.length].pack('c') + name +
 			"\xa1\x19" +
-			"\x02\x04" + [rand(0xffffffff)].pack('N') +
+			"\x02\x04" + [xid].pack('N') +
 			"\x02\x01\x00" +
 			"\x02\x01\x00" +
 			"\x30\x0b\x30\x09\x06\x05\x2b\x06\x01\x02\x01" +
 			"\x05\x00"
-		return [data, 161]
-	end
-	
-	def probe_pkt_sentinel(ip)
-		return ["\x7a\x00\x00\x00\x00\x00", 5093]
+		head = "\x30" + [pdu.length].pack('C')
+		data = head + pdu
+		[data, 161]
 	end
 end
+
