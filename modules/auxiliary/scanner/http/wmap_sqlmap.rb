@@ -9,7 +9,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'			=> 'SQLMAP SQL Injection External Module',
 			'Description'	=> %q{
 				This module launch a sqlmap session.
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 				statement, read specific files on the file system and much
 				more.
 			},
-			'Author'		=> [ 'bernardo.damele [at] gmail.com', 'daniele.bellucci [at] gmail.com' ],
+			'Author'	    => [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
 			'License'		=> BSD_LICENSE,
 			'Version'		=> '$Revision$',
 			'References'	=>
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 					['URL', 'http://sqlmap.sourceforge.net'],
 				]
 			))
-		
+
 		register_options(
 			[
 				OptString.new('METHOD', [ true,  "HTTP Method", 'GET' ]),
@@ -41,11 +41,11 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('QUERY', [ false, "HTTP GET query", 'id=1' ]),
 				OptString.new('DATA', [ false, "The data string to be sent through POST", '' ]),
 				OptString.new('OPTS', [ false,  "The sqlmap options to use", ' ' ]),
-				OptPath.new('SQLMAP_PATH', [ true,  "The sqlmap >= 0.6.1 full path ", '/sqlmap/sqlmap.py' ]), 
+				OptPath.new('SQLMAP_PATH', [ true,  "The sqlmap >= 0.6.1 full path ", '/sqlmap/sqlmap.py' ]),
 				OptBool.new('BATCH', [ true,  "Never ask for user input, use the default behaviour", true ])
 			], self.class)
 	end
-	
+
 	# Modify to true if you have sqlmap installed.
 	def wmap_enabled
 		false
@@ -53,9 +53,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Test a single host
 	def run_host(ip)
-			
-		sqlmap = datastore['SQLMAP_PATH'] 
-			
+
+		sqlmap = datastore['SQLMAP_PATH']
+
 		if not sqlmap
 			print_error("The sqlmap script could not be found")
 			return
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		sqlmap_url  = (datastore['SSL'] ? "https" : "http")
 		sqlmap_url += "://" + wmap_target_host + ":" + wmap_target_port
-		sqlmap_url += "/" + datastore['PATH'] 
+		sqlmap_url += "/" + datastore['PATH']
 
 		if method == "GET"
 			sqlmap_url += '?' + datastore['QUERY']
@@ -93,3 +93,4 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
+
