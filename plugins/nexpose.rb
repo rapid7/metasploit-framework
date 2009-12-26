@@ -359,7 +359,7 @@ class Plugin::Nexpose < Msf::Plugin
 
 			if(opt_autopwn)
 				print_status("Launching an automated exploitation session")
-				driver.run_single("db_autopwn -q -r -e -t #{opt_autopwn} -R #{minrank} -I #{opt_scanned.join(",")}")
+				driver.run_single("db_autopwn -q -r -e -t #{opt_autopwn} -R #{opt_minrank} -I #{opt_scanned.join(",")}")
 			end
 		end
 
