@@ -36,6 +36,12 @@ class TaskManager
 			etime.to_f - self.created.to_f
 		end
 
+		def wait
+			while self.status == :new
+				select(nil,nil,nil,0.10)
+			end
+		end
+
 		#
 		# Run the associated proc
 		#
@@ -63,7 +69,9 @@ class TaskManager
 	# Add a new task via proc
 	#
 	def queue_proc(proc)
-		queue_task(Task.new(proc))
+		task = Task.new(proc)
+		queue_task(task)
+		return task
 	end
 
 	#
