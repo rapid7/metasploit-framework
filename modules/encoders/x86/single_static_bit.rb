@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Encoder
 			'Author'           => 'jduck',
 			'Arch'             => ARCH_X86,
 			'License'          => MSF_LICENSE,
-			'EncoderType'      => Msf::Encoder::Type::SingleStaticBit,
+			'EncoderType'      => Msf::Encoder::Type::SingleStaticBit
 			)
 		
 		# this shouldn't be present in the decoder stub.
