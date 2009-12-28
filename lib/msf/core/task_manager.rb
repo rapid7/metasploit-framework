@@ -16,7 +16,6 @@ class TaskManager
 		attr_accessor :proc
 		attr_accessor :source
 		attr_accessor :exception
-		attr_accessor :retval
 
 		#
 		# Create a new task
@@ -41,7 +40,7 @@ class TaskManager
 		# Run the associated proc
 		#
 		def run(*args)
-			self.retval = self.proc.call(*args) if self.proc
+			self.proc.call(*args) if self.proc
 		end
 
 	end
@@ -158,6 +157,8 @@ class TaskManager
 			else
 				task.run(self, task)
 			end
+		rescue ::ThreadError
+			# Ignore these (caused by a return inside of the proc)
 		rescue ::Exception => e
 
 			if(e.class == ::Timeout::Error)

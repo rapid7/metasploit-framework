@@ -86,5 +86,17 @@ describe Msf::TaskManager do
 		t.status.should == :dropped
 		t.exception.class.should == ::NoMethodError
 	end
+
+	it "should handle a bad proc return" do
+		tm = Msf::TaskManager.new($msf)
+		t  = Msf::TaskManager::Task.new(Proc.new { return 12345 })
+
+		tm.start
+		tm.queue_task(t)
+		sleep(0.5)
+
+		t.status.should == :done
+		t.exception.should == nil
+	end
 end
 
