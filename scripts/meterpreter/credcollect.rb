@@ -51,7 +51,7 @@ raise Rex::Script::Completed if not tokens
 tokens = tokens.values
 
 # Meh, tokens come to us as a formatted string
-tokens = tokens.to_s.strip!.split("\n")
+tokens = tokens.to_s.strip.split("\n")
 
 tokens.each do |token|
 	type = "auth_TOKEN"
