@@ -39,15 +39,13 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_raw({
 				'uri'          => '/',
-				'method'       => 'GET',
-				'agent'        => 'Metasploit',
-				'connection'   => 'close'
+				'method'       => 'GET'
 			}, 10)
 
 			if (res and res.headers['Server'])
 				extra = http_fingerprint(res)
 				print_status("#{ip} is running #{res.headers['Server']}#{extra}")
-				report_service(:host => ip, :port => rport, :name => (ssl ? 'https' : 'http'), :info => "#{res.headers['Server']}#{extra}")
+				report_service(:host => ip, :port => rport, :name => 'http', :info => "#{res.headers['Server']}#{extra}")
 			end
 
 		rescue ::Timeout::Error, ::Errno::EPIPE
