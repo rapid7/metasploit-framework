@@ -1,4 +1,4 @@
-# $Id: igmpv1.rb 14 2008-03-02 05:42:30Z warchild $
+# $Id: lv.rb 14 2008-03-02 05:42:30Z warchild $
 #
 # Copyright (c) 2008, Jon Hart 
 # All rights reserved.
@@ -26,52 +26,81 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 module Racket
-module L4
-# Internet Group Management Protocol, Version 1
-#
-# RFC1112 (http://www.faqs.org/rfcs/rfc1112.html)
-# 
-class IGMPv1 < RacketPart
-  # Version (defaults to 1)
-  unsigned :version, 4, { :default => 1 }
-  # Type
-  unsigned :type, 4
-  # Unused
-  unsigned :unused, 8
-  # Checksum
-  unsigned :checksum, 16
-  # Group Address
-  octets :gaddr, 32
-  # Payload
-  rest :payload
+module Misc
+# Simple class to represent data structures that
+# consist of an arbitrary number of length value pairs.
+class LV
+  # An array containing the values parsed from this LV
+  attr_accessor :values
+  # The lengths of the values parsed from this LV
+  attr_accessor :lengths
+  # everything else
+  attr_accessor :rest
 
-  # Check the checksum for this IGMP message
-  def checksum?
-    self.checksum == 0 || (self.checksum == compute_checksum)
+  # Create a new LV object whose L sizes are specified in +args+
+  def initialize(*args)
+    @sizes = args
+    @values = []
+    @lengths = []
+  end 
+
+
+  def decode(data)
+    n = 0
+    values = []
+    lengths = []
+    @sizes.each do |s|
+      # XXX: raise an error here if there is not enough data to
+      # unpack this next LV
+      lengths[n] = data.unpack("#{punpack_string(s)}")[0]
+      data = data.slice(s, data.length)
+      values[n] = data.unpack("a#{lengths[n]}")[0]
+      data = data.slice(lengths[n], data.length)
+      n += 1
+    end
+
+    # data now contains "rest"
+    [lengths, values, data]
   end
   
-  # Compute and set the checkum for this IGMP message
-  def checksum!
-    self.checksum = compute_checksum
+  def decode!(data)
+    @lengths, @values, @rest = self.decode(data)
   end
 
-  # Do whatever 'fixing' is neccessary in preparation
-  # for being sent
-  def fix!
-    self.checksum!
+  def encode
+    n = 0
+    s = ""
+    @lengths.each do |l|
+      s << [l].pack("#{punpack_string(@sizes[n])}")
+      s << [@values[n]].pack("a#{l}")
+      n += 1
+    end
+    s
+  end
+
+  def to_s
+    encode
+  end
+
+  def to_str
+    encode
   end
 
 private
-  def compute_checksum
-    # The checksum is the 16-bit one's complement of the one's complement sum
-    # of the 8-octet IGMP message.  For computing the checksum, the checksum
-    # field is zeroed.
-    tmp = []
-    tmp << ((((self.version << 4) | self.type) << 8) | self.unused)
-    tmp << 0
-    tmp << L3::Misc.ipv42long(self.gaddr)
-    tmp << self.payload
-    L3::Misc.checksum(tmp.pack("nnNa*"))
+
+  def punpack_string(size)
+    s = ""
+    case size
+        when 1
+          s << "C"
+        when 2
+          s << "n"
+        when 4
+          s << "N"
+        else
+          raise ArgumentError, "Size #{s} not supported"
+      end
+    s
   end
 end
 end

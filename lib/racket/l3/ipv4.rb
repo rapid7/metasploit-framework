@@ -25,10 +25,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+module Racket
+module L3
 # Internet Protcol Version 4 (IPV4)
 #
 # RFC791 (http://www.ietf.org/rfc/rfc791.txt)
-module Racket
 class IPv4 < RacketPart
   # Version (defaults to 4)
   unsigned :version, 4, { :default => 4 }
@@ -49,10 +50,12 @@ class IPv4 < RacketPart
   # Protocol
   unsigned :protocol, 8
   # Checksum
-  unsigned :csum, 16, "Checksum"
-  # Source IP address
+  unsigned :checksum, 16, "Checksum"
+  # Source IP address, passed as four octets separated by periods
+  # (192.168.1.2)
   octets :src_ip, 32
-  # Destination IP address
+  # Destination IP address, passed as four octets separated by periods
+  # (192.168.1.2)
   octets :dst_ip, 32
   # Payload
   rest :payload
@@ -66,7 +69,7 @@ class IPv4 < RacketPart
   # All rejiggering will happen when the call to fix! 
   # happens automagically
   def add_option(number, value)
-    t = TLV.new(1,1)
+    t = Misc::TLV.new(1,1)
     t.type = number
     t.value = value
     t.length = value.length + 2
@@ -75,12 +78,12 @@ class IPv4 < RacketPart
 
   # Check the checksum for this IP datagram
   def checksum?
-    self.csum == compute_checksum
+    self.checksum == compute_checksum
   end
 
   # Compute and set the checksum for this IP datagram
   def checksum!
-    self.csum = compute_checksum
+    self.checksum = compute_checksum
   end
 
   # Perform all the niceties necessary prior to sending
@@ -123,6 +126,7 @@ private
     pseudo << L3::Misc.ipv42long(self.dst_ip)
     L3::Misc.checksum(pseudo.pack("nnnnnnNN"))
   end
+end
 end
 end
 # vim: set ts=2 et sw=2:

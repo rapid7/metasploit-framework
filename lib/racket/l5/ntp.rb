@@ -26,6 +26,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 module Racket
+module L5
+# Network time protocol
 class NTP < RacketPart
   # Leap Indicator
   unsigned :leap, 2
@@ -50,6 +52,7 @@ class NTP < RacketPart
   # Transmit Timestamp
   unsigned :tr_ts, 64
   rest :payload
+end
 end
 end
 # vim: set ts=2 et sw=2:

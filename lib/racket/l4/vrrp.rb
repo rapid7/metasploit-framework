@@ -1,4 +1,4 @@
-# $Id: igmpv1.rb 14 2008-03-02 05:42:30Z warchild $
+# $Id: vrrp.rb 127 2009-11-29 01:30:46Z jhart $
 #
 # Copyright (c) 2008, Jon Hart 
 # All rights reserved.
@@ -27,51 +27,67 @@
 #
 module Racket
 module L4
-# Internet Group Management Protocol, Version 1
-#
-# RFC1112 (http://www.faqs.org/rfcs/rfc1112.html)
-# 
-class IGMPv1 < RacketPart
-  # Version (defaults to 1)
-  unsigned :version, 4, { :default => 1 }
-  # Type
-  unsigned :type, 4
-  # Unused
-  unsigned :unused, 8
+# Virtual Router Redundancy Protocol (VRRP)
+# http://tools.ietf.org/html/rfc2338
+# http://tools.ietf.org/html/rfc3768
+class VRRP < RacketPart
+  # Version
+  unsigned :version, 4
+  # VRRP packet type 
+  unsigned :type, 4 
+  # Virtual Router Identifier (VRID)
+  unsigned :id, 8
+  # the sending VRRP router's priority for the virtual router.
+  # Higher values equal higher priority.
+  unsigned :priority, 8
+  # Total number of IPs contained in this VRRP message
+  unsigned :num_ips, 8
+  # Authentication type (0, 1, 2)
+  unsigned :auth_type, 8
+  # Advertisement interval
+  unsigned :interval, 8
   # Checksum
   unsigned :checksum, 16
-  # Group Address
-  octets :gaddr, 32
-  # Payload
   rest :payload
 
-  # Check the checksum for this IGMP message
-  def checksum?
-    self.checksum == 0 || (self.checksum == compute_checksum)
+  # Add a new IP to this message
+  def add_ip(ip)
+    @ips << L3::Misc.ipv42long(ip)
   end
-  
-  # Compute and set the checkum for this IGMP message
+
+  # Add authentication data
+  def add_auth(authdata)
+    @authdata = authdata[0,8].ljust(32, "\x00")
+  end
+
+  # Validate the checksum
+  def checksum?
+    self.checksum == compute_checksum
+  end
+
+  # compute and set the checksum
   def checksum!
     self.checksum = compute_checksum
   end
 
-  # Do whatever 'fixing' is neccessary in preparation
-  # for being sent
+  # (really, just set the checksum)
   def fix!
+    self.payload = [@ips, @authdata].flatten.pack("N#{@ips.size}a*")
+    self.num_ips = @ips.size
     self.checksum!
+  end
+
+  def initialize(*args)
+    @ips = []
+    @authdata = ""
+    super
   end
 
 private
   def compute_checksum
-    # The checksum is the 16-bit one's complement of the one's complement sum
-    # of the 8-octet IGMP message.  For computing the checksum, the checksum
-    # field is zeroed.
-    tmp = []
-    tmp << ((((self.version << 4) | self.type) << 8) | self.unused)
-    tmp << 0
-    tmp << L3::Misc.ipv42long(self.gaddr)
-    tmp << self.payload
-    L3::Misc.checksum(tmp.pack("nnNa*"))
+    # pseudo header used for checksum calculation as per RFC 768 
+    pseudo = [ ((self.version << 4) | self.type), self.id, self.priority, self.num_ips, self.auth_type, self.interval, 0, self.payload ] 
+    L3::Misc.checksum(pseudo.pack("CCCCCCna*"))
   end
 end
 end

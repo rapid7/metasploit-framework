@@ -25,10 +25,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+module Racket
+module L5
 # Bootstrap Protocol -- BOOTP
 #
 # RFC951 (http://www.faqs.org/rfcs/rfc951.html)
-module Racket
 class BOOTP < RacketPart
   BOOTP_REQUEST = 1
   BOOTP_REPLY = 2
@@ -65,7 +66,7 @@ class BOOTP < RacketPart
   rest :payload
 
   def add_option(number, value)
-    o = TLV.new(1,1)
+    o = Misc::TLV.new(1,1)
     o.type = number
     o.value = value
     o.length = value.length
@@ -99,6 +100,7 @@ class BOOTP < RacketPart
     @autofix = false
   end
 
+end
 end
 end
 # vim: set ts=2 et sw=2:

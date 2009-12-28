@@ -24,11 +24,7 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-require 'racket/l3/ipv4'
-require 'racket/l3/ipv6'
-require 'racket/l3/arp'
-require 'racket/l3/stp'
-require 'racket/l3/cdp'
-require 'racket/l3/misc'
+
+Dir.glob(File.join(File.dirname(__FILE__), 'l3/*.rb')).each { |f| require f }
+
 # vim: set ts=2 et sw=2:

@@ -25,10 +25,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+module Racket
+module L4
 # Transmission Control Protocol: TCP
 #
 # RFC793 (http://www.faqs.org/rfcs/rfc793.html)
-module Racket
 class TCP < RacketPart
   # Source port
   unsigned :src_port, 16
@@ -61,7 +62,7 @@ class TCP < RacketPart
   # Window size
   unsigned :window, 16
   # Checksum
-  unsigned :csum, 16
+  unsigned :checksum, 16
   # Urgent pointer
   unsigned :urg, 16
   # Payload
@@ -71,7 +72,7 @@ class TCP < RacketPart
   # All rejiggering will happen when the call to fix! 
   # happens automagically. 
   def add_option(number, value)
-    t = TLV.new(1,1)
+    t = Racket::Misc::TLV.new(1,1)
     t.type = number
     t.value = value
     t.length = value.length + 2
@@ -80,12 +81,12 @@ class TCP < RacketPart
 
   # Check the checksum for this TCP packet 
   def checksum?(ip_src, ip_dst)
-    self.csum == compute_checksum(ip_src, ip_dst)
+    self.checksum == compute_checksum(ip_src, ip_dst)
   end
 
   # Compute and set the checksum for this TCP packet
   def checksum!(ip_src, ip_dst)
-    self.csum = compute_checksum(ip_src, ip_dst)
+    self.checksum = compute_checksum(ip_src, ip_dst)
   end
 
   # Fix this packet up for proper sending.  Sets the length
@@ -104,10 +105,7 @@ class TCP < RacketPart
     self.payload = newpayload + self.payload + next_payload
     self.offset = self.class.bit_length/32 + newpayload.length/4
     self.checksum!(ip_src, ip_dst)
-  end
-  
-  def payload_data
-    self.payload[(self.offset * 4)-20, self.payload.length-((self.offset * 4)-20)] || ''  
+    self.payload = newpayload
   end
 
   def initialize(*args)
@@ -137,6 +135,7 @@ private
               self.window, 0, self.urg, self.payload]
     L3::Misc.checksum((pseudo << header).flatten.pack("NNnnnnNNnnnna*"))
   end
+end
 end
 end
 # vim: set ts=2 et sw=2:

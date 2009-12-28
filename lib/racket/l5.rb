@@ -24,11 +24,7 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-require 'racket/l5/bootp'
-require 'racket/l5/ntp'
-require 'racket/l5/dns'
-require 'racket/l5/hsrp'
-require 'racket/l5/raw'
+
+Dir.glob(File.join(File.dirname(__FILE__), 'l5/*.rb')).each { |f| require f }
 
 # vim: set ts=2 et sw=2:

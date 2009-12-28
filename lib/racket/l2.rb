@@ -24,10 +24,7 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-require 'racket/l2/ethernet'
-require 'racket/l2/llc'
-require 'racket/l2/snap'
-require 'racket/l2/vlan'
-require 'racket/l2/eightotwodotthree'
+
+Dir.glob(File.join(File.dirname(__FILE__), 'l2/*.rb')).each { |f| require f }
+
 # vim: set ts=2 et sw=2:

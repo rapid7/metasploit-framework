@@ -25,6 +25,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+module Racket
+module L4
 # Internet Gateway Routing Protocol: IGRP
 #
 # http://www.cisco.com/warp/public/103/5.html
@@ -37,7 +39,6 @@
 #   uchar reliability;     /* percent packets successfully tx/rx */
 #   uchar load;            /* percent of channel occupied */
 #   uchar hopcount;        /* hop count */
-module Racket
 class IGRP < RacketPart
   IGRP_UPDATE  = 1
   IGRP_REQUEST = 2
@@ -130,6 +131,7 @@ private
     tmp << payload
     L3::Misc.checksum(tmp.pack("Cnnnnnna*"))
   end
+end
 end
 end
 

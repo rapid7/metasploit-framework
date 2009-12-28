@@ -25,8 +25,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-#     XXX: currently broken.  all of the "optional" fields must be made dynamic
 module Racket
+module L4
+#     XXX: currently broken.  all of the "optional" fields must be made dynamic
 class GRE < RacketPart
   # Is a checksum present?
   unsigned :checksum_present, 1
@@ -58,6 +59,7 @@ class GRE < RacketPart
   unsigned :routing, 32
   # Payload
   rest :payload
+end
 end
 end
 # vim: set ts=2 et sw=2:

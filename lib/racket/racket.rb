@@ -27,17 +27,12 @@
 #
 
 require 'socket'
-
 require 'racket/racketpart'
-require 'racket/tlv'
-require 'racket/lv'
-require 'racket/vt'
 require 'racket/misc'
 require 'racket/l2'
 require 'racket/l3'
 require 'racket/l4'
 require 'racket/l5'
-
 
 module Racket
 class Racket
@@ -47,10 +42,11 @@ class Racket
 
   @@loaded_pcaprub = false
   begin
-  	require 'pcaprub'
-  	@@loaded_pcaprub = true
+    require 'pcaprub'
+    @@loaded_pcaprub = true
   rescue ::LoadError
   end
+
 
   def initialize(payload="")
     @layers = []
@@ -102,6 +98,7 @@ class Racket
     payload
   end
 
+  # return a pretty interpretation of this packet
   def pretty
     s = ""
     @layers.compact.each do |l|
@@ -125,10 +122,10 @@ class Racket
   # Write raw layer2 frames
   def send2
     if(not @@loaded_pcaprub)
-      raise RuntimeError, "Could not initialize the pcaprub library"	
-	end
-	
+      raise RuntimeError, "Could not initialize the pcaprub library (You need pcaprub from SVN (http://rubyforge.org/projects/pcaprub/))" 
+    end
     begin
+
       p = Pcap::open_live(@iface, @mtu, false, @timeout)
     rescue Exception => e
       puts "Pcap: can't open device '#{@iface}' (#{e})"
@@ -137,7 +134,7 @@ class Racket
 
     begin
       b = p.inject(pack)
-      p.close
+      #p.pcap_close
       return b
     rescue Exception => e
       puts "Pcap: error while sending packet on '#{@iface}' (#{e})"
@@ -148,16 +145,20 @@ class Racket
   def send3
     begin
       s = Socket.open(Socket::PF_INET, Socket::SOCK_RAW, Socket::IPPROTO_RAW)
-      #s.setsockopt(Socket::SOL_IP, Socket::IP_HDRINCL, true)
+
+      if (Socket.const_defined?('SOL_IP'))
+        s.setsockopt(Socket::SOL_IP, Socket::IP_HDRINCL, true)
+      else
+        # BSD
+        s.setsockopt(Socket::IPPROTO_IP, Socket::IP_HDRINCL, true)
+      end
     rescue Errno::EPERM
-      $stderr.puts "Must run #{$0} as root."
-      exit!
+      raise ArgumentError, "Must run #{$0} as root."
     end
 
     return s.send(pack, 0, Socket.pack_sockaddr_in(1024, @layers[3].dst_ip))
   end
 end
-
 end
 
 # vim: set ts=2 et sw=2:

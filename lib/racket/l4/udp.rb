@@ -25,10 +25,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+module Racket
+module L4
 # User Datagram Protocol: UDP
 #
 # RFC768 (http://www.faqs.org/rfcs/rfc768.html)
-module Racket
 class UDP < RacketPart
   # Source Port
   unsigned :src_port, 16
@@ -37,20 +38,20 @@ class UDP < RacketPart
   # Datagram Length
   unsigned :len, 16
   # Checksum
-  unsigned :csum, 16
+  unsigned :checksum, 16
   # Payload
   rest :payload
   
   # Check the checksum for this UDP datagram
   def checksum?(src_ip, dst_ip)
-    self.csum == 0 || (self.csum == compute_checksum(src_ip, dst_ip))
+    self.checksum == 0 || (self.checksum == compute_checksum(src_ip, dst_ip))
   end
 
   # Compute and set the checksum for this UDP datagram
   def checksum!(src_ip, dst_ip)
     # set the checksum to 0 for usage in the pseudo header...
-    self.csum = 0
-    self.csum = compute_checksum(src_ip, dst_ip)
+    self.checksum = 0
+    self.checksum = compute_checksum(src_ip, dst_ip)
   end
 
   # Fix this packet up for proper sending.  Sets the length
@@ -74,6 +75,7 @@ private
     L3::Misc.checksum((pseudo << header).flatten.pack("NNnnnnnna*"))
   end
 
+end
 end
 end
 # vim: set ts=2 et sw=2:

@@ -25,9 +25,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+require 'rubygems'
 require 'bit-struct'
 
 module Racket
+# Every Racket object is made up of numerous sub-parts, namely layers of the OSI stack.
 class RacketPart < BitStruct
 
   # Boolean indicating whether or not this instance should be
@@ -42,8 +44,9 @@ class RacketPart < BitStruct
 
   def initialize(*args)
     @autofix = true
-    super
+    super(*args)
   end
+
 
   # Print out all of the fields and all of their values
   def pretty

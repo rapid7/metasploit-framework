@@ -25,8 +25,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# Domain Name System
 module Racket
+module L5
+# Domain Name System
 class DNS < RacketPart
   # Transaction ID
   unsigned :tx_id, 16
@@ -91,9 +92,9 @@ class DNS < RacketPart
 
 private
   def add_record(name, type, klass)
-    q = VT.new(2,2)
+    q = Misc::VT.new(2,2)
     name.split(/\./).each do |p|
-      lv = LV.new(1)
+      lv = Misc::LV.new(1)
       lv.values << p
       lv.lengths << p.length
       q.value << lv.encode 
@@ -103,6 +104,7 @@ private
     q
   end
 
+end
 end
 end
 # vim: set ts=2 et sw=2:

@@ -25,54 +25,61 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+module Racket
+module L3
 # CDP -- Cisco Discovery Protocol
 # http://www.cisco.biz/univercd/cc/td/doc/product/lan/trsrb/frames.htm#xtocid12
-module Racket
 class CDP < RacketPart
   # CDP Version (generally 1)
   unsigned :version, 8, { :default => 1 }
   # Time-to-live of the data in this message
   unsigned :ttl, 8
   # Checksum
-  unsigned :csum, 16
+  unsigned :checksum, 16
   # Payload of this CDP message.  Generally untouched.
   rest :payload
   
+
+  def initialize(*args)
+    super(*args)
+  end
+
   # Add a new field to this CDP message.
-  def add_field(type, value)# {{{
-    t = TLV.new(2,2)
+  def add_field(type, value) 
+    t = Racket::Misc::TLV.new(2,2)
     t.type = type
     t.value = value
     t.length = 4 + value.length
     self.payload += t.encode   
-  end# }}}
+  end 
 
   # Check the checksum for this IP datagram
-  def checksum?# {{{
-    self.csum == compute_checksum
-  end# }}}
+  def checksum? 
+    self.checksum == compute_checksum
+  end 
 
   # Compute and set the checksum for this IP datagram
-  def checksum!# {{{
-    self.csum = compute_checksum
-  end# }}}
+  def checksum! 
+    self.checksum = compute_checksum
+  end 
   
   # Fix this CDP message up for sending.
-  def fix!# {{{
+  def fix! 
     self.checksum!
-  end# }}}
+  end 
 
 private
 
   # Compute the checksum for this IP datagram
-  def compute_checksum# {{{
+  def compute_checksum
     pseudo = []
     pseudo << ((self.version << 8) | self.ttl)
     pseudo << 0
     pseudo << self.payload
     L3::Misc.checksum(pseudo.pack("nna*"))
-  end# }}}
+  end 
 
+end
 end
 end
 # vim: set ts=2 et sw=2:

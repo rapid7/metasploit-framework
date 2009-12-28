@@ -25,17 +25,18 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+module Racket
+module L4
 # Internet Group Management Protocol, Version 2: IGMPv2
 #
 # RFC2236 (http://www.faqs.org/rfcs/rfc2236.html)
-module Racket
 class IGMPv2 < RacketPart
   # Type
   unsigned :type, 8
   # Max Response Time
   unsigned :time, 8
   # Checksum
-  unsigned :csum, 16
+  unsigned :checksum, 16
   # Group Address
   octets :gaddr, 32
   # Payload
@@ -43,12 +44,12 @@ class IGMPv2 < RacketPart
 
   # Is the checksum of this IGMPv2 message correct 
   def checksum?
-    self.csum == 0 || (self.csum == compute_checksum)
+    self.checksum == 0 || (self.checksum == compute_checksum)
   end
 
   # Set the checksum of this IGMPv2 message
   def checksum!
-    self.csum = compute_checksum
+    self.checksum = compute_checksum
   end
 
   # Do whatever 'fixing' is neccessary in preparation
@@ -69,6 +70,7 @@ private
     tmp << self.payload
     L3::Misc.checksum(tmp.pack("nnNa*"))
   end
+end
 end
 end
 # vim: set ts=2 et sw=2:

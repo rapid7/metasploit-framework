@@ -25,11 +25,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+module Racket
+module L4
 # Internet Control Message Protcol.  
 #
 # RFC792 (http://www.faqs.org/rfcs/rfc792.html)
-module Racket
-class ICMP < RacketPart
+#
+# Generic ICMP class from which all ICMP variants spawn.  This should never be used directly.
+class ICMPGeneric < RacketPart
   ICMP_TYPE_ECHO_REPLY = 0
   ICMP_TYPE_DESTINATION_UNREACHABLE = 3
   ICMP_TYPE_SOURCE_QUENCH = 4
@@ -51,22 +54,23 @@ class ICMP < RacketPart
   # Code
   unsigned :code, 8
   # Checksum
-  unsigned :csum, 16
-  # ID
-  unsigned :id, 16
-  # Sequence number
-  unsigned :seq, 16
-  # Payload
-  rest :payload
+  unsigned :checksum, 16
+  rest :message
 
   # check the checksum for this ICMP packet
   def checksum?
-    self.csum == compute_checksum
+    self.checksum == compute_checksum
   end
+
+  def initialize(*args)
+    super(*args)
+    @autofix = false
+  end
+
 
   # compute and set the checksum for this ICMP packet
   def checksum!
-    self.csum = compute_checksum
+    self.checksum = compute_checksum
   end
 
   # 'fix' this ICMP packet up for sending.
@@ -78,9 +82,214 @@ class ICMP < RacketPart
 private
   def compute_checksum
     # pseudo header used for checksum calculation as per RFC 768 
-    pseudo = [ self.type, self.code, 0,  self.id, self.seq, self.payload ]
-    L3::Misc.checksum(pseudo.pack("CCnnna*"))
+    pseudo = [ self.type, self.code, 0, self.message ]
+    L3::Misc.checksum(pseudo.pack("CCna*"))
   end
+end
+
+# Send raw ICMP packets of your own design
+class ICMP < ICMPGeneric
+  rest :payload
+end
+
+# ICMP Echo.  Generic class that ICMPEchoRequest and ICMPEchoReply inherit
+class ICMPEcho < ICMPGeneric
+  # ID for tracking requests/replies
+  unsigned :id, 16
+  # sequence number for tracking request/replies
+  unsigned :sequence, 16
+  rest :payload
+
+  def initialize(*args)
+    super(*args)
+    self.type = 8 
+    self.code = 0
+  end
+end
+
+# ICMP Echo Request
+class ICMPEchoRequest < ICMPEcho
+  rest :payload
+
+  def initialize(*args)
+    super(*args)
+    self.type = 8 
+    self.code = 0
+  end
+end
+
+# ICMP Echo Reply
+class ICMPEchoReply < ICMPEcho
+  rest :payload
+
+  def initialize(*args)
+    super(*args)
+    self.type = 0 
+    self.code = 0
+  end
+end
+
+# ICMP Destination Unreachable Message
+class ICMPDestinationUnreachable < ICMPGeneric
+  ICMP_CODE_NETWORK_UNREACHABLE = 0 
+  ICMP_CODE_HOST_UNREACHABLE = 1
+  ICMP_CODE_PROTOCOL_UNREACHABLE = 2 
+  ICMP_CODE_PORT_UNREACHABLE = 3 
+  ICMP_CODE_FRAG_NEEDED_DF_SET = 4 
+  ICMP_CODE_SOURCE_ROUTE_FAILED = 5 
+  # This is never used according to the RFC
+  unsigned :unused, 32
+  # Internet header + 64 bits of original datagram
+  rest :payload
+
+  def initialize(*args)
+    super(*args)
+    self.type = 3 
+  end
+end
+
+# ICMP Time Exceeded Message 
+class ICMPTimeExceeded < ICMPGeneric
+  ICMP_CODE_TTL_EXCEEDED_IN_TRANSIT = 0 
+  ICMP_CODE_FRAG_REASSEMBLY_TIME_EXCEEDED = 1
+  # This is never used according to the RFC
+  unsigned :unused, 32
+  # Internet header + 64 bits of original datagram
+  rest :payload
+
+  def initialize(*args)
+    super(*args)
+    self.type = 11 
+  end
+end
+
+# ICMP Parameter Problem Message 
+class ICMPParameterProblem < ICMPGeneric
+  # pointer to the octet where the error was detected
+  unsigned :pointer, 8
+  # This is never used according to the RFC
+  unsigned :unused, 24
+  # Internet header + 64 bits of original datagram
+  rest :payload
+
+  def initialize(*args)
+    super(*args)
+    self.type = 12
+    self.code = 0
+  end
+end
+
+# ICMP Source Quench Message 
+class ICMPSourceQuench < ICMPGeneric
+  # This is never used according to the RFC
+  unsigned :unused, 32 
+  # Internet header + 64 bits of original datagram
+  rest :payload
+
+  def initialize(*args)
+    super(*args)
+    self.type = 4 
+    self.code = 0
+  end
+end
+
+# ICMP Redirect Message 
+class ICMPRedirect < ICMPGeneric
+  ICMP_CODE_REDIRECT_NETWORK = 0 
+  ICMP_CODE_REDIRECT_HOST = 1
+  ICMP_CODE_REDIRECT_TOS_NETWORK = 2
+  ICMP_CODE_REDIRECT_TOS_HOST = 3
+
+  # Gateway internet address
+  octets :gateway_ip, 32 
+  # Internet header + 64 bits of original datagram
+  rest :payload
+
+  def initialize(*args)
+    super(*args)
+    self.type = 5 
+    self.code = 0
+  end
+end
+
+# Generic ICMP Timestamp Message from which ICMPTimestampRequest and
+# ICMPTimestampReply inherit
+class ICMPTimestamp < ICMPGeneric
+  # an identifier to add in matching timestamp and replies
+  unsigned :id, 16
+  # a sequence number to aid in matching timestamp and replies
+  unsigned :sequence, 16
+  # time the sender last touched the message before sending it in number of milliseconds since midnight UT
+  unsigned :originate_timestamp, 32
+  # time the echoer first touched it on receipt in number of milliseconds since midnight UT
+  unsigned :receive_timestamp, 32
+  # time the echoers last touched the message on sending it in number of milliseconds since midnight UT
+  unsigned :transmit_timestamp, 32
+  # probably never used ...
+  rest :payload
+
+  def initialize(*args)
+    super(*args)
+  end
+
+end
+
+# ICMP Timestamp Request Message
+class ICMPTimestampRequest < ICMPTimestamp
+  # probably never used ...
+  rest :payload
+
+  def initialize(*args)
+    super(*args)
+    self.type = 13
+    self.code = 0
+  end
+end
+
+# ICMP Timestamp Reply Message
+class ICMPTimestampReply < ICMPTimestamp
+  # probably never used ...
+  rest :payload
+
+  def initialize(*args)
+    super(*args)
+    self.type = 14 
+    self.code = 0
+  end
+end
+
+# ICMP Information Request Message
+class ICMPInformationRequest < ICMPGeneric
+  # an identifier to add in matching timestamp and replies
+  unsigned :id, 16
+  # a sequence number to aid in matching timestamp and replies
+  unsigned :sequence, 16
+  # probably never used ...
+  rest :payload
+
+  def initialize(*args)
+    super(*args)
+    self.type = 15
+    self.code = 0
+  end
+
+end
+
+# ICMP Information Reply Message
+class ICMPInformationReply < ICMPGeneric
+  # an identifier to add in matching timestamp and replies
+  unsigned :id, 16
+  # a sequence number to aid in matching timestamp and replies
+  unsigned :sequence, 16
+  # probably never used ...
+  rest :payload
+
+  def initialize(*args)
+    super(*args)
+    self.type = 16 
+    self.code = 0
+  end
+end
 end
 end
 # vim: set ts=2 et sw=2:

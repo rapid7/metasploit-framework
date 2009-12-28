@@ -24,13 +24,7 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-require 'racket/l4/igmpv1'
-require 'racket/l4/igmpv2'
-require 'racket/l4/igrp'
-require 'racket/l4/gre'
-require 'racket/l4/icmp'
-require 'racket/l4/tcp'
-require 'racket/l4/udp'
+
+Dir.glob(File.join(File.dirname(__FILE__), 'l4/*.rb')).each { |f| require f }
 
 # vim: set ts=2 et sw=2:

@@ -25,10 +25,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+module Racket
+module L5
 # Hot Standby Router Protocol: HSRP
 #
 # RFC2281 (http://www.faqs.org/rfcs/rfc2281.html)
-module Racket
 class HSRP < RacketPart
   HSRP_HELLO = 0
   HSRP_COUP = 1
@@ -58,6 +59,7 @@ class HSRP < RacketPart
   unsigned :priority, 8
   # Standby group
   unsigned :group, 8
+  # reserved, never used, should be 0
   unsigned :reserved, 8
   # Clear-text, 8-character reused password.  Defaults to 'cisco'
   text :password, 64, { :default => 'cisco' }
@@ -65,6 +67,7 @@ class HSRP < RacketPart
   octets :vip, 32
   # Payload.  Generally unused.
   rest :payload
+end
 end
 end
 # vim: set ts=2 et sw=2:

@@ -25,10 +25,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+module Racket
+module L3
 # Spanning Tree Protocol
 #
 # http://en.wikipedia.org/wiki/Spanning_tree_protocol
-module Racket
 class STP < RacketPart
   # Protocol identifier
   unsigned :protocol, 16, { :default => 0 }
@@ -74,6 +75,7 @@ class STP < RacketPart
   unsigned :v1_len, 8
   # Payload
   rest :payload
+end
 end
 end
 # vim: set ts=2 et sw=2:
