@@ -22,35 +22,27 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'          => 'NFS Mount Scanner',
 			'Description'   => %q{
 				This module scans NFS mounts and their permissions.
-			},	
-			'Author'	    => ['<tebo [at] attackresearch.com>'],
+			},
+			'Author'	    => ['<tebo[at]attackresearch.com>'],
 			'References'	=>
 				[
 					['URL',	'http://www.ietf.org/rfc/rfc1094.txt'],
 				],
 			'License'	=> MSF_LICENSE
 		)
-
-		register_options([
-			OptString.new('HOSTNAME', [false, 'Remote hostname', 'localhost']),
-			OptInt.new('GID', [false, 'GID to emulate', 0]),
-			OptInt.new('UID', [false, 'UID to emulate', 0])
-		], self.class)
 	end
 
 	def run_host(ip)
 
 		begin
-
-			hostname	= datastore['HOSTNAME']
 			program		= 100005
 			progver		= 1
-			procedure	= 1
+			procedure	= 5
 
 			sunrpc_create('udp', program, progver)
-			sunrpc_authunix(hostname, datastore['UID'], datastore['GID'], [])
-			resp = sunrpc_call(5, "")
-      
+			sunrpc_authnull()
+			resp = sunrpc_call(procedure, "")
+
 			exports = resp[3,1].unpack('C')[0]
 			if (exports == 0x01)
 				print_good("#{ip} - Exports found")
@@ -65,10 +57,11 @@ class Metasploit3 < Msf::Auxiliary
 			elsif(exports == 0x00)
 				print_status("#{ip} - No exports")
 			end
-      
-			sunrpc_destroy	
+
+			sunrpc_destroy
 		rescue ::Rex::Proto::SunRPC::RPCTimeout
 		end
 	end
 
 end
+
