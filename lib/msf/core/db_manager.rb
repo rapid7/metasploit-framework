@@ -1,5 +1,6 @@
 require 'msf/core'
 require 'msf/core/db'
+require 'msf/core/task_manager'
 
 module Msf
 
@@ -29,6 +30,9 @@ class DBManager
 
 	# Stores the error message for why the db was not loaded
 	attr_accessor :error
+
+	# Stores a TaskManager for serializing database events
+	attr_accessor :sink
 
 	def initialize(framework)
 
@@ -68,10 +72,15 @@ class DBManager
 		# Determine what drivers are available
 		#
 		initialize_drivers
+
+		#
+		# Instantiate the database sink
+		#
+		initialize_sink
 	end
 
 	#
-	#
+	# Scan through available drivers
 	#
 	def initialize_drivers
 		self.drivers = []
@@ -92,6 +101,22 @@ class DBManager
 			self.driver = self.drivers[0]
 		end
 	end
+
+	#
+	# Create a new database sink and initialize it
+	#
+	def initialize_sink
+		self.sink = TaskManager.new(framework)
+		self.sink.start
+	end
+
+	#
+	# Add a new task to the sink
+	#
+	def queue(proc)
+		self.sink.queue_proc(proc)
+	end
+
 
 	# Verify that sqlite3 is ready
 	def driver_check_sqlite3

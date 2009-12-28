@@ -49,14 +49,16 @@ module Auxiliary::Report
 	def report_host(opts)
 		return if not db
 		addr = opts[:host] || return
-		framework.db.report_host_state(self, addr, Msf::HostState::Alive)
-		host = nil
 
-		opts.delete(:host)
-		if (opts.length > 0)
-			host = framework.db.report_host(self, addr, opts)
-		end
-		host
+		framework.db.queue Proc.new {
+			framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+			host = nil
+
+			opts.delete(:host)
+			if (opts.length > 0)
+				host = framework.db.report_host(self, addr, opts)
+			end
+		}
 	end
 
 	def get_host(addr)
@@ -78,10 +80,10 @@ module Auxiliary::Report
 		return if not db
 		addr = opts.delete(:host) || return
 
-		framework.db.report_host_state(self, addr, Msf::HostState::Alive)
-
-		cli = framework.db.report_client(self, addr, opts)
-		return cli
+		framework.db.queue Proc.new {
+			framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+			cli = framework.db.report_client(self, addr, opts)
+		}
 	end
 
 	def get_client(addr, ua_string)
@@ -100,31 +102,46 @@ module Auxiliary::Report
 		name  = opts[:name]
 		state = opts[:state] || 'open'
 		info  = opts[:info]
+		hname = opts[:host_name]
+		maddr = opts[:host_mac]
 
-		framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+		framework.db.queue Proc.new {
+			framework.db.report_host_state(self, addr, Msf::HostState::Alive)
 
-		serv = framework.db.report_service_state(
-			self,
-			addr,
-			proto,
-			port,
-			state
-		)
-		changed = false
+			serv = framework.db.report_service_state(
+				self,
+				addr,
+				proto,
+				port,
+				state
+			)
 
-		if (name and name.length > 1)
-			serv.name = name.downcase
-			changed = true
-		end
+			changed = false
+			if(hname)
+				self.host.name = hname
+				changed = true
+			end
 
-		if (info and info.length > 1)
-			serv.info = info
-			changed = true
-		end
+			if(maddr)
+				self.host.mac = maddr
+				changed = true
+			end
+			serv.host.save! if changed
 
-		serv.save! if changed
 
-		serv
+			changed = false
+			if (name and name.length > 1)
+				serv.name = name.downcase
+				changed = true
+			end
+
+			if (info and info.length > 1)
+				serv.info = info
+				changed = true
+			end
+
+			serv.save! if changed
+		}
 	end
 
 	def report_note(opts={})
@@ -133,40 +150,42 @@ module Auxiliary::Report
 		ntype = opts[:type]  || return
 		data  = opts[:data]  || return
 
-		host  = framework.db.report_host_state(self, addr, Msf::HostState::Alive)
-		note  = framework.db.get_note(self, host, ntype, data)
-		note
+		framework.db.queue Proc.new {
+			host  = framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+			note  = framework.db.get_note(self, host, ntype, data)
+		}
 	end
 
 	def report_vuln_service(opts={})
 		return if not db
-		serv = report_service(opts)
-		return if not serv
 
-		vname = opts[:vname]
-		vdata = opts[:vdata] || ''
+		framework.db.queue Proc.new {
+			serv = report_service(opts)
+			return if not serv
 
-		host = serv.host
-		vuln = framework.db.get_vuln(self, host, serv, vname, vdata)
+			vname = opts[:vname]
+			vdata = opts[:vdata] || ''
 
-		framework.db.vuln_add_refs(self, vuln, opts[:refs])
+			host = serv.host
+			vuln = framework.db.get_vuln(self, host, serv, vname, vdata)
 
-		vuln
+			framework.db.vuln_add_refs(self, vuln, opts[:refs])
+		}
 	end
 
 	def report_vuln_host(opts={})
 		return if not db
 		addr  = opts[:host]  || return
 
-		host  = framework.db.report_host_state(self, addr, Msf::HostState::Alive)
-		vname = opts[:vname]
-		vdata = opts[:vdata] || ''
+		framework.db.queue Proc.new {
+			host  = framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+			vname = opts[:vname]
+			vdata = opts[:vdata] || ''
 
-		vuln = framework.db.get_vuln(self, host, nil, vname, vdata)
+			vuln = framework.db.get_vuln(self, host, nil, vname, vdata)
 
-		framework.db.vuln_add_refs(self, vuln, opts[:refs])
-
-		vuln
+			framework.db.vuln_add_refs(self, vuln, opts[:refs])
+		}
 	end
 
 	def report_auth_info(opts={})

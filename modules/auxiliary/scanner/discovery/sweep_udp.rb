@@ -213,26 +213,15 @@ class Metasploit3 < Msf::Auxiliary
 				app = 'Sentinel'
 		end
 
-		s = report_service(
+		report_service(
 			:host  => pkt[1],
+			:host_mac  => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
+			:host_name => (hname) ? hname.downcase : nil,
 			:port  => pkt[2],
 			:proto => 'udp',
 			:name  => app,
 			:info  => inf
 		)
-
-		changed = false
-		if (s and maddr and maddr != '00:00:00:00:00:00')
-			s.host.mac = maddr
-			changed = true
-		end
-
-		if (s and hname)
-			s.host.name = hname.downcase
-			changed = true
-		end
-
-		s.host.save! if changed
 
 		print_status("Discovered #{app} on #{pkt[1]} (#{inf})")
 
