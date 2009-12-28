@@ -114,6 +114,10 @@ class Encoder < Module
 		# payload
 		#
 		Raw = "raw"
+		#
+		# Special Single Static Bit encoder
+		#
+		SingleStaticBit = "single_static_bit"
 	end
 
 	#
