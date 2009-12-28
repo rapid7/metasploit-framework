@@ -16,6 +16,7 @@ class TaskManager
 		attr_accessor :proc
 		attr_accessor :source
 		attr_accessor :exception
+		attr_accessor :retval
 
 		#
 		# Create a new task
@@ -34,6 +35,13 @@ class TaskManager
 		def duration
 			etime = self.completed || Time.now
 			etime.to_f - self.created.to_f
+		end
+
+		#
+		# Run the associated proc
+		#
+		def run(*args)
+			self.retval = self.proc.call(*args) if self.proc
 		end
 
 	end
@@ -145,10 +153,10 @@ class TaskManager
 		begin
 			if(task.timeout)
 				::Timeout.timeout(task.timeout) do
-					task.proc.call(self, task)
+					task.run(self, task)
 				end
 			else
-				task.proc.call(self, task)
+				task.run(self, task)
 			end
 		rescue ::Exception => e
 
