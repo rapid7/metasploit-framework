@@ -71,12 +71,14 @@ class Driver < Msf::Ui::Driver
 
 		# Choose a readline library before calling the parent
 		rl = false
+		rl_err = nil
 		begin
 			if(opts['RealReadline'])
 				require 'readline'
 				rl = true
 			end
 		rescue ::LoadError
+			rl_err = $!
 		end
 		
 		# Default to the RbReadline wrapper		
@@ -108,6 +110,14 @@ class Driver < Msf::Ui::Driver
 		# stack
 		enstack_dispatcher(CommandDispatcher::Core)
 		
+		# Report readline error if there was one..
+		if not rl_err.nil?
+			print_error("***")
+			print_error("* WARNING: Unable to load readline: #{rl_err}")
+			print_error("* Falling back to RbReadLine")
+			print_error("***")
+		end
+
 		# Add the database dispatcher if it is usable
 		if(framework.db.usable)
 			require 'msf/ui/console/command_dispatcher/db'
