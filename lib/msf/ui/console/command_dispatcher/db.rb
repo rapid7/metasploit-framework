@@ -1255,11 +1255,10 @@ class Db
 			end
 
 			info = db_parse_db_uri_sqlite3(args[0])
-			opts = { 'adapter' => 'sqlite3' }
+			dbfile = info[:path]
+			opts = { 'adapter' => 'sqlite3', 'database' => dbfile }
 
-			opts['dbfile'] = info[:path]
-
-			if (not ::File.exists?(opts['dbfile']))
+			if (not ::File.exists?(dbfile))
 				print_error("The specified database does not exist")
 				return
 			end
@@ -1269,7 +1268,7 @@ class Db
 			end
 
 			print_status("Successfully connected to the database")
-			print_status("File: #{opts['dbfile']}")
+			print_status("File: #{dbfile}")
 		end
 
 		#
@@ -1284,11 +1283,10 @@ class Db
 			end
 
 			info = db_parse_db_uri_sqlite3(args[0])
-			opts = { 'adapter' => 'sqlite3' }
+			dbfile = info[:path]
+			opts = { 'adapter' => 'sqlite3', 'database' => dbfile }
 
-			opts['dbfile'] = info[:path]
-
-			if (::File.exists?(opts['dbfile']))
+			if (::File.exists?(dbfile))
 				print_status("The specified database already exists, connecting")
 			else
 				print_status("Creating a new database instance...")
@@ -1301,7 +1299,7 @@ class Db
 
 			print_status("Successfully connected to the database")
 
-			print_status("File: #{opts['dbfile']}")
+			print_status("File: #{dbfile}")
 		end
 
 		#
