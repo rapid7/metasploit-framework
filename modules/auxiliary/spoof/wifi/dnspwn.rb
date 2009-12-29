@@ -74,13 +74,13 @@ class Metasploit3 < Msf::Auxiliary
 
 			next if not d3
 
-			eth = Racket::Ethernet.new(d3)
+			eth = Racket::L2::Ethernet.new(d3)
 			next if eth.ethertype != 0x0800
 
-			ip = Racket::IPv4.new(eth.payload)
+			ip = Racket::L3::IPv4.new(eth.payload)
 			next if ip.protocol != 0x11
 
-			udp = Racket::UDP.new(ip.payload)
+			udp = Racket::L4::UDP.new(ip.payload)
 
 			dns = Net::DNS::Packet::parse(udp.payload)
 
@@ -101,18 +101,18 @@ class Metasploit3 < Msf::Auxiliary
 				injpkt.bssid = pkt.bssid
 
 				response = Racket::Racket.new
-				response.l2 = Racket::Ethernet.new("01234567890123")
+				response.l2 = Racket::L2::Ethernet.new("01234567890123")
 				response.l2.dst_mac = eth.src_mac
 				response.l2.src_mac = eth.dst_mac
 				response.l2.ethertype = 0x0800
 
-				response.l3 = Racket::IPv4.new
+				response.l3 = Racket::L3::IPv4.new
 				response.l3.src_ip = ip.dst_ip
 				response.l3.dst_ip = ip.src_ip
 				response.l3.protocol = ip.protocol
 				response.l3.ttl = ip.ttl
 
-				response.l4 = Racket::UDP.new
+				response.l4 = Racket::L4::UDP.new
 				response.l4.src_port = udp.dst_port
 				response.l4.dst_port = udp.src_port
 

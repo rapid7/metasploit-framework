@@ -66,13 +66,13 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def parse_reply(r)
-		eth = Racket::Ethernet.new(r)
+		eth = Racket::L2::Ethernet.new(r)
 		return if not eth.ethertype == 0x0800
 
-		ip = Racket::IPv4.new(eth.payload)
+		ip = Racket::L3::IPv4.new(eth.payload)
 		case ip.protocol
 		when 1
-			icmp = Racket::ICMP.new(ip.payload)
+			icmp = Racket::L4::ICMP.new(ip.payload)
 			reply = {:raw => r, :eth => eth, :ip => ip, :icmp => icmp}
 			reply[:type]     = :icmp
 			return if(icmp.payload[4,2] != [datastore['ECHOID']].pack('n'))
@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 			reply[:external] = ip.src_ip
 			return reply
 		when 6
-			tcp = Racket::TCP.new(ip.payload)
+			tcp = Racket::L4::TCP.new(ip.payload)
 			reply = {:raw => r, :eth => eth, :ip => ip, :tcp => tcp}
 			reply[:type]     = :tcp
 			reply[:internal] = Rex::Socket.addr_itoa(tcp.ack - 1)

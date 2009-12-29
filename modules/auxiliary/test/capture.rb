@@ -44,13 +44,13 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Sniffing HTTP requests...")
 		each_packet() do |pkt|
 
-			eth = Racket::Ethernet.new(pkt)
+			eth = Racket::L2::Ethernet.new(pkt)
 			next if not eth.ethertype == 0x0800
 					
-			ip = Racket::IPv4.new(eth.payload)
+			ip = Racket::L3::IPv4.new(eth.payload)
 			next if not ip.protocol == 6
 	
-			tcp = Racket::TCP.new(ip.payload)
+			tcp = Racket::L4::TCP.new(ip.payload)
 			next if !(tcp.payload and tcp.payload.length > 0)
 			
 			if (tcp.payload =~ /GET\s+([^\s]+)\s+HTTP/smi)

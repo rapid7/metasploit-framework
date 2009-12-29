@@ -297,13 +297,13 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			
 			n = Racket::Racket.new
-			n.l3 = Racket::IPv4.new
+			n.l3 = Racket::L3::IPv4.new
 			n.l3.src_ip = src_ip
 			n.l3.dst_ip = target
 			n.l3.protocol = 17
 			n.l3.id = rand(0x10000)
 			n.l3.ttl = 255
-			n.l4 = Racket::UDP.new
+			n.l4 = Racket::L4::UDP.new
 			n.l4.src_port = (rand((2**16)-1024)+1024).to_i
 			n.l4.dst_port = 53
 			n.l4.payload  = req.encode

@@ -70,13 +70,13 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def buildprobe(shost, smac, dhost)
 		n = Racket::Racket.new
-		n.l2 = Racket::Ethernet.new(Racket::Misc.randstring(14))
+		n.l2 = Racket::L2::Ethernet.new(Racket::Misc.randstring(14))
 		n.l2.src_mac = smac
 		n.l2.dst_mac = 'ff:ff:ff:ff:ff:ff'
 		n.l2.ethertype = 0x0806
 		
-		n.l3 = Racket::ARP.new
-		n.l3.opcode = Racket::ARP::ARPOP_REQUEST
+		n.l3 = Racket::L3::ARP.new
+		n.l3.opcode = Racket::L3::ARP::ARPOP_REQUEST
 		n.l3.sha = n.l2.src_mac
 		n.l3.tha = n.l2.dst_mac
 		n.l3.spa = shost
@@ -88,11 +88,11 @@ class Metasploit3 < Msf::Auxiliary
 		pkt = capture.next
 		return if not pkt
 		
-		eth = Racket::Ethernet.new(pkt)
+		eth = Racket::L2::Ethernet.new(pkt)
 		return if not eth.ethertype == 0x0806
 
-		arp = Racket::ARP.new(eth.payload)
-		return if not arp.opcode == Racket::ARP::ARPOP_REPLY
+		arp = Racket::L3::ARP.new(eth.payload)
+		return if not arp.opcode == Racket::L3::ARP::ARPOP_REPLY
 
 		{:raw => pkt, :eth => eth, :arp => arp}
 	end

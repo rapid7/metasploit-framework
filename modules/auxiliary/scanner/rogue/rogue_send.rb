@@ -55,14 +55,14 @@ class Metasploit3 < Msf::Auxiliary
 	def build_tcp_syn(dst)
 		n = Racket::Racket.new
 
-		n.l3 = Racket::IPv4.new
+		n.l3 = Racket::L3::IPv4.new
 		n.l3.src_ip = datastore['EHOST']
 		n.l3.dst_ip = dst
 		n.l3.protocol = 0x6
 		n.l3.id = rand(0x10000)
 		n.l3.ttl = 255
 
-		n.l4 = Racket::TCP.new
+		n.l4 = Racket::L4::TCP.new
 		n.l4.src_port = datastore['CPORT'].to_i
 		n.l4.seq = Rex::Socket.addr_atoi(dst)
 		n.l4.dst_port = datastore['RPORT'].to_i
@@ -76,14 +76,14 @@ class Metasploit3 < Msf::Auxiliary
 	def build_icmp(dst)
 		n = Racket::Racket.new
 
-		n.l3 = Racket::IPv4.new
+		n.l3 = Racket::L3::IPv4.new
 		n.l3.src_ip = datastore['EHOST']
 		n.l3.dst_ip = dst
 		n.l3.protocol = 0x1
 		n.l3.id = rand(0x10000)
 		n.l3.ttl = 255
 
-		n.l4 = Racket::ICMP.new
+		n.l4 = Racket::L4::ICMP.new
 		n.l4.type = 8
 		n.l4.id   = rand(0x10000)
 		n.l4.seq  = 1

@@ -35,14 +35,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		n = Racket::Racket.new
 
-		n.l3 = Racket::IPv4.new
+		n.l3 = Racket::L3::IPv4.new
 		n.l3.src_ip = ip
 		n.l3.dst_ip = ip
 		n.l3.protocol = 17
 		n.l3.id = 0xdead
 		n.l3.ttl = 255
 				
-		n.l4 = Racket::UDP.new
+		n.l4 = Racket::L4::UDP.new
 		n.l4.src_port = 53
 		n.l4.dst_port = 53
 		n.l4.payload  = "HELLO WORLD"

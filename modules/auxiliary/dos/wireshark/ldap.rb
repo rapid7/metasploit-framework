@@ -46,13 +46,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		n = Racket::Racket.new
 
-		n.l3 = Racket::IPv4.new
+		n.l3 = Racket::L3::IPv4.new
 		n.l3.src_ip = datastore['SHOST'] || Rex::Socket.source_address(rhost)
 		n.l3.dst_ip = rhost
 		n.l3.protocol = 6
 		n.l3.id = rand(0x10000)
 		
-		n.l4 = Racket::TCP.new
+		n.l4 = Racket::L4::TCP.new
 		n.l4.src_port = rand(65535)+1
 		n.l4.seq = rand(0x100000000)
 		n.l4.ack = rand(0x100000000)

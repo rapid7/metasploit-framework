@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		n = Racket::Racket.new
 
-		n.l3 = Racket::IPv4.new
+		n.l3 = Racket::L3::IPv4.new
 		n.l3.src_ip = '0.0.0.0'
 		n.l3.dst_ip = rhost
 		n.l3.protocol = 17
@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 		n.l3.ttl = 128
 		n.l3.flags = 2
 				
-		n.l4 = Racket::UDP.new
+		n.l4 = Racket::L4::UDP.new
 		n.l4.src_port = 0
 		n.l4.dst_port = datastore['RPORT'].to_i
 		pkt = n.pack

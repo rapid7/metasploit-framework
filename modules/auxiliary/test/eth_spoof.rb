@@ -38,15 +38,15 @@ class Metasploit3 < Msf::Auxiliary
 		open_pcap()
 
 		r = Racket::Racket.new
-		r.l2 = Racket::Ethernet.new
+		r.l2 = Racket::L2::Ethernet.new
 		r.l2.ethertype = 0x0800
 		r.l2.src_mac = "00:41:41:41:41:41"
 		r.l2.dst_mac = "00:42:42:42:42:42"
-		r.l3 = Racket::IPv4.new
+		r.l3 = Racket::L3::IPv4.new
 		r.l3.src_ip  = "41.41.41.41"
 		r.l3.dst_ip  = "42.42.42.42"
 		r.l3.protocol = 17
-		r.l4 = Racket::UDP.new
+		r.l4 = Racket::L4::UDP.new
 		r.l4.src_port = 0x41
 		r.l4.dst_port = 0x42
 		r.l4.payload  = "SPOOOOOFED"
