@@ -151,6 +151,7 @@ class Metasploit3 < Msf::Auxiliary
 		head = data.slice!(0,12)
 
 		xid, flags, quests, answers, auths, adds = head.unpack('n6')
+
 		return if quests != 0
 		return if answers == 0
 
@@ -187,6 +188,28 @@ class Metasploit3 < Msf::Auxiliary
 
 			@results[addr][:name] = hname if hname
 			@results[addr][:user] = uname if uname
+
+			inf = ''
+			names.each do |name|
+				inf << name[0]
+				inf << ":<%.2x>" % name[1]
+				if (name[2] & 0x8000 == 0)
+					inf << ":U :"
+				else
+					inf << ":G :"
+				end
+			end
+			inf << maddr
+
+			report_service(
+				:host  => addr,
+				:host_mac  => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
+				:host_name => (hname) ? hname.downcase : nil,
+				:port  => pkt[2],
+				:proto => 'udp',
+				:name  => 'NetBIOS',
+				:info  => inf
+			)
 		when 0x20
 			1.upto(rlen / 6.0) do
 				tflag = buff.slice!(0,2).unpack('n')[0]
@@ -194,6 +217,15 @@ class Metasploit3 < Msf::Auxiliary
 				names << [ taddr, tflag ]
 			end
 			@results[addr][:addrs] = names
+			names.each do |name|
+				report_note(
+					:host  => addr,
+					:proto => 'NetBIOS',
+					:port  => pkt[2],
+					:type  => "netbios_interface",
+					:data  => name[0]
+				)
+			end
 		end
 	end
 
