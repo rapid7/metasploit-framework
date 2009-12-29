@@ -1,8 +1,8 @@
 # $Id: tcp.rb 14 2008-03-02 05:42:30Z warchild $
 #
-# Copyright (c) 2008, Jon Hart 
+# Copyright (c) 2008, Jon Hart
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
 #     * Neither the name of the <organization> nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY Jon Hart ``AS IS'' AND ANY
 # EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -69,8 +69,8 @@ class TCP < RacketPart
   rest :payload
 
   # Add an TCP option to this TCP object.
-  # All rejiggering will happen when the call to fix! 
-  # happens automagically. 
+  # All rejiggering will happen when the call to fix!
+  # happens automagically.
   def add_option(number, value)
     t = Racket::Misc::TLV.new(1,1)
     t.type = number
@@ -79,7 +79,7 @@ class TCP < RacketPart
     @options << t.encode
   end
 
-  # Check the checksum for this TCP packet 
+  # Check the checksum for this TCP packet
   def checksum?(ip_src, ip_dst)
     self.checksum == compute_checksum(ip_src, ip_dst)
   end
@@ -90,12 +90,12 @@ class TCP < RacketPart
   end
 
   # Fix this packet up for proper sending.  Sets the length
-  # and checksum properly. 
+  # and checksum properly.
   def fix!(ip_src, ip_dst, next_payload)
     newpayload = @options.join
-    
+
     # pad to a multiple of 32 bits
-    if ((self.class.bit_length/8 + newpayload.length) % 4 != 0) 
+    if ((self.class.bit_length/8 + newpayload.length) % 4 != 0)
       # fill the beginning as needed with NOPs
       while ((self.class.bit_length/8 + newpayload.length) % 4 != 4)
         newpayload = "\x01#{newpayload}"
@@ -114,8 +114,12 @@ class TCP < RacketPart
     @autofix = false
   end
 
+  def payload_data
+    self.payload[(self.offset * 4)-20, self.payload.length-((self.offset * 4)-20)] || ''
+  end
+
 private
-  # Compute the checksum for this TCP packet 
+  # Compute the checksum for this TCP packet
   def compute_checksum(ip_src, ip_dst)
     tmp = self.offset << 12
     tmp = tmp | (0x0f00 & (self.reserved << 8))
@@ -123,11 +127,11 @@ private
                    (self.flag_cwr << 7 & 0b10000000) +
                    (self.flag_ece << 6 & 0b01000000) +
                    (self.flag_urg << 5 & 0b00100000) +
-                   (self.flag_ack << 4 & 0b00010000) + 
-                   (self.flag_psh << 3 & 0b00001000) + 
-                   (self.flag_rst << 2 & 0b00000100) + 
-                   (self.flag_syn << 1 & 0b00000010) + 
-                   (self.flag_fin << 0 & 0b00000001) 
+                   (self.flag_ack << 4 & 0b00010000) +
+                   (self.flag_psh << 3 & 0b00001000) +
+                   (self.flag_rst << 2 & 0b00000100) +
+                   (self.flag_syn << 1 & 0b00000010) +
+                   (self.flag_fin << 0 & 0b00000001)
                    ))
 
     pseudo = [L3::Misc.ipv42long(ip_src), L3::Misc.ipv42long(ip_dst), 6, self.class.bit_length/8 + self.payload.length ]
@@ -139,3 +143,4 @@ end
 end
 end
 # vim: set ts=2 et sw=2:
+
