@@ -29,7 +29,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.process_id = rand(0xffff)
 		self.read_timeout = 10
 		self.evasion_opts = {
-			
+
 		# Padding is performed between packet headers and data
 		'pad_data' => EVADE::EVASION_NONE,
 
@@ -40,11 +40,11 @@ EVADE = Rex::Proto::SMB::Evasions
 		'obscure_trans_pipe' => EVADE::EVASION_NONE,
 		}
 	end
-	
+
 	# Read a SMB packet from the socket
 	def smb_recv
 		data = socket.get_once(-1, self.read_timeout)
-		
+
 		if (data.nil? or data.length < 4)
 			raise XCEPT::NoReply
 		end
@@ -53,9 +53,9 @@ EVADE = Rex::Proto::SMB::Evasions
 		if (recv_len == 0)
 			return data
 		end
-		
+
 		recv_len += 4
-		
+
 		while (data.length != recv_len)
 			buff = ''
 
@@ -65,32 +65,32 @@ EVADE = Rex::Proto::SMB::Evasions
 			rescue
 				raise XCEPT::ReadPacket
 			end
-			
+
 			if (buff.nil? or buff.length == 0)
 				raise XCEPT::ReadPacket
 			end
-			
+
 			data << buff
 		end
-		
+
 		return data
 	end
-	
+
 	# Send a SMB packet down the socket
 	def smb_send(data, evasion_level=0)
 
 		# evasion_level is ignored, since real evasion happens
 		# in the actual socket layer
-		
+
 		size = 0
 		wait = 0
-		
+
 		begin
 			# Just send the packet and return
 			if (size == 0 or size >= data.length)
 				return self.socket.put(data)
 			end
-			
+
 			# Break the packet up into chunks and wait between them
 			ret = 0
 			while ( (chunk = data.slice!(0, size)).length > 0 )
@@ -102,7 +102,7 @@ EVADE = Rex::Proto::SMB::Evasions
 			return ret
 		end
 	end
-	
+
 	# Set the SMB parameters to some reasonable defaults
 	def smb_defaults(packet)
 		packet.v['MultiplexID'] = self.multiplex_id.to_i
@@ -110,18 +110,18 @@ EVADE = Rex::Proto::SMB::Evasions
 		packet.v['UserID'] = self.auth_user_id.to_i
 		packet.v['ProcessID'] = self.process_id.to_i
 	end
-	
-	
+
+
 	# The main dispatcher for all incoming SMB packets
 	def smb_recv_parse(expected_type, ignore_errors = false)
-	
+
 		# This will throw an exception if it fails to read the whole packet
 		data = self.smb_recv
 
 		pkt = CONST::SMB_BASE_PKT.make_struct
 		pkt.from_s(data)
 		res  = pkt
-		
+
 		begin
 			case pkt['Payload']['SMB'].v['Command']
 
@@ -148,34 +148,34 @@ EVADE = Rex::Proto::SMB::Evasions
 
 				when CONST::SMB_COM_NT_TRANSACT_SECONDARY
 					res =  smb_parse_nttrans(pkt, data)
-					
+
 				when CONST::SMB_COM_OPEN_ANDX
 					res =  smb_parse_open(pkt, data)
 
 				when CONST::SMB_COM_WRITE_ANDX
 					res =  smb_parse_write(pkt, data)
-					
+
 				when CONST::SMB_COM_READ_ANDX
 					res =  smb_parse_read(pkt, data)
-					
+
 				when CONST::SMB_COM_CLOSE
 					res =  smb_parse_close(pkt, data)
 
 				when CONST::SMB_COM_DELETE
 					res =  smb_parse_delete(pkt, data)
 
-				else 
+				else
 					raise XCEPT::InvalidCommand
 			end
-				
+
 			if (pkt['Payload']['SMB'].v['Command'] != expected_type)
 				raise XCEPT::InvalidType
 			end
-			
+
 			if (ignore_errors == false and pkt['Payload']['SMB'].v['ErrorClass'] != 0)
 				raise XCEPT::ErrorCode
 			end
-			
+
 		rescue XCEPT::InvalidWordCount, XCEPT::InvalidCommand, XCEPT::InvalidType, XCEPT::ErrorCode
 				$!.word_count = pkt['Payload']['SMB'].v['WordCount']
 				$!.command = pkt['Payload']['SMB'].v['Command']
@@ -185,7 +185,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		return res
 	end
-	
+
 	# Process incoming SMB_COM_NEGOTIATE packets
 	def smb_parse_negotiate(pkt, data)
 		#Process NTLM negotiate responses
@@ -200,23 +200,23 @@ EVADE = Rex::Proto::SMB::Evasions
 			res = CONST::SMB_NEG_RES_LM_PKT.make_struct
 			res.from_s(data)
 			return res
-		end		
+		end
 
 		# Process ERROR negotiate responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 1)
 			res = CONST::SMB_NEG_RES_ERR_PKT.make_struct
 			res.from_s(data)
 			return res
-		end		
+		end
 
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
-		end		
-		
+		end
+
 		raise XCEPT::InvalidWordCount
 	end
-	
+
 	# Process incoming SMB_COM_SESSION_SETUP_ANDX packets
 	def smb_parse_session_setup(pkt, data)
 		# Process NTLMv2 negotiate responses
@@ -225,55 +225,55 @@ EVADE = Rex::Proto::SMB::Evasions
 			res.from_s(data)
 			return res
 		end
-		
+
 		# Process NTLMv1 and LANMAN responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 3)
 			res = CONST::SMB_SETUP_RES_PKT.make_struct
 			res.from_s(data)
 			return res
-		end	
-			
+		end
+
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
-		end	
-		
+		end
+
 		raise XCEPT::InvalidWordCount
-	end	
-	
+	end
+
 	# Process incoming SMB_COM_TREE_CONNECT_ANDX packets
 	def smb_parse_tree_connect(pkt, data)
-		
+
 		if (pkt['Payload']['SMB'].v['WordCount'] == 3)
 			res = CONST::SMB_TREE_CONN_RES_PKT.make_struct
 			res.from_s(data)
 			return res
 		end
-		
+
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
-		end		
+		end
 
 		raise XCEPT::InvalidWordCount
-	end	
+	end
 
 	# Process incoming SMB_COM_TREE_DISCONNECT packets
 	def smb_parse_tree_disconnect(pkt, data)
-		
+
 		# Process SMB responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			res = CONST::SMB_TREE_DISCONN_RES_PKT.make_struct
 			res.from_s(data)
 			return res
-		end		
+		end
 
 		raise XCEPT::InvalidWordCount
-	end	
-		
+	end
+
 	# Process incoming SMB_COM_NT_CREATE_ANDX packets
 	def smb_parse_create(pkt, data)
-		
+
 		# Windows says 42, but Samba says 34, same structure :-/
 		if (pkt['Payload']['SMB'].v['WordCount'] == 42)
 			res = CONST::SMB_CREATE_RES_PKT.make_struct
@@ -286,40 +286,40 @@ EVADE = Rex::Proto::SMB::Evasions
 			res.from_s(data)
 			return res
 		end
-						
+
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
-		end		
+		end
 
 		raise XCEPT::InvalidWordCount
-	end	
+	end
 
 	# Process incoming SMB_COM_TRANSACTION packets
 	def smb_parse_trans(pkt, data)
-		
+
 		if (pkt['Payload']['SMB'].v['WordCount'] == 10)
 			res = CONST::SMB_TRANS_RES_PKT.make_struct
 			res.from_s(data)
 			return res
 		end
-		
-		# Process SMB error responses
-		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
-			return pkt
-		end		
 
-		raise XCEPT::InvalidWordCount
-	end	
-
-	# Process incoming SMB_COM_NT_TRANSACT packets
-	def smb_parse_nttrans(pkt, data)
-		
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
 		end
-		
+
+		raise XCEPT::InvalidWordCount
+	end
+
+	# Process incoming SMB_COM_NT_TRANSACT packets
+	def smb_parse_nttrans(pkt, data)
+
+		# Process SMB error responses
+		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
+			return pkt
+		end
+
 		if (pkt['Payload']['SMB'].v['WordCount'] >= 18)
 			res = SMB_NTTRANS_RES_PKT.make_struct
 			res.from_s(data)
@@ -328,7 +328,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		raise XCEPT::InvalidWordCount
 	end
-		
+
 	# Process incoming SMB_COM_OPEN_ANDX packets
 	def smb_parse_open(pkt, data)
 		# Process open responses
@@ -337,80 +337,80 @@ EVADE = Rex::Proto::SMB::Evasions
 			res.from_s(data)
 			return res
 		end
-			
+
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
-		end		
+		end
 
 		raise XCEPT::InvalidWordCount
-	end	
+	end
 
 	# Process incoming SMB_COM_WRITE_ANDX packets
 	def smb_parse_write(pkt, data)
-	
+
 		# Process write responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 6)
 			res = CONST::SMB_WRITE_RES_PKT.make_struct
 			res.from_s(data)
 			return res
-		end	
-			
+		end
+
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
-		end		
+		end
 
 		raise XCEPT::InvalidWordCount
-	end	
-	
+	end
+
 	# Process incoming SMB_COM_READ_ANDX packets
 	def smb_parse_read(pkt, data)
-	
+
 		# Process read responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 12)
 			res = CONST::SMB_READ_RES_PKT.make_struct
 			res.from_s(data)
 			return res
-		end	
-			
+		end
+
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
-		end		
+		end
 
 		raise XCEPT::InvalidWordCount
-	end	
-	
+	end
+
 	# Process incoming SMB_COM_CLOSE packets
 	def smb_parse_close(pkt, data)
-		
+
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			return pkt
-		end		
+		end
 
 		raise XCEPT::InvalidWordCount
-	end	
-	
+	end
+
 	# Process incoming SMB_COM_DELETE packets
 	def smb_parse_delete(pkt, data)
-		
+
 		# Process SMB error responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 0)
 			res = CONST::SMB_DELETE_RES_PKT.make_struct
 			res.from_s(data)
 			return res
-		end		
+		end
 
 		raise XCEPT::InvalidWordCount
 	end
-						
+
 	# Request a SMB session over NetBIOS
 	def session_request(name = '*SMBSERVER')
 
 		name ||= '*SMBSERVER'
-		
+
 		data = ''
 		data << "\x20" + UTILS.nbname_encode(name) + "\x00"
 		data << "\x20" + CONST::NETBIOS_REDIR      + "\x00"
@@ -422,63 +422,63 @@ EVADE = Rex::Proto::SMB::Evasions
 		# Most SMB implementations can't handle this being fragmented
 		self.smb_send(pkt.to_s, EVADE::EVASION_NONE)
 		res = self.smb_recv
-		
+
 		ack = CONST::NBRAW_PKT.make_struct
 		ack.from_s(res)
 
 		if (ack.v['Type'] != 130)
 			raise XCEPT::NetbiosSessionFailed
 		end
-		
+
 		return ack
 	end
 
 	# Negotiate a SMB dialect
 	def negotiate(extended=true)
-		
+
 		dialects = ['LANMAN1.0', 'LM1.2X002' ]
-		
+
 		if (self.encrypt_passwords)
 			dialects.push('NT LANMAN 1.0', 'NT LM 0.12')
 		end
-		
+
 		data = dialects.collect { |dialect| "\x02" + dialect + "\x00" }.join('')
 
 		pkt = CONST::SMB_NEG_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-		
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NEGOTIATE
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		
+
 		if(extended)
-			pkt['Payload']['SMB'].v['Flags2'] = 0x2801 
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2801
 		else
-			pkt['Payload']['SMB'].v['Flags2'] = 0xc001 
+			pkt['Payload']['SMB'].v['Flags2'] = 0xc001
 		end
-		
+
 		pkt['Payload'].v['Payload'] = data
-		
+
 		self.smb_send(pkt.to_s)
 		ack = self.smb_recv_parse(CONST::SMB_COM_NEGOTIATE)
 
 		idx = ack['Payload'].v['Dialect']
-		
+
 		# Check for failed dialect selection
 		if (idx < 0 or idx >= dialects.length)
 			return nil
 		end
-		
+
 		# Set the selected dialect
 		self.dialect = dialects[idx]
-		
+
 		# Does the server support extended security negotiation?
 		if (ack['Payload'].v['Capabilities'] & 0x80000000 != 0)
 			self.extended_security = true
 		end
-		
+
 		# Set the security mode
 		self.security_mode = ack['Payload'].v['SecurityMode']
-		
+
 		# Set the challenge key
 		if (ack['Payload'].v['EncryptionKey'] != nil)
 			self.challenge_key = ack['Payload'].v['EncryptionKey']
@@ -488,15 +488,15 @@ EVADE = Rex::Proto::SMB::Evasions
 				self.challenge_key = ack['Payload'].v['Payload'][0, ack['Payload'].v['KeyLength']]
 			end
 		end
-		
+
 		# Set the session identifier
 		if (ack['Payload'].v['SessionKey'] != nil)
 			self.session_id = ack['Payload'].v['SessionKey']
 		end
-		
+
 		# Extract the payload (GUID/SecurityBlob)
 		buf = ack['Payload'].v['Payload'] || ''
-				
+
 		# Set the server GUID
 		if (self.extended_security and buf.length >= 16)
 			self.server_guid = buf[0,16]
@@ -506,30 +506,30 @@ EVADE = Rex::Proto::SMB::Evasions
 		if (self.extended_security and buf.length > 16)
 			# buf[16, buf.length - 16]
 		end
-				
+
 		if (ack['Payload'].v['ServerDate'] > 0)
 			stamp = UTILS.time_smb_to_unix(ack['Payload'].v['ServerDate'],ack['Payload'].v['ServerTime'])
 		end
-		
+
 		return ack
-	end	
+	end
 
 
 	# Authenticate and establish a session
 	def session_setup(*args)
-	
+
 		if (self.dialect =~ /^(NT LANMAN 1.0|NT LM 0.12)$/)
-		
-		
-			if (self.challenge_key) 
+
+
+			if (self.challenge_key)
 				return self.session_setup_ntlmv1(*args)
 			end
-		
+
 			if ( self.extended_security )
 				return self.session_setup_ntlmv2(*args)
 			end
 		end
-		
+
 		return self.session_setup_clear(*args)
 	end
 
@@ -537,10 +537,10 @@ EVADE = Rex::Proto::SMB::Evasions
 	def session_setup_clear(user = '', pass = '', domain = '')
 
 		data = [ pass, user, domain, self.native_os, self.native_lm ].collect{ |a| a + "\x00" }.join('');
-		
+
 		pkt = CONST::SMB_SETUP_LANMAN_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-				
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
@@ -553,27 +553,27 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['Capabilities'] = 64
 		pkt['Payload'].v['SessionKey'] = self.session_id
 		pkt['Payload'].v['Payload'] = data
-		
+
 		self.smb_send(pkt.to_s)
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX)
-		
+
 		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
 			self.auth_user = user
 		end
-		
+
 		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
-		
+
 		info = ack['Payload'].v['Payload'].split(/\x00/)
 		self.peer_native_os = info[0]
 		self.peer_native_lm = info[1]
 		self.default_domain = info[2]
-		
+
 		return ack
-	end	
-	
+	end
+
 	# Authenticate using NTLMv1
 	def session_setup_ntlmv1(user = '', pass = '', domain = '')
-	
+
 		raise XCEPT::NTLM1MissingChallenge if not self.challenge_key
 
 		if (pass.length == 65)
@@ -590,11 +590,11 @@ EVADE = Rex::Proto::SMB::Evasions
 		data << user + "\x00"
 		data << domain + "\x00"
 		data << self.native_os + "\x00"
-		data << self.native_lm + "\x00"		
-		
+		data << self.native_lm + "\x00"
+
 		pkt = CONST::SMB_SETUP_NTLMV1_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-				
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
@@ -602,20 +602,20 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2
-		pkt['Payload'].v['VCNum'] = 1		
+		pkt['Payload'].v['VCNum'] = 1
 		pkt['Payload'].v['PasswordLenLM'] = hash_lm.length
 		pkt['Payload'].v['PasswordLenNT'] = hash_nt.length
 		pkt['Payload'].v['Capabilities'] = 64
 		pkt['Payload'].v['SessionKey'] = self.session_id
 		pkt['Payload'].v['Payload'] = data
-		
+
 		self.smb_send(pkt.to_s)
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX)
-			
+
 		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
 			self.auth_user = user
 		end
-		
+
 		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
 
 		info = ack['Payload'].v['Payload'].split(/\x00/)
@@ -623,9 +623,9 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.peer_native_os = info[0]
 		self.peer_native_lm = info[1]
 		self.default_domain = info[2]
-				
+
 		return ack
-	end	
+	end
 
 
 	# Authenticate using NTLMv1 with a precomputed hash pair
@@ -637,11 +637,11 @@ EVADE = Rex::Proto::SMB::Evasions
 		data << user + "\x00"
 		data << domain + "\x00"
 		data << self.native_os + "\x00"
-		data << self.native_lm + "\x00"		
-		
+		data << self.native_lm + "\x00"
+
 		pkt = CONST::SMB_SETUP_NTLMV1_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-				
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
@@ -649,20 +649,20 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2
-		pkt['Payload'].v['VCNum'] = 1		
+		pkt['Payload'].v['VCNum'] = 1
 		pkt['Payload'].v['PasswordLenLM'] = hash_lm.length
 		pkt['Payload'].v['PasswordLenNT'] = hash_nt.length
 		pkt['Payload'].v['Capabilities'] = 64
 		pkt['Payload'].v['SessionKey'] = self.session_id
 		pkt['Payload'].v['Payload'] = data
-		
+
 		self.smb_send(pkt.to_s)
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX)
-			
+
 		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
 			self.auth_user = user
 		end
-		
+
 		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
 
 		info = ack['Payload'].v['Payload'].split(/\x00/)
@@ -670,26 +670,26 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.peer_native_os = info[0]
 		self.peer_native_lm = info[1]
 		self.default_domain = info[2]
-				
+
 		return ack
 	end
-	
+
 	# Authenticate using extended security negotiation (NTLMv2)
 	def session_setup_ntlmv2(user = '', pass = '', domain = '', name = nil)
-	
+
 		if (name == nil)
 			name = Rex::Text.rand_text_alphanumeric(16)
 		end
-		
+
 		blob = UTILS.make_ntlmv2_secblob_init(domain, name)
-		
+
 		native_data = ''
 		native_data << self.native_os + "\x00"
-		native_data << self.native_lm + "\x00"		
+		native_data << self.native_lm + "\x00"
 
 		pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-				
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2801
@@ -697,21 +697,21 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2
-		pkt['Payload'].v['VCNum'] = 1		
+		pkt['Payload'].v['VCNum'] = 1
 		pkt['Payload'].v['SecurityBlobLen'] = blob.length
 		pkt['Payload'].v['Capabilities'] = 0x8000d05c
 		pkt['Payload'].v['SessionKey'] = self.session_id
-		pkt['Payload'].v['Payload'] = blob + native_data 
-		
+		pkt['Payload'].v['Payload'] = blob + native_data
+
 		self.smb_send(pkt.to_s)
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
-		
-		
+
+
 		# The server doesn't know about NTLM_NEGOTIATE, try ntlmv1
 		if (ack['Payload']['SMB'].v['ErrorClass'] == 0x00020002)
 			return session_setup_ntlmv1(user, pass, domain)
 		end
-		
+
 		# Make sure the error code tells us to continue processing
 		if (ack['Payload']['SMB'].v['ErrorClass'] != 0xc0000016)
 			failure = XCEPT::ErrorCode.new
@@ -729,23 +729,48 @@ EVADE = Rex::Proto::SMB::Evasions
 		info = data.split(/\x00/)
 		self.peer_native_os = info[0]
 		self.peer_native_lm = info[1]
-		
+
 		# Save the temporary UserID for use in the next request
 		temp_user_id = ack['Payload']['SMB'].v['UserID']
-		
+
 		# Extract the NTLM challenge key the lazy way
 		cidx = blob.index("NTLMSSP\x00\x02\x00\x00\x00")
-		
+
 		if (cidx == -1)
 			raise XCEPT::NTLM2MissingChallenge
 		end
-		
+
 		# Store the challenge key
 		self.challenge_key = blob[cidx + 24, 8]
-		
+
+		# Extract the address list from the blob
+		alist_len,alist_mlen,alist_off = blob[cidx + 40, 8].unpack("vvV")
+		alist_buf = blob[cidx + alist_off, alist_len]
+
+		while(alist_buf.length > 0)
+			atype, alen = alist_buf.slice!(0,4).unpack('vv')
+			break if atype == 0x00
+			addr = alist_buf.slice!(0, alen)
+			case atype
+			when 1
+				self.default_name =  addr.gsub("\x00", '')
+			when 2
+				self.default_domain = addr.gsub("\x00", '')
+			when 3
+				self.dns_host_name =  addr.gsub("\x00", '')
+			when 4
+				self.dns_domain_name =  addr.gsub("\x00", '')
+			when 5
+				# unknown
+			when 7
+				# client time
+			end
+		end
+
+
 		# Generate a random client-side challenge
 		client_challenge = Rex::Text.rand_text(8)
-		
+
 		# Generate the nonce
 		nonce = CRYPT.md5_hash(self.challenge_key + client_challenge)
 
@@ -755,16 +780,16 @@ EVADE = Rex::Proto::SMB::Evasions
 		else
 			resp_ntlm = CRYPT.ntlm_md4(pass, nonce[0, 8])
 		end
-		
+
 		# Generate the fake LANMAN hash
 		resp_lmv2 = client_challenge + ("\x00" * 16)
 
 		# Create the ntlmv2 security blob data
 		blob = UTILS.make_ntlmv2_secblob_auth(domain, name, user, resp_lmv2, resp_ntlm)
-		
+
 		pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-				
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2801
@@ -773,47 +798,47 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2
-		pkt['Payload'].v['VCNum'] = 1		
+		pkt['Payload'].v['VCNum'] = 1
 		pkt['Payload'].v['SecurityBlobLen'] = blob.length
 		pkt['Payload'].v['Capabilities'] = 0x8000d05c
 		pkt['Payload'].v['SessionKey'] = self.session_id
-		pkt['Payload'].v['Payload'] = blob + native_data 
-		
+		pkt['Payload'].v['Payload'] = blob + native_data
+
 		self.smb_send(pkt.to_s)
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
-		
+
 		# Make sure that authentication succeeded
 		if (ack['Payload']['SMB'].v['ErrorClass'] != 0)
 			if (user.length == 0)
 				return self.session_setup_ntlmv1(user, pass, domain)
 			end
-			
+
 			failure = XCEPT::ErrorCode.new
 			failure.word_count = ack['Payload']['SMB'].v['WordCount']
 			failure.command = ack['Payload']['SMB'].v['Command']
 			failure.error_code = ack['Payload']['SMB'].v['ErrorClass']
 			raise failure
 		end
-				
+
 		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
-		
+
 		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
 			self.auth_user = user
-		end		
+		end
 
 		return ack
-	end	
+	end
 
 
 	# An exploit helper function for sending arbitrary SPNEGO blobs
 	def session_setup_ntlmv2_blob(blob = '')
 		native_data = ''
 		native_data << self.native_os + "\x00"
-		native_data << self.native_lm + "\x00"		
-		
+		native_data << self.native_lm + "\x00"
+
 		pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-				
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2801
@@ -822,33 +847,33 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2
-		pkt['Payload'].v['VCNum'] = 1		
+		pkt['Payload'].v['VCNum'] = 1
 		pkt['Payload'].v['SecurityBlobLen'] = blob.length
 		pkt['Payload'].v['Capabilities'] = 0x8000d05c
 		pkt['Payload'].v['SessionKey'] = self.session_id
-		pkt['Payload'].v['Payload'] = blob + native_data 
-		
+		pkt['Payload'].v['Payload'] = blob + native_data
+
 		self.smb_send(pkt.to_s)
 		self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, false)
-	end	
+	end
 
 
 	# Authenticate using extended security negotiation (NTLMv2), but stop half-way, using the temporary ID
 	def session_setup_ntlmv2_temp(domain = '', name = nil)
-	
+
 		if (name == nil)
 			name = Rex::Text.rand_text_alphanumeric(16)
 		end
-		
+
 		blob = UTILS.make_ntlmv2_secblob_init(domain, name)
-		
+
 		native_data = ''
 		native_data << self.native_os + "\x00"
-		native_data << self.native_lm + "\x00"		
+		native_data << self.native_lm + "\x00"
 
 		pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-				
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2801
@@ -856,20 +881,20 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2
-		pkt['Payload'].v['VCNum'] = 1		
+		pkt['Payload'].v['VCNum'] = 1
 		pkt['Payload'].v['SecurityBlobLen'] = blob.length
 		pkt['Payload'].v['Capabilities'] = 0x8000d05c
 		pkt['Payload'].v['SessionKey'] = self.session_id
-		pkt['Payload'].v['Payload'] = blob + native_data 
-		
+		pkt['Payload'].v['Payload'] = blob + native_data
+
 		self.smb_send(pkt.to_s)
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
-		
+
 		# The server doesn't know about NTLM_NEGOTIATE, try ntlmv1
 		if (ack['Payload']['SMB'].v['ErrorClass'] == 0x00020002)
 			return session_setup_ntlmv1(user, pass, domain)
 		end
-		
+
 		# Make sure the error code tells us to continue processing
 		if (ack['Payload']['SMB'].v['ErrorClass'] != 0xc0000016)
 			failure = XCEPT::ErrorCode.new
@@ -887,31 +912,31 @@ EVADE = Rex::Proto::SMB::Evasions
 		info = data.split(/\x00/)
 		self.peer_native_os = info[0]
 		self.peer_native_lm = info[1]
-		
+
 		# Save the temporary UserID for use in the next request
 		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
-		
+
 		# Extract the NTLM challenge key the lazy way
 		cidx = blob.index("NTLMSSP\x00\x02\x00\x00\x00")
-		
+
 		if (cidx == -1)
 			raise XCEPT::NTLM2MissingChallenge
 		end
-		
+
 		# Store the challenge key
 		self.challenge_key = blob[cidx + 24, 8]
-		
+
 		return ack
-	end	
+	end
 
 	# Connect to a specified share with an optional password
 	def tree_connect(share = 'IPC$', pass = '')
-		
+
 		data = [ pass, share, '?????' ].collect{ |a| a + "\x00" }.join('');
-		
+
 		pkt = CONST::SMB_TREE_CONN_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-				
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TREE_CONNECT_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
@@ -920,97 +945,97 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['PasswordLen'] = pass.length + 1
 		pkt['Payload'].v['Capabilities'] = 64
 		pkt['Payload'].v['Payload'] = data
-		
+
 		self.smb_send(pkt.to_s)
-		
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_TREE_CONNECT_ANDX)
-		
+
 		self.last_tree_id = ack['Payload']['SMB'].v['TreeID']
 		# why bother?
 		# info = ack['Payload'].v['Payload'].split(/\x00/)
-		
-		return ack		
-	end	
+
+		return ack
+	end
 
 	# Disconnect from the current tree
 	def tree_disconnect(tree_id = self.last_tree_id)
 
 		pkt = CONST::SMB_TREE_DISCONN_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-				
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TREE_DISCONNECT
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['WordCount'] = 0
 		pkt['Payload']['SMB'].v['TreeID'] = tree_id
-		
+
 		self.smb_send(pkt.to_s)
-		
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_TREE_DISCONNECT)
-		
+
 		if (tree_id == self.last_tree_id)
 			self.last_tree_id = 0
 		end
-		
-		return ack		
-	end	
-	
+
+		return ack
+	end
+
 	# Returns a SMB_CREATE_RES response for a given named pipe
 	def create_pipe(filename, disposition = 1, impersonation = 2)
 		self.create(filename)
 	end
-	
+
 	# Creates a file or opens an existing pipe
 	def create(filename, disposition = 1, impersonation = 2)
-		
+
 		pkt = CONST::SMB_CREATE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-		
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_CREATE_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['WordCount'] = 24
-		
+
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['FileNameLen'] = filename.length
 		pkt['Payload'].v['CreateFlags'] = 0x16
 		pkt['Payload'].v['AccessMask'] = 0x02000000 # Maximum Allowed
 		pkt['Payload'].v['ShareAccess'] = 7
 		pkt['Payload'].v['CreateOptions'] = 0
-		pkt['Payload'].v['Impersonation'] = impersonation	
+		pkt['Payload'].v['Impersonation'] = impersonation
 		pkt['Payload'].v['Disposition'] = disposition
 		pkt['Payload'].v['Payload'] = filename + "\x00"
-		
+
 		self.smb_send(pkt.to_s)
-		
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_NT_CREATE_ANDX)
 
 		# Save off the FileID
 		if (ack['Payload'].v['FileID'] > 0)
-			self.last_file_id = ack['Payload'].v['FileID']	
+			self.last_file_id = ack['Payload'].v['FileID']
 		end
-		
+
 		return ack
 	end
 
 	# Deletes a file from a share
 	def delete(filename, tree_id = self.last_tree_id)
-		
+
 		pkt = CONST::SMB_DELETE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-		
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_DELETE
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['TreeID'] = tree_id
 		pkt['Payload']['SMB'].v['WordCount'] = 1
-		
+
 		pkt['Payload'].v['SearchAttributes'] = 0x06
 		pkt['Payload'].v['BufferFormat'] = 4
 		pkt['Payload'].v['Payload'] = filename + "\x00"
-		
+
 		self.smb_send(pkt.to_s)
-		
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_DELETE)
 
 		return ack
@@ -1018,50 +1043,50 @@ EVADE = Rex::Proto::SMB::Evasions
 
 	# Opens an existing file or creates a new one
 	def open(filename, mode = 0x12, access = 0x42)
-		
+
 		pkt = CONST::SMB_OPEN_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-		
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_OPEN_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['WordCount'] = 15
-		
+
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['Access'] = access
 		pkt['Payload'].v['SearchAttributes'] = 0x06
-		pkt['Payload'].v['OpenFunction'] = mode	
+		pkt['Payload'].v['OpenFunction'] = mode
 		pkt['Payload'].v['Payload'] = filename + "\x00"
-		
+
 		self.smb_send(pkt.to_s)
-		
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_OPEN_ANDX)
-		
+
 		# Save off the FileID
 		if (ack['Payload'].v['FileID'] > 0)
-			self.last_file_id = ack['Payload'].v['FileID']	
+			self.last_file_id = ack['Payload'].v['FileID']
 		end
-		
+
 		return ack
 	end
 
 	# Closes an open file handle
 	def close(file_id = self.last_file_id, tree_id = self.last_tree_id)
-		
+
 		pkt = CONST::SMB_CLOSE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-		
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_CLOSE
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['TreeID'] = tree_id
 		pkt['Payload']['SMB'].v['WordCount'] = 3
-		
+
 		pkt['Payload'].v['FileID'] = file_id
 		pkt['Payload'].v['LastWrite'] = -1
-		
+
 		self.smb_send(pkt.to_s)
-		
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_CLOSE)
 
 		return ack
@@ -1070,19 +1095,19 @@ EVADE = Rex::Proto::SMB::Evasions
 
 	# Writes data to an open file handle
 	def write(file_id = self.last_file_id, offset = 0, data = '')
-		
+
 		pkt = CONST::SMB_WRITE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-		
+
 		data_offset = pkt.to_s.length - 4
-		
+
 		filler = EVADE.make_offset_filler(evasion_opts['pad_data'], 4096 - data.length - data_offset)
-		
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_WRITE_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['WordCount'] = 14
-		
+
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['FileID'] = file_id
 		pkt['Payload'].v['Offset'] = offset
@@ -1093,9 +1118,9 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['DataLenLow'] = (data.length % 65536).to_i
 		pkt['Payload'].v['DataOffset'] = data_offset + filler.length
 		pkt['Payload'].v['Payload'] = filler + data
-		
+
 		self.smb_send(pkt.to_s)
-		
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_WRITE_ANDX)
 
 		return ack
@@ -1104,15 +1129,15 @@ EVADE = Rex::Proto::SMB::Evasions
 
 	# Reads data from an open file handle
 	def read(file_id = self.last_file_id, offset = 0, data_length = 64000)
-		
+
 		pkt = CONST::SMB_READ_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-		
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_READ_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['WordCount'] = 10
-		
+
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['FileID'] = file_id
 		pkt['Payload'].v['Offset'] = offset
@@ -1120,7 +1145,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['MaxCountLow'] = (data_length % 65536).to_i
 		pkt['Payload'].v['MinCount'] = data_length
 		pkt['Payload'].v['Reserved2'] = -1
-		
+
 		self.smb_send(pkt.to_s)
 
 		ack = self.smb_recv_parse(CONST::SMB_COM_READ_ANDX, true)
@@ -1138,8 +1163,8 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		return ack
 	end
-	
-	
+
+
 	# Perform a transaction against a named pipe
 	def trans_named_pipe(file_id, data = '', no_response = nil)
 		pipe = EVADE.make_trans_named_pipe_name(evasion_opts['pad_file'])
@@ -1155,7 +1180,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		#      Class: Reliable
 		self.trans_maxzero(name, '', data, 3, [1, 0, 1].pack('vvv'), true )
 	end
-	
+
 	# Perform a transaction against a given pipe name
 	def trans(pipe, param = '', body = '', setup_count = 0, setup_data = '', no_response = nil)
 
@@ -1163,13 +1188,13 @@ EVADE = Rex::Proto::SMB::Evasions
 		if (pipe[-1] != 0)
 			pipe << "\x00"
 		end
-		
+
 		pkt = CONST::SMB_TRANS_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
 
-		# Packets larger than mlen will cause XP SP2 to disconnect us ;-(		
+		# Packets larger than mlen will cause XP SP2 to disconnect us ;-(
 		mlen = 4200
-		
+
 		# Figure out how much space is taken up by our current arguments
 		xlen =  pipe.length + param.length + body.length
 
@@ -1184,22 +1209,22 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		# Squish the whole thing together
 		data = pipe + filler1 + param + filler2 + body
-		
+
 		# Throw some form of a warning out?
 		if (data.length > mlen)
 			# XXX This call will more than likely fail :-(
 		end
-		
+
 		# Calculate all of the offsets
 		base_offset = pkt.to_s.length + (setup_count * 2) - 4
 		param_offset = base_offset + pipe.length + filler1.length
 		data_offset = param_offset + filler2.length + param.length
-		
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
-		
+
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 1024
@@ -1210,13 +1235,13 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['DataOffset'] = data_offset
 		pkt['Payload'].v['SetupCount'] = setup_count
 		pkt['Payload'].v['SetupData'] = setup_data
-					
+
 		pkt['Payload'].v['Payload'] = data
-		
+
 		if no_response
 			pkt['Payload'].v['Flags'] = 2
 		end
-	
+
 		response = self.smb_send(pkt.to_s)
 		if no_response
 			return response
@@ -1236,13 +1261,13 @@ EVADE = Rex::Proto::SMB::Evasions
 		if (pipe[-1] != 0)
 			pipe << "\x00"
 		end
-		
+
 		pkt = CONST::SMB_TRANS_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
 
-		# Packets larger than mlen will cause XP SP2 to disconnect us ;-(		
+		# Packets larger than mlen will cause XP SP2 to disconnect us ;-(
 		mlen = 4200
-		
+
 		# Figure out how much space is taken up by our current arguments
 		xlen =  pipe.length + param.length + body.length
 
@@ -1257,22 +1282,22 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		# Squish the whole thing together
 		data = pipe + filler1 + param + filler2 + body
-		
+
 		# Throw some form of a warning out?
 		if (data.length > mlen)
 			# XXX This call will more than likely fail :-(
 		end
-		
+
 		# Calculate all of the offsets
 		base_offset = pkt.to_s.length + (setup_count * 2) - 4
 		param_offset = base_offset + pipe.length + filler1.length
 		data_offset = param_offset + filler2.length + param.length
-		
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
-		
+
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 0
@@ -1283,13 +1308,13 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['DataOffset'] = data_offset
 		pkt['Payload'].v['SetupCount'] = setup_count
 		pkt['Payload'].v['SetupData'] = setup_data
-					
+
 		pkt['Payload'].v['Payload'] = data
-		
+
 		if no_response
 			pkt['Payload'].v['Flags'] = 2
 		end
-	
+
 		response = self.smb_send(pkt.to_s)
 		if no_response
 			return response
@@ -1301,13 +1326,13 @@ EVADE = Rex::Proto::SMB::Evasions
 
 	# Perform a transaction against a given pipe name (no null terminator)
 	def trans_nonull(pipe, param = '', body = '', setup_count = 0, setup_data = '', no_response = nil)
-		
+
 		pkt = CONST::SMB_TRANS_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
 
-		# Packets larger than mlen will cause XP SP2 to disconnect us ;-(		
+		# Packets larger than mlen will cause XP SP2 to disconnect us ;-(
 		mlen = 4200
-		
+
 		# Figure out how much space is taken up by our current arguments
 		xlen =  pipe.length + param.length + body.length
 
@@ -1322,22 +1347,22 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		# Squish the whole thing together
 		data = pipe + filler1 + param + filler2 + body
-		
+
 		# Throw some form of a warning out?
 		if (data.length > mlen)
 			# XXX This call will more than likely fail :-(
 		end
-		
+
 		# Calculate all of the offsets
 		base_offset = pkt.to_s.length + (setup_count * 2) - 4
 		param_offset = base_offset + pipe.length + filler1.length
 		data_offset = param_offset + filler2.length + param.length
-		
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
-		
+
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 0
@@ -1348,13 +1373,13 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['DataOffset'] = data_offset
 		pkt['Payload'].v['SetupCount'] = setup_count
 		pkt['Payload'].v['SetupData'] = setup_data
-					
+
 		pkt['Payload'].v['Payload'] = data
-		
+
 		if no_response
 			pkt['Payload'].v['Flags'] = 2
 		end
-	
+
 		response = self.smb_send(pkt.to_s)
 		if no_response
 			return response
@@ -1362,27 +1387,27 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		return self.smb_recv_parse(CONST::SMB_COM_TRANSACTION)
 	end
-	
+
 	# Perform a transaction2 request using the specified subcommand, parameters, and data
 	def trans2(subcommand, param = '', body = '')
 
 		setup_count = 1
 		setup_data = [subcommand].pack('v')
-		
+
 		data = param + body
 
 		pkt = CONST::SMB_TRANS2_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-		
+
 		base_offset = pkt.to_s.length + (setup_count * 2) - 4
 		param_offset = base_offset
 		data_offset = param_offset + param.length
-		
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
-		
+
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 1024
@@ -1394,15 +1419,15 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['SetupCount'] = setup_count
 		pkt['Payload'].v['SetupData'] = setup_data
 
-				
+
 		pkt['Payload'].v['Payload'] = data
-		
+
 		self.smb_send(pkt.to_s)
 		ack = self.smb_recv_parse(CONST::SMB_COM_TRANSACTION2)
-		
+
 		return ack
 	end
-	
+
 
 	# Perform a nttransaction request using the specified subcommand, parameters, and data
 	def nttrans(subcommand, param = '', body = '', setup_count = 0, setup_data = '')
@@ -1411,16 +1436,16 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt = CONST::SMB_NTTRANS_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-		
+
 		base_offset = pkt.to_s.length + (setup_count * 2) - 4
 		param_offset = base_offset
 		data_offset = param_offset + param.length
-		
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_TRANSACT
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['WordCount'] = 19 + setup_count
-		
+
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 1024
@@ -1432,14 +1457,14 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['SetupCount'] = setup_count
 		pkt['Payload'].v['SetupData'] = setup_data
 		pkt['Payload'].v['Subcommand'] = subcommand
-				
+
 		pkt['Payload'].v['Payload'] = data
-		
+
 		self.smb_send(pkt.to_s)
 		ack = self.smb_recv_parse(CONST::SMB_COM_NT_TRANSACT)
 		return ack
 	end
-	
+
 	# Perform a nttransaction request using the specified subcommand, parameters, and data
 	def nttrans_secondary(param = '', body = '')
 
@@ -1447,30 +1472,30 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt = CONST::SMB_NTTRANS_SECONDARY_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
-		
+
 		base_offset = pkt.to_s.length - 4
 		param_offset = base_offset
 		data_offset = param_offset + param.length
-		
+
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_TRANSACT_SECONDARY
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
 		pkt['Payload']['SMB'].v['WordCount'] = 18
-		
+
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCount'] = param.length
 		pkt['Payload'].v['ParamOffset'] = param_offset
 		pkt['Payload'].v['DataCount'] = body.length
 		pkt['Payload'].v['DataOffset'] = data_offset
-				
+
 		pkt['Payload'].v['Payload'] = data
-		
+
 		self.smb_send(pkt.to_s)
 		ack = self.smb_recv_parse(CONST::SMB_COM_NT_TRANSACT_SECONDARY)
 		return ack
 	end
-			
+
 	def queryfs(level)
 		parm = [level].pack('v')
 
@@ -1481,10 +1506,10 @@ EVADE = Rex::Proto::SMB::Evasions
 			dcnt = resp['Payload'].v['DataCount']
 			poff = resp['Payload'].v['ParamOffset']
 			doff = resp['Payload'].v['DataOffset']
-			
+
 			# Get the raw packet bytes
 			resp_rpkt = resp.to_s
-			
+
 			# Remove the NetBIOS header
 			resp_rpkt.slice!(0, 4)
 
@@ -1525,8 +1550,8 @@ EVADE = Rex::Proto::SMB::Evasions
 			'create_time' => (vals[1] << 32) + vals[0],
 			'serial'      => vals[2],
 			'label'       => vals[6][0,vals[3]].gsub("\x00", '')
-		}		
-	end	
+		}
+	end
 
 	# Obtains file system size information on the mounted tree
 	def queryfs_fs_size
@@ -1537,9 +1562,9 @@ EVADE = Rex::Proto::SMB::Evasions
 			'total_free_units'  => (vals[3] << 32) + vals[2],
 			'sectors_per_unit'  => vals[4],
 			'bytes_per_sector'  => vals[5]
-		}		
+		}
 	end
-	
+
 	# Obtains file system device information on the mounted tree
 	def queryfs_fs_device
 		data = queryfs(CONST::SMB_QUERY_FS_DEVICE_INFO)
@@ -1547,9 +1572,9 @@ EVADE = Rex::Proto::SMB::Evasions
 		return {
 			'device_type'   => vals[0],
 			'device_chars'  => vals[1],
-		}		
+		}
 	end
-	
+
 	# Obtains file system attribute information on the mounted tree
 	def queryfs_fs_attribute
 		data = queryfs(CONST::SMB_QUERY_FS_ATTRIBUTE_INFO)
@@ -1558,9 +1583,9 @@ EVADE = Rex::Proto::SMB::Evasions
 			'fs_attributes' => vals[0],
 			'max_file_name' => vals[1],
 			'fs_name'       => vals[3][0, vals[2]].gsub("\x00", '')
-		}				
+		}
 	end
-	
+
 	# Enumerates a specific path on the mounted tree
 	def find_first(path)
 		files = { }
@@ -1571,24 +1596,24 @@ EVADE = Rex::Proto::SMB::Evasions
 			260, # Level of interest
 			0,   # Storage type is zero
 		].pack('vvvvV') + path + "\x00"
-		
+
 		begin
 			resp = trans2(CONST::TRANS2_FIND_FIRST2, parm, '')
-			
+
 			pcnt = resp['Payload'].v['ParamCount']
 			dcnt = resp['Payload'].v['DataCount']
 			poff = resp['Payload'].v['ParamOffset']
 			doff = resp['Payload'].v['DataOffset']
-			
+
 			# Get the raw packet bytes
 			resp_rpkt = resp.to_s
-			
+
 			# Remove the NetBIOS header
 			resp_rpkt.slice!(0, 4)
 
 			resp_parm = resp_rpkt[poff, pcnt]
 			resp_data = resp_rpkt[doff, dcnt]
-			
+
 			# search id, search count, end of search, error offset, last name offset
 			sid, scnt, eos, eoff, loff = resp_parm.unpack('v5')
 
@@ -1612,23 +1637,23 @@ EVADE = Rex::Proto::SMB::Evasions
 					'C' 	# Reserved
 				)
 				name = resp_data[didx + 70 + 24, info[15]].sub!(/\x00+$/, '')
-				files[name] = 
+				files[name] =
 				{
 					'type' => (info[14] & 0x10) ? 'D' : 'F',
 					'attr' => info[14],
 					'info' => info
 				}
-				
+
 				break if info[0] == 0
 				didx += info[0]
 			end
-			
+
 			last_search_id = sid
-			
+
 		rescue ::Exception
 			raise $!
 		end
-		
+
 		return files
 	end
 
@@ -1647,14 +1672,14 @@ EVADE = Rex::Proto::SMB::Evasions
 		return files
 	end
 =end
-	
+
 	# Creates a new directory on the mounted tree
 	def create_directory(name)
 		files = { }
 		parm = [0].pack('V') + name + "\x00"
 		resp = trans2(CONST::TRANS2_CREATE_DIRECTORY, parm, '')
 	end
-		
+
 # public read/write methods
 	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
 
@@ -1663,17 +1688,19 @@ EVADE = Rex::Proto::SMB::Evasions
 	attr_reader		:default_domain, :default_name, :auth_user, :auth_user_id
 	attr_reader		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
 	attr_reader		:security_mode, :server_guid
-	
+
 # private methods
 	attr_writer		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
 	attr_writer		:default_domain, :default_name, :auth_user, :auth_user_id
+	attr_writer		:dns_host_name, :dns_domain_name
 	attr_writer		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
 	attr_writer		:security_mode, :server_guid
-		
+
 	attr_accessor	:socket
-	
+
 
 end
 end
 end
 end
+

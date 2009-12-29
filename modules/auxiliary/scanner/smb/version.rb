@@ -54,7 +54,16 @@ class Metasploit3 < Msf::Auxiliary
 			res = smb_fingerprint()
 
 			if(res['os'] and res['os'] != 'Unknown')
-				print_status("#{rhost} is running #{res['os']} #{res['sp']} (language: #{res['lang']})")
+				info = "#{rhost} is running #{res['os']} #{res['sp']} (language: #{res['lang']})"
+				if(simple.client.default_name)
+					info << " (name:#{simple.client.default_name})"
+				end
+
+				if(simple.client.default_domain)
+					info << " (domain:#{simple.client.default_domain})"
+				end
+
+				print_status(info)
 				report_service(:host => ip, :port => info[0], :name => 'smb', :info => "#{res['os']} #{res['sp']} (language: #{res['lang']})")
 				case res['os']
 				when /Windows/
