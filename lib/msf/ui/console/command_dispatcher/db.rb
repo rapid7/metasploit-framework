@@ -319,16 +319,24 @@ class Db
 
 			end
  			framework.db.each_note do |note|
-				next if(hosts and hosts.index(note.host.address) == nil)
+				next if(hosts and (note.host == nil or hosts.index(note.host.address) == nil))
 				next if(types and types.index(note.ntype) == nil)
- 				print_status("Time: #{note.created} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
+				if (note.host and note.service)
+					print_status("Time: #{note.created} Note: host=#{note.host.address} service=#{note.service.name} type=#{note.ntype} data=#{note.data}")
+				elsif (note.host)
+					print_status("Time: #{note.created} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
+				elsif (note.service)
+					print_status("Time: #{note.created} Note: service=#{note.service.name} type=#{note.ntype} data=#{note.data}")
+				else
+					print_status("Time: #{note.created} Note: type=#{note.ntype} data=#{note.data}")
+				end
  			end
  		end
 
 		def cmd_db_add_host(*args)
 			print_status("Adding #{args.length} hosts...")
 			args.each do |address|
-				host = framework.db.get_host(nil, address)
+				host = framework.db.find_or_create_host(address)
 				print_status("Time: #{host.created} Host: host=#{host.address}")
 			end
 		end
@@ -339,10 +347,10 @@ class Db
 				return
 			end
 
-			host = framework.db.get_host(nil, args[0])
+			host = framework.db.find_or_create_host(args[0])
 			return if not host
 
-			service = framework.db.get_service(nil, host, args[2].downcase, args[1].to_i)
+			service = framework.db.get_service(host, args[2].downcase, args[1].to_i)
 			return if not service
 
 			print_status("Time: #{service.created} Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}")
@@ -369,10 +377,10 @@ class Db
 			ntype = args.shift
 			ndata = args.join(" ")
 
-			host = framework.db.get_host(nil, naddr)
+			host = framework.db.find_or_create_host(naddr)
 			return if not host
 
-			note = framework.db.get_note(nil, host, ntype, ndata)
+			note = framework.db.find_or_create_note(host, ntype, ndata)
 			return if not note
 
 			print_status("Time: #{note.created} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
@@ -819,14 +827,14 @@ class Db
 			p = port.match(/^([^\(]+)\((\d+)\/([^\)]+)\)/)
 			return if not p
 
-			host = framework.db.get_host(nil, addr)
+			host = framework.db.find_or_create_host(addr)
 			return if not host
 
 			if host.state != Msf::HostState::Alive
-				framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+				framework.db.report_host_state(addr, Msf::HostState::Alive)
 			end
 
-			service = framework.db.get_service(nil, host, p[3].downcase, p[2].to_i)
+			service = framework.db.get_service(host, p[3].downcase, p[2].to_i)
 			name = p[1].strip
 			if name != "unknown"
 				service.name = name
@@ -860,11 +868,11 @@ class Db
 
 			nss = 'NSS-' + nasl.to_s
 
-			vuln = framework.db.get_vuln(nil, host, service, nss, data)
+			vuln = framework.db.get_vuln(host, service, nss, data)
 
 			rids = []
 			refs.keys.each do |r|
-				rids << framework.db.get_ref(nil, r)
+				rids << framework.db.get_ref(r)
 			end
 
 			vuln.refs << (rids - vuln.refs)
@@ -1007,26 +1015,32 @@ class Db
 			# Whenever the parser pulls a host out of the nmap results, store
 			# it, along with any associated services, in the database.
 			parser.on_found_host = Proc.new { |h|
+				data = {}
 				if (h["addrs"].has_key?("ipv4"))
-					addr = h["addrs"]["ipv4"]
-				elsif (h.has_key?("ipv6"))
-					addr = h["addrs"]["ipv6"]
+					data[:host] = h["addrs"]["ipv4"]
+				elsif (h["addrs"].has_key?("ipv6"))
+					data[:host] = h["addrs"]["ipv6"]
 				else
-					# Don't care about addresses other than IP
+					# Can't report it if it doesn't have an IP
 					return
 				end
-				host = framework.db.get_host(nil, addr)
-				status = (h["status"] == "up" ? Msf::HostState::Alive : Msf::HostState::Dead)
-				framework.db.report_host_state(self, addr, status)
+				if (h["addrs"].has_key?("mac"))
+					data[:mac] = h["addrs"]["mac"]
+				end
+				data[:state] = (h["status"] == "up" ? Msf::HostState::Alive : Msf::HostState::Dead)
+				host = framework.db.find_or_create_host(data)
 
 				# Put all the ports, regardless of state, into the db.
 				h["ports"].each { |p|
-					service = framework.db.get_service(nil, host, p["protocol"].downcase, p["portid"].to_i)
-					service.state = p["state"]
+					data = {}
+					data[:proto] = p["protocol"].downcase
+					data[:port]  = p["portid"].to_i
+					data[:state] = p["state"]
+					data[:host]  = host
 					if p["name"] != "unknown"
-						service.name = p["name"]
+						data[:name] = p["name"]
 					end
-					service.save
+					framework.db.report_service(data)
 				}
 			}
 
@@ -1063,14 +1077,14 @@ class Db
 
 				next if status != "open"
 
-				host = framework.db.get_host(nil, addr)
+				host = framework.db.find_or_create_host(addr)
 				next if not host
 
 				if host.state != Msf::HostState::Alive
-					framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+					framework.db.report_host_state(addr, Msf::HostState::Alive)
 				end
 
-				service = framework.db.get_service(nil, host, proto, port)
+				service = framework.db.get_service(host, proto, port)
 				if not service.name and name != "unidentified"
 					service.name = name
 					service.save

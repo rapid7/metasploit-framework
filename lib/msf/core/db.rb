@@ -50,47 +50,47 @@ module DatabaseEvent
 	#
 	# Called when an existing host's state changes
 	#
-	def on_db_host_state(context, host, ostate)
+	def on_db_host_state(host, ostate)
 	end
 
 	#
 	# Called when an existing service's state changes
 	#
-	def on_db_service_state(context, host, port, ostate)
+	def on_db_service_state(host, port, ostate)
 	end
 
 	#
 	# Called when a new host is added to the database.  The host parameter is
 	# of type Host.
 	#
-	def on_db_host(context, host)
+	def on_db_host(host)
 	end
 
 	#
 	# Called when a new client is added to the database.  The client
 	# parameter is of type Client.
 	#
-	def on_db_client(context, client)
+	def on_db_client(client)
 	end
 
 	#
 	# Called when a new service is added to the database.  The service
 	# parameter is of type Service.
 	#
-	def on_db_service(context, service)
+	def on_db_service(service)
 	end
 
 	#
 	# Called when an applicable vulnerability is found for a service.  The vuln
 	# parameter is of type Vuln.
 	#
-	def on_db_vuln(context, vuln)
+	def on_db_vuln(vuln)
 	end
 
 	#
 	# Called when a new reference is created.
 	#
-	def on_db_ref(context, ref)
+	def on_db_ref(ref)
 	end
 
 end
@@ -109,42 +109,52 @@ class DBManager
 		res = Host.find(:all)
 	end
 
-	#
-	# Reports a host as being in a given state by address.
-	#
-	def report_host_state(mod, addr, state, context = nil)
 
-		# TODO: use the current thread's Comm to find the host
-		comm = ''
-		host = get_host(context, addr, comm)
+	def default_workspace
+		Workspace.default
+	end
 
-		ostate = host.state
-		host.state = state
-		host.save
-
-		framework.events.on_db_host_state(context, host, ostate)
-		return host
+	def find_workspace(name)
+		Workspace.find_by_name(name)
 	end
 
 	#
-	# Report a host's attributes such as operating system and service pack
+	# Creates a new workspace in the database
 	#
-	# At the time of this writing, the opts parameter can contain:
-	#	:state       -- one of the Msf::HostState constants
-	#	:os_name     -- one of the Msf::Auxiliary::Report::OperatingSystems constants
-	#	:os_flavor   -- something like "XP" or "Gentoo"
-	#	:os_sp       -- something like "SP2"
-	#	:os_lang     -- something like "English" or "French"
-	#	:arch        -- one of the ARCH_* constants
-	#
-	# See <MSF install dir>/data/sql/*.sql for more info
-	#
-	def report_host(mod, addr, opts = {}, context = nil)
+	def add_workspace(name)
+		Workspace.find_or_create_by_name(name)
+	end
 
-		report_host_state(mod, addr, opts[:state] || Msf::HostState::Alive)
-		opts.delete(:state)
+	def workspaces
+		Workspace.find(:all)
+	end
 
-		host = get_host(context, addr, '')
+
+	# 
+	# Find a host.  Performs no database writes.
+	#
+	def get_host(opts)
+		if opts.kind_of? Host
+			return opts
+		elsif opts.kind_of? String
+			address = opts
+		else
+			address = opts[:addr] || opts[:address] || opts[:host] || return
+			return address if address.kind_of? Host
+		end
+		host = workspace.hosts.find_by_address(address)
+		return host
+	end
+
+	def find_or_initialize_host(opts)
+		addr = opts.delete(:host) || return
+		return addr if addr.kind_of? Host
+
+		#if opts[:comm] and opts[:comm].length > 0
+		#	host = workspace.hosts.find_or_initialize_by_address_and_comm(addr, opts[:comm])
+		#else
+			host = workspace.hosts.find_or_initialize_by_address(addr)
+		#end
 
 		opts.each { |k,v|
 			if (host.attribute_names.include?(k.to_s))
@@ -153,67 +163,62 @@ class DBManager
 				dlog("Unknown attribute for Host: #{k}")
 			end
 		}
-
-		host.save
+		host.state     = HostState::Unknown if not host.state
+		host.comm      = ''        if not host.comm
+		host.workspace = workspace if not host.workspace
 
 		return host
 	end
 
+	# 
+	# Exactly like report_host but ensures that the returned Host has been
+	# written to the database.  Returns nil on error.
 	#
-	# Report a client running on a host.
-	#
-	# opts must contain :ua_string
-	# opts can contain :ua_name and :ua_ver
-	#
-	def report_client(mod, addr, opts = {}, context = nil)
-		if opts[:ua_string].nil?
-			elog("report_client requires a ua_string", 'db', LEV_0, caller)
-			return
-		end
-		# TODO: use the current thread's Comm to find the host
-		comm = ''
-		host = get_host(context, addr, comm)
-		cli = get_client(context, host, opts[:ua_string])
-
-		opts.each { |k,v|
-			if (cli.attribute_names.include?(k.to_s))
-				cli[k] = v
-			else
-				dlog("Unknown attribute for Client: #{k}")
+	def find_or_create_host(opts)
+		host = find_or_initialize_host(opts)
+		
+		if (host and host.changed?)
+			host.created = Time.now
+			task = framework.db.queue( Proc.new { host.save! } )
+			task.wait
+			if task.status != :done
+				return nil
 			end
-		}
-		cli.save
-		return cli
-	end
-
-	#
-	# This method reports a host's service state.
-	#
-	def report_service_state(mod, addr, proto, port, state, context = nil)
-
-		# TODO: use the current thread's Comm to find the host
-		comm = ''
-		host = get_host(context, addr, comm)
-		port = get_service(context, host, proto, port, state)
-
-		ostate = port.state
-		port.state = state
-		port.save
-
-		if (ostate != state)
-			framework.events.on_db_service_state(context, host, port, ostate)
 		end
-
-		return port
-	end
-
-	def workspaces
-		Workspace.find(:all)
+		return host
 	end
 
 	#
-	# This method iterates the hosts table calling the supplied block with the
-	# host instance of each entry.
+	# Report a host's attributes such as operating system and service pack
+	#
+	# The opts parameter MUST contain
+	#	:address    -- the host's ip address
+	#
+	# The opts parameter can contain:
+	#	:state      -- one of the Msf::HostState constants
+	#	:os_name    -- one of the Msf::OperatingSystems constants
+	#	:os_flavor  -- something like "XP" or "Gentoo"
+	#	:os_sp      -- something like "SP2"
+	#	:os_lang    -- something like "English" or "French"
+	#	:arch       -- one of the ARCH_* constants
+	#	:mac        -- the host's MAC address
+	#
+	# Returns a Host that may not have been written to the database yet.
+	# If you need to be sure that the insert succeeded, use
+	# find_or_create_host.
+	#
+	def report_host(opts)
+		host = find_or_initialize_host(opts)
+		if (host.changed?)
+			host.created = Time.now
+			framework.db.queue( Proc.new { host.save! } )
+		end
+		return host
+	end
+
+	#
+	# Iterates over the hosts table calling the supplied block with the host
+	# instance of each entry.
 	#
 	def each_host(&block)
 		workspace.hosts.each do |host|
@@ -222,7 +227,7 @@ class DBManager
 	end
 
 	#
-	# This methods returns a list of all hosts in the database
+	# Returns a list of all hosts in the database
 	#
 	def hosts(only_up = false, addresses = nil)
 		conditions = {}
@@ -231,8 +236,63 @@ class DBManager
 		workspace.hosts.all(:conditions => conditions, :order => :address)
 	end
 
+
+
+	def find_or_initialize_service(opts)
+		addr = opts.delete(:host) || return
+		host = find_or_create_host({:host => addr})
+		service = host.services.find_or_initialize_by_port_and_proto(opts[:port], opts[:proto])
+		opts.each { |k,v|
+			if (service.attribute_names.include?(k.to_s))
+				service[k] = v
+			else
+				dlog("Unknown attribute for Service: #{k}")
+			end
+		}
+		return service
+	end
+
+	def find_or_create_service(opts)
+		service = find_or_initialize_service(opts)
+		if (service and service.changed?)
+			service.created = Time.now
+			task = framework.db.queue(Proc.new { service.save! })
+			task.wait
+			if task.status != :done
+				return nil
+			end
+		end
+		return service
+	end
+
+	# 
+	# Record a service in the database.  
 	#
-	# This method iterates the services table calling the supplied block with the
+	# opts must contain
+	#	:port  -- the port where this service listens
+	#	:proto -- the protocol (e.g. tcp, udp...)
+	#
+	# Returns a Service.  Not guaranteed to have been written to the db yet.
+	# If you need to be sure that the insert succeeded, use
+	# find_or_create_service.
+	#
+	def report_service(opts)
+		service = find_or_initialize_service(opts)
+		if (service and service.changed?)
+			service.created = Time.now
+			framework.db.queue(Proc.new { service.save! })
+		end
+		return service
+	end
+
+	def get_service(host, proto, port)
+		host = get_host(host)
+		return if not host
+		return host.services.find_by_proto_and_port(proto, port)
+	end
+
+	#
+	# Iterates over the services table calling the supplied block with the
 	# service instance of each entry.
 	#
 	def each_service(&block)
@@ -242,7 +302,7 @@ class DBManager
 	end
 
 	#
-	# This methods returns a list of all services in the database
+	# Returns a list of all services in the database
 	#
 	def services(only_up = false, proto = nil, addresses = nil, ports = nil, names = nil)
 		conditions = {}
@@ -252,6 +312,66 @@ class DBManager
 		conditions[:port] = ports if ports
 		conditions[:name] = names if names
 		workspace.services.all(:include => :host, :conditions => conditions, :order => "hosts.address, port")
+	end
+
+
+	def get_client(opts)
+		host = get_host(:host => opts[:host]) || return
+		client = host.clients.find(:first, :conditions => {:ua_string => opts[:ua_string]})
+		return client
+	end
+
+	def find_or_initialize_client(opts)
+		host = find_or_create_host(:host => opts.delete(:host))
+		return if not host
+		client = host.clients.find_or_initialize_by_ua_string(opts[:ua_string])
+		opts.each { |k,v|
+			if (client.attribute_names.include?(k.to_s))
+				client[k] = v
+			else
+				dlog("Unknown attribute for Client: #{k}")
+			end
+		}
+		return client
+	end
+
+	def find_or_create_client(opts)
+		client = find_or_initialize_client(opts)
+		
+		if (client and client.changed?)
+			client.created = Time.now
+			task = framework.db.queue(Proc.new { client.save! })
+			task.wait
+			if task.status != :done
+				return nil
+			end
+		end
+
+		return client
+	end
+
+	#
+	# Report a client running on a host.
+	#
+	# opts must contain 
+	#   :ua_string  -- the value of the User-Agent header
+	#
+	# opts can contain 
+	#   :ua_name    -- one of the Msf::HttpClients constants
+	#   :ua_ver     -- detected version of the given client
+	#
+	# Returns a Client.  Not guaranteed to have been written to the database.
+	# If you need to be sure that the insert succeeded, use
+	# find_or_create_client.
+	#
+	def report_client(opts)
+		client = find_or_initialize_client(opts)
+		if (client and client.changed?)
+			client.created = Time.now
+			framework.db.queue(Proc.new { client.save! })
+		end
+
+		return client
 	end
 
 	#
@@ -282,12 +402,50 @@ class DBManager
 	end
 
 	#
-	# Find a note matching this host address and note type
+	# Find or create a note matching this type/data
 	#
-	def find_note(address, ntype)
-		host = workspace.hosts.find_by_address(address)
-		return nil if host.nil?
-		host.notes.find_by_ntype(ntype)
+	def find_or_create_note(opts)
+		note = find_or_initialize_note(opts)
+		if (note.changed?)
+			note.created = Time.now
+			task = framework.db.queue(Proc.new {note.save!})
+			task.wait
+			if (task.status != :done)
+				return nil
+			end
+		end
+		return note
+	end
+
+	def find_or_initialize_note(opts)
+		ntype = opts.delete(:type) || opts.delete(:ntype) || return
+		data  = opts[:data] || return
+
+		note = workspace.notes.find_or_initialize_by_ntype_and_data(ntype, data.to_yaml)
+		p note
+
+		if opts[:host]
+			if opts[:host].kind_of? Host
+				host = opts[:host].dup
+			else
+				host = find_or_create_host({:host => opts[:host]})
+			end
+			note.host = host
+		end
+		if opts[:service] and opts[:service].kind_of? Service
+			note.service = service
+		end
+
+		return note
+	end
+
+	def report_note(opts)
+		note = find_or_initialize_note(opts)
+		if (note and note.changed?)
+			note.created = Time.now
+			task = framework.db.queue(Proc.new {note.save!})
+		end
+		return note
 	end
 
 	#
@@ -297,100 +455,121 @@ class DBManager
 		workspace.notes
 	end
 
-	def default_workspace
-		Workspace.default
-	end
-
-	def find_workspace(name)
-		Workspace.find_by_name(name)
-	end
+	###
+	# Specific notes
+	###
 
 	#
-	# Creates a new workspace in the database
+	# opts must contain
+	#	:data    -- a hash containing the authentication info
+	# 
+	# opts can contain
+	#	:host    -- an ip address or Host
+	#	:service -- a Service
+	#	:proto   -- the protocol
+	#	:port    -- the port
 	#
-	def add_workspace(context, name)
-		Workspace.find_or_create_by_name(name)
+	def report_auth_info(opts={})
+		return if not framework.db.active
+		host    = opts.delete(:host)
+		service = opts.delete(:service)
+		proto   = opts.delete(:proto) || "generic"
+		proto   = proto.downcase
+
+		note = {
+			:ntype => "auth:#{proto}",
+			:host => host,
+			:service => service,
+			:data => opts
+		}
+
+		report_note(note)
 	end
 
-	#
-	# Find or create a host matching this address/comm
-	#
-	def get_host(context, address, comm='')
-		if comm.length > 0
-			host = workspace.hosts.find_by_address_and_comm(address, comm)
+	def get_auth_info(opts={})
+		return if not framework.db.active
+		condition = ""
+		condition_values = []
+		if opts[:host]
+			host = get_host(opts[:host])
+			condition = "host_id == ?"
+			condition_values = host.id
+		end
+		if opts[:proto]
+			if condition.length > 0
+				condition << " and "
+			end
+			condition << "ntype = ?"
+			condition_values << "auth:#{opts[:proto].downcase}"
 		else
-			host = workspace.hosts.find_by_address(address)
+			if condition.length > 0
+				condition << " and "
+			end
+			condition << "ntype LIKE ?"
+			condition_values << "auth:%"
 		end
-		if (not host)
-			host = workspace.hosts.create(
-				:address => address,
-				:comm => comm,
-				:state => HostState::Unknown,
-				:created => Time.now)
-			framework.events.on_db_host(context, host)
-		end
-
-		return host
+		conditions = [ condition ] + condition_values
+		info = framework.db.notes.find(:all, :conditions => conditions )
+		return info.map{|i| i.data} if info
 	end
 
-	#
-	# Find or create a client on host that matches ua_string
-	#
-	def get_client(context, host, ua_string, comm='')
-		# Allow host to be an address to look up
-		if !host.kind_of? Host
-			host = get_host(context, host, comm)
-		end
-		return nil if host.nil?
-		rec = host.clients.find_by_ua_string(ua_string)
-		if (not rec)
-			rec = host.clients.create(
-				:ua_string => ua_string,
-				:created   => Time.now
-			)
-			framework.events.on_db_client(context, rec)
-		end
-		return rec
-	end
+
 
 	#
-	# Find or create a service matching this host/proto/port/state
 	#
-	def get_service(context, host, proto, port, state=ServiceState::Up)
-		rec = host.services.find_by_proto_and_port(proto, port)
-		if (not rec)
-			rec = host.services.create(
-				:proto      => proto,
-				:port       => port,
-				:state      => state,
-				:created    => Time.now
-			)
-			framework.events.on_db_service(context, rec)
+	#
+	def find_or_initialize_vuln(opts)
+		host  = find_or_create_host({:host => opts[:host]}) || return
+		name  = opts[:name] || return
+		data  = opts[:data]
+
+		if data
+			vuln = host.vulns.find_or_initialize_by_name_and_data(name, data)
+		else
+			vuln = host.vulns.find_or_initialize_by_name(name)
 		end
-		return rec
+		p vuln
+
+		if opts[:service] and opts[:service].kind_of? Service
+			vuln.service = opts[:service]
+		end
+
+		return vuln
 	end
 
 	#
 	# Find or create a vuln matching this service/name
 	#
-	def get_vuln(context, host, service, name, data='')
-		vuln = nil
+	def find_or_create_vuln(opts)
+		vuln = find_or_initialize_vuln(opts)
+		if vuln and vuln.changed?
+			vuln.created = Time.now
+			task = framework.db.queue(Proc.new { vuln.save! })
+			task.wait
+			if task.status != :done
+				return nil
+			end
+		end
+		return vuln
+	end
 
+	#
+	#
+	#
+	def report_vuln(opts)
+		if vuln.changed?
+			vuln.created = Time.now
+			framework.db.queue(Proc.new { vuln.save! })
+		end
+		return vuln
+	end
+
+	def get_vuln(host, service, name, data='')
+		vuln = nil
 		if (service)
 			vuln = Vuln.find(:first, :conditions => [ "name = ? and service_id = ? and host_id = ?", name, service.id, host.id])
 		else
 			vuln = Vuln.find(:first, :conditions => [ "name = ? and host_id = ?", name, host.id])
-		end
-
-		if (not vuln)
-			vuln = Vuln.create(
-				:service_id => service ? service.id : 0,
-				:host_id    => host.id,
-				:name       => name,
-				:data       => data,
-				:created    => Time.now
-			)
-			framework.events.on_db_vuln(context, vuln)
 		end
 
 		return vuln
@@ -399,39 +578,27 @@ class DBManager
 	#
 	# Find or create a reference matching this name
 	#
-	def get_ref(context, name)
-		ref = Ref.find_by_name(name)
-		if (not ref)
-			ref = Ref.create(
-				:name       => name,
-				:created    => Time.now
-			)
-			framework.events.on_db_ref(context, ref)
+	def find_or_create_ref(opts)
+		ref = Ref.find_or_initialize_by_name(opts[:name])
+		if ref and ref.changed?
+			ref.created = Time.now
+			task = framework.db.queue(Proc.new { ref.save! })
+			task.wait
+			if task.status != :done
+				return nil
+			end
 		end
-
 		return ref
 	end
-
-	#
-	# Find or create a note matching this type/data
-	#
-	def get_note(context, host, ntype, data)
-		rec = host.notes.find_by_ntype_and_data(ntype, data)
-		if (not rec)
-			rec = host.notes.create(
-				:ntype      => ntype,
-				:data       => data,
-				:created    => Time.now
-			)
-			framework.events.on_db_note(context, rec)
-		end
-		return rec
+	def get_ref(name)
+		Ref.find_by_name(name)
 	end
+
 
 	#
 	# Deletes a host and associated data matching this address/comm
 	#
-	def del_host(context, address, comm='')
+	def del_host(address, comm='')
 		host = workspace.hosts.find_by_address_and_comm(address, comm)
 		host.destroy if host
 	end
@@ -439,8 +606,8 @@ class DBManager
 	#
 	# Deletes a port and associated vulns matching this port
 	#
-	def del_service(context, address, proto, port, comm='')
-		host = get_host(context, address, comm)
+	def del_service(address, proto, port, comm='')
+		host = get_host(address, comm)
 		return unless host
 
 		host.services.find(:all, :conditions => { :proto => proto, :port => port}).destroy_all
@@ -467,9 +634,9 @@ class DBManager
 		workspace.hosts.find_by_address(addr)
 	end
 
-	def vuln_add_refs(context, vuln, refs)
+	def vuln_add_refs(vuln, refs)
 		return vuln if not refs
-		rids = refs.map{|r| get_ref(context, "#{r[0]}-#{r[1]}") }
+		rids = refs.map{|r| get_ref("#{r[0]}-#{r[1]}") }
 		vuln.refs << rids
 		vuln
 	end
@@ -669,7 +836,7 @@ class DBManager
 				:ssl => ssl,
 				:selected => sel
 			)
-		#framework.events.on_db_target(context, rec)
+		#framework.events.on_db_target(rec)
 	end
 
 
@@ -690,10 +857,9 @@ class DBManager
 				:body => body,
 				:respcode => respcode,
 				:resphead => resphead,
-				:response => response,
-				:created => Time.now
+				:response => response
 			)
-		#framework.events.on_db_request(context, rec)
+		#framework.events.on_db_request(rec)
 	end
 
 	#

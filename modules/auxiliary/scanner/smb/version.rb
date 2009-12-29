@@ -64,7 +64,13 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				print_status(info)
-				report_service(:host => ip, :port => info[0], :name => 'smb', :info => "#{res['os']} #{res['sp']} (language: #{res['lang']})")
+				report_service({
+					:host => ip, 
+					:port => info[0], 
+					:proto => 'tcp', 
+					:name => 'smb', 
+					:info => "#{res['os']} #{res['sp']} (language: #{res['lang']})"
+				})
 				case res['os']
 				when /Windows/
 					os = OperatingSystems::WINDOWS

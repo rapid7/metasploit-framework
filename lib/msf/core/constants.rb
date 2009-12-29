@@ -46,6 +46,28 @@ RankingName         =
 		ExcellentRanking => "excellent"
 	}
 
+module HttpClients
+	IE = "MSIE"
+	FF = "Firefox"
+	SAFARI = "Safari"
+	OPERA  = "Opera"
+
+	UNKNOWN = "Unknown"
+end
+module OperatingSystems
+	LINUX   = "Linux"
+	MAC_OSX = "MacOSX"
+	WINDOWS = "Windows"
+
+	module WindowsVersions
+		XP    = "XP"
+		TWOK  = "2000"
+		TWOK3 = "2003"
+		VISTA = "Vista"
+	end
+
+	UNKNOWN = "Unknown"
+end
 end
 
 #

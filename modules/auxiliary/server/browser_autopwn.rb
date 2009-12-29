@@ -336,7 +336,7 @@ class Metasploit3 < Msf::Auxiliary
 					# build the appropriate tests for it.
 					method = apo[:vuln_test].dup
 					apo[:vuln_test] = ""
-					apo[:ua_name] = ::Msf::Auxiliary::Report::HttpClients::IE
+					apo[:ua_name] = HttpClients::IE
 					if apo[:classid].kind_of?(Array)  # then it's many classids
 						apo[:classid].each { |clsid| 
 							apo[:vuln_test] << "if (testAXO('#{clsid}', '#{method}')) {\n"
@@ -477,7 +477,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def build_noscript_response(cli, request)
-		client_info = get_client(cli.peerhost, request['User-Agent'])
+		client_info = get_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
 
 		response = create_response()
 		response['Expires'] = '0'
@@ -518,9 +518,9 @@ class Metasploit3 < Msf::Auxiliary
 		response['Expires'] = '0'
 		response['Cache-Control'] = 'must-revalidate'
 
-		client_info = get_client(cli.peerhost, request['User-Agent'])
 		#print_status("Client info: #{client_info.inspect}")
 		host_info = get_host(cli.peerhost)
+		client_info = get_client(:host => host_info, :ua_string => request['User-Agent'])
 
 		js = ::Rex::Exploitation::ObfuscateJS.new
 		# If we didn't get a client from the database, then the detection
@@ -710,25 +710,25 @@ class Metasploit3 < Msf::Auxiliary
 				detected_version = Rex::Text.decode_base64(Rex::Text.uri_decode(detected_version))
 				print_status("JavaScript Report: #{detected_version}")
 				(os_name, os_flavor, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
-				report_host(
+				host = framework.db.find_or_create_host({
 					:host      => cli.peerhost,
 					:os_name   => os_name,
 					:os_flavor => os_flavor, 
 					:os_sp     => os_sp, 
 					:os_lang   => os_lang, 
 					:arch      => arch
-				)
-				report_client(
-					:host      => cli.peerhost,
+				})
+				report_client({
+					:host      => host,
 					:ua_string => request['User-Agent'],
 					:ua_name   => ua_name,
 					:ua_ver    => ua_ver
-				)
-				report_note(
-					:host => cli.peerhost,
+				})
+				report_note({
+					:host => host,
 					:type => 'http_request',
 					:data => "#{@myhost}:#{@myport} #{request.method} #{request.resource} #{os_name} #{ua_name} #{ua_ver}"
-				)
+				})
 			end
 		end
 
@@ -736,9 +736,7 @@ class Metasploit3 < Msf::Auxiliary
 		# This is less reliable because we're not treating different user
 		# agents from the same IP as different hosts.
 		if (framework.db.active)
-			# There really ought to be a report_client, instead of having
-			# get_client create a new one if it can't find one.
-			get_client(cli.peerhost, request['User-Agent'])
+			report_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
 		else
 			warn_no_database
 			@targetcache ||= {}
@@ -768,8 +766,9 @@ class Metasploit3 < Msf::Auxiliary
 	# essentially creating an in-memory database.  The upside is that it works
 	# if the database is broken.  The downside of course is that querying from
 	# a hash is not as simple or efficient as a database.
-	def get_client(host, ua)
-		return super(host, ua) || @targetcache[host]
+	def get_client(opts)
+		host = opts[:host]
+		return super || @targetcache[host]
 	end
 
 	def build_iframe(resource)

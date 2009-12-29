@@ -152,6 +152,7 @@ class DBManager
 		rescue ::Exception => e
 			self.error = e
 			elog("DB.connect threw an exception: #{e}")
+			dlog("Call stack: #{$@.join"\n"}", LEV_1)
 			return false
 		end
 

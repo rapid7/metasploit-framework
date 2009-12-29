@@ -132,6 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 				addrs = "Addresses:(" + host[:addrs].map{|n| n[0]}.uniq.join(", ") + ")"
 			end
 
+			report_host(:host => ip, :mac => host[:mac], :os_name => os)
 			print_status("#{ip} [#{host[:name]}] OS:#{os}#{user}#{names} #{addrs} Mac:#{host[:mac]}")
 		end
 	end

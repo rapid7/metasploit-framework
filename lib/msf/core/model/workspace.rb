@@ -7,11 +7,12 @@ class Workspace < ActiveRecord::Base
 	DEFAULT = "default"
 
 	has_many :hosts, :dependent => :destroy
+	has_many :notes, :dependent => :destroy
 
 	has_many :services, :through => :hosts
 	has_many :clients,  :through => :hosts
 	has_many :vulns,    :through => :hosts
-	has_many :notes,    :through => :hosts
+	#has_many :notes,    :through => :hosts
 
 	validates_uniqueness_of :name
 	validates_presence_of :name

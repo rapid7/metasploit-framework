@@ -10,6 +10,8 @@ class Host < ActiveRecord::Base
 	has_many :vulns,    :dependent => :destroy
 	has_many :notes,    :dependent => :destroy
 
+	has_many :service_notes, :through => :services
+
 	validates_uniqueness_of :address, :scope => :workspace_id
 end
 

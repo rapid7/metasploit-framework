@@ -23,9 +23,9 @@ class Plugin::CredCollect < Msf::Plugin
 				print_error("Database not connected")
 				return
 			end
-			framework.db.each_note do |note|
-				if note.ntype == "auth_HASH"
-					print_line(note.data)
+			framework.db.get_auth_info(:proto=>"smb").each do |info|
+				if info.kind_of? Hash and info.has_key? :hash_string
+					print_line(info[:hash_string])
 				end
 			end
 		end
@@ -35,9 +35,9 @@ class Plugin::CredCollect < Msf::Plugin
 				print_error("Database not connected")
 				return
 			end
-			framework.db.each_note do |note|
-				if note.ntype == "auth_TOKEN"
-					print_line("#{note.host.address} - #{note.data}")
+			framework.db.get_auth_info(:proto=>"smb").each do |info|
+				if info.kind_of? Hash and info.has_key? :token
+					print_line(info[:host] + " - " + info[:token])
 				end
 			end
 		end
@@ -60,28 +60,37 @@ class Plugin::CredCollect < Msf::Plugin
 			
 			# Target infos for the db record
 			addr = session.sock.peerhost
-			host = self.framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+			host = self.framework.db.find_or_create_host(
+				:host => addr, 
+				:state => Msf::HostState::Alive
+				)
 
 			# Record hashes to the running db instance as auth_HASH type
-			hashes.each do |user|
+			hashes.each do |hash|
+				data = {}
+				data[:host]      = host
+				data[:targ_host] = host.address
+				data[:proto]     = 'smb'
+				data[:user]      = hash.user_name
+				data[:hash]      = hash.lanman + ":" + hash.ntlm
+				data[:hash_string] = hash.hash_string
 
-				type = "auth_HASH"
-				data = user.to_s
-
-				# We'll make this look like an auth note anyway
-				self.framework.db.get_note(self, host, type, data)
+				self.framework.db.report_auth_info(data)
 			end
-			
+
 			# Record user tokens
 			tokens = session.incognito.incognito_list_tokens(0).values
 			# Meh, tokens come to us as a formatted string
-			tokens = tokens.to_s.strip!.split("\n")
+			tokens = tokens.join.strip!.split("\n")
 
 			tokens.each do |token|
-				type = "auth_TOKEN"
-				data = token
+				data = {}
+				data[:host]      = host
+				data[:targ_host] = host.address
+				data[:proto]     = 'smb'
+				data[:token]     = token
 
-				self.framework.db.get_note(self, host, type, data)
+				self.framework.db.report_auth_info(data)
 			end
 		end
 	end

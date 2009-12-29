@@ -398,66 +398,62 @@ class Plugin::Nexpose < Msf::Plugin
 		end
 
 		def process_nexpose_data_rxml(data)
-            doc = REXML::Document.new(data)
-            doc.elements.each('/NexposeReport/nodes/node') do |host|
-                addr = host.attributes['address']
-                xhost = addr
-                refs = {}
+			doc = REXML::Document.new(data)
+			doc.elements.each('/NexposeReport/nodes/node') do |host|
+				addr = host.attributes['address']
+				xhost = addr
+				refs = {}
 
                 # os based vuln
-                host.elements['tests'].elements.each('test') do |vuln|
-                    if vuln.attributes['status'] == 'vulnerable-exploited' or vuln.attributes['status'] == 'vulnerable-version'
-						dhost = framework.db.get_host(nil, addr)
-	                    next if not dhost
+				host.elements['tests'].elements.each('test') do |vuln|
+					if vuln.attributes['status'] == 'vulnerable-exploited' or vuln.attributes['status'] == 'vulnerable-version'
+						dhost = framework.db.find_or_create_host(:host => addr)
+						next if not dhost
 
-                        vid = vuln.attributes['id'].to_s
-                        nexpose_vuln_lookup(doc,vid,refs,dhost)
-                        nexpose_vuln_lookup(doc,vid.upcase,refs,dhost)
+						vid = vuln.attributes['id'].to_s
+						nexpose_vuln_lookup(doc,vid,refs,dhost)
+						nexpose_vuln_lookup(doc,vid.upcase,refs,dhost)
                     end
                 end
 
-                # skip if no endpoints
-                next unless host.elements['endpoints']
+				# skip if no endpoints
+				next unless host.elements['endpoints']
 
-                # parse the ports and add the vulns
-                host.elements['endpoints'].elements.each('endpoint') do |port|
-                    prot = port.attributes['protocol']
-                    pnum = port.attributes['port']
-                    stat = port.attributes['status']
-                    next if not port.elements['services']
-                    name = port.elements['services'].elements['service'].attributes['name'].downcase
+				# parse the ports and add the vulns
+				host.elements['endpoints'].elements.each('endpoint') do |port|
+					prot = port.attributes['protocol']
+					pnum = port.attributes['port']
+					stat = port.attributes['status']
+					next if not port.elements['services']
+					name = port.elements['services'].elements['service'].attributes['name'].downcase
 
-                    next if not port.elements['services'].elements['service'].elements['fingerprints']
-                    prod = port.elements['services'].elements['service'].elements['fingerprints'].elements['fingerprint'].attributes['product']
-                    vers = port.elements['services'].elements['service'].elements['fingerprints'].elements['fingerprint'].attributes['version']
-                    vndr = port.elements['services'].elements['service'].elements['fingerprints'].elements['fingerprint'].attributes['vendor']
+					next if not port.elements['services'].elements['service'].elements['fingerprints']
+					prod = port.elements['services'].elements['service'].elements['fingerprints'].elements['fingerprint'].attributes['product']
+					vers = port.elements['services'].elements['service'].elements['fingerprints'].elements['fingerprint'].attributes['version']
+					vndr = port.elements['services'].elements['service'].elements['fingerprints'].elements['fingerprint'].attributes['vendor']
 
-                    next if stat != 'open'
+					next if stat != 'open'
 
-                    dhost = framework.db.get_host(nil, addr)
-                    next if not dhost
+					dhost = framework.db.find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
+					next if not dhost
 
-                    if dhost.state != Msf::HostState::Alive
-                        framework.db.report_host_state(self, addr, Msf::HostState::Alive)
-                    end
+					if name != "unknown"
+						service = framework.db.find_or_create_service(:host => dhost, :proto => prot.downcase, :port => pnum.to_i, :name => name)
+					else
+						service = framework.db.find_or_create_service(:host => dhost, :proto => prot.downcase, :port => pnum.to_i)
+					end
 
-                    service = framework.db.get_service(nil, dhost, prot.downcase, pnum.to_i)
-                    if name != "unknown"
-                        service.name = name
-                        service.save
-                    end
-
-                    port.elements['services'].elements['service'].elements['tests'].elements.each('test') do |vuln|
-                        if vuln.attributes['status'] == 'vulnerable-exploited' or vuln.attributes['status'] == 'vulnerable-version'
-                            vid = vuln.attributes['id'].to_s
-                            # TODO, improve the vuln_lookup check so case of the vuln_id doesnt matter
-                            nexpose_vuln_lookup(doc,vid,refs,dhost,service)
-                            nexpose_vuln_lookup(doc,vid.upcase,refs,dhost,service)
-                        end
-                    end
-                end
-            end
-        end
+					port.elements['services'].elements['service'].elements['tests'].elements.each('test') do |vuln|
+						if vuln.attributes['status'] == 'vulnerable-exploited' or vuln.attributes['status'] == 'vulnerable-version'
+							vid = vuln.attributes['id'].to_s
+							# TODO, improve the vuln_lookup check so case of the vuln_id doesnt matter
+							nexpose_vuln_lookup(doc,vid,refs,dhost,service)
+							nexpose_vuln_lookup(doc,vid.upcase,refs,dhost,service)
+						end
+					end
+				end
+			end
+		end
 
         #
         # NeXpose vuln lookup
@@ -483,11 +479,15 @@ class Plugin::Nexpose < Msf::Plugin
 
                 refs[ 'NEXPOSE-' + vid.downcase ] = true
 
-                vuln = framework.db.get_vuln(nil, host, serv, 'NEXPOSE-' + vid.downcase, title)
+                vuln = framework.db.find_or_create_vuln(
+					:host => host, 
+					:service => serv, 
+					:name => 'NEXPOSE-' + vid.downcase,
+					:data => title)
 
                 rids = []
                 refs.keys.each do |r|
-                    rids << framework.db.get_ref(nil, r)
+                    rids << framework.db.find_or_create_ref(:name => r)
                 end
 
                 vuln.refs << (rids - vuln.refs)
@@ -503,12 +503,8 @@ class Plugin::Nexpose < Msf::Plugin
 					desc = fdesc.text.to_s.strip
 				end
 
-				host = framework.db.get_host(nil, addr)
+				host = framework.db.find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
 				next if not host
-
-				if host.state != Msf::HostState::Alive
-					framework.db.report_host_state(self, addr, Msf::HostState::Alive)
-				end
 
 				# Load vulnerabilities not associated with a service
 				dev.elements.each('vulnerabilities/vulnerability') do |vuln|
@@ -516,8 +512,11 @@ class Plugin::Nexpose < Msf::Plugin
 					rids = []
 					refs = process_nexpose_data_sxml_refs(vuln)
 					next if not refs
-                	vuln = framework.db.get_vuln(nil, host, nil, 'NEXPOSE-' + vid, vid)
-					refs.each { |r| rids << framework.db.get_ref(nil, r) }
+                	vuln = framework.db.find_or_create_vuln(
+						:host => host, 
+						:name => 'NEXPOSE-' + vid
+						:data => vid)
+					refs.each { |r| rids << framework.db.find_or_create_ref(:name => r) }
 					vuln.refs << (rids - vuln.refs)
 				end
 
@@ -527,10 +526,11 @@ class Plugin::Nexpose < Msf::Plugin
 					sprot = svc.attributes['protocol'].to_s.downcase
 					sport = svc.attributes['port'].to_s.to_i
 
-					serv = framework.db.get_service(nil, host, sprot, sport)
+					name = sname.split('(')[0].strip
 					if(sname.downcase != '<unknown>')
-						serv.name = sname.split('(')[0].strip
-						serv.save
+						serv = framework.db.find_or_create_service(:host => host, :proto => sprot, :port => sport, :name => name)
+					else
+						serv = framework.db.find_or_create_service(:host => host, :proto => sprot, :port => sport)
 					end
 
 					# Load vulnerabilities associated with this service
@@ -539,8 +539,8 @@ class Plugin::Nexpose < Msf::Plugin
 						rids = []
 						refs = process_nexpose_data_sxml_refs(vuln)
 						next if not refs
-	                	vuln = framework.db.get_vuln(nil, host, serv, 'NEXPOSE-' + vid, vid)
-						refs.each { |r| rids << framework.db.get_ref(nil, r) }
+	                	vuln = framework.db.find_or_create_vuln(:host => host, :service => serv, :name => 'NEXPOSE-' + vid, :data => vid)
+						refs.each { |r| rids << framework.db.find_or_create_ref(:name => r) }
 						vuln.refs << (rids - vuln.refs)
 					end
 				end
