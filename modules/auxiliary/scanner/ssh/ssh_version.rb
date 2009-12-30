@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 		if (ver and ver =~ /SSH/)
 			ver,msg = (ver.split(/(\n|\r)/))
 			print_status("#{target_host}:#{rport}, SSH server version: #{ver}")
-			report_service(:host => rhost, :port => rport, :name => "ssh")
+			report_service(:host => rhost, :port => rport, :name => "ssh", :info => ver)
 		else
 			print_status("#{target_host}:#{rport}, SSH server version detection failed!")
 		end
