@@ -56,14 +56,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		offset += 4
 
-		proto = data[offset, 1].unpack('C')
+		proto = data[offset, 1].unpack('C')[0]
 
 		# Error condition
 		return if proto == 255
 
 		offset += 1
 
-		version = data[offset..-1].unpack('Z*')
+		version = data[offset..-1].unpack('Z*')[0]
 
 		print_status("#{rhost}:#{rport} is running MySQL #{version} (protocol #{proto})")
 		report_service(:host => rhost, :port => rport, :name => "mysql")
