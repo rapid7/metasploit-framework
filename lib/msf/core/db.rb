@@ -241,7 +241,8 @@ class DBManager
 	def find_or_initialize_service(opts)
 		addr = opts.delete(:host) || return
 		host = find_or_create_host({:host => addr})
-		service = host.services.find_or_initialize_by_port_and_proto(opts[:port], opts[:proto])
+		proto = opts[:proto] || 'tcp'
+		service = host.services.find_or_initialize_by_port_and_proto(opts[:port], proto)
 		opts.each { |k,v|
 			if (service.attribute_names.include?(k.to_s))
 				service[k] = v
@@ -422,7 +423,6 @@ class DBManager
 		data  = opts[:data] || return
 
 		note = workspace.notes.find_or_initialize_by_ntype_and_data(ntype, data.to_yaml)
-		p note
 
 		if opts[:host]
 			if opts[:host].kind_of? Host
