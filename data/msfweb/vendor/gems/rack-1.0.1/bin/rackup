@@ -1,0 +1,176 @@
+#!/usr/bin/env ruby
+# -*- ruby -*-
+
+$LOAD_PATH.unshift File.expand_path("#{__FILE__}/../../lib")
+autoload :Rack, 'rack'
+
+require 'optparse'
+
+automatic = false
+server = nil
+env = "development"
+daemonize = false
+pid = nil
+options = {:Port => 9292, :Host => "0.0.0.0", :AccessLog => []}
+
+# Don't evaluate CGI ISINDEX parameters.
+# http://hoohoo.ncsa.uiuc.edu/cgi/cl.html
+ARGV.clear  if ENV.include?("REQUEST_METHOD")
+
+opts = OptionParser.new("", 24, '  ') { |opts|
+  opts.banner = "Usage: rackup [ruby options] [rack options] [rackup config]"
+
+  opts.separator ""
+  opts.separator "Ruby options:"
+
+  lineno = 1
+  opts.on("-e", "--eval LINE", "evaluate a LINE of code") { |line|
+    eval line, TOPLEVEL_BINDING, "-e", lineno
+    lineno += 1
+  }
+
+  opts.on("-d", "--debug", "set debugging flags (set $DEBUG to true)") {
+    $DEBUG = true
+  }
+  opts.on("-w", "--warn", "turn warnings on for your script") {
+    $-w = true
+  }
+
+  opts.on("-I", "--include PATH",
+          "specify $LOAD_PATH (may be used more than once)") { |path|
+    $LOAD_PATH.unshift(*path.split(":"))
+  }
+
+  opts.on("-r", "--require LIBRARY",
+          "require the library, before executing your script") { |library|
+    require library
+  }
+
+  opts.separator ""
+  opts.separator "Rack options:"
+  opts.on("-s", "--server SERVER", "serve using SERVER (webrick/mongrel)") { |s|
+    server = s
+  }
+
+  opts.on("-o", "--host HOST", "listen on HOST (default: 0.0.0.0)") { |host|
+    options[:Host] = host
+  }
+
+  opts.on("-p", "--port PORT", "use PORT (default: 9292)") { |port|
+    options[:Port] = port
+  }
+
+  opts.on("-E", "--env ENVIRONMENT", "use ENVIRONMENT for defaults (default: development)") { |e|
+    env = e
+  }
+
+  opts.on("-D", "--daemonize", "run daemonized in the background") { |d|
+    daemonize = d ? true : false
+  }
+
+  opts.on("-P", "--pid FILE", "file to store PID (default: rack.pid)") { |f|
+    pid = File.expand_path(f)
+  }
+
+  opts.separator ""
+  opts.separator "Common options:"
+
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+
+  opts.on_tail("--version", "Show version") do
+    puts "Rack #{Rack.version}"
+    exit
+  end
+
+  opts.parse! ARGV
+}
+
+require 'pp'  if $DEBUG
+
+config = ARGV[0] || "config.ru"
+if !File.exist? config
+  abort "configuration #{config} not found"
+end
+
+if config =~ /\.ru$/
+  cfgfile = File.read(config)
+  if cfgfile[/^#\\(.*)/]
+    opts.parse! $1.split(/\s+/)
+  end
+  inner_app = eval "Rack::Builder.new {( " + cfgfile + "\n )}.to_app",
+                   nil, config
+else
+  require config
+  inner_app = Object.const_get(File.basename(config, '.rb').capitalize)
+end
+
+unless server = Rack::Handler.get(server)
+  # Guess.
+  if ENV.include?("PHP_FCGI_CHILDREN")
+    server = Rack::Handler::FastCGI
+
+    # We already speak FastCGI
+    options.delete :File
+    options.delete :Port
+  elsif ENV.include?("REQUEST_METHOD")
+    server = Rack::Handler::CGI
+  else
+    begin
+      server = Rack::Handler::Mongrel
+    rescue LoadError => e
+      server = Rack::Handler::WEBrick
+    end
+  end
+end
+
+p server  if $DEBUG
+
+case env
+when "development"
+  app = Rack::Builder.new {
+    use Rack::CommonLogger, $stderr  unless server.name =~ /CGI/
+    use Rack::ShowExceptions
+    use Rack::Lint
+    run inner_app
+  }.to_app
+
+when "deployment"
+  app = Rack::Builder.new {
+    use Rack::CommonLogger, $stderr  unless server.name =~ /CGI/
+    run inner_app
+  }.to_app
+
+when "none"
+  app = inner_app
+
+end
+
+if $DEBUG
+  pp app
+  pp inner_app
+end
+
+if daemonize
+  if RUBY_VERSION < "1.9"
+    exit if fork
+    Process.setsid
+    exit if fork
+    Dir.chdir "/"
+    File.umask 0000
+    STDIN.reopen "/dev/null"
+    STDOUT.reopen "/dev/null", "a"
+    STDERR.reopen "/dev/null", "a"
+  else
+    Process.daemon
+  end
+
+  if pid
+    File.open(pid, 'w'){ |f| f.write("#{Process.pid}") }
+    at_exit { File.delete(pid) if File.exist?(pid) }
+  end
+end
+
+server.run app, options
