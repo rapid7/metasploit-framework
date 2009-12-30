@@ -480,8 +480,8 @@ class Plugin::Nexpose < Msf::Plugin
                 refs[ 'NEXPOSE-' + vid.downcase ] = true
 
                 vuln = framework.db.find_or_create_vuln(
-					:host => host, 
-					:service => serv, 
+					:host => host,
+					:service => serv,
 					:name => 'NEXPOSE-' + vid.downcase,
 					:data => title)
 
@@ -513,8 +513,8 @@ class Plugin::Nexpose < Msf::Plugin
 					refs = process_nexpose_data_sxml_refs(vuln)
 					next if not refs
                 	vuln = framework.db.find_or_create_vuln(
-						:host => host, 
-						:name => 'NEXPOSE-' + vid
+						:host => host,
+						:name => 'NEXPOSE-' + vid,
 						:data => vid)
 					refs.each { |r| rids << framework.db.find_or_create_ref(:name => r) }
 					vuln.refs << (rids - vuln.refs)
