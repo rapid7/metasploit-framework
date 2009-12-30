@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 		version = data[offset..-1].unpack('Z*')[0]
 
 		print_status("#{rhost}:#{rport} is running MySQL #{version} (protocol #{proto})")
-		report_service(:host => rhost, :port => rport, :name => "mysql")
+		report_service(:host => rhost, :port => rport, :name => "mysql", :info => version)
 	end
 end
 
