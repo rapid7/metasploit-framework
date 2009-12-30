@@ -827,19 +827,15 @@ class Db
 			p = port.match(/^([^\(]+)\((\d+)\/([^\)]+)\)/)
 			return if not p
 
-			host = framework.db.find_or_create_host(addr)
+			host = framework.db.find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
 			return if not host
 
-			if host.state != Msf::HostState::Alive
-				framework.db.report_host_state(addr, Msf::HostState::Alive)
-			end
-
-			service = framework.db.get_service(host, p[3].downcase, p[2].to_i)
+			info = { :host => host, :proto => p[3].downcase, :port => p[2].to_i }
 			name = p[1].strip
 			if name != "unknown"
-				service.name = name
-				service.save
+				info[:name] = name
 			end
+			service = framework.db.find_or_create_service(info)
 
 			return if not nasl
 
@@ -868,11 +864,15 @@ class Db
 
 			nss = 'NSS-' + nasl.to_s
 
-			vuln = framework.db.get_vuln(host, service, nss, data)
+			vuln = framework.db.find_or_create_vuln(
+				:host => host, 
+				:service => service, 
+				:name => nss, 
+				:data => data)
 
 			rids = []
 			refs.keys.each do |r|
-				rids << framework.db.get_ref(r)
+				rids << framework.db.find_or_create_ref(:name => r)
 			end
 
 			vuln.refs << (rids - vuln.refs)
@@ -921,7 +921,7 @@ class Db
 			end
 
 			fd = File.open(args[0], 'r')
-			data = fd.read
+			data = fd.read(fd.stat.size)
 			fd.close
 
 			if(data.index("NessusClientData_v2"))
@@ -1077,12 +1077,8 @@ class Db
 
 				next if status != "open"
 
-				host = framework.db.find_or_create_host(addr)
+				host = framework.db.find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
 				next if not host
-
-				if host.state != Msf::HostState::Alive
-					framework.db.report_host_state(addr, Msf::HostState::Alive)
-				end
 
 				service = framework.db.get_service(host, proto, port)
 				if not service.name and name != "unidentified"
