@@ -528,7 +528,6 @@ class DBManager
 		else
 			vuln = host.vulns.find_or_initialize_by_name(name)
 		end
-		p vuln
 
 		if opts[:service] and opts[:service].kind_of? Service
 			vuln.service = opts[:service]
