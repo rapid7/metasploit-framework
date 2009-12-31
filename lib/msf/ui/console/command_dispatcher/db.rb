@@ -87,7 +87,7 @@ class Db
 
 			if adding and name
 				# Add workspace
-				workspace = framework.db.add_workspace(nil, name)
+				workspace = framework.db.add_workspace(name)
 				print_status("Added workspace: #{workspace.name}")
 				framework.db.workspace = workspace
 			elsif deleting and name
