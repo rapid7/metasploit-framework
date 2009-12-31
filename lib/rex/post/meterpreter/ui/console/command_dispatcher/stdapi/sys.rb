@@ -119,7 +119,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		end
 
 		# Execute it
-		p = client.sys.process.execute(cmd_exec, cmd_args, 
+		p = client.sys.process.execute(cmd_exec, cmd_args,
 			'Channelized' => channelized,
 			'Hidden'      => hidden,
 			'InMemory'    => (from_mem) ? dummy_exec : nil,
@@ -142,15 +142,15 @@ class Console::CommandDispatcher::Stdapi::Sys
 		path = (path and not path.empty?) ? path : "cmd.exe"
 		cmd_execute("-f", path, "-c", "-H", "-i")
 	end
-	
-	
+
+
 	#
 	# Gets the process identifier that meterpreter is running in on the remote
 	# machine.
 	#
 	def cmd_getpid(*args)
 		print_line("Current pid: #{client.sys.process.getpid}")
-		
+
 		return true
 	end
 
@@ -160,7 +160,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	def cmd_getuid(*args)
 		print_line("Server username: #{client.sys.config.getuid}")
 	end
-	
+
 	#
 	# Clears the event log
 	#
@@ -169,7 +169,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		logs = ['Application', 'System', 'Security']
 		logs << args
 		logs.flatten!
-		
+
 		logs.each do |name|
 			log = client.sys.eventlog.open(name)
 			print_status("Wiping #{log.length} records from #{name}...")
@@ -191,7 +191,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		print_line("Killing: #{args.join(", ")}")
 
 		client.sys.process.kill(*(args.map { |x| x.to_i }))
-		
+
 		return true
 	end
 
@@ -257,11 +257,12 @@ class Console::CommandDispatcher::Stdapi::Sys
 					print_line(
 						"Usage: reg [command] [options]\n\n" +
 						"Interact with the target machine's registry.\n" +
-						@@reg_opts.usage + 
+						@@reg_opts.usage +
 						"COMMANDS:\n\n" +
 						"    enumkey    Enumerate the supplied registry key [-k <key>]\n" +
 						"    createkey  Create the supplied registry key  [-k <key>]\n" +
 						"    deletekey  Delete the supplied registry key  [-k <key>]\n" +
+						"    queryclass Queries the class of the supplied key [-k <key>]\n" +
 						"    setval     Set a registry value [-k <key> -v <val> -d <data>]\n" +
 						"    deleteval  Delete the supplied registry value [-k <key> -v <val>]\n" +
 						"    queryval   Queries the data contents of a value [-k <key> -v <val>]\n\n")
@@ -302,7 +303,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 						print_line("  Keys (#{keys.length}):\n")
 
 						keys.each { |subkey|
-							print_line("\t#{subkey}")	
+							print_line("\t#{subkey}")
 						}
 
 						print_line
@@ -310,11 +311,11 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 					if (vals.length > 0)
 						print_line("  Values (#{vals.length}):\n")
-	
+
 						vals.each { |val|
 							print_line("\t#{val.name}")
 						}
-	
+
 						print_line
 					end
 
@@ -373,7 +374,13 @@ class Console::CommandDispatcher::Stdapi::Sys
 						"Name: #{v.name}\n" +
 						"Type: #{v.type_to_s}\n" +
 						"Data: #{v.data}\n")
-	
+
+				when "queryclass"
+					open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ)
+
+					data = open_key.query_class
+
+					print("Data: #{data}\n")
 				else
 					print_error("Invalid command supplied: #{cmd}")
 			end
@@ -418,3 +425,4 @@ end
 end
 end
 end
+

@@ -17,13 +17,13 @@ module Sys
 
 ###
 #
-# This class provides access to the Windows registry on the remote 
+# This class provides access to the Windows registry on the remote
 # machine.
 #
 ###
 class Registry
 
-	class <<self
+	class << self
 		attr_accessor :client
 	end
 
@@ -35,7 +35,7 @@ class Registry
 
 	#
 	# Opens the supplied registry key relative to the root key with
-	# the supplied permissions.  Right now this is merely a wrapper around 
+	# the supplied permissions.  Right now this is merely a wrapper around
 	# create_key.
 	#
 	def Registry.open_key(root_key, base_key, perm = KEY_READ)
@@ -52,7 +52,7 @@ class Registry
 	#
 	def Registry.create_key(root_key, base_key, perm = KEY_READ)
 		request = Packet.create_request('stdapi_registry_create_key')
-		
+
 		request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
 		request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
 		request.add_tlv(TLV_TYPE_PERMISSION, perm)
@@ -84,7 +84,7 @@ class Registry
 
 		return false
 	end
-	
+
 	#
 	# Closes the supplied registry key.
 	#
@@ -189,6 +189,21 @@ class Registry
 	end
 
 	#
+	# Queries the registry class name and returns a string
+	#
+	def Registry.query_class(hkey)
+		request = Packet.create_request('stdapi_registry_query_class')
+
+		request.add_tlv(TLV_TYPE_HKEY, hkey)
+
+		response = client.send_request(request)
+		cls = response.get_tlv(TLV_TYPE_VALUE_DATA)
+		return nil if not cls
+		data = cls.value.gsub(/\x00.*/, '')
+		return data
+	end
+
+	#
 	# Enumerates all of the values at the supplied hkey including their
 	# names.  An array of RegistryValue's is returned.
 	#
@@ -237,11 +252,11 @@ class Registry
 	# type (like REG_SZ).
 	#
 	def self.type2str(type)
-		return REG_SZ if (type == 'REG_SZ')	
-		return REG_DWORD if (type == 'REG_DWORD')	
-		return REG_BINARY if (type == 'REG_BINARY')	
-		return REG_EXPAND_SZ if (type == 'REG_EXPAND_SZ')	
-		return REG_NONE if (type == 'REG_NONE')	
+		return REG_SZ if (type == 'REG_SZ')
+		return REG_DWORD if (type == 'REG_DWORD')
+		return REG_BINARY if (type == 'REG_BINARY')
+		return REG_EXPAND_SZ if (type == 'REG_EXPAND_SZ')
+		return REG_NONE if (type == 'REG_NONE')
 		return nil
 	end
 
@@ -261,3 +276,4 @@ class Registry
 end
 
 end; end; end; end; end; end
+

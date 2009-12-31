@@ -437,3 +437,42 @@ DWORD request_registry_delete_value(Remote *remote, Packet *packet)
 
 	return ERROR_SUCCESS;
 }
+
+/*
+ * Queries a registry class for a given HKEY.
+ *
+ * TLVs:
+ *
+ * req: TLV_TYPE_HKEY       - The HKEY to query the class on
+ */
+DWORD request_registry_query_class(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	LPCSTR valueName = NULL;
+	BYTE valueData[4096];
+	DWORD valueDataSize = 4096;
+	DWORD result = ERROR_SUCCESS;
+	DWORD valueType = 0;
+	HKEY hkey = NULL;
+
+	// Acquire the standard TLVs
+	hkey      = (HKEY)packet_get_tlv_value_uint(packet, TLV_TYPE_HKEY);
+
+	do
+	{
+		// Get the size of the value data
+		if ((result = RegQueryInfoKey(hkey, valueData, &valueDataSize, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)) != ERROR_SUCCESS)
+			break;
+
+		packet_add_tlv_string(response, TLV_TYPE_VALUE_DATA, (LPCSTR)valueData);
+
+	} while (0);
+
+	// Populate the result code
+	packet_add_tlv_uint(response, TLV_TYPE_RESULT, result);
+
+	// Transmit the response
+	packet_transmit(remote, response, NULL);
+
+	return ERROR_SUCCESS;
+}

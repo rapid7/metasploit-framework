@@ -282,7 +282,7 @@ DWORD request_fs_delete_file(Remote *remote, Packet *packet)
 
 	if (!path)
 		result = ERROR_INVALID_PARAMETER;
-#ifdef __WIN32__
+#ifdef _WIN32
 	else if (!DeleteFile(path))
 #else
 	else if (!unlink(path))

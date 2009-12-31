@@ -60,7 +60,7 @@ class RegistryKey
 	end
 
 	#
-	# Retrieves all of the registry values that exist within the opened 
+	# Retrieves all of the registry values that exist within the opened
 	# registry key.
 	#
 	def enum_value()
@@ -74,7 +74,7 @@ class RegistryKey
 	#
 	##
 
-	#	
+	#
 	# Opens a registry key that is relative to this registry key.
 	#
 	def open_key(base_key, perm = KEY_READ)
@@ -101,7 +101,7 @@ class RegistryKey
 	#
 	def close()
 		if (self.hkey != nil)
-			return self.client.sys.registry.close_key(hkey)			
+			return self.client.sys.registry.close_key(hkey)
 		end
 
 		return false
@@ -126,6 +126,13 @@ class RegistryKey
 	#
 	def query_value(name)
 		return self.client.sys.registry.query_value(self.hkey, name)
+	end
+
+	#
+	# Queries the class of the specified key
+	#
+	def query_class
+		return self.client.sys.registry.query_class(self.hkey)
 	end
 
 	#
@@ -172,3 +179,4 @@ protected
 end
 
 end; end; end; end; end; end; end
+
