@@ -270,6 +270,7 @@ class DBManager
 	# Record a service in the database.  
 	#
 	# opts must contain
+	#	:host  -- the host where this service is running
 	#	:port  -- the port where this service listens
 	#	:proto -- the protocol (e.g. tcp, udp...)
 	#

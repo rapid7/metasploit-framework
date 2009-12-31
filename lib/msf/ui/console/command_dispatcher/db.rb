@@ -322,13 +322,13 @@ class Db
 				next if(hosts and (note.host == nil or hosts.index(note.host.address) == nil))
 				next if(types and types.index(note.ntype) == nil)
 				if (note.host and note.service)
-					print_status("Time: #{note.created} Note: host=#{note.host.address} service=#{note.service.name} type=#{note.ntype} data=#{note.data}")
+					print_status("Time: #{note.created} Note: host=#{note.host.address} service=#{note.service.name} type=#{note.ntype} data=#{note.data.inspect}")
 				elsif (note.host)
-					print_status("Time: #{note.created} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
+					print_status("Time: #{note.created} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data.inspect}")
 				elsif (note.service)
-					print_status("Time: #{note.created} Note: service=#{note.service.name} type=#{note.ntype} data=#{note.data}")
+					print_status("Time: #{note.created} Note: service=#{note.service.name} type=#{note.ntype} data=#{note.data.inspect}")
 				else
-					print_status("Time: #{note.created} Note: type=#{note.ntype} data=#{note.data}")
+					print_status("Time: #{note.created} Note: type=#{note.ntype} data=#{note.data.inspect}")
 				end
  			end
  		end
@@ -336,21 +336,27 @@ class Db
 		def cmd_db_add_host(*args)
 			print_status("Adding #{args.length} hosts...")
 			args.each do |address|
-				host = framework.db.find_or_create_host(address)
+				host = framework.db.find_or_create_host(:host => address)
 				print_status("Time: #{host.created} Host: host=#{host.address}")
 			end
 		end
 
 		def cmd_db_add_port(*args)
 			if (not args or args.length < 3)
-				print_status("Usage: db_add_port [host] [port] [proto]")
+				print_status("Usage: db_add_port <host> <port> [proto] [name]")
 				return
 			end
 
-			host = framework.db.find_or_create_host(args[0])
+			host = framework.db.find_or_create_host(:host => args[0])
 			return if not host
+			info = { 
+				:host => host,
+				:port => args[1].to_i
+			}
+			info[:proto] = args[2].downcase if args[2]
+			info[:name]  = args[3].downcase if args[3]
 
-			service = framework.db.get_service(host, args[2].downcase, args[1].to_i)
+			service = framework.db.find_or_create_service(info)
 			return if not service
 
 			print_status("Time: #{service.created} Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}")
@@ -362,7 +368,7 @@ class Db
 				return
 			end
 
-			if framework.db.del_service(nil, args[0], args[2].downcase, args[1].to_i)
+			if framework.db.del_service(args[0], args[2].downcase, args[1].to_i)
 				print_status("Service: host=#{args[0]} port=#{args[1].to_i} proto=#{args[2].downcase} deleted")
 			end
 		end
@@ -377,10 +383,10 @@ class Db
 			ntype = args.shift
 			ndata = args.join(" ")
 
-			host = framework.db.find_or_create_host(naddr)
+			host = framework.db.find_or_create_host(:host => naddr)
 			return if not host
 
-			note = framework.db.find_or_create_note(host, ntype, ndata)
+			note = framework.db.find_or_create_note(:host => host, :type => ntype, :data => ndata)
 			return if not note
 
 			print_status("Time: #{note.created} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
@@ -389,7 +395,7 @@ class Db
 
 		def cmd_db_del_host(*args)
 			args.each do |address|
-				if framework.db.del_host(nil, address)
+				if framework.db.del_host(address)
 					print_status("Host #{address} deleted")
 				end
 			end
