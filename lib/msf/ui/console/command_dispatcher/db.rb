@@ -1080,11 +1080,15 @@ class Db
 				host = framework.db.find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
 				next if not host
 
-				service = framework.db.get_service(host, proto, port)
-				if not service.name and name != "unidentified"
-					service.name = name
-					service.save
+				info = {
+					:host => host, 
+					:proto => proto, 
+					:port => port
+				}
+				if name != "unidentified"
+					info[:name] = name
 				end
+				service = framework.db.find_or_create_service(info)
 			end
 
 			fd.close
