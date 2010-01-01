@@ -241,7 +241,10 @@ print_line()
 
 rescue ::Interrupt
 	raise $!
+rescue ::Rex::Post::Meterpreter::RequestError => e
+	print_error("Meterpreter Exception: #{e.class} #{e}")
+	print_error("This script requires the use of a SYSTEM user context (hint: migrate into service process)")
 rescue ::Exception => e
-	puts "Error: #{e.class} #{e} #{e.backtrace}"
+	print_error("Error: #{e.class} #{e} #{e.backtrace}")
 end
 
