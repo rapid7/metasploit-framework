@@ -218,7 +218,7 @@ class Core
 				oldwarn << "Warning: This copy of the Metasploit Framework was last updated #{::Msf::Framework::RepoUpdatedDaysNote}."
 				oldwarn << "         We recommend that you update the framework at least every other day."
 				oldwarn << "         For information on updating your copy of Metasploit, please see:"
-				oldwarn << "             http://dev.metasploit.com/redmine/projects/framework/wiki/Updating"
+				oldwarn << "             http://www.metasploit.com/redmine/projects/framework/wiki/Updating"
 				oldwarn << ""
 			end
 		end
@@ -1110,7 +1110,7 @@ class Core
 				when "-d"
 					method = 'detach'
 					sid = val
-                
+
 				when "-s"
 					method = 'scriptall'
 					script = val
@@ -1210,7 +1210,7 @@ class Core
 				else
 					print_error("Invalid session identifier: #{sid}")
 				end
-				  
+
 			when 'list'
 				print("\n" +
 					Serializer::ReadableText.dump_sessions(framework, verbose) + "\n")
