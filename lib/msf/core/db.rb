@@ -423,7 +423,8 @@ class DBManager
 		ntype = opts.delete(:type) || opts.delete(:ntype) || return
 		data  = opts[:data] || return
 
-		note = workspace.notes.find_or_initialize_by_ntype_and_data(ntype, data.to_yaml)
+		method = "find_or_initialize_by_ntype_and_data"
+		args = [ ntype, data.to_yaml ]
 
 		if opts[:host]
 			if opts[:host].kind_of? Host
@@ -431,11 +432,14 @@ class DBManager
 			else
 				host = find_or_create_host({:host => opts[:host]})
 			end
-			note.host = host
+			method << "_and_host_id"
+			args.push(host.id)
 		end
 		if opts[:service] and opts[:service].kind_of? Service
-			note.service = service
+			method << "_and_service_id"
+			args.push(opts[:service].id)
 		end
+		note = workspace.notes.send(method, *args)
 
 		return note
 	end
@@ -557,6 +561,7 @@ class DBManager
 	#
 	#
 	def report_vuln(opts)
+		vuln = find_or_initialize_vuln(opts)
 		if vuln.changed?
 			vuln.created = Time.now
 			framework.db.queue(Proc.new { vuln.save! })
