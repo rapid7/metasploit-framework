@@ -205,7 +205,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 		processes = client.sys.process.get_processes.sort_by { |ent| ent['pid'] }
 		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => "Process list",
-			'Indent'  => 4,
+			'Indent'  => 1,
 			'Columns' =>
 				[
 					"PID",
