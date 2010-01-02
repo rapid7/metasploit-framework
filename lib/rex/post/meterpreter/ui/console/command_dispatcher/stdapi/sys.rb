@@ -202,7 +202,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# Lists running processes.
 	#
 	def cmd_ps(*args)
-		processes = client.sys.process.get_processes.sort_by { |ent| ent['pid'] }
+		processes = client.sys.process.get_processes
 		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => "Process list",
 			'Indent'  => 1,
