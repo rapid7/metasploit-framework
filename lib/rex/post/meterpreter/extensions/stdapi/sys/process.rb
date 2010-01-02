@@ -221,6 +221,7 @@ class Process < Rex::Post::Process
 					'pid'  => p.get_tlv_value(TLV_TYPE_PID),
 					'name' => p.get_tlv_value(TLV_TYPE_PROCESS_NAME),
 					'path' => p.get_tlv_value(TLV_TYPE_PROCESS_PATH),
+					'user' => p.get_tlv_value(TLV_TYPE_USER_NAME)
 				}
 		}
 

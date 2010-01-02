@@ -371,7 +371,7 @@ DWORD request_sys_process_get_processes(Remote *remote, Packet *packet)
 	DWORD pids[512], numProcesses, index, needed;
 	DWORD res = ERROR_SUCCESS;
 	HANDLE psapi = NULL;
-	Tlv entries[3];
+	Tlv entries[4];
 
 	do
 	{
@@ -415,12 +415,20 @@ DWORD request_sys_process_get_processes(Remote *remote, Packet *packet)
 		     index++)
 		{
 			CHAR path[1024], name[256];
+			CHAR username[512], username_only[512], domainname_only[512];
 			DWORD pidNbo;
 			HMODULE mod;
 			HANDLE p;
+			LPVOID TokenUserInfo[4096];
+			HANDLE token;
+			DWORD user_length = sizeof(username_only), domain_length = sizeof(domainname_only);
+			DWORD size = sizeof(username), sid_type = 0, returned_tokinfo_length;
 
 			memset(name, 0, sizeof(name));
 			memset(path, 0, sizeof(path));
+			memset(username, 0, sizeof(username));
+			memset(username_only, 0, sizeof(username_only));
+			memset(domainname_only, 0, sizeof(domainname_only));
 
 			// Try to attach to the process for querying information
 			if (!(p = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
@@ -436,10 +444,21 @@ DWORD request_sys_process_get_processes(Remote *remote, Packet *packet)
 				continue;
 			}
 
+			// Convert the pid to network byte order
+			pidNbo = htonl(pids[index]);
+
 			// Try to get the process' file name
 			getModuleFileNameEx(p, mod, path, sizeof(path) - 1);
 
-			pidNbo = htonl(pids[index]);
+			// Try to get the process' user name
+			if (OpenProcessToken(p, TOKEN_QUERY, &token)) {
+				if (GetTokenInformation(token, TokenUser, TokenUserInfo, 4096, &returned_tokinfo_length)) {
+					if(LookupAccountSidA(NULL, ((TOKEN_USER*)TokenUserInfo)->User.Sid, username_only, &user_length, domainname_only, &domain_length, (PSID_NAME_USE)&sid_type)) {
+						_snprintf(username, 512, "%s\\%s", domainname_only, username_only);
+						username[511] = '\0';
+					}
+				}
+			}
 
 			// Initialize the TLV entries
 			entries[0].header.type   = TLV_TYPE_PID;
@@ -451,10 +470,12 @@ DWORD request_sys_process_get_processes(Remote *remote, Packet *packet)
 			entries[2].header.type   = TLV_TYPE_PROCESS_PATH;
 			entries[2].header.length = strlen(path) + 1;
 			entries[2].buffer        = path;
+			entries[3].header.type   = TLV_TYPE_USER_NAME;
+			entries[3].header.length = strlen(username) + 1;
+			entries[3].buffer        = username;
 
 			// Add the packet group entry for this item
-			packet_add_tlv_group(response, TLV_TYPE_PROCESS_GROUP, 
-					entries, 3);
+			packet_add_tlv_group(response, TLV_TYPE_PROCESS_GROUP, entries, 4);
 
 			CloseHandle(p);
 		}

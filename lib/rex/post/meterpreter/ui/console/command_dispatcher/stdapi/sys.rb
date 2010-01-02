@@ -211,10 +211,11 @@ class Console::CommandDispatcher::Stdapi::Sys
 					"PID",
 					"Name",
 					"Path",
+					"User"
 				])
 
 		processes.each { |ent|
-			tbl << [ ent['pid'].to_s, ent['name'], ent['path'] ]
+			tbl << [ ent['pid'].to_s, ent['name'], ent['path'], ent['user'] ]
 		}
 
 		if (processes.length == 0)
