@@ -130,7 +130,7 @@ class DBManager
 	end
 
 
-	# 
+	#
 	# Find a host.  Performs no database writes.
 	#
 	def get_host(opts)
@@ -170,13 +170,13 @@ class DBManager
 		return host
 	end
 
-	# 
+	#
 	# Exactly like report_host but ensures that the returned Host has been
 	# written to the database.  Returns nil on error.
 	#
 	def find_or_create_host(opts)
 		host = find_or_initialize_host(opts)
-		
+
 		if (host and host.changed?)
 			host.created = Time.now
 			task = framework.db.queue( Proc.new { host.save! } )
@@ -266,8 +266,8 @@ class DBManager
 		return service
 	end
 
-	# 
-	# Record a service in the database.  
+	#
+	# Record a service in the database.
 	#
 	# opts must contain
 	#	:host  -- the host where this service is running
@@ -339,7 +339,7 @@ class DBManager
 
 	def find_or_create_client(opts)
 		client = find_or_initialize_client(opts)
-		
+
 		if (client and client.changed?)
 			client.created = Time.now
 			task = framework.db.queue(Proc.new { client.save! })
@@ -355,10 +355,10 @@ class DBManager
 	#
 	# Report a client running on a host.
 	#
-	# opts must contain 
+	# opts must contain
 	#   :ua_string  -- the value of the User-Agent header
 	#
-	# opts can contain 
+	# opts can contain
 	#   :ua_name    -- one of the Msf::HttpClients constants
 	#   :ua_ver     -- detected version of the given client
 	#
@@ -467,7 +467,7 @@ class DBManager
 	#
 	# opts must contain
 	#	:data    -- a hash containing the authentication info
-	# 
+	#
 	# opts can contain
 	#	:host    -- an ip address or Host
 	#	:service -- a Service
@@ -612,7 +612,7 @@ class DBManager
 	# Deletes a port and associated vulns matching this port
 	#
 	def del_service(address, proto, port, comm='')
-		host = get_host(address, comm)
+		host = get_host(address)
 		return unless host
 
 		host.services.find(:all, :conditions => { :proto => proto, :port => port}).destroy_all
