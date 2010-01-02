@@ -32,7 +32,11 @@
 				TLV_META_TYPE_UINT,        \
 				TLV_TYPE_EXTENSION_STDAPI, \
 				631)
-
+#define TLV_TYPE_PRIVILEGE         \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_STRING,      \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				632)
 // Fs
 #define TLV_TYPE_DIRECTORY_PATH        \
 		MAKE_CUSTOM_TLV(                 \

@@ -108,6 +108,7 @@ DWORD request_incognito_impersonate_token(Remote *remote, Packet *packet)
 	SavedToken *token_list = NULL;
 	BOOL bTokensAvailable = FALSE, delegation_available = FALSE;
 	char temp[BUF_SIZE] = "", *requested_username, return_value[BUF_SIZE] = "";
+	HANDLE xtoken;
 
 	Packet *response = packet_create_response(packet);
 	requested_username = packet_get_tlv_value_string(packet, TLV_TYPE_INCOGNITO_IMPERSONATE_TOKEN);
@@ -148,7 +149,12 @@ DWORD request_incognito_impersonate_token(Remote *remote, Packet *packet)
 					strncat(return_value, "[+] Successfully impersonated user ", sizeof(return_value)-strlen(return_value)-1);
 					strncat(return_value, token_list[i].username, sizeof(return_value)-strlen(return_value)-1);
 					strncat(return_value, "\n", sizeof(return_value)-strlen(return_value)-1);
-
+					
+					if (!DuplicateToken(token_list[i].token, SecurityImpersonation, &xtoken)) {
+						dprintf("[INCOGNITO] Failed to duplicate token for %s (%u)", token_list[i].username, GetLastError());
+					} else {
+						core_update_thread_token(remote, xtoken);
+					}
 					goto cleanup;
 				}
 			}

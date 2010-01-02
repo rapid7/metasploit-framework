@@ -49,6 +49,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"execute"  => "Execute a command",
 			"getpid"   => "Get the current process identifier",
 			"getuid"   => "Get the user that the server is running as",
+			"getprivs" => "Get as many privileges as possible",
 			"kill"     => "Terminate a process",
 			"ps"       => "List running processes",
 			"reboot"   => "Reboots the remote computer",
@@ -57,6 +58,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"sysinfo"  => "Gets information about the remote system, such as OS",
 			"shell"    => "Drop into a system command shell",
 			"shutdown" => "Shuts down the remote computer",
+			"steal_token" => "Attempts to steal an impersonation token from the target process",
+			"drop_token"  => "Relinquishes any active impersonation token.",
 		}
 	end
 
@@ -394,6 +397,37 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def cmd_rev2self(*args)
 		client.sys.config.revert_to_self
+	end
+
+	#
+	# Obtains as many privileges as possible on the target machine.
+	#
+	def cmd_getprivs(*args)
+		print_line("=" * 60)
+		print_line("Enabled Process Privileges")
+		print_line("=" * 60)
+		client.sys.config.getprivs.each do |priv|
+			print_line("  #{priv}")
+		end
+		print_line("")
+	end
+
+	#
+	# Tries to steal the primary token from the target process.
+	#
+	def cmd_steal_token(*args)
+		if(args.length != 1 or args[0] == "-h")
+			print_error("Usage: steal_token [pid]")
+			return
+		end
+		print_line("Stolen token with username: " + client.sys.config.steal_token(args[0]))
+	end
+
+	#
+	# Drops any assumed token.
+	#
+	def cmd_drop_token(*args)
+		print_line("Relinquished token, now running as: " + client.sys.config.drop_token())
 	end
 
 	#

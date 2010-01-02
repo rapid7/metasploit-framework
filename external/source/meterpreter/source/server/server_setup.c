@@ -122,6 +122,11 @@ static VOID server_socket_flush( Remote * remote )
 
 		ret = recv(fd, buff, sizeof(buff), 0);
 		dprintf("[SERVER] Flushed %d bytes from the buffer");
+
+		// The socket closed while we waited
+		if(ret == 0) {
+			break;
+		}
 		continue;
 	}
 
@@ -371,6 +376,18 @@ DWORD server_setup( SOCKET fd )
 
 			// Do not allow the file descriptor to be inherited by child processes
 			SetHandleInformation((HANDLE)fd, HANDLE_FLAG_INHERIT, 0);
+
+			dprintf("[SERVER] Initializing tokens...");
+
+			// Store our thread handle
+			remote->hServerThread = serverThread->handle;
+
+			// Store our process token
+			if (!OpenThreadToken(remote->hServerThread, TOKEN_ALL_ACCESS, TRUE, &remote->hServerToken))
+				OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &remote->hServerToken);
+
+			// Copy it to the thread token
+			remote->hThreadToken = remote->hServerToken;
 
 			dprintf("[SERVER] Flushing the socket handle...");
 			server_socket_flush( remote );

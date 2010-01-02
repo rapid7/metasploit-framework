@@ -157,7 +157,7 @@ THREAD * thread_open( VOID )
 		else
 		{
 			NTOPENTHREAD pNtOpenThread = NULL;
-			// If we can use OpenThread, we try the older NtOpenThread function as found on NT4 machines.
+			// If we can't use OpenThread, we try the older NtOpenThread function as found on NT4 machines.
 			HMODULE hNtDll = LoadLibrary( "ntdll.dll" );
 			pNtOpenThread = (NTOPENTHREAD)GetProcAddress( hNtDll, "NtOpenThread" );
 			if( pNtOpenThread )

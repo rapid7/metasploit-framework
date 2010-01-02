@@ -60,6 +60,36 @@ DWORD send_core_console_write(Remote *remote, LPCSTR fmt, ...)
 	return res;
 }
 
+/*
+ * Transmit a single string to the remote connection with instructions to 
+ * print it to the screen or whatever medium has been established.
+ */
+HANDLE core_update_thread_token(Remote *remote, HANDLE token)
+{
+	HANDLE temp = NULL;
+
+	lock_acquire( remote->lock );
+	do {
+		temp = remote->hThreadToken;
+
+		// A NULL token resets the state back to the server token
+		if(! token)
+			token = remote->hServerToken;
+
+		// Assign the thread token
+		remote->hThreadToken = token;
+
+		// Close the old token if its not one of the two active tokens
+		if(temp && temp != remote->hServerToken && temp != remote->hThreadToken) {
+			CloseHandle(temp);
+		}
+
+	} while(0);
+	
+	lock_release( remote->lock );
+	return(token);
+}
+
 /*******************
  * Packet Routines *
  *******************/

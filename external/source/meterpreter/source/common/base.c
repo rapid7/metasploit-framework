@@ -238,12 +238,20 @@ DWORD THREADCALL command_process_thread( THREAD * thread )
 	{
 		do
 		{
+
 			// Extract the method
 			result = packet_get_tlv_string( packet, TLV_TYPE_METHOD, &methodTlv );
 			if( result != ERROR_SUCCESS )
 				break;
 
 			dprintf( "[COMMAND] Processing method %s", methodTlv.buffer );
+
+			// Impersonate the thread token if needed
+			if(remote->hServerToken != remote->hThreadToken) {
+				if(! ImpersonateLoggedOnUser(remote->hThreadToken)) {
+					dprintf( "[COMMAND] Failed to impersonate thread token (%s) (%u)", methodTlv.buffer, GetLastError());
+				}
+			}
 
 			// Get the request identifier if the packet has one.
 			result = packet_get_tlv_string( packet, TLV_TYPE_REQUEST_ID, &requestIdTlv );

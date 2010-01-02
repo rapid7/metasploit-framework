@@ -17,6 +17,9 @@ typedef struct _Remote
 	SSL_CTX *ctx;
 	SSL *ssl;
 	LOCK * lock; // lock must be acquired before doing any OpenSSL related action.
+	HANDLE hServerThread;
+	HANDLE hServerToken;
+	HANDLE hThreadToken;
 } Remote;
 
 Remote *remote_allocate(SOCKET fd);

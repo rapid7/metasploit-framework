@@ -188,5 +188,5 @@ LINKAGE DWORD packet_remove_completion_handler(LPCSTR requestId);
  * Core API
  */
 LINKAGE DWORD send_core_console_write(Remote *remote, LPCSTR fmt, ...);
-
+LINKAGE HANDLE core_update_thread_token(Remote *remote, HANDLE token);
 #endif

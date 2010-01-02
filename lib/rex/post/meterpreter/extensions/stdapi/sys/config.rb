@@ -52,8 +52,39 @@ class Config
 	# Calls RevertToSelf on the remote machine.
 	#
 	def revert_to_self
-		client.send_request(
-			Packet.create_request('stdapi_sys_config_rev2self'))
+		client.send_request(Packet.create_request('stdapi_sys_config_rev2self'))
+	end
+
+	#
+	# Steals the primary token from a target process
+	#
+	def steal_token(pid)
+		req = Packet.create_request('stdapi_sys_config_steal_token')
+		req.add_tlv(TLV_TYPE_PID, pid.to_i)
+		res = client.send_request(req)
+		return res.get_tlv_value(TLV_TYPE_USER_NAME)
+	end
+
+	#
+	# Drops any assumed token
+	#
+	def drop_token
+		req = Packet.create_request('stdapi_sys_config_drop_token')
+		res = client.send_request(req)
+		return res.get_tlv_value(TLV_TYPE_USER_NAME)
+	end
+
+	#
+	# Enables all possible privileges
+	#
+	def getprivs
+		req = Packet.create_request('stdapi_sys_config_getprivs')
+		ret = []
+		res = client.send_request(req)
+		res.each(TLV_TYPE_PRIVILEGE) do |p|
+			ret << p.value
+		end
+		return ret
 	end
 
 protected
@@ -63,3 +94,4 @@ protected
 end
 
 end; end; end; end; end; end
+

@@ -33,7 +33,7 @@ class Process < Rex::Post::Process
 	#
 	##
 
-	class <<self
+	class << self
 		attr_accessor :client
 	end
 
@@ -73,7 +73,7 @@ class Process < Rex::Post::Process
 			real_perms |= PROCESS_TERMINATE | PROCESS_CREATE_THREAD | PROCESS_CREATE_PROCESS | PROCESS_SUSPEND_RESUME
 		end
 
-		return _open(pid, real_perms)	
+		return _open(pid, real_perms)
 	end
 
 	#
@@ -164,14 +164,14 @@ class Process < Rex::Post::Process
 
 		# If we were creating a channel out of this
 		if (channel_id != nil)
-			channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client, 
+			channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client,
 					channel_id, "stdapi_process", CHANNEL_FLAG_SYNCHRONOUS)
 		end
 
 		# Return a process instance
 		return self.new(pid, handle, channel)
   end
-  
+
 	#
 	# Kills one or more processes.
 	#
@@ -216,7 +216,7 @@ class Process < Rex::Post::Process
 		response = client.send_request(request)
 
 		response.each(TLV_TYPE_PROCESS_GROUP) { |p|
-			processes << 
+			processes <<
 				{
 					'pid'  => p.get_tlv_value(TLV_TYPE_PID),
 					'name' => p.get_tlv_value(TLV_TYPE_PROCESS_NAME),
@@ -296,7 +296,7 @@ class Process < Rex::Post::Process
 
   #
   # Block untill this process terminates on the remote side.
-  # By default we choose not to allow a packet responce timeout to 
+  # By default we choose not to allow a packet responce timeout to
   # occur as we may be waiting indefinatly for the process to terminate.
   #
   def wait( timeout = -1 )
@@ -337,3 +337,4 @@ protected
 end
 
 end; end; end; end; end; end
+
