@@ -2065,7 +2065,7 @@ protected
 	def show_module_set(type, module_set, regex = nil, minrank = nil) # :nodoc:
 		tbl = generate_module_table(type)
 
-		module_set.each { |refname, mod|
+		module_set.sort.each { |refname, mod|
 			o = nil
 
 			begin
