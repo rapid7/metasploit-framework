@@ -615,7 +615,7 @@ class DBManager
 		host = get_host(address)
 		return unless host
 
-		host.services.find(:all, :conditions => { :proto => proto, :port => port}).destroy_all
+		host.services.all(:conditions => {:proto => proto, :port => port}).each { |s| s.destroy }
 	end
 
 	#
