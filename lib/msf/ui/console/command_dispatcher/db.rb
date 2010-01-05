@@ -1038,11 +1038,17 @@ class Db
 
 				# Put all the ports, regardless of state, into the db.
 				h["ports"].each { |p|
+					extra = ""
+					extra << p["product"]   + " " if p["product"]
+					extra << p["version"]   + " " if p["version"] 
+					extra << p["extrainfo"] + " " if p["extrainfo"]
+
 					data = {}
 					data[:proto] = p["protocol"].downcase
 					data[:port]  = p["portid"].to_i
 					data[:state] = p["state"]
 					data[:host]  = host
+					data[:info]  = extra if not extra.empty?
 					if p["name"] != "unknown"
 						data[:name] = p["name"]
 					end
