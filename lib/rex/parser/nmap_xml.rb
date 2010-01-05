@@ -70,7 +70,7 @@ class NmapXMLStreamParser
 		when "service"
 			# Store any service info with the associated port.  There shouldn't
 			# be any collisions on attribute names here, so just merge them.
-			@host["ports"].last.merge(attributes)
+			@host["ports"].last.merge!(attributes)
 		end
 	end
 
