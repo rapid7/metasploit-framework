@@ -54,23 +54,24 @@ class Metasploit3 < Msf::Auxiliary
 			res = smb_fingerprint()
 
 			if(res['os'] and res['os'] != 'Unknown')
-				info = "#{rhost} is running #{res['os']} #{res['sp']} (language: #{res['lang']})"
+				desc = "#{rhost} is running #{res['os']} #{res['sp']} (language: #{res['lang']})"
 				if(simple.client.default_name)
-					info << " (name:#{simple.client.default_name})"
+					desc << " (name:#{simple.client.default_name})"
 				end
 
 				if(simple.client.default_domain)
-					info << " (domain:#{simple.client.default_domain})"
+					desc << " (domain:#{simple.client.default_domain})"
 				end
 
-				print_status(info)
-				report_service({
-					:host => ip, 
-					:port => info[0], 
-					:proto => 'tcp', 
-					:name => 'smb', 
-					:info => "#{res['os']} #{res['sp']} (language: #{res['lang']})"
-				})
+				print_status(desc)
+
+				report_service(
+					:host  => ip,
+					:port  => info[0],
+					:proto => 'tcp',
+					:name  => 'smb',
+					:info  => "#{res['os']} #{res['sp']} (language: #{res['lang']})"
+				)
 				case res['os']
 				when /Windows/
 					os = OperatingSystems::WINDOWS
@@ -82,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 					:os_flavor => res['os'],
 					:os_lang => res['lang'],
 					:os_name => os,
-					:os_sp => res['sp'],
+					:os_sp => res['sp']
 				})
 			else
 				report_service(:host => ip, :port => info[0], :name => 'smb')

@@ -242,6 +242,11 @@ class DBManager
 		addr = opts.delete(:host) || return
 		host = find_or_create_host({:host => addr})
 		proto = opts[:proto] || 'tcp'
+
+		if(opts[:name])
+			opts[:name].downcase!
+		end
+
 		service = host.services.find_or_initialize_by_port_and_proto(opts[:port], proto)
 		opts.each { |k,v|
 			if (service.attribute_names.include?(k.to_s))
