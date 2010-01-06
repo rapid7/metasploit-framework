@@ -162,18 +162,15 @@ class EventDispatcher
 		found = false
 		case event
 		when "on"
-			#$stdout.puts("Got event: #{name}, looking for #{type}_event_subscribers")
 			if respond_to?(subscribers)
 				found = true
 				self.send(subscribers).each do |sub|
 					next if not sub.respond_to?(name)
-					#$stdout.puts("Found subscriber: #{sub}")
 					sub.send(name, *args)
 				end
 			else
 				general_event_subscribers.each do |sub|
 					next if not sub.respond_to?(name)
-					#$stdout.puts("Found general subscriber: #{sub}")
 					sub.send(name, *args)
 					found = true
 				end
@@ -190,7 +187,6 @@ class EventDispatcher
 			end
 		end
 		if not found
-			#$stdout.puts("Event dispatcher received an unhandled event: #{name} #{args}")
 			elog("Event dispatcher received an unhandled event: #{name}")
 		end
 		return found

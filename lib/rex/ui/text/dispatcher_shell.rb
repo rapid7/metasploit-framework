@@ -84,6 +84,8 @@ module DispatcherShell
 	#
 	include Shell
 
+	attr_accessor :on_command_proc
+
 	#
 	# Initialize the dispatcher shell.
 	#
@@ -95,6 +97,7 @@ module DispatcherShell
 		
 		# Initialize the tab completion array
 		self.tab_words = []		
+		self.on_command_proc = nil
 	end
 
 	#
@@ -194,17 +197,18 @@ module DispatcherShell
 
 				begin
 					if (dispatcher.commands.has_key?(method))
+						self.on_command_proc.call(line.strip) if self.on_command_proc
 						run_command(dispatcher, method, arguments)
 						found = true
 					end
 				rescue 
-					error = true
+					error = $!
 
 					print_error(
 						"Error while running command #{method}: #{$!}" +
 						"\n\nCall stack:\n#{$@.join("\n")}")
 				rescue ::Exception
-					error = true
+					error = $!
 
 					print_error(
 						"Error while running command #{method}: #{$!}")

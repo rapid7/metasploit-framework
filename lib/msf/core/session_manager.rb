@@ -51,6 +51,10 @@ class SessionManager < Hash
 		# Notify the framework that we have a new session opening up...
 		framework.events.on_session_open(session)
 
+		if session.respond_to?("console")
+			session.console.on_command_proc = Proc.new { |command, error| framework.events.on_session_command(session, command) }
+		end
+
 		return next_sid
 	end
 

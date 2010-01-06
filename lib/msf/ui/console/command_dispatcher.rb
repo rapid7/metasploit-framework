@@ -19,6 +19,7 @@ module CommandDispatcher
 		super
 
 		self.driver = driver
+		self.driver.on_command_proc = Proc.new { |command| framework.events.on_ui_command(command) }
 	end
 
 	#

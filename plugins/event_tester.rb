@@ -8,7 +8,7 @@ class Plugin::EventTester < Msf::Plugin
 			true
 		end
 		def method_missing(name, *args)
-			$stdout.puts("Subscriber called #{name}(#{args})")
+			$stdout.puts("Event fired: #{name}(#{args.join(", ")})")
 		end
 	end
 

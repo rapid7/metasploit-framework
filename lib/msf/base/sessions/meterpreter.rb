@@ -240,9 +240,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		sock
 	end
 
+	attr_accessor :console # :nodoc:
+
 protected
 
-	attr_accessor :rstream, :console # :nodoc:
+	attr_accessor :rstream # :nodoc:
 
 end
 
