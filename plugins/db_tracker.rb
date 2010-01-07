@@ -30,15 +30,10 @@ class Plugin::DB_Tracer < Msf::Plugin
 				# to hold the framework in 'Msf'
 				return if not param.context['Msf']
 
-				host = param.context['Msf'].db.get_host(param.context, sock.peerhost)
+				host = param.context['Msf'].db.find_or_create_host(:host => sock.peerhost, :state => Msf::HostState::Alive)
 				return if not host
 				
-				port = param.context['Msf'].db.get_service(param.context, host, param.proto, sock.peerport)
-				return if not port
-
-				if host.state != Msf::HostState::Alive
-					param.context['Msf'].db.report_host_state(self, sock.peerhost, Msf::HostState::Alive)
-				end
+				param.context['Msf'].db.report_service(:host => host, :proto => param.proto, :port => sock.peerport)
 			end
 		end		
 	end
