@@ -55,6 +55,7 @@ class Db
 				"db_del_host"   => "Delete one or more hosts from the database",
 				"db_del_port"   => "Delete one port from the database",
 				"db_autopwn"    => "Automatically exploit everything",
+				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
 				"db_import_amap_mlog"   => "Import a THC-Amap scan results file (-o -m)",
 				"db_import_nessus_nbe"  => "Import a Nessus scan result file (NBE)",
 				"db_import_nessus_xml"	=> "Import a Nessus scan result file (NESSUS)",
@@ -824,64 +825,19 @@ class Db
 		# EOM
 		end
 
-
 		#
-		# This holds all of the shared parsing/handling used by the
-		# Nessus NBE and NESSUS methods
+		# Generic import that automatically detects the file type
 		#
-		def handle_nessus(addr, port, nasl, data)
-			p = port.match(/^([^\(]+)\((\d+)\/([^\)]+)\)/)
-			return if not p
-
-			host = framework.db.find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
-			return if not host
-
-			info = { :host => host, :proto => p[3].downcase, :port => p[2].to_i }
-			name = p[1].strip
-			if name != "unknown"
-				info[:name] = name
+		def cmd_db_import(*args)
+			if (not (args and args.length == 1))
+				print_error("Usage: db_import <filename>")
+				return
 			end
-			service = framework.db.find_or_create_service(info)
-
-			return if not nasl
-
-			data.gsub!("\\n", "\n")
-
-			refs = {}
-
-			if (data =~ /^CVE : (.*)$/)
-				$1.gsub(/C(VE|AN)\-/, '').split(',').map { |r| r.strip }.each do |r|
-					refs[ 'CVE-' + r ] = true
-				end
+			if (not File.readable?(args[0]))
+				print_error("Could not read the file")
+				return
 			end
-
-			if (data =~ /^BID : (.*)$/)
-				$1.split(',').map { |r| r.strip }.each do |r|
-					refs[ 'BID-' + r ] = true
-				end
-			end
-
-			if (data =~ /^Other references : (.*)$/)
-				$1.split(',').map { |r| r.strip }.each do |r|
-					ref_id, ref_val = r.split(':')
-					ref_val ? refs[ ref_id + '-' + ref_val ] = true : refs[ ref_id ] = true
-				end
-			end
-
-			nss = 'NSS-' + nasl.to_s
-
-			vuln = framework.db.find_or_create_vuln(
-				:host => host, 
-				:service => service, 
-				:name => nss, 
-				:data => data)
-
-			rids = []
-			refs.keys.each do |r|
-				rids << framework.db.find_or_create_ref(:name => r)
-			end
-
-			vuln.refs << (rids - vuln.refs)
+			framework.db.import_file(args[0])
 		end
 
 		#
@@ -889,7 +845,7 @@ class Db
 		#
 		def cmd_db_import_nessus_nbe(*args)
 			if (not (args and args.length == 1))
-				print_status("Usage: db_import_nessus_nbe [nessus.nbe]")
+				print_status("Usage: db_import_nessus_xml <nessus.nbe>")
 				return
 			end
 
@@ -897,19 +853,7 @@ class Db
 				print_status("Could not read the NBE file")
 				return
 			end
-
-			fd = File.open(args[0], 'r')
-			fd.each_line do |line|
-				r = line.split('|')
-				next if r[0] != 'results'
-				addr = r[2]
-				port = r[3]
-				nasl = r[4]
-				data = r[6]
-
-				handle_nessus(addr, port, nasl, data)
-			end
-			fd.close
+			framework.db.import_nessus_nbe_file(args[0])
 		end
 
 		#
@@ -917,7 +861,7 @@ class Db
 		#
 		def cmd_db_import_nessus_xml(*args)
 			if (not (args and args.length == 1))
-				print_status("Usage: db_import_nessus_xml [nessus.nessus]")
+				print_status("Usage: db_import_nessus_xml <nessus.nessus>")
 				return
 			end
 
@@ -925,28 +869,7 @@ class Db
 				print_status("Could not read the NESSUS file")
 				return
 			end
-
-			fd = File.open(args[0], 'r')
-			data = fd.read(fd.stat.size)
-			fd.close
-
-			if(data.index("NessusClientData_v2"))
-				print_status("The v2 .nessus format is not currently supported (patches welcome).")
-				return
-			end
-
-			doc = REXML::Document.new(data)
-			doc.elements.each('/NessusClientData/Report/ReportHost') do |host|
-				addr = host.elements['HostName'].text
-
-				host.elements.each('ReportItem') do |item|
-					nasl = item.elements['pluginID'].text
-					port = item.elements['port'].text
-					data = item.elements['data'].text
-
-					handle_nessus(addr, port, nasl, data)
-				end
-			end
+			framework.db.import_nessus_xml_file(args[0])
 		end
 
 		#
@@ -954,11 +877,15 @@ class Db
 		#
 		def cmd_db_import_nmap_xml(*args)
 			if (not (args and args.length == 1))
-				print_status("Usage: db_import_nmap_xml [nmap.xml]")
+				print_error("Usage: db_import_nmap_xml <nmap.xml>")
 				return
 			end
 
-			load_nmap_xml(args[0])
+			if (not File.readable?(args[0]))
+				print_status("Could not read the NESSUS file")
+				return
+			end
+			framework.db.import_nmap_xml_file(args[0])
 		end
 
 		#
@@ -974,7 +901,7 @@ class Db
 				Rex::FileUtils.find_full_path("nmap") ||
 				Rex::FileUtils.find_full_path("nmap.exe")
 
-			if(not nmap)
+			if (not nmap)
 				print_error("The nmap executable could not be found")
 				return
 			end
@@ -1001,62 +928,7 @@ class Db
 			# end
 
 			::File.unlink(fo.path)
-			load_nmap_xml(fd.path)
-		end
-
-
-		#
-		# Process Nmap XML data
-		#
-		def load_nmap_xml(filename)
-			if (not File.readable?(filename) or File.size(filename) < 1)
-				print_status("Could not read the XML file")
-				return
-			end
-
-			# Use a stream parser instead of a tree parser so we can deal with
-			# huge results files without running out of memory.
-			parser = Rex::Parser::NmapXMLStreamParser.new
-
-			# Whenever the parser pulls a host out of the nmap results, store
-			# it, along with any associated services, in the database.
-			parser.on_found_host = Proc.new { |h|
-				data = {}
-				if (h["addrs"].has_key?("ipv4"))
-					data[:host] = h["addrs"]["ipv4"]
-				elsif (h["addrs"].has_key?("ipv6"))
-					data[:host] = h["addrs"]["ipv6"]
-				else
-					# Can't report it if it doesn't have an IP
-					return
-				end
-				if (h["addrs"].has_key?("mac"))
-					data[:mac] = h["addrs"]["mac"]
-				end
-				data[:state] = (h["status"] == "up" ? Msf::HostState::Alive : Msf::HostState::Dead)
-				host = framework.db.find_or_create_host(data)
-
-				# Put all the ports, regardless of state, into the db.
-				h["ports"].each { |p|
-					extra = ""
-					extra << p["product"]   + " " if p["product"]
-					extra << p["version"]   + " " if p["version"] 
-					extra << p["extrainfo"] + " " if p["extrainfo"]
-
-					data = {}
-					data[:proto] = p["protocol"].downcase
-					data[:port]  = p["portid"].to_i
-					data[:state] = p["state"]
-					data[:host]  = host
-					data[:info]  = extra if not extra.empty?
-					if p["name"] != "unknown"
-						data[:name] = p["name"]
-					end
-					framework.db.report_service(data)
-				}
-			}
-
-			REXML::Document.parse_stream(File.new(filename), parser)
+			framework.db.import_nmap_xml_file(fd.path)
 		end
 
 		#
@@ -1073,37 +945,7 @@ class Db
 				return
 			end
 
-			fd = File.open(args[0], 'r')
-
-			fd.each_line do |line|
-				line.sub!(/#.*/, "")
-
-				r = line.split(':')
-				next if r.length < 6
-
-				addr   = r[0]
-				port   = r[1].to_i
-				proto  = r[2].downcase
-				status = r[3]
-				name   = r[5]
-
-				next if status != "open"
-
-				host = framework.db.find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
-				next if not host
-
-				info = {
-					:host => host, 
-					:proto => proto, 
-					:port => port
-				}
-				if name != "unidentified"
-					info[:name] = name
-				end
-				service = framework.db.find_or_create_service(info)
-			end
-
-			fd.close
+			framework.db.import_amap_mlog_file(args[0])
 		end
 
 		#

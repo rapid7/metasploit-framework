@@ -22,8 +22,6 @@ class Plugin::Nexpose < Msf::Plugin
 				'nexpose_exhaustive'     => "Launch a scan covering all TCP ports and all authorized safe checks",
 				'nexpose_dos'            => "Launch a scan that includes checks that can crash services and devices (caution)",
 
-				'nexpose_import_raw'     => "Import a Raw XML file from NeXpose (premium editions)",
-				'nexpose_import_simple'  => "Import a Simple XML file from any version of NeXpose",
 				'nexpose_disconnect'     => "Disconnect from an active NeXpose instance",
 
 				# TODO:
@@ -368,90 +366,14 @@ class Plugin::Nexpose < Msf::Plugin
 			@nsc = nil
 		end
 
-		def cmd_nexpose_import_raw(*args)
-			if ! (args[0] and args[0] != "-h")
-				print_status("Usage: nexpose_import_raw <filename>")
-				return
-			end
-
-			process_nexpose_data_rxml(::File.read(args[0], ::File.size(args[0])))
-		end
-
-		def cmd_nexpose_import_simple(*args)
-			if ! (args[0] and args[0] != "-h")
-				print_status("Usage: nexpose_import_simple <filename>")
-				return
-			end
-
-			process_nexpose_data_sxml(::File.read(args[0], ::File.size(args[0])))
-		end
-
 		def process_nexpose_data(fmt, data)
 			case fmt
 			when 'raw-xml'
-				process_nexpose_data_rxml(data)
+				framework.db.import_nexpose_rawxml(data)
 			when 'ns-xml'
-				process_nexpose_data_sxml(data)
+				framework.db.import_nexpose_simplexml(data)
 			else
 				print_error("Unsupported NeXpose data format: #{fmt}")
-			end
-		end
-
-		def process_nexpose_data_rxml(data)
-			doc = REXML::Document.new(data)
-			doc.elements.each('/NexposeReport/nodes/node') do |host|
-				addr = host.attributes['address']
-				xhost = addr
-				refs = {}
-
-                # os based vuln
-				host.elements['tests'].elements.each('test') do |vuln|
-					if vuln.attributes['status'] == 'vulnerable-exploited' or vuln.attributes['status'] == 'vulnerable-version'
-						dhost = framework.db.find_or_create_host(:host => addr)
-						next if not dhost
-
-						vid = vuln.attributes['id'].to_s
-						nexpose_vuln_lookup(doc,vid,refs,dhost)
-						nexpose_vuln_lookup(doc,vid.upcase,refs,dhost)
-                    end
-                end
-
-				# skip if no endpoints
-				next unless host.elements['endpoints']
-
-				# parse the ports and add the vulns
-				host.elements['endpoints'].elements.each('endpoint') do |port|
-					prot = port.attributes['protocol']
-					pnum = port.attributes['port']
-					stat = port.attributes['status']
-					next if not port.elements['services']
-					name = port.elements['services'].elements['service'].attributes['name'].downcase
-
-					next if not port.elements['services'].elements['service'].elements['fingerprints']
-					prod = port.elements['services'].elements['service'].elements['fingerprints'].elements['fingerprint'].attributes['product']
-					vers = port.elements['services'].elements['service'].elements['fingerprints'].elements['fingerprint'].attributes['version']
-					vndr = port.elements['services'].elements['service'].elements['fingerprints'].elements['fingerprint'].attributes['vendor']
-
-					next if stat != 'open'
-
-					dhost = framework.db.find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
-					next if not dhost
-
-					if name != "unknown"
-						service = framework.db.find_or_create_service(:host => dhost, :proto => prot.downcase, :port => pnum.to_i, :name => name)
-					else
-						service = framework.db.find_or_create_service(:host => dhost, :proto => prot.downcase, :port => pnum.to_i)
-					end
-
-					port.elements['services'].elements['service'].elements['tests'].elements.each('test') do |vuln|
-						if vuln.attributes['status'] == 'vulnerable-exploited' or vuln.attributes['status'] == 'vulnerable-version'
-							vid = vuln.attributes['id'].to_s
-							# TODO, improve the vuln_lookup check so case of the vuln_id doesnt matter
-							nexpose_vuln_lookup(doc,vid,refs,dhost,service)
-							nexpose_vuln_lookup(doc,vid.upcase,refs,dhost,service)
-						end
-					end
-				end
 			end
 		end
 
@@ -494,84 +416,6 @@ class Plugin::Nexpose < Msf::Plugin
             end
         end
 
-		def process_nexpose_data_sxml(data)
-			doc = REXML::Document.new(data)
-			doc.elements.each('/NeXposeSimpleXML/devices/device') do |dev|
-				addr = dev.attributes['address'].to_s
-				desc = ''
-				dev.elements.each('fingerprint/description') do |fdesc|
-					desc = fdesc.text.to_s.strip
-				end
-
-				host = framework.db.find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
-				next if not host
-
-				# Load vulnerabilities not associated with a service
-				dev.elements.each('vulnerabilities/vulnerability') do |vuln|
-					vid  = vuln.attributes['id'].to_s.downcase
-					rids = []
-					refs = process_nexpose_data_sxml_refs(vuln)
-					next if not refs
-                	vuln = framework.db.find_or_create_vuln(
-						:host => host,
-						:name => 'NEXPOSE-' + vid,
-						:data => vid)
-					refs.each { |r| rids << framework.db.find_or_create_ref(:name => r) }
-					vuln.refs << (rids - vuln.refs)
-				end
-
-				# Load the services
-				dev.elements.each('services/service') do |svc|
-					sname = svc.attributes['name'].to_s
-					sprot = svc.attributes['protocol'].to_s.downcase
-					sport = svc.attributes['port'].to_s.to_i
-
-					name = sname.split('(')[0].strip
-					if(sname.downcase != '<unknown>')
-						serv = framework.db.find_or_create_service(:host => host, :proto => sprot, :port => sport, :name => name)
-					else
-						serv = framework.db.find_or_create_service(:host => host, :proto => sprot, :port => sport)
-					end
-
-					# Load vulnerabilities associated with this service
-					svc.elements.each('vulnerabilities/vulnerability') do |vuln|
-						vid  = vuln.attributes['id'].to_s.downcase
-						rids = []
-						refs = process_nexpose_data_sxml_refs(vuln)
-						next if not refs
-	                	vuln = framework.db.find_or_create_vuln(:host => host, :service => serv, :name => 'NEXPOSE-' + vid, :data => vid)
-						refs.each { |r| rids << framework.db.find_or_create_ref(:name => r) }
-						vuln.refs << (rids - vuln.refs)
-					end
-				end
-			end
-		end
-
-		def process_nexpose_data_sxml_refs(vuln)
-			refs = []
-			vid = vuln.attributes['id'].to_s.downcase
-			vry = vuln.attributes['resultCode'].to_s.upcase
-
-			# Only process vuln-exploitable and vuln-version statuses
-			return if vry !~ /^V[VE]$/
-
-			refs = []
-			vuln.elements.each('id') do |ref|
-				rtyp = ref.attributes['type'].to_s.upcase
-				rval = ref.text.to_s.strip
-				case rtyp
-				when 'CVE'
-					refs << rval.gsub('CAN', 'CVE')
-				when 'MS' # obsolete?
-					refs << "MSB-MS-#{rval}"
-				else
-					refs << "#{rtyp}-#{rval}"
-				end
-			end
-
-			refs << "NEXPOSE-#{vid}"
-			refs
-		end
 	end
 
 	#
