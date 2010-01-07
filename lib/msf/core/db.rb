@@ -950,7 +950,6 @@ class DBManager
 		else
 			doc = REXML::Document.new(data)
 		end
-		p doc.root
 		doc.elements.each('/NeXposeSimpleXML/devices/device') do |dev|
 			addr = dev.attributes['address'].to_s
 			desc = ''

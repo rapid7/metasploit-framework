@@ -829,15 +829,29 @@ class Db
 		# Generic import that automatically detects the file type
 		#
 		def cmd_db_import(*args)
-			if (not (args and args.length == 1))
-				print_error("Usage: db_import <filename>")
+			if (args.include?("-h") or not (args and args.length > 0))
+				print_error("Usage: db_import <filename> [file2...]")
+				print_line
+				print_line("filenames can be globs like *.xml, or **/*.xml which will search recursively")
 				return
 			end
-			if (not File.readable?(args[0]))
-				print_error("Could not read the file")
-				return
-			end
-			framework.db.import_file(args[0])
+			args.each { |glob|
+				Dir.glob(File.expand_path(glob)).each { |filename|
+					if (not File.readable?(filename))
+						print_error("Could not read file #{filename}")
+						next
+					end
+					begin
+						framework.db.import_file(filename)
+						print_status("Successfully imported #{filename}")
+					rescue DBImportError
+						print_error("Failed to import #{filename}: #{$!.class}: #{$!}")
+						elog("Failed to import #{filename}: #{$!.class}: #{$!}", LEV_1)
+						dlog("Call stack: #{$@.join("\n")}", LEV_3)
+						next
+					end
+				}
+			}
 		end
 
 		#
