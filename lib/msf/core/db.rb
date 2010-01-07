@@ -95,6 +95,9 @@ module DatabaseEvent
 
 end
 
+class DBImportError < RuntimeError
+end
+
 ###
 #
 # The DB module ActiveRecord definitions for the DBManager
@@ -927,7 +930,7 @@ class DBManager
 			# then it's an amap mlog
 			return import_amap_mlog(data)
 		end
-		raise RuntimeError.new("Could not automatically determine file type")
+		raise DBImportError.new("Could not automatically determine file type")
 	end
 
 	# 
@@ -1162,7 +1165,7 @@ class DBManager
 	# Of course they had to change the nessus format.
 	#
 	def import_openvas_xml(filename)
-		raise NotImplementedError.new("No openvas XML support.  Patches welcome")
+		raise DBImportError.new("No openvas XML support.  Patches welcome")
 	end
 
 	#
@@ -1177,7 +1180,7 @@ class DBManager
 	end
 	def import_nessus_xml(data)
 		if(data.index("NessusClientData_v2"))
-			raise RuntimeError.new("The v2 .nessus format is not currently supported (patches welcome).")
+			raise DBImportError.new("The v2 .nessus format is not currently supported (patches welcome).")
 		end
 
 		doc = REXML::Document.new(file_contents)
