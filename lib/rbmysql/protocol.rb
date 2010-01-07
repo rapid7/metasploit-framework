@@ -187,7 +187,7 @@ class RbMysql
       begin
         Timeout.timeout conn_timeout do
           if host.nil? or host.empty? or host == "localhost"
-            socket ||= ENV["MYSQL_UNIX_PORT"] || MYSQL_UNIX_PORT
+            socket = ENV["MYSQL_UNIX_PORT"] || MYSQL_UNIX_PORT
             @sock = UNIXSocket.new socket
           else
             if !socket
