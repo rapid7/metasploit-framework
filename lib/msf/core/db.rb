@@ -284,6 +284,7 @@ class DBManager
 	# find_or_create_service.
 	#
 	def report_service(opts)
+		opts[:state] ||= 'open'
 		service = find_or_initialize_service(opts)
 		if (service and service.changed?)
 			service.created = Time.now
