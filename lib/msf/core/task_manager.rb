@@ -40,6 +40,7 @@ class TaskManager
 			while self.status == :new
 				select(nil,nil,nil,0.10)
 			end
+			return self.status
 		end
 
 		#
