@@ -37,7 +37,7 @@ class Plugin::CredCollect < Msf::Plugin
 			end
 			framework.db.get_auth_info(:proto=>"smb").each do |info|
 				if info.kind_of? Hash and info.has_key? :token
-					print_line(info[:host] + " - " + info[:token])
+					print_line(info[:targ_host] + " - " + info[:token])
 				end
 			end
 		end
