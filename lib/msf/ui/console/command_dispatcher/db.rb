@@ -836,7 +836,12 @@ class Db
 				return
 			end
 			args.each { |glob|
-				Dir.glob(File.expand_path(glob)).each { |filename|
+				files = Dir.glob(File.expand_path(glob))
+				if files.empty?
+					print_error("No such file #{glob}")
+					next
+				end
+				files.each { |filename|
 					if (not File.readable?(filename))
 						print_error("Could not read file #{filename}")
 						next
@@ -845,8 +850,8 @@ class Db
 						framework.db.import_file(filename)
 						print_status("Successfully imported #{filename}")
 					rescue DBImportError
-						print_error("Failed to import #{filename}: #{$!.class}: #{$!}")
-						elog("Failed to import #{filename}: #{$!.class}: #{$!}", LEV_1)
+						print_error("Failed to import #{filename}: #{$!}")
+						elog("Failed to import #{filename}: #{$!.class}: #{$!}")
 						dlog("Call stack: #{$@.join("\n")}", LEV_3)
 						next
 					end
