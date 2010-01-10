@@ -149,46 +149,11 @@ class DBManager
 		return host
 	end
 
-	def find_or_initialize_host(opts)
-		addr = opts.delete(:host) || return
-		return addr if addr.kind_of? Host
-
-		#if opts[:comm] and opts[:comm].length > 0
-		#	host = workspace.hosts.find_or_initialize_by_address_and_comm(addr, opts[:comm])
-		#else
-			host = workspace.hosts.find_or_initialize_by_address(addr)
-		#end
-
-		opts.each { |k,v|
-			if (host.attribute_names.include?(k.to_s))
-				host[k] = v
-			else
-				dlog("Unknown attribute for Host: #{k}")
-			end
-		}
-		host.state     = HostState::Unknown if not host.state
-		host.comm      = ''        if not host.comm
-		host.workspace = workspace if not host.workspace
-
-		return host
-	end
-
 	#
-	# Exactly like report_host but ensures that the returned Host has been
-	# written to the database.  Returns nil on error.
+	# Exactly like report_host but waits for the database to create a host and returns it.
 	#
 	def find_or_create_host(opts)
-		host = find_or_initialize_host(opts)
-
-		if (host and host.changed?)
-			host.created = Time.now
-			task = framework.db.queue( Proc.new { host.save! } )
-			task.wait
-			if task.status != :done
-				return nil
-			end
-		end
-		return host
+		report_host(opts.merge({:wait => true}))
 	end
 
 	#
@@ -202,21 +167,45 @@ class DBManager
 	#	:os_name    -- one of the Msf::OperatingSystems constants
 	#	:os_flavor  -- something like "XP" or "Gentoo"
 	#	:os_sp      -- something like "SP2"
-	#	:os_lang    -- something like "English" or "French"
+	#	:os_lang    -- something like "English", "French", or "en-US"
 	#	:arch       -- one of the ARCH_* constants
 	#	:mac        -- the host's MAC address
 	#
-	# Returns a Host that may not have been written to the database yet.
-	# If you need to be sure that the insert succeeded, use
-	# find_or_create_host.
-	#
 	def report_host(opts)
-		host = find_or_initialize_host(opts)
-		if (host.changed?)
-			host.created = Time.now
-			framework.db.queue( Proc.new { host.save! } )
+		addr = opts.delete(:host) || return
+		return addr if addr.kind_of? Host
+		wait = opts.delete(:wait)
+
+		ret = {}
+		task = queue( Proc.new {
+			if opts[:comm] and opts[:comm].length > 0
+				host = workspace.hosts.find_or_initialize_by_address_and_comm(addr, opts[:comm])
+			else
+				host = workspace.hosts.find_or_initialize_by_address(addr)
+			end
+
+			opts.each { |k,v|
+				if (host.attribute_names.include?(k.to_s))
+					host[k] = v
+				else
+					dlog("Unknown attribute for Host: #{k}")
+				end
+			}
+			host.state     = HostState::Unknown if not host.state
+			host.comm      = ''        if not host.comm
+			host.workspace = workspace if not host.workspace
+
+			if (host.changed?)
+				host.created = Time.now
+				host.save!
+			end
+			ret[:host] = host
+		} )
+		if wait
+			return nil if task.wait != :done
+			return ret[:host]
 		end
-		return host
+		return task
 	end
 
 	#
@@ -241,37 +230,8 @@ class DBManager
 
 
 
-	def find_or_initialize_service(opts)
-		addr = opts.delete(:host) || return
-		host = find_or_create_host({:host => addr})
-		proto = opts[:proto] || 'tcp'
-
-		if(opts[:name])
-			opts[:name].downcase!
-		end
-
-		service = host.services.find_or_initialize_by_port_and_proto(opts[:port], proto)
-		opts.each { |k,v|
-			if (service.attribute_names.include?(k.to_s))
-				service[k] = v
-			else
-				dlog("Unknown attribute for Service: #{k}")
-			end
-		}
-		return service
-	end
-
 	def find_or_create_service(opts)
-		service = find_or_initialize_service(opts)
-		if (service and service.changed?)
-			service.created = Time.now
-			task = framework.db.queue(Proc.new { service.save! })
-			task.wait
-			if task.status != :done
-				return nil
-			end
-		end
-		return service
+		report_service(opts.merge({:wait => true}))
 	end
 
 	#
@@ -287,13 +247,34 @@ class DBManager
 	# find_or_create_service.
 	#
 	def report_service(opts)
-		opts[:state] ||= 'open'
-		service = find_or_initialize_service(opts)
-		if (service and service.changed?)
-			service.created = Time.now
-			framework.db.queue(Proc.new { service.save! })
+		addr = opts.delete(:host) || return
+		wait = opts.delete(:wait)
+
+		ret  = {}
+		host = find_or_create_host({:host => addr})
+		task = queue(Proc.new { 
+			proto = opts[:proto] || 'tcp'
+			opts[:name].downcase!  if (opts[:name])
+
+			service = host.services.find_or_initialize_by_port_and_proto(opts[:port].to_i, proto)
+			opts.each { |k,v|
+				if (service.attribute_names.include?(k.to_s))
+					service[k] = v
+				else
+					dlog("Unknown attribute for Service: #{k}")
+				end
+			}
+			if (service and service.changed?)
+				service.created = Time.now
+				service.save!
+			end
+			ret[:service] = service
+		})
+		if wait
+			return nil if task.wait() != :done
+			return ret[:service]
 		end
-		return service
+		return task
 	end
 
 	def get_service(host, proto, port)
@@ -332,33 +313,8 @@ class DBManager
 		return client
 	end
 
-	def find_or_initialize_client(opts)
-		host = find_or_create_host(:host => opts.delete(:host))
-		return if not host
-		client = host.clients.find_or_initialize_by_ua_string(opts[:ua_string])
-		opts.each { |k,v|
-			if (client.attribute_names.include?(k.to_s))
-				client[k] = v
-			else
-				dlog("Unknown attribute for Client: #{k}")
-			end
-		}
-		return client
-	end
-
 	def find_or_create_client(opts)
-		client = find_or_initialize_client(opts)
-
-		if (client and client.changed?)
-			client.created = Time.now
-			task = framework.db.queue(Proc.new { client.save! })
-			task.wait
-			if task.status != :done
-				return nil
-			end
-		end
-
-		return client
+		report_client(opts.merge({:wait => true}))
 	end
 
 	#
@@ -371,18 +327,34 @@ class DBManager
 	#   :ua_name    -- one of the Msf::HttpClients constants
 	#   :ua_ver     -- detected version of the given client
 	#
-	# Returns a Client.  Not guaranteed to have been written to the database.
-	# If you need to be sure that the insert succeeded, use
-	# find_or_create_client.
+	# Returns a Client.
 	#
 	def report_client(opts)
-		client = find_or_initialize_client(opts)
-		if (client and client.changed?)
-			client.created = Time.now
-			framework.db.queue(Proc.new { client.save! })
-		end
+		host = find_or_create_host(:host => opts.delete(:host))
+		return if not host
+		wait = opts.delete(:wait)
 
-		return client
+		ret = {}
+		task = queue(Proc.new {
+			client = host.clients.find_or_initialize_by_ua_string(opts[:ua_string])
+			opts.each { |k,v|
+				if (client.attribute_names.include?(k.to_s))
+					client[k] = v
+				else
+					dlog("Unknown attribute for Client: #{k}")
+				end
+			}
+			if (client and client.changed?)
+				client.created = Time.now
+				client.save!
+			end
+			ret[:client] = client
+		})
+		if wait
+			return nil if task.wait() != :done
+			return ret[:client]
+		end
+		return task
 	end
 
 	#
@@ -416,50 +388,47 @@ class DBManager
 	# Find or create a note matching this type/data
 	#
 	def find_or_create_note(opts)
-		note = find_or_initialize_note(opts)
-		if (note.changed?)
-			note.created = Time.now
-			task = framework.db.queue(Proc.new {note.save!})
-			task.wait
-			if (task.status != :done)
-				return nil
-			end
-		end
-		return note
-	end
-
-	def find_or_initialize_note(opts)
-		ntype = opts.delete(:type) || opts.delete(:ntype) || return
-		data  = opts[:data] || return
-
-		method = "find_or_initialize_by_ntype_and_data"
-		args = [ ntype, data.to_yaml ]
-
-		if opts[:host]
-			if opts[:host].kind_of? Host
-				host = opts[:host].dup
-			else
-				host = find_or_create_host({:host => opts[:host]})
-			end
-			method << "_and_host_id"
-			args.push(host.id)
-		end
-		if opts[:service] and opts[:service].kind_of? Service
-			method << "_and_service_id"
-			args.push(opts[:service].id)
-		end
-		note = workspace.notes.send(method, *args)
-
-		return note
+		report_note(opts.merge({:wait => true}))
 	end
 
 	def report_note(opts)
-		note = find_or_initialize_note(opts)
-		if (note and note.changed?)
-			note.created = Time.now
-			task = framework.db.queue(Proc.new {note.save!})
+		wait = opts.delete(:wait)
+		host = nil
+		if opts[:host]
+			if opts[:host].kind_of? Host
+				host = opts[:host]
+			else
+				host = find_or_create_host({:host => opts[:host]})
+			end
 		end
-		return note
+		ret = {}
+		task = queue(Proc.new {
+			ntype = opts.delete(:type) || opts.delete(:ntype) || return
+			data  = opts[:data] || return
+
+			method = "find_or_initialize_by_ntype_and_data"
+			args = [ ntype, data.to_yaml ]
+			if host
+				method << "_and_host_id"
+				args.push(host.id)
+			end
+			if opts[:service] and opts[:service].kind_of? Service
+				method << "_and_service_id"
+				args.push(opts[:service].id)
+			end
+			note = workspace.notes.send(method, *args)
+			if (note.changed?)
+				note.created = Time.now
+				note.save!
+			end
+
+			ret[:note] = note
+		})
+		if wait
+			return nil if task.wait() != :done
+			return ret[:service]
+		end
+		return task
 	end
 
 	#
@@ -484,7 +453,7 @@ class DBManager
 	#	:port    -- the port
 	#
 	def report_auth_info(opts={})
-		return if not framework.db.active
+		return if not active
 		host    = opts.delete(:host)
 		service = opts.delete(:service)
 		proto   = opts.delete(:proto) || "generic"
@@ -497,11 +466,11 @@ class DBManager
 			:data => opts
 		}
 
-		report_note(note)
+		return report_note(note)
 	end
 
 	def get_auth_info(opts={})
-		return if not framework.db.active
+		return if not active
 		condition = ""
 		condition_values = []
 		if opts[:host]
@@ -523,59 +492,64 @@ class DBManager
 			condition_values << "auth:%"
 		end
 		conditions = [ condition ] + condition_values
-		info = framework.db.notes.find(:all, :conditions => conditions )
+		info = notes.find(:all, :conditions => conditions )
 		return info.map{|i| i.data} if info
 	end
 
 
 
-	#
-	#
-	#
-	def find_or_initialize_vuln(opts)
-		host  = find_or_create_host({:host => opts[:host]}) || return
-		name  = opts[:name] || return
-		data  = opts[:data]
-
-		if data
-			vuln = host.vulns.find_or_initialize_by_name_and_data(name, data)
-		else
-			vuln = host.vulns.find_or_initialize_by_name(name)
-		end
-
-		if opts[:service] and opts[:service].kind_of? Service
-			vuln.service = opts[:service]
-		end
-
-		return vuln
-	end
 
 	#
 	# Find or create a vuln matching this service/name
 	#
 	def find_or_create_vuln(opts)
-		vuln = find_or_initialize_vuln(opts)
-		if vuln and vuln.changed?
-			vuln.created = Time.now
-			task = framework.db.queue(Proc.new { vuln.save! })
-			task.wait
-			if task.status != :done
-				return nil
-			end
-		end
-		return vuln
+		report_vuln(opts.merge({:wait => true}))
 	end
 
 	#
 	#
 	#
 	def report_vuln(opts)
-		vuln = find_or_initialize_vuln(opts)
-		if vuln.changed?
-			vuln.created = Time.now
-			framework.db.queue(Proc.new { vuln.save! })
+		name = opts[:name] || return
+		host = find_or_create_host({:host => opts[:host]}) || return
+		data = opts[:data]
+		wait = opts.delete(:wait)
+		rids = nil
+		if opts[:refs]
+			rids = []
+			opts[:refs].each do |r|
+				rids << find_or_create_ref(:name => r)
+			end
 		end
-		return vuln
+		$stdout.puts("Got some refs: #{rids.inspect}")
+
+		ret = {}
+		task = queue( Proc.new {
+			if data
+				vuln = host.vulns.find_or_initialize_by_name_and_data(name, data)
+			else
+				vuln = host.vulns.find_or_initialize_by_name(name)
+			end
+
+			if opts[:service] and opts[:service].kind_of? Service
+				vuln.service = opts[:service]
+			end
+
+			if rids
+				vuln.refs << (rids - vuln.refs)
+			end
+
+			if vuln.changed?
+				vuln.created = Time.now
+				vuln.save!
+			end
+			ret[:vuln] = vuln
+		})
+		if wait
+			return nil if task.wait() != :done
+			return ret[:vuln]
+		end
+		return task
 	end
 
 	def get_vuln(host, service, name, data='')
@@ -593,16 +567,19 @@ class DBManager
 	# Find or create a reference matching this name
 	#
 	def find_or_create_ref(opts)
-		ref = Ref.find_or_initialize_by_name(opts[:name])
-		if ref and ref.changed?
-			ref.created = Time.now
-			task = framework.db.queue(Proc.new { ref.save! })
-			task.wait
-			if task.status != :done
-				return nil
+		$stdout.puts("Creating a ref: #{opts.inspect}")
+		ret = {}
+		task = queue(Proc.new { 
+			ref = Ref.find_or_initialize_by_name(opts[:name])
+			if ref and ref.changed?
+				ref.created = Time.now
+				ref.save!
 			end
-		end
-		return ref
+			$stdout.puts("Created ref: #{ref.inspect}")
+			ret[:ref] = ref
+		})
+		return nil if task.wait() != :done
+		return ret[:ref]
 	end
 	def get_ref(name)
 		Ref.find_by_name(name)
@@ -648,12 +625,6 @@ class DBManager
 		workspace.hosts.find_by_address(addr)
 	end
 
-	def vuln_add_refs(vuln, refs)
-		return vuln if not refs
-		rids = refs.map{|r| get_ref("#{r[0]}-#{r[1]}") }
-		vuln.refs << rids
-		vuln
-	end
 
 	#
 	# WMAP
@@ -957,7 +928,7 @@ class DBManager
 				desc = fdesc.text.to_s.strip
 			end
 
-			host = framework.db.find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
+			host = find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
 			next if not host
 
 			# Load vulnerabilities not associated with a service
@@ -966,12 +937,11 @@ class DBManager
 				rids = []
 				refs = process_nexpose_data_sxml_refs(vuln)
 				next if not refs
-				vuln = framework.db.find_or_create_vuln(
+				report_vuln(
 					:host => host,
 					:name => 'NEXPOSE-' + vid,
-					:data => vid)
-				refs.each { |r| rids << framework.db.find_or_create_ref(:name => r) }
-				vuln.refs << (rids - vuln.refs)
+					:data => vid,
+					:refs => refs)
 			end
 
 			# Load the services
@@ -982,9 +952,9 @@ class DBManager
 
 				name = sname.split('(')[0].strip
 				if(sname.downcase != '<unknown>')
-					serv = framework.db.find_or_create_service(:host => host, :proto => sprot, :port => sport, :name => name)
+					serv = find_or_create_service(:host => host, :proto => sprot, :port => sport, :name => name)
 				else
-					serv = framework.db.find_or_create_service(:host => host, :proto => sprot, :port => sport)
+					serv = find_or_create_service(:host => host, :proto => sprot, :port => sport)
 				end
 
 				# Load vulnerabilities associated with this service
@@ -993,8 +963,8 @@ class DBManager
 					rids = []
 					refs = process_nexpose_data_sxml_refs(vuln)
 					next if not refs
-					vuln = framework.db.find_or_create_vuln(:host => host, :service => serv, :name => 'NEXPOSE-' + vid, :data => vid)
-					refs.each { |r| rids << framework.db.find_or_create_ref(:name => r) }
+					vuln = find_or_create_vuln(:host => host, :service => serv, :name => 'NEXPOSE-' + vid, :data => vid)
+					refs.each { |r| rids << find_or_create_ref(:name => r) }
 					vuln.refs << (rids - vuln.refs)
 				end
 			end
@@ -1024,7 +994,7 @@ class DBManager
 			# os based vuln
 			host.elements['tests'].elements.each('test') do |vuln|
 				if vuln.attributes['status'] == 'vulnerable-exploited' or vuln.attributes['status'] == 'vulnerable-version'
-					dhost = framework.db.find_or_create_host(:host => addr)
+					dhost = find_or_create_host(:host => addr)
 					next if not dhost
 
 					vid = vuln.attributes['id'].to_s
@@ -1051,13 +1021,13 @@ class DBManager
 
 				next if stat != 'open'
 
-				dhost = framework.db.find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
+				dhost = find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
 				next if not dhost
 
 				if name != "unknown"
-					service = framework.db.find_or_create_service(:host => dhost, :proto => prot.downcase, :port => pnum.to_i, :name => name)
+					service = find_or_create_service(:host => dhost, :proto => prot.downcase, :port => pnum.to_i, :name => name)
 				else
-					service = framework.db.find_or_create_service(:host => dhost, :proto => prot.downcase, :port => pnum.to_i)
+					service = find_or_create_service(:host => dhost, :proto => prot.downcase, :port => pnum.to_i)
 				end
 
 				port.elements['services'].elements['service'].elements['tests'].elements.each('test') do |vuln|
@@ -1090,18 +1060,19 @@ class DBManager
 		parser.on_found_host = Proc.new { |h|
 			data = {}
 			if (h["addrs"].has_key?("ipv4"))
-				data[:host] = h["addrs"]["ipv4"]
+				addr = h["addrs"]["ipv4"]
 			elsif (h["addrs"].has_key?("ipv6"))
-				data[:host] = h["addrs"]["ipv6"]
+				addr = h["addrs"]["ipv6"]
 			else
 				# Can't report it if it doesn't have an IP
 				return
 			end
+			data[:host] = addr
 			if (h["addrs"].has_key?("mac"))
 				data[:mac] = h["addrs"]["mac"]
 			end
 			data[:state] = (h["status"] == "up" ? Msf::HostState::Alive : Msf::HostState::Dead)
-			host = framework.db.find_or_create_host(data)
+			report_host(data)
 
 			# Put all the ports, regardless of state, into the db.
 			h["ports"].each { |p|
@@ -1114,12 +1085,12 @@ class DBManager
 				data[:proto] = p["protocol"].downcase
 				data[:port]  = p["portid"].to_i
 				data[:state] = p["state"]
-				data[:host]  = host
+				data[:host]  = addr
 				data[:info]  = extra if not extra.empty?
 				if p["name"] != "unknown"
 					data[:name] = p["name"]
 				end
-				framework.db.report_service(data)
+				report_service(data)
 			}
 		}
 
@@ -1197,10 +1168,10 @@ class DBManager
 		end
 	end
 
-	def import_nessus_xml_file(filename)
+	def import_amap_log_file(filename)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
-		import_nessus_xml(data)
+		import_amap_log(data)
 	end
 	def import_amap_mlog(data)
 		data.each_line do |line|
@@ -1241,17 +1212,21 @@ protected
 		p = port.match(/^([^\(]+)\((\d+)\/([^\)]+)\)/)
 		return if not p
 
-		host = find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
-		return if not host
+		report_host(:host => addr, :state => Msf::HostState::Alive)
 
-		info = { :host => host, :port => p[2].to_i, :proto => p[3].downcase }
+		info = { :host => addr, :port => p[2].to_i, :proto => p[3].downcase }
 		name = p[1].strip
 		if name != "unknown"
 			info[:name] = name
 		end
+		if not nasl
+			# then it's not a vulnerability, just an open port and we don't
+			# have to wait for the service to get created
+			report_service(info)
+			return
+		end
+		# otherwise, we need the service for when we create the vuln below
 		service = find_or_create_service(info)
-
-		return if not nasl
 
 		data.gsub!("\\n", "\n")
 
@@ -1278,18 +1253,12 @@ protected
 
 		nss = 'NSS-' + nasl.to_s
 
-		vuln = find_or_create_vuln(
-			:host => host, 
+		vuln = report_vuln(
+			:host => addr, 
 			:service => service, 
 			:name => nss, 
-			:data => data)
-
-		rids = []
-		refs.each do |r|
-			rids << find_or_create_ref(:name => r)
-		end
-
-		vuln.refs << (rids - vuln.refs)
+			:data => data,
+			:refs => refs)
 	end
 
 	def process_nexpose_data_sxml_refs(vuln)
