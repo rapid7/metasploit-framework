@@ -521,7 +521,6 @@ class DBManager
 				rids << find_or_create_ref(:name => r)
 			end
 		end
-		$stdout.puts("Got some refs: #{rids.inspect}")
 
 		ret = {}
 		task = queue( Proc.new {
@@ -567,7 +566,6 @@ class DBManager
 	# Find or create a reference matching this name
 	#
 	def find_or_create_ref(opts)
-		$stdout.puts("Creating a ref: #{opts.inspect}")
 		ret = {}
 		task = queue(Proc.new { 
 			ref = Ref.find_or_initialize_by_name(opts[:name])
@@ -575,7 +573,6 @@ class DBManager
 				ref.created = Time.now
 				ref.save!
 			end
-			$stdout.puts("Created ref: #{ref.inspect}")
 			ret[:ref] = ref
 		})
 		return nil if task.wait() != :done
