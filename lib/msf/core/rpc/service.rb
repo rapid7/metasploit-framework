@@ -54,7 +54,11 @@ class Service < ::XMLRPC::BasicServer
 
 	def on_client_data(c)
 		data = c.get_once(-1)
-		self.state[c] << data if data
+		if(not data)
+			self.c.close
+			return
+		end
+		self.state[c] << data
 		procxml(c)
 	end
 
