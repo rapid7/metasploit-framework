@@ -8,7 +8,7 @@ module RPC
 class Service < ::XMLRPC::BasicServer
 
 	attr_accessor :service, :state
-	
+
 	def initialize(srvhost, srvport, ssl=false, cert=nil, ckey=nil)
 		self.service = Rex::Socket::TcpServer.create(
 			'LocalHost' => srvhost,
@@ -29,33 +29,32 @@ class Service < ::XMLRPC::BasicServer
 		self.state = {}
 		super()
 	end
-	
+
 	def start
 		self.state = {}
 		self.service.start
 	end
-	
+
 	def stop
 		self.state = {}
 		self.service.stop
 	end
-	
+
 	def wait
 		self.service.wait
 	end
-	
+
 	def on_client_close(c)
 		self.state.delete(c)
 	end
-	
+
 	def on_client_connect(c)
 		self.state[c] = ""
 	end
-	
+
 	def on_client_data(c)
 		data = c.get_once(-1)
 		self.state[c] << data if data
-		
 		procxml(c)
 	end
 
@@ -78,55 +77,54 @@ class WebService < ::XMLRPC::BasicServer
 
 	attr_accessor :service, :state, :srvhost, :srvport, :uri
 
-	
+
 	def initialize(port, host, uri = "/RPC2")
 		self.srvhost = host
 		self.srvport = port
 		self.uri = uri
-                self.service = nil
+		self.service = nil
 		super()
 	end
-	
+
 	def start
 		self.state = {}
 		self.service = Rex::ServiceManager.start(
-                        Rex::Proto::Http::Server,
-                        self.srvport ,
-                        self.srvhost,
-			{
-			}
+			Rex::Proto::Http::Server,
+			self.srvport,
+			self.srvhost,
+			{}
 		)
 
 		uopts = {
-                        'Proc' => Proc.new { |cli, req|
-                                        on_request_uri(cli, req)
-                                },
-                        'Path' => self.uri
+			'Proc' => Proc.new { |cli, req|
+				on_request_uri(cli, req)
+			},
+			'Path' => self.uri
 		}
 
 		self.service.add_resource(self.uri,uopts)
 	end
-	
+
 	def stop
 		self.state = {}
 		self.service.stop
 	end
-	
+
 	def wait
 		self.service.wait
 	end
-	
+
 	def on_client_close(c)
 		self.state.delete(c)
 	end
-	
+
 	def on_client_connect(c)
 		self.state[c] = ""
 	end
 	def on_request_uri(cli, req)
-		begin 
+		begin
 			res = Rex::Proto::Http::Response.new()
-			res.body = process(req.body) 
+			res.body = process(req.body)
 		rescue XMLRPC::FaultException => e
 			res = Rex::Proto::Http::Response.new(e.faultCode,e.faultString)
 		rescue
@@ -134,8 +132,9 @@ class WebService < ::XMLRPC::BasicServer
 		end
 		cli.send_response(res)
 	end
-	
+
 end
 
 end
 end
+

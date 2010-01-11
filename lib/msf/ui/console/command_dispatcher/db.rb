@@ -350,7 +350,7 @@ class Db
 
 			host = framework.db.find_or_create_host(:host => args[0])
 			return if not host
-			info = { 
+			info = {
 				:host => host,
 				:port => args[1].to_i
 			}
