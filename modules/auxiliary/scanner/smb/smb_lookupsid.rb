@@ -1,0 +1,254 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+
+require 'msf/core'
+
+
+class Metasploit3 < Msf::Auxiliary
+
+	# Exploit mixins should be called first
+	include Msf::Exploit::Remote::SMB
+	include Msf::Exploit::Remote::DCERPC
+
+	# Scanner mixin should be near last
+	include Msf::Auxiliary::Scanner
+
+	def initialize
+		super(
+			'Name'        => 'SMB Local User Enumeration (LookupSid)',
+			'Version'     => '$Revision$',
+			'Description' => 'Determine what local users exist via brute force SID lookups',
+			'Author'      => 'hdm',
+			'License'     => MSF_LICENSE,
+			'DefaultOptions' => {
+				'DCERPC::fake_bind_multi' => false
+			}
+		)
+
+		deregister_options('RPORT', 'RHOST')
+	end
+
+
+	# Locate an available SMB PIPE for the specified service
+	def smb_find_dcerpc_pipe(uuid, vers, pipes)
+		found_pipe   = nil
+		found_handle = nil
+		pipes.each do |pipe_name|
+			connected = false
+			begin
+				connect
+				smb_login
+				connected = true
+
+				handle = dcerpc_handle(
+					uuid, vers,
+					'ncacn_np', ["\\#{pipe_name}"]
+				)
+
+				dcerpc_bind(handle)
+				return pipe_name
+
+			rescue ::Interrupt => e
+				raise e
+			rescue ::Exception => e
+				raise e if not connected
+			end
+			disconnect
+		end
+		nil
+	end
+
+	def smb_parse_sid(data)
+		fields = data.unpack('VvvvvVVVVV')
+		domain = data[32, fields[3]]
+		domain.gsub!("\x00", '')
+
+		if(fields[6] == 0)
+			return [nil, domain]
+		end
+
+		while(fields[3] % 4 != 0)
+			fields[3] += 1
+		end
+
+		buff = data[32 + fields[3], data.length].unpack('VCCvNVVVVV')
+		sid  = buff[4..8].map{|x| x.to_s }.join("-")
+		return [sid, domain]
+	end
+
+	def smb_pack_sid(str)
+		[1,5,0].pack('CCv') + str.split('-').map{|x| x.to_i}.pack('NVVVV')
+	end
+
+	def smb_parse_sid_lookup(data)
+
+		fields = data.unpack('VVVVVvvVVVVV')
+		if(fields[0] == 0)
+			return nil
+		end
+
+		domain = data[44, fields[5]]
+		domain.gsub!("\x00", '')
+
+		while(fields[5] % 4 != 0)
+			fields[5] += 1
+		end
+
+		ginfo = data[44 + fields[5], data.length].unpack('VCCvNVVVV')
+		uinfo = data[72 + fields[5], data.length].unpack('VVVVvvVVVVV')
+
+		if(uinfo[3] == 8)
+			return [8, nil]
+		end
+
+		name = data[112 + fields[5], uinfo[4]]
+		name.gsub!("\x00", '')
+
+		[ uinfo[3], name ]
+	end
+
+
+	@@lsa_uuid     = '12345778-1234-abcd-ef00-0123456789ab'
+	@@lsa_vers     = '0.0'
+	@@lsa_pipes    = %W{ LSARPC NETLOGON SAMR BROWSER SRVSVC }
+
+	# Fingerprint a single host
+	def run_host(ip)
+
+		[[139, false], [445, true]].each do |info|
+
+		datastore['RPORT'] = info[0]
+		datastore['SMBDirect'] = info[1]
+
+		lsa_pipe   = nil
+		lsa_handle = nil
+		begin
+			# find the lsarpc pipe
+			lsa_pipe = smb_find_dcerpc_pipe(@@lsa_uuid, @@lsa_vers, @@lsa_pipes)
+			break if not lsa_pipe
+
+			# OpenPolicy2()
+			stub =
+				NDR.uwstring(ip) +
+				NDR.long(24) +
+				NDR.long(0) +
+				NDR.long(0) +
+				NDR.long(0) +
+				NDR.long(0) +
+				NDR.long(rand(0x10000000)) +
+				NDR.long(12) +
+				[
+					2, # Impersonation
+					1, # Context
+					0  # Effective
+				].pack('vCC') +
+				NDR.long(0x02000000)
+
+			dcerpc.call(44, stub)
+			resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
+
+			if ! (resp and resp.length == 24)
+				print_error("#{ip} Invalid response from the OpenPolicy request")
+				disconnect
+				return
+			end
+
+			phandle = resp[0,20]
+			perror  = resp[20,4].unpack("V")[0]
+
+			# Recent versions of Windows restrict this by default
+			if(perror == 0xc0000022)
+				disconnect
+				return
+			end
+
+			if(perror != 0)
+				print_error("#{ip} Received error #{"0x%.8x" % perror} from the OpenPolicy2 request")
+				disconnect
+				return
+			end
+
+			# QueryInfoPolicy(Local)
+			stub = phandle + NDR.long(5)
+			dcerpc.call(7, stub)
+			resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
+			host_sid, host_name = smb_parse_sid(resp)
+
+			# QueryInfoPolicy(Domain)
+			stub = phandle + NDR.long(3)
+			dcerpc.call(7, stub)
+			resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
+			domain_sid, domain_name = smb_parse_sid(resp)
+
+
+			# Store SID, local domain name, joined domain name
+			print_status("#{ip} PIPE(#{lsa_pipe}) LOCAL(#{host_name} - #{host_sid}) DOMAIN(#{domain_name} - #{domain_sid})")
+
+
+			# Brute force through a common RID range
+			500.upto(4000) do |rid|
+
+				stub =
+					phandle +
+					NDR.long(1) +
+					NDR.long(rand(0x10000000)) +
+					NDR.long(1) +
+					NDR.long(rand(0x10000000)) +
+					NDR.long(5) +
+					smb_pack_sid(host_sid) +
+					NDR.long(rid) +
+					NDR.long(0) +
+					NDR.long(0) +
+					NDR.long(1) +
+					NDR.long(0)
+
+
+				dcerpc.call(15, stub)
+				resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
+
+				# Skip the "not mapped" error message
+				if(resp and resp[-4,4].unpack("V")[0] == 0xc0000073)
+					next
+				end
+
+				# Stop if we are seeing access denied
+				if(resp and resp[-4,4].unpack("V")[0] == 0xc0000022)
+					break
+				end
+
+				utype,uname = smb_parse_sid_lookup(resp)
+				case utype
+				when 1
+					print_status("#{ip} USER=#{uname} RID=#{rid}")
+				when 2
+					print_status("#{ip} GROUP=#{uname} RID=#{rid}")
+				end
+			end
+
+
+			# cleanup
+			disconnect
+			return
+		rescue ::Interrupt
+			raise $!
+		rescue ::Rex::ConnectionError
+		rescue ::Rex::Proto::SMB::Exceptions::LoginError
+			next
+		rescue ::Exception => e
+			print_line("Error: #{ip} #{e.class} #{e} #{e.backtrace}")
+		end
+		end
+	end
+
+
+end
+
