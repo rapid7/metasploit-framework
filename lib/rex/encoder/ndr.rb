@@ -15,14 +15,14 @@ module NDR
 	def NDR.long(string)
 		return [string].pack('V')
 	end
-	
+
 	# Encode a 2 byte short
 	# use to encode:
 	#       short element_1;
 	def NDR.short(string)
 		return [string].pack('v')
 	end
-	
+
 	# Encode a single byte
 	# use to encode:
 	#       byte element_1;
@@ -44,20 +44,20 @@ module NDR
 		string << "\x00" # null pad
 		return long(string.length) + long(0) + long(string.length) + string + align(string)
 	end
-	
+
 	# Encode a string
 	# use to encode:
 	#       w_char *element_1;
 	def NDR.wstring(string)
-		string << "\x00" # null pad
+		string  = string + "\x00" # null pad
 		return long(string.length) + long(0) + long(string.length) + Rex::Text.to_unicode(string) + align(Rex::Text.to_unicode(string))
 	end
-	
+
 	# Encode a string and make it unique
 	# use to encode:
 	#       [unique] w_char *element_1;
 	def NDR.uwstring(string)
-		string << "\x00" # null pad
+		string  = string + "\x00" # null pad
 		return long(rand(0xffffffff))+long(string.length) + long(0) + long(string.length) + Rex::Text.to_unicode(string) + align(Rex::Text.to_unicode(string))
 	end
 
@@ -67,7 +67,7 @@ module NDR
 	def NDR.wstring_prebuilt(string)
 		# if the string len is odd, thats bad!
 		if string.length % 2 > 0
-			string << "\x00"
+			string = string + "\x00"
 		end
 		len = string.length / 2;
 		return long(len) + long(0) + long(len) + string + align(string)
@@ -86,3 +86,4 @@ module NDR
 end
 end
 end
+
