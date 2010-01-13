@@ -1,4 +1,5 @@
 require 'msf/core/model/client'
+require 'msf/core/model/event'
 require 'msf/core/model/host'
 require 'msf/core/model/note'
 require 'msf/core/model/ref'
