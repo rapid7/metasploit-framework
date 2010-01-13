@@ -146,26 +146,23 @@ class Metasploit3 < Msf::Auxiliary
 			sam_pipe = smb_find_dcerpc_pipe(@@sam_uuid, @@sam_vers, @@sam_pipes)
 			break if not sam_pipe
 
-			# Connect5
+			# Connect4
 			stub =
 				NDR.uwstring("\\\\" + ip) +
-				NDR.long(0x30) +
-				NDR.long(1) +
-				NDR.long(1) +
-				NDR.long(3) +
-				NDR.long(0)
+				NDR.long(2) +
+				NDR.long(0x30)
 
-			dcerpc.call(64, stub)
+			dcerpc.call(62, stub)
 			resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
 
-			if ! (resp and resp.length == 40)
+			if ! (resp and resp.length == 24)
 				print_error("#{ip} Invalid response from the Connect5 request")
 				disconnect
 				return
 			end
 
-			phandle = resp[16,20]
-			perror  = resp[36,4].unpack("V")[0]
+			phandle = resp[0,20]
+			perror  = resp[20,4].unpack("V")[0]
 
 			if(perror == 0xc0000022)
 				disconnect
@@ -192,7 +189,17 @@ class Metasploit3 < Msf::Auxiliary
 				# Round up the name to match NDR.uwstring() behavior
 				dlen = (domain.length + 1) * 2
 
-				stub = phandle + [dlen, dlen].pack("vv") + NDR.uwstring(domain)
+				# The SAM functions are picky on Windows 2000
+				stub =
+					phandle +
+					[(domain.length + 0) * 2].pack("v") + # NameSize
+					[(domain.length + 1) * 2].pack("v") + # NameLen (includes null)
+					NDR.long(rand(0x100000000)) +
+					[domain.length + 1].pack("V") +	      # MaxCount (includes null)
+					NDR.long(0) +
+					[domain.length + 0].pack("V") +	      # ActualCount (ignores null)
+					Rex::Text.to_unicode(domain)          # No null appended
+
 				dcerpc.call(5, stub)
 				resp    = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
 				raw_sid = resp[12, 20]
