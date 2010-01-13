@@ -41,7 +41,7 @@ opts.parse(args) do |opt, idx, val|
 	case opt
 	when "-h"
 		print_line(opts.usage)
-		return
+		raise Rex::Script::Completed
 	when "-r"
 		rhost = val
 	when "-p"
@@ -83,7 +83,6 @@ end
 if autoconn
 	mul = client.framework.exploits.create("multi/handler")
 	mul.share_datastore(pay.datastore)
-	p mul.datastore
 
 	mul.datastore['PAYLOAD'] = payload
 	mul.datastore['EXITFUNC'] = 'process'
@@ -99,7 +98,6 @@ if autoconn
 	)
 end
 
-p pay.datastore
 raw = pay.generate
 if (inject)
 	#
