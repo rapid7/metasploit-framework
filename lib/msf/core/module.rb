@@ -148,6 +148,7 @@ class Module
 		obj.datastore = self.datastore.dup
 		obj.user_input = self.user_input
 		obj.user_output = self.user_output
+		obj.module_store = self.module_store
 		obj
 	end
 
