@@ -20,7 +20,11 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::SMB	
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
+	include Msf::Auxiliary::AuthBrute
 
+	def proto
+		'smb'
+	end
 	
 	def initialize
 		super(
@@ -36,44 +40,102 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE
 		)
 		deregister_options('RHOST')
+
+		# These are normally advanced options, but for this module they have a
+		# more active role, so make them regular options.
 		register_options(
 			[	
-				OptString.new('SMBPass', [ false, "SMB Password", '']),
-				OptString.new('SMBUser', [ false, "SMB Username", 'Administrator']),
+				OptString.new('SMBPass', [ false, "SMB Password" ]),
+				OptString.new('SMBUser', [ false, "SMB Username" ]),
 				OptString.new('SMBDomain', [ false, "SMB Domain", 'WORKGROUP']),
 			], self.class)
+
+		@passes = [ '' ]
+
 	end
 
 	def run_host(ip)
+		print_status("Starting host #{ip}")
+		if (datastore["SMBUser"] and not datastore["SMBUser"].empty?)
+			# then just do this user/pass
+			try_user_pass(datastore["SMBUser"], datastore["SMBPass"])
+		else
+			begin
+				# Add the hosts smb name as a password to try
+				connect
+				smb_fingerprint
+				@passes.push(simple.client.default_name) if simple.client.default_name
+				disconnect
 
+				each_user_pass { |user, pass|
+					try_user_pass(user, pass)
+				}
+			rescue ::Rex::ConnectionError
+				nil
+			end
+		end
+	end
+
+	def try_user_pass(user, pass)
+		datastore["SMBUser"] = user
+		datastore["SMBPass"] = pass
+		#$stdout.puts("#{user} : #{pass}")
+
+		# Connection problems are dealt with at a higher level
 		connect()
-		
+
 		begin
 			smb_login()
-		rescue Rex::Proto::SMB::Exceptions::LoginError => e
-			if(e.error_code)
-				print_status("#{ip} - FAILED #{ "0x%.8x" % e.error_code } - #{e.error_reason}")			
-			else
-				print_status("#{ip} - FAILED #{e}")
-			end
+		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
 			return
 		end
 
 		if(simple.client.auth_user)
-			print_status("#{ip} - SUCCESSFUL LOGIN (#{smb_peer_os})")
+			print_good("#{rhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) #{user} : #{pass}")
 			report_auth_info(
-				:host	=> ip,
-				:proto	=> 'SMB',
-				:user	=> datastore['SMBUser'],
-				:pass	=> datastore['SMBPass'],
-				:targ_host	=> ip,
+				:host	=> rhost,
+				:proto	=> 'smb',
+				:user	=> user,
+				:pass	=> pass,
+				:targ_host	=> rhost,
 				:targ_port	=> datastore['RPORT']
 			)
 		else 
-			print_status("#{ip} - GUEST LOGIN (#{smb_peer_os})")
+			print_status("#{rhost} - GUEST LOGIN (#{smb_peer_os}) #{user} : #{pass}")
 		end
 
 		disconnect()
+		return :next_user
 	end
+
+	def next_user_pass(state)
+		return nil if state[:status] == :done
+		if (not state[:auth_info])
+			state[:auth_info] = framework.db.get_auth_info(:proto => 'smb')
+			return nil if not state[:auth_info]
+			state[:auth_info].delete_if { |a| not a.kind_of? Hash }
+			state[:auth_info].delete_if { |a| not a.has_key? :user or not a.has_key? :hash }
+			state[:idx] = 0
+		end
+		if state[:auth_info][state[:idx]]
+			user = state[:auth_info][state[:idx]][:user]
+			pass = state[:auth_info][state[:idx]][:hash]
+			state[:idx] += 1
+			return [ user, pass ]
+		end
+		return nil
+	end
+
+	def next_pass(state)
+		return nil if state[:status] == :done
+		return nil if state[:status] == :next_user
+		if not state[:idx]
+			state[:idx] = 0
+		end
+		pass = @passes[state[:idx]]
+		state[:idx] += 1
+		return pass
+	end
+
 end
 

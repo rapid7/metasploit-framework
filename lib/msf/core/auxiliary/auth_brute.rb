@@ -12,8 +12,8 @@ def initialize(info = {})
 	super
 
 	register_options([
-			OptPath.new('USERNAMES_FILE', [ false, "File containing usernames, one per line" ]),
-			OptPath.new('PASSWORDS_FILE', [ false, "File containing passwords, one per line" ]),
+			OptPath.new('USER_FILE', [ false, "File containing usernames, one per line" ]),
+			OptPath.new('PASS_FILE', [ false, "File containing passwords, one per line" ]),
 			OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line" ])
 		], Auxiliary::AuthBrute)
 
@@ -22,60 +22,119 @@ def initialize(info = {})
 
 end
 
-
+# 
+# Calls the given block with usernames and passwords generated in the following way, in order:
+#	* the module's next_user_pass(), if any
+#	* contents of USERPASS_FILE, if any
+#	* the module's next_user() combined with next_pass() and the contents of PASS_FILE
+#	* contents of USER_FILE combined with the module's next_pass() and the contents of PASS_FILE
+#
+# After any invocation, the block may return 
+#	:next_user 
+#		to indicate that the current user needs no further processing and
+#		brute forcing should continue with the next username or
+#	:done 
+#		to indicate that brute forcing should end completely.
+#
+# Generator methods (next_pass, and next_user_pass) must reset their state
+# whenever they reach the end.
+#
 def each_user_pass(&block)
-	#$stdout.puts("Running through users and passwords")
-	if framework.db.active
-		#$stdout.puts("Using db auth info")
-		framework.db.get_auth_info.each { |auth_info|
-			next if not auth_info.kind_of? Hash
-			next if not auth_info.has_key? :user
-			next if not auth_info.has_key? :pass
-			block.call(auth_info[:user], auth_info[:pass])
-		}
-	end
-
-	#$stdout.puts("Getting userpass")
-	while next_userpass
-		#$stdout.puts("calling block with #{@user} : #{@pass}")
-		block.call(@user, @pass)
-	end
-
-	while next_user
-		#$stdout.puts("Getting user")
-		while next_pass
-			#$stdout.puts("calling block with #{@user} : #{@pass}")
-			ret = block.call(@user, @pass)
-			case ret
-			when :next_user; break
+	# First, loop through sets of user/pass combinations
+	[ "next_user_pass", "_next_user_pass" ].each { |userpass_meth|
+		next if not self.respond_to?(userpass_meth)
+		@state = {}
+		@state[:status] = nil
+		while (upass = self.send(userpass_meth, @state))
+			@state[:status] = block.call(upass[0], upass[1])
+			case @state[:status]
+			# Let the generate method deal with :next_user
+			when :done; return
 			end
 		end
+	}
+
+	# Then combinatorically examine all of the separate usernames and passwords
+	each_user { |user|
+		# Always try the username as the password
+		status = block.call(user, user)
+		case status
+		when :next_user; next
+		when :done; return
+		end
+		each_pass(user) { |pass|
+			status = block.call(user, pass)
+			case status
+			when :next_user; break
+			when :done; return
+			end
+		}
+	}
+
+end
+
+def each_user(&block)
+	state = {}
+	if self.respond_to? "next_user"
+		while user = next_user(state)
+			yield user
+		end
+	end
+	while user = _next_user(state)
+		yield user
+	end
+end
+
+def each_pass(user=nil, &block)
+	state = {:user => user}
+	if self.respond_to? "next_pass"
+		while pass = next_pass(state)
+			yield pass
+		end
+	end
+	while pass = _next_pass(state)
+		yield pass
 	end
 end
 
 protected
-def next_user
-	return nil if not datastore["USERNAMES_FILE"]
-	@user_fd ||= File.open(datastore["USERNAMES_FILE"], "r")
-	return nil if @user_fd.eof?
-	@user = @user_fd.readline
-	true
+def _next_user(state)
+	return nil if not datastore["USER_FILE"]
+	state[:user_fd] ||= File.open(datastore["USER_FILE"], "r")
+	if state[:user_fd].eof?
+		state[:user_fd].close
+		state[:user_fd] = nil
+		return nil 
+	end
+	state[:user] = state[:user_fd].readline.strip
+	return state[:user]
 end
-def next_pass
-	return nil if not datastore["PASSWORDS_FILE"]
-	@user_fd ||= File.open(datastore["PASSWORDS_FILE"], "r")
-	return nil if @pass_fd.eof?
-	@pass = @pass_fd.readline
-	true
+def _next_pass(state)
+	return nil if not datastore["PASS_FILE"]
+	state[:pass_fd] ||= File.open(datastore["PASS_FILE"], "r")
+	if state[:pass_fd].eof?
+		state[:pass_fd].close
+		state[:pass_fd] = nil
+		return nil
+	end
+	state[:pass] = state[:pass_fd].readline.strip
+	return state[:pass]
 end
-def next_userpass
+def _next_user_pass(state)
 	return if not datastore["USERPASS_FILE"]
-	@userpass_fd ||= File.open(datastore["USERPASS_FILE"], "r")
-	return nil if @userpass_fd.eof?
-	line = @userpass_fd.readline
-	@user, @pass = line.split(/\s+/, 2)
-	@pass = "" if @pass.nil?
-	true
+	# Reopen the file each time so that we pick up any changes
+	state[:userpass_fd] ||= File.open(datastore["USERPASS_FILE"], "r")
+	if state[:userpass_fd].eof?
+		state[:userpass_fd].close
+		state[:userpass_fd] = nil
+		return nil
+	end
+	line = state[:userpass_fd].readline
+	state[:user], state[:pass] = line.split(/\s+/, 2)
+	state[:pass] = "" if state[:pass].nil?
+	state[:user].strip!
+	state[:pass].strip!
+	return [ state[:user], state[:pass] ]
 end
 
 
