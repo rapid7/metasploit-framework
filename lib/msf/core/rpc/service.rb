@@ -128,6 +128,7 @@ class WebService < ::XMLRPC::BasicServer
 	def on_request_uri(cli, req)
 		begin
 			res = Rex::Proto::Http::Response.new()
+			res["Content-Type"] = "text/xml"
 			res.body = process(req.body)
 		rescue XMLRPC::FaultException => e
 			res = Rex::Proto::Http::Response.new(e.faultCode,e.faultString)
