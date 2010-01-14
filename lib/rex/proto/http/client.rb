@@ -339,7 +339,7 @@ class Client
 			         rv != Packet::ParseCode::Error
 		          )
 				begin
-					buff = conn.sysread(16384)
+					buff = conn.get_once(-1, 1)
 					rv   = resp.parse( buff || '')
 
 				# Handle unexpected disconnects
