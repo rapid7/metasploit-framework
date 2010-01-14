@@ -92,7 +92,7 @@ def run
 						nmod.run_host(targ)
 					rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
 						raise $!
-					rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR 
+					rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR
 					rescue ::Exception => e
 						print_status("Error: #{targ}: #{e.class} #{e.message}")
 						elog("Error running against host #{targ}: #{e.message}\n#{e.backtrace.join("\n")}")
@@ -214,8 +214,12 @@ def run
 	end
 end
 
-def scanner_show_progress
+def scanner_progress
 	pct = (@range_done / @range_count.to_f) * 100
+end
+
+def scanner_show_progress
+	pct = scanner_progress
 	if(pct >= (@range_percent + @show_percent))
 		@range_percent = @range_percent + @show_percent
 		tdlen = @range_count.to_s.length
