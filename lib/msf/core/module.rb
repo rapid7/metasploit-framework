@@ -507,6 +507,20 @@ class Module
 	end
 
 	#
+	# Read a value from the module store
+	#
+	def [](k)
+		self.module_store[k]
+	end
+
+	#
+	# Store a value into the module
+	#
+	def []=(k,v)
+		self.module_store[k] = v
+	end
+
+	#
 	# The array of zero or more authors.
 	#
 	attr_reader   :author
@@ -544,6 +558,11 @@ class Module
 	#
 	attr_accessor :job_id
 
+	#
+	# A generic hash used for passing additional information to modules
+	#
+	attr_accessor :module_store
+
 protected
 
 	#
@@ -566,6 +585,7 @@ protected
 			'Privileged'  => false,
 			'License'     => MSF_LICENSE,
 		}.update(self.module_info)
+		self.module_store = {}
 	end
 
 	#
@@ -812,7 +832,6 @@ protected
 	def merge_info_evasion_options(info, val)
 		merge_info_options(info, val, false, true)
 	end
-
 
 	attr_accessor :module_info # :nodoc:
 	attr_writer   :author, :arch, :platform, :references, :datastore, :options # :nodoc:
