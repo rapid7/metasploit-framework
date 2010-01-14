@@ -1,3 +1,5 @@
+require 'rex/parser/nmap_xml'
+
 module Msf
 
 ###
