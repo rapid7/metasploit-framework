@@ -1136,21 +1136,24 @@ class DBManager
 	end
 
 	#
-	# Import Nessus XML v1 output
+	# Import Nessus XML v1 and v2 output
 	#
 	# Old versions of openvas exported this as well
 	#
 	def import_nessus_xml_file(filename)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
-		import_nessus_xml(data)
-	end
-	def import_nessus_xml(data)
-		if(data.index("NessusClientData_v2"))
-			raise DBImportError.new("The v2 .nessus format is not currently supported (patches welcome).")
-		end
 
-		doc = REXML::Document.new(file_contents)
+		if data.index("NessusClientData_v2")
+			import_nessus_xml_v2(data)
+		else
+			import_nessus_xml(data)
+		end
+	end
+
+	def import_nessus_xml(data)
+
+		doc = REXML::Document.new(data)
 		doc.elements.each('/NessusClientData/Report/ReportHost') do |host|
 			addr = host.elements['HostName'].text
 
@@ -1165,6 +1168,36 @@ class DBManager
 		end
 	end
 
+	def import_nessus_xml_v2(data)
+
+		doc = REXML::Document.new(data)
+		doc.elements.each('/NessusClientData_v2/Report/ReportHost') do |host|
+			# if Nessus resovled the host, its host-ip tag should be set
+			# otherwise, fall back to the name attribute which would
+			# logically need to be an IP address
+			begin
+				addr = host.elements["HostProperties/tag[@name='host-ip']"].text
+			rescue
+				addr = host.attribute("name").value
+			end
+
+			host.elements.each('ReportItem') do |item|
+				nasl = item.attribute('pluginID').value
+				port = item.attribute('port').value
+				proto = item.attribute('protocol').value
+				name = item.attribute('svc_name').value
+				severity = item.attribute('severity').value
+				description = item.elements['description']
+				cve = item.elements['cve']
+				bid = item.elements['bid']
+				xref = item.elements['xref']
+				
+				handle_nessus_v2(addr, port, proto, name, nasl, severity, description, cve, bid, xref)
+
+			end
+		end
+	end
+	
 	def import_amap_log_file(filename)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
@@ -1198,10 +1231,10 @@ class DBManager
 	end
 
 protected
-
+	
 	#
 	# This holds all of the shared parsing/handling used by the
-	# Nessus NBE and NESSUS methods
+	# Nessus NBE and NESSUS v1 methods
 	#
 	def handle_nessus(addr, port, nasl, severity, data)
 		# The port section looks like:
@@ -1255,6 +1288,52 @@ protected
 			:service => service, 
 			:name => nss, 
 			:data => data,
+			:refs => refs)
+	end
+
+	#
+	# NESSUS v2 file format has a dramatically different layout
+	# for ReportItem data
+	#
+	def handle_nessus_v2(addr,port,proto,name,nasl,severity,description,cve,bid,xref)
+	
+		report_host(:host => addr, :state => Msf::HostState::Alive)
+		
+		info = { :host => addr, :port => port, :proto => proto }
+		if name != "unknown"
+			info[:name] = name
+		end
+		
+		if nasl == "0"
+			report_service(info)
+			return
+		end
+		
+		service = find_or_create_service(info)
+		
+		refs = []
+		
+		cve.collect do |r|
+			r.to_s.gsub!(/C(VE|AN)\-/, '')
+			refs.push('CVE-' + r.to_s)
+		end if cve
+		
+		bid.collect do |r|
+			refs.push('BID-' + r.to_s)
+		end if bid
+		
+		xref.collect do |r|
+			ref_id, ref_val = r.to_s.split(':')
+			ref_val ? refs.push(ref_id + '-' + ref_val) : refs.push(ref_id)
+		end if xref
+		
+		nss = 'NSS-' + nasl
+		
+		vuln = report_vuln(
+			:host => addr, 
+			:service => service, 
+			:name => nss, 
+			:data => :description ? description.text : "",
 			:refs => refs)
 	end
 
