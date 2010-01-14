@@ -73,7 +73,7 @@ echo ""
 echo "Would you like to automatically update Metasploit?"
 confirm "AutoUpdate?"
 if [ $? -eq "1" ]; then
-	CRON=`mktemp cronXXXXX`
+	CRON=`mktemp cronXXXXXX`
 	crontab -l 2>/dev/null | grep -v msfupdate > $CRON
 	echo "30 * * * * /opt/metasploit3/bin/msfupdate > /var/log/msfupdate.log 2>&1" >> $CRON
 	crontab $CRON
