@@ -80,7 +80,7 @@ class Framework
 	end
 
 	def inspect
-		"#<Framework (#{sessions.length} sessions, #{jobs.length} jobs, #{plugins.length} plugins#{db.active ? ", database active" : ""})>"
+		"#<Framework (#{sessions.length} sessions, #{jobs.length} jobs, #{plugins.length} plugins#{db.active ? ", #{db.driver} database active" : ""})>"
 	end
 
 	#
