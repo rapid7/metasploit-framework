@@ -504,8 +504,7 @@ module Text
 
 			# If we're about to hit the column or have gone past it,
 			# time to finish up this line
-			if ((cur + line_end.length >= col) or
-			    (cur + buf_end.length  >= col))
+			if ((cur + line_end.length >= col) or (cur + buf_end.length  >= col))
 				new_line  = true
 				cur       = 0
 
@@ -733,17 +732,30 @@ module Text
 	#
 	# Compresses a string using zlib
 	#
-	def self.zlib_deflate(str)
-		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
-		return Zlib::Deflate.deflate(str)
+	def self.zlib_deflate(str, level)
+		if self.zlib_present?
+			z = Zlib::Deflate.new(level)
+			dst = z.deflate(str, Zlib::FINISH)
+			z.close
+			return dst
+		else			
+			raise RuntimeError, "Gzip support is not present."
+		end
 	end
 
 	#
 	# Uncompresses a string using zlib
 	#
 	def self.zlib_inflate(str)
-		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
-		return Zlib::Inflate.inflate(str)
+		if(self.zlib_present?)
+			zstream = Zlib::Inflate.new
+			buf = zstream.inflate(str)
+			zstream.finish
+			zstream.close
+			return buf
+		else
+			raise RuntimeError, "Gzip support is not present."
+		end
 	end
 
 	#
