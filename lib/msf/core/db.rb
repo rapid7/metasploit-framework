@@ -252,7 +252,7 @@ class DBManager
 
 		ret  = {}
 		host = find_or_create_host({:host => addr})
-		task = queue(Proc.new { 
+		task = queue(Proc.new {
 			proto = opts[:proto] || 'tcp'
 			opts[:name].downcase!  if (opts[:name])
 
@@ -567,7 +567,7 @@ class DBManager
 	#
 	def find_or_create_ref(opts)
 		ret = {}
-		task = queue(Proc.new { 
+		task = queue(Proc.new {
 			ref = Ref.find_or_initialize_by_name(opts[:name])
 			if ref and ref.changed?
 				ref.created = Time.now
@@ -877,7 +877,7 @@ class DBManager
 			# it's xml, check for root tags we can handle
 			line_count = 0
 			data.each_line { |line|
-				line =~ /<([a-zA-Z-]+)[ >]/
+				line =~ /<([a-zA-Z0-9\-\_]+)[ >]/
 				case $1
 				when "nmaprun"
 					return import_nmap_xml(data)
@@ -885,6 +885,8 @@ class DBManager
 					return import_openvas_xml(data)
 				when "NessusClientData"
 					return import_nessus_xml(data)
+				when "NessusClientData_v2"
+					return import_nessus_xml_v2(data)
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
@@ -901,7 +903,7 @@ class DBManager
 		raise DBImportError.new("Could not automatically determine file type")
 	end
 
-	# 
+	#
 	# Nexpose Simple XML
 	#
 	# XXX At some point we'll want to make this a stream parser for dealing
@@ -1075,7 +1077,7 @@ class DBManager
 			h["ports"].each { |p|
 				extra = ""
 				extra << p["product"]   + " " if p["product"]
-				extra << p["version"]   + " " if p["version"] 
+				extra << p["version"]   + " " if p["version"]
 				extra << p["extrainfo"] + " " if p["extrainfo"]
 
 				data = {}
@@ -1132,7 +1134,7 @@ class DBManager
 	# Of course they had to change the nessus format.
 	#
 	def import_openvas_xml(filename)
-		raise DBImportError.new("No openvas XML support.  Patches welcome")
+		raise DBImportError.new("No OpenVAS XML support. Please submit a patch to msfdev[at]metasploit.com")
 	end
 
 	#
@@ -1169,7 +1171,6 @@ class DBManager
 	end
 
 	def import_nessus_xml_v2(data)
-
 		doc = REXML::Document.new(data)
 		doc.elements.each('/NessusClientData_v2/Report/ReportHost') do |host|
 			# if Nessus resovled the host, its host-ip tag should be set
@@ -1187,17 +1188,17 @@ class DBManager
 				proto = item.attribute('protocol').value
 				name = item.attribute('svc_name').value
 				severity = item.attribute('severity').value
-				description = item.elements['description']
+				description = item.elements['plugin_output']
 				cve = item.elements['cve']
 				bid = item.elements['bid']
 				xref = item.elements['xref']
-				
+
 				handle_nessus_v2(addr, port, proto, name, nasl, severity, description, cve, bid, xref)
 
 			end
 		end
 	end
-	
+
 	def import_amap_log_file(filename)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
@@ -1219,8 +1220,8 @@ class DBManager
 			host = find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
 			next if not host
 			info = {
-				:host => host, 
-				:proto => proto, 
+				:host => host,
+				:proto => proto,
 				:port => port
 			}
 			if name != "unidentified"
@@ -1231,7 +1232,7 @@ class DBManager
 	end
 
 protected
-	
+
 	#
 	# This holds all of the shared parsing/handling used by the
 	# Nessus NBE and NESSUS v1 methods
@@ -1246,7 +1247,7 @@ protected
 
 		info = { :host => addr, :port => p[2].to_i, :proto => p[3].downcase }
 		name = p[1].strip
-		if name != "unknown"
+		if name != "unknown" and name[-1,1] != "?"
 			info[:name] = name
 		end
 		if not nasl
@@ -1264,7 +1265,7 @@ protected
 
 		if (data =~ /^CVE : (.*)$/)
 			$1.gsub(/C(VE|AN)\-/, '').split(',').map { |r| r.strip }.each do |r|
-				refs.push('CVE-' + r) 
+				refs.push('CVE-' + r)
 			end
 		end
 
@@ -1284,9 +1285,9 @@ protected
 		nss = 'NSS-' + nasl.to_s
 
 		vuln = report_vuln(
-			:host => addr, 
-			:service => service, 
-			:name => nss, 
+			:host => addr,
+			:service => service,
+			:name => nss,
 			:data => data,
 			:refs => refs)
 	end
@@ -1296,44 +1297,44 @@ protected
 	# for ReportItem data
 	#
 	def handle_nessus_v2(addr,port,proto,name,nasl,severity,description,cve,bid,xref)
-	
+
 		report_host(:host => addr, :state => Msf::HostState::Alive)
-		
+
 		info = { :host => addr, :port => port, :proto => proto }
-		if name != "unknown"
+		if name != "unknown" and name[-1,1] != "?"
 			info[:name] = name
 		end
-		
+
 		if nasl == "0"
 			report_service(info)
 			return
 		end
-		
+
 		service = find_or_create_service(info)
-		
+
 		refs = []
-		
+
 		cve.collect do |r|
 			r.to_s.gsub!(/C(VE|AN)\-/, '')
 			refs.push('CVE-' + r.to_s)
 		end if cve
-		
+
 		bid.collect do |r|
 			refs.push('BID-' + r.to_s)
 		end if bid
-		
+
 		xref.collect do |r|
 			ref_id, ref_val = r.to_s.split(':')
 			ref_val ? refs.push(ref_id + '-' + ref_val) : refs.push(ref_id)
 		end if xref
-		
+
 		nss = 'NSS-' + nasl
-		
+
 		vuln = report_vuln(
-			:host => addr, 
-			:service => service, 
-			:name => nss, 
-			:data => :description ? description.text : "",
+			:host => addr,
+			:service => service,
+			:name => nss,
+			:data => description ? description.text : "",
 			:refs => refs)
 	end
 
