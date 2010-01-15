@@ -10,17 +10,6 @@ module Msf
 module Ui
 module Console
 
-class UiEventSubscriber
-	def on_ui_command(line)
-	end
-
-	def on_ui_stop()
-	end
-
-	def on_ui_start()
-	end
-end
-
 ###
 #
 # This class implements a user interface driver on a console interface.

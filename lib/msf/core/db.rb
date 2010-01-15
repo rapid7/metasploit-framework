@@ -162,7 +162,7 @@ class DBManager
 	# Report a host's attributes such as operating system and service pack
 	#
 	# The opts parameter MUST contain
-	#	:address    -- the host's ip address
+	#	:host       -- the host's ip address
 	#
 	# The opts parameter can contain:
 	#	:state      -- one of the Msf::HostState constants
@@ -624,6 +624,12 @@ class DBManager
 		workspace.hosts.find_by_address(addr)
 	end
 
+
+	def report_event(opts = {})
+		framework.db.queue(Proc.new {
+			Event.create(opts.merge(:workspace_id => workspace.id))
+		})
+	end
 
 	#
 	# WMAP

@@ -61,6 +61,7 @@ class Framework
 	require 'msf/core/module_manager'
 	require 'msf/core/session_manager'
 	require 'msf/core/db_manager'
+	require 'msf/core/event_dispatcher'
 
 	#
 	# Creates an instance of the framework context.
@@ -77,6 +78,13 @@ class Framework
 		self.jobs      = Rex::JobContainer.new
 		self.plugins   = PluginManager.new(self)
 		self.db        = DBManager.new(self)
+		
+		subscriber = FrameworkEventSubscriber.new(self)
+		events.add_exploit_subscriber(subscriber)
+		events.add_session_subscriber(subscriber)
+		events.add_general_subscriber(subscriber)
+		events.add_db_subscriber(subscriber)
+		events.add_ui_subscriber(subscriber)
 	end
 
 	def inspect
@@ -179,5 +187,96 @@ protected
 	attr_writer   :db # :nodoc:
 end
 
+class FrameworkEventSubscriber
+	include Framework::Offspring
+	def initialize(framework)
+		self.framework = framework
+	end
+
+	def report_event(data)
+		data.merge!(:user => ENV['USER'])
+		framework.db.report_event(data)
+	end
+
+	include GeneralEventSubscriber
+	def on_module_run(instance)
+		info = {}
+		info[:module_name] = instance.refname
+		info[:datastore] = instance.datastore
+		report_event(:name => "module_run", :info => info)
+	end
+
+	include ::Msf::UiEventSubscriber
+	def on_ui_command(command)
+		report_event(:name => "ui_command", :info => {:command => command})
+	end
+
+	def on_ui_stop()
+		report_event(:name => "ui_stop")
+	end
+
+	def on_ui_start(rev)
+		#
+		# The database is not active at startup time, so this event can never
+		# be saved to the db.  Might look into storing it in a flat file or
+		# something later.
+		#
+		#info = { :revision => rev }
+		#report_event(:name => "ui_start", :info => info)
+	end
+
+	require 'msf/core/session'
+	include ::Msf::SessionEvent
+	def on_session_open(session)
+		info = { :session_id => session.sid }
+		info[:via_exploit] = session.via_exploit
+
+		# Strip off the port
+		address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
+		host = framework.db.find_or_create_host(:host=>address)
+
+		report_event(:name => "session_open", :info => info, :host_id => host.id)
+	end
+
+	def on_session_close(session)
+		info = { :session_id => session.sid }
+
+		# Strip off the port
+		address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
+		host = framework.db.find_or_create_host(:host=>address)
+
+		report_event(:name => "session_close", :info => info, :host_id => host.id)
+	end
+
+	def on_session_interact(session)
+		info = { :session_id => session.sid }
+
+		# Strip off the port
+		address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
+		host = framework.db.find_or_create_host(:host=>address)
+
+		report_event(:name => "session_interact", :info => info, :host_id => host.id)
+	end
+
+	def on_session_command(session, command)
+		info = { :session_id => session.sid, :command => command }
+
+		# Strip off the port
+		address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
+		host = framework.db.find_or_create_host(:host=>address)
+
+		report_event(:name => "session_command", :info => info, :host_id => host.id)
+	end
+
+
+	# 
+	# This is covered by on_module_run and on_session_open, so don't bother
+	#
+	#require 'msf/core/exploit'
+	#include ExploitEvent
+	#def on_exploit_success(exploit, session)
+	#end
+
+end
 end
 

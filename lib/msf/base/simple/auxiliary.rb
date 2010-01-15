@@ -90,6 +90,7 @@ protected
 	def self.job_run_proc(mod)
 		begin
 			mod.setup
+			mod.framework.events.on_module_run(mod)
 			mod.run
 		rescue ::Interrupt
 			mod.print_error("Auxiliary interrupted by the console user")
