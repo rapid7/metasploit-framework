@@ -97,7 +97,9 @@ class Db
 				if workspace.nil?
 					print_error("Workspace not found: #{name}")
 				elsif workspace.default?
-					print_error("Can't delete default workspace")
+					workspace.destroy
+					workspace = framework.db.add_workspace(name)
+					print_status("Deleted and recreated the default workspace")
 				else
 					# switch to the default workspace if we're about to delete the current one
 					framework.db.workspace = framework.db.default_workspace if framework.db.workspace.name == workspace.name
