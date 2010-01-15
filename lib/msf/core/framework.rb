@@ -194,25 +194,33 @@ class FrameworkEventSubscriber
 	end
 
 	def report_event(data)
-		data.merge!(:user => ENV['USER'])
-		framework.db.report_event(data)
+		if framework.db.active
+			data.merge!(:user => ENV['USER'])
+			framework.db.report_event(data)
+		end
 	end
 
 	include GeneralEventSubscriber
 	def on_module_run(instance)
-		info = {}
-		info[:module_name] = instance.refname
-		info[:datastore] = instance.datastore
-		report_event(:name => "module_run", :info => info)
+		if framework.db.active
+			info = {}
+			info[:module_name] = instance.refname
+			info[:datastore] = instance.datastore
+			report_event(:name => "module_run", :info => info)
+		end
 	end
 
 	include ::Msf::UiEventSubscriber
 	def on_ui_command(command)
-		report_event(:name => "ui_command", :info => {:command => command})
+		if framework.db.active
+			report_event(:name => "ui_command", :info => {:command => command})
+		end
 	end
 
 	def on_ui_stop()
-		report_event(:name => "ui_stop")
+		if framework.db.active
+			report_event(:name => "ui_stop")
+		end
 	end
 
 	def on_ui_start(rev)
@@ -228,44 +236,52 @@ class FrameworkEventSubscriber
 	require 'msf/core/session'
 	include ::Msf::SessionEvent
 	def on_session_open(session)
-		info = { :session_id => session.sid }
-		info[:via_exploit] = session.via_exploit
+		if framework.db.active
+			info = { :session_id => session.sid }
+			info[:via_exploit] = session.via_exploit
 
-		# Strip off the port
-		address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
-		host = framework.db.find_or_create_host(:host=>address)
+			# Strip off the port
+			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
+			host = framework.db.find_or_create_host(:host=>address)
 
-		report_event(:name => "session_open", :info => info, :host_id => host.id)
+			report_event(:name => "session_open", :info => info, :host_id => host.id)
+		end
 	end
 
 	def on_session_close(session)
-		info = { :session_id => session.sid }
+		if framework.db.active
+			info = { :session_id => session.sid }
 
-		# Strip off the port
-		address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
-		host = framework.db.find_or_create_host(:host=>address)
+			# Strip off the port
+			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
+			host = framework.db.find_or_create_host(:host=>address)
 
-		report_event(:name => "session_close", :info => info, :host_id => host.id)
+			report_event(:name => "session_close", :info => info, :host_id => host.id)
+		end
 	end
 
 	def on_session_interact(session)
-		info = { :session_id => session.sid }
+		if framework.db.active
+			info = { :session_id => session.sid }
 
-		# Strip off the port
-		address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
-		host = framework.db.find_or_create_host(:host=>address)
+			# Strip off the port
+			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
+			host = framework.db.find_or_create_host(:host=>address)
 
-		report_event(:name => "session_interact", :info => info, :host_id => host.id)
+			report_event(:name => "session_interact", :info => info, :host_id => host.id)
+		end
 	end
 
 	def on_session_command(session, command)
-		info = { :session_id => session.sid, :command => command }
+		if framework.db.active
+			info = { :session_id => session.sid, :command => command }
 
-		# Strip off the port
-		address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
-		host = framework.db.find_or_create_host(:host=>address)
+			# Strip off the port
+			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
+			host = framework.db.find_or_create_host(:host=>address)
 
-		report_event(:name => "session_command", :info => info, :host_id => host.id)
+			report_event(:name => "session_command", :info => info, :host_id => host.id)
+		end
 	end
 
 
