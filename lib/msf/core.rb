@@ -26,6 +26,9 @@ require 'msf/core/exceptions'
 require 'msf/core/data_store'
 require 'msf/core/option_container'
 
+# Event subscriber interfaces
+require 'msf/events'
+
 # Framework context and core classes
 require 'msf/core/framework'
 require 'msf/core/db_manager'
@@ -53,3 +56,4 @@ require 'msf/core/payload'
 
 # Drivers
 require 'msf/core/exploit_driver'
+

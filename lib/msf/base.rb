@@ -15,9 +15,6 @@
 #
 ###
 
-# Event subscriber interfaces
-require 'msf/events'
-
 # framework-base depends on framework-core
 require 'msf/core'
 
