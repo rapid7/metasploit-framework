@@ -15,6 +15,9 @@
 #
 ###
 
+# Event subscriber interfaces
+require 'msf/events'
+
 # framework-base depends on framework-core
 require 'msf/core'
 
@@ -37,3 +40,4 @@ require 'msf/base/persistent_storage'
 
 # Utilities
 require 'msf/util'
+
