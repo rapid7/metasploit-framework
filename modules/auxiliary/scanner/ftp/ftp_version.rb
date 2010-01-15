@@ -11,29 +11,41 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Telnet
+	include Msf::Exploit::Remote::Ftp
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
 	def initialize
 		super(
-			'Name'        => 'Telnet Service Banner Detection',
+			'Name'        => 'FTP Version Scanner',
 			'Version'     => '$Revision$',
-			'Description' => 'Detect telnet services',
+			'Description' => 'Detect FTP Version.',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
 		)
+
+		register_options(
+			[
+				Opt::RPORT(21),
+			], self.class)
 	end
 
-	def run_host(ip)
+	def run_host(target_host)
+
 		begin
-			res = connect
-			print_status("#{ip}:#{rport} TELNET #{banner.gsub(/[\r\n\x1b]/, ' ')}")
-			report_service(:host => rhost, :port => rport, :name => "telnet", :info => banner)
-		rescue ::Rex::ConnectionError
-		rescue ::Exception => e
-			print_error("#{e} #{e.backtrace}")
+
+		res = connect(true, false)
+
+		print_status("#{rhost}:#{rport} FTP Banner: #{banner.gsub(/[\r\n\x1b]|^220\s+/, "")}")
+		report_service(:host => rhost, :port => rport, :name => "ftp", :info => banner.strip)
+
+		disconnect
+
+		rescue ::Interrupt
+			raise $!
+		rescue ::Rex::ConnectionError, ::IOError
 		end
+
 	end
 end
 

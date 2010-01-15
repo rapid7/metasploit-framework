@@ -20,6 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::DCERPC
 
 	# Scanner mixin should be near last
+	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
 	def initialize
@@ -194,6 +195,13 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("#{ip} PIPE(#{lsa_pipe}) LOCAL(#{host_name} - #{host_sid}) DOMAIN(#{domain_name} - #{domain_sid})")
 
 
+			domain = {
+				:name    => host_name,
+				:txt_sid => host_sid,
+				:users   => {},
+				:groups  => {}
+			}
+
 			# Brute force through a common RID range
 			500.upto(4000) do |rid|
 
@@ -229,11 +237,21 @@ class Metasploit3 < Msf::Auxiliary
 				case utype
 				when 1
 					print_status("#{ip} USER=#{uname} RID=#{rid}")
+					domain[:users][rid] = uname
 				when 2
+					domain[:groups][rid] = uname
 					print_status("#{ip} GROUP=#{uname} RID=#{rid}")
 				end
 			end
 
+			# Store the domain information
+			report_note(
+				:host => ip,
+				:proto => 'tcp',
+				:port => datastore['RPORT'],
+				:type => 'smb.domain.lookupsid',
+				:data => domain
+			)
 
 			# cleanup
 			disconnect

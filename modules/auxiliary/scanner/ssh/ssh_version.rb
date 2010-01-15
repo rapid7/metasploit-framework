@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
-	
+
 	def initialize
 		super(
 			'Name'        => 'SSH Version Scannner',
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(target_host)
 		connect
 
-		ver = sock.get_once(50,1)
+		ver = sock.get_once(-1, 5)
 
 		if (ver and ver =~ /SSH/)
 			ver,msg = (ver.split(/(\n|\r)/))
@@ -53,3 +53,4 @@ class Metasploit3 < Msf::Auxiliary
 		disconnect
 	end
 end
+

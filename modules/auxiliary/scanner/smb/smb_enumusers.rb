@@ -20,6 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::DCERPC
 
 	# Scanner mixin should be near last
+	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
 	def initialize
@@ -279,6 +280,21 @@ class Metasploit3 < Msf::Auxiliary
 
 			domains.each_key do |domain|
 
+				# Delete the no longer used raw SID value
+				domains[domain].delete(:sid_raw)
+
+				# Store the domain name itself
+				domains[domain][:name] = domain
+
+				# Store the domain information
+				report_note(
+					:host => ip,
+					:proto => 'tcp',
+					:port => datastore['RPORT'],
+					:type => 'smb.domain.enumusers',
+					:data => domains[domain]
+				)
+
 				users = domains[domain][:users]
 				extra = ""
 				if (domains[domain][:lockout_threshold])
@@ -288,7 +304,6 @@ class Metasploit3 < Msf::Auxiliary
 					extra << ")"
 				end
 				print_status("#{ip} #{domain.upcase} [ #{users.keys.map{|k| users[k]}.join(", ")} ] #{extra}")
-
 			end
 
 			# cleanup
