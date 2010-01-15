@@ -132,8 +132,62 @@ class Metasploit3 < Msf::Auxiliary
 				addrs = "Addresses:(" + host[:addrs].map{|n| n[0]}.uniq.join(", ") + ")"
 			end
 
-			report_host(:host => ip, :mac => host[:mac], :os_name => os)
-			print_status("#{ip} [#{host[:name]}] OS:#{os}#{user}#{names} #{addrs} Mac:#{host[:mac]}")
+			if(host[:mac] != "00:00:00:00:00:00")
+				report_host(:host => ip, :mac => host[:mac], :os_name => os)
+			else
+				report_host(:host => ip, :os_name => os)
+			end
+
+			extra = ""
+
+			virtual = nil
+			case host[:mac]
+			when /^00:13:07/i
+				virtual = 'ParaVirtual'
+			when /^(00:1C:14|00:50:56|00:05:69|00:0c:29)/i
+				virtual = 'VMWare'
+			when /^00:1C:42/
+				virtual = "Parallels"
+			when /^00:18:51/
+				virtual = "SWsoft Virtuozzo"
+			when /^00:21:F6/i
+				virtual = 'Virtual Iron'
+			when /^00:16:3e/
+				virtual = 'Xen'
+			when /^(54:52:00|DE:AD:BE)/
+				virtual = 'QEMU (unofficial)'
+			when /^00:24:0B/i
+				virtual = 'Virtual Computer Inc'
+			end
+
+			if(virtual)
+				extra = "Virtual Machine:#{virtual}"
+				report_note(
+					:host  => ip,
+					:type  => 'host.virtual_machine',
+					:data  => {:vendor => virtual, :method => 'netbios'}
+				)
+			end
+
+			if(host[:addrs])
+				aliases = []
+				host[:addrs].map{|n| n[0]}.uniq.each do |addr|
+					next if addr == ip
+					aliases << addr
+				end
+
+				if not aliases.empty?
+					report_note(
+						:host  => ip,
+						:proto => 'udp',
+						:port  => 137,
+						:type  => 'netbios.addresses',
+						:data  => {:addresses => aliases}
+					)
+				end
+			end
+
+			print_status("#{ip} [#{host[:name]}] OS:#{os}#{user}#{names} #{addrs} Mac:#{host[:mac]} #{extra}")
 		end
 	end
 
@@ -218,15 +272,6 @@ class Metasploit3 < Msf::Auxiliary
 				names << [ taddr, tflag ]
 			end
 			@results[addr][:addrs] = names
-			names.each do |name|
-				report_note(
-					:host  => addr,
-					:proto => 'NetBIOS',
-					:port  => pkt[2],
-					:type  => "netbios_interface",
-					:data  => name[0]
-				)
-			end
 		end
 	end
 

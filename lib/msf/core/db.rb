@@ -252,9 +252,22 @@ class DBManager
 		addr = opts.delete(:host) || return
 		wait = opts.delete(:wait)
 
+		hopts = {:host => addr}
+
+		if opts[:host_name]
+			hopts[:name] = opts[:host_name]
+		end
+
+		if opts[:host_mac]
+			hopts[:mac] = opts[:host_mac]
+		end
+
 		ret  = {}
-		host = find_or_create_host({:host => addr})
+
+		host = find_or_create_host(hopts)
 		task = queue(Proc.new {
+
+
 			proto = opts[:proto] || 'tcp'
 			opts[:name].downcase!  if (opts[:name])
 
@@ -1076,7 +1089,7 @@ class DBManager
 			end
 			data[:host] = addr
 			if (h["addrs"].has_key?("mac"))
-				data[:mac] = h["addrs"]["mac"]
+				data[:host_mac] = h["addrs"]["mac"]
 			end
 			data[:state] = (h["status"] == "up" ? Msf::HostState::Alive : Msf::HostState::Dead)
 			report_host(data)
