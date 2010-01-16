@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	def run
+	def run_host
 		list = datastore['CSVFILE']
 
 		print_status("Starting brute force on #{datastore['RHOST']}:#{datastore['RPORT']}...")
