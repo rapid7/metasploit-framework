@@ -99,7 +99,12 @@ protected
 #
 
 def _next_user(state)
+	if not state[:used_datastore] and datastore['USERNAME']
+		state[:used_datastore] = true
+		return datastore['USERNAME']
+	end
 	return nil if not datastore["USER_FILE"]
+
 	state[:user_fd] ||= File.open(datastore["USER_FILE"], "r")
 	if state[:user_fd].eof?
 		state[:user_fd].close
@@ -110,6 +115,10 @@ def _next_user(state)
 	return state[:user]
 end
 def _next_pass(state)
+	if not state[:used_datastore] and datastore['PASSWORD']
+		state[:used_datastore] = true
+		return datastore['PASSWORD']
+	end
 	return nil if not datastore["PASS_FILE"]
 	state[:pass_fd] ||= File.open(datastore["PASS_FILE"], "r")
 	if state[:pass_fd].eof?
@@ -121,6 +130,12 @@ def _next_pass(state)
 	return state[:pass]
 end
 def _next_user_pass(state)
+	if not state[:used_datastore] and datastore['USERNAME'] and datastore['PASSWORD']
+		state[:used_datastore] = true
+		state[:user] = datastore['USERNAME']
+		state[:pass] = datastore['PASSWORD']
+		return [ state[:user], state[:pass] ]
+	end
 	return if not datastore["USERPASS_FILE"]
 	# Reopen the file each time so that we pick up any changes
 	state[:userpass_fd] ||= File.open(datastore["USERPASS_FILE"], "r")
