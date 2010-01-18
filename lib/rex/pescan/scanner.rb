@@ -168,7 +168,7 @@ module Scanner
 		end
 	end
 
-	class RegexScanner < JmpRegScanner
+	class RegexScanner < Generic
 
 		def config(param)
 			self.regex = Regexp.new(param['args'], nil, 'n')
