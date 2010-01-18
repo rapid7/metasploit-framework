@@ -475,7 +475,7 @@ class DBManager
 		proto   = proto.downcase
 
 		note = {
-			:ntype => "auth:#{proto}",
+			:ntype => "auth.#{proto}",
 			:host => host,
 			:service => service,
 			:data => opts
@@ -498,13 +498,13 @@ class DBManager
 				condition << " and "
 			end
 			condition << "ntype = ?"
-			condition_values << "auth:#{opts[:proto].downcase}"
+			condition_values << "auth.#{opts[:proto].downcase}"
 		else
 			if condition.length > 0
 				condition << " and "
 			end
 			condition << "ntype LIKE ?"
-			condition_values << "auth:%"
+			condition_values << "auth.%"
 		end
 		conditions = [ condition ] + condition_values
 		info = notes.find(:all, :conditions => conditions )
