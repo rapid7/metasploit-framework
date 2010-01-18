@@ -96,7 +96,6 @@ cmdstomp = [
 ]
 # WMIC Commands that will be executed on the Target
 wmic = [
-	'computersystem list brief',
 	'useraccount list',
 	'group list',
 	'service list brief',
@@ -170,9 +169,6 @@ def findprogs()
 	print_status("Extracting software list from registry")
 	proglist = ""
 	threadnum = 0
-	proglist << "*****************************************\n"
-	proglist << "Program List\n"
-	proglist << "*****************************************\n"
 	a =[]
 	keyx86 = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall'
 	reg_enumkeys(keyx86).each do |k|
@@ -183,7 +179,7 @@ def findprogs()
 						dispversion = reg_getvaldata("#{keyx86}\\#{k}","DisplayVersion")
 					rescue
 					end
-					proglist << "#{dispnm}\t#{dispversion}\n" if dispnm =~ /[a-z]/
+					proglist << "#{dispnm},#{dispversion}\n" if dispnm =~ /[a-z]/
 				})
 			threadnum += 1
 		else
@@ -192,7 +188,7 @@ def findprogs()
 		end
 
 	end
-	filewrt("#{@logfol}/programs_list.txt",proglist)
+	filewrt("#{@logfol}/programs_list.csv",proglist)
 end
 # Function to check if Target Machine a VM
 # Note: will add soon Hyper-v and Citrix Xen check.
@@ -293,10 +289,10 @@ def wmicexec(wmiccmds= nil)
 			if i < 10
 				a.push(::Thread.new {
 						tmpout = ''
-						wmicfl = tmp + "\\#{sprintf("%.5d",rand(100000))}.txt"
+						wmicfl = tmp + "\\#{sprintf("%.5d",rand(100000))}.csv"
 						print_status "\trunning command wmic #{wmi}"
-						flname = "#{@logfol}/wmic_#{wmi.gsub(/(\W)/,"_")}.txt"
-						r = @client.sys.process.execute("cmd.exe /c wmic /append:#{wmicfl} #{wmi}", nil, {'Hidden' => true})
+						flname = "#{@logfol}/wmic_#{wmi.gsub(/(\W)/,"_")}.csv"
+						r = @client.sys.process.execute("cmd.exe /c wmic /append:#{wmicfl} #{wmi} /format:csv", nil, {'Hidden' => true})
 						sleep(2)						
 						#Making sure that WMIC finishes before executing next WMIC command
 						prog2check = "wmic.exe"
@@ -670,7 +666,8 @@ header << "Running as: #{@client.sys.config.getuid}\n"
 header << "Host:       #{info['Computer']}\n"
 header << "OS:         #{info['OS']}\n"
 header << "\n\n\n"
-print_status("Saving report to #{@dest}")
+print_status("Saving general report to #{@dest}")
+print_status("Output of each individual command is saved to #{@logfol}")
 filewrt(@dest,header)
 filewrt(@dest,chkvm())
 trgtos = info['OS']
