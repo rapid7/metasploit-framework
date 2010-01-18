@@ -22,18 +22,18 @@ def initialize(info = {})
 
 end
 
-# 
+#
 # Calls the given block with usernames and passwords generated in the following way, in order:
 #	* the module's next_user_pass(), if any
 #	* contents of USERPASS_FILE, if any
 #	* the module's next_user() combined with next_pass() and the contents of PASS_FILE
 #	* contents of USER_FILE combined with the module's next_pass() and the contents of PASS_FILE
 #
-# After any invocation, the block may return 
-#	:next_user 
+# After any invocation, the block may return
+#	:next_user
 #		to indicate that the current user needs no further processing and
 #		brute forcing should continue with the next username or
-#	:done 
+#	:done
 #		to indicate that brute forcing should end completely.
 #
 # Generator methods (next_pass, and next_user_pass) must reset their state
@@ -56,12 +56,6 @@ def each_user_pass(&block)
 
 	# Then combinatorically examine all of the separate usernames and passwords
 	each_user { |user|
-		# Always try the username as the password
-		status = block.call(user, user)
-		case status
-		when :next_user; next
-		when :done; return
-		end
 		each_pass(user) { |pass|
 			status = block.call(user, pass)
 			case status
@@ -98,13 +92,19 @@ def each_pass(user=nil, &block)
 end
 
 protected
+#
+# These methods all close their files after reaching EOF so that modifications
+# to the username/password lists during a run will be reflected in the next
+# run.
+#
+
 def _next_user(state)
 	return nil if not datastore["USER_FILE"]
 	state[:user_fd] ||= File.open(datastore["USER_FILE"], "r")
 	if state[:user_fd].eof?
 		state[:user_fd].close
 		state[:user_fd] = nil
-		return nil 
+		return nil
 	end
 	state[:user] = state[:user_fd].readline.strip
 	return state[:user]
