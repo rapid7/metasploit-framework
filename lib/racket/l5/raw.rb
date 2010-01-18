@@ -1,6 +1,6 @@
 # Copyright (c) 2009, Mike Kershaw
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -11,7 +11,7 @@
 #     * Neither the name of the <organization> nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY
 # EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -25,6 +25,7 @@
 #
 # Arbitrary L5 raw content
 module Racket
+module L5
 class RawL5 < RacketPart
   rest :payload
 
@@ -33,4 +34,6 @@ class RawL5 < RacketPart
   end
 end
 end
+end
 # vim: set ts=2 et sw=2:
+
