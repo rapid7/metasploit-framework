@@ -50,8 +50,6 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('SMBDomain', [ false, "SMB Domain", 'WORKGROUP']),
 			], self.class)
 
-		@passes = [ '' ]
-
 	end
 
 	def run_host(ip)
@@ -61,12 +59,6 @@ class Metasploit3 < Msf::Auxiliary
 			try_user_pass(datastore["SMBUser"], datastore["SMBPass"])
 		else
 			begin
-				# Add the hosts smb name as a password to try
-				connect
-				smb_fingerprint
-				@passes.push(simple.client.default_name) if simple.client.default_name
-				disconnect
-
 				each_user_pass { |user, pass|
 					try_user_pass(user, pass)
 				}
@@ -87,6 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			smb_login()
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
+			disconnect()
 			return
 		end
 
@@ -101,40 +94,15 @@ class Metasploit3 < Msf::Auxiliary
 				:targ_port	=> datastore['RPORT']
 			)
 		else 
+			# This gets spammy against default samba installs that accept just
+			# about anything for a guest login
 			print_status("#{rhost} - GUEST LOGIN (#{smb_peer_os}) #{user} : #{pass}")
 		end
 
 		disconnect()
+		# If we get here then we've found the password for this user, move on
+		# to the next one.
 		return :next_user
-	end
-
-	def next_user_pass(state)
-		return nil if state[:status] == :done
-		if (not state[:auth_info])
-			state[:auth_info] = framework.db.get_auth_info(:proto => 'smb')
-			return nil if not state[:auth_info]
-			state[:auth_info].delete_if { |a| not a.kind_of? Hash }
-			state[:auth_info].delete_if { |a| not a.has_key? :user or not a.has_key? :hash }
-			state[:idx] = 0
-		end
-		if state[:auth_info][state[:idx]]
-			user = state[:auth_info][state[:idx]][:user]
-			pass = state[:auth_info][state[:idx]][:hash]
-			state[:idx] += 1
-			return [ user, pass ]
-		end
-		return nil
-	end
-
-	def next_pass(state)
-		return nil if state[:status] == :done
-		return nil if state[:status] == :next_user
-		if not state[:idx]
-			state[:idx] = 0
-		end
-		pass = @passes[state[:idx]]
-		state[:idx] += 1
-		return pass
 	end
 
 end
