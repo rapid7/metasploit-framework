@@ -65,7 +65,7 @@ class Plugin::CredCollect < Msf::Plugin
 				:state => Msf::HostState::Alive
 				)
 
-			# Record hashes to the running db instance as auth_HASH type
+			# Record hashes to the running db instance
 			hashes.each do |hash|
 				data = {}
 				data[:host]      = host
