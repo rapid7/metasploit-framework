@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if(simple.client.auth_user)
-			print_good("#{rhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) #{user} : #{pass}")
+			print_good("#{rhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) '#{user}' : '#{pass}'")
 			report_auth_info(
 				:host	=> rhost,
 				:proto	=> 'smb',

@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport}") if verbose
 		begin
 			mysql_login(user, pass)
-			print_status("#{rhost}:#{rport} successful logged in as '#{user}' with password '#{pass}'")
+			print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN '#{user}' : '#{pass}'")
 			report_auth_info(
 				:host   => rhost,
 				:proto  => 'mysql',
