@@ -1,6 +1,7 @@
 ;-----------------------------------------------------------------------------;
 ; Author: Stephen Fewer (stephen_fewer[at]harmonysecurity[dot]com)
 ; Compatible: Windows 7, 2008, Vista, 2003, XP, 2000, NT4
+; Architecture: x86
 ; Version: 1.0 (Jan 2010)
 ; Size: 219 bytes
 ; Build: >build.py migrate
@@ -56,7 +57,7 @@ start:                   ;
   inc eax                ;
   push eax               ; Push AF_INET
   push 0xE0DF0FEA        ; hash( "ws2_32.dll", "WSASocketA" )
-  call ebp               ; WSASocketA( AF_INET, SOCK_STREAM, 0, 0, 0, 0 );
+  call ebp               ; WSASocketA( AF_INET, SOCK_STREAM, 0, &info, 0, 0 );
   xchg edi, eax          ; Save the socket for later, we don't care about the value of eax after this
   
   push dword [esi]       ; Push the event
