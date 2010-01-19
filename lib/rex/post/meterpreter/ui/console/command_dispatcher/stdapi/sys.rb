@@ -210,12 +210,20 @@ class Console::CommandDispatcher::Stdapi::Sys
 				[
 					"PID",
 					"Name",
-					"Path",
-					"User"
+					"Arch",
+					"User",
+					"Path"
 				])
 
 		processes.each { |ent|
-			tbl << [ ent['pid'].to_s, ent['name'], ent['path'], ent['user'] ]
+		
+		arch = "x86"
+		# for display and consistency with payload naming we switch the internal 'x86_64' value to display 'x64' 
+		if( ent['arch'] == ARCH_X86_64 )
+			arch = "x64"
+		end
+		
+			tbl << [ ent['pid'].to_s, ent['name'], arch, ent['user'], ent['path'] ]
 		}
 
 		if (processes.length == 0)

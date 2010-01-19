@@ -26,7 +26,12 @@ module Sys
 class Process < Rex::Post::Process
 
 	include Rex::Post::Meterpreter::ObjectAliasesContainer
-
+	
+	PROCESS_ARCH_UNKNOWN  = 0
+	PROCESS_ARCH_X86      = 1
+	PROCESS_ARCH_X64      = 2
+	PROCESS_ARCH_IA64     = 3
+	
 	##
 	#
 	# Class methods
@@ -216,12 +221,25 @@ class Process < Rex::Post::Process
 		response = client.send_request(request)
 
 		response.each(TLV_TYPE_PROCESS_GROUP) { |p|
-			processes <<
+		arch = ""
+		
+		pa = p.get_tlv_value( TLV_TYPE_PROCESS_ARCH )
+		if( pa != nil )
+			if pa == PROCESS_ARCH_X86
+				arch = ARCH_X86
+			elsif pa == PROCESS_ARCH_X64
+				arch = ARCH_X86_64
+			end
+		end
+		
+		processes <<
 				{
-					'pid'  => p.get_tlv_value(TLV_TYPE_PID),
-					'name' => p.get_tlv_value(TLV_TYPE_PROCESS_NAME),
-					'path' => p.get_tlv_value(TLV_TYPE_PROCESS_PATH),
-					'user' => p.get_tlv_value(TLV_TYPE_USER_NAME)
+					'pid'      => p.get_tlv_value(TLV_TYPE_PID),
+					'parentid' => p.get_tlv_value(TLV_TYPE_PARENT_PID),
+					'name'     => p.get_tlv_value(TLV_TYPE_PROCESS_NAME),
+					'path'     => p.get_tlv_value(TLV_TYPE_PROCESS_PATH),
+					'user'     => p.get_tlv_value(TLV_TYPE_USER_NAME),
+					'arch'     => arch
 				}
 		}
 
