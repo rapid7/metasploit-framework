@@ -28,7 +28,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(69),
-				OptPath.new('DICTIONARY', [ true, 'The list of filenames', File.join(Msf::Config.install_root, "data", "wordlists", "tftp.txt") ])
+				OptPath.new('DICTIONARY', [ true, 'The list of filenames',
+					File.join(Msf::Config.install_root, "data", "wordlists", "tftp.txt") ])
 			], self.class)
 	end
 
@@ -41,9 +42,9 @@ class Metasploit3 < Msf::Auxiliary
 					{
 						'Msf'        => framework,
 						'MsfExploit' => self,
-					}				
+					}
 			)
-			
+
 			fd = File.open(datastore['DICTIONARY'], 'r')
 			fd.read(fd.stat.size).split("\n").each do |filename|
 				filename.strip!
