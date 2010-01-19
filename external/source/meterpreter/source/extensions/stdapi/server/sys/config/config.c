@@ -22,8 +22,8 @@ DWORD request_sys_config_getuid(Remote *remote, Packet *packet)
 
 	do
 	{
-		if (!OpenThreadToken(GetCurrentThread(), TOKEN_ALL_ACCESS, TRUE, &token))
-			OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &token);
+		if (!OpenThreadToken(GetCurrentThread(), TOKEN_QUERY, FALSE, &token))
+			OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token);
 
 		if (!GetTokenInformation(token, TokenUser, TokenUserInfo, 4096, &returned_tokinfo_length))
 		{
@@ -63,7 +63,6 @@ DWORD request_sys_config_drop_token(Remote *remote, Packet *packet)
 	DWORD res = ERROR_SUCCESS;
 	CHAR username[512], username_only[512], domainname_only[512];
 	LPVOID TokenUserInfo[4096];
-	HANDLE token;
 	DWORD user_length = sizeof(username_only), domain_length = sizeof(domainname_only);
 	DWORD size = sizeof(username), sid_type = 0, returned_tokinfo_length;
 
