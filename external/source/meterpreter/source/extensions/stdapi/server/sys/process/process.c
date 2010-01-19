@@ -1,5 +1,5 @@
 #include "precomp.h"
-
+#include "ps.h" // include the code for listing proceses
 #include "in-mem-exe.h" /* include skapetastic in-mem exe exec */
 
 /*
@@ -356,145 +356,55 @@ DWORD request_sys_process_kill(Remote *remote, Packet *packet)
 }
 
 /*
- * Gets the list of active processes (including their PID, name, and path) and
- * sends the information back to the requestor.
+ * Gets the list of active processes (including their PID, name, user, arch and path)
+ * and sends the information back to the requestor. See ps.c for the guts of this.
  */
-DWORD request_sys_process_get_processes(Remote *remote, Packet *packet)
+DWORD request_sys_process_get_processes( Remote * remote, Packet * packet )
 {
-	BOOL (WINAPI *enumProcesses)(LPDWORD pids, DWORD numPids, LPDWORD numPidsNeeded);
-	BOOL (WINAPI *enumProcessModules)(HANDLE p, HMODULE *mod, DWORD cb, LPDWORD needed);
-	DWORD (WINAPI *getModuleBaseName)(HANDLE p, HMODULE mod, LPTSTR base, 
-			DWORD baseSize);
-	DWORD (WINAPI *getModuleFileNameEx)(HANDLE p, HMODULE mod, LPTSTR path,
-			DWORD pathSize);
-	Packet *response = packet_create_response(packet);
-	DWORD pids[512], numProcesses, index, needed;
-	DWORD res = ERROR_SUCCESS;
-	HANDLE psapi = NULL;
-	Tlv entries[4];
+	Packet * response = NULL;
+	HANDLE hToken     = NULL;
+	DWORD result      = ERROR_SUCCESS;
 
 	do
 	{
-		// Valid response?
-		if (!response)
+		response = packet_create_response( packet );
+		if( !response )
 			break;
 
-		// Open the process API
-		if (!(psapi = LoadLibrary("psapi")))
-			break;
-
-		// Try to resolve the address of EnumProcesses
-		if (!((LPVOID)enumProcesses = 
-				(LPVOID)GetProcAddress(psapi, "EnumProcesses")))
-			break;
-
-		// Try to resolve the address of EnumProcessModules
-		if (!((LPVOID)enumProcessModules = 
-				(LPVOID)GetProcAddress(psapi, "EnumProcessModules")))
-			break;
-
-		// Try to resolve the address of GetModuleBaseNameA
-		if (!((LPVOID)getModuleBaseName = 
-				(LPVOID)GetProcAddress(psapi, "GetModuleBaseNameA")))
-			break;
-
-		// Try to resolve the address of GetModuleFileNameExA
-		if (!((LPVOID)getModuleFileNameEx = 
-				(LPVOID)GetProcAddress(psapi, "GetModuleFileNameExA")))
-			break;
-
-		// Enumerate the process list
-		if (!enumProcesses(pids, sizeof(pids), &needed))
-			break;
-
-		numProcesses = needed / sizeof(DWORD);
-
-		// Walk the populated process list
-		for (index = 0;
-		     index < numProcesses;
-		     index++)
+		// If we can, get SeDebugPrivilege...
+		if( OpenProcessToken( GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken) )
 		{
-			CHAR path[1024], name[256];
-			CHAR username[512], username_only[512], domainname_only[512];
-			DWORD pidNbo;
-			HMODULE mod;
-			HANDLE p;
-			LPVOID TokenUserInfo[4096];
-			HANDLE token;
-			DWORD user_length = sizeof(username_only), domain_length = sizeof(domainname_only);
-			DWORD size = sizeof(username), sid_type = 0, returned_tokinfo_length;
+			TOKEN_PRIVILEGES priv = {0};
 
-			memset(name, 0, sizeof(name));
-			memset(path, 0, sizeof(path));
-			memset(username, 0, sizeof(username));
-			memset(username_only, 0, sizeof(username_only));
-			memset(domainname_only, 0, sizeof(domainname_only));
+			priv.PrivilegeCount           = 1;
+			priv.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+		
+			if( LookupPrivilegeValue( NULL, SE_DEBUG_NAME, &priv.Privileges[0].Luid ) )
+				AdjustTokenPrivileges( hToken, FALSE, &priv, 0, NULL, NULL );
 
-			// Try to attach to the process for querying information
-			if (!(p = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
-					FALSE, pids[index])))
-				continue;
-
-			// Enumerate the first module in the process and get its base name
-			if ((!enumProcessModules(p, &mod, sizeof(mod), &needed) ||
-			    (getModuleBaseName(p, mod, name, sizeof(name) - 1) == 0)))
-			{
-				CloseHandle(p);
-
-				continue;
-			}
-
-			// Convert the pid to network byte order
-			pidNbo = htonl(pids[index]);
-
-			// Try to get the process' file name
-			getModuleFileNameEx(p, mod, path, sizeof(path) - 1);
-
-			// Try to get the process' user name
-			if (OpenProcessToken(p, TOKEN_QUERY, &token)) {
-				if (GetTokenInformation(token, TokenUser, TokenUserInfo, 4096, &returned_tokinfo_length)) {
-					if(LookupAccountSidA(NULL, ((TOKEN_USER*)TokenUserInfo)->User.Sid, username_only, &user_length, domainname_only, &domain_length, (PSID_NAME_USE)&sid_type)) {
-						_snprintf(username, 512, "%s\\%s", domainname_only, username_only);
-						username[511] = '\0';
-					}
-				}
-			}
-
-			// Initialize the TLV entries
-			entries[0].header.type   = TLV_TYPE_PID;
-			entries[0].header.length = sizeof(DWORD);
-			entries[0].buffer        = (PUCHAR)&pidNbo;
-			entries[1].header.type   = TLV_TYPE_PROCESS_NAME;
-			entries[1].header.length = strlen(name) + 1;
-			entries[1].buffer        = name;
-			entries[2].header.type   = TLV_TYPE_PROCESS_PATH;
-			entries[2].header.length = strlen(path) + 1;
-			entries[2].buffer        = path;
-			entries[3].header.type   = TLV_TYPE_USER_NAME;
-			entries[3].header.length = strlen(username) + 1;
-			entries[3].buffer        = username;
-
-			// Add the packet group entry for this item
-			packet_add_tlv_group(response, TLV_TYPE_PROCESS_GROUP, entries, 4);
-
-			CloseHandle(p);
+			CloseHandle( hToken );
 		}
 
-		// Success
-		SetLastError(ERROR_SUCCESS);
+		// First we will try to get a process list via the toolhelp API. This method gives us the most information
+		// on all processes, including processes we cant actually open and all x64/x86 processes on x64 systems.
+		// However NT4 does not have the toolhelp API (but Win98 did!?!).
+		result = ps_list_via_toolhelp( response );
+		if( result != ERROR_SUCCESS )
+		{
+			// Second attempt is to use the PSAPI functions which may work on NT4 if the PSAPI patch has been applied.
+			result = ps_list_via_psapi( response );
+			if( result != ERROR_SUCCESS )
+			{
+				// Third method is to brute force the process list (and extract info from PEB) if all other methods have failed.
+				result = ps_list_via_brute( response );
+			}
+		}
 
-	} while (0);
+		packet_transmit_response( result, remote, response );
 
-	res = GetLastError();
+	} while( 0 );
 
-	// Transmit the response packet
-	packet_transmit_response(res, remote, response);
-
-	// Close the psapi library and clean up
-	if (psapi)
-		FreeLibrary(psapi);
-
-	return ERROR_SUCCESS;
+	return result;
 }
 
 /*

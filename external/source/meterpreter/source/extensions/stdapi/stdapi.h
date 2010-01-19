@@ -147,6 +147,16 @@
 				TLV_META_TYPE_STRING,      \
 				TLV_TYPE_EXTENSION_STDAPI, \
 				2305)
+#define TLV_TYPE_PROCESS_ARCH     \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,      \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				2306)
+#define TLV_TYPE_PARENT_PID     \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,      \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				2307)
 
 #define TLV_TYPE_IMAGE_FILE            \
 		MAKE_CUSTOM_TLV(                 \
