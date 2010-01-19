@@ -5,6 +5,7 @@
 #
 
 spawn = false
+target = nil
 
 opts = Rex::Parser::Arguments.new(
 	"-h" => [ false,"Help menu." ],
