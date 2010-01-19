@@ -1,0 +1,14 @@
+
+--------------------------------------------------
+Windows NT/2K/XP/2K3/VISTA/2K8/7 NtVdmControl()->KiTrap0d local ring0 exploit
+-------------------------------------------- taviso@sdf.lonestar.org ---
+
+Tavis Ormandy, June 2009.
+
+Please see ADVISORY for discussion of the vulnerability itself.
+
+INSTRUCTIONS
+
+Use nmake[1] from visual c++ to build the exploit driver and payload.
+
+[1] NMAKE Reference, http://msdn.microsoft.com/en-us/library/dd9y37ha.aspx

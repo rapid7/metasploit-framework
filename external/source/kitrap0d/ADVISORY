@@ -1,0 +1,248 @@
+Microsoft Windows NT #GP Trap Handler Allows Users to Switch Kernel Stack
+-------------------------------------------------------------------------
+
+In order to support BIOS service routines in legacy 16bit applications, the
+Windows NT Kernel supports the concept of BIOS calls in the Virtual-8086 mode
+monitor code. These are implemented in two stages, the kernel transitions to
+the second stage when the #GP trap handler (nt!KiTrap0D) detects that the
+faulting cs:eip matches specific magic values.
+
+Transitioning to the second stage involves restoring execution context and
+call stack (which had been previously saved) from the faulting trap frame once
+authenticity has been verified.
+
+This verification relies on the following incorrect assumptions:
+
+  - Setting up a VDM context requires SeTcbPrivilege.
+  - ring3 code cannot install arbitrary code segment selectors.
+  - ring3 code cannot forge a trap frame.
+
+This is believed to affect every release of the Windows NT kernel, from
+Windows NT 3.1 (1993) up to and including Windows 7 (2009).
+
+Working out the details of the attack is left as an exercise for the reader.
+
+Just kidding, that was an homage to Derek Soeder :-)
+
+- Assumption 0: Setting up a VDM context requires SeTcbPrivilege.
+
+Creating a VDM context requires EPROCESS->Flags.VdmAllowed to be set in order
+to access the authenticated system service, NtVdmControl(). VdmAllowed can
+only be set using NtSetInformationProcess(), which verifies the caller has
+SeTcbPrivilege. If this is true, the caller is very privileged and can
+certainly be trusted.
+
+This restriction can be subverted by requesting the NTVDM subsystem, and then
+using CreateRemoteThread() to execute in the context of the subsystem process,
+which will already have this flag set.
+
+- Assumption 1: ring3 code cannot install arbitrary code segment selectors.
+
+Cpl is usually equal to the two least significant bits of cs and ss, and is
+a simple way to calculate the privilege of a task. However, there is an
+exception, Virtual-8086 mode.
+
+Real mode uses a segmented addressing scheme in order to allow 16-bit
+addresses to access the 20-bit address space. This is achieved by forming
+physical addresses from a calculation like (cs << 4) + (eip & 0xffff). The
+same calculation is used to map the segmented real address space onto the
+protected linear address space in Virtual-8086 mode. Therefore, I must be
+permitted to set cs to any value, and checks for disallowed or privileged
+selectors can be bypassed (PsSetLdtEnties will reject any selector where any
+of the three lower bits are unset, as is the case with the required cs pair).
+
+- Assumption 2: ring3 code cannot forge a trap frame.
+
+Returning to usermode with iret is a complicated operation, the pseudocode for
+the iret instruction alone spans several pages of Intel's Software Developers
+Manual. The operation occurs in two stages, a pre-commit stage and a
+post-commit stage. Using the VdmContext installed using NtVdmControl(), an
+invalid context can be created that causes iret to fail pre-commit, thus
+forging a trap frame.
+
+The final requirement involves predicting the address of the second-stage BIOS
+call handler. The address is static in Windows 2003, XP and earlier operating
+systems, however, Microsoft introduced kernel base randomisation in Windows
+Vista. Unfortunately, this potentially useful exploit mitigation is trivial
+to defeat locally as unprivileged users can simply query the loaded module list
+via NtQuerySystemInformation().
+
+--------------------
+Affected Software
+------------------------
+
+All 32bit x86 versions of Windows NT released since 27-Jul-1993 are believed to
+be affected, including but not limited to the following actively supported
+versions:
+
+    - Windows 2000
+    - Windows XP
+    - Windows Server 2003
+    - Windows Vista
+    - Windows Server 2008
+    - Windows 7
+
+--------------------
+Consequences
+-----------------------
+
+Upon successful exploitation, the kernel stack is switched to an attacker
+specified address.
+
+An attacker would trigger the vulnerability by setting up a specially
+formed VDM_TIB in their TEB, using a code sequence like this:
+
+/* ... */
+    // Magic CS required for exploitation
+    Tib.VdmContext.SegCs = 0x0B;
+    // Pointer to fake kernel stack
+    Tib.VdmContext.Esi = &KernelStack;
+    // Magic IP required for exploitation
+    Tib.VdmContext.Eip = Ki386BiosCallReturnAddress;
+
+    NtCurrentTeb()->Reserved4[0] = &Tib;
+/* ... */
+
+Followed by
+
+/* ... */
+    NtVdmControl(VdmStartExecution, NULL);
+/* ... */
+
+Which will reach the following code sequence via the #GP trap handler,
+nt!KiTrap0D. Please note how the stack pointer is restored from the saved
+(untrusted) trap frame at 43C3E6, undoubtedly resulting in the condition
+described above.
+
+/* ... */
+.text:0043C3CE Ki386BiosCallReturnAddress proc near
+.text:0043C3CE     mov     eax, large fs:KPCR.SelfPcr
+.text:0043C3D4     mov     edi, [ebp+KTRAP_FRAME.Esi]
+.text:0043C3D7     mov     edi, [edi]
+.text:0043C3D9     mov     esi, [eax+KPCR.NtTib.StackBase]
+.text:0043C3DC     mov     ecx, 84h
+.text:0043C3E1     mov     [eax+KPCR.NtTib.StackBase], edi
+.text:0043C3E4     rep movsd
+.text:0043C3E6     mov     esp, [ebp+KTRAP_FRAME.Esi]
+.text:0043C3E9     add     esp, 4
+.text:0043C3EC     mov     ecx, [eax+KPCR.PrcbData.CurrentThread]
+.text:0043C3F2     mov     [ecx+KTHREAD.InitialStack], edi
+.text:0043C3F5     mov     eax, [eax+KPCR.TSS]
+.text:0043C3F8     sub     edi, 220h
+.text:0043C3FE     mov     [eax+KTSS.Esp0], edi
+.text:0043C401     pop     edx
+.text:0043C402     mov     [ecx+KTHREAD.Teb], edx
+.text:0043C405     pop     edx
+.text:0043C406     mov     large fs:KPCR.NtTib.Self, edx
+.text:0043C40D     mov     ebx, large fs:KPCR.GDT
+.text:0043C414     mov     [ebx+3Ah], dx
+.text:0043C418     shr     edx, 10h
+.text:0043C41B     mov     byte ptr [ebx+3Ch], dl
+.text:0043C41E     mov     [ebx+3Fh], dh
+.text:0043C421     sti
+.text:0043C422     pop     edi
+.text:0043C423     pop     esi
+.text:0043C424     pop     ebx
+.text:0043C425     pop     ebp
+.text:0043C426     retn    4
+/* ... */
+
+Possibly naive example code for triggering this condition is availble from the
+link below.
+
+http://lock.cmpxchg8b.com/c0af0967d904cef2ad4db766a00bc6af/KiTrap0D.zip
+
+The code has been tested on Windows XP, Windows Server 2003/2008, Windows Vista
+and Windows 7. Support for other affected operating systems is left as an
+exercise for the interested reader.
+
+-------------------
+Mitigation
+-----------------------
+
+If you believe you may be affected, you should consider applying the workaround
+described below.
+
+Temporarily disabling the MSDOS and WOWEXEC subsystems will prevent the attack
+from functioning, as without a process with VdmAllowed, it is not possible to
+access NtVdmControl() (without SeTcbPrivilege, of course).
+
+The policy template "Windows Components\Application Compatibility\Prevent
+access to 16-bit applications" may be used within the group policy editor to
+prevent unprivileged users from executing 16-bit applications. I'm informed
+this is an officially supported machine configuration.
+
+Administrators unfamiliar with group policy may find the videos below instructive.
+
+To watch a demonstration of this policy being applied to a Windows Server 2003
+domain controller, see the link below.
+
+http://www.youtube.com/watch?v=XRVI4iQ2Nug
+
+To watch a demonstration of this policy being applied to a Windows Server 2008
+domain controller, see the link below.
+
+http://www.youtube.com/watch?v=u8pfXW7crEQ
+
+To watch a demonstration of this policy being applied to an unjoined Windows XP
+Professional machine, see the link below.
+
+http://www.youtube.com/watch?v=u7Y6d-BVwxk
+
+On Windows NT4, the following knowledgebase article explains how to disable the
+NTVDM and WOWEXEC subsystems.
+
+http://support.microsoft.com/kb/220159
+
+Applying these configuration changes will temporarily prevent users from
+accessing legacy 16-bit MS-DOS and Windows 3.1 applications, however, few users
+require this functionality.
+
+If you do not require this feature and depend on NT security, consider
+permanently disabling it in order to reduce kernel attack surface.
+
+-------------------
+Solution
+-----------------------
+
+Microsoft was informed about this vulnerability on 12-Jun-2009, and they
+confirmed receipt of my report on 22-Jun-2009.
+
+Regrettably, no official patch is currently available. As an effective and easy
+to deploy workaround is available, I have concluded that it is in the best
+interest of users to go ahead with the publication of this document without an
+official patch. It should be noted that very few users rely on NT security, the
+primary audience of this advisory is expected to be domain administrators and
+security professionals.
+
+Please note, Microsoft typically do not credit researchers who do not wait for
+permission to publish their research, and therefore I am unlikely to be
+referenced in their forthcoming update.
+
+-------------------
+Credit
+-----------------------
+
+This bug was discovered by Tavis Ormandy.
+
+-------------------
+Greetz
+-----------------------
+
+Greetz to Julien, Neel, Redpig, Lcamtuf, Spoonm, Skylined, asiraP, LiquidK,
+ScaryBeasts, spender and all my other elite colleagues.
+
+Check out some photography while at ring0 @ http://flickr.com/meder.
+
+-------------------
+References
+-----------------------
+
+Derek Soeder has previously reported some legendary NT bugs, including multiple
+vdm bugs that, while unrelated to this issue, make fascinating reading.
+
+- http://seclists.org/fulldisclosure/2004/Oct/404, Windows VDM #UD LocalPrivilege Escalation
+- http://seclists.org/fulldisclosure/2004/Apr/477, Windows VDM TIB Local Privilege Escalation
+- http://seclists.org/fulldisclosure/2007/Apr/357, Zero Page Race Condition Privilege Escalation
+
+
