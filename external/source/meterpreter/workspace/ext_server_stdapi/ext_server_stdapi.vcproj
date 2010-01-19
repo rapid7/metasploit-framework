@@ -1043,6 +1043,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\source\extensions\stdapi\server\sys\process\ps.c"
+						>
+					</File>
+					<File
+						RelativePath="..\..\source\extensions\stdapi\server\sys\process\ps.h"
+						>
+					</File>
+					<File
 						RelativePath="..\..\source\extensions\stdapi\server\sys\process\thread.c"
 						>
 						<FileConfiguration
