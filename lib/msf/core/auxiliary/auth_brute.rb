@@ -130,12 +130,6 @@ def _next_pass(state)
 	return state[:pass]
 end
 def _next_user_pass(state)
-	if not state[:used_datastore] and datastore['USERNAME'] and datastore['PASSWORD']
-		state[:used_datastore] = true
-		state[:user] = datastore['USERNAME']
-		state[:pass] = datastore['PASSWORD']
-		return [ state[:user], state[:pass] ]
-	end
 	return if not datastore["USERPASS_FILE"]
 	# Reopen the file each time so that we pick up any changes
 	state[:userpass_fd] ||= File.open(datastore["USERPASS_FILE"], "r")
