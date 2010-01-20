@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				return :next_user
  			else
-				print_status("#{rhost}:#{rport} failed to login as '#{user}'") if verbose
+				print_error("#{rhost}:#{rport} failed to login as '#{user}'") if verbose
 				return
 			end
 		rescue ::Rex::ConnectionError
