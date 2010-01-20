@@ -995,7 +995,7 @@ class DBManager
 					vid  = vuln.attributes['id'].to_s.downcase
 					refs = process_nexpose_data_sxml_refs(vuln)
 					next if not refs
-					vuln = report_vuln(
+					report_vuln(
 						:host => addr, 
 						:port => sport, 
 						:proto => sprot, 
@@ -1317,7 +1317,7 @@ protected
 
 		nss = 'NSS-' + nasl.to_s
 
-		vuln = report_vuln(
+		report_vuln(
 			:host => addr,
 			:port => port,
 			:proto => proto,
@@ -1361,7 +1361,7 @@ protected
 
 		nss = 'NSS-' + nasl
 
-		vuln = report_vuln(
+		report_vuln(
 			:host => addr,
 			:port => port,
 			:proto => proto,
