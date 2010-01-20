@@ -244,10 +244,6 @@ class DBManager
 	#	:port  -- the port where this service listens
 	#	:proto -- the protocol (e.g. tcp, udp...)
 	#
-	# Returns a Service.  Not guaranteed to have been written to the db yet.
-	# If you need to be sure that the insert succeeded, use
-	# find_or_create_service.
-	#
 	def report_service(opts)
 		addr = opts.delete(:host) || return
 		wait = opts.delete(:wait)
@@ -255,21 +251,21 @@ class DBManager
 		hopts = {:host => addr}
 
 		if opts[:host_name]
-			hopts[:name] = opts[:host_name]
+			hopts[:name] = opts.delete(:host_name)
 		end
 
 		if opts[:host_mac]
-			hopts[:mac] = opts[:host_mac]
+			hopts[:mac] = opts.delete(:host_mac)
 		end
+		report_host(hopts)
 
 		ret  = {}
 
-		host = find_or_create_host(hopts)
 		task = queue(Proc.new {
 
-
+			host = get_host(addr)
 			proto = opts[:proto] || 'tcp'
-			opts[:name].downcase!  if (opts[:name])
+			opts[:name].downcase! if (opts[:name])
 
 			service = host.services.find_or_initialize_by_port_and_proto(opts[:port].to_i, proto)
 			opts.each { |k,v|
@@ -345,12 +341,12 @@ class DBManager
 	# Returns a Client.
 	#
 	def report_client(opts)
-		host = find_or_create_host(:host => opts.delete(:host))
-		return if not host
+		report_host(:host => opts.delete(:host))
 		wait = opts.delete(:wait)
 
 		ret = {}
 		task = queue(Proc.new {
+			host = get_host(addr)
 			client = host.clients.find_or_initialize_by_ua_string(opts[:ua_string])
 			opts.each { |k,v|
 				if (client.attribute_names.include?(k.to_s))
@@ -409,15 +405,21 @@ class DBManager
 	def report_note(opts)
 		wait = opts.delete(:wait)
 		host = nil
+		addr = nil
 		if opts[:host]
 			if opts[:host].kind_of? Host
 				host = opts[:host]
 			else
-				host = find_or_create_host({:host => opts[:host]})
+				report_host({:host => opts[:host]})
+				addr = opts[:host]
 			end
 		end
+
 		ret = {}
 		task = queue(Proc.new {
+			if addr and not host
+				host = get_host(addr)
+			end
 			ntype = opts.delete(:type) || opts.delete(:ntype) || return
 			data  = opts[:data] || return
 
@@ -526,7 +528,6 @@ class DBManager
 	#
 	def report_vuln(opts)
 		name = opts[:name] || return
-		host = find_or_create_host({:host => opts[:host]}) || return
 		data = opts[:data]
 		wait = opts.delete(:wait)
 		rids = nil
@@ -536,17 +537,30 @@ class DBManager
 				rids << find_or_create_ref(:name => r)
 			end
 		end
+		host = nil
+		addr = nil
+		if opts[:host]
+			if opts[:host].kind_of? Host
+				host = opts[:host]
+			else
+				report_host({:host => opts[:host]})
+				addr = opts[:host]
+			end
+		end
 
 		ret = {}
 		task = queue( Proc.new {
+			host = get_host(addr)
 			if data
-				vuln = host.vulns.find_or_initialize_by_name_and_data(name, data)
+				vuln = host.vulns.find_or_initialize_by_name_and_data(name, data, :include => :refs)
 			else
-				vuln = host.vulns.find_or_initialize_by_name(name)
+				vuln = host.vulns.find_or_initialize_by_name(name, :include => :refs)
 			end
 
-			if opts[:service] and opts[:service].kind_of? Service
-				vuln.service = opts[:service]
+			if opts[:port] and opts[:proto]
+				vuln.service = host.services.find_or_create_by_port_and_proto(opts[:port], opts[:proto])
+			elsif opts[:port]
+				vuln.service = host.services.find_or_create_by_port(opts[:port])
 			end
 
 			if rids
@@ -948,17 +962,15 @@ class DBManager
 				desc = fdesc.text.to_s.strip
 			end
 
-			host = find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
-			next if not host
+			report_host(:host => addr, :state => Msf::HostState::Alive)
 
 			# Load vulnerabilities not associated with a service
 			dev.elements.each('vulnerabilities/vulnerability') do |vuln|
 				vid  = vuln.attributes['id'].to_s.downcase
-				rids = []
 				refs = process_nexpose_data_sxml_refs(vuln)
 				next if not refs
 				report_vuln(
-					:host => host,
+					:host => addr,
 					:name => 'NEXPOSE-' + vid,
 					:data => vid,
 					:refs => refs)
@@ -971,25 +983,28 @@ class DBManager
 				sport = svc.attributes['port'].to_s.to_i
 
 				name = sname.split('(')[0].strip
+
 				if(sname.downcase != '<unknown>')
-					serv = find_or_create_service(:host => host, :proto => sprot, :port => sport, :name => name)
+					report_service(:host => addr, :proto => sprot, :port => sport, :name => name)
 				else
-					serv = find_or_create_service(:host => host, :proto => sprot, :port => sport)
+					report_service(:host => addr, :proto => sprot, :port => sport)
 				end
 
 				# Load vulnerabilities associated with this service
 				svc.elements.each('vulnerabilities/vulnerability') do |vuln|
 					vid  = vuln.attributes['id'].to_s.downcase
-					rids = []
 					refs = process_nexpose_data_sxml_refs(vuln)
 					next if not refs
-					vuln = find_or_create_vuln(:host => host, :service => serv, :name => 'NEXPOSE-' + vid, :data => vid)
-					refs.each { |r| rids << find_or_create_ref(:name => r) }
-					vuln.refs << (rids - vuln.refs)
+					vuln = report_vuln(
+						:host => addr, 
+						:port => sport, 
+						:proto => sprot, 
+						:name => 'NEXPOSE-' + vid, 
+						:data => vid,
+						:refs => refs)
 				end
 			end
 		end
-		return false
 	end
 
 
@@ -1265,20 +1280,17 @@ protected
 		return if not p
 
 		report_host(:host => addr, :state => Msf::HostState::Alive)
-
-		info = { :host => addr, :port => p[2].to_i, :proto => p[3].downcase }
 		name = p[1].strip
+		port = p[2].to_i
+		proto = p[3].downcase
+
+		info = { :host => addr, :port => port, :proto => proto }
 		if name != "unknown" and name[-1,1] != "?"
 			info[:name] = name
 		end
-		if not nasl
-			# then it's not a vulnerability, just an open port and we don't
-			# have to wait for the service to get created
-			report_service(info)
-			return
-		end
-		# otherwise, we need the service for when we create the vuln below
-		service = find_or_create_service(info)
+		report_service(info)
+
+		return if not nasl
 
 		data.gsub!("\\n", "\n")
 
@@ -1307,7 +1319,8 @@ protected
 
 		vuln = report_vuln(
 			:host => addr,
-			:service => service,
+			:port => port,
+			:proto => proto,
 			:name => nss,
 			:data => data,
 			:refs => refs)
@@ -1326,12 +1339,9 @@ protected
 			info[:name] = name
 		end
 
-		if nasl == "0"
-			report_service(info)
-			return
-		end
+		report_service(info)
 
-		service = find_or_create_service(info)
+		return if nasl == "0"
 
 		refs = []
 
@@ -1353,7 +1363,8 @@ protected
 
 		vuln = report_vuln(
 			:host => addr,
-			:service => service,
+			:port => port,
+			:proto => proto,
 			:name => nss,
 			:data => description ? description.text : "",
 			:refs => refs)
