@@ -122,10 +122,22 @@ function getVersion(){
 		//    "Windows NT 6.0"
 		// haven't tested on 64-bit Windows
 		version = navigator.oscpu;
-		os_name = version.split(' ')[0];
 		if (version.match(/i.86/)) {
 			arch = "#{ARCH_X86}";
 		}
+		if (version.match(/Windows/)) {
+			os_name = "#{oses::WINDOWS}"; 
+			switch(version) {
+				case "Windows NT 5.0": os_flavor = "2000"; break;
+				case "Windows NT 5.1": os_flavor = "XP"; break;
+				case "Windows NT 6.0": os_flavor = "Vista"; break;
+				case "Windows NT 6.1": os_flavor = "7"; break;
+			}
+		}
+		if (version.match(/Linux/)) {
+			os_name = "#{oses::LINUX}";
+		}
+		// end navigator.oscpu checks
 
 		// Verify whether the ua string is lying by checking the major version
 		// number against what we detected using known objects above.  If it
