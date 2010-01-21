@@ -732,7 +732,7 @@ module Text
 	#
 	# Compresses a string using zlib
 	#
-	def self.zlib_deflate(str, level)
+	def self.zlib_deflate(str, level = Zlib::BEST_COMPRESSION)
 		if self.zlib_present?
 			z = Zlib::Deflate.new(level)
 			dst = z.deflate(str, Zlib::FINISH)
