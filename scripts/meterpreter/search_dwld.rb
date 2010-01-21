@@ -34,7 +34,7 @@ def usage
 	print_line "	=> recursively look for (MS|Open)Office in C:\\"
 	print_line " run search_dwld %USERPROFILE% win9x"
 	print_line "	=> recursively look for *.PWL files in the user home directory"
-	print_line " run search_dwld E:\\ free '\.(jpg|png|gif)$'"
+	print_line " run search_dwld E:\\\\ free '\.(jpg|png|gif)$'"
 	print_line "	=> recursively look for pictures in the E: drive"
 	print_line(@@opts.usage)
 	raise Rex::Script::Completed
