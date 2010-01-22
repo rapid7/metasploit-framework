@@ -36,29 +36,15 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		# Create the console instance
 		#
 		self.console = Rex::Post::Meterpreter::Ui::Console.new(self)
-	end
+  end
 
 	#
 	# Returns the session type as being 'meterpreter'.
 	#
-	def self.type
+	def type
 		"meterpreter"
 	end
 	
-	#
-	# Returns the exact type of meterpreter
-	#
-	def self.platform
-		"generic/generic"
-	end
-	
-	#
-	# Returns the extension for binary files
-	#
-	def self.binary_suffix
-		"generic"
-	end
-
 	##
 	#
 	# Msf::Session overrides
@@ -79,21 +65,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	def desc
 		"Meterpreter"
-	end
-
-	#
-	# Calls the class method.
-	#
-	def type
-		self.class.type
-	end
-	
-	def platform
-		self.class.platform
-	end
-
-	def binary_suffix
-		self.class.binary_suffix
 	end
 
 	##
@@ -240,6 +211,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		sock
 	end
 
+	attr_accessor :platform
+	attr_accessor :binary_suffix
 	attr_accessor :console # :nodoc:
 
 protected

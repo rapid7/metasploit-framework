@@ -9,11 +9,10 @@ module Sessions
 #
 ###
 class Meterpreter_x64_Win < Msf::Sessions::Meterpreter
-	def self.platform
-		'x64/win64'
-	end
-	def self.binary_suffix
-		'x64.dll'
+	def initialize(rstream)
+		super
+		self.platform      = 'x64/win64'
+		self.binary_suffix = 'x64.dll'
 	end
 end
 
