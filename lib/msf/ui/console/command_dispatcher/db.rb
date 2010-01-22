@@ -903,7 +903,7 @@ class Db
 			end
 
 			if (not File.readable?(args[0]))
-				print_status("Could not read the NESSUS file")
+				print_status("Could not read the NMAP file")
 				return
 			end
 			framework.db.import_nmap_xml_file(args[0])
