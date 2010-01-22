@@ -21,7 +21,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => 'Detect Tomcat Web Application Manager default access.',
 			'References'  =>
 				[
-					['URL', 'http://tomcat.apache.org/'],
+					[ 'CVE', '2009-3843' ],
+					[ 'URL', 'http://tomcat.apache.org/' ]
 				],
 			'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
 			'License'     => MSF_LICENSE
@@ -50,13 +51,13 @@ class Metasploit3 < Msf::Auxiliary
 				pass = datastore['TOMCAT_PASS'].to_s
 
 				if user.length == 0
-					default_usernames = ['admin','manager','role1','root','tomcat']
+					default_usernames = ['admin','manager','role1','root','tomcat','ovwebusr','j2deployer']
 				else
 					default_usernames = [user]
 				end
 
 				if pass.length == 0
-					default_passwords = ['admin','manager','role1','root','tomcat']
+					default_passwords = ['admin','manager','role1','root','tomcat','OvW*busr1','j2deployer']
 				else
 					default_passwords = [pass]
 				end
@@ -80,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 							if (res.code == 200)
 								print_status("http://#{target_host}:#{rport}/manager/html [#{res.headers['Server']}] [Tomcat Application Manager] [#{username}/#{password}]")
 							end
-			
+
 							rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 							rescue ::Timeout::Error, ::Errno::EPIPE
 						end
