@@ -346,7 +346,9 @@ class Console::CommandDispatcher::Core
 			# the rest of the arguments get passed in through the binding
 			client.execute_script(args.shift, binding)
 		rescue
-			print_error("Error in script: #{$!}")
+			print_error("Error in script: #{$!.class} #{$!}")
+			elog("Error in script: #{$!.class} #{$!}")
+			dlog("Callstack: #{$@.join("\n")}")
 		end
 	end
 
