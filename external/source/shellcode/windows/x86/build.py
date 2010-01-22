@@ -68,6 +68,13 @@ def xmit( name, dump_ruby=True ):
   xmit_offset( data, "ExitFunk", pack( "<L", 0x56A2B5F0 ) ) # kernel32.dll!ExitProcess
   xmit_offset( data, "ExitFunk", pack( "<L", 0xEA320EFE ) ) # kernel32.dll!SetUnhandledExceptionFilter
   xmit_offset( data, "ExitFunk", pack( "<L", 0xE035F044 ) ) # kernel32.dll!Sleep
+  xmit_offset( data, "EggTag1", pack( "<L", 0xDEADDEAD ) )  # Egg tag 1
+  xmit_offset( data, "EggTag2", pack( "<L", 0xC0DEC0DE ) )  # Egg tag 2
+  xmit_offset( data, "EggTagSize", pack( ">H", 0x1122 ) )   # Egg tag size
+  if( name.find( "egghunter" ) >= 0 ):
+	  null_count = data.count( "\x00" )
+	  if( null_count > 0 ):
+		print "# Note: %d NULL bytes found." % ( null_count )
   if dump_ruby:
     xmit_dump_ruby( data )
 #=============================================================================#
@@ -82,6 +89,12 @@ def main( argv=None ):
       if argv[1] == "clean":
         clean()
       elif argv[1] == "all":
+        for root, dirs, files in os.walk( "./src/egghunter/" ):
+          for name in files:
+            build( name[:-4] )
+        for root, dirs, files in os.walk( "./src/migrate/" ):
+          for name in files:
+            build( name[:-4] )
         for root, dirs, files in os.walk( "./src/single/" ):
           for name in files:
             build( name[:-4] )

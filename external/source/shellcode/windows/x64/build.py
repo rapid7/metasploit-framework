@@ -80,6 +80,10 @@ def main( argv=None ):
       if argv[1] == "clean":
         clean()
       elif argv[1] == "all":
+        for root, dirs, files in os.walk( "./src/migrate/" ):
+          for name in files:
+            if name[-4:] == ".asm":
+              build( name[:-4] )
         for root, dirs, files in os.walk( "./src/single/" ):
           for name in files:
             if name[-4:] == ".asm":
