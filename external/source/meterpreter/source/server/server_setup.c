@@ -315,11 +315,11 @@ static DWORD server_dispatch( Remote * remote )
 				break;
 
 			cpt = thread_create( command_process_thread, remote, packet );
-			
-			dprintf( "[DISPATCH] created command_process_thread 0x%08X, handle=0x%08X", cpt, cpt->handle );
-			
-			if( cpt != NULL )
+			if( cpt )
+			{
+				dprintf( "[DISPATCH] created command_process_thread 0x%08X, handle=0x%08X", cpt, cpt->handle );
 				thread_run( cpt );
+			}
 		}
 		else if( result < 0 )
 		{
