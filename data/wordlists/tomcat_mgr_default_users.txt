@@ -1,0 +1,5 @@
+admin
+manager
+rol1
+root
+tomcat
