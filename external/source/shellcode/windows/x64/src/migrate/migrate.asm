@@ -3,7 +3,7 @@
 ; Compatible: Windows 7, 2008, 2003, XP
 ; Architecture: x64
 ; Version: 1.0 (Jan 2010)
-; Size: 306 bytes
+; Size: 314 bytes
 ; Build: >build.py migrate
 ;-----------------------------------------------------------------------------;
 

@@ -3,7 +3,7 @@
 ; Compatible: Windows 7, 2008, Vista, 2003, XP, 2000, NT4
 ; Architecture: x64
 ; Version: 1.0 (Jan 2010)
-; Size: 248 bytes
+; Size: 256 bytes
 ; Build: >build.py apc
 ;-----------------------------------------------------------------------------;
 

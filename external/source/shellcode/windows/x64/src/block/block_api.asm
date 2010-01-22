@@ -2,7 +2,7 @@
 ; Author: Stephen Fewer (stephen_fewer[at]harmonysecurity[dot]com)
 ; Compatible: Windows 7, 2003
 ; Architecture: x64
-; Size: 192 bytes
+; Size: 200 bytes
 ;-----------------------------------------------------------------------------;
 
 [BITS 64]
@@ -49,6 +49,11 @@ not_lowercase:             ;
   mov rdx, [rdx+32]        ; Get this modules base address
   mov eax, dword [rdx+60]  ; Get PE header
   add rax, rdx             ; Add the modules base address
+  cmp word [rax+24], 0x020B ; is this module actually a PE64 executable? 
+  ; this test case covers when running on wow64 but in a native x64 context via nativex64.asm and 
+  ; their may be a PE32 module present in the PEB's module list, (typicaly the main module).
+  ; as we are using the win64 PEB ([gs:96]) we wont see the wow64 modules present in the win32 PEB ([fs:48])
+  jne get_next_mod1         ; if not, proceed to the next module
   mov eax, dword [rax+136] ; Get export tables RVA
   test rax, rax            ; Test if no export address table is present
   jz get_next_mod1         ; If no EAT present, process the next module

@@ -3,7 +3,7 @@
 ; Compatible: Windows 7, 2008R2, 2008, 2003, XP
 ; Architecture: x64
 ; Version: 1.0 (Jan 2010)
-; Size: 288 bytes
+; Size: 296 bytes
 ; Build: >build.py remotethread
 ;-----------------------------------------------------------------------------;
 
