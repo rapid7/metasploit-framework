@@ -81,6 +81,9 @@ function getVersion(){
 				case "10467": // "Opera_962_en_Setup.exe"
 					os_name = "#{oses::WINDOWS}";
 					break;
+				//default:
+				//	document.write(opera.buildNumber('inconspicuous'));
+				//	break;
 			}
 		}
 	} else if (typeof window.onmousewheel != 'undefined') {
@@ -124,6 +127,9 @@ function getVersion(){
 		version = navigator.oscpu;
 		if (version.match(/i.86/)) {
 			arch = "#{ARCH_X86}";
+		}
+		if (version.match(/x86_64/)) {
+			arch = "#{ARCH_X86_64}";
 		}
 		if (version.match(/Windows/)) {
 			os_name = "#{oses::WINDOWS}"; 
@@ -239,6 +245,8 @@ function getVersion(){
 			case "580":
 				// IE 8.0.7100.0, Windows 7 English
 				// IE 8.0.7100.0, Windows 7 64-bit English
+			case "5816385":
+				// IE 8.0.7600.16385, Windows 7 English
 				ua_version = "8.0";
 				os_flavor = "7";
 				os_sp = "SP0";
@@ -247,7 +255,9 @@ function getVersion(){
 			//	document.writeln(version);
 			//	break;
 		}
+
 		if (!ua_version) {
+			// The ScriptEngine functions failed us, try some object detection
 			if (document.documentElement && (typeof document.documentElement.style.maxHeight)!="undefined") {
 				// IE8 detection straight from IEBlog.  Thank you Microsoft.
 				try {
@@ -274,6 +284,8 @@ function getVersion(){
 			}
 		}
 	}
+
+	if (!os_name && navigator.platform == "Win32") { os_name = "#{oses::WINDOWS}"; }
 
 	//--
 	// Flavor
