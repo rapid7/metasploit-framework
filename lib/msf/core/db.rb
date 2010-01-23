@@ -341,7 +341,8 @@ class DBManager
 	# Returns a Client.
 	#
 	def report_client(opts)
-		report_host(:host => opts.delete(:host))
+		addr = opts.delete(:host) || return
+		report_host(:host => addr)
 		wait = opts.delete(:wait)
 
 		ret = {}
