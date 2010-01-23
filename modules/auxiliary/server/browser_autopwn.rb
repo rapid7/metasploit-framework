@@ -703,40 +703,34 @@ class Metasploit3 < Msf::Auxiliary
 			# navigator.userAgent
 			print_status("Recording detection from User-Agent: #{request['User-Agent']}")
 			report_user_agent(cli.peerhost, request)
-		else
+		elsif framework.db.active
 			data_offset += 'sessid='.length
 			detected_version = request.uri[data_offset, request.uri.length]
 			if (0 < detected_version.length)
 				detected_version = Rex::Text.decode_base64(Rex::Text.uri_decode(detected_version))
 				print_status("JavaScript Report: #{detected_version}")
 				(os_name, os_flavor, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
-				host = framework.db.find_or_create_host({
-					:host      => cli.peerhost,
-					:os_name   => os_name,
-					:os_flavor => os_flavor, 
-					:os_sp     => os_sp, 
-					:os_lang   => os_lang, 
-					:arch      => arch
-				})
+
+				host_info = { :host => cli.peerhost }
+				host_info[:os_name]   = os_name   if os_name != "undefined"
+				host_info[:os_flavor] = os_flavor if os_flavor != "undefined"
+				host_info[:os_sp]     = os_sp     if os_sp != "undefined"
+				host_info[:os_lang]   = os_lang   if os_lang != "undefined"
+				host_info[:arch]      = arch      if arch != "undefined"
+				framework.db.report_host(host_info)
+
 				report_client({
-					:host      => host,
+					:host      => cli.peerhost,
 					:ua_string => request['User-Agent'],
 					:ua_name   => ua_name,
 					:ua_ver    => ua_ver
 				})
 				report_note({
-					:host => host,
+					:host => cli.peerhost,
 					:type => 'http_request',
 					:data => "#{@myhost}:#{@myport} #{request.method} #{request.resource} #{os_name} #{ua_name} #{ua_ver}"
 				})
 			end
-		end
-
-		# If the database is not connected, use a cache instead.
-		# This is less reliable because we're not treating different user
-		# agents from the same IP as different hosts.
-		if (framework.db.active)
-			report_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
 		else
 			warn_no_database
 			@targetcache ||= {}
