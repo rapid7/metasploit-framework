@@ -31,7 +31,6 @@ ENABLE_PROCESSED_INPUT = 1
 
 @@is_windows = @@is_cygwin = @@is_macosx = @@is_linux = @@is_bsdi = @@is_freebsd = @@is_netbsd = @@is_openbsd = @@is_java = false
 @@loaded_win32api  = false
-@@loaded_dl        = false
 @@loaded_tempfile  = false
 @@loaded_fileutils = false
 
@@ -95,7 +94,7 @@ end
 def self.open_file(url='')
 	case RUBY_PLATFORM
 	when /cygwin/
-		path = cygwin_to_win32(url)
+		path = self.cygwin_to_win32(url)
 		system(["cmd", "cmd"], "/c", "explorer", path)
 	else
 		self.open_browser(url)
@@ -108,11 +107,11 @@ def self.open_browser(url='http://metasploit.com/')
 		if(url[0,1] == "/")
 			self.open_file(url)
 		end
-		system(["cmd", "cmd"], "/c", "start", url)
+		return if not @@loaded_win32api
+		Win32API.new("shell32.dll", "ShellExecute", ["PPPPPL"], "L").call(nil, "open", url, nil, nil, 0)
 	when /mswin32/
-		@s32 ||= DL.dlopen("shell32.dll")
-		se = @s32['ShellExecute', 'LPPPPPL']
-		se.call(nil, "open".to_s, url, nil, nil, 0)
+		return if not @@loaded_win32api
+		Win32API.new("shell32.dll", "ShellExecute", ["PPPPPL"], "L").call(nil, "open", url, nil, nil, 0)
 	when /darwin/
 		system("open #{url}")
 	else
@@ -122,14 +121,29 @@ end
 
 def self.open_email(addr)
 	case RUBY_PLATFORM
-	when /mswin32/
-		@s32 ||= DL.dlopen("shell32.dll")
-		se = @s32['ShellExecute', 'LPPPPPL']
-		se.call(nil, "open".to_s, url, nil, nil, 0)
+	when /mswin32|cygwin/
+		return if not @@loaded_win32api
+		Win32API.new("shell32.dll", "ShellExecute", ["PPPPPL"], "L").call(nil, "open", "mailto:"+addr, nil, nil, 0)
 	when /darwin/
 		system("open mailto:#{addr}")
 	else
 		# ?
+	end
+end
+
+def self.play_sound(path)
+	case RUBY_PLATFORM
+	when /cygwin/
+		path = self.cygwin_to_win32(path)
+		return if not @@loaded_win32api
+		Win32API.new("winmm.dll", "sndPlaySoundA", ["SI"], "I").call(path, 0x20000)
+	when /mswin32/
+		return if not @@loaded_win32api
+		Win32API.new("winmm.dll", "sndPlaySoundA", ["SI"], "I").call(path, 0x20000)
+	when /darwin/
+		system("afplay #{path}")
+	else
+		system("aplay #{path} &")
 	end
 end
 
@@ -154,153 +168,27 @@ def self.setenv(var,val)
 	end
 end
 
-#
-# Change the Windows console to non-blocking mode
-#
-def self.win32_stdin_unblock
-	begin
-		@@k32 ||= DL.dlopen("kernel32.dll")
-		gsh = @@k32['GetStdHandle', 'LL']
-		gcm = @@k32['GetConsoleMode', 'LLP']
-		scm = @@k32['SetConsoleMode', 'LLL']
-
-		inp = gsh.call(STD_INPUT_HANDLE)[0]
-		inf = DL.malloc(DL.sizeof('L'))
-		gcm.call(inp, inf)
-		old_mode = inf.to_a('L', 1)[0]
-		new_mode = old_mode & ~(ENABLE_LINE_INPUT|ENABLE_ECHO_INPUT|ENABLE_PROCESSED_INPUT)
-		scm.call(inp, new_mode)
-
-	rescue ::Exception
-		raise $!
-	end
-end
-
-#
-# Change the Windows console to blocking mode
-#
-def self.win32_stdin_block
-	begin
-		@@k32 ||= DL.dlopen("kernel32.dll")
-		gsh = @@k32['GetStdHandle', 'LL']
-		gcm = @@k32['GetConsoleMode', 'LLP']
-		scm = @@k32['SetConsoleMode', 'LLL']
-
-		inp = gsh.call(STD_INPUT_HANDLE)[0]
-		inf = DL.malloc(DL.sizeof('L'))
-		gcm.call(inp, inf)
-		old_mode = inf.to_a('L', 1)[0]
-		new_mode = old_mode | ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT
-		scm.call(inp, new_mode)
-
-	rescue ::Exception
-		raise $!
-	end
-end
 
 #
 # Obtain the path to our interpreter
 #
 def self.win32_ruby_path
-	begin
-		@@k32 ||= DL.dlopen("kernel32.dll")
-		gmh = @@k32['GetModuleHandle', 'LP']
-		gmf = @@k32['GetModuleFileName', 'LLPL']
-
-		mod = gmh.call(nil)[0]
-		inf = DL.malloc(1024)
-
-		gmf.call(mod, inf, 1024)
-		return inf.to_s
-
-	rescue ::Exception
-		raise $!
-	end
+	return nil if ! (is_windows and @@loaded_win32api)
+	gmh = Win32API.new("kernel32", "GetModuleHandle", ["P"], "L")
+	gmf = Win32API.new("kernel32", "GetModuleFileName", ["LPL"], "L")
+	mod = gmh.call(nil)
+	inf = "\x00" * 1024
+	gmf.call(mod, inf, 1024)
+	inf.unpack("Z*")[0]
 end
 
 #
 # Call WinExec (equiv to system("cmd &"))
 #
 def self.win32_winexec(cmd)
-	begin
-		@@k32 ||= DL.dlopen("kernel32.dll")
-		win = @@k32['WinExec', 'LPL']
-		win.call(cmd.to_ptr, 0)
-	rescue ::Exception
-		raise $!
-	end
-end
-
-#
-# Read directly from the win32 console
-#
-def self.win32_stdin_read(size=512)
-	begin
-		@@k32 ||= DL.dlopen("kernel32.dll")
-		gsh = @@k32['GetStdHandle', 'LL']
-		rco = @@k32['ReadConsole', 'LLPLPL']
-
-		inp = gsh.call(STD_INPUT_HANDLE)[0]
-		buf = DL.malloc(size)
-		num = DL.malloc(DL.sizeof('L'))
-		rco.call(inp, buf, size, num, 0)
-		buf.to_s
-
-	rescue ::Exception
-		raise $!
-	end
-end
-
-#
-# Get a handle to Win32 /dev/null
-#
-def self.win32_dev_null
-	begin
-		@@k32 ||= DL.dlopen("kernel32.dll")
-		crt = @@k32['CreateFile', 'LPLLLLLL']
-
-		hnd, rs = crt.call(
-			("NUL\x00").to_ptr,
-			-GENERIC_READ | -GENERIC_WRITE,
-			FILE_SHARE_READ | FILE_SHARE_WRITE,
-			0,
-			OPEN_EXISTING,
-			0,
-			0
-		)
-
-		hnd
-	rescue ::Exception
-		raise $!
-	end
-end
-
-#
-# Set a standard handle to a new value
-#
-def self.win32_set_std_handle(std, hnd)
-	begin
-
-		sid = STD_OUTPUT_HANDLE
-		case std.downcase
-		when 'stdin'
-			sid = STD_INPUT_HANDLE
-		when 'stderr'
-			sid = STD_ERROR_HANDLE
-		when 'stdout'
-			sid = STD_OUTPUT_HANDLE
-		else
-			raise ArgumentError, "Standard handle must be one of stdin/stdout/stderr"
-			return
-		end
-
-		@@k32 ||= DL.dlopen("kernel32.dll")
-		ssh = @@k32['SetStdHandle', 'LLL']
-		ssh.call(sid, hnd)
-
-	rescue ::Exception
-		raise $!
-	end
+	return nil if ! (is_windows and @@loaded_win32api)
+	exe = Win32API.new("kernel32", "WinExec", ["PL"], "L")
+	exe.call(cmd, 0)
 end
 
 #
@@ -372,13 +260,6 @@ if(is_windows)
 		@@loaded_win32api = true
 	rescue ::Exception
 	end
-end
-
-
-begin
-	require "dl"
-	@@loaded_dl = true
-rescue ::Exception
 end
 
 begin
