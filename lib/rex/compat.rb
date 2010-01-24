@@ -254,7 +254,7 @@ end
 # Initialization
 #
 
-if(is_windows)
+if(is_windows or is_cygwin)
 	begin
 		require "Win32API"
 		@@loaded_win32api = true
