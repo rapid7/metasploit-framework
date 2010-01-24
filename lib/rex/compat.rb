@@ -141,9 +141,9 @@ def self.play_sound(path)
 		return if not @@loaded_win32api
 		Win32API.new("winmm.dll", "sndPlaySoundA", ["SI"], "I").call(path, 0x20000)
 	when /darwin/
-		system("afplay #{path}")
+		system("afplay #{path} >/dev/null 2>&1")
 	else
-		system("aplay #{path} &")
+		system("aplay #{path} >/dev/null 2>&1")
 	end
 end
 
