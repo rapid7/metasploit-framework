@@ -135,6 +135,32 @@ module Text
 			raise ::RuntimeError, "Your installation does not support iconv (needed for utf8 conversion)"
 		end
 	end
+
+	#
+	# Converts ASCII to EBCDIC
+	#
+	def self.to_ebcdic(str)
+		begin
+			Iconv.iconv("EBCDIC-US", "ASCII", str).first
+		rescue ::Iconv::IllegalSequence => e
+			raise e
+		rescue
+			raise ::RuntimeError, "Your installation does not support iconv (needed for EBCDIC conversion)"
+		end
+	end
+
+	# 
+	# Converts EBCIDC to ASCII
+	#
+	def self.from_ebcdic(str)
+		begin
+			Iconv.iconv("ASCII", "EBCDIC-US", str).first
+		rescue ::Iconv::IllegalSequence => e
+			raise e
+		rescue
+			raise ::RuntimeError, "Your installation does not support iconv (needed for EBCDIC conversion)"
+		end
+	end
 	
 	#
 	# Returns a unicode escaped string for Javascript

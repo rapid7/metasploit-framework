@@ -1,0 +1,2 @@
+db2inst1
+admin

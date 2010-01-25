@@ -1,0 +1,5 @@
+db2inst1 db2inst1
+db2inst1 db2pass
+db2inst1 db2pw
+db2inst1 db2password
+
