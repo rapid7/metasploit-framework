@@ -16,6 +16,7 @@ sounds = {
 	'session' => 'session',
 	'address' => 'address',
 	'port'    => 'port',
+	'dot'     => 'dot',
 	'session_open_meterpreter' => 'a new meterp reter session has been opened',
 	'session_open_shell' => 'a new command shell session has been opened',
 	'session_open_vnc'	=> 'a new VNC session has been opened'
