@@ -26,12 +26,7 @@ module Sys
 class Process < Rex::Post::Process
 
 	include Rex::Post::Meterpreter::ObjectAliasesContainer
-	
-	PROCESS_ARCH_UNKNOWN  = 0
-	PROCESS_ARCH_X86      = 1
-	PROCESS_ARCH_X64      = 2
-	PROCESS_ARCH_IA64     = 3
-	
+
 	##
 	#
 	# Class methods
@@ -212,7 +207,7 @@ class Process < Rex::Post::Process
 
 	#
 	# Returns an array of processes with hash objects that have
-	# keys for 'pid', 'name', and 'path'.
+	# keys for 'pid', 'parentid', 'name', 'path', 'user' and 'arch'.
 	#
 	def Process.get_processes
 		request   = Packet.create_request('stdapi_sys_process_get_processes')
@@ -225,9 +220,9 @@ class Process < Rex::Post::Process
 		
 		pa = p.get_tlv_value( TLV_TYPE_PROCESS_ARCH )
 		if( pa != nil )
-			if pa == PROCESS_ARCH_X86
+			if pa == 1 # PROCESS_ARCH_X86
 				arch = ARCH_X86
-			elsif pa == PROCESS_ARCH_X64
+			elsif pa == 2 # PROCESS_ARCH_X64
 				arch = ARCH_X86_64
 			end
 		end
