@@ -152,7 +152,7 @@ module L3
       }
 
       if (count == 1)
-        checksum += data[data.length - 1]
+        checksum += data[data.length - 1].ord
       end
 
       checksum = (checksum >> 16) + (checksum & 0xffff)
