@@ -378,7 +378,7 @@ module Socket
 	#
 	##
 
-	def self.source_address(dest='1.2.3.4')
+	def self.source_address(dest='50.50.50.50')
 		begin
 			s = self.create_udp(
 				'PeerHost' => dest,
