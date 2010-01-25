@@ -15,7 +15,6 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
         
-	include Msf::Exploit::Remote::Tcp
 	include Msf::Exploit::Remote::DB2
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -28,21 +27,28 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => ['todb'],
 			'License'        => MSF_LICENSE
 		)
+		register_options(
+			[
+				OptBool.new('VERBOSE', [ true, 'Verbose output', false])
+		], self.class)
 
 		deregister_options('USERNAME' , 'PASSWORD')
 	end
 
 
 	def run_host(ip)
+		verbose = datastore['VERBOSE']
 		begin
 		
 			info = db2_probe(2)
 			if info[:excsatrd]
-				print_status("DB2 Server information for #{ip}:")
-				print_status("    Instance          = #{info[:instance_name]}")
-				print_status("    Platform          = #{info[:platform]}")
-				print_status("    Version           = #{info[:version]}")
-				print_status("    Plaintext Auth?   = #{info[:plaintext_auth]}")
+				inst,plat,ver,pta = info[:instance_name],info[:platform],info[:version],info[:plaintext_auth]
+				report_info = "#{plat} : #{ver} : #{inst} : PlainAuth-#{pta ? "OK" : "NO"}"
+				print_status("#{ip}:#{rport} DB2: #{report_info}")
+				report_service(:host => rhost, 
+											 :port => rport,
+											 :name => "db2",
+											 :info => report_info)
 			end
 			disconnect
 		
