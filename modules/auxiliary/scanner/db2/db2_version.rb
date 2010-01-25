@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 			if info[:excsatrd]
 				inst,plat,ver,pta = info[:instance_name],info[:platform],info[:version],info[:plaintext_auth]
 				report_info = "#{plat} : #{ver} : #{inst} : PlainAuth-#{pta ? "OK" : "NO"}"
-				print_status("#{ip}:#{rport} DB2: #{report_info}")
+				print_status("#{ip}:#{rport} [DB2] #{report_info}")
 				report_service(:host => rhost, 
 											 :port => rport,
 											 :name => "db2",
