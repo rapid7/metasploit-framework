@@ -824,7 +824,7 @@ module Text
 	# nil if there wasn't any badchar occurences.
 	#
 	def self.badchar_index(data, badchars = '')
-		badchars.unpack("C*") { |badchar|
+		badchars.unpack("C*").each { |badchar|
 			pos = data.index(badchar.chr)
 			return pos if pos
 		}
