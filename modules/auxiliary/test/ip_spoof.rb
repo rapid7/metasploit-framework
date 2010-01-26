@@ -15,7 +15,7 @@ require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Ip
+	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Scanner
 		
 	def initialize
@@ -29,10 +29,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		print_status("Sending a packet to host #{ip}")
+		print_status("#{ip}: Sending a packet to #{ip} from #{ip}")
 		
-		connect_ip if not ip_sock
-
 		n = Racket::Racket.new
 
 		n.l3 = Racket::L3::IPv4.new
@@ -50,8 +48,27 @@ class Metasploit3 < Msf::Auxiliary
 		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)	
 	
 		buff = n.pack
-		
-		ip_sock.sendto(buff, ip)
+		ret = send(ip,buff)
+		if ret == :done
+			print_good("#{ip}: Sent a packet to #{ip} from #{ip}")
+		else
+			print_error("#{ip}: Packet not sent. Check permissions & interface.")
+		end
+	end
+
+	def send(ip,buff)
+		begin
+			open_pcap
+			dst_mac,src_mac = lookup_eth
+			inject_eth(:payload => buff, 
+								 :eth_daddr => dst_mac,
+								 :eth_saddr => src_mac
+								)
+			close_pcap
+		rescue RuntimeError => e
+			return :error
+		end
+		return :done
 	end
 
 	
