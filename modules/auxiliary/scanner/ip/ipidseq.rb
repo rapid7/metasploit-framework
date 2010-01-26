@@ -15,7 +15,7 @@ require 'timeout'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Ip
+	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Scanner
 
 	def initialize
@@ -55,6 +55,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_advanced_options([
 			OptInt.new('SAMPLES', [true, "The IPID sample size", 6])
 		])
+
+		deregister_options('FILTER','PCAPFILE')
 	end
 
 	def rport
@@ -65,34 +67,39 @@ class Metasploit3 < Msf::Auxiliary
 		raise "Pcaprub is not available" if not @@havepcap
 		raise "SAMPLES option must be >= 2" if datastore['SAMPLES'] < 2
 
-		socket = connect_ip(false)
-		return if not socket
-
-		pcap = ::Pcap.open_live(datastore['INTERFACE'] || ::Pcap.lookupdev, 68, false, 1)
+		pcap = open_pcap
 
 		shost = Rex::Socket.source_address(ip)
+		dst_mac,src_mac = lookup_eth(ip)
+		if dst_mac == "ff:ff:ff:ff:ff:ff"
+			print_error("#{ip}: Not reponding to ARP.")
+			return
+		end
 
 		to = (datastore['TIMEOUT'] || 500).to_f / 1000.0
 
 		ipids = []
 
-		pcap.setfilter(getfilter(shost, ip, rport))
+		self.capture.setfilter(getfilter(shost, ip, rport))
 
 		datastore['SAMPLES'].times do
 			sport = rand(0xffff - 1025) + 1025
 
 			probe = buildprobe(shost, sport, ip, rport)
 
-			socket.sendto(probe, ip)
+			inject_eth(:payload => probe,
+								 :eth_daddr => dst_mac,
+								 :eth_saddr => src_mac
+								)
 
-			reply = readreply(pcap, to)
+			reply = probereply(self.capture, to)
 
 			next if not reply
 
 			ipids << reply[:ip].id
 		end
 
-		disconnect_ip(socket)
+		close_pcap
 
 		return if ipids.empty?
 
@@ -185,7 +192,7 @@ class Metasploit3 < Msf::Auxiliary
 		n.pack
 	end
 
-	def readreply(pcap, to)
+	def probereply(pcap, to)
 		reply = nil
 
 		begin
