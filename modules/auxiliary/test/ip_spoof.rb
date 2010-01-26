@@ -26,11 +26,10 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
 		)
+
 	end
 
 	def run_host(ip)
-		print_status("#{ip}: Sending a packet to #{ip} from #{ip}")
-		
 		n = Racket::Racket.new
 
 		n.l3 = Racket::L3::IPv4.new
