@@ -111,7 +111,7 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 	end
 
 	def test_zlib
-		assert_equal("x\234\313\310T\310\315\317\005\000\a\225\002;", Rex::Text.zlib_deflate('hi mom'), 'compress')
+		assert_equal("x\332\313\310T\310\315\317\005\000\a\225\002;", Rex::Text.zlib_deflate('hi mom'), 'compress')
 		assert_equal('hi mom', Rex::Text.zlib_inflate("x\234\313\310T\310\315\317\005\000\a\225\002;"), 'decompress')
 	end
 
