@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,
-			'Version'     => '$Revision: 7197',
+			'Version'     => '$Revision$',
 			'References'  =>
 				[
 					['URL', 'http://www.metasploit.com/research/projects/rogue_network/'],

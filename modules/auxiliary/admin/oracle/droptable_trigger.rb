@@ -1,5 +1,5 @@
 ##
-# $Id: droptable_trigger.rb
+# $Id$
 ##
 
 ##
