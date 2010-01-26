@@ -42,6 +42,7 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 		assert_equal('bababbabba', Rex::Text.rand_text(10, nil, 'ab'), 'rand text with specified "good"')
 		assert_equal('MA', Rex::Text.rand_state(), 'rand state')
 		assert_equal('xzdttongb.5gfk0xjly3.aak.fmo0rp.com', Rex::Text.rand_hostname(), 'rand hostname')
+		assert_equal('9aaf811799', Rex::Text.rand_text_hex(10), 'rand hex')
 	end
 
 
