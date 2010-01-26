@@ -33,6 +33,7 @@ module Wmap
 
 		# Exclude files can be modified by setting datastore['WMAP_EXCLUDE_FILE']
 		WMAP_EXCLUDE_FILE = '.*\.(gif|jpg|png*)$'
+		
 
 		#
 		# The dispatcher's name.
@@ -47,11 +48,57 @@ module Wmap
 		def commands
 			{
 				"wmap_website"  => "List website structure",
-				"wmap_targets"  => "List all targets in the database",
+				"wmap_targets"  => "Targets in the database",
 				"wmap_sql" => "Query the database",
 				"wmap_run"  => "Automatically test/exploit everything",
 				"wmap_proxy" => "Run mitm proxy",
+				"wmap_crawl" => "Crawl website",
+				"wmap_attack" => "Crawl and Test",
 			}
+		end
+		
+		def cmd_wmap_attack(*args)
+			aurl = args.shift
+			
+			puri = URI.parse(val)
+			tssl = (puri.scheme == "https") ? true : false
+			
+			if (puri.host.nil? or puri.host.empty?) 
+				print_error( "Error: target http(s)://target/path")
+			else
+			
+				crawldefaultopts = ""
+				rundefaultopts = ""
+
+				crawlopts = crawldefaultopts + " -t " + aurl + " " + args.join(" ")
+				runopts = rundefaultopts + " -t " + aurl + " " + args.join(" ")
+			
+				#print_status("Crawling")
+				#cmd_wmap_crawl(crawlopts)
+			
+				print_status("Reloading targets")
+				cmd_wmap_targets("-r")
+			
+				print_status("Selecting target")
+			
+				tid = -1
+				framework.db.each_target do |tgt|
+					if tgt.host == puri.host and tgt.port.to_i == puri.port.to_i
+						tid = tgt.id
+						print_status("Target ID: #{tid}")
+					end
+				end
+			
+				seltgt = framework.db.get_target(tid)
+				if seltgt == nil
+					print_error("Target id not found.")
+				else
+					seltgt.selected = 1
+					seltgt.save
+					print_status("Testing")
+					cmd_wmap_run("")
+				end
+			end
 		end
 
 		def cmd_wmap_website(*args)
@@ -198,6 +245,7 @@ module Wmap
 				when '-h'
 					print_status("Usage: wmap_targets [options]")
 					print_line("\t-h 		Display this help text")
+					print_line("\t-c [url]  Crawl website (msfcrawler)")
 					print_line("\t-p 		Print all available targets")
 					print_line("\t-r 		Reload targets table")
 					print_line("\t-s [id]	Select target for testing")
@@ -1219,6 +1267,30 @@ module Wmap
 			print_status("Cmd: #{cmdline}")
 			print_status("Options: #{proxyopts}")
 			print_status("Executing proxy. pid: #{tpid}")
+			print_status("Done.")
+		end
+
+		#
+		# Run msf crawler
+		#
+
+		def cmd_wmap_crawl(*args)
+			cmdline = "ruby " + File.join(Msf::Config.install_root,"tools", "msfcrawler.rb")
+			defaultopts = ""
+
+			crawlopts = defaultopts + " " + args.join(" ")
+
+			tpid = 0
+			crawlpid = Process.fork
+			if crawlpid.nil?
+				exec cmdline + " " + crawlopts
+			else
+				tpid = crawlpid
+				Process.detach(crawlpid)
+			end
+			print_status("Cmd: #{cmdline}")
+			print_status("Options: #{crawlopts}")
+			print_status("Crawler. pid: #{tpid}")
 			print_status("Done.")
 		end
 
