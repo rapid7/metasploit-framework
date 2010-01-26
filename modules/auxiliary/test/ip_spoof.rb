@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 	def send(ip,buff)
 		begin
 			open_pcap
-			dst_mac,src_mac = lookup_eth
+			dst_mac,src_mac = lookup_eth(ip)
 			inject_eth(:payload => buff, 
 								 :eth_daddr => dst_mac,
 								 :eth_saddr => src_mac
