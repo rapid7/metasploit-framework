@@ -43,6 +43,8 @@ class Metasploit3 < Msf::Auxiliary
 			OptInt.new('BATCHSIZE', [true, "The number of hosts to scan per set", 256]),
 			OptString.new('INTERFACE', [false, 'The name of the interface'])
 		], self.class)
+
+		deregister_options('FILTER','PCAPFILE')
 	end
 
 	def run_batch_size

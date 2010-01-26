@@ -14,7 +14,7 @@ require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Ip
+	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
@@ -42,6 +42,8 @@ class Metasploit3 < Msf::Auxiliary
 			OptInt.new('BATCHSIZE', [true, "The number of hosts to scan per set", 256]),
 			OptString.new('INTERFACE', [false, 'The name of the interface'])
 		], self.class)
+
+		deregister_options('FILTER','PCAPFILE')
 	end
 
 	def run_batch_size
@@ -49,12 +51,10 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_batch(hosts)
-		socket = connect_ip(false)
-		return if not socket
 
 		raise "Pcaprub is not available" if not @@havepcap
 
-		pcap = ::Pcap.open_live(datastore['INTERFACE'] || ::Pcap.lookupdev, 68, false, 1)
+		pcap = open_pcap
 
 		ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
@@ -70,14 +70,20 @@ class Metasploit3 < Msf::Auxiliary
 			hosts.each do |dhost|
 				shost, sport = getsource(dhost)
 
-				pcap.setfilter(getfilter(shost, sport, dhost, dport))
+				dst_mac,src_mac = lookup_eth(dhost)
+				next if dst_mac == "ff:ff:ff:ff:ff:ff" # Skip unresolvable addresses
+
+				self.capture.setfilter(getfilter(shost, sport, dhost, dport))
 
 				begin
 					probe = buildprobe(shost, sport, dhost, dport)
 
-					socket.sendto(probe, dhost)
+					inject_eth(:payload => probe,
+										 :eth_daddr => dst_mac,
+										 :eth_saddr => src_mac
+										)
 
-					reply = readreply(pcap, to)
+					reply = probereply(self.capture, to)
 
 					next if not reply
 
@@ -91,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		disconnect_ip(socket)
+		close_pcap
 	end
 
 	def getfilter(shost, sport, dhost, dport)
@@ -129,7 +135,7 @@ class Metasploit3 < Msf::Auxiliary
 		n.pack
 	end
 
-	def readreply(pcap, to)
+	def probereply(pcap, to)
 		reply = nil
 
 		begin
