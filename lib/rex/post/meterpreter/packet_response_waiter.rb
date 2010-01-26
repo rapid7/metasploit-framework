@@ -54,24 +54,24 @@ class PacketResponseWaiter
 
 	#
 	# Waits for a given time interval for the response packet to arrive.
-  # If the interval is -1 we can wait forever.
+	# If the interval is -1 we can wait forever.
 	#
 	def wait(interval)
-    if( interval and interval == -1 )
-      while(not self.done)
-        select(nil, nil, nil, 0.1)
-      end 
-    else    
-      begin
-          Timeout.timeout(interval) {
-            while(not self.done)
-              select(nil, nil, nil, 0.1)
-            end
-          }
-      rescue Timeout::Error
-        self.response = nil
-      end
-    end    
+		if( interval and interval == -1 )
+			while(not self.done)
+				select(nil, nil, nil, 0.1)
+			end 
+		else    
+			begin
+				Timeout.timeout(interval) {
+					while(not self.done)
+						select(nil, nil, nil, 0.1)
+					end
+				}
+			rescue Timeout::Error
+				self.response = nil
+			end
+		end    
 		return self.response
 	end
 
