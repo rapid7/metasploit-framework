@@ -275,6 +275,9 @@ class DBManager
 					dlog("Unknown attribute for Service: #{k}")
 				end
 			}
+			if (service.state == nil)
+				service.state = "up"
+			end
 			if (service and service.changed?)
 				service.created = Time.now
 				service.save!
