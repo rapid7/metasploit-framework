@@ -13,26 +13,27 @@ class Msf::Module::Author
 		{
 			'hdm' 		=> 'hdm' + 0x40.chr + 'metasploit.com',
 			'spoonm' 	=> 'spoonm' + 0x40.chr + 'no$email.com',
-			'skape' 		=> 'mmiller' + 0x40.chr + 'hick.org',
+			'skape' 	=> 'mmiller' + 0x40.chr + 'hick.org',
 			'vlad902' 	=> 'vlad902' + 0x40.chr + 'gmail.com',
-			'optyx' 		=> 'optyx' + 0x40.chr + 'no$email.com',
+			'optyx' 	=> 'optyx' + 0x40.chr + 'no$email.com',
 			'anonymous'	=> 'anonymous-contributor' + 0x40.chr + 'metasploit.com',
 			'stinko' 	=> 'vinnie' + 0x40.chr + 'metasploit.com',
-			'MC' 			=> 'mc' + 0x40.chr + 'metasploit.com',
+			'MC' 		=> 'mc' + 0x40.chr + 'metasploit.com',
 			'cazz' 		=> 'bmc' + 0x40.chr + 'shmoo.com',
 			'pusscat' 	=> 'pusscat' + 0x40.chr + 'metasploit.com',
 			'skylined' 	=> 'skylined' + 0x40.chr + 'edup.tudelft.nl',
 			'patrick' 	=> 'patrick' + 0x40.chr + 'aushack.com',
-			'ramon' 		=> 'ramon' + 0x40.chr + 'risesecurity.org',
+			'ramon' 	=> 'ramon' + 0x40.chr + 'risesecurity.org',
 			'I)ruid' 	=> 'druid' +  0x40.chr + 'caughq.org',
-			'egypt' 		=> 'egypt' + 0x40.chr + 'metasploit.com',
+			'egypt' 	=> 'egypt' + 0x40.chr + 'metasploit.com',
 			'kris katterjohn' => 'katterjohn' + 0x40.chr + 'gmail.com',
-			'CG' 			=> 'cg' + 0x40.chr + 'carnal0wnage.com',
-			'et' 			=> 'et' + 0x40.chr + 'metasploit.com',
-			'sf' 			=> 'stephen_fewer' + 0x40.chr + 'harmonysecurity.com',
-			'kf' 			=> 'kf_list' + 0x40.chr + 'digitalmunition.com',
+			'CG' 		=> 'cg' + 0x40.chr + 'carnal0wnage.com',
+			'et' 		=> 'et' + 0x40.chr + 'metasploit.com',
+			'sf' 		=> 'stephen_fewer' + 0x40.chr + 'harmonysecurity.com',
+			'kf' 		=> 'kf_list' + 0x40.chr + 'digitalmunition.com',
 			'ddz' 		=> 'ddz' + 0x40.chr + 'theta44.org',
-			'jduck' 		=> 'jduck' + 0x40.chr + 'metasploit.com'
+			'jduck' 	=> 'jduck' + 0x40.chr + 'metasploit.com',
+			'natron'	=> 'natron' + 0x40.chr + 'metasploit.com'
 		}
 
 	#
