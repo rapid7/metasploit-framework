@@ -76,7 +76,7 @@ server = client.sys.process.open
 print_status("Escalating our process (PID:#{server.pid})...")
 print_line("")
 
-data = m_exec(client, "\"#{tempexe}\" #{server.pid}")
+data = m_exec(client, "cmd.exe /c cd \"#{tempdir}\" & #{tempexe} #{server.pid}")
 print_line(data)
 
 print_status("Deleting files...")
