@@ -47,6 +47,8 @@ class Metasploit3 < Msf::Auxiliary
 					OptAddress.new('LHOST', [true, "The spoofed address of a vulnerable ntpd server" ])
 				], self.class)
 
+			deregister_options('FILTER','PCAPFILE')
+
 	end
 
 	def run_host(ip)

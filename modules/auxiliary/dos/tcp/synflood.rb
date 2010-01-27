@@ -31,6 +31,8 @@ class Metasploit3 < Msf::Auxiliary
 			OptAddress.new('SHOST', [false, 'The spoofable source address (else randomizes)']),
 			OptInt.new('NUM', [false, 'Number of SYNs to send (else unlimited)'])
 		])
+		
+		deregister_options('FILTER','PCAPFILE')
 	end
 
 	def rport

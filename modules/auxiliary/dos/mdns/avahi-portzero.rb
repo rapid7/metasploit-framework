@@ -33,6 +33,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_options([
 			OptInt.new('RPORT', [true, 'The destination port', 5353])
 		])
+
+		deregister_options('FILTER','PCAPFILE')
 	end
 
 	def run

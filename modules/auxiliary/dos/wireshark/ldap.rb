@@ -38,6 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptAddress.new('SHOST', [false, 'This option can be used to specify a spoofed source address', nil])
 		], self.class)
 	
+		deregister_options('FILTER','PCAPFILE')
 	end
 
 	def run

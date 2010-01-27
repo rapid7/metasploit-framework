@@ -33,6 +33,8 @@ class Metasploit3 < Msf::Auxiliary
 			OptInt.new('SPORT', [true, 'The source port used to send the malicious HTTP response', 80]),
 			OptAddress.new('SHOST', [false, 'This option can be used to specify a spoofed source address', nil])
 		], self.class)
+
+		deregister_options('FILTER','PCAPFILE')
 	end
 
 	def run
