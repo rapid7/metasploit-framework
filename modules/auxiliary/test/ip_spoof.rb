@@ -27,9 +27,19 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE
 		)
 
+		begin
+			require 'pcaprub'
+			@@havepcap = true
+		rescue ::LoadError
+			@@havepcap = false
+		end
+
+		deregister_options('FILTER','PCAPFILE')
+
 	end
 
 	def run_host(ip)
+		open_pcap
 		n = Racket::Racket.new
 
 		n.l3 = Racket::L3::IPv4.new
@@ -53,17 +63,12 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			print_error("#{ip}: Packet not sent. Check permissions & interface.")
 		end
+		close_pcap
 	end
 
 	def send(ip,buff)
 		begin
-			open_pcap
-			dst_mac,src_mac = lookup_eth(ip)
-			inject_eth(:payload => buff, 
-								 :eth_daddr => dst_mac,
-								 :eth_saddr => src_mac
-								)
-			close_pcap
+			capture_sendto(buff, ip)
 		rescue RuntimeError => e
 			return :error
 		end
