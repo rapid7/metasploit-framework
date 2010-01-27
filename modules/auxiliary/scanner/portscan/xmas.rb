@@ -39,12 +39,12 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-10000"]),
-			OptInt.new('BATCHSIZE', [true, "The number of hosts to scan per set", 256])
+			OptInt.new('TIMEOUT', [true, "The reply read timeout in milliseconds", 500]),
+			OptInt.new('BATCHSIZE', [true, "The number of hosts to scan per set", 256]),
+			OptString.new('INTERFACE', [false, 'The name of the interface'])
 		], self.class)
 
 		deregister_options('FILTER','PCAPFILE')
-
-
 	end
 
 	def run_batch_size
@@ -52,38 +52,34 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_batch(hosts)
+		open_pcap
 
 		raise "Pcaprub is not available" if not @@havepcap
 
+		pcap = self.capture
+
 		ports = Rex::Socket.portspec_crack(datastore['PORTS'])
-		pcap = open_pcap
 
 		if ports.empty?
 			print_error("Error: No valid ports specified")
 			return
 		end
 
-		to = (datastore['TIMEOUT'] || 1000).to_f / 1000.0
+		to = (datastore['TIMEOUT'] || 500).to_f / 1000.0
 
 		# Spread the load across the hosts
 		ports.each do |dport|
 			hosts.each do |dhost|
 				shost, sport = getsource(dhost)
 
-				dst_mac,src_mac = lookup_eth(dhost)
-				next if dst_mac == "ff:ff:ff:ff:ff:ff" # Skip unresolvable addresses
-
-				self.capture.setfilter(getfilter(shost, sport, dhost, dport))
+				pcap.setfilter(getfilter(shost, sport, dhost, dport))
 
 				begin
 					probe = buildprobe(shost, sport, dhost, dport)
 
-					inject_eth(:payload => probe,
-										 :eth_daddr => dst_mac,
-										 :eth_saddr => src_mac
-										)
+					sendto(probe, dhost)
 
-					reply = probereply(self.capture, to)
+					reply = readreply(pcap, to)
 
 					next if reply # Got a RST back
 
@@ -134,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
 		n.pack
 	end
 
-	def probereply(pcap, to)
+	def readreply(pcap, to)
 		reply = nil
 
 		begin
