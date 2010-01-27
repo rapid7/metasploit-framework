@@ -14,7 +14,7 @@ require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Ip
+	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Dos
 
 	def initialize
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		return if not connect_ip
+		open_pcap
 
 		sent = 0
 		num = datastore['NUM']
@@ -72,12 +72,12 @@ class Metasploit3 < Msf::Auxiliary
 
 			pkt = n.pack
 
-			ip_write(pkt)
+			capture_sendto(pkt,rhost)
 
 			sent += 1
 		end
 
-		disconnect_ip
+		close_pcap
 	end
 end
 
