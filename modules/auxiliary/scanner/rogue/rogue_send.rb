@@ -47,23 +47,13 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		pcap = open_pcap
+		open_pcap
 
-		dst_mac,src_mac = lookup_eth(ip)
-		if dst_mac == "ff:ff:ff:ff:ff:ff"
-			print_error("#{ip}: Not reponding to ARP.")
-			return
-		end
+		pcap = self.capture
 
-		inject_eth(:payload => build_tcp_syn(ip),
-							 :eth_daddr => dst_mac,
-							 :eth_saddr => src_mac
-							)
+		capture_sendto(build_tcp_syn(ip), ip)
 
-		inject_eth(:payload => build_icmp(ip),
-							 :eth_daddr => dst_mac,
-							 :eth_saddr => src_mac
-							)
+		capture_sendto(build_icmp(ip), ip)
 
 		close_pcap
 	end
