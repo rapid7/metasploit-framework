@@ -193,7 +193,7 @@ class DBManager
 					dlog("Unknown attribute for Host: #{k}")
 				end
 			}
-			host.state     = HostState::Unknown if not host.state
+			host.state     = HostState::Up if not host.state
 			host.comm      = ''        if not host.comm
 			host.workspace = workspace if not host.workspace
 
@@ -1000,10 +1000,10 @@ class DBManager
 					refs = process_nexpose_data_sxml_refs(vuln)
 					next if not refs
 					report_vuln(
-						:host => addr, 
-						:port => sport, 
-						:proto => sprot, 
-						:name => 'NEXPOSE-' + vid, 
+						:host => addr,
+						:port => sport,
+						:proto => sprot,
+						:name => 'NEXPOSE-' + vid,
 						:data => vid,
 						:refs => refs)
 				end
