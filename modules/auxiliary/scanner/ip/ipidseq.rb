@@ -64,35 +64,29 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+		open_pcap
+
 		raise "Pcaprub is not available" if not @@havepcap
 		raise "SAMPLES option must be >= 2" if datastore['SAMPLES'] < 2
 
-		pcap = open_pcap
+		pcap = self.capture
 
 		shost = Rex::Socket.source_address(ip)
-		dst_mac,src_mac = lookup_eth(ip)
-		if dst_mac == "ff:ff:ff:ff:ff:ff"
-			print_error("#{ip}: Not reponding to ARP.")
-			return
-		end
 
 		to = (datastore['TIMEOUT'] || 500).to_f / 1000.0
 
 		ipids = []
 
-		self.capture.setfilter(getfilter(shost, ip, rport))
+		pcap.setfilter(getfilter(shost, ip, rport))
 
 		datastore['SAMPLES'].times do
 			sport = rand(0xffff - 1025) + 1025
 
 			probe = buildprobe(shost, sport, ip, rport)
 
-			inject_eth(:payload => probe,
-								 :eth_daddr => dst_mac,
-								 :eth_saddr => src_mac
-								)
+			capture_sendto(probe, ip)
 
-			reply = probereply(self.capture, to)
+			reply = probereply(pcap, to)
 
 			next if not reply
 
