@@ -15,7 +15,7 @@ require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Ip
+	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Scanner
 
 	def initialize(info = {})
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		print_status("Sending a mode 7 packet to host #{ip} from #{datastore['LHOST']}")
 
-		connect_ip if not ip_sock
+		open_pcap
 
 		n = Racket::Racket.new
 
@@ -72,7 +72,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		buff = n.pack
 
-		ip_sock.sendto(buff, ip)
+		capture_sendto(buff, ip)
+		close_pcap
 	end
 
 end
