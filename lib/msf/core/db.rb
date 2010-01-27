@@ -193,7 +193,7 @@ class DBManager
 					dlog("Unknown attribute for Host: #{k}")
 				end
 			}
-			host.state     = HostState::Up if not host.state
+			host.state     = HostState::Alive if not host.state
 			host.comm      = ''        if not host.comm
 			host.workspace = workspace if not host.workspace
 
@@ -424,6 +424,7 @@ class DBManager
 			if addr and not host
 				host = get_host(addr)
 			end
+
 			ntype = opts.delete(:type) || opts.delete(:ntype) || return
 			data  = opts[:data] || return
 
@@ -437,6 +438,7 @@ class DBManager
 				method << "_and_service_id"
 				args.push(opts[:service].id)
 			end
+
 			note = workspace.notes.send(method, *args)
 			if (note.changed?)
 				note.created = Time.now

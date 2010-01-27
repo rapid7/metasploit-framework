@@ -30,7 +30,13 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 		[
 			Opt::RPORT(123),
-			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
+			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256])
+		], self.class)
+
+
+		register_advanced_options(
+		[
+			OptBool.new('StoreNTPClients', [true, 'Store NTP clients as host records in the database', 'false'])
 		], self.class)
 	end
 
@@ -114,6 +120,14 @@ class Metasploit3 < Msf::Auxiliary
 					:type  => 'ntp.addresses',
 					:data  => {:addresses => @aliases[k].keys}
 				)
+			end
+
+			if (datastore['StoreNTPClients'])
+				print_status("#{k} Storing #{@results[k].length} NTP client hosts in the database...")
+				@results[k].each do |r|
+					maddr,mport,mserv = r
+					report_note(:host => maddr, :type => 'ntp.client.history', :data => {:address => maddr, :port => mport, :server => mserv})
+				end
 			end
 		end
 
