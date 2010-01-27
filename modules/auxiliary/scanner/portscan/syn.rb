@@ -51,10 +51,11 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_batch(hosts)
+		open_pcap
 
 		raise "Pcaprub is not available" if not @@havepcap
 
-		pcap = open_pcap
+		pcap = self.capture
 
 		ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
@@ -70,18 +71,12 @@ class Metasploit3 < Msf::Auxiliary
 			hosts.each do |dhost|
 				shost, sport = getsource(dhost)
 
-				dst_mac,src_mac = lookup_eth(dhost)
-				next if dst_mac == "ff:ff:ff:ff:ff:ff" # Skip unresolvable addresses
-
 				self.capture.setfilter(getfilter(shost, sport, dhost, dport))
 
 				begin
 					probe = buildprobe(shost, sport, dhost, dport)
 
-					inject_eth(:payload => probe,
-										 :eth_daddr => dst_mac,
-										 :eth_saddr => src_mac
-										)
+					capture_sendto(probe, dhost)
 
 					reply = probereply(self.capture, to)
 
