@@ -39,8 +39,12 @@ def m_exec(session, cmd)
 	b
 end
 
-print_status("Currently running as " + client.sys.config.getuid)
-print_line("")
+# Handle exceptions in the getuid() call
+begin
+	print_status("Currently running as " + client.sys.config.getuid)
+	print_line("")
+rescue ::Rex::Post::Meterpreter::RequestError
+end
 
 print_status("Loading the vdmallowed executable and DLL from the local system...")
 based = ::File.join(Msf::Config.install_root, "data", "exploits", "kitrap0d")
@@ -84,5 +88,9 @@ print_status("Deleting files...")
 client.fs.file.rm(tempexe)
 client.fs.file.rm(tempdll)
 
-print_status("Now running as " + client.sys.config.getuid)
+# Handle exceptions in the getuid() call
+begin
+	print_status("Now running as " + client.sys.config.getuid)
+rescue ::Rex::Post::Meterpreter::RequestError
+end
 
