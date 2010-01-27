@@ -14,7 +14,7 @@ require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Ip
+	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Scanner
 
 	def initialize
@@ -42,14 +42,30 @@ class Metasploit3 < Msf::Auxiliary
 			OptPort.new("CPORT", [true, "The source port for the TCP SYN packet", 13832]),
 			OptInt.new("ECHOID", [true, "The unique ICMP ECHO ID to embed into the packet", 7893]),
 		])
+		
+		deregister_options('FILTER','PCAPFILE')
 	end
 
 	def run_host(ip)
-		socket = connect_ip(false)
-		return if not socket
-		socket.sendto( build_tcp_syn(ip), ip)
-		socket.sendto( build_icmp(ip),    ip)
-		disconnect_ip(socket)
+		pcap = open_pcap
+
+		dst_mac,src_mac = lookup_eth(ip)
+		if dst_mac == "ff:ff:ff:ff:ff:ff"
+			print_error("#{ip}: Not reponding to ARP.")
+			return
+		end
+
+		inject_eth(:payload => build_tcp_syn(ip),
+							 :eth_daddr => dst_mac,
+							 :eth_saddr => src_mac
+							)
+
+		inject_eth(:payload => build_icmp(ip),
+							 :eth_daddr => dst_mac,
+							 :eth_saddr => src_mac
+							)
+
+		close_pcap
 	end
 
 	def build_tcp_syn(dst)
