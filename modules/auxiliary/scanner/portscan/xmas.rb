@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 				begin
 					probe = buildprobe(shost, sport, dhost, dport)
 
-					sendto(probe, dhost)
+					capture_sendto(probe, dhost)
 
 					reply = readreply(pcap, to)
 
