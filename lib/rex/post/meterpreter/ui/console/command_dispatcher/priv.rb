@@ -12,6 +12,7 @@ module Ui
 ###
 class Console::CommandDispatcher::Priv
 
+	require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/elevate'
 	require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/passwd'
 	require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/timestomp'
 
@@ -19,6 +20,7 @@ class Console::CommandDispatcher::Priv
 
 	Dispatchers = 
 		[
+			Klass::Elevate,
 			Klass::Passwd,
 			Klass::Timestomp,
 		]
