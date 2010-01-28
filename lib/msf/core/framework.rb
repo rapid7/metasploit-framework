@@ -233,17 +233,22 @@ class FrameworkEventSubscriber
 		#report_event(:name => "ui_start", :info => info)
 	end
 
-	def session_event(name, session)
+	def session_event(name, session, opts={})
+		address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
+
 		if framework.db.active
 			event = {
 				:name => name,
-				:host => session.sock.peerhost,
+				:host => address,
 				:info => {
 					:session_id  => session.sid,
 					:via_exploit => session.via_exploit
-				}
+				}.merge(opts)
 			}
 			report_event(event)
+		end
+		if session.respond_to? "alive" and not session.alive
+			framework.sessions.deregister(session)
 		end
 	end
 
@@ -262,18 +267,7 @@ class FrameworkEventSubscriber
 	end
 
 	def on_session_command(session, command)
-		if framework.db.active
-			event = {
-				:name => 'session_command',
-				:host => session.sock.peerhost,
-				:info => {
-					:session_id  => session.sid,
-					:via_exploit => session.via_exploit, 
-					:command => command
-				}
-			}
-			report_event(event)
-		end
+		session_event('session_interact', session, :command => command)
 	end
 
 
