@@ -46,7 +46,7 @@ class PacketResponseWaiter
 		self.response = response
 
 		if (self.completion_routine)
-			self.completion_routine(self.completion_param, response)
+			self.completion_routine.call(response, self.completion_param)
 		else
 			self.done = true
 		end

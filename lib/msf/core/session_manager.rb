@@ -71,6 +71,10 @@ class SessionManager < Hash
 			Rex::Socket::SwitchBoard.remove_by_comm(session)
 		end
 
+		if session.interactive?
+			session.interacting = false
+		end
+
 		# Remove it from the hash
 		self.delete(session.sid.to_i)
 

@@ -80,6 +80,8 @@ class Client
 		self.ext         = ObjectAliases.new
 		self.ext_aliases = ObjectAliases.new
 		self.response_timeout = to
+		self.send_keepalives  = true
+		self.alive       = true
 
 		# Switch the socket to SSL mode
 		swap_sock_plain_to_ssl()
@@ -312,6 +314,15 @@ class Client
 	# The timeout value to use when waiting for responses.
 	#
 	attr_accessor :response_timeout
+	#
+	# Whether to send pings every so often to determine liveness.
+	#
+	attr_accessor :send_keepalives
+	#
+	# Whether this session is alive.  If the socket is disconnected or broken,
+	# this will be false
+	#
+	attr_accessor :alive
 protected
 	attr_accessor :parser, :ext_aliases # :nodoc:
 	attr_writer   :ext, :sock # :nodoc:

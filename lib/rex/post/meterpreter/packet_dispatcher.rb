@@ -120,27 +120,68 @@ module PacketDispatcher
 	def monitor_socket
 		self.waiters = []
 
-		# Spawn a new thread that monitors the socket
-		self.dispatcher_thread = ::Thread.new do
-			@pqueue = []
-			@finish = false
+		@pqueue = []
+		@finish = false
+		@last_recvd = Time.now
+		@ping_sent = false
 
-			dthread = ::Thread.new do
-				while (true)
-					begin
-						rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, 0.25)
-						next if not rv
-						packet = receive_packet
-						@pqueue << packet if packet
-					rescue ::Exception
-						dlog("Exception caught in monitor_socket: #{$!}", 'meterpreter', LEV_1)
-						@finish = true
-						break
+		# Spawn a thread for receiving packets
+		dthread = ::Thread.new do
+			while (true)
+				begin
+					rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, 0.25)
+					ping_time = 60
+					# If there's nothing to read, and it's been awhile since we
+					# saw a packet, we need to send a ping.  We wait
+					# ping_time*2 seconds before deciding a session is dead.
+					if (not rv and self.send_keepalives and Time.now - @last_recvd > ping_time)
+						# If the queue is empty and we've already sent a
+						# keepalive without getting a reply, then this
+						# session is hosed, and we should give up on it.
+						if @ping_sent and @pqueue.empty? and (Time.now - @last_recvd > ping_time * 2)
+							dlog("No response to ping, session #{self.sid} is dead", LEV_3)
+							self.alive = false
+							@finish = true
+							break
+						end
+						# Let the packet queue processor finish up before
+						# we send a ping.
+						if not @ping_sent and @pqueue.empty?
+							# Our 'ping' is actually just a check for eof on
+							# channel id 0.  This method has no side effects
+							# and always returns an answer (regardless of the
+							# existence of chan 0), which is all that's
+							# needed for a liveness check.  The answer itself
+							# is unimportant and is ignored.
+							pkt = Packet.create_request('core_channel_eof')
+							pkt.add_tlv(TLV_TYPE_CHANNEL_ID, 0)
+							waiter = Proc.new { |response, param|
+									@ping_sent = false
+									@last_recvd = Time.now
+								}
+							send_packet(pkt, waiter)
+							@ping_sent = true
+						end
+						next
 					end
+					next if not rv
+					packet = receive_packet
+					@pqueue << packet if packet
+					@last_recvd = Time.now
+				rescue ::Exception
+					dlog("Exception caught in monitor_socket: #{$!}", 'meterpreter', LEV_1)
+					@finish = true
+					self.alive = false
+					break
 				end
 			end
+		end
 
+		# Spawn a new thread that monitors the socket
+		self.dispatcher_thread = ::Thread.new do
 			begin
+			# Whether we're finished or not is determined by the receiver
+			# thread above.
 			while(not @finish)
 				if(@pqueue.empty?)
 					select(nil, nil, nil, 0.10)

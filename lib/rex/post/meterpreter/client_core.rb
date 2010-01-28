@@ -166,6 +166,8 @@ class ClientCore < Extension
 	# by pid.  The connection to the server remains established.
 	#
 	def migrate( pid )
+		keepalive = client.send_keepalives
+		client.send_keepalives = false
 		process       = nil
 		binary_suffix = nil
 		
@@ -265,6 +267,7 @@ class ClientCore < Extension
 			client.core.use(e) 
 		}
 		
+		client.send_keepalives = keepalive
 		return true
 	end
 
