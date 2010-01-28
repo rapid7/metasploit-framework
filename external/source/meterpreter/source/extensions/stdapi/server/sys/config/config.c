@@ -457,9 +457,27 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
  */
 DWORD request_sys_config_rev2self(Remote *remote, Packet *packet)
 {
-	RevertToSelf();
+	DWORD dwResult    = ERROR_SUCCESS;
+	Packet * response = NULL;
+	
+	do
+	{
+		response = packet_create_response( packet );
+		if( !response )
+		{
+			dwResult = ERROR_INVALID_HANDLE;
+			break;
+		}
 
-	packet_transmit_empty_response(remote, packet, GetLastError());
+		core_update_thread_token( remote, NULL );
 
-	return ERROR_SUCCESS;
+		if( !RevertToSelf() )
+			dwResult = GetLastError();
+
+	} while( 0 );
+
+	if( response )
+		packet_transmit_response( dwResult, remote, response );
+
+	return dwResult;
 }
