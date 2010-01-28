@@ -78,7 +78,7 @@ class Framework
 		self.jobs      = Rex::JobContainer.new
 		self.plugins   = PluginManager.new(self)
 		self.db        = DBManager.new(self)
-		
+
 		subscriber = FrameworkEventSubscriber.new(self)
 		events.add_exploit_subscriber(subscriber)
 		events.add_session_subscriber(subscriber)
@@ -233,59 +233,51 @@ class FrameworkEventSubscriber
 		#report_event(:name => "ui_start", :info => info)
 	end
 
+	def session_event(name, session)
+		if framework.db.active
+			event = {
+				:name => name,
+				:host => session.sock.peerhost,
+				:info => {
+					:session_id  => session.sid,
+					:via_exploit => session.via_exploit
+				}
+			}
+			report_event(event)
+		end
+	end
+
 	require 'msf/core/session'
 	include ::Msf::SessionEvent
 	def on_session_open(session)
-		if framework.db.active
-			info = { :session_id => session.sid }
-			info[:via_exploit] = session.via_exploit
-
-			# Strip off the port
-			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
-			host = framework.db.find_or_create_host(:host=>address)
-
-			report_event(:name => "session_open", :info => info, :host_id => host.id)
-		end
+		session_event('session_open', session)
 	end
 
 	def on_session_close(session)
-		if framework.db.active
-			info = { :session_id => session.sid }
-
-			# Strip off the port
-			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
-			host = framework.db.find_or_create_host(:host=>address)
-
-			report_event(:name => "session_close", :info => info, :host_id => host.id)
-		end
+		session_event('session_close', session)
 	end
 
 	def on_session_interact(session)
-		if framework.db.active
-			info = { :session_id => session.sid }
-
-			# Strip off the port
-			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
-			host = framework.db.find_or_create_host(:host=>address)
-
-			report_event(:name => "session_interact", :info => info, :host_id => host.id)
-		end
+		session_event('session_interact', session)
 	end
 
 	def on_session_command(session, command)
 		if framework.db.active
-			info = { :session_id => session.sid, :command => command }
-
-			# Strip off the port
-			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
-			host = framework.db.find_or_create_host(:host=>address)
-
-			report_event(:name => "session_command", :info => info, :host_id => host.id)
+			event = {
+				:name => 'session_command',
+				:host => session.sock.peerhost,
+				:info => {
+					:session_id  => session.sid,
+					:via_exploit => session.via_exploit, 
+					:command => command
+				}
+			}
+			report_event(event)
 		end
 	end
 
 
-	# 
+	#
 	# This is covered by on_module_run and on_session_open, so don't bother
 	#
 	#require 'msf/core/exploit'

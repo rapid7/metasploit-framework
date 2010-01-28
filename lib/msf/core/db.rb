@@ -410,6 +410,7 @@ class DBManager
 		wait = opts.delete(:wait)
 		host = nil
 		addr = nil
+		# Report the host so it's there for the Proc to use below
 		if opts[:host]
 			if opts[:host].kind_of? Host
 				host = opts[:host]
@@ -659,7 +660,11 @@ class DBManager
 
 
 	def report_event(opts = {})
+		if opts[:host]
+			report_host(:host => opts[:host])
+		end
 		framework.db.queue(Proc.new {
+			opts[:host] = get_host(opts[:host]) if opts[:host]
 			Event.create(opts.merge(:workspace_id => workspace.id))
 		})
 	end
