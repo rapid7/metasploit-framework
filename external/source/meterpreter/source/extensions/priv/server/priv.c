@@ -16,6 +16,13 @@ EnableDelayLoadMetSrv();
 //#include "../../../ReflectiveDLLInjection/ReflectiveLoader.c"
 Command customCommands[] =
 {
+
+	// Elevate
+	{ "priv_elevate_getsystem",
+	  { elevate_getsystem,							      { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+
 	// Priv
 	{ "priv_passwd_get_sam_hashes",
 	  { request_passwd_get_sam_hashes,                     { 0 }, 0 },
