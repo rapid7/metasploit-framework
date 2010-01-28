@@ -19,10 +19,6 @@ typedef DWORD (WINAPI * EXECUTEX64)( X64FUNCTION pFunction, DWORD dwParameter );
 #define MIGRATE_TECHNIQUE_REMOTETHREADWOW64	1
 #define MIGRATE_TECHNIQUE_APCQUEUE			2
 
-// Simple macro's to save some space and clean up the code
-#define BREAK_ON_ERROR( str ) { dwResult = GetLastError(); dprintf( "%s. error=%d", str, dwResult ); break; }
-#define BREAK_ON_WSAERROR( str ) { dwResult = WSAGetLastError(); dprintf( "%s. error=%d", str, dwResult ); break; }
-
 // An external reference to the meterpreters main server thread, so we can shutdown gracefully after successfull migration.
 extern THREAD * serverThread;
 
