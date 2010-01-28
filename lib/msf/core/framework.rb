@@ -247,7 +247,7 @@ class FrameworkEventSubscriber
 			}
 			report_event(event)
 		end
-		if session.respond_to? "alive" and not session.alive
+		if name != 'session_close' and session.respond_to? "alive" and not session.alive
 			framework.sessions.deregister(session)
 		end
 	end
@@ -267,7 +267,7 @@ class FrameworkEventSubscriber
 	end
 
 	def on_session_command(session, command)
-		session_event('session_interact', session, :command => command)
+		session_event('session_command', session, :command => command)
 	end
 
 
