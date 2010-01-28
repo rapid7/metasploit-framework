@@ -234,10 +234,10 @@ print_line()
 print_line()
 users.keys.sort{|a,b| a<=>b}.each do |rid|
 	hashstring = "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::"
-	framework.db.report_auth_info(
+	@client.framework.db.report_auth_info(
 		:host  => client.sock.peerhost,
 		:proto => 'smb',
-		:user  => users[rid][:Name], 
+		:user  => users[rid][:Name],
 		:hash  => users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
 		:hash_string => hashstring,
 		:target_host => client.sock.peerhost
