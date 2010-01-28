@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "common\common.vcproj", "{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_priv", "ext_server_priv\ext_server_priv.vcproj", "{87C64204-C82F-415D-AF45-D0B33BDFE39A}"
@@ -8,6 +8,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_priv", "ext_serv
 		{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA} = {9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}
 		{72F0246A-A38D-4547-9057-46020E8E503D} = {72F0246A-A38D-4547-9057-46020E8E503D}
 		{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB} = {37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}
+		{662AFBB3-F64A-4AD1-8956-B9F1B846231C} = {662AFBB3-F64A-4AD1-8956-B9F1B846231C}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_stdapi", "ext_server_stdapi\ext_server_stdapi.vcproj", "{405245AB-0071-4CB9-BFBE-ED4E2A987EFF}"
@@ -154,6 +155,7 @@ Global
 		{662AFBB3-F64A-4AD1-8956-B9F1B846231C}.Release|Win32.ActiveCfg = Release|Win32
 		{662AFBB3-F64A-4AD1-8956-B9F1B846231C}.Release|Win32.Build.0 = Release|Win32
 		{662AFBB3-F64A-4AD1-8956-B9F1B846231C}.Release|x64.ActiveCfg = Release|x64
+		{662AFBB3-F64A-4AD1-8956-B9F1B846231C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

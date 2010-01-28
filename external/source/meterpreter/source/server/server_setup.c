@@ -206,6 +206,8 @@ static BOOL server_destroy_ssl( Remote * remote )
 	if( remote == NULL )
 		return FALSE;
 
+	dprintf("[SERVER] Destroying SSL");
+
 	lock_acquire( remote->lock );
 
 	SSL_free( remote->ssl );
@@ -345,6 +347,8 @@ DWORD server_setup( SOCKET fd )
 {
 	Remote *remote = NULL;
 	DWORD res      = 0;
+
+	dprintf("[SERVER] Initializing...");
 
 #ifdef _UNIX
 	int local_error = 0;

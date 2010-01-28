@@ -346,12 +346,28 @@
 				RelativePath="..\..\source\elevator\elevator.c"
 				>
 			</File>
+			<File
+				RelativePath="..\..\source\elevator\namedpipeservice.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\elevator\tokendup.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			>
 			<File
 				RelativePath="..\..\source\elevator\elevator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\elevator\namedpipeservice.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\elevator\tokendup.h"
 				>
 			</File>
 		</Filter>
