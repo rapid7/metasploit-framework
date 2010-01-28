@@ -1,6 +1,11 @@
 #ifndef _METERPRETER_SOURCE_ELEVATOR_ELEVATOR_H
 #define _METERPRETER_SOURCE_ELEVATOR_ELEVATOR_H
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 //#define DEBUGTRACE
 
 #ifdef DEBUGTRACE
@@ -17,6 +22,9 @@ static void real_dprintf(char *format, ...) {
 	strcat_s(buffer, sizeof(buffer), "\r\n");
 	OutputDebugString(buffer);
 }
+
+// Simple macro to close a handle and set the handle to NULL.
+#define CLOSE_HANDLE( h )	if( h ) { CloseHandle( h ); h = NULL; }
 
 #define BREAK_ON_ERROR( str ) { dwResult = GetLastError(); dprintf( "%s. error=%d", str, dwResult ); break; }
 #define BREAK_WITH_ERROR( str, err ) { dwResult = err; dprintf( "%s. error=%d", str, dwResult ); break; }
