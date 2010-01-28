@@ -518,6 +518,18 @@
 					RelativePath="..\..\source\extensions\priv\server\elevate\service.c"
 					>
 				</File>
+				<Filter
+					Name="Techniques"
+					>
+					<File
+						RelativePath="..\..\source\extensions\priv\server\elevate\namedpipe.c"
+						>
+					</File>
+					<File
+						RelativePath="..\..\source\extensions\priv\server\elevate\tokendup.c"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="Fs"
@@ -586,6 +598,18 @@
 					RelativePath="..\..\source\extensions\priv\server\elevate\service.h"
 					>
 				</File>
+				<Filter
+					Name="Techniques"
+					>
+					<File
+						RelativePath="..\..\source\extensions\priv\server\elevate\namedpipe.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\source\extensions\priv\server\elevate\tokendup.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="Fs"
