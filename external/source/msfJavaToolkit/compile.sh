@@ -1,7 +1,7 @@
 #!/bin/bash
 
-javac -classpath $JAVA_HOME/lib/tools.jar:. javaCompile/*.java sun/security/tools/*.java
+javac -classpath $JAVA_HOME/lib/tools.jar:. javaCompile/*.java
 
-jar -cf msfJavaToolkit.jar javaCompile/*.class sun/security/tools/*.class
+jar -cf msfJavaToolkit.jar javaCompile/*.class
 
 mv msfJavaToolkit.jar ../../../data/exploits/

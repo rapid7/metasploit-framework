@@ -9,13 +9,15 @@ Rjb::load(ENV['JAVA_HOME'] + '/lib/tools.jar:.',jvmargs=[])
 # versions of the JDK.  Need to find a better way to use sun.security.tools.KeyTool
 # and .JarSigner than modifying the source.  These rely on internal APIs that may
 # change.
-clsKeyTool = Rjb::import('sun.security.tools.KeyTool')
+signer = Rjb::import('javaCompile.SignJar')
+#clsKeyTool = Rjb::import('sun.security.tools.KeyTool')
 #clsKeyTool = Rjb::import('sun.security.tools.KeyToolMSF')
-clsJarSigner = Rjb::import('sun.security.tools.JarSigner')
+#clsJarSigner = Rjb::import('javaCompile.SignJar.JarSignerMSF')
+#clsJarSigner = Rjb::import('sun.security.tools.JarSigner')
 #clsJarSigner = Rjb::import('sun.security.tools.JarSignerMSF')
 
-keytool = clsKeyTool
-jarsigner = clsJarSigner
+#keytool = clsKeyTool
+#jarsigner = clsJarSigner
 
 outputJar = "output.jar"
 
@@ -30,13 +32,13 @@ keytoolOpts 	= ["-genkey", "-alias", "signFiles", "-keystore", "msfkeystore",
 		   "-keypass", "msfkeypass"]
 
 
-keytool._invoke('main','[Ljava.lang.String;',keytoolOpts)
+signer._invoke('KeyToolMSF','[Ljava.lang.String;',keytoolOpts)
 
 
 jarsignerOpts	= ["-keystore", "msfkeystore", "-storepass", "msfstorepass",
 		   "-keypass", "msfkeypass", "-signedJar", "s#{outputJar}",
 		   outputJar, "signFiles"]
 
-jarsigner._invoke('main','[Ljava.lang.String;',jarsignerOpts)
+signer._invoke('JarSignerMSF','[Ljava.lang.String;',jarsignerOpts)
 
 

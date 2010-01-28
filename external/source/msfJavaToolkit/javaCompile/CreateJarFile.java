@@ -22,7 +22,7 @@ public class CreateJarFile {
 				if (tobeJared[i] == null || !tobeJared[i].exists()
 						|| tobeJared[i].isDirectory())
 					continue; // Just in case...
-				System.out.println("Adding " + tobeJared[i].getName());
+				//System.out.println("Adding " + tobeJared[i].getName());
 
 				// Add archive entry
 				JarEntry jarAdd = new JarEntry(tobeJared[i].getName());
@@ -42,7 +42,7 @@ public class CreateJarFile {
 
 			out.close();
 			stream.close();
-			System.out.println("Adding completed OK");
+			//System.out.println("Adding completed OK");
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println("Error: " + ex.getMessage());

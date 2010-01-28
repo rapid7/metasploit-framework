@@ -8,7 +8,8 @@ Rjb::load("#{ENV['JAVA_HOME']}/lib/tools.jar:.",jvmargs=[])
 
 clsJavaCompile 	= Rjb::import('javaCompile.CompileSourceInMemory')
 clsCreateJar	= Rjb::import('javaCompile.CreateJarFile')
-clsFile		= Rjb::import('java.io.File')
+clsFile			= Rjb::import('java.io.File')
+system			= Rjb::import('java.lang.System')
 #clsString	= Rjb::import('java.lang.String')
 
 classNames = [ "HelloWorld1", "HelloWorld2" ]
@@ -24,7 +25,8 @@ public class #{name} {
 }^}
 
 #compileOpts = [""]
-outputDir	= "testoutdir"
+#outputDir		= system.getProperty('java.io.tmpdir')
+outputDir		= "testoutdir"
 compileOpts 	= [ "-target", "1.3", "-source", "1.3", "-d", outputDir ]
 
 success = clsJavaCompile._invoke('CompileFromMemory','[Ljava.lang.String;[Ljava.lang.String;[Ljava.lang.String;', classNames, codez, compileOpts)
