@@ -14,7 +14,7 @@ require 'msf/core'
 
 
 class Metasploit3 < Msf::Auxiliary
-        
+
 	include Msf::Exploit::Remote::DB2
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -46,9 +46,9 @@ class Metasploit3 < Msf::Auxiliary
 				report_info = "#{plat} : #{ver} : #{inst} : PlainAuth-#{pta ? "OK" : "NO"}"
 				print_status("#{ip}:#{rport} [DB2] #{report_info}")
 				report_service(:host => rhost, 
-											 :port => rport,
-											 :name => "db2",
-											 :info => report_info)
+					:port => rport,
+					:name => "db2",
+					:info => report_info)
 			end
 			disconnect
 		

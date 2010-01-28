@@ -25,7 +25,7 @@ end
 # Currently, only takes a MGRLVLLS param. Extend the struct 
 # when more parameters are defined.
 class EXCSAT_DDM < Struct.new(:length, :magic, :format, :correlid, :length2,
-													 :codepoint, :mgrlvlls) 
+	 :codepoint, :mgrlvlls) 
 
 	def initialize(args={})
 		self[:magic] = 0xd0
@@ -84,7 +84,7 @@ end
 # also sets the relational database name (RDBNAM), if specified. You need
 # one to login, but not to probe.
 class ACCSEC_DDM < Struct.new(:length, :magic, :format, :correlid, :length2,
-													 :codepoint, :secmec, :rdbnam)
+	 :codepoint, :secmec, :rdbnam)
 	def initialize(args={})
 		self[:magic] = 0xd0
 		self[:format] = args[:format] || 0x01
@@ -127,7 +127,7 @@ class DDM_PARAM < Struct.new(:length, :codepoint, :payload)
 end
 
 class BASIC_DDM < Struct.new(:length, :magic, :format, :correlid,
-															 :length2, :codepoint, :payload)
+	:length2, :codepoint, :payload)
 	def initialize
 		self[:payload] = []
 	end
@@ -219,7 +219,7 @@ class USERID_PARAM < Struct.new(:length, :codepoint, :payload)
 end
 
 class SECCHK_DDM < Struct.new(:length, :magic, :format, :correlid, :length2,
-													 :codepoint, :secmec, :rdbnam, :password, :userid)
+	:codepoint, :secmec, :rdbnam, :password, :userid)
 	def initialize(args={}) # Takes :dbname, :dbpass, :dbuser
 		self[:magic] = 0xd0
 		self[:format] = 0x01
