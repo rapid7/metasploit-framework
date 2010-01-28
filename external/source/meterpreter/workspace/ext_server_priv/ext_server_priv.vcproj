@@ -417,12 +417,8 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Source"
+			Name="Source Files"
 			>
-			<File
-				RelativePath="..\..\source\extensions\priv\server\precomp.h"
-				>
-			</File>
 			<File
 				RelativePath="..\..\source\extensions\priv\server\priv.c"
 				>
@@ -467,10 +463,6 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath="..\..\source\extensions\priv\priv.h"
-				>
-			</File>
 			<Filter
 				Name="Password"
 				>
@@ -514,8 +506,16 @@
 						/>
 					</FileConfiguration>
 				</File>
+			</Filter>
+			<Filter
+				Name="Elevate"
+				>
 				<File
-					RelativePath="..\..\source\extensions\priv\server\passwd.h"
+					RelativePath="..\..\source\extensions\priv\server\elevate\elevate.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\extensions\priv\server\elevate\service.c"
 					>
 				</File>
 			</Filter>
@@ -562,8 +562,44 @@
 						/>
 					</FileConfiguration>
 				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			>
+			<File
+				RelativePath="..\..\source\extensions\priv\server\precomp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\extensions\priv\priv.h"
+				>
+			</File>
+			<Filter
+				Name="Elevate"
+				>
+				<File
+					RelativePath="..\..\source\extensions\priv\server\elevate\elevate.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\extensions\priv\server\elevate\service.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Fs"
+				>
 				<File
 					RelativePath="..\..\source\extensions\priv\server\fs.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Password"
+				>
+				<File
+					RelativePath="..\..\source\extensions\priv\server\passwd.h"
 					>
 				</File>
 			</Filter>
