@@ -161,7 +161,7 @@ class BASIC_DDM < Struct.new(:length, :magic, :format, :correlid,
 		elsif self[:length2] < 4
 			raise DRDA::RespError, "DDM Length2 is too short."
 		elsif self[:length]-6 != self[:length2]
-			raise DRDA::RespError, "DDM Length2 isn't six less than Length."
+			raise DRDA::RespError, "Codepoint: 0x#{self[:codepoint].to_s(16)} DDM Length2 (0x#{self[:length2].to_s(16)}) isn't six less than Length (0x#{self[:length].to_s(16)})"
 		end
 	end
 

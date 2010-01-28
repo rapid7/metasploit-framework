@@ -37,6 +37,7 @@ SQLCARD    = 0x2408 # SQL Communications Area Reply Data
 SECCHKRM   = 0x1219 # Security Check Response Message
 SRVCOD     = 0x1149 # Severity Code
 SECCHKCD   = 0x11a4 # Security Check Code
+ACCRDBRM   = 0x2201 # Access to RDB Completed
 
 def self.const_values
 	self.constants.map {|x| self.const_get x}
