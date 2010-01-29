@@ -70,6 +70,8 @@ class Priv < Extension
 		technique = response.get_tlv_value( TLV_TYPE_ELEVATE_TECHNIQUE )
 		
 		if( response.result == 0 and technique != nil )
+			client.core.use( "stdapi" ) if not client.ext.aliases.include?( "stdapi" )
+			client.sys.config.getprivs
 			return [ true, technique ]
 		end
 		
