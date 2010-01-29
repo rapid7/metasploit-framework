@@ -104,17 +104,24 @@ DWORD ps_getnativearch( VOID )
 }
 
 /*
- * Attempt to get the processes path and name. First try to use psapi!GetModuleFileNameExA. 
- * If that fails then try to read the path via the process's PEB.
+ * Attempt to get the processes path and name.
+ * First, try psapi!GetModuleFileNameExA (Windows 2000/XP/2003/Vista/2008/7 but cant get x64 process paths from a wow64 process)
+ * Secondly, try kernel32!QueryFullProcessImageNameA (Windows Vista/2008/7)
+ * Thirdly, try psapi!GetProcessImageFileNameA (Windows XP/2003/Vista/2008/7 - returns native path)
+ * If that fails then try to read the path via the process's PEB. (Windows NT4 and above).
  * Note: cpExeName is optional and only retrieved by parsing the PEB as the toolhelp/psapi techniques can get the name easier.
  */
 BOOL ps_getpath( DWORD pid, char * cpExePath, DWORD dwExePathSize, char * cpExeName, DWORD dwExeNameSize )
 {
-	BOOL success                               = FALSE;
-	HANDLE hProcess                            = NULL;
-	GETMODULEFILENAMEEXA pGetModuleFileNameExA = NULL;
-	HMODULE hPsapi                             = NULL;
-	HMODULE hNtdll                             = NULL;
+	BOOL success    = FALSE;
+	HANDLE hProcess = NULL;
+	HMODULE hPsapi  = NULL;
+	HMODULE hNtdll  = NULL;
+	// make these static to avoid some overhead when resolving due to the repeated calls to ps_getpath fo a ps command...
+	static GETMODULEFILENAMEEXA pGetModuleFileNameExA             = NULL;
+	static GETPROCESSIMAGEFILENAMEA pGetProcessImageFileNameA     = NULL;
+	static QUERYFULLPROCESSIMAGENAMEA pQueryFullProcessImageNameA = NULL;
+
 	do
 	{
 		if( !cpExePath || !dwExePathSize )
@@ -126,17 +133,53 @@ BOOL ps_getpath( DWORD pid, char * cpExePath, DWORD dwExePathSize, char * cpExeN
 		if( !hProcess )
 			break;
 				
+		// first, try psapi!GetModuleFileNameExA (Windows 2000/XP/2003/Vista/2008/7 but cant get x64 process paths from a wow64 process)
 		hPsapi = LoadLibrary( "psapi" );
 		if( hPsapi )
 		{
-			pGetModuleFileNameExA = (GETMODULEFILENAMEEXA)GetProcAddress( hPsapi, "GetModuleFileNameExA" );
+			if( !pGetModuleFileNameExA )
+				pGetModuleFileNameExA = (GETMODULEFILENAMEEXA)GetProcAddress( hPsapi, "GetModuleFileNameExA" );
+
 			if( pGetModuleFileNameExA )
-			{
+			{	
 				if( pGetModuleFileNameExA( hProcess, NULL, cpExePath, dwExePathSize ) )
+					success = TRUE;	
+			}
+		}
+
+		// secondly, try kernel32!QueryFullProcessImageNameA (Windows Vista/2008/7)
+		if( !success )
+		{
+			DWORD dwSize   = dwExePathSize;
+			HANDLE hKernel = LoadLibraryA( "kernel32" );
+
+			if( !pQueryFullProcessImageNameA )
+				pQueryFullProcessImageNameA = (QUERYFULLPROCESSIMAGENAMEA)GetProcAddress( hKernel, "QueryFullProcessImageNameA" );
+			
+			if( pQueryFullProcessImageNameA )
+			{
+				if( pQueryFullProcessImageNameA( hProcess, 0, cpExePath, &dwSize ) )
+					success = TRUE;
+			}
+
+			if( hKernel )
+				FreeLibrary( hKernel );
+		}	
+
+		// thirdly, try psapi!GetProcessImageFileNameA (Windows XP/2003/Vista/2008/7 - returns a native path not a win32 path)
+		if( !success && hPsapi )
+		{
+			if( !pGetProcessImageFileNameA )
+				pGetProcessImageFileNameA = (GETPROCESSIMAGEFILENAMEA)GetProcAddress( hPsapi, "GetProcessImageFileNameA" );
+
+			if( pGetProcessImageFileNameA )
+			{
+				if( pGetProcessImageFileNameA( hProcess, cpExePath, dwExePathSize ) )
 					success = TRUE;
 			}
 		}
 
+		// finally if all else has failed, manually pull the exe path/name out of th PEB...
 		if( !success )
 		{
 			WCHAR * wcImagePathName                              = NULL;
@@ -200,6 +243,9 @@ BOOL ps_getpath( DWORD pid, char * cpExePath, DWORD dwExePathSize, char * cpExeN
 
 	if( hProcess )
 		CloseHandle( hProcess );
+
+	if( !success && cpExePath )
+		memset( cpExePath, 0, dwExePathSize );
 
 	return success;
 }
