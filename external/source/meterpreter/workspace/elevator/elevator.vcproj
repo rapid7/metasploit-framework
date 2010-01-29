@@ -244,7 +244,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /y &quot;$(ProjectDir)\release\elevator.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
+				CommandLine="editbin.exe /OSVERSION:4.0 /SUBSYSTEM:WINDOWS,4.0 &quot;$(ProjectDir)\release\elevator.dll&quot;&#x0D;&#x0A;copy /y &quot;$(ProjectDir)\release\elevator.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -346,14 +346,22 @@
 				RelativePath="..\..\source\elevator\elevator.c"
 				>
 			</File>
-			<File
-				RelativePath="..\..\source\elevator\namedpipeservice.c"
+			<Filter
+				Name="Techniques"
 				>
-			</File>
-			<File
-				RelativePath="..\..\source\elevator\tokendup.c"
-				>
-			</File>
+				<File
+					RelativePath="..\..\source\elevator\kitrap0d.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\elevator\namedpipeservice.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\elevator\tokendup.c"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -362,14 +370,22 @@
 				RelativePath="..\..\source\elevator\elevator.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\source\elevator\namedpipeservice.h"
+			<Filter
+				Name="Techniques"
 				>
-			</File>
-			<File
-				RelativePath="..\..\source\elevator\tokendup.h"
-				>
-			</File>
+				<File
+					RelativePath="..\..\source\elevator\kitrap0d.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\elevator\namedpipeservice.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\elevator\tokendup.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

@@ -522,6 +522,10 @@
 					Name="Techniques"
 					>
 					<File
+						RelativePath="..\..\source\extensions\priv\server\elevate\kitrap0d.c"
+						>
+					</File>
+					<File
 						RelativePath="..\..\source\extensions\priv\server\elevate\namedpipe.c"
 						>
 					</File>
@@ -601,6 +605,10 @@
 				<Filter
 					Name="Techniques"
 					>
+					<File
+						RelativePath="..\..\source\extensions\priv\server\elevate\kitrap0d.h"
+						>
+					</File>
 					<File
 						RelativePath="..\..\source\extensions\priv\server\elevate\namedpipe.h"
 						>
