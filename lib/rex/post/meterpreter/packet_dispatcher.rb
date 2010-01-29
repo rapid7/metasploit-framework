@@ -125,6 +125,8 @@ module PacketDispatcher
 		@last_recvd = Time.now
 		@ping_sent = false
 
+		self.alive = true
+
 		# Spawn a thread for receiving packets
 		dthread = ::Thread.new do
 			while (true)
@@ -176,6 +178,8 @@ module PacketDispatcher
 				end
 			end
 		end
+
+		self.receiver_thread = dthread
 
 		# Spawn a new thread that monitors the socket
 		self.dispatcher_thread = ::Thread.new do
@@ -265,6 +269,19 @@ module PacketDispatcher
 		return parser.recv(self.sock)
 	end
 
+	#
+	# Stop the monitor
+	#
+	def monitor_stop
+		if(self.receiver_thread)
+			self.receiver_thread.kill
+			self.receiver_thread = nil
+		end
+		if(self.dispatcher_thread)
+			self.dispatcher_thread.kill
+			self.dispatcher_thread = nil
+		end
+	end
 
 	##
 	#
@@ -385,6 +402,7 @@ module PacketDispatcher
 
 protected
 
+	attr_accessor :receiver_thread # :nodoc:
 	attr_accessor :dispatcher_thread # :nodoc:
 	attr_accessor :waiters # :nodoc:
 end

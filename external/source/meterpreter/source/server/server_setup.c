@@ -313,8 +313,10 @@ static DWORD server_dispatch( Remote * remote )
 		if( result > 0 )
 		{
 			result = packet_receive( remote, &packet );
-			if( result != ERROR_SUCCESS )
+			if( result != ERROR_SUCCESS ) {
+				dprintf( "[DISPATCH] packet_receive returned %d, exiting dispatcher...", result );		
 				break;
+			}
 
 			cpt = thread_create( command_process_thread, remote, packet );
 			if( cpt )
@@ -325,6 +327,7 @@ static DWORD server_dispatch( Remote * remote )
 		}
 		else if( result < 0 )
 		{
+			dprintf( "[DISPATCH] server_socket_poll returned %d, exiting dispatcher...", result );
 			break;
 		}
 	}

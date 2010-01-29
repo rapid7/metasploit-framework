@@ -98,33 +98,28 @@ class Client
 	end
 
 	def swap_sock_plain_to_ssl
-
 		# Create a new SSL session on the existing socket
 		ctx = generate_ssl_context()
 		ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
 
 		ssl.accept
 
-		sock.extend(Rex::Socket::SslTcp)
-		sock.sslsock = ssl
-		sock.sslctx  = ctx
+		self.sock.extend(Rex::Socket::SslTcp)
+		self.sock.sslsock = ssl
+		self.sock.sslctx  = ctx
 
-		tag = sock.read(18)
+		tag = self.sock.read(18)
 		if(not tag or tag != "GET / HTTP/1.0\r\n\r\n")
 			raise RuntimeError, "Could not read the SSL hello tag"
 		end
 	end
 
 	def swap_sock_ssl_to_plain
-
 		# Remove references to the SSLSocket and Context
+		self.sock.sslsock.close
 		self.sock.sslsock = nil
 		self.sock.sslctx  = nil
-
-		# Force garbage cleanup / SSL_free()
-		GC.start()
-
-		self.sock =  self.sock.fd
+		self.sock = self.sock.fd
 		self.sock.extend(::Rex::Socket::Tcp)
 	end
 

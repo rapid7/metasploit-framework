@@ -653,8 +653,6 @@ DWORD remote_request_core_migrate( Remote * remote, Packet * packet )
 		if( !DuplicateHandle( GetCurrentProcess(), hEvent, hProcess, &ctx.e.hEvent, 0, TRUE, DUPLICATE_SAME_ACCESS ) )
 			BREAK_ON_ERROR( "[MIGRATE] DuplicateHandle failed" )
 
-		dprintf("EventHandle is %d (local) and %d (remote)", hEvent, ctx.e.hEvent);
-
 		// Get the architecture specific process migration stub...
 		if( dwDestinationArch == PROCESS_ARCH_X86 )
 		{
@@ -706,7 +704,7 @@ DWORD remote_request_core_migrate( Remote * remote, Packet * packet )
 		// Signal the main server thread to begin the shutdown as migration has been successfull.
 		// If the thread is not killed, the pending packet_receive prevents the new process
 		// from being able to negotiate SSL.
-		dprintf("[MIGRATE] Shutting down the Meterpreter thread 1 (signaling main thread)...");
+		dprintf("[MIGRATE] Shutting down the Meterpreter thread 1 (killing the main thread)...");
 		thread_kill( serverThread );
 
 		// Wait at most 15 seconds for the event to be set letting us know that it's finished
@@ -714,9 +712,7 @@ DWORD remote_request_core_migrate( Remote * remote, Packet * packet )
 		if( WaitForSingleObjectEx( hEvent, 15000, FALSE ) != WAIT_OBJECT_0 )
 			dprintf("[MIGRATE] WaitForSingleObjectEx failed with no way to recover");
 			// BREAK_ON_ERROR( "[MIGRATE] WaitForSingleObjectEx failed" )
-
 		dwResult = ERROR_SUCCESS;
-
 	} while( 0 );
 
 	// If we failed and have not sent the response, do so now

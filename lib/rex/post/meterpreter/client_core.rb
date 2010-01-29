@@ -18,12 +18,12 @@ module Meterpreter
 #
 ###
 class ClientCore < Extension
-	
+
 	#
 	# Initializes the 'core' portion of the meterpreter client commands.
 	#
 	def initialize(client)
-		super(client, "core")	
+		super(client, "core")
 	end
 
 	##
@@ -83,7 +83,7 @@ class ClientCore < Extension
 		# If we must upload the library, do so now
 		if ((load_flags & LOAD_LIBRARY_FLAG_LOCAL) != LOAD_LIBRARY_FLAG_LOCAL)
 			image = ''
-			
+
 			::File.open(library_path, 'rb') { |f|
 				image = f.read
 			}
@@ -130,7 +130,7 @@ class ClientCore < Extension
 	#
 	#	Module
 	#		The module that should be loaded
-	#	
+	#
 	#	LoadFromDisk
 	#		Indicates that the library should be loaded from disk, not from
 	#		memory on the remote machine
@@ -142,7 +142,7 @@ class ClientCore < Extension
 		# Get us to the installation root and then into data/meterpreter, where
 		# the file is expected to be
 		path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter', 'ext_server_' + mod.downcase + ".#{client.binary_suffix}")
-		
+
 		if (opts['ExtensionPath'])
 			path = opts['ExtensionPath']
 		end
@@ -170,10 +170,10 @@ class ClientCore < Extension
 		client.send_keepalives = false
 		process       = nil
 		binary_suffix = nil
-		
+
 		# Load in the stdapi extension if not allready present so we can determine the target pid architecture...
 		client.core.use( "stdapi" ) if not client.ext.aliases.include?( "stdapi" )
-		
+
 		# Determine the architecture for the pid we are going to migrate into...
 		client.sys.process.processes.each { | p |
 			if( p['pid'] == pid )
@@ -181,26 +181,26 @@ class ClientCore < Extension
 				break
 			end
 		}
-		
+
 		# We cant migrate into a process that does not exist.
 		if( process == nil )
 			raise ArgumentError, "Cannot migrate into non existant process", caller
 		end
-		
+
 		# We cant migrate into a process that we are unable to open
 		if( process['arch'] == nil )
 			raise ArgumentError, "Cannot migrate into this process (insufficient privileges)", caller
 		end
-		
+
 		# And we also cant migrate into our own current process...
 		if( process['pid'] == client.sys.process.getpid )
 			raise ArgumentError, "Cannot migrate into current process", caller
 		end
-	
+
 		# Create a new payload stub
 		c = Class.new( ::Msf::Payload )
 		c.include( ::Msf::Payload::Stager )
-		
+
 		# Include the appropriate reflective dll injection module for the target process architecture...
 		if( process['arch'] == ARCH_X86 )
 			c.include( ::Msf::Payload::Windows::ReflectiveDllInject )
@@ -215,9 +215,9 @@ class ClientCore < Extension
 		# Create the migrate stager
 		migrate_stager = c.new()
 		migrate_stager.datastore['DLL'] = ::File.join( Msf::Config.install_root, "data", "meterpreter", "metsrv.#{binary_suffix}" )
-		
+
 		payload = migrate_stager.stage_payload
-		
+
 		# Build the migration request
 		request = Packet.create_request( 'core_migrate' )
 		request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
@@ -228,12 +228,12 @@ class ClientCore < Extension
 		else
 			request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
 		end
-		
+
 		# Send the migration request (bump up the timeout to 60 seconds)
 		response = client.send_request( request, 60 )
-		
-		# Stop the socket monitor
-		client.dispatcher_thread.kill if client.dispatcher_thread 
+
+		# Disable the socket request monitor
+		client.monitor_stop
 
 		###
 		# Now communicating with the new process
@@ -242,15 +242,10 @@ class ClientCore < Extension
 		# Renegotiate SSL over this socket
 		client.swap_sock_ssl_to_plain()
 		client.swap_sock_plain_to_ssl()
-		
+
 		# Restart the socket monitor
 		client.monitor_socket
-		
-		# Give the stage some time to transmit
-		# sf: the stage is sent in the migrate request so this may not be needed?
-		# sf: also, as the call to ssl.accept (client.swap_sock_plain_to_ssl) blocks we shouldnt need to wait.
-		#Rex::ThreadSafe.sleep( 5 )
-		
+
 		# Update the meterpreter platform/suffix for loading extensions as we may have changed target architecture
 		# sf: this is kinda hacky but it works. As ruby doesnt let you un-include a module this is the simplest solution I could think of.
 		# If the platform specific modules Meterpreter_x64_Win/Meterpreter_x86_Win change significantly we will need a better way to do this.
@@ -261,16 +256,19 @@ class ClientCore < Extension
 			client.platform      = 'x86/win32'
 			client.binary_suffix = 'dll'
 		end
-		
+
 		# Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
 		client.ext.aliases.keys.each { |e|
-			client.core.use(e) 
+			client.core.use(e)
 		}
-		
+
+		# Restore session keep-alives
 		client.send_keepalives = keepalive
+
 		return true
 	end
 
 end
 
 end; end; end
+
