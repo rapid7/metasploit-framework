@@ -143,7 +143,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 	def cmd_shell(*args)
 		path = client.fs.file.expand_path("%COMSPEC%")
 		path = (path and not path.empty?) ? path : "cmd.exe"
-		cmd_execute("-f", path, "-c", "-H", "-i")
+		cmd_execute("-f", path, "-c", "-H", "-i", "-t")
 	end
 
 
@@ -216,14 +216,14 @@ class Console::CommandDispatcher::Stdapi::Sys
 				])
 
 		processes.each { |ent|
-		
+
 			arch = ent['arch']
-			
-			# for display and consistency with payload naming we switch the internal 'x86_64' value to display 'x64' 
+
+			# for display and consistency with payload naming we switch the internal 'x86_64' value to display 'x64'
 			if( arch == ARCH_X86_64 )
 				arch = "x64"
 			end
-			
+
 			tbl << [ ent['pid'].to_s, ent['name'], arch, ent['user'], ent['path'] ]
 		}
 
