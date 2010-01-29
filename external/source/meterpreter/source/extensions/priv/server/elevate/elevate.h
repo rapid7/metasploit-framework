@@ -6,7 +6,17 @@
 #define ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE		1
 #define ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE2	2
 #define ELEVATE_TECHNIQUE_SERVICE_TOKENDUP		3
-#define ELEVATE_TECHNIQUE_VULN_KITRAP0D			4
+#define ELEVATE_TECHNIQUE_EXPLOIT_KITRAP0D		4
+
+// from ps.h
+typedef void (WINAPI * GETNATIVESYSTEMINFO)( LPSYSTEM_INFO lpSystemInfo );
+
+#define PROCESS_ARCH_UNKNOWN	0
+#define PROCESS_ARCH_X86		1
+#define PROCESS_ARCH_X64		2
+#define PROCESS_ARCH_IA64		3
+
+DWORD elevate_getnativearch( VOID );
 
 DWORD elevate_getsystem( Remote * remote, Packet * packet );
 

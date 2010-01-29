@@ -56,7 +56,7 @@ VOID elevator_serviceproc( DWORD argc, LPSTR * argv )
 
 		hStatus = RegisterServiceCtrlHandler( lpServiceName, (LPHANDLER_FUNCTION)elevator_servicectrl );
 		if( !hStatus )
-			BREAK_ON_ERROR( "[ELAVATOR] elevator_service_proc. RegisterServiceCtrlHandler failed" );
+			BREAK_ON_ERROR( "[ELAVATOR-NAMEDPIPE] elevator_service_proc. RegisterServiceCtrlHandler failed" );
 		  
 		status.dwServiceType             = SERVICE_WIN32_OWN_PROCESS; 
 		status.dwServiceSpecificExitCode = 0;
@@ -101,13 +101,13 @@ BOOL elevator_namedpipeservice( char * cpServiceName )
 	do
 	{
 		if( !cpServiceName )
-			BREAK_WITH_ERROR( "[ELEVATOR] elevator_pipe. cpServiceName == NULL", ERROR_INVALID_HANDLE );
+			BREAK_WITH_ERROR( "[ELEVATOR-NAMEDPIPE] elevator_pipe. cpServiceName == NULL", ERROR_INVALID_HANDLE );
 		
 		lpServiceName = _strdup( cpServiceName );
 	
 		hTerminate = CreateEvent( 0, TRUE, FALSE, 0 );
 		if( !hTerminate )
-			BREAK_ON_ERROR( "[ELAVATOR] elevator_service_proc. CreateEvent hTerminate failed" );
+			BREAK_ON_ERROR( "[ELAVATOR-NAMEDPIPE] elevator_service_proc. CreateEvent hTerminate failed" );
 
 		servicetable[0].lpServiceName = lpServiceName;
 		servicetable[0].lpServiceProc = (LPSERVICE_MAIN_FUNCTIONA)elevator_serviceproc;
@@ -116,10 +116,10 @@ BOOL elevator_namedpipeservice( char * cpServiceName )
 		servicetable[1].lpServiceProc = NULL;
 
 		if( !StartServiceCtrlDispatcher( servicetable ) )
-			BREAK_ON_ERROR( "[ELEVATOR] elevator_pipe. StartServiceCtrlDispatcher failed" );
+			BREAK_ON_ERROR( "[ELEVATOR-NAMEDPIPE] elevator_pipe. StartServiceCtrlDispatcher failed" );
 
 		if( WaitForSingleObject( hTerminate, INFINITE ) != WAIT_OBJECT_0 )
-			BREAK_ON_ERROR( "[ELEVATOR] elevator_pipe. WaitForSingleObject failed" );
+			BREAK_ON_ERROR( "[ELEVATOR-NAMEDPIPE] elevator_pipe. WaitForSingleObject failed" );
 
 		dwResult = dwElevateStatus;
 
