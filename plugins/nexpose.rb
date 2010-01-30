@@ -153,6 +153,7 @@ class Plugin::Nexpose < Msf::Plugin
 			opts = Rex::Parser::Arguments.new(
 				"-h"   => [ false,  "This help menu"],
 				"-t"   => [ true,   "The scan template to use (default:pentest-audit options:full-audit,exhaustive-audit,discovery,aggressive-discovery,dos-audit)"],
+				"-c"   => [ true,   "Specify credentials to use against these targets (format is type:user:pass[@host[:port]]"],
 				"-n"   => [ true,   "The maximum number of IPs to scan at a time (default is 32)"],
 				"-s"   => [ true,   "The directory to store the raw XML files from the NeXpose instance (optional)"],
 				"-P"   => [ false,  "Leave the scan data on the server when it completes (this counts against the maximum licensed IPs)"],
@@ -177,6 +178,7 @@ class Plugin::Nexpose < Msf::Plugin
 			opt_addrexc   = nil
 			opt_scanned   = []
 			opt_minrank   = "manual"
+			opt_credentials = []
 
 			opt_ranges    = []
 			report_format = "ns-xml"
@@ -193,6 +195,16 @@ class Plugin::Nexpose < Msf::Plugin
 					opt_maxaddrs = val.to_i
 				when "-s"
 					opt_savexml = val
+				when "-c"
+					if (val =~ /^([^:]+):([^:]+):([^:]+)/)
+						type, user, pass = [ $1, $2, $3 ]
+						newcreds = Nexpose::AdminCredentials.new
+						newcreds.setCredentials(type, nil, nil, user, pass, nil)
+						opt_credentials << newcreds
+					else
+						print_error("Unrecognized NeXpose scan credentials: #{val}")
+						return
+					end
 				when "-v"
 					opt_verbose = true
 				when "-P"
@@ -280,6 +292,9 @@ class Plugin::Nexpose < Msf::Plugin
 					site.site_config.addHost(Nexpose::IPRange.new(ip))
 				end
 				site.site_config._set_scanConfig(Nexpose::ScanConfig.new(-1, "tmp", opt_template))
+				opt_credentials.each do |c|
+				    site.site_config.addCredentials(c)
+        end
 				site.saveSite()
 
 				print_status(" >> Created temporary site ##{site.site_id}") if opt_verbose
@@ -589,7 +604,7 @@ module NexposeAPI
 		end
 
 		opts.keys.each do |k|
-			xml.attributes[k] = opts[k]
+			xml.attributes[k] = "#{opts[k]}"
 		end
 
 		xml
@@ -1336,10 +1351,23 @@ class Site
 				xml += ' service="' + c.service + '"'
 			end
 
+			if (c.userid)
+				xml += ' userid="' + c.userid + '"'
+			end
+			if (c.password)
+				xml += ' password="' + c.password + '"'
+			end
+			if (c.realm)
+				xml += ' realm="' + c.realm + '"'
+			end
 			if (c.host)
 				xml += ' host="' + c.host + '"'
 			end
+			if (c.port)
+				xml += ' port="' + c.port + '"'
+			end
 			xml += '>'
+
 
 			if (c.isblob)
 				xml += c.securityblob
