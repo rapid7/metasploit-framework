@@ -51,6 +51,7 @@ module HttpClients
 	FF = "Firefox"
 	SAFARI = "Safari"
 	OPERA  = "Opera"
+	CHROME = "Chrome"
 
 	UNKNOWN = "Unknown"
 end

@@ -87,13 +87,18 @@ function getVersion(){
 			}
 		}
 	} else if (typeof window.onmousewheel != 'undefined') {
-		// XXX Flesh this out.
-		ua_name = "#{clients::SAFARI}";
-		// Unlike every body else, the version isn't after the browser's
-		// name.  That's where it puts Webkit's version.  The real version is
-		// after "Version".  e.g.:
+		// Then this is webkit, could be Safari or Chrome.
 		// Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/3.2.1 Safari/525.27.1
-		ua_version = searchVersion("Version", navigator.userAgent);
+		// Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.0.249.78 Safari/532.5
+
+		if (navigator.vendor =~ /Google/) {
+			ua_name = "#{clients::CHROME}";
+			search = "Chrome";
+		} else {
+			ua_name = "#{clients::SAFARI}";
+			search = "Version";
+		}
+		ua_version = searchVersion(search, navigator.userAgent);
 		if (!ua_version || 0 == ua_version.length) {
 			ua_is_lying = true;
 		}
