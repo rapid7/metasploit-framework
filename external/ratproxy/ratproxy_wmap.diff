@@ -1,5 +1,6 @@
+diff -Naur ratproxy/Makefile ratproxymod/Makefile
 --- ratproxy/Makefile	2008-06-10 06:44:28.000000000 -0500
-+++ ratproxymod/Makefile	2008-11-06 16:36:22.000000000 -0600
++++ ratproxymod/Makefile	2010-01-30 20:00:21.000000000 -0600
 @@ -21,7 +21,7 @@
  
  PROGNAME = ratproxy
@@ -9,8 +10,41 @@
  
  all: $(PROGNAME) flare-check
  
---- ratproxy/ratproxy.c	2008-07-03 01:27:15.000000000 -0500
-+++ ratproxymod/ratproxy.c	2008-11-06 16:36:24.000000000 -0600
+diff -Naur ratproxy/http.c ratproxymod/http.c
+--- ratproxy/http.c	2009-05-13 14:41:01.000000000 -0500
++++ ratproxymod/http.c	2010-01-30 20:00:21.000000000 -0600
+@@ -32,6 +32,7 @@
+ #include <unistd.h>
+ #include <sys/socket.h>
+ #include <netinet/in.h>
++#include <arpa/inet.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+@@ -57,6 +58,8 @@
+ static _u8 srv_buf[MAXLINE],	/* libc IO buffers */
+            cli_buf[MAXLINE];
+ 
++extern _u8 ip_addr[18];
++
+ 
+ /* Read a single line of HTTP headers, strip whitespaces */
+ static _u8* grab_line(FILE* where) {
+@@ -665,7 +668,10 @@
+   struct hostent* he;
+   _s32 ss;
+ 
+-  if (!(he = gethostbyname(host)) || !(he->h_addr_list[0])) 
++  he = gethostbyname(host);
++  strncpy(ip_addr,inet_ntoa(*((struct in_addr *)he->h_addr_list[0])),18);
++
++  if (!(he) || !(he->h_addr_list[0])) 
+     http_error(client,"Unable to find target host",0);
+ 
+   ss = socket(PF_INET, SOCK_STREAM, 0);
+diff -Naur ratproxy/ratproxy.c ratproxymod/ratproxy.c
+--- ratproxy/ratproxy.c	2009-03-31 05:32:10.000000000 -0500
++++ ratproxymod/ratproxy.c	2010-01-30 20:38:59.000000000 -0600
 @@ -43,6 +43,9 @@
  #include <openssl/md5.h>
  #include <time.h>
@@ -76,7 +110,7 @@
  
    if (!trace_dir) return "-";
  
-@@ -551,6 +570,109 @@
+@@ -551,6 +570,111 @@
    if (dumped_already) return dump_fn;
    dumped_already = 1;
  
@@ -136,8 +170,8 @@
 +     while(retry){
 +  	  rc = sqlite3_prepare( db,
 +          "INSERT INTO "
-+          " requests(host,port,ssl,meth,path,headers,query,body,respcode,resphead,response,created) "
-+          "VALUES(?,?,?,?,?,?,?,?,?,?,?,?);",
++          " wmap_requests(host,address,address6,port,ssl,meth,path,headers,query,body,respcode,resphead,response,created) "
++          "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?);",
 +          -1, &pStmt, &zTail);
 +  
 +	  if( rc!=SQLITE_OK ){
@@ -151,17 +185,19 @@
 +	      //fprintf(stderr, "SQL OK: retries %d\n", kr++);
 +			
 +                sqlite3_bind_text(pStmt, 1, ip_addr, -1, SQLITE_STATIC);
-+                sqlite3_bind_int(pStmt, 2, req->port);
-+                sqlite3_bind_int(pStmt, 3, req->from_ssl);
-+                sqlite3_bind_text(pStmt, 4, req->method, -1, SQLITE_STATIC);
-+                sqlite3_bind_text(pStmt, 5, req->path, -1, SQLITE_STATIC);
-+                sqlite3_bind_blob(pStmt, 6, reqh, lenh, SQLITE_STATIC);
-+                sqlite3_bind_text(pStmt, 7, req->query, -1, SQLITE_STATIC);
-+                sqlite3_bind_blob(pStmt, 8, req->payload,req->payload_len , SQLITE_STATIC);
-+                sqlite3_bind_int(pStmt, 9, res->code);
-+                sqlite3_bind_blob(pStmt, 10, resh,reslenh, SQLITE_STATIC);
-+                sqlite3_bind_blob(pStmt, 11, res->payload, res->payload_len, SQLITE_STATIC);
-+                sqlite3_bind_blob(pStmt, 12, "", -1, SQLITE_STATIC);
++			    sqlite3_bind_text(pStmt, 2, ip_addr, -1, SQLITE_STATIC);
++			    sqlite3_bind_text(pStmt, 3, ip_addr, -1, SQLITE_STATIC);
++                sqlite3_bind_int(pStmt, 4, req->port);
++                sqlite3_bind_int(pStmt, 5, req->from_ssl);
++                sqlite3_bind_text(pStmt, 6, req->method, -1, SQLITE_STATIC);
++                sqlite3_bind_text(pStmt, 7, req->path, -1, SQLITE_STATIC);
++                sqlite3_bind_blob(pStmt, 8, reqh, lenh, SQLITE_STATIC);
++                sqlite3_bind_text(pStmt, 9, req->query, -1, SQLITE_STATIC);
++                sqlite3_bind_blob(pStmt, 10, req->payload,req->payload_len , SQLITE_STATIC);
++                sqlite3_bind_int(pStmt, 11, res->code);
++                sqlite3_bind_blob(pStmt, 12, resh,reslenh, SQLITE_STATIC);
++                sqlite3_bind_blob(pStmt, 13, res->payload, res->payload_len, SQLITE_STATIC);
++                sqlite3_bind_blob(pStmt, 14, "", -1, SQLITE_STATIC);
 +                rc = sqlite3_step(pStmt);
 +                if ( rc!=SQLITE_DONE ) {
 +                   //blah
@@ -186,7 +222,7 @@
    sprintf(dump_fn,"%.512s/%08x-%04x.trace",trace_dir,(_u32)time(0),getpid());
  
    f = open(dump_fn, O_WRONLY | O_CREAT | O_EXCL, 0600);
-@@ -594,6 +716,7 @@
+@@ -594,6 +718,7 @@
    fclose(out);
    close(f);
  
@@ -194,7 +230,7 @@
    return dump_fn;
  
  }
-@@ -1653,7 +1776,7 @@
+@@ -1662,7 +1787,7 @@
  
    debug("ratproxy version " VERSION " by <lcamtuf@google.com>\n");
  
@@ -203,7 +239,7 @@
      switch (opt) {
  
        case 'w': {
-@@ -1761,6 +1884,11 @@
+@@ -1770,6 +1895,11 @@
          use_any = 1;
          break;
  
@@ -215,34 +251,3 @@
        default: 
          usage(argv[0]);
      }
---- ratproxy/http.c	2008-06-10 07:28:26.000000000 -0500
-+++ ratproxymod/http.c	2008-11-06 16:36:24.000000000 -0600
-@@ -32,6 +32,7 @@
- #include <unistd.h>
- #include <sys/socket.h>
- #include <netinet/in.h>
-+#include <arpa/inet.h>
- #include <sys/types.h>
- #include <sys/stat.h>
- #include <fcntl.h>
-@@ -57,6 +58,8 @@
- static _u8 srv_buf[MAXLINE],	/* libc IO buffers */
-            cli_buf[MAXLINE];
- 
-+extern _u8 ip_addr[18];
-+
- 
- /* Read a single line of HTTP headers, strip whitespaces */
- static _u8* grab_line(FILE* where) {
-@@ -657,7 +660,10 @@
-   struct hostent* he;
-   _s32 ss;
- 
--  if (!(he = gethostbyname(host)) || !(he->h_addr_list[0])) 
-+  he = gethostbyname(host);
-+  strncpy(ip_addr,inet_ntoa(*((struct in_addr *)he->h_addr_list[0])),18);
-+
-+  if (!(he) || !(he->h_addr_list[0])) 
-     http_error(client,"Unable to find target host",0);
- 
-   ss = socket(PF_INET, SOCK_STREAM, 0);

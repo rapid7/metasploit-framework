@@ -1,9 +1,9 @@
-Ratproxy v1.51
+Ratproxy v1.58
 Passive web application security assessment tool
 
 Author:   		MZ
 URL:     		http://code.google.com/p/ratproxy/
-Version:  		1.51
+Version:  		1.58
 
 WMAP requirements:	Sqlite3 C dev library
 
