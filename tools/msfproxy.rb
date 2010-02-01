@@ -31,7 +31,7 @@ defaultport = 8080
 defaultip = '0.0.0.0'
 
 $storedb = false
-$storedbpath = './sqlite3.db'
+$storedbpath = File.join(Msf::Config.get_config_root, 'sqlite3.db')
 $tmode = false
 $ttarget = ""
 $tssl = false
@@ -271,7 +271,15 @@ module HttpProxy
 				
 						# Using $db as connection
 						Thread.new{
-							$db.execute( "insert into requests values ( ?,?,?,?,?,?,?,?,?,?,?,?)", 
+							until !$db.transaction_active?
+									puts "Waiting for db"
+									#wait
+							end
+						
+							$db.transaction $db.execute( "insert into wmap_requests values ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
+								nil,
+								@targethost,
+								@targethost,
 								@targethost, 
 								@targetport,
 								sslint,
@@ -285,6 +293,8 @@ module HttpProxy
 								SQLite3::Blob.new(resp.content),
 								Time.new
 							)
+							
+							$db.commit
 						}.join			
 					end
 
@@ -328,6 +338,10 @@ def usage
 	exit
 end
 
+trap("INT") { 
+	exit()
+}
+
 $args = Rex::Parser::Arguments.new(
 	"-a" => [ false, "Print requests: Default false" ],
 	"-b" => [ false, "Print responses: Default false" ],
@@ -336,7 +350,8 @@ $args = Rex::Parser::Arguments.new(
 	"-v" => [ false, "Print requests and responses: Default false" ],	
 	"-i" => [ true,  "Listening IP address. Default 0.0.0.0" ],
 	"-p" => [ true,  "Listening proxy port. Default 8080"    ],
-	"-w" => [ true,  "Store requests to Metasploit database <path>."  ],
+	"-d" => [ false,  "Store requests to Metasploit database"  ],
+	"-w" => [ true,  "Metasploit database path"  ],	
 	"-t" => [ true,  "Transparent mode. http(s)://host:port." ],
 	"-m" => [ true,  "Load module. path/module.rb."],
 	"-h" => [ false,  "Display this help information"         ])
@@ -355,11 +370,15 @@ $args.parse(ARGV) { |opt, idx, val|
 		$printreq = true
 		$printres = true
 		$printcon = true	
+	when "-d"		
+		$storedb = true
+		puts "Storing requests in #{$storedbpath}."
+		$db = SQLite3::Database.new($storedbpath)
 	when "-w"		
 		$storedbpath = val
 		$storedb = true
 		puts "Storing requests in #{$storedbpath}."
-		$db = SQLite3::Database.new($storedbpath)		
+		$db = SQLite3::Database.new($storedbpath)	
 	when "-i"
 		defaultip = val
 	when "-m"
