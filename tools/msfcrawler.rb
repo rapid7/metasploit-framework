@@ -47,13 +47,26 @@ $dbs = false
 # Thread number
 $threadnum = 1
 
-class HttpCrawler
-	attr_accessor :ctarget, :cport, :cinipath, :cssl
+# Use proxy
+$useproxy = false
 
-	def initialize(target,port,inipath,ssl)
+# Proxy host
+$proxyhost = '127.0.0.1'
+
+# Proxy Port
+$proxyport = 8080
+
+class HttpCrawler
+	attr_accessor :ctarget, :cport, :cinipath, :cssl, :proxyhost, :proxyport, :useproxy
+
+	def initialize(target,port,inipath,ssl,proxyhost,proxyport,useproxy)
 		self.ctarget = target
 		self.cport = port
 		self.cssl = ssl
+		
+		self.useproxy = useproxy
+		self.proxyhost = proxyhost
+		self.proxyport = proxyport
 		
 		self.cinipath = (inipath.nil? or inipath.empty?) ? '/' : inipath
 					
@@ -95,54 +108,71 @@ class HttpCrawler
 	def storedb(hashreq,response,dbpath)
 		db = SQLite3::Database.new(dbpath)
 		#db = Mysql.new("127.0.0.1", username, password, databasename)
-	
-		db.execute2( "insert into wmap_requests values ( ?,?,?,?,?,?,?,?,?,?,?,?)", 
+		until !db.transaction_active?
+			puts "Waiting for db"
+			#wait
+		end
+		#puts "db: #{db.transaction_active?}"
+		db.transaction db.execute( "insert into wmap_requests values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+			nil,
+			hashreq['rhost'],
+			hashreq['rhost'],
 			hashreq['rhost'], 
-			hashreq['rport'],
+			hashreq['rport'].to_i,
 			hashreq['ssl'],
 			hashreq['method'],
 			SQLite3::Blob.new(hashreq['uri']),
-			"aaaa",
-			"bb",
-			"ccc",
-			"ddd",
-			"ee",
-			"ff",
+			SQLite3::Blob.new("a"),
+			SQLite3::Blob.new("b"),
+			SQLite3::Blob.new("c"),
+			"200",
+			SQLite3::Blob.new("d"),
+			SQLite3::Blob.new("e"),
 			Time.new
-		)
+		) 
+		db.commit
 		
 		db.close
 	end
 	
 	def run
 		i, a = 0, []
+		
 	
-		begin
+		begin			
 			loop do
 				hashreq = @NotViewedQueue.take(reqtemplate(self.ctarget,self.cport,self.cssl), $taketimeout)
-									
+				#puts hashreq					
 				if !@ViewedQueue.include?(hashsig(hashreq))
 					@ViewedQueue[hashsig(hashreq)] = Time.now
 					
-					if i < $threadnum
-						a.push(Thread.new {
+					#if i < $threadnum
+					#	a.push(Thread.new {
+							
+							prx = nil
+							if self.useproxy
+								prx = "HTTP:"+self.proxyhost.to_s+":"+self.proxyport.to_s
+							end
+
 							c = Rex::Proto::Http::Client.new(
 								self.ctarget,
 								self.cport.to_i,
-								nil,
+								{},
 								self.cssl,
 								nil,
-								nil
+								prx
 							)
-												
-							sendreq(c,hashreq)
-						})
 
-						i += 1	
-					else
-						sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
-						i = 0
-					end		
+											
+							sendreq(c,hashreq)
+
+					#	})
+
+					#	i += 1	
+					#else
+					#	sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+					#	i = 0
+					#end		
 				else
 					#puts "#{hashreq} already visited at #{@ViewedQueue[hashsig(hashreq)]}"
 				end
@@ -305,6 +335,9 @@ trap("INT") {
 $args = Rex::Parser::Arguments.new(
 			"-t" => [ true,  "Target URI" ],
 			"-d" => [ false, "Enable database" ],
+			"-u" => [ true, "Use proxy"],
+			"-x" => [ true, "Proxy host" ],
+			"-p" => [ true, "Proxy port" ],
 			"-h" => [ false, "Display this help information"]
 		)
 	
@@ -321,6 +354,12 @@ $args.parse(ARGV) { |opt, idx, val|
  		when "-t"
 			$crun = true
 			turl = val
+		when "-u"
+			$useproxy = true	
+		when "-x"
+			$proxyhost = val
+		when "-p"
+			$proxyposrt = val										
         when "-h"
 			puts("\n" + "    Usage: #{$0} <options>\n" + $args.usage)
 			exit
@@ -336,11 +375,15 @@ if $crun
 		exit
 	end
 	
-	mc = HttpCrawler.new(uri.host,uri.port,uri.path,tssl)
+	if $useproxy
+		puts "Using proxy: #{$proxyhost}:#{$proxyport}" 
+	end
+	
+	mc = HttpCrawler.new(uri.host,uri.port,uri.path,tssl,$proxyhost, $proxyport, $useproxy)
 	if $dbs
 		puts "Database: #{$dbpathmsf}"
 	else
-		puts "DATABASE DISABLED"
+		puts "[DATABASE DISABLED]"
 	end
 	puts "Target: #{mc.ctarget} Port: #{mc.cport} Path: #{mc.cinipath} SSL: #{mc.cssl}"
 	mc.run	
