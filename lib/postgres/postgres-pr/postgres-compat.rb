@@ -154,7 +154,7 @@ class PGresult
 
 end
 
-class PGError < Exception
+class PGError < ::Exception
 end
 
 end
