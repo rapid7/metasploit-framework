@@ -29,17 +29,23 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'URL', 'www.postgresql.org' ]
-				]
+				],
+			'Version'        => '$Revision$'
 		))
 
-		register_options( 
-			[
-				OptString.new('SQL', [ false, 'The SQL query to execute',  'select version()']),
-			], self.class)
+		register_options( [ ], self.class) # None needed. 
+	end
+
+	def rhost
+		datastore['RHOST']
+	end
+
+	def rport
+		datastore['RPORT']
 	end
 	
 	def run
-		postgres_query(datastore['SQL'], true)
+		postgres_query(datastore['SQL'],datastore['RETURN_ROWSET'])
 		postgres_logout if self.postgres_conn
 	end
 end
