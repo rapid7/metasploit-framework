@@ -69,14 +69,10 @@ module Auxiliary::Report
 		framework.db.report_auth_info(opts)
 	end
 
-	def report_vuln_service(opts={})
+	def report_vuln(opts={})
+		$stdout.puts("Foo")
 		return if not db
-		framework.db.report_vuln_service(opts)
-	end
-
-	def report_vuln_host(opts={})
-		return if not db
-		framework.db.report_vuln_host(opts)
+		framework.db.report_vuln(opts)
 	end
 
 
