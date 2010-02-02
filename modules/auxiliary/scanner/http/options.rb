@@ -50,11 +50,12 @@ class Metasploit3 < Msf::Auxiliary
 				)
 
 				if(res.headers['Allow'].index('TRACE'))
-					report_vuln_service(
+					report_vuln(
 						:host	=> target_host,
 						:port	=> rport,
-						:vname	=> 'HTTP-TRACE-ENABLED',
-						:vdata	=> res.headers['Allow'],
+						:proto	=> 'http',
+						:name	=> 'HTTP-TRACE-ENABLED',
+						:data	=> res.headers['Allow'],
 						:refs   =>
 						[
 							[ 'CVE', '2005-3398'],
