@@ -174,6 +174,7 @@ class DBManager
 	#	:mac        -- the host's MAC address
 	#
 	def report_host(opts)
+		return if not active
 		addr = opts.delete(:host) || return
 		return addr if addr.kind_of? Host
 		wait = opts.delete(:wait)
@@ -245,6 +246,7 @@ class DBManager
 	#	:proto -- the protocol (e.g. tcp, udp...)
 	#
 	def report_service(opts)
+		return if not active
 		addr = opts.delete(:host) || return
 		wait = opts.delete(:wait)
 
@@ -344,6 +346,7 @@ class DBManager
 	# Returns a Client.
 	#
 	def report_client(opts)
+		return if not active
 		addr = opts.delete(:host) || return
 		report_host(:host => addr)
 		wait = opts.delete(:wait)
@@ -407,6 +410,7 @@ class DBManager
 	end
 
 	def report_note(opts)
+		return if not active
 		wait = opts.delete(:wait)
 		host = nil
 		addr = nil
@@ -534,6 +538,7 @@ class DBManager
 	#
 	#
 	def report_vuln(opts)
+		return if not active
 		name = opts[:name] || return
 		data = opts[:data]
 		wait = opts.delete(:wait)
@@ -660,6 +665,7 @@ class DBManager
 
 
 	def report_event(opts = {})
+		return if not active
 		if opts[:host]
 			report_host(:host => opts[:host])
 		end
