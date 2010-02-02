@@ -70,7 +70,6 @@ module Auxiliary::Report
 	end
 
 	def report_vuln(opts={})
-		$stdout.puts("Foo")
 		return if not db
 		framework.db.report_vuln(opts)
 	end
