@@ -56,6 +56,16 @@ module Subscriber
 		end
 
 		#
+		# Wraps user_output.print_debug
+		#
+		def print_debug(msg='')
+			if (user_output)
+				print_blank_line if user_output.prompting?
+				user_output.print_debug(msg)
+			end
+		end
+
+		#
 		# Wraps user_output.print
 		#
 		def print(msg='')

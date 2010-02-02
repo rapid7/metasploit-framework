@@ -86,6 +86,10 @@ class BidirectionalPipe < Rex::Ui::Text::Input
 		print_line('[+] ' + msg)
 	end
 
+	def print_debug(msg='')
+		print_line('[!] ' + msg)
+	end
+
 	def flush
 	end
 

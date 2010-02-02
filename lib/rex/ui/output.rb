@@ -31,6 +31,9 @@ class Output
 	def print_good(msg='')
 	end
 
+	def print_debug(msg='')
+	end
+
 	#
 	# Prints a status line.
 	#
