@@ -151,7 +151,14 @@ class Driver < Msf::Ui::Driver
 		on_startup
 
 		# Process the resource script
-		load_resource(opts['Resource'])
+		if opts['Resource'] and opts['Resource'].kind_of? Array
+			opts['Resource'].each { |r|
+				load_resource(r)
+			}
+		else
+			# If the opt is nil here, we load ~/.msf3/msfconsole.rc
+			load_resource(opts['Resource'])
+		end
 	end
 
 	#
@@ -226,7 +233,7 @@ class Driver < Msf::Ui::Driver
 			line.strip!
 			next if line.length == 0
 			next if line =~ /^#/
-			print_line("resource> #{line}")
+			print_line("resource (#{path})> #{line}")
 			run_single(line)
 		end
 		rcfd.close
