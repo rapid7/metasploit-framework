@@ -72,12 +72,15 @@ class TCP < RacketPart
   # Add an TCP option to this TCP object.
   # All rejiggering will happen when the call to fix!
   # happens automagically.
+  # If the result is not on a 32-bit boundry, pad with NOPs.
   def add_option(number, value)
     t = Racket::Misc::TLV.new(1,1)
     t.type = number
     t.value = value
     t.length = value.length + 2
-    @options << t.encode
+    opts = t.encode
+    opts += ("\x01" * (4-(opts.size % 4))) if (opts.size % 4) != 0
+    @options << opts
   end
 
   # Check the checksum for this TCP packet
