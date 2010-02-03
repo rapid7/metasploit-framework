@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				},
 			'Author'      => 'todb',
 			'License'     => MSF_LICENSE,
-			'References' => '$Revision$'
+			'References' => 
 				[
 					['BID', '37670'],
 					['OSVDB', '61538'],
