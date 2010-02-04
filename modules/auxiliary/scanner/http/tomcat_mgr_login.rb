@@ -28,7 +28,14 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => 'This module simply attempts to login to a Tomcat Application Manager instance using a specific user/pass.',
 			'References'  =>
 				[
+					# HP Default user/pass
+					[ 'OSVDB', '60317' ],
 					[ 'CVE', '2009-3843' ],
+					[ 'URL', 'http://www.harmonysecurity.com/blog/2009/11/hp-operations-manager-backdoor-account.html' ],
+					# IBM Cognos Express Default user/pass
+					[ 'BID', '38084' ],
+					[ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21419179' ],
+					# General
 					[ 'URL', 'http://tomcat.apache.org/' ]
 				],
 			'Author'         => [ 'MC', 'Matteo Cantoni <goony[at]nothink.org>', 'jduck' ],
