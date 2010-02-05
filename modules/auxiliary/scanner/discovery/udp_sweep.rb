@@ -182,7 +182,23 @@ class Metasploit3 < Msf::Auxiliary
 
 			when 111
 				app = 'Portmap'
-				inf = pkt[0].unpack('H*')[0]
+				buf = pkt[0]
+				inf = ""
+				hed = buf.slice!(0,24)
+				svc = []
+				while(buf.length >= 20)
+					rec = buf.slice!(0,20).unpack("N5")
+					svc << "#{rec[1]} v#{rec[2]} #{rec[3] == 0x06 ? "TCP" : "UDP"}(#{rec[4]})"
+					report_service(
+						:host => pkt[1],
+						:port => rec[4],
+						:proto => (rec[3] == 0x06 ? "tcp" : "udp"),
+						:name => "sunrpc",
+						:info => "#{rec[1]} v#{rec[2]}"
+					)
+				end
+				inf = svc.join(", ")
+
 			when 123
 				app = 'NTP'
 				ver = nil
