@@ -1115,7 +1115,7 @@ class DBManager
 			if (h["addrs"].has_key?("mac"))
 				data[:host_mac] = h["addrs"]["mac"]
 			end
-			data[:state] = ((h["status"] == ServiceState::Open || h["status"] == ServiceState::Closed) ? Msf::HostState::Alive : Msf::HostState::Dead)
+			data[:state] = (h["status"] == "up") ? Msf::HostState::Alive : Msf::HostState::Dead
 			report_host(data)
 
 			# Put all the ports, regardless of state, into the db.
