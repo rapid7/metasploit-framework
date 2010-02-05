@@ -28,18 +28,10 @@ end
 #
 ###
 module ServiceState
-	#
-	# The service is alive.
-	#
-	Up      = "up"
-	#
-	# The service is dead.
-	#
-	Dead    = "down"
-	#
-	# The service state is unknown.
-	#
-	Unknown = "unknown"
+	Open      = "open"
+	Closed    = "closed"
+	Filtered  = "filtered"
+	Unknown   = "unknown"
 end
 
 ###
@@ -278,7 +270,7 @@ class DBManager
 				end
 			}
 			if (service.state == nil)
-				service.state = "up"
+				service.state = ServiceState::Open
 			end
 			if (service and service.changed?)
 				service.created = Time.now
@@ -314,7 +306,7 @@ class DBManager
 	#
 	def services(only_up = false, proto = nil, addresses = nil, ports = nil, names = nil)
 		conditions = {}
-		conditions[:state] = ['open'] if only_up
+		conditions[:state] = [ServiceState::Open] if only_up
 		conditions[:proto] = proto if proto
 		conditions["hosts.address"] = addresses if addresses
 		conditions[:port] = ports if ports
@@ -1123,7 +1115,7 @@ class DBManager
 			if (h["addrs"].has_key?("mac"))
 				data[:host_mac] = h["addrs"]["mac"]
 			end
-			data[:state] = (h["status"] == "up" ? Msf::HostState::Alive : Msf::HostState::Dead)
+			data[:state] = ((h["status"] == ServiceState::Open || h["status"] == ServiceState::Closed) ? Msf::HostState::Alive : Msf::HostState::Dead)
 			report_host(data)
 
 			# Put all the ports, regardless of state, into the db.

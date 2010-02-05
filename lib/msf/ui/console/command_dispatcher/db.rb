@@ -621,7 +621,7 @@ class Db
 				if (mode & PWN_PORT != 0)
 					host.services.each do |serv|
 						next if not serv.host
-						next if (serv.state != "open" && serv.state != "up")
+						next if (serv.state != ServiceState::Open)
 
 						xport = serv.port.to_i
 						xprot = serv.proto
