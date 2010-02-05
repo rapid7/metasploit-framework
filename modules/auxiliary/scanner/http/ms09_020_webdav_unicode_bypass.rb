@@ -96,11 +96,11 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("\tFound vulnerable WebDAV Unicode bypass.  #{wmap_base_url}#{tpath}#{bogus}/ #{res.code} (#{wmap_target_host})")
 
 
-					report_vuln_service(
+					report_vuln(
 						:host	=> ip,
 						:port	=> rport,
-						:vname	=> 'IIS-WEBDAV-UNICODE-BYPASS',
-						:vdata	=> "#{tpath}#{bogus} / Code: #{res.code}",
+						:name	=> 'IIS-WEBDAV-UNICODE-BYPASS',
+						:data	=> "#{tpath}#{bogus} / Code: #{res.code}",
 						:refs   =>
 						[
 							[ 'CVE', '2009-1122'],
