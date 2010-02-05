@@ -1522,6 +1522,32 @@ EVADE = Rex::Proto::SMB::Evasions
 		end
 	end
 
+	def symlink(src,dst)
+		parm = [513, 0x00000000].pack('vV') + src + "\x00"
+
+		begin
+			resp = trans2(CONST::TRANS2_SET_PATH_INFO, parm, dst + "\x00")
+
+			pcnt = resp['Payload'].v['ParamCount']
+			dcnt = resp['Payload'].v['DataCount']
+			poff = resp['Payload'].v['ParamOffset']
+			doff = resp['Payload'].v['DataOffset']
+
+			# Get the raw packet bytes
+			resp_rpkt = resp.to_s
+
+			# Remove the NetBIOS header
+			resp_rpkt.slice!(0, 4)
+
+			resp_parm = resp_rpkt[poff, pcnt]
+			resp_data = resp_rpkt[doff, dcnt]
+			return resp_data
+
+		rescue ::Exception
+			raise $!
+		end
+	end
+
 	# Obtains allocation information on the mounted tree
 	def queryfs_info_allocation
 		data = queryfs(CONST::SMB_INFO_ALLOCATION)
