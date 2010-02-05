@@ -12,6 +12,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
+	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 	
 	def initialize
@@ -35,7 +36,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(target_host)
-		
 		connect
 
 		begin
@@ -48,6 +48,13 @@ class Metasploit3 < Msf::Auxiliary
 				ver,msg = (banner.split(/\n/))
 
 				print_status("#{target_host}:#{rport}, VNC server protocol version : #{ver}")
+				report_service(
+					:host => rhost,
+					:port => rport,
+					:proto => 'tcp',
+					:name => 'vnc',
+					:info => "VNC protocol version #{ver}"
+				)
 
 				if msg
 					if (msg =~ /Too many security failures/)
@@ -84,6 +91,13 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("#{target_host}:#{rport}, VNC server security types supported : #{sec_type.join(",")}")
 						if (types.include? 1)
 							print_status("#{target_host}:#{rport}, VNC server security types includes None, free access!")
+							report_vuln({
+								:host => rhost,
+								:port => rport,
+								:proto => 'tcp',
+								:name => 'VNC-NONE-AUTH-ALLOWED',
+								:data => sec_type.join(",")
+							})
 						end
 					else
 						print_error("#{target_host}:#{rport}, failed to parse security types")
@@ -100,3 +114,4 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
+
