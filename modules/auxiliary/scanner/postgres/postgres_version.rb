@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 			:password => password
 		)
 		if result[:auth]
-			print_good "#{rhost}:#{rport} Postgres - Logged in to '#{db}' with '#{user}':'#{password}'" if verbose
+			print_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'" if verbose
 			print_good "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
 		elsif result[:preauth]
 			print_good "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
