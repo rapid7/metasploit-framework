@@ -39,6 +39,10 @@ class Metasploit3 < Msf::Auxiliary
 					'kcope', # http://lists.grok.org.uk/pipermail/full-disclosure/2010-February/072927.html
 					'hdm'    # metasploit module
 				],
+			'References'  =>
+				[
+					['OSVDB', 62145]
+				],
 			'License'     => MSF_LICENSE
 		)
 
