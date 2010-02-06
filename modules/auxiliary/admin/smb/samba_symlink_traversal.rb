@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'References'  =>
 				[
-					['OSVDB', 62145]
+					['OSVDB', '62145']
 				],
 			'License'     => MSF_LICENSE
 		)
