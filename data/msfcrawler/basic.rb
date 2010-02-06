@@ -1,4 +1,5 @@
 require 'rubygems'
+require 'pathname'
 require 'uri'
 
 class CrawlerBasic < BaseParser
@@ -37,11 +38,19 @@ class CrawlerBasic < BaseParser
 				else
 					tpath = uri.path
 				end
+				
+				
+				newp = Pathname.new(tpath)
+				if !newp.absolute?
+					oldp = Pathname.new(request['uri'])
+					newp = oldp + newp.cleanpath
+				end
+				
 
 				hreq = {
 					'rhost'		=> thost,
 					'rport'		=> tport,
-					'uri'  		=> tpath,
+					'uri'  		=> newp.to_s,
 					'method'   	=> 'GET',
 					'ctype'		=> 'text/plain',
 					'ssl'		=> tssl,
