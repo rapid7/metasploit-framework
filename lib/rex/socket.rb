@@ -1,4 +1,5 @@
 require 'socket'
+require 'thread'
 require 'resolv'
 require 'rex/exceptions'
 
@@ -390,22 +391,40 @@ module Socket
 		rescue ::Exception
 			return '127.0.0.1'
 		end
-	end
+  end
 
+	# sf: This create a socket pair using native ruby sockets and will work 
+	# on Windows where ::Socket.pair is not implemented.
+	# Note: OpenSSL requires native ruby sockets for its io.
 	def self.socket_pair
-		begin
-			pair = ::Socket.pair(::Socket::AF_UNIX, ::Socket::SOCK_STREAM, 0)
-
-		# Windows does not support Socket.pair, so we emulate it
-		rescue ::NotImplementedError
-			srv = TCPServer.new('localhost', 0)
-			rsock = TCPSocket.new(srv.addr[3], srv.addr[1])
-			lsock = srv.accept
-			srv.close
-			[lsock, rsock]
-		end
+		lsock   = nil
+		rsock   = nil
+		laddr   = '127.0.0.1' 
+		lport   = 0
+		threads = []
+		mutex   = ::Mutex.new
+		
+		threads << ::Thread.new {
+			server = nil
+			mutex.synchronize {
+				threads << ::Thread.new {
+					mutex.synchronize {
+						rsock = ::TCPSocket.new( laddr, lport )
+					}
+				}
+				server = ::Socket.new( ::Socket::AF_INET, ::Socket::SOCK_STREAM, 0 )
+				server.bind( ::Socket.sockaddr_in( 0, laddr ) )
+				lport, caddr = ::Socket.unpack_sockaddr_in( server.getsockname )
+				server.listen( 1 )
+			}
+			lsock, saddr = server.accept
+			server.close
+		}
+		
+		threads.each { |t| t.join }
+		
+		return [lsock, rsock]
 	end
-
 
 	##
 	#

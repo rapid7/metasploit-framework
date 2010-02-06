@@ -23,7 +23,9 @@ module  Rex::Socket::TcpServer
 	#
 	# Creates the server using the supplied hash.
 	#
-	def self.create(hash)
+	def self.create(hash = {})
+		hash['Proto'] = 'tcp'
+		hash['Server'] = true
 		self.create_param(Rex::Socket::Parameters.from_hash(hash))	
 	end
 
@@ -34,7 +36,6 @@ module  Rex::Socket::TcpServer
 	def self.create_param(param)
 		param.proto  = 'tcp'
 		param.server = true
-
 		Rex::Socket.create_param(param)
 	end
 

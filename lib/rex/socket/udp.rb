@@ -19,6 +19,7 @@ module Rex::Socket::Udp
 	# Creates the client using the supplied hash.
 	#
 	def self.create(hash = {})
+		hash['Proto'] = 'udp' 
 		self.create_param(Rex::Socket::Parameters.from_hash(hash))
 	end
 
@@ -28,7 +29,6 @@ module Rex::Socket::Udp
 	#
 	def self.create_param(param)
 		param.proto = 'udp'
-
 		Rex::Socket.create_param(param)
 	end
 

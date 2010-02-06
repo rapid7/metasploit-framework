@@ -4,6 +4,7 @@ require 'thread'
 require 'rex/socket'
 require 'rex/post/meterpreter/extensions/stdapi/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel'
+require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_server_channel'
 require 'rex/logging'
 
 module Rex
@@ -31,23 +32,21 @@ class Socket
 	##
 
 	#
-	# Initialize the socket subsystem and start monitoring sockets
-	# as they come in.
+	# Initialize the socket subsystem and start monitoring sockets as they come in.
 	#
 	def initialize(client)
-		self.client                    = client
-		self.monitored_sockets         = []
-		self.monitored_socket_channels = {}
+		self.client = client
+		
+		# register the inbound handler for the tcp server channel (allowing us to receive new client connections to a tcp server channel)
+		client.register_inbound_handler( Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem::TcpServerChannel )
 
-		# Start monitoring the sockets
-		self.monitor_sockets
 	end
 
 	#
-	# Terminate the monitor thread.
+	# Deregister the inbound handler for the tcp server channel 
 	#
 	def shutdown
-		monitor_thread.kill
+		client.deregister_inbound_handler(  Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem::TcpServerChannel )
 	end
 
 	##
@@ -61,39 +60,23 @@ class Socket
 	# supplied in the socket parameters instance.  The 'params' argument
 	# is expected to be of type Rex::Socket::Parameters.
 	#
-	def create(params)
-		channel = nil
-		res     = nil
-
-	#	begin
-			if (params.tcp?)
-				if (params.server?)
-					channel = create_tcp_server(params)
-				else
-					channel = create_tcp_client(params)
-				end
-
-				# Add this channel's right socket to the socket monitor
-				add_monitored_socket(channel.rsock, channel)
-
-				# If we get a valid channel back, create a stream
-				# representation of the left side of the socket for
-				# the caller to use
-				if (channel != nil)
-					res = channel.lsock
-				end
-			elsif (params.udp?)
-				if (params.server?)
-					res = create_udp_server(params)
-				else
-					res = create_udp_client(params)
-				end
-
-				# TODO: Datagram wrapper
+	def create( params )
+		res = nil
+		
+		if( params.tcp? )
+			if( params.server? )
+				res = create_tcp_server( params )
+			else
+				res = create_tcp_client( params )
 			end
-	#	rescue
-	#	end
-
+		elsif( params.udp? )
+			if( params.server? )
+				res = create_udp_server( params )
+			else
+				res = create_udp_client( params )
+			end
+		end
+		
 		return res
 	end
 
@@ -101,6 +84,15 @@ class Socket
 	# Create a TCP server channel.
 	#
 	def create_tcp_server(params)
+		begin
+			return SocketSubsystem::TcpServerChannel.open(client, params)
+		rescue ::Rex::Post::Meterpreter::RequestError => e
+			case e.result
+			when 10000 .. 10100
+				raise ::Rex::ConnectionError.new
+			end
+			raise e
+		end 
 	end
 
 	#
@@ -108,7 +100,11 @@ class Socket
 	#
 	def create_tcp_client(params)
 		begin
-		return SocketSubsystem::TcpClientChannel.open(client, params)
+			channel = SocketSubsystem::TcpClientChannel.open(client, params)
+			if( channel != nil )
+				return channel.lsock
+			end 
+			return nil
 		rescue ::Rex::Post::Meterpreter::RequestError => e
 			case e.result
 			when 10000 .. 10100
@@ -132,104 +128,6 @@ class Socket
 
 protected
 
-	##
-	#
-	# Socket monitoring
-	#
-	##
-
-	#
-	# Monitors zero or more sockets and handles forwarding traffic
-	# to the remote half of the associated channel.
-	#
-	def monitor_sockets
-		self.monitor_thread = ::Thread.new {
-
-			loop do
-
-				# Watch for data
-				begin
-					socks = select(monitored_sockets, nil, nil, 0.25)
-
-				rescue StreamClosedError => e
-					channel = monitored_socket_channels[e.stream.object_id]
-
-					dlog("monitor_channels: channel #{channel} closed (#{e.stream})",'meterpreter', LEV_3)
-
-					if (channel)
-						begin
-							channel.close
-						rescue IOError
-						end
-
-						remove_monitored_socket(e.stream)
-					end
-
-					next
-				end
-
-				# No data?
-				if (socks == nil || socks[0] == nil)
-					next
-				end
-
-				# Enumerate through each of the indicated sockets
-				socks[0].each { |sock|
-					channel = monitored_socket_channels[sock.object_id]
-					closed  = false
-					data    = nil
-
-					if (channel == nil)
-						remove_monitored_socket(sock)
-
-						next
-					end
-
-					begin
-						data = sock.sysread(16384)
-					rescue
-						closed = true
-					end
-
-					if (data == nil)
-						closed = true
-					end
-
-					# If the socket closed, notify the other side and remove
-					# this socket from the monitored socket list
-					if (closed)
-						channel.close_write
-
-						remove_monitored_socket(sock)
-					# Otherwise, write the data to the remote side
-					else
-						channel.write(data)
-					end
-				}
-
-			end
-
-		}
-	end
-
-	#
-	# Adds a socket to the list of monitored sockets.
-	#
-	def add_monitored_socket(sock, channel)
-		monitored_sockets << sock
-		monitored_socket_channels[sock.object_id] = channel
-	end
-
-	#
-	# Removes a socket from the list of monitored sockets.
-	#
-	def remove_monitored_socket(sock)
-		monitored_socket_channels.delete(sock.object_id)
-		monitored_sockets.delete(sock)
-	end
-
-	attr_accessor :monitored_sockets, :monitored_socket_channels # :nodoc:
-	attr_accessor :monitor_thread # :nodoc:
 	attr_accessor :client # :nodoc:
 
 end

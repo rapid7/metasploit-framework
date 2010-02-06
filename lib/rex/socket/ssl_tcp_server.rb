@@ -27,7 +27,10 @@ module Rex::Socket::SslTcpServer
 	#
 	##
 
-	def self.create(hash)
+	def self.create(hash = {})
+		hash['Proto']  = 'tcp'
+		hash['Server'] = true
+		hash['SSL']    = true
 		self.create_param(Rex::Socket::Parameters.from_hash(hash))
 	end
 
@@ -39,7 +42,6 @@ module Rex::Socket::SslTcpServer
 		param.proto  = 'tcp'
 		param.server = true
 		param.ssl    = true
-
 		Rex::Socket.create_param(param)
 	end
 

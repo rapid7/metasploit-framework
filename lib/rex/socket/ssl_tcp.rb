@@ -29,8 +29,9 @@ begin
 	#
 	# Creates an SSL TCP instance.
 	#
-	def self.create(hash)
+	def self.create(hash = {})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
+		hash['SSL'] = true
 		self.create_param(Rex::Socket::Parameters.from_hash(hash))
 	end
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'thread'
+require 'rex/post/meterpreter/channel'
 require 'rex/post/meterpreter/channels/stream'
 require 'rex/post/meterpreter/extensions/stdapi/tlv'
 
@@ -20,7 +22,13 @@ module SocketSubsystem
 #
 ###
 class TcpClientChannel < Rex::Post::Meterpreter::Stream
-
+	
+	class << self
+		def cls
+			return CHANNEL_CLASS_STREAM
+		end
+	end
+	
 	module SocketInterface
 		def type?
 			'tcp'
@@ -28,7 +36,6 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 
 		def getsockname
 			return super if not channel
-
 			# Find the first host in our chain (our address)
 			hops = 0
 			csock = channel.client.sock
@@ -36,7 +43,6 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 				csock = csock.channel.client.sock
 				hops += 1
 			end
-
 			tmp,caddr,cport = csock.getsockname
 			tmp,raddr,rport = csock.getpeername
 			maddr,mport = [ channel.params.localhost, channel.params.localport ]
@@ -52,7 +58,26 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 
 		attr_accessor :channel
 	end
-
+	
+	#
+	# Simple mixin for lsock in order to help avoid a ruby interpreter issue with ::Socket.pair
+	# Instead of writing to the lsock, reading from the rsock and then writing to the channel,
+	# we use this mixin to directly write to the channel.
+	#
+	# Note: This does not work with OpenSSL as OpenSSL is implemented nativly and requires a real
+	# socket to write to and we cant intercept the sockets syswrite at a native level.
+	#
+	# Note: The deadlock only seems to effect the Ruby build for cygwin.
+	#
+	module DirectChannelWrite
+		
+		def syswrite( buf )
+			channel._write( buf )
+		end
+		
+		attr_accessor :channel
+	end
+	
 	##
 	#
 	# Factory
@@ -99,15 +124,18 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 	#
 	# Passes the channel initialization information up to the base class.
 	#
-	def initialize(client, cid, type, flags)
-		super(client, cid, type, flags)
+	def initialize( client, cid, type, flags )
+		super( client, cid, type, flags )
 
-		# Implement some of the required socket interfaces on the local side of
-		# the stream abstraction.
-		lsock.extend(SocketInterface)
-		rsock.extend(SocketInterface)
+		lsock.extend( SocketInterface )
+		lsock.extend( DirectChannelWrite )
 		lsock.channel = self
+
+		rsock.extend( SocketInterface )
 		rsock.channel = self
+
+		monitor_rsock()
+
 	end
 
 	#
@@ -133,7 +161,67 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 		response = client.send_request(request)
 
 		return true
+  end
+
+protected
+
+	def monitor_rsock
+		self.monitor_thread = ::Thread.new {
+			loop do
+				closed = false
+				buf   = nil
+				
+				begin
+					s = Rex::ThreadSafe.select( [ self.rsock ], nil, nil, 0.2 )
+					if( s == nil || s[0] == nil )
+						next
+					end
+				rescue Exception => e
+					closed = true
+				end
+				
+				if( closed == false )
+					begin
+						buf = self.rsock.sysread( 32768 )
+						closed = true if( buf == nil )
+					rescue
+						closed = true
+					end
+				end
+			
+				if( closed == false )
+					total_sent   = 0
+					total_length = buf.length
+					while( total_sent < total_length )
+						begin
+							data = buf[0, buf.length]
+							sent = self.write( data )
+							# sf: Only remove the data off the queue is syswrite was successfull.
+							#     This way we naturally perform a resend if a failure occured.
+							#     Catches an edge case with meterpreter TCP channels where remote send 
+							#     failes gracefully and a resend is required.
+							if( sent > 0 )
+								total_sent += sent
+								buf[0, sent] = ""
+							end
+						rescue ::IOError => e
+							closed = true
+							break
+						end
+					end
+				end
+			
+				if( closed )
+					self.close_write
+					::Thread.exit
+				end
+			
+			end
+		
+		}
 	end
+	
+attr_accessor :monitor_thread
 
 end
 

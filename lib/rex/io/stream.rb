@@ -32,22 +32,26 @@ module Stream
 	# of, at most, 32768 bytes.
 	#
 	def write(buf, opts = {})
-		tsent = 0
-		bidx  = 0
-
+		total_sent   = 0
+		total_length = buf.length
 		begin
-			while (bidx < buf.length)
-				sent  = fd.syswrite(buf[bidx, 32768])
-				bidx  += sent if sent > 0
-				tsent += sent
+			while( total_sent < total_length )
+				s = Rex::ThreadSafe.select( nil, [ fd ], nil, 0.2 )
+				if( s == nil || s[0] == nil )
+					next
+				end
+				data = buf[0, 32768]
+				sent = fd.syswrite( data )
+				if sent > 0
+					total_sent += sent
+					buf[0, sent] = ""
+				end
 			end
 		rescue ::IOError, ::Errno::EPIPE
 			return nil if (fd.abortive_close == true)
-
 			raise $!
 		end
-
-		tsent
+		total_sent
 	end
 
 	#
@@ -90,7 +94,7 @@ module Stream
 	#
 	def fd
 		self
-	end
+  end
 
 	##
 	#
@@ -290,7 +294,7 @@ module Stream
 	# This flag indicates whether or not an abortive close has been issued.
 	#
 	attr_accessor :abortive_close
-
+  
 protected
 
 end

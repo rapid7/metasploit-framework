@@ -1,3 +1,5 @@
+require 'rex/socket'
+
 module Msf
 module Handler
 
@@ -67,28 +69,38 @@ module ReverseTcp
 		ex = false
 		# Switch to IPv6 ANY address if the LHOST is also IPv6
 		addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
-		# First attempt to bind ANY_ADDR.  If that fails, the user probably has
-		# something else listening on one interface.  Try again with the
-		# specific LHOST.  Use the any addr for whatever LHOST was, ipv4 or 6.
+		# First attempt to bind LHOST. If that fails, the user probably has
+		# something else listening on that interface. Try again with ANY_ADDR.
 		any = (addr.length == 4) ? "0.0.0.0" : "::0"
-		[ any, Rex::Socket.addr_ntoa(addr) ].each { |ip|
+		[ Rex::Socket.addr_ntoa(addr), any  ].each { |ip|
 			begin
-				print_status("Handler trying to bind to #{ip}") if ip != any
+
 				self.listener_sock = Rex::Socket::TcpServer.create(
 					'LocalHost' => ip,
 					'LocalPort' => datastore['LPORT'].to_i,
-					'Comm'      => comm,
 					'Context'   =>
 						{
 							'Msf'        => framework,
 							'MsfPayload' => self,
 							'MsfExploit' => assoc_exploit
 						})
+			
 				ex = false
+			
+				comm_used = Rex::Socket::SwitchBoard.best_comm( ip )
+				comm_used = Rex::Socket::Comm::Local if comm_used == nil
+				
+				if( comm_used.respond_to?( :type ) and comm_used.respond_to?( :sid ) )
+					via = "via the #{comm_used.type} on session #{comm_used.sid}"
+				else
+					via = ""
+				end
+
+				print_status("Started reverse handler on #{ip}:#{datastore['LPORT']} #{via}")
 				break
 			rescue
 				ex = $!
-				print_error("Handler failed to bind to #{ip}")
+				print_error("Handler failed to bind to #{ip}:#{datastore['LPORT']}")
 			end
 		}
 		raise ex if (ex) 
@@ -113,8 +125,6 @@ module ReverseTcp
 	def start_handler
 		self.listener_thread = Thread.new {
 			client = nil
-
-			print_status("Started reverse handler on port #{datastore['LPORT']}")
 
 			begin
 				# Accept a client connection
