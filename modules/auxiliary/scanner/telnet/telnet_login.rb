@@ -4,7 +4,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		print_status("Starting host #{ip}")
+
 		begin
 			connect
 			each_user_pass { |user, pass|
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 	def try_user_pass(user, pass)
 		@attempts += 1
 		if @attempts % datastore["ATTEMPTS"] == 0
-			disconnect	
+			disconnect
 			connect
 		end
 		send_user(user)
