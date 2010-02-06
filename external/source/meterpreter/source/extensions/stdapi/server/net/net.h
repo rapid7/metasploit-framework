@@ -10,7 +10,6 @@ typedef struct _SocketContext
 	Channel  *channel;
 #ifdef _WIN32
 	WSAEVENT notify;
-	HANDLE mutex;
 #else
 	int notify;
 #endif
@@ -18,6 +17,7 @@ typedef struct _SocketContext
 } SocketContext;
 
 typedef SocketContext TcpClientContext;
+typedef SocketContext TcpServerContext;
 typedef SocketContext UdpClientContext;
 
 #define free_tcp_client_context(x) free_socket_context((SocketContext *)x)
@@ -27,6 +27,7 @@ typedef SocketContext UdpClientContext;
  * Request handlers
  */
 DWORD request_net_tcp_client_channel_open(Remote *remote, Packet *packet);
+DWORD request_net_tcp_server_channel_open(Remote *remote, Packet *packet);
 
 // Config
 DWORD request_net_config_get_routes(Remote *remote, Packet *packet);
@@ -41,10 +42,8 @@ DWORD request_net_socket_tcp_shutdown(Remote *remote, Packet *packet);
 /*
  * Channel creation
  */
-DWORD create_tcp_client_channel(Remote *remote, LPCSTR host,
-		USHORT port, Channel **outChannel);
+DWORD create_tcp_client_channel(Remote *remote, LPCSTR host,USHORT port, Channel **outChannel);
 
 VOID free_socket_context(SocketContext *ctx);
-
 
 #endif

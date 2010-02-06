@@ -425,7 +425,7 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Source"
+			Name="Source files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
@@ -467,10 +467,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\source\extensions\stdapi\server\precomp.h"
-				>
 			</File>
 			<File
 				RelativePath="..\..\source\extensions\stdapi\server\stdapi.c"
@@ -515,10 +511,6 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\source\extensions\stdapi\stdapi.h"
-				>
 			</File>
 			<File
 				RelativePath="..\..\source\extensions\stdapi\server\resource\stdapi.rc"
@@ -644,10 +636,6 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\source\extensions\stdapi\server\fs\fs.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\source\extensions\stdapi\server\fs\fs_util.c"
 					>
 					<FileConfiguration
@@ -730,10 +718,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\source\extensions\stdapi\server\net\net.h"
-					>
 				</File>
 				<Filter
 					Name="config"
@@ -862,15 +846,15 @@
 							/>
 						</FileConfiguration>
 					</File>
+					<File
+						RelativePath="..\..\source\extensions\stdapi\server\net\socket\tcp_server.c"
+						>
+					</File>
 				</Filter>
 			</Filter>
 			<Filter
 				Name="sys"
 				>
-				<File
-					RelativePath="..\..\source\extensions\stdapi\server\sys\sys.h"
-					>
-				</File>
 				<Filter
 					Name="process"
 					>
@@ -1483,6 +1467,54 @@
 						/>
 					</FileConfiguration>
 				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			>
+			<File
+				RelativePath="..\..\source\extensions\stdapi\server\precomp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\extensions\stdapi\stdapi.h"
+				>
+			</File>
+			<Filter
+				Name="net"
+				>
+				<Filter
+					Name="socket"
+					>
+					<File
+						RelativePath="..\..\source\extensions\stdapi\server\net\net.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\source\extensions\stdapi\server\net\socket\tcp.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="fs"
+				>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\fs\fs.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="sys"
+				>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\sys\sys.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="ui"
+				>
 				<File
 					RelativePath="..\..\source\extensions\stdapi\server\ui\ui.h"
 					>

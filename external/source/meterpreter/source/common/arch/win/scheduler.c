@@ -226,7 +226,7 @@ DWORD THREADCALL scheduler_waitable_thread( THREAD * thread )
 				terminate = TRUE;
 				break;
 			case 1:
-				dprintf( "[SCHEDULER] scheduler_waitable_thread( 0x%08X ), signaled on waitable...", thread );
+				//dprintf( "[SCHEDULER] scheduler_waitable_thread( 0x%08X ), signaled on waitable...", thread );
 				entry->routine( entry->remote, entry->context );
 				break;
 			default:

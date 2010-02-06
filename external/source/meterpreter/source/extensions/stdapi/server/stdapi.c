@@ -268,7 +268,8 @@ Command customCommands[] =
 	  { request_net_config_get_interfaces,                 { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
-		// Socket
+
+	// Socket
 	{ "stdapi_net_socket_tcp_shutdown",
 	  { request_net_socket_tcp_shutdown,                   { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
