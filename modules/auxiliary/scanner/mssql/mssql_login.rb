@@ -40,24 +40,33 @@ class Metasploit3 < Msf::Auxiliary
 		each_user_pass { |user, pass|
 			do_login(user, pass, datastore['VERBOSE'])
 		}
+		# The service should already be reported at this point courtesy of
+		# report_auth_info, but this is currently the only way to give it a
+		# name.
+		report_service({
+			:host => rhost,
+			:port => rport,
+			:proto => 'tcp',
+			:name => 'mssql'
+		})
 	end
 
 	def do_login(user='sa', pass='', verbose=false)
-
 		print_status("Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport}") if verbose
 		begin
 			success = mssql_login(user, pass)
 
 			if (success)
 				print_good("#{rhost}:#{rport} - successful login '#{user}' : '#{pass}'")
-				report_auth_info(
-					:host   => rhost,
-					:proto  => 'mssql',
-					:user   => user,
-					:pass   => pass,
+				report_auth_info({
+					:host => rhost,
+					:port => rport,
+					:proto => 'tcp',
+					:user => user,
+					:pass => pass,
 					:targ_host => rhost,
 					:targ_port => rport
-				)
+				})
 				return :next_user
  			else
 				print_error("#{rhost}:#{rport} failed to login as '#{user}'") if verbose
