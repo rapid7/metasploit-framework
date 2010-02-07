@@ -14,6 +14,16 @@
 require 'msf/core'
 
 
+# 
+# Ghetto
+#
+module CRLFLineEndings
+	def put(str)
+		return super if not str
+		super(str.strip + "\r\n")
+	end
+end
+
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Telnet
@@ -46,19 +56,17 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 
 		begin
-			connect
 			each_user_pass { |user, pass|
 				try_user_pass(user, pass)
 			}
-			disconnect
 		rescue ::Rex::ConnectionError
 			return
 		end
+		disconnect
 	end
 
 	def try_user_pass(user, pass)
-		@attempts += 1
-		if @attempts % datastore["ATTEMPTS"] == 0
+		if (@attempts % datastore["ATTEMPTS"] == 0)
 			disconnect
 			connect
 		end
@@ -73,13 +81,21 @@ class Metasploit3 < Msf::Auxiliary
 				:targ_host	=> rhost,
 				:targ_port	=> datastore['RPORT']
 			)
+			# XXX Sessions don't work yet.
+			# Windows telnet server requires \r\n line endings and it doesn't
+			# seem to affect anything else.
+			#sock.extend(CRLFLineEndings)
+			#sess = Msf::Sessions::CommandShell.new(sock)
+			#framework.sessions.register(sess)
+			# get a new socket for the next run
+			@attempts = 0
 			ret = :next_user
 		else
 			ret = nil
 		end
 
-		disconnect()
-		return nil
+		@attempts += 1
+		return ret
 	end
 
 end
