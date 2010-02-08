@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 			)
 
 			if info[:db_login_success]
-				print_good("#{rhost}:#{rport} [DB2] successful login for '#{user}' : '#{pass}' against database '#{db}'")
+				print_good("#{rhost}:#{rport} DB2 - successful login for '#{user}' : '#{pass}' against database '#{db}'")
 
 				# Report credentials
 				report_auth_info(
@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				return :next_user
 			else
-				print_status("#{rhost}:#{rport} [DB2] failed login for '#{user}' : '#{pass}' against database '#{db}'") if verbose
+				print_status("#{rhost}:#{rport} DB2 - failed login for '#{user}' : '#{pass}' against database '#{db}'") if verbose
 				return :fail
 			end
 
