@@ -1,5 +1,8 @@
 db2inst1
+dasusr1
+db2fenc1
 db2pass
 db2pw
 db2password
 admin
+

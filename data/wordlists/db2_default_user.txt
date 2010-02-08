@@ -1,2 +1,4 @@
 db2inst1
+dasusr1
+db2fenc1
 admin

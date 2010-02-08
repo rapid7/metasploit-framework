@@ -74,13 +74,24 @@ class Metasploit3 < Msf::Auxiliary
 			return :error
 		end
 			disconnect
+
+			# Report service state
+			report_service(
+				:host => rhost,
+				:port => rport,
+				:name => "db2"
+			)
+
 			if info[:db_login_success]
 				print_good("#{rhost}:#{rport} [DB2] successful login for '#{user}' : '#{pass}' against database '#{db}'")
+
+				# Report credentials
 				report_auth_info(
 					:host => rhost,
 					:proto => 'db2',
 					:user => user,
 					:pass => pass,
+					:database => db,
 					:targ_host => rhost,
 					:targ_port => rport
 				)
