@@ -156,6 +156,8 @@ class Client
 
 	def recv_rpc(sock, timeout=60)
 		buf = sock.get(timeout)
+		return nil if not buf
+
 		buf.slice!(0..3)
 		if sock.type?.eql?('tcp')
 			buf.slice!(0..3)
