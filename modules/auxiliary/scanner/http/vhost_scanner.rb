@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -28,28 +28,29 @@ require 'cgi'
 
 
 		def initialize(info = {})
-			super(update_info(info,	
+			super(update_info(info,
 				'Name'   		=> 'HTTP Virtual Host Brute Force Scanner',
 				'Description'	=> %q{
-					This module scans a web server for 
-					
+					This module tries to identify unique virutal hosts
+				hosted by the target web server.
+
 					},
 				'Author' 		=> [ 'et [at] cyberspace.org' ],
 				'License'		=> BSD_LICENSE,
-				'Version'		=> '$Revision$'))   
-			
+				'Version'		=> '$Revision$'))
+
 			register_options(
 			[
 				OptString.new('PATH', [ true,  "The PATH to use while testing", '/']),
 				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
 				OptString.new('DOMAIN', [ true,  "Domain name", '']),
 				OptString.new('HEADERS', [ false,  "HTTP Headers", '']),
-			], self.class)	
-						
+			], self.class)
+
 		end
 
-		def run_host(ip)	
-	
+		def run_host(ip)
+
 			valstr = [
 				"admin",
 				"services",
@@ -64,63 +65,63 @@ require 'cgi'
 				"www",
 				"web"
 			]
-		
+
 			datastore['QUERY'] ? tquery = queryparse(datastore['QUERY']): nil
 			datastore['HEADERS'] ? thead = headersparse(datastore['HEADERS']) : nil
 
 			noexistsres = nil
 			resparr = []
-			
+
 			2.times do |n|
-			
+
 				randhost = Rex::Text.rand_text_alpha(5)+"."+datastore['DOMAIN']
 
-		
+
 				begin
 					noexistsres = send_request_cgi({
 						'uri'  		=>  datastore['PATH'],
 						'vars_get' 	=>  tquery,
 						'headers' 	=>  thead,
-						'vhost'		=>  randhost,   
+						'vhost'		=>  randhost,
 						'method'   	=> 'GET',
 						'ctype'		=> 'text/plain'
 					}, 20)
 
 					print_status("[#{ip}] Sending request with random domain #{randhost} ")
-				
+
 					if noexistsres
 						resparr[n] = noexistsres.body
 					end
-	
+
 				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-				rescue ::Timeout::Error, ::Errno::EPIPE			
+				rescue ::Timeout::Error, ::Errno::EPIPE
 				end
 			end
-			
+
 			if resparr[0] != resparr[1]
 				print_error("[#{ip}] Unable to identify error response")
 				return
 			end
-			
+
 			valstr.each do |astr|
 				thost = astr+"."+datastore['DOMAIN']
-				
+
 				begin
 					res = send_request_cgi({
 						'uri'  		=>  datastore['PATH'],
 						'vars_get' 	=>  tquery,
-						'headers' 	=>  thead, 
-						'vhost'		=>  thost,   
+						'headers' 	=>  thead,
+						'vhost'		=>  thost,
 						'method'   	=> 'GET',
 						'ctype'		=> 'text/plain'
 					}, 20)
-					
-			
+
+
 					if res and noexistsres
 
-						if res.body !=  noexistsres.body 
+						if res.body !=  noexistsres.body
 							print_status("[#{ip}] Vhost found  #{thost} ")
-							
+
 							report_note(
 								:host	=> ip,
 								:proto	=> 'HTTP',
@@ -128,19 +129,20 @@ require 'cgi'
 								:type	=> 'VHOST',
 								:data	=> "#{thost}"
 							)
-							
-						else 
-							print_status("NOT Found #{thost}") 
+
+						else
+							print_status("NOT Found #{thost}")
 						end
 					else
-						print_status("[#{ip}] NO Response")  	
+						print_status("[#{ip}] NO Response")
 					end
 
 				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-				rescue ::Timeout::Error, ::Errno::EPIPE			
+				rescue ::Timeout::Error, ::Errno::EPIPE
 				end
-			
+
 			end
-	
+
 		end
 	end
+
