@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptPath.new('PASS_FILE',      [ false, "File containing passwords, one per line", File.join(Msf::Config.install_root, "data", "wordlists", "postgres_default_pass.txt") ]),
 			], self.class)
 
-		# Users must use user/pass/userpass files.
+		# Users should use user/pass/userpass files.
 		deregister_options('USERNAME', 'PASSWORD', 'SQL')
 	end
 
@@ -104,6 +104,14 @@ class Metasploit3 < Msf::Auxiliary
 		rescue Rex::ConnectionError
 			return :done
 		end
+
+		# Report the service state
+		report_service(
+			:host => rhost,
+			:port => rport,
+			:name => "postgresql"
+		)
+
 		msg = "#{rhost}:#{rport} Postgres -"
 		print_status("#{msg} Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport} on database '#{database}'") if verbose 
 		result = postgres_login(
@@ -114,18 +122,34 @@ class Metasploit3 < Msf::Auxiliary
 		case result
 		when :error_database
 			print_good("#{msg} Success: #{user}:#{pass} (Database '#{database}' failed.)")
+			do_report_auth_info(user,pass,database,false)
 			return :next_user # This is a success for user:pass!
 		when :error_credentials
 			print_error("#{msg} Username/Password failed.") if verbose
 			return
 		when :connected
 			print_good("#{msg} Success: #{user}:#{pass} (Database '#{database}' succeeded.)")
+			do_report_auth_info(user,pass,database,true)
 			postgres_logout
 			return :next_user
 		when :error
 			print_error("#{msg} Unknown error encountered, quitting.") if verbose
 			return :done
 		end
+
+	end
+
+	def do_report_auth_info(user,pass,db,db_ok)
+		result_hash = {
+			:host => rhost,
+			:proto => "postgresql",
+			:user => user,
+			:pass => pass,
+			:targ_host => rhost,
+			:targ_port => rport
+		}
+		result_hash.merge!({:database => db}) if db_ok
+		report_auth_info result_hash
 	end
 
 end
