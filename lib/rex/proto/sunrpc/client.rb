@@ -27,7 +27,7 @@ class Client
 	CALL = 0
 
 	attr_reader :rhost, :rport, :proto, :program, :version
-	attr_accessor :pport. :call_sock
+	attr_accessor :pport, :call_sock
 
 	attr_accessor :should_fragment
 
