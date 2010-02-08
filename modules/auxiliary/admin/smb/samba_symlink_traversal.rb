@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 		connect()
 		smb_login()
 
-		print_status("Trying to mount writeable share #{datastore['SMBSHARE']}...")
+		print_status("Trying to mount writeable share '#{datastore['SMBSHARE']}'...")
 		self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
 		print_status("Trying to link '#{datastore['SMBTARGET']}' to the root filesystem...")
