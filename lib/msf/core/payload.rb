@@ -292,22 +292,22 @@ class Payload < Msf::Module
 			if ((val = datastore[name]))
 				if (pack == 'ADDR')
 					val = Rex::Socket.resolv_nbo(val)
-					
+
 					# Someone gave us a funky address (ipv6?)
 					if(val.length == 16)
 						raise RuntimeError, "IPv6 address specified for IPv4 payload."
 					end
 				elsif (pack == 'ADDR6')
 					val = Rex::Socket.resolv_nbo(val)
-					
+
 					# Convert v4 to the v6ish address
 					if(val.length == 4)
 						nip = "fe80::5efe:" + val.unpack("C*").join(".")
 						val = Rex::Socket.resolv_nbo(nip)
-					end					
+					end
 				elsif (['ADDR16MSB', 'ADDR16LSB', 'ADDR22MSB', 'ADDR22LSB'].include?(pack))
 					val = Rex::Socket.resolv_nbo(val)
-					
+
 					# Someone gave us a funky address (ipv6?)
 					if(val.length == 16)
 						raise RuntimeError, "IPv6 address specified for IPv4 payload."
@@ -491,7 +491,7 @@ protected
 		# If there is no assembly to be compiled, then we return a duplicated
 		# copy of the raw payload blob
 		if(asm.nil? or asm.empty?)
-			return x.dup	
+			return x.dup
 		end
 
 		cache_key   = refname + suffix
@@ -518,7 +518,7 @@ protected
 
 		# Assemble the payload from the assembly
 		sc = Metasm::Shellcode.assemble(Metasm::Ia32.new, asm).encoded
-	
+
 		# Calculate the actual offsets now that it's been built
 		off.each_pair { |option, val|
 			off[option] = [ sc.offset_of_reloc(option), val[1] ]

