@@ -44,7 +44,16 @@ class Metasploit3 < Msf::Auxiliary
 	end
 	
 	def run
-		postgres_query(datastore['SQL'],datastore['RETURN_ROWSET'])
+		ret = postgres_query(datastore['SQL'],datastore['RETURN_ROWSET'])
+		verbose = datastore['VERBOSE']
+		case ret.keys[0]
+		when :conn_error
+			print_error "#{rhost}:#{rport} Postgres - Authentication failure, could not connect."
+		when :sql_error
+			print_error "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"
+		when :complete
+			print_good  "#{rhost}:#{rport} Postgres - Command complete." if verbose 
+		end
 		postgres_logout if self.postgres_conn
 	end
 end
