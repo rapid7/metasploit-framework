@@ -850,6 +850,10 @@
 						RelativePath="..\..\source\extensions\stdapi\server\net\socket\tcp_server.c"
 						>
 					</File>
+					<File
+						RelativePath="..\..\source\extensions\stdapi\server\net\socket\udp.c"
+						>
+					</File>
 				</Filter>
 			</Filter>
 			<Filter
@@ -1492,6 +1496,10 @@
 					</File>
 					<File
 						RelativePath="..\..\source\extensions\stdapi\server\net\socket\tcp.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\source\extensions\stdapi\server\net\socket\udp.h"
 						>
 					</File>
 				</Filter>

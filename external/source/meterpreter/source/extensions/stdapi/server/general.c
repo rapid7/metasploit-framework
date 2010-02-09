@@ -2,6 +2,7 @@
 
 extern DWORD request_net_tcp_client_channel_open(Remote *remote, Packet *packet);
 extern DWORD request_net_tcp_server_channel_open(Remote *remote, Packet *packet);
+extern DWORD request_net_udp_channel_open(Remote *remote, Packet *packet);
 
 // Channel type dispatch table
 struct
@@ -11,8 +12,9 @@ struct
 } channel_open_handlers[] =
 {
 	{ "stdapi_fs_file",        request_fs_file_channel_open        },
-	{ "stdapi_net_tcp_client", request_net_tcp_client_channel_open }, 
-	{ "stdapi_net_tcp_server", request_net_tcp_server_channel_open }, 
+	{ "stdapi_net_tcp_client", request_net_tcp_client_channel_open },
+	{ "stdapi_net_tcp_server", request_net_tcp_server_channel_open },
+	{ "stdapi_net_udp_client", request_net_udp_channel_open        },
 	{ NULL,                    NULL                                },
 };
 

@@ -156,18 +156,6 @@ DWORD tcp_channel_client_local_notify( Remote * remote, TcpClientContext * ctx )
 				// we loop again because bytesRead is -1.
 			}
 		}
-		else
-		{
-			if( ctx->channel )
-			{
-				dprintf( "[TCP] tcp_channel_client_local_notify. [data] channel=0x%08X read=%d", ctx->channel, dwBytesRead );
-				channel_write( ctx->channel, ctx->remote, NULL, 0, buf, dwBytesRead, 0 );
-			}
-			else
-			{
-				dprintf( "[TCP] tcp_channel_client_local_notify. [data] channel=<invalid> read=0x%.8x", dwBytesRead );
-			}
-		}
 
 		if( dwBytesRead == 0 )
 		{
@@ -184,6 +172,18 @@ DWORD tcp_channel_client_local_notify( Remote * remote, TcpClientContext * ctx )
 
 			// Stop processing
 			break;
+		}
+		else if( dwBytesRead > 0 )
+		{
+			if( ctx->channel )
+			{
+				dprintf( "[TCP] tcp_channel_client_local_notify. [data] channel=0x%08X read=%d", ctx->channel, dwBytesRead );
+				channel_write( ctx->channel, ctx->remote, NULL, 0, buf, dwBytesRead, 0 );
+			}
+			else
+			{
+				dprintf( "[TCP] tcp_channel_client_local_notify. [data] channel=<invalid> read=0x%.8x", dwBytesRead );
+			}
 		}
 
 	} while( select( 1, &set, NULL, NULL, &tv ) > 0 );

@@ -16,9 +16,21 @@ typedef struct _SocketContext
 	SOCKET   fd;
 } SocketContext;
 
-typedef SocketContext TcpClientContext;
-typedef SocketContext TcpServerContext;
-typedef SocketContext UdpClientContext;
+/*
+ * UDP socket context (localhost/localport and peerhost/peerport are optional)
+ */
+typedef struct _UdpSocketContext
+{
+	SocketContext sock;
+	short localport;
+	IN_ADDR localhost;
+	short peerport;
+	IN_ADDR peerhost;
+} UdpSocketContext;
+
+typedef SocketContext		TcpClientContext;
+typedef SocketContext		TcpServerContext;
+typedef UdpSocketContext	UdpClientContext;
 
 #define free_tcp_client_context(x) free_socket_context((SocketContext *)x)
 #define free_udp_client_context(x) free_socket_context((SocketContext *)x)
@@ -28,6 +40,7 @@ typedef SocketContext UdpClientContext;
  */
 DWORD request_net_tcp_client_channel_open(Remote *remote, Packet *packet);
 DWORD request_net_tcp_server_channel_open(Remote *remote, Packet *packet);
+DWORD request_net_udp_channel_open(Remote *remote, Packet *packet);
 
 // Config
 DWORD request_net_config_get_routes(Remote *remote, Packet *packet);
