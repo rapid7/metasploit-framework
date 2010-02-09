@@ -43,7 +43,9 @@ tbl = Rex::Ui::Text::Table.new(
 
 licenses = {}
 
-$framework.exploits.each_module { |name, mod|
+all_modules = $framework.exploits.merge($framework.auxiliary)
+
+all_modules.each_module { |name, mod|
 	x = mod.new
 	ports = []
 
