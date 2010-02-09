@@ -29,6 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 		[
+		Opt::CHOST,
 			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
 			Opt::RPORT(137)
 		], self.class)
@@ -54,9 +55,10 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			udp_sock = nil
 			idx = 0
-
-			# Create an unbound UDP socket
-			udp_sock = Rex::Socket::Udp.create()
+		
+			# Create an unbound UDP socket if no CHOST is specified, otherwise
+			# create a UDP socket bound to CHOST (in order to avail of pivoting)
+			udp_sock = Rex::Socket::Udp.create( { 'LocalHost' => datastore['CHOST'] || nil } )
 
 			batch.each do |ip|
 				begin

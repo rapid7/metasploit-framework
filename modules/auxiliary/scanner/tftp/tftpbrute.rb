@@ -28,6 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(69),
+				Opt::CHOST,
 				OptPath.new('DICTIONARY', [ true, 'The list of filenames',
 					File.join(Msf::Config.install_root, "data", "wordlists", "tftp.txt") ])
 			], self.class)
@@ -35,14 +36,18 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		begin
-
-			# Create an unbound UDP socket
-			udp_sock = Rex::Socket::Udp.create(
-				'Context'   =>
-					{
-						'Msf'        => framework,
-						'MsfExploit' => self,
-					}
+			
+			# Create an unbound UDP socket if no CHOST is specified, otherwise
+			# create a UDP socket bound to CHOST (in order to avail of pivoting)
+			udp_sock = Rex::Socket::Udp.create( 
+				{ 
+					'LocalHost' => datastore['CHOST'] || nil,
+					'Context'   =>
+						{
+							'Msf'        => framework,
+							'MsfExploit' => self,
+						}
+				}
 			)
 
 			fd = File.open(datastore['DICTIONARY'], 'r')

@@ -29,7 +29,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 		[
-			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
+			Opt::CHOST,
+			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256])
 		], self.class)
 
 		# Intialize the probes array
@@ -62,29 +63,30 @@ class Metasploit3 < Msf::Auxiliary
 			udp_sock = nil
 			idx = 0
 
-			# Create an unbound UDP socket
-			udp_sock = Rex::Socket::Udp.create()
+		# Create an unbound UDP socket if no CHOST is specified, otherwise
+		# create a UDP socket bound to CHOST (in order to avail of pivoting)
+		udp_sock = Rex::Socket::Udp.create( { 'LocalHost' => datastore['CHOST'] || nil } )
 
 			# Send each probe to each host
 			@probes.each do |probe|
-			batch.each   do |ip|
-				begin
-					data, port = self.send(probe, ip)
-					udp_sock.sendto(data, ip, port, 0)
-				rescue ::Interrupt
-					raise $!
-				rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
-					nil
-				end
-
-				if (idx % 30 == 0)
-					while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
-						parse_reply(r)
+				batch.each   do |ip|
+					begin
+						data, port = self.send(probe, ip)
+						udp_sock.sendto(data, ip, port, 0)
+					rescue ::Interrupt
+						raise $!
+					rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
+						nil
 					end
+	
+					if (idx % 30 == 0)
+						while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
+							parse_reply(r)
+						end
+					end
+	
+					idx += 1
 				end
-
-				idx += 1
-			end
 			end
 
 			while (r = udp_sock.recvfrom(65535, 3) and r[1])

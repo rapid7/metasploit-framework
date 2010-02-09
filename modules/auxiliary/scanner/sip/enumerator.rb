@@ -31,6 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptInt.new('PADLEN',   [true, 'Cero padding maximum length', 4]),
 			OptString.new('METHOD', [true, 'Enumeration method to use OPTIONS/REGISTER','REGISTER']),  		
 			Opt::RPORT(5060),
+			Opt::CHOST,
 			Opt::CPORT(5060)
 		], self.class)		
 	end
@@ -48,8 +49,14 @@ class Metasploit3 < Msf::Auxiliary
 			udp_sock = nil
 			idx = 0
 			
-			# Create an unbound UDP socket
-			udp_sock = Rex::Socket::Udp.create('LocalPort' => datastore['CPORT'].to_i)
+			# Create an unbound UDP socket if no CHOST is specified, otherwise
+			# create a UDP socket bound to CHOST (in order to avail of pivoting)
+			udp_sock = Rex::Socket::Udp.create( 
+				{
+					'LocalHost' => datastore['CHOST'] || nil,
+					'LocalPort' => datastore['CPORT'].to_i
+				}
+			)
 
 			mini = datastore['MINEXT']
 			maxi = datastore['MAXEXT']

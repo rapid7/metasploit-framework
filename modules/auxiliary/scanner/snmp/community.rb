@@ -29,6 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 		[
+			Opt::CHOST,
 			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
 			OptPath.new('COMMUNITIES',   [ false, "The list of communities that should be attempted per host",
 					File.join(Msf::Config.install_root, "data", "wordlists", "snmp.txt")
@@ -67,8 +68,9 @@ class Metasploit3 < Msf::Auxiliary
 			udp_sock = nil
 			idx = 0
 
-			# Create an unbound UDP socket
-			udp_sock = Rex::Socket::Udp.create()
+			# Create an unbound UDP socket if no CHOST is specified, otherwise
+			# create a UDP socket bound to CHOST (in order to avail of pivoting)
+			udp_sock = Rex::Socket::Udp.create( { 'LocalHost' => datastore['CHOST'] || nil } )
 
 			print_status(">> progress (#{batch[0]}-#{batch[-1]}) #{idx}/#{@comms.length * batch.length}...")
 			@comms.each do |comm|
