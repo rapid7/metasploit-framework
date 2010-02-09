@@ -227,6 +227,12 @@ class Metasploit3 < Msf::Auxiliary
 				dcerpc.call(7, stub)
 				resp    = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
 				dhandle = resp[0,20]
+				derror  = resp[20,4].unpack("V")[0]
+
+				# Catch access denied replies to OpenDomain
+				if(derror != 0)
+					next
+				end
 
 				# Password information
 				stub = dhandle + [0x01].pack('v')
