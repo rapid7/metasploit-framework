@@ -116,7 +116,7 @@ module Msf::Payload::Aix
 			__NR_execve      = 5
 			__NR_getpeername = 122
 			__NR_accept      = 138
-			__NR_listen      = 137
+			__NR_listen      = 139
 			__NR_bind        = 140
 			__NR_socket      = 141
 			__NR_connect     = 142
