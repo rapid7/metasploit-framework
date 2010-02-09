@@ -19,7 +19,13 @@ module Rex::Socket::Udp
 	# Creates the client using the supplied hash.
 	#
 	def self.create(hash = {})
-		hash['Proto'] = 'udp' 
+		hash['Proto'] = 'udp'
+		# If we have are to bind to a LocalHost we must be a Server to avail of pivoting.
+		# Rex::Socket::Parameters will subsequently turn off the sever flag after the correct
+		# comm has been chosen.
+		if( hash['LocalHost'] )
+			hash['Server'] = true
+		end
 		self.create_param(Rex::Socket::Parameters.from_hash(hash))
 	end
 

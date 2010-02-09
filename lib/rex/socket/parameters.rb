@@ -173,7 +173,13 @@ class Rex::Socket::Parameters
 
 		# If we still haven't found a comm, we default to the local comm.
 		self.comm      = Rex::Socket::Comm::Local if (self.comm == nil)
-
+		
+		# If we are a UDP server, turn off the server flag as it was only set when 
+		# creating the UDP socket in order to avail of the switch board above.
+		if( self.server and self.proto == 'udp' )
+			self.server = false
+		end
+		
 		# The number of connection retries to make (client only)
 		if hash['Retries']
 			self.retries = hash['Retries'].to_i

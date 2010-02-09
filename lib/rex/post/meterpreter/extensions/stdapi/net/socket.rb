@@ -5,6 +5,7 @@ require 'rex/socket'
 require 'rex/post/meterpreter/extensions/stdapi/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel'
 require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_server_channel'
+require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/udp_channel'
 require 'rex/logging'
 
 module Rex
@@ -65,16 +66,12 @@ class Socket
 		
 		if( params.tcp? )
 			if( params.server? )
-				res = create_tcp_server( params )
+				res = create_tcp_server_channel( params )
 			else
-				res = create_tcp_client( params )
+				res = create_tcp_client_channel( params )
 			end
 		elsif( params.udp? )
-			if( params.server? )
-				res = create_udp_server( params )
-			else
-				res = create_udp_client( params )
-			end
+		  res = create_udp_channel( params )
 		end
 		
 		return res
@@ -83,7 +80,7 @@ class Socket
 	#
 	# Create a TCP server channel.
 	#
-	def create_tcp_server(params)
+	def create_tcp_server_channel(params)
 		begin
 			return SocketSubsystem::TcpServerChannel.open(client, params)
 		rescue ::Rex::Post::Meterpreter::RequestError => e
@@ -98,7 +95,7 @@ class Socket
 	#
 	# Creates a TCP client channel.
 	#
-	def create_tcp_client(params)
+	def create_tcp_client_channel(params)
 		begin
 			channel = SocketSubsystem::TcpClientChannel.open(client, params)
 			if( channel != nil )
@@ -115,16 +112,20 @@ class Socket
 	end
 
 	#
-	# Creates a UDP server channel.
+	# Creates a UDP channel.
 	#
-	def create_udp_server(params)
+	def create_udp_channel(params)
+		begin
+			return SocketSubsystem::UdpChannel.open(client, params)
+		rescue ::Rex::Post::Meterpreter::RequestError => e
+			case e.result
+				when 10000 .. 10100
+				raise ::Rex::ConnectionError.new
+			end
+			raise e
+		end 
 	end
 
-	#
-	# Creates a UDP client channel.
-	#
-	def create_udp_client(params)
-	end
 
 protected
 

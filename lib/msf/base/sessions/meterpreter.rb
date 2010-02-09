@@ -197,12 +197,12 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		# Notify handlers before we create the socket
 		notify_before_socket_create(self, param)
 
-		case param.proto
-			when 'tcp'
-				sock = net.socket.create(param)
-			else
-				raise Rex::UnsupportedProtocol.new(param.proto), caller
-		end
+		sock = net.socket.create(param)
+		
+		# sf: unsure if we should raise an exception or just return nil. returning nil for now.
+		#if( sock == nil )
+		#  raise Rex::UnsupportedProtocol.new(param.proto), caller
+		#end
 
 		# Notify now that we've created the socket
 		notify_socket_created(self, sock, param)

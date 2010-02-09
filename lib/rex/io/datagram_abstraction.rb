@@ -17,8 +17,7 @@ module DatagramAbstraction
 	# Creates a streaming socket pair
 	#
 	def initialize_abstraction
-		self.lsock, self.rsock = ::Socket.pair(::Socket::AF_UNIX,
-				::Socket::SOCK_DGRAM, 0)
+		self.lsock, self.rsock = Rex::Socket.udp_socket_pair()
 	end
 
 
@@ -26,10 +25,11 @@ module DatagramAbstraction
 	attr_reader :lsock
 	# The right side of the stream (remote)
 	attr_reader :rsock
-
+	
 protected
+	attr_writer :lsock
+	attr_writer :rsock
 
-	attr_writer :lsock, :rsock # :nodoc:
 end
 
 end; end

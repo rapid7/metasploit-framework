@@ -391,12 +391,16 @@ module Socket
 		rescue ::Exception
 			return '127.0.0.1'
 		end
-  end
+	end
 
+	#
+	# Create a TCP socket pair.
+	#
 	# sf: This create a socket pair using native ruby sockets and will work 
 	# on Windows where ::Socket.pair is not implemented.
 	# Note: OpenSSL requires native ruby sockets for its io.
-	def self.socket_pair
+	#
+	def self.tcp_socket_pair
 		lsock   = nil
 		rsock   = nil
 		laddr   = '127.0.0.1' 
@@ -425,7 +429,26 @@ module Socket
 		
 		return [lsock, rsock]
 	end
-
+	
+	#
+	# Create a UDP socket pair using native ruby UDP sockets.
+	#
+	def self.udp_socket_pair
+		laddr = '127.0.0.1' 
+		
+		lsock = ::UDPSocket.new
+		lsock.bind( laddr, 0 )
+		
+		rsock = ::UDPSocket.new
+		rsock.bind( laddr, 0 )
+		
+		rsock.connect( *lsock.addr.values_at(3,1) )
+		
+		lsock.connect( *rsock.addr.values_at(3,1) )
+		
+		return [lsock, rsock]
+	end
+	
 	##
 	#
 	# Class initialization

@@ -133,9 +133,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 
 		rsock.extend( SocketInterface )
 		rsock.channel = self
-
-		monitor_rsock()
-
+    
 	end
 
 	#
@@ -161,67 +159,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 		response = client.send_request(request)
 
 		return true
-  end
-
-protected
-
-	def monitor_rsock
-		self.monitor_thread = ::Thread.new {
-			loop do
-				closed = false
-				buf   = nil
-				
-				begin
-					s = Rex::ThreadSafe.select( [ self.rsock ], nil, nil, 0.2 )
-					if( s == nil || s[0] == nil )
-						next
-					end
-				rescue Exception => e
-					closed = true
-				end
-				
-				if( closed == false )
-					begin
-						buf = self.rsock.sysread( 32768 )
-						closed = true if( buf == nil )
-					rescue
-						closed = true
-					end
-				end
-			
-				if( closed == false )
-					total_sent   = 0
-					total_length = buf.length
-					while( total_sent < total_length )
-						begin
-							data = buf[0, buf.length]
-							sent = self.write( data )
-							# sf: Only remove the data off the queue is syswrite was successfull.
-							#     This way we naturally perform a resend if a failure occured.
-							#     Catches an edge case with meterpreter TCP channels where remote send 
-							#     failes gracefully and a resend is required.
-							if( sent > 0 )
-								total_sent += sent
-								buf[0, sent] = ""
-							end
-						rescue ::IOError => e
-							closed = true
-							break
-						end
-					end
-				end
-			
-				if( closed )
-					self.close_write
-					::Thread.exit
-				end
-			
-			end
-		
-		}
 	end
-	
-attr_accessor :monitor_thread
 
 end
 
