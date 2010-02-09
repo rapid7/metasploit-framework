@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_error "AIRPWN: failed to parse YAML file, #{e.class} #{e} #{e.backtrace}"
 			end
 		else
-			@http[0] = { "regex" => @regex, "response" => @response }
+			@http[0] = { "regex" => [@regex], "response" => @response }
 		end
 
 		@run = true
@@ -131,6 +131,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
+		print_status "Opening wifi module."
 		open_wifi
 
 		self.wifi.filter = @filter if (@filter != "") 
