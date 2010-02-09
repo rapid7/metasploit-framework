@@ -44,6 +44,7 @@ tbl = Rex::Ui::Text::Table.new(
 licenses = {}
 
 all_modules = $framework.exploits.merge($framework.auxiliary)
+all_ports = {}
 
 all_modules.each_module { |name, mod|
 	x = mod.new
@@ -61,7 +62,14 @@ all_modules.each_module { |name, mod|
 	ports = ports.map{|p| p.to_i}
 	ports.uniq!
 	ports.sort{|a,b| a <=> b}.each do |rport|
-		puts "#{rport}\t#{x.fullname}"
+		# Just record the first occurance.
+		all_ports[rport] = x.fullname unless all_ports[rport]
 	end
 }
+
+all_ports.sort.each { |k,v|
+	puts "%5s # %s" % [k,v]
+}
+
+
 
