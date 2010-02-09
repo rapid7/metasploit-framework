@@ -301,7 +301,7 @@ class Metasploit3 < Msf::Auxiliary
 					:data => domains[domain]
 				)
 
-				users = domains[domain][:users]
+				users = domains[domain][:users] || {}
 				extra = ""
 				if (domains[domain][:lockout_threshold])
 					extra = "( "
