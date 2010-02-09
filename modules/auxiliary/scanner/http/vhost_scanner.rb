@@ -31,7 +31,7 @@ require 'cgi'
 			super(update_info(info,
 				'Name'   		=> 'HTTP Virtual Host Brute Force Scanner',
 				'Description'	=> %q{
-					This module tries to identify unique virutal hosts
+					This module tries to identify unique virtual hosts
 				hosted by the target web server.
 
 					},
