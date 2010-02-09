@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-
+		print_status("Starting host #{ip}")
 		begin
 			each_user_pass { |user, pass|
 				try_user_pass(user, pass)
@@ -75,8 +75,23 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect
 			connect
 		end
-		send_user(user)
-		if (send_pass(pass))
+
+		if password_prompt?
+			send_pass(pass)
+		elsif login_prompt?
+			send_user(user)
+			# Ubuntu's telnetd gives a failure right away when trying to login
+			# as root. Skipping this user in that instance saves a lot of time
+			# but might unnecessarily skip users, especially on high-latency
+			# networks.
+			#return :next_user if not password_prompt?
+			send_pass(pass)
+		end
+
+		# if we don't have a pass or a login prompt, maybe it's just an
+		# unauthenticated shell, so check for success anyway.
+
+		if (login_succeeded?)
 			print_good("#{rhost} - SUCCESSFUL LOGIN #{user} : #{pass}")
 			report_auth_info(
 				:host	=> rhost,
