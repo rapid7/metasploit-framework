@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 		report_service(
 			:host => rhost,
 			:port => rport,
-			:name => "postgresql"
+			:name => "postgres"
 		)
 
 		msg = "#{rhost}:#{rport} Postgres -"
@@ -142,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
 	def do_report_auth_info(user,pass,db,db_ok)
 		result_hash = {
 			:host => rhost,
-			:proto => "postgresql",
+			:proto => "postgres",
 			:user => user,
 			:pass => pass,
 			:targ_host => rhost,
