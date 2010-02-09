@@ -663,7 +663,7 @@ class DBManager
 		end
 		framework.db.queue(Proc.new {
 			opts[:host] = get_host(opts[:host]) if opts[:host]
-			Event.create(opts.merge(:workspace_id => workspace.id))
+			Event.create(opts.merge(:workspace_id => workspace[:id]))
 		})
 	end
 
