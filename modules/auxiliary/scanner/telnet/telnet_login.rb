@@ -47,8 +47,10 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('RHOST')
 		register_options(
 			[
-				OptInt.new('ATTEMPTS', [ false, 'Number of login attempts before reconnecting', 3 ])
-			], Msf::Exploit::Remote::Telnet)
+				OptInt.new('ATTEMPTS', [ false, 'Number of login attempts before reconnecting', 3 ]),
+				OptBool.new('VERBOSE', [ true, 'Verbose output', false])
+			], Msf::Exploit::Remote::Telnet
+		)
 
 		@attempts = 0
 		@got_shell = false
@@ -67,6 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def try_user_pass(user, pass)
+		print_status "#{rhost}:#{rport} Telnet - Attempting: '#{user}':'#{pass}'" if datastore['VERBOSE']
 		if @got_shell
 			@got_shell = false
 			@attempts = 0
