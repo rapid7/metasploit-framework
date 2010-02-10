@@ -27,7 +27,8 @@ class Metasploit3 < Msf::Auxiliary
 				},
 			'References'  =>
 				[
-					#['URL', 'http://www.aushack.com/'], # No refs. New vuln?
+					[ 'OSVDB', '55586' ],
+					[ 'CVE', '2009-2367' ],
 				],
 			'Author'      => [ 'patrick' ],
 			'License'     => MSF_LICENSE
