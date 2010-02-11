@@ -1,4 +1,7 @@
 ##
+#
+# $Id$
+#
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -42,16 +45,15 @@ class Metasploit3 < Msf::Auxiliary
 			data = sock.get_once
 
 				if ( data and data =~ /\\*.TNSLSNR for (.*)/ )
-					report_note(
+					report_service(
 						:host	=> ip,
-						:proto	=> 'tcp',
 						:port	=> datastore['RPORT'],
-						:type	=> 'VERSION',
-						:data	=> $1
+						:name   => "oracle",
+						:info   => $1
 					)
-					print_status("Host #{ip} is running: " + $1)
+					print_status("#{ip}:#{datastore['RPORT']} Oracle - Version: " + $1)
 				else
-					print_error("Unable to determine version info for #{ip}...")
+					print_error( "#{ip}:#{datastore['RPORT']} Orcale - Version: Unknown")
 				end
 			disconnect
 		rescue ::Rex::ConnectionError
