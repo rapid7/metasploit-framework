@@ -195,6 +195,14 @@ class DataStore < Hash
 		}
 	end
 
+	#
+	# Completely clear all values in the hash
+	#
+	def clear
+		self.keys.each {|k| self.delete(k) }
+		self
+	end
+
 protected
 
 	#
