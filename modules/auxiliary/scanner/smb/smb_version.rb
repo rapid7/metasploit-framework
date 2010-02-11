@@ -76,8 +76,20 @@ class Metasploit3 < Msf::Auxiliary
 				when /Windows/
 					os = OperatingSystems::WINDOWS
 				else
-					os = OperatingSystems::UNKNOWN
+					case res['sp']
+					when /apple/
+						os = OperatingSystems::MAC_OSX
+					when /ubuntu/
+						os = 'Ubuntu'
+						res['os'] = OperatingSystems::LINUX
+					when /debian/
+						os = 'Ubuntu'
+						res['os'] = OperatingSystems::LINUX
+					else
+						os = OperatingSystems::UNKNOWN
+					end
 				end
+
 				report_host({
 					:host => ip,
 					:os_flavor => res['os'],
