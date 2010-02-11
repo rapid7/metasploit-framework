@@ -310,10 +310,18 @@ require 'metasm'
 		mo = fd.read(fd.stat.size)
 		fd.close
 
-		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
-		co = mo.index( " " * 512 )
+		# The old way to do it is like other formats, just overwrite a big
+		# block of rwx mem with our shellcode.
+		#bo = mo.index( "\x90\x90\x90\x90" * 1024 )
+		#co = mo.index( " " * 512 )
+		#mo[bo, 2048] = [code].pack('a2048') if bo
 
-		mo[bo, 2048] = [code].pack('a2048') if bo
+		# The new template is just an ELF header with its entry point set to
+		# the end of the file, so just append shellcode to it and fixup
+		# p_filesz and p_memsz in the header for a working ELF executable.
+		mo << code
+		mo[0x44,4] = [mo.length + code.length].pack('V')
+		mo[0x48,4] = [mo.length + code.length].pack('V')
 
 		return mo
 	end
