@@ -22,6 +22,11 @@ module Arch
 	# This routine adjusts the stack pointer for a given architecture.
 	#
 	def self.adjust_stack_pointer(arch, adjustment)
+
+		if ( arch.is_a?(::Array))
+			arch = arch[0]
+		end
+
 		case arch
 			when /x86/
 				Rex::Arch::X86.adjust_reg(Rex::Arch::X86::ESP, adjustment)
@@ -34,6 +39,11 @@ module Arch
 	# This route provides address packing for the specified arch
 	#
 	def self.pack_addr(arch, addr)
+
+		if ( arch.is_a?(::Array))
+			arch = arch[0]
+		end
+
 		case arch
 			when ARCH_X86
 				[addr].pack('V')
