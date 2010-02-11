@@ -45,13 +45,14 @@ class Metasploit3 < Msf::Auxiliary
 			data = sock.get_once
 
 				if ( data and data =~ /\\*.TNSLSNR for (.*)/ )
+					ora_version = data.match(/\\*.TNSLSNR for (.*)/)[1]
 					report_service(
 						:host	=> ip,
 						:port	=> datastore['RPORT'],
 						:name   => "oracle",
-						:info   => $1
+						:info   => ora_version
 					)
-					print_status("#{ip}:#{datastore['RPORT']} Oracle - Version: " + $1)
+					print_good("#{ip}:#{datastore['RPORT']} Oracle - Version: " + ora_version)
 				else
 					print_error( "#{ip}:#{datastore['RPORT']} Orcale - Version: Unknown")
 				end
