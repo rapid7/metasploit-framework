@@ -56,13 +56,13 @@ module Arch
 			when ARCH_MIPSLE
 				[addr].pack('V')
 			when ARCH_PPC  # ambiguous
-				[addr].pack('N')			
+				[addr].pack('N')
 			when ARCH_SPARC
 				[addr].pack('N')
 			when ARCH_ARMLE
 				[addr].pack('V')
 			when ARCH_ARMBE
-				[addr].pack('N')		
+				[addr].pack('N')
 		end
 	end
 
@@ -70,11 +70,11 @@ module Arch
 	# This routine reports the endianess of a given architecture
 	#
 	def self.endian(arch)
-	
+
 		if ( arch.is_a?(::Array))
 			arch = arch[0]
 		end
-		
+
 		case arch
 			when ARCH_X86
 				return ENDIAN_LITTLE
@@ -95,7 +95,7 @@ module Arch
 			when ARCH_ARMBE
 				return ENDIAN_BIG
 		end
-		
+
 		return ENDIAN_LITTLE
 	end
 
