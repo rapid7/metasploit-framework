@@ -1,6 +1,13 @@
 #!/usr/bin/env ruby
 
-require 'zip'
+msfbase = __FILE__
+while File.symlink?(msfbase)
+	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
+inc = File.dirname(msfbase) + '/../../..'
+$:.unshift(inc)
+
+require 'rex/zip'
 
 out = "test.zip"
 dir = "/var/www"
@@ -46,6 +53,6 @@ def add_files(zip, path, recursive = nil)
 end
 
 
-zip = Zip::Archive.new
+zip = Rex::Zip::Archive.new
 add_files(zip, dir, TRUE)
 zip.save_to(out)

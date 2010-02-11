@@ -4,7 +4,15 @@
 # Create a WAR archive!
 #
 
-require 'zip'
+msfbase = __FILE__
+while File.symlink?(msfbase)
+	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
+inc = File.dirname(msfbase) + '/../../..'
+$:.unshift(inc)
+
+
+require 'rex/zip'
 
 
 def rand_text_alpha(len)
@@ -30,7 +38,7 @@ var_payload = "var_payload"
 var_name = "var_name"
 
 
-zip = Zip::Archive.new
+zip = Rex::Zip::Archive.new
 
 # begin meta-inf/
 minf = [ 0xcafe, 0x0003 ].pack('Vv')

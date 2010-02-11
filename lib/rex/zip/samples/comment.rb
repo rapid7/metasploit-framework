@@ -4,10 +4,17 @@
 # Create a zip file with comments!
 #
 
-require 'zip'
+msfbase = __FILE__
+while File.symlink?(msfbase)
+	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
+inc = File.dirname(msfbase) + '/../../..'
+$:.unshift(inc)
+
+require 'rex/zip'
 
 # example usage
-zip = Zip::Archive.new
+zip = Rex::Zip::Archive.new
 zip.add_file("elite.txt", "A" * 1024, nil, %Q<
                                  +---------------+
                                  | file comment! |
