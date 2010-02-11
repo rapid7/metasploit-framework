@@ -28,8 +28,10 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		begin
 			res = connect
-			print_status("#{ip}:#{rport} TELNET #{banner.gsub(/[\r\n\x1b]/, ' ')}")
-			report_service(:host => rhost, :port => rport, :name => "telnet", :info => banner)
+			# This makes db_services look a lot nicer.
+			banner_santized = banner.to_s.gsub(/[\x00-\x19\x7f-\xff]/) { |s| "\\x%02x" % s[0].ord}
+			print_status("#{ip}:#{rport} TELNET #{banner_santized}")
+			report_service(:host => rhost, :port => rport, :name => "telnet", :info => banner_santized)
 		rescue ::Rex::ConnectionError
 		rescue ::Exception => e
 			print_error("#{e} #{e.backtrace}")
