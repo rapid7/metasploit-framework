@@ -17,7 +17,7 @@ module Rex
 ###
 module Text
 	@@codepage_map_cache = nil
-	
+
 	##
 	#
 	# Constants
@@ -39,7 +39,7 @@ module Text
 	AllChars     = [*(0x00 .. 0xff)].pack("C*")
 
 	DefaultPatternSets = [ Rex::Text::UpperAlpha, Rex::Text::LowerAlpha, Rex::Text::Numerals ]
-	
+
 	##
 	#
 	# Serialization
@@ -73,14 +73,14 @@ module Text
 	def self.to_c_comment(str, wrap = DefaultWrap)
 		return "/*\n" + wordwrap(str, 0, wrap, '', ' * ') + " */\n"
 	end
-	
+
 	#
 	# Creates a javascript-style comment
 	#
 	def self.to_js_comment(str, wrap = DefaultWrap)
 		return wordwrap(str, 0, wrap, '', '// ')
 	end
-	
+
 	#
 	# Converts a raw string into a perl buffer
 	#
@@ -100,17 +100,17 @@ module Text
 			buff << "\t" if max == 0
 			buff << sprintf('(byte) 0x%.2x', c)
 			max +=1
-			cnt +=1 
-			
-			if (max > 7)	
-				buff << ",\n" if cnt != str.length 
+			cnt +=1
+
+			if (max > 7)
+				buff << ",\n" if cnt != str.length
 				max = 0
 			end
 		end
 		buff << "\n};\n"
-		return buff	
+		return buff
 	end
-	
+
 	#
 	# Creates a perl-style comment
 	#
@@ -149,7 +149,7 @@ module Text
 		end
 	end
 
-	# 
+	#
 	# Converts EBCIDC to ASCII
 	#
 	def self.from_ebcdic(str)
@@ -161,7 +161,7 @@ module Text
 			raise ::RuntimeError, "Your installation does not support iconv (needed for EBCDIC conversion)"
 		end
 	end
-	
+
 	#
 	# Returns a unicode escaped string for Javascript
 	#
@@ -174,14 +174,14 @@ module Text
 			dptr += 1
 			c2 = data[dptr,1].unpack("C*")[0]
 			dptr += 1
-			
+
 			if (endian == ENDIAN_LITTLE)
 				buff << sprintf('%%u%.2x%.2x', c2, c1)
 			else
 				buff << sprintf('%%u%.2x%.2x', c1, c2)
 			end
 		end
-		return buff	
+		return buff
 	end
 
 	#
@@ -198,15 +198,15 @@ module Text
 	end
 
 	#
-	# Converts standard ASCII text to a unicode string.  
+	# Converts standard ASCII text to a unicode string.
 	#
 	# Supported unicode types include: utf-16le, utf16-be, utf32-le, utf32-be, utf-7, and utf-8
-	# 
+	#
 	# Providing 'mode' provides hints to the actual encoder as to how it should encode the string.  Only UTF-7 and UTF-8 use "mode".
-	# 
+	#
 	# utf-7 by default does not encode alphanumeric and a few other characters.  By specifying the mode of "all", then all of the characters are encoded, not just the non-alphanumeric set.
 	#	to_unicode(str, 'utf-7', 'all')
-	# 
+	#
 	# utf-8 specifies that alphanumeric characters are used directly, eg "a" is just "a".  However, there exist 6 different overlong encodings of "a" that are technically not valid, but parse just fine in most utf-8 parsers.  (0xC1A1, 0xE081A1, 0xF08081A1, 0xF8808081A1, 0xFC80808081A1, 0xFE8080808081A1).  How many bytes to use for the overlong enocding is specified providing 'size'.
 	# 	to_unicode(str, 'utf-8', 'overlong', 2)
 	#
@@ -215,10 +215,10 @@ module Text
 	#
 	# utf-7 defaults to 'normal' utf-7 encoding
 	# utf-8 defaults to 2 byte 'normal' encoding
-	# 
+	#
 	def self.to_unicode(str='', type = 'utf-16le', mode = '', size = '')
 		return '' if not str
-		case type 
+		case type
 		when 'utf-16le'
 			return str.unpack('C*').pack('v*')
 		when 'utf-16be'
@@ -238,7 +238,7 @@ module Text
 					'+' + out + '-'
 				}
 			else
-				return str.gsub(/[^\n\r\t\ A-Za-z0-9\'\(\),-.\/\:\?]/){ |a| 
+				return str.gsub(/[^\n\r\t\ A-Za-z0-9\'\(\),-.\/\:\?]/){ |a|
 					out = ''
 					if a != '+'
 						out = encode_base64(to_unicode(a, 'utf-16be')).gsub(/[=\r\n]/, '')
@@ -274,7 +274,7 @@ module Text
 							if i < 6
 								mod = (((size * 8) - 1) - byte * 8) - i
 								out[mod] = bit
-							else 
+							else
 								byte = byte + 1
 								i = 0
 								redo
@@ -312,7 +312,7 @@ module Text
 					end
 				}
 				return string
-			else 
+			else
 				raise TypeError, 'invalid utf-8 size'
 			end
 		when 'uhwtfms' # suggested name from HD :P
@@ -364,23 +364,23 @@ module Text
 				end
 			}
 			return string
-		else 
+		else
 			raise TypeError, 'invalid utf type'
 		end
 	end
 
-	# 	
-	# Encode a string in a manor useful for HTTP URIs and URI Parameters.  
+	#
+	# Encode a string in a manor useful for HTTP URIs and URI Parameters.
 	#
 	def self.uri_encode(str, mode = 'hex-normal')
-		return "" if str == nil 
+		return "" if str == nil
 
 		return str if mode == 'none' # fast track no encoding
 
 		all = /[^\/\\]+/
 		normal = /[^a-zA-Z0-9\/\\\.\-]+/
 		normal_na = /[a-zA-Z0-9\/\\\.\-]/
-		
+
 		case mode
 		when 'hex-normal'
 			return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
@@ -390,7 +390,7 @@ module Text
 				res = ''
 				str.each_byte do |c|
 					b = c.chr
-					res << ((rand(2) == 0) ? 
+					res << ((rand(2) == 0) ?
 						b.gsub(all)   { |s| Rex::Text.to_hex(s, '%') } :
 						b.gsub(normal){ |s| Rex::Text.to_hex(s, '%') } )
 				end
@@ -403,11 +403,11 @@ module Text
 				res = ''
 				str.each_byte do |c|
 					b = c.chr
-					res << ((rand(2) == 0) ? 
+					res << ((rand(2) == 0) ?
 						b.gsub(all)   { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } :
 						b.gsub(normal){ |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) } )
 				end
-				return res		
+				return res
 		when 'u-half'
 			return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms-half'), '%u', 2) }
 		else
@@ -415,29 +415,29 @@ module Text
 		end
 	end
 
-	# Encode a string in a manor useful for HTTP URIs and URI Parameters.  
-	# 
-	# a = "javascript".gsub(/./) {|i| "(" + [ Rex::Text.html_encode(i, 'hex'), Rex::Text.html_encode(i, 'int'), Rex::Text.html_encode(i, 'int-wide')].join('|') +')[\s\x00]*' }
+	#
+	# Encode a string in a manor useful for HTTP URIs and URI Parameters.
+	#
 	def self.html_encode(str, mode = 'hex')
 		case mode
 		when 'hex'
-			return str.gsub(/./) { |s| Rex::Text.to_hex(s, '&#x') }
+			return str.unpack('C*').collect{ |i| "&#x" + ("%.2x" % i) + ";"}.join
 		when 'int'
-			return str.unpack('C*').collect{ |i| "&#" + i.to_s }.join('')
+			return str.unpack('C*').collect{ |i| "&#" + i.to_s + ";"}.join
 		when 'int-wide'
-			return str.unpack('C*').collect{ |i| "&#" + ("0" * (7 - i.to_s.length)) + i.to_s }.join('')
-		else 
+			return str.unpack('C*').collect{ |i| "&#" + ("0" * (7 - i.to_s.length)) + i.to_s + ";" }.join
+		else
 			raise TypeError, 'invalid mode'
 		end
 	end
 
-	# 	
+	#
 	# Decode a URI encoded string
 	#
 	def self.uri_decode(str)
 		str.gsub(/(%[a-z0-9]{2})/i){ |c| [c[1,2]].pack("H*") }
 	end
-	
+
 	#
 	# Converts a string to random case
 	#
@@ -458,12 +458,12 @@ module Text
 		cnt = 0
 		snl = false
 		lst = 0
-		
+
 		while (idx < str.length)
-			
+
 			chunk = str[idx, width]
 			line  = chunk.unpack("H*")[0].scan(/../).join(" ")
-			buf << line	
+			buf << line
 
 			if (lst == 0)
 				lst = line.length
@@ -471,7 +471,7 @@ module Text
 			else
 				buf << " " * ((lst - line.length) + 4).abs
 			end
-			
+
 			chunk.unpack("C*").each do |c|
 				if (c >	0x1f and c < 0x7f)
 					buf << c.chr
@@ -479,15 +479,15 @@ module Text
 					buf << "."
 				end
 			end
-			
+
 			buf << "\n"
-		
+
 			idx += width
 		end
-		
+
 		buf << "\n"
 	end
-	
+
 	#
 	# Converts a hex string to a raw string
 	#
@@ -549,7 +549,7 @@ module Text
 		# If we were in the middle of a line, finish the buffer at this point
 		if (new_line == false)
 			output << buf_end + "\n"
-		end	
+		end
 
 		return output
 	end
@@ -578,7 +578,7 @@ module Text
 	# Raw MD5 digest of the supplied string
 	#
 	def self.md5_raw(str)
-		Digest::MD5.digest(str)	
+		Digest::MD5.digest(str)
 	end
 
 	#
@@ -598,9 +598,9 @@ module Text
 
 	# Generates a random character.
 	def self.rand_char(bad, chars = AllChars)
-		rand_text(1, bad, chars)	
+		rand_text(1, bad, chars)
 	end
-	
+
 	# Base text generator method
 	def self.rand_base(len, bad, *foo)
 		# Remove restricted characters
@@ -608,13 +608,13 @@ module Text
 
 		# Return nil if all bytes are restricted
 		return nil if foo.length == 0
-	
+
 		buff = ""
-	
+
 		# Generate a buffer from the remaining bytes
 		if foo.length >= 256
 			len.times { buff << Kernel.rand(256) }
-		else 
+		else
 			len.times { buff << foo[ rand(foo.length) ] }
 		end
 
@@ -667,14 +667,14 @@ module Text
 		foo = ('0' .. '9').to_a
 		rand_base(len, bad, *foo )
 	end
-	
+
 	# Generate random bytes of english-like data
 	def self.rand_text_english(len, bad='')
 		foo = []
 		foo += (0x21 .. 0x7e).map{ |c| c.chr }
 		rand_base(len, bad, *foo )
 	end
-	
+
 	# Generate random bytes of high ascii data
 	def self.rand_text_highascii(len, bad='')
 		foo = []
@@ -702,7 +702,7 @@ module Text
 				break
 			end
 		end
-		
+
 		# Maximum permutations reached, but we need more data
 		if (buf.length < length)
 			buf = buf * (length / buf.length.to_f).ceil
@@ -743,7 +743,7 @@ module Text
 			while (buf.length < len)
 				buf << set[rand(set.length),1]
 			end
-			
+
 			buf
 		}
 	end
@@ -757,7 +757,7 @@ module Text
 			return false
 		end
 	end
-	
+
 	# backwards compat for just a bit...
 	def self.gzip_present?
 		self.zlib_present?
@@ -772,7 +772,7 @@ module Text
 			dst = z.deflate(str, Zlib::FINISH)
 			z.close
 			return dst
-		else			
+		else
 			raise RuntimeError, "Gzip support is not present."
 		end
 	end
@@ -805,7 +805,7 @@ module Text
 		gz.close
 		return s
 	end
-	
+
 	#
 	# Uncompresses a string using gzip
 	#
@@ -818,7 +818,7 @@ module Text
 		gz.close
 		return s
 	end
-	
+
 	#
 	# Return the index of the first badchar in data, otherwise return
 	# nil if there wasn't any badchar occurences.
@@ -878,10 +878,10 @@ module Text
 
 			word_ucase = word.dup
 			word_ucase[idx, 1] = word[idx, 1].upcase
-			
+
 			word_lcase = word.dup
 			word_lcase[idx, 1] = word[idx, 1].downcase
-	
+
 			if (idx == word.length)
 				return [word]
 			else
@@ -891,7 +891,7 @@ module Text
 		else
 			res << permute_case(word, idx+1)
 		end
-		
+
 		res.flatten
 	end
 
@@ -931,7 +931,7 @@ module Text
 		end
 		[bits.join].pack("B32").unpack("N")[0]
 	end
-	
+
 	#
 	# Rotate a 32-bit value to the left by cnt bits
 	#
@@ -968,7 +968,7 @@ protected
 
 		buf
 	end
-	
+
 	def self.load_codepage()
 		return if (!@@codepage_map_cache.nil?)
 		file = File.join(File.dirname(__FILE__),'codepage.map')
@@ -1003,3 +1003,4 @@ protected
 
 end
 end
+
