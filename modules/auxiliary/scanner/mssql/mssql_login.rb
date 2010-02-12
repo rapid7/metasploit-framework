@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_auth_info({
 					:host => rhost,
 					:port => rport,
-					:proto => 'tcp',
+					:proto => 'mssql',
 					:user => user,
 					:pass => pass,
 					:targ_host => rhost,
