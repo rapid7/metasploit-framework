@@ -17,6 +17,7 @@ class Metasploit3 < Msf::Auxiliary
         
 	include Msf::Exploit::Remote::MSSQL
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 	
 	def initialize
 		super(
@@ -30,6 +31,9 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('RPORT', 'RHOST')
 	end
 
+	def rport
+		datastore['RPORT']
+	end
 
 	def run_host(ip)
 		
@@ -41,9 +45,52 @@ class Metasploit3 < Msf::Auxiliary
 			info.each_pair { |k,v|
 				print_status("   #{k + (" " * (15-k.length))} = #{v}")
 			}
+			if info['tcp']
+				report_mssql_service(ip,info)
+			end
+
 		end
+
 		
 		rescue ::Rex::ConnectionError
 		end
+	end
+
+	def test_connection(ip,port)
+		begin
+			sock = Rex::Socket::Tcp.create(
+				'PeerHost' => ip,
+				'PeerPort' => port
+			)
+		rescue Rex::ConnectionError
+			return :down
+		end
+		sock.close
+		return :up
+	end
+
+	def report_mssql_service(ip,info)
+		mssql_info = "Version: %s, ServerName: %s, InstanceName: %s, Clustered: %s" % [
+			info['Version'],
+			info['ServerName'],
+			info['InstanceName'],
+			info['IsClustered']
+		]
+		report_service(
+			:host => ip,
+			:port => 1434,
+			:name => "ms-sql-m",
+			:proto => "udp",
+			:info => "TCP: #{info['tcp']}, Servername: #{info['ServerName']}"
+		)
+		mssql_tcp_state = (test_connection(ip,info['tcp']) == :up ? "open" : "closed")
+		report_service(
+			:host => ip,
+			:port => info['tcp'],
+			:name => "ms-sql-s",
+			:info => mssql_info,
+			:state => mssql_tcp_state
+		) 
+
 	end
 end
