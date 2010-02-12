@@ -52,12 +52,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user='sa', pass='', verbose=false)
-		print_status("Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport}") if verbose
+		print_status("#{rhost}:#{rport} - MSSQL - Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport}") if verbose
 		begin
 			success = mssql_login(user, pass)
 
 			if (success)
-				print_good("#{rhost}:#{rport} - successful login '#{user}' : '#{pass}'")
+				print_good("#{rhost}:#{rport} - MSSQL - successful login '#{user}' : '#{pass}'")
 				report_auth_info({
 					:host => rhost,
 					:port => rport,
