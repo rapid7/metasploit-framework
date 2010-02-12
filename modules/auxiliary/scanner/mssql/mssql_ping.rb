@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 		report_service(
 			:host => ip,
 			:port => 1434,
-			:name => "ms-sql-m",
+			:name => "mssql-m",
 			:proto => "udp",
 			:info => "TCP: #{info['tcp']}, Servername: #{info['ServerName']}"
 		)
@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 		report_service(
 			:host => ip,
 			:port => info['tcp'],
-			:name => "ms-sql-s",
+			:name => "mssql",
 			:info => mssql_info,
 			:state => mssql_tcp_state
 		) 
