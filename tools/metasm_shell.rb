@@ -11,6 +11,8 @@
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
+require 'rex'
+require 'rex/ui'
 require 'metasm'
 
 
@@ -53,25 +55,26 @@ class String
 	end
 end
 
-# get in interactive assembler mode
-def asm
-	puts 'type "exit" or "quit" to quit', 'use ";" for newline', ''
-	while (print "asm> " ; $stdout.flush ; l = gets)
-		break if %w[quit exit].include? l.chomp
-	
-		begin
-			data = l.gsub(';', "\n")
-			next if data.strip.empty?
-			data = data.encode
-			puts '"' + data.unpack('C*').map { |c| '\\x%02x' % c }.join + '"'
-		rescue Metasm::Exception => e
-			puts "Error: #{e.class} #{e.message}"
-		end
+
+
+# Start a pseudo shell and dispatch lines to be assembled and then
+# disassembled.
+shell = Rex::Ui::Text::PseudoShell.new("%bldmetasm%clr")
+
+puts 'type "exit" or "quit" to quit', 'use ";" or "\\n" for newline', ''
+
+shell.run { |l|
+	l.gsub!(/(\r|\n)/, '')
+	l.gsub!(/\\n/, "\n")	
+	l.gsub!(';', "\n")
+
+	break if %w[quit exit].include? l.chomp
+	next if l.strip.empty?
+
+	begin
+		l = l.encode
+		puts '"' + l.unpack('C*').map { |c| '\\x%02x' % c }.join + '"'
+	rescue Metasm::Exception => e
+		puts "Error: #{e.class} #{e.message}"
 	end
-
-	puts
-end
-
-if __FILE__ == $0
-	asm
-end
+}
