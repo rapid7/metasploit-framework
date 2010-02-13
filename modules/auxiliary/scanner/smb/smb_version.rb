@@ -54,6 +54,25 @@ class Metasploit3 < Msf::Auxiliary
 			res = smb_fingerprint()
 
 			if(res['os'] and res['os'] != 'Unknown')
+
+				case res['os']
+				when /Windows/
+					os = OperatingSystems::WINDOWS
+				else
+					case res['sp']
+					when /apple/
+						os = OperatingSystems::MAC_OSX
+					when /ubuntu/
+						os = 'Ubuntu'
+						res['os'] = OperatingSystems::LINUX
+					when /debian/
+						os = 'Ubuntu'
+						res['os'] = OperatingSystems::LINUX
+					else
+						os = OperatingSystems::UNKNOWN
+					end
+				end
+
 				desc = "#{rhost} is running #{res['os']} #{res['sp']} (language: #{res['lang']})"
 				if(simple.client.default_name)
 					desc << " (name:#{simple.client.default_name})"
@@ -72,23 +91,6 @@ class Metasploit3 < Msf::Auxiliary
 					:name  => 'smb',
 					:info  => "#{res['os']} #{res['sp']} (language: #{res['lang']})"
 				)
-				case res['os']
-				when /Windows/
-					os = OperatingSystems::WINDOWS
-				else
-					case res['sp']
-					when /apple/
-						os = OperatingSystems::MAC_OSX
-					when /ubuntu/
-						os = 'Ubuntu'
-						res['os'] = OperatingSystems::LINUX
-					when /debian/
-						os = 'Ubuntu'
-						res['os'] = OperatingSystems::LINUX
-					else
-						os = OperatingSystems::UNKNOWN
-					end
-				end
 
 				report_host({
 					:host => ip,
