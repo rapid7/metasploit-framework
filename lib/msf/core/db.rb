@@ -1123,7 +1123,7 @@ class DBManager
 			data[:state] = (h["status"] == "up") ? Msf::HostState::Alive : Msf::HostState::Dead
 
 			# XXX: There can be multiple matches, but we only see the *last* right now
-			if (h["os_accuracy"] and h["os_accuracy"].to_i > 75)
+			if (h["os_accuracy"] and h["os_accuracy"].to_i > 95)
 				data[:os_name] = h["os_vendor"]
 				data[:os_sp]   = h["os_version"]
 			end
@@ -1150,6 +1150,35 @@ class DBManager
 			end
 
 			report_host(data)
+
+			if( data[:os_name] )
+				note = {
+					:host => addr,
+					:type => 'host.os.nmap_fingerprint',
+					:data => {
+						:os_vendor   => h["os_vendor"],
+						:os_family   => h["os_family"],
+						:os_version  => h["os_version"],
+						:os_accuracy => h["os_accuracy"]
+					}
+				}
+
+				if(h["os_match"])
+					note[:data][:os_match] = h['os_match']
+				end
+
+				report_note(note)
+			end
+
+			if (h["last_boot"])
+				report_note(
+					:host => addr,
+					:type => 'host.last_boot',
+					:data => {
+						:time => h["last_boot"]
+					}
+				)
+			end
 
 			# Put all the ports, regardless of state, into the db.
 			h["ports"].each { |p|

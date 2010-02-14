@@ -64,6 +64,10 @@ class NmapXMLStreamParser
 			@host["os_family"]   = attributes["osfamily"]
 			@host["os_version"]  = attributes["osgen"]
 			@host["os_accuracy"] = attributes["accuracy"]
+		when "osmatch"
+			if(attributes["accuracy"].to_i == 100)
+				@host["os_match"] = attributes["name"]
+			end
 		when "uptime"
 			@host["last_boot"]   = attributes["lastboot"]
 		when "hostname"
