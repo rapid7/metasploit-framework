@@ -47,7 +47,8 @@ class Metasploit3 < Msf::Auxiliary
 				'The IP address to use for reverse-connect payloads'
 			]),
 			OptString.new('OUTPUTPATH', [ true, 
-				'The location of the files.', File.join(Msf::Config.install_root, 'data', 'exploits','file_autopwn')]),
+				'The location of the files.', File.join(Msf::Config.get_config_root, 'exploits')
+			]),
 			OptBool.new('CREATEFILES', [ true, 
 				'Set to false in case files are already in the defined path',
 				true
@@ -101,6 +102,9 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run
+		storexp = File.join(Msf::Config.get_config_root, 'exploits')
+		Dir.mkdir(storexp) unless File.directory?(storexp)
+	
 		if (action.name == 'list')
 			m_regex = datastore["MATCH"]   ? %r{#{datastore["MATCH"]}}   : %r{}
 			e_regex = datastore["EXCLUDE"] ? %r{#{datastore["EXCLUDE"]}} : %r{^$}
@@ -359,7 +363,7 @@ class Metasploit3 < Msf::Auxiliary
 			if File.exist?(fullname) and File.file?(fullname)
 				src = File.open(fullname, "rb")
 				while (not src.eof?)
-					response.body << src.read(256)
+					response.body << src.read(src.stat.size)
 				end
 				src.close
 				src = nil
