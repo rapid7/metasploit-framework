@@ -1122,9 +1122,27 @@ class DBManager
 			end
 			data[:state] = (h["status"] == "up") ? Msf::HostState::Alive : Msf::HostState::Dead
 
+			# XXX: There can be multiple matches, but we only see the *last* right now
 			if (h["os_accuracy"] and h["os_accuracy"].to_i > 75)
 				data[:os_name] = h["os_vendor"]
 				data[:os_sp]   = h["os_version"]
+			end
+
+			# Only passed through if its a 100% match
+			if (h["os_match"])
+				arch = nil
+				case h["os_match"]
+				when /x86|intel/i
+					data[:arch] = ARCH_X86
+				when /ppc|powerpc/i
+					data[:arch] = ARCH_PPC
+				when /sparc/i
+					data[:arch] = ARCH_SPARC
+				when /armle/i
+					data[:arch] = ARCH_ARMLE
+				when /armbe/i
+					data[:arch] = ARCH_ARMBE
+				end
 			end
 
 			if ( h["reverse_dns"] )
