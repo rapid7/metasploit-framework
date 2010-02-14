@@ -913,8 +913,13 @@ class DBManager
 		data = f.read(f.stat.size)
 		import(data)
 	end
+
 	def import(data)
-		firstline = data[0, data.index("\n")]
+		di = data.index("\n")
+		if(not di)
+			raise DBImportError.new("Could not automatically determine file type")
+		end
+		firstline = data[0, di]
 		if (firstline.index("<NeXposeSimpleXML"))
 			return import_nexpose_simplexml(data)
 		elsif (firstline.index("<?xml"))
