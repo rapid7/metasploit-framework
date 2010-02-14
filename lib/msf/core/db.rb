@@ -171,6 +171,10 @@ class DBManager
 		return addr if addr.kind_of? Host
 		wait = opts.delete(:wait)
 
+		if opts[:host_mac]
+			opts[:mac] = opts.delete(:host_mac)
+		end
+
 		ret = {}
 		task = queue( Proc.new {
 			if opts[:comm] and opts[:comm].length > 0
@@ -416,29 +420,59 @@ class DBManager
 			end
 		end
 
+		# Update Modes can be :unique, :unique_data, :insert
+		mode = opts[:update] || :unique
+
 		ret = {}
 		task = queue(Proc.new {
 			if addr and not host
 				host = get_host(addr)
 			end
 
-			ntype = opts.delete(:type) || opts.delete(:ntype) || return
-			data  = opts[:data] || return
+			ntype  = opts.delete(:type) || opts.delete(:ntype) || return
+			data   = opts[:data] || return
+			method = nil
+			args   = []
+			note   = nil
 
-			method = "find_or_initialize_by_ntype_and_data"
-			args = [ ntype, data.to_yaml ]
-			if host
-				method << "_and_host_id"
-				args.push(host.id)
-			end
-			if opts[:service] and opts[:service].kind_of? Service
-				method << "_and_service_id"
-				args.push(opts[:service].id)
+			case mode
+			when :unique
+				method = "find_or_initialize_by_ntype"
+				args = [ ntype ]
+			when :unique_data
+				method = "find_or_initialize_by_ntype_and_data"
+				args = [ ntype, data.to_yaml ]
 			end
 
-			note = workspace.notes.send(method, *args)
-			if (note.changed?)
+			# Find and update a record by type
+			if(method)
+				if host
+					method << "_and_host_id"
+					args.push(host[:id])
+				end
+				if opts[:service] and opts[:service].kind_of? Service
+					method << "_and_service_id"
+					args.push(opts[:service][:id])
+				end
+
+				note = workspace.notes.send(method, *args)
+				if (note.changed?)
+					note.data    = data
+					note.created = Time.now
+					note.save!
+				end
+			# Insert a brand new note record no matter what
+			else
+				note = workspace.notes.new
 				note.created = Time.now
+				if host
+					note.host_id = host[:id]
+				end
+				if opts[:service] and opts[:service].kind_of? Service
+					note.service_id = opts[:service][:id]
+				end
+				note.ntype = ntype
+				note.data  = data
 				note.save!
 			end
 
@@ -480,10 +514,11 @@ class DBManager
 		proto   = proto.downcase
 
 		note = {
-			:ntype => "auth.#{proto}",
-			:host => host,
-			:service => service,
-			:data => opts
+			:ntype    => "auth.#{proto}",
+			:host     => host,
+			:service  => service,
+			:data     => opts,
+			:update   => :unique_data
 		}
 
 		return report_note(note)
