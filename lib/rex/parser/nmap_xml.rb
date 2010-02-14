@@ -12,24 +12,24 @@ module Parser
 #	{
 #		"status" => "up",
 #		"addrs"  => { "ipv4" => "192.168.0.1", "mac" => "00:0d:87:a1:df:72" },
-#		"ports"  => [ 
+#		"ports"  => [
 #			{ "portid" => "22", "state" => "closed", ... },
 #			{ "portid" => "80", "state" => "open", ... },
-#			... 
+#			...
 #		]
 #	}
 #
 # Usage:
 # <tt>
-# parser = NmapXMLStreamParser.new { |host| 
+# parser = NmapXMLStreamParser.new { |host|
 #	# do stuff with the host
 # }
 # REXML::Document.parse_stream(File.new(nmap_xml), parser)
 # </tt>
 # -- or --
 # <tt>
-# parser = NmapXMLStreamParser.new 
-# parser.on_found_host = Proc.new { |host| 
+# parser = NmapXMLStreamParser.new
+# parser.on_found_host = Proc.new { |host|
 #	# do stuff with the host
 # }
 # REXML::Document.parse_stream(File.new(nmap_xml), parser)
@@ -58,6 +58,17 @@ class NmapXMLStreamParser
 			@host["addrs"][attributes["addrtype"]] = attributes["addr"]
 			if (attributes["addrtype"] =~ /ipv[46]/)
 				@host["addr"] = attributes["addr"]
+			end
+		when "osclass"
+			@host["os_vendor"]   = attributes["vendor"]
+			@host["os_family"]   = attributes["osfamily"]
+			@host["os_version"]  = attributes["osgen"]
+			@host["os_accuracy"] = attributes["accuracy"]
+		when "uptime"
+			@host["last_boot"]   = attributes["lastboot"]
+		when "hostname"
+			if(attributes["type"] == "PTR")
+				@host["reverse_dns"] = attributes["name"]
 			end
 		when "status"
 			# <status> refers to the liveness of the host; values are "up" or "down"

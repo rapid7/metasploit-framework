@@ -1113,9 +1113,19 @@ class DBManager
 			end
 			data[:host] = addr
 			if (h["addrs"].has_key?("mac"))
-				data[:host_mac] = h["addrs"]["mac"]
+				data[:mac] = h["addrs"]["mac"]
 			end
 			data[:state] = (h["status"] == "up") ? Msf::HostState::Alive : Msf::HostState::Dead
+
+			if (h["os_accuracy"] and h["os_accuracy"].to_i > 75)
+				data[:os_name] = h["os_vendor"]
+				data[:os_sp]   = h["os_version"]
+			end
+
+			if ( h["reverse_dns"] )
+				data[:name] = h["reverse_dns"]
+			end
+
 			report_host(data)
 
 			# Put all the ports, regardless of state, into the db.
