@@ -78,13 +78,13 @@ class Metasploit3 < Msf::Auxiliary
 					rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
 						nil
 					end
-	
+
 					if (idx % 30 == 0)
 						while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
 							parse_reply(r)
 						end
 					end
-	
+
 					idx += 1
 				end
 			end
@@ -133,8 +133,8 @@ class Metasploit3 < Msf::Auxiliary
 					ver = 'BIND ' + $1
 				end
 
-				ver = 'Microsoft' if (not ver and pkt[0][2,4] == "\x81\x04\x00\x01")
-				ver = 'TinyDNS'   if (not ver and pkt[0][2,4] == "\x81\x81\x00\x01")
+				ver = 'Microsoft DNS' if (not ver and pkt[0][2,4] == "\x81\x04\x00\x01")
+				ver = 'TinyDNS'       if (not ver and pkt[0][2,4] == "\x81\x81\x00\x01")
 
 				ver = pkt[0].unpack('H*')[0] if not ver
 				inf = ver if ver
