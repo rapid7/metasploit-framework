@@ -62,6 +62,8 @@ class Metasploit3 < Msf::Auxiliary
 					case res['sp']
 					when /apple/
 						os = OperatingSystems::MAC_OSX
+						res['os'] = 'Unknown'
+						res['sp'] = 'Unknown'
 					when /ubuntu/
 						os = 'Ubuntu'
 						res['os'] = OperatingSystems::LINUX
