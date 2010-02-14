@@ -94,13 +94,17 @@ class Metasploit3 < Msf::Auxiliary
 					:info  => "#{res['os']} #{res['sp']} (language: #{res['lang']})"
 				)
 
-				report_host({
+				conf = {
 					:host => ip,
 					:os_flavor => res['os'],
-					:os_lang => res['lang'],
-					:os_name => os,
-					:os_sp => res['sp']
-				})
+					:os_name => os
+				}
+
+				conf[:os_sp]   = res['sp']   if res['os'] =~ /Windows/
+				conf[:os_lang] = res['lang'] if res['os'] =~ /Windows/
+
+				report_host(conf)
+
 			else
 				report_service(:host => ip, :port => info[0], :name => 'smb')
 				print_status("#{rhost} could not be identified")
