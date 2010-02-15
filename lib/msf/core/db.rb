@@ -1178,6 +1178,7 @@ class DBManager
 				when /armbe/i
 					data[:arch] = ARCH_ARMBE
 				end
+				data[:os_flavor] = h["os_match"]
 			end
 
 			if ( h["reverse_dns"] )
