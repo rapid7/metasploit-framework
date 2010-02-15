@@ -66,10 +66,10 @@ class Metasploit3 < Msf::Auxiliary
 						res['sp'] = 'Unknown'
 					when /ubuntu/
 						os = OperatingSystems::LINUX
-						res['os'] = Ubuntu
+						res['os'] = 'Ubuntu'
 					when /debian/
 						os = OperatingSystems::LINUX
-						res['os'] = Debian
+						res['os'] = 'Debian'
 					else
 						os = OperatingSystems::UNKNOWN
 					end
