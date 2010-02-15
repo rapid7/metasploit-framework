@@ -5,7 +5,7 @@ module Handler
 #
 # This module implements the reverse double TCP handler. This means
 # that it listens on a port waiting for a two connections, one connection
-# is treated as stdin, the other as stdout. 
+# is treated as stdin, the other as stdout.
 #
 # This handler depends on having a local host and port to
 # listen on.
@@ -89,7 +89,7 @@ module ReverseTcpDouble
 		self.listener_thread = Thread.new {
 			sock_inp = nil
 			sock_out = nil
-			
+
 			print_status("Started reverse double handler")
 
 			begin
@@ -97,12 +97,12 @@ module ReverseTcpDouble
 				begin
 					client_a = self.listener_sock.accept
 					print_status("Accepted the first client connection...")
-					
-					client_b = self.listener_sock.accept	
+
+					client_b = self.listener_sock.accept
 					print_status("Accepted the second client connection...")
-					
+
 					sock_inp, sock_out = detect_input_output(client_a, client_b)
-					
+
 				rescue
 					wlog("Exception raised during listener accept: #{$!}\n\n#{$@.join("\n")}")
 					return nil
@@ -110,7 +110,7 @@ module ReverseTcpDouble
 
 				# Increment the has connection counter
 				self.pending_connections += 1
-	
+
 				# Start a new thread and pass the client connection
 				# as the input and output pipe.  Client's are expected
 				# to implement the Stream interface.
@@ -125,62 +125,64 @@ module ReverseTcpDouble
 			end while true
 		}
 	end
-	
+
 	#
 	# Accept two sockets and determine which one is the input and which
 	# is the output. This method assumes that these sockets pipe to a
 	# remote shell, it should overridden if this is not the case.
-	# 
+	#
 	def detect_input_output(sock_a, sock_b)
-	
+
 		begin
 
 			# Flush any pending socket data
 			sock_a.get_once if sock_a.has_read_data?(0.25)
 			sock_b.get_once if sock_b.has_read_data?(0.25)
-		
+
 			etag = Rex::Text.rand_text_alphanumeric(16)
 			echo = "echo #{etag};\n"
 
-			print_status("Command: #{echo}")
+			print_status("Command: #{echo.strip}")
 
 			print_status("Writing to socket A")
 			sock_a.put(echo)
 
 			print_status("Writing to socket B")
 			sock_b.put(echo)
-			
+
 			print_status("Reading from sockets...")
 
 			resp_a = ''
 			resp_b = ''
-			
+
 			if (sock_a.has_read_data?(1))
 				print_status("Reading from socket A")
 				resp_a = sock_a.get_once
-				print_status("A: #{resp_a}")
+				print_status("A: #{resp_a.inspect}")
 			end
 
 			if (sock_b.has_read_data?(1))
 				print_status("Reading from socket B")
 				resp_b = sock_b.get_once
-				print_status("B: #{resp_b}")
+				print_status("B: #{resp_b.inspect}")
 			end
 
 			print_status("Matching...")
 			if (resp_b.match(etag))
+				print_status("A is input...")
 				return sock_a, sock_b
 			else
+				print_status("B is input...")
 				return sock_b, sock_a
 			end
-			
+
 		rescue ::Exception
 			print_status("Caught exception in detect_input_output: #{$!}")
 		end
-		
+
 	end
-	
-	# 
+
+	#
 	# Stops monitoring for an inbound connection.
 	#
 	def stop_handler
@@ -204,7 +206,7 @@ protected
 
 
 	###
-	# 
+	#
 	# This class wrappers the communication channel built over the two inbound
 	# connections, allowing input and output to be split across both.
 	#
@@ -218,7 +220,7 @@ protected
 			@sock_out = out
 
 			initialize_abstraction
-		
+
 			# Start a thread to pipe data between stdin/stdout and the two sockets
 			@monitor_thread = Thread.new {
 				begin
@@ -240,11 +242,11 @@ protected
 							@sock_inp.put(buf)
 						end
 
-					end while true					
+					end while true
 
 				rescue ::Exception
 				end
-				
+
 				# Clean up the sockets...
 				begin
 					@sock_inp.close
@@ -266,7 +268,7 @@ protected
 
 	end
 
-	
+
 end
 
 end
