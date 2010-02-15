@@ -1011,7 +1011,7 @@ class DBManager
 				desc = fdesc.text.to_s.strip
 			end
 
-			report_host(:host => addr, :state => Msf::HostState::Alive)
+			report_host(:host => addr, :state => Msf::HostState::Alive, :os_flavor => desc)
 
 			# Load vulnerabilities not associated with a service
 			dev.elements.each('vulnerabilities/vulnerability') do |vuln|
@@ -1142,6 +1142,7 @@ class DBManager
 		# Whenever the parser pulls a host out of the nmap results, store
 		# it, along with any associated services, in the database.
 		parser.on_found_host = Proc.new { |h|
+
 			data = {}
 			if (h["addrs"].has_key?("ipv4"))
 				addr = h["addrs"]["ipv4"]
@@ -1156,9 +1157,6 @@ class DBManager
 				data[:mac] = h["addrs"]["mac"]
 			end
 			data[:state] = (h["status"] == "up") ? Msf::HostState::Alive : Msf::HostState::Dead
-
-			# Do not store dead hosts
-			return if data[:state] == Msf::HostState::Dead
 
 			# XXX: There can be multiple matches, but we only see the *last* right now
 			if (h["os_accuracy"] and h["os_accuracy"].to_i > 95)
@@ -1188,7 +1186,9 @@ class DBManager
 				data[:name] = h["reverse_dns"]
 			end
 
-			report_host(data)
+			if(data[:state] != Msf::HostState::Dead)
+				report_host(data)
+			end
 
 			if( data[:os_name] )
 				note = {
