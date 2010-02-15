@@ -1157,6 +1157,9 @@ class DBManager
 			end
 			data[:state] = (h["status"] == "up") ? Msf::HostState::Alive : Msf::HostState::Dead
 
+			# Do not store dead hosts
+			return if data[:state] == Msf::HostState::Dead
+
 			# XXX: There can be multiple matches, but we only see the *last* right now
 			if (h["os_accuracy"] and h["os_accuracy"].to_i > 95)
 				data[:os_name] = h["os_vendor"]
