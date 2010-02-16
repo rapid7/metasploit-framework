@@ -10,6 +10,7 @@
 ##
 
 require 'msf/core'
+require 'net/ssh'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -22,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'SSH Login Check Scanner',
 			'Version'     => '$Revision$',
 			'Description' => %q{
-				This module will test an ssh login on a range of machines and
+				This module will test ssh logins on a range of machines and
 				report successful logins.  If you have loaded a database plugin
 				and connected to a database this module will record successful
 				logins and hosts so you can track your access.
@@ -40,17 +41,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		deregister_options('RHOST')
 
-		# Stash this in external some day, and hack it up to use Rex sockets
-		# for pivoting.
-		@netssh_loaded = false
-		begin
-			require 'rubygems'
-			require 'net/ssh'
-			@netssh_loaded = true
-		rescue LoadError
-			@netssh_loaded = false
-		end
-
 	end
 
 	def rport
@@ -58,10 +48,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		unless @netssh_loaded 
-			print_error("This module requires net/ssh. Try 'sudo gem install net-ssh'")
-			return
-		end
 		print_status("Starting host #{ip}")
 		begin
 			each_user_pass { |user, pass|
