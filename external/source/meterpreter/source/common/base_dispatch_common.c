@@ -125,8 +125,7 @@ DWORD remote_request_core_channel_write(Remote *remote, Packet *packet)
 		lock_acquire( channel->lock );
 
 		// Get the channel data buffer
-		if ((res = packet_get_tlv(packet, TLV_TYPE_CHANNEL_DATA, &channelData)) 
-				!= ERROR_SUCCESS)
+		if ((res = packet_get_tlv(packet, TLV_TYPE_CHANNEL_DATA, &channelData)) != ERROR_SUCCESS)
 			break;
 
 		// Handle the write operation differently based on the class of channel
@@ -240,24 +239,23 @@ DWORD remote_request_core_channel_read(Remote *remote, Packet *packet)
 		}
 
 		// If we've so far been successful and we have a temporary buffer...
-		if ((res == ERROR_SUCCESS) &&
-		    (temporaryBuffer) &&
-		    (bytesRead))
+		if ((res == ERROR_SUCCESS) &&(temporaryBuffer) && (bytesRead))
 		{
-			// If the channel should operate synchronously, add the data to the
-			// response
+			// If the channel should operate synchronously, add the data to theresponse
 			if (channel_is_flag(channel, CHANNEL_FLAG_SYNCHRONOUS))
 			{
-				packet_add_tlv_raw(response, TLV_TYPE_CHANNEL_DATA, 
-						temporaryBuffer, bytesRead);
+				// if the channel data is ment to be compressed, compress it!
+				if( channel_is_flag( channel, CHANNEL_FLAG_COMPRESS ) )
+					packet_add_tlv_raw(response, TLV_TYPE_CHANNEL_DATA|TLV_META_TYPE_COMPRESSED, temporaryBuffer, bytesRead);
+				else
+					packet_add_tlv_raw(response, TLV_TYPE_CHANNEL_DATA, temporaryBuffer, bytesRead);
 
 				res = ERROR_SUCCESS;
 			}
 			// Otherwise, asynchronously write the buffer to the remote endpoint
 			else
 			{
-				if ((res = channel_write(channel, remote, NULL, 0, 
-						temporaryBuffer, bytesRead, NULL)) != ERROR_SUCCESS)
+				if ((res = channel_write(channel, remote, NULL, 0, temporaryBuffer, bytesRead, NULL)) != ERROR_SUCCESS)
 					break;
 			}
 		}

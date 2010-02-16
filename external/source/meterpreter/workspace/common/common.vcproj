@@ -728,6 +728,14 @@
 					</File>
 				</Filter>
 			</Filter>
+			<Filter
+				Name="zlib"
+				>
+				<File
+					RelativePath="..\..\source\common\zlib\zlib.c"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header"
@@ -781,6 +789,14 @@
 				RelativePath="..\..\source\common\thread.h"
 				>
 			</File>
+			<Filter
+				Name="zlib"
+				>
+				<File
+					RelativePath="..\..\source\common\zlib\zlib.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

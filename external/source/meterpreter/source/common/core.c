@@ -1,6 +1,7 @@
 #include "common.h"
+#include "zlib/zlib.h"
 
-DWORD packet_find_tlv_buf(PUCHAR payload, DWORD payloadLength, DWORD index,
+DWORD packet_find_tlv_buf(Packet *packet, PUCHAR payload, DWORD payloadLength, DWORD index,
 		TlvType type, Tlv *tlv);
 
 typedef struct _PacketCompletionRoutineEntry
@@ -34,16 +35,14 @@ DWORD send_core_console_write(Remote *remote, LPCSTR fmt, ...)
 		va_end(ap);
 
 		// Create a message with the 'core_print' method
-		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, 
-				"core_console_write")))
+		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, "core_console_write")))
 		{
 			res = ERROR_NOT_ENOUGH_MEMORY;
 			break;
 		}
 
 		// Add the string to print
-		if ((res = packet_add_tlv_string(request, TLV_TYPE_STRING, buf)) 
-				!= NO_ERROR)
+		if ((res = packet_add_tlv_string(request, TLV_TYPE_STRING, buf)) != NO_ERROR)
 			break;
 
 		res = packet_transmit(remote, request, NULL);
@@ -107,7 +106,7 @@ Packet *packet_create(PacketTlvType type, LPCSTR method)
 		if (!(packet = (Packet *)malloc(sizeof(Packet))))
 			break;
 
-		memset(packet, 0, sizeof(packet));
+		memset(packet, 0, sizeof(Packet));
 
 		// Initialize the header length and message type
 		packet->header.length = htonl(sizeof(TlvHeader));
@@ -120,8 +119,7 @@ Packet *packet_create(PacketTlvType type, LPCSTR method)
 		// Add the method TLV if provided
 		if (method)
 		{
-			if (packet_add_tlv_string(packet, TLV_TYPE_METHOD, 
-					method) != ERROR_SUCCESS)
+			if (packet_add_tlv_string(packet, TLV_TYPE_METHOD, method) != ERROR_SUCCESS)
 				break;
 		}
 
@@ -130,8 +128,7 @@ Packet *packet_create(PacketTlvType type, LPCSTR method)
 	} while (0);
 
 	// Clean up the packet on failure
-	if ((!success) &&
-	    (packet))
+	if ((!success) && (packet))
 	{
 		packet_destroy(packet);
 
@@ -160,23 +157,19 @@ Packet *packet_create_response(Packet *request)
 	do
 	{
 		// Get the request TLV's method
-		if (packet_get_tlv_string(request, TLV_TYPE_METHOD,
-				&method) != ERROR_SUCCESS)
+		if (packet_get_tlv_string(request, TLV_TYPE_METHOD, &method) != ERROR_SUCCESS)
 			break;
 
 		// Try to allocate a response packet
-		if (!(response = packet_create(responseType,
-				(PCHAR)method.buffer)))
+		if (!(response = packet_create(responseType, (PCHAR)method.buffer)))
 			break;
 
 		// Get the request TLV's request identifier
-		if (packet_get_tlv_string(request, TLV_TYPE_REQUEST_ID,
-				&requestId) != ERROR_SUCCESS)
+		if (packet_get_tlv_string(request, TLV_TYPE_REQUEST_ID, &requestId) != ERROR_SUCCESS)
 			break;
 
 		// Add the request identifier to the packet
-		packet_add_tlv_string(response, TLV_TYPE_REQUEST_ID,
-				(PCHAR)requestId.buffer);
+		packet_add_tlv_string(response, TLV_TYPE_REQUEST_ID, (PCHAR)requestId.buffer);
 
 		success = TRUE;
 
@@ -197,17 +190,40 @@ Packet *packet_create_response(Packet *request)
 /*
  * Destroy the packet context and the payload buffer
  */
-VOID packet_destroy(Packet *packet)
+VOID packet_destroy( Packet * packet )
 {
 	if( packet == NULL )
 		return;
 
-	if (packet->payload) {
-		memset(packet->payload, 0, packet->payloadLength);
-		free(packet->payload);
+	if( packet->payload )
+	{
+		memset( packet->payload, 0, packet->payloadLength );
+		free( packet->payload );
 	}
-	memset(packet, 0, sizeof(Packet));
-	free(packet);
+
+	if( packet->decompressed_buffers )
+	{
+		while( TRUE )
+		{
+			DECOMPRESSED_BUFFER * buf = list_pop( packet->decompressed_buffers );
+			if( !buf )
+				break;
+
+			if( buf->buffer )
+			{
+				memset( buf->buffer, 0, buf->length );
+				free( buf->buffer );
+			}
+			
+			free( buf );
+		}
+
+		list_destroy( packet->decompressed_buffers );
+	}
+
+	memset( packet, 0, sizeof(Packet) );
+
+	free( packet );
 }
 
 /*
@@ -239,8 +255,7 @@ DWORD packet_add_tlv_bool(Packet *packet, TlvType type, BOOL val)
 /*
  * Add a TLV group.  A TLV group is a TLV that contains multiple sub-TLVs
  */
-DWORD packet_add_tlv_group(Packet *packet, TlvType type, Tlv *entries, 
-		DWORD numEntries)
+DWORD packet_add_tlv_group(Packet *packet, TlvType type, Tlv *entries, DWORD numEntries)
 {
 	DWORD totalSize = 0, 
 		offset = 0,
@@ -249,9 +264,7 @@ DWORD packet_add_tlv_group(Packet *packet, TlvType type, Tlv *entries,
 	PCHAR buffer = NULL;
 
 	// Calculate the total TLV size.
-	for (index = 0;
-	     index < numEntries;
-	     index++)
+	for (index = 0; index < numEntries; index++)
 		totalSize += entries[index].header.length + sizeof(TlvHeader);
 
 	do
@@ -264,9 +277,7 @@ DWORD packet_add_tlv_group(Packet *packet, TlvType type, Tlv *entries,
 		}
 
 		// Copy the memory into the new buffer
-		for (index = 0;
-	        index < numEntries;
-	        index++)
+		for (index = 0; index < numEntries; index++)
 		{
 			TlvHeader rawHeader;
 
@@ -276,8 +287,7 @@ DWORD packet_add_tlv_group(Packet *packet, TlvType type, Tlv *entries,
 
 			// Copy the TLV header & payload
 			memcpy(buffer + offset, &rawHeader, sizeof(TlvHeader));
-			memcpy(buffer + offset + sizeof(TlvHeader), entries[index].buffer,
-					entries[index].header.length);
+			memcpy(buffer + offset + sizeof(TlvHeader), entries[index].buffer, entries[index].header.length);
 
 			// Update the offset into the buffer
 			offset += entries[index].header.length + sizeof(TlvHeader);
@@ -298,35 +308,97 @@ DWORD packet_add_tlv_group(Packet *packet, TlvType type, Tlv *entries,
 /*
  * Add an array of TLVs
  */
-DWORD packet_add_tlvs(Packet *packet, Tlv *entries, 
-		DWORD numEntries)
+DWORD packet_add_tlvs(Packet *packet, Tlv *entries, DWORD numEntries)
 {
 	DWORD index;
 
-	for (index = 0;
-	     index < numEntries;
-	     index++)
-		packet_add_tlv_raw(packet, entries[index].header.type,
-				entries[index].buffer, entries[index].header.length);
+	for (index = 0; index < numEntries; index++)
+		packet_add_tlv_raw(packet, entries[index].header.type, entries[index].buffer, entries[index].header.length);
 
 	return ERROR_SUCCESS;
 }
 
 /*
+ * Add an arbitrary TLV whose data is to be compressed with zlib.
+ */
+DWORD packet_add_tlv_raw_compressed(Packet *packet, TlvType type, LPVOID buf, DWORD length)
+{
+	DWORD result            = ERROR_SUCCESS;
+	DWORD headerLength      = sizeof( TlvHeader );
+	PUCHAR newPayload       = NULL;
+	BYTE * compressed_buf   = NULL;
+	DWORD realLength        = 0;
+	DWORD newPayloadLength  = 0;
+	DWORD compressed_length = (DWORD)( 1.01 * ( length + 12 ) + 1 );
+
+	do
+	{
+		compressed_buf = (BYTE *)malloc( compressed_length );
+		if( !compressed_buf )
+		{
+			result = ERROR_NOT_ENOUGH_MEMORY;
+			break;
+		}
+
+		if( compress2( compressed_buf, &compressed_length, buf, length, Z_BEST_COMPRESSION ) != Z_OK )
+		{
+			result = ERROR_UNSUPPORTED_COMPRESSION;
+			break;
+		}
+
+		realLength       = compressed_length + headerLength;
+		newPayloadLength = packet->payloadLength + realLength;
+		
+		// Allocate/Reallocate the packet's payload
+		if( packet->payload )
+			newPayload = (PUCHAR)realloc(packet->payload, newPayloadLength);
+		else
+			newPayload = (PUCHAR)malloc(newPayloadLength);
+	
+		if( !newPayload )
+		{
+			result = ERROR_NOT_ENOUGH_MEMORY;
+			break;
+		}
+
+		// Populate the new TLV
+		((LPDWORD)(newPayload + packet->payloadLength))[0] = htonl(realLength);
+		((LPDWORD)(newPayload + packet->payloadLength))[1] = htonl((DWORD)type);
+
+		memcpy(newPayload + packet->payloadLength + headerLength, compressed_buf, compressed_length );
+
+		// Update the header length and payload length
+		packet->header.length = htonl(ntohl(packet->header.length) + realLength);
+		packet->payload       = newPayload;
+		packet->payloadLength = newPayloadLength;
+
+		result = ERROR_SUCCESS;
+
+	} while( 0 );
+
+	if( compressed_buf )
+		free( compressed_buf );
+
+	return result;
+}
+
+/*
  * Add an arbitrary TLV
  */
-DWORD packet_add_tlv_raw(Packet *packet, TlvType type, LPVOID buf, 
-		DWORD length)
+DWORD packet_add_tlv_raw(Packet *packet, TlvType type, LPVOID buf, DWORD length)
 {
-	DWORD headerLength = sizeof(TlvHeader);
-	DWORD realLength = length + headerLength;
+	DWORD headerLength     = sizeof(TlvHeader);
+	DWORD realLength       = length + headerLength;
 	DWORD newPayloadLength = packet->payloadLength + realLength;
-	PUCHAR newPayload = NULL;
+	PUCHAR newPayload      = NULL;
+
+	// check if this TLV is to be compressed...
+	if( ( type & TLV_META_TYPE_COMPRESSED ) == TLV_META_TYPE_COMPRESSED )
+		return packet_add_tlv_raw_compressed( packet, type, buf, length );
 
 	// Allocate/Reallocate the packet's payload
 	if (packet->payload)
-		newPayload = (PUCHAR)realloc(packet->payload, 
-				newPayloadLength);
+		newPayload = (PUCHAR)realloc(packet->payload, newPayloadLength);
 	else
 		newPayload = (PUCHAR)malloc(newPayloadLength);
 	
@@ -337,8 +409,7 @@ DWORD packet_add_tlv_raw(Packet *packet, TlvType type, LPVOID buf,
 	((LPDWORD)(newPayload + packet->payloadLength))[0] = htonl(realLength);
 	((LPDWORD)(newPayload + packet->payloadLength))[1] = htonl((DWORD)type);
 
-	memcpy(newPayload + packet->payloadLength + headerLength, buf,
-			length);
+	memcpy(newPayload + packet->payloadLength + headerLength, buf, length);
 
 	// Update the header length and payload length
 	packet->header.length = htonl(ntohl(packet->header.length) + realLength);
@@ -353,8 +424,7 @@ DWORD packet_add_tlv_raw(Packet *packet, TlvType type, LPVOID buf,
  */
 DWORD packet_is_tlv_null_terminated(Packet *packet, Tlv *tlv)
 {
-	if ((tlv->header.length) &&
-	    (tlv->buffer[tlv->header.length - 1] != 0))
+	if ((tlv->header.length) && (tlv->buffer[tlv->header.length - 1] != 0))
 		return ERROR_NOT_FOUND;
 
 	return ERROR_SUCCESS;
@@ -398,11 +468,9 @@ DWORD packet_get_tlv_string(Packet *packet, TlvType type, Tlv *tlv)
  * Enumerate a TLV group (a TLV that consists other multiple sub-TLVs) and 
  * finds the first match of a given type, if it exists.
  */
-DWORD packet_get_tlv_group_entry(Packet *packet, Tlv *group, TlvType type,
-		Tlv *entry)
+DWORD packet_get_tlv_group_entry(Packet *packet, Tlv *group, TlvType type, Tlv *entry)
 {
-	return packet_find_tlv_buf(group->buffer, group->header.length, 0, type,
-			entry);
+	return packet_find_tlv_buf( packet, group->buffer, group->header.length, 0, type, entry);
 }
 
 /*
@@ -410,8 +478,7 @@ DWORD packet_get_tlv_group_entry(Packet *packet, Tlv *group, TlvType type,
  */
 DWORD packet_enum_tlv(Packet *packet, DWORD index, TlvType type, Tlv *tlv)
 {
-	return packet_find_tlv_buf(packet->payload, packet->payloadLength, index,
-			type, tlv);
+	return packet_find_tlv_buf( packet, packet->payload, packet->payloadLength, index, type, tlv);
 }
 
 /*
@@ -422,8 +489,7 @@ PCHAR packet_get_tlv_value_string(Packet *packet, TlvType type)
 	Tlv stringTlv;
 	PCHAR string = NULL;
 
-	if (packet_get_tlv_string(packet, type, 
-			&stringTlv) == ERROR_SUCCESS)
+	if (packet_get_tlv_string(packet, type, &stringTlv) == ERROR_SUCCESS)
 		string = (PCHAR)stringTlv.buffer;
 
 	return string;
@@ -436,8 +502,7 @@ UINT packet_get_tlv_value_uint(Packet *packet, TlvType type)
 {
 	Tlv uintTlv;
 
-	if ((packet_get_tlv(packet, type, &uintTlv) != ERROR_SUCCESS) ||
-		 (uintTlv.header.length < sizeof(DWORD)))
+	if ((packet_get_tlv(packet, type, &uintTlv) != ERROR_SUCCESS) ||(uintTlv.header.length < sizeof(DWORD)))
 		return 0;
 
 	return ntohl(*(LPDWORD)uintTlv.buffer);
@@ -496,11 +561,9 @@ DWORD packet_get_result(Packet *packet)
 }
 
 /*
- * Enumerate TLV entries in a buffer until hitting a given index (optionally
- * for a given type as well).
+ * Enumerate TLV entries in a buffer until hitting a given index (optionally for a given type as well).
  */
-DWORD packet_find_tlv_buf(PUCHAR payload, DWORD payloadLength, DWORD index,
-		TlvType type, Tlv *tlv)
+DWORD packet_find_tlv_buf( Packet *packet, PUCHAR payload, DWORD payloadLength, DWORD index, TlvType type, Tlv *tlv)
 {
 	DWORD currentIndex = 0;
 	DWORD offset = 0, length = 0;
@@ -512,23 +575,26 @@ DWORD packet_find_tlv_buf(PUCHAR payload, DWORD payloadLength, DWORD index,
 	do
 	{
 		// Enumerate the TLV's
-		for (current = payload, length = 0;
-		     !found && current;
-			  offset += length, current += length)
+		for( current = payload, length = 0 ; !found && current ; offset += length, current += length )
 		{
-			TlvHeader *header = (TlvHeader *)current;
+			TlvHeader *header    = (TlvHeader *)current;
+			TlvType current_type = 0;
 
-			if ((current + sizeof(TlvHeader) >
-					payload + payloadLength) ||
-			    (current < payload))
+			if ((current + sizeof(TlvHeader) > payload + payloadLength) || (current < payload))
 				break;
 
 			// TLV's length
 			length = ntohl(header->length);
 
 			// Matching type?
-			if (((TlvType)ntohl(header->type) != type) &&
-			    (type != TLV_TYPE_ANY))
+			current_type = ntohl( header->type );
+
+			// if the type has been compressed, temporarily remove the compression flag as compression is to be transparent.
+			if( ( current_type & TLV_META_TYPE_COMPRESSED ) == TLV_META_TYPE_COMPRESSED )
+				current_type = current_type ^ TLV_META_TYPE_COMPRESSED;
+			
+			// check if the types match?
+			if( (current_type != type) && (type != TLV_TYPE_ANY) )
 				continue;
 		
 			// Matching index?
@@ -538,16 +604,67 @@ DWORD packet_find_tlv_buf(PUCHAR payload, DWORD payloadLength, DWORD index,
 				continue;
 			}
 
-			if ((current + length >
-					payload + payloadLength) ||
-			    (current < payload))
+			if ((current + length > payload + payloadLength) || (current < payload))
 				break;
 
 			tlv->header.type   = ntohl(header->type);
 			tlv->header.length = ntohl(header->length) - sizeof(TlvHeader);
 			tlv->buffer        = payload + offset + sizeof(TlvHeader);
 
-			found = TRUE;
+			if( ( tlv->header.type & TLV_META_TYPE_COMPRESSED ) == TLV_META_TYPE_COMPRESSED )
+			{
+				DECOMPRESSED_BUFFER * decompressed_buf = NULL;
+
+				do
+				{
+					decompressed_buf = (DECOMPRESSED_BUFFER *)malloc( sizeof(DECOMPRESSED_BUFFER) );
+					if( !decompressed_buf )
+						break;
+					
+					// the first DWORD in a compressed buffer is the decompressed buffer length.
+					decompressed_buf->length = ntohl( *(DWORD *)tlv->buffer );
+					if( !decompressed_buf->length )
+						break;
+
+					decompressed_buf->buffer = (BYTE *)malloc( decompressed_buf->length );
+					if( !decompressed_buf->buffer )
+						break;
+
+					tlv->header.length -= sizeof( DWORD );
+					tlv->buffer += sizeof( DWORD );
+					
+					if( uncompress( decompressed_buf->buffer, &decompressed_buf->length, tlv->buffer, tlv->header.length ) != Z_OK )
+						break;
+					
+					tlv->header.type   = tlv->header.type ^ TLV_META_TYPE_COMPRESSED;
+					tlv->header.length = decompressed_buf->length;
+					tlv->buffer        = decompressed_buf->buffer;
+
+					if( !packet->decompressed_buffers )
+						packet->decompressed_buffers = list_create();
+					
+					if( !packet->decompressed_buffers )
+						break;
+
+					// each packet has a list of decompressed buffers which is used to
+					// wipe and fee all decompressed buffers upon the packet being destroyed.
+					list_push( packet->decompressed_buffers, decompressed_buf );
+
+					found = TRUE;
+
+				} while( 0 );
+
+				if( !found && decompressed_buf )
+				{
+					if( decompressed_buf->buffer )
+						free( decompressed_buf->buffer );
+					free( decompressed_buf );
+				}
+			}
+			else
+			{
+				found = TRUE;
+			}
 		}
 
 	} while (0);
@@ -562,8 +679,7 @@ DWORD packet_find_tlv_buf(PUCHAR payload, DWORD payloadLength, DWORD index,
 /*
  * Add a completion routine for a given request identifier
  */
-DWORD packet_add_completion_handler(LPCSTR requestId, 
-		PacketRequestCompletion *completion)
+DWORD packet_add_completion_handler(LPCSTR requestId, PacketRequestCompletion *completion)
 {
 	PacketCompletionRoutineEntry *entry;
 	DWORD res = ERROR_SUCCESS;
@@ -571,8 +687,7 @@ DWORD packet_add_completion_handler(LPCSTR requestId,
 	do
 	{
 		// Allocate the entry
-		if (!(entry = (PacketCompletionRoutineEntry *)malloc(
-				sizeof(PacketCompletionRoutineEntry))))
+		if (!(entry = (PacketCompletionRoutineEntry *)malloc(sizeof(PacketCompletionRoutineEntry))))
 		{
 			res = ERROR_NOT_ENOUGH_MEMORY;
 			break;
@@ -603,8 +718,7 @@ DWORD packet_add_completion_handler(LPCSTR requestId,
 /*
  * Call the register completion handler(s) for the given request identifier.
  */
-DWORD packet_call_completion_handlers(Remote *remote, Packet *response,
-		LPCSTR requestId)
+DWORD packet_call_completion_handlers(Remote *remote, Packet *response,LPCSTR requestId)
 {
 	PacketCompletionRoutineEntry *current;
 	DWORD result = packet_get_result(response);
@@ -834,9 +948,7 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 		// Read the packet length
 		while (inHeader)
 		{
-			if ((bytesRead = SSL_read(remote->ssl, 
-					((PUCHAR)&header + headerBytes), 
-					sizeof(TlvHeader) - headerBytes)) <= 0)
+			if ((bytesRead = SSL_read(remote->ssl, ((PUCHAR)&header + headerBytes), sizeof(TlvHeader) - headerBytes)) <= 0)
 			{
 				if (!bytesRead)
 					SetLastError(ERROR_NOT_FOUND);
@@ -876,9 +988,7 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 		// Read the payload
 		while (payloadBytesLeft > 0)
 		{
-			if ((bytesRead = SSL_read(remote->ssl, 
-					payload + payloadLength - payloadBytesLeft, 
-					payloadBytesLeft)) <= 0)
+			if ((bytesRead = SSL_read(remote->ssl, payload + payloadLength - payloadBytesLeft, payloadBytesLeft)) <= 0)
 			{
 
 				if (GetLastError() == WSAEWOULDBLOCK)
@@ -909,6 +1019,8 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 			break;
 		}
 
+		memset( localPacket, 0, sizeof(Packet) );
+
 		// If the connection has an established cipher and this packet is not
 		// plaintext, decrypt
 		if ((crypto = remote_get_cipher(remote)) &&
@@ -919,8 +1031,7 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 			PUCHAR origPayload = payload;
 
 			// Decrypt
-			if ((res = crypto->handlers.decrypt(crypto, payload, payloadLength,
-					&payload, &payloadLength)) != ERROR_SUCCESS)
+			if ((res = crypto->handlers.decrypt(crypto, payload, payloadLength,&payload, &payloadLength)) != ERROR_SUCCESS)
 			{
 				SetLastError(res);
 				break;

@@ -283,13 +283,18 @@ DWORD channel_write_to_remote(Remote *remote, Channel *channel, PUCHAR chunk,
 		entries[0].header.type   = TLV_TYPE_CHANNEL_ID;
 		entries[0].header.length = sizeof(DWORD);
 		entries[0].buffer        = (PUCHAR)&idNbo;
-		entries[1].header.type   = TLV_TYPE_CHANNEL_DATA;
+
+		// if the channel data is ment to be compressed, compress it!
+		if( channel_is_flag( channel, CHANNEL_FLAG_COMPRESS ) )
+			entries[1].header.type = TLV_TYPE_CHANNEL_DATA|TLV_META_TYPE_COMPRESSED;
+		else
+			entries[1].header.type = TLV_TYPE_CHANNEL_DATA;
+
 		entries[1].header.length = chunkLength;
 		entries[1].buffer        = chunk;
 
 		// Add the TLV data
-		if ((res = packet_add_tlv_group(request, TLV_TYPE_CHANNEL_DATA_GROUP, 
-				entries, 2)) != ERROR_SUCCESS)
+		if ((res = packet_add_tlv_group(request, TLV_TYPE_CHANNEL_DATA_GROUP, entries, 2)) != ERROR_SUCCESS)
 			break;
 
 		// Transmit the packet
@@ -579,8 +584,7 @@ DWORD channel_write(Channel *channel, Remote *remote, Tlv *addend,
 	do
 	{
 		// Allocate a request packet
-		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, 
-				NULL)))
+		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, NULL)))
 		{
 			res = ERROR_NOT_ENOUGH_MEMORY;
 			break;
@@ -590,18 +594,19 @@ DWORD channel_write(Channel *channel, Remote *remote, Tlv *addend,
 		packet_add_tlvs(request, addend, addendLength);
 
 		// If no method TLV as added, add the default one.
-		if (packet_get_tlv(request, TLV_TYPE_METHOD,
-				&methodTlv) != ERROR_SUCCESS)
-			packet_add_tlv_string(request, TLV_TYPE_METHOD,
-					method);
+		if (packet_get_tlv(request, TLV_TYPE_METHOD, &methodTlv) != ERROR_SUCCESS)
+			packet_add_tlv_string(request, TLV_TYPE_METHOD, method);
 
 		// Add the channel identifier and the length to write
-		packet_add_tlv_uint(request, TLV_TYPE_CHANNEL_ID,
-				channel_get_id(channel));
-		packet_add_tlv_raw(request, TLV_TYPE_CHANNEL_DATA,
-				buffer, length);
-		packet_add_tlv_uint(request, TLV_TYPE_LENGTH,
-				channel_get_id(channel));
+		packet_add_tlv_uint(request, TLV_TYPE_CHANNEL_ID, channel_get_id(channel));
+
+		// if the channel data is ment to be compressed, compress it!
+		if( channel_is_flag( channel, CHANNEL_FLAG_COMPRESS ) )
+			packet_add_tlv_raw(request, TLV_TYPE_CHANNEL_DATA|TLV_META_TYPE_COMPRESSED, buffer, length);
+		else
+			packet_add_tlv_raw(request, TLV_TYPE_CHANNEL_DATA, buffer, length);
+
+		packet_add_tlv_uint(request, TLV_TYPE_LENGTH, channel_get_id(channel));
 
 		// Initialize the packet completion routine
 		if (completionRoutine)

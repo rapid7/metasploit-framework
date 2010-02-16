@@ -3,6 +3,7 @@
 
 #include "linkage.h"
 #include "remote.h"
+#include "list.h"
 
 /*
  * Enumerations for TLVs and packets
@@ -24,6 +25,7 @@ typedef enum
 #define TLV_META_TYPE_UINT          (1 << 17)
 #define TLV_META_TYPE_RAW           (1 << 18)
 #define TLV_META_TYPE_BOOL          (1 << 19)
+#define TLV_META_TYPE_COMPRESSED    (1 << 29)
 #define TLV_META_TYPE_GROUP         (1 << 30)
 #define TLV_META_TYPE_COMPLEX       (1 << 31)
 #define TLV_META_TYPE_MASK(x)       ((x) & 0xffff0000)
@@ -38,6 +40,7 @@ typedef enum
 #define LOAD_LIBRARY_FLAG_LOCAL     (1 << 2)
 
 #define CHANNEL_FLAG_SYNCHRONOUS    (1 << 0)
+#define CHANNEL_FLAG_COMPRESS       (1 << 1)
 
 typedef DWORD TlvMetaType;
 
@@ -112,7 +115,15 @@ typedef struct _Packet
 
 	PUCHAR    payload;
 	ULONG     payloadLength;
+
+	LIST *    decompressed_buffers;
 } Packet;
+
+typedef struct _DECOMPRESSED_BUFFER
+{
+	LPVOID buffer;
+	DWORD length;
+} DECOMPRESSED_BUFFER;
 
 /*
  * Packet request completion notification handler
