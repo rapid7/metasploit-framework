@@ -20,6 +20,7 @@ TLV_META_TYPE_STRING        = (1 << 16)
 TLV_META_TYPE_UINT          = (1 << 17)
 TLV_META_TYPE_RAW           = (1 << 18)
 TLV_META_TYPE_BOOL          = (1 << 19)
+TLV_META_TYPE_COMPRESSED    = (1 << 29)
 TLV_META_TYPE_GROUP         = (1 << 30)
 TLV_META_TYPE_COMPLEX       = (1 << 31)
 
@@ -85,7 +86,7 @@ LOAD_LIBRARY_FLAG_LOCAL     = (1 << 2)
 #
 ###
 class Tlv
-	attr_accessor :type, :value
+	attr_accessor :type, :value, :compress
 
 	##
 	#
@@ -96,9 +97,10 @@ class Tlv
 	#
 	# Returns an instance of a TLV.
 	#
-	def initialize(type, value = nil)
-		@type  = type
-
+	def initialize(type, value = nil, compress=false)
+		@type     = type
+		@compress = compress
+		
 		if (value != nil)
 			if (type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
 				if (value.kind_of?(Fixnum))
@@ -162,7 +164,24 @@ class Tlv
 				raw = [0].pack("c")
 			end
 		end
-
+		
+		# check if the tlv is to be compressed...
+		if( @compress )
+			raw_uncompressed = raw
+			# compress the raw data
+			raw_compressed = Rex::Text.zlib_deflate( raw_uncompressed )
+			# check we have actually made the raw data smaller...
+			# (small blobs often compress slightly larger then the origional) 
+			# if the compressed data is not smaller, we dont use the compressed data
+			if( raw_compressed.length < raw_uncompressed.length )
+				# if so, set the TLV's type to indicate compression is used
+				self.type = self.type | TLV_META_TYPE_COMPRESSED
+				# update the raw data with the uncompressed data length + compressed data
+				# (we include the uncompressed data length as the C side will need to know this for decompression)
+				raw = [ raw_uncompressed.length ].pack("N") + raw_compressed
+			end
+		end
+		
 		return [raw.length + 8, self.type].pack("NN") + raw
 	end
 
@@ -174,6 +193,21 @@ class Tlv
 
 		length, self.type = raw.unpack("NN");
 
+		# check if the tlv value has been compressed...
+		if( self.type & TLV_META_TYPE_COMPRESSED == TLV_META_TYPE_COMPRESSED )
+			# set this TLV as using compression
+			@compress = true
+			# remove the TLV_META_TYPE_COMPRESSED flag from the tlv type to restore the 
+			# tlv type to its origional, allowing for transparent data compression.
+			self.type = self.type ^ TLV_META_TYPE_COMPRESSED
+			# decompress the compressed data (skipping the length and type DWORD's)
+			raw_decompressed = Rex::Text.zlib_inflate( raw[8..length-1] )
+			# update the length to reflect the decompressed data length (+8 for the length and type DWORD's)
+			length = raw_decompressed.length + 8
+			# update the raw buffer with the new length, decompressed data and updated type.
+			raw = [length, self.type].pack("NN") + raw_decompressed
+		end
+		
 		if (self.type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
 			if (raw.length > 0)
 				self.value = raw[8..length-2]
@@ -284,7 +318,7 @@ class GroupTlv < Tlv
 	#
 	# Adds a TLV of a given type and value.
 	#
-	def add_tlv(type, value = nil, replace = false)
+	def add_tlv(type, value = nil, replace = false, compress=false)
 
 		# If we should replace any TLVs with the same type...remove them first
 		if (replace)
@@ -298,7 +332,7 @@ class GroupTlv < Tlv
 		if (type & TLV_META_TYPE_GROUP == TLV_META_TYPE_GROUP)
 			tlv = GroupTlv.new(type)
 		else
-			tlv = Tlv.new(type, value)
+			tlv = Tlv.new(type, value, compress)
 		end
 
 		self.tlvs << tlv

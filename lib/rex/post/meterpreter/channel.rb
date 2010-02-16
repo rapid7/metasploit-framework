@@ -19,7 +19,11 @@ CHANNEL_CLASS_POOL       = 3
 #   CHANNEL_FLAG_SYNCHRONOUS
 #      Specifies that I/O requests on the channel are blocking.
 #
+#   CHANNEL_FLAG_COMPRESS
+#      Specifies that I/O requests on the channel have their data zlib compressed.
+#
 CHANNEL_FLAG_SYNCHRONOUS = (1 << 0)
+CHANNEL_FLAG_COMPRESS    = (1 << 1)
 
 #
 # The core types of direct I/O requests
@@ -219,7 +223,12 @@ class Channel
 
 		# Populate the request
 		request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
-		request.add_tlv(TLV_TYPE_CHANNEL_DATA, buf)
+		
+		cdata = request.add_tlv(TLV_TYPE_CHANNEL_DATA, buf)
+		if( ( self.flags & CHANNEL_FLAG_COMPRESS ) == CHANNEL_FLAG_COMPRESS )
+			cdata.compress = true 
+		end
+		
 		request.add_tlv(TLV_TYPE_LENGTH, length)
 		request.add_tlvs(addends)
 
