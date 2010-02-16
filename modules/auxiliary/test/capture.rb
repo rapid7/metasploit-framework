@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 	include Msf::Exploit::Capture
-	
+
 	def initialize
 		super(
 			'Name'        => 'Simple Network Capture Tester',
@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 				 	[ 'Sniffer' ]
 				],
-			'PassiveActions' => 
+			'PassiveActions' =>
 				[
 					'Sniffer'
 				],
@@ -46,21 +46,23 @@ class Metasploit3 < Msf::Auxiliary
 
 			eth = Racket::L2::Ethernet.new(pkt)
 			next if not eth.ethertype == 0x0800
-					
+
 			ip = Racket::L3::IPv4.new(eth.payload)
 			next if not ip.protocol == 6
-	
+
 			tcp = Racket::L4::TCP.new(ip.payload)
 			next if !(tcp.payload and tcp.payload.length > 0)
-			
+
 			if (tcp.payload =~ /GET\s+([^\s]+)\s+HTTP/smi)
-				print_status("GET #{$1}")
+				url = $1
+				print_status("GET #{url}")
+				break if url =~ /StopCapture/
 			end
-			
-			true
+
 		end
 		close_pcap()
 		print_status("Finished sniffing")
 	end
-	
+
 end
+
