@@ -57,30 +57,8 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['RPORT']
 	end
 
-	# Test the connection with Rex::Socket before handing
-	# off to Postgres-PR, since Postgres-PR takes forever
-	# to return from connection errors. TODO: convert
-	# Postgres-PR to use Rex::Socket natively to avoid 
-	# this double-connect business.
-	def test_connection
-		begin
-		sock = Rex::Socket::Tcp.create(
-			'PeerHost' => rhost,
-			'PeerPort' => rport
-		)
-		rescue Rex::ConnectionError
-			print_error "#{rhost}:#{rport} Connection Error: #{$!}" if datastore['VERBOSE']
-			raise $!
-		end	
-	end
-
-	# Test the connection, then actually do all the fingerprinting.
 	def do_fingerprint(user=nil,pass=nil,database=nil,verbose=false)
 		begin
-			test_connection
-		rescue Rex::ConnectionError
-			return :done
-		end
 		msg = "#{rhost}:#{rport} Postgres -"
 		password = pass || postgres_password
 		print_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{rhost}:#{rport} on database '#{database}'") if verbose 
@@ -131,6 +109,11 @@ class Metasploit3 < Msf::Auxiliary
 		# Logout
 
 		postgres_logout
+
+		rescue Rex::ConnectionError
+			print_error "#{rhost}:#{rport} Connection Error: #{$!}" if datastore['VERBOSE']
+			return :done
+		end
 
 	end
 

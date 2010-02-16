@@ -78,42 +78,16 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['RPORT']
 	end
 
-	# Test the connection with Rex::Socket before handing
-	# off to Postgres-PR, since Postgres-PR takes forever
-	# to return from connection errors. TODO: convert
-	# Postgres-PR to use Rex::Socket natively to avoid 
-	# this double-connect business.
-	def test_connection
-		begin
-		sock = Rex::Socket::Tcp.create(
-			'PeerHost' => rhost,
-			'PeerPort' => rport
-		)
-		rescue Rex::ConnectionError
-			print_error "#{rhost}:#{rport} Connection Error: #{$!}" if datastore['VERBOSE']
-			raise $!
-		end	
-	end
-
 	# Actually do all the login stuff. Note that "verbose" is really pretty
 	# verbose, since postgres_login also makes use of the verbose value
 	# to print diagnostics for other modules.
 	def do_login(user=nil,pass=nil,database=nil,verbose=false)
 		begin
-			test_connection
-		rescue Rex::ConnectionError
-			return :done
-		end
-
-		# Report the service state
-		report_service(
-			:host => rhost,
-			:port => rport,
-			:name => "postgres"
-		)
 
 		msg = "#{rhost}:#{rport} Postgres -"
 		print_status("#{msg} Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport} on database '#{database}'") if verbose 
+
+		# Here's where the actual connection happens.
 		result = postgres_login(
 			:db => database,
 			:username => user,
@@ -136,10 +110,25 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("#{msg} Unknown error encountered, quitting.") if verbose
 			return :done
 		end
+		rescue Rex::ConnectionError
+			print_error "#{rhost}:#{rport} Connection Error: #{$!}" if datastore['VERBOSE']
+			return :done
+		end
 
 	end
 
+	# Report the service state
+	def do_report_postgres
+		report_service(
+			:host => rhost,
+			:port => rport,
+			:name => "postgres"
+		)
+	end
+
 	def do_report_auth_info(user,pass,db,db_ok)
+		do_report_postgres
+
 		result_hash = {
 			:host => rhost,
 			:proto => "postgres",
