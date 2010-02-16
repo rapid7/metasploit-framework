@@ -241,7 +241,7 @@ module Net; module SSH; module Service
           raise Net::SSH::ChannelOpenFailed.new(1, "unknown request from remote forwarded connection on #{connected_address}:#{connected_port}")
         end
 
-        client = TCPSocket.new(remote.host, remote.port)
+        client = Rex::Socket::Tcp.connect(remote.host, remote.port)
         info { "connected #{connected_address}:#{connected_port} originator #{originator_address}:#{originator_port}" }
 
         prepare_client(client, channel, :remote)

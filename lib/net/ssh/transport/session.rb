@@ -1,4 +1,4 @@
-require 'socket'
+require 'rex/socket'
 require 'timeout'
 
 require 'net/ssh/errors'
@@ -61,8 +61,8 @@ module Net; module SSH; module Transport
       @options = options
 
       debug { "establishing connection to #{@host}:#{@port}" }
-      factory = options[:proxy] || TCPSocket
-      @socket = timeout(options[:timeout] || 0) { factory.open(@host, @port) }
+      factory = options[:proxy] || Rex::Socket::Tcp
+      @socket = timeout(options[:timeout] || 0) { factory.connect(@host, @port) }
       @socket.extend(PacketStream)
       @socket.logger = @logger
 

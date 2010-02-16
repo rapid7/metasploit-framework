@@ -1,4 +1,4 @@
-require 'socket'
+require 'rex/socket'
 require 'resolv'
 require 'ipaddr'
 require 'net/ssh/proxy/errors'
@@ -48,7 +48,7 @@ module Net
         # Return a new socket connected to the given host and port via the
         # proxy that was requested when the socket factory was instantiated.
         def open(host, port)
-          socket = TCPSocket.new(proxy_host, proxy_port)
+			socket = Rex::Socket::Tcp.connect(proxy_host, proxy_port)
           ip_addr = IPAddr.new(Resolv.getaddress(host))
           
           packet = [VERSION, CONNECT, port.to_i, ip_addr.to_i, options[:user]].pack("CCnNZ*")

@@ -21,8 +21,9 @@ class Net::SSH::UnitTest < ::Test::Unit::TestCase
 		end
 	end
 
-	# Tests that a connection happens, and that failed logins
-	# are recorded.
+	# Tests that a connection happens, that failed logins
+	# are recorded, and that we're using Rex sockets instead
+	# of standard sockets.
 	def test_connection
 
 		assert_nothing_raised do
@@ -46,6 +47,18 @@ class Net::SSH::UnitTest < ::Test::Unit::TestCase
 			)
 			conn.close
 		end
+	end
+
+	def test_rex_sockets
+			conn = Net::SSH.start(
+				$_SSH_TEST_SERVERNAME,
+				$_SSH_TEST_USERNAME,
+				:password => $_SSH_TEST_PASSWORD,
+				:auth_methods => ['password'],
+				:port => $_SSH_TEST_SERVERPORT
+			)
+		assert_kind_of Rex::Socket::Tcp, conn.transport.socket
+		conn.close
 	end
 
 	def _do_uname(host,user,pass)

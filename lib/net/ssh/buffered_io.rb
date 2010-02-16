@@ -20,7 +20,7 @@ module Net; module SSH
   # available for write, and then call #enqueue and #read_available during
   # the idle times.
   #
-  #   socket = TCPSocket.new(address, port)
+  #   socket = Rex::Socket::Tcp.connect(address, port)
   #   socket.extend(Net::SSH::BufferedIo)
   #
   #   ssh.listen_to(socket)

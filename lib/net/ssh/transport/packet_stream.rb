@@ -55,13 +55,10 @@ module Net; module SSH; module Transport
     end
 
     # The IP address of the peer (remote) end of the socket, as reported by
-    # the socket.
+    # the Rex socket.
     def peer_ip
-      @peer_ip ||= begin
-        addr = getpeername
-        Socket.getnameinfo(addr, Socket::NI_NUMERICHOST | Socket::NI_NUMERICSERV).first
-      end
-    end
+		@peer_ip ||= getpeername[1]
+	end
 
     # Returns true if the IO is available for reading, and false otherwise.
     def available_for_read?

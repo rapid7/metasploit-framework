@@ -1,4 +1,4 @@
-require 'socket'
+require 'rex/socket'
 require 'net/ssh/ruby_compat'
 require 'net/ssh/proxy/errors'
 
@@ -63,7 +63,7 @@ module Net
         # Return a new socket connected to the given host and port via the
         # proxy that was requested when the socket factory was instantiated.
         def open(host, port)
-          socket = TCPSocket.new(proxy_host, proxy_port)
+			socket = Rex::Socket::Tcp.connect(proxy_host, proxy_port)
 
           methods = [METHOD_NO_AUTH]
           methods << METHOD_PASSWD if options[:user]
