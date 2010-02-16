@@ -62,8 +62,9 @@ class Metasploit3 < Msf::Auxiliary
 					:auth_methods => ['password'],
 					:port => rport
 				)
-				rescue ::Net::SSH::AuthenticationFailed
+				rescue Net::SSH::Exception # Myriad reasons why this can fail.
 				end
+
 				if @ssh_sock
 					print_good "#{ip}:#{rport} - SSH - Success: '#{user}':'#{pass}'"
 					@ssh_sock.close
