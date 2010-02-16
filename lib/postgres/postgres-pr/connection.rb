@@ -8,7 +8,7 @@ require 'postgres_msf'
 require 'postgres/postgres-pr/message'
 require 'postgres/postgres-pr/version'
 require 'uri'
-require 'socket'
+require 'rex/socket'
 
 # Namespace for Metasploit branch.
 module Msf
@@ -19,6 +19,9 @@ module PostgresPR
 PROTO_VERSION = 3 << 16   #196608
 
 class Connection
+
+	# Allow easy access to these instance variables
+	attr_reader :conn, :params, :transaction_status
 
   # A block which is called with the NoticeResponse object as parameter.
   attr_accessor :notice_processor
@@ -167,7 +170,11 @@ class Connection
     u = URI.parse(uri)
     case u.scheme
     when 'tcp'
-      @conn = TCPSocket.new(u.host || DEFAULT_HOST, u.port || DEFAULT_PORT)
+      @conn = Rex::Socket.create(
+		  'PeerHost' => (u.host || DEFAULT_HOST),
+		  'PeerPort' => (u.port || DEFAULT_PORT),
+		  'proto' => 'tcp'
+	  )
     when 'unix'
       @conn = UNIXSocket.new(u.path)
     else

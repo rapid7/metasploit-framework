@@ -18,6 +18,7 @@ class Msf::Db::PostgresPR::UnitTest < ::Test::Unit::TestCase
 			$_POSTGRESQL_TEST_PASSWORD,
 			srv)
 		assert_kind_of Msf::Db::PostgresPR::Connection, conn
+		assert_kind_of Rex::Socket::Tcp, conn.conn, "should use Rex sockets for TCP"
 		assert_nothing_raised { conn.close }
 	end
 

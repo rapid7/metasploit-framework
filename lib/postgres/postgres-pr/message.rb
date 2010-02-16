@@ -6,23 +6,14 @@
 
 require 'postgres_msf'
 require 'postgres/buffer'
+require 'rex/io/stream'
 
-# TODO: Revisit this monkeypatch.
-class IO
+# Monkeypatch to preserve original code intent
+# (postgres-pr originally defined read_exactly_n_bytes on IO
+# as a while loop)
+module Rex::IO::Stream
   def read_exactly_n_bytes(n)
-    buf = read(n)
-    raise EOFError if buf == nil
-    return buf if buf.size == n
-
-    n -= buf.size
-
-    while n > 0
-      str = read(n)
-      raise EOFError if str == nil
-      buf << str
-      n -= str.size 
-    end
-    return buf
+    timed_read(n)
   end
 end
 
