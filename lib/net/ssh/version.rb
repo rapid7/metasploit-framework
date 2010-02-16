@@ -20,11 +20,12 @@ module Net; module SSH
       new(major, minor, tiny)
     end
 
-    attr_reader :major, :minor, :tiny
+    attr_reader :major, :minor, :tiny, :msf3
 
     # Create a new Version object with the given components.
     def initialize(major, minor, tiny)
       @major, @minor, @tiny = major, minor, tiny
+	  @msf3 = true
     end
 
     # Compare this version to the given +version+ object.
