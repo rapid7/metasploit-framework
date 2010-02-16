@@ -59,56 +59,56 @@ class Metasploit3 < Msf::Auxiliary
 
 	def do_fingerprint(user=nil,pass=nil,database=nil,verbose=false)
 		begin
-		msg = "#{rhost}:#{rport} Postgres -"
-		password = pass || postgres_password
-		print_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{rhost}:#{rport} on database '#{database}'") if verbose 
-		result = postgres_fingerprint(
-			:db => database,
-			:username => user,
-			:password => password
-		)
-		if result[:auth]
-			print_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'" if verbose
-			print_good "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
-		elsif result[:preauth]
-			print_good "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
-		else # It's something we don't know yet
-			print_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}" if datastore['VERBOSE']
-			print_error "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"
-		end
-
-		# Reporting
-
-		report_service(
-			:host => rhost,
-			:port => rport,
-			:name => "postgres",
-			:info => result.values.first
-		)
-
-		if self.postgres_conn
-			report_auth_info(
-				:host => rhost,
-				:proto => "postgres",
-				:user => user,
-				:pass => password,
-				:targ_host => rhost,
-				:targ_port => rport
+			msg = "#{rhost}:#{rport} Postgres -"
+			password = pass || postgres_password
+			print_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{rhost}:#{rport} on database '#{database}'") if verbose 
+			result = postgres_fingerprint(
+				:db => database,
+				:username => user,
+				:password => password
 			)
-		end
+			if result[:auth]
+				print_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'" if verbose
+				print_good "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
+			elsif result[:preauth]
+				print_good "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
+			else # It's something we don't know yet
+				print_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}" if datastore['VERBOSE']
+				print_error "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"
+			end
 
-		if result[:unknown]
-			report_note(
+			# Reporting
+
+			report_service(
 				:host => rhost,
-				:proto => 'postgres',
 				:port => rport,
-				:data => "Unknown Pre-Auth fingerprint: #{result[:unknown]}"
+				:name => "postgres",
+				:info => result.values.first
 			)
-		end
 
-		# Logout
+			if self.postgres_conn
+				report_auth_info(
+					:host => rhost,
+					:proto => "postgres",
+					:user => user,
+					:pass => password,
+					:targ_host => rhost,
+					:targ_port => rport
+				)
+			end
 
-		postgres_logout
+			if result[:unknown]
+				report_note(
+					:host => rhost,
+					:proto => 'postgres',
+					:port => rport,
+					:data => "Unknown Pre-Auth fingerprint: #{result[:unknown]}"
+				)
+			end
+
+			# Logout
+
+			postgres_logout
 
 		rescue Rex::ConnectionError
 			print_error "#{rhost}:#{rport} Connection Error: #{$!}" if datastore['VERBOSE']

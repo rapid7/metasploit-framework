@@ -83,38 +83,35 @@ class Metasploit3 < Msf::Auxiliary
 	# to print diagnostics for other modules.
 	def do_login(user=nil,pass=nil,database=nil,verbose=false)
 		begin
-
-		msg = "#{rhost}:#{rport} Postgres -"
-		print_status("#{msg} Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport} on database '#{database}'") if verbose 
-
-		# Here's where the actual connection happens.
-		result = postgres_login(
-			:db => database,
-			:username => user,
-			:password => pass
-		)
-		case result
-		when :error_database
-			print_good("#{msg} Success: #{user}:#{pass} (Database '#{database}' failed.)")
-			do_report_auth_info(user,pass,database,false)
-			return :next_user # This is a success for user:pass!
-		when :error_credentials
-			print_error("#{msg} Username/Password failed.") if verbose
-			return
-		when :connected
-			print_good("#{msg} Success: #{user}:#{pass} (Database '#{database}' succeeded.)")
-			do_report_auth_info(user,pass,database,true)
-			postgres_logout
-			return :next_user
-		when :error
-			print_error("#{msg} Unknown error encountered, quitting.") if verbose
-			return :done
-		end
+			msg = "#{rhost}:#{rport} Postgres -"
+			print_status("#{msg} Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport} on database '#{database}'") if verbose 
+			# Here's where the actual connection happens.
+			result = postgres_login(
+				:db => database,
+				:username => user,
+				:password => pass
+			)
+			case result
+			when :error_database
+				print_good("#{msg} Success: #{user}:#{pass} (Database '#{database}' failed.)")
+				do_report_auth_info(user,pass,database,false)
+				return :next_user # This is a success for user:pass!
+			when :error_credentials
+				print_error("#{msg} Username/Password failed.") if verbose
+				return
+			when :connected
+				print_good("#{msg} Success: #{user}:#{pass} (Database '#{database}' succeeded.)")
+				do_report_auth_info(user,pass,database,true)
+				postgres_logout
+				return :next_user
+			when :error
+				print_error("#{msg} Unknown error encountered, quitting.") if verbose
+				return :done
+			end
 		rescue Rex::ConnectionError
 			print_error "#{rhost}:#{rport} Connection Error: #{$!}" if datastore['VERBOSE']
 			return :done
 		end
-
 	end
 
 	# Report the service state
