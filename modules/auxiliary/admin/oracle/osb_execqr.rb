@@ -23,6 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'CVE', '2008-5448' ],
+					[ 'OSVDB', '51342' ],
 					[ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpujan2009.html' ],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-003' ],
 				],
