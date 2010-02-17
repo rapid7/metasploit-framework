@@ -1006,12 +1006,42 @@ class DBManager
 		end
 		doc.elements.each('/NeXposeSimpleXML/devices/device') do |dev|
 			addr = dev.attributes['address'].to_s
-			desc = ''
-			dev.elements.each('fingerprint/description') do |fdesc|
-				desc = fdesc.text.to_s.strip
+
+			fprint = {}
+
+			dev.elements.each('fingerprint/description') do |str|
+				fprint[:desc] = str.text.to_s.strip
+			end
+			dev.elements.each('fingerprint/vendor') do |str|
+				fprint[:vendor] = str.text.to_s.strip
+			end
+			dev.elements.each('fingerprint/family') do |str|
+				fprint[:family] = str.text.to_s.strip
+			end
+			dev.elements.each('fingerprint/product') do |str|
+				fprint[:product] = str.text.to_s.strip
+			end
+			dev.elements.each('fingerprint/version') do |str|
+				fprint[:version] = str.text.to_s.strip
+			end
+			dev.elements.each('fingerprint/architecture') do |str|
+				fprint[:arch] = str.text.to_s.upcase.strip
 			end
 
-			report_host(:host => addr, :state => Msf::HostState::Alive, :os_flavor => desc)
+			conf = {
+				:host      => addr,
+				:state     => Msf::HostState::Alive,
+				:os_flavor => fprint[:desc].to_s
+			}
+
+			conf[:arch] = fprint[:arch] if fprint[:arch]
+			report_host(conf)
+
+			report_note(
+				:host      => addr,
+				:type      => 'host.os.nexpose_fingerprint',
+				:data      => fprint
+			)
 
 			# Load vulnerabilities not associated with a service
 			dev.elements.each('vulnerabilities/vulnerability') do |vuln|
@@ -1032,11 +1062,16 @@ class DBManager
 				sport = svc.attributes['port'].to_s.to_i
 
 				name = sname.split('(')[0].strip
+				info = ''
+
+				svc.elements.each('fingerprint/description') do |str|
+					info = str.text.to_s.strip
+				end
 
 				if(sname.downcase != '<unknown>')
-					report_service(:host => addr, :proto => sprot, :port => sport, :name => name)
+					report_service(:host => addr, :proto => sprot, :port => sport, :name => name, :info => info)
 				else
-					report_service(:host => addr, :proto => sprot, :port => sport)
+					report_service(:host => addr, :proto => sprot, :port => sport, :info => info)
 				end
 
 				# Load vulnerabilities associated with this service
