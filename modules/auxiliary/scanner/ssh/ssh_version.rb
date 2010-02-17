@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'URL', 'http://en.wikipedia.org/wiki/SecureShell' ],
 				],
-			'Author'      => [ 'Daniel van Eeden <metasploit@myname.nl>' ],
+			'Author'      => [ 'Daniel van Eeden <metasploit[at]myname.nl>' ],
 			'License'     => MSF_LICENSE
 		)
 
@@ -64,10 +64,15 @@ class Metasploit3 < Msf::Auxiliary
 					os_name = 'Windows'
 				when /radware/i
 					os_name = 'Radware'
-				when /dropbear/
+				when /dropbear/i
 					os_name = 'Linux'
+				when /netscreen/i
+					os_name = 'NetScreen'
 				when /cisco|vpn3/i
 					os_name = 'Cisco'
+				when /mpSSH/
+					os_name = 'HP iLO'
+					os_flav = 'HP Integrated Lights-Out Controller'
 			end
 
 			if(os_name || os_flav)
