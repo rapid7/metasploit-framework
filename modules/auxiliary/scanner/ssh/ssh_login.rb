@@ -18,6 +18,8 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::AuthBrute
 	include Msf::Auxiliary::Report
 
+	attr_accessor :ssh_socket, :good_credentials
+
 	def initialize
 		super(
 			'Name'        => 'SSH Login Check Scanner',
@@ -41,58 +43,66 @@ class Metasploit3 < Msf::Auxiliary
 
 		deregister_options('RHOST')
 
+		@good_credentials = {}
+
 	end
 
 	def rport
 		datastore['RPORT']
 	end
 
-	def run_host(ip)
-		print_status("Starting host #{ip}")
+	def do_logout
+		self.ssh_socket.close if self.ssh_socket
+		self.ssh_socket = nil
+	end
+
+	def do_login(ip,user,pass,port)
 		begin
-			each_user_pass { |user, pass|
-				print_status "#{ip}:#{rport} - SSH - Attempting: '#{user}':'#{pass}'" if datastore['VERBOSE']
-
-				# Ought to be def'ed seperately, and include a timeout for the impatient.
-				begin
-				@ssh_sock = Net::SSH.start(
-					ip,
-					user,
-					:password => pass,
-					:auth_methods => ['password'],
-					:port => rport
-				)
-				rescue Net::SSH::Exception # Myriad reasons why this can fail.
-				end
-
-				if @ssh_sock
-					print_good "#{ip}:#{rport} - SSH - Success: '#{user}':'#{pass}'"
-					@ssh_sock.close
-
-					# Report
-					report_service(
-						:host => ip,
-						:port => rport,
-						:name => 'ssh'
-					)
-
-					report_auth_info(
-						:host => ip,
-						:port => rport,
-						:proto => 'ssh',
-						:user => user,
-						:pass => pass
-					)
-
-
-					return :next_user
-				end
-			}
-		rescue ::Errno
-			return
+			self.ssh_socket = Net::SSH.start(
+				ip,
+				user,
+				:password => pass,
+				:auth_methods => ['password'],
+				:port => port
+			) 
+		rescue Rex::ConnectionError
+			return :connection_error
+		rescue Net::SSH::Exception 
+			return :fail # For whatever reason. Can't tell if passwords are on/off without timing responses.
+		end
+		if self.ssh_socket
+			do_logout
+			return :success
+		else
+			return :fail
 		end
 	end
-	
+
+	def do_report(ip,user,pass,port)
+		report_service(:host => ip, :port => rport, :name => 'ssh')
+		report_auth_info(:host => ip, :port => rport, :proto => 'ssh', :user => user, :pass => pass)
+	end
+
+	def run_host(ip)
+		print_status("#{ip}:#{rport} - SSH - Starting buteforce")
+		credentials_tried = {}
+		each_user_pass do |user, pass|
+			next if credentials_tried[user] == pass || self.good_credentials[user]
+			credentials_tried[user] = pass
+			case do_login(ip,user,pass,rport)
+			when :success
+				print_good "#{ip}:#{rport} - SSH - Success: '#{user}':'#{pass}'"
+				self.good_credentials[user] = pass
+				do_report(ip,user,pass,rport)
+			when :connection_error
+				print_error "#{ip}:#{rport} - Could not connect" if datastore['VERBOSE']
+				return
+			when :fail
+				print_error "#{ip}:#{rport} - SSH - Failed: '#{user}':'#{pass}'" if datastore['VERBOSE']
+			end
+		end	
+	end
+
 end
 
 
