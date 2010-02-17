@@ -56,6 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 		@got_shell = false
 	end
 
+
 	def run_host(ip)
 		print_status("Starting host #{ip}")
 		begin
@@ -69,6 +70,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def try_user_pass(user, pass)
+		this_cred = [user,rhost,rport].join(":")
+		if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
+			return :tried
+		else
+			self.credentials_tried[this_cred] = pass
+		end
 		print_status "#{rhost}:#{rport} Telnet - Attempting: '#{user}':'#{pass}'" if datastore['VERBOSE']
 		if @got_shell
 			@got_shell = false
@@ -96,6 +103,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if (login_succeeded?)
 			print_good("#{rhost} - SUCCESSFUL LOGIN #{user} : #{pass}")
+			self.credentials_good[this_cred] = pass
 			report_auth_info(
 				:host	=> rhost,
 				:proto	=> 'telnet',

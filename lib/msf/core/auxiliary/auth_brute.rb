@@ -8,6 +8,8 @@ module Msf
 
 module Auxiliary::AuthBrute
 
+	attr_accessor :credentials_tried, :credentials_good
+
 def initialize(info = {})
 	super
 
@@ -19,6 +21,8 @@ def initialize(info = {})
 
 	@user = nil
 	@pass = nil
+	@credentials_tried = {}
+	@credentials_good = {}
 
 end
 

@@ -85,14 +85,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		print_status("#{ip}:#{rport} - SSH - Starting buteforce")
-		credentials_tried = {}
 		each_user_pass do |user, pass|
-			next if credentials_tried[user] == pass || self.good_credentials[user]
-			credentials_tried[user] = pass
+			this_cred = [user,ip,rport].join(":")
+			next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
+			self.credentials_tried[this_cred] = pass
 			case do_login(ip,user,pass,rport)
 			when :success
 				print_good "#{ip}:#{rport} - SSH - Success: '#{user}':'#{pass}'"
-				self.good_credentials[user] = pass
+				self.credentials_good[this_cred] = pass
 				do_report(ip,user,pass,rport)
 			when :connection_error
 				print_error "#{ip}:#{rport} - Could not connect" if datastore['VERBOSE']
