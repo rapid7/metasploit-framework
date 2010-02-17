@@ -26,7 +26,9 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'CVE', '2009-1977' ],
+					[ 'OSVDB', '55903' ],
 					[ 'CVE', '2009-1978' ],
+					[ 'OSVDB', '55904' ],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-058' ],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-059' ],
 				],
