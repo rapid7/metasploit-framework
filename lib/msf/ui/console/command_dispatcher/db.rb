@@ -182,7 +182,7 @@ class Db
 					'Header'  => "Hosts",
 					'Columns' => col_names + ["Svcs", "Vulns", "Workspace"],
 				})
-			framework.db.hosts(onlyup, host_search).each do |host|
+			framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
 				columns = col_names.map { |n| host.attributes[n] || "" }
 				columns += [host.services.length, host.vulns.length, host.workspace.name]
 				tbl << columns
@@ -272,7 +272,7 @@ class Db
 					'Header'  => "Services",
 					'Columns' => col_names + ["Host", "Workspace"],
 				})
-			framework.db.services(onlyup, proto, addrs, ports, names).each do |service|
+			framework.db.services(framework.db.workspace, onlyup, proto, addrs, ports, names).each do |service|
 				columns = col_names.map { |n| service.attributes[n] || "" }
 				host = service.host
 				columns += [host.address, host.workspace.name]
@@ -282,8 +282,9 @@ class Db
 			print_line tbl.to_s
 		end
 
+
 		def cmd_db_vulns(*args)
-			framework.db.each_vuln do |vuln|
+			framework.db.each_vuln(framework.db.workspace) do |vuln|
 				reflist = vuln.refs.map { |r| r.name }
 				if(vuln.service)
 					print_status("Time: #{vuln.created} Vuln: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}")
@@ -321,7 +322,7 @@ class Db
 				end
 
 			end
- 			framework.db.each_note do |note|
+ 			framework.db.each_note(framework.db.workspace) do |note|
 				next if(hosts and (note.host == nil or hosts.index(note.host.address) == nil))
 				next if(types and types.index(note.ntype) == nil)
 				if (note.host and note.service)
@@ -371,7 +372,7 @@ class Db
 				return
 			end
 
-			if framework.db.del_service(args[0], args[2].downcase, args[1].to_i)
+			if framework.db.del_service(framework.db.workspace, args[0], args[2].downcase, args[1].to_i)
 				print_status("Service: host=#{args[0]} port=#{args[1].to_i} proto=#{args[2].downcase} deleted")
 			end
 		end
@@ -398,7 +399,7 @@ class Db
 
 		def cmd_db_del_host(*args)
 			args.each do |address|
-				if framework.db.del_host(address)
+				if framework.db.del_host(framework.db.workspace, address)
 					print_status("Host #{address} deleted")
 				end
 			end

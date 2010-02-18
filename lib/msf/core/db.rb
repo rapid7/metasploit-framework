@@ -103,7 +103,7 @@ class DBManager
 	# Determines if the database is functional
 	#
 	def check
-		res = Host.find(:all)
+		res = Host.find(:first)
 	end
 
 
@@ -134,12 +134,13 @@ class DBManager
 		if opts.kind_of? Host
 			return opts
 		elsif opts.kind_of? String
-			address = opts
+			raise RuntimeError, "This invokation of get_host is no longer supported: #{caller}"
 		else
 			address = opts[:addr] || opts[:address] || opts[:host] || return
 			return address if address.kind_of? Host
 		end
-		host = workspace.hosts.find_by_address(address)
+		wspace = opts.delete(:workspace) || workspace
+		host   = wspace.hosts.find_by_address(address)
 		return host
 	end
 
@@ -170,6 +171,7 @@ class DBManager
 		addr = opts.delete(:host) || return
 		return addr if addr.kind_of? Host
 		wait = opts.delete(:wait)
+		wspace = opts.delete(:workspace) || workspace
 
 		if opts[:host_mac]
 			opts[:mac] = opts.delete(:host_mac)
@@ -178,9 +180,9 @@ class DBManager
 		ret = {}
 		task = queue( Proc.new {
 			if opts[:comm] and opts[:comm].length > 0
-				host = workspace.hosts.find_or_initialize_by_address_and_comm(addr, opts[:comm])
+				host = wspace.hosts.find_or_initialize_by_address_and_comm(addr, opts[:comm])
 			else
-				host = workspace.hosts.find_or_initialize_by_address(addr)
+				host = wspace.hosts.find_or_initialize_by_address(addr)
 			end
 
 			opts.each { |k,v|
@@ -192,7 +194,7 @@ class DBManager
 			}
 			host.state     = HostState::Alive if not host.state
 			host.comm      = ''        if not host.comm
-			host.workspace = workspace if not host.workspace
+			host.workspace = wspace    if not host.workspace
 
 			if (host.changed?)
 				host.created = Time.now
@@ -211,8 +213,8 @@ class DBManager
 	# Iterates over the hosts table calling the supplied block with the host
 	# instance of each entry.
 	#
-	def each_host(&block)
-		workspace.hosts.each do |host|
+	def each_host(wspace=workspace, &block)
+		wspace.hosts.each do |host|
 			block.call(host)
 		end
 	end
@@ -220,11 +222,11 @@ class DBManager
 	#
 	# Returns a list of all hosts in the database
 	#
-	def hosts(only_up = false, addresses = nil)
+	def hosts(wspace = workspace, only_up = false, addresses = nil)
 		conditions = {}
 		conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if only_up
 		conditions[:address] = addresses if addresses
-		workspace.hosts.all(:conditions => conditions, :order => :address)
+		wspace.hosts.all(:conditions => conditions, :order => :address)
 	end
 
 
@@ -245,8 +247,9 @@ class DBManager
 		return if not active
 		addr = opts.delete(:host) || return
 		wait = opts.delete(:wait)
+		wspace = opts.delete(:workspace) || workspace
 
-		hopts = {:host => addr}
+		hopts = {:workspace => wspace, :host => addr}
 
 		if opts[:host_name]
 			hopts[:name] = opts.delete(:host_name)
@@ -260,8 +263,7 @@ class DBManager
 		ret  = {}
 
 		task = queue(Proc.new {
-
-			host = get_host(addr)
+			host = get_host(:workspace => wspace, :address => addr)
 			proto = opts[:proto] || 'tcp'
 			opts[:name].downcase! if (opts[:name])
 
@@ -289,8 +291,8 @@ class DBManager
 		return task
 	end
 
-	def get_service(host, proto, port)
-		host = get_host(host)
+	def get_service(wspace, host, proto, port)
+		host = get_host(:workspace => wspace, :address => host)
 		return if not host
 		return host.services.find_by_proto_and_port(proto, port)
 	end
@@ -299,8 +301,8 @@ class DBManager
 	# Iterates over the services table calling the supplied block with the
 	# service instance of each entry.
 	#
-	def each_service(&block)
-		services.each do |service|
+	def each_service(wspace=workspace, &block)
+		services(wspace).each do |service|
 			block.call(service)
 		end
 	end
@@ -308,19 +310,20 @@ class DBManager
 	#
 	# Returns a list of all services in the database
 	#
-	def services(only_up = false, proto = nil, addresses = nil, ports = nil, names = nil)
+	def services(wspace = workspace, only_up = false, proto = nil, addresses = nil, ports = nil, names = nil)
 		conditions = {}
 		conditions[:state] = [ServiceState::Open] if only_up
 		conditions[:proto] = proto if proto
 		conditions["hosts.address"] = addresses if addresses
 		conditions[:port] = ports if ports
 		conditions[:name] = names if names
-		workspace.services.all(:include => :host, :conditions => conditions, :order => "hosts.address, port")
+		wspace.services.all(:include => :host, :conditions => conditions, :order => "hosts.address, port")
 	end
 
 
 	def get_client(opts)
-		host = get_host(:host => opts[:host]) || return
+		wspace = opts.delete(:workspace) || workspace
+		host   = get_host(:workspace => wspace, :host => opts[:host]) || return
 		client = host.clients.find(:first, :conditions => {:ua_string => opts[:ua_string]})
 		return client
 	end
@@ -344,7 +347,8 @@ class DBManager
 	def report_client(opts)
 		return if not active
 		addr = opts.delete(:host) || return
-		report_host(:host => addr)
+		wspace = opts.delete(:workspace) || workspace
+		report_host(:workspace => wspace, :host => addr)
 		wait = opts.delete(:wait)
 
 		ret = {}
@@ -375,8 +379,8 @@ class DBManager
 	# This method iterates the vulns table calling the supplied block with the
 	# vuln instance of each entry.
 	#
-	def each_vuln(&block)
-		workspace.vulns.each do |vulns|
+	def each_vuln(wspace=workspace,&block)
+		wspace.vulns.each do |vulns|
 			block.call(vulns)
 		end
 	end
@@ -384,16 +388,16 @@ class DBManager
 	#
 	# This methods returns a list of all vulnerabilities in the database
 	#
-	def vulns
-		workspace.vulns
+	def vulns(wspace=workspace)
+		wspace.vulns
 	end
 
 	#
 	# This method iterates the notes table calling the supplied block with the
 	# note instance of each entry.
 	#
-	def each_note(&block)
-		workspace.notes.each do |note|
+	def each_note(wspace=workspace, &block)
+		wspace.notes.each do |note|
 			block.call(note)
 		end
 	end
@@ -408,6 +412,7 @@ class DBManager
 	def report_note(opts)
 		return if not active
 		wait = opts.delete(:wait)
+		wspace = opts.delete(:workspace) || workspace
 		host = nil
 		addr = nil
 		# Report the host so it's there for the Proc to use below
@@ -415,7 +420,7 @@ class DBManager
 			if opts[:host].kind_of? Host
 				host = opts[:host]
 			else
-				report_host({:host => opts[:host]})
+				report_host({:workspace => wspace, :host => opts[:host]})
 				addr = opts[:host]
 			end
 		end
@@ -426,7 +431,7 @@ class DBManager
 		ret = {}
 		task = queue(Proc.new {
 			if addr and not host
-				host = get_host(addr)
+				host = get_host(:workspace => wspace, :host => addr)
 			end
 
 			ntype  = opts.delete(:type) || opts.delete(:ntype) || return
@@ -455,7 +460,7 @@ class DBManager
 					args.push(opts[:service][:id])
 				end
 
-				note = workspace.notes.send(method, *args)
+				note = wspace.notes.send(method, *args)
 				if (note.changed?)
 					note.data    = data
 					note.created = Time.now
@@ -463,7 +468,7 @@ class DBManager
 				end
 			# Insert a brand new note record no matter what
 			else
-				note = workspace.notes.new
+				note = wspace.notes.new
 				note.created = Time.now
 				if host
 					note.host_id = host[:id]
@@ -488,8 +493,8 @@ class DBManager
 	#
 	# This methods returns a list of all notes in the database
 	#
-	def notes
-		workspace.notes
+	def notes(wspace=workspace)
+		wspace.notes
 	end
 
 	###
@@ -510,15 +515,17 @@ class DBManager
 		return if not active
 		host    = opts.delete(:host)
 		service = opts.delete(:service)
+		wspace  = opts.delete(:workspace) || workspace
 		proto   = opts.delete(:proto) || "generic"
 		proto   = proto.downcase
 
 		note = {
-			:ntype    => "auth.#{proto}",
-			:host     => host,
-			:service  => service,
-			:data     => opts,
-			:update   => :unique_data
+			:workspace => wspace,
+			:type      => "auth.#{proto}",
+			:host      => host,
+			:service   => service,
+			:data      => opts,
+			:update    => :unique_data
 		}
 
 		return report_note(note)
@@ -526,12 +533,13 @@ class DBManager
 
 	def get_auth_info(opts={})
 		return if not active
+		wspace = opts.delete(:workspace) || workspace
 		condition = ""
 		condition_values = []
 		if opts[:host]
-			host = get_host(opts[:host])
+			host = get_host(:workspace => wspace, :address => opts[:host])
 			condition = "host_id == ?"
-			condition_values = host.id
+			condition_values = host[:id]
 		end
 		if opts[:proto]
 			if condition.length > 0
@@ -546,6 +554,13 @@ class DBManager
 			condition << "ntype LIKE ?"
 			condition_values << "auth.%"
 		end
+
+		if condition.length > 0
+			condition << " and "
+		end
+		condition << "workspace_id == ?"
+		condition_values << wspace[:id]
+
 		conditions = [ condition ] + condition_values
 		info = notes.find(:all, :conditions => conditions )
 		return info.map{|i| i.data} if info
@@ -569,6 +584,7 @@ class DBManager
 		name = opts[:name] || return
 		data = opts[:data]
 		wait = opts.delete(:wait)
+		wspace = opts.delete(:workspace) || workspace
 		rids = nil
 		if opts[:refs]
 			rids = []
@@ -582,14 +598,14 @@ class DBManager
 			if opts[:host].kind_of? Host
 				host = opts[:host]
 			else
-				report_host({:host => opts[:host]})
+				report_host({:workspace => wspace, :host => opts[:host]})
 				addr = opts[:host]
 			end
 		end
 
 		ret = {}
 		task = queue( Proc.new {
-			host = get_host(addr)
+			host = get_host(:workspace => wspace, :address => addr)
 			if data
 				vuln = host.vulns.find_or_initialize_by_name_and_data(name, data, :include => :refs)
 			else
@@ -619,7 +635,8 @@ class DBManager
 		return task
 	end
 
-	def get_vuln(host, service, name, data='')
+	def get_vuln(wspace, host, service, name, data='')
+		raise RuntimeError, "Not workspace safe: #{caller.inspect}"
 		vuln = nil
 		if (service)
 			vuln = Vuln.find(:first, :conditions => [ "name = ? and service_id = ? and host_id = ?", name, service.id, host.id])
@@ -654,16 +671,17 @@ class DBManager
 	#
 	# Deletes a host and associated data matching this address/comm
 	#
-	def del_host(address, comm='')
-		host = workspace.hosts.find_by_address_and_comm(address, comm)
+	def del_host(wspace, address, comm='')
+		host = wspace.hosts.find_by_address_and_comm(address, comm)
 		host.destroy if host
 	end
 
 	#
 	# Deletes a port and associated vulns matching this port
 	#
-	def del_service(address, proto, port, comm='')
-		host = get_host(address)
+	def del_service(wspace, address, proto, port, comm='')
+
+		host = get_host(:workspace => wspace, :address => address)
 		return unless host
 
 		host.services.all(:conditions => {:proto => proto, :port => port}).each { |s| s.destroy }
@@ -686,19 +704,20 @@ class DBManager
 	#
 	# Look for an address across all comms
 	#
-	def has_host?(addr)
-		workspace.hosts.find_by_address(addr)
+	def has_host?(wspace,addr)
+		wspace.hosts.find_by_address(addr)
 	end
 
 
 	def report_event(opts = {})
 		return if not active
+		wspace = opts.delete(:workspace) || workspace
 		if opts[:host]
-			report_host(:host => opts[:host])
+			report_host(:workspace => wspace, :host => opts[:host])
 		end
 		framework.db.queue(Proc.new {
 			opts[:host] = get_host(opts[:host]) if opts[:host]
-			Event.create(opts.merge(:workspace_id => workspace[:id]))
+			Event.create(opts.merge(:workspace_id => wspace[:id]))
 		})
 	end
 
@@ -943,13 +962,13 @@ class DBManager
 	# imported.  Since this looks for vendor-specific strings in the given
 	# file, there shouldn't be any false detections, but no guarantees.
 	#
-	def import_file(filename)
+	def import_file(filename, wspace=workspace)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
-		import(data)
+		import(data, wspace)
 	end
 
-	def import(data)
+	def import(data, wspace=workspace)
 		di = data.index("\n")
 		if(not di)
 			raise DBImportError.new("Could not automatically determine file type")
@@ -964,13 +983,13 @@ class DBManager
 				line =~ /<([a-zA-Z0-9\-\_]+)[ >]/
 				case $1
 				when "nmaprun"
-					return import_nmap_xml(data)
+					return import_nmap_xml(data, wspace)
 				when "openvas-report"
-					return import_openvas_xml(data)
+					return import_openvas_xml(data, wspace)
 				when "NessusClientData"
-					return import_nessus_xml(data)
+					return import_nessus_xml(data, wspace)
 				when "NessusClientData_v2"
-					return import_nessus_xml_v2(data)
+					return import_nessus_xml_v2(data, wspace)
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
@@ -979,10 +998,10 @@ class DBManager
 			}
 		elsif (firstline.index("timestamps|||scan_start"))
 			# then it's a nessus nbe
-			return import_nessus_nbe(data)
+			return import_nessus_nbe(data, wspace)
 		elsif (firstline.index("# amap v"))
 			# then it's an amap mlog
-			return import_amap_mlog(data)
+			return import_amap_mlog(data, wspace)
 		end
 		raise DBImportError.new("Could not automatically determine file type")
 	end
@@ -993,12 +1012,13 @@ class DBManager
 	# XXX At some point we'll want to make this a stream parser for dealing
 	# with large results files
 	#
-	def import_nexpose_simplexml_file(filename)
+	def import_nexpose_simplexml_file(filename, wspace=workspace)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
-		import_nexpose_simplexml(data)
+		import_nexpose_simplexml(data, wspace)
 	end
-	def import_nexpose_simplexml(data)
+
+	def import_nexpose_simplexml(data, wspace=workspace)
 		if data.kind_of? REXML::Document
 			doc = data
 		else
@@ -1029,15 +1049,18 @@ class DBManager
 			end
 
 			conf = {
+				:workspace => wspace,
 				:host      => addr,
 				:state     => Msf::HostState::Alive,
 				:os_flavor => fprint[:desc].to_s
+
 			}
 
 			conf[:arch] = fprint[:arch] if fprint[:arch]
 			report_host(conf)
 
 			report_note(
+				:workspace => wspace,
 				:host      => addr,
 				:type      => 'host.os.nexpose_fingerprint',
 				:data      => fprint
@@ -1049,10 +1072,11 @@ class DBManager
 				refs = process_nexpose_data_sxml_refs(vuln)
 				next if not refs
 				report_vuln(
-					:host => addr,
-					:name => 'NEXPOSE-' + vid,
-					:data => vid,
-					:refs => refs)
+					:workspace => wspace,
+					:host      => addr,
+					:name      => 'NEXPOSE-' + vid,
+					:data      => vid,
+					:refs      => refs)
 			end
 
 			# Load the services
@@ -1069,9 +1093,9 @@ class DBManager
 				end
 
 				if(sname.downcase != '<unknown>')
-					report_service(:host => addr, :proto => sprot, :port => sport, :name => name, :info => info)
+					report_service(:workspace => wspace, :host => addr, :proto => sprot, :port => sport, :name => name, :info => info)
 				else
-					report_service(:host => addr, :proto => sprot, :port => sport, :info => info)
+					report_service(:workspace => wspace, :host => addr, :proto => sprot, :port => sport, :info => info)
 				end
 
 				# Load vulnerabilities associated with this service
@@ -1080,6 +1104,7 @@ class DBManager
 					refs = process_nexpose_data_sxml_refs(vuln)
 					next if not refs
 					report_vuln(
+						:workspace => wspace,
 						:host => addr,
 						:port => sport,
 						:proto => sprot,
@@ -1098,12 +1123,12 @@ class DBManager
 	# XXX At some point we'll want to make this a stream parser for dealing
 	# with large results files
 	#
-	def import_nexpose_rawxml_file(filename)
+	def import_nexpose_rawxml_file(filename, wspace=workspace)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
-		import_nexpose_rawxml(data)
+		import_nexpose_rawxml(data, wspace)
 	end
-	def import_nexpose_rawxml(data)
+	def import_nexpose_rawxml(data, wspace=workspace)
 		doc = REXML::Document.new(data)
 		doc.elements.each('/NexposeReport/nodes/node') do |host|
 			addr = host.attributes['address']
@@ -1113,12 +1138,12 @@ class DBManager
 			# os based vuln
 			host.elements['tests'].elements.each('test') do |vuln|
 				if vuln.attributes['status'] == 'vulnerable-exploited' or vuln.attributes['status'] == 'vulnerable-version'
-					dhost = find_or_create_host(:host => addr)
+					dhost = find_or_create_host(:workspace => wspace, :host => addr)
 					next if not dhost
 
 					vid = vuln.attributes['id'].to_s
-					nexpose_vuln_lookup(doc,vid,refs,dhost)
-					nexpose_vuln_lookup(doc,vid.upcase,refs,dhost)
+					nexpose_vuln_lookup(wspace,doc,vid,refs,dhost)
+					nexpose_vuln_lookup(wspace,doc,vid.upcase,refs,dhost)
 				end
 			end
 
@@ -1140,13 +1165,13 @@ class DBManager
 
 				next if stat != 'open'
 
-				dhost = find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
+				dhost = find_or_create_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive)
 				next if not dhost
 
 				if name != "unknown"
-					service = find_or_create_service(:host => dhost, :proto => prot.downcase, :port => pnum.to_i, :name => name)
+					service = find_or_create_service(:workspace => wspace, :host => dhost, :proto => prot.downcase, :port => pnum.to_i, :name => name)
 				else
-					service = find_or_create_service(:host => dhost, :proto => prot.downcase, :port => pnum.to_i)
+					service = find_or_create_service(:workspace => wspace, :host => dhost, :proto => prot.downcase, :port => pnum.to_i)
 				end
 
 				port.elements['services'].elements['service'].elements['tests'].elements.each('test') do |vuln|
@@ -1164,12 +1189,13 @@ class DBManager
 	#
 	# Import Nmap's -oX xml output
 	#
-	def import_nmap_xml_file(filename)
+	def import_nmap_xml_file(filename, wspace=workspace)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
-		import_nmap_xml(data)
+		import_nmap_xml(data, wspace)
 	end
-	def import_nmap_xml(data)
+
+	def import_nmap_xml(data, wspace=workspace)
 		# Use a stream parser instead of a tree parser so we can deal with
 		# huge results files without running out of memory.
 		parser = Rex::Parser::NmapXMLStreamParser.new
@@ -1227,6 +1253,7 @@ class DBManager
 
 			if( data[:os_name] )
 				note = {
+					:workspace => wspace,
 					:host => addr,
 					:type => 'host.os.nmap_fingerprint',
 					:data => {
@@ -1246,6 +1273,7 @@ class DBManager
 
 			if (h["last_boot"])
 				report_note(
+					:workspace => wspace,
 					:host => addr,
 					:type => 'host.last_boot',
 					:data => {
@@ -1262,6 +1290,7 @@ class DBManager
 				extra << p["extrainfo"] + " " if p["extrainfo"]
 
 				data = {}
+				data[:workspace] = wspace
 				data[:proto] = p["protocol"].downcase
 				data[:port]  = p["portid"].to_i
 				data[:state] = p["state"]
@@ -1280,12 +1309,12 @@ class DBManager
 	#
 	# Import Nessus NBE files
 	#
-	def import_nessus_nbe_file(filename)
+	def import_nessus_nbe_file(filename, wspace=workspace)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
-		import_nessus_nbe(data)
+		import_nessus_nbe(data, wspace)
 	end
-	def import_nessus_nbe(data)
+	def import_nessus_nbe(data, wspace=workspace)
 		data.each_line do |line|
 			r = line.split('|')
 			next if r[0] != 'results'
@@ -1307,7 +1336,7 @@ class DBManager
 			# a severity 0 means there's no extra data, it's just an open port
 			else; severity = 0
 			end
-			handle_nessus(addr, port, nasl, severity, data)
+			handle_nessus(wspace, addr, port, nasl, severity, data)
 		end
 	end
 
@@ -1323,18 +1352,18 @@ class DBManager
 	#
 	# Old versions of openvas exported this as well
 	#
-	def import_nessus_xml_file(filename)
+	def import_nessus_xml_file(filename, wspace=workspace)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
 
 		if data.index("NessusClientData_v2")
-			import_nessus_xml_v2(data)
+			import_nessus_xml_v2(data, wspace)
 		else
-			import_nessus_xml(data)
+			import_nessus_xml(data, wspace)
 		end
 	end
 
-	def import_nessus_xml(data)
+	def import_nessus_xml(data, wspace=workspace)
 
 		doc = REXML::Document.new(data)
 		doc.elements.each('/NessusClientData/Report/ReportHost') do |host|
@@ -1346,12 +1375,12 @@ class DBManager
 				data = item.elements['data'].text
 				severity = item.elements['severity'].text
 
-				handle_nessus(addr, port, nasl, severity, data)
+				handle_nessus(wspace, addr, port, nasl, severity, data)
 			end
 		end
 	end
 
-	def import_nessus_xml_v2(data)
+	def import_nessus_xml_v2(data, wspace=workspace)
 		doc = REXML::Document.new(data)
 		doc.elements.each('/NessusClientData_v2/Report/ReportHost') do |host|
 			# if Nessus resovled the host, its host-ip tag should be set
@@ -1374,18 +1403,18 @@ class DBManager
 				bid = item.elements['bid']
 				xref = item.elements['xref']
 
-				handle_nessus_v2(addr, port, proto, name, nasl, severity, description, cve, bid, xref)
+				handle_nessus_v2(wspace, addr, port, proto, name, nasl, severity, description, cve, bid, xref)
 
 			end
 		end
 	end
 
-	def import_amap_log_file(filename)
+	def import_amap_log_file(filename, wspace=workspace)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
-		import_amap_log(data)
+		import_amap_log(data, wspace)
 	end
-	def import_amap_mlog(data)
+	def import_amap_mlog(data, wspace)
 		data.each_line do |line|
 			next if line =~ /^#/
 			r = line.split(':')
@@ -1398,9 +1427,10 @@ class DBManager
 			name   = r[5]
 			next if status != "open"
 
-			host = find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
+			host = find_or_create_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive)
 			next if not host
 			info = {
+				:workspace => wspace,
 				:host => host,
 				:proto => proto,
 				:port => port
@@ -1418,18 +1448,18 @@ protected
 	# This holds all of the shared parsing/handling used by the
 	# Nessus NBE and NESSUS v1 methods
 	#
-	def handle_nessus(addr, port, nasl, severity, data)
+	def handle_nessus(wspace, addr, port, nasl, severity, data)
 		# The port section looks like:
 		#   http (80/tcp)
 		p = port.match(/^([^\(]+)\((\d+)\/([^\)]+)\)/)
 		return if not p
 
-		report_host(:host => addr, :state => Msf::HostState::Alive)
+		report_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive)
 		name = p[1].strip
 		port = p[2].to_i
 		proto = p[3].downcase
 
-		info = { :host => addr, :port => port, :proto => proto }
+		info = { :workspace => wspace, :host => addr, :port => port, :proto => proto }
 		if name != "unknown" and name[-1,1] != "?"
 			info[:name] = name
 		end
@@ -1463,6 +1493,7 @@ protected
 		nss = 'NSS-' + nasl.to_s
 
 		report_vuln(
+			:workspace => wspace,
 			:host => addr,
 			:port => port,
 			:proto => proto,
@@ -1475,11 +1506,11 @@ protected
 	# NESSUS v2 file format has a dramatically different layout
 	# for ReportItem data
 	#
-	def handle_nessus_v2(addr,port,proto,name,nasl,severity,description,cve,bid,xref)
+	def handle_nessus_v2(wspace,addr,port,proto,name,nasl,severity,description,cve,bid,xref)
 
-		report_host(:host => addr, :state => Msf::HostState::Alive)
+		report_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive)
 
-		info = { :host => addr, :port => port, :proto => proto }
+		info = { :workspace => wspace, :host => addr, :port => port, :proto => proto }
 		if name != "unknown" and name[-1,1] != "?"
 			info[:name] = name
 		end
@@ -1507,6 +1538,7 @@ protected
 		nss = 'NSS-' + nasl
 
 		report_vuln(
+			:workspace => wspace,
 			:host => addr,
 			:port => port,
 			:proto => proto,
@@ -1544,7 +1576,7 @@ protected
 	#
 	# NeXpose vuln lookup
 	#
-	def nexpose_vuln_lookup(doc, vid, refs, host, serv=nil)
+	def nexpose_vuln_lookup(wspace, doc, vid, refs, host, serv=nil)
 		doc.elements.each("/NexposeReport/VulnerabilityDefinitions/vulnerability[@id = '#{vid}']]") do |vulndef|
 
 			title = vulndef.attributes['title']
@@ -1566,6 +1598,7 @@ protected
 			refs[ 'NEXPOSE-' + vid.downcase ] = true
 
 			vuln = find_or_create_vuln(
+				:workspace => wspace,
 				:host => host,
 				:service => serv,
 				:name => 'NEXPOSE-' + vid.downcase,
