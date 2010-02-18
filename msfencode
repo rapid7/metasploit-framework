@@ -20,7 +20,7 @@ $args = Rex::Parser::Arguments.new(
 	"-m" => [ true, "Specifies an additional module search path"                         ],
 	"-a" => [ true, "The architecture to encode as"                                      ],
 	"-p" => [ true, "The platform to encode for"                                         ],
-	"-t" => [ true, "The format to display the encoded buffer with (c, elf, exe, java, perl, raw, ruby, vba, vbs, loop-vbs, asp)" ],
+	"-t" => [ true, "The format to display the encoded buffer with (c, elf, exe, java, perl, raw, ruby, vba, vbs, loop-vbs, asp, war)" ],
 	"-b" => [ true, "The list of characters to avoid: '\\x00\\xff'"                      ],
 	"-s" => [ true, "The maximum size of the encoded data"                               ],
 	"-e" => [ true, "The encoder to use"                                                 ],
@@ -124,7 +124,7 @@ $args.parse(ARGV) { |opt, idx, val|
 		when "-s"
 			space = val.to_i
 		when "-t"
-			if (val =~ /^(perl|ruby|rb|raw|c|js_le|js_be|java|exe|exe-small|elf|vba|vbs|loop-vbs|asp)$/)
+			if (val =~ /^(perl|ruby|rb|raw|c|js_le|js_be|java|exe|exe-small|elf|vba|vbs|loop-vbs|asp|war)$/)
 				fmt = val
 			else
 				$stderr.puts(OutError + "Invalid format: #{val}")
@@ -280,6 +280,16 @@ case cmd
 					else
 						File.open(output, "wb") do |fd|
 							fd.write(asp)
+						end
+					end
+				when 'war'
+					tmp_plat = plat.platforms
+					war = Msf::Util::EXE.to_jsp_war($framework, arch, tmp_plat, raw, {:persist => false, :template => altexe})
+					if(not output)
+						$stdout.write(war)
+					else
+						File.open(output, "wb") do |fd|
+							fd.write(war)
 						end
 					end
 				else
