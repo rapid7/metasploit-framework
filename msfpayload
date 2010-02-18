@@ -19,7 +19,7 @@ def dump_payloads
 	tbl = Rex::Ui::Text::Table.new(
 		'Indent'  => 4,
 		'Header'  => "Framework Payloads (#{$framework.stats.num_payloads} total)",
-		'Columns' => 
+		'Columns' =>
 			[
 				"Name",
 				"Description"
@@ -75,7 +75,7 @@ if (cmd =~ /^(p|y|r|c|j|x|b|v|w)/)
 	fmt = 'java'  if (cmd =~ /^b/)
 	fmt = 'raw' if (cmd =~ /^w/)
 	enc = options['ENCODER']
-		
+
 	begin
 		buf = payload.generate_simple(
 				'Format'    => fmt,
@@ -85,34 +85,34 @@ if (cmd =~ /^(p|y|r|c|j|x|b|v|w)/)
 		puts "Error generating payload: #{$!}"
 		exit
 	end
-			
+
 	$stdout.binmode
-	
+
 	if (cmd =~ /^x/)
-		note = 
+		note =
 			"Created by msfpayload (http://www.metasploit.com).\n" +
 			"Payload: " + payload.refname + "\n" +
 			" Length: " + buf.length.to_s + "\n" +
 			"Options: " + options + "\n"
-			
+
 		arch = payload.arch
 		plat = payload.platform.platforms
 
 		exe  = Msf::Util::EXE.to_executable($framework, arch, plat, buf)
-		
+
 		if(exe)
 			$stderr.puts(note)
 			$stdout.write(exe)
 			exit(0)
 		end
-		
+
 		$stderr.puts "No executable format support for this arch/platform"
 		exit(-1)
 	end
 
 	if(cmd =~ /^v/)
 		exe = Msf::Util::EXE.to_win32pe($framework, buf)
-		note = 
+		note =
 			"'Created by msfpayload (http://www.metasploit.com).\r\n" +
 			"'Payload: " + payload.refname + "\r\n" +
 			"' Length: " + buf.length.to_s + "\r\n" +
@@ -129,25 +129,25 @@ if (cmd =~ /^(p|y|r|c|j|x|b|v|w)/)
 			"Payload: " + payload.refname + "\n" +
 			" Length: " + buf.length.to_s + "\n" +
 			"Options: " + options + "\n"
-			
+
 		arch = payload.arch
 		plat = payload.platform.platforms
-		
+
 		exe  = Msf::Util::EXE.to_jsp_war($framework, arch, plat, buf)
 
-		
+
 		if(exe)
 			$stderr.puts(note)
 			$stdout.write(exe)
 			exit(0)
 		end
-		
+
 		$stderr.puts "No executable format support for this arch/platform"
 		exit(-1)
 	end
-	
+
 	$stdout.puts(buf)
-		
+
 elsif (cmd =~ /^(s|o)/)
 	payload.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
 	puts Msf::Serializer::ReadableText.dump_module(payload)
