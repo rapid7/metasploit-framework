@@ -57,13 +57,17 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(ip,user,pass,port)
+		opt_hash = {
+			:password => pass,
+			:auth_methods => ['password','keyboard-interactive'],
+			:port => port
+		}
+
 		begin
 			self.ssh_socket = Net::SSH.start(
 				ip,
 				user,
-				:password => pass,
-				:auth_methods => ['password'],
-				:port => port
+				opt_hash
 			) 
 		rescue Rex::ConnectionError
 			return :connection_error
