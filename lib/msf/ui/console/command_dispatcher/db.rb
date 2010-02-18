@@ -287,9 +287,9 @@ class Db
 			framework.db.each_vuln(framework.db.workspace) do |vuln|
 				reflist = vuln.refs.map { |r| r.name }
 				if(vuln.service)
-					print_status("Time: #{vuln.created} Vuln: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}")
+					print_status("Time: #{vuln.created_at} Vuln: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}")
 				else
-					print_status("Time: #{vuln.created} Vuln: host=#{vuln.host.address} name=#{vuln.name} refs=#{reflist.join(',')}")
+					print_status("Time: #{vuln.created_at} Vuln: host=#{vuln.host.address} name=#{vuln.name} refs=#{reflist.join(',')}")
 				end
 			end
 		end
@@ -326,13 +326,13 @@ class Db
 				next if(hosts and (note.host == nil or hosts.index(note.host.address) == nil))
 				next if(types and types.index(note.ntype) == nil)
 				if (note.host and note.service)
-					print_status("Time: #{note.created} Note: host=#{note.host.address} service=#{note.service.name} type=#{note.ntype} data=#{note.data.inspect}")
+					print_status("Time: #{note.created_at} Note: host=#{note.host.address} service=#{note.service.name} type=#{note.ntype} data=#{note.data.inspect}")
 				elsif (note.host)
-					print_status("Time: #{note.created} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data.inspect}")
+					print_status("Time: #{note.created_at} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data.inspect}")
 				elsif (note.service)
-					print_status("Time: #{note.created} Note: service=#{note.service.name} type=#{note.ntype} data=#{note.data.inspect}")
+					print_status("Time: #{note.created_at} Note: service=#{note.service.name} type=#{note.ntype} data=#{note.data.inspect}")
 				else
-					print_status("Time: #{note.created} Note: type=#{note.ntype} data=#{note.data.inspect}")
+					print_status("Time: #{note.created_at} Note: type=#{note.ntype} data=#{note.data.inspect}")
 				end
  			end
  		end
@@ -341,7 +341,7 @@ class Db
 			print_status("Adding #{args.length} hosts...")
 			args.each do |address|
 				host = framework.db.find_or_create_host(:host => address)
-				print_status("Time: #{host.created} Host: host=#{host.address}")
+				print_status("Time: #{host.created_at} Host: host=#{host.address}")
 			end
 		end
 
@@ -363,7 +363,7 @@ class Db
 			service = framework.db.find_or_create_service(info)
 			return if not service
 
-			print_status("Time: #{service.created} Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}")
+			print_status("Time: #{service.created_at} Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}")
 		end
 
 		def cmd_db_del_port(*args)
@@ -393,7 +393,7 @@ class Db
 			note = framework.db.find_or_create_note(:host => host, :type => ntype, :data => ndata)
 			return if not note
 
-			print_status("Time: #{note.created} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
+			print_status("Time: #{note.created_at} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
 		end
 
 

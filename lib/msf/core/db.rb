@@ -197,7 +197,6 @@ class DBManager
 			host.workspace = wspace    if not host.workspace
 
 			if (host.changed?)
-				host.created = Time.now
 				host.save!
 			end
 			ret[:host] = host
@@ -279,7 +278,6 @@ class DBManager
 				service.state = ServiceState::Open
 			end
 			if (service and service.changed?)
-				service.created = Time.now
 				service.save!
 			end
 			ret[:service] = service
@@ -363,7 +361,6 @@ class DBManager
 				end
 			}
 			if (client and client.changed?)
-				client.created = Time.now
 				client.save!
 			end
 			ret[:client] = client
@@ -463,13 +460,11 @@ class DBManager
 				note = wspace.notes.send(method, *args)
 				if (note.changed?)
 					note.data    = data
-					note.created = Time.now
 					note.save!
 				end
 			# Insert a brand new note record no matter what
 			else
 				note = wspace.notes.new
-				note.created = Time.now
 				if host
 					note.host_id = host[:id]
 				end
@@ -623,7 +618,6 @@ class DBManager
 			end
 
 			if vuln.changed?
-				vuln.created = Time.now
 				vuln.save!
 			end
 			ret[:vuln] = vuln
@@ -655,7 +649,6 @@ class DBManager
 		task = queue(Proc.new {
 			ref = Ref.find_or_initialize_by_name(opts[:name])
 			if ref and ref.changed?
-				ref.created = Time.now
 				ref.save!
 			end
 			ret[:ref] = ref
