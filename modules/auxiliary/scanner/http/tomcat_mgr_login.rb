@@ -46,10 +46,14 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(8180),
 				OptBool.new('VERBOSE', [ true, 'Verbose output', false]),
-				OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line", File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_userpass.txt") ]),
-				OptPath.new('USER_FILE',  [ false, "File containing users, one pair per line", File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_users.txt") ]),
-				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one pair per line", File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_pass.txt") ]),
-				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request", 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
+				OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
+					File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_userpass.txt") ]),
+				OptPath.new('USER_FILE',  [ false, "File containing users, one pair per line",
+					File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_users.txt") ]),
+				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one pair per line",
+					File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_pass.txt") ]),
+				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
+					'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 			], self.class)
 	end
 
