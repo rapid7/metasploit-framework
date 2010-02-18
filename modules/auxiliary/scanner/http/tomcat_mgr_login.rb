@@ -59,11 +59,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		each_user_pass { |user, pass|
+			this_cred = [user,ip,rport].join(":")
+			next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
+			self.credentials_tried[this_cred] = pass
 			do_login(user, pass, datastore['VERBOSE'])
 		}
 	end
 
-	def do_login(user='tomcat', pass='tomcat', verbose=false)
+	def do_login(user='tomcat', pass='tomcat', this_cred='', verbose=false)
 
 		print_status("Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport}") if verbose
 		success = false
@@ -98,6 +101,7 @@ class Metasploit3 < Msf::Auxiliary
 				:targ_host => rhost,
 				:targ_port => rport
 			)
+			self.credentials_good[this_cred] = pass
 			return :next_user
 		else
 			print_error("http://#{rhost}:#{rport}/manager/html [#{srvhdr}] [Tomcat Application Manager] failed to login as '#{user}'") if verbose

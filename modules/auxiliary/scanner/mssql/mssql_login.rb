@@ -38,7 +38,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		each_user_pass { |user, pass|
-			do_login(user, pass, datastore['VERBOSE'])
+			this_cred = [user,ip,rport].join(":")
+			next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
+			self.credentials_tried[this_cred] = pass
+			do_login(user, pass, this_cred, datastore['VERBOSE'])
 		}
 		# The service should already be reported at this point courtesy of
 		# report_auth_info, but this is currently the only way to give it a
@@ -51,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 		})
 	end
 
-	def do_login(user='sa', pass='', verbose=false)
+	def do_login(user='sa', pass='', this_cred='', verbose=false)
 		print_status("#{rhost}:#{rport} - MSSQL - Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport}") if verbose
 		begin
 			success = mssql_login(user, pass)
@@ -67,6 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 					:targ_host => rhost,
 					:targ_port => rport
 				})
+				self.credentials_good[this_cred] = pass
 				return :next_user
  			else
 				print_error("#{rhost}:#{rport} failed to login as '#{user}'") if verbose

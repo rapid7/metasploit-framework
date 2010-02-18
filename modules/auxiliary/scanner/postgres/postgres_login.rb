@@ -54,17 +54,12 @@ class Metasploit3 < Msf::Auxiliary
 		tried_combos = []
 		last_response = nil
 			each_user_pass { |user, pass|
-				# Stash these in the datastore.
+				this_cred = [user,ip,rport].join(":")
+				next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
+				self.credentials_tried[this_cred] = pass
 				datastore['USERNAME'] = user
 				datastore['PASSWORD'] = pass
-				# Don't bother if we've already tried this combination, or if the last time
-				# we tried we got some kind of connection error. 
-				if not(tried_combos.include?("#{user}:#{pass}") || [:done, :error].include?(last_response))
-					last_response = do_login(user,pass,datastore['DATABASE'],datastore['VERBOSE'])
-				else
-					next
-				end
-				tried_combos << "#{user}:#{pass}"
+				do_login(user,pass,this_cred,datastore['DATABASE'],datastore['VERBOSE'])
 			}
 	end
 
@@ -81,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Actually do all the login stuff. Note that "verbose" is really pretty
 	# verbose, since postgres_login also makes use of the verbose value
 	# to print diagnostics for other modules.
-	def do_login(user=nil,pass=nil,database=nil,verbose=false)
+	def do_login(user=nil,pass=nil,this_cred='',database=nil,verbose=false)
 		begin
 			msg = "#{rhost}:#{rport} Postgres -"
 			print_status("#{msg} Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport} on database '#{database}'") if verbose 
@@ -95,6 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 			when :error_database
 				print_good("#{msg} Success: #{user}:#{pass} (Database '#{database}' failed.)")
 				do_report_auth_info(user,pass,database,false)
+				self.credentials_good[this_cred] = pass
 				return :next_user # This is a success for user:pass!
 			when :error_credentials
 				print_error("#{msg} Username/Password failed.") if verbose
@@ -102,6 +98,7 @@ class Metasploit3 < Msf::Auxiliary
 			when :connected
 				print_good("#{msg} Success: #{user}:#{pass} (Database '#{database}' succeeded.)")
 				do_report_auth_info(user,pass,database,true)
+				self.credentials_good[this_cred] = pass
 				postgres_logout
 				return :next_user
 			when :error

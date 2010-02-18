@@ -60,7 +60,10 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			begin
 				each_user_pass { |user, pass|
-					try_user_pass(user, pass)
+					this_cred = [user,ip,rport].join(":")
+					next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
+					self.credentials_tried[this_cred] = pass
+					try_user_pass(user, pass, this_cred)
 				}
 			rescue ::Rex::ConnectionError
 				nil
@@ -68,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def try_user_pass(user, pass)
+	def try_user_pass(user, pass, this_cred)
 		datastore["SMBUser"] = user
 		datastore["SMBPass"] = pass
 		#$stdout.puts("#{user} : #{pass}")
@@ -93,6 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 				:targ_host	=> rhost,
 				:targ_port	=> datastore['RPORT']
 			)
+			self.credentials_good[this_cred] = pass
 		else 
 			# This gets spammy against default samba installs that accept just
 			# about anything for a guest login
