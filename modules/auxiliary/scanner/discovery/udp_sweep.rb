@@ -45,6 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 		@probes << 'probe_pkt_snmp1'
 		@probes << 'probe_pkt_snmp2'
 		@probes << 'probe_pkt_sentinel'
+		@probes << 'probe_pkt_db2disco'
 
 	end
 
@@ -229,6 +230,11 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			when 5093
 				app = 'Sentinel'
+
+			when 523
+				app = 'ibm-db2'
+				inf = db2disco_parse(pkt[0])
+				
 		end
 
 		report_service(
@@ -311,6 +317,14 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			return node
 		end
+	end
+
+	#
+	# Parse a db2disco packet.
+	#
+	def db2disco_parse(data)
+		res = data.split("\x00")
+		"#{res[2]}_#{res[1]}"
 	end
 
 	#
@@ -430,5 +444,11 @@ class Metasploit3 < Msf::Auxiliary
 		data = head + pdu
 		[data, 161]
 	end
+
+	def probe_pkt_db2disco(ip)
+		data = "DB2GETADDR\x00SQL05000\x00"
+		[data, 523]
+	end
+
 end
 
