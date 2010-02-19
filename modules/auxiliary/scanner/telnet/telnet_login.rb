@@ -1,6 +1,6 @@
 
 ##
-# $Id: smb_login.rb 8121 2010-01-14 18:51:04Z egypt $
+# $Id$
 ##
 
 ##
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Telnet Login Check Scanner',
-			#'Version'     => '$Revision: 8121 $',
+			#'Version'     => '$Revision$',
 			'Description' => %q{
 				This module will test a telnet login on a range of machines and
 				report successful logins.  If you have loaded a database plugin
