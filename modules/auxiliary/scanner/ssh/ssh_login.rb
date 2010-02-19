@@ -51,11 +51,6 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['RPORT']
 	end
 
-	def do_logout
-		self.ssh_socket.close if self.ssh_socket
-		self.ssh_socket = nil
-	end
-
 	def do_login(ip,user,pass,port)
 		opt_hash = {
 			:password => pass,
@@ -75,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 			return :fail # For whatever reason. Can't tell if passwords are on/off without timing responses.
 		end
 		if self.ssh_socket
-			do_logout
+			self.ssh_socket.close
 			return :success
 		else
 			return :fail

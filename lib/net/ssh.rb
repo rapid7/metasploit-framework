@@ -206,6 +206,7 @@ module Net
           return connection
         end
       else
+		  transport.close
         raise AuthenticationFailed, user
       end
     end
