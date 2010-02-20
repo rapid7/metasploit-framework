@@ -63,23 +63,34 @@ class Metasploit3 < Msf::Auxiliary
 				ip,
 				user,
 				opt_hash
-			) 
+			)
 		rescue Rex::ConnectionError
 			return :connection_error
-		rescue Net::SSH::Exception 
-			return :fail # For whatever reason. Can't tell if passwords are on/off without timing responses.
+		rescue Net::SSH::Exception
+			return [:fail,nil] # For whatever reason. Can't tell if passwords are on/off without timing responses.
 		end
 		if self.ssh_socket
+			proof = ''
+			begin
+				Timeout.timeout(5) do
+					proof = self.ssh_socket.exec!("id\nuname -a").to_s
+					if(proof !~ /id=/)
+						proof << self.ssh_socket.exec!("help\n?\n\n\n").to_s
+					end
+				end
+			rescue ::Exception
+			end
+
 			self.ssh_socket.close
-			return :success
+			return [:success, proof]
 		else
-			return :fail
+			return [:fail, nil]
 		end
 	end
 
-	def do_report(ip,user,pass,port)
+	def do_report(ip,user,pass,port,proof)
 		report_service(:host => ip, :port => rport, :name => 'ssh')
-		report_auth_info(:host => ip, :port => rport, :proto => 'ssh', :user => user, :pass => pass)
+		report_auth_info(:host => ip, :port => rport, :proto => 'ssh', :user => user, :pass => pass, :proof => proof)
 	end
 
 	def run_host(ip)
@@ -88,20 +99,20 @@ class Metasploit3 < Msf::Auxiliary
 			this_cred = [user,ip,rport].join(":")
 			next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
 			self.credentials_tried[this_cred] = pass
-			case do_login(ip,user,pass,rport)
+			ret,proof = do_login(ip,user,pass,rport)
+			case ret
 			when :success
-				print_good "#{ip}:#{rport} - SSH - Success: '#{user}':'#{pass}'"
+				print_good "#{ip}:#{rport} - SSH - Success: '#{user}':'#{pass}' '#{proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
 				self.credentials_good[this_cred] = pass
-				do_report(ip,user,pass,rport)
+				do_report(ip,user,pass,rport,proof)
 			when :connection_error
 				print_error "#{ip}:#{rport} - Could not connect" if datastore['VERBOSE']
 				return
 			when :fail
 				print_error "#{ip}:#{rport} - SSH - Failed: '#{user}':'#{pass}'" if datastore['VERBOSE']
 			end
-		end	
+		end
 	end
 
 end
-
 
