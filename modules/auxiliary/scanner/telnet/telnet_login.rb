@@ -14,7 +14,7 @@
 require 'msf/core'
 
 
-# 
+#
 # Ghetto
 #
 module CRLFLineEndings
@@ -55,21 +55,24 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	attr_accessor :no_pass_prompt
+	attr_accessor :password_only
 
 	def run_host(ip)
-		print_status("Starting host #{ip}")
+
+		self.password_only = []
+
 		begin
-			each_user_pass { |user, pass|
+			each_user_pass do |user, pass|
 				try_user_pass(user, pass)
-			}
-		rescue ::Rex::ConnectionError
+			end
+		rescue ::Rex::ConnectionError, ::EOFError
 			return
 		end
 	end
 
 	def try_user_pass(user, pass)
 		this_cred = [user,rhost,rport].join(":")
-		if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred] || self.no_pass_prompt.include?(this_cred)
+		if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]  || self.no_pass_prompt.include?(this_cred)
 			return :tried
 		else
 			self.credentials_tried[this_cred] = pass
@@ -78,6 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		ret = do_login(user,pass)
 		if ret == :no_pass_prompt
+			print_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to missing password prompt" if datastore['VERBOSE']
 			self.no_pass_prompt << this_cred
 		else
 			start_telnet_session if login_succeeded?
@@ -87,34 +91,69 @@ class Metasploit3 < Msf::Auxiliary
 	# Making this serial since the @attempts counting business is causing
 	# all kinds of syncing problems.
 	def do_login(user,pass)
+
 		connect
+
+		print_status("#{rhost}:#{rport} Banner: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}") if datastore['VERBOSE']
+
 		if login_succeeded?
-			report_telnet(user,pass)
+			report_telnet('','',@trace)
 			return :no_auth_required
+		end
+
+		# Immediate password prompt... try our password!
+		if password_prompt?
+			user = ''
+
+			if password_only.include?(pass)
+				print_status("#{rhost}:#{rport} only asks for a password that we already tried: '#{pass}'")
+				return :tried
+			end
+
+			print_status("#{rhost}:#{rport} only asks for a password, trying #{pass}")
+			password_only << pass
 		else
 			send_user(user)
-			if password_prompt?
-				send_pass(pass)
-				if login_succeeded?
-					report_telnet(user,pass)
-					return :success
-				else
-					disconnect
-					return :fail
-				end
+		end
+
+		# Allow for slow echos
+		1.upto(10) do
+			recv_telnet(self.sock, 0.10)
+		end
+
+		print_status("#{rhost}:#{rport} Prompt: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}") if datastore['VERBOSE']
+
+		if password_prompt?
+			send_pass(pass)
+
+			# Allow for slow echos
+			1.upto(10) do
+				recv_telnet(self.sock, 0.10)
+			end
+
+
+			print_status("#{rhost}:#{rport} Result: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}") if datastore['VERBOSE']
+
+			if login_succeeded?
+				report_telnet(user,pass,@trace)
+				return :success
 			else
-				if login_succeeded? && @recvd !~ /^#{user}\x0d*\x0a/
-					report_telnet(user,pass)
-					return :no_pass_required
-				else
-					disconnect
-					return :no_pass_prompt
-				end
+				disconnect
+				return :fail
+			end
+		else
+			if login_succeeded? && @recvd !~ /^#{user}\x0d*\x0a/
+				report_telnet(user,pass,@trace)
+				return :no_pass_required
+			else
+				disconnect
+				return :no_pass_prompt
 			end
 		end
+
 	end
 
-	def report_telnet(user,pass)
+	def report_telnet(user,pass,proof)
 		this_cred = [user,rhost,rport].join(":")
 		print_good("#{rhost} - SUCCESSFUL LOGIN #{user} : #{pass}")
 		self.credentials_good[this_cred] = pass
@@ -124,7 +163,8 @@ class Metasploit3 < Msf::Auxiliary
 			:user	=> user,
 			:pass	=> pass,
 			:targ_host	=> rhost,
-			:targ_port	=> datastore['RPORT']
+			:targ_port	=> datastore['RPORT'],
+			:proof  => proof
 		)
 	end
 
