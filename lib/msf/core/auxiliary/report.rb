@@ -8,9 +8,23 @@ module Msf
 
 module Auxiliary::Report
 
+
+	def initialize(info = {})
+		super
+
+		register_options([
+				OptString.new('WORKSPACE', [ false, "The name of the workspace to report data into"])
+			], Auxiliary::Report)
+	end
+
 	# Shortcut method for detecting when the DB is active
 	def db
 		framework.db.active
+	end
+
+	def myworkspace
+		return @myworkspace if @myworkspace
+		@myworkspace = Msf::DBManager::Workspace.find_by_name(datastore['WORKSPACE']) || framework.db.workspace
 	end
 
 	#
@@ -23,11 +37,13 @@ module Auxiliary::Report
 	#
 	def report_host(opts)
 		return if not db
+		opts = {:workspace => myworkspace}.merge(opts)
 		framework.db.report_host(opts)
 	end
 
 	def get_host(addr)
 		return if not db
+		opts = {:workspace => myworkspace}.merge(opts)
 		framework.db.get_host(addr)
 	end
 
@@ -43,11 +59,13 @@ module Auxiliary::Report
 	#
 	def report_client(opts={})
 		return if not db
+		opts = {:workspace => myworkspace}.merge(opts)
 		framework.db.report_client(opts)
 	end
 
 	def get_client(opts={})
 		return if not db
+		opts = {:workspace => myworkspace}.merge(opts)
 		framework.db.get_client(opts)
 	end
 
@@ -56,21 +74,25 @@ module Auxiliary::Report
 	#
 	def report_service(opts={})
 		return if not db
+		opts = {:workspace => myworkspace}.merge(opts)
 		framework.db.report_service(opts)
 	end
 
 	def report_note(opts={})
 		return if not db
+		opts = {:workspace => myworkspace}.merge(opts)
 		framework.db.report_note(opts)
 	end
 
 	def report_auth_info(opts={})
 		return if not db
+		opts = {:workspace => myworkspace}.merge(opts)
 		framework.db.report_auth_info(opts)
 	end
 
 	def report_vuln(opts={})
 		return if not db
+		opts = {:workspace => myworkspace}.merge(opts)
 		framework.db.report_vuln(opts)
 	end
 
