@@ -1,7 +1,7 @@
 require 'rex/socket'
 
 # Monkeypatch rex/socket so Net::SSH's calls to TCPSocket.open and
-# TCPSocket.new work when they're sent instead to 
+# TCPSocket.new work when they're sent instead to
 # Rex::Socket::Tcp.connect
 
 module Rex::Socket::Tcp
@@ -134,7 +134,7 @@ module Net
     #   host to a known_hosts dictionary file
     # * :host_name => the real host name or IP to log into. This is used
     #   instead of the +host+ parameter, and is primarily only useful when
-    #   specified in an SSH configuration file. It lets you specify an 
+    #   specified in an SSH configuration file. It lets you specify an
     #   "alias", similarly to adding an entry in /etc/hosts but without needing
     #   to modify /etc/hosts.
     # * :kex => the key exchange algorithm (or algorithms) to use
@@ -193,7 +193,11 @@ module Net
         end
       end
 
-      transport = Transport::Session.new(host, options)
+      transport = nil
+      (@@mutex ||= ::Mutex.new).synchronize do
+        transport = Transport::Session.new(host, options)
+      end
+
       auth = Authentication::Session.new(transport, options)
 
       user = options.fetch(:user, user)
@@ -226,8 +230,9 @@ module Net
         when false, nil then return {}
         else Array(use_ssh_config)
         end
-      
+
       Net::SSH::Config.for(host, files)
     end
   end
 end
+
