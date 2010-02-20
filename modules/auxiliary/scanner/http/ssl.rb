@@ -1,6 +1,6 @@
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -8,91 +8,95 @@
 
 
 require 'msf/core'
-require 'rex/socket/ssl_tcp'
-
 
 class Metasploit3 < Msf::Auxiliary
-	
-	include Msf::Exploit::Remote::HttpClient
+
+	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::WMAPScanServer
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
-	
+
 	include Rex::Socket::Comm
 
 	def initialize
 		super(
-			'Name'        => 'HTTP SSL Certificate tester',
+			'Name'        => 'HTTP SSL Certificate Information',
 			'Version'     => '$Revision$',
-			'Description' => 'Display vhost associated to server using SSL certificate and check for signature algorithm',
+			'Description' => 'Parse the server SSL certificate to obtain the common name and signature algorithm',
 			'Author'      => 'et',
 			'License'     => MSF_LICENSE
 		)
-		
+		register_options([
+			Opt::RPORT(443)
+		], self.class)
+
 	end
 
 	# Fingerprint a single host
 	def run_host(ip)
-		if !datastore['SSL'] 
-			print_error("SSL set to false")
-			return
-		end	
 
 		begin
-			ssock = Rex::Socket::SslTcp.create(
-				'PeerHost' => wmap_target_host,
-				'PeerPort' => wmap_target_port,
-				'Proxies'  => datastore['PROXIES'] 	
-			)
 
-			cert  = OpenSSL::X509::Certificate.new(ssock.peer_cert)
+			connect
 
-			ssock.close	
-			
+			cert = OpenSSL::X509::Certificate.new(sock.peer_cert)
+
+			disconnect
+
 			if cert
-				print_status("[#{ip}:#{datastore['RPORT']}] Subject: #{cert.subject} Signature Alg: #{cert.signature_algorithm}")
+				print_status("#{ip}:#{rport} Subject: #{cert.subject} Signature Alg: #{cert.signature_algorithm}")
 				alg = cert.signature_algorithm
-				
+
 				if alg.downcase.include? "md5"
-					print_status("[#{ip}:#{datastore['RPORT']}] WARNING: Signature algorithm using MD5 (#{alg})")
+					print_status("#{ip}:#{rport} WARNING: Signature algorithm using MD5 (#{alg})")
 				end
-				
-				sub = cert.subject.to_a
-				
-				vhostn = 'EMPTY' 
-				sub.each do |n|
-					#print_line "#{n[0]}"
-					if n[0] == 'CN'
-						#print_line "> #{n[1]}"
-						vhostn = n[1]
-					end
+
+				vhostn = nil
+				cert.subject.to_a.each do |n|
+					vhostn = n[1] if n[0] == 'CN'
 				end
-			
+
 				if vhostn
-					print_status("[#{ip}:#{datastore['RPORT']}] is host #{vhostn}")
-					
+					print_status("#{ip}:#{rport} has common name #{vhostn}")
+
+					# Store the virtual hostname for HTTP
 					report_note(
 						:host	=> ip,
-						:proto	=> 'HTTP',
 						:port	=> rport,
-						:type	=> 'VHOST',
-						:data	=> "#{vhostn}"
+						:proto  => 'tcp',
+						:type	=> 'http.vhost',
+						:data	=> {:name => vhostn}
 					)
-					
+
+					# Store the SSL certificate itself
 					report_note(
 						:host	=> ip,
-						:proto	=> 'HTTP',
+						:proto  => 'tcp',
 						:port	=> rport,
-						:type	=> 'X509',
-						:data	=> "Subject: #{cert.subject} Algorithm: #{cert.signature_algorithm}"
+						:type	=> 'ssl.certificate',
+						:data	=> {
+							:cn        => vhostn,
+							:subject   => cert.subject.to_a,
+							:algorithm => alg
+
+						}
 					)
+
+					# Update the server hostname if necessary
+					if vhostn !~ /localhost|snakeoil/i
+						report_host(
+							:host => ip,
+							:name => vhostn
+						)
+					end
+
 				end
 			else
-				print_status("[#{ip}:#{datastore['RPORT']}] No certificate subject or CN found")
-			end			
+				print_status("#{ip}:#{rport}] No certificate subject or common name found")
+			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
-	end		
+	end
 end
 
