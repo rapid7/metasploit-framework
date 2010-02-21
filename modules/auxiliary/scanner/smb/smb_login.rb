@@ -61,8 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 			begin
 				each_user_pass do |user, pass|
 					this_cred = [user,ip,rport].join(":")
-					next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
-					self.credentials_tried[this_cred] = pass
+					next if self.credentials_good[this_cred]
 					try_user_pass(user, pass, this_cred)
 				end
 			rescue ::Rex::ConnectionError
@@ -81,6 +80,48 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			smb_login()
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
+
+			case e.error_reason
+			when 'STATUS_LOGON_FAILURE'
+				# Nothing interesting
+				disconnect()
+				return
+
+			when 'STATUS_ACCOUNT_DISABLED'
+				report_note(
+					:host	=> rhost,
+					:proto	=> 'smb',
+					:port   =>  datastore['RPORT'],
+					:type   => 'smb.account.info',
+					:data   => {:user => user, :status => "disabled"},
+					:update => :unique_data
+				)
+				self.credentials_good[this_cred] = pass
+
+			when 'STATUS_PASSWORD_EXPIRED'
+				report_note(
+					:host	=> rhost,
+					:proto	=> 'smb',
+					:port   =>  datastore['RPORT'],
+					:type   => 'smb.account.info',
+					:data   => {:user => user, :status => "expired password"},
+					:update => :unique_data
+				)
+				self.credentials_good[this_cred] = pass
+
+			when 'STATUS_ACCOUNT_LOCKED_OUT'
+				report_note(
+					:host	=> rhost,
+					:proto	=> 'smb',
+					:port   =>  datastore['RPORT'],
+					:type   => 'smb.account.info',
+					:data   => {:user => user, :status => "locked out"},
+					:update => :unique_data
+				)
+				self.credentials_good[this_cred] = pass
+			end
+			print_status("#{rhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
+
 			disconnect()
 			return
 		end
@@ -97,9 +138,16 @@ class Metasploit3 < Msf::Auxiliary
 			)
 			self.credentials_good[this_cred] = pass
 		else
-			# This gets spammy against default samba installs that accept just
-			# about anything for a guest login
-			print_status("#{rhost} - GUEST LOGIN (#{smb_peer_os}) #{user} : #{pass}")
+			# Samba has two interesting behaviors:
+			# 1) Invalid users receive a guest login
+			# 2) Valid users return a STATUS_LOGON_FAILURE
+			if(smb_peer_os == 'Unix')
+				# Skip invalid users automatically
+				self.credentials_good[this_cred] = pass
+			else
+				# Print the guest login message only for non-Samba
+				print_status("#{rhost} - GUEST LOGIN (#{smb_peer_os}) #{user} : #{pass}")
+			end
 		end
 
 		disconnect()
