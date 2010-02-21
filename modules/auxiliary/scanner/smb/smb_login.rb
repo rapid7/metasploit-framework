@@ -4,7 +4,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,7 +17,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::DCERPC
-	include Msf::Exploit::Remote::SMB	
+	include Msf::Exploit::Remote::SMB
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::AuthBrute
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 	def proto
 		'smb'
 	end
-	
+
 	def initialize
 		super(
 			'Name'        => 'SMB Login Check Scanner',
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 		# These are normally advanced options, but for this module they have a
 		# more active role, so make them regular options.
 		register_options(
-			[	
+			[
 				OptString.new('SMBPass', [ false, "SMB Password" ]),
 				OptString.new('SMBUser', [ false, "SMB Username" ]),
 				OptString.new('SMBDomain', [ false, "SMB Domain", 'WORKGROUP']),
@@ -56,15 +56,15 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Starting host #{ip}")
 		if (datastore["SMBUser"] and not datastore["SMBUser"].empty?)
 			# then just do this user/pass
-			try_user_pass(datastore["SMBUser"], datastore["SMBPass"])
+			try_user_pass(datastore["SMBUser"], datastore["SMBPass"], [datastore["SMBUser"],ip,rport].join(":"))
 		else
 			begin
-				each_user_pass { |user, pass|
+				each_user_pass do |user, pass|
 					this_cred = [user,ip,rport].join(":")
 					next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
 					self.credentials_tried[this_cred] = pass
 					try_user_pass(user, pass, this_cred)
-				}
+				end
 			rescue ::Rex::ConnectionError
 				nil
 			end
@@ -74,7 +74,6 @@ class Metasploit3 < Msf::Auxiliary
 	def try_user_pass(user, pass, this_cred)
 		datastore["SMBUser"] = user
 		datastore["SMBPass"] = pass
-		#$stdout.puts("#{user} : #{pass}")
 
 		# Connection problems are dealt with at a higher level
 		connect()
@@ -97,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 				:targ_port	=> datastore['RPORT']
 			)
 			self.credentials_good[this_cred] = pass
-		else 
+		else
 			# This gets spammy against default samba installs that accept just
 			# about anything for a guest login
 			print_status("#{rhost} - GUEST LOGIN (#{smb_peer_os}) #{user} : #{pass}")
