@@ -44,10 +44,16 @@ class Entry
 			z = Zlib::Deflate.new(Zlib::BEST_COMPRESSION)
 			@compdata = z.deflate(@data, Zlib::FINISH)
 			z.close
-			@compdata = @compdata.slice!(2, @compdata.length-4)
+			@compdata = @compdata[2, @compdata.length-6]
 
 		else
 			raise 'Unsupported compression method: %u' % @flags.compmeth
+		end
+
+		# if compressing doesn't help, just store it
+		if (@compdata.length > @data.length)
+			@compdata = @data
+			@flags.compmeth = CM_STORE
 		end
 
 		@info = CompInfo.new(@crc, @compdata.length, @data.length)
