@@ -32,6 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'URL', 'http://lists.immunitysec.com/pipermail/dailydave/2006-February/002982.html' ],
 					[ 'BID', '16838' ],
+					[ 'OSVDB', '23511' ],
 					[ 'CVE', '2006-0900' ],
 				]))
 			
