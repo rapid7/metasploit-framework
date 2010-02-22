@@ -143,6 +143,7 @@ frwrd = nil
 			usage
 		when "-f"
 			frwrd = true
+			lport = val
 		when "-e"
 			enbl = true
 		end
