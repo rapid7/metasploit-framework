@@ -39,13 +39,13 @@ end
 #
 # The session class represents a post-exploitation, uh, session.
 # Sessions can be written to, read from, and interacted with.  The
-# underlying medium on which they are backed is arbitrary.  For 
+# underlying medium on which they are backed is arbitrary.  For
 # instance, when an exploit is provided with a command shell,
 # either through a network connection or locally, the session's
 # read and write operations end up reading from and writing to
 # the shell that was spawned.  The session object can be seen
 # as a general means of interacting with various post-exploitation
-# payloads through a common interface that is not necessarily 
+# payloads through a common interface that is not necessarily
 # tied to a network connection.
 #
 ###
@@ -172,7 +172,20 @@ module Session
 	# Sets the vector through which this session was realized.
 	#
 	def set_via(opts)
-		self.via = opts || {}	
+		self.via = opts || {}
+	end
+
+	#
+	# Configures via_payload, via_payload, workspace, target_host from an
+	# exploit instance.
+	#
+	def set_from_exploit(m)
+		self.via = {
+			'Exploit' => m.refname,
+			'Payload' => m.datastore['PAYLOAD'].to_s
+		}
+		self.target_host = m.target_host
+		self.workspace   = m.workspace
 	end
 
 	#
@@ -214,7 +227,7 @@ module Session
 
 	#
 	# The framework instance that created this session.
-	# 
+	#
 	attr_accessor :framework
 	#
 	# The session unique identifier.
@@ -224,7 +237,14 @@ module Session
 	# The session name.
 	#
 	attr_accessor :sname
-
+	#
+	# The associated workspace name
+	#
+	attr_accessor :workspace
+	#
+	# The original target host address
+	#
+	attr_accessor :target_host
 protected
 
 	attr_accessor :via # :nodoc:
@@ -232,3 +252,4 @@ protected
 end
 
 end
+

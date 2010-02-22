@@ -173,6 +173,7 @@ class Metasploit3 < Msf::Auxiliary
 		# seem to affect anything else.
 		sock.extend(CRLFLineEndings)
 		sess = Msf::Sessions::CommandShell.new(sock)
+		sess.set_from_exploit(self)
 		framework.sessions.register(sess)
 	end
 

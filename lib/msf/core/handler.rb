@@ -190,11 +190,9 @@ protected
 			# Pass along the framework context
 			s.framework = framework
 
-			# Associate this session with this payload and with the
-			# assoc_exploit, if this payload has one
-			s.set_via(
-				'Exploit' => assoc_exploit ? assoc_exploit.refname : nil,
-				'Payload' => self.refname)
+			# Associate this system with the original exploit
+			# and any relevant information
+			s.set_from_exploit(assoc_exploit)
 
 			# If the session is valid, register it with the framework and
 			# notify any waiters we may have.

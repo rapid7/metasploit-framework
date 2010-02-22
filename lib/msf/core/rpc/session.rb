@@ -13,7 +13,9 @@ class Session < Base
 				'tunnel_peer' => s.tunnel_peer.to_s,
 				'via_exploit' => s.via_exploit.to_s,
 				'via_payload' => s.via_payload.to_s,
-				'desc'        => s.desc.to_s
+				'desc'        => s.desc.to_s,
+				'workspace'   => s.workspace.to_s,
+				'target_host' => s.target_host.to_s
 			}
 		end
 		res

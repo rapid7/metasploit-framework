@@ -11,10 +11,6 @@ module Auxiliary::Report
 
 	def initialize(info = {})
 		super
-
-		register_options([
-				OptString.new('WORKSPACE', [ false, "The name of the workspace to report data into"])
-			], Auxiliary::Report)
 	end
 
 	# Shortcut method for detecting when the DB is active
@@ -24,7 +20,7 @@ module Auxiliary::Report
 
 	def myworkspace
 		return @myworkspace if @myworkspace
-		@myworkspace = Msf::DBManager::Workspace.find_by_name(datastore['WORKSPACE']) || framework.db.workspace
+		@myworkspace = self.workspace
 	end
 
 	#

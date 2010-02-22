@@ -138,6 +138,12 @@ class Module
 
 		self.privileged = module_info['Privileged'] || false
 		self.license = module_info['License'] || MSF_LICENSE
+
+		# Allow all modules to track their current workspace
+		register_advanced_options(
+			[
+				OptString.new('WORKSPACE', [ false, "Specify the workspace for this module" ])
+			], Msf::Module)
 	end
 
 	#
@@ -145,9 +151,9 @@ class Module
 	#
 	def replicant
 		obj = self.class.new
-		obj.datastore = self.datastore.dup
-		obj.user_input = self.user_input
-		obj.user_output = self.user_output
+		obj.datastore    = self.datastore.dup
+		obj.user_input   = self.user_input
+		obj.user_output  = self.user_output
 		obj.module_store = self.module_store
 		obj
 	end
@@ -277,6 +283,29 @@ class Module
 	#
 	def compat
 		module_info['Compat'] || {}
+	end
+
+	#
+	# Returns the address of the last target host (rough estimate)
+	#
+	def target_host
+		if(self.respond_to?('rhost'))
+			return rhost()
+		end
+
+		if(self.datastore['RHOST'])
+			return self.datastore['RHOST']
+		end
+
+		nil
+	end
+
+	#
+	# Returns the current workspace
+	#
+	def workspace
+		self.datastore['WORKSPACE'] ||
+			(framework.db and framework.db.workspace and framework.db.workspace.name)
 	end
 
 	#
