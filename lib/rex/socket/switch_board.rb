@@ -106,6 +106,10 @@ class SwitchBoard
 		self.instance.routes
 	end
 
+	def self.route_exists?(subnet, mask)
+		self.instance.route_exists?(subnet, mask)
+	end
+
 	#
 	# Returns the Comm instance that should be used for the supplied address.
 	# If no comm can be found, the default Local Comm is returned.
