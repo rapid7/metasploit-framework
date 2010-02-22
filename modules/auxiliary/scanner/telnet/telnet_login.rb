@@ -94,6 +94,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		connect
 
+		begin
+
 		print_status("#{rhost}:#{rport} Banner: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}") if datastore['VERBOSE']
 
 		if login_succeeded?
@@ -149,6 +151,12 @@ class Metasploit3 < Msf::Auxiliary
 				disconnect
 				return :no_pass_prompt
 			end
+		end
+
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
+			print_error("#{rhost}:#{rport} Error: #{e.class} #{e} #{e.backtrace}")
 		end
 
 	end

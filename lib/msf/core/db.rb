@@ -480,7 +480,7 @@ class DBManager
 		})
 		if wait
 			return nil if task.wait() != :done
-			return ret[:service]
+			return ret[:note]
 		end
 		return task
 	end
@@ -713,6 +713,84 @@ class DBManager
 			Event.create(opts.merge(:workspace_id => wspace[:id]))
 		})
 	end
+
+	#
+	# Loot collection
+	#
+	#
+	# This method iterates the loot table calling the supplied block with the
+	# instance of each entry.
+	#
+	def each_loot(wspace=workspace, &block)
+		wspace.loots.each do |note|
+			block.call(note)
+		end
+	end
+
+	#
+	# Find or create a loot matching this type/data
+	#
+	def find_or_create_loot(opts)
+		report_loot(opts.merge({:wait => true}))
+	end
+
+	def report_loot(opts)
+		return if not active
+		wait = opts.delete(:wait)
+		wspace = opts.delete(:workspace) || workspace
+		path = opts.delete(:loot)
+		host = nil
+		addr = nil
+
+		# Report the host so it's there for the Proc to use below
+		if opts[:host]
+			if opts[:host].kind_of? Host
+				host = opts[:host]
+			else
+				report_host({:workspace => wspace, :host => opts[:host]})
+				addr = opts[:host]
+			end
+		end
+
+		ret = {}
+		task = queue(Proc.new {
+			if addr and not host
+				host = get_host(:workspace => wspace, :host => addr)
+			end
+
+			ltype  = opts.delete(:type) || opts.delete(:ltype) || return
+			data   = opts[:data]
+			loot   = wspace.loots.new
+
+			if host
+				loot.host_id = host[:id]
+			end
+			if opts[:service] and opts[:service].kind_of? Service
+				loot.service_id = opts[:service][:id]
+			end
+
+			loot.path  = path
+			loot.ltype = ltype
+			loot.data  = data
+			loot.save!
+
+			ret[:loot] = loot
+		})
+
+		if wait
+			return nil if task.wait() != :done
+			return ret[:loot]
+		end
+		return task
+	end
+
+	#
+	# This methods returns a list of all notes in the database
+	#
+	def loots(wspace=workspace)
+		wspace.loots
+	end
+
 
 	#
 	# WMAP

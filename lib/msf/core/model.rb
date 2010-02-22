@@ -1,3 +1,5 @@
+require 'msf/core/model/user'
+require 'msf/core/model/loot'
 require 'msf/core/model/client'
 require 'msf/core/model/event'
 require 'msf/core/model/host'
@@ -9,3 +11,4 @@ require 'msf/core/model/vuln'
 
 require 'msf/core/model/wmap_target'
 require 'msf/core/model/wmap_request'
+
