@@ -351,7 +351,7 @@ class DBManager
 
 		ret = {}
 		task = queue(Proc.new {
-			host = get_host(addr)
+			host = get_host(:workspace => wspace, :host => addr)
 			client = host.clients.find_or_initialize_by_ua_string(opts[:ua_string])
 			opts.each { |k,v|
 				if (client.attribute_names.include?(k.to_s))
@@ -709,7 +709,7 @@ class DBManager
 			report_host(:workspace => wspace, :host => opts[:host])
 		end
 		framework.db.queue(Proc.new {
-			opts[:host] = get_host(opts[:host]) if opts[:host]
+			opts[:host] = get_host(:workspace => wspace, :host => opts[:host]) if opts[:host]
 			Event.create(opts.merge(:workspace_id => wspace[:id]))
 		})
 	end

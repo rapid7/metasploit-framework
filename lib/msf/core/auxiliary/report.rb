@@ -20,7 +20,7 @@ module Auxiliary::Report
 
 	def myworkspace
 		return @myworkspace if @myworkspace
-		@myworkspace = self.workspace
+		@myworkspace = framework.db.find_workspace(self.workspace)
 	end
 
 	#
