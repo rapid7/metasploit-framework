@@ -18,7 +18,7 @@ module FileUtils
 	def self.find_full_path(file_name)
 	
 		# Check for the absolute fast first
-		if (file_name[0,1] == "/" and ::File::Stat.new(file_name))
+		if (file_name[0,1] == "/" and ::File.exists?(file_name) and ::File::Stat.new(file_name))
 			return file_name
 		end
 	
