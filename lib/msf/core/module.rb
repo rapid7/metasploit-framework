@@ -305,7 +305,7 @@ class Module
 	#
 	def workspace
 		self.datastore['WORKSPACE'] ||
-			(framework.db and framework.db.workspace and framework.db.workspace.name)
+			(framework.db and framework.db.active and framework.db.workspace and framework.db.workspace.name)
 	end
 
 	#
