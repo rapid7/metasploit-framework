@@ -52,6 +52,45 @@ class Session < Base
 		{ "write_count" => s.write_shell(data) }
 	end
 
+	# stub
+	def meterpreter_read(token, sid)
+		authenticate(token)
+		s = _find_session(sid)
+		if(s.type != "meterpreter")
+			raise ::XMLRPC::FaultException.new(403, "session is not meterpreter")
+		end
+		#
+		# Need to replace the session's console.output to deal with this
+		#
+		{ "data" => '' }
+	end
+
+	def meterpreter_write(token, sid, data)
+		authenticate(token)
+		s = _find_session(sid)
+		if(s.type != "meterpreter")
+			raise ::XMLRPC::FaultException.new(403, "session is not meterpreter")
+		end
+
+		found = s.console.run_single(data)
+		if not found
+			raise ::XMLRPC::FaultException.new(404, "command not found")
+		end
+
+		{ "data" => found }
+	end
+
+	def meterpreter_script(token, sid, data)
+		authenticate(token)
+		s = _find_session(sid)
+		if(s.type != "meterpreter")
+			raise ::XMLRPC::FaultException.new(403, "session is not meterpreter")
+		end
+		found = s.console.run_single("run #{data}")
+
+		{ "data" => found }
+	end
+
 protected
 
 	def _find_session(sid)
