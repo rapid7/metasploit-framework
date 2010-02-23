@@ -92,6 +92,11 @@ module Auxiliary::Report
 		framework.db.report_vuln(opts)
 	end
 
+	def report_loot(opts={})
+		return if not db
+		opts = {:workspace => myworkspace}.merge(opts)
+		framework.db.report_loot(opts)
+	end
 
 end
 end
