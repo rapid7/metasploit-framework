@@ -128,7 +128,7 @@ module PacketDispatcher
 		self.alive = true
 
 		# Spawn a thread for receiving packets
-		dthread = ::Thread.new do
+		self.receiver_thread = ::Thread.new do
 			while (true)
 				begin
 					rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, 0.25)
@@ -178,8 +178,6 @@ module PacketDispatcher
 				end
 			end
 		end
-
-		self.receiver_thread = dthread
 
 		# Spawn a new thread that monitors the socket
 		self.dispatcher_thread = ::Thread.new do
@@ -255,7 +253,7 @@ module PacketDispatcher
 			rescue ::Exception => e
 				dlog("Exception caught in monitor_socket dispatcher: #{e.class} #{e} #{e.backtrace}", 'meterpreter', LEV_1)
 			ensure
-				dthread.kill if dthread
+				self.receiver_thread.kill if self.receiver_thread
 			end
 		end
 	end

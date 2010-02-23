@@ -20,6 +20,17 @@ class SessionManager < Hash
 	def initialize(framework)
 		self.framework = framework
 		self.sid_pool  = 0
+		self.reaper_thread = Thread.new do
+			while true
+				sleep(1)
+				each_value do |s|
+					if not s.alive?
+						deregister(s, "Died")
+						dlog("Session #{s.sid} has died")
+					end
+				end
+			end
+		end
 	end
 
 	#
@@ -61,9 +72,9 @@ class SessionManager < Hash
 	#
 	# Deregisters the supplied session object with the framework.
 	#
-	def deregister(session)
+	def deregister(session, reason='')
 		# Tell the framework that we have a parting session
-		framework.events.on_session_close(session)
+		framework.events.on_session_close(session, reason)
 
 		# If this session implements the comm interface, remove any routes
 		# that have been created for it.
@@ -71,7 +82,7 @@ class SessionManager < Hash
 			Rex::Socket::SwitchBoard.remove_by_comm(session)
 		end
 
-		if session.interactive?
+		if session.kind_of?(Msf::Session::Interactive)
 			session.interacting = false
 		end
 
@@ -92,6 +103,7 @@ class SessionManager < Hash
 protected
 	
 	attr_accessor :sid_pool, :sessions # :nodoc:
+	attr_accessor :reaper_thread # :nodoc:
 
 end
 

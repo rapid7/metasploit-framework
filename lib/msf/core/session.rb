@@ -18,7 +18,7 @@ module SessionEvent
 	#
 	# Called when a session is closed.
 	#
-	def on_session_close(session)
+	def on_session_close(session, reason='')
 	end
 
 	#
@@ -52,6 +52,10 @@ end
 module Session
 
 	include Framework::Offspring
+
+	def initialize
+		self.alive = true
+	end
 
 	# Direct descendents
 	require 'msf/core/session/interactive'
@@ -224,6 +228,15 @@ module Session
 	def kill
 		framework.sessions.deregister(self)
 	end
+
+	def dead?
+		(not self.alive)
+	end
+	def alive?
+		(self.alive)
+	end
+
+	attr_accessor :alive
 
 	#
 	# The framework instance that created this session.

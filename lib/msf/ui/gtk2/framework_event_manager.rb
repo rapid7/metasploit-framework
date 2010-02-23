@@ -41,7 +41,7 @@ module Msf
         #
         # Called when a session is closed and removed from the framework.
         #
-        def on_session_close(session)
+        def on_session_close(session, reason='')
 
           $gtk2driver.append_log_view("[*] Session #{session.sid} closed for #{session.tunnel_peer}\n")
 

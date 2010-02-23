@@ -49,7 +49,7 @@ module FrameworkEventManager
 	#
 	# Called when a session is closed and removed from the framework.
 	#
-	def on_session_close(session)
+	def on_session_close(session, reason='')
 		if (session.interacting == true)
 			output.print_line
 		end
@@ -57,7 +57,11 @@ module FrameworkEventManager
 		# If logging had been enabled for this session, stop it now.
 		Msf::Logging::stop_session_log(session)
 
-		output.print_status("#{session.desc} session #{session.name} closed.")
+		msg = "#{session.desc} session #{session.name} closed."
+		if reason.length > 0
+			msg << "  Reason: #{reason}"
+		end
+		output.print_status(msg)
 	end
 
 end

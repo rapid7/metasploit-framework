@@ -22,6 +22,7 @@ module Interactive
 	#
 	def initialize(rstream)
 		self.rstream = rstream
+		super()
 	end
 
 	#
@@ -121,7 +122,7 @@ protected
 	#
 	def _interact_complete
 		framework.events.on_session_interact_completed()
-		framework.sessions.deregister(self)
+		framework.sessions.deregister(self, "User exit")
 	end
 
 	#

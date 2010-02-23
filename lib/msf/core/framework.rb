@@ -253,9 +253,6 @@ class FrameworkEventSubscriber
 			}
 			report_event(event)
 		end
-		if name != 'session_close' and session.respond_to? "alive" and not session.alive
-			framework.sessions.deregister(session)
-		end
 	end
 
 	require 'msf/core/session'
@@ -264,7 +261,7 @@ class FrameworkEventSubscriber
 		session_event('session_open', session)
 	end
 
-	def on_session_close(session)
+	def on_session_close(session, reason='')
 		session_event('session_close', session)
 	end
 
