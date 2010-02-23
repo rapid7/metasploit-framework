@@ -4,7 +4,7 @@ module Msf
 module Sessions
 
 ###
-# 
+#
 # This class provides basic interaction with a command shell on the remote
 # endpoint.  This session is initialized with a stream that will be used
 # as the pipe for reading and writing the command shell.
@@ -84,3 +84,4 @@ end
 
 end
 end
+

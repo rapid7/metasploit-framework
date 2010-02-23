@@ -61,8 +61,23 @@ module Net; module SSH; module Transport
       @options = options
 
       debug { "establishing connection to #{@host}:#{@port}" }
-      factory = options[:proxy] || Rex::Socket::Tcp
-      @socket = timeout(options[:timeout] || 0) { factory.connect(@host, @port) }
+      factory = options[:proxy]
+
+      if (factory)
+        @socket = timeout(options[:timeout] || 0) { factory.connect(@host, @port) }
+      else
+        @socket = timeout(options[:timeout] || 0) {
+          Rex::Socket::Tcp.create(
+          	'PeerHost' => @host,
+          	'PeerPort' => @port,
+          	'Context'  => {
+          	  'Msf'          => options[:msframework],
+          	  'MsfExploit'   => options[:msfmodule]
+            }
+          )
+        }
+      end
+
       @socket.extend(PacketStream)
       @socket.logger = @logger
 
@@ -274,3 +289,4 @@ module Net; module SSH; module Transport
       end
   end
 end; end; end
+

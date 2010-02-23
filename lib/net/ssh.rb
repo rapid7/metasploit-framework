@@ -1,23 +1,8 @@
 require 'rex/socket'
 
-# Monkeypatch rex/socket so Net::SSH's calls to TCPSocket.open and
-# TCPSocket.new work when they're sent instead to
-# Rex::Socket::Tcp.connect
-
-module Rex::Socket::Tcp
-	def self.connect(host,port)
-		self.create(
-			'PeerHost' => host,
-			'PeerPort' => port
-		)
-	end
-end
-
 # Make sure HOME is set, regardless of OS, so that File.expand_path works
 # as expected with tilde characters.
 ENV['HOME'] ||= ENV['HOMEPATH'] ? "#{ENV['HOMEDRIVE']}#{ENV['HOMEPATH']}" : "."
-
-
 
 require 'logger'
 
@@ -27,6 +12,7 @@ require 'net/ssh/loggable'
 require 'net/ssh/transport/session'
 require 'net/ssh/authentication/session'
 require 'net/ssh/connection/session'
+require 'net/ssh/command_stream'
 
 module Net
 
@@ -83,7 +69,7 @@ module Net
       :logger, :paranoid, :password, :port, :proxy, :rekey_blocks_limit,
       :rekey_limit, :rekey_packet_limit, :timeout, :verbose,
       :global_known_hosts_file, :user_known_hosts_file, :host_key_alias,
-      :host_name, :user, :properties, :passphrase
+      :host_name, :user, :properties, :passphrase, :msframework, :msfmodule
     ]
 
     # The standard means of starting a new SSH connection. When used with a

