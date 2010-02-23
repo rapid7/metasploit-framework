@@ -100,7 +100,7 @@ class Console::CommandDispatcher::Core
 		elsif (mode == 'list')
 			tbl = Rex::Ui::Text::Table.new(
 				'Indent'  => 4,
-				'Columns' => 
+				'Columns' =>
 					[
 						'Id',
 						'Class',
@@ -213,7 +213,7 @@ class Console::CommandDispatcher::Core
 			print_error("A process ID must be specified, not a process name")
 			return
 		end
-		
+
 		print_status("Migrating to #{pid}...")
 
 		# Do this thang.
@@ -237,7 +237,7 @@ class Console::CommandDispatcher::Core
 				when "-l"
 					exts = []
 					path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter')
-					::Dir.entries(path).each { |f| 
+					::Dir.entries(path).each { |f|
 						if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
 							exts.push($1)
 						end
@@ -285,7 +285,7 @@ class Console::CommandDispatcher::Core
 	def cmd_use_tabs(str, words)
 		tabs = []
 		path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter')
-		::Dir.entries(path).each { |f| 
+		::Dir.entries(path).each { |f|
 			if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
 				if (not extensions.include?($1))
 					tabs.push($1)
@@ -322,7 +322,7 @@ class Console::CommandDispatcher::Core
 		else
 			print_error("No data was returned.")
 		end
-			
+
 		return true
 	end
 
@@ -339,12 +339,8 @@ class Console::CommandDispatcher::Core
 
 		# Get the script name
 		begin
-			# Set up some local bindings.
-			input  = shell.input
-			output = shell.output
-
 			# the rest of the arguments get passed in through the binding
-			client.execute_script(args.shift, binding)
+			client.execute_script(args.shift, args)
 		rescue
 			print_error("Error in script: #{$!.class} #{$!}")
 			elog("Error in script: #{$!.class} #{$!}")
@@ -409,7 +405,7 @@ class Console::CommandDispatcher::Core
 		if (src_file)
 			begin
 				data = ''
-			
+
 				::File.open(src_file, 'rb') { |f|
 					data = f.read(f.stat.size)
 				}
@@ -456,10 +452,10 @@ class Console::CommandDispatcher::Core
 	#
 	def tab_complete_helper(str, words)
 		items = []
-		
+
 		# Is the user trying to tab complete one of our commands?
 		if (commands.include?(words[0]))
-			if (self.respond_to?('cmd_'+words[0]+'_tabs')) 
+			if (self.respond_to?('cmd_'+words[0]+'_tabs'))
 				res = self.send('cmd_'+words[0]+'_tabs', str, words)
 				return nil if res.nil?
 				items.concat(res)
@@ -468,7 +464,7 @@ class Console::CommandDispatcher::Core
 				return nil
 			end
 		end
-		
+
 		return items
 	end
 
@@ -487,16 +483,16 @@ protected
 		if ((klass = CommDispatcher.check_hash(path)) == nil)
 			clirb = File.join(Rex::Root, path)
 			old   = CommDispatcher.constants
-	
+
 			if (require(clirb))
 				new  = CommDispatcher.constants
 				diff = new - old
-		
+
 				if (diff.empty? == true)
 					print_error("Failed to load client portion of #{mod}.")
 					return false
 				end
-	
+
 				klass = CommDispatcher.const_get(diff[0])
 
 				CommDispatcher.set_hash(path, klass)
@@ -505,7 +501,7 @@ protected
 				return false
 			end
 		end
-	
+
 		# Enstack the dispatcher
 		self.shell.enstack_dispatcher(klass)
 
@@ -518,3 +514,4 @@ end
 end
 end
 end
+

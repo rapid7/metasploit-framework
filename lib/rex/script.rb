@@ -35,3 +35,7 @@ module Script
 end
 
 end
+
+require 'rex/script/shell'
+require 'rex/script/meterpreter'
+

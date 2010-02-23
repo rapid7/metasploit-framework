@@ -170,13 +170,11 @@ class Client
 	end
 
 	#
-	# Loads the contents of the supplied file and executes it as a script using
-	# the binding context of the session
+	# Runs the meterpreter script in the context of a script container
 	#
-	def execute_file(file, in_binding = nil)
-		client = self
-
-		Rex::Script.execute_file(file, in_binding ? in_binding : binding)
+	def execute_file(file, args)
+		o = Rex::Script::Meterpreter.new(self, file)
+		o.run(args)
 	end
 
 	##
