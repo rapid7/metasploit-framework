@@ -1216,20 +1216,24 @@ class Core
 					Serializer::ReadableText.dump_sessions(framework, verbose) + "\n")
 
 			when 'scriptall'
-
 				if (not script.nil?)
-					print_status("Running script #{script} on all meterpreter sessions ...")
-					framework.sessions.each_sorted do |s|
-						if ((session = framework.sessions.get(s)))
-							if (session.type == "meterpreter")
-								print_status("Session #{s} (#{session.tunnel_peer}):")
-								begin
-									session.execute_script(script, args)
-								rescue ::Exception => e
-									log_error("Error executing script: #{e.class} #{e}")
+					script_path = Msf::Sessions::Meterpreter.find_script_path(script)
+					if (not script_path.nil?)
+						print_status("Running script #{script} on all meterpreter sessions ...")
+						framework.sessions.each_sorted do |s|
+							if ((session = framework.sessions.get(s)))
+								if (session.type == "meterpreter")
+									print_status("Session #{s} (#{session.tunnel_peer}):")
+									begin
+										session.execute_file(script_path, args)
+									rescue ::Exception => e
+										log_error("Error executing script: #{e.class} #{e}")
+									end
 								end
 							end
 						end
+					else
+						print_error("The specified script \"#{script}\" does not exist.")
 					end
 				else
 					print_error("No script specified!")

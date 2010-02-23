@@ -21,6 +21,34 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	include Msf::Session::Comm
 
 	#
+	# Find out of the script exists (and if so, which path)
+	#
+	def self.find_script_path(script)
+		# Find the full file path of the specified argument
+		check_paths =
+			[
+				script,
+				ScriptBase + Msf::Config::FileSep + "#{script}",
+				ScriptBase + Msf::Config::FileSep + "#{script}.rb",
+				UserScriptBase + Msf::Config::FileSep + "#{script}",
+				UserScriptBase + Msf::Config::FileSep + "#{script}.rb"
+			]
+
+		full_path = nil
+
+		# Scan all of the path combinations
+		check_paths.each { |path|
+			if ::File.exists?(path)
+				full_path = path
+				break
+			end
+		}
+
+		full_path
+	end
+
+
+	#
 	# Initializes a meterpreter session instance using the supplied rstream
 	# that is to be used as the client's connection to the server.
 	#
@@ -112,25 +140,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	# Executes the supplie script.
 	#
 	def execute_script(script, args)
-		# Find the full file path of the specified argument
-		check_paths =
-			[
-				script,
-				ScriptBase + Msf::Config::FileSep + "#{script}",
-				ScriptBase + Msf::Config::FileSep + "#{script}.rb",
-				UserScriptBase + Msf::Config::FileSep + "#{script}",
-				UserScriptBase + Msf::Config::FileSep + "#{script}.rb"
-			]
 
-		full_path = nil
-
-		# Scan all of the path combinations
-		check_paths.each { |path|
-			if ::File.exists?(path)
-				full_path = path
-				break
-			end
-		}
+		full_path = Msf::Sessions::Meterpreter.find_script_path(script)
 
 		# No path found?  Weak.
 		if full_path.nil?
