@@ -69,7 +69,7 @@ class Service < ::XMLRPC::BasicServer
 			begin
 				res = process(mesg)
 			rescue ::Exception => e
-				$stderr.puts "ERROR: #{e.class} #{e}"
+				$stderr.puts "XMLRPC Error: #{e.class} #{e} #{e.backtrace} (#{mesg})"
 			end
 			c.put(res+"\x00")
 		end
