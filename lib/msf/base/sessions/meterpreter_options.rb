@@ -40,20 +40,19 @@ module MeterpreterOptions
 		end
 
 		if (datastore['InitialAutoRunScript'].empty? == false)
-			client = session
 			args = datastore['InitialAutoRunScript'].split
 			print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing InitialAutoRunScript '#{datastore['InitialAutoRunScript']}'")
-			session.execute_script(args.shift, binding)
+			session.execute_script(args.shift, args)
 		end
 
 		if (datastore['AutoRunScript'].empty? == false)
-			client = session
 			args = datastore['AutoRunScript'].split
 			print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing AutoRunScript '#{datastore['AutoRunScript']}'")
-			session.execute_script(args.shift, binding)
+			session.execute_script(args.shift, args)
 		end
 	end
 
 end
 end
 end
+

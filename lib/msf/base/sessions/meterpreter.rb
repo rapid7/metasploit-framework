@@ -44,7 +44,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	def type
 		"meterpreter"
 	end
-	
+
 	##
 	#
 	# Msf::Session overrides
@@ -111,9 +111,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	# Executes the supplie script.
 	#
-	def execute_script(script, in_binding)
+	def execute_script(script, args)
 		# Find the full file path of the specified argument
-		check_paths = 
+		check_paths =
 			[
 				script,
 				ScriptBase + Msf::Config::FileSep + "#{script}",
@@ -138,7 +138,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 			return true
 		end
 
-		execute_file(full_path, in_binding)
+		execute_file(full_path, args)
 	end
 
 	#
@@ -198,7 +198,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		notify_before_socket_create(self, param)
 
 		sock = net.socket.create(param)
-		
+
 		# sf: unsure if we should raise an exception or just return nil. returning nil for now.
 		#if( sock == nil )
 		#  raise Rex::UnsupportedProtocol.new(param.proto), caller
@@ -223,3 +223,4 @@ end
 
 end
 end
+

@@ -1224,8 +1224,7 @@ class Core
 							if (session.type == "meterpreter")
 								print_status("Session #{s} (#{session.tunnel_peer}):")
 								begin
-									client = session
-									client.execute_script(script, binding)
+									session.execute_script(script, args)
 								rescue ::Exception => e
 									log_error("Error executing script: #{e.class} #{e}")
 								end

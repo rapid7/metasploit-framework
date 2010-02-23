@@ -36,6 +36,7 @@ class Shell
 	def print_status(*args);  client.user_output.print_status(*args);   end
 	def print_error(*args);   client.user_output.print_error(*args);    end
 	def print_good(*args);    client.user_output.print_good(*args);     end
+	def print_line(*args);    client.user_output.print_line(*args);     end
 
 end
 end
