@@ -32,6 +32,10 @@ module MeterpreterOptions
 	def on_session(session)
 		super
 
+		# Configure input/output to match the payload
+		session.user_input  = self.user_input
+		session.user_output = self.user_output
+
 		if (datastore['AutoLoadStdapi'] == true)
 			session.load_stdapi
 			if (framework.exploits.create(session.via_exploit).privileged?)
