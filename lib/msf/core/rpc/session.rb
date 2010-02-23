@@ -1,3 +1,6 @@
+require 'rex'
+require 'rex/io/bidirectional_pipe'
+
 module Msf
 module RPC
 class Session < Base
@@ -52,19 +55,24 @@ class Session < Base
 		{ "write_count" => s.write_shell(data) }
 	end
 
-	# stub
 	def meterpreter_read(token, sid)
 		authenticate(token)
 		s = _find_session(sid)
 		if(s.type != "meterpreter")
 			raise ::XMLRPC::FaultException.new(403, "session is not meterpreter")
 		end
-		#
-		# Need to replace the session's console.output to deal with this
-		#
-		{ "data" => '' }
+		if s.console.output.respond_to? :read_buff
+			data = s.console.output.read_buff
+		else
+			s.console.output.extend BufferedIO
+			data = ''
+		end
+		{ "data" => data }
 	end
 
+	#
+	# Run a single meterpreter console command
+	#
 	def meterpreter_write(token, sid, data)
 		authenticate(token)
 		s = _find_session(sid)
@@ -72,6 +80,11 @@ class Session < Base
 			raise ::XMLRPC::FaultException.new(403, "session is not meterpreter")
 		end
 
+		# We have to start buffering the console output before running the
+		# command so we don't lose any output.
+		if not s.console.output.respond_to? :read_buff
+			s.console.output.extend BufferedIO
+		end
 		found = s.console.run_single(data)
 		if not found
 			raise ::XMLRPC::FaultException.new(404, "command not found")
@@ -81,14 +94,7 @@ class Session < Base
 	end
 
 	def meterpreter_script(token, sid, data)
-		authenticate(token)
-		s = _find_session(sid)
-		if(s.type != "meterpreter")
-			raise ::XMLRPC::FaultException.new(403, "session is not meterpreter")
-		end
-		found = s.console.run_single("run #{data}")
-
-		{ "data" => found }
+		meterpreter_write("run #{data}")
 	end
 
 protected
@@ -103,5 +109,23 @@ protected
 
 end
 end
+end
+
+# Ghetto
+module BufferedIO
+	alias_method :orig_print, :print
+	def read_buff
+		self.buffer ||= ''
+		buf = self.buffer.dup
+		self.buffer = ''
+		buf
+	end
+	def print(msg)
+		self.buffer ||= ''
+		self.buffer << msg
+		orig_print(msg)
+	end
+	def print_line(msg); print(msg +"\n"); end
+	attr_accessor :buffer
 end
 
