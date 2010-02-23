@@ -27,7 +27,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 			"setdesktop"    => "Move to a different workstation and desktop",
 			"keyscan_start" => "Start capturing keystrokes",
 			"keyscan_stop"  => "Stop capturing keystrokes",
-			"keyscan_dump"  => "Dump they keystroke buffer",
+			"keyscan_dump"  => "Dump the keystroke buffer",
 			
 			# no longer needed with setdesktop
 			# "grabinputdesktop" => "Take over the active input desktop",
