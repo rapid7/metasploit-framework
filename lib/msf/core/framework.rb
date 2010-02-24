@@ -203,13 +203,13 @@ class FrameworkEventSubscriber
 	include GeneralEventSubscriber
 	def on_module_run(instance)
 		if framework.db.active
-
 			datastore_hash = {}
 			instance.datastore.keys.each do |k|
 				datastore_hash[k.to_s] = instance.datastore[k].to_s
 			end
 
 			info = {}
+			info[:workspace]   = framework.db.find_workspace(instance.workspace),
 			info[:module_name] = instance.refname
 			info[:datastore]   = datastore_hash
 			report_event(:name => "module_run", :info => info)
