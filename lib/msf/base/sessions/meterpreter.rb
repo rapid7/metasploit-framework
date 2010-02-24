@@ -108,6 +108,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	# Initializes the console's I/O handles.
 	#
 	def init_ui(input, output)
+		self.user_input = input
+		self.user_output = output
 		console.init_ui(input, output)
 		console.set_log_source(log_source)
 

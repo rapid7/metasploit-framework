@@ -1,5 +1,6 @@
+require 'pp'
 require 'rex'
-require 'rex/io/bidirectional_pipe'
+require 'rex/ui/text/output/buffer'
 
 module Msf
 module RPC
@@ -61,12 +62,15 @@ class Session < Base
 		if(s.type != "meterpreter")
 			raise ::XMLRPC::FaultException.new(403, "session is not meterpreter")
 		end
-		if s.console.output.respond_to? :read_buff
-			data = s.console.output.read_buff
-		else
-			s.console.output.extend BufferedIO
-			data = ''
+
+		if s.user_output.nil? or s.console.output.nil?
+			s.init_ui(Rex::Ui::Text::Input::Stdio.new, Rex::Ui::Text::Output::Buffer.new)
 		end
+		if not s.user_output.respond_to? :read_buff
+			s.user_output.extend BufferedIO
+		end
+
+		data = s.user_output.read_buff
 		{ "data" => data }
 	end
 
@@ -80,21 +84,20 @@ class Session < Base
 			raise ::XMLRPC::FaultException.new(403, "session is not meterpreter")
 		end
 
-		# We have to start buffering the console output before running the
-		# command so we don't lose any output.
-		if not s.console.output.respond_to? :read_buff
-			s.console.output.extend BufferedIO
+		if s.user_output.nil? or s.console.output.nil?
+			s.init_ui(Rex::Ui::Text::Input::Stdio.new, Rex::Ui::Text::Output::Buffer.new)
 		end
-		found = s.console.run_single(data)
-		if not found
-			raise ::XMLRPC::FaultException.new(404, "command not found")
+		if not s.user_output.respond_to? :read_buff
+			s.user_output.extend BufferedIO
 		end
 
-		{ "data" => found }
+		Thread.new { s.console.run_single(data) }
+
+		{}
 	end
 
 	def meterpreter_script(token, sid, data)
-		meterpreter_write("run #{data}")
+		meterpreter_write(token, sid, "run #{data}")
 	end
 
 protected
@@ -113,19 +116,25 @@ end
 
 # Ghetto
 module BufferedIO
-	alias_method :orig_print, :print
+	def supports_color?; false; end
+	def supports_color; false; end
+
 	def read_buff
-		self.buffer ||= ''
-		buf = self.buffer.dup
-		self.buffer = ''
-		buf
+		self.buf ||= ''
+		buffer = self.buf.dup
+		self.buf = ''
+		buffer
 	end
 	def print(msg)
-		self.buffer ||= ''
-		self.buffer << msg
-		orig_print(msg)
+		self.buf ||= ''
+		buf << msg
+		msg
 	end
-	def print_line(msg); print(msg +"\n"); end
-	attr_accessor :buffer
+	alias :print_raw :print
+
+	# Match this with the Output::Buffer attr name so we aren't storing it
+	# twice.
+	attr_accessor :buf
 end
+
 

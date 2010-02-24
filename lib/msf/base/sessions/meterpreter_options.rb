@@ -33,8 +33,7 @@ module MeterpreterOptions
 		super
 
 		# Configure input/output to match the payload
-		session.user_input  = self.user_input
-		session.user_output = self.user_output
+		session.init_ui(self.user_input, self.user_output)
 
 		if (datastore['AutoLoadStdapi'] == true)
 			session.load_stdapi

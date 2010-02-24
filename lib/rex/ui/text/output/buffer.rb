@@ -34,6 +34,18 @@ class Output::Buffer < Rex::Ui::Text::Output
 
 		msg
 	end
+	alias :print :print_raw
+
+
+	#
+	# Read everything out of the buffer and reset it
+	#
+	def dump_buffer
+		self.buf ||= ''
+		buffer = self.buf.dup
+		reset()
+		buffer
+	end
 
 	#
 	# Reset the buffer to an empty string.
