@@ -263,6 +263,9 @@ class DBManager
 
 		task = queue(Proc.new {
 			host = get_host(:workspace => wspace, :address => addr)
+			host.state = HostState::Alive
+			host.save! if host.changed?
+
 			proto = opts[:proto] || 'tcp'
 			opts[:name].downcase! if (opts[:name])
 
@@ -430,6 +433,8 @@ class DBManager
 			if addr and not host
 				host = get_host(:workspace => wspace, :host => addr)
 			end
+			host.state = HostState::Alive
+			host.save! if host.changed?
 
 			ntype  = opts.delete(:type) || opts.delete(:ntype) || return
 			data   = opts[:data] || return
