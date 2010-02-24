@@ -109,11 +109,10 @@ class CommandShell
 	# Explicitly run a single command, return the output.
 	#
 	def shell_command(cmd)
-		# Then it's a regular shell, just send the command
-		# to the session's stdin.
+		# Send the command to the session's stdin.
 		shell_write(cmd + "\n")
 
-		# wait up to 5 seconds for some data
+		# wait up to 5 seconds for some data to appear
 		elapsed = 0
 		if (not (select([rstream], nil, nil, 5)))
 			return nil
@@ -122,6 +121,63 @@ class CommandShell
 		# get the output that we have ready
 		rstream.get_once(-1, 1)
 	end
+
+
+	#
+	# Read data until we find the token
+	#
+	def shell_read_until_token(token)
+		# wait up to 5 seconds for some data to appear
+		elapsed = 0
+		if (not (select([rstream], nil, nil, 5)))
+			return nil
+		end
+
+		# Read until we get the token or timeout.
+		buf = ''
+		idx = nil
+		while (tmp = rstream.get_once(-1, 1))
+			buf << tmp
+			break if (idx = buff.index(token))
+		end
+
+		if (buf and idx)
+			data = buf.slice(0,idx)
+			return data
+		end
+
+		# failed to get any data or find the token!
+		nil
+	end
+
+	#
+	# Explicitly run a single command and return the output.
+	# This version uses a marker to denote the end of data (instead of a timeout).
+	#
+	def shell_command_token_unix(cmd)
+		# read any pending data
+		buf = rstream.get_once(-1, 0.01)
+		token = ::Rex::Text.rand_text_alpha(32)
+
+		# Send the command to the session's stdin.
+		shell_write(cmd + ";echo #{token}\n")
+		shell_read_until_token(token)
+	end
+
+	#
+	# Explicitly run a single command and return the output.
+	# This version uses a marker to denote the end of data (instead of a timeout).
+	#
+	def shell_command_token_win32(cmd)
+		# read any pending data
+		buf = rstream.get_once(-1, 0.01)
+		token = ::Rex::Text.rand_text_alpha(32)
+
+		# Send the command to the session's stdin.
+		shell_write(cmd + "&echo #{token}\n")
+		shell_read_until_token(token)
+	end
+
 
 	#
 	# Read from the command shell.
