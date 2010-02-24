@@ -244,6 +244,7 @@ class FrameworkEventSubscriber
 
 		if framework.db.active
 			event = {
+				:workspace => framework.db.find_workspace(session.workspace),
 				:name => name,
 				:host => address,
 				:info => {
