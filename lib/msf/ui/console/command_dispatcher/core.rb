@@ -1145,14 +1145,8 @@ class Core
 							end
 							print_line(process.channel.read) if process and process.channel
 						elsif session.type == "shell"
-							# Then it's a regular shell, just send the command
-							# to the session's stdin.
-							session.write_shell(cmd + "\n")
-							# read_shell blocks with no timeout, so we wrap
-							# it in a select in case there is no output
-							# from the command
-							if select([session.rstream],nil,nil,3)
-								output = session.read_shell
+							output = session.shell_command(cmd)
+							if (output)
 								print_line(output)
 							end
 						end

@@ -3,22 +3,22 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
-
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Bsd
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -35,7 +35,7 @@ module Metasploit3
 	end
 
 	def generate
-		port    = (datastore['RPORT'] || '0').to_i 
+		port    = (datastore['RPORT'] || '0').to_i
 		host    = Rex::Socket.resolv_nbo_i(datastore['RHOST'] || '127.0.0.1')
 
 		payload =

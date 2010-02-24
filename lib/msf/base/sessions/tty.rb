@@ -37,7 +37,7 @@ class TTY
 	end
 
 	def run_cmd(cmd)
-		write_shell(cmd)
+		shell_write(cmd)
 		return rstream.get
 	end
 	#
@@ -50,14 +50,14 @@ class TTY
 	#
 	# The shell will have been initialized by default.
 	#
-	def init_shell
+	def shell_init
 		return true
 	end
 
 	#
 	# Read from the command shell.
 	#
-	def read_shell(length = nil)
+	def shell_read(length = nil)
 		if length.nil?
 			rv = rstream.get
 		else
@@ -69,14 +69,14 @@ class TTY
 	#
 	# Writes to the command shell.
 	#
-	def write_shell(buf)
+	def shell_write(buf)
 		rstream.write(buf)
 	end
 
 	#
 	# Closes the shell.
 	#
-	def close_shell()
+	def shell_close()
 		rstream.close
 	end
 

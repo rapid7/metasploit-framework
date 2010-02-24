@@ -3,23 +3,23 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/core/payload/php'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
-
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Php
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -45,8 +45,8 @@ module Metasploit3
 	# Issues
 	#   - Since each command is executed in a new shell, 'cd' does nothing.
 	#      Perhaps it should be special-cased to call chdir()
-	#   - Tries to get around disable_functions but makes no attempts to 
-	#      circumvent safe mode.  
+	#   - Tries to get around disable_functions but makes no attempts to
+	#      circumvent safe mode.
 	#
 	def php_reverse_shell
 
@@ -126,5 +126,5 @@ module Metasploit3
 	def generate
 		return super + php_reverse_shell
 	end
-	
+
 end

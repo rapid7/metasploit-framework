@@ -3,24 +3,24 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/core/payload/php'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
+require 'msf/base/sessions/command_shell_options'
 require 'msf/core/handler/find_shell'
-
 
 module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Php
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -81,7 +81,7 @@ mysystem(#{var_cmd});
 
 END_OF_PHP_CODE
 
-		
+
 		return shell
 	end
 

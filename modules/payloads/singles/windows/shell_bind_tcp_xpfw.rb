@@ -3,21 +3,20 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
-
 
 module Metasploit3
 
 	include Msf::Payload::Windows
 	include Msf::Payload::Single
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -77,18 +76,18 @@ module Metasploit3
 				}
 			))
 	end
-	
+
 	# for now we must let this payload use the old EXITFUNC hash values.
 	def replace_var(raw, name, offset, pack)
 		super
 		if( name == 'EXITFUNC' )
 			datastore[name] = 'thread' if not datastore[name]
-			raw[offset, 4] = [ 0x5F048AF0 ].pack(pack || 'V') if datastore[name] == 'seh' 
+			raw[offset, 4] = [ 0x5F048AF0 ].pack(pack || 'V') if datastore[name] == 'seh'
 			raw[offset, 4] = [ 0x60E0CEEF ].pack(pack || 'V') if datastore[name] == 'thread'
 			raw[offset, 4] = [ 0x73E2D87E ].pack(pack || 'V') if datastore[name] == 'process'
 			return true
 		end
 		return false
 	end
-	
+
 end

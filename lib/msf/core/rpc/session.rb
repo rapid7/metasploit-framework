@@ -41,7 +41,7 @@ class Session < Base
 		if(not s.rstream.has_read_data?(0))
 			{ "data" => "" }
 		else
-			{ "data" => s.read_shell }
+			{ "data" => s.shell_read }
 		end
 	end
 
@@ -52,7 +52,7 @@ class Session < Base
 			raise ::XMLRPC::FaultException.new(403, "session is not a shell")
 		end
 
-		{ "write_count" => s.write_shell(data) }
+		{ "write_count" => s.shell_write(data) }
 	end
 
 	def meterpreter_read(token, sid)

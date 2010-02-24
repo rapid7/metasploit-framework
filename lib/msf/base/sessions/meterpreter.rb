@@ -23,6 +23,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	# Find out of the script exists (and if so, which path)
 	#
+	ScriptBase     = Msf::Config.script_directory + Msf::Config::FileSep + "meterpreter"
+	UserScriptBase = Msf::Config.user_script_directory + Msf::Config::FileSep + "meterpreter"
+
 	def self.find_script_path(script)
 		# Find the full file path of the specified argument
 		check_paths =
@@ -64,7 +67,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		# Create the console instance
 		#
 		self.console = Rex::Post::Meterpreter::Ui::Console.new(self)
-  end
+	end
 
 	#
 	# Returns the session type as being 'meterpreter'.
@@ -133,15 +136,12 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		console.run_single(cmd)
 	end
 
-	ScriptBase     = Msf::Config.script_directory + Msf::Config::FileSep + "meterpreter"
-	UserScriptBase = Msf::Config.user_script_directory + Msf::Config::FileSep + "meterpreter"
-
 	#
-	# Executes the supplie script.
+	# Executes the supplied script.
 	#
 	def execute_script(script, args)
 
-		full_path = Msf::Sessions::Meterpreter.find_script_path(script)
+		full_path = self.class.find_script_path(script)
 
 		# No path found?  Weak.
 		if full_path.nil?
@@ -234,4 +234,3 @@ end
 
 end
 end
-

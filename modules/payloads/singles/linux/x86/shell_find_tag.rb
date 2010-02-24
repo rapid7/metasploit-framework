@@ -3,23 +3,23 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/core/handler/find_tag'
 require 'msf/base/sessions/command_shell'
-
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Linux
-	
+	include Msf::Sessions::CommandShellOptions
+
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Linux Command Shell, Find Tag Inline',
@@ -46,7 +46,7 @@ module Metasploit3
 				}
 			))
 	end
-	
+
 	#
 	# Ensures the setting of TAG to a four byte value
 	#

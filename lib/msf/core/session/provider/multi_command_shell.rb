@@ -18,30 +18,30 @@ module MultiCommandShell
 	# Initializes the default command shell as expected from 
 	# SingleCommandShell.
 	#
-	def init_shell()
+	def shell_init()
 		raise NotImplementedError
 	end
 
 	#
 	# Opens a new command shell context and returns the handle.
 	#
-	def open_shell()
+	def shell_open()
 		raise NotImplementedError
 	end
 
 	#
 	# Reads data from a command shell.  If shell is nil, the default
-	# command shell from init_shell is used.
+	# command shell from shell_init is used.
 	#
-	def read_shell(length = nil, shell = nil)
+	def shell_read(length = nil, shell = nil)
 		raise NotImplementedError
 	end
 
 	#
 	# Writes data to a command shell.  If shell is nil, the default
-	# command shell from init_shell is used.
+	# command shell from shell_init is used.
 	#
-	def write_shell(buf, shell = nil)
+	def shell_read(buf, shell = nil)
 		raise NotImplementedError
 	end
 
@@ -49,7 +49,7 @@ module MultiCommandShell
 	# Closes the provided command shell or the default one if none is
 	# given.
 	#
-	def close_shell(shell = nil)
+	def shell_close(shell = nil)
 		raise NotImplementedError
 	end
 

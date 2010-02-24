@@ -9,13 +9,12 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
-
 
 module Metasploit3
 
 	include Msf::Payload::Windows
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -58,4 +57,3 @@ module Metasploit3
 	end
 
 end
-

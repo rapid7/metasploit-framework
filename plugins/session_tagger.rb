@@ -18,12 +18,12 @@ class Plugin::SessionTagger < Msf::Plugin
 		# XXX: Determine what type of session this is before writing to it
 		
 		if (session.interactive?)
-			session.write_shell("MKDIR C:\\TaggedBy#{ENV['USER']}\n")
-			session.write_shell("mkdir /tmp/TaggedBy#{ENV['USER']}\n")
+			session.shell_write("MKDIR C:\\TaggedBy#{ENV['USER']}\n")
+			session.shell_write("mkdir /tmp/TaggedBy#{ENV['USER']}\n")
 		end
 		
 		#
-		# Read output with session.read_shell()
+		# Read output with session.shell_read()
 		#
 	end
 

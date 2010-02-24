@@ -3,21 +3,21 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
-
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
 	include Msf::Payload::Single
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -31,7 +31,7 @@ module Metasploit3
 			'Handler'       => Msf::Handler::BindTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd',
-			'RequiredCmd'   => 'perl',			
+			'RequiredCmd'   => 'perl',
 			'Payload'       =>
 				{
 					'Offsets' => { },
@@ -46,7 +46,7 @@ module Metasploit3
 	def generate
 		return super + command_string
 	end
-	
+
 	#
 	# Returns the command string to use for execution
 	#

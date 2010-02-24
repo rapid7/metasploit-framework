@@ -9,12 +9,13 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/base/sessions/command_shell'
-
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
+
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,

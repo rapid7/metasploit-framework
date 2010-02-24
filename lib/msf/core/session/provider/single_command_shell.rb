@@ -13,28 +13,28 @@ module SingleCommandShell
 	#
 	# Initializes the command shell.
 	#
-	def init_shell()
+	def shell_init()
 		raise NotImplementedError
 	end
 
 	#
 	# Reads data from the command shell.
 	#
-	def read_shell(length = nil)
+	def shell_read(length = nil)
 		raise NotImplementedError
 	end
 
 	#
 	# Writes data to the command shell.
 	#
-	def write_shell(buf)
+	def shell_read(buf)
 		raise NotImplementedError
 	end
 
 	#
 	# Closes the command shell.
 	#
-	def close_shell()
+	def shell_read()
 		raise NotImplementedError
 	end
 

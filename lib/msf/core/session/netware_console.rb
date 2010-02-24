@@ -46,28 +46,28 @@ class NetwareConsole
 	#
 	# The shell will have been initialized by default.
 	#
-	def init_shell
+	def shell_init
 		return true
 	end
 
 	#
 	# Read from the command shell.
 	#
-	def read_shell(length = nil)
+	def shell_read(length = nil)
 		return rstream.read(length)
 	end
 
 	#
 	# Writes to the command shell.
 	#
-	def write_shell(buf)
+	def shell_read(buf)
 		rstream.write(buf)
 	end
 
 	#
 	# Closes the shell.
 	#
-	def close_shell()
+	def shell_close()
 		rstream.close
 	end
 
