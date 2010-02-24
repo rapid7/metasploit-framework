@@ -142,6 +142,14 @@ module Payload::Generic
 		redirect_to_actual(:stage_prefix=, *args)
 	end
 
+	def user_input=(*args)
+		redirect_to_actual(:user_input=, *args)
+	end
+
+	def user_output=(*args)
+		redirect_to_actual(:user_output=, *args)
+	end
+
 	#
 	# First, find the underlying payload and then pass all methods onto it.
 	#
