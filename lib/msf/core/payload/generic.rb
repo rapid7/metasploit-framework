@@ -142,12 +142,14 @@ module Payload::Generic
 		redirect_to_actual(:stage_prefix=, *args)
 	end
 
-	def user_input=(*args)
-		redirect_to_actual(:user_input=, *args)
+	def user_input=(h)
+		@user_input = h
+		redirect_to_actual(:user_input, h) if actual_payload
 	end
 
-	def user_output=(*args)
-		redirect_to_actual(:user_output=, *args)
+	def user_output=(h)
+		@user_output = h
+		redirect_to_actual(:user_output, h) if actual_payload
 	end
 
 	#
@@ -155,7 +157,6 @@ module Payload::Generic
 	#
 	def redirect_to_actual(name, *args)
 		find_actual_payload
-
 		actual_payload.send(name, *args)
 	end
 
