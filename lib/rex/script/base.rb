@@ -11,7 +11,7 @@ class Base
 	end
 
 	attr_accessor :client, :framework, :path, :error, :args
-	attr_accessor :session
+	attr_accessor :session, :sink
 
 	def initialize(client, path)
 		self.client    = client
