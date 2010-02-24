@@ -17,7 +17,6 @@ module Metasploit3
 
 	include Msf::Payload::Single
 	include Msf::Payload::Generic
-	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
