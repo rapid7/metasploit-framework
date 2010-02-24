@@ -1083,10 +1083,12 @@ class Core
 				when "-q"
 					quiet = true
 
+				# Run a command on all sessions
 				when "-c"
 					method = 'cmd'
-					cmds << val
-
+					if (val)
+						cmds << val
+					end
 
 				when "-v"
 					verbose = true
@@ -1094,7 +1096,7 @@ class Core
 				# Interact with the supplied session identifier
 				when "-i"
 					method = 'interact'
-					sid    = val
+					sid = val
 
 				# Display the list of active sessions
 				when "-l"
@@ -1111,6 +1113,7 @@ class Core
 					method = 'detach'
 					sid = val
 
+				# Run a script on all meterpreter sessions
 				when "-s"
 					method = 'scriptall'
 					script = val
@@ -1129,32 +1132,36 @@ class Core
 		case method
 
 			when 'cmd'
-				cmds.each do |cmd|
-					framework.sessions.each_sorted do |s|
-						session = framework.sessions.get(s)
-						print_status("Running '#{cmd}' on session #{s} (#{session.tunnel_peer})")
-						if (session.type == "meterpreter")
-							c,args = cmd.split(' ', 2)
-							begin
-								process = session.sys.process.execute(c, args, {
-									'Channelized' => true,
-									'Hidden'      => true
-									})
-							rescue ::Rex::Post::Meterpreter::RequestError
-								print_error("Failed: #{$!.class} #{$!}")
+				if (cmds.length > 0)
+					cmds.each do |cmd|
+						framework.sessions.each_sorted do |s|
+							session = framework.sessions.get(s)
+							print_status("Running '#{cmd}' on session #{s} (#{session.tunnel_peer})")
+							if (session.type == "meterpreter")
+								c,args = cmd.split(' ', 2)
+								begin
+									process = session.sys.process.execute(c, args, {
+											'Channelized' => true,
+											'Hidden'      => true
+										})
+								rescue ::Rex::Post::Meterpreter::RequestError
+									print_error("Failed: #{$!.class} #{$!}")
+								end
+								print_line(process.channel.read) if process and process.channel
+							elsif session.type == "shell"
+								output = session.shell_command(cmd)
+								if (output)
+									print_line(output)
+								end
 							end
-							print_line(process.channel.read) if process and process.channel
-						elsif session.type == "shell"
-							output = session.shell_command(cmd)
-							if (output)
-								print_line(output)
-							end
+							# If the session isn't a meterpreter or shell type, it
+							# could be a VNC session (which can't run commands) or
+							# something custom (which we don't know how to run
+							# commands on), so don't bother.
 						end
-						# If the session isn't a meterpreter or shell type, it
-						# could be a VNC session (which can't run commands) or
-						# something custom (which we don't know how to run
-						# commands on), so don't bother.
 					end
+				else
+					print_error("No command specified!")
 				end
 
 			when 'kill'
