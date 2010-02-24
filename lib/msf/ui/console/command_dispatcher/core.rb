@@ -1136,6 +1136,9 @@ class Core
 					cmds.each do |cmd|
 						framework.sessions.each_sorted do |s|
 							session = framework.sessions.get(s)
+							# Bail if this session doesn't have stdapi loaded
+							# yet.  See #803.
+							next if not session.respond_to? :sys
 							print_status("Running '#{cmd}' on session #{s} (#{session.tunnel_peer})")
 							if (session.type == "meterpreter")
 								c,args = cmd.split(' ', 2)
