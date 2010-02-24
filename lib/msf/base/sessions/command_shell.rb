@@ -138,7 +138,7 @@ class CommandShell
 		idx = nil
 		while (tmp = rstream.get_once(-1, 1))
 			buf << tmp
-			break if (idx = buff.index(token))
+			break if (idx = buf.index(token))
 		end
 
 		if (buf and idx)
