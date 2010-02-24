@@ -606,6 +606,9 @@ class DBManager
 		ret = {}
 		task = queue( Proc.new {
 			host = get_host(:workspace => wspace, :address => addr)
+			host.state = HostState::Alive
+			host.save! if host.changed?
+
 			if data
 				vuln = host.vulns.find_or_initialize_by_name_and_data(name, data, :include => :refs)
 			else
