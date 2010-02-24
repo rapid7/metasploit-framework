@@ -266,7 +266,12 @@ protected
 			# things like session creation (so that event notifications will
 			# work properly)
 			self.actual_payload.parent_payload = self
+
+			# Set the cached user_input/user_output
+			self.actual_payload.user_input  = self.user_input
+			self.actual_payload.user_output = self.user_output
 		end
+
 
 	end
 
