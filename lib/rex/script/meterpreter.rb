@@ -1,9 +1,7 @@
 
 module Rex
 module Script
-class Meterpreter < Shell
-
-# Nothing special here yet
+class Meterpreter < Base
 
 end
 end
