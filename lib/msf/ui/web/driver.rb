@@ -55,7 +55,6 @@ class Driver < Msf::Ui::Driver
 			self.framework = Msf::Simple::Framework.create
 		end
 
-
 		# Initialize the console count
 		self.last_console = 0
 	end

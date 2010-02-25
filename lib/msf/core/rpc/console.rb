@@ -14,12 +14,24 @@ class Console < Base
 	def create(token)
 		authenticate(token)
 		cid = @console_driver.create_console
-		{'id' => cid}
+		{
+			'id'     => cid,
+			'prompt' => @console_driver.consoles[cid].prompt || '',
+			'busy'   => @console_driver.consoles[cid].busy   || false
+		}
 	end
 
 	def list(token)
 		authenticate(token)
-		{'ids' => @console_driver.consoles.keys }
+		ret = []
+		@console_driver.consoles.each_key do |k|
+			ret << {
+				'id'     => k,
+				'prompt' => @console_driver.consoles[k].prompt || '',
+				'busy'   => @console_driver.consoles[k].busy   || false
+			}
+		end
+		{'consoles' => ret}
 	end
 
 	def destroy(token, cid)
@@ -33,16 +45,16 @@ class Console < Base
 		authenticate(token)
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
 		{
-			"data"   => @console_driver.read_console(cid) || "",
-			"prompt" => @console_driver.consoles[cid].prompt,
-			"busy"   => @console_driver.consoles[cid].busy
+			"data"   => @console_driver.read_console(cid)    || '',
+			"prompt" => @console_driver.consoles[cid].prompt || '',
+			"busy"   => @console_driver.consoles[cid].busy   || false
 		 }
 	end
 
 	def write(token, cid, data)
 		authenticate(token)
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
-		{ "wrote" => @console_driver.write_console(cid, data) || "" }
+		{ "wrote" => @console_driver.write_console(cid, data) || '' }
 	end
 
 	def tabs(token, cid, line)
@@ -51,15 +63,18 @@ class Console < Base
 		{ "tabs" => @console_driver.consoles[cid].tab_complete(line) }
 	end
 
-
-	def interrupt(token, cid)
+	def session_kill(token, cid)
 		authenticate(token)
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
+		@console_driver.consoles[cid].session_kill
+		{ 'result' => 'success' }
 	end
 
-	def detach(token, cid)
+	def session_detach(token, cid)
 		authenticate(token)
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
+		@console_driver.consoles[cid].session_detach
+		{ 'result' => 'success' }
 	end
 
 
