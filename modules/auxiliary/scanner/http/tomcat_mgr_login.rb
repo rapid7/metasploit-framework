@@ -46,6 +46,8 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(8180),
 				OptBool.new('VERBOSE', [ true, 'Verbose output', false]),
+				OptString.new('USERNAME', [ false, 'The username to authenticate as' ]),
+				OptString.new('PASSWORD', [ false, 'The password for the specified username' ]),
 				OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_userpass.txt") ]),
 				OptPath.new('USER_FILE',  [ false, "File containing users, one pair per line",
