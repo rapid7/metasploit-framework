@@ -36,6 +36,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
+				OptString.new('USERNAME', [ false, 'The username to authenticate as' ]),
+				OptString.new('PASSWORD', [ false, 'The password for the specified username' ]),
 				OptBool.new('VERBOSE', [ true, 'Verbose output', false]),
 				Opt::RPORT(22)
 			], self.class
