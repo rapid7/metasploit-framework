@@ -41,6 +41,12 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class
 		)
 
+		register_advanced_options(
+			[
+				OptBool.new('SSH_Debug', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false])
+			]
+		)
+
 		deregister_options('RHOST')
 
 		@good_credentials = {}
@@ -60,6 +66,8 @@ class Metasploit3 < Msf::Auxiliary
 			:password     => pass
 		}
 
+		opt_hash.merge!(:verbose => :debug) if datastore['SSH_Debug']
+
 		begin
 			self.ssh_socket = Net::SSH.start(
 				ip,
@@ -68,6 +76,8 @@ class Metasploit3 < Msf::Auxiliary
 			)
 		rescue Rex::ConnectionError
 			return :connection_error
+		rescue Net::SSH::Disconnect, ::EOFError
+			return :connection_disconnect
 		rescue Net::SSH::Exception
 			return [:fail,nil] # For whatever reason. Can't tell if passwords are on/off without timing responses.
 		end
@@ -115,6 +125,9 @@ class Metasploit3 < Msf::Auxiliary
 				do_report(ip,user,pass,rport,proof)
 			when :connection_error
 				print_error "#{ip}:#{rport} - Could not connect" if datastore['VERBOSE']
+				return
+			when :connection_disconnect
+				print_error "#{ip}:#{rport} - Connection timed out" if datastore['VERBOSE']
 				return
 			when :fail
 				print_error "#{ip}:#{rport} - SSH - Failed: '#{user}':'#{pass}'" if datastore['VERBOSE']
