@@ -55,12 +55,13 @@ class WebConsole
 				'LocalInput'  => self.pipe,
 				'LocalOutput' => self.pipe,
 				'AllowCommandPassthru' => false,
+				'Resource'    => [],
 			}
 		)
 
 		self.console.extend(WebConsoleShell)
 		self.console.block_command('irb')
-		
+
 		self.thread = Thread.new { self.console.run }
 
 		update_access()
@@ -96,34 +97,35 @@ class WebConsole
 		self.pipe.close
 		self.thread.kill
 	end
-	
+
 	def busy
 		self.console.busy
 	end
-	
+
 	def session_detach
-		if(self.console.active_session)		
+		if(self.console.active_session)
 			self.console.active_session.detach()
 		end
 	end
-	
+
 	def session_kill
-		if(self.console.active_session)			
+		if(self.console.active_session)
 			self.console.active_session.kill()
-		end	
+		end
 	end
 
 	def active_module
 		self.console.active_module
 	end
-	
+
 	def active_module=(val)
 		self.console.active_module = val
 	end
-	
+
 end
 
 
 end
 end
 end
+
