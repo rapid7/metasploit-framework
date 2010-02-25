@@ -42,14 +42,19 @@ class Driver < Msf::Ui::Driver
 		self.consoles = {}
 		self.sessions = {}
 
-		# Initialize configuration
-		Msf::Config.init
+		if(opts[:framework])
+			self.framework = opts[:framework]
+		else
+			# Initialize configuration
+			Msf::Config.init
 
-		# Initialize logging
-		initialize_logging
+			# Initialize logging
+			initialize_logging
 
-		# Initialize attributes
-		self.framework = Msf::Simple::Framework.create
+			# Initialize attributes
+			self.framework = Msf::Simple::Framework.create
+		end
+
 
 		# Initialize the console count
 		self.last_console = 0
@@ -72,14 +77,14 @@ class Driver < Msf::Ui::Driver
 			self.consoles.delete(cid)
 		end
 	end
-	
+
 
 	def write_console(id, buf)
-		self.consoles[id] ? self.consoles.write(buf) : nil
+		self.consoles[id] ? self.consoles[id].write(buf) : nil
 	end
 
 	def read_console(id)
-		self.consoles[id] ? self.consoles.read() : nil
+		self.consoles[id] ? self.consoles[id].read() : nil
 	end
 
 	def clean_consoles(timeout=300)
@@ -97,17 +102,17 @@ class Driver < Msf::Ui::Driver
 		return if not ses.user_input
 		ses.user_input.put(buf)
 	end
-	
+
 	def read_session(id)
 		ses = self.framework.sessions[id]
 		return if not ses
 		return if not ses.user_output
 		ses.user_output.read_subscriber('session_reader')
 	end
-	
+
 	# Detach the session from an existing input/output pair
 	def connect_session(id)
-	
+
 		# Ignore invalid sessions
 		ses = self.framework.sessions[id]
 		return if not ses
@@ -132,7 +137,7 @@ class Driver < Msf::Ui::Driver
 	def sessions
 		self.framework.sessions
 	end
-	
+
 	#
 	# Stub
 	#
@@ -158,3 +163,4 @@ end
 end
 end
 end
+
