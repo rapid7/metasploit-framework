@@ -83,6 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 					}
 				}, 25)
 
+			return :done if (res.code == 404)
 			srvhdr = res.headers['Server']
 			success = true if (res.code == 200)
 
