@@ -14,6 +14,8 @@ require 'msf/core/payload/osx/bundleinject'
 require 'msf/base/sessions/vncinject'
 require 'fileutils'
 require 'rex/compat'
+require 'msf/base/sessions/command_shell'
+require 'msf/base/sessions/command_shell_options'
 
 ###
 #
