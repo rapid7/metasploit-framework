@@ -17,6 +17,7 @@ class Session < Base
 				'via_exploit' => s.via_exploit.to_s,
 				'via_payload' => s.via_payload.to_s,
 				'desc'        => s.desc.to_s,
+				'info'        => s.info.to_s,
 				'workspace'   => s.workspace.to_s,
 				'target_host' => s.target_host.to_s
 			}

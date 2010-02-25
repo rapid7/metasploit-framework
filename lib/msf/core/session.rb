@@ -91,7 +91,7 @@ module Session
 	# Brief and to the point
 	#
 	def inspect
-		"#<Session:#{self.type} #{self.tunnel_peer}>"
+		"#<Session:#{self.type} #{self.tunnel_peer || self.tunnel_peer} #{self.info.to_s}>"
 	end
 
 	#
@@ -258,6 +258,10 @@ module Session
 	# The original target host address
 	#
 	attr_accessor :target_host
+	#
+	# The specific identified session info
+	#
+	attr_accessor :info
 protected
 
 	attr_accessor :via # :nodoc:
