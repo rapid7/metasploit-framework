@@ -1,4 +1,3 @@
-require 'pp'
 require 'rex'
 require 'rex/ui/text/output/buffer'
 
@@ -63,14 +62,11 @@ class Session < Base
 			raise ::XMLRPC::FaultException.new(403, "session is not meterpreter")
 		end
 
-		if s.user_output.nil? or s.console.output.nil?
-			s.init_ui(Rex::Ui::Text::Input::Stdio.new, Rex::Ui::Text::Output::Buffer.new)
-		end
-		if not s.user_output.respond_to? :read_buff
-			s.user_output.extend BufferedIO
+		if not s.user_output.respond_to? :dump_buffer
+			s.init_ui(nil, Rex::Ui::Text::Output::Buffer.new)
 		end
 
-		data = s.user_output.read_buff
+		data = s.user_output.dump_buffer
 		{ "data" => data }
 	end
 
@@ -84,10 +80,8 @@ class Session < Base
 			raise ::XMLRPC::FaultException.new(403, "session is not meterpreter")
 		end
 
-		if s.user_output.nil? or s.console.output.nil?
-			s.init_ui(Rex::Ui::Text::Input::Stdio.new, Rex::Ui::Text::Output::Buffer.new)
-		end
-		if not s.user_output.respond_to? :read_buff
+		if not s.user_output.respond_to? :dump_buffer
+			s.init_ui(nil, Rex::Ui::Text::Output::Buffer.new)
 			s.user_output.extend BufferedIO
 		end
 
@@ -113,28 +107,4 @@ protected
 end
 end
 end
-
-# Ghetto
-module BufferedIO
-	def supports_color?; false; end
-	def supports_color; false; end
-
-	def read_buff
-		self.buf ||= ''
-		buffer = self.buf.dup
-		self.buf = ''
-		buffer
-	end
-	def print(msg)
-		self.buf ||= ''
-		buf << msg
-		msg
-	end
-	alias :print_raw :print
-
-	# Match this with the Output::Buffer attr name so we aren't storing it
-	# twice.
-	attr_accessor :buf
-end
-
 
