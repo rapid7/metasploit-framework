@@ -50,6 +50,11 @@ class Metasploit3 < Msf::Auxiliary
 				OptBool.new('VERBOSE', [ true, 'Verbose output', false])
 			], Msf::Exploit::Remote::Telnet
 		)
+		register_advanced_options(
+			[
+				OptInt.new('TIMEOUT', [ true, 'Default timeout for telnet connections. The greatest value of TelnetTimeout, TelnetBannerTimeout, or this option will be used as an overall timeout.', 0])
+			], self.class
+		)
 
 		@no_pass_prompt = []
 	end
@@ -58,14 +63,21 @@ class Metasploit3 < Msf::Auxiliary
 	attr_accessor :password_only
 
 	def run_host(ip)
+		overall_timeout ||= [
+			datastore['TIMEOUT'].to_i,
+			datastore['TelnetBannerTimeout'].to_i,
+			datastore['TelnetTimeout'].to_i
+		].sort.last
 
 		self.password_only = []
 
 		begin
 			each_user_pass do |user, pass|
-				try_user_pass(user, pass)
+				Timeout.timeout(overall_timeout) do
+					try_user_pass(user, pass)
+				end
 			end
-		rescue ::Rex::ConnectionError, ::EOFError
+		rescue ::Rex::ConnectionError, ::EOFError, ::Timeout::Error
 			return
 		end
 	end
