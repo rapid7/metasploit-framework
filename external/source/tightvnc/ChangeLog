@@ -1,0 +1,1852 @@
+------------------------------------------------------------------------
+r3614 | const_k | 2009-03-05 11:46:34 +0600 (Thu, 05 Mar 2009) | 1 line
+Changed paths:
+   M /orig/branches/BRANCH_1_3_STABLE/vnc_javasrc/VncCanvas.java
+
+[Merge] Merged in a change from trunk, revision 3612: [Bugfix] Fixed incorrect computation of the RichCursor-encoded data length.
+------------------------------------------------------------------------
+r3589 | const_k | 2009-02-05 15:47:09 +0600 (Thu, 05 Feb 2009) | 2 lines
+Changed paths:
+   M /orig/branches/BRANCH_1_3_STABLE/vnc_javasrc/README
+
+[Packaging] Version-specific information updated, version 1.3.10.
+
+------------------------------------------------------------------------
+r3569 | const_k | 2009-01-23 18:39:23 +0600 (Fri, 23 Jan 2009) | 1 line
+Changed paths:
+   M /orig/branches/BRANCH_1_3_STABLE/vnc_javasrc/Makefile
+
+[Build fix] Added -source command-line option to 'javac'.
+------------------------------------------------------------------------
+r3555 | const_k | 2009-01-16 16:51:58 +0600 (Fri, 16 Jan 2009) | 1 line
+Changed paths:
+   M /orig/branches/BRANCH_1_3_STABLE/vnc_javasrc/OptionsFrame.java
+
+[Bugfix] Allow configuring JPEG quality level regardless of the preferred encoding set. This makes sense because TightVNC Servers can transmit video data as JPEG even if Tight is not the preferred encoding.
+------------------------------------------------------------------------
+r3554 | const_k | 2009-01-16 16:40:20 +0600 (Fri, 16 Jan 2009) | 1 line
+Changed paths:
+   M /orig/branches/BRANCH_1_3_STABLE/vnc_javasrc/OptionsFrame.java
+   M /orig/branches/BRANCH_1_3_STABLE/vnc_javasrc/RfbProto.java
+   M /orig/branches/BRANCH_1_3_STABLE/vnc_javasrc/VncCanvas.java
+
+[Development] Removed support for "continuous updates" from the Java viewer 1.3.x code.
+------------------------------------------------------------------------
+r3547 | const_k | 2009-01-15 16:42:48 +0600 (Thu, 15 Jan 2009) | 1 line
+Changed paths:
+   A /orig/branches/BRANCH_1_3_STABLE/vnc_javasrc (from /orig/trunk/vnc_javasrc:2457)
+
+[Layout] Restored Java viewer source for the stable 1.3 branch.
+------------------------------------------------------------------------
+r2423 | const_k | 2008-03-17 11:05:54 +0600 (Mon, 17 Mar 2008) | 1 line
+Changed paths:
+   M /orig/trunk/vnc_javasrc
+   M /orig/trunk/vnc_unixsrc
+   M /orig/trunk/vnc_winsrc
+
+Set SVN project language to English.
+------------------------------------------------------------------------
+r2318 | const_k | 2007-05-25 19:29:28 +0700 (Fri, 25 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Slightly changed the format of reporting update statistics.
+
+------------------------------------------------------------------------
+r2317 | const_k | 2007-05-25 19:21:59 +0700 (Fri, 25 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Reporting the number of JPEG-compressed Tight-encoded rectangles.
+
+------------------------------------------------------------------------
+r2316 | const_k | 2007-05-25 19:04:02 +0700 (Fri, 25 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Reporting statistics on pixel data sizes received (e.g. Pixel data: 52428800 bytes, 269460 compressed, ratio 194.57).
+
+------------------------------------------------------------------------
+r2315 | const_k | 2007-05-25 18:46:43 +0700 (Fri, 25 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+
+Tracking the number of bytes received from the input stream.
+
+------------------------------------------------------------------------
+r2314 | const_k | 2007-05-25 18:11:39 +0700 (Fri, 25 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Made the member variable RfbProto::is private. Now other classes may access input stream only via RfbProto methods. This refactoring has to be done because we want to count how many bytes were read from the input stream.
+
+------------------------------------------------------------------------
+r2313 | const_k | 2007-05-25 16:11:50 +0700 (Fri, 25 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Fixed a bug that caused NullPointerException when connecting to any VNC server not supporting TightVNC protocol extensions.
+
+------------------------------------------------------------------------
+r2312 | const_k | 2007-05-25 11:11:45 +0700 (Fri, 25 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Minor code cleanup - removed unnecessary duplication.
+
+------------------------------------------------------------------------
+r2311 | const_k | 2007-05-25 10:52:16 +0700 (Fri, 25 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Added debugging parameters to use the viewer as a tool for measuring VNC server performance.
+
+------------------------------------------------------------------------
+r2310 | const_k | 2007-05-24 16:52:40 +0700 (Thu, 24 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Minor code cleanup - a special method to reset update stats.
+
+------------------------------------------------------------------------
+r2309 | const_k | 2007-05-23 14:58:09 +0700 (Wed, 23 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Made "Defer update requests" parameter set to 0 by default.
+
+------------------------------------------------------------------------
+r2308 | const_k | 2007-05-18 12:31:47 +0700 (Fri, 18 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Fixed minor problems with gathering statistics on updates. The number of "other" rectangles could be reported as -1.
+
+------------------------------------------------------------------------
+r2307 | const_k | 2007-05-15 10:13:40 +0700 (Tue, 15 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+PORT parameter is not required any more, now it defaults to 5900.
+
+------------------------------------------------------------------------
+r2306 | const_k | 2007-05-15 09:43:14 +0700 (Tue, 15 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+
+Clear the continuesUpdates flag in options if this mode is not supported by the server. Actually, this does not change functionality but eliminates repetitive messages on the console.
+
+------------------------------------------------------------------------
+r2305 | const_k | 2007-05-14 16:42:36 +0700 (Mon, 14 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+
+Fixed GUI option for continuous updates - it did not work.
+
+------------------------------------------------------------------------
+r2304 | const_k | 2007-05-14 16:13:40 +0700 (Mon, 14 May 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Completed support for continuous updates. Added a GUI setting for the parameter "Continuous updates" ("yes"/"no"). Fixed a protocol synchronization problem with SetPixelFormat in the continuous updates mode.
+
+------------------------------------------------------------------------
+r2262 | const_k | 2007-04-25 16:12:53 +0700 (Wed, 25 Apr 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Version string changed, version 1.3.9.
+
+------------------------------------------------------------------------
+r2261 | const_k | 2007-04-25 16:02:32 +0700 (Wed, 25 Apr 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Documented auto-scaling.
+
+------------------------------------------------------------------------
+r2252 | const_k | 2007-04-05 15:45:40 +0700 (Thu, 05 Apr 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Initial support for continuous updates.
+
+------------------------------------------------------------------------
+r2246 | const_k | 2007-03-29 13:00:23 +0700 (Thu, 29 Mar 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Printing more statistics on disconnect: average update rate, and rectangle counters per each encoder (Tight, ZRLE, Hextile, Raw, CopyRect, others).
+
+------------------------------------------------------------------------
+r2245 | const_k | 2007-03-29 11:39:46 +0700 (Thu, 29 Mar 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Printing update statistics on disconnect: number of FramebufferUpdate messages, counters of real and pseudo rectangles in framebuffer updates.
+
+------------------------------------------------------------------------
+r2244 | const_k | 2007-03-29 10:57:07 +0700 (Thu, 29 Mar 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Fixed wrong pixel format interpretation in decoding RichCursor pseudo-encoding.
+
+------------------------------------------------------------------------
+r2243 | const_k | 2007-03-29 10:02:23 +0700 (Thu, 29 Mar 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Requesting encoding types in more suitable order. Now when Tight is preferred, we request Tight,ZRLE,Hextile,others instead of Tight,Hextile,ZRLE,others.
+
+------------------------------------------------------------------------
+r2230 | const_k | 2007-02-17 01:40:31 +0600 (Sat, 17 Feb 2007) | 7 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncCanvas2.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Implemented support for auto-scaling. To enable it, the "Scaling factor"
+parameter should be set to "auto". Auto-scaling tries to choose scaling
+factor such way that the whole remote framebuffer will fit on the local
+screen. Currently, auto-scaling is supported only when the remote desktop
+is shown in a separate frame (always true in application mode, and in
+applet mode with "Open new window" parameter set to "yes").
+
+------------------------------------------------------------------------
+r2229 | const_k | 2007-02-16 21:46:17 +0600 (Fri, 16 Feb 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Minor code refactoring - a chunk of code moved to a new method VncViewer.createCanvas().
+
+------------------------------------------------------------------------
+r2228 | const_k | 2007-02-08 18:23:43 +0600 (Thu, 08 Feb 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Optimized ZRLE decoder for better performance.
+
+------------------------------------------------------------------------
+r2227 | const_k | 2007-02-08 16:58:31 +0600 (Thu, 08 Feb 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+
+Minor fix -- a constant was not updated on introducing ZRLE encoding.
+
+------------------------------------------------------------------------
+r2226 | const_k | 2007-02-08 16:54:03 +0600 (Thu, 08 Feb 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Cleaned up and documented issues with session recording and ZRLE.
+
+------------------------------------------------------------------------
+r2225 | const_k | 2007-02-06 10:08:39 +0600 (Tue, 06 Feb 2007) | 2 lines
+Changed paths:
+   A /orig/trunk/vnc_javasrc/InStream.java
+   M /orig/trunk/vnc_javasrc/Makefile
+   A /orig/trunk/vnc_javasrc/MemInStream.java
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/README
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+   A /orig/trunk/vnc_javasrc/ZlibInStream.java
+
+Initial version of ZRLE decoder. It's fully functional except for session recording which is broken for ZRLE at the moment.
+
+------------------------------------------------------------------------
+r2224 | const_k | 2007-01-30 12:02:24 +0600 (Tue, 30 Jan 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Added documentation on using parameters.
+
+------------------------------------------------------------------------
+r2223 | const_k | 2007-01-30 10:46:54 +0600 (Tue, 30 Jan 2007) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Documented the "Scaling factor" parameter.
+
+------------------------------------------------------------------------
+r2191 | const_k | 2006-12-08 10:55:49 +0600 (Fri, 08 Dec 2006) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Always send the "security result" message in the protocol version 3.8, even after an empty list of authentication capabilities. This almost reverts changes in rev.2180.
+
+------------------------------------------------------------------------
+r2180 | const_k | 2006-12-05 11:17:15 +0600 (Tue, 05 Dec 2006) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Fixed a problem in handing TightVNC protocol extensions - empty authentication capability list assumes not just skipping authentication itself but also not waiting for the "security result" message.
+
+------------------------------------------------------------------------
+r2179 | const_k | 2006-12-05 10:50:40 +0600 (Tue, 05 Dec 2006) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc
+
+Ignoring TAGS file.
+
+------------------------------------------------------------------------
+r2132 | const_k | 2006-11-26 13:33:32 +0600 (Sun, 26 Nov 2006) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/AuthPanel.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Code refactoring. The primary change is that all authentication code has been moved out of AuthPanel which now provides GUI part only.
+
+------------------------------------------------------------------------
+r2131 | const_k | 2006-11-24 13:39:49 +0600 (Fri, 24 Nov 2006) | 5 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/AuthPanel.java
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Improved support for protocol 3.8. Now authentication failures should be
+reported with explanations received from the server. Actual authentication
+code has been moved to RfbProto. AuthPanel does not offer repetitive
+authentication tries, the "Login again" button should be used instead.
+
+------------------------------------------------------------------------
+r2130 | const_k | 2006-11-24 10:53:15 +0600 (Fri, 24 Nov 2006) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/AuthPanel.java
+
+Removed an outdated FIXME comment.
+
+------------------------------------------------------------------------
+r2128 | const_k | 2006-11-23 18:00:59 +0600 (Thu, 23 Nov 2006) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas2.java
+
+Disabling focus traversal keys under JVMs 1.4 and higher. This fixes the
+problem with not sending Tab key events to the VNC server.
+
+------------------------------------------------------------------------
+r2127 | const_k | 2006-11-23 16:53:32 +0600 (Thu, 23 Nov 2006) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Fixed rounding problems on calculating the coordinates of changed area.
+
+------------------------------------------------------------------------
+r2126 | const_k | 2006-11-23 16:39:53 +0600 (Thu, 23 Nov 2006) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/Makefile
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   A /orig/trunk/vnc_javasrc/VncCanvas2.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Implemented enhanced scaling if Java 2D API is available. This works in
+Java 1.2 or higher, but the viewer remains compatible with Java 1.1 where
+it would simply use scaling with decreased image quality.
+
+------------------------------------------------------------------------
+r2124 | const_k | 2006-11-23 10:56:05 +0600 (Thu, 23 Nov 2006) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Small correction in documentation.
+
+------------------------------------------------------------------------
+r2122 | const_k | 2006-11-22 16:06:29 +0600 (Wed, 22 Nov 2006) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+
+Fixed a compilation problem - a variable was removed but is was initialized
+elsewhere.
+
+------------------------------------------------------------------------
+r2115 | const_k | 2006-11-20 17:50:37 +0600 (Mon, 20 Nov 2006) | 7 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Simple implementation of client-side scaling, controlled by new "Scaling
+Factor" parameter. This implementation provides low-quality scaling but
+is compatible with Java 1.1. Things to do next: (1) GUI for "Scaling
+Factor" parameter; (2) documentation for "Scaling Factor" parameter;
+(3) new scaling implementation based on Java 2D which would require
+Java 2 platform but hopefully would show much higher scaling quality.
+
+------------------------------------------------------------------------
+r2097 | const_k | 2006-09-14 15:50:08 +0700 (Thu, 14 Sep 2006) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/AuthPanel.java
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Initial support for RFB protocol version 3.8.
+
+------------------------------------------------------------------------
+r2095 | const_k | 2006-09-14 08:48:00 +0700 (Thu, 14 Sep 2006) | 2 lines
+Changed paths:
+   D /orig/trunk/vnc_javasrc/AuthUnixLoginPanel.java
+   M /orig/trunk/vnc_javasrc/Makefile
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Removed support for UnixLogin authentication method -- it was not officially supported or documented.
+
+------------------------------------------------------------------------
+r2094 | const_k | 2006-09-14 08:12:25 +0700 (Thu, 14 Sep 2006) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc
+
+Ignoring files created on compilation.
+
+------------------------------------------------------------------------
+r2079 | const_k | 2006-08-10 17:26:41 +0700 (Thu, 10 Aug 2006) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Version string and copyright info changed, version 1.3.8.
+
+------------------------------------------------------------------------
+r2064 | const_k | 2006-06-15 20:43:19 +0700 (Thu, 15 Jun 2006) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Version string changed for version 1.3dev8.
+
+------------------------------------------------------------------------
+r2063 | const_k | 2006-06-15 20:38:28 +0700 (Thu, 15 Jun 2006) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Updated description of the "Encoding" parameter that now can be set
+and defaults to "Auto".
+
+------------------------------------------------------------------------
+r2039 | const_k | 2005-10-03 22:51:28 +0700 (Mon, 03 Oct 2005) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Improved the VncViewer.setEncodings() method. Now it does not build
+the complete encoding list when auto-selecting encodings.
+
+------------------------------------------------------------------------
+r2038 | const_k | 2005-10-03 22:26:11 +0700 (Mon, 03 Oct 2005) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Implemented encoding auto selection based on measuring current network
+throughput.
+
+------------------------------------------------------------------------
+r2037 | const_k | 2005-10-03 20:25:49 +0700 (Mon, 03 Oct 2005) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Improved encoding selection code. Also, now we request compression and
+quality levels regardless of current preferred encoding and color
+format.
+
+------------------------------------------------------------------------
+r2036 | const_k | 2005-10-03 09:52:26 +0700 (Mon, 03 Oct 2005) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Now the encoding array is prepared in the VncViewer.setEncodings()
+method, instead of OptionsFrame.setEncodings(). This will allow to
+implement auto encoding selection in VncViewer.setEncodings().
+
+------------------------------------------------------------------------
+r2035 | const_k | 2005-10-03 08:32:47 +0700 (Mon, 03 Oct 2005) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/Makefile
+
+Added JCFLAGS variable for javac command-line flags.
+
+------------------------------------------------------------------------
+r2033 | const_k | 2005-09-30 19:42:25 +0700 (Fri, 30 Sep 2005) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/Makefile
+
+Reverted accidental change included in the previous commit.
+
+------------------------------------------------------------------------
+r2032 | const_k | 2005-09-30 19:27:17 +0700 (Fri, 30 Sep 2005) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/AuthPanel.java
+   M /orig/trunk/vnc_javasrc/Makefile
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Measuring network throughput. This will allow auto encoding selection
+work properly.
+
+------------------------------------------------------------------------
+r2031 | const_k | 2005-09-30 10:38:26 +0700 (Fri, 30 Sep 2005) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+
+Starting implementation of automatic encoding selection. Right now,
+the "Auto" choice in the encoding list is equivalent to "Tight", but
+without an option to set the compression level.
+
+------------------------------------------------------------------------
+r2019 | const_k | 2005-07-03 16:03:05 +0700 (Sun, 03 Jul 2005) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Version string changed for version 1.3dev7.
+
+------------------------------------------------------------------------
+r2018 | const_k | 2005-07-03 15:57:50 +0700 (Sun, 03 Jul 2005) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+   M /orig/trunk/vnc_javasrc/index.html
+
+More information about editing the index.html example.
+
+------------------------------------------------------------------------
+r1906 | const_k | 2004-10-10 18:05:45 +0700 (Sun, 10 Oct 2004) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Added documentation for the "Scale remote cursor" option.
+
+------------------------------------------------------------------------
+r1905 | const_k | 2004-10-10 13:15:54 +0700 (Sun, 10 Oct 2004) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+New "scale remote cursor" option allowing to reduce or enlarge soft
+cursor image in the full-control mode. This change is based on a patch
+from Horizon Wimba.
+
+------------------------------------------------------------------------
+r1903 | const_k | 2004-10-09 19:47:22 +0700 (Sat, 09 Oct 2004) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Version string changed, version 1.3dev6.
+
+------------------------------------------------------------------------
+r1902 | const_k | 2004-10-09 18:08:29 +0700 (Sat, 09 Oct 2004) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Applied a patch from Horizon Wimba, to remove synchronization from the
+paint method and deal with cursor repaints properly.
+
+------------------------------------------------------------------------
+r1838 | const_k | 2004-08-22 13:42:50 +0700 (Sun, 22 Aug 2004) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+A typo fixed.
+
+------------------------------------------------------------------------
+r1836 | const_k | 2004-08-22 12:14:48 +0700 (Sun, 22 Aug 2004) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Made the VncCanvas.paint() method synchronized, to protect cursorX and
+cursorY members from concurrent access.
+
+------------------------------------------------------------------------
+r1742 | const_k | 2004-05-30 21:50:42 +0700 (Sun, 30 May 2004) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Version string changed, version 1.3dev5.
+
+------------------------------------------------------------------------
+r1642 | const_k | 2004-03-04 20:02:16 +0600 (Thu, 04 Mar 2004) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Version string changed, version 1.3dev4.
+
+------------------------------------------------------------------------
+r1641 | const_k | 2004-03-04 19:34:25 +0600 (Thu, 04 Mar 2004) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/AuthPanel.java
+   A /orig/trunk/vnc_javasrc/AuthUnixLoginPanel.java
+   M /orig/trunk/vnc_javasrc/Makefile
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Added support for Unix login-style authentication.
+
+------------------------------------------------------------------------
+r1639 | const_k | 2004-03-04 00:57:24 +0600 (Thu, 04 Mar 2004) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/CapabilityInfo.java
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Added support for TightVNC protocol extensions in RFB 3.7 protocol.
+
+------------------------------------------------------------------------
+r1635 | const_k | 2004-03-02 22:55:58 +0600 (Tue, 02 Mar 2004) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Added support for RFB protocol version 3.7, without TightVNC protocol
+extensions yet.
+
+------------------------------------------------------------------------
+r1527 | const_k | 2003-07-24 22:29:13 +0700 (Thu, 24 Jul 2003) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Minor fix to move the keyboard focus to VncCanvas on opening the
+desktop.
+
+------------------------------------------------------------------------
+r1526 | const_k | 2003-07-24 21:42:30 +0700 (Thu, 24 Jul 2003) | 6 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Applied a set of changes by HorizonLive.com, Inc. In the VncCanvas
+class, fixed a problem of createImage() returning null. In the
+VncViewer, problems with some JVMs hanging on destroying the applet
+were solved. Also, implemented a possibility to enable/disable input
+via inter-applet communication.
+
+------------------------------------------------------------------------
+r1496 | const_k | 2003-07-02 19:05:18 +0700 (Wed, 02 Jul 2003) | 3 lines
+Changed paths:
+   A /orig/trunk/vnc_javasrc/CapabilityInfo.java
+   A /orig/trunk/vnc_javasrc/CapsContainer.java
+   M /orig/trunk/vnc_javasrc/Makefile
+
+Implemented a Java version of the CapsContainer class that will be
+used in the protocol 3.130 handling code.
+
+------------------------------------------------------------------------
+r1465 | const_k | 2003-05-18 20:45:11 +0700 (Sun, 18 May 2003) | 6 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/AuthPanel.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Code refactored to enable integration of pluggable authentication
+schemes. Now the Java viewer first connects to the server, then shows
+the authentication panel only if the server requires authentication.
+All the authentication code has been moved to the AuthPanel class.
+Also, now the viewer shows status messages on connecting to the server.
+
+------------------------------------------------------------------------
+r1377 | const_k | 2003-03-02 16:54:57 +0600 (Sun, 02 Mar 2003) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+
+Passing through X keysyms for foreign currencies, a modified patch
+from Bernd Krueger-Knauber.
+
+------------------------------------------------------------------------
+r1315 | const_k | 2003-01-22 20:35:58 +0600 (Wed, 22 Jan 2003) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Version string changed, version 1.2.8.
+
+------------------------------------------------------------------------
+r1236 | const_k | 2002-11-13 23:50:33 +0600 (Wed, 13 Nov 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Version string changed, version 1.2.7.
+
+------------------------------------------------------------------------
+r1233 | const_k | 2002-11-12 15:21:28 +0600 (Tue, 12 Nov 2002) | 3 lines
+Changed paths:
+   A /orig/trunk/vnc_javasrc/MANIFEST.MF
+   M /orig/trunk/vnc_javasrc/Makefile
+
+Added a MANIFEST file with a Main-Class statement to allow easy
+execution of the JAR file, using java -jar command-line option.
+
+------------------------------------------------------------------------
+r1232 | const_k | 2002-11-12 15:18:48 +0600 (Tue, 12 Nov 2002) | 2 lines
+Changed paths:
+   D /orig/trunk/vnc_javasrc/dir.mk
+
+Removed dir.mk file.
+
+------------------------------------------------------------------------
+r1231 | const_k | 2002-11-12 15:15:04 +0600 (Tue, 12 Nov 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/index.html
+
+Applet height increased by 32 pixels.
+
+------------------------------------------------------------------------
+r1230 | const_k | 2002-11-12 13:34:58 +0600 (Tue, 12 Nov 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/Makefile
+
+Extra .vnc files have been removed, having just index.vnc should be
+enough.
+
+------------------------------------------------------------------------
+r1229 | const_k | 2002-11-12 13:33:04 +0600 (Tue, 12 Nov 2002) | 4 lines
+Changed paths:
+   D /orig/trunk/vnc_javasrc/hextile.vnc
+   A /orig/trunk/vnc_javasrc/index.html
+   M /orig/trunk/vnc_javasrc/index.vnc
+   D /orig/trunk/vnc_javasrc/noshared.vnc
+   D /orig/trunk/vnc_javasrc/shared.vnc
+   D /orig/trunk/vnc_javasrc/tight.vnc
+   D /orig/trunk/vnc_javasrc/zlib.vnc
+
+Extra .vnc files have been removed, having just index.vnc should be
+enough. Also, an example HTML page has been prepared, to simplify
+installation under a standalone Web server.
+
+------------------------------------------------------------------------
+r1228 | const_k | 2002-11-12 13:13:16 +0600 (Tue, 12 Nov 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Documented three ways to use the Java viewer, in the Installation
+section.
+
+------------------------------------------------------------------------
+r1227 | const_k | 2002-11-07 19:12:46 +0600 (Thu, 07 Nov 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Minor change to preserve keyboard focus in VncCanvas after resizing
+the frame, when running in a separate window.
+
+------------------------------------------------------------------------
+r1226 | const_k | 2002-11-06 22:49:20 +0600 (Wed, 06 Nov 2002) | 5 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/Makefile
+   M /orig/trunk/vnc_javasrc/README
+   A /orig/trunk/vnc_javasrc/ReloginPanel.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Implemented new buttons "Login again" and "Close window" near the
+disconnect or error messages in the applet mode, and introduced new
+"Offer Relogin" parameter to control this improvement. Thanks to Peter
+Astrand for the initial version of the "Login again" patch.
+
+------------------------------------------------------------------------
+r1214 | const_k | 2002-10-30 00:26:34 +0600 (Wed, 30 Oct 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Don't defer update requests if there is some data to receive, or if
+the last update included a PointerPos message.
+
+------------------------------------------------------------------------
+r1213 | const_k | 2002-10-29 23:06:06 +0600 (Tue, 29 Oct 2002) | 4 lines
+Changed paths:
+   A /orig/trunk/vnc_javasrc/HTTPConnectSocket.java
+   A /orig/trunk/vnc_javasrc/HTTPConnectSocketFactory.java
+   M /orig/trunk/vnc_javasrc/Makefile
+
+Support for connections via HTTP proxies using HTTP CONNECT method.
+Most likely, this will not work in applet mode, due to security
+restrictions in JVMs.
+
+------------------------------------------------------------------------
+r1212 | const_k | 2002-10-29 23:03:21 +0600 (Tue, 29 Oct 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Added support for new CursorPos pseudo-encoding which allows to
+transmit pointer position from server to clients.
+
+------------------------------------------------------------------------
+r1192 | const_k | 2002-09-25 04:29:05 +0700 (Wed, 25 Sep 2002) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RecordingFrame.java
+
+A patch from Harmen van der Wal -- "a workaround for AFAIK a rare
+(Blackdown 1.1.7) SecurityManager.checkPropertyAccess() bug, that
+would otherwise be fatal for an unprivileged applet".
+
+------------------------------------------------------------------------
+r1191 | const_k | 2002-09-25 04:23:48 +0700 (Wed, 25 Sep 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Enhancements to the exception handling mechanisms, a patch from Harmen
+van der Wal.
+
+------------------------------------------------------------------------
+r1190 | const_k | 2002-09-25 04:01:49 +0700 (Wed, 25 Sep 2002) | 5 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/Makefile
+   M /orig/trunk/vnc_javasrc/README
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   A /orig/trunk/vnc_javasrc/SocketFactory.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+A patch from Harmen van der Wal, which makes it easy to plug-in
+alternative transport methods to the viewer. It can be useful for for
+things like HTTP tunneling, SSL support, or perhaps for integration
+with "zebedee", ssh or other tunneling mechanisms.
+
+------------------------------------------------------------------------
+r1189 | const_k | 2002-09-24 08:52:32 +0700 (Tue, 24 Sep 2002) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Reducing max frame size by 30 pixels in each direction, to leave some
+place on the screen, e.g. for the menu bar on Macintosh or the task
+bar on Windows; a patch from Steve Kann.
+
+------------------------------------------------------------------------
+r1171 | const_k | 2002-08-27 19:23:50 +0700 (Tue, 27 Aug 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Version string changed, version 1.2.6.
+
+------------------------------------------------------------------------
+r1141 | const | 2002-08-04 23:39:35 +0700 (Sun, 04 Aug 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Version string changed, version 1.2.5. Copyrights updated.
+
+------------------------------------------------------------------------
+r1130 | const | 2002-07-05 15:37:32 +0700 (Fri, 05 Jul 2002) | 5 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+More robust and correct methods to determine if Zlib- or Tight-encoded
+data should be saved Raw-encoded or re-compressed in recorded
+sessions. Also, always emit warnings in the Java console if such
+recoding was necessary.
+
+------------------------------------------------------------------------
+r1129 | const | 2002-07-05 15:26:16 +0700 (Fri, 05 Jul 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Minor documentation addition.
+
+------------------------------------------------------------------------
+r1127 | const | 2002-07-05 13:17:23 +0700 (Fri, 05 Jul 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+
+JPEG quality setting should be enabled in the Options frame only in
+the 24-bit color mode.
+
+------------------------------------------------------------------------
+r1126 | const | 2002-07-05 13:02:37 +0700 (Fri, 05 Jul 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+
+Unused temporary hack was removed.
+
+------------------------------------------------------------------------
+r1125 | const | 2002-07-04 03:25:47 +0700 (Thu, 04 Jul 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Some documentation on RFB session recording.
+
+------------------------------------------------------------------------
+r1124 | const | 2002-07-04 02:43:43 +0700 (Thu, 04 Jul 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+
+Forgot to remove debugging output.
+
+------------------------------------------------------------------------
+r1123 | const | 2002-07-04 02:38:15 +0700 (Thu, 04 Jul 2002) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Re-compressing Tight-encoded rectangles when recorded session starts
+after the connection was established, to make it possible to
+decompress the data without knowing prior pixel data.
+
+------------------------------------------------------------------------
+r1122 | const | 2002-07-03 21:11:42 +0700 (Wed, 03 Jul 2002) | 6 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Special handling of Zlib-encoded rectangles -- they are written either
+Zlib-encoded if it's a beginning of RFB session, or Raw encoded
+otherwise. This is needed to make sure it will be possible to decode
+saved data without knowing the state of zlib compression stream used
+by the encoder.
+
+------------------------------------------------------------------------
+r1121 | const | 2002-07-03 17:49:59 +0700 (Wed, 03 Jul 2002) | 5 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/ButtonPanel.java
+   M /orig/trunk/vnc_javasrc/RecordingFrame.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+The "Record" button now appears only if current SecurityManager allows
+access to the local filesystem.
+Exceptions after an intentional disconnect are not shown in the applet
+panel or window any more.
+
+------------------------------------------------------------------------
+r1120 | const | 2002-07-03 16:40:52 +0700 (Wed, 03 Jul 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RecordingFrame.java
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Implement dynamic toggling of session recording.
+
+------------------------------------------------------------------------
+r1119 | const | 2002-07-03 13:34:35 +0700 (Wed, 03 Jul 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Preparing to implement dynamic toggling of session recording.
+The "Save Session" parameter was removed.
+
+------------------------------------------------------------------------
+r1118 | const | 2002-07-01 12:44:17 +0700 (Mon, 01 Jul 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RecordingFrame.java
+
+Fixed copyright string.
+
+------------------------------------------------------------------------
+r1114 | const | 2002-06-13 01:45:21 +0700 (Thu, 13 Jun 2002) | 5 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/ButtonPanel.java
+   M /orig/trunk/vnc_javasrc/RecordingFrame.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+A simple hack to make the RecordingFrame work, at least when the
+recording is being turned on before making the connection. The
+RecordingFrame is still not very useful but at least does allow to
+record a whole session in one file.
+
+------------------------------------------------------------------------
+r1113 | const | 2002-06-12 19:03:20 +0700 (Wed, 12 Jun 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/ButtonPanel.java
+   M /orig/trunk/vnc_javasrc/Makefile
+   A /orig/trunk/vnc_javasrc/RecordingFrame.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Added new "Record" button and a GUI to control recording of sessions
+in FBS files.
+
+------------------------------------------------------------------------
+r1112 | const | 2002-06-05 01:01:58 +0700 (Wed, 05 Jun 2002) | 7 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/Makefile
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   A /orig/trunk/vnc_javasrc/SessionRecorder.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Implemented experimental feature to save RFB sessions in FBS files
+compatible with rfbproxy, and the new "Save Session" parameter where a
+user can set a file name. Color format requested from the server was
+changed to little-endian to make saved sessions similar to ones
+written by the VNC Reflector, and to make colors compatible with RFB
+Session Player.
+
+------------------------------------------------------------------------
+r1111 | const | 2002-06-04 12:55:45 +0700 (Tue, 04 Jun 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Cleanups in "throws" statements.
+
+------------------------------------------------------------------------
+r1110 | const | 2002-06-04 12:50:35 +0700 (Tue, 04 Jun 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Minor cleanup in comment.
+
+------------------------------------------------------------------------
+r1109 | const | 2002-06-04 12:37:20 +0700 (Tue, 04 Jun 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Major Code cleanup: each decoder was moved from the
+processNormalProtocol() method to a separate function.
+
+------------------------------------------------------------------------
+r1108 | const | 2002-06-04 12:19:13 +0700 (Tue, 04 Jun 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Minor cleanup.
+
+------------------------------------------------------------------------
+r1107 | const | 2002-05-23 23:58:40 +0700 (Thu, 23 May 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+New "ENCPASSWORD" parameter, modified patch from Peter Astrand.
+
+------------------------------------------------------------------------
+r1103 | const | 2002-05-19 15:03:47 +0700 (Sun, 19 May 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Throwing Exception instead of IOException if that was not an I/O
+error.
+
+------------------------------------------------------------------------
+r1102 | const | 2002-05-19 13:38:02 +0700 (Sun, 19 May 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+
+Applied patch from Peter Astrand to fix problems with Swedish keys and
+broken JVMs.
+
+------------------------------------------------------------------------
+r1091 | const | 2002-04-25 18:51:58 +0700 (Thu, 25 Apr 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Updated version strings for version 1.2.4.
+
+------------------------------------------------------------------------
+r1090 | const | 2002-04-25 18:49:40 +0700 (Thu, 25 Apr 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Documented new feature to refresh remote desktop in the view-only mode
+using "R"/"r" keys.
+
+------------------------------------------------------------------------
+r1081 | const | 2002-04-23 20:02:45 +0700 (Tue, 23 Apr 2002) | 5 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/ButtonPanel.java
+
+Bugfix: keyboard focus could be set incorrectly. It was returned to
+desktop even when windows such as Options or Clipboard were created.
+This looked like new windows had appeared behind the authenticator or
+desktop window, if the viewer itself was running in a separate window.
+
+------------------------------------------------------------------------
+r1080 | const | 2002-04-10 02:10:47 +0700 (Wed, 10 Apr 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Minor bugfix to prevent the "Refresh" button to disappear after the
+"Disconnect" button changes to "Hide desktop".
+
+------------------------------------------------------------------------
+r1079 | const | 2002-04-10 02:05:52 +0700 (Wed, 10 Apr 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Previous bugfix was broken.
+
+------------------------------------------------------------------------
+r1078 | const | 2002-04-10 02:01:30 +0700 (Wed, 10 Apr 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Minor bugfix to prevent dumping exceptions on pressing "R"/"r" keys
+over disconnected desktop.
+
+------------------------------------------------------------------------
+r1077 | const | 2002-04-10 01:53:08 +0700 (Wed, 10 Apr 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Now "R"/"r" keys can be used to request screen updates in view-only
+mode.
+
+------------------------------------------------------------------------
+r1075 | const | 2002-04-09 02:17:45 +0700 (Tue, 09 Apr 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+"Show offline desktop" parameter documented.
+
+------------------------------------------------------------------------
+r1074 | const | 2002-04-09 02:12:57 +0700 (Tue, 09 Apr 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+"Show Controls" setting moved from OptionsFrame to VncViewer class.
+
+------------------------------------------------------------------------
+r1073 | const | 2002-04-09 02:04:48 +0700 (Tue, 09 Apr 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/ButtonPanel.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+New "Show Offline Desktop" parameter allowing the disktop to be still
+displayed even after the remote side closed connection.
+
+------------------------------------------------------------------------
+r1072 | const | 2002-04-03 00:12:54 +0700 (Wed, 03 Apr 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/AuthPanel.java
+
+Disabling the password input field on activating connections.
+
+------------------------------------------------------------------------
+r1071 | const | 2002-04-02 22:38:36 +0700 (Tue, 02 Apr 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Reporting more meaningful messages on errors.
+
+------------------------------------------------------------------------
+r1065 | const | 2002-03-25 21:41:27 +0600 (Mon, 25 Mar 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+A cosmetic change.
+
+------------------------------------------------------------------------
+r1034 | const | 2002-03-07 23:27:04 +0600 (Thu, 07 Mar 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Fixed bug causing NullPointerException in view-only mode with disabled
+button panel.
+
+------------------------------------------------------------------------
+r1021 | const | 2002-02-14 21:20:30 +0600 (Thu, 14 Feb 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/ButtonPanel.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Made the "Ctrl-Alt-Del" button disabled in the view-only mode.
+
+------------------------------------------------------------------------
+r1020 | const | 2002-02-14 21:19:10 +0600 (Thu, 14 Feb 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Removed calls printing debugging output.
+
+------------------------------------------------------------------------
+r1019 | const | 2002-02-13 05:02:01 +0600 (Wed, 13 Feb 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Added new parameters "Defer screen updates", "Defer cursor updates",
+"Defer update requests", documented in README.
+
+------------------------------------------------------------------------
+r1018 | const | 2002-02-13 03:03:33 +0600 (Wed, 13 Feb 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Made "Restricted colors" option dynamic.
+
+------------------------------------------------------------------------
+r1017 | const | 2002-02-13 02:36:54 +0600 (Wed, 13 Feb 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Code cleanups, preparing to make "Restricted colors" option dynamic.
+
+------------------------------------------------------------------------
+r1016 | const | 2002-02-12 23:32:06 +0600 (Tue, 12 Feb 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/ButtonPanel.java
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/README
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Documented applet parameters, updated copyright strings.
+
+------------------------------------------------------------------------
+r1015 | const | 2002-02-12 19:53:30 +0600 (Tue, 12 Feb 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Solved all issues with JPEG image loading.
+Added more comments in the source code.
+
+------------------------------------------------------------------------
+r1014 | const | 2002-02-12 18:13:22 +0600 (Tue, 12 Feb 2002) | 7 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Solved problems with asynchronous JPEG image loading, although the
+solution is not ideal yet. Now the ImageObserver interface is used
+only to track loading of JPEG images, and is not used with drawImage()
+method calls.
+Draft scaling implementation appeared in previous CVS commit was
+temporarily removed in this revision.
+
+------------------------------------------------------------------------
+r1013 | const | 2002-02-08 18:06:31 +0600 (Fri, 08 Feb 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Simple and inefficient scaling implementation, new "Scaling Factor"
+parameter.
+
+------------------------------------------------------------------------
+r1011 | const | 2002-02-08 00:20:53 +0600 (Fri, 08 Feb 2002) | 11 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/ButtonPanel.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Preventing authentication retries when the PASSWORD parameter is used.
+Closing windows and disconnecting on the applet shutdown.
+Terminating the application properly on closing the authentication
+window.
+Packing the window on reporting errors when in a separate window;
+this is necessary because it's possible that the window was empty.
+Disconnecting on fatal errors.
+Always forcing the keyboard focus go to the desktop on activating the
+connection.
+Code re-organizations and cleanups e.g. new tryAuthenticate() method.
+
+------------------------------------------------------------------------
+r1009 | const | 2002-01-31 00:25:27 +0600 (Thu, 31 Jan 2002) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+The frame size now should be limited by the screen size.
+JPEG support improved, but drawing is still not reliable.
+Minor code cleanups -- methods re-arranged.
+
+------------------------------------------------------------------------
+r1008 | const | 2002-01-31 00:22:22 +0600 (Thu, 31 Jan 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+
+A small piece of debugging code removed.
+
+------------------------------------------------------------------------
+r1007 | const | 2002-01-30 19:47:03 +0600 (Wed, 30 Jan 2002) | 6 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Drawing model was changed again; now usual off-screen Image is used
+for double-buffering instead of MemoryImageSource.
+Preliminary implementation of JPEG support in the Tight decoder.
+New "JPEG image quality" parameter and corresponding item in the
+Options frame.
+
+------------------------------------------------------------------------
+r1006 | const | 2002-01-25 12:49:36 +0600 (Fri, 25 Jan 2002) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Bugfixes in the Tight decoder: recent changes broke 8-bit color mode.
+Bugfixes in the XCursor encoding support: cursor colors were
+interpreted incorrectly.
+
+------------------------------------------------------------------------
+r1005 | const | 2002-01-15 03:11:07 +0600 (Tue, 15 Jan 2002) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+24-bit Tight decoder finished. Now it parses 24-bit (not 32-bit!)
+color samples correctly, and is able to decode data pre-processed with
+the "Gradient" filter.
+
+------------------------------------------------------------------------
+r1004 | const | 2002-01-15 00:46:06 +0600 (Tue, 15 Jan 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Preliminary working support for 24-bit colors in the Tight decoder.
+
+------------------------------------------------------------------------
+r1003 | const | 2002-01-14 20:00:14 +0600 (Mon, 14 Jan 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+
+Color format was not set correctly.
+
+------------------------------------------------------------------------
+r1002 | const | 2002-01-14 19:32:15 +0600 (Mon, 14 Jan 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Code cleanups: changes in rfb.is.read() and rfb.is.readFully() calls.
+
+------------------------------------------------------------------------
+r1001 | const | 2002-01-14 19:18:58 +0600 (Mon, 14 Jan 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/AuthPanel.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Support for 24-bit color in RichCursor encoding.
+
+------------------------------------------------------------------------
+r1000 | const | 2002-01-13 06:11:34 +0600 (Sun, 13 Jan 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Support for 24-bit colors. At this moment, all decoders support this
+color mode, with two exceptions of Tight and RichCursor.
+
+------------------------------------------------------------------------
+r999 | const | 2002-01-13 05:57:09 +0600 (Sun, 13 Jan 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+
+Removed a piece of code used for debugging.
+
+------------------------------------------------------------------------
+r998 | const | 2002-01-13 00:23:11 +0600 (Sun, 13 Jan 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+The "View Only" mode now can be turned on/off at any moment.
+
+------------------------------------------------------------------------
+r997 | const | 2002-01-12 22:12:33 +0600 (Sat, 12 Jan 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/RfbProto.java
+
+Insert key now can be passed to the remote side.
+
+------------------------------------------------------------------------
+r996 | const | 2002-01-12 20:32:36 +0600 (Sat, 12 Jan 2002) | 5 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Dramatically simplified and robust implementation of handling
+XCursor/RichCursor encodings.
+Enhancements and bugfixes for the "Open New Window" mode.
+Other minor enhancements and code cleanups.
+
+------------------------------------------------------------------------
+r995 | const | 2002-01-12 00:36:25 +0600 (Sat, 12 Jan 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/ClipboardFrame.java
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+
+Minor code enhancements.
+
+------------------------------------------------------------------------
+r994 | const | 2002-01-11 23:35:33 +0600 (Fri, 11 Jan 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Implemented scrolling of the desktop area, when the desktop is shown
+in a separate window.
+
+------------------------------------------------------------------------
+r993 | const | 2002-01-11 18:51:16 +0600 (Fri, 11 Jan 2002) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/ClipboardFrame.java
+   M /orig/trunk/vnc_javasrc/OptionsFrame.java
+
+"Dismiss" buttons renamed to "Close".
+
+------------------------------------------------------------------------
+r992 | const | 2002-01-11 04:19:03 +0600 (Fri, 11 Jan 2002) | 5 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/ButtonPanel.java
+   M /orig/trunk/vnc_javasrc/VncViewer.java
+
+Changes in the button panel. Now keyboard focus moves back to the
+authentication panel or to the desktop after pressing any button on
+the panel. Additionally, keyboard focus should move to the desktop
+automatically when VNC connection is established.
+
+------------------------------------------------------------------------
+r991 | const | 2002-01-11 03:53:10 +0600 (Fri, 11 Jan 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/ButtonPanel.java
+
+Implemented new "Refresh" button. Pressing it results sending a
+non-incremental FramebufferUpdateRequest message to the server.
+
+------------------------------------------------------------------------
+r990 | const | 2002-01-11 03:51:25 +0600 (Fri, 11 Jan 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/VncCanvas.java
+
+Now the viewer adjusts its desktop/window size on desktop size changes
+on the remote side (working support for NewFBSize pseudo-encoding).
+
+------------------------------------------------------------------------
+r989 | const | 2002-01-11 02:50:00 +0600 (Fri, 11 Jan 2002) | 4 lines
+Changed paths:
+   A /orig/trunk/vnc_javasrc/AuthPanel.java
+   M /orig/trunk/vnc_javasrc/ButtonPanel.java
+   A /orig/trunk/vnc_javasrc/ClipboardFrame.java
+   M /orig/trunk/vnc_javasrc/Makefile
+   A /orig/trunk/vnc_javasrc/OptionsFrame.java
+   A /orig/trunk/vnc_javasrc/RfbProto.java
+   A /orig/trunk/vnc_javasrc/VncCanvas.java
+   A /orig/trunk/vnc_javasrc/VncViewer.java
+   D /orig/trunk/vnc_javasrc/authenticationPanel.java
+   D /orig/trunk/vnc_javasrc/clipboardFrame.java
+   M /orig/trunk/vnc_javasrc/dir.mk
+   M /orig/trunk/vnc_javasrc/hextile.vnc
+   M /orig/trunk/vnc_javasrc/index.vnc
+   M /orig/trunk/vnc_javasrc/noshared.vnc
+   D /orig/trunk/vnc_javasrc/optionsFrame.java
+   D /orig/trunk/vnc_javasrc/rfbProto.java
+   M /orig/trunk/vnc_javasrc/shared.vnc
+   M /orig/trunk/vnc_javasrc/tight.vnc
+   D /orig/trunk/vnc_javasrc/vncCanvas.java
+   D /orig/trunk/vnc_javasrc/vncviewer.java
+   M /orig/trunk/vnc_javasrc/zlib.vnc
+
+New "Open New Window" parameter was implemented, now the viewer can
+work in a separate frame instead of running in the applet area.
+Class names were capitalized, to reflect usual Java naming standards.
+
+------------------------------------------------------------------------
+r988 | const | 2002-01-11 00:22:08 +0600 (Fri, 11 Jan 2002) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/hextile.vnc
+   M /orig/trunk/vnc_javasrc/index.vnc
+   M /orig/trunk/vnc_javasrc/noshared.vnc
+   M /orig/trunk/vnc_javasrc/shared.vnc
+   M /orig/trunk/vnc_javasrc/tight.vnc
+   M /orig/trunk/vnc_javasrc/zlib.vnc
+
+Inserted a <br> tag to prevent www.tightvnc.com link appear to the
+left of the applet area.
+
+------------------------------------------------------------------------
+r981 | const | 2001-12-18 03:32:28 +0600 (Tue, 18 Dec 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncviewer.java
+
+In application mode, terminate application on window close event.
+
+------------------------------------------------------------------------
+r980 | const | 2001-12-18 02:28:34 +0600 (Tue, 18 Dec 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+Performance fixes in CopyRect routine, and the FillLargeArea method.
+
+------------------------------------------------------------------------
+r979 | const | 2001-12-18 01:39:40 +0600 (Tue, 18 Dec 2001) | 2 lines
+Changed paths:
+   A /orig/trunk/vnc_javasrc/ButtonPanel.java
+   M /orig/trunk/vnc_javasrc/Makefile
+   M /orig/trunk/vnc_javasrc/dir.mk
+   M /orig/trunk/vnc_javasrc/rfbProto.java
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+   M /orig/trunk/vnc_javasrc/vncviewer.java
+
+Converted to Java 1.1 event model.
+
+------------------------------------------------------------------------
+r978 | const | 2001-12-17 03:49:14 +0600 (Mon, 17 Dec 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+Got rid of calls to deprecated methods etc.
+
+------------------------------------------------------------------------
+r977 | const | 2001-12-17 03:37:38 +0600 (Mon, 17 Dec 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncviewer.java
+
+Minor code cleanups.
+
+------------------------------------------------------------------------
+r976 | const | 2001-12-17 03:37:10 +0600 (Mon, 17 Dec 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/authenticationPanel.java
+
+Converted to Java 1.1 event model.
+
+------------------------------------------------------------------------
+r975 | const | 2001-12-17 02:51:05 +0600 (Mon, 17 Dec 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/optionsFrame.java
+
+Converted to Java 1.1 event model.
+
+------------------------------------------------------------------------
+r974 | const | 2001-12-17 02:19:03 +0600 (Mon, 17 Dec 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/clipboardFrame.java
+
+Converted to Java 1.1 event model.
+
+------------------------------------------------------------------------
+r973 | const | 2001-12-17 00:17:20 +0600 (Mon, 17 Dec 2001) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/clipboardFrame.java
+
+Removed debugging code forgotten in the previous version.
+Minor code cleanups and formating changes.
+
+------------------------------------------------------------------------
+r972 | const | 2001-12-17 00:00:08 +0600 (Mon, 17 Dec 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/authenticationPanel.java
+   M /orig/trunk/vnc_javasrc/clipboardFrame.java
+   M /orig/trunk/vnc_javasrc/optionsFrame.java
+   M /orig/trunk/vnc_javasrc/rfbProto.java
+   M /orig/trunk/vnc_javasrc/vncviewer.java
+
+Got rid of most calls to methods deprecated in Java 1.1.
+
+------------------------------------------------------------------------
+r971 | const | 2001-12-16 21:41:38 +0600 (Sun, 16 Dec 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+Beeping through java.awt.Toolkit on receiving Bell RFB message.
+
+------------------------------------------------------------------------
+r970 | const | 2001-12-16 21:33:19 +0600 (Sun, 16 Dec 2001) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+Drawing techniques have been changed: now all the painting is
+performed in update() and paint() methods of the Canvas component.
+This should solve painting problems under some JVM implementations.
+
+------------------------------------------------------------------------
+r969 | const | 2001-12-16 20:56:29 +0600 (Sun, 16 Dec 2001) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/Makefile
+   D /orig/trunk/vnc_javasrc/animatedMemoryImageSource.java
+   M /orig/trunk/vnc_javasrc/dir.mk
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+First step of converting the source to Java 1.1: got rid of
+animatedMemoryImageSource class; using new setAnimated() method in the
+standard MemoryImageSource class instead.
+
+------------------------------------------------------------------------
+r939 | const | 2001-09-16 14:06:15 +0700 (Sun, 16 Sep 2001) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/optionsFrame.java
+   M /orig/trunk/vnc_javasrc/rfbProto.java
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+   M /orig/trunk/vnc_javasrc/vncviewer.java
+
+Addition of new parameters PASSWORD, "Include Controls", and "View
+Only", modified patch from Steve Kann.
+
+------------------------------------------------------------------------
+r901 | const | 2001-06-18 23:46:28 +0700 (Mon, 18 Jun 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Version string change.
+
+------------------------------------------------------------------------
+r899 | const | 2001-05-12 16:55:47 +0700 (Sat, 12 May 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncviewer.java
+
+(setEncodings): Possible NullPointerException fixed.
+
+------------------------------------------------------------------------
+r884 | const | 2001-03-07 14:06:46 +0600 (Wed, 07 Mar 2001) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+Initial "software cursor" position set to (0, 0) instead of (40, 40).
+Minor code clean-up.
+
+------------------------------------------------------------------------
+r868 | const | 2001-02-16 04:45:56 +0600 (Fri, 16 Feb 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+Minor performance fix and tiny clean-ups in code and comments.
+
+------------------------------------------------------------------------
+r867 | const | 2001-02-16 03:29:49 +0600 (Fri, 16 Feb 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/clipboardFrame.java
+   M /orig/trunk/vnc_javasrc/optionsFrame.java
+
+Tiny changes after looking in the TridiaVNC CVS sources.
+
+------------------------------------------------------------------------
+r866 | const | 2001-02-16 02:48:15 +0600 (Fri, 16 Feb 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+
+Version string changed.
+
+------------------------------------------------------------------------
+r865 | const | 2001-02-15 23:48:43 +0600 (Thu, 15 Feb 2001) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+A number of performance optimizations and code clean-ups for all
+supported encodings.
+
+------------------------------------------------------------------------
+r863 | const | 2001-02-15 01:56:48 +0600 (Thu, 15 Feb 2001) | 9 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/optionsFrame.java
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+Drawing techniques changed: now all drawing is performed through the
+rawPixelsImage object and the pixels[] array, paintImage is not used
+any more.
+Settings "Raw pixel drawing: Fast/Reliable" and "CopyRect:
+Fast/Reliable" removed from the Options panel since they do not make
+sense in new drawing model.
+Currently drawing of solid-color areas is slow but this issue
+hopefully will be fixed in next versions.
+
+------------------------------------------------------------------------
+r858 | const | 2001-02-08 07:06:24 +0600 (Thu, 08 Feb 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/rfbProto.java
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+   M /orig/trunk/vnc_javasrc/vncviewer.java
+
+Fixes for compilation on Java 2 platform, from Klaus Erber.
+
+------------------------------------------------------------------------
+r836 | const | 2001-01-28 16:58:51 +0600 (Sun, 28 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/README
+   M /orig/trunk/vnc_javasrc/optionsFrame.java
+   M /orig/trunk/vnc_javasrc/rfbProto.java
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+One more name added to copyright strings. ;-)
+
+------------------------------------------------------------------------
+r835 | const | 2001-01-28 16:51:43 +0600 (Sun, 28 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/hextile.vnc
+   M /orig/trunk/vnc_javasrc/index.vnc
+   M /orig/trunk/vnc_javasrc/noshared.vnc
+   M /orig/trunk/vnc_javasrc/shared.vnc
+   M /orig/trunk/vnc_javasrc/tight.vnc
+   M /orig/trunk/vnc_javasrc/zlib.vnc
+
+www.TridiaVNC.com links chanded to www.TightVNC.com.
+
+------------------------------------------------------------------------
+r834 | const | 2001-01-28 16:43:39 +0600 (Sun, 28 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/Makefile
+   A /orig/trunk/vnc_javasrc/hextile.vnc
+   A /orig/trunk/vnc_javasrc/noshared.vnc
+   A /orig/trunk/vnc_javasrc/tight.vnc
+
+More HTML templates for different default settings prepared.
+
+------------------------------------------------------------------------
+r833 | const | 2001-01-28 16:36:14 +0600 (Sun, 28 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/optionsFrame.java
+
+Tight encoding is now set by default.
+
+------------------------------------------------------------------------
+r832 | const | 2001-01-27 04:24:59 +0600 (Sat, 27 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncviewer.java
+
+Tiny formatting changes.
+
+------------------------------------------------------------------------
+r831 | const | 2001-01-27 03:11:22 +0600 (Sat, 27 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/authenticationPanel.java
+   M /orig/trunk/vnc_javasrc/vncviewer.java
+
+From TridiaVNC: set initial input focus to password field.
+
+------------------------------------------------------------------------
+r830 | const | 2001-01-27 02:58:39 +0600 (Sat, 27 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/Makefile
+
+Unneeded changes reverted.
+
+------------------------------------------------------------------------
+r829 | const | 2001-01-27 00:52:44 +0600 (Sat, 27 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+Many changes. Cursor shape updates should work in all modes.
+
+------------------------------------------------------------------------
+r826 | const | 2001-01-26 01:31:54 +0600 (Fri, 26 Jan 2001) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/optionsFrame.java
+   M /orig/trunk/vnc_javasrc/rfbProto.java
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+Support for EncodingLastRect added.
+Bugfix: "Cursor shape updates: Ignore" option caused exceptions on
+XCursor updates.
+
+------------------------------------------------------------------------
+r825 | const | 2001-01-26 01:10:59 +0600 (Fri, 26 Jan 2001) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/optionsFrame.java
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+   M /orig/trunk/vnc_javasrc/vncviewer.java
+
+RichCursor and XCursor encodings now work, but only for raw encoding.
+Minor formatting fixes (spaces -> tabs).
+
+------------------------------------------------------------------------
+r824 | const | 2001-01-26 01:09:42 +0600 (Fri, 26 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/rfbProto.java
+
+Minor formatting fixes (spaces -> tabs).
+
+------------------------------------------------------------------------
+r823 | const | 2001-01-25 00:25:22 +0600 (Thu, 25 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+"Cursor shape updates: Ignore" option works for RichCursor encoding.
+
+------------------------------------------------------------------------
+r822 | const | 2001-01-24 23:55:22 +0600 (Wed, 24 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/optionsFrame.java
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+Non-finished RichCursor support, minor code cleanups.
+
+------------------------------------------------------------------------
+r820 | const | 2001-01-23 23:42:45 +0600 (Tue, 23 Jan 2001) | 4 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/optionsFrame.java
+   M /orig/trunk/vnc_javasrc/rfbProto.java
+
+"Cursor shape updates" item in options frame.
+Minor bugfix: "Compression level" item remained enabled when raw
+encoding was chosen after zlib or tight.
+
+------------------------------------------------------------------------
+r819 | const | 2001-01-23 22:02:50 +0600 (Tue, 23 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/optionsFrame.java
+   M /orig/trunk/vnc_javasrc/rfbProto.java
+
+Requesting compression level for tight and zlib encodings.
+
+------------------------------------------------------------------------
+r818 | const | 2001-01-22 23:22:03 +0600 (Mon, 22 Jan 2001) | 3 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+Major speed optimizations and code cleanups in tight encoding
+implementation.
+
+------------------------------------------------------------------------
+r817 | const | 2001-01-22 20:10:50 +0600 (Mon, 22 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+More error checking.
+
+------------------------------------------------------------------------
+r816 | const | 2001-01-22 20:06:39 +0600 (Mon, 22 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+Error checking, code cleanups.
+
+------------------------------------------------------------------------
+r814 | const | 2001-01-19 12:53:17 +0600 (Fri, 19 Jan 2001) | 2 lines
+Changed paths:
+   M /orig/trunk/vnc_javasrc/Makefile
+   M /orig/trunk/vnc_javasrc/optionsFrame.java
+   M /orig/trunk/vnc_javasrc/rfbProto.java
+   M /orig/trunk/vnc_javasrc/vncCanvas.java
+
+First version of Java vncviewer with tight encoding support.
+
+------------------------------------------------------------------------
+r725 | const | 2000-09-29 22:39:38 +0700 (Fri, 29 Sep 2000) | 2 lines
+Changed paths:
+   A /orig/trunk/vnc_javasrc
+   A /orig/trunk/vnc_javasrc/DesCipher.java
+   A /orig/trunk/vnc_javasrc/LICENCE.TXT
+   A /orig/trunk/vnc_javasrc/Makefile
+   A /orig/trunk/vnc_javasrc/README
+   A /orig/trunk/vnc_javasrc/animatedMemoryImageSource.java
+   A /orig/trunk/vnc_javasrc/authenticationPanel.java
+   A /orig/trunk/vnc_javasrc/clipboardFrame.java
+   A /orig/trunk/vnc_javasrc/dir.mk
+   A /orig/trunk/vnc_javasrc/index.vnc
+   A /orig/trunk/vnc_javasrc/optionsFrame.java
+   A /orig/trunk/vnc_javasrc/rfbProto.java
+   A /orig/trunk/vnc_javasrc/shared.vnc
+   A /orig/trunk/vnc_javasrc/vncCanvas.java
+   A /orig/trunk/vnc_javasrc/vncviewer.java
+   A /orig/trunk/vnc_javasrc/zlib.vnc
+
+Initial revision
+
+------------------------------------------------------------------------
