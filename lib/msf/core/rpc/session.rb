@@ -82,7 +82,6 @@ class Session < Base
 
 		if not s.user_output.respond_to? :dump_buffer
 			s.init_ui(nil, Rex::Ui::Text::Output::Buffer.new)
-			s.user_output.extend BufferedIO
 		end
 
 		Thread.new { s.console.run_single(data) }
