@@ -30,6 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'	=>
 				[
 					[ 'URL', 'http://www.vmware.com/security/advisories/VMSA-2009-0015.html' ],
+					[ 'OSVDB', '59440' ],
 					[ 'BID', '36842' ],
 					[ 'CVE', '2009-3733' ],
 					[ 'URL', 'http://fyrmassociates.com/tools/gueststealer-v1.1.pl' ]
