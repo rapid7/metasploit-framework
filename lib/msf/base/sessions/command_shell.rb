@@ -126,7 +126,7 @@ class CommandShell
 	#
 	# Read data until we find the token
 	#
-	def shell_read_until_token(token)
+	def shell_read_until_token(token, wanted_idx = 0)
 		# wait up to 5 seconds for some data to appear
 		elapsed = 0
 		if (not (select([rstream], nil, nil, 5)))
@@ -138,12 +138,14 @@ class CommandShell
 		idx = nil
 		while (tmp = rstream.get_once(-1, 1))
 			buf << tmp
-			break if (idx = buf.index(token))
-		end
-
-		if (buf and idx)
-			data = buf.slice(0,idx)
-			return data
+			
+			# see if we have the wanted idx
+			parts = buf.split(token, -1)
+			if (parts.length == 1+(wanted_idx*2))
+				# cause another prompt to appear (just in case)
+				shell_write("\n")
+				return parts[wanted_idx]
+			end
 		end
 
 		# failed to get any data or find the token!
@@ -175,7 +177,7 @@ class CommandShell
 
 		# Send the command to the session's stdin.
 		shell_write(cmd + "&echo #{token}\n")
-		shell_read_until_token(token)
+		shell_read_until_token(token, 1)
 	end
 
 
