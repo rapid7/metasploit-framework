@@ -767,6 +767,8 @@ class DBManager
 			end
 
 			ltype  = opts.delete(:type) || opts.delete(:ltype) || return
+			ctype  = opts.delete(:ctype) || opts.delete(:content_type) || 'text/plain'
+
 			data   = opts[:data]
 			loot   = wspace.loots.new
 
@@ -779,6 +781,7 @@ class DBManager
 
 			loot.path  = path
 			loot.ltype = ltype
+			loot.ctype = ctype
 			loot.data  = data
 			loot.save!
 
