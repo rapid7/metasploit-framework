@@ -139,6 +139,14 @@ class DataStore < Hash
 		return str
 	end
 
+	def to_h
+		datastore_hash = {}
+		self.keys.each do |k|
+			datastore_hash[k.to_s] = self[k].to_s
+		end
+		datastore_hash
+	end
+
 	#
 	# Persists the contents of the data store to a file
 	#

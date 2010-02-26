@@ -203,10 +203,7 @@ class FrameworkEventSubscriber
 	include GeneralEventSubscriber
 	def on_module_run(instance)
 		if framework.db.active
-			datastore_hash = {}
-			instance.datastore.keys.each do |k|
-				datastore_hash[k.to_s] = instance.datastore[k].to_s
-			end
+			datastore_hash = instance.datastore.to_h
 
 			info = {}
 			info[:workspace]   = framework.db.find_workspace(instance.workspace),
@@ -259,7 +256,8 @@ class FrameworkEventSubscriber
 	require 'msf/core/session'
 	include ::Msf::SessionEvent
 	def on_session_open(session)
-		session_event('session_open', session)
+		opts = { :datastore => session.exploit_datastore.to_h }
+		session_event('session_open', session, opts)
 	end
 
 	def on_session_close(session, reason='')

@@ -190,6 +190,7 @@ module Session
 		}
 		self.target_host = m.target_host
 		self.workspace   = m.workspace
+		self.exploit_datastore = m.datastore
 	end
 
 	#
@@ -258,6 +259,10 @@ module Session
 	# The original target host address
 	#
 	attr_accessor :target_host
+	#
+	# The datastore of the exploit that created this session
+	#
+	attr_accessor :exploit_datastore
 	#
 	# The specific identified session info
 	#
