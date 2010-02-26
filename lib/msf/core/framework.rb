@@ -204,7 +204,7 @@ class FrameworkEventSubscriber
 	def on_module_run(instance)
 		if framework.db.active
 			event = {
-				:workspace => framework.db.find_workspace(session.workspace),
+				:workspace => framework.db.find_workspace(instance.workspace),
 				:name => "module_run",
 				:info => {
 					:module_name => instance.refname,
