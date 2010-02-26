@@ -34,7 +34,6 @@ class Output::Buffer < Rex::Ui::Text::Output
 
 		msg
 	end
-	alias :print :print_raw
 
 
 	#
