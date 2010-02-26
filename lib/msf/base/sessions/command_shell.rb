@@ -132,16 +132,21 @@ class CommandShell
 		if (not (select([rstream], nil, nil, 5)))
 			return nil
 		end
+		if (wanted_idx == 0)
+			parts_needed = 2
+		else
+			parts_needed = 1 + (wanted_idx * 2)
+		end
 
 		# Read until we get the token or timeout.
 		buf = ''
 		idx = nil
 		while (tmp = rstream.get_once(-1, 1))
 			buf << tmp
-			
+
 			# see if we have the wanted idx
 			parts = buf.split(token, -1)
-			if (parts.length == 1+(wanted_idx*2))
+			if (parts.length == parts_needed)
 				# cause another prompt to appear (just in case)
 				shell_write("\n")
 				return parts[wanted_idx]
