@@ -33,6 +33,12 @@ module SessionEvent
 	def on_session_command(session, command)
 	end
 
+	#
+	# Called when output comes back from a user command.
+	#
+	def on_session_output(session, output)
+	end
+
 end
 
 ###

@@ -274,6 +274,10 @@ class FrameworkEventSubscriber
 		session_event('session_command', session, :command => command)
 	end
 
+	def on_session_output(session, output)
+		session_event('session_output', session, :output => output)
+	end
+
 
 	#
 	# This is covered by on_module_run and on_session_open, so don't bother

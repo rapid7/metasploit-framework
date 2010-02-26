@@ -42,7 +42,11 @@ class Session < Base
 		if(not s.rstream.has_read_data?(0))
 			{ "data" => "" }
 		else
-			{ "data" => s.shell_read }
+			data = s.shell_read 
+			if data.length > 0
+				@framework.events.on_session_output(s, data)
+			end
+			{ "data" => data }
 		end
 	end
 
@@ -52,6 +56,7 @@ class Session < Base
 		if(s.type != "shell")
 			raise ::XMLRPC::FaultException.new(403, "session is not a shell")
 		end
+		@framework.events.on_session_command(s, data)
 
 		{ "write_count" => s.shell_write(data) }
 	end
@@ -68,6 +73,14 @@ class Session < Base
 		end
 
 		data = s.user_output.dump_buffer
+		# XXX Ghetto
+		#
+		# This should really be handled on the sessions' input/output handles
+		# but this gets it working for right now.
+		#
+		if data.length > 0
+			@framework.events.on_session_output(s, data)
+		end
 		{ "data" => data }
 	end
 
@@ -84,6 +97,10 @@ class Session < Base
 		if not s.user_output.respond_to? :dump_buffer
 			s.init_ui(nil, Rex::Ui::Text::Output::Buffer.new)
 		end
+
+		# This is already covered by the meterpreter console's on_command_proc
+		# so don't do it here
+		#@framework.events.on_session_command(s, data)
 
 		Thread.new { s.console.run_single(data) }
 
