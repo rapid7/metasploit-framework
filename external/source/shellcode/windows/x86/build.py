@@ -104,6 +104,9 @@ def main( argv=None ):
         for root, dirs, files in os.walk( "./src/stager/" ):
           for name in files:
             build( name[:-4] )
+        for root, dirs, files in os.walk( "./src/kernel/" ):
+          for name in files:
+            build( name[:-4] )
       else:
         build( argv[1] )
   except Exception, e:

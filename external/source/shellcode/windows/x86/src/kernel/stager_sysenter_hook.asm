@@ -3,8 +3,13 @@
 ; Compatible: Windows 7, 2008, Vista (Possibly 2003, XP)
 ; Size: 202 bytes
 ; Build: >build.py stager_sysenter_hook
+;
 ; Recommended Reading: Kernel-mode Payloads on Windows, 2005, bugcheck & skape.
 ;                      http://www.uninformed.org/?v=3&a=4&t=sumry
+;
+; Description of the implementation of this stager_sysenter_hook shellcode:
+;     http://www.harmonysecurity.com/blog/2009/11/implementing-win32-kernel-shellcode.html
+;
 ;-----------------------------------------------------------------------------;
 [bits 32]
 [org 0]
