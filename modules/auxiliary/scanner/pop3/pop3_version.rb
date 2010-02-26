@@ -9,31 +9,30 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::Smtp
+	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
 	def initialize
 		super(
-			'Name'        => 'SMTP Banner Grabber',
+			'Name'        => 'POP3 Banner Grabber',
 			'Version'     => '$Revision$',
-			'Description' => 'SMTP Banner Grabber',
-			'References'  =>
-				[
-					['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
-				],
-			'Author'      => 'CG',
+			'Description' => 'POP3 Banner Grabber',
+			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
 		)
-		deregister_options('MAILFROM', 'MAILTO')
+		register_options([
+			Opt::RPORT(110)
+		], self.class)
 	end
 
 	def run_host(ip)
 		begin
-			res = connect
+			res    = connect
+			banner = sock.get_once(-1, 30)
 			banner_sanitized = banner.to_s.gsub(/[\x00-\x19\x7f-\xff]/) { |s| "\\x%02x" % s[0,1].unpack("C")[0] }
-			print_status("#{ip}:#{rport} SMTP #{banner_sanitized}")
-			report_service(:host => rhost, :port => rport, :name => "smtp", :info => banner)
+			print_status("#{ip}:#{rport} POP3 #{banner_sanitized}")
+			report_service(:host => rhost, :port => rport, :name => "pop3", :info => banner)
 		rescue ::Rex::ConnectionError
 		rescue ::Exception => e
 			print_error("#{rhost}:#{rport} #{e} #{e.backtrace}")
