@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(8180),
+				Opt::RPORT(8080),
 				OptBool.new('VERBOSE', [ true, 'Verbose output', false]),
 				OptString.new('USERNAME', [ false, 'The username to authenticate as' ]),
 				OptString.new('PASSWORD', [ false, 'The password for the specified username' ]),
@@ -57,6 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
 					'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 			], self.class)
+		register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
 	end
 
 	def run_host(ip)
