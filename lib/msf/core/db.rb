@@ -762,6 +762,7 @@ class DBManager
 
 		ret = {}
 		task = queue(Proc.new {
+
 			if addr and not host
 				host = get_host(:workspace => wspace, :host => addr)
 			end
@@ -781,7 +782,7 @@ class DBManager
 
 			loot.path  = path
 			loot.ltype = ltype
-			loot.ctype = ctype
+			loot.content_type = ctype
 			loot.data  = data
 			loot.save!
 

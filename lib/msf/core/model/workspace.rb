@@ -8,10 +8,12 @@ class Workspace < ActiveRecord::Base
 
 	has_many :hosts, :dependent => :destroy
 	has_many :notes, :dependent => :destroy
+	has_many :loots, :dependent => :destroy
 
 	has_many :services, :through => :hosts
 	has_many :clients,  :through => :hosts
 	has_many :vulns,    :through => :hosts
+
 	#has_many :notes,    :through => :hosts
 
 	validates_uniqueness_of :name
@@ -28,3 +30,4 @@ end
 
 end
 end
+
