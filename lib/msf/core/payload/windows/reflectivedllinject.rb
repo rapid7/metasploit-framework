@@ -27,7 +27,7 @@ module Payload::Windows::ReflectiveDllInject
 			'Arch'          => ARCH_X86,
 			'PayloadCompat' =>
 				{
-					'Convention' => 'sockedi -passivex',
+					'Convention' => 'sockedi',
 				},
 			'Stage'         =>
 				{

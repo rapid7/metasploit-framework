@@ -23,37 +23,67 @@ module PassiveX
 	class PxSessionChannel
 
 		include Rex::IO::StreamAbstraction
-
-		def initialize(sid)
-			@sid = sid
-			@remote_queue = ''
-
-			initialize_abstraction
 		
-			# Start a thread that monitors the local side of the pipe and writes
-			# data from it to the remote side.
-			@monitor_thread = Thread.new {
+		module PxSocketInterface
+			
+			def type?
+				'tcp'
+			end
+		
+			def shutdown(how)
+				return false if not remote
 				begin
-					begin
-						if ((rsock.has_read_data?(1)) and 
-						    (buf = rsock.get_once))
-							write_remote(buf)
-						else
-							flush_output
-						end
-					end while true
+					return (remote.shutdown(how) == 0)
 				rescue ::Exception
 				end
-			}
+			end
+			
+			def peerinfo
+				if (pi = getpeername)
+					return pi[1] + ':' + pi[2].to_s
+				end
+			end
+			
+			def localinfo
+				if (pi = getlocalname)
+					return pi[1] + ':' + pi[2].to_s
+				end
+			end
+			
+			def getlocalname
+				getsockname
+			end
+			
+			def getsockname
+				return [2,'',''] if not remote
+				remote.getsockname
+			end
+			
+			def getpeername
+				return [2,'',''] if not remote
+				remote.getpeername
+			end
+			
+			attr_accessor :remote
+		end
+		
+		def initialize(sid)
+			@remote       = nil  
+			@sid          = sid
+			@remote_queue = ''
+			
+			initialize_abstraction
+			
+			# sf: we don't include Rex::Socket::Tcp as it messes with closing passivex sessions.
+			lsock.extend( PxSocketInterface )
+			lsock.remote = nil
+			
 		end
 
 		#
 		# Closes the stream abstraction and kills the monitor thread.
 		#
 		def close
-			@monitor_thread.kill if (@monitor_thread)
-			@monitor_thread = nil
-
 			cleanup_abstraction
 		end
 
@@ -62,17 +92,17 @@ module PassiveX
 		# data to the client side.
 		#
 		def remote=(cli)
-			# If we already have a remote, then close it now that we have a new
-			# one.
+			# If we already have a remote, then close it now that we have a new one.
 			if (@remote)
 				begin
 					@remote.server.close_client(@remote)
-				rescue ::Exception
+			  rescue
 				end
 			end
 
-			@remote = cli
-
+			@remote      = cli
+			lsock.remote = @remote
+			
 			flush_output
 		end
 
@@ -80,7 +110,7 @@ module PassiveX
 		# Writes data to the local side of the abstraction that comes in from
 		# the remote.
 		#
-		def write_local(buf)
+		def write_local(buf) 
 			dlog("PassiveX:#{self} Writing #{buf.length} to local side", 'core', LEV_3)
 
 			rsock.put(buf)
@@ -89,12 +119,27 @@ module PassiveX
 		#
 		# Writes data to the remote HTTP client via an indirect queue.
 		#
-		def write_remote(buf)
+		def write_remote(buf)  
 			dlog("PassiveX:#{self} Queuing #{buf.length} to remote side", 'core', LEV_3)
 
 			@remote_queue += buf
 
 			flush_output
+		end
+		
+		#
+		# The write function for Rex::IO::StreamAbstraction.monitor_rsock
+		#
+		def write(buf)
+			write_remote(buf)
+			return buf.length
+		end
+		
+		#
+		# The close_write function for Rex::IO::StreamAbstraction.monitor_rsock
+		#
+		def close_write
+			
 		end
 
 		#
@@ -102,15 +147,15 @@ module PassiveX
 		#
 		def flush_output
 			return if (@remote_queue == nil or @remote_queue.length == 0)
-
 			resp = Rex::Proto::Http::Response.new
 			resp.body = @remote_queue
-
+			# sf: we must specify a content type
+			resp['Content-Type'] = 'application/octet-stream'
 			begin
 				if (@remote)
 					dlog("PassiveX:#{self} Flushing remote output queue at #{resp.body.length} bytes", 'core', LEV_3)
-
-					@remote.keepalive = false
+					# sf: this naughty keepalive was killing the meterpreter over passivex payload, dont re-enable!
+					#@remote.keepalive = false
 					@remote.send_response(resp)
 					@remote = nil
 					@remote_queue = ''
@@ -391,6 +436,7 @@ if (marker == false) {
 				if (s = find_session_channel(sid))
 					Thread.new {
 						begin
+							s.remote = cli
 							handle_connection(s.lsock)
 						rescue ::Exception
 							elog("Exception raised during PX handle connection: #{$!}", 'core', LEV_1)
@@ -403,10 +449,9 @@ if (marker == false) {
 				print_status("Sending stage to sid #{sid} (#{resp.body.length} bytes)")
 			when "/tunnel_in"
 				s.write_local(req.body) if (s = find_session_channel(sid))
-			when "/tunnel_out"
+			when "/tunnel_out" 
 				cli.keepalive = true
 				resp = nil
-
 				s.remote = cli if (s = find_session_channel(sid))
 			else
 				resp.code    = 404
