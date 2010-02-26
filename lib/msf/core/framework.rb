@@ -206,10 +206,9 @@ class FrameworkEventSubscriber
 			datastore_hash = instance.datastore.to_h
 
 			info = {}
-			info[:workspace]   = framework.db.find_workspace(instance.workspace),
 			info[:module_name] = instance.refname
 			info[:datastore]   = datastore_hash
-			report_event(:name => "module_run", :info => info)
+			report_event(:name => "module_run", :info => info, :workspace => framework.db.find_workspace(instance.workspace))
 		end
 	end
 
