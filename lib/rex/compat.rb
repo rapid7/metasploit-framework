@@ -150,7 +150,7 @@ end
 def self.getenv(var)
 	if (is_windows and @@loaded_win32api)
 		f = Win32API.new("kernel32", "GetEnvironmentVariable", ["P", "P", "I"], "I")
-		buff = "\x00" * 65536
+		buff = "\x00" * 16384
 		sz = f.call(var, buff, buff.length)
 		return nil if sz == 0
 		buff[0,sz]
