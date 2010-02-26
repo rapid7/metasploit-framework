@@ -1283,7 +1283,7 @@ class DBManager
 		# it, along with any associated services, in the database.
 		parser.on_found_host = Proc.new { |h|
 
-			data = {}
+			data = {:workspace => wspace}
 			if (h["addrs"].has_key?("ipv4"))
 				addr = h["addrs"]["ipv4"]
 			elsif (h["addrs"].has_key?("ipv6"))
