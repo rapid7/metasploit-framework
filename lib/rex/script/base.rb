@@ -31,8 +31,7 @@ class Base
 		raise Rex::Script::Completed
 	end
 
-	def run(*argset)
-		args = argset.join(" ")
+	def run(args)
 		self.args = args
 		begin
 			eval(::File.read(self.path, ::File.size(self.path)), binding )
