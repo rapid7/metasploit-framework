@@ -11,13 +11,14 @@ class Base
 	end
 
 	attr_accessor :client, :framework, :path, :error, :args
-	attr_accessor :session, :sink
+	attr_accessor :session, :sink, :workspace
 
 	def initialize(client, path)
 		self.client    = client
 		self.framework = client.framework
 		self.path      = path
 		self.sink      = OutputSink.new
+		self.workspace = client.framework.db.find_workspace( client.workspace.to_s ) || client.framework.db.workspace
 
 		# Convenience aliases
 		self.session   = self.client
