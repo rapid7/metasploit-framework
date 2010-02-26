@@ -746,7 +746,7 @@ class DBManager
 		return if not active
 		wait = opts.delete(:wait)
 		wspace = opts.delete(:workspace) || workspace
-		path = opts.delete(:loot)
+		path = opts.delete(:path)
 		host = nil
 		addr = nil
 
