@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to missing password prompt" if datastore['VERBOSE']
 			self.no_pass_prompt << this_cred
 		else
-			start_telnet_session if login_succeeded?
+			start_telnet_session(rhost,rport,user,pass) if login_succeeded?
 		end
 	end
 
@@ -188,12 +188,13 @@ class Metasploit3 < Msf::Auxiliary
 		)
 	end
 
-	def start_telnet_session
+	def start_telnet_session(host,port,user,pass)
 		# Windows telnet server requires \r\n line endings and it doesn't
 		# seem to affect anything else.
 		sock.extend(CRLFLineEndings)
 		sess = Msf::Sessions::CommandShell.new(sock)
 		sess.set_from_exploit(self)
+		sess.info = "TELNET #{user}:#{pass} (#{host}:#{port})"
 		framework.sessions.register(sess)
 	end
 

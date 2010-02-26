@@ -100,6 +100,7 @@ class Metasploit3 < Msf::Auxiliary
 			conn = Net::SSH::CommandStream.new(self.ssh_socket, '/bin/sh', true)
 			sess = Msf::Sessions::CommandShell.new(conn.lsock)
 			sess.set_from_exploit(self)
+			sess.info = "SSH #{user}:#{pass} (#{ip}:#{port})"
 			framework.sessions.register(sess)
 
 			return [:success, proof]
