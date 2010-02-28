@@ -18,7 +18,10 @@ class Base
 		self.framework = client.framework
 		self.path      = path
 		self.sink      = OutputSink.new
-		self.workspace = client.framework.db.find_workspace( client.workspace.to_s ) || client.framework.db.workspace
+
+		if(client.framework.db and client.framework.db.active)
+			self.workspace = client.framework.db.find_workspace( client.workspace.to_s ) || client.framework.db.workspace
+		end
 
 		# Convenience aliases
 		self.session   = self.client
