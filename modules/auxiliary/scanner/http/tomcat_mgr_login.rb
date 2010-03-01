@@ -65,12 +65,13 @@ class Metasploit3 < Msf::Auxiliary
 			this_cred = [user,ip,rport].join(":")
 			next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
 			self.credentials_tried[this_cred] = pass
-			do_login(user, pass, datastore['VERBOSE'])
+			do_login(user, pass, ip)
 		}
 	end
 
-	def do_login(user='tomcat', pass='tomcat', this_cred='', verbose=false)
-
+	def do_login(user='tomcat', pass='tomcat', ip='0.0.0.0')
+		print_debug this_cred = [user,ip,rport].join(":")
+		verbose = datastore['VERBOSE']
 		print_status("Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport}") if verbose
 		success = false
 		srvhdr = '?'
@@ -85,7 +86,10 @@ class Metasploit3 < Msf::Auxiliary
 						'Authorization' => "Basic #{user_pass}",
 					}
 				}, 25)
-
+			unless (res.kind_of? Rex::Proto::Http::Response)
+				print_error("http://#{rhost}:#{rport}/manager/html not responding") if verbose
+				return :done
+			end
 			return :done if (res.code == 404)
 			srvhdr = res.headers['Server']
 			success = true if (res.code == 200)
