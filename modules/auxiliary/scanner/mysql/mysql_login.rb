@@ -38,12 +38,64 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		each_user_pass { |user, pass|
-			this_cred = [user,ip,rport].join(":")
-			next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
-			self.credentials_tried[this_cred] = pass
-			do_login(user, pass, this_cred, datastore['VERBOSE'])
-		}
+		if mysql_version_check
+			each_user_pass { |user, pass|
+				this_cred = [user,ip,rport].join(":")
+				next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
+				self.credentials_tried[this_cred] = pass
+				do_login(user, pass, this_cred, datastore['VERBOSE'])
+			}
+		end
+	end
+
+	# Tmtm's rbmysql is only good for recent versions of mysql, according
+	# to http://www.tmtm.org/en/mysql/ruby/. We'll need to write our own 
+	# auth checker for earlier versions. Shouldn't be too hard.
+	# This code is essentially the same as the mysql_version module, just less
+	# whitespace and returns false on errors.
+	def mysql_version_check(target="5.0.67")
+		begin
+			s = connect(false)
+			data = s.get
+			disconnect(s)
+		rescue ::Rex::ConnectionError, ::EOFError
+			return false
+		rescue ::Exception
+			print_error("Error: #{$!}")
+			return false
+		end
+		offset = 0
+		l0, l1, l2 = data[offset, 3].unpack('CCC')
+		length = l0 | (l1 << 8) | (l2 << 16)
+		# Read a bad amount of data
+		return if length != (data.length - 4)
+		offset += 4
+		proto = data[offset, 1].unpack('C')[0]
+		# Error condition
+		return if proto == 255
+		offset += 1
+		version = data[offset..-1].unpack('Z*')[0]
+		report_service(:host => rhost, :port => rport, :name => "mysql", :info => version)
+		short_version = version.split('-')[0]
+		print_status "#{rhost}:#{rport} - Found remote MySQL version #{short_version}." if datastore['VERBOSE']
+		int_version(short_version) >= int_version(target)
+	end
+
+	# Takes a x.y.z version number and turns it into an integer for
+	# easier comparison. Useful for other things probably so should
+	# get moved up to Rex. Allows for version increments up to 0xff.
+	def int_version(str)
+		int = 0
+		begin # Okay, if you're not exactly what I expect, just return 0
+			return 0 unless str =~ /^[0-9]+\x2e[0-9]+/
+			digits = str.split(".")[0,3].map {|x| x.to_i}
+			digits[2] ||= 0 # Nil protection
+			int =  (digits[0] << 16)
+			int += (digits[1] << 8)
+			int += digits[2]
+		rescue
+			return int
+		end
 	end
 
 
