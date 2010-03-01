@@ -70,7 +70,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user='tomcat', pass='tomcat', ip='0.0.0.0')
-		print_debug this_cred = [user,ip,rport].join(":")
 		verbose = datastore['VERBOSE']
 		print_status("Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport}") if verbose
 		success = false
