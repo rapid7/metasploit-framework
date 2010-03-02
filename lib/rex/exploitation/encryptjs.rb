@@ -58,7 +58,7 @@ class EncryptJS
 		var pass = location.search.substring(1);
 		var decoded = '';
 		for (i=0;i<encoded.length;i++) {
-		decoded += String.fromCharCode(encoded.charCodeAt(i) ^ pass.charCodeAt(i%pass.length));
+			decoded += String.fromCharCode(encoded.charCodeAt(i) ^ pass.charCodeAt(i%pass.length));
 		}
 		#{eval_call}(decoded);
 		ENDJS
