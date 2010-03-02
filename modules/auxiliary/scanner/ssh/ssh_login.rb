@@ -11,12 +11,15 @@
 
 require 'msf/core'
 require 'net/ssh'
+require 'msf/base/sessions/command_shell_options'
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::AuthBrute
 	include Msf::Auxiliary::Report
+
+	include Msf::Sessions::CommandShellOptions
 
 	attr_accessor :ssh_socket, :good_credentials
 
@@ -102,6 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 			sess.set_from_exploit(self)
 			sess.info = "SSH #{user}:#{pass} (#{ip}:#{port})"
 			framework.sessions.register(sess)
+			sess.process_autoruns(datastore)
 
 			return [:success, proof]
 		else
@@ -139,4 +143,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

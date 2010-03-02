@@ -212,6 +212,23 @@ class CommandShell
 		rstream.close
 	end
 
+	#
+	# Execute any specified auto-run scripts for this session
+	#
+	def process_autoruns(datastore)
+		if (datastore['InitialAutoRunScript'] && datastore['InitialAutoRunScript'].empty? == false)
+			args = datastore['InitialAutoRunScript'].split
+			print_status("Session ID #{sid} (#{tunnel_to_s}) processing InitialAutoRunScript '#{datastore['InitialAutoRunScript']}'")
+			execute_script(args.shift, args)
+		end
+
+		if (datastore['AutoRunScript'] && datastore['AutoRunScript'].empty? == false)
+			args = datastore['AutoRunScript'].split
+			print_status("Session ID #{sid} (#{tunnel_to_s}) processing AutoRunScript '#{datastore['AutoRunScript']}'")
+			execute_script(args.shift, args)
+		end
+	end
+	
 end
 
 end

@@ -1,4 +1,3 @@
-
 ##
 # $Id$
 ##
@@ -10,9 +9,8 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
-
+require 'msf/base/sessions/command_shell_options'
 
 #
 # Ghetto
@@ -31,6 +29,9 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::AuthBrute
 
 	include Msf::Auxiliary::Scanner
+
+	include Msf::Sessions::CommandShellOptions
+
 	def initialize
 		super(
 			'Name'        => 'Telnet Login Check Scanner',
@@ -196,7 +197,7 @@ class Metasploit3 < Msf::Auxiliary
 		sess.set_from_exploit(self)
 		sess.info = "TELNET #{user}:#{pass} (#{host}:#{port})"
 		framework.sessions.register(sess)
+		sess.process_autoruns(datastore)
 	end
 
 end
-

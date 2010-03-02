@@ -216,6 +216,9 @@ protected
 		# Call the handler's on_session() method
 		on_session(session)
 
+		# Process the auto-run scripts for this session
+		session.process_autoruns(datastore)
+
 		# If there is an exploit associated with this payload, then let's notify
 		# anyone who is interested that this exploit succeeded
 		if assoc_exploit
