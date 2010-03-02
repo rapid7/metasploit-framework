@@ -65,15 +65,14 @@ class Metasploit3 < Msf::Auxiliary
 				print_status(" TCP OPEN #{ip}:#{port}")
 				report_service(:host => ip, :port => port)
 				disconnect(s)
+			rescue ::Rex::ConnectionError
+			rescue ::TimeoutError
 			rescue ::Interrupt
 				raise $!
-			rescue ::Rex::ConnectionError
 			rescue ::Exception => e
 				print_status("Unknown error: #{e.class} #{e}")
 			end
 		end
 	end
-
-
 
 end
