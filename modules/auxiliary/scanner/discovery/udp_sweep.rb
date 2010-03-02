@@ -30,7 +30,13 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 		[
 			Opt::CHOST,
-			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256])
+			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
+			OptBool.new('VERBOSE', [false, 'Enable verbose output', false])
+		], self.class)
+
+		register_advanced_options(
+		[
+			OptBool.new('RANDOMIZE_PORTS', [false, 'Randomize the order the ports are probed', true])
 		], self.class)
 
 		# Intialize the probes array
@@ -46,6 +52,11 @@ class Metasploit3 < Msf::Auxiliary
 		@probes << 'probe_pkt_snmp2'
 		@probes << 'probe_pkt_sentinel'
 		@probes << 'probe_pkt_db2disco'
+		@probes << 'probe_pkt_citrix'
+
+		if datastore['RANDOMIZE_PORTS']
+			@probes = @probes.sort_by { rand }
+		end
 
 	end
 
@@ -73,6 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 				batch.each   do |ip|
 					begin
 						data, port = self.send(probe, ip)
+						print_status "Probing #{ip}:#{port}..." if datastore['VERBOSE']
 						udp_sock.sendto(data, ip, port, 0)
 					rescue ::Interrupt
 						raise $!
@@ -234,6 +246,10 @@ class Metasploit3 < Msf::Auxiliary
 			when 523
 				app = 'ibm-db2'
 				inf = db2disco_parse(pkt[0])
+
+			when 1604
+				app = 'citrix-ica'
+				return unless citrix_parse(pkt[0])
 				
 		end
 
@@ -247,7 +263,7 @@ class Metasploit3 < Msf::Auxiliary
 			:info  => inf
 		)
 
-		print_status("Discovered #{app} on #{pkt[1]} (#{inf})")
+		print_status("Discovered #{app} on #{pkt[1]}:#{pkt[2]} (#{inf})")
 
 	end
 
@@ -325,6 +341,14 @@ class Metasploit3 < Msf::Auxiliary
 	def db2disco_parse(data)
 		res = data.split("\x00")
 		"#{res[2]}_#{res[1]}"
+	end
+
+	#
+	# Validate this is truly Citrix ICA; returns true or false.
+	#
+	def citrix_parse(data)
+		server_response = "\x30\x00\x02\x31\x02\xfd\xa8\xe3\x02\x00\x06\x44" # Server hello response
+		data =~ /^#{server_response}/
 	end
 
 	#
@@ -449,6 +473,15 @@ class Metasploit3 < Msf::Auxiliary
 		data = "DB2GETADDR\x00SQL05000\x00"
 		[data, 523]
 	end
+
+	def probe_pkt_citrix(ip) # Server hello packet from citrix_published_bruteforce
+		data = 
+			"\x1e\x00\x01\x30\x02\xfd\xa8\xe3\x00\x00\x00\x00\x00" +
+			"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+			"\x00\x00\x00\x00"
+		return [data, 1604]
+	end
+
 
 end
 
