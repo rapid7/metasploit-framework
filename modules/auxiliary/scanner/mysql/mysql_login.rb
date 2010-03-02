@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		if mysql_version_check
+		if mysql_version_check("4.1.20") # No problems on 4.1.20 seen.
 			each_user_pass { |user, pass|
 				this_cred = [user,ip,rport].join(":")
 				next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 	# auth checker for earlier versions. Shouldn't be too hard.
 	# This code is essentially the same as the mysql_version module, just less
 	# whitespace and returns false on errors.
-	def mysql_version_check(target="5.0.67")
+	def mysql_version_check(target="5.0.67") # Oldest the library claims.
 		begin
 			s = connect(false)
 			data = s.get
