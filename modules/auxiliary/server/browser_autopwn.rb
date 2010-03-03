@@ -728,7 +728,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note({
 					:host => cli.peerhost,
 					:type => 'http_request',
-					:data => "#{@myhost}:#{@myport} #{request.method} #{request.resource} #{os_name} #{ua_name} #{ua_ver}"
+					:data => "#{cli.peerhost}: #{request.method} #{request.resource} #{os_name} #{ua_name} #{ua_ver}"
 				})
 			end
 		else
