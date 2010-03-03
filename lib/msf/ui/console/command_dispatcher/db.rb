@@ -56,6 +56,7 @@ class Db
 				"db_del_port"   => "Delete one port from the database",
 				"db_autopwn"    => "Automatically exploit everything",
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
+				"db_import_ip_list" => "Import a list of line seperated IPs",
 				"db_import_amap_mlog"   => "Import a THC-Amap scan results file (-o -m)",
 				"db_import_nessus_nbe"  => "Import a Nessus scan result file (NBE)",
 				"db_import_nessus_xml"	=> "Import a Nessus scan result file (NESSUS)",
@@ -908,6 +909,22 @@ class Db
 				return
 			end
 			framework.db.import_nmap_xml_file(args[0])
+		end
+		
+		#
+		# Import IP List from a file
+		#
+		def cmd_db_import_ip_list(*args)
+			if (not (args and args.length == 1))
+				print_error("Usage: db_import_file_list <iplist.txt>")
+				return
+			end
+
+			if (not File.readable?(args[0]))
+				print_status("Could not read the text file")
+				return
+			end
+			framework.db.import_ip_list_file(args[0])
 		end
 
 		#

@@ -1492,6 +1492,18 @@ class DBManager
 		end
 	end
 
+	def import_ip_list_file(filename, wspace=workspace)
+		f = File.open(filename, 'r')
+		data = f.read(f.stat.size)
+		import_ip_list(data, wspace)
+	end
+	
+	def import_ip_list(data, wspace)
+		data.each_line do |line|
+			host = find_or_create_host(:workspace => wspace, :host=> line, :state => Msf::HostState::Alive)
+		end
+	end
+
 	def import_amap_log_file(filename, wspace=workspace)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
