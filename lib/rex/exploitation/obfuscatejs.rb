@@ -121,9 +121,6 @@ class ObfuscateJS
 		#return @js if (@done)
 		@done = true
 
-		# Remove our comments
-		remove_comments
-		
 		update_opts(opts)
 
 		if (@opts['Strings'])
@@ -144,6 +141,10 @@ class ObfuscateJS
 			#	buf
 			#}
 		end
+
+		# Remove our comments
+		remove_comments
+		
 		# Globally replace symbols
 		replace_symbols(@opts['Symbols']) if @opts['Symbols']
 
