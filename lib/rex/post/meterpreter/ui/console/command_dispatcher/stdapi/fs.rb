@@ -211,7 +211,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 		end
 
 		# Get rid of that pesky temporary file
-		::File.unlink(temp_path)
+		temp_path.close(true)
 	end
 
 	#

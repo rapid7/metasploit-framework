@@ -16,22 +16,22 @@ class Nasm
 
 	@@nasm_path    = 'nasm'
 	@@ndisasm_path = 'ndisasm'
-	
+
 	#
 	# Ensures that the nasm environment is sane.
 	#
 	def self.check
-		@@nasm_path = 
+		@@nasm_path =
 			Rex::FileUtils.find_full_path('nasm')      ||
 			Rex::FileUtils.find_full_path('nasm.exe')  ||
 			Rex::FileUtils.find_full_path('nasmw.exe') ||
 			raise(RuntimeError, "No nasm installation was found.")
-		
-		@@ndisasm_path = 
+
+		@@ndisasm_path =
 			Rex::FileUtils.find_full_path('ndisasm')      ||
 			Rex::FileUtils.find_full_path('ndisasm.exe')  ||
 			Rex::FileUtils.find_full_path('ndisasmw.exe') ||
-			raise(RuntimeError, "No ndisasm installation was found.")			
+			raise(RuntimeError, "No ndisasm installation was found.")
 	end
 
 	#
@@ -60,8 +60,7 @@ class Nasm
 
 		# Remove temporary files
 		File.unlink(opath)
-		File.unlink(tpath)
-		tmp.close
+		tmp.close(true)
 
 		rv
 	end
@@ -71,10 +70,10 @@ class Nasm
 	#
 	def self.disassemble(raw)
 		check
-		
+
 		tmp = Tempfile.new('nasmout')
 		tfd = File.open(tmp.path, "wb")
-		
+
 		tfd.write(raw)
 		tfd.flush()
 		tfd.close
@@ -90,7 +89,7 @@ class Nasm
 			p.close
 		end
 
-		tmp.close
+		tmp.close(true)
 
 		o
 	end

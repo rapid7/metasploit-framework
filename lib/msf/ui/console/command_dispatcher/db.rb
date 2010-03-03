@@ -966,8 +966,9 @@ class Db
 			#	print_status("NMAP: #{line.strip}")
 			# end
 
-			::File.unlink(fo.path)
+			fo.close(true)
 			framework.db.import_nmap_xml_file(fd.path)
+			fd.close(true)
 		end
 
 		#
