@@ -99,14 +99,14 @@ class Server
 	# Initializes an HTTP server as listening on the provided port and
 	# hostname.
 	#
-	def initialize(port = 80, listen_host = '0.0.0.0', context = {})
+	def initialize(port = 80, listen_host = '0.0.0.0', ssl = false, context = {})
 		self.listen_host = listen_host
 		self.listen_port = port
 		self.context     = context
 		self.listener    = nil
 		self.resources   = {}
 		self.server_name = DefaultServer
-		self.ssl         = false
+		self.ssl         = ssl
 	end
 
 	#
