@@ -92,6 +92,7 @@ class Metasploit3 < Msf::Auxiliary
 		@exploits = Hash.new
 		@payloads = Hash.new
 		@targetcache = Hash.new
+		@current_victim = Hash.new
 	end
 
 
@@ -110,9 +111,6 @@ class Metasploit3 < Msf::Auxiliary
 		elsif (action.name == 'DefangedDetection')
 			exploit()
 		else 
-			if (!framework.db.active)
-				warn_no_database
-			end
 			start_exploit_modules()
 			if @exploits.length < 1
 				print_error("No exploits, check your MATCH and EXCLUDE settings")
@@ -518,9 +516,9 @@ class Metasploit3 < Msf::Auxiliary
 		response['Expires'] = '0'
 		response['Cache-Control'] = 'must-revalidate'
 
+		host_info   = get_host(cli.peerhost)
+		client_info = get_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
 		#print_status("Client info: #{client_info.inspect}")
-		host_info = get_host(cli.peerhost)
-		client_info = get_client(:host => host_info, :ua_string => request['User-Agent'])
 
 		js = ::Rex::Exploitation::ObfuscateJS.new
 		# If we didn't get a client from the database, then the detection
@@ -717,52 +715,56 @@ class Metasploit3 < Msf::Auxiliary
 				host_info[:os_sp]     = os_sp     if os_sp != "undefined"
 				host_info[:os_lang]   = os_lang   if os_lang != "undefined"
 				host_info[:arch]      = arch      if arch != "undefined"
-				framework.db.report_host(host_info)
 
-				report_client({
+				report_host(host_info)
+
+				client_info = ({
 					:host      => cli.peerhost,
 					:ua_string => request['User-Agent'],
 					:ua_name   => ua_name,
 					:ua_ver    => ua_ver
 				})
+				report_client(client_info)
+
 				report_note({
 					:host => cli.peerhost,
 					:type => 'http_request',
 					:data => "#{cli.peerhost}: #{request.method} #{request.resource} #{os_name} #{ua_name} #{ua_ver}"
 				})
 			end
-		else
-			warn_no_database
-			@targetcache ||= {}
-			@targetcache[cli.peerhost] ||= {}
-			@targetcache[cli.peerhost][:update] = Time.now.to_i
-
-			# Clean the cache 
-			rmq = []
-			@targetcache.each_key do |addr|
-				if (Time.now.to_i > @targetcache[addr][:update]+60)
-					rmq.push addr
-				end
-			end
-			rmq.each {|addr| @targetcache.delete(addr) }
-
-			# Keep the attributes the same as if it were created in
-			# the database.
-			@targetcache[cli.peerhost][:update] = Time.now.to_i
-			@targetcache[cli.peerhost][:ua_string] = request['User-Agent']
-			@targetcache[cli.peerhost][:ua_name] = ua_name
-			@targetcache[cli.peerhost][:ua_ver] = ua_ver
 		end
+
+		# Always populate the target cache since querying the database is too
+		# slow for real-time.
+		key = cli.peerhost + request['User-Agent']
+		@targetcache ||= {}
+		@targetcache[key] ||= {}
+		@targetcache[key][:updated_at] = Time.now.to_i
+
+		# Clean the cache 
+		rmq = []
+		@targetcache.each_key do |addr|
+			if (Time.now.to_i > @targetcache[addr][:updated_at]+60)
+				rmq.push addr
+			end
+		end
+		rmq.each {|addr| @targetcache.delete(addr) }
+
+		# Keep the attributes the same as if it were created in
+		# the database.
+		@targetcache[key][:updated_at] = Time.now.to_i
+		@targetcache[key][:ua_string] = request['User-Agent']
+		@targetcache[key][:ua_name] = ua_name
+		@targetcache[key][:ua_ver] = ua_ver
 	end
 
-	# Override super#get_client to use a cache in case the database
-	# is not available.  It might be a good idea to do this by default,
-	# essentially creating an in-memory database.  The upside is that it works
-	# if the database is broken.  The downside of course is that querying from
-	# a hash is not as simple or efficient as a database.
+	# Override super#get_client to use a cache since the database is generally
+	# too slow to be useful for realtime tasks.  This essentially creates an
+	# in-memory database.  The upside is that it works if the database is
+	# broken (which seems to be all the time now).
 	def get_client(opts)
 		host = opts[:host]
-		return super || @targetcache[host]
+		return @targetcache[opts[:host]+opts[:ua_string]]
 	end
 
 	def build_iframe(resource)
@@ -792,10 +794,6 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return ""
 	end
-	def warn_no_database
-		print_error("WARNING: Database is disabled, using targetcache instead.")
-		print_error("Database support makes detection much more reliable against multiple")
-		print_error("hosts from the same IP; type 'db_create' to enable it.")
-	end
+
 end
 
