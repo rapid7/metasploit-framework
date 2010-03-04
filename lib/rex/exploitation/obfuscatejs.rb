@@ -176,7 +176,7 @@ protected
 	# but they also break real javascript engines so I don't care.
 	#
 	def remove_comments
-		@js.gsub!(%r{//.*$}, '')
+		@js.gsub!(%r{\s+//.*$}, '')
 		@js.gsub!(%r{/\*.*?\*/}m, '')
 	end
 
