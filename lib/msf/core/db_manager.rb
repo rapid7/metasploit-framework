@@ -140,6 +140,8 @@ class DBManager
 			nopts['port'] = nopts['port'].to_i
 		end
 
+		nopts['pool'] = 30
+
 		begin
 			# Configure the database adapter
 			ActiveRecord::Base.establish_connection(nopts)

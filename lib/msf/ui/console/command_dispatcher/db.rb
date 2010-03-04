@@ -1164,7 +1164,7 @@ class Db
 
 			info = db_parse_db_uri_sqlite3(args[0])
 			dbfile = info[:path]
-			opts = { 'adapter' => 'sqlite3', 'database' => dbfile, 'pool' => '30' }
+			opts = { 'adapter' => 'sqlite3', 'database' => dbfile }
 
 			if (not ::File.exists?(dbfile))
 				print_error("The specified database does not exist")
