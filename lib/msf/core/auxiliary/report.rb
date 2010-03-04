@@ -37,10 +37,10 @@ module Auxiliary::Report
 		framework.db.report_host(opts)
 	end
 
-	def get_host(addr)
+	def get_host(opts)
 		return if not db
 		opts = {:workspace => myworkspace}.merge(opts)
-		framework.db.get_host(addr)
+		framework.db.get_host(opts)
 	end
 
 	#
