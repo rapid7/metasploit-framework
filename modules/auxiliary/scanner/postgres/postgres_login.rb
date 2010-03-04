@@ -54,6 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 		tried_combos = []
 		last_response = nil
 			each_user_pass { |user, pass|
+				userpass_sleep_interval unless self.credentials_tried.empty?
 				this_cred = [user,ip,rport].join(":")
 				next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
 				self.credentials_tried[this_cred] = pass

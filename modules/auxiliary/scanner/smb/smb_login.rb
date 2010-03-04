@@ -60,6 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			begin
 				each_user_pass do |user, pass|
+					userpass_sleep_interval unless self.credentials_tried.empty?
 					this_cred = [user,ip,rport].join(":")
 					next if self.credentials_good[this_cred]
 					try_user_pass(user, pass, this_cred)

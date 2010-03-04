@@ -16,7 +16,8 @@ def initialize(info = {})
 	register_options([
 			OptPath.new('USER_FILE', [ false, "File containing usernames, one per line" ]),
 			OptPath.new('PASS_FILE', [ false, "File containing passwords, one per line" ]),
-			OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line" ])
+			OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line" ]),
+			OptInt.new('BRUTEFORCE_SPEED', [ true, "How fast to bruteforce, from 0 to 5", 5])
 		], Auxiliary::AuthBrute)
 
 	@user = nil
@@ -93,6 +94,24 @@ def each_pass(user=nil, &block)
 	while pass = _next_pass(state)
 		yield pass
 	end
+end
+
+def userpass_sleep_interval
+	sleep_time = case datastore['BRUTEFORCE_SPEED'].to_i
+		when 0;
+			60 * 5
+		when 1;
+			15
+		when 2;
+			1
+		when 3;
+			0.5
+		when 4;
+			0.1
+		else;
+			0
+	end
+	select(nil,nil,nil,sleep_time) unless sleepy_time == 0
 end
 
 protected

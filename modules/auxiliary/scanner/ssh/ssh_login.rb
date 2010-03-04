@@ -121,6 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		print_status("#{ip}:#{rport} - SSH - Starting buteforce")
 		each_user_pass do |user, pass|
+			userpass_sleep_interval unless self.credentials_tried.empty?
 			this_cred = [user,ip,rport].join(":")
 			next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
 			self.credentials_tried[this_cred] = pass

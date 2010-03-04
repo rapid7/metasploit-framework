@@ -74,6 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			each_user_pass do |user, pass|
+				userpass_sleep_interval unless self.credentials_tried.empty?
 				Timeout.timeout(overall_timeout) do
 					try_user_pass(user, pass)
 				end

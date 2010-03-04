@@ -40,6 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		if mysql_version_check("4.1.20") # No problems on 4.1.20 seen.
 			each_user_pass { |user, pass|
+				userpass_sleep_interval unless self.credentials_tried.empty?
 				this_cred = [user,ip,rport].join(":")
 				next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
 				self.credentials_tried[this_cred] = pass
