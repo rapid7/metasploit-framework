@@ -516,7 +516,7 @@ class Metasploit3 < Msf::Auxiliary
 		response['Expires'] = '0'
 		response['Cache-Control'] = 'must-revalidate'
 
-		host_info   = get_host(cli.peerhost)
+		host_info   = get_host(:host => cli.peerhost)
 		client_info = get_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
 		#print_status("Client info: #{client_info.inspect}")
 
