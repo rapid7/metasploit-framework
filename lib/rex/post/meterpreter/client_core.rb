@@ -184,17 +184,17 @@ class ClientCore < Extension
 
 		# We cant migrate into a process that does not exist.
 		if( process == nil )
-			raise ArgumentError, "Cannot migrate into non existant process", caller
+			raise RuntimeError, "Cannot migrate into non existant process", caller
 		end
 
 		# We cant migrate into a process that we are unable to open
-		if( process['arch'] == nil )
-			raise ArgumentError, "Cannot migrate into this process (insufficient privileges)", caller
+		if( process['arch'] == nil or process['arch'].empty? )
+			raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
 		end
 
 		# And we also cant migrate into our own current process...
 		if( process['pid'] == client.sys.process.getpid )
-			raise ArgumentError, "Cannot migrate into current process", caller
+			raise RuntimeError, "Cannot migrate into current process", caller
 		end
 
 		# Create a new payload stub
