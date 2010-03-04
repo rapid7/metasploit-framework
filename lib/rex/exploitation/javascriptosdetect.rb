@@ -235,6 +235,8 @@ function getVersion(){
 				ua_version = "7.0";
 				os_sp = "SP2";
 				break;
+			case "5716599":
+				// IE 7.0.5730.13, XP Professional SP3 English
 			case "5718066":
 				// IE 7.0.5730.13, XP Professional SP3 English
 				ua_version = "7.0";
