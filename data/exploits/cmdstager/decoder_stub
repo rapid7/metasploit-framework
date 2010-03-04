@@ -10,7 +10,7 @@ echo Set ofs = CreateObject("Scripting.FileSystemObject").OpenTextFile("DECODED"
 echo ofs.WriteLine data >>decode_stub
 echo ofs.close >>decode_stub
 echo Set shell = CreateObject("Wscript.Shell") >>decode_stub
-echo shell.run "DECODED", 0, true >>decode_stub
+echo shell.run "DECODED", 0, false >>decode_stub
 echo Else >>decode_stub
 echo Wscript.Echo "The file is empty." >>decode_stub
 echo End If >>decode_stub
