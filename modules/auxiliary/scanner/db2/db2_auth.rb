@@ -43,25 +43,19 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		tried_combos = []
-		last_response = nil
 			each_user_pass { |user, pass|
-				# Stash these in the datastore.
-				datastore['USERNAME'] = user
-				datastore['PASSWORD'] = pass
-				# Don't bother if we've already tried this combination, or if the last time
-				# we tried we got some kind of connection error. 
-				if not(tried_combos.include?("#{user}:#{pass}") || [:done, :error].include?(last_response))
-					last_response = do_login()
-				else
-					next
-				end
-				tried_combos << "#{user}:#{pass}"
+				userpass_sleep_interval unless self.credentials_tried.empty?
+				this_cred = [user,ip,rport].join(":")
+				next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
+				do_login(user,pass,this_cred,datastore['DATABASE'])
+				self.credentials_tried[this_cred] = pass
 			}
 	end
 
-	def do_login()
-		user,pass,db,verbose = datastore['USERNAME'],datastore['PASSWORD'],datastore['DATABASE'],datastore['VERBOSE']
+	def do_login(user=nil,pass=nil,this_cred=nil,db=nil)
+		verbose = datastore['VERBOSE']
+		datastore['USERNAME'] = user
+		datastore['PASSWORD'] = pass
 		print_status("Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport}") if verbose
 
 		begin
@@ -84,6 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if info[:db_login_success]
 				print_good("#{rhost}:#{rport} DB2 - successful login for '#{user}' : '#{pass}' against database '#{db}'")
+				self.credentials_good[this_cred] = pass
 
 				# Report credentials
 				report_auth_info(

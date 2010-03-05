@@ -111,7 +111,7 @@ def userpass_sleep_interval
 		else;
 			0
 	end
-	select(nil,nil,nil,sleep_time) unless sleepy_time == 0
+	select(nil,nil,nil,sleep_time) unless sleep_time == 0
 end
 
 protected
