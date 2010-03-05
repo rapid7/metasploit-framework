@@ -255,6 +255,7 @@ class Msf::Module::Platform
 			Aliases = [ "2000", "2K" ]
 			RealName = "2000"
 			class SP0 < W2000
+				Aliases = [ "sp0-4", "sp0-sp4" ]
 				Rank = 100
 			end
 			class SP1 < W2000
@@ -275,6 +276,9 @@ class Msf::Module::Platform
 		class XP < Windows
 			Rank = 300
 			class SP0 < XP
+				# It's not clear whether this should be assigned to the lower
+				# or higher bound of the range.
+				Aliases = [ "sp0-1", "sp0/1", "sp0-sp1", "sp0/sp1", "sp0-2", "sp0-sp2", "sp0-3", "sp0-sp3" ]
 				Rank = 100
 			end
 			class SP1 < XP
@@ -282,6 +286,9 @@ class Msf::Module::Platform
 			end
 			class SP2 < XP
 				Rank = 300
+			end
+			class SP3 < XP
+				Rank = 400
 			end
 		end
 
@@ -296,6 +303,22 @@ class Msf::Module::Platform
 			class SP1 < W2003
 				Rank = 200
 			end
+		end
+
+		class Vista < Windows
+			Rank = 500
+			class SP0 < Vista
+				Aliases = [ "sp0-1", "sp0/1", "sp0-sp1", "sp0/sp1" ]
+				Rank = 100
+			end
+			class SP1 < Vista
+				Rank = 200
+			end
+		end
+
+		class W7 < Windows
+			Rank = 600
+			RealName = "7"
 		end
 	end
 
