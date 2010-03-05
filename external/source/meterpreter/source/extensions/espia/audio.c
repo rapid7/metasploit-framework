@@ -42,7 +42,7 @@ BOOL capmicaudio(char *szFile, int millisecs)
     if (dwReturn = mciSendCommand(wDeviceID, MCI_RECORD, 
         MCI_TO | MCI_WAIT, (DWORD)(LPVOID) &mciRecordParms))
     {
-        mciSendCommand(wDeviceID, MCI_CLOSE, 0, NULL);
+        mciSendCommand(wDeviceID, MCI_CLOSE, 0, (DWORD_PTR)0 );
         return (dwReturn);
     }
 
@@ -54,7 +54,7 @@ BOOL capmicaudio(char *szFile, int millisecs)
 	mciSaveParms.lpfilename = szFile;
     if (dwReturn = mciSendCommand(wDeviceID, MCI_SAVE, MCI_SAVE_FILE | MCI_WAIT, (DWORD)(LPVOID) &mciSaveParms))
     {
-        mciSendCommand(wDeviceID, MCI_CLOSE, 0, NULL);
+        mciSendCommand(wDeviceID, MCI_CLOSE, 0, (DWORD_PTR)0 );
         return (dwReturn);
     }
 
@@ -69,7 +69,7 @@ int __declspec(dllexport) controlmic(char **waveresults, int msecs) {
 	char *wavestring = NULL;
 
 	/* METERPRETER CODE */
-	char buffer[100];
+	// char buffer[100];
 	/* END METERPRETER CODE */
 
 	capmicaudio("C:\\test.wav", msecs);

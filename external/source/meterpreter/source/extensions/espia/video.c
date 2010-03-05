@@ -17,8 +17,6 @@
 
 BOOL capWebCam(char *szFile, int nIndex, int nX, int nY, int nMsg) 
 {
-int x;
-MSG Msg;
 HWND hWndCap = capCreateCaptureWindow(NULL, WS_CHILD , 0, 0, nX, nY, GetDesktopWindow(), 0);
 
 
@@ -76,7 +74,7 @@ int __declspec(dllexport) controlcam(char **imageresults) {
 	char *imagestring = NULL;
 
 	/* METERPRETER CODE */
-	char buffer[100];
+	// char buffer[100];
 	/* END METERPRETER CODE */
 
 	///////////////////

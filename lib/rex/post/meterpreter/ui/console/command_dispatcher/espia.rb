@@ -30,7 +30,7 @@ class Console::CommandDispatcher::Espia
 		{
 	#		"dev_image"  => "Attempt to grab a frame from webcam",
 	#		"dev_audio"  => "Attempt to record microphone audio",
-			"screenshot" => "Attempt to grab screen shot from process's active desktop"
+			"screengrab" => "Attempt to grab screen shot from process's active desktop"
 		}
 	end
 
@@ -63,29 +63,32 @@ class Console::CommandDispatcher::Espia
 		return true
 	end
 
-	def cmd_screenshot(*args)
-		if (args[0] and args[0] == "-h")
-			print_line("Usage: screenshot <path.bmp> [view in browser: true|false]\n")
+	#
+	# Grab a screenshot of the current interactive desktop.
+	#
+	def cmd_screengrab( *args )
+		if( args[0] and args[0] == "-h" )
+			print_line("Usage: screengrab <path.jpeg> [view in browser: true|false]\n")
+			print_line("Grab a screenshot of the current interactive desktop.\n")
 			return true
 		end
-
+		
 		show = true
 		show = false if (args[1] and args[1] =~ /^(f|n|0)/i)
-
-		path = args[0] || ::Rex::Text.rand_text_alpha(8) + ".bmp"
-
+		
+		path = args[0] || Rex::Text.rand_text_alpha(8) + ".jpeg"
+		
 		data = client.espia.espia_image_get_dev_screen
-
-		if(data)
-			::File.open(path, 'wb') do |fd|
-				fd.write(data)
+		
+		if( data )
+			::File.open( path, 'wb' ) do |fd|
+				fd.write( data )
 			end
+			path = ::File.expand_path( path )
+			print_line( "Screenshot saved to: #{path}" )
+			Rex::Compat.open_file( path ) if show
 		end
-		path = ::File.expand_path(path)
-		print_line("[*] Image saved to #{path}")
-		if(show)
-			::Rex::Compat.open_file(path)
-		end
+		
 		return true
 	end
 

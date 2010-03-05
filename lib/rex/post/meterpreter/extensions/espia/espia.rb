@@ -45,9 +45,12 @@ class Espia < Extension
 	end
 	
 	def espia_image_get_dev_screen
-		request  = Packet.create_request('espia_image_get_dev_screen')		
-		response = client.send_request(request)
-		response.get_tlv_value(TLV_TYPE_DEV_SCREEN)
+		request  = Packet.create_request( 'espia_image_get_dev_screen' )    
+		response = client.send_request( request )
+		if( response.result == 0 )
+			return response.get_tlv_value( TLV_TYPE_DEV_SCREEN )
+		end
+		return nil
 	end
 
 end

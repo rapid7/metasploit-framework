@@ -44,6 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\source\openssl\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EXT_SERVER_ESPIA_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -192,7 +193,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				EnableIntrinsicFunctions="false"
-				AdditionalIncludeDirectories="..\..\source\extensions\espia;..\..\source\openssl\include"
+				AdditionalIncludeDirectories="..\..\source\extensions\espia;..\..\source\openssl\include;..\..\source\jpeg-8"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_ESPIA_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -215,11 +216,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Netapi32.lib Mpr.lib metsrv.lib"
+				AdditionalDependencies="Netapi32.lib Mpr.lib metsrv.lib jpeg.lib"
 				OutputFile=".\Release/ext_server_espia.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\metsrv\Release;..\..\source\openssl\lib\win"
+				AdditionalLibraryDirectories="..\metsrv\Release;..\..\source\openssl\lib\win;&quot;..\..\source\jpeg-8\lib\win\x86&quot;"
 				GenerateManifest="false"
+				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="metsrv.dll"
 				GenerateDebugInformation="false"
 				GenerateMapFile="true"
@@ -253,7 +256,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /y &quot;$(ProjectDir)\release\*.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
+				CommandLine="copy /y &quot;$(ProjectDir)\release\ext_server_espia.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -285,7 +288,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				EnableIntrinsicFunctions="false"
-				AdditionalIncludeDirectories="..\..\source\extensions\espia;..\..\source\openssl\include"
+				AdditionalIncludeDirectories="..\..\source\extensions\espia;..\..\source\openssl\include;&quot;..\..\source\jpeg-8&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_ESPIA_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -308,10 +311,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Netapi32.lib Mpr.lib metsrv.lib"
+				AdditionalDependencies="Netapi32.lib Mpr.lib metsrv.lib jpeg.lib"
 				OutputFile=".\Release\ext_server_espia.x64.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\metsrv\Release;;..\..\source\openssl\lib\win"
+				AdditionalLibraryDirectories="..\metsrv\Release;..\..\source\openssl\lib\win;&quot;..\..\source\jpeg-8\lib\win\x64&quot;"
 				GenerateManifest="false"
 				DelayLoadDLLs="metsrv.dll"
 				GenerateDebugInformation="false"
