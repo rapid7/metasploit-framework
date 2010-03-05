@@ -1,0 +1,15 @@
+This archive contains a DOS-friendly version of the Independent JPEG Group's
+source code.  It differs from the normal distribution in that:
+
+1. The archive format is zip rather than tar+gzip.  You should be able to
+unpack it with PKUNZIP (2.04g or later) or Info-Zip's unzip or 7-Zip.
+
+2. Newlines have been converted from Unix (LF) to DOS (CR/LF) style in all
+text files, but not in the binary files (test*.*).
+
+3. Object files have been included for jmemdosa.asm.  See jdosaobj.txt.
+
+Please see the main README file for the primary documentation.
+
+If you'd rather have a non-DOSified archive, see the ARCHIVE LOCATIONS section
+of README.

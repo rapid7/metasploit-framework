@@ -1,0 +1,142 @@
+$! Makefile for Independent JPEG Group's software
+$!
+$! This is a command procedure for Digital VMS systems that do not have MMS.
+$! It builds the JPEG software by brute force, recompiling everything whether
+$! or not it is necessary.  It then runs the basic self-test.
+$! Thanks to Rick Dyson (dyson@iowasp.physics.uiowa.edu)
+$! and Tim Bell (tbell@netcom.com) for their help.
+$!
+$! Read installation instructions before running this!!
+$!
+$ If F$Mode () .eqs. "INTERACTIVE"
+$   Then
+$       VERIFY = F$Verify (0)
+$   Else
+$       VERIFY = F$Verify (1)
+$ EndIf
+$ On Control_Y Then GoTo End
+$ On Error     Then GoTo End
+$
+$ If F$GetSyi ("HW_MODEL") .gt. 1023 
+$   Then
+$       OPT = ""
+$   Else
+$       OPT = ",Sys$Disk:[]makvms.opt/Option"
+$ EndIf
+$ 
+$ DoCompile := CC /NoDebug /Optimize /NoList
+$!
+$ DoCompile jaricom.c
+$ DoCompile jcapimin.c
+$ DoCompile jcapistd.c
+$ DoCompile jcarith.c
+$ DoCompile jctrans.c
+$ DoCompile jcparam.c
+$ DoCompile jdatadst.c
+$ DoCompile jcinit.c
+$ DoCompile jcmaster.c
+$ DoCompile jcmarker.c
+$ DoCompile jcmainct.c
+$ DoCompile jcprepct.c
+$ DoCompile jccoefct.c
+$ DoCompile jccolor.c
+$ DoCompile jcsample.c
+$ DoCompile jchuff.c
+$ DoCompile jcdctmgr.c
+$ DoCompile jfdctfst.c
+$ DoCompile jfdctflt.c
+$ DoCompile jfdctint.c
+$ DoCompile jdapimin.c
+$ DoCompile jdapistd.c
+$ DoCompile jdarith.c
+$ DoCompile jdtrans.c
+$ DoCompile jdatasrc.c
+$ DoCompile jdmaster.c
+$ DoCompile jdinput.c
+$ DoCompile jdmarker.c
+$ DoCompile jdhuff.c
+$ DoCompile jdmainct.c
+$ DoCompile jdcoefct.c
+$ DoCompile jdpostct.c
+$ DoCompile jddctmgr.c
+$ DoCompile jidctfst.c
+$ DoCompile jidctflt.c
+$ DoCompile jidctint.c
+$ DoCompile jdsample.c
+$ DoCompile jdcolor.c
+$ DoCompile jquant1.c
+$ DoCompile jquant2.c
+$ DoCompile jdmerge.c
+$ DoCompile jcomapi.c
+$ DoCompile jutils.c
+$ DoCompile jerror.c
+$ DoCompile jmemmgr.c
+$ DoCompile jmemnobs.c
+$!
+$ Library /Create libjpeg.olb  jaricom.obj,jcapimin.obj,jcapistd.obj, -
+          jcarith.obj,jctrans.obj,jcparam.obj,jdatadst.obj,jcinit.obj, -
+          jcmaster.obj,jcmarker.obj,jcmainct.obj,jcprepct.obj,jccoefct.obj, -
+          jccolor.obj,jcsample.obj,jchuff.obj,jcdctmgr.obj,jfdctfst.obj, -
+          jfdctflt.obj,jfdctint.obj,jdapimin.obj,jdapistd.obj,jdarith.obj, -
+          jdtrans.obj,jdatasrc.obj,jdmaster.obj,jdinput.obj,jdmarker.obj, -
+          jdhuff.obj,jdmainct.obj,jdcoefct.obj,jdpostct.obj,jddctmgr.obj, -
+          jidctfst.obj,jidctflt.obj,jidctint.obj,jdsample.obj,jdcolor.obj, -
+          jquant1.obj,jquant2.obj,jdmerge.obj,jcomapi.obj,jutils.obj, -
+          jerror.obj,jmemmgr.obj,jmemnobs.obj
+$!
+$ DoCompile cjpeg.c
+$ DoCompile rdppm.c
+$ DoCompile rdgif.c
+$ DoCompile rdtarga.c
+$ DoCompile rdrle.c
+$ DoCompile rdbmp.c
+$ DoCompile rdswitch.c
+$ DoCompile cdjpeg.c
+$!
+$ Link /NoMap /Executable = cjpeg.exe  cjpeg.obj,rdppm.obj,rdgif.obj, -
+          rdtarga.obj,rdrle.obj,rdbmp.obj,rdswitch.obj,cdjpeg.obj,libjpeg.olb/Library'OPT'
+$!
+$ DoCompile djpeg.c
+$ DoCompile wrppm.c
+$ DoCompile wrgif.c
+$ DoCompile wrtarga.c
+$ DoCompile wrrle.c
+$ DoCompile wrbmp.c
+$ DoCompile rdcolmap.c
+$ DoCompile cdjpeg.c
+$!
+$ Link /NoMap /Executable = djpeg.exe  djpeg.obj,wrppm.obj,wrgif.obj, -
+          wrtarga.obj,wrrle.obj,wrbmp.obj,rdcolmap.obj,cdjpeg.obj,libjpeg.olb/Library'OPT'
+$!
+$ DoCompile jpegtran.c
+$ DoCompile rdswitch.c
+$ DoCompile cdjpeg.c
+$ DoCompile transupp.c
+$!
+$ Link /NoMap /Executable = jpegtran.exe  jpegtran.obj,rdswitch.obj, -
+          cdjpeg.obj,transupp.obj,libjpeg.olb/Library'OPT'
+$!
+$ DoCompile rdjpgcom.c
+$ Link /NoMap /Executable = rdjpgcom.exe  rdjpgcom.obj'OPT'
+$!
+$ DoCompile wrjpgcom.c
+$ Link /NoMap /Executable = wrjpgcom.exe  wrjpgcom.obj'OPT'
+$!
+$! Run the self-test
+$!
+$ mcr sys$disk:[]djpeg -dct int -ppm -outfile testout.ppm testorig.jpg
+$ mcr sys$disk:[]djpeg -dct int -bmp -colors 256 -outfile testout.bmp testorig.jpg
+$ mcr sys$disk:[]cjpeg -dct int      -outfile testout.jpg testimg.ppm
+$ mcr sys$disk:[]djpeg -dct int -ppm -outfile testoutp.ppm testprog.jpg
+$ mcr sys$disk:[]cjpeg -dct int -progressive -opt -outfile testoutp.jpg testimg.ppm
+$ mcr sys$disk:[]jpegtran -outfile testoutt.jpg testprog.jpg
+$ Backup /Compare/Log testimg.ppm testout.ppm
+$ Backup /Compare/Log testimg.bmp testout.bmp
+$ Backup /Compare/Log testimg.jpg testout.jpg
+$ Backup /Compare/Log testimg.ppm testoutp.ppm
+$ Backup /Compare/Log testimgp.jpg testoutp.jpg
+$ Backup /Compare/Log testorig.jpg testoutt.jpg
+$!
+$End:
+$   If Verify Then Set Verify
+$ Exit

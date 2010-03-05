@@ -1,0 +1,63 @@
+.TH RDJPGCOM 1 "02 April 2009"
+.SH NAME
+rdjpgcom \- display text comments from a JPEG file
+.SH SYNOPSIS
+.B rdjpgcom
+[
+.B \-raw
+]
+[
+.B \-verbose
+]
+[
+.I filename
+]
+.LP
+.SH DESCRIPTION
+.LP
+.B rdjpgcom
+reads the named JPEG/JFIF file, or the standard input if no file is named,
+and prints any text comments found in the file on the standard output.
+.PP
+The JPEG standard allows "comment" (COM) blocks to occur within a JPEG file.
+Although the standard doesn't actually define what COM blocks are for, they
+are widely used to hold user-supplied text strings.  This lets you add
+annotations, titles, index terms, etc to your JPEG files, and later retrieve
+them as text.  COM blocks do not interfere with the image stored in the JPEG
+file.  The maximum size of a COM block is 64K, but you can have as many of
+them as you like in one JPEG file.
+.SH OPTIONS
+.TP
+.B \-raw
+Normally
+.B rdjpgcom
+escapes non-printable characters in comments, for security reasons.
+This option avoids that.
+.PP
+.B \-verbose
+Causes
+.B rdjpgcom
+to also display the JPEG image dimensions.
+.PP
+Switch names may be abbreviated, and are not case sensitive.
+.SH HINTS
+.B rdjpgcom
+does not depend on the IJG JPEG library.  Its source code is intended as an
+illustration of the minimum amount of code required to parse a JPEG file
+header correctly.
+.PP
+In
+.B \-verbose
+mode,
+.B rdjpgcom
+will also attempt to print the contents of any "APP12" markers as text.
+Some digital cameras produce APP12 markers containing useful textual
+information.  If you like, you can modify the source code to print
+other APPn marker types as well.
+.SH SEE ALSO
+.BR cjpeg (1),
+.BR djpeg (1),
+.BR jpegtran (1),
+.BR wrjpgcom (1)
+.SH AUTHOR
+Independent JPEG Group

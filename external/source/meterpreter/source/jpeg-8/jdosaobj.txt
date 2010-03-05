@@ -1,0 +1,16 @@
+This archive contains already-assembled object files for JMEMDOSA.ASM
+of the Independent JPEG Group's JPEG package.  These files will be helpful
+if you want to compile the IJG code for DOS, but don't have an assembler.
+
+These files were prepared from the 3/13/1992 version of JMEMDOSA.ASM,
+which is still unchanged as of mid-1998.  You can use these files with
+releases 3 through 6 of the IJG code, and probably future releases too.
+
+To use these files, copy the proper version to JMEMDOSA.OBJ.  Make sure
+this file has a newer date than JMEMDOSA.ASM.  Then compile the code as
+usual.
+
+Object files included:
+
+JDOSAMSC.OBJ	For Microsoft C version 5 or later.
+JDOSABCC.OBJ	For Borland C version 3.0 or later.

@@ -1,0 +1,6 @@
+# Microsoft Developer Studio erstellte Abhängigkeitsdatei, einbezogen von wrjpgcom.mak
+
+.\wrjpgcom.c : \
+	".\jconfig.h"\
+	".\jinclude.h"\
+	

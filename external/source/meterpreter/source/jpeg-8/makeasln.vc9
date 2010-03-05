@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cjpeg", "cjpeg.vcproj", "{B4F61778-C45D-45C6-9E87-06F03F50519F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "djpeg", "djpeg.vcproj", "{9B7E57AE-31CD-405E-8070-26A8303B9DC9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jpegtran", "jpegtran.vcproj", "{813C33AF-9031-49D2-BA19-93D600CDD404}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rdjpgcom", "rdjpgcom.vcproj", "{EB107F86-A8CC-4507-8115-88D31DDE4CDF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wrjpgcom", "wrjpgcom.vcproj", "{178670D7-FA7F-44A8-96C7-11B1CA14269C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B4F61778-C45D-45C6-9E87-06F03F50519F}.Release|Win32.ActiveCfg = Release|Win32
+		{B4F61778-C45D-45C6-9E87-06F03F50519F}.Release|Win32.Build.0 = Release|Win32
+		{9B7E57AE-31CD-405E-8070-26A8303B9DC9}.Release|Win32.ActiveCfg = Release|Win32
+		{9B7E57AE-31CD-405E-8070-26A8303B9DC9}.Release|Win32.Build.0 = Release|Win32
+		{813C33AF-9031-49D2-BA19-93D600CDD404}.Release|Win32.ActiveCfg = Release|Win32
+		{813C33AF-9031-49D2-BA19-93D600CDD404}.Release|Win32.Build.0 = Release|Win32
+		{EB107F86-A8CC-4507-8115-88D31DDE4CDF}.Release|Win32.ActiveCfg = Release|Win32
+		{EB107F86-A8CC-4507-8115-88D31DDE4CDF}.Release|Win32.Build.0 = Release|Win32
+		{178670D7-FA7F-44A8-96C7-11B1CA14269C}.Release|Win32.ActiveCfg = Release|Win32
+		{178670D7-FA7F-44A8-96C7-11B1CA14269C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

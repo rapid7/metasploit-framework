@@ -1,0 +1,285 @@
+.TH JPEGTRAN 1 "28 December 2009"
+.SH NAME
+jpegtran \- lossless transformation of JPEG files
+.SH SYNOPSIS
+.B jpegtran
+[
+.I options
+]
+[
+.I filename
+]
+.LP
+.SH DESCRIPTION
+.LP
+.B jpegtran
+performs various useful transformations of JPEG files.
+It can translate the coded representation from one variant of JPEG to another,
+for example from baseline JPEG to progressive JPEG or vice versa.  It can also
+perform some rearrangements of the image data, for example turning an image
+from landscape to portrait format by rotation.
+.PP
+.B jpegtran
+works by rearranging the compressed data (DCT coefficients), without
+ever fully decoding the image.  Therefore, its transformations are lossless:
+there is no image degradation at all, which would not be true if you used
+.B djpeg
+followed by
+.B cjpeg
+to accomplish the same conversion.  But by the same token,
+.B jpegtran
+cannot perform lossy operations such as changing the image quality.
+.PP
+.B jpegtran
+reads the named JPEG/JFIF file, or the standard input if no file is
+named, and produces a JPEG/JFIF file on the standard output.
+.SH OPTIONS
+All switch names may be abbreviated; for example,
+.B \-optimize
+may be written
+.B \-opt
+or
+.BR \-o .
+Upper and lower case are equivalent.
+British spellings are also accepted (e.g.,
+.BR \-optimise ),
+though for brevity these are not mentioned below.
+.PP
+To specify the coded JPEG representation used in the output file,
+.B jpegtran
+accepts a subset of the switches recognized by
+.BR cjpeg :
+.TP
+.B \-optimize
+Perform optimization of entropy encoding parameters.
+.TP
+.B \-progressive
+Create progressive JPEG file.
+.TP
+.BI \-restart " N"
+Emit a JPEG restart marker every N MCU rows, or every N MCU blocks if "B" is
+attached to the number.
+.TP
+.B \-arithmetic
+Use arithmetic coding.
+.TP
+.BI \-scans " file"
+Use the scan script given in the specified text file.
+.PP
+See
+.BR cjpeg (1)
+for more details about these switches.
+If you specify none of these switches, you get a plain baseline-JPEG output
+file.  The quality setting and so forth are determined by the input file.
+.PP
+The image can be losslessly transformed by giving one of these switches:
+.TP
+.B \-flip horizontal
+Mirror image horizontally (left-right).
+.TP
+.B \-flip vertical
+Mirror image vertically (top-bottom).
+.TP
+.B \-rotate 90
+Rotate image 90 degrees clockwise.
+.TP
+.B \-rotate 180
+Rotate image 180 degrees.
+.TP
+.B \-rotate 270
+Rotate image 270 degrees clockwise (or 90 ccw).
+.TP
+.B \-transpose
+Transpose image (across UL-to-LR axis).
+.TP
+.B \-transverse
+Transverse transpose (across UR-to-LL axis).
+.IP
+The transpose transformation has no restrictions regarding image dimensions.
+The other transformations operate rather oddly if the image dimensions are not
+a multiple of the iMCU size (usually 8 or 16 pixels), because they can only
+transform complete blocks of DCT coefficient data in the desired way.
+.IP
+.BR jpegtran 's
+default behavior when transforming an odd-size image is designed
+to preserve exact reversibility and mathematical consistency of the
+transformation set.  As stated, transpose is able to flip the entire image
+area.  Horizontal mirroring leaves any partial iMCU column at the right edge
+untouched, but is able to flip all rows of the image.  Similarly, vertical
+mirroring leaves any partial iMCU row at the bottom edge untouched, but is
+able to flip all columns.  The other transforms can be built up as sequences
+of transpose and flip operations; for consistency, their actions on edge
+pixels are defined to be the same as the end result of the corresponding
+transpose-and-flip sequence.
+.IP
+For practical use, you may prefer to discard any untransformable edge pixels
+rather than having a strange-looking strip along the right and/or bottom edges
+of a transformed image.  To do this, add the
+.B \-trim
+switch:
+.TP
+.B \-trim
+Drop non-transformable edge blocks.
+.IP
+Obviously, a transformation with
+.B \-trim
+is not reversible, so strictly speaking
+.B jpegtran
+with this switch is not lossless.  Also, the expected mathematical
+equivalences between the transformations no longer hold.  For example,
+.B \-rot 270 -trim
+trims only the bottom edge, but
+.B \-rot 90 -trim
+followed by
+.B \-rot 180 -trim
+trims both edges.
+.IP
+If you are only interested in perfect transformation, add the
+.B \-perfect
+switch:
+.TP
+.B \-perfect
+Fails with an error if the transformation is not perfect.
+.IP
+For example you may want to do
+.IP
+.B (jpegtran \-rot 90 -perfect
+.I foo.jpg
+.B || djpeg
+.I foo.jpg
+.B | pnmflip \-r90 | cjpeg)
+.IP
+to do a perfect rotation if available or an approximated one if not.
+.PP
+We also offer a lossless-crop option, which discards data outside a given
+image region but losslessly preserves what is inside.  Like the rotate and
+flip transforms, lossless crop is restricted by the current JPEG format: the
+upper left corner of the selected region must fall on an iMCU boundary.  If
+this does not hold for the given crop parameters, we silently move the upper
+left corner up and/or left to make it so, simultaneously increasing the region
+dimensions to keep the lower right crop corner unchanged.  (Thus, the output
+image covers at least the requested region, but may cover more.)
+
+The image can be losslessly cropped by giving the switch:
+.TP
+.B \-crop WxH+X+Y
+Crop to a rectangular subarea of width W, height H starting at point X,Y.
+.PP
+Other not-strictly-lossless transformation switches are:
+.TP
+.B \-grayscale
+Force grayscale output.
+.IP
+This option discards the chrominance channels if the input image is YCbCr
+(ie, a standard color JPEG), resulting in a grayscale JPEG file.  The
+luminance channel is preserved exactly, so this is a better method of reducing
+to grayscale than decompression, conversion, and recompression.  This switch
+is particularly handy for fixing a monochrome picture that was mistakenly
+encoded as a color JPEG.  (In such a case, the space savings from getting rid
+of the near-empty chroma channels won't be large; but the decoding time for
+a grayscale JPEG is substantially less than that for a color JPEG.)
+.TP
+.BI \-scale " M/N"
+Scale the output image by a factor M/N.
+.IP
+Currently supported scale factors are M/N with all M from 1 to 16, where N is
+the source DCT size, which is 8 for baseline JPEG.  If the /N part is omitted,
+then M specifies the DCT scaled size to be applied on the given input.  For
+baseline JPEG this is equivalent to M/8 scaling, since the source DCT size
+for baseline JPEG is 8.
+.B Caution:
+An implementation of the JPEG SmartScale extension is required for this
+feature.  SmartScale enabled JPEG is not yet widely implemented, so many
+decoders will be unable to view a SmartScale extended JPEG file at all.
+.PP
+.B jpegtran
+also recognizes these switches that control what to do with "extra" markers,
+such as comment blocks:
+.TP
+.B \-copy none
+Copy no extra markers from source file.  This setting suppresses all
+comments and other excess baggage present in the source file.
+.TP
+.B \-copy comments
+Copy only comment markers.  This setting copies comments from the source file,
+but discards any other inessential (for image display) data.
+.TP
+.B \-copy all
+Copy all extra markers.  This setting preserves miscellaneous markers
+found in the source file, such as JFIF thumbnails, Exif data, and Photoshop
+settings.  In some files these extra markers can be sizable.
+.IP
+The default behavior is
+.BR "\-copy comments" .
+(Note: in IJG releases v6 and v6a,
+.B jpegtran
+always did the equivalent of
+.BR "\-copy none" .)
+.PP
+Additional switches recognized by jpegtran are:
+.TP
+.BI \-maxmemory " N"
+Set limit for amount of memory to use in processing large images.  Value is
+in thousands of bytes, or millions of bytes if "M" is attached to the
+number.  For example,
+.B \-max 4m
+selects 4000000 bytes.  If more space is needed, temporary files will be used.
+.TP
+.BI \-outfile " name"
+Send output image to the named file, not to standard output.
+.TP
+.B \-verbose
+Enable debug printout.  More
+.BR \-v 's
+give more output.  Also, version information is printed at startup.
+.TP
+.B \-debug
+Same as
+.BR \-verbose .
+.SH EXAMPLES
+.LP
+This example converts a baseline JPEG file to progressive form:
+.IP
+.B jpegtran \-progressive
+.I foo.jpg
+.B >
+.I fooprog.jpg
+.PP
+This example rotates an image 90 degrees clockwise, discarding any
+unrotatable edge pixels:
+.IP
+.B jpegtran \-rot 90 -trim
+.I foo.jpg
+.B >
+.I foo90.jpg
+.SH ENVIRONMENT
+.TP
+.B JPEGMEM
+If this environment variable is set, its value is the default memory limit.
+The value is specified as described for the
+.B \-maxmemory
+switch.
+.B JPEGMEM
+overrides the default value specified when the program was compiled, and
+itself is overridden by an explicit
+.BR \-maxmemory .
+.SH SEE ALSO
+.BR cjpeg (1),
+.BR djpeg (1),
+.BR rdjpgcom (1),
+.BR wrjpgcom (1)
+.br
+Wallace, Gregory K.  "The JPEG Still Picture Compression Standard",
+Communications of the ACM, April 1991 (vol. 34, no. 4), pp. 30-44.
+.SH AUTHOR
+Independent JPEG Group
+.SH BUGS
+The transform options can't transform odd-size images perfectly.  Use
+.B \-trim
+or
+.B \-perfect
+if you don't like the results.
+.PP
+The entire image is read into memory and then written out again, even in
+cases where this isn't really necessary.  Expect swapping on large images,
+especially when using the more complex transform options.

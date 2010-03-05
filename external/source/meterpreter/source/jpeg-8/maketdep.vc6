@@ -1,0 +1,43 @@
+# Microsoft Developer Studio erstellte Abhängigkeitsdatei, einbezogen von jpegtran.mak
+
+.\cdjpeg.c : \
+	".\cderror.h"\
+	".\cdjpeg.h"\
+	".\jconfig.h"\
+	".\jerror.h"\
+	".\jinclude.h"\
+	".\jmorecfg.h"\
+	".\jpeglib.h"\
+	
+
+.\jpegtran.c : \
+	".\cderror.h"\
+	".\cdjpeg.h"\
+	".\jconfig.h"\
+	".\jerror.h"\
+	".\jinclude.h"\
+	".\jmorecfg.h"\
+	".\jpeglib.h"\
+	".\jversion.h"\
+	".\transupp.h"\
+	
+
+.\rdswitch.c : \
+	".\cderror.h"\
+	".\cdjpeg.h"\
+	".\jconfig.h"\
+	".\jerror.h"\
+	".\jinclude.h"\
+	".\jmorecfg.h"\
+	".\jpeglib.h"\
+	
+
+.\transupp.c : \
+	".\jconfig.h"\
+	".\jerror.h"\
+	".\jinclude.h"\
+	".\jmorecfg.h"\
+	".\jpegint.h"\
+	".\jpeglib.h"\
+	".\transupp.h"\
+	
