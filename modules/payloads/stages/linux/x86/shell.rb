@@ -21,7 +21,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Linux Command Shell',
 			'Version'       => '$Revision$',
-			'Description'   => 'Spawn a command shell',
+			'Description'   => 'Spawn a command shell (staged)',
 			'Author'        => 'skape',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'linux',

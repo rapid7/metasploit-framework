@@ -21,7 +21,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'OSX (vfork) Command Shell',
 			'Version'       => '$Revision$',
-			'Description'   => 'Call vfork() if necessary and spawn a command shell',
+			'Description'   => 'Call vfork() if necessary and spawn a command shell (staged)',
 			'Author'        => 'ddz',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',

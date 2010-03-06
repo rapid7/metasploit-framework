@@ -21,7 +21,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'OSX Write and Execute Binary',
 			'Version'       => '$Revision$',
-			'Description'   => 'Spawn a command shell',
+			'Description'   => 'Spawn a command shell (staged)',
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'osx',

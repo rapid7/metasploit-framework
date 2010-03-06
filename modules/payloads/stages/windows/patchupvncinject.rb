@@ -28,7 +28,7 @@ module Metasploit3
 		super(update_info(info,
 			'Name'          => 'Windows VNC Inject (skape/jt injection)',
 			'Version'       => '$Revision$',
-			'Description'   => 'Inject the VNC server DLL and run it from memory',
+			'Description'   => 'Inject the VNC server DLL and run it from memory (staged)',
 			'Author'        => [ 'skape', 'jt <jt@klake.org>' ],
 			'License'       => MSF_LICENSE,
 			'Session'       => Msf::Sessions::VncInject))

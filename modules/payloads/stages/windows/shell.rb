@@ -22,7 +22,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Windows Command Shell',
 			'Version'       => '$Revision$',
-			'Description'   => 'Spawn a piped command shell',
+			'Description'   => 'Spawn a piped command shell (staged)',
 			'Author'        => [ 'spoonm', 'sf' ],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',

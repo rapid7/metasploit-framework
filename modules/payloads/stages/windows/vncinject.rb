@@ -17,7 +17,7 @@ module Metasploit3
 		super(update_info(info,
 			'Name'          => 'VNC Server (Reflective Injection)',
 			'Version'       => '$Revision$',
-			'Description'   => 'Inject a VNC Dll via a reflective loader',
+			'Description'   => 'Inject a VNC Dll via a reflective loader (staged)',
 			'Author'        => [ 'sf' ],
 			'Session'       => Msf::Sessions::VncInject ))
       

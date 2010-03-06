@@ -18,7 +18,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'NetWare Command Shell',
 			'Version'       => '$Revision$',
-			'Description'   => 'Connect to the NetWare console',
+			'Description'   => 'Connect to the NetWare console (staged)',
 			'Author'        => 'toto',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'netware',

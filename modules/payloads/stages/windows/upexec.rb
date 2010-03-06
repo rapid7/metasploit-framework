@@ -22,7 +22,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'Windows Upload/Execute',
 			'Version'       => '$Revision$',
-			'Description'   => 'Uploads an executable and runs it',
+			'Description'   => 'Uploads an executable and runs it (staged)',
 			'Author'        => ['vlad902', 'sf' ],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
