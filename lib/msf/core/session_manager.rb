@@ -9,7 +9,7 @@ module Msf
 # supplied interfaces for interacting with that session.  For instance,
 # if the payload supports reading and writing from an executed process,
 # the session would implement SimpleCommandShell in a method that is
-# applicable to the way that the command interpreter is communicated 
+# applicable to the way that the command interpreter is communicated
 # with.
 #
 ###
@@ -22,11 +22,18 @@ class SessionManager < Hash
 		self.sid_pool  = 0
 		self.reaper_thread = Thread.new do
 			while true
-				sleep(1)
+				select(nil, nil, nil, 0.5)
 				each_value do |s|
 					if not s.alive?
 						deregister(s, "Died")
 						dlog("Session #{s.sid} has died")
+						next
+					end
+
+					if s.respond_to?('rstream') and s.rstream.eof
+						deregister(s, "Died")
+						dlog("Session #{s.sid} has died")
+						next
 					end
 				end
 			end
@@ -58,7 +65,7 @@ class SessionManager < Hash
 		# Initialize the session's sid and framework instance pointer
 		session.sid       = next_sid
 		session.framework = framework
-	
+
 		# Notify the framework that we have a new session opening up...
 		framework.events.on_session_open(session)
 
@@ -101,10 +108,11 @@ class SessionManager < Hash
 	end
 
 protected
-	
+
 	attr_accessor :sid_pool, :sessions # :nodoc:
 	attr_accessor :reaper_thread # :nodoc:
 
 end
 
 end
+
