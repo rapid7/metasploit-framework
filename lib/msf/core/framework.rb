@@ -239,7 +239,7 @@ class FrameworkEventSubscriber
 	end
 
 	def session_event(name, session, opts={})
-		address = session.tunnel_peer[0, session.tunnel_peer.rindex(":")]
+		address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
 
 		if framework.db.active
 			event = {
