@@ -126,6 +126,13 @@ class DBManager
 		Workspace.find(:all)
 	end
 
+	#
+	# Wait for all pending write to finish
+	#
+	def sync
+		task = queue( Proc.new { } )
+		task.wait
+	end
 
 	#
 	# Find a host.  Performs no database writes.
@@ -1497,7 +1504,7 @@ class DBManager
 		data = f.read(f.stat.size)
 		import_ip_list(data, wspace)
 	end
-	
+
 	def import_ip_list(data, wspace)
 		data.each_line do |line|
 			host = find_or_create_host(:workspace => wspace, :host=> line, :state => Msf::HostState::Alive)
