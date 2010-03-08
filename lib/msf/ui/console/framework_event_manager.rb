@@ -40,7 +40,8 @@ module FrameworkEventManager
 		if framework.db.active and session.via_exploit and session.via_exploit != "multi/handler"
 			info = {
 				:host => session.tunnel_peer.sub(/:\d+$/, ''), # strip off the port
-				:name => session.via_exploit
+				:name => session.via_exploit,
+				:workspace => session.workspace
 			}
 			framework.db.report_vuln(info)
 		end
@@ -69,3 +70,4 @@ end
 end
 end
 end
+
