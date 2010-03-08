@@ -37,7 +37,7 @@ This license does not apply to the following components:
    corresponding header files in the source tree
  - The Packet Sniffer SDK (MicroOLAP) library embedded into the Meterpreter
    Sniffer extension. HD Moore has a single-seat developer license.
- - The vncdll.dll binary and its associated source code (modified RealVNC)
+ - The vncdll.dll and vncdll.x64.dll binaries and their associated source code (modified TightVNC)
  - The icons used by msfweb that were not created by Metasploit
  - The Bit-Struct library located under lib/bit-struct
  - The Byakugan plugin located under external/source/byakugan
