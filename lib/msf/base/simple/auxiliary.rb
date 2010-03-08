@@ -56,8 +56,8 @@ module Auxiliary
 		mod.options.validate(mod.datastore)
 
 		# Initialize user interaction
-		if(not opts['Quiet'])
-			mod.init_ui(opts['LocalInput'],opts['LocalOutput'])
+		if ! opts['Quiet']
+			mod.init_ui(opts['LocalInput'] || mod.user_input, opts['LocalOutput'] || mod.user_output)
 		else
 			mod.init_ui(nil, nil)
 		end
