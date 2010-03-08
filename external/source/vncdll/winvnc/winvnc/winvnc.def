@@ -1,4 +1,0 @@
-LIBRARY "vncdll.dll"
-
-EXPORTS
-		Init PRIVATE
