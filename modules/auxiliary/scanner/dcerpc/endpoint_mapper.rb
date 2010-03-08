@@ -73,7 +73,13 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 			report_host(:host => ip, :name => name) if name
-
+			report_service(
+				:host => ip,
+				:port => rport,
+				:proto => 'tcp'
+				:name => "dcerpc",
+				:info => "Endpoint Mapper (#{ids.length} services)"
+			)
 
 		rescue ::Interrupt
 			raise $!
