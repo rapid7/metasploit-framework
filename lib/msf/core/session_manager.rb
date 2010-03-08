@@ -22,7 +22,7 @@ class SessionManager < Hash
 		self.sid_pool  = 0
 		self.reaper_thread = Thread.new do
 			while true
-				select(nil, nil, nil, 0.5)
+				::Kernel.select(nil, nil, nil, 0.5)
 				each_value do |s|
 					if not s.alive?
 						deregister(s, "Died")
