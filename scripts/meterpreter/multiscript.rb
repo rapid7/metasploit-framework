@@ -22,10 +22,12 @@ def script_exec(session,scrptlst)
 	print_status("Running script List ...")
 	scrptlst.each_line do |scrpt|
 		begin
+			script_components = scrpt.split(" ")
+			script = script_components.shift
+			script_args = script_components.join(" ")
+			script_path = Msf::Sessions::Meterpreter.find_script_path(script)
 			print_status "\trunning script #{scrpt.chomp}"
-			client = session
-                        args = scrpt.chomp.split
-                        session.execute_script(args.shift,binding)
+			session.execute_script(script_path, script_args)
                 rescue ::Exception => e
                         print_error("Error: #{e.class} #{e}")
                         print_error("Error in script: #{scrpt}")
@@ -40,22 +42,22 @@ end
 
 ################## Main ##################
 @@exec_opts.parse(args) do |opt, idx, val|
-case opt
+	case opt
 
-when "-c"
-	commands = val.gsub(/;/,"\n")
-when "-s"
-	script = val
-	if not ::File.exists?(script)
-		raise "Script List File does not exists!"
-	else
-		::File.open(script, "r").each_line do |line|
-			commands << line
+	when "-c"
+		commands = val.gsub(/;/,"\n")
+	when "-s"
+		script = val
+		if not ::File.exists?(script)
+			raise "Script List File does not exists!"
+		else
+			::File.open(script, "r").each_line do |line|
+				commands << line
+			end
 		end
+	when "-h"
+		help = 1
 	end
-when "-h"
-        help = 1
-end
 end
 
 if args.length == 0 or help == 1 
