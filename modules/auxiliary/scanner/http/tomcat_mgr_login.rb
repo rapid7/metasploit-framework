@@ -61,6 +61,15 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+
+		res = send_request_cgi({
+			'uri'     => "/manager/html",
+			'method'  => 'GET'
+		}, 25)
+
+		return if not res
+		return if not res.code == 401
+
 		each_user_pass { |user, pass|
 			userpass_sleep_interval unless self.credentials_tried.empty?
 			this_cred = [user,ip,rport].join(":")
@@ -117,3 +126,4 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
+
