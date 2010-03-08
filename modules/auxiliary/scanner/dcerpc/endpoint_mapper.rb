@@ -76,15 +76,16 @@ class Metasploit3 < Msf::Auxiliary
 			report_service(
 				:host => ip,
 				:port => rport,
-				:proto => 'tcp'
+				:proto => 'tcp',
 				:name => "dcerpc",
 				:info => "Endpoint Mapper (#{ids.length} services)"
 			)
 
 		rescue ::Interrupt
 			raise $!
+		rescue ::Rex::Proto::DCERPC::Exceptions::Fault
 		rescue ::Exception => e
-			print_status("Error: #{e}")
+			print_status("#{ip}:#{rport} error: #{e}")
 		end
 	end
 
