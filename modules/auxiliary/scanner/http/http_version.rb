@@ -42,9 +42,9 @@ class Metasploit3 < Msf::Auxiliary
 				'method'       => 'GET'
 			}, 10)
 
-			if (res and res.headers['Server'])
+			if (res)
 				extra = http_fingerprint(res)
-				print_status("#{ip} is running #{res.headers['Server']}#{extra}")
+				print_status("#{ip} #{res.headers['Server'] ? ("is running " + res.headers['Server']) : "has no server header"}#{extra}")
 				report_service(:host => ip, :port => rport, :name => (ssl ? 'https' : 'http'), :info => "#{res.headers['Server']}#{extra}")
 			end
 
@@ -61,11 +61,33 @@ class Metasploit3 < Msf::Auxiliary
 		return if not res.body
 		extras = []
 
+		case res.code
+		when 301,302
+			extras << "#{res.code}-#{res.headers['Location']}"
+		when 401
+			extras << "#{res.code}-#{res.headers['WWW-Authenticate']}"
+		when 403
+			extras << "#{res.code}-#{res.headers['WWW-Authenticate']||res.message}"
+		when 500 .. 599
+			extras << "#{res.code}-#{res.message}"
+		end
+
 		if (res.headers['X-Powered-By'])
 			extras << "Powered by " + res.headers['X-Powered-By']
 		end
 
+		if (res.headers['Via'])
+			extras << "Via-" + res.headers['Via']
+		end
+
+		if (res.headers['X-AspNet-Version'])
+			extras << "AspNet-Version-" + res.headers['X-AspNet-Version']
+		end
+
 		case res.body
+
+			when /ID_ESX_Welcome/
+				extras << "VMware ESX Server"
 
 			when /Test Page for.*Fedora/
 				extras << "Fedora Default Page"
@@ -81,8 +103,10 @@ class Metasploit3 < Msf::Auxiliary
 
 			when /swfs\/Shell\.html/
 				extras << "BPS-1000"
-
 		end
+
+
+
 
 		if (extras.length == 0)
 			return ''
