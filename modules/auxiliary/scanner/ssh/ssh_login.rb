@@ -114,8 +114,20 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_report(ip,user,pass,port,proof)
-		report_service(:host => ip, :port => rport, :name => 'ssh')
-		report_auth_info(:host => ip, :port => rport, :proto => 'ssh', :user => user, :pass => pass, :proof => proof)
+		report_service(
+			:host => ip,
+			:port => rport,
+			:name => 'ssh'
+		)
+		report_auth_info(
+			:host => ip,
+			:proto => 'ssh',
+			:user => user,
+			:pass => pass,
+			:targ_host => ip,
+			:targ_port => datastore['RPORT'],
+			:proof => proof
+		)
 	end
 
 	def run_host(ip)
