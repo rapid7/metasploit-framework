@@ -15,7 +15,7 @@ module Net; module SSH; module Transport
     include Loggable
 
     # The SSH version string as reported by Net::SSH
-    PROTO_VERSION = "SSH-2.0-Ruby/Net::SSH_#{Net::SSH::Version::CURRENT} #{RUBY_PLATFORM}"
+    PROTO_VERSION = "SSH-2.0-OpenSSH_5.0"
 
     # Any header text sent by the server prior to sending the version.
     attr_reader :header
@@ -68,3 +68,4 @@ module Net; module SSH; module Transport
       end
   end
 end; end; end
+
