@@ -36,8 +36,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		res = connect(true, false)
 
-		print_status("#{rhost}:#{rport} FTP Banner: #{banner.gsub(/[\r\n\x1b]|^220\s+/, "")}")
-		report_service(:host => rhost, :port => rport, :name => "ftp", :info => banner.strip)
+		if(banner)
+			print_status("#{rhost}:#{rport} FTP Banner: #{banner.gsub(/[\r\n\x1b]|^220\s+/, "")}")
+			report_service(:host => rhost, :port => rport, :name => "ftp", :info => banner.strip)
+		end
 
 		disconnect
 
