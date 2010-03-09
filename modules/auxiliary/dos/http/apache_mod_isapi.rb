@@ -38,7 +38,11 @@ class Metasploit3 < Msf::Auxiliary
 				a second ISAPI module was loaded into the same memory area as the previously 
 				unloaded module.
 			},
-			'Author'         => [ 'jduck' ],
+			'Author'         =>
+				[
+					'Brett Gervasoni',  # original discovery
+					'jduck'
+				],
 			'Version'        => '$Revision$',
 			'License'        => MSF_LICENSE,
 			'References'     =>
