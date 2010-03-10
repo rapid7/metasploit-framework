@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'SID Enumeration.',
+			'Name'           => 'Oracle SID Enumeration.',
 			'Description'    => %q{
 				This module simply queries the TNS listner for the Oracle SID. 
 				With Oracle 9.2.0.8 and above the listener will be protected and 
@@ -46,29 +46,33 @@ class Metasploit3 < Msf::Auxiliary
 				if ( data and data =~ /ERROR_STACK/ )
 					print_error("TNS listener protected for #{ip}...")
 				else
-					sid = data.scan(/INSTANCE_NAME=([^\)]+)/)
-						sid.uniq.each do |s|
-							report_note(
-								:host   => ip,
-								:proto  => 'tcp',
-								:port   => datastore['RPORT'],
-								:type   => 'INSTANCE_NAME',
-								:data   => "#{s}"
-							)
-							print_status("Identified SID for #{ip}: #{s}")
-						end
+					if(not data)
+						print_error("#{ip} Connection but no data")
+					else
+						sid = data.scan(/INSTANCE_NAME=([^\)]+)/)
+							sid.uniq.each do |s|
+								report_note(
+									:host   => ip,
+									:proto  => 'tcp',
+									:port   => datastore['RPORT'],
+									:type   => 'INSTANCE_NAME',
+									:data   => "#{s}"
+								)
+								print_status("Identified SID for #{ip}: #{s}")
+							end
+						service_name = data.scan(/SERVICE_NAME=([^\)]+)/)
+							service_name.each do |s|
+								report_note(
+									:host   => ip,
+									:proto  => 'tcp',
+									:port   => datastore['RPORT'],
+									:type   => 'SERVICE_NAME',
+									:data   => "#{s}"
+								)
+								print_status("Identified SERVICE_NAME for #{ip}: #{s}")
+							end
+					end
 				end
-					service_name = data.scan(/SERVICE_NAME=([^\)]+)/)
-						service_name.each do |s|
-							report_note(
-								:host   => ip,
-								:proto  => 'tcp',
-								:port   => datastore['RPORT'],
-								:type   => 'SERVICE_NAME',
-								:data   => "#{s}"
-							)
-							print_status("Identified SERVICE_NAME for #{ip}: #{s}")
-						end
 			disconnect
 		rescue ::Rex::ConnectionError
 		rescue ::Errno::EPIPE
