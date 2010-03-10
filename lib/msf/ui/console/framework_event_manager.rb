@@ -41,7 +41,7 @@ module FrameworkEventManager
 			info = {
 				:host => session.tunnel_peer.sub(/:\d+$/, ''), # strip off the port
 				:name => session.via_exploit,
-				:workspace => session.workspace
+				:workspace => framework.db.find_workspace(session.workspace)
 			}
 			framework.db.report_vuln(info)
 		end
