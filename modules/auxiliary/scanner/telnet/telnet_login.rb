@@ -97,6 +97,8 @@ class Metasploit3 < Msf::Auxiliary
 		if ret == :no_pass_prompt
 			print_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to missing password prompt" if datastore['VERBOSE']
 			self.no_pass_prompt << this_cred
+		elsif ret == :timeout
+			print_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to timeout" if datastore['VERBOSE']
 		else
 			start_telnet_session(rhost,rport,user,pass) if login_succeeded?
 		end
@@ -170,7 +172,11 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			print_error("#{rhost}:#{rport} Error: #{e.class} #{e} #{e.backtrace}")
+			if e.to_s == "execution expired"
+				return :timeout
+			else
+				print_error("#{rhost}:#{rport} Error: #{e.class} #{e} #{e.backtrace}")
+			end
 		end
 
 	end
