@@ -21,7 +21,8 @@ module MeterpreterOptions
 			[
 				OptBool.new('AutoLoadStdapi', [true, "Automatically load the Stdapi extension", true]),
 				OptString.new('InitialAutoRunScript', [false, "An initial script to run on session created (before AutoRunScript)", '']),
-				OptString.new('AutoRunScript', [false, "A script to automatically on session creation.", ''])
+				OptString.new('AutoRunScript', [false, "A script to automatically on session creation.", '']),
+				OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
 			], self.class)
 	end
 
@@ -39,6 +40,10 @@ module MeterpreterOptions
 			session.load_stdapi
 			if (framework.exploits.create(session.via_exploit).privileged?)
 				session.load_priv
+			end
+
+			if datastore['AutoSystemInfo']
+				session.load_session_info
 			end
 		end
 

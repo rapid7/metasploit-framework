@@ -390,8 +390,9 @@ class ReadableText
 		columns =
 			[
 				'Id',
-				'Description',
-				'Tunnel'
+				'Type',
+				'Information',
+				'Connection'
 			]
 
 		columns << 'Via' if verbose
@@ -404,7 +405,7 @@ class ReadableText
 		framework.sessions.each_sorted { |k|
 			session = framework.sessions[k]
 
-			row = [ session.sid.to_s, session.desc, session.tunnel_to_s ]
+			row = [ session.sid.to_s, session.type.to_s, session.info.to_s, session.tunnel_to_s ]
 			row << session.via_exploit if verbose and session.via_exploit
 
 			tbl << row

@@ -177,6 +177,23 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	end
 
 	#
+	# Populate the session information.
+	#
+	def load_session_info()
+		begin
+			username = self.sys.config.getuid
+			sysinfo  = self.sys.config.sysinfo
+			syspid   = self.sys.process.getpid
+
+			self.info = "#{username} @ #{sysinfo['Computer']} (#{syspid})"
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
+			$stderr.puts "ERROR: #{e.class} #{e} #{e.backtrace}"
+		end
+	end
+
+	#
 	# Interacts with the meterpreter client at a user interface level.
 	#
 	def _interact
@@ -236,3 +253,4 @@ end
 
 end
 end
+
