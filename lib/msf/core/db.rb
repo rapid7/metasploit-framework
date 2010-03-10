@@ -424,6 +424,8 @@ class DBManager
 		return if not active
 		wait = opts.delete(:wait)
 		wspace = opts.delete(:workspace) || workspace
+		seen = opts.delete(:seen) || false
+		crit = opts.delete(:critical) || false
 		host = nil
 		addr = nil
 		# Report the host so it's there for the Proc to use below
@@ -487,8 +489,10 @@ class DBManager
 				if opts[:service] and opts[:service].kind_of? Service
 					note.service_id = opts[:service][:id]
 				end
-				note.ntype = ntype
-				note.data  = data
+				note.seen     = seen
+				note.critical = crit
+				note.ntype    = ntype
+				note.data     = data
 				note.save!
 			end
 
