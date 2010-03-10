@@ -60,7 +60,7 @@ module Stream
 	def read(length = nil, opts = {})
 		# XXX handle length being nil
 		begin
-			fd.sysread(length)
+			fd.readpartial(length)
 		rescue ::IOError, ::EOFError, ::Errno::EPIPE
 			return nil if (fd.abortive_close == true)
 			raise $!
@@ -294,7 +294,7 @@ module Stream
 	# This flag indicates whether or not an abortive close has been issued.
 	#
 	attr_accessor :abortive_close
-  
+
 protected
 
 end

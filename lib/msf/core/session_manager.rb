@@ -30,7 +30,7 @@ class SessionManager < Hash
 						next
 					end
 
-					if s.respond_to?('rstream') and s.rstream.eof
+					if s.respond_to?('rstream') and s.rstream.eof?
 						deregister(s, "Died")
 						dlog("Session #{s.sid} has died")
 						next

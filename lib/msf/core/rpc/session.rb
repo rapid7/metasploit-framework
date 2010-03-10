@@ -42,7 +42,7 @@ class Session < Base
 		if(not s.rstream.has_read_data?(0))
 			{ "data" => "" }
 		else
-			data = s.shell_read 
+			data = s.shell_read
 			if data.length > 0
 				@framework.events.on_session_output(s, data)
 			end

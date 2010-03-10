@@ -215,6 +215,15 @@ protected
 
 		include Rex::IO::StreamAbstraction
 
+
+		def peerinfo
+			@sock_inp.getpeername[1,2].map{|x| x.to_s}.join(":")
+		end
+
+		def localinfo
+			@sock_inp.getpeername[1,2].map{|x| x.to_s}.join(":")
+		end
+
 		def initialize(inp, out)
 			@sock_inp = inp
 			@sock_out = out
@@ -273,3 +282,4 @@ end
 
 end
 end
+

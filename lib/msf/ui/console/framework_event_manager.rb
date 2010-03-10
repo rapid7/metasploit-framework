@@ -59,7 +59,7 @@ module FrameworkEventManager
 		Msf::Logging::stop_session_log(session)
 
 		msg = "#{session.desc} session #{session.name} closed."
-		if reason.length > 0
+		if reason and reason.length > 0
 			msg << "  Reason: #{reason}"
 		end
 		output.print_status(msg)
