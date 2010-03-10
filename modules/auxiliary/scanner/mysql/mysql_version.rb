@@ -58,15 +58,28 @@ class Metasploit3 < Msf::Auxiliary
 
 		proto = data[offset, 1].unpack('C')[0]
 
-		# Error condition
-		return if proto == 255
-
-		offset += 1
-
-		version = data[offset..-1].unpack('Z*')[0]
-
-		print_status("#{rhost}:#{rport} is running MySQL #{version} (protocol #{proto})")
-		report_service(:host => rhost, :port => rport, :name => "mysql", :info => version)
+		# Application-level error condition
+		if proto == 255
+			offset += 2
+			err_msg = data[offset..-1].to_s.gsub(/[\x00-\x19\x7f-\xff]/) {|s| "\\x%02x" % s[0].ord}
+			print_status("#{rhost}:#{rport} is running MySQL, but responds with an error: #{err_msg}")
+			report_service(
+				:host => rhost,
+				:port => rport,
+				:name => "mysql",
+				:info => "Error: #{err_msg}"
+			)
+		else
+			offset += 1
+			version = data[offset..-1].unpack('Z*')[0]
+			print_status("#{rhost}:#{rport} is running MySQL #{version} (protocol #{proto})")
+			report_service(
+				:host => rhost,
+				:port => rport,
+				:name => "mysql",
+				:info => version
+			)
+		end
 	end
 end
 
