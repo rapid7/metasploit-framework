@@ -19,15 +19,16 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Microsoft Windows 7 / Server 2008 R2 SMB Client Infinite Loop',
 			'Description'    => %q{
-				This module exploits a denial of service flaw in the Microsoft
-			Windows SMB client on Windows 7 and Windows Server 2008 R2. To trigger
-			this bug, run this module as a service and force a vulnerability client
-			to access the IP of this system as a SMB server. This can be accomplished
-			by embedding a UNC path (\\HOST\share\something) into a web page if the
-			target is using Internet Explorer, or a Word document otherwise.
+					This module exploits a denial of service flaw in the Microsoft
+				Windows SMB client on Windows 7 and Windows Server 2008 R2. To trigger
+				this bug, run this module as a service and forces a vulnerabile client
+				to access the IP of this system as an SMB server. This can be accomplished
+				by embedding a UNC path (\\HOST\share\something) into a web page if the
+				target is using Internet Explorer, or a Word document otherwise.
 			},
 			'References'     =>
 				[
+					['CVE', '2010-0017'],
 					['URL', 'http://g-laurent.blogspot.com/2009/11/windows-7-server-2008r2-remote-kernel.html'],
 				],
 			'Author'         => [ 'Laurent Gaffie <laurent.gaffie[at]gmail.com>', 'hdm' ],
