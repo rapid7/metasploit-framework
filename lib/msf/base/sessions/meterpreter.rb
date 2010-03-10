@@ -181,15 +181,16 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	def load_session_info()
 		begin
-			username = self.sys.config.getuid
-			sysinfo  = self.sys.config.sysinfo
-			syspid   = self.sys.process.getpid
-
-			self.info = "#{username} @ #{sysinfo['Computer']} (#{syspid})"
+			::Timeout.timeout(20) do
+				username  = self.sys.config.getuid
+				sysinfo   = self.sys.config.sysinfo
+				syspid    = self.sys.process.getpid
+				self.info = "#{username} @ #{sysinfo['Computer']} (#{syspid})"
+			end
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			$stderr.puts "ERROR: #{e.class} #{e} #{e.backtrace}"
+			# $stderr.puts "ERROR: #{e.class} #{e} #{e.backtrace}"
 		end
 	end
 
