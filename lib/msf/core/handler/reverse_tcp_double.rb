@@ -205,6 +205,11 @@ protected
 	attr_accessor :conn_threads # :nodoc:
 
 
+	module TcpReverseDoubleChannelExt
+		attr_accessor :localinfo
+		attr_accessor :peerinfo
+	end
+
 	###
 	#
 	# This class wrappers the communication channel built over the two inbound
@@ -215,20 +220,15 @@ protected
 
 		include Rex::IO::StreamAbstraction
 
-
-		def peerinfo
-			@sock_inp.getpeername[1,2].map{|x| x.to_s}.join(":")
-		end
-
-		def localinfo
-			@sock_inp.getpeername[1,2].map{|x| x.to_s}.join(":")
-		end
-
 		def initialize(inp, out)
 			@sock_inp = inp
 			@sock_out = out
 
 			initialize_abstraction
+
+			self.lsock.extend(TcpReverseDoubleChannelExt)
+			self.lsock.peerinfo  = @sock_inp.getpeername[1,2].map{|x| x.to_s}.join(":")
+			self.lsock.localinfo = @sock_inp.getsockname[1,2].map{|x| x.to_s}.join(":")
 
 			# Start a thread to pipe data between stdin/stdout and the two sockets
 			@monitor_thread = Thread.new {
