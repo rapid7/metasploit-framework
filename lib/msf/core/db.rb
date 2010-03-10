@@ -184,6 +184,10 @@ class DBManager
 			opts[:mac] = opts.delete(:host_mac)
 		end
 
+		if addr !~ /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+			raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
+		end
+
 		ret = {}
 		task = queue( Proc.new {
 			if opts[:comm] and opts[:comm].length > 0
