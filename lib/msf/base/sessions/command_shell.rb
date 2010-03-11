@@ -119,7 +119,7 @@ class CommandShell
 		end
 
 		# get the output that we have ready
-		rstream.get_once(-1, 1)
+		shell_read(-1, 1)
 	end
 
 
@@ -141,7 +141,7 @@ class CommandShell
 		# Read until we get the token or timeout.
 		buf = ''
 		idx = nil
-		while (tmp = rstream.get_once(-1, 1))
+		while (tmp = shell_read(-1, 1))
 			buf << tmp
 
 			# see if we have the wanted idx
@@ -163,7 +163,7 @@ class CommandShell
 	#
 	def shell_command_token_unix(cmd)
 		# read any pending data
-		buf = rstream.get_once(-1, 0.01)
+		buf = shell_read(-1, 0.01)
 		token = ::Rex::Text.rand_text_alpha(32)
 
 		# Send the command to the session's stdin.
@@ -177,7 +177,7 @@ class CommandShell
 	#
 	def shell_command_token_win32(cmd)
 		# read any pending data
-		buf = rstream.get_once(-1, 0.01)
+		buf = shell_read(-1, 0.01)
 		token = ::Rex::Text.rand_text_alpha(32)
 
 		# Send the command to the session's stdin.
@@ -189,11 +189,10 @@ class CommandShell
 	#
 	# Read from the command shell.
 	#
-	def shell_read(length = nil)
-		if length.nil?
-			rv = rstream.get_once(-1, 0)
-		else
-			rv = rstream.read(length)
+	def shell_read(length=-1, timeout=1)
+		rv = rstream.get_once(length, timeout)
+		if rv
+			framework.events.on_session_output(self, rv)
 		end
 		return rv
 	end
@@ -202,6 +201,7 @@ class CommandShell
 	# Writes to the command shell.
 	#
 	def shell_write(buf)
+		framework.events.on_session_command(self, buf.strip)
 		rstream.write(buf)
 	end
 

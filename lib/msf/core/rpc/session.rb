@@ -43,9 +43,6 @@ class Session < Base
 			{ "data" => "", "encoding" => "base64" }
 		else
 			data = s.shell_read
-			if data.length > 0
-				@framework.events.on_session_output(s, data)
-			end
 			{ "data" => Rex::Text.encode_base64(data), "encoding" => "base64" }
 		end
 	end
@@ -57,7 +54,6 @@ class Session < Base
 			raise ::XMLRPC::FaultException.new(403, "session is not a shell")
 		end
 		buff = Rex::Text.decode_base64(data)
-		@framework.events.on_session_command(s, buff)
 
 		{ "write_count" => s.shell_write(buff) }
 	end
