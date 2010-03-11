@@ -95,33 +95,92 @@ class UI < Rex::Post::UI
 	end
 
 	#
-	# Hijack the input desktop
-	#
-	def grab_input_desktop
-		request  = Packet.create_request('stdapi_ui_grab_input_desktop')
-		response = client.send_request(request)
-		return true
-	end
-
-	#
-	# List desktops
+	# Enumerate desktops.
 	#
 	def enum_desktops
-		request  = Packet.create_request('stdapi_ui_enumdesktops')
+		request  = Packet.create_request('stdapi_ui_desktop_enum')
 		response = client.send_request(request)
-		return response.get_tlv_values(TLV_TYPE_STRING)
+		desktopz = []
+		if( response.result == 0 )
+			response.each( TLV_TYPE_DESKTOP ) { | desktop |
+			desktopz << {
+					'session' => desktop.get_tlv_value( TLV_TYPE_DESKTOP_SESSION ),
+					'station' => desktop.get_tlv_value( TLV_TYPE_DESKTOP_STATION ),
+					'name'    => desktop.get_tlv_value( TLV_TYPE_DESKTOP_NAME )
+				}
+			}
+		end
+		return desktopz
 	end
-
+	
 	#
-	# List desktops
+	# Get the current desktop meterpreter is using.
 	#
-	def set_desktop(name="WinSta0\\Default")
-		request  = Packet.create_request('stdapi_ui_set_desktop')
-		request.add_tlv(TLV_TYPE_DESKTOP, name)
-		response = client.send_request(request)
-		return true
+	def get_desktop
+		request  = Packet.create_request( 'stdapi_ui_desktop_get' )
+		response = client.send_request( request )
+		desktop  = {}
+		if( response.result == 0 )
+			desktop = {
+					'session' => response.get_tlv_value( TLV_TYPE_DESKTOP_SESSION ),
+					'station' => response.get_tlv_value( TLV_TYPE_DESKTOP_STATION ),
+					'name'    => response.get_tlv_value( TLV_TYPE_DESKTOP_NAME )
+				}
+		end
+		return desktop
 	end
-
+	
+	#
+	# Change the meterpreters current desktop. The switch param sets this 
+	# new desktop as the interactive one (The local users visible desktop 
+	# with screen/keyboard/mouse control).
+	#
+	def set_desktop( session=-1, station='WinSta0', name='Default', switch=false )
+		request  = Packet.create_request( 'stdapi_ui_desktop_set' )
+		request.add_tlv( TLV_TYPE_DESKTOP_SESSION, session )
+		request.add_tlv( TLV_TYPE_DESKTOP_STATION, station )
+		request.add_tlv( TLV_TYPE_DESKTOP_NAME, name )
+		request.add_tlv( TLV_TYPE_DESKTOP_SWITCH, switch )
+		response = client.send_request( request )
+		if( response.result == 0 )
+			return true
+		end
+		return false
+	end
+	
+	#
+	# Grab a screenshot of the interactive desktop
+	#
+	def screenshot( quality=50 )
+		request = Packet.create_request( 'stdapi_ui_desktop_screenshot' ) 
+		request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY, quality )
+		# include the x64 screenshot dll if the host OS is x64
+		if( client.sys.config.sysinfo['Architecture'] =~ /^\S*x64\S*/ )
+			screenshot_path = ::File.join( Msf::Config.install_root, 'data', 'meterpreter', 'screenshot.x64.dll' )
+			screenshot_path = ::File.expand_path( screenshot_path )
+			screenshot_dll  = ''
+			::File.open( screenshot_path, 'rb' ) do |f|
+				screenshot_dll += f.read( f.stat.size )
+			end
+			request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER, screenshot_dll, false, true )
+			request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_LENGTH, screenshot_dll.length )
+		end
+		# but allways include the x86 screenshot dll as we can use it for wow64 processes if we are on x64
+		screenshot_path = ::File.join( Msf::Config.install_root, 'data', 'meterpreter', 'screenshot.dll' )
+		screenshot_path = ::File.expand_path( screenshot_path )
+		screenshot_dll  = ''
+		::File.open( screenshot_path, 'rb' ) do |f|
+			screenshot_dll += f.read( f.stat.size )
+		end
+		request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER, screenshot_dll, false, true )
+		request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_LENGTH, screenshot_dll.length )
+		# send the request and return the jpeg image if successfull.
+		response = client.send_request( request )
+		if( response.result == 0 )
+			return response.get_tlv_value( TLV_TYPE_DESKTOP_SCREENSHOT )
+		end
+		return nil
+	end
 
 	#
 	# Unlock or lock the desktop
@@ -159,7 +218,7 @@ class UI < Rex::Post::UI
 		response = client.send_request(request)
 		return response.get_tlv_value(TLV_TYPE_KEYS_DUMP);
 	end
-				
+	
 protected
 	attr_accessor :client # :nodoc:
 

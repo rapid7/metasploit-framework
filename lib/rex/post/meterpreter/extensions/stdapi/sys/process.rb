@@ -131,7 +131,13 @@ class Process < Rex::Post::Process
 			if (opts['UseThreadToken'])
 				flags |= PROCESS_EXECUTE_FLAG_USE_THREAD_TOKEN
 			end
-
+			if (opts['Desktop'])
+				flags |= PROCESS_EXECUTE_FLAG_DESKTOP
+			end
+			if (opts['Session'])
+				flags |= PROCESS_EXECUTE_FLAG_SESSION
+				request.add_tlv( TLV_TYPE_PROCESS_SESSION, opts['Session'] )
+			end
 			inmem = opts['InMemory']
 			if inmem
 
@@ -170,8 +176,8 @@ class Process < Rex::Post::Process
 
 		# Return a process instance
 		return self.new(pid, handle, channel)
-  end
-
+	end
+	
 	#
 	# Kills one or more processes.
 	#
@@ -233,6 +239,7 @@ class Process < Rex::Post::Process
 					'parentid' => p.get_tlv_value(TLV_TYPE_PARENT_PID),
 					'name'     => p.get_tlv_value(TLV_TYPE_PROCESS_NAME),
 					'path'     => p.get_tlv_value(TLV_TYPE_PROCESS_PATH),
+					'session'  => p.get_tlv_value(TLV_TYPE_PROCESS_SESSION),
 					'user'     => p.get_tlv_value(TLV_TYPE_USER_NAME),
 					'arch'     => arch
 				}
@@ -306,24 +313,24 @@ class Process < Rex::Post::Process
 		handle = nil;
 
 		return true
-  end
+	end
 
-  #
-  # Block untill this process terminates on the remote side.
-  # By default we choose not to allow a packet responce timeout to
-  # occur as we may be waiting indefinatly for the process to terminate.
-  #
-  def wait( timeout = -1 )
-    request = Packet.create_request('stdapi_sys_process_wait')
+	#
+	# Block untill this process terminates on the remote side.
+	# By default we choose not to allow a packet responce timeout to
+	# occur as we may be waiting indefinatly for the process to terminate.
+	#
+	def wait( timeout = -1 )
+		request = Packet.create_request('stdapi_sys_process_wait')
 
-    request.add_tlv(TLV_TYPE_HANDLE, self.handle)
+		request.add_tlv(TLV_TYPE_HANDLE, self.handle)
 
-    response = self.client.send_request(request, timeout)
+		response = self.client.send_request(request, timeout)
 
-    self.handle = nil
+		self.handle = nil
 
-    return true
-  end
+		return true
+	end
 
 	attr_reader   :client, :handle, :channel, :pid # :nodoc:
 protected
@@ -346,7 +353,7 @@ protected
 		info['path'] = response.get_tlv_value(TLV_TYPE_PROCESS_PATH)
 
 		return info
-  end
+	end
 
 end
 

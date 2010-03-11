@@ -28,7 +28,9 @@ class Console::CommandDispatcher::Stdapi::Sys
 		"-i" => [ false, "Interact with the process after creating it."            ],
 		"-m" => [ false, "Execute from memory."                                    ],
 		"-d" => [ true,  "The 'dummy' executable to launch when using -m."         ],
-		"-t" => [ false, "Execute process with currently impersonated thread token"])
+		"-t" => [ false, "Execute process with currently impersonated thread token"],
+		"-k" => [ false, "Execute process on the meterpreters current desktop"     ],
+		"-s" => [ true,  "Execute process in a given session as the session user"  ])
 
 	#
 	# Options used by the 'reg' command.
@@ -78,7 +80,9 @@ class Console::CommandDispatcher::Stdapi::Sys
 			args.unshift("-h")
 		end
 
+		session     = nil
 		interact    = false
+		desktop     = false
 		channelized = nil
 		hidden      = nil
 		from_mem    = false
@@ -101,6 +105,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 					from_mem = true
 				when "-d"
 					dummy_exec = val
+				when "-k"
+					desktop = true
 				when "-h"
 					print(
 						"Usage: execute -f file [options]\n\n" +
@@ -112,6 +118,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 					interact = true
 				when "-t"
 					use_thread_token = true
+				when "-s"
+					session = val.to_i
 			end
 		}
 
@@ -124,6 +132,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 		# Execute it
 		p = client.sys.process.execute(cmd_exec, cmd_args,
 			'Channelized' => channelized,
+			'Desktop'     => desktop,
+			'Session'     => session,
 			'Hidden'      => hidden,
 			'InMemory'    => (from_mem) ? dummy_exec : nil,
 			'UseThreadToken' => use_thread_token)
@@ -211,20 +221,22 @@ class Console::CommandDispatcher::Stdapi::Sys
 					"PID",
 					"Name",
 					"Arch",
+					"Session",
 					"User",
 					"Path"
 				])
 
 		processes.each { |ent|
 
-			arch = ent['arch']
+			session = ent['session'] == 0xFFFFFFFF ? '' : ent['session'].to_s
+			arch    = ent['arch']
 
 			# for display and consistency with payload naming we switch the internal 'x86_64' value to display 'x64'
 			if( arch == ARCH_X86_64 )
 				arch = "x64"
 			end
 
-			tbl << [ ent['pid'].to_s, ent['name'], arch, ent['user'], ent['path'] ]
+			tbl << [ ent['pid'].to_s, ent['name'], arch, session, ent['user'], ent['path'] ]
 		}
 
 		if (processes.length == 0)

