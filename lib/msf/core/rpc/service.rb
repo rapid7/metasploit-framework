@@ -7,7 +7,7 @@ module Msf
 module RPC
 class Service < ::XMLRPC::BasicServer
 
-	attr_accessor :service, :state
+	attr_accessor :service, :state, :on_input, :on_output, :on_error
 
 	def initialize(srvhost, srvport, ssl=false, cert=nil, ckey=nil)
 		self.service = Rex::Socket::TcpServer.create(
@@ -67,11 +67,18 @@ class Service < ::XMLRPC::BasicServer
 			mesg,left = self.state[c].split("\x00", 2)
 			self.state[c] = left
 			begin
+				self.on_input.call(mesg) if self.on_input
+
 				res = process(mesg)
+
+				self.on_output.call(res) if self.on_output
+
+				c.put(res+"\x00")
+			rescue ::Interrupt
+				raise $!
 			rescue ::Exception => e
-				$stderr.puts "XMLRPC Error: #{e.class} #{e} #{e.backtrace} (#{mesg})"
+				self.on_error.call(e) if self.on_error
 			end
-			c.put(res+"\x00")
 		end
 	end
 
