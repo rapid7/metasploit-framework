@@ -22,7 +22,7 @@ class Plugin::EventSounds < Msf::Plugin
 		play_sound(event)
 	end
 
-	def on_session_close(session)
+	def on_session_close(session, reason='')
 		sid = session.sid.to_s
 		play_sound('session')
 		sid.unpack("C*").each do |c|
