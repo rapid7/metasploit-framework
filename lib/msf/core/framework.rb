@@ -207,7 +207,7 @@ class FrameworkEventSubscriber
 				:workspace => framework.db.find_workspace(instance.workspace),
 				:name => "module_run",
 				:info => {
-					:module_name => instance.refname,
+					:module_name => instance.fullname,
 					:datastore   => instance.datastore.to_h
 				}
 			}
