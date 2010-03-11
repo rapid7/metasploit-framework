@@ -275,7 +275,19 @@ class FrameworkEventSubscriber
 	end
 
 	def on_session_output(session, output)
-		session_event('session_output', session, :output => output)
+		# Break up the output into chunks that will fit into the database.
+		buff = output.dup
+		chunks = []
+		if buff.length > 1024
+			while buff.length > 0
+				chunks << buff.slice!(0,1024)
+			end
+		else
+			chunks << buff
+		end
+		chunks.each { |chunk|
+			session_event('session_output', session, :output => chunk)
+		}
 	end
 
 
