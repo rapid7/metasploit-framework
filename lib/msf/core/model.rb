@@ -1,4 +1,5 @@
 require 'msf/core/model/user'
+require 'msf/core/model/task'
 require 'msf/core/model/loot'
 require 'msf/core/model/report'
 require 'msf/core/model/client'
