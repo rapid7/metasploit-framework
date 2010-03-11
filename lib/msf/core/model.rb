@@ -1,5 +1,6 @@
 require 'msf/core/model/user'
 require 'msf/core/model/loot'
+require 'msf/core/model/report'
 require 'msf/core/model/client'
 require 'msf/core/model/event'
 require 'msf/core/model/host'

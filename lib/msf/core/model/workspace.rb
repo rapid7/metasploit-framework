@@ -10,6 +10,7 @@ class Workspace < ActiveRecord::Base
 	has_many :notes, :dependent => :destroy
 	has_many :loots, :dependent => :destroy
 	has_many :events,:dependent => :destroy
+	has_many :reports, :dependent => :destroy
 
 	has_many :services, :through => :hosts
 	has_many :clients,  :through => :hosts
