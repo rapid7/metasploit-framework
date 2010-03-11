@@ -60,7 +60,7 @@ class NetwareConsole
 	#
 	# Writes to the command shell.
 	#
-	def shell_read(buf)
+	def shell_write(buf)
 		rstream.write(buf)
 	end
 
