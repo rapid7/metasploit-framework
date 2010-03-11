@@ -724,6 +724,9 @@ class DBManager
 		wspace.hosts.find_by_address(addr)
 	end
 
+	def events(wspace=workspace)
+		wspace.events
+	end
 
 	def report_event(opts = {})
 		return if not active
