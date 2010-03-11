@@ -15,6 +15,7 @@ class Output < Rex::Ui::Output
 	require 'rex/ui/text/output/stdio'
 	require 'rex/ui/text/output/socket'
 	require 'rex/ui/text/output/buffer'
+	require 'rex/ui/text/output/file'
 	require 'rex/ui/text/color'
 
 	include Rex::Ui::Text::Color
