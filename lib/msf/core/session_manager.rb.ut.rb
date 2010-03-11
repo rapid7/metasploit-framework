@@ -15,7 +15,7 @@ class UtSessionEvent
 	def on_session_open(session)
 		self.open_session = session
 	end
-	def on_session_close(session)
+	def on_session_close(session,reason='')
 		self.close_session = session
 	end
 
@@ -33,18 +33,18 @@ end
 		session.extend(Session)
 
 		assert_equal(1, manager.register(session), "Did not get expected sid")
-		assert_equal(1, session.sid, 
+		assert_equal(1, session.sid,
 			"Session sid was not initialized properly")
-		assert_equal(framework, session.framework, 
+		assert_equal(framework, session.framework,
 			"Session framework was not initialized properly")
-		assert_equal(1, manager.entries.length, 
+		assert_equal(1, manager.entries.length,
 			"Number of session manager entries is not one")
-		assert_equal(session, manager[session.sid], 
+		assert_equal(session, manager[session.sid],
 			"Index of sid did not return session")
 
 		manager.deregister(session)
-		
-		assert_equal(0, manager.entries.length, 
+
+		assert_equal(0, manager.entries.length,
 			"Number of session manager entries is not zero")
 	end
 
@@ -61,14 +61,15 @@ end
 		framework.events.add_session_subscriber(handler)
 
 		manager.register(session)
-		assert_equal(handler.open_session, session, 
+		assert_equal(handler.open_session, session,
 			"Open session handler not called")
 
 		manager.deregister(session)
-		assert_equal(handler.close_session, session, 
+		assert_equal(handler.close_session, session,
 			"Close session handler not called")
 	end
 
 end
 
 end
+

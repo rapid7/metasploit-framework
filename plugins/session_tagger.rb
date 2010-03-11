@@ -1,7 +1,7 @@
 module Msf
 
 ###
-# 
+#
 # This class hooks all session creation events and allows automated interaction
 # This is only an example of what you can do with plugins
 #
@@ -16,18 +16,18 @@ class Plugin::SessionTagger < Msf::Plugin
 		print_status("Hooked session #{session.sid} / #{session.tunnel_peer}")
 
 		# XXX: Determine what type of session this is before writing to it
-		
+
 		if (session.interactive?)
 			session.shell_write("MKDIR C:\\TaggedBy#{ENV['USER']}\n")
 			session.shell_write("mkdir /tmp/TaggedBy#{ENV['USER']}\n")
 		end
-		
+
 		#
 		# Read output with session.shell_read()
 		#
 	end
 
-	def on_session_close(session)
+	def on_session_close(session,reason='')
 		print_status("Hooked session #{session.sid} is shutting down")
 	end
 
@@ -50,3 +50,4 @@ class Plugin::SessionTagger < Msf::Plugin
 
 end
 end
+
