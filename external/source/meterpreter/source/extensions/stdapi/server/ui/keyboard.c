@@ -37,60 +37,6 @@ DWORD request_ui_enable_keyboard(Remote *remote, Packet *request)
 	return ERROR_SUCCESS;
 }
 
-
-/*
- * Hijacks the active input desktop
- */
-DWORD request_ui_grabdesktop(Remote *remote, Packet *request)
-{
-	Packet *response = packet_create_response(request);
-	DWORD result = ERROR_SUCCESS;
-	DWORD failed = 0;
-
-	HDESK desk;
-	HWINSTA os = GetProcessWindowStation();
-	HWINSTA ws = OpenWindowStation("winsta0", TRUE, MAXIMUM_ALLOWED);
-
-	if (ws == NULL) {
-		// This call to RevertToSelf() is sometimes necessary
-		RevertToSelf();
-		ws = OpenWindowStation("winsta0", TRUE, MAXIMUM_ALLOWED);
-	}
-
-	if (ws == NULL) {
-		failed = 1;
-	} else {
-		if (! SetProcessWindowStation(ws)) {
-			ws = NULL;
-			failed = 1;
-		} else {
-			// Close this to prevent the old handle from being used instead
-			CloseWindowStation(os);
-		}
-	}
-
-	desk = OpenInputDesktop(0, TRUE, MAXIMUM_ALLOWED);
-	if (ws && desk == NULL) {
-		CloseHandle(ws);
-		failed = 1;
-	}	
-
-	if (desk && ! SwitchDesktop(desk)) {
-		CloseHandle(ws);
-		CloseHandle(desk);
-		failed = 1;
-	}
-
-	SetThreadDesktop(desk);
-
-	if (failed) result = GetLastError();
-
-	// Transmit the response
-	packet_transmit_response(result, remote, response);
-	return ERROR_SUCCESS;
-}
-
-
 typedef enum { false=0, true=1 } bool;
 
 bool boom[1024];

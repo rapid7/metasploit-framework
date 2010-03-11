@@ -20,6 +20,13 @@ typedef struct _Remote
 	HANDLE hServerThread;
 	HANDLE hServerToken;
 	HANDLE hThreadToken;
+
+	DWORD dwOrigSessionId;
+	DWORD dwCurrentSessionId;
+	char * cpOrigStationName;
+	char * cpCurrentStationName;
+	char * cpOrigDesktopName;
+	char * cpCurrentDesktopName;
 } Remote;
 
 Remote *remote_allocate(SOCKET fd);

@@ -1,5 +1,6 @@
 #include "precomp.h"
 #include "ps.h" // include the code for listing proceses
+#include "./../session.h"
 #include "in-mem-exe.h" /* include skapetastic in-mem exe exec */
 
 /*
@@ -92,6 +93,8 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 	Tlv inMemoryData;
 	BOOL doInMemory = FALSE;
 	HANDLE token, pToken;
+	char * cpDesktop = NULL;
+	DWORD session = 0;
 
 	dprintf( "[PROCESS] request_sys_process_execute" );
 
@@ -111,20 +114,36 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			break;
 
 		// Get the execution arguments
-		arguments = packet_get_tlv_value_string(packet, 
-				TLV_TYPE_PROCESS_ARGUMENTS);
-		path      = packet_get_tlv_value_string(packet, 
-				TLV_TYPE_PROCESS_PATH);
-		flags     = packet_get_tlv_value_uint(packet,
-				TLV_TYPE_PROCESS_FLAGS);
+		arguments = packet_get_tlv_value_string(packet, TLV_TYPE_PROCESS_ARGUMENTS);
+		path      = packet_get_tlv_value_string(packet, TLV_TYPE_PROCESS_PATH);
+		flags     = packet_get_tlv_value_uint(packet, TLV_TYPE_PROCESS_FLAGS);
 
-		if (packet_get_tlv(packet, TLV_TYPE_VALUE_DATA, 
-				&inMemoryData) == ERROR_SUCCESS)
+		if (packet_get_tlv(packet, TLV_TYPE_VALUE_DATA, &inMemoryData) == ERROR_SUCCESS)
 		{	
 			doInMemory = TRUE;
 			createFlags |= CREATE_SUSPENDED;
 		}
 
+		if( flags & PROCESS_EXECUTE_FLAG_DESKTOP )
+		{
+			do
+			{
+				cpDesktop = (char *)malloc( 512 );
+				if( !cpDesktop )
+					break;
+
+				memset( cpDesktop, 0, 512 );
+
+				lock_acquire( remote->lock );
+
+				_snprintf( cpDesktop, 512, "%s\\%s", remote->cpCurrentStationName, remote->cpCurrentDesktopName );
+
+				lock_release( remote->lock );
+
+				si.lpDesktop = cpDesktop;
+
+			} while( 0 );
+		}
 
 		// If the remote endpoint provided arguments, combine them with the 
 		// executable to produce a command line
@@ -174,8 +193,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			chops.read            = process_channel_read;
 
 			// Allocate the pool channel
-			if (!(newChannel = channel_create_pool(0, 
-					CHANNEL_FLAG_SYNCHRONOUS, &chops)))
+			if (!(newChannel = channel_create_pool(0, CHANNEL_FLAG_SYNCHRONOUS, &chops)))
 			{
 				result = ERROR_NOT_ENOUGH_MEMORY;
 				break;
@@ -185,8 +203,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			channel_set_type(newChannel, "process");
 
 			// Allocate the stdin and stdout pipes
-			if ((!CreatePipe(&in[0], &in[1], &sa, 0)) ||
-			    (!CreatePipe(&out[0], &out[1], &sa, 0)))
+			if ((!CreatePipe(&in[0], &in[1], &sa, 0)) || (!CreatePipe(&out[0], &out[1], &sa, 0)))
 			{
 				channel_destroy(newChannel, NULL);
 
@@ -212,8 +229,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			ctx->pStdout  = out[0];
 
 			// Add the channel identifier to the response packet
-			packet_add_tlv_uint(response, TLV_TYPE_CHANNEL_ID,
-					channel_get_id(newChannel));
+			packet_add_tlv_uint(response, TLV_TYPE_CHANNEL_ID,channel_get_id(newChannel));
 		}
 
 		// If the hidden flag is set, create the process hidden
@@ -243,18 +259,63 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			}
 
 			// Try to execute the process with duplicated token
-			if (!CreateProcessAsUser(pToken, NULL, commandLine, NULL, NULL, inherit, 
-					createFlags, NULL, NULL, &si, &pi))
+			if (!CreateProcessAsUser(pToken, NULL, commandLine, NULL, NULL, inherit, createFlags, NULL, NULL, &si, &pi))
 			{
 				result = GetLastError();
 				break;
 			}
 		}
+		else if( flags & PROCESS_EXECUTE_FLAG_SESSION )
+		{
+			typedef BOOL (WINAPI * WTSQUERYUSERTOKEN)( ULONG SessionId, PHANDLE phToken );
+			WTSQUERYUSERTOKEN pWTSQueryUserToken = NULL;
+			HANDLE hToken     = NULL;
+			HMODULE hWtsapi32 = NULL;
+			BOOL bSuccess     = FALSE;
+			DWORD dwResult    = ERROR_SUCCESS;
+
+			do
+			{
+				// Note: wtsapi32!WTSQueryUserToken is not available on NT4 or 2000 so we dynamically resolve it.
+				hWtsapi32 = LoadLibraryA( "wtsapi32.dll" );
+
+				session = packet_get_tlv_value_uint( packet, TLV_TYPE_PROCESS_SESSION );
+
+				if( session_id( GetCurrentProcessId() ) == session || !hWtsapi32 )
+				{
+					if( !CreateProcess( NULL, commandLine, NULL, NULL, inherit, createFlags, NULL, NULL, &si, &pi ) )
+						BREAK_ON_ERROR( "[PROCESS] execute in self session: CreateProcess failed" );
+				}
+				else
+				{
+					pWTSQueryUserToken = (WTSQUERYUSERTOKEN)GetProcAddress( hWtsapi32, "WTSQueryUserToken" );
+					if( !pWTSQueryUserToken )
+						BREAK_ON_ERROR( "[PROCESS] execute in session: GetProcAdress WTSQueryUserToken failed" );
+
+					if( !pWTSQueryUserToken( session, &hToken ) )
+						BREAK_ON_ERROR( "[PROCESS] execute in session: WTSQueryUserToken failed" );
+						
+					if( !CreateProcessAsUser( hToken, NULL, commandLine, NULL, NULL, inherit, createFlags, NULL, NULL, &si, &pi ) )
+						BREAK_ON_ERROR( "[PROCESS] execute in session: CreateProcessAsUser failed" );
+				}
+
+			} while( 0 );
+			
+			if( hWtsapi32 )
+				FreeLibrary( hWtsapi32 );
+
+			if( hToken )
+				CloseHandle( hToken );
+
+			result = dwResult;
+
+			if( result != ERROR_SUCCESS )
+				break;
+		}
 		else
 		{
 			// Try to execute the process
-			if (!CreateProcess(NULL, commandLine, NULL, NULL, inherit, 
-					createFlags, NULL, NULL, &si, &pi))
+			if (!CreateProcess(NULL, commandLine, NULL, NULL, inherit, createFlags, NULL, NULL, &si, &pi))
 			{
 				result = GetLastError();
 				break;
@@ -270,10 +331,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			// Unmap the dummy executable and map in the new executable into the
 			// target process
 			//
-			if (!MapNewExecutableRegionInProcess(
-					pi.hProcess,
-					pi.hThread,
-					inMemoryData.buffer))
+			if (!MapNewExecutableRegionInProcess( pi.hProcess, pi.hThread, inMemoryData.buffer))
 			{
 				result = GetLastError();
 				break;
@@ -291,10 +349,9 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 		}
 
 		// Add the process identifier to the response packet
-		packet_add_tlv_uint(response, TLV_TYPE_PID,
-				pi.dwProcessId);
-		packet_add_tlv_uint(response, TLV_TYPE_PROCESS_HANDLE,
-				(DWORD)pi.hProcess);
+		packet_add_tlv_uint(response, TLV_TYPE_PID, pi.dwProcessId);
+
+		packet_add_tlv_uint(response, TLV_TYPE_PROCESS_HANDLE,(DWORD)pi.hProcess);
 
 		CloseHandle(pi.hThread);
 
@@ -311,6 +368,9 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 	// Free the command line if necessary
 	if (path && arguments && commandLine)
 		free(commandLine);
+
+	if( cpDesktop )
+		free( cpDesktop );
 
 	packet_transmit_response(result, remote, response);
 

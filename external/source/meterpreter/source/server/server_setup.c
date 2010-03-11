@@ -344,12 +344,47 @@ static DWORD server_dispatch( Remote * remote )
 }
 
 /*
+ * Get the session id that this meterpreter server is running in.
+ */
+DWORD server_sessionid( VOID )
+{
+	typedef BOOL (WINAPI * PROCESSIDTOSESSIONID)( DWORD pid, LPDWORD id );
+
+	static PROCESSIDTOSESSIONID pProcessIdToSessionId = NULL;
+	HMODULE hKernel   = NULL;
+	DWORD dwSessionId = 0;
+
+	do
+	{
+		if( !pProcessIdToSessionId )
+		{
+			hKernel = LoadLibrary( "kernel32.dll" );
+			if( hKernel )
+				pProcessIdToSessionId = (PROCESSIDTOSESSIONID)GetProcAddress( hKernel, "ProcessIdToSessionId" );
+		}
+
+		if( !pProcessIdToSessionId )
+			break;
+
+		if( !pProcessIdToSessionId( GetCurrentProcessId(), &dwSessionId ) )
+			dwSessionId = -1;
+
+	} while( 0 );
+
+	if( hKernel )
+		FreeLibrary( hKernel );
+
+	return dwSessionId;
+}
+/*
  * Setup and run the server. This is called from Init via the loader.
  */
 DWORD server_setup( SOCKET fd )
 {
-	Remote *remote = NULL;
-	DWORD res      = 0;
+	Remote * remote        = NULL;
+	char cStationName[256] = {0};
+	char cDesktopName[256] = {0};
+	DWORD res              = 0;
 
 	dprintf("[SERVER] Initializing...");
 
@@ -395,6 +430,16 @@ DWORD server_setup( SOCKET fd )
 
 			// Copy it to the thread token
 			remote->hThreadToken = remote->hServerToken;
+
+			// Save the initial session/station/desktop names...
+			remote->dwOrigSessionId      = server_sessionid();
+			remote->dwCurrentSessionId   = remote->dwOrigSessionId;
+			GetUserObjectInformation( GetProcessWindowStation(), UOI_NAME, &cStationName, 256, NULL );
+			remote->cpOrigStationName    = _strdup( cStationName );
+			remote->cpCurrentStationName = _strdup( cStationName );
+			GetUserObjectInformation( GetThreadDesktop( GetCurrentThreadId() ), UOI_NAME, &cDesktopName, 256, NULL );
+			remote->cpOrigDesktopName    = _strdup( cDesktopName );
+			remote->cpCurrentDesktopName = _strdup( cDesktopName );
 
 			dprintf("[SERVER] Flushing the socket handle...");
 			server_socket_flush( remote );

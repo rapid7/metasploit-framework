@@ -89,6 +89,53 @@ HANDLE core_update_thread_token(Remote *remote, HANDLE token)
 	return(token);
 }
 
+/*
+ * Update the session/station/desktop to be used by multi threaded meterpreter for desktop related operations.
+ * We dont store the handles as it is more convienient to use string,s especially as we cant use the regular API
+ * to break out of sessions.
+ * Note: It is up to the caller to free any station/desktop name provided as internally we use strdup.
+ */
+VOID core_update_desktop( Remote * remote, DWORD dwSessionID, char * cpStationName, char * cpDesktopName )
+{
+	DWORD temp_session  = -1;
+	char * temp_station = NULL;
+	char * temp_desktop = NULL;
+
+	lock_acquire( remote->lock );
+
+	do
+	{
+		temp_session = remote->dwCurrentSessionId;
+		// A session id of -1 resets the state back to the servers real session id
+		if( dwSessionID = -1 )
+			dwSessionID = remote->dwOrigSessionId;
+		// Assign the new session id
+		remote->dwCurrentSessionId = dwSessionID;
+	
+		temp_station = remote->cpCurrentStationName;
+		// A NULL station resets the station back to the origional process window station
+		if( !cpStationName )
+			cpStationName = remote->cpOrigStationName;
+		// Assign the current window station name to use
+		remote->cpCurrentStationName = _strdup( cpStationName );
+		// free the memory for the old station name  if its not one of the two active names
+		if( temp_station && temp_station != remote->cpOrigStationName && temp_station != remote->cpCurrentStationName )
+			free( temp_station );
+		
+		temp_desktop = remote->cpCurrentDesktopName;
+		// A NULL station resets the desktop back to the origional process desktop
+		if( !cpDesktopName )
+			cpDesktopName = remote->cpOrigDesktopName;
+		// Assign the current window desktop name to use
+		remote->cpCurrentDesktopName = _strdup( cpDesktopName );
+		// free the memory for the old desktop name if its not one of the two active names
+		if( temp_desktop && temp_desktop != remote->cpOrigDesktopName && temp_desktop != remote->cpCurrentDesktopName )
+			free( temp_desktop );
+
+	} while( 0 );
+	
+	lock_release( remote->lock );
+}
 /*******************
  * Packet Routines *
  *******************/

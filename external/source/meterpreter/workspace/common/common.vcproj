@@ -453,6 +453,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\source\common\arch\win\i386\base_inject.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\common\arch\win\buffer.c"
 				>
 				<FileConfiguration
@@ -747,6 +751,10 @@
 			</File>
 			<File
 				RelativePath="..\..\source\common\base.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\common\arch\win\i386\base_inject.h"
 				>
 			</File>
 			<File

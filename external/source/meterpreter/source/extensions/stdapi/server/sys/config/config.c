@@ -471,6 +471,8 @@ DWORD request_sys_config_rev2self(Remote *remote, Packet *packet)
 
 		core_update_thread_token( remote, NULL );
 
+		core_update_desktop( remote, -1, NULL, NULL );
+
 		if( !RevertToSelf() )
 			dwResult = GetLastError();
 

@@ -25,6 +25,14 @@ typedef DWORD (WINAPI * GETMODULEBASENAMEA)( HANDLE hProcess, HMODULE hModule, L
 
 //===============================================================================================//
 
+typedef struct _DLL_BUFFER
+{
+	LPVOID lpPE32DllBuffer;
+	DWORD  dwPE32DllLenght;
+	LPVOID lpPE64DllBuffer;
+	DWORD  dwPE64DllLenght;
+} DLL_BUFFER;
+
 typedef struct _PROCESS_BASIC_INFORMATION
 {
     PVOID Reserved1;
@@ -54,6 +62,12 @@ typedef struct _RTL_USER_PROCESS_PARAMETERS
 } RTL_USER_PROCESS_PARAMETERS, * LPRTL_USER_PROCESS_PARAMETERS;
 
 //===============================================================================================//
+
+DWORD ps_inject( DWORD dwPid, DLL_BUFFER * pDllBuffer, char * cpCommandLine );
+
+DWORD ps_getarch( DWORD dwPid );
+
+DWORD ps_getnativearch( VOID );
 
 DWORD ps_list_via_toolhelp( Packet * response );
 

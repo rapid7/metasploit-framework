@@ -859,6 +859,10 @@
 			<Filter
 				Name="sys"
 				>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\sys\session.c"
+					>
+				</File>
 				<Filter
 					Name="process"
 					>
@@ -943,10 +947,6 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath="..\..\source\extensions\stdapi\server\sys\process\in-mem-exe.h"
-						>
-					</File>
-					<File
 						RelativePath="..\..\source\extensions\stdapi\server\sys\process\memory.c"
 						>
 						<FileConfiguration
@@ -1027,15 +1027,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath="..\..\source\extensions\stdapi\server\sys\process\process.h"
-						>
-					</File>
-					<File
 						RelativePath="..\..\source\extensions\stdapi\server\sys\process\ps.c"
-						>
-					</File>
-					<File
-						RelativePath="..\..\source\extensions\stdapi\server\sys\process\ps.h"
 						>
 					</File>
 					<File
@@ -1162,10 +1154,6 @@
 							/>
 						</FileConfiguration>
 					</File>
-					<File
-						RelativePath="..\..\source\extensions\stdapi\server\sys\registry\registry.h"
-						>
-					</File>
 				</Filter>
 				<Filter
 					Name="power"
@@ -1210,10 +1198,6 @@
 							/>
 						</FileConfiguration>
 					</File>
-					<File
-						RelativePath="..\..\source\extensions\stdapi\server\sys\power\power.h"
-						>
-					</File>
 				</Filter>
 				<Filter
 					Name="eventlog"
@@ -1257,10 +1241,6 @@
 								PreprocessorDefinitions=""
 							/>
 						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\source\extensions\stdapi\server\sys\eventlog\eventlog.h"
-						>
 					</File>
 				</Filter>
 				<Filter
@@ -1311,6 +1291,10 @@
 			<Filter
 				Name="ui"
 				>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\ui\desktop.c"
+					>
+				</File>
 				<File
 					RelativePath="..\..\source\extensions\stdapi\server\ui\idle.c"
 					>
@@ -1516,9 +1500,53 @@
 				Name="sys"
 				>
 				<File
+					RelativePath="..\..\source\extensions\stdapi\server\sys\session.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\extensions\stdapi\server\sys\sys.h"
 					>
 				</File>
+				<Filter
+					Name="process"
+					>
+					<File
+						RelativePath="..\..\source\extensions\stdapi\server\sys\process\in-mem-exe.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\source\extensions\stdapi\server\sys\process\process.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\source\extensions\stdapi\server\sys\process\ps.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="registry"
+					>
+					<File
+						RelativePath="..\..\source\extensions\stdapi\server\sys\registry\registry.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="power"
+					>
+					<File
+						RelativePath="..\..\source\extensions\stdapi\server\sys\power\power.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="eventlog"
+					>
+					<File
+						RelativePath="..\..\source\extensions\stdapi\server\sys\eventlog\eventlog.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="ui"

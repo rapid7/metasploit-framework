@@ -1,12 +1,88 @@
 #include "precomp.h"
 #include "ps.h"
+#include "./../session.h"
+#include "./../../../../../common/arch/win/i386/base_inject.h"
+
+/*
+ * Get the arch type (either x86 or x64) for a given PE (either PE32 or PE64) DLL image.
+ */
+DWORD ps_getarch_dll( LPVOID lpDllBuffer )
+{
+	DWORD dwDllArch             = PROCESS_ARCH_UNKNOWN;
+	PIMAGE_NT_HEADERS pNtHeader = NULL;
+
+	do
+	{
+		if( !lpDllBuffer )
+			break;
+
+		// get the File Offset of the modules NT Header
+		pNtHeader = (PIMAGE_NT_HEADERS)( ((UINT_PTR)lpDllBuffer) + ((PIMAGE_DOS_HEADER)lpDllBuffer)->e_lfanew );
+		
+		if( pNtHeader->OptionalHeader.Magic == 0x010B ) // PE32
+			dwDllArch = PROCESS_ARCH_X86;
+		else if( pNtHeader->OptionalHeader.Magic == 0x020B ) // PE64
+			dwDllArch = PROCESS_ARCH_X64;
+
+	} while( 0 );
+
+	return dwDllArch;
+}
+
+/*
+ * Inject a DLL into another process via Reflective DLL Injection.
+ */
+DWORD ps_inject( DWORD dwPid, DLL_BUFFER * pDllBuffer, char * cpCommandLine )
+{
+	DWORD dwResult     = ERROR_ACCESS_DENIED;
+	DWORD dwPidArch    = PROCESS_ARCH_UNKNOWN;
+	DWORD dwDllArch    = PROCESS_ARCH_UNKNOWN;
+	LPVOID lpDllBuffer = NULL;
+	DWORD dwDllLenght  = 0;
+
+	do
+	{
+		if( !pDllBuffer )
+			BREAK_WITH_ERROR( "[PS] ps_inject_dll. No Dll buffer specified", ERROR_INVALID_PARAMETER ); 
+
+		dwPidArch = ps_getarch( dwPid );
+
+		if( dwPidArch == PROCESS_ARCH_X86 )
+		{
+			lpDllBuffer = pDllBuffer->lpPE32DllBuffer;
+			dwDllLenght = pDllBuffer->dwPE32DllLenght;
+		}
+		else if( dwPidArch == PROCESS_ARCH_X64 )
+		{
+			lpDllBuffer = pDllBuffer->lpPE64DllBuffer;
+			dwDllLenght = pDllBuffer->dwPE64DllLenght;
+		}
+		else
+		{
+			BREAK_WITH_ERROR( "[PS] ps_inject_dll. Unable to determine target pid arhitecture", ERROR_INVALID_DATA ); 
+		}
+
+		dwDllArch = ps_getarch_dll( lpDllBuffer );
+		if( dwDllArch == PROCESS_ARCH_UNKNOWN )
+			BREAK_WITH_ERROR( "[PS] ps_inject_dll. Unable to determine DLL arhitecture", ERROR_BAD_FORMAT ); 
+
+		if( dwDllArch != dwPidArch )
+			BREAK_WITH_ERROR( "[PS] ps_inject_dll. pid/dll architecture mixup", ERROR_BAD_ENVIRONMENT ); 
+
+		dwResult = inject_dll( dwPid, lpDllBuffer, dwDllLenght, cpCommandLine );
+
+	} while( 0 );
+
+	return dwResult;
+}
 
 /*
  * Get the architecture of the given process.
  */
-DWORD ps_getarch( DWORD pid, DWORD dwNativeArch )
+DWORD ps_getarch( DWORD dwPid )
 {
 	DWORD result                   = PROCESS_ARCH_UNKNOWN;
+	static DWORD dwNativeArch      = PROCESS_ARCH_UNKNOWN;
 	HANDLE hKernel                 = NULL;
 	HANDLE hProcess                = NULL;
 	ISWOW64PROCESS pIsWow64Process = NULL;
@@ -14,6 +90,10 @@ DWORD ps_getarch( DWORD pid, DWORD dwNativeArch )
 
 	do
 	{
+		// grab the native systems architecture the first time we use this function...
+		if( dwNativeArch == PROCESS_ARCH_UNKNOWN )
+			dwNativeArch = ps_getnativearch();
+
 		// first we default to 'x86' as if kernel32!IsWow64Process is not present then we are on an older x86 system.
 		result = PROCESS_ARCH_X86;
 
@@ -28,10 +108,10 @@ DWORD ps_getarch( DWORD pid, DWORD dwNativeArch )
 		// now we must default to an unknown architecture as the process may be either x86/x64 and we may not have the rights to open it
 		result = PROCESS_ARCH_UNKNOWN;
 
-		hProcess = OpenProcess( PROCESS_QUERY_INFORMATION, FALSE, pid );
+		hProcess = OpenProcess( PROCESS_QUERY_INFORMATION, FALSE, dwPid );
 		if( !hProcess )
 		{
-			hProcess = OpenProcess( PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid );
+			hProcess = OpenProcess( PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwPid );
 			if( !hProcess )
 				break;
 		}
@@ -319,12 +399,15 @@ BOOL ps_getusername( DWORD pid, char * cpUserName, DWORD dwUserNameSize )
  */
 VOID ps_addresult( Packet * response, DWORD dwPid, DWORD dwParentPid, char * cpExeName, char * cpExePath, char * cpUserName, DWORD dwProcessArch )
 {
-	Tlv entries[6] = {0};
+	Tlv entries[7]    = {0};
+	DWORD dwSessionId = 0;
 
 	do
 	{
 		if( !response )
 			break;
+
+		dwSessionId = session_id( dwPid );
 
 		dwPid                    = htonl( dwPid );
 		entries[0].header.type   = TLV_TYPE_PID;
@@ -358,20 +441,24 @@ VOID ps_addresult( Packet * response, DWORD dwPid, DWORD dwParentPid, char * cpE
 		entries[5].header.type   = TLV_TYPE_PARENT_PID;
 		entries[5].header.length = sizeof( DWORD );
 		entries[5].buffer        = (PUCHAR)&dwParentPid;
+		
+		dwSessionId              = htonl( dwSessionId );
+		entries[6].header.type   = TLV_TYPE_PROCESS_SESSION;
+		entries[6].header.length = sizeof( DWORD );
+		entries[6].buffer        = (PUCHAR)&dwSessionId;
 
-		packet_add_tlv_group( response, TLV_TYPE_PROCESS_GROUP, entries, 6 );
+		packet_add_tlv_group( response, TLV_TYPE_PROCESS_GROUP, entries, 7 );
 
 	} while(0);
 
 }
 
 /*
- * Generate a process list via the kernel32!CreateToolhelp32Snapshot method. Works on Windows 200 and above.
+ * Generate a process list via the kernel32!CreateToolhelp32Snapshot method. Works on Windows 2000 and above.
  */
 DWORD ps_list_via_toolhelp( Packet * response )
 {
 	DWORD result                                       = ERROR_INVALID_HANDLE;
-	DWORD dwNativeArch                                 = PROCESS_ARCH_UNKNOWN;
 	CREATETOOLHELP32SNAPSHOT pCreateToolhelp32Snapshot = NULL;
 	PROCESS32FIRST pProcess32First                     = NULL;
 	PROCESS32NEXT pProcess32Next                       = NULL;
@@ -400,8 +487,6 @@ DWORD ps_list_via_toolhelp( Packet * response )
 
 		if( !pProcess32First( hProcessSnap, &pe32 ) )
 			break;
-				
-		dwNativeArch = ps_getnativearch();
 
 		result = ERROR_SUCCESS;
 		
@@ -416,7 +501,7 @@ DWORD ps_list_via_toolhelp( Packet * response )
 
 			ps_getusername( pe32.th32ProcessID, (char *)&cUserName, 1024 );
 
-			dwProcessArch = ps_getarch( pe32.th32ProcessID, dwNativeArch );
+			dwProcessArch = ps_getarch( pe32.th32ProcessID );
 
 			ps_addresult( response, pe32.th32ProcessID, pe32.th32ParentProcessID, pe32.szExeFile, cExePath, cUserName, dwProcessArch );
 
@@ -442,7 +527,6 @@ DWORD ps_list_via_toolhelp( Packet * response )
 DWORD ps_list_via_psapi( Packet * response )
 {
 	DWORD result                           = ERROR_INVALID_HANDLE;
-	DWORD dwNativeArch                     = PROCESS_ARCH_UNKNOWN;
 	HMODULE hPsapi                         = NULL;
 	ENUMPROCESSES pEnumProcesses           = NULL;
 	ENUMPROCESSMODULES pEnumProcessModules = NULL;
@@ -466,8 +550,6 @@ DWORD ps_list_via_psapi( Packet * response )
 
 		if( !pEnumProcesses( (DWORD *)&dwProcessIds, sizeof(dwProcessIds), &dwBytesReturned ) )
 			break;
-
-		dwNativeArch = ps_getnativearch();
 
 		result = ERROR_SUCCESS;
 
@@ -502,7 +584,7 @@ DWORD ps_list_via_psapi( Packet * response )
 
 			ps_getusername( dwProcessIds[index], (char *)&cUserName, 1024 );
 
-			dwProcessArch = ps_getarch( dwProcessIds[index], dwNativeArch );
+			dwProcessArch = ps_getarch( dwProcessIds[index] );
 
 			ps_addresult( response, dwProcessIds[index], 0, cExePath, cExePath, cUserName, dwProcessArch );
 		}
@@ -521,12 +603,9 @@ DWORD ps_list_via_psapi( Packet * response )
  */
 DWORD ps_list_via_brute( Packet * response )
 {
-	DWORD result       = ERROR_SUCCESS;
-	DWORD dwNativeArch = PROCESS_ARCH_UNKNOWN;
-	DWORD pid          = 0;
+	DWORD result = ERROR_SUCCESS;
+	DWORD pid    = 0;
 	
-	dwNativeArch = ps_getnativearch();
-
 	for( pid=0 ; pid<0xFFFF ; pid++ )
 	{
 		HANDLE hProcess      = NULL;
@@ -546,7 +625,7 @@ DWORD ps_list_via_brute( Packet * response )
 
 		ps_getusername( pid, (char *)&cUserName, 1024 );
 
-		dwProcessArch = ps_getarch( pid, dwNativeArch );
+		dwProcessArch = ps_getarch( pid );
 
 		ps_addresult( response, pid, 0, cExeName, cExePath, cUserName, dwProcessArch );
 	}

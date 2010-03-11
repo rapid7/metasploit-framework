@@ -252,7 +252,7 @@ DWORD THREADCALL command_process_thread( THREAD * thread )
 					dprintf( "[COMMAND] Failed to impersonate thread token (%s) (%u)", methodTlv.buffer, GetLastError());
 				}
 			}
-
+			
 			// Get the request identifier if the packet has one.
 			result = packet_get_tlv_string( packet, TLV_TYPE_REQUEST_ID, &requestIdTlv );
 			if( result == ERROR_SUCCESS )
