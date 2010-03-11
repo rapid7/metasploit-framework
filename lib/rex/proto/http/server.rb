@@ -113,7 +113,7 @@ class Server
 	# Returns the hardcore alias for the HTTP service
 	#
 	def self.hardcore_alias(*args)
-		"#{(args[0] || '')}#{(args[1] || '')}"	
+		"#{(args[0] || '')}#{(args[1] || '')}"
 	end
 
 	#
@@ -127,14 +127,14 @@ class Server
 	# Listens on the defined port and host and starts monitoring for clients.
 	#
 	def start
-	
+
 		self.listener = Rex::Socket::TcpServer.create(
 			'LocalHost' => self.listen_host,
 			'LocalPort' => self.listen_port,
 			'Context'   => self.context,
 			'SSL'		=> self.ssl
 		)
-	
+
 		# Register callbacks
 		self.listener.on_client_connect_proc = Proc.new { |cli|
 			on_client_connect(cli)
@@ -173,7 +173,7 @@ class Server
 	# Mounts a directory or resource as being serviced by the supplied handler.
 	#
 	def mount(root, handler, long_call = false, *args)
-		resources[root] = [ handler, long_call, args ]		
+		resources[root] = [ handler, long_call, args ]
 	end
 
 	#
@@ -194,7 +194,7 @@ class Server
 	#
 	def add_resource(name, opts)
 		if (resources[name])
-			raise RuntimeError, 
+			raise RuntimeError,
 				"The supplied resource '#{name}' is already added.", caller
 		end
 
@@ -242,7 +242,7 @@ class Server
 
 		resp['Content-Type'] = 'text/html'
 
-		resp.body = 
+		resp.body =
 			"<html><head>" +
 			"<title>404 Not Found</title>" +
 			"</head><body>" +
@@ -277,7 +277,12 @@ protected
 			#
 			# XXX: Handle ParseCode::Partial
 			#
-			case cli.request.parse(cli.get)
+			data = cli.get
+
+			raise ::EOFError if not data
+			raise ::EOFError if data.empty?
+
+			case cli.request.parse(data)
 				when Packet::ParseCode::Completed
 					dispatch_request(cli, cli.request)
 
@@ -332,7 +337,7 @@ protected
 				request.relative_resource = '/' + request.relative_resource if (request.relative_resource !~ /^\//)
 			end
 
-	
+
 			# If we found the resource handler for this resource, call its
 			# procedure.
 			if (p[1] == true)
@@ -360,3 +365,4 @@ end
 end
 end
 end
+
