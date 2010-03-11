@@ -184,8 +184,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 			::Timeout.timeout(20) do
 				username  = self.sys.config.getuid
 				sysinfo   = self.sys.config.sysinfo
-				syspid    = self.sys.process.getpid
-				self.info = "#{username} @ #{sysinfo['Computer']} (#{syspid})"
+				self.info = "#{username} @ #{sysinfo['Computer']}"
 			end
 		rescue ::Interrupt
 			raise $!
