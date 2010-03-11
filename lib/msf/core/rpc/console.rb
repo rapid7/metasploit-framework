@@ -16,19 +16,21 @@ class Console < Base
 		cid = @console_driver.create_console
 		{
 			'id'     => cid,
-			'prompt' => @console_driver.consoles[cid].prompt || '',
-			'busy'   => @console_driver.consoles[cid].busy   || false
+			'prompt' => Rex::Text.encode_base64(@console_driver.consoles[cid].prompt || ''),
+			'busy'   => @console_driver.consoles[cid].busy   || false,
+			'encoding' => "base64"
 		}
 	end
 
 	def list(token)
 		authenticate(token)
 		ret = []
-		@console_driver.consoles.each_key do |k|
+		@console_driver.consoles.each_key do |cid|
 			ret << {
-				'id'     => k,
-				'prompt' => @console_driver.consoles[k].prompt || '',
-				'busy'   => @console_driver.consoles[k].busy   || false
+				'id'     => cid,
+				'prompt' => Rex::Text.encode_base64(@console_driver.consoles[cid].prompt || ''),
+				'busy'   => @console_driver.consoles[cid].busy   || false,
+				'encoding' => "base64"
 			}
 		end
 		{'consoles' => ret}
@@ -45,16 +47,17 @@ class Console < Base
 		authenticate(token)
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
 		{
-			"data"   => @console_driver.read_console(cid)    || '',
-			"prompt" => @console_driver.consoles[cid].prompt || '',
-			"busy"   => @console_driver.consoles[cid].busy   || false
+			"data"   => Rex::Text.encode_base64(@console_driver.read_console(cid)    || ''),
+			"prompt" => Rex::Text.encode_base64(@console_driver.consoles[cid].prompt || ''),
+			"busy"   => @console_driver.consoles[cid].busy   || false,
+			"encoding" => "base64"
 		 }
 	end
 
 	def write(token, cid, data)
 		authenticate(token)
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
-		{ "wrote" => @console_driver.write_console(cid, data) || '' }
+		{ "wrote" => @console_driver.write_console(cid, Rex::Text.decode_base64(data || '')) }
 	end
 
 	def tabs(token, cid, line)
