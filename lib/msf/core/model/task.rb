@@ -6,6 +6,7 @@ class Task < ActiveRecord::Base
 
 	belongs_to :workspace
 	serialize :options
+	serialize :result
 end
 
 end
