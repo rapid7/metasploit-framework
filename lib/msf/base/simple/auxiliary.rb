@@ -63,7 +63,7 @@ module Auxiliary
 		end
 
 		if(mod.passive? or opts['RunAsJob'])
-			mod.framework.jobs.start_bg_job(
+			mod.job_id = mod.framework.jobs.start_bg_job(
 				"Auxiliary: #{mod.refname}",
 				mod,
 				Proc.new { |mod_| self.job_run_proc(mod_) },
