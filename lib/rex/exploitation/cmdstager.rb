@@ -13,7 +13,7 @@ module Exploitation
 
 class CmdStager
 
-	def initialize(payload, framework, platform, arch = nil)
+	def initialize(code, framework, platform, arch = nil)
 		@var_decoder = Rex::Text.rand_text_alpha(5)
 		@var_encoded = Rex::Text.rand_text_alpha(5)
 		@var_batch   = Rex::Text.rand_text_alpha(5)
@@ -22,7 +22,7 @@ class CmdStager
 		@linelen     = 2047 # covers most likely cases
 
 		# XXX: TODO: support multipl architectures/platforms
-		@exe	       = Msf::Util::EXE.to_win32pe(@framework, payload.encoded)
+		@exe	       = Msf::Util::EXE.to_win32pe(@framework, code)
 	end
 
 
