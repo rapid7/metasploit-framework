@@ -25,13 +25,13 @@ class Core
 		"-h" => [ false, "Help banner."                                   ],
 		"-i" => [ true,  "Interact with the supplied session identifier." ],
 		"-l" => [ false, "List all active sessions."                      ],
-		"-s" => [ true,  "Run a script on all meterpreter sessions."      ],
 		"-v" => [ false, "List verbose fields."                           ],
 		"-q" => [ false, "Quiet mode."                                    ],
 		"-d" => [ true,  "Detach an interactive session"                  ],
 		"-k" => [ true,  "Terminate session."                             ],
 		"-K" => [ false, "Terminate all sessions."                        ],
-		"-s" => [ true,  "Run a script on all live meterpreter sessions"  ])
+		"-s" => [ true,  "Run a script on all live meterpreter sessions"  ],
+		"-u" => [ true,  "Upload and execute to a command shell sessions" ])
 
 	@@jobs_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ],
@@ -1117,6 +1117,11 @@ class Core
 				when "-s"
 					method = 'scriptall'
 					script = val
+					
+				# Upload and exec to the specific command session
+				when "-u"
+					method = 'upexec'
+					sid = val
 
 				# Display help banner
 				when "-h"
@@ -1246,6 +1251,21 @@ class Core
 					end
 				else
 					print_error("No script specified!")
+				end
+				
+			when 'upexec'
+				if ((session = framework.sessions.get(sid)))
+					if (session.interactive?)
+						if (session.type == "shell") # XXX: check for windows?
+							session.execute_script('spawn_meterpreter', val)
+						else
+							print_error("Session #{sid} is not a command shell session.")
+						end
+					else
+						print_error("Session #{sid} is non-interactive.")
+					end
+				else
+					print_error("Invalid session identifier: #{sid}")
 				end
 
 		end
