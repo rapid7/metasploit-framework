@@ -1257,7 +1257,7 @@ class Core
 				if ((session = framework.sessions.get(sid)))
 					if (session.interactive?)
 						if (session.type == "shell") # XXX: check for windows?
-							session.execute_script('spawn_meterpreter', val)
+							session.execute_script('spawn_meterpreter', nil)
 						else
 							print_error("Session #{sid} is not a command shell session.")
 						end
