@@ -31,7 +31,7 @@ class Core
 		"-k" => [ true,  "Terminate session."                             ],
 		"-K" => [ false, "Terminate all sessions."                        ],
 		"-s" => [ true,  "Run a script on all live meterpreter sessions"  ],
-		"-u" => [ true,  "Upload and execute to a command shell sessions" ])
+		"-u" => [ true,  "Upgrade a win32 shell to a meterpreter session" ])
 
 	@@jobs_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ],
