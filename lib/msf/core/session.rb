@@ -197,8 +197,8 @@ module Session
 		self.target_host = m.target_host
 		self.workspace   = m.workspace
 		self.exploit_datastore = m.datastore
-		self.user_input = m.user_input
-		self.user_output = m.user_output
+		self.user_input = m.user_input if m.user_input
+		self.user_output = m.user_output if m.user_output
 	end
 
 	#

@@ -28,8 +28,8 @@ module CommandShellOptions
 		super
 
 		# Configure input/output to match the payload
-		session.user_input  = self.user_input
-		session.user_output = self.user_output
+		session.user_input  = self.user_input if self.user_input
+		session.user_output = self.user_output if self.user_output
 	end
 
 end
