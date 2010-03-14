@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 				:proto => 'udp',
 				:port  => 2049,
 				:name  => 'nfsd',
-				:info  => 'NFS Daemon #{program} v#{progver}'
+				:info  => "NFS Daemon #{program} v#{progver}"
 			)
 
 			exports = resp[3,1].unpack('C')[0]
