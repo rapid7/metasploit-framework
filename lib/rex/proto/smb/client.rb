@@ -1185,7 +1185,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	def trans(pipe, param = '', body = '', setup_count = 0, setup_data = '', no_response = nil)
 
 		# Null-terminate the pipe parameter if needed
-		if (pipe[-1] != 0)
+		if (pipe[-1,1] != "\x00")
 			pipe << "\x00"
 		end
 
