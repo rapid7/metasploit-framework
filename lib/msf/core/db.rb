@@ -765,6 +765,7 @@ class DBManager
 		wait = opts.delete(:wait)
 		wspace = opts.delete(:workspace) || workspace
 		path = opts.delete(:path)
+
 		host = nil
 		addr = nil
 
@@ -787,7 +788,8 @@ class DBManager
 
 			ltype  = opts.delete(:type) || opts.delete(:ltype) || return
 			ctype  = opts.delete(:ctype) || opts.delete(:content_type) || 'text/plain'
-
+			name   = opts.delete(:name)
+			info   = opts.delete(:info)
 			data   = opts[:data]
 			loot   = wspace.loots.new
 
@@ -802,6 +804,8 @@ class DBManager
 			loot.ltype = ltype
 			loot.content_type = ctype
 			loot.data  = data
+			loot.name  = name if name
+			loot.info  = name if info
 			loot.save!
 
 			ret[:loot] = loot
