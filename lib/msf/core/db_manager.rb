@@ -140,7 +140,7 @@ class DBManager
 			nopts['port'] = nopts['port'].to_i
 		end
 
-		nopts['pool'] = 30
+		nopts['pool'] = 256
 
 		begin
 			# Configure the database adapter
