@@ -805,7 +805,7 @@ class DBManager
 			loot.content_type = ctype
 			loot.data  = data
 			loot.name  = name if name
-			loot.info  = name if info
+			loot.info  = info if info
 			loot.save!
 
 			ret[:loot] = loot
