@@ -34,6 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptBool.new('ENUM_TLD', [ true, 'Perform a top-level domain expansion by replacing TLD and testing against IANA TLD list', false]),
 				OptBool.new('ENUM_STD', [ true, 'Enumerate standard record types (A,MX,NS,TXT and SOA)', true]),
 				OptBool.new('ENUM_BRT', [ true, 'Brute force subdomains and hostnames via wordlist', false]),
+				OptBool.new('ENUM_IP6', [ true, 'Brute force hosts with IPv6 AAAA records',false]),
 				OptBool.new('ENUM_RVL', [ true, 'Reverse lookup a range of IP addresses', false]),
 				OptBool.new('ENUM_SRV', [ true, 'Enumerate the most common SRV records', true]),
 				OptPath.new('WORDLIST', [ false, "Wordlist file for domain name brute force.", File.join(Msf::Config.install_root, "data", "wordlists", "namelist.txt")]),
@@ -213,12 +214,15 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	#-------------------------------------------------------------------------------
-	def dnsbrute(target, wordlist)
+	def dnsbrute(target, wordlist, nssrv)
 	print_status("Running Brute Force against Domain #{target}")
 		arr = []
 		i, a = 0, []
 		arr = IO.readlines(wordlist)
 		arr.each do |line|
+		if not nssrv.nil?
+			@res.nameserver=(nssrv)
+		end
 			if i < @threadnum
 				a.push(Thread.new {
 						query1 = @res.search("#{line.chomp}.#{target}")
@@ -244,6 +248,44 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		a.delete_if {|x| not x.alive?} while not a.empty?
 	end
+	
+	#-------------------------------------------------------------------------------
+	def bruteipv6(target, wordlist, nssrv)
+	print_status("Brute Forcing IPv6 addresses against Domain #{target}")
+		arr = []
+		i, a = 0, []
+		arr = IO.readlines(wordlist)
+		if not nssrv.nil?
+			@res.nameserver=(nssrv)
+		end
+		arr.each do |line|
+			if i < @threadnum
+				a.push(Thread.new {
+						query1 = @res.search("#{line.chomp}.#{target}", "AAAA")
+						if (query1)
+							query1.answer.each do |rr|
+								if rr.class == Net::DNS::RR::AAAA
+									print_status("Host Name: #{line.chomp}.#{target} IPv6 Address: #{rr.address.to_s}")
+									report_note(:host => rr.address.to_s,
+										:proto => 'DNS',
+										:port => 53 ,
+										:type => 'DNS_ENUM',
+										:data => "#{rr.address.to_s},#{line.chomp}.#{target},AAAA")
+									next unless rr.class == Net::DNS::RR::CNAME
+								end
+							end
+						end
+					})
+				i += 1
+			else
+				sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+				i = 0
+			end
+		end
+		a.delete_if {|x| not x.alive?} while not a.empty?
+	end
+
+
 
 	#-------------------------------------------------------------------------------
 	def reverselkp(iprange,nssrv)
@@ -385,13 +427,13 @@ class Metasploit3 < Msf::Auxiliary
 								:port => 53 ,
 								:type => 'DNS_ENUM',
 								:data => "CPU:#{rr.cpu},OS:#{rr.os},HINFO")
-						when "AAA"
-							print_status("Address: #{rr.address} Record: AAA")
+						when "AAAA"
+							print_status("IPv6 Address: #{rr.address} Record: AAAA")
 							report_note(:host => rr.address.to_s,
 								:proto => 'DNS',
 								:port => 53 ,
 								:type => 'DNS_ENUM',
-								:data => "#{rr.address.to_s}, AAA")
+								:data => "#{rr.address.to_s}, AAAA")
 						when "NS"
 							print_status("Name: #{rr.nsdname} Record: NS")
 							report_note(:host =>  nsip.address.to_s,
@@ -448,7 +490,15 @@ class Metasploit3 < Msf::Auxiliary
 			if wldcrd & datastore['STOP_WLDCRD']
 				print_status("Wilcard Record Found!")
 			else
-				dnsbrute(datastore['DOMAIN'],datastore['WORDLIST'])
+				dnsbrute(datastore['DOMAIN'],datastore['WORDLIST'],datastore['NS'])
+			end
+		end
+		
+		if(datastore['ENUM_IP6'])
+			if wldcrd & datastore['STOP_WLDCRD']
+				print_status("Wilcard Record Found!")
+			else
+				bruteipv6(datastore['DOMAIN'],datastore['WORDLIST'],datastore['NS'])
 			end
 		end
 
