@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 
-				desc = "#{rhost} is running #{res['os']} #{res['sp']} (language: #{res['lang']})"
+				desc = "#{res['os']} #{res['sp']} (language: #{res['lang']})"
 				if(simple.client.default_name)
 					desc << " (name:#{simple.client.default_name})"
 				end
@@ -84,14 +84,14 @@ class Metasploit3 < Msf::Auxiliary
 					desc << " (domain:#{simple.client.default_domain})"
 				end
 
-				print_status(desc)
+				print_status("#{rhost} is running #{desc}")
 
 				report_service(
 					:host  => ip,
 					:port  => info[0],
 					:proto => 'tcp',
 					:name  => 'smb',
-					:info  => "#{res['os']} #{res['sp']} (language: #{res['lang']})"
+					:info  => desc
 				)
 
 				conf = {
