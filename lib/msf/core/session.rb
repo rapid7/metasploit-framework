@@ -191,8 +191,8 @@ module Session
 	#
 	def set_from_exploit(m)
 		self.via = {
-			'Exploit' => m.refname,
-			'Payload' => m.datastore['PAYLOAD'].to_s
+			'Exploit' => m.fullname,
+			'Payload' => 'payload/' + m.datastore['PAYLOAD'].to_s
 		}
 		self.target_host = m.target_host
 		self.workspace   = m.workspace
