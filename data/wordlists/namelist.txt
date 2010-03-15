@@ -814,6 +814,8 @@ iplanet
 ipmonitor
 ipsec
 ipsec-gw
+ipv6
+ipv6.teredo
 iq
 ir
 irc
@@ -1717,6 +1719,7 @@ utilities
 uy
 uz
 v
+v6
 va
 vader
 vantive
