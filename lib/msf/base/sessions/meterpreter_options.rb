@@ -38,7 +38,8 @@ module MeterpreterOptions
 
 		if (datastore['AutoLoadStdapi'] == true)
 			session.load_stdapi
-			if (framework.exploits.create(session.via_exploit).privileged?)
+			mod = framework.modules.create(session.via_exploit)
+			if (mod and mod.privileged?)
 				session.load_priv
 			end
 
