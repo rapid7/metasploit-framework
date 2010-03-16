@@ -247,8 +247,13 @@ class FrameworkEventSubscriber
 				:name => name,
 				:host => address,
 				:info => {
-					:session_id  => session.sid,
-					:via_exploit => session.via_exploit
+					:session_id   => session.sid,
+					:session_info => session.info,
+					:session_uuid => session.uuid,
+					:username     => session.username,
+					:target_host  => session.target_host,
+					:via_exploit  => session.via_exploit,
+					:via_payload  => session.via_payload
 				}.merge(opts)
 			}
 			report_event(event)

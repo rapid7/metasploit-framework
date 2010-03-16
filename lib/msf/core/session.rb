@@ -61,6 +61,7 @@ module Session
 
 	def initialize
 		self.alive = true
+		self.uuid  = Rex::Text.rand_text_alpha(32)
 	end
 
 	# Direct descendents
@@ -190,12 +191,12 @@ module Session
 	# exploit instance.
 	#
 	def set_from_exploit(m)
-		self.via = {
-			'Exploit' => m.fullname,
-			'Payload' => 'payload/' + m.datastore['PAYLOAD'].to_s
-		}
+		self.via = { 'Exploit' => m.fullname }
+		self.via['Payload'] = ('payload/' + m.datastore['PAYLOAD'].to_s) if m.datastore['PAYLOAD']
+
 		self.target_host = m.target_host
 		self.workspace   = m.workspace
+		self.username    = m.owner
 		self.exploit_datastore = m.datastore
 		self.user_input = m.user_input if m.user_input
 		self.user_output = m.user_output if m.user_output
@@ -275,6 +276,14 @@ module Session
 	# The specific identified session info
 	#
 	attr_accessor :info
+	#
+	# The unique identifier of this session
+	#
+	attr_accessor :uuid
+	#
+	# The associated username
+	#
+	attr_accessor :username
 protected
 
 	attr_accessor :via # :nodoc:

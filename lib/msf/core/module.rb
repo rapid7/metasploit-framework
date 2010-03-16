@@ -309,6 +309,13 @@ class Module
 	end
 
 	#
+	# Returns the username that instantiated this module
+	#
+	def owner
+		self.datastore['MODULE_OWNER']
+	end
+
+	#
 	# Returns whether or not this module is compatible with the supplied
 	# module.
 	#
