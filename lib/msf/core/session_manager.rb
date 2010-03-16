@@ -31,8 +31,8 @@ class SessionManager < Hash
 					end
 
 					if s.respond_to?('rstream') and s.rstream.eof?
-						deregister(s, "Died")
-						dlog("Session #{s.sid} has died")
+						deregister(s, "Died - EOF")
+						dlog("Session #{s.sid} has died - EOF")
 						next
 					end
 				end
