@@ -99,6 +99,8 @@ class Metasploit3 < Msf::Auxiliary
 			self.no_pass_prompt << this_cred
 		elsif ret == :timeout
 			print_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to timeout" if datastore['VERBOSE']
+		elsif ret == :busy
+			print_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to busy state" if datastore['VERBOSE']
 		else
 			start_telnet_session(rhost,rport,user,pass) if login_succeeded?
 		end
@@ -113,6 +115,11 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 
 		print_status("#{rhost}:#{rport} Banner: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}") if datastore['VERBOSE']
+
+		if busy_message?
+			self.sock.close unless self.sock.closed?
+			return :busy
+		end
 
 		if login_succeeded?
 			report_telnet('','',@trace)
@@ -156,7 +163,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_telnet(user,pass,@trace)
 				return :success
 			else
-				disconnect
+				self.sock.close unless self.sock.closed?
 				return :fail
 			end
 		else
@@ -164,17 +171,20 @@ class Metasploit3 < Msf::Auxiliary
 				report_telnet(user,pass,@trace)
 				return :no_pass_required
 			else
-				disconnect
+				self.sock.close unless self.sock.closed?
 				return :no_pass_prompt
 			end
 		end
 
 		rescue ::Interrupt
+			self.sock.close unless self.sock.closed?
 			raise $!
 		rescue ::Exception => e
 			if e.to_s == "execution expired"
+				self.sock.close unless self.sock.closed?
 				return :timeout
 			else
+				self.sock.close unless self.sock.closed?
 				print_error("#{rhost}:#{rport} Error: #{e.class} #{e} #{e.backtrace}")
 			end
 		end
