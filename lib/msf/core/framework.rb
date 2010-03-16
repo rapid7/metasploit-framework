@@ -201,18 +201,34 @@ class FrameworkEventSubscriber
 	end
 
 	include GeneralEventSubscriber
-	def on_module_run(instance)
+
+	# 
+	# Generic handler for module events
+	#
+	def module_event(name, instance, opts={})
 		if framework.db.active
 			event = {
 				:workspace => framework.db.find_workspace(instance.workspace),
-				:name => "module_run",
+				:name => name,
 				:info => {
 					:module_name => instance.fullname,
-					:datastore   => instance.datastore.to_h
-				}
+				}.merge(opts)
 			}
+			
 			report_event(event)
 		end
+	end
+	def on_module_run(instance)
+		opts = { :datastore => instance.datastore.to_h }
+		module_event('module_run', instance, opts)
+	end
+
+	def on_module_complete(instance)
+		module_event('module_complete', instance)
+	end
+
+	def on_module_error(instance, exception=nil)
+		module_event('module_error', instance, :exception => exception.to_s)
 	end
 
 	include ::Msf::UiEventSubscriber
@@ -238,6 +254,9 @@ class FrameworkEventSubscriber
 		#report_event(:name => "ui_start", :info => info)
 	end
 
+	#
+	# Generic handler for session events
+	#
 	def session_event(name, session, opts={})
 		address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
 

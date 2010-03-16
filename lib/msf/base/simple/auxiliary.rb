@@ -119,6 +119,7 @@ protected
 	# Clean up the module after the job completes.
 	#
 	def self.job_cleanup_proc(mod)
+		mod.framework.events.on_module_complete(mod)
 		# Allow the exploit to cleanup after itself, that messy bugger.
 		mod.cleanup
 	end
