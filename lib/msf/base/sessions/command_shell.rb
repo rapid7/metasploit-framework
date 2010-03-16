@@ -216,6 +216,16 @@ class CommandShell
 	# Execute any specified auto-run scripts for this session
 	#
 	def process_autoruns(datastore)
+		# Read the initial output and mash it into a single line
+		initial_output = shell_read(-1, 0.01)
+		if (initial_output)
+			initial_output.gsub!(/[\r\n\t]+/, ' ')
+			initial_output.strip!
+
+			# Set the inital output to .info
+			self.info = initial_output
+		end
+
 		if (datastore['InitialAutoRunScript'] && datastore['InitialAutoRunScript'].empty? == false)
 			args = datastore['InitialAutoRunScript'].split
 			print_status("Session ID #{sid} (#{tunnel_to_s}) processing InitialAutoRunScript '#{datastore['InitialAutoRunScript']}'")
