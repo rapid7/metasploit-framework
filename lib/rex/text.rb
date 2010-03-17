@@ -416,7 +416,7 @@ module Text
 	end
 
 	#
-	# Encode a string in a manor useful for HTTP URIs and URI Parameters.
+	# Encode a string in a manner useful for HTTP URIs and URI Parameters.
 	#
 	def self.html_encode(str, mode = 'hex')
 		case mode
@@ -447,6 +447,29 @@ module Text
 			buf[i,1] = rand(2) == 0 ? str[i,1].upcase : str[i,1].downcase
 		end
 		return buf
+	end
+
+	#
+	# Takes a string, and returns an array of all mixed case versions.
+	#
+	# Example:
+	#
+	#    >> Rex::Text.to_mixed_case_array "abc1"
+	#    => ["abc1", "abC1", "aBc1", "aBC1", "Abc1", "AbC1", "ABc1", "ABC1"]
+	#
+	def self.to_mixed_case_array(str)
+		letters = []
+		str.scan(/./).each { |l| letters << [l.downcase, l.upcase] }
+		coords = []
+		(1 << str.size).times { |i| coords << ("%0#{str.size}b" % i) }
+		mixed = []
+		coords.each do |coord| 
+			c = coord.scan(/./).map {|x| x.to_i}
+			this_str = ""
+			c.each_with_index { |d,i| this_str << letters[i][d] }
+			mixed << this_str
+		end
+		return mixed.uniq
 	end
 
 	#
