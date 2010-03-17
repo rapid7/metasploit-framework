@@ -731,12 +731,14 @@ class DBManager
 	def report_event(opts = {})
 		return if not active
 		wspace = opts.delete(:workspace) || workspace
+		uname  = opts.delete(:username)
+
 		if opts[:host]
 			report_host(:workspace => wspace, :host => opts[:host])
 		end
 		framework.db.queue(Proc.new {
 			opts[:host] = get_host(:workspace => wspace, :host => opts[:host]) if opts[:host]
-			Event.create(opts.merge(:workspace_id => wspace[:id]))
+			Event.create(opts.merge(:workspace_id => wspace[:id], :username => uname))
 		})
 	end
 
