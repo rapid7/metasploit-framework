@@ -26,18 +26,23 @@ class Client
 
 	CALL = 0
 
-	attr_reader :rhost, :rport, :proto, :program, :version
-	attr_accessor :pport, :call_sock
+	attr_accessor :rhost, :rport, :proto, :program, :version
+	attr_accessor :pport, :call_sock, :timeout, :context
 
 	attr_accessor :should_fragment
 
-	def initialize(rhost, rport, proto, program, version)
-		if proto.downcase !~ /^(tcp|udp)$/
+	def initialize(opts)
+		self.rhost   = opts[:rhost]
+		self.rport   = opts[:rport]
+		self.program = opts[:program]
+		self.version = opts[:version]
+		self.timeout = opts[:timeout] || 20
+		self.context = opts[:context] || {}
+		self.proto   = opts[:proto]
+
+		if self.proto.downcase !~ /^(tcp|udp)$/
 			raise ::Rex::ArgumentError, 'Protocol is not "tcp" or "udp"'
 		end
-
-		@rhost, @rport, @program, @version, @proto = \
-			rhost, rport, program, version, proto.downcase
 
 		@pport = nil
 
@@ -69,18 +74,18 @@ class Client
 		return ret
 	end
 
-	def call(procedure, buffer, timeout=60)
+	def call(procedure, buffer, maxwait = self.timeout)
 		buf =
 			Rex::Encoder::XDR.encode(CALL, 2, @program, @version, procedure,
 				@auth_type, [@auth_data, 400], AUTH_NULL, '')+
 			buffer
 
-		if !@call_sock
+		if ! @call_sock
 			@call_sock = make_rpc(@proto, @rhost, @pport)
 		end
 
 		send_rpc(@call_sock, buf)
-		recv_rpc(@call_sock, timeout)
+		recv_rpc(@call_sock, maxwait)
 	end
 
 	def destroy
@@ -121,7 +126,10 @@ class Client
 		Rex::Socket.create(
 			'PeerHost'	=> host,
 			'PeerPort'	=> port,
-			'Proto'		=> proto)
+			'Proto'		=> proto,
+			'Timeout'   => self.timeout,
+			'Context'   => self.context
+		)
 	end
 
 	def build_tcp(buf)
@@ -151,11 +159,17 @@ class Client
 		if sock.type?.eql?('tcp')
 			buf = build_tcp(buf)
 		end
-		sock.write(buf)
+		sock.put(buf)
 	end
 
-	def recv_rpc(sock, timeout=60)
-		buf = sock.get(timeout)
+	def recv_rpc(sock, maxwait=self.timeout)
+
+		buf = nil
+		begin
+			Timeout.timeout(maxwait) { buf = sock.get }
+		rescue ::Timeout
+		end
+
 		return nil if not buf
 
 		buf.slice!(0..3)
