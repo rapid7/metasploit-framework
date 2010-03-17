@@ -19,7 +19,9 @@ class Session < Base
 				'desc'        => s.desc.to_s,
 				'info'        => s.info.to_s,
 				'workspace'   => s.workspace.to_s,
-				'target_host' => s.target_host.to_s
+				'target_host' => s.target_host.to_s,
+				'username'    => s.username.to_s,
+				'uuid'        => s.uuid.to_s
 			}
 		end
 		res
