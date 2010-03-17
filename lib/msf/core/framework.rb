@@ -195,26 +195,26 @@ class FrameworkEventSubscriber
 
 	def report_event(data)
 		if framework.db.active
-			data.merge!(:user => ENV['USER'])
 			framework.db.report_event(data)
 		end
 	end
 
 	include GeneralEventSubscriber
 
-	# 
+	#
 	# Generic handler for module events
 	#
 	def module_event(name, instance, opts={})
 		if framework.db.active
 			event = {
 				:workspace => framework.db.find_workspace(instance.workspace),
-				:name => name,
+				:name      => name,
+				:username  => instance.owner,
 				:info => {
 					:module_name => instance.fullname,
 				}.merge(opts)
 			}
-			
+
 			report_event(event)
 		end
 	end
@@ -263,6 +263,7 @@ class FrameworkEventSubscriber
 		if framework.db.active
 			event = {
 				:workspace => framework.db.find_workspace(session.workspace),
+				:username  => session.username,
 				:name => name,
 				:host => address,
 				:info => {
