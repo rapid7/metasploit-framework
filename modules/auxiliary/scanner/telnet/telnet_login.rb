@@ -214,8 +214,6 @@ class Metasploit3 < Msf::Auxiliary
 		sess.set_from_exploit(self)
 		sess.info = "TELNET #{user}:#{pass} (#{host}:#{port})"
 		framework.sessions.register(sess)
-		# Turn echo off explicitly
-		sess.shell_command("stty -echo")
 		sess.process_autoruns(datastore)
 	end
 
