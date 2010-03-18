@@ -108,7 +108,7 @@ class Session < Base
 	end
 
 	def meterpreter_script(token, sid, data)
-		meterpreter_write(token, sid, "run #{data}")
+		meterpreter_write(token, sid, ["run #{data}"].pack("m*"))
 	end
 
 protected
