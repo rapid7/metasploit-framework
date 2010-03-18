@@ -506,6 +506,9 @@ class Db
 			mports = {}
 			mservs = {}
 
+			# A list of jobs we spawned and need to wait for
+			autopwn_jobs = []
+
 			[ [framework.exploits, 'exploit' ], [ framework.auxiliary, 'auxiliary' ] ].each do |mtype|
 				mtype[0].each_module do |modname, mod|
 					o = mod.new
@@ -784,17 +787,18 @@ class Db
 
 							case mod.type
 							when MODULE_EXPLOIT
-								session = mod.exploit_simple(
+								mod.exploit_simple(
 									'Payload'        => mod.datastore['PAYLOAD'],
 									'LocalInput'     => inp,
 									'LocalOutput'    => out,
 									'RunAsJob'       => true)
 							when MODULE_AUX
-								session = mod.run_simple(
+								mod.run_simple(
 									'LocalInput'     => inp,
 									'LocalOutput'    => out,
 									'RunAsJob'       => true)
 							end
+							autopwn_jobs << mod.job_id if mod.job_id
 						rescue ::Interrupt
 							raise $!
 						rescue ::Exception
@@ -809,9 +813,13 @@ class Db
 				end
 			end
 
+			# Wait on all the jobs we just spawned
+			while (not autopwn_jobs.empty?)
+				# All running jobs are stored in framework.jobs.  If it's
+				# not in this list, it must have completed.
+				autopwn_jobs.delete_if { |j| not framework.jobs.keys.include? j }
 
-			while(framework.jobs.keys.length > 0)
-				print_status("(#{matches.length}/#{matches.length} [#{framework.sessions.length} sessions]): Waiting on #{framework.jobs.length} launched modules to finish execution...")
+				print_status("(#{matches.length}/#{matches.length} [#{framework.sessions.length} sessions]): Waiting on #{autopwn_jobs.length} launched modules to finish execution...")
 				select(nil, nil, nil, 5.0)
 			end
 
