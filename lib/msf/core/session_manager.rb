@@ -80,6 +80,11 @@ class SessionManager < Hash
 	# Deregisters the supplied session object with the framework.
 	#
 	def deregister(session, reason='')
+		if (session.dead?)
+			return
+		end
+		session.alive = false
+
 		# Tell the framework that we have a parting session
 		framework.events.on_session_close(session, reason)
 
