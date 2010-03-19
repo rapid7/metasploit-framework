@@ -30,20 +30,8 @@ module FrameworkEventManager
 	#
 	def on_session_open(session)
 		output.print_status("#{session.desc} session #{session.name} opened (#{session.tunnel_to_s})")
-
 		if (Msf::Logging.session_logging_enabled? == true)
 			Msf::Logging.start_session_log(session)
-		end
-		# Since we got a session, we know the host is vulnerable to something.
-		# If the exploit used was multi/handler, though, we don't know what
-		# it's vulnerable to, so it isn't really useful to save it.
-		if framework.db.active and session.via_exploit and session.via_exploit != "multi/handler"
-			info = {
-				:host => session.tunnel_peer.sub(/:\d+$/, ''), # strip off the port
-				:name => session.via_exploit,
-				:workspace => framework.db.find_workspace(session.workspace)
-			}
-			framework.db.report_vuln(info)
 		end
 	end
 

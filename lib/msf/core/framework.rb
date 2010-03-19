@@ -258,11 +258,22 @@ class FrameworkEventSubscriber
 	# Generic handler for session events
 	#
 	def session_event(name, session, opts={})
-		address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
+		if session.respond_to? :peerhost
+			address = session.peerhost
+		elsif session.respond_to? :tunnel_peer
+			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
+		elsif session.respond_to? :target_host
+			address = session.target_host
+		else
+			elog("Session with no peerhost/tunnel_peer")
+			dlog("#{session.inspect}", LEV_3)
+			return
+		end
 
 		if framework.db.active
+			ws = framework.db.find_workspace(session.workspace)
 			event = {
-				:workspace => framework.db.find_workspace(session.workspace),
+				:workspace => ws,
 				:username  => session.username,
 				:name => name,
 				:host => address,
@@ -285,6 +296,31 @@ class FrameworkEventSubscriber
 	def on_session_open(session)
 		opts = { :datastore => session.exploit_datastore.to_h }
 		session_event('session_open', session, opts)
+		if framework.db.active
+			# Copy/paste ftw
+			if session.respond_to? :peerhost
+				address = session.peerhost
+			elsif session.respond_to? :tunnel_peer
+				address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
+			elsif session.respond_to? :target_host
+				address = session.target_host
+			else
+				elog("Session with no peerhost/tunnel_peer")
+				dlog("#{session.inspect}", LEV_3)
+				return
+			end
+			# Since we got a session, we know the host is vulnerable to something.
+			# If the exploit used was multi/handler, though, we don't know what
+			# it's vulnerable to, so it isn't really useful to save it.
+			if session.via_exploit and session.via_exploit != "exploit/multi/handler"
+				info = {
+					:host => address,
+					:name => session.via_exploit,
+					:workspace => framework.db.find_workspace(session.workspace)
+				}
+				framework.db.report_vuln(info)
+			end
+		end
 	end
 
 	def on_session_close(session, reason='')
