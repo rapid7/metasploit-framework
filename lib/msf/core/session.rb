@@ -61,7 +61,7 @@ module Session
 
 	def initialize
 		self.alive = true
-		self.uuid  = Rex::Text.rand_text_alpha(32)
+		self.uuid  = Rex::Text.rand_text_alphanumeric(32).downcase
 	end
 
 	# Direct descendents
