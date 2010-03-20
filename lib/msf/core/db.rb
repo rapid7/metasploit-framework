@@ -1082,7 +1082,7 @@ class DBManager
 		end
 		firstline = data[0, di]
 		if (firstline.index("<NeXposeSimpleXML"))
-			return import_nexpose_simplexml(data)
+			return import_nexpose_simplexml(data, wspace)
 		elsif (firstline.index("<?xml"))
 			# it's xml, check for root tags we can handle
 			line_count = 0
