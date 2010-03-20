@@ -281,6 +281,7 @@ class FrameworkEventSubscriber
 					:session_id   => session.sid,
 					:session_info => session.info,
 					:session_uuid => session.uuid,
+					:session_type => session.type,
 					:username     => session.username,
 					:target_host  => session.target_host,
 					:via_exploit  => session.via_exploit,
@@ -294,7 +295,7 @@ class FrameworkEventSubscriber
 	require 'msf/core/session'
 	include ::Msf::SessionEvent
 	def on_session_open(session)
-		opts = { :datastore => session.exploit_datastore.to_h }
+		opts = { :datastore => session.exploit_datastore.to_h, :critical => true }
 		session_event('session_open', session, opts)
 		if framework.db.active
 			# Copy/paste ftw
