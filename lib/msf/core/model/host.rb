@@ -12,6 +12,7 @@ class Host < ActiveRecord::Base
 
 	has_many :service_notes, :through => :services
 
+	validates_exclusion_of :address, :in => ['127.0.0.1']
 	validates_uniqueness_of :address, :scope => :workspace_id
 end
 
