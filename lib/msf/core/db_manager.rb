@@ -60,6 +60,10 @@ class DBManager
 			require 'active_support'
 			require 'msf/core/db_objects'
 			require 'msf/core/model'
+
+			# Database drivers can reset our KCODE, do not let them
+			$KCODE = 'NONE'
+
 			@usable = true
 
 		rescue ::Exception => e
@@ -100,6 +104,9 @@ class DBManager
 		if(not self.drivers.empty?)
 			self.driver = self.drivers[0]
 		end
+
+		# Database drivers can reset our KCODE, do not let them
+		$KCODE = 'NONE'
 	end
 
 	#
@@ -156,6 +163,9 @@ class DBManager
 			elog("DB.connect threw an exception: #{e}")
 			dlog("Call stack: #{$@.join"\n"}", LEV_1)
 			return false
+		ensure
+			# Database drivers can reset our KCODE, do not let them
+			$KCODE = 'NONE'
 		end
 
 		@active = true
@@ -170,6 +180,9 @@ class DBManager
 		rescue ::Exception => e
 			self.error = e
 			elog("DB.disconnect threw an exception: #{e}")
+		ensure
+			# Database drivers can reset our KCODE, do not let them
+			$KCODE = 'NONE'
 		end
 		@active = false
 	end
