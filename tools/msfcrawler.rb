@@ -56,6 +56,9 @@ $proxyhost = '127.0.0.1'
 # Proxy Port
 $proxyport = 8080
 
+# Cookie Jar
+$cookiejar = {}
+
 class HttpCrawler
 	attr_accessor :ctarget, :cport, :cinipath, :cssl, :proxyhost, :proxyport, :useproxy
 
@@ -141,8 +144,10 @@ class HttpCrawler
 	
 		begin			
 			loop do
-				hashreq = @NotViewedQueue.take(reqtemplate(self.ctarget,self.cport,self.cssl), $taketimeout)
-				#puts hashreq					
+				reqfilter = reqtemplate(self.ctarget,self.cport,self.cssl)
+			
+				hashreq = @NotViewedQueue.take(reqfilter, $taketimeout)
+					
 				if !@ViewedQueue.include?(hashsig(hashreq))
 					@ViewedQueue[hashsig(hashreq)] = Time.now
 					
@@ -165,6 +170,7 @@ class HttpCrawler
 
 											
 							sendreq(c,hashreq)
+						
 
 					#	})
 
@@ -215,6 +221,7 @@ class HttpCrawler
 	
 	def sendreq(nclient,reqopts={})		
 		
+		#puts reqopts
 		puts ">> #{reqopts['uri']}"
 		
 		if reqopts['query']
@@ -234,6 +241,11 @@ class HttpCrawler
 				# In case modules or crawler calls to_s on de-chunked responses 
 				#
 				resp.transfer_chunked = false
+				if resp['Set-Cookie']
+					#puts "SET COOKIE: #{resp['Set-Cookie']}"
+					#puts "Storing in cookie jar for host:port #{reqopts['rhost']}:#{reqopts['rport']}"
+					$cookiejar["#{reqopts['rhost']}:#{reqopts['rport']}"] = resp['Set-Cookie']		
+				end
 				#puts ("#{resp.to_s}")
 				
 				#puts "resp code #{resp.code}"
@@ -248,8 +260,9 @@ class HttpCrawler
 					@crawlermodules.each_key do |k|
 						@crawlermodules[k].parse(reqopts,resp)
 					end
-				when 301
-					puts "Redirection"	
+				when 302
+					puts "(#{resp.code}) Redirection to: #{resp['Location']}"
+					insertnewpath(urltohash(resp['Location']))
 				when 404
 					puts "Invalid link (404) #{reqopts['uri']}"	
 				else
@@ -273,13 +286,45 @@ class HttpCrawler
 				if @NotViewedQueue.read_all(hashreq).size > 0
 					#puts "Already in queue to be viewed"
 				else					
-					#puts "I: #{hashreq['uri']}"
+					#puts "Inserted: #{hashreq['uri']}"
 					@NotViewedQueue.write(hashreq)
 				end			
 			else
 				#puts "#{hashreq} already visited at #{@ViewedQueue[hashsig(hashreq)]}"
 			end
 		end
+	end
+	
+	#
+	# Build a new hash for a local path
+	#
+	
+	def urltohash(url)
+		uri = URI.parse(url)
+		tssl = (uri.scheme == "https") ? true : false
+			
+		if (uri.host.nil? or uri.host.empty?) 
+			uritargethost = self.ctarget
+			uritargetport = self.cport
+			uritargetssl = self.cssl
+		else
+			uritargethost = uri.host
+			uritargetport = uri.port
+			uritargetssl = tssl
+		end
+		
+		hashreq = {
+				'rhost'		=> uritargethost,
+				'rport'		=> uritargetport,
+				'uri' 		=> uri.path,
+				'method'   	=> 'GET',
+				'ctype'		=> 'text/plain',
+				'ssl'		=> uritargetssl,
+				'query'		=> uri.query
+		}
+		
+		#puts hashreq
+		return hashreq
 	end
 	
 	def hashsig(hashreq)
