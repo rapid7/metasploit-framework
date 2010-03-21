@@ -47,6 +47,9 @@ $dbs = false
 # Thread number
 $threadnum = 1
 
+# Dont crawl
+$dontcrawl = ".exe,.zip,.tar,.bz2,.run,.asc,.gz,"
+
 # Use proxy
 $useproxy = false
 
@@ -151,6 +154,11 @@ class HttpCrawler
 				if !@ViewedQueue.include?(hashsig(hashreq))
 					@ViewedQueue[hashsig(hashreq)] = Time.now
 					
+					if !File.extname(hashreq['uri']).empty? and $dontcrawl.include? File.extname(hashreq['uri'])
+						puts "URI not crawled #{hashreq['uri']}"
+					else	
+					 
+					
 					#if i < $threadnum
 					#	a.push(Thread.new {
 							
@@ -178,7 +186,8 @@ class HttpCrawler
 					#else
 					#	sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
 					#	i = 0
-					#end		
+					#end
+					end		
 				else
 					#puts "#{hashreq} already visited at #{@ViewedQueue[hashsig(hashreq)]}"
 				end
@@ -242,9 +251,9 @@ class HttpCrawler
 				#
 				resp.transfer_chunked = false
 				if resp['Set-Cookie']
-					#puts "SET COOKIE: #{resp['Set-Cookie']}"
+					#puts "Set Cookie: #{resp['Set-Cookie']}"
 					#puts "Storing in cookie jar for host:port #{reqopts['rhost']}:#{reqopts['rport']}"
-					$cookiejar["#{reqopts['rhost']}:#{reqopts['rport']}"] = resp['Set-Cookie']		
+					#$cookiejar["#{reqopts['rhost']}:#{reqopts['rport']}"] = resp['Set-Cookie']		
 				end
 				#puts ("#{resp.to_s}")
 				
@@ -272,8 +281,10 @@ class HttpCrawler
 				puts "No response"
 			end
 			sleep($sleeptime)
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue ::Timeout::Error, ::Errno::EPIPE			
+		#rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+		#rescue ::Timeout::Error, ::Errno::EPIPE			
+		rescue
+			"ERROR"
 		end
 	end
 
