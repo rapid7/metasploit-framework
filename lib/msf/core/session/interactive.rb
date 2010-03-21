@@ -37,7 +37,11 @@ module Interactive
 	# Returns the local information.
 	#
 	def tunnel_local
-		rstream.localinfo
+		begin
+			rstream.localinfo
+		rescue ::Exception
+			'127.0.0.1'
+		end
 	end
 
 	#
@@ -46,8 +50,8 @@ module Interactive
 	def tunnel_peer
 		begin
 			@peer_info = rstream.peerinfo
-		rescue
-			@peer_info
+		rescue ::Exception
+			@peer_info ||= '127.0.0.1'
 		end
 	end
 
@@ -56,7 +60,7 @@ module Interactive
 	#
 	def run_cmd(cmd)
 	end
-	
+
 	#
 	# Terminate the session
 	#
@@ -66,14 +70,14 @@ module Interactive
 		self.cleanup
 		super()
 	end
-	
+
 	#
 	# Closes rstream.
 	#
 	def cleanup
 		begin
 			rstream.close if (rstream)
-		rescue 
+		rescue ::Exception
 		end
 
 		rstream = nil
@@ -136,3 +140,4 @@ end
 
 end
 end
+

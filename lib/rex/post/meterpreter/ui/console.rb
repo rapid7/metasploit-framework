@@ -101,8 +101,10 @@ class Console
 			log_error("Operation timed out.")
 		rescue RequestError => info
 			log_error(info.to_s)
-		rescue
-			log_error("Error running command #{method}: #{$!}")
+		rescue ::Errno::EPIPE, ::OpenSSL::SSL::SSLError, ::IOError
+			self.client.kill
+		rescue  ::Exception => e
+			log_error("Error running command #{method}: #{e.class} #{e}")
 		end
 	end
 

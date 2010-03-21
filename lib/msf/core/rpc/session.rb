@@ -41,11 +41,15 @@ class Session < Base
 			raise ::XMLRPC::FaultException.new(403, "session is not a shell")
 		end
 
-		if(not s.rstream.has_read_data?(0))
-			{ "data" => "", "encoding" => "base64" }
-		else
-			data = s.shell_read
-			{ "data" => Rex::Text.encode_base64(data), "encoding" => "base64" }
+		begin
+			if(not s.rstream.has_read_data?(0))
+				{ "data" => "", "encoding" => "base64" }
+			else
+				data = s.shell_read
+				{ "data" => Rex::Text.encode_base64(data), "encoding" => "base64" }
+			end
+		rescue ::Exception => e
+			raise ::XMLRPC::FaultException.new(500, "session disconnected: #{e.class} #{e}")
 		end
 	end
 
@@ -57,7 +61,11 @@ class Session < Base
 		end
 		buff = Rex::Text.decode_base64(data)
 
-		{ "write_count" => s.shell_write(buff) }
+		begin
+			{ "write_count" => s.shell_write(buff) }
+		rescue ::Exception => e
+			raise ::XMLRPC::FaultException.new(500, "session disconnected: #{e.class} #{e}")
+		end
 	end
 
 	def meterpreter_read(token, sid)

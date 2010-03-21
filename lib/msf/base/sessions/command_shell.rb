@@ -190,26 +190,38 @@ class CommandShell
 	# Read from the command shell.
 	#
 	def shell_read(length=-1, timeout=1)
-		rv = rstream.get_once(length, timeout)
-		if rv
-			framework.events.on_session_output(self, rv)
+		begin
+			rv = rstream.get_once(length, timeout)
+			framework.events.on_session_output(self, rv) if rv
+			return rv
+		rescue ::Exception => e
+			shell_close
+			raise e
 		end
-		return rv
 	end
 
 	#
 	# Writes to the command shell.
 	#
 	def shell_write(buf)
-		framework.events.on_session_command(self, buf.strip)
-		rstream.write(buf)
+		begin
+			framework.events.on_session_command(self, buf.strip)
+			rstream.write(buf)
+		rescue ::Exception => e
+			shell_close
+			raise e
+		end
 	end
 
 	#
 	# Closes the shell.
 	#
 	def shell_close()
-		rstream.close
+		begin
+			rstream.close
+		rescue ::Exception
+		end
+		self.kill
 	end
 
 	#
@@ -240,8 +252,9 @@ class CommandShell
 			execute_script(args.shift, args)
 		end
 	end
-	
+
 end
 
 end
 end
+

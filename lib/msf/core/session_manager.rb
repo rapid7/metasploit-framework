@@ -21,7 +21,7 @@ class SessionManager < Hash
 		self.framework = framework
 		self.sid_pool  = 0
 		self.reaper_thread = Thread.new do
-			while true
+			while ! true
 				::Kernel.select(nil, nil, nil, 0.5)
 				each_value do |s|
 					if not s.alive?
@@ -80,10 +80,10 @@ class SessionManager < Hash
 	# Deregisters the supplied session object with the framework.
 	#
 	def deregister(session, reason='')
-		if (session.dead?)
+
+		if (session.dead? and not self[session.sid.to_i])
 			return
 		end
-		session.alive = false
 
 		# Tell the framework that we have a parting session
 		framework.events.on_session_close(session, reason)
@@ -100,6 +100,9 @@ class SessionManager < Hash
 
 		# Remove it from the hash
 		self.delete(session.sid.to_i)
+
+		# Mark the session as dead
+		session.alive = false
 
 		# Close it down
 		session.cleanup

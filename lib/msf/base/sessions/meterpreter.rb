@@ -125,6 +125,18 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	end
 
 	#
+	# Terminates the session
+	#
+	def kill
+		begin
+			cleanup_meterpreter
+			self.sock.close
+		rescue ::Exception
+		end
+		framework.sessions.deregister(self)
+	end
+
+	#
 	# Run the supplied command as if it came from suer input.
 	#
 	def queue_cmd(cmd)
