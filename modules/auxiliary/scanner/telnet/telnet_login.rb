@@ -46,11 +46,6 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE
 		)
 		deregister_options('RHOST')
-		register_options(
-			[
-				OptBool.new('VERBOSE', [ true, 'Verbose output', false])
-			], Msf::Exploit::Remote::Telnet
-		)
 		register_advanced_options(
 			[
 				OptInt.new('TIMEOUT', [ true, 'Default timeout for telnet connections. The greatest value of TelnetTimeout, TelnetBannerTimeout, or this option will be used as an overall timeout.', 0])
@@ -91,16 +86,16 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			self.credentials_tried[this_cred] = pass
 		end
-		print_status "#{rhost}:#{rport} Telnet - Attempting: '#{user}':'#{pass}'" if datastore['VERBOSE']
+		vprint_status "#{rhost}:#{rport} Telnet - Attempting: '#{user}':'#{pass}'"
 
 		ret = do_login(user,pass)
 		if ret == :no_pass_prompt
-			print_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to missing password prompt" if datastore['VERBOSE']
+			vprint_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to missing password prompt"
 			self.no_pass_prompt << this_cred
 		elsif ret == :timeout
-			print_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to timeout" if datastore['VERBOSE']
+			vprint_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to timeout"
 		elsif ret == :busy
-			print_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to busy state" if datastore['VERBOSE']
+			vprint_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to busy state"
 		else
 			start_telnet_session(rhost,rport,user,pass) if login_succeeded?
 		end
@@ -114,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 
-		print_status("#{rhost}:#{rport} Banner: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}") if datastore['VERBOSE']
+		vprint_status("#{rhost}:#{rport} Banner: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
 
 		if busy_message?
 			self.sock.close unless self.sock.closed?
@@ -146,7 +141,7 @@ class Metasploit3 < Msf::Auxiliary
 			recv_telnet(self.sock, 0.10)
 		end
 
-		print_status("#{rhost}:#{rport} Prompt: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}") if datastore['VERBOSE']
+		vprint_status("#{rhost}:#{rport} Prompt: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
 
 		if password_prompt?
 			send_pass(pass)
@@ -157,7 +152,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 
-			print_status("#{rhost}:#{rport} Result: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}") if datastore['VERBOSE']
+			vprint_status("#{rhost}:#{rport} Result: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
 
 			if login_succeeded?
 				report_telnet(user,pass,@trace)
@@ -218,3 +213,4 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
+

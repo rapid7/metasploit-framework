@@ -53,11 +53,16 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		print_status("Starting host #{ip}")
+		vprint_status("Starting SMB login attempt on #{ip}")
 		if (datastore["SMBUser"] and not datastore["SMBUser"].empty?)
 			# then just do this user/pass
 			try_user_pass(datastore["SMBUser"], datastore["SMBPass"], [datastore["SMBUser"],ip,rport].join(":"))
 		else
+			if accepts_bogus_logins?
+				print_error("This system accepts authentication with any credentials, brute force is ineffective.")
+				return
+			end
+
 			begin
 				each_user_pass do |user, pass|
 					userpass_sleep_interval unless self.credentials_tried.empty?
@@ -69,6 +74,23 @@ class Metasploit3 < Msf::Auxiliary
 				nil
 			end
 		end
+	end
+
+	def accepts_bogus_logins?
+		datastore["SMBUser"] = Rex::Text.rand_text_alpha(8)
+		datastore["SMBPass"] = Rex::Text.rand_text_alpha(8)
+
+		# Connection problems are dealt with at a higher level
+		connect()
+
+		begin
+			smb_login()
+		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
+		end
+
+		disconnect
+
+		simple.client.auth_user ? true : false
 	end
 
 	def try_user_pass(user, pass, this_cred)
@@ -85,6 +107,7 @@ class Metasploit3 < Msf::Auxiliary
 			case e.error_reason
 			when 'STATUS_LOGON_FAILURE'
 				# Nothing interesting
+				vprint_status("#{rhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
 				disconnect()
 				return
 

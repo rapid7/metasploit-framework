@@ -17,7 +17,8 @@ def initialize(info = {})
 			OptPath.new('USER_FILE', [ false, "File containing usernames, one per line" ]),
 			OptPath.new('PASS_FILE', [ false, "File containing passwords, one per line" ]),
 			OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line" ]),
-			OptInt.new('BRUTEFORCE_SPEED', [ true, "How fast to bruteforce, from 0 to 5", 5])
+			OptInt.new('BRUTEFORCE_SPEED', [ true, "How fast to bruteforce, from 0 to 5", 5]),
+			OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
 		], Auxiliary::AuthBrute)
 
 	@user = nil
@@ -112,6 +113,21 @@ def userpass_sleep_interval
 			0
 	end
 	select(nil,nil,nil,sleep_time) unless sleep_time == 0
+end
+
+def vprint_status(msg='')
+	return if not datastore['VERBOSE']
+	print_status(msg)
+end
+
+def vprint_error(msg='')
+	return if not datastore['VERBOSE']
+	print_error(msg)
+end
+
+def vprint_good(msg='')
+	return if not datastore['VERBOSE']
+	print_good(msg)
 end
 
 protected

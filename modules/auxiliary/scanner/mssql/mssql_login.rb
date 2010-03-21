@@ -29,11 +29,6 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => 'MC',
 			'License'        => MSF_LICENSE
 		)
-
-		register_options(
-			[
-				OptBool.new('VERBOSE', [ true, 'Verbose output', false])
-			], self.class)
 	end
 
 	def run_host(ip)
@@ -56,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user='sa', pass='', this_cred='', verbose=false)
-		print_status("#{rhost}:#{rport} - MSSQL - Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport}") if verbose
+		vprint_status("#{rhost}:#{rport} - MSSQL - Trying username:'#{user}' with password:'#{pass}'")
 		begin
 			success = mssql_login(user, pass)
 
@@ -74,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 				self.credentials_good[this_cred] = pass
 				return :next_user
  			else
-				print_error("#{rhost}:#{rport} failed to login as '#{user}'") if verbose
+				vprint_error("#{rhost}:#{rport} failed to login as '#{user}'")
 				return
 			end
 		rescue ::Rex::ConnectionError
@@ -82,3 +77,4 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
+

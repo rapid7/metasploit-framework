@@ -41,14 +41,13 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('USERNAME', [ false, 'The username to authenticate as' ]),
 				OptString.new('PASSWORD', [ false, 'The password for the specified username' ]),
-				OptBool.new('VERBOSE', [ true, 'Verbose output', false]),
 				Opt::RPORT(22)
 			], self.class
 		)
 
 		register_advanced_options(
 			[
-				OptBool.new('SSH_Debug', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false])
+				OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false])
 			]
 		)
 
@@ -71,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 			:password     => pass
 		}
 
-		opt_hash.merge!(:verbose => :debug) if datastore['SSH_Debug']
+		opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
 
 		begin
 			self.ssh_socket = Net::SSH.start(
@@ -137,6 +136,8 @@ class Metasploit3 < Msf::Auxiliary
 			this_cred = [user,ip,rport].join(":")
 			next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
 			self.credentials_tried[this_cred] = pass
+
+			vprint_status("#{ip}:#{rport} - SSH - Trying: username: '#{user}' with password: '#{pass}'")
 			ret,proof = do_login(ip,user,pass,rport)
 			case ret
 			when :success
@@ -144,15 +145,16 @@ class Metasploit3 < Msf::Auxiliary
 				self.credentials_good[this_cred] = pass
 				do_report(ip,user,pass,rport,proof)
 			when :connection_error
-				print_error "#{ip}:#{rport} - Could not connect" if datastore['VERBOSE']
+				vprint_error "#{ip}:#{rport} - SSH - Could not connect"
 				return
 			when :connection_disconnect
-				print_error "#{ip}:#{rport} - Connection timed out" if datastore['VERBOSE']
+				vprint_error "#{ip}:#{rport} - SSH - Connection timed out"
 				return
 			when :fail
-				print_error "#{ip}:#{rport} - SSH - Failed: '#{user}':'#{pass}'" if datastore['VERBOSE']
+				vprint_error "#{ip}:#{rport} - SSH - Failed: '#{user}':'#{pass}'"
 			end
 		end
 	end
 
 end
+

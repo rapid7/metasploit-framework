@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::AuthBrute
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
-	
+
 	# Creates an instance of this module.
 	def initialize(info = {})
 		super(update_info(info,
@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[
-					[ 'URL', 'www.postgresql.org' ]
+					[ 'URL', 'http://www.postgresql.org' ]
 				],
 			'Version'        => '$Revision$'
 		))
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 				self.credentials_tried[this_cred] = pass
 				datastore['USERNAME'] = user
 				datastore['PASSWORD'] = pass
-				do_login(user,pass,this_cred,datastore['DATABASE'],datastore['VERBOSE'])
+				do_login(user,pass,this_cred)
 			}
 	end
 
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['RHOST']
 	end
 
-	# Alias for RPORT	
+	# Alias for RPORT
 	def rport
 		datastore['RPORT']
 	end
@@ -77,10 +77,11 @@ class Metasploit3 < Msf::Auxiliary
 	# Actually do all the login stuff. Note that "verbose" is really pretty
 	# verbose, since postgres_login also makes use of the verbose value
 	# to print diagnostics for other modules.
-	def do_login(user=nil,pass=nil,this_cred='',database=nil,verbose=false)
+	def do_login(user=nil,pass=nil,this_cred='')
+		database = datastore['DATABASE']
 		begin
 			msg = "#{rhost}:#{rport} Postgres -"
-			print_status("#{msg} Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport} on database '#{database}'") if verbose 
+			vprint_status("#{msg} Trying username:'#{user}' with password:'#{pass}' on database '#{database}'")
 			# Here's where the actual connection happens.
 			result = postgres_login(
 				:db => database,
@@ -94,7 +95,7 @@ class Metasploit3 < Msf::Auxiliary
 				self.credentials_good[this_cred] = pass
 				return :next_user # This is a success for user:pass!
 			when :error_credentials
-				print_error("#{msg} Username/Password failed.") if verbose
+				vprint_error("#{msg} Username/Password failed.")
 				return
 			when :connected
 				print_good("#{msg} Success: #{user}:#{pass} (Database '#{database}' succeeded.)")
@@ -103,11 +104,11 @@ class Metasploit3 < Msf::Auxiliary
 				postgres_logout
 				return :next_user
 			when :error
-				print_error("#{msg} Unknown error encountered, quitting.") if verbose
+				vprint_error("#{msg} Unknown error encountered, giving up on host")
 				return :done
 			end
 		rescue Rex::ConnectionError
-			print_error "#{rhost}:#{rport} Connection Error: #{$!}" if datastore['VERBOSE']
+			vprint_error "#{rhost}:#{rport} Connection Error: #{$!}"
 			return :done
 		end
 	end
@@ -137,3 +138,4 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
+

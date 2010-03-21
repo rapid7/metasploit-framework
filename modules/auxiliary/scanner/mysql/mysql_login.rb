@@ -29,11 +29,6 @@ class Metasploit3 < Msf::Auxiliary
 			'License'		=> MSF_LICENSE,
 			'Version'		=> '$Revision$'
 		))
-
-		register_options(
-			[
-				OptBool.new('VERBOSE', [ true, 'Verbose output', false])
-			], self.class)
 	end
 
 
@@ -44,13 +39,13 @@ class Metasploit3 < Msf::Auxiliary
 				this_cred = [user,ip,rport].join(":")
 				next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
 				self.credentials_tried[this_cred] = pass
-				do_login(user, pass, this_cred, datastore['VERBOSE'])
+				do_login(user, pass, this_cred)
 			}
 		end
 	end
 
 	# Tmtm's rbmysql is only good for recent versions of mysql, according
-	# to http://www.tmtm.org/en/mysql/ruby/. We'll need to write our own 
+	# to http://www.tmtm.org/en/mysql/ruby/. We'll need to write our own
 	# auth checker for earlier versions. Shouldn't be too hard.
 	# This code is essentially the same as the mysql_version module, just less
 	# whitespace and returns false on errors.
@@ -61,8 +56,8 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect(s)
 		rescue ::Rex::ConnectionError, ::EOFError
 			return false
-		rescue ::Exception
-			print_error("Error: #{$!}")
+		rescue ::Exception => e
+			vprint_error("#{rhost}:#{rport} error checking version #{e.class} #{e}")
 			return false
 		end
 		offset = 0
@@ -78,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 		version = data[offset..-1].unpack('Z*')[0]
 		report_service(:host => rhost, :port => rport, :name => "mysql", :info => version)
 		short_version = version.split('-')[0]
-		print_status "#{rhost}:#{rport} - Found remote MySQL version #{short_version}." if datastore['VERBOSE']
+		vprint_status "#{rhost}:#{rport} - Found remote MySQL version #{short_version}"
 		int_version(short_version) >= int_version(target)
 	end
 
@@ -100,9 +95,9 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-	def do_login(user='root', pass='', this_cred = '', verbose=false)
+	def do_login(user='root', pass='', this_cred = '')
 
-		print_status("Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport}") if verbose
+		vprint_status("#{rhost}:#{rport} Trying username:'#{user}' with password:'#{pass}'")
 		begin
 			mysql_login(user, pass)
 			print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN '#{user}' : '#{pass}'")
@@ -116,10 +111,10 @@ class Metasploit3 < Msf::Auxiliary
 			)
 			self.credentials_good[this_cred] = pass
 		rescue ::RbMysql::AccessDeniedError
-			print_status("#{rhost}:#{rport} failed to login as '#{user}' with password '#{pass}'") if verbose
+			vprint_status("#{rhost}:#{rport} failed to login as '#{user}' with password '#{pass}'")
 			return :fail
 		rescue ::RbMysql::Error => e
-			print_error("#{rhost}:#{rport} failed to login: #{e}")
+			vprint_error("#{rhost}:#{rport} failed to login: #{e.class} #{e}")
 			return :error
 		rescue ::Interrupt
 			raise $!
