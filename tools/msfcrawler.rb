@@ -158,10 +158,10 @@ class HttpCrawler
 						puts "URI not crawled #{hashreq['uri']}"
 					else	
 					 
-					
-					#if i < $threadnum
-					#	a.push(Thread.new {
-							
+						####
+						if i < $threadnum
+							a.push(Thread.new {
+						####	
 							prx = nil
 							if self.useproxy
 								prx = "HTTP:"+self.proxyhost.to_s+":"+self.proxyport.to_s
@@ -179,14 +179,15 @@ class HttpCrawler
 											
 							sendreq(c,hashreq)
 						
+						####
+						})
 
-					#	})
-
-					#	i += 1	
-					#else
-					#	sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
-					#	i = 0
-					#end
+						i += 1	
+						else
+							sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+							i = 0
+						end
+						####
 					end		
 				else
 					#puts "#{hashreq} already visited at #{@ViewedQueue[hashsig(hashreq)]}"
