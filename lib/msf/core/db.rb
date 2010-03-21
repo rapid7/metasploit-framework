@@ -604,6 +604,9 @@ class DBManager
 		if opts[:refs]
 			rids = []
 			opts[:refs].each do |r|
+				if r.respond_to? :ctx_id
+					r = r.ctx_id + '-' + r.ctx_val
+				end
 				rids << find_or_create_ref(:name => r)
 			end
 		end
@@ -725,7 +728,7 @@ class DBManager
 	end
 
 	def events(wspace=workspace)
-		wspace.events
+		wspace.events.find :all, :order => 'created_at ASC'
 	end
 
 	def report_event(opts = {})

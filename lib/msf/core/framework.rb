@@ -314,9 +314,11 @@ class FrameworkEventSubscriber
 			# If the exploit used was multi/handler, though, we don't know what
 			# it's vulnerable to, so it isn't really useful to save it.
 			if session.via_exploit and session.via_exploit != "exploit/multi/handler"
+				mod = framework.modules.create(session.via_exploit)
 				info = {
 					:host => address,
 					:name => session.via_exploit,
+					:refs => mod.references,
 					:workspace => framework.db.find_workspace(session.workspace)
 				}
 				framework.db.report_vuln(info)
