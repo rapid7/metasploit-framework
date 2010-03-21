@@ -1,18 +1,26 @@
 require 'rubygems'
 require 'pathname'
+require 'hpricot'
 require 'uri'
 
-class CrawlerBasic < BaseParser
+class CrawlerSimple < BaseParser
 
 	def parse(request,result)
 		
-		#puts "R: #{result.body}"
+		if !result['Content-Type'].include? "text/html"
+			return
+		end
 		
-		links = result.body.to_s.scan(/href\s*=\s*[\"\'](.+?)[\"\']/)  
+		doc = Hpricot(result.body.to_s)
+		doc.search('a').each do |link|
 		
-		links.each do |link| 
+		hr = link.attributes['href']
+		
+		if hr
+		#links = result.body.to_s.scan(/href\s*=\s*[\"\'](.+?)[\"\']/) 
+		#links.each do |link| 
 			begin
-				uri = URI.parse(link[0])
+				uri = URI.parse(hr)
 			
 				tssl = false
 				if uri.scheme == "https"
@@ -22,7 +30,8 @@ class CrawlerBasic < BaseParser
 				end
 
 				if !uri.host or uri.host == nil
-					thost = request['rhost']	
+					thost = request['rhost']
+					tssl = self.targetssl	
 				else
 					thost = uri.host	
 				end
@@ -40,12 +49,14 @@ class CrawlerBasic < BaseParser
 				end
 				
 				
-				newp = Pathname.new(tpath)
-				if !newp.absolute?
-					oldp = Pathname.new(request['uri'])
-					newp = oldp + newp.cleanpath
-				end
 				
+				newp = Pathname.new(tpath)
+				oldp = Pathname.new(request['uri'])
+				if !oldp.absolute?
+					if !newp.absolute?
+						newp = oldp + newp.cleanpath
+					end
+				end
 
 				hreq = {
 					'rhost'		=> thost,
@@ -57,13 +68,14 @@ class CrawlerBasic < BaseParser
 					'query'		=> uri.query
 					
 				}
-				#puts "R: #{hreq['uri']}"
+				
 				insertnewpath(hreq)
 					
-		rescue URI::InvalidURIError
+			rescue URI::InvalidURIError
 				#puts "Parse error"
 				#puts "Error: #{link[0]}"
 			end
+		end
 		end
 	end 
 end
