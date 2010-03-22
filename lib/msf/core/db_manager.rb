@@ -62,7 +62,7 @@ class DBManager
 			require 'msf/core/model'
 
 			# Database drivers can reset our KCODE, do not let them
-			$KCODE = 'NONE'
+			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 
 			@usable = true
 
@@ -106,7 +106,7 @@ class DBManager
 		end
 
 		# Database drivers can reset our KCODE, do not let them
-		$KCODE = 'NONE'
+		$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 	end
 
 	#
@@ -165,7 +165,7 @@ class DBManager
 			return false
 		ensure
 			# Database drivers can reset our KCODE, do not let them
-			$KCODE = 'NONE'
+			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 		end
 
 		@active = true
@@ -182,7 +182,7 @@ class DBManager
 			elog("DB.disconnect threw an exception: #{e}")
 		ensure
 			# Database drivers can reset our KCODE, do not let them
-			$KCODE = 'NONE'
+			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 		end
 		@active = false
 	end
