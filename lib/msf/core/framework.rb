@@ -329,7 +329,7 @@ class FrameworkEventSubscriber
 	def on_session_upload(session, lpath, rpath)
 		session_event('session_upload', session, :local_path => lpath, :remote_path => rpath)
 	end
-	def on_session_download(session, lpath, rpath)
+	def on_session_download(session, rpath, lpath)
 		session_event('session_download', session, :local_path => lpath, :remote_path => rpath)
 	end
 	def on_session_filedelete(session, path)

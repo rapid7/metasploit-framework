@@ -48,7 +48,7 @@ module SessionEvent
 	#
 	# Called when a file is downloaded.
 	#
-	def on_session_download(session, local_path, remote_path)
+	def on_session_download(session, remote_path, local_path)
 	end
 
 	#
