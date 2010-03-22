@@ -326,6 +326,16 @@ class FrameworkEventSubscriber
 		end
 	end
 
+	def on_session_upload(session, lpath, rpath)
+		session_event('session_upload', session, :local_path => lpath, :remote_path => rpath)
+	end
+	def on_session_download(session, lpath, rpath)
+		session_event('session_download', session, :local_path => lpath, :remote_path => rpath)
+	end
+	def on_session_filedelete(session, path)
+		session_event('session_filedelete', session, :path => path)
+	end
+
 	def on_session_close(session, reason='')
 		session_event('session_close', session)
 	end

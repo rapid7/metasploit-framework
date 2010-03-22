@@ -39,6 +39,23 @@ module SessionEvent
 	def on_session_output(session, output)
 	end
 
+	#
+	# Called when a file is uploaded.
+	#
+	def on_session_upload(session, local_path, remote_path)
+	end
+
+	#
+	# Called when a file is downloaded.
+	#
+	def on_session_download(session, local_path, remote_path)
+	end
+
+	#
+	# Called when a file is deleted.
+	#
+	def on_session_filedelete(session, path)
+	end
 end
 
 ###
