@@ -285,7 +285,8 @@ class FrameworkEventSubscriber
 					:username     => session.username,
 					:target_host  => session.target_host,
 					:via_exploit  => session.via_exploit,
-					:via_payload  => session.via_payload
+					:via_payload  => session.via_payload,
+					:tunnel_peer  => session.tunnel_peer
 				}.merge(opts)
 			}
 			report_event(event)
