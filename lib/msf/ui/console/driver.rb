@@ -50,9 +50,9 @@ class Driver < Msf::Ui::Driver
 	# 	Whether or to use the system Readline or the RBReadline (default)
 	#
 	# HistFile
-	#  
+	#
 	#	Name of a file to store command history
-	#	
+	#
 	def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
 
 		# Choose a readline library before calling the parent
@@ -66,8 +66,8 @@ class Driver < Msf::Ui::Driver
 		rescue ::LoadError
 			rl_err = $!
 		end
-		
-		# Default to the RbReadline wrapper		
+
+		# Default to the RbReadline wrapper
 		require 'readline_compatible' if(not rl)
 
 		histfile = opts['HistFile'] || Msf::Config.history_file
@@ -80,10 +80,10 @@ class Driver < Msf::Ui::Driver
 
 		# Load pre-configuration
 		load_preconfig
-	
+
 		# Initialize attributes
 		self.framework = opts['Framework'] || Msf::Simple::Framework.create
-		
+
 		# Initialize the user interface to use a different input and output
 		# handle if one is supplied
 		if (opts['LocalInput'] or opts['LocalOutput'])
@@ -95,7 +95,7 @@ class Driver < Msf::Ui::Driver
 		# Add the core command dispatcher as the root of the dispatcher
 		# stack
 		enstack_dispatcher(CommandDispatcher::Core)
-		
+
 		# Report readline error if there was one..
 		if not rl_err.nil?
 			print_error("***")
@@ -110,7 +110,7 @@ class Driver < Msf::Ui::Driver
 			enstack_dispatcher(CommandDispatcher::Db)
 		else
 			print_error("***")
-			print_error("* WARNING: No database support: #{framework.db.error.class} #{framework.db.error}") 
+			print_error("* WARNING: No database support: #{framework.db.error.class} #{framework.db.error}")
 			print_error("***")
 		end
 
@@ -120,8 +120,8 @@ class Driver < Msf::Ui::Driver
 		rescue ::LoadError
 			print_error("***")
 			print_error("* WARNING: No OpenSSL support. This is required by meterpreter payloads and many exploits")
-			print_error("* Please install the ruby-openssl package (apt-get install libopenssl-ruby on Debian/Ubuntu") 
-			print_error("***")		
+			print_error("* Please install the ruby-openssl package (apt-get install libopenssl-ruby on Debian/Ubuntu")
+			print_error("***")
 		end
 
 		# Register event handlers
@@ -129,7 +129,7 @@ class Driver < Msf::Ui::Driver
 
 		# Load console-specific configuration
 		load_config(opts['Config'])
-	
+
 		# Re-enable output
 		self.disable_output = false
 
@@ -214,7 +214,7 @@ class Driver < Msf::Ui::Driver
 		end
 
 		# Save it
-		begin 
+		begin
 			Msf::Config.save(ConfigGroup => group)
 		rescue ::Exception
 			print_error("Failed to save console config: #{$!}")
@@ -226,17 +226,38 @@ class Driver < Msf::Ui::Driver
 	#
 	def load_resource(path=nil)
 		path ||= File.join(Msf::Config.config_directory, 'msfconsole.rc')
-		return if not File.readable?(path)
-		
-		rcfd = File.open(path, 'r')
-		rcfd.each_line do |line|
+		lines = ::File.readlines(path)
+
+
+		while lines.length > 0
+			line = lines.shift
+			break if not line
 			line.strip!
 			next if line.length == 0
 			next if line =~ /^#/
-			print_line("resource (#{path})> #{line}")
-			run_single(line)
+			if line =~ /^<ruby>/
+				buff = ''
+				while lines.length > 0
+					line = lines.shift
+					break if not line
+					break if line =~ /^<\/ruby>/
+					buff << line
+				end
+				if ! buff.empty?
+					print_status("resource (#{path})> Ruby Code (#{buff.length} bytes)")
+					begin
+						eval(buff, binding)
+					rescue ::Interrupt
+						raise $!
+					rescue ::Exception => e
+						print_error("resource (#{path})> Ruby Error: #{e.class} #{e} #{e.backtrace}")
+					end
+				end
+			else
+				print_line("resource (#{path})> #{line}")
+				run_single(line)
+			end
 		end
-		rcfd.close
 	end
 
 	#
@@ -244,7 +265,7 @@ class Driver < Msf::Ui::Driver
 	#
 	def save_resource(data, path=nil)
 		path ||= File.join(Msf::Config.config_directory, 'msfconsole.rc')
-		
+
 		begin
 			rcfd = File.open(path, 'w')
 			rcfd.write(data)
@@ -252,7 +273,7 @@ class Driver < Msf::Ui::Driver
 		rescue ::Exception
 		end
 	end
-	
+
 	#
 	# Called before things actually get rolling such that banners can be
 	# displayed, scripts can be processed, and other fun can be had.
@@ -267,7 +288,7 @@ class Driver < Msf::Ui::Driver
 			print("\n")
 		end
 		framework.events.on_ui_start(Msf::Framework::Revision)
-		
+
 		# Build the banner message
 		run_single("banner")
 		self.on_command_proc = Proc.new { |command| framework.events.on_ui_command(command) }
@@ -282,7 +303,7 @@ class Driver < Msf::Ui::Driver
 	def on_variable_set(glob, var, val)
 		case var.downcase
 			when "payload"
-				
+
 				if (framework and framework.modules.valid?(val) == false)
 					return false
 				elsif (active_module)
@@ -330,10 +351,10 @@ class Driver < Msf::Ui::Driver
 	# The active session associated with the driver.
 	#
 	attr_accessor :active_session
-	
+
 	#
 	# If defanged is true, dangerous functionality, such as exploitation, irb,
-	# and command shell passthru is disabled.  In this case, an exception is 
+	# and command shell passthru is disabled.  In this case, an exception is
 	# raised.
 	#
 	def defanged?
@@ -378,10 +399,10 @@ protected
 				return
 			end
 		end
-		
+
 		super
 	end
-	
+
 	##
 	#
 	# Handlers for various global configuration values
@@ -400,7 +421,7 @@ protected
 			print_line("Session logging will be disabled for future sessions.")
 		end
 	end
-	
+
 	#
 	# ConsoleLogging.
 	#
@@ -410,7 +431,7 @@ protected
 			print_line("Console logging is now enabled.")
 
 			set_log_source('console')
-			
+
 			rlog("\n[*] Console logging started: #{Time.now}\n\n", 'console')
 		else
 			rlog("\n[*] Console logging stopped: #{Time.now}\n\n", 'console')
@@ -445,3 +466,4 @@ end
 end
 end
 end
+
