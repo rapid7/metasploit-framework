@@ -226,6 +226,8 @@ class Driver < Msf::Ui::Driver
 	#
 	def load_resource(path=nil)
 		path ||= File.join(Msf::Config.config_directory, 'msfconsole.rc')
+		return if not ::File.readable?(path)
+
 		lines = ::File.readlines(path)
 
 
