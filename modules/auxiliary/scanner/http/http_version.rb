@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 				extras << "Windows SBS #{$1}"
 
 			when /Asterisk@Home/
-				extras << "Asterix"
+				extras << "Asterisk"
 
 			when /swfs\/Shell\.html/
 				extras << "BPS-1000"

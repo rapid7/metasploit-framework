@@ -95,13 +95,20 @@ class Metasploit3 < Msf::Auxiliary
 				)
 
 				conf = {
-					:host => ip,
 					:os_flavor => res['os'],
 					:os_name => os
 				}
 
-				conf[:os_sp]   = res['sp']   if res['os'] =~ /Windows/
+				conf[:os_sp]   = res['sp']   if res['sp']
 				conf[:os_lang] = res['lang'] if res['os'] =~ /Windows/
+
+				report_note(
+					:host  => ip,
+					:port  => info[0],
+					:proto => 'tcp',
+					:ntype => 'smb.fingerprint',
+					:data  => conf
+				)
 
 				report_host(conf)
 

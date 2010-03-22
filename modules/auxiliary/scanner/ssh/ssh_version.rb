@@ -46,41 +46,6 @@ class Metasploit3 < Msf::Auxiliary
 			ver,msg = (ver.split(/(\n|\r)/))
 			print_status("#{target_host}:#{rport}, SSH server version: #{ver}")
 			report_service(:host => rhost, :port => rport, :name => "ssh", :info => ver)
-
-			os_name = nil
-			os_flav = nil
-			case ver
-				when /ubuntu/i
-					os_name = 'Linux'
-					os_flav = 'Ubuntu'
-				when /debian/i
-					os_name = 'Linux'
-					os_flav = 'Debian'
-				when /sun_ssh/i
-					os_name = 'Solaris'
-				when /vshell|remotelyanywhere|freessh/i
-					os_name = 'Windows'
-				when /vshell/i
-					os_name = 'Windows'
-				when /radware/i
-					os_name = 'Radware'
-				when /dropbear/i
-					os_name = 'Linux'
-				when /netscreen/i
-					os_name = 'NetScreen'
-				when /cisco|vpn3/i
-					os_name = 'Cisco'
-				when /mpSSH/
-					os_name = 'HP iLO'
-					os_flav = 'HP Integrated Lights-Out Controller'
-			end
-
-			if(os_name || os_flav)
-				info = {:host => target_host}
-				info[:os_flavor] = os_flav if os_flav
-				info[:os_name]   = os_name if os_name
-				report_host(info)
-			end
 		else
 			print_status("#{target_host}:#{rport}, SSH server version detection failed!")
 		end
