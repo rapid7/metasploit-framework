@@ -97,7 +97,13 @@ class Metasploit3 < Msf::Auxiliary
 		  end
 			return :abort if (res.code == 404)
 			srvhdr = res.headers['Server']
-			success = true if (res.code == 200)
+			if res.code == 200
+				# Could go with res.headers["Server"] =~ /Apache-Coyote/i 
+				# as well but that seems like an element someone's more 
+				# likely to change
+				success = true if(res.body.scan(/Tomcat/i).size >= 5)
+				success
+			end
 
 		rescue ::Rex::ConnectionError
 			vprint_error("http://#{rhost}:#{rport}/manager/html Unable to attempt authentication")
