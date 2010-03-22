@@ -84,7 +84,6 @@ class Metasploit3 < Msf::Auxiliary
 				batch.each   do |ip|
 					begin
 						data, port = self.send(probe, ip)
-						print_status "Probing #{ip}:#{port}..." if datastore['VERBOSE']
 						udp_sock.sendto(data, ip, port, 0)
 					rescue ::Interrupt
 						raise $!
@@ -250,7 +249,7 @@ class Metasploit3 < Msf::Auxiliary
 			when 1604
 				app = 'citrix-ica'
 				return unless citrix_parse(pkt[0])
-				
+
 		end
 
 		report_service(
@@ -475,7 +474,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def probe_pkt_citrix(ip) # Server hello packet from citrix_published_bruteforce
-		data = 
+		data =
 			"\x1e\x00\x01\x30\x02\xfd\xa8\xe3\x00\x00\x00\x00\x00" +
 			"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
 			"\x00\x00\x00\x00"
