@@ -1334,7 +1334,7 @@ class DBManager
 				report_host(data)
 			end
 
-			if( data[:os_name] )
+			if( h["os_vendor"] )
 				note = {
 					:workspace => wspace,
 					:host => addr,
