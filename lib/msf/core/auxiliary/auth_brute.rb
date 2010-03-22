@@ -40,7 +40,6 @@ def each_user_pass(&block)
 		credentials = gen_blank_passwords(users,credentials) + credentials
 	end
 	credentials.concat(combine_users_and_passwords(users,passwords))
-	print_debug credentials.uniq.inspect
 	credentials.each do |u,p|
 		userpass_sleep_interval unless credentials_tried.empty?
 		next if credentials_skipped[u]
