@@ -1161,12 +1161,9 @@ class DBManager
 			conf = {
 				:workspace => wspace,
 				:host      => addr,
-				:state     => Msf::HostState::Alive,
-				:os_flavor => fprint[:desc].to_s
-
+				:state     => Msf::HostState::Alive
 			}
 
-			conf[:arch] = fprint[:arch] if fprint[:arch]
 			report_host(conf)
 
 			report_note(
@@ -1328,30 +1325,6 @@ class DBManager
 				data[:mac] = h["addrs"]["mac"]
 			end
 			data[:state] = (h["status"] == "up") ? Msf::HostState::Alive : Msf::HostState::Dead
-
-			# XXX: There can be multiple matches, but we only see the *last* right now
-			if (h["os_accuracy"] and h["os_accuracy"].to_i > 95)
-				data[:os_name] = h["os_vendor"]
-				data[:os_sp]   = h["os_version"]
-			end
-
-			# Only passed through if its a 100% match
-			if (h["os_match"])
-				arch = nil
-				case h["os_match"]
-				when /x86|intel/i
-					data[:arch] = ARCH_X86
-				when /ppc|powerpc/i
-					data[:arch] = ARCH_PPC
-				when /sparc/i
-					data[:arch] = ARCH_SPARC
-				when /armle/i
-					data[:arch] = ARCH_ARMLE
-				when /armbe/i
-					data[:arch] = ARCH_ARMBE
-				end
-				data[:os_flavor] = h["os_match"]
-			end
 
 			if ( h["reverse_dns"] )
 				data[:name] = h["reverse_dns"]
