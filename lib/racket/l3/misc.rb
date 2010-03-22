@@ -1,8 +1,8 @@
 # $Id: misc.rb 14 2008-03-02 05:42:30Z warchild $
 #
-# Copyright (c) 2008, Jon Hart 
+# Copyright (c) 2008, Jon Hart
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
 #     * Neither the name of the <organization> nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY Jon Hart ``AS IS'' AND ANY
 # EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -44,7 +44,7 @@ module L3
     def Misc.randomipv4
       Misc.long2ipv4(rand(2**32))
     end
-    
+
     # Compute link local address for a given mac address
     # From Daniele Bellucci
     def Misc.linklocaladdr(mac)
@@ -52,8 +52,8 @@ module L3
       mac[0] = (mac[0].to_i(16) ^ (1 << 1)).to_s(16)
       ["fe80", "", mac[0,2].join, mac[2,2].join("ff:fe"), mac[4,2].join].join(":")
     end
-    
-    # Given a long, convert it to an IPv6 address, 
+
+    # Given a long, convert it to an IPv6 address,
     # optionally compressing the address returned
     def Misc.long2ipv6(long, compress=true)
       ipv6 = []
@@ -109,10 +109,10 @@ module L3
     # address is created through a special mapping from the device’s unicast
     # address. Solicited-node addresses are used by the IPv6 Neighbor
     # Discovery (ND) protocol to provide more efficient address resolution
-    # than the ARP technique used in IPv4.  
+    # than the ARP technique used in IPv4.
     # From Daniele Bellucci
     def Misc.soll_mcast_addr6(addr)
-      h = addr.split(':')[-2, 2] 
+      h = addr.split(':')[-2, 2]
       m = []
       m << 'ff'
       m << (h[0].to_i(16) & 0xff).to_s(16)
@@ -120,16 +120,16 @@ module L3
       m << (h[1].to_i(16) & 0xff).to_s(16)
       'ff02::1:' + [m[0,2].join, m[2,2].join].join(':')
     end
-    
-    # 
+
+    #
     def Misc.soll_mcast_mac(addr)
-      h = addr.split(':')[-2, 2] 
+      h = addr.split(':')[-2, 2]
       m = []
       m << 'ff'
       m << (h[0].to_i(16) & 0xff).to_s(16)
       m << ((h[1].to_i(16) & (0xff << 8)) >> 8).to_s(16)
-      m << (h[1].to_i(16) & 0xff).to_s(16)   
-      '33:33:' + m.join(':') 
+      m << (h[1].to_i(16) & 0xff).to_s(16)
+      '33:33:' + m.join(':')
     end
 
 
@@ -145,14 +145,14 @@ module L3
       num_shorts = data.length / 2
       checksum = 0
       count = data.length
-      
+
       data.unpack("S#{num_shorts}").each { |x|
         checksum += x
         count -= 2
       }
 
       if (count == 1)
-        checksum += data[data.length - 1].ord
+        checksum += data[data.length - 1, 1].unpack('C')[0]
       end
 
       checksum = (checksum >> 16) + (checksum & 0xffff)
@@ -163,3 +163,4 @@ module L3
 end
 end
 # vim: set ts=2 et sw=2:
+
