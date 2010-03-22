@@ -14,15 +14,15 @@ raise RuntimeError, "You must select a session." if (not session)
 raise RuntimeError, "Selected session is not a command shell session!" if (session.type != "shell")
 
 # Check for required datastore options
-if (not framework.datastore['LHOST'] or not framework.datastore['LPORT'])
+if (not session.exploit_datastore['LHOST'] or not session.exploit_datastore['LPORT'])
 	raise RuntimeError, "You must set LPORT and LHOST for this script to work."
 end
 
-lhost = framework.datastore['LHOST']
-lport = framework.datastore['LPORT']
+lhost = session.exploit_datastore['LHOST']
+lport = session.exploit_datastore['LPORT']
 # maybe we want our sessions going to another instance?
 use_handler = true
-use_handler = nil if (framework.datastore['DisablePayloadHandler'] == true)
+use_handler = nil if (session.exploit_datastore['DisablePayloadHandler'] == true)
 
 
 # Process special var/val pairs...
