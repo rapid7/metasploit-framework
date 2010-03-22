@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			udp_sock = nil
 			idx = 0
-		
+
 			# Create an unbound UDP socket if no CHOST is specified, otherwise
 			# create a UDP socket bound to CHOST (in order to avail of pivoting)
 			udp_sock = Rex::Socket::Udp.create( { 'LocalHost' => datastore['CHOST'] || nil } )
@@ -135,9 +135,9 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if(host[:mac] != "00:00:00:00:00:00")
-				report_host(:host => ip, :mac => host[:mac], :os_name => os)
+				report_host(:host => ip, :mac => host[:mac])
 			else
-				report_host(:host => ip, :os_name => os)
+				report_host(:host => ip)
 			end
 
 			extra = ""
