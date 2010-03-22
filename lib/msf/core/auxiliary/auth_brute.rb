@@ -8,109 +8,119 @@ module Msf
 
 module Auxiliary::AuthBrute
 
-	attr_accessor :credentials_tried, :credentials_good
-
 def initialize(info = {})
 	super
-
+	
 	register_options([
-			OptPath.new('USER_FILE', [ false, "File containing usernames, one per line" ]),
-			OptPath.new('PASS_FILE', [ false, "File containing passwords, one per line" ]),
-			OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line" ]),
-			OptInt.new('BRUTEFORCE_SPEED', [ true, "How fast to bruteforce, from 0 to 5", 5]),
-			OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
-		], Auxiliary::AuthBrute)
-
-	@user = nil
-	@pass = nil
-	@credentials_tried = {}
-	@credentials_good = {}
-
+	OptPath.new('USER_FILE', [ false, "File containing usernames, one per line" ]),
+	OptPath.new('PASS_FILE', [ false, "File containing passwords, one per line" ]),
+	OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line" ]),
+	OptInt.new('BRUTEFORCE_SPEED', [ true, "How fast to bruteforce, from 0 to 5", 5]),
+	OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
+	OptBool.new('BLANK_PASSWORDS', [ true, "Try blank passwords for all users", true])
+	], Auxiliary::AuthBrute)
+	
 end
 
-#
-# Calls the given block with usernames and passwords generated in the following way, in order:
-#	* the module's next_user_pass(), if any
-#	* contents of USERPASS_FILE, if any
-#	* the module's next_user() combined with next_pass() and the contents of PASS_FILE
-#	* contents of USER_FILE combined with the module's next_pass() and the contents of PASS_FILE
-#
-# After any invocation, the block may return
-#	:next_user
-#		to indicate that the current user needs no further processing and
-#		brute forcing should continue with the next username or
-#	:done
-#		to indicate that brute forcing should end completely.
-#
-# Generator methods (next_pass, and next_user_pass) must reset their state
-# whenever they reach the end.
-#
+# Checks all three files for usernames and passwords, and combines them into
+# one credential list to apply against the supplied block. The block (usually
+# something like do_login(user,pass) ) is responsible for actually recording
+# success and failure in its own way; each_user_pass() will only respond to
+# a return value of :done (which will signal to end all processing) and
+# to :next_user (which will cause that username to be skipped for subsequent
+# password guesses). Other return values won't affect the processing of the
+# list.
 def each_user_pass(&block)
-	# First, loop through sets of user/pass combinations
-	[ "next_user_pass", "_next_user_pass" ].each { |userpass_meth|
-		next if not self.respond_to?(userpass_meth)
-		@state = {}
-		@state[:status] = nil
-		while (upass = self.send(userpass_meth, @state))
-			@state[:status] = block.call(upass[0], upass[1])
-			case @state[:status]
-			# Let the generate method deal with :next_user
-			when :done; return
-			end
+	credentials_tried = {}
+	credentials_skipped = {}
+	credentials = extract_word_pair(datastore['USERPASS_FILE'])
+	users       = extract_words(datastore['USER_FILE'])
+	passwords   = extract_words(datastore['PASS_FILE'])
+	if datastore['BLANK_PASSWORDS']
+		credentials = gen_blank_passwords(users,credentials) + credentials
+	end
+	credentials.concat(combine_users_and_passwords(users,passwords))
+	print_debug credentials.uniq.inspect
+	credentials.each do |u,p|
+		userpass_sleep_interval unless credentials_tried.empty?
+		next if credentials_skipped[u]
+		next if credentials_tried[u] == p
+		ret = block.call(u,p) 
+		case ret
+		when :abort
+		break
+		when :next_user
+			credentials_skipped[u] = p
 		end
-	}
-
-	# Then combinatorically examine all of the separate usernames and passwords
-	each_user { |user|
-		each_pass(user) { |pass|
-			status = block.call(user, pass)
-			case status
-			when :next_user; break
-			when :done; return
-			end
-		}
-	}
-
+	credentials_tried[u] = p
+	end
+	return
 end
 
-def each_user(&block)
-	state = {}
-	if self.respond_to? "next_user"
-		while user = next_user(state)
-			yield user
-		end
+def gen_blank_passwords(user_array,cred_array)
+	blank_passwords = []
+	unless user_array.empty?
+		blank_passwords.concat(user_array.map {|u| [u,""]})
 	end
-	while user = _next_user(state)
-		yield user
+	unless cred_array.empty?
+		cred_array.each {|u,p| blank_passwords << [u,""]}
 	end
+	return blank_passwords
 end
 
-def each_pass(user=nil, &block)
-	state = {:user => user}
-	if self.respond_to? "next_pass"
-		while pass = next_pass(state)
-			yield pass
+def combine_users_and_passwords(user_array,pass_array)
+	combined_array = []
+	if (user_array + pass_array).empty?
+		return []
+	end
+	if pass_array.empty?
+		combined_array = user_array.map {|u| [u,""] }
+	elsif user_array.empty?
+		combined_array = pass_array.map {|p| ["",p] }
+	else
+		user_array.each do |u|
+			pass_array.each do |p|
+				combined_array << [u,p]
+			end
 		end
 	end
-	while pass = _next_pass(state)
-		yield pass
+	return combined_array
+end
+
+def extract_words(wordfile)
+	return [] unless wordfile && File.readable?(wordfile)
+	begin
+		words = File.open(wordfile) {|f| f.read}
+	rescue
+		return
 	end
+	save_array = words.split(/\n/).map { |x| x.scan(/[\w]+/).first.to_s }
+	return save_array
+end
+
+def extract_word_pair(wordfile)
+	return [] unless wordfile && File.readable?(wordfile)
+	creds = []
+	begin
+		upfile_contents = File.open(wordfile) {|f| f.read}
+	rescue
+		return []
+	end
+	upfile_contents.split(/\n/).each do |line|
+		user,pass = line.split(/\s+/,2).map { |x| x.strip }
+		creds << [user.to_s, pass.to_s]
+	end
+	return creds
 end
 
 def userpass_sleep_interval
 	sleep_time = case datastore['BRUTEFORCE_SPEED'].to_i
-		when 0;
-			60 * 5
-		when 1;
-			15
-		when 2;
-			1
-		when 3;
-			0.5
-		when 4;
-			0.1
-		else;
-			0
+	when 0; 60 * 5
+	when 1; 15
+	when 2; 1
+	when 3; 0.5
+	when 4; 0.1
+	else; 0
 	end
 	select(nil,nil,nil,sleep_time) unless sleep_time == 0
 end
@@ -130,62 +140,5 @@ def vprint_good(msg='')
 	print_good(msg)
 end
 
-protected
-#
-# These methods all close their files after reaching EOF so that modifications
-# to the username/password lists during a run will be reflected in the next
-# run.
-#
-
-def _next_user(state)
-	if not state[:used_datastore] and datastore['USERNAME']
-		state[:used_datastore] = true
-		return datastore['USERNAME']
-	end
-	return nil if not datastore["USER_FILE"]
-
-	state[:user_fd] ||= File.open(datastore["USER_FILE"], "r")
-	if state[:user_fd].eof?
-		state[:user_fd].close
-		state[:user_fd] = nil
-		return nil
-	end
-	state[:user] = state[:user_fd].readline.strip
-	return state[:user]
-end
-def _next_pass(state)
-	if not state[:used_datastore] and datastore['PASSWORD']
-		state[:used_datastore] = true
-		return datastore['PASSWORD']
-	end
-	return nil if not datastore["PASS_FILE"]
-	state[:pass_fd] ||= File.open(datastore["PASS_FILE"], "r")
-	if state[:pass_fd].eof?
-		state[:pass_fd].close
-		state[:pass_fd] = nil
-		return nil
-	end
-	state[:pass] = state[:pass_fd].readline.strip
-	return state[:pass]
-end
-def _next_user_pass(state)
-	return if not datastore["USERPASS_FILE"]
-	# Reopen the file each time so that we pick up any changes
-	state[:userpass_fd] ||= File.open(datastore["USERPASS_FILE"], "r")
-	if state[:userpass_fd].eof?
-		state[:userpass_fd].close
-		state[:userpass_fd] = nil
-		return nil
-	end
-	line = state[:userpass_fd].readline
-	state[:user], state[:pass] = line.split(/\s+/, 2)
-	state[:pass] = "" if state[:pass].nil?
-	state[:user].strip!
-	state[:pass].strip!
-	return [ state[:user], state[:pass] ]
-end
-
-
 end
 end
-

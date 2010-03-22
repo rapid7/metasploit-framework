@@ -132,24 +132,19 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		print_status("#{ip}:#{rport} - SSH - Starting buteforce")
 		each_user_pass do |user, pass|
-			userpass_sleep_interval unless self.credentials_tried.empty?
-			this_cred = [user,ip,rport].join(":")
-			next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
-			self.credentials_tried[this_cred] = pass
-
 			vprint_status("#{ip}:#{rport} - SSH - Trying: username: '#{user}' with password: '#{pass}'")
 			ret,proof = do_login(ip,user,pass,rport)
 			case ret
 			when :success
 				print_good "#{ip}:#{rport} - SSH - Success: '#{user}':'#{pass}' '#{proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
-				self.credentials_good[this_cred] = pass
 				do_report(ip,user,pass,rport,proof)
+				:next_user
 			when :connection_error
 				vprint_error "#{ip}:#{rport} - SSH - Could not connect"
-				return
+				:abort
 			when :connection_disconnect
 				vprint_error "#{ip}:#{rport} - SSH - Connection timed out"
-				return
+				:abort
 			when :fail
 				vprint_error "#{ip}:#{rport} - SSH - Failed: '#{user}':'#{pass}'"
 			end

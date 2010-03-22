@@ -65,10 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			begin
 				each_user_pass do |user, pass|
-					userpass_sleep_interval unless self.credentials_tried.empty?
-					this_cred = [user,ip,rport].join(":")
-					next if self.credentials_good[this_cred]
-					try_user_pass(user, pass, this_cred)
+					try_user_pass(user, pass)
 				end
 			rescue ::Rex::ConnectionError
 				nil
@@ -93,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 		simple.client.auth_user ? true : false
 	end
 
-	def try_user_pass(user, pass, this_cred)
+	def try_user_pass(user, pass)
 		datastore["SMBUser"] = user
 		datastore["SMBPass"] = pass
 
@@ -120,7 +117,6 @@ class Metasploit3 < Msf::Auxiliary
 					:data   => {:user => user, :status => "disabled"},
 					:update => :unique_data
 				)
-				self.credentials_good[this_cred] = pass
 
 			when 'STATUS_PASSWORD_EXPIRED'
 				report_note(
@@ -131,7 +127,6 @@ class Metasploit3 < Msf::Auxiliary
 					:data   => {:user => user, :status => "expired password"},
 					:update => :unique_data
 				)
-				self.credentials_good[this_cred] = pass
 
 			when 'STATUS_ACCOUNT_LOCKED_OUT'
 				report_note(
@@ -142,7 +137,6 @@ class Metasploit3 < Msf::Auxiliary
 					:data   => {:user => user, :status => "locked out"},
 					:update => :unique_data
 				)
-				self.credentials_good[this_cred] = pass
 			end
 			print_status("#{rhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
 
@@ -160,15 +154,11 @@ class Metasploit3 < Msf::Auxiliary
 				:targ_host	=> rhost,
 				:targ_port	=> datastore['RPORT']
 			)
-			self.credentials_good[this_cred] = pass
 		else
 			# Samba has two interesting behaviors:
 			# 1) Invalid users receive a guest login
 			# 2) Valid users return a STATUS_LOGON_FAILURE
-			if(smb_peer_os == 'Unix')
-				# Skip invalid users automatically
-				self.credentials_good[this_cred] = pass
-			else
+			unless(smb_peer_os == 'Unix')
 				# Print the guest login message only for non-Samba
 				print_status("#{rhost} - GUEST LOGIN (#{smb_peer_os}) #{user} : #{pass}")
 			end

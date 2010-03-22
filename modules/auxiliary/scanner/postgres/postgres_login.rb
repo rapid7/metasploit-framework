@@ -51,16 +51,10 @@ class Metasploit3 < Msf::Auxiliary
 	# Loops through each host in turn. Note the current IP address is both
 	# ip and datastore['RHOST']
 	def run_host(ip)
-		tried_combos = []
-		last_response = nil
 			each_user_pass { |user, pass|
-				userpass_sleep_interval unless self.credentials_tried.empty?
-				this_cred = [user,ip,rport].join(":")
-				next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
-				self.credentials_tried[this_cred] = pass
 				datastore['USERNAME'] = user
 				datastore['PASSWORD'] = pass
-				do_login(user,pass,this_cred)
+				do_login(user,pass)
 			}
 	end
 
@@ -77,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Actually do all the login stuff. Note that "verbose" is really pretty
 	# verbose, since postgres_login also makes use of the verbose value
 	# to print diagnostics for other modules.
-	def do_login(user=nil,pass=nil,this_cred='')
+	def do_login(user=nil,pass=nil)
 		database = datastore['DATABASE']
 		begin
 			msg = "#{rhost}:#{rport} Postgres -"
@@ -92,15 +86,13 @@ class Metasploit3 < Msf::Auxiliary
 			when :error_database
 				print_good("#{msg} Success: #{user}:#{pass} (Database '#{database}' failed.)")
 				do_report_auth_info(user,pass,database,false)
-				self.credentials_good[this_cred] = pass
 				return :next_user # This is a success for user:pass!
 			when :error_credentials
 				vprint_error("#{msg} Username/Password failed.")
-				return
+				return :failed
 			when :connected
 				print_good("#{msg} Success: #{user}:#{pass} (Database '#{database}' succeeded.)")
 				do_report_auth_info(user,pass,database,true)
-				self.credentials_good[this_cred] = pass
 				postgres_logout
 				return :next_user
 			when :error

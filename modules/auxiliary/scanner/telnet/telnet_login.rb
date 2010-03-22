@@ -69,7 +69,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			each_user_pass do |user, pass|
-				userpass_sleep_interval unless self.credentials_tried.empty?
 				Timeout.timeout(overall_timeout) do
 					try_user_pass(user, pass)
 				end
@@ -80,24 +79,23 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def try_user_pass(user, pass)
-		this_cred = [user,rhost,rport].join(":")
-		if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]  || self.no_pass_prompt.include?(this_cred)
-			return :tried
-		else
-			self.credentials_tried[this_cred] = pass
-		end
 		vprint_status "#{rhost}:#{rport} Telnet - Attempting: '#{user}':'#{pass}'"
-
 		ret = do_login(user,pass)
-		if ret == :no_pass_prompt
-			vprint_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to missing password prompt"
-			self.no_pass_prompt << this_cred
+    if ret == :no_auth_required
+      print_good "#{rhost}:#{rport} Telnet - No authentication required!"
+      return :abort
+		elsif ret == :no_pass_prompt
+			vprint_status "#{rhost}:#{rport} Telnet - Skipping '#{user}' due to missing password prompt"
+			return :next_user
 		elsif ret == :timeout
 			vprint_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to timeout"
 		elsif ret == :busy
 			vprint_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to busy state"
 		else
-			start_telnet_session(rhost,rport,user,pass) if login_succeeded?
+			if login_succeeded?
+				start_telnet_session(rhost,rport,user,pass)
+				return :next_user
+			end
 		end
 	end
 
@@ -187,9 +185,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def report_telnet(user,pass,proof)
-		this_cred = [user,rhost,rport].join(":")
 		print_good("#{rhost} - SUCCESSFUL LOGIN #{user} : #{pass}")
-		self.credentials_good[this_cred] = pass
 		report_auth_info(
 			:host	=> rhost,
 			:proto	=> 'telnet',

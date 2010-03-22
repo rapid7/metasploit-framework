@@ -35,11 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		if mysql_version_check("4.1.20") # No problems on 4.1.20 seen.
 			each_user_pass { |user, pass|
-				userpass_sleep_interval unless self.credentials_tried.empty?
-				this_cred = [user,ip,rport].join(":")
-				next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
-				self.credentials_tried[this_cred] = pass
-				do_login(user, pass, this_cred)
+				do_login(user, pass)
 			}
 		end
 	end
@@ -94,8 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-
-	def do_login(user='root', pass='', this_cred = '')
+	def do_login(user='', pass='')
 
 		vprint_status("#{rhost}:#{rport} Trying username:'#{user}' with password:'#{pass}'")
 		begin
@@ -109,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 				:targ_host => rhost,
 				:targ_port => rport
 			)
-			self.credentials_good[this_cred] = pass
+      return :next_user
 		rescue ::RbMysql::AccessDeniedError
 			vprint_status("#{rhost}:#{rport} failed to login as '#{user}' with password '#{pass}'")
 			return :fail
@@ -119,17 +114,8 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Interrupt
 			raise $!
 		rescue ::Rex::ConnectionError
-			return :done
+			return :abort
 		end
-	end
-
-	def next_pass(state)
-		# Always try empty and the username
-		passes = ['', state[:user]]
-		state[:idx] ||= 0
-		pass = passes[state[:idx]]
-		state[:idx] += 1
-		return pass
 	end
 
 end

