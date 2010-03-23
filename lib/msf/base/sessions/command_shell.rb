@@ -253,6 +253,26 @@ class CommandShell
 		end
 	end
 
+protected
+
+	# Override the basic session interaction to use shell_read and
+	# shell_write instead of operating on rstream directly.
+	def _interact
+		framework.events.on_session_interact(self)
+
+		fds = [rstream.fd, user_input.fd]
+		while self.interacting
+			sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
+			next if not sd
+
+			if sd[0].include? rstream.fd
+				user_output.print(shell_read)
+			end
+			if sd[0].include? user_input.fd
+				shell_write(user_input.gets)
+			end
+		end
+	end
 end
 
 end
