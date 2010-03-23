@@ -150,6 +150,7 @@ class HttpCrawler
 				reqfilter = reqtemplate(self.ctarget,self.cport,self.cssl)
 			
 				hashreq = @NotViewedQueue.take(reqfilter, $taketimeout)
+				
 					
 				if !@ViewedQueue.include?(hashsig(hashreq))
 					@ViewedQueue[hashsig(hashreq)] = Time.now
@@ -159,7 +160,7 @@ class HttpCrawler
 					else	
 					 
 						####
-						if i < $threadnum
+						if i <= $threadnum
 							a.push(Thread.new {
 						####	
 							prx = nil
@@ -177,7 +178,9 @@ class HttpCrawler
 							)
 
 											
+					
 							sendreq(c,hashreq)
+							
 						
 						####
 						})
@@ -270,8 +273,9 @@ class HttpCrawler
 					@crawlermodules.each_key do |k|
 						@crawlermodules[k].parse(reqopts,resp)
 					end
-				when 302
+				when 301..302
 					puts "(#{resp.code}) Redirection to: #{resp['Location']}"
+					puts urltohash(resp['Location'])
 					insertnewpath(urltohash(resp['Location']))
 				when 404
 					puts "Invalid link (404) #{reqopts['uri']}"	
@@ -297,7 +301,7 @@ class HttpCrawler
 			if !@ViewedQueue.include?(hashsig(hashreq)) 
 				if @NotViewedQueue.read_all(hashreq).size > 0
 					#puts "Already in queue to be viewed"
-				else					
+				else
 					#puts "Inserted: #{hashreq['uri']}"
 					@NotViewedQueue.write(hashreq)
 				end			
