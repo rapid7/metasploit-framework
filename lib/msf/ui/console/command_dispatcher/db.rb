@@ -419,6 +419,7 @@ class Db
 			mjob  = 5
 			regx  = nil
 			minrank = nil
+			maxtime = 120
 
 			port_inc = []
 			port_exc = []
@@ -462,6 +463,8 @@ class Db
 					regx = args.shift
 				when '-R'
 					minrank = args.shift
+				when '-T'
+					maxtime = args.shift.to_f
 				when '-h','--help'
 					print_status("Usage: db_autopwn [options]")
 					print_line("\t-h          Display this help text")
@@ -479,6 +482,7 @@ class Db
 					print_line("\t-PI [range] Only exploit hosts with these ports open")
 					print_line("\t-PX [range] Always exclude hosts with these ports open")
 					print_line("\t-m  [regex] Only run modules whose name matches the regex")
+					print_line("\t-T  [secs]  Maximum runtime for any exploit in seconds")
 					print_line("")
 					return
 				end
@@ -781,33 +785,39 @@ class Db
 
 						print_status("(#{idx}/#{matches.length} [#{framework.sessions.length} sessions]): Launching #{xref[3]} against #{xref[2]}:#{mod.datastore['RPORT']}...")
 
-						begin
-							inp = (mode & PWN_SLNT != 0) ? nil : driver.input
-							out = (mode & PWN_SLNT != 0) ? nil : driver.output
+						autopwn_jobs << Thread.new(mod) do |xmod|
+							begin
+							stime = Time.now.to_f
+							::Timeout.timeout(maxtime) do
+									inp = (mode & PWN_SLNT != 0) ? nil : driver.input
+									out = (mode & PWN_SLNT != 0) ? nil : driver.output
 
-							case mod.type
-							when MODULE_EXPLOIT
-								mod.exploit_simple(
-									'Payload'        => mod.datastore['PAYLOAD'],
-									'LocalInput'     => inp,
-									'LocalOutput'    => out,
-									'RunAsJob'       => true)
-							when MODULE_AUX
-								mod.run_simple(
-									'LocalInput'     => inp,
-									'LocalOutput'    => out,
-									'RunAsJob'       => true)
+									case xmod.type
+									when MODULE_EXPLOIT
+										xmod.exploit_simple(
+											'Payload'        => xmod.datastore['PAYLOAD'],
+											'LocalInput'     => inp,
+											'LocalOutput'    => out,
+											'RunAsJob'       => false)
+									when MODULE_AUX
+										xmod.run_simple(
+											'LocalInput'     => inp,
+											'LocalOutput'    => out,
+											'RunAsJob'       => false)
+									end
+								end
+
+							rescue ::Timeout::Error
+								print_status(" >> autopwn module timeout from #{xmod.fullname} after #{Time.now.to_f - stime} seconds")
+							rescue ::Exception
+								print_status(" >> autopwn exception during launch from #{xmod.fullname}: #{$!} ")
 							end
-							autopwn_jobs << mod.job_id if mod.job_id
-						rescue ::Interrupt
-							raise $!
-						rescue ::Exception
-							print_status(" >> autopwn exception during launch from #{xref[3]}: #{$!} ")
 						end
 					end
 
 				rescue ::Interrupt
 					raise $!
+
 				rescue ::Exception
 					print_status(" >> autopwn exception from #{xref[3]}: #{$!} #{$!.backtrace}")
 				end
@@ -817,7 +827,7 @@ class Db
 			while (not autopwn_jobs.empty?)
 				# All running jobs are stored in framework.jobs.  If it's
 				# not in this list, it must have completed.
-				autopwn_jobs.delete_if { |j| not framework.jobs.keys.include? j }
+				autopwn_jobs.delete_if { |j| not j.alive? }
 
 				print_status("(#{matches.length}/#{matches.length} [#{framework.sessions.length} sessions]): Waiting on #{autopwn_jobs.length} launched modules to finish execution...")
 				select(nil, nil, nil, 5.0)
@@ -918,7 +928,7 @@ class Db
 			end
 			framework.db.import_nmap_xml_file(args[0])
 		end
-		
+
 		#
 		# Import IP List from a file
 		#
