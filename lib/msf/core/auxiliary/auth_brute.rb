@@ -31,8 +31,9 @@ end
 # password guesses). Other return values won't affect the processing of the
 # list.
 def each_user_pass(&block)
-	credentials_tried = {}
-	credentials_skipped = {}
+	# Class variables to track credential use (for threading)
+	@@credentials_tried = {}
+	@@credentials_skipped = {}
 	credentials = extract_word_pair(datastore['USERPASS_FILE'])
 	users       = extract_words(datastore['USER_FILE'])
 	passwords   = extract_words(datastore['PASS_FILE'])
@@ -41,17 +42,18 @@ def each_user_pass(&block)
 	end
 	credentials.concat(combine_users_and_passwords(users,passwords))
 	credentials.each do |u,p|
-		userpass_sleep_interval unless credentials_tried.empty?
-		next if credentials_skipped[u]
-		next if credentials_tried[u] == p
+		fq_user = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], u]
+		userpass_sleep_interval unless @@credentials_tried.empty?
+		next if @@credentials_skipped[fq_user]
+		next if @@credentials_tried[fq_user] == p
 		ret = block.call(u,p) 
 		case ret
 		when :abort
 		break
 		when :next_user
-			credentials_skipped[u] = p
+			@@credentials_skipped[fq_user] = p
 		end
-	credentials_tried[u] = p
+	@@credentials_tried[fq_user] = p
 	end
 	return
 end
