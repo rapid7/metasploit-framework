@@ -60,6 +60,10 @@ class APIRequest
 	attr_reader :trace
 
 	def initialize(req, url)
+		prepare_http_client
+	end
+
+	def prepare_http_client
 		@retry_count = 0
 		@retry_count_max = 10
 		@time_out = 30
@@ -83,6 +87,7 @@ class APIRequest
 		@conn_tries = 0
 
 		begin
+		prepare_http_client
 		resp, data = @http.post(@uri.path, @req, @headers)
 		@res = parse_xml(data)
 
