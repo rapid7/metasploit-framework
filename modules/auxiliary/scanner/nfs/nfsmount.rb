@@ -28,7 +28,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'	    => ['<tebo[at]attackresearch.com>'],
 			'References'	=>
 				[
-					['URL',	'http://www.ietf.org/rfc/rfc1094.txt'],
+					['CVE', '1999-0170'],
+					['URL',	'http://www.ietf.org/rfc/rfc1094.txt']
 				],
 			'License'	=> MSF_LICENSE
 		)
