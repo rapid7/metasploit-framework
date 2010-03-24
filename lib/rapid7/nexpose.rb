@@ -68,12 +68,20 @@ class APIRequest
 		@uri = URI.parse(url)
 		@http = Net::HTTP.new(@uri.host, @uri.port)
 		@http.use_ssl = true
-		@http.verify_mode = OpenSSL::SSL::VERIFY_NONE   # XXX: security issue
+		#
+		# XXX: This is obviously a security issue, however, we handle this at the client level by forcing
+		#      a confirmation when the nexpose host is not localhost. In a perfect world, we would present
+		#      the server signature before accepting it, but this requires either a direct callback inside
+		#      of this module back to whatever UI, or opens a race condition between accept and attempt.
+		#
+		@http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 		@headers = {'Content-Type' => 'text/xml'}
 		@success = false
 	end
 
 	def execute
+		@conn_tries = 0
+
 		begin
 		resp, data = @http.post(@uri.path, @req, @headers)
 		@res = parse_xml(data)
@@ -98,6 +106,16 @@ class APIRequest
 				end
 			end
 		end
+		# This is a hack to handle corner cases where a heavily loaded NeXpose instance
+		# drops our HTTP connection before processing. We try 5 times to establish a
+		# connection in these situations. The actual exception occurs in the Ruby
+		# http library, which is why we use such generic error classes.
+		rescue ::ArgumentError, ::NoMethodError
+			if @conn_tries < 5
+				@conn_tries += 1
+				retry
+			end
+		# Handle console-level interrupts
 		rescue ::Interrupt
 			@error = "received a user interrupt"
 		rescue ::Timeout::Error, ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
