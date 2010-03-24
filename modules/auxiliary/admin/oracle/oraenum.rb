@@ -29,6 +29,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		return if not check_dependencies
+
 		begin
 			#Get all values from v$parameter
 			query = 'select name,value from v$parameter'

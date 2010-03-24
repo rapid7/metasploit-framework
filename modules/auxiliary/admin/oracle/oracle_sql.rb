@@ -35,6 +35,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		return if not check_dependencies
+
 		query = datastore['SQL']
 
 		begin

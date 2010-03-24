@@ -40,6 +40,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		return if not check_dependencies
+
 		p     = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
 
 		cursor = "

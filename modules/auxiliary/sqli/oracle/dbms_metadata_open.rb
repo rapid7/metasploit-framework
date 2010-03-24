@@ -34,6 +34,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		return if not check_dependencies
+
 		name = Rex::Text.rand_text_alpha(rand(10) + 1) 
 
 		function = "

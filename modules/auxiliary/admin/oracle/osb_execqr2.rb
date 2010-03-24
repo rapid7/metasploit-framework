@@ -43,7 +43,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-
 		cmd = datastore['CMD']
 	
 		res = send_request_cgi(
