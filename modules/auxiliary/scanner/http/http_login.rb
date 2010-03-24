@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('USERNAME', [ false, 'The username to authenticate as' ]),
 				OptString.new('PASSWORD', [ false, 'The password for the specified username' ]),
 				OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-					File.join(Msf::Config.install_root, "data", "wordlists", "http_userpass.txt") ]),
+					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_userpass.txt") ]),
 				OptPath.new('USER_FILE',  [ false, "File containing users, one pair per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_users.txt") ]),
 				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one pair per line",
