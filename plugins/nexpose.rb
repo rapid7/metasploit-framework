@@ -295,8 +295,8 @@ class Plugin::Nexpose < Msf::Plugin
 				end
 				site.site_config._set_scanConfig(Nexpose::ScanConfig.new(-1, "tmp", opt_template))
 				opt_credentials.each do |c|
-				    site.site_config.addCredentials(c)
-        end
+					site.site_config.addCredentials(c)
+				end
 				site.saveSite()
 
 				print_status(" >> Created temporary site ##{site.site_id}") if opt_verbose

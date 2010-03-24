@@ -29,6 +29,7 @@ $args = Rex::Parser::Arguments.new(
 	"-n" => [ false, "Dump encoder information"                                          ],
 	"-h" => [ false, "Help banner"                                                       ],
 	"-x" => [ true, "Specify an alternate win32 executable template"                     ],
+	"-k" => [ false, "Keep template working; run payload in new thread (use with -x)"    ],
 	"-l" => [ false, "List available encoders"                                           ])
 
 #
@@ -95,6 +96,7 @@ delim    = '_|_'
 output   = nil
 ecount   = 1
 altexe   = nil
+inject   = false
 plat     = nil
 
 # Parse the argument and rock that shit.
@@ -136,6 +138,8 @@ $args.parse(ARGV) { |opt, idx, val|
 			encoder = val
 		when "-x"
 			altexe = val
+		when "-k"
+			inject = true
 		when "-h"
 			usage
 		else
@@ -151,6 +155,11 @@ if(not fmt and output)
 	if(ext and not ext.empty?)
 		fmt = ext
 	end
+end
+
+if inject and not altexe
+	$stderr.puts "[*] Error: the injection option must use a custom EXE template via -x, otherwise the injected payload will immediately exit when the main process dies."
+	exit(1)
 end
 
 # Initialize the simplified framework instance.
@@ -209,11 +218,11 @@ case cmd
 				when 'exe'
 					exe = nil
 					if(not arch or (arch.index(ARCH_X86)))
-						exe = Msf::Util::EXE.to_win32pe($framework, raw, {:template => altexe})
+						exe = Msf::Util::EXE.to_win32pe($framework, raw, {:insert => inject, :template => altexe})
 					end
 
 					if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-						exe = Msf::Util::EXE.to_win64pe($framework, raw, {:template => altexe})
+						exe = Msf::Util::EXE.to_win64pe($framework, raw, {:insert => inject, :template => altexe})
 					end
 
 					if(not output)
@@ -246,7 +255,7 @@ case cmd
 						end
 					end
 				when 'vba'
-					exe = Msf::Util::EXE.to_win32pe($framework, raw, {:template => altexe})
+					exe = Msf::Util::EXE.to_win32pe($framework, raw, {:insert => inject, :template => altexe})
 					vba = Msf::Util::EXE.to_exe_vba(exe)
 					if(not output)
 						$stdout.write(vba)
@@ -256,7 +265,7 @@ case cmd
 						end
 					end
 				when 'vbs'
-					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw, {:persist => false, :template => altexe})
+					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw, {:insert => inject, :persist => false, :template => altexe})
 					if(not output)
 						$stdout.write(vbs)
 					else
@@ -265,7 +274,7 @@ case cmd
 						end
 					end
 				when 'loop-vbs'
-					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw, {:persist => true, :template => altexe})
+					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw, {:insert => inject, :persist => true, :template => altexe})
 					if(not output)
 						$stdout.write(vbs)
 					else
@@ -274,7 +283,7 @@ case cmd
 						end
 					end
 				when 'asp'
-					asp = Msf::Util::EXE.to_win32pe_asp($framework, raw, {:persist => false, :template => altexe})
+					asp = Msf::Util::EXE.to_win32pe_asp($framework, raw, {:insert => inject, :persist => false, :template => altexe})
 					if(not output)
 						$stdout.write(asp)
 					else
