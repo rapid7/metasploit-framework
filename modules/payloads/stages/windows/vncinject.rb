@@ -12,7 +12,7 @@ require 'msf/base/sessions/vncinject'
 module Metasploit3
 
 	include Msf::Payload::Windows::ReflectiveDllInject
-  
+	
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'VNC Server (Reflective Injection)',
@@ -20,7 +20,7 @@ module Metasploit3
 			'Description'   => 'Inject a VNC Dll via a reflective loader (staged)',
 			'Author'        => [ 'sf' ],
 			'Session'       => Msf::Sessions::VncInject ))
-      
+			
 
 		# Override the DLL path with the path to the meterpreter server DLL
 		register_options(
@@ -48,11 +48,17 @@ module Metasploit3
 		register_advanced_options(
 			[
 				OptBool.new('DisableCourtesyShell',
-					[
-						false,
-						"Disables the Metasploit Courtesy shell",
-						false
-					])
+				[
+					false,
+					"Disables the Metasploit Courtesy shell",
+					false
+				]),
+				OptBool.new('DisableSessionTracking',
+				[
+					false,
+					"Disables the VNC payload from following the active session as users log in an out of the input desktop",
+					false
+				])
 			], self.class)
 		options.remove_option('DLL')
 	end
@@ -70,6 +76,8 @@ module Metasploit3
 		flags = 0
 
 		flags |= 1 if (datastore['DisableCourtesyShell'])
+
+		flags |= 2 if (datastore['DisableSessionTracking'])
 
 		# Transmit the one byte flag
 		session.rstream.put([ flags ].pack('C'))
