@@ -1,0 +1,10 @@
+admin
+manager
+root
+cisco
+apc
+pass
+security
+user
+system
+sys
