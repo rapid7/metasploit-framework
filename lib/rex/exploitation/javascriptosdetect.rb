@@ -91,10 +91,20 @@ function getVersion(){
 		// Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/3.2.1 Safari/525.27.1
 		// Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.0.249.78 Safari/532.5
 
-		if (navigator.vendor =~ /Google/) {
+		// Google Chrome has window.google (all versions), window.chromium (all versions), and window.window.chrome (3+)
+		if (window.chromium || window.google) {
 			ua_name = "#{clients::CHROME}";
 			search = "Chrome";
 		} else {
+			// navigator.language for;
+			// Safari on Mac (OS X, iPod, and iPhone): lower case language & lower case country code (en-us)
+			// Safari on Windows: lower case language & upper case country code (en-US).
+			if (navigator.language.toLowerCase() == navigator.language) {
+				os_name = "#{oses::MAC_OSX}";
+			} else {
+				os_name = "#{oses::WINDOWS}";
+			}
+
 			ua_name = "#{clients::SAFARI}";
 			search = "Version";
 		}
