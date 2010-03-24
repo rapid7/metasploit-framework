@@ -150,7 +150,22 @@ vncEncodeZlibHex::EncodeRect(BYTE *source, VSocket *outConn, BYTE *dest, const R
 
 	return vncEncoder::EncodeRect(source, dest, rect, offx, offy);
 }
+/*
+VOID vncEncodeZlibHex::UpdateZLibDictionary( AGENT_CTX * lpAgentContext )
+{
+	if( lpAgentContext->dictionaries[0] )
+		setdictionary( &compStreamRaw, lpAgentContext->dictionaries[0]->bDictBuffer, lpAgentContext->dictionaries[0]->dwDictLength );
+	
+	if( lpAgentContext->dictionaries[1] )
+		setdictionary( &compStreamEncoded, lpAgentContext->dictionaries[0]->bDictBuffer, lpAgentContext->dictionaries[0]->dwDictLength );
+}
 
+VOID vncEncodeZlibHex::DumpZLibDictionary( AGENT_CTX * lpAgentContext )
+{
+	SendZlibDictionary( lpAgentContext, 0, &compStreamRaw );
+	SendZlibDictionary( lpAgentContext, 1, &compStreamEncoded );
+}
+*/
 UINT
 vncEncodeZlibHex::zlibCompress(BYTE *from_buf, BYTE *to_buf, UINT length, struct z_stream_s *compressor)
 {

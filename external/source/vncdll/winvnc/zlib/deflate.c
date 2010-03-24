@@ -286,7 +286,39 @@ int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
 
     return deflateReset(strm);
 }
+/* ========================================================================= */
+/*
+void getdictionary( z_streamp strm, unsigned char ** address, unsigned long * size )
+{
+	do
+	{
+		deflate_state * state = strm->state;
+		if( !state || !address || !size )
+			break;
 
+		*address = state->window;
+			
+		*size = state->window_size;
+
+	} while( 0 );
+}
+
+void setdictionary( z_streamp strm, unsigned char * address, unsigned long size )
+{
+	do
+	{
+		deflate_state * state = strm->state;
+		if( !state || !address || !size )
+			break;
+
+		if( state->window )
+			free( state->window );
+		
+		state->window      = address;
+		state->window_size = size;
+
+	} while( 0 );
+}*/
 /* ========================================================================= */
 int ZEXPORT deflateSetDictionary (strm, dictionary, dictLength)
     z_streamp strm;

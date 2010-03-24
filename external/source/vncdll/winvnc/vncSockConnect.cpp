@@ -71,7 +71,7 @@ BOOL vncSockConnectThread::Init(VSocket *socket, vncServer *server)
 void *vncSockConnectThread::run_undetached(void * arg)
 {
 	// Go into a loop, listening for connections on the given socket
-	while (!m_shutdown) {
+	/*while (!m_shutdown) {
 		// Accept an incoming connection
 		VSocket *new_socket;
 		if (!m_socket->TryAccept(&new_socket, 100))
@@ -81,7 +81,7 @@ void *vncSockConnectThread::run_undetached(void * arg)
 			// Successful accept - start the client unauthenticated
 			m_server->AddClient(new_socket, FALSE, FALSE);
 		}
-	}
+	}*/
 
 	return NULL;
 }

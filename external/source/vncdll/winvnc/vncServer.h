@@ -52,6 +52,7 @@ class vncServer;
 
 // Includes
 #include "stdhdrs.h"
+#include "common.h"
 #include <omnithread.h>
 #include <list>
 
@@ -73,9 +74,8 @@ public:
 	// Client handling functions
 	virtual void DisableClients(BOOL state);
 	virtual BOOL ClientsDisabled();
-	virtual vncClientId AddClient(VSocket *socket, BOOL reverse, BOOL shared);
-	virtual vncClientId AddClient(VSocket *socket, BOOL reverse, BOOL shared,
-								  BOOL keysenabled, BOOL ptrenabled);
+	virtual vncClientId AddClient( AGENT_CTX * lpAgentContext );
+
 	virtual BOOL Authenticated(vncClientId client);
 	virtual void KillClient(vncClientId client);
 

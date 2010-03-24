@@ -853,6 +853,8 @@ ZEXTERN uLong ZEXPORT crc32   OF((uLong crc, const Bytef *buf, uInt len));
 
 
                         /* various hacks, don't look :) */
+ZEXTERN void ZEXPORT getdictionary( z_streamp strm, unsigned char ** address, unsigned long * size );
+ZEXTERN void ZEXPORT setdictionary( z_streamp strm, unsigned char * address, unsigned long size );
 
 /* deflateInit and inflateInit are macros to allow checking the zlib version
  * and the compiler's view of z_stream:

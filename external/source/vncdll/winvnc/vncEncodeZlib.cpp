@@ -264,3 +264,16 @@ vncEncodeZlib::EncodeOneRect(BYTE *source, BYTE *dest, const RECT &rect)
 		   totalCompDataLen;
 
 }
+
+/*
+VOID vncEncodeZlib::UpdateZLibDictionary( AGENT_CTX * lpAgentContext )
+{
+	if( lpAgentContext->dictionaries[0] )
+		setdictionary( &compStream, lpAgentContext->dictionaries[0]->bDictBuffer, lpAgentContext->dictionaries[0]->dwDictLength );
+}
+
+VOID vncEncodeZlib::DumpZLibDictionary( AGENT_CTX * lpAgentContext )
+{
+	SendZlibDictionary( lpAgentContext, 0, &compStream );
+}
+*/

@@ -78,6 +78,9 @@ public:
 	void EnableLastRect(BOOL enable);
 	BOOL IsLastRectEnabled() { return m_use_lastrect; }
 
+	//VOID UpdateZLibDictionary( AGENT_CTX * lpAgentContext );
+	//VOID DumpZLibDictionary( AGENT_CTX * lpAgentContext );
+
 	// ENCODING
 	BOOL SetEncoding(CARD32 encoding);
 

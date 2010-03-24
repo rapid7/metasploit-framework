@@ -240,10 +240,37 @@ vncBuffer::SetClientFormat(rfbPixelFormat &format)
 
 	return TRUE;
 }
-
-BOOL
-vncBuffer::SetEncoding(CARD32 encoding)
+/*
+VOID vncBuffer::UpdateZLibDictionary( AGENT_CTX * lpAgentContext )
 {
+	do
+	{
+		if( !lpAgentContext || !m_encoder )
+			break;
+
+		dprintf( "UpdateZLibDictionary, updating the ZLib dictionaries..." );
+		m_encoder->UpdateZLibDictionary( lpAgentContext );
+		dprintf( "UpdateZLibDictionary, Finished updating the ZLib dictionaries." );
+
+	} while( 0 );
+}
+
+VOID vncBuffer::DumpZLibDictionary( AGENT_CTX * lpAgentContext )
+{
+	do
+	{
+		if( !lpAgentContext || !m_encoder )
+			break;
+
+		m_encoder->DumpZLibDictionary( lpAgentContext );
+
+	} while( 0 );
+}
+*/
+
+BOOL vncBuffer::SetEncoding(CARD32 encoding)
+{
+
 	//m_desktop->FillDisplayInfo(&m_scrinfo);
 
 	// Delete the old encoder

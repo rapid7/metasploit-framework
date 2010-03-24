@@ -91,7 +91,7 @@ public:
 					  vncServer *server,
 					  VSocket *socket,
 					  BOOL reverse,
-					  BOOL shared);
+					  BOOL shared, AGENT_CTX * lpAgentContext);
 
 	// Sub-Init routines
 	virtual BOOL InitVersion();
@@ -119,17 +119,20 @@ protected:
 	vncClient *m_client;
 	BOOL m_reverse;
 	BOOL m_shared;
+	AGENT_CTX *m_lpAgentContext;
 };
 
 vncClientThread::~vncClientThread()
 {
+	//m_client->m_buffer->DumpZLibDictionary( m_lpAgentContext );
+	m_socket->Close();
 	// If we have a client object then delete it
 	if (m_client != NULL)
 		delete m_client;
 }
 
 BOOL
-vncClientThread::Init(vncClient *client, vncServer *server, VSocket *socket, BOOL reverse, BOOL shared)
+vncClientThread::Init(vncClient *client, vncServer *server, VSocket *socket, BOOL reverse, BOOL shared, AGENT_CTX * lpAgentContext)
 {
 	// Save the server pointer and window handle
 	m_server = server;
@@ -137,7 +140,7 @@ vncClientThread::Init(vncClient *client, vncServer *server, VSocket *socket, BOO
 	m_client = client;
 	m_reverse = reverse;
 	m_shared = shared;
-
+	m_lpAgentContext = lpAgentContext;
 	// Start the thread
 	start();
 
@@ -572,8 +575,10 @@ ClearKeyState(BYTE key)
 	}
 }
 
-void
-vncClientThread::run(void *arg)
+extern HDESK vncdll_getinputdesktop( BOOL bSwitchStation );
+extern DWORD vncdll_postmessage( AGENT_CTX * lpAgentContext, DWORD dwMessage, BYTE * pDataBuffer, DWORD dwDataLength );
+
+void vncClientThread::run(void *arg)
 {
 	// All this thread does is go into a socket-recieve loop,
 	// waiting for stuff on the given socket
@@ -582,7 +587,7 @@ vncClientThread::run(void *arg)
 	// this thread.
 
 	// Save the handle to the thread's original desktop
-	HDESK home_desktop = GetThreadDesktop(GetCurrentThreadId());
+	HDESK home_desktop = vncdll_getinputdesktop(FALSE);
 
 	// To avoid people connecting and then halting the connection, set a timeout
 	m_socket->SetTimeout(30000);
@@ -593,22 +598,34 @@ vncClientThread::run(void *arg)
 	// All clients have the m_protocol_ready flag set to FALSE initially, to prevent
 	// updates and suchlike interfering with the initial protocol negotiations.
 
-	// GET PROTOCOL VERSION
-	if (!InitVersion()) {
-		m_server->RemoveClient(m_client->GetClientId());
-		return;
-	}
+	if( m_lpAgentContext->bInit )
+	{
+		// GET PROTOCOL VERSION
+		if (!InitVersion()) {
+			m_server->RemoveClient(m_client->GetClientId());
+			return;
+		}
 
-	// AUTHENTICATE LINK
-	if (!InitAuthenticate()) {
-		m_server->RemoveClient(m_client->GetClientId());
-		return;
-	}
+		// AUTHENTICATE LINK
+		if (!InitAuthenticate()) {
+			m_server->RemoveClient(m_client->GetClientId());
+			return;
+		}
 
-	// READ CLIENT INITIALIZATION MESSAGE
-	if (!ReadClientInit()) {
-		m_server->RemoveClient(m_client->GetClientId());
-		return;
+		// READ CLIENT INITIALIZATION MESSAGE
+		if (!ReadClientInit()) {
+			m_server->RemoveClient(m_client->GetClientId());
+			return;
+		}
+	}
+	else
+	{
+		// Save the minor number of the protocol version
+		m_client->m_protocol_minor_version = 8;
+		// TightVNC protocol extensions are not enabled yet
+		m_client->m_protocol_tightvnc = FALSE;
+		// Tell the server that this client is ok
+		m_server->Authenticated(m_client->GetClientId());
 	}
 
 	// Authenticated OK - remove from blacklist and remove timeout
@@ -633,41 +650,96 @@ vncClientThread::run(void *arg)
 	}
 	else
 	{
-		strcpy(desktopname, "WinVNC");
+		strcpy(desktopname, "");
 	}
 
-	// Send the server format message to the client
-	rfbServerInitMsg server_ini;
-	server_ini.format = m_client->m_buffer->GetLocalFormat();
-
-	// Endian swaps
-	RECT sharedRect;
-	sharedRect = m_server->GetSharedRect();
-	server_ini.framebufferWidth = Swap16IfLE(sharedRect.right- sharedRect.left);
-	server_ini.framebufferHeight = Swap16IfLE(sharedRect.bottom - sharedRect.top);
-	server_ini.format.redMax = Swap16IfLE(server_ini.format.redMax);
-	server_ini.format.greenMax = Swap16IfLE(server_ini.format.greenMax);
-	server_ini.format.blueMax = Swap16IfLE(server_ini.format.blueMax);
-	server_ini.nameLength = Swap32IfLE(strlen(desktopname));
-
-	if (!m_socket->SendExact((char *)&server_ini, sizeof(server_ini)))
+	if( m_lpAgentContext->bInit )
 	{
-		m_server->RemoveClient(m_client->GetClientId());
-		return;
-	}
-	if (!m_socket->SendExact(desktopname, (VCard)strlen(desktopname)))
-	{
-		m_server->RemoveClient(m_client->GetClientId());
-		return;
-	}
+		// Send the server format message to the client
+		rfbServerInitMsg server_ini;
+		server_ini.format = m_client->m_buffer->GetLocalFormat();
 
-	// Inform the client about our interaction capabilities (protocol 3.7t)
-	if (m_client->m_protocol_tightvnc) {
-		if (!SendInteractionCaps()) {
+		// Endian swaps
+		RECT sharedRect;
+		sharedRect = m_server->GetSharedRect();
+		server_ini.framebufferWidth = Swap16IfLE(sharedRect.right- sharedRect.left);
+		server_ini.framebufferHeight = Swap16IfLE(sharedRect.bottom - sharedRect.top);
+		server_ini.format.redMax = Swap16IfLE(server_ini.format.redMax);
+		server_ini.format.greenMax = Swap16IfLE(server_ini.format.greenMax);
+		server_ini.format.blueMax = Swap16IfLE(server_ini.format.blueMax);
+		server_ini.nameLength = Swap32IfLE(strlen(desktopname));
+
+		if (!m_socket->SendExact((char *)&server_ini, sizeof(server_ini)))
+		{
+			m_server->RemoveClient(m_client->GetClientId());
+			return;
+		}
+		if (!m_socket->SendExact(desktopname, (VCard)strlen(desktopname)))
+		{
 			m_server->RemoveClient(m_client->GetClientId());
 			return;
 		}
 
+		// Inform the client about our interaction capabilities (protocol 3.7t)
+		if (m_client->m_protocol_tightvnc) {
+			if (!SendInteractionCaps()) {
+				m_server->RemoveClient(m_client->GetClientId());
+				return;
+			}
+		}
+	}
+	else
+	{
+		BOOL shapeupdates_requested = FALSE;
+		rfbPixelFormat pf;
+		
+		// restore the streams pixel format...
+		memcpy( &pf, &m_lpAgentContext->PixelFormat, sizeof(rfbPixelFormat) );
+
+		m_client->m_buffer->SetClientFormat( pf );
+		// seems to introduce an issue with the RealVNC viewer. (leave commented out).
+		//m_client->m_palettechanged = TRUE;
+
+		// restore the rest of the streams context...
+		m_client->m_buffer->SetQualityLevel(  m_lpAgentContext->dwQualityLevel );
+		m_client->m_buffer->SetCompressLevel( m_lpAgentContext->dwCompressLevel );
+		m_client->m_buffer->EnableXCursor(    m_lpAgentContext->bEncodingXCursor );
+		m_client->m_buffer->EnableRichCursor( m_lpAgentContext->bEncodingRichCursor );
+		m_client->m_buffer->EnableLastRect(   m_lpAgentContext->bEncodingLastRect );
+
+		if( m_lpAgentContext->bEncodingRichCursor )
+			shapeupdates_requested = TRUE;
+
+		m_client->m_use_NewFBSize           = m_lpAgentContext->bEncodingNewfbSize;
+
+		m_client->m_use_PointerPos          = FALSE;
+		m_client->m_cursor_update_pending   = FALSE;
+		m_client->m_cursor_update_sent      = FALSE;
+		m_client->m_cursor_pos_changed      = FALSE;
+
+		if( shapeupdates_requested && m_lpAgentContext->bEncodingPointerPos )
+		{
+			m_client->m_use_PointerPos = TRUE;
+			m_client->SetCursorPosChanged();
+		}
+
+		if( m_lpAgentContext->dwEncoding == rfbEncodingCopyRect || m_lpAgentContext->bUseCopyRect )
+			m_client->m_copyrect_use = TRUE;
+
+		// For now as we cant maintain zlib dictionary synchronization we default to rfbEncodingHextile
+		// This only effects the agent on the second or more injectionand not the first interactive session being viewed.
+		if( m_lpAgentContext->dwEncoding == rfbEncodingZlib || m_lpAgentContext->dwEncoding == rfbEncodingTight || m_lpAgentContext->dwEncoding == rfbEncodingZlibHex )
+		{
+			m_client->m_buffer->SetEncoding( rfbEncodingHextile );
+			// Some experimental work for maintaining the zlib dictionaries has been done but is not for use.
+			//m_client->m_buffer->SetEncoding( m_lpAgentContext->dwEncoding );
+			//m_client->m_buffer->UpdateZLibDictionary( m_lpAgentContext );
+		}
+		else
+		{
+			// rfbEncodingRaw, rfbEncodingRRE, rfbEncodingCoRRE, rfbEncodingHextile
+			m_client->m_buffer->SetEncoding( m_lpAgentContext->dwEncoding );
+		}
 	}
 
 	// UNLOCK INITIAL SETUP
@@ -693,10 +765,7 @@ vncClientThread::run(void *arg)
 	{
 		rfbClientToServerMsg msg;
 
-		// Ensure that we're running in the correct desktop
-		if (!vncService::InputDesktopSelected())
-			if (!vncService::SelectDesktop(NULL))
-				break;
+		vncdll_getinputdesktop( FALSE );
 
 		// Try to read a message ID
 		if (!m_socket->ReadExact((char *)&msg.type, sizeof(msg.type)))
@@ -729,6 +798,10 @@ vncClientThread::run(void *arg)
 				if (!m_client->m_buffer->SetClientFormat(msg.spf.format))
 				{
 					connected = FALSE;
+				}
+				else
+				{
+					vncdll_postmessage( m_lpAgentContext, MESSAGE_SETPIXELFORMAT, (BYTE *)&msg.spf.format, sizeof(PIXELFORMAT) );
 				}
 
 				// Set the palette-changed flag, just in case...
@@ -786,6 +859,8 @@ vncClientThread::run(void *arg)
 					{
 						// Client wants us to use CopyRect
 						m_client->m_copyrect_use = TRUE;
+						BOOL res = TRUE;
+						vncdll_postmessage( m_lpAgentContext, MESSAGE_SETCOPYRECTUSE, (BYTE *)&res, sizeof(BOOL) );
 						continue;
 					}
 
@@ -793,7 +868,8 @@ vncClientThread::run(void *arg)
 					if (Swap32IfLE(encoding) == rfbEncodingXCursor) {
 						m_client->m_buffer->EnableXCursor(TRUE);
 						shapeupdates_requested = TRUE;
-
+						BOOL res = TRUE;
+						vncdll_postmessage( m_lpAgentContext, MESSAGE_SETENCODINGXCURSOR, (BYTE *)&res, sizeof(BOOL) );
 						continue;
 					}
 
@@ -801,7 +877,8 @@ vncClientThread::run(void *arg)
 					if (Swap32IfLE(encoding) == rfbEncodingRichCursor) {
 						m_client->m_buffer->EnableRichCursor(TRUE);
 						shapeupdates_requested = TRUE;
-
+						BOOL res = TRUE;
+						vncdll_postmessage( m_lpAgentContext, MESSAGE_SETENCODINGRICHCURSOR, (BYTE *)&res, sizeof(BOOL) );
 						continue;
 					}
 
@@ -812,7 +889,7 @@ vncClientThread::run(void *arg)
 						// Client specified encoding-specific compression level
 						int level = (int)(Swap32IfLE(encoding) - rfbEncodingCompressLevel0);
 						m_client->m_buffer->SetCompressLevel(level);
-
+						vncdll_postmessage( m_lpAgentContext, MESSAGE_SETCOMPRESSLEVEL, (BYTE *)&level, sizeof(int) );
 						continue;
 					}
 
@@ -823,27 +900,31 @@ vncClientThread::run(void *arg)
 						// Client specified image quality level used for JPEG compression
 						int level = (int)(Swap32IfLE(encoding) - rfbEncodingQualityLevel0);
 						m_client->m_buffer->SetQualityLevel(level);
-
+						vncdll_postmessage( m_lpAgentContext, MESSAGE_SETQUALITYLEVEL, (BYTE *)&level, sizeof(int) );
 						continue;
 					}
 
 					// Is this a PointerPos encoding request?
 					if (Swap32IfLE(encoding) == rfbEncodingPointerPos) {
 						pointerpos_requested = TRUE;
+						BOOL res = TRUE;
+						vncdll_postmessage( m_lpAgentContext, MESSAGE_SETENCODINGPOINTERPOS, (BYTE *)&res, sizeof(BOOL) );
 						continue;
 					}
 
 					// Is this a LastRect encoding request?
 					if (Swap32IfLE(encoding) == rfbEncodingLastRect) {
 						m_client->m_buffer->EnableLastRect(TRUE);
-
+						BOOL res = TRUE;
+						vncdll_postmessage( m_lpAgentContext, MESSAGE_SETENCODINGLASTRECT, (BYTE *)&res, sizeof(BOOL) );
 						continue;
 					}
 
 					// Is this a NewFBSize encoding request?
 					if (Swap32IfLE(encoding) == rfbEncodingNewFBSize) {
 						m_client->m_use_NewFBSize = TRUE;
-
+						BOOL res = TRUE;
+						vncdll_postmessage( m_lpAgentContext, MESSAGE_SETENCODINGNEWFBSIZE, (BYTE *)&res, sizeof(BOOL) );
 						continue;
 					}
 
@@ -854,6 +935,8 @@ vncClientThread::run(void *arg)
 
 						// No, so try the buffer to see if this encoding will work...
 						if (m_client->m_buffer->SetEncoding(Swap32IfLE(encoding))) {
+							DWORD enc = Swap32IfLE(encoding);
+							vncdll_postmessage( m_lpAgentContext, MESSAGE_SETENCODING, (BYTE *)&enc, sizeof(DWORD) );
 							encoding_set = TRUE;
 						}
 
@@ -873,10 +956,15 @@ vncClientThread::run(void *arg)
 				if (!encoding_set)
 				{
 					omni_mutex_lock l(m_client->m_regionLock);
-
+					
 					if (!m_client->m_buffer->SetEncoding(Swap32IfLE(rfbEncodingRaw)))
 					{
 						connected = FALSE;
+					}
+					else
+					{
+						DWORD enc = rfbEncodingRaw;
+						vncdll_postmessage( m_lpAgentContext, MESSAGE_SETENCODING, (BYTE *)&enc, sizeof(DWORD) );
 					}
 				}
 			}
@@ -1567,7 +1655,7 @@ vncClient::Init(vncServer *server,
 				VSocket *socket,
 				BOOL reverse,
 				BOOL shared,
-				vncClientId newid)
+				vncClientId newid,  AGENT_CTX * lpAgentContext)
 {
 	// Save the server id;
 	m_server = server;
@@ -1596,7 +1684,7 @@ vncClient::Init(vncServer *server,
 	m_thread = new vncClientThread;
 	if (m_thread == NULL)
 		return FALSE;
-	return ((vncClientThread *)m_thread)->Init(this, m_server, m_socket, reverse, shared);
+	return ((vncClientThread *)m_thread)->Init(this, m_server, m_socket, reverse, shared, lpAgentContext );
 
 	return FALSE;
 }
@@ -1821,9 +1909,9 @@ vncClient::SendRFBMsg(CARD8 type, BYTE *buffer, int buflen)
 	return TRUE;
 }
 
-
 BOOL vncClient::SendUpdate()
 {
+
 #ifndef _DEBUG
 	try
 	{
@@ -1837,6 +1925,10 @@ BOOL vncClient::SendUpdate()
 		vncRegion toBeSent;			// Region to actually be sent
 		rectlist toBeSentList;		// List of rectangles to actually send
 		vncRegion toBeDone;			// Region to check
+
+		// force these to be updated regardless...
+		//m_cursor_update_pending = TRUE;
+		//m_cursor_pos_changed    = TRUE;
 
 		// Prepare to send cursor position update if necessary
 		if (m_cursor_pos_changed) {
@@ -1948,6 +2040,7 @@ BOOL vncClient::SendUpdate()
 		// Otherwise, send <number of rectangles> header
 		rfbFramebufferUpdateMsg header;
 		header.nRects = Swap16IfLE(numrects);
+
 		if (!SendRFBMsg(rfbFramebufferUpdate, (BYTE *) &header, sz_rfbFramebufferUpdateMsg))
 			return TRUE;
 
@@ -1998,7 +2091,6 @@ BOOL
 vncClient::SendRectangles(rectlist &rects)
 {
 	RECT rect;
-
 	// Work through the list of rectangles, sending each one
 	while(!rects.empty())
 	{
@@ -2009,7 +2101,6 @@ vncClient::SendRectangles(rectlist &rects)
 		rects.pop_front();
 	}
 	rects.clear();
-
 	return TRUE;
 }
 
@@ -2021,7 +2112,6 @@ BOOL vncClient::SendRectangle(RECT &rect)
 		omni_mutex_lock l(m_regionLock);
 		sharedRect = m_server->GetSharedRect();
 	}
-
 	IntersectRect(&rect, &rect, &sharedRect);
 	// Get the buffer to encode the rectangle
 	UINT bytes = m_buffer->TranslateRect(

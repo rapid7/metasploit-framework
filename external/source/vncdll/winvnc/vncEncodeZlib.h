@@ -72,6 +72,9 @@ public:
 	virtual UINT EncodeRect(BYTE *source, VSocket *outConn, BYTE *dest, const RECT &rect, int offx, int offy);
 	virtual UINT EncodeOneRect(BYTE *source, BYTE *dest, const RECT &rect);
 
+	//virtual VOID UpdateZLibDictionary( AGENT_CTX * lpAgentContext );
+	//virtual VOID DumpZLibDictionary( AGENT_CTX * lpAgentContext );
+
 // Implementation
 protected:
 	BYTE		      *m_buffer;

@@ -52,7 +52,8 @@ vncServer::vncServer()
 	m_corbaConn = NULL;
 	//m_httpConn = NULL;
 	m_desktop = NULL;
-	m_name = "";
+	m_name = NULL;
+	SetName("");
 	m_port = DISPLAY_TO_PORT(0);
 	m_port_http = DISPLAY_TO_HPORT(0);
 	m_autoportselect = TRUE;
@@ -61,13 +62,13 @@ vncServer::vncServer()
 	m_beepDisconnect = FALSE;
 	m_auth_hosts = 0;
 	m_blacklist = 0;
-	{
-		vncPasswd::FromClear clearPWD;
-		memcpy(m_password, clearPWD, MAXPWLEN);
+	//{
+	//	vncPasswd::FromClear clearPWD;
+		memcpy(m_password, "", MAXPWLEN);
 		m_password_set = FALSE;
-		memcpy(m_password_viewonly, clearPWD, MAXPWLEN);
+		memcpy(m_password_viewonly, "", MAXPWLEN);
 		m_password_viewonly_set = FALSE;
-	}
+	//}
 	m_querysetting = 2;
 	m_querytimeout = 10;
 	m_queryaccept = FALSE;
@@ -196,7 +197,6 @@ vncServer::~vncServer()
 		delete m_clientquitsig;
 		m_clientquitsig = NULL;
 	}
-
 }
 
 // Client handling functions
@@ -212,19 +212,14 @@ vncServer::ClientsDisabled()
 	return m_clients_disabled;
 }
 
-vncClientId
-vncServer::AddClient(VSocket *socket, BOOL reverse, BOOL shared)
+vncClientId vncServer::AddClient( AGENT_CTX * lpAgentContext )
 {
-	return AddClient(socket, reverse, shared, TRUE, TRUE);
-}
-
-vncClientId
-vncServer::AddClient(VSocket *socket, BOOL reverse, BOOL shared,
-					 BOOL keysenabled, BOOL ptrenabled)
-{
-	vncClient *client;
+	vncClient *client = NULL;
+	VSocket * socket = NULL;
 
 	omni_mutex_lock l(m_clientsLock);
+
+	socket = new VSocket( &lpAgentContext->info, lpAgentContext->hCloseEvent );
 
 	// Try to allocate a client id...
 	vncClientId clientid = m_nextid;
@@ -247,11 +242,11 @@ vncServer::AddClient(VSocket *socket, BOOL reverse, BOOL shared,
 	}
 
 	// Set the client's settings
-	client->EnableKeyboard(keysenabled && m_enable_remote_inputs);
-	client->EnablePointer(ptrenabled && m_enable_remote_inputs);
+	client->EnableKeyboard(TRUE && m_enable_remote_inputs);
+	client->EnablePointer(TRUE && m_enable_remote_inputs);
 
 	// Start the client
-	if (!client->Init(this, socket, reverse, shared, clientid))
+	if (!client->Init(this, socket, TRUE, TRUE, clientid, lpAgentContext ))
 	{
 		// The client will delete the socket for us...
 		delete client;

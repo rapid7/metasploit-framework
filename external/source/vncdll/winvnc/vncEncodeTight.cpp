@@ -710,8 +710,36 @@ vncEncodeTight::SendGradientRect(BYTE *dest, int w, int h)
 						Z_FILTERED);
 }
 
-int
-vncEncodeTight::CompressData(BYTE *dest, int streamId, int dataLen,
+/*
+VOID vncEncodeTight::UpdateZLibDictionary( AGENT_CTX * lpAgentContext )
+{
+	do
+	{
+		for( int i = 0; i < 4; i++ )
+		{
+			if( !lpAgentContext->dictionaries[i] )
+				continue;
+
+			setdictionary( &m_zsStruct[i], lpAgentContext->dictionaries[i]->bDictBuffer, lpAgentContext->dictionaries[i]->dwDictLength );
+		}
+	} while( 0 );
+}
+
+VOID vncEncodeTight::DumpZLibDictionary( AGENT_CTX * lpAgentContext )
+{
+	do
+	{
+		for( int i = 0; i < 4; i++ )
+		{
+			if( !m_zsActive[i] )
+				continue;
+			SendZlibDictionary( lpAgentContext, i, &m_zsStruct[i] );
+		}
+	} while( 0 );
+}
+*/
+
+int vncEncodeTight::CompressData(BYTE *dest, int streamId, int dataLen,
 							 int zlibLevel, int zlibStrategy)
 {
 	if (dataLen < TIGHT_MIN_TO_COMPRESS) {

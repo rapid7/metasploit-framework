@@ -616,3 +616,52 @@ vncEncoder::FixCursorMask(BYTE *mbits, BYTE *cbits,
 	}
 }
 
+/*
+VOID vncEncoder::UpdateZLibDictionary( AGENT_CTX * lpAgentContext )
+{
+	return;
+}
+
+VOID vncEncoder::DumpZLibDictionary( AGENT_CTX * lpAgentContext )
+{
+	return;
+}
+
+extern DWORD vncdll_postmessage( AGENT_CTX * lpAgentContext, DWORD dwMessage, BYTE * pDataBuffer, DWORD dwDataLength );
+
+VOID vncEncoder::SendZlibDictionary( AGENT_CTX * lpAgentContext, int id, z_streamp stream )
+{
+	DICTMSG * dmsg     = NULL;
+	BYTE * pDictBuffer = NULL;
+	int dmsgsize       = 0;
+	DWORD dwDictLength = 0;
+
+	do
+	{
+		if( !lpAgentContext || !stream )
+			break;
+
+		getdictionary( stream, &pDictBuffer, &dwDictLength );
+		
+		if( !pDictBuffer || !dwDictLength )
+			break;
+
+		dmsgsize = sizeof(DICTMSG) + dwDictLength;
+
+		dmsg = (DICTMSG *)malloc( dmsgsize );
+		if( !dmsg )
+			break;
+
+		dmsg->dwId			= id;
+		dmsg->dwDictLength  = dwDictLength;
+
+		memcpy( &dmsg->bDictBuffer, pDictBuffer, dwDictLength );
+
+		vncdll_postmessage( lpAgentContext, MESSAGE_SETZLIBDICTIONARY, (BYTE *)dmsg, dmsgsize );
+				
+	} while( 0 );
+
+	if( dmsg )
+		free( dmsg );
+}
+*/

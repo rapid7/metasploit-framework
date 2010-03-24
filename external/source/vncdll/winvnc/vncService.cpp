@@ -289,14 +289,17 @@ vncService::SelectHDESK(HDESK new_desktop)
 // Calling with a valid desktop name will place the thread in that desktop.
 // Calling with a NULL name will place the thread in the current input desktop.
 
+extern HDESK vncdll_getinputdesktop( BOOL bSwitchStation );
+
 BOOL
 vncService::SelectDesktop(char *name)
 {
 	// Are we running on NT?
 	if (IsWinNT())
 	{
-		HDESK desktop;
+		HDESK desktop = vncdll_getinputdesktop( FALSE );
 
+		/*
 		if (name != NULL)
 		{
 			// Attempt to open the named desktop
@@ -314,7 +317,7 @@ vncService::SelectDesktop(char *name)
 				DESKTOP_ENUMERATE | DESKTOP_HOOKCONTROL |
 				DESKTOP_WRITEOBJECTS | DESKTOP_READOBJECTS |
 				DESKTOP_SWITCHDESKTOP | GENERIC_WRITE);
-		}
+		}*/
 
 		// Did we succeed?
 		if (desktop == NULL) {

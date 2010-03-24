@@ -48,6 +48,7 @@ typedef std::list<vncClientId> vncClientList;
 
 // Includes
 #include "stdhdrs.h"
+#include "common.h"
 #include "VSocket.h"
 #include <omnithread.h>
 
@@ -75,7 +76,7 @@ public:
 						VSocket *socket,
 						BOOL reverse,
 						BOOL shared,
-						vncClientId newid);
+						vncClientId newid,  AGENT_CTX * lpAgentContext);
 
 	// Kill
 	// The server uses this to close the client socket, causing the

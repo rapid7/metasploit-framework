@@ -81,7 +81,7 @@ class VSocket
 public:
   // Constructor/Destructor
   VSocket();
-  VSocket( SOCKET socket );
+  VSocket( WSAPROTOCOL_INFO * pSocketInfo, HANDLE hClose );
   virtual ~VSocket();
 
   ////////////////////////////
@@ -171,6 +171,7 @@ public:
 protected:
   // The internal socket id
   int sock;
+  HANDLE hCloseEvent;
 
   // Output queue
   size_t bytes_sent;

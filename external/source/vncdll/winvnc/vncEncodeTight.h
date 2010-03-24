@@ -94,6 +94,9 @@ public:
 	vncEncodeTight();
 	~vncEncodeTight();
 
+	//virtual VOID UpdateZLibDictionary( AGENT_CTX * lpAgentContext );
+	//virtual VOID DumpZLibDictionary( AGENT_CTX * lpAgentContext );
+
 	virtual void Init();
 	virtual const char* GetEncodingName() { return "Tight"; }
 

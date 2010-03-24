@@ -312,18 +312,6 @@
 	<References>
 	</References>
 	<Files>
-		<File
-			RelativePath="nt.cpp"
-			>
-		</File>
-		<File
-			RelativePath="nt.h"
-			>
-		</File>
-		<File
-			RelativePath="omnithread.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

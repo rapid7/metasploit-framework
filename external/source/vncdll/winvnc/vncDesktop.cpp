@@ -46,6 +46,8 @@
 #include <fstream.h>
 #endif
 
+extern HINSTANCE hAppInstance;
+
 // Constants
 const UINT RFB_SCREEN_UPDATE = RegisterWindowMessage("WinVNC.Update.DrawRect");
 const UINT RFB_COPYRECT_UPDATE = RegisterWindowMessage("WinVNC.Update.CopyRect");
@@ -1143,8 +1145,6 @@ vncDesktop::SetPalette()
 LRESULT CALLBACK DesktopWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 
 ATOM m_wndClass = 0;
-
-extern HINSTANCE hAppInstance;
 
 BOOL vncDesktop::InitWindow()
 {

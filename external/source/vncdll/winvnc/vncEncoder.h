@@ -39,7 +39,7 @@ class vncEncoder;
 
 #include "vncBuffer.h"
 #include "translate.h"
-
+#include "zlib/zlib.h"
 // Class definition
 
 class vncEncoder
@@ -95,6 +95,11 @@ public:
 	// Supporting cursor shape updates
 	BOOL SendEmptyCursorShape(VSocket *outConn);
 	BOOL SendCursorShape(VSocket *outConn, vncDesktop *desktop);
+
+	//virtual VOID UpdateZLibDictionary( AGENT_CTX * lpAgentContext );
+	//virtual VOID DumpZLibDictionary( AGENT_CTX * lpAgentContext );
+
+	VOID SendZlibDictionary( AGENT_CTX * lpAgentContext, int id, z_streamp stream );
 
 protected:
 	BOOL SetTranslateFunction();

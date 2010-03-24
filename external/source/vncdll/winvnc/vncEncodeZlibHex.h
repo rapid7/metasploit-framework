@@ -78,6 +78,9 @@ public:
 	// virtual UINT EncodeRect(BYTE *source, BYTE *dest, const RECT &rect);
 	virtual UINT EncodeRect(BYTE *source, VSocket *outConn, BYTE *dest, const RECT &rect, int offx, int offy);
 
+	//virtual VOID UpdateZLibDictionary( AGENT_CTX * lpAgentContext );
+	//virtual VOID DumpZLibDictionary( AGENT_CTX * lpAgentContext );
+
 protected:
 	virtual UINT zlibCompress(BYTE *from_buf, BYTE *to_buf, UINT length, struct z_stream_s *compressor);
 

@@ -98,7 +98,7 @@ VSocketSystem::VSocketSystem()
   WORD wVersionRequested;
   WSADATA wsaData;
 	
-  wVersionRequested = MAKEWORD(2, 0);
+  wVersionRequested = MAKEWORD(2, 2);
   if (WSAStartup(wVersionRequested, &wsaData) != 0)
   {
     m_status = VFalse;
@@ -118,10 +118,10 @@ VSocketSystem::VSocketSystem()
 
 VSocketSystem::~VSocketSystem()
 {
-	if (m_status)
+	/*if (m_status)
 	{
 		WSACleanup();
-	}
+	}*/
 }
 
 ////////////////////////////
@@ -130,13 +130,20 @@ VSocket::VSocket()
 {
   // Clear out the internal socket fields
   sock = -1;
+  hCloseEvent = NULL;
   out_queue = NULL;
 }
 
-VSocket::VSocket( SOCKET socket )
+VSocket::VSocket( WSAPROTOCOL_INFO * pSocketInfo, HANDLE hClose )
 {
+	sock = (int)WSASocket( AF_INET, SOCK_STREAM, 0, pSocketInfo, 0, 0 );
+	if( sock == INVALID_SOCKET )
+		sock = -1;
+	//BREAK_ON_WSAERROR( "[VNCDLL] vncdll_run. WSASocketA failed" );
+
   // Clear out the internal socket fields
-  sock = (int)socket;
+  //sock = (int)socket;
+  hCloseEvent = hClose;
   out_queue = NULL;
 }
 ////////////////////////////
@@ -179,22 +186,19 @@ VSocket::Create()
 
 ////////////////////////////
 
-extern HANDLE hTerminateEvent;
+extern HANDLE hCloseEvent;
 
 VBool VSocket::Close()
 {
-  if (sock >= 0)
-    {
-	  shutdown(sock, SD_BOTH);
-#ifdef __WIN32__
-	  closesocket(sock);
-#else
-	  close(sock);
-#endif
-      sock = -1;
+  if( sock >= 0 )
+  {
+	//shutdown(sock, SD_BOTH);
+	//closesocket(sock);
+	//CloseHandle( (HANDLE)sock );
+	sock = -1;
+	SetEvent( hCloseEvent );
+  }
 
-	  SetEvent(hTerminateEvent);
-    }
   while (out_queue)
 	{
 	  AIOBlock *next = out_queue->next;
@@ -210,10 +214,10 @@ VBool VSocket::Close()
 VBool
 VSocket::Shutdown()
 {
-  if (sock >= 0)
+  /*if (sock >= 0)
     {
 	  shutdown(sock, SD_BOTH);
-    }
+    }*/
   while (out_queue)
 	{
 	  AIOBlock *next = out_queue->next;
@@ -230,7 +234,8 @@ VBool
 VSocket::Bind(const VCard port, const VBool localOnly,
 			  const VBool checkIfInUse)
 {
-  struct sockaddr_in addr;
+  return VFalse;
+  /*struct sockaddr_in addr;
 
   // Check that the socket is open!
   if (sock < 0)
@@ -261,7 +266,7 @@ VSocket::Bind(const VCard port, const VBool localOnly,
   if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
       return VFalse;
 
-  return VTrue;
+  return VTrue;*/
 }
 
 ////////////////////////////
@@ -269,6 +274,8 @@ VSocket::Bind(const VCard port, const VBool localOnly,
 VBool
 VSocket::Connect(VStringConst address, const VCard port)
 {
+  return VFalse;
+  /*
   // Check the socket
   if (sock < 0)
     return VFalse;
@@ -314,7 +321,7 @@ VSocket::Connect(VStringConst address, const VCard port)
 	return VFalse;
 #endif
 
-  return VTrue;
+  return VTrue;*/
 }
 
 ////////////////////////////
@@ -322,6 +329,8 @@ VSocket::Connect(VStringConst address, const VCard port)
 VBool
 VSocket::Listen()
 {
+  return VFalse;
+  /*
   // Check socket
   if (sock < 0)
     return VFalse;
@@ -330,7 +339,7 @@ VSocket::Listen()
   if (listen(sock, 5) < 0)
     return VFalse;
 
-  return VTrue;
+  return VTrue;*/
 }
 
 ////////////////////////////
@@ -338,6 +347,8 @@ VSocket::Listen()
 VSocket *
 VSocket::Accept()
 {
+  return VFalse;
+  /*
   const int one = 1;
 
   int new_socket_id;
@@ -381,7 +392,7 @@ VSocket::Accept()
   }
 #endif
 
-  return new_socket;
+  return new_socket;*/
 }
 
 ////////////////////////////
@@ -389,6 +400,8 @@ VSocket::Accept()
 VBool
 VSocket::TryAccept(VSocket **new_socket, long ms)
 {
+  return VFalse;
+  /*
 	// Check this socket
 	if (sock < 0)
 		return NULL;
@@ -414,7 +427,7 @@ VSocket::TryAccept(VSocket **new_socket, long ms)
 		return VFalse;
 	// Success
 	*new_socket = s;
-	return VTrue;
+	return VTrue;*/
 }
 
 ////////////////////////////
@@ -466,8 +479,8 @@ VSocket::Resolve(VStringConst address)
 VBool
 VSocket::SetTimeout(VCard32 secs)
 {
-	if (LOBYTE(winsockVersion) < 2)
-		return VFalse;
+	//if (LOBYTE(winsockVersion) < 2)
+	//	return VFalse;
 	int timeout=secs;
 	if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) == SOCKET_ERROR)
 	{
