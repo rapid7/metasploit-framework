@@ -126,6 +126,54 @@ class Metasploit3 < Msf::Auxiliary
 		success = false
 		proof   = ""
 
+		ret  = do_http_login(user,pass)
+		return :abort if ret == :abort
+		if ret == :success
+			proof   = @proof.dup
+			success = true
+		end
+
+		if success
+			print_good("#{target_url} - Successful login '#{user}' : '#{pass}'")
+
+			# XXX: Was this a valid user:pass, a valid pass, or a valid user?
+			#      Some services only care about one of the two being valid
+
+			any_user = false
+			any_pass = false
+
+			any_user  = do_http_login(Rex::Text.rand_text_alpha(8), pass)
+			any_pass  = do_http_login(user, Rex::Text.rand_text_alpha(8))
+
+			if any_user == :success
+				user = "anyuser"
+				print_status("#{target_url} - Any username with password '#{pass}' is allowed")
+			end
+
+			if any_pass == :success
+				pass = "anypass"
+				print_status("#{target_url} - Any password with username '#{user}' is allowed")
+			end
+
+			report_auth_info(
+				:host   => rhost,
+				:proto  => 'http',
+				:user   => user,
+				:pass   => pass,
+				:targ_host => rhost,
+				:targ_port => rport,
+				:proof  => proof.to_s
+			)
+
+			return :abort if (any_user or any_pass)
+			return :next_user
+		else
+			vprint_error("#{target_url} - Failed to login as '#{user}'")
+			return
+		end
+	end
+
+	def do_http_login(user,pass)
 		user_pass = Rex::Text.encode_base64(user + ":" + pass)
 
 		begin
@@ -138,7 +186,6 @@ class Metasploit3 < Msf::Auxiliary
 					}
 				}, 25)
 
-
 			unless (res.kind_of? Rex::Proto::Http::Response)
 				vprint_error("#{target_url} not responding")
 				return :abort
@@ -147,8 +194,8 @@ class Metasploit3 < Msf::Auxiliary
 			return :abort if (res.code == 404)
 
 			if res.code == 200
-				proof   = res.to_s
-				success = true
+				@proof   = res
+				return :success
 			end
 
 		rescue ::Rex::ConnectionError
@@ -156,26 +203,7 @@ class Metasploit3 < Msf::Auxiliary
 			return :abort
 		end
 
-		if success
-			print_good("#{target_url} - Successful login '#{user}' : '#{pass}'")
-
-			# XXX: Was this a valid user:pass, a valid pass, or a valid user?
-			#      Some services only care about one of the two being valid
-
-			report_auth_info(
-				:host   => rhost,
-				:proto  => 'http',
-				:user   => user,
-				:pass   => pass,
-				:targ_host => rhost,
-				:targ_port => rport,
-				:proof  => proof.to_s
-			)
-			return :next_user
-		else
-			vprint_error("#{target_url} - Failed to login as '#{user}'")
-			return
-		end
+		return :fail
 	end
 end
 

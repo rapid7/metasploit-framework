@@ -10,7 +10,7 @@ module Auxiliary::AuthBrute
 
 def initialize(info = {})
 	super
-	
+
 	register_options([
 	OptPath.new('USER_FILE', [ false, "File containing usernames, one per line" ]),
 	OptPath.new('PASS_FILE', [ false, "File containing passwords, one per line" ]),
@@ -19,7 +19,7 @@ def initialize(info = {})
 	OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
 	OptBool.new('BLANK_PASSWORDS', [ true, "Try blank passwords for all users", true])
 	], Auxiliary::AuthBrute)
-	
+
 end
 
 # Checks all three files for usernames and passwords, and combines them into
@@ -46,7 +46,7 @@ def each_user_pass(&block)
 		userpass_sleep_interval unless @@credentials_tried.empty?
 		next if @@credentials_skipped[fq_user]
 		next if @@credentials_tried[fq_user] == p
-		ret = block.call(u,p) 
+		ret = block.call(u,p)
 		case ret
 		when :abort
 		break
@@ -143,3 +143,4 @@ end
 
 end
 end
+
