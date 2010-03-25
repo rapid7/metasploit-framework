@@ -120,4 +120,12 @@ begin
 	}
 rescue ::Interrupt
 	# TODO: cleanup partial uploads!
+rescue => e
+	print_error("Error: #{e}")
 end
+
+
+#
+# Stop the job
+#
+framework.jobs.stop_job(mh.job_id) if (use_handler)
