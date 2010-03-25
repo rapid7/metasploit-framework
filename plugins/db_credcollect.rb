@@ -37,7 +37,7 @@ class Plugin::CredCollect < Msf::Plugin
 			end
 			framework.db.get_auth_info(:proto=>"smb").each do |info|
 				if info.kind_of? Hash and info.has_key? :token
-					print_line(info[:targ_host] + " - " + info[:token])
+					print_line(info[:target_host] + " - " + info[:token])
 				end
 			end
 		end
@@ -69,7 +69,7 @@ class Plugin::CredCollect < Msf::Plugin
 			hashes.each do |hash|
 				data = {}
 				data[:host]      = host
-				data[:targ_host] = host.address
+				data[:target_host] = host.address
 				data[:proto]     = 'smb'
 				data[:user]      = hash.user_name
 				data[:hash]      = hash.lanman + ":" + hash.ntlm
@@ -86,7 +86,7 @@ class Plugin::CredCollect < Msf::Plugin
 			tokens.each do |token|
 				data = {}
 				data[:host]      = host
-				data[:targ_host] = host.address
+				data[:target_host] = host.address
 				data[:proto]     = 'smb'
 				data[:token]     = token
 

@@ -39,7 +39,7 @@ hashes.each do |hash|
 	data[:proto] = 'smb'
 	data[:user]  = hash.user_name
 	data[:hash]  = hash.lanman + ":" + hash.ntlm
-	data[:targ_host]   = host.address
+	data[:target_host]   = host.address
 	data[:hash_string] = hash.hash_string
 
 	client.framework.db.report_auth_info(data)
@@ -55,7 +55,7 @@ raise Rex::Script::Completed if not tokens
 	data[:host]      = host
 	data[:proto]     = 'smb'
 	data[:token]     = token
-	data[:targ_host] = host.address
+	data[:target_host] = host.address
 
 	client.framework.db.report_auth_info(data)
 end
