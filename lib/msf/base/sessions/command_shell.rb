@@ -204,6 +204,8 @@ class CommandShell
 	# Writes to the command shell.
 	#
 	def shell_write(buf)
+		return if not buf
+
 		begin
 			framework.events.on_session_command(self, buf.strip)
 			rstream.write(buf)
