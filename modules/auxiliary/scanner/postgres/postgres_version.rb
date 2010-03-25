@@ -92,8 +92,8 @@ class Metasploit3 < Msf::Auxiliary
 					:proto => "postgres",
 					:user => user,
 					:pass => password,
-					:targ_host => rhost,
-					:targ_port => rport
+					:target_host => rhost,
+					:target_port => rport
 				)
 			end
 

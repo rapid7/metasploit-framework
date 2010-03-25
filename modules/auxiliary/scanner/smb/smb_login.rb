@@ -151,8 +151,8 @@ class Metasploit3 < Msf::Auxiliary
 				:proto	=> 'smb',
 				:user	=> user,
 				:pass	=> pass,
-				:targ_host	=> rhost,
-				:targ_port	=> datastore['RPORT']
+				:target_host	=> rhost,
+				:target_port	=> datastore['RPORT']
 			)
 		else
 			# Samba has two interesting behaviors:

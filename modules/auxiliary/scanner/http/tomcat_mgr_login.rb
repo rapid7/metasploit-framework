@@ -117,8 +117,8 @@ class Metasploit3 < Msf::Auxiliary
 				:proto  => 'tomcat',
 				:user   => user,
 				:pass   => pass,
-				:targ_host => rhost,
-				:targ_port => rport
+				:target_host => rhost,
+				:target_port => rport
 			)
 			return :next_user
 		else

@@ -58,8 +58,8 @@ class Metasploit3 < Msf::Auxiliary
 				:proto  => 'FTP',
 				:user   => datastore['FTPUSER'],
 				:pass   => datastore['FTPPASS'],
-				:targ_host      => target_host,
-				:targ_port      => rport
+				:target_host      => target_host,
+				:target_port      => rport
 			)
 		end
 

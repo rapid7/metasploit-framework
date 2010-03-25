@@ -146,8 +146,8 @@ class Metasploit3 < Msf::Auxiliary
 				:proto  => 'snmp',
 				:user   => 'n/a',
 				:pass   => com,
-				:targ_host => pkt[1],
-				:targ_port => pkt[2]
+				:target_host => pkt[1],
+				:target_port => pkt[2]
 			)
 
 			report_service(
