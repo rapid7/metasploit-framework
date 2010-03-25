@@ -121,8 +121,8 @@ class Metasploit3 < Msf::Auxiliary
 		report_auth_info(
 			:host      => @state[c][:ip],
 			:proto     => 'telnet',
-			:targ_host => datastore['SRVHOST'],
-			:targ_port => datastore['SRVPORT'],
+			:target_host => datastore['SRVHOST'],
+			:target_port => datastore['SRVPORT'],
 			:user      => @state[c][:user],
 			:pass      => @state[c][:pass]
 		)

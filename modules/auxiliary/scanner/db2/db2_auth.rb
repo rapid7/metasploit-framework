@@ -84,8 +84,8 @@ class Metasploit3 < Msf::Auxiliary
 					:user => user,
 					:pass => pass,
 					:database => db,
-					:targ_host => rhost,
-					:targ_port => rport
+					:target_host => rhost,
+					:target_port => rport
 				)
 				return :next_user
 			else

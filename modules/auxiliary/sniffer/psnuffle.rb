@@ -183,9 +183,9 @@ class BaseProtocolParser
 			if (sessionid =~ /^([^:]+):([^-]+)-/s)
 				sessions[sessionid] = {
 					:host      => $1, 
-					:targ_host => $1, 
+					:target_host => $1, 
 					:port      => $2, 
-					:targ_port => $2, 
+					:target_port => $2, 
 					:session   => sessionid, 
 					:ctime     => Time.now, 
 					:mtime     => Time.now

@@ -198,8 +198,8 @@ class Metasploit3 < Msf::Auxiliary
 		report_auth_info(
 			:host  => smb[:ip],
 			:proto => 'smb_challenge',
-			:targ_host => datastore['SRVHOST'],
-			:targ_port => datastore['SRVPORT'],
+			:target_host => datastore['SRVHOST'],
+			:target_port => datastore['SRVPORT'],
 			:user => smb[:username],
 			:pass => 
 				( nt_hash ? nt_hash : "<NULL>" ) + ":" + (lm_hash ? lm_hash : "<NULL>" ),

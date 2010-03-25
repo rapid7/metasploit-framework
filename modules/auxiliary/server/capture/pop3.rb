@@ -80,8 +80,8 @@ class Metasploit3 < Msf::Auxiliary
 			report_auth_info(
 				:host      => @state[c][:ip],
 				:proto     => 'pop3',
-				:targ_host => @myhost,
-				:targ_port => @myport,
+				:target_host => @myhost,
+				:target_port => @myport,
 				:user      => @state[c][:user],
 				:pass      => @state[c][:pass]
 			)

@@ -184,8 +184,8 @@ class Metasploit3 < Msf::Auxiliary
 			report_auth_info(
 				:host      => cli.peerhost,
 				:proto     => 'http',
-				:targ_host => hhead,
-				:targ_port => @myport,
+				:target_host => hhead,
+				:target_port => @myport,
 				:user      => user,
 				:pass      => pass,
 				:extra     => req.resource.to_s
