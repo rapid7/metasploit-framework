@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("Starting SMB login attempt on #{ip}")
 		if (datastore["SMBUser"] and not datastore["SMBUser"].empty?)
 			# then just do this user/pass
-			try_user_pass(datastore["SMBUser"], datastore["SMBPass"], [datastore["SMBUser"],ip,rport].join(":"))
+			try_user_pass(datastore["SMBUser"], datastore["SMBPass"])
 		else
 			if accepts_bogus_logins?
 				print_error("This system accepts authentication with any credentials, brute force is ineffective.")
