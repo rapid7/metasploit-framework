@@ -67,6 +67,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		self.password_only = []
 
+		if connect_reset_safe == :connected
+			@strip_usernames = true if password_prompt? 
+			self.sock.close
+		end
+
 		begin
 			each_user_pass do |user, pass|
 				Timeout.timeout(overall_timeout) do
@@ -81,16 +86,19 @@ class Metasploit3 < Msf::Auxiliary
 	def try_user_pass(user, pass)
 		vprint_status "#{rhost}:#{rport} Telnet - Attempting: '#{user}':'#{pass}'"
 		ret = do_login(user,pass)
-    if ret == :no_auth_required
-      print_good "#{rhost}:#{rport} Telnet - No authentication required!"
-      return :abort
-		elsif ret == :no_pass_prompt
+		case ret
+		when :no_auth_required
+			print_good "#{rhost}:#{rport} Telnet - No authentication required!"
+			return :abort
+		when :no_pass_prompt
 			vprint_status "#{rhost}:#{rport} Telnet - Skipping '#{user}' due to missing password prompt"
 			return :next_user
-		elsif ret == :timeout
+		when :timeout
 			vprint_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to timeout"
-		elsif ret == :busy
-			vprint_status "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to busy state"
+		when :busy
+			vprint_error "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to busy state"
+		when :refused
+			vprint_error "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to connection refused."
 		else
 			if login_succeeded?
 				start_telnet_session(rhost,rport,user,pass)
@@ -99,11 +107,25 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
+	# Sometimes telnet servers start RSTing if you get them angry.
+	# This is a short term fix; the problem is that we don't know
+	# if it's going to reset forever, or just this time, or randomly.
+	# A better solution is to get the socket connect to try again
+	# with a little backoff. 
+	def connect_reset_safe
+		begin
+			connect
+		rescue Rex::ConnectionRefused
+			return :refused
+		end
+		return :connected
+	end
+
 	# Making this serial since the @attempts counting business is causing
 	# all kinds of syncing problems.
 	def do_login(user,pass)
 
-		connect
+		return :refused if connect_reset_safe == :refused
 
 		begin
 
@@ -124,11 +146,11 @@ class Metasploit3 < Msf::Auxiliary
 			user = ''
 
 			if password_only.include?(pass)
-				print_status("#{rhost}:#{rport} only asks for a password that we already tried: '#{pass}'")
+				print_status("#{rhost}:#{rport} - Telnet - skipping already tried password '#{pass}'")
 				return :tried
 			end
 
-			print_status("#{rhost}:#{rport} only asks for a password, trying #{pass}")
+			print_status("#{rhost}:#{rport} - Telnet - trying password only authentication with password '#{pass}'")
 			password_only << pass
 		else
 			send_user(user)

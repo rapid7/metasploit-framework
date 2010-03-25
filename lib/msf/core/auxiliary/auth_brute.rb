@@ -41,6 +41,7 @@ def each_user_pass(&block)
 		credentials = gen_blank_passwords(users,credentials) + credentials
 	end
 	credentials.concat(combine_users_and_passwords(users,passwords))
+	credentials = just_uniq_passwords(credentials) if @strip_usernames
 	credentials.each do |u,p|
 		fq_user = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], u]
 		userpass_sleep_interval unless @@credentials_tried.empty?
@@ -56,6 +57,11 @@ def each_user_pass(&block)
 	@@credentials_tried[fq_user] = p
 	end
 	return
+end
+
+def just_uniq_passwords(credentials)
+	new_creds = credentials.map{|x| x[0] = ""; x}
+	credentials.uniq
 end
 
 def gen_blank_passwords(user_array,cred_array)
