@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_raw({
 				'uri'          => '/',
 				'method'       => 'GET'
-			}, 10)
+			}, 25)
 
 			if (res)
 				extra = http_fingerprint(res)
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 	#
 	def http_fingerprint(res)
 		return if not res
-		return if not res.body
+
 		extras = []
 
 		case res.code
@@ -85,6 +85,10 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		case res.body
+			when nil
+				# Nothing
+			when /openAboutWindow.*\>DD\-WRT ([^\<]+)\</
+				extras << "DD-WRT #{$1.strip}"
 
 			when /ID_ESX_Welcome/
 				extras << "VMware ESX Server"
@@ -104,8 +108,6 @@ class Metasploit3 < Msf::Auxiliary
 			when /swfs\/Shell\.html/
 				extras << "BPS-1000"
 		end
-
-
 
 
 		if (extras.length == 0)

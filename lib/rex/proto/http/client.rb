@@ -353,6 +353,26 @@ class Client
 					end
 					break
 				end
+
+				# This is a dirty hack for broken HTTP servers
+				if rv == Packet::ParseCode::Completed
+					rbody = resp.body
+					rbufq = resp.bufq
+
+					rblob = rbody.to_s + rbufq.to_s
+					tries = 0
+					begin
+						while tries < 20 and resp.headers["Content-Type"]== "text/html" and rblob !~ /<\/html>/i
+							buff = conn.get_once(-1, 0.05)
+							break if not buff
+							rblob += buff
+						end
+					rescue ::Errno::EPIPE, ::EOFError, ::IOError
+					end
+
+					resp.bufq = ""
+					resp.body = rblob
+				end
 			end
 		end
 		resp
