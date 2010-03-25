@@ -191,8 +191,8 @@ class Metasploit3 < Msf::Auxiliary
 			:proto	=> 'telnet',
 			:user	=> user,
 			:pass	=> pass,
-			:targ_host	=> rhost,
-			:targ_port	=> datastore['RPORT'],
+			:target_host	=> rhost,
+			:target_port	=> datastore['RPORT'],
 			:proof  => proof
 		)
 	end
