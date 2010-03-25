@@ -123,8 +123,8 @@ class Metasploit3 < Msf::Auxiliary
 			:proto => 'ssh',
 			:user => user,
 			:pass => pass,
-			:targ_host => ip,
-			:targ_port => datastore['RPORT'],
+			:target_host => ip,
+			:target_port => datastore['RPORT'],
 			:proof => proof
 		)
 	end
