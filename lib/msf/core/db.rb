@@ -479,6 +479,9 @@ class DBManager
 				if (note.changed?)
 					note.data    = data
 					note.save!
+				else
+					note.updated_at = ::Time.now.utc
+					note.save!
 				end
 			# Insert a brand new note record no matter what
 			else
