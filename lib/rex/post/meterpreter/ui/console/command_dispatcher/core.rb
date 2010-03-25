@@ -24,6 +24,8 @@ class Console::CommandDispatcher::Core
 		super
 
 		self.extensions = []
+		self.bgjobs     = []
+		self.bgjob_id   = 0
 	end
 
 	@@use_opts = Rex::Parser::Arguments.new(
@@ -48,6 +50,9 @@ class Console::CommandDispatcher::Core
 			"quit"       => "Terminate the meterpreter session",
 			"read"       => "Reads data from a channel",
 			"run"        => "Executes a meterpreter script",
+			"bgrun"      => "Executes a meterpreter script as a background thread",
+			"bgkill"     => "Kills a background meterpreter script",
+			"bglist"     => "Lists running background scripts",
 			"write"      => "Writes data to a channel",
 		}
 	end
@@ -363,6 +368,78 @@ class Console::CommandDispatcher::Core
 		end
 	end
 
+
+	#
+	# Executes a script in the context of the meterpreter session in the background
+	#
+	def cmd_bgrun(*args)
+		if args.length == 0
+			print_line(
+				"Usage: bgrun <script> [arguments]\n\n" +
+				"Executes a ruby script in the context of the meterpreter session.")
+			return true
+		end
+
+		jid = self.bgjob_id
+		self.bgjob_id += 1
+
+		# Get the script name
+		self.bgjobs[jid] = ::Thread.new(jid,args) do |myjid,xargs|
+			::Thread.current[:args] = xargs.dup
+			begin
+				# the rest of the arguments get passed in through the binding
+				client.execute_script(args.shift, args)
+			rescue ::Exception
+				print_error("Error in script: #{$!.class} #{$!}")
+				elog("Error in script: #{$!.class} #{$!}")
+				dlog("Callstack: #{$@.join("\n")}")
+			end
+			self.bgjobs[myjid] = nil
+			print_status("Background script with Job ID #{myjid} has completed (#{::Thread.current[:args].inspect})")
+		end
+
+		print_status("Executed Meterpreter with Job ID #{jid}")
+	end
+
+	#
+	# Map this to the normal run command tab completion
+	#
+	def cmd_bgrun_tabs(*args)
+		cmd_run_tabs(*args)
+	end
+
+	#
+	# Kill a background job
+	#
+	def cmd_bgkill(*args)
+		if args.length == 0
+			print_line("Usage: bgkill [id]")
+			return
+		end
+
+		args.each do |jid|
+			jid = jid.to_i
+			if self.bgjobs[jid]
+				print_status("Killing background job #{jid}...")
+				self.bgjobs[jid].kill
+				self.bgjobs[jid] = nil
+			else
+				print_error("Job #{jid} was not running")
+			end
+		end
+	end
+
+	#
+	# List background jobs
+	#
+	def cmd_bglist(*args)
+		self.bgjobs.each_index do |jid|
+			if self.bgjobs[jid]
+				print_status("Job #{jid}: #{self.bgjobs[jid][:args].inspect}")
+			end
+		end
+	end
+
 	#
 	# Writes data to a channel.
 	#
@@ -471,6 +548,7 @@ class Console::CommandDispatcher::Core
 protected
 
 	attr_accessor :extensions # :nodoc:
+	attr_accessor :bgjobs, :bgjob_id # :nodoc:
 
 	CommDispatcher = Console::CommandDispatcher
 
