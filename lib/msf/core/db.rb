@@ -540,7 +540,7 @@ class DBManager
 			:host      => host,
 			:service   => service,
 			:data      => opts,
-			:update    => :unique_data
+			:update    => :insert
 		}
 
 		return report_note(note)
