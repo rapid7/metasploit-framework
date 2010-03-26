@@ -70,7 +70,7 @@ class APIRequest
 		@retry_count_max = 10
 		@time_out = 30
 		@pause = 2
-		@uri = URI.parse(@req)
+		@uri = URI.parse(@url)
 		@http = Net::HTTP.new(@uri.host, @uri.port)
 		@http.use_ssl = true
 		#
