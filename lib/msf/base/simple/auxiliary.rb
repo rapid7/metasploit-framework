@@ -1,3 +1,4 @@
+module Msf
 module Simple
 
 ###
