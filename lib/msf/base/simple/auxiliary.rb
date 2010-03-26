@@ -1,4 +1,3 @@
-module Msf
 module Simple
 
 ###
@@ -93,10 +92,12 @@ protected
 			mod.framework.events.on_module_run(mod)
 			mod.run
 		rescue ::Interrupt
+			mod.error = $!
 			mod.print_error("Auxiliary interrupted by the console user")
 			mod.cleanup
 			return
 		rescue ::Exception => e
+			mod.error = e
 			mod.print_error("Auxiliary failed: #{e.class} #{e}")
 			if(e.class.to_s != 'Msf::OptionValidateError')
 				mod.print_error("Call stack:")

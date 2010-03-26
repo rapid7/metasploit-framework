@@ -600,6 +600,11 @@ class Module
 	#
 	attr_accessor :module_store
 
+	#
+	# The last exception to occur using this module
+	#
+	attr_accessor :error
+
 protected
 
 	#
