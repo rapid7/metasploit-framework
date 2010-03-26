@@ -60,6 +60,8 @@ class APIRequest
 	attr_reader :trace
 
 	def initialize(req, url)
+		@url = url
+		@req = req
 		prepare_http_client
 	end
 
@@ -68,8 +70,7 @@ class APIRequest
 		@retry_count_max = 10
 		@time_out = 30
 		@pause = 2
-		@req = req
-		@uri = URI.parse(url)
+		@uri = URI.parse(@req)
 		@http = Net::HTTP.new(@uri.host, @uri.port)
 		@http.use_ssl = true
 		#
