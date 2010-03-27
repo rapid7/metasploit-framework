@@ -33,7 +33,10 @@ class Msf::Module::Author
 			'kf' 		=> 'kf_list' + 0x40.chr + 'digitalmunition.com',
 			'ddz' 		=> 'ddz' + 0x40.chr + 'theta44.org',
 			'jduck' 	=> 'jduck' + 0x40.chr + 'metasploit.com',
-			'natron'	=> 'natron' + 0x40.chr + 'metasploit.com'
+			'natron'	=> 'natron' + 0x40.chr + 'metasploit.com',
+			'todb'		=> 'todb' + 0x40.chr + 'metasploit.com',
+			'msmith'	=> 'msmith' + 0x40.chr + 'metasploit.com',
+			'jcran'		=> 'jcran' + 0x40.chr + 'metasploit.com'
 		}
 
 	#
@@ -111,7 +114,7 @@ class Msf::Module::Author
 				self.name = m ? m[1] : nil
 				if !(self.email and self.email.index('@'))
 					self.name  = self.email
-					self.email = ''					
+					self.email = ''
 				end
 			end
 		end
@@ -132,3 +135,4 @@ class Msf::Module::Author
 	attr_accessor :email
 	attr_reader   :name
 end
+
