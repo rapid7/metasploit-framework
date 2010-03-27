@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 		self.password_only = []
 
 		if connect_reset_safe == :connected
-			@strip_usernames = true if password_prompt? 
+			@strip_usernames = true if password_prompt?
 			self.sock.close
 		end
 
@@ -111,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
 	# This is a short term fix; the problem is that we don't know
 	# if it's going to reset forever, or just this time, or randomly.
 	# A better solution is to get the socket connect to try again
-	# with a little backoff. 
+	# with a little backoff.
 	def connect_reset_safe
 		begin
 			connect
@@ -226,6 +226,14 @@ class Metasploit3 < Msf::Auxiliary
 		sess = Msf::Sessions::CommandShell.new(sock)
 		sess.set_from_exploit(self)
 		sess.info = "TELNET #{user}:#{pass} (#{host}:#{port})"
+
+		# Clean up the stored data
+		sess.exploit_datastore['USERPASS_FILE'] = nil
+		sess.exploit_datastore['USER_FILE']     = nil
+		sess.exploit_datastore['PASS_FILE']     = nil
+		sess.exploit_datastore['USERNAME']      = user
+		sess.exploit_datastore['PASSWORD']      = pass
+
 		framework.sessions.register(sess)
 		sess.process_autoruns(datastore)
 	end

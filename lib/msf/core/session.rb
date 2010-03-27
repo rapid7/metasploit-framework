@@ -214,7 +214,7 @@ module Session
 		self.target_host = m.target_host
 		self.workspace   = m.workspace
 		self.username    = m.owner
-		self.exploit_datastore = m.datastore
+		self.exploit_datastore = m.datastore.dup
 		self.user_input = m.user_input if m.user_input
 		self.user_output = m.user_output if m.user_output
 		self.exploit_uuid = m.uuid

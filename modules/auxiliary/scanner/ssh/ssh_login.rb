@@ -103,6 +103,14 @@ class Metasploit3 < Msf::Auxiliary
 			sess = Msf::Sessions::CommandShell.new(conn.lsock)
 			sess.set_from_exploit(self)
 			sess.info = "SSH #{user}:#{pass} (#{ip}:#{port})"
+
+			# Clean up the stored data
+			sess.exploit_datastore['USERPASS_FILE'] = nil
+			sess.exploit_datastore['USER_FILE']     = nil
+			sess.exploit_datastore['PASS_FILE']     = nil
+			sess.exploit_datastore['USERNAME']      = user
+			sess.exploit_datastore['PASSWORD']      = pass
+
 			framework.sessions.register(sess)
 			sess.process_autoruns(datastore)
 
