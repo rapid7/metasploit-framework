@@ -12,6 +12,8 @@ def initialize(info = {})
 	super
 
 	register_options([
+	OptString.new('USERNAME', [ false, 'A specific username to authenticate as' ]),
+	OptString.new('PASSWORD', [ false, 'A specific password to authenticate with' ]),
 	OptPath.new('USER_FILE', [ false, "File containing usernames, one per line" ]),
 	OptPath.new('PASS_FILE', [ false, "File containing passwords, one per line" ]),
 	OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line" ]),
@@ -37,11 +39,25 @@ def each_user_pass(&block)
 	credentials = extract_word_pair(datastore['USERPASS_FILE'])
 	users       = extract_words(datastore['USER_FILE'])
 	passwords   = extract_words(datastore['PASS_FILE'])
+
+	if datastore['USERNAME']
+		users << datastore['USERNAME']
+	end
+
+	if datastore['PASSWORD']
+		passwords << datastore['PASSWORD']
+	end
+
 	if datastore['BLANK_PASSWORDS']
 		credentials = gen_blank_passwords(users,credentials) + credentials
 	end
 	credentials.concat(combine_users_and_passwords(users,passwords))
 	credentials = just_uniq_passwords(credentials) if @strip_usernames
+
+	if datastore['USERNAME']
+		credentials.unshift( [datastore['USERNAME'], datastore['PASSWORD'].to_s] )
+	end
+
 	credentials.each do |u,p|
 		fq_user = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], u]
 		userpass_sleep_interval unless @@credentials_tried.empty?

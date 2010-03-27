@@ -45,9 +45,6 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(8080),
-				OptBool.new('VERBOSE', [ true, 'Verbose output', false]),
-				OptString.new('USERNAME', [ false, 'The username to authenticate as' ]),
-				OptString.new('PASSWORD', [ false, 'The password for the specified username' ]),
 				OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_userpass.txt") ]),
 				OptPath.new('USER_FILE',  [ false, "File containing users, one pair per line",
@@ -98,8 +95,8 @@ class Metasploit3 < Msf::Auxiliary
 			return :abort if (res.code == 404)
 			srvhdr = res.headers['Server']
 			if res.code == 200
-				# Could go with res.headers["Server"] =~ /Apache-Coyote/i 
-				# as well but that seems like an element someone's more 
+				# Could go with res.headers["Server"] =~ /Apache-Coyote/i
+				# as well but that seems like an element someone's more
 				# likely to change
 				success = true if(res.body.scan(/Tomcat/i).size >= 5)
 				success
@@ -127,3 +124,4 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
+
