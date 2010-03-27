@@ -100,14 +100,14 @@ class Metasploit3 < Msf::Auxiliary
 		if rport == 443 or ssl
 			proto = "https"
 		end
-		"#{proto}://#{rhost}:#{rport}#{@uri}"
+		"#{proto}://#{rhost}:#{rport}#{@uri.to_s}"
 	end
 
 	def run_host(ip)
 
 		@uri = find_auth_uri
 		if ! @uri
-			print_error("No URI found that asks for HTTP authentication")
+			print_error("#{target_url} No URI found that asks for HTTP authentication")
 			return
 		end
 
@@ -135,9 +135,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		if success
 			print_good("#{target_url} - Successful login '#{user}' : '#{pass}'")
-
-			# XXX: Was this a valid user:pass, a valid pass, or a valid user?
-			#      Some services only care about one of the two being valid
 
 			any_user = false
 			any_pass = false

@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 					while XDR.decode_int!(resp) == 1 do
 						grp << XDR.decode_string!(resp)
 					end
-					print_line("#{ip}\t#{dir}\t[#{grp.join(", ")}]")
+					print_good("#{ip} NFS Export: #{dir} [#{grp.join(", ")}]")
 					shares << [dir, grp]
 				end
 				report_note(
