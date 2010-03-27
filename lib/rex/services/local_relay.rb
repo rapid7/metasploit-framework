@@ -401,9 +401,8 @@ protected
 				# and write it to the other
 				else
 					begin
-						# Read from the read fd 32k at a time (helps with big downloads)
-						data = rfd.sysread(32768)
 						# Pass the data onto the other fd, most likely writing it.
+						data = rfd.sysread(65536)
 						rfd.other_stream.on_other_data(data)
 					# If we catch an error, close the connection
 					rescue ::Exception

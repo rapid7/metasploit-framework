@@ -21,7 +21,8 @@ class Session < Base
 				'workspace'   => s.workspace.to_s,
 				'target_host' => s.target_host.to_s,
 				'username'    => s.username.to_s,
-				'uuid'        => s.uuid.to_s
+				'uuid'        => s.uuid.to_s,
+				'exploit_uuid' => s.exploit_uuid.to_s
 			}
 		end
 		res

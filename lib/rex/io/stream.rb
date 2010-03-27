@@ -94,7 +94,7 @@ module Stream
 	#
 	def fd
 		self
-  end
+	end
 
 	##
 	#
