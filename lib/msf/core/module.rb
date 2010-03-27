@@ -109,6 +109,7 @@ class Module
 	#
 	def initialize(info = {})
 		self.module_info = info
+		self.uuid = Rex::Text.rand_text_alphanumeric(8).downcase
 
 		set_defaults
 
@@ -604,6 +605,11 @@ class Module
 	# The last exception to occur using this module
 	#
 	attr_accessor :error
+
+	#
+	# A unique identifier for this module instance
+	#
+	attr_accessor :uuid
 
 protected
 

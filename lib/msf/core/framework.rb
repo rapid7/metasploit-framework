@@ -212,6 +212,7 @@ class FrameworkEventSubscriber
 				:username  => instance.owner,
 				:info => {
 					:module_name => instance.fullname,
+					:module_uuid => instance.uuid
 				}.merge(opts)
 			}
 
@@ -286,7 +287,8 @@ class FrameworkEventSubscriber
 					:target_host  => session.target_host,
 					:via_exploit  => session.via_exploit,
 					:via_payload  => session.via_payload,
-					:tunnel_peer  => session.tunnel_peer
+					:tunnel_peer  => session.tunnel_peer,
+					:exploit_uuid => session.exploit_uuid
 				}.merge(opts)
 			}
 			report_event(event)

@@ -78,7 +78,7 @@ module Session
 
 	def initialize
 		self.alive = true
-		self.uuid  = Rex::Text.rand_text_alphanumeric(32).downcase
+		self.uuid  = Rex::Text.rand_text_alphanumeric(8).downcase
 	end
 
 	# Direct descendents
@@ -217,6 +217,7 @@ module Session
 		self.exploit_datastore = m.datastore
 		self.user_input = m.user_input if m.user_input
 		self.user_output = m.user_output if m.user_output
+		self.exploit_uuid = m.uuid
 	end
 
 	#
@@ -297,6 +298,10 @@ module Session
 	# The unique identifier of this session
 	#
 	attr_accessor :uuid
+	#
+	# The unique identifier of exploit that created this session
+	#
+	attr_accessor :exploit_uuid
 	#
 	# The associated username
 	#
