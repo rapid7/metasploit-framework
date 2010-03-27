@@ -217,7 +217,9 @@ protected
 		on_session(session)
 
 		# Process the auto-run scripts for this session
-		session.process_autoruns(datastore)
+		if session.respond_to?('process_autoruns')
+			session.process_autoruns(datastore)
+		end
 
 		# If there is an exploit associated with this payload, then let's notify
 		# anyone who is interested that this exploit succeeded
