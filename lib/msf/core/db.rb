@@ -1194,6 +1194,7 @@ class DBManager
 				sname = svc.attributes['name'].to_s
 				sprot = svc.attributes['protocol'].to_s.downcase
 				sport = svc.attributes['port'].to_s.to_i
+				next if sport == 0
 
 				name = sname.split('(')[0].strip
 				info = ''
