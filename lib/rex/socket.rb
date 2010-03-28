@@ -350,11 +350,16 @@ module Socket
 		[ (~((2 ** (32 - bitmask)) - 1)) & 0xffffffff ].pack('N').unpack('CCCC').join('.')
 	end
 
+
+	def self.portspec_crack(pspec)
+		portspec_to_portlist(pspec)
+	end
+
 	#
 	# Converts a port specification like "80,21-23,443" into a sorted,
 	# unique array of valid port numbers like [21,22,23,80,443]
 	#
-	def self.portspec_crack(pspec)
+	def self.portspec_to_portlist(pspec)
 		ports = []
 
 		# Build ports array from port specification
@@ -370,7 +375,38 @@ module Socket
 		end
 
 		# Sort, and remove dups and invalid ports
-		ports.sort.uniq.delete_if { |p| p < 0 or p > 65535 }
+		ports.sort.uniq.delete_if { |p| p < 1 or p > 65535 }
+	end
+
+	#
+	# Converts a port list like [1,2,3,4,5,100] into a
+	# range specification like "1-5,100"
+	#
+	def self.portlist_to_portspec(parr)
+		ranges = []
+		range  = []
+		lastp  = nil
+
+		parr.uniq.sort{|a,b| a<=>b}.map{|a| a.to_i}.each do |n|
+			next if (n < 1 or n > 65535)
+			if not lastp
+				range = [n]
+				lastp = n
+				next
+			end
+
+			if lastp == n - 1
+				range << n
+			else
+				ranges << range
+				range = [n]
+			end
+			lastp = n
+		end
+
+		ranges << range
+		ranges.delete(nil)
+		ranges.uniq.map{|x| x.length == 1 ? "#{x[0]}" : "#{x[0]}-#{x[-1]}"}.join(",")
 	end
 
 	##
@@ -396,18 +432,18 @@ module Socket
 	#
 	# Create a TCP socket pair.
 	#
-	# sf: This create a socket pair using native ruby sockets and will work 
+	# sf: This create a socket pair using native ruby sockets and will work
 	# on Windows where ::Socket.pair is not implemented.
 	# Note: OpenSSL requires native ruby sockets for its io.
 	#
 	def self.tcp_socket_pair
 		lsock   = nil
 		rsock   = nil
-		laddr   = '127.0.0.1' 
+		laddr   = '127.0.0.1'
 		lport   = 0
 		threads = []
 		mutex   = ::Mutex.new
-		
+
 		threads << ::Thread.new {
 			server = nil
 			mutex.synchronize {
@@ -424,31 +460,31 @@ module Socket
 			lsock, saddr = server.accept
 			server.close
 		}
-		
+
 		threads.each { |t| t.join }
-		
+
 		return [lsock, rsock]
 	end
-	
+
 	#
 	# Create a UDP socket pair using native ruby UDP sockets.
 	#
 	def self.udp_socket_pair
-		laddr = '127.0.0.1' 
-		
+		laddr = '127.0.0.1'
+
 		lsock = ::UDPSocket.new
 		lsock.bind( laddr, 0 )
-		
+
 		rsock = ::UDPSocket.new
 		rsock.bind( laddr, 0 )
-		
+
 		rsock.connect( *lsock.addr.values_at(3,1) )
-		
+
 		lsock.connect( *rsock.addr.values_at(3,1) )
-		
+
 		return [lsock, rsock]
 	end
-	
+
 	##
 	#
 	# Class initialization

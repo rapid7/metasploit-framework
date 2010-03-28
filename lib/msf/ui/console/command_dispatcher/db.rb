@@ -61,6 +61,7 @@ class Db
 				"db_import_nessus_nbe"  => "Import a Nessus scan result file (NBE)",
 				"db_import_nessus_xml"	=> "Import a Nessus scan result file (NESSUS)",
 				"db_import_nmap_xml"    => "Import a Nmap scan results file (-oX)",
+				"db_import_qualys_xml"  => "Import a Qualys scan results file (XML)",
 				"db_nmap"               => "Executes nmap and records the output automatically",
 			}
 
@@ -456,9 +457,9 @@ class Db
 				when '-X'
 					targ_exc << OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(args.shift)
 				when '-PI'
-					port_inc = Rex::Socket.portspec_crack(args.shift)
+					port_inc = Rex::Socket.portspec_to_portlist(args.shift)
 				when '-PX'
-					port_exc = Rex::Socket.portspec_crack(args.shift)
+					port_exc = Rex::Socket.portspec_to_portlist(args.shift)
 				when '-m'
 					regx = args.shift
 				when '-R'
@@ -927,6 +928,22 @@ class Db
 				return
 			end
 			framework.db.import_nmap_xml_file(args[0])
+		end
+
+		#
+		# Import Qualys XML files
+		#
+		def cmd_db_import_qualys_xml(*args)
+			if not (args and args.length == 1)
+				print_status("Usage: db_import_qualys_xml <result.xml>")
+				return
+			end
+
+			if not File.readable?(args[0])
+				print_status("Could not read the Qualys file")
+				return
+			end
+			framework.db.import_qualys_xml_file(args[0])
 		end
 
 		#

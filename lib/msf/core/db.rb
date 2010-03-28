@@ -1100,6 +1100,8 @@ class DBManager
 					return import_nessus_xml(data, wspace)
 				when "NessusClientData_v2"
 					return import_nessus_xml_v2(data, wspace)
+				when "SCAN"
+					return import_qualys_xml(data, wspace)
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
@@ -1493,6 +1495,85 @@ class DBManager
 		end
 	end
 
+	#
+	# Import Qualys' xml output
+	#
+	def import_qualys_xml_file(filename, wspace=workspace)
+		f = File.open(filename, 'r')
+		data = f.read(f.stat.size)
+		import_qualys_xml(data, wspace)
+	end
+
+	def import_qualys_xml(data, wspace=workspace)
+
+		doc = REXML::Document.new(data)
+		doc.elements.each('/SCAN/IP') do |host|
+			addr  = host.attributes['value']
+			hname = host.attributes['name'] || ''
+
+			report_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive)
+
+			if host.elements["OS"]
+				hos = host.elements["OS"].text
+				report_note(
+					:workspace => wspace,
+					:host => addr,
+					:type => 'host.os.qualys_fingerprint',
+					:data => {
+						:os => hos
+					}
+				)
+			end
+
+			# Open TCP Services List (Qualys ID 82023)
+			services_tcp = host.elements["SERVICES/CAT/SERVICE[@number='82023']/RESULT"]
+			if services_tcp
+				services_tcp.text.scan(/([0-9]+)\t(.*?)\t.*?\t([^\t\n]*)/) do |match|
+					if match[2] == nil or match[2].strip == 'unknown'
+						name = match[1].strip
+					else
+						name = match[2].strip
+					end
+					handle_qualys(wspace, addr, match[0].to_s, 'tcp', 0, nil, nil, name)
+				end
+			end
+			# Open UDP Services List (Qualys ID 82004)
+			services_udp = host.elements["SERVICES/CAT/SERVICE[@number='82004']/RESULT"]
+			if services_udp
+				services_udp.text.scan(/([0-9]+)\t(.*?)\t.*?\t([^\t\n]*)/) do |match|
+					if match[2] == nil or match[2].strip == 'unknown'
+						name = match[1].strip
+					else
+						name = match[2].strip
+					end
+					handle_qualys(wspace, addr, match[0].to_s, 'udp', 0, nil, nil, name)
+				end
+			end
+
+			# VULNS are confirmed, PRACTICES are unconfirmed vulnerabilities
+			host.elements.each('VULNS/CAT | PRACTICES/CAT') do |cat|
+				port = cat.attributes['port']
+				protocol = cat.attributes['protocol']
+				cat.elements.each('VULN | PRACTICE') do |vuln|
+					refs = []
+					qid = vuln.attributes['number']
+					severity = vuln.attributes['severity']
+					vuln.elements.each('VENDOR_REFERENCE_LIST/VENDOR_REFERENCE') do |ref|
+						refs.push(ref.elements['ID'].text.to_s)
+					end
+					vuln.elements.each('CVE_ID_LIST/CVE_ID') do |ref|
+						refs.push('CVE-' + /C..-([0-9\-]{9})/.match(ref.elements['ID'].text.to_s)[1])
+					end
+					vuln.elements.each('BUGTRAQ_ID_LIST/BUGTRAQ_ID') do |ref|
+						refs.push('BID-' + ref.elements['ID'].text.to_s)
+					end
+
+					handle_qualys(wspace, addr, port, protocol, qid, severity, refs)
+				end
+			end
+		end
+	end
+
 	def import_ip_list_file(filename, wspace=workspace)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
@@ -1510,6 +1591,7 @@ class DBManager
 		data = f.read(f.stat.size)
 		import_amap_log(data, wspace)
 	end
+
 	def import_amap_mlog(data, wspace)
 		data.each_line do |line|
 			next if line =~ /^#/
@@ -1640,6 +1722,31 @@ protected
 			:proto => proto,
 			:name => nss,
 			:data => description ? description.text : "",
+			:refs => refs)
+	end
+
+	#
+	# Qualys report parsing/handling
+	#
+	def handle_qualys(wspace, addr, port, protocol, qid, severity, refs, name=nil)
+
+		port = port.to_i
+
+		info = { :workspace => wspace, :host => addr, :port => port, :proto => protocol }
+		if name and name != 'unknown'
+			info[:name] = name
+		end
+
+		report_service(info)
+
+		return if qid == 0
+
+		report_vuln(
+			:workspace => wspace,
+			:host => addr,
+			:port => port,
+			:proto => protocol,
+			:name => 'QUALYS-' + qid,
 			:refs => refs)
 	end
 
