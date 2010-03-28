@@ -255,19 +255,16 @@ class DBManager
 	#
 	def report_service(opts)
 		return if not active
-		addr = opts.delete(:host) || return
+		addr  = opts.delete(:host) || return
+		hname = opts.delete(:host_name)
+		hmac  = opts.delete(:host_mac)
+
 		wait = opts.delete(:wait)
 		wspace = opts.delete(:workspace) || workspace
 
 		hopts = {:workspace => wspace, :host => addr}
-
-		if opts[:host_name]
-			hopts[:name] = opts.delete(:host_name)
-		end
-
-		if opts[:host_mac]
-			hopts[:mac] = opts.delete(:host_mac)
-		end
+		hopts[:name] = hname if hname
+		hopts[:mac]  = hmac  if hmac
 		report_host(hopts)
 
 		ret  = {}
