@@ -100,7 +100,11 @@ module Msf::Payload::Stager
 				p = (self.stage_prefix || '') + p
 			end
 
-			print_status("Sending stage (#{p.length} bytes)")
+			if conn.respond_to? :peerhost
+				print_status("Sending stage (#{p.length} bytes) to #{conn.peerhost}")
+			else
+				print_status("Sending stage (#{p.length} bytes)")
+			end
 
 			# Send the stage
 			conn.put(p)
