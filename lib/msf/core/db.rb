@@ -1114,6 +1114,9 @@ class DBManager
 		elsif (firstline.index("# amap v"))
 			# then it's an amap mlog
 			return import_amap_mlog(data, wspace)
+		elsif (firstline =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)
+			# then its an IP list
+			return import_ip_list(data, wspace)
 		end
 		raise DBImportError.new("Could not automatically determine file type")
 	end
