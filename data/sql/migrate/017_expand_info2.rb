@@ -44,7 +44,7 @@ class ExpandInfo2 < ActiveRecord::Migration
 		end
 
 		remove_column :vulns, :data
-		change_table :hosts do |t|
+		change_table :vulns do |t|
 			t.string    :data, :limit => 4096
 		end
 
