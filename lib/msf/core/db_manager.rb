@@ -91,6 +91,7 @@ class DBManager
 		tdrivers = %W{ sqlite3 mysql postgresql }
 		tdrivers.each do |driver|
 			begin
+				ActiveRecord::Base.default_timezone = :utc
 				ActiveRecord::Base.establish_connection(:adapter => driver)
 				if(self.respond_to?("driver_check_#{driver}"))
 					self.send("driver_check_#{driver}")
