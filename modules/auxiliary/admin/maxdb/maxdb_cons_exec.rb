@@ -62,7 +62,8 @@ class Metasploit3 < Msf::Auxiliary
 		
 		ver = sock.get_once
 
-		ver[27,2000].each do | info |
+		info = ver[27,2000]
+		if (info.length > 0)
 			puts "[*] #{info}"
 		end
 
