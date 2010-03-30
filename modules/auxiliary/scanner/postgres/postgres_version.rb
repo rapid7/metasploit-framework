@@ -17,11 +17,11 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::Postgres
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
-	
+
 	# Creates an instance of this module.
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'PostgreSQL Login Utility',
+			'Name'           => 'PostgreSQL Version Probe',
 			'Description'    => %q{
 				Enumerates the verion of PostgreSQL servers.
 			},
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['RHOST']
 	end
 
-	# Alias for RPORT	
+	# Alias for RPORT
 	def rport
 		datastore['RPORT']
 	end
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			msg = "#{rhost}:#{rport} Postgres -"
 			password = pass || postgres_password
-			print_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{rhost}:#{rport} on database '#{database}'") if verbose 
+			print_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{rhost}:#{rport} on database '#{database}'") if verbose
 			result = postgres_fingerprint(
 				:db => database,
 				:username => user,
@@ -118,3 +118,4 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
+
