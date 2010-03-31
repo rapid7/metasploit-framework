@@ -100,6 +100,9 @@ module Msf::Payload::Stager
 				p = (self.stage_prefix || '') + p
 			end
 
+			# The connection should always have a peerhost (even if it's a
+			# tunnel), but if it doesn't, erroring out here means losing the
+			# session, so make sure it does, just to be safe.
 			if conn.respond_to? :peerhost
 				print_status("Sending stage (#{p.length} bytes) to #{conn.peerhost}")
 			else
