@@ -1713,6 +1713,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	attr_reader		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
 	attr_reader		:default_domain, :default_name, :auth_user, :auth_user_id
 	attr_reader		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
+	attr_reader		:dns_host_name, :dns_domain_name
 	attr_reader		:security_mode, :server_guid
 
 # private methods
