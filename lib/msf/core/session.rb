@@ -115,7 +115,7 @@ module Session
 	# Brief and to the point
 	#
 	def inspect
-		"#<Session:#{self.type} #{self.tunnel_peer || self.tunnel_peer} #{self.info.to_s}>"
+		"#<Session:#{self.type} #{self.tunnel_peer} #{self.info ? "\"#{self.info.to_s}\"" : nil}>"
 	end
 
 	#
