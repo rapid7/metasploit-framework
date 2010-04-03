@@ -117,25 +117,44 @@ class HttpCrawler
 		db = SQLite3::Database.new(dbpath)
 		#db = Mysql.new("127.0.0.1", username, password, databasename)
 		until !db.transaction_active?
-			puts "Waiting for db"
+			#puts "Waiting for db"
 			#wait
 		end
 		#puts "db: #{db.transaction_active?}"
-		db.transaction db.execute( "insert into wmap_requests values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-			nil,
+		
+		#CREATE TABLE "wmap_requests" (
+		# "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+		# "host" varchar(255), 
+		# "address" varchar(16), 
+		# "address6" varchar(255), 
+		# "port" integer, 
+		# "ssl" integer, 
+		# "meth" varchar(32), 
+		# "path" text, 
+		# "headers" text, 
+		# "query" text, 
+		# "body" text, 
+		# "respcode" varchar(16), 
+		# "resphead" text, 
+		# "response" text, 
+		# "created_at" datetime);
+		
+
+		db.transaction db.execute( "insert into wmap_requests (host,address,address6,port,ssl,meth,path,headers,query,body,respcode,resphead,response,created_at,updated_at) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 			hashreq['rhost'],
 			hashreq['rhost'],
 			hashreq['rhost'], 
 			hashreq['rport'].to_i,
-			hashreq['ssl'],
+			hashreq['ssl']? 1:0,
 			hashreq['method'],
 			SQLite3::Blob.new(hashreq['uri']),
-			SQLite3::Blob.new("a"),
-			SQLite3::Blob.new("b"),
-			SQLite3::Blob.new("c"),
-			"200",
-			SQLite3::Blob.new("d"),
-			SQLite3::Blob.new("e"),
+			SQLite3::Blob.new(''),
+			SQLite3::Blob.new(hashreq['query']? hashreq['query']:''),
+			SQLite3::Blob.new(hashreq['data']? hashreq['data']:''),
+			response.code.to_s,
+			SQLite3::Blob.new(''),
+			SQLite3::Blob.new(response.body.to_s),
+			Time.new,
 			Time.new
 		) 
 		db.commit
@@ -297,7 +316,7 @@ class HttpCrawler
 		#rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		#rescue ::Timeout::Error, ::Errno::EPIPE			
 		rescue
-			puts "ERROR"
+			puts "ERROR #{$!.backtrace}"
 		end
 	end
 
