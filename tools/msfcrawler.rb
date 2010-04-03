@@ -83,7 +83,8 @@ class HttpCrawler
 				'method'   	=> 'GET',
 				'ctype'		=> 'text/plain',
 				'ssl'		=> self.cssl,
-				'query'		=> nil
+				'query'		=> nil,
+				'data'		=> nil
 		}
 	
 	
@@ -105,7 +106,8 @@ class HttpCrawler
 			'method'   	=> nil,
 			'ctype'		=> nil,
 			'ssl'		=> ssl,
-			'query'		=> nil
+			'query'		=> nil,
+			'data'		=> nil	
 		}
 
 		return hreq
@@ -150,9 +152,9 @@ class HttpCrawler
 				reqfilter = reqtemplate(self.ctarget,self.cport,self.cssl)
 			
 				hashreq = @NotViewedQueue.take(reqfilter, $taketimeout)
-				
-					
+									
 				if !@ViewedQueue.include?(hashsig(hashreq))
+							
 					@ViewedQueue[hashsig(hashreq)] = Time.now
 					
 					if !File.extname(hashreq['uri']).empty? and $dontcrawl.include? File.extname(hashreq['uri'])
@@ -160,8 +162,8 @@ class HttpCrawler
 					else	
 					 
 						####
-						if i <= $threadnum
-							a.push(Thread.new {
+						#if i <= $threadnum
+						#	a.push(Thread.new {
 						####	
 							prx = nil
 							if self.useproxy
@@ -177,19 +179,17 @@ class HttpCrawler
 								prx
 							)
 
-											
-					
 							sendreq(c,hashreq)
 							
 						
 						####
-						})
+						#})
 
-						i += 1	
-						else
-							sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
-							i = 0
-						end
+						#i += 1	
+						#else
+						#	sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+						#	i = 0
+						#end
 						####
 					end		
 				else
@@ -234,14 +234,22 @@ class HttpCrawler
 	
 	def sendreq(nclient,reqopts={})		
 		
-		#puts reqopts
-		puts ">> #{reqopts['uri']}"
 		
-		if reqopts['query']
-			puts ">>> #{reqopts['query']}" 
+		puts ">> #{reqopts['uri']}"
+		#puts reqopts		
+
+		if reqopts['query'] and !reqopts['query'].empty?
+			puts ">>> [Q] #{reqopts['query']}" 
 		end
+
+		if reqopts['data'] 
+			puts ">>> [D] #{reqopts['data']}" 
+		end
+
+		
 		
 		begin
+						
 			r = nclient.request_raw(reqopts)
 			resp = nclient.send_recv(r, $readtimeout)
 			while(resp and resp.code == 100)
@@ -275,7 +283,7 @@ class HttpCrawler
 					end
 				when 301..302
 					puts "(#{resp.code}) Redirection to: #{resp['Location']}"
-					puts urltohash(resp['Location'])
+					#puts urltohash(resp['Location'])
 					insertnewpath(urltohash(resp['Location']))
 				when 404
 					puts "Invalid link (404) #{reqopts['uri']}"	
@@ -289,7 +297,7 @@ class HttpCrawler
 		#rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		#rescue ::Timeout::Error, ::Errno::EPIPE			
 		rescue
-			"ERROR"
+			puts "ERROR"
 		end
 	end
 
@@ -303,6 +311,7 @@ class HttpCrawler
 					#puts "Already in queue to be viewed"
 				else
 					#puts "Inserted: #{hashreq['uri']}"
+
 					@NotViewedQueue.write(hashreq)
 				end			
 			else
@@ -336,7 +345,8 @@ class HttpCrawler
 				'method'   	=> 'GET',
 				'ctype'		=> 'text/plain',
 				'ssl'		=> uritargetssl,
-				'query'		=> uri.query
+				'query'		=> uri.query,
+				'data'		=> nil
 		}
 		
 		#puts hashreq
