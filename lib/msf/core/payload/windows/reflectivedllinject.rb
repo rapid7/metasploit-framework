@@ -104,7 +104,7 @@ module Payload::Windows::ReflectiveDllInject
 			i = dll.index("/123456789 HTTP/1.0\r\n\r\n\x00")
 			if i
 				t = target_id.to_s
-				raise "Target ID must be less than 9 bytes" if t.length > 8
+				raise "Target ID must be less than 5 bytes" if t.length > 4
 				u = "/B#{t} HTTP/1.0\r\n\r\n\x00"
 				print_status("Patching Target ID #{t} into DLL")
 				dll[i, u.length] = u
