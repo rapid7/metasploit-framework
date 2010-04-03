@@ -130,7 +130,6 @@ protected
 				# Remove this socket from the polled client list in the server
 				obj.service.listener.clients.delete(cli)
 
-				cli.instance_eval("def close; $stderr.puts caller.inspect; end")
 				return
 
 			else
