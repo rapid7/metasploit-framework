@@ -62,6 +62,8 @@ def xmit( name, dump_ruby=True ):
   xmit_offset( data, "Port", pack( ">H", 4444 ) )           # 4444
   xmit_offset( data, "LEPort", pack( "<H", 4444 ) )         # 4444
   xmit_offset( data, "Host", pack( ">L", 0x7F000001 ) )     # 127.0.0.1
+  xmit_offset( data, "HostName", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\x00" )     # hostname filler
+  xmit_offset( data, "RetryCounter", "\x6a\x05" )     # socket retry
   xmit_offset( data, "CodeLen", pack( "<L", 0x12345678 ) )  # Filler
   xmit_offset( data, "Hostname", "https" )
   xmit_offset( data, "ExitFunk", pack( "<L", 0x0A2A1DE0 ) ) # kernel32.dll!ExitThread
