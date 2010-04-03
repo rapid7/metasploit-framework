@@ -39,7 +39,7 @@ module ReverseHttps
 			[
 				OptString.new('LHOST', [ true, "The local listener hostname" ]),
 				OptPort.new('LPORT', [ true, "The local listener port", 8443 ]),
-				OptInt.new('TARGETID', [ false, "The ID number of this specific instance", rand(1_000_000)]),
+				OptString.new('TARGETID', [ false, "The ID number of this specific instance (8 bytes max)", rand(1_000_000)]),
 			], Msf::Handler::ReverseHttps)
 	end
 
