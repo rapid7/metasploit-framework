@@ -65,7 +65,8 @@ class CrawlerSimple < BaseParser
 					'method'   	=> 'GET',
 					'ctype'		=> 'text/plain',
 					'ssl'		=> tssl,
-					'query'		=> uri.query
+					'query'		=> uri.query,
+					'data'		=> nil
 					
 				}
 				

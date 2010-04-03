@@ -17,13 +17,19 @@ class CrawlerForms < BaseParser
 		doc = Hpricot(result.body.to_s)
 		doc.search('form').each do |f|
 			hr = f.attributes['action']
-			puts "Parsing form: #{f.attributes['name']}"
-			
+
+			fname = f.attributes['name']
+			if fname.empty?
+				fname = "NONE"
+			end  
+
 			m = "GET"
-			if f.attributes['method']
-				m = f.attributes['method']
+			if !f.attributes['method'].empty?
+				m = f.attributes['method'].upcase
 			end
-	
+			
+			#puts "Parsing form name: #{fname} (#{m})"		
+			
 			htmlform = Hpricot(f.inner_html)
 			
 			arrdata = []
@@ -32,7 +38,9 @@ class CrawlerForms < BaseParser
 				#puts p.attributes['name']
 				#puts p.attributes['type']
 				#puts p.attributes['value']
-				arrdata << (p.attributes['name'] + "=" + p.attributes['value'])				
+				
+				#raw_request has uri_encoding disabled as it encodes '='. 
+				arrdata << (p.attributes['name'] + "=" + Rex::Text.uri_encode(p.attributes['value']))				
 			end
 			
 			data = arrdata.join("&").to_s
@@ -74,16 +82,16 @@ class CrawlerForms < BaseParser
 						newp = oldp + newp.cleanpath
 					end
 				end
-
+				
 				hreq = {
 					'rhost'		=> thost,
 					'rport'		=> tport,
 					'uri'  		=> newp.to_s,
 					'method'   	=> m,
-					'ctype'		=> 'text/plain',
+					'ctype'		=> 'application/x-www-form-urlencoded',
 					'ssl'		=> tssl,
-					'query'		=> uri.query,
-					'data'		=> data
+					'query'		=> m == 'GET'? data : uri.query,
+					'data'		=> m == 'GET'? nil : data
 					
 				}
 				#puts hreq
