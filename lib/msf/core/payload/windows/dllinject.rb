@@ -27,7 +27,7 @@ module Payload::Windows::DllInject
 			'Arch'          => ARCH_X86,
 			'PayloadCompat' =>
 				{
-					'Convention' => 'sockedi -passivex',
+					'Convention' => 'sockedi -passivex -https'
 				},
 			'Stage'         =>
 				{
@@ -203,7 +203,7 @@ module Payload::Windows::DllInject
 	# Transmits the DLL injection payload and its associated DLL to the remote
 	# computer so that it can be loaded into memory.
 	#
-	def handle_connection_stage(conn)
+	def handle_connection_stage(conn, opts = {})
 		data = library_name + "\x00"
 
 		begin

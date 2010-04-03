@@ -126,8 +126,8 @@ module Handler
 	# connections.  The default behavior is to attempt to create a session for
 	# the payload.  This path will not be taken for multi-staged payloads.
 	#
-	def handle_connection(conn)
-		create_session(conn)
+	def handle_connection(conn, opts={})
+		create_session(conn, opts)
 	end
 
 	#
@@ -178,14 +178,14 @@ protected
 	# Sessions are only created if the payload that's been mixed in has an
 	# associated session.
 	#
-	def create_session(conn)
+	def create_session(conn, opts={})
 		# If there is a parent payload, then use that in preference.
-		return parent_payload.create_session(conn) if (parent_payload)
+		return parent_payload.create_session(conn, opts) if (parent_payload)
 
 		# If the payload we merged in with has an associated session factory,
 		# allocate a new session.
 		if (self.session)
-			s = self.session.new(conn)
+			s = self.session.new(conn, opts)
 
 			# Pass along the framework context
 			s.framework = framework

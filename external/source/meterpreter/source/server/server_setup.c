@@ -268,7 +268,7 @@ static BOOL server_negotiate_ssl(Remote *remote)
 
 		dprintf("[SERVER] Sending a HTTP GET request to the remote side...");
 
-		if( (ret = SSL_write(remote->ssl, "GET / HTTP/1.0\r\n\r\n", 18)) <= 0 )
+		if( (ret = SSL_write(remote->ssl, "GET /123456789 HTTP/1.0\r\n\r\n", 27)) <= 0 )
 		{
 			dprintf("[SERVER] SSL write failed during negotiation with return: %d (%d)", ret, SSL_get_error(remote->ssl, ret));
 		}

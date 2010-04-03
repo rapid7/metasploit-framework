@@ -20,7 +20,7 @@ module Interactive
 	#
 	# Initializes the session.
 	#
-	def initialize(rstream)
+	def initialize(rstream, opts={})
 		self.rstream = rstream
 		super()
 	end

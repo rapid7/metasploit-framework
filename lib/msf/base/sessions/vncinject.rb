@@ -8,7 +8,7 @@ module Sessions
 #
 #
 ###
-class VncInject 
+class VncInject
 
 	#
 	# The vncinject session is interactive
@@ -20,7 +20,7 @@ class VncInject
 	# Initializes a vncinject session instance using the supplied rstream
 	# that is to be used as the client's connection to the server.
 	#
-	def initialize(rstream)
+	def initialize(rstream, opts={})
 		super
 
 		self.conn_eof = false
@@ -84,7 +84,7 @@ class VncInject
 	def interactive?
 		false
 	end
-	
+
 	##
 	#
 	# VNC Server specific interfaces
@@ -107,7 +107,7 @@ class VncInject
 						'LocalHost'         => host,
 						'Stream'            => true,
 						'OnLocalConnection' => Proc.new {
-							
+
 							if (self.got_conn == true)
 								nil
 							else
@@ -117,17 +117,17 @@ class VncInject
 							end
 						},
 						'OnConnectionClose' => Proc.new {
-							
-							if (self.conn_eof == false)	
+
+							if (self.conn_eof == false)
 								print_status("VNC connection closed.")
 								self.conn_eof = true
-								
+
 								# Closing time
 								self.view.kill if self.view
 								self.view = nil
 								self.kill
 							end
-							
+
 						},
 						'__RelayType'       => 'vncinject')
 				end
@@ -141,10 +141,10 @@ class VncInject
 	# Launches VNC viewer against the local relay for this VNC server session.
 	#
 	def autovnc
-		vnc = 
-			Rex::FileUtils::find_full_path('vncviewer') || 
+		vnc =
+			Rex::FileUtils::find_full_path('vncviewer') ||
 			Rex::FileUtils::find_full_path('vncviewer.exe')
-			
+
 		if (vnc)
 			self.view = Thread.new {
 				system("vncviewer #{vlhost}::#{vlport}")
@@ -166,3 +166,4 @@ end
 
 end
 end
+

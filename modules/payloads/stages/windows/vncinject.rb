@@ -12,7 +12,7 @@ require 'msf/base/sessions/vncinject'
 module Metasploit3
 
 	include Msf::Payload::Windows::ReflectiveDllInject
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'VNC Server (Reflective Injection)',
@@ -20,7 +20,7 @@ module Metasploit3
 			'Description'   => 'Inject a VNC Dll via a reflective loader (staged)',
 			'Author'        => [ 'sf' ],
 			'Session'       => Msf::Sessions::VncInject ))
-			
+
 
 		# Override the DLL path with the path to the meterpreter server DLL
 		register_options(
@@ -95,7 +95,7 @@ module Metasploit3
 				print_status("Launched vnciewer in the background.")
 			end
 		end
-		
+
 		super
 	end
 

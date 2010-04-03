@@ -9,7 +9,7 @@ module Sessions
 #
 ###
 class Meterpreter_x86_Linux < Msf::Sessions::Meterpreter
-	def initialize(rstream)
+	def initialize(rstream, opts={})
 		super
 		self.platform      = 'x86/linux'
 		self.binary_suffix = 'lso'
@@ -18,3 +18,4 @@ end
 
 end
 end
+

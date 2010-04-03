@@ -616,7 +616,7 @@ protected
 	#
 	# The list of options that support merging in an information hash.
 	#
-	UpdateableOptions = [ "Name", "Description", "Alias" ]
+	UpdateableOptions = [ "Name", "Description", "Alias", "PayloadCompat" ]
 
 	#
 	# Sets the modules unsupplied info fields to their default values.

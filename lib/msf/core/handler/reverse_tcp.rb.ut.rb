@@ -15,7 +15,7 @@ class Handler::ReverseTcp::UnitTest < Test::Unit::TestCase
 	end
 
 	module Foo
-		def handle_connection(client)
+		def handle_connection(client, opts={})
 			self.success = 1
 		end
 
@@ -43,9 +43,9 @@ class Handler::ReverseTcp::UnitTest < Test::Unit::TestCase
 
 				begin
 					Rex::ThreadSafe.sleep(1)
-	
+
 					assert_equal(1, h.success)
-	
+
 					h.success = 0
 				ensure
 					t.close
@@ -60,3 +60,4 @@ class Handler::ReverseTcp::UnitTest < Test::Unit::TestCase
 end
 
 end
+

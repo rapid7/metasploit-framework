@@ -31,6 +31,10 @@ module Metasploit3
 			'Version'       => '$Revision$',
 			'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload (staged)',
 			'Author'        => ['skape','sf'],
+			'PayloadCompat' =>
+				{
+					'Convention' => 'sockedi',
+				},
 			'License'       => MSF_LICENSE,
 			'Session'       => Msf::Sessions::Meterpreter_x86_Win))
 
@@ -44,3 +48,4 @@ module Metasploit3
 	end
 
 end
+

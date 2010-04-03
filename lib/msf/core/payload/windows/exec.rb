@@ -24,6 +24,10 @@ module Payload::Windows::Exec
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
+			'PayloadCompat' =>
+				{
+					'Convention' => '-passivex -https',
+				},
 			'Payload'       =>
 				{
 					'Offsets' =>
@@ -70,3 +74,4 @@ module Payload::Windows::Exec
 end
 
 end
+

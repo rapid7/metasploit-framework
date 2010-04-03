@@ -18,7 +18,7 @@ module Msf::Payload::Stager
 	# Return the stager payload's raw payload.
 	#
 	def payload
-		return module_info['Stager']['Payload']	
+		return module_info['Stager']['Payload']
 	end
 
 	#
@@ -83,7 +83,7 @@ module Msf::Payload::Stager
 	#
 	# Transmit the associated stage.
 	#
-	def handle_connection(conn)
+	def handle_connection(conn, opts={})
 		# If the stage should be sent over the client connection that is
 		# established (which is the default), then go ahead and transmit it.
 		if (stage_over_connection?)
@@ -123,7 +123,7 @@ module Msf::Payload::Stager
 		end
 
 		# Give the stages a chance to handle the connection
-		handle_connection_stage(conn)
+		handle_connection_stage(conn, opts)
 	end
 
 	#
@@ -131,8 +131,8 @@ module Msf::Payload::Stager
 	# whatever it is it needs to process.  The default is to simply attempt to
 	# create a session.
 	#
-	def handle_connection_stage(conn)
-		create_session(conn)	
+	def handle_connection_stage(conn, opts={})
+		create_session(conn, opts={})
 	end
 
 	#
@@ -152,7 +152,7 @@ module Msf::Payload::Stager
 		# Generate an encoded version of the stage.  We tell the encoding system
 		# to save edi to ensure that it does not get clobbered.
 		encp = Msf::EncodedPayload.create(
-			self, 
+			self,
 			'Raw'           => stg,
 			'SaveRegisters' => ['edi'],
 			'ForceEncode'   => true)
@@ -172,3 +172,4 @@ module Msf::Payload::Stager
 	attr_accessor :stage_prefix
 
 end
+

@@ -55,13 +55,13 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	# Initializes a meterpreter session instance using the supplied rstream
 	# that is to be used as the client's connection to the server.
 	#
-	def initialize(rstream)
+	def initialize(rstream, opts={})
 		super
 
 		#
 		# Initialize the meterpreter client
 		#
-		self.init_meterpreter(rstream)
+		self.init_meterpreter(rstream, opts)
 
 		#
 		# Create the console instance
@@ -256,6 +256,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	attr_accessor :platform
 	attr_accessor :binary_suffix
 	attr_accessor :console # :nodoc:
+	attr_accessor :skip_ssl
+	attr_accessor :target_id
 
 protected
 

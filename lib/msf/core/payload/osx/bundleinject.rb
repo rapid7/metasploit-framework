@@ -15,7 +15,7 @@ module Payload::Osx::BundleInject
 			'Name'          => 'Mac OS X Inject Mach-O Bundle',
 			'Version'       => '$Revision$',
 			'Description'   => 'Inject a custom Mach-O bundle into the exploited process',
-			'Author'        => 
+			'Author'        =>
 				[
 					'ddz',
 				],
@@ -69,7 +69,7 @@ module Payload::Osx::BundleInject
 	# Transmits the DLL injection payload and its associated DLL to the remote
 	# computer so that it can be loaded into memory.
 	#
-	def handle_connection_stage(conn)
+	def handle_connection_stage(conn, opts={})
 		data = ""
 
 		begin
@@ -98,3 +98,4 @@ module Payload::Osx::BundleInject
 	end
 end
 end
+

@@ -9,7 +9,7 @@ module Sessions
 #
 ###
 class Meterpreter_x86_Win < Msf::Sessions::Meterpreter
-	def initialize(rstream)
+	def initialize(rstream,opts={})
 		super
 		self.platform      = 'x86/win32'
 		self.binary_suffix = 'dll'
@@ -18,3 +18,4 @@ end
 
 end
 end
+

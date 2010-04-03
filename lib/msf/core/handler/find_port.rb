@@ -45,12 +45,12 @@ module FindPort
 	#
 	def handler(sock)
 		return if not sock
-		
+
 		_find_prefix(sock)
 
 		# Flush the receive buffer
 		sock.get_once(-1, 1)
-		
+
 		# If this is a multi-stage payload, then we just need to blindly
 		# transmit the stage and create the session, hoping that it works.
 		if (self.payload_type != Msf::Payload::Type::Single)
@@ -83,12 +83,12 @@ protected
 	# Wrapper to create session that makes sure we actually have a session to
 	# create...
 	#
-	def create_session(sock)
+	def create_session(sock, opts={})
 		go = true
 
 		# Give the payload a chance to run
 		Rex::ThreadSafe.sleep(1.5)
-	
+
 		# This is a hack.  If the session is a shell, we check to see if it's
 		# functional by sending an echo which tells us whether or not we're good
 		# to go.
@@ -100,8 +100,8 @@ protected
 
 		# If we're good to go, create the session.
 		rv = (go == true) ? super : nil
-		
-		
+
+
 		if (rv)
 			self._handler_return_value = Claimed
 		end
@@ -117,7 +117,7 @@ protected
 		ebuf = Rex::Text.rand_text_alphanumeric(16)
 
 		# Send any identifying information that the find sock may need on
-		# the other side, such as a tag.  If we do actually send something, 
+		# the other side, such as a tag.  If we do actually send something,
 		# wait a bit longer to let the remote side find us.
 		if (_send_id(sock))
 			Rex::ThreadSafe.sleep(1.5)
@@ -147,3 +147,4 @@ end
 
 end
 end
+

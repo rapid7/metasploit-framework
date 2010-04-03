@@ -60,8 +60,8 @@ class Client
 	# Initializes the client context with the supplied socket through
 	# which communication with the server will be performed.
 	#
-	def initialize(sock, to = self.class.default_timeout)
-		init_meterpreter(sock, to)
+	def initialize(sock,opts={})
+		init_meterpreter(sock, opts)
 	end
 
 	#
@@ -74,17 +74,22 @@ class Client
 	#
 	# Initializes the meterpreter client instance
 	#
-	def init_meterpreter(sock, to = self.class.default_timeout)
+	def init_meterpreter(sock,opts={})
 		self.sock        = sock
 		self.parser      = PacketParser.new
 		self.ext         = ObjectAliases.new
 		self.ext_aliases = ObjectAliases.new
-		self.response_timeout = to
-		self.send_keepalives  = true
 		self.alive       = true
+		self.target_id   = opts[:target_id]
 
-		# Switch the socket to SSL mode
-		swap_sock_plain_to_ssl()
+		self.response_timeout =  opts[:timeout] || self.class.default_timeout
+		self.send_keepalives  = true
+
+
+		# Switch the socket to SSL mode and receive the hello if needed
+		if not opts[:skip_ssl]
+			swap_sock_plain_to_ssl()
+		end
 
 		register_extension_alias('core', ClientCore.new(self))
 
@@ -108,9 +113,9 @@ class Client
 		self.sock.sslsock = ssl
 		self.sock.sslctx  = ctx
 
-		tag = self.sock.read(18)
-		if(not tag or tag != "GET / HTTP/1.0\r\n\r\n")
-			raise RuntimeError, "Could not read the SSL hello tag"
+		tag = self.sock.get_once(-1, 30)
+		if(not tag or tag !~ /^GET \//)
+			raise RuntimeError, "Could not read the HTTP hello token"
 		end
 	end
 
@@ -316,6 +321,11 @@ class Client
 	# this will be false
 	#
 	attr_accessor :alive
+	#
+	# The unique target identifier for this payload
+	#
+	attr_accessor :target_id
+
 protected
 	attr_accessor :parser, :ext_aliases # :nodoc:
 	attr_writer   :ext, :sock # :nodoc:

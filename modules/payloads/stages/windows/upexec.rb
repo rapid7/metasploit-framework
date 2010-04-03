@@ -28,6 +28,10 @@ module Metasploit3
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Session'       => Msf::Sessions::CommandShell,
+			'PayloadCompat' =>
+				{
+					'Convention' => 'sockedi -https'
+				},
 			'Stage'         =>
 				{
 					'Offsets' =>
@@ -99,3 +103,4 @@ module Metasploit3
 	end
 
 end
+
