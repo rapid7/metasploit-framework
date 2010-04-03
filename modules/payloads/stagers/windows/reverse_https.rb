@@ -1,5 +1,5 @@
 ##
-# $Id: passivex.rb 7546 2009-11-16 22:45:33Z hdm $
+# $Id$
 ##
 
 ##
@@ -22,7 +22,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Reverse HTTPS Stager',
-			'Version'       => '$Revision: 7546 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Tunnel communication over HTTP using SSL',
 			'Author'        => 'hdm',
 			'License'       => MSF_LICENSE,
