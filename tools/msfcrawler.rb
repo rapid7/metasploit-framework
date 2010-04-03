@@ -62,6 +62,9 @@ $proxyport = 8080
 # Cookie Jar
 $cookiejar = {}
 
+# Verbose
+$verbose = false
+
 class HttpCrawler
 	attr_accessor :ctarget, :cport, :cinipath, :cssl, :proxyhost, :proxyport, :useproxy
 
@@ -114,6 +117,8 @@ class HttpCrawler
 	end
 	
 	def storedb(hashreq,response,dbpath)
+		#postgres , pg gem
+	
 		db = SQLite3::Database.new(dbpath)
 		#db = Mysql.new("127.0.0.1", username, password, databasename)
 		until !db.transaction_active?
@@ -177,7 +182,9 @@ class HttpCrawler
 					@ViewedQueue[hashsig(hashreq)] = Time.now
 					
 					if !File.extname(hashreq['uri']).empty? and $dontcrawl.include? File.extname(hashreq['uri'])
-						puts "URI not crawled #{hashreq['uri']}"
+						if $verbose
+							puts "URI not crawled #{hashreq['uri']}"
+						end
 					else	
 					 
 						####
@@ -212,7 +219,9 @@ class HttpCrawler
 						####
 					end		
 				else
-					#puts "#{hashreq} already visited at #{@ViewedQueue[hashsig(hashreq)]}"
+					if $verbose
+						puts "#{hashreq['uri']} already visited at #{@ViewedQueue[hashsig(hashreq)]}"
+					end
 				end
 					
 			end	 												
@@ -253,20 +262,6 @@ class HttpCrawler
 	
 	def sendreq(nclient,reqopts={})		
 		
-		
-		puts ">> #{reqopts['uri']}"
-		#puts reqopts		
-
-		if reqopts['query'] and !reqopts['query'].empty?
-			puts ">>> [Q] #{reqopts['query']}" 
-		end
-
-		if reqopts['data'] 
-			puts ">>> [D] #{reqopts['data']}" 
-		end
-
-		
-		
 		begin
 						
 			r = nclient.request_raw(reqopts)
@@ -286,13 +281,19 @@ class HttpCrawler
 					#puts "Storing in cookie jar for host:port #{reqopts['rhost']}:#{reqopts['rport']}"
 					#$cookiejar["#{reqopts['rhost']}:#{reqopts['rport']}"] = resp['Set-Cookie']		
 				end
-				#puts ("#{resp.to_s}")
-				
-				#puts "resp code #{resp.code}"
 				
 				if $dbs
-					#store db
 					storedb(reqopts,resp,$dbpathmsf)
+				end
+				
+				puts ">> [#{resp.code}] #{reqopts['uri']}"
+		
+				if reqopts['query'] and !reqopts['query'].empty?
+					puts ">>> [Q] #{reqopts['query']}" 
+				end
+
+				if reqopts['data'] 
+					puts ">>> [D] #{reqopts['data']}" 
 				end
 				
 				case resp.code
@@ -301,22 +302,23 @@ class HttpCrawler
 						@crawlermodules[k].parse(reqopts,resp)
 					end
 				when 301..302
-					puts "(#{resp.code}) Redirection to: #{resp['Location']}"
-					#puts urltohash(resp['Location'])
+					puts "[#{resp.code}] Redirection to: #{resp['Location']}"
+					if $verbose
+						puts urltohash(resp['Location'])
+					end
 					insertnewpath(urltohash(resp['Location']))
 				when 404
-					puts "Invalid link (404) #{reqopts['uri']}"	
+					puts "[404] Invalid link #{reqopts['uri']}"	
 				else
 					puts "Unhandled #{resp.code}"
 				end	
+				
 			else
 				puts "No response"
 			end
-			sleep($sleeptime)
-		#rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		#rescue ::Timeout::Error, ::Errno::EPIPE			
+			sleep($sleeptime)			
 		rescue
-			puts "ERROR #{$!.backtrace}"
+			puts "ERROR #{$!}: #{$!.backtrace}"
 		end
 	end
 
@@ -327,14 +329,20 @@ class HttpCrawler
 		if hashreq['rhost'] == self.ctarget and hashreq['rport'] == self.cport
 			if !@ViewedQueue.include?(hashsig(hashreq)) 
 				if @NotViewedQueue.read_all(hashreq).size > 0
-					#puts "Already in queue to be viewed"
+					if $verbose
+						puts "Already in queue to be viewed"
+					end
 				else
-					#puts "Inserted: #{hashreq['uri']}"
-
+					if $verbose
+						puts "Inserted: #{hashreq['uri']}"
+					end
+					
 					@NotViewedQueue.write(hashreq)
 				end			
 			else
-				#puts "#{hashreq} already visited at #{@ViewedQueue[hashsig(hashreq)]}"
+				if $verbose
+					puts "#{hashreq['uri']} already visited at #{@ViewedQueue[hashsig(hashreq)]}"
+				end
 			end
 		end
 	end
@@ -368,7 +376,6 @@ class HttpCrawler
 				'data'		=> nil
 		}
 		
-		#puts hashreq
 		return hashreq
 	end
 	
@@ -428,7 +435,8 @@ $args = Rex::Parser::Arguments.new(
 			"-u" => [ true, "Use proxy"],
 			"-x" => [ true, "Proxy host" ],
 			"-p" => [ true, "Proxy port" ],
-			"-h" => [ false, "Display this help information"]
+			"-h" => [ false, "Display this help information"],
+			"-v" => [ false, "Verbose" ]
 		)
 	
 if ARGV.length < 1 
@@ -445,7 +453,9 @@ $args.parse(ARGV) { |opt, idx, val|
 			$crun = true
 			turl = val
 		when "-u"
-			$useproxy = true	
+			$useproxy = true
+		when "-v"
+			$verbose = true		
 		when "-x"
 			$proxyhost = val
 		when "-p"
