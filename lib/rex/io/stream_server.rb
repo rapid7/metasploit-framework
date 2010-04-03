@@ -96,20 +96,20 @@ module StreamServer
 			end
 		end
 	end
-	
+
 	#
 	# This method waits on the server listener thread
 	#
 	def wait
 		self.listener_thread.join if self.listener_thread
-	end	
+	end
 
 	##
 	#
 	# Callback procedures.
 	#
 	##
-	
+
 	#
 	# This callback procedure can be set and will be called when new clients
 	# connect.
@@ -126,17 +126,17 @@ module StreamServer
 	#
 	attr_accessor :on_client_close_proc
 
-protected
-
 	attr_accessor :clients # :nodoc:
 	attr_accessor :listener_thread, :clients_thread # :nodoc:
+
+protected
 
 	#
 	# This method monitors the listener socket for new connections and calls
 	# the +on_client_connect+ callback routine.
 	#
 	def monitor_listener
-	
+
 		begin
 			sd = Kernel.select([ fd ], nil, nil, 0.25)
 
@@ -151,7 +151,7 @@ protected
 					self.clients << cli
 
 					on_client_connect(cli)
-					
+
 				# Skip exceptions caused by accept() [ SSL ]
 				rescue ::EOFError, ::Errno::ECONNRESET, ::Errno::ENOTCONN, ::Errno::ECONNABORTED
 				end
@@ -185,15 +185,15 @@ protected
 					on_client_close(fd)
 					close_client(fd)
 				rescue ::Interrupt
-					raise $!					
+					raise $!
 				rescue ::Exception
 					close_client(fd)
 					elog("Error in stream server client monitor: #{$!}")
 					rlog(ExceptionCallStack)
-					
+
 				end
 			}
-			
+
 		rescue ::Rex::StreamClosedError => e
 			# Remove the closed stream from the list
 			clients.delete(e.stream)
@@ -201,11 +201,12 @@ protected
 			raise $!
 		rescue ::Exception
 			elog("Error in stream server client monitor: #{$!}")
-			rlog(ExceptionCallStack)		
+			rlog(ExceptionCallStack)
 		end while true
 	end
 
 end
 
-end 
 end
+end
+

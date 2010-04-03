@@ -89,10 +89,9 @@ module ReverseHttps
 		Rex::ServiceManager.stop_service(service)
 	end
 
+	attr_accessor :service # :nodoc:
 
 protected
-
-	attr_accessor :service # :nodoc:
 
 	#
 	# Parses the HTTPS request
@@ -125,10 +124,13 @@ protected
 				# Short-circuit the payload's handle_connection processing for create_session
 				create_session(cli, { :skip_ssl => true, :target_id => target_id })
 
+				# Specify this socket as keep-alive to prevent an immediate kill
+				cli.keepalive = true
 
 				# Remove this socket from the polled client list in the server
-				obj.service.clients.delete(cli)
+				obj.service.listener.clients.delete(cli)
 
+				cli.instance_eval("def close; $stderr.puts caller.inspect; end")
 				return
 
 			else

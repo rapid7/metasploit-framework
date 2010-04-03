@@ -255,10 +255,9 @@ class Server
 	end
 
 	attr_accessor :listen_port, :listen_host, :server_name, :context, :ssl
+	attr_accessor :listener, :resources
 
 protected
-
-	attr_accessor :listener, :resources
 
 	#
 	# Extends new clients with the ServerClient module and initializes them.
