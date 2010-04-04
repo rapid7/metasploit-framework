@@ -318,7 +318,10 @@ class HttpCrawler
 			end
 			sleep($sleeptime)			
 		rescue
-			puts "ERROR #{$!}: #{$!.backtrace}"
+			puts "ERROR"
+			if $verbose
+				puts "#{$!}: #{$!.backtrace}"
+			end
 		end
 	end
 
