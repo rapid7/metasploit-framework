@@ -181,6 +181,9 @@ class Module
 		super(print_prefix + msg)
 	end
 
+	def print_good(msg='')
+		super(print_prefix + msg)
+	end
 	#
 	# Returns the module's framework full reference name.  This is the
 	# short name that end-users work with (refname) plus the type
