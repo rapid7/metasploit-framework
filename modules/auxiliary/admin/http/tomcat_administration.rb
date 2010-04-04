@@ -1,5 +1,5 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -16,9 +16,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'Tomcat Administration Tool default access',
+			'Name'        => 'Tomcat Administration Tool Default Access',
 			'Version'     => '$Revision$',
-			'Description' => 'Detect Tomcat Administration Tool default access.',
+			'Description' => 'Detect the Tomcat administration interface.',
 			'References'  =>
 				[
 					['URL', 'http://tomcat.apache.org/'],
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
 			'License'     => MSF_LICENSE
 		)
-	
+
 		register_options(
 			[
 				Opt::RPORT(8180),
@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 			if (res and res.code == 200)
 
 				ver = ""
-	
+
 				if res.body.match(/<title>Apache Tomcat\/(.*)<\/title>/)
 					ver = "Apache Tomcat/" + $1
 				end
@@ -78,11 +78,11 @@ class Metasploit3 < Msf::Auxiliary
 						if (res and res.code == 200)
 
 							if (res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/JSESSIONID=(.*);(.*)/i))
-					
+
 								jsessionid = $1
-		
+
 								post_data = "j_username=#{username}&j_password=#{password}"
-	
+
 								res = send_request_cgi({
 									'uri'          => '/admin/j_security_check',
 									'method'       => 'POST',
@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
 										'method'  => 'GET',
 										'cookie'  => "JSESSIONID=#{jsessionid}",
 									}, 25)
-			
+
 									if (res.code == 302)
 
 										res = send_request_cgi({
@@ -106,11 +106,11 @@ class Metasploit3 < Msf::Auxiliary
 											'method'  => 'GET',
 											'cookie'  => "JSESSIONID=#{jsessionid}",
 										}, 25)
-	
+
 										if (res.code == 200)
 											print_status("http://#{target_host}:#{rport}/admin [#{res.headers['Server']}] [#{ver}] [Tomcat Server Administration] [#{username}/#{password}]")
 										end
-			
+
 										# LogOut
 										res = send_request_cgi({
 											'uri'          => '/admin/logOut.do',
@@ -130,3 +130,4 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
+
