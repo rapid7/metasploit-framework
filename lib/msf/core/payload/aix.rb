@@ -43,7 +43,15 @@ module Msf::Payload::Aix
 		#	end
 		#end
 
+		if (not @aix)
+			raise RuntimeError, 'AIX version is not set!'
+		end
+
 		__CAL = 511
+
+		# ATTENTION: Don't forget to update this string if you add a specific
+		# syscall set for a specific version of AIX.
+		supported = "6.1.4, 6.1.3, 6.1.2, 6.1.1, 6.1.0, 5.3.10, 5.3.9, 5.3.8, 5.3.7, 5.1"
 
 		case @aix
 		when '6.1.4'
@@ -122,6 +130,9 @@ module Msf::Payload::Aix
 			__NR_connect     = 142
 			__NR_close       = 160
 			__NR_kfcntl      = 322
+
+		else
+			raise RuntimeError, "Invalid AIX version: #{@aix}.  Supported versions: #{supported}"
 
 		end
 
