@@ -180,7 +180,7 @@ class DBManager
 		# Ensure the host field updated_at is changed on each report_host()
 		if addr.kind_of? Host
 			$stderr.puts ">> Updating host: #{addr.inspect}"
-			queue( Proc.new { addr.updated_at += 1; addr.save! } )
+			queue( Proc.new { addr.updated_at = addr.created_at; addr.save! } )
 			return addr
 		end
 
@@ -212,7 +212,7 @@ class DBManager
 			}
 
 			# Mark the host as be updated
-			host.updated_at += 1
+			host.updated_at = host.created_at
 
 			# Set default fields if needed
 			host.state       = HostState::Alive if not host.state
@@ -284,8 +284,8 @@ class DBManager
 		task = queue(Proc.new {
 			host = get_host(:workspace => wspace, :address => addr)
 			if host
-				host.updated_at += 1
-				host.state       = HostState::Alive
+				host.updated_at = host.created_at
+				host.state      = HostState::Alive
 				host.save!
 			end
 
@@ -460,8 +460,8 @@ class DBManager
 			end
 
 			if host
-				host.updated_at += 1
-				host.state       = HostState::Alive
+				host.updated_at = host.created_at
+				host.state      = HostState::Alive
 				host.save!
 			end
 
@@ -496,7 +496,7 @@ class DBManager
 					note.data    = data
 					note.save!
 				else
-					note.updated_at += 1
+					note.updated_at = note.created_at
 					note.save!
 				end
 			# Insert a brand new note record no matter what
@@ -644,8 +644,8 @@ class DBManager
 		task = queue( Proc.new {
 			host = get_host(:workspace => wspace, :address => addr)
 			if host
-				host.updated_at += 1
-				host.state = HostState::Alive
+				host.updated_at = host.created_at
+				host.state      = HostState::Alive
 				host.save!
 			end
 
@@ -836,7 +836,8 @@ class DBManager
 			loot.save!
 
 			if host
-				host.updated_at += 1
+				host.updated_at = host.created_at
+				host.state      = HostState::Alive
 				host.save!
 			end
 

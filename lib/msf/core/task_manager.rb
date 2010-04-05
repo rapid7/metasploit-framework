@@ -139,17 +139,33 @@ class TaskManager
 	# Process the actual queue
 	#
 	def process_tasks
+		spin  = 50
+		ltask = nil
+
 		while(self.processing)
+			cnt = 0
 			while(task = self.queue.shift)
+				stime = Time.now.to_f
 				ret = process_task(task)
+				etime = Time.now.to_f
+
 				case ret
 				when :requeue
 					self.queue.push(task)
 				when :drop, :done
 					# Processed or dropped
 				end
+				cnt += 1
+
+				ltask = task
 			end
-			select(nil, nil, nil, 0.10)
+
+			spin = (cnt == 0) ? (spin + 1) : 0
+
+			if spin > 10
+				select(nil, nil, nil, 0.01 * [50, spin].min)
+			end
+
 		end
 		self.thread = nil
 	end
