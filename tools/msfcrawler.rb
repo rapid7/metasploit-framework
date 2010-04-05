@@ -45,7 +45,7 @@ $dbpathmsf = File.join(Msf::Config.get_config_root, 'sqlite3.db')
 $dbs = false
 
 # Thread number
-$threadnum = 1
+$threadnum = 20
 
 # Dont crawl
 $dontcrawl = ".exe,.zip,.tar,.bz2,.run,.asc,.gz,"
@@ -170,10 +170,17 @@ class HttpCrawler
 	def run
 		i, a = 0, []
 		
+		
 	
-		begin			
+		begin
+			reqfilter = reqtemplate(self.ctarget,self.cport,self.cssl)
+								
 			loop do
-				reqfilter = reqtemplate(self.ctarget,self.cport,self.cssl)
+				
+				####
+				#if i <= $threadnum
+				#	a.push(Thread.new {
+				####
 			
 				hashreq = @NotViewedQueue.take(reqfilter, $taketimeout)
 									
@@ -187,10 +194,7 @@ class HttpCrawler
 						end
 					else	
 					 
-						####
-						#if i <= $threadnum
-						#	a.push(Thread.new {
-						####	
+							
 							prx = nil
 							if self.useproxy
 								prx = "HTTP:"+self.proxyhost.to_s+":"+self.proxyport.to_s
@@ -208,21 +212,23 @@ class HttpCrawler
 							sendreq(c,hashreq)
 							
 						
-						####
-						#})
 
-						#i += 1	
-						#else
-						#	sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
-						#	i = 0
-						#end
-						####
 					end		
 				else
 					if $verbose
 						puts "#{hashreq['uri']} already visited at #{@ViewedQueue[hashsig(hashreq)]}"
 					end
 				end
+				
+				####
+				#})
+
+				#i += 1	
+				#else
+				#	sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+				#	i = 0
+				#end
+				####
 					
 			end	 												
 		rescue Rinda::RequestExpiredError
