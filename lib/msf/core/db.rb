@@ -176,7 +176,14 @@ class DBManager
 	def report_host(opts)
 		return if not active
 		addr = opts.delete(:host) || return
-		return addr if addr.kind_of? Host
+
+		# Ensure the host field updated_at is changed on each report_host()
+		if addr.kind_of? Host
+			$stderr.puts ">> Updating host: #{addr.inspect}"
+			queue( Proc.new { addr.updated_at += 1; addr.save! } )
+			return addr
+		end
+
 		wait = opts.delete(:wait)
 		wspace = opts.delete(:workspace) || workspace
 
@@ -203,13 +210,18 @@ class DBManager
 					dlog("Unknown attribute for Host: #{k}")
 				end
 			}
-			host.state     = HostState::Alive if not host.state
-			host.comm      = ''        if not host.comm
-			host.workspace = wspace    if not host.workspace
 
-			if (host.changed?)
-				host.save!
-			end
+			# Mark the host as be updated
+			host.updated_at += 1
+
+			# Set default fields if needed
+			host.state       = HostState::Alive if not host.state
+			host.comm        = ''        if not host.comm
+			host.workspace   = wspace    if not host.workspace
+
+			# Always save the host, helps track updates
+			host.save!
+
 			ret[:host] = host
 		} )
 		if wait
@@ -271,8 +283,9 @@ class DBManager
 
 		task = queue(Proc.new {
 			host = get_host(:workspace => wspace, :address => addr)
-			host.state = HostState::Alive
-			host.save! if host.changed?
+			host.updated_at += 1
+			host.state       = HostState::Alive
+			host.save!
 
 			proto = opts[:proto] || 'tcp'
 			opts[:name].downcase! if (opts[:name])
@@ -443,8 +456,12 @@ class DBManager
 			if addr and not host
 				host = get_host(:workspace => wspace, :host => addr)
 			end
-			host.state = HostState::Alive
-			host.save! if host.changed?
+
+			if host
+				host.updated_at += 1
+				host.state       = HostState::Alive
+				host.save!
+			end
 
 			ntype  = opts.delete(:type) || opts.delete(:ntype) || return
 			data   = opts[:data] || return
@@ -477,7 +494,7 @@ class DBManager
 					note.data    = data
 					note.save!
 				else
-					note.updated_at = ::Time.now.utc
+					note.updated_at += 1
 					note.save!
 				end
 			# Insert a brand new note record no matter what
@@ -624,8 +641,9 @@ class DBManager
 		ret = {}
 		task = queue( Proc.new {
 			host = get_host(:workspace => wspace, :address => addr)
+			host.updated_at += 1
 			host.state = HostState::Alive
-			host.save! if host.changed?
+			host.save!
 
 			if data
 				vuln = host.vulns.find_or_initialize_by_name_and_data(name, data, :include => :refs)
@@ -812,6 +830,9 @@ class DBManager
 			loot.name  = name if name
 			loot.info  = info if info
 			loot.save!
+
+			host.updated_at += 1
+			host.save!
 
 			ret[:loot] = loot
 		})
