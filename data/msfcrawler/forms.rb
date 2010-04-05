@@ -77,10 +77,14 @@ class CrawlerForms < BaseParser
 				
 				newp = Pathname.new(tpath)
 				oldp = Pathname.new(request['uri'])
-				if !oldp.absolute?
-					if !newp.absolute?
-						newp = oldp + newp.cleanpath
-					end
+				if !newp.absolute?
+					if oldp.to_s[-1,1] == '/'
+						newp = oldp+newp
+					else
+						if !newp.to_s.empty?
+							newp = File.join(oldp.dirname,newp)
+						end
+					end		
 				end
 				
 				hreq = {

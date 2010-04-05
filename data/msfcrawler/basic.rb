@@ -16,9 +16,7 @@ class CrawlerSimple < BaseParser
 		
 		hr = link.attributes['href']
 		
-		if hr
-		#links = result.body.to_s.scan(/href\s*=\s*[\"\'](.+?)[\"\']/) 
-		#links.each do |link| 
+		if hr and !hr.match(/^(\#|javascript\:)/) 
 			begin
 				uri = URI.parse(hr)
 			
@@ -52,10 +50,14 @@ class CrawlerSimple < BaseParser
 				
 				newp = Pathname.new(tpath)
 				oldp = Pathname.new(request['uri'])
-				if !oldp.absolute?
-					if !newp.absolute?
-						newp = oldp + newp.cleanpath
-					end
+				if !newp.absolute?
+					if oldp.to_s[-1,1] == '/'
+						newp = oldp+newp
+					else
+						if !newp.to_s.empty?
+							newp = File.join(oldp.dirname,newp)
+						end
+					end		
 				end
 
 				hreq = {
@@ -69,7 +71,7 @@ class CrawlerSimple < BaseParser
 					'data'		=> nil
 					
 				}
-				
+
 				insertnewpath(hreq)
 					
 			rescue URI::InvalidURIError
