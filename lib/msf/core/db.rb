@@ -283,9 +283,11 @@ class DBManager
 
 		task = queue(Proc.new {
 			host = get_host(:workspace => wspace, :address => addr)
-			host.updated_at += 1
-			host.state       = HostState::Alive
-			host.save!
+			if host
+				host.updated_at += 1
+				host.state       = HostState::Alive
+				host.save!
+			end
 
 			proto = opts[:proto] || 'tcp'
 			opts[:name].downcase! if (opts[:name])
@@ -641,9 +643,11 @@ class DBManager
 		ret = {}
 		task = queue( Proc.new {
 			host = get_host(:workspace => wspace, :address => addr)
-			host.updated_at += 1
-			host.state = HostState::Alive
-			host.save!
+			if host
+				host.updated_at += 1
+				host.state = HostState::Alive
+				host.save!
+			end
 
 			if data
 				vuln = host.vulns.find_or_initialize_by_name_and_data(name, data, :include => :refs)
@@ -831,8 +835,10 @@ class DBManager
 			loot.info  = info if info
 			loot.save!
 
-			host.updated_at += 1
-			host.save!
+			if host
+				host.updated_at += 1
+				host.save!
+			end
 
 			ret[:loot] = loot
 		})
