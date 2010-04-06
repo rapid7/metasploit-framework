@@ -128,10 +128,11 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			return
+		rescue ::Timeout::Error
 		rescue ::Rex::ConnectionError
 			next
 		rescue ::Exception => e
-			print_error("#{rhost}: #{e.class} #{e} #{e.backtrace}")
+			print_error("#{rhost}: #{e.class} #{e}")
 		ensure
 			disconnect
 		end

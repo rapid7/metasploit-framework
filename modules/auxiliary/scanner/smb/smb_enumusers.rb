@@ -315,13 +315,14 @@ class Metasploit3 < Msf::Auxiliary
 			# cleanup
 			disconnect
 			return
+		rescue ::Timeout::Error
 		rescue ::Interrupt
 			raise $!
 		rescue ::Rex::ConnectionError
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError
 			next
 		rescue ::Exception => e
-			print_line("Error: #{ip} #{e.class} #{e} #{e.backtrace}")
+			print_line("Error: #{ip} #{e.class} #{e}")
 		end
 		end
 	end
