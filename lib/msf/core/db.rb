@@ -551,6 +551,7 @@ class DBManager
 		service = opts.delete(:service)
 		wspace  = opts.delete(:workspace) || workspace
 		proto   = opts.delete(:proto) || "generic"
+		crit    = opts.delete(:critical) || true
 		proto   = proto.downcase
 
 		note = {
@@ -559,7 +560,8 @@ class DBManager
 			:host      => host,
 			:service   => service,
 			:data      => opts,
-			:update    => :insert
+			:update    => :insert,
+			:critical  => crit
 		}
 
 		return report_note(note)
