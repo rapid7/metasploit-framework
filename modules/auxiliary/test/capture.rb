@@ -35,6 +35,8 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DefaultAction'  => 'Sniffer'
 		)
+
+		deregister_options('RHOST')
 	end
 
 	def run
