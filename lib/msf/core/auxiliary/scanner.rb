@@ -90,9 +90,9 @@ def run
 
 					begin
 						nmod.run_host(targ)
+					rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
 					rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
 						raise $!
-					rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError
 					rescue ::Exception => e
 						print_status("Error: #{targ}: #{e.class} #{e.message}")
 						elog("Error running against host #{targ}: #{e.message}\n#{e.backtrace.join("\n")}")
@@ -158,9 +158,9 @@ def run
 						mybatch = bat.dup
 						begin
 							nmod.run_batch(mybatch)
+						rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
 						rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
 							raise $!
-						rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError
 						rescue ::Exception => e
 							print_status("Error: #{mybatch[0]}-#{mybatch[-1]}: #{e}")
 						end

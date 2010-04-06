@@ -148,6 +148,8 @@ class Auxiliary
 				'RunAsJob'       => jobify,
 				'Quiet'          => quiet
 			)
+		rescue ::Timeout::Error
+			print_error("Auxiliary triggered a timeout exception")
 		rescue ::Interrupt
 			print_error("Auxiliary interrupted by the console user")
 		rescue ::Exception => e

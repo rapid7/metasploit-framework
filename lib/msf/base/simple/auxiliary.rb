@@ -92,8 +92,13 @@ protected
 			mod.setup
 			mod.framework.events.on_module_run(mod)
 			mod.run
-		rescue ::Interrupt
-			mod.error = $!
+		rescue ::Timeout::Error => e
+			mod.error = e
+			mod.print_error("Auxiliary triggered a timeout exception")
+			mod.cleanup
+			return
+		rescue ::Interrupt => e
+			mod.error = e
 			mod.print_error("Auxiliary interrupted by the console user")
 			mod.cleanup
 			return
