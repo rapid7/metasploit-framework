@@ -28,7 +28,7 @@ class Console
 		if (Rex::Compat.is_windows())
 			super("meterpreter")
 		else
-			super("\001%und\002meterpreter\001%clr\002")
+			super("%undmeterpreter%clr")
 		end
 
 		# The meterpreter client context
