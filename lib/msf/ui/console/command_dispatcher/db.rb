@@ -1097,7 +1097,8 @@ class Db
 
 			if ! framework.db.drivers.include?('postgresql')
 				print_status("    DB Support: Enable the postgresql driver with the following command:")
-				print_status("                $ gem install postgres-pr")
+				print_status("                  * This requires libpq-dev and a build environment")
+				print_status("                $ gem install pg")
 				print_line("")
 			end
 		end
