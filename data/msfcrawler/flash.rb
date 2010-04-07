@@ -3,14 +3,18 @@ require 'pathname'
 require 'uri'
 
 
-$flarebinary = "/Users/et/Downloads/flare"
-$flareoutdir = "/Users/et/Downloads/temp/"
+$flarebinary = "/home/et/Downloads/flare"
+$flareoutdir = "/home/et/Downloads/"
 
 class CrawlerFlash < BaseParser
 
 
 	def parse(request,result)
-		
+		rexp = ['loadMovieNum\(\'(.*?)\'',
+			'loadMovie\(\'(.*?)\'',
+			'getURL\(\'(.*?)\''
+			]		
+
 		
 		if !result['Content-Type'].include? "application/x-shockwave-flash"
 			return
@@ -22,7 +26,8 @@ class CrawlerFlash < BaseParser
 		
 		ffile = File.new(outswf, "wb")    
 		ffile.puts(result.body)
-		
+		ffile.close		
+
 		system("#{$flarebinary} #{outswf}")
 		
 		outflr = outswf.gsub('.swf','.flr')
@@ -36,14 +41,13 @@ class CrawlerFlash < BaseParser
 		
 		File.open(outflr, "r") do |infile|
 			while (line = infile.gets)
-			
-				links = line.to_s.scan(/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i) #" 
+
+			rexp.each do |r|						
+				links = line.to_s.scan(Regexp.new(r,true)) #" 
 				links.each do |link| 
 				
-					puts "SWF: #{link}"
-			
 					begin
-						uri = URI.parse(link)
+						uri = URI.parse(link[0])
 			
 						tssl = false
 						if uri.scheme == "https"
@@ -94,6 +98,7 @@ class CrawlerFlash < BaseParser
 							'data'		=> nil
 						}
 				
+					
 						insertnewpath(hreq)
 					
 					rescue URI::InvalidURIError
@@ -102,9 +107,8 @@ class CrawlerFlash < BaseParser
 					end
 				end	
 			end
-		end
-										
-		puts "Done. "
+			end
+		end										
 	end 
 end
 
