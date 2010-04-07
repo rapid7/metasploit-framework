@@ -65,6 +65,14 @@ $cookiejar = {}
 # Verbose
 $verbose = false
 
+# Enable URI Limits
+$enableul = true
+
+# Maximum number of requests per URI (check $enableul)
+$maxurilimit = 1
+
+
+
 class HttpCrawler
 	attr_accessor :ctarget, :cport, :cinipath, :cssl, :proxyhost, :proxyport, :useproxy
 
@@ -93,6 +101,7 @@ class HttpCrawler
 	
 		@NotViewedQueue = Rinda::TupleSpace.new
 		@ViewedQueue = Hash.new
+		@UriLimits = Hash.new
 		
 		insertnewpath(inireq)
 			
@@ -183,17 +192,28 @@ class HttpCrawler
 				####
 			
 				hashreq = @NotViewedQueue.take(reqfilter, $taketimeout)
+				
+				ul = false				
+				if @UriLimits.include?(hashreq['uri']) and $enableul
+					#puts "Request #{@UriLimits[hashreq['uri']]}/#{$maxurilimit} #{hashreq['uri']}"	
+					if @UriLimits[hashreq['uri']] >= $maxurilimit 
+						#puts "URI LIMIT Reached: #{$maxurilimit} for uri #{hashreq['uri']}" 
+						ul = true					
+					end
+ 				else
+					@UriLimits[hashreq['uri']] = 0	
+				end
 									
-				if !@ViewedQueue.include?(hashsig(hashreq))
+				if !@ViewedQueue.include?(hashsig(hashreq)) and !ul 
 							
 					@ViewedQueue[hashsig(hashreq)] = Time.now
+					@UriLimits[hashreq['uri']] += 1
 					
 					if !File.extname(hashreq['uri']).empty? and $dontcrawl.include? File.extname(hashreq['uri'])
 						if $verbose
 							puts "URI not crawled #{hashreq['uri']}"
 						end
-					else	
-					 
+					else	 
 							
 							prx = nil
 							if self.useproxy
@@ -307,7 +327,7 @@ class HttpCrawler
 					@crawlermodules.each_key do |k|
 						@crawlermodules[k].parse(reqopts,resp)
 					end
-				when 301..302
+				when 301..303
 					puts "[#{resp.code}] Redirection to: #{resp['Location']}"
 					if $verbose
 						puts urltohash(resp['Location'])
@@ -494,6 +514,11 @@ if $crun
 	else
 		puts "[DATABASE DISABLED]"
 	end
+
+	if $enableul
+		puts "URI LIMITS ENABLED: #{$maxurilimit}"
+	end
+
 	puts "Target: #{mc.ctarget} Port: #{mc.cport} Path: #{mc.cinipath} SSL: #{mc.cssl}"
 	mc.run	
 end
