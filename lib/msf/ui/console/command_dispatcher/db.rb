@@ -1120,7 +1120,7 @@ class Db
 			return if not db_check_driver
 
 			if(args[0] and (args[0] == "-h" || args[0] == "--help"))
-				print_status("Usage: db_destroy")
+				print_status("Usage: db_destroy [<user:pass>@<host:port>/<database>]")
 				return
 			end
 
