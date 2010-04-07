@@ -45,30 +45,35 @@ module Color
 	#
 	# Colorize if this shell supports it
 	#
-	def colorize(*color) 
+	def colorize(*color)
 		supports_color?() ? ansi(*color) : ''
 	end
 
-	def substitute_colors(msg)
+	def substitute_colors(msg, in_prompt = nil)
 		str = msg.dup
-		str.gsub!(/%cya/, colorize('cyan'))
-		str.gsub!(/%red/, colorize('red'))
-		str.gsub!(/%grn/, colorize('green'))
-		str.gsub!(/%blu/, colorize('blue'))
-		str.gsub!(/%yel/, colorize('yellow'))
-		str.gsub!(/%whi/, colorize('white'))
-		str.gsub!(/%mag/, colorize('magenta'))
-		str.gsub!(/%blk/, colorize('black'))
-		str.gsub!(/%dred/, colorize('dark', 'red'))
-		str.gsub!(/%dgrn/, colorize('dark', 'green'))
-		str.gsub!(/%dblu/, colorize('dark', 'blue'))
-		str.gsub!(/%dyel/, colorize('dark', 'yellow'))
-		str.gsub!(/%dcya/, colorize('dark', 'cyan'))
-		str.gsub!(/%dwhi/, colorize('dark', 'white'))
-		str.gsub!(/%dmag/, colorize('dark', 'magenta'))
-		str.gsub!(/%und/, colorize('underline'))
-		str.gsub!(/%bld/, colorize('bold'))
-		str.gsub!(/%clr/, colorize('clear'))
+		pre_color = post_color = ''
+		if (in_prompt)
+			pre_color = "\x01"  # RL_PROMPT_START_IGNORE
+			post_color = "\x02" # RL_PROMPT_END_IGNORE
+		end
+		str.gsub!(/%cya/, pre_color+colorize('cyan')+post_color)
+		str.gsub!(/%red/, pre_color+colorize('red')+post_color)
+		str.gsub!(/%grn/, pre_color+colorize('green')+post_color)
+		str.gsub!(/%blu/, pre_color+colorize('blue')+post_color)
+		str.gsub!(/%yel/, pre_color+colorize('yellow')+post_color)
+		str.gsub!(/%whi/, pre_color+colorize('white')+post_color)
+		str.gsub!(/%mag/, pre_color+colorize('magenta')+post_color)
+		str.gsub!(/%blk/, pre_color+colorize('black')+post_color)
+		str.gsub!(/%dred/, pre_color+colorize('dark', 'red')+post_color)
+		str.gsub!(/%dgrn/, pre_color+colorize('dark', 'green')+post_color)
+		str.gsub!(/%dblu/, pre_color+colorize('dark', 'blue')+post_color)
+		str.gsub!(/%dyel/, pre_color+colorize('dark', 'yellow')+post_color)
+		str.gsub!(/%dcya/, pre_color+colorize('dark', 'cyan')+post_color)
+		str.gsub!(/%dwhi/, pre_color+colorize('dark', 'white')+post_color)
+		str.gsub!(/%dmag/, pre_color+colorize('dark', 'magenta')+post_color)
+		str.gsub!(/%und/, pre_color+colorize('underline')+post_color)
+		str.gsub!(/%bld/, pre_color+colorize('bold')+post_color)
+		str.gsub!(/%clr/, pre_color+colorize('clear')+post_color)
 
 		str
 	end

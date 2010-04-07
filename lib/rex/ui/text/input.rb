@@ -101,7 +101,7 @@ class Input
 	end
 
 	def update_prompt(prompt)
-		substitute_colors(prompt)
+		substitute_colors(prompt, true)
 	end
 
 	def reset_color
