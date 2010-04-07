@@ -179,7 +179,6 @@ class DBManager
 
 		# Ensure the host field updated_at is changed on each report_host()
 		if addr.kind_of? Host
-			$stderr.puts ">> Updating host: #{addr.inspect}"
 			queue( Proc.new { addr.updated_at = addr.created_at; addr.save! } )
 			return addr
 		end
@@ -649,7 +648,10 @@ class DBManager
 				host.updated_at = host.created_at
 				host.state      = HostState::Alive
 				host.save!
+			else
+				host = report_host({:workspace => wspace, :host => opts[:host], :wait => true})
 			end
+
 
 			if data
 				vuln = host.vulns.find_or_initialize_by_name_and_data(name, data, :include => :refs)
@@ -1116,6 +1118,8 @@ class DBManager
 		firstline = data[0, di]
 		if (firstline.index("<NeXposeSimpleXML"))
 			return import_nexpose_simplexml(data, wspace)
+		elsif (firstline.index("<NexposeReport"))
+			return import_nexpose_rawxml(data, wspace)
 		elsif (firstline.index("<?xml"))
 			# it's xml, check for root tags we can handle
 			line_count = 0
@@ -1272,14 +1276,23 @@ class DBManager
 		import_nexpose_rawxml(data, wspace)
 	end
 	def import_nexpose_rawxml(data, wspace=workspace)
+
+		raise RuntimeError, "NeXpose RAW-XML is not currently supported, please use SimpleXML"
+
 		doc = REXML::Document.new(data)
 		doc.elements.each('/NexposeReport/nodes/node') do |host|
-			addr = host.attributes['address']
+			addr  = host.attributes['address']
+			xmac  = host.attributes['hardware-address']
 			xhost = addr
+
 			refs = {}
+
+			$stderr.puts host.inspect
 
 			# os based vuln
 			host.elements['tests'].elements.each('test') do |vuln|
+				$stderr.puts vuln.inspect
+
 				if vuln.attributes['status'] == 'vulnerable-exploited' or vuln.attributes['status'] == 'vulnerable-version'
 					dhost = find_or_create_host(:workspace => wspace, :host => addr)
 					next if not dhost
