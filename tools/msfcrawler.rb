@@ -10,6 +10,7 @@
 require 'openssl'
 require 'rubygems'
 require 'rinda/tuplespace'
+require 'pathname'
 require 'uri'
 
 begin
@@ -330,9 +331,9 @@ class HttpCrawler
 				when 301..303
 					puts "[#{resp.code}] Redirection to: #{resp['Location']}"
 					if $verbose
-						puts urltohash(resp['Location'])
+						puts urltohash('GET',resp['Location'],reqopts['uri'],nil)
 					end
-					insertnewpath(urltohash(resp['Location']))
+					insertnewpath(urltohash('GET',resp['Location'],reqopts['uri'],nil))
 				when 404
 					puts "[404] Invalid link #{reqopts['uri']}"	
 				else
@@ -355,6 +356,9 @@ class HttpCrawler
 	# Add new path (uri) to test non-viewed queue
 	#
 	def insertnewpath(hashreq)
+
+		hashreq['uri'] = canonicalize(hashreq['uri'])
+
 		if hashreq['rhost'] == self.ctarget and hashreq['rport'] == self.cport
 			if !@ViewedQueue.include?(hashsig(hashreq)) 
 				if @NotViewedQueue.read_all(hashreq).size > 0
@@ -380,33 +384,81 @@ class HttpCrawler
 	# Build a new hash for a local path
 	#
 	
-	def urltohash(url)
-		uri = URI.parse(url)
-		tssl = (uri.scheme == "https") ? true : false
-			
-		if (uri.host.nil? or uri.host.empty?) 
-			uritargethost = self.ctarget
-			uritargetport = self.cport
-			uritargetssl = self.cssl
-		else
-			uritargethost = uri.host
-			uritargetport = uri.port
-			uritargetssl = tssl
-		end
+	def urltohash(m,url,basepath,dat)
+			# m:   method
+			# url: uri?[query]
+			# basepath: base path/uri to determine absolute path when relative
+			# data: body data, nil if GET and query = uri.query
 		
-		hashreq = {
+			uri = URI.parse(url)
+			uritargetssl = (uri.scheme == "https") ? true : false
+						
+			uritargethost = uri.host
+			if (uri.host.nil? or uri.host.empty?) 
+				uritargethost = self.ctarget
+				uritargetssl = self.cssl
+			end
+			
+			uritargetport = uri.port
+			if (uri.port.nil?) 
+				uritargetport = self.cport
+			end
+
+			uritargetpath = uri.path
+			if (uri.path.nil? or uri.path.empty?) 
+				uritargetpath = "/"
+			end
+
+			newp = Pathname.new(uritargetpath)
+			oldp = Pathname.new(basepath)
+			if !newp.absolute?
+				if oldp.to_s[-1,1] == '/'
+					newp = oldp+newp
+				else
+					if !newp.to_s.empty?
+						newp = File.join(oldp.dirname,newp)
+					end
+				end		
+			end		
+		
+			hashreq = {
 				'rhost'		=> uritargethost,
 				'rport'		=> uritargetport,
-				'uri' 		=> uri.path,
-				'method'   	=> 'GET',
+				'uri' 		=> newp.to_s,
+				'method'   	=> m,
 				'ctype'		=> 'text/plain',
 				'ssl'		=> uritargetssl,
 				'query'		=> uri.query,
 				'data'		=> nil
-		}
+			}
+
+			if m == 'GET' and !dat.nil?
+				hashreq['query'] = dat
+			else
+				hashreq['data'] = dat	  
+			end
+			
+			
 		
-		return hashreq
+			return hashreq
 	end
+	
+	# Taken from http://www.ruby-forum.com/topic/140101 by  Rob Biedenharn
+	def canonicalize(uri)
+   		u = uri.kind_of?(URI) ? uri : URI.parse(uri.to_s)
+   		u.normalize!
+   		newpath = u.path
+   		while newpath.gsub!(%r{([^/]+)/\.\./?}) { |match|
+              		$1 == '..' ? match : ''
+            	} do end
+   		newpath = newpath.gsub(%r{/\./}, '/').sub(%r{/\.\z}, '/')
+   		u.path = newpath
+		# Ugly fix
+		u.path = u.path.gsub("\/..\/","\/")
+   		u.to_s
+	end
+
+	
 	
 	def hashsig(hashreq)
 		hashreq.to_s
@@ -434,6 +486,10 @@ class BaseParser
 	
 	def hashsig(hashreq)
 		self.crawler.hashsig(hashreq)
+	end
+
+	def urltohash(m,url,basepath,dat)
+		self.crawler.urltohash(m,url,basepath,dat)	
 	end
 	
 	def targetssl
