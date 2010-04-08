@@ -5,4 +5,5 @@ db2pass
 db2pw
 db2password
 admin
+db2admin
 
