@@ -73,12 +73,22 @@ module Stream
 	#
 	def has_read_data?(timeout = nil)
 		begin
-			if ((rv = Rex::ThreadSafe.select([ fd ], nil, nil, timeout)) and
-			    (rv[0]) and
-			    (rv[0][0] == fd))
-				true
+			if RUBY_VERSION =~ /^1\.9\./
+				if ((rv = ::Kernel.select([ fd ], nil, nil, timeout)) and
+				    (rv[0]) and
+				    (rv[0][0] == fd))
+					true
+				else
+					false
+				end
 			else
-				false
+				if ((rv = Rex::ThreadSafe.select([ fd ], nil, nil, timeout)) and
+				    (rv[0]) and
+				    (rv[0][0] == fd))
+					true
+				else
+					false
+				end
 			end
 		rescue StreamClosedError, ::IOError, ::EOFError, ::Errno::EPIPE
 			# If the thing that lead to the closure was an abortive close, then
