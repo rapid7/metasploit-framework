@@ -51,8 +51,8 @@ module Rex::Socket::Udp
 		begin
 			return syswrite(gram)
 		rescue  ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
-			return nil	
-		end	
+			return nil
+		end
 	end
 
 	alias put write
@@ -81,9 +81,9 @@ module Rex::Socket::Udp
 			end
 		rescue Exception
 			return ''
-		end	
+		end
 	end
-	
+
 	#alias send write
 	#alias recv read
 
@@ -97,7 +97,7 @@ module Rex::Socket::Udp
 	# Sends a datagram to the supplied host:port with optional flags.
 	#
 	def sendto(gram, peerhost, peerport, flags = 0)
-		
+
 		# Catch unconnected IPv6 sockets talking to IPv4 addresses
 		peer = Rex::Socket.resolv_nbo(peerhost)
 		if (peer.length == 4 and self.ipv == 6)
@@ -109,7 +109,7 @@ module Rex::Socket::Udp
 		rescue  ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
 			return nil
 		end
-		
+
 	end
 
 	#
@@ -117,11 +117,12 @@ module Rex::Socket::Udp
 	# as [ data, host, port ].
 	#
 	def recvfrom(length = 65535, timeout=def_read_timeout)
+
 		begin
 			if ((rv = Kernel.select([ fd ], nil, nil, timeout)) and
 			    (rv[0]) and (rv[0][0] == fd)
 			   )
-					data, saddr    = super(length)
+					data, saddr    = recvfrom_nonblock(length)
 					af, host, port = Rex::Socket.from_sockaddr(saddr)
 
 					return [ data, host, port ]
@@ -132,7 +133,7 @@ module Rex::Socket::Udp
 			return [ '', nil, nil ]
 		end
 	end
-	
+
 	#
 	# Calls recvfrom and only returns the data
 	#
@@ -140,16 +141,17 @@ module Rex::Socket::Udp
 		data, saddr, sport = recvfrom(65535, timeout)
 		return data
 	end
-	
+
 	#
 	# The default number of seconds to wait for a read operation to timeout.
 	#
 	def def_read_timeout
 		10
-	end	
+	end
 
 	def type?
 		return 'udp'
 	end
 
 end
+
