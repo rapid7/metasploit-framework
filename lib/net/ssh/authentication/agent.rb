@@ -3,7 +3,10 @@ require 'net/ssh/errors'
 require 'net/ssh/loggable'
 require 'net/ssh/transport/server_version'
 
+# Disable pageant, as it uses DL in a non-1.9 compatible way
+=begin
 require 'net/ssh/authentication/pageant' if File::ALT_SEPARATOR && !(RUBY_PLATFORM =~ /java/)
+=end
 
 module Net; module SSH; module Authentication
 
@@ -174,3 +177,4 @@ module Net; module SSH; module Authentication
   end
 
 end; end; end
+
