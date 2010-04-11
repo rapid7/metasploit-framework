@@ -57,11 +57,11 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::OCIError => e
 			else
 				if (not e)
-					report_note(
-						:host  => datastore['RHOST'],
-						:proto => 'tcp',
-						:port  => datastore['RPORT'],
-						:type  => 'ORACLE_BRUTEFORCED_ACCOUNT',
+					report_auth_info(
+						:host  => "#{datastore['RHOST']}",
+						:proto => 'tns',
+						:port  => "#{datastore['RPORT']}",
+						:type  => 'oracle_bruteforced_account',
 						:data  => "#{datastore['DBUSER']}/#{datastore['DBPASS']} with sid #{datastore['SID']}"
 					)
 						print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
