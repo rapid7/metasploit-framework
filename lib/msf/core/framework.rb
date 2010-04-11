@@ -259,11 +259,11 @@ class FrameworkEventSubscriber
 	# Generic handler for session events
 	#
 	def session_event(name, session, opts={})
-		if session.respond_to? :peerhost
+		if session.respond_to? :peerhost and session.peerhost
 			address = session.peerhost
-		elsif session.respond_to? :tunnel_peer
+		elsif session.respond_to? :tunnel_peer and session.tunnel_peer
 			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
-		elsif session.respond_to? :target_host
+		elsif session.respond_to? :target_host and session.target_host
 			address = session.target_host
 		else
 			elog("Session with no peerhost/tunnel_peer")
