@@ -199,6 +199,7 @@ class DBManager
 		rescue ::Exception => e
 			self.error = e
 			elog("DB.migrate threw an exception: #{e}")
+			dlog("Call stack:\n#{e.backtrace.join "\n"}")
 			return false
 		end
 		return true
