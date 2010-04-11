@@ -9,9 +9,9 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
+	include Msf::Exploit::Remote::TNS
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	include Msf::Exploit::Remote::TNS
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 				With Oracle 9.2.0.8 and above the listener will be protected and 
 				the SID will have to be bruteforced or guessed.
 			},
-			'Author'         => ['CG'],
+			'Author'         => [ 'CG', 'MC' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'DisclosureDate' => 'Jan 7 2009'))
@@ -51,22 +51,22 @@ class Metasploit3 < Msf::Auxiliary
 					else
 						sid = data.scan(/INSTANCE_NAME=([^\)]+)/)
 							sid.uniq.each do |s|
-								report_note(
+								report_auth_info(
 									:host   => ip,
 									:proto  => 'tcp',
-									:port   => datastore['RPORT'],
-									:type   => 'INSTANCE_NAME',
+									:port   => rport,
+									:type   => "oracle_instance_name",
 									:data   => "#{s}"
 								)
 								print_status("Identified SID for #{ip}: #{s}")
 							end
 						service_name = data.scan(/SERVICE_NAME=([^\)]+)/)
-							service_name.each do |s|
-								report_note(
+							service_name.uniq.each do |s|
+								report_auth_info(
 									:host   => ip,
 									:proto  => 'tcp',
-									:port   => datastore['RPORT'],
-									:type   => 'SERVICE_NAME',
+									:port   => rport,
+									:type   => "oracle_service_name",
 									:data   => "#{s}"
 								)
 								print_status("Identified SERVICE_NAME for #{ip}: #{s}")
