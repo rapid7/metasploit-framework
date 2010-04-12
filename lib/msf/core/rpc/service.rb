@@ -50,6 +50,7 @@ class Service < ::XMLRPC::BasicServer
 
 	def on_client_connect(c)
 		self.state[c] = ""
+		self.clean_state_table
 	end
 
 	def on_client_data(c)
@@ -60,6 +61,12 @@ class Service < ::XMLRPC::BasicServer
 		end
 		self.state[c] << data
 		procxml(c)
+	end
+
+	def clean_state_table
+		self.state.keys.each do |s|
+			self.state.delete(s) if s.closed?
+		end
 	end
 
 	def procxml(c)

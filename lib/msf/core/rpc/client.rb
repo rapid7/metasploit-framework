@@ -61,6 +61,10 @@ class Client < ::XMLRPC::Client
 		super(meth, *args)
 	end
 
+	def close
+		self.sock.close
+	end
+
 end
 end
 end
