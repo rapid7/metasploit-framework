@@ -121,11 +121,11 @@ class APIRequest
 				@conn_tries += 1
 				retry
 			end
+		rescue ::Timeout::Error, ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
+			@error = "NeXpose host is unreachable"
 		# Handle console-level interrupts
 		rescue ::Interrupt
 			@error = "received a user interrupt"
-		rescue ::Timeout::Error, ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
-			@error = "NeXpose host is unreachable"
 		rescue ::Errno::ECONNRESET,::Errno::ECONNREFUSED,::Errno::ENOTCONN,::Errno::ECONNABORTED
 			@error = "NeXpose service is not available"
 		end
