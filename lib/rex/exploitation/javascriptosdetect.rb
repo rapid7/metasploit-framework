@@ -151,6 +151,7 @@ function getVersion(){
 			switch(version) {
 				case "Windows NT 5.0": os_flavor = "2000"; break;
 				case "Windows NT 5.1": os_flavor = "XP"; break;
+				case "Windows NT 5.2": os_flavor = "2003"; break;
 				case "Windows NT 6.0": os_flavor = "Vista"; break;
 				case "Windows NT 6.1": os_flavor = "7"; break;
 			}
@@ -159,6 +160,247 @@ function getVersion(){
 			os_name = "#{oses::LINUX}";
 		}
 		// end navigator.oscpu checks
+
+		// buildID is unaffected by changes in the useragent and typically has
+		// the compile date which in some cases can be used to map to specific
+		// Version & O/S (including Distro and even Arch). Depending upon the
+		// buildID, sometime navigator.productSub will be needed.
+		//
+		// This technique, and the laboriously compiled associated table,
+		// submitted by Mark Fioravanti.
+ 
+		var buildid = navigator.buildID;
+
+		switch(buildid) {
+			case "2008041514": ua_version = "3.0.0.b5"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+			case "2008041515": ua_version = "3.0.0.b5"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break;
+			case "2008052312": ua_version = "3.0.0"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+			case "2008052906": ua_version = "3.0.0"; os_name = "#{oses::WINDOWS}"; break;
+			case "2008052909": ua_version = "3.0.0.rc1"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+			case "2008052912": ua_version = "3.0.0"; os_name = "#{oses::LINUX}"; break;
+			case "2008060309": ua_version = "3.0.0"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; break;
+			case "2008070205": ua_version = "2.0.0.16"; os_name = "#{oses::WINDOWS}"; break;
+			case "2008070206": ua_version = "3.0.1"; os_name = "#{oses::LINUX}"; break;
+			case "2008070208": ua_version = "3.0.1"; os_name = "#{oses::WINDOWS}"; break;
+			case "2008071222": ua_version = "3.0.1"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+			case "2008072820":
+				switch (navigator.productSub) {
+					case "2008072820": ua_version = "3.0.1"; os_name = "#{oses::LINUX}"; break;
+					case "2008092313": ua_version = "3.0.2"; os_name = "#{oses::LINUX}"; break;
+				} break;
+			case "2008082909": ua_version = "2.0.0.17"; os_name = "#{oses::WINDOWS}"; break;
+			case "2008091618": ua_version = "3.0.2"; os_name = "#{oses::LINUX}"; break;
+			case "2008091620": ua_version = "3.0.2"; os_name = "#{oses::WINDOWS}"; break;
+			case "2008092313": ua_version = "3.0.3"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+			case "2008092416": ua_version = "3.0.3"; os_name = "#{oses::LINUX}"; break;
+			case "2008092417": ua_version = "3.0.3"; os_name = "#{oses::WINDOWS}"; break;
+			case "2008092510": ua_version = "3.0.4"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+			case "2008101315":
+				switch (navigator.productSub) {
+					case "2008101315": ua_version = "3.0.3"; os_name = "#{oses::LINUX}"; break;
+					case "2008111318": ua_version = "3.0.4"; os_name = "#{oses::LINUX}"; arch = "#{ARCH_X86}"; break;
+				} break;
+			case "2008102918": ua_version = "2.0.0.18"; os_name = "#{oses::WINDOWS}"; break;
+			case "2008102920": ua_version = "3.0.4"; break;
+			case "2008111317": ua_version = "3.0.5"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+			case "2008111318": ua_version = "3.0.5"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; break;
+			case "2008120119": ua_version = "2.0.0.19"; os_name = "#{oses::WINDOWS}"; break;
+			case "2008120121": ua_version = "3.0.5"; os_name = "#{oses::LINUX}"; break;
+			case "2008120122": ua_version = "3.0.5"; os_name = "#{oses::WINDOWS}"; break;
+			case "2008121709": ua_version = "2.0.0.20"; os_name = "#{oses::WINDOWS}"; break;
+			case "2009011912": ua_version = "3.0.6"; os_name = "#{oses::LINUX}"; break;
+			case "2009011913": ua_version = "3.0.6"; os_name = "#{oses::WINDOWS}"; break;
+			case "2009012615": ua_version = "3.0.6"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+			case "2009012616": ua_version = "3.0.6"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+			case "2009021906": ua_version = "3.0.7"; os_name = "#{oses::LINUX}"; break;
+			case "2009021910": ua_version = "3.0.7"; os_name = "#{oses::WINDOWS}"; break;
+			case "2009030422": ua_version = "3.0.8"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+			case "2009032608": ua_version = "3.0.8"; os_name = "#{oses::LINUX}"; break;
+			case "2009032609": ua_version = "3.0.8"; os_name = "#{oses::WINDOWS}"; break;
+			case "2009032711": ua_version = "3.0.9"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+			case "2009033100":
+				switch (navigator.productSub) {
+					case "2009033100": ua_version = "3.0.8"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; break;
+					case "2009042113": ua_version = "3.0.9"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+				} break;
+			case "2009040820": ua_version = "3.0.9"; os_name = "#{oses::LINUX}"; break;
+			case "2009040821": ua_version = "3.0.9"; os_name = "#{oses::WINDOWS}"; break;
+			case "2009042113": ua_version = "3.0.10"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+			case "2009042114": ua_version = "3.0.10"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break;
+			case "2009042315": ua_version = "3.0.10"; os_name = "#{oses::LINUX}"; break;
+			case "2009042316": ua_version = "3.0.10"; os_name = "#{oses::WINDOWS}"; break;
+			case "20090427153806": ua_version = "3.5.0.b4"; os_name = "#{oses::LINUX}"; os_flavor = "Fedora"; arch = "#{ARCH_X86}"; break;
+			case "20090427153807": ua_version = "3.5.0.b4"; os_name = "#{oses::LINUX}"; os_flavor = "Fedora"; arch = "#{ARCH_X86_64}"; break;
+			case "2009060214": ua_version = "3.0.11"; os_name = "#{oses::LINUX}"; break;
+			case "2009060215": ua_version = "3.0.11"; os_name = "#{oses::WINDOWS}"; break;
+			case "2009060308":
+				switch (navigator.productSub) {
+					case "2009060308": ua_version = "3.0.11"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+					case "2009070811": ua_version = "3.0.12"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+				} break;
+			case "2009060309":
+				switch (navigator.productSub) {
+					case "2009060309": ua_version = "3.0.11"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; break;
+					case "2009070811": ua_version = "3.0.12"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break;
+				} break;
+			case "2009060310": ua_version = "3.0.11"; os_name = "#{oses::LINUX}"; os_flavor = "BackTrack"; break;
+			case "2009062005": ua_version = "3.0.11"; os_name = "#{oses::LINUX}"; os_flavor = "PCLunixOS"; break;
+			case "20090624012136": ua_version = "3.5.0"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20090624012820": ua_version = "3.5.0"; os_name = "#{oses::LINUX}"; break;
+			case "20090701234143": ua_version = "3.5.0"; os_name = "#{oses::FREEBSD}"; os_flavor = "PC-BSD"; arch = "#{ARCH_X86}"; break;
+			case "20090702060527": ua_version = "3.5.0"; os_name = "#{oses::FREEBSD}"; os_flavor = "PC-BSD"; arch = "#{ARCH_X86_64}"; break;
+			case "2009070610": ua_version = "3.0.12"; os_name = "#{oses::LINUX}"; break;
+			case "2009070611": ua_version = "3.0.12"; os_name = "#{oses::WINDOWS}"; break;
+			case "2009070811": ua_version = "3.0.13"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; break;
+			case "20090715083437": ua_version = "3.5.1"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20090715083816": ua_version = "3.5.1"; os_name = "#{oses::LINUX}"; break;
+			case "20090715094852": ua_version = "3.5.1"; os_name = "#{oses::WINDOWS}"; break;
+			case "2009072202": ua_version = "3.0.12"; os_name = "#{oses::LINUX}"; os_flavor = "Oracle"; break;
+			case "2009072711": ua_version = "3.0.12"; os_name = "#{oses::LINUX}"; os_flavor = "CentOS"; break;
+			case "20090729211433": ua_version = "3.5.2"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20090729211829": ua_version = "3.5.2"; os_name = "#{oses::LINUX}"; break;
+			case "20090729225027": ua_version = "3.5.2"; os_name = "#{oses::WINDOWS}"; break;
+			case "2009073021": ua_version = "3.0.13"; os_name = "#{oses::LINUX}"; break;
+			case "2009073022": ua_version = "3.0.13"; os_name = "#{oses::WINDOWS}"; break;
+			case "20090824085414": ua_version = "3.5.3"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20090824085743": ua_version = "3.5.3"; os_name = "#{oses::LINUX}"; break;
+			case "20090824101458": ua_version = "3.5.3"; os_name = "#{oses::WINDOWS}"; break;
+			case "2009082707": ua_version = "3.0.14"; break;
+ 			case "2009090216": ua_version = "3.0.14"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+ 			case "20090914014745": ua_version = "3.5.3"; os_name = "#{oses::LINUX}"; os_flavor = "Mandriva"; arch = "#{ARCH_X86}"; break;
+ 			case "20090915065903": ua_version = "3.5.3"; os_name = "#{oses::LINUX}"; os_flavor = "Sabayon"; arch = "#{ARCH_X86_64}"; break;
+ 			case "20090915070141": ua_version = "3.5.3"; os_name = "#{oses::LINUX}"; os_flavor = "Sabayon"; arch = "#{ARCH_X86}"; break;
+ 			case "20091007090112": ua_version = "3.5.3"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break; // Could also be Mint x86
+ 			case "20091007095328": ua_version = "3.5.3"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break; // Could also be Mint x86-64
+			case "2009101600":
+ 				switch (navigator.productSub) {
+					case "2009101600": ua_version = "3.0.15"; break; // Can be either Mac or Linux
+					case "20091016": ua_version = "3.5.4"; os_name = "#{oses::LINUX}"; os_flavor = "SUSE"; arch = "#{ARCH_X86}"; break;
+				} break;
+			case "2009101601": ua_version = "3.0.15"; os_name = "#{oses::WINDOWS}"; break;
+			case "20091016081620": ua_version = "3.5.4"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20091016081727": ua_version = "3.5.4"; os_name = "#{oses::LINUX}"; break;
+			case "20091016092926": ua_version = "3.5.4"; os_name = "#{oses::WINDOWS}"; break;
+ 			case "20091020122601": ua_version = "3.5.4"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break; // Could also be Mint x86-64
+			case "2009102814":
+ 				switch (navigator.productSub) {
+					case "2009121601": ua_version = "3.0.16"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; break;
+					case "2009121602": ua_version = "3.0.16"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; break;
+					case "2010010604": ua_version = "3.0.17"; os_name = "#{oses::LINUX}"; os_flavor = "Mint"; break;
+					case "2010021501": ua_version = "3.0.17;xul1.9.0.18"; os_name = "#{oses::LINUX}"; os_flavor = "Mint"; arch = "#{ARCH_X86}"; break;
+					case "2010021502": ua_version = "3.0.17;xul1.9.0.18"; os_name = "#{oses::LINUX}"; os_flavor = "Mint"; arch = "#{ARCH_X86_64}"; break;
+				} break;
+ 			case "2009102815":
+ 				switch (navigator.productSub) {
+					case "2009102815": ua_version = "3.0.15"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+					case "2009121601": ua_version = "3.0.16"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+				} break;
+ 			case "20091029152254": ua_version = "3.6.0.b1"; os_name = "#{oses::LINUX}"; break;
+			case "20091029171059": ua_version = "3.6.0.b1"; os_name = "#{oses::WINDOWS}"; break;
+			case "20091102134505": ua_version = "3.5.5"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20091102141836": ua_version = "3.5.5"; os_name = "#{oses::LINUX}"; break;
+			case "20091102152451": ua_version = "3.5.5"; os_name = "#{oses::WINDOWS}"; break;
+			case "2009110421": ua_version = "3.0.15"; os_name = "#{oses::FREEBSD}"; arch = "#{ARCH_X86}"; break;
+ 			case "20091106091959": ua_version = "3.5.5"; os_name = "#{oses::LINUX}"; os_flavor = "Mandriva"; arch = "#{ARCH_X86}"; break;
+			case "20091106140514": ua_version = "3.5.5"; os_name = "#{oses::FREEBSD}"; os_flavor = "PC-BSD"; arch = "#{ARCH_X86}"; break;
+			case "20091106145609": ua_version = "3.5.5"; os_name = "#{oses::FREEBSD}"; os_flavor = "PC-BSD"; arch = "#{ARCH_X86_64}"; break;
+ 			case "20091108163911": ua_version = "3.6.0.b2"; os_name = "#{oses::LINUX}"; break;
+			case "20091108181924": ua_version = "3.6.0.b2"; os_name = "#{oses::WINDOWS}"; break;
+ 			case "20091109125225":
+ 				switch (navigator.productSub) {
+					case "20091109": ua_version = "3.5.5"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+					case "20091215": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+				} break;
+			case "20091109134913": ua_version = "3.5.5"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break;
+ 			case "20091115172547": ua_version = "3.6.0.b3"; os_name = "#{oses::LINUX}"; break;
+			case "20091115182845": ua_version = "3.6.0.b3"; os_name = "#{oses::WINDOWS}"; break;
+			case "20091124201530": ua_version = "3.6.0.b4"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20091124201751": ua_version = "3.6.0.b4"; os_name = "#{oses::LINUX}"; break;
+			case "20091124213835": ua_version = "3.6.0.b4"; os_name = "#{oses::WINDOWS}"; break;
+ 			case "2009120100": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; os_flavor = "SUSE"; break;
+			case "20091201203240": ua_version = "3.5.6"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20091201204959": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; break;
+			case "20091201220228": ua_version = "3.5.6"; os_name = "#{oses::WINDOWS}"; break;
+ 			case "2009120206": ua_version = "3.0.16"; break; // Can be either Mac or Linux
+			case "2009120208": ua_version = "3.0.16"; os_name = "#{oses::WINDOWS}"; break;
+			case "20091204132459": ua_version = "3.6.0.b5"; os_name = "#{oses::LINUX}"; break;
+			case "20091204132509": ua_version = "3.6.0.b5"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20091204143806": ua_version = "3.6.0.b5"; os_name = "#{oses::WINDOWS}"; break;
+			case "20091215230859": ua_version = "3.5.7"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break;
+			case "20091215230946": ua_version = "3.5.7"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break;
+ 			case "20091215231400": ua_version = "3.5.7"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break; // Could also be Mint x86
+ 			case "20091215231754":
+ 				switch (navigator.productSub) {
+					case "20091215": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break;
+					case "20100106": ua_version = "3.5.7"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break; // Could also be Mint x86-64
+				} break;
+ 			case "2009121601":
+ 				switch (navigator.productSub) {
+					case "2009121601": ua_version = "3.0.16"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break;
+					case "2010010604": ua_version = "3.0.17"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; break; // Could also be Mint x86-64
+				} break;
+ 			case "2009121602": ua_version = "3.0.17"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; break;
+ 			case "20091216104148": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; os_flavor = "Mandriva"; break;
+			case "20091216132458": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; os_flavor = "Fedora"; arch = "#{ARCH_X86}"; break;
+			case "20091216132537": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; os_flavor = "Fedora"; arch = "#{ARCH_X86_64}"; break;
+			case "20091216142458": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; os_flavor = "Fedora"; arch = "#{ARCH_X86_64}"; break;
+			case "20091216142519": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; os_flavor = "Fedora"; arch = "#{ARCH_X86}"; break;
+			case "2009121708": ua_version = "3.0.16"; os_name = "#{oses::LINUX}"; os_flavor = "CentOS"; arch = "#{ARCH_X86}"; break;
+ 			case "2009122115": ua_version = "3.0.17"; break; // Can be either Mac or Linux
+ 			case "2009122116": ua_version = "3.0.17"; os_name = "#{oses::WINDOWS}"; break;
+			case "20091221151141": ua_version = "3.5.7"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20091221152502": ua_version = "3.5.7"; os_name = "#{oses::LINUX}"; break;
+			case "20091221164558": ua_version = "3.5.7"; os_name = "#{oses::WINDOWS}"; break;
+ 			case "2009122200": ua_version = "3.5.7"; os_name = "#{oses::LINUX}"; os_flavor = "SUSE"; break;
+ 			case "20091223231431": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; os_flavor = "PCLunixOS"; arch = "#{ARCH_X86}"; break;
+			case "20100105194006": ua_version = "3.6.0.rc1"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20100105194116": ua_version = "3.6.0.rc1"; os_name = "#{oses::LINUX}"; break;
+			case "20100105212446": ua_version = "3.6.0.rc1"; os_name = "#{oses::WINDOWS}"; break;
+ 			case "2010010604": ua_version = "3.0.18"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; break;
+ 			case "2010010605": ua_version = "3.0.18"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break;
+ 			case "20100106054534": ua_version = "3.5.8"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break; // Could also be Mint x86
+ 			case "20100106054634": ua_version = "3.5.8"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break; // Could also be Mint x86-64
+			case "20100106211825": ua_version = "3.5.7"; os_name = "#{oses::FREEBSD}"; os_flavor = "PC-BSD"; arch = "#{ARCH_X86}"; break;
+			case "20100106212742": ua_version = "3.5.7"; os_name = "#{oses::FREEBSD}"; os_flavor = "PC-BSD"; arch = "#{ARCH_X86_64}"; break;
+			case "20100106215614": ua_version = "3.5.7"; os_name = "#{oses::FREEBSD}"; os_flavor = "PC-BSD"; arch = "#{ARCH_X86}"; break;
+ 			case "20100110112429": ua_version = "3.5.7"; os_name = "#{oses::LINUX}"; os_flavor = "Mandriva"; break;
+			case "20100115132715": ua_version = "3.6.0"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20100115133306": ua_version = "3.6.0"; os_name = "#{oses::LINUX}"; break;
+			case "20100115144158": ua_version = "3.6.0"; os_name = "#{oses::WINDOWS}"; break;
+ 			case "20100125074043": ua_version = "3.6.0"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break; // Could also be Mint x86
+ 			case "20100125074127": ua_version = "3.6.0"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break; // Could also be Mint x86-64
+ 			case "20100125204847": ua_version = "3.6.0"; os_name = "#{oses::LINUX}"; os_flavor = "Sabayon"; arch = "#{ARCH_X86}"; break; // Could also be Mint x86
+ 			case "20100125204903": ua_version = "3.6.0"; os_name = "#{oses::LINUX}"; os_flavor = "Sabayon"; arch = "#{ARCH_X86_64}"; break; // Could also be Mint x86-64
+			case "20100202152834": ua_version = "3.5.8"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20100202153512": ua_version = "3.5.8"; os_name = "#{oses::LINUX}"; break;
+			case "20100202165920": ua_version = "3.5.8"; os_name = "#{oses::WINDOWS}"; break;
+			case "2010020219": ua_version = "3.0.18"; os_name = "#{oses::MAC_OSX}"; break;
+			case "2010020220": ua_version = "3.0.18"; os_name = "#{oses::WINDOWS}"; break;
+ 			case "2010020400": ua_version = "3.5.8"; os_name = "#{oses::LINUX}"; os_flavor = "SUSE"; break;
+ 			case "20100212131909": ua_version = "3.6.0"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break; // Could also be Mint x86
+ 			case "20100212132013": ua_version = "3.6.0"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break; // Could also be Mint x86-64
+			case "20100216105329": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; os_flavor = "Fedora"; arch = "#{ARCH_X86_64}"; break;
+			case "20100216105348": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; os_flavor = "Fedora"; arch = "#{ARCH_X86}"; break;
+			case "20100216105410": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; os_flavor = "Fedora"; arch = "#{ARCH_X86}"; break;
+			case "20100216110009": ua_version = "3.5.6"; os_name = "#{oses::LINUX}"; os_flavor = "Fedora"; arch = "#{ARCH_X86_64}"; break;
+ 			case "20100218022359": ua_version = "3.6.0"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break; // Could also be Mint x86
+ 			case "20100218022705": ua_version = "3.6.0"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break; // Could also be Mint x86-64
+ 			case "20100218112915": ua_version = "3.5.8"; os_name = "#{oses::LINUX}"; os_flavor = "Mandriva"; break;
+ 			case "20100222120605": ua_version = "3.6.0"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break; // Could also be Mint x86
+ 			case "20100222120717": ua_version = "3.6.0"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break; // Could also be Mint x86-64
+			case "20100301015346": ua_version = "3.6.0"; os_name = "#{oses::FREEBSD}"; os_flavor = "PC-BSD"; arch = "#{ARCH_X86}"; break;
+			case "20100305054927": ua_version = "3.6.0"; os_name = "#{oses::FREEBSD}"; os_flavor = "PC-BSD"; arch = "#{ARCH_X86_64}"; break;
+			case "20100307204001": ua_version = "3.6.0"; os_name = "#{oses::FREEBSD}"; os_flavor = "PC-BSD"; arch = "#{ARCH_X86}"; break;
+ 			case "20100308142847": ua_version = "3.6.0"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86}"; break; // Could also be Mint x86
+ 			case "20100308151019": ua_version = "3.6.0"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; arch = "#{ARCH_X86_64}"; break; // Could also be Mint x86-64
+			case "20100316055951": ua_version = "3.6.2"; os_name = "#{oses::MAC_OSX}"; break;
+			case "20100316060223": ua_version = "3.6.2"; os_name = "#{oses::LINUX}"; break;
+			case "20100316074819": ua_version = "3.6.2"; os_name = "#{oses::WINDOWS}"; break;
+			case "20100324182054": ua_version = "3.6.2"; os_name = "#{oses::FREEBSD}"; os_flavor = "PC-BSD"; arch = "#{ARCH_X86}"; break;
+			case "20100402010516": ua_version = "3.5.9"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; break;
+		}
+
+		// end navigator.buildID checks
 
 		// Verify whether the ua string is lying by checking the major version
 		// number against what we detected using known objects above.  If it
