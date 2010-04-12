@@ -402,9 +402,13 @@ function getVersion(){
 
 		// end navigator.buildID checks
 
-		// Verify whether the ua string is lying by checking the major version
-		// number against what we detected using known objects above.  If it
+		// Verify whether the ua string is lying by checking if it contains
+		// what we detected using known objects above as a substring.  If it
 		// appears to be truthful, then use its more precise version number.
+		//
+		// XXX: This should probably check only the first 2 sections of the
+		// version number so that things like "3.5.0" don't cause false
+		// positives.
 		version = searchVersion("Firefox", navigator.userAgent);
 		if (version && version.substr(0,ua_version.length) == ua_version) {
 			// The version number will end with a space or end of line, so strip
