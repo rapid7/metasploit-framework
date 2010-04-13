@@ -209,6 +209,7 @@ class DBManager
 					dlog("Unknown attribute for Host: #{k}")
 				end
 			}
+			host.info = host.info[0,Host.columns_hash["info"].limit] if host.info
 
 			# Mark the host as be updated
 			host.updated_at = host.created_at
@@ -299,6 +300,7 @@ class DBManager
 					dlog("Unknown attribute for Service: #{k}")
 				end
 			}
+			service.info = service.info[0,Service.columns_hash["info"].limit] if service.info
 			if (service.state == nil)
 				service.state = ServiceState::Open
 			end
