@@ -24,7 +24,7 @@ begin
 				begin 
 					require 'readline'
 				rescue ::LoadError
-					require 'readline_compat'
+					require 'readline_compatible'
 				end
 			end
 			
