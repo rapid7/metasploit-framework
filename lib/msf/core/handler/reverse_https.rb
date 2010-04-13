@@ -66,7 +66,7 @@ module ReverseHttps
 
 		dlog("Reverse HTTPS listener started on http://#{datastore['LHOST']}:#{datastore['LPORT']}/", 'core', LEV_2)
 
-		print_status("HTTPS listener started.")
+		print_status("HTTPS listener started on http://#{datastore['LHOST']}:#{datastore['LPORT']}/")
 	end
 
 	#
@@ -133,8 +133,9 @@ protected
 				return
 
 			else
-				resp.code    = 404
-				resp.message = "Not found"
+				resp.code    = 200
+				resp.message = "OK"
+				resp.body    = "<h3>No site configured at this address</h3>"
 		end
 
 		cli.send_response(resp) if (resp)
