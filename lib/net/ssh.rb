@@ -69,7 +69,8 @@ module Net
       :logger, :paranoid, :password, :port, :proxy, :rekey_blocks_limit,
       :rekey_limit, :rekey_packet_limit, :timeout, :verbose,
       :global_known_hosts_file, :user_known_hosts_file, :host_key_alias,
-      :host_name, :user, :properties, :passphrase, :msframework, :msfmodule
+      :host_name, :user, :properties, :passphrase, :msframework, :msfmodule,
+	  :record_auth_info
     ]
 
     # The standard means of starting a new SSH connection. When used with a
@@ -189,6 +190,7 @@ module Net
       user = options.fetch(:user, user)
       if auth.authenticate("ssh-connection", user, options[:password])
         connection = Connection::Session.new(transport, options)
+		connection.auth_info = auth.auth_info
         if block_given?
           yield connection
           connection.close
