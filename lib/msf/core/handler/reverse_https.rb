@@ -50,7 +50,7 @@ module ReverseHttps
 		# Start the HTTPS server service on this host/port
 		self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
 			datastore['LPORT'].to_i,
-			datastore['LHOST'],
+			'0.0.0.0',
 			true
 		)
 
