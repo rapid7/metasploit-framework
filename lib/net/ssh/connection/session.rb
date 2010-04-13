@@ -46,6 +46,9 @@ module Net; module SSH; module Connection
     # The list of callbacks for pending requests. See #send_global_request.
     attr_reader :pending_requests #:nodoc:
 
+    # when a successful auth is made, note the auth info if session.options[:record_auth_info]
+    attr_accessor :auth_info
+
     class NilChannel
       def initialize(session)
         @session = session

@@ -31,6 +31,9 @@ module Net; module SSH; module Authentication
     # a hash of options, given at construction time
     attr_reader :options
 
+    # when a successful auth is made, note the auth info if session.options[:record_auth_info]
+    attr_accessor :auth_info
+
     # Instantiates a new Authentication::Session object over the given
     # transport layer abstraction.
     def initialize(transport, options={})
@@ -41,6 +44,7 @@ module Net; module SSH; module Authentication
       @options = options
 
       @allowed_auth_methods = @auth_methods
+      @auth_info = {}
     end
 
     # Attempts to authenticate the given user, in preparation for the next
@@ -132,3 +136,4 @@ module Net; module SSH; module Authentication
       end
   end
 end; end; end
+
