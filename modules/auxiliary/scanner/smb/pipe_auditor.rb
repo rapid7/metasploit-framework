@@ -57,7 +57,8 @@ class Metasploit3 < Msf::Auxiliary
 		'trkwks',
 		'W32TIME_ALT',
 		'wkssvc',
-		'PIPE_EVENTROOT\CIMV2SCM EVENT PROVIDER'
+		'PIPE_EVENTROOT\CIMV2SCM EVENT PROVIDER',
+		'db2remotecmd'
 	]
 	
 	# Fingerprint a single host
