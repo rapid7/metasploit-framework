@@ -27,6 +27,6 @@ extrn VirtualAlloc : proc
 	
 	payload proc
 		A byte 'PAYLOAD:'
-		B db 4096-8 dup ( 'A' )
+		B db 4096-8 dup ( 0 )
 	payload endp
 end
