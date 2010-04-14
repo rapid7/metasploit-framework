@@ -20,7 +20,7 @@ $args = Rex::Parser::Arguments.new(
 	"-m" => [ true, "Specifies an additional module search path"                         ],
 	"-a" => [ true, "The architecture to encode as"                                      ],
 	"-p" => [ true, "The platform to encode for"                                         ],
-	"-t" => [ true, "The format to display the encoded buffer with (c, elf, exe, java, js_le, js_be, perl, raw, ruby, vba, vbs, loop-vbs, asp, war)" ],
+	"-t" => [ true, "The format to display the encoded buffer with (c, elf, exe, java, js_le, js_be, perl, raw, ruby, vba, vbs, loop-vbs, asp, war, macho)" ],
 	"-b" => [ true, "The list of characters to avoid: '\\x00\\xff'"                      ],
 	"-s" => [ true, "The maximum size of the encoded data"                               ],
 	"-e" => [ true, "The encoder to use"                                                 ],
@@ -126,7 +126,7 @@ $args.parse(ARGV) { |opt, idx, val|
 		when "-s"
 			space = val.to_i
 		when "-t"
-			if (val =~ /^(perl|ruby|rb|raw|c|js_le|js_be|java|exe|exe-small|elf|vba|vbs|loop-vbs|asp|war)$/)
+			if (val =~ /^(perl|ruby|rb|raw|c|js_le|js_be|java|exe|exe-small|elf|vba|vbs|loop-vbs|asp|war|macho)$/)
 				fmt = val
 			else
 				$stderr.puts(OutError + "Invalid format: #{val}")
@@ -252,6 +252,15 @@ case cmd
 					else
 						File.open(output, "wb") do |fd|
 							fd.write(elf)
+						end
+					end
+				when 'macho'
+					macho = Msf::Util::EXE.to_osx_x86_macho($framework, raw)
+					if(not output)
+						$stdout.write(macho)
+					else
+						File.open(output, "wb") do |fd|
+							fd.write(macho)
 						end
 					end
 				when 'vba'
