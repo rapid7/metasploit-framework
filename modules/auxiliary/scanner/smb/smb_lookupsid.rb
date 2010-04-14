@@ -241,6 +241,8 @@ class Metasploit3 < Msf::Auxiliary
 				when 2
 					domain[:groups][rid] = uname
 					print_status("#{ip} GROUP=#{uname} RID=#{rid}")
+				else
+					print_status("#{ip} TYPE=#{utype} NAME=#{uname} rid=#{rid}")
 				end
 			end
 
@@ -252,6 +254,8 @@ class Metasploit3 < Msf::Auxiliary
 				:type => 'smb.domain.lookupsid',
 				:data => domain
 			)
+
+			print_status("#{ip} #{domain.upcase} [ #{users.keys.map{|k| users[k]}.join(", ")} ]")
 
 			# cleanup
 			disconnect
