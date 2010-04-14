@@ -1,4 +1,4 @@
 
-#define SCSIZE 8192
+#define SCSIZE 2048
 unsigned char code[SCSIZE] = "PAYLOAD:";
 

@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#define SCSIZE 8192
+#define SCSIZE 4096
 char payload[SCSIZE] = "PAYLOAD:";
 
 char comment[512] = "";
