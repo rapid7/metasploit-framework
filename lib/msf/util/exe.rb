@@ -339,7 +339,7 @@ require 'metasm'
 
 		bo = pe.index('SERVICENAME')
 		raise RuntimeError, "Invalid Win32 PE Service EXE template!" if not bo
-		pe[bo, name.length] = name
+		pe[bo, 11] = [name].pack('a11')
 
 		pe[136, 4] = [rand(0x100000000)].pack('V')
 
