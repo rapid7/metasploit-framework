@@ -64,9 +64,9 @@ module ReverseHttps
 			},
 			'VirtualDirectory' => true)
 
-		dlog("Reverse HTTPS listener started on http://#{datastore['LHOST']}:#{datastore['LPORT']}/", 'core', LEV_2)
+		dlog("Reverse HTTPS listener started on https://#{datastore['LHOST']}:#{datastore['LPORT']}/", 'core', LEV_2)
 
-		print_status("HTTPS listener started on http://#{datastore['LHOST']}:#{datastore['LPORT']}/")
+		print_status("HTTPS listener started on https://#{datastore['LHOST']}:#{datastore['LPORT']}/")
 	end
 
 	#
