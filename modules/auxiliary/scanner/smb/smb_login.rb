@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'tebo <tebo [at] attackresearch [dot] com>',
 			'License'     => MSF_LICENSE
 		)
-		deregister_options('RHOST')
+		deregister_options('RHOST','USERNAME','PASSWORD')
 
 		# These are normally advanced options, but for this module they have a
 		# more active role, so make them regular options.
@@ -54,26 +54,24 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		vprint_status("Starting SMB login attempt on #{ip}")
-		if (datastore["SMBUser"] and not datastore["SMBUser"].empty?)
-			# then just do this user/pass
-			try_user_pass(datastore["SMBUser"], datastore["SMBPass"])
-		else
-			if accepts_bogus_logins?
-				print_error("This system accepts authentication with any credentials, brute force is ineffective.")
-				return
-			end
 
-			begin
-				each_user_pass do |user, pass|
-					try_user_pass(user, pass)
-				end
-			rescue ::Rex::ConnectionError
-				nil
-			end
+		if accepts_bogus_logins?
+			print_error("This system accepts authentication with any credentials, brute force is ineffective.")
+			return
 		end
+
+		begin
+			each_user_pass do |user, pass|
+				try_user_pass(user, pass)
+			end
+		rescue ::Rex::ConnectionError
+			nil
+		end
+
 	end
 
 	def accepts_bogus_logins?
+		orig_user,orig_pass = datastore['SMBUser'],datastore['SMBPass']
 		datastore["SMBUser"] = Rex::Text.rand_text_alpha(8)
 		datastore["SMBPass"] = Rex::Text.rand_text_alpha(8)
 
@@ -86,11 +84,14 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		disconnect
+		datastore['SMBUser'],datastore['SMBPass'] = orig_user,orig_pass
 
 		simple.client.auth_user ? true : false
 	end
 
 	def try_user_pass(user, pass)
+		# The SMB mixins require the datastores "SMBUser" and
+		# "SMBPass" to be populated.
 		datastore["SMBUser"] = user
 		datastore["SMBPass"] = pass
 
@@ -143,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect()
 			return
 		end
-
+ 
 		if(simple.client.auth_user)
 			print_good("#{rhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) '#{user}' : '#{pass}'")
 			report_auth_info(

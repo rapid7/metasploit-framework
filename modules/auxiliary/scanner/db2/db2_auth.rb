@@ -41,8 +41,6 @@ class Metasploit3 < Msf::Auxiliary
           File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_pass.txt") ]),
 			], self.class)
       
-		# Users must use user/pass/userpass files.
-		deregister_options('USERNAME' , 'PASSWORD')
 	end
 
 	def run_host(ip)

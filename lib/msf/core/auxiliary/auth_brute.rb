@@ -40,23 +40,24 @@ def each_user_pass(&block)
 	users       = extract_words(datastore['USER_FILE'])
 	passwords   = extract_words(datastore['PASS_FILE'])
 
+	translate_smb_datastores() 
+
 	if datastore['USERNAME']
-		users << datastore['USERNAME']
+		users.unshift datastore['USERNAME']
+		credentials = prepend_chosen_username(datastore['USERNAME'],credentials)
 	end
 
 	if datastore['PASSWORD']
-		passwords << datastore['PASSWORD']
+		passwords.unshift datastore['PASSWORD']
+		credentials = prepend_chosen_password(datastore['PASSWORD'],credentials)
 	end
 
 	if datastore['BLANK_PASSWORDS']
-		credentials = gen_blank_passwords(users,credentials) + credentials
+		credentials = gen_blank_passwords(users,credentials)
 	end
+
 	credentials.concat(combine_users_and_passwords(users,passwords))
 	credentials = just_uniq_passwords(credentials) if @strip_usernames
-
-	if datastore['USERNAME']
-		credentials.unshift( [datastore['USERNAME'], datastore['PASSWORD'].to_s] )
-	end
 
 	credentials.each do |u,p|
 		fq_user = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], u]
@@ -75,9 +76,27 @@ def each_user_pass(&block)
 	return
 end
 
+# Takes SMBUser and SMBPass, and, if present, prefers those
+# over any given USERNAME or PASSWORD.
+def translate_smb_datastores
+	if datastore['SMBUser'] and !datastore['SMBUser'].empty?
+		datastore['USERNAME'] = datastore['SMBUser']
+	end
+	if datastore['SMBPass'] and !datastore['SMBPass'].empty?
+		datastore['PASSWORD'] = datastore['SMBPass']
+	end
+end
+
 def just_uniq_passwords(credentials)
-	new_creds = credentials.map{|x| x[0] = ""; x}
-	credentials.uniq
+	credentials.map{|x| ["",x[1]]}.uniq
+end
+
+def prepend_chosen_username(user,cred_array)
+	cred_array.map {|pair| [user,pair[1]]} + cred_array
+end
+
+def prepend_chosen_password(pass,cred_array)
+	cred_array.map {|pair| [pair[0],pass]} + cred_array
 end
 
 def gen_blank_passwords(user_array,cred_array)
@@ -88,7 +107,7 @@ def gen_blank_passwords(user_array,cred_array)
 	unless cred_array.empty?
 		cred_array.each {|u,p| blank_passwords << [u,""]}
 	end
-	return blank_passwords
+	return(blank_passwords + cred_array)
 end
 
 def combine_users_and_passwords(user_array,pass_array)
@@ -107,7 +126,21 @@ def combine_users_and_passwords(user_array,pass_array)
 			end
 		end
 	end
-	return combined_array
+
+	# Move datastore['USERNAME'] and datastore['PASSWORD'] to the front of the list.
+	creds = [ [], [], [], [] ] # userpass, pass, user, rest
+	combined_array.each do |pair|
+		if pair == [datastore['USERNAME'],datastore['PASSWORD']]
+			creds[0] << pair
+		elsif pair[1] == datastore['PASSWORD']
+			creds[1] <<  pair
+		elsif pair[0] == datastore['USERNAME']
+			creds[2] <<  pair
+		else
+			creds[3] << pair
+		end
+	end
+	return creds[0] + creds[1] + creds[2] + creds[3]
 end
 
 def extract_words(wordfile)

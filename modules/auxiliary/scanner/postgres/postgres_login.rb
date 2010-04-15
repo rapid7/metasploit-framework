@@ -44,8 +44,8 @@ class Metasploit3 < Msf::Auxiliary
 				OptPath.new('PASS_FILE',      [ false, "File containing passwords, one per line", File.join(Msf::Config.install_root, "data", "wordlists", "postgres_default_pass.txt") ]),
 			], self.class)
 
-		# Users should use user/pass/userpass files.
-		deregister_options('USERNAME', 'PASSWORD', 'SQL')
+		deregister_options('SQL')
+
 	end
 
 	# Loops through each host in turn. Note the current IP address is both
