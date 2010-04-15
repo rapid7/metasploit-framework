@@ -56,7 +56,7 @@ module Ui
 
 	###
 	#
-	# This class help us to retreive all glade widgets and place them in your user instance
+	# This class help us to retrieve all glade widgets and place them in your user instance
 	# like @windows, @widget, ...
 	#
 	###

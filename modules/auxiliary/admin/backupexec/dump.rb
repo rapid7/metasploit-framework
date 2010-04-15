@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		print_status("Attempting to retreive #{datastore['RPATH']}...")
+		print_status("Attempting to retrieve #{datastore['RPATH']}...")
 		
 		lfd = File.open(datastore['LPATH'], 'w')
 				

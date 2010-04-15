@@ -1,6 +1,6 @@
 // Singleton class TooltipWindow
 // This class works with special className. The tooltip content could be in your HTML page as an hidden element or
-// can be retreive by an AJAX call.
+// can be retrieve by an AJAX call.
 //
 // To work, You just need to set two class name on elements that should show tooltips
 // - One to say to TooltipManager that this element must have a tooltip ('tooltip' by default)

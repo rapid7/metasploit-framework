@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 			elsif banner
 				print_status("#{target_host}:#{rport}, VNC server protocol version : \"#{banner.chomp}\", not supported!")
 			else
-				print_error("#{target_host}:#{rport}, failed to retreive banner")
+				print_error("#{target_host}:#{rport}, failed to retrieve banner")
 			end
 
 		ensure
