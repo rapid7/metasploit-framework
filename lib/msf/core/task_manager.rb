@@ -116,7 +116,12 @@ class TaskManager
 		return if self.thread
 		self.processing = true
 		self.thread     = Thread.new do
-			process_tasks
+			begin
+				process_tasks
+			rescue ::Exception => e
+				elog("taskmanager: process_tasks exception: #{e.class} #{e} #{e.backtrace}")
+				retry
+			end
 		end
 	end
 
@@ -163,7 +168,7 @@ class TaskManager
 			spin = (cnt == 0) ? (spin + 1) : 0
 
 			if spin > 10
-				select(nil, nil, nil, 0.01 * [50, spin].min)
+				select(nil, nil, nil, 0.25)
 			end
 
 		end
