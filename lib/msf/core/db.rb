@@ -614,10 +614,12 @@ class DBManager
 	end
 
 	#
-	#
+	# opts must contain
+	#	:host  -- the host where this vulnerability resides
 	#
 	def report_vuln(opts)
 		return if not active
+		raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
 		name = opts[:name] || return
 		data = opts[:data]
 		wait = opts.delete(:wait)
@@ -632,26 +634,24 @@ class DBManager
 				rids << find_or_create_ref(:name => r)
 			end
 		end
+
 		host = nil
 		addr = nil
-		if opts[:host]
-			if opts[:host].kind_of? Host
-				host = opts[:host]
-			else
-				report_host({:workspace => wspace, :host => opts[:host]})
-				addr = opts[:host]
-			end
+		if opts[:host].kind_of? Host
+			host = opts[:host]
+		else
+			report_host({:workspace => wspace, :host => opts[:host]})
+			addr = opts[:host]
 		end
 
 		ret = {}
 		task = queue( Proc.new {
-			host = get_host(:workspace => wspace, :address => addr)
 			if host
 				host.updated_at = host.created_at
 				host.state      = HostState::Alive
 				host.save!
 			else
-				host = report_host({:workspace => wspace, :host => opts[:host], :wait => true})
+				host = get_host(:workspace => wspace, :address => addr)
 			end
 
 
