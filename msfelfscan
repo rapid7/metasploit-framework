@@ -31,7 +31,14 @@ param = {}
 opt.on('-j', '--jump [regA,regB,regC]', 'Search for jump equivalent instructions') do |t|
 	# take csv of register names (like eax,ebx) and convert
 	# them to an array of register numbers
-	regnums = t.split(',').collect { |o| Rex::Arch::X86.reg_number(o) }
+	regnums = t.split(',').collect { |o|
+		begin
+			Rex::Arch::X86.reg_number(o)
+		rescue
+			puts "Invalid register \"#{o}\""
+			exit(1)
+		end
+	}
 	worker = Rex::ElfScan::Scanner::JmpRegScanner
 	param['args'] = regnums
 end
@@ -73,25 +80,25 @@ end
 
 opt.on_tail("-h", "--help", "Show this message") do
 	puts opt
-	exit
+	exit(1)
 end
 
 begin
 	opt.parse!
 rescue OptionParser::InvalidOption
 	puts "Invalid option, try -h for usage"
-	exit
+	exit(1)
 end
 
 if (! worker)
 	puts opt
-	exit(0)
+	exit(1)
 end
 
 ARGV.each do |file|
-	
+
 	param['file'] = file
-	
+
 	begin
 		elf = Rex::ElfParsey::Elf.new_from_file(file, true)
 	rescue Rex::ElfParsey::ElfHeaderError
@@ -104,14 +111,14 @@ ARGV.each do |file|
 		$stderr.puts("File does not exist: #{file}")
 		next
 	end
-	
+
 	if (param['imagebase'])
 		elf.base_addr = param['imagebase'];
 	end
 
 	o = worker.new(elf)
 	o.scan(param)
-	
+
 	elf.close
 
 end
