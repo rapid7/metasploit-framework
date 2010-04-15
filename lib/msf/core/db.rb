@@ -1289,12 +1289,8 @@ class DBManager
 
 			refs = {}
 
-			$stderr.puts host.inspect
-
 			# os based vuln
 			host.elements['tests'].elements.each('test') do |vuln|
-				$stderr.puts vuln.inspect
-
 				if vuln.attributes['status'] == 'vulnerable-exploited' or vuln.attributes['status'] == 'vulnerable-version'
 					dhost = find_or_create_host(:workspace => wspace, :host => addr)
 					next if not dhost
