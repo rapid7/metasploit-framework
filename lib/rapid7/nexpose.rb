@@ -35,6 +35,13 @@ class APIError < ::RuntimeError
 	end
 end
 
+class AuthenticationFailed < APIError
+	def initialize(req)
+		self.req = req
+		self.reason = "Login Failed"
+	end
+end
+
 module XMLUtils
 	def parse_xml(xml)
 		::REXML::Document.new(xml.to_s)
@@ -346,12 +353,15 @@ class Connection
 
 	# Establish a new connection and Session ID
 	def login
-		r = execute(make_xml('LoginRequest', { 'sync-id' => 0, 'password' => @password, 'user-id' => @username }))
+		begin
+			r = execute(make_xml('LoginRequest', { 'sync-id' => 0, 'password' => @password, 'user-id' => @username }))
+		rescue APIError
+			raise AuthenticationFailed.new(r)
+		end
 		if(r.success)
 			@session_id = r.sid
 			return true
 		end
-		raise APIError.new(r, 'Login failed')
 	end
 
 	# Logout of the current connection
