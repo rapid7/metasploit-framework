@@ -636,8 +636,10 @@ function searchVersion(needle, haystack) {
 	var found_version;
 	if (index == -1) { return; }
 	found_version = haystack.substring(index+needle.length+1);
-	// Strip off any junk at the end such as a CLR declaration
-	found_version = found_version.substring(0,found_version.indexOf(' '));
+	if (found_version.indexOf(' ') != -1) { 
+		// Strip off any junk at the end such as a CLR declaration
+		found_version = found_version.substring(0,found_version.indexOf(' '));
+	} 
 	return found_version;
 }
 
