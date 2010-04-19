@@ -219,6 +219,15 @@ module Shell
 	end
 
 	#
+	# Prints a good message to the output handle.
+	#
+	def print_good(msg='')
+		return if (disable_output == true)
+
+		log_output(output.print_good(msg))
+	end
+
+	#
 	# Prints a line of text to the output handle.
 	#
 	def print_line(msg='')

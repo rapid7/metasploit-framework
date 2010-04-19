@@ -59,6 +59,13 @@ module DispatcherShell
 		end
 
 		#
+		# Wraps shell.print_good
+		#
+		def print_good(msg = '')
+			shell.print_good(msg)
+		end
+
+		#
 		# Wraps shell.print
 		#
 		def print(msg = '')
