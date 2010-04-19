@@ -132,7 +132,7 @@ module Msf::Payload::Stager
 	# create a session.
 	#
 	def handle_connection_stage(conn, opts={})
-		create_session(conn, opts={})
+		create_session(conn, opts)
 	end
 
 	#
