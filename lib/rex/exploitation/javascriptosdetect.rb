@@ -123,7 +123,9 @@ function getVersion(){
 		// future.  This works for multi/browser/mozilla_compareto against
 		// Firefox and Mozilla, so it's probably good enough for now.
 		ua_name = "#{clients::FF}";
-		if (String.trimRight) {
+		if (document.readyState) {
+			ua_version = "3.6";
+		} else if (String.trimRight) {
 			ua_version = "3.5";
 		} else if (document.getElementsByClassName) {
 			ua_version = "3";
