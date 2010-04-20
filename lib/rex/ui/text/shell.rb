@@ -49,7 +49,7 @@ module Shell
 		self.histfile = histfile
 
 		# Initialize the user interface handles
-		init_ui(Input::Stdio.new, Output::Stdio.new)
+		#init_ui(Input::Stdio.new, Output::Stdio.new)
 	end
 
 	#
