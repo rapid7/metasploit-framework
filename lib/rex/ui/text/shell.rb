@@ -37,6 +37,10 @@ module Shell
 	# Initializes a shell that has a prompt and can be interacted with.
 	#
 	def initialize(prompt, prompt_char = '>', histfile = nil)
+		# Don't initialize the UI here since it will clobber any existing tab
+		# completion routines prematurely.  Instead, wait for the user to
+		# interact.  See bug 1180
+
 		# Set the stop flag to false
 		self.stop_flag      = false
 		self.disable_output = false
@@ -47,9 +51,6 @@ module Shell
 		self.prompt_char = prompt_char
 
 		self.histfile = histfile
-
-		# Initialize the user interface handles
-		#init_ui(Input::Stdio.new, Output::Stdio.new)
 	end
 
 	#
