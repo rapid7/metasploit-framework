@@ -13,6 +13,7 @@ require 'net/ssh/transport/session'
 require 'net/ssh/authentication/session'
 require 'net/ssh/connection/session'
 require 'net/ssh/command_stream'
+require 'net/ssh/utils'
 
 module Net
 
