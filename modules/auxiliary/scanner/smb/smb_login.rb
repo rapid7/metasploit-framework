@@ -147,14 +147,19 @@ class Metasploit3 < Msf::Auxiliary
  
 		if(simple.client.auth_user)
 			print_good("#{rhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) '#{user}' : '#{pass}'")
-			report_auth_info(
+			report_hash = {
 				:host	=> rhost,
 				:proto	=> 'smb',
 				:user	=> user,
-				:pass	=> pass,
 				:target_host	=> rhost,
 				:target_port	=> datastore['RPORT']
-			)
+			}
+			if pass =~ /[0-9a-fA-F]{32}:[0-9a-fA-F]{32}/
+				report_hash.merge!({:hash => pass})
+			else
+				report_hash.merge!({:pass => pass})
+			end
+			report_auth_info(report_hash)
 		else
 			# Samba has two interesting behaviors:
 			# 1) Invalid users receive a guest login
