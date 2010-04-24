@@ -575,7 +575,7 @@ class DBManager
 		condition_values = []
 		if opts[:host]
 			host = get_host(:workspace => wspace, :address => opts[:host])
-			condition = "host_id == ?"
+			condition = "host_id = ?"
 			condition_values = host[:id]
 		end
 		if opts[:proto]
@@ -595,7 +595,7 @@ class DBManager
 		if condition.length > 0
 			condition << " and "
 		end
-		condition << "workspace_id == ?"
+		condition << "workspace_id = ?"
 		condition_values << wspace[:id]
 
 		conditions = [ condition ] + condition_values
