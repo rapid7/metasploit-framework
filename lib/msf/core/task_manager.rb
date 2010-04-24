@@ -198,7 +198,9 @@ class TaskManager
 				return :drop
 			end
 
-			elog("taskmanager: task triggered an exception: #{e.class} #{e} #{task.inspect} ")
+			elog("taskmanager: task triggered an exception: #{e.class} #{e}")
+			elog("taskmanager: task proc: #{task.proc.inspect} ")
+			elog("taskmanager: task Call stack: #{task.source.join("\n")} ")
 			dlog("Call stack:\n#{$@.join("\n")}")
 
 			task.status    = :dropped
