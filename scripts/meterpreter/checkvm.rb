@@ -63,10 +63,7 @@ def vmwarechk(session)
 	begin
 	key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
 	srvvals = key.enum_key
-	if srvvals.include?("vmci")
-		print_status("This is a VMware Virtual Machine")
-		vm = true
-	elsif srvvals.include?("vmdebug")
+	if srvvals.include?("vmdebug")
 		print_status("This is a VMware Virtual Machine")
 		vm = true
 	elsif srvvals.include?("vmmouse")
