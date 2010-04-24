@@ -399,6 +399,7 @@ function getVersion(){
 			case "20100316060223": ua_version = "3.6.2"; os_name = "#{oses::LINUX}"; break;
 			case "20100316074819": ua_version = "3.6.2"; os_name = "#{oses::WINDOWS}"; break;
 			case "20100324182054": ua_version = "3.6.2"; os_name = "#{oses::FREEBSD}"; os_flavor = "PC-BSD"; arch = "#{ARCH_X86}"; break;
+			case "20100401080539": ua_version = "3.6.3"; os_name = "#{oses::WINDOWS}"; break;
 			case "20100402010516": ua_version = "3.5.9"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; break;
 		}
 
