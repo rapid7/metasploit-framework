@@ -22,12 +22,11 @@ def script_exec(session,scrptlst)
 	print_status("Running script List ...")
 	scrptlst.each_line do |scrpt|
 		begin
-			script_components = scrpt.split(" ")
+			script_components = scrpt.split
 			script = script_components.shift
-			script_args = script_components.join(" ")
-			script_path = Msf::Sessions::Meterpreter.find_script_path(script)
+			script_args = script_components
 			print_status "\trunning script #{scrpt.chomp}"
-			session.execute_script(script_path, script_args)
+			session.execute_script(script, script_args)
                 rescue ::Exception => e
                         print_error("Error: #{e.class} #{e}")
                         print_error("Error in script: #{scrpt}")
