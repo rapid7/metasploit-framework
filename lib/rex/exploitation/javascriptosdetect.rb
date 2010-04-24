@@ -401,28 +401,27 @@ function getVersion(){
 			case "20100324182054": ua_version = "3.6.2"; os_name = "#{oses::FREEBSD}"; os_flavor = "PC-BSD"; arch = "#{ARCH_X86}"; break;
 			case "20100401080539": ua_version = "3.6.3"; os_name = "#{oses::WINDOWS}"; break;
 			case "20100402010516": ua_version = "3.5.9"; os_name = "#{oses::LINUX}"; os_flavor = "Ubuntu"; break;
+			default:
+				version = searchVersion("Firefox", navigator.userAgent);
+				// Verify whether the ua string is lying by checking if it contains
+				// the major version we detected using known objects above.  If it
+				// appears to be truthful, then use its more precise version number.
+				if (version && version.split(".")[0] == ua_version.split(".")[0]) {
+					// The version number will sometimes end with a space or end of
+					// line, so strip off anything after a space if one exists
+					if (-1 != version.indexOf(" ")) {
+						version = version.substr(0,version.indexOf(" "));
+					}
+					ua_version = version;
+				} else {
+					ua_is_lying = true;
+				}
+				break;
 		}
+		if (ua_is_lying) { alert("UA is lying"); }
+		alert(ua_version + " vs " + navigator.userAgent);
 
 		// end navigator.buildID checks
-
-		// Verify whether the ua string is lying by checking if it contains
-		// what we detected using known objects above as a substring.  If it
-		// appears to be truthful, then use its more precise version number.
-		//
-		// XXX: This should probably check only the first 2 sections of the
-		// version number so that things like "3.5.0" don't cause false
-		// positives.
-		version = searchVersion("Firefox", navigator.userAgent);
-		if (version && version.substr(0,ua_version.length) == ua_version) {
-			// The version number will end with a space or end of line, so strip
-			// off anything after a space if one exists
-			if (-1 != version.indexOf(" ")) {
-				version = version.substr(0,version.indexOf(" "));
-			}
-			ua_version = version;
-		} else {
-			ua_is_lying = true;
-		}
 
 	} else if (typeof ScriptEngineMajorVersion == "function") {
 		// Then this is IE and we can very reliably detect the OS.
