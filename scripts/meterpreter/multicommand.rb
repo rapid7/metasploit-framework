@@ -60,6 +60,8 @@ end
 def usage
 	print_line("Windows Multi Command Execution Meterpreter Script ")
 	print_line(@@exec_opts.usage)
+	raise Rex::Script::Completed
+
 end
 ################## Main ##################
 @@exec_opts.parse(args) { |opt, idx, val|
@@ -87,8 +89,14 @@ end
 if args.length == 0 or help == 1 
 	usage
 elsif outfile == nil
-	puts list_exec(session,commands)
+	list_exec(session,commands).each_line do |l|
+		print_status(l.chomp)
+	end
+	raise Rex::Script::Completed
+
 else
 	print_status("Saving output of Command to #{outfile}")
 	filewrt(outfile, list_exec(session,commands))
+	raise Rex::Script::Completed
+
 end
