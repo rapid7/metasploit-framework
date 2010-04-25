@@ -31,6 +31,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'References'     =>
 				[
+					['CVE', '2007-6509'],
+					['OSVDB', '39500'],
 					['URL', 'http://archives.neohapsis.com/archives/fulldisclosure/2007-12/0440.html']
 				],
 			'DisclosureDate' => 'Dec 17 2007'
