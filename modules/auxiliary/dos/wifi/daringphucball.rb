@@ -33,6 +33,11 @@ class Metasploit3 < Msf::Auxiliary
 			
 			'Author'         => [ 'hdm' ],
 			'License'        => MSF_LICENSE,
+			'References'	 => 
+				[
+					['CVE', '2006-5710'],
+					['OSVDB', '30180'],
+				],
 			'Version'        => '$Revision$'
 		))
 		register_options(
