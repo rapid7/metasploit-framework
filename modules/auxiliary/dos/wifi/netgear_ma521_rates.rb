@@ -40,6 +40,8 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[
+					['CVE', '2006-6059'],
+					['OSVDB', '30507'],
 					['URL', 'http://projects.info-pull.com/mokb/MOKB-18-11-2006.html'],
 					['URL', 'ftp://downloads.netgear.com/files/ma521_1_2.zip']
 				] 
