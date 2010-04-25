@@ -1,4 +1,4 @@
-#$Id:$
+#$Id: $
 #Meterpreter script for generating domain admin list to be used with Token Hunter plugin
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 #Verion: 0.1
@@ -66,18 +66,17 @@ domadmins = out_lines.slice(6,a_size)
 domainadmin_user_list = []
 domadmins.each do |d|
 	d.split("  ").compact.each do |s|
-		domainadmin_user_list << s.strip if s.strip != ""
+		domainadmin_user_list << s.strip if s.strip != "" and not s =~ /----/
 	end
 end
-
 #process accounts found
 print_status("Accounts Found:")
 domainadmin_user_list.each do |u|
 	print_status("\t#{domain}\\#{u}")
 	filewrt(dest, "#{domain}\\#{u}")
-	list << u
+	list << u.downcase
 end
-if list.index(current_user.join.chomp)
+if list.index(current_user.join.chomp.downcase)
 	print_status("Current sessions running as #{domain}\\#{current_user.join.chomp} is a Domain Admin!!")
 else
 	print_error("Current session running as #{domain}\\#{current_user.join.chomp} is not running as Domain Admin")
