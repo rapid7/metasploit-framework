@@ -6,13 +6,13 @@
 # Check for the broken pack/unpack in OS X 10.4.x
 if ([1].pack('n') == "\x01\x00")
 	$stderr.puts "*** This ruby build has a broken pack/unpack implementation! "
-	
+
 	if (RUBY_PLATFORM =~ /darwin/)
 		$stderr.puts "    Apple shipped a broken version of ruby with the 10.4.x   "
 		$stderr.puts "    release. Please install ruby from source, or use one of  "
 		$stderr.puts "    the free package managers to obtain a working ruby build."
 	end
-	
+
 	exit(0)
 end
 
@@ -32,6 +32,21 @@ if(RUBY_VERSION =~ /^1\.9\./)
 	# Force binary encoding for Ruby versions that support it
 	if(Object.const_defined?('Encoding') and Encoding.respond_to?('default_external='))
 		Encoding.default_external = Encoding.default_internal = "binary"
+	end
+
+	# Overload Object.extend() to do an include(), this fixes a memory leak in extend() on 1.9
+	# This trick doesn't work for anonymous modules, so we pass those to super()
+	class ::Object
+		def extend(x)
+
+			if ! x.name or x.name.empty?
+				# $stderr.puts "Extending #{self.class} normally with #{x}"
+				super(x)
+			else
+				# $stderr.puts "Extending #{self.class} via include with #{x}"
+				instance_eval("class << self; include #{x}; end")
+			end
+		end
 	end
 end
 
@@ -82,7 +97,7 @@ def ruby_187_const_bug
 	rescue ::NameError
 		bugged = true
 	end
-	
+
 	bugged
 end
 
@@ -97,12 +112,13 @@ if(ruby_187_const_bug())
 	$stderr.puts "*** your vendor and ask them to review the URL below.                 *"
 	$stderr.puts "***                                                                   *"
 	$stderr.puts "*** Alternatively, you can download, build, and install the latest    *"
-	$stderr.puts "*** stable snapshot of Ruby from the following URL:                   *"	
+	$stderr.puts "*** stable snapshot of Ruby from the following URL:                   *"
 	$stderr.puts "***  - http://www.ruby-lang.org/                                      *"
-	$stderr.puts "***                                                                   *"	
+	$stderr.puts "***                                                                   *"
 	$stderr.puts "*** For more information, please see the following URL:               *"
 	$stderr.puts "***  - https://bugs.launchpad.net/bugs/282302                         *"
 	$stderr.puts "***                                                                   *"
 	$stderr.puts "***********************************************************************"
 	$stderr.puts ""
 end
+
