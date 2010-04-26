@@ -1,4 +1,4 @@
-#$Id: $
+#$Id$
 #Meterpreter script for generating domain admin list to be used with Token Hunter plugin
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 #Verion: 0.1
