@@ -211,15 +211,13 @@ class DBManager
 			}
 			host.info = host.info[0,Host.columns_hash["info"].limit] if host.info
 
-			# Mark the host as be updated
-			host.updated_at = host.created_at
-
 			# Set default fields if needed
 			host.state       = HostState::Alive if not host.state
 			host.comm        = ''        if not host.comm
 			host.workspace   = wspace    if not host.workspace
 
 			# Always save the host, helps track updates
+			msfe_import_timestamps(opts,host)
 			host.save!
 
 			ret[:host] = host
@@ -305,6 +303,7 @@ class DBManager
 				service.state = ServiceState::Open
 			end
 			if (service and service.changed?)
+				msfe_import_timestamps(opts,service)
 				service.save!
 			end
 			ret[:service] = service
@@ -495,9 +494,11 @@ class DBManager
 				note = wspace.notes.send(method, *args)
 				if (note.changed?)
 					note.data    = data
+					msfe_import_timestamps(opts,note)
 					note.save!
 				else
 					note.updated_at = note.created_at
+					msfe_import_timestamps(opts,note)
 					note.save!
 				end
 			# Insert a brand new note record no matter what
@@ -513,6 +514,7 @@ class DBManager
 				note.critical = crit
 				note.ntype    = ntype
 				note.data     = data
+				msfe_import_timestamps(opts,note)
 				note.save!
 			end
 
@@ -672,6 +674,7 @@ class DBManager
 			end
 
 			if vuln.changed?
+				msfe_import_timestamps(opts,vuln)
 				vuln.save!
 			end
 			ret[:vuln] = vuln
@@ -1117,6 +1120,13 @@ class DBManager
 		doc = data.kind_of?(REXML::Document) ? data : REXML::Document.new(data)
 	end
 
+	# Handles timestamps from Metasploit Express imports.
+	def msfe_import_timestamps(opts,obj)
+		obj.created_at = opts["created_at"] if opts["created_at"]
+		obj.updated_at = opts["updated_at"] ? opts["updated_at"] : obj.created_at
+		return obj
+	end
+
 	def import(data, wspace=workspace)
 		di = data.index("\n")
 		if(not di)
@@ -1197,7 +1207,7 @@ class DBManager
 			if host.elements["comm"].text
 				host_data[:comm] = host.elements["comm"].text.to_s.strip
 			end
-			%w{name state os-flavor os-lang os-name os-sp purpose}.each { |datum|
+			%w{created-at updated-at name state os-flavor os-lang os-name os-sp purpose}.each { |datum|
 				if host.elements[datum].text
 					host_data[datum.tr('-','_')] = host.elements[datum].text.to_s.strip
 				end
@@ -1210,9 +1220,9 @@ class DBManager
 				service_data[:host] = host_address
 				service_data[:port] = service.elements["port"].text.to_i
 				service_data[:proto] = service.elements["proto"].text.to_s.strip
-				%w{name state info}.each { |datum|
+				%w{created-at updated-at name state info}.each { |datum|
 					if service.elements[datum].text
-						service_data[datum] = service.elements[datum].text.to_s.strip
+						service_data[datum.tr("-","_")] = service.elements[datum].text.to_s.strip
 					end
 				}
 				report_service(service_data)
@@ -1229,6 +1239,11 @@ class DBManager
 				if note.elements["seen"].text
 					note_data[:seen] = true
 				end
+				%w{created-at updated-at}.each { |datum|
+					if note.elements[datum].text
+						note_data[datum.tr("-","_")] = note.elements[datum].text.to_s.strip
+					end
+				}
 				report_note(note_data)
 			end
 			host.elements.each('vulns/vuln') do |vuln|
@@ -1239,6 +1254,11 @@ class DBManager
 					vuln_data[:data] = YAML.load(vuln.elements["data"].text.to_s.strip)
 				end
 				vuln_data[:name] = vuln.elements["name"].text.to_s.strip
+				%w{created-at updated-at}.each { |datum|
+					if vuln.elements[datum].text
+						vuln_data[datum.tr("-","_")] = vuln.elements[datum].text.to_s.strip
+					end
+				}
 				report_vuln(vuln_data)
 			end
 		end
