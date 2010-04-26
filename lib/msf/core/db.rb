@@ -1174,7 +1174,7 @@ class DBManager
 	# Import a Metasploit Express XML file.
 	# TODO: loot, tasks, and reports
 	def import_msfe_v1_file(filename, wspace=workspace)
-		f = File.opne(filename, 'r')
+		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
 		import_msfe_v1_xml(data, wspace)
 	end

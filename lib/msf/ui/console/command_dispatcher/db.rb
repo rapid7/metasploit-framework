@@ -62,6 +62,7 @@ class Db
 				"db_import_nessus_xml"	=> "Import a Nessus scan result file (NESSUS)",
 				"db_import_nmap_xml"    => "Import a Nmap scan results file (-oX)",
 				"db_import_qualys_xml"  => "Import a Qualys scan results file (XML)",
+				"db_import_msfe_xml"  => "Import a Metasploit Express report (XML)",
 				"db_nmap"               => "Executes nmap and records the output automatically",
 			}
 
@@ -944,6 +945,21 @@ class Db
 				return
 			end
 			framework.db.import_qualys_xml_file(args[0])
+		end
+
+		#
+		# Import a Metasploit Express XML report
+		def cmd_db_import_msfe_xml(*args)
+			if not (args and args.length == 1)
+				print_status("Usage: db_import_msfe_xml <report.xml>")
+				return
+			end
+
+			if not File.readable?(args[0])
+				print_status("Could not read the Metasploit Express file")
+				return
+			end
+			framework.db.import_msfe_v1_file(args[0])
 		end
 
 		#
