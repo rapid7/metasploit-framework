@@ -152,7 +152,8 @@ class Metasploit3 < Msf::Auxiliary
 				:proto	=> 'smb',
 				:user	=> user,
 				:target_host	=> rhost,
-				:target_port	=> datastore['RPORT']
+				:target_port	=> datastore['RPORT'],
+				:critical       => true
 			}
 			if pass =~ /[0-9a-fA-F]{32}:[0-9a-fA-F]{32}/
 				report_hash.merge!({:hash => pass})

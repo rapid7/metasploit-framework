@@ -60,7 +60,8 @@ class Metasploit3 < Msf::Auxiliary
 					:user => user,
 					:pass => pass,
 					:target_host => rhost,
-					:target_port => rport
+					:target_port => rport,
+					:critical => true
 				})
 				return :next_user
  			else

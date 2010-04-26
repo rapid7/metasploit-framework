@@ -157,7 +157,8 @@ class Metasploit3 < Msf::Auxiliary
 				:pass   => pass,
 				:target_host => rhost,
 				:target_port => rport,
-				:proof  => proof.to_s
+				:proof  => proof.to_s,
+				:critical => true
 			)
 
 			return :abort if (any_user or any_pass)

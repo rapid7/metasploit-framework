@@ -215,7 +215,8 @@ class Metasploit3 < Msf::Auxiliary
 			:pass	=> pass,
 			:target_host	=> rhost,
 			:target_port	=> datastore['RPORT'],
-			:proof  => proof
+			:proof  => proof,
+			:critical => true
 		)
 	end
 

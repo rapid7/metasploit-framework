@@ -123,7 +123,8 @@ class Metasploit3 < Msf::Auxiliary
 			:user => user,
 			:pass => pass,
 			:target_host => rhost,
-			:target_port => rport
+			:target_port => rport,
+			:critical => true
 		}
 		result_hash.merge!({:database => db}) if db_ok
 		report_auth_info result_hash
