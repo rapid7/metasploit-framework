@@ -1138,6 +1138,8 @@ class DBManager
 					return import_nessus_xml_v2(data, wspace)
 				when "SCAN"
 					return import_qualys_xml(data, wspace)
+				when "MetasploitExpressV1"
+					return import_msfe_v1_xml(data, wspace)
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
@@ -1167,6 +1169,77 @@ class DBManager
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
 		import_nexpose_simplexml(data, wspace)
+	end
+
+	# Import a Metasploit Express XML file.
+	# TODO: loot, tasks, and reports
+	def import_msfe_v1_file(filename, wspace=workspace)
+		f = File.opne(filename, 'r')
+		data = f.read(f.stat.size)
+		import_msfe_v1_xml(data, wspace)
+	end
+
+	# For each host, step through services, notes, and vulns, and import
+	# them. 
+	# TODO: loot, tasks, and reports
+	def import_msfe_v1_xml(data, wspace=workspace)
+		if data.kind_of? REXML::Document
+			doc = data
+		else
+			doc = REXML::Document.new(data)
+		end
+		doc.elements.each('/MetasploitExpressV1/hosts/msf-db-manager-host') do |host|
+			host_data = {}
+			host_data[:workspace] = wspace
+			host_data[:host] = host.elements["address"].text.to_s.strip
+			host_data[:host_mac] = host.elements["mac"].text.to_s.strip
+			if host.elements["comm"].text
+				host_data[:comm] = host.elements["comm"].text.to_s.strip
+			end
+			if host.elements["name"].text
+				host_data["name"] = host.elements["name"].text.to_s.strip
+			end
+			%w{state os-flavor os-lang os-name os-sp purpose}.each { |datum|
+				host_data[datum.tr('-','_')] = host.elements[datum].text.to_s.strip
+			}
+			host_address = host_data[:host].dup # Preserve after report_host() deletes
+			report_host(host_data) 
+			host.elements.each('services/service') do |service| 
+				service_data = {}
+				service_data[:workspace] = wspace
+				service_data[:host] = host_address
+				service_data[:port] = service.elements["port"].text.to_i
+				service_data[:proto] = service.elements["proto"].text.to_s.strip
+				%w{name state info}.each { |datum|
+					service_data[datum] = service.elements[datum].text.to_s.strip
+				}
+				report_service(service_data)
+			end
+			host.elements.each('notes/note') do |note|
+				note_data = {}
+				note_data[:workspace] = wspace
+				note_data[:host] = host_address
+				note_data[:type] = note.elements["ntype"].text.to_s.strip
+				note_data[:data] = YAML.load(note.elements["data"].text.to_s.strip)
+				if note.elements["critical"].text
+					note_data[:critical] = true
+				end
+				if note.elements["seen"].text
+					note_data[:seen] = true
+				end
+				report_note(note_data)
+			end
+			host.elements.each('vulns/vuln') do |vuln|
+				vuln_data = {}
+				vuln_data[:workspace] = wspace
+				vuln_data[:host] = host_address
+				if vuln.elements["data"].text
+					vuln_data[:data] = YAML.load(vuln.elements["data"].text.to_s.strip)
+				end
+				vuln_data[:name] = vuln.elements["name"].text.to_s.strip
+				report_vuln(vuln_data)
+			end
+		end
 	end
 
 	def import_nexpose_simplexml(data, wspace=workspace)
