@@ -1112,6 +1112,11 @@ class DBManager
 		import(data, wspace)
 	end
 
+	# Returns a REXML::Document from the given data.
+	def rexmlify(data)
+		doc = data.kind_of?(REXML::Document) ? data : REXML::Document.new(data)
+	end
+
 	def import(data, wspace=workspace)
 		di = data.index("\n")
 		if(not di)
@@ -1183,11 +1188,7 @@ class DBManager
 	# them. 
 	# TODO: loot, tasks, and reports
 	def import_msfe_v1_xml(data, wspace=workspace)
-		if data.kind_of? REXML::Document
-			doc = data
-		else
-			doc = REXML::Document.new(data)
-		end
+		doc = rexmlify(data)
 		doc.elements.each('/MetasploitExpressV1/hosts/msf-db-manager-host') do |host|
 			host_data = {}
 			host_data[:workspace] = wspace
@@ -1196,11 +1197,10 @@ class DBManager
 			if host.elements["comm"].text
 				host_data[:comm] = host.elements["comm"].text.to_s.strip
 			end
-			if host.elements["name"].text
-				host_data["name"] = host.elements["name"].text.to_s.strip
-			end
-			%w{state os-flavor os-lang os-name os-sp purpose}.each { |datum|
-				host_data[datum.tr('-','_')] = host.elements[datum].text.to_s.strip
+			%w{name state os-flavor os-lang os-name os-sp purpose}.each { |datum|
+				if host.elements[datum].text
+					host_data[datum.tr('-','_')] = host.elements[datum].text.to_s.strip
+				end
 			}
 			host_address = host_data[:host].dup # Preserve after report_host() deletes
 			report_host(host_data) 
@@ -1211,7 +1211,9 @@ class DBManager
 				service_data[:port] = service.elements["port"].text.to_i
 				service_data[:proto] = service.elements["proto"].text.to_s.strip
 				%w{name state info}.each { |datum|
-					service_data[datum] = service.elements[datum].text.to_s.strip
+					if service.elements[datum].text
+						service_data[datum] = service.elements[datum].text.to_s.strip
+					end
 				}
 				report_service(service_data)
 			end
@@ -1243,11 +1245,7 @@ class DBManager
 	end
 
 	def import_nexpose_simplexml(data, wspace=workspace)
-		if data.kind_of? REXML::Document
-			doc = data
-		else
-			doc = REXML::Document.new(data)
-		end
+		doc = rexmlify(data)
 		doc.elements.each('/NeXposeSimpleXML/devices/device') do |dev|
 			addr = dev.attributes['address'].to_s
 
@@ -1350,11 +1348,12 @@ class DBManager
 		data = f.read(f.stat.size)
 		import_nexpose_rawxml(data, wspace)
 	end
+
 	def import_nexpose_rawxml(data, wspace=workspace)
 
 		raise RuntimeError, "NeXpose RAW-XML is not currently supported, please use SimpleXML"
 
-		doc = REXML::Document.new(data)
+		doc = rexmlify(data)
 		doc.elements.each('/NexposeReport/nodes/node') do |host|
 			addr  = host.attributes['address']
 			xmac  = host.attributes['hardware-address']
@@ -1568,7 +1567,7 @@ class DBManager
 
 	def import_nessus_xml(data, wspace=workspace)
 
-		doc = REXML::Document.new(data)
+		doc = rexmlify(data)
 		doc.elements.each('/NessusClientData/Report/ReportHost') do |host|
 			addr = host.elements['HostName'].text
 
@@ -1584,7 +1583,7 @@ class DBManager
 	end
 
 	def import_nessus_xml_v2(data, wspace=workspace)
-		doc = REXML::Document.new(data)
+		doc = rexmlify(data)
 		doc.elements.each('/NessusClientData_v2/Report/ReportHost') do |host|
 			# if Nessus resovled the host, its host-ip tag should be set
 			# otherwise, fall back to the name attribute which would
@@ -1623,7 +1622,7 @@ class DBManager
 
 	def import_qualys_xml(data, wspace=workspace)
 
-		doc = REXML::Document.new(data)
+		doc = rexmlify(data)
 		doc.elements.each('/SCAN/IP') do |host|
 			addr  = host.attributes['value']
 			hname = host.attributes['name'] || ''
