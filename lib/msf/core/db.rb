@@ -1195,7 +1195,7 @@ class DBManager
 	end
 
 	# For each host, step through services, notes, and vulns, and import
-	# them. 
+	# them.
 	# TODO: loot, tasks, and reports
 	def import_msfe_v1_xml(data, wspace=workspace)
 		doc = rexmlify(data)
@@ -1209,12 +1209,12 @@ class DBManager
 			end
 			%w{created-at updated-at name state os-flavor os-lang os-name os-sp purpose}.each { |datum|
 				if host.elements[datum].text
-					host_data[datum.tr('-','_')] = host.elements[datum].text.to_s.strip
+					host_data[datum.gsub('-','_')] = host.elements[datum].text.to_s.strip
 				end
 			}
 			host_address = host_data[:host].dup # Preserve after report_host() deletes
-			report_host(host_data) 
-			host.elements.each('services/service') do |service| 
+			report_host(host_data)
+			host.elements.each('services/service') do |service|
 				service_data = {}
 				service_data[:workspace] = wspace
 				service_data[:host] = host_address
@@ -1222,7 +1222,7 @@ class DBManager
 				service_data[:proto] = service.elements["proto"].text.to_s.strip
 				%w{created-at updated-at name state info}.each { |datum|
 					if service.elements[datum].text
-						service_data[datum.tr("-","_")] = service.elements[datum].text.to_s.strip
+						service_data[datum.gsub("-","_")] = service.elements[datum].text.to_s.strip
 					end
 				}
 				report_service(service_data)
@@ -1241,7 +1241,7 @@ class DBManager
 				end
 				%w{created-at updated-at}.each { |datum|
 					if note.elements[datum].text
-						note_data[datum.tr("-","_")] = note.elements[datum].text.to_s.strip
+						note_data[datum.gsub("-","_")] = note.elements[datum].text.to_s.strip
 					end
 				}
 				report_note(note_data)
@@ -1256,7 +1256,7 @@ class DBManager
 				vuln_data[:name] = vuln.elements["name"].text.to_s.strip
 				%w{created-at updated-at}.each { |datum|
 					if vuln.elements[datum].text
-						vuln_data[datum.tr("-","_")] = vuln.elements[datum].text.to_s.strip
+						vuln_data[datum.gsub("-","_")] = vuln.elements[datum].text.to_s.strip
 					end
 				}
 				report_vuln(vuln_data)
