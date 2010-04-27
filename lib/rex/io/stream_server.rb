@@ -149,8 +149,6 @@ protected
 				# Append to the list of clients
 				self.clients << cli
 
-				elog("Clients: #{self.clients.length} #{self.clients.inspect}")
-
 				# Initialize the connection processing
 				on_client_connect(cli)
 
