@@ -26,7 +26,7 @@ module  Rex::Socket::TcpServer
 	def self.create(hash = {})
 		hash['Proto'] = 'tcp'
 		hash['Server'] = true
-		self.create_param(Rex::Socket::Parameters.from_hash(hash))	
+		self.create_param(Rex::Socket::Parameters.from_hash(hash))
 	end
 
 	#
@@ -43,12 +43,17 @@ module  Rex::Socket::TcpServer
 	# Accepts a child connection.
 	#
 	def accept(opts = {})
-		t = super()[0]
+		t = super()
+
+		# jRuby compatibility
+		if t.respond_to?('[]')
+			t = t[0]
+		end
 
 		if (t)
 			t.extend(Rex::Socket::Tcp)
 			t.context = self.context
-			
+
 			pn = t.getpeername
 
 			t.peerhost = pn[1]
@@ -59,3 +64,4 @@ module  Rex::Socket::TcpServer
 	end
 
 end
+

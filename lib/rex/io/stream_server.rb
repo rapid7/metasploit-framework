@@ -137,32 +137,33 @@ protected
 	#
 	def monitor_listener
 
-		begin
-			sd = Kernel.select([ fd ], nil, nil, 0.25)
-
-			# Accept the new client connection
-			if (sd and sd[0].length > 0)
-				begin
-					cli = accept
-
-					next unless cli
-
-					# Insert it into some lists
-					self.clients << cli
-
-					on_client_connect(cli)
-
-				# Skip exceptions caused by accept() [ SSL ]
-				rescue ::EOFError, ::Errno::ECONNRESET, ::Errno::ENOTCONN, ::Errno::ECONNABORTED
+		while true
+			begin
+				cli = accept
+				if not cli
+					elog("The accept() returned nil in stream server listener monitor:  #{fd.inspect}")
+					select(nil, nil, nil, 0.10)
+					next
 				end
+
+				# Append to the list of clients
+				self.clients << cli
+
+				elog("Clients: #{self.clients.length} #{self.clients.inspect}")
+
+				# Initialize the connection processing
+				on_client_connect(cli)
+
+			# Skip exceptions caused by accept() [ SSL ]
+			rescue ::EOFError, ::Errno::ECONNRESET, ::Errno::ENOTCONN, ::Errno::ECONNABORTED
+			rescue ::Interrupt
+				raise $!
+			rescue ::Exception
+				elog("Error in stream server server monitor: #{$!}")
+				rlog(ExceptionCallStack)
+				break
 			end
-
-		rescue ::Exception
-			elog("Error (#{$!.class}) in stream server listener monitor:  #{$!}")
-			rlog($!.backtrace)
-			break
-		end while true
-
+		end
 	end
 
 	#
@@ -178,16 +179,16 @@ protected
 
 			sd = Rex::ThreadSafe.select(clients)
 
-			sd[0].each { |fd|
+			sd[0].each { |cfd|
 				begin
-					on_client_data(fd)
+					on_client_data(cfd)
 				rescue ::EOFError, ::Errno::ECONNRESET, ::Errno::ENOTCONN, ::Errno::ECONNABORTED
-					on_client_close(fd)
-					close_client(fd)
+					on_client_close(cfd)
+					close_client(cfd)
 				rescue ::Interrupt
 					raise $!
 				rescue ::Exception
-					close_client(fd)
+					close_client(cfd)
 					elog("Error in stream server client monitor: #{$!}")
 					rlog(ExceptionCallStack)
 
