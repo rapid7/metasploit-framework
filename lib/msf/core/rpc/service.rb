@@ -59,6 +59,12 @@ class Service < ::XMLRPC::BasicServer
 			c.close
 			return
 		end
+
+		if not self.state[c]
+			c.close
+			return
+		end
+
 		self.state[c] << data
 		procxml(c)
 	end
