@@ -34,6 +34,8 @@ if(RUBY_VERSION =~ /^1\.9\./)
 		Encoding.default_external = Encoding.default_internal = "binary"
 	end
 
+	# Disable: See #1731
+=begin
 	# Overload Object.extend() to do an include(), this fixes a memory leak in extend() on 1.9
 	# This trick doesn't work for anonymous modules, so we pass those to super()
 	class ::Object
@@ -48,6 +50,8 @@ if(RUBY_VERSION =~ /^1\.9\./)
 			end
 		end
 	end
+=end
+
 end
 
 if(RUBY_PLATFORM == 'java')
