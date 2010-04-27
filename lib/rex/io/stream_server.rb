@@ -142,7 +142,7 @@ protected
 				cli = accept
 				if not cli
 					elog("The accept() returned nil in stream server listener monitor:  #{fd.inspect}")
-					select(nil, nil, nil, 0.10)
+					::Kernel.select(nil, nil, nil, 0.10)
 					next
 				end
 

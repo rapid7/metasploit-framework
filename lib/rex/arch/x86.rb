@@ -21,7 +21,7 @@ module X86
 	ESI = DH = SI =      6
 	EDI = BH = DI =      7
 
-	REG_NAMES32 = [ 'eax', 'ecx', 'edx', 'ebx', 
+	REG_NAMES32 = [ 'eax', 'ecx', 'edx', 'ebx',
 	                'esp', 'ebp', 'esi', 'edi' ] # :nodoc:
 
 	# Jump tp a specific register
@@ -43,7 +43,7 @@ module X86
 	def self.dword_adjust(dword, amount=0)
 		pack_dword(dword.unpack('V')[0] + amount)
 	end
-	
+
 	#
 	# This method returns the opcodes that compose a tag-based search routine
 	#
@@ -57,7 +57,7 @@ module X86
 		"\x4f" +                        # dec edi (start_search:)
 		"\x39\x77\xfc" +                # cmp [edi-0x4],esi
 		"\x75\xfa" +                    # jnz 0x10 (start_search)
-		jmp_reg('edi')                  # jmp edi	
+		jmp_reg('edi')                  # jmp edi
 	end
 
 	#
@@ -81,7 +81,7 @@ module X86
 
 		stub
 	end
-	
+
 	#
 	# This method returns the opcodes that compose a short jump instruction to
 	# the supplied relative offset.
@@ -239,7 +239,7 @@ module X86
 				return opcodes[rand(opcodes.length)].chr + encode_modrm(dst, dst)
 			end
 # TODO: SHL/SHR
-# TODO: AND 
+# TODO: AND
 		end
 
 		# try push BYTE val; pop dst (3 bytes)
@@ -286,30 +286,30 @@ module X86
 		shift   = (add == true) ? 0 : 5
 
 		if (bits <= 8 and val >= -0x7f and val <= 0x7f)
-			opcodes << 
-				((adjust) ? '' : clear(reg, badchars)) + 
-				"\x83" + 
+			opcodes <<
+				((adjust) ? '' : clear(reg, badchars)) +
+				"\x83" +
 				[ encode_effective(shift, reg) ].pack('C') +
 				[ val.to_i ].pack('C')
 		end
 
 		if (bits <= 16 and val >= -0xffff and val <= 0)
-			opcodes << 
-				((adjust) ? '' : clear(reg, badchars)) + 
-				"\x66\x81" + 
+			opcodes <<
+				((adjust) ? '' : clear(reg, badchars)) +
+				"\x66\x81" +
 				[ encode_effective(shift, reg) ].pack('C') +
 				[ val.to_i ].pack('v')
 		end
-			
-		opcodes << 
-			((adjust) ? '' : clear(reg, badchars)) + 
-			"\x81" + 
+
+		opcodes <<
+			((adjust) ? '' : clear(reg, badchars)) +
+			"\x81" +
 			[ encode_effective(shift, reg) ].pack('C') +
 			[ val.to_i ].pack('V')
 
 		# Search for a compatible opcode
 		opcodes.each { |op|
-			begin 
+			begin
 				_check_badchars(op, badchars)
 			rescue
 				next
@@ -409,12 +409,12 @@ module X86
 	# This method will return nil if the getip generation fails
 	#
 	def self.geteip_fpu(badchars)
-		
+
 		#
 		# Default badchars to an empty string
 		#
 		badchars ||= ''
-		
+
 		#
 		# Bail out early if D9 is restricted
 		#
@@ -429,7 +429,7 @@ module X86
 			fpus.each do |str|
 				bads << str if (str.index(c.chr))
 			end
-		end	
+		end
 		bads.each { |str| fpus.delete(str) }
 		return nil if fpus.length == 0
 
@@ -510,3 +510,4 @@ module X86
 end
 
 end end
+
