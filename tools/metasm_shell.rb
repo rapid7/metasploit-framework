@@ -60,6 +60,7 @@ end
 # Start a pseudo shell and dispatch lines to be assembled and then
 # disassembled.
 shell = Rex::Ui::Text::PseudoShell.new("%bldmetasm%clr")
+shell.init_ui(Rex::Ui::Text::Input::Stdio.new, Rex::Ui::Text::Output::Stdio.new)
 
 puts 'type "exit" or "quit" to quit', 'use ";" or "\\n" for newline', ''
 
