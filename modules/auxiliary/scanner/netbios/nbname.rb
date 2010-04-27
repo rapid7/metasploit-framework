@@ -111,6 +111,12 @@ class Metasploit3 < Msf::Auxiliary
 
 		rescue ::Interrupt
 			raise $!
+		rescue ::Errno::ENOBUFS
+			print_status("Socket buffers are full, waiting for them to flush...")
+			while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
+				parse_reply(r)
+			end
+			select(nil, nil, nil, 0.25)
 		rescue ::Exception => e
 			print_status("Unknown error: #{e.class} #{e}")
 		end
