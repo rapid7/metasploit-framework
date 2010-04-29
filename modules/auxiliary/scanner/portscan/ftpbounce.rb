@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 			begin
 				host = (ip.split('.') + [port / 256, port % 256]).join(',')
 
-				resp = raw_send_recv("PORT #{host}\r\n")
+				resp = send_cmd(["PORT", host])
 
 				if resp =~ /^5/
 					#print_error("Got error from PORT to #{ip}:#{port}")
@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 					next
 				end
 
-				resp = raw_send_recv("LIST\r\n")
+				resp = send_cmd(["LIST"])
 
 				if resp =~ /^[12]/
 					print_status(" TCP OPEN #{ip}:#{port}")
@@ -87,4 +87,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-
