@@ -19,7 +19,8 @@ def initialize(info = {})
 	OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line" ]),
 	OptInt.new('BRUTEFORCE_SPEED', [ true, "How fast to bruteforce, from 0 to 5", 5]),
 	OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
-	OptBool.new('BLANK_PASSWORDS', [ true, "Try blank passwords for all users", true])
+	OptBool.new('BLANK_PASSWORDS', [ true, "Try blank passwords for all users", true]),
+	OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", false])
 	], Auxiliary::AuthBrute)
 
 end
@@ -58,8 +59,10 @@ def each_user_pass(&block)
 
 	credentials.concat(combine_users_and_passwords(users,passwords))
 	credentials = just_uniq_passwords(credentials) if @strip_usernames
+	fq_rest = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], "all remaining users"]
 
 	credentials.each do |u,p|
+		break if @@credentials_skipped[fq_rest]
 		fq_user = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], u]
 		userpass_sleep_interval unless @@credentials_tried.empty?
 		next if @@credentials_skipped[fq_user]
@@ -70,6 +73,9 @@ def each_user_pass(&block)
 		break
 		when :next_user
 			@@credentials_skipped[fq_user] = p
+			if datastore['STOP_ON_SUCCESS']
+				@@credentials_skipped[fq_rest] = true
+			end
 		end
 	@@credentials_tried[fq_user] = p
 	end
