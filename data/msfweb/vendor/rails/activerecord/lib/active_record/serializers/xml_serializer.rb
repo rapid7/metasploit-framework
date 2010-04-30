@@ -324,20 +324,16 @@ module ActiveRecord #:nodoc:
         	return nil if not obj
         	return obj if not "X".respond_to?('encode')
 
-			case obj.class.to_s.downcase
-			when 'string'
+			case obj.class.to_s
+			when 'String'
 				 return obj.encode(::Encoding::BINARY, { :invalid => :replace, :undef => :replace, :replace => '?' })
-			when 'hash'
+			when 'Hash'
 				obj.each_pair do |k,v|
-					if v.class == ::String
-						obj[k] = v.encode(::Encoding::BINARY, { :invalid => :replace, :undef => :replace, :replace => '?' })
-					end
+					obj[k] = force_binary_encoding(v)
 				end
-			when 'array'
+			when 'Array'
 				obj.each_index do |i|
-					if obj[i].class == ::String
-						obj[i] = obj[i].encode(::Encoding::BINARY, { :invalid => :replace, :undef => :replace, :replace => '?' })
-					end
+					obj[i] = force_binary_encoding(obj[i])
 				end
 			end
 			obj
