@@ -319,6 +319,30 @@ module ActiveRecord #:nodoc:
       end
 
       protected
+
+        def force_binary_encoding(obj)
+        	return nil if not obj
+        	return obj if not "X".respond_to?('encode')
+
+			case obj.class.to_s.downcase
+			when 'string'
+				 return obj.encode(::Encoding::BINARY, { :invalid => :replace, :undef => :replace, :replace => '?' })
+			when 'hash'
+				obj.each_pair do |k,v|
+					if v.class == ::String
+						obj[k] = v.encode(::Encoding::BINARY, { :invalid => :replace, :undef => :replace, :replace => '?' })
+					end
+				end
+			when 'array'
+				obj.each_index do |i|
+					if obj[i].class == ::String
+						obj[i] = obj[i].encode(::Encoding::BINARY, { :invalid => :replace, :undef => :replace, :replace => '?' })
+					end
+				end
+			end
+			obj
+        end
+
         def compute_type
           type = if @record.class.serialized_attributes.has_key?(name)
                    :yaml
@@ -337,7 +361,7 @@ module ActiveRecord #:nodoc:
         end
 
         def compute_value
-          value = @record.send(name)
+          value = force_binary_encoding(@record.send(name))
 
           if formatter = Hash::XML_FORMATTING[type.to_s]
             value ? formatter.call(value) : nil
@@ -355,3 +379,4 @@ module ActiveRecord #:nodoc:
     end
   end
 end
+
