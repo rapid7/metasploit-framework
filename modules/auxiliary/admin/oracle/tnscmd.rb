@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -24,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'DisclosureDate' => 'Feb 1 2009'))
 
-                        register_options( 
+                        register_options(
                                 [
 					Opt::RPORT(1521),
 					OptString.new('CMD', [ false, 'Something like ping, version, status, etc..', '(CONNECT_DATA=(COMMAND=VERSION))']),
@@ -42,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Sending '#{command}' to #{rhost}:#{rport}")
 		sock.put(pkt)
 		print_status("writing #{pkt.length} bytes.")
-		
+
 		sleep(0.5)
 
 		print_status("reading")
@@ -52,6 +56,6 @@ class Metasploit3 < Msf::Auxiliary
 		res = res.tr("\177",".")
 		puts res
 
-		disconnect		
+		disconnect
 	end
 end

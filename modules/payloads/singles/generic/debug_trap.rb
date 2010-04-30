@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -27,9 +27,9 @@ module Metasploit3
 			'Platform'	=> [ 'win', 'linux', 'bsd', 'solaris', 'bsdi', 'osx' ],
 			'License'       => MSF_LICENSE,
 			'Arch'		=> ARCH_X86,
-			'Payload'	=> 
+			'Payload'	=>
 				{
-					'Payload' => 
+					'Payload' =>
 							"\xcc"
 				}
 			))

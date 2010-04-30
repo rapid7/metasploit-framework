@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -11,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 	include Msf::Exploit::ORACLE
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Oracle Database Enumeration',
@@ -43,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		print_status("Running Oracle Enumeration....")
-		
+
 		#Version Check
 		query =  'select * from v$version'
 		ver = prepare_exec(query)
@@ -52,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("\t#{v.chomp}")
 			report_note(:host => datastore['RHOST'], :proto => 'TNS', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Component Version: #{v.chomp}")
 		end
-	
+
 		#Saving Major Release Number for other checks
 		majorrel = ver[0].scan(/Edition Release (\d*)./)
 
@@ -77,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		end
-		
+
 		#-------------------------------------------------------
 		#Security Settings
 		print_status("Security Settings:")
@@ -129,7 +133,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("It appears you do not have sufficient rights to perform the check")
 			end
 		end
-		
+
 		begin
 			query = %Q|
 				SELECT limit
@@ -146,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("It appears you do not have sufficient rights to perform the check")
 			end
 		end
-		
+
 		begin
 			query = %Q|
 				SELECT limit
@@ -163,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("It appears you do not have sufficient rights to perform the check")
 			end
 		end
-		
+
 		begin
 			query = %Q|
 				SELECT limit
@@ -245,7 +249,7 @@ class Metasploit3 < Msf::Auxiliary
 			if majorrel.join.to_i < 11
 
 				query = %Q|
-					SELECT name, password 
+					SELECT name, password
 					FROM sys.user$
 					where password != 'null' and  type# = 1 and astatus = 0
 				|
@@ -278,7 +282,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			if majorrel.join.to_i < 11
 				query = %Q|
-					SELECT username, password 
+					SELECT username, password
 					FROM dba_users
 					WHERE account_status = 'EXPIRED & LOCKED'
 				|

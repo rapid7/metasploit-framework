@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -45,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		info = (datastore['SSL'] ? "https" : "http") + "://#{target_host}#{port}/"
-		
+
 		connect
 
 		sock.put("GET /_vti_inf.html HTTP/1.1\r\n" + "TE: deflate,gzip;q=0.3\r\n" + "Keep-Alive: 300\r\n" +
@@ -77,27 +81,27 @@ class Metasploit3 < Msf::Auxiliary
 
 	def check_account(info, fpversion, target_host)
 
-		return if not fpversion 
+		return if not fpversion
 
 		connect
 
-		# http://msdn2.microsoft.com/en-us/library/ms454298.aspx 
+		# http://msdn2.microsoft.com/en-us/library/ms454298.aspx
 		method = "method=open+service:#{fpversion}&service_name=/"
 
-		req = "POST /_vti_bin/_vti_aut/author.dll HTTP/1.1\r\n" + "TE: deflate,gzip;q=0.3\r\n" + 
-			"Keep-Alive: 300\r\n" + "Connection: Keep-Alive, TE\r\n" + "Host: #{target_host}\r\n" + 
+		req = "POST /_vti_bin/_vti_aut/author.dll HTTP/1.1\r\n" + "TE: deflate,gzip;q=0.3\r\n" +
+			"Keep-Alive: 300\r\n" + "Connection: Keep-Alive, TE\r\n" + "Host: #{target_host}\r\n" +
 			"User-Agent: " + datastore['UserAgent'] + "\r\n" + "Content-Type: application/x-www-form-urlencoded\r\n" +
-			"Content-Length: #{method.length}\r\n\r\n" + method + "\r\n\r\n" 
-		
+			"Content-Length: #{method.length}\r\n\r\n" + method + "\r\n\r\n"
+
 		sock.put(req)
 		res = sock.get_once
-	
-	
-	
+
+
+
 		if(res and res.match(/^HTTP\/1\.[01]\s+([^\s]+)\s+(.*)/))
 			retcode = $1
 			retmsg  = $2.strip
-			
+
 			if(retcode == "100")
 				res = sock.get_once
 				if(res and res.match(/^HTTP\/1\.[01]\s+([^\s]+)\s+(.*)/))
@@ -122,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("#{info} FrontPage Unknown Response [#{retcode}]")
 			end
 		end
-	
+
 		disconnect
         end
 

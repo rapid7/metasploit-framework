@@ -1,4 +1,7 @@
-#!/usr/bin/env ruby
+##
+# $Id$
+##
+
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -15,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name' => 'Pull Archive.org stored URLs for a domain',
-			'Description' => %q{ This module pulls and parses the URLs stored by Archive.org for the purpose of 
+			'Description' => %q{ This module pulls and parses the URLs stored by Archive.org for the purpose of
 			                     replaying during a web assessment. Finding unlinked and old pages. },
 			'Author' => [ 'Rob Fuller <mubix [at] hak5.org>' ],
 			'License' => MSF_LICENSE,
@@ -23,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "Domain to request URLS for"]),
-				OptString.new('OUTFILE', [ false, "Where to output the list for use"])			
+				OptString.new('OUTFILE', [ false, "Where to output the list for use"])
 			], self.class)
 
 		register_advanced_options(
@@ -45,34 +48,34 @@ class Metasploit3 < Msf::Auxiliary
 		response.each do |line|
 				pages << line.gsub!(/(.+>)(.+)(<\/a><br>)\n/, '\2')
 		end
-		
+
 		pages.delete_if{|x| x==nil}
 		pages.uniq!
 		pages.sort!
-		
+
 		for i in (0..(pages.count-1))
 			fix = "http://" + pages[i].to_s
 			pages[i] = fix
 		end
 		return pages
 	end
-	
+
 	def write_output(data)
 		print_status("Writing URLs list to #{datastore['OUTFILE']}...")
-		file_name = datastore['OUTFILE'] 
+		file_name = datastore['OUTFILE']
 		if FileTest::exist?(file_name)
 			print_status("OUTFILE already existed, appending..")
 		else
 			print_status("OUTFILE did not exist, creating..")
 		end
-		
+
 		File.open(file_name, 'a') do |fd|
 			fd.write(data)
 		end
-		
-		
+
+
 	end
-	
+
 	def run
 		if datastore['PROXY']
 			@proxysrv,@proxyport = datastore['PROXY'].split(":")
@@ -81,21 +84,21 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			@proxysrv,@proxyport = nil, nil
 		end
-		
+
 		target = datastore['DOMAIN']
 
 		urls = []
 		print_status("Pulling urls from Archive.org")
 		urls = pull_urls(target)
-				
+
 		print_status("Located #{urls.count} addresses for #{target}")
-				
-		if datastore['OUTFILE'] 
+
+		if datastore['OUTFILE']
 			write_output(urls.join("\n") + "\n")
 		else
 			urls.each do |i|
 				puts(i)
-			end	
+			end
 		end
 	end
 end

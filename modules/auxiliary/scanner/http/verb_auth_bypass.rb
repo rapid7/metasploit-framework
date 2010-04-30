@@ -1,6 +1,9 @@
+##
+# $Id$
+##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -11,29 +14,29 @@ require 'msf/core'
 
 
 class Metasploit3 < Msf::Auxiliary
-	
+
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::WMAPScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
-	
+
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'   		=> 'HTTP Verb Authentication Bypass Scanner',
 			'Description'	=> %q{
 				This module test for authentication bypass using different HTTP verbs.
-					
+
 			},
 			'Author' 		=> [ 'et [at] metasploit.com' ],
 			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))   
-			
+			'Version'		=> '$Revision$'))
+
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path to test", '/'])
-			], self.class)	
+			], self.class)
 	end
 
 	# Fingerprint a single host
@@ -43,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 				'HEAD',
 				'TRACE',
 				'TRACK',
-				'WMAP'		
+				'WMAP'
 			]
 
 
@@ -54,12 +57,12 @@ class Metasploit3 < Msf::Auxiliary
 			}, 10)
 
 			if res
-				
+
 				auth_code = res.code
-				
+
 				if res.headers['WWW-Authenticate']
 					print_status("#{ip} requires authentication: #{res.headers['WWW-Authenticate']} [#{auth_code}]")
-					
+
 					report_note(
 						:host	=> ip,
 						:proto	=> 'HTTP',
@@ -67,18 +70,18 @@ class Metasploit3 < Msf::Auxiliary
 						:type	=> 'WWW_AUTHENTICATE',
 						:data	=> "#{datastore['PATH']} Realm: #{res.headers['WWW-Authenticate']}"
 					)
-					
+
 					verbs.each do |tv|
 						resauth = send_request_raw({
 							'uri'          => datastore['PATH'],
 							'method'       => tv
 						}, 10)
-						
-						if resauth 	
+
+						if resauth
 							print_status("Testing verb #{tv} resp code: [#{resauth.code}]")
 							if resauth.code != auth_code and resauth.code <= 302
 								print_status("Possible authentication bypass with verb #{tv} code #{resauth.code}")
-					
+
 								report_note(
 									:host	=> ip,
 									:proto	=> 'HTTP',
@@ -88,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 								)
 							end
 						end
-					end	
+					end
 				else
 					print_status("[#{ip}] Authentication not required. #{datastore['PATH']} #{res.code}")
 				end

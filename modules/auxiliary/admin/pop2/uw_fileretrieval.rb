@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::Pop2
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'UoW pop2d Remote File Retrieval Vulnerability',
 			'Description'    => %q{
 				This module exploits a vulnerability in the FOLD command of the

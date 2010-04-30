@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 	SIMPLE = Rex::Proto::SMB::SimpleClient
 	XCEPT  = Rex::Proto::SMB::Exceptions
 	CONST  = Rex::Proto::SMB::Constants
-	
+
 	def initialize
 		super(
 			'Name'        => 'SMB 2.0 Protocol Detection',
@@ -35,12 +35,12 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
 		)
-		
+
 		register_options([ Opt::RPORT(445) ], self.class)
 	end
 
 	# Fingerprint a single host
-	def run_host(ip)	
+	def run_host(ip)
 
 		begin
 			connect
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("#{ip} supports SMB 2.0")
 				end
 			end
-			
+
 		rescue ::Rex::ConnectionError
 		rescue ::Exception => e
 			print_error("#{rhost}: #{e.class} #{e} #{e.backtrace}")

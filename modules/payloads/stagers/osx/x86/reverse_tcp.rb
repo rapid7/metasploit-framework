@@ -1,3 +1,14 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 
@@ -25,9 +36,9 @@ module Metasploit3
 			'Handler'	=> Msf::Handler::ReverseTcp,
 			'Convention'	=> 'sockedi',
 			'Stager'        =>
-			{ 
+			{
 				'Offsets' =>
-				{ 
+				{
 					'LHOST' => [ 20, 'ADDR'],
 					'LPORT' => [ 27, 'n']
 				},

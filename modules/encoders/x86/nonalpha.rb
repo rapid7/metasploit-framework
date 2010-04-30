@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Encoder::NonAlpha
 			'Description'      => %q{
 					Encodes payloads as non-alpha based bytes. This allows
 				payloads to bypass both toupper() and tolower() calls,
-				but will fail isalpha(). Table based design from 
-				Russel Sanford. 
+				but will fail isalpha(). Table based design from
+				Russel Sanford.
 			},
 			'Author'           => [ 'pusscat'],
 			'Arch'             => ARCH_X86,

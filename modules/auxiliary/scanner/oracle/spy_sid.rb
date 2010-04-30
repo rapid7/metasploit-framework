@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/projects/Framework/
@@ -9,7 +13,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Auxiliary::Report	
+	include Msf::Auxiliary::Report
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Scanner
 
@@ -39,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 				'method'  => 'GET',
 				'version' => '1.1',
 			}, 5)
-		
+
 			if ( res.body =~ /SERVICE_NAME=/ )
 				sleep(2)
 				sid = res.body.scan(/SERVICE_NAME=([^\)]+)/)

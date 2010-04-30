@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	
+
 	def initialize
 		super(
 			'Name'        => 'SIP Endpoint Scanner',
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 			Opt::RPORT(5060),
 			Opt::CHOST,
 			Opt::CPORT(5060)
-		], self.class)		
+		], self.class)
 	end
 
 
@@ -42,14 +42,14 @@ class Metasploit3 < Msf::Auxiliary
 	def run_batch_size
 		datastore['BATCHSIZE'].to_i
 	end
-	
+
 	# Operate on an entire batch of hosts at once
 	def run_batch(batch)
 
-		begin		
+		begin
 			udp_sock = nil
 			idx = 0
-			
+
 			# Create an unbound UDP socket if no CHOST is specified, otherwise
 			# create a UDP socket bound to CHOST (in order to avail of pivoting)
 			udp_sock = Rex::Socket::Udp.create(
@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 			while (r = udp_sock.recvfrom(65535, 3) and r[1])
 				parse_reply(r)
 			end
-			
+
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
 	def parse_reply(pkt)
 
 		return if not pkt[1]
-		
+
 		if(pkt[1] =~ /^::ffff:/)
 			pkt[1] = pkt[1].sub(/^::ffff:/, '')
 		end
@@ -108,15 +108,15 @@ class Metasploit3 < Msf::Auxiliary
 		verbs = ''
 		serv  = ''
 		prox  = ''
-		
+
 		if(pkt[0] =~ /^User-Agent:\s*(.*)$/i)
 			agent = "agent='#{$1.strip}' "
 		end
-		
+
 		if(pkt[0] =~ /^Allow:\s+(.*)$/i)
 			verbs = "verbs='#{$1.strip}' "
 		end
-		
+
 		if(pkt[0] =~ /^Server:\s+(.*)$/)
 			serv = "server='#{$1.strip}' "
 		end
@@ -124,16 +124,16 @@ class Metasploit3 < Msf::Auxiliary
 		if(pkt[0] =~ /^Proxy-Require:\s+(.*)$/)
 			serv = "proxy-required='#{$1.strip}' "
 		end
-		
+
 		print_status("#{pkt[1]} #{resp} #{agent}#{serv}#{prox}#{verbs}")
 
 		report_service(
 			:host   => pkt[1],
 			:port   => pkt[2],
 			:proto  => 'udp',
-			:name   => 'sip'							
+			:name   => 'sip'
 		)
-		
+
 		if(not agent.empty?)
 			report_note(
 				:host   => pkt[1],
@@ -160,6 +160,6 @@ class Metasploit3 < Msf::Auxiliary
 		data << "User-Agent: #{suser}\r\n"
 		data << "Accept: text/plain\r\n"
 	end
-	
+
 
 end

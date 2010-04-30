@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -21,7 +21,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Encoder
 
 	# This encoder has a manual ranking because it should only be used in cases
-	# where information has been explicitly supplied, specifically 
+	# where information has been explicitly supplied, specifically
 	# BitNumber and BitValue.
 	Rank = ManualRanking
 
@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Encoder
 			'License'          => MSF_LICENSE,
 			'EncoderType'      => Msf::Encoder::Type::SingleStaticBit
 			)
-		
+
 		# this shouldn't be present in the decoder stub.
 		@key_marker = 0x1010
 	end
@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Encoder
 		# next_dst_byte:
 		inner_loop << next_byte
 		# next_bit:
-		# I really wish this silly padding wasn't necessary, however removing the bad characters in the 
+		# I really wish this silly padding wasn't necessary, however removing the bad characters in the
 		# jump/call displacements has proven difficult otherwise.
 		inner_loop << "\x90" * 0x1a   # nops                       - for padding (so relative jumps don't have badchars)
 		len = -1 * (inner_loop.length+2)
@@ -146,11 +146,11 @@ class Metasploit3 < Msf::Encoder
 		bit_num = (datastore['BitNumber'] || 5).to_i
 		bit_num = (7-bit_num)
 		bit_val = (datastore['BitValue'] || true)
-		
+
 		encoded = ''
 		new_byte = 0
 		nbits = 0
-		
+
 		block.unpack('C*').each do |ch|
 			7.step(0,-1) do |x|
 
@@ -159,7 +159,7 @@ class Metasploit3 < Msf::Encoder
 					new_byte <<= 1 if nbits > 0
 					new_byte |= 1 if bit_val
 					nbits += 1
-					
+
 					# do we have a full byte?
 					if nbits == 8
 						encoded << new_byte.chr
@@ -181,7 +181,7 @@ class Metasploit3 < Msf::Encoder
 				end
 			end
 		end
-		
+
 		# if we have bits left, pad out to a whole byte
 		if nbits > 0
 			while nbits < 8
@@ -191,7 +191,7 @@ class Metasploit3 < Msf::Encoder
 			end
 			encoded << new_byte.chr
 		end
-		
+
 		return encoded
 	end
 
@@ -200,7 +200,7 @@ class Metasploit3 < Msf::Encoder
 	#
 	def encode_end(state)
 		state.encoded += state.context
-		
+
 		xor_key = 0
 		xor_key_str = ''
 		enc_len_str = ''
@@ -212,9 +212,9 @@ class Metasploit3 < Msf::Encoder
 			next if has_badchars?(enc_len_str, state.badchars)
 			break
 		end
-		
+
 		marker_str = [@key_marker].pack('v')
-		
+
 		state.encoded.sub!(marker_str, enc_len_str)
 		state.encoded.sub!(marker_str, xor_key_str)
 	end

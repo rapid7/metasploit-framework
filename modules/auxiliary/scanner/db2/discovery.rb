@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/projects/Framework/
@@ -8,11 +12,11 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-        
+
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 	include Msf::Exploit::Remote::Udp
-	
+
 	def initialize
 		super(
 			'Name'           => 'DB2 Discovery Service Detection.',
@@ -21,14 +25,14 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => [ 'MC' ],
 			'License'        => MSF_LICENSE
 		)
-		
+
 		register_options([Opt::RPORT(523),], self.class)
 
 		deregister_options('RHOST')
 	end
 
 	def run_host(ip)
-		
+
 		pkt = "DB2GETADDR" + "\x00" + "SQL05000" + "\x00"
 
 		begin
@@ -36,9 +40,9 @@ class Metasploit3 < Msf::Auxiliary
 		  connect_udp
 
 			udp_sock.put(pkt)
-			
+
 			res = udp_sock.read(1024).split(/\x00/)
-			
+
 				if (res)
 					report_note(
 						:host   => ip,
@@ -54,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		  disconnect_udp
 		rescue ::Rex::ConnectionError
-		rescue ::Errno::EPIPE	
+		rescue ::Errno::EPIPE
 
 		end
 	end

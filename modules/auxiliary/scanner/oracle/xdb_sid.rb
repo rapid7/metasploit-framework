@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/projects/Framework/
@@ -9,7 +13,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Auxiliary::Report	
+	include Msf::Auxiliary::Report
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Scanner
 
@@ -41,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 
 			user_pass = "#{datastore['DBUSER']}:#{datastore['DBPASS']}"
-	
+
 			res = send_request_raw({
 				'uri'     => '/oradb/PUBLIC/GLOBAL_NAME',
 				'version' => '1.0',
@@ -58,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				if (res.code == 200)
-					if (not res.body.length > 0)		
+					if (not res.body.length > 0)
 					# sometimes weird bug where body doesn't have value yet
 						res.body = res.bufq
 					end
@@ -68,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 							:proto	=> 'tcp',
 							:type	=> 'SERVICE_NAME',
 							:data	=> "#{sid}"
-						)	
+						)
 					print_status("Discovered SID: '#{sid}' for host #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}")
 				else
 					print_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...")

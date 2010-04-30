@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -10,7 +14,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::ORACLE
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Oracle SQL Generic Query',
@@ -28,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Dec 7 2007'))
 
-			register_options( 
+			register_options(
 				[
 					OptString.new('SQL', [ false, 'The SQL to execute.',  'select * from v$version']),
 				], self.class)
@@ -49,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 		rescue => e
-			return			
+			return
 		end
 	end
 

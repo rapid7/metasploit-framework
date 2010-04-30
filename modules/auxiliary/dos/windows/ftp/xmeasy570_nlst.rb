@@ -3,10 +3,10 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/ 
+# http://metasploit.com/framework/
 ##
 
 require 'msf/core'
@@ -15,9 +15,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Ftp
 	include Msf::Auxiliary::Dos
-	
+
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'XM Easy Personal FTP Server 5.7.0 NLST DoS',
 			'Description'    => %q{
 				You need a valid login to DoS this FTP server, but

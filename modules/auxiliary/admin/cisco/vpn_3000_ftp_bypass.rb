@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::Tcp
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Cisco VPN Concentrator 3000 FTP Unauthorized Administrative Access',
 			'Description'    => %q{
 				This module tests for a logic vulnerability in the Cisco VPN Concentrator

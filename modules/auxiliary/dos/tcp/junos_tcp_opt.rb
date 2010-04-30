@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				},
 			'Author'      => 'todb',
 			'License'     => MSF_LICENSE,
-			'References' => 
+			'References' =>
 				[
 					['BID', '37670'],
 					['OSVDB', '61538'],
@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptInt.new('SPORT', [false, 'Source port (defaults to random)']),
 			OptAddress.new('SHOST', [false, 'Source address (defaults to random)'])
 		])
-		
+
 		deregister_options('FILTER','PCAPFILE', 'SNAPLEN')
 	end
 
@@ -77,11 +77,10 @@ class Metasploit3 < Msf::Auxiliary
 		n.l4.ack = 0
 		n.l4.seq = rand(0xffffffff)
 		n.l4.add_option(101,"")
-		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, '')	
+		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, '')
 		pkt = n.pack
 		print_status("#{n.l3.dst_ip}:#{n.l4.dst_port} Sending TCP Syn packet from #{n.l3.src_ip}:#{n.l4.src_port}")
 		capture_sendto(pkt,rhost)
 		close_pcap
 	end
 end
-

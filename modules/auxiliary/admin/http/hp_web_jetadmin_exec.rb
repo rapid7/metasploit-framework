@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'HP Web JetAdmin 6.5 Server Arbitrary Command Execution',
 			'Description'    => %q{
 				This module abuses a command execution vulnerability within the
@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.milw0rm.com/exploits/294' ],
 				],
 			'DisclosureDate' => 'Apr 27 2004'))
-			
+
 			register_options(
 				[
 					Opt::RPORT(8000),

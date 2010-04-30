@@ -1,7 +1,8 @@
 ##
-#
 # $Id$
-#
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -27,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'DisclosureDate' => 'Jan 7 2009'))
 
-                        register_options([Opt::RPORT(1521),], self.class) 
+                        register_options([Opt::RPORT(1521),], self.class)
 
 			deregister_options('RHOST')
 	end
@@ -39,9 +40,9 @@ class Metasploit3 < Msf::Auxiliary
 			pkt = tns_packet("(CONNECT_DATA=(COMMAND=VERSION))")
 
 			sock.put(pkt)
-			
+
 			sleep(0.5)
-			
+
 			data = sock.get_once
 
 				if ( data and data =~ /\\*.TNSLSNR for (.*)/ )

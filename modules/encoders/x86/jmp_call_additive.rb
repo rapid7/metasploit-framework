@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -28,20 +28,20 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 			'License'          => MSF_LICENSE,
 			'Decoder'          =>
 				{
-					'Stub'       =>  
-						"\xfc"                + # cld 
-						"\xbbXORK"            + # mov ebx, key 
-						"\xeb\x0c"            + # jmp short 0x14 
-						"\x5e"                + # pop esi 
-						"\x56"                + # push esi 
-						"\x31\x1e"            + # xor [esi], ebx 
-						"\xad"                + # lodsd 
-						"\x01\xc3"            + # add ebx, eax 
-						"\x85\xc0"            + # test eax, eax 
-						"\x75\xf7"            + # jnz 0xa 
-						"\xc3"                + # ret 
-						"\xe8\xef\xff\xff\xff", # call 0x8 
-					'KeyOffset' => 2, 
+					'Stub'       =>
+						"\xfc"                + # cld
+						"\xbbXORK"            + # mov ebx, key
+						"\xeb\x0c"            + # jmp short 0x14
+						"\x5e"                + # pop esi
+						"\x56"                + # push esi
+						"\x31\x1e"            + # xor [esi], ebx
+						"\xad"                + # lodsd
+						"\x01\xc3"            + # add ebx, eax
+						"\x85\xc0"            + # test eax, eax
+						"\x75\xf7"            + # jnz 0xa
+						"\xc3"                + # ret
+						"\xe8\xef\xff\xff\xff", # call 0x8
+					'KeyOffset' => 2,
 					'KeySize'   => 4,
 					'BlockSize' => 4,
 				})

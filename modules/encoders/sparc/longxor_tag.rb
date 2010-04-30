@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -29,25 +29,25 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 				{
 					'KeySize'    => 4,
 					'BlockSize'  => 4,
-					'KeyPack'    => 'N',					
+					'KeyPack'    => 'N',
 				})
 	end
 
 	#
-	# Returns the decoder stub 
+	# Returns the decoder stub
 	#
 	def decoder_stub(state)
-		Rex::Arch::Sparc.set_dword(state.key, 'l1') + 
-		"\x20\xbf\xff\xff" +   # bn,a  _start - 4 
-		"\x20\xbf\xff\xff" +   # bn,a  _start     
-		"\x7f\xff\xff\xff" +   # call  _start + 4 
-		"\xea\x03\xe0\x20" +   # ld    [%o7 + 0x20],%l7 
-		"\xaa\x9d\x40\x11" +   # xorcc %l5,%l1,%l5 
-		"\xea\x23\xe0\x20" +   # st    %l5,[%o7 + 0x20] 
-		"\xa2\x04\x40\x15" +   # add   %l1,%l5,%l1 
-		"\x81\xdb\xe0\x20" +   # flush %o7 + 0x20 
-		"\x12\xbf\xff\xfb" +   # bnz   dec_loop 
-		"\x9e\x03\xe0\x04"     # add   %o7,4,%o7 	
+		Rex::Arch::Sparc.set_dword(state.key, 'l1') +
+		"\x20\xbf\xff\xff" +   # bn,a  _start - 4
+		"\x20\xbf\xff\xff" +   # bn,a  _start
+		"\x7f\xff\xff\xff" +   # call  _start + 4
+		"\xea\x03\xe0\x20" +   # ld    [%o7 + 0x20],%l7
+		"\xaa\x9d\x40\x11" +   # xorcc %l5,%l1,%l5
+		"\xea\x23\xe0\x20" +   # st    %l5,[%o7 + 0x20]
+		"\xa2\x04\x40\x15" +   # add   %l1,%l5,%l1
+		"\x81\xdb\xe0\x20" +   # flush %o7 + 0x20
+		"\x12\xbf\xff\xfb" +   # bnz   dec_loop
+		"\x9e\x03\xe0\x04"     # add   %o7,4,%o7
 	end
 
 	#
@@ -67,5 +67,5 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 			badchars
 		) ? false : true)
 	end
-		
+
 end

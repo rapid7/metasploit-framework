@@ -3,10 +3,10 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/ 
+# http://metasploit.com/framework/
 ##
 
 require 'msf/core'
@@ -15,9 +15,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Udp
 	include Msf::Auxiliary::Dos
-	
+
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'PacketTrap TFTP Server 2.2.5459.0 DoS',
 			'Description'    => %q{
 				The PacketTrap TFTP server version 2.2.5459.0 can be

@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -27,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
 			'License'     => MSF_LICENSE
 		)
-	
+
 		register_options(
 			[
 				Opt::RPORT(21),
@@ -37,13 +41,13 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(target_host)
 
 		begin
-		
+
 		res = connect_login(true, false)
 
 		banner.strip! if banner
 
 		dir = Rex::Text.rand_text_alpha(8)
-		if res 
+		if res
 			write_check = send_cmd( ['MKD', dir] , true)
 
 			if (write_check and write_check =~ /^2/)
@@ -64,11 +68,11 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		disconnect
-		
+
 		rescue ::Interrupt
 			raise $!
 		rescue ::Rex::ConnectionError, ::IOError
 		end
-		
+
 	end
 end

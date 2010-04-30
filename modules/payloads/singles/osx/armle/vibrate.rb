@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -23,7 +23,7 @@ module Metasploit3
 			'Name'          => 'OSX iPhone Vibrate',
 			'Version'       => '$Revision$',
 			'Description'   => %q|
-				Causes the iPhone to vibrate, only works when the AudioToolkit library has been loaded. 
+				Causes the iPhone to vibrate, only works when the AudioToolkit library has been loaded.
 				Based on work by Charlie Miller <cmiller[at]securityevaluators.com>.
 			|,
 			'Author'        => 'hdm',

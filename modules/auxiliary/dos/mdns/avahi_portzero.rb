@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -27,9 +27,9 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'kris katterjohn',
 			'License'     => MSF_LICENSE,
 			'Version'     => '$Revision$',
-			'References'  => [ 
+			'References'  => [
 				[ 'CVE', '2008-5081' ],
-				[ 'OSVDB', '50929' ], 
+				[ 'OSVDB', '50929' ],
 			],
 			'DisclosureDate' => 'Nov 14 2008')
 
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 		n.l3.id = 0xbeef
 		n.l3.ttl = 128
 		n.l3.flags = 2
-				
+
 		n.l4 = Racket::L4::UDP.new
 		n.l4.src_port = 0
 		n.l4.dst_port = datastore['RPORT'].to_i

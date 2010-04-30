@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -29,12 +29,12 @@ class Metasploit3 < Msf::Encoder::Xor
 				{
 					'KeySize'    => 4,
 					'BlockSize'  => 4,
-					'KeyPack'    => 'N',					
+					'KeyPack'    => 'N',
 				})
 	end
 
 	#
-	# Returns the decoder stub 
+	# Returns the decoder stub
 	#
 	def decoder_stub(state)
 		[
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Encoder::Xor
 	end
 
 	#
-	# Fix up the decoder stub now 
+	# Fix up the decoder stub now
 	#
 	def encode_finalize_stub(state, stub)
 		stub[22, 2] = [ state.key.to_i ].pack('N')[0, 2]

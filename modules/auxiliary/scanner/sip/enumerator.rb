@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -13,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	
+
 	def initialize
 		super(
 			'Name'        => 'SIP username enumerator',
@@ -29,11 +33,11 @@ class Metasploit3 < Msf::Auxiliary
 			OptInt.new('MINEXT',   [true, 'Starting extension',0]),
 			OptInt.new('MAXEXT',   [true, 'Ending extension', 9999]),
 			OptInt.new('PADLEN',   [true, 'Cero padding maximum length', 4]),
-			OptString.new('METHOD', [true, 'Enumeration method to use OPTIONS/REGISTER','REGISTER']),  		
+			OptString.new('METHOD', [true, 'Enumeration method to use OPTIONS/REGISTER','REGISTER']),
 			Opt::RPORT(5060),
 			Opt::CHOST,
 			Opt::CPORT(5060)
-		], self.class)		
+		], self.class)
 	end
 
 
@@ -41,17 +45,17 @@ class Metasploit3 < Msf::Auxiliary
 	def run_batch_size
 		datastore['BATCHSIZE'].to_i
 	end
-	
+
 	# Operate on an entire batch of hosts at once
 	def run_batch(batch)
 
-		begin		
+		begin
 			udp_sock = nil
 			idx = 0
-			
+
 			# Create an unbound UDP socket if no CHOST is specified, otherwise
 			# create a UDP socket bound to CHOST (in order to avail of pivoting)
-			udp_sock = Rex::Socket::Udp.create( 
+			udp_sock = Rex::Socket::Udp.create(
 				{
 					'LocalHost' => datastore['CHOST'] || nil,
 					'LocalPort' => datastore['CPORT'].to_i
@@ -60,21 +64,21 @@ class Metasploit3 < Msf::Auxiliary
 
 			mini = datastore['MINEXT']
 			maxi = datastore['MAXEXT']
-				
+
 			batch.each do |ip|
 				for i in (mini..maxi)
 					testext = padnum(i,datastore['PADLEN'])
-					
+
 					case datastore['METHOD']
 					when 'REGISTER'
 						data = create_probe(ip,testext,'REGISTER')
-					when 'OPTIONS'	
+					when 'OPTIONS'
 						data = create_probe(ip,testext,'OPTIONS')
 					else
 						print_error("Method not found.")
-						return	
+						return
 					end
-							
+
 
 					begin
 						udp_sock.sendto(data, ip, datastore['RPORT'].to_i, 0)
@@ -97,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
 			while (r = udp_sock.recvfrom(65535, 3) and r[1])
 				parse_reply(r,datastore['METHOD'])
 			end
-			
+
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
@@ -113,29 +117,29 @@ class Metasploit3 < Msf::Auxiliary
 	def parse_reply(pkt,meth)
 
 		return if not pkt[1]
-		
+
 		if(pkt[1] =~ /^::ffff:/)
 			pkt[1] = pkt[1].sub(/^::ffff:/, '')
 		end
 
 		resp  = pkt[0].split(/\s+/)[1]
-		repcode = '' 
+		repcode = ''
 		agent = ''
 		verbs = ''
 		serv  = ''
-		prox  = ''		
-		
+		prox  = ''
+
 		if(pkt[0] =~ /^To\:\s*(.*)$/i)
 			testn = "#{$1.strip}".split(';')[0]
 		end
-		
+
 		case resp.to_i
-		when 401 
+		when 401
 			print_status("Found user: #{testn} [Auth]")
-		when 200	
+		when 200
 			print_status("Found user: #{testn} [Open]")
 		else
-			#print_error("Undefined error code: #{resp.to_i}"	
+			#print_error("Undefined error code: #{resp.to_i}"
 		end
 	end
 
@@ -156,10 +160,10 @@ class Metasploit3 < Msf::Auxiliary
 		data << "User-Agent: #{suser}\r\n"
 		data << "Accept: text/plain\r\n"
 	end
-	
+
 	def padnum(num,padding)
-		if padding >= num.to_s.length 
+		if padding >= num.to_s.length
 			('0'*(padding-num.to_s.length)) << num.to_s
-		end	
-	end		
+		end
+	end
 end

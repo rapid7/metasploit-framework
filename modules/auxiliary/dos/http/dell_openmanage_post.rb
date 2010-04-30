@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -19,10 +19,10 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Dell OpenManage POST Request Heap Overflow (win32)',
 			'Description'    => %q{
-				This module exploits a heap overflow in the Dell OpenManage 
+				This module exploits a heap overflow in the Dell OpenManage
 				Web Server (omws32.exe), versions 3.2-3.7.1. The vulnerability
 				exists due to a boundary error within the handling of POST requests,
 				where the application input is set to an overly long file name.
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'CVE', '2004-0331' ],
 				],
 			'DisclosureDate' => 'Feb 26 2004'))
-			
+
 		register_options(
 			[
 				Opt::RPORT(1311),

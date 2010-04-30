@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -10,7 +14,7 @@ require 'msf/core'
 
 
 class Metasploit3 < Msf::Auxiliary
-	
+
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::WMAPScanServer
@@ -26,14 +30,14 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE
 		)
-		
+
 	end
 
 	def run_host(target_host)
 
 		begin
 			res = send_request_cgi({
-				'uri'          => '/',					
+				'uri'          => '/',
 				'method'       => 'PROPFIND',
 				'data'	=>	'',
 				'ctype'   => 'text/xml',
@@ -41,19 +45,19 @@ class Metasploit3 < Msf::Auxiliary
 				'vhost' => '',
 			}, 10)
 
-						
-			if res and res.body 
-				# short url regex 
+
+			if res and res.body
+				# short url regex
 				urlregex = /<a:href[^>]*>(.*?)<\/a:href>/i
 
 				#print_status("#{res.body}")
 
 				result = res.body.scan(urlregex).uniq
-				
+
 
 				result.each do |u|
 					print_status("Found file or directory in WebDAV response (#{target_host}) #{u}")
-					
+
 					report_note(
 						:host	=> target_host,
 						:proto	=> 'HTTP',
@@ -61,10 +65,10 @@ class Metasploit3 < Msf::Auxiliary
 						:type	=> 'WEBDAV_FILE_DIRECTORY',
 						:data	=> "#{u}"
 					)
-						
+
 				end
-			end	
-			
+			end
+
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end

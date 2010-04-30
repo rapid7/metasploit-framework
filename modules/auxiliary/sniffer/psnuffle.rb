@@ -1,16 +1,19 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 #
 ##
 
-
 ##
 # dsniff was helping me very often. Too bad that it doesn't work correctly
 # anymore. Psnuffle should bring password sniffing into Metasploit local
-# and if we get lucky even remote. 
+# and if we get lucky even remote.
 #
 # Cheers - Max Moser - mmo@remote-exploit.org
 ##
@@ -23,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 	include Msf::Exploit::Capture
-	
+
 	def initialize
 		super(
 			'Name'				=> 'pSnuffle Packet Sniffer',
@@ -36,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'Sniffer' ],
 					[ 'List'    ]
 				],
-			'PassiveActions' => 
+			'PassiveActions' =>
 				[
 					'Sniffer'
 				],
@@ -45,8 +48,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			OptString.new('PROTOCOLS',	[true,	'A comma-delimited list of protocols to sniff or "all".', "all"]),
-		], self.class)		
-		
+		], self.class)
+
 		register_advanced_options([
 			OptPath.new('ProtocolBase', [true,	'The base directory containing the protocol decoders',
 				File.join(Msf::Config.install_root, "data", "exploits", "psnuffle")
@@ -60,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 		if (not File.directory?(base))
 			raise RuntimeError,"The ProtocolBase parameter is set to an invalid directory"
 		end
-		
+
 		@protos = {}
 		decoders = Dir.new(base).entries.grep(/\.rb$/).sort
 		decoders.each do |n|
@@ -72,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 					proto = $1
 					klass = m.const_get("Sniffer#{proto}")
 					@protos[proto.downcase] = klass.new(framework, self)
-					
+
 					print_status("Loaded protocol #{proto} from #{f}...")
 				end
 			rescue ::Exception => e
@@ -80,16 +83,16 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 	end
-	
-	def run	
+
+	def run
 		# Load all of our existing protocols
 		load_protocols
-		
+
 		if(action.name == 'List')
 			print_status("Protocols: #{@protos.keys.sort.join(', ')}")
 			return
 		end
-		
+
 		# Remove protocols not explicitly allowed
 		if(datastore['PROTOCOLS'] != 'all')
 			allowed = datastore['PROTOCOLS'].split(',').map{|x| x.strip.downcase}
@@ -98,19 +101,19 @@ class Metasploit3 < Msf::Auxiliary
 			@protos = newlist
 		end
 
-		print_status("Sniffing traffic.....")		
+		print_status("Sniffing traffic.....")
 		open_pcap
-		
+
 		each_packet do |pkt|
 			eth = Racket::L2::Ethernet.new(pkt)
 			next if not eth.ethertype == 0x0800
-			
+
 			ip = Racket::L3::IPv4.new(eth.payload)
 			next if not ip.protocol == 6
-			
+
 			tcp = Racket::L4::TCP.new(ip.payload)
 			next if !(tcp.payload and tcp.payload.length > 0)
-			
+
 			data = {:raw => pkt, :eth => eth, :ip => ip, :tcp => tcp}
 
 			@protos.each_key do |k|
@@ -121,13 +124,13 @@ class Metasploit3 < Msf::Auxiliary
 		close_pcap
 		print_status("Finished sniffing")
 	end
-end 
+end
 
 # End module class
 
 # Basic class for taking care of sessions
 class BaseProtocolParser
-	
+
 	attr_accessor :framework, :module, :sessions, :dport, :sigs
 
 	def initialize(framework, mod)
@@ -145,26 +148,26 @@ class BaseProtocolParser
 	def register_sigs
 		self.sigs = {}
 	end
-	
+
 	#
 	# Glue methods to bridge parsers to the main module class
 	#
 	def print_status(msg)
 		self.module.print_status(msg)
 	end
-	
+
 	def print_error(msg)
 		self.module.print_error(msg)
 	end
-	
+
 	def report_auth_info(*s)
 		self.module.report_auth_info(*s)
 	end
-	
+
 	def report_service(*s)
 		self.module.report_service(*s)
 	end
-		
+
 	def find_session(sessionid)
 		sessions.each_key do |ses|
 			# Check for cleanup abilities... kills performance in large environments maybe
@@ -182,30 +185,30 @@ class BaseProtocolParser
 			# Create a new session entry along with the host/port from the id
 			if (sessionid =~ /^([^:]+):([^-]+)-/s)
 				sessions[sessionid] = {
-					:host      => $1, 
-					:target_host => $1, 
-					:port      => $2, 
-					:target_port => $2, 
-					:session   => sessionid, 
-					:ctime     => Time.now, 
+					:host      => $1,
+					:target_host => $1,
+					:port      => $2,
+					:target_port => $2,
+					:session   => sessionid,
+					:ctime     => Time.now,
 					:mtime     => Time.now
 				}
 			end
 		end
-		
+
 		return sessions[sessionid]
 	end
-	
-	def get_session_src(pkt)	
+
+	def get_session_src(pkt)
 		return "#{pkt[:ip].dst_ip}:#{pkt[:tcp].dst_port}-#{pkt[:ip].src_ip}:#{pkt[:tcp].src_port}" if pkt[:tcp]
-		return "#{pkt[:ip].dst_ip}:#{pkt[:udp].dst_port}-#{pkt[:ip].src_ip}:#{pkt[:udp].src_port}" if pkt[:udp]	
-		return "#{pkt[:ip].dst_ip}:0-#{pkt[:ip].src_ip}:0"		
+		return "#{pkt[:ip].dst_ip}:#{pkt[:udp].dst_port}-#{pkt[:ip].src_ip}:#{pkt[:udp].src_port}" if pkt[:udp]
+		return "#{pkt[:ip].dst_ip}:0-#{pkt[:ip].src_ip}:0"
 	end
-	
-	def get_session_dst(pkt)	
+
+	def get_session_dst(pkt)
 		return "#{pkt[:ip].src_ip}:#{pkt[:tcp].src_port}-#{pkt[:ip].dst_ip}:#{pkt[:tcp].dst_port}" if pkt[:tcp]
-		return "#{pkt[:ip].src_ip}:#{pkt[:udp].src_port}-#{pkt[:ip].dst_ip}:#{pkt[:udp].dst_port}" if pkt[:udp]	
-		return "#{pkt[:ip].src_ip}:0-#{pkt[:ip].dst_ip}:0"		
+		return "#{pkt[:ip].src_ip}:#{pkt[:udp].src_port}-#{pkt[:ip].dst_ip}:#{pkt[:udp].dst_port}" if pkt[:udp]
+		return "#{pkt[:ip].src_ip}:0-#{pkt[:ip].dst_ip}:0"
 	end
 
 end

@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Test::Unit::TestCase
 		k = Klass.new
 
 		{
-			"\x41\x42\x43\x44" => 
+			"\x41\x42\x43\x44" =>
 				[
 					"\x29\xc9\x83\xe9\xff\xe8\xff\xff\xff\xff\xc0\x5e\x81\x76" +
 					"\x0e\x66\x30\x86\x84\x83\xee\xfc\xe2\xf4\x27\x72\xc5\xc0",
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Test::Unit::TestCase
 
 			assert_equal(real[0][offset, -1], encoded[offset, -1])
 		}
-		
+
 	end
 
 end

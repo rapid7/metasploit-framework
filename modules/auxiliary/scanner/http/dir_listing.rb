@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,29 +21,29 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'   		=> 'HTTP Directory Listing Scanner',
 			'Description'	=> %q{
-				This module identifies directory listing vulnerabilities 
-				in a given directory path.					
+				This module identifies directory listing vulnerabilities
+				in a given directory path.
 			},
 			'Author' 		=> [ 'et' ],
 			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))   
-			
+			'Version'		=> '$Revision$'))
+
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path to identify directoy listing", '/'])
-			], self.class)	
-						
+			], self.class)
+
 	end
 
 	def run_host(ip)
-	
-		tpath = datastore['PATH'] 	
+
+		tpath = datastore['PATH']
 		if tpath[-1,1] != '/'
 			tpath += '/'
-		end 	
+		end
 
 		begin
 			res = send_request_cgi({
@@ -51,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 			if (res and res.code >= 200 and res.code < 300)
 				if res.to_s.include? "<title>Index of /" and res.to_s.include? "<h1>Index of /"
 	 				print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
-					
+
 					report_note(
 						:host	=> ip,
 						:proto	=> 'HTTP',
@@ -59,12 +63,12 @@ class Metasploit3 < Msf::Auxiliary
 						:type	=> 'DIR_LISTING',
 						:data	=> "#{tpath}"
 					)
-					
+
 				end
 
 				if res.to_s.include? "[To Parent Directory]</A>" and res.to_s.include? "#{tpath}</H1><hr>"
 	 				print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
-					
+
 					report_note(
 						:host	=> ip,
 						:proto	=> 'HTTP',
@@ -72,15 +76,15 @@ class Metasploit3 < Msf::Auxiliary
 						:type	=> 'DIR_LISTING',
 						:data	=> "#{tpath}"
 					)
-					
+
 				end
 
 			else
-				print_status("NOT Vulnerable to directory listing #{wmap_base_url}#{tpath}") 
+				print_status("NOT Vulnerable to directory listing #{wmap_base_url}#{tpath}")
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue ::Timeout::Error, ::Errno::EPIPE			
+		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 	end
 end

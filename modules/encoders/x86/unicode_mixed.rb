@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
 			'Name'             => "Alpha2 Alphanumeric Unicode Mixedcase Encoder",
 			'Version'          => '$Revision$',
 			'Description'      => %q{
-				Encodes payloads as unicode-safe mixedcase text.  This encoder uses 
+				Encodes payloads as unicode-safe mixedcase text.  This encoder uses
 				SkyLined's Alpha2 encoding suite.
 			},
 			'Author'           => [ 'pusscat', 'skylined' ],
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
 		if (not reg)
 			raise RuntimeError, "Need BufferRegister"
 		end
-		Rex::Encoder::Alpha2::UnicodeMixed::gen_decoder(reg, offset) 
+		Rex::Encoder::Alpha2::UnicodeMixed::gen_decoder(reg, offset)
 	end
 
 	#

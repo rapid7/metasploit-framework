@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -18,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Oracle Account Discovery.',
 			'Description'    => %q{
 				This module uses a list of well known default authentication credentials
-				to discover easily guessed accounts. 
+				to discover easily guessed accounts.
 			},
 			'Author'         => [ 'MC' ],
 			'License'        => MSF_LICENSE,

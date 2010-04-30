@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -24,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'DisclosureDate' => 'Sep 25 2009'))
 
-                        register_options([Opt::RPORT(407),], self.class) 
+                        register_options([Opt::RPORT(407),], self.class)
 
 			deregister_options('RHOST')
 	end
@@ -36,9 +40,9 @@ class Metasploit3 < Msf::Auxiliary
 			ping = "\x00\x25\x00\x22\xFF\x01\x00\x64\x03\x07\x00\x05\x00\x01\x00\x00"
 
 			udp_sock.write(ping)
-			
+
 			res = udp_sock.read(256)
-				
+
 				if ( res =~ /\x00\x25\xD0\xB9/ )
 					report_note(
 						:host	=> ip,
@@ -52,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_error("Unable to determine info for #{ip}...")
 				end
 			disconnect_udp
-		rescue ::Errno::EPIPE, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused 
+		rescue ::Errno::EPIPE, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
 		end
 	end
 end

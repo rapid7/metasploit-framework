@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -16,11 +16,11 @@ require 'racket'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
-	
+
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
-	
+
 	def initialize
 		super(
 			'Name'        => 'TCP Port Scanner',
@@ -35,14 +35,14 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-10000"]),
 			OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000])
 		], self.class)
-		
+
 		deregister_options('RPORT')
 
 	end
 
-	
+
 	def run_host(ip)
-	
+
 		timeout = datastore['TIMEOUT'].to_i
 
 		ports = Rex::Socket.portspec_crack(datastore['PORTS'])

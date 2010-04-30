@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -28,12 +32,12 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Jan 7 2009'))
 
-                        register_options( 
-                                [
-                                        Opt::RPORT(1521),
-					OptString.new('SLEEP', [ false,   'Sleep() amount between each request.', '1']),
-					OptString.new('SIDFILE', [ false, 'The file that contains a list of sids.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'sid.txt')]),
-                                ], self.class)
+		register_options(
+			[
+				Opt::RPORT(1521),
+				OptString.new('SLEEP', [ false,   'Sleep() amount between each request.', '1']),
+				OptString.new('SIDFILE', [ false, 'The file that contains a list of sids.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'sid.txt')]),
+			], self.class)
 
 	end
 
@@ -43,9 +47,9 @@ class Metasploit3 < Msf::Auxiliary
 		list = datastore['SIDFILE']
 
 		print_status("Starting brute force on #{rhost}, using sids from #{list}...")
-		
+
 		fd = File.open(list).each do |sid|
-	
+
 		login = "(DESCRIPTION=(CONNECT_DATA=(SID=#{sid})(CID=(PROGRAM=)(HOST=MSF)(USER=)))(ADDRESS=(PROTOCOL=tcp)(HOST=#{rhost})(PORT=#{rport})))"
 
 		pkt = tns_packet(login)

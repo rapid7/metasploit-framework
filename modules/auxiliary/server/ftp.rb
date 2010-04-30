@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 				 	[ 'Capture' ]
 				],
-			'PassiveActions' => 
+			'PassiveActions' =>
 				[
 					'Capture'
 				],
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return
 	end
-	
+
 	def on_client_command_pass(c,arg)
 		@state[c][:pass] = arg
 		if(not datastore['FTPPASS'] or (arg == datastore['FTPPASS']))
@@ -70,8 +70,8 @@ class Metasploit3 < Msf::Auxiliary
 			@state[c][:auth] = false
 		end
 		return
-	end	
-	
+	end
+
 	def on_client_command_retr(c,arg)
 		print_status("#{@state[c][:name]} FTP download request for #{arg}")
 
@@ -79,32 +79,32 @@ class Metasploit3 < Msf::Auxiliary
 			c.put "500 Access denied\r\n"
 			return
 		end
-		
+
 		path = ::File.join(datastore['FTPROOT'], arg.gsub("../", '').gsub("..\\", ''))
 		if(not ::File.exists?(path))
 			c.put "550 File does not exist\r\n"
 			return
 		end
-		
+
 		conn = establish_data_connection(c)
 		if(not conn)
 			c.put("425 Can't build data connection\r\n")
 			return
 		end
-		
+
 		c.put("150 Opening BINARY mode data connection for #{arg}\r\n")
 		conn.put(::File.read(path, ::File.size(path)))
 		c.put("226 Transfer complete.\r\n")
 		conn.close
 	end
-	
+
 	def on_client_command_list(c,arg)
 
 		if(not @state[c][:auth])
 			c.put "500 Access denied\r\n"
 			return
 		end
-			
+
 		conn = establish_data_connection(c)
 		if(not conn)
 			c.put("425 Can't build data connection\r\n")
@@ -120,28 +120,28 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			if(::File.file?(path))
 				buf << "rwsx--r--r   1 1            512 Jun 1  2001 #{ent}\r\n"
-			end			
+			end
 		end
-		
+
 		c.put("150 Opening ASCII mode data connection for /bin/ls\r\n")
 		conn.put("total #{buf.length}\r\n" + buf)
-		c.put("226 Transfer complete.\r\n")	
+		c.put("226 Transfer complete.\r\n")
 		conn.close
 	end
-	
+
 	def on_client_command_size(c,arg)
-	
+
 		if(not @state[c][:auth])
 			c.put "500 Access denied\r\n"
 			return
 		end
-			
+
 		path = ::File.join(datastore['FTPROOT'], arg.gsub("../", '').gsub("..\\", ''))
 		if(not ::File.exists?(path))
 			c.put "550 File does not exist\r\n"
 			return
 		end
-		
+
 		c.put("213 #{::File.size(path)}\r\n")
 	end
 

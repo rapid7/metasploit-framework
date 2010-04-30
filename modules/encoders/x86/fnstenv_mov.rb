@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -20,9 +20,9 @@ class Metasploit3 < Msf::Encoder::Xor
 			'Name'             => 'Variable-length Fnstenv/mov Dword XOR Encoder',
 			'Version'          => '$Revision$',
 			'Description'      => %q{
-				This encoder uses a variable-length mov equivalent instruction 
+				This encoder uses a variable-length mov equivalent instruction
 				with fnstenv for getip.
-			}, 
+			},
 			'Author'           => 'spoonm',
 			'Arch'             => ARCH_X86,
 			'License'          => MSF_LICENSE,
@@ -38,10 +38,10 @@ class Metasploit3 < Msf::Encoder::Xor
 	# being encoded.
 	#
 	def decoder_stub(state)
-		decoder = 
+		decoder =
 			Rex::Arch::X86.set(
 				Rex::Arch::X86::ECX,
-				(((state.buf.length - 1) / 4) + 1), 
+				(((state.buf.length - 1) / 4) + 1),
 				state.badchars) +
 			"\xd9\xee" +              # fldz
 			"\xd9\x74\x24\xf4" +      # fnstenv [esp - 12]

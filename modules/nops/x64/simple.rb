@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -117,11 +117,11 @@ class Metasploit3 < Msf::Nop
 						[ "\x49\xBE",         8, "mov r14, 0x????????????????" ],
 						[ "\x49\xBF",         8, "mov r15, 0x????????????????" ],
 	]
-	
+
 	I_OP   = 0
 	I_SIZE = 1
 	I_TEXT = 2
-	
+
 	REGISTERS = [		[ "rsp", "esp", "sp" ],
 						[ "rbp", "ebp", "bp" ],
 						[ "rax", "eax", "ax", "al", "ah" ],
@@ -146,11 +146,11 @@ class Metasploit3 < Msf::Nop
 		sled          = ''
 		try_count     = 0
 		good_bytes    = []
-		
+
 		# Fixup SaveRegisters so for example, if we wish to preserve RSP we also should also preserve ESP and SP
 		REGISTERS.each { | reg | reg.each { |x| badregs += reg if badregs.include?( x ) } }
 		badregs = badregs.uniq()
-		
+
 		# If we are preserving RSP we should avoid all PUSH/POP instructions...
 		if badregs.include?( "rsp" )
 			badregs.push( 'push' )
@@ -161,7 +161,7 @@ class Metasploit3 < Msf::Nop
 		while true
 			# Pick a random instruction and see if we can use it...
 			instruction = instructions[ rand(instructions.length) ]
-			
+
 			# Avoid using any bad mnemonics/registers...
 			try_another = false
 			badregs.each do | bad |
@@ -169,19 +169,19 @@ class Metasploit3 < Msf::Nop
 				break if try_another
 			end
 			next if try_another
-			
+
 			# Get the first bytes of the chosed instructions opcodes...
 			opcodes = instruction[I_OP]
-			
+
 			# If their are additional bytes to append, do it now...
 			1.upto( instruction[I_SIZE] ) do | i |
 				opcodes += Rex::Text.rand_char( badchars )
 			end
-			
+
 			# If we have gone over the requested sled length, try again.
 			if total_size + opcodes.length > length
 				try_count -= 1
-				
+
 				# If we have tried unsuccessfully 32 times we start unwinding the chosen opcode_stack to speed things up
 				if try_count == 0
 					pop_count = 4
@@ -192,25 +192,25 @@ class Metasploit3 < Msf::Nop
 				end
 				next
 			end
-			
+
 			# Reset the try_count for the next itteration.
 			try_count = 32
-			
+
 			# save the opcodes we just generated.
 			opcodes_stack.push( opcodes )
-			
+
 			# Increment the total size appropriately.
 			total_size += opcodes.length
-			
+
 			# Once we have generated the requested amount of bytes we can finish.
 			break if total_size == length
 		end
-		
+
 		# Now that we have chosen all the instructions to use we must generate the actual sled.
 		opcodes_stack.each do | opcodes_ |
 			sled += opcodes_
 		end
-		
+
 		return sled
 	end
 
@@ -220,7 +220,7 @@ class Metasploit3 < Msf::Nop
 		badregs   = opts['SaveRegisters'] || []
 		good_instructions = []
 		sled      = ''
-	
+
 		# Weed out any instructions which will contain a bad char/instruction...
 		INSTRUCTIONS.each do | instruction |
 			good = true;
@@ -233,7 +233,7 @@ class Metasploit3 < Msf::Nop
 			end
 			# if we are only to generate single byte instructions, weed out the multi byte ones...
 			good = false if instruction[I_SIZE] > 0 and not datastore['MultiByte']
-			
+
 			good_instructions.push( instruction ) if good
 		end
 
@@ -250,7 +250,7 @@ class Metasploit3 < Msf::Nop
 		else
 			sled += generate_random_sled( length, good_instructions, badchars, badregs )
 		end
-		
+
 		return sled
 	end
 

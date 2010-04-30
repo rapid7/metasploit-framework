@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -33,10 +33,10 @@ class Metasploit3 < Msf::Encoder::Xor
 	end
 
 	def decoder_stub( state )
-	
+
 		# calculate the (negative) block count . We should check this against state.badchars.
 		block_count = [-( ( (state.buf.length - 1) / state.decoder_key_size) + 1)].pack( "V" )
-		
+
 		decoder =   "\x48\x31\xC9" +                 # xor rcx, rcx
 					"\x48\x81\xE9" + block_count +   # sub ecx, block_count
 					"\x48\x8D\x05\xEF\xFF\xFF\xFF" + # lea rax, [rel 0x0]
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Encoder::Xor
 					"\x48\x31\x58\x27" +             # xor [rax+0x27], rbx
 					"\x48\x2D\xF8\xFF\xFF\xFF" +     # sub rax, -8
 					"\xE2\xF4"                       # loop 0x1B
-					
+
 		state.decoder_key_offset = decoder.index( 'XXXXXXXX' )
 
 		return decoder

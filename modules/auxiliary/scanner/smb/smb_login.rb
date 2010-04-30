@@ -142,9 +142,9 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("#{rhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
 
 			disconnect()
-			return :next_user # These reasons are sufficient to stop trying. 
+			return :next_user # These reasons are sufficient to stop trying.
 		end
- 
+
 		if(simple.client.auth_user)
 			print_good("#{rhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) '#{user}' : '#{pass}'")
 			report_hash = {

@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -19,17 +19,17 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Wireless Test Module',
 			'Description'    => %q{
 				This module is a test of the wireless packet injection system.
 			Please see external/ruby-lorcon/README for more information.
 			},
-			
+
 			'Author'         => [ 'hdm' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$'
-		))			
+		))
 	end
 
 	def run

@@ -15,7 +15,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::MSSQL
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Microsoft SQL Server Generic Query',
@@ -33,12 +33,12 @@ class Metasploit3 < Msf::Auxiliary
 				]
 		))
 
-		register_options( 
+		register_options(
 			[
 				OptString.new('SQL', [ false, 'The SQL query to execute',  'select @@version']),
 			], self.class)
 	end
-	
+
 	def run
 		mssql_query(datastore['SQL'], true) if mssql_login_datastore
 		disconnect

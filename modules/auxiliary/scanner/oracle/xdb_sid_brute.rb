@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/projects/Framework/
@@ -9,7 +13,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Auxiliary::Report	
+	include Msf::Auxiliary::Report
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Scanner
 
@@ -17,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'Oracle XML DB SID Discovery via Brute Force',
 			'Description' => %q{
-					This module attempts to retrieve the sid from the Oracle XML DB httpd server, 
+					This module attempts to retrieve the sid from the Oracle XML DB httpd server,
 					utilizing Pete Finnigan s default oracle password list.
 			},
 			'Version'     => '$Revision: 6876 $',
@@ -62,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 			datastore['DBUSER'] = brute[2].downcase
 			datastore['DBPASS'] = brute[3].downcase
 			user_pass = "#{datastore['DBUSER']}:#{datastore['DBPASS']}"
-	
+
 			res = send_request_raw({
 				'uri'     => '/oradb/PUBLIC/GLOBAL_NAME',
 				'version' => '1.0',
@@ -78,14 +82,14 @@ class Metasploit3 < Msf::Auxiliary
 				next
 			end
 			if (res.code == 200)
-				if (not res.body.length > 0)		
+				if (not res.body.length > 0)
 				# sometimes weird bug where body doesn't have value yet
 					res.body = res.bufq
 				end
 				sid = res.body.scan(/<GLOBAL_NAME>(\S+)<\/GLOBAL_NAME>/)[0]
 				report_note(:host => ip, :proto	=> 'tcp', :type	=> 'SERVICE_NAME', :data	=> "#{sid}")
 				print_good("Discovered SID: '#{sid[0]}' for host #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}")
-				users.push(user_pass)			
+				users.push(user_pass)
 			elsif(datastore['VERBOSE'])
 				print_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...")
 			end
@@ -108,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if(res)
 				if(res.code == 200)
-					if (not res.body.length > 0)		
+					if (not res.body.length > 0)
 					# sometimes weird bug where body doesn't have value yet
 						res.body = res.bufq
 					end
@@ -122,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
 						s = e.elements['STATUS'].get_text
 						report_note(:host => datastore['RHOST'], :proto => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Component Version: #{p}#{v}")
 						print_good("\t#{p}\t\t#{v}\t(#{s})")
-				
+
 					end
 				end
 			end
@@ -140,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if(res)
 				if(res.code == 200)
-					if (not res.body.length > 0)		
+					if (not res.body.length > 0)
 					# sometimes weird bug where body doesn't have value yet
 						res.body = res.bufq
 					end
@@ -169,7 +173,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if(res)
 				if(res.code == 200)
-					if (not res.body.length > 0)		
+					if (not res.body.length > 0)
 					# sometimes weird bug where body doesn't have value yet
 						res.body = res.bufq
 					end
@@ -178,7 +182,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					print_good("Database Link Information ==> as #{u}")
 					doc.elements.each('ALL_DB_LINKS/ROW') do |e|
-						next if(e.elements['HOST'] == nil or e.elements['USERNAME'] == nil or e.elements['DB_LINK'] == nil) 
+						next if(e.elements['HOST'] == nil or e.elements['USERNAME'] == nil or e.elements['DB_LINK'] == nil)
 						h = e.elements['HOST'].get_text
 						d = e.elements['DB_LINK'].get_text
 						us = e.elements['USERNAME'].get_text
@@ -212,7 +216,7 @@ class Metasploit3 < Msf::Auxiliary
 			}, -1)
 
 			if (res.code == 200)
-				if (not res.body.length > 0)		
+				if (not res.body.length > 0)
 				# sometimes weird bug where body doesn't have value yet
 					res.body = res.bufq
 				end
@@ -248,7 +252,7 @@ class Metasploit3 < Msf::Auxiliary
 			}, -1)
 
 			if (res.code == 200)
-				if (not res.body.length > 0)		
+				if (not res.body.length > 0)
 				# sometimes weird bug where body doesn't have value yet
 					res.body = res.bufq
 				end
@@ -285,7 +289,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			break if good
-		end # users.each			
+		end # users.each
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end

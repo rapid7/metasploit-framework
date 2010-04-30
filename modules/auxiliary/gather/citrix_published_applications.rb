@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -26,8 +26,8 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author' 	 => [ 'patrick' ],
 			'Version'        => '$Revision$',
-			'References'     => 
-				[ 
+			'References'     =>
+				[
 					[ 'URL', 'http://www.securiteam.com/exploits/5CP0B1F80S.html' ],
 				]
 		))
@@ -44,14 +44,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		connect_udp
-		
+
 		print_status("Attempting to contact Citrix ICA service...")
 
 		client_connect = "\x20\x00\x01\x30\x02\xfd\xa8\xe3\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
 		udp_sock.put(client_connect)
 		res = udp_sock.get(3)
-		
+
 		if (res[0,server_response.length] == server_response)
 			print_status("Citrix MetaFrame ICA server detected. Requesting Published Applications list...")
 

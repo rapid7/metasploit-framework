@@ -1,3 +1,6 @@
+##
+# $Id$
+##
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -13,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::MSSQL
 	include Msf::Auxiliary::Report
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 				'Name'           => 'Microsoft SQL Server Configuration Enumerator',
@@ -31,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		print_status("Running MS SQL Server Enumeration...")
-		
+
 		if mssql_login_datastore
 			#Get Version
 			print_status("Version:")
@@ -42,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 				print "[*]\t#{row}"
 			end
 			vernum = sqlversion.gsub("\n"," ").scan(/SQL Server\s*(200\d)/m)
-			report_note(:host => datastore['RHOST'], 
+			report_note(:host => datastore['RHOST'],
 				:proto => 'TCP',
 				:port => datastore['RPORT'],
 				:type => 'MSSQL_ENUM',
@@ -72,14 +75,14 @@ class Metasploit3 < Msf::Auxiliary
 			#checking for C2 Audit Mode
 			if sysconfig['c2 audit mode'] == 1
 				print_status("\tC2 Audit Mode is Enabled")
-				report_note(:host => datastore['RHOST'], 
+				report_note(:host => datastore['RHOST'],
 					:proto => 'TCP',
 					:port => datastore['RPORT'],
 					:type => 'MSSQL_ENUM',
 					:data => "C2 Audit Mode is Enabled")
 			else
 				print_status("\tC2 Audit Mode is Not Enabled")
-				report_note(:host => datastore['RHOST'], 
+				report_note(:host => datastore['RHOST'],
 					:proto => 'TCP',
 					:port => datastore['RPORT'],
 					:type => 'MSSQL_ENUM',
@@ -125,14 +128,14 @@ class Metasploit3 < Msf::Auxiliary
 			#check if remote access is enabled
 			if sysconfig['remote access'] == 1
 				print_status("\tremote access is Enabled")
-				report_note(:host => datastore['RHOST'], 
+				report_note(:host => datastore['RHOST'],
 					:proto => 'TCP',
 					:port => datastore['RPORT'],
 					:type => 'MSSQL_ENUM',
 					:data => "remote access is Enabled")
 			else
 				print_status("\tremote access is Not Enabled")
-				report_note(:host => datastore['RHOST'], 
+				report_note(:host => datastore['RHOST'],
 					:proto => 'TCP',
 					:port => datastore['RPORT'],
 					:type => 'MSSQL_ENUM',
@@ -142,14 +145,14 @@ class Metasploit3 < Msf::Auxiliary
 			#check if updates are allowed
 			if sysconfig['allow updates'] == 1
 				print_status("\tallow updates is Enabled")
-				report_note(:host => datastore['RHOST'], 
+				report_note(:host => datastore['RHOST'],
 					:proto => 'TCP',
 					:port => datastore['RPORT'],
 					:type => 'MSSQL_ENUM',
 					:data => "allow updates is Enabled")
 			else
 				print_status("\tallow updates is Not Enabled")
-				report_note(:host => datastore['RHOST'], 
+				report_note(:host => datastore['RHOST'],
 					:proto => 'TCP',
 					:port => datastore['RPORT'],
 					:type => 'MSSQL_ENUM',
@@ -267,7 +270,7 @@ class Metasploit3 < Msf::Auxiliary
 			if syslogins != nil
 				syslogins.each do |acc|
 					print_status("\t#{acc.join}")
-					report_note(:host => datastore['RHOST'], 
+					report_note(:host => datastore['RHOST'],
 						:proto => 'TCP',
 						:port => datastore['RPORT'],
 						:type => 'MSSQL_ENUM',
@@ -438,7 +441,7 @@ class Metasploit3 < Msf::Auxiliary
 			if sameasuser != nil
 				sameasuser.each do |up|
 					print_status("\t#{up.join}")
-					report_note(:host => datastore['RHOST'], 
+					report_note(:host => datastore['RHOST'],
 						:proto => 'TCP',
 						:port => datastore['RPORT'],
 						:type => 'MSSQL_ENUM',
@@ -464,7 +467,7 @@ class Metasploit3 < Msf::Auxiliary
 			if blankpass != nil
 				blankpass.each do |up|
 					print_status("\t#{up.join}")
-					report_note(:host => datastore['RHOST'], 
+					report_note(:host => datastore['RHOST'],
 						:proto => 'TCP',
 						:port => datastore['RPORT'],
 						:type => 'MSSQL_ENUM',
@@ -686,7 +689,7 @@ class Metasploit3 < Msf::Auxiliary
 				fountsp.each do |strp|
 					if dangeroussp.include?(strp.strip)
 						print_status("\t#{strp.strip}")
-						report_note(:host => datastore['RHOST'], 
+						report_note(:host => datastore['RHOST'],
 							:proto => 'TCP',
 							:port => datastore['RPORT'],
 							:type => 'MSSQL_ENUM',
@@ -714,7 +717,7 @@ class Metasploit3 < Msf::Auxiliary
 				mssql_query(querykey)[:rows].each do |i|
 					instances << i[1]
 				end
-			end			
+			end
 			print_status("Instances found on this server:")
 			instancenames = []
 			if instances != nil

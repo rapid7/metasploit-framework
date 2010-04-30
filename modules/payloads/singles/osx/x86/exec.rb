@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -48,7 +48,7 @@ module Metasploit3
 	def generate
 		cmd     = datastore['CMD'] || ''
 		payload =
-			"\x31\xc0\x50"+ 
+			"\x31\xc0\x50"+
 			Rex::Arch::X86.call(cmd.length + 1) + cmd +
 			"\x00\x5e\x89\xe7\xb9\x1e\x00" +
 			"\x00\x00\xfc\xf2\xa4\x89\xe3\x50" +

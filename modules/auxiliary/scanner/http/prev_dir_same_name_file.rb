@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,27 +21,27 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'   		=> 'HTTP Previous Directory File Scanner',
 			'Description'	=> %q{
 				This module identifies files in the first parent directory with same name as
 				the given directory path. Example: Test /backup/files/ will look for the
-				following files /backup/files.ext .					
+				following files /backup/files.ext .
 			},
 			'Author' 		=> [ 'et [at] metasploit.com' ],
 			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))   
-			
+			'Version'		=> '$Revision$'))
+
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The test path. The default value will not work.", '/'])
-			], self.class)	
-						
+			], self.class)
+
 	end
 
 	def run_host(ip)
-		extensions = [	
-			'.null',					
+		extensions = [
+			'.null',
 			'.backup',
 			'.bak',
 			'.c',
@@ -49,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 			'.htm',
 			'.jar',
 			'.log',
-			'.old', 
+			'.old',
 			'.orig',
 			'.o',
 			'.tar',
@@ -63,18 +67,18 @@ class Metasploit3 < Msf::Auxiliary
 		]
 
 		tpath = datastore['PATH']
-		
+
 		if tpath.eql? "/"||""
 			print_error("Blank or default PATH set.");
 			return
 		end
- 	
+
 		if tpath[-1,1] != '/'
 			tpath += '/'
-		end 
-		
+		end
+
 		extensions << datastore['EXT']
-		
+
 		extensions.each { |ext|
 			begin
 				testf = tpath.chop+ext
@@ -85,9 +89,9 @@ class Metasploit3 < Msf::Auxiliary
 					'ctype'		=> 'text/plain'
 				}, 20)
 
-				if (res and res.code >= 200 and res.code < 300) 
+				if (res and res.code >= 200 and res.code < 300)
 					print_status("Found #{wmap_base_url}#{testf}")
-					
+
 					report_note(
 						:host	=> ip,
 						:proto	=> 'HTTP',
@@ -95,16 +99,16 @@ class Metasploit3 < Msf::Auxiliary
 						:type	=> 'FILE',
 						:data	=> "#{testf} Code: #{res.code}"
 					)
-					
+
 				else
-					print_status("NOT Found #{wmap_base_url}#{testf}") 
+					print_status("NOT Found #{wmap_base_url}#{testf}")
 				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			rescue ::Timeout::Error, ::Errno::EPIPE			
+			rescue ::Timeout::Error, ::Errno::EPIPE
 			end
-	
+
 		}
-	
+
 	end
 end

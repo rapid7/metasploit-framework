@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptInt.new('SPORT', [false, 'The source port (else randomizes)']),
 			OptInt.new('NUM', [false, 'Number of SYNs to send (else unlimited)'])
 		])
-		
+
 		deregister_options('FILTER','PCAPFILE')
 	end
 
@@ -68,14 +68,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		while (num <= 0) or (sent < num)
 
-			n.l3.src_ip = srchost		
+			n.l3.src_ip = srchost
 			n.l3.id = rand(0x10000)
-			n.l3.ttl = rand(128)+128		
+			n.l3.ttl = rand(128)+128
 			n.l4.window   = rand(4096)+1
 			n.l4.src_port = sport
 			n.l4.seq  = rand(0x100000000)
 
-			n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, '')	
+			n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, '')
 
 			pkt = n.pack
 

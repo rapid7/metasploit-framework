@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -22,7 +22,7 @@ module Metasploit3
 	def self.handler_type_alias
 		"bind_nonx_tcp"
 	end
-	
+
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Bind TCP Stager (No NX or Win7)',

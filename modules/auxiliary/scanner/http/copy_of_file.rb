@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -22,41 +22,41 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'   		=> 'HTTP Copy File Scanner',
 			'Description'	=> %q{
-				This module identifies the existence of possible copies 
+				This module identifies the existence of possible copies
 				of a specific file in a given path.
 			},
 			'Author' 		=> [ 'et [at] cyberspace.org' ],
 			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))   
-			
+			'Version'		=> '$Revision$'))
+
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path/file to identify copies", '/index.asp'])
-			], self.class)	
-		
+			], self.class)
+
 		register_advanced_options(
 			[
 				OptInt.new('ErrorCode', [ true, "Error code for non existent directory", 404]),
-				OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use", 
+				OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use",
 						File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
 					]
 				),
-				OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])				
-			], self.class)	
-							
+				OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
+			], self.class)
+
 	end
 
 	def run_host(ip)
 		conn = true
 		ecode = nil
 		emesg = nil
-		
+
 		ecode = datastore['ErrorCode'].to_i
 		dm = datastore['NoDetailMessages']
-	
+
 		prestr = [
 						'Copy_(1)_of_',
 						'Copy_(2)_of_',
@@ -66,18 +66,18 @@ class Metasploit3 < Msf::Auxiliary
 						'Copy',
 						'_'
 				 ]
-				 	 
+
 
 		tpathf = datastore['PATH']
 		testf = tpathf.split('/').last
 
 		#
 		# Detect error code
-		# 		
+		#
 		begin
 			randfile = Rex::Text.rand_text_alpha(5).chomp
 			filec = tpathf.sub(testf,randfile + testf)
-			
+
 			res = send_request_cgi({
 				'uri'  		=>  filec,
 				'method'   	=> 'GET',
@@ -85,13 +85,13 @@ class Metasploit3 < Msf::Auxiliary
 			}, 20)
 
 			return if not res
-			
-			tcode = res.code.to_i 
 
-	
+			tcode = res.code.to_i
+
+
 			# Look for a string we can signature on as well
 			if(tcode >= 200 and tcode <= 299)
-			
+
 				File.open(datastore['HTTP404Sigs']).each do |str|
 					if(res.body.index(str))
 						emesg = str
@@ -109,10 +109,10 @@ class Metasploit3 < Msf::Auxiliary
 				ecode = tcode
 				print_status("Using code '#{ecode}' as not found.")
 			end
-			
+
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			conn = false		
-		rescue ::Timeout::Error, ::Errno::EPIPE			
+			conn = false
+		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 
 		return if not conn
@@ -120,24 +120,24 @@ class Metasploit3 < Msf::Auxiliary
 		if testf
 			prestr.each do |pre|
 				filec = tpathf.sub(testf,pre + testf)
-				
+
 				begin
 					res = send_request_cgi({
 						'uri'  		=>  filec,
 						'method'   	=> 'GET',
 						'ctype'		=> 'text/plain'
 					}, 20)
-					
+
 					if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
 						if dm == false
-							print_status("NOT Found #{filec} #{res.code} [#{wmap_target_host}] [#{res.code.to_i}]") 					
+							print_status("NOT Found #{filec} #{res.code} [#{wmap_target_host}] [#{res.code.to_i}]")
 						end
 					else
 						if ecode != 400 and res.code.to_i == 400
 							print_error("[#{wmap_target_host}] Server returned a 400 error on #{wmap_base_url}#{filec} [#{res.code.to_i}]")
-						else				
+						else
 							print_status("[#{wmap_target_host}] Found #{wmap_base_url}#{filec} [#{res.code.to_i}]")
-							
+
 							report_note(
 								:host	=> ip,
 								:proto	=> 'HTTP',
@@ -149,9 +149,9 @@ class Metasploit3 < Msf::Auxiliary
 					end
 
 				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-				rescue ::Timeout::Error, ::Errno::EPIPE			
+				rescue ::Timeout::Error, ::Errno::EPIPE
 				end
 			end
-		end	
+		end
 	end
 end

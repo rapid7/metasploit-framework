@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -18,10 +18,10 @@ class Metasploit3 < Msf::Auxiliary
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::SMB
 	include Msf::Exploit::Remote::DCERPC
-	
+
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
-	
+
 	def initialize
 		super(
 			'Name'        => 'SMB Session Pipe DCERPC Auditor',
@@ -30,12 +30,12 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
 		)
-		
+
 		deregister_options('RPORT', 'RHOST')
 		register_options(
 			[
 				OptString.new('SMBPIPE', [ true,  "The pipe name to use (BROWSER)", 'BROWSER']),
-			], self.class)		
+			], self.class)
 	end
 
 	@@target_uuids = [
@@ -255,7 +255,7 @@ class Metasploit3 < Msf::Auxiliary
 		[ 'fdb3a030-065f-11d1-bb9b-00a024ea5525', '1.0' ],
 		[ 'ffe561b8-bf15-11cf-8c5e-08002bb49649', '2.0' ]
 
-	
+
 ]
 
 	# Fingerprint a single host
@@ -265,15 +265,15 @@ class Metasploit3 < Msf::Auxiliary
 
 		datastore['RPORT'] = info[0]
 		datastore['SMBDirect'] = info[1]
-		
+
 		begin
 			connect()
 			smb_login()
 
 			@@target_uuids.each do |uuid|
-			
+
 				handle = dcerpc_handle(
-					uuid[0], uuid[1], 
+					uuid[0], uuid[1],
 					'ncacn_np', ["\\#{datastore['SMBPIPE']}"]
 				)
 
@@ -283,10 +283,10 @@ class Metasploit3 < Msf::Auxiliary
 				rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 					# print_line("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
 				rescue ::Exception => e
-					# print_line("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")					
+					# print_line("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
 				end
 			end
-			
+
 			disconnect()
 
 			return
@@ -295,6 +295,6 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		end
 	end
-	
+
 
 end

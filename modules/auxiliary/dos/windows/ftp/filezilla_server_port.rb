@@ -3,10 +3,10 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/ 
+# http://metasploit.com/framework/
 ##
 
 require 'msf/core'
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'		=> 'FileZilla FTP Server <=0.9.21 Malformed PORT Denial of Service',
 			'Description'	=> %q{
 				This module triggers a Denial of Service condition in the FileZilla FTP

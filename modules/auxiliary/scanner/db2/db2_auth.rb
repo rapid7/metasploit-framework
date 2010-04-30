@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -14,12 +14,12 @@ require 'msf/core'
 
 
 class Metasploit3 < Msf::Auxiliary
-        
+
 	include Msf::Exploit::Remote::DB2
 	include Msf::Auxiliary::AuthBrute
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
-	
+
 	def initialize
 		super(
 			'Name'           => 'DB2 Authentication Brute Force Utility',
@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => ['todb'],
 			'License'        => MSF_LICENSE
 		)
-    
+
     register_options(
       [
 				OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line",
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_pass.txt") ]),
 			], self.class)
-      
+
 	end
 
 	def run_host(ip)
@@ -58,10 +58,10 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			info = db2_check_login
 		rescue ::Rex::ConnectionError
-			vprint_error("#{rhost}:#{rport} : Unable to attempt authentication") 
+			vprint_error("#{rhost}:#{rport} : Unable to attempt authentication")
 			return :abort
 		rescue ::Rex::Proto::DRDA::RespError => e
-			vprint_error("#{rhost}:#{rport} : Error in connecting to DB2 instance: #{e}") 
+			vprint_error("#{rhost}:#{rport} : Error in connecting to DB2 instance: #{e}")
 			return :abort
 		end
 			disconnect

@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 	include Msf::Exploit::Capture
-	
+
 	def initialize
 		super(
 			'Name'        => 'Simple Ethernet Frame Spoofer',
@@ -51,13 +51,13 @@ class Metasploit3 < Msf::Auxiliary
 		r.l4.dst_port = 0x42
 		r.l4.payload  = "SPOOOOOFED"
 		r.l4.fix!(r.l3.src_ip, r.l3.dst_ip)
-		
+
 		1.upto(10) do
 			capture.inject(r.pack)
 		end
-		
+
 		close_pcap()
 		print_status("Finished sending")
 	end
-	
+
 end

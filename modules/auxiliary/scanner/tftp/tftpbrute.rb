@@ -36,11 +36,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		begin
-			
+
 			# Create an unbound UDP socket if no CHOST is specified, otherwise
 			# create a UDP socket bound to CHOST (in order to avail of pivoting)
-			udp_sock = Rex::Socket::Udp.create( 
-				{ 
+			udp_sock = Rex::Socket::Udp.create(
+				{
 					'LocalHost' => datastore['CHOST'] || nil,
 					'Context'   =>
 						{

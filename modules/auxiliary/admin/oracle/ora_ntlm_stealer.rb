@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -20,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 				To do this you must firstly run smb_sniffer or smb_relay module on your sever.
 				Then you must connect to Oracle database and run this module Ora_NTLM_stealer.rb
 				which will connect to your SMB sever with credentials of Oracle RDBMS.
-				So if smb_relay is working, you will get Administrator access to server which 
+				So if smb_relay is working, you will get Administrator access to server which
 				runs Oracle. If not than you can decrypt HALFLM hash.
 			},
 			'Author'         => [ 'Sh2kerr <research[ad]dsecrg.com>' ],
@@ -32,9 +36,9 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Apr 7 2009'))
 
-			register_options( 
+			register_options(
 				[
-					OptString.new('IP', [ false, 'IP adress of SMB proxy.', '0.0.0.0' ]),					
+					OptString.new('IP', [ false, 'IP adress of SMB proxy.', '0.0.0.0' ]),
 				], self.class)
 	end
 

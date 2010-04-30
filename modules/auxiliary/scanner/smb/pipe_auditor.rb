@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,10 +17,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::SMB
-	
+
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
-	
+
 	def initialize
 		super(
 			'Name'        => 'SMB Session Pipe Auditor',
@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
 		)
-		
+
 		deregister_options('RPORT')
 	end
 
@@ -60,17 +60,17 @@ class Metasploit3 < Msf::Auxiliary
 		'PIPE_EVENTROOT\CIMV2SCM EVENT PROVIDER',
 		'db2remotecmd'
 	]
-	
+
 	# Fingerprint a single host
 	def run_host(ip)
 
 		pass = []
-		
+
 		[[139, false], [445, true]].each do |info|
 
 		datastore['RPORT'] = info[0]
 		datastore['SMBDirect'] = info[1]
-		
+
 		begin
 			connect()
 			smb_login()
@@ -83,13 +83,13 @@ class Metasploit3 < Msf::Auxiliary
 					# print_error("Could not open \\#{pipe}: Error 0x%.8x" % e.error_code)
 				end
 			end
-			
+
 			disconnect()
 
 			break
 		rescue ::Exception => e
 			# print_line($!.to_s)
-			# print_line($!.backtrace.join("\n"))			
+			# print_line($!.backtrace.join("\n"))
 		end
 		end
 
@@ -97,6 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("#{ip} - Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}")
 		end
 	end
-	
+
 
 end
+

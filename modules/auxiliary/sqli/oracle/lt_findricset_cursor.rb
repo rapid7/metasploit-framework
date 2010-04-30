@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -15,10 +19,10 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'SQL Injection via SYS.LT.FINDRICSET Evil Cursor Method',
 			'Description'    => %q{
-					This module will escalate a Oracle DB user to DBA by exploiting 
-					an sql injection bug in the SYS.LT.FINDRICSET package via Evil 
-					Cursor technique. Tested on oracle 10.1.0.3.0 -- should work on 
-					thru 10.1.0.5.0 and supposedly on 11g. Fixed with Oracle Critical 
+					This module will escalate a Oracle DB user to DBA by exploiting
+					an sql injection bug in the SYS.LT.FINDRICSET package via Evil
+					Cursor technique. Tested on oracle 10.1.0.3.0 -- should work on
+					thru 10.1.0.5.0 and supposedly on 11g. Fixed with Oracle Critical
 					Patch update October 2007.
 					},
 			'Author'         => ['CG'],
@@ -33,9 +37,9 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Oct 17 2007'))
 
-			register_options( 
+			register_options(
 				[
-					OptString.new('SQL', [ false, 'SQL to execute.',  "GRANT DBA to #{datastore['DBUSER']}"]),		
+					OptString.new('SQL', [ false, 'SQL to execute.',  "GRANT DBA to #{datastore['DBUSER']}"]),
 				], self.class)
 	end
 

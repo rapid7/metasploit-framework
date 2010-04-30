@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,10 +17,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::DCERPC
-	
+
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
-	
+
 	def initialize
 		super(
 			'Name'        => 'Hidden DCERPC Service Discovery',
@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => %q{
 				This module will query the endpoint mapper and make a list
 			of all ncacn_tcp RPC services. It will then connect to each of
-			these services and use the management API to list all other 
+			these services and use the management API to list all other
 			RPC services accessible on this port. Any RPC service found attached
 			to a TCP port, but not listed in the endpoint mapper, will be displayed
 			and analyzed to see whether anonymous access is permitted.
@@ -36,12 +36,12 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
 		)
-		
+
 		deregister_options('RHOST', 'RPORT')
 	end
 
 	# Obtain information about a single host
-	def run_host(ip)	
+	def run_host(ip)
 		begin
 
 			epm = dcerpc_endpoint_list()
@@ -49,27 +49,27 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Could not contact the endpoint mapper on #{ip}")
 				return
 			end
-			
+
 			eports = {}
-			
+
 			epm.each do |ep|
 				next if !(ep[:port] and ep[:prot] and ep[:prot] == "tcp")
 				eports[ep[:port]] ||= {}
 				eports[ep[:port]][ep[:uuid]+'_'+ep[:vers]] = true
 			end
-			
+
 			eports.each_pair do |eport, servs|
-			
+
 				rport = eport
 				print_status("Looking for services on #{ip}:#{rport}...")
-				
+
 				ids = dcerpc_mgmt_inq_if_ids(rport)
 				return if not ids
-				
+
 				ids.each do |id|
 					if (not servs.has_key?(id[0]+'_'+id[1]))
 						print_status("\tHIDDEN: UUID #{id[0]} v#{id[1]}")
-						
+
 						conn = nil
 						bind = nil
 						call = nil
@@ -85,41 +85,41 @@ class Metasploit3 < Msf::Auxiliary
 
 							res = dcerpc.call(0, NDR.long(0) * 128)
 							call = true
-							
+
 							if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
 								data = dcerpc.last_response.stub_data
 							end
-										
+
 						rescue ::Interrupt
 							raise $!
 						rescue ::Exception => e
 							error = e.to_s
 						end
-						
+
 						if (error and error =~ /DCERPC FAULT/ and error !~ /nca_s_fault_access_denied/)
 							call = true
 						end
-						
+
 						status = "\t\t"
 						status << "CONN " if conn
 						status << "BIND " if bind
 						status << "CALL " if call
 						status << "DATA=#{data.unpack("H*")[0]} " if data
 						status << "ERROR=#{error} " if error
-						
+
 						print_status(status)
 						print_status("")
-						
+
 					end
 				end
 			end
-			
+
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
 			print_status("Error: #{e}")
 		end
 	end
-	
+
 
 end

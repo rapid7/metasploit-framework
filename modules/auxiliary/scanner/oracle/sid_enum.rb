@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -17,8 +21,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Oracle SID Enumeration.',
 			'Description'    => %q{
-				This module simply queries the TNS listner for the Oracle SID. 
-				With Oracle 9.2.0.8 and above the listener will be protected and 
+				This module simply queries the TNS listner for the Oracle SID.
+				With Oracle 9.2.0.8 and above the listener will be protected and
 				the SID will have to be bruteforced or guessed.
 			},
 			'Author'         => [ 'CG', 'MC' ],
@@ -26,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'DisclosureDate' => 'Jan 7 2009'))
 
-                        register_options([Opt::RPORT(1521),], self.class) 
+                        register_options([Opt::RPORT(1521),], self.class)
 
 			deregister_options('RHOST')
 	end
@@ -38,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 			pkt = tns_packet("(CONNECT_DATA=(COMMAND=STATUS))")
 
 			sock.put(pkt)
-			
+
 			sleep(0.5)
 
 			data = sock.get_once

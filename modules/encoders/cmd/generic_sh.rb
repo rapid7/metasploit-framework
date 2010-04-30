@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -30,17 +30,17 @@ class Metasploit3 < Msf::Encoder
 			'Arch'             => ARCH_CMD)
 	end
 
-	
+
 	#
 	# Encodes the payload
 	#
 	def encode_block(state, buf)
-		
+
 		# Skip encoding for empty badchars
 		if(state.badchars.length == 0)
 			return buf
 		end
-		
+
 		if (state.badchars.include?("-"))
 			# Then neither of the others will work.  Get rid of spaces and hope
 			# for the best.  This obviously won't work if the command already
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Encoder
 				buf = encode_block_bash_echo(state,buf)
 			end
 		end
-		
+
 		return buf
 	end
 
@@ -66,26 +66,26 @@ class Metasploit3 < Msf::Encoder
 	#
 	def encode_block_perl(state, buf)
 
-		hex = buf.unpack("H*")	
+		hex = buf.unpack("H*")
 		cmd = 'perl -e '
 		qot = ',-:.=+!@#$%^&'
-		
+
 		# Find a quoting character to use
 		state.badchars.unpack('C*') { |c| qot.delete(c.chr) }
-		
+
 		# Throw an error if we ran out of quotes
 		raise RuntimeError if qot.length == 0
-		
+
 		sep = qot[0].chr
-		
+
 		# Convert spaces to IFS...
 		if (state.badchars.include?(" "))
 			cmd.gsub!(/\s/, '${IFS}')
 		end
-		
+
 		# Can we use single quotes to enclose the command string?
 		if (state.badchars.include?("'"))
-		
+
 			if (state.badchars.match(/\(|\)/))
 
 				# No paranthesis...
@@ -93,43 +93,43 @@ class Metasploit3 < Msf::Encoder
 			end
 
 			cmd << "system\\(pack\\(qq#{sep}H\\*#{sep},qq#{sep}#{hex}#{sep}\\)\\)"
-				
+
 		else
 			if (state.badchars.match(/\(|\)/))
 				if (state.badchars.include?(" "))
 					# No spaces allowed, no paranthesis, give up...
 					raise RuntimeError
 				end
-				
+
 				cmd << "'system pack qq#{sep}H*#{sep},qq#{sep}#{hex}#{sep}'"
 			else
 				cmd << "'system(pack(qq#{sep}H*#{sep},qq#{sep}#{hex}#{sep}))'"
 			end
 		end
-		
+
 		return cmd
 	end
-	
+
 	#
 	# Uses bash's echo -ne command to hex encode the command string
 	#
 	def encode_block_bash_echo(state, buf)
-	
+
 		hex = ''
-		
+
 		# Can we use single quotes to enclose the echo arguments?
 		if (state.badchars.include?("'"))
 			hex = buf.unpack('C*').collect { |c| "\\\\\\x%.2x" % c }.join
 		else
 			hex = "'" + buf.unpack('C*').collect { |c| "\\x%.2x" % c }.join + "'"
 		end
-		
+
 		# Are pipe characters restricted?
 		if (state.badchars.include?("|"))
 			# How about backticks?
 			if (state.badchars.include?("`"))
 				# Last ditch effort, dollar paren
-				if (state.badchars.include?("$") or state.badchars.include?("(")) 
+				if (state.badchars.include?("$") or state.badchars.include?("("))
 					raise RuntimeError
 				else
 					buf = "$(/bin/echo -ne #{hex})"
@@ -140,13 +140,13 @@ class Metasploit3 < Msf::Encoder
 		else
 			buf = "/bin/echo -ne #{hex}|sh"
 		end
-		
+
 		# Remove spaces from the command string
 		if (state.badchars.include?(" "))
 			buf.gsub!(/\s/, '${IFS}')
 		end
-		
+
 		return buf
-	end	
+	end
 
 end

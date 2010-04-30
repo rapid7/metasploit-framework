@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -14,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	
+
 	def initialize
 		super(
 			'Name'        => 'VNC Authentication None Detection',
@@ -41,9 +45,9 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			banner = sock.get_once(50,1)
 
-			# RFB Protocol Version 3.3 (1998-01) 
-			# RFB Protocol Version 3.7 (2003-08) 
-			# RFB Protocol Version 3.8 (2007-06) 
+			# RFB Protocol Version 3.3 (1998-01)
+			# RFB Protocol Version 3.7 (2003-08)
+			# RFB Protocol Version 3.8 (2007-06)
 			if (banner and banner =~ /RFB 003\.003|RFB 003\.007|RFB 003\.008/)
 				ver,msg = (banner.split(/\n/))
 
@@ -60,12 +64,12 @@ class Metasploit3 < Msf::Auxiliary
 					if (msg =~ /Too many security failures/)
 						msg = msg + ". " + "Wait for a moment!"
 					end
-					print_status("#{target_host}:#{rport}, VNC server warning messages : \"#{msg}\"") 
-				else	
+					print_status("#{target_host}:#{rport}, VNC server warning messages : \"#{msg}\"")
+				else
 					# send VNC client protocol version
 					cver = ver + "\x0a"
 					sock.put(cver)
-			
+
 					# first byte is number of security types
 					num_types = sock.get_once(1).unpack("C").first
 					if (num_types == 0)
@@ -80,14 +84,14 @@ class Metasploit3 < Msf::Auxiliary
 					# 16 : Tight (tightvncserver)
 					# 17 : Ultra
 					# 18 : TLS
-					
+
 					sec_type = []
 					if types
 						sec_type << "None"   if (types.include? 1)
 						sec_type << "VNC"    if (types.include? 2)
-						sec_type << "Tight"  if (types.include? 16)  
+						sec_type << "Tight"  if (types.include? 16)
 						sec_type << "Ultra"  if (types.include? 17)
-						sec_type << "TLS"    if (types.include? 18)  
+						sec_type << "TLS"    if (types.include? 18)
 						print_status("#{target_host}:#{rport}, VNC server security types supported : #{sec_type.join(",")}")
 						if (types.include? 1)
 							print_status("#{target_host}:#{rport}, VNC server security types includes None, free access!")

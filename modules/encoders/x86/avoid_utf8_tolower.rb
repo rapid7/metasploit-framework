@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -20,7 +20,7 @@ require 'msf/core'
 # encoder cannot be used with all of the payloads included in the framework.
 # Most notably, this includes windows/shell_reverse_tcp.  The reason for this
 # is that some payloads are of a size that leads to a bad character (uppercase
-# character) being generated in the decoder stub header.  
+# character) being generated in the decoder stub header.
 #
 # A second thing to consider is that some IP addresses used in payloads are
 # incompatible with this encoder depending on their alignment within the
@@ -47,7 +47,7 @@ require 'msf/core'
 # which uses a series of add or subtract operations on the third chunk of the
 # decoder to produce the actual opcodes of the encoded payload.  For each four
 # bytes of encoded data, a sub or add instruction is used in combination with
-# complementary information stored in the third chunk of the decoder.  
+# complementary information stored in the third chunk of the decoder.
 #
 # For example, in order to produce 0x01fdfeff one could do the following:
 #
@@ -60,7 +60,7 @@ require 'msf/core'
 # simply fall through into the now-decoded payload that was stored in the
 # third chunk of the decoder.
 #
-# The following is an example encoding of: 
+# The following is an example encoding of:
 #
 # "\xcc\x41\xcc\x41\xcc\x41\xcc\x41\xff\xfe\xfd\x01\xff\x02\x82\x4c"
 #
@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Encoder
 			buf = try_sub(state, block)
 		end
 
-		if (buf.nil?)	
+		if (buf.nil?)
 			raise BadcharError.new(state.encoded, 0, 0, 0)
 		end
 
@@ -179,11 +179,11 @@ class Metasploit3 < Msf::Encoder
 	# Appends the encoded context portion.
 	#
 	def encode_end(state)
-		state.encoded += state.context	
+		state.encoded += state.context
 	end
 
 	#
-	# Generate the instructions that will be used to produce a valid 
+	# Generate the instructions that will be used to produce a valid
 	# block after decoding using the sub instruction in conjunction with
 	# two UTF8/tolower safe values.
 	#
@@ -256,7 +256,7 @@ class Metasploit3 < Msf::Encoder
 
 			begin
 				xv = rand(b - 1) + 1
-				
+
 				attempts += 1
 
 				# Lame.

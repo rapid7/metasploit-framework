@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/projects/Framework/
@@ -9,7 +13,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Auxiliary::Report	
+	include Msf::Auxiliary::Report
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Scanner
 
@@ -38,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'     => '/em/console/logon/logon',
 				'method'  => 'GET',
 			}, 5)
-		
+
 				if (res.code == 200)
 				sid = res.body.scan(/Login to Database:(\w+)/)
 					report_note(
@@ -53,6 +57,6 @@ class Metasploit3 < Msf::Auxiliary
 				end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
-		end		
+		end
 	end
 end

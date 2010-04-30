@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -20,7 +24,7 @@ class Object
 		file.close
 		return obj
 	end
- 
+
 	def self.load_from_file filename
 		begin
 			file = Zlib::GzipReader.open(filename)
@@ -57,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('INITSTRING',   [true,  'Initialization String', 'AT X6 S11=80']),
 			OptString.new('SERIALPORT',   [true,  'Serial Port (e.g. 0 (COM1), 1 (COM2), /dev/ttyS0, etc.)', '/dev/ttyS0']),
 		], self.class)
-	
+
 		register_advanced_options(
 		[
 			OptInt.new(   'BaudRate',     [true,  'Baud Rate', 19200]),
@@ -102,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		@confdir      = File.join(Msf::Config.get_config_root, 'wardial')
 		@datadir      = File.join(Msf::Config.get_config_root, 'logs', 'wardial')
-		
+
 		# make sure working dirs exist
 		FileUtils.mkdir_p(@confdir)
 		FileUtils.mkdir_p(@datadir)
@@ -214,7 +218,7 @@ class Metasploit3 < Msf::Auxiliary
 					dialval = unidentified[chosen][1]
 				end
 				print_status("#{unidentified.size} of #{dialrange.size} numbers unidentified, #{num_carriers} carriers found, #{num_faxes} faxes found, #{num_busy} busy")
-				if dialval[:busy] == true 
+				if dialval[:busy] == true
 					print_status("Dialing: #{dialnum} (#{dialtimeout} sec. timeout, previously busy)")
 				else
 					print_status("Dialing: #{dialnum} (#{dialtimeout} sec. timeout, previously undialed)")
@@ -371,7 +375,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		return true
 	end
-		
+
 	def build_dialrange(dialmask)
 		dialrange = {}
 
@@ -427,7 +431,7 @@ class Metasploit3 < Msf::Auxiliary
 			if Time.now >= gotchar + 8 # nudges after 8 seconds of receiving nothing
 				if nudgestring
 					print_status( "Nudging..." )
-					modem.puts nudgestring 
+					modem.puts nudgestring
 				end
 				gotchar = Time.now # resets timer so we don't nudge too often
 			end

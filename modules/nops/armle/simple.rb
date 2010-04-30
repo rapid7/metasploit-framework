@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -42,11 +42,11 @@ class Metasploit3 < Msf::Nop
 
 
 	def generate_sled(length, opts)
-		
+
 		badchars = opts['BadChars'] || ''
 		random   = opts['Random']   || datastore['RandomNops']
 
-		nops = [ 
+		nops = [
 			0xe1a01001,
 			0xe1a02002,
 			0xe1a03003,
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Nop
 			0xe1a0a00a,
 			0xe1a0b00b
 		]
-				
+
 		if( random and random.match(/^(t|y|1)/i) )
 			return ([nops[rand(nops.length)]].pack("V*") * (length/4))
 		end

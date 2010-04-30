@@ -30,14 +30,14 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => %q{
 				This module will test ssh logins on a range of machines using
 				a defined private key file, and report successful logins.
-				If you have loaded a database plugin and connected to a database 
-				this module will record successful logins and hosts so you can 
-				track your access.  
+				If you have loaded a database plugin and connected to a database
+				this module will record successful logins and hosts so you can
+				track your access.
 
 				Note that password-protected key files will not function with this
 				module -- it is designed specifically for unencrypted (passwordless)
 				keys.
-				
+
 				Key files may be a single private (unencrypted) key, or several private
 				keys concatenated together as an ASCII text file. Non-key data should be
 				silently ignored.
@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 			# Needs an end
 			next unless key =~ /\n-----END [RD]SA PRIVATE KEY-----\x0d?\x0a$/m
 			# Shouldn't have binary.
-			next unless key.scan(/[\x00-\x08\x0b\x0c\x0e-\x19\x80-\xff]/).empty? 
+			next unless key.scan(/[\x00-\x08\x0b\x0c\x0e-\x19\x80-\xff]/).empty?
 			# Add more tests to taste.
 			keepers << key
 		end
@@ -218,7 +218,7 @@ class Metasploit3 < Msf::Auxiliary
 			when :missing_keyfile
 				vprint_error "#{ip}:#{rport} - SSH - Cannot read keyfile."
 			when :no_valid_keys
-				vprint_error "#{ip}:#{rport} - SSH - No cleartext keys in keyfile."	
+				vprint_error "#{ip}:#{rport} - SSH - No cleartext keys in keyfile."
 			end
 		end
 	end

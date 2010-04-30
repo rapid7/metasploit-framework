@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Encoder::Xor
 	# the buffer being encoded
 	#
 	def decoder_stub(state)
-		decoder = 
+		decoder =
 			Rex::Arch::X86.sub(-(((state.buf.length - 1) / 4) + 1), Rex::Arch::X86::ECX,
 				state.badchars) +
 			"\xe8\xff\xff\xff" + # call $+4

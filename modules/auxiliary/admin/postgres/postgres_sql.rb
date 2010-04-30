@@ -15,7 +15,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Postgres
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'PostgreSQL Server Generic Query',
@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$'
 		))
 
-		register_options( [ ], self.class) # None needed. 
+		register_options( [ ], self.class) # None needed.
 	end
 
 	def rhost
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 	def rport
 		datastore['RPORT']
 	end
-	
+
 	def run
 		ret = postgres_query(datastore['SQL'],datastore['RETURN_ROWSET'])
 		verbose = datastore['VERBOSE']
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 		when :sql_error
 			print_error "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"
 		when :complete
-			print_good  "#{rhost}:#{rport} Postgres - Command complete." if verbose 
+			print_good  "#{rhost}:#{rport} Postgres - Command complete." if verbose
 		end
 		postgres_logout if self.postgres_conn
 	end

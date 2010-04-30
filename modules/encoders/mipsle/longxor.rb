@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Encoder::Xor
 			'Version'          => '$Revision$',
 			'Description'      => %q{
 				Mips Web server exploit friendly xor encoder
-			}, 
+			},
 			'Author'           => 'Julien Tinnes <julien at cr0.org>',
 			'Arch'             => ARCH_MIPSLE,
 			'License'          => MSF_LICENSE,
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Encoder::Xor
 		number_of_passes=state.buf.length/4+1
 		raise InvalidPayloadSizeException.new("The payload being encoded is too long (#{state.buf.length} bytes)") if number_of_passes > 10240
 		raise InvalidPayloadSizeException.new("The payload is not padded to 4-bytes (#{state.buf.length} bytes)") if state.buf.length%4 != 0
-		
+
 		# 16-bits not (again, see below)
 		reg_14 = (number_of_passes+1)^0xFFFF
 		decoder = Metasm::Shellcode.assemble(Metasm::MIPS.new(:little), <<EOS).encoded.data
@@ -94,14 +94,14 @@ next:
 	bltzal  $8, next
 ;.set reorder
 	slti    $8, $0, 0x8282
-	nor     $11, $11, $0		; addend in $9	
-	addu	$25, $31, $11		; $25 points to encoded shellcode +4 
+	nor     $11, $11, $0		; addend in $9
+	addu	$25, $31, $11		; $25 points to encoded shellcode +4
 ;	addu	$16, $31, $11		; $16 too (enable if you want to pass correct parameters to cacheflush
 
 ;	lui	$2, 0xDDDD     		; first part of the xor (old method)
 	slti	$23, $0, 0x8282 	; store 0 in $23 (our counter)
 ;	ori	$17, $2, 0xDDDD 	; second part of the xor (old method)
-	lw	$17, -4($25)		; load xor key in $17 
+	lw	$17, -4($25)		; load xor key in $17
 
 
 	li(	$13, -5)
@@ -134,12 +134,12 @@ loop:
 					; write last decoder opcode and decoded shellcode
 ;	li      $4,1            	; stdout
 ;	addi	$5, $16, -8
-;	li      $6,40           	; how much to write     
+;	li      $6,40           	; how much to write
 ;	.set    noreorder
 ;	li      $2, 4004                ; write
 ;	syscall
 ;	.set    reorder
-	
+
 
 	nop				; encoded shellcoded must be here (xor key right here ;)
 ; $t9 (aka $25) points here
