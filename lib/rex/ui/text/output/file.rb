@@ -25,9 +25,15 @@ class Output::File < Rex::Ui::Text::Output
 	# Prints the supplied message to file output.
 	#
 	def print_raw(msg = '')
+		return if not self.fd
 		self.fd.write(msg)
 		self.fd.flush
 		msg
+	end
+
+	def close
+		self.fd.close if self.fd
+		self.fd = nil
 	end
 end
 
