@@ -51,10 +51,10 @@ def run
 	#
 
 	if(Rex::Compat.is_windows)
-		if(threads_max > 16)
+		if(threads_max > 32)
 			print_error("Warning: The Windows platform cannot reliably support more than 16 threads")
 			print_error("Thread count has been adjusted to 16")
-			threads_max = 16
+			threads_max = 32
 		end
 	end
 
@@ -96,6 +96,8 @@ def run
 					rescue ::Exception => e
 						print_status("Error: #{targ}: #{e.class} #{e.message}")
 						elog("Error running against host #{targ}: #{e.message}\n#{e.backtrace.join("\n")}")
+					ensure
+						nmod.cleanup
 					end
 				end
 			end
@@ -163,6 +165,8 @@ def run
 							raise $!
 						rescue ::Exception => e
 							print_status("Error: #{mybatch[0]}-#{mybatch[-1]}: #{e}")
+						ensure
+							nmod.cleanup
 						end
 					end
 					thread[:batch_size] = batch.length

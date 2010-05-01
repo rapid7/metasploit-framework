@@ -6,14 +6,14 @@ module Msf
 #
 # The auxiliary class acts as a base class for all modules that perform
 # reconnaisance, retrieve data, brute force logins, or any other action
-# that doesn't fit our concept of an 'exploit' (involving payloads and 
+# that doesn't fit our concept of an 'exploit' (involving payloads and
 # targets and whatnot).
 #
 ###
 class Auxiliary < Msf::Module
 
 	require 'msf/core/auxiliary/mixins'
-	
+
 	#
 	# Returns MODULE_AUX to indicate that this is an auxiliary module.
 	#
@@ -27,9 +27,9 @@ class Auxiliary < Msf::Module
 	def type
 		MODULE_AUX
 	end
-	
+
 	#
-	# Creates an instance of the auxiliary module. 
+	# Creates an instance of the auxiliary module.
 	#
 	def initialize(info = {})
 
@@ -41,14 +41,14 @@ class Auxiliary < Msf::Module
 			info['Actions'], Array,
 			[ AuxiliaryAction ], 'AuxiliaryAction'
 		)
-		
+
 		self.passive = (info['Passive'] and info['Passive'] == true) || false
 		self.default_action = info['DefaultAction']
 		self.sockets = Array.new
 		self.queue   = Array.new
 		self.passive_actions = info['PassiveActions'] || []
 	end
-	
+
 	#
 	# Creates a singleton instance of this auxiliary class
 	#
@@ -56,7 +56,7 @@ class Auxiliary < Msf::Module
 		return @@aux_singleton if @@aux_singleton
 		@@aux_singleton = self.new(info)
 	end
-	
+
 	def run
 		print_status("Running the default Auxiliary handler")
 	end
@@ -78,7 +78,7 @@ class Auxiliary < Msf::Module
 		end
 		return nil
 	end
-	
+
 	#
 	# Returns a boolean indicating whether this module should be run passively
 	#
@@ -87,7 +87,7 @@ class Auxiliary < Msf::Module
 		return passive_action?(act.name) if act
 		return self.passive
 	end
-	
+
 	#
 	# Returns a boolean indicating whether this specific action should be run passively
 	#
@@ -109,23 +109,23 @@ class Auxiliary < Msf::Module
 	def autofilter
 		false
 	end
-	
+
 	#
-	# Provides a list of ports that can be used for matching this module 
+	# Provides a list of ports that can be used for matching this module
 	# against target systems.
 	#
 	def autofilter_ports
 		@autofilter_ports || []
 	end
-	
+
 	#
-	# Provides a list of services that can be used for matching this module 
+	# Provides a list of services that can be used for matching this module
 	# against target systems.
-	#	
+	#
 	def autofilter_services
-		@autofilter_services || []	
+		@autofilter_services || []
 	end
-	
+
 	#
 	# Adds a port into the list of ports
 	#
@@ -135,28 +135,28 @@ class Auxiliary < Msf::Module
 		@autofilter_ports.flatten!
 		@autofilter_ports.uniq!
 	end
-	
+
 	def register_autofilter_services(services=[])
 		@autofilter_services ||= []
 		@autofilter_services << services
 		@autofilter_services.flatten!
-		@autofilter_services.uniq!	
+		@autofilter_services.uniq!
 	end
-	
-		
+
+
 	#
 	# Called directly before 'run'
 	#
 	def setup
 	end
-	
+
 	#
 	# Called after 'run' returns
 	#
 	def cleanup
 		abort_sockets()
 	end
-	
+
 	#
 	# Adds a socket to the list of sockets opened by this exploit.
 	#
@@ -178,32 +178,33 @@ class Auxiliary < Msf::Module
 	#
 	def abort_sockets
 		sockets.delete_if { |sock|
-			if (sock.respond_to?('abortive_close'))
-				sock.abortive_close = true 
-			end
-			begin
-				disconnect(sock)
-			rescue
+			if (sock.respond_to?('abortive_close='))
+				sock.abortive_close = true
 			end
 
+			begin
+				sock.close
+			rescue ::Exception
+			end
 			true
 		}
 	end
-		
-	# 
+
+	#
 	# Allow access to the hash table of actions and the string containing
 	# the default action
-	# 
+	#
 	attr_reader :actions, :default_action, :passive, :passive_actions
 	attr_accessor :queue
-	
+
 protected
-	
+
 	attr_writer :actions, :default_action
 	attr_accessor :sockets
 	attr_writer :passive, :passive_actions
-	
+
 
 end
 
 end
+

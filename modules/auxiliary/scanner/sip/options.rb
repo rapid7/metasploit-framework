@@ -55,9 +55,11 @@ class Metasploit3 < Msf::Auxiliary
 			udp_sock = Rex::Socket::Udp.create(
 				{
 					'LocalHost' => datastore['CHOST'] || nil,
-					'LocalPort' => datastore['CPORT'].to_i
+					'LocalPort' => datastore['CPORT'].to_i,
+					'Context' => {'Msf' => framework, 'MsfExploit' => self}
 				}
 			)
+			add_socket(udp_sock)
 
 			batch.each do |ip|
 				data = create_probe(ip)
@@ -163,3 +165,4 @@ class Metasploit3 < Msf::Auxiliary
 
 
 end
+

@@ -49,6 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 						}
 				}
 			)
+			add_socket(udp_sock)
 
 			fd = File.open(datastore['DICTIONARY'], 'r')
 			fd.read(fd.stat.size).split("\n").each do |filename|
