@@ -126,7 +126,6 @@ def keycap(session, keytime, logfile)
 			end
 			sleep(2)
 			filewrt(logfile,"#{outp}\n")
-			print(".")
 			sleep(keytime.to_i)
 		end
 		db.close
