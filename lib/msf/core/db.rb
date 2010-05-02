@@ -1,4 +1,5 @@
 require 'rex/parser/nmap_xml'
+require 'rex/parser/nexpose_xml'
 
 module Msf
 
@@ -618,6 +619,11 @@ class DBManager
 	#
 	# opts must contain
 	#	:host  -- the host where this vulnerability resides
+	#	:name  -- the scanner-specific id of the vuln (e.g. NEXPOSE-cifs-acct-password-never-expires)
+	# 
+	# opts can contain
+	#	:data  -- a human readable description of the vuln, free-form text
+	#	:refs  -- an array of Ref objects or string names of references
 	#
 	def report_vuln(opts)
 		return if not active
@@ -703,6 +709,9 @@ class DBManager
 	#
 	def find_or_create_ref(opts)
 		ret = {}
+		ret[:ref] = get_ref(opts[:name])
+		return ret[:ref] if ret[:ref]
+
 		task = queue(Proc.new {
 			ref = Ref.find_or_initialize_by_name(opts[:name])
 			if ref and ref.changed?
@@ -1360,9 +1369,6 @@ class DBManager
 	#
 	# Nexpose Raw XML
 	#
-	# XXX At some point we'll want to make this a stream parser for dealing
-	# with large results files
-	#
 	def import_nexpose_rawxml_file(filename, wspace=workspace)
 		f = File.open(filename, 'r')
 		data = f.read(f.stat.size)
@@ -1370,9 +1376,149 @@ class DBManager
 	end
 
 	def import_nexpose_rawxml(data, wspace=workspace)
+		# Use a stream parser instead of a tree parser so we can deal with
+		# huge results files without running out of memory.
+		parser = Rex::Parser::NexposeXMLStreamParser.new
 
-		raise RuntimeError, "NeXpose RAW-XML is not currently supported, please use SimpleXML"
+		# Since all the Refs have to be in the database before we can use them
+		# in a Vuln, we store all the hosts until we finish parsing and only
+		# then put everything in the database.  This is memory-intensive for
+		# large files, but should be much less so than a tree parser. 
+		#
+		# This method is also considerably faster than parsing through the tree
+		# looking for references every time we hit a vuln.
+		hosts = []
+		vulns = []
 
+		# The callback merely populates our in-memory table of hosts and vulns
+		parser.callback = Proc.new { |type, value|
+			case type
+			when :host
+				hosts.push(value)
+			when :vuln
+				vulns.push(value)
+			end
+		}
+
+		REXML::Document.parse_stream(data, parser)
+
+		vuln_refs = nexpose_refs_to_hash(vulns)
+		hosts.each do |host|
+			nexpose_host(host, vuln_refs)
+		end
+	end
+
+	#
+	# Takes an array of vuln hashes, as returned by the NeXpose rawxml stream
+	# parser, like:
+	#   [
+	#		{"id"=>"winreg-notes-protocol-handler", severity="8", "refs"=>[{"source"=>"BID", "value"=>"10600"}, ...]}
+	#		{"id"=>"windows-zotob-c", severity="8", "refs"=>[{"source"=>"BID", "value"=>"14513"}, ...]}
+	#	]
+	# and transforms it into a hash of vuln references keyed on vuln id, like:
+	#	{ "windows-zotob-c" => [{"source"=>"BID", "value"=>"14513"}, ...] }
+	# 
+	# This method ignores all attributes other than the vuln's NeXpose ID and
+	# references (including title, severity, et cetera).
+	#
+	def nexpose_refs_to_hash(vulns)
+		refs = {}
+		vulns.each do |vuln|
+			vuln["refs"].each do |ref|
+				refs[vuln['id']] ||= []
+				if ref['source'] == 'BID'
+					refs[vuln['id']].push('BID-' + ref["value"])
+				elsif ref['source'] == 'CVE'
+					# value is CVE-$ID
+					refs[vuln['id']].push(ref["value"])
+				elsif ref['source'] == 'MS'
+					refs[vuln['id']].push('MSB-MS-' + ref["value"])
+				elsif ref['source'] == 'URL'
+					refs[vuln['id']].push('URL-' + ref["value"])
+				#else
+				#	$stdout.puts("Unknown source: #{ref["source"]}")
+				end
+			end
+		end
+		refs
+	end
+
+	def nexpose_host(h, vuln_refs, wspace=workspace)
+		data = {:workspace => wspace}
+		if h["addr"]
+			addr = h["addr"]
+		else
+			# Can't report it if it doesn't have an IP
+			return
+		end
+		data[:host] = addr
+		if (h["hardware-address"])
+			data[:mac] = h["hardware-address"]
+		end
+		data[:state] = (h["status"] == "alive") ? Msf::HostState::Alive : Msf::HostState::Dead
+
+		# Since we only have one name field per host in the database, just
+		# take the first one.
+		if (h["names"] and h["names"].first)
+			data[:name] = h["names"].first
+		end
+
+		data[:os_name]   = h["os_family"]  if h["os_family"]
+		data[:os_flavor] = h["os_product"] if h["os_family"]
+		data[:arch]      = h["arch"]       if h["arch"]
+
+		if (data[:state] != Msf::HostState::Dead)
+			report_host(data)
+		end
+
+		if h["os_vendor"]
+			note = {
+				:workspace => wspace,
+				:host => addr,
+				:type => 'host.os.nexpose_fingerprint',
+				:data => {
+					:os_vendor    => h["os_vendor"],
+					:os_family    => h["os_family"],
+					:os_product   => h["os_product"],
+					:os_certainty => h["os_certainty"]
+				}
+			}
+
+			report_note(note)
+		end
+
+		# Put all the ports, regardless of state, into the db.
+		h["endpoints"].each { |p|
+			extra = ""
+			extra << p["product"] + " " if p["product"]
+			extra << "(" + p["certainty"] + " certainty) " if p["certainty"]
+
+			data = {}
+			data[:workspace] = wspace
+			data[:proto] = p["protocol"].downcase
+			data[:port]  = p["port"].to_i
+			data[:state] = p["status"]
+			data[:host]  = addr
+			data[:info]  = extra if not extra.empty?
+			if p["name"] != "<unknown>"
+				data[:name] = p["name"]
+			end
+			report_service(data)
+		}
+
+		h["vulns"].each_pair { |k,v|
+			next if v["status"] != "vulnerable-exploited" and v["status"] != "vulnerable-version"
+
+			data = {}
+			data[:workspace] = wspace
+			data[:host] = addr
+			data[:name] = "NEXPOSE-" + v["id"]
+			data[:refs] = vuln_refs[v["id"]]
+			report_vuln(data)
+		}
+	end
+
+=begin
 		doc = rexmlify(data)
 		doc.elements.each('/NexposeReport/nodes/node') do |host|
 			addr  = host.attributes['address']
@@ -1431,6 +1577,7 @@ class DBManager
 			end
 		end
 	end
+=end
 
 	#
 	# Import Nmap's -oX xml output
