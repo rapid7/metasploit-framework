@@ -579,7 +579,7 @@ class DBManager
 		if opts[:host]
 			host = get_host(:workspace => wspace, :address => opts[:host])
 			condition = "host_id = ?"
-			condition_values = host[:id]
+			condition_values << host[:id]
 		end
 		if opts[:proto]
 			if condition.length > 0
@@ -620,7 +620,7 @@ class DBManager
 	# opts must contain
 	#	:host  -- the host where this vulnerability resides
 	#	:name  -- the scanner-specific id of the vuln (e.g. NEXPOSE-cifs-acct-password-never-expires)
-	# 
+	#
 	# opts can contain
 	#	:data  -- a human readable description of the vuln, free-form text
 	#	:refs  -- an array of Ref objects or string names of references
@@ -1382,7 +1382,7 @@ class DBManager
 		# Since all the Refs have to be in the database before we can use them
 		# in a Vuln, we store all the hosts until we finish parsing and only
 		# then put everything in the database.  This is memory-intensive for
-		# large files, but should be much less so than a tree parser. 
+		# large files, but should be much less so than a tree parser.
 		#
 		# This method is also considerably faster than parsing through the tree
 		# looking for references every time we hit a vuln.
@@ -1416,7 +1416,7 @@ class DBManager
 	#	]
 	# and transforms it into a hash of vuln references keyed on vuln id, like:
 	#	{ "windows-zotob-c" => [{"source"=>"BID", "value"=>"14513"}, ...] }
-	# 
+	#
 	# This method ignores all attributes other than the vuln's NeXpose ID and
 	# references (including title, severity, et cetera).
 	#
