@@ -1488,8 +1488,9 @@ class DBManager
 			extra = ""
 			extra << p["product"] + " " if p["product"]
 			extra << p["version"] + " " if p["version"]
+
 			# XXX This should probably be handled in a more standard way
-			extra << "(" + p["certainty"] + " certainty) " if p["certainty"]
+			# extra << "(" + p["certainty"] + " certainty) " if p["certainty"]
 
 			data = {}
 			data[:workspace] = wspace
