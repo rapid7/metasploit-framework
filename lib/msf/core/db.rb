@@ -662,7 +662,6 @@ class DBManager
 				host = get_host(:workspace => wspace, :address => addr)
 			end
 
-
 			if data
 				vuln = host.vulns.find_or_initialize_by_name_and_data(name, data, :include => :refs)
 			else
@@ -1404,7 +1403,7 @@ class DBManager
 
 		vuln_refs = nexpose_refs_to_hash(vulns)
 		hosts.each do |host|
-			nexpose_host(host, vuln_refs)
+			nexpose_host(host, vuln_refs, wspace)
 		end
 	end
 
@@ -1443,7 +1442,7 @@ class DBManager
 		refs
 	end
 
-	def nexpose_host(h, vuln_refs, wspace=workspace)
+	def nexpose_host(h, vuln_refs, wspace)
 		data = {:workspace => wspace}
 		if h["addr"]
 			addr = h["addr"]
@@ -1463,34 +1462,32 @@ class DBManager
 			data[:name] = h["names"].first
 		end
 
-		data[:os_name]   = h["os_family"]  if h["os_family"]
-		data[:os_flavor] = h["os_product"] if h["os_family"]
-		data[:arch]      = h["arch"]       if h["arch"]
-
 		if (data[:state] != Msf::HostState::Dead)
 			report_host(data)
 		end
 
-		if h["os_vendor"]
+		if h["os_family"]
 			note = {
 				:workspace => wspace,
 				:host => addr,
 				:type => 'host.os.nexpose_fingerprint',
 				:data => {
-					:os_vendor    => h["os_vendor"],
-					:os_family    => h["os_family"],
-					:os_product   => h["os_product"],
-					:os_certainty => h["os_certainty"]
+					:family    => h["os_family"],
+					:certainty => h["os_certainty"]
 				}
 			}
+			note[:data][:vendor]  = h["os_vendor"]  if h["os_vendor"]
+			note[:data][:product] = h["os_product"] if h["os_product"]
+			note[:data][:arch]    = h["arch"]       if h["arch"]
 
 			report_note(note)
 		end
 
-		# Put all the ports, regardless of state, into the db.
 		h["endpoints"].each { |p|
 			extra = ""
 			extra << p["product"] + " " if p["product"]
+			extra << p["version"] + " " if p["version"]
+			# XXX This should probably be handled in a more standard way
 			extra << "(" + p["certainty"] + " certainty) " if p["certainty"]
 
 			data = {}
@@ -1512,6 +1509,8 @@ class DBManager
 			data = {}
 			data[:workspace] = wspace
 			data[:host] = addr
+			data[:proto] = v["protocol"].downcase if v["protocol"]
+			data[:port] = v["port"].to_i if v["port"]
 			data[:name] = "NEXPOSE-" + v["id"]
 			data[:refs] = vuln_refs[v["id"]]
 			report_vuln(data)
