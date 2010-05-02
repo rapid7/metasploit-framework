@@ -24,6 +24,18 @@ require 'uri'
 
 module Nexpose
 
+module Sanitize
+	def replace_entities(str)
+		ret = str.dup
+		ret.gsub!(/&/, "&amp;")
+		ret.gsub!(/'/, "&apos;")
+		ret.gsub!(/"/, "&quot;")
+		ret.gsub!(/</, "&lt;")
+		ret.gsub!(/>/, "&gt;")
+		ret
+	end
+end
+
 class APIError < ::RuntimeError
 	attr_accessor :req, :reason
 	def initialize(req, reason = '')
@@ -489,10 +501,17 @@ class IPRange
 	attr_reader :to;
 
 	def initialize(from, to = nil)
-
 		@from = from
 		@to = to
+	end
 
+	include Sanitize
+	def to_xml
+		if (to and not to.empty?)
+			return %Q{<range from="#{from}" to="#{to}"/>}
+		else
+			return %Q{<range from="#{from}"/>}
+		end
 	end
 end
 
@@ -504,9 +523,12 @@ class HostName
 	attr_reader :hostname
 
 	def initialize(hostname)
-
 		@hostname = hostname
+	end
 
+	include Sanitize
+	def to_xml
+		"<hostname>#{replace_entities(hostname)}</hostname>"
 	end
 end
 
@@ -892,107 +914,45 @@ class Site
 
 		xml = '<Site id="' + "#{@site_config.site_id}" + '" name="' + "#{@site_config.site_name}" + '" description="' + "#{@site_config.description}" + '" riskfactor="' + "#{@site_config.riskfactor}" + '">'
 
-		xml += ' <Hosts>'
-
+		xml << ' <Hosts>'
 		@site_config.hosts.each do |h|
-
-			if (h.class.to_s == "Nexpose::IPRange")
-				if (h.to and not h.to.empty?)
-					xml += ' <range from="' + h.from + '" to="' + h.to + '"/>'
-				else
-					xml += ' <range from="' + h.from + '"/>'
-				end
-
-			elsif (h.class.to_s == "Nexpose::HostName")
-
-				xml += ' <host>' + h.hostname + '</host>'
-
-			end
-
+			xml << h.to_xml if h.respond_to? :to_xml
 		end
-		xml +=' </Hosts>'
+		xml << '</Hosts>'
 
-		xml += ' <Credentials>'
+		xml << '<Credentials>'
 		@site_config.credentials.each do |c|
-			xml += ' <adminCredentials'
-			if (c.service)
-				xml += ' service="' + c.service + '"'
-			end
-
-			if (c.userid)
-				xml += ' userid="' + c.userid + '"'
-			end
-			if (c.password)
-				xml += ' password="' + c.password + '"'
-			end
-			if (c.realm)
-				xml += ' realm="' + c.realm + '"'
-			end
-			if (c.host)
-				xml += ' host="' + c.host + '"'
-			end
-			if (c.port)
-				xml += ' port="' + c.port + '"'
-			end
-			xml += '>'
-
-
-			if (c.isblob)
-				xml += c.securityblob
-			end
-
-			xml += '</adminCredentials>'
-
+			xml << c.to_xml if c.respond_to? :to_xml
 		end
-		xml += ' </Credentials>'
+		xml << ' </Credentials>'
 
-		xml += ' <Alerting>'
+		xml << ' <Alerting>'
 		@site_config.alerts.each do |a|
-
-			case a.type
-			when :smtp
-				xml += ' <smtpAlert name="' + a.name + '" enabled="' + a.enabled + '" sender="' + a.sender + '" limitText="' + a.limitText + '">'
-				a.recipients.each do |r|
-					xml += ' <recipient>' + r + '</recipient>'
-				end
-				xml += ' <vulnFilter typeMask="' + a.vulnFilter.typeMask + '" maxAlerts="' + a.vulnFilter.maxAlerts + '" severityThreshold="' + a.vulnFilter.severityThreshold + '"/>'
-				xml += ' </smtpAlert>'
-
-			when :snmp
-				xml += ' <snmpAlert name="' + a.name + '" enabled="' + a.enabled + '" community="' + a.community + '" server="' + a.server + '">'
-				xml += ' <vulnFilter typeMask="' + a.vulnFilter.typeMask + '" maxAlerts="' + a.vulnFilter.maxAlerts + '" severityThreshold="' + a.vulnFilter.severityThreshold + '"/>'
-				xml += ' </snmpAlert>'
-
-			when :syslog
-				xml += ' <syslogAlert name="' + a.name + '" enabled="' + a.enabled + '" server="' + a.server + '">'
-				xml += ' <vulnFilter typeMask="' + a.vulnFilter.typeMask + '" maxAlerts="' + a.vulnFilter.maxAlerts + '" severityThreshold="' + a.vulnFilter.severityThreshold + '"/>'
-				xml += ' </syslogAlert>'
-			end
+			xml << a.to_xml if a.respond_to? :to_xml
 		end
+		xml << ' </Alerting>'
 
-		xml += ' </Alerting>'
+		xml << ' <ScanConfig configID="' + "#{@site_config.scanConfig.configID}" + '" name="' + "#{@site_config.scanConfig.name}" + '" templateID="' + "#{@site_config.scanConfig.templateID}" + '" configVersion="' + "#{@site_config.scanConfig.configVersion}" + '">'
 
-		xml += ' <ScanConfig configID="' + "#{@site_config.scanConfig.configID}" + '" name="' + "#{@site_config.scanConfig.name}" + '" templateID="' + "#{@site_config.scanConfig.templateID}" + '" configVersion="' + "#{@site_config.scanConfig.configVersion}" + '">'
-
-		xml += ' <Schedules>'
+		xml << ' <Schedules>'
 		@site_config.scanConfig.schedules.each do |s|
-			xml += ' <Schedule enabled="' + s.enabled + '" type="' + s.type + '" interval="' + s.interval + '" start="' + s.start + '"/>'
+			xml << ' <Schedule enabled="' + s.enabled + '" type="' + s.type + '" interval="' + s.interval + '" start="' + s.start + '"/>'
 		end
-		xml += ' </Schedules>'
+		xml << ' </Schedules>'
 
-		xml += ' <ScanTriggers>'
+		xml << ' <ScanTriggers>'
 		@site_config.scanConfig.scanTriggers.each do |s|
 
 			if (s.class.to_s == "Nexpose::AutoUpdate")
-				xml += ' <autoUpdate enabled="' + s.enabled + '" incremental="' + s.incremental + '"/>'
+				xml << ' <autoUpdate enabled="' + s.enabled + '" incremental="' + s.incremental + '"/>'
 			end
 		end
 
-		xml += ' </ScanTriggers>'
+		xml << ' </ScanTriggers>'
 
-		xml += ' </ScanConfig>'
+		xml << ' </ScanConfig>'
 
-		xml += ' </Site>'
+		xml << ' </Site>'
 
 		return xml
 	end
@@ -1002,7 +962,6 @@ end
 # Object that represents administrative credentials to be used during a scan. When retrived from an existing site configuration the credentials will be returned as a security blob and can only be passed back as is during a Site Save operation. This object can only be used to create a new set of credentials.
 #
 class AdminCredentials
-
 	# Security blob for an existing set of credentials
 	attr_reader :securityblob
 	# Designates if this object contains user defined credentials or a security blob
@@ -1052,8 +1011,24 @@ class AdminCredentials
 		@securityblob = securityblob
 	end
 
+	include Sanitize
+	def to_xml
+		xml = ''
+		xml << '<adminCredentials'
+		xml << %Q{ service="#{replace_entities(service)}"} if (service)
+		xml << %Q{ userid="#{replace_entities(userid)}"} if (userid)
+		xml << %Q{ password="#{replace_entities(password)}"} if (password)
+		xml << %Q{ realm="#{replace_entities(realm)}"} if (realm)
+		xml << %Q{ host="#{replace_entities(host)}"} if (host)
+		xml << %Q{ port="#{replace_entities(port)}"} if (port)
+		xml << '>'
+		xml << replace_entities(securityblob) if (isblob)
+		xml << '</adminCredentials>'
 
+		xml
+	end
 end
+
 
 # === Description
 # Object that represents an SMTP (Email) Alert.
@@ -1096,6 +1071,20 @@ class SmtpAlert
 		@vulnFilter = vulnFilter
 	end
 
+	include Sanitize
+	def to_xml
+		xml = "<smtpAlert"
+		xml << %Q{ name="#{replace_entities(name)}"}
+		xml << %Q{ enabled="#{replace_entities(enabled)}"}
+		xml << %Q{ sender="#{replace_entities(sender)}"}
+		xml << %Q{ limitText="#{replace_entities(limitText)}">}
+		recipients.each do |recpt|
+			xml << "<recipient>#{replace_entities(recpt)}</recipient>"
+		end
+		xml << vulnFilter.to_xml
+		xml << "</smtpAlert>"
+		xml
+	end
 end
 
 # === Description
@@ -1131,6 +1120,18 @@ class SnmpAlert
 		@vulnFilter = vulnFilter
 	end
 
+	include Sanitize
+	def to_xml
+		xml = "<snmpAlert"
+		xml << %Q{ name="#{replace_entities(name)}"}
+		xml << %Q{ enabled="#{replace_entities(enabled)}"}
+		xml << %Q{ community="#{replace_entities(community)}"}
+		xml << %Q{ server="#{replace_entities(server)}">}
+		xml << vulnFilter.to_xml
+		xml << "</snmpAlert>"
+		xml
+	end
+
 end
 
 # === Description
@@ -1162,6 +1163,17 @@ class SyslogAlert
 	# Sets the Vulnerability Filter for this alert.
 	def setVulnFilter(vulnFilter)
 		@vulnFilter = vulnFilter
+	end
+
+	include Sanitize
+	def to_xml
+		xml = "<syslogAlert"
+		xml << %Q{ name="#{replace_entities(name)}"}
+		xml << %Q{ enabled="#{replace_entities(enabled)}"}
+		xml << %Q{ server="#{replace_entities(server)}">}
+		xml << vulnFilter.to_xml
+		xml << "</syslogAlert>"
+		xml
 	end
 
 end
@@ -1196,11 +1208,20 @@ class VulnFilter
 	attr_reader :severityThreshold
 
 	def initialize(typeMask, severityThreshold, maxAlerts = -1)
-
 		@typeMask = typeMask
 		@maxAlerts = maxAlerts
 		@severityThreshold = severityThreshold
+	end
 
+	include Sanitize
+	def to_xml
+		xml = "<vulnFilter "
+		xml << %Q{ typeMask="#{replace_entities(typeMask)}"}
+		xml << %Q{ maxAlerts="#{replace_entities(maxAlerts)}"}
+		xml << %Q{ severityThreshold="#{replace_entities(severityThreshold)}"}
+		xml << "/>"
+
+		xml
 	end
 
 end
