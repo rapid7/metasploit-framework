@@ -1452,7 +1452,8 @@ class DBManager
 		end
 		data[:host] = addr
 		if (h["hardware-address"])
-			data[:mac] = h["hardware-address"]
+			# Put colons between each octet of the MAC address
+			data[:mac] = h["hardware-address"].gsub(':', '').scan(/../).join(':')
 		end
 		data[:state] = (h["status"] == "alive") ? Msf::HostState::Alive : Msf::HostState::Dead
 
