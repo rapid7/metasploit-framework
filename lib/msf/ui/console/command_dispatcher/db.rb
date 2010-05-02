@@ -1114,7 +1114,8 @@ class Db
 			if ! framework.db.drivers.include?('postgresql')
 				print_status("    DB Support: Enable the postgresql driver with the following command:")
 				print_status("                  * This requires libpq-dev and a build environment")
-				print_status("                $ gem install pg")
+				print_status("                $ gem install postgres")
+				print_status("                $ gem install pg # is an alternative that may work")
 				print_line("")
 			end
 		end
@@ -1125,6 +1126,11 @@ class Db
 
 		def cmd_db_create(*args)
 			return if not db_check_driver
+			print_error("")
+			print_error("Warning: The db_create command is deprecated, create the database manually and then use db_connect")
+			print_error("         The database schema will be created automatically by db_connect")
+			print_error("")
+
 			meth = "db_create_#{framework.db.driver}"
 			if(self.respond_to?(meth))
 				self.send(meth, *args)
@@ -1334,6 +1340,7 @@ class Db
 		# Create a new MySQL database instance
 		#
 		def db_create_mysql(*args)
+
 			cmd_db_disconnect()
 
 			if(args[0] == nil or args[0] == "-h" or args[0] == "--help")
