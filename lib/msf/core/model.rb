@@ -1,3 +1,5 @@
+require 'msf/core/model/activerecord_patches'
+
 require 'msf/core/model/user'
 require 'msf/core/model/task'
 require 'msf/core/model/loot'
