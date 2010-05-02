@@ -1489,6 +1489,9 @@ class DBManager
 			extra << p["product"] + " " if p["product"]
 			extra << p["version"] + " " if p["version"]
 
+			# Skip port-0 endpoints
+			next if p["port"].to_i == 0
+
 			# XXX This should probably be handled in a more standard way
 			# extra << "(" + p["certainty"] + " certainty) " if p["certainty"]
 
