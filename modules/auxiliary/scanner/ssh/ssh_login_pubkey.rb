@@ -116,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
 		if File.readable?(datastore['KEY_FILE'])
 			keys = read_keyfile(datastore['KEY_FILE'])
 			cleartext_keys = pull_cleartext_keys(keys)
-			print_status "#{ip}:#{rport} - SSH - Trying #{cleartext_keys.size} cleartext key#{cleartext_keys.size > 1 : "s" : ""} per user."
+			print_status "#{ip}:#{rport} - SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
 		else
 			return :missing_keyfile
 		end
