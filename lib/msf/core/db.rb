@@ -1765,6 +1765,36 @@ class DBManager
 				addr = host.attribute("name").value
 			end
 
+			os = host.elements["HostProperties/tag[@name='operating-system']"]
+			if os
+				report_note(
+					:workspace => wspace,
+					:host => addr,
+					:type => 'host.os.nessus_fingerprint',
+					:data => {
+						:os => os.text.to_s.strip
+					}
+				)
+			end
+
+			hname = host.elements["HostProperties/tag[@name='host-fqdn']"]
+			if hname
+				report_host(
+					:workspace => wspace,
+					:host => addr,
+					:name => hname.text.to_s.strip
+				)
+			end
+
+			mac = host.elements["HostProperties/tag[@name='mac-address']"]
+			if mac
+				report_host(
+					:workspace => wspace,
+					:host => addr,
+					:mac  => mac.text.to_s.strip.upcase
+				)
+			end
+
 			host.elements.each('ReportItem') do |item|
 				nasl = item.attribute('pluginID').value
 				port = item.attribute('port').value
@@ -1964,7 +1994,8 @@ protected
 			:proto => proto,
 			:name => nss,
 			:data => data,
-			:refs => refs)
+			:refs => refs
+		)
 	end
 
 	#
@@ -1980,7 +2011,9 @@ protected
 			info[:name] = name
 		end
 
-		report_service(info)
+		if port.to_i != 0
+			report_service(info)
+		end
 
 		return if nasl == "0"
 
@@ -2002,14 +2035,20 @@ protected
 
 		nss = 'NSS-' + nasl
 
-		report_vuln(
+		vuln = {
 			:workspace => wspace,
 			:host => addr,
-			:port => port,
-			:proto => proto,
 			:name => nss,
 			:data => description ? description.text : "",
-			:refs => refs)
+			:refs => refs
+		}
+
+		if port.to_i != 0
+			vuln[:port]  = port
+			vuln[:proto] = proto
+		end
+
+		report_vuln(vuln)
 	end
 
 	#
