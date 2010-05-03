@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This script lists each module by its licensing terms
+#
+# $Revision$
 #
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__

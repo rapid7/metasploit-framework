@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# $Id$
+# $Revision$
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 

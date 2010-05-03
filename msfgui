@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This is a basic user interface using the Gtk2 GUI library
+#
+# $Revision$
 #
 
 msfbase = __FILE__

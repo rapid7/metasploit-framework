@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This plugin provides integration with Rapid7 NeXpose
+#
+# $Revision$
 #
 
 require 'rapid7/nexpose'

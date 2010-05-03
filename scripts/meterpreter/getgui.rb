@@ -53,7 +53,7 @@ def enablerd(session)
 	open_key = session.sys.registry.open_key(root_key, base_key, KEY_READ)
 	v = open_key.query_value(value)
 	print_status "Enabling Remote Desktop"
-	if v.data == 1 
+	if v.data == 1
 		print_status "\tRDP is disabled; enabling it ..."
 		open_key = session.sys.registry.open_key(root_key, base_key, KEY_WRITE)
 		open_key.set_value(value, session.sys.registry.type2str("REG_DWORD"), 0)
@@ -63,7 +63,7 @@ def enablerd(session)
 	rescue::Exception => e
 			print_status("The following Error was encountered: #{e.class} #{e}")
 	end
-		
+
 end
 
 

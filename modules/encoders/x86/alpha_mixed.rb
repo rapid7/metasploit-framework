@@ -9,13 +9,10 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'rex/encoder/alpha2/alpha_mixed'
 
-
 class Metasploit3 < Msf::Encoder::Alphanum
-
 	Rank = LowRanking
 
 	def initialize
@@ -64,7 +61,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
 
 		buf + Rex::Encoder::Alpha2::AlphaMixed::gen_decoder(reg, off)
 	end
-	
+
 	#
 	# Configure SEH getpc code on Windows
 	#
@@ -73,7 +70,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
 			datastore['AllowWin32SEH'] = true
 		end
 	end
-	
+
 	#
 	# Encodes a one byte block with the current index of the length of the
 	# payload.
@@ -89,4 +86,3 @@ class Metasploit3 < Msf::Encoder::Alphanum
 		state.encoded += Rex::Encoder::Alpha2::AlphaMixed::add_terminator()
 	end
 end
-

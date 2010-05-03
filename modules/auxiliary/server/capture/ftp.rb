@@ -9,23 +9,20 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::TcpServer
 	include Msf::Auxiliary::Report
 
-
 	def initialize
 		super(
 			'Name'        => 'Authentication Capture: FTP',
 			'Version'     => '$Revision$',
 			'Description'    => %q{
-				This module provides a fake FTP service that
-			is designed to capture authentication credentials.
+					This module provides a fake FTP service that
+				is designed to capture authentication credentials.
 			},
 			'Author'      => ['ddz', 'hdm'],
 			'License'     => MSF_LICENSE,

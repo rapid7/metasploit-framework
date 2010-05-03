@@ -9,9 +9,7 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -35,8 +33,8 @@ class Metasploit3 < Msf::Auxiliary
 				with a supported wireless card. Please see the Ruby Lorcon2 documentation
 				(external/ruby-lorcon/README) for more information.
 			},
-
 			'Author'         => [ 'Laurent Butti <0x9090 [at] gmail.com>' ], # initial discovery and metasploit module
+			'Version'        => '$Revision$',
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[

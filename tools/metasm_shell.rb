@@ -1,7 +1,12 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This tool provides an easy way to see what opcodes are associated with
 # certain x86 instructions by making use of Metasm!
+#
+#
+# $Revision$
 #
 
 #    This file is part of Metasm, the Ruby assembly manipulation suite

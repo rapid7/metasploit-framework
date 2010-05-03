@@ -22,7 +22,7 @@ end
 print_status("Killing Antivirus services on the target...")
 
 avs = %W{
-	AAWTray.exe	
+	AAWTray.exe
 	Ad-Aware.exe
 	MSASCui.exe
 	_avp32.exe
@@ -74,7 +74,7 @@ avs = %W{
 	avltmain.exe
 	avnt.exe
 	avp.exe
-	avp.exe 
+	avp.exe
 	avp32.exe
 	avpcc.exe
 	avpdos32.exe

@@ -1,15 +1,26 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Lorcon2
 	include Msf::Auxiliary::Dos
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'Wireless Frame (File) Injector',
 			'Description' => %q{
-				Inspired by Josh Wright's file2air, this module writes
+					Inspired by Josh Wright's file2air, this module writes
 				wireless frames from a binary file to the air, allowing
 				you to substitute some addresses before it gets sent.
 				Unlike the original file2air (currently v1.1), this module
@@ -62,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		close_wifi
-	end	
+	end
 
 	def substaddrs(frame)
 		tods = (frame[1] & 1) == 1

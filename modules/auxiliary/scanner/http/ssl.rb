@@ -1,3 +1,6 @@
+##
+# $Id$
+##
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -5,7 +8,6 @@
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
-
 
 require 'msf/core'
 

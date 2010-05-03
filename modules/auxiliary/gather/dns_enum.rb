@@ -1,32 +1,36 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
-
 require "net/dns/resolver"
 
 class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
+
 	def initialize(info = {})
 		super(update_info(info,
-				'Name'		   => 'DNS Enumeration Module',
-				'Description'	=> %q{
+			'Name'		   => 'DNS Enumeration Module',
+			'Description'	=> %q{
 					This module can be used to enumerate various types of information
 				about a domain from a specific DNS server.
-				},
-				'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
-				'License'		=> MSF_LICENSE,
-				'Version'		=> '$Revision$',
-			 	'References' 	=>
-					[
-						['CVE', '1999-0532'],
-					]
-				))
+			},
+			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
+			'License'		=> MSF_LICENSE,
+			'Version'		=> '$Revision$',
+			'References' 	=>
+				[
+					['CVE', '1999-0532'],
+				]
+			))
+
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "The target domain name"]),
@@ -42,6 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
 				OptBool.new('STOP_WLDCRD', [ true, 'Stops Brute Force Enumeration if wildcard resolution is detected', false])
 			], self.class)
+
 		register_advanced_options(
 			[
 				OptInt.new('THREADS', [ false, "Number of threads to use when using ENUM_BRT, ENUM_TLD, and ENUM_RVL checks", 10]),
@@ -248,7 +253,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		a.delete_if {|x| not x.alive?} while not a.empty?
 	end
-	
+
 	#-------------------------------------------------------------------------------
 	def bruteipv6(target, wordlist, nssrv)
 	print_status("Brute Forcing IPv6 addresses against Domain #{target}")
@@ -493,7 +498,7 @@ class Metasploit3 < Msf::Auxiliary
 				dnsbrute(datastore['DOMAIN'],datastore['WORDLIST'],datastore['NS'])
 			end
 		end
-		
+
 		if(datastore['ENUM_IP6'])
 			if wldcrd & datastore['STOP_WLDCRD']
 				print_status("Wilcard Record Found!")

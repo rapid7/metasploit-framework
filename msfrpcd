@@ -1,7 +1,11 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This user interface listens on a port and provides clients that connect to
 # it with an XMLRPC interface to the Metasploit Framework.
+#
+# $Revision$
 #
 
 msfbase = __FILE__
@@ -27,7 +31,7 @@ arguments = Rex::Parser::Arguments.new(
 	"-f" => [ false, "Run the daemon in the foreground"                     ],
 	"-h" => [ false, "Help banner"                                          ])
 
-opts = { 
+opts = {
 	'RunInForeground' => true,
 	'SSL'             => true,
 	'ServerHost'      => '0.0.0.0',
@@ -54,9 +58,9 @@ arguments.parse(ARGV) { |opt, idx, val|
 		when "-f"
 			foreground = true
 		when "-t"
-			opts['ServerType'] = val 
+			opts['ServerType'] = val
 		when "-u"
-			opts['URI'] = val  
+			opts['URI'] = val
 		when "-h"
 			print("\nUsage: #{File.basename(__FILE__)} <options>\n" +	arguments.usage)
 			exit

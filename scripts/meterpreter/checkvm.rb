@@ -53,7 +53,7 @@ def hypervchk(session)
 		end
 		rescue
 		end
-	end	
+	end
 	return vm
 end
 
@@ -98,7 +98,7 @@ def vmwarechk(session)
 			session.sys.process.get_processes().each do |x|
 				if p == (x['name'].downcase)
 					print_status("This is a VMware Virtual Machine") if not vm
-					vm = true	
+					vm = true
 				end
 			end
 		end
@@ -312,7 +312,7 @@ end
 
 print_status("Checking if target is a Virtual Machine .....")
 found = hypervchk(session)
-found = vmwarechk(session) if not found 
+found = vmwarechk(session) if not found
 found = checkvrtlpc(session) if not found
 found = vboxchk(session) if not found
 found = xenchk(session) if not found

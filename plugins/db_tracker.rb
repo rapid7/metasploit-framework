@@ -1,7 +1,12 @@
+#
+# $Id$
+# $Revision$
+#
+
 module Msf
 
 ###
-# 
+#
 # This class hooks all socket calls and updates the database with
 # data gathered from the connection parameters
 #
@@ -26,21 +31,21 @@ class Plugin::DB_Tracer < Msf::Plugin
 
 			if (sock.peerhost != '0.0.0.0' and sock.peerport)
 
-				# Ignore sockets that didn't set up their context 
+				# Ignore sockets that didn't set up their context
 				# to hold the framework in 'Msf'
 				return if not param.context['Msf']
 
 				host = param.context['Msf'].db.find_or_create_host(:host => sock.peerhost, :state => Msf::HostState::Alive)
 				return if not host
-				
+
 				param.context['Msf'].db.report_service(:host => host, :proto => param.proto, :port => sock.peerport)
 			end
-		end		
+		end
 	end
-	
+
 	def initialize(framework, opts)
 		super
-		
+
 		if(not framework.db.active)
 			raise PluginLoadError.new("The database backend has not been initialized")
 		end
@@ -49,7 +54,7 @@ class Plugin::DB_Tracer < Msf::Plugin
 				raise PluginLoadError.new("This plugin should not be loaded more than once")
 			end
 		}
-		
+
 		@eh = DBTracerEventHandler.new
 		Rex::Socket::Comm::Local.register_event_handler(@eh)
 	end

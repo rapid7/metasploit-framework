@@ -1,8 +1,13 @@
+#
+# $Id$
+# $Revision$
+#
+
 module Msf
 
 ###
-# 
-# This class hooks all sockets created by a running exploit 
+#
+# This class hooks all sockets created by a running exploit
 #
 ###
 
@@ -15,7 +20,7 @@ class Plugin::SocketLogger < Msf::Plugin
 	###
 	class MySocketEventHandler
 		include Rex::Socket::Comm::Events
-		
+
 		def initialize(path, prefix)
 			@path   = path
 			@prefix = prefix
@@ -31,16 +36,16 @@ class Plugin::SocketLogger < Msf::Plugin
 				sock.context = param.context
 				sock.params = param
 				sock.initlog(@path, @prefix)
-				
+
 			end
-		end		
+		end
 	end
-	
+
 
 	def initialize(framework, opts)
 		log_path    = opts['path'] || "/tmp"
 		log_prefix  = opts['prefix'] || "socket_"
-		
+
 		super
 		@eh = MySocketEventHandler.new(log_path, log_prefix)
 		Rex::Socket::Comm::Local.register_event_handler(@eh)
@@ -68,7 +73,7 @@ module SocketLogger
 module SocketTracer
 
 	@@last_id = 0
-	
+
 	attr_accessor :context, :params
 
 	# Hook the write method
@@ -81,7 +86,7 @@ module SocketTracer
 	# Hook the read method
 	def read(length = nil, opts = {})
 		r = super(length, opts)
-		
+
 		@fd.puts "READ (#{r.length} bytes)"
 		@fd.puts Rex::Text.to_hex_dump(r)
 		return r
@@ -91,7 +96,7 @@ module SocketTracer
 		super(*args)
 		@fd.close
 	end
-	
+
 	def initlog(path, prefix)
 		@log_path    = path
 		@log_prefix  = prefix

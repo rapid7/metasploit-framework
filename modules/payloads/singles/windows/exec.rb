@@ -9,10 +9,8 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'msf/core/payload/windows/exec'
-
 
 ###
 #

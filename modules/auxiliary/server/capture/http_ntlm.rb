@@ -33,6 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					'Ryan Linn <sussurro[at]happypacket.net>',
 				],
+			'Version'     => '$Revision$',
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
@@ -49,6 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('PWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ])
 
 		], self.class)
+
 		register_advanced_options([
 			OptString.new('DOMAIN',  [ false, "The default domain to use for NTLM authentication", "DOMAIN"]),
 			OptString.new('SERVER',  [ false, "The default server to use for NTLM authentication", "SERVER"]),

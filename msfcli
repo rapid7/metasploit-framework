@@ -1,8 +1,12 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This user interface allows users to interact with the framework through a
 # command line interface (CLI) rather than having to use a prompting console
 # or web-based interface.
+#
+# $Revision$
 #
 
 msfbase = __FILE__
@@ -17,7 +21,7 @@ require 'rex'
 require 'msf/ui'
 require 'msf/base'
 
-Indent = '   ' 
+Indent = '   '
 
 if(RUBY_PLATFORM =~ /mswin32/)
 	$stderr.puts "[*] The msfcli interface is not supported on the native Windows Ruby\n"
@@ -73,7 +77,7 @@ end
 
 if (not exploit_name)
 	ext = ''
-	
+
 	tbl = Rex::Ui::Text::Table.new(
 		'Header'  => 'Exploits',
 		'Indent'  => 4,
@@ -83,7 +87,7 @@ if (not exploit_name)
 		tbl << [  'exploit/' + name, mod.new.name ]
 	}
 	ext << tbl.to_s + "\n"
-	
+
 	tbl = Rex::Ui::Text::Table.new(
 		'Header'  => 'Auxiliary',
 		'Indent'  => 4,
@@ -92,9 +96,9 @@ if (not exploit_name)
 	$framework.auxiliary.each_module { |name, mod|
 		tbl << [ 'auxiliary/' + name, mod.new.name ]
 	}
-	
+
 	ext << tbl.to_s + "\n"
-	
+
 	usage(nil, ext)
 end
 
@@ -107,7 +111,7 @@ case exploit_name
 when /exploit\/(.*)/
 	exploit = $framework.exploits.create($1)
 	module_class = 'exploit'
-	
+
 when /auxiliary\/(.*)/
 	exploit = $framework.auxiliary.create($1)
 	module_class = 'auxiliary'
@@ -129,10 +133,10 @@ if (exploit == nil)
 end
 
 exploit.init_ui(
-	Rex::Ui::Text::Input::Stdio.new, 
+	Rex::Ui::Text::Input::Stdio.new,
 	Rex::Ui::Text::Output::Stdio.new
 )
-			
+
 # Evalulate the command (default to "help")
 mode = ARGV.pop || 'h'
 
@@ -174,22 +178,22 @@ case mode.downcase
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(payload, Indent)) if payload
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(encoder, Indent)) if encoder
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_module(nop, Indent)) if nop
-		
+
 	when "o"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(exploit, Indent))
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(payload, Indent)) if payload
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(encoder, Indent)) if encoder
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(nop, Indent)) if nop		
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_options(nop, Indent)) if nop
 	when "a"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(exploit, Indent))
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(payload, Indent)) if payload
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(encoder, Indent)) if encoder
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(nop, Indent)) if nop		
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_advanced_options(nop, Indent)) if nop
 	when "i"
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(exploit, Indent))
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(payload, Indent)) if payload
 		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(encoder, Indent)) if encoder
-		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(nop, Indent)) if nop		
+		$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_evasion_options(nop, Indent)) if nop
 	when "p"
 		if (module_class == 'exploit')
 			$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_compatible_payloads(exploit, Indent, "Compatible payloads"))
@@ -201,13 +205,13 @@ case mode.downcase
 			$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_exploit_targets(exploit, Indent))
 		else
 			$stdout.puts("\nError: This type of module does not support targets")
-		end	
+		end
 	when "ac"
 		if (module_class == 'auxiliary')
 			$stdout.puts("\n" + Msf::Serializer::ReadableText.dump_auxiliary_actions(exploit, Indent))
 		else
 			$stdout.puts("\nError: This type of module does not support actions")
-		end	
+		end
 	when "c"
 		if (module_class == 'exploit')
 			begin
@@ -227,9 +231,9 @@ case mode.downcase
 			$stdout.puts("\nError: This type of module does not support the check feature")
 		end
 	when "e"
-	
+
 		case module_class
-		when 'exploit'	
+		when 'exploit'
 			begin
 				session = exploit.exploit_simple(
 					'Encoder'       => exploit.datastore['ENCODER'],
@@ -266,7 +270,7 @@ case mode.downcase
 				$stderr.puts("Auxiliary failed: #{$!}")
 				$stderr.puts("Backtrace:")
 				$stderr.puts($!.backtrace.join("\n"))
-			end		
+			end
 		end
 	else
 		usage("Invalid mode #{mode}")

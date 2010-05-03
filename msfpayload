@@ -1,4 +1,8 @@
 #!/usr/bin/env ruby
+#
+# $Id$
+# $Revision$
+#
 
 msfbase = __FILE__
 while File.symlink?(msfbase)

@@ -4,7 +4,7 @@
 # and Windows XP remote targets using native windows command wmic.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
 #Verion: 0.1.0
-#Note: 
+#Note:
 ################## Variable Declarations ##################
 session = client
 # Variables for Options
@@ -65,7 +65,7 @@ def wmicexec(session,wmic,user,pass,trgt)
 	tmp = session.fs.file.expand_path("%TEMP%")
 	# Temporary file on windows host to store results
 	wmicfl = tmp + "\\wmictmp#{rand(100000)}.txt"
-	
+
 	      wmic.each do |wmi|
 		        if user == nil
 		          print_status("The commands will be ran under the credentials of #{runningas}")
@@ -132,7 +132,7 @@ def headerbuid(session,target,dest)
 	header << "OS:         #{info['OS']}\n"
 	header << "Target:     #{target}\n"
 	header << "\n\n\n"
-	
+
 	print_status("Saving report to #{dest}")
   header
 
@@ -187,10 +187,10 @@ if helpcall == 0 and trg != ""
 		print_status("Stopped: Running as System and no user provided for connecting to target!!")
 
 	else trg != nil && helpcall != 1
-	
+
 		filewrt(dest,headerbuid(session,trg,dest))
 		filewrt(dest,wmicexec(session,wmic,rusr,rpass,trg))
-	
+
 	end
 elsif helpcall == 0 and trg == ""
 

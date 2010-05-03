@@ -1,10 +1,20 @@
-require 'msf/core'
+##
+# $Id$
+##
 
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::DECT_COA
-	
+
 	def initialize
 		super(
 			'Name'           => 'DECT Call Scanner',
@@ -13,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => [ 'DK <privilegedmode@gmail.com>' ],
 			'License'        => MSF_LICENSE,
 			'References'     => [ ['Dedected', 'http://www.dedected.org'] ]
-		)	
+		)
 		register_options([
 			OptBool.new('VERBOSE',[false, 'Print out verbose information during the scan', true])
 		],  self.class )
@@ -23,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_line("Time\t\t\t\tRFPI\t\tChannel")
 		@calls.each do |rfpi, data|
 			print_line("#{data['time']}\t#{data['rfpi']}\t#{data['channel']}")
-		end	
+		end
 	end
 
 
@@ -34,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 		while(true)
 			data = poll_coa()
 			puts data
-		end	
+		end
 	end
 =end
 
@@ -43,9 +53,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Opening interface: #{datastore['INTERFACE']}")
 		print_status("Using band: #{datastore['band']}")
-		
+
 		open_coa
-		
+
 		begin
 
 			print_status("Changing to call scan mode.")
@@ -73,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 			stop_coa()
 			close_coa()
 		end
-		
+
 		print_results
 	end
 end

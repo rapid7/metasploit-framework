@@ -1,6 +1,6 @@
 # $Id$
 # Meterpreter script for modifying the hosts file in windows
-# given a single entrie or several in a file and clear the 
+# given a single entrie or several in a file and clear the
 # DNS cache on the target machine.
 # This script works with Windows 2000,Windows XP,Windows 2003,
 # Windows Vista and Windows 2008.
@@ -75,7 +75,7 @@ end
 		backuphosts(session,hosts)
 		add2hosts(session,val,hosts)
 		cleardnscach(session)
-	when "-l"	
+	when "-l"
 		checkuac(session)
 		if not ::File.exists?(val)
 			raise "File #{val} does not exists!"

@@ -1,7 +1,11 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This script converts an EXE to a VBA script for Word/Excel
 # Credit to PriestMaster for the original C code
+#
+# $Revision$
 #
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__

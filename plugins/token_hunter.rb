@@ -1,3 +1,8 @@
+#
+# $Id$
+# $Revision$
+#
+
 module Msf
 
 class Plugin::TokenHunter < Msf::Plugin

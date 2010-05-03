@@ -1,8 +1,12 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This tool provides an easy way to see what opcodes are associated with
 # certain x86 instructions by making use of nasm if it is installed and
 # reachable through the PATH environment variable.
+#
+# $Revision$
 #
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))

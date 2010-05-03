@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -15,10 +19,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => ' DBMS_JVM_EXP_PERMS 10gR2, 11gR1/R2 OS Command Execution',
 			'Description'    => %q{
-				This module exploits a flaw (0 day) in DBMS_JVM_EXP_PERMS package that allows
+					This module exploits a flaw (0 day) in DBMS_JVM_EXP_PERMS package that allows
 				any user with create session privilege to grant themselves java IO privileges.
 				Identified by David Litchfield. Works on 10g R2, 11g R1 and R2 (Windows only)
-
 			},
 			'Author'         => [ 'sid[at]notsosecure.com' ],
 			'License'        => MSF_LICENSE,
@@ -30,10 +33,10 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'DisclosureDate' => 'Feb 1 2010'))
 
-			register_options(
-				[
-					OptString.new('CMD', [ false, 'CMD to execute.',  "echo metasploit >> %SYSTEMDRIVE%\\\\unbreakable.txt"]),
-				], self.class)
+		register_options(
+			[
+				OptString.new('CMD', [ false, 'CMD to execute.',  "echo metasploit >> %SYSTEMDRIVE%\\\\unbreakable.txt"]),
+			], self.class)
 	end
 
 	def run

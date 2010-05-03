@@ -1,14 +1,13 @@
 ##
-# $Id: test.rb 4419 2007-02-18 00:10:39Z hdm $
+# $Id$
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/projects/Framework/
 ##
-
 
 require 'msf/core'
 
@@ -49,7 +48,7 @@ class Auxiliary::Sample < Msf::Auxiliary
 	def cmd_aux_extra_command(*args)
 		print_status("Running inside aux_extra_command()")
 	end
-	
+
 end
 
 end

@@ -1,7 +1,11 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This sample demonstrates how a module's information can be easily serialized
 # to a readable format.
+#
+# $Revision$
 #
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'lib'))

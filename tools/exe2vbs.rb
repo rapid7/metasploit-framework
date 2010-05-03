@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This script converts an EXE to a vbs script
+#
+# $Revision$
 #
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__

@@ -1,12 +1,17 @@
+#
+# $Id$
+#
+
 module Msf
 
 ###
-# 
+#
 # This class illustrates a sample plugin.  Plugins can change the behavior of
 # the framework by adding new features, new user interface commands, or
 # through any other arbitrary means.  They are designed to have a very loose
 # definition in order to make them as useful as possible.
 #
+# $Revision$
 ###
 class Plugin::Sample < Msf::Plugin
 
@@ -38,7 +43,7 @@ class Plugin::Sample < Msf::Plugin
 		# This method handles the sample command.
 		#
 		def cmd_sample(*args)
-			print_line("You passed: #{args.join(' ')}")	
+			print_line("You passed: #{args.join(' ')}")
 		end
 	end
 
@@ -68,7 +73,7 @@ class Plugin::Sample < Msf::Plugin
 	def cleanup
 		# If we had previously registered a console dispatcher with the console,
 		# deregister it now.
-		remove_console_dispatcher('Sample') 
+		remove_console_dispatcher('Sample')
 	end
 
 	#

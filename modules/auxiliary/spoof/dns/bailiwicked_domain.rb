@@ -14,7 +14,6 @@ require 'net/dns'
 require 'racket'
 require 'resolv'
 
-
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Capture

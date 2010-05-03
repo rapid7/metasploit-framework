@@ -48,9 +48,9 @@ class Metasploit3 < Msf::Auxiliary
 			# X11.00 Null Auth Connect
 			sock.put("\x6c\x00\x0b\x00\x00\x00\x00\x00\x00\x00\x00\x00")
 			response = sock.get_once
-			
+
 			disconnect
-			
+
 			if(response)
 				success = response[0,1].unpack('C')[0]
 			end
@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				# X can return a reason for auth failure but we don't really care for this
 			end
-			
+
 		rescue ::Rex::ConnectionError
 		rescue ::Errno::EPIPE
 		end

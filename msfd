@@ -1,9 +1,13 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This user interface listens on a port and provides clients that connect to
 # it with an msfconsole instance.  The nice thing about this interface is that
 # it allows multiple clients to share one framework instance and thus makes it
 # possible for sessions to to be shared from a single vantage point.
+#
+# $Revision$
 #
 
 msfbase = __FILE__

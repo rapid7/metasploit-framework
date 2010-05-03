@@ -152,7 +152,7 @@ def frwdlp(session,hostlst,domain,dest)
            			break
           		end
         end
-        
+
         r.channel.close
         r.close
 			}
@@ -249,7 +249,7 @@ def srvreclkp(session,domain,dest)
 		srout.clear
 		end
 	end
-    
+
 end
 #-------------------------------------------------------------------------------
 #Function to print message during run

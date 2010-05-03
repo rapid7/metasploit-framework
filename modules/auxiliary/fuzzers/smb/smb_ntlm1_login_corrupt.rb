@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::SMB
 	include Msf::Auxiliary::Fuzzer
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'SMB NTLMv1 Login Request Corruption',
@@ -33,37 +33,37 @@ class Metasploit3 < Msf::Auxiliary
 			OptInt.new('MAXDEPTH', [false, 'Specify a maximum byte depth to test'])
 		], self.class)
 	end
-	
+
 	def do_smb_login(pkt,opts={})
 		@connected = false
 		connect
 		simple.client.negotiate(false)
-		
+
 		@connected = true
 		sock.put(pkt)
 		sock.get_once(-1, opts[:timeout])
 	end
-	
+
 	def run
 		last_str = nil
 		last_inp = nil
 		last_err = nil
-		
+
 		pkt = make_smb_login
 		cnt = 0
-		
+
 		max = datastore['MAXDEPTH'].to_i
 		max = nil if max == 0
 		tot = ( max ? [max,pkt.length].min : pkt.length) * 256
-		
+
 		print_status("Fuzzing SMB login with #{tot} requests")
 		fuzz_string_corrupt_byte_reverse(pkt,max) do |str|
 			cnt += 1
-			
+
 			if(cnt % 100 == 0)
 				print_status("Fuzzing with iteration #{cnt}/#{tot} using #{@last_fuzzer_input}")
 			end
-			
+
 			begin
 				r = do_smb_login(str, 0.25)
 			rescue ::Interrupt
@@ -74,23 +74,23 @@ class Metasploit3 < Msf::Auxiliary
 			ensure
 				disconnect
 			end
-	
+
 			if(not @connected)
 				if(last_str)
 					print_status("The service may have crashed: iteration:#{cnt-1} method=#{last_inp} string=#{last_str.unpack("H*")[0]} error=#{last_err}")
 				else
-					print_status("Could not connect to the service: #{last_err}")				
+					print_status("Could not connect to the service: #{last_err}")
 				end
 				return
 			end
-			
+
 			last_str = str
 			last_inp = @last_fuzzer_input
 		end
 	end
-	
+
 	def make_smb_login
-		
+
 		user = "USER"
 		domain = "DOMAIN"
 		hash_lm = Rex::Proto::SMB::Crypt.lanman_des("X", "X" * 8)
@@ -102,10 +102,10 @@ class Metasploit3 < Msf::Auxiliary
 		data << user + "\x00"
 		data << domain + "\x00"
 		data << 'Windows 2000 2195' + "\x00"
-		data << 'Windows 2000 5.0' + "\x00"		
-		
+		data << 'Windows 2000 5.0' + "\x00"
+
 		pkt = Rex::Proto::SMB::Constants::SMB_SETUP_NTLMV1_PKT.make_struct
-				
+
 		pkt['Payload']['SMB'].v['Command'] = Rex::Proto::SMB::Constants::SMB_COM_SESSION_SETUP_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2
-		pkt['Payload'].v['VCNum'] = 1		
+		pkt['Payload'].v['VCNum'] = 1
 		pkt['Payload'].v['PasswordLenLM'] = hash_lm.length
 		pkt['Payload'].v['PasswordLenNT'] = hash_nt.length
 		pkt['Payload'].v['Capabilities'] = 64

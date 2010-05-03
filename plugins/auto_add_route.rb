@@ -1,3 +1,8 @@
+#
+# $Id$
+# $Revision$
+#
+
 module Msf
 class Plugin::AutoAddRoute < Msf::Plugin
 	include Msf::SessionEvent

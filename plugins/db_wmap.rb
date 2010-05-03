@@ -1,10 +1,15 @@
+#
+# $Id$
+# $Revision$
+#
+
 require 'fileutils'
 require 'msf/ui/console/command_dispatcher/wmap'
 
 module Msf
 
 ###
-# 
+#
 # This class intializes the database db with a shiny new
 # SQLite3 database instance.
 #
@@ -29,17 +34,17 @@ class Plugin::DBWmap < Msf::Plugin
 		def name
 			"Wmap SQLite3 Database"
 		end
-		
+
 		#
 		# The initial command set
-		#		
+		#
 		def commands
 			{
 
 			}
-		end				
+		end
 	end
-	
+
 	#
 	# Wrapper class for the database command dispatcher
 	#
@@ -53,22 +58,22 @@ class Plugin::DBWmap < Msf::Plugin
 	# Database specific initialization goes here
 	#
 	###
-	
+
 	def initialize(framework, opts)
 		super
-		
-		#add_console_dispatcher(WmapDatabaseCommandDispatcher)
-		
-		add_console_dispatcher(WmapSQLiteCommandDispatcher)
-		add_console_dispatcher(WmapDatabaseCommandDispatcher)	
 
-		print_status("=[ WMAP v#{WMAPVersion} - #{WMAPAuthor}")	
+		#add_console_dispatcher(WmapDatabaseCommandDispatcher)
+
+		add_console_dispatcher(WmapSQLiteCommandDispatcher)
+		add_console_dispatcher(WmapDatabaseCommandDispatcher)
+
+		print_status("=[ WMAP v#{WMAPVersion} - #{WMAPAuthor}")
 	end
-	
+
 
 	def cleanup
 		remove_console_dispatcher('Wmap SQLite3 Database')
-		remove_console_dispatcher('Wmap Database Backend')	
+		remove_console_dispatcher('Wmap Database Backend')
 	end
 
 	#

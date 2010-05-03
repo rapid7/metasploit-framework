@@ -1,7 +1,11 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This script is intended to assist an exploit developer in deducing what
 # "bad characters" exist for a given input path to a program.
+#
+# $Revision$
 #
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))

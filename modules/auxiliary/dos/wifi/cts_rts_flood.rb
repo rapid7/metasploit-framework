@@ -20,14 +20,14 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'		=> 'Wireless CTS/RTS Flooder',
 			'Description' 	=> %q{
-	      				This module sends 802.11 CTS/RTS requests to a specific wireless peer,
-					using the specified source address,
-					},
-
+					This module sends 802.11 CTS/RTS requests to a specific wireless peer,
+				using the specified source address,
+			},
 			'Author'	=> [ 'Brad Antoniewicz' ],
 			'License'	=> MSF_LICENSE,
 			'Version'	=> '$Revision$'
-				 ))
+			))
+
 		register_options(
 			[
 				OptString.new('ADDR_DST',[true, "TARGET MAC (e.g 00:DE:AD:BE:EF:00)"]),

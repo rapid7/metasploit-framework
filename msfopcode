@@ -1,8 +1,12 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This user interface provides a command line interface to the Metasploit
 # Opcode Database.  It provides users with the ability to search for opcodes
 # and to display information about modules.
+#
+# $Revision$
 #
 
 msfbase = __FILE__

@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			                     replaying during a web assessment. Finding unlinked and old pages. },
 			'Author' => [ 'Rob Fuller <mubix [at] hak5.org>' ],
 			'License' => MSF_LICENSE,
-			'Version' => '$Revision: 7206 $'))
+			'Version' => '$Revision$'))
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "Domain to request URLS for"]),

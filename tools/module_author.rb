@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+# $Revision$
+#
 # This script lists each module by its licensing terms
 #
 
@@ -10,7 +13,7 @@ require 'rex'
 require 'msf/ui'
 require 'msf/base'
 
-Indent = '    ' 
+Indent = '    '
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create
@@ -47,7 +50,7 @@ $framework.nops.each_module { |name, mod|
 	x.author.each do |r|
 		r = r.to_s
 		tbl << [ 'nop/' + name, r ]
-		names[r]||=0; names[r]+=1		
+		names[r]||=0; names[r]+=1
 	end
 }
 $framework.encoders.each_module { |name, mod|
@@ -55,7 +58,7 @@ $framework.encoders.each_module { |name, mod|
 	x.author.each do |r|
 		r = r.to_s
 		tbl << [ 'encoder/' + name, r ]
-		names[r]||=0; names[r]+=1		
+		names[r]||=0; names[r]+=1
 	end
 }
 $framework.auxiliary.each_module { |name, mod|
@@ -63,7 +66,7 @@ $framework.auxiliary.each_module { |name, mod|
 	x.author.each do |r|
 		r = r.to_s
 		tbl << [ 'auxiliary/' + name, r ]
-		names[r]||=0; names[r]+=1		
+		names[r]||=0; names[r]+=1
 	end
 }
 

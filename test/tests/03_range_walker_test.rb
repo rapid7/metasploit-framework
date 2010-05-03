@@ -5,13 +5,13 @@ require 'rex/socket/range_walker'
 
 describe Rex::Socket::RangeWalker do
 	it "should have a num_ips attribute" do
-		walker = Rex::Socket::RangeWalker.new("") 
+		walker = Rex::Socket::RangeWalker.new("")
 		walker.should respond_to("num_ips")
 		walker.should respond_to("length")
 		walker.num_ips.should == walker.length
 	end
 	it "should handle single ipv6 addresses" do
-		walker = Rex::Socket::RangeWalker.new("::1") 
+		walker = Rex::Socket::RangeWalker.new("::1")
 		walker.should be_valid
 		walker.length.should == 1
 	end
@@ -102,20 +102,20 @@ describe Rex::Socket::RangeWalker do
 	end
 
 	it "should handle ipv6 cidr" do
-		walker = Rex::Socket::RangeWalker.new("::1/127") 
+		walker = Rex::Socket::RangeWalker.new("::1/127")
 		walker.should be_valid
 		walker.length.should == 2
-		walker = Rex::Socket::RangeWalker.new("::1/122") 
+		walker = Rex::Socket::RangeWalker.new("::1/122")
 		walker.should be_valid
 		walker.length.should == 2 ** 6
-		walker = Rex::Socket::RangeWalker.new("::1/116") 
+		walker = Rex::Socket::RangeWalker.new("::1/116")
 		walker.should be_valid
 		walker.length.should == 2 ** 12
 	end
 
 	#it "should handle ipv6 ranges" do
 	#	pending("Need to define how this should be handled")
-	#	walker = Rex::Socket::RangeWalker.new("::1-::1:1") 
+	#	walker = Rex::Socket::RangeWalker.new("::1-::1:1")
 	#	walker.should be_valid
 	#	walker.length.should == 2 ** 16
 	#end

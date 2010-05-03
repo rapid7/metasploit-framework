@@ -4,7 +4,7 @@
 #Verion: 0.2
 ################## Variable Declarations ##################
 session = client
-# Setting Argument 
+# Setting Argument
 
 @@exec_opts = Rex::Parser::Arguments.new(
         "-h" => [ false,"Help menu."                        ],
@@ -59,7 +59,7 @@ end
 	end
 end
 
-if args.length == 0 or help == 1 
+if args.length == 0 or help == 1
 	usage
 else
 	print_status("Running Multiscript script.....")

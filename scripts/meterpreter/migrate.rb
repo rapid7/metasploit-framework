@@ -1,6 +1,6 @@
 # $Id$
 #
-# Simple example script that migrates to a specific process by name. 
+# Simple example script that migrates to a specific process by name.
 # This is meant as an illustration.
 #
 
@@ -39,7 +39,7 @@ if ! spawn
 	# Get the target process name
 	target ||= "lsass.exe"
 	print_status("Migrating to #{target}...")
-	
+
 	# Get the target process pid
 	target_pid = client.sys.process[target]
 

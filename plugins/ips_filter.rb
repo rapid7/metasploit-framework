@@ -1,8 +1,13 @@
+#
+# $Id$
+# $Revision$
+#
+
 module Msf
 
 ###
-# 
-# This class hooks all sockets created by a running exploit 
+#
+# This class hooks all sockets created by a running exploit
 # and prevents data from being sent that matches a known IPS
 # signature.
 #
@@ -27,9 +32,9 @@ class Plugin::IPSFilter < Msf::Plugin
 				sock.extend(IPSFilter::SocketTracer)
 				sock.context = param.context
 			end
-		end		
+		end
 	end
-	
+
 
 	def initialize(framework, opts)
 		super
@@ -74,7 +79,7 @@ module SocketTracer
 		r = super(length, opts)
 		if (ips_match(r))
 			$stderr.puts "*** Incoming read may match a known signature"
-		end		
+		end
 		return r
 	end
 
@@ -85,7 +90,7 @@ module SocketTracer
 	def ips_match(data)
 		lp = localport
 		rp = peerport
-		
+
 		SIGS.each do |s|
 			begin
 				r = Regexp.new(s[1])
@@ -97,18 +102,18 @@ module SocketTracer
 				$stderr.puts "*** Compiled error: #{s[1]}"
 			end
 		end
-		
+
 		return false
 	end
-	
+
 	# Extend this as needed :-)
-	SIGS = 
+	SIGS =
 	[
 		['DCOM.C', ".*\\\x5c\x00\\\x5c\x00\x46\x00\x58\x00\x4e\x00\x42\x00\x46\x00\x58\x00\x46\x00\x58\x00.*\xcc\xe0\xfd\x7f.*"],
 		['BLASTER', ".*\\\x5c\x00\\\x5c\x00\x46\x00\x58\x00\x4e\x00\x42\x00\x46\x00\x58\x00\x46\x00\x58\x00.*\xcc\xe0\xfd\x7f.*"],
 		['REMACT', ".*\xb8\x4a\x9f\x4d\x1c\\}\xcf\x11\x86\x1e\x00\x20\xaf\x6e.*"],
 		['x86 NOP SLED', "\x90\x90"],
-	]	
+	]
 
 end
 end

@@ -1,7 +1,7 @@
 # $Id$
 #
 # Meterpreter script for detecting AV, HIPS, Third Party Firewalls, DEP Configuration and Windows Firewall configuration.
-# Provides also the option to kill the processes of detected products and disable the built-in firewall. 
+# Provides also the option to kill the processes of detected products and disable the built-in firewall.
 # Provided by Carlos Perez at carlos_perez[at]darkoperator.com
 # Version: 0.1.0
 session = client
@@ -20,7 +20,7 @@ def usage
 end
 
 #-------------------------------------------------------------------------------
-avs = %W{ 
+avs = %W{
 	a2adguard.exe
 	a2adwizard.exe
 	a2antidialer.exe
@@ -34,9 +34,9 @@ avs = %W{
 	a2start.exe
 	a2sys.exe
 	a2upd.exe
-	aavgapi.exe 
+	aavgapi.exe
 	aawservice.exe
-	aawtray.exe      
+	aawtray.exe
 	ad-aware.exe
 	ad-watch.exe
 	alescan.exe
@@ -109,10 +109,10 @@ avs = %W{
 	defensewall.exe
 	defensewall_serv.exe
 	defwatch.exe
-	f-agnt95.exe 
+	f-agnt95.exe
 	fpavupdm.exe
- 	f-prot95.exe 
- 	f-prot.exe 
+ 	f-prot95.exe
+ 	f-prot.exe
  	fprot.exe
 	fsaua.exe
 	fsav32.exe
@@ -121,7 +121,7 @@ avs = %W{
 	fsm32.exe
 	fsma32.exe
 	fssm32.exe
- 	f-stopw.exe 
+ 	f-stopw.exe
 	f-stopw.exe
 	fwservice.exe
 	fwsrv.exe
@@ -131,7 +131,7 @@ avs = %W{
 	icmon.exe
 	idsinst.exe
 	idslu.exe
-	inetupd.exe 
+	inetupd.exe
 	irsetup.exe
 	isafe.exe
 	isignup.exe
@@ -244,7 +244,7 @@ avs = %W{
 	vsaccess.exe
 	vsserv.exe
 	wcantispy.exe
-	win-bugsfix.exe 
+	win-bugsfix.exe
 	winpatrol.exe
 	winpatrolex.exe
 	wrsssdk.exe
@@ -276,7 +276,7 @@ def checklocalfw(session,killfw)
 	opmode = ""
 	r = session.sys.process.execute("cmd.exe /c netsh firewall show opmode", nil, {'Hidden' => 'true', 'Channelized' => true})
 	while(d = r.channel.read)
-		opmode << d		
+		opmode << d
 	end
 	r.channel.close
 	r.close
@@ -311,7 +311,7 @@ def checkdep(session)
 	r.close
 	r = session.sys.process.execute("cmd.exe /c type #{wmicout}", nil, {'Hidden' => 'true','Channelized' => true})
 		while(d = r.channel.read)
-			tmpout << d		
+			tmpout << d
 		end
 	r.channel.close
 	r.close
@@ -325,7 +325,7 @@ def checkdep(session)
 		print_status("\tDEP is limited to Windows system binaries.")
 	elsif depmode.to_s == "3"
 		print_status("\tDEP is on for all programs and services.")
-	end	
+	end
 
 end
 #-------------------------------------------------------------------------------

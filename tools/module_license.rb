@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This script lists each module by its licensing terms
+#
+# $Revision$
 #
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
@@ -11,10 +15,10 @@ require 'msf/ui'
 require 'msf/base'
 
 def lic_short(l)
-	if (l.class == Array) 
+	if (l.class == Array)
 		l = l[0]
 	end
-	
+
 	case l
 	when MSF_LICENSE
 		'MSF'
@@ -29,7 +33,7 @@ def lic_short(l)
 	end
 end
 
-Indent = '    ' 
+Indent = '    '
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create

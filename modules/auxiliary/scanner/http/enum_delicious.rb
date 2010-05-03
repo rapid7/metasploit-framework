@@ -9,7 +9,6 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'net/http'
 
@@ -18,11 +17,14 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name' => 'Pull Del.icio.us Links (URLs) for a domain',
-			'Description' => %q{ This module pulls and parses the URLs stored by Del.icio.us users for the
-			                     purpose of replaying during a web assessment. Finding unlinked and old pages. },
+			'Description' => %q{
+					This module pulls and parses the URLs stored by Del.icio.us users for the
+				purpose of replaying during a web assessment. Finding unlinked and old pages.
+			},
 			'Author' => [ 'Rob Fuller <mubix [at] hak5.org>' ],
 			'License' => MSF_LICENSE,
-			'Version' => '$Revision: 7206 $'))
+			'Version' => '$Revision$'))
+
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "Domain to request URLS for"]),

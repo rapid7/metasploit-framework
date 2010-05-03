@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::MSSQL
 	include Msf::Auxiliary::Fuzzer
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'TDS Protocol Login Request Corruption Fuzzer',
@@ -31,11 +31,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	# A copy of the mssql_login method with the ability to overload each option
 	def make_login(opts={})
-	
+
 		pkt = ""
 		idx = 0
 		db = ""
-		
+
 		pkt << [
 			0x00000000,   # Dummy size
 			opts[:tds_version]    || 0x71000001,   # TDS Version
@@ -50,42 +50,42 @@ class Metasploit3 < Msf::Auxiliary
 			opts[:timezone]       || 0x00000000,   # Time Zone
 			opts[:collation]      || 0x00000000    # Collation
 		].pack('VVVVVVCCCCVV')
-		
-		
+
+
 		cname = Rex::Text.to_unicode( opts[:cname] || Rex::Text.rand_text_alpha(rand(8)+1) )
 		uname = Rex::Text.to_unicode( opts[:uname] || "sa" )
 		pname = opts[:pname_raw] || mssql_tds_encrypt( opts[:pname] || "" )
-		aname = Rex::Text.to_unicode(opts[:aname] || Rex::Text.rand_text_alpha(rand(8)+1) )		
+		aname = Rex::Text.to_unicode(opts[:aname] || Rex::Text.rand_text_alpha(rand(8)+1) )
 		sname = Rex::Text.to_unicode( opts[:sname] || rhost )
 		dname = Rex::Text.to_unicode( opts[:dname] || db )
-		
+
 		idx = pkt.size + 50 # lengths below
-		
+
 		pkt << [idx, cname.length / 2].pack('vv')
 		idx += cname.length
-		
+
 		pkt << [idx, uname.length / 2].pack('vv')
-		idx += uname.length		
-		
+		idx += uname.length
+
 		pkt << [idx, pname.length / 2].pack('vv')
 		idx += pname.length
 
 		pkt << [idx, aname.length / 2].pack('vv')
-		idx += aname.length		
-		
+		idx += aname.length
+
 		pkt << [idx, sname.length / 2].pack('vv')
 		idx += sname.length
-		
+
 		pkt << [0, 0].pack('vv')
-		
+
 		pkt << [idx, aname.length / 2].pack('vv')
-		idx += aname.length		
+		idx += aname.length
 
 		pkt << [idx, 0].pack('vv')
-		
+
 		pkt << [idx, dname.length / 2].pack('vv')
-		idx += dname.length				
-		
+		idx += dname.length
+
 		# The total length has to be embedded twice more here
 		pkt << [
 			0,
@@ -93,15 +93,15 @@ class Metasploit3 < Msf::Auxiliary
 			0x12345678,
 			0x12345678
 		].pack('vVVV')
-		
+
 		pkt << cname
 		pkt << uname
 		pkt << pname
-		pkt << aname		
+		pkt << aname
 		pkt << sname
 		pkt << aname
 		pkt << dname
-								
+
 		# Total packet length
 		pkt[0,4] = [pkt.length].pack('V')
 
@@ -113,34 +113,34 @@ class Metasploit3 < Msf::Auxiliary
 
 		pkt
 	end
-	
+
 	def do_login(pkt,opts={})
 		@connected = false
 		disconnect if self.sock
 		connect
 		@connected = true
-			
+
 		resp = mssql_send_recv(pkt,opts[:timeout])
-		
+
 		info = {:errors => []}
 		info = mssql_parse_reply(resp,info)
 		info
 	end
-	
+
 	def run
 		last_str = nil
 		last_inp = nil
 		last_err = nil
-		
+
 		pkt = make_login
 		cnt = 0
 		fuzz_string_corrupt_byte_reverse(pkt) do |str|
 			cnt += 1
-			
+
 			if(cnt % 100 == 0)
 				print_status("Fuzzing with iteration #{cnt} using #{@last_fuzzer_input}")
 			end
-			
+
 			begin
 				do_login(str,:timeout => 0.50)
 			rescue ::Interrupt
@@ -151,12 +151,12 @@ class Metasploit3 < Msf::Auxiliary
 			ensure
 				disconnect
 			end
-	
+
 			if(not @connected)
 				if(last_str)
 					print_status("The service may have crashed: method=#{last_inp} string=#{last_str.unpack("H*")[0]} error=#{last_err}")
 				else
-					print_status("Could not connect to the service: #{last_err}")				
+					print_status("Could not connect to the service: #{last_err}")
 				end
 				return
 			end

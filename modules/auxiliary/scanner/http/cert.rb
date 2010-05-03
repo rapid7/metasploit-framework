@@ -1,3 +1,6 @@
+##
+# $Id$
+##
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -6,10 +9,8 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'rex/socket/ssl_tcp'
-
 
 class Metasploit3 < Msf::Auxiliary
 

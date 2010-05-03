@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This user interface provides users with a web-based interface to the framework
+#
+# $Revision$
 #
 
 msfbase = __FILE__

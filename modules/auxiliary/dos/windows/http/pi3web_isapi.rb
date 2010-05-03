@@ -1,12 +1,23 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Dos
-	
+
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Pi3Web <=2.0.13 ISAPI DoS',
 			'Description'    => %q{
 				The Pi3Web HTTP server crashes when a request is made
@@ -39,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Request sent to #{rhost}:#{rport}")
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 			print_status("Couldn't connect to #{rhost}:#{rport}")
-		rescue ::Timeout::Error, ::Errno::EPIPE			
+		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 	end
 end

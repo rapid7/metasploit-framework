@@ -1,9 +1,14 @@
-# $Id:$
-#Meterpreter script for running multiple console commands on a meterpreter session
-#Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
-#Verion: 0.1
+# $Id$
+#
+# Meterpreter script for running multiple console commands on a meterpreter session
+# Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
+# Verion: 0.1
+#
+# $Revision$
+
 ################## Variable Declarations ##################
 session = client
+
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
         "-h" => [ false,"Help menu."                        ],

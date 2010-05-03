@@ -1,7 +1,12 @@
+#
+# $Id$
+# $Revision$
+#
+
 module Msf
 
 ###
-# 
+#
 # This class illustrates a sample plugin.  Plugins can change the behavior of
 # the framework by adding new features, new user interface commands, or
 # through any other arbitrary means.  They are designed to have a very loose
@@ -41,7 +46,7 @@ class Plugin::ThreadTest < Msf::Plugin
 				print_line("Test thread is already running")
 				return
 			end
-			
+
 			@mythread = ::Thread.new {
 				while(true)
 					print_line("--- test thread ---")
@@ -50,24 +55,24 @@ class Plugin::ThreadTest < Msf::Plugin
 			}
 			print_line("Test thread created")
 		end
-		
+
 		def cmd_stop_thread(*args)
 			if (! @mythread)
 				print_line("No test thread is running")
 				return
 			end
-			
+
 			@mythread.kill
 			@mythread = nil
 			print_line("Test thread stopped")
 		end
-		
+
 		def cmd_list_thread(*args)
 			Thread.list.each do |t|
 				print_line(sprintf("Thread: 0x%.8x (%s/%d) (%s)", t.object_id, t.status, t.priority, t.tsource))
 				print_line("")
 			end
-		end			
+		end
 	end
 
 	#
@@ -108,7 +113,7 @@ class Plugin::ThreadTest < Msf::Plugin
 	def cleanup
 		# If we had previously registered a console dispatcher with the console,
 		# deregister it now.
-		remove_console_dispatcher('ThreadTest') 
+		remove_console_dispatcher('ThreadTest')
 	end
 
 	#

@@ -1,10 +1,20 @@
-require 'msf/core'
+##
+# $Id$
+##
 
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::DECT_COA
-	
+
 	def initialize
 		super(
 			'Name'           => 'DECT Base Station Scanner',
@@ -13,29 +23,29 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => [ 'DK <privilegedmode@gmail.com>' ],
 			'License'        => MSF_LICENSE,
 			'References'     => [ ['Dedected', 'http://www.dedected.org'] ]
-		)	
-		
+		)
+
 		register_options([
 			OptBool.new('VERBOSE',[false, 'Print out verbose information during the scan', true])
 		],  self.class )
 	end
-	
+
 
 	def print_results
 		print_line("RFPI\t\tChannel")
 		@base_stations.each do |rfpi, data|
 			print_line("#{data['rfpi']}\t#{data['channel']}")
-		end	
+		end
 	end
 
 	def run
 		@base_stations = {}
-		
+
 		print_status("Opening interface: #{datastore['INTERFACE']}")
 		print_status("Using band: #{datastore['band']}")
-		
+
 		open_coa
-		
+
 		begin
 
 			print_status("Changing to fp scan mode.")
@@ -59,13 +69,13 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("Switching to channel: #{channel}")
 				end
 				sleep(1)
-			end		
+			end
 		ensure
 			print_status("Closing interface")
 			stop_coa()
 			close_coa()
 		end
-		
+
 		print_results
 	end
 end

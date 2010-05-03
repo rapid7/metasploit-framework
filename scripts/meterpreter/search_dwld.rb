@@ -26,7 +26,7 @@ def usage
 	print_line "USAGE: run search_dwld [base directory] [filter] [pattern]"
 	print_line
 	print_line "filter can be a defined pattern or 'free', in which case pattern must be given"
-	print_line "Defined patterns:" 
+	print_line "Defined patterns:"
 	print_line $filters.keys.sort.collect{|k| "\t#{k}"}.join("\n")
 	print_line
 	print_line "Examples:"
@@ -75,13 +75,13 @@ if filter == 'free'
 	end
 	$motif = args[2]
 else
-	$motif = $filters[filter] 
+	$motif = $filters[filter]
 end
 
 if $motif.nil?
 	raise RuntimeError.new("Unrecognized filter")
 end
 
-# Search and download 
+# Search and download
 scan(basedir)
 

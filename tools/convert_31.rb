@@ -1,4 +1,8 @@
 #!/usr/bin/env ruby
+#
+# $Id$
+# $Revision$
+#
 
 path = ARGV.shift || exit
 data = File.read(path)
@@ -18,18 +22,18 @@ data.each_line do |line|
 			line = "#{spaces}include Msf::#{inc.strip}\n"
 		end
 	end
-		
+
 	if(line =~ /^(\s*)class ([^\<]+)\s*<\s*(.*)/)
 		prefix = ""
 		spaces = $1
 		parent = $3
-		
+
 		if(parent !~ /^Msf/)
 			prefix = "Msf::"
 		end
 		line = "#{spaces}class Metasploit3 < #{prefix}#{parent.strip}\n"
 	end
-	
+
 	outp += line
 end
 

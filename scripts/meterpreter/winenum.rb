@@ -265,14 +265,14 @@ def list_exec(cmdlst)
 					r.close
 				})
 			i += 1
-			
+
 
 		else
 			sleep(0.10) and a.delete_if {|x| not x.alive?} while not a.empty?
 			i = 0
 		end
 	end
-	
+
 	a.delete_if {|x| not x.alive?} while not a.empty?
 end
 #-------------------------------------------------------------------------------
@@ -293,7 +293,7 @@ def wmicexec(wmiccmds= nil)
 						print_status "\trunning command wmic #{wmi}"
 						flname = "#{@logfol}/wmic_#{wmi.gsub(/(\W)/,"_")}.csv"
 						r = @client.sys.process.execute("cmd.exe /c wmic /append:#{wmicfl} #{wmi} /format:csv", nil, {'Hidden' => true})
-						sleep(2)						
+						sleep(2)
 						#Making sure that WMIC finishes before executing next WMIC command
 						prog2check = "wmic.exe"
 						found = 0

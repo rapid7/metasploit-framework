@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -27,16 +31,17 @@ class Metasploit3 < Msf::Auxiliary
 				requires either Basic, Digest or NTLM authentication.
 			},
 			'Author' 		=> [ 'et', 'patrick' ],
+			'Version'		=> '$Revision$',
 			'License'		=> MSF_LICENSE,
-			'References'     =>
+			'References'   =>
 				[
 					[ 'MSB', 'MS09-020' ],
 					[ 'CVE', '2009-1535' ],
 					[ 'CVE', '2009-1122' ],
 					[ 'OSVDB', '54555' ],
 					[ 'BID', '34993' ],
-				],
-			'Version'		=> '$Revision$'))
+				]
+			))
 
 		register_options(
 			[

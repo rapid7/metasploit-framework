@@ -1,4 +1,11 @@
+#
+# $Id$
+#
 # credcollect - tebo[at]attackresearch.com
+#
+# $Revision$
+#
+
 module Msf
 
 class Plugin::CredCollect < Msf::Plugin

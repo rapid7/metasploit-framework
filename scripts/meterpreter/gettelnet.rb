@@ -23,7 +23,7 @@ def checkifinst(session)
 		if d =~ (/TlntSvr/)
 			return true
 		end
-			
+
 	end
 	r.channel.close
 	r.close
@@ -32,7 +32,7 @@ end
 #---------------------------------------------------------------------------------------------------------
 def insttlntsrv(session)
 	trgtos = session.sys.config.sysinfo
-	if trgtos =~ /(Windows Vista)/ 
+	if trgtos =~ /(Windows Vista)/
 		if checkifinst(session)
 			print_status("Telnet Service Installed on Target")
 		else

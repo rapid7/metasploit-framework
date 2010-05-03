@@ -9,10 +9,8 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 #require 'rex/exploitation/javascriptosdetect'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -21,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'File Format Exploit Generator',
-			'Version'     => '$Revision: 8210 $',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module generates a combination of File format exploits and make them available to a client. 94.7% Based on browser autopwn by egypt.
 				},

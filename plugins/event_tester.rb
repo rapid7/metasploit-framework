@@ -1,3 +1,7 @@
+#
+# $Id$
+# $Revision$
+#
 
 module Msf
 

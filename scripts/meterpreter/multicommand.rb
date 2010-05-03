@@ -86,7 +86,7 @@ end
 
 }
 
-if args.length == 0 or help == 1 
+if args.length == 0 or help == 1
 	usage
 elsif outfile == nil
 	list_exec(session,commands).each_line do |l|

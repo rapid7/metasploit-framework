@@ -3,11 +3,13 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
+
+# $Revision$
 
 require 'packetfu'
 
@@ -15,16 +17,16 @@ module Msf
 class Plugin::PcapLog < Msf::Plugin
 
 	include PacketFu
-	
+
 	def no_pcaprub_error
-		print_error(" -- PcapRub is not installed -- ") 
+		print_error(" -- PcapRub is not installed -- ")
 		print_error("Make sure you have libpcap-dev and try the following commands")
 		print_error("to install it:")
 		print_error("\t$ cd external/pcaprub/")
 		print_error("\t$ ruby extconf.rb && make && sudo make install")
 	end
 	def usage
-		print_error("No interface given") 
+		print_error("No interface given")
 		print ("usage: load #{self.name} iface=<iface> [path=<logpath>] [prefix=<logprefix>] [filter=\"<filter>\"]\n")
 	end
 
@@ -35,14 +37,14 @@ class Plugin::PcapLog < Msf::Plugin
 		iface       = opts['iface'] || nil
 		filter      = opts['filter']
 
-		begin 
+		begin
 			require 'pcaprub'
 		rescue LoadError
 			self.no_pcaprub_error
 			raise
 		end
 
-		if (iface.nil?) 
+		if (iface.nil?)
 			self.usage
 			raise RuntimeError.new("No interface specified")
 		end
@@ -61,7 +63,7 @@ class Plugin::PcapLog < Msf::Plugin
 			begin
 				while true
 					while (this_pkt = stream.next)
-						if this_pkt 
+						if this_pkt
 							PacketFu::Write.append(:file => @capture_file, :pkt => this_pkt)
 						else
 							print_status("No packets")

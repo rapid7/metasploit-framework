@@ -1,5 +1,15 @@
-require 'msf/core'
+##
+# $Id$
+##
 
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -7,12 +17,11 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::WMAPScanUniqueQuery
 	include Msf::Auxiliary::Scanner
 
-
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'			=> 'SQLMAP SQL Injection External Module',
 			'Description'	=> %q{
-				This module launch a sqlmap session.
+					This module launch a sqlmap session.
 				sqlmap is an automatic SQL injection tool developed in Python.
 				Its goal is to detect and take advantage of SQL injection
 				vulnerabilities on web applications. Once it detects one

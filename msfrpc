@@ -1,7 +1,11 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This user interface allows users to interact with a remote framework
 # instance through a XMLRPC socket.
+#
+# $Revision$
 #
 
 msfbase = __FILE__
@@ -25,7 +29,7 @@ arguments = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help banner"                                          ]
 )
 
-opts = { 
+opts = {
 	'User' => 'msf',
 	'SSL'  => true,
 	'ServerPort' => 55553
@@ -69,7 +73,7 @@ $0 = "msfrpc"
 rpc = Msf::RPC::Client.new(
 	:host => opts['ServerHost'],
 	:port => opts['ServerPort'],
-	:ssl  => opts['SSL'] 
+	:ssl  => opts['SSL']
 )
 
 res = rpc.login(opts['User'], opts['Pass'])

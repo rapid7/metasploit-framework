@@ -9,9 +9,7 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -32,18 +30,17 @@ class Metasploit3 < Msf::Auxiliary
 				This module depends on the Lorcon2 library and only works on the Linux platform
 				with a supported wireless card. Please see the Ruby Lorcon2 documentation
 				(external/ruby-lorcon/README) for more information.
-
 			},
-
 			'Author'         => [ 'Laurent Butti <0x9090 [at] gmail.com>' ], # initial discovery and metasploit module
+			'Version'        => '$Revision$',
 			'License'        => MSF_LICENSE,
 			'References'     =>
-                [
+				[
 					['CVE', '2006-6125'],
 					['OSVDB', '30511'],
 					['URL', 'http://projects.info-pull.com/mokb/MOKB-22-11-2006.html'],
 					['URL', 'ftp://downloads.netgear.com/files/wg311_1_3.zip'],
-                ]
+				]
 		))
 		register_options(
 			[

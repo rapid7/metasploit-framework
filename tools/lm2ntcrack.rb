@@ -1,7 +1,11 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This script cracks a NTLM hash based on the case-insensitive LANMAN password
 # Credit to Yannick Hamon <yannick.hamon[at]xmcopartners.com> for the idea/perl code
+#
+# $Revision$
 #
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__

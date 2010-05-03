@@ -4,6 +4,8 @@
 #
 # This script lists each module by the default ports it uses
 #
+# $Revision$
+#
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
 $:.unshift(File.join(File.dirname(msfbase), '..', 'lib'))

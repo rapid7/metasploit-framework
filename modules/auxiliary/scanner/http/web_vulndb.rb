@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -7,7 +11,6 @@
 
 require 'rex/proto/http'
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -24,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author' 		=> [ 'et' ],
 			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision: 7629 $'))
+			'Version'		=> '$Revision$'))
 
 		register_options(
 			[

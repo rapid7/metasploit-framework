@@ -1,7 +1,11 @@
 #!/usr/bin/env ruby
 #
+# $Id$
+#
 # This sample demonstrates how a file can be encoded using a framework
 # encoder.
+#
+# $Revision$
 #
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'lib'))
