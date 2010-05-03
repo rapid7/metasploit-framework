@@ -1,5 +1,7 @@
 module Rex
 module Parser
+
+# XXX doesn't tie services to vulns
 class NexposeXMLStreamParser
 
 	attr_accessor :callback
