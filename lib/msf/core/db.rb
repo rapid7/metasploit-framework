@@ -466,8 +466,8 @@ class DBManager
 				host.save!
 			end
 
-			ntype  = opts.delete(:type) || opts.delete(:ntype) || return
-			data   = opts[:data] || return
+			ntype  = opts.delete(:type) || opts.delete(:ntype) || raise RuntimeError, "A note :type or :ntype is required"
+			data   = opts[:data] || raise RuntimeError, "Note :data is required"
 			method = nil
 			args   = []
 			note   = nil
@@ -830,7 +830,7 @@ class DBManager
 				host = get_host(:workspace => wspace, :host => addr)
 			end
 
-			ltype  = opts.delete(:type) || opts.delete(:ltype) || return
+			ltype  = opts.delete(:type) || opts.delete(:ltype) || raise RuntimeError, "A loot :type or :ltype is required"
 			ctype  = opts.delete(:ctype) || opts.delete(:content_type) || 'text/plain'
 			name   = opts.delete(:name)
 			info   = opts.delete(:info)
@@ -1608,7 +1608,7 @@ class DBManager
 				addr = h["addrs"]["ipv6"]
 			else
 				# Can't report it if it doesn't have an IP
-				return
+				raise RuntimeError, "At least one IPv4 or IPv6 address is required"
 			end
 			data[:host] = addr
 			if (h["addrs"].has_key?("mac"))
