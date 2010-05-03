@@ -1118,7 +1118,7 @@ class DBManager
 	# file, there shouldn't be any false detections, but no guarantees.
 	#
 	def import_file(filename, wspace=workspace)
-		f = File.open(filename, 'r')
+		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
 		import(data, wspace)
 	end
@@ -1189,7 +1189,7 @@ class DBManager
 	# with large results files
 	#
 	def import_nexpose_simplexml_file(filename, wspace=workspace)
-		f = File.open(filename, 'r')
+		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
 		import_nexpose_simplexml(data, wspace)
 	end
@@ -1197,7 +1197,7 @@ class DBManager
 	# Import a Metasploit Express XML file.
 	# TODO: loot, tasks, and reports
 	def import_msfe_v1_file(filename, wspace=workspace)
-		f = File.open(filename, 'r')
+		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
 		import_msfe_v1_xml(data, wspace)
 	end
@@ -1369,7 +1369,7 @@ class DBManager
 	# Nexpose Raw XML
 	#
 	def import_nexpose_rawxml_file(filename, wspace=workspace)
-		f = File.open(filename, 'r')
+		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
 		import_nexpose_rawxml(data, wspace)
 	end
@@ -1587,7 +1587,7 @@ class DBManager
 	# Import Nmap's -oX xml output
 	#
 	def import_nmap_xml_file(filename, wspace=workspace)
-		f = File.open(filename, 'r')
+		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
 		import_nmap_xml(data, wspace)
 	end
@@ -1683,7 +1683,7 @@ class DBManager
 	# Import Nessus NBE files
 	#
 	def import_nessus_nbe_file(filename, wspace=workspace)
-		f = File.open(filename, 'r')
+		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
 		import_nessus_nbe(data, wspace)
 	end
@@ -1726,7 +1726,7 @@ class DBManager
 	# Old versions of openvas exported this as well
 	#
 	def import_nessus_xml_file(filename, wspace=workspace)
-		f = File.open(filename, 'r')
+		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
 
 		if data.index("NessusClientData_v2")
@@ -1786,7 +1786,7 @@ class DBManager
 	# Import Qualys' xml output
 	#
 	def import_qualys_xml_file(filename, wspace=workspace)
-		f = File.open(filename, 'r')
+		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
 		import_qualys_xml(data, wspace)
 	end
@@ -1862,7 +1862,7 @@ class DBManager
 	end
 
 	def import_ip_list_file(filename, wspace=workspace)
-		f = File.open(filename, 'r')
+		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
 		import_ip_list(data, wspace)
 	end
@@ -1874,7 +1874,7 @@ class DBManager
 	end
 
 	def import_amap_log_file(filename, wspace=workspace)
-		f = File.open(filename, 'r')
+		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
 		import_amap_log(data, wspace)
 	end
