@@ -466,8 +466,8 @@ class DBManager
 				host.save!
 			end
 
-			ntype  = opts.delete(:type) || opts.delete(:ntype) || raise RuntimeError, "A note :type or :ntype is required"
-			data   = opts[:data] || raise RuntimeError, "Note :data is required"
+			ntype  = opts.delete(:type) || opts.delete(:ntype) || (raise RuntimeError, "A note :type or :ntype is required")
+			data   = opts[:data] || (raise RuntimeError, "Note :data is required")
 			method = nil
 			args   = []
 			note   = nil
@@ -830,7 +830,7 @@ class DBManager
 				host = get_host(:workspace => wspace, :host => addr)
 			end
 
-			ltype  = opts.delete(:type) || opts.delete(:ltype) || raise RuntimeError, "A loot :type or :ltype is required"
+			ltype  = opts.delete(:type) || opts.delete(:ltype) || (raise RuntimeError, "A loot :type or :ltype is required")
 			ctype  = opts.delete(:ctype) || opts.delete(:content_type) || 'text/plain'
 			name   = opts.delete(:name)
 			info   = opts.delete(:info)
