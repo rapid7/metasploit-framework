@@ -27,7 +27,7 @@ def upload(session,file,trgloc = "")
 		end
 		begin
 			ext = file[file.rindex(".") .. -1]
-			if ext and ext.downcase == "exe"
+			if ext and ext.downcase == ".exe"
 				fileontrgt = "#{location}\\svhost#{rand(100)}.exe"
 			else
 				fileontrgt = "#{location}\\TMP#{rand(100)}#{ext}"
