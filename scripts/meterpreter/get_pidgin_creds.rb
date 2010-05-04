@@ -56,7 +56,7 @@ def check_pidgin(path)
 	found = nil
 	@client.fs.dir.foreach(path) do |x|
 		next if x =~ /^(\.|\.\.)$/
-		if x =~ (/.purple/)
+		if x =~ (/\.purple/)
 			### If we find the path, let's return it
 			found = path + x
 			return found

@@ -9,9 +9,7 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -27,12 +25,14 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'HTTP Writable Path PUT/DELETE File Access',
 			'Version'     => '$Revision$',
 			'Description'    => %q{
-				This module can abuse misconfigured web servers to
-			upload and delete web content via PUT and DELETE HTTP
-			requests.
+					This module can abuse misconfigured web servers to
+				upload and delete web content via PUT and DELETE HTTP
+				requests.
 			},
-			'Author'      => [ 'Kashif [at] compulife.com.pk',
-					 ],
+			'Author'      =>
+				[
+					'Kashif [at] compulife.com.pk',
+				],
 			'License'     => BSD_LICENSE,
 			'Actions'     =>
 				[
