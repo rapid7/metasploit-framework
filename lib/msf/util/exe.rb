@@ -335,7 +335,7 @@ require 'metasm'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE Service EXE template!" if not bo
-		pe[bo, code.length] = code
+		pe[bo, 8192] = [code].pack("a8192")
 
 		bo = pe.index('SERVICENAME')
 		raise RuntimeError, "Invalid Win32 PE Service EXE template!" if not bo
@@ -1307,3 +1307,4 @@ require 'metasm'
 end
 end
 end
+
