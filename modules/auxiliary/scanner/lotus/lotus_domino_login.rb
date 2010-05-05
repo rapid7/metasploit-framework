@@ -17,7 +17,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::AuthBrute
+	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
+
 
 	def initialize
 		super(
