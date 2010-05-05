@@ -53,6 +53,8 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = smb_fingerprint()
 
+			print_status(res.inspect)
+
 			if(res['os'] and res['os'] != 'Unknown')
 
 				case res['os']
@@ -62,8 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 					case res['sp']
 					when /apple/
 						os = OperatingSystems::MAC_OSX
-						res['os'] = 'Unknown'
-						res['sp'] = 'Unknown'
+						res['os'] = 'Mac OS X'
 					when /ubuntu/
 						os = OperatingSystems::LINUX
 						res['os'] = 'Ubuntu'
