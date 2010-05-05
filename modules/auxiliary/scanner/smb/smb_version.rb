@@ -53,8 +53,6 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = smb_fingerprint()
 
-			print_status(res.inspect)
-
 			if(res['os'] and res['os'] != 'Unknown')
 
 				case res['os']
