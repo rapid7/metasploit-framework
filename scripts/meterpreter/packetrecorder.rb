@@ -2,6 +2,7 @@
 #Meterpreter script for monitoring and capturing packets and
 #saving them in to  a PCAP file.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
+#$Revision$
 session = client
 #Get Hostname
 host,port = session.tunnel_peer.split(':')
@@ -100,7 +101,6 @@ def packetrecord(session, packtime, logfile,intid)
 
 			::File.unlink(path_raw)
 			sleep(2)
-			print(".")
 			sleep(packtime.to_i)
 
 	end
