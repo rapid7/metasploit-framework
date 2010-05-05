@@ -26,6 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'  =>
 				[
 					['CVE', '2010-0103'],
+					['OSVDB', '62782'],
 					['URL', 'http://www.kb.cert.org/vuls/id/154421']
 				],
 			'License'     => MSF_LICENSE

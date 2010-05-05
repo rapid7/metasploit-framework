@@ -25,7 +25,11 @@ class Metasploit3 < Msf::Auxiliary
 
 			'Author'         => [ 'hdm' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$'
+			'Version'        => '$Revision$',
+			'References'     => 
+				[
+					[ 'OSVDB', '64341'],
+				]
 		))
 
 		register_options([Opt::RPORT(445)], self.class)

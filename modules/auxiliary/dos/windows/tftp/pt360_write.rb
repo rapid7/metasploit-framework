@@ -27,7 +27,11 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>
-				[ [ 'URL', 'http://milw0rm.com/exploits/6863'] ],
+				[ 
+					[ 'CVE', '2008-1311'],
+					[ 'OSVDB', '42932'],
+					[ 'URL', 'http://milw0rm.com/exploits/6863']
+				],
 			'DisclosureDate' => 'Oct 29 2008'))
 
 		register_options([Opt::RPORT(69)])

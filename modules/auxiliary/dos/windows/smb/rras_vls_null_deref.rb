@@ -35,6 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'References'     =>
 				[
+					[ 'OSVDB', '64340'],
 
 				],
 			'Actions'     =>

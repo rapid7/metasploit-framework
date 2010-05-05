@@ -29,6 +29,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'       => '$Revision$',
 			'References'    =>
 				[
+					[ 'CVE', '2007-3389'],
+					[ 'OSVDB', '37643'],
 					[ 'URL', 'https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1394'],
 				],
 			'DisclosureDate' => 'February 22 2007'))
