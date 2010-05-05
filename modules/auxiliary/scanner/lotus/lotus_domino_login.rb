@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Lotus Domino Brute Force Utility',
 			'Version'        => '$Revision$',
 			'Description'    => 'Lotus Domino Authentication Brute Force Utility',
-			'Autor'          => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
+			'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
 			'License'        =>  MSF_LICENSE
 		)
 
