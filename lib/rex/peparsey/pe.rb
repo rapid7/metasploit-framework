@@ -143,7 +143,7 @@ class Pe < PeBase
 		self.hdr.config        = self._config_header
 		self.hdr.tls           = self._tls_header
 		self.hdr.exceptions    = self._exception_header
-		
+
 		# We load the exception directory last as it relies on hdr.file to be created above.
 		self._exception_header = _load_exception_directory()
 	end
@@ -184,5 +184,13 @@ class Pe < PeBase
 		(ptr_32?) ? ("0x%.8x" % va) : ("0x%.16x" % va)
 	end
 
-end end end
+	def offset_to_rva(offset)
+		image_base + offset
+	end
 
+	def read(offset, len)
+		_isource.read(offset, len)
+	end
+
+
+end end end
