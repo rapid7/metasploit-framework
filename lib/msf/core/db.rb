@@ -1144,9 +1144,9 @@ class DBManager
 		end
 		firstline = data[0, di]
 		if (firstline.index("<NeXposeSimpleXML"))
-			@import_filedata[:type] = "NeXpose Report (SimpleXML)" if @import_filedata
+			@import_filedata[:type] = "NeXpose Simple XML" if @import_filedata
 			return import_nexpose_simplexml(data, wspace)
-			@import_filedata[:type] = "NeXpose Report" if @import_filedata
+			@import_filedata[:type] = "NeXpose XML Report" if @import_filedata
 		elsif (firstline.index("<NexposeReport"))
 			return import_nexpose_rawxml(data, wspace)
 		elsif (firstline.index("<?xml"))
@@ -1156,22 +1156,22 @@ class DBManager
 				line =~ /<([a-zA-Z0-9\-\_]+)[ >]/
 				case $1
 				when "nmaprun"
-					@import_filedata[:type] = "Nmap Scan" if @import_filedata
+					@import_filedata[:type] = "Nmap XML" if @import_filedata
 					return import_nmap_xml(data, wspace)
 				when "openvas-report"
 					@import_filedata[:type] = "OpenVAS Report" if @import_filedata
 					return import_openvas_xml(data, wspace)
 				when "NessusClientData"
-					@import_filedata[:type] = "Nessus Report" if @import_filedata
+					@import_filedata[:type] = "Nessus XML (v1)" if @import_filedata
 					return import_nessus_xml(data, wspace)
 				when "NessusClientData_v2"
-					@import_filedata[:type] = "Nessus Report (v2)" if @import_filedata
+					@import_filedata[:type] = "Nessus XML (v2)" if @import_filedata
 					return import_nessus_xml_v2(data, wspace)
 				when "SCAN"
-					@import_filedata[:type] = "Qualys Scan" if @import_filedata
+					@import_filedata[:type] = "Qualys XML" if @import_filedata
 					return import_qualys_xml(data, wspace)
 				when "MetasploitExpressV1"
-					@import_filedata[:type] = "Metasploit Express Report" if @import_filedata
+					@import_filedata[:type] = "Metasploit Express XML" if @import_filedata
 					return import_msfe_v1_xml(data, wspace)
 				else
 					# Give up if we haven't hit the root tag in the first few lines
@@ -1189,7 +1189,7 @@ class DBManager
 			return import_amap_mlog(data, wspace)
 		elsif (firstline =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)
 			# then its an IP list
-			@import_filedata[:type] = "IP List Text File" if @import_filedata
+			@import_filedata[:type] = "IP Address List" if @import_filedata
 			return import_ip_list(data, wspace)
 		end
 		raise DBImportError.new("Could not automatically determine file type")
