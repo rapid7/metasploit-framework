@@ -86,8 +86,11 @@ class Console::CommandDispatcher::Stdapi::Fs
 			print_line("Usage: cd directory")
 			return true
 		end
-
-		client.fs.dir.chdir(args[0])
+		if args[0] =~ /\%(\w*)\%/
+			client.fs.dir.chdir(client.fs.file.expand_path(args[0].upcase))
+		else
+			client.fs.dir.chdir(args[0])
+		end
 
 		return true
 	end
