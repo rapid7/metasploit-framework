@@ -1633,8 +1633,12 @@ class DBManager
 				data[:name] = h["reverse_dns"]
 			end
 
+			# Only report alive hosts with ports to speak of.
 			if(data[:state] != Msf::HostState::Dead)
-				report_host(data)
+				if h["ports"].size > 0
+					report_host(data)
+					report_import_note(wspace,addr)
+				end
 			end
 
 			if( h["os_vendor"] )
@@ -1668,7 +1672,6 @@ class DBManager
 				)
 			end
 
-			report_import_note(wspace,addr)
 
 			# Put all the ports, regardless of state, into the db.
 			h["ports"].each { |p|
@@ -1695,7 +1698,7 @@ class DBManager
 	end
 
 	def report_import_note(wspace,addr)
-		if @import_filedata.kind_of?(Hash) && @import_filedata[:type]
+		if @import_filedata.kind_of?(Hash) && @import_filedata[:filename] && @import_filedata[:filename] !~ /msfe-nmap[0-9]{8}/
 		report_note(
 			:workspace => wspace,
 			:host => addr,
