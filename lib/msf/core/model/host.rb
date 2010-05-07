@@ -9,6 +9,7 @@ class Host < ActiveRecord::Base
 	has_many :clients,  :dependent => :destroy
 	has_many :vulns,    :dependent => :destroy
 	has_many :notes,    :dependent => :destroy
+	has_many :loots,    :dependent => :destroy, :order => "loots.created_at desc"
 
 	has_many :service_notes, :through => :services
 
