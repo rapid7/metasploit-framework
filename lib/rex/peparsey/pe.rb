@@ -184,10 +184,16 @@ class Pe < PeBase
 		(ptr_32?) ? ("0x%.8x" % va) : ("0x%.16x" % va)
 	end
 
-	def offset_to_rva(offset)
-		image_base + offset
+	#
+	# Converts a file offset into a virtual address
+	#
+	def file_offset_to_va(offset)
+		image_base + file_offset_to_rva(offset)
 	end
 
+	#
+	# Read raw bytes from the specified offset in the underlying file
+	#
 	def read(offset, len)
 		_isource.read(offset, len)
 	end
