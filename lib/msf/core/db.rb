@@ -1220,7 +1220,7 @@ class DBManager
 	# TODO: loot, tasks, and reports
 	def import_msfe_v1_xml(data, wspace=workspace)
 		doc = rexmlify(data)
-		doc.elements.each('/MetasploitExpressV1/hosts/msf-db-manager-host') do |host|
+		doc.elements.each('/MetasploitExpressV1/hosts/host') do |host|
 			host_data = {}
 			host_data[:workspace] = wspace
 			host_data[:host] = host.elements["address"].text.to_s.strip
