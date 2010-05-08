@@ -9,7 +9,7 @@ var_names << registry_enumvals("HKEY_CURRENT_USER\\Volatile Environment")
 var_names << registry_enumvals("HKEY_CURRENT_USER\\Environment")
 var_names << registry_enumvals("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
 
-def list_env_vars(vars)
+def list_env_vars(var_names)
 	print_status("Getting all System and User Variables")
 	tbl = Rex::Ui::Text::Table.new(
 			'Header'  => "Enviroment Variable list",
@@ -35,3 +35,4 @@ opts.parse(args) { |opt, idx, val|
 
 	end
 }
+list_env_vars(var_names)
