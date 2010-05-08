@@ -12,6 +12,19 @@ module Common
 # All methods should follow the naming coventions below (separate words with "_", end queries with a ?, etc)
 #
 
+#Returns the data and type of a given registry key and value
+def registry_getvalinfo(key,valname)
+	value = {}
+	begin
+		root_key, base_key = client.sys.registry.splitkey(key)
+		open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ)
+		v = open_key.query_value(valname)
+		value["Data"] = v.data
+		value["Type"] = v.type
+		open_key.close
+	end
+	return value
+end
 #Returns the data of a given registry key and value
 def registry_getvaldata(key,valname)
 	value = nil
@@ -53,7 +66,7 @@ def registry_enumvals(key)
 		open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ)
 		vals = open_key.enum_value
 		vals.each { |val|
-			puts val.name
+			values <<  val.name
 		}
 		open_key.close
 	end
