@@ -24,6 +24,7 @@ class Message
 
 				chunks = body.to_s.split(/--#{self.bound}(--)?\r?\n/)
 				self.content = chunks.shift.to_s.gsub(/\s+$/, '')
+				self.content << "\r\n" if not self.content.empty?
 
 				chunks.each do |chunk|
 					break if chunk == "--"
@@ -34,7 +35,7 @@ class Message
 					self.parts << part
 				end
 			else
-				self.content = body.to_s.gsub(/\s+$/, '')
+				self.content = body.to_s.gsub(/\s+$/, '') + "\r\n"
 			end
 		end
 	end
@@ -119,18 +120,21 @@ class Message
 	def to_s
 		msg = self.header.to_s + "\r\n"
 
-		msg << self.content + "\r\n"
+		if self.content and not self.content.empty?
+			msg << self.content + "\r\n"
+		end
 
 		self.parts.each do |part|
 			msg << "--" + self.bound + "\r\n"
-			msg << part.to_s
+			msg << part.to_s + "\r\n"
 		end
 
 		if self.parts.length > 0
 			msg << "--" + self.bound + "--\r\n"
 		end
 
-		msg
+		# Force CRLF for SMTP compatibility
+		msg.gsub("\r", '').gsub("\n", "\r\n")
 	end
 
 end
