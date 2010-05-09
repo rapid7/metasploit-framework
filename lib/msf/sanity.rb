@@ -39,11 +39,13 @@ if(RUBY_PLATFORM == 'java')
 	require 'socket'
 	s = Socket.new(::Socket::AF_INET, ::Socket::SOCK_STREAM, ::Socket::IPPROTO_TCP)
 	if(not s.respond_to?('bind'))
-		$stderr.puts "*** JRuby will not be supported until the Socket API is complete"
-		$stderr.puts "*** Information: http://jira.codehaus.org/browse/JRUBY-2739"
-		trap Signal::list['INT'] do
-			Thread.main.raise Interrupt.new
-		end
+		$stderr.puts "*** JRuby 1.5.0+ is required to use Metasploit with jRuby"
+		exit(0)
+	end
+
+	$stderr.puts "*** Warning: JRuby support is still incomplete, few things will work properly!"
+	trap Signal::list['INT'] do
+		Thread.main.raise Interrupt.new
 	end
 end
 
