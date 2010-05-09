@@ -622,14 +622,15 @@ class DBManager
 	#	:name  -- the scanner-specific id of the vuln (e.g. NEXPOSE-cifs-acct-password-never-expires)
 	#
 	# opts can contain
-	#	:data  -- a human readable description of the vuln, free-form text
+	#	:info  -- a human readable description of the vuln, free-form text
 	#	:refs  -- an array of Ref objects or string names of references
 	#
 	def report_vuln(opts)
 		return if not active
 		raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
+		raise ArgumentError.new("Deprecated data column for vuln, use .info instead") if opts[:data]
 		name = opts[:name] || return
-		data = opts[:data]
+		info = opts[:info]
 		wait = opts.delete(:wait)
 		wspace = opts.delete(:workspace) || workspace
 		rids = nil
@@ -662,8 +663,8 @@ class DBManager
 				host = get_host(:workspace => wspace, :address => addr)
 			end
 
-			if data
-				vuln = host.vulns.find_or_initialize_by_name_and_data(name, data, :include => :refs)
+			if info
+				vuln = host.vulns.find_or_initialize_by_name_and_info(name, info, :include => :refs)
 			else
 				vuln = host.vulns.find_or_initialize_by_name(name, :include => :refs)
 			end
