@@ -33,25 +33,6 @@ if(RUBY_VERSION =~ /^1\.9\./)
 	if(Object.const_defined?('Encoding') and Encoding.respond_to?('default_external='))
 		Encoding.default_external = Encoding.default_internal = "binary"
 	end
-
-	# Disable: See #1731
-=begin
-	# Overload Object.extend() to do an include(), this fixes a memory leak in extend() on 1.9
-	# This trick doesn't work for anonymous modules, so we pass those to super()
-	class ::Object
-		def extend(x)
-
-			if ! x.name or x.name.empty?
-				# $stderr.puts "Extending #{self.class} normally with #{x}"
-				super(x)
-			else
-				# $stderr.puts "Extending #{self.class} via include with #{x}"
-				instance_eval("class << self; include #{x}; end")
-			end
-		end
-	end
-=end
-
 end
 
 if(RUBY_PLATFORM == 'java')
