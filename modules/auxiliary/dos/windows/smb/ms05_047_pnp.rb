@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Microsoft Plug and Play Service Registry Overflow',
 			'Description'    => %q{
-					This module triggers a stack overflow in the Windows Plug
+					This module triggers a stack buffer overflow in the Windows Plug
 				and Play service. This vulnerability can be exploited on
 				Windows 2000 without a valid user account. Since the PnP
 				service runs inside the service.exe process, this module
