@@ -463,7 +463,7 @@ module Text
 		coords = []
 		(1 << str.size).times { |i| coords << ("%0#{str.size}b" % i) }
 		mixed = []
-		coords.each do |coord| 
+		coords.each do |coord|
 			c = coord.scan(/./).map {|x| x.to_i}
 			this_str = ""
 			c.each_with_index { |d,i| this_str << letters[i][d] }
@@ -626,22 +626,11 @@ module Text
 
 	# Base text generator method
 	def self.rand_base(len, bad, *foo)
-		# Remove restricted characters
-		(bad || '').split('').each { |c| foo.delete(c) }
-
-		# Return nil if all bytes are restricted
-		return nil if foo.length == 0
-
-		buff = ""
-
-		# Generate a buffer from the remaining bytes
-		if foo.length >= 256
-			len.times { buff << Kernel.rand(256) }
-		else
-			len.times { buff << foo[ rand(foo.length) ] }
-		end
-
-		return buff
+		cset = (foo.join.unpack("C*") - bad.to_s.unpack("C*")).uniq
+		return if cset.length == 0
+		outp = []
+		len.times { outp << cset[rand(cset.length)] }
+		outp.pack("C*")
 	end
 
 	# Generate random bytes of data
