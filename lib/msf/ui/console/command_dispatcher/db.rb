@@ -1100,6 +1100,8 @@ class Db
 			if ! framework.db.drivers.include?('sqlite3')
 				print_status("    DB Support: Enable the sqlite3 driver with the following command:")
 				print_status("                $ gem install sqlite3-ruby")
+				print_error( "    Note that sqlite is not supported due to numerous issues.")
+				print_error( "    It may work, but don't count on it")
 				print_line("")
 			end
 
@@ -1127,8 +1129,10 @@ class Db
 		def cmd_db_create(*args)
 			return if not db_check_driver
 			print_error("")
-			print_error("Warning: The db_create command is deprecated, create the database manually and then use db_connect")
+			print_error("Warning: The db_create command is deprecated, use db_connect instead.")
 			print_error("         The database schema will be created automatically by db_connect")
+			print_error("         If db_connect fails to create the database, create it manually")
+			print_error("         with your DMBS's administration tools.")
 			print_error("")
 
 			meth = "db_create_#{framework.db.driver}"
@@ -1214,6 +1218,8 @@ class Db
 		# Connect to an existing SQLite database
 		#
 		def db_connect_sqlite3(*args)
+			print_error("Note that sqlite is not supported due to numerous issues.")
+			print_error("It may work, but don't count on it")
 
 			if(args[0] and (args[0] == "-h" || args[0] == "--help"))
 				print_status("Usage: db_connect [database-file-path]")
@@ -1225,8 +1231,7 @@ class Db
 			opts = { 'adapter' => 'sqlite3', 'database' => dbfile }
 
 			if (not ::File.exists?(dbfile))
-				print_error("The specified database does not exist")
-				return
+				print_status("Creating a new database file...")
 			end
 
 			if (not framework.db.connect(opts))
