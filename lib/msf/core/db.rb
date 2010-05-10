@@ -2069,7 +2069,7 @@ protected
 			:workspace => wspace,
 			:host => addr,
 			:name => nss,
-			:data => description ? description.text : "",
+			:info => description ? description.text : "",
 			:refs => refs
 		}
 
@@ -2161,7 +2161,7 @@ protected
 				:host => host,
 				:service => serv,
 				:name => 'NEXPOSE-' + vid.downcase,
-				:data => title)
+				:info => title)
 
 			rids = []
 			refs.keys.each do |r|
