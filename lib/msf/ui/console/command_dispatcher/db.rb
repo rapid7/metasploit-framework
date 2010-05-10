@@ -39,6 +39,8 @@ class Db
 				"db_driver"     => "Specify a database driver",
 				"db_connect"    => "Connect to an existing database",
 				"db_disconnect" => "Disconnect from the current database instance",
+				"db_status"     => "Show the current database status",
+				# Deprecated
 				"db_create"     => "Create a brand new database",
 				"db_destroy"    => "Drop an existing database",
 			}
@@ -1070,6 +1072,27 @@ class Db
 				return false
 			end
 			true
+		end
+
+		#
+		# Is everything working?
+		#
+		def cmd_db_status(*args)
+			if framework.db.driver
+				if ActiveRecord::Base.connected? and ActiveRecord::Base.connection.active?
+					if ActiveRecord::Base.connection.respond_to? :current_database
+						cdb = ActiveRecord::Base.connection.current_database
+					else
+						# ghetto hack for sqlite
+						cdb = ActiveRecord::Base.connection.instance_variable_get(:@config)[:database]
+					end
+					print_status("#{framework.db.driver} connected to #{cdb}")
+				else
+					print_status("#{framework.db.driver} selected, no connection")
+				end
+			else
+				print_status("No driver selected")
+			end
 		end
 
 		def cmd_db_driver(*args)
