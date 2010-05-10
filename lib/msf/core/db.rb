@@ -1336,7 +1336,7 @@ class DBManager
 					:workspace => wspace,
 					:host      => addr,
 					:name      => 'NEXPOSE-' + vid,
-					:data      => vid,
+					:info      => vid,
 					:refs      => refs)
 			end
 
@@ -1371,7 +1371,7 @@ class DBManager
 						:port => sport,
 						:proto => sprot,
 						:name => 'NEXPOSE-' + vid,
-						:data => vid,
+						:info => vid,
 						:refs => refs)
 				end
 			end
@@ -2023,7 +2023,7 @@ protected
 			:port => port,
 			:proto => proto,
 			:name => nss,
-			:data => data,
+			:info => info,
 			:refs => refs
 		)
 	end
