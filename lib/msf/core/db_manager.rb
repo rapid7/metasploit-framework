@@ -151,6 +151,8 @@ class DBManager
 		nopts['pool'] = 256
 
 		begin
+			create_db(nopts)
+
 			# Configure the database adapter
 			ActiveRecord::Base.establish_connection(nopts)
 
@@ -170,6 +172,33 @@ class DBManager
 		end
 
 		@active = true
+	end
+
+	#
+	# Attempt to create the database
+	#
+	# If the database already exists this will fail and we will continue on our
+	# merry way, connecting anyway.  If it doesn't, we try to create it.  If
+	# that fails, then it wasn't meant to be and the connect will raise a
+	# useful exception so the user won't be in the dark; no need to raise
+	# anything at all here.
+	#
+	def create_db(opts)
+		begin
+			case opts["adapter"]
+			when 'sqlite3'
+				# Sqlite just needs the file to be writable.  ActiveRecord creates
+				# it if it doesn't exist and checks permissions if it does.  This
+				# all happens during establish_connection(), so we don't need to
+				# bother with creating anything here.
+			when 'postgresql','mysql'
+				ActiveRecord::Base.establish_connection(opts.merge('database' => nil))
+				ActiveRecord::Base.connection.create_database(opts['database'])
+				ActiveRecord::Base.remove_connection
+			end
+		rescue ::Exception => e
+			ilog("Trying to continue despite failed database creation: #{e}")
+		end
 	end
 
 	#
