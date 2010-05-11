@@ -148,7 +148,13 @@ class Core
 				"Run the commands stored in the supplied files.\n")
 			return false
 		end
-		args.each { |res| driver.load_resource(res) }
+		args.each do |res| 
+			if not File.exists? res
+				print_error("#{res} does not exist")
+				next
+			end
+			driver.load_resource(res)
+		end
 	end
 
 
