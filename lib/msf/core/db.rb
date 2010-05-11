@@ -1272,8 +1272,8 @@ class DBManager
 				vuln_data = {}
 				vuln_data[:workspace] = wspace
 				vuln_data[:host] = host_address
-				if vuln.elements["data"].text
-					vuln_data[:data] = YAML.load(vuln.elements["data"].text.to_s.strip)
+				if vuln.elements["info"].text
+					vuln_data[:info] = YAML.load(vuln.elements["info"].text.to_s.strip)
 				end
 				vuln_data[:name] = vuln.elements["name"].text.to_s.strip
 				%w{created-at updated-at}.each { |datum|
