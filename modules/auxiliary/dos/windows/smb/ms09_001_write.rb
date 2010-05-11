@@ -18,8 +18,10 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Microsoft SRV.SYS WriteAndX Invalid DataOffset',
 			'Description'    => %q{
-				This module exploits a denial of service vulnerability in the
-			SRV.SYS driver of the Windows operating system.
+					This module exploits a denial of service vulnerability in the
+				SRV.SYS driver of the Windows operating system.
+
+				This module has been tested successfully against Windows Vista.
 			},
 
 			'Author'         => [ 'j.v.vallejo[at]gmail.com' ],
