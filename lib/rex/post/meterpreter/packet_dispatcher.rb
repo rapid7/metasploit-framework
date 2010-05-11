@@ -71,7 +71,7 @@ module PacketDispatcher
 		response = send_packet_wait_response(packet, t)
 
 		if (response == nil)
-			raise TimeoutError
+			raise TimeoutError.new("Send timed out")
 		elsif (response.result != 0)
 			e = RequestError.new(packet.method, response.result)
 
