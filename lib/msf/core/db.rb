@@ -1732,6 +1732,8 @@ class DBManager
 			type = r[5]
 			data = r[6]
 
+			next unless ipv4_validator(addr)
+
 			# Match the NBE types with the XML severity ratings
 			case type
 			# log messages don't actually have any data, they are just
@@ -1775,9 +1777,42 @@ class DBManager
 
 		doc = rexmlify(data)
 		doc.elements.each('/NessusClientData/Report/ReportHost') do |host|
-			addr = host.elements['HostName'].text
 
+			addr = nil
+			hname = nil
+			os = nil
+			# If the name is resolved, the Nessus plugin for DNS 
+			# resolution should be there. If not, fall back to the
+			# HostName
+			host.elements.each('ReportItem') do |item|
+				next unless item.elements['pluginID'].text == "12053"
+				addr = item.elements['data'].text.match(/([0-9\x2e]+) resolves as/)[1]
+				hname = host.elements['HostName'].text
+			end
+			addr ||= host.elements['HostName'].text
 			next unless ipv4_validator(addr) # Skip resolved names and SCAN-ERROR.
+
+			hinfo = {
+				:workspace => wspace,
+				:host => addr
+			}
+
+			# Record the hostname
+			hinfo.merge!(:name => hname.to_s.strip) if hname
+			report_host(hinfo)
+			
+			# Record the OS
+			os ||= host.elements["os_name"]
+			if os
+				report_note(
+					:workspace => wspace,
+					:host => addr,
+					:type => 'host.os.nessus_fingerprint',
+					:data => {
+						:os => os.text.to_s.strip
+					}
+				)
+			end
 
 			host.elements.each('ReportItem') do |item|
 				nasl = item.elements['pluginID'].text
@@ -2026,15 +2061,16 @@ protected
 
 		nss = 'NSS-' + nasl.to_s
 
-		report_vuln(
+		vuln_info = {
 			:workspace => wspace,
 			:host => addr,
 			:port => port,
 			:proto => proto,
 			:name => nss,
-			:info => info,
+			:info => data,
 			:refs => refs
-		)
+		}
+		report_vuln(vuln_info)
 	end
 
 	#
