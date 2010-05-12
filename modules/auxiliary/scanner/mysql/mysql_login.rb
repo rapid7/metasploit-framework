@@ -37,6 +37,8 @@ class Metasploit3 < Msf::Auxiliary
 			each_user_pass { |user, pass|
 				do_login(user, pass)
 			}
+		else
+			print_error "#{rhost}:#{rport} - Unsupported target version of MySQL detected. Skipping."
 		end
 	end
 
