@@ -28,6 +28,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'References'     =>
 				[
+					[ 'CVE', '2010-0866'],
+					[ 'OSVDB', '62184'],
 					[ 'URL', 'http://blackhat.com/html/bh-dc-10/bh-dc-10-archives.html#Litchfield' ],
 					[ 'URL', 'http://www.notsosecure.com/folder2/2010/02/04/hacking-oracle-11g/' ],
 				],
