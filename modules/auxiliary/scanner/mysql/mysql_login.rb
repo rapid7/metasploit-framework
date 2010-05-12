@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		if mysql_version_check("4.1.11") # Experimenting with a slightly earlier version.
+		if mysql_version_check("4.1.1") # Pushing down to 4.1.1. 
 			each_user_pass { |user, pass|
 				do_login(user, pass)
 			}
