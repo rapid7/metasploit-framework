@@ -51,7 +51,6 @@ class Directory < DirEntry
 		child.sid = @num_entries
 		@num_entries += 1
 
-
 		# link item to siblings and/or parent
 		if (parent._sidChild == DIR_NOSTREAM)
 			parent._sidChild = child.sid
@@ -72,7 +71,9 @@ class Directory < DirEntry
 					break
 				end
 			}
-			raise RuntimeError, 'Unable to find a sibling to link to in the directory'
+			if (not sib)
+				raise RuntimeError, 'Unable to find a sibling to link to in the directory'
+			end
 		end
 		parent << child
 	end

@@ -23,7 +23,7 @@ if (stg = Rex::OLE::Storage.new(document))
 		data = stm.read(stm.length)
 		data ||= ""
 		$stderr.puts "Successfully opened the \"%s\" stream (%u bytes)" % [stream, data.length]
-		$stdout.puts data
+		$stdout.print data
 		stm.close
 	else
 		$stderr.puts "Unable to open stream: #{stream}"
