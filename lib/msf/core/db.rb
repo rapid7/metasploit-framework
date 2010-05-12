@@ -100,6 +100,11 @@ end
 ###
 class DBManager
 
+	def ipv4_validator(addr)
+		return false unless addr.kind_of? String
+		addr =~ /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+	end
+
 	#
 	# Determines if the database is functional
 	#
@@ -191,7 +196,7 @@ class DBManager
 			opts[:mac] = opts.delete(:host_mac)
 		end
 
-		if addr !~ /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+		unless ipv4_validator(addr)
 			raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
 		end
 
@@ -1772,6 +1777,8 @@ class DBManager
 		doc.elements.each('/NessusClientData/Report/ReportHost') do |host|
 			addr = host.elements['HostName'].text
 
+			next unless ipv4_validator(addr) # Skip resolved names and SCAN-ERROR.
+
 			host.elements.each('ReportItem') do |item|
 				nasl = item.elements['pluginID'].text
 				port = item.elements['port'].text
@@ -1794,6 +1801,8 @@ class DBManager
 			rescue
 				addr = host.attribute("name").value
 			end
+
+			next unless ipv4_validator(addr) # Catches SCAN-ERROR, among others.
 
 			os = host.elements["HostProperties/tag[@name='operating-system']"]
 			if os
