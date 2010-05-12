@@ -1722,11 +1722,25 @@ class DBManager
 		data = f.read(f.stat.size)
 		import_nessus_nbe(data, wspace)
 	end
-	def import_nessus_nbe(data, wspace=workspace)
-		data.each_line do |line|
+	def import_nessus_nbe(nbe_data, wspace=workspace)
+		nbe_copy = nbe_data.dup
+		# First pass, just to build the address map. 
+		addr_map = {}
+
+		nbe_copy.each_line do |line|
 			r = line.split('|')
 			next if r[0] != 'results'
-			addr = r[2]
+			next if r[4] != "12053"
+			data = r[6]
+			addr,hname = data.match(/([0-9\x2e]+) resolves as (.+)\x2e\\n/)[1,2]
+			addr_map[hname] = addr
+		end
+
+		nbe_data.each_line do |line|
+			r = line.split('|')
+			next if r[0] != 'results'
+			hname = r[2]
+			addr = addr_map[hname]
 			port = r[3]
 			nasl = r[4]
 			type = r[5]
@@ -1745,6 +1759,17 @@ class DBManager
 			when "Security Note"; severity = 1
 			# a severity 0 means there's no extra data, it's just an open port
 			else; severity = 0
+			end
+			if nasl == "11936"
+				os = data.match(/The remote host is running (.*)\\n/)[1]
+				report_note(
+					:workspace => wspace,
+					:host => addr,
+					:type => 'host.os.nessus_fingerprint',
+					:data => {
+						:os => os.to_s.strip
+					}
+				)
 			end
 			handle_nessus(wspace, addr, port, nasl, severity, data)
 		end
