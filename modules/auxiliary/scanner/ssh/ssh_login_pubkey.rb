@@ -191,6 +191,7 @@ class Metasploit3 < Msf::Auxiliary
 			:ssh_key => self.good_key,
 			:target_host => ip,
 			:target_port => datastore['RPORT'],
+			:extra => datastore['KEY_FILE'],
 			:proof => proof
 		)
 	end
