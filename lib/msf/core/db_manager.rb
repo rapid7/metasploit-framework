@@ -17,7 +17,9 @@ class DBManager
 	include Framework::Offspring
 
 	# Returns true if we are ready to load/store data
-	attr_accessor :active
+	def active
+		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection.active?)
+	end
 
 	# Returns true if the prerequisites have been installed
 	attr_accessor :usable
@@ -38,7 +40,6 @@ class DBManager
 
 		self.framework = framework
 		@usable = false
-		@active = false
 
 		#
 		# Prefer our local copy of active_record and active_support
@@ -171,7 +172,6 @@ class DBManager
 			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 		end
 
-		@active = true
 	end
 
 	#
@@ -214,7 +214,6 @@ class DBManager
 			# Database drivers can reset our KCODE, do not let them
 			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 		end
-		@active = false
 	end
 
 	#
