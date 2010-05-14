@@ -26,12 +26,12 @@ module DBSave
 	def self.included(mod)
 		class << mod
 			def find(*args)
-				ActiveRecord::Base.connection_pool.clear_stale_cached_connections!
+				ActiveRecord::Base.connection_pool.clear_stale_cached_connections! if ActiveRecord::Base.connection_pool
 				super(*args)
 			end
 
 			def save(*args)
-				ActiveRecord::Base.connection_pool.clear_stale_cached_connections!
+				ActiveRecord::Base.connection_pool.clear_stale_cached_connections! if ActiveRecord::Base.connection_pool
 				super(*args)
 			end
 
