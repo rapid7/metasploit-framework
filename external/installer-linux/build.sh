@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION="3.3.3"
+VERSION="3.4.0"
 
 # Grab a fresh copy of Metasploit
 if [ -f "tmp/msf3/msfconsole" ]; then
