@@ -864,6 +864,16 @@ class Db
 		end
 
 		#
+		# Determine if an IP address is inside a given range
+		#
+		def range_include?(ranges, addr)
+			ranges.each do |range|
+				return true if range.include? addr
+			end
+			false
+		end
+
+		#
 		# Generic import that automatically detects the file type
 		#
 		def cmd_db_import(*args)
@@ -1051,16 +1061,6 @@ class Db
 			end
 
 			framework.db.import_amap_mlog_file(args[0])
-		end
-
-		#
-		# Determine if an IP address is inside a given range
-		#
-		def range_include?(ranges, addr)
-			ranges.each do |range|
-				return true if range.include? addr
-			end
-			false
 		end
 
 
