@@ -15,7 +15,7 @@ module Common
 #Writes a given string to a file specified
 def file_local_write2file(file2wrt, data2wrt)
 	if not ::File.exists?(file2wrt)
-		::FileUtils.mkdir_p(file2wrt)
+		::FileUtils.touch(file2wrt)
 	else
 		output = ::File.open(file2wrt, "a")
 		data2wrt.each_line do |d|
