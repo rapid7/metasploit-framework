@@ -69,11 +69,6 @@ def eventlog_clear(evt = "")
 	return evntlog
 end
 
-#lock screen specially useful for when forcing user to enter password. lock, migrate to winlogon.exe and capture keystroke.
-def lock_screen
-	cmd_exec("rundll32.exe user32.dll,LockWorkStation")
-	return true
-end
 
 end
 end
