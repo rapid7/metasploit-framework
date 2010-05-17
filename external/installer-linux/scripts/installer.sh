@@ -20,6 +20,8 @@ confirm(){
 	done
 }
 
+INSTALL_DIR=/opt/metasploit3
+
 cat banner.sh
 
 if [ `id -u -n` != "root" ]; then
@@ -28,8 +30,8 @@ if [ `id -u -n` != "root" ]; then
 	exit 1
 fi
 
-if [ -d "/opt/metasploit3" ]; then
-	echo "Warning: A copy of Metasploit already exists at /opt/metasploit3"
+if [ -d "${INSTALL_DIR}" ]; then
+	echo "Warning: A copy of Metasploit already exists at ${INSTALL_DIR}"
 	echo "         continuing this installation will DELETE the previous  "
 	echo "         install, including all user-modified files."
 	echo ""
@@ -39,31 +41,31 @@ if [ -d "/opt/metasploit3" ]; then
 echo ""
 fi
 
-echo "This installer will place Metasploit into the /opt/metasploit3 directory."
+echo "This installer will place Metasploit into the ${INSTALL_DIR} directory."
 confirm "Continue"
 if [ $? -eq "0" ]; then exit; fi
 
-if [ -d "/opt/metasploit3" ]; then
+if [ -d "${INSTALL_DIR}" ]; then
 	echo "Removing files from the previous installation..."
-	rm -rf /opt/metasploit3
+	rm -rf "${INSTALL_DIR}"
 	find /usr/local/bin -name 'msf*' -type l | xargs rm -f
 	echo ""
 fi
 
-mkdir -p /opt/metasploit3
+mkdir -p "${INSTALL_DIR}"
 echo "Extracting the Metasploit operating environment..."
 tar --directory=/opt -xf metasploit.tar
-cp run.sh env.sh /opt/metasploit3/
-cp msfupdate /opt/metasploit3/app/
+cp run.sh env.sh "${INSTALL_DIR}"/
+cp msfupdate "${INSTALL_DIR}"/app/
 echo ""
 
 echo "Extracting the Metasploit Framework..."
-tar --directory=/opt/metasploit3 -xf msf3.tar
+tar --directory="${INSTALL_DIR}" -xf msf3.tar
 echo ""
 
 echo "Installing links into /usr/local/bin..."
 mkdir -p /usr/local/bin
-ln -sf /opt/metasploit3/bin/msf* /usr/local/bin/
+ln -sf "${INSTALL_DIR}"/bin/msf* /usr/local/bin/
 echo ""
 hash -r
 
@@ -75,7 +77,7 @@ confirm "AutoUpdate?"
 if [ $? -eq "1" ]; then
 	CRON=`mktemp cronXXXXXX`
 	crontab -l 2>/dev/null | grep -v msfupdate > $CRON
-	echo "30 * * * * /opt/metasploit3/bin/msfupdate > /var/log/msfupdate.log 2>&1" >> $CRON
+	echo "30 * * * * \"${INSTALL_DIR}\"/bin/msfupdate > /var/log/msfupdate.log 2>&1" >> $CRON
 	crontab $CRON
 	rm -f $CRON
 	echo ""
@@ -90,7 +92,7 @@ echo "Would you like to update Metasploit right now?"
 confirm "Update?"
 if [ $? -eq "1" ]; then
 	echo ""
-	/opt/metasploit3/bin/msfupdate
+	"${INSTALL_DIR}"/bin/msfupdate
 	echo ""
 fi
 
