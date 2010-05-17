@@ -135,7 +135,7 @@ class Db
 			framework.db.workspaces.map { |s| s.name } if (words & ['-a','--add']).empty?
 		end
 
- 		def cmd_db_hosts(*args)
+		def cmd_db_hosts(*args)
 			onlyup = false
 			host_search = nil
 			col_search = nil
@@ -194,7 +194,7 @@ class Db
 			end
 			print_line
 			print_line tbl.to_s
- 		end
+		end
 
 		def cmd_db_services(*args)
 			onlyup = false
@@ -299,7 +299,7 @@ class Db
 			end
 		end
 
- 		def cmd_db_notes(*args)
+		def cmd_db_notes(*args)
 			hosts = nil
 			types = nil
 			while (arg = args.shift)
@@ -327,7 +327,7 @@ class Db
 				end
 
 			end
- 			framework.db.each_note(framework.db.workspace) do |note|
+			framework.db.each_note(framework.db.workspace) do |note|
 				next if(hosts and (note.host == nil or hosts.index(note.host.address) == nil))
 				next if(types and types.index(note.ntype) == nil)
 				if (note.host and note.service)
@@ -339,8 +339,8 @@ class Db
 				else
 					print_status("Time: #{note.created_at} Note: type=#{note.ntype} data=#{note.data.inspect}")
 				end
- 			end
- 		end
+			end
+		end
 
 		def cmd_db_add_host(*args)
 			print_status("Adding #{args.length} hosts...")
@@ -1155,7 +1155,7 @@ class Db
 			print_error("Warning: The db_create command is deprecated, use db_connect instead.")
 			print_error("         The database schema will be created automatically by db_connect")
 			print_error("         If db_connect fails to create the database, create it manually")
-			print_error("         with your DMBS's administration tools.")
+			print_error("         with your DBMS's administration tools.")
 			print_error("")
 
 			meth = "db_create_#{framework.db.driver}"
