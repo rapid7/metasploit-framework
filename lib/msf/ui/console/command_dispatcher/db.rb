@@ -1202,11 +1202,8 @@ class Db
 				return
 			end
 
-			meth = "db_disconnect_#{framework.db.driver}"
-			if(self.respond_to?(meth))
-				self.send(meth, *args)
-			else
-				print_error("This database driver #{framework.db.driver} is not currently supported")
+			if (framework.db)
+				framework.db.disconnect()
 			end
 		end
 
@@ -1229,15 +1226,6 @@ class Db
 		#
 		# Database management: SQLite3
 		#
-
-		#
-		# Disconnect from the current SQLite3 instance
-		#
-		def db_disconnect_sqlite3(*args)
-			if (framework.db)
-				framework.db.disconnect()
-			end
-		end
 
 		#
 		# Connect to an existing SQLite database
@@ -1321,15 +1309,6 @@ class Db
 		#
 		# Database management: MySQL
 		#
-
-		#
-		# Disconnect from the current MySQL instance
-		#
-		def db_disconnect_mysql(*args)
-			if (framework.db)
-				framework.db.disconnect()
-			end
-		end
 
 		#
 		# Connect to an existing MySQL database
@@ -1485,17 +1464,10 @@ class Db
 			res
 		end
 
+
 		#
 		# Database management: Postgres
 		#
-		#
-		# Disconnect from the current Postgres instance
-		#
-		def db_disconnect_postgresql(*args)
-			if (framework.db)
-				framework.db.disconnect()
-			end
-		end
 
 		#
 		# Connect to an existing Postgres database
