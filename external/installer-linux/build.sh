@@ -39,7 +39,7 @@ if [ -f "${PATH64}" ]; then
     bunzip2 tmp64/metasploit.tar.bz2
     cp -a scripts/*.sh tmp64/
     cp -a scripts/msfupdate tmp64/
-    TMP64=tmp32`date +%s1`
+    TMP64=tmp64`date +%s1`
     mv tmp64 $TMP64
     makeself $TMP64 ${PATH64} "${NAME64}" ./installer.sh 64
     rm -rf $TMP64
