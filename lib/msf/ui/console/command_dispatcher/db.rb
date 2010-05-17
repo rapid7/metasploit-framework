@@ -456,9 +456,21 @@ class Db
 				when '-b'
 					code = :bind
 				when '-I'
-					targ_inc << OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(args.shift)
+					tmpopt = OptAddressRange.new('TEMPRANGE', [ true, '' ])
+					range = args.shift
+					if not tmpopt.valid?(range)
+						print_error("Invalid range for -I")
+						return
+					end
+					targ_inc << Rex::Socket::RangeWalker.new(tmpopt.normalize(range))
 				when '-X'
-					targ_exc << OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(args.shift)
+					tmpopt = OptAddressRange.new('TEMPRANGE', [ true, '' ])
+					range = args.shift
+					if not tmpopt.valid?(range)
+						print_error("Invalid range for -X")
+						return
+					end
+					targ_exc << Rex::Socket::RangeWalker.new(tmpopt.normalize(range))
 				when '-PI'
 					port_inc = Rex::Socket.portspec_to_portlist(args.shift)
 				when '-PX'
@@ -1045,19 +1057,9 @@ class Db
 		# Determine if an IP address is inside a given range
 		#
 		def range_include?(ranges, addr)
-
-			ranges.each do |sets|
-				sets.split(',').each do |set|
-					rng = set.split('-').map{ |c| Rex::Socket::addr_atoi(c) }
-					tst = Rex::Socket::addr_atoi(addr)
-					if (not rng[1])
-						return tst == rng[0]
-					elsif (tst >= rng[0] and tst <= rng[1])
-						return true
-					end
-				end
+			ranges.each do |range|
+				return true if range.include? addr
 			end
-
 			false
 		end
 
