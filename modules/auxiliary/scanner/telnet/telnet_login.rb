@@ -235,6 +235,10 @@ class Metasploit3 < Msf::Auxiliary
 		sess.exploit_datastore['USERNAME']      = user
 		sess.exploit_datastore['PASSWORD']      = pass
 
+		# Prevent the socket from being closed
+		self.sockets.delete(self.sock)
+		self.sock = nil
+
 		framework.sessions.register(sess)
 		sess.process_autoruns(datastore)
 	end
