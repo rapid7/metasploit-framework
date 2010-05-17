@@ -64,7 +64,7 @@ class Db
 				"db_import_nessus_xml"	=> "Import a Nessus scan result file (NESSUS)",
 				"db_import_nmap_xml"    => "Import a Nmap scan results file (-oX)",
 				"db_import_qualys_xml"  => "Import a Qualys scan results file (XML)",
-				"db_import_msfe_xml"  => "Import a Metasploit Express report (XML)",
+				"db_import_msfe_xml"    => "Import a Metasploit Express report (XML)",
 				"db_nmap"               => "Executes nmap and records the output automatically",
 			}
 
@@ -1155,9 +1155,9 @@ class Db
 			return if not db_check_driver
 			print_error("")
 			print_error("Warning: The db_create command is deprecated, use db_connect instead.")
-			print_error("         The database schema will be created automatically by db_connect")
-			print_error("         If db_connect fails to create the database, create it manually")
-			print_error("         with your DBMS's administration tools.")
+			print_error("         The database and schema will be created automatically by")
+			print_error("         db_connect. If db_connect fails to create the database, create")
+			print_error("         it manually with your DBMS's administration tools.")
 			print_error("")
 
 			meth = "db_create_#{framework.db.driver}"
