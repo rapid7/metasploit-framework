@@ -351,7 +351,7 @@ class Db
 		end
 
 		def cmd_db_add_port(*args)
-			if (not args or args.length < 3)
+			if (not args or args.length < 2 or args.length > 4)
 				print_status("Usage: db_add_port <host> <port> [proto] [name]")
 				return
 			end
