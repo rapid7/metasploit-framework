@@ -89,7 +89,7 @@ class DBManager
 	#
 	def initialize_drivers
 		self.drivers = []
-		tdrivers = %W{ sqlite3 mysql postgresql }
+		tdrivers = %W{ postgresql mysql sqlite3 }
 		tdrivers.each do |driver|
 			begin
 				ActiveRecord::Base.default_timezone = :utc
