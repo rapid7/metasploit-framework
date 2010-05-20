@@ -795,7 +795,7 @@ class Db
 						if(framework.jobs.keys.length >= mjob)
 							print_status("Job limit reached, waiting on modules to finish...")
 							while(framework.jobs.keys.length >= mjob)
-								select(nil, nil, nil, 0.25)
+								::IO.select(nil, nil, nil, 0.25)
 							end
 						end
 
@@ -846,7 +846,7 @@ class Db
 				autopwn_jobs.delete_if { |j| not j.alive? }
 
 				print_status("(#{matches.length}/#{matches.length} [#{framework.sessions.length} sessions]): Waiting on #{autopwn_jobs.length} launched modules to finish execution...")
-				select(nil, nil, nil, 5.0)
+				::IO.select(nil, nil, nil, 5.0)
 			end
 
 			if (mode & PWN_SHOW != 0 and mode & PWN_EXPL != 0)

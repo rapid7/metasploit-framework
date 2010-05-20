@@ -16,12 +16,12 @@ module Interactive
 	include Rex::Ui::Subscriber
 
 	#
-	# Starts interacting with the session at the most raw level, simply 
+	# Starts interacting with the session at the most raw level, simply
 	# forwarding input from user_input to rstream and forwarding input from
 	# rstream to user_output.
 	#
 	def interact(user_input, user_output)
-	
+
 		# Detach from any existing console
 		if(self.interacting)
 			detach()
@@ -34,13 +34,13 @@ module Interactive
 
 		eof = false
 
-		# Start the readline stdin monitor 
+		# Start the readline stdin monitor
 		# XXX disabled
 		# user_input.readline_start() if user_input.supports_readline
-		
+
 		# Handle suspend notifications
 		handle_suspend
-		
+
 		# As long as we're interacting...
 		while (self.interacting == true)
 
@@ -52,18 +52,18 @@ module Interactive
 				# abort the interaction.  If they do, then we return out of
 				# the interact function and call it a day.
 				eof = true if (_interrupt)
-		
+
 			rescue EOFError, Errno::ECONNRESET, IOError
 				# If we reach EOF or the connection is reset...
 				eof = true
-				
+
 			end
 
 			break if eof
 		end
 
 		begin
-		
+
 			# Restore the suspend handler
 			restore_suspend
 
@@ -73,10 +73,10 @@ module Interactive
 			# Shutdown the readline thread
  			# XXX disabled
 			# user_input.readline_stop() if user_input.supports_readline
-			
+
 			# Detach from the input/output handles
 			reset_ui()
-					
+
 		ensure
 			# Mark this as completed
 			self.completed = true
@@ -93,7 +93,7 @@ module Interactive
 		if (self.interacting)
 			self.interacting = false
 			while(not self.completed)
-				select(nil, nil, nil, 0.25)	
+				::IO.select(nil, nil, nil, 0.25)
 			end
 		end
 	end
@@ -102,14 +102,14 @@ module Interactive
 	# Whether or not the session is currently being interacted with
 	#
 	attr_accessor   :interacting
-	
+
 	#
 	# Whether or not the session has completed interaction
 	#
 	attr_accessor	:completed
 
 protected
-	
+
 	#
 	# The original suspend proc.
 	#
@@ -156,7 +156,7 @@ protected
 	#
 	def _stream_read_local_write_remote(stream)
 		data = user_input.gets
-		
+
 		stream.put(data)
 	end
 
@@ -180,10 +180,10 @@ protected
 	#
 	def interact_stream(stream)
 		while self.interacting
-		
+
 			# Select input and rstream
 			sd = Rex::ThreadSafe.select([ _local_fd, _remote_fd(stream) ], nil, nil, 0.25)
-			
+
 			# Cycle through the items that have data
 			# From the stream?  Write to user_output.
 			sd[0].each { |s|
@@ -194,7 +194,7 @@ protected
 					_stream_read_local_write_remote(stream)
 				end
 			} if (sd)
-			
+
 			Thread.pass
 		end
 	end
@@ -238,7 +238,7 @@ protected
 			user_input.sysread(2)
 		end
 	end
-	
+
 	#
 	# Check the return value of a yes/no prompt
 	#
@@ -250,3 +250,4 @@ end
 
 end
 end
+

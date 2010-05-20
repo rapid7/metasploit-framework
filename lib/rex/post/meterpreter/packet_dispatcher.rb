@@ -186,7 +186,7 @@ module PacketDispatcher
 			# thread above.
 			while(not @finish)
 				if(@pqueue.empty?)
-					select(nil, nil, nil, 0.10)
+					::IO.select(nil, nil, nil, 0.10)
 					next
 				end
 

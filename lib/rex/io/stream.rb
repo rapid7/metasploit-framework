@@ -73,8 +73,8 @@ module Stream
 	#
 	def has_read_data?(timeout = nil)
 		begin
-			if RUBY_VERSION =~ /^1\.9\./ and RUBY_PLATFORM !~ /cygwin/
-				if ((rv = ::Kernel.select([ fd ], nil, nil, timeout)) and
+			if RUBY_VERSION =~ /^1\.9\./ and RUBY_PLATFORM !~ /cygwin|mingw32/
+				if ((rv = ::IO.select([ fd ], nil, nil, timeout)) and
 				    (rv[0]) and
 				    (rv[0][0] == fd))
 					true

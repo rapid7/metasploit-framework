@@ -38,7 +38,7 @@ class TaskManager
 
 		def wait
 			while self.status == :new
-				select(nil,nil,nil,0.10)
+				::IO.select(nil,nil,nil,0.10)
 			end
 			return self.status
 		end
@@ -168,7 +168,7 @@ class TaskManager
 			spin = (cnt == 0) ? (spin + 1) : 0
 
 			if spin > 10
-				select(nil, nil, nil, 0.25)
+				::IO.select(nil, nil, nil, 0.25)
 			end
 
 		end

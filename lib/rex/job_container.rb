@@ -30,8 +30,8 @@ class Job
 		if (async)
 			self.job_thread = Thread.new {
 				# Deschedule our thread momentarily
-				select(nil, nil, nil, 0.01)
-				
+				::IO.select(nil, nil, nil, 0.01)
+
 				begin
 					run_proc.call(ctx)
 				ensure
@@ -57,7 +57,7 @@ class Job
 			self.job_thread.kill
 			self.job_thread = nil
 		end
-			
+
 		clean_proc.call(ctx) if (clean_proc)
 	end
 
@@ -71,13 +71,13 @@ class Job
 		ret['name'] = self.name
 		if(self.ctx.class == Array)
 			con  = self.ctx[0]
-			
+
 		else
 			con = self.ctx
 		end
 		ret['datastore'] = con.datastore
 		if(con.kind_of? Msf::Exploit::Remote::HttpServer)
-			
+
 			ret['datastore']['URIPATH'] = con.get_resource()
 		end
 		ret
@@ -92,7 +92,7 @@ class Job
 	#
 	attr_reader :jid
 
-	# 
+	#
 	# The time at which this job was started
 	#
 	attr_reader   :start_time #:nodoc:
@@ -200,3 +200,4 @@ protected
 end
 
 end
+

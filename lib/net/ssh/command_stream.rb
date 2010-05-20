@@ -94,7 +94,7 @@ class CommandStream
 	def verify_channel
 		while ! self.channel
 			raise EOFError if ! self.thread.alive?
-			select(nil, nil, nil, 0.10)
+			::IO.select(nil, nil, nil, 0.10)
 		end
 	end
 

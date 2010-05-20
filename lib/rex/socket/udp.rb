@@ -72,7 +72,7 @@ module Rex::Socket::Udp
 	#
 	def timed_read(length = 65535, timeout=def_read_timeout)
 		begin
-			if ((rv = Kernel.select([ fd ], nil, nil, timeout)) and
+			if ((rv = ::IO.select([ fd ], nil, nil, timeout)) and
 			    (rv[0]) and (rv[0][0] == fd)
 			   )
 					return read(length)
@@ -119,7 +119,7 @@ module Rex::Socket::Udp
 	def recvfrom(length = 65535, timeout=def_read_timeout)
 
 		begin
-			if ((rv = Kernel.select([ fd ], nil, nil, timeout)) and
+			if ((rv = ::IO.select([ fd ], nil, nil, timeout)) and
 			    (rv[0]) and (rv[0][0] == fd)
 			   )
 					data, saddr    = recvfrom_nonblock(length)

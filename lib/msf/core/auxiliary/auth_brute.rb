@@ -41,7 +41,7 @@ def each_user_pass(&block)
 	users       = extract_words(datastore['USER_FILE'])
 	passwords   = extract_words(datastore['PASS_FILE'])
 
-	translate_smb_datastores() 
+	translate_smb_datastores()
 
 	if datastore['USERNAME']
 		users.unshift datastore['USERNAME']
@@ -184,7 +184,7 @@ def userpass_sleep_interval
 	when 4; 0.1
 	else; 0
 	end
-	select(nil,nil,nil,sleep_time) unless sleep_time == 0
+	::IO.select(nil,nil,nil,sleep_time) unless sleep_time == 0
 end
 
 def vprint_status(msg='')

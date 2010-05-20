@@ -114,7 +114,7 @@ class CommandShell
 
 		# wait up to 5 seconds for some data to appear
 		elapsed = 0
-		if (not (select([rstream], nil, nil, 5)))
+		if (not (::IO.select([rstream], nil, nil, 5)))
 			return nil
 		end
 
@@ -129,7 +129,7 @@ class CommandShell
 	def shell_read_until_token(token, wanted_idx = 0)
 		# wait up to 5 seconds for some data to appear
 		elapsed = 0
-		if (not (select([rstream], nil, nil, 5)))
+		if (not (::IO.select([rstream], nil, nil, 5)))
 			return nil
 		end
 		if (wanted_idx == 0)

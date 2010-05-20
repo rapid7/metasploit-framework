@@ -370,7 +370,7 @@ protected
 
 			# Poll all the streams...
 			begin
-				socks = select(rfds, nil, nil, 0.25)
+				socks = ::IO.select(rfds, nil, nil, 0.25)
 			rescue StreamClosedError => e
 				dlog("monitor_relays: closing stream #{e.stream}", 'rex', LEV_3)
 

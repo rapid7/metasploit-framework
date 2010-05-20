@@ -19,7 +19,7 @@ module Rex::Socket::Ip
 	# Creates the client using the supplied hash.
 	#
 	def self.create(hash = {})
-		hash['Proto'] = 'ip' 
+		hash['Proto'] = 'ip'
 		self.create_param(Rex::Socket::Parameters.from_hash(hash))
 	end
 
@@ -65,7 +65,7 @@ module Rex::Socket::Ip
 	#
 	def sendto(gram, peerhost, flags = 0)
 		dest = ::Socket.pack_sockaddr_in(0, peerhost)
-		
+
 		# Some BSDs require byteswap for len and offset
 		if(
 			Rex::Compat.is_freebsd or
@@ -82,8 +82,8 @@ module Rex::Socket::Ip
 			send(gram, flags, dest)
 		rescue  ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
 			return nil
-		end		
-		
+		end
+
 	end
 
 	#
@@ -92,7 +92,7 @@ module Rex::Socket::Ip
 	#
 	def recvfrom(length = 65535, timeout=def_read_timeout)
 		begin
-			if ((rv = Kernel.select([ fd ], nil, nil, timeout)) and
+			if ((rv = ::IO.select([ fd ], nil, nil, timeout)) and
 			    (rv[0]) and (rv[0][0] == fd)
 			   )
 					data, saddr    = super(length)
@@ -106,7 +106,7 @@ module Rex::Socket::Ip
 			return [ '', nil ]
 		end
 	end
-	
+
 	#
 	# Calls recvfrom and only returns the data
 	#
@@ -114,16 +114,17 @@ module Rex::Socket::Ip
 		data, saddr = recvfrom(65535, timeout)
 		return data
 	end
-	
+
 	#
 	# The default number of seconds to wait for a read operation to timeout.
 	#
 	def def_read_timeout
 		10
-	end	
+	end
 
 	def type?
 		return 'ip'
 	end
 
 end
+

@@ -96,7 +96,7 @@ EVADE = Rex::Proto::SMB::Evasions
 			while ( (chunk = data.slice!(0, size)).length > 0 )
 				ret = self.socket.put(chunk)
 				if (wait > 0)
-					select(nil, nil, nil, wait)
+					::IO.select(nil, nil, nil, wait)
 				end
 			end
 			return ret
