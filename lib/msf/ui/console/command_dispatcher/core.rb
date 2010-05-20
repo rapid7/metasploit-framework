@@ -1263,7 +1263,9 @@ class Core
 				if ((session = framework.sessions.get(sid)))
 					if (session.interactive?)
 						if (session.type == "shell") # XXX: check for windows?
+							session.init_ui(driver.input, driver.output)
 							session.execute_script('spawn_meterpreter', nil)
+							session.reset_ui
 						else
 							print_error("Session #{sid} is not a command shell session.")
 						end
