@@ -1722,6 +1722,7 @@ class DBManager
 		data = f.read(f.stat.size)
 		import_nessus_nbe(data, wspace)
 	end
+
 	def import_nessus_nbe(nbe_data, wspace=workspace)
 		nbe_copy = nbe_data.dup
 		# First pass, just to build the address map. 
@@ -1740,12 +1741,17 @@ class DBManager
 			r = line.split('|')
 			next if r[0] != 'results'
 			hname = r[2]
-			addr = addr_map[hname]
+			if addr_map[hname]
+				addr = addr_map[hname]
+			else
+				addr = hname # Must be unresolved, probably an IP address.
+			end
 			port = r[3]
 			nasl = r[4]
 			type = r[5]
 			data = r[6]
 
+			# If there's no resolution, or if it's malformed, skip it.
 			next unless ipv4_validator(addr)
 
 			# Match the NBE types with the XML severity ratings
