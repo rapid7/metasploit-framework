@@ -91,6 +91,7 @@ class Driver < Msf::Ui::Driver
 		else
 			init_ui(Rex::Ui::Text::Input::Stdio.new, Rex::Ui::Text::Output::Stdio.new)
 		end
+		init_tab_complete
 
 		# Add the core command dispatcher as the root of the dispatcher
 		# stack

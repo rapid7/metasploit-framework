@@ -37,10 +37,6 @@ module Shell
 	# Initializes a shell that has a prompt and can be interacted with.
 	#
 	def initialize(prompt, prompt_char = '>', histfile = nil)
-		# Don't initialize the UI here since it will clobber any existing tab
-		# completion routines prematurely.  Instead, wait for the user to
-		# interact.  See bug 1180
-
 		# Set the stop flag to false
 		self.stop_flag      = false
 		self.disable_output = false
@@ -53,28 +49,28 @@ module Shell
 		self.histfile = histfile
 	end
 
+	def init_tab_complete
+		if (self.input and self.input.supports_readline)
+			self.input = Input::Readline.new(lambda { |str| tab_complete(str) })
+			if histfile and File.exists?(histfile)
+				File.readlines(histfile).each { |e| 
+					Readline::HISTORY << e.chomp 
+				} 
+			end
+			self.input.output = self.output
+			update_prompt(input.prompt)
+		end
+	end
+
 	#
 	# Initializes the user interface input/output classes.
 	#
 	def init_ui(in_input = nil, in_output = nil)
-
 		# Initialize the input and output methods
 		self.input  = in_input
 		self.output = in_output
 
 		if (self.input)
-			begin
-				if (self.input.supports_readline)
-					self.input = Input::Readline.new(lambda { |str| tab_complete(str) })
-					if histfile and File.exists?(histfile)
-						File.readlines(histfile).each { |e| 
-							Readline::HISTORY << e.chomp 
-						} 
-					end
-				end
-			rescue
-			end
-
 			# Extend the input medium as an input shell if the input medium
 			# isn't intrinsicly a shell.
 			if (self.input.intrinsic_shell? == false)
@@ -83,7 +79,6 @@ module Shell
 
 			self.input.output = self.output
 		end
-
 		update_prompt('')
 	end
 
@@ -126,6 +121,7 @@ module Shell
 				# If the stop flag was set or we've hit EOF, break out
 				break if (self.stop_flag or self.stop_count > 1)
 
+				init_tab_complete
 				line = input.pgets
 				log_output(input.prompt)
 

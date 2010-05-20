@@ -31,11 +31,9 @@ module MeterpreterOptions
 	# advanced option is set to true.
 	#
 	def on_session(session)
-		# Don't initialize the UI here since it will clobber any existing tab
-		# completion routines prematurely.  Instead, wait for the user to
-		# interact.  See bug 1180
-
 		super
+
+		session.init_ui(self.user_input, self.user_output)
 
 		if (datastore['AutoLoadStdapi'] == true)
 			session.load_stdapi
