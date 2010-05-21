@@ -50,18 +50,20 @@ class Metasploit3 < Msf::Auxiliary
 		register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
 	end
 
-
 	def find_auth_uri
+		path_and_scheme = []
 		if datastore['AUTH_URI'] and datastore['AUTH_URI'].length > 0
-			return datastore['AUTH_URI']
+			path_and_scheme << datastore['AUTH_URI']
+			paths = [datastore['AUTH_URI']]
+		else
+			paths = %W{
+				/
+				/admin/
+				/auth/
+				/manager/
+				/Management.asp
+			}
 		end
-		paths = %W{
-			/
-			/admin/
-			/auth/
-			/manager/
-			/Management.asp
-		}
 
 		paths.each do |path|
 			res = send_request_cgi({
@@ -84,12 +86,29 @@ class Metasploit3 < Msf::Auxiliary
 				}, 10)
 				next if not res
 				next if not res.code == 401
-				return path
+				next if not res.headers['WWW-Authenticate']
+				path_and_scheme << path
+				case res.headers['WWW-Authenticate']
+				when /NTLMSSP/i
+					path_and_scheme << nil # "NTLMSSP"
+				when /Basic/i
+					path_and_scheme << "Basic"
+				end
+				return path_and_scheme
 			end
 
 			next if not res.code == 401
-			return path
+			next if not res.headers['WWW-Authenticate']
+			path_and_scheme << path
+			case res.headers['WWW-Authenticate']
+			when /NTLMSSP/i
+				path_and_scheme << nil # "NTLMSSP"
+			when /Basic/i
+				path_and_scheme << "Basic"
+			end
+			return path_and_scheme
 		end
+
 		return nil
 	end
 
@@ -103,7 +122,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		@uri = find_auth_uri
+		@uri = find_auth_uri()[0]
 		if ! @uri
 			print_error("#{target_url} No URI found that asks for HTTP authentication")
 			return
@@ -111,7 +130,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		@uri = "/#{@uri}" if @uri[0,1] != "/"
 
-		print_status("Attempting to login to #{target_url}")
+		@scheme = find_auth_uri()[1]
+		if ! @scheme
+			print_error("#{target_url} Incompatible authentication scheme")
+			return
+		end
+
+		print_status("Attempting to login to #{target_url} with #{@scheme} authentication")
 
 		each_user_pass { |user, pass|
 			do_login(user, pass)
