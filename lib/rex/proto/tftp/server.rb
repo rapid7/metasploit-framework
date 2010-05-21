@@ -131,7 +131,7 @@ protected
 			end
 			eds = [@sock]
 
-			r,w,e = select(rds,wds,eds,1)
+			r,w,e = ::IO.select(rds,wds,eds,1)
 
 			if (r != nil and r[0] == self.sock)
 				buf,host,port = self.sock.recvfrom(65535)
