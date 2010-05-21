@@ -62,9 +62,8 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'     => "/manager/html",
 					'method'  => 'GET'
 				}, 25)
-
-		rescue ::Rex::ConnectionError
-			vprint_error("http://#{rhost}:#{rport}/manager/html Unable to attempt authentication")
+		rescue ::Rex::ConnectionError => e
+			vprint_error("http://#{rhost}:#{rport}/manager/html - #{e}")
 			return
 		end
 
@@ -106,8 +105,8 @@ class Metasploit3 < Msf::Auxiliary
 				success
 			end
 
-		rescue ::Rex::ConnectionError
-			vprint_error("http://#{rhost}:#{rport}/manager/html Unable to attempt authentication")
+		rescue ::Rex::ConnectionError => e
+			vprint_error("http://#{rhost}:#{rport}/manager/html - #{e}")
 			return :abort
 		end
 
