@@ -101,7 +101,10 @@ module Rex::Socket::Udp
 		# Catch unconnected IPv6 sockets talking to IPv4 addresses
 		peer = Rex::Socket.resolv_nbo(peerhost)
 		if (peer.length == 4 and self.ipv == 6)
-			peerhost = '::ffff:' + Rex::Socket.getaddress(peerhost)
+			peerhost = Rex::Socket.getaddress(peerhost)
+			if peerhost[0,7].downcase != '::ffff:'
+				peerhost = '::ffff:' + peerhost
+			end
 		end
 
 		begin

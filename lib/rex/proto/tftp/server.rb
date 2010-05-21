@@ -92,8 +92,7 @@ class Server
 	# Send a single packet to the specified host
 	#
 	def send_packet(from, pkt)
-		# NOTE: I have no idea why self.sock is a normal Socket object, but w/e :)
-		self.sock.send(pkt, 0, ::Socket.pack_sockaddr_in(from[1], from[0]))
+		self.sock.sendto(pkt, from[0], from[1])
 	end
 
 
@@ -237,3 +236,4 @@ end
 end
 end
 end
+
