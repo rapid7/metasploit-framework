@@ -81,8 +81,7 @@ class Server
 			# ignore..
 			return
 		end
-		pkt = "\x00\x05"
-		pkt << [num].pack('n')
+		pkt = [OpError, num].pack('nn')
 		pkt << ERRCODES[num]
 		pkt << "\x00"
 		send_packet(from, pkt)
@@ -164,7 +163,7 @@ protected
 					# No ack waiting, send next block..
 					chunk = tr[:file][:data].slice(tr[:offset], 512)
 					if (chunk and chunk.length >= 0)
-						pkt = [0x03, tr[:block]].pack('nn')
+						pkt = [OpData, tr[:block]].pack('nn')
 						pkt << chunk
 						send_packet(tr[:from], pkt)
 						tr[:last_sent] = Time.now
@@ -189,7 +188,7 @@ protected
 		#start = "[*] TFTP - %s:%u - %s" % [from[0], from[1], OPCODES[op]]
 
 		case op
-		when 0x01
+		when OpRead
 			# Process RRQ packets
 			fn = TFTP::get_string(buf)
 			mode = TFTP::get_string(buf).downcase
@@ -207,10 +206,10 @@ protected
 				}
 			else
 				#puts "[-] file not found!"
-				send_error(from, 1)
+				send_error(from, ErrFileNotFound)
 			end
 
-		when 0x04
+		when OpAck
 			# Process ACK packets
 			block = buf.unpack('n')[0]
 			#puts "%s %d" % [start, block]
@@ -228,7 +227,7 @@ protected
 		else
 			# Other packets are unsupported
 			#puts start
-			send_error(from, 2)
+			send_error(from, ErrAccessViolation)
 
 		end
 	end

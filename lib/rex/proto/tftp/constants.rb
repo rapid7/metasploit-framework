@@ -6,6 +6,13 @@ module Proto
 module TFTP
 
 OPCODES = %w{ Unknown RRQ WRQ DATA ACK ERROR }
+OpRead = 1
+OpWrite = 2
+OpData = 3
+OpAck = 4
+OpError = 5
+
+
 ERRCODES = [
 	"Undefined",
 	"File not found",
