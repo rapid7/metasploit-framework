@@ -9,9 +9,7 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -26,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Tomcat Application Manager Login Utility',
 			'Version'        => '$Revision$',
 			'Description'    => 'This module simply attempts to login to a Tomcat Application Manager instance using a specific user/pass.',
-			'References'  =>
+			'References'     =>
 				[
 					# HP Default user/pass
 					[ 'OSVDB', '60317' ],
@@ -54,15 +52,21 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
 					'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 			], self.class)
+
 		register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
 	end
 
 	def run_host(ip)
+		begin
+			res = send_request_cgi({
+					'uri'     => "/manager/html",
+					'method'  => 'GET'
+				}, 25)
 
-		res = send_request_cgi({
-			'uri'     => "/manager/html",
-			'method'  => 'GET'
-		}, 25)
+		rescue ::Rex::ConnectionError
+			vprint_error("http://#{rhost}:#{rport}/manager/html Unable to attempt authentication")
+			return
+		end
 
 		return if not res
 		return if not res.code == 401
@@ -91,7 +95,7 @@ class Metasploit3 < Msf::Auxiliary
 			unless (res.kind_of? Rex::Proto::Http::Response)
 				vprint_error("http://#{rhost}:#{rport}/manager/html not responding")
 				return :abort
-		  end
+			end
 			return :abort if (res.code == 404)
 			srvhdr = res.headers['Server']
 			if res.code == 200
@@ -125,4 +129,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-
