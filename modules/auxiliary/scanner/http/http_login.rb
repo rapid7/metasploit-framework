@@ -11,6 +11,7 @@
 
 
 require 'msf/core'
+require 'net/ntlm'
 
 
 class Metasploit3 < Msf::Auxiliary
@@ -50,10 +51,9 @@ class Metasploit3 < Msf::Auxiliary
 		register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
 	end
 
-	def find_auth_uri
+	def find_auth_uri_and_scheme
 		path_and_scheme = []
 		if datastore['AUTH_URI'] and datastore['AUTH_URI'].length > 0
-			path_and_scheme << datastore['AUTH_URI']
 			paths = [datastore['AUTH_URI']]
 		else
 			paths = %W{
@@ -69,9 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'uri'     => path,
 				'method'  => 'GET',
-				'headers' => {
-					'User-Agent' => datastore['UserAgent']
-				}
+				'headers' => { }
 			}, 10)
 
 			next if not res
@@ -89,10 +87,10 @@ class Metasploit3 < Msf::Auxiliary
 				next if not res.headers['WWW-Authenticate']
 				path_and_scheme << path
 				case res.headers['WWW-Authenticate']
-				when /NTLMSSP/i
-					path_and_scheme << nil # "NTLMSSP"
 				when /Basic/i
 					path_and_scheme << "Basic"
+				when /NTLM/i
+					path_and_scheme << "NTLM"
 				end
 				return path_and_scheme
 			end
@@ -101,15 +99,15 @@ class Metasploit3 < Msf::Auxiliary
 			next if not res.headers['WWW-Authenticate']
 			path_and_scheme << path
 			case res.headers['WWW-Authenticate']
-			when /NTLMSSP/i
-				path_and_scheme << nil # "NTLMSSP"
 			when /Basic/i
 				path_and_scheme << "Basic"
+			when /NTLM/i
+				path_and_scheme << "NTLM"
 			end
 			return path_and_scheme
 		end
 
-		return nil
+		return path_and_scheme
 	end
 
 	def target_url
@@ -122,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		@uri = find_auth_uri()[0]
+		@uri = find_auth_uri_and_scheme()[0]
 		if ! @uri
 			print_error("#{target_url} No URI found that asks for HTTP authentication")
 			return
@@ -130,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		@uri = "/#{@uri}" if @uri[0,1] != "/"
 
-		@scheme = find_auth_uri()[1]
+		@scheme = find_auth_uri_and_scheme()[1]
 		if ! @scheme
 			print_error("#{target_url} Incompatible authentication scheme")
 			return
@@ -149,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
 		success = false
 		proof   = ""
 
-		ret  = do_http_login(user,pass)
+		ret  = do_http_login(user,pass,@scheme)
 		return :abort if ret == :abort
 		if ret == :success
 			proof   = @proof.dup
@@ -162,8 +160,8 @@ class Metasploit3 < Msf::Auxiliary
 			any_user = false
 			any_pass = false
 
-			any_user  = do_http_login(Rex::Text.rand_text_alpha(8), pass)
-			any_pass  = do_http_login(user, Rex::Text.rand_text_alpha(8))
+			any_user  = do_http_login(Rex::Text.rand_text_alpha(8), pass, @scheme)
+			any_pass  = do_http_login(user, Rex::Text.rand_text_alpha(8), @scheme)
 
 			if any_user == :success
 				user = "anyuser"
@@ -194,7 +192,42 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def do_http_login(user,pass)
+	def do_http_login(user,pass,scheme)
+		case scheme
+		when /Basic/i
+			do_http_auth_basic(user,pass)
+		when /NTLM/i
+			do_http_auth_ntlm(user,pass)
+		else
+			vprint_error("#{target_url}: Unknown authentication scheme")
+			return :abort
+		end
+	end
+
+	def do_http_auth_ntlm(user,pass)
+		begin
+			resp,c = send_http_auth_ntlm(
+				'uri' => @uri,
+				'username' => user,
+				'password' => pass
+			)
+			c.close
+			return :abort if (resp.code == 404)
+
+			if resp.code == 200
+				@proof   = resp
+				return :success
+			end
+
+		rescue ::Rex::ConnectionError
+			vprint_error("#{target_url} - Failed to connect to the web server")
+			return :abort
+		end
+
+		return :fail
+	end
+
+	def do_http_auth_basic(user,pass)
 		user_pass = Rex::Text.encode_base64(user + ":" + pass)
 
 		begin

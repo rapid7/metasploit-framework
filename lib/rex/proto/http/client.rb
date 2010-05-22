@@ -302,8 +302,11 @@ class Client
 
 	#
 	# Transmit a HTTP request and receive the response
+	# If persist is set, then the request will attempt
+	# to reuse an existing connection.
 	#
-	def send_recv(req, t = -1)
+	def send_recv(req, t = -1, persist=false)
+		@pipeline = persist
 		send_request(req)
 		read_response(t)
 	end
