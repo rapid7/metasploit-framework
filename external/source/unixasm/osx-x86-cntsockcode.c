@@ -1,6 +1,4 @@
 /*
- *  $Id: osx-x86-cntsockcode.c 40 2008-11-17 02:45:30Z ramon $
- *
  *  osx-x86-cntsockcode.c
  *  Copyright 2006 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *

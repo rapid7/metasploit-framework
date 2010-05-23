@@ -1,6 +1,4 @@
 /*
- *  $Id: lin-x86-shellcode.c 40 2008-11-17 02:45:30Z ramon $
- *
  *  lin-x86-shellcode.c
  *  Copyright 2004 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *

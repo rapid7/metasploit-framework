@@ -1,7 +1,5 @@
 /*
- *  $Id: lin-power-bndsockcode.S 40 2008-11-17 02:45:30Z ramon $
- *
- *  lin-power-bndsockcode.S - Linux Power/CBEA Network server code
+ *  lin-power-bndsockcode.S
  *  Copyright 2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *
  *  This library is free software; you can redistribute it and/or
@@ -17,12 +15,6 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
- */
-
-/*
- * Compile with the following command.
- * $ gcc -Wall -o lin-power-bndsockcode lin-power-bndsockcode.S
  *
  */
 

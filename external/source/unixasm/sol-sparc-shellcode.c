@@ -1,6 +1,4 @@
 /*
- *  $Id: sol-sparc-shellcode.c 40 2008-11-17 02:45:30Z ramon $
- *
  *  sol-sparc-shellcode.c
  *  Copyright 2006 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *

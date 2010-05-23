@@ -1,6 +1,4 @@
 /*
- *  $Id: linux-power.h 40 2008-11-17 02:45:30Z ramon $
- *
  *  linux-power.h
  *  Copyright 2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *
@@ -56,3 +54,4 @@
 #define __NC_getpeername -(__CAL - __SC_getpeername)
 
 #endif
+

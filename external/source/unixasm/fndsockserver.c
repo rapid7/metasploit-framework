@@ -1,7 +1,5 @@
 /*
- *  $Id: fndsockserver.c 40 2008-11-17 02:45:30Z ramon $
- *
- *  fndsockserver.c - Sample fndsockcode server for testing purposes
+ *  fndsockserver.c
  *  Copyright 2006 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -36,134 +34,134 @@
 int
 hexdump(char *buf, int len)
 {
-    int i, j;
+	int i, j;
 
-    for (i=0; i<len; i++) {
-        for (j=0; j<16; j++) {
-            if (i+j >= len)
-                printf("%3s","");
-            else
-                printf("%02x ", (unsigned char)buf[i+j]);
-        }
+	for (i=0; i<len; i++) {
+		for (j=0; j<16; j++) {
+			if (i+j >= len)
+				printf("%3s","");
+			else
+				printf("%02x ", (unsigned char)buf[i+j]);
+		}
 
-        printf("%3s","");
+		printf("%3s","");
 
-        for (j=0; j<16; j++) {
-            if (i+j >= len)
-                printf("%1s","");
-            else
-                if (buf[i+j]>'\x1f' && buf[i+j]<'\x7f')
-                    printf("%c", buf[i+j]);
-                else
-                    printf(".");
-        }
+		for (j=0; j<16; j++) {
+			if (i+j >= len)
+				printf("%1s","");
+			else
+				if (buf[i+j]>'\x1f' && buf[i+j]<'\x7f')
+					printf("%c", buf[i+j]);
+				else
+					printf(".");
+		}
 
-        i += 15;
+		i += 15;
 
-        printf("\n");
-    }
+		printf("\n");
+	}
 
-    return 0;
+	return 0;
 }
 
 int
 main(int argc, char **argv)
 {
-    char *addr = "0.0.0.0";
-    int port = 1234;
-    int c, s;
-    int debug = 0, verbose = 0;
-    struct sockaddr_in sin;
-    struct hostent *he;
+	char *addr = "0.0.0.0";
+	int port = 1234;
+	int c, s;
+	int debug = 0, verbose = 0;
+	struct sockaddr_in sin;
+	struct hostent *he;
 
-    while ((c = getopt(argc, argv, "a:dp:v")) != -1) {
-        switch (c) {
-        case 'a':
-            addr = optarg;
-            break;
-        case 'd':
-            debug = 1;
-            break;
-        case 'p':
-            port = atoi(optarg);
-            break;
-        case 'v':
-            verbose = 1;
-        }
-    }
+	while ((c = getopt(argc, argv, "a:dp:v")) != -1) {
+		switch (c) {
+		case 'a':
+			addr = optarg;
+			break;
+		case 'd':
+			debug = 1;
+			break;
+		case 'p':
+			port = atoi(optarg);
+			break;
+		case 'v':
+			verbose = 1;
+		}
+	}
 
-    if ((s = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        perror("socket");
-        exit(EXIT_FAILURE);
-    }
+	if ((s = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+		perror("socket");
+		exit(EXIT_FAILURE);
+	}
 
-    memset(&sin, 0, sizeof(sin));
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(port);
-    if ((sin.sin_addr.s_addr = inet_addr(addr)) == -1) {
-        if ((he = gethostbyname(addr)) == NULL) {
-            errno = EADDRNOTAVAIL;
-            perror("gethostbyname");
-            exit(EXIT_FAILURE);
-        }
-        memcpy(&sin.sin_addr.s_addr, he->h_addr, 4);
-    }
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family = AF_INET;
+	sin.sin_port = htons(port);
+	if ((sin.sin_addr.s_addr = inet_addr(addr)) == -1) {
+		if ((he = gethostbyname(addr)) == NULL) {
+			errno = EADDRNOTAVAIL;
+			perror("gethostbyname");
+			exit(EXIT_FAILURE);
+		}
+		memcpy(&sin.sin_addr.s_addr, he->h_addr, 4);
+	}
 
-    if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) == -1) {
-        perror("bind");
-        exit(EXIT_FAILURE);
-    }
+	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) == -1) {
+		perror("bind");
+		exit(EXIT_FAILURE);
+	}
 
-    if (listen(s, BACKLOG) == -1) {
-        perror("listen");
-        exit(EXIT_FAILURE);
-    }
+	if (listen(s, BACKLOG) == -1) {
+		perror("listen");
+		exit(EXIT_FAILURE);
+	}
 
-    if (debug || verbose)
-        printf("listening on %s:%d\n", addr, port);
+	if (debug || verbose)
+		printf("listening on %s:%d\n", addr, port);
 
-    while (1) {
-        int tmp;
-        struct sockaddr_in sin;
-        socklen_t sin_len = sizeof(sin);
+	while (1) {
+		int tmp;
+		struct sockaddr_in sin;
+		socklen_t sin_len = sizeof(sin);
 
-        if((tmp = accept(s, (struct sockaddr *)&sin, &sin_len)) == -1) {
-            perror("accept");
-            exit(EXIT_FAILURE);
-        }
+		if((tmp = accept(s, (struct sockaddr *)&sin, &sin_len)) == -1) {
+			perror("accept");
+			exit(EXIT_FAILURE);
+		}
 
-        if (debug || verbose)
-            printf("accepted connection from %s:%d\n", inet_ntoa(sin.sin_addr),
-            ntohs(sin.sin_port));
+		if (debug || verbose)
+			printf("accepted connection from %s:%d\n", inet_ntoa(sin.sin_addr),
+			ntohs(sin.sin_port));
 
-        if (!fork()) {
-            int count;
-            char buf[1024];
+		if (!fork()) {
+			int count;
+			char buf[1024];
 
-            count = recv(tmp, buf, sizeof(buf), 0);
+			count = recv(tmp, buf, sizeof(buf), 0);
 
-            if (debug)
-                hexdump(buf, count);
+			if (debug)
+				hexdump(buf, count);
 
-            if (debug || verbose)
-                printf("%d bytes received\n", count);
+			if (debug || verbose)
+				printf("%d bytes received\n", count);
 
-            sleep(2);
+			sleep(2);
 
-#if (defined(POWER) || defined(POWERPC)) && defined(M64)
-            {
-                /* fake function descriptor */
-                unsigned long fdesc[2] = {(unsigned long)buf, 0};
-                (*(void (*)())fdesc)();
-            }
+#if defined(_AIX) || (defined(__linux__) && defined(__powerpc64__))
+			{
+				/* fake function descriptor */
+				unsigned long fdesc[2] = {(unsigned long)buf, 0};
+				(*(void (*)())fdesc)();
+			}
 #else
-            (*(void (*)())buf)();
+			(*(void (*)())buf)();
 #endif
 
-            exit(EXIT_SUCCESS);
-        }
-    }
+			exit(EXIT_SUCCESS);
+		}
+	}
 
-    exit(EXIT_SUCCESS);
+	exit(EXIT_SUCCESS);
 }
 

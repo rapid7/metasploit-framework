@@ -1,6 +1,4 @@
 /*
- *  $Id: lin-x86-fndsockcode.c 40 2008-11-17 02:45:30Z ramon $
- *
  *  lin-x86-fndsockcode.c
  *  Copyright 2006 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *

@@ -1,6 +1,4 @@
 /*
- *  $Id: aix-power.h 40 2008-11-17 02:45:30Z ramon $
- *
  *  aix-power.h
  *  Copyright 2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *
@@ -23,66 +21,78 @@
 #ifndef AIX_POWER_H
 #define AIX_POWER_H
 
-#define __CAL 511
+#define __CAL 2047
 
-#ifdef V410
-#define __NR_execve      3
-#define __NR_getpeername 67
-#define __NR_accept      83
-#define __NR_listen      85
-#define __NR_bind        86
-#define __NR_socket      87
-#define __NR_connect     88
-#define __NR_close       94
-#define __NR_kfcntl      214
+#if defined(AIX614)
+#define __NR_execve      = 7
+#define __NR_getpeername = 211
+#define __NR_accept      = 237
+#define __NR_listen      = 240
+#define __NR_bind        = 242
+#define __NR_socket      = 243
+#define __NR_connect     = 244
+#define __NR_close       = 278
+#define __NR_kfcntl      = 658
 #endif
 
-#ifdef V420
-#define __NR_execve      2
-#define __NR_getpeername 72
-#define __NR_accept      88
-#define __NR_listen      89
-#define __NR_bind        90
-#define __NR_socket      91
-#define __NR_connect     92
-#define __NR_close       98
-#define __NR_kfcntl      231
+#if defined(AIX613)
+#define __NR_execve      = 7
+#define __NR_getpeername = 205
+#define __NR_accept      = 232
+#define __NR_listen      = 235
+#define __NR_bind        = 237
+#define __NR_socket      = 238
+#define __NR_connect     = 239
+#define __NR_close       = 272
+#define __NR_kfcntl      = 644
 #endif
 
-#ifdef V430
-#define __NR_execve      4
-#define __NR_getpeername 85
-#define __NR_accept      101
-#define __NR_listen      103
-#define __NR_bind        104
-#define __NR_socket      105
-#define __NR_connect     106
-#define __NR_close       113
-#define __NR_kfcntl      252
+#if defined(AIX612)
+#define __NR_execve      = 7
+#define __NR_getpeername = 205
+#define __NR_accept      = 232
+#define __NR_listen      = 235
+#define __NR_bind        = 237
+#define __NR_socket      = 238
+#define __NR_connect     = 239
+#define __NR_close       = 272
+#define __NR_kfcntl      = 635
 #endif
 
-#ifdef V433
-#define __NR_execve      3
-#define __NR_getpeername 101
-#define __NR_accept      117
-#define __NR_listen      118
-#define __NR_bind        119
-#define __NR_socket      120
-#define __NR_connect     121
-#define __NR_close       130
-#define __NR_kfcntl      271
+#if defined(AIX611)
+#define __NR_execve      = 7
+#define __NR_getpeername = 202
+#define __NR_accept      = 229
+#define __NR_listen      = 232
+#define __NR_bind        = 234
+#define __NR_socket      = 235
+#define __NR_connect     = 236
+#define __NR_close       = 269
+#define __NR_kfcntl      = 614
 #endif
 
-#ifdef V530
-#define __NR_execve      5
-#define __NR_getpeername 122
-#define __NR_accept      138
-#define __NR_listen      139
-#define __NR_bind        140
-#define __NR_socket      141
-#define __NR_connect     142
-#define __NR_close       160
-#define __NR_kfcntl      322
+#if defined(AIX610)
+#define __NR_execve      = 6
+#define __NR_getpeername = 203
+#define __NR_accept      = 229
+#define __NR_listen      = 232
+#define __NR_bind        = 234
+#define __NR_socket      = 235
+#define __NR_connect     = 236
+#define __NR_close       = 269
+#define __NR_kfcntl      = 617
+#endif
+
+#if defined(AIX5310) || defined(AIX539) || defined(AIX538) || defined(AIX537)
+#define __NR_execve      = 6
+#define __NR_getpeername = 198
+#define __NR_accept      = 214
+#define __NR_listen      = 215
+#define __NR_bind        = 216
+#define __NR_socket      = 217
+#define __NR_connect     = 218
+#define __NR_close       = 245
+#define __NR_kfcntl      = 493
 #endif
 
 #define __NC_execve      -(__CAL - __NR_execve)
@@ -96,3 +106,4 @@
 #define __NC_kfcntl      -(__CAL - __NR_kfcntl)
 
 #endif
+

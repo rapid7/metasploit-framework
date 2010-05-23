@@ -1,6 +1,4 @@
 /*
- *  $Id: sol-x86-shellcode.s 40 2008-11-17 02:45:30Z ramon $
- *
  *  sol-x86-shellcode.s
  *  Copyright 2004 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *

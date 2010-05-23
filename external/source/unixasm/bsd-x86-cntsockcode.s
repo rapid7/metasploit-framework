@@ -1,6 +1,4 @@
 /*
- *  $Id: bsd-x86-cntsockcode.s 40 2008-11-17 02:45:30Z ramon $
- *
  *  bsd-x86-cntsockcode.s
  *  Copyright 2004 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *

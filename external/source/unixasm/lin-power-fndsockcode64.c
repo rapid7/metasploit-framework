@@ -1,7 +1,5 @@
 /*
- *  $Id: lin-power-fndsockcode64.c 40 2008-11-17 02:45:30Z ramon $
- *
- *  lin-power-fndsockcode64.c - Linux Power/CBEA Find socket code
+ *  lin-power-fndsockcode64.c
  *  Copyright 2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *
  *  This library is free software; you can redistribute it and/or

