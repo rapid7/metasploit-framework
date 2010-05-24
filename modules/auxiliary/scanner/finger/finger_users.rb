@@ -156,6 +156,13 @@ class Metasploit3 < Msf::Auxiliary
 				@users[$1] ||= {}
 				next
 			end
+
+			# Debian GNU/Linux
+			if(line =~ /^\s*Username:\s*([^\s]+)\s+/i)
+				@users[$1] ||= {}
+				next
+			end
+
 		end
 	end
 end
