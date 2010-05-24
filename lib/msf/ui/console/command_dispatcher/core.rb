@@ -141,6 +141,9 @@ class Core
 		driver.update_prompt
 	end
 
+	def cmd_resource_tabs(str, words)
+		tab_complete_filenames(str, words)
+	end
 	def cmd_resource(*args)
 		if args.empty?
 			print(

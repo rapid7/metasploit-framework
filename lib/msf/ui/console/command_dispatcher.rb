@@ -100,6 +100,23 @@ module CommandDispatcher
 	end
 		
 	#
+	# Provide a generic tab completion for file names.
+	#
+	# This currently works with the system readline (i.e. when msfconsole was
+	# invoked with -i) for everything but doesn't do more than files the
+	# current directory in the bundled rbreadline.  In rbreadline anything with
+	# a / will fail to complete.
+	#
+	def tab_complete_filenames(str, words)
+		matches = ::Readline::FILENAME_COMPLETION_PROC.call(str)
+		if matches and matches.length == 1 and File.directory?(matches[0])
+			dir = (matches[0] + File::SEPARATOR)
+			matches = ::Readline::FILENAME_COMPLETION_PROC.call(dir) 
+		end
+		matches
+	end
+
+	#
 	# The driver that this command dispatcher is associated with.
 	#
 	attr_accessor :driver
