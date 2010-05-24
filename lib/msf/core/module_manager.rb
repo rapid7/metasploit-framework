@@ -932,8 +932,7 @@ protected
 					return false
 				end 
 			end
-			
-			errmsg = "#{file}: #{e.class} #{e}"
+			errmsg = "#{e.class} #{e}"
 			self.module_failed[file] = errmsg
 			elog(errmsg)
 			return false

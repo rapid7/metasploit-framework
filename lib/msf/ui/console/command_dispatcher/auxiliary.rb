@@ -71,7 +71,7 @@ class Auxiliary
 			omod = self.mod
 			self.mod = framework.modules.reload_module(mod)
 			if(not self.mod)
-				print_status("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
+				print_error("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
 				self.mod = omod
 			end
 		rescue
@@ -87,7 +87,7 @@ class Auxiliary
 			omod = self.mod
 			self.mod = framework.modules.reload_module(mod)
 			if(not self.mod)
-				print_status("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
+				print_error("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
 				self.mod = omod
 				return
 			end
