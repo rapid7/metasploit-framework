@@ -67,8 +67,14 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		return if not res
-		return if not res.code == 401
+		if not res
+			vprint_error("http://#{rhost}:#{rport}/manager/html - No response")
+			return
+		end
+		if res.code != 401
+			vprint_error("http://#{rhost}:#{rport}/manager/html - Authorization not requested")
+			return
+		end
 
 		each_user_pass { |user, pass|
 			do_login(user, pass)
