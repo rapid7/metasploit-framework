@@ -29,6 +29,11 @@ if (RUBY_VERSION =~ /^1\.9\.0/)
 end
 
 if(RUBY_VERSION =~ /^1\.9\./)
+	# Load rubygems before changing default_internal, otherwise we may get
+	# Encoding::UndefinedConversionError as the gemspec files are loaded
+	require 'rubygems'
+	Gem::Version # trigger Rubygems to fully load
+
 	# Force binary encoding for Ruby versions that support it
 	if(Object.const_defined?('Encoding') and Encoding.respond_to?('default_external='))
 		Encoding.default_external = Encoding.default_internal = "binary"
