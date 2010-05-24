@@ -873,6 +873,10 @@ class Db
 			false
 		end
 
+		def cmd_db_import_tabs(str, words)
+			tab_complete_filenames(str, words)
+		end
+
 		#
 		# Generic import that automatically detects the file type
 		#
