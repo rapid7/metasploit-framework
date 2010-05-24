@@ -159,7 +159,7 @@ module Msf::Payload::Aix
 			syscalls = versions[@aix]
 		end
 
-		__CAL = 511
+		__CAL = 2047
 		__NC_execve      = -(__CAL - syscalls[:__NR_execve])
 		__NC_getpeername = -(__CAL - syscalls[:__NR_getpeername])
 		__NC_accept      = -(__CAL - syscalls[:__NR_accept])
