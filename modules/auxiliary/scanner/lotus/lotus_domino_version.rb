@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -8,7 +12,7 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-	
+
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -22,13 +26,13 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE
 			)
 		register_options(
-						[
-							OptString.new('PATH', [ true,  "path", '/']), 
-						] )
+			[
+				OptString.new('PATH', [ true,  "path", '/']),
+			])
 	end
 
 	def run_host(ip)
-		
+
 		path = datastore['PATH']
 		check1 = [
 			'iNotes/Forms5.nsf',
@@ -41,12 +45,12 @@ class Metasploit3 < Msf::Auxiliary
 			'download/filesets/l_SEARCH.inf',
 			'download/filesets/n_SEARCH.inf',
 			]
-		
+
 		begin
 			check1.each do | check |
 
 				res = send_request_raw({
-					'uri'          =>  path+check,					
+					'uri'          =>  path+check,
 					'method'       => 'GET',
 					}, 10)
 
@@ -64,16 +68,16 @@ class Metasploit3 < Msf::Auxiliary
 							:type => 'lotusdomino.version.current',
 							:data => server1.strip
 								)
-					else 
+					else
 						''
-					end 
-				elsif 
+					end
+				elsif
 					if (res.code and res.headers['Location'])
 						print_error("#{ip}:#{rport} #{res.code} Redirect to #{res.headers['Location']}")
 					else
-						''	
-					end		
-				else				
+						''
+					end
+				else
 					''
 				end
 			end
@@ -81,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
 			check2.each do | check |
 
 				res = send_request_raw({
-					'uri'          =>  path+check,					
+					'uri'          =>  path+check,
 					'method'       => 'GET',
 					}, 10)
 
@@ -99,16 +103,16 @@ class Metasploit3 < Msf::Auxiliary
 							:type => 'lotusdomino.version.base',
 							:data => server2.strip
 								)
-					else 
+					else
 						''
 					end
-				elsif 
+				elsif
 					if (res.code and res.headers['Location'])
 						print_error("#{ip}:#{rport} #{res.code} Redirect to #{res.headers['Location']}")
 					else
 						''
-					end		
-				else				
+					end
+				else
 					''
 				end
 			end
