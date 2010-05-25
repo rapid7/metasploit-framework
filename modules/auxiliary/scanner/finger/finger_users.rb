@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 		if(@users.empty?)
 			print_status("#{ip}:#{rport} No users found.")
 		else
-			print_status("#{ip}:#{rport} Users found: #{@users.keys.sort.join(", ")}") 
+			print_good("#{ip}:#{rport} Users found: #{@users.keys.sort.join(", ")}") 
 			report_note(
 				:host => rhost,
 				:port => rport,
