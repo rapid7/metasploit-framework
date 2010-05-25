@@ -17,7 +17,6 @@ $:.unshift(File.join(File.expand_path(File.dirname(msfbase)), 'lib'))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex'
-require 'msf/ui'
 require 'optparse'
 
 if(RUBY_PLATFORM =~ /mswin32/)
@@ -88,6 +87,22 @@ class OptsConsole
 end
 
 options = OptsConsole.parse(ARGV)
+
+
+#
+# NOTE: we don't require this until down here since we may not need it
+# when processing certain options (currently only -h)
+#
+require 'msf/ui'
+#
+# Everything below this line requires the framework.
+#
+
+
+#
+# XXX: It would be nice to not have to load the entire framework just to get 
+# the version number.
+#
 if (options['Version'])
 	$stderr.puts 'Framework Version: ' + Msf::Framework::Version
 	exit
