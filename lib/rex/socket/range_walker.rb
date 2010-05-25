@@ -66,6 +66,16 @@ class RangeWalker
 				# unmolested to force a DNS lookup.
 				addr = Rex::Socket.addr_atoi(arg)
 				ranges.push [addr, addr]
+			elsif arg =~ /^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)-([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)$/
+				# Then it's in the format of 1.2.3.4-5.6.7.8
+				# Note, this will /not/ deal with DNS names, or the fancy/obscure 10...1-10...2
+				begin 
+					addrs = [Rex::Socket.addr_atoi($1), Rex::Socket.addr_atoi($2)]
+					return false if addrs[0] > addrs[1] # The end is greater than the beginning.
+					ranges.push [addrs[0], addrs[1]]
+				rescue Resolv::ResolvError # Something's broken, forget it.
+					return false
+				end
 			else
 				expanded = expand_nmap(arg)
 				if expanded
