@@ -68,10 +68,19 @@ class Db
 				"db_nmap"               => "Executes nmap and records the output automatically",
 			}
 
-			framework.db.active ? base.merge(more) : base
+			base.merge(more)
+		end
+
+		def active?
+			if not framework.db.active
+				print_error("Database not connected")
+				return false
+			end
+			true
 		end
 
 		def cmd_db_workspace(*args)
+			return unless active?
 			while (arg = args.shift)
 				case arg
 				when '-h','--help'
@@ -136,6 +145,7 @@ class Db
 		end
 
 		def cmd_db_hosts(*args)
+			return unless active?
 			onlyup = false
 			host_search = nil
 			col_search = nil
@@ -197,6 +207,7 @@ class Db
 		end
 
 		def cmd_db_services(*args)
+			return unless active?
 			onlyup = false
 			host_search = nil
 			port_search = nil
@@ -289,6 +300,7 @@ class Db
 
 
 		def cmd_db_vulns(*args)
+			return unless active?
 			framework.db.each_vuln(framework.db.workspace) do |vuln|
 				reflist = vuln.refs.map { |r| r.name }
 				if(vuln.service)
@@ -300,6 +312,7 @@ class Db
 		end
 
 		def cmd_db_notes(*args)
+			return unless active?
 			hosts = nil
 			types = nil
 			while (arg = args.shift)
@@ -343,6 +356,7 @@ class Db
 		end
 
 		def cmd_db_add_host(*args)
+			return unless active?
 			print_status("Adding #{args.length} hosts...")
 			args.each do |address|
 				host = framework.db.find_or_create_host(:host => address)
@@ -351,6 +365,7 @@ class Db
 		end
 
 		def cmd_db_add_port(*args)
+			return unless active?
 			if (not args or args.length < 2 or args.length > 4)
 				print_status("Usage: db_add_port <host> <port> [proto] [name]")
 				return
@@ -372,6 +387,7 @@ class Db
 		end
 
 		def cmd_db_del_port(*args)
+			return unless active?
 			if (not args or args.length < 3)
 				print_status("Usage: db_del_port [host] [port] [proto]")
 				return
@@ -383,6 +399,7 @@ class Db
 		end
 
 		def cmd_db_add_note(*args)
+			return unless active?
 			if (not args or args.length < 3)
 				print_status("Usage: db_add_note [host] [type] [note]")
 				return
@@ -403,6 +420,7 @@ class Db
 
 
 		def cmd_db_del_host(*args)
+			return unless active?
 			args.each do |address|
 				if framework.db.del_host(framework.db.workspace, address)
 					print_status("Host #{address} deleted")
@@ -414,6 +432,7 @@ class Db
 		# A shotgun approach to network-wide exploitation
 		#
 		def cmd_db_autopwn(*args)
+			return unless active?
 
 			stamp = Time.now.to_f
 			vcnt  = 0
@@ -881,6 +900,7 @@ class Db
 		# Generic import that automatically detects the file type
 		#
 		def cmd_db_import(*args)
+			return unless active?
 			if (args.include?("-h") or not (args and args.length > 0))
 				print_error("Usage: db_import <filename> [file2...]")
 				print_line
@@ -915,6 +935,7 @@ class Db
 		# Import Nessus NBE files
 		#
 		def cmd_db_import_nessus_nbe(*args)
+			return unless active?
 			if (not (args and args.length == 1))
 				print_status("Usage: db_import_nessus_xml <nessus.nbe>")
 				return
@@ -931,6 +952,7 @@ class Db
 		# Import Nessus NESSUS files
 		#
 		def cmd_db_import_nessus_xml(*args)
+			return unless active?
 			if (not (args and args.length == 1))
 				print_status("Usage: db_import_nessus_xml <nessus.nessus>")
 				return
@@ -947,6 +969,7 @@ class Db
 		# Import Nmap data from a file
 		#
 		def cmd_db_import_nmap_xml(*args)
+			return unless active?
 			if (not (args and args.length == 1))
 				print_error("Usage: db_import_nmap_xml <nmap.xml>")
 				return
@@ -963,6 +986,7 @@ class Db
 		# Import Qualys XML files
 		#
 		def cmd_db_import_qualys_xml(*args)
+			return unless active?
 			if not (args and args.length == 1)
 				print_status("Usage: db_import_qualys_xml <result.xml>")
 				return
@@ -978,6 +1002,7 @@ class Db
 		#
 		# Import a Metasploit Express XML report
 		def cmd_db_import_msfe_xml(*args)
+			return unless active?
 			if not (args and args.length == 1)
 				print_status("Usage: db_import_msfe_xml <report.xml>")
 				return
@@ -994,6 +1019,7 @@ class Db
 		# Import IP List from a file
 		#
 		def cmd_db_import_ip_list(*args)
+			return unless active?
 			if (not (args and args.length == 1))
 				print_error("Usage: db_import_file_list <iplist.txt>")
 				return
@@ -1010,6 +1036,7 @@ class Db
 		# Import Nmap data from a file
 		#
 		def cmd_db_nmap(*args)
+			return unless active?
 			if (args.length == 0)
 				print_status("Usage: db_nmap [nmap options]")
 				return
@@ -1054,6 +1081,7 @@ class Db
 		# Import from a THC-Amap machine-readable log file
 		#
 		def cmd_db_import_amap_mlog(*args)
+			return unless active?
 			if args.length == 0
 				print_status("Usage: db_import_amap_mlog [logfile]")
 				return
