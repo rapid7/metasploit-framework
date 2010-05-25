@@ -37,10 +37,18 @@ class RangeWalker
 		parseme.split(' ').each { |arg|
 			if arg.include?("/")
 				# Then it's CIDR notation and needs special case
-				if arg =~ /[,-]/
-					# Improper CIDR notation (can't mix with 1,3 or 1-3 style IP ranges)
-					return false
+				return false if arg =~ /[,-]/ # Improper CIDR notation (can't mix with 1,3 or 1-3 style IP ranges)
+				return false if arg.scan("/").size > 1 # ..but there are too many slashes
+				ip_part,mask_part = arg.split("/")
+				return false if ip_part.nil? or ip_part.empty? or mask_part.nil? or mask_part.empty?
+				return false if mask_part !~ /^[0-9]{1,2}$/ # Illegal mask -- numerals only
+				return false if mask_part.to_i > 32 # This too -- between 0 and 32.
+				begin
+					Rex::Socket.addr_atoi(ip_part) # This allows for "www.metasploit.com/24" which is fun.
+				rescue Resolv::ResolvError
+					return false # Can't resolve the ip_part, so bail.
 				end
+
 				expanded = expand_cidr(arg)
 				if expanded
 					ranges += expanded
