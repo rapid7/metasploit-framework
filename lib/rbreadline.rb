@@ -1197,7 +1197,7 @@ module RbReadline
          #   `match-hidden-files' variable, skip filenames beginning with `.'.
          #All other entries except "." and ".." match.
          if (@filename_len == 0)
-				next if (!@_rl_match_hidden_files && d_name[0,1] == '.')
+            next if (!@_rl_match_hidden_files && d_name[0,1] == '.')
             break if (d_name != '.' && d_name != '..')
          else
             # Otherwise, if these match up to the length of filename, then
@@ -2117,10 +2117,10 @@ module RbReadline
       end
       return (_rl_read_init_file(filename, 0))
 =end
-	   #
-	   # This code is too problematic at the moment
-	   # Just hardcode things and move on
-	   #
+      #
+      # This code is too problematic at the moment
+      # Just hardcode things and move on
+      #
       return 0
    end
 
@@ -2439,7 +2439,7 @@ module RbReadline
          rl_bind_key(key, rl_named_function(funname))
       rescue ::Exception => e
          $stderr.puts "[-] RbReadline error parsing inputrc: #{e} '#{key}'"
-	  end
+      end
 
       0
    end
@@ -3823,8 +3823,8 @@ module RbReadline
          str[start ... _end].scan(/./me).each {|s| width += s.length }
       when 'X'
          tmp = str[start ... _end]
-		 return 0 if not tmp
-		 tmp.force_encoding(@encoding_name).codepoints.each {|s| width += s > 0x1000 ? 2 : 1 }
+         return 0 if not tmp
+         tmp.force_encoding(@encoding_name).codepoints.each {|s| width += s > 0x1000 ? 2 : 1 }
       end
       width
    end
@@ -4036,10 +4036,10 @@ module RbReadline
          # search again
       when -1
          if (cxt.search_string_index == 0)
-		 	# XXX: This variable is not defined
+            # XXX: This variable is not defined
             # if (last_isearch_string)
             if(false)
-			   cxt.search_string_size = 64 + last_isearch_string_len
+               cxt.search_string_size = 64 + last_isearch_string_len
                cxt.search_string = last_isearch_string.dup
                cxt.search_string_index = last_isearch_string_len
                rl_display_search(cxt.search_string, (cxt.sflags & SF_REVERSE)!=0, -1)
@@ -8406,7 +8406,7 @@ module RbReadline
          #else
          # If we have to turn on insert-mode, then do so.
          if (@_rl_term_im)
-				@_rl_out_stream.write(@_rl_term_im)
+            @_rl_out_stream.write(@_rl_term_im)
          end
          # If there is a special command for inserting characters, then
          # use that first to open up the space.
