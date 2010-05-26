@@ -29,6 +29,7 @@ class Server
 		self.listen_port = port
 		self.context = context
 		self.sock = nil
+		@shutting_down = false
 
 		self.files = []
 		self.transfers = []
@@ -55,7 +56,16 @@ class Server
 	# Stop the TFTP server
 	#
 	def stop
-		self.transfers.clear
+		@shutting_down = true
+
+		# Wait a maximum of 30 seconds for all transfers to finish.
+		start = Time.now
+		while (self.transfers.length > 0)
+			::IO.select(nil, nil, nil, 0.5)
+			dur = Time.now - start
+			break if (dur > 30)
+		end
+
 		self.files.clear
 		self.thread.kill
 		self.sock.close
@@ -194,7 +204,7 @@ protected
 
 			#puts "%s %s %s" % [start, fn, mode]
 
-			if (file = self.find_file(fn))
+			if (not @shutting_down) and (file = self.find_file(fn))
 				self.transfers << {
 					:from => from,
 					:file => file,

