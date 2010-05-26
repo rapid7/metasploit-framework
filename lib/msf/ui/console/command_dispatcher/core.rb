@@ -1841,6 +1841,9 @@ class Core
 				o.enums.each do |val|
 					res << val
 				end
+			when 'Msf::OptPath'
+				files = tab_complete_filenames(str,words)
+				res += files if files
 		end
 
 		return res
