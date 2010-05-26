@@ -358,7 +358,7 @@ module Msf
                 
               result.show_all
             rescue ::Exception => e
-              select(nil, nil, nil, 0.01)		
+              ::IO.select(nil, nil, nil, 0.01)		
               return false
             end
           end

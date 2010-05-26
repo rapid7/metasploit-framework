@@ -78,7 +78,7 @@ class MsfWindow
 						if(data.length > 0)
 							append_output(data)
 						else
-							select(nil, nil, nil, 0.10)
+							::IO.select(nil, nil, nil, 0.10)
 						end
 	
 						if (self.console.busy)
