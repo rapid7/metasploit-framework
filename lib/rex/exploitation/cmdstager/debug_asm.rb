@@ -54,10 +54,7 @@ class CmdStagerDebugAsm < CmdStagerBase
 	# Simple hex encoding...
 	#
 	def encode_payload(opts)
-		File.open("/home/repository/incoming/DANGEROUS/orig.exe", "wb") { |fd| fd.write(@exe) }
 		ret = @exe.unpack('H*')[0]
-		File.open("/home/repository/incoming/DANGEROUS/orig.b64", "wb") { |fd| fd.write(ret) }
-		ret
 	end
 
 
