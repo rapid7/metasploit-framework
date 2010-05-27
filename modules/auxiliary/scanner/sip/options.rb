@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'SIP Endpoint Scanner',
+			'Name'        => 'SIP Endpoint Scanner (UDP)',
 			'Version'     => '$Revision$',
 			'Description' => 'Scan for SIP devices using OPTIONS requests',
 			'Author'      => 'hdm',

@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'SIP username enumerator',
+			'Name'        => 'SIP Username Enumerator (UDP)',
 			'Version'     => '$Revision$',
 			'Description' => 'Scan for numeric username/extensions using OPTIONS/REGISTER requests',
 			'Author'      => 'et',
