@@ -61,7 +61,13 @@ module Metasploit3
 
 		print_status("Downloading photo (#{photo_length} bytes)...")
 
-		photo = session.rstream.read(photo_length)
+
+		photo = ""
+		while(photo.length < photo_length)
+			buff = session.rstream.get_once(-1, 5)
+			break if not buff
+			photo << buff
+		end
 
 		# Extract the host and port
 		host,port = session.tunnel_peer.split(':')
@@ -90,3 +96,4 @@ module Metasploit3
 	end
 
 end
+
