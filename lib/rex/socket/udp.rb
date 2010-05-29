@@ -132,7 +132,11 @@ module Rex::Socket::Udp
 			else
 				return [ '', nil, nil ]
 			end
-		rescue Exception
+		rescue ::Timeout::Error
+			return [ '', nil, nil ]
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception
 			return [ '', nil, nil ]
 		end
 	end
