@@ -149,6 +149,7 @@ class Db
 			onlyup = false
 			host_search = nil
 			col_search = nil
+			output = nil
 			default_columns = ::Msf::DBManager::Host.column_names.sort
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
 			while (arg = args.shift)
@@ -175,19 +176,25 @@ class Db
 						return
 					end
 					host_search = hostlist.strip().split(",")
+				when '-o'
+					output = args.shift
 				when '-h','--help'
-					print_line "Usage: db_hosts [-h|--help] [-u|--up] [-a <addr1,addr2>] [-c <column1,column2>]"
+					print_line "Usage: db_hosts [-h|--help] [-u|--up] [-a <addr1,addr2>] [-c <column1,column2>] [-o output-file ]"
 					print_line
 					print_line "  -a <addr1,addr2>  Search for a list of addresses"
 					print_line "  -c <col1,col2>    Only show the given columns"
 					print_line "  -h,--help         Show this help information"
 					print_line "  -u,--up           Only show hosts which are up"
+					print_line "  -o <file>         Write out a file, one address per line"
 					print_line
 					print_line "Available columns: #{default_columns.join(", ")}"
 					print_line
 					return
 				end
 			end
+
+			ofd = nil
+			ofd = ::File.open(output, "w") if output
 
 			col_names = default_columns
 			if col_search
@@ -198,13 +205,24 @@ class Db
 					'Columns' => col_names + ["Svcs", "Vulns", "Workspace"],
 				})
 			framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
-				columns = col_names.map { |n| host.attributes[n] || "" }
-				columns += [host.services.length, host.vulns.length, host.workspace.name]
-				tbl << columns
+				if ofd
+					ofd.puts host.address
+				else
+					columns = col_names.map { |n| host.attributes[n] || "" }
+					columns += [host.services.length, host.vulns.length, host.workspace.name]
+					tbl << columns
+				end
 			end
-			print_line
-			print_line tbl.to_s
+
+			if ofd
+				print_status("Wrote hosts to #{output}")
+				ofd.close
+			else
+				print_line
+				print_line tbl.to_s if not ofd
+			end
 		end
+
 
 		def cmd_db_services(*args)
 			return unless active?
