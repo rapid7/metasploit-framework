@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 					'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 			], self.class)
 
-		register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
+		register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888, 19300 ])
 	end
 
 	def run_host(ip)
