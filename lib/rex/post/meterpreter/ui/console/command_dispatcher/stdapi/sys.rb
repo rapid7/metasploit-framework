@@ -460,8 +460,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 		print_line("Computer: " + info['Computer'])
 		print_line("OS      : " + info['OS'])
-		print_line("Arch    : " + info['Architecture'])
-		print_line("Language: " + info['System Language'])
+		print_line("Arch    : " + info['Architecture']) if info['Architecture']
+		print_line("Language: " + info['System Language']) if info['System Language']
 
 		return true
 	end
