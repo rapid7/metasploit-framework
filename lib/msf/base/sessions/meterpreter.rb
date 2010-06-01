@@ -50,6 +50,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		full_path
 	end
 
+	# Override for server implementations that can't do ssl
+	def supports_ssl?
+		true
+	end
 
 	#
 	# Initializes a meterpreter session instance using the supplied rstream
@@ -57,6 +61,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	def initialize(rstream, opts={})
 		super
+
+		if not opts[:skip_ssl]
+			# the caller didn't request to skip ssl, so make sure we support it
+			opts.merge!(:skip_ssl => (not supports_ssl?))
+		end
 
 		#
 		# Initialize the meterpreter client
