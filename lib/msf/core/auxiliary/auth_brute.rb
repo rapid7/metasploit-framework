@@ -164,7 +164,7 @@ def extract_words(wordfile)
 	rescue
 		return
 	end
-	save_array = words.split(/\n/).map { |x| x.scan(/[\w]+/).first.to_s }
+	save_array = words.split(/\r?\n/)
 	return save_array
 end
 
