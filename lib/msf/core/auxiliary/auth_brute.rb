@@ -41,7 +41,7 @@ def each_user_pass(&block)
 	users       = extract_words(datastore['USER_FILE'])
 	passwords   = extract_words(datastore['PASS_FILE'])
 
-	translate_smb_datastores()
+	translate_proto_datastores()
 
 	if datastore['USERNAME']
 		users.unshift datastore['USERNAME']
@@ -60,6 +60,7 @@ def each_user_pass(&block)
 	credentials.concat(combine_users_and_passwords(users,passwords))
 	credentials = just_uniq_passwords(credentials) if @strip_usernames
 	fq_rest = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], "all remaining users"]
+	vprint_status "#{rhost}:#{rport} - Attempting #{credentials.size} username and password combinations"
 
 	credentials.each do |u,p|
 		break if @@credentials_skipped[fq_rest]
@@ -82,14 +83,21 @@ def each_user_pass(&block)
 	return
 end
 
-# Takes SMBUser and SMBPass, and, if present, prefers those
-# over any given USERNAME or PASSWORD.
-def translate_smb_datastores
-	if datastore['SMBUser'] and !datastore['SMBUser'].empty?
-		datastore['USERNAME'] = datastore['SMBUser']
+# Takes protocol-specific username and password fields, and,
+# if present, prefer those over any given USERNAME or PASSWORD.
+# Note, these special username/passwords should get deprecated
+# some day. Note2: Don't use with SMB and FTP at the same time!
+def translate_proto_datastores
+	switched = false
+	['SMBUser','FTPUSER'].each do |u|
+		if datastore[u] and !datastore[u].empty?
+			datastore['USERNAME'] = datastore[u]
+		end
 	end
-	if datastore['SMBPass'] and !datastore['SMBPass'].empty?
-		datastore['PASSWORD'] = datastore['SMBPass']
+	['SMBPass','FTPPASS'].each do |p|
+		if datastore[p] and !datastore[p].empty?
+			datastore['PASSWORD'] = datastore[p]
+		end
 	end
 end
 
