@@ -5,7 +5,7 @@ module Msf
 # This plugin is a simple editor command, designed to make it easy to edit modules in the console.
 #
 ###
-class Plugin::Sample < Msf::Plugin
+class Plugin::Editor < Msf::Plugin
 
 	###
 	#
