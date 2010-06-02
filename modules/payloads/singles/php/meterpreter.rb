@@ -29,7 +29,6 @@ module Metasploit3
 			'License'       => MSF_LICENSE,
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Session'       => Msf::Sessions::Meterpreter_Php_Php))
-		$stdout.puts("Initialized meterp php payload")
 	end
 
 	def generate
