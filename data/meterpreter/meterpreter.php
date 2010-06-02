@@ -378,6 +378,22 @@ function stdapi_fs_ls($req, &$pkt) {
 }
 
 # works
+if (!function_exists('stdapi_fs_delete_file')) {
+function stdapi_fs_delete_file($req, &$pkt) {
+    my_print("doing delete\n");
+    $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
+    $path = $path_tlv['value'];
+
+    if ($path && is_file($path)) {
+        @unlink($path);
+        return ERROR_SUCCESS;
+    } else {
+        return ERROR_FAILURE;
+    }
+}
+}
+
+# works
 if (!function_exists('stdapi_sys_config_getuid')) {
 function stdapi_sys_config_getuid($req, &$pkt) {
     my_print("doing getuid\n");
