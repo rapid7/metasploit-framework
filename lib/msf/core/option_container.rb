@@ -666,8 +666,8 @@ module Opt
 	{
 		'RHOST' => [ OptAddress, 'nil',   true,  '"The target address"' ],
 		'RPORT' => [ OptPort,    'nil',   true,  '"The target port"' ],
-		'LHOST' => [ OptAddress, 'nil',   true,  '"The local address"' ],
-		'LPORT' => [ OptPort,    'nil',   true,  '"The local port"' ],
+		'LHOST' => [ OptAddress, 'nil',   true,  '"The listen address"' ],
+		'LPORT' => [ OptPort,    'nil',   true,  '"The listen port"' ],
 		'CPORT' => [ OptPort,    'nil',   false, '"The local client port"' ],
 		'CHOST' => [ OptAddress, 'nil',   false, '"The local client address"' ],
 		'Proxies' => [ OptString, 'nil',  'false', '"Use a proxy chain"']
