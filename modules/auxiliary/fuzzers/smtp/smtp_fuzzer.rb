@@ -34,30 +34,30 @@ class Metasploit3 < Msf::Auxiliary
 			OptInt.new("INTERACTIONS", [false, "Number of interactions to run", 100] ),
 			OptBool.new("RESPECTORDER", [false, "Respect order of commands", true] ),
 			OptEnum.new("CMD", [true,"Command to fuzzer",'EHLO',
-			['EHLO',
-			'HELO',
-			'MAILFROM',
-			'RCPTTO',
-			'DATA',
-			'VRFY',
-			'EXPN'
-			], 'EHLO'])
-			], self.class)
+				[
+					'EHLO',
+					'HELO',
+					'MAILFROM',
+					'RCPTTO',
+					'DATA',
+					'VRFY',
+					'EXPN'
+				], 'EHLO'])
+		], self.class)
 	end
 
 	def smtp_send(data='', con=true)
 		begin
-		@result=''
-		@coderesult=''
-		if (con)
-			@connected=false
-			connect
-		end
-		@connected=true
-		sock.put("#{data}")
-		@result=sock.get_once
-		@codresult=@result[0..2]
-
+			@result=''
+			@coderesult=''
+			if (con)
+				@connected=false
+				connect
+			end
+			@connected=true
+			sock.put("#{data}")
+			@result=sock.get_once
+			@codresult=@result[0..2]
 		rescue ::Exception => e
 			print_status("Error #{e}")
 		end
@@ -78,8 +78,8 @@ class Metasploit3 < Msf::Auxiliary
 			cmd=datastore['CMD']
 
 			begin
-			if (datastore['RESPECTORDER'])
-				case cmd
+				if (datastore['RESPECTORDER'])
+					case cmd
 					when "HELO", "EHLO", "VRFY", "EXPN"
 						c = datastore['CMD'] + " " + str  + "\r\n"
 						smtp_send(c,true)
@@ -121,15 +121,16 @@ class Metasploit3 < Msf::Auxiliary
 						smtp_send(c,false)
 						#print_status(c)
 						disconnect
+					end
+				else
+					c = datastore['CMD'] + " " + str  + "\r\n"
+					smtp_send(c,true)
+					#print_status(c)
+					disconnect
 				end
-			else
-				c = datastore['CMD'] + " " + str  + "\r\n"
-				smtp_send(c,true)
-				#print_status(c)
-				disconnect
-			end
 
-			print_status("Fuzzing with iteration #{interection}\n #{@result}")
+				print_status("Fuzzing with iteration #{interection}\n #{@result}")
+
 			rescue ::Interrupt
 				print_status("Exiting on interrupt: iteration #{interection} using string  #{str}")
 				raise $!
@@ -138,6 +139,7 @@ class Metasploit3 < Msf::Auxiliary
 			#ensure
 			#	disconnect
 			end
+
 
 			if(not @connected)
 				if(last_str)
