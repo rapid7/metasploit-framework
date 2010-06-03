@@ -37,8 +37,9 @@ module Metasploit3
 		met = File.open(file, "rb") {|f|
 			f.read(f.stat.size)
 		}
-		met.gsub!("127.0.0.1", datastore['LHOST'])
-		met.gsub!("4444", datastore['LPORT'])
+		met.gsub!("127.0.0.1", datastore['LHOST']) if datastore['LHOST']
+		met.gsub!("4444", datastore['LPORT']) if datastore['LPORT']
 		met
 	end
 end
+
