@@ -901,7 +901,7 @@ if ($listen) {
 	$ipaddr = '127.0.0.1';
 	$msgsock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
 	$res = socket_connect($msgsock,$ipaddr,$port);
-	log($res);
+	my_print($res);
 	if (!$res) {
 		die();
 	}
@@ -914,10 +914,12 @@ $file_readers = array();
 # Main dispatch loop
 #
 while (FALSE !== socket_select($r=$socket_readers, $w=NULL, $e=NULL, 1)) {
+    $read_failed = false;
     foreach ($r as $ready) {
         if ($ready == $msgsock) {
             $request = socket_read($msgsock, 8, PHP_BINARY_READ);
             if (FALSE==$request) { 
+                $read_failed = true;
                 break; 
             }
             $a = unpack("Nlen/Ntype", $request);
@@ -940,6 +942,9 @@ while (FALSE !== socket_select($r=$socket_readers, $w=NULL, $e=NULL, 1)) {
 
             }
         }
+    }
+    if ($read_failed) {
+        break;
     }
     #if (0 < count($file_readers)) {
     #    stream_select($r=$file_readers, $w=NULL, $e=NULL, 0);
