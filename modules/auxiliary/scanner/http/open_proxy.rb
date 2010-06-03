@@ -1,3 +1,6 @@
+##
+# $Id$
+##
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -58,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 		if datastore['MULTIPORTS']
 			target_ports = [ 80, 1080, 3128, 8080, 8123 ]
 		else
-			target_ports.push(datastore['RPORT'].to_i)	
+			target_ports.push(datastore['RPORT'].to_i)
 		end
 
 		if datastore['RANDOMIZE_PORTS']
@@ -74,9 +77,9 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 	end
-	
+
 	def check_pattern(res,pattern)
-	
+
 		if (res =~ /#{pattern}/i)
 			return 1
 		else
@@ -84,13 +87,13 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 	end
-	
+
 	def write_request(method,site,user_agent)
 
 		request = method + " http://" + site + "/ HTTP/1.1" + "\r\n" +
 			"Host: " + site + "\r\n" +
-			"Connection: close" + "\r\n" + 
-			"User-Agent: user_agent" + "\r\n" + 
+			"Connection: close" + "\r\n" +
+			"User-Agent: user_agent" + "\r\n" +
 			"Accept-Encoding: *" + "\r\n" +
 			"Accept-Charset: ISO-8859-1,UTF-8;q=0.7,*;q=0.7" + "\r\n" +
 			"Cache-Control: no" + "\r\n" +
@@ -100,33 +103,33 @@ class Metasploit3 < Msf::Auxiliary
 		return request
 
 	end
-	
+
 	def send_request(site,user_agent)
-	
+
 		begin
 			connect
-			
+
 			request = write_request('GET',site,user_agent)
 			sock.put(request)
 			res = sock.get
-	
+
 			disconnect
-		
+
 			validcodes = datastore['ValidCode'].split(/,/)
 
 			is_valid = 0
-			retcode  = 0 
+			retcode  = 0
 			retvia   = 'n/a'
 			retsrv   = 'n/a'
 
 			if (res and res.match(/^HTTP\/1\.[01]\s+([^\s]+)\s+(.*)/))
-			
+
 				retcode = $1
-			
+
 				if (res.match(/Server: (.*)/))
 					retsrv = $1.chomp
 				end
-			
+
 				if (res.match(/Via: (.*)\((.*)\)/))
 					retvia = $2
 				end
@@ -136,103 +139,103 @@ class Metasploit3 < Msf::Auxiliary
 						is_valid += 1
 					end
 				end
-		
+
 				if (check_pattern(res,datastore['ValidPattern']) == 1)
 					is_valid += 1
 				end
 			end
 
-			retres = [ is_valid, retcode, retvia, retsrv ]	
+			retres = [ is_valid, retcode, retvia, retsrv ]
 
-			return retres 
+			return retres
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 	end
-	
+
 	def send_request_ripe(user_agent)
-		
+
 		ripe_address = datastore['RIPE_ADDRESS']
-	
+
 		begin
 			connect
-		
+
 			request = write_request('GET',ripe_address,user_agent)
 			sock.put(request)
 			res = sock.get
 
 			disconnect
-	
+
 			retres = 0
 
 			if (res and res.match(/^HTTP\/1\.[01]\s+([^\s]+)\s+(.*)/))
 
 				retcode = $1
 
-				if (retcode.to_i == 200) 
+				if (retcode.to_i == 200)
 					res.match(/Your IP Address is: <strong>(\s+)([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})(\s+)<\/strong>/m)
 					retres = "#{$2}.#{$3}.#{$4}.#{$5}"
 				end
 			end
 
-			return retres 
+			return retres
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 	end
-	
+
 	def check_host(target_host,target_port,site,user_agent)
 
 		if datastore['DEBUG']
 			print_status("Checking #{target_host}:#{target_port} [#{site}]")
 		end
-	
+
 		is_valid,retcode,retvia,retsrv = send_request(site,user_agent)
 
 		if (is_valid == 2)
-					
+
 			print_status("#{target_host}:#{target_port} is a potentially OPEN proxy [#{retcode}] (#{retvia})")
 
 			report_note(
 				:host   => target_host,
-				:port   => target_port, 
+				:port   => target_port,
 				:method => 'GET'
 			)
 
 			if (datastore['VERIFY_CONNECT'])
 
 				permit_connect,retcode,retvia,retsrv = send_request(site,user_agent)
-		
+
 				if (permit_connect == 2)
 					print_status("#{target_host}:#{target_port} CONNECT method successfully tested")
-			
+
 					report_note(
 						:host   => target_host,
-						:port   => target_port, 
-						:method => 'CONNECT' 
+						:port   => target_port,
+						:method => 'CONNECT'
 					)
 				end
 			end
-			
+
 			if (datastore['VERIFY_HEAD'])
 
 				permit_connect,retcode,retvia,retsrv = send_request(site,user_agent)
-		
+
 				if (permit_connect == 2)
 					print_status("#{target_host}:#{target_port} HEAD method successfully tested")
-			
+
 					report_note(
 						:host   => target_host,
-						:port   => target_port, 
-						:method => 'HEAD' 
+						:port   => target_port,
+						:method => 'HEAD'
 					)
 				end
 			end
-			
+
 			if (datastore['LOOKUP_PUBLIC_ADDRESS'])
-				
+
 				retres = send_request_ripe(user_agent)
 
 				if (retres != 0)

@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 			check_banner
 			each_user_pass { |user, pass|
 				next if user.nil? || user.empty?
-				do_login(user,pass)  
+				do_login(user,pass)
 			}
 		rescue ::Rex::ConnectionError, ::EOFError, ::IOError
 			return
@@ -68,16 +68,16 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user=nil,pass=nil)
-		if !@ftp_sock || @ftp_sock.closed? 
+		if !@ftp_sock || @ftp_sock.closed?
 			@ftp_sock = connect(true,false)
 		end
-		vprint_status("#{rhost}:#{rport} - Attempting FTP login for '#{user}':'#{pass}'") 
+		vprint_status("#{rhost}:#{rport} - Attempting FTP login for '#{user}':'#{pass}'")
 		if(self.banner)
 			user_res = send_user(user, @ftp_sock)
 			if user_res !~ /^(331|2)/
 				vprint_error("#{rhost}:#{rport} - The server rejected username: '#{user}'")
 				send_quit
-				disconnect 
+				disconnect
 				return :next_user
 			end
 			pass_res = send_pass(pass, @ftp_sock)
@@ -89,17 +89,17 @@ class Metasploit3 < Msf::Auxiliary
 				disconnect
 				return :next_user
 			else
-				vprint_status("#{rhost}:#{rport} - Failed FTP login for '#{user}':'#{pass}'") 
+				vprint_status("#{rhost}:#{rport} - Failed FTP login for '#{user}':'#{pass}'")
 				# TODO: Shouldn't have to disconnect every time, but sadly, some FTP servers
 				# behave erratically in the face of failed logins -- they will sometimes drop
 				# in the middle of the user/pass sequence, which means we need to reconnect
 				# and retry that user/pass combination. For now, we always
 				# disconnect after a failed attempt. In many cases, 3 retries per session is
-				# safe, but it's difficult to pin down the corner cases. IOW, set the retry 
+				# safe, but it's difficult to pin down the corner cases. IOW, set the retry
 				# behavior as a user option, so we can better handle FTP servers that employ
 				# greylisting.
 				send_quit
-				disconnect 
+				disconnect
 				return :fail
 			end
 		else
@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 			return :read
 		end
 	end
-	
+
 	def report_ftp_creds(user,pass,access)
 		report_auth_info(
 			:host => rhost,

@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 		if(@users.empty?)
 			print_status("#{ip}:#{rport} No users found.")
 		else
-			print_good("#{ip}:#{rport} Users found: #{@users.keys.sort.join(", ")}") 
+			print_good("#{ip}:#{rport} Users found: #{@users.keys.sort.join(", ")}")
 			report_note(
 				:host => rhost,
 				:port => rport,
@@ -179,7 +179,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Solaris
 			if(line =~ /^([a-z0-9\.\_]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)/)
-				uid = $1 
+				uid = $1
 				if ($2 != "Name")
 					@users[uid] ||= {}
 				end
@@ -207,4 +207,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

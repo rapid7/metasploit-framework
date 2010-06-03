@@ -1,5 +1,5 @@
 ##
-# $Id: options.rb 9187 2010-05-01 16:26:24Z hdm $
+# $Id$
 ##
 
 ##
@@ -9,9 +9,7 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -22,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SIP Endpoint Scanner (TCP)',
-			'Version'     => '$Revision: 9187 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Scan for SIP devices using OPTIONS requests',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
