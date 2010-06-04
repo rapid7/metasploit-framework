@@ -1,5 +1,7 @@
 require 'rex/parser/nmap_xml'
 require 'rex/parser/nexpose_xml'
+require 'rex/socket'
+
 
 module Msf
 
@@ -104,6 +106,24 @@ class DBManager
 		return false unless addr.kind_of? String
 		addr =~ /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
 	end
+	
+	# Takes a space-delimited set of ips and ranges, and subjects
+	# them to RangeWalker for validation. Returns true or false.
+	def validate_ips(ips)
+		ret = true
+		begin
+			ips.split(' ').each {|ip| 
+				unless Rex::Socket::RangeWalker.new(ip).ranges
+					ret = false
+					break
+				end
+				}
+		rescue 
+			ret = false
+		end
+		return ret
+	end
+
 
 	#
 	# Determines if the database is functional
@@ -1111,26 +1131,7 @@ class DBManager
 		ActiveRecord::Base.connection.select_all(sqlquery)
 	end
 
-
-	##
-	#
-	# Import methods
-	#
-	##
-
-	#
-	# Generic importer that automatically determines the file type being
-	# imported.  Since this looks for vendor-specific strings in the given
-	# file, there shouldn't be any false detections, but no guarantees.
-	#
-	def import_file(filename, wspace=workspace)
-		@import_filedata            = {}
-		@import_filedata[:filename] = filename
-		f = File.open(filename, 'rb')
-		data = f.read(f.stat.size)
-		import(data, wspace)
-	end
-
+	
 	# Returns a REXML::Document from the given data.
 	def rexmlify(data)
 		doc = data.kind_of?(REXML::Document) ? data : REXML::Document.new(data)
@@ -1143,18 +1144,54 @@ class DBManager
 		return obj
 	end
 
-	def import(data, wspace=workspace)
+	##
+	#
+	# Import methods
+	#
+	##
+
+	#
+	# Generic importer that automatically determines the file type being
+	# imported.  Since this looks for vendor-specific strings in the given
+	# file, there shouldn't be any false detections, but no guarantees.
+	#
+	def import_file(args={})
+		filename = args[:filename] || args['filename']
+		wspace = args[:wspace] || args['wspace'] || workspace
+		@import_filedata            = {}
+		@import_filedata[:filename] = filename
+		f = File.open(filename, 'rb')
+		data = f.read(f.stat.size)
+		import(args.merge(:data => data))
+	end
+
+	# A dispatcher method that figures out the data's file type,
+	# and sends it off to the appropriate importer. Note that
+	# import_file_detect will raise an error if the filetype
+	# is unknown.
+	def import(args={})
+		data = args[:data] || args['data']
+		wspace = args[:wspace] || args['wspace'] || workspace
 		di = data.index("\n")
-		if(not di)
-			raise DBImportError.new("Could not automatically determine file type")
-		end
+		raise DBImportError.new("Could not automatically determine file type") if not di
+		ftype = import_filetype_detect(data)
+		self.send "import_#{ftype}".to_sym, args
+	end
+
+
+	# Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
+	# :nessus_xml :nessus_xml_v2 :qualys_xml :msfe_v1_xml :nessus_nbe :amap_mlog :ip_list
+	# If there is no match, an error is raised instead.
+	def import_filetype_detect(data)
+		di = data.index("\n")
 		firstline = data[0, di]
+		@import_filedata ||= {}
 		if (firstline.index("<NeXposeSimpleXML"))
-			@import_filedata[:type] = "NeXpose Simple XML" if @import_filedata
-			return import_nexpose_simplexml(data, wspace)
-			@import_filedata[:type] = "NeXpose XML Report" if @import_filedata
+			@import_filedata[:type] = "NeXpose Simple XML" 
+			return :nexpose_simplexml
 		elsif (firstline.index("<NexposeReport"))
-			return import_nexpose_rawxml(data, wspace)
+			@import_filedata[:type] = "NeXpose XML Report" 
+			return :nexpose_rawxml
 		elsif (firstline.index("<?xml"))
 			# it's xml, check for root tags we can handle
 			line_count = 0
@@ -1162,23 +1199,23 @@ class DBManager
 				line =~ /<([a-zA-Z0-9\-\_]+)[ >]/
 				case $1
 				when "nmaprun"
-					@import_filedata[:type] = "Nmap XML" if @import_filedata
-					return import_nmap_xml(data, wspace)
+					@import_filedata[:type] = "Nmap XML" 
+					return :nmap_xml
 				when "openvas-report"
-					@import_filedata[:type] = "OpenVAS Report" if @import_filedata
-					return import_openvas_xml(data, wspace)
+					@import_filedata[:type] = "OpenVAS Report" 
+					return :openvas_xml
 				when "NessusClientData"
-					@import_filedata[:type] = "Nessus XML (v1)" if @import_filedata
-					return import_nessus_xml(data, wspace)
+					@import_filedata[:type] = "Nessus XML (v1)" 
+					return :nessus_xml
 				when "NessusClientData_v2"
-					@import_filedata[:type] = "Nessus XML (v2)" if @import_filedata
-					return import_nessus_xml_v2(data, wspace)
+					@import_filedata[:type] = "Nessus XML (v2)" 
+					return :nessus_xml_v2
 				when "SCAN"
-					@import_filedata[:type] = "Qualys XML" if @import_filedata
-					return import_qualys_xml(data, wspace)
+					@import_filedata[:type] = "Qualys XML" 
+					return :qualys_xml
 				when "MetasploitExpressV1"
-					@import_filedata[:type] = "Metasploit Express XML" if @import_filedata
-					return import_msfe_v1_xml(data, wspace)
+					@import_filedata[:type] = "Metasploit Express XML" 
+					return :msfe_v1_xml
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
@@ -1186,17 +1223,17 @@ class DBManager
 				line_count += 1
 			}
 		elsif (firstline.index("timestamps|||scan_start"))
-			@import_filedata[:type] = "Nessus NBE Report" if @import_filedata
+			@import_filedata[:type] = "Nessus NBE Report" 
 			# then it's a nessus nbe
-			return import_nessus_nbe(data, wspace)
+			return :nessus_nbe
 		elsif (firstline.index("# amap v"))
 			# then it's an amap mlog
-			@import_filedata[:type] = "Amap Log" if @import_filedata
-			return import_amap_mlog(data, wspace)
+			@import_filedata[:type] = "Amap Log" 
+			return :amap_mlog
 		elsif (firstline =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)
 			# then its an IP list
-			@import_filedata[:type] = "IP Address List" if @import_filedata
-			return import_ip_list(data, wspace)
+			@import_filedata[:type] = "IP Address List" 
+			return :ip_list
 		end
 		raise DBImportError.new("Could not automatically determine file type")
 	end
@@ -1207,29 +1244,44 @@ class DBManager
 	# XXX At some point we'll want to make this a stream parser for dealing
 	# with large results files
 	#
-	def import_nexpose_simplexml_file(filename, wspace=workspace)
+	def import_nexpose_simplexml_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
-		import_nexpose_simplexml(data, wspace)
+		import_nexpose_simplexml(args.merge(:data => data))
 	end
 
 	# Import a Metasploit Express XML file.
 	# TODO: loot, tasks, and reports
-	def import_msfe_v1_file(filename, wspace=workspace)
+	def import_msfe_v1_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
-		import_msfe_v1_xml(data, wspace)
+		import_msfe_v1_xml(args.merge(:data => data))
 	end
 
 	# For each host, step through services, notes, and vulns, and import
 	# them.
 	# TODO: loot, tasks, and reports
-	def import_msfe_v1_xml(data, wspace=workspace)
+	def import_msfe_v1_xml(args={})
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+
 		doc = rexmlify(data)
 		doc.elements.each('/MetasploitExpressV1/hosts/host') do |host|
 			host_data = {}
 			host_data[:workspace] = wspace
 			host_data[:host] = host.elements["address"].text.to_s.strip
+			if bl.include? host_data[:host]
+				next
+			else
+				#
+			end
 			host_data[:host_mac] = host.elements["mac"].text.to_s.strip
 			if host.elements["comm"].text
 				host_data[:comm] = host.elements["comm"].text.to_s.strip
@@ -1291,10 +1343,19 @@ class DBManager
 		end
 	end
 
-	def import_nexpose_simplexml(data, wspace=workspace)
+	def import_nexpose_simplexml(args={})
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+
 		doc = rexmlify(data)
 		doc.elements.each('/NeXposeSimpleXML/devices/device') do |dev|
 			addr = dev.attributes['address'].to_s
+			if bl.include? addr
+				next
+			else
+				#
+			end
 
 			fprint = {}
 
@@ -1387,13 +1448,20 @@ class DBManager
 	#
 	# Nexpose Raw XML
 	#
-	def import_nexpose_rawxml_file(filename, wspace=workspace)
+	def import_nexpose_rawxml_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
-		import_nexpose_rawxml(data, wspace)
+		import_nexpose_rawxml(args.merge(:data => data))
 	end
 
-	def import_nexpose_rawxml(data, wspace=workspace)
+	def import_nexpose_rawxml(args={})
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+
 		# Use a stream parser instead of a tree parser so we can deal with
 		# huge results files without running out of memory.
 		parser = Rex::Parser::NexposeXMLStreamParser.new
@@ -1422,6 +1490,11 @@ class DBManager
 
 		vuln_refs = nexpose_refs_to_hash(vulns)
 		hosts.each do |host|
+			if bl.include? host["addr"]
+				next
+			else
+				#
+			end
 			nexpose_host(host, vuln_refs, wspace)
 		end
 	end
@@ -1541,77 +1614,23 @@ class DBManager
 		}
 	end
 
-=begin
-		doc = rexmlify(data)
-		doc.elements.each('/NexposeReport/nodes/node') do |host|
-			addr  = host.attributes['address']
-			xmac  = host.attributes['hardware-address']
-			xhost = addr
-
-			refs = {}
-
-			# os based vuln
-			host.elements['tests'].elements.each('test') do |vuln|
-				if vuln.attributes['status'] == 'vulnerable-exploited' or vuln.attributes['status'] == 'vulnerable-version'
-					dhost = find_or_create_host(:workspace => wspace, :host => addr)
-					next if not dhost
-
-					vid = vuln.attributes['id'].to_s
-					nexpose_vuln_lookup(wspace,doc,vid,refs,dhost)
-					nexpose_vuln_lookup(wspace,doc,vid.upcase,refs,dhost)
-				end
-			end
-
-			# skip if no endpoints
-			next unless host.elements['endpoints']
-
-			# parse the ports and add the vulns
-			host.elements['endpoints'].elements.each('endpoint') do |port|
-				prot = port.attributes['protocol']
-				pnum = port.attributes['port']
-				stat = port.attributes['status']
-				next if not port.elements['services']
-				name = port.elements['services'].elements['service'].attributes['name'].downcase
-
-				next if not port.elements['services'].elements['service'].elements['fingerprints']
-				prod = port.elements['services'].elements['service'].elements['fingerprints'].elements['fingerprint'].attributes['product']
-				vers = port.elements['services'].elements['service'].elements['fingerprints'].elements['fingerprint'].attributes['version']
-				vndr = port.elements['services'].elements['service'].elements['fingerprints'].elements['fingerprint'].attributes['vendor']
-
-				next if stat != 'open'
-
-				dhost = find_or_create_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive)
-				next if not dhost
-
-				if name != "unknown"
-					service = find_or_create_service(:workspace => wspace, :host => dhost, :proto => prot.downcase, :port => pnum.to_i, :name => name)
-				else
-					service = find_or_create_service(:workspace => wspace, :host => dhost, :proto => prot.downcase, :port => pnum.to_i)
-				end
-
-				port.elements['services'].elements['service'].elements['tests'].elements.each('test') do |vuln|
-					if vuln.attributes['status'] == 'vulnerable-exploited' or vuln.attributes['status'] == 'vulnerable-version'
-						vid = vuln.attributes['id'].to_s
-						# TODO, improve the vuln_lookup check so case of the vuln_id doesnt matter
-						nexpose_vuln_lookup(doc,vid,refs,dhost,service)
-						nexpose_vuln_lookup(doc,vid.upcase,refs,dhost,service)
-					end
-				end
-			end
-		end
-	end
-=end
-
 	#
 	# Import Nmap's -oX xml output
 	#
-	def import_nmap_xml_file(filename, wspace=workspace)
+	def import_nmap_xml_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
-		import_nmap_xml(data, wspace)
+		import_nmap_xml(args.merge(:data => data))
 	end
 
-	def import_nmap_xml(data, wspace=workspace)
+	def import_nmap_xml(args={})
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+
 		# Use a stream parser instead of a tree parser so we can deal with
 		# huge results files without running out of memory.
 		parser = Rex::Parser::NmapXMLStreamParser.new
@@ -1619,7 +1638,6 @@ class DBManager
 		# Whenever the parser pulls a host out of the nmap results, store
 		# it, along with any associated services, in the database.
 		parser.on_found_host = Proc.new { |h|
-
 			data = {:workspace => wspace}
 			if (h["addrs"].has_key?("ipv4"))
 				addr = h["addrs"]["ipv4"]
@@ -1628,6 +1646,11 @@ class DBManager
 			else
 				# Can't report it if it doesn't have an IP
 				raise RuntimeError, "At least one IPv4 or IPv6 address is required"
+			end
+			if bl.include? addr
+				next
+			else
+				# 
 			end
 			data[:host] = addr
 			if (h["addrs"].has_key?("mac"))
@@ -1642,7 +1665,7 @@ class DBManager
 			# Only report alive hosts with ports to speak of.
 			if(data[:state] != Msf::HostState::Dead)
 				if h["ports"].size > 0
-					report_host(data)
+					report_host(data) 
 					report_import_note(wspace,addr)
 				end
 			end
@@ -1717,14 +1740,21 @@ class DBManager
 	#
 	# Import Nessus NBE files
 	#
-	def import_nessus_nbe_file(filename, wspace=workspace)
+	def import_nessus_nbe_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
-		import_nessus_nbe(data, wspace)
+		import_nessus_nbe(args.merge(:data => data))
 	end
 
-	def import_nessus_nbe(nbe_data, wspace=workspace)
-		nbe_copy = nbe_data.dup
+	def import_nessus_nbe(args={})
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+
+		nbe_copy = data.dup
 		# First pass, just to build the address map. 
 		addr_map = {}
 
@@ -1737,7 +1767,7 @@ class DBManager
 			addr_map[hname] = addr
 		end
 
-		nbe_data.each_line do |line|
+		data.each_line do |line|
 			r = line.split('|')
 			next if r[0] != 'results'
 			hname = r[2]
@@ -1753,6 +1783,12 @@ class DBManager
 
 			# If there's no resolution, or if it's malformed, skip it.
 			next unless ipv4_validator(addr)
+
+			if bl.include? addr
+				next
+			else
+				#
+			end
 
 			# Match the NBE types with the XML severity ratings
 			case type
@@ -1784,7 +1820,10 @@ class DBManager
 	#
 	# Of course they had to change the nessus format.
 	#
-	def import_openvas_xml(filename)
+	def import_openvas_xml(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
 		raise DBImportError.new("No OpenVAS XML support. Please submit a patch to msfdev[at]metasploit.com")
 	end
 
@@ -1793,18 +1832,24 @@ class DBManager
 	#
 	# Old versions of openvas exported this as well
 	#
-	def import_nessus_xml_file(filename, wspace=workspace)
+	def import_nessus_xml_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
 
 		if data.index("NessusClientData_v2")
-			import_nessus_xml_v2(data, wspace)
+			import_nessus_xml_v2(args.merge(:data => data))
 		else
-			import_nessus_xml(data, wspace)
+			import_nessus_xml(args.merge(:data => data))
 		end
 	end
 
-	def import_nessus_xml(data, wspace=workspace)
+	def import_nessus_xml(args={})
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
 		doc = rexmlify(data)
 		doc.elements.each('/NessusClientData/Report/ReportHost') do |host|
@@ -1822,6 +1867,11 @@ class DBManager
 			end
 			addr ||= host.elements['HostName'].text
 			next unless ipv4_validator(addr) # Skip resolved names and SCAN-ERROR.
+			if bl.include? addr
+				next
+			else
+				#
+			end
 
 			hinfo = {
 				:workspace => wspace,
@@ -1856,7 +1906,11 @@ class DBManager
 		end
 	end
 
-	def import_nessus_xml_v2(data, wspace=workspace)
+	def import_nessus_xml_v2(args={})
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+
 		doc = rexmlify(data)
 		doc.elements.each('/NessusClientData_v2/Report/ReportHost') do |host|
 			# if Nessus resovled the host, its host-ip tag should be set
@@ -1869,6 +1923,11 @@ class DBManager
 			end
 
 			next unless ipv4_validator(addr) # Catches SCAN-ERROR, among others.
+			if bl.include? addr
+				next
+			else
+				#
+			end
 
 			os = host.elements["HostProperties/tag[@name='operating-system']"]
 			if os
@@ -1920,17 +1979,29 @@ class DBManager
 	#
 	# Import Qualys' xml output
 	#
-	def import_qualys_xml_file(filename, wspace=workspace)
+	def import_qualys_xml_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
-		import_qualys_xml(data, wspace)
+		import_qualys_xml(args.merge(:data => data))
 	end
 
-	def import_qualys_xml(data, wspace=workspace)
+	def import_qualys_xml(args={})
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+
 
 		doc = rexmlify(data)
 		doc.elements.each('/SCAN/IP') do |host|
 			addr  = host.attributes['value']
+			if bl.include? addr
+				next
+			else
+				#
+			end
 			hname = host.attributes['name'] || ''
 
 			report_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive)
@@ -1996,31 +2067,55 @@ class DBManager
 		end
 	end
 
-	def import_ip_list_file(filename, wspace=workspace)
+	def import_ip_list_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
-		import_ip_list(data, wspace)
+		import_ip_list(args.merge(:data => data))
 	end
 
-	def import_ip_list(data, wspace)
+	def import_ip_list(args={})
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+
 		data.each_line do |line|
+			if bl.include? line.strip
+				next
+			else
+				#
+			end
 			host = find_or_create_host(:workspace => wspace, :host=> line, :state => Msf::HostState::Alive)
 		end
 	end
 
-	def import_amap_log_file(filename, wspace=workspace)
+	def import_amap_log_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
-		import_amap_log(data, wspace)
+		import_amap_log(args.merge(:data => data))
 	end
 
-	def import_amap_mlog(data, wspace)
+	def import_amap_mlog(args={})
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+
 		data.each_line do |line|
 			next if line =~ /^#/
 			r = line.split(':')
 			next if r.length < 6
 
 			addr   = r[0]
+			if bl.include? addr
+				next
+			else
+				#
+			end
 			port   = r[1].to_i
 			proto  = r[2].downcase
 			status = r[3]

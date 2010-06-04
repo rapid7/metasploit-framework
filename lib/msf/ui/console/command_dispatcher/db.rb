@@ -937,7 +937,7 @@ class Db
 						next
 					end
 					begin
-						framework.db.import_file(filename)
+						framework.db.import_file(:filename => filename)
 						print_status("Successfully imported #{filename}")
 					rescue DBImportError
 						print_error("Failed to import #{filename}: #{$!}")
@@ -963,7 +963,7 @@ class Db
 				print_status("Could not read the NBE file")
 				return
 			end
-			framework.db.import_nessus_nbe_file(args[0])
+			framework.db.import_nessus_nbe_file(:filename => args[0])
 		end
 
 		#
@@ -980,7 +980,7 @@ class Db
 				print_status("Could not read the NESSUS file")
 				return
 			end
-			framework.db.import_nessus_xml_file(args[0])
+			framework.db.import_nessus_xml_file(:filename => args[0])
 		end
 
 		#
@@ -997,7 +997,7 @@ class Db
 				print_status("Could not read the NMAP file")
 				return
 			end
-			framework.db.import_nmap_xml_file(args[0])
+			framework.db.import_nmap_xml_file(:filename => args[0])
 		end
 
 		#
@@ -1014,7 +1014,7 @@ class Db
 				print_status("Could not read the Qualys file")
 				return
 			end
-			framework.db.import_qualys_xml_file(args[0])
+			framework.db.import_qualys_xml_file(:filename => args[0])
 		end
 
 		#
@@ -1030,7 +1030,7 @@ class Db
 				print_status("Could not read the Metasploit Express file")
 				return
 			end
-			framework.db.import_msfe_v1_file(args[0])
+			framework.db.import_msfe_v1_file(:filename => args[0])
 		end
 
 		#
@@ -1047,7 +1047,7 @@ class Db
 				print_status("Could not read the text file")
 				return
 			end
-			framework.db.import_ip_list_file(args[0])
+			framework.db.import_ip_list_file(:filename => args[0])
 		end
 
 		#
@@ -1091,7 +1091,7 @@ class Db
 			# end
 
 			fo.close(true)
-			framework.db.import_nmap_xml_file(fd.path)
+			framework.db.import_nmap_xml_file(:filename => fd.path)
 			fd.close(true)
 		end
 
@@ -1110,7 +1110,7 @@ class Db
 				return
 			end
 
-			framework.db.import_amap_mlog_file(args[0])
+			framework.db.import_amap_mlog_file(:filename => args[0])
 		end
 
 
