@@ -1,6 +1,6 @@
 #<?php # This lets us run as a standalone file or as eval'd code
 function my_print($str) {
-    error_log($str);
+    #error_log($str);
     #print($str ."\n");
     #flush();
 }
