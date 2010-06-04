@@ -1030,7 +1030,7 @@ class Db
 				print_status("Could not read the Metasploit Express file")
 				return
 			end
-			framework.db.import_msfe_v1_file(:filename => args[0])
+			framework.db.import_msfe_file(:filename => args[0])
 		end
 
 		#

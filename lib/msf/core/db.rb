@@ -1180,7 +1180,7 @@ class DBManager
 
 
 	# Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
-	# :nessus_xml :nessus_xml_v2 :qualys_xml :msfe_v1_xml :nessus_nbe :amap_mlog :ip_list
+	# :nessus_xml :nessus_xml_v2 :qualys_xml :msfe_xml :nessus_nbe :amap_mlog :ip_list
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
 		di = data.index("\n")
@@ -1213,9 +1213,9 @@ class DBManager
 				when "SCAN"
 					@import_filedata[:type] = "Qualys XML" 
 					return :qualys_xml
-				when "MetasploitExpressV1"
+				when /MetasploitExpressV[12]/
 					@import_filedata[:type] = "Metasploit Express XML" 
-					return :msfe_v1_xml
+					return :msfe_xml
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
@@ -1255,25 +1255,36 @@ class DBManager
 
 	# Import a Metasploit Express XML file.
 	# TODO: loot, tasks, and reports
-	def import_msfe_v1_file(args={})
+	def import_msfe_file(args={})
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
-		import_msfe_v1_xml(args.merge(:data => data))
+		import_msfe_xml(args.merge(:data => data))
 	end
 
 	# For each host, step through services, notes, and vulns, and import
 	# them.
 	# TODO: loot, tasks, and reports
-	def import_msfe_v1_xml(args={})
+	def import_msfe_xml(args={})
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
 		doc = rexmlify(data)
-		doc.elements.each('/MetasploitExpressV1/hosts/host') do |host|
+		if doc.elements["MetasploitExpressV1"]
+			m_ver = 1
+		elsif doc.elements["MetasploitExpressV2"]
+			m_ver = 2
+		else
+			m_ver = nil
+		end
+		unless m_ver
+			raise DBImportError.new("Unknown verion for MetasploitExpress XML document")
+		end
+
+		doc.elements.each("/MetasploitExpressV#{m_ver}/hosts/host") do |host|
 			host_data = {}
 			host_data[:workspace] = wspace
 			host_data[:host] = host.elements["address"].text.to_s.strip
