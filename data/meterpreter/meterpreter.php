@@ -633,7 +633,7 @@ function channel_create_stdapi_net_tcp_client($req, &$pkt) {
     $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
     $res = socket_connect($sock, $peer_host_tlv['value'], $peer_port_tlv['value']);
 
-    if (is_resource($sock)) {
+    if (is_resource($sock) && $res) {
         array_push($channels, array(0 => $sock, 1 => $sock, 'type' => 'socket'));
         $id = count($channels) - 1;
         my_print("Created new channel $sock, with id $id");
