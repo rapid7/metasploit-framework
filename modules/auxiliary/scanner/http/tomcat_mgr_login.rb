@@ -27,9 +27,13 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					# HP Default user/pass
+					[ 'CVE', '2009-3843' ], # Operations Manager
+					[ 'CVE', '2009-4188' ], # Operations Dashboard
+					[ 'CVE', '2009-4189' ],
 					[ 'OSVDB', '60317' ],
-					[ 'CVE', '2009-3843' ],
+					[ 'BID', '37086' ],
 					[ 'URL', 'http://www.harmonysecurity.com/blog/2009/11/hp-operations-manager-backdoor-account.html' ],
+					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-085/' ],
 					# IBM Cognos Express Default user/pass
 					[ 'BID', '38084' ],
 					[ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21419179' ],
