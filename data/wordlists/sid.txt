@@ -572,3 +572,5 @@ WINDOWS9027
 XEXDB
 XE_XPT
 CLRExtProc
+hsagent
+
