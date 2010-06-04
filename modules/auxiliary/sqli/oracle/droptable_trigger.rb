@@ -1,5 +1,5 @@
 ##
-# $Id: droptable_trigger.rb 9179 2010-04-30 08:40:19Z jduck $
+# $Id$
 ##
 
 ##
@@ -10,7 +10,6 @@
 ##
 
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -26,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'Sh2kerr <research[ad]dsec.ru>' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision: 9179 $',
+			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2008-3979' ],
