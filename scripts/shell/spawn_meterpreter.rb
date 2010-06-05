@@ -76,6 +76,7 @@ lplat = [Msf::Platform::Windows]
 larch = [ARCH_X86]
 opts = {
 	:linemax => 1700,
+	:decoder => File.join(Msf::Config.install_root, "data", "exploits", "cmdstager", "vbs_b64"),
 	#:persist => true
 }
 delay = 0.25
