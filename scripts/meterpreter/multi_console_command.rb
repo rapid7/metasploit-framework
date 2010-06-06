@@ -13,7 +13,7 @@ session = client
 @@exec_opts = Rex::Parser::Arguments.new(
         "-h" => [ false,"Help menu."                        ],
         "-c" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
-        "-s" => [ true,"Text file with list of commands, one per line."]
+        "-rc" => [ true,"Text file with list of commands, one per line."]
 )
 #Setting Argument variables
 commands = []
@@ -48,7 +48,7 @@ end
 
         when "-c"
                 commands = val.split(",")
-        when "-s"
+        when "-rc"
                 script = val
                 if not ::File.exists?(script)
                         raise "Command List File does not exists!"
@@ -64,9 +64,10 @@ end
 
 }
 
-if args.length == 0 or help == 1 
+if args.length == 0 or help == 1
 	usage
 else
 	 list_con_exec(session,commands)
 	 raise Rex::Script::Completed
 end
+
