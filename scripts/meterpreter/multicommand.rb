@@ -11,7 +11,7 @@ wininfo = client.sys.config.sysinfo
         "-h" => [ false,"Help menu."                        ],
         "-c" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
         "-f" => [ true,"File where to saved output of command."],
-        "-s" => [ true,"Text file with list of commands, one per line."]
+        "-rc" => [ true,"Text file with list of commands, one per line."]
 )
 #Setting Argument variables
 commands = []
@@ -69,7 +69,7 @@ end
 
         when "-c"
                 commands = val.split(",")
-        when "-s"
+        when "-rc"
                 script = val
                 if not ::File.exists?(script)
                         raise "Command List File does not exists!"
