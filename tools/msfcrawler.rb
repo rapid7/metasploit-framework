@@ -73,7 +73,7 @@ $verbose = false
 $enableul = true
 
 # Maximum number of requests per URI (check $enableul)
-$maxurilimit = 1
+$maxurilimit = 10
 
 
 
@@ -158,7 +158,7 @@ class HttpCrawler
 		# "created_at" datetime);
 
 
-		db.transaction db.execute( "insert into wmap_requests (host,address,address6,port,ssl,meth,path,headers,query,body,respcode,resphead,response,created_at,updated_at) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+		db.execute( "insert into wmap_requests (host,address,address6,port,ssl,meth,path,headers,query,body,respcode,resphead,response,created_at,updated_at) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 			hashreq['rhost'],
 			hashreq['rhost'],
 			hashreq['rhost'],
@@ -175,7 +175,7 @@ class HttpCrawler
 			Time.new,
 			Time.new
 		)
-		db.commit
+		#db.commit
 
 		db.close
 	end
@@ -240,7 +240,7 @@ class HttpCrawler
 					end
 				else
 					if $verbose
-						puts "#{hashreq['uri']} already visited at #{@ViewedQueue[hashsig(hashreq)]}"
+						puts "#{hashreq['uri']} already visited. "
 					end
 				end
 
@@ -363,10 +363,10 @@ class HttpCrawler
 		hashreq['uri'] = canonicalize(hashreq['uri'])
 
 		if hashreq['rhost'] == self.ctarget and hashreq['rport'] == self.cport
-			if !@ViewedQueue.include?(hashsig(hashreq))
+			if !@ViewedQueue.include?(hashsig(hashreq)) 
 				if @NotViewedQueue.read_all(hashreq).size > 0
 					if $verbose
-						puts "Already in queue to be viewed"
+						puts "Already in queue to be viewed: #{hashreq['uri']}"
 					end
 				else
 					if $verbose
@@ -393,6 +393,7 @@ class HttpCrawler
 			# basepath: base path/uri to determine absolute path when relative
 			# data: body data, nil if GET and query = uri.query
 
+			
 			uri = URI.parse(url)
 			uritargetssl = (uri.scheme == "https") ? true : false
 
@@ -575,7 +576,7 @@ if $crun
 	end
 
 	if $enableul
-		puts "URI LIMITS ENABLED: #{$maxurilimit}"
+		puts "URI LIMITS ENABLED: #{$maxurilimit} (Maximum number of requests per uri)"
 	end
 
 	puts "Target: #{mc.ctarget} Port: #{mc.cport} Path: #{mc.cinipath} SSL: #{mc.cssl}"
