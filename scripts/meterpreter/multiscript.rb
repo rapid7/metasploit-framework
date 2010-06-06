@@ -9,7 +9,7 @@ session = client
 @@exec_opts = Rex::Parser::Arguments.new(
         "-h" => [ false,"Help menu."                        ],
         "-c" => [ true,"Collection of scripts to execute. Each script command must be enclosed in double quotes and separated by a semicolon."],
-        "-s" => [ true,"Text file with list of commands, one per line."]
+        "-rc" => [ true,"Text file with list of commands, one per line."]
 )
 #Setting Argument variables
 commands = ""
@@ -45,7 +45,7 @@ end
 
 	when "-c"
 		commands = val.gsub(/;/,"\n")
-	when "-s"
+	when "-rc"
 		script = val
 		if not ::File.exists?(script)
 			raise "Script List File does not exists!"
