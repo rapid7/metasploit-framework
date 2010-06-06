@@ -46,7 +46,6 @@ def packetrecord(session, packtime, logfile,intid)
 		rec = 1
 		print_status("Packets being saved in to #{logfile}")
 		#Inserting Packets every number of seconds specified
-		print("[*] Recording .")
 		while rec == 1
 			path_cap = logfile
 			path_raw = logfile + '.raw'
