@@ -24,6 +24,17 @@ TLV_META_TYPE_COMPRESSED    = (1 << 29)
 TLV_META_TYPE_GROUP         = (1 << 30)
 TLV_META_TYPE_COMPLEX       = (1 << 31)
 
+# Exclude compressed from the mask since other meta types (e.g. RAW) can also
+# be compressed
+TLV_META_MASK = (
+	TLV_META_TYPE_STRING |
+	TLV_META_TYPE_UINT |
+	TLV_META_TYPE_RAW |
+	TLV_META_TYPE_BOOL |
+	TLV_META_TYPE_GROUP |
+	TLV_META_TYPE_COMPLEX
+)
+
 #
 # TLV base starting points
 #
@@ -112,6 +123,63 @@ class Tlv
 				@value = value
 			end
 		end
+	end
+
+	def inspect
+		utype = type ^ TLV_META_TYPE_COMPRESSED
+		meta = case (utype & TLV_META_MASK)
+			when TLV_META_TYPE_STRING; "STRING"
+			when TLV_META_TYPE_UINT; "INT"
+			when TLV_META_TYPE_RAW; "RAW"
+			when TLV_META_TYPE_BOOL; "BOOL"
+			when TLV_META_TYPE_GROUP; "GROUP"
+			when TLV_META_TYPE_COMPLEX; "COMPLEX"
+			else; 'unknown-meta-type'
+			end
+		stype = case type
+			when TLV_TYPE_REQUEST_ID; "REQUEST-ID"
+			when TLV_TYPE_METHOD; "METHOD"
+			when TLV_TYPE_RESULT; "RESULT"
+			when TLV_TYPE_EXCEPTION; "EXCEPTION"
+			when TLV_TYPE_STRING; "STRING"
+			when TLV_TYPE_UINT; "UINT"
+			when TLV_TYPE_BOOL; "BOOL"
+
+			when TLV_TYPE_LENGTH; "LENGTH"
+			when TLV_TYPE_DATA; "DATA"
+			when TLV_TYPE_FLAGS; "FLAGS"
+
+			when TLV_TYPE_CHANNEL_ID; "CHANNEL-ID"
+			when TLV_TYPE_CHANNEL_TYPE; "CHANNEL-TYPE"
+			when TLV_TYPE_CHANNEL_DATA; "CHANNEL-DATA"
+			when TLV_TYPE_CHANNEL_DATA_GROUP; "CHANNEL-DATA-GROUP"
+			when TLV_TYPE_CHANNEL_CLASS; "CHANNEL-CLASS"
+			when TLV_TYPE_CHANNEL_PARENTID; "CHANNEL-PARENTID"
+
+			when TLV_TYPE_SEEK_WHENCE; "SEEK-WHENCE"
+			when TLV_TYPE_SEEK_OFFSET; "SEEK-OFFSET"
+			when TLV_TYPE_SEEK_POS; "SEEK-POS"
+
+			when TLV_TYPE_EXCEPTION_CODE; "EXCEPTION-CODE"
+			when TLV_TYPE_EXCEPTION_STRING; "EXCEPTION-STRING"
+
+			when TLV_TYPE_LIBRARY_PATH; "LIBRARY-PATH"
+			when TLV_TYPE_TARGET_PATH; "TARGET-PATH"
+			when TLV_TYPE_MIGRATE_PID; "MIGRATE-PID"
+			when TLV_TYPE_MIGRATE_LEN; "MIGRATE-LEN"
+			when TLV_TYPE_MIGRATE_PAYLOAD; "MIGRATE-PAYLOAD"
+			when TLV_TYPE_MIGRATE_ARCH; "MIGRATE-ARCH"
+
+			# Extension classes don't exist yet, so can't use their constants
+			# here.
+			#when Extensions::Stdapi::TLV_TYPE_IP;           'ip-address'
+			else; "unknown-#{type}"
+			end
+		val = value.inspect
+		if val.length > 50
+			val = val[0,50] + ' ..."'
+		end
+		"#<#{self.class} type=#{stype} meta-type=#{meta} #{self.class.to_s =~ /Packet/ ? "tlvs=#{@tlvs.inspect}" : "value=#{val}"} >"
 	end
 
 	##
