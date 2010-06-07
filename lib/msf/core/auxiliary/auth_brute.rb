@@ -60,6 +60,7 @@ def each_user_pass(&block)
 	credentials.concat(combine_users_and_passwords(users,passwords))
 	credentials = just_uniq_passwords(credentials) if @strip_usernames
 	fq_rest = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], "all remaining users"]
+
 	vprint_status "#{datastore['RHOST']}:#{datastore['RPORT']} - Attempting #{credentials.size} username and password combinations"
 
 	credentials.each do |u,p|
@@ -77,6 +78,8 @@ def each_user_pass(&block)
 			if datastore['STOP_ON_SUCCESS']
 				@@credentials_skipped[fq_rest] = true
 			end
+		when :connection_error
+			vprint_error "#{datastore['RHOST']}:#{datastore['RPORT']} - Connection error, skipping '#{u}':'#{p}'"
 		end
 	@@credentials_tried[fq_user] = p
 	end
