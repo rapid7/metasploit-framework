@@ -92,6 +92,7 @@ class Packet
 				end
 			end
 		rescue
+			# This rescue might be a problem because it will swallow TimeoutError
 			self.error = $!
 			return ParseCode::Error
 		end
@@ -331,8 +332,17 @@ protected
 			# Remove any leading newlines or spaces
 			self.bufq.lstrip!
 
+			# If we didn't get a newline, then this might not be the full
+			# length, go back and get more.
+			# e.g. 
+			#  first packet: "200"
+			#  second packet: "0\r\n\r\n<html>..."
+			if not bufq.index("\n")
+				return
+			end
+
 			# Extract the actual hexadecimal length value
-			clen = self.bufq.slice!(/^[a-zA-Z0-9]*\r?\n/)
+			clen = self.bufq.slice!(/^[a-fA-F0-9]+\r?\n/)
 
 			clen.rstrip! if (clen)
 
