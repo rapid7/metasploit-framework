@@ -160,17 +160,24 @@ class Metasploit3 < Msf::Auxiliary
 			any_user = false
 			any_pass = false
 
+			vprint_status("#{target_url} - Trying random username with password:'#{pass}'")
 			any_user  = do_http_login(Rex::Text.rand_text_alpha(8), pass, @scheme)
+
+			vprint_status("#{target_url} - Trying username:'#{user}' with random password")
 			any_pass  = do_http_login(user, Rex::Text.rand_text_alpha(8), @scheme)
 
 			if any_user == :success
 				user = "anyuser"
 				print_status("#{target_url} - Any username with password '#{pass}' is allowed")
+			else
+				print_status("#{target_url} - Random usernames are not allowed.")
 			end
 
 			if any_pass == :success
 				pass = "anypass"
 				print_status("#{target_url} - Any password with username '#{user}' is allowed")
+			else
+				print_status("#{target_url} - Random passwords are not allowed.")
 			end
 
 			report_auth_info(
@@ -184,7 +191,7 @@ class Metasploit3 < Msf::Auxiliary
 				:critical => true
 			)
 
-			return :abort if (any_user or any_pass)
+			return :abort if ([any_user,any_pass].include? :success)
 			return :next_user
 		else
 			vprint_error("#{target_url} - Failed to login as '#{user}'")
