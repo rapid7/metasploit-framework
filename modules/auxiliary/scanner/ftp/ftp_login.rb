@@ -41,6 +41,12 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(21)
 			], self.class)
 
+		register_advanced_options(
+			[
+				OptBool.new('SINGLE_SESSION', [ false, 'Disconnect after every login attempt', false])
+			]
+		)
+
 		deregister_options('FTPUSER','FTPPASS') # Can use these, but should use 'username' and 'password'
 	end
 
@@ -50,12 +56,21 @@ class Metasploit3 < Msf::Auxiliary
 			each_user_pass { |user, pass|
 				next if user.nil? || user.empty?
 				do_login(user,pass)
+				ftp_quit if datastore['SINGLE_SESSION']
 			}
 			check_anonymous
 		else
 			return
 		end
-		disconnect
+		ftp_quit 
+	end
+
+	def ftp_quit
+		begin
+			send_quit if @ftp_sock
+		rescue ::Rex::ConnectionError, EOFError, ::Errno::ECONNRESET
+		end
+		disconnect if @ftp_sock 
 		@ftp_sock = nil
 	end
 
@@ -79,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_service(:host => rhost, :port => rport, :name => "ftp", :info => banner_sanitized)
 			return true
 		else
-			print_error("#{rhost}:#{rport} - Could not connect to host.")
+			print_error("#{rhost}:#{rport} - Did not get an FTP service banner")
 			return false
 		end
 	end
@@ -101,9 +116,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_good("#{rhost}:#{rport} - Successful FTP login for '#{user}':'#{pass}'")
 					access = test_ftp_access(user)
 					report_ftp_creds(user,pass,access)
-					send_quit
-					disconnect
-					@ftp_sock = nil 
+					ftp_quit
 					return :next_user
 				else
 					vprint_status("#{rhost}:#{rport} - Failed FTP login for '#{user}':'#{pass}'")
@@ -112,8 +125,7 @@ class Metasploit3 < Msf::Auxiliary
 			rescue ::Rex::ConnectionError, EOFError, ::Errno::ECONNRESET => e 
 				this_attempt[[user,pass]] += 1
 				vprint_status "#{rhost}:#{rport} - Caught #{e.class}, reconnecting and retrying"
-				disconnect if @ftp_sock
-				@ftp_sock = nil
+				ftp_quit
 			end
 		end
 		return :connection_error
