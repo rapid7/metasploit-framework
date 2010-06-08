@@ -60,6 +60,7 @@ class Db
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
 				"db_import_ip_list" => "Import a list of line seperated IPs",
 				"db_import_amap_mlog"   => "Import a THC-Amap scan results file (-o -m)",
+				"db_import_amap_log"   => "Import a THC-Amap scan results file (-o )",
 				"db_import_nessus_nbe"  => "Import a Nessus scan result file (NBE)",
 				"db_import_nessus_xml"	=> "Import a Nessus scan result file (NESSUS)",
 				"db_import_nmap_xml"    => "Import a Nmap scan results file (-oX)",
@@ -1117,9 +1118,10 @@ class Db
 				return
 			end
 
-			framework.db.import_amap_mlog_file(:filename => args[0])
+			framework.db.import_amap_log_file(:filename => args[0])
 		end
 
+		alias :cmd_db_import_amap_log :cmd_db_import_amap_mlog
 
 		#
 		# Database management
