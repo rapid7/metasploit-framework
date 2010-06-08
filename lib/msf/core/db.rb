@@ -1155,27 +1155,32 @@ class DBManager
 	# imported.  Since this looks for vendor-specific strings in the given
 	# file, there shouldn't be any false detections, but no guarantees.
 	#
-	def import_file(args={})
+	def import_file(args={}, &block)
 		filename = args[:filename] || args['filename']
 		wspace = args[:wspace] || args['wspace'] || workspace
 		@import_filedata            = {}
 		@import_filedata[:filename] = filename
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
-		import(args.merge(:data => data))
+		if block
+			import(args.merge(:data => data)) { |type,data| yield type,data }
+		else
+			import(args.merge(:data => data)) 
+		end
 	end
 
 	# A dispatcher method that figures out the data's file type,
 	# and sends it off to the appropriate importer. Note that
 	# import_file_detect will raise an error if the filetype
 	# is unknown.
-	def import(args={})
+	def import(args={}, &block)
 		data = args[:data] || args['data']
 		wspace = args[:wspace] || args['wspace'] || workspace
 		di = data.index("\n")
 		raise DBImportError.new("Could not automatically determine file type") if not di
 		ftype = import_filetype_detect(data)
-		self.send "import_#{ftype}".to_sym, args
+		yield(:filetype, @import_filedata[:type]) if block
+		self.send "import_#{ftype}".to_sym, args, &block
 	end
 
 
@@ -1267,7 +1272,7 @@ class DBManager
 	# For each host, step through services, notes, and vulns, and import
 	# them.
 	# TODO: loot, tasks, and reports
-	def import_msfe_xml(args={})
+	def import_msfe_xml(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -1291,7 +1296,7 @@ class DBManager
 			if bl.include? host_data[:host]
 				next
 			else
-				#
+				yield(:address,host_data[:host]) if block
 			end
 			host_data[:host_mac] = host.elements["mac"].text.to_s.strip
 			if host.elements["comm"].text
@@ -1354,7 +1359,7 @@ class DBManager
 		end
 	end
 
-	def import_nexpose_simplexml(args={})
+	def import_nexpose_simplexml(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -1365,7 +1370,7 @@ class DBManager
 			if bl.include? addr
 				next
 			else
-				#
+				yield(:address,addr) if block
 			end
 
 			fprint = {}
@@ -1468,7 +1473,7 @@ class DBManager
 		import_nexpose_rawxml(args.merge(:data => data))
 	end
 
-	def import_nexpose_rawxml(args={})
+	def import_nexpose_rawxml(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -1504,6 +1509,7 @@ class DBManager
 			if bl.include? host["addr"]
 				next
 			else
+				yield(:address,host["addr"]) if block
 				#
 			end
 			nexpose_host(host, vuln_refs, wspace)
@@ -1637,7 +1643,7 @@ class DBManager
 		import_nmap_xml(args.merge(:data => data))
 	end
 
-	def import_nmap_xml(args={})
+	def import_nmap_xml(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -1658,11 +1664,7 @@ class DBManager
 				# Can't report it if it doesn't have an IP
 				raise RuntimeError, "At least one IPv4 or IPv6 address is required"
 			end
-			if bl.include? addr
-				next
-			else
-				# 
-			end
+			next if bl.include? addr
 			data[:host] = addr
 			if (h["addrs"].has_key?("mac"))
 				data[:mac] = h["addrs"]["mac"]
@@ -1676,6 +1678,7 @@ class DBManager
 			# Only report alive hosts with ports to speak of.
 			if(data[:state] != Msf::HostState::Dead)
 				if h["ports"].size > 0
+					yield(:address,data[:host]) if block
 					report_host(data) 
 					report_import_note(wspace,addr)
 				end
@@ -1760,7 +1763,7 @@ class DBManager
 		import_nessus_nbe(args.merge(:data => data))
 	end
 
-	def import_nessus_nbe(args={})
+	def import_nessus_nbe(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -1798,7 +1801,7 @@ class DBManager
 			if bl.include? addr
 				next
 			else
-				#
+				yield(:address,addr) if block
 			end
 
 			# Match the NBE types with the XML severity ratings
@@ -1831,7 +1834,7 @@ class DBManager
 	#
 	# Of course they had to change the nessus format.
 	#
-	def import_openvas_xml(args={})
+	def import_openvas_xml(args={}, &block)
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
@@ -1857,7 +1860,7 @@ class DBManager
 		end
 	end
 
-	def import_nessus_xml(args={})
+	def import_nessus_xml(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -1881,7 +1884,7 @@ class DBManager
 			if bl.include? addr
 				next
 			else
-				#
+				yield(:address,addr) if block
 			end
 
 			hinfo = {
@@ -1917,7 +1920,7 @@ class DBManager
 		end
 	end
 
-	def import_nessus_xml_v2(args={})
+	def import_nessus_xml_v2(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -1937,7 +1940,7 @@ class DBManager
 			if bl.include? addr
 				next
 			else
-				#
+				yield(:address,addr) if block
 			end
 
 			os = host.elements["HostProperties/tag[@name='operating-system']"]
@@ -1999,7 +2002,7 @@ class DBManager
 		import_qualys_xml(args.merge(:data => data))
 	end
 
-	def import_qualys_xml(args={})
+	def import_qualys_xml(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -2011,7 +2014,7 @@ class DBManager
 			if bl.include? addr
 				next
 			else
-				#
+				yield(:address,addr) if block
 			end
 			hname = host.attributes['name'] || ''
 
@@ -2087,7 +2090,7 @@ class DBManager
 		import_ip_list(args.merge(:data => data))
 	end
 
-	def import_ip_list(args={})
+	def import_ip_list(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -2096,7 +2099,7 @@ class DBManager
 			if bl.include? line.strip
 				next
 			else
-				#
+				yield(:address,line.strip) if block
 			end
 			host = find_or_create_host(:workspace => wspace, :host=> line, :state => Msf::HostState::Alive)
 		end
@@ -2111,7 +2114,7 @@ class DBManager
 		import_amap_log(args.merge(:data => data))
 	end
 
-	def import_amap_mlog(args={})
+	def import_amap_mlog(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -2125,7 +2128,7 @@ class DBManager
 			if bl.include? addr
 				next
 			else
-				#
+				yield(:address,addr) if block
 			end
 			port   = r[1].to_i
 			proto  = r[2].downcase

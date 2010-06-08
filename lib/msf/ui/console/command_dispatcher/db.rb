@@ -937,7 +937,14 @@ class Db
 						next
 					end
 					begin
-						framework.db.import_file(:filename => filename)
+						framework.db.import_file(:filename => filename) do |type,data|
+							case type
+							when :filetype
+								print_status("Importing '#{data}' data")
+							when :address
+								print_status("Importing host #{data}")
+							end
+						end
 						print_status("Successfully imported #{filename}")
 					rescue DBImportError
 						print_error("Failed to import #{filename}: #{$!}")
