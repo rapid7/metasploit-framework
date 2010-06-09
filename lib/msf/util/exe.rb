@@ -57,7 +57,12 @@ require 'metasm'
 			if(plat.index(Msf::Module::Platform::OSX))
 				return to_osx_arm_macho(framework, code)
 			end
-			# XXX: Add Linux here
+
+			if(plat.index(Msf::Module::Platform::Linux))
+				return to_linux_armle_elf(framework, code)
+			end
+			
+			# XXX: Add remaining ARMLE systems here
 		end
 
 		if(arch.index(ARCH_PPC))
@@ -430,6 +435,23 @@ require 'metasm'
 		# The new template is just an ELF header with its entry point set to
 		# the end of the file, so just append shellcode to it and fixup
 		# p_filesz and p_memsz in the header for a working ELF executable.
+		mo << code
+		mo[0x44,4] = [mo.length + code.length].pack('V')
+		mo[0x48,4] = [mo.length + code.length].pack('V')
+
+		return mo
+	end
+
+	def self.to_linux_armle_elf(framework, code)
+		mo = ''
+		
+		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_armle_linux.bin"), "rb")
+		mo = fd.read(fd.stat.size)
+		fd.close
+		
+		# The template is just an ELF header with its entrypoint set to the 
+		# end of the file, so just append shellcode to it and fixup p_filesz
+		# and p_memsz in the header for a working ELF executable.
 		mo << code
 		mo[0x44,4] = [mo.length + code.length].pack('V')
 		mo[0x48,4] = [mo.length + code.length].pack('V')
