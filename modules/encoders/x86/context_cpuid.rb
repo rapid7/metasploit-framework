@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -32,18 +36,18 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 				})
 
 		register_options(
-                                [
-                                OptString.new('CPUID_KEY', 
-					[ true, 
-					"CPUID key from target host (see tools/context/cpuid-key utility)", 
+			[
+				OptString.new('CPUID_KEY',
+					[ true,
+					"CPUID key from target host (see tools/context/cpuid-key utility)",
 					"0x00000000"]),
-                                ], self.class)   
+			], self.class)
 	end
 
-        def obtain_key(buf, badchars, state)
+	def obtain_key(buf, badchars, state)
 		state.key = datastore['CPUID_KEY'].hex
 		return state.key
-        end
+	end
 
 	#
 	# Generates the shikata decoder stub.
@@ -63,7 +67,7 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 
 			# Cache this decoder stub.  The reason we cache the decoder stub is
 			# because we need to ensure that the same stub is returned every time
-			# for a given encoder state. 
+			# for a given encoder state.
 			state.decoder_stub = block
 		end
 
@@ -73,44 +77,45 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 protected
 	def keygen_stub
 		payload =
-                        "\x31\xf6" + 	 # xor %esi,%esi
-                        "\x31\xff" + 	 # xor %edi,%edi
-                        "\x89\xf8" + 	 # cpuid_loop: mov %edi,%eax
-                        "\x31\xc9" + 	 # xor %ecx,%ecx
-                        "\x0f\xa2" + 	 # cpuid
-                        "\x31\xc6" + 	 # xor %eax,%esi
-                        "\x39\xf0" + 	 # cmp %esi,%eax
-                        "\x75\x03" + 	 # jne not_first_time
-			"\x8d\x78\x01" + # lea 0x1(%eax,1),%edi			
-                        "\x31\xde" +     # not_first_time: xor %ebx,%esi
-                        "\x31\xce" +     # xor %ecx,%esi
-                        "\x31\xd6" +     # xor %edx,%esi
-                        "\x83\xef\x01" + # sub $0x1,%edi
-                        "\x75\xe6" +     # jne cpuid_loop
+			"\x31\xf6" +     # xor %esi,%esi
+			"\x31\xff" +     # xor %edi,%edi
+			"\x89\xf8" +     # cpuid_loop: mov %edi,%eax
+			"\x31\xc9" +     # xor %ecx,%ecx
+			"\x0f\xa2" +     # cpuid
+			"\x31\xc6" +     # xor %eax,%esi
+			"\x39\xf0" +     # cmp %esi,%eax
+			"\x75\x03" +     # jne not_first_time
+			"\x8d\x78\x01" + # lea 0x1(%eax,1),%edi
+			"\x31\xde" +     # not_first_time: xor %ebx,%esi
+			"\x31\xce" +     # xor %ecx,%esi
+			"\x31\xd6" +     # xor %edx,%esi
+			"\x83\xef\x01" + # sub $0x1,%edi
+			"\x75\xe6" +     # jne cpuid_loop
 			"\x89\xf0"       # mov %esi,%eax
 	end
+
 	#
 	# Returns the set of FPU instructions that can be used for the FPU block of
 	# the decoder stub.
 	#
 	def fpu_instructions
 		fpus = []
-	
+
 		0xe8.upto(0xee) { |x| fpus << "\xd9" + x.chr }
 		0xc0.upto(0xcf) { |x| fpus << "\xd9" + x.chr }
 		0xc0.upto(0xdf) { |x| fpus << "\xda" + x.chr }
 		0xc0.upto(0xdf) { |x| fpus << "\xdb" + x.chr }
 		0xc0.upto(0xc7) { |x| fpus << "\xdd" + x.chr }
-	
+
 		fpus << "\xd9\xd0"
 		fpus << "\xd9\xe1"
 		fpus << "\xd9\xf6"
 		fpus << "\xd9\xf7"
 		fpus << "\xd9\xe5"
-	
+
 		# This FPU instruction seems to fail consistently on Linux
 		#fpus << "\xdb\xe1"
-	
+
 		fpus
 	end
 
@@ -130,9 +135,8 @@ protected
 		# FPU blocks
 		fpu = Rex::Poly::LogicalBlock.new('fpu',
 			*fpu_instructions)
-		fnstenv = Rex::Poly::LogicalBlock.new('fnstenv',
-			"\xd9\x74\x24\xf4")
-		
+		fnstenv = Rex::Poly::LogicalBlock.new('fnstenv', "\xd9\x74\x24\xf4")
+
 		# Get EIP off the stack
 		popeip = Rex::Poly::LogicalBlock.new('popeip',
 			Proc.new { |b| (0x58 + b.regnum_of(addr_reg)).chr })
@@ -159,7 +163,7 @@ protected
 		end
 
 		# Key initialization block
-		
+
 		# Decoder loop block
 		loop_block = Rex::Poly::LogicalBlock.new('loop_block')
 
@@ -179,9 +183,9 @@ protected
 			Proc.new { |b| xor1.call(b) + add1.call(b) + add4.call(b) },
 			Proc.new { |b| xor1.call(b) + add4.call(b) + add2.call(b) },
 			Proc.new { |b| add4.call(b) + xor2.call(b) + add2.call(b) })
-		
+
 		# Loop instruction block
-		loop_inst = Rex::Poly::LogicalBlock.new('loop_inst', 
+		loop_inst = Rex::Poly::LogicalBlock.new('loop_inst',
 			"\xe2\xf5")
 
 		# Define block dependencies
@@ -193,7 +197,7 @@ protected
 
 		# Generate a permutation saving the EAX, ECX and ESP registers
 		loop_inst.generate([
-			Rex::Arch::X86::EAX,	
+			Rex::Arch::X86::EAX,
 			Rex::Arch::X86::ESP,
 			Rex::Arch::X86::ECX ], nil, state.badchars)
 	end

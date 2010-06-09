@@ -1,6 +1,9 @@
 #
-# Web assessment for the metasploit framework 
+# Web assessment for the metasploit framework
 # Efrain Torres    - et[ ] metasploit.com  2010
+#
+# $Id$
+# $Revision$
 #
 
 require 'rabal/tree'
@@ -12,7 +15,7 @@ require 'active_record'
 module Msf
 
 #
-# Constants		
+# Constants
 #
 
 WMAPVersion = "0.9"
@@ -25,7 +28,7 @@ WMAP_EXITIFSESS = true
 WMAP_SHOW = 2**0
 WMAP_EXPL = 2**1
 
-PROXY_CMDLINE = "../ratproxy/ratproxy" 
+PROXY_CMDLINE = "../ratproxy/ratproxy"
 PROXY_DEFAULTOPTS = " -a -v " + File.join( ENV.fetch('HOME'), '.msf3') + " -b sqlite3.db"
 
 CRAWLER_CMDLINE = "ruby " + File.join(Msf::Config.install_root,"tools", "msfcrawler.rb")
@@ -71,28 +74,28 @@ class Plugin::Wmap < Msf::Plugin
 
 		def cmd_wmap_attack(*args)
 			aurl = args.shift
-			
+
 			puri = URI.parse(val)
 			tssl = (puri.scheme == "https") ? true : false
-			
-			if (puri.host.nil? or puri.host.empty?) 
+
+			if (puri.host.nil? or puri.host.empty?)
 				print_error( "Error: target http(s)://target/path")
 			else
-			
+
 				crawldefaultopts = ""
 				rundefaultopts = ""
 
 				crawlopts = crawldefaultopts + " -t " + aurl + " " + args.join(" ")
 				runopts = rundefaultopts + " -t " + aurl + " " + args.join(" ")
-			
+
 				#print_status("Crawling")
 				#cmd_wmap_crawl(crawlopts)
-			
+
 				print_status("Reloading targets")
 				cmd_wmap_targets("-r")
-			
+
 				print_status("Selecting target")
-			
+
 				tid = -1
 				framework.db.each_target do |tgt|
 					if tgt.host == puri.host and tgt.port.to_i == puri.port.to_i
@@ -100,7 +103,7 @@ class Plugin::Wmap < Msf::Plugin
 						print_status("Target ID: #{tid}")
 					end
 				end
-			
+
 				seltgt = framework.db.get_target(tid)
 				if seltgt == nil
 					print_error("Target id not found.")
@@ -410,24 +413,24 @@ class Plugin::Wmap < Msf::Plugin
 								# First run the WMAP_SERVER plugins
 								#
 								case e.wmap_type
-								when :WMAP_SERVER 
+								when :WMAP_SERVER
 									if RUN_WMAP_SERVER
 									   matches1[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
 									end
 								when :WMAP_QUERY
 									if RUN_WMAP_QUERY
 										matches2[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
-									end 
+									end
 								when :WMAP_BODY
-									if RUN_WMAP_BODY 
+									if RUN_WMAP_BODY
 										matches3[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
 									end
 								when :WMAP_HEADERS
-									if RUN_WMAP_HEADERS 
+									if RUN_WMAP_HEADERS
 										matches4[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
 									end
 								when :WMAP_UNIQUE_QUERY
-									if RUN_WMAP_UNIQUE_QUERY 
+									if RUN_WMAP_UNIQUE_QUERY
 										matches5[[selected_host,selected_port,selected_ssl,mtype[1]+'/'+n]]=true
 									end
 								when :WMAP_GENERIC
@@ -1299,7 +1302,7 @@ class Plugin::Wmap < Msf::Plugin
 		#
 
 		def cmd_wmap_crawl(*args)
-						
+
 			cmdline = CRAWLER_CMDLINE
 			crawlopts = CRAWLER_DEFAULTOPTS + " " + args.join(" ")
 

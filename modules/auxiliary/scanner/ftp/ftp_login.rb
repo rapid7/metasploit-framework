@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			return
 		end
-		ftp_quit 
+		ftp_quit
 	end
 
 	def ftp_quit
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 			send_quit if @ftp_sock
 		rescue ::Rex::ConnectionError, EOFError, ::Errno::ECONNRESET
 		end
-		disconnect if @ftp_sock 
+		disconnect if @ftp_sock
 		@ftp_sock = nil
 	end
 
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 	def do_login(user=nil,pass=nil)
 		vprint_status("#{rhost}:#{rport} - Attempting FTP login for '#{user}':'#{pass}'")
 		this_attempt ||= {}
-		this_attempt[[user,pass]] ||= 0 
+		this_attempt[[user,pass]] ||= 0
 		while this_attempt[[user,pass]] <= 3
 			@ftp_sock = connect(true,false) unless @ftp_sock
 			begin
@@ -122,7 +122,7 @@ class Metasploit3 < Msf::Auxiliary
 					vprint_status("#{rhost}:#{rport} - Failed FTP login for '#{user}':'#{pass}'")
 					return :fail
 				end
-			rescue ::Rex::ConnectionError, EOFError, ::Errno::ECONNRESET => e 
+			rescue ::Rex::ConnectionError, EOFError, ::Errno::ECONNRESET => e
 				this_attempt[[user,pass]] += 1
 				vprint_status "#{rhost}:#{rport} - Caught #{e.class}, reconnecting and retrying"
 				disconnect

