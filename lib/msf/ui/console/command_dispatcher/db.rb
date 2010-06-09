@@ -43,6 +43,7 @@ class Db
 				# Deprecated
 				"db_create"     => "Create a brand new database",
 				"db_destroy"    => "Drop an existing database",
+				"db_sync"       => "Synchronize the database",
 			}
 
 			more = {
@@ -224,6 +225,11 @@ class Db
 			end
 		end
 
+		def cmd_db_sync(*args)
+			return unless active?
+			print_status("Synchronizing the database...")
+			framework.db.sync
+		end
 
 		def cmd_db_services(*args)
 			return unless active?
