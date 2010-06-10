@@ -31,7 +31,10 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				['URL', 'http://www.exploit-db.com/exploits/12721/']
 			],
-			'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
+			'Author'         => [
+				'==[ Alligator Security Team ]==',
+				'Tiago Ferreira <tiago.ccna[at]gmail.com>'
+			],
 			'License'        =>  MSF_LICENSE
 		)
 
