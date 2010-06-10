@@ -69,6 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("#{target_url} - Apache Axis - SUCCESSFUL login for '#{user}' : '#{pass}'")
 				report_auth_info(
 					:host   => rhost,
+					:proto  => 'axis',
 					:user   => user,
 					:pass   => pass,
 					:target_host => rhost,
