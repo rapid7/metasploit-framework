@@ -29,7 +29,8 @@ class Metasploit3 < Msf::Auxiliary
 			   recover authentication credentials to Axis services.},
 			'References'		 => 
 			[
-				['URL', 'http://www.exploit-db.com/exploits/12721/']
+				['URL', 'http://www.exploit-db.com/exploits/12721/'],
+				['OSVDB', '59001'],
 			],
 			'Author'         => [
 				'==[ Alligator Security Team ]==',
